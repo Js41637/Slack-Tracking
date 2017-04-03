@@ -7547,7 +7547,7 @@ TS.registerModule("constants", {
   };
   var _ensureFileObject = function(file_or_file_id) {
     var file = _.isString(file_or_file_id) ? TS.files.getFileById(file_or_file_id) : file_or_file_id;
-    if (!_.isObject(file)) throw "Expected file or file ID.";
+    if (!_.isObject(file)) throw new Error("Expected file or file ID.");
     return file;
   };
 })();
@@ -13038,7 +13038,9 @@ TS.registerModule("constants", {
   var _startSpinner = function(filter_container_id) {
     var $icon = $(filter_container_id).find(".ts_icon_search");
     if ($icon.next().is(filter_container_id + "_spinner")) return;
-    var spinner = '<svg id="' + filter_container_id.substring(1) + '_spinner" class="ts_icon ts_icon_spin ts_icon_spinner"><use xlink:href="/img/starburst.svg#starburst_svg"/></svg>';
+    var spinner = TS.templates.loading_indicator({
+      id: filter_container_id.substring(1) + "_spinner"
+    });
     $icon.after(spinner);
     $icon.addClass("hidden");
   };
@@ -22414,10 +22416,9 @@ TS.registerModule("constants", {
     filePreviewBackIcon: function() {
       return '<i class="ts_icon ts_icon_chevron_medium_left back_icon"></i>';
     },
-    buildQuickSwitcherBtnHtml: function() {
-      var sidebar_group = TS.experiment.getGroup("feat_link_in_sidebar");
+    buildQuickSwitcherBtnHtml: function(is_in_invites_sidebar_exp) {
       var html;
-      if (sidebar_group === "new_button_old_modal") {
+      if (is_in_invites_sidebar_exp) {
         html = ['<i class="ts_icon ts_icon_filter"><span class="ts_tip_tip">Quick Switcher <span class="subtle_silver">', TS.model.is_mac ? "&#8984K" : "Ctrl+K", "</span></span></i>"].join("");
       } else {
         var label = TS.i18n.t("Quick Switcher", "templates_builders")();
@@ -25167,7 +25168,7 @@ TS.registerModule("constants", {
         return cdn_url + "/66f9/img/services/gdrive_16.png";
       });
       Handlebars.registerHelper("versioned_services_onedrive_32", function() {
-        return cdn_url + "/2fac/plugins/onedrive/assets/service_32.png";
+        return cdn_url + "/82d88/plugins/onedrive/assets/service_32.png";
       });
       Handlebars.registerHelper("versioned_slackbot_48", function() {
         return cdn_url + "/2fac/plugins/slackbot/assets/service_48.png";
@@ -30258,6 +30259,15 @@ TS.registerModule("constants", {
       rafQueue: function() {
         return _rafQueue;
       }
+    },
+    openAuthenticatedInBrowser: function(url_path) {
+      var is_ssb = TS.model.desktop_app_version !== null;
+      if (is_ssb && parseFloat(TS.model.desktop_app_version.major + "." + TS.model.desktop_app_version.minor) >= 2.6) {
+        var url = TS.boot_data.team_url + "web/open" + url_path;
+        TSSSB.call("openAuthenticatedInBrowser", url);
+      } else {
+        window.open(url_path);
+      }
     }
   });
   var _parser;
@@ -34846,6 +34856,12 @@ var _on_esc;
       var starting_im = false;
       var input = $("#menu_member_dm_input");
       if (TS.boot_data.feature_texty_takes_over) {
+        var member_name;
+        if (TS.boot_data.feature_name_tagging_client) {
+          member_name = TS.members.getMemberFullName(member);
+        } else {
+          member_name = TS.members.getMemberDisplayName(member);
+        }
         TS.utility.contenteditable.create(input, {
           modules: {
             tabcomplete: {
@@ -34873,7 +34889,7 @@ var _on_esc;
             TS.menu.end();
           },
           placeholder: TS.i18n.t("Message {name}", "menu")({
-            name: TS.boot_data.feature_name_tagging_client ? TS.members.getMemberFullName(member) : TS.members.getMemberDisplayName(member)
+            name: TS.utility.htmlEntities(member_name)
           })
         });
         TS.utility.contenteditable.enable(input);
@@ -44579,7 +44595,7 @@ $.fn.togglify = function(settings) {
       } else if (item.type == "file_comment") {
         id = item.file_comment || item.comment.id;
       } else {
-        throw "item.type not handled";
+        throw new Error("item.type not handled");
       }
       return TS.rxns.getRxnKey(item.type, id, item.channel);
     },
@@ -45060,7 +45076,7 @@ $.fn.togglify = function(settings) {
     } else if (key_parts.type == "file_comment") {
       args.file_comment = key_parts.id;
     } else {
-      throw "type not handled";
+      throw new Error("type not handled");
     }
     return args;
   };
@@ -49440,6 +49456,10 @@ $.fn.togglify = function(settings) {
     }
     TS.click.addClientHandler("[data-js=expert_search_face_pile]", function(e) {
       if (TS.sli_expert_search) TS.sli_expert_search.handleShowResults(e);
+    });
+    TS.click.addClientHandler(".authenticate_in_browser", function(e, $el) {
+      var $url_path = $el.data("url_path");
+      TS.utility.openAuthenticatedInBrowser($url_path);
     });
   };
   var _setupBinding = function() {
@@ -61695,7 +61715,8 @@ $.fn.togglify = function(settings) {
         $n = ["Array", "Buffer", "DataView", "Date", "Error", "Float32Array", "Float64Array", "Function", "Int8Array", "Int16Array", "Int32Array", "Map", "Math", "Object", "Promise", "RegExp", "Set", "String", "Symbol", "TypeError", "Uint8Array", "Uint8ClampedArray", "Uint16Array", "Uint32Array", "WeakMap", "_", "clearTimeout", "isFinite", "parseInt", "setTimeout"],
         Qn = -1,
         Xn = {};
-      Xn[pt] = Xn[dt] = Xn[ht] = Xn[vt] = Xn[mt] = Xn[gt] = Xn[_t] = Xn[yt] = Xn[bt] = !0, Xn[He] = Xn[Be] = Xn[ct] = Xn[Ve] = Xn[ft] = Xn[qe] = Xn[Ye] = Xn[$e] = Xn[Xe] = Xn[Ze] = Xn[et] = Xn[rt] = Xn[ot] = Xn[it] = Xn[st] = !1;
+      Xn[pt] = Xn[dt] = Xn[ht] = Xn[vt] = Xn[mt] = Xn[gt] = Xn[_t] = Xn[yt] = Xn[bt] = !0,
+        Xn[He] = Xn[Be] = Xn[ct] = Xn[Ve] = Xn[ft] = Xn[qe] = Xn[Ye] = Xn[$e] = Xn[Xe] = Xn[Ze] = Xn[et] = Xn[rt] = Xn[ot] = Xn[it] = Xn[st] = !1;
       var Zn = {};
       Zn[He] = Zn[Be] = Zn[ct] = Zn[ft] = Zn[Ve] = Zn[qe] = Zn[pt] = Zn[dt] = Zn[ht] = Zn[vt] = Zn[mt] = Zn[Xe] = Zn[Ze] = Zn[et] = Zn[rt] = Zn[ot] = Zn[it] = Zn[at] = Zn[gt] = Zn[_t] = Zn[yt] = Zn[bt] = !0, Zn[Ye] = Zn[$e] = Zn[st] = !1;
       var Jn = {
@@ -72038,7 +72059,8 @@ $.fn.togglify = function(settings) {
       }]), S(t, [{
         key: "componentWillMount",
         value: function() {
-          this.props.searchQuery && this.onSearch(this.props.searchQuery), w.a("react_emoji_menu_mount_mark");
+          this.props.searchQuery && this.onSearch(this.props.searchQuery),
+            w.a("react_emoji_menu_mount_mark");
         }
       }, {
         key: "componentDidMount",
@@ -78416,7 +78438,8 @@ $.fn.togglify = function(settings) {
   n(151), n(152), n(153), n(154), n(155), n(149), n(95), n(150);
 }, function(e, t, n) {
   "use strict";
-  n(156), n(157);
+  n(156),
+    n(157);
 }, function(e, t, n) {
   "use strict";
 

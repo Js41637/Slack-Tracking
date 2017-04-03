@@ -2,7 +2,7 @@
 
 <li class="no_hover" aria-label="{{#t enterprise_name=(currentEnterpriseName)}}Searching {enterprise_name}{{/t}}">
   <span class="item_details float_left overflow_ellipsis">
-    <svg class="ts_icon ts_icon_spin ts_icon_spinner"><use xlink:href="/img/starburst.svg#starburst_svg"/></svg>
+    {{> loading_indicator}}
     <span class="searching">{{#t enterprise_name=(currentEnterpriseName)}}Searching {enterprise_name}{{/t}}</span>
   </span>
 </li>

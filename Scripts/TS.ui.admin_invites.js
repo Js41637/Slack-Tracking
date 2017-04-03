@@ -69,15 +69,18 @@
     },
     getInvitesExperimentGroups: function() {
       if (_invite_experiment_groups) return Promise.resolve();
-      _invite_experiment_groups = {};
       return TS.experiment.loadUserAssignments().then(function() {
-        var link_in_sidebar_group = TS.experiment.getGroup("feat_link_in_sidebar");
-        if (link_in_sidebar_group) _invite_experiment_groups["feat_link_in_sidebar"] = link_in_sidebar_group;
+        _invite_experiment_groups = {};
+        var invite_btn_redesign_old_teams_group = TS.experiment.getGroup("invite_btn_redesign_old_teams");
+        var invite_btn_redesign_new_teams_group = TS.experiment.getGroup("invite_btn_redesign_new_teams");
+        if (invite_btn_redesign_old_teams_group) _invite_experiment_groups["invite_btn_redesign_old_teams"] = invite_btn_redesign_old_teams_group;
+        if (invite_btn_redesign_new_teams_group) _invite_experiment_groups["invite_btn_redesign_new_teams"] = invite_btn_redesign_new_teams_group;
+        return Promise.resolve();
       });
     },
     isInSidebarExperiment: function() {
       if (!_invite_experiment_groups) return TS.error("haven't loaded invite experiment groups yet");
-      return !!_invite_experiment_groups["feat_link_in_sidebar"];
+      return _invite_experiment_groups["invite_btn_redesign_old_teams"] == "new_invite_btn" || _invite_experiment_groups["invite_btn_redesign_new_teams"] == "new_invite_btn";
     },
     test: function() {
       var test_ob = {

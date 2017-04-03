@@ -17,6 +17,6 @@
   {{/each}}
   <input type="text" id="channel_invite_filter" {{#unless members}}placeholder="{{#if async_data}}{{#t}}Search by name{{/t}}{{else}}{{#t}}Search{{/t}}{{/if}}"{{/unless}}>
   {{#if async_data}}
-    <svg id="channel_invite_spinner" class="ts_icon ts_icon_spin ts_icon_spinner hidden"><use xlink:href="/img/starburst.svg#starburst_svg"/></svg>
+    {{> loading_indicator id="channel_invite_spinner" class="hidden"}}
   {{/if}}
 </div>

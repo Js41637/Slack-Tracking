@@ -7276,7 +7276,7 @@
               }
               _throttledFilePreviewInline();
             } else {
-              throw "No unfurl data";
+              throw new Error("No unfurl data");
             }
           }).catch(function(err) {
             $("#" + id).addClass("hidden");
@@ -10772,7 +10772,7 @@
     },
     updateFooterButtons: function() {
       TS.ui.admin_invites.getInvitesExperimentGroups().then(function() {
-        if (TS.ui.admin_invites.isInSidebarExperiment) {
+        if (TS.ui.admin_invites.isInSidebarExperiment()) {
           var $visible_footer_buttons = $(".col_channels_footer_feat_link_in_sidebar").find("button").not(".hidden");
           var is_single_footer_btn = $visible_footer_buttons.length == 1;
           $visible_footer_buttons.toggleClass("single_footer_btn", is_single_footer_btn);
@@ -11304,11 +11304,11 @@
     return _getSortedStarredList().concat(_getSortedChannelList(), _getSortedDmList());
   };
   var _updateChannelPaneFooterVisibility = function() {
-    TS.ui.admin_invites.getInvitesExperimentGroups().then(function() {
+    return TS.ui.admin_invites.getInvitesExperimentGroups().then(function() {
       var is_footer_hidden = TS.model.prefs.no_omnibox_in_channels;
       if (TS.boot_data.feature_prev_next_button) {
         is_footer_hidden = is_footer_hidden && TS.model.prefs.prev_next_btn;
-      } else if (TS.ui.admin_invites.isInSidebarExperiment) {
+      } else if (TS.ui.admin_invites.isInSidebarExperiment()) {
         is_footer_hidden = is_footer_hidden && !TS.ui.admin_invites.canInvite();
       }
       var $channel_scroll_down = $("#channel_scroll_down");
@@ -11317,19 +11317,23 @@
       TS.utility.queueRAF(function() {
         TS.view.resizeManually("TS.client.channel_pane _updateChannelPaneFooterVisibility");
       });
+      return null;
     });
   };
   var _rebuildQuickSwitcherBtn = function() {
-    $("#quick_switcher_btn").off().html(TS.templates.builders.buildQuickSwitcherBtnHtml()).on("click", function() {
-      if (TS.newxp.inOnboarding()) return false;
-      TS.ui.jumper.start();
-      TS.clog.track("QUICKSWITCHER_ACTION", {
-        click_target: "quick_switcher_btn",
-        trigger: "quick_switcher_btn",
-        action: "opened"
+    return TS.ui.admin_invites.getInvitesExperimentGroups().then(function() {
+      var in_invites_sidebar_exp = TS.ui.admin_invites.isInSidebarExperiment();
+      $("#quick_switcher_btn").off().html(TS.templates.builders.buildQuickSwitcherBtnHtml(in_invites_sidebar_exp)).on("click", function() {
+        if (TS.newxp.inOnboarding()) return false;
+        TS.ui.jumper.start();
+        TS.clog.track("QUICKSWITCHER_ACTION", {
+          click_target: "quick_switcher_btn",
+          trigger: "quick_switcher_btn",
+          action: "opened"
+        });
       });
+      TS.client.channel_pane.updateQuickSwitcherBtnVisibility();
     });
-    TS.client.channel_pane.updateQuickSwitcherBtnVisibility();
   };
 })();
 (function() {
@@ -18681,7 +18685,9 @@
         if (!$("#search_spinner").length) {
           _$form.find(".icon_search").addClass("hidden");
           var $search_icon = $("#header_search_form .icon_search");
-          var inline_search_spinner = '<svg id="search_spinner" class="ts_icon ts_icon_spin ts_icon_spinner"><use xlink:href="/img/starburst.svg#starburst_svg"/></svg>';
+          var inline_search_spinner = TS.templates.loading_indicator({
+            id: "search_spinner"
+          });
           $search_icon.after(inline_search_spinner);
         }
       }, 200);
@@ -23741,15 +23747,18 @@
     },
     getInvitesExperimentGroups: function() {
       if (_invite_experiment_groups) return Promise.resolve();
-      _invite_experiment_groups = {};
       return TS.experiment.loadUserAssignments().then(function() {
-        var link_in_sidebar_group = TS.experiment.getGroup("feat_link_in_sidebar");
-        if (link_in_sidebar_group) _invite_experiment_groups["feat_link_in_sidebar"] = link_in_sidebar_group;
+        _invite_experiment_groups = {};
+        var invite_btn_redesign_old_teams_group = TS.experiment.getGroup("invite_btn_redesign_old_teams");
+        var invite_btn_redesign_new_teams_group = TS.experiment.getGroup("invite_btn_redesign_new_teams");
+        if (invite_btn_redesign_old_teams_group) _invite_experiment_groups["invite_btn_redesign_old_teams"] = invite_btn_redesign_old_teams_group;
+        if (invite_btn_redesign_new_teams_group) _invite_experiment_groups["invite_btn_redesign_new_teams"] = invite_btn_redesign_new_teams_group;
+        return Promise.resolve();
       });
     },
     isInSidebarExperiment: function() {
       if (!_invite_experiment_groups) return TS.error("haven't loaded invite experiment groups yet");
-      return !!_invite_experiment_groups["feat_link_in_sidebar"];
+      return _invite_experiment_groups["invite_btn_redesign_old_teams"] == "new_invite_btn" || _invite_experiment_groups["invite_btn_redesign_new_teams"] == "new_invite_btn";
     },
     test: function() {
       var test_ob = {

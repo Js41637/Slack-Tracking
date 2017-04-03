@@ -104,7 +104,7 @@
         var limit = dir_json == 1 ? "2000" : dir_json;
         try {
           var st = JSON.stringify(ob, null, "  ");
-          if (st.length > limit) throw "too long";
+          if (st.length > limit) throw new Error("too long");
           console.info(TS.makeLogDate() + "[** " + pri + " **] " + txt + " " + st);
           return;
         } catch (err) {

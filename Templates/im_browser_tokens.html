@@ -14,5 +14,5 @@
     </div>
   {{/each}}
   <input type="text" id="im_browser_filter" {{#unless members}}placeholder="{{#pageNeedsEnterprise}}{{#t}}Search by name{{/t}}{{else}}{{#t}}Find or start a conversation{{/t}}{{/pageNeedsEnterprise}}"{{/unless}}>
-  <svg id="im_browser_spinner" class="ts_icon ts_icon_spin ts_icon_spinner hidden"><use xlink:href="/img/starburst.svg#starburst_svg"/></svg>
+  {{> loading_indicator id="im_browser_spinner" class="hidden"}}
 </div>

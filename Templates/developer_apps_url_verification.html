@@ -22,9 +22,7 @@
         {{/if}}
       </p>
       <div class="verification_spinner inline hidden">
-        <svg class="ts_icon ts_icon_spin ts_icon_spinner">
-          <use xlink:href="/img/starburst.svg#starburst_svg"/>
-        </svg>
+        {{> loading_indicator}}
       </div>
     {{else}}
       {{#unless skip_verification_notification}}
@@ -99,9 +97,7 @@
         {{/if}}
         </p>
         <div class="verification_spinner inline hidden">
-          <svg class="ts_icon ts_icon_spin ts_icon_spinner">
-            <use xlink:href="/img/starburst.svg#starburst_svg"/>
-          </svg>
+          {{> loading_indicator}}
         </div>
       </span>
     </label>

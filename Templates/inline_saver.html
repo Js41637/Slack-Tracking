@@ -2,9 +2,7 @@
 
 <ts-inline-saver class="saving">
   <span class="saving">
-    <svg class="ts_icon ts_icon_spin ts_icon_spinner">
-      <use xlink:href="/img/starburst.svg#starburst_svg"/>
-    </svg>
+    {{> loading_indicator}}
     {{#unless hide_text}}
       {{#if custom_text}}
         {{custom_text.saving}}

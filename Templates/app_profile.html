@@ -70,9 +70,7 @@
         <div class="app_profile_section_header">{{#t}}Settings{{/t}}</div>
         <div class="app_profile_section_text">
           <div data-js="app_auth_settings" class="bottom_margin">
-            <svg class="ts_icon ts_icon_spin ts_icon_spinner">
-              <use xlink:href="/img/starburst.svg#starburst_svg"/>
-            </svg>
+            {{> loading_indicator}}
           </div>
           {{#if bot_user_channel_count}}
             {{#if custom_integration_type}}

@@ -33,9 +33,7 @@
         </div>
 
         <div class="confirmation_code_state_message processing">
-          <svg class="confirmation_code_spinner ts_icon ts_icon_spin ts_icon_spinner">
-            <use xlink:href="/img/starburst.svg#starburst_svg"/>
-          </svg>
+          {{> loading_indicator class="confirmation_code_spinner"}}
           <p>{{#t}}Checking your code...{{/t}}</p>
         </div>
 
@@ -54,4 +52,3 @@
     <div class="fs_split_footer"></div>
   </form>
 </div>
-
