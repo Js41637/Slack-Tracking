@@ -94,27 +94,24 @@
       {{/if}}
     </div>
 
-    {{#experiment name="guest_profiles_and_expiration"}}
-      {{#if member.is_restricted}}
-        <div class="member_restriction_over_image">
-          <span class="overflow_ellipsis lato_black">
-            {{#if member.is_ultra_restricted}}
-              <i aria-hidden="true" class="ts_icon ts_icon_presence_ura presence_icon"></i>
-            {{else}}
-              <i aria-hidden="true" class="ts_icon ts_icon_presence_ra presence_icon"></i>
-            {{/if}}
-            {{#if member.deleted}}
-              {{#t note="Refers to deactivated account"}}Deactivated{{/t}}
-            {{/if}}
-            {{#if member.is_ultra_restricted}}
-              {{#t}}Single-Channel Guest{{/t}}
-            {{else}}
-              {{#t}}Multi-Channel Guest{{/t}}
-            {{/if}}
-          </span>
-        </div>
-      {{/if}}
-    {{/experiment}}
+    {{#if show_member_restriction}}
+      <div class="member_restriction_over_image{{#if member.is_external}} external{{/if}}">
+        <span class="overflow_ellipsis lato_black">
+          {{#if member.is_external}}
+            {{getTeamNameByMember member}}
+            {{> member_type_external_badge team=(getTeamById member.team_id) size=48 badge_size=16}}
+          {{else if member.is_ultra_restricted}}
+            <i aria-hidden="true" class="ts_icon ts_icon_presence_ura presence_icon"></i>
+            {{#if member.deleted}}{{#t note="Refers to deactivated account"}}Deactivated{{/t}}{{/if}}
+            {{#t}}Single-Channel Guest{{/t}}
+          {{else if member.is_restricted}}
+            <i aria-hidden="true" class="ts_icon ts_icon_presence_ra presence_icon"></i>
+            {{#if member.deleted}}{{#t note="Refers to deactivated account"}}Deactivated{{/t}}{{/if}}
+            {{#t}}Multi-Channel Guest{{/t}}
+          {{/if}}
+        </span>
+      </div>
+    {{/if}}
 
   </div>
 

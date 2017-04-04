@@ -6016,7 +6016,7 @@
             TS.client.archives.tryToJoin();
             return;
           }
-          if (!TS.boot_data.feature_a11y_tab) {
+          if (!TS.boot_data.feature_keyboard_support) {
             if (e.which == keymap.tab && !TS.utility.cmdKey(e) || e.which === keymap.enter) {
               e.preventDefault();
             }
@@ -13802,7 +13802,7 @@
         _downloads_map[k].token = k;
         _downloads_map[k].start_ts = parseFloat(_downloads_map[k].start_ts);
         if (_downloads_map[k].start_ts > 9999999999) {
-          _downloads_map[k].start_ts = _downloads_map[k].start_ts / 1e3;
+          _downloads_map[k].start_ts /= 1e3;
         }
         if (was_downloads_map[k]) {
           if (!_downloads_map[k].hasOwnProperty("progress")) {
@@ -34359,7 +34359,7 @@ function timezones_guess() {
     var scroll_position = vertical_axis ? "scrollTop" : "scrollLeft";
     var scroll_by = 25;
     if (direction === "up" || direction === "left") {
-      scroll_by = -1 * scroll_by;
+      scroll_by *= -1;
     }
     scroll_element[scroll_position] += scroll_by;
   };
@@ -39456,7 +39456,7 @@ function timezones_guess() {
         }
         if (_.isNumber(thread_ts)) {
           TS.warn("Thread flexpane opened with non-string thread_ts");
-          thread_ts = thread_ts + "";
+          thread_ts += "";
         }
         TS.info("Opening conversation " + thread_ts + " in " + model_ob.id);
         var was_showing_convo_flexpane = !!_active_convo_thread_ts;

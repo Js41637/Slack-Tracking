@@ -13331,7 +13331,7 @@ TS.registerModule("constants", {
             }
             var buffer = .9 * Math.min(count, _FILTER_API_COUNT);
             list_items_height = _.isNaN(list_items_height) ? 0 : list_items_height;
-            list_items_height = list_items_height - buffer * _APPROXIMATE_ITEM_HEIGHT;
+            list_items_height -= buffer * _APPROXIMATE_ITEM_HEIGHT;
             if (list_items_height && remaining && $(this).scrollTop() > list_items_height && filter_p && filter_p.isResolved()) {
               _promiseToFilterTeam(query_for_match, filter_container_id, scroller_id, options);
             }
@@ -23731,7 +23731,7 @@ TS.registerModule("constants", {
         if (!all_digits && out.substring(-3) === ".00") {
           out = out.substring(0, -3);
         } else if (_REGEX_CASH_DECIMAL_FORMATTING.test(dollars)) {
-          out = out + "0";
+          out += "0";
         }
         return out;
       });
@@ -26131,7 +26131,7 @@ TS.registerModule("constants", {
       if (!is_24_time) {
         if (hours >= 12) {
           if (hours > 12) {
-            hours = hours - 12;
+            hours -= 12;
           }
           is_pm = true;
         } else if (hours === 0) {
@@ -26373,7 +26373,7 @@ TS.registerModule("constants", {
         days = 0;
       } else {
         years = Math.floor(days / 365);
-        days = days % 365;
+        days %= 365;
       }
       if (years > 0) {
         if (days > 0) {
@@ -31204,7 +31204,7 @@ TS.registerModule("constants", {
         var theme_count_text = total_themes_count > 1 ? " (" + curr_theme_index + ")	" : "";
         return $1 + TS.format.tokenizeStr(html_token_map, "<nobr>", ",") + $2 + theme_count_text + TS.format.tokenizeStr(html_token_map, "</nobr>");
       });
-      txt = txt + TS.format.tokenizeStr(html_token_map, _getThemeInstallButtonsHtml(theme_install_btns));
+      txt += TS.format.tokenizeStr(html_token_map, _getThemeInstallButtonsHtml(theme_install_btns));
     }
     var A = TSF.getTokensArray($.trim(txt), tsf_mode, {
       jumbomoji: !no_jumbomoji
@@ -31399,7 +31399,7 @@ TS.registerModule("constants", {
         if (tsf_mode !== "GROWL" || TS.utility.platformSupportsHtmlNotifications()) {
           from_name = TS.utility.htmlEntities(from_name);
         }
-        from_name = from_name + ": ";
+        from_name += ": ";
       }
       str = msg.subtype === "sh_room_created" ? TS.i18n.t("{from_name} Started a call", "string_format")({
         from_name: from_name
@@ -35103,6 +35103,11 @@ var _on_esc;
       template_args.logout_url = TS.boot_data.logout_url;
       template_args.signin_url = TS.boot_data.signin_url;
     }
+    var member_restriction_flag_enabled = TS.boot_data.feature_shared_channels_client || TS.experiment.getGroup("guest_profiles_and_expiration") === "treatment";
+    var member_restriction_supported_member = member.is_external || member.is_restricted;
+    if (member_restriction_flag_enabled && member_restriction_supported_member) {
+      template_args.show_member_restriction = true;
+    }
     if (!member.deleted && !member.is_slackbot && member.id !== TS.model.user.id) {
       if (!TS.model.user.is_ultra_restricted && !member.is_ultra_restricted) {
         template_args.show_channel_invite = true;
@@ -38460,7 +38465,7 @@ var _on_esc;
       if (last != host) {
         TS.info(last);
         var new_parts = parts.concat();
-        new_parts.length = new_parts.length - 1;
+        new_parts.length -= 1;
         var host_path = new_parts.join("/");
         if (host_path != host) {
           host_path += "/";
@@ -45993,6 +45998,8 @@ $.fn.togglify = function(settings) {
     onMaxItemsSelected: function() {},
     onListShown: _.noop,
     onListHidden: _.noop,
+    adjustAvailableSpaceAbove: _.identity,
+    adjustAvailableSpaceBelow: _.identity,
     placeholder_text: TS.i18n.t("Choose an option…", "lazy_filter_select")(),
     filter_placeholder_text: TS.i18n.t("Search", "lazy_filter_select")(),
     renderDividerFunc: null,
@@ -46240,38 +46247,32 @@ $.fn.togglify = function(settings) {
   var _LIST_POSITION_ABOVE_CLASSNAME = "position_above";
   var _SHOW_STATUS_CLASSNAME = "show_status";
   var _sizeAndPositionItemsList = function(instance) {
-    if (!instance._list_built) return;
+    if (!instance._list_built && !instance._showing_status) return;
+    instance.$list_container.removeClass(_LIST_POSITION_ABOVE_CLASSNAME);
     var list_height = instance.$list.css({
       "max-height": ""
-    }).height();
-    var container_height = instance.$list_container.height();
-    var padding = instance.$list_container.outerHeight() - container_height;
-    var max_height = parseInt(instance.$list_container.css("max-height"), 10);
-    instance.$list_container.removeClass(_LIST_POSITION_ABOVE_CLASSNAME);
+    }).outerHeight();
+    var list_container_height = instance.$list_container.outerHeight();
+    var non_list_height = list_container_height - list_height;
+    var list_container_max_height = parseInt(instance.$list_container.css("max-height"), 10);
+    var list_container_min_height = 2 * instance.approx_item_height + non_list_height;
+    var needed_space = Math.min(list_height + non_list_height, list_container_max_height);
     var window_height = $(window).height();
-    var list_top = instance.$list[0].getBoundingClientRect().top;
-    var available_height = Math.floor(window_height - list_top);
-    if (_isFilterInListStyle(instance)) {
-      var filter_margin_bottom = parseInt(instance.$filter_input.css("margin-bottom"), 10) || 0;
-      max_height -= instance.$filter_input.outerHeight() + filter_margin_bottom;
-    }
-    if (_isInMessage(instance)) {
-      available_height -= $("#footer").height() || 0;
-    }
+    var input_container_bottom = instance.$input_container[0].getBoundingClientRect().bottom + parseInt(instance.$input_container.css("margin-bottom"), 10);
+    var available_space = instance.adjustAvailableSpaceBelow(window_height - input_container_bottom);
     if (instance.allow_list_position_above) {
-      var available_height_above = window_height - available_height;
-      var can_fit_above = list_height <= available_height_above;
-      var can_fit_below = list_height <= available_height;
-      if (!can_fit_below && can_fit_above) {
-        available_height = available_height_above;
+      var input_container_top = instance.$input_container[0].getBoundingClientRect().top + parseInt(instance.$input_container.css("margin-top"), 10);
+      var available_space_above = instance.adjustAvailableSpaceAbove(input_container_top);
+      var can_fit_above = available_space_above >= needed_space;
+      var can_fit_below = available_space >= needed_space && available_space > list_container_min_height;
+      if (can_fit_above && !can_fit_below) {
+        available_space = available_space_above;
         instance.$list_container.addClass(_LIST_POSITION_ABOVE_CLASSNAME);
       }
     }
-    if (isNaN(max_height)) max_height = container_height;
-    if (max_height > available_height) max_height = available_height;
-    max_height = max_height - padding;
-    instance.$list.css({
-      "max-height": Math.min(list_height, max_height)
+    var new_list_max_height = Math.floor(Math.min(available_space, needed_space) - non_list_height);
+    if (new_list_max_height) instance.$list.css({
+      "max-height": new_list_max_height
     });
   };
   var _callScrollCallback = function(instance, query, page_number) {
@@ -46502,9 +46503,7 @@ $.fn.togglify = function(settings) {
       instance.$list.longListView("setItems", temp_data, true);
       instance._current_data = data;
       _updateMonkeyScroll(instance);
-      TS.utility.rAF(function() {
-        _sizeAndPositionItemsList(instance);
-      });
+      _sizeAndPositionItemsList(instance);
     }
   };
   var _preLongListViewPrep = function(data) {
@@ -46896,8 +46895,8 @@ $.fn.togglify = function(settings) {
       TS.ui.utility.updateClosestMonkeyScroller(instance.$input_container, true);
     }
     if (instance.monkey_scroll && !TS.environment.supports_custom_scrollbar) {
+      _sizeAndPositionItemsList(instance);
       TS.utility.rAF(function() {
-        _sizeAndPositionItemsList(instance);
         TS.ui.utility.updateClosestMonkeyScroller(instance.$list, true);
       });
     }
@@ -46910,12 +46909,6 @@ $.fn.togglify = function(settings) {
       return $(item).val();
     });
     instance.$select.val(values).trigger("change");
-  };
-  var _isInMessage = function(instance) {
-    if (_.isUndefined(instance._is_in_message)) {
-      instance._is_in_message = _.get(TS, "boot_data.app") === "client" && TS.client.ui.$msgs_div.has(instance.$container).length > 0;
-    }
-    return instance._is_in_message;
   };
   var _formatTextForDisplay = function(text, instance) {
     text = TS.utility.htmlEntities(text);
@@ -48055,7 +48048,7 @@ $.fn.togglify = function(settings) {
       minutes = (remaining - hours * 3600) / 60;
       minutes = Math.round(minutes);
       if (minutes === 60) {
-        hours = hours + 1;
+        hours += 1;
         return TS.i18n.t("{dnd_hours}h", "dnd")({
           dnd_hours: hours
         });
@@ -53540,7 +53533,7 @@ $.fn.togglify = function(settings) {
       }).then(function(obj) {
         aggregate_data.push.apply(aggregate_data, obj.data.contacts);
         if (obj.data.all_items_fetched === false) {
-          opts.page = opts.page + 1;
+          opts.page += 1;
           TS.google_auth.getContactsFromAPI(instance_id, opts, aggregate_data, callback);
         } else {
           var callback_data = {
@@ -54178,7 +54171,7 @@ $.fn.togglify = function(settings) {
     getAndClearBuffer: function() {
       var log_str = _utility_call_log_state.buffer.join("\n");
       if (_utility_call_log_state.buffer_overflow) {
-        log_str = log_str + _calls_log_config.excess;
+        log_str += _calls_log_config.excess;
       }
       _utility_call_log_state.buffer = [];
       _utility_call_log_state.buffer_length = 0;
@@ -57619,6 +57612,8 @@ $.fn.togglify = function(settings) {
           var context = TS.attachment_actions.getActionContext($el);
           var selected_options = _.get(context, "action.selected_options");
           var lfs_options = {
+            adjustAvailableSpaceAbove: _adjustAvailableSpaceAbove,
+            adjustAvailableSpaceBelow: _adjustAvailableSpaceBelow,
             allow_list_position_above: true,
             classes: "select_attachment",
             data_promise: _getDataPromise($el),
@@ -57678,6 +57673,13 @@ $.fn.togglify = function(settings) {
   };
   var _EXTERNAL_INPUT_DEBOUNCE_WAIT_TIME = 250;
 
+  function _onActionCompleted(action_id, context) {
+    var action = _.find(context.attachment.actions, {
+      id: action_id
+    });
+    if (action) action.selected_options = [];
+  }
+
   function _errorTemplate() {
     return TS.i18n.t("Couldn’t load results.", "lazy_filter_select")();
   }
@@ -57691,6 +57693,8 @@ $.fn.togglify = function(settings) {
         text: item.text,
         value: value
       }];
+      var on_action_completed = _onActionCompleted.bind(null, context.action.id);
+      TS.attachment_actions.action_completed_sig.addOnce(on_action_completed);
       _.defer(TS.attachment_actions.action_triggered_sig.dispatch, context);
     };
     var onCancel = function() {
@@ -57713,6 +57717,16 @@ $.fn.togglify = function(settings) {
     return function onListShown() {
       _logMenuOpen(data_source, service_id);
     };
+  }
+
+  function _adjustAvailableSpaceBelow(available_space_below) {
+    var footer_height = $("#footer").height() || 0;
+    return available_space_below - footer_height;
+  }
+
+  function _adjustAvailableSpaceAbove(available_space_above) {
+    var header_height = $("#client_header").height() || 0;
+    return available_space_above - header_height;
   }
 
   function _getOptionsForModel(model) {

@@ -13502,10 +13502,27 @@ only screen and (min-resolution:2dppx) {
   top: 0;
   width: 100%;
   border-radius: .2rem .2rem 0 0;
-  background-color: #2C2D30;
+  background-color: rgba(44, 45, 48, .8);
   color: #FFF;
-  padding: 4px 8px 8px;
+  padding: 10px 14px;
   font-size: 13px
+}
+
+.menu_member_header .member_details .member_restriction_over_image.external {
+  padding-right: 32px
+}
+
+.menu_member_header .member_details .member_restriction_over_image .ts_icon {
+  line-height: 0
+}
+
+.menu_member_header .member_details .member_restriction_over_image .ts_icon:before {
+  margin-left: -5px
+}
+
+.menu_member_header .member_details .member_restriction_over_image .external_team_badge {
+  top: 9px;
+  right: 9px
 }
 
 .menu_member_header .member_details .member_name_and_presence {
