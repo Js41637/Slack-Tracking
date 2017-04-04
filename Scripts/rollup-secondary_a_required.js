@@ -3946,13 +3946,18 @@
         return;
       }
       if (!ok || !data || !data.messages) {
-        TS.error("failed to get history");
-        if (channel.history_fetch_retries) {
-          channel.history_fetch_retries++;
-        } else {
-          channel.history_fetch_retries = 1;
-        }
-        TS.channels.history_fetched_sig.dispatch(channel);
+        TS.error("failed to get history for channel " + args.channel);
+        channel.history_is_being_fetched = false;
+        channel.history_fetch_retries = (channel.history_fetch_retries || 0) + 1;
+        if (!TS.boot_data.feature_improved_history_retries) return;
+        var min_delay = 5e3;
+        var max_delay = 1e4;
+        var delay = _.random(min_delay, max_delay);
+        TS.info("retrying history fetch on channel " + channel.id + " in " + delay);
+        window.setTimeout(function() {
+          TS.info("retrying history fetch on channel " + channel.id + ", attempt #" + (channel.history_fetch_retries || "1"));
+          TS.channels.fetchHistory(channel, args, TS.channels.onHistory);
+        }, delay);
         return;
       }
       delete channel.history_fetch_retries;
@@ -3974,6 +3979,7 @@
       channel.history_fetch_failed = false;
       TS.channels.history_being_fetched_sig.dispatch(channel);
       if (channel.history_fetch_retries > 5) {
+        TS.error("giving up on channels.history for " + channel.id + ", channel.history_fetch_retries = " + channel.history_fetch_retries);
         delete channel.history_fetch_retries;
         channel.history_is_being_fetched = false;
         channel.history_fetch_failed = true;
@@ -4223,14 +4229,17 @@
   };
   var _maybeSetSharedTeams = function(channel) {
     if (!channel.is_shared) return;
-    if (!TS.boot_data.page_needs_enterprise) return;
+    if (!TS.model.shared_channels_enabled) return;
     if (channel.is_global_shared) {
       if (channel.shares) delete channel.shares;
       if (channel.shared_team_ids) delete channel.shared_team_ids;
       return;
     }
-    if (channel.shares) {
+    if (channel.shares && channel.is_org_shared) {
       channel.shared_team_ids = _(channel.shared_team_ids || []).concat(_.map(channel.shares, "id")).value();
+      if (channel.shares) delete channel.shares;
+    } else if (channel.shares && !channel.is_org_shared) {
+      channel.shared_team_ids = _.map(channel.shares, "team.id");
       if (channel.shares) delete channel.shares;
     }
     channel.shared_team_ids = _(channel.shared_team_ids || []).uniq().value();
@@ -9212,7 +9221,14 @@ TS.registerModule("constants", {
       return TS.shared.loadScrollBackHistory(model_ob, controller);
     },
     loadScrollBackHistory: function(model_ob, controller) {
-      if (!model_ob.msgs.length) return;
+      if (!model_ob.msgs.length) {
+        if (TS.pri) TS.log(58, "TS.shared.loadScrollbackHistory: No messages in " + model_ob.id + " yet; not loading scrollback history.");
+        if (TS.boot_data.feature_improved_history_retries && !model_ob._history_fetched_since_last_connect) {
+          if (TS.pri) TS.log(58, "TS.shared.loadScrollBackHistory: No messages, and history has not been fetched since last connect; doing an initial fetch.");
+          TS.shared.checkInitialMsgHistory(model_ob, controller);
+        }
+        return;
+      }
       TS.info(model_ob.id + " HAS MORE");
       TS.shared.loadHistory(model_ob, controller);
       model_ob.has_fetched_history_after_scrollback = true;
@@ -24709,6 +24725,10 @@ TS.registerModule("constants", {
       });
       Handlebars.registerHelper("getTeamById", function(id) {
         return TS.teams.getTeamById(id);
+      });
+      Handlebars.registerHelper("getTeamNameById", function(id) {
+        var team = TS.teams.getTeamNameById(id);
+        return team.name;
       });
       Handlebars.registerHelper("getMemberPreviewLinkTarget", function(member) {
         if (TS.utility.shouldLinksHaveTargets()) return new Handlebars.SafeString('target="/team/' + member.name + '"');

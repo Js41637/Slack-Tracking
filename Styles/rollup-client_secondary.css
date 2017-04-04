@@ -8013,6 +8013,64 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
   unicode-range: U+F8FF
 }
 
+.team_image {
+  border-radius: 3px;
+  background-size: 100%;
+  background-repeat: no-repeat;
+  display: inline-block;
+  position: relative;
+  border: 1px solid rgba(44, 45, 48, .08)
+}
+
+.team_image.default {
+  background-color: #717274;
+  font-weight: 800;
+  font-size: 18px;
+  line-height: 1.9;
+  color: #FFF;
+  font-style: normal;
+  letter-spacing: 0;
+  text-align: center;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, .2);
+  float: left
+}
+
+.team_image.icon_36 {
+  width: 36px;
+  height: 36px
+}
+
+.shared_team_details,
+.source_team_details {
+  padding-left: 48px;
+  margin-right: 12px;
+  position: relative;
+  overflow: hidden;
+  text-overflow: ellipsis
+}
+
+.shared_team_details .team_image,
+.source_team_details .team_image {
+  float: left;
+  margin-left: -48px
+}
+
+.shared_team_details .team_member_count,
+.shared_team_details .team_name,
+.source_team_details .team_member_count,
+.source_team_details .team_name {
+  display: block;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap
+}
+
+@font-face {
+  font-family: appleLogo;
+  src: local("Lucida Grande");
+  unicode-range: U+F8FF
+}
+
 #fs_modal.active~.pickmeup {
   z-index: 1002
 }

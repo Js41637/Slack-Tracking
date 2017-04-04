@@ -10,10 +10,10 @@
   <div class="teams">
     <div class="icons">
       {{>team_icon team=source_team size=44 classes="source_team"}}
-      {{>team_icon team=channel.shares.0.team size=44 classes="shared_team"}}
+      {{>team_icon team=(getTeamById shared_team) size=44 classes="shared_team"}}
     </div>
     {{#t}}This channel is shared between<br>
-    <strong>{source_team.name}</strong> and <strong>{channel.shares.0.team.name}</strong>.{{/t}}
+    <strong>{source_team.name}</strong> and <strong>{{getTeamNameById shared_team}}</strong>.{{/t}}
   </div>
 
   <div class="details">

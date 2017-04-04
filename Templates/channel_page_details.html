@@ -4,7 +4,7 @@
 {{!-- Todo: enable syntax linter and refactor with safeString --}}
 
 {{#sharedChannelsEnabled}}
-  {{#if model_ob.is_shared}}
+  {{#if model_ob.is_org_shared}}
     <div class="channel_shared_teams_section">
     <div class="bold greigh shared_teams_label mini small_bottom_margin">{{#t}}Teams{{/t}}</div>
     {{#if is_globally_shared}}
@@ -26,6 +26,21 @@
       </div>
     </div>
     {{/if}}
+  {{else if model_ob.is_shared}}
+    <div class="channel_shared_teams_section">
+    <div class="bold greigh shared_teams_label mini small_bottom_margin">{{#t}}Teams{{/t}}</div>
+    {{#each shared_teams}}
+    <div class="shared_team_details small_top_margin">
+
+      {{> team_icon team=this size=36}}
+
+      <div class="team_name">{{this.name}}</div> <div class="team_member_count mini">{{#t}}0 members{{/t}}</div>
+    </div>
+    {{/each}}
+    <div class="source_team_details small_top_margin">
+      {{> team_icon team=team size=36}}
+      <div class="team_name">{{team.name}}</div> <div class="team_member_count mini">{{#t}}0 members{{/t}}</div>
+    </div>
   {{/if}}
 {{/sharedChannelsEnabled}}
 

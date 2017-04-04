@@ -21834,7 +21834,8 @@
       $overlay.html(TS.templates.channel_shared_join_overlay({
         channel: channel,
         source_team: TS.model.team,
-        inviter: TS.members.getMemberById(channel.inviter)
+        inviter: TS.members.getMemberById(channel.inviter),
+        shared_team: channel.shared_team_ids[0]
       }));
       TS.utility.rAF(function() {
         $overlay.removeClass("transparent");
@@ -28654,9 +28655,14 @@
       template_args.days_since_creation = 1;
     }
     template_args.creation_date = model_ob.created * 1e3;
-    if (TS.boot_data.page_needs_enterprise && model_ob.shared_team_ids) {
+    if (TS.boot_data.page_needs_enterprise && model_ob.is_org_shared && model_ob.shared_team_ids) {
       template_args.teams_shared_with = _.map(model_ob.shared_team_ids, function(id) {
         return TS.enterprise.getTeamById(id);
+      });
+    } else if (TS.model.shared_channels_enabled && !model_ob.is_org_shared && model_ob.is_shared && model_ob.shared_team_ids) {
+      template_args.team = TS.model.team;
+      template_args.shared_teams = _.map(model_ob.shared_team_ids, function(id) {
+        return TS.teams.getTeamById(id);
       });
     }
     _$details.html(TS.templates.channel_page_details(template_args)).removeClass("hidden");
