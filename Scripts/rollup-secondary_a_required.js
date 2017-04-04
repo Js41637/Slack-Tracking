@@ -13963,6 +13963,10 @@ TS.registerModule("constants", {
           TS.model.team.prefs.require_at_for_mention = true;
         }
       }
+      if (TS.boot_data.page_needs_enterprise) {
+        TS.model.prefs.require_at = true;
+        TS.model.team.prefs.require_at_for_mention = true;
+      }
     },
     setChannelSort: function(channel_sort) {
       TS.model.channel_sort = channel_sort;
@@ -67179,8 +67183,7 @@ $.fn.togglify = function(settings) {
 
   function r(e) {
     var t = e.target || e.srcElement || window;
-    return t.correspondingUseElement && (t = t.correspondingUseElement),
-      3 === t.nodeType ? t.parentNode : t;
+    return t.correspondingUseElement && (t = t.correspondingUseElement), 3 === t.nodeType ? t.parentNode : t;
   }
   e.exports = r;
 }, function(e, t, n) {
@@ -68811,7 +68814,8 @@ $.fn.togglify = function(settings) {
     function t(e, n) {
       a()(this, t);
       var r = c()(this, (t.__proto__ || o()(t)).call(this, e, n));
-      return r._cellSizeCache = e.cellSizeCache || new _.a, r.getColumnWidth = r.getColumnWidth.bind(r), r.getRowHeight = r.getRowHeight.bind(r), r.resetMeasurements = r.resetMeasurements.bind(r), r.resetMeasurementForColumn = r.resetMeasurementForColumn.bind(r), r.resetMeasurementForRow = r.resetMeasurementForRow.bind(r), r;
+      return r._cellSizeCache = e.cellSizeCache || new _.a, r.getColumnWidth = r.getColumnWidth.bind(r), r.getRowHeight = r.getRowHeight.bind(r), r.resetMeasurements = r.resetMeasurements.bind(r), r.resetMeasurementForColumn = r.resetMeasurementForColumn.bind(r), r.resetMeasurementForRow = r.resetMeasurementForRow.bind(r),
+        r;
     }
     return p()(t, e), s()(t, [{
       key: "getColumnWidth",
@@ -72064,13 +72068,13 @@ $.fn.togglify = function(settings) {
       }]), S(t, [{
         key: "componentWillMount",
         value: function() {
-          this.props.searchQuery && this.onSearch(this.props.searchQuery), w.a("react_emoji_menu_mount_mark");
+          this.props.searchQuery && this.onSearch(this.props.searchQuery),
+            w.a("react_emoji_menu_mount_mark");
         }
       }, {
         key: "componentDidMount",
         value: function() {
-          this.keyCommands = new y.a(this.element), this.keyCommands.bindAll(this.commands),
-            this.searchInput.focus(), w.b("react_emoji_menu_mount", "react_emoji_menu_mount_mark");
+          this.keyCommands = new y.a(this.element), this.keyCommands.bindAll(this.commands), this.searchInput.focus(), w.b("react_emoji_menu_mount", "react_emoji_menu_mount_mark");
         }
       }, {
         key: "componentWillReceiveProps",
@@ -75222,8 +75226,7 @@ $.fn.togglify = function(settings) {
       }
       o(this, i);
       var a, f;
-      null != t ? (a = t._namespaceURI, f = t._tag) : n._tag && (a = n._namespaceURI, f = n._tag), (null == a || a === b.svg && "foreignobject" === f) && (a = b.html),
-        a === b.html && ("svg" === this._tag ? a = b.svg : "math" === this._tag && (a = b.mathml)), this._namespaceURI = a;
+      null != t ? (a = t._namespaceURI, f = t._tag) : n._tag && (a = n._namespaceURI, f = n._tag), (null == a || a === b.svg && "foreignobject" === f) && (a = b.html), a === b.html && ("svg" === this._tag ? a = b.svg : "math" === this._tag && (a = b.mathml)), this._namespaceURI = a;
       var p;
       if (e.useCreateElement) {
         var d, h = n._ownerDocument;
