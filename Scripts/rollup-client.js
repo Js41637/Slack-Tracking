@@ -13658,6 +13658,7 @@
   var _$individual_download = $();
   var _individual_file_id;
   var _ssb_supports_shift_open = TSSSB.call("supportsOpenFileAtPath");
+  var _files_to_fetch = [];
   var _PAGE_SIZE = 20;
   var _loggedIn = function() {
     _$flex_menu_download_circle = $(".flex_menu_download_circle");
@@ -13963,7 +13964,7 @@
         team_and_file = matches[0];
         file_id = team_and_file.split("-")[1];
         TS.warn("_buildItem: fetching file for dl.href: " + redacted_href);
-        TS.files.fetchFileInfo(file_id, function(id, file) {
+        _fetchFileInfo(file_id, function(id, file) {
           dl = _downloads_map[dl.token];
           if (!dl) return;
           _updateDownload(dl);
@@ -14148,6 +14149,31 @@
   var _doneLoading = function() {
     _$scroller.find(".downloads_load_more").remove();
   };
+  var _fetchFileInfo = function(id, callback) {
+    _files_to_fetch.push({
+      id: id,
+      callback: callback
+    });
+    _actuallyFetchFileInfo();
+  };
+  var _actuallyFetchFileInfo = _.debounce(function() {
+    var reqs = _files_to_fetch;
+    _files_to_fetch = [];
+    if (!reqs || !reqs.length) return;
+    if (reqs.length === 1) {
+      var req = reqs[0];
+      TS.files.fetchFileInfo(req.id, req.callback);
+    } else {
+      var file_ids = _.map(reqs, "id");
+      TS.files.fetchMultipleFiles(file_ids, function(ok) {
+        if (!ok) return;
+        _.forEach(reqs, function(req) {
+          var file = TS.files.getFileById(req.id);
+          if (file) req.callback(req.id, file);
+        });
+      });
+    }
+  }, 10);
 })();
 (function() {
   "use strict";

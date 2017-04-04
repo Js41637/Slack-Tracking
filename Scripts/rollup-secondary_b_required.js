@@ -875,7 +875,8 @@
                   menu.style.width = Math.min(input.outerWidth(), 360) + "px";
                 }
                 TS.tabcomplete.positionUIRelativeToInput(menu, input);
-              }
+              },
+              no_model_ob: !TS.client
             }
           },
           onEnter: function(args) {

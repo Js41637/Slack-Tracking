@@ -6173,6 +6173,22 @@ TS.registerModule("constants", {
         }, TS.files.onChannelFetch);
       }
     },
+    fetchMultipleFiles: function(file_ids, callback) {
+      return TS.api.call("files.list", {
+        files: file_ids.join(",")
+      }, function(ok, data, args) {
+        if (ok) {
+          if (data.files) {
+            var file;
+            for (var i = 0; i < data.files.length; i++) {
+              file = data.files[i];
+              TS.files.upsertFile(file);
+            }
+          }
+        }
+        if (callback) callback(ok, data, args);
+      });
+    },
     onChannelFetch: function(ok, data, args) {
       if (!ok) {
         return;
@@ -54583,46 +54599,6 @@ $.fn.togglify = function(settings) {
     promiseToGetRegions: function() {
       if (_region_p) return _region_p;
       var regions;
-      if (_utility_call_state.calls_better_regions_expt) {
-        _region_p = new Promise(function(resolve, reject) {
-          var servers = {
-            east: "slack-calls-0fc78df4963fa1cd7",
-            west: "slack-calls-04e6ff274e7196b49",
-            eu: "slack-calls-004c3e8ad31b95218",
-            ap: "slack-calls-00f1852837340bafc"
-          };
-          var regions = Object.keys(servers);
-          var resolved = false;
-          var attempts = regions.length;
-          _.each(regions, function(region) {
-            var response = function() {
-              TS.utility.calls_log.logEvent({
-                event: "RegionsNew",
-                value: region
-              });
-              if (!resolved) {
-                resolve(region);
-                resolved = true;
-              }
-              attempts--;
-              if (attempts == 0 && !resolved) {
-                _utility_call_state.calls_better_regions_expt = false;
-                return TS.utility.calls.promiseToGetRegions();
-              }
-            };
-            $.ajax({
-              type: "GET",
-              url: "https://" + servers[region] + ".slack-core.com/janus",
-              async: true,
-              cache: false,
-              timeout: 2e3,
-              success: response,
-              error: response
-            });
-          });
-        });
-        return _region_p;
-      }
       _region_p = new Promise(function(resolve, reject) {
         $.ajax({
           type: "GET",
@@ -67203,7 +67179,8 @@ $.fn.togglify = function(settings) {
 
   function r(e) {
     var t = e.target || e.srcElement || window;
-    return t.correspondingUseElement && (t = t.correspondingUseElement), 3 === t.nodeType ? t.parentNode : t;
+    return t.correspondingUseElement && (t = t.correspondingUseElement),
+      3 === t.nodeType ? t.parentNode : t;
   }
   e.exports = r;
 }, function(e, t, n) {
@@ -68834,8 +68811,7 @@ $.fn.togglify = function(settings) {
     function t(e, n) {
       a()(this, t);
       var r = c()(this, (t.__proto__ || o()(t)).call(this, e, n));
-      return r._cellSizeCache = e.cellSizeCache || new _.a, r.getColumnWidth = r.getColumnWidth.bind(r), r.getRowHeight = r.getRowHeight.bind(r), r.resetMeasurements = r.resetMeasurements.bind(r), r.resetMeasurementForColumn = r.resetMeasurementForColumn.bind(r), r.resetMeasurementForRow = r.resetMeasurementForRow.bind(r),
-        r;
+      return r._cellSizeCache = e.cellSizeCache || new _.a, r.getColumnWidth = r.getColumnWidth.bind(r), r.getRowHeight = r.getRowHeight.bind(r), r.resetMeasurements = r.resetMeasurements.bind(r), r.resetMeasurementForColumn = r.resetMeasurementForColumn.bind(r), r.resetMeasurementForRow = r.resetMeasurementForRow.bind(r), r;
     }
     return p()(t, e), s()(t, [{
       key: "getColumnWidth",
@@ -72088,13 +72064,13 @@ $.fn.togglify = function(settings) {
       }]), S(t, [{
         key: "componentWillMount",
         value: function() {
-          this.props.searchQuery && this.onSearch(this.props.searchQuery),
-            w.a("react_emoji_menu_mount_mark");
+          this.props.searchQuery && this.onSearch(this.props.searchQuery), w.a("react_emoji_menu_mount_mark");
         }
       }, {
         key: "componentDidMount",
         value: function() {
-          this.keyCommands = new y.a(this.element), this.keyCommands.bindAll(this.commands), this.searchInput.focus(), w.b("react_emoji_menu_mount", "react_emoji_menu_mount_mark");
+          this.keyCommands = new y.a(this.element), this.keyCommands.bindAll(this.commands),
+            this.searchInput.focus(), w.b("react_emoji_menu_mount", "react_emoji_menu_mount_mark");
         }
       }, {
         key: "componentWillReceiveProps",
@@ -75246,7 +75222,8 @@ $.fn.togglify = function(settings) {
       }
       o(this, i);
       var a, f;
-      null != t ? (a = t._namespaceURI, f = t._tag) : n._tag && (a = n._namespaceURI, f = n._tag), (null == a || a === b.svg && "foreignobject" === f) && (a = b.html), a === b.html && ("svg" === this._tag ? a = b.svg : "math" === this._tag && (a = b.mathml)), this._namespaceURI = a;
+      null != t ? (a = t._namespaceURI, f = t._tag) : n._tag && (a = n._namespaceURI, f = n._tag), (null == a || a === b.svg && "foreignobject" === f) && (a = b.html),
+        a === b.html && ("svg" === this._tag ? a = b.svg : "math" === this._tag && (a = b.mathml)), this._namespaceURI = a;
       var p;
       if (e.useCreateElement) {
         var d, h = n._ownerDocument;
