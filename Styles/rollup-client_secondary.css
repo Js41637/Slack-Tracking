@@ -28128,16 +28128,7 @@ ts-thread .thread_participants {
 
 .sli_briefing__message ts-message .message_body,
 .sli_briefing__message ts-message .message_content .comment {
-  position: relative;
-  max-height: 1.4rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   cursor: pointer
-}
-
-.sli_briefing__message ts-message .rxn_panel {
-  display: none
 }
 
 .sli_briefing__message ts-message .recap_highlight_debug {

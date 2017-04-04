@@ -18,7 +18,10 @@
           </label>
           {{#feature flag="feature_i18n_checkout_updates"}}
             {{#if content.is_checkout}}
-              <p data-single-currency-message class="hidden billing_settings_currency_msg small normal" data-qa="currency_message"></p>
+              <p data-single-currency-message class="hidden small normal">
+                <span class="billing_settings_currency_msg greigh" data-qa="currency_message"></span>
+                <a class="greigh underline" href="https://get.slack.help/hc/articles/115004062808" data-qa="learn_more_link">{{#t}}Learn More{{/t}}</a>
+              </p>
             {{/if}}
           {{/feature}}
         </fieldset>

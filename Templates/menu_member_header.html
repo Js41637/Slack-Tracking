@@ -57,6 +57,15 @@
             <span class="overflow_ellipsis">{{#t note="Labelling a bot in the member card"}}Non-sentient Bot{{/t}}</span>
           </span>
         {{/if}}
+        {{#if show_admin_info}}
+          <span class="float_right" title="{{#t}}Team Role{{/t}}">
+            {{#if member.is_owner}}
+              {{#t}}Team Owner{{/t}}
+            {{else}}
+              {{#t}}Team Admin{{/t}}
+            {{/if}}
+          </span>
+        {{/if}}
       </p>
     {{/unless}}
 

@@ -3093,6 +3093,7 @@ var _fullToHalf = function(char) {
       is_iOS: is_iOS,
       is_IE: is_IE,
       is_FF: is_FF,
+      is_edge: is_edge,
       is_chrome_desktop: is_chrome && !is_chrome_mobile && !is_our_app,
       is_chrome_mobile: is_chrome_mobile,
       is_safari_desktop: is_safari && !is_chrome && is_mac && !is_iOS,

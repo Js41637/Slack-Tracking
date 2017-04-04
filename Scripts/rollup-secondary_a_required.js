@@ -10878,6 +10878,7 @@ TS.registerModule("constants", {
     changed_tz_sig: new signals.Signal,
     changed_account_type_sig: new signals.Signal,
     changed_admin_perms_sig: new signals.Signal,
+    changed_owner_perms_sig: new signals.Signal,
     changed_self_sig: new signals.Signal,
     lazily_added_sig: new signals.Signal,
     batch_upserted_sig: new signals.Signal,
@@ -11020,6 +11021,9 @@ TS.registerModule("constants", {
         }
         if (upsert.what_changed.indexOf("presence") != -1) {
           TS.members.presence_changed_sig.dispatch(upsert.member);
+        }
+        if (upsert.what_changed.indexOf("is_owner") != -1) {
+          TS.members.changed_owner_perms_sig.dispatch(upsert.member);
         }
         if (upsert.what_changed.indexOf("is_admin") != -1) {
           TS.members.changed_admin_perms_sig.dispatch(upsert.member);
@@ -15821,18 +15825,11 @@ TS.registerModule("constants", {
     },
     storeLastEventTS: function(ts, whence) {
       if (!ts) return;
-      var last_event_ts;
-      if (TS.boot_data.feature_local_last_event_ts) {
-        last_event_ts = _last_event_ts || TS.storage.fetchLastEventTS();
-      } else {
-        last_event_ts = TS.storage.fetchLastEventTS();
-      }
+      var last_event_ts = _last_event_ts || TS.storage.fetchLastEventTS();
       if (last_event_ts && ts <= last_event_ts) return;
       if (!whence) whence = "???";
       _whence_last_event_ts = whence + " at " + Date.now() / 1e3;
-      if (TS.boot_data.feature_local_last_event_ts) {
-        _last_event_ts = ts;
-      }
+      _last_event_ts = ts;
       TS.storage.storeLastEventTS(ts);
     },
     onFailure: function(reason_str) {
@@ -16438,12 +16435,7 @@ TS.registerModule("constants", {
     _send_ping_interv = setInterval(_sendPing, _send_ping_interv_ms);
     TS.model.ms_connecting = false;
     TS.model.ms_connected = true;
-    var last_event_ts;
-    if (TS.boot_data.feature_local_last_event_ts) {
-      last_event_ts = _last_event_ts || TS.storage.fetchLastEventTS();
-    } else {
-      last_event_ts = TS.storage.fetchLastEventTS();
-    }
+    var last_event_ts = _last_event_ts || TS.storage.fetchLastEventTS();
     var should_consistency_check = !!TS.ms.num_times_connected;
     if (should_consistency_check) {
       if (last_event_ts && !_last_connect_was_fast) {
@@ -34893,6 +34885,9 @@ var _on_esc;
             TS.menu.$menu_items.find("#member_kick_channel_item").removeClass("hidden");
           }
         });
+      }
+      if (TS.boot_data.feature_admin_profile_info) {
+        template_args.show_admin_info = member.is_admin && member.team_id === TS.model.user.team_id;
       }
       if (is_im_menu) {
         TS.menu.$menu_header.addClass("hidden").empty();
@@ -54653,7 +54648,7 @@ $.fn.togglify = function(settings) {
       var method;
       var args = {
         regions: regions,
-        protocol: "1.0"
+        protocol: "2.0"
       };
       if (id.charAt(0) == "R") {
         method = "screenhero.rooms.join";

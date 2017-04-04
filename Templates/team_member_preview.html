@@ -307,6 +307,18 @@
           <td><a href="mailto:{{member.profile.email}}" title="{{#t}}Email {member.name}{{/t}}">{{member.profile.email}}</a></td>
         </tr>
       {{/if}}
+      {{#if show_admin_info}}
+        <tr>
+          <td><span class="small_right_padding old_petunia_grey" title="{{#t}}Team Role{{/t}}">{{#t}}Team Role{{/t}}</span></td>
+          <td>
+            {{#if member.is_owner}}
+              {{#t}}Owner of {team_name}{{/t}}
+            {{else}}
+              {{#t}}Admin for {team_name}{{/t}}
+            {{/if}}
+          </td>
+        </tr>
+      {{/if}}
       {{getVisibleTeamProfileFieldsForMember member}}
     </table>
   {{/if}}

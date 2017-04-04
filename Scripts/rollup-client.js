@@ -4379,6 +4379,7 @@
       TS.members.changed_tz_sig.add(TS.view.members.memberChangedTZ, TS.view.members);
       TS.members.changed_account_type_sig.add(TS.view.members.memberAccountTypeChanged, TS.view.members);
       TS.members.changed_admin_perms_sig.add(TS.view.members.memberAdminPermsChanged, TS.view.members);
+      TS.members.changed_owner_perms_sig.add(TS.view.members.memberAdminPermsChanged, TS.view.members);
       TS.typing.started_sig.add(TS.view.members.memberTypingStarted, TS.view.members);
       TS.typing.ended_sig.add(TS.view.members.memberTypingEnded, TS.view.members);
       TS.stars.member_stars_fetched_sig.add(TS.view.members.memberStarsFetched, TS.view.members);
@@ -4528,6 +4529,9 @@
     memberAdminPermsChanged: function(member) {
       if (member && member.id == TS.model.user.id) TS.ui.admin_invites.maybeShowInviteLink();
       $("#team_list_admin_link").toggleClass("hidden", !member.is_admin);
+      if (TS.boot_data.feature_admin_profile_info && TS.model.previewed_member_id === member.id) {
+        TS.client.ui.previewMember(member.id);
+      }
     },
     updateUserDisplayName: function() {
       if (TS.boot_data.feature_name_tagging_client) {
@@ -6925,7 +6929,13 @@
         }
       }
       if (TS.pri) TS.log(888, "instaScrollMsgsToBottom: and_check = " + and_check);
-      TS.client.ui.instaScrollMsgsToPosition(TS.client.ui.$msgs_scroller_div[0].scrollHeight, and_check, true);
+      var msgs = TS.client.ui.$msgs_scroller_div.find("ts-message");
+      if (msgs && msgs.length > 10) {
+        TS.client.msg_pane.checkUnreads();
+        msgs.last()[0].scrollIntoView(false);
+      } else {
+        TS.client.ui.instaScrollMsgsToPosition(TS.client.ui.$msgs_scroller_div[0].scrollHeight, and_check, true);
+      }
     },
     slowScrollMsgsToBottom: function() {
       var in_archives = TS.model.archive_view_is_showing;
@@ -8132,7 +8142,9 @@
       show_bot_configuration: show_bot_configuration,
       hide_more_menu: false,
       bot_configure_url: bot_configure_url,
-      show_call_action: TS.utility.calls.isEnabled() && !member.is_bot && member.id != "USLACKBOT"
+      show_call_action: TS.utility.calls.isEnabled() && !member.is_bot && member.id != "USLACKBOT",
+      team_name: TS.model.team.name,
+      show_admin_info: TS.boot_data.feature_admin_profile_info && member.is_admin && member.team_id === TS.model.user.team_id
     };
     _member_presence_list.clear();
     _member_presence_list.add(member.id);
@@ -10710,6 +10722,8 @@
       if (TS.boot_data.feature_user_custom_status) {
         TS.client.channel_pane.$scroller.delegate("li span", "dragstart", _onChannelListItemDragStart);
       }
+      var d = document.createElement("div");
+      _supports_scroll_into_view_if_needed = "scrollIntoViewIfNeeded" in d;
     },
     rebuild: function() {
       TS.client.channel_pane.rebuildFooter();
@@ -10801,6 +10815,7 @@
   var _dm_members;
   var _starred_members;
   var _has_scrolled = false;
+  var _supports_scroll_into_view_if_needed = false;
   var _onLogin = function() {
     TS.log(82, "UI bind on login_sig");
     TS.utility.queueRAF(_bindUI);
@@ -11113,11 +11128,21 @@
       $active = TS.client.channel_pane.$scroller.find(".section_holder ul li.active");
     }
     if (!$active.length) return;
-    $active.scrollintoview({
-      offset: "top",
-      px_offset: 50,
-      scroller: TS.client.channel_pane.$scroller
-    });
+    if (TS.model.is_IE || TS.model.is_edge) {
+      $active.scrollintoview({
+        offset: "top",
+        px_offset: 50,
+        scroller: TS.client.channel_pane.$scroller
+      });
+      return;
+    }
+    setTimeout(function() {
+      if (_supports_scroll_into_view_if_needed) {
+        $active[0].scrollIntoViewIfNeeded();
+      } else {
+        $active[0].scrollIntoView();
+      }
+    }, 50);
   };
   var _getSortedStarredList = function() {
     var channels = TS.channels.getChannelsForUser();
