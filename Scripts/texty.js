@@ -14556,19 +14556,6 @@
       _classCallCheck(this, SlackSearch);
       var _this = _possibleConstructorReturn(this, (SlackSearch.__proto__ || Object.getPrototypeOf(SlackSearch)).call(this, quill, options));
       _this.options = (0, _utils.assign)({}, DEFAULT_OPTIONS, options);
-      setTimeout(function() {
-        var d = (new _quillDelta2.default).insert("in:", {
-          slacksearchtokenmodifier: {
-            name: "in"
-          }
-        }).insert("gener", {
-          slacksearchtokenvalue: {
-            text: "gener",
-            ghost: "al"
-          }
-        });
-        _this.quill.setContents(d);
-      }, 1e3);
       return _this;
     }
     return SlackSearch;

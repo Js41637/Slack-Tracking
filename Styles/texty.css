@@ -331,18 +331,6 @@
 }
 
 .ql-placeholder {
-  display: none
-}
-
-.ql-placeholder ::selection {
-  background: 0 0
-}
-
-.ql-editor.ql-blank {
-  position: relative
-}
-
-.ql-editor.ql-blank~.ql-placeholder {
   color: #000;
   opacity: .375;
   -webkit-filter: grayscale(100%);
@@ -350,7 +338,7 @@
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
-  display: block;
+  display: none;
   font-style: normal;
   pointer-events: none;
   padding: 9px 30px 9px 9px;
@@ -360,11 +348,23 @@
   right: 0
 }
 
-.supports_custom_scrollbar .ql-editor.ql-blank~.ql-placeholder {
+.ql-placeholder ::selection {
+  background: 0 0
+}
+
+.supports_custom_scrollbar .ql-placeholder {
   margin-top: 2px;
   margin-bottom: 2px;
   min-height: 21px;
   padding: 7px 30px 7px 9px
+}
+
+.ql-editor.ql-blank {
+  position: relative
+}
+
+.ql-editor.ql-blank~.ql-placeholder {
+  display: block
 }
 
 .ql-editor.ql-blank:before {

@@ -3645,7 +3645,8 @@ ul.member_list li .nuc {
 .channels_list_holder ul li .feature_user_custom_status.primary_action .current_status {
   -ms-flex: 0 0 auto;
   -webkit-flex: 0 0 auto;
-  flex: 0 0 auto
+  flex: 0 0 auto;
+  overflow: hidden
 }
 
 @-webkit-keyframes typing-sprite {
@@ -13902,6 +13903,11 @@ only screen and (min-resolution:2dppx) {
 .search_form .search_input:focus {
   border-color: #2D9EE0;
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075)
+}
+
+.search_form .search_input .ql-placeholder {
+  margin: 1px 0 0;
+  padding: 0
 }
 
 .search_message_result {

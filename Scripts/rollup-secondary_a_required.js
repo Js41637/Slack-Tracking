@@ -14812,7 +14812,9 @@ TS.registerModule("constants", {
       TS.files.team_file_changed_sig.add(_teamFileChanged);
       if (TS.qs_args["delay"]) TS.search.delay = TS.qs_args["delay"];
       TS.search.input = $("#search_terms");
-      TSSSB.call("inputFieldCreated", TS.search.input.get(0));
+      if (!TS.boot_data.feature_texty_search) {
+        TSSSB.call("inputFieldCreated", TS.search.input.get(0));
+      }
       if (TS.boot_data.feature_texty_search) {
         TS.utility.contenteditable.create(TS.search.input, {
           modules: {
@@ -14825,6 +14827,10 @@ TS.registerModule("constants", {
           },
           onBlur: function() {
             $("#client-ui").removeClass("search_focused");
+          },
+          onEnter: function() {
+            TS.search.submitSearch();
+            return true;
           }
         });
       }
@@ -14988,13 +14994,13 @@ TS.registerModule("constants", {
       } else {
         TS.search.member = null;
         TS.search.from = null;
-        var input_val = $.trim(TS.search.input.val());
+        var input_val = TS.utility.contenteditable.value(TS.search.input).trim();
         var from_matches = input_val.match(TS.search.from_regex);
         if (from_matches) {
           $.each(from_matches, function(i, match) {
             input_val = $.trim(input_val.replace(match, ""));
           });
-          TS.search.input.val(input_val);
+          TS.utility.contenteditable.value(TS.search.input, input_val);
         }
       }
       TS.search.search_member_set_sig.dispatch();
@@ -15124,7 +15130,7 @@ TS.registerModule("constants", {
       if (query) {
         TS.search.query = query;
       } else {
-        TS.search.query = $.trim(TS.search.input.val());
+        TS.search.query = TS.utility.contenteditable.value(TS.search.input).trim();
       }
       TS.search.query = $.trim(TS.search.query);
       TS.search.query_string = TS.search.query;
@@ -15228,7 +15234,9 @@ TS.registerModule("constants", {
       TS.search.autosuggest_search_results_fetched_sig.dispatch(data, args);
     },
     highlightSuggestion: function(value) {
-      var highlighted = value.replace(new RegExp("(" + TS.utility.preg_quote(TS.search.input.val()) + ")", "gi"), "<b>$1</b>");
+      var current = TS.utility.contenteditable.value(TS.search.input);
+      var pattern = new RegExp("(" + TS.utility.preg_quote(current) + ")", "gi");
+      var highlighted = value.replace(pattern, "<b>$1</b>");
       return highlighted;
     },
     expandChannelsAndCheckForMsgsInMatch: function(match) {
@@ -15399,13 +15407,16 @@ TS.registerModule("constants", {
       return !!TS.client;
     },
     setInputVal: function(txt) {
-      TS.search.input.val(txt).focus();
+      TS.utility.contenteditable.value(TS.search.input, txt);
+      TS.utility.contenteditable.focus(TS.search.input);
     },
     appendToInputAndSelect: function(txt) {
-      var current = TS.search.input.val();
+      var current = TS.utility.contenteditable.value(TS.search.input);
       if (current && !/\s$/.test(current)) current += " ";
-      TS.search.input.val(current + txt);
-      TS.search.input.textrange("set", current.length, current.length + txt.length);
+      TS.utility.contenteditable.value(TS.search.input, current + txt);
+      if (!TS.boot_data.feature_texty_search) {
+        TS.search.input.textrange("set", current.length, current.length + txt.length);
+      }
     },
     submitSearch: function() {
       TS.search.input.closest("form").trigger("submit");
@@ -49453,7 +49464,7 @@ $.fn.togglify = function(settings) {
       });
     }
     TS.click.addClientHandler("[data-js=expert_search_face_pile]", function(e) {
-      if (TS.sli_expert_search) TS.sli_expert_search.handleShowResults(e);
+      if (TS.sli_expert_search) TS.sli_expert_search.toggleExpand(e);
     });
     TS.click.addClientHandler(".authenticate_in_browser", function(e, $el) {
       var $url_path = $el.data("url_path");
@@ -79434,6 +79445,7 @@ $.fn.togglify = function(settings) {
 (function() {
   "use strict";
   TS.registerModule("sli_expert_search", {
+    is_expanded: false,
     sli_expert_search_group: null,
     onStart: function() {
       if (TS.client) {
@@ -79446,6 +79458,7 @@ $.fn.togglify = function(settings) {
       return TS.sli_expert_search.sli_expert_search_group === "show_experts";
     },
     render: function(query, experts, channels) {
+      TS.sli_expert_search.is_expanded = false;
       var html = "";
       experts = experts.slice(0, 5);
       var users_for_cta = _(experts).map(function(expert_group) {
@@ -79487,9 +79500,10 @@ $.fn.togglify = function(settings) {
       });
       return html;
     },
-    handleShowResults: function(e) {
-      $("[data-js=sli_expert_search_cta]").addClass("hidden");
-      $("[data-js=sli_expert_search]").removeClass("hidden");
+    toggleExpand: function(e) {
+      TS.sli_expert_search.is_expanded = !TS.sli_expert_search.is_expanded;
+      $("[data-js=sli_expert_search_cta]").toggleClass("hidden", TS.sli_expert_search.is_expanded);
+      $("[data-js=sli_expert_search]").toggleClass("hidden", !TS.sli_expert_search.is_expanded);
     }
   });
 })();

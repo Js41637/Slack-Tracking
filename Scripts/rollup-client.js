@@ -14957,6 +14957,7 @@
       var page = [];
       var start;
       var show_top_results = false;
+      var show_expert_search = false;
       var display_paging_in_scroller = true;
       var loading_alt = TS.i18n.t("Loading", "search")();
       if (TS.search.filter == "messages") {
@@ -14968,9 +14969,6 @@
           } else {
             TS.search.view.waiting_on_page = TS.search.view.current_messages_page;
           }
-        }
-        if (_.get(results, "experts.length") && TS.sli_expert_search && TS.sli_expert_search.isEnabled()) {
-          html += TS.sli_expert_search.render(TS.search.query, results.experts, results.channels);
         }
         show_top_results = TS.search.sort == "timestamp" && results.messages.modules && results.messages.modules.score && results.messages.modules.score.top_results && TS.search.view.current_messages_page == 1;
         if (show_top_results) {
@@ -14984,6 +14982,12 @@
             for_search_display: true,
             debug: debug
           });
+        }
+        show_expert_search = _.get(results, "experts.length") && TS.sli_expert_search && TS.sli_expert_search.isEnabled() && TS.search.view.current_messages_page == 1;
+        if (show_expert_search) {
+          html += TS.sli_expert_search.render(TS.search.query, results.experts, results.channels);
+        }
+        if (show_top_results || show_expert_search) {
           html += '<div class="search_module_header"><p><span>All Results</span></p></div>';
         }
         if (page.length) {
@@ -18641,7 +18645,7 @@
         TS.search.search_member_set_sig.add(TS.search.autocomplete.updateInput, TS.search.autocomplete);
         TS.client.flexpane_display_switched_sig.add(_cancelDelayedSearchOnFlexpaneChange);
         TS.client.login_sig.add(function() {
-          if (_$input.val().trim()) {
+          if (TS.utility.contenteditable.value(_$input).trim()) {
             _ensureInputSetup();
           }
         });
@@ -18655,7 +18659,11 @@
     },
     search: function(term, submit) {
       _inputAutocomplete("preventMenuOnNextFocus");
-      _$input.val(term).removeClass("placeholder").focus();
+      TS.utility.contenteditable.value(_$input, term);
+      TS.utility.contenteditable.focus(_$input);
+      if (!TS.boot_data.feature_texty_search) {
+        _$input.removeClass("placeholder");
+      }
       if (submit) {
         _$input.closest("form").submit();
       }
@@ -18677,36 +18685,44 @@
       var last_flex_state = false;
       if (TS.client) {
         $form.bind("submit", function(e) {
-          has_input = $.trim($input.val());
+          has_input = !!TS.utility.contenteditable.value($input).trim();
           if (has_input) {
             _performSearch(true);
-            $input.trigger("change");
+            if (!TS.boot_data.feature_texty_search) {
+              $input.trigger("change");
+            }
           }
           return false;
         });
-        $input.bind("focus", function() {
-          if ($.trim($input.val()) !== "") {
-            if (TS.model.ui_state.flex_name !== "search") _inputAutocomplete("preventMenuOnNextFocus");
-            if (TS.search.searchSessionExpired()) {
-              TS.search.view.maybeResetSearch();
-            } else {
-              TS.search.view.showResults();
-              TS.search.view.maybeRebuildResults();
+        if (!TS.boot_data.feature_texty_search) {
+          $input.bind("focus", function() {
+            if ($.trim($input.val()) !== "") {
+              if (TS.model.ui_state.flex_name !== "search") _inputAutocomplete("preventMenuOnNextFocus");
+              if (TS.search.searchSessionExpired()) {
+                TS.search.view.maybeResetSearch();
+              } else {
+                TS.search.view.showResults();
+                TS.search.view.maybeRebuildResults();
+              }
             }
-          }
-          $input.setCursorPosition($input.val().length);
-        });
-        $input.bind("click", function() {
-          if (!TS.search.view.searchIsVisible()) {
-            $input.select();
+            $input.setCursorPosition($input.val().length);
+          });
+        }
+        if (!TS.boot_data.feature_texty_search) {
+          $input.bind("click", function() {
+            if (!TS.search.view.searchIsVisible()) {
+              $input.select();
+            }
+          });
+        }
+      }
+      if (!TS.boot_data.feature_texty_search) {
+        $input.bind("keyup", function(e) {
+          if (e.which == TS.utility.keymap.esc) {
+            $input.blur();
           }
         });
       }
-      $input.bind("keyup", function(e) {
-        if (e.which == TS.utility.keymap.esc) {
-          $input.blur();
-        }
-      });
       $client_ui.on("transitionend", function() {
         if (input_focused !== last_focus_state || TS.model.ui_state.flex_visible !== last_flex_state) {
           last_focus_state = input_focused;
@@ -18719,29 +18735,31 @@
       }).bind("mousedown.clear_input", function(e) {
         e.preventDefault();
       });
-      $input.bind("focus.set_cursor", function() {
-        $input.setCursorPosition($input.val().length);
-      });
-      $input.bind("keyup change focus blur", function() {
-        if ($(this).val()) {
-          $form.addClass("active");
-        } else {
-          $form.removeClass("active");
-        }
-      });
-      $input.bind("blur", TS.search.autocomplete.maybeLogSearchInputBlur);
-      $input.bind("focus", function() {
-        $client_ui.addClass("search_focused");
-        input_focused = true;
-      }).bind("blur", function() {
-        $client_ui.removeClass("search_focused");
-        input_focused = false;
-      });
-      $input.hover(function() {
-        $client_ui.addClass("search_hover");
-      }, function() {
-        $client_ui.removeClass("search_hover");
-      });
+      if (!TS.boot_data.feature_texty_search) {
+        $input.bind("focus.set_cursor", function() {
+          $input.setCursorPosition($input.val().length);
+        });
+        $input.bind("keyup change focus blur", function() {
+          if ($(this).val()) {
+            $form.addClass("active");
+          } else {
+            $form.removeClass("active");
+          }
+        });
+        $input.bind("blur", TS.search.autocomplete.maybeLogSearchInputBlur);
+        $input.bind("focus", function() {
+          $client_ui.addClass("search_focused");
+          input_focused = true;
+        }).bind("blur", function() {
+          $client_ui.removeClass("search_focused");
+          input_focused = false;
+        });
+        $input.hover(function() {
+          $client_ui.addClass("search_hover");
+        }, function() {
+          $client_ui.removeClass("search_hover");
+        });
+      }
     },
     maybeLogSearchInputBlur: function(e) {
       var terms = TS.search.last_search_query;
@@ -18754,13 +18772,21 @@
     },
     clearInput: function() {
       _cancelDelayedSearch();
-      _$input.val("").trigger("change");
+      TS.utility.contenteditable.clear(_$input);
+      if (!TS.boot_data.feature_texty_search) {
+        _$input.trigger("change");
+      }
       _inputAutocomplete("hide");
       _inputAutocomplete("preventMenuOnNextFocus");
-      _$input.focus();
+      TS.utility.contenteditable.focus(_$input);
     },
     updateInput: function() {
-      if (TS.search.query) _$input.val(TS.search.query_string).trigger("change");
+      if (TS.search.query) {
+        TS.utility.contenteditable.value(_$input, TS.search.query_string);
+        if (!TS.boot_data.feature_texty_search) {
+          _$input.trigger("change");
+        }
+      }
     },
     startSpinner: function() {
       clearTimeout(_start_spinner_timer);
@@ -18791,7 +18817,7 @@
   var _pending_query = "";
   var _performSearch = function(from_enter_key) {
     _cancelDelayedSearch();
-    var query = $.trim(_$input.val());
+    var query = TS.utility.contenteditable.value(_$input).trim();
     if (!from_enter_key && query === TS.search.query) return;
     if (_pending_query === query) {
       TS.search.view.showResults();
