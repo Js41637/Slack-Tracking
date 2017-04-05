@@ -77,7 +77,7 @@
       },
       promote_to_mc_guest: {
         primary: false,
-        label: function(data) {
+        label: function() {
           return TS.i18n.t("Convert to Multi-Channel Guest", "member_actions")();
         },
         cls: "api_set_restricted"

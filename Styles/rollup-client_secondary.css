@@ -2510,6 +2510,13 @@ html:not(.supports_flexbox) #convo_tab #convo_tab_btns {
   z-index: 50
 }
 
+.client_resize_optimizations #channels_scroller {
+  height: auto;
+  -ms-flex: 1;
+  -webkit-flex: 1;
+  flex: 1
+}
+
 #team_menu>* {
   opacity: 1;
   -webkit-transition: opacity .2s ease 0s;
@@ -2718,6 +2725,28 @@ html:not(.slim_scrollbar) #col_channels #channels_scroller::-webkit-scrollbar-co
 
 .supports_custom_scrollbar.slim_scrollbar #col_channels:hover #channels_scroller::-webkit-scrollbar-thumb:hover {
   background-color: rgba(171, 155, 169, .8)
+}
+
+.client_resize_optimizations #col_channels,
+.client_resize_optimizations #monkey_scroll_wrapper_for_channels_scroller,
+.client_resize_optimizations #monkey_scroll_wrapper_for_channels_scroller>.monkey_scroll_hider {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: column;
+  -moz-flex-direction: column;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  overflow: hidden
+}
+
+.client_resize_optimizations #monkey_scroll_wrapper_for_channels_scroller,
+.client_resize_optimizations #monkey_scroll_wrapper_for_channels_scroller>.monkey_scroll_hider {
+  -ms-flex: 1;
+  -webkit-flex: 1;
+  flex: 1
 }
 
 body.incremental_boot #col_channels .header_count {
@@ -27527,6 +27556,15 @@ ul li.highlighted a .app_slash_command_desc {
 }
 
 .app_card_member_link:hover {
+  text-decoration: underline
+}
+
+.app_card_channel_link {
+  color: #007AB8;
+  cursor: pointer
+}
+
+.app_card_channel_link:hover {
   text-decoration: underline
 }
 

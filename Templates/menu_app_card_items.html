@@ -15,20 +15,9 @@
     {{#t}}View in app directory{{/t}}
   </a></li>
 {{else}}
-  {{#if user_can_manage}}
-    <li role="menuitem" data-qa="app_card_edit_settings"><a href="/services/{{bot_id}}" target="_blank">
-      {{#t}}Edit settings{{/t}}
-    </a></li>
-  {{else}}
-    <li role="menuitem" class="disabled ts_tip ts_tip_bottom ts_tip_float ts_tip_multiline" data-qa="app_card_edit_settings"><a>
-      {{#t}}Edit settings{{/t}}
-      <span class="ts_tip_tip">
-        <span class="ts_tip_multiline_inner">
-          {{#t}}Only certain users are allowed to edit apps.{{/t}}
-        </span>
-      </span>
-    </a></li>
-  {{/if}}
+  <li role="menuitem" data-qa="app_card_edit_settings"><a href="/services/{{bot_id}}" target="_blank">
+    {{#t}}View settings{{/t}}
+  </a></li>
 {{/if}}
 {{!-- Bot-specific --}}
 {{#if bot_user}}

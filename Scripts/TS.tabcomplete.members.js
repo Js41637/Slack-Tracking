@@ -223,7 +223,9 @@
     }
     var search_text = text.replace(/^@/, "");
     var results = TS.sorter.search(search_text, search_data, search_options);
-    return _.map(results, "model_ob");
+    var model_obs = _.map(results, "model_ob");
+    var members = _friendlyMemberFilter(search_text, model_obs);
+    return members;
   };
   var _getAsyncResults = function(model_ob, text, limit) {
     var options = {
@@ -380,5 +382,14 @@
     return _.isEqualWith(first, second, function(a, b) {
       return a.id === b.id;
     });
+  };
+  var _friendlyMemberFilter = function(query, members) {
+    if (!Array.isArray(members)) return members;
+    if (!TS.model.prefs.require_at && query === "you") {
+      return members.filter(function(member) {
+        return member.id !== TS.model.user.id;
+      });
+    }
+    return members;
   };
 })();

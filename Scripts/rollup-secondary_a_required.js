@@ -3361,15 +3361,6 @@
       TS.channels.message_removed_sig.dispatch(channel, msg);
       TS.channels.calcUnreadCnts(channel, true);
     },
-    changeMsgText: function(id, msg, txt) {
-      var channel = TS.channels.getChannelById(id);
-      if (!channel) {
-        TS.error('unknown channel "' + id + '"');
-        return;
-      }
-      msg.text = txt;
-      TS.channels.message_changed_sig.dispatch(channel, msg);
-    },
     sendMsg: function(channel_id, text, in_reply_to_msg, should_broadcast_reply) {
       var err_txt;
       var channel = TS.channels.getChannelById(channel_id);
@@ -3802,10 +3793,8 @@
       }
       TS.generic_dialog.alert(alert_text);
     },
-    lookupById: function(id) {
-      return !!_id_map[id];
-    },
     getChannelById: function(id) {
+      if (!id) return null;
       var channels = TS.model.channels;
       var channel = _id_map[id];
       if (channel) {
@@ -4034,31 +4023,19 @@
       return TS.shared.kickMember(channel, member_id);
     },
     getChannelsForUser: function() {
+      var channels = TS.model.channels;
       if (!TS.model.user.is_restricted) {
-        return TS.model.channels;
+        return channels;
       }
-      _users_channels.length = 0;
-      var channel;
-      for (var i = 0; i < TS.model.channels.length; i++) {
-        channel = TS.model.channels[i];
-        if (!channel.is_member) continue;
-        _users_channels.push(channel);
-      }
-      return _users_channels;
+      return TS.channels.getChannelsUserIsIn();
     },
     getChannelsUserIsIn: function() {
-      return _.filter(TS.model.channels, "is_member");
+      var channels = TS.model.channels;
+      return _.filter(channels, "is_member");
     },
     getUnarchivedChannelsForUser: function() {
-      _unarchived_channels.length = 0;
       var channels = TS.channels.getChannelsForUser();
-      var channel;
-      for (var i = 0; i < channels.length; i++) {
-        channel = channels[i];
-        if (channel.is_archived) continue;
-        _unarchived_channels.push(channel);
-      }
-      return _unarchived_channels;
+      return _.reject(channels, "is_archived");
     },
     setDataRetention: function(channel_id, retention_type, retention_duration, handler) {
       var args = {
@@ -4081,32 +4058,11 @@
       TS.api.call("channels.getRetention", {
         channel: channel_id
       }, handler);
-    },
-    promiseToEnsureChannelsInfo: function(channel_id, include_shared, force) {
-      if (!include_shared && !force) return Promise.resolve();
-      var p = _channels_info_p_map[channel_id];
-      if (p && !force) return p;
-      p = TS.api.callImmediately("channels.info", {
-        channel: channel_id,
-        include_shared: include_shared,
-        no_members: false
-      }).then(function(response) {
-        if (!response.data.ok) return TS.generic_dialog.alert(TS.i18n.t("Something went wrong when fetching information about the channel.", "channels")(), TS.i18n.t("Oops! Something went wrong.", "channels")());
-        TS.channels.upsertChannel(response.data.channel);
-        return TS.members.ensureMembersArePresent(response.data.channel.members, _.fill(Array(response.data.channel.members.length), channel_id));
-      }).catch(function(error) {
-        return Promise.reject(Error("channels.info api call failed when trying to get data for: " + channel_id));
-      });
-      _channels_info_p_map[channel_id] = p;
-      return p;
     }
   });
   var _tcm_did_warn_about_stack = {};
-  var _users_channels = [];
-  var _unarchived_channels = [];
   var _id_map = {};
   var _name_map = {};
-  var _channels_info_p_map = {};
   var _upsertChannel = function(channel) {
     var channels = TS.model.channels;
     var existing_channel = TS.channels.getChannelById(channel.id);
@@ -4209,7 +4165,7 @@
     if (channel.shares && channel.is_org_shared) {
       channel.shared_team_ids = _(channel.shared_team_ids || []).concat(_.map(channel.shares, "id")).value();
       if (channel.shares) delete channel.shares;
-    } else if (channel.shares && !channel.is_org_shared) {
+    } else if (channel.shares && TS.utility.teams.isModelObShared(channel)) {
       channel.shared_team_ids = _.map(channel.shares, "team.id");
       if (channel.shares) delete channel.shares;
     }
@@ -5066,7 +5022,6 @@ TS.registerModule("constants", {
     data_retention_changed_sig: new signals.Signal,
     converted_to_shared_sig: new signals.Signal,
     shared_teams_updated_sig: new signals.Signal,
-    onStart: function() {},
     addMsg: function(id, msg) {
       var group = TS.groups.getGroupById(id);
       if (!group) {
@@ -5098,15 +5053,6 @@ TS.registerModule("constants", {
       TS.utility.msgs.spliceMsg(msgs, msg);
       TS.groups.message_removed_sig.dispatch(group, msg);
       TS.groups.calcUnreadCnts(group, true);
-    },
-    changeMsgText: function(id, msg, txt) {
-      var group = TS.groups.getGroupById(id);
-      if (!group) {
-        TS.error('unknown group "' + id + '"');
-        return;
-      }
-      msg.text = txt;
-      TS.groups.message_changed_sig.dispatch(group, msg);
     },
     sendMsg: function(group_id, text, in_reply_to_msg, should_broadcast_reply) {
       return TS.shared.sendMsgGroup(group_id, text, TS.groups, in_reply_to_msg, should_broadcast_reply);
@@ -5442,10 +5388,8 @@ TS.registerModule("constants", {
         TS.channels.alertSetPurposeError(data.error);
       }
     },
-    lookupById: function(id) {
-      return !!_id_map[id];
-    },
     getGroupById: function(id) {
+      if (!id) return null;
       var groups = TS.model.groups;
       var group = _id_map[id];
       if (group) {
@@ -5593,27 +5537,12 @@ TS.registerModule("constants", {
       TS.groups.purpose_changed_sig.dispatch(group, user_id, purpose);
     },
     getUnarchivedClosedGroups: function(id) {
-      _unarchived_closed_groups.length = 0;
-      var groups = TS.model.groups;
-      var group;
-      for (var i = 0; i < groups.length; i++) {
-        group = groups[i];
-        if (group.is_archived) continue;
-        if (group.is_open) continue;
-        _unarchived_closed_groups.push(group);
-      }
-      return _unarchived_closed_groups;
+      var groups = TS.groups.getUnarchivedGroups();
+      return _.reject(groups, "is_open");
     },
     getUnarchivedGroups: function() {
-      _unarchived_groups.length = 0;
       var groups = TS.model.groups;
-      var group;
-      for (var i = 0; i < groups.length; i++) {
-        group = groups[i];
-        if (group.is_archived) continue;
-        _unarchived_groups.push(group);
-      }
-      return _unarchived_groups;
+      return _.reject(groups, "is_archived");
     },
     getActiveMembersNotInThisGroupForInviting: function(id, act_like_an_admin, members_subset) {
       var model_ob = TS.shared.getModelObById(id);
@@ -5722,29 +5651,10 @@ TS.registerModule("constants", {
       TS.api.call("groups.getRetention", {
         channel: group_id
       }, handler);
-    },
-    promiseToEnsureGroupsInfo: function(group_id, include_shared, force) {
-      if (!include_shared && !force) return Promise.resolve();
-      var p = _groups_info_p_map[group_id];
-      if (p && !force) return p;
-      p = TS.api.callImmediately("groups.info", {
-        channel: group_id,
-        include_shared: include_shared
-      }).then(function(response) {
-        TS.groups.upsertGroup(response.data.group);
-        return TS.members.ensureMembersArePresent(response.data.group.members, _.fill(Array(response.data.group.members.length), group_id));
-      }).catch(function(error) {
-        return Promise.reject(Error("groups.info api call failed when trying to get data for: " + group_id));
-      });
-      _groups_info_p_map[group_id] = p;
-      return p;
     }
   });
   var _id_map = {};
   var _name_map = {};
-  var _groups_info_p_map = {};
-  var _unarchived_closed_groups = [];
-  var _unarchived_groups = [];
   var _getActiveMembersForInvitingWorker = function(act_like_an_admin, group, members_subset) {
     if (TS.lazyLoadMembersAndBots()) {
       throw new Error("_getActiveMembersForInvitingWorker is incomplete when flannel is enabled. It should not be used.");
@@ -7675,15 +7585,6 @@ TS.registerModule("constants", {
       TS.ims.message_removed_sig.dispatch(im, msg);
       TS.ims.calcUnreadCnts(im, true);
     },
-    changeMsgText: function(id, msg, txt) {
-      var im = TS.ims.getImById(id);
-      if (!im) {
-        TS.error('unknown im "' + id + '"');
-        return;
-      }
-      msg.text = txt;
-      TS.ims.message_changed_sig.dispatch(im, msg);
-    },
     sendMsg: function(im_id, text, in_reply_to_msg, should_broadcast_reply) {
       return TS.shared.sendMsg(im_id, text, TS.ims, in_reply_to_msg, should_broadcast_reply);
     },
@@ -8229,7 +8130,6 @@ TS.registerModule("constants", {
       TS.mpims.message_removed_sig.dispatch(mpim, msg);
       TS.mpims.calcUnreadCnts(mpim, true);
     },
-    changeMsgText: function() {},
     sendMsg: function(mpim_id, text, in_reply_to_msg, should_broadcast_reply) {
       return TS.shared.sendMsgGroup(mpim_id, text, TS.mpims, in_reply_to_msg, should_broadcast_reply);
     },
@@ -10795,6 +10695,11 @@ TS.registerModule("constants", {
       }
       return false;
     },
+    isModelObShared: function(model_ob) {
+      if (!_.isObject(model_ob)) return false;
+      if (TS.model.shared_channels_enabled && model_ob.is_shared && !model_ob.is_org_shared) return true;
+      return false;
+    },
     getMembersForTeam: function(team) {
       if (!_.isObject(team)) return;
       if (!team.id) return;
@@ -12556,6 +12461,14 @@ TS.registerModule("constants", {
             return '<span class="app_card_member_link" data-member-profile-link=' + user_id + ">" + TS.members.getMemberDisplayNameById(user_id, true, true) + "</span>";
           }
           return '<span class="app_card_member_link" data-member-profile-link=' + user_id + ">A user</span>";
+        });
+        installation_summary = installation_summary.replace(/\#([a-z0-9\-]+)/g, function(match, channel_name) {
+          var installation_summary_channel = TS.channels.getChannelByName(channel_name);
+          if (installation_summary_channel) {
+            var prefix = TS.templates.builders.makeChannelPrefix(installation_summary_channel);
+            return '<span class="app_card_channel_link internal_channel_link" data-channel-id="' + installation_summary_channel.id + '">' + prefix + channel_name + "</span>";
+          }
+          return channel_name;
         });
         template_args.installation_summary = new Handlebars.SafeString(installation_summary);
       }
@@ -36816,7 +36729,7 @@ var _on_esc;
         var member = TS.members.getMemberById(model_ob.user);
         if (TS.boot_data.page_needs_enterprise) {
           var team = TS.model.team;
-          if (model_ob.is_shared && !model_ob.is_org_shared || member && team && member.team_id !== team.id) {
+          if (TS.utility.teams.isModelObShared(model_ob) || member && team && member.team_id !== team.id) {
             TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("You are not allowed to use this command here.", "cmd_handlers")(), "", "sad_surprise");
             return;
           }
@@ -37015,7 +36928,7 @@ var _on_esc;
     var is_shared = false;
     if (TS.boot_data.page_needs_enterprise) {
       var model_ob = TS.shared.getActiveModelOb();
-      if (model_ob && model_ob.is_shared && !model_ob.is_org_shared) is_shared = true;
+      if (TS.utility.teams.isModelObShared(model_ob)) is_shared = true;
     }
     return {
       cmds: cmds.filter(function(cmd) {
@@ -67227,7 +67140,8 @@ $.fn.togglify = function(settings) {
     return !r && o && "wheel" === e && (r = document.implementation.hasFeature("Events.wheel", "3.0")), r;
   }
   var o, i = n(11);
-  i.canUseDOM && (o = document.implementation && document.implementation.hasFeature && document.implementation.hasFeature("", "") !== !0), e.exports = r;
+  i.canUseDOM && (o = document.implementation && document.implementation.hasFeature && document.implementation.hasFeature("", "") !== !0),
+    e.exports = r;
 }, function(e, t, n) {
   "use strict";
 
@@ -68841,8 +68755,7 @@ $.fn.togglify = function(settings) {
     function t(e, n) {
       a()(this, t);
       var r = c()(this, (t.__proto__ || o()(t)).call(this, e, n));
-      return r._cellSizeCache = e.cellSizeCache || new _.a, r.getColumnWidth = r.getColumnWidth.bind(r), r.getRowHeight = r.getRowHeight.bind(r), r.resetMeasurements = r.resetMeasurements.bind(r), r.resetMeasurementForColumn = r.resetMeasurementForColumn.bind(r), r.resetMeasurementForRow = r.resetMeasurementForRow.bind(r),
-        r;
+      return r._cellSizeCache = e.cellSizeCache || new _.a, r.getColumnWidth = r.getColumnWidth.bind(r), r.getRowHeight = r.getRowHeight.bind(r), r.resetMeasurements = r.resetMeasurements.bind(r), r.resetMeasurementForColumn = r.resetMeasurementForColumn.bind(r), r.resetMeasurementForRow = r.resetMeasurementForRow.bind(r), r;
     }
     return p()(t, e), s()(t, [{
       key: "getColumnWidth",
@@ -72095,8 +72008,7 @@ $.fn.togglify = function(settings) {
       }]), S(t, [{
         key: "componentWillMount",
         value: function() {
-          this.props.searchQuery && this.onSearch(this.props.searchQuery),
-            w.a("react_emoji_menu_mount_mark");
+          this.props.searchQuery && this.onSearch(this.props.searchQuery), w.a("react_emoji_menu_mount_mark");
         }
       }, {
         key: "componentDidMount",
@@ -75264,7 +75176,8 @@ $.fn.togglify = function(settings) {
             v.innerHTML = "<" + m + "></" + m + ">", d = v.removeChild(v.firstChild);
           } else d = i.is ? h.createElement(this._currentElement.type, i.is) : h.createElement(this._currentElement.type);
         else d = h.createElementNS(a, this._currentElement.type);
-        E.precacheNode(this, d), this._flags |= L.hasCachedChildNodes, this._hostParent || C.setAttributeForRoot(d), this._updateDOMProperties(null, i, e);
+        E.precacheNode(this, d),
+          this._flags |= L.hasCachedChildNodes, this._hostParent || C.setAttributeForRoot(d), this._updateDOMProperties(null, i, e);
         var _ = y(d);
         this._createInitialChildren(e, i, r, _), p = _;
       } else {
@@ -78474,8 +78387,7 @@ $.fn.togglify = function(settings) {
   n(151), n(152), n(153), n(154), n(155), n(149), n(95), n(150);
 }, function(e, t, n) {
   "use strict";
-  n(156),
-    n(157);
+  n(156), n(157);
 }, function(e, t, n) {
   "use strict";
 

@@ -1752,8 +1752,8 @@
         if (!TS.boot_data.feature_client_resize_optimizations) {
           var flex_contents_height = wh - TS.view.msgs_scroller_y;
           $("#flex_contents > .panel").css("height", flex_contents_height);
+          _setChannelsScrollerHeight(wh, banner_h);
         }
-        _setChannelsScrollerHeight(wh, banner_h);
         $("#archives_return").css("top", msgs_scroller_height - 25);
       }
       TS.log(389, start + " #10 " + (Date.now() - start) + "ms");
@@ -13066,7 +13066,7 @@
       var call_button_template_args;
       if (TS.boot_data.page_needs_enterprise) {
         if (!model_ob) model_ob = TS.shared.getActiveModelOb();
-        if (model_ob && model_ob.is_shared && !model_ob.is_org_shared) return;
+        if (model_ob && TS.utility.teams.isModelObShared(model_ob)) return;
       }
       if (!TS.model.team.prefs.allow_calls) return;
       if (TS.model.active_im_id) {
@@ -13376,7 +13376,7 @@
     additional_template_args = additional_template_args || {};
     var model_ob = TS.shared.getActiveModelOb();
     if (!model_ob) return;
-    if (TS.boot_data.page_needs_enterprise && model_ob.is_shared && !model_ob.is_org_shared) return;
+    if (TS.utility.teams.isModelObShared(model_ob)) return;
     var is_call_window_ready = TS.utility.calls.isCallWindowReady() || !TS.utility.calls.platformHasCallsCode();
     var is_multiparty_enabled = TS.utility.calls.isMultiPartyEnabled();
     if (TS.utility.calls.isEnabled() && TS.model.team.prefs.calling_app_name != "Slack") {
@@ -28672,7 +28672,7 @@
       template_args.teams_shared_with = _.map(model_ob.shared_team_ids, function(id) {
         return TS.enterprise.getTeamById(id);
       });
-    } else if (TS.model.shared_channels_enabled && !model_ob.is_org_shared && model_ob.is_shared && model_ob.shared_team_ids) {
+    } else if (TS.utility.teams.isModelObShared(model_ob)) {
       template_args.team = TS.model.team;
       template_args.shared_teams = _.map(model_ob.shared_team_ids, function(id) {
         return TS.teams.getTeamById(id);

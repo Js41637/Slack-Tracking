@@ -129,15 +129,15 @@
         px_offset: $("header").height() + 16
       });
     },
-    onFirstLoginMS: function(data) {
+    onFirstLoginMS: function() {
       _emojiReplaceOnLoad();
       TS.warn(Date.now() - TS.boot_data.start_ms + "ms from first html to login_sig.dispatch()");
       TS.web.before_login_sig.dispatch();
       TS.web.login_sig.dispatch();
     },
-    onEveryLoginMS: function(data) {},
-    apiPaused: function(info) {},
-    apiUnpaused: function(info) {}
+    onEveryLoginMS: function() {},
+    apiPaused: function() {},
+    apiUnpaused: function() {}
   });
   var _emojiReplaceOnLoad = function() {
     $(".emoji_replace_on_load").each(function() {

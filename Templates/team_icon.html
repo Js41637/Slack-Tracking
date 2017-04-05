@@ -4,6 +4,6 @@
   <ts-icon class="team_image icon_{{size}} default" aria-hidden="true">{{initialsSafe team.name}}</ts-icon>
 
 {{else}}
-  <ts-icon class="team_image icon_{{size}} {{classes}}" style="background-image: url('{{getTeamIconOfSize team (getIconSizeToFit (math size '*' 2))}}');" aria-hidden="true"></ts-icon>
+  <img class="team_image icon_{{size}} {{classes}}" src="{{getTeamIconOfSize team (getIconSizeToFit (math size '*' 2))}}" srcset="{{getTeamIconOfSize team (getIconSizeToFit size)}} 1x, {{getTeamIconOfSize team (getIconSizeToFit (math size '*' 2))}} 2x"/>
 
 {{/if}}
