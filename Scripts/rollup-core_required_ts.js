@@ -1949,7 +1949,7 @@
   var _measures = {};
   var _teams_memory_data = null;
   var _app_memory_data = null;
-  var _cleanUp = function(e) {
+  var _cleanUp = function() {
     if (TS.client && TS.metrics.getLatestMark("start_load")) TS.metrics.measure("session_lifespan", "start_load", null, {
       in_seconds: true
     });
@@ -2060,7 +2060,7 @@
         _teams_memory_data = data[0];
         _app_memory_data = data[1];
         if (!_teams_memory_data) throw _teams_memory_data;
-        _.forOwn(_teams_memory_data, function(team, id) {
+        _.forOwn(_teams_memory_data, function(team) {
           memory_team_mb = Math.ceil(TS.utility.convertKilobytesToMegabytes(team.memory.privateBytes));
           TS.metrics.store("memory_team_mb_" + team.state, memory_team_mb);
         });

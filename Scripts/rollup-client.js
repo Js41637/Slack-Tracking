@@ -1749,22 +1749,26 @@
           }
           TS.client.archives.$scroller.css("height", msgs_scroller_height);
         }
-        var flex_contents_height = wh - TS.view.msgs_scroller_y;
-        $("#flex_contents > .panel").css("height", flex_contents_height);
+        if (!TS.boot_data.feature_client_resize_optimizations) {
+          var flex_contents_height = wh - TS.view.msgs_scroller_y;
+          $("#flex_contents > .panel").css("height", flex_contents_height);
+        }
         _setChannelsScrollerHeight(wh, banner_h);
         $("#archives_return").css("top", msgs_scroller_height - 25);
       }
       TS.log(389, start + " #10 " + (Date.now() - start) + "ms");
       start = Date.now();
-      if (true || wh_changed || TS.view.never_set) {
-        $(".flex_content_scroller").each(function() {
-          var $this = $(this);
-          if (!$this.closest(".panel").hasClass("active")) return;
-          TS.view.never_set = false;
-          var flex_scroller_y = $this.offset().top;
-          var flex_scroller_height = wh - flex_scroller_y;
-          $this.css("height", flex_scroller_height);
-        });
+      if (!TS.boot_data.feature_client_resize_optimizations) {
+        if (true || wh_changed || TS.view.never_set) {
+          $(".flex_content_scroller").each(function() {
+            var $this = $(this);
+            if (!$this.closest(".panel").hasClass("active")) return;
+            TS.view.never_set = false;
+            var flex_scroller_y = $this.offset().top;
+            var flex_scroller_height = wh - flex_scroller_y;
+            $this.css("height", flex_scroller_height);
+          });
+        }
       }
       TS.log(389, start + " #11 wh_changed:" + wh_changed + " " + (Date.now() - start) + "ms");
       start = Date.now();
@@ -6929,13 +6933,7 @@
         }
       }
       if (TS.pri) TS.log(888, "instaScrollMsgsToBottom: and_check = " + and_check);
-      var msgs = TS.client.ui.$msgs_scroller_div.find("ts-message");
-      if (msgs && msgs.length > 10) {
-        TS.client.msg_pane.checkUnreads();
-        msgs.last()[0].scrollIntoView(false);
-      } else {
-        TS.client.ui.instaScrollMsgsToPosition(TS.client.ui.$msgs_scroller_div[0].scrollHeight, and_check, true);
-      }
+      TS.client.ui.instaScrollMsgsToPosition(TS.client.ui.$msgs_scroller_div[0].scrollHeight, and_check, true);
     },
     slowScrollMsgsToBottom: function() {
       var in_archives = TS.model.archive_view_is_showing;
@@ -10787,9 +10785,11 @@
     updateFooterButtons: function() {
       TS.ui.admin_invites.getInvitesExperimentGroups().then(function() {
         if (TS.ui.admin_invites.isInSidebarExperiment()) {
-          var $visible_footer_buttons = $(".col_channels_footer_feat_link_in_sidebar").find("button").not(".hidden");
-          var is_single_footer_btn = $visible_footer_buttons.length == 1;
-          $visible_footer_buttons.toggleClass("single_footer_btn", is_single_footer_btn);
+          var $col_footer = $("#col_channels_footer");
+          var $visible_footer_buttons = $col_footer.find("button").not(".hidden");
+          var num_footer_btns = $visible_footer_buttons.length;
+          $col_footer.toggleClass("col_channels_footer_feat_link_in_sidebar", !!num_footer_btns);
+          $visible_footer_buttons.toggleClass("single_footer_btn", num_footer_btns == 1);
         }
       }).then(_updateChannelPaneFooterVisibility);
     },
@@ -14553,7 +14553,7 @@
       }
     },
     77: {
-      isDisabled: function(e) {
+      isDisabled: function() {
         return TS.model.is_chrome_desktop || TS.model.is_chrome_mobile;
       },
       func: function() {
@@ -14590,7 +14590,7 @@
       }
     },
     69: {
-      isDisabled: function(e) {
+      isDisabled: function() {
         return !!TS.model.is_FF;
       },
       func: function() {
@@ -14603,7 +14603,7 @@
       }
     },
     65: {
-      isDisabled: function(e) {
+      isDisabled: function() {
         if (!TS.client.unread.isEnabled()) return true;
         return false;
       },
@@ -14716,7 +14716,7 @@
       }
     },
     188: {
-      isDisabled: function(e) {
+      isDisabled: function() {
         if (!TS.model.is_mac) return true;
         if (!TS.model.active_im_id) {
           return false;
@@ -14724,7 +14724,7 @@
         return true;
       },
       shift_optional: false,
-      func: function(e) {
+      func: function() {
         TS.ui.channel_prefs_dialog.start(TS.model.active_cid);
       }
     }
@@ -14788,8 +14788,8 @@
     };
     document.body.appendChild(iframe);
   };
-  var _launchWithFallbackEdge = function(e) {
-    window.navigator.msLaunchUri(_app_uri, function(onsuccess) {}, function(onerror) {
+  var _launchWithFallbackEdge = function() {
+    window.navigator.msLaunchUri(_app_uri, function() {}, function() {
       window.location.href = _browser_uri;
     });
   };
@@ -14800,7 +14800,7 @@
     var blur_timeout = window.setTimeout(function() {
       window.location.href = _browser_uri;
     }, 1e3);
-    window.addEventListener("blur", function(e) {
+    window.addEventListener("blur", function() {
       clearTimeout(blur_timeout);
     });
     window.location.href = _app_uri;

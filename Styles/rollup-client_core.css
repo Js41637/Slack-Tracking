@@ -5537,6 +5537,10 @@ body:not(.loading) #client-ui:before {
   flex-grow: 1
 }
 
+#client-ui.client_resize_optimizations {
+  height: 100%
+}
+
 body.file_post,
 body.file_snippet {
   overflow-y: scroll

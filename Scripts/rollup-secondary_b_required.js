@@ -1223,7 +1223,7 @@
       var $el = $(selector);
       if (!$el.length) return;
       var was_at_bottom = TS.client && TS.client.ui.areMsgsScrolledToBottom();
-      var filter = function(i) {
+      var filter = function() {
         return $(this).data("real-src") == src;
       };
       var $holder = TS.boot_data.feature_attachments_inline ? $el.find(".inline_attachment").filter(filter) : null;
@@ -1261,7 +1261,7 @@
       var selector = "#" + TS.utility.makeSafeForDomId(container_id);
       var $el = $(selector);
       if (!$el.length) return;
-      var filter = function(i) {
+      var filter = function() {
         return $(this).data("real-src") == src;
       };
       var $holder = TS.boot_data.feature_attachments_inline ? $el.find(".inline_attachment").filter(filter) : null;
@@ -1275,7 +1275,7 @@
         $holder.css("visibility", "visible");
       }, 200);
     },
-    checkForInlineAudioClick: function(e, match) {
+    checkForInlineAudioClick: function(e) {
       if (!e.target) return;
       var $el = $(e.target);
       var container_id;
@@ -1649,7 +1649,7 @@
       var $el = $(selector);
       if (!$el.length) return;
       var was_at_bottom = TS.client && TS.client.ui.areMsgsScrolledToBottom();
-      var filter = function(i) {
+      var filter = function() {
         return $(this).data("real-src") == src;
       };
       var $holder = TS.boot_data.feature_attachments_inline ? $el.find(".inline_attachment").filter(filter) : null;
@@ -1691,7 +1691,7 @@
       var selector = "#" + TS.utility.makeSafeForDomId(container_id);
       var $el = $(selector);
       if (!$el.length) return;
-      var filter = function(i) {
+      var filter = function() {
         return $(this).data("real-src") == src;
       };
       var $holder = TS.boot_data.feature_attachments_inline ? $el.find(".inline_attachment").filter(filter) : null;
