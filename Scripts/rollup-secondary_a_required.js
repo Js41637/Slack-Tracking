@@ -3820,19 +3820,6 @@
           return channel;
         }
       }
-      if (TS.model.deferred_archived_channels && TS.model.channels.length) {
-        var removed_items = _.remove(TS.model.deferred_archived_channels, {
-          id: id
-        });
-        channel = removed_items[0] || null;
-        _id_map[id] = channel;
-        if (channel) {
-          var skip_existing_check_because_object_definitely_does_not_exist = true;
-          _upsertChannel(channel, skip_existing_check_because_object_definitely_does_not_exist);
-          return channel;
-        }
-        return null;
-      }
       return null;
     },
     getFirstChannelYouAreIn: function() {
@@ -3870,26 +3857,10 @@
           return channel;
         }
       }
-      if (TS.model.deferred_archived_channels && TS.model.channels.length) {
-        var removed_items = _.remove(TS.model.deferred_archived_channels, {
-          name: name
-        });
-        channel = removed_items[0] || null;
-        _name_map[name] = channel;
-        _name_map["#" + name] = channel;
-        if (channel) {
-          var skip_existing_check_because_object_definitely_does_not_exist = true;
-          _upsertChannel(channel, skip_existing_check_because_object_definitely_does_not_exist);
-        }
-        return channel;
-      }
       return null;
     },
     upsertChannel: function(channel) {
       return _upsertChannel(channel);
-    },
-    processNewChannelForUpserting: function(channel) {
-      _processNewChannelForUpserting(channel);
     },
     removeChannel: function(channel) {
       var channels = TS.model.channels;
@@ -4136,9 +4107,9 @@
   var _id_map = {};
   var _name_map = {};
   var _channels_info_p_map = {};
-  var _upsertChannel = function(channel, skip_existing_check_because_object_definitely_does_not_exist) {
+  var _upsertChannel = function(channel) {
     var channels = TS.model.channels;
-    var existing_channel = skip_existing_check_because_object_definitely_does_not_exist ? null : TS.channels.getChannelById(channel.id);
+    var existing_channel = TS.channels.getChannelById(channel.id);
     var members;
     delete channel.unread_count;
     if (TS.boot_data.feature_tinyspeck && channel.id === "C00") TS.warn("_upsertChannel() got a bad channel id of C00", channel);
@@ -5489,18 +5460,6 @@ TS.registerModule("constants", {
           return group;
         }
       }
-      if (TS.model.deferred_archived_groups && TS.model.groups.length) {
-        var removed_items = _.remove(TS.model.deferred_archived_groups, {
-          id: id
-        });
-        group = removed_items[0] || null;
-        _id_map[id] = group;
-        if (group) {
-          var skip_existing_check_because_object_definitely_does_not_exist = true;
-          _upsertGroup(group, skip_existing_check_because_object_definitely_does_not_exist);
-        }
-        return group;
-      }
       return null;
     },
     getGroupByName: function(name) {
@@ -5520,26 +5479,10 @@ TS.registerModule("constants", {
           return group;
         }
       }
-      if (TS.model.deferred_archived_groups && TS.model.groups.length) {
-        var removed_items = _.remove(TS.model.deferred_archived_groups, {
-          name: name
-        });
-        group = removed_items[0] || null;
-        _name_map[name] = group;
-        _name_map[TS.model.group_prefix + name] = group;
-        if (group) {
-          var skip_existing_check_because_object_definitely_does_not_exist = true;
-          _upsertGroup(group, skip_existing_check_because_object_definitely_does_not_exist);
-        }
-        return group;
-      }
       return null;
     },
     upsertGroup: function(group) {
       return _upsertGroup(group);
-    },
-    processNewGroupForUpserting: function(group) {
-      return _processNewGroupForUpserting(group);
     },
     removeGroup: function(group) {
       var groups = TS.model.groups;
@@ -5830,9 +5773,9 @@ TS.registerModule("constants", {
     }
     return A;
   };
-  var _upsertGroup = function(group, skip_existing_check_because_object_definitely_does_not_exist) {
+  var _upsertGroup = function(group) {
     var groups = TS.model.groups;
-    var existing_group = skip_existing_check_because_object_definitely_does_not_exist ? null : TS.groups.getGroupById(group.id);
+    var existing_group = TS.groups.getGroupById(group.id);
     var members;
     delete group.unread_count;
     if (existing_group) {
@@ -57695,7 +57638,8 @@ $.fn.togglify = function(settings) {
     if (action) action.selected_options = [];
   }
 
-  function _errorTemplate() {
+  function _errorTemplate(error) {
+    if (!error) return TS.i18n.t("No results.", "lazy_filter_select")();
     return TS.i18n.t("Couldn’t load results.", "lazy_filter_select")();
   }
 
@@ -60678,7 +60622,7 @@ $.fn.togglify = function(settings) {
     options = _mergeDefaults(options, _DEFAULT_CHANNEL_OPTIONS);
     var channels;
     if (options.include_archived) {
-      channels = TS.channels.getChannelsForUser().concat(TS.model.deferred_archived_channels);
+      channels = TS.channels.getChannelsForUser().slice();
     } else {
       channels = TS.channels.getUnarchivedChannelsForUser().slice();
     }

@@ -49,3 +49,7 @@
 #menu.date_picker #date_picker_cal_container {
   height: 242px
 }
+
+.expiration_date_picker {
+  width: 252px
+}

@@ -18160,9 +18160,6 @@
       var channel_name_regex = new RegExp("^#?" + _regexpEscape(query), "i");
       var suffix_regex = new RegExp("(_|-)" + _regexpEscape(query), "i");
       if (!limit) limit = LIMIT_DEFAULT;
-      if (_.isFunction(this.options.data.willSearchChannelsWithQuery)) {
-        this.options.data.willSearchChannelsWithQuery(query);
-      }
       this.options.data.channels().some(function(channel) {
         if (just_archived && !channel.is_archived) return false;
         if (!just_archived && channel.is_archived) return false;
@@ -18206,9 +18203,6 @@
       var suffix_matches = [];
       var suffix_regex = new RegExp("(_|-)" + _regexpEscape(query), "i");
       if (!limit) limit = LIMIT_DEFAULT;
-      if (_.isFunction(this.options.data.willSearchGroupsWithQuery)) {
-        this.options.data.willSearchGroupsWithQuery(query);
-      }
       this.options.data.groups().some(function(group) {
         if (just_archived && !group.is_archived) return false;
         if (!just_archived && group.is_archived) return false;
@@ -18896,9 +18890,6 @@
   var _ac_data;
   var _getAcData = function() {
     if (!_ac_data) {
-      var prev_channels_query = "";
-      var prev_groups_query = "";
-      var min_query_length_before_upserting_deferreds = 5;
       _ac_data = {
         modifiers: _modifiers,
         modifiers_by_name: {},
@@ -18935,19 +18926,6 @@
             return TS.members.getMemberById(im.user);
           });
         },
-        willSearchChannelsWithQuery: function(query) {
-          if (!TS.model.deferred_archived_channels || !TS.model.deferred_archived_channels.length) return;
-          if (query && query.length >= min_query_length_before_upserting_deferreds) {
-            if (prev_channels_query && prev_channels_query.indexOf(query) >= 0) {} else {
-              prev_channels_query = query;
-              TS.model.deferred_archived_channels.forEach(function(channel) {
-                if (channel.name.indexOf(query) >= 0) {
-                  TS.channels.getChannelById(channel.id);
-                }
-              });
-            }
-          }
-        },
         channels: function(query) {
           return TS.channels.getChannelsForUser();
         },
@@ -18964,19 +18942,6 @@
           }
           open_channels.sort(_cOrGSorter);
           return open_channels;
-        },
-        willSearchGroupsWithQuery: function(query) {
-          if (!TS.model.deferred_archived_groups || !TS.model.deferred_archived_groups.length) return;
-          if (query && query.length >= min_query_length_before_upserting_deferreds) {
-            if (prev_groups_query && prev_groups_query.indexOf(query) >= 0) {} else {
-              prev_groups_query = query;
-              TS.model.deferred_archived_groups.forEach(function(group) {
-                if (group.name.indexOf(query) >= 0) {
-                  TS.groups.getGroupById(group.id);
-                }
-              });
-            }
-          }
         },
         groups: function(query) {
           return TS.model.groups;
@@ -23980,7 +23945,8 @@
       team_signup_url: "https://" + TS.model.team.domain + ".slack.com/signup",
       invites_limit: TS.model.team.plan === "" && TS.model.team.prefs.invites_limit,
       show_custom_message: TS.model.team.plan,
-      is_paid_team: TS.model.team.plan
+      is_paid_team: TS.model.team.plan,
+      is_our_app: TS.model.is_our_app
     });
     var settings = {
       body_template_html: body_template_html,
@@ -24052,7 +24018,6 @@
     _success_invites = [];
     _error_invites = [];
     _clearInitialChannelId();
-    if (TS.experiment.getGroup("guest_profiles_and_expiration") === "treatment") _destroyDatePicker();
     if (_cancel_google_auth_polling) _cancel_google_auth_polling();
     TS.storage.storeInvitesState(_unprocessed_invites);
     if (TS.client) TS.ui.a11y.restorePreviousFocus();
@@ -24471,32 +24436,29 @@
       TS.ui.fs_modal.showBackButton();
     }
   };
-  var _showDatePicker = function() {
-    var date_picker_args = {
-      class_name: "admin_invites_datepicker",
-      onChange: _onExpirationDateChanged,
-      onHide: function() {
-        _.defer(_destroyDatePicker);
-      }
-    };
+  var _showDatePicker = function(e) {
+    var date_picker_args = {};
     if (_expiration_ts) date_picker_args.selected_expiration_ts = _expiration_ts;
-    TS.ui.date_picker.startGuestExpirationDatePicker($(_DATE_PICKER_TARGET_SELECTOR), date_picker_args);
+    TS.menu.date.startWithExpirationPresets(e, $(_DATE_PICKER_TARGET_SELECTOR), _onExpirationDateChanged, date_picker_args);
   };
   var _onExpirationDateChanged = function(date_ts) {
-    if (!parseInt(date_ts, 10)) return;
-    _expiration_ts = date_ts;
-    var formatted_date = TS.utility.date.formatDate("{date_long}", date_ts);
-    var date_html = '<span id="admin_invites_guest_expiration_date_set_date" class="bold">' + TS.utility.htmlEntities(formatted_date) + "</span>";
-    var html = TS.i18n.t("These guests will remain active until {date_html}.", "invite")({
-      date_html: date_html
-    });
-    var new_btn_text = TS.i18n.t("Change", "invite")();
+    if (!_.isNumber(date_ts) || date_ts === _expiration_ts) return;
+    var html, btn_text;
+    if (date_ts === 0) {
+      _expiration_ts = null;
+      html = TS.i18n.t("By default, guest accounts stay active indefinitely.", "invite")();
+      btn_text = TS.i18n.t("Set a time limit", "invite")();
+    } else {
+      _expiration_ts = date_ts;
+      var formatted_date = TS.utility.date.formatDate("{date_long}", date_ts);
+      var date_html = '<span id="admin_invites_guest_expiration_date_set_date" class="bold">' + TS.utility.htmlEntities(formatted_date) + "</span>";
+      html = TS.i18n.t("These guests will remain active until {date_html}.", "invite")({
+        date_html: date_html
+      });
+      btn_text = TS.i18n.t("Change", "invite")();
+    }
     $("#admin_invites_guest_expiration_copy").html(html);
-    $("#admin_invites_show_date_picker").text(new_btn_text);
-  };
-  var _destroyDatePicker = function() {
-    var _$date_picker_target = $(_DATE_PICKER_TARGET_SELECTOR);
-    if (_$date_picker_target.pickmeup) _$date_picker_target.pickmeup("destroy");
+    $("#admin_invites_show_date_picker").text(btn_text);
   };
   var _prepareInvites = function() {
     var invites = [];
@@ -32952,11 +32914,6 @@
     var active_channels = [];
     var archived_channels = [];
     var search_channel_exclusion;
-    if (TS.model.deferred_archived_channels) {
-      TS.model.deferred_archived_channels.slice().forEach(function(channel) {
-        TS.channels.getChannelById(channel.id);
-      });
-    }
     var channels = TS.channels.getChannelsForUser();
     channels.sort(function compare(a, b) {
       var a_srt = a._name_lc;
@@ -39181,6 +39138,117 @@ function timezones_guess() {
 })();
 (function() {
   "use strict";
+  TS.registerModule("menu.date", {
+    onStart: function() {},
+    startWithExpirationPresets: function(e, $element, callback, date_picker_args, position_args) {
+      _date_picker_args = date_picker_args;
+      _callback = callback;
+      _setupPresetsMenu();
+      _showMenu(e, $element, position_args);
+    }
+  });
+  var _date_picker_args;
+  var _callback;
+  var _DEFAULT_BOTTOM_OFFSET = 15;
+  var _showMenu = function(e, $element, position_args) {
+    position_args = position_args || {};
+    TS.menu.start(e, false, {
+      attach_to_target_at_full_width: true
+    });
+    TS.menu.$menu.css({
+      top: position_args.top || "auto",
+      left: position_args.left || Math.floor($element.position().left - $element.outerWidth() / 2),
+      right: position_args.right || "auto",
+      bottom: position_args.bottom || $element.outerHeight() + _DEFAULT_BOTTOM_OFFSET
+    });
+  };
+  var _setupPresetsMenu = function() {
+    TS.menu.buildIfNeeded();
+    TS.menu.clean();
+    TS.menu.$menu.addClass("expiration_date_picker");
+    TS.menu.$menu_header.addClass("hidden").empty();
+    TS.menu.$menu_items.html(TS.templates.menu_expiration_date_items());
+    TS.menu.$menu_items.on("click.menu", "li", _onExpirationPresetClick);
+    TS.menu.$menu_footer.removeClass("hidden").html(TS.templates.menu_expiration_context());
+  };
+  var _setupDatePickerMenu = function() {
+    TS.menu.buildIfNeeded();
+    TS.menu.clean();
+    TS.menu.$menu.addClass("date_picker expiration_date_picker");
+    TS.menu.$menu_header.addClass("hidden").empty();
+    TS.menu.$menu_footer.addClass("hidden").empty();
+    TS.menu.$menu_items.html(TS.templates.menu_expiration_date_picker());
+    TS.menu.$menu_items.on("click.menu", "li#date_picker_back_item", function(e) {
+      _setupPresetsMenu();
+      e.stopPropagation();
+    });
+    var date_picker_args = {
+      onChange: _onDateSelected,
+      onHide: _destroyDatePicker
+    };
+    _.assign(date_picker_args, _date_picker_args);
+    var $date_picker_container = TS.menu.$menu.find("#date_picker_container");
+    TS.ui.date_picker.startExpirationDatePicker($date_picker_container, date_picker_args);
+  };
+  var _onDateSelected = function(date_ts) {
+    if (typeof date_ts === "string") date_ts = parseInt(date_ts, 10);
+    if (isNaN(date_ts)) {
+      TS.warn("date_ts could not be parsed as a number.");
+      return;
+    }
+    _callback(date_ts);
+    TS.menu.end();
+  };
+  var _onExpirationPresetClick = function(e) {
+    if (TS.menu.isRedundantClick(e)) return;
+    var option = $(this).attr("data-expiration-option");
+    if (!option) {
+      TS.warn("Selected an invalid expiration date menu item.");
+      return;
+    }
+    var date_ts;
+    switch (option) {
+      case "none":
+        _onDateSelected(0);
+        break;
+      case "7days":
+        date_ts = _makeExpirationDateUnixTsFromDays(7);
+        _onDateSelected(date_ts);
+        break;
+      case "30days":
+        date_ts = _makeExpirationDateUnixTsFromDays(30);
+        _onDateSelected(date_ts);
+        break;
+      case "60days":
+        date_ts = _makeExpirationDateUnixTsFromDays(60);
+        _onDateSelected(date_ts);
+        break;
+      case "custom":
+        _setupDatePickerMenu();
+        break;
+    }
+    e.stopPropagation();
+  };
+  var _destroyDatePicker = function() {
+    var $date_picker_target = $("#date_picker_container");
+    if ($date_picker_target.pickmeup) _.defer(function() {
+      $date_picker_target.pickmeup("destroy");
+    });
+  };
+  var _makeExpirationDateUnixTsFromDays = function(num_days) {
+    if (!_.isNumber(num_days)) {
+      TS.error("num_days must be a number.");
+      return;
+    }
+    var date = new Date;
+    date.setHours(23, 59, 59, 0);
+    date.setDate(date.getDate() + num_days);
+    var unix_ts = date.getTime() / 1e3;
+    return unix_ts;
+  };
+})();
+(function() {
+  "use strict";
   TS.registerModule("ui.date_picker", {
     onStart: function() {},
     start: function($element, date_picker_args) {
@@ -39244,7 +39312,7 @@ function timezones_guess() {
         }
       });
     },
-    startGuestExpirationDatePicker: function($element, options) {
+    startExpirationDatePicker: function($element, options) {
       options = options || {};
       var today = new Date;
       var today_ts = today.getTime();

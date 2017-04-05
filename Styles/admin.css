@@ -641,10 +641,3 @@ label[for=enable_calls_checkbox] input[type=checkbox] {
     margin: 0 .8rem
   }
 }
-
-.admin_member_expiration_datepicker {
-  position: absolute!important;
-  bottom: 35px;
-  left: -63px;
-  white-space: normal
-}

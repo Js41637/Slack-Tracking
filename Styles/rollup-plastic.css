@@ -10636,6 +10636,14 @@ html.fs_modal_active {
   border-radius: 0 0 6px 6px
 }
 
+.menu .menu_context {
+  padding: 1rem 1.75rem .25rem 1.5rem;
+  font-size: .9375rem;
+  line-height: 1.4;
+  background: #E8E8E8;
+  color: #717274
+}
+
 .menu .menu_filter_container {
   background: #fff;
   position: relative;

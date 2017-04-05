@@ -7,9 +7,8 @@
   <form class="fs_split_flex_wrapper" onsubmit="return false;">
 
     <div id="confirm_email_form_body" class="fs_split_body">
-      <h1>{{#t note="This page tells the user to check their email inbox for a confirmation code we just sent them."}}Check your email!{{/t}}</h1>
-      <p class="desc">{{#t}}We\u2019ve sent a six-digit confirmation code to <strong>{email}</strong>. Enter it below to confirm your email&nbsp;address.{{/t}}</p>
-
+      <h1>{{#t note="This page tells the user to check their email inbox for a confirmation code we just sent them."}}Check your email{{/t}}</h1>
+      <p class="desc">{{#t}}We\u2019ve sent a six-digit confirmation code to <strong>{email}</strong>. It will expire shortly, so enter your code soon.{{/t}}</p>
       <label><span class="normal">{{#t}}Your </span>confirmation code{{/t}}</label>
       <div class="confirmation_code split_input large_bottom_margin" data-multi-input-code="true">
         <div class="confirmation_code_group">
@@ -29,7 +28,7 @@
 
       <div class="confirmation_code_checker" data-state="unchecked">
         <div class="confirmation_code_state_message unchecked subtle_silver">
-          <p>{{#t}}Be sure to keep this window open while you check for your code.{{/t}}</p>
+          <p>{{#t}}Keep this window open while checking for your code. <br /> Haven't received our email? Try your spam folder!{{/t}}</p>
         </div>
 
         <div class="confirmation_code_state_message processing">

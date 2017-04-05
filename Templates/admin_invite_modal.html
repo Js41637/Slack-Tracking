@@ -38,8 +38,14 @@
 
             <a data-action="admin_invites_switch_view" data-view="bulk" data-clog-click="true" data-clog-event="INVITEMODAL_ACTION" data-clog-params="action=switch_view_to_bulk,trigger=click_cta_switch_view_to_bulk" tabindex="0">add many at once</a>
           {{/t}}
-          <span id="btn_connect_contacts" class="float_right greigh"><ts-icon class="ts_icon_google small_right_margin align_bottom"></ts-icon><span class="btn_connect_contacts_text">{{#t}}Connect <a data-clog-click="true" data-clog-event="INVITEMODAL_ACTION" data-clog-params="action=connect_google_contacts,trigger=click_connect_address_book_btn" tabindex="0" class="greigh underline">Google Contacts</a>{{/t}}</span>
-          </span>
+          {{#unless is_our_app}}
+            <span id="btn_connect_contacts" class="float_right greigh">
+              <ts-icon class="ts_icon_google small_right_margin align_bottom"></ts-icon>
+              <span class="btn_connect_contacts_text">
+                {{#t}}Connect <a data-clog-click="true" data-clog-event="INVITEMODAL_ACTION" data-clog-params="action=connect_google_contacts,trigger=click_connect_address_book_btn" tabindex="0" class="greigh underline">Google Contacts</a>{{/t}}
+              </span>
+            </span>
+          {{/unless}}
         </p>
 
         <div id="admin_invites_channel_picker_container" class="no_bottom_margin"></div>
@@ -49,9 +55,14 @@
 
           <a data-action="admin_invites_add_row" class="float_left bold" data-clog-click="true" data-clog-event="INVITEMODAL_ACTION" data-clog-params="action=add_row,trigger=click_cta_add_row" tabindex="0"><ts-icon class="ts_icon_plus_circle small_right_margin align_bottom"></ts-icon>{{#t}}Add another invitation{{/t}}</a>
 
-          <span id="btn_connect_contacts" class="float_right greigh"><ts-icon class="ts_icon_google small_right_margin align_bottom"></ts-icon><span class="btn_connect_contacts_text">{{#t}}Connect your <a data-clog-click="true" data-clog-event="INVITEMODAL_ACTION" data-clog-params="action=connect_google_contacts,trigger=click_connect_address_book_btn" tabindex="0">Google Contacts</a>{{/t}}</span>
-          </span>
-
+          {{#unless is_our_app}}
+            <span id="btn_connect_contacts" class="float_right greigh">
+              <ts-icon class="ts_icon_google small_right_margin align_bottom"></ts-icon>
+              <span class="btn_connect_contacts_text">
+                {{#t}}Connect your <a data-clog-click="true" data-clog-event="INVITEMODAL_ACTION" data-clog-params="action=connect_google_contacts,trigger=click_connect_address_book_btn" tabindex="0">Google Contacts</a>{{/t}}
+              </span>
+            </span>
+          {{/unless}}
         </p>
       {{/experiment}}
 

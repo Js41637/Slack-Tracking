@@ -1,0 +1,377 @@
+@font-face {
+  font-family: appleLogo;
+  src: local("Lucida Grande");
+  unicode-range: U+F8FF
+}
+
+#msg_input.ql-container {
+  padding: 0 0 0 2.625rem;
+  height: auto;
+  max-height: none
+}
+
+#msg_input.ql-container .ql-editor.ql-blank~.ql-placeholder {
+  padding: 9px 30px 9px 9px;
+  left: 2.625rem;
+  right: 30px
+}
+
+.supports_custom_scrollbar #msg_input.ql-container .ql-editor.ql-blank~.ql-placeholder {
+  padding: 7px 30px 7px 9px
+}
+
+#message_edit_form .ql-container~.emo_menu,
+#msg_form .ql-container~.emo_menu {
+  width: 36px;
+  right: 12px
+}
+
+.supports_custom_scrollbar #message_edit_form .ql-container~.emo_menu,
+.supports_custom_scrollbar #msg_form .ql-container~.emo_menu {
+  width: 36px;
+  right: 5px
+}
+
+#share_dialog_input_container #file_comment_textarea.ql-container {
+  border: 1px solid #C5C5C5;
+  border-radius: 4px
+}
+
+#share_dialog_input_container #file_comment_textarea.ql-container.focus {
+  border-color: #2780F8
+}
+
+#share_dialog_input_container #file_comment_textarea.ql-container.focus~.emo_menu {
+  color: #bbbdbf
+}
+
+.inline_message_input_container .ql-container {
+  height: auto;
+  max-height: 10rem;
+  font-family: Slack-Lato, appleLogo, sans-serif
+}
+
+.inline_message_input_container .ql-container .ql-editor {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text
+}
+
+#reply_container .inline_message_input_container .ql-editor {
+  min-height: 36px
+}
+
+.reply_input_container .inline_message_input_container .ql-container {
+  background-color: #fff;
+  border: 1px solid #E0E0E0;
+  border-radius: 0 0 10px 10px
+}
+
+.reply_input_container .inline_message_input_container .ql-container .ql-editor {
+  margin-right: 2px;
+  min-height: 44px;
+  max-height: none;
+  border: none;
+  padding: 9px 30px 9px 13px
+}
+
+.reply_input_container .inline_message_input_container .ql-container .ql-editor::-webkit-scrollbar {
+  position: absolute;
+  -webkit-appearance: none;
+  width: 6px
+}
+
+.reply_input_container .inline_message_input_container .ql-container .ql-editor::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, .5);
+  background-clip: padding-box!important;
+  border-radius: 3px;
+  color: transparent;
+  min-height: 36px
+}
+
+.reply_input_container .inline_message_input_container .ql-container .ql-editor::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, .8);
+  background-color: transparent
+}
+
+.reply_input_container .inline_message_input_container .ql-container .ql-editor::-webkit-scrollbar-thumb {
+  background-color: transparent
+}
+
+.supports_custom_scrollbar .reply_input_container .inline_message_input_container .ql-container .ql-editor {
+  padding: 7px 30px 7px 13px
+}
+
+.reply_input_container .inline_message_input_container .ql-container .ql-editor.ql-blank~.ql-placeholder {
+  padding: 9px 30px 9px 13px
+}
+
+.supports_custom_scrollbar .reply_input_container .inline_message_input_container .ql-container .ql-editor.ql-blank~.ql-placeholder {
+  padding: 7px 30px 7px 13px
+}
+
+.reply_input_container .inline_message_input_container .ql-container.focus {
+  border-color: rgba(0, 0, 0, .35)
+}
+
+.reply_input_container .inline_message_input_container .ql-container.focus~.emo_menu {
+  color: #717274
+}
+
+.reply_input_container .inline_message_input_container .ql-container~.emo_menu {
+  top: 1px;
+  color: #bbbdbf
+}
+
+#menu_member_dm_input.texty_single_line_input {
+  width: 296px
+}
+
+#menu_member_dm_input.texty_single_line_input .ql-editor.ql-blank~.ql-placeholder {
+  padding: 9px .75rem
+}
+
+.supports_custom_scrollbar #menu_member_dm_input.texty_single_line_input .ql-editor.ql-blank~.ql-placeholder {
+  padding: 7px .75rem
+}
+
+.current_status_input_wrap .current_status_input.texty_single_line_input {
+  padding-right: 33px;
+  padding-left: 50px
+}
+
+.current_status_input_wrap .current_status_input.texty_single_line_input .ql-editor.ql-blank~.ql-placeholder {
+  padding-right: 2.0625rem;
+  padding-left: 3.125rem;
+  padding-top: 0;
+  padding-bottom: 0;
+  margin: 0;
+  height: 19px;
+  min-height: 19px;
+  top: .4rem
+}
+
+.current_status_input_wrap .current_status_input.texty_single_line_input p {
+  line-height: normal;
+  font-size: 15px
+}
+
+#current_status_for_team_menu.current_status_input.texty_single_line_input .ql-editor.ql-blank~.ql-placeholder {
+  top: .5rem
+}
+
+.current_status_input_for_edit_profile .current_status_input.texty_single_line_input {
+  padding-top: 12px;
+  padding-bottom: 12px
+}
+
+.current_status_input_for_edit_profile .current_status_input.texty_single_line_input .ql-editor {
+  height: 24px;
+  min-height: 24px;
+  max-height: 24px
+}
+
+.current_status_input_for_edit_profile .current_status_input.texty_single_line_input .ql-editor.ql-blank~.ql-placeholder {
+  padding-left: 3.875rem;
+  padding-right: 2.5rem;
+  top: .75rem;
+  bottom: .75rem;
+  margin: 0;
+  height: 24px;
+  min-height: 24px
+}
+
+.current_status_input_for_edit_profile .current_status_input.texty_single_line_input p {
+  font-size: 1.25rem
+}
+
+.current_status_input_for_edit_profile .current_status_input.texty_single_line_input .ql-editor.ql-blank:before {
+  top: 3px
+}
+
+.ql-container.texty_single_line_input {
+  background: #fff;
+  font-family: Slack-Lato, appleLogo, sans-serif;
+  font-size: .9375rem;
+  color: #555459;
+  border: 1px solid #C5C5C5;
+  border-radius: .25rem;
+  -webkit-user-select: auto;
+  -moz-user-select: auto;
+  -ms-user-select: auto;
+  user-select: auto;
+  -webkit-appearance: none;
+  outline: 0;
+  padding: .45rem .75rem .5rem
+}
+
+.ql-container.texty_single_line_input.focus,
+.ql-container.texty_single_line_input:hover {
+  border-color: #2780F8;
+  box-shadow: 0 0 7px rgba(39, 128, 248, .15);
+  outline-offset: 0;
+  outline: 0
+}
+
+.ql-container.texty_single_line_input .ql-editor {
+  width: 100%;
+  height: 19px;
+  min-height: 19px;
+  max-height: 19px;
+  margin: 0;
+  white-space: pre;
+  overflow: hidden;
+  padding: 0
+}
+
+#file_comment_textarea.texty_comment_input,
+.comment_form .texty_comment_input,
+.edit_comment_form .texty_comment_input {
+  overflow: auto;
+  min-height: 40px;
+  height: auto;
+  background: #fff;
+  -webkit-user-select: auto;
+  -moz-user-select: auto;
+  -ms-user-select: auto;
+  user-select: auto;
+  font-family: Slack-Lato, appleLogo, sans-serif;
+  width: 100%;
+  border: 1px solid #C5C5C5;
+  border-radius: .25rem;
+  -webkit-appearance: none;
+  box-shadow: none;
+  outline: 0;
+  resize: none!important;
+  margin: 0 0 .5rem;
+  font-size: 15px;
+  line-height: 1.2rem;
+  color: #3D3C40
+}
+
+#file_comment_textarea.texty_comment_input.focus,
+#file_comment_textarea.texty_comment_input:hover,
+.comment_form .texty_comment_input.focus,
+.comment_form .texty_comment_input:hover,
+.edit_comment_form .texty_comment_input.focus,
+.edit_comment_form .texty_comment_input:hover {
+  border-color: #2780F8;
+  outline-offset: 0;
+  outline: 0
+}
+
+#file_comment_textarea.texty_comment_input .ql-editor,
+.comment_form .texty_comment_input .ql-editor,
+.edit_comment_form .texty_comment_input .ql-editor {
+  max-height: none
+}
+
+#file_comment_textarea.texty_comment_input {
+  max-height: none!important;
+  overflow: visible;
+  position: relative
+}
+
+#file_comment_textarea.texty_comment_input .ql-editor {
+  min-height: 66px;
+  max-height: 112px
+}
+
+#file_page .comment_form .texty_comment_input .ql-editor,
+#post_page .comment_form .texty_comment_input .ql-editor {
+  min-height: 102px
+}
+
+.inline_message_input_container .ql-container~.emo_menu {
+  width: 36px;
+  right: 12px
+}
+
+.ql-clipboard {
+  top: -100000px
+}
+
+.ql-editor {
+  tab-size: 8;
+  -moz-tab-size: 8;
+  font-variant-ligatures: none;
+  line-height: 1.2rem;
+  overflow: auto;
+  max-height: 10rem;
+  max-width: 100%;
+  min-height: 39px;
+  padding: 9px 30px 9px 9px;
+  margin-right: 2px
+}
+
+.supports_custom_scrollbar .ql-container:not(.texty_single_line_input) .ql-editor {
+  margin-top: 2px;
+  margin-bottom: 2px;
+  min-height: 21px;
+  padding: 7px 30px 7px 9px
+}
+
+.ql-editor::-webkit-scrollbar {
+  position: absolute;
+  -webkit-appearance: none;
+  width: 6px
+}
+
+.ql-editor::-webkit-scrollbar-thumb {
+  background-color: rgba(113, 114, 116, .5);
+  background-clip: padding-box!important;
+  border-radius: 3px;
+  color: #717274;
+  min-height: 36px
+}
+
+.ql-editor::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(113, 114, 116, .8)
+}
+
+.ql-placeholder {
+  display: none
+}
+
+.ql-placeholder ::selection {
+  background: 0 0
+}
+
+.ql-editor.ql-blank {
+  position: relative
+}
+
+.ql-editor.ql-blank~.ql-placeholder {
+  color: #000;
+  opacity: .375;
+  -webkit-filter: grayscale(100%);
+  filter: grayscale(100%);
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  display: block;
+  font-style: normal;
+  pointer-events: none;
+  padding: 9px 30px 9px 9px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0
+}
+
+.supports_custom_scrollbar .ql-editor.ql-blank~.ql-placeholder {
+  margin-top: 2px;
+  margin-bottom: 2px;
+  min-height: 21px;
+  padding: 7px 30px 7px 9px
+}
+
+.ql-editor.ql-blank:before {
+  display: none
+}
+
+ts-mention {
+  background: rgba(0, 122, 184, .1);
+  color: #007AB8
+}

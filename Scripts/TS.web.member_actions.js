@@ -120,7 +120,9 @@
       },
       update_expiration_ts: {
         primary: true,
-        label: TS.i18n.t("Adjust Time Limit", "member_actions")(),
+        label: function(data) {
+          return data.member.expiration_ts ? TS.i18n.t("Adjust Time Limit", "member_actions")() : TS.i18n.t("Set a Time Limit", "member_actions")();
+        },
         cls: "admin_member_update_expiration_ts",
         title: TS.i18n.t("Update expiration date for this guest", "member_actions")()
       }

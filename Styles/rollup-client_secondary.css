@@ -16584,12 +16584,6 @@ a.sidebar_menu_list_item:hover {
   margin: 0 -2.75rem 2rem -.5rem
 }
 
-.admin_invites_datepicker {
-  position: absolute!important;
-  bottom: 30px;
-  left: -70px
-}
-
 #admin_invites_success .alert_success {
   padding-left: 1rem
 }

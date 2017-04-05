@@ -719,7 +719,7 @@
     });
   };
   var _performNonIncrementalBoot = function(rtm_start_p) {
-    return rtm_start_p.tap(_maybeDeferArchivedObjects).catch(function(err) {
+    return rtm_start_p.catch(function(err) {
       _rtmStartErrorHandler(err);
       throw err;
     });
@@ -786,16 +786,6 @@
       TS.model.calling_rtm_start = false;
       TS.info("Setting calling_rtm_start to false (after rtm.start from API)");
     });
-  };
-  var _maybeDeferArchivedObjects = function(resp) {
-    TS.model.deferred_archived_channels = _.filter(resp.data.channels, function(c) {
-      return c.is_archived && !TS.channels.lookupById(c.id);
-    });
-    resp.data.channels = _.difference(resp.data.channels, TS.model.deferred_archived_channels);
-    TS.model.deferred_archived_groups = _.filter(resp.data.groups, function(g) {
-      return g.is_archived && !TS.groups.lookupById(g.id);
-    });
-    resp.data.groups = _.difference(resp.data.groups, TS.model.deferred_archived_groups);
   };
   var _rtmStartErrorHandler = function(resp) {
     var error = resp.data && resp.data.error;

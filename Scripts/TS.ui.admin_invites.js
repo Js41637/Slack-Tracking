@@ -212,7 +212,8 @@
       team_signup_url: "https://" + TS.model.team.domain + ".slack.com/signup",
       invites_limit: TS.model.team.plan === "" && TS.model.team.prefs.invites_limit,
       show_custom_message: TS.model.team.plan,
-      is_paid_team: TS.model.team.plan
+      is_paid_team: TS.model.team.plan,
+      is_our_app: TS.model.is_our_app
     });
     var settings = {
       body_template_html: body_template_html,
@@ -284,7 +285,6 @@
     _success_invites = [];
     _error_invites = [];
     _clearInitialChannelId();
-    if (TS.experiment.getGroup("guest_profiles_and_expiration") === "treatment") _destroyDatePicker();
     if (_cancel_google_auth_polling) _cancel_google_auth_polling();
     TS.storage.storeInvitesState(_unprocessed_invites);
     if (TS.client) TS.ui.a11y.restorePreviousFocus();
@@ -703,32 +703,29 @@
       TS.ui.fs_modal.showBackButton();
     }
   };
-  var _showDatePicker = function() {
-    var date_picker_args = {
-      class_name: "admin_invites_datepicker",
-      onChange: _onExpirationDateChanged,
-      onHide: function() {
-        _.defer(_destroyDatePicker);
-      }
-    };
+  var _showDatePicker = function(e) {
+    var date_picker_args = {};
     if (_expiration_ts) date_picker_args.selected_expiration_ts = _expiration_ts;
-    TS.ui.date_picker.startGuestExpirationDatePicker($(_DATE_PICKER_TARGET_SELECTOR), date_picker_args);
+    TS.menu.date.startWithExpirationPresets(e, $(_DATE_PICKER_TARGET_SELECTOR), _onExpirationDateChanged, date_picker_args);
   };
   var _onExpirationDateChanged = function(date_ts) {
-    if (!parseInt(date_ts, 10)) return;
-    _expiration_ts = date_ts;
-    var formatted_date = TS.utility.date.formatDate("{date_long}", date_ts);
-    var date_html = '<span id="admin_invites_guest_expiration_date_set_date" class="bold">' + TS.utility.htmlEntities(formatted_date) + "</span>";
-    var html = TS.i18n.t("These guests will remain active until {date_html}.", "invite")({
-      date_html: date_html
-    });
-    var new_btn_text = TS.i18n.t("Change", "invite")();
+    if (!_.isNumber(date_ts) || date_ts === _expiration_ts) return;
+    var html, btn_text;
+    if (date_ts === 0) {
+      _expiration_ts = null;
+      html = TS.i18n.t("By default, guest accounts stay active indefinitely.", "invite")();
+      btn_text = TS.i18n.t("Set a time limit", "invite")();
+    } else {
+      _expiration_ts = date_ts;
+      var formatted_date = TS.utility.date.formatDate("{date_long}", date_ts);
+      var date_html = '<span id="admin_invites_guest_expiration_date_set_date" class="bold">' + TS.utility.htmlEntities(formatted_date) + "</span>";
+      html = TS.i18n.t("These guests will remain active until {date_html}.", "invite")({
+        date_html: date_html
+      });
+      btn_text = TS.i18n.t("Change", "invite")();
+    }
     $("#admin_invites_guest_expiration_copy").html(html);
-    $("#admin_invites_show_date_picker").text(new_btn_text);
-  };
-  var _destroyDatePicker = function() {
-    var _$date_picker_target = $(_DATE_PICKER_TARGET_SELECTOR);
-    if (_$date_picker_target.pickmeup) _$date_picker_target.pickmeup("destroy");
+    $("#admin_invites_show_date_picker").text(btn_text);
   };
   var _prepareInvites = function() {
     var invites = [];

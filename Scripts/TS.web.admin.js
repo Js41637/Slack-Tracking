@@ -1287,27 +1287,27 @@
       if (TS.experiment.getGroup("guest_profiles_and_expiration") === "treatment") {
         $row.find(".admin_member_update_expiration_ts").unbind("click").bind("click", function(e) {
           var $target = $(e.target);
+          var date_picker_args = {};
           var member_id = $row.data("member-id");
           var member = TS.members.getMemberById(member_id);
-          var date_picker_args = {
-            class_name: "admin_member_expiration_datepicker",
-            onChange: function(date_ts) {
-              if (!parseInt(date_ts, 10) || date_ts === member.expiration_ts) return;
-              var api_args = {
-                user: member_id,
-                expiration_ts: date_ts
-              };
+          if (member.expiration_ts) date_picker_args.selected_expiration_ts = member.expiration_ts;
+          var onSelect = function(date_ts) {
+            if (!_.isNumber(date_ts) || date_ts === member.expiration_ts) return;
+            var api_args = {
+              user: member_id
+            };
+            if (date_ts === 0) {
+              TS.web.admin.rowProcessing(row);
+              TS.api.call("users.admin.removeExpiration", api_args, TS.web.admin.onExpirationDateChanged);
+            } else {
+              api_args.expiration_ts = date_ts;
               TS.web.admin.rowProcessing(row);
               TS.api.call("users.admin.setExpiration", api_args, TS.web.admin.onExpirationDateChanged);
-            },
-            onHide: function() {
-              _.defer(function() {
-                if ($target.pickmeup) $target.pickmeup("destroy");
-              });
             }
+            $row.tooltip("show");
           };
-          if (member.expiration_ts) date_picker_args.selected_expiration_ts = member.expiration_ts;
-          TS.ui.date_picker.startGuestExpirationDatePicker($target, date_picker_args);
+          $row.tooltip("hide");
+          TS.menu.date.startWithExpirationPresets(e, $target, onSelect, date_picker_args);
           e.stopPropagation();
         });
       }

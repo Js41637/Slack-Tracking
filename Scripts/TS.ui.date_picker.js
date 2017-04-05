@@ -63,7 +63,7 @@
         }
       });
     },
-    startGuestExpirationDatePicker: function($element, options) {
+    startExpirationDatePicker: function($element, options) {
       options = options || {};
       var today = new Date;
       var today_ts = today.getTime();
