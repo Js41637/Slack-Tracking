@@ -163,8 +163,8 @@
         $.each(boot_data.accepted_invites, function(index, invite) {
           var member = TS.members.getMemberById(invite.user.id);
           if (!member) return;
-          member.date_create = parseInt(invite.date_create);
-          member.date_resent = parseInt(invite.date_resent);
+          member.date_create = parseInt(invite.date_create, 10);
+          member.date_resent = parseInt(invite.date_resent, 10);
           member.email = invite.email;
           member.is_pending = false;
           member.inviter = invite.inviter;

@@ -99,7 +99,7 @@
       if (pri && !TS.shouldLog(pri)) return;
       txt = txt || "";
       ob = _maybeRedactFields(ob);
-      var dir_json = parseInt(TS.qs_args["dir_json"]);
+      var dir_json = parseInt(TS.qs_args["dir_json"], 10);
       if (dir_json) {
         var limit = dir_json == 1 ? "2000" : dir_json;
         try {
@@ -531,7 +531,7 @@
     },
     reloadIfVersionsChanged: function(data) {
       if (TS.model.ms_logged_in_once && data.min_version_ts && TS.boot_data.version_ts !== "dev") {
-        if (parseInt(TS.boot_data.version_ts) < parseInt(data.min_version_ts)) {
+        if (parseInt(TS.boot_data.version_ts, 10) < parseInt(data.min_version_ts, 10)) {
           TS.reload(null, "parseInt(TS.boot_data.version_ts) < parseInt(data.min_version_ts)");
           return true;
         }
@@ -1048,7 +1048,7 @@
     if (!window.sessionStorage) return;
     try {
       var name = TS.client ? "session_load_count_client" : "session_load_count_web";
-      var cnt = parseInt(sessionStorage.getItem(name) || 0) + 1;
+      var cnt = parseInt(sessionStorage.getItem(name) || 0, 10) + 1;
       sessionStorage.setItem(name, cnt);
       TS.info(name + ": " + cnt);
       TS.metrics.store(name, cnt, {
@@ -1418,7 +1418,7 @@
         return;
       }
       if (!doAllMembersFromChannelsInRawDataExist()) {
-        if (parseInt(args.cache_ts)) {
+        if (parseInt(args.cache_ts, 10)) {
           _onBadUserCache("!doAllMembersFromChannelsInRawDataExist()", log_data.join("\n"));
           reject(Error("called _onBadUserCache"));
           return;
@@ -1471,7 +1471,7 @@
       }
       TS.model.initial_msgs_cnt = 42;
       if (TS.qs_args["api_count"]) {
-        var api_count_override = parseInt(TS.qs_args["api_count"]) || TS.model.initial_msgs_cnt;
+        var api_count_override = parseInt(TS.qs_args["api_count"], 10) || TS.model.initial_msgs_cnt;
         TS.model.initial_msgs_cnt = Math.min(TS.model.initial_msgs_cnt, api_count_override);
       }
       var max = TS.model.hard_msg_limit;
@@ -1547,7 +1547,7 @@
         return TS.members.ensureMembersArePresentInSharedModelObs(maybe_shared_model_obs).then(function() {
           var with_shared = true;
           if (!doAllMembersFromChannelsInRawDataExist(with_shared)) {
-            if (parseInt(args.cache_ts)) {
+            if (parseInt(args.cache_ts, 10)) {
               _onBadUserCache("!doAllMembersFromChannelsInRawDataExist(with_shared=true)", log_data.join("\n"));
               reject(Error("called _onBadUserCache"));
               return;
@@ -3044,7 +3044,7 @@ var _fullToHalf = function(char) {
   var _unknown_ids_handled = {};
   var _unknown_ids_handled_states = [-1, 0, 1];
   var _getUnknownIdsHandledLogOb = function(min_tries, state) {
-    min_tries = parseInt(min_tries) || 1;
+    min_tries = parseInt(min_tries, 10) || 1;
     state = _.includes(_unknown_ids_handled_states, state) ? state : "any";
     var obs = {};
     Object.keys(_unknown_ids_handled).forEach(function(id) {
@@ -3064,7 +3064,7 @@ var _fullToHalf = function(char) {
   function _isWin7Plus(ua) {
     var matches = ua.match(/Windows NT ([0-9]+\.[0-9]+)\b/);
     if (!matches || matches.length < 2) return false;
-    return parseInt(matches[1]) >= 6;
+    return parseInt(matches[1], 10) >= 6;
   }
 
   function _getOSXVersion(ua) {
@@ -3216,7 +3216,7 @@ var _fullToHalf = function(char) {
 
   function _stickySetup() {
     TS.environment.supports_sticky_position = _cssValueSupported("position", "sticky");
-    if (window.bowser.name === "Chrome" && parseInt(window.bowser.version) < 57 && _isRetina()) {
+    if (window.bowser.name === "Chrome" && parseInt(window.bowser.version, 10) < 57 && _isRetina()) {
       TS.environment.supports_sticky_position = false;
     }
   }
@@ -4007,7 +4007,7 @@ var _fullToHalf = function(char) {
       str.replace(_emoji.rx_emoticons, callback);
     },
     getChosenSkinTone: function() {
-      var pref = parseInt(_.get(TS, "model.prefs.preferred_skin_tone"));
+      var pref = parseInt(_.get(TS, "model.prefs.preferred_skin_tone"), 10);
       if (!pref || pref == "1" || !_.includes([2, 3, 4, 5, 6], pref)) return "";
       return "skin-tone-" + pref;
     },

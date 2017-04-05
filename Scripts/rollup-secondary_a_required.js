@@ -1749,8 +1749,8 @@
       var data = {
         ok: false,
         error: "_http_error",
-        status: parseInt(req.status),
-        retry_after: parseInt(req.getResponseHeader && req.getResponseHeader("Retry-After"))
+        status: parseInt(req.status, 10),
+        retry_after: parseInt(req.getResponseHeader && req.getResponseHeader("Retry-After"), 10)
       };
       if (data.status >= 500 || data.status == 0) {
         _consecutive_errors++;
@@ -1924,7 +1924,7 @@
       special_label += "__dmeliding_" + (timing_ob.args.only_relevant_ims ? "yes" : "no");
       special_label += "__usercache_" + (TS.storage.isUsingMemberBotCache() ? "yes" : "no");
       if (TS.storage.isUsingMemberBotCache()) {
-        if (parseInt(timing_ob.args.cache_ts)) {
+        if (parseInt(timing_ob.args.cache_ts, 10)) {
           special_label += "__hadcache_yes";
         } else {
           if (TS.model.had_bad_user_cache) {
@@ -2055,7 +2055,7 @@
     if (data.status == 429 || data.status == 503) {
       increase_rate = 1.1;
       retry_after_secs = retry_after_secs || 60;
-      max_secs = Math.max(180, parseInt(data.retry_after) || 0);
+      max_secs = Math.max(180, parseInt(data.retry_after, 10) || 0);
     } else {
       increase_rate = 1.3;
       retry_after_secs = 1;
@@ -9536,7 +9536,7 @@ TS.registerModule("constants", {
           }
         } else {
           if (TS.boot_data.feature_scrollback_half_measures && TS.model.prefs.start_scroll_at_oldest) {
-            var last_read = parseInt(model_ob.last_read) ? model_ob.last_read : null;
+            var last_read = parseInt(model_ob.last_read, 10) ? model_ob.last_read : null;
             if (data.messages && last_read && !args._second_attempt_for_last_read) {
               var oldest_msg = _.minBy(data.messages, "ts");
               if (oldest_msg && oldest_msg.ts > last_read) {
@@ -14853,7 +14853,7 @@ TS.registerModule("constants", {
     onStart: function() {
       TS.search.keyword_modifier_pair_regex = new RegExp("^(" + TS.search.keyword_modifiers.join("|") + "):S+$");
       TS.search.keyword_modifier_extract_regex = new RegExp("^(" + TS.search.keyword_modifiers.join("|") + "):w*");
-      TS.search.per_page = parseInt(TS.qs_args["search_count"]) || 20;
+      TS.search.per_page = parseInt(TS.qs_args["search_count"], 10) || 20;
       if (TS.client) TS.search.delay = 10;
       if (TS.client) {
         TS.client.login_sig.add(TS.search.loggedIn, TS.search);
@@ -17880,7 +17880,7 @@ TS.registerModule("constants", {
         } else if (imsg.version_ts == "dev") {
           TS.info("reloading because dev");
           do_reload = true;
-        } else if (parseInt(TS.boot_data.version_ts) < parseInt(imsg.version_ts)) {
+        } else if (parseInt(TS.boot_data.version_ts, 10) < parseInt(imsg.version_ts, 10)) {
           TS.info("reloading because " + TS.boot_data.version_ts + " < " + imsg.version_ts);
           do_reload = true;
         }
@@ -23719,7 +23719,7 @@ TS.registerModule("constants", {
         if (TS.boot_data.feature_i18n_currencies) {
           var include_all_digits = options.hash.all_digits || false;
           var currency_code = options.hash.currency_code || "USD";
-          var amount = parseInt(options.hash.value);
+          var amount = parseInt(options.hash.value, 10);
           out = TS.utility.money.formatMoney(amount, currency_code, {
             all_digits: include_all_digits
           });
@@ -23727,7 +23727,7 @@ TS.registerModule("constants", {
         }
         var all_digits = options.hash.all_digits || false;
         var neg = false;
-        var val = parseInt(options.hash.value);
+        var val = parseInt(options.hash.value, 10);
         if (val < 0) {
           neg = true;
           val = 0 - val;
@@ -26375,7 +26375,7 @@ TS.registerModule("constants", {
       return minutes + separator + seconds;
     },
     daysToYearsPretty: function(d) {
-      var days = parseInt(d);
+      var days = parseInt(d, 10);
       var years = 0;
       var str_builder;
       if (days % 365 === 0) {
@@ -27196,7 +27196,7 @@ TS.registerModule("constants", {
           TS.error(A[i] + " invalid");
           continue;
         }
-        if (!parseInt(hash[name])) {
+        if (!parseInt(hash[name], 10)) {
           hash[name] = 0;
         }
         hash[name]++;
@@ -27678,8 +27678,8 @@ TS.registerModule("constants", {
         if (attachment.other_html) {
           TS.inline_others.makeInternalInlineOther(attachment);
         } else if (attachment.video_html) {
-          var thumb_w = attachment.video_html_width && parseInt(attachment.video_html_width) > parseInt(attachment.thumb_width) ? attachment.video_html_width : attachment.thumb_width;
-          var thumb_h = attachment.video_html_height && parseInt(attachment.video_html_height) > parseInt(attachment.thumb_height) ? attachment.video_html_height : attachment.thumb_height;
+          var thumb_w = attachment.video_html_width && parseInt(attachment.video_html_width, 10) > parseInt(attachment.thumb_width, 10) ? attachment.video_html_width : attachment.thumb_width;
+          var thumb_h = attachment.video_html_height && parseInt(attachment.video_html_height, 10) > parseInt(attachment.thumb_height, 10) ? attachment.video_html_height : attachment.thumb_height;
           TS.inline_videos.makeInternalInlineVideo(attachment.from_url || attachment.thumb_url, {
             title: attachment.title,
             html: TS.utility.msgs.filterHTMLForEmbeds(attachment.video_html),
@@ -28737,7 +28737,7 @@ TS.registerModule("constants", {
     makeComparableVersion: function(ver) {
       var noBeta = ver.split("-")[0];
       return _.reduce(noBeta.split("."), function(acc, x) {
-        return acc * 1e3 + parseInt(x);
+        return acc * 1e3 + parseInt(x, 10);
       }, 0);
     },
     compareSemanticVersions: function(version_a, version_b) {
@@ -28893,7 +28893,7 @@ TS.registerModule("constants", {
     },
     ellipsize: function(str, len) {
       if (!str) return str;
-      if (!len || !parseInt(len)) len = 50;
+      if (!len || !parseInt(len, 10)) len = 50;
       if (str.length > len) {
         var prefix = str.substr(0, len / 2);
         var suffix = str.substr(-(len / 2), str.length);
@@ -28929,10 +28929,10 @@ TS.registerModule("constants", {
       }, []).join(" ");
     },
     convertFilesize: function(size) {
-      size = parseInt(size);
+      size = parseInt(size, 10);
       if (size === 0) return "0 bytes";
       var units = ["b", "KB", "MB", "GB"];
-      var power = parseInt(Math.floor(Math.log(size) / Math.log(1024)));
+      var power = parseInt(Math.floor(Math.log(size) / Math.log(1024)), 10);
       var calc_size = size / Math.pow(1024, power);
       var rounded_size = Math.round(calc_size, 2);
       if (rounded_size > 999) {
@@ -29437,7 +29437,7 @@ TS.registerModule("constants", {
       }
 
       function hex(x) {
-        return ("0" + parseInt(x).toString(16)).slice(-2);
+        return ("0" + parseInt(x, 10).toString(16)).slice(-2);
       }
       return "#" + hex(rgb_match[1]) + hex(rgb_match[2]) + hex(rgb_match[3]);
     },
@@ -29635,8 +29635,8 @@ TS.registerModule("constants", {
       }
       image_proxy_url = TS.utility.url.setUrlQueryStringValue(image_proxy_url, "c", "1");
       var optparts = [];
-      var w = parseInt(opts.width);
-      var h = parseInt(opts.height);
+      var w = parseInt(opts.width, 10);
+      var h = parseInt(opts.height, 10);
       if (w && h) {
         optparts.push("wi" + w);
         optparts.push("he" + h);
@@ -30282,7 +30282,7 @@ TS.registerModule("constants", {
       for (var i = str.length - 1; i > -1; i--) {
         digits += (str.charCodeAt(i) * (i + 1)).toString().substr(-1, 1);
       }
-      return parseInt(digits);
+      return parseInt(digits, 10);
     },
     enableFeatureForUser: function(percentage) {
       if (percentage < 0 || percentage > 100) {
@@ -32764,7 +32764,7 @@ TS.registerModule("constants", {
           TS.dnd.endDnd();
         }
       } else if (action === "snooze") {
-        var minutes = parseInt($action.data("snooze-length"));
+        var minutes = parseInt($action.data("snooze-length"), 10);
         if (minutes && !isNaN(minutes)) {
           TS.dnd.setSnooze(minutes);
         }
@@ -38144,15 +38144,15 @@ var _on_esc;
       var max_h = 500;
       TS.model.inline_videos[key] = video;
       video.src = video.thumbnail.url || key;
-      video.width = video.display_w = parseInt(video.thumbnail.width);
-      video.height = video.display_h = parseInt(video.thumbnail.height);
+      video.width = video.display_w = parseInt(video.thumbnail.width, 10);
+      video.height = video.display_h = parseInt(video.thumbnail.height, 10);
       if (video.display_w > max_w) {
         video.display_w = max_w;
-        video.display_h = parseInt(video.height * (video.display_w / video.width));
+        video.display_h = parseInt(video.height * (video.display_w / video.width), 10);
       }
       if (video.display_h > max_h) {
         video.display_h = max_h;
-        video.display_w = parseInt(video.width * (video.display_h / video.height));
+        video.display_w = parseInt(video.width * (video.display_h / video.height), 10);
       }
       if (!video.html) video.html = "MISSING video.html";
       if (video.html.indexOf("gfycat.com/ifr") > -1) {
@@ -38603,9 +38603,9 @@ var _on_esc;
       attachment._floated_thumb_display_width = 75;
       if (attachment.thumb_height && attachment.thumb_width) {
         if (attachment.thumb_height > attachment.thumb_width) {
-          attachment._floated_thumb_display_width = parseInt(attachment.thumb_width * (attachment._floated_thumb_display_height / attachment.thumb_height));
+          attachment._floated_thumb_display_width = parseInt(attachment.thumb_width * (attachment._floated_thumb_display_height / attachment.thumb_height), 10);
         } else {
-          attachment._floated_thumb_display_height = parseInt(attachment.thumb_height * (attachment._floated_thumb_display_width / attachment.thumb_width));
+          attachment._floated_thumb_display_height = parseInt(attachment.thumb_height * (attachment._floated_thumb_display_width / attachment.thumb_width), 10);
         }
       }
       var proxied_thumb_url = TS.utility.getImgProxyURL(attachment.thumb_url, attachment._floated_thumb_display_width, attachment._floated_thumb_display_height);
@@ -38769,11 +38769,11 @@ var _on_esc;
       var max_w = 400;
       var max_h = 500;
       if (attachment.other_html_width > max_w) {
-        attachment.other_html_height = parseInt(attachment.other_html_height * (max_w / attachment.other_html_width));
+        attachment.other_html_height = parseInt(attachment.other_html_height * (max_w / attachment.other_html_width), 10);
         attachment.other_html_width = max_w;
       }
       if (attachment.other_html_height > max_h) {
-        attachment.other_html_width = parseInt(attachment.other_html_width * (max_h / attachment.other_html_height));
+        attachment.other_html_width = parseInt(attachment.other_html_width * (max_h / attachment.other_html_height), 10);
         attachment.other_html_height = max_h;
       }
       var google_map_config;
@@ -40962,7 +40962,7 @@ var _on_esc;
       },
       startAngle: Math.PI / -2
     }).on("circle-animation-progress", function() {
-      $text.html(parseInt(count));
+      $text.html(parseInt(count, 10));
     });
     setTimeout(function() {
       _captureCountdownCycle(--count, aborted, resolve, reject);
@@ -59810,7 +59810,7 @@ $.fn.togglify = function(settings) {
         TS.error("cannot format money: no currency_code specified");
         return "";
       }
-      amount = amount ? parseInt(amount) : 0;
+      amount = amount ? parseInt(amount, 10) : 0;
       var dollar_value;
       if (_has_Intl) {
         if (currency_code === "JPY") {
@@ -59855,7 +59855,7 @@ $.fn.togglify = function(settings) {
         TS.error("cannot format money: no currency_code specified");
         return "";
       }
-      amount = amount ? parseInt(amount) : 0;
+      amount = amount ? parseInt(amount, 10) : 0;
       var default_locale_options = _locales_number_formatting["default"];
       var decimal_symbol = _locales_number_formatting[_locale] ? _locales_number_formatting[_locale]["decimal_symbol"] : default_locale_options.decimal_symbol;
       var thousands_separator = _locales_number_formatting[currency_code] ? _locales_number_formatting[_locale]["thousands_separator"] : default_locale_options.thousands_separator;

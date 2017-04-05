@@ -1732,7 +1732,7 @@
       if (TS.view.footer_outer_h == -1) {
         TS.view.footer_outer_h = $("#footer").outerHeight();
       }
-      var banner_h = TS.client.ui.$banner.hasClass("hidden") ? 0 : parseInt(TS.client.ui.$banner.css("height"));
+      var banner_h = TS.client.ui.$banner.hasClass("hidden") ? 0 : parseInt(TS.client.ui.$banner.css("height"), 10);
       if (TS.model.menu_is_showing) TS.view.setFlexMenuSize();
       if (wh_changed || !!TS.view.last_input_height) {
         if (TS.model.prefs && TS.model.prefs.msg_preview && !TS.client.activeChannelIsHidden()) {
@@ -3387,8 +3387,8 @@
   var _electron_window_gripper_offset = 8;
   var _setChannelsScrollerHeight = function(window_h, banner_h) {
     window_h = window_h || TS.view.cached_wh || $(window).height();
-    banner_h = banner_h || (TS.client.ui.$banner.hasClass("hidden") ? 0 : parseInt(TS.client.ui.$banner.css("height")));
-    var footer_h = $("#col_channels_footer") ? parseInt($("#col_channels_footer").css("height")) : 0;
+    banner_h = banner_h || (TS.client.ui.$banner.hasClass("hidden") ? 0 : parseInt(TS.client.ui.$banner.css("height"), 10));
+    var footer_h = $("#col_channels_footer") ? parseInt($("#col_channels_footer").css("height"), 10) : 0;
     var top_offset = TS.view.team_menu_h;
     if (TS.model.is_electron && TS.model.is_mac && TSSSB.call("isMainWindowFrameless")) {
       top_offset += _electron_window_gripper_offset;
@@ -6913,7 +6913,7 @@
       var $div = TS.model.archive_view_is_showing ? TS.client.archives.$scroller : TS.client.ui.$msgs_scroller_div;
       var div = $div[0];
       if (!div) return;
-      var ret = parseInt($div.css("height")) + div.scrollTop + allowance >= div.scrollHeight;
+      var ret = parseInt($div.css("height"), 10) + div.scrollTop + allowance >= div.scrollHeight;
       if (TS.model.archive_view_is_showing) {
         TS.model.ui.cached_archive_scroll_result = ret;
       } else {
@@ -12921,7 +12921,7 @@
     },
     lastReadIsOlderThanCurrentHistory: function(model_ob) {
       model_ob = model_ob || TS.shared.getActiveModelOb();
-      if (!parseInt(model_ob.last_read)) return false;
+      if (!parseInt(model_ob.last_read, 10)) return false;
       if (!model_ob.msgs || !model_ob.msgs.length) return false;
       return !_.some(model_ob.msgs, function(msg) {
         return msg.ts <= model_ob.last_read;
@@ -12991,7 +12991,7 @@
         }
       }
       if (TS.pri) TS.log(142, "checkUnreads " + model_ob.id + ": all_unreads_are_seen = " + all_unreads_are_seen + ", last_read_msg_div = " + (_$last_read_msg_div && _$last_read_msg_div.length) + ", last_read = " + model_ob.last_read);
-      if (all_unreads_are_seen && (_$last_read_msg_div && _$last_read_msg_div.length || !parseInt(model_ob.last_read) || mark_msgs_read_immediately || is_muted)) {
+      if (all_unreads_are_seen && (_$last_read_msg_div && _$last_read_msg_div.length || !parseInt(model_ob.last_read, 10) || mark_msgs_read_immediately || is_muted)) {
         if (!mark_msgs_read_immediately) {
           if (TS.pri) TS.log(142, "checkUnreads " + model_ob.id + ": All unreads are seen. Marking as viewed.");
           TS.client.ui.markMostRecentReadMsgInActive(TS.model.marked_reasons.viewed);
@@ -21331,7 +21331,7 @@
         sharing_html: TS.templates.builders.buildFileSharingControls(file, null, _initialComment(), null, TS.ui.upload_dialog.selection),
         over_storage_limit: TS.model.team.over_storage_limit,
         more_in_queue: TS.ui.upload_dialog.filesQ.length > 0,
-        file_retention_type: parseInt(TS.model.team.prefs.file_retention_type),
+        file_retention_type: parseInt(TS.model.team.prefs.file_retention_type, 10),
         file_retention_duration: TS.utility.date.daysToYearsPretty(TS.model.team.prefs.file_retention_duration)
       });
       var $div = TS.ui.upload_dialog.div;
@@ -27485,7 +27485,7 @@
     var api_args = {
       channel: model_ob.id,
       latest: latest_ts,
-      count: parseInt(TS.model.subsequent_msgs_cnt / 2),
+      count: parseInt(TS.model.subsequent_msgs_cnt / 2, 10),
       _showing_id: _showing_id,
       ignore_replies: true
     };
@@ -27509,7 +27509,7 @@
     var api_args = {
       channel: model_ob.id,
       oldest: oldest_ts,
-      count: parseInt(TS.model.subsequent_msgs_cnt / 2),
+      count: parseInt(TS.model.subsequent_msgs_cnt / 2, 10),
       _showing_id: _showing_id,
       ignore_replies: true
     };
@@ -34548,7 +34548,7 @@ function timezones_guess() {
     });
     if (config.external_file_src) {
       var imgproxy_opts = {};
-      imgproxy_opts.rotate = !!parseInt(config.rotation);
+      imgproxy_opts.rotate = !!parseInt(config.rotation, 10);
       if (config.content_type == "image/svg+xml") {
         imgproxy_opts.render_svg = true;
         imgproxy_opts.width = config.original_w;
@@ -35430,9 +35430,9 @@ function timezones_guess() {
         window.open = function(url, name, specs) {
           var width, height, left, top;
           width = String(specs).match(/width\D+(\d+)/);
-          width = parseInt(width && width[1] || 590);
+          width = parseInt(width && width[1] || 590, 10);
           height = String(specs).match(/height\D+(\d+)/);
-          height = parseInt(height && height[1] || 520);
+          height = parseInt(height && height[1] || 520, 10);
           left = (window.screenX || window.screenLeft) + ((window.outerWidth || document.documentElement.offsetWidth) - width) / 2;
           top = (window.screenY || window.screenTop) + ((window.outerHeight || document.documentElement.offsetHeight) - height) / 2;
           _box_window = window_open(url, name, [specs, "left=" + left, "top=" + top].join(","));
@@ -41843,7 +41843,7 @@ function timezones_guess() {
     _config.has_more_end = !!has_more;
   };
   var _onResize = function() {
-    var banner_height = TS.client.ui.$banner.hasClass("hidden") ? 0 : parseInt(TS.client.ui.$banner.css("height"));
+    var banner_height = TS.client.ui.$banner.hasClass("hidden") ? 0 : parseInt(TS.client.ui.$banner.css("height"), 10);
     TS.client.ui.threads.$scroller.height(TS.view.cached_wh - $("#client_header").outerHeight() - banner_height - TS.client.ui.CLIENT_HEADER_OVERHANG);
     if (!TS.environment.supports_custom_scrollbar) TS.ui.utility.updateClosestMonkeyScroller(TS.client.ui.threads.$scroller);
   };

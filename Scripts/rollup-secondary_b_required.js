@@ -1748,26 +1748,26 @@
       }
       TS.model.inline_imgs[key] = img;
       img.src = img.src || key;
-      img.bytes = parseInt(img.bytes);
+      img.bytes = parseInt(img.bytes, 10);
       var opt = {};
       if (img.rotation) {
         opt.rotate = true;
-        if (Math.abs(parseInt(img.rotation)) == 90) {
+        if (Math.abs(parseInt(img.rotation, 10)) == 90) {
           var old_height = img.height;
           img.height = img.width;
           img.width = old_height;
         }
       }
-      img.width = img.display_w = parseInt(img.width);
-      img.height = img.display_h = parseInt(img.height);
+      img.width = img.display_w = parseInt(img.width, 10);
+      img.height = img.display_h = parseInt(img.height, 10);
       if (img.display_w > max_w) {
         img.display_w = max_w;
-        img.display_h = parseInt(img.height * (img.display_w / img.width));
+        img.display_h = parseInt(img.height * (img.display_w / img.width), 10);
         opt.resize = true;
       }
       if (img.display_h > max_h) {
         img.display_h = max_h;
-        img.display_w = parseInt(img.width * (img.display_h / img.height));
+        img.display_w = parseInt(img.width * (img.display_h / img.height), 10);
         opt.resize = true;
       }
       opt.width = img.display_w;
