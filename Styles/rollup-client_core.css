@@ -7725,6 +7725,11 @@ only screen and (min-resolution:2dppx) {
   display: none
 }
 
+#client-ui:not(.app_index_view_is_showing) #app_index_scroller_div,
+#client-ui:not(.app_index_view_is_showing) #monkey_scroll_wrapper_for_app_index_scroller_div {
+  display: none
+}
+
 ts-memory-instrument {
   position: fixed;
   bottom: 0;

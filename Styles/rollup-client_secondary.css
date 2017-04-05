@@ -2885,7 +2885,7 @@ body.incremental_boot #col_channels .header_count {
 }
 
 #app_directory_nav .ts_icon_bolt:before {
-  font-size: 1rem;
+  font-size: .95rem;
   margin-right: -3px
 }
 
@@ -19952,7 +19952,7 @@ ts-message .emoji-sizer .mention {
 }
 
 ts-message.selected {
-  z-index: 1
+  z-index: 2
 }
 
 #convo_tab .message_input,
@@ -28304,4 +28304,102 @@ ts-thread .thread_participants {
   font-size: .75rem;
   margin-top: .5rem;
   color: #717274
+}
+
+@font-face {
+  font-family: appleLogo;
+  src: local("Lucida Grande");
+  unicode-range: U+F8FF
+}
+
+#app_index_scroller_div {
+  font-family: Slack-Lato, appleLogo, sans-serif;
+  font-size: 15px;
+  height: 100%;
+  margin-top: 8px;
+  padding: 50px 80px;
+  overflow-y: scroll
+}
+
+#app_index_scroller_div #app_index_div {
+  max-width: 1500px;
+  min-width: 900px
+}
+
+#app_index_scroller_div #app_index_div .navigation {
+  list-style: none;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  margin: 0
+}
+
+#app_index_scroller_div #app_index_div .navigation li {
+  width: 33%;
+  padding: 10px;
+  border-bottom: 1px solid #E8E8E8;
+  color: #000
+}
+
+#app_index_scroller_div #app_index_div .navigation li:hover {
+  cursor: pointer;
+  font-weight: 700
+}
+
+#app_index_scroller_div #app_index_div .navigation li.active {
+  border-color: #000;
+  font-weight: 700
+}
+
+#app_index_scroller_div #app_index_div .content {
+  padding-top: 20px
+}
+
+#app_index_scroller_div #app_index_div .content .apps {
+  flex-wrap: wrap;
+  justify-content: center
+}
+
+#app_index_scroller_div #app_index_div .content .your_apps {
+  justify-content: flex-start
+}
+
+#app_index_scroller_div #app_index_div .content .your_apps .app_card {
+  padding: 5px;
+  margin: 10px 0 0 10px;
+  border: 1px solid #E8E8E8;
+  border-radius: .25rem;
+  width: calc(33% - 10px)
+}
+
+#app_index_scroller_div #app_index_div .content .your_apps .app_card .app_card_icon {
+  width: 40px;
+  height: 40px
+}
+
+#app_index_scroller_div #app_index_div .content .your_apps .app_card .app_name {
+  color: #000
+}
+
+#app_index_scroller_div #app_index_div .content .your_apps .app_card .app_category {
+  color: #9e9ea6;
+  font-size: .8rem
+}
+
+#app_index_scroller_div #app_index_div .footer {
+  margin-top: 30px;
+  display: flex;
+  justify-content: center
+}
+
+#app_index_scroller_div #app_index_div .footer ts-icon {
+  position: relative;
+  top: 2px
+}
+
+#app_index_scroller_div #app_index_div a:active,
+#app_index_scroller_div #app_index_div a:focus,
+#app_index_scroller_div #app_index_div a:hover,
+#app_index_scroller_div #app_index_div a:visited {
+  text-decoration: none
 }

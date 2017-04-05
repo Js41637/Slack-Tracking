@@ -54042,7 +54042,9 @@ $.fn.togglify = function(settings) {
       return _.isEmpty(_utility_call_analytics_state);
     },
     record: function(series, stats) {
-      if (!_.find(_record_buffer, function(d) {
+      var stat_type = series.slice(0, series.indexOf("."));
+      var is_video_stat = stat_type === "video_send_stats" || stat_type === "video_recv_stats";
+      if (is_video_stat || !_.find(_record_buffer, function(d) {
           return d["measurement"] === series;
         })) {
         _record_buffer.push(_createAnalyticsData(series, stats));
@@ -54646,7 +54648,7 @@ $.fn.togglify = function(settings) {
       var method;
       var args = {
         regions: regions,
-        protocol: "2.0"
+        protocol: "1.0"
       };
       if (id.charAt(0) == "R") {
         method = "screenhero.rooms.join";
@@ -59233,6 +59235,7 @@ $.fn.togglify = function(settings) {
       } else if (msg.is_ephemeral) {
         _updateVisibleRepliesCount(thread, $thread, msg);
       }
+      TS.attachment_actions.select.decorateNewElements($thread);
       _updateParticipantsList(thread, $thread);
     },
     removeMessageFromThread: function($thread, thread, msg) {
@@ -59313,6 +59316,7 @@ $.fn.togglify = function(settings) {
             _.forEach(previous_replies, function(msg) {
               $prev_container.append(TS.templates.builders.buildThreadMsgHTML(msg, thread.model_ob, thread, options));
             });
+            TS.attachment_actions.select.decorateNewElements($thread);
             var full_height = $prev_container.height();
             $prev_container.height(0).animate({
               height: full_height

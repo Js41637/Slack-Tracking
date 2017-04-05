@@ -38140,6 +38140,7 @@ function timezones_guess() {
       $container.data("message-container-config", config);
       $container.addClass("message_container");
       _buildSections(config, visible_sections);
+      TS.attachment_actions.select.decorateNewElements($container);
       config._state = visible_sections;
       _buildLoadingIndicators(config);
       _bindUI(config);
@@ -38197,6 +38198,7 @@ function timezones_guess() {
       if (TS.client && config.name) {
         TS.client.ui.checkInlineImgsAndIframes(config.name);
       }
+      TS.attachment_actions.select.decorateNewElements($container);
       var $scroller = $container;
       if (config.scroller) $scroller = $(config.scroller);
       TS.ui.utility.updateClosestMonkeyScroller($scroller);
@@ -42186,21 +42188,11 @@ var _showSSBDeprecationModal = function() {
   TS.registerModule("client.app_index", {
     switched_sig: new signals.Signal,
     switched_away_sig: new signals.Signal,
-    fetched_apps_sig: new signals.Signal,
     apps_loaded: false,
-    onStart: function() {},
-    shouldRecordMetrics: function() {
-      return !!_should_record_metrics;
+    onStart: function() {
+      _q = new TS.PromiseQueue;
     },
-    debug: function(text, data) {
-      _debug_data.push({
-        msg: text,
-        data: data
-      });
-      if (!TS.boot_data.feature_tinyspeck) return;
-      TS.info("[APP INDEX] " + text, data);
-    },
-    showAppIndexView: function(from_history, replace_history_state, direct_from_boot) {
+    showAppIndexView: function(from_history, replace_history_state) {
       if (!TS.boot_data.feature_app_index) return false;
       if (TS.model.sorting_mode_is_showing) return false;
       from_history = !!from_history;
@@ -42212,24 +42204,64 @@ var _showSSBDeprecationModal = function() {
       } else {
         return false;
       }
-      _direct_from_boot = direct_from_boot;
-      _should_record_metrics = TS.utility.enableFeatureForUser(10);
-      if (_should_record_metrics) TS.metrics.mark("app_index_view_time_to_display");
       TS.client.ui.app_index.showAppIndexView();
-      if (_should_record_metrics) TS.metrics.count("app_index_view_displayed");
-      if (_should_record_metrics) TS.metrics.mark("app_index_view_time_spent");
+      if (_apps_data) {
+        TS.client.ui.app_index.startWithData(_apps_data, _total_apps);
+      } else {
+        _q.addToQ(_loadData);
+      }
       return true;
     },
     destroyAppIndexView: function() {
       if (!TS.client.ui.app_index.isAppIndexViewDOMShowing()) return;
-      if (_should_record_metrics) TS.metrics.measureAndClear("app_index_view_time_spent", "app_index_view_time_spent");
+      if (_data_loading_p && _data_loading_p.isPending()) {
+        _data_loading_p.cancel();
+      }
+      _data_loading_p = null;
       TS.client.ui.app_index.destroyAppIndexView();
       TS.client.app_index.switched_away_sig.dispatch();
     }
   });
-  var _should_record_metrics;
-  var _direct_from_boot;
-  var _debug_data = [];
+  var _q;
+  var _data_loading_p;
+  var _apps_data;
+  var _total_apps;
+  var _loadData = function() {
+    _data_loading_p = TS.api.call("apps.index.categories.apps.list", {
+      app_index_category_id: "Ai01"
+    });
+    return _data_loading_p.then(_handleData).then(function(data) {
+      if (TS.model.app_index_view_is_showing) TS.client.ui.app_index.startWithData(data.apps, data.total_apps);
+      return data;
+    }).catch(_handleError);
+  };
+  var _clearData = function() {
+    _apps_data = null;
+  };
+  var _handleData = function(resp) {
+    var data = resp.data;
+    _apps_data = data.apps;
+    _total_apps = data.total_count;
+    return {
+      apps: _apps_data,
+      total_apps: _total_apps
+    };
+  };
+  var _handleError = function(err) {
+    TS.error("App Index error during loading:");
+    TS.error(err);
+    var err_msg = _.get(err, "data.error");
+    if (!err_msg) err_msg = _.get(err, "message");
+    if (!err_msg) err_msg = err;
+    if (!_.isString(err_msg)) err_msg = JSON.stringify(err_msg);
+    TS.error(err_msg);
+    var stack_trace = _.get(err, "stack");
+    if (stack_trace) TS.error(JSON.stringify(stack_trace));
+    TS.console.logError(err, "app_index_view_fatal_error");
+    _clearData();
+    TS.client.ui.app_index.displayFatalError();
+    return null;
+  };
 })();
 (function() {
   "use strict";
@@ -42252,6 +42284,7 @@ var _showSSBDeprecationModal = function() {
       $("#archives_return").addClass("hidden");
       TS.client.ui.app_index.$container = $(TS.templates.app_index());
       TS.client.ui.app_index.$container.appendTo(TS.client.ui.app_index.$scroller);
+      _bindNavigation();
       if (!TS.environment.supports_custom_scrollbar) {
         TS.client.ui.app_index.$scroller.monkeyScroll();
       }
@@ -42260,6 +42293,14 @@ var _showSSBDeprecationModal = function() {
         view_session_index: _app_index_event_seq_id
       });
       TS.client.ui.app_index.incrementTrackingSeqId();
+    },
+    startWithData: function(apps, total_apps) {
+      TS.client.ui.app_index.$scroller.removeClass("loading");
+      if (apps.length < 1) {
+        TS.client.ui.app_index.displayEmptyState();
+        return;
+      }
+      _showApps(apps);
     },
     isAppIndexViewDOMShowing: function() {
       return $("#client-ui").hasClass("app_index_view_is_showing");
@@ -42291,7 +42332,7 @@ var _showSSBDeprecationModal = function() {
       var template_args = {
         is_error: true
       };
-      TS.client.ui.threads.displayAlternativeAppIndexView(template_args);
+      TS.client.ui.app_index.displayAlternativeAppIndexView(template_args);
     },
     displayAlternativeAppIndexView: function(template_args) {
       TS.client.ui.app_index.$scroller.find(".app_index_alternative_view_wrapper").remove();
@@ -42330,5 +42371,33 @@ var _showSSBDeprecationModal = function() {
     _initialized_time = Date.now();
     _app_index_event_seq_id = 0;
     _has_tracked_app_index_closed = false;
+  };
+  var _bindNavigation = function() {
+    var $navigators = $("#app_index_div .navigation li");
+    $navigators.on("click", function(e) {
+      var $navigation_link = $(e.target);
+      $navigators.removeClass("active");
+      $navigation_link.addClass("active");
+      $("#app_index_div .content .apps").removeClass("display_flex").addClass("display_none");
+      if ($navigation_link.hasClass("featured_apps_link")) {
+        $(".featured_apps").addClass("display_flex");
+      } else if ($navigation_link.hasClass("your_apps_link")) {
+        $(".your_apps").addClass("display_flex");
+      } else {
+        $(".build_apps").addClass("display_flex");
+      }
+    });
+  };
+  var _showApps = function(apps) {
+    var app_preview_template_args;
+    for (var i = 0; i < apps.length; i++) {
+      app_preview_template_args = {
+        app_id: apps[i].id,
+        name: apps[i].name,
+        category: "Social & Fun",
+        icons: apps[i].icons
+      };
+      $(TS.templates.app_index_app_card(app_preview_template_args)).appendTo("#app_index_div .your_apps");
+    }
   };
 })();
