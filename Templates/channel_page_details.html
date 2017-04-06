@@ -1,11 +1,7 @@
 {{i18n_ns "channel_pages"}}
 
-{{!-- hbslint-disable syntax --}}
-{{!-- Todo: enable syntax linter and refactor with safeString --}}
-
-{{#sharedChannelsEnabled}}
-  {{#if model_ob.is_org_shared}}
-    <div class="channel_shared_teams_section">
+{{#if model_ob.is_org_shared}}
+  <div class="channel_shared_teams_section bottom_margin">
     <div class="bold greigh shared_teams_label mini small_bottom_margin">{{#t}}Teams{{/t}}</div>
     {{#if is_globally_shared}}
       <p>
@@ -24,28 +20,28 @@
           </div>
         {{/each}}
       </div>
-    </div>
     {{/if}}
-  {{else if model_ob.is_shared}}
-    <div class="channel_shared_teams_section">
+  </div>
+{{else if model_ob.is_shared}}
+  <div class="channel_shared_teams_section bottom_margin">
     <div class="bold greigh shared_teams_label mini small_bottom_margin">{{#t}}Teams{{/t}}</div>
     {{#each shared_teams}}
-    <div class="shared_team_details small_top_margin">
-
-      {{> team_icon team=this size=36}}
-
-      <div class="team_name">{{this.name}}</div> <div class="team_member_count mini">{{#t}}0 members{{/t}}</div>
-    </div>
+      <div class="shared_team_details small_top_margin">
+        {{> team_icon team=this size=36}}
+        <div class="team_name">{{this.name}}</div>
+        <div class="team_member_count mini">{{#t}}0 members{{/t}}</div>
+      </div>
     {{/each}}
     <div class="source_team_details small_top_margin">
       {{> team_icon team=team size=36}}
-      <div class="team_name">{{team.name}}</div> <div class="team_member_count mini">{{#t}}0 members{{/t}}</div>
+      <div class="team_name">{{team.name}}</div>
+      <div class="team_member_count mini">{{#t}}0 members{{/t}}</div>
     </div>
-  {{/if}}
-{{/sharedChannelsEnabled}}
+  </div>
+{{/if}}
 
 <div class="channel_purpose_section">
-  <div class="bold greigh purpose_label mini{{#sharedChannelsEnabled}}{{#if model_ob.is_shared}} top_margin{{/if}}{{/sharedChannelsEnabled}}">{{#t}}Purpose{{/t}}</div>
+  <div class="bold greigh purpose_label mini">{{#t}}Purpose{{/t}}</div>
   <div class="bold greigh edit_purpose_label hidden mini tiny_bottom_margin">{{#t}}Set a new purpose{{/t}}</div>
 
   <div class="channel_purpose_text no_jumbomoji">

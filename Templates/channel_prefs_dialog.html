@@ -67,7 +67,7 @@
     {{#if show_one_suppressed_cb}}
       <div id="single_suppressed_div">
         <p class="bold no_bottom_margin" style="margin-left: 0.45rem;">
-          {{#isChannelRequired channel}}
+          {{#isChannelRequired model_ob}}
             {{#t at_label='@everyone'}}{at_label} notifications{{/t}}
           {{else}}
             {{#t at_label='@channel'}}{at_label} notifications{{/t}}

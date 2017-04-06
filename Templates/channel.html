@@ -1,8 +1,5 @@
-{{!-- hbslint-disable syntax --}}
-{{!-- Todo: enable syntax linter and refactor with safeString --}}
-
   <li class="{{makeChannelDomId model_ob}} channel {{#if model_ob.is_private}}private {{/if}}{{makeChannelDomClass model_ob}}">
-    <a href="{{makeChannelPath model_ob}}" class="channel_name primary_action" data-channel-id="{{model_ob.id}}" aria-label="{{{makeChannelLinkAriaLabelSafe model_ob}}}"{{#feature flag="feature_arugula"}} draggable="true" data-drag-meta="{{makeChannelDragData model_ob}}"{{/feature}}>
+    <a href="{{makeChannelPath model_ob}}" class="channel_name primary_action" data-channel-id="{{model_ob.id}}" aria-label="{{makeChannelLinkAriaLabelSafe model_ob}}"{{#feature flag="feature_arugula"}} draggable="true" data-drag-meta="{{makeChannelDragData model_ob}}"{{/feature}}>
       {{#if model_ob.is_archived}}
         {{#if model_ob.is_moved}}
           {{> ts_icon class="ts_icon_angle_arrow_up_left prefix"}}
@@ -21,15 +18,16 @@
       <span class="{{makeUnreadMsgsDomId model_ob}} unread_msgs {{#if_equal model_ob.unread_cnt compare=0}}hidden{{/if_equal}}">
         {{numberWithMax model_ob.unread_cnt 10}}
       </span>
-      <span class="{{makeUnreadHighlightDomId model_ob}} unread_highlights {{#if_equal model_ob.unread_highlight_cnt compare=0}}hidden{{/if_equal}}">
+      <span class="{{makeUnreadHighlightDomId model_ob}} unread_highlights
+                   {{#if_equal model_ob.unread_highlight_cnt compare=0}}hidden{{/if_equal}}
+                   {{#if_equal model_ob.unread_highlight_cnt compare=undefined}}hidden{{/if_equal}}">
         {{numberWithMax model_ob.unread_highlight_cnt 10}}
       </span>
       <span class="display_flex">
         <span class="overflow_ellipsis">
           {{model_ob.name}}
         </span>
-
-        {{#sharedChannelsEnabled}}{{#if model_ob.is_shared}}{{> shared_channel_icon}}{{/if}}{{/sharedChannelsEnabled}}
+        {{#if model_ob.is_shared}}{{> shared_channel_icon}}{{/if}}
       </span>
     </a>
   </li>

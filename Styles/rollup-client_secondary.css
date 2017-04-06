@@ -4179,7 +4179,36 @@ html {
 .client_resize_optimizations #messages_container {
   -ms-flex: 1;
   -webkit-flex: 1;
+  flex: 1;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex
+}
+
+.client_resize_optimizations .message_pane_scroller {
+  height: auto!important;
+  -ms-flex: 1;
+  -webkit-flex: 1;
   flex: 1
+}
+
+.client_resize_optimizations #messages_container .monkey_scroll_hider,
+.client_resize_optimizations #messages_container .monkey_scroll_wrapper {
+  -ms-flex: 1;
+  -webkit-flex: 1;
+  flex: 1;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: column;
+  -moz-flex-direction: column;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  overflow: hidden
 }
 
 .loading .client_container #msgs_scroller_div {
@@ -8020,7 +8049,6 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
   position: absolute;
   bottom: -2px;
   right: -2px;
-  border: 1px solid rgba(44, 45, 48, .08);
   border-radius: 3px;
   box-shadow: 0 0 0 2px #FFF;
   background-size: 100%;
@@ -8028,11 +8056,22 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
   background-repeat: no-repeat
 }
 
+.external_team_badge:after {
+  content: '';
+  display: block;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  box-shadow: inset 0 0 0 1px rgba(44, 45, 48, .08);
+  border-radius: 3px
+}
+
 .external_team_badge.default {
   background-color: #717274;
   font-weight: 800;
   font-size: 10px;
-  line-height: 1.5;
+  line-height: 1.6;
   color: #FFF;
   font-style: normal;
   letter-spacing: 0;
@@ -8086,8 +8125,18 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
   background-size: 100%;
   background-repeat: no-repeat;
   display: inline-block;
-  position: relative;
-  border: 1px solid rgba(44, 45, 48, .08)
+  position: relative
+}
+
+.team_image:after {
+  content: '';
+  display: block;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  box-shadow: inset 0 0 0 1px rgba(44, 45, 48, .08);
+  border-radius: 3px
 }
 
 .team_image.default {
@@ -28353,18 +28402,125 @@ ts-thread .thread_participants {
 #app_index_scroller_div {
   font-family: Slack-Lato, appleLogo, sans-serif;
   font-size: 15px;
-  height: 100%;
+  height: calc(100% - 16px);
   margin-top: 8px;
-  padding: 50px 80px;
   overflow-y: scroll
 }
 
-#app_index_scroller_div #app_index_div {
+#app_index_scroller_div.monkey_scroller {
+  padding-right: 15px
+}
+
+html:not(.supports_sticky_position) #app_index_scroller_div {
+  margin-top: 8px
+}
+
+.supports_custom_scrollbar:not(.slim_scrollbar) #app_index_scroller_div {
+  border-right: .25rem solid transparent
+}
+
+.supports_custom_scrollbar:not(.slim_scrollbar) #app_index_scroller_div::-webkit-scrollbar {
+  position: absolute;
+  -webkit-appearance: none;
+  width: 8px
+}
+
+.supports_custom_scrollbar:not(.slim_scrollbar) #app_index_scroller_div::-webkit-scrollbar-thumb,
+.supports_custom_scrollbar:not(.slim_scrollbar) #app_index_scroller_div::-webkit-scrollbar-track {
+  background-clip: padding-box!important;
+  border-radius: 3px;
+  color: #fff
+}
+
+.supports_custom_scrollbar:not(.slim_scrollbar) #app_index_scroller_div::-webkit-scrollbar-track {
+  background: #f3f3f3;
+  box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0
+}
+
+.supports_custom_scrollbar:not(.slim_scrollbar) #app_index_scroller_div::-webkit-scrollbar-thumb {
+  background: #d9d9de;
+  box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;
+  min-height: 36px
+}
+
+.supports_custom_scrollbar:not(.slim_scrollbar) #app_index_scroller_div::-webkit-scrollbar-corner {
+  background: #fff
+}
+
+.supports_custom_scrollbar.slim_scrollbar #app_index_scroller_div {
+  margin-right: 2px
+}
+
+.supports_custom_scrollbar.slim_scrollbar #app_index_scroller_div::-webkit-scrollbar {
+  position: absolute;
+  -webkit-appearance: none;
+  width: 6px
+}
+
+.supports_custom_scrollbar.slim_scrollbar #app_index_scroller_div::-webkit-scrollbar-thumb {
+  background-color: rgba(113, 114, 116, .5);
+  background-clip: padding-box!important;
+  border-radius: 3px;
+  color: #717274;
+  min-height: 36px
+}
+
+.supports_custom_scrollbar.slim_scrollbar #app_index_scroller_div::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(113, 114, 116, .8)
+}
+
+#app_index_scroller_div:not(.loading):before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 2px;
+  height: 100%;
+  background: #F7F7F7
+}
+
+#app_index_scroller_div.loading {
+  background: url(/9c217/img/loading_hash_animation_@2x.gif) center center no-repeat;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-align: center;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -moz-align-items: center;
+  align-items: center;
+  -ms-flex-pack: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -moz-justify-content: center;
+  justify-content: center
+}
+
+#app_index_scroller_div.loading:before {
+  content: attr(data-loading-text);
+  display: block;
+  margin-top: -220px;
+  color: #aaacb1;
+  text-align: center;
+  font-size: 16px;
+  font-style: italic;
+  font-family: Slack-Lato, appleLogo, sans-serif;
+  font-weight: 700
+}
+
+#app_index_scroller_div.loading #app_index_wrapper {
+  display: none
+}
+
+#app_index_scroller_div #app_index_wrapper {
+  margin: 50px 100px;
   max-width: 1500px;
   min-width: 900px
 }
 
-#app_index_scroller_div #app_index_div .navigation {
+#app_index_scroller_div #app_index_wrapper .navigation {
   list-style: none;
   display: flex;
   justify-content: center;
@@ -28372,37 +28528,37 @@ ts-thread .thread_participants {
   margin: 0
 }
 
-#app_index_scroller_div #app_index_div .navigation li {
+#app_index_scroller_div #app_index_wrapper .navigation li {
   width: 33%;
   padding: 10px;
   border-bottom: 1px solid #E8E8E8;
   color: #000
 }
 
-#app_index_scroller_div #app_index_div .navigation li:hover {
+#app_index_scroller_div #app_index_wrapper .navigation li:hover {
   cursor: pointer;
   font-weight: 700
 }
 
-#app_index_scroller_div #app_index_div .navigation li.active {
+#app_index_scroller_div #app_index_wrapper .navigation li.active {
   border-color: #000;
   font-weight: 700
 }
 
-#app_index_scroller_div #app_index_div .content {
+#app_index_scroller_div #app_index_wrapper .content {
   padding-top: 20px
 }
 
-#app_index_scroller_div #app_index_div .content .apps {
+#app_index_scroller_div #app_index_wrapper .content .apps {
   flex-wrap: wrap;
   justify-content: center
 }
 
-#app_index_scroller_div #app_index_div .content .your_apps {
+#app_index_scroller_div #app_index_wrapper .content .your_apps {
   justify-content: flex-start
 }
 
-#app_index_scroller_div #app_index_div .content .your_apps .app_card {
+#app_index_scroller_div #app_index_wrapper .content .your_apps .app_card {
   padding: 5px;
   margin: 10px 0 0 10px;
   border: 1px solid #E8E8E8;
@@ -28410,34 +28566,70 @@ ts-thread .thread_participants {
   width: calc(33% - 10px)
 }
 
-#app_index_scroller_div #app_index_div .content .your_apps .app_card .app_card_icon {
+#app_index_scroller_div #app_index_wrapper .content .your_apps .app_card .app_card_icon {
   width: 40px;
   height: 40px
 }
 
-#app_index_scroller_div #app_index_div .content .your_apps .app_card .app_name {
+#app_index_scroller_div #app_index_wrapper .content .your_apps .app_card .app_name {
   color: #000
 }
 
-#app_index_scroller_div #app_index_div .content .your_apps .app_card .app_category {
+#app_index_scroller_div #app_index_wrapper .content .your_apps .app_card .app_category {
   color: #9e9ea6;
   font-size: .8rem
 }
 
-#app_index_scroller_div #app_index_div .footer {
+#app_index_scroller_div #app_index_wrapper .footer {
   margin-top: 30px;
   display: flex;
   justify-content: center
 }
 
-#app_index_scroller_div #app_index_div .footer ts-icon {
+#app_index_scroller_div #app_index_wrapper .footer ts-icon {
   position: relative;
   top: 2px
 }
 
-#app_index_scroller_div #app_index_div a:active,
-#app_index_scroller_div #app_index_div a:focus,
-#app_index_scroller_div #app_index_div a:hover,
-#app_index_scroller_div #app_index_div a:visited {
+#app_index_scroller_div #app_index_wrapper a:active,
+#app_index_scroller_div #app_index_wrapper a:focus,
+#app_index_scroller_div #app_index_wrapper a:hover,
+#app_index_scroller_div #app_index_wrapper a:visited {
   text-decoration: none
+}
+
+#app_index_scroller_div .app_index_alternative_view_wrapper {
+  text-align: center;
+  height: 100%;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-align: center;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -moz-align-items: center;
+  align-items: center;
+  -ms-flex-pack: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -moz-justify-content: center;
+  justify-content: center
+}
+
+#app_index_scroller_div .app_index_alternative_view_wrapper .app_index_empty_state_message_header {
+  font-weight: 900;
+  font-size: 1.5rem;
+  line-height: 2rem
+}
+
+#app_index_scroller_div .app_index_alternative_view_wrapper .app_index_alternative_view_emoji .emoji-only {
+  font-size: 64px
+}
+
+#app_index_scroller_div .app_index_alternative_view_wrapper .app_index_alternative_view_message {
+  margin: 2rem auto;
+  max-width: 535px;
+  line-height: 22.5px
 }

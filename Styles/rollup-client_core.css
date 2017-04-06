@@ -7173,7 +7173,7 @@ only screen and (min-resolution:2dppx) {
 }
 
 .client_resize_optimizations #col_channels_footer {
-  position: relative;
+  position: static;
   -webkit-flex-shrink: 0;
   -moz-flex-shrink: 0;
   -ms-flex-negative: 0;
@@ -7760,21 +7760,33 @@ only screen and (min-resolution:2dppx) {
   font-weight: 600
 }
 
-#client-ui.threads_view_is_showing #footer_archives,
-#client-ui.threads_view_is_showing #footer_msgs,
-#client-ui.threads_view_is_showing #monkey_scroll_wrapper_for_archive_msgs_scroller_div,
-#client-ui.threads_view_is_showing #monkey_scroll_wrapper_for_msgs_scroller_div,
-#client-ui.threads_view_is_showing #msgs_scroller_div,
-#client-ui.unread_view_is_showing #footer_archives,
-#client-ui.unread_view_is_showing #footer_msgs,
-#client-ui.unread_view_is_showing #monkey_scroll_wrapper_for_archive_msgs_scroller_div,
-#client-ui.unread_view_is_showing #monkey_scroll_wrapper_for_msgs_scroller_div,
-#client-ui.unread_view_is_showing #msgs_scroller_div {
+#client-ui:not(.client_resize_optimizations).threads_view_is_showing #footer_archives,
+#client-ui:not(.client_resize_optimizations).threads_view_is_showing #footer_msgs,
+#client-ui:not(.client_resize_optimizations).threads_view_is_showing #monkey_scroll_wrapper_for_archive_msgs_scroller_div,
+#client-ui:not(.client_resize_optimizations).threads_view_is_showing #monkey_scroll_wrapper_for_msgs_scroller_div,
+#client-ui:not(.client_resize_optimizations).threads_view_is_showing #msgs_scroller_div,
+#client-ui:not(.client_resize_optimizations).unread_view_is_showing #footer_archives,
+#client-ui:not(.client_resize_optimizations).unread_view_is_showing #footer_msgs,
+#client-ui:not(.client_resize_optimizations).unread_view_is_showing #monkey_scroll_wrapper_for_archive_msgs_scroller_div,
+#client-ui:not(.client_resize_optimizations).unread_view_is_showing #monkey_scroll_wrapper_for_msgs_scroller_div,
+#client-ui:not(.client_resize_optimizations).unread_view_is_showing #msgs_scroller_div {
   visibility: hidden
 }
 
-#client-ui.threads_view_is_showing #archive_msgs_scroller_div,
-#client-ui.unread_view_is_showing #archive_msgs_scroller_div {
+#client-ui:not(.client_resize_optimizations).threads_view_is_showing #archive_msgs_scroller_div,
+#client-ui:not(.client_resize_optimizations).unread_view_is_showing #archive_msgs_scroller_div {
+  display: none
+}
+
+#client-ui.client_resize_optimizations.archive_view_is_showing #footer_msgs,
+#client-ui.client_resize_optimizations.archive_view_is_showing #monkey_scroll_wrapper_for_msgs_scroller_div,
+#client-ui.client_resize_optimizations.archive_view_is_showing #msgs_scroller_div,
+#client-ui.client_resize_optimizations.threads_view_is_showing #footer_msgs,
+#client-ui.client_resize_optimizations.threads_view_is_showing #monkey_scroll_wrapper_for_msgs_scroller_div,
+#client-ui.client_resize_optimizations.threads_view_is_showing #msgs_scroller_div,
+#client-ui.client_resize_optimizations.unread_view_is_showing #footer_msgs,
+#client-ui.client_resize_optimizations.unread_view_is_showing #monkey_scroll_wrapper_for_msgs_scroller_div,
+#client-ui.client_resize_optimizations.unread_view_is_showing #msgs_scroller_div {
   display: none
 }
 
@@ -7790,6 +7802,13 @@ only screen and (min-resolution:2dppx) {
 
 #client-ui:not(.app_index_view_is_showing) #app_index_scroller_div,
 #client-ui:not(.app_index_view_is_showing) #monkey_scroll_wrapper_for_app_index_scroller_div {
+  display: none
+}
+
+#client-ui.client_resize_optimizations:not(.archive_view_is_showing) #archive_msgs_scroller_div,
+#client-ui.client_resize_optimizations:not(.archive_view_is_showing) #archives_return,
+#client-ui.client_resize_optimizations:not(.archive_view_is_showing) #footer_archives,
+#client-ui.client_resize_optimizations:not(.archive_view_is_showing) #monkey_scroll_wrapper_for_archive_msgs_scroller_div {
   display: none
 }
 

@@ -4159,7 +4159,6 @@
   };
   var _maybeSetSharedTeams = function(channel) {
     if (!channel.is_shared) return;
-    if (!TS.model.shared_channels_enabled) return;
     if (channel.is_global_shared) {
       if (channel.shares) delete channel.shares;
       if (channel.shared_team_ids) delete channel.shared_team_ids;
@@ -7808,6 +7807,7 @@ TS.registerModule("constants", {
       if (!ok) im.needs_api_marking = true;
     },
     getImById: function(id) {
+      if (!id) return null;
       var ims = TS.model.ims;
       var im = _id_map[id];
       if (im) {
@@ -7912,9 +7912,6 @@ TS.registerModule("constants", {
         }
       }
       return im;
-    },
-    processNewImForUpserting: function(im) {
-      _processNewImForUpserting(im);
     },
     markScrollTop: function(id, scroll_top) {
       var im = TS.ims.getImById(id);
@@ -8322,6 +8319,7 @@ TS.registerModule("constants", {
       if (!ok) mpim.needs_api_marking = true;
     },
     getMpimById: function(id) {
+      if (!id) return null;
       var mpims = TS.model.mpims;
       var mpim = _id_map[id];
       if (mpim) {
@@ -10701,7 +10699,7 @@ TS.registerModule("constants", {
     },
     isModelObShared: function(model_ob) {
       if (!_.isObject(model_ob)) return false;
-      if (TS.model.shared_channels_enabled && model_ob.is_shared && !model_ob.is_org_shared) return true;
+      if (model_ob.is_shared && !model_ob.is_org_shared) return true;
       return false;
     },
     getMembersForTeam: function(team) {
@@ -16286,10 +16284,13 @@ TS.registerModule("constants", {
       TS.info("_onErrorMsg imsg: " + (imsg ? JSON.stringify(imsg) : "no imsg?"));
     }
   };
-  var _onHello = function() {
+  var _onHello = function(imsg) {
     clearTimeout(_hello_timeout_tim);
     var since_last_pong_ms = Date.now() - TS.ms.last_pong_time;
     TS.info("Hello msg recvd, since_last_pong_ms:" + since_last_pong_ms);
+    if (imsg) {
+      TS.info("host_id: " + _.get(imsg, "host_id") + ", server_version: " + _.get(imsg, "server_version"));
+    }
     TS.ms.logConnectionFlow("on_hello");
     if (TS.client && since_last_pong_ms > _away_limit_ms && !_last_connect_was_fast) {
       TS.client.ui.maybePromptForSetActive();
@@ -20021,6 +20022,32 @@ TS.registerModule("constants", {
       }
       return str;
     },
+    buildBotStr: function(msg) {
+      var bot_name = TS.bots.getBotNameById(msg.bot_id);
+      var bot_url = "<" + TS.boot_data.team_url + "services/" + msg.bot_id + "/|" + bot_name + ">";
+      switch (msg.subtype) {
+        case "bot_add":
+          return TS.i18n.t("added an integration to this channel: {bot_url}", "templates_builders")({
+            bot_url: bot_url
+          });
+        case "bot_enable":
+          return TS.i18n.t("enabled an integration in this channel: {bot_url}", "templates_builders")({
+            bot_url: bot_url
+          });
+        case "bot_disable":
+          return TS.i18n.t("disabled an integration in this channel: {bot_url}", "templates_builders")({
+            bot_url: bot_url
+          });
+        case "bot_remove":
+          return TS.i18n.t("removed an integration from this channel: {bot_url}", "templates_builders")({
+            bot_url: bot_url
+          });
+        default:
+          return TS.i18n.t("updated an integration in this channel: {bot_url}", "templates_builders")({
+            bot_url: bot_url
+          });
+      }
+    },
     formatMessageByType: function(msg, do_inline_imgs, enable_slack_action_links, model_ob, starred_items_list) {
       var html = "";
       var txt;
@@ -20041,6 +20068,7 @@ TS.registerModule("constants", {
       var enterprise_name;
       var mover;
       var mover_name;
+      var msg_txt;
       if ((msg._jl_rollup_hash || msg._jl_rolled_up_in) && _jl_rollup_limit_reached && (!msg._jl_rolled_up_in || msg._jl_rolled_up_in !== msg.ts)) {
         return html;
       }
@@ -20470,7 +20498,8 @@ TS.registerModule("constants", {
           html += TS.templates.builders.buildSHRoomAttachment(room);
         } else {}
       } else if (msg.subtype === "bot_add" || msg.subtype === "bot_enable" || msg.subtype === "bot_updated" || msg.subtype === "bot_disable" || msg.subtype === "bot_remove") {
-        html = TS.format.formatWithOptions(msg.text, msg, {
+        msg_txt = TS.templates.builders.buildBotStr(msg);
+        html = TS.format.formatWithOptions(msg_txt, msg, {
           do_inline_imgs: do_inline_imgs,
           enable_slack_action_links: enable_slack_action_links,
           no_highlights: true
@@ -21265,7 +21294,7 @@ TS.registerModule("constants", {
     makeChannelLink: function(channel, omit_prefix, show_tooltip, tooltip_position) {
       if (!channel) return "ERROR: MISSING CHANNEL";
       var shared_icon = "";
-      if (TS.model.shared_channels_enabled && channel.is_shared) {
+      if (channel.is_shared) {
         shared_icon = _.trim(TS.templates.shared_channel_icon({
           tooltip: show_tooltip,
           tooltip_position: tooltip_position
@@ -21300,7 +21329,7 @@ TS.registerModule("constants", {
       if (!group) return "ERROR: MISSING GROUP";
       var shared_icon = "";
       var name_for_url = TS.boot_data.feature_intl_channel_names ? group.id : group.name;
-      if (TS.model.shared_channels_enabled && group.is_shared) {
+      if (group.is_shared) {
         shared_icon = TS.templates.shared_channel_icon({
           tooltip: show_tooltip,
           tooltip_position: tooltip_position
@@ -23491,12 +23520,6 @@ TS.registerModule("constants", {
         var name = options.hash.name;
         var group = options.hash.group || "treatment";
         if (TS.experiment.getGroup(name) === group) {
-          return options.fn(this);
-        }
-        return options.inverse(this);
-      });
-      Handlebars.registerHelper("sharedChannelsEnabled", function(options) {
-        if (TS.model.shared_channels_enabled) {
           return options.fn(this);
         }
         return options.inverse(this);
@@ -49120,6 +49143,10 @@ $.fn.togglify = function(settings) {
     TS.click.addClientHandler(".thread_error_state_refresh_button", function(e, $el) {
       e.preventDefault();
       TS.client.threads.maybeReloadThreadsView();
+    });
+    TS.click.addClientHandler(".app_index_error_state_refresh_button", function(e, $el) {
+      e.preventDefault();
+      TS.client.app_index.maybeReloadAppIndexView();
     });
     TS.click.addClientHandler("#thread_notification_banner .banner_buttons .btn", function(e, $el) {
       e.preventDefault();
