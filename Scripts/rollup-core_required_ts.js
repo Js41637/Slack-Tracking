@@ -3067,6 +3067,7 @@ var _fullToHalf = function(char) {
   function _sniffUserAgent(ua) {
     var is_mac = /(OS X)/g.test(ua);
     var is_win = ua.indexOf("Windows") !== -1;
+    var is_win_64 = /(WOW64|Win64)/g.test(ua);
     var is_lin = ua.indexOf("Linux") !== -1;
     var is_iOS = /(iPad|iPhone|iPod)/g.test(ua);
     var is_android = /(Android)/g.test(ua);
@@ -3090,6 +3091,7 @@ var _fullToHalf = function(char) {
       is_mac: is_mac,
       mac_version: _getOSXVersion(ua) || undefined,
       is_win: is_win,
+      is_win_64: is_win_64,
       is_win_7_plus: _isWin7Plus(ua),
       is_lin: is_lin,
       is_our_app: is_our_app,

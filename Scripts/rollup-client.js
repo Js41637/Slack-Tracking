@@ -42206,14 +42206,14 @@ var _showDeprecationModalWithInstall = function() {
     title: title,
     body: TS.i18n.t("<p>We know it's a hassle to upgrade, but we want your experience of Slack to be fast, secure, and the best it can possibly be.</p><p><strong>To continue using Slack, please upgrade to one of our <a href='https://get.slack.help/hc/en-us/articles/201746897'>supported browsers</a> soon.</strong> As always, feel free to <a href='mailto:feedback@slack.com'>contact us</a> if you have questions.</p><p>For the finest Slack experience, we recommend downloading our desktop app: you'll get greater control over your notifications, easy switching between teams, and — handily — automatic updates!</p>", "deprecation")(),
     show_secondary_go_button: true,
-    go_button_text: TS.i18n.t("Learn More", "deprecation")(),
+    go_button_text: TS.i18n.t("Get the App", "deprecation")(),
     show_cancel_button: false,
     secondary_go_button_class: "btn_link",
     secondary_go_button_text: TS.i18n.t("Skip for now", "deprecation")(),
     modal_class: "deprecate_modal",
     onGo: function() {
       TS.metrics.count("deprecation_button_install");
-      TS.utility.openInNewTab("https://slack.com/downloads", "_blank");
+      TS.utility.openInNewTab(_getDownloadLink(), "_blank");
     },
     onShowComplete: function() {
       document.activeElement.blur();
@@ -42233,14 +42233,14 @@ var _showDeprecationModalWithInstallUnsupported = function() {
     title: title,
     body: TS.i18n.t("<p>We know it's a hassle to change browsers, but we want your experience of Slack to be fast, secure, and the best it can possibly be.</p><p><strong>To continue using Slack, please switch to one of our <a href='https://get.slack.help/hc/en-us/articles/201746897'>supported browsers</a> soon.</strong> As always, feel free to <a href='mailto:feedback@slack.com'>contact us</a> if you have questions.</p><p>For the finest Slack experience, we recommend <a href='https://slack.com/downloads'>downloading our desktop app</a>: you'll get greater control over your notifications, easy switching between teams, and — handily — automatic updates!</p>", "deprecation")(),
     show_secondary_go_button: true,
-    go_button_text: TS.i18n.t("Learn More", "deprecation")(),
+    go_button_text: TS.i18n.t("Get the App", "deprecation")(),
     show_cancel_button: false,
     secondary_go_button_class: "btn_link",
     secondary_go_button_text: TS.i18n.t("Skip for now", "deprecation")(),
     modal_class: "deprecate_modal",
     onGo: function() {
       TS.metrics.count("deprecation_button_install_unsupported");
-      TS.utility.openInNewTab("https://slack.com/downloads", "_blank");
+      TS.utility.openInNewTab(_getDownloadLink(), "_blank");
     },
     onShowComplete: function() {
       document.activeElement.blur();
@@ -42258,7 +42258,7 @@ var _showSSBDeprecationModal = function() {
   title = new Handlebars.SafeString(title);
   TS.ui.fs_modal.start({
     title: title,
-    body: TS.i18n.t("<p>We've made some great improvements to Slack's desktop app — it now runs faster, uses far less memory, and updates automatically.</p><p><strong>To continue using Slack, please <a href='https://slack.com/downloads'>manually download our new desktop app</a> soon.</strong> We want your experience of Slack to be fast, secure, and the best it can possibly be. As always, feel free to <a href='mailto:feedback@slack.com'>contact us</a> if you have questions.</p>", "deprecation")(),
+    body: TS.i18n.t("<p>We've made some great improvements to our desktop app — it now runs faster, uses far less memory, and updates automatically.</p><p><strong>To continue using Slack, please <a href='https://slack.com/downloads'>manually download our new desktop app</a> soon.</strong> We want your experience of Slack to be fast, secure, and the best it can possibly be. As always, feel free to <a href='mailto:feedback@slack.com'>contact us</a> if you have questions.</p>", "deprecation")(),
     show_secondary_go_button: true,
     go_button_text: TS.i18n.t("Update the App", "deprecation")(),
     show_cancel_button: false,
@@ -42267,7 +42267,7 @@ var _showSSBDeprecationModal = function() {
     modal_class: "deprecate_modal",
     onGo: function() {
       TS.metrics.count("deprecation_button_ssb");
-      TS.utility.openInNewTab("https://slack.com/downloads", "_blank");
+      TS.utility.openInNewTab(_getDownloadLink(), "_blank");
     },
     onShowComplete: function() {
       document.activeElement.blur();
@@ -42276,6 +42276,20 @@ var _showSSBDeprecationModal = function() {
   $(".deprecate_modal a").on("click", function() {
     TS.ui.fs_modal.close();
   });
+};
+var _getDownloadLink = function() {
+  var variant = false;
+  var architecture = "";
+  if (TS.model.is_mac) {
+    variant = "osx";
+  } else if (TS.model.is_win) {
+    variant = "windows";
+    architecture = TS.model.is_win_64 ? "windows_64" : "windows";
+  } else if (TS.model.is_lin) {
+    variant = "linux";
+  }
+  if (variant) return "https://slack.com/downloads/instructions/" + variant + "?os=" + variant + "&build_architecture=" + architecture;
+  return "https://slack.com/downloads";
 };
 (function() {
   "use strict";

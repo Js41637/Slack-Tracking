@@ -55644,7 +55644,7 @@ $.fn.togglify = function(settings) {
         singleLineInput: false,
         onTextChange: _.noop,
         attributes: {
-          role: "textarea",
+          role: "textbox",
           tabindex: 0,
           "aria-multiline": true,
           "aria-haspopup": true
