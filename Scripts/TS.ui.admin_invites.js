@@ -180,6 +180,8 @@
         case "org_user_not_ultra_restricted":
           account_type = TS.i18n.t("full Team Member", "invite")();
           break;
+        default:
+          break;
       }
       if (_.isUndefined(account_type)) {
         message = TS.i18n.t("This person already has an account for your organization", "invite")();

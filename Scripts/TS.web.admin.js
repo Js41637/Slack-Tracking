@@ -200,14 +200,14 @@
           var i, j;
           if (!_.isString(value)) return null;
           value = value.toUpperCase();
-          for (i = 0, j = _ranges.length; i < j; i++) {
+          for (i = 0, j = _ranges.length; i < j; i += 1) {
             if (_ranges[i].range.indexOf(value) !== -1 && _query_range !== value) {
               return _ranges[i];
             }
           }
           return null;
         };
-        for (var i = 0, j = range_nodes.length; i < j; i++) {
+        for (var i = 0, j = range_nodes.length; i < j; i += 1) {
           $node = $(range_nodes[i]);
           _ranges.push({
             range: $node.data("range").toUpperCase(),
@@ -468,7 +468,7 @@
       var i;
       if (is_subset) {
         members = [];
-        for (i = 0; i < boot_data.member_list_subset.length; i++) {
+        for (i = 0; i < boot_data.member_list_subset.length; i += 1) {
           members.push(TS.members.getMemberById(boot_data.member_list_subset[i]));
         }
       } else {
@@ -477,7 +477,7 @@
       _members = members;
       if (TS.web.admin.view == "list") {
         if (TS.web.admin.active_members.length === 0) {
-          for (i = 0; i < members.length; i++) {
+          for (i = 0; i < members.length; i += 1) {
             member = members[i];
             if (member.deleted) {
               TS.web.admin.disabled_members.push(member);
@@ -492,17 +492,17 @@
             }
           }
           if (is_subset) {
-            for (i = 0; i < TS.model.members.length; i++) {
+            for (i = 0; i < TS.model.members.length; i += 1) {
               member = TS.model.members[i];
               if (member.deleted) {
-                TS.web.admin.subset_data.disabled_members_count++;
+                TS.web.admin.subset_data.disabled_members_count += 1;
               } else if (member.is_ultra_restricted) {
-                TS.web.admin.subset_data.ultra_restricted_members_count++;
+                TS.web.admin.subset_data.ultra_restricted_members_count += 1;
               } else if (member.is_restricted) {
-                TS.web.admin.subset_data.restricted_members_count++;
+                TS.web.admin.subset_data.restricted_members_count += 1;
               } else {
                 if (!member.is_slackbot) {
-                  TS.web.admin.subset_data.active_members_count++;
+                  TS.web.admin.subset_data.active_members_count += 1;
                 }
               }
             }
@@ -969,7 +969,7 @@
           }
         });
         if ("ontouchstart" in document.documentElement) {
-          $("#admin_list").on("touchstart", ".admin_list_item", function(e) {
+          $("#admin_list").on("touchstart", ".admin_list_item", function() {
             var $item = $(this);
             if (!$item.data("events-assigned")) {
               TS.web.admin.bindActions(TS.members.getMemberById($item.attr("id").substr(4)));
@@ -1311,7 +1311,7 @@
           e.stopPropagation();
         });
       }
-      $row.find(".pill").unbind("mouseenter.suppress_hover").bind("mouseenter.suppress_hover", function(e) {
+      $row.find(".pill").unbind("mouseenter.suppress_hover").bind("mouseenter.suppress_hover", function() {
         $row.tooltip("hide");
       });
       if ($row.hasClass("inactive")) {
@@ -2238,7 +2238,7 @@
       if (range_label === undefined || !range_label.toUpperCase) return null;
       var search_query = $("#team_filter input").val();
       range_label = range_label.toUpperCase();
-      for (i = 0, j = _ranges.length; i < j; i++) {
+      for (i = 0, j = _ranges.length; i < j; i += 1) {
         if (_ranges[i].range.indexOf(range_label) !== -1 && _query_range !== range_label) {
           url = _ranges[i].link + "";
           if (search_query.length) {
@@ -2511,7 +2511,7 @@
     TS.members.view.filterTeam(_current_filter, "#team_filter", "#team_list_scroller");
   };
   var _bindLongListApiFilterUI = function() {
-    $(".tab_panels").on("click.filter", ".clear_members_filter", function(e) {
+    $(".tab_panels").on("click.filter", ".clear_members_filter", function() {
       TS.members.view.clearFilter("#team_filter", "#team_list_scroller");
     });
     var options = function() {
@@ -2529,10 +2529,10 @@
   };
   var _bindLongListFilterUI = function() {
     var $input = $("input.member_filter");
-    $(".tab_panels").on("click", ".clear_members_filter", function(e) {
+    $(".tab_panels").on("click", ".clear_members_filter", function() {
       $input.val("").focus().trigger("change");
     });
-    $input.on("change keyup cut paste", function(e) {
+    $input.on("change keyup cut paste", function() {
       var filter = _getFilter();
       if (filter == _current_filter) return;
       _displayFilterResult(filter);
@@ -2634,16 +2634,16 @@
       makeDivider: function() {
         return this.makeElement.apply(this, arguments);
       },
-      makeElement: function(data) {
+      makeElement: function() {
         return $('<div class="list_item_container full_width">');
       },
-      renderDivider: function($el, divider, data) {
+      renderDivider: function($el, divider) {
         $el.html(divider.html);
         $el.css({
           "z-index": 0
         });
       },
-      renderItem: function($el, member, data) {
+      renderItem: function($el, member) {
         var exclude_lazy_load = true;
         var ignore_cache = true;
         var html = TS.web.admin.buildMemberHTML(member, exclude_lazy_load, ignore_cache);
@@ -2718,7 +2718,7 @@
         });
         if (collection.length !== length) {
           found_in = index;
-          TS.web.admin.subset_data[counts[index]]--;
+          TS.web.admin.subset_data[counts[index]] -= 1;
         }
       } else {
         if (_.findIndex(collection, {
@@ -2726,7 +2726,7 @@
           }) === -1) {
           collection.push(member);
         }
-        TS.web.admin.subset_data[counts[index]]++;
+        TS.web.admin.subset_data[counts[index]] += 1;
       }
     });
     return collections[found_in];

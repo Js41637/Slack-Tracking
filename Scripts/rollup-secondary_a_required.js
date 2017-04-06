@@ -2531,6 +2531,15 @@
       }
       return false;
     },
+    canCreateSharedChannel: function() {
+      if (!TS.boot_data.feature_shared_channels_client) return false;
+      if (!TS.model.user.is_owner && !TS.model.user.is_admin) return false;
+      return true;
+    },
+    canRequestSharedChannel: function() {
+      if (!TS.boot_data.feature_shared_channels_client) return false;
+      return true;
+    },
     test: function() {
       var test_ob = {};
       Object.defineProperty(test_ob, "_checkPrefCascade", {
@@ -3711,7 +3720,7 @@
     leave: function(id) {
       var channel = TS.channels.getChannelById(id);
       if (!channel) return;
-      if (TS.boot_data.feature_mandatory_shared_channels) {
+      if (TS.boot_data.feature_default_shared_channels) {
         var can_leave = TS.permissions.channels.canMemberLeaveChannel(channel, TS.model.user);
         if (!can_leave) {
           TS.generic_dialog.alert(TS.i18n.t("Sorry, you can’t leave <strong>#{channel_name}</strong>!", "channels")({
@@ -3831,6 +3840,11 @@
     },
     isChannelRequired: function(model_ob) {
       return model_ob.is_general || model_ob.is_required;
+    },
+    isChannelOrgDefault: function(model_ob) {
+      if (model_ob.is_shared && TS.channels.isChannelRequired(model_ob)) return true;
+      if (TS.boot_data.feature_default_shared_channels) return model_ob.is_default;
+      return false;
     },
     getChannelByName: function(name) {
       name = _.toLower(name);
@@ -4177,7 +4191,10 @@
     TS.shared.setPriorityForDev(channel);
     channel.is_channel = true;
     channel.is_general = !!channel.is_general;
-    if (TS.boot_data.feature_mandatory_shared_channels) channel.is_required = !!channel.is_required;
+    if (TS.boot_data.feature_default_shared_channels) {
+      channel.is_required = !!channel.is_required;
+      channel.is_default = !!channel.is_default;
+    }
     channel._name_lc = _.toLower(channel.name);
     channel._show_in_list_even_though_no_unreads = false;
     TS.shared.maybeResetHistoryFetched(channel);
@@ -5321,7 +5338,7 @@ TS.registerModule("constants", {
         TS.error("WTF no group:" + id);
         return;
       }
-      if (TS.boot_data.feature_mandatory_shared_channels) {
+      if (TS.boot_data.feature_default_shared_channels) {
         var can_leave = TS.permissions.channels.canMemberLeaveChannel(group, TS.model.user);
         if (!can_leave) {
           TS.generic_dialog.alert(TS.i18n.t("Sorry, you can’t leave <strong>{group_name}</strong>!", "channels")({
@@ -19451,6 +19468,8 @@ TS.registerModule("constants", {
               return TS.templates.builders.buildAttachmentActionSelectHTML(action, disable_buttons);
             }
             break;
+          default:
+            break;
         }
         return undefined;
       });
@@ -22379,6 +22398,8 @@ TS.registerModule("constants", {
         case "conversation":
           at_label = "@here";
           break;
+        default:
+          break;
       }
       return at_label;
     },
@@ -25253,6 +25274,8 @@ TS.registerModule("constants", {
               html = TS.templates.builders.formatSoundUrl(attachment);
             }
             break;
+          default:
+            break;
         }
         if (html) return new Handlebars.SafeString(html);
       });
@@ -26314,7 +26337,7 @@ TS.registerModule("constants", {
     return tz_offset;
   };
   var _getNewFakeTsUniquePart = function() {
-    _fake_ts_unique_incrementer++;
+    _fake_ts_unique_incrementer += 1;
     if (_fake_ts_unique_incrementer >= 1e5) {
       _fake_ts_unique_incrementer = 1;
     }
@@ -29626,11 +29649,7 @@ TS.registerModule("constants", {
       });
     },
     externalURLsNeedRedirecting: function() {
-      if (TS.boot_data.feature_no_redirects_in_ssb) {
-        if (TS.model.team && TS.model.team.prefs && TS.model.team.prefs.hide_referers && !TS.model.is_our_app) return true;
-      } else {
-        if (TS.model.team && TS.model.team.prefs && TS.model.team.prefs.hide_referers) return true;
-      }
+      if (TS.model.team && TS.model.team.prefs && TS.model.team.prefs.hide_referers && !TS.model.is_our_app) return true;
       return false;
     },
     swapInRedirUrlForIframe: function(html, referer_policy) {
@@ -31417,6 +31436,13 @@ TS.registerModule("constants", {
     return display_name;
   };
   var _parseCommandToken = function(tsf_mode, item, no_highlights, no_linking) {
+    if (TS.boot_data.page_needs_enterprise && TS.boot_data.feature_default_shared_channels) {
+      var current_model_ob = TS.shared.getActiveModelOb() || {};
+      if (current_model_ob.is_shared && TS.channels.isChannelOrgDefault(current_model_ob)) {
+        no_highlights = true;
+        no_linking = true;
+      }
+    }
     var guts = item.replace(/<|>/g, "");
     var cmd_A = guts.split("|");
     var cmd = cmd_A[0].substr(1);
@@ -31503,6 +31529,8 @@ TS.registerModule("constants", {
         return TSF.CODE_START;
       case TSF.PRE_END:
         return TSF.CODE_END;
+      default:
+        break;
     }
     return token;
   }
@@ -32736,12 +32764,14 @@ TS.registerModule("constants", {
               if (badged) {
                 TS.clog.track("WHATSNEW_ACTION", {
                   action: "open_pane_badged",
-                  trigger: "flex_menu"
+                  trigger: "flex_menu",
+                  step: TS.client.whats_new.getNewestID()
                 });
               } else {
                 TS.clog.track("WHATSNEW_ACTION", {
                   action: "open_pane",
-                  trigger: "flex_menu"
+                  trigger: "flex_menu",
+                  step: TS.client.whats_new.getNewestID()
                 });
               }
             }
@@ -33360,10 +33390,18 @@ TS.registerModule("constants", {
       TS.menu.$submenu = this.$submenu;
       TS.menu.$submenu_origin = this.element;
       if (x + this.$submenu.width() > window.innerWidth) {
-        x = TS.menu.$menu.offset().left - this.$submenu.width() - X_OFFSET;
+        var space_on_left = TS.menu.$menu.offset().left - X_OFFSET;
+        var space_on_right = window.innerWidth - x;
+        if (space_on_left > space_on_right) {
+          x = TS.menu.$menu.offset().left - this.$submenu.width() - X_OFFSET;
+        }
       }
       if (y + this.$submenu.height() > window.innerHeight) {
-        y = window.innerHeight - this.$submenu.height() - Y_OFFSET;
+        var space_on_top = y;
+        var space_on_bottom = window.innerHeight - y;
+        if (space_on_top > space_on_bottom) {
+          y = window.innerHeight - this.$submenu.height() - Y_OFFSET;
+        }
       }
       this.$submenu.css({
         position: "absolute",
@@ -37161,6 +37199,8 @@ var _on_esc;
             return star.file.id === item.file_id;
           case "file_comment":
             return star.comment.id === item.comment.id;
+          default:
+            break;
         }
         return false;
       });
@@ -41825,7 +41865,7 @@ var _on_esc;
       if (found && found.length === 1 && found[0] === value) {
         if (!protocols) return true;
         var allowed_protocols = protocols.split(",");
-        for (var i = 0; i < allowed_protocols.length; i++) {
+        for (var i = 0; i < allowed_protocols.length; i += 1) {
           if (allowed_protocols[i] == "http") {
             if (found[0].indexOf("http://") === 0 || found[0].indexOf("https://") === 0) {
               return true;
@@ -41861,7 +41901,7 @@ var _on_esc;
       if (allowed_protocols.indexOf("http") != -1 && allowed_protocols.indexOf("https") == -1) {
         allowed_protocols.push("https");
       }
-      for (var i = 0; i < allowed_protocols.length; i++) {
+      for (var i = 0; i < allowed_protocols.length; i += 1) {
         if (value.indexOf(allowed_protocols[i] + "://") === 0) {
           passes_protocols_requirement = true;
         }
@@ -45547,7 +45587,7 @@ $.fn.togglify = function(settings) {
       var data = res.data;
       if (purpose) TS.channels.setPurpose(data.channel.id, purpose);
       if (invited_members) {
-        for (var i = 0; i < invited_members.length; i++) {
+        for (var i = 0; i < invited_members.length; i += 1) {
           TS.api.call("channels.invite", {
             channel: data.channel.id,
             user: invited_members[i]
@@ -46050,7 +46090,7 @@ $.fn.togglify = function(settings) {
     item[instance.sluggify.key_name] = str.trim();
     item.lfs_id = null;
     item.lfs_slug_id = instance._slug_id_counter;
-    instance._slug_id_counter++;
+    instance._slug_id_counter += 1;
     instance._selected.push(item);
     var slug_html = TS.templates.lazy_filter_select_item({
       content: instance.tokenTemplate(item),
@@ -46196,7 +46236,7 @@ $.fn.togglify = function(settings) {
       var new_data = response;
       if (new_data.items) new_data = new_data.items;
       if (new_data && new_data.length) {
-        instance._page_number++;
+        instance._page_number += 1;
         if (!instance._current_data) instance._current_data = instance.data.slice();
         if (typeof response.all_items_fetched !== "undefined") instance._all_done_fetching = !!response.all_items_fetched;
         if (typeof response.num_remaining !== "undefined" && response.num_remaining === 0) instance._all_done_fetching = true;
@@ -46247,11 +46287,11 @@ $.fn.togglify = function(settings) {
   var _filterGroup = function(instance, query) {
     var data = instance.data;
     var filtered = [];
-    for (var i = 0; i < data.length; i++) {
+    for (var i = 0; i < data.length; i += 1) {
       var item = data[i];
       if (item.lfs_group || item.is_divider) {
         var filtered_children = [];
-        for (var j = 0; j < item.children.length; j++) {
+        for (var j = 0; j < item.children.length; j += 1) {
           var subitem = item.children[j];
           if (instance.filter(subitem, query)) filtered_children.push(subitem);
         }
@@ -46425,7 +46465,7 @@ $.fn.togglify = function(settings) {
     data.forEach(function(item) {
       temp_data.push(item);
       if (item.children && item.children.length) {
-        for (var i = 0; i < item.children.length; i++) {
+        for (var i = 0; i < item.children.length; i += 1) {
           temp_data.push(item.children[i]);
         }
       }
@@ -46450,7 +46490,7 @@ $.fn.togglify = function(settings) {
       if (item.lfs_group || item.is_divider) {
         item.is_divider = true;
         var k = i;
-        for (var j = 0; j < item.children.length; j++) {
+        for (var j = 0; j < item.children.length; j += 1) {
           var subitem = item.children[j];
           subitem.lfs_id = subitem.lfs_id || k + "." + j;
           if ((subitem.selected || subitem.preselected) && instance.no_default_selection === false) {
@@ -46463,14 +46503,14 @@ $.fn.togglify = function(settings) {
         item.lfs_id = item.lfs_id || String(i);
         if ((item.selected || item.preselected) && instance.no_default_selection === false) {
           if (instance.single && instance._selected.length > 0 || _isAlreadySelected(instance, item)) {
-            i++;
+            i += 1;
             continue;
           }
           instance._selected.push(item);
           html += _buildItem(instance, item, token);
         }
       }
-      i++;
+      i += 1;
     }
     if (html.length > 0) {
       instance.$container.addClass("value");
@@ -46949,6 +46989,8 @@ $.fn.togglify = function(settings) {
         break;
       case TS.utility.keymap.esc:
         _onFilterInputKeydownEsc(instance, e);
+        break;
+      default:
         break;
     }
     instance.onKeyDown(e, e.isDefaultPrevented());
@@ -50777,6 +50819,8 @@ $.fn.togglify = function(settings) {
         case "all":
           args.all_teams = true;
           break;
+        default:
+          break;
       }
     } else {
       args.target_domain = $container.find('[name="domain"]').val();
@@ -50873,6 +50917,8 @@ $.fn.togglify = function(settings) {
         case "external":
           selectors.push('[name="domain"]');
           break;
+        default:
+          break;
       }
     } else {
       selectors.push('[name="domain"]');
@@ -50952,6 +50998,8 @@ $.fn.togglify = function(settings) {
             name: name
           });
           break;
+        default:
+          break;
       }
     }
     return label;
@@ -50970,6 +51018,8 @@ $.fn.togglify = function(settings) {
           label = TS.i18n.t("Restricted to invited members at {name}", "shared")({
             name: name
           });
+          break;
+        default:
           break;
       }
     }
@@ -51418,7 +51468,7 @@ $.fn.togglify = function(settings) {
           if (item.is_global_shared) {
             TS.model.enterprise_teams.forEach(function(team, index) {
               if (index > 9) {
-                additional_teams++;
+                additional_teams += 1;
                 return;
               }
               shared_teams.push(team);
@@ -51426,7 +51476,7 @@ $.fn.togglify = function(settings) {
           } else {
             item.shared_team_ids.forEach(function(id, index) {
               if (index > 9) {
-                additional_teams++;
+                additional_teams += 1;
                 return;
               }
               var team_ob = TS.enterprise.getTeamById(id);
@@ -51702,7 +51752,7 @@ $.fn.togglify = function(settings) {
       if (!user_groups) return;
       var user_group = _handle_map[handle];
       if (user_group) return user_group;
-      for (var i = 0; i < user_groups.length; i++) {
+      for (var i = 0; i < user_groups.length; i += 1) {
         user_group = user_groups[i];
         if (user_group.handle == handle || "@" + user_group.handle == handle) {
           TS.warn(handle + " not in _handle_map?");
@@ -51719,7 +51769,7 @@ $.fn.togglify = function(settings) {
       var user_group = _id_map[id];
       if (user_group) return user_group;
       if (!user_groups) return;
-      for (var i = 0; i < user_groups.length; i++) {
+      for (var i = 0; i < user_groups.length; i += 1) {
         user_group = user_groups[i];
         if (user_group.id == id) {
           TS.warn(id + " not in _id_map?");
@@ -53634,7 +53684,7 @@ $.fn.togglify = function(settings) {
         error_message: error_message
       };
     }
-    for (index; index < total_emails; index++) {
+    for (index; index < total_emails; index += 1) {
       email_val = email_array[index];
       if (!index && email_val === "") {
         error_key = TS.utility.email.ERROR_EMPTY;
@@ -54121,7 +54171,7 @@ $.fn.togglify = function(settings) {
   };
   var _constructMsg = function() {
     var msg = [];
-    for (var i = 0; i < arguments.length; i++) {
+    for (var i = 0; i < arguments.length; i += 1) {
       if (!arguments[i]) continue;
       if (typeof arguments[i] === "object") {
         msg.push(JSON.stringify(arguments[i]));
@@ -54145,6 +54195,8 @@ $.fn.togglify = function(settings) {
         break;
       case "EERR":
         TS.error(name_value);
+        break;
+      default:
         break;
     }
     if (!skip_analytics) {
@@ -54816,6 +54868,8 @@ $.fn.togglify = function(settings) {
           winssb.window.browserWindows[token].setSize(_utility_calls_config.mini_panel_dims.width, _utility_calls_config.mini_panel_dims.height);
         }
         break;
+      default:
+        break;
     }
   };
   var _sigWindowClosed = function(token) {
@@ -54839,6 +54893,8 @@ $.fn.togglify = function(settings) {
         break;
       case _utility_call_state.mini_panel_token:
         if (_utility_call_state.mini_panel_token) delete _utility_call_state.mini_panel_token;
+        break;
+      default:
         break;
     }
   };
@@ -56085,6 +56141,8 @@ $.fn.togglify = function(settings) {
           return attachment.other_html;
         case "image":
           return attachment.image_url;
+        default:
+          break;
       }
       return attachment.from_url;
     },
@@ -56499,10 +56557,11 @@ $.fn.togglify = function(settings) {
       in_thread: in_thread
     });
     var props = {
-      id: "inline_msg_input_tab_ui_" + _uniq_id++,
+      id: "inline_msg_input_tab_ui_" + _uniq_id,
       scroll_with_element: !!TS.client,
       model_ob: opts.model_ob
     };
+    _uniq_id += 1;
     var in_flexpane = $input.closest("#col_flex").length > 0;
     if (in_flexpane) {
       props.min_width = 300;
@@ -57244,6 +57303,10 @@ $.fn.togglify = function(settings) {
         return null;
       });
       TS.generic_dialog.cancel();
+      return false;
+    }
+    if (!destination) {
+      $select_share_channels.find(".lfs_input_container").addClass("error");
       return false;
     }
     _share(msg_ts, text, src_model_ob, destination.model_ob);
@@ -58239,9 +58302,10 @@ $.fn.togglify = function(settings) {
         };
 
         function makeAttempt() {
-          if (state.attempts++ >= options.attempts_max) {
+          if (state.attempts >= options.attempts_max) {
             return reject(new Error("Giving up on " + options.api_method + ", reached max attempts of " + options.attempts_max));
           }
+          state.attempts += 1;
           state.interval += state.interval_backoff;
           TS.api.call(options.api_method, options.api_params).then(function(resp) {
             state.last_api_response = resp;
@@ -58341,6 +58405,8 @@ $.fn.togglify = function(settings) {
             start_date: "start_date",
             end_date: "end_date"
           });
+        default:
+          break;
       }
     }
   });
@@ -59553,7 +59619,7 @@ $.fn.togglify = function(settings) {
   var _updateRevealNewRepliesCount = function(thread, $thread) {
     if (!thread || !$thread || !$thread.length) return;
     var hidden_replies = _.reduce(thread.replies, function(count, reply) {
-      if (reply.ts > thread.max_visible_ts) count++;
+      if (reply.ts > thread.max_visible_ts) count += 1;
       return count;
     }, 0);
     var $new_reply_indicator = $thread.find(".new_reply_indicator");
@@ -59615,7 +59681,7 @@ $.fn.togglify = function(settings) {
     var visible_reply_count;
     if (thread.max_visible_ts) {
       visible_reply_count = _.reduce(thread.replies, function(count, reply) {
-        if (reply.ts <= thread.max_visible_ts) count++;
+        if (reply.ts <= thread.max_visible_ts) count += 1;
         return count;
       }, 0);
     } else {

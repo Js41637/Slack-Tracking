@@ -16409,6 +16409,10 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
   max-height: 150px
 }
 
+.lazy_filter_select .lfs_input_container.error {
+  border-color: #CB5234
+}
+
 .lazy_filter_select .lfs_list_container {
   display: none;
   position: absolute;

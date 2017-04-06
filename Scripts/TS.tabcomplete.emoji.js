@@ -59,6 +59,8 @@
         case TS.utility.keymap.down:
           direction = "down";
           break;
+        default:
+          break;
       }
       if (!direction) return;
       var elements = _getResultElements(params.menu);

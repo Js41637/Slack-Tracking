@@ -1617,10 +1617,10 @@
       TS.view.cached_wh = 0;
       TS.view.resizeManually("TS.view.onStart 2");
       var mouseup_bound = false;
-      $(window).bind("scroll", function(e) {
+      $(window).bind("scroll", function() {
         if (mouseup_bound) return;
         mouseup_bound = true;
-        $(window).unbind("mouseup.scroll").bind("mouseup.scroll", function(e) {
+        $(window).unbind("mouseup.scroll").bind("mouseup.scroll", function() {
           mouseup_bound = false;
           $(window).unbind("mouseup.scroll");
           $("body").scrollTop(0);
@@ -1629,7 +1629,7 @@
       if (TS.model.is_mac) $("#drag_drop_mac_key").text(TS.i18n.t("Command", "view")());
       var percentage = 10;
       _log_resize_duration = TS.utility.enableFeatureForUser(percentage);
-      $("#stars_scroller").on("click.fetchUserStarredItems", ".flexpane_load_more_btn", function(e) {
+      $("#stars_scroller").on("click.fetchUserStarredItems", ".flexpane_load_more_btn", function() {
         var $btn = $(this);
         if (!$btn.data("ladda")) $btn.data("ladda", Ladda.create(this));
         $btn.data("ladda").start();
@@ -1869,7 +1869,7 @@
       }
     },
     filesSelected: function(files) {
-      TS.client.ui.files.validateFiles(files, false, function(file_list, dispatchCallback) {
+      TS.client.ui.files.validateFiles(files, false, function(file_list) {
         TS.ui.upload_dialog.startWithCommentFromChatInput(file_list);
       });
     },
@@ -1934,7 +1934,7 @@
       }
       $("#typing_text").html(typing_text);
     },
-    botChanged: function(bot_or_undefined) {
+    botChanged: function() {
       if (TS.bots.is_in_bulk_upsert_mode) {
         return;
       }
@@ -2220,7 +2220,7 @@
           makeElement: function() {
             return $('<div style="width:100%">');
           },
-          renderItem: function($el, item, data) {
+          renderItem: function($el, item) {
             var html = TS.templates.builders.buildUserGroupHTML(item, true);
             $el.html(html);
           },
@@ -2339,7 +2339,7 @@
     },
     reClassUnreads: function(last_read) {
       var was_at_bottom = TS.client.ui.areMsgsScrolledToBottom();
-      TS.client.ui.$msgs_div.children("div.message").each(function(index) {
+      TS.client.ui.$msgs_div.children("div.message").each(function() {
         var ts = $(this).data("ts");
         if (ts > last_read) {
           $(this).addClass("unread");
@@ -2354,7 +2354,7 @@
         TS.client.ui.instaScrollMsgsToBottom(false);
       }
     },
-    rebuildMsg: function(msg, changed_keys) {
+    rebuildMsg: function(msg) {
       if (!msg) return;
       var $msg_div = TS.client.msg_pane.getCanonicalDivForMsg(msg.ts);
       if (!$msg_div.length) return;
@@ -2422,7 +2422,7 @@
     rebuildMsgsIncludingMember: function(member) {
       var current_model_ob = TS.shared.getActiveModelOb();
       if (!current_model_ob) return;
-      _.each(current_model_ob.msgs, function(msg, offset) {
+      _.each(current_model_ob.msgs, function(msg) {
         if (TS.utility.msgs.messageIncludesMember(member, msg)) {
           if (TS.pri) TS.log(888, "memberChangedProfile: Rebuilding msg " + msg.ts + " because it includes member " + member.id);
           TS.view.rebuildMsg(msg);
@@ -2435,7 +2435,7 @@
         member: member,
         for_message: true
       };
-      _.each(current_model_ob.msgs, function(msg, offset) {
+      _.each(current_model_ob.msgs, function(msg) {
         if (TS.utility.msgs.memberSentMessage(member, msg)) {
           var $current_status_container = TS.client.msg_pane.getCanonicalDivForMsg(msg.ts).find(".message_current_status");
           $current_status_container.replaceWith(TS.templates.current_status(template_args));
@@ -2593,7 +2593,7 @@
       var $btn = $("#member_mentions_more_btn");
       if ($btn.data("ladda") === undefined) {
         $btn.data("ladda", Ladda.create(document.querySelector("#member_mentions_more_btn")));
-        $btn.bind("click.fetchMoreMentions", function(e) {
+        $btn.bind("click.fetchMoreMentions", function() {
           TS.mentions.fetchMoreMentions();
           $(this).data("ladda").start();
         });
@@ -2838,7 +2838,7 @@
       }
     },
     rebuildTeamList: _.noop(),
-    rebuildTeamListThrottled: function(ignore_cache) {
+    rebuildTeamListThrottled: function() {
       if (TS.lazyLoadMembersAndBots()) return;
       Promise.resolve().then(function() {
         TS.view.rebuildTeamListSync();
@@ -2892,15 +2892,15 @@
               approx_divider_height: approx_divider_height,
               preserve_dom_order: true,
               scrollable: $scrollable,
-              makeElement: function(data) {
+              makeElement: function() {
                 return $(TS.templates.team_list_item({
                   is_long_list_view: true
                 }));
               },
-              makeDivider: function(data) {
+              makeDivider: function() {
                 return $("<div></div>");
               },
-              renderItem: function($el, item, data) {
+              renderItem: function($el, item) {
                 $el.toggleClass("inactive", item.deleted).data("member-id", item.id).data("item", item);
                 $el.html(TS.templates.team_list_item_member_details({
                   member: item,
@@ -2908,7 +2908,7 @@
                 }));
                 TS.utility.makeSureAllLinksHaveTargets($el);
               },
-              renderDivider: function($el, item, data) {
+              renderDivider: function($el, item) {
                 $el.data("item", item).html(TS.templates.team_list_item_divider(item));
               },
               calcItemHeight: function($el) {
@@ -2930,10 +2930,10 @@
           if (_$restricted_members_list) _$restricted_members_list.longListView("setHidden", true);
           if (_$deleted_members_list) _$deleted_members_list.longListView("setHidden", true);
           _tab_scroll_tops = {};
-          $scrollable.off("scroll.tab").on("scroll.tab", function(e) {
+          $scrollable.off("scroll.tab").on("scroll.tab", function() {
             _tab_scroll_tops[TS.model.ui_state.tab_name] = $scrollable.scrollTop();
           });
-          $("#team_tabs").on("click", "li.tab", function(e) {
+          $("#team_tabs").on("click", "li.tab", function() {
             var $list, is_visible;
             if (_$active_members_list) {
               is_visible = TS.model.ui_state.tab_name == "active_members";
@@ -4239,11 +4239,11 @@
       TS.ims.unread_highlight_changed_sig.add(TS.view.im.imUnreadHighlightCountChanged, TS.view.im);
       TS.ims.msg_not_sent_sig.add(TS.view.im.imMsgNotsent, TS.view.im);
     },
-    imOpened: function(im) {
+    imOpened: function() {
       TS.client.msg_pane.rebuildChannelMembersList();
       TS.client.channel_pane.rebuild("ims", "starred");
     },
-    imClosed: function(im) {
+    imClosed: function() {
       TS.client.msg_pane.rebuildChannelMembersList();
       TS.client.channel_pane.rebuild("ims", "starred");
     },
@@ -4327,7 +4327,7 @@
       TS.client.msg_pane.assignLastReadMsgDiv(im);
       TS.view.reClassUnreads(im.last_read);
     },
-    imUnreadCountChanged: function(im, msg) {
+    imUnreadCountChanged: function(im) {
       if (!im) return;
       var member = TS.members.getMemberById(im.user);
       var selector = "." + TS.templates.makeMemberDomId(member);
@@ -4356,7 +4356,7 @@
       TS.client.msg_pane.maybeInsertUnreadDividerAndNewMsgsBar(im);
       TS.client.msg_pane.maybeResetAndAutoScroll(im);
     },
-    imUnreadHighlightCountChanged: function(im, msg) {
+    imUnreadHighlightCountChanged: function(im) {
       if (!im) return;
       var selector = "." + TS.templates.makeUnreadHighlightDomId(im);
       $(selector).html(im.unread_highlight_cnt);
@@ -4430,7 +4430,7 @@
       $(selector).html(member.status ? member.status : "-");
       TS.view.updateTeamListCache();
     },
-    memberJoinedTeam: function(member) {
+    memberJoinedTeam: function() {
       TS.view.rebuildTeamList(true);
     },
     member_changed_visibility_to_user_tim: 0,
@@ -4453,10 +4453,10 @@
       if (member.id != TS.model.previewed_member_id) return;
       TS.client.ui.previewMember(member.id);
     },
-    memberChangedRealName: function(member) {
+    memberChangedRealName: function() {
       TS.view.rebuildTeamList(true);
     },
-    somethingChangedOnUser: function(member) {
+    somethingChangedOnUser: function() {
       TS.view.showProperTeamPaneFiller();
     },
     memberChangedProfile: function(member) {
@@ -4721,7 +4721,7 @@
       TS.client.msg_pane.assignLastReadMsgDiv(mpim);
       TS.view.reClassUnreads(mpim.last_read);
     },
-    mpimUnreadCountChanged: function(mpim, msg) {
+    mpimUnreadCountChanged: function(mpim) {
       if (!mpim) return;
       var $mpim = $("#im-list, #starred-list").find("." + TS.templates.makeMpimDomId(mpim));
       $mpim.replaceWith(TS.templates.mpim({
@@ -4731,7 +4731,7 @@
       TS.client.msg_pane.maybeInsertUnreadDividerAndNewMsgsBar(mpim);
       TS.client.msg_pane.maybeResetAndAutoScroll(mpim);
     },
-    mpimUnreadHighlightCountChanged: function(mpim, msg) {},
+    mpimUnreadHighlightCountChanged: function() {},
     mpimMsgNotsent: function(mpim, msg, imsg) {
       if (mpim.id !== TS.model.active_mpim_id) return;
       TS.view.showUnSentControlsForMsg(msg, mpim, imsg);
@@ -5899,6 +5899,9 @@
             break;
           case keymap.equals_sign:
             TS.ui.a11y.focusOnMessageInput();
+            break;
+          default:
+            break;
         }
       } else if (TS.client.ui.isUserAttentionOnChat() && !TS.client.activeChannelIsHidden() && !TS.utility.isFocusOnInput() && TS.utility.cmdKey(e) && !e.altKey && e.which == keymap.up) {
         TS.client.ui.maybeEditLast(e);
@@ -5930,7 +5933,8 @@
         if (TS.model.ui_state.flex_name == "whats_new") {
           TS.clog.track("WHATSNEW_ACTION", {
             action: "close_pane",
-            trigger: "keyboard_cmd_dot"
+            trigger: "keyboard_cmd_dot",
+            step: TS.client.whats_new.getNewestID()
           });
         }
         TS.client.ui.flex.toggleFlex();
@@ -9130,7 +9134,8 @@
           } else if (TS.model.ui_state.flex_name === "whats_new") {
             TS.clog.track("WHATSNEW_ACTION", {
               action: "close_pane",
-              trigger: "close_flexpane"
+              trigger: "close_flexpane",
+              step: TS.client.whats_new.getNewestID()
             });
           }
           TS.client.ui.flex.hideFlex();
@@ -9146,7 +9151,8 @@
         if (TS.model.ui_state.flex_name === "whats_new") {
           TS.clog.track("WHATSNEW_ACTION", {
             action: "close_pane",
-            trigger: "details_toggle"
+            trigger: "details_toggle",
+            step: TS.client.whats_new.getNewestID()
           });
         }
         _toggleFlexTab("details");
@@ -9165,7 +9171,8 @@
         if (TS.client.ui.shouldIgnoreClick(e)) return false;
         TS.clog.track("WHATSNEW_ACTION", {
           action: "open_pane_badged",
-          trigger: "whats_new_toggle"
+          trigger: "whats_new_toggle",
+          step: TS.client.whats_new.getNewestID()
         });
         $("#client-ui").removeClass("whats_new_showing");
         _toggleFlexTab("whats_new");
@@ -13369,6 +13376,7 @@
     var model_ob = TS.shared.getActiveModelOb();
     if (!model_ob) return;
     if (TS.utility.teams.isModelObShared(model_ob)) return;
+    if (!TS.permissions.members.canPostInChannel(model_ob)) return;
     var is_call_window_ready = TS.utility.calls.isCallWindowReady() || !TS.utility.calls.platformHasCallsCode();
     var is_multiparty_enabled = TS.utility.calls.isMultiPartyEnabled();
     if (TS.utility.calls.isEnabled() && TS.model.team.prefs.calling_app_name != "Slack") {
@@ -14202,6 +14210,9 @@
     },
     updateIcon: function() {
       _updateIcon();
+    },
+    getNewestID: function() {
+      return _newest_id;
     }
   });
   var _$whats_new_updates = $("#whats_new_updates");
@@ -14230,21 +14241,24 @@
       TS.clog.track("WHATSNEW_ACTION", {
         action: "view_update",
         trigger: "heading_link",
-        page_url: $(this).attr("href")
+        page_url: $(this).attr("href"),
+        step: _newest_id
       });
     });
     _$whats_new_updates.find("div.whats_new_description").find("a").on("click", function(e) {
       TS.clog.track("WHATSNEW_ACTION", {
         action: "view_update",
         trigger: "description_link",
-        page_url: $(this).attr("href")
+        page_url: $(this).attr("href"),
+        step: _newest_id
       });
     });
     _$whats_new_updates.find("a.whats_new_more").on("click", function(e) {
       TS.clog.track("WHATSNEW_ACTION", {
         action: "view_update",
         trigger: "read_more_link",
-        page_url: $(this).attr("href")
+        page_url: $(this).attr("href"),
+        step: _newest_id
       });
     });
   };
@@ -14254,11 +14268,13 @@
       val = _newest_id || Math.floor(Date.now() / 1e3);
       TS.clog.track("WHATSNEW_ACTION", {
         action: "opt_in",
+        step: _newest_id,
         trigger: "checkbox_whats_new"
       });
     } else {
       TS.clog.track("WHATSNEW_ACTION", {
         action: "opt_out",
+        step: _newest_id,
         trigger: "checkbox_whats_new"
       });
     }
@@ -14323,7 +14339,8 @@
       $("#client-ui").addClass("whats_new_showing");
       TS.clog.track("WHATSNEW_ACTION", {
         action: "do_badge",
-        trigger: _newest_id
+        trigger: _newest_id,
+        step: _newest_id
       });
     }
   };
@@ -19503,7 +19520,7 @@
       });
     },
     getGrowlableTxtFromAttachments: function(attachments) {
-      for (var i = 0; i < attachments.length; i++) {
+      for (var i = 0; i < attachments.length; i += 1) {
         var attachment = attachments[i];
         if (attachment.fallback) {
           return attachment.fallback;
@@ -20101,12 +20118,12 @@
       var items = e.clipboardData.items;
       var found_types = {};
       if (items) {
-        for (i = 0; i < items.length; i++) {
+        for (i = 0; i < items.length; i += 1) {
           if (items[i]) {
             found_types[items[i].type] = true;
           }
         }
-        for (i = 0; i < items.length; i++) {
+        for (i = 0; i < items.length; i += 1) {
           if (items[i].type.indexOf("image") !== -1) {
             if (TS.model.is_mac && found_types["text/plain"] && found_types["text/html"] && found_types["text/rtf"]) {
               TS.info("Ignoring pasted image data, likely from Office/Word for Mac.");
@@ -20123,7 +20140,7 @@
       } else {
         TS.warn("no clipboardData.items");
         var clipboard_types = e.clipboardData.types || [];
-        for (i = 0; i < clipboard_types.length; i++) {
+        for (i = 0; i < clipboard_types.length; i += 1) {
           if (clipboard_types[i]) {
             found_types[clipboard_types[i]] = true;
           }
@@ -21256,12 +21273,12 @@
       }
       var added_cnt = 0;
       var file;
-      for (var i = 0; i < files.length; i++) {
+      for (var i = 0; i < files.length; i += 1) {
         file = files[i];
         if (file.size > TS.model.upload_file_size_limit_bytes) {
           continue;
         }
-        added_cnt++;
+        added_cnt += 1;
         TS.ui.upload_dialog.filesQ.push(file);
       }
       if (added_cnt < files.length) {
@@ -21597,7 +21614,7 @@
           _loading_scripts = true;
           TS.utility.getCachedScript(cdn_url + "/cb0fd/js/libs/codemirror.js").done(function() {
             TS.utility.getCachedScript(cdn_url + "/7adb/js/libs/codemirror/addon/simple.js").done(function() {
-              TS.utility.getCachedScript(cdn_url + "/0dc8/js/codemirror_load.js").done(function() {
+              TS.utility.getCachedScript(cdn_url + "/5d19/js/codemirror_load.js").done(function() {
                 TS.ui.snippet_dialog.start(text, title, filetype);
               });
             });
@@ -21869,7 +21886,7 @@
         invited: false,
         channel: channel
       }));
-      _performCancel = function(e) {
+      _performCancel = function() {
         channel.needs_joined_message = false;
         _cancel(true);
         _performCancel = null;
@@ -21893,7 +21910,7 @@
         }
       }
       _$msgs_overlay.html(TS.templates.channel_join_overlay(template_args));
-      _performCancel = function(e) {
+      _performCancel = function() {
         channel.needs_invited_message = false;
         _cancel(true);
         _performCancel = null;
@@ -21917,7 +21934,7 @@
         }
       }
       _$msgs_overlay.html(TS.templates.channel_create_overlay(template_args));
-      _performCancel = function(e) {
+      _performCancel = function() {
         channel.needs_created_message = false;
         _cancel(true);
         _performCancel = null;
@@ -21935,7 +21952,7 @@
         invited: true,
         group: group
       }));
-      _performCancel = function(e) {
+      _performCancel = function() {
         group.needs_invited_message = false;
         _cancel(true);
         _performCancel = null;
@@ -21950,7 +21967,7 @@
         name_for_url: TS.boot_data.feature_intl_channel_names ? group.id : group.name
       }));
       $(window).trigger("resize");
-      _performCancel = function(e) {
+      _performCancel = function() {
         group.needs_created_message = false;
         _cancel(true);
         _performCancel = null;
@@ -21962,24 +21979,22 @@
       _show_another_interstitial_after = true;
       var $msgs_overlay = _$msgs_overlay;
       $msgs_overlay.html(TS.templates.growl_prompt_overlay({}));
-      $msgs_overlay.find(".prompt_allow").bind("click", function(e) {
-        _onGrowlsPermissionClick(e);
-      });
-      $msgs_overlay.find(".prompt_cancel_forever").bind("click", function(e) {
+      $msgs_overlay.find(".prompt_allow").bind("click", _onGrowlsPermissionClick);
+      $msgs_overlay.find(".prompt_cancel_forever").bind("click", function() {
         createCookie("no_growl_prompt", "1", 365 * 10);
         $("#growl_prompt_div").addClass("hidden");
         _cancel();
       });
-      $msgs_overlay.find(".see-apps").bind("click", function(e) {
+      $msgs_overlay.find(".see-apps").bind("click", function() {
         createCookie("no_growl_prompt", "1", .5);
         $("#growl_prompt_div").addClass("hidden");
         _cancel();
       });
-      $msgs_overlay.find(".prompt_cancel").bind("click", function(e) {
+      $msgs_overlay.find(".prompt_cancel").bind("click", function() {
         $("#growl_prompt_div").addClass("hidden");
         _cancel();
       });
-      $msgs_overlay.find(".prompt_test").bind("click", function(e) {
+      $msgs_overlay.find(".prompt_test").bind("click", function() {
         $("#growl_prompt_div").addClass("hidden");
         TS.sounds.play("new_message");
         TS.ui.growls.show("Test Notification", "Hey! it works");
@@ -23930,6 +23945,8 @@
         case "org_user_not_restricted":
         case "org_user_not_ultra_restricted":
           account_type = TS.i18n.t("full Team Member", "invite")();
+          break;
+        default:
           break;
       }
       if (_.isUndefined(account_type)) {
@@ -26858,6 +26875,8 @@
         case TS.utility.keymap.enter:
           e.preventDefault();
           TS.ui.at_channel_warning_dialog.go();
+          break;
+        default:
           break;
       }
     },
@@ -30345,7 +30364,7 @@
           queries = queries.map(function(q) {
             return q.charAt("0") === "@" ? q.substring(1) : q;
           });
-          for (var i = 0; i < queries.length; i++) {
+          for (var i = 0; i < queries.length; i += 1) {
             prefix_regexes.push(new RegExp("^" + TS.utility.regexpEscape(queries[i]), "i"));
             suffix_regexes.push(new RegExp("(-|_|\\+|\\s|\\.|@)" + TS.utility.regexpEscape(queries[i]), "i"));
           }
@@ -30524,7 +30543,7 @@
       queries = queries.map(function(q) {
         return q.charAt("0") === "@" ? q.substring(1) : q;
       });
-      for (var i = 0; i < queries.length; i++) {
+      for (var i = 0; i < queries.length; i += 1) {
         prefix_regexes.push(new RegExp("^" + TS.utility.regexpEscape(queries[i]), "i"));
         suffix_regexes.push(new RegExp("(-|_|\\+|\\s|\\.|@)" + TS.utility.regexpEscape(queries[i]), "i"));
       }
@@ -31702,7 +31721,7 @@
             var count = 0;
             features.forEach(function(feature) {
               if (feature.indexOf("feature_") !== 0) feature = "feature_" + feature;
-              if (TS.boot_data[feature]) count++;
+              if (TS.boot_data[feature]) count += 1;
             });
             feature_allowed = count === features.length;
           }
@@ -34277,6 +34296,8 @@ function timezones_guess() {
       case TS.utility.keymap.esc:
         _escHandler(e);
         break;
+      default:
+        break;
     }
   };
   var _canClose = function() {
@@ -34746,7 +34767,7 @@ function timezones_guess() {
     });
   };
   var _updateCurrentIndex = function() {
-    for (var i = 0; i < _gallery.length; i++) {
+    for (var i = 0; i < _gallery.length; i += 1) {
       if (_gallery[i].getAttribute("data-file-id")) {
         if (_gallery[i].getAttribute("data-file-id") === _settings.current_file_id) {
           _current_file.index = i;
@@ -35675,6 +35696,8 @@ function timezones_guess() {
         if (e.shiftKey || e.altKey) return;
         e.preventDefault();
         _save();
+        break;
+      default:
         break;
     }
   };
@@ -38928,7 +38951,7 @@ function timezones_guess() {
     if (!config._range) return true;
     var reached_beginning = false;
     var s;
-    for (var i = 0; i < config.sections.length; i++) {
+    for (var i = 0; i < config.sections.length; i += 1) {
       s = config.sections[i];
       if (!reached_beginning && s.id === config._range.start.section_id) {
         reached_beginning = true;
@@ -39010,7 +39033,7 @@ function timezones_guess() {
     var processed = [];
     var jl_rolled_up_msgs = [];
     var i, rollup, msg;
-    for (i = msgs.length - 1; i > -1; i--) {
+    for (i = msgs.length - 1; i > -1; i -= 1) {
       msg = msgs[i];
       if (msg.no_display) continue;
       if (msg._hidden_reply && !config.show_hidden_replies) continue;
@@ -39263,6 +39286,8 @@ function timezones_guess() {
         break;
       case "custom":
         _setupDatePickerMenu();
+        break;
+      default:
         break;
     }
     e.stopPropagation();
@@ -40321,7 +40346,7 @@ function timezones_guess() {
   };
   var _reconcileBotUsers = function(root_msg, messages) {
     if (!root_msg.replies) return root_msg;
-    for (var i = 0; i < root_msg.replies.length; i++) {
+    for (var i = 0; i < root_msg.replies.length; i += 1) {
       var reply = root_msg.replies[i];
       if (reply && reply.user == "U00") {
         var matched_msg = _.find(messages, {

@@ -4840,135 +4840,52 @@ var _fullToHalf = function(char) {
       }
       TS.ui.file_share.preselected = preselected || [];
       _src_model_ob = src_model_ob;
-      var prev_query;
-      var prefix_regexes;
-      var suffix_regexes;
-      var prefix_regex;
-      var suffix_regex;
-      var match_names_only = true;
-      var only_channels = false;
-      var only_dms = false;
-      if (TS.boot_data.page_needs_enterprise || TS.model.shared_channels_enabled || TS.lazyLoadMembersAndBots() || TS.boot_data.feature_share_picker) {
-        var data_promise = TS.ui.file_share.promiseToGetFileShareSelectOptions;
-        if (allow_create) data_promise = _promiseToGetSelectOptionsWithCreate;
-        _file_share_options = {
-          append: true,
-          single: true,
-          data_promise: data_promise,
-          approx_item_height: 30,
-          tab_to_nav: true,
-          template: function(item) {
-            return new Handlebars.SafeString(TS.templates.file_sharing_channel_row({
-              item: item.model_ob,
-              show_share_prefix: show_share_prefix
+      var data_promise = TS.ui.file_share.promiseToGetFileShareSelectOptions;
+      if (allow_create) data_promise = _promiseToGetSelectOptionsWithCreate;
+      _file_share_options = {
+        append: true,
+        single: true,
+        data_promise: data_promise,
+        approx_item_height: 30,
+        tab_to_nav: true,
+        template: function(item) {
+          return new Handlebars.SafeString(TS.templates.file_sharing_channel_row({
+            item: item.model_ob,
+            show_share_prefix: show_share_prefix
+          }));
+        },
+        onItemAdded: _fileShareOnChange,
+        onListHidden: function() {
+          $("#select_share_channels .lfs_list_container").removeClass("new_channel_container");
+        },
+        renderDividerFunc: function($el, item, data) {
+          if (item.create_channel) {
+            $el.html(TS.i18n.t('<span class="new">No items matched <strong>{query}</strong></span>', "files")({
+              query: TS.utility.htmlEntities(item.label)
             }));
-          },
-          onItemAdded: _fileShareOnChange,
-          onListHidden: function() {
-            $("#select_share_channels .lfs_list_container").removeClass("new_channel_container");
-          },
-          renderDividerFunc: function($el, item, data) {
-            if (item.create_channel) {
-              $el.html(TS.i18n.t('<span class="new">No items matched <strong>{query}</strong></span>', "files")({
-                query: TS.utility.htmlEntities(item.label)
-              }));
-              $("#select_share_channels .lfs_list_container").addClass("new_channel_container");
-              return;
-            }
-            $("#select_share_channels .lfs_list_container").removeClass("new_channel_container");
-            $el.html(TS.utility.htmlEntities(item.label)).removeClass("new_channel_not_found");
-          },
-          setValue: function(val) {
-            var i;
-            var j;
-            var data_length = this.data.length;
-            var children_length;
-            for (i = 0; i < data_length; i++) {
-              children_length = this.data[i].children.length;
-              for (j = 0; j < children_length; j++) {
-                if (this.data[i].children[j].model_ob.id === val) {
-                  this.$container.find('.lfs_item[data-lfs-id="' + [i, j] + '"]').trigger("click");
-                  return;
-                }
+            $("#select_share_channels .lfs_list_container").addClass("new_channel_container");
+            return;
+          }
+          $("#select_share_channels .lfs_list_container").removeClass("new_channel_container");
+          $el.html(TS.utility.htmlEntities(item.label)).removeClass("new_channel_not_found");
+        },
+        setValue: function(val) {
+          var i;
+          var j;
+          var data_length = this.data.length;
+          var children_length;
+          for (i = 0; i < data_length; i += 1) {
+            children_length = this.data[i].children.length;
+            for (j = 0; j < children_length; j += 1) {
+              if (this.data[i].children[j].model_ob.id === val) {
+                this.$container.find('.lfs_item[data-lfs-id="' + [i, j] + '"]').trigger("click");
+                return;
               }
             }
           }
-        };
-        $select_share_channels.lazyFilterSelect(_file_share_options);
-      } else {
-        _file_share_options = {
-          append: true,
-          single: true,
-          data: _getFileShareSelectOptions(),
-          tab_to_nav: true,
-          template: function(item) {
-            return new Handlebars.SafeString(TS.templates.file_sharing_channel_row({
-              item: item.model_ob,
-              show_share_prefix: show_share_prefix
-            }));
-          },
-          filter: function(item, query) {
-            if (prev_query !== query) {
-              only_channels = false;
-              only_dms = false;
-              var original_query = query;
-              if (query.charAt(0) === "#") {
-                only_channels = true;
-                query = query.substring(1);
-              } else if (query.charAt(0) === "@") {
-                only_dms = true;
-                query = query.substring(1);
-              }
-              prefix_regexes = [];
-              suffix_regexes = [];
-              var queries = query.split(/[,| ]/).filter(function(i) {
-                return !!i;
-              });
-              var query_i;
-              for (var i = 0; i < queries.length; i++) {
-                query_i = queries[i];
-                if (query_i.charAt(0) === "@") query_i = query_i.substring(1);
-                prefix_regexes.push(new RegExp("^" + TS.utility.regexpEscape(query_i), "i"));
-                suffix_regexes.push(new RegExp("(-|_|\\+|\\s|\\.|@)" + TS.utility.regexpEscape(query_i), "i"));
-              }
-              prefix_regex = new RegExp("^" + TS.utility.regexpEscape(query), "i");
-              suffix_regex = new RegExp("(-|_|\\+|\\s|\\.|@)" + TS.utility.regexpEscape(query), "i");
-              prev_query = original_query;
-            }
-            var model_ob = item.model_ob;
-            if (model_ob.is_self && TS.utility.queryIsMaybeSelf(query) && !only_channels && !only_dms) {
-              return true;
-            } else if (!only_channels && model_ob.is_mpim) {
-              return TS.mpims.checkMpimMatch(model_ob, prefix_regexes, suffix_regexes);
-            } else if (!only_dms && (model_ob.is_group || model_ob.is_channel)) {
-              if (only_channels) {
-                return model_ob.is_channel && model_ob.name.match(prefix_regex);
-              }
-              return model_ob.name.match(prefix_regex);
-            } else if (!only_channels && model_ob.presence) {
-              return TS.utility.members.checkMemberMatch(model_ob, prefix_regex, match_names_only) || TS.utility.members.checkMemberMatch(model_ob, suffix_regex, match_names_only);
-            }
-            return false;
-          },
-          onItemAdded: _fileShareOnChange,
-          setValue: function(val) {
-            var i;
-            var j;
-            var data_length = this.data.length;
-            var children_length;
-            for (i = 0; i < data_length; i++) {
-              children_length = this.data[i].children.length;
-              for (j = 0; j < children_length; j++) {
-                if (this.data[i].children[j].model_ob.id === val) {
-                  this.$container.find('.lfs_item[data-lfs-id="' + [i, j] + '"]').trigger("click");
-                  return;
-                }
-              }
-            }
-          }
-        };
-        $select_share_channels.lazyFilterSelect(_file_share_options);
-      }
+        }
+      };
+      $select_share_channels.lazyFilterSelect(_file_share_options);
       $select_share_channels.css({
         width: chosen_width
       });
@@ -5010,7 +4927,9 @@ var _fullToHalf = function(char) {
         }).then(function(data) {
           var preselected = false;
           data.all_items_fetched = true;
-          data.forEach(function(item) {
+          data.filter(function(item) {
+            return TS.permissions.members.canPostInChannel(item.model_ob);
+          }).forEach(function(item) {
             item.lfs_id = item.model_ob.id;
             item.preselected = _isPreselected(item.model_ob.id, current_model_ob);
             if (item.preselected) preselected = true;
@@ -5025,11 +4944,13 @@ var _fullToHalf = function(char) {
                 model_ob: member
               });
             } else if (current_channel) {
-              data.push({
-                preselected: true,
-                lfs_id: current_channel.id,
-                model_ob: current_channel
-              });
+              if (TS.permissions.members.canPostInChannel(current_channel)) {
+                data.push({
+                  preselected: true,
+                  lfs_id: current_channel.id,
+                  model_ob: current_channel
+                });
+              }
             }
           }
           var member_ids = _(data).map("model_ob").filter(TS.utility.members.isMember).map("id").compact().value();
@@ -5050,7 +4971,7 @@ var _fullToHalf = function(char) {
         var queries = query.split(/[,| ]/).filter(function(i) {
           return !!i;
         });
-        for (var i = 0; i < queries.length; i++) {
+        for (var i = 0; i < queries.length; i += 1) {
           _file_share_options._prefix_regexes.push(new RegExp("^" + TS.utility.regexpEscape(queries[i]), "i"));
           _file_share_options._suffix_regexes.push(new RegExp("(-|_|\\+|\\s|\\.|@)" + TS.utility.regexpEscape(queries[i]), "i"));
         }
@@ -5138,7 +5059,7 @@ var _fullToHalf = function(char) {
               show = false;
             } else {
               member_count = _.get(counts, "counts.member_count", 1);
-              member_count--;
+              member_count -= 1;
             }
           } else {
             TS.log(1989, "Flannel: need to fetch all members in " + model_ob.id + " to see if we have to show at-channel dialog");
@@ -5288,6 +5209,7 @@ var _fullToHalf = function(char) {
     return false;
   };
   var _fileShareOnChange = function(item) {
+    $("#select_share_channels .lfs_input_container").removeClass("error");
     if (item.model_ob.create_channel) {
       $("#select_share_channels_note").removeClass("hidden");
       $("#select_share_channels .lfs_value .lfs_item").addClass("new_channel_item");
@@ -5409,7 +5331,7 @@ var _fullToHalf = function(char) {
     var mpim;
     var mpim_name_lowercase;
     var visible_mpims = TS.mpims.getVisibleMpims();
-    for (var i = 0; i < visible_mpims.length; i++) {
+    for (var i = 0; i < visible_mpims.length; i += 1) {
       var should_see = true;
       mpim = visible_mpims[i];
       mpim_name_lowercase = TS.mpims.getDisplayNameLowerCase(mpim);
@@ -5444,7 +5366,7 @@ var _fullToHalf = function(char) {
     var channels = [];
     var channel;
     var can_post_in_general = TS.members.canUserPostInGeneral();
-    for (var i = 0; i < TS.model.channels.length; i++) {
+    for (var i = 0; i < TS.model.channels.length; i += 1) {
       channel = TS.model.channels[i];
       var should_see = true;
       should_see = _fileShareFilter(channel, searcher);
@@ -5461,7 +5383,7 @@ var _fullToHalf = function(char) {
   var _promiseToGetGroups = function(searcher) {
     var groups = [];
     var group;
-    for (var i = 0; i < TS.model.groups.length; i++) {
+    for (var i = 0; i < TS.model.groups.length; i += 1) {
       group = TS.model.groups[i];
       var should_see = true;
       should_see = _fileShareFilter(group, searcher);
@@ -5474,95 +5396,6 @@ var _fullToHalf = function(char) {
       }
     }
     return Promise.resolve(groups);
-  };
-  var _getFileShareSelectOptions = function() {
-    var i;
-    var current_model_ob_id = _getActiveChannelId();
-    var channels = [];
-    var channel;
-    for (i = 0; i < TS.model.channels.length; i++) {
-      channel = TS.model.channels[i];
-      var can_post_in_channel = TS.permissions.members.canPostInChannel(channel);
-      if ((!TS.channels.isChannelRequired(channel) || can_post_in_channel) && !channel.is_archived) {
-        channels.push({
-          model_ob: channel,
-          preselected: _isPreselected(channel.id, current_model_ob_id)
-        });
-      }
-    }
-    var groups = [];
-    var group;
-    for (i = 0; i < TS.model.groups.length; i++) {
-      group = TS.model.groups[i];
-      if (!group.is_archived) {
-        groups.push({
-          model_ob: group,
-          preselected: _isPreselected(group.id, current_model_ob_id)
-        });
-      }
-    }
-    var members = [];
-    var member;
-    var member_name_map = {};
-    var members_for_user = TS.members.getMembersForUser();
-    var im;
-    var im_id;
-    for (i = 0; i < members_for_user.length; i++) {
-      member = members_for_user[i];
-      if (!member || member.deleted) continue;
-      im = TS.ims.getImByMemberId(member.id);
-      im_id = im ? im.id : null;
-      members.push({
-        model_ob: member,
-        preselected: im && _isPreselected(im_id, current_model_ob_id)
-      });
-      if (TS.boot_data.feature_name_tagging_client) {
-        member_name_map[member.id] = TS.members.getMemberFullNameLowerCase(member);
-      } else {
-        member_name_map[member.id] = TS.members.getMemberDisplayNameLowerCase(member);
-      }
-    }
-    var mpims = [];
-    var mpim;
-    var mpim_name_map = {};
-    var visible_mpims = TS.mpims.getVisibleMpims();
-    for (i = 0; i < visible_mpims.length; i++) {
-      mpim = visible_mpims[i];
-      mpims.push({
-        model_ob: mpim,
-        preselected: _isPreselected(mpim.id, current_model_ob_id)
-      });
-      mpim_name_map[mpim.id] = TS.mpims.getDisplayNameLowerCase(mpim);
-    }
-    var all_channels = channels.concat(groups);
-    var all_dms = members.concat(mpims);
-    all_channels.sort(function(a, b) {
-      var a_srt = a.model_ob._name_lc;
-      var b_srt = b.model_ob._name_lc;
-      if (a_srt < b_srt) return -1;
-      if (a_srt > b_srt) return 1;
-      return 0;
-    });
-    all_dms.sort(function(a, b) {
-      if (a.model_ob.is_mpim && !b.model_ob.is_mpim) return 1;
-      if (b.model_ob.is_mpim && !a.model_ob.is_mpim) return -1;
-      if (a.model_ob.is_slackbot) return 1;
-      if (b.model_ob.is_slackbot) return -1;
-      var a_srt = a.model_ob.is_mpim ? mpim_name_map[a.model_ob.id] : member_name_map[a.model_ob.id];
-      var b_srt = b.model_ob.is_mpim ? mpim_name_map[b.model_ob.id] : member_name_map[b.model_ob.id];
-      if (a_srt < b_srt) return -1;
-      if (a_srt > b_srt) return 1;
-      return 0;
-    });
-    return [{
-      lfs_group: true,
-      label: TS.i18n.t("Channels", "files")(),
-      children: all_channels
-    }, {
-      lfs_group: true,
-      label: TS.i18n.t("Direct Messages", "files")(),
-      children: all_dms
-    }];
   };
   var _getActiveChannelId = function() {
     if (TS.client && TS.client.activeChannelIsHidden()) {

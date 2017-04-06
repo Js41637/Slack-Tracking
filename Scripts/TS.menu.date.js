@@ -88,6 +88,8 @@
       case "custom":
         _setupDatePickerMenu();
         break;
+      default:
+        break;
     }
     e.stopPropagation();
   };
