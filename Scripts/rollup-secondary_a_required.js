@@ -385,7 +385,7 @@
           TS.warn(key + " not measurable value, typeof:" + typeof value);
         } else {
           length += value.length;
-          if (log) TS.info(key + "=" + (value.length * 2 / 1024).toFixed(2) + "KB " + "(total=" + (length / 1024).toFixed(2) + "KB)");
+          if (log) TS.info(key + "=" + (value.length * 2 / 1024).toFixed(2) + "KB (total=" + (length / 1024).toFixed(2) + "KB)");
         }
       }
       if (log) TS.info("total for " + c + " items is " + (length / 1024).toFixed(2) + "KB");
@@ -3315,6 +3315,157 @@
 })();
 (function() {
   "use strict";
+  TS.registerModule("redux", {
+    onStart: function() {},
+    test: function() {
+      var test_ob = {};
+      return test_ob;
+    }
+  });
+})();
+(function() {
+  "use strict";
+  TS.registerModule("redux.channels", {
+    onStart: function() {
+      if (TS.boot_data.feature_store_channels_in_redux) {
+        Object.defineProperty(TS.model, "channels", {
+          get: function() {
+            return _.filter(_.toArray(_channels), _isChannel);
+          }
+        });
+        Object.defineProperty(TS.model, "groups", {
+          get: function() {
+            return _.filter(_.toArray(_channels), _isGroup);
+          }
+        });
+        Object.defineProperty(TS.model, "mpims", {
+          get: function() {
+            return _.filter(_.toArray(_channels), _isMpim);
+          }
+        });
+        Object.defineProperty(TS.model, "ims", {
+          get: function() {
+            return _.filter(_.toArray(_channels), _isIm);
+          }
+        });
+      }
+    },
+    upsertEntity: function(channel) {
+      _channels[channel.id] = channel;
+      if (_isIm(channel) && channel.user) {
+        _channel_names_to_ids[channel.user] = channel.id;
+      } else {
+        var lower_case_name = _.toLower(channel.name);
+        _channel_names_to_ids[lower_case_name] = channel.id;
+      }
+      if (_isMpim(channel) && channel._internal_name) {
+        _channel_names_to_ids[channel._internal_name] = channel.id;
+      }
+    },
+    removeEntity: function(channel) {
+      delete _channels[channel.id];
+      if (_isIm(channel) && channel.user) {
+        delete _channel_names_to_ids[channel.user];
+      } else {
+        var lower_case_name = _.toLower(channel.name);
+        delete _channel_names_to_ids[lower_case_name];
+      }
+      if (_isMpim(channel) && channel._internal_name) {
+        delete _channel_names_to_ids[channel._internal_name];
+      }
+    },
+    removeEntityFromNameMap: function(name) {
+      delete _channel_names_to_ids[name];
+    },
+    addEntityToNameMap: function(name, channel) {
+      _channel_names_to_ids[name] = channel.id;
+    },
+    replaceEntity: function(channel) {
+      var previous_channel = TS.redux.channels.getEntityById(channel.id);
+      if (previous_channel) {
+        TS.redux.channels.removeEntity(previous_channel);
+      }
+      TS.redux.channels.upsertEntity(channel);
+    },
+    getChannels: function() {
+      return _channels;
+    },
+    getEntityById: function(id) {
+      return _channels[id];
+    },
+    getEntityByName: function(name) {
+      var normalized_name = _.toLower(name);
+      if (normalized_name && normalized_name[0] === "#") {
+        normalized_name = normalized_name.slice(1);
+      }
+      var cid = _channel_names_to_ids[normalized_name];
+      if (cid) {
+        return TS.redux.channels.getEntityById(cid);
+      }
+      return null;
+    },
+    getChannelById: function(id) {
+      var channel = TS.redux.channels.getEntityById(id);
+      if (_isChannel(channel)) return channel;
+      return null;
+    },
+    getChannelByName: function(name) {
+      var channel = TS.redux.channels.getEntityByName(name);
+      if (_isChannel(channel)) return channel;
+      return null;
+    },
+    getGroupById: function(id) {
+      var channel = TS.redux.channels.getEntityById(id);
+      if (_isGroup(channel)) return channel;
+      return null;
+    },
+    getGroupByName: function(name) {
+      var channel = TS.redux.channels.getEntityByName(name);
+      if (_isGroup(channel)) return channel;
+      return null;
+    },
+    getMpimById: function(id) {
+      var channel = TS.redux.channels.getEntityById(id);
+      if (_isMpim(channel)) return channel;
+      return null;
+    },
+    getMpimByName: function(name) {
+      var channel = TS.redux.channels.getEntityByName(name);
+      if (_isMpim(channel)) return channel;
+      return null;
+    },
+    getImById: function(id) {
+      var channel = TS.redux.channels.getEntityById(id);
+      if (_isIm(channel)) return channel;
+      return null;
+    },
+    getImByMemberId: function(member_id) {
+      var channel = TS.redux.channels.getEntityByName(member_id);
+      if (_isIm(channel)) return channel;
+      return null;
+    },
+    test: function() {
+      var test_ob = {};
+      return test_ob;
+    }
+  });
+  var _channels = {};
+  var _channel_names_to_ids = {};
+  var _isGroup = function(channel) {
+    return channel && channel.is_group && !channel.is_mpim;
+  };
+  var _isChannel = function(channel) {
+    return channel && channel.is_channel;
+  };
+  var _isMpim = function(channel) {
+    return channel && channel.is_mpim;
+  };
+  var _isIm = function(channel) {
+    return channel && channel.is_im;
+  };
+})();
+(function() {
+  "use strict";
   TS.registerModule("channels", {
     switched_sig: new signals.Signal,
     pre_switched_sig: new signals.Signal,
@@ -3804,11 +3955,14 @@
     },
     getChannelById: function(id) {
       if (!id) return null;
-      var channels = TS.model.channels;
+      if (TS.boot_data.feature_store_channels_in_redux) {
+        return TS.redux.channels.getChannelById(id);
+      }
       var channel = _id_map[id];
       if (channel) {
         return channel;
       }
+      var channels = TS.model.channels;
       if (!channels) return null;
       for (var i = 0; i < channels.length; i++) {
         channel = channels[i];
@@ -3847,6 +4001,9 @@
       return false;
     },
     getChannelByName: function(name) {
+      if (TS.boot_data.feature_store_channels_in_redux) {
+        return TS.redux.channels.getChannelByName(name);
+      }
       name = _.toLower(name);
       var channels = TS.model.channels;
       var channel = _name_map[name];
@@ -3869,19 +4026,23 @@
       return _upsertChannel(channel);
     },
     removeChannel: function(channel) {
-      var channels = TS.model.channels;
-      if (TS.pri) TS.log(4, 'removing channel "' + channel.id + '"');
-      var c;
-      for (var i = 0; i < channels.length; i++) {
-        c = channels[i];
-        if (c.id === channel.id) {
-          channels.splice(i, 1);
-          break;
+      if (TS.boot_data.feature_store_channels_in_redux) {
+        TS.redux.channels.removeEntity(channel);
+      } else {
+        var channels = TS.model.channels;
+        if (TS.pri) TS.log(4, 'removing channel "' + channel.id + '"');
+        var c;
+        for (var i = 0; i < channels.length; i++) {
+          c = channels[i];
+          if (c.id === channel.id) {
+            channels.splice(i, 1);
+            break;
+          }
         }
+        delete _id_map[channel.id];
+        delete _name_map[channel._name_lc];
+        delete _name_map["#" + channel._name_lc];
       }
-      delete _id_map[channel.id];
-      delete _name_map[channel._name_lc];
-      delete _name_map["#" + channel._name_lc];
       if (TS.client) {
         if (TS.model.active_channel_id === channel.id) {
           TS.client.activeChannelDisplayGoneAway();
@@ -3893,13 +4054,17 @@
     },
     channelRenamed: function(channel) {
       var existing_channel = TS.channels.getChannelById(channel.id);
-      delete _name_map[existing_channel._name_lc];
-      delete _name_map["#" + existing_channel._name_lc];
+      if (!TS.boot_data.feature_store_channels_in_redux) {
+        delete _name_map[existing_channel._name_lc];
+        delete _name_map["#" + existing_channel._name_lc];
+      }
       channel.previous_names = [existing_channel._name_lc].concat(existing_channel.previous_names || []);
       var new_channel = TS.channels.upsertChannel(channel);
       new_channel._name_lc = _.toLower(new_channel.name);
-      _name_map[new_channel._name_lc] = new_channel;
-      _name_map["#" + new_channel._name_lc] = new_channel;
+      if (!TS.boot_data.feature_store_channels_in_redux) {
+        _name_map[new_channel._name_lc] = new_channel;
+        _name_map["#" + new_channel._name_lc] = new_channel;
+      }
       TS.channels.renamed_sig.dispatch(new_channel);
     },
     markScrollTop: function(id, scroll_top) {
@@ -4081,12 +4246,14 @@
   var _id_map = {};
   var _name_map = {};
   var _upsertChannel = function(channel) {
-    var channels = TS.model.channels;
     var existing_channel = TS.channels.getChannelById(channel.id);
     var members;
     delete channel.unread_count;
     if (TS.boot_data.feature_tinyspeck && channel.id === "C00") TS.warn("_upsertChannel() got a bad channel id of C00", channel);
     if (existing_channel) {
+      if (TS.boot_data.feature_store_channels_in_redux) {
+        existing_channel = _.assign({}, existing_channel);
+      }
       if (TS.pri) TS.log(5, 'updating existing channel "' + channel.id + '"');
       for (var k in channel) {
         if (k === "members") {
@@ -4120,9 +4287,14 @@
         var should_defer_initial_msg_history = true;
         TS.shared.checkInitialMsgHistory(channel, TS.channels, should_defer_initial_msg_history);
       }
+      if (TS.boot_data.feature_store_channels_in_redux) {
+        TS.redux.channels.replaceEntity(channel);
+      }
     } else {
-      if (TS.pri) TS.log(5, 'adding channel "' + channel.id + '"');
-      channels.push(channel);
+      if (!TS.boot_data.feature_store_channels_in_redux) {
+        if (TS.pri) TS.log(5, 'adding channel "' + channel.id + '"');
+        TS.model.channels.push(channel);
+      }
       _processNewChannelForUpserting(channel);
       if (TS.membership.lazyLoadChannelMembership()) {
         Object.defineProperty(channel, "members", {
@@ -4151,9 +4323,13 @@
           }
         });
       }
-      _id_map[channel.id] = channel;
-      _name_map[channel._name_lc] = channel;
-      _name_map["#" + channel._name_lc] = channel;
+      if (TS.boot_data.feature_store_channels_in_redux) {
+        TS.redux.channels.upsertEntity(channel);
+      } else {
+        _id_map[channel.id] = channel;
+        _name_map[channel._name_lc] = channel;
+        _name_map["#" + channel._name_lc] = channel;
+      }
       if (channel.pinned_items && TS.client) TS.pins.upsertPinnedItems(channel.pinned_items);
     }
     if (channel.is_member && channel.is_archived) {
@@ -5410,6 +5586,9 @@ TS.registerModule("constants", {
     },
     getGroupById: function(id) {
       if (!id) return null;
+      if (TS.boot_data.feature_store_channels_in_redux) {
+        return TS.redux.channels.getGroupById(id);
+      }
       var groups = TS.model.groups;
       var group = _id_map[id];
       if (group) {
@@ -5427,6 +5606,9 @@ TS.registerModule("constants", {
       return null;
     },
     getGroupByName: function(name) {
+      if (TS.boot_data.feature_store_channels_in_redux) {
+        return TS.redux.channels.getGroupByName(name);
+      }
       name = _.toLower(name);
       var groups = TS.model.groups;
       var group = _name_map[name];
@@ -5449,19 +5631,23 @@ TS.registerModule("constants", {
       return _upsertGroup(group);
     },
     removeGroup: function(group) {
-      var groups = TS.model.groups;
-      TS.log(4, 'removing group "' + group.id + '"');
-      var c;
-      for (var i = 0; i < groups.length; i++) {
-        c = groups[i];
-        if (c.id === group.id) {
-          groups.splice(i, 1);
-          break;
+      if (TS.boot_data.feature_store_channels_in_redux) {
+        TS.redux.channels.removeEntity(group);
+      } else {
+        var groups = TS.model.groups;
+        TS.log(4, 'removing group "' + group.id + '"');
+        var c;
+        for (var i = 0; i < groups.length; i++) {
+          c = groups[i];
+          if (c.id === group.id) {
+            groups.splice(i, 1);
+            break;
+          }
         }
+        delete _id_map[group.id];
+        delete _name_map[group._name_lc];
+        delete _name_map[TS.model.group_prefix + group._name_lc];
       }
-      delete _id_map[group.id];
-      delete _name_map[group._name_lc];
-      delete _name_map[TS.model.group_prefix + group._name_lc];
       if (TS.client) {
         if (TS.model.active_group_id === group.id) {
           TS.client.activeChannelDisplayGoneAway();
@@ -5473,12 +5659,16 @@ TS.registerModule("constants", {
     },
     groupRenamed: function(group) {
       var existing_group = TS.groups.getGroupById(group.id);
-      delete _name_map[existing_group._name_lc];
-      delete _name_map[TS.model.group_prefix + existing_group._name_lc];
+      if (!TS.boot_data.feature_store_channels_in_redux) {
+        delete _name_map[existing_group._name_lc];
+        delete _name_map[TS.model.group_prefix + existing_group._name_lc];
+      }
       var new_group = TS.groups.upsertGroup(group);
       new_group._name_lc = _.toLower(new_group.name);
-      _name_map[new_group._name_lc] = new_group;
-      _name_map[TS.model.group_prefix + new_group._name_lc] = new_group;
+      if (!TS.boot_data.feature_store_channels_in_redux) {
+        _name_map[new_group._name_lc] = new_group;
+        _name_map[TS.model.group_prefix + new_group._name_lc] = new_group;
+      }
       TS.groups.renamed_sig.dispatch(new_group);
     },
     markScrollTop: function(id, scroll_top) {
@@ -5704,11 +5894,13 @@ TS.registerModule("constants", {
     return A;
   };
   var _upsertGroup = function(group) {
-    var groups = TS.model.groups;
     var existing_group = TS.groups.getGroupById(group.id);
     var members;
     delete group.unread_count;
     if (existing_group) {
+      if (TS.boot_data.feature_store_channels_in_redux) {
+        existing_group = _.assign({}, existing_group);
+      }
       TS.log(4, 'updating existing group "' + group.id + '"');
       for (var k in group) {
         if (k === "members") {
@@ -5736,14 +5928,23 @@ TS.registerModule("constants", {
         var should_defer_initial_msg_history = true;
         TS.shared.checkInitialMsgHistory(group, TS.groups, should_defer_initial_msg_history);
       }
+      if (TS.boot_data.feature_store_channels_in_redux) {
+        TS.redux.channels.replaceEntity(group);
+      }
     } else {
-      TS.log(4, 'adding group "' + group.id + '"');
-      groups.push(group);
+      if (!TS.boot_data.feature_store_channels_in_redux) {
+        TS.log(4, 'adding group "' + group.id + '"');
+        TS.model.groups.push(group);
+      }
       TS.utility.ensureInArray(TS.model.all_group_ids, group.id);
       _processNewGroupForUpserting(group);
-      _id_map[group.id] = group;
-      _name_map[group._name_lc] = group;
-      _name_map[TS.model.group_prefix + group._name_lc] = group;
+      if (TS.boot_data.feature_store_channels_in_redux) {
+        TS.redux.channels.upsertEntity(group);
+      } else {
+        _id_map[group.id] = group;
+        _name_map[group._name_lc] = group;
+        _name_map[TS.model.group_prefix + group._name_lc] = group;
+      }
       if (group.pinned_items && TS.client) TS.pins.upsertPinnedItems(group.pinned_items);
     }
     if (TS.client) {
@@ -6176,10 +6377,11 @@ TS.registerModule("constants", {
         actions.delete_file = true;
       }
       if (TS.model.user.is_admin) {
+        var file_is_from_other_team;
         if (TS.boot_data.feature_shared_channels_client) {
-          var file_is_from_other_team = TS.utility.teams.isMemberExternalById(file.user);
+          file_is_from_other_team = TS.utility.teams.isMemberExternalById(file.user);
         }
-        actions.delete_file = file_is_from_other_team == true ? false : true;
+        actions.delete_file = !file_is_from_other_team;
       }
       if (TS.clipboard.canWriteText()) {
         actions.copy_file_link = true;
@@ -7825,6 +8027,9 @@ TS.registerModule("constants", {
     },
     getImById: function(id) {
       if (!id) return null;
+      if (TS.boot_data.feature_store_channels_in_redux) {
+        return TS.redux.channels.getImById(id);
+      }
       var ims = TS.model.ims;
       var im = _id_map[id];
       if (im) {
@@ -7856,6 +8061,9 @@ TS.registerModule("constants", {
       return TS.ims.getImByMemberId(member.id);
     },
     getImByMemberId: function(id) {
+      if (TS.boot_data.feature_store_channels_in_redux) {
+        return TS.redux.channels.getImByMemberId(id);
+      }
       var ims = TS.model.ims;
       var im = _member_id_map[id];
       if (im) {
@@ -7894,10 +8102,12 @@ TS.registerModule("constants", {
       _setName(im, member);
     },
     upsertIm: function(im) {
-      var ims = TS.model.ims;
       var existing_im = TS.ims.getImById(im.id);
       delete im.unread_count;
       if (existing_im) {
+        if (TS.boot_data.feature_store_channels_in_redux) {
+          existing_im = _.assign({}, existing_im);
+        }
         if (TS.pri) TS.log(4, 'updating existing im "' + im.id + '"');
         for (var k in im) {
           existing_im[k] = im[k];
@@ -7911,14 +8121,23 @@ TS.registerModule("constants", {
           var should_defer_initial_msg_history = true;
           TS.shared.checkInitialMsgHistory(im, TS.ims, should_defer_initial_msg_history);
         }
+        if (TS.boot_data.feature_store_channels_in_redux) {
+          TS.redux.channels.replaceEntity(im);
+        }
       } else {
-        if (TS.pri) TS.log(4, 'adding im "' + im.id + '"');
-        ims.push(im);
+        if (!TS.boot_data.feature_store_channels_in_redux) {
+          if (TS.pri) TS.log(4, 'adding im "' + im.id + '"');
+          TS.model.ims.push(im);
+        }
         TS.utility.ensureInArray(TS.model.all_im_ids, im.id);
         var member = TS.members.getMemberById(im.user);
         _processNewImForUpserting(im, member);
-        _id_map[im.id] = im;
-        _member_id_map[im.user] = im;
+        if (TS.boot_data.feature_store_channels_in_redux) {
+          TS.redux.channels.upsertEntity(im);
+        } else {
+          _id_map[im.id] = im;
+          _member_id_map[im.user] = im;
+        }
       }
       if (TS.client) {
         var and_mark = TS.utility.msgs.shouldMarkUnreadsOnMessageFetch(im);
@@ -8337,6 +8556,9 @@ TS.registerModule("constants", {
     },
     getMpimById: function(id) {
       if (!id) return null;
+      if (TS.boot_data.feature_store_channels_in_redux) {
+        return TS.redux.channels.getMpimById(id);
+      }
       var mpims = TS.model.mpims;
       var mpim = _id_map[id];
       if (mpim) {
@@ -8354,6 +8576,9 @@ TS.registerModule("constants", {
       return null;
     },
     getMpimByName: function(name) {
+      if (TS.boot_data.feature_store_channels_in_redux) {
+        return TS.redux.channels.getMpimByName(name);
+      }
       name = _.toLower(name);
       var mpims = TS.model.mpims;
       var mpim = _name_map[name];
@@ -8480,10 +8705,12 @@ TS.registerModule("constants", {
       return Math.min(Math.max(mpim.members.length - 1, 2), 9);
     },
     upsertMpim: function(mpim_group) {
-      var mpims = TS.model.mpims;
       var existing_mpim = TS.mpims.getMpimById(mpim_group.id);
       delete mpim_group.unread_count;
       if (existing_mpim) {
+        if (TS.boot_data.feature_store_channels_in_redux) {
+          existing_mpim = _.assign({}, existing_mpim);
+        }
         TS.log(4, 'updating existing mpim "' + existing_mpim.id + '"');
         for (var k in mpim_group) {
           if (k === "name") continue;
@@ -8498,12 +8725,21 @@ TS.registerModule("constants", {
           var should_defer_initial_msg_history = true;
           TS.shared.checkInitialMsgHistory(mpim_group, TS.mpims, should_defer_initial_msg_history);
         }
+        if (TS.boot_data.feature_store_channels_in_redux) {
+          TS.redux.channels.replaceEntity(mpim_group);
+        }
       } else {
-        TS.log(4, 'adding mpim "' + mpim_group.id + '"');
-        mpims.push(mpim_group);
+        if (!TS.boot_data.feature_store_channels_in_redux) {
+          TS.log(4, 'adding mpim "' + mpim_group.id + '"');
+          TS.model.mpims.push(mpim_group);
+        }
         TS.utility.ensureInArray(TS.model.all_group_ids, mpim_group.id);
         _processNewMpimForUpserting(mpim_group);
-        _id_map[mpim_group.id] = mpim_group;
+        if (TS.boot_data.feature_store_channels_in_redux) {
+          TS.redux.channels.upsertEntity(mpim_group);
+        } else {
+          _id_map[mpim_group.id] = mpim_group;
+        }
       }
       if (TS.client) {
         var and_mark = TS.utility.msgs.shouldMarkUnreadsOnMessageFetch(mpim_group);
@@ -8672,10 +8908,20 @@ TS.registerModule("constants", {
     }).value().join(",");
   };
   var _updateMpimName = function(mpim) {
-    if (mpim._name_lc) delete _name_map[mpim._name_lc];
+    if (mpim._name_lc) {
+      if (TS.boot_data.feature_store_channels_in_redux) {
+        TS.redux.channels.removeEntityFromNameMap(mpim._name_lc);
+      } else {
+        delete _name_map[mpim._name_lc];
+      }
+    }
     mpim.name = _makeNameForMpim(mpim);
     mpim._name_lc = _.toLower(mpim.name);
-    _name_map[mpim._name_lc] = mpim;
+    if (TS.boot_data.feature_store_channels_in_redux) {
+      TS.redux.channels.addEntityToNameMap(mpim._name_lc, mpim);
+    } else {
+      _name_map[mpim._name_lc] = mpim;
+    }
   };
   var _memberRealNameChanged = function(member) {
     TS.model.mpims.forEach(function(mpim) {
@@ -8735,7 +8981,9 @@ TS.registerModule("constants", {
   };
   var _processNewMpimForUpserting = function(mpim_group) {
     mpim_group._internal_name = mpim_group.name;
-    _name_map[mpim_group._internal_name] = mpim_group;
+    if (!TS.boot_data.feature_store_channels_in_redux) {
+      _name_map[mpim_group._internal_name] = mpim_group;
+    }
     _updateMpimName(mpim_group);
     TS.shared.setPriorityForDev(mpim_group);
     mpim_group.is_mpim = true;
@@ -8801,8 +9049,22 @@ TS.registerModule("constants", {
         return;
       }
       if (model_ob._did_defer_initial_msg_history) {
-        TS.shared.checkInitialMsgHistory(model_ob, controller);
-        return;
+        if (TS.boot_data.feature_delay_channel_history_fetch && !model_ob.is_im && !model_ob.is_mpim) {
+          if (!model_ob._delayed_fetch_timer) {
+            var min_delay = 2500;
+            var max_delay = 1e4;
+            var delay = _.random(min_delay, max_delay);
+            if (TS.pri) TS.log(58, "calcUnreadCnts (" + model_ob.id + "): no history in model, no history call yet - delaying " + delay + " ms before history fetch.");
+            model_ob._delayed_fetch_timer = window.setTimeout(function() {
+              if (TS.pri) TS.log(58, "calcUnreadCnts (" + model_ob.id + "): fetching after " + delay + " ms delay.");
+              delete model_ob._delayed_fetch_timer;
+              TS.shared.checkInitialMsgHistory(model_ob, controller);
+            }, delay);
+          }
+        } else {
+          TS.shared.checkInitialMsgHistory(model_ob, controller);
+          return;
+        }
       }
       model_ob.unreads.length = 0;
       model_ob.unread_highlights.length = 0;
@@ -8960,6 +9222,11 @@ TS.registerModule("constants", {
       if (model_ob.history_is_being_fetched) {
         TS.warn('checkInitialMsgHistory NOT DOING ANYTHING, because "' + model_ob.id + '" history_is_being_fetched:true');
         return;
+      }
+      if (TS.boot_data.feature_delay_channel_history_fetch && model_ob._delayed_fetch_timer) {
+        if (TS.pri) TS.log(58, "checkInitialMsgHistory (" + model_ob.id + "): Clearing _delayed_fetch_timer and fetching immediately");
+        window.clearTimeout(model_ob._delayed_fetch_timer);
+        delete model_ob._delayed_fetch_timer;
       }
       delete model_ob._did_defer_initial_msg_history;
       if (defer_api_check) {
@@ -10237,36 +10504,25 @@ TS.registerModule("constants", {
         if (TS.pri) TS.log(58, log_prefix + "queueing " + msgs.length + " msgs to merge on history fetch for " + model_ob.id);
         model_ob._msgs_to_merge_on_history = (model_ob._msgs_to_merge_on_history || []).concat(msgs);
       }
-      if (model_ob.msgs.length) {
-        if (model_ob.history_is_being_fetched) {
-          if (TS.pri) TS.log(58, log_prefix + "some history, history fetch is already underway - queueing " + msgs.length + " message(s) to be merged with history call, as they are unlikely to be in the history response.");
-        } else if (!model_ob._history_fetched_since_last_connect) {
-          if (TS.pri) TS.log(58, log_prefix + "some history, have not fetched history since last reconnect - attaching " + msgs.length + " new messages to model for merging when the history call returns.");
-          TS.shared.maybeFetchHistoryAndThenCheckConsistency(model_ob);
-        }
+      if (TS.boot_data.feature_delay_channel_history_fetch && !model_ob.is_im && !model_ob.is_mpim) {
+        if (TS.pri) TS.log(58, log_prefix + "no history in model, no history call yet - waiting for calcUnreadCnts() which will trigger a delayed history fetch.");
       } else {
-        if (model_ob.history_is_being_fetched) {
-          if (TS.pri) TS.log(58, log_prefix + "no history in model, but history is already pending - queueing " + msgs.length + " message(s) for merging with history call");
-        } else if (!model_ob._history_fetched_since_last_connect) {
-          if (TS.boot_data.feature_delay_channel_history_fetch) {
-            if (model_ob.is_im || model_ob.is_mpim) {
-              if (TS.pri) TS.log(58, log_prefix + "no history in model, no history call yet - fetching, and queueing " + msgs.length + " message(s) for merging with history call");
-              TS.shared.maybeFetchHistoryAndThenCheckConsistency(model_ob);
-            } else {
-              var min_delay = 2500;
-              var max_delay = 1e4;
-              var delay = _.random(min_delay, max_delay);
-              if (TS.pri) TS.log(58, log_prefix + "no history in model, no history call yet - delaying " + delay + " ms before fetch and queue of " + msgs.length + " message(s) for merging with history call");
-              window.setTimeout(function() {
-                TS.shared.maybeFetchHistoryAndThenCheckConsistency(model_ob);
-              }, delay);
-            }
-          } else {
-            if (TS.pri) TS.log(58, log_prefix + "no history in model, no history call yet - fetching, and queueing " + msgs.length + " message(s) for merging with history call");
+        if (model_ob.msgs.length) {
+          if (model_ob.history_is_being_fetched) {
+            if (TS.pri) TS.log(58, log_prefix + "some history, history fetch is already underway - queueing " + msgs.length + " message(s) to be merged with history call, as they are unlikely to be in the history response.");
+          } else if (!model_ob._history_fetched_since_last_connect) {
+            if (TS.pri) TS.log(58, log_prefix + "some history, have not fetched history since last reconnect - attaching " + msgs.length + " new messages to model for merging when the history call returns.");
             TS.shared.maybeFetchHistoryAndThenCheckConsistency(model_ob);
           }
         } else {
-          if (TS.pri) TS.log(58, log_prefix + "Edge case - " + msgs.length + " new message(s) to add, but no history and we have called history, too?");
+          if (model_ob.history_is_being_fetched) {
+            if (TS.pri) TS.log(58, log_prefix + "no history in model, but history is already pending - queueing " + msgs.length + " message(s) for merging with history call");
+          } else if (!model_ob._history_fetched_since_last_connect) {
+            if (TS.pri) TS.log(58, log_prefix + "no history in model, no history call yet - fetching, and queueing " + msgs.length + " message(s) for merging with history call");
+            TS.shared.maybeFetchHistoryAndThenCheckConsistency(model_ob);
+          } else {
+            if (TS.pri) TS.log(58, log_prefix + "Edge case - " + msgs.length + " new message(s) to add, but no history and we have called history, too?");
+          }
         }
       }
     }
@@ -12394,7 +12650,7 @@ TS.registerModule("constants", {
       return new Promise(function(resolve, reject, onCancel) {
         var apps_profile_promise = TS.api.call("apps.profile.get", {
           bot: bot_id,
-          show_auth_summary: show_auth_summary ? true : false
+          show_auth_summary: !!show_auth_summary
         }).then(function(res) {
           if (res.data.ok && res.data.app_profile) {
             var app = res.data.app_profile;
@@ -16140,7 +16396,7 @@ TS.registerModule("constants", {
     TS.ms.logConnectionFlow("on_ping_timeout");
     TS.ms.trouble_sig.dispatch();
     _check_last_pong_time = false;
-    _reportDisconnect("You are on team Tiny Speck, so here are some pong details:\n>>>" + "since_last_pong_ms too long! " + since_last_pong_ms + " > " + _pong_timeout_ms + " ... calling disconnect(), expect to get an onDisconnect() callback");
+    _reportDisconnect("You are on team Tiny Speck, so here are some pong details:\n>>>since_last_pong_ms too long! " + since_last_pong_ms + " > " + _pong_timeout_ms + " ... calling disconnect(), expect to get an onDisconnect() callback");
     try {
       var was_requested_by_server = false;
       TS.ms.disconnect(was_requested_by_server, "Disconnecting because of pong timeout");
@@ -18942,7 +19198,7 @@ TS.registerModule("constants", {
     TS.ds.logConnectionFlow("on_ping_timeout");
     TS.ds.trouble_sig.dispatch();
     _check_last_pong_time = false;
-    _reportDisconnect("You are on team Tiny Speck, so here are some pong details:\n>>>" + "since_last_pong_ms too long! " + since_last_pong_ms + " > " + _pong_timeout_ms + " ... calling disconnect(), expect to get an onDisconnect() callback");
+    _reportDisconnect("You are on team Tiny Speck, so here are some pong details:\n>>>since_last_pong_ms too long! " + since_last_pong_ms + " > " + _pong_timeout_ms + " ... calling disconnect(), expect to get an onDisconnect() callback");
     try {
       TS.ds.disconnect();
       clearTimeout(_disconnect_timeout_tim);
@@ -19458,14 +19714,14 @@ TS.registerModule("constants", {
     formatSoundUrl: function(attachment, msg) {
       return "";
     },
-    buildAttachmentActions: function(attachment, disable_buttons) {
+    buildAttachmentActions: function(attachment, disable_actions) {
       var rendered_actions = attachment.actions.map(function(action) {
         switch (action.type) {
           case "button":
-            return TS.templates.builders.buildAttachmentActionButtonHTML(action, disable_buttons);
+            return TS.templates.builders.buildAttachmentActionButtonHTML(action, disable_actions);
           case "select":
             if (TS.boot_data.feature_message_menus) {
-              return TS.templates.builders.buildAttachmentActionSelectHTML(action, disable_buttons);
+              return TS.templates.builders.buildAttachmentActionSelectHTML(action, disable_actions);
             }
             break;
           default:
@@ -19576,6 +19832,17 @@ TS.registerModule("constants", {
         enable_slack_action_links: args.enable_slack_action_links === true
       };
       if (!args.from_post) {
+        var disable_actions = TS.boot_data.app === "web" || args.enable_slack_action_links !== true;
+        var disable_actions_reason;
+        if (disable_actions) {
+          if (TS.boot_data.app === "web") {
+            disable_actions_reason = "ARCHIVES";
+          } else if (TS.shared.getActiveModelOb().is_channel && !TS.shared.getActiveModelOb().is_member) {
+            disable_actions_reason = "CHANNEL_PREVIEW";
+          } else {
+            disable_actions_reason = "OTHER";
+          }
+        }
         attachment_args = _.assign(attachment_args, {
           attachment: attachment,
           has_actions: !!(!_.isEmpty(attachment.actions) || !_.isEmpty(attachment.legacy_actions)),
@@ -19587,7 +19854,8 @@ TS.registerModule("constants", {
           has_text_content: !!(attachment.text || attachment.title),
           has_thumb: !!small_thumb,
           has_footer: !!(attachment.footer || attachment.footer_icon || attachment.ts || attachment._attribution) && !is_broadcast,
-          disable_buttons: TS.boot_data.app === "web" || args.enable_slack_action_links !== true,
+          disable_actions: disable_actions,
+          disable_actions_reason: disable_actions_reason,
           border_color: attachment.color && "#" + attachment.color || null,
           break_border: args.break_border,
           caret_location: TS.utility.attachments.getMediaCaretLocation(attachment)
@@ -19665,10 +19933,10 @@ TS.registerModule("constants", {
       });
       return TS.templates.spaces_attachment(attachment_args);
     },
-    buildAttachmentActionButtonHTML: function(action, disable_buttons) {
-      disable_buttons = disable_buttons === true;
+    buildAttachmentActionButtonHTML: function(action, disable_actions) {
+      disable_actions = disable_actions === true;
       var button_defaults = {
-        _disabled: disable_buttons,
+        _disabled: disable_actions,
         _loading: false,
         id: "",
         name: "",
@@ -19689,8 +19957,8 @@ TS.registerModule("constants", {
       });
       return TS.templates.attachment_actions_button(button_model);
     },
-    buildAttachmentActionSelectHTML: function(action, disable_buttons) {
-      var model = TS.attachment_actions.select.getActionModel(action, disable_buttons);
+    buildAttachmentActionSelectHTML: function(action, disable_actions) {
+      var model = TS.attachment_actions.select.getActionModel(action, disable_actions);
       return TS.templates.attachment_actions_select(model);
     },
     shouldDoSimpleAttachment: function(attachment, msg) {
@@ -29397,7 +29665,7 @@ TS.registerModule("constants", {
         var self = this;
         var args = arguments;
         if (promise) promise.cancel();
-        promise = new Promise(function(resolve, reject) {
+        promise = new Promise(function(resolve) {
           setTimeout(resolve, delay);
         });
         promise.then(function() {
@@ -29639,7 +29907,7 @@ TS.registerModule("constants", {
     },
     loadUrlInWindowIfOnline: function(url, doc) {
       doc = doc || document;
-      TS.api.call("api.test", {}, function(ok, data, args) {
+      TS.api.call("api.test", {}, function(ok) {
         if (ok) {
           $("body").addClass("hidden");
           doc.location = url;
@@ -29993,21 +30261,21 @@ TS.registerModule("constants", {
       var c_ids = [];
       var t_ids = [];
       var seens = [];
-      var isPropertyAMemberIdThatNeedsChecking = function(name, parent_name) {
+      var isPropertyAMemberIdThatNeedsChecking = function(name) {
         if (name == "user") return true;
         if (name == "inviter") return true;
         if (name == "accepted_user") return true;
         if (name == "created_by") return true;
         return false;
       };
-      var worker = function(obj, parent_name) {
+      var worker = function(obj) {
         if (!_.isObject(obj)) return;
         seens.push(obj);
         var val;
         Object.keys(obj).forEach(function(k) {
           val = obj[k];
           if (typeof val === "string") {
-            if (isPropertyAMemberIdThatNeedsChecking(k, parent_name)) {
+            if (isPropertyAMemberIdThatNeedsChecking(k)) {
               if (TS.utility.strLooksLikeAMemberId(val)) {
                 if (TS.utility.ensureInArray(m_ids, val)) {
                   c_ids.push(typeof obj.channel == "string" && obj.channel || typeof obj.channel == "object" && obj.channel && obj.channel.id || channel_id || undefined);
@@ -30038,12 +30306,12 @@ TS.registerModule("constants", {
                 }
               });
             } else {
-              worker(val, k);
+              worker(val);
             }
           }
         });
       };
-      worker(ob, "_DATA");
+      worker(ob);
       m_ids = _(m_ids).uniq().value();
       if (TS.shouldLog("794")) {
         _doubleCheckIdExtraction(ob, source, m_ids, _double_check_ids_member_rx);
@@ -30342,7 +30610,7 @@ TS.registerModule("constants", {
       _referer_policy = {
         iframe_redirect_type: bowser.version >= 36 ? 4 : 2,
         redirect_type: 3,
-        rewrite_on_right_click: bowser.version >= 36 ? false : true
+        rewrite_on_right_click: bowser.version < 36
       };
       return _referer_policy;
     }
@@ -30377,7 +30645,7 @@ TS.registerModule("constants", {
     if (window.MutationObserver) {
       var hiddenDiv = document.createElement("div");
       var callbacks = [];
-      new MutationObserver(function(records) {
+      new MutationObserver(function() {
         var cbList = callbacks.slice();
         callbacks.length = 0;
         cbList.forEach(function(callback) {
@@ -34003,7 +34271,7 @@ var _on_esc;
   });
   var _onShowLeaveTeamConfirm = function() {
     var $div = $(".leave_team_modal .leave_team_modal_contents");
-    $div.find(".buttons").on("click", "button", function(e) {
+    $div.find(".buttons").on("click", "button", function() {
       var option = $(this).data("qa");
       if (option === "cancel_leave_team") {
         TS.ui.fs_modal.close();
@@ -35831,6 +36099,11 @@ var _on_esc;
         } else {
           m = TS.members.getMemberByName(name);
         }
+        if (m.is_app_user) {
+          var invite_chan = _getActiveChannel();
+          _maybeInviteAppUserToChannel(m, invite_chan, cmd + " " + rest);
+          return;
+        }
         if (name) {
           ug = TS.user_groups.getUserGroupsByHandle(name);
         }
@@ -36439,7 +36712,7 @@ var _on_esc;
       aliases: null,
       desc: TS.i18n.t("Edit the last message you posted", "cmd_handlers")(),
       func: function(cmd, rest, words, in_reply_to_msg, model_ob_arg) {
-        var model_ob = model_ob_arg ? model_ob_arg : TS.shared.getActiveModelOb();
+        var model_ob = model_ob_arg || TS.shared.getActiveModelOb();
         var feedback_text;
         var input_text = cmd + " " + rest;
         if (!model_ob) {
@@ -36481,7 +36754,7 @@ var _on_esc;
       aliases: null,
       desc: TS.i18n.t("Delete the last message you posted", "cmd_handlers")(),
       func: function(cmd, rest, words, in_reply_to_msg, model_ob_arg) {
-        var model_ob = model_ob_arg ? model_ob_arg : TS.shared.getActiveModelOb();
+        var model_ob = model_ob_arg || TS.shared.getActiveModelOb();
         if (!model_ob) {
           return;
         }
@@ -37156,12 +37429,55 @@ var _on_esc;
       return null;
     });
   };
+  var _maybeInviteAppUserToChannel = function(user, channel, input_txt) {
+    if (!_.isObject(user)) throw new Error("Expected user to be an object");
+    if (!_.isObject(channel)) throw new Error("Expected channel to be an object");
+    TS.api.call("channels.addApp", {
+      channel: channel.id,
+      user: user.id
+    }).then(function(response) {
+      var scopes = _.get(response, "data.permission.scopes");
+      var scope_list = scopes.join(", ");
+      TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("{user} has been added with the following scopes: {scopes}.", "cmd_handlers")({
+        user: _getUserIdentifier(user),
+        scopes: scope_list
+      }));
+    }).catch(function(error_response) {
+      var error_str = _.get(error_response, "data.error");
+      if (error_str === "already_has_resource") {
+        TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("{user} is already in this channel.", "cmd_handlers")({
+          user: _getUserIdentifier(user)
+        }), input_txt);
+      } else if (error_str === "no_scopes_to_add") {
+        TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("{user} can't join channels of this type.", "cmd_handlers")({
+          user: _getUserIdentifier(user)
+        }), input_txt);
+      } else {
+        TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("Hmm, something went wrong, try again?", "cmd_handlers")({
+          user: _getUserIdentifier(user)
+        }), input_txt);
+      }
+    });
+  };
   var _getUserIdentifier = function(user) {
     if (!_.isObject(user)) throw new Error("Expected user to be an object");
     if (TS.boot_data.feature_name_tagging_client_extras) {
       return "@" + user.id;
     }
     return "@" + user.name;
+  };
+  var _getActiveChannel = function() {
+    var channel;
+    if (TS.model.active_channel_id) {
+      channel = TS.channels.getChannelById(TS.model.active_channel_id);
+    } else if (TS.model.active_group_id) {
+      channel = TS.groups.getGroupById(TS.model.active_group_id);
+    } else if (TS.model.active_mpim_id) {
+      channel = TS.mpims.getMpimById(TS.model.active_mpim_id);
+    } else if (TS.model.active_im_id) {
+      channel = TS.ims.getImById(TS.model.active_im_id);
+    }
+    return channel;
   };
 })();
 (function() {
@@ -39967,7 +40283,7 @@ var _on_esc;
       _cancel();
     }
   };
-  var _secondaryGo = function(e) {
+  var _secondaryGo = function() {
     if (!TS.ui.fs_modal.is_showing) {
       TS.error("not showing?");
       return;
@@ -40746,7 +41062,7 @@ var _on_esc;
     if (!TS.boot_data.feature_take_profile_photo) return;
     var get_media = _getUserMedia();
     _capture = {};
-    _capture.is_supported = get_media ? true : false;
+    _capture.is_supported = !!get_media;
     _capture.is_accepted = true;
     _capture.is_enabled = false;
     _capture.video_el = null;
@@ -42155,7 +42471,7 @@ var _on_esc;
     return need_to_check_api;
   }
 
-  function _validateIsEmail($el, options, protocols) {
+  function _validateIsEmail($el, options) {
     if ($el.is('input[type="radio"]') || $el.is('input[type="checkbox"]') || $el.is("select")) return true;
     if (_isElementTextInput($el)) {
       var value = _getTextInputValue($el);
@@ -42291,7 +42607,7 @@ var _on_esc;
         $container.addClass("active");
         $input.focus();
       });
-      $input.on("paste", function(e) {
+      $input.on("paste", function() {
         setTimeout(function() {
           var val = $input.val().trim();
           if (!/\,/.test(val)) return true;
@@ -42333,7 +42649,7 @@ var _on_esc;
   });
   var _getTokenInputValue = function($container) {
     var token_values = [];
-    $container.find(".token").each(function(index) {
+    $container.find(".token").each(function() {
       var value = $(this).text().trim();
       token_values.push(value);
     });
@@ -43048,7 +43364,7 @@ var _on_esc;
         return result;
       });
     };
-    $search_input.on("input", function(e) {
+    $search_input.on("input", function() {
       var filter_by = $(this).val();
       var sort_by = $sort_by.val();
       var teams = TS.enterprise.workspaces.getList("teams_not_on", sort_by, filter_by);
@@ -43063,7 +43379,7 @@ var _on_esc;
       $workspaces.html(html);
       _bindEvents();
     });
-    $sort_by.on("change", function(e) {
+    $sort_by.on("change", function() {
       var sort_by = $(this).val();
       var filter_by = $search_input.val();
       var teams = TS.enterprise.workspaces.getList("teams_not_on", sort_by, filter_by);
@@ -43074,7 +43390,7 @@ var _on_esc;
       $workspaces.html(html);
       _bindEvents();
     });
-    $container.on("click", ".enterprise_team_card", function(e) {
+    $container.on("click", ".enterprise_team_card", function() {
       var team_id = $(this).data("id");
       $workspaces.addClass("hidden");
       $title_bar.addClass("hidden");
@@ -43110,7 +43426,7 @@ var _on_esc;
       $search_input.removeClass("hidden").removeAttr("disabled");
       $workspace_info.addClass("hidden");
     });
-    $workspace_info.on("click", 'button[data-qa="join-btn"]', function(e) {
+    $workspace_info.on("click", 'button[data-qa="join-btn"]', function() {
       var ladda = Ladda.create(this);
       ladda.start();
       var team_id = $(this).data("id");
@@ -43178,9 +43494,7 @@ var _on_esc;
       var ladda = Ladda.create(this);
       ladda.start();
       var team_id = $(this).data("id");
-      _joinTeamHandler(team_id).then(function(result) {
-        ladda.stop();
-      });
+      _joinTeamHandler(team_id).then(ladda.stop);
     });
     $container.on("click", ".enterprise_team_request", function(e) {
       e.stopPropagation();
@@ -44207,10 +44521,10 @@ var _on_esc;
         settings.cls = $checkbox.data("cls") ? $checkbox.data("cls") : _default_settings.cls;
       }
       if (settings.initial_state === null) {
-        settings.initial_state = $checkbox.is(":checked") ? true : false;
+        settings.initial_state = !!$checkbox.is(":checked");
       }
       if (settings.disabled === null) {
-        settings.disabled = $checkbox.is(":disabled") ? true : false;
+        settings.disabled = !!$checkbox.is(":disabled");
       }
       _create($checkbox, settings);
       return $checkbox;
@@ -45378,7 +45692,7 @@ $.fn.togglify = function(settings) {
     return invite_members;
   };
   var _maybeFetchEligiblePendingMembers = function() {
-    return new Promise(function(resolve, reject) {
+    return new Promise(function(resolve) {
       if (TS.model.user.is_admin) {
         TS.api.call("users.admin.invited").then(function(resp) {
           var pending_invites = TS.pending_users.filterOutURAs(resp.data.pending);
@@ -45553,13 +45867,13 @@ $.fn.togglify = function(settings) {
     _$modal_container.find(".new_channel_go").click(TS.ui.new_channel_modal.go);
     _bindKeyboardShortcuts();
     _bindPublicPrivateToggle();
-    _$modal_container.find(".title_input").keydown(function(e) {
+    _$modal_container.find(".title_input").keydown(function() {
       _$modal_container.find(".modal_input_note.mustard_yellow").each(function() {
         $(this).addClass("hidden");
       });
     });
     $("#channel_create_title").focus();
-    _$modal_container.find(".new_channel_cancel_btn").on("click", function(e) {
+    _$modal_container.find(".new_channel_cancel_btn").on("click", function() {
       var reject = _deferred && _deferred.reject;
       if (reject) reject();
       TS.ui.fs_modal.close();
@@ -45740,7 +46054,7 @@ $.fn.togglify = function(settings) {
     _$toast_parent.on("click", _DISMISS_SELECTOR, _dismissToast);
     _$toast_parent.on("click", _RETRY_SELECTOR, _retryAction);
   };
-  var _dismissToast = function(event) {
+  var _dismissToast = function() {
     if (_toast_timeout) clearTimeout(_toast_timeout);
     _hideToast();
   };
@@ -45946,9 +46260,9 @@ $.fn.togglify = function(settings) {
     onInputBlur: _.noop,
     onInputFocus: _.noop,
     onReady: function() {},
-    onItemAdded: function(item) {},
-    onItemRemoved: function(item) {},
-    onKeyDown: function(e, handled) {},
+    onItemAdded: function() {},
+    onItemRemoved: function() {},
+    onKeyDown: function() {},
     onMaxItemsSelected: function() {},
     onListShown: _.noop,
     onListHidden: _.noop,
@@ -46125,7 +46439,7 @@ $.fn.togglify = function(settings) {
   };
   var _bindListListeners = function(instance) {
     if (instance.data_promise) {
-      instance.$list.on("scroll", function(e) {
+      instance.$list.on("scroll", function() {
         var top = $(this).scrollTop();
         var list_height = instance.$list.height();
         var list_items_height = instance.$list.find(".list_items").height();
@@ -46686,7 +47000,7 @@ $.fn.togglify = function(settings) {
     instance.$container.addClass("value");
     instance.onItemAdded(data_item);
     if (!_canAddNewItem(instance)) instance.onMaxItemsSelected();
-    instance.$filter_input.focus();
+    if (!instance.single) instance.$filter_input.focus();
   };
   var _selectDown = function(instance) {
     return _select(instance, "nextAll");
@@ -46749,10 +47063,10 @@ $.fn.togglify = function(settings) {
       approx_item_height: instance.approx_item_height,
       approx_divider_height: instance.approx_divider_height,
       preserve_dom_order: true,
-      makeDivider: function(data) {
+      makeDivider: function() {
         return $('<div class="lfs_group"></div>');
       },
-      makeElement: function(data) {
+      makeElement: function() {
         return $(TS.templates.lazy_filter_select_item().replace(/(\r\n|\n|\r)/gm, ""));
       },
       renderDivider: function($el, item, data) {
@@ -48638,7 +48952,7 @@ $.fn.togglify = function(settings) {
         app_id = $message.data("app-id");
         bot_id = $message.data("bot-id");
         var original_href = $el.data("referer-original-href");
-        url = original_href ? original_href : $el.attr("href");
+        url = original_href || $el.attr("href");
         payload = {
           message_timestamp: message_ts,
           channel_id: message_c_id,
@@ -48646,7 +48960,7 @@ $.fn.togglify = function(settings) {
           member_id: member_id,
           app_id: app_id,
           bot_id: bot_id,
-          url: url ? url : ""
+          url: url || ""
         };
         if ($el.is(".channel_link, .internal_channel_link")) {
           var channel_id = $el.data("channel-id");
@@ -48753,7 +49067,7 @@ $.fn.togglify = function(settings) {
       var bot_id = $message.data("bot-id");
       var open_new_window_link = $message.find(".msg_inline_video_new_window_button");
       var original_href = open_new_window_link.data("referer-original-href");
-      var url = original_href ? original_href : open_new_window_link.attr("href");
+      var url = original_href || open_new_window_link.attr("href");
       var payload = {
         message_timestamp: message_ts,
         channel_id: message_c_id,
@@ -48761,7 +49075,7 @@ $.fn.togglify = function(settings) {
         member_id: member_id,
         app_id: app_id,
         bot_id: bot_id,
-        url: url ? url : ""
+        url: url || ""
       };
       TS.clog.track("MSG_VIDEO_PLAY", payload);
     });
@@ -49874,7 +50188,7 @@ $.fn.togglify = function(settings) {
   var _THROTTLE_MS = 1e3 * 60;
   var _onBeforeLogin = function _onBeforeLogin() {
     _frecency = TS.frecency.construct("jumper", {
-      onStart: function(namespace) {
+      onStart: function() {
         _setPrefThrottled = TS.utility.throttleFunc(_setPrefThrottled, _THROTTLE_MS, true);
         return TS.model.frecency_jumper;
       },
@@ -50703,7 +51017,7 @@ $.fn.togglify = function(settings) {
           TS.api.callImmediately("enterprise.nameTaken", {
             name: new_name,
             ignore_local_team: true
-          }, function(ok, data, args) {
+          }, function(ok, data) {
             if (!ok) {
               disable_checking_spinner = true;
               trigger_available_name_message = false;
@@ -50716,7 +51030,7 @@ $.fn.togglify = function(settings) {
                 _toggleChannelNameChecking(disable_checking_spinner, trigger_available_name_message);
                 is_disabled = true;
                 _toggleButton(null, $create_button, do_validation, is_disabled);
-                return void TS.ui.validation.showWarning($el, '"' + TS.utility.htmlEntities(new_name) + '"' + " is already taken by a channel, username, or user group.", {});
+                return void TS.ui.validation.showWarning($el, '"' + TS.utility.htmlEntities(new_name) + '" is already taken by a channel, username, or user group.', {});
               }
               disable_checking_spinner = true;
               trigger_available_name_message = true;
@@ -50731,7 +51045,7 @@ $.fn.togglify = function(settings) {
         }
       }.bind(this), _name_check_wait_time);
     });
-    _$div.on("input", '#sci_channels_create [data-validation]:not([name="channel_name"])', function(e) {
+    _$div.on("input", '#sci_channels_create [data-validation]:not([name="channel_name"])', function() {
       var $container = _$div.find("#sci_channels_create");
       _toggleButton($container.find(_getCreateViewValidationSelector()), $container.find('[data-action="sci_channels_create"]'), true);
     });
@@ -50945,7 +51259,7 @@ $.fn.togglify = function(settings) {
       query = TS.utility.regexpEscape(query);
       match_regex = new RegExp(query, "i");
     }
-    merged.forEach(function(channel, index) {
+    merged.forEach(function(channel) {
       var is_already_listed = duplicates.hasOwnProperty(channel.id);
       if (is_already_listed) return;
       if (!channel.hasOwnProperty("name")) return;
@@ -51230,7 +51544,7 @@ $.fn.togglify = function(settings) {
     var is_private = _isPrivateInviteById(invite_id);
     _promiseToCallRevokeSharedInvite({
       invite_id: invite_id
-    }, is_private).then(function(response) {
+    }, is_private).then(function() {
       _removeSharedInviteFromModelById(invite_id, is_private);
       _removeSharedInvite(invite_id);
       _maybeRebuildManageView();
@@ -51412,7 +51726,7 @@ $.fn.togglify = function(settings) {
         data.$teams = $el.find(".teams");
         return $el;
       },
-      makeDivider: function(data) {
+      makeDivider: function() {
         return $("<div>").addClass("channel_browser_divider");
       },
       renderItem: function($el, item, data) {
@@ -51493,10 +51807,10 @@ $.fn.togglify = function(settings) {
           data.$teams.empty();
         }
       },
-      renderDivider: function($el, item, data) {
+      renderDivider: function($el, item) {
         $el.text(item.name);
       },
-      calcItemHeight: function($el, item, data) {
+      calcItemHeight: function($el) {
         return $el.outerHeight();
       }
     };
@@ -53746,7 +54060,7 @@ $.fn.togglify = function(settings) {
     var email_array = TS.utility.email.convertToArray(email_val);
     var updated_val = email_val;
     var shadow_val = email_val;
-    email_array.forEach(function(email, index) {
+    email_array.forEach(function(email) {
       if (!recorrect && _corrected_emails[email]) return;
       var corrected = _correctTypos(email);
       if (corrected.has_typo) {
@@ -54469,7 +54783,7 @@ $.fn.togglify = function(settings) {
           caller: args.user_id,
           room: args.room_id,
           response: args.response
-        }, function(ok, data, args) {
+        }, function(ok, data) {
           if (!ok) TS.utility.calls_log.log("inviteResponse API failed with: ", data);
         });
         if (args.response === TS.utility.calls.invite_response_types.accept) {
@@ -54568,7 +54882,7 @@ $.fn.togglify = function(settings) {
     promiseToGetRegions: function() {
       if (_region_p) return _region_p;
       var regions;
-      _region_p = new Promise(function(resolve, reject) {
+      _region_p = new Promise(function(resolve) {
         $.ajax({
           type: "GET",
           url: "https://region.slack-core.com/region.json",
@@ -54808,7 +55122,7 @@ $.fn.togglify = function(settings) {
           responder: imsg.responder,
           room: imsg.room,
           cancel_type: TS.utility.calls.invite_cancel_types.cleanup
-        }, function(ok, data, args) {});
+        }, function() {});
         break;
       case "sh_room_join":
         TS.utility.calls_log.log("sh_room_join msg: ", imsg);
@@ -54827,26 +55141,23 @@ $.fn.togglify = function(settings) {
   };
   var _sigMSConnected = function() {
     var skip_analytics = true;
-    var is_call_window_ready_prev = TS.utility.calls.isCallWindowReady();
     TS.utility.calls_log.logEvent({
       event: _utility_calls_config.log_events.ms_connected
     }, skip_analytics);
     _utility_call_state.is_ms_connected = true;
-    _updateCallIcon(is_call_window_ready_prev);
+    _updateCallIcon();
   };
   var _sigMSDisconnected = function() {
     var skip_analytics = true;
-    var is_call_window_ready_prev = TS.utility.calls.isCallWindowReady();
     TS.utility.calls_log.logEvent({
       event: _utility_calls_config.log_events.ms_disconnected
     }, skip_analytics);
     _utility_call_state.is_ms_connected = false;
-    _updateCallIcon(is_call_window_ready_prev);
+    _updateCallIcon();
   };
   var _sigReachabilityChanged = function() {
-    var is_call_window_ready_prev = TS.utility.calls.isCallWindowReady();
     _utility_call_state.is_reachability_online = window.navigator.onLine;
-    _updateCallIcon(is_call_window_ready_prev);
+    _updateCallIcon();
     _notifyReachability();
   };
   var _sigTeamsDidLoad = function() {
@@ -54855,7 +55166,7 @@ $.fn.togglify = function(settings) {
   var _sigDidLogin = function() {
     _utility_call_state.did_login = true;
   };
-  var _sigWindowFinishedLoading = function(token, doc) {
+  var _sigWindowFinishedLoading = function(token) {
     switch (token) {
       case _utility_call_state.incoming_call_token:
         TSSSB.call("centerWindow", token);
@@ -55281,7 +55592,6 @@ $.fn.togglify = function(settings) {
   };
   var _setCallWindowLoaded = function(is_loaded) {
     var skip_analytics = true;
-    var is_call_window_ready_prev = TS.utility.calls.isCallWindowReady();
     TS.utility.calls_log.logEvent({
       event: _utility_calls_config.log_events.call_window_loaded,
       value: {
@@ -55289,7 +55599,7 @@ $.fn.togglify = function(settings) {
       }
     }, skip_analytics);
     _utility_call_state.call_window_loaded = is_loaded;
-    _updateCallIcon(is_call_window_ready_prev);
+    _updateCallIcon();
     if (is_loaded) TSSSB.call("focusWindow", _utility_call_state.call_window_token);
     _notifyReachability();
   };
@@ -55423,7 +55733,7 @@ $.fn.togglify = function(settings) {
       }
     });
   };
-  var _updateCallIcon = function(is_call_window_ready_prev) {
+  var _updateCallIcon = function() {
     if (TS.utility.calls.platformHasCallsCode()) {
       TS.client.msg_pane.setCallButtonState(TS.utility.calls.isCallWindowReady());
     } else {
@@ -55715,7 +56025,7 @@ $.fn.togglify = function(settings) {
           },
           clipboard: {}
         },
-        onEnter: function(args) {
+        onEnter: function() {
           return true;
         },
         onEscape: function() {
@@ -56595,7 +56905,7 @@ $.fn.togglify = function(settings) {
           }
         },
         placeholder: opts.placeholder,
-        onEnter: function(args) {
+        onEnter: function() {
           if (!TS.client.ui.cal_key_checker.prevent_enter) _tryToSubmit($input, $form, submit_fn);
           if (opts.onEnter) opts.onEnter();
           return false;
@@ -56622,10 +56932,10 @@ $.fn.togglify = function(settings) {
       _tryToSubmit($input, $form, submit_fn);
     });
     if (TS.boot_data.feature_texty_takes_over && TS.utility.contenteditable.supportsTexty()) return;
-    $input.bind("textchange", function(e, prev_txt) {
+    $input.bind("textchange", function() {
       TS.msg_edit.checkLengthAndUpdateMessage($input);
       if (opts.onTextChange) opts.onTextChange($input);
-    }).bind("keyup", function(e) {
+    }).bind("keyup", function() {
       var selection;
       if (window.getSelection) {
         selection = window.getSelection();
@@ -56879,7 +57189,7 @@ $.fn.togglify = function(settings) {
           team_handy_rxns: value
         };
       }
-      return TS.prefs.setTeamPrefByAPI(pref_ob).then(function(prefs) {
+      return TS.prefs.setTeamPrefByAPI(pref_ob).then(function() {
         _setHandyRxns();
         var delayed_for_web = true;
         _updateIsDirty(delayed_for_web);
@@ -57017,17 +57327,17 @@ $.fn.togglify = function(settings) {
     return TS.emoji.stripWrappingColons(name.replace(/(\::skin-tone-[2-6])/, ""));
   };
   var _getExistingRow = function(name) {
-    return _$rows.filter(function(i) {
+    return _$rows.filter(function() {
       return $(this).find("a.btn").data("rxn") == name;
     });
   };
   var _getFilledRows = function() {
-    return _$rows.filter(function(i) {
+    return _$rows.filter(function() {
       return !$(this).hasClass("empty");
     });
   };
   var _getEmptyRows = function() {
-    return _$rows.filter(function(i) {
+    return _$rows.filter(function() {
       return $(this).hasClass("empty");
     });
   };
@@ -57904,14 +58214,14 @@ $.fn.togglify = function(settings) {
       option_els.forEach(function(option_el) {
         desc = option_el.getAttribute("data-desc") || "";
         desc_disabled = option_el.getAttribute("data-desc-disabled") || "";
-        disabled = option_el.getAttribute("disabled") ? true : false;
+        disabled = !!option_el.getAttribute("disabled");
         items_html += TS.templates.contextual_dropdown_item({
           label: option_el.label,
           value: option_el.value,
           desc: desc,
           desc_disabled: desc_disabled,
           disabled: disabled,
-          aria_label: (desc ? desc : option_el.label).replace(tags_regex, "")
+          aria_label: (desc || option_el.label).replace(tags_regex, "")
         });
       });
       var dropdown_items = container.querySelector(".contextual_dropdown_items");
@@ -59227,7 +59537,7 @@ $.fn.togglify = function(settings) {
       }
     },
     revealNewReplies: function($thread, thread) {
-      return new Promise(function(resolve, reject) {
+      return new Promise(function(resolve) {
         var $indicator = $thread.find(".new_reply_indicator");
         var $old_replies_container = $thread.find(".thread_replies_container");
         var $new_replies_container = $thread.find(".new_replies_container");
@@ -59425,7 +59735,7 @@ $.fn.togglify = function(settings) {
       var $input = $reply_container.find(".message_input");
       $input.on("focusin", function() {
         $reply_container.addClass("has_focus");
-      }).on("focusout", function(e) {
+      }).on("focusout", function() {
         var is_input_empty = !TS.utility.contenteditable.value($input).trim();
         var is_still_focused_actually = document.activeElement === this;
         if (is_input_empty && !is_still_focused_actually) $reply_container.removeClass("has_focus");
@@ -59477,7 +59787,7 @@ $.fn.togglify = function(settings) {
       var $thread_loading_container = $thread.find(".view_all_loading_container");
       $thread_loading_container.empty();
     },
-    startInlineThread: function(model_ob, msg, $msg) {
+    startInlineThread: function(model_ob, msg) {
       _setExpanded(model_ob.id, msg.ts, true);
       TS.view.rebuildMsg(msg);
     },
@@ -59716,7 +60026,7 @@ $.fn.togglify = function(settings) {
     $reply_broadcast_buttons.mousedown(function(e) {
       e.preventDefault();
       TS.utility.contenteditable.focus($input);
-    }).click(function(e) {
+    }).click(function() {
       TS.utility.contenteditable.focus($input);
     });
   };
@@ -66652,7 +66962,8 @@ $.fn.togglify = function(settings) {
     };
   e.exports = Object.create || function(e, t) {
     var n;
-    return null !== e ? (u[s] = r(e), n = new u, u[s] = null, n[a] = e) : n = l(), void 0 === t ? n : o(n, t);
+    return null !== e ? (u[s] = r(e),
+      n = new u, u[s] = null, n[a] = e) : n = l(), void 0 === t ? n : o(n, t);
   };
 }, function(e, t, n) {
   var r = n(50),
@@ -68858,8 +69169,7 @@ $.fn.togglify = function(settings) {
     function t(e, n) {
       a()(this, t);
       var r = c()(this, (t.__proto__ || o()(t)).call(this, e, n));
-      return r._cellSizeCache = e.cellSizeCache || new _.a, r.getColumnWidth = r.getColumnWidth.bind(r), r.getRowHeight = r.getRowHeight.bind(r), r.resetMeasurements = r.resetMeasurements.bind(r), r.resetMeasurementForColumn = r.resetMeasurementForColumn.bind(r), r.resetMeasurementForRow = r.resetMeasurementForRow.bind(r),
-        r;
+      return r._cellSizeCache = e.cellSizeCache || new _.a, r.getColumnWidth = r.getColumnWidth.bind(r), r.getRowHeight = r.getRowHeight.bind(r), r.resetMeasurements = r.resetMeasurements.bind(r), r.resetMeasurementForColumn = r.resetMeasurementForColumn.bind(r), r.resetMeasurementForRow = r.resetMeasurementForRow.bind(r), r;
     }
     return p()(t, e), s()(t, [{
       key: "getColumnWidth",
@@ -71614,7 +71924,8 @@ $.fn.togglify = function(settings) {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
-          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
+          r.enumerable = r.enumerable || !1,
+            r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
         }
       }
       return function(t, n, r) {
@@ -72112,8 +72423,7 @@ $.fn.togglify = function(settings) {
       }]), S(t, [{
         key: "componentWillMount",
         value: function() {
-          this.props.searchQuery && this.onSearch(this.props.searchQuery),
-            w.a("react_emoji_menu_mount_mark");
+          this.props.searchQuery && this.onSearch(this.props.searchQuery), w.a("react_emoji_menu_mount_mark");
         }
       }, {
         key: "componentDidMount",
@@ -78491,8 +78801,7 @@ $.fn.togglify = function(settings) {
   n(151), n(152), n(153), n(154), n(155), n(149), n(95), n(150);
 }, function(e, t, n) {
   "use strict";
-  n(156),
-    n(157);
+  n(156), n(157);
 }, function(e, t, n) {
   "use strict";
 

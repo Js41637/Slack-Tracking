@@ -85,7 +85,7 @@
     logError: function(e, desc, subtype, silent) {
       var error = e instanceof Error ? e : new Error;
       var error_json = {
-        subtype: subtype ? subtype : "none",
+        subtype: subtype || "none",
         message: e instanceof Error ? e.message || e.description : JSON.stringify(e),
         fileName: error.fileName || error.sourceURL,
         lineNumber: error.lineNumber || error.line,
@@ -1247,10 +1247,12 @@
         TS.model.members = [];
         TS.members.clearMemberMaps();
         TS.model.rooms = [];
-        TS.model.channels = [];
-        TS.model.ims = [];
-        TS.model.groups = [];
-        TS.model.mpims = [];
+        if (!TS.boot_data.feature_store_channels_in_redux) {
+          TS.model.channels = [];
+          TS.model.groups = [];
+          TS.model.mpims = [];
+          TS.model.ims = [];
+        }
         TS.model.teams = [];
         TS.model.user_groups = [];
         TS.model.read_only_channels = [];
@@ -2828,7 +2830,7 @@ var _fullToHalf = function(char) {
       cached_convo_scroller_rect: null,
       cached_unread_scroller_rect: null,
       cached_threads_scroller_rect: null,
-      is_window_focused: document.hasFocus && document.hasFocus() && window.macgap_is_in_active_space ? true : false,
+      is_window_focused: !!(document.hasFocus && document.hasFocus() && window.macgap_is_in_active_space),
       msgs_are_auto_scrolling: false,
       is_mouse_down: false,
       last_flex_extra: null,
@@ -4510,12 +4512,12 @@ var _fullToHalf = function(char) {
       $(window).bind("focus", TS.ui.onWindowFocus);
       $(window).bind("blur", TS.ui.onWindowBlur);
       _maybeListenToPageVisibility();
-      $("html").bind("mousedown", function(e) {
+      $("html").bind("mousedown", function() {
         TS.ui.onWindowFocus({
           target: window
         });
       });
-      var has_focus_now = document.hasFocus && document.hasFocus() && window.macgap_is_in_active_space ? true : false;
+      var has_focus_now = !!(document.hasFocus && document.hasFocus() && window.macgap_is_in_active_space);
       if (has_focus_now) {
         TS.ui.onWindowFocus({
           target: window

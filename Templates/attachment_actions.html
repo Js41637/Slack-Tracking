@@ -1,9 +1,23 @@
 {{i18n_ns 'attachment_actions'}}
 {{#if attachment.actions}}
-  <div class="attachment_actions_buttons{{#if attachment._pending}} attachment_pending{{/if}}{{#if disable_buttons}} ts_tip ts_tip_top{{/if}}">
-    {{#if disable_buttons}}<span class="ts_tip_tip">{{#t}}Interactivity is disabled in message archives{{/t}}</span>{{/if}}
+  <div class="attachment_actions_buttons{{#if attachment._pending}} attachment_pending{{/if}}{{#if disable_actions}} ts_tip ts_tip_top ts_tip_multiline{{/if}}">
+    {{#if disable_actions}}
+      <span class="ts_tip_tip">
+        <span class="ts_tip_multiline_inner">
+          {{#if_equal disable_actions_reason compare='ARCHIVES'}}
+            {{#t}}Interactivity is disabled in message archives{{/t}}
+          {{/if_equal}}
+          {{#if_equal disable_actions_reason compare='CHANNEL_PREVIEW'}}
+            {{#t}}Join the channel to interact with this message{{/t}}
+          {{/if_equal}}
+          {{#if_equal disable_actions_reason compare='OTHER'}}
+            {{#t}}Interactions only work in the channel this message was first posted in{{/t}}
+          {{/if_equal}}
+        </span>
+      </span>
+    {{/if}}
     <span class="attachment_actions_buttons_inner_wrapper">
-      {{renderAttachmentActions attachment disable_buttons}}
+      {{renderAttachmentActions attachment disable_actions}}
     </span>
     {{#if attachment._pending}}
       {{inlineSaver hide_text=true}}

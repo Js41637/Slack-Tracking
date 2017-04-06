@@ -5625,10 +5625,17 @@ hr {
   font-weight: 900;
   padding: 0 1rem;
   color: #fff;
-  height: 61px;
   border-bottom: 1px solid #4D394B;
   position: relative;
-  z-index: 50
+  z-index: 50;
+  -webkit-flex-basis: 61px;
+  -moz-flex-basis: 61px;
+  -ms-flex-preferred-size: 61px;
+  flex-basis: 61px;
+  -webkit-flex-shrink: 0;
+  -moz-flex-shrink: 0;
+  -ms-flex-negative: 0;
+  flex-shrink: 0
 }
 
 #team_menu.placeholder {
@@ -5640,8 +5647,7 @@ hr {
   position: absolute;
   top: 0;
   left: 0;
-  display: block;
-  width: 220px;
+  width: 100%;
   height: 61px;
   background-image: url(/57c6/img/loading_channel_pane@2x.png);
   background-position: 16px 16px;
@@ -5651,22 +5657,6 @@ hr {
   -webkit-transition: opacity .2s ease 0s;
   -moz-transition: opacity .2s ease 0s;
   transition: opacity .2s ease 0s
-}
-
-.client_container #team_menu {
-  -webkit-flex-basis: 61px;
-  -moz-flex-basis: 61px;
-  -ms-flex-preferred-size: 61px;
-  flex-basis: 61px;
-  -webkit-flex-shrink: 0;
-  -moz-flex-shrink: 0;
-  -ms-flex-negative: 0;
-  flex-shrink: 0;
-  width: 100%
-}
-
-.client_container #team_menu:after {
-  width: 100%
 }
 
 #team_menu .team_name_container {
@@ -6055,17 +6045,11 @@ only screen and (min-resolution:2dppx) {
 
 #client_header {
   background: 0 0;
-  height: 53px;
-  position: fixed;
-  z-index: 201;
-  min-width: 768px;
-  width: 100%
-}
-
-.client_container #client_header {
-  flex: none;
-  position: static;
-  min-width: 0
+  -webkit-flex-basis: 53px;
+  -moz-flex-basis: 53px;
+  -ms-flex-preferred-size: 53px;
+  flex-basis: 53px;
+  z-index: 201
 }
 
 .help_icon_icon {
@@ -6112,11 +6096,6 @@ only screen and (min-resolution:2dppx) {
 }
 
 #client_body {
-  margin-top: 53px
-}
-
-.client_container #client_body {
-  margin-top: 0;
   overflow: hidden;
   display: -webkit-box;
   display: -webkit-flex;
@@ -6128,24 +6107,20 @@ only screen and (min-resolution:2dppx) {
   flex: 1
 }
 
-.is_macgap .client_container #client_body {
+.is_macgap #client_body {
   overflow: visible
 }
 
 #client_body:not(.onboarding):before {
   box-sizing: border-box;
   position: absolute;
-  left: 220px;
+  left: 0;
   right: 0;
   height: 8px;
   border-bottom: 1px solid #E8E8E8;
   background: #fff;
   content: '';
   z-index: 200
-}
-
-.client_container #client_body:not(.onboarding):before {
-  left: 0
 }
 
 #client_body:not(.onboarding).disable_border:before {
@@ -7137,16 +7112,9 @@ only screen and (min-resolution:2dppx) {
 }
 
 #col_channels_footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 220px
-}
-
-.client_container #col_channels_footer {
   position: absolute;
-  width: 100%;
-  bottom: auto
+  left: 0;
+  width: 100%
 }
 
 #col_channels_footer.col_channels_footer_feat_link_in_sidebar {
@@ -7573,16 +7541,11 @@ body.loading .client_resize_optimizations #col_channels_footer {
 }
 
 #col_channels_overlay {
-  background: #4D394B;
-  width: 220px
+  background: #4D394B
 }
 
 #col_channels_overlay>.overlay_mock_text {
   margin-top: 1rem
-}
-
-.client_container #col_channels_overlay {
-  width: 100%
 }
 
 #active_channel_name_overlay {
@@ -7760,6 +7723,11 @@ only screen and (min-resolution:2dppx) {
   font-weight: 600
 }
 
+#client-ui:not(.client_resize_optimizations).app_index_view_is_showing #footer_archives,
+#client-ui:not(.client_resize_optimizations).app_index_view_is_showing #footer_msgs,
+#client-ui:not(.client_resize_optimizations).app_index_view_is_showing #monkey_scroll_wrapper_for_archive_msgs_scroller_div,
+#client-ui:not(.client_resize_optimizations).app_index_view_is_showing #monkey_scroll_wrapper_for_msgs_scroller_div,
+#client-ui:not(.client_resize_optimizations).app_index_view_is_showing #msgs_scroller_div,
 #client-ui:not(.client_resize_optimizations).threads_view_is_showing #footer_archives,
 #client-ui:not(.client_resize_optimizations).threads_view_is_showing #footer_msgs,
 #client-ui:not(.client_resize_optimizations).threads_view_is_showing #monkey_scroll_wrapper_for_archive_msgs_scroller_div,
@@ -7773,11 +7741,15 @@ only screen and (min-resolution:2dppx) {
   visibility: hidden
 }
 
+#client-ui:not(.client_resize_optimizations).app_index_view_is_showing #archive_msgs_scroller_div,
 #client-ui:not(.client_resize_optimizations).threads_view_is_showing #archive_msgs_scroller_div,
 #client-ui:not(.client_resize_optimizations).unread_view_is_showing #archive_msgs_scroller_div {
   display: none
 }
 
+#client-ui.client_resize_optimizations.app_index_view_is_showing #footer_msgs,
+#client-ui.client_resize_optimizations.app_index_view_is_showing #monkey_scroll_wrapper_for_msgs_scroller_div,
+#client-ui.client_resize_optimizations.app_index_view_is_showing #msgs_scroller_div,
 #client-ui.client_resize_optimizations.archive_view_is_showing #footer_msgs,
 #client-ui.client_resize_optimizations.archive_view_is_showing #monkey_scroll_wrapper_for_msgs_scroller_div,
 #client-ui.client_resize_optimizations.archive_view_is_showing #msgs_scroller_div,
@@ -7858,19 +7830,10 @@ ts-memory-instrument.expanded tr {
 }
 
 html.is_electron_mac #client_header {
-  height: 61px
-}
-
-html.is_electron_mac #client_body {
-  margin-top: 61px
-}
-
-html.is_electron_mac .client_container #client_header {
-  height: 61px
-}
-
-html.is_electron_mac .client_container #client_body {
-  margin-top: 0
+  -webkit-flex-basis: 61px;
+  -moz-flex-basis: 61px;
+  -ms-flex-preferred-size: 61px;
+  flex-basis: 61px
 }
 
 html.is_electron_mac #team_menu,

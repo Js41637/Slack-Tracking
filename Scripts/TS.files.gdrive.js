@@ -79,7 +79,7 @@
         service_stub: "gdrive",
         mime_type: _GDRIVE_MIMETYPE_PREFIX + "." + type,
         filename: share_settings.title || "",
-        open_edit: share_settings.channel ? true : false
+        open_edit: !!share_settings.channel
       }).then(function(response) {
         TS.utility.window.alwaysOpenInBrowser(response.data.url);
         if (share_settings && share_settings.channel) {
