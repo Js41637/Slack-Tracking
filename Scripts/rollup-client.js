@@ -4546,7 +4546,7 @@
       }
     },
     updateUserCurrentStatus: function() {
-      if (!TS.boot_data.feature_user_custom_status || TS.experiment.getGroup("custom_status_callout") === "treatment" && !TS.model.prefs.seen_custom_status_badge) return;
+      if (!TS.boot_data.feature_user_custom_status) return;
       $(".current_user_current_status").replaceWith(TS.templates.current_status({
         member: TS.model.user,
         tip_direction: "bottom",
@@ -23166,7 +23166,7 @@
         hide_admin: ".coachmark_invite_people",
         unstyle: "#client_header .channel_header, #client_body, #details_toggle, #channel_actions_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div, #col_channels_footer",
         promiseTo: function() {
-          return (new Promise.resolve).then(function() {
+          return Promise.resolve().then(function() {
             _goToStep(TS.newxp.onboarding.complete);
             $("#end_display_onboarding").off("click.cancel_onboarding");
             $("#unskip_messaging > .take_tutorial_link").off("click.take_onboarding");
@@ -26188,7 +26188,7 @@
       if (model_type === "group") {
         model_type = "channel";
       }
-      html = '<p class="no_bottom_margin">' + TS.i18n.t("Sorry! You can’t change the retention duration for this {type}.", "channel_options")({
+      html = '<p class="no_bottom_margin">' + TS.i18n.t("Sorry! You can’t change the retention duration for this {type, select, channel {channel} group {group} other {conversation}}.", "channel_options")({
         type: model_type
       });
       html += "</p>";

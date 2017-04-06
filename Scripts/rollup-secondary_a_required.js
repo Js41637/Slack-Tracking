@@ -33275,7 +33275,10 @@ TS.registerModule("constants", {
         TS.menu._current_status_input.destroy();
         TS.menu._current_status_input = null;
       }
-      if (TS.experiment.getGroup("custom_status_callout") === "treatment" && !TS.model.prefs.seen_custom_status_badge) $("#team_menu_current_status .ts_icon").remove();
+      if (TS.experiment.getGroup("custom_status_callout") === "treatment" && !TS.model.prefs.seen_custom_status_badge) {
+        var $team_menu_status_callout_container = $("#team_menu_status_callout_container");
+        if ($team_menu_status_callout_container.length) $team_menu_status_callout_container.replaceWith($("#team_menu_user"));
+      }
       TS.menu.$menu_body.find("#member_current_status_item").off(".current_status_item");
     }
   });
@@ -52953,7 +52956,7 @@ $.fn.togglify = function(settings) {
     },
     isBadSignupDomain: function(domain) {
       if (_checked_bad_domains[domain] !== undefined) {
-        return new Promise.resolve(_checked_bad_domains[domain]);
+        return Promise.resolve(_checked_bad_domains[domain]);
       }
       return new Promise(function(resolve, reject) {
         _method("signup.checkEmailDomain", {
@@ -52967,7 +52970,7 @@ $.fn.togglify = function(settings) {
     checkEmail: function(email, options) {
       var check_syntax = TS.utility.email.validateEmail(email, 1);
       if (!check_syntax.is_valid) {
-        return new Promise.resolve({
+        return Promise.resolve({
           is_valid: false,
           error_key: check_syntax.error_key,
           error_message: check_syntax.error_message
@@ -53056,7 +53059,7 @@ $.fn.togglify = function(settings) {
     checkUsernameAvailability: function(username, options) {
       var check_syntax = TS.signup.checkUsernameSyntax(username);
       if (!check_syntax.is_valid) {
-        return new Promise.resolve({
+        return Promise.resolve({
           is_valid: false,
           error_key: check_syntax.error_key,
           error_message: check_syntax.error_message
@@ -53108,7 +53111,7 @@ $.fn.togglify = function(settings) {
       var username = email.toLocaleLowerCase().match(/^[a-z0-9]+/gi);
       if (username) username = username[0];
       if (!username || username.length > _MAX_USERNAME_LENGTH) {
-        return new Promise.resolve({
+        return Promise.resolve({
           has_suggestion: false
         });
       }
@@ -53169,7 +53172,7 @@ $.fn.togglify = function(settings) {
     checkURLAvailability: function(url, email, options) {
       if (!url || !email) {
         TS.error("TS.signup.checkURLAvailability missing arguments");
-        return new Promise.resolve({
+        return Promise.resolve({
           is_valid: false,
           error_key: TS.signup.ERROR_MISSING_ARGS,
           error_message: TS.signup.getErrorMessage(TS.signup.ERROR_MISSING_ARGS)
@@ -53177,7 +53180,7 @@ $.fn.togglify = function(settings) {
       }
       var check_syntax = TS.signup.checkURLSyntax(url);
       if (!check_syntax.is_valid) {
-        return new Promise.resolve({
+        return Promise.resolve({
           is_valid: false,
           error_key: check_syntax.error_key,
           error_message: check_syntax.error_message
@@ -53220,7 +53223,7 @@ $.fn.togglify = function(settings) {
     suggestURL: function(url, email) {
       if (!url || !email) {
         TS.error("TS.signup.suggestURL missing arguments");
-        return new Promise.resolve({
+        return Promise.resolve({
           error_key: TS.signup.ERROR_MISSING_ARGS,
           error_message: TS.signup.getErrorMessage(TS.signup.ERROR_MISSING_ARGS)
         });
@@ -53386,7 +53389,7 @@ $.fn.togglify = function(settings) {
       };
     },
     getAuthLink: function(instance_id) {
-      if (_auth_urls[instance_id]) return new Promise.resolve(_auth_urls[instance_id]);
+      if (_auth_urls[instance_id]) return Promise.resolve(_auth_urls[instance_id]);
       return new Promise(function(resolve, reject) {
         TS.api.call("services.googlecontacts.oauth.init", {
           instance_id: instance_id
@@ -53397,7 +53400,7 @@ $.fn.togglify = function(settings) {
       });
     },
     getContactList: function(instance_id, opts) {
-      if (!TS.google_auth.isAuthed(instance_id)) return new Promise.resolve([]);
+      if (!TS.google_auth.isAuthed(instance_id)) return Promise.resolve([]);
       return new Promise(function(resolve, reject) {
         var aggregate_data = [];
         TS.google_auth.getContactsFromAPI(instance_id, opts, aggregate_data, function(data) {
@@ -53425,7 +53428,7 @@ $.fn.togglify = function(settings) {
       });
     },
     getContactListFromQuery: function(instance_id, opts) {
-      if (!TS.google_auth.isAuthed(instance_id)) return new Promise.resolve([]);
+      if (!TS.google_auth.isAuthed(instance_id)) return Promise.resolve([]);
       return new Promise(function(resolve, reject) {
         TS.api.call("services.googlecontacts.search", {
           instance_id: instance_id,
@@ -53443,13 +53446,13 @@ $.fn.togglify = function(settings) {
     },
     isAppsEmail: function(email_val, timeout) {
       if (!TS.utility.email.validateEmail(email_val).is_valid) {
-        return new Promise.resolve({
+        return Promise.resolve({
           error_key: "invalid_email"
         });
       }
       var domain = email_val.split("@")[1];
       if (_cached_is_apps_email_checks[domain] !== undefined) {
-        return new Promise.resolve(_cached_is_apps_email_checks[domain]);
+        return Promise.resolve(_cached_is_apps_email_checks[domain]);
       }
       var timeout_id;
       var has_timed_out;
@@ -67123,7 +67126,8 @@ $.fn.togglify = function(settings) {
 
   function r(e) {
     var t = e.target || e.srcElement || window;
-    return t.correspondingUseElement && (t = t.correspondingUseElement), 3 === t.nodeType ? t.parentNode : t;
+    return t.correspondingUseElement && (t = t.correspondingUseElement),
+      3 === t.nodeType ? t.parentNode : t;
   }
   e.exports = r;
 }, function(e, t, n) {
@@ -67140,8 +67144,7 @@ $.fn.togglify = function(settings) {
     return !r && o && "wheel" === e && (r = document.implementation.hasFeature("Events.wheel", "3.0")), r;
   }
   var o, i = n(11);
-  i.canUseDOM && (o = document.implementation && document.implementation.hasFeature && document.implementation.hasFeature("", "") !== !0),
-    e.exports = r;
+  i.canUseDOM && (o = document.implementation && document.implementation.hasFeature && document.implementation.hasFeature("", "") !== !0), e.exports = r;
 }, function(e, t, n) {
   "use strict";
 
@@ -72013,7 +72016,8 @@ $.fn.togglify = function(settings) {
       }, {
         key: "componentDidMount",
         value: function() {
-          this.keyCommands = new y.a(this.element), this.keyCommands.bindAll(this.commands), this.searchInput.focus(), w.b("react_emoji_menu_mount", "react_emoji_menu_mount_mark");
+          this.keyCommands = new y.a(this.element), this.keyCommands.bindAll(this.commands),
+            this.searchInput.focus(), w.b("react_emoji_menu_mount", "react_emoji_menu_mount_mark");
         }
       }, {
         key: "componentWillReceiveProps",
@@ -75165,7 +75169,8 @@ $.fn.togglify = function(settings) {
       }
       o(this, i);
       var a, f;
-      null != t ? (a = t._namespaceURI, f = t._tag) : n._tag && (a = n._namespaceURI, f = n._tag), (null == a || a === b.svg && "foreignobject" === f) && (a = b.html), a === b.html && ("svg" === this._tag ? a = b.svg : "math" === this._tag && (a = b.mathml)), this._namespaceURI = a;
+      null != t ? (a = t._namespaceURI, f = t._tag) : n._tag && (a = n._namespaceURI, f = n._tag), (null == a || a === b.svg && "foreignobject" === f) && (a = b.html),
+        a === b.html && ("svg" === this._tag ? a = b.svg : "math" === this._tag && (a = b.mathml)), this._namespaceURI = a;
       var p;
       if (e.useCreateElement) {
         var d, h = n._ownerDocument;
@@ -75176,8 +75181,7 @@ $.fn.togglify = function(settings) {
             v.innerHTML = "<" + m + "></" + m + ">", d = v.removeChild(v.firstChild);
           } else d = i.is ? h.createElement(this._currentElement.type, i.is) : h.createElement(this._currentElement.type);
         else d = h.createElementNS(a, this._currentElement.type);
-        E.precacheNode(this, d),
-          this._flags |= L.hasCachedChildNodes, this._hostParent || C.setAttributeForRoot(d), this._updateDOMProperties(null, i, e);
+        E.precacheNode(this, d), this._flags |= L.hasCachedChildNodes, this._hostParent || C.setAttributeForRoot(d), this._updateDOMProperties(null, i, e);
         var _ = y(d);
         this._createInitialChildren(e, i, r, _), p = _;
       } else {
@@ -78387,7 +78391,8 @@ $.fn.togglify = function(settings) {
   n(151), n(152), n(153), n(154), n(155), n(149), n(95), n(150);
 }, function(e, t, n) {
   "use strict";
-  n(156), n(157);
+  n(156),
+    n(157);
 }, function(e, t, n) {
   "use strict";
 
