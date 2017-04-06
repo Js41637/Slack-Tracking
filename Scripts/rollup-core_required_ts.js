@@ -5447,7 +5447,7 @@ var _fullToHalf = function(char) {
       var should_see = true;
       should_see = _fileShareFilter(channel, searcher);
       var can_post_in_channel = TS.permissions.members.canPostInChannel(channel);
-      if ((!channel.is_general || can_post_in_general) && !channel.is_archived && should_see && can_post_in_channel) {
+      if ((!TS.channels.isChannelRequired(channel) || can_post_in_general) && !channel.is_archived && should_see && can_post_in_channel) {
         channels.push({
           model_ob: channel,
           preselected: _isPreselected(channel.id, searcher._current_model_ob_id)
@@ -5478,10 +5478,10 @@ var _fullToHalf = function(char) {
     var current_model_ob_id = _getActiveChannelId();
     var channels = [];
     var channel;
-    var can_post_in_general = TS.members.canUserPostInGeneral();
     for (i = 0; i < TS.model.channels.length; i++) {
       channel = TS.model.channels[i];
-      if ((!channel.is_general || can_post_in_general) && !channel.is_archived) {
+      var can_post_in_channel = TS.permissions.members.canPostInChannel(channel);
+      if ((!TS.channels.isChannelRequired(channel) || can_post_in_channel) && !channel.is_archived) {
         channels.push({
           model_ob: channel,
           preselected: _isPreselected(channel.id, current_model_ob_id)

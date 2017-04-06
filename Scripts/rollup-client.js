@@ -2104,7 +2104,7 @@
         TS.utility.contenteditable.disable(TS.client.ui.$msg_input);
         $el = $("#msg_input_message span");
         $el.html(TS.i18n.t("Your Team Owners have limited who can post to {channel_or_group}", "view")({
-          channel_or_group: "#<strong>" + TS.channels.getGeneralChannel().name + "</strong>"
+          channel_or_group: "#<strong>" + active_model_ob.name + "</strong>"
         }));
         TS.utility.contenteditable.placeholder(TS.client.ui.$msg_input, "");
       } else if (active_model_ob && (active_model_ob.is_channel || active_model_ob.is_group) && TS.boot_data.page_needs_enterprise && active_model_ob.is_shared && !TS.permissions.members.canPostInChannel(active_model_ob)) {
@@ -9014,7 +9014,7 @@
           if (TS.model.team.prefs.disable_file_uploads === "disable_all") return;
           if (TS.msg_edit.editing) return false;
           var model_ob = TS.shared.getActiveModelOb();
-          if (model_ob && model_ob.is_general && !TS.members.canUserPostInGeneral()) return false;
+          if (model_ob && TS.channels.isChannelRequired(model_ob) && !TS.permissions.members.canPostInChannel(model_ob)) return false;
           $("body").addClass("drop-target");
           if (TS.ui.fs_modal.is_showing) TS.ui.fs_modal.deactivate();
         },
@@ -11706,7 +11706,7 @@
   };
   var _getChannelTopic = function() {
     if (!_model_ob) return;
-    var can_edit_topic = (_model_ob.is_member || _model_ob.is_group) && !TS.model.user.is_ultra_restricted && !TS.model.user.is_restricted && (!_model_ob.is_general || TS.members.canUserPostInGeneral());
+    var can_edit_topic = (_model_ob.is_member || _model_ob.is_group) && !TS.model.user.is_ultra_restricted && !TS.model.user.is_restricted && (!TS.channels.isChannelRequired(_model_ob) || TS.members.canUserPostInGeneral());
     var topic_text;
     var $channel_topic_text = $("#channel_topic_text");
     if (_model_ob.topic && _model_ob.topic.value) {
@@ -13083,7 +13083,7 @@
         }
       } else if (TS.model.active_channel_id || TS.model.active_group_id) {
         model_ob = TS.shared.getActiveModelOb();
-        var can_user_post_in_channel = !model_ob.is_general || TS.permissions.members.canPostInGeneral(TS.model.user);
+        var can_user_post_in_channel = !TS.channels.isChannelRequired(model_ob) || TS.permissions.members.canPostInChannel(TS.model.user);
         if (TS.client.msg_pane.areCallsEnabled() && can_user_post_in_channel) {
           if (TS.model.active_channel_id) {
             call_info = {
@@ -25115,7 +25115,7 @@
       show_convert_btn = TS.permissions.members.canCreateGroups();
     }
     var show_archive_btn = false;
-    if (!model_ob.is_general) {
+    if (!TS.channels.isChannelRequired(model_ob)) {
       var do_check = true;
       if (TS.boot_data.page_needs_enterprise && model_ob.is_shared) {
         if (!TS.permissions.members.canManageSharedChannels() && !TS.model.user.enterprise_user.is_owner) {
@@ -28639,8 +28639,8 @@
     if (model_ob.is_im || model_ob.is_mpim) return;
     var template_args = {
       model_ob: model_ob,
-      show_set_purpose: (model_ob.is_member || model_ob.is_group) && !TS.model.user.is_ultra_restricted && (!model_ob.is_general || TS.members.canUserPostInGeneral()),
-      show_edit_purpose_or_topic: (model_ob.is_member || model_ob.is_group) && !TS.model.user.is_ultra_restricted && !TS.model.user.is_restricted && (!model_ob.is_general || TS.members.canUserPostInGeneral())
+      show_set_purpose: (model_ob.is_member || model_ob.is_group) && !TS.model.user.is_ultra_restricted && (!TS.channels.isChannelRequired(model_ob) || TS.members.canUserPostInGeneral()),
+      show_edit_purpose_or_topic: (model_ob.is_member || model_ob.is_group) && !TS.model.user.is_ultra_restricted && !TS.model.user.is_restricted && (!TS.channels.isChannelRequired(model_ob) || TS.members.canUserPostInGeneral())
     };
     if (TS.boot_data.page_needs_enterprise && (model_ob.is_channel || model_ob.is_group) && model_ob.is_org_shared && model_ob.is_global_shared) {
       template_args.is_globally_shared = true;

@@ -67,20 +67,20 @@
     {{#if show_one_suppressed_cb}}
       <div id="single_suppressed_div">
         <p class="bold no_bottom_margin" style="margin-left: 0.45rem;">
-          {{#if model_ob.is_general}}
-                        {{#t at_label='@everyone'}}{at_label} notifications{{/t}}
-                    {{else}}
-                        {{#t at_label='@channel'}}{at_label} notifications{{/t}}
-                    {{/if}}
+          {{#isChannelRequired channel}}
+            {{#t at_label='@everyone'}}{at_label} notifications{{/t}}
+          {{else}}
+            {{#t at_label='@channel'}}{at_label} notifications{{/t}}
+          {{/isChannelRequired}}
         </p>
         <p class="small_left_margin">
           <label class="checkbox no_margin normal" id="single_suppressed_label">
             <input id="single_suppressed_cb" checked="checked" type="checkbox" class="small_right_margin" />
-                        {{#if model_ob.is_general}}
-                            {{#t at_label=(atLabel 'everyone') at_here=(atLabel 'here')}}Mute notifications for <strong>{at_label}</strong> and <strong>{at_here}</strong> <span id="single_suppressed_mobile_qualifier">(on mobile)</span><span id="single_suppressed_desktop_qualifier">(on desktop)</span><br><span id="single_suppressed_disabled_explain" class="subtle_silver">Disabled by <strong id="single_suppressed_disabled_explain_tip_link" class="cursor_pointer">admin</strong></span>{{/t}}
-                        {{else}}
-                            {{#t at_label=(atLabel 'channel') at_here=(atLabel 'here')}}Mute notifications for <strong>{at_label}</strong> and <strong>{at_here}</strong> <span id="single_suppressed_mobile_qualifier">(on mobile)</span><span id="single_suppressed_desktop_qualifier">(on desktop)</span><br><span id="single_suppressed_disabled_explain" class="subtle_silver">Disabled by <strong id="single_suppressed_disabled_explain_tip_link" class="cursor_pointer">admin</strong></span>{{/t}}
-                        {{/if}}
+            {{#isChannelRequired model_ob}}
+              {{#t at_label=(atLabel 'everyone') at_here=(atLabel 'here')}}Mute notifications for <strong>{at_label}</strong> and <strong>{at_here}</strong> <span id="single_suppressed_mobile_qualifier">(on mobile)</span><span id="single_suppressed_desktop_qualifier">(on desktop)</span><br><span id="single_suppressed_disabled_explain" class="subtle_silver">Disabled by <strong id="single_suppressed_disabled_explain_tip_link" class="cursor_pointer">admin</strong></span>{{/t}}
+            {{else}}
+              {{#t at_label=(atLabel 'channel') at_here=(atLabel 'here')}}Mute notifications for <strong>{at_label}</strong> and <strong>{at_here}</strong> <span id="single_suppressed_mobile_qualifier">(on mobile)</span><span id="single_suppressed_desktop_qualifier">(on desktop)</span><br><span id="single_suppressed_disabled_explain" class="subtle_silver">Disabled by <strong id="single_suppressed_disabled_explain_tip_link" class="cursor_pointer">admin</strong></span>{{/t}}
+            {{/isChannelRequired}}
           </label>
         </p>
       </div>

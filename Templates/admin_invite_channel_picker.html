@@ -16,9 +16,9 @@
         <p id="default_channels" {{#if initial_channel_id}}{{else}}style="display: none; overflow: visible !important;"{{/if}}>
           <select multiple="multiple" id="defaultchannelsmulti" name="defaultchannels[]" class="hidden">
             {{#each channels}}
-              {{#unless this.is_general}}
+              {{#isChannelRequired this}}{{else}}
                 <option {{#if this.is_shared}}data-ts-icon="ts_icon_shared_channel"{{/if}} value="{{this.id}}" {{#if this.is_default}}selected{{/if}} {{#if_equal this.id compare=../initial_channel_id}}selected{{/if_equal}}>#{{this.name}}</option>
-              {{/unless}}
+              {{/isChannelRequired}}
             {{/each}}
             {{#each groups}}
               <option {{#if this.is_shared}}data-ts-icon="ts_icon_shared_channel"{{/if}} value="{{this.id}}">{{this.name}}</option>
@@ -86,9 +86,9 @@
     <p id="default_channels" {{#if initial_channel_id}}{{else}}style="display: none; overflow: visible !important;"{{/if}}>
       <select multiple="multiple" id="defaultchannelsmulti" name="defaultchannels[]" class="hidden">
         {{#each channels}}
-          {{#unless this.is_general}}
+          {{#isChannelRequired this}}{{else}}
             <option {{#if this.is_shared}}data-ts-icon="ts_icon_shared_channel"{{/if}} value="{{this.id}}" {{#if this.is_default}}selected{{/if}} {{#if_equal this.id compare=../initial_channel_id}}selected{{/if_equal}}>#{{this.name}}</option>
-          {{/unless}}
+          {{/isChannelRequired}}
         {{/each}}
         {{#each groups}}
           <option {{#if this.is_shared}}data-ts-icon="ts_icon_shared_channel"{{/if}} value="{{this.id}}">{{this.name}}</option>

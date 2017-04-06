@@ -74,13 +74,13 @@
       </li>
       <li class="divider"></li>
       {{#if channel.was_archived_this_session}}
-        {{#unless channel.is_general}}<li id="channel_close_archived_item" role="menuitem"><a>
+        {{#isChannelRequired channel}}{{else}}<li id="channel_close_archived_item" role="menuitem"><a>
           {{#unless channel.is_private}}
             {{#t}}Leave #{channel.name}{{/t}}
           {{else}}
             {{#t}}Leave {channel.name}{{/t}}
           {{/unless}}
-        </a></li>{{/unless}}
+        </a></li>{{/isChannelRequired}}
       {{/if}}
       {{#unless channel.is_moved}}
         <li id="channel_unarchive_item" role="menuitem"><a>
@@ -170,7 +170,7 @@
             </a>
           </li>
         {{/if}}
-        {{#unless channel.is_general}}
+        {{#isChannelRequired channel}}{{else}}
           {{#unless is_not_allowed_integrations}}
             <li class="divider"></li>
           {{else}}
@@ -185,7 +185,7 @@
               {{#t}}Leave {channel.name}{{/t}}
             {{/unless}}
           </a></li>
-        {{/unless}}
+        {{/isChannelRequired}}
       {{else}}
         <li id="channel_join_item" role="menuitem"><a>
           {{#t}}Join #{channel.name}{{/t}}

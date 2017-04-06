@@ -2425,8 +2425,7 @@
     },
     canMemberLeaveChannel: function(channel_model_ob, member_model_ob) {
       if (!channel_model_ob || !member_model_ob) return false;
-      if (channel_model_ob.is_general || member_model_ob.is_restricted) return false;
-      if (!TS.boot_data.feature_mandatory_shared_channels) return true;
+      if (TS.channels.isChannelRequired(channel_model_ob) || member_model_ob.is_restricted) return false;
       return true;
     }
   });
@@ -2446,6 +2445,7 @@
   "use strict";
   TS.registerModule("permissions.members", {
     canPostInChannel: function(model_ob) {
+      if (model_ob.is_general) return TS.permissions.members.canPostInGeneral(TS.model.user);
       return !TS.channels.read_only.isReadOnly(model_ob.id);
     },
     canPostInGeneral: function(user) {
@@ -2771,7 +2771,7 @@
       if (TS.model.team.prefs.who_can_at_channel == "admin" || TS.model.team.prefs.who_can_at_channel == "owner") {
         return true;
       }
-      if (model_ob.is_general && (TS.model.team.prefs.who_can_at_everyone == "admin" || TS.model.team.prefs.who_can_at_everyone == "owner")) {
+      if (TS.channels.isChannelRequired(model_ob) && (TS.model.team.prefs.who_can_at_everyone == "admin" || TS.model.team.prefs.who_can_at_everyone == "owner")) {
         return true;
       }
       if (model_ob.is_general && (TS.model.team.prefs.who_can_post_general == "admin" || TS.model.team.prefs.who_can_post_general == "owner")) {
@@ -3393,7 +3393,7 @@
           TS.view.focusMessageInput();
         }
       };
-      if (channel.is_general && !TS.members.canUserPostInGeneral()) {
+      if (channel.is_general && !TS.permissions.members.canPostInGeneral(TS.model.user)) {
         var general_posting_restricted = TS.i18n.t("A Team Owner has restricted posting to the #*{channel_name}* channel.", "channels")({
           channel_name: channel.name
         });
@@ -3404,20 +3404,20 @@
       var is_reply = !!in_reply_to_msg;
       var is_at_here = TS.model.here_regex.test(clean_text);
       var is_at_channel = TS.model.channel_regex.test(clean_text) && !is_reply || TS.model.group_regex.test(clean_text) && !is_reply || is_at_here;
-      var is_at_everyone = TS.model.everyone_regex.test(clean_text) && !is_reply || channel.is_general && is_at_channel;
+      var is_at_everyone = TS.model.everyone_regex.test(clean_text) && !is_reply || TS.channels.isChannelRequired(channel) && is_at_channel;
       if (is_at_everyone) {
         if (!TS.permissions.members.canAtMentionEveryone()) {
           err_txt = "<p>" + TS.i18n.t("A Team Owner has restricted the use of <b>@everyone</b> messages.", "channels")() + "</p>";
           if (TS.model.user.is_restricted) {
             err_txt = "<p>" + TS.i18n.t("Your account is restricted, and you cannot send <b>@everyone</b> messages.", "channels")() + "</p>";
           }
-          if (!channel.is_general && TS.permissions.members.canAtChannelOrGroup()) {
+          if (!TS.channels.isChannelRequired(channel) && TS.permissions.members.canAtChannelOrGroup()) {
             err_txt += '<p class="no_bottom_margin">' + TS.i18n.t("If you just want to address everyone in this channel, use <b>@channel</b> instead.", "channels")() + "</p>";
           }
           errorOut(err_txt);
           return false;
         }
-        if (!channel.is_general && !is_at_here) {
+        if (!TS.channels.isChannelRequired(channel) && !is_at_here) {
           if (!general || !general.is_member) {
             err_txt = "<p>" + TS.i18n.t("You cannot send <b>@everyone</b> messages.", "channels")() + "</p>";
             if (TS.permissions.members.canAtChannelOrGroup()) {
@@ -3720,7 +3720,7 @@
           return;
         }
       }
-      if (channel.is_general || TS.model.user.is_restricted) {
+      if (TS.channels.isChannelRequired(channel) || TS.model.user.is_restricted) {
         TS.generic_dialog.alert(TS.i18n.t("Sorry, you can’t leave <strong>#{channel_name}</strong>!", "channels")({
           channel_name: channel.name
         }));
@@ -3828,6 +3828,9 @@
         channel = channels[i];
         if (channel.is_general) return channel;
       }
+    },
+    isChannelRequired: function(model_ob) {
+      return model_ob.is_general || model_ob.is_required;
     },
     getChannelByName: function(name) {
       name = _.toLower(name);
@@ -4175,6 +4178,7 @@
     TS.shared.setPriorityForDev(channel);
     channel.is_channel = true;
     channel.is_general = !!channel.is_general;
+    if (TS.boot_data.feature_mandatory_shared_channels) channel.is_required = !!channel.is_required;
     channel._name_lc = _.toLower(channel.name);
     channel._show_in_list_even_though_no_unreads = false;
     TS.shared.maybeResetHistoryFetched(channel);
@@ -21923,7 +21927,7 @@ TS.registerModule("constants", {
       } else if (model_ob.is_channel) {
         share_context = "channel";
       }
-      if (model_ob && model_ob.is_general && !TS.members.canUserPostInGeneral()) {
+      if (model_ob && TS.channels.isChannelRequired(model_ob) && !TS.permissions.members.canPostInChannel(model_ob)) {
         model_ob = {};
       }
       var channels = [];
@@ -23479,6 +23483,9 @@ TS.registerModule("constants", {
           return options.fn(this);
         }
         return options.inverse(this);
+      });
+      Handlebars.registerHelper("isChannelRequired", function(channel, options) {
+        return TS.channels.isChannelRequired(channel) ? options.fn(this) : options.inverse(this);
       });
       Handlebars.registerHelper("experiment", function(options) {
         var name = options.hash.name;
@@ -28453,12 +28460,13 @@ TS.registerModule("constants", {
       if (!model_ob) return [];
       var everyone_keywords = [];
       var channel_keywords = [];
-      if (model_ob.is_general && TS.permissions.members.canAtMentionEveryone()) {
+      var is_enterprise_required_channel = TS.boot_data.page_needs_enterprise && TS.channels.isChannelRequired(model_ob) && model_ob.is_shared;
+      if (model_ob.is_general && TS.permissions.members.canAtMentionEveryone() && !is_enterprise_required_channel) {
         everyone_keywords = _.filter(TS.model.BROADCAST_KEYWORDS, function(bk) {
           return bk.id === "BKeveryone" || bk.id === "BKall";
         });
       }
-      if (TS.permissions.members.canAtChannelOrGroup() && (model_ob.is_channel || model_ob.is_group) && (!model_ob.is_general || TS.permissions.members.canAtMentionEveryone())) {
+      if (TS.permissions.members.canAtChannelOrGroup() && (model_ob.is_channel || model_ob.is_group) && (!model_ob.is_general || TS.permissions.members.canAtMentionEveryone()) && !is_enterprise_required_channel) {
         channel_keywords = _.filter(TS.model.BROADCAST_KEYWORDS, function(bk) {
           return bk.id === "BKchannel" || bk.id === "BKgroup" || bk.id === "BKhere";
         });
@@ -33487,14 +33495,14 @@ var _on_esc;
         show_email_item: show_email_item,
         show_handy_rxns: TS.model.user.is_admin && TS.boot_data.feature_thanks
       };
-      if (!channel.is_general || TS.members.canUserPostInGeneral()) {
+      if (!TS.channels.isChannelRequired(channel) || TS.permissions.members.canPostInChannel(channel)) {
         if (channel.purpose.last_set === 0 && !TS.model.user.is_ultra_restricted && channel.is_member) template_args.show_purpose_item = true;
       }
       if (TS.notifs.isCorGMuted(channel.id)) template_args.channel_is_muted = true;
-      if (channel.is_member && (!channel.is_general || TS.members.canUserPostInGeneral())) template_args.show_advanced_item = true;
+      if (channel.is_member && (!TS.channels.isChannelRequired(channel) || TS.permissions.members.canPostInChannel(channel))) template_args.show_advanced_item = true;
       if (TS.boot_data.page_needs_enterprise) {
         var can_manage_shared_channels = TS.permissions.members.canManageSharedChannels();
-        if (!channel.is_shared && can_manage_shared_channels && !channel.is_general) template_args.show_convert_item = true;
+        if (!channel.is_shared && can_manage_shared_channels && !TS.channels.isChannelRequired(channel)) template_args.show_convert_item = true;
         if (channel.is_shared) {
           if (template_args.show_advanced_item) {
             if (can_manage_shared_channels) {
@@ -34998,7 +35006,7 @@ var _on_esc;
     }
     var model_ob = TS.shared.getActiveModelOb();
     if (TS.model.active_channel_id || TS.model.active_group_id) {
-      var member_could_be_removed_from_model_ob = (!model_ob.is_general || member.is_restricted) && member.id !== TS.model.user.id;
+      var member_could_be_removed_from_model_ob = (!TS.channels.isChannelRequired(model_ob) || member.is_restricted) && member.id !== TS.model.user.id;
       if (member_could_be_removed_from_model_ob) {
         var is_eligible_for_kicking;
         var membership_status = TS.membership.getUserChannelMembershipStatus(member.id, model_ob);
@@ -35277,7 +35285,7 @@ var _on_esc;
         if (name.indexOf("/") !== 0) continue;
         if (typeof ob.autocomplete === "function" && !ob.autocomplete() || ob.autocomplete === false || ob.alias_of) continue;
         if (name == "/archive" || name == "/unarchive") {
-          if (model_ob.is_general) continue;
+          if (TS.channels.isChannelRequired(model_ob)) continue;
           if (TS.model.active_group_id && TS.model.user.is_restricted) continue;
           if (TS.model.active_channel_id && !TS.permissions.members.canArchiveChannels()) continue;
           if (TS.model.active_im_id) continue;
@@ -35300,7 +35308,7 @@ var _on_esc;
           if (TS.model.active_im_id) continue;
           if (TS.model.active_mpim_id) continue;
           if (TS.model.user.is_restricted) continue;
-          if (model_ob.is_general && !TS.members.canUserPostInGeneral()) continue;
+          if (TS.channels.isChannelRequired(model_ob) && !TS.permissions.members.canPostInChannel(model_ob)) continue;
         } else if (name == "/leave") {
           if (TS.model.active_group_id) continue;
         }
@@ -35885,7 +35893,7 @@ var _on_esc;
       desc: TS.i18n.t("Archive the current channel", "cmd_handlers")(),
       func: function(cmd, rest, words, in_reply_to_msg) {
         var model_ob = TS.shared.getActiveModelOb();
-        if (model_ob.is_archived || model_ob.is_general) return;
+        if (model_ob.is_archived || TS.channels.isChannelRequired(model_ob)) return;
         if (TS.model.active_channel_id) {
           if (!TS.permissions.members.canArchiveChannels()) return;
           var channel = TS.channels.getChannelById(TS.model.active_channel_id);
@@ -35992,7 +36000,8 @@ var _on_esc;
         optional: true
       }],
       func: function(cmd, rest, words, in_reply_to_msg) {
-        if (TS.model.user.is_restricted || TS.shared.getActiveModelOb().is_general && !TS.members.canUserPostInGeneral()) {
+        var model_ob = TS.shared.getActiveModelOb();
+        if (TS.model.user.is_restricted || TS.channels.isChannelRequired(model_ob) && !TS.permissions.members.canPostInChannel(model_ob)) {
           TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("Setting the topic is a restricted action.", "cmd_handlers")(), cmd + " " + rest, "sad_surprise");
           return;
         }
@@ -36538,7 +36547,7 @@ var _on_esc;
           }), cmd + " " + rest, "", "sad_surprise");
           return;
         }
-        if (model_ob.is_general && !member.is_restricted && !member.is_bot) {
+        if (TS.channels.isChannelRequired(model_ob) && !member.is_restricted && !member.is_bot) {
           TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("You can’t remove this member from *{channel}*!", "cmd_handlers")({
             channel: (TS.model.active_channel_id ? "#" : "") + model_ob.name
           }));
@@ -43823,9 +43832,8 @@ var _on_esc;
     },
     canUserPinHere: function(model_ob) {
       if (!TS.client || !model_ob) return false;
-      if (model_ob.is_general && !TS.members.canUserPostInGeneral()) return false;
-      if (model_ob.is_channel && !model_ob.is_member) return false;
       if (!TS.permissions.members.canPostInChannel(model_ob)) return false;
+      if (model_ob.is_channel && !model_ob.is_member) return false;
       return true;
     },
     getPinData: function(msg) {
@@ -67126,8 +67134,7 @@ $.fn.togglify = function(settings) {
 
   function r(e) {
     var t = e.target || e.srcElement || window;
-    return t.correspondingUseElement && (t = t.correspondingUseElement),
-      3 === t.nodeType ? t.parentNode : t;
+    return t.correspondingUseElement && (t = t.correspondingUseElement), 3 === t.nodeType ? t.parentNode : t;
   }
   e.exports = r;
 }, function(e, t, n) {
@@ -68758,7 +68765,8 @@ $.fn.togglify = function(settings) {
     function t(e, n) {
       a()(this, t);
       var r = c()(this, (t.__proto__ || o()(t)).call(this, e, n));
-      return r._cellSizeCache = e.cellSizeCache || new _.a, r.getColumnWidth = r.getColumnWidth.bind(r), r.getRowHeight = r.getRowHeight.bind(r), r.resetMeasurements = r.resetMeasurements.bind(r), r.resetMeasurementForColumn = r.resetMeasurementForColumn.bind(r), r.resetMeasurementForRow = r.resetMeasurementForRow.bind(r), r;
+      return r._cellSizeCache = e.cellSizeCache || new _.a, r.getColumnWidth = r.getColumnWidth.bind(r), r.getRowHeight = r.getRowHeight.bind(r), r.resetMeasurements = r.resetMeasurements.bind(r), r.resetMeasurementForColumn = r.resetMeasurementForColumn.bind(r), r.resetMeasurementForRow = r.resetMeasurementForRow.bind(r),
+        r;
     }
     return p()(t, e), s()(t, [{
       key: "getColumnWidth",
@@ -72011,13 +72019,13 @@ $.fn.togglify = function(settings) {
       }]), S(t, [{
         key: "componentWillMount",
         value: function() {
-          this.props.searchQuery && this.onSearch(this.props.searchQuery), w.a("react_emoji_menu_mount_mark");
+          this.props.searchQuery && this.onSearch(this.props.searchQuery),
+            w.a("react_emoji_menu_mount_mark");
         }
       }, {
         key: "componentDidMount",
         value: function() {
-          this.keyCommands = new y.a(this.element), this.keyCommands.bindAll(this.commands),
-            this.searchInput.focus(), w.b("react_emoji_menu_mount", "react_emoji_menu_mount_mark");
+          this.keyCommands = new y.a(this.element), this.keyCommands.bindAll(this.commands), this.searchInput.focus(), w.b("react_emoji_menu_mount", "react_emoji_menu_mount_mark");
         }
       }, {
         key: "componentWillReceiveProps",
@@ -75169,8 +75177,7 @@ $.fn.togglify = function(settings) {
       }
       o(this, i);
       var a, f;
-      null != t ? (a = t._namespaceURI, f = t._tag) : n._tag && (a = n._namespaceURI, f = n._tag), (null == a || a === b.svg && "foreignobject" === f) && (a = b.html),
-        a === b.html && ("svg" === this._tag ? a = b.svg : "math" === this._tag && (a = b.mathml)), this._namespaceURI = a;
+      null != t ? (a = t._namespaceURI, f = t._tag) : n._tag && (a = n._namespaceURI, f = n._tag), (null == a || a === b.svg && "foreignobject" === f) && (a = b.html), a === b.html && ("svg" === this._tag ? a = b.svg : "math" === this._tag && (a = b.mathml)), this._namespaceURI = a;
       var p;
       if (e.useCreateElement) {
         var d, h = n._ownerDocument;
