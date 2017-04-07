@@ -150,7 +150,7 @@
     var $msg_divs = _retrieveAllMsgs();
     var $selection = $("");
     var $unfurls = $("");
-    for (var i = 0; i < $msg_divs.length; i++) {
+    for (var i = 0; i < $msg_divs.length; i += 1) {
       var ts = $($msg_divs[i]).data("ts");
       if (highlights[ts]) $selection = $selection.add($msg_divs[i]);
       if (unfurls[ts]) $unfurls = $unfurls.add($msg_divs[i]);
@@ -193,7 +193,7 @@
     var msg_length = msgs.length;
     var msgs_to_fetch = [];
     var msgs_to_fetch_args = [];
-    for (var i = 0; i < msg_length; i++) {
+    for (var i = 0; i < msg_length; i += 1) {
       if (msgs[i].recap) continue;
       var is_unread = _tsIsUnread(msgs[i].ts);
       if (is_unread) {

@@ -2,26 +2,27 @@
   "use strict";
   TS.registerModule("menu.date", {
     onStart: function() {},
-    startWithExpirationPresets: function(e, $element, callback, date_picker_args, position_args) {
-      _date_picker_args = date_picker_args;
-      _callback = callback;
+    startWithExpirationPresets: function(options) {
+      _date_picker_args = options.date_picker_args;
+      _onSelect = options.onSelect;
       _setupPresetsMenu();
-      _showMenu(e, $element, position_args);
+      _showMenu(options);
     }
   });
   var _date_picker_args;
-  var _callback;
-  var _DEFAULT_BOTTOM_OFFSET = 15;
-  var _showMenu = function(e, $element, position_args) {
-    position_args = position_args || {};
-    TS.menu.start(e, false, {
-      attach_to_target_at_full_width: true
+  var _onSelect;
+  var _DEFAULT_TOP_OFFSET = 5;
+  var _showMenu = function(options) {
+    var position_args = options.position_args || {};
+    TS.menu.start(options.event, false, {
+      attach_to_target_at_full_width: true,
+      onClose: options.onClose
     });
     TS.menu.$menu.css({
-      top: position_args.top || "auto",
-      left: position_args.left || Math.floor($element.position().left - $element.outerWidth() / 2),
+      top: position_args.top || TS.menu.$menu.outerHeight() * -1 - _DEFAULT_TOP_OFFSET,
+      left: position_args.left || Math.floor(options.$target.position().left - options.$target.outerWidth() / 2),
       right: position_args.right || "auto",
-      bottom: position_args.bottom || $element.outerHeight() + _DEFAULT_BOTTOM_OFFSET
+      bottom: position_args.bottom || "auto"
     });
   };
   var _setupPresetsMenu = function() {
@@ -58,7 +59,7 @@
       TS.warn("date_ts could not be parsed as a number.");
       return;
     }
-    _callback(date_ts);
+    if (_onSelect) _onSelect(date_ts);
     TS.menu.end();
   };
   var _onExpirationPresetClick = function(e) {

@@ -171,7 +171,6 @@
           TS.members.upsertMember(member);
           boot_data.accepted_invites[index] = member;
         });
-        $('[data-toggle="tooltip"]').tooltip();
         TS.members.view.bindTeamFilter("#team_filter", "#invite_list");
       }
       if (show_bounce_warning) $("#invite_bounce_warning").slideToggle(150);
@@ -701,7 +700,6 @@
     },
     rebuildMember: function(member) {
       var $row = TS.web.admin.selectRow(member);
-      $row.tooltip("destroy");
       $row.replaceWith(TS.web.admin.buildMemberHTML(member, true, true));
     },
     buildInviteHTML: function(invite) {
@@ -1287,11 +1285,19 @@
       if (TS.experiment.getGroup("guest_profiles_and_expiration") === "treatment") {
         $row.find(".admin_member_update_expiration_ts").unbind("click").bind("click", function(e) {
           var $target = $(e.target);
-          var date_picker_args = {};
+          var $parent_row = $row.parent();
+          var options = {
+            event: e,
+            $target: $target,
+            date_picker_args: {},
+            onClose: function() {
+              $parent_row.removeClass("z_index_1");
+            }
+          };
           var member_id = $row.data("member-id");
           var member = TS.members.getMemberById(member_id);
-          if (member.expiration_ts) date_picker_args.selected_expiration_ts = member.expiration_ts;
-          var onSelect = function(date_ts) {
+          if (member.expiration_ts) options.date_picker_args.selected_expiration_ts = member.expiration_ts;
+          options.onSelect = function(date_ts) {
             if (!_.isNumber(date_ts) || date_ts === member.expiration_ts) return;
             var api_args = {
               user: member_id
@@ -1304,22 +1310,10 @@
               TS.web.admin.rowProcessing(row);
               TS.api.call("users.admin.setExpiration", api_args, TS.web.admin.onExpirationDateChanged);
             }
-            $row.tooltip("show");
           };
-          $row.tooltip("hide");
-          TS.menu.date.startWithExpirationPresets(e, $target, onSelect, date_picker_args);
+          $parent_row.addClass("z_index_1");
+          TS.menu.date.startWithExpirationPresets(options);
           e.stopPropagation();
-        });
-      }
-      $row.find(".pill").unbind("mouseenter.suppress_hover").bind("mouseenter.suppress_hover", function() {
-        $row.tooltip("hide");
-      });
-      if ($row.hasClass("inactive")) {
-        $row.tooltip({
-          delay: {
-            show: 500,
-            hide: 150
-          }
         });
       }
     },

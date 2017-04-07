@@ -36,7 +36,7 @@
 
 .admin_list_item {
   border-bottom: 1px solid #EEE;
-  color: #9e9ea6;
+  color: #717274;
   line-height: 1.25rem;
   position: relative;
   padding: .5rem .5rem .5rem 3.5rem
@@ -142,6 +142,12 @@
   white-space: nowrap
 }
 
+.admin_list_item .admin_list_item_channel_membership,
+.admin_list_item .inline_edit_form_actions {
+  font-size: .8rem;
+  line-height: 1
+}
+
 .admin_list_item.invite_item {
   min-height: 3.25rem
 }
@@ -233,7 +239,7 @@
 
 .admin_list_item.expanded .sub_action {
   display: inline-block;
-  color: #9e9ea6;
+  color: #717274;
   text-decoration: underline
 }
 
@@ -248,7 +254,7 @@
     margin-right: .25rem
   }
   .admin_list_item.expanded .sub_action+.sub_action:hover::before {
-    color: #9e9ea6
+    color: #717274
   }
 }
 
@@ -266,7 +272,7 @@
     margin-left: .25rem
   }
   .admin_list_item.expanded .sub_action+.sub_action:hover::after {
-    color: #9e9ea6
+    color: #717274
   }
 }
 

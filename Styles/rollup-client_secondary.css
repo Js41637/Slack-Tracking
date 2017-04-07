@@ -5409,6 +5409,11 @@ ts-thread ts-message.new_reply .special_formatting_quote .quote_bar {
   max-width: none
 }
 
+.client_resize_optimizations #archives_msgs_div div.dynamic_content_max_width,
+.client_resize_optimizations #msgs_div div.dynamic_content_max_width {
+  word-break: break-all
+}
+
 .inline_attachment .attachment_author_icon,
 .inline_attachment .attachment_service_icon {
   float: left;
@@ -24805,13 +24810,10 @@ li:hover .current_status_badge {
 
 .inline_edit {
   position: relative;
+  display: block;
   min-width: 11em;
   height: 1.16em;
   line-height: 1.16;
-  display: block;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
   -webkit-user-select: auto;
   -moz-user-select: auto;
   -ms-user-select: auto;
@@ -24835,14 +24837,21 @@ li:hover .current_status_badge {
 .inline_edit.inline_edit_updating,
 .inline_edit:hover {
   z-index: 941;
-  overflow: visible;
   white-space: normal;
   text-overflow: clip;
   word-wrap: break-word
 }
 
 .inline_edit .inline_edit_inner {
-  display: inline
+  -ms-flex: 1;
+  -webkit-flex: 1;
+  flex: 1;
+  min-width: 1px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  display: inline-block;
+  max-width: 100%
 }
 
 .inline_edit .inline_edit_inner:hover,
@@ -24851,7 +24860,8 @@ li:hover .current_status_badge {
 .inline_edit.inline_edit_updating .inline_edit_inner {
   position: absolute;
   z-index: 5;
-  max-width: 100%
+  max-width: 100%;
+  overflow: visible
 }
 
 .inline_edit.inline_edit_done .inline_edit_inner,
@@ -25332,7 +25342,13 @@ li:hover .current_status_badge {
 }
 
 .channel_header_info .star {
-  color: inherit
+  color: inherit;
+  padding-top: 1px;
+  padding-bottom: 2px;
+  -webkit-transform: none;
+  -moz-transform: none;
+  -ms-transform: none;
+  transform: none
 }
 
 .channel_header_info .star.starred,

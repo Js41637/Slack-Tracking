@@ -384,7 +384,10 @@
       if (typeof proto.destroy !== "function") return TS.error('component "' + name + '" cannot be registered as it does not have a destroy method');
       var Component = function() {
         if (this._constructor) this._constructor.apply(this, arguments);
-        this.id = this.id || name + "_auto_guid_" + _guid++;
+        if (!this.id) {
+          this.id = name + "_auto_guid_" + _guid;
+          _guid += 1;
+        }
         if (this["test"] && _shouldSuppressTestExport()) {
           this.test = undefined;
         } else if (typeof this["test"] === "function") {
@@ -483,7 +486,7 @@
         for (var k in data.accounts) {
           if (k == TS.model.user.id) continue;
           TS.boot_data.other_accounts[k] = data.accounts[k];
-          c++;
+          c += 1;
         }
         if (TS.view && !c) {
           TS.view.updateTitleBarColor();
@@ -583,7 +586,7 @@
     } else if (len) {
       name = parts[len];
       var index = 0;
-      for (index; index < len; index++) {
+      for (index; index < len; index += 1) {
         if (!parts[index]) {
           TS.error(type + ' "' + namespace + '" cannot be registered because of a bad name');
         }
@@ -757,7 +760,7 @@
       return Promise.reject(new Error(error_msg));
     }
     TS.ms.logConnectionFlow("login");
-    TS.model.rtm_start_throttler++;
+    TS.model.rtm_start_throttler += 1;
     TS.info("Setting calling_rtm_start to true");
     TS.model.calling_rtm_start = true;
     if (TS.useSocket() && TS.lazyLoadMembersAndBots() && TS.boot_data.should_use_flannel) {
@@ -992,7 +995,7 @@
     var args = {};
     var pairs;
     pairs = qs.split("&");
-    for (var i = 0; i < pairs.length; i++) {
+    for (var i = 0; i < pairs.length; i += 1) {
       var p = pairs[i].indexOf("=");
       if (p != -1) {
         var name = pairs[i].substring(0, p);
@@ -1160,7 +1163,7 @@
     var attempts = 0;
 
     function loadTemplates() {
-      attempts++;
+      attempts += 1;
       return new Promise(function(resolve) {
         if (window.TS && TS.raw_templates && Object.keys(TS.raw_templates).length > 0) {
           resolve();
@@ -1276,7 +1279,7 @@
               if (member.presence !== "active") {
                 member.presence = "active";
                 if (!first_time) {
-                  dispatched++;
+                  dispatched += 1;
                   TS.members.presence_changed_sig.dispatch(member);
                 }
               }
@@ -1315,12 +1318,12 @@
       var users_cache = TS.storage.fetchMembers();
       var data_user_list_by_id = {};
       if (TS._did_incremental_boot && !TS._incremental_boot && !TS._did_full_boot) {} else {
-        for (i = 0; i < data_user_list.length; i++) {
+        for (i = 0; i < data_user_list.length; i += 1) {
           data_user_list_by_id[data_user_list[i].id] = true;
         }
       }
       var should_check_if_local = TS.boot_data.page_needs_enterprise && TS.boot_data.exclude_org_members;
-      for (i = 0; i < users_cache.length; i++) {
+      for (i = 0; i < users_cache.length; i += 1) {
         member = users_cache[i];
         if (should_check_if_local && !TS.members.isLocalTeamMember(member)) continue;
         if (data_user_list_by_id[member.id]) continue;
@@ -1330,7 +1333,7 @@
         if (TS.pri) TS.log(481, "upsert from CACHE: " + member.id + " " + upsert.status);
         if (upsert.member.id == data.self.id) setModelUser(upsert.member);
       }
-      for (i = 0; i < data_user_list.length; i++) {
+      for (i = 0; i < data_user_list.length; i += 1) {
         member = data_user_list[i];
         if (should_check_if_local && !TS.members.isLocalTeamMember(member)) continue;
         if (TS.lazyLoadMembersAndBots()) {
@@ -1345,16 +1348,16 @@
       }
       var bots_cache = TS.storage.fetchBots();
       var data_bot_list_by_id = {};
-      for (i = 0; i < data_bot_list.length; i++) {
+      for (i = 0; i < data_bot_list.length; i += 1) {
         data_bot_list_by_id[data_bot_list[i].id] = true;
       }
-      for (i = 0; i < bots_cache.length; i++) {
+      for (i = 0; i < bots_cache.length; i += 1) {
         bot = bots_cache[i];
         if (!data_bot_list_by_id[bot.id]) {
           upsert = TS.bots.upsertAndSignal(bot);
         }
       }
-      for (i = 0; i < data_bot_list.length; i++) {
+      for (i = 0; i < data_bot_list.length; i += 1) {
         TS.bots.upsertAndSignal(data_bot_list[i]);
       }
       log_data.push("members from LS:" + users_cache.length + ", from updated_users in rtm.start:" + data_user_list.length + " (slackbot will always be here)");
@@ -1445,17 +1448,17 @@
       }
       var open_cnt = 0;
       data.channels.forEach(function(channel) {
-        if (channel.is_member) open_cnt++;
+        if (channel.is_member) open_cnt += 1;
       });
       data.ims.forEach(function(im) {
-        if (im.is_open) open_cnt++;
+        if (im.is_open) open_cnt += 1;
       });
       data.groups.forEach(function(group) {
-        if (!group.is_archived) open_cnt++;
+        if (!group.is_archived) open_cnt += 1;
       });
       if (data.mpims) {
         data.mpims.forEach(function(mpim) {
-          if (mpim.is_open && !mpim.is_archived) open_cnt++;
+          if (mpim.is_open && !mpim.is_archived) open_cnt += 1;
         });
       }
       if (data.read_only_channels) {
@@ -2976,7 +2979,7 @@ var _fullToHalf = function(char) {
         tries: 0,
         state: 0
       };
-      ob.tries++;
+      ob.tries += 1;
       ob.state = 0;
       if (ob.tries > 2) {
         TS.maybeError(528, 'calling the API for id: "' + id + '", try #' + ob.tries);
@@ -4422,7 +4425,7 @@ var _fullToHalf = function(char) {
     var attempts_max = 2;
     var call = function() {
       var allowance_timer = setTimeout(function() {
-        attempts++;
+        attempts += 1;
         if (attempts > attempts_max) {
           TS.error('_executeInAtomSSBParentWin\n\n"' + code + '"\n\ndid not get a callback in ' + allowance_ms + "ms, bailing");
           callNext();
@@ -4471,7 +4474,7 @@ var _fullToHalf = function(char) {
     var attempts_max = 2;
     var call = function() {
       var allowance_timer = setTimeout(function() {
-        attempts++;
+        attempts += 1;
         if (attempts > attempts_max) {
           TS.error("_executeInAtomSSBWin token: " + win.token + '\n\n"' + code + '"\n\ndid not get a callback in ' + allowance_ms + "ms, bailing");
           callNext();

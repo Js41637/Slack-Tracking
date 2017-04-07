@@ -461,7 +461,7 @@
     if (TS.google_auth.isAuthed(_google_auth_instance_id) && _google_contacts_data) {
       _startFilterSelectForEmailAddresses(_google_contacts_data);
     }
-    _row_index++;
+    _row_index += 1;
   };
   var _showInfoMessage = function(message_class, html) {
     _$div.find("#invite_notice").toggleClass("alert_warning", message_class === "alert_warning").toggleClass("alert_info", message_class === "alert_info").toggleClass("alert_error", message_class === "alert_error").html(html).slideDown(100);
@@ -706,9 +706,14 @@
     }
   };
   var _showDatePicker = function(e) {
-    var date_picker_args = {};
-    if (_expiration_ts) date_picker_args.selected_expiration_ts = _expiration_ts;
-    TS.menu.date.startWithExpirationPresets(e, $(_DATE_PICKER_TARGET_SELECTOR), _onExpirationDateChanged, date_picker_args);
+    var options = {
+      event: e,
+      $target: $(_DATE_PICKER_TARGET_SELECTOR),
+      callback: _onExpirationDateChanged,
+      date_picker_args: {}
+    };
+    if (_expiration_ts) options.date_picker_args.selected_expiration_ts = _expiration_ts;
+    TS.menu.date.startWithExpirationPresets(options);
   };
   var _onExpirationDateChanged = function(date_ts) {
     if (!_.isNumber(date_ts) || date_ts === _expiration_ts) return;
@@ -871,7 +876,7 @@
     _decrementInviteQueue();
   };
   var _decrementInviteQueue = function() {
-    _queue_size--;
+    _queue_size -= 1;
     if (_queue_size === 0) {
       _unprocessed_invites = [];
       TS.storage.storeInvitesState(_unprocessed_invites);

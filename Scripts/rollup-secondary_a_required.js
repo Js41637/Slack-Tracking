@@ -95,7 +95,7 @@
   var _addMember = function(member) {
     if (member === _SLACKBOT_ID) return;
     if (_members[member]) {
-      _members[member]++;
+      _members[member] += 1;
     } else {
       _members[member] = 1;
       _sub_list.push(member);
@@ -105,7 +105,7 @@
   };
   var _removeMember = function(member) {
     if (_members[member]) {
-      _members[member]--;
+      _members[member] -= 1;
       if (!_members[member]) {
         var index = _sub_list.indexOf(member);
         _sub_list.splice(index, 1);
@@ -377,8 +377,8 @@
       var c = 0;
       var key;
       var value;
-      for (var i = 0; i < keys.length; i++) {
-        c++;
+      for (var i = 0; i < keys.length; i += 1) {
+        c += 1;
         key = keys[i];
         value = _ls.getItem(key);
         if (!value && value !== "") {
@@ -699,7 +699,7 @@
     if (!_ls) return A;
     var len = _ls.length;
     if (!len) return A;
-    for (var i = 0; i < len; i++) {
+    for (var i = 0; i < len; i += 1) {
       A.push(_ls.key(i));
     }
     return A;
@@ -767,7 +767,7 @@
     var keys = _getKeys();
     TS.log(488, keys, "_getKeys()");
     var key;
-    for (var i = 0; i < keys.length; i++) {
+    for (var i = 0; i < keys.length; i += 1) {
       key = keys[i];
       if (key.indexOf(_prefix) !== 0) continue;
       if (key.indexOf(_msgs_id_part) == -1 && key.indexOf(_oldest_ts_part) == -1) continue;
@@ -870,7 +870,7 @@
           continue;
         }
       }
-      i++;
+      i += 1;
       duration = Date.now() - start;
       if (do_log) {
         TS.log(488, "_flushBuffer _ls.setItem " + k + ": " + duration + "ms " + (_buffer[k] && _buffer[k].val && _buffer[k].val.toString ? _buffer[k].val.toString().substr(0, 100) : "NULL?"));
@@ -2844,13 +2844,13 @@
       if (TS.model.prefs.push_mention_alert) global_setting = "mentions";
       if (TS.model.prefs.push_everything) global_setting = "loud";
       A = TS.model.prefs.push_loud_channels_set ? TS.model.prefs.push_loud_channels_set.split(",") : [];
-      for (i = 0; i < A.length; i++) {
+      for (i = 0; i < A.length; i += 1) {
         id = $.trim(A[i]);
         if (!id) continue;
         all[id] = "quiet";
       }
       A = TS.channels.getChannelsForUser();
-      for (i = 0; i < A.length; i++) {
+      for (i = 0; i < A.length; i += 1) {
         if (!A[i]) continue;
         id = A[i].id;
         if (TS.notifs.getCalculatedCorGPushNotifySetting(id) != "mentions") continue;
@@ -2859,14 +2859,14 @@
         ret.mentions.push(A[i]);
       }
       A = TS.model.prefs.push_mention_channels ? TS.model.prefs.push_mention_channels.split(",") : [];
-      for (i = 0; i < A.length; i++) {
+      for (i = 0; i < A.length; i += 1) {
         id = $.trim(A[i]);
         if (!id) continue;
         if (!all[id]) continue;
         all[id] = "mentions";
       }
       A = TS.model.prefs.push_loud_channels ? TS.model.prefs.push_loud_channels.split(",") : [];
-      for (i = 0; i < A.length; i++) {
+      for (i = 0; i < A.length; i += 1) {
         id = $.trim(A[i]);
         if (!id) continue;
         if (!all[id]) continue;
@@ -5481,7 +5481,7 @@ TS.registerModule("constants", {
       }
       var and_invite_members_ids = args._and_invite_members_ids ? args._and_invite_members_ids.split(",") : null;
       if (and_invite_members_ids) {
-        for (var i = 0; i < and_invite_members_ids.length; i++) {
+        for (var i = 0; i < and_invite_members_ids.length; i += 1) {
           TS.api.call("groups.invite", {
             channel: group_id,
             user: and_invite_members_ids[i]
@@ -5595,7 +5595,7 @@ TS.registerModule("constants", {
         return group;
       }
       if (!groups) return null;
-      for (var i = 0; i < groups.length; i++) {
+      for (var i = 0; i < groups.length; i += 1) {
         group = groups[i];
         if (group.id === id) {
           TS.warn(id + " not in _id_map?");
@@ -5616,7 +5616,7 @@ TS.registerModule("constants", {
         return group;
       }
       if (!groups) return null;
-      for (var i = 0; i < groups.length; i++) {
+      for (var i = 0; i < groups.length; i += 1) {
         group = groups[i];
         if (group._name_lc === name || TS.model.group_prefix + group._name_lc === name) {
           TS.warn(name + " not in _name_map?");
@@ -5637,7 +5637,7 @@ TS.registerModule("constants", {
         var groups = TS.model.groups;
         TS.log(4, 'removing group "' + group.id + '"');
         var c;
-        for (var i = 0; i < groups.length; i++) {
+        for (var i = 0; i < groups.length; i += 1) {
           c = groups[i];
           if (c.id === group.id) {
             groups.splice(i, 1);
@@ -5694,7 +5694,7 @@ TS.registerModule("constants", {
       if (!ok || !data || !data.messages) {
         TS.error("failed to get history");
         if (group.history_fetch_retries) {
-          group.history_fetch_retries++;
+          group.history_fetch_retries += 1;
         } else {
           group.history_fetch_retries = 1;
         }
@@ -5766,7 +5766,7 @@ TS.registerModule("constants", {
       group.active_members.length = 0;
       if (!group.members) return;
       var member;
-      for (var m = 0; m < group.members.length; m++) {
+      for (var m = 0; m < group.members.length; m += 1) {
         member = TS.members.getMemberById(group.members[m]);
         if (!member) continue;
         if (member.deleted) continue;
@@ -5775,7 +5775,7 @@ TS.registerModule("constants", {
     },
     calcActiveMembersForAllGroups: function() {
       var groups = TS.model.groups;
-      for (var i = 0; i < groups.length; i++) {
+      for (var i = 0; i < groups.length; i += 1) {
         TS.groups.calcActiveMembersForGroup(groups[i]);
       }
     },
@@ -5785,7 +5785,7 @@ TS.registerModule("constants", {
       var member;
       var i;
       var max_l = TS.model.channel_name_max_length;
-      for (i = 0; i < member_idsA.length; i++) {
+      for (i = 0; i < member_idsA.length; i += 1) {
         member = TS.members.getMemberById(member_idsA[i]);
         if (!member) continue;
         membersA.push(member);
@@ -5797,7 +5797,7 @@ TS.registerModule("constants", {
         if (a_srt > b_srt) return 1;
         return 0;
       });
-      for (i = 0; i < membersA.length; i++) {
+      for (i = 0; i < membersA.length; i += 1) {
         member = membersA[i];
         name += "-" + member.name.split("-")[0];
       }
@@ -5812,7 +5812,7 @@ TS.registerModule("constants", {
       var suffix_str;
       while (TS.channels.getChannelByName(name) || TS.groups.getGroupByName(name) || TS.members.getMemberByName(name)) {
         suffix_str = (suffix + 1).toString();
-        suffix++;
+        suffix += 1;
         name = name_root + suffix_str;
         if (name.length > max_l) {
           name = name_root.substr(0, max_l - suffix_str.length) + suffix_str;
@@ -5832,7 +5832,7 @@ TS.registerModule("constants", {
       if (TS.channels.getChannelsForUser().length) return true;
       var groups = TS.model.groups;
       var group;
-      for (var i = 0; i < groups.length; i++) {
+      for (var i = 0; i < groups.length; i += 1) {
         group = groups[i];
         if (group.is_archived) continue;
         if (group.id === group_id) continue;
@@ -5875,7 +5875,7 @@ TS.registerModule("constants", {
     var member;
     var membership_status;
     var user_is_definitely_not_member_of_group;
-    for (var m = 0; m < members_for_user.length; m++) {
+    for (var m = 0; m < members_for_user.length; m += 1) {
       member = members_for_user[m];
       if (member.deleted) continue;
       if (member.is_slackbot) continue;
@@ -5906,7 +5906,7 @@ TS.registerModule("constants", {
         if (k === "members") {
           members = group["members"];
           existing_group.members.length = 0;
-          for (var i = 0; i < members.length; i++) {
+          for (var i = 0; i < members.length; i += 1) {
             existing_group.members.push(members[i]);
           }
         } else if (k === "pinned_items") {
@@ -8036,7 +8036,7 @@ TS.registerModule("constants", {
         return im;
       }
       if (!ims) return null;
-      for (var i = 0; i < ims.length; i++) {
+      for (var i = 0; i < ims.length; i += 1) {
         im = ims[i];
         if (im.id == id) {
           TS.warn(id + " not in _id_map");
@@ -8070,7 +8070,7 @@ TS.registerModule("constants", {
         return im;
       }
       if (!ims) return null;
-      for (var i = 0; i < ims.length; i++) {
+      for (var i = 0; i < ims.length; i += 1) {
         im = ims[i];
         if (im.user == id) {
           TS.warn(id + " not in _member_id_map?");
@@ -8084,7 +8084,7 @@ TS.registerModule("constants", {
       var ims = TS.model.ims;
       var im;
       if (!ims) return null;
-      for (var i = 0; i < ims.length; i++) {
+      for (var i = 0; i < ims.length; i += 1) {
         im = ims[i];
         if (im.is_open) return im;
       }
@@ -8172,7 +8172,7 @@ TS.registerModule("constants", {
       if (!ok || !data || !data.messages) {
         TS.error("failed to get history");
         if (im.history_fetch_retries) {
-          im.history_fetch_retries++;
+          im.history_fetch_retries += 1;
         } else {
           im.history_fetch_retries = 1;
         }
@@ -8565,7 +8565,7 @@ TS.registerModule("constants", {
         return mpim;
       }
       if (!mpims) return null;
-      for (var i = 0; i < mpims.length; i++) {
+      for (var i = 0; i < mpims.length; i += 1) {
         mpim = mpims[i];
         if (mpim.id == id) {
           TS.warn(id + " not in _id_map?");
@@ -8584,7 +8584,7 @@ TS.registerModule("constants", {
       var mpim = _name_map[name];
       if (mpim) return mpim;
       if (!mpims) return null;
-      for (var i = 0; i < mpims.length; i++) {
+      for (var i = 0; i < mpims.length; i += 1) {
         mpim = mpims[i];
         if (mpim._name_lc == name) {
           TS.warn(name + " not in _name_map?");
@@ -8777,7 +8777,7 @@ TS.registerModule("constants", {
       if (!ok || !data || !data.messages) {
         TS.error("failed to get history");
         if (mpim.history_fetch_retries) {
-          mpim.history_fetch_retries++;
+          mpim.history_fetch_retries += 1;
         } else {
           mpim.history_fetch_retries = 1;
         }
@@ -8829,9 +8829,9 @@ TS.registerModule("constants", {
       var match_names_only = true;
       var every_regex_matched = true;
       var members = TS.mpims.getMembersInDisplayOrder(mpim);
-      for (var i = 0; i < prefix_regexes.length; i++) {
+      for (var i = 0; i < prefix_regexes.length; i += 1) {
         var regex_matched = false;
-        for (var j = 0; j < members.length; j++) {
+        for (var j = 0; j < members.length; j += 1) {
           if (TS.utility.members.checkMemberMatch(members[j], prefix_regexes[i], match_names_only) || suffix_regexes && TS.utility.members.checkMemberMatch(members[j], suffix_regexes[i], match_names_only)) {
             regex_matched = true;
           }
@@ -9088,7 +9088,7 @@ TS.registerModule("constants", {
       var model_ob_is_muted = TS.notifs.isCorGMuted(model_ob.id);
       var channel_mentions_can_count = model_ob.is_im || model_ob.is_mpim || TS.notifs.canCorGHaveChannelMentions(model_ob.id);
       if (can_have_any_unreads && msgs) {
-        for (var i = 0; i < msgs.length; i++) {
+        for (var i = 0; i < msgs.length; i += 1) {
           msg = msgs[i];
           if (msg.ts <= model_ob.last_read) continue;
           if (TS.utility.msgs.isTempMsg(msg) && !msg._alert_even_though_temp) continue;
@@ -9429,7 +9429,7 @@ TS.registerModule("constants", {
       }
       var subteam_matches = imsg.text.match(/<!subteam(.*?)>/g);
       if (subteam_matches) {
-        for (var k = 0; k < subteam_matches.length; k++) {
+        for (var k = 0; k < subteam_matches.length; k += 1) {
           var cmd = subteam_matches[k].replace(">", "").replace("<", "");
           cmd = cmd.split("|")[0];
           var user_group_id = cmd.split("^")[1];
@@ -9702,7 +9702,7 @@ TS.registerModule("constants", {
       var new_msgs = [];
       var new_msgs_tses = [];
       if (data.messages) {
-        for (var i = 0; i < data.messages.length; i++) {
+        for (var i = 0; i < data.messages.length; i += 1) {
           if (!TS.utility.msgs.getMsg(data.messages[i].ts, msgs)) {
             imsg = data.messages[i];
             new_msgs.push(TS.utility.msgs.processImsgFromHistory(imsg, model_ob.id));
@@ -10006,7 +10006,7 @@ TS.registerModule("constants", {
     },
     getLastMsg: function(model_ob) {
       if (!model_ob.msgs || model_ob.msgs.length === 0) return null;
-      for (var i = 0; i < model_ob.msgs.length; i++) {
+      for (var i = 0; i < model_ob.msgs.length; i += 1) {
         if (!TS.utility.msgs.isMsgHidden(model_ob.msgs[i]) && !model_ob.msgs[i].is_ephemeral) return model_ob.msgs[i];
       }
       return null;
@@ -10055,16 +10055,16 @@ TS.registerModule("constants", {
       var dms_listed_cnt = 0;
       var allow_in_list = 11;
       var allow_elapsed_ms = 1e3 * 60 * 60 * 168;
-      for (i = 0; i < model_obs.length; i++) {
+      for (i = 0; i < model_obs.length; i += 1) {
         model_ob = model_obs[i];
         if (!model_ob.is_open && !model_ob.unread_cnt) continue;
-        dms_listed_cnt++;
+        dms_listed_cnt += 1;
       }
       var this_too_many = dms_listed_cnt - allow_in_list;
       if (this_too_many < 1) return;
       TS.info("checkForOldImsToClose might close some. this_too_many:" + this_too_many);
       var leaveA = [];
-      for (i = 0; i < model_obs.length; i++) {
+      for (i = 0; i < model_obs.length; i += 1) {
         model_ob = model_obs[i];
         if (model_ob.is_slackbot_im) continue;
         if (model_ob.is_self_im) continue;
@@ -10102,7 +10102,7 @@ TS.registerModule("constants", {
         return 0;
       });
       leaveA.length = leaveA.length > this_too_many ? this_too_many : leaveA.length;
-      for (i = 0; i < leaveA.length; i++) {
+      for (i = 0; i < leaveA.length; i += 1) {
         model_ob = leaveA[i].model_ob;
         TS.warn("checkForOldImsToClose CLOSING:" + model_ob.id + " ms_since_activity:" + leaveA[i].ms_since_activity);
         if (model_ob.is_im) {
@@ -10433,10 +10433,10 @@ TS.registerModule("constants", {
       var min_email_threshold = .5;
       if (TS.model.members) {
         _.each(TS.model.members, function(member) {
-          if (member.is_bot) bots_count++;
+          if (member.is_bot) bots_count += 1;
           if (!member || !member.profile || !member.profile.email) return;
           if (member.id === TS.model.user.id) return;
-          email_count++;
+          email_count += 1;
         });
       }
       potential_emails = TS.model.members.length - bots_count;
@@ -10465,7 +10465,7 @@ TS.registerModule("constants", {
         TS.model.members = _.map(TS.model.members, function(member) {
           if (!member.profile || !member.profile.email) return member;
           if (member.id === TS.model.user.id) return member;
-          email_count++;
+          email_count += 1;
           if (!TS.model.team.prefs.display_email_addresses) member.profile.email = undefined;
           return member;
         });
@@ -11040,7 +11040,7 @@ TS.registerModule("constants", {
       if (TS.members.is_in_bulk_upsert_mode) {
         return null;
       }
-      for (var i = 0; i < members.length; i++) {
+      for (var i = 0; i < members.length; i += 1) {
         member = members[i];
         if (member.id == id || member.enterprise_user && member.enterprise_user.id == id) {
           TS.warn(id + " not in _id_map");
@@ -11057,7 +11057,7 @@ TS.registerModule("constants", {
       if (member) {
         return member;
       }
-      for (var i = 0; i < members.length; i++) {
+      for (var i = 0; i < members.length; i += 1) {
         member = members[i];
         if (member._name_lc == name || "@" + member._name_lc == name) {
           TS.error(name + " not in _name_map?");
@@ -11105,7 +11105,7 @@ TS.registerModule("constants", {
       email = _.toLower(email);
       var members = TS.model.members;
       var member;
-      for (var i = 0; i < members.length; i++) {
+      for (var i = 0; i < members.length; i += 1) {
         member = members[i];
         if (!member.profile) continue;
         if (!member.profile.email) continue;
@@ -11557,7 +11557,7 @@ TS.registerModule("constants", {
       var member;
       var k;
       var i;
-      for (i = 0; i < TS.model.members.length; i++) {
+      for (i = 0; i < TS.model.members.length; i += 1) {
         member = TS.model.members[i];
         if (!member) {
           TS.warn("prepareMembersForLS: no member at offset " + i + "??");
@@ -11697,7 +11697,7 @@ TS.registerModule("constants", {
           return a_name > b_name ? 1 : b_name > a_name ? -1 : 0;
         });
       }
-      for (var i = 0; i < members_for_user.length; i++) {
+      for (var i = 0; i < members_for_user.length; i += 1) {
         member = members_for_user[i];
         if (member.deleted) {
           if (member.is_bot) {
@@ -12093,7 +12093,7 @@ TS.registerModule("constants", {
         return full_member;
       }).filter(function(member) {
         if (member.is_self && !searcher.include_self || member.is_slackbot && !searcher.include_slackbot) {
-          searcher.num_found--;
+          searcher.num_found -= 1;
           return false;
         }
         if (searcher.limit_by_model_relevancy) {
@@ -12463,7 +12463,7 @@ TS.registerModule("constants", {
     },
     getTeamProfileFieldById: function(id) {
       if (!TS.model.team.profile.fields.length) TS.warn("Ensure profile fields exist before calling getTeamProfileFieldById");
-      for (var i = 0; i < TS.model.team.profile.fields.length; i++) {
+      for (var i = 0; i < TS.model.team.profile.fields.length; i += 1) {
         if (TS.model.team.profile.fields[i].id === id) return TS.model.team.profile.fields[i];
       }
       return null;
@@ -14182,18 +14182,18 @@ TS.registerModule("constants", {
         TS.model.newly_unmuted_channels = _.difference(TS.model.prev_muted_channels, TS.model.muted_channels);
         TS.model.newly_muted_channels = _.difference(TS.model.muted_channels, TS.model.prev_muted_channels);
       }
-      for (i = 0; i < TS.model.muted_channels.length; i++) {
+      for (i = 0; i < TS.model.muted_channels.length; i += 1) {
         model_ob = TS.shared.getModelObById(TS.model.muted_channels[i]);
         if (!model_ob) continue;
         if (!model_ob.unread_cnt) continue;
         model_ob._show_in_list_even_though_no_unreads = true;
       }
-      for (i = 0; i < TS.model.channels.length; i++) {
+      for (i = 0; i < TS.model.channels.length; i += 1) {
         model_ob = TS.model.channels[i];
         if (TS.notifs.isCorGMuted(model_ob.id)) continue;
         model_ob._show_in_list_even_though_no_unreads = false;
       }
-      for (i = 0; i < TS.model.groups.length; i++) {
+      for (i = 0; i < TS.model.groups.length; i += 1) {
         model_ob = TS.model.groups[i];
         if (TS.notifs.isCorGMuted(model_ob.id)) continue;
         model_ob._show_in_list_even_though_no_unreads = false;
@@ -15460,19 +15460,19 @@ TS.registerModule("constants", {
       var match;
       var i;
       if (!results.messages || !results.messages.matches) return;
-      for (i = 0; i < results.messages.matches.length; i++) {
+      for (i = 0; i < results.messages.matches.length; i += 1) {
         match = results.messages.matches[i];
         if (!match) continue;
         TS.search.expandChannelsAndCheckForMsgsInMatch(match);
       }
       if (results.messages.modules && results.messages.modules.score) {
-        for (i = 0; i < results.messages.modules.score.matches.length; i++) {
+        for (i = 0; i < results.messages.modules.score.matches.length; i += 1) {
           match = results.messages.modules.score.matches[i];
           if (!match) continue;
           TS.search.expandChannelsAndCheckForMsgsInMatch(match);
         }
         if (results.messages.modules.score.top_results) {
-          for (i = 0; i < results.messages.modules.score.top_results.length; i++) {
+          for (i = 0; i < results.messages.modules.score.top_results.length; i += 1) {
             match = results.messages.modules.score.top_results[i];
             if (!match) continue;
             TS.search.expandChannelsAndCheckForMsgsInMatch(match);
@@ -15482,7 +15482,7 @@ TS.registerModule("constants", {
     },
     upsertFiles: function(data) {
       if (!data.files || !data.files.matches) return;
-      for (var i = 0; i < data.files.matches.length; i++) {
+      for (var i = 0; i < data.files.matches.length; i += 1) {
         if (data.files.matches[i].preview) {
           data.files.matches[i].preview_search = data.files.matches[i].preview;
           delete data.files.matches[i].preview;
@@ -15513,7 +15513,7 @@ TS.registerModule("constants", {
         TS.error("WTF no results.messages.modules." + module + "?");
       }
       var match;
-      for (var i = 0; i < results.messages.modules[module].top_results.length; i++) {
+      for (var i = 0; i < results.messages.modules[module].top_results.length; i += 1) {
         match = results.messages.modules[module].top_results[i];
         if (!match) {
           TS.error("WTF no match?");
@@ -15553,7 +15553,7 @@ TS.registerModule("constants", {
         return null;
       }
       var match;
-      for (var i = 0; i < results.messages.matches.length; i++) {
+      for (var i = 0; i < results.messages.matches.length; i += 1) {
         match = results.messages.matches[i];
         if (!match) {
           TS.error("WTF no match?");
@@ -15837,7 +15837,8 @@ TS.registerModule("constants", {
       };
     },
     send: function(msg, handler, temp_ts) {
-      msg.id = ++_msg_id;
+      _msg_id += 1;
+      msg.id = _msg_id;
       TS.ms.sent_map[msg.id.toString()] = {
         msg: msg,
         handler: handler,
@@ -16097,7 +16098,7 @@ TS.registerModule("constants", {
     getConnectionFlowLog: function() {
       var ms_conn_log = TS.model.ms_conn_log;
       var args = [];
-      for (var i = 0; i < ms_conn_log.length; i++) {
+      for (var i = 0; i < ms_conn_log.length; i += 1) {
         args.push(encodeURIComponent(ms_conn_log[i].name + "-" + (ms_conn_log[i].delta ? Math.round(ms_conn_log[i].delta / 1e3) : 0) + "-" + Math.round(ms_conn_log[i].time / 1e3)));
       }
       TS.dir(2, TS.model.ms_conn_log);
@@ -16497,7 +16498,7 @@ TS.registerModule("constants", {
     TS.ms.onFailure(desc);
   };
   var _onConnectTimeout = function() {
-    _connect_timeout_count++;
+    _connect_timeout_count += 1;
     var desc = "socket not connected " + _connect_timeout_tim_ms + "ms after creation. _connect_timeout_count:" + _connect_timeout_count;
     TS.warn(desc);
     TS.ms.logConnectionFlow("_onConnectTimeout");
@@ -16595,7 +16596,7 @@ TS.registerModule("constants", {
       }
     }
     TS.ms.connected_sig.dispatch(_last_connect_was_fast);
-    TS.ms.num_times_connected++;
+    TS.ms.num_times_connected += 1;
     _sendPing();
   };
   var _isReconnectUrlValid = function() {
@@ -17484,7 +17485,7 @@ TS.registerModule("constants", {
       TS.info(member.id + " left group " + imsg.channel);
       var group = TS.groups.getGroupById(imsg.channel);
       if (group) {
-        for (var i = 0; i < group.members.length; i++) {
+        for (var i = 0; i < group.members.length; i += 1) {
           if (group.members[i] == member.id) {
             group.members.splice(i, 1);
             TS.groups.calcActiveMembersForGroup(group);
@@ -17574,7 +17575,7 @@ TS.registerModule("constants", {
       var group = TS.groups.getGroupById(imsg.channel);
       var existing_member_id;
       if (group) {
-        for (var i = 0; i < group.members.length; i++) {
+        for (var i = 0; i < group.members.length; i += 1) {
           if (group.members[i] == member.id) {
             existing_member_id = group.members[i];
             break;
@@ -18044,7 +18045,7 @@ TS.registerModule("constants", {
           if (TS.client) TS.reload();
         }, secs * 1e3);
         setInterval(function() {
-          secs--;
+          secs -= 1;
           if (secs < 1) return;
           $("#auto_secs").text(secs);
         }, 1e3);
@@ -18471,7 +18472,7 @@ TS.registerModule("constants", {
         model_ob.is_limited = false;
         TS.utility.msgs.resetOldestMsgsTs(model_ob);
         TS.warn("imsg.latest: " + imsg.latest);
-        for (var i = model_ob.msgs.length - 1; i > -1; i--) {
+        for (var i = model_ob.msgs.length - 1; i > -1; i -= 1) {
           var msg = model_ob.msgs[i];
           if (msg.ts < imsg.latest) continue;
           data.messages.unshift(msg);
@@ -19760,7 +19761,7 @@ TS.registerModule("constants", {
         var f;
         var new_row;
         var last;
-        for (var i = 0; i < attachment.fields.length; i++) {
+        for (var i = 0; i < attachment.fields.length; i += 1) {
           new_row = true;
           f = attachment.fields[i];
           if (last && f["short"] && last["short"] && last._new_row) {
@@ -19993,14 +19994,14 @@ TS.registerModule("constants", {
         }
         attachments_to_be_shown = msg._shown_attachments;
       }
-      for (i = 0; i < attachments_to_be_shown; i++) {
+      for (i = 0; i < attachments_to_be_shown; i += 1) {
         attachment = msg.attachments[i];
         if (attachment.pretext || i === 0) {
           attachment_groups.push([]);
         }
         _.last(attachment_groups).push(attachment);
       }
-      for (i = 0; i < attachment_groups.length; i++) {
+      for (i = 0; i < attachment_groups.length; i += 1) {
         html += TS.templates.builders.formatAttachmentGroup(attachment_groups[i], msg, enable_slack_action_links, msg_dom_id, model_ob);
       }
       if (msg._shown_attachments < msg.attachments.length) {
@@ -20044,7 +20045,7 @@ TS.registerModule("constants", {
         }
       }
       var attachment;
-      for (var i = 0; i < attachments.length; i++) {
+      for (var i = 0; i < attachments.length; i += 1) {
         attachment = attachments[i];
         if (!attachment) {
           TS.info("formatAttachments bad attach");
@@ -20070,7 +20071,7 @@ TS.registerModule("constants", {
           var action;
           var legacy_actions = [];
           var new_actions = [];
-          for (var j = 0; j < attachment.actions.length; j++) {
+          for (var j = 0; j < attachment.actions.length; j += 1) {
             action = attachment.actions[j];
             if (_.includes(ACTION_TYPE_WHITELIST, action.type)) {
               new_actions.push(action);
@@ -20414,7 +20415,7 @@ TS.registerModule("constants", {
           } else {
             otherA.push("<@" + k + "> " + TS.templates.builders.buildJoinLeaveRollUpStr(ob));
           }
-          count++;
+          count += 1;
         }
         if (alsoA.length) {
           if (did_invite) {
@@ -21401,7 +21402,7 @@ TS.registerModule("constants", {
     buildComments: function(file) {
       var comments = file.comments;
       var html = "";
-      for (var i = 0; i < comments.length; i++) {
+      for (var i = 0; i < comments.length; i += 1) {
         html += TS.templates.builders.buildCommentHTML({
           file: file,
           comment: comments[i],
@@ -21551,7 +21552,7 @@ TS.registerModule("constants", {
       var user_groups = [];
       var disabled_user_groups = [];
       var show_toggle = TS.permissions.members.canCreateAndDeleteUserGroups();
-      for (var i = 0; i < all_user_groups.length; i++) {
+      for (var i = 0; i < all_user_groups.length; i += 1) {
         user_group = all_user_groups[i];
         if (user_group.date_delete) {
           user_group.can_delete = !user_group.auto_type && !user_group.is_external;
@@ -22122,7 +22123,7 @@ TS.registerModule("constants", {
       var linksA = [];
       var html;
       var channel, i;
-      for (i = 0; i < file.channels.length; i++) {
+      for (i = 0; i < file.channels.length; i += 1) {
         channel = TS.channels.getChannelById(file.channels[i]);
         if (!channel) continue;
         html = '<span class="no_wrap">';
@@ -22132,7 +22133,7 @@ TS.registerModule("constants", {
         linksA.push(html);
       }
       var group;
-      for (i = 0; i < file.groups.length; i++) {
+      for (i = 0; i < file.groups.length; i += 1) {
         group = TS.groups.getGroupById(file.groups[i]);
         if (!group) continue;
         html = '<span class="no_wrap">';
@@ -22205,7 +22206,7 @@ TS.registerModule("constants", {
       var html;
       var member;
       var model_ob;
-      for (var i = 0; i < room.channels.length; i++) {
+      for (var i = 0; i < room.channels.length; i += 1) {
         model_ob = TS.shared.getModelObById(room.channels[i]);
         if (!model_ob) continue;
         if (model_ob.is_channel) {
@@ -22301,17 +22302,17 @@ TS.registerModule("constants", {
       var ob = TS.notifs.getCorGsNotUsingGlobalNotificationSetting();
       if (ob.everything.length) {
         html += '<div class="' + classes + '">' + TS.i18n.t("Set to notify for <strong>all activity</strong>:", "templates_builders")();
-        for (i = 0; i < ob.everything.length; i++) html += " " + (ob.everything[i].id.charAt(0) === "C" ? "#" : "") + ob.everything[i].name + (i != ob.everything.length - 1 ? "," : "");
+        for (i = 0; i < ob.everything.length; i += 1) html += " " + (ob.everything[i].id.charAt(0) === "C" ? "#" : "") + ob.everything[i].name + (i != ob.everything.length - 1 ? "," : "");
         html += "</div>";
       }
       if (ob.mentions.length) {
         html += '<div class="' + classes + '">' + TS.i18n.t("Set to notify only for <strong>Highlight Words</strong>:", "templates_builders")();
-        for (i = 0; i < ob.mentions.length; i++) html += " " + (ob.mentions[i].id.charAt(0) === "C" ? "#" : "") + ob.mentions[i].name + (i != ob.mentions.length - 1 ? "," : "");
+        for (i = 0; i < ob.mentions.length; i += 1) html += " " + (ob.mentions[i].id.charAt(0) === "C" ? "#" : "") + ob.mentions[i].name + (i != ob.mentions.length - 1 ? "," : "");
         html += "</div>";
       }
       if (ob.nothing.length) {
         html += '<div class="' + classes + '">' + TS.i18n.t("Set to <strong>never notify</strong>:", "templates_builders")();
-        for (i = 0; i < ob.nothing.length; i++) html += " " + (ob.nothing[i].id.charAt(0) === "C" ? "#" : "") + ob.nothing[i].name + (i != ob.nothing.length - 1 ? "," : "");
+        for (i = 0; i < ob.nothing.length; i += 1) html += " " + (ob.nothing[i].id.charAt(0) === "C" ? "#" : "") + ob.nothing[i].name + (i != ob.nothing.length - 1 ? "," : "");
         html += "</div>";
       }
       return html;
@@ -23674,7 +23675,7 @@ TS.registerModule("constants", {
               var i = 0;
               var l = parts.length;
               var obj = data;
-              for (i; i < l; i++) {
+              for (i; i < l; i += 1) {
                 obj = obj[parts[i]];
                 if (obj === undefined) return;
               }
@@ -23685,7 +23686,7 @@ TS.registerModule("constants", {
           var value;
           var i = 0;
           var l = tokens.length;
-          for (i; i < l; i++) {
+          for (i; i < l; i += 1) {
             item = tokens[i].substr(1, tokens[i].length - 2);
             if (options.hash[item] === undefined) {
               value = getValue(item);
@@ -23946,7 +23947,7 @@ TS.registerModule("constants", {
         if (typeof team_name !== "string") return "";
         var words = team_name.split(" ").slice(0, 2);
         var initials = "";
-        for (var i = 0; i < words.length; i++) {
+        for (var i = 0; i < words.length; i += 1) {
           initials += words[i][0];
         }
         return new Handlebars.SafeString(initials);
@@ -24133,7 +24134,7 @@ TS.registerModule("constants", {
       });
       Handlebars.registerHelper("repeat", function(n, block) {
         var accum = "";
-        for (var i = 0; i < n; i++) {
+        for (var i = 0; i < n; i += 1) {
           accum += block.fn(i);
         }
         return accum;
@@ -24230,7 +24231,7 @@ TS.registerModule("constants", {
         var words = query.split(" ");
         var i, word;
         var has_search_term = false;
-        for (i = 0; i < words.length; i++) {
+        for (i = 0; i < words.length; i += 1) {
           word = _.trim(words[i]);
           if (word.length > 0 && !TS.search.keyword_modifier_pair_regex.test(word)) {
             has_search_term = true;
@@ -25189,7 +25190,7 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("formatSpaceHtml", function(html) {
         function replace_emoji(root_node) {
           if (root_node.childNodes) {
-            for (var i = 0; i < root_node.childNodes.length; i++) {
+            for (var i = 0; i < root_node.childNodes.length; i += 1) {
               replace_emoji(root_node.childNodes[i]);
             }
           }
@@ -25621,7 +25622,7 @@ TS.registerModule("constants", {
         if (size >= _.first(possible_sizes)) return _.first(possible_sizes);
         if (size <= _.last(possible_sizes)) return _.last(possible_sizes);
         var selected_size = _.first(possible_sizes);
-        for (var i = 0; i < possible_sizes.length; i++) {
+        for (var i = 0; i < possible_sizes.length; i += 1) {
           if (possible_sizes[i] >= size) {
             selected_size = possible_sizes[i];
           }
@@ -26642,7 +26643,7 @@ TS.registerModule("constants", {
         jumbomoji: !opts.no_jumbomoji
       });
       var item;
-      for (var i = 0, j = tokens.length; i < j; i++) {
+      for (var i = 0, j = tokens.length; i < j; i += 1) {
         item = tokens[i];
         if (item.indexOf("<") === 0 && item.indexOf("<@") === 0) {
           var guts = item.replace(/<|>/g, "");
@@ -26670,7 +26671,7 @@ TS.registerModule("constants", {
       var A = TSF.getTokensArray($.trim(txt), opts.tsf_mode, {
         jumbomoji: !opts.no_jumbomoji
       });
-      for (var i = 0; i < A.length; i++) {
+      for (var i = 0; i < A.length; i += 1) {
         var item = A[i];
         if (item.indexOf("<") === 0 && item.indexOf("<@") === 0) {
           var guts = item.replace(/<|>/g, "");
@@ -26688,7 +26689,7 @@ TS.registerModule("constants", {
       msgs.unshift(TS.utility.msgs.makeSureMsgObIsValid(msg));
     },
     setMsgs: function(model_ob, msgs) {
-      for (var i = 0; i < msgs.length; i++) {
+      for (var i = 0; i < msgs.length; i += 1) {
         msgs[i] = TS.utility.msgs.makeSureMsgObIsValid(msgs[i]);
       }
       TS.utility.msgs.sortMsgs(msgs);
@@ -26704,7 +26705,7 @@ TS.registerModule("constants", {
     getNonTempMsgFromUserMatchingText: function(text, user_id, msgs) {
       if (!text && text !== 0) return null;
       var msg;
-      for (var i = 0; i < msgs.length; i++) {
+      for (var i = 0; i < msgs.length; i += 1) {
         msg = msgs[i];
         if (msg.user != user_id) continue;
         if (TS.utility.msgs.isTempMsg(msg)) continue;
@@ -26715,7 +26716,7 @@ TS.registerModule("constants", {
     getMsgByProp: function(name, value, msgs) {
       if (!value && value !== 0) return null;
       var msg;
-      for (var i = 0; i < msgs.length; i++) {
+      for (var i = 0; i < msgs.length; i += 1) {
         msg = msgs[i];
         if (msg[name] == value) return msg;
       }
@@ -26724,7 +26725,7 @@ TS.registerModule("constants", {
     getEditableMsgByProp: function(name, value, msgs) {
       if (!value && value !== 0 || !msgs) return null;
       var msg;
-      for (var i = 0; i < msgs.length; i++) {
+      for (var i = 0; i < msgs.length; i += 1) {
         msg = msgs[i];
         if (msg.subtype && msg.subtype !== "me_message" && msg.subtype !== "thread_broadcast") continue;
         if (msg[name] == value) return msg;
@@ -26767,7 +26768,7 @@ TS.registerModule("constants", {
     getPrevDisplayedMsg: function(ts, msgs) {
       var msg;
       var return_next_displayable_msg = false;
-      for (var i = 0; i < msgs.length; i++) {
+      for (var i = 0; i < msgs.length; i += 1) {
         msg = msgs[i];
         if (return_next_displayable_msg) {
           if (!TS.utility.msgs.isMsgHidden(msg) && !TS.utility.msgs.isMsgRolledUp(msg)) {
@@ -26782,7 +26783,7 @@ TS.registerModule("constants", {
     getDisplayedMsgs: function(msgs) {
       var A = [];
       var msg;
-      for (var i = 0; i < msgs.length; i++) {
+      for (var i = 0; i < msgs.length; i += 1) {
         msg = msgs[i];
         if (!TS.utility.msgs.isMsgHidden(msg) && !TS.utility.msgs.isMsgRolledUp(msg)) {
           A.push(msg);
@@ -26792,7 +26793,7 @@ TS.registerModule("constants", {
     },
     getDisplayedMsgAfterTS: function(ts, msgs) {
       var msg;
-      for (var i = msgs.length - 1; i > -1; i--) {
+      for (var i = msgs.length - 1; i > -1; i -= 1) {
         msg = msgs[i];
         if (msg.ts > ts) {
           if (!TS.utility.msgs.isMsgHidden(msg) && !TS.utility.msgs.isMsgRolledUp(msg)) {
@@ -26804,7 +26805,7 @@ TS.registerModule("constants", {
     },
     getDisplayedMsgBeforeTS: function(ts, msgs) {
       var msg;
-      for (var i = 0; i < msgs.length; i++) {
+      for (var i = 0; i < msgs.length; i += 1) {
         msg = msgs[i];
         if (msg.ts < ts) {
           if (!TS.utility.msgs.isMsgHidden(msg) && !TS.utility.msgs.isMsgRolledUp(msg)) {
@@ -26816,7 +26817,7 @@ TS.registerModule("constants", {
     },
     getUnreadCountableMsgAfterTS: function(ts, msgs) {
       var msg;
-      for (var i = msgs.length - 1; i > -1; i--) {
+      for (var i = msgs.length - 1; i > -1; i -= 1) {
         msg = msgs[i];
         if (msg.ts > ts) {
           if (TS.utility.msgs.msgCanCountAsUnread(msg)) {
@@ -27144,7 +27145,7 @@ TS.registerModule("constants", {
       var args = {};
       if (A.length > 1) {
         var pairs = A[1].split("&");
-        for (var i = 0; i < pairs.length; i++) {
+        for (var i = 0; i < pairs.length; i += 1) {
           var p = pairs[i].indexOf("=");
           if (p != -1) {
             var name = pairs[i].substring(0, p);
@@ -27178,7 +27179,7 @@ TS.registerModule("constants", {
     makeHighlightWordsRegex: function() {
       var word;
       var words = [];
-      for (var i = 0; i < TS.model.highlight_words.length; i++) {
+      for (var i = 0; i < TS.model.highlight_words.length; i += 1) {
         word = TS.format.swapOutAts(TS.model.highlight_words[i]);
         word = TS.utility.regexpEscape(word);
         if (word == "don") word += "(?!['’]t)";
@@ -27214,7 +27215,7 @@ TS.registerModule("constants", {
       var attachment;
       var field;
       if (msg.attachments) {
-        for (var i = 0; i < msg.attachments.length; i++) {
+        for (var i = 0; i < msg.attachments.length; i += 1) {
           attachment = msg.attachments[i];
           if (attachment.from_url) continue;
           if (check(attachment.title)) return true;
@@ -27222,7 +27223,7 @@ TS.registerModule("constants", {
           if (check(attachment.text)) return true;
           if (check(attachment.footer)) return true;
           if (!attachment.fields || !attachment.fields.length) continue;
-          for (var m = 0; m < attachment.fields.length; m++) {
+          for (var m = 0; m < attachment.fields.length; m += 1) {
             field = attachment.fields[m];
             if (check(field.value)) return true;
           }
@@ -27271,7 +27272,7 @@ TS.registerModule("constants", {
       var attachment;
       var field;
       if (msg.attachments) {
-        for (var i = 0; i < msg.attachments.length; i++) {
+        for (var i = 0; i < msg.attachments.length; i += 1) {
           attachment = msg.attachments[i];
           if (attachment.from_url) continue;
           if (check(attachment.title)) return ret;
@@ -27279,7 +27280,7 @@ TS.registerModule("constants", {
           if (check(attachment.text)) return ret;
           if (check(attachment.footer)) return ret;
           if (!attachment.fields || !attachment.fields.length) continue;
-          for (var m = 0; m < attachment.fields.length; m++) {
+          for (var m = 0; m < attachment.fields.length; m += 1) {
             field = attachment.fields[m];
             if (check(field.value)) return ret;
           }
@@ -27315,7 +27316,7 @@ TS.registerModule("constants", {
       var unread;
       var highlight;
       var channels = TS.channels.getChannelsForUser();
-      for (i = 0; i < channels.length; i++) {
+      for (i = 0; i < channels.length; i += 1) {
         channel = channels[i];
         if (channel.is_archived && !channel.was_archived_this_session || TS.notifs.isCorGMuted(channel.id)) continue;
         unread = parseInt(channel.unread_cnt, 10) || 0;
@@ -27324,7 +27325,7 @@ TS.registerModule("constants", {
         TS.model.all_unread_highlights_cnt += highlight;
         TS.utility.msgs.maybeExcludeUnreads(channel, unread, highlight);
       }
-      for (i = 0; i < TS.model.groups.length; i++) {
+      for (i = 0; i < TS.model.groups.length; i += 1) {
         group = TS.model.groups[i];
         if (group.is_archived && !group.was_archived_this_session || TS.notifs.isCorGMuted(group.id)) continue;
         unread = parseInt(group.unread_cnt, 10) || 0;
@@ -27333,7 +27334,7 @@ TS.registerModule("constants", {
         TS.model.all_unread_highlights_cnt += highlight;
         TS.utility.msgs.maybeExcludeUnreads(group, unread, highlight);
       }
-      for (i = 0; i < TS.model.ims.length; i++) {
+      for (i = 0; i < TS.model.ims.length; i += 1) {
         im = TS.model.ims[i];
         unread = parseInt(im.unread_cnt, 10) || 0;
         highlight = parseInt(im.unread_cnt, 10) || 0;
@@ -27341,7 +27342,7 @@ TS.registerModule("constants", {
         TS.model.all_unread_highlights_cnt += highlight;
         TS.utility.msgs.maybeExcludeUnreads(im, unread, highlight);
       }
-      for (i = 0; i < TS.model.mpims.length; i++) {
+      for (i = 0; i < TS.model.mpims.length; i += 1) {
         mpim = TS.model.mpims[i];
         unread = parseInt(mpim.unread_cnt, 10) || 0;
         highlight = parseInt(mpim.unread_cnt, 10) || 0;
@@ -27378,7 +27379,7 @@ TS.registerModule("constants", {
       if (!A.length) return false;
       var added = false;
       var name;
-      for (var i = 0; i < A.length; i++) {
+      for (var i = 0; i < A.length; i += 1) {
         name = TS.emoji.isValidName(A[i]);
         if (!name) {
           TS.error(A[i] + " invalid");
@@ -27387,7 +27388,7 @@ TS.registerModule("constants", {
         if (!parseInt(hash[name], 10)) {
           hash[name] = 0;
         }
-        hash[name]++;
+        hash[name] += 1;
         added = true;
       }
       return added;
@@ -27397,7 +27398,7 @@ TS.registerModule("constants", {
       var i;
       var controller;
       var model_ob;
-      for (i = 0; i < c_ids.length; i++) {
+      for (i = 0; i < c_ids.length; i += 1) {
         model_ob = TS.shared.getModelObById(c_ids[i]);
         if (!model_ob) {
           TS.warn("reCalcAndCountSomeUnreads: WTF no model_ob for id " + c_ids[i]);
@@ -27424,24 +27425,24 @@ TS.registerModule("constants", {
       var channels = TS.channels.getChannelsForUser();
       var defer_api_check = true;
       TS.utility.msgs.startBatchUnreadCalc();
-      for (i = 0; i < channels.length; i++) {
+      for (i = 0; i < channels.length; i += 1) {
         channel = channels[i];
         if (channel.is_archived && !channel.was_archived_this_session) continue;
         if (defer_api_check && channel._did_defer_initial_msg_history) delete channel._did_defer_initial_msg_history;
         TS.channels.calcUnreadCnts(channel);
       }
-      for (i = 0; i < TS.model.groups.length; i++) {
+      for (i = 0; i < TS.model.groups.length; i += 1) {
         group = TS.model.groups[i];
         if (group.is_archived && !group.was_archived_this_session) continue;
         if (defer_api_check && group._did_defer_initial_msg_history) delete group._did_defer_initial_msg_history;
         TS.groups.calcUnreadCnts(group);
       }
-      for (i = 0; i < TS.model.ims.length; i++) {
+      for (i = 0; i < TS.model.ims.length; i += 1) {
         im = TS.model.ims[i];
         if (defer_api_check && im._did_defer_initial_msg_history) delete im._did_defer_initial_msg_history;
         TS.ims.calcUnreadCnts(im);
       }
-      for (i = 0; i < TS.model.mpims.length; i++) {
+      for (i = 0; i < TS.model.mpims.length; i += 1) {
         mpim = TS.model.mpims[i];
         if (defer_api_check && mpim._did_defer_initial_msg_history) delete mpim._did_defer_initial_msg_history;
         TS.mpims.calcUnreadCnts(mpim);
@@ -27463,19 +27464,19 @@ TS.registerModule("constants", {
       var channel;
       var group;
       var A = [];
-      for (i = 0; i < TS.model.channels.length; i++) {
+      for (i = 0; i < TS.model.channels.length; i += 1) {
         channel = TS.model.channels[i];
         if (channel.unread_cnt) A.push("C:" + channel.name + " " + channel.unread_cnt);
       }
-      for (i = 0; i < TS.model.groups.length; i++) {
+      for (i = 0; i < TS.model.groups.length; i += 1) {
         group = TS.model.groups[i];
         if (group.unread_cnt) A.push("G:" + group.name + " " + group.unread_cnt);
       }
-      for (i = 0; i < TS.model.ims.length; i++) {
+      for (i = 0; i < TS.model.ims.length; i += 1) {
         im = TS.model.ims[i];
         if (im.unread_cnt) A.push("D:" + im.name + " " + im.unread_cnt);
       }
-      for (i = 0; i < TS.model.mpims.length; i++) {
+      for (i = 0; i < TS.model.mpims.length; i += 1) {
         mpim = TS.model.mpims[i];
         if (mpim.unread_cnt) A.push("G:" + mpim.name + " " + mpim.unread_cnt);
       }
@@ -27547,7 +27548,7 @@ TS.registerModule("constants", {
       if (!model_ob) return null;
       var msg;
       var msgs = model_ob.msgs || [];
-      for (var i = 0; i < msgs.length; i++) {
+      for (var i = 0; i < msgs.length; i += 1) {
         msg = msgs[i];
         if (!TS.utility.msgs.isTempMsg(msg)) {
           if (TS.pri) TS.console.log(58, "getMostRecentValidTs (" + model_ob.id + "): " + msg.ts + " at msgs[" + i + "] of " + msgs.length);
@@ -27561,7 +27562,7 @@ TS.registerModule("constants", {
     getOldestValidTs: function(model_ob) {
       var msg;
       if (!model_ob || !model_ob.msgs) return null;
-      for (var i = model_ob.msgs.length - 1; i > -1; i--) {
+      for (var i = model_ob.msgs.length - 1; i > -1; i -= 1) {
         msg = model_ob.msgs[i];
         if (!TS.utility.msgs.isTempMsg(msg)) {
           if (TS.pri) TS.console.log(58, "getOldestValidTs(" + model_ob.id + "): " + msg.ts + " at msgs[" + i + "] of " + model_ob.msgs.length);
@@ -27837,7 +27838,7 @@ TS.registerModule("constants", {
     processAttachments: function(attachments) {
       if (!attachments) return;
       var attachment;
-      for (var i = 0; i < attachments.length; i++) {
+      for (var i = 0; i < attachments.length; i += 1) {
         attachment = attachments[i];
         if (!attachment) {
           TS.warn("attachment is null!");
@@ -27853,7 +27854,7 @@ TS.registerModule("constants", {
         }
         if (attachment.mrkdwn_in && _.isArray(attachment.mrkdwn_in) && attachment.mrkdwn_in.length) {
           attachment.mrkdwn_in_hash = {};
-          for (var k = 0; k < attachment.mrkdwn_in.length; k++) {
+          for (var k = 0; k < attachment.mrkdwn_in.length; k += 1) {
             attachment.mrkdwn_in_hash[attachment.mrkdwn_in[k]] = true;
           }
         }
@@ -28002,7 +28003,7 @@ TS.registerModule("constants", {
       if (!TS.client) return;
       var msgs = model_ob.msgs;
       var m;
-      for (var i = msgs.length - 1; i > -1; i--) {
+      for (var i = msgs.length - 1; i > -1; i -= 1) {
         m = msgs[i];
         if ((m.subtype == "file_share" || m.subtype == "file_mention") && m.file && m.file.id == file.id) {
           if (model_ob.is_channel) {
@@ -28021,7 +28022,7 @@ TS.registerModule("constants", {
       if (!TS.client) return;
       var msgs = model_ob.msgs;
       var m;
-      for (var i = msgs.length - 1; i > -1; i--) {
+      for (var i = msgs.length - 1; i > -1; i -= 1) {
         m = msgs[i];
         if (m.subtype == "file_comment" && m.file && m.file.id == file.id) {
           if (model_ob.is_channel) {
@@ -28040,7 +28041,7 @@ TS.registerModule("constants", {
       if (!TS.client) return;
       var msgs = model_ob.msgs;
       var m;
-      for (var i = msgs.length - 1; i > -1; i--) {
+      for (var i = msgs.length - 1; i > -1; i -= 1) {
         m = msgs[i];
         if (m.attachments) {
           var attach = TS.inline_attachments.getAttachmentBySlackFileId(m.attachments, file_id);
@@ -28073,7 +28074,7 @@ TS.registerModule("constants", {
         if (TS.inline_attachments.getAttachmentBySlackFileId(m.attachments, file.id)) return true;
         return false;
       };
-      for (var i = msgs.length - 1; i > -1; i--) {
+      for (var i = msgs.length - 1; i > -1; i -= 1) {
         m = msgs[i];
         if (!file.is_deleted && (m.subtype == "file_share" || m.subtype == "file_mention" || m.subtype == "file_comment") && m.file && m.file.id == file.id) {} else if (msgHasFileReferenceAttachMent(m)) {} else {
           continue;
@@ -28224,7 +28225,7 @@ TS.registerModule("constants", {
       var channels = TS.model.channels;
       var channel;
       var i;
-      for (i = 0; i < channels.length; i++) {
+      for (i = 0; i < channels.length; i += 1) {
         channel = channels[i];
         if (channel.id == TS.model.active_channel_id) continue;
         if (!channel.is_member) continue;
@@ -28233,14 +28234,14 @@ TS.registerModule("constants", {
       }
       var ims = TS.model.ims;
       var im;
-      for (i = 0; i < ims.length; i++) {
+      for (i = 0; i < ims.length; i += 1) {
         im = ims[i];
         if (im.id == TS.model.active_im_id) continue;
         TS.utility.msgs.maybeTruncateMsgs(im);
       }
       var groups = TS.model.groups;
       var group;
-      for (i = 0; i < groups.length; i++) {
+      for (i = 0; i < groups.length; i += 1) {
         group = groups[i];
         if (group.id == TS.model.active_group_id) continue;
         if (group.is_archived) continue;
@@ -28248,7 +28249,7 @@ TS.registerModule("constants", {
       }
       var mpims = TS.model.mpims;
       var mpim;
-      for (i = 0; i < mpims.length; i++) {
+      for (i = 0; i < mpims.length; i += 1) {
         mpim = mpims[i];
         if (mpim.id == TS.model.active_mpim_id) continue;
         TS.utility.msgs.maybeTruncateMsgs(mpim);
@@ -28308,7 +28309,7 @@ TS.registerModule("constants", {
           }
         }
       } else if (msg.attachments) {
-        for (var i = 0; i < msg.attachments.length; i++) {
+        for (var i = 0; i < msg.attachments.length; i += 1) {
           if (msg.attachments[i].image_url) {
             return true;
           }
@@ -28322,7 +28323,7 @@ TS.registerModule("constants", {
       var A = [];
       if (msgs) {
         var imsg;
-        for (var i = 0; i < msgs.length; i++) {
+        for (var i = 0; i < msgs.length; i += 1) {
           imsg = msgs[i];
           if (!imsg.ts) continue;
           A.push(TS.utility.msgs.processImsg(imsg, model_ob.id));
@@ -28339,10 +28340,10 @@ TS.registerModule("constants", {
       var model_ob;
       var model_obs = TS.shared.getAllModelObsForUser();
       var results = {};
-      for (i = 0; i < model_obs.length; i++) {
+      for (i = 0; i < model_obs.length; i += 1) {
         model_ob = model_obs[i];
         if (!model_ob.msgs) continue;
-        for (m = 0; m < model_ob.msgs.length; m++) {
+        for (m = 0; m < model_ob.msgs.length; m += 1) {
           if (subtype != model_ob.msgs[m].subtype) continue;
           results[model_ob.name] = results[model_ob.name] || {
             id: model_ob.id
@@ -28395,7 +28396,7 @@ TS.registerModule("constants", {
         users: {}
       };
       var jl_msg;
-      for (var m = 0; m < jl_rolled_up_msgs.length; m++) {
+      for (var m = 0; m < jl_rolled_up_msgs.length; m += 1) {
         jl_msg = jl_rolled_up_msgs[m];
         var ob = hash.users[jl_msg.user] = hash.users[jl_msg.user] || {};
         hash.msg_ids.push(jl_msg.ts);
@@ -28442,7 +28443,8 @@ TS.registerModule("constants", {
       TS.api.call(TS.shared.getHistoryApiMethodForModelOb(model_ob), options).then(function(res) {
         var was_inconsistent = TS.utility.msgs.checkConsistency(c_id, res.data.messages);
         if (was_inconsistent) {
-          TS.metrics.store("inconsistent_history_cnt", ++_inconsistent_history_cnt, {
+          _inconsistent_history_cnt += 1;
+          TS.metrics.store("inconsistent_history_cnt", _inconsistent_history_cnt, {
             is_count: true
           });
           TS.error(log_prefix + " NOT GOOD!");
@@ -29073,7 +29075,7 @@ TS.registerModule("constants", {
       var byteString = atob(str);
       var arrayBuffer = new ArrayBuffer(byteString.length);
       var _ia = new Uint8Array(arrayBuffer);
-      for (var i = 0; i < byteString.length; i++) {
+      for (var i = 0; i < byteString.length; i += 1) {
         _ia[i] = byteString.charCodeAt(i);
       }
       var dataView = new DataView(arrayBuffer);
@@ -29126,7 +29128,7 @@ TS.registerModule("constants", {
       var rounded_size = Math.round(calc_size, 2);
       if (rounded_size > 999) {
         rounded_size = 1;
-        power++;
+        power += 1;
       }
       return rounded_size + units[power];
     },
@@ -29177,7 +29179,7 @@ TS.registerModule("constants", {
           action = action.substring(0, queryIndex);
           if (query.length) {
             var params = query.split("&amp;");
-            for (var i = 0; i < params.length; i++) {
+            for (var i = 0; i < params.length; i += 1) {
               var pair = params[i].split("=");
               fields += '<input type="hidden" name="' + TS.utility.htmlEntities(pair[0]) + '" value="' + (pair.length > 1 ? TS.utility.htmlEntities(pair[1]) : "") + '">';
             }
@@ -29426,7 +29428,7 @@ TS.registerModule("constants", {
       if (url.indexOf("https://") !== 0 && url.indexOf("http://") !== 0 && url.indexOf("ftp://") !== 0 && url.indexOf("sftp://") !== 0) return false;
       url = url.replace(/^https:\/\//, "").replace(/^http:\/\//, "");
       var wl = getRefererHidingWhiteList();
-      for (var i = 0; i < wl.length; i++) {
+      for (var i = 0; i < wl.length; i += 1) {
         if (url == wl[i] || url.indexOf(wl[i] + "/") === 0) return false;
       }
       return true;
@@ -29586,7 +29588,7 @@ TS.registerModule("constants", {
       }
       var rows = $table.find("tr:gt(0)").toArray().sort(sortFunc(td_index));
       if (order == "desc") rows = rows.reverse();
-      for (var i = 0; i < rows.length; i++) {
+      for (var i = 0; i < rows.length; i += 1) {
         $table.append(rows[i]);
       }
     },
@@ -29755,7 +29757,7 @@ TS.registerModule("constants", {
         var i, j;
         if (data.timers[timer_group]) {
           if (data.queues[timer_group]) {
-            for (i = 0, j = data.queues[timer_group].length; i < j; i++) {
+            for (i = 0, j = data.queues[timer_group].length; i < j; i += 1) {
               if (data.queues[timer_group][i]) {
                 data.queues[timer_group][i]();
               }
@@ -29808,7 +29810,7 @@ TS.registerModule("constants", {
       var test_url;
       if (!opts.emoji && url.indexOf("https://") === 0) {
         test_url = url.replace(/^https:\/\//, "");
-        for (i = 0, j = whitelist.length; i < j; i++) {
+        for (i = 0, j = whitelist.length; i < j; i += 1) {
           if (test_url.indexOf(whitelist[i] + "/") === 0) {
             if (opts.stop_animations && whitelist[i] === "slack-imgs.com") {
               var o1 = TS.utility.url.urlQueryStringParse(test_url).o1;
@@ -29854,7 +29856,7 @@ TS.registerModule("constants", {
       var vendors = ["ms", "moz", "webkit", "o"];
       var requestAnimationFrame = window.requestAnimationFrame;
       var x;
-      for (x = 0; x < vendors.length && !requestAnimationFrame; x++) {
+      for (x = 0; x < vendors.length && !requestAnimationFrame; x += 1) {
         requestAnimationFrame = window[vendors[x] + "RequestAnimationFrame"];
       }
       if (!requestAnimationFrame) {
@@ -29877,7 +29879,7 @@ TS.registerModule("constants", {
       var vendors = ["ms", "moz", "webkit", "o"];
       var cancelAnimationFrame = window.cancelAnimationFrame;
       var x;
-      for (x = 0; x < vendors.length && !cancelAnimationFrame; x++) {
+      for (x = 0; x < vendors.length && !cancelAnimationFrame; x += 1) {
         cancelAnimationFrame = window[vendors[x] + "CancelAnimationFrame"] || window[vendors[x] + "CancelRequestAnimationFrame"];
       }
       if (!cancelAnimationFrame) {
@@ -30464,7 +30466,7 @@ TS.registerModule("constants", {
       var middle = str.substr(Math.round(str.length / 2), 1);
       str = middle + str.split("middle").reverse().join();
       var digits = "";
-      for (var i = str.length - 1; i > -1; i--) {
+      for (var i = str.length - 1; i > -1; i -= 1) {
         digits += (str.charCodeAt(i) * (i + 1)).toString().substr(-1, 1);
       }
       return parseInt(digits, 10);
@@ -30631,7 +30633,7 @@ TS.registerModule("constants", {
   window.getRefererHidingWhiteList = function() {
     if (_referer_hiding_whitelist) return _referer_hiding_whitelist;
     _referer_hiding_whitelist = [TS.model.team.domain + ".dev.slack.com", TS.model.team.domain + ".staging.slack.com", TS.model.team.domain + ".slack.com", "files.staging.slack.com", "files.dev.slack.com", "files.slack.com", "dev.slack-files.com", "staging.slack-files.com", "www.slack-files.com", "slack-files.com", "slack-imgs.com", "dev.slack.com", "slack.com", TS.boot_data.redir_domain, "my.slack.com", "www.slack.com"];
-    for (var i = 0; i < 205; i++) {
+    for (var i = 0; i < 205; i += 1) {
       _referer_hiding_whitelist.push(TS.model.team.domain + ".dev" + i + ".slack.com");
       _referer_hiding_whitelist.push("files.dev" + i + ".slack.com");
       _referer_hiding_whitelist.push("dev" + i + ".slack-files.com");
@@ -30784,7 +30786,7 @@ TS.registerModule("constants", {
       var args = {};
       var pairs;
       pairs = qs.split("&");
-      for (var i = 0; i < pairs.length; i++) {
+      for (var i = 0; i < pairs.length; i += 1) {
         var p = pairs[i].indexOf("=");
         if (p != -1) {
           var name = pairs[i].substring(0, p);
@@ -34143,7 +34145,7 @@ var _on_esc;
           var queries = query.split(/[,| ]/).filter(function(i) {
             return !!i;
           });
-          for (var i = 0; i < queries.length; i++) {
+          for (var i = 0; i < queries.length; i += 1) {
             prefix_regexes.push(new RegExp("^" + TS.utility.regexpEscape(queries[i]), "i"));
           }
           $close_icon.removeClass("hidden");
@@ -34397,9 +34399,9 @@ var _on_esc;
       var should_show_dropbox = window.Dropbox && Dropbox.isBrowserSupported() && TS.model.prefs.dropbox_enabled;
       var should_show_gdrive = TS.model.team.prefs.gdrive_enabled_team;
       var cloud_service_count = 0;
-      if (should_show_box) cloud_service_count++;
-      if (should_show_dropbox) cloud_service_count++;
-      if (should_show_gdrive) cloud_service_count++;
+      if (should_show_box) cloud_service_count += 1;
+      if (should_show_dropbox) cloud_service_count += 1;
+      if (should_show_gdrive) cloud_service_count += 1;
       var use_cloud_submenu = cloud_service_count > 1;
       var items_html = TS.templates.menu_file_new_file_items({
         should_show_upload_file: should_show_upload_file,
@@ -34917,7 +34919,7 @@ var _on_esc;
   var _humansGreaterThanBots = function(items) {
     var humans = [];
     var bots = [];
-    for (var i = 0; i < items.length; i++) {
+    for (var i = 0; i < items.length; i += 1) {
       var member = items[i];
       if (member.is_bot || member.is_slackbot) {
         bots.push(member);
@@ -37777,7 +37779,7 @@ var _on_esc;
       });
       return;
     }
-    for (var i = 0; i < data.items.length; i++) {
+    for (var i = 0; i < data.items.length; i += 1) {
       var item = data.items[i];
       TS.stars.userStarStatusHasChanged(true, item, "stars.list");
     }
@@ -37791,7 +37793,7 @@ var _on_esc;
       _$member_stars_more_btn.data("ladda").stop();
     }
     TS.stars.has_more = data.paging.pages > data.paging.page;
-    if (!args._update) _page++;
+    if (!args._update) _page += 1;
     TS.stars.member_stars_fetched_sig.dispatch(null, TS.model.user);
   };
   var _starsListArgs = function() {
@@ -38031,7 +38033,7 @@ var _on_esc;
       var mention;
       var mentions = [];
       var existing_rxns;
-      for (var i = 0; i < data.mentions.length; i++) {
+      for (var i = 0; i < data.mentions.length; i += 1) {
         mention = data.mentions[i];
         if (mention.type == "reaction") {
           if (mention.item.type == "message") {
@@ -38164,7 +38166,7 @@ var _on_esc;
       TS.model.user.mentions = TS.model.user.mentions.filter(function(m) {
         return m.type != "rxn";
       });
-      for (var i = 0; i < rxn_records.length; i++) {
+      for (var i = 0; i < rxn_records.length; i += 1) {
         rxn_key = rxn_records[i].rxn_key;
         key_parts = TS.rxns.getRxnKeyParts(rxn_key);
         if (key_parts.type == "message") {
@@ -38232,7 +38234,7 @@ var _on_esc;
   };
   var _removeMentionTypeMsgs = function(types) {
     var mention;
-    for (var i = TS.model.user.mentions.length - 1; i >= 0; i--) {
+    for (var i = TS.model.user.mentions.length - 1; i >= 0; i -= 1) {
       mention = TS.model.user.mentions[i];
       if (types.indexOf(mention.type) !== -1) {
         TS.model.user.mentions.splice(i, 1);
@@ -38815,7 +38817,7 @@ var _on_esc;
         var c;
         var br_count = 0;
         var stop_at_next_space = false;
-        for (var i = 0; i < attachment.text.length; i++) {
+        for (var i = 0; i < attachment.text.length; i += 1) {
           c = attachment.text.charAt(i);
           if (markup_chunk || c == "<") {
             markup_chunk += c;
@@ -38833,14 +38835,14 @@ var _on_esc;
             }
           } else {
             if (c == "\n") {
-              br_count++;
+              br_count += 1;
             }
             if (br_count > short_text_br_limit + 1) {
               rest_text = attachment.text.replace(short_text, "");
               break;
             }
             short_text += c;
-            short_text_display_length++;
+            short_text_display_length += 1;
             if (short_text_display_length > short_text_limit) {
               stop_at_next_space = true;
             }
@@ -38875,7 +38877,7 @@ var _on_esc;
     },
     getAttachmentByFromUrl: function(attachments, url) {
       if (!attachments) return null;
-      for (var i = 0; i < attachments.length; i++) {
+      for (var i = 0; i < attachments.length; i += 1) {
         if (!attachments[i]) {
           TS.info(url);
           TS.dir(0, attachments);
@@ -38898,7 +38900,7 @@ var _on_esc;
     getAttachmentBySlackFileId: function(attachments, slack_file_id) {
       if (!attachments) return null;
       if (!slack_file_id) return null;
-      for (var i = 0; i < attachments.length; i++) {
+      for (var i = 0; i < attachments.length; i += 1) {
         if (!attachments[i]) {
           continue;
         }
@@ -38911,7 +38913,7 @@ var _on_esc;
     removeAttachmentById: function(attachments, id) {
       if (!attachments) return null;
       var A = [];
-      for (var i = 0; i < attachments.length; i++) {
+      for (var i = 0; i < attachments.length; i += 1) {
         if (attachments[i].id != id) {
           A.push(attachments[i]);
         }
@@ -39040,7 +39042,7 @@ var _on_esc;
       }
       if (google_map_config && google_map_config.center && typeof google_map_config.center.lat != "string") {
         google_map_config.scrollwheel = false;
-        var dom_id = "googmap_" + _googmap_index++;
+        var dom_id = "googmap_" + (_googmap_index += 1);
         attachment.other_html = '<div class="google-maps" id="' + dom_id + '" style="width:100%; min-width:' + TS.utility.htmlEntities(attachment.other_html_width) + "px; height:" + TS.utility.htmlEntities(attachment.other_html_height) + 'px;"></div>			<script>TS.inline_others.runGoogleMapCode("' + dom_id + "\", '" + JSON.stringify(google_map_config) + "')</script>";
         attachment.safe_other_html = attachment.other_html;
       } else {
@@ -39077,7 +39079,7 @@ var _on_esc;
             map: map,
             position: maps_result.geometry.location
           });
-          markers_placed++;
+          markers_placed += 1;
         };
         var geocodeHandler = function(results, status) {
           var has_exact_match = false;
@@ -39872,7 +39874,7 @@ var _on_esc;
         }) + "</p>";
         var prev_msg;
         var msg;
-        for (var i = 0; i < count; i++) {
+        for (var i = 0; i < count; i += 1) {
           if (msg && !msg.no_display) prev_msg = msg;
           var msg_ts = $cbs_checked.eq(i).closest(".message").data("ts");
           msg = TS.utility.msgs.getMsg(msg_ts, _getMsgs(model_ob));
@@ -39919,7 +39921,7 @@ var _on_esc;
           go_button_class: "btn_danger",
           onGo: function() {
             var A = [];
-            for (var i = 0; i < count; i++) {
+            for (var i = 0; i < count; i += 1) {
               var msg_ts = $cbs_checked.eq(i).closest(".message").data("ts");
               if (!msg_ts) {
                 alert("no msg_ts");
@@ -39949,7 +39951,7 @@ var _on_esc;
           start_i = $cbs.index($cb);
         }
         var checked = $last_clicked_cb.prop("checked") == "checked";
-        for (var i = start_i; i <= end_i; i++) {
+        for (var i = start_i; i <= end_i; i += 1) {
           $cbs.eq(i).prop("checked", checked);
         }
       }
@@ -41223,7 +41225,8 @@ var _on_esc;
       $text.html(parseInt(count, 10));
     });
     setTimeout(function() {
-      _captureCountdownCycle(--count, aborted, resolve, reject);
+      count -= 1;
+      _captureCountdownCycle(count, aborted, resolve, reject);
     }, 1e3);
   };
   var _finishCaptureCountdown = function() {
@@ -41256,7 +41259,7 @@ var _on_esc;
     }
     var mime_string = data.split(",")[0].split(":")[1].split(";")[0];
     var ia = new Uint8Array(byte_string.length);
-    for (var i = 0; i < byte_string.length; i++) {
+    for (var i = 0; i < byte_string.length; i += 1) {
       ia[i] = byte_string.charCodeAt(i);
     }
     var blob = new Blob([ia], {
@@ -43538,7 +43541,7 @@ var _on_esc;
     },
     getIssueById: function(id) {
       var issue;
-      for (var i = 0; i < TS.help.issues.length; i++) {
+      for (var i = 0; i < TS.help.issues.length; i += 1) {
         issue = TS.help.issues[i];
         if (issue.id == id) {
           return issue;
@@ -43624,7 +43627,7 @@ var _on_esc;
         resolved: 1
       };
       var issue;
-      for (var i = 0; i < TS.help.issues.length; i++) {
+      for (var i = 0; i < TS.help.issues.length; i += 1) {
         issue = TS.help.issues[i];
         issue._sorter = parseFloat((sort_map[issue.state] || 5) + "." + issue.ts);
       }
@@ -43639,11 +43642,11 @@ var _on_esc;
       var tab_css_class = "normal";
       var unread_count = 0;
       var issue;
-      for (var i = 0; i < TS.help.issues.length; i++) {
+      for (var i = 0; i < TS.help.issues.length; i += 1) {
         issue = TS.help.issues[i];
         if (issue.state == "unread") {
           tab_css_class = "unread";
-          unread_count++;
+          unread_count += 1;
         }
       }
       $("#flex_menu_toggle").removeClass("normal open unread").addClass(tab_css_class);
@@ -44307,7 +44310,7 @@ var _on_esc;
   var _getPinnedMsg = function(msg_ts, model_ob) {
     if (model_ob.pinned_items) {
       var item;
-      for (var i = 0; i < model_ob.pinned_items.length; i++) {
+      for (var i = 0; i < model_ob.pinned_items.length; i += 1) {
         item = model_ob.pinned_items[i];
         if (item.type === "message" && item.message.ts === msg_ts) return item.message;
       }
@@ -44926,7 +44929,7 @@ $.fn.togglify = function(settings) {
     },
     getRxnRecordByKey: function(rxn_key) {
       if (_rxn_records_map[rxn_key]) return _rxn_records_map[rxn_key];
-      for (var i = _rxn_records.length - 1; i > -1; i--) {
+      for (var i = _rxn_records.length - 1; i > -1; i -= 1) {
         if (_rxn_records[i].rxn_key === rxn_key) {
           _rxn_records_map[rxn_key] = _rxn_records[i];
           return _rxn_records_map[rxn_key];
@@ -44936,7 +44939,7 @@ $.fn.togglify = function(settings) {
     },
     getNextRxnRecordThatNeedsAlert: function() {
       var candidate;
-      for (var i = _rxn_records.length - 1; i > -1; i--) {
+      for (var i = _rxn_records.length - 1; i > -1; i -= 1) {
         if (TS.rxns.need_alerts[_rxn_records[i].rxn_key]) {
           candidate = _rxn_records[i];
         } else {
@@ -44971,7 +44974,7 @@ $.fn.togglify = function(settings) {
       if (!rxns) return false;
       var names = [name.replace(/(\::skin-tone-[2-6])/, "")];
       TS.emoji.spliceSkinToneVariationsIntoAnArrayOfEmojiNames(names);
-      for (var i = 0; i < names.length; i++) {
+      for (var i = 0; i < names.length; i += 1) {
         if (TS.rxns.getRxnFromRxns(rxns, names[i])) return true;
       }
       return false;
@@ -44993,7 +44996,7 @@ $.fn.togglify = function(settings) {
       var t = 0;
       rxns.forEach(function(rxn) {
         if (rxn.users.indexOf(user_id) > -1) {
-          t++;
+          t += 1;
         }
       });
       return t;
@@ -45314,7 +45317,7 @@ $.fn.togglify = function(settings) {
         });
       } else {
         if (TS.utility.ensureInArray(rxn.users, member_id)) {
-          rxn.count++;
+          rxn.count += 1;
         }
       }
     } else {
@@ -45322,7 +45325,7 @@ $.fn.togglify = function(settings) {
         var rxn_exists = rxn.users.indexOf(member_id) >= 0;
         if (rxn_exists) {
           _.pull(rxn.users, member_id);
-          rxn.count--;
+          rxn.count -= 1;
           if (rxn.count < 1 || rxn.users.length === 0) {
             _.pull(rxns, rxn);
           }
@@ -45373,7 +45376,7 @@ $.fn.togglify = function(settings) {
   var _incrementPendingCnt = function(rxn_key) {
     if (!rxn_key) return;
     _pending_counts[rxn_key] = _pending_counts[rxn_key] || 0;
-    _pending_counts[rxn_key]++;
+    _pending_counts[rxn_key] += 1;
     TS.log(888, "_incrementPendingCnt " + rxn_key + ": " + _pending_counts[rxn_key]);
   };
   var _decrementPendingCnt = function(rxn_key) {
@@ -45381,7 +45384,7 @@ $.fn.togglify = function(settings) {
       TS.log(888, "_decrementPendingCnt " + rxn_key + ": " + _pending_counts[rxn_key]);
       return;
     }
-    _pending_counts[rxn_key]--;
+    _pending_counts[rxn_key] -= 1;
     if (_pending_counts[rxn_key] === 0) {
       delete _pending_counts[rxn_key];
     }
@@ -45422,7 +45425,8 @@ $.fn.togglify = function(settings) {
         TS.error("_fetchAndUpdateRxns got an err:" + JSON.stringify(data || null));
       }
       if (attempt < max_attempts) {
-        _fetchAndUpdateRxns(rxn_key, ++attempt);
+        attempt += 1;
+        _fetchAndUpdateRxns(rxn_key, attempt);
       }
     });
   };
@@ -45430,7 +45434,7 @@ $.fn.togglify = function(settings) {
     if (!record) return null;
     if (!record.emoji) return null;
     if (!record.emoji.hasOwnProperty(name)) return null;
-    for (var i = 0; i < record.emoji[name].length; i++) {
+    for (var i = 0; i < record.emoji[name].length; i += 1) {
       if (record.emoji[name][i].id === member_id) return record.emoji[name][i];
     }
     return null;
@@ -46520,8 +46524,10 @@ $.fn.togglify = function(settings) {
     var list_height = instance.$list.css({
       "max-height": ""
     }).outerHeight();
-    var list_container_height = instance.$list_container.outerHeight();
-    var non_list_height = list_container_height - list_height;
+    var non_list_height = parseInt(instance.$list_container.css("padding-top"), 10) + parseInt(instance.$list_container.css("padding-bottom"), 10);
+    if (_isFilterInListStyle(instance)) {
+      non_list_height += instance.$filter_input.outerHeight();
+    }
     var list_container_max_height = parseInt(instance.$list_container.css("max-height"), 10);
     var list_container_min_height = 2 * instance.approx_item_height + non_list_height;
     var needed_space = Math.min(list_height + non_list_height, list_container_max_height);
@@ -50603,7 +50609,7 @@ $.fn.togglify = function(settings) {
     var all_matches = primary_matches.concat(secondary_matches, tertiary_matches);
     var filtered_matches = all_matches;
     if (options.prefer_exact_match && exact_matches.length > 0) {
-      for (var i = 0; i < exact_matches.length; i++) {
+      for (var i = 0; i < exact_matches.length; i += 1) {
         filtered_matches.unshift(exact_matches[i]);
       }
     }
@@ -52515,7 +52521,7 @@ $.fn.togglify = function(settings) {
   };
   var _findAutoUserGroup = function(auto_type) {
     if (!_user_groups || !auto_type) return false;
-    for (var i = 0, j = _user_groups.length; i < j; i++) {
+    for (var i = 0, j = _user_groups.length; i < j; i += 1) {
       if (_user_groups[i].auto_type === auto_type) {
         return _user_groups[i];
       }
@@ -52569,7 +52575,7 @@ $.fn.togglify = function(settings) {
       }, function(ok, data) {
         if (_alertIfNotOk(ok, data)) return;
         _user_groups = data.subteams;
-        for (var i = 0, j = _user_groups.length; i < j; i++) {
+        for (var i = 0, j = _user_groups.length; i < j; i += 1) {
           _user_groups[i]._name_lc = _user_groups[i].name.toLowerCase();
         }
         _user_groups.sort(TS.i18n.mappedSorter("_name_lc"));
@@ -52728,7 +52734,7 @@ $.fn.togglify = function(settings) {
     if (user_group) {
       var default_channels_groups = user_group.prefs.channels.concat(user_group.prefs.groups);
       default_channels_groups.forEach(function(item) {
-        for (var i = 0; i < options.length; i++) {
+        for (var i = 0; i < options.length; i += 1) {
           if (item == options[i].id) {
             options[i].selected = true;
             break;
@@ -52861,12 +52867,12 @@ $.fn.togglify = function(settings) {
           return new Handlebars.SafeString(html);
         },
         onItemAdded: function(item) {
-          member_count++;
+          member_count += 1;
           $member_count.html(member_count);
           updateForm();
         },
         onItemRemoved: function(item) {
-          member_count--;
+          member_count -= 1;
           $member_count.html(member_count);
           updateForm();
         },
@@ -52900,7 +52906,7 @@ $.fn.togglify = function(settings) {
         if (!TS.lazyLoadMembersAndBots()) {
           selected_members = user_group.users;
           selected_members.forEach(function(item) {
-            for (var i = 0; i < data.length; i++) {
+            for (var i = 0; i < data.length; i += 1) {
               if (item == data[i].member.id) {
                 data[i].selected = true;
                 break;
@@ -53067,7 +53073,7 @@ $.fn.togglify = function(settings) {
   };
   var _getUserGroupFromId = function(id) {
     if (id) {
-      for (var i = 0; i < _user_groups.length; i++) {
+      for (var i = 0; i < _user_groups.length; i += 1) {
         if (_user_groups[i].id == id) {
           return _user_groups[i];
         }
@@ -54132,7 +54138,7 @@ $.fn.togglify = function(settings) {
     if (!corrected.typo_corrected) return;
     var id = input_element.getAttribute("data-email-healing");
     if (id === "true") {
-      id = _count++;
+      id = _count += 1;
       input_element.setAttribute("data-email-healing", id);
     }
     if (_colors[id] === undefined) {
@@ -54881,6 +54887,45 @@ $.fn.togglify = function(settings) {
     },
     promiseToGetRegions: function() {
       if (_region_p) return _region_p;
+      if (_utility_call_state.calls_better_regions_expt) {
+        _region_p = new Promise(function(resolve) {
+          var servers = {
+            east: "slack-calls-0fc78df4963fa1cd7.slack-core.com",
+            west: "slack-calls-04e6ff274e7196b49.slack-core.com",
+            eu: "slack-calls-004c3e8ad31b95218.slack-core.com",
+            ap: "slack-calls-00f1852837340bafc.slack-core.com"
+          };
+          TS.api.callImmediately("screenhero.getServers", {
+            protocol_version: "2.0",
+            media_server: "janus"
+          }, function(ok, data, args) {
+            if (ok) {
+              servers = data.servers;
+            }
+            var all_regions = Object.keys(servers);
+            var resolved = false;
+            _.each(all_regions, function(region) {
+              $.ajax({
+                type: "OPTIONS",
+                url: "https://" + servers[region] + "/janus",
+                async: true,
+                cache: false,
+                timeout: 2e3
+              }).always(function() {
+                TS.utility.calls_log.logEvent({
+                  event: "RegionsNew",
+                  value: region
+                });
+                if (!resolved) {
+                  resolve(region);
+                  resolved = true;
+                }
+              });
+            });
+          });
+        });
+        return _region_p;
+      }
       var regions;
       _region_p = new Promise(function(resolve) {
         $.ajax({
@@ -57914,7 +57959,7 @@ $.fn.togglify = function(settings) {
             errorTemplate: _errorTemplate,
             filter: _filter,
             input_debounce_wait_time: _getInputDebounceWaitTime($el),
-            min_query_length: _.get(context, "action.min_query_length"),
+            min_query_length: _getMinQueryLength(context),
             no_default_selection: true,
             onItemAdded: _onItemAdded,
             onListShown: _getOnListShownCallback($el),
@@ -57935,8 +57980,7 @@ $.fn.togglify = function(settings) {
     getActionModel: function(action, is_disabled) {
       var model = _.clone(action);
       model._disabled = model._disabled || !!is_disabled;
-      model.data_source = model.data_source || _DATA_SOURCES.default;
-      model.options = _getOptionsForModel(model);
+      model.data_source = _DATA_SOURCES[model.data_source] || _DATA_SOURCES.default;
       if (model.text) {
         model.text = _formatAndMarkSafeString(model.text);
       }
@@ -57964,6 +58008,8 @@ $.fn.togglify = function(settings) {
     external: "external",
     users: "users"
   };
+  var _LAZY_LOADED_DATA_SOURCES = [_DATA_SOURCES.conversations, _DATA_SOURCES.users];
+  var _LAZY_LOADED_DATA_SOURCE_MIN_QUERY_LENGTH = 3;
   var _EXTERNAL_INPUT_DEBOUNCE_WAIT_TIME = 250;
 
   function _onActionCompleted(action_id, context) {
@@ -58023,62 +58069,30 @@ $.fn.togglify = function(settings) {
     return available_space_above - header_height;
   }
 
-  function _getOptionsForModel(model) {
-    switch (model.data_source) {
-      case _DATA_SOURCES.channels:
-        return _getOptionsForChannels();
-      case _DATA_SOURCES.users:
-        return _getOptionsForUsers();
-      case _DATA_SOURCES.external:
-      case _DATA_SOURCES.conversations:
-        return;
-      default:
-        return model.options;
-    }
-  }
-
-  function _getOptionsForChannels() {
-    var sorted_channels = TS.sorter.search("#", {
-      channels: TS.channels.getChannelsForUser()
-    }, {
-      frecency: true
-    });
-    return sorted_channels.map(function(result) {
-      var channel = result.model_ob;
-      return {
-        text: "# " + channel.name,
-        value: channel.id
-      };
-    });
-  }
-
-  function _getOptionsForUsers() {
-    var sorted_members = TS.sorter.search("@", {
-      members: TS.members.getActiveMembersWithSelfAndSlackbot()
-    }, {
-      frecency: true
-    });
-    return sorted_members.map(function(result) {
-      var member = result.model_ob;
-      var name_data = TS.members.getMemberUsernameAndRealNameInCorrectOrder(member);
-      if (!name_data.is_username_first) name_data.names_in_order.reverse();
-      return {
-        description: TS.utility.htmlEntities(name_data.names_in_order[1]),
-        icon: member.profile.image_24,
-        text: TS.utility.htmlEntities(name_data.names_in_order[0]),
-        value: member.id
-      };
-    });
-  }
-
   function _getDataPromise($select) {
     switch ($select.data("data-source")) {
+      case _DATA_SOURCES.channels:
+        return _getDataPromiseForChannels();
       case _DATA_SOURCES.conversations:
         return TS.ui.file_share.promiseToGetFileShareSelectOptions;
       case _DATA_SOURCES.external:
         return _getDataPromiseForExternal($select);
+      case _DATA_SOURCES.users:
+        return _getDataPromiseForUsers();
       default:
+        break;
     }
+  }
+
+  function _getDataPromiseForChannels() {
+    return function(query) {
+      query = query.length ? query.replace(/^#/, "") : "#";
+      return Promise.resolve(TS.sorter.search(query, {
+        channels: TS.channels.getChannelsForUser()
+      }, {
+        frecency: true
+      }));
+    };
   }
 
   function _getDataPromiseForExternal($select) {
@@ -58109,15 +58123,34 @@ $.fn.togglify = function(settings) {
     };
   }
 
+  function _getDataPromiseForUsers() {
+    return function(query) {
+      query = query.length ? query.replace(/^@/, "") : "@";
+      return Promise.resolve(TS.sorter.search(query, {
+        members: TS.members.getActiveMembersWithSelfAndSlackbot()
+      }, {
+        frecency: true
+      }));
+    };
+  }
+
+  function _getMinQueryLength(context) {
+    var action = context.action || {};
+    var min_query_length = action.min_query_length;
+    if (!min_query_length && _.includes(_LAZY_LOADED_DATA_SOURCES, action.data_source)) {
+      min_query_length = _LAZY_LOADED_DATA_SOURCE_MIN_QUERY_LENGTH;
+    }
+    return min_query_length;
+  }
+
   function _getInputDebounceWaitTime($select) {
-    var data_source = $select.data("data-source");
-    if (data_source === _DATA_SOURCES.external || data_source === _DATA_SOURCES.conversations) {
+    if ($select.data("data-source") !== _DATA_SOURCES.default) {
       return _EXTERNAL_INPUT_DEBOUNCE_WAIT_TIME;
     }
   }
 
   function _getItemTemplate($select) {
-    if ($select.data("data-source") === _DATA_SOURCES.conversations) {
+    if ($select.data("data-source") !== _DATA_SOURCES.default) {
       return _itemTemplateForConversations;
     }
   }
@@ -58290,14 +58323,14 @@ $.fn.togglify = function(settings) {
     if (evt.key === "ArrowDown") {
       index = this._items.indexOf(this._focused_item);
       if (index < this._items.length - 1) {
-        index++;
+        index += 1;
       } else {
         index = 0;
       }
     } else if (evt.key === "ArrowUp") {
       index = this._items.indexOf(this._focused_item);
       if (index > 0) {
-        index--;
+        index -= 1;
       } else {
         index = this._items.length - 1;
       }
@@ -60686,7 +60719,7 @@ $.fn.togglify = function(settings) {
       var msgs = TS.utility.msgs.getDisplayedMsgs(TS.shared.getActiveModelOb().msgs);
       var i;
       if (animations === false) {
-        for (i = 0; i < msgs.length; i++) {
+        for (i = 0; i < msgs.length; i += 1) {
           if (msgs[i].file) {
             file = msgs[i].file;
             if (file.filetype === "gif") {
@@ -60706,7 +60739,7 @@ $.fn.togglify = function(settings) {
           }
         }
       } else {
-        for (i = 0; i < msgs.length; i++) {
+        for (i = 0; i < msgs.length; i += 1) {
           if (msgs[i].file) {
             file = msgs[i].file;
             if (file.filetype === "gif") {
@@ -60731,7 +60764,7 @@ $.fn.togglify = function(settings) {
       var _emoji = emoji;
       var emoji_list = $(".emoji:not(.stop_animations)");
       var new_emoji_url;
-      for (var j = 0; j < emoji_list.length; j++) {
+      for (var j = 0; j < emoji_list.length; j += 1) {
         var new_emoji = _emoji.replace_colons(emoji_list[j].innerText);
         if (!new_emoji) {
           var emoji_colons = ":" + emoji_list[j].parentNode.getAttribute("data-emoji") + ":";
@@ -61436,7 +61469,8 @@ $.fn.togglify = function(settings) {
         if (b) {
           b = !1;
           var t = y;
-          y = p.getPooled(), t.notifyAll(), p.release(t);
+          y = p.getPooled(), t.notifyAll(),
+            p.release(t);
         }
       }
     },
@@ -66962,8 +66996,7 @@ $.fn.togglify = function(settings) {
     };
   e.exports = Object.create || function(e, t) {
     var n;
-    return null !== e ? (u[s] = r(e),
-      n = new u, u[s] = null, n[a] = e) : n = l(), void 0 === t ? n : o(n, t);
+    return null !== e ? (u[s] = r(e), n = new u, u[s] = null, n[a] = e) : n = l(), void 0 === t ? n : o(n, t);
   };
 }, function(e, t, n) {
   var r = n(50),
@@ -71924,8 +71957,7 @@ $.fn.togglify = function(settings) {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
-          r.enumerable = r.enumerable || !1,
-            r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
         }
       }
       return function(t, n, r) {

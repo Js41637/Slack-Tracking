@@ -6816,9 +6816,27 @@ only screen and (min-resolution:2dppx) {
   }
 }
 
-#notification_bar.showing_snippet_prompt #special_formatting_text,
-#notification_bar:not(.really_wide).showing_typing #special_formatting_text {
+#client-ui:not(.client_resize_optimizations) #notification_bar:not(.really_wide).showing_typing #special_formatting_text,
+#notification_bar.showing_snippet_prompt #special_formatting_text {
   display: none
+}
+
+@media screen and (max-width:837px) {
+  #client-ui:not(.flex_pane_showing).client_resize_optimizations #notification_bar.showing_typing #special_formatting_text {
+    display: none
+  }
+}
+
+@media screen and (max-width:1137px) {
+  #client-ui.details_showing.client_resize_optimizations #notification_bar.showing_typing #special_formatting_text {
+    display: none
+  }
+}
+
+@media screen and (max-width:1204px) {
+  #client-ui.flex_pane_showing:not(.details_showing).client_resize_optimizations #notification_bar.showing_typing #special_formatting_text {
+    display: none
+  }
 }
 
 .special_formatting_tips code {
@@ -7976,4 +7994,8 @@ html.supports_css_mask_image #team_menu .placeholder_shimmer_clipper {
   color: #fff;
   background: #2C2D30;
   border-radius: 5px
+}
+
+.focus-ring:not(input) {
+  outline: #1543D9 solid 3px!important
 }

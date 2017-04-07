@@ -925,6 +925,18 @@ html.no_touch .alert_page a:hover {
   display: none
 }
 
+.z_index_auto {
+  z-index: auto
+}
+
+.z_index_0 {
+  z-index: 0
+}
+
+.z_index_1 {
+  z-index: 1
+}
+
 .no_list_style {
   list-style-type: none
 }
@@ -5549,6 +5561,10 @@ only screen and (min-resolution:2dppx) {
   overflow-x: hidden
 }
 
+.client_resize_optimizations .menu #menu_items_scroller {
+  max-height: calc(100vh - 99px)
+}
+
 .supports_custom_scrollbar:not(.slim_scrollbar) .menu #menu_items_scroller {
   border-right: .25rem solid transparent;
   border-right: none
@@ -7798,11 +7814,13 @@ ts-inline-saver.failed .failed {
 
 .lazy_filter_select.single.filter_in_list_style .lfs_list_container {
   max-width: 350px;
-  min-width: 250px
+  min-width: 250px;
+  overflow: hidden
 }
 
 .lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_filter_input {
   font-size: 13px;
+  margin-bottom: 0;
   padding: 6px 27px 6px 10px
 }
 
@@ -7816,9 +7834,19 @@ ts-inline-saver.failed .failed {
   font-size: 13px
 }
 
-.lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_item .ts_icon::before {
+.lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_item .ts_icon::before,
+.lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_item ts-icon::before {
   font-size: 13px;
+  line-height: 1
+}
+
+.lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_item .ts_icon:first-child::before,
+.lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_item ts-icon:first-child::before {
   margin-right: .25rem
+}
+
+.lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_item .ts_icon_shared_channel::before {
+  vertical-align: text-top
 }
 
 .lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_item.group_item {

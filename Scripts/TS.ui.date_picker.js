@@ -194,7 +194,7 @@
           }
         } else {
           var msgs = response.data.messages;
-          for (var i = msgs.length - 1; i >= 0; i--) {
+          for (var i = msgs.length - 1; i >= 0; i -= 1) {
             var msg = msgs[i];
             if (!TS.utility.msgs.isMsgReply(msg) && !(msg.subtype === "pinned_item")) {
               resolve(msg.ts);

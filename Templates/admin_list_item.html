@@ -1,6 +1,13 @@
 {{i18n_ns "loading_messages"}}
 
-<div class="admin_list_item active member_item {{#if_equal member.is_inactive compare="1"}}{{#unless member.is_bot}}{{#unless member.is_slackbot}}inactive{{/unless}}{{/unless}}{{/if_equal}}" id="row_{{member.id}}" data-member-id="{{member.id}}" {{#if show_inactive_tip}}data-toggle="tooltip" title="{{#t}}This team member has not been active in Slack recently.{{/t}}"{{/if}}>
+<div class="admin_list_item active member_item {{#if_equal member.is_inactive compare="1"}}{{#unless member.is_bot}}{{#unless member.is_slackbot}}inactive{{/unless}}{{/unless}}{{/if_equal}} {{#if show_inactive_tip}}ts_tip ts_tip_top ts_tip_float ts_tip_multiline ts_tip_delay_600{{/if}}" id="row_{{member.id}}" data-member-id="{{member.id}}">
+    {{#if show_inactive_tip}}
+        <span class="ts_tip_tip">
+            <span class="ts_tip_multiline_inner">
+                {{#t}}This team member has not been active in Slack recently.{{/t}}
+            </span>
+        </span>
+    {{/if}}
 
     {{#if exclude_lazy_load}}
         {{makeMemberPreviewLinkImage member.id 36 false}}
@@ -20,7 +27,7 @@
             <form class="inline_name_edit_form hidden inline_block no_bottom_margin" onsubmit="TS.web.admin.submitNameForm('{{member.id}}');">
                 {{! no need for crumb_input }}
                 <input type="text" name="full_name" placeholder="{{#t}}Full name{{/t}}" value="{{getMemberFullName member}}" />
-                <span class="mini">{{#t}}<a onclick="$(this).closest('form').submit();">save</a> or <a onclick="TS.web.admin.cancelNameForm(''{member.id}'');">cancel</a>{{/t}}</span>
+                <span class="inline_edit_form_actions">{{#t}}<a onclick="$(this).closest('form').submit();">save</a> or <a onclick="TS.web.admin.cancelNameForm(''{member.id}'');">cancel</a>{{/t}}</span>
             </form>
 
         {{else}}
@@ -50,7 +57,7 @@
                 {{! no need for crumb_input }}
                 <input type="text" name="first_name" placeholder="{{#t}}First name{{/t}}" value="{{member.profile.first_name}}" />
                 <input type="text" name="last_name" placeholder="{{#t}}Last name{{/t}}" value="{{member.profile.last_name}}" />
-                <span class="mini">{{#t}}<a onclick="$(this).closest('form').submit();">save</a> or <a onclick="TS.web.admin.cancelNameForm(''{member.id}'');">cancel</a>{{/t}}</span>
+                <span class="inline_edit_form_actions">{{#t}}<a onclick="$(this).closest('form').submit();">save</a> or <a onclick="TS.web.admin.cancelNameForm(''{member.id}'');">cancel</a>{{/t}}</span>
             </form>
 
         {{else}}
@@ -89,7 +96,7 @@
                 <form class="inline_username_edit_form hidden inline_block no_bottom_margin" onsubmit="TS.web.admin.submitUsernameForm('{{member.id}}')">
                     {{! no need for crumb_input }}
                     <input type="text" name="username" placeholder="{{#t}}Username{{/t}}" value="{{member.name}}" maxlength="21" required />
-                    <span class="mini">{{#t}}<a onclick="$(this).closest('form').submit();">save</a> or <a onclick="TS.web.admin.cancelUsernameForm(''{member.id}'');">cancel</a>{{/t}}</span>
+                    <span class="inline_edit_form_actions">{{#t}}<a onclick="$(this).closest('form').submit();">save</a> or <a onclick="TS.web.admin.cancelUsernameForm(''{member.id}'');">cancel</a>{{/t}}</span>
                 </form>
                 {{/if}}
             {{/if}}
@@ -116,7 +123,7 @@
         <form class="inline_email_edit_form hidden inline_block no_bottom_margin" onsubmit="TS.web.admin.submitEmailForm('{{member.id}}')">
             {{! no need for crumb_input }}
             <input type="email" name="email" placeholder="{{#t}}Email address{{/t}}" value="{{member.profile.email}}" required />
-            <span class="mini">{{#t}}<a onclick="$(this).closest('form').submit();">save</a> or <a onclick="TS.web.admin.cancelEmailForm(''{member.id}'');">cancel</a>{{/t}}</span>
+            <span class="inline_edit_form_actions">{{#t}}<a onclick="$(this).closest('form').submit();">save</a> or <a onclick="TS.web.admin.cancelEmailForm(''{member.id}'');">cancel</a>{{/t}}</span>
         </form>
         {{/if}}
     {{/if}}
@@ -131,7 +138,7 @@
 
         {{#if member.two_factor_auth_enabled}}<span title="{{#t}}Two-factor authentication enabled{{/t}}" class="small_right_margin two_factor_auth_badge">{{#t}}2FA{{/t}} <i class="ts_icon ts_icon_check_circle_o"></i></span>{{/if}}
 
-        {{#if member_status}}<em class="subtle_silver">{{member_status}}</em>{{/if}}
+        {{#if member_status}}<em class="greigh">{{member_status}}</em>{{/if}}
         {{#if member.is_restricted}}
             {{#if member.deleted}}
                 {{member_type}}
@@ -147,7 +154,7 @@
                         <a class="group pill inline_block api_change_ura_channel" title="{{#t member_name=../member.name}}Change the channel that {member_name} can access{{/t}}">{{#t}}Private Channel{{/t}} <i class="ts_icon ts_icon_pencil ts_icon_inherit pill_action edit"></i></a>
                     {{/if}}
                 {{else}}
-                    <span class="mini">
+                    <span class="admin_list_item_channel_membership">
                         {{#if channels_count}}
                             {{#if group_count}}
                                 {{#t}}Belongs to {channels_count, plural, =1{# public channel}other{# public channels}} and {group_count} private {group_count, plural, =1{channel}other{channels}}{{/t}}

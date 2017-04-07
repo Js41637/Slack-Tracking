@@ -585,12 +585,12 @@
       is_open_many: false,
       is_old_tickets: false
     };
-    for (var i = 0; i < TS.help.issues.length; i++) {
+    for (var i = 0; i < TS.help.issues.length; i += 1) {
       var issue = TS.help.issues[i];
       if (issue.state == "unread") {
-        settings.unread_count++;
+        settings.unread_count += 1;
       } else if (issue.state == "open") {
-        settings.open_count++;
+        settings.open_count += 1;
       }
     }
     settings.is_unread = settings.unread_count != 0;
@@ -800,7 +800,7 @@
   };
   var _getSuggestedTopics = function(articles) {
     var suggested_articles = [];
-    for (var i = 0; i < articles.length; i++) {
+    for (var i = 0; i < articles.length; i += 1) {
       if (articles[i].popular) {
         suggested_articles.push(articles[i]);
       }
@@ -1825,7 +1825,7 @@
     getItemByItemId: function(item_id) {
       var $items = _$context.children(_item_selector).filter(":not(.disabled):visible");
       var items = $.makeArray($items);
-      for (var i = 0, $elem; i < items.length; ++i) {
+      for (var i = 0, $elem; i < items.length; i += 1) {
         $elem = $(items[i]);
         if (item_id === $elem.data("item-id")) {
           return $elem;
@@ -2053,7 +2053,7 @@
     if (_use_data_ordering) {
       var ordered = _getElementsOrdered();
       var order_index = $current.data("order-index");
-      for (var i = 0; i < ordered.length; i++) {
+      for (var i = 0; i < ordered.length; i += 1) {
         if ($(ordered[i]).data("order-index") == order_index) {
           if (i + 1 < ordered.length) return $(ordered[i + 1]);
           break;
@@ -2069,7 +2069,7 @@
     if (_use_data_ordering) {
       var ordered = _getElementsOrdered();
       var order_index = $current.data("order-index");
-      for (var i = 0; i < ordered.length; i++) {
+      for (var i = 0; i < ordered.length; i += 1) {
         if ($(ordered[i]).data("order-index") == order_index) {
           if (i - 1 >= 0) return $(ordered[i - 1]);
           break;
