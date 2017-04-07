@@ -298,7 +298,7 @@
     if (!TS.model.team.plan) return _updateInviteSingleChannelGuestsButton(false);
     TS.api.callImmediately("users.admin.canAddUltraRestricted").then(function(resp) {
       _updateInviteSingleChannelGuestsButton(resp.data.ok);
-    }, function(error) {
+    }, function() {
       _updateInviteSingleChannelGuestsButton(false);
     });
   };
@@ -894,7 +894,7 @@
           } else {
             _new_email_domains = "";
           }
-        }, function(response) {
+        }, function() {
           _new_email_domains = "";
         }).finally(done);
       } else {
@@ -969,7 +969,7 @@
       emails: emails
     }, _onEmailsParsed);
   };
-  var _onEmailsParsed = function(ok, data, args) {
+  var _onEmailsParsed = function(ok, data) {
     if (!ok) {
       TS.error("failed onEmailsParsed");
       var error_text = TS.i18n.t("Oops! There was an error processing those emails. Please try again.", "invite")();
@@ -1037,7 +1037,7 @@
     }, {});
     return Object.keys(map).join(",");
   };
-  var _saveDomains = function(e) {
+  var _saveDomains = function() {
     TS.ui.startButtonSpinner(_$div.find('button[data-action="add_signup_domains"]').get(0));
     var domains = _$div.find("#invite_signup_domains").val();
     if (TS.model.team.email_domain) domains = [TS.model.team.email_domain, domains].join(",");

@@ -27,7 +27,7 @@
           var min_date = TS.utility.date.toDateObject(min_ts);
           _initPickmeUpForJumpToDate($element, min_date);
           return true;
-        }).catch(function(err) {
+        }).catch(function() {
           _initPickmeUpForJumpToDate($element);
           return TS.warn("couldn’t find messages in this channel :" + model_ob.id);
         });
@@ -116,7 +116,7 @@
         min_ts = response.data.messages[0].ts;
         $("#channel_actions_toggle").attr("data-oldest-ts", min_ts);
         return true;
-      }).catch(function(err) {
+      }).catch(function() {
         return TS.warn("couldn’t find messages in this channel :" + model_ob.id);
       });
     }
@@ -164,7 +164,7 @@
         TS.client.archives.start(msg_id);
       }
       return true;
-    }).catch(function(err) {
+    }).catch(function() {
       return TS.warn("couldn’t find message for date: " + timestamp + " in channel: " + model_ob.id);
     });
   };

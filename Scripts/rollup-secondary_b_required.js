@@ -879,7 +879,7 @@
               no_model_ob: !TS.client
             }
           },
-          onEnter: function(args) {
+          onEnter: function() {
             if (callback) {
               callback();
             } else {
@@ -887,7 +887,7 @@
             }
             return false;
           },
-          onTextChange: function(source) {
+          onTextChange: function() {
             if (!TS.client) return;
             if (TS.ui.fs_modal_file_viewer.is_showing && $("#file_comment").closest("#fs_modal").length) {
               TS.ui.fs_modal_file_viewer.storeLastCommentInput();
@@ -975,11 +975,11 @@
       $("#file_edit_comment").css("overflow", "hidden").autogrow();
       TS.ui.comments.bindInput($("#file_edit_comment"));
       $edit_form.unbind("submit").bind("submit", TS.ui.comments.submitEditForm);
-      $edit_form.find(".save").unbind("click").bind("click", function(e) {
+      $edit_form.find(".save").unbind("click").bind("click", function() {
         TS.ui.comments.submitEditForm();
         return false;
       });
-      $edit_form.find(".cancel").unbind("click").bind("click", function(e) {
+      $edit_form.find(".cancel").unbind("click").bind("click", function() {
         TS.ui.comments.onEndEdit();
         return false;
       });
@@ -1059,7 +1059,7 @@
           file: file.id,
           id: comment.id,
           comment: val
-        }, function(ok, data, args) {
+        }, function(ok) {
           if (!ok) {
             comment.comment = was_comment;
             if ($comment_bodies.length) {
@@ -1121,7 +1121,7 @@
       TS.api.call("files.comments.delete", {
         file: file_id,
         id: comment_id
-      }, function(ok, data, args) {
+      }, function(ok, data) {
         if (ok) {
           if (TS.client) {} else {
             TS.files.deleteCommentOnFile(comment.id, file);
@@ -1155,7 +1155,7 @@
       });
       if (!imsg.active || !imsg.active.length) return;
       var member;
-      for (var i = 0; i < imsg.active.length; i++) {
+      for (var i = 0; i < imsg.active.length; i += 1) {
         member = TS.members.getMemberById(imsg.active[i]);
         if (!member) {
           TS.error('unknown member: "' + imsg.active[i] + '"');
@@ -1570,7 +1570,7 @@
     _saveSelection: function() {
       this._current_ranges = [];
       this._sel = window.getSelection();
-      for (var i = 0; i < this._sel.rangeCount; i++) {
+      for (var i = 0; i < this._sel.rangeCount; i += 1) {
         this._current_ranges.push(this._sel.getRangeAt(i));
       }
     },

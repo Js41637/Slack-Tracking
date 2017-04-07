@@ -14,7 +14,10 @@
     });
     var all_strings = true;
     var i = args.length;
-    while (all_strings && i--) all_strings = typeof args[i] === "string";
+    while (all_strings && i) {
+      i -= 1;
+      all_strings = typeof args[i] === "string";
+    }
     if (clean_log && type !== "error" && (pri !== parseInt(TS.qs_args.pri, 10) || !has_pri)) return;
     if (all_strings) {
       var log_date = TS.makeLogDate();
@@ -209,7 +212,7 @@
     if (!TS.boot_data || TS.boot_data.feature_tinyspeck || TS.boot_data.version_ts === "dev") return obj;
     if (!obj || !_.isObject(obj)) return obj;
     if (iteration_count) {
-      iteration_count++;
+      iteration_count += 1;
     } else {
       iteration_count = 1;
     }
@@ -3326,7 +3329,7 @@ var _fullToHalf = function(char) {
       var i = 0;
       var len = params.length;
       var arg;
-      for (i; i < len; i++) {
+      for (i; i < len; i += 1) {
         arg = params[i].split("=");
         args[arg[0]] = arg[1];
       }
@@ -3379,7 +3382,7 @@ var _fullToHalf = function(char) {
     if (TS.log) TS.log(_LOG_PRI, "Logs: ", _logs);
     var log_urls = _createLogURLs(_logs);
     var log_url;
-    for (var i = 0; i < log_urls.length; i++) {
+    for (var i = 0; i < log_urls.length; i += 1) {
       log_url = log_urls[i];
       var log = new Image;
       log.src = log_url;
@@ -3396,7 +3399,7 @@ var _fullToHalf = function(char) {
       return _CLOG_ENDPOINT_URL + "?logs=" + encodeURIComponent(JSON.stringify(log_data));
     };
     var log;
-    for (var i = 0; i < logs.length; i++) {
+    for (var i = 0; i < logs.length; i += 1) {
       log = logs[i];
       data.push(log);
       url = makeUrl(data);
@@ -4863,7 +4866,7 @@ var _fullToHalf = function(char) {
         onListHidden: function() {
           $("#select_share_channels .lfs_list_container").removeClass("new_channel_container");
         },
-        renderDividerFunc: function($el, item, data) {
+        renderDividerFunc: function($el, item) {
           if (item.create_channel) {
             $el.html(TS.i18n.t('<span class="new">No items matched <strong>{query}</strong></span>', "files")({
               query: TS.utility.htmlEntities(item.label)

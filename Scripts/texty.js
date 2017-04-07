@@ -420,6 +420,20 @@
         }
         return modules;
       }
+    }, {
+      key: "_enforceEmptyStateConsistency",
+      value: function _enforceEmptyStateConsistency() {
+        if (!this._quill) return;
+        var isEmpty = this.isEmpty();
+        var hasBlankState = this._quill.root.classList.contains("ql-blank");
+        if (isEmpty && !hasBlankState) {
+          this._quill.root.classList.add("ql-blank");
+          this.options.log("Texty: input missing blank state");
+        } else if (!isEmpty && hasBlankState) {
+          this._quill.root.classList.remove("ql-blank");
+          this.options.log("Texty: input has unnecessary blank state");
+        }
+      }
     }]);
     return Texty;
   }();
@@ -443,6 +457,9 @@
     });
     quill.on("text-change", function(delta, oldDelta, source) {
       texty._setLastSelection();
+      setTimeout(function() {
+        return texty._enforceEmptyStateConsistency();
+      }, 0);
       if (options.onTextChange) {
         var callbackSource = texty._nextTextChangeCallbackSource || source;
         texty._nextTextChangeCallbackSource = null;

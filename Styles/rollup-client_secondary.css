@@ -2269,12 +2269,6 @@ html.is_electron_mac #rxn_toast_div {
   user-select: text
 }
 
-#whats_new_tab p {
-  font-size: 15px;
-  line-height: 22px;
-  color: #2C2D30
-}
-
 #whats_new_tab .flex_heading_controls {
   margin-top: .5rem
 }
@@ -2283,6 +2277,24 @@ html.is_electron_mac #rxn_toast_div {
   margin-bottom: 0;
   font-weight: 400;
   color: #88919B
+}
+
+#whats_new_tab p {
+  font-size: 15px;
+  line-height: 22px;
+  color: #2C2D30
+}
+
+#whats_new_tab .ts_icon_presence_online {
+  color: #3aa3e3
+}
+
+#whats_new_tab .ts_icon_presence_online:before {
+  font-size: 22px;
+  vertical-align: bottom;
+  margin-bottom: 3px;
+  margin-left: -4px;
+  margin-right: -3px
 }
 
 #whats_new_tab .whats_new_more .ts_icon_chevron_medium_right:hover {
@@ -24911,10 +24923,13 @@ li:hover .current_status_badge {
 
 .inline_edit {
   position: relative;
-  display: block;
   min-width: 11em;
   height: 1.16em;
   line-height: 1.16;
+  display: block;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
   -webkit-user-select: auto;
   -moz-user-select: auto;
   -ms-user-select: auto;
@@ -24938,21 +24953,14 @@ li:hover .current_status_badge {
 .inline_edit.inline_edit_updating,
 .inline_edit:hover {
   z-index: 941;
+  overflow: visible;
   white-space: normal;
   text-overflow: clip;
   word-wrap: break-word
 }
 
 .inline_edit .inline_edit_inner {
-  -ms-flex: 1;
-  -webkit-flex: 1;
-  flex: 1;
-  min-width: 1px;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
-  display: inline-block;
-  max-width: 100%
+  display: inline
 }
 
 .inline_edit .inline_edit_inner:hover,
@@ -24961,8 +24969,7 @@ li:hover .current_status_badge {
 .inline_edit.inline_edit_updating .inline_edit_inner {
   position: absolute;
   z-index: 5;
-  max-width: 100%;
-  overflow: visible
+  max-width: 100%
 }
 
 .inline_edit.inline_edit_done .inline_edit_inner,

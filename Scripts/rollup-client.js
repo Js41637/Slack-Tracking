@@ -1980,16 +1980,17 @@
       }
       var start_mark = "start_channel_change_" + TS.model.active_cid;
       var label = "channel_change";
-      if (model_ob.is_channel && TS.model.shared_channels_enabled && model_ob.is_shared) {
+      if (model_ob.is_shared) {
         label += "_shared";
-      } else if (model_ob.is_group) {
-        if (model_ob.is_mpim) {
-          label += "_mpim";
-        } else {
-          label += "_group";
-        }
-      } else if (model_ob.is_im) {
+      }
+      if (model_ob.is_im) {
         label += "_im";
+      } else if (model_ob.is_mpim) {
+        label += "_mpim";
+      } else if (model_ob.is_group) {
+        label += "_group";
+      } else if (model_ob.is_private) {
+        label += "_private";
       }
       TS.metrics.measureAndClear(label, start_mark);
     },
@@ -5481,10 +5482,10 @@
     var style_html = "";
     var i;
     if (!win.skip_css) {
-      for (i = 0; i < document.styleSheets.length; i++) {
+      for (i = 0; i < document.styleSheets.length; i += 1) {
         if (!document.styleSheets[i]) continue;
         if (document.styleSheets[i].cssRules) {
-          for (var m = 0; m < document.styleSheets[i].cssRules.length; m++) {
+          for (var m = 0; m < document.styleSheets[i].cssRules.length; m += 1) {
             style_text += document.styleSheets[i].cssRules[m].cssText;
           }
         } else if (document.styleSheets[i].href) {
@@ -8821,7 +8822,7 @@
           file_names = [];
           file_html = "";
           dont_worry_html = "";
-          for (i = 0, j = excluded_files.length; i < j; i++) {
+          for (i = 0, j = excluded_files.length; i < j; i += 1) {
             file_names.push("<li><strong>" + TS.utility.htmlEntities(excluded_files[i].name) + "</strong></li>");
           }
           if (excluded_files.length > 1) {
@@ -8868,7 +8869,7 @@
         selected_file_count = files.length;
         updateExpectedFileCount(files.length);
         var file, entry, file_object, entry_object;
-        for (var i = 0; i < files.length; i++) {
+        for (var i = 0; i < files.length; i += 1) {
           file = files[i];
           file_object = file;
           entry_object = file;
@@ -9000,7 +9001,7 @@
           var has_files = false;
           if (dragenter_e && dragenter_e.originalEvent && dragenter_e.originalEvent.dataTransfer && dragenter_e.originalEvent.dataTransfer.types) {
             var types = dragenter_e.originalEvent.dataTransfer.types;
-            for (var i = 0; i < types.length; i++) {
+            for (var i = 0; i < types.length; i += 1) {
               if (types[i].toLowerCase() == "files") {
                 has_files = true;
                 break;
@@ -10377,7 +10378,7 @@
     if (TS.model.profiling_keys) TS.model.addProfilingKeyTime("input textchange", Date.now() - start);
     _maybePromptForSnippet(val_formatted);
     _maybeToggleSpecialFormatting(val_formatted);
-    _change_count++;
+    _change_count += 1;
     if (val_formatted === "") {
       _resize_count = 0;
       _change_count = 0;
@@ -10413,7 +10414,7 @@
       boxOffset: 18,
       placeholder: false,
       callback: function() {
-        _resize_count++;
+        _resize_count += 1;
         TS.client.msg_input.resized.apply(this, arguments);
         var text = TS.utility.contenteditable.value(TS.client.msg_input.$input);
         if (text === "") {
@@ -10737,7 +10738,7 @@
     rebuild: function() {
       TS.client.channel_pane.rebuildFooter();
       var section;
-      for (var i = 0; i < arguments.length; i++) {
+      for (var i = 0; i < arguments.length; i += 1) {
         section = arguments[i];
         if (section == "starred") {
           _rebuildStarredList();
@@ -11154,7 +11155,7 @@
     var group;
     var im;
     var member;
-    for (i = 0; i < channels.length; i++) {
+    for (i = 0; i < channels.length; i += 1) {
       channel = channels[i];
       if (!channel.is_starred) continue;
       var display_because_archives = TS.model.archive_view_is_showing && TS.client.archives.current_model_ob.id == channel.id;
@@ -11162,14 +11163,14 @@
         A.push(channel);
       }
     }
-    for (i = 0; i < groups.length; i++) {
+    for (i = 0; i < groups.length; i += 1) {
       group = groups[i];
       if (!group.is_starred) continue;
       if (group.is_archived && !group.was_archived_this_session) continue;
       A.push(group);
     }
     _starred_members.clear();
-    for (i = 0; i < ims.length; i++) {
+    for (i = 0; i < ims.length; i += 1) {
       im = ims[i];
       if (!im.is_starred) continue;
       member = TS.members.getMemberById(im.user);
@@ -11184,7 +11185,7 @@
     }
     var mpims = TS.model.mpims;
     var mpim;
-    for (i = 0; i < mpims.length; i++) {
+    for (i = 0; i < mpims.length; i += 1) {
       mpim = mpims[i];
       if (!mpim.is_starred) continue;
       if (!mpim.is_open && !mpim.unread_cnt) continue;
@@ -11214,7 +11215,7 @@
     var groups = TS.model.groups;
     var display_groups = [];
     var muted_groups = [];
-    for (var i = 0; i < channels.length; i++) {
+    for (var i = 0; i < channels.length; i += 1) {
       channel = channels[i];
       var display_because_archives = TS.model.archive_view_is_showing && TS.client.archives.current_model_ob.id == channel.id;
       if (channel.is_starred) continue;
@@ -11999,7 +12000,7 @@
           if (who_when.was_toasted) return;
           if (who_when.when < since) return;
           who_when.rxn_source = rxn_record.source;
-          total_needing_toast++;
+          total_needing_toast += 1;
           if (!oldest_who_when || who_when.when < oldest_who_when.when) {
             oldest_who_when = who_when;
             emoji_name = name;
@@ -12189,7 +12190,7 @@
         var jl_rolled_up_msgs = [];
         var count = 0;
         var visible_msgs = _.reject(msgs, TS.utility.msgs.isMsgHidden);
-        for (var i = visible_msgs.length - 1; i > -1; i--) {
+        for (var i = visible_msgs.length - 1; i > -1; i -= 1) {
           if (!msg || !TS.utility.msgs.isMsgHidden(msg)) prev_msg = msg;
           msg = visible_msgs[i];
           if (TS.utility.msgs.isMsgHidden(msg)) continue;
@@ -12201,7 +12202,7 @@
             msg = jl_rolled_up_msgs[0];
             jl_rolled_up_msgs.length = 0;
           }
-          count++;
+          count += 1;
           var any_unknowns;
           if (TS.boot_data.page_needs_enterprise && call_again) {
             any_unknowns = TS.utility.msgs.allUnknownUsersInMessage(msg);
@@ -12959,7 +12960,7 @@
       } else if (is_muted) {
         all_unreads_are_seen = true;
       } else if (check_that_all_have_been_viewed) {
-        for (var i = 0; i < unreads.length; i++) {
+        for (var i = 0; i < unreads.length; i += 1) {
           ts = unreads[i];
           if (TS.model.client.reads.indexOf(ts) > -1) {} else if (TS.client.ui.isMsgInView(ts)) {
             TS.model.client.reads.push(ts);
@@ -13921,7 +13922,7 @@
     });
     var hidden_c = 0;
     _$scroller.find(".download_item").each(function(i, dl) {
-      hidden_c++;
+      hidden_c += 1;
       $dl = $(dl);
       if ($dl.hasClass("hidden_with_fade_out_and_shrink")) return;
       if (_downloads_map[$dl.data("token")]) return;
@@ -14164,7 +14165,7 @@
   var _getDownloadByProp = function(name, value) {
     if (!name) return null;
     if (!value && value !== 0) return null;
-    for (var i = 0; i < _downloads.length; i++) {
+    for (var i = 0; i < _downloads.length; i += 1) {
       if (_downloads[i][name] == value) return _downloads[i];
     }
     return null;
@@ -14220,7 +14221,7 @@
     onStart: function() {
       TS.client.login_sig.add(_onLogin);
       TS.prefs.whats_new_read_changed_sig.add(_updateEverything);
-      TS.client.flexpane_display_switched_sig.add(_decideIfRead);
+      TS.client.flexpane_display_switched_sig.add(_flexPaneOpened);
     },
     updateIcon: function() {
       _updateIcon();
@@ -14235,6 +14236,7 @@
   var _unread_count = 0;
   var _timer;
   var _ready = false;
+  var _whats_new_open = false;
   var _onLogin = function() {
     _ready = true;
     _$whats_new_updates.find(".whats_new_content").each(function() {
@@ -14314,10 +14316,19 @@
     });
     _unread_count = 0;
   };
-  var _decideIfRead = function() {
+  var _flexPaneOpened = function() {
     if (!_ready) return;
     var name = TS.model.ui_state.flex_name;
     if (!TS.model.ui_state.flex_visible || name != "whats_new") {
+      _whats_new_open = false;
+      return;
+    }
+    _whats_new_open = true;
+    _updateBlueDots();
+    _decideIfRead();
+  };
+  var _decideIfRead = function() {
+    if (!_whats_new_open) {
       clearTimeout(_timer);
       return;
     }
@@ -14332,7 +14343,18 @@
       var $el = $(this);
       var id = $el.data("whats-new-id");
       if (id && TS.model.prefs.whats_new_read < id) {
-        _unread_count++;
+        _unread_count += 1;
+      }
+    });
+  };
+  var _updateBlueDots = function() {
+    _$whats_new_updates.children().each(function() {
+      var $el = $(this);
+      var id = $el.data("whats-new-id");
+      if (id && TS.model.prefs.whats_new_read < id) {
+        $el.find(".ts_icon_presence_online").removeClass("hidden");
+      } else {
+        $el.find(".ts_icon_presence_online").addClass("hidden");
       }
     });
   };
@@ -14437,7 +14459,7 @@
   var _sortHistoryQueueByFrecency = function() {
     if (!_history_fetch_frecency_matches.length) return;
     var offset;
-    for (var i = _history_fetch_frecency_matches.length - 1; i >= 0; i--) {
+    for (var i = _history_fetch_frecency_matches.length - 1; i >= 0; i -= 1) {
       offset = _history_fetch_queue.indexOf(_history_fetch_frecency_matches[i]);
       if (offset !== -1) {
         _history_fetch_queue.unshift(_history_fetch_queue.splice(offset, 1)[0]);
@@ -14457,7 +14479,7 @@
   };
   var _maybeTruncateHistoryQueue = function() {
     var minimum_required_offset = 0;
-    for (var i = 0, j = _history_fetch_queue.length; i < j; i++) {
+    for (var i = 0, j = _history_fetch_queue.length; i < j; i += 1) {
       var model_ob = TS.shared.getModelObById(_history_fetch_queue[i]);
       if (model_ob && (!model_ob.is_im && !model_ob.is_mpim)) {
         minimum_required_offset = i;
@@ -20013,16 +20035,16 @@
       }
       if (TS.model.input_history_index < 0) {
         TS.chat_history.add(txt);
-        TS.model.input_history_index++;
+        TS.model.input_history_index += 1;
       }
       if (e.which == TS.utility.keymap.up) {
-        TS.model.input_history_index++;
+        TS.model.input_history_index += 1;
         if (TS.model.input_history_index >= TS.model.input_history.length) {
           TS.model.input_history_index = TS.model.input_history.length - 1;
           return;
         }
       } else if (e.which == TS.utility.keymap.down) {
-        TS.model.input_history_index--;
+        TS.model.input_history_index -= 1;
         if (TS.model.input_history_index < 0) {
           TS.model.input_history_index = -1;
           return;
@@ -21630,7 +21652,7 @@
           _loading_scripts = true;
           TS.utility.getCachedScript(cdn_url + "/cb0fd/js/libs/codemirror.js").done(function() {
             TS.utility.getCachedScript(cdn_url + "/7adb/js/libs/codemirror/addon/simple.js").done(function() {
-              TS.utility.getCachedScript(cdn_url + "/5d19/js/codemirror_load.js").done(function() {
+              TS.utility.getCachedScript(cdn_url + "/7a13/js/codemirror_load.js").done(function() {
                 TS.ui.snippet_dialog.start(text, title, filetype);
               });
             });
@@ -22391,7 +22413,7 @@
         $("#notifications_dismiss_banner").addClass("hidden");
       } else if (which == "notifications_dismiss") {
         $("#notifications_dismiss_banner").removeClass("hidden");
-        $banner.unbind("click").bind("click", function(e) {
+        $banner.unbind("click").bind("click", function() {
           TS.ui.banner.close();
           TS.ui.banner.show("no_banner");
         });
@@ -22470,13 +22492,13 @@
         $("#winssb1_dismiss_banner").removeClass("hidden");
       } else if (which == "macssb_osx_deprecated") {
         $("#macssb_osx_deprecated_banner").removeClass("hidden");
-        $banner.unbind("click").bind("click", function(e) {
+        $banner.unbind("click").bind("click", function() {
           TS.ui.banner.close();
         });
       } else if (which == "ssb_new_version_available") {
         var $which_banner = $("#ssb_new_version_available_banner");
         $which_banner.removeClass("hidden");
-        $which_banner.find('a[data-action="dismiss_banner"]').unbind("click").bind("click", function(e) {
+        $which_banner.find('a[data-action="dismiss_banner"]').unbind("click").bind("click", function() {
           TS.ui.banner.close();
           TSSSB.call("closeAllUpdateBanners");
         });
@@ -22487,7 +22509,7 @@
           return;
         }
         $generic_banner.removeClass("hidden");
-        $generic_banner.find('a[data-action="dismiss_banner"]').unbind("click").bind("click", function(e) {
+        $generic_banner.find('a[data-action="dismiss_banner"]').unbind("click").bind("click", function() {
           TS.ui.banner.close();
         });
       }
@@ -24080,7 +24102,7 @@
     if (!TS.model.team.plan) return _updateInviteSingleChannelGuestsButton(false);
     TS.api.callImmediately("users.admin.canAddUltraRestricted").then(function(resp) {
       _updateInviteSingleChannelGuestsButton(resp.data.ok);
-    }, function(error) {
+    }, function() {
       _updateInviteSingleChannelGuestsButton(false);
     });
   };
@@ -24676,7 +24698,7 @@
           } else {
             _new_email_domains = "";
           }
-        }, function(response) {
+        }, function() {
           _new_email_domains = "";
         }).finally(done);
       } else {
@@ -24751,7 +24773,7 @@
       emails: emails
     }, _onEmailsParsed);
   };
-  var _onEmailsParsed = function(ok, data, args) {
+  var _onEmailsParsed = function(ok, data) {
     if (!ok) {
       TS.error("failed onEmailsParsed");
       var error_text = TS.i18n.t("Oops! There was an error processing those emails. Please try again.", "invite")();
@@ -24819,7 +24841,7 @@
     }, {});
     return Object.keys(map).join(",");
   };
-  var _saveDomains = function(e) {
+  var _saveDomains = function() {
     TS.ui.startButtonSpinner(_$div.find('button[data-action="add_signup_domains"]').get(0));
     var domains = _$div.find("#invite_signup_domains").val();
     if (TS.model.team.email_domain) domains = [TS.model.team.email_domain, domains].join(",");
@@ -25200,7 +25222,7 @@
     TS.ui.channel_options_dialog.div = $(".channel_options_modal");
     _$all_options = TS.ui.channel_options_dialog.div.find('.channel_options_section[data-section="options"]');
     _$current_option = TS.ui.channel_options_dialog.div.find('.channel_options_section[data-section="option"]');
-    _$all_options.on("click", ".channel_option_item", function(e) {
+    _$all_options.on("click", ".channel_option_item", function() {
       var action = $(this).data("action");
       _updateBackButton();
       switch (action) {
@@ -25350,7 +25372,7 @@
       if (TS.ui.channel_options_dialog.ladda) TS.ui.channel_options_dialog.ladda.start();
       TS.api.call("channels.archive", {
         channel: model_ob.id
-      }, function(ok, data, args) {
+      }, function(ok, data) {
         if (TS.ui.channel_options_dialog.ladda) TS.ui.channel_options_dialog.ladda.stop();
         if (ok) {
           if (TS.web) {
@@ -25403,7 +25425,7 @@
       if (TS.ui.channel_options_dialog.ladda) TS.ui.channel_options_dialog.ladda.start();
       TS.api.call("groups.archive", {
         channel: model_ob.id
-      }, function(ok, data, args) {
+      }, function(ok, data) {
         if (TS.ui.channel_options_dialog.ladda) TS.ui.channel_options_dialog.ladda.stop();
         if (ok) {
           TS.ui.fs_modal.close();
@@ -25448,7 +25470,7 @@
       if (TS.ui.channel_options_dialog.ladda) TS.ui.channel_options_dialog.ladda.start();
       TS.api.call("channels.convertToGroup", {
         channel: model_ob.id
-      }, function(ok, data, args) {
+      }, function(ok, data) {
         if (TS.ui.channel_options_dialog.ladda) TS.ui.channel_options_dialog.ladda.stop();
         if (ok) {
           TS.ui.fs_modal.close();
@@ -25522,7 +25544,7 @@
       calling_args.purpose = purpose;
       var current_model_ob = TS.shared.getActiveModelOb();
       var api_endpoint = current_model_ob.is_group ? "enterprise.groups.createShared" : "enterprise.channels.createShared";
-      TS.api.call(api_endpoint, calling_args, function(ok, data, args) {
+      TS.api.call(api_endpoint, calling_args, function(ok, data) {
         if (TS.ui.channel_options_dialog.ladda) TS.ui.channel_options_dialog.ladda.stop();
         if (ok) {
           TS.ui.fs_modal.close();
@@ -25560,7 +25582,7 @@
   };
   var _bindConvertSharedUI = function() {
     var $convert_to_shared = _$current_option.find(".convert_to_shared");
-    $convert_to_shared.on("change", '[type="radio"][name="share_with"]', function(e) {
+    $convert_to_shared.on("change", '[type="radio"][name="share_with"]', function() {
       var $el = $(this);
       var checked = $el.val();
       var show_specific = checked === "specific";
@@ -25582,7 +25604,7 @@
         $el.val(value);
       });
     });
-    $convert_to_shared.on("change", '[name="domains"]', function(e) {
+    $convert_to_shared.on("change", '[name="domains"]', function() {
       _toggleOptionGoButton(_shouldDisableGoButtonForConvertToShared());
     });
     $convert_to_shared.on("click", ".current_channel_name a", function(e) {
@@ -25596,7 +25618,7 @@
       $convert_to_shared.find(".change_channel_purpose").removeClass("hidden");
     });
     var $channel_name = $convert_to_shared.find('[name="channel_name"]');
-    $channel_name.on("focus", function(e) {
+    $channel_name.on("focus", function() {
       $(".validation_message").remove();
     });
     $channel_name.on("input paste change blur", function(e) {
@@ -25619,7 +25641,7 @@
           TS.api.callImmediately("enterprise.nameTaken", {
             name: new_name,
             ignore_local_team: true
-          }, function(ok, data, args) {
+          }, function(ok, data) {
             if (!ok) {
               _toggleChannelNameChecking(true, false);
               _bad_channel_name = true;
@@ -25707,7 +25729,7 @@
           name: new_title,
           channel: model_ob.id,
           validate: true
-        }).then(function(res) {
+        }).then(function() {
           if (TS.ui.channel_options_dialog.ladda) TS.ui.channel_options_dialog.ladda.stop();
           TS.ui.fs_modal.close();
         }).catch(function(res) {
@@ -25730,7 +25752,7 @@
         TS.api.callImmediately(method, {
           name: new_title,
           channel: model_ob.id
-        }, function(ok, data, args) {
+        }, function(ok, data) {
           if (TS.ui.channel_options_dialog.ladda) TS.ui.channel_options_dialog.ladda.stop();
           if (!ok) {
             if (data.error === "name_taken") {
@@ -25818,7 +25840,7 @@
       return response;
     });
   };
-  var _promiseToGetMembers = function(query, page_number) {
+  var _promiseToGetMembers = function(query) {
     if (_who_can_post_is_shared_channels_member_searcher.query !== query) {
       _who_can_post_is_shared_channels_member_searcher = _.merge(_who_can_post_is_shared_channels_member_searcher, {
         query: query,
@@ -25854,7 +25876,7 @@
       });
     });
   };
-  var _promiseToGetUserGroups = function(query, page_number) {
+  var _promiseToGetUserGroups = function(query) {
     if (_who_can_post_user_group_searcher._query !== query) {
       _who_can_post_user_group_searcher._query = query;
       _who_can_post_user_group_searcher.include_enterprise = true;
@@ -26034,7 +26056,7 @@
         channel_id: model_ob.id
       };
       if (TS.ui.channel_options_dialog.ladda) TS.ui.channel_options_dialog.ladda.start();
-      TS.api.callImmediately("channels.prefs.set", calling_args, function(ok, data, args) {
+      TS.api.callImmediately("channels.prefs.set", calling_args, function(ok, data) {
         if (TS.ui.channel_options_dialog.ladda) TS.ui.channel_options_dialog.ladda.stop();
         if (!ok) {
           var str = TS.i18n.t("Failed! {error}", "channel_options")({
@@ -26097,7 +26119,7 @@
       if (type === null || duration === null) return;
       if (TS.ui.channel_options_dialog.ladda) TS.ui.channel_options_dialog.ladda.start();
 
-      function retentionAPIHandler(ok, data, args) {
+      function retentionAPIHandler(ok, data) {
         if (TS.ui.channel_options_dialog.ladda) TS.ui.channel_options_dialog.ladda.stop();
         if (!ok) {
           TS.error("failed onDataRetentionChanged");
@@ -26151,21 +26173,21 @@
     var loading_str = TS.i18n.t("loading...", "channel_options")();
     return '<div class="loading_hash_animation large_margin"><img src="' + url + '" alt="Loading" /><br />' + loading_str + "</div>";
   };
-  var _onChannelsGetRetention = function(ok, data, args) {
+  var _onChannelsGetRetention = function(ok, data) {
     if (ok) {
       _replaceRetentionLoading("channel", data.retention.retention_type, data.retention.retention_duration);
     } else {
       _replaceRetentionLoadingError("channel", data);
     }
   };
-  var _onGroupsGetRetention = function(ok, data, args) {
+  var _onGroupsGetRetention = function(ok, data) {
     if (ok) {
       _replaceRetentionLoading("group", data.retention.retention_type, data.retention.retention_duration);
     } else {
       _replaceRetentionLoadingError("group", data);
     }
   };
-  var _onImGetRetention = function(ok, data, args) {
+  var _onImGetRetention = function(ok, data) {
     if (ok) {
       _replaceRetentionLoading("conversation", data.retention.retention_type, data.retention.retention_duration);
     } else {
@@ -26270,7 +26292,7 @@
     var model_ob = TS.shared.getModelObById(TS.ui.channel_manage_teams_dialog.c_id);
     TS.ui.channel_manage_teams_dialog.div.find(".dialog_cancel").on("click", _dialogCancel);
     TS.ui.channel_manage_teams_dialog.div.find(".dialog_go").on("click", _dialogGo);
-    TS.ui.channel_manage_teams_dialog.div.on("change", '[type="radio"][name="share_with"]', function(e) {
+    TS.ui.channel_manage_teams_dialog.div.on("change", '[type="radio"][name="share_with"]', function() {
       var $el = $(this);
       var checked = $el.val();
       var show_specific = checked === "specific";
@@ -26306,7 +26328,7 @@
         $el.val(value);
       });
     });
-    TS.ui.channel_manage_teams_dialog.div.on("change", '[name="domains"]', function(e) {
+    TS.ui.channel_manage_teams_dialog.div.on("change", '[name="domains"]', function() {
       var $el = $(this);
       var trimmed_val = $el.val().trim();
       _toggleDialogGoButton(!(trimmed_val.length > 0));
@@ -26337,7 +26359,7 @@
       calling_args.all_teams = true;
     }
     if (something_changed) {
-      TS.api.callImmediately("enterprise.channels.addToShared", calling_args).then(function(response) {
+      TS.api.callImmediately("enterprise.channels.addToShared", calling_args).then(function() {
         TS.ui.fs_modal.close();
       });
     } else {
@@ -26947,7 +26969,7 @@
       var timezone_count;
       var model_ob = TS.shared.getModelObById(c_id);
       if (!model_ob || model_ob.is_im) return;
-      var c_info_p = new Promise(function(resolve, reject) {
+      var c_info_p = new Promise(function(resolve) {
         if (TS.lazyLoadMembersAndBots()) {
           _promiseToGetTimezoneCountAndMemberCountForObject(model_ob).then(resolve);
         } else {
@@ -26984,7 +27006,7 @@
       var fullsize = false;
       var eligible_members;
       var timezone_count;
-      var f_info_p = new Promise(function(resolve, reject) {
+      var f_info_p = new Promise(function(resolve) {
         if (TS.lazyLoadMembersAndBots()) {
           _promiseToGetTimezoneCountAndMemberCountForObject(file).then(resolve);
         } else {
@@ -27082,7 +27104,7 @@
         member_count: member_count,
         timezone_count: timezone_count
       };
-    }).catch(function(err) {
+    }).catch(function() {
       return {
         member_count: 0,
         timezone_count: 1
@@ -27454,7 +27476,7 @@
     var prev_msg;
     var html = "";
     var visible_msgs = _.reject(msgs, TS.utility.msgs.isMsgHidden);
-    for (var i = visible_msgs.length - 1; i > -1; i--) {
+    for (var i = visible_msgs.length - 1; i > -1; i -= 1) {
       if (!msg || !TS.utility.msgs.isMsgHidden(msg)) prev_msg = msg;
       msg = visible_msgs[i];
       if (TS.utility.msgs.isMsgHidden(msg)) continue;
@@ -27506,7 +27528,7 @@
     _updateTop();
     var model_ob = TS.client.archives.current_model_ob;
     var latest_ts = model_ob._archive_msgs[model_ob._archive_msgs.length - 1].ts;
-    _expected_api_rsps++;
+    _expected_api_rsps += 1;
     var api_args = {
       channel: model_ob.id,
       latest: latest_ts,
@@ -27530,7 +27552,7 @@
     _updateBottom();
     var model_ob = TS.client.archives.current_model_ob;
     var oldest_ts = model_ob._archive_msgs[0].ts;
-    _expected_api_rsps++;
+    _expected_api_rsps += 1;
     var api_args = {
       channel: model_ob.id,
       oldest: oldest_ts,
@@ -27579,7 +27601,7 @@
       msg_to_keep_in_place_if_overlap = null;
     }
     if (data.messages) {
-      for (i = 0; i < data.messages.length; i++) {
+      for (i = 0; i < data.messages.length; i += 1) {
         id = data.messages[i].ts;
         if (!archive_msgs || !TS.utility.msgs.getMsg(id, archive_msgs)) {
           imsg = data.messages[i];
@@ -27593,7 +27615,7 @@
     model_ob._archive_msgs = archive_msgs ? new_msgs.concat(archive_msgs) : new_msgs;
     if (overlapped) {
       new_msgs = [];
-      for (i = 0; i < model_ob._archive_msgs.length; i++) {
+      for (i = 0; i < model_ob._archive_msgs.length; i += 1) {
         if (!TS.utility.msgs.getMsg(model_ob._archive_msgs[i].ts, model_ob.msgs)) {
           imsg = model_ob._archive_msgs[i];
           new_msgs.push(imsg);
@@ -27635,7 +27657,7 @@
       _all_loaded_bottom = true;
       _updateBottom();
     }
-    _received_api_rsps++;
+    _received_api_rsps += 1;
     return true;
   };
   var _adjustForArchivesDisplay = function() {
@@ -29533,9 +29555,7 @@
         }));
       }, 500);
     });
-    _$channel_browser.on("click", ".new_channel", function(e) {
-      _switchToNewChannel();
-    });
+    _$channel_browser.on("click", ".new_channel", _switchToNewChannel);
     _$channel_browser.on("click", ".clear_filter_icon", function() {
       _$filter.val("").trigger("textchange").focus();
     });
@@ -29608,7 +29628,7 @@
         data.$shared_channel_icon = $el.find(".shared_channel_icon");
         return $el;
       },
-      makeDivider: function(data) {
+      makeDivider: function() {
         return $("<div>").addClass("channel_browser_divider");
       },
       renderItem: function($el, item, data) {
@@ -29658,10 +29678,10 @@
           $el.addClass("channel_link").attr("data-channel-id", item.id);
         }
       },
-      renderDivider: function($el, item, data) {
+      renderDivider: function($el, item) {
         $el.text(item.name);
       },
-      calcItemHeight: function($el, item, data) {
+      calcItemHeight: function($el) {
         return $el.outerHeight();
       }
     });
@@ -31040,7 +31060,7 @@
           return item.member.id;
         });
       }
-      TS.groups.createChild(_channel.id, invited_members, function(ok, data, args) {
+      TS.groups.createChild(_channel.id, invited_members, function(ok, data) {
         if (_ladda) _ladda.stop();
         if (!ok) {
           if (data && data.error == "restricted_action") {
@@ -31106,10 +31126,10 @@
       items: [],
       approx_item_height: _APPROXIMATE_ITEM_HEIGHT,
       preserve_dom_order: true,
-      makeElement: function(data) {
+      makeElement: function() {
         return $('<div class="channel_invite_row"></div>');
       },
-      renderItem: function($el, item, data) {
+      renderItem: function($el, item) {
         $el.data("member-id", item.id);
         $el.toggleClass("disabled", !!_selected_ids_map[item.id]);
         $el.html(TS.templates.channel_invite_member({
@@ -31139,7 +31159,7 @@
       _toggleEnterToGoLabel();
       _promiseToFilter($(e.target).val().trim()).then(_updateForInviteableMembers).then(_displayFilterResults);
     });
-    _$container.on("focus", "#channel_invite_filter", function(e) {
+    _$container.on("focus", "#channel_invite_filter", function() {
       $("#channel_invite_tokens").addClass("active");
     }).on("blur", "#im_browser_filter", function() {
       $("#channel_invite_tokens").removeClass("active");
@@ -31280,7 +31300,7 @@
       TS.ui.utility.updateClosestMonkeyScroller(_$list_container);
     });
     if (searcher._is_new) {
-      _$list_container.on("scroll.filter", function(e) {
+      _$list_container.on("scroll.filter", function() {
         var maybe_scroll_mark = _$list_container.scrollTop() + _$list_container.height() + _APPROXIMATE_ITEM_HEIGHT;
         if (maybe_scroll_mark <= searcher.scroll_mark) return;
         var list_items_height = _$list_container.find(".list_items").height();
@@ -36696,7 +36716,7 @@ function timezones_guess() {
     }
     if (msg_index >= 0) {
       group.msgs.splice(msg_index, 1);
-      group.total_unreads--;
+      group.total_unreads -= 1;
       if (group.msgs.length === 0) {
         _onDelete(group.model_ob);
       } else {
@@ -37076,7 +37096,7 @@ function timezones_guess() {
       if (_currently_loading_more_promise && _currently_loading_more_promise.isPending()) return _currently_loading_more_promise;
       _currently_loading_more_promise = TS.client.unread.promiseToGetMoreMessages().then(function(msgs_data) {
         if (!TS.model.unread_view_is_showing) return;
-        _tracking_data.unreads_page++;
+        _tracking_data.unreads_page += 1;
         TS.client.ui.unread.addMessageContainerGroups(msgs_data.groups);
         TS.client.ui.unread.setMessageContainerHasMoreEnd(!!msgs_data.has_more);
         _onResize();
@@ -37532,7 +37552,7 @@ function timezones_guess() {
       return payload;
     },
     incrementTrackingSeqId: function() {
-      _tracking_data.unreads_event_seq_id++;
+      _tracking_data.unreads_event_seq_id += 1;
     },
     rebuildMsgsIncludingMember: function(member) {
       if (!TS.model.unread_view_is_showing || !_msgs_config) return;
@@ -39361,7 +39381,7 @@ function timezones_guess() {
           var min_date = TS.utility.date.toDateObject(min_ts);
           _initPickmeUpForJumpToDate($element, min_date);
           return true;
-        }).catch(function(err) {
+        }).catch(function() {
           _initPickmeUpForJumpToDate($element);
           return TS.warn("couldn’t find messages in this channel :" + model_ob.id);
         });
@@ -39450,7 +39470,7 @@ function timezones_guess() {
         min_ts = response.data.messages[0].ts;
         $("#channel_actions_toggle").attr("data-oldest-ts", min_ts);
         return true;
-      }).catch(function(err) {
+      }).catch(function() {
         return TS.warn("couldn’t find messages in this channel :" + model_ob.id);
       });
     }
@@ -39498,7 +39518,7 @@ function timezones_guess() {
         TS.client.archives.start(msg_id);
       }
       return true;
-    }).catch(function(err) {
+    }).catch(function() {
       return TS.warn("couldn’t find message for date: " + timestamp + " in channel: " + model_ob.id);
     });
   };
@@ -41882,7 +41902,7 @@ function timezones_guess() {
       return TS.client.threads.getThread(thread_model_ob, thread_ts);
     },
     incrementTrackingSeqId: function() {
-      _threads_event_seq_id++;
+      _threads_event_seq_id += 1;
     },
     trackThreadsViewClosed: function(event_trigger) {
       var payload = _.merge(TS.client.ui.threads.getTrackingData(), {
@@ -42533,7 +42553,7 @@ var _getDownloadLink = function() {
       TS.client.ui.app_index.$channel_pane_item.toggleClass("active", !!TS.model.app_index_view_is_showing);
     },
     incrementTrackingSeqId: function() {
-      _app_index_event_seq_id++;
+      _app_index_event_seq_id += 1;
     },
     trackAppIndexViewClosed: function(event_trigger) {
       var payload = _.merge(TS.client.ui.app_index.getTrackingData(), {
@@ -42577,7 +42597,7 @@ var _getDownloadLink = function() {
     $(TS.templates.app_index()).appendTo(TS.client.ui.app_index.$container);
     _bindNavigation();
     var app_preview_template_args;
-    for (var i = 0; i < apps.length; i++) {
+    for (var i = 0; i < apps.length; i += 1) {
       app_preview_template_args = {
         app_id: apps[i].id,
         name: apps[i].name,
