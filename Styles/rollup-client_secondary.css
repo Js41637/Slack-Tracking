@@ -13943,7 +13943,7 @@ only screen and (min-resolution:2dppx) {
   font-size: 15px;
   width: 100%;
   border-radius: .35rem;
-  background: #fff;
+  background: #FFF;
   border: 1px solid rgba(214, 214, 214, .61)
 }
 
@@ -13966,7 +13966,7 @@ only screen and (min-resolution:2dppx) {
 }
 
 .search_message_result {
-  background: #fff;
+  background: #FFF;
   font-size: 15px;
   line-height: 18px;
   margin: 0 .5rem 8px 0;
@@ -14281,7 +14281,7 @@ span.match {
   font-weight: 700;
   text-align: center;
   color: #9e9ea6;
-  background: #fff;
+  background: #FFF;
   border-bottom: 4px solid transparent;
   -webkit-transition: .1s;
   -moz-transition: .1s;
@@ -14591,7 +14591,7 @@ ts-icon.sli_feedback::before {
 
 .search_segmented_control.active {
   color: #2ab27b!important;
-  background: #fff
+  background: #FFF
 }
 
 .search_segmented_control.active.flash {
@@ -14609,7 +14609,7 @@ ts-icon.sli_feedback::before {
   }
   100% {
     color: #5DBB91;
-    background: #fff
+    background: #FFF
   }
 }
 
@@ -14624,7 +14624,7 @@ ts-icon.sli_feedback::before {
   padding-right: 8px;
   padding-bottom: 4px;
   border-radius: 6px;
-  background: #fff;
+  background: #FFF;
   border: 1px solid #E3E3E3;
   -moz-transition: border-color .1s;
   -webkit-transition: border-color .1s;
@@ -14672,7 +14672,7 @@ body.winssb .search_result_with_extract {
   top: 26px;
   height: 25px;
   z-index: 1;
-  background: #fff;
+  background: #FFF;
   background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #fff), color-stop(1, rgba(255, 255, 255, 0)));
   background: -moz-linear-gradient(center bottom, #fff 0, rgba(255, 255, 255, 0) 100%);
   background: -ms-linear-gradient(bottom, #fff, rgba(255, 255, 255, 0));
@@ -14961,7 +14961,21 @@ body.winssb .search_result_with_extract {
 }
 
 .sli_expert_search {
-  margin-bottom: 1.75rem
+  margin: 0 .5rem 1.75rem;
+  color: #2C2D30
+}
+
+.sli_expert_search.sli_expert_search--collapsed .sli_expert_search_cta {
+  border-radius: 4px
+}
+
+.sli_expert_search.sli_expert_search--collapsed .sli_expert_search_cta__face_pile {
+  display: flex
+}
+
+.sli_expert_search.sli_expert_search--collapsed .sli_expert_search__results,
+.sli_expert_search.sli_expert_search--collapsed .sli_expert_search_header {
+  display: none
 }
 
 .sli_expert_search__debug {
@@ -14970,22 +14984,17 @@ body.winssb .search_result_with_extract {
 }
 
 .sli_expert_search__results {
-  padding: 0 .5rem;
   margin-bottom: .5rem;
   font-family: Slack-Lato, appleLogo, sans-serif
 }
 
 .sli_expert_search__result {
   display: flex;
-  padding: .5rem;
+  padding: 1rem .75rem;
   border: 1px solid #f2f2f5;
-  border-top: none
-}
-
-.sli_expert_search__result:first-child {
-  border-top: 1px solid #f2f2f5;
-  border-top-left-radius: 4px;
-  border-top-right-radius: 4px
+  border-top: none;
+  font-size: 15px;
+  line-height: 18px
 }
 
 .sli_expert_search__result:last-child {
@@ -14993,9 +15002,67 @@ body.winssb .search_result_with_extract {
   border-bottom-right-radius: 4px
 }
 
+.sli_expert_search__result .app_preview_link,
+.sli_expert_search__result .member_preview_link {
+  font-weight: 900;
+  color: #2C2D30!important
+}
+
+.sli_expert_search__result .channel_link {
+  font-weight: 900
+}
+
+.sli_expert_search__faces {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  margin-right: .6rem;
+  -ms-flex: 0 0 auto;
+  -webkit-flex: 0 0 auto;
+  flex: 0 0 auto
+}
+
+.sli_expert_search__faces .member_image {
+  border-radius: 6px
+}
+
+.sli_expert_search__bg_face {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  bottom: 0;
+  right: 0
+}
+
+.sli_expert_search__fg_face {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  top: 0;
+  left: 0
+}
+
+.sli_expert_search__fg_face::before {
+  position: absolute;
+  display: block;
+  content: '';
+  top: -2px;
+  left: -2px;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background-color: #fff
+}
+
 .sli_expert_search_cta {
   font-family: Slack-Lato, appleLogo, sans-serif;
-  margin-bottom: 1.75rem
+  border: 1px solid #f2f2f5;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px
+}
+
+.sli_expert_search_cta:hover {
+  border-color: #A0A0A2
 }
 
 .sli_expert_search_cta__title {
@@ -15005,31 +15072,65 @@ body.winssb .search_result_with_extract {
 
 .sli_expert_search_cta__feedback {
   font-family: Slack-Lato, appleLogo, sans-serif;
-  margin: 0 1.5rem
+  margin: 1rem 1.5rem 0
 }
 
-.sli_expert_search_cta__face_pile {
-  padding: .5rem;
-  margin: 0 .5rem;
-  border: 1px solid #f2f2f5;
-  border-radius: 4px;
-  cursor: pointer
-}
-
-.sli_expert_search_cta__face_pile:hover {
-  border-color: rgba(160, 160, 162, .6)
-}
-
-.sli_expert_search_cta__face_pile:hover a {
-  text-decoration: underline
-}
-
-.sli_expert_search_cta__show_results {
-  display: inline-block;
+.sli_expert_search_cta__text {
+  -ms-flex: 0 1 auto;
+  -webkit-flex: 0 1 auto;
+  flex: 0 1 auto;
   margin-left: .5rem;
   vertical-align: top;
   height: 1.5rem;
-  line-height: 1.5rem
+  line-height: 1.5rem;
+  color: #2C2D30
+}
+
+.sli_expert_search_cta__text:hover {
+  text-decoration: none;
+  color: #2C2D30
+}
+
+.sli_expert_search_cta__face_pile {
+  display: none
+}
+
+.sli_expert_search_cta__face_pile,
+.sli_expert_search_header {
+  position: relative;
+  padding: .6rem;
+  padding-right: 1.8rem;
+  cursor: pointer
+}
+
+.sli_expert_search_cta__face_pile .member_image {
+  -ms-flex: 0 0 auto;
+  -webkit-flex: 0 0 auto;
+  flex: 0 0 auto;
+  border-radius: 2px;
+  margin-right: .3rem
+}
+
+.sli_expert_search_header {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  font-family: Slack-Lato, appleLogo, sans-serif
+}
+
+.sli_expert_search_header__title {
+  line-height: 24px
+}
+
+.sli_expert_search__arrow {
+  position: absolute;
+  right: .6rem;
+  top: .8rem;
+  color: #A0A0A2
+}
+
+.sli_expert_search_cta:hover .sli_expert_search__arrow,
+.sli_expert_search_header:hover .sli_expert_search__arrow {
+  color: #717274
 }
 
 .pickmeup {

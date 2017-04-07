@@ -19,8 +19,10 @@
   <div class="details">
     <h3>{{#t}}Invited by:{{/t}}</h3>
     <p>{{inviter.real_name}}</p>
-    <h3>{{#t}}Channel purpose:{{/t}}</h3>
-    <p>{{channel.purpose.value}}</p>
+    {{#if channel.purpose.value}}
+      <h3>{{#t}}Channel purpose:{{/t}}</h3>
+      <p>{{channel.purpose.value}}</p>
+    {{/if}}
   </div>
 
   <div class="footer">
