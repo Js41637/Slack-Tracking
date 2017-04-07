@@ -42995,10 +42995,12 @@ var _on_esc;
           $go_button.attr("data-style", "expand-right");
           var ladda_button = Ladda.create($go_button[0]);
           ladda_button.start();
-          TS.api.callImmediately(api_method, {
+          var calling_args = {
             name: name_value,
             reason: ws_team_message
-          }).then(function(resp) {
+          };
+          if (TS.boot_data.app === "client") calling_args.enterprise_token = TS.model.enterprise_api_token;
+          TS.api.callImmediately(api_method, calling_args).then(function(resp) {
             TS.ui.toast.show({
               type: "success",
               message: TS.i18n.t("Request to create <b>{team_name}</b> sent! You‘ll be notified once it‘s reviewed.", "enterprise_workspaces")({
@@ -61461,8 +61463,8 @@ $.fn.togglify = function(settings) {
       return x;
     },
     destructor: function() {
-      this.dirtyComponentsLength = null, p.release(this.callbackQueue), this.callbackQueue = null, E.ReactReconcileTransaction.release(this.reconcileTransaction),
-        this.reconcileTransaction = null;
+      this.dirtyComponentsLength = null, p.release(this.callbackQueue),
+        this.callbackQueue = null, E.ReactReconcileTransaction.release(this.reconcileTransaction), this.reconcileTransaction = null;
     },
     perform: function(e, t, n) {
       return m.perform.call(this, this.reconcileTransaction.perform, this.reconcileTransaction, e, t, n);
@@ -68600,7 +68602,8 @@ $.fn.togglify = function(settings) {
         if (void 0 === r && (r = n), "selectionStart" in e) e.selectionStart = n, e.selectionEnd = Math.min(r, e.value.length);
         else if (document.selection && e.nodeName && "input" === e.nodeName.toLowerCase()) {
           var i = e.createTextRange();
-          i.collapse(!0), i.moveStart("character", n), i.moveEnd("character", r - n), i.select();
+          i.collapse(!0), i.moveStart("character", n), i.moveEnd("character", r - n),
+            i.select();
         } else o.setOffsets(e, t);
       }
     };
