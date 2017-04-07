@@ -70,7 +70,7 @@
       var dont_set_active;
       if (TS.model && TS.model.channels) {
         var channels = TS.model.channels;
-        for (i = 0; i < channels.length; i++) {
+        for (i = 0; i < channels.length; i += 1) {
           channel = channels[i];
           if (channel.needs_api_marking) {
             TS.model.last_reads_set_by_client[channel.id + "_" + channel.last_read] = true;
@@ -85,7 +85,7 @@
         }
       }
       if (TS.model && TS.model.ims) {
-        for (i = 0; i < TS.model.ims.length; i++) {
+        for (i = 0; i < TS.model.ims.length; i += 1) {
           im = TS.model.ims[i];
           if (im.needs_api_marking) {
             TS.model.last_reads_set_by_client[im.id + "_" + im.last_read] = true;
@@ -99,7 +99,7 @@
         }
       }
       if (TS.model && TS.model.groups) {
-        for (i = 0; i < TS.model.groups.length; i++) {
+        for (i = 0; i < TS.model.groups.length; i += 1) {
           group = TS.model.groups[i];
           if (group.needs_api_marking) {
             TS.model.last_reads_set_by_client[group.id + "_" + group.last_read] = true;
@@ -114,7 +114,7 @@
         }
       }
       if (TS.model && TS.model.mpims) {
-        for (i = 0; i < TS.model.mpims.length; i++) {
+        for (i = 0; i < TS.model.mpims.length; i += 1) {
           mpim = TS.model.mpims[i];
           if (mpim.needs_api_marking) {
             TS.model.last_reads_set_by_client[mpim.id + "_" + mpim.last_read] = true;
@@ -501,7 +501,7 @@
         }
       }
       var im;
-      for (i = 0; i < TS.model.ims.length; i++) {
+      for (i = 0; i < TS.model.ims.length; i += 1) {
         im = TS.model.ims[i];
         if (im.id == TS.model.active_im_id) continue;
         if (!im.is_open && !TS.shared.hasUnreads(im)) continue;
@@ -509,21 +509,21 @@
       }
       var channels = TS.model.channels;
       var channel;
-      for (i = 0; i < channels.length; i++) {
+      for (i = 0; i < channels.length; i += 1) {
         channel = channels[i];
         if (channel.id == TS.model.active_channel_id) continue;
         if (!channel.is_member) continue;
         TS.shared.checkInitialMsgHistory(channel, TS.channels, should_defer_initial_msg_history);
       }
       var group;
-      for (i = 0; i < TS.model.groups.length; i++) {
+      for (i = 0; i < TS.model.groups.length; i += 1) {
         group = TS.model.groups[i];
         if (group.id == TS.model.active_group_id) continue;
         if (group.is_archived) continue;
         TS.shared.checkInitialMsgHistory(group, TS.groups, should_defer_initial_msg_history);
       }
       var mpim;
-      for (i = 0; i < TS.model.mpims.length; i++) {
+      for (i = 0; i < TS.model.mpims.length; i += 1) {
         mpim = TS.model.mpims[i];
         if (mpim.id == TS.model.active_mpim_id) continue;
         if (mpim.is_archived) continue;
@@ -1149,7 +1149,7 @@
       window.history.replaceState(null, null, window.location.origin + "/messages");
     }
     maybeSetWelcomeChannelToSlackbot();
-    for (i = 0; i < history.length; i++) {
+    for (i = 0; i < history.length; i += 1) {
       c_id = history[i];
       if (TS.model.active_history.indexOf(c_id) > -1) continue;
       model_ob = TS.shared.getModelObById(c_id);
@@ -1193,7 +1193,7 @@
         channels.sort(function(a, b) {
           return a._name_lc > b._name_lc ? 1 : b._name_lc > a._name_lc ? -1 : 0;
         });
-        for (i = 0; i < channels.length; i++) {
+        for (i = 0; i < channels.length; i += 1) {
           channel = channels[i];
           if (channel.is_archived) continue;
           if (!channel.is_member) continue;
@@ -1203,7 +1203,7 @@
         groups.sort(function(a, b) {
           return a._name_lc > b._name_lc ? 1 : b._name_lc > a._name_lc ? -1 : 0;
         });
-        for (i = 0; i < groups.length; i++) {
+        for (i = 0; i < groups.length; i += 1) {
           group = groups[i];
           if (groups.is_archived) continue;
           return group.id;
@@ -1353,7 +1353,7 @@
       return TS.groups.getGroupById(count_info.id);
     });
     _updateUnreadCounts(resp.data.ims, function(count_info) {
-      if (count_info.has_unreads) ims_with_unreads++;
+      if (count_info.has_unreads) ims_with_unreads += 1;
       if (count_info.dm_count) total_dm_count += count_info.dm_count;
       return TS.ims.getImById(count_info.id);
     });
@@ -2481,7 +2481,7 @@
           doing_an_overlay = true;
           TS.view.overlay.startWithCreatedChannel(channel);
         }
-      } else if (channel && channel.needs_invited_message && channel.is_shared && !channel.is_org_shared && TS.model.shared_channels_enabled) {
+      } else if (channel && channel.needs_invited_message && TS.utility.teams.isModelObShared(channel)) {
         TS.view.overlay.startWithJoinedSharedChannel(channel);
       } else if (channel && channel.needs_invited_message) {
         if (TS.model.prefs.no_joined_overlays) {
@@ -6117,12 +6117,12 @@
           var groups = TS.model.groups;
           var i;
           var include_users_counts_latest = true;
-          for (i = channels.length - 1; i > -1; i--) {
+          for (i = channels.length - 1; i > -1; i -= 1) {
             channels[i]._show_in_list_even_though_no_unreads = false;
             TS.channels.markMostRecentReadMsg(channels[i], TS.model.marked_reasons.muted, include_users_counts_latest);
             TS.channels.unread_changed_sig.dispatch(channels[i], true);
           }
-          for (i = groups.length - 1; i > -1; i--) {
+          for (i = groups.length - 1; i > -1; i -= 1) {
             groups[i]._show_in_list_even_though_no_unreads = false;
             TS.groups.markMostRecentReadMsg(groups[i], TS.model.marked_reasons.muted, include_users_counts_latest);
             TS.groups.unread_changed_sig.dispatch(groups[i], true);
@@ -6193,16 +6193,16 @@
         var mpims = TS.model.mpims;
         var i;
         var include_users_counts_latest = true;
-        for (i = channels.length - 1; i > -1; i--) {
+        for (i = channels.length - 1; i > -1; i -= 1) {
           if (channels[i].unread_cnt) TS.channels.markMostRecentReadMsg(channels[i], reason, include_users_counts_latest);
         }
-        for (i = ims.length - 1; i > -1; i--) {
+        for (i = ims.length - 1; i > -1; i -= 1) {
           if (ims[i].unread_cnt) TS.ims.markMostRecentReadMsg(ims[i], reason, include_users_counts_latest);
         }
-        for (i = groups.length - 1; i > -1; i--) {
+        for (i = groups.length - 1; i > -1; i -= 1) {
           if (groups[i].unread_cnt) TS.groups.markMostRecentReadMsg(groups[i], reason, include_users_counts_latest);
         }
-        for (i = mpims.length - 1; i > -1; i--) {
+        for (i = mpims.length - 1; i > -1; i -= 1) {
           if (mpims[i].unread_cnt) TS.mpims.markMostRecentReadMsg(mpims[i], reason, include_users_counts_latest);
         }
       }
@@ -6696,7 +6696,7 @@
       var model_ob = TS.shared.getActiveModelOb();
       var unreads = model_ob.unreads;
       if (!model_ob) return;
-      for (var i = 0; i < unreads.length; i++) {
+      for (var i = 0; i < unreads.length; i += 1) {
         if (TS.model.client.reads.indexOf(unreads[i]) == -1) {
           remaining.push(unreads[i]);
         }
@@ -7033,7 +7033,7 @@
       }
       var highlight_ms = 2500;
       if (!in_archives && highlight) {
-        TS.client.ui.active_highlight_count++;
+        TS.client.ui.active_highlight_count += 1;
       }
       if (in_archives) {
         TS.client.archives.msgs_are_auto_scrolling = true;
@@ -7053,7 +7053,7 @@
             div.highlight(highlight_ms, "msg_highlighter");
             if (!in_archives) {
               setTimeout(function() {
-                TS.client.ui.active_highlight_count--;
+                TS.client.ui.active_highlight_count -= 1;
               }, highlight_ms);
             }
           }
@@ -7267,7 +7267,7 @@
       $preview.find(".unfurl-placeholder:not(.unfurled)").each(function(i, elem) {
         var $elem = $(elem);
         $elem.addClass("unfurled");
-        var id = "pending_unfurl_" + _pending_unfurl_id++;
+        var id = "pending_unfurl_" + (_pending_unfurl_id += 1);
         $elem.attr("id", id);
         try {
           var url = $elem.attr("href");
@@ -7410,7 +7410,7 @@
         }
         populate_members_p.then(function() {
           var members = [];
-          for (i = 0; i < selected_members.length; i++) {
+          for (i = 0; i < selected_members.length; i += 1) {
             members.push(TS.members.getMemberById(selected_members[i]));
           }
           members.sort(function(a, b) {
@@ -7420,12 +7420,12 @@
           });
           var selected_channels = user_group.prefs.channels;
           var channels = [];
-          for (i = 0; i < selected_channels.length; i++) {
+          for (i = 0; i < selected_channels.length; i += 1) {
             channels.push(TS.channels.getChannelById(selected_channels[i]));
           }
           var selected_groups = user_group.prefs.groups;
           var groups = [];
-          for (i = 0; i < selected_groups.length; i++) {
+          for (i = 0; i < selected_groups.length; i += 1) {
             groups.push(TS.groups.getGroupById(selected_groups[i]));
           }
           channels = channels.concat(groups);
@@ -7691,7 +7691,7 @@
         body: body,
         go_button_text: TS.i18n.t("Yes, send it", "client")(),
         onGo: function() {
-          for (var i = 0; i < member_idsA.length; i++) {
+          for (var i = 0; i < member_idsA.length; i += 1) {
             TS.api.call("chat.sendMention", {
               channel: c_id,
               user: member_idsA[i],
@@ -7727,7 +7727,7 @@
         }),
         go_button_text: TS.i18n.t("Yes, invite them", "client")(),
         onGo: function() {
-          for (var i = 0; i < member_idsA.length; i++) {
+          for (var i = 0; i < member_idsA.length; i += 1) {
             TS.api.call("channels.invite", {
               channel: c_id,
               user: member_idsA[i]
@@ -28848,28 +28848,28 @@
       member_count = 0;
       online_count = 0;
       restricted_count = 0;
-      for (var i = 0; i < model_ob.members.length; i++) {
+      for (var i = 0; i < model_ob.members.length; i += 1) {
         member = TS.members.getMemberById(model_ob.members[i]);
         if (member) {
           if (TS.boot_data.page_needs_enterprise) {
             if (model_ob.is_shared) {
               if (!member.deleted) {
-                member_count++;
-                if (member.presence === "active") online_count++;
-                if (member.is_restricted) restricted_count++;
+                member_count += 1;
+                if (member.presence === "active") online_count += 1;
+                if (member.is_restricted) restricted_count += 1;
               }
             } else {
               if (member.enterprise_user && member.enterprise_user.teams && member.enterprise_user.teams.length && member.enterprise_user.teams.indexOf(TS.model.team.id) > -1) {
-                member_count++;
-                if (member.presence === "active") online_count++;
-                if (member.is_restricted) restricted_count++;
+                member_count += 1;
+                if (member.presence === "active") online_count += 1;
+                if (member.is_restricted) restricted_count += 1;
               }
             }
           } else {
             if (!member.deleted) {
-              member_count++;
-              if (member.presence === "active") online_count++;
-              if (member.is_restricted) restricted_count++;
+              member_count += 1;
+              if (member.presence === "active") online_count += 1;
+              if (member.is_restricted) restricted_count += 1;
             }
           }
         }
@@ -28930,7 +28930,7 @@
     var member;
     var members = [];
     var ids = member_ids || model_ob.members;
-    for (var i = 0; i < ids.length; i++) {
+    for (var i = 0; i < ids.length; i += 1) {
       member = TS.members.getMemberById(ids[i]);
       if (member) {
         if (TS.boot_data.page_needs_enterprise) {
@@ -29064,7 +29064,7 @@
     var $row = $("#channel_page_all_members #" + _memberRowId(member));
     $row.remove();
     var i;
-    for (i = 0; i < _members.length; i++) {
+    for (i = 0; i < _members.length; i += 1) {
       if (member.id === _members[i].id) break;
     }
     if (i < _members.length) {
@@ -29080,7 +29080,7 @@
       return;
     }
     var i;
-    for (i = 0; i < _members.length; i++) {
+    for (i = 0; i < _members.length; i += 1) {
       var compare = TS.members.memberSorterByActiveWithBotsLast(member, _members[i]);
       if (compare <= 0) break;
     }
@@ -29126,7 +29126,7 @@
       _loadFilesForChannel(model_ob);
     }
     if (!_expanded_sections.shared_files) return;
-    for (var i = 0; i < TS.model.files.length; i++) {
+    for (var i = 0; i < TS.model.files.length; i += 1) {
       file = TS.model.files[i];
       if (file.is_deleted) continue;
       if (_isFileInChannel(file)) {

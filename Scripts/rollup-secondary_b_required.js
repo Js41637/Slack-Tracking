@@ -2305,8 +2305,8 @@
         var b = [];
         var i;
         var fw = (q3 - q1) * 1.5;
-        l++;
-        for (i = 0; i < l && a[i] < q3 + fw; i++) {
+        l += 1;
+        for (i = 0; i < l && a[i] < q3 + fw; i += 1) {
           if (a[i] > q1 - fw) {
             b.push(a[i]);
           }
@@ -2325,11 +2325,11 @@
         var lat_filtered;
         lat_filtered = this.iqr(this.latencies.sort(this.ncmp));
         n = lat_filtered.length;
-        for (i = 1; i < n; i++) {
+        for (i = 1; i < n; i += 1) {
           sum += lat_filtered[i];
           sumsq += lat_filtered[i] * lat_filtered[i];
         }
-        n--;
+        n -= 1;
         amean = Math.round(sum / n);
         std_dev = Math.sqrt(sumsq / n - sum * sum / (n * n));
         std_err = (1.96 * std_dev / Math.sqrt(n)).toFixed(2);
@@ -2365,21 +2365,21 @@
         var nimgs;
         var bw;
         var bw_c;
-        for (i = 0; i < this.nruns; i++) {
+        for (i = 0; i < this.nruns; i += 1) {
           if (!this.results[i] || !this.results[i].r) {
             continue;
           }
           r = this.results[i].r;
           nimgs = 0;
-          for (j = r.length - 1; j >= 0 && nimgs < 3; j--) {
+          for (j = r.length - 1; j >= 0 && nimgs < 3; j -= 1) {
             if (typeof r[j] === "undefined") {
               break;
             }
             if (r[j].t === null) {
               continue;
             }
-            n++;
-            nimgs++;
+            n += 1;
+            nimgs += 1;
             bw = this.images[j].size * 1e3 / r[j].t;
             bandwidths.push(bw);
             bw_c = this.images[j].size * 1e3 / (r[j].t - this.latency.mean);
@@ -2394,7 +2394,7 @@
           bandwidths_corrected = bandwidths_corrected.sort(this.ncmp);
         }
         n = Math.max(bandwidths.length, bandwidths_corrected.length);
-        for (i = 0; i < n; i++) {
+        for (i = 0; i < n; i += 1) {
           if (i < bandwidths.length) {
             sum += bandwidths[i];
             sumsq += Math.pow(bandwidths[i], 2);
@@ -2517,12 +2517,14 @@
         if (!this.runs_left) {
           this.finish();
         } else if (this.latency_runs) {
-          this.loadImg("l", this.latency_runs--, this.latLoaded);
+          this.loadImg("l", this.latency_runs, this.latLoaded);
+          this.latency_runs -= 1;
         } else {
           this.results.push({
             r: []
           });
-          this.loadImg(this.images.start, this.runs_left--, this.imgLoaded);
+          this.loadImg(this.images.start, this.runs_left, this.imgLoaded);
+          this.runs_left -= 1;
         }
       };
       _bw.finish = function() {

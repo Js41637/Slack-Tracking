@@ -6209,7 +6209,7 @@ TS.registerModule("constants", {
         if (ok) {
           if (data.files) {
             var file;
-            for (var i = 0; i < data.files.length; i++) {
+            for (var i = 0; i < data.files.length; i += 1) {
               file = data.files[i];
               TS.files.upsertFile(file);
             }
@@ -6227,7 +6227,7 @@ TS.registerModule("constants", {
         if (ok) {
           if (data.files) {
             var file;
-            for (var i = 0; i < data.files.length; i++) {
+            for (var i = 0; i < data.files.length; i += 1) {
               file = data.files[i];
               TS.files.upsertFile(file);
             }
@@ -6263,7 +6263,7 @@ TS.registerModule("constants", {
         if (ok) {
           if (data.files) {
             var file;
-            for (var i = 0; i < data.files.length; i++) {
+            for (var i = 0; i < data.files.length; i += 1) {
               file = data.files[i];
               TS.files.upsertFile(file);
             }
@@ -6278,7 +6278,7 @@ TS.registerModule("constants", {
       }
       if (data.files) {
         var file;
-        for (var i = 0; i < data.files.length; i++) {
+        for (var i = 0; i < data.files.length; i += 1) {
           file = data.files[i];
           TS.files.upsertFile(file);
         }
@@ -6320,7 +6320,7 @@ TS.registerModule("constants", {
       if (!value) return null;
       var files = TS.model.files;
       var file;
-      for (var i = 0; i < files.length; i++) {
+      for (var i = 0; i < files.length; i += 1) {
         file = files[i];
         if (file[name] == value) return file;
       }
@@ -6598,7 +6598,7 @@ TS.registerModule("constants", {
           if (file.video) {
             args.transcoding_status = file.video.status;
             if (file.video.outputs) {
-              for (var i = file.video.outputs.length - 1; i >= 0; i--) {
+              for (var i = file.video.outputs.length - 1; i >= 0; i -= 1) {
                 var output = file.video.outputs[i];
                 if (!output.source) continue;
                 if (!best_output.width || output.width > best_output.width) best_output = output;
@@ -6669,7 +6669,7 @@ TS.registerModule("constants", {
           comments: comment ? [comment] : []
         };
       }
-      for (var i = file.comments.length - 1; i >= 0; i--) {
+      for (var i = file.comments.length - 1; i >= 0; i -= 1) {
         var comment = file.comments[i];
         if (comment.channel) {
           if (comments_grouped[comment.channel]) {
@@ -6681,7 +6681,7 @@ TS.registerModule("constants", {
       }
       _.each([file.channels, file.groups, file.ims, file.mpims], function(list) {
         if (list) {
-          for (var i = list.length - 1; i >= 0; i--) {
+          for (var i = list.length - 1; i >= 0; i -= 1) {
             var c_id = list[i];
             if (!comments_grouped[c_id]) {
               generateCommentsGroupedObj(file, c_id);
@@ -6704,7 +6704,7 @@ TS.registerModule("constants", {
     },
     getFileCommentById: function(file, comment_id) {
       var comment;
-      for (var i = 0; i < file.comments.length; i++) {
+      for (var i = 0; i < file.comments.length; i += 1) {
         comment = file.comments[i];
         if (comment.id == comment_id) return comment;
       }
@@ -6727,7 +6727,7 @@ TS.registerModule("constants", {
       var was_comment;
       var good = false;
       var initial_comment_changed = false;
-      for (var i = 0; i < file.comments.length; i++) {
+      for (var i = 0; i < file.comments.length; i += 1) {
         was_comment = file.comments[i];
         if (was_comment.id == comment.id) {
           good = true;
@@ -6760,7 +6760,7 @@ TS.registerModule("constants", {
       var was_comment;
       var A = [];
       var deleted_comment;
-      for (var i = 0; i < file.comments.length; i++) {
+      for (var i = 0; i < file.comments.length; i += 1) {
         was_comment = file.comments[i];
         if (was_comment.id == comment_id) {
           deleted_comment = was_comment;
@@ -6826,7 +6826,7 @@ TS.registerModule("constants", {
         var preview = file.preview;
         var preview_list = preview.split("\n");
         var preview_list_length = preview_list.length;
-        for (var j = 0; j < preview_list_length; j++) {
+        for (var j = 0; j < preview_list_length; j += 1) {
           var preview_line = preview_list[j];
           if (preview_line) {
             file.preview_in_list = preview_line;
@@ -6862,7 +6862,7 @@ TS.registerModule("constants", {
         }
         delete file.reactions;
         if (file.comments) {
-          for (i = 0; i < file.comments.length; i++) {
+          for (i = 0; i < file.comments.length; i += 1) {
             comment = file.comments[i];
             comment._rxn_key = TS.rxns.getRxnKey("file_comment", comment.id);
             existing_rxns = TS.rxns.getExistingRxnsByKey(comment._rxn_key);
@@ -6975,7 +6975,7 @@ TS.registerModule("constants", {
         TS.rxns.upsertRxnsFromDataAndUpdateUI(file._rxn_key, file.reactions);
         delete file.reactions;
         if (file.comments) {
-          for (i = 0; i < file.comments.length; i++) {
+          for (i = 0; i < file.comments.length; i += 1) {
             comment = file.comments[i];
             comment._rxn_key = TS.rxns.getRxnKey("file_comment", comment.id);
             TS.rxns.upsertRxnsFromDataAndUpdateUI(comment._rxn_key, comment.reactions);
@@ -7042,7 +7042,7 @@ TS.registerModule("constants", {
       if (file) file.is_deleted = true;
       var channels = TS.model.channels;
       var channel;
-      for (i = 0; i < channels.length; i++) {
+      for (i = 0; i < channels.length; i += 1) {
         channel = channels[i];
         if (file) TS.utility.msgs.removeFileSharesAndMentions(channel, file);
         if (file) TS.utility.msgs.removeFileComments(channel, file);
@@ -7050,7 +7050,7 @@ TS.registerModule("constants", {
       }
       var groups = TS.model.groups;
       var group;
-      for (i = 0; i < groups.length; i++) {
+      for (i = 0; i < groups.length; i += 1) {
         group = groups[i];
         if (file) TS.utility.msgs.removeFileSharesAndMentions(group, file);
         if (file) TS.utility.msgs.removeFileComments(group, file);
@@ -7058,7 +7058,7 @@ TS.registerModule("constants", {
       }
       var ims = TS.model.ims;
       var im;
-      for (i = 0; i < ims.length; i++) {
+      for (i = 0; i < ims.length; i += 1) {
         im = ims[i];
         if (file) TS.utility.msgs.removeFileSharesAndMentions(im, file);
         if (file) TS.utility.msgs.removeFileComments(im, file);
@@ -7066,7 +7066,7 @@ TS.registerModule("constants", {
       }
       var mpims = TS.model.mpims;
       var mpim;
-      for (i = 0; i < mpims.length; i++) {
+      for (i = 0; i < mpims.length; i += 1) {
         mpim = mpims[i];
         if (file) TS.utility.msgs.removeFileSharesAndMentions(mpim, file);
         if (file) TS.utility.msgs.removeFileComments(mpim, file);
@@ -7167,7 +7167,7 @@ TS.registerModule("constants", {
             return;
           }
           if (args.retry_num === 0) {
-            args.retry_num++;
+            args.retry_num += 1;
             TS.files.actuallyUpload(args);
           } else {
             TS.generic_dialog.start({
@@ -7176,7 +7176,7 @@ TS.registerModule("constants", {
               go_button_text: TS.i18n.t("Yes, try again", "files")(),
               cancel_button_text: TS.i18n.t("No, cancel", "files")(),
               onGo: function() {
-                args.retry_num++;
+                args.retry_num += 1;
                 TS.files.actuallyUpload(args);
               },
               onCancel: function() {
@@ -7207,7 +7207,7 @@ TS.registerModule("constants", {
                       go_button_text: TS.i18n.t("Yes, try again", "files")(),
                       cancel_button_text: TS.i18n.t("No, cancel", "files")(),
                       onGo: function() {
-                        args.retry_num++;
+                        args.retry_num += 1;
                         TS.files.actuallyUpload(args);
                       },
                       onCancel: function() {
@@ -7236,7 +7236,7 @@ TS.registerModule("constants", {
             TS.info(data);
             if (data) {
               if (args.retry_num === 0) {
-                args.retry_num++;
+                args.retry_num += 1;
                 TS.files.actuallyUpload(args);
               } else if (data.error === "folders_not_supported") {
                 TS.generic_dialog.start({
@@ -7289,7 +7289,7 @@ TS.registerModule("constants", {
                   go_button_text: TS.i18n.t("Yes, try again", "files")(),
                   cancel_button_text: TS.i18n.t("No, cancel", "files")(),
                   onGo: function() {
-                    args.retry_num++;
+                    args.retry_num += 1;
                     TS.files.actuallyUpload(args);
                   },
                   onCancel: function() {
@@ -7313,7 +7313,7 @@ TS.registerModule("constants", {
       TS.files.pollForUploadProcessing();
     },
     pollForUploadProcessing: function() {
-      TS.files.polling_count++;
+      TS.files.polling_count += 1;
       TS.files.polling_tim = setTimeout(function() {
         if (!TS.files.polling_ticket) return;
         TS.api.callImmediately("files.uploadStatus", {
@@ -7416,7 +7416,7 @@ TS.registerModule("constants", {
     },
     onBoxChooser: function(box_files) {
       var files = new Array(box_files.length);
-      for (var i = 0; i < box_files.length; i++) {
+      for (var i = 0; i < box_files.length; i += 1) {
         var b = box_files[i];
         files[i] = {
           name: b.name,
@@ -7436,7 +7436,7 @@ TS.registerModule("constants", {
     },
     onDropboxChooser: function(dropbox_files) {
       var files = [];
-      for (var i = 0; i < dropbox_files.length; i++) {
+      for (var i = 0; i < dropbox_files.length; i += 1) {
         var d = dropbox_files[i];
         files.push({
           name: d.name,
@@ -7460,7 +7460,7 @@ TS.registerModule("constants", {
     },
     justUploadTheseFileNow: function(files) {
       var file;
-      for (var i = 0; i < files.length; i++) {
+      for (var i = 0; i < files.length; i += 1) {
         file = files[i];
         if (file.size > TS.model.upload_file_size_limit_bytes) {
           continue;
@@ -10943,7 +10943,7 @@ TS.registerModule("constants", {
       });
     },
     isMemberExternal: function(member) {
-      if (!TS.model.shared_channels_enabled) return false;
+      if (!TS.boot_data.feature_shared_channels_client) return false;
       if (!_.isObject(member)) return false;
       if (!member.team_id) return false;
       if (!member._is_local && member._is_from_org) return false;
@@ -15819,7 +15819,7 @@ TS.registerModule("constants", {
       setInterval(function() {
         if (!TS.model.ms_connected) return;
         if (TS.model.rtm_start_throttler < 1) return;
-        TS.model.rtm_start_throttler--;
+        TS.model.rtm_start_throttler -= 1;
       }, 1e3 * 60);
       var ping_pong_measurement_percentage = 10;
       _measure_ping_pong_latency = TS.boot_data.feature_tinyspeck || TS.utility.enableFeatureForUser(ping_pong_measurement_percentage);
@@ -18918,11 +18918,12 @@ TS.registerModule("constants", {
       setInterval(function() {
         if (!TS.model.ds_connected) return;
         if (TS.model.rtd_start_throttler < 1) return;
-        TS.model.rtd_start_throttler--;
+        TS.model.rtd_start_throttler -= 1;
       }, 1e3 * 60);
     },
     send: function(msg, handler, temp_ts) {
-      msg.id = ++_msg_id;
+      _msg_id += 1;
+      msg.id = _msg_id;
       TS.ds.sent_map[msg.id.toString()] = {
         msg: msg,
         handler: handler,
@@ -19079,7 +19080,7 @@ TS.registerModule("constants", {
     getConnectionFlowLog: function() {
       var ds_conn_log = TS.model.ds_conn_log;
       var args = [];
-      for (var i = 0; i < ds_conn_log.length; i++) {
+      for (var i = 0; i < ds_conn_log.length; i += 1) {
         args.push(encodeURIComponent(ds_conn_log[i].name + "-" + (ds_conn_log[i].delta ? Math.round(ds_conn_log[i].delta / 1e3) : 0) + "-" + Math.round(ds_conn_log[i].time / 1e3)));
       }
       TS.dir(2, TS.model.ds_conn_log);
@@ -19284,7 +19285,7 @@ TS.registerModule("constants", {
     TS.ds.onFailure(desc);
   };
   var _onConnectTimeout = function() {
-    _connect_timeout_count++;
+    _connect_timeout_count += 1;
     var desc = "socket not connected " + _connect_timeout_tim_ms + "ms after creation. _connect_timeout_count:" + _connect_timeout_count;
     TS.warn(desc);
     TS.ds.logConnectionFlow("_onConnectTimeout");
@@ -19352,7 +19353,7 @@ TS.registerModule("constants", {
     TS.model.ds_connecting = false;
     TS.model.ds_connected = true;
     var msg;
-    for (var i = 0; i < TS.ds.Q.length; i++) {
+    for (var i = 0; i < TS.ds.Q.length; i += 1) {
       msg = TS.ds.Q.shift();
       TS.log(2, "TS.ds (Q) -->\n" + JSON.stringify(msg, null, "  "));
       _websocket.send(JSON.stringify(msg));
@@ -30963,7 +30964,7 @@ TS.registerModule("constants", {
       if (!str) return "";
       boundary = boundary || "";
       var nl = str.indexOf("\n") === 0 ? "\n" : "";
-      var token = _encodeSpecialFormattingCharsAndColon(nl + _token_base + _token_cnt++ + Date.now());
+      var token = _encodeSpecialFormattingCharsAndColon(nl + _token_base + (_token_cnt += 1) + Date.now());
       token = boundary + token + boundary;
       token_map.push({
         str: str,
@@ -30974,7 +30975,7 @@ TS.registerModule("constants", {
     deTokenizeStr: function(token_map, str) {
       var item;
       var i = token_map.length - 1;
-      for (i; i > -1; i--) {
+      for (i; i > -1; i -= 1) {
         item = token_map[i];
         str = str.replace(item.token, item.str.replace(/\$/g, "$$$$"));
       }
@@ -31285,7 +31286,7 @@ TS.registerModule("constants", {
       new_txt = new_txt.replace(rx, function(m, $0, $1, $2, offset, str) {
         if (str.substr(offset - 1, 1) === "&" && str.substr(offset + m.length, 1) === ";") return m;
         if (str.substr(0, offset).match(/</)) {
-          for (var i = offset; i >= last_good_pos; i--) {
+          for (var i = offset; i >= last_good_pos; i -= 1) {
             if (str.charAt(i) == "<") {
               return $0 + $1 + $2;
             }
@@ -31395,7 +31396,7 @@ TS.registerModule("constants", {
       var theme_install_btns = [];
       var curr_theme_index = 0;
       txt = txt.replace(_theme_rx, function(m, $1, $2) {
-        curr_theme_index++;
+        curr_theme_index += 1;
         var theme_install_btn = total_themes_count > 1 ? _getThemeInstallButtonHtml(m, curr_theme_index) : _getThemeInstallButtonHtml(m);
         theme_install_btns.push(theme_install_btn);
         var theme_count_text = total_themes_count > 1 ? " (" + curr_theme_index + ")	" : "";
@@ -31431,7 +31432,7 @@ TS.registerModule("constants", {
     var ug;
     var username;
     if (tsf_mode == "GROWL" || tsf_mode == "EDIT") {
-      for (i = 0; i < A.length; i++) {
+      for (i = 0; i < A.length; i += 1) {
         item = A[i];
         if (item.indexOf("<") === 0) {
           if (map[item]) {
@@ -31473,7 +31474,7 @@ TS.registerModule("constants", {
       var js_url;
       var display_name;
       var last_item_was_bot_url;
-      for (i = 0; i < A.length; i++) {
+      for (i = 0; i < A.length; i += 1) {
         item = A[i];
         if (item.indexOf("<") === 0) {
           if (map[item]) {
@@ -31955,7 +31956,7 @@ TS.registerModule("constants", {
         if (!model_ob) model_ob = _sharedChannelsNonUniqueUsernames(stripped.replace(/^@/, ""));
         if (model_ob) extra = special;
       }
-      i++;
+      i += 1;
     }
     return {
       model_ob: model_ob,
@@ -49951,7 +49952,7 @@ $.fn.togglify = function(settings) {
         }
       } else if (Array.isArray(_cache[text])) {
         var exists = false;
-        for (var i = 0; i < _cache[text].length; i++) {
+        for (var i = 0; i < _cache[text].length; i += 1) {
           if (_cache[text][i].id === item.id) {
             _countVisit(_cache[text][i]);
             exists = true;
@@ -49991,7 +49992,7 @@ $.fn.togglify = function(settings) {
     }
 
     function _countVisit(item) {
-      item.count++;
+      item.count += 1;
       if (item.visits.length === 10) item.visits.shift();
       item.visits.push(Date.now());
     }
@@ -50062,7 +50063,7 @@ $.fn.togglify = function(settings) {
       var points = 0;
       var i = item.visits.length - 1;
       var now = Date.now();
-      for (i; i >= 0; i--) points += _weighVisit(now - item.visits[i]);
+      for (i; i >= 0; i -= 1) points += _weighVisit(now - item.visits[i]);
       if (item._reduced) {
         points *= _REDUCED_MULTIPLIER;
       }
@@ -50072,7 +50073,7 @@ $.fn.togglify = function(settings) {
     function _weighVisit(recency) {
       var i = 0;
       var length = _BUCKETS.length;
-      for (i; i < length; i++) {
+      for (i; i < length; i += 1) {
         if (recency < _BUCKETS[i]) return _WEIGHTS[i];
       }
       return 0;
@@ -50097,7 +50098,7 @@ $.fn.togglify = function(settings) {
       var keys = Object.keys(_cache);
       _.each(keys, function(key) {
         if (_.isArray(_cache[key])) {
-          for (var i = _cache[key].length; i > -1; i--) {
+          for (var i = _cache[key].length; i > -1; i -= 1) {
             if (_shouldPruneCacheItem(_cache[key][i])) {
               _cache[key].splice(i, 1);
             }
@@ -50928,7 +50929,7 @@ $.fn.togglify = function(settings) {
       TS.ui.validation.register("valid_invite", _validateValidInvite);
     },
     start: function() {
-      if (TS.model.shared_channels_enabled) _start();
+      if (TS.boot_data.feature_shared_channels_invite) _start();
     }
   });
   var _$body;
@@ -53201,7 +53202,7 @@ $.fn.togglify = function(settings) {
       var team = _id_map[id];
       if (team) return team;
       if (!teams) return null;
-      for (var i = 0; i < teams.length; i++) {
+      for (var i = 0; i < teams.length; i += 1) {
         team = teams[i];
         if (team.id === id) {
           TS.warn(id + " not in _id_map?");
@@ -53775,7 +53776,7 @@ $.fn.togglify = function(settings) {
       var is_authed;
       var clear_polling = false;
       var checkAuth = function() {
-        ++attempts;
+        attempts += 1;
         is_authed = TS.google_auth.isAuthed(instance_id);
         if (is_authed || window_ref && window_ref.closed) {
           timeout_id = null;
@@ -57981,6 +57982,7 @@ $.fn.togglify = function(settings) {
       var model = _.clone(action);
       model._disabled = model._disabled || !!is_disabled;
       model.data_source = _DATA_SOURCES[model.data_source] || _DATA_SOURCES.default;
+      model.placeholder_text = _getPlaceholderTextByDataSource(model.data_source);
       if (model.text) {
         model.text = _formatAndMarkSafeString(model.text);
       }
@@ -58009,6 +58011,7 @@ $.fn.togglify = function(settings) {
     users: "users"
   };
   var _LAZY_LOADED_DATA_SOURCES = [_DATA_SOURCES.conversations, _DATA_SOURCES.users];
+  var _CONVERSATIONS_TEMPLATE_DATA_SOURCES = [_DATA_SOURCES.channels, _DATA_SOURCES.conversations, _DATA_SOURCES.users];
   var _LAZY_LOADED_DATA_SOURCE_MIN_QUERY_LENGTH = 3;
   var _EXTERNAL_INPUT_DEBOUNCE_WAIT_TIME = 250;
 
@@ -58150,7 +58153,7 @@ $.fn.togglify = function(settings) {
   }
 
   function _getItemTemplate($select) {
-    if ($select.data("data-source") !== _DATA_SOURCES.default) {
+    if (_.includes(_CONVERSATIONS_TEMPLATE_DATA_SOURCES, $select.data("data-source"))) {
       return _itemTemplateForConversations;
     }
   }
@@ -58161,6 +58164,10 @@ $.fn.togglify = function(settings) {
 
   function _getFilterPlaceholderText($select) {
     return _.get(_FILTER_PLACEHOLDER_TEXT, $select.data("data-source"), _FILTER_PLACEHOLDER_TEXT.default);
+  }
+
+  function _getPlaceholderTextByDataSource(data_source) {
+    return _.get(_PLACEHOLDER_TEXT, data_source, _PLACEHOLDER_TEXT.default);
   }
 
   function _itemTemplateForConversations(item) {
@@ -61454,7 +61461,8 @@ $.fn.togglify = function(settings) {
       return x;
     },
     destructor: function() {
-      this.dirtyComponentsLength = null, p.release(this.callbackQueue), this.callbackQueue = null, E.ReactReconcileTransaction.release(this.reconcileTransaction), this.reconcileTransaction = null;
+      this.dirtyComponentsLength = null, p.release(this.callbackQueue), this.callbackQueue = null, E.ReactReconcileTransaction.release(this.reconcileTransaction),
+        this.reconcileTransaction = null;
     },
     perform: function(e, t, n) {
       return m.perform.call(this, this.reconcileTransaction.perform, this.reconcileTransaction, e, t, n);
@@ -61469,8 +61477,7 @@ $.fn.togglify = function(settings) {
         if (b) {
           b = !1;
           var t = y;
-          y = p.getPooled(), t.notifyAll(),
-            p.release(t);
+          y = p.getPooled(), t.notifyAll(), p.release(t);
         }
       }
     },
@@ -71892,38 +71899,39 @@ $.fn.togglify = function(settings) {
       function t() {
         return r(this, t), o(this, (t.__proto__ || Object.getPrototypeOf(t)).apply(this, arguments));
       }
-      return i(t, e), f(t, [{
-        key: "renderEmojiGroupTab",
-        value: function(e) {
-          var t = this,
-            n = l()("emoji_grouping_tab", {
-              active: this.props.activeGroup === e
-            }),
-            r = function() {
-              return t.props.onGroupTabClick(e);
-            };
-          return u.a.createElement("a", {
-            key: e.name,
-            className: n,
-            onClick: r
-          }, u.a.createElement("span", {
-            className: "emoji-sizer",
-            title: e.display_name
-          }, u.a.createElement(c.a, {
-            type: e.tab_icon_name
-          })));
-        }
-      }, {
-        key: "render",
-        value: function() {
-          var e = this;
-          return u.a.createElement("div", {
-            id: "emoji_menu_header"
-          }, this.props.groups.map(function(t) {
-            return e.renderEmojiGroupTab(t);
-          }));
-        }
-      }]), t;
+      return i(t, e),
+        f(t, [{
+          key: "renderEmojiGroupTab",
+          value: function(e) {
+            var t = this,
+              n = l()("emoji_grouping_tab", {
+                active: this.props.activeGroup === e
+              }),
+              r = function() {
+                return t.props.onGroupTabClick(e);
+              };
+            return u.a.createElement("a", {
+              key: e.name,
+              className: n,
+              onClick: r
+            }, u.a.createElement("span", {
+              className: "emoji-sizer",
+              title: e.display_name
+            }, u.a.createElement(c.a, {
+              type: e.tab_icon_name
+            })));
+          }
+        }, {
+          key: "render",
+          value: function() {
+            var e = this;
+            return u.a.createElement("div", {
+              id: "emoji_menu_header"
+            }, this.props.groups.map(function(t) {
+              return e.renderEmojiGroupTab(t);
+            }));
+          }
+        }]), t;
     }(a.PureComponent);
   t.a = h, h.propTypes = p, h.defaultProps = d;
 }, function(e, t, n) {
@@ -75187,7 +75195,8 @@ $.fn.togglify = function(settings) {
   var b = 1,
     w = {
       construct: function(e) {
-        this._currentElement = e, this._rootNodeID = 0, this._compositeType = null, this._instance = null, this._hostParent = null, this._hostContainerInfo = null, this._updateBatchNumber = null, this._pendingElement = null, this._pendingStateQueue = null, this._pendingReplaceState = !1, this._pendingForceUpdate = !1, this._renderedNodeType = null, this._renderedComponent = null, this._context = null, this._mountOrder = 0, this._topLevelWrapper = null, this._pendingCallbacks = null, this._calledComponentWillUnmount = !1;
+        this._currentElement = e, this._rootNodeID = 0, this._compositeType = null, this._instance = null, this._hostParent = null, this._hostContainerInfo = null, this._updateBatchNumber = null, this._pendingElement = null, this._pendingStateQueue = null, this._pendingReplaceState = !1, this._pendingForceUpdate = !1,
+          this._renderedNodeType = null, this._renderedComponent = null, this._context = null, this._mountOrder = 0, this._topLevelWrapper = null, this._pendingCallbacks = null, this._calledComponentWillUnmount = !1;
       },
       mountComponent: function(e, t, n, s) {
         this._context = s, this._mountOrder = b++, this._hostParent = t, this._hostContainerInfo = n;

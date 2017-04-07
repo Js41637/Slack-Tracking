@@ -1,27 +1,32 @@
-<select
-  class="select small"
-  name="{{name}}"
-  {{#if _disabled}}
-    disabled
-    aria-disabled="true"
-  {{/if}}
-  {{#if text}}
-    placeholder="{{text}}"
-  {{/if}}
-  data-action-id="{{id}}"
-  data-data-source="{{data_source}}"
->
-  {{#if option_groups}}
-    {{#each option_groups}}
-      <optgroup label="{{text}}">
-        {{#each options}}
-          {{renderAttachmentActionSelectOption this is_group_item=true}}
-        {{/each}}
-      </optgroup>
-    {{/each}}
-  {{else}}
-    {{#each options}}
-      {{renderAttachmentActionSelectOption this}}
-    {{/each}}
-  {{/if}}
-</select>
+{{#if _disabled}}
+  <div class="lazy_filter_select select_attachment filter_in_list_style single">
+    <div class="lfs_input_container empty">
+      <input type="text" class="lfs_input" size="" placeholder="{{placeholder_text}}" aria-disabled="true" disabled>
+    </div>
+  </div>
+{{else}}
+  {{! Note the lazy_filter_select library will decorate these selects. see `TS.attachment_actions.select` }}
+  <select
+    class="select small"
+    name="{{name}}"
+    {{#if text}}
+      placeholder="{{text}}"
+    {{/if}}
+    data-action-id="{{id}}"
+    data-data-source="{{data_source}}"
+  >
+    {{#if option_groups}}
+      {{#each option_groups}}
+        <optgroup label="{{text}}">
+          {{#each options}}
+            {{renderAttachmentActionSelectOption this is_group_item=true}}
+          {{/each}}
+        </optgroup>
+      {{/each}}
+    {{else}}
+      {{#each options}}
+        {{renderAttachmentActionSelectOption this}}
+      {{/each}}
+    {{/if}}
+  </select>
+{{/if}}

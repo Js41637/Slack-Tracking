@@ -3603,7 +3603,7 @@ var _fullToHalf = function(char) {
       var emoji_base_name = TS.emoji.nameToBaseName(emoji.name);
       if (TS.emoji.substringMatchesName(emoji_base_name, term)) return true;
       var aliases = emoji.names.split(" ");
-      for (var i = 0; i < aliases.length; i++) {
+      for (var i = 0; i < aliases.length; i += 1) {
         if (TS.emoji.substringMatchesName(TS.emoji.nameToBaseName(aliases[i]), term)) return true;
       }
       return _.indexOf(keywords, emoji_base_name) !== -1;
@@ -3779,7 +3779,7 @@ var _fullToHalf = function(char) {
       });
       var i, m;
       var defaults = [];
-      for (i = 0; i < groupings.length; i++) {
+      for (i = 0; i < groupings.length; i += 1) {
         defaults = defaults.concat(groupings[i].emoji_names);
       }
       var cat_map = {};
@@ -3825,7 +3825,7 @@ var _fullToHalf = function(char) {
         });
       });
       TS.model.emoji_map = _.uniqBy(TS.model.emoji_map, "id");
-      for (i = 0; i < defaults.length; i++) {
+      for (i = 0; i < defaults.length; i += 1) {
         var name = defaults[i];
         if (!cat_map[name]) {
           TS.info(name + " not in cat_map?");
@@ -3835,7 +3835,7 @@ var _fullToHalf = function(char) {
       var cat_map_items;
       var cat_map_item;
       var tab_html;
-      for (i = 0; i < groupings.length; i++) {
+      for (i = 0; i < groupings.length; i += 1) {
         grouping = groupings[i];
         cat_map_items = [];
         cat_map_item = null;
@@ -3843,7 +3843,7 @@ var _fullToHalf = function(char) {
         if (grouping.tab_icon_html) {
           tab_html = grouping.tab_icon_html;
         }
-        for (m = 0; m < grouping.emoji_names.length; m++) {
+        for (m = 0; m < grouping.emoji_names.length; m += 1) {
           cat_map_item = cat_map[grouping.emoji_names[m]];
           cat_map_items.push(cat_map_item);
           if (tab_html) continue;

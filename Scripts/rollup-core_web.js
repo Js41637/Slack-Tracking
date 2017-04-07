@@ -1239,7 +1239,7 @@ $(window).load(function() {
       event: "SignUp"
     });
   });
-  $("a[data-gtm-click]").on("click", function(e) {
+  $("*[data-gtm-click]").on("click", function(e) {
     gtmDataLayer.push({
       event: $(this).attr("data-gtm-click")
     });
