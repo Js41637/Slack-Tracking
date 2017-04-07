@@ -29,7 +29,7 @@
       if (!search_results || !_.isNumber(index)) return;
       return search_results[index];
     },
-    getInsertData: function(result, query) {
+    getInsertData: function(result) {
       if (!result) return;
       var text = "#" + result.name;
       return {

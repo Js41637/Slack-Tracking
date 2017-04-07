@@ -24426,6 +24426,10 @@ ts-jumper ts-jumper-container {
   margin: 0 auto
 }
 
+.supports_custom_scrollbar ts-jumper ts-jumper-container {
+  padding-bottom: 1rem
+}
+
 ts-jumper ts-jumper-help {
   margin: 0 0 .5rem;
   color: #717274;
@@ -24482,6 +24486,10 @@ ts-jumper ol {
   margin: 0;
   padding: 0 1rem 0 0;
   list-style-type: none
+}
+
+.supports_custom_scrollbar ts-jumper ol {
+  padding-right: .5rem
 }
 
 ts-jumper ol li {
@@ -24695,6 +24703,40 @@ ts-jumper ts-jumper-results {
 
 ts-jumper ts-jumper-results:empty {
   margin-top: -1rem
+}
+
+.supports_custom_scrollbar ts-jumper ts-jumper-results {
+  border-right: .25rem solid transparent;
+  margin-bottom: 0;
+  overflow-y: scroll
+}
+
+.supports_custom_scrollbar ts-jumper ts-jumper-results::-webkit-scrollbar {
+  position: absolute;
+  -webkit-appearance: none;
+  width: 8px
+}
+
+.supports_custom_scrollbar ts-jumper ts-jumper-results::-webkit-scrollbar-thumb,
+.supports_custom_scrollbar ts-jumper ts-jumper-results::-webkit-scrollbar-track {
+  background-clip: padding-box!important;
+  border-radius: 3px;
+  color: #fff
+}
+
+.supports_custom_scrollbar ts-jumper ts-jumper-results::-webkit-scrollbar-track {
+  background: 0 0;
+  box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0
+}
+
+.supports_custom_scrollbar ts-jumper ts-jumper-results::-webkit-scrollbar-thumb {
+  background: #d9d9de;
+  box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;
+  min-height: 36px
+}
+
+.supports_custom_scrollbar ts-jumper ts-jumper-results::-webkit-scrollbar-corner {
+  background: #fff
 }
 
 @font-face {

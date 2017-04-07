@@ -31,7 +31,7 @@
         emoji: result
       };
     },
-    getInsertData: function(result, query) {
+    getInsertData: function(result) {
       if (!result || !result.emoji) return;
       var text = result.emoji.name_with_colons;
       if (result.emoji.is_skin) text += TS.emoji.getChosenSkinToneModifier() || "";
@@ -258,7 +258,7 @@
     results = TS.sorter.search(search_text, search_data, search_options);
     return _.map(results, "model_ob");
   };
-  var _getTemplateArgsForEmoji = function(emoji, action) {
+  var _getTemplateArgsForEmoji = function(emoji) {
     var args = {
       emoji_is_plain_text_only: TS.model.prefs.emoji_mode === "as_text",
       emoji: emoji

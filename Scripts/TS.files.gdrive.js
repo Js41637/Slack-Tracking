@@ -52,7 +52,7 @@
     createAndShare: function(type) {
       return _gdriveCreateFileDialog(type).then(function(share_settings) {
         TS.files.gdrive.create(type, share_settings);
-      }).catch(function(err) {
+      }).catch(function() {
         TS.menu.file.onGDriveCreateComplete(false);
       });
     },

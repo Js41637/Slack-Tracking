@@ -13250,6 +13250,7 @@
         completeMemberSpecials: !!options.completeMemberSpecials
       };
       _this.isInComposition = false;
+      _this.completeAtNextSelectionChange = false;
       _this.listen();
       return _this;
     }
@@ -13375,15 +13376,15 @@
     }, {
       key: "onCompositionEnd",
       value: function onCompositionEnd() {
-        var _this3 = this;
         this.isInComposition = false;
-        setTimeout(function() {
-          return _this3.maybeCompleteAtCursor("user");
-        }, 0);
       }
     }, {
       key: "onTextChange",
       value: function onTextChange(delta, oldDelta, source) {
+        if (this.isInComposition) {
+          this.completeAtNextSelectionChange = true;
+          return;
+        }
         if (delta.length() === 1) {
           var range = this.quill.getSelection();
           if (range && range.index === 0 && range.length === 0) {
@@ -13400,6 +13401,7 @@
       key: "maybeCompleteAtCursor",
       value: function maybeCompleteAtCursor(source) {
         this._searchInFlight = null;
+        this.completeAtNextSelectionChange = false;
         if (this.quill.getLength() <= 1) {
           this.hideMenu();
           return;
@@ -13414,8 +13416,14 @@
       }
     }, {
       key: "onSelectionChange",
-      value: function onSelectionChange() {
-        this.hideMenu();
+      value: function onSelectionChange(range, oldRange, source) {
+        if (range && this.completeAtNextSelectionChange) {
+          this.maybeCompleteAtCursor("user");
+        } else {
+          this._searchInFlight = null;
+          this.completeAtNextSelectionChange = false;
+          this.hideMenu();
+        }
       }
     }, {
       key: "getCurrentMatchAtCursor",
@@ -13452,7 +13460,7 @@
     }, {
       key: "search",
       value: function search(_ref5) {
-        var _this4 = this;
+        var _this3 = this;
         var match = _ref5.match,
           _ref5$insertFirstResu = _ref5.insertFirstResult,
           insertFirstResult = _ref5$insertFirstResu === undefined ? false : _ref5$insertFirstResu,
@@ -13473,15 +13481,15 @@
         }, this._searchOptions);
         match.completer.search(match.text, searchParams, function(err) {
           var results = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
-          if (match.text !== _this4._searchInFlight) {
-            _this4.options.log('TabComplete: ignoring stale search for "' + match.text + '"');
+          if (match.text !== _this3._searchInFlight) {
+            _this3.options.log('TabComplete: ignoring stale search for "' + match.text + '"');
             return;
           }
-          _this4._prevMatch = (0, _utils.assign)({
+          _this3._prevMatch = (0, _utils.assign)({
             results: results
           }, match);
-          var actuallyInsertFirstResult = !_this4._prevInsertText && insertFirstResult;
-          _this4.handleSearchResults(err, results, actuallyInsertFirstResult, isUserSolicited);
+          var actuallyInsertFirstResult = !_this3._prevInsertText && insertFirstResult;
+          _this3.handleSearchResults(err, results, actuallyInsertFirstResult, isUserSolicited);
         });
       }
     }, {

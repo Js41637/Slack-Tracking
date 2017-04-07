@@ -22,7 +22,7 @@
         index: index
       });
     },
-    getInsertData: function(result, query) {
+    getInsertData: function(result) {
       if (!result) return;
       var text = result.name;
       return {

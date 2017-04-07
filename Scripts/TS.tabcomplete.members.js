@@ -232,8 +232,8 @@
       query: text.replace(/^@/, ""),
       max_api_results: limit,
       include_org: true,
-      include_slackbot: false,
-      include_self: false,
+      include_slackbot: true,
+      include_self: true,
       full_profile_filter: false,
       limit_by_model_relevancy: model_ob
     };
@@ -267,7 +267,7 @@
     }
     return active_members;
   };
-  var _buildMemberTemplateArgs = function(model_ob, member, text) {
+  var _buildMemberTemplateArgs = function(model_ob, member) {
     var primary_name_classes = [];
     var secondary_name_classes = [];
     var primary_name;

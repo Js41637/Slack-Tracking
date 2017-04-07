@@ -139,7 +139,7 @@
 
   function _replaceEmoticons(text, replacements) {
     TS.emoji.eachEmoticon(text, function(emoticon) {
-      text = text.replace(emoticon, function(match, offset) {
+      text = text.replace(emoticon, function(match) {
         var rando = "<emoticon-placeholder-" + Date.now() + ">";
         replacements.push({
           emoticon: match,

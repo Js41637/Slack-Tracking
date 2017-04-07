@@ -417,7 +417,7 @@
     onStart: function() {
       if (TS.client) TS.client.login_sig.add(TS.sidebar_themes.onLogin, TS.sidebar_themes);
     },
-    onLogin: function(ok, data) {
+    onLogin: function() {
       if (TS.model.prefs.sidebar_theme) TS.prefs.sidebar_theme_changed_sig.dispatch();
     }
   });
@@ -706,7 +706,7 @@
   var _getQuery = function() {
     return $.trim(_$filter.val());
   };
-  var _articlesFetched = function(ok, data, args) {
+  var _articlesFetched = function(ok, data) {
     if (!ok) {
       TS.error("failed to fetch help articles");
       return;
@@ -767,17 +767,17 @@
         data.$title = $el.find(".article_title");
         return $el;
       },
-      makeDivider: function(data) {
+      makeDivider: function() {
         return $("<div>").addClass("help_modal_divider");
       },
       renderItem: function($el, item, data) {
         data.$title.text(item.title);
         $el.data("url", item.url);
       },
-      renderDivider: function($el, item, data) {
+      renderDivider: function($el, item) {
         $el.text(item.title);
       },
-      calcItemHeight: function($el, item, data) {
+      calcItemHeight: function($el) {
         return $el.outerHeight();
       }
     });
@@ -815,7 +815,7 @@
     });
     return suggested_articles;
   };
-  var _openArticle = function($row, e) {
+  var _openArticle = function($row) {
     var the_url = $row.data("url");
     var the_query = _getQuery();
     if (the_url) {

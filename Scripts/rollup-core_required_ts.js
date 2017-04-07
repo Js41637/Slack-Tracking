@@ -524,7 +524,7 @@
       if (TS.client && TSSSB.call("reload")) {
         if (TS.model.mac_ssb_version) {
           setInterval(function() {
-            window.callSlackAPIUnauthed("api.test", {}, function(ok, data, args) {
+            window.callSlackAPIUnauthed("api.test", {}, function(ok) {
               if (ok) {
                 window.location.reload();
               }
@@ -1564,7 +1564,7 @@
       resolve();
     });
   };
-  var _onBadUserCache = function(problem, details) {
+  var _onBadUserCache = function(problem) {
     TS.error("_onBadUserCache problem: " + problem);
     TS.storage.cleanOutCacheTsStorage();
     TS.model.had_bad_user_cache = true;
@@ -3413,7 +3413,7 @@ var _fullToHalf = function(char) {
     if (TS.log) TS.log(_LOG_PRI, "URLs:", urls);
     return urls;
   };
-  var _onClick = function(e) {
+  var _onClick = function() {
     var event = this.getAttribute("data-clog-event");
     if (!event) {
       if (TS.warn) TS.warn("Logging clicks with data-clog-click requires a data-clog-event attribute");
@@ -3532,8 +3532,8 @@ var _fullToHalf = function(char) {
   var _promise_user_assignments;
   var _promise_visitor_assignments;
   var _loadAssignments = function(api_url, api_args) {
-    return new Promise(function(resolve, reject) {
-      _method(api_url, _.extend(TS.utility.url.queryStringParse(location.search.substring(1)), api_args), function(ok, data, args) {
+    return new Promise(function(resolve) {
+      _method(api_url, _.extend(TS.utility.url.queryStringParse(location.search.substring(1)), api_args), function(ok, data) {
         if (ok && data.assignments) {
           _recordAssignments(data.assignments);
         }
@@ -3734,7 +3734,7 @@ var _fullToHalf = function(char) {
         if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Fetching emoji list before setting up emoji");
         TS.api.call("emoji.list", {
           include_complex_values: 1
-        }, function(ok, data, args) {
+        }, function(ok, data) {
           if (!ok || !data.emoji) {
             return complete();
           }
@@ -4915,108 +4915,54 @@ var _fullToHalf = function(char) {
       });
     },
     promiseToGetFileShareSelectOptions: function(query) {
-      if (TS.boot_data.feature_share_picker) {
-        var current_model_ob = _getActiveChannelId();
-        return TS.searcher.search(query, {
-          members: {
-            include_self: true
-          },
-          channels: {
-            include_archived: false,
-            can_post: true
-          },
-          groups: {
-            include_archived: false
-          },
-          mpims: true,
-          sort: {
-            allow_empty_query: true
-          }
-        }).then(function(data) {
-          var preselected = false;
-          data.all_items_fetched = true;
-          data.filter(function(item) {
-            return TS.permissions.members.canPostInChannel(item.model_ob);
-          }).forEach(function(item) {
-            item.lfs_id = item.model_ob.id;
-            item.preselected = _isPreselected(item.model_ob.id, current_model_ob);
-            if (item.preselected) preselected = true;
-          });
-          if (!query && !preselected && current_model_ob) {
-            var current_channel = TS.shared.getModelObById(current_model_ob);
-            if (_.get(current_channel, "is_im")) {
-              var member = TS.members.getMemberById(current_channel.user);
+      var current_model_ob = _getActiveChannelId();
+      return TS.searcher.search(query, {
+        members: {
+          include_self: true
+        },
+        channels: {
+          include_archived: false,
+          can_post: true
+        },
+        groups: {
+          include_archived: false
+        },
+        mpims: true,
+        sort: {
+          allow_empty_query: true
+        }
+      }).then(function(data) {
+        var preselected = false;
+        data.all_items_fetched = true;
+        data.filter(function(item) {
+          return TS.permissions.members.canPostInChannel(item.model_ob);
+        }).forEach(function(item) {
+          item.lfs_id = item.model_ob.id;
+          item.preselected = _isPreselected(item.model_ob.id, current_model_ob);
+          if (item.preselected) preselected = true;
+        });
+        if (!query && !preselected && current_model_ob) {
+          var current_channel = TS.shared.getModelObById(current_model_ob);
+          if (_.get(current_channel, "is_im")) {
+            var member = TS.members.getMemberById(current_channel.user);
+            data.push({
+              preselected: true,
+              lfs_id: member.id,
+              model_ob: member
+            });
+          } else if (current_channel) {
+            if (TS.permissions.members.canPostInChannel(current_channel)) {
               data.push({
                 preselected: true,
-                lfs_id: member.id,
-                model_ob: member
+                lfs_id: current_channel.id,
+                model_ob: current_channel
               });
-            } else if (current_channel) {
-              if (TS.permissions.members.canPostInChannel(current_channel)) {
-                data.push({
-                  preselected: true,
-                  lfs_id: current_channel.id,
-                  model_ob: current_channel
-                });
-              }
             }
           }
-          var member_ids = _(data).map("model_ob").filter(TS.utility.members.isMember).map("id").compact().value();
-          TS.presence_manager.queryMemberPresence(member_ids);
-          return data;
-        });
-      }
-      if (query.charAt(0) === "@") query = query.substring(1);
-      if (_file_share_options.query !== query) {
-        _file_share_options.query = query;
-        _file_share_options.include_org = TS.boot_data.page_needs_enterprise;
-        _file_share_options.include_slackbot = true;
-        _file_share_options.include_self = true;
-        _file_share_options.full_profile_filter = false;
-        _file_share_options._current_model_ob_id = _getActiveChannelId();
-        _file_share_options._prefix_regexes = [];
-        _file_share_options._suffix_regexes = [];
-        var queries = query.split(/[,| ]/).filter(function(i) {
-          return !!i;
-        });
-        for (var i = 0; i < queries.length; i += 1) {
-          _file_share_options._prefix_regexes.push(new RegExp("^" + TS.utility.regexpEscape(queries[i]), "i"));
-          _file_share_options._suffix_regexes.push(new RegExp("(-|_|\\+|\\s|\\.|@)" + TS.utility.regexpEscape(queries[i]), "i"));
         }
-        _file_share_options._prefix_regex = new RegExp("^" + TS.utility.regexpEscape(query), "i");
-        _file_share_options._suffix_regex = new RegExp("(-|_|\\+|\\s|\\.|@)" + TS.utility.regexpEscape(query), "i");
-      }
-      var promises = [_promiseToGetMembersAndMPIMs(_file_share_options), _promiseToGetChannelsAndGroups(_file_share_options)];
-      return Promise.all(promises).then(function(responses) {
-        var response = {
-          _replace_all_items: true,
-          items: []
-        };
-        var all_dms = responses[0];
-        var all_channels = responses[1];
-        all_channels = all_channels.map(function(channel) {
-          channel.lfs_id = "0." + channel.model_ob.id;
-          return channel;
-        });
-        all_dms = all_dms.map(function(dm) {
-          dm.lfs_id = "1." + dm.model_ob.id;
-          return dm;
-        });
-        if (all_channels.length) {
-          response.items.push({
-            lfs_group: true,
-            label: TS.i18n.t("Channels", "files")(),
-            children: all_channels
-          });
-        }
-        if (all_dms.length) {
-          response.items.push({
-            lfs_group: true,
-            label: TS.i18n.t("Direct Messages", "files")(),
-            children: all_dms
-          });
-        }
-        return Promise.resolve(response);
+        var member_ids = _(data).map("model_ob").filter(TS.utility.members.isMember).map("id").compact().value();
+        TS.presence_manager.queryMemberPresence(member_ids);
+        return data;
       });
     },
     bindFileShareShareToggle: function() {
@@ -5208,14 +5154,6 @@ var _fullToHalf = function(char) {
   });
   var _file_share_options = {};
   var _src_model_ob = false;
-  var _fileShareFilter = function(item, searcher) {
-    if (item.is_mpim) {
-      return TS.mpims.checkMpimMatch(item, searcher._prefix_regexes, searcher._suffix_regexes);
-    } else if (item.is_group || item.is_channel) {
-      return item.name.match(searcher._prefix_regex);
-    }
-    return false;
-  };
   var _fileShareOnChange = function(item) {
     $("#select_share_channels .lfs_input_container").removeClass("error");
     if (item.model_ob.create_channel) {
@@ -5259,7 +5197,7 @@ var _fullToHalf = function(char) {
   var _promiseToGetSelectOptionsWithCreate = function(query) {
     return TS.ui.file_share.promiseToGetFileShareSelectOptions(query).then(function(response) {
       $("#select_share_channels .lfs_list_container").removeClass("new_channel_container");
-      if (TS.boot_data.feature_share_picker && response.length === 0) {
+      if (response.length === 0) {
         var clean_name = TS.utility.channels.getPermissibleChannelName(query);
         if (clean_name) {
           response.push({
@@ -5280,130 +5218,6 @@ var _fullToHalf = function(char) {
       }
       return response;
     });
-  };
-  var _promiseToGetMembersAndMPIMs = function(searcher) {
-    return Promise.all([_promiseToGetMembers(searcher), _promiseToGetMPIMs(searcher)]).then(function(responses) {
-      var members = responses[0];
-      var mpims = responses[1];
-      var all_dms = members.concat(mpims);
-      all_dms.sort(function(a, b) {
-        if (a.model_ob.is_mpim && !b.model_ob.is_mpim) return 1;
-        if (b.model_ob.is_mpim && !a.model_ob.is_mpim) return -1;
-        if (a.model_ob.is_slackbot) return 1;
-        if (b.model_ob.is_slackbot) return -1;
-        var a_srt = a.model_ob.is_mpim ? searcher._mpim_name_map[a.model_ob.id] : searcher._member_name_map[a.model_ob.id];
-        var b_srt = b.model_ob.is_mpim ? searcher._mpim_name_map[b.model_ob.id] : searcher._member_name_map[b.model_ob.id];
-        if (a_srt < b_srt) return -1;
-        if (a_srt > b_srt) return 1;
-        return 0;
-      });
-      return all_dms;
-    });
-  };
-  var _promiseToGetMembers = function(searcher) {
-    var search_p;
-    if (_.trim(searcher.query) == "" && TS.lazyLoadMembersAndBots()) {
-      search_p = Promise.resolve(searcher);
-    } else {
-      search_p = TS.members.promiseToSearchMembers(searcher);
-    }
-    return search_p.then(function(response) {
-      if (!response._member_name_map) response._member_name_map = {};
-      var items = [];
-      if (response.query === "") {
-        items = TS.members.getMembersForUser();
-      } else {
-        items = response.items;
-      }
-      items = items.map(function(item) {
-        if (TS.boot_data.feature_name_tagging_client) {
-          response._member_name_map[item.id] = TS.members.getMemberFullNameLowerCase(item);
-        } else {
-          response._member_name_map[item.id] = TS.members.getMemberDisplayNameLowerCase(item);
-        }
-        if (item.model_ob && typeof item.preselected !== "undefined") return item;
-        var preselected = TS.model.ims.some(function(im) {
-          return im.user === item.id && _isPreselected(im.id, searcher._current_model_ob_id);
-        });
-        return {
-          model_ob: item,
-          preselected: preselected
-        };
-      });
-      return items;
-    });
-  };
-  var _promiseToGetMPIMs = function(searcher) {
-    if (!searcher._mpim_name_map) searcher._mpim_name_map = {};
-    var mpims = [];
-    var mpim;
-    var mpim_name_lowercase;
-    var visible_mpims = TS.mpims.getVisibleMpims();
-    for (var i = 0; i < visible_mpims.length; i += 1) {
-      var should_see = true;
-      mpim = visible_mpims[i];
-      mpim_name_lowercase = TS.mpims.getDisplayNameLowerCase(mpim);
-      should_see = _fileShareFilter(mpim, searcher);
-      if (should_see) {
-        mpims.push({
-          model_ob: mpim,
-          preselected: _isPreselected(mpim.id, searcher._current_model_ob_id)
-        });
-        searcher._mpim_name_map[mpim.id] = mpim_name_lowercase;
-      }
-    }
-    return Promise.resolve(mpims);
-  };
-  var _promiseToGetChannelsAndGroups = function(searcher) {
-    if (!searcher._archives_channel_id) searcher._archives_channel_id = TS.model.archive_view_is_showing && TS.client.archives.current_model_ob ? TS.client.archives.current_model_ob.id : null;
-    return Promise.all([_promiseToGetChannels(searcher), _promiseToGetGroups(searcher)]).then(function(responses) {
-      var channels = responses[0];
-      var groups = responses[1];
-      var all_channels = channels.concat(groups);
-      all_channels.sort(function(a, b) {
-        var a_srt = a.model_ob._name_lc;
-        var b_srt = b.model_ob._name_lc;
-        if (a_srt < b_srt) return -1;
-        if (a_srt > b_srt) return 1;
-        return 0;
-      });
-      return Promise.resolve(all_channels);
-    });
-  };
-  var _promiseToGetChannels = function(searcher) {
-    var channels = [];
-    var channel;
-    var can_post_in_general = TS.members.canUserPostInGeneral();
-    for (var i = 0; i < TS.model.channels.length; i += 1) {
-      channel = TS.model.channels[i];
-      var should_see = true;
-      should_see = _fileShareFilter(channel, searcher);
-      var can_post_in_channel = TS.permissions.members.canPostInChannel(channel);
-      if ((!TS.channels.isChannelRequired(channel) || can_post_in_general) && !channel.is_archived && should_see && can_post_in_channel) {
-        channels.push({
-          model_ob: channel,
-          preselected: _isPreselected(channel.id, searcher._current_model_ob_id)
-        });
-      }
-    }
-    return Promise.resolve(channels);
-  };
-  var _promiseToGetGroups = function(searcher) {
-    var groups = [];
-    var group;
-    for (var i = 0; i < TS.model.groups.length; i += 1) {
-      group = TS.model.groups[i];
-      var should_see = true;
-      should_see = _fileShareFilter(group, searcher);
-      var can_post_in_channel = TS.permissions.members.canPostInChannel(group);
-      if (!group.is_archived && should_see && can_post_in_channel) {
-        groups.push({
-          model_ob: group,
-          preselected: _isPreselected(group.id, searcher._current_model_ob_id)
-        });
-      }
-    }
-    return Promise.resolve(groups);
   };
   var _getActiveChannelId = function() {
     if (TS.client && TS.client.activeChannelIsHidden()) {

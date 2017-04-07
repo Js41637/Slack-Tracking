@@ -171,7 +171,7 @@
     } else {
       $msgs = $("#msgs_scroller_div ts-message.is_recap");
     }
-    $msgs = $msgs.filter(function(index) {
+    $msgs = $msgs.filter(function() {
       return _tsIsUnread($(this).data("ts"));
     });
     return $msgs;
@@ -218,7 +218,7 @@
         } else {
           TS.recaps_signal.renderHighlightedMessages();
         }
-      }).catch(function(e) {});
+      }).catch(function() {});
     }
     TS.recaps_signal.renderHighlightedMessages();
   };
