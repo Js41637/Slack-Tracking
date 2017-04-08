@@ -26073,6 +26073,35 @@ li:hover .current_status_badge {
   margin-right: .75rem
 }
 
+#whats_new_toggle.exp_expanding {
+  width: auto;
+  padding: 0 6px
+}
+
+#whats_new_toggle.exp_expanding .ts_icon_emoji_celebration:before {
+  vertical-align: text-top
+}
+
+#whats_new_toggle.exp_expanding .num_only,
+#whats_new_toggle.exp_expanding .num_updates {
+  display: inline-block;
+  font-size: .9rem;
+  font-weight: 700
+}
+
+#whats_new_toggle.exp_expanding .num_only {
+  display: none
+}
+
+@media screen and (max-width:1070px) {
+  #whats_new_toggle.exp_expanding .num_updates {
+    display: none
+  }
+  #whats_new_toggle.exp_expanding .num_only {
+    display: inline-block
+  }
+}
+
 .whats_new_showing #whats_new_toggle {
   display: block
 }

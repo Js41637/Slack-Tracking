@@ -14384,17 +14384,30 @@
   var _updateEverything = function() {
     _countUnreads();
     _decideIfRead();
-    _updateBurst();
+    _updateGift();
     _updateCB();
     _updateIcon();
   };
   var _updateCB = function() {
     _$what_new_read_cb.prop("checked", TS.model.prefs.whats_new_read !== -1);
   };
-  var _updateBurst = function() {
+  var _updateGift = function() {
     if (_readEverythingAlready() || !_showBadges()) {
       $("#client-ui").removeClass("whats_new_showing");
     } else {
+      var _num_new = _unread_count > 9 ? "9+" : _unread_count;
+      if (TS.experiment.getGroup("whats_new_expanded_icon") === "treatment") {
+        $("#whats_new_toggle").addClass("exp_expanding");
+        if (_unread_count > 1) {
+          $("#whats_new_toggle").find(".num_only").removeClass("hidden").text(_num_new);
+          $("#whats_new_toggle").find(".num_updates").removeClass("hidden").text(TS.i18n.t("{num_updates} Updates", "whats_new")({
+            num_updates: _num_new
+          }));
+        } else {
+          $("#whats_new_toggle").find(".num_only").addClass("hidden");
+          $("#whats_new_toggle").find(".num_updates").addClass("hidden");
+        }
+      }
       $("#client-ui").addClass("whats_new_showing");
       TS.clog.track("WHATSNEW_ACTION", {
         action: "do_badge",
