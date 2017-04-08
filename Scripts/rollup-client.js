@@ -333,6 +333,9 @@
       TS.model.threads_view_is_showing = false;
       TS.client.app_index.destroyAppIndexView();
       TS.model.app_index_view_is_showing = false;
+      if (TS.boot_data.feature_client_resize_optimizations) {
+        TS.client.archives.cancel(true);
+      }
       TS.model.unread_view_is_showing = true;
       TS.view.updateTitleWithContext();
       return true;
@@ -357,6 +360,9 @@
       TS.model.threads_view_is_showing = true;
       TS.client.app_index.destroyAppIndexView();
       TS.model.app_index_view_is_showing = false;
+      if (TS.boot_data.feature_client_resize_optimizations) {
+        TS.client.archives.cancel(true);
+      }
       TS.view.updateTitleWithContext();
       return true;
     },
@@ -379,6 +385,9 @@
       }
       TS.client.threads.destroyThreadsView();
       TS.model.threads_view_is_showing = false;
+      if (TS.boot_data.feature_client_resize_optimizations) {
+        TS.client.archives.cancel(true);
+      }
       TS.model.app_index_view_is_showing = true;
       TS.view.updateTitleWithContext();
       return true;
@@ -2210,7 +2219,7 @@
       if (user_groups.length) {
         $user_groups_wrapper.empty();
         var min_item_height = 97;
-        var $list_wrapper = $("<div>");
+        var $list_wrapper = $('<div id="user_groups_list_wrapper">');
         $user_groups_wrapper.append($list_wrapper);
         $list_wrapper.longListView({
           items: user_groups,
@@ -2230,6 +2239,9 @@
             return outer_height;
           }
         });
+        if (TS.boot_data.feature_client_resize_optimizations) {
+          if (TS.model.ui_state.flex_name !== "groups") $list_wrapper.longListView("setHidden", true);
+        }
       } else if (query && TS.model.user_groups.length) {
         var template_args = {
           query: query,
@@ -7457,7 +7469,7 @@
           $member_list.bind("click.view", TS.view.onMemberListClick);
           $member_list.on("click.toggle_list_item", ".team_list_item", TS.members.view.onTeamDirectoryItemClick);
           TS.utility.makeSureAllLinksHaveTargets($member_list);
-          $user_group_preview_scroller.find(".user_group_member_list").monkeyScroll();
+          if (!TS.environment.supports_custom_scrollbar) $user_group_preview_scroller.find(".user_group_member_list").monkeyScroll();
           TS.view.user_groups_members_list_lazyload = $member_list.find(".lazy").lazyload({
             container: $(".user_group_member_list"),
             ignore_when_hidden_element: $("#user_group_members"),
@@ -9201,6 +9213,13 @@
       if (exclude !== "search") {
         TS.search.view.cleanResults();
       }
+      if (TS.boot_data.feature_client_resize_optimizations && exclude !== "groups") {
+        $("#user_groups_list_wrapper").longListView("setHidden", true);
+        if (TS.view.user_groups_members_list_lazyload) {
+          TS.view.user_groups_members_list_lazyload.detachEvents();
+          TS.view.user_groups_members_list_lazyload = null;
+        }
+      }
     },
     toggleFlex: function() {
       if (TS.model.ui_state.flex_visible) {
@@ -9334,6 +9353,8 @@
         TS.client.flex_pane.startLocalTimeInterval();
       } else if (flex_name === "details") {
         TS.model.ui_state.details_tab_active = true;
+      } else if (TS.boot_data.feature_client_resize_optimizations && flex_name === "groups") {
+        $("#user_groups_list_wrapper").longListView("setHidden", false);
       }
       if (flex_name !== "team") TS.client.flex_pane.stopLocalTimeInterval();
       TS.client.ui.flex.cleanupFlexExcluding(flex_name);
@@ -10798,9 +10819,11 @@
       TS.ui.admin_invites.getInvitesExperimentGroups().then(function() {
         if (TS.ui.admin_invites.isInSidebarExperiment()) {
           var $col_footer = $("#col_channels_footer");
+          var $unread_mentions_btn = $("#channel_scroll_down");
           var $visible_footer_buttons = $col_footer.find("button").not(".hidden");
           var num_footer_btns = $visible_footer_buttons.length;
           $col_footer.toggleClass("col_channels_footer_feat_link_in_sidebar", !!num_footer_btns);
+          $unread_mentions_btn.toggleClass("col_channels_footer_feat_link_in_sidebar", !!num_footer_btns);
           $visible_footer_buttons.toggleClass("single_footer_btn", num_footer_btns == 1);
         }
       }).then(_updateChannelPaneFooterVisibility);
@@ -11339,7 +11362,7 @@
       }
       var $channel_scroll_down = $("#channel_scroll_down");
       $("#col_channels_footer").toggleClass("hidden", is_footer_hidden);
-      $channel_scroll_down.toggleClass("no_sidebar_footer", !is_footer_hidden);
+      $channel_scroll_down.toggleClass("no_sidebar_footer", !!is_footer_hidden);
       TS.utility.queueRAF(function() {
         TS.view.resizeManually("TS.client.channel_pane _updateChannelPaneFooterVisibility");
       });
@@ -21898,7 +21921,7 @@
         channel: channel,
         source_team: TS.model.team,
         inviter: TS.members.getMemberById(channel.inviter),
-        shared_team: channel.shared_team_ids[0]
+        shared_team: TS.teams.getTeamById(channel.shared_team_ids[0])
       }));
       TS.utility.rAF(function() {
         $overlay.removeClass("transparent");
@@ -28839,6 +28862,8 @@
     });
   };
   var _resetPinnedItemsFade = function() {
+    if (!_isChannelPageVisible()) return;
+    if (!_expanded_sections.pinned_items) return;
     TS.utility.rAF(function() {
       var $pins = _$pinned_items.find(".pinned_item");
       $pins.each(function() {

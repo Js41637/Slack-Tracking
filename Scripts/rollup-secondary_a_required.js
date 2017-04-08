@@ -13296,7 +13296,8 @@ TS.registerModule("constants", {
     });
     filters.restricted.filter_p = need_more_r ? _promiseToSearch(filters.restricted, query_for_match, restricted_options) : Promise.resolve([]);
     var deleted_options = _.assign({}, options, {
-      include_deleted: 2
+      include_deleted: 2,
+      include_restricted_and_full_members: true
     });
     filters.deleted.filter_p = need_more_d ? _promiseToSearch(filters.deleted, query_for_match, deleted_options) : Promise.resolve([]);
     return Promise.join(filters.members.filter_p, filters.restricted.filter_p, filters.deleted.filter_p, function(members, restricted, deleted) {
@@ -13561,7 +13562,7 @@ TS.registerModule("constants", {
         }
         return full_member;
       });
-      if (!options.restricted) {
+      if (!options.restricted && !options.include_restricted_and_full_members) {
         matches = matches.filter(function(member) {
           return !member.is_restricted;
         });
@@ -24903,10 +24904,6 @@ TS.registerModule("constants", {
       });
       Handlebars.registerHelper("getTeamById", function(id) {
         return TS.teams.getTeamById(id);
-      });
-      Handlebars.registerHelper("getTeamNameById", function(id) {
-        var team = TS.teams.getTeamNameById(id);
-        return team.name;
       });
       Handlebars.registerHelper("getMemberPreviewLinkTarget", function(member) {
         if (TS.utility.shouldLinksHaveTargets()) return new Handlebars.SafeString('target="/team/' + member.name + '"');
@@ -46528,7 +46525,7 @@ $.fn.togglify = function(settings) {
     }).outerHeight();
     var non_list_height = parseInt(instance.$list_container.css("padding-top"), 10) + parseInt(instance.$list_container.css("padding-bottom"), 10);
     if (_isFilterInListStyle(instance)) {
-      non_list_height += instance.$filter_input.outerHeight();
+      non_list_height += instance.$filter_input.outerHeight() + parseInt(instance.$filter_input.css("margin-bottom"), 10);
     }
     var list_container_max_height = parseInt(instance.$list_container.css("max-height"), 10);
     var list_container_min_height = 2 * instance.approx_item_height + non_list_height;
@@ -58013,7 +58010,7 @@ $.fn.togglify = function(settings) {
   };
   var _LAZY_LOADED_DATA_SOURCES = [_DATA_SOURCES.conversations, _DATA_SOURCES.users];
   var _CONVERSATIONS_TEMPLATE_DATA_SOURCES = [_DATA_SOURCES.channels, _DATA_SOURCES.conversations, _DATA_SOURCES.users];
-  var _LAZY_LOADED_DATA_SOURCE_MIN_QUERY_LENGTH = 3;
+  var _LAZY_LOADED_DATA_SOURCE_MIN_QUERY_LENGTH = 1;
   var _EXTERNAL_INPUT_DEBOUNCE_WAIT_TIME = 250;
 
   function _onActionCompleted(action_id, context) {
@@ -58076,26 +58073,37 @@ $.fn.togglify = function(settings) {
   function _getDataPromise($select) {
     switch ($select.data("data-source")) {
       case _DATA_SOURCES.channels:
-        return _getDataPromiseForChannels();
+        return _getDataPromiseFromSearcher({
+          channels: true
+        });
       case _DATA_SOURCES.conversations:
         return TS.ui.file_share.promiseToGetFileShareSelectOptions;
       case _DATA_SOURCES.external:
         return _getDataPromiseForExternal($select);
       case _DATA_SOURCES.users:
-        return _getDataPromiseForUsers();
+        return _getDataPromiseFromSearcher({
+          members: {
+            include_self: true
+          }
+        });
       default:
         break;
     }
   }
 
-  function _getDataPromiseForChannels() {
-    return function(query) {
-      query = query.length ? query.replace(/^#/, "") : "#";
-      return Promise.resolve(TS.sorter.search(query, {
-        channels: TS.channels.getChannelsForUser()
-      }, {
+  function _getDataPromiseFromSearcher(searcher_options) {
+    searcher_options = _.defaults(searcher_options, {
+      sort: {
         frecency: true
-      }));
+      }
+    });
+    return function(query) {
+      return new Promise(function(resolve, reject) {
+        TS.searcher.search(query, searcher_options).then(function(response) {
+          response.all_items_fetched = true;
+          resolve(response);
+        }, reject);
+      });
     };
   }
 
@@ -58124,17 +58132,6 @@ $.fn.togglify = function(settings) {
           reject(error);
         });
       });
-    };
-  }
-
-  function _getDataPromiseForUsers() {
-    return function(query) {
-      query = query.length ? query.replace(/^@/, "") : "@";
-      return Promise.resolve(TS.sorter.search(query, {
-        members: TS.members.getActiveMembersWithSelfAndSlackbot()
-      }, {
-        frecency: true
-      }));
     };
   }
 
@@ -65534,8 +65531,8 @@ $.fn.togglify = function(settings) {
             _d = oi(function(e, t) {
               return e - t;
             }, 0);
-          return n.after = Ru, n.ary = Pu, n.assign = Op, n.assignIn = Ip, n.assignInWith = Ap, n.assignWith = Np, n.at = Lp, n.before = Mu, n.bind = cp, n.bindAll = nd, n.bindKey = fp, n.castArray = Bu, n.chain = eu, n.chunk = ua, n.compact = sa, n.concat = la, n.cond = Ml, n.conforms = Ol, n.constant = Il, n.countBy = tp, n.create = Is, n.curry = Ou, n.curryRight = Iu, n.debounce = Au, n.defaults = Dp, n.defaultsDeep = jp, n.defer = pp, n.delay = dp, n.difference = jf, n.differenceBy = zf, n.differenceWith = Uf, n.drop = ca, n.dropRight = fa, n.dropRightWhile = pa, n.dropWhile = da, n.fill = ha, n.filter = fu, n.flatMap = pu, n.flatMapDeep = du, n.flatMapDepth = hu, n.flatten = ga, n.flattenDeep = _a, n.flattenDepth = ya, n.flip = Nu, n.flow = rd, n.flowRight = od, n.fromPairs = ba, n.functions = Us, n.functionsIn = Ws, n.groupBy = op, n.initial = Sa, n.intersection = Wf, n.intersectionBy = Ff, n.intersectionWith = Hf, n.invert = zp, n.invertBy = Up, n.invokeMap = ip, n.iteratee = Ll, n.keyBy = ap, n.keys = Gs, n.keysIn = Vs, n.map = _u, n.mapKeys = qs, n.mapValues = Ks, n.matches = Dl, n.matchesProperty = jl, n.memoize = Lu, n.merge = Fp, n.mergeWith = Hp, n.method = id, n.methodOf = ad, n.mixin = zl, n.negate = Du, n.nthArg = Fl, n.omit = Bp, n.omitBy = Ys, n.once = ju, n.orderBy = yu, n.over = ud, n.overArgs = hp, n.overEvery = sd, n.overSome = ld, n.partial = vp, n.partialRight = mp, n.partition = up, n.pick = Gp, n.pickBy = $s, n.property = Hl, n.propertyOf = Bl, n.pull = Bf, n.pullAll = Ra, n.pullAllBy = Pa, n.pullAllWith = Ma, n.pullAt = Gf, n.range = cd, n.rangeRight = fd, n.rearg = gp, n.reject = Cu, n.remove = Oa, n.rest = zu, n.reverse = Ia, n.sampleSize = xu, n.set = Xs, n.setWith = Zs, n.shuffle = ku, n.slice = Aa, n.sortBy = sp, n.sortedUniq = Wa, n.sortedUniqBy = Fa, n.split = yl, n.spread = Uu, n.tail = Ha, n.take = Ba, n.takeRight = Ga, n.takeRightWhile = Va, n.takeWhile = qa, n.tap = tu, n.throttle = Wu, n.thru = nu, n.toArray = xs, n.toPairs = Vp, n.toPairsIn = qp, n.toPath = Ql, n.toPlainObject = Ps, n.transform = Js, n.unary = Fu, n.union = Vf, n.unionBy = qf, n.unionWith = Kf, n.uniq = Ka, n.uniqBy = Ya, n.uniqWith = $a, n.unset = el, n.unzip = Qa, n.unzipWith = Xa, n.update = tl, n.updateWith = nl, n.values = rl, n.valuesIn = ol, n.without = Yf, n.words = Pl, n.wrap = Hu, n.xor = $f, n.xorBy = Qf, n.xorWith = Xf, n.zip = Zf, n.zipObject = Za, n.zipObjectDeep = Ja, n.zipWith = Jf, n.entries = Vp, n.entriesIn = qp, n.extend = Ip, n.extendWith = Ap, zl(n, n), n.add = pd, n.attempt = td, n.camelCase = Kp, n.capitalize = sl, n.ceil = dd, n.clamp = il, n.clone = Gu, n.cloneDeep = qu, n.cloneDeepWith = Ku, n.cloneWith = Vu, n.conformsTo = Yu, n.deburr = ll, n.defaultTo = Al, n.divide = hd, n.endsWith = cl, n.eq = $u, n.escape = fl, n.escapeRegExp = pl, n.every = cu, n.find = np, n.findIndex = va, n.findKey = As, n.findLast = rp, n.findLastIndex = ma, n.findLastKey = Ns, n.floor = vd, n.forEach = vu, n.forEachRight = mu, n.forIn = Ls, n.forInRight = Ds, n.forOwn = js, n.forOwnRight = zs, n.get = Fs, n.gt = _p, n.gte = yp, n.has = Hs, n.hasIn = Bs, n.head = wa, n.identity = Nl, n.includes = gu, n.indexOf = Ca, n.inRange = al, n.invoke = Wp, n.isArguments = bp, n.isArray = wp, n.isArrayBuffer = Cp, n.isArrayLike = Qu, n.isArrayLikeObject = Xu, n.isBoolean = Zu,
-            n.isBuffer = Sp, n.isDate = xp, n.isElement = Ju, n.isEmpty = es, n.isEqual = ts, n.isEqualWith = ns, n.isError = rs, n.isFinite = os, n.isFunction = is, n.isInteger = as, n.isLength = us, n.isMap = kp, n.isMatch = cs, n.isMatchWith = fs, n.isNaN = ps, n.isNative = ds, n.isNil = vs, n.isNull = hs, n.isNumber = ms, n.isObject = ss, n.isObjectLike = ls, n.isPlainObject = gs, n.isRegExp = Tp, n.isSafeInteger = _s, n.isSet = Ep, n.isString = ys, n.isSymbol = bs, n.isTypedArray = Rp, n.isUndefined = ws, n.isWeakMap = Cs, n.isWeakSet = Ss, n.join = xa, n.kebabCase = Yp, n.last = ka, n.lastIndexOf = Ta, n.lowerCase = $p, n.lowerFirst = Qp, n.lt = Pp, n.lte = Mp, n.max = Zl, n.maxBy = Jl, n.mean = ec, n.meanBy = tc, n.min = nc, n.minBy = rc, n.stubArray = Gl, n.stubFalse = Vl, n.stubObject = ql, n.stubString = Kl, n.stubTrue = Yl, n.multiply = md, n.nth = Ea, n.noConflict = Ul, n.noop = Wl, n.now = lp, n.pad = dl, n.padEnd = hl, n.padStart = vl, n.parseInt = ml, n.random = ul, n.reduce = bu, n.reduceRight = wu, n.repeat = gl, n.replace = _l, n.result = Qs, n.round = gd, n.runInContext = e, n.sample = Su, n.size = Tu, n.snakeCase = Xp, n.some = Eu, n.sortedIndex = Na, n.sortedIndexBy = La, n.sortedIndexOf = Da, n.sortedLastIndex = ja, n.sortedLastIndexBy = za, n.sortedLastIndexOf = Ua, n.startCase = Zp, n.startsWith = bl, n.subtract = _d, n.sum = oc, n.sumBy = ic, n.template = wl, n.times = $l, n.toFinite = ks, n.toInteger = Ts, n.toLength = Es, n.toLower = Cl, n.toNumber = Rs, n.toSafeInteger = Ms, n.toString = Os, n.toUpper = Sl, n.trim = xl, n.trimEnd = kl, n.trimStart = Tl, n.truncate = El, n.unescape = Rl, n.uniqueId = Xl, n.upperCase = Jp, n.upperFirst = ed, n.each = vu, n.eachRight = mu, n.first = wa, zl(n, function() {
+          return n.after = Ru, n.ary = Pu, n.assign = Op, n.assignIn = Ip, n.assignInWith = Ap, n.assignWith = Np, n.at = Lp, n.before = Mu, n.bind = cp, n.bindAll = nd, n.bindKey = fp, n.castArray = Bu, n.chain = eu, n.chunk = ua, n.compact = sa, n.concat = la, n.cond = Ml, n.conforms = Ol, n.constant = Il, n.countBy = tp, n.create = Is, n.curry = Ou, n.curryRight = Iu, n.debounce = Au, n.defaults = Dp, n.defaultsDeep = jp, n.defer = pp, n.delay = dp, n.difference = jf, n.differenceBy = zf, n.differenceWith = Uf, n.drop = ca, n.dropRight = fa, n.dropRightWhile = pa, n.dropWhile = da, n.fill = ha, n.filter = fu, n.flatMap = pu, n.flatMapDeep = du, n.flatMapDepth = hu, n.flatten = ga, n.flattenDeep = _a, n.flattenDepth = ya, n.flip = Nu, n.flow = rd, n.flowRight = od, n.fromPairs = ba, n.functions = Us, n.functionsIn = Ws, n.groupBy = op, n.initial = Sa, n.intersection = Wf, n.intersectionBy = Ff, n.intersectionWith = Hf, n.invert = zp, n.invertBy = Up, n.invokeMap = ip, n.iteratee = Ll, n.keyBy = ap, n.keys = Gs, n.keysIn = Vs, n.map = _u, n.mapKeys = qs, n.mapValues = Ks, n.matches = Dl, n.matchesProperty = jl, n.memoize = Lu, n.merge = Fp, n.mergeWith = Hp, n.method = id, n.methodOf = ad, n.mixin = zl, n.negate = Du, n.nthArg = Fl, n.omit = Bp, n.omitBy = Ys, n.once = ju, n.orderBy = yu, n.over = ud, n.overArgs = hp, n.overEvery = sd, n.overSome = ld, n.partial = vp, n.partialRight = mp, n.partition = up, n.pick = Gp, n.pickBy = $s, n.property = Hl, n.propertyOf = Bl, n.pull = Bf, n.pullAll = Ra, n.pullAllBy = Pa, n.pullAllWith = Ma, n.pullAt = Gf, n.range = cd, n.rangeRight = fd, n.rearg = gp, n.reject = Cu, n.remove = Oa, n.rest = zu, n.reverse = Ia, n.sampleSize = xu, n.set = Xs, n.setWith = Zs, n.shuffle = ku, n.slice = Aa, n.sortBy = sp, n.sortedUniq = Wa, n.sortedUniqBy = Fa, n.split = yl, n.spread = Uu, n.tail = Ha, n.take = Ba, n.takeRight = Ga, n.takeRightWhile = Va, n.takeWhile = qa, n.tap = tu, n.throttle = Wu, n.thru = nu, n.toArray = xs, n.toPairs = Vp, n.toPairsIn = qp, n.toPath = Ql, n.toPlainObject = Ps, n.transform = Js, n.unary = Fu, n.union = Vf, n.unionBy = qf, n.unionWith = Kf, n.uniq = Ka, n.uniqBy = Ya, n.uniqWith = $a, n.unset = el, n.unzip = Qa, n.unzipWith = Xa, n.update = tl, n.updateWith = nl, n.values = rl, n.valuesIn = ol, n.without = Yf, n.words = Pl, n.wrap = Hu, n.xor = $f, n.xorBy = Qf, n.xorWith = Xf, n.zip = Zf, n.zipObject = Za, n.zipObjectDeep = Ja, n.zipWith = Jf, n.entries = Vp, n.entriesIn = qp, n.extend = Ip, n.extendWith = Ap, zl(n, n), n.add = pd, n.attempt = td, n.camelCase = Kp, n.capitalize = sl, n.ceil = dd, n.clamp = il, n.clone = Gu, n.cloneDeep = qu, n.cloneDeepWith = Ku, n.cloneWith = Vu, n.conformsTo = Yu, n.deburr = ll, n.defaultTo = Al, n.divide = hd, n.endsWith = cl, n.eq = $u, n.escape = fl, n.escapeRegExp = pl, n.every = cu, n.find = np, n.findIndex = va, n.findKey = As, n.findLast = rp, n.findLastIndex = ma, n.findLastKey = Ns, n.floor = vd, n.forEach = vu, n.forEachRight = mu, n.forIn = Ls, n.forInRight = Ds, n.forOwn = js, n.forOwnRight = zs, n.get = Fs, n.gt = _p, n.gte = yp, n.has = Hs, n.hasIn = Bs, n.head = wa, n.identity = Nl, n.includes = gu, n.indexOf = Ca, n.inRange = al, n.invoke = Wp, n.isArguments = bp, n.isArray = wp, n.isArrayBuffer = Cp, n.isArrayLike = Qu, n.isArrayLikeObject = Xu, n.isBoolean = Zu, n.isBuffer = Sp, n.isDate = xp, n.isElement = Ju, n.isEmpty = es, n.isEqual = ts, n.isEqualWith = ns, n.isError = rs, n.isFinite = os, n.isFunction = is,
+            n.isInteger = as, n.isLength = us, n.isMap = kp, n.isMatch = cs, n.isMatchWith = fs, n.isNaN = ps, n.isNative = ds, n.isNil = vs, n.isNull = hs, n.isNumber = ms, n.isObject = ss, n.isObjectLike = ls, n.isPlainObject = gs, n.isRegExp = Tp, n.isSafeInteger = _s, n.isSet = Ep, n.isString = ys, n.isSymbol = bs, n.isTypedArray = Rp, n.isUndefined = ws, n.isWeakMap = Cs, n.isWeakSet = Ss, n.join = xa, n.kebabCase = Yp, n.last = ka, n.lastIndexOf = Ta, n.lowerCase = $p, n.lowerFirst = Qp, n.lt = Pp, n.lte = Mp, n.max = Zl, n.maxBy = Jl, n.mean = ec, n.meanBy = tc, n.min = nc, n.minBy = rc, n.stubArray = Gl, n.stubFalse = Vl, n.stubObject = ql, n.stubString = Kl, n.stubTrue = Yl, n.multiply = md, n.nth = Ea, n.noConflict = Ul, n.noop = Wl, n.now = lp, n.pad = dl, n.padEnd = hl, n.padStart = vl, n.parseInt = ml, n.random = ul, n.reduce = bu, n.reduceRight = wu, n.repeat = gl, n.replace = _l, n.result = Qs, n.round = gd, n.runInContext = e, n.sample = Su, n.size = Tu, n.snakeCase = Xp, n.some = Eu, n.sortedIndex = Na, n.sortedIndexBy = La, n.sortedIndexOf = Da, n.sortedLastIndex = ja, n.sortedLastIndexBy = za, n.sortedLastIndexOf = Ua, n.startCase = Zp, n.startsWith = bl, n.subtract = _d, n.sum = oc, n.sumBy = ic, n.template = wl, n.times = $l, n.toFinite = ks, n.toInteger = Ts, n.toLength = Es, n.toLower = Cl, n.toNumber = Rs, n.toSafeInteger = Ms, n.toString = Os, n.toUpper = Sl, n.trim = xl, n.trimEnd = kl, n.trimStart = Tl, n.truncate = El, n.unescape = Rl, n.uniqueId = Xl, n.upperCase = Jp, n.upperFirst = ed, n.each = vu, n.eachRight = mu, n.first = wa, zl(n, function() {
               var e = {};
               return nr(n, function(t, r) {
                 bc.call(n.prototype, r) || (e[r] = t);
@@ -73524,7 +73521,8 @@ $.fn.togglify = function(settings) {
     __esModule: !0
   };
 }, function(e, t, n) {
-  n(231), e.exports = n(13).Object.assign;
+  n(231),
+    e.exports = n(13).Object.assign;
 }, function(e, t, n) {
   n(232);
   var r = n(13).Object;
@@ -75223,7 +75221,8 @@ $.fn.togglify = function(settings) {
         this._currentElement = e, this._rootNodeID = 0, this._compositeType = null, this._instance = null, this._hostParent = null, this._hostContainerInfo = null, this._updateBatchNumber = null, this._pendingElement = null, this._pendingStateQueue = null, this._pendingReplaceState = !1, this._pendingForceUpdate = !1, this._renderedNodeType = null, this._renderedComponent = null, this._context = null, this._mountOrder = 0, this._topLevelWrapper = null, this._pendingCallbacks = null, this._calledComponentWillUnmount = !1;
       },
       mountComponent: function(e, t, n, s) {
-        this._context = s, this._mountOrder = b++, this._hostParent = t, this._hostContainerInfo = n;
+        this._context = s, this._mountOrder = b++, this._hostParent = t,
+          this._hostContainerInfo = n;
         var c, f = this._currentElement.props,
           p = this._processContext(s),
           h = this._currentElement.type,

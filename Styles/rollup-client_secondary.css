@@ -527,7 +527,7 @@ input.search_input {
   outline: 0
 }
 
-#flex_contents .subheading {
+#flex_contents .subheading:not(:empty) {
   position: relative;
   font-size: .8rem;
   font-family: Slack-Lato, appleLogo, sans-serif;
@@ -541,47 +541,47 @@ input.search_input {
   text-decoration: none
 }
 
-#flex_contents .subheading#mentions_options {
+#flex_contents .subheading:not(:empty)#mentions_options {
   background: #fff;
   border-top: 0;
   border-bottom: 1px solid #E0E0E0
 }
 
-#client-ui:not(.flexpane_redesign) #flex_contents .subheading {
+#client-ui:not(.flexpane_redesign) #flex_contents .subheading:not(:empty) {
   width: 99%
 }
 
-.supports_custom_scrollbar #flex_contents .subheading {
+.supports_custom_scrollbar #flex_contents .subheading:not(:empty) {
   width: calc(100% - 4px)
 }
 
-.supports_custom_scrollbar.slim_scrollbar #flex_contents .subheading {
+.supports_custom_scrollbar.slim_scrollbar #flex_contents .subheading:not(:empty) {
   width: 100%
 }
 
-#flex_contents .subheading p {
+#flex_contents .subheading:not(:empty) p {
   padding: .5rem .75rem;
   margin: 0
 }
 
-#flex_contents .subheading p a {
+#flex_contents .subheading:not(:empty) p a {
   color: #555459
 }
 
-#flex_contents .subheading .filter_menu_label {
+#flex_contents .subheading:not(:empty) .filter_menu_label {
   opacity: .85;
   -moz-opacity: .85;
   -khtml-opacity: .85
 }
 
-#flex_contents .subheading .filter_menu_label.active,
-#flex_contents .subheading .filter_menu_label:hover {
+#flex_contents .subheading:not(:empty) .filter_menu_label.active,
+#flex_contents .subheading:not(:empty) .filter_menu_label:hover {
   opacity: 1;
   -moz-opacity: 1;
   -khtml-opacity: 1
 }
 
-#flex_contents .subheading .filter_menu_label .arrow_down.ts_icon_chevron_down:before {
+#flex_contents .subheading:not(:empty) .filter_menu_label .arrow_down.ts_icon_chevron_down:before {
   line-height: 0;
   vertical-align: middle;
   position: relative;
@@ -590,7 +590,7 @@ input.search_input {
   width: 10px
 }
 
-#flex_contents .subheading .filter_menu_label.active .arrow_down {
+#flex_contents .subheading:not(:empty) .filter_menu_label.active .arrow_down {
   color: #2ab27b
 }
 
@@ -3386,11 +3386,16 @@ ul.member_list li .nuc {
   border-top-left-radius: .3rem;
   background-clip: padding-box;
   box-shadow: 0 -1px 1px fade(@black, 50%), inset 0 -2px 2px fade(@black, 30%);
-  bottom: 0
+  bottom: 4rem
+}
+
+#channel_scroll_down.col_channels_footer_feat_link_in_sidebar {
+  bottom: 86px
 }
 
 #channel_scroll_down.no_sidebar_footer {
-  box-shadow: 0 -1px 1px rgba(0, 0, 0, .5)
+  box-shadow: 0 -1px 1px rgba(0, 0, 0, .5);
+  bottom: 0
 }
 
 #channel_scroll_down:hover,
@@ -3543,13 +3548,27 @@ ul.member_list li .nuc {
 }
 
 .shared_channels_join_modal .teams .icons {
-  margin: 0 0 10px
+  margin: 0 0 10px;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-pack: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -moz-justify-content: center;
+  justify-content: center
 }
 
-.shared_channels_join_modal .teams .icons img {
+.shared_channels_join_modal .teams .icons ts-icon {
   width: 44px;
   height: 44px;
-  border: 1px solid rgba(44, 45, 48, .08)
+  line-height: 2.5
+}
+
+.shared_channels_join_modal .teams .icons ts-icon:first-child {
+  margin-right: .5rem
 }
 
 .shared_channels_join_modal .details {

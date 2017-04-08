@@ -15,7 +15,7 @@
   {{#if title}} title="{{#feature flag="feature_name_tagging_client"}}{{getMemberFullName entity}}{{else}}{{getMemberDisplayName entity}}{{/feature}}" {{/if}}
   class="member_image {{css_classes}}"
 >
-  {{~#feature flag="feature_shared_channels_badges"}}{{#if entity.is_external~}}
+  {{~#feature flag="feature_shared_channels_client"}}{{#if entity.is_external~}}
     {{> member_type_external_badge team=(getTeamById entity.team_id) size=size}}
   {{~/if}}{{/feature~}}
 </a>

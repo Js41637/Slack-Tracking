@@ -16867,12 +16867,14 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 .lazy_filter_select.single.filter_in_list_style .lfs_list_container {
   max-width: 350px;
   min-width: 250px;
-  overflow: hidden
+  overflow: hidden;
+  padding: 4px;
+  z-index: 201
 }
 
 .lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_filter_input {
   font-size: 13px;
-  margin-bottom: 0;
+  margin-bottom: 4px;
   padding: 6px 27px 6px 10px
 }
 
