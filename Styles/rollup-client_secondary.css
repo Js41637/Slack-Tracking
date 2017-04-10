@@ -4324,7 +4324,19 @@ html {
 }
 
 .client_resize_optimizations .onboarding #end_div {
-  height: 100%
+  -ms-flex: 1;
+  -webkit-flex: 1;
+  flex: 1;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: column;
+  -moz-flex-direction: column;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  padding-bottom: 16px
 }
 
 #archives_info {
@@ -4406,8 +4418,8 @@ html {
   margin-right: -1rem
 }
 
-.client_resize_optimizations #archive_msgs_scroller_div #archives_top_div,
-.client_resize_optimizations #msgs_scroller_div #end_div {
+.client_resize_optimizations #client_body:not(.onboarding) #archive_msgs_scroller_div #archives_top_div,
+.client_resize_optimizations #client_body:not(.onboarding) #msgs_scroller_div #end_div {
   margin-top: auto
 }
 
@@ -17482,10 +17494,6 @@ html:not(.supports_flexbox) .channel_modal_with_list .channel_modal_list {
   font-size: 14px;
   line-height: 1.4;
   color: #717274
-}
-
-#channel_browser .channel_browser_channel_purpose {
-  padding-right: 4rem
 }
 
 #channel_browser .channel_browser_joined {

@@ -3,7 +3,11 @@
   TS.registerModule("tabcomplete.members", {
     getMatch: function(text, is_user_solicited) {
       var match, index;
-      text.replace(/(^|\n|.)?(@[^\s\n@]*)$/i, function(full_match, before, prefixed_match, offset) {
+      var member_regex = /(^|\n|.)?(@[^\s\n@]*)$/i;
+      if (TS.boot_data.feature_name_tagging_client) {
+        member_regex = /(^|\n|.)?(@[^\n@]*)$/i;
+      }
+      text.replace(member_regex, function(full_match, before, prefixed_match, offset) {
         if (!_isValidPrefixedMatch(before, prefixed_match)) return;
         if (before) offset += before.length;
         match = prefixed_match;
@@ -27,6 +31,7 @@
     },
     shouldDisplayResults: function(query, results) {
       if (!query || _.isEmpty(results)) return false;
+      if (TS.boot_data.feature_name_tagging_client) return true;
       var search_text = query.replace(/^@/, "").toLowerCase();
       var is_exact_match = results.length === 1 && results[0].name === search_text;
       return !is_exact_match;
@@ -51,6 +56,17 @@
         if (TS.client.msg_input.tabcomplete_completions[model_ob.id].indexOf(text) === -1) {
           TS.client.msg_input.tabcomplete_completions[model_ob.id].push(text.substring(1));
         }
+      }
+      if (TS.boot_data.feature_name_tagging_client) {
+        return {
+          text: text,
+          format: {
+            slackmention: {
+              id: result.id,
+              label: text
+            }
+          }
+        };
       }
       return {
         text: text
@@ -363,6 +379,9 @@
   var _getMemberDisplayText = function(member, query) {
     if (!query) query = "";
     var display_text = member.name;
+    if (TS.boot_data.feature_name_tagging_client) {
+      display_text = member.profile.preferred_name || member.profile.full_name;
+    }
     if (TS.boot_data.feature_shared_channels_client && TS.utility.teams.isMemberExternal(member)) {
       var team = TS.teams.getTeamById(member.team_id);
       var suffix = member.team_id;

@@ -3,7 +3,7 @@
 <tr class="align_top" id="msg_{{id}}">
   <td class="message_cell">
     {{message}}
-    <span class="show_on_mobile small_top_margin">{{makeProfileImage user size="24"}}
+    <span class="show_on_mobile small_top_margin">{{> member_preview_link_image (getMemberPreviewLinkImageArgs user 24)}}
     <a href="/team/{{user.name}}" class="align_top very_small_left_margin break_word bold">
       {{#feature flag="feature_name_tagging_client"}}{{getMemberFullName user}}{{else}}{{getMemberDisplayName user}}{{/feature}}
     </a>

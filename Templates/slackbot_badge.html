@@ -2,7 +2,7 @@
 
 <h1>{{#t}}Hi, Slackbot here!{{/t}}</h1>
 <div class="cursor_pointer flex_none float_left small_left_margin very_small_top_margin" onclick="TS.client.ui.previewMember('{{member.id}}', 'im_page');">
-  {{makeMemberPreviewLinkImage member.id 48 false true}}
+  {{> member_preview_link_image (getMemberPreviewLinkImageArgs member 48 false true)}}
 </div>
 
 <p class="icon_offset">{{#t}}You can ask me simple questions about how Slack works, or just type a few keywords. For example: <strong>Can I edit a message I\u2019ve posted?</strong> Or simply: <strong>edit message</strong>.{{/t}}</p>

@@ -2,7 +2,7 @@
   <div class="admin_list_item active member_item invite_item {{#if invite.is_pending}}pending{{/if}} {{#if invite.bouncing}}bouncing{{/if}}" id="row_{{invite.id}}" data-invite-id="{{invite.id}}">
 
     {{#if member}}
-      {{makeMemberPreviewLinkImage member.id 36}}
+      {{> member_preview_link_image (getMemberPreviewLinkImageArgs member.id 36)}}
     {{/if}}
 
     {{#feature flag="feature_name_tagging_client"}}
@@ -33,14 +33,14 @@
           <span class="admin_member_real_name">{{member.profile.real_name}}</span><br />
         {{/if}}
       {{/if}}
-      
+
       {{#if display_invite_name}}
         <span class="admin_member_real_name">{{invite.first_name}} {{invite.last_name}}</span><br />
       {{/if}}
 
       <span class="admin_member_username_and_email">
         {{#if member}}
-          <a href="/team/{{member.name}}" class="indifferent_grey">@{{member.name}}</a> <span class="bullet">\u2022</span> 
+          <a href="/team/{{member.name}}" class="indifferent_grey">@{{member.name}}</a> <span class="bullet">\u2022</span>
         {{/if}}
         {{#if invite}}
           {{#if invite.type}}
@@ -62,7 +62,7 @@
         {{#t date=(toCalendarDateOrNamedDayShort invite.date_create)}}Joined {date}{{/t}}{{#if invite.inviter}}<br>{{#t}}Invited by {inviter_link}{{/t}}{{/if}}
       {{/if}}
     </span>
-    
+
     {{#if invite.is_pending}}
       <i class="admin_member_caret ts_icon ts_icon_caret_right"></i>
       <i class="admin_member_caret ts_icon ts_icon_caret_down"></i>

@@ -23193,9 +23193,10 @@
             $("#end_display_onboarding").on("click.cancel_onboarding", ".skip_tutorial_link", _deferredCancel);
           }).finally(function() {
             TS.view.unAdjustForWelcomeSlideShow();
-            TS.client.ui.slowScrollMsgsToBottom();
+            if (!TS.boot_data.feature_client_resize_optimizations) TS.client.ui.slowScrollMsgsToBottom();
             TS.client.ui.$msg_input.focus();
             _goToStep(TS.newxp.onboarding.cancel);
+            if (TS.boot_data.feature_client_resize_optimizations) TS.client.ui.slowScrollMsgsToBottom();
             $("#unskip_messaging > .take_tutorial_link").off("click.take_onboarding").on("click.take_onboarding", _startOnboarding);
             $("#end_display_onboarding").off("click.cancel_onboarding");
             return TS.prefs.setPrefByAPI({
@@ -24419,11 +24420,15 @@
     if ($row) {
       $row.find("label.email").addClass("error").end().find(".error_msg").removeClass("hidden").html(error_msg);
       if (error_obj.error === "too_long") $row.find("label").addClass("error");
+      $row.find("input").on("keyup.admin_invite_error_fixed", function() {
+        _rowValid($row);
+      });
     }
   };
   var _rowValid = function($row) {
     if ($row) {
       $row.find("label").removeClass("error").end().find(".error_msg").addClass("hidden");
+      $row.find("input").off(".admin_invite_error_fixed");
     }
   };
   var _resetIndividualForm = function() {

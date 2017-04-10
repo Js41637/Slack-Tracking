@@ -59,6 +59,10 @@
   var _SlackSearchTokenModifier2 = _interopRequireDefault(_SlackSearchTokenModifier);
   var _SlackSearchTokenValue = __webpack_require__(123);
   var _SlackSearchTokenValue2 = _interopRequireDefault(_SlackSearchTokenValue);
+  var _SlackMentionModule = __webpack_require__(124);
+  var _SlackMentionModule2 = _interopRequireDefault(_SlackMentionModule);
+  var _SlackMention = __webpack_require__(125);
+  var _SlackMention2 = _interopRequireDefault(_SlackMention);
   var _utils = __webpack_require__(116);
 
   function _interopRequireDefault(obj) {
@@ -79,8 +83,10 @@
     "modules/clipboard": _PlainClipboardModule2.default,
     "modules/keyboard": _SlackKeyboardModule2.default,
     "modules/slacksearch": _SlackSearchModule2.default,
+    "modules/slackmention": _SlackMentionModule2.default,
     "formats/slacksearchtokenmodifier": _SlackSearchTokenModifier2.default,
-    "formats/slacksearchtokenvalue": _SlackSearchTokenValue2.default
+    "formats/slacksearchtokenvalue": _SlackSearchTokenValue2.default,
+    "formats/slackmention": _SlackMention2.default
   }, true);
   var DEFAULT_OPTIONS = {
     attributes: {},
@@ -119,6 +125,9 @@
         formats.push("slacksearchtokenmodifier");
         formats.push("slacksearchtokenvalue");
       }
+      if (this.options.modules.slackmention) {
+        formats.push("slackmention");
+      }
       this._quill = new _quill2.default(element, {
         formats: formats,
         theme: null,
@@ -132,7 +141,8 @@
           tabcomplete: _buildTabCompleteOptions(this.options),
           textsubstitutions: _buildTextSubstitutionsOptions(this, this.options),
           msginput: this.options.modules.msginput,
-          slacksearch: this.options.modules.slacksearch
+          slacksearch: this.options.modules.slacksearch,
+          slackmention: this.options.modules.slackmention
         }
       });
       _configUserEvents(this, this._quill, this.options);
@@ -478,7 +488,8 @@
     return (0, _utils.assign)({
       log: options.log,
       logError: options.logError,
-      no_model_ob: options.no_model_ob
+      no_model_ob: options.no_model_ob,
+      useMentions: !!options.modules.slackmention
     }, options.modules.tabcomplete);
   };
   var _buildTextSubstitutionsOptions = function _buildTextSubstitutionsOptions(texty, options) {
@@ -13428,6 +13439,7 @@
       value: function onArrow(_ref2) {
         var keyCode = _ref2.keyCode;
         if (!this.isShowing()) return true;
+        if (this.options.useMentions && this.quill.getFormat(this.quill.getSelection()).slackmention) return true;
         this.startKeyboardMode();
         var index = this.getNextSelectedIndex({
           keyCode: keyCode
@@ -13528,6 +13540,16 @@
           this.preventCloseAtNextSelectionChange = false;
           return;
         }
+        if (range && range.length === 0 && this.options.useMentions) {
+          var format = this.quill.getFormat(range).slackmention;
+          if (format && range.index !== 0 && range.index < this.quill.getLength() - 1) {
+            var formatAfter = this.quill.getFormat(range.index + 1).slackmention;
+            if (formatAfter && formatAfter.id === format.id) {
+              this.maybeCompleteAtCursor(source);
+              return;
+            }
+          }
+        }
         if (range && this.completeAtNextSelectionChange) {
           this.maybeCompleteAtCursor("user");
         } else {
@@ -13541,7 +13563,15 @@
       value: function getCurrentMatchAtCursor(isUserSolicited) {
         var range = this.quill.getSelection();
         if (!range) return;
-        var _textBetweenLastToken = this.textBetweenLastTokenAndIndex(range.index),
+        var idx = range.index;
+        if (range.length === 0 && this.options.useMentions && this.quill.getFormat(range).slackmention) {
+          var mentionLabel = this.quill.getFormat(range).slackmention.label;
+          while (this.quill.getFormat(idx).slackmention && this.quill.getFormat(idx).slackmention.label === mentionLabel) {
+            idx++;
+          }
+          idx--;
+        }
+        var _textBetweenLastToken = this.textBetweenLastTokenAndIndex(idx),
           searchText = _textBetweenLastToken.searchText,
           ignoredText = _textBetweenLastToken.ignoredText;
         var match = this.getMatch(searchText, ignoredText.length, isUserSolicited);
@@ -13712,11 +13742,16 @@
     }, {
       key: "textBetweenLastTokenAndIndex",
       value: function textBetweenLastTokenAndIndex(index) {
+        var searchOps = void 0;
         var _quill$getContents = this.quill.getContents(0, index),
           ops = _quill$getContents.ops;
-        var searchOps = (0, _utils.takeRightWhile)(ops, function(op) {
-          return !op.attributes;
-        });
+        if (this.options.useMentions && this.quill.getFormat(index).slackmention) {
+          searchOps = ops.slice(-1);
+        } else {
+          searchOps = (0, _utils.takeRightWhile)(ops, function(op) {
+            return !op.attributes;
+          });
+        }
         var searchText = (0, _utils.combineByProp)(searchOps, "insert");
         var ignoredOps = ops.slice(0, ops.length - searchOps.length);
         var ignoredText = (0, _utils.combineByProp)(ignoredOps, "insert");
@@ -14910,4 +14945,230 @@
   exports.default = SlackSearchTokenValue;
   SlackSearchTokenValue.blotName = "slacksearchtokenvalue";
   SlackSearchTokenValue.tagName = "ts-searchtoken-value";
+}, function(module, exports, __webpack_require__) {
+  "use strict";
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  var _createClass = function() {
+    function defineProperties(target, props) {
+      for (var i = 0; i < props.length; i++) {
+        var descriptor = props[i];
+        descriptor.enumerable = descriptor.enumerable || false;
+        descriptor.configurable = true;
+        if ("value" in descriptor) descriptor.writable = true;
+        Object.defineProperty(target, descriptor.key, descriptor);
+      }
+    }
+    return function(Constructor, protoProps, staticProps) {
+      if (protoProps) defineProperties(Constructor.prototype, protoProps);
+      if (staticProps) defineProperties(Constructor, staticProps);
+      return Constructor;
+    };
+  }();
+  var _quill = __webpack_require__(1);
+  var _quill2 = _interopRequireDefault(_quill);
+  var _quillDelta = __webpack_require__(21);
+  var _quillDelta2 = _interopRequireDefault(_quillDelta);
+
+  function _interopRequireDefault(obj) {
+    return obj && obj.__esModule ? obj : {
+      "default": obj
+    };
+  }
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  function _possibleConstructorReturn(self, call) {
+    if (!self) {
+      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    }
+    return call && (typeof call === "object" || typeof call === "function") ? call : self;
+  }
+
+  function _inherits(subClass, superClass) {
+    if (typeof superClass !== "function" && superClass !== null) {
+      throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+    }
+    subClass.prototype = Object.create(superClass && superClass.prototype, {
+      constructor: {
+        value: subClass,
+        enumerable: false,
+        writable: true,
+        configurable: true
+      }
+    });
+    if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+  }
+  var Module = _quill2.default.import("core/module");
+  var SlackMentionModule = function(_Module) {
+    _inherits(SlackMentionModule, _Module);
+
+    function SlackMentionModule(quill, options) {
+      _classCallCheck(this, SlackMentionModule);
+      var _this = _possibleConstructorReturn(this, (SlackMentionModule.__proto__ || Object.getPrototypeOf(SlackMentionModule)).call(this, quill, options));
+      _this.onTextChange = _this.onTextChange.bind(_this);
+      _this.listen();
+      return _this;
+    }
+    _createClass(SlackMentionModule, [{
+      key: "listen",
+      value: function listen() {
+        this.quill.on("text-change", this.onTextChange);
+      }
+    }, {
+      key: "onTextChange",
+      value: function onTextChange(delta, oldDelta, source) {
+        this.unformatBrokenMentions();
+      }
+    }, {
+      key: "unformatBrokenMentions",
+      value: function unformatBrokenMentions() {
+        var _this2 = this;
+        var isMentionBroken = function isMentionBroken(op) {
+          return op && op.attributes && op.attributes.slackmention && op.attributes.slackmention.label !== op.insert;
+        };
+        var contents = this.quill.getContents();
+        var brokenMentions = contents.ops.filter(isMentionBroken);
+        var changes = new _quillDelta2.default;
+        var idx = 0;
+        var lastReplacementIndex = 0;
+        contents.forEach(function(op) {
+          var length = 0;
+          var start = idx;
+          idx = idx + op.insert.length;
+          if (!isMentionBroken(op)) return;
+          if (op.insert.substr(0, op.attributes.slackmention.label.length) === op.attributes.slackmention.label) {
+            start = start + op.attributes.slackmention.label.length;
+            length = op.insert.length - op.attributes.slackmention.label.length;
+          } else if (op.insert.substr(op.attributes.slackmention.label.length * -1) === op.attributes.slackmention.label) {
+            length = op.insert.length - op.attributes.slackmention.label.length;
+          } else {
+            length = op.insert.length;
+          }
+          var text = _this2.quill.getText(start, length);
+          changes.retain(start - lastReplacementIndex).delete(length).insert(text);
+          lastReplacementIndex = idx;
+        });
+        setTimeout(function() {
+          var range = _this2.quill.getSelection();
+          _this2.quill.updateContents(changes, "silent");
+          if (range) _this2.quill.setSelection(range.index, 0);
+        }, 0);
+      }
+    }]);
+    return SlackMentionModule;
+  }(Module);
+  exports.default = SlackMentionModule;
+}, function(module, exports, __webpack_require__) {
+  "use strict";
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  var _createClass = function() {
+    function defineProperties(target, props) {
+      for (var i = 0; i < props.length; i++) {
+        var descriptor = props[i];
+        descriptor.enumerable = descriptor.enumerable || false;
+        descriptor.configurable = true;
+        if ("value" in descriptor) descriptor.writable = true;
+        Object.defineProperty(target, descriptor.key, descriptor);
+      }
+    }
+    return function(Constructor, protoProps, staticProps) {
+      if (protoProps) defineProperties(Constructor.prototype, protoProps);
+      if (staticProps) defineProperties(Constructor, staticProps);
+      return Constructor;
+    };
+  }();
+  var _get = function get(object, property, receiver) {
+    if (object === null) object = Function.prototype;
+    var desc = Object.getOwnPropertyDescriptor(object, property);
+    if (desc === undefined) {
+      var parent = Object.getPrototypeOf(object);
+      if (parent === null) {
+        return undefined;
+      } else {
+        return get(parent, property, receiver);
+      }
+    } else if ("value" in desc) {
+      return desc.value;
+    } else {
+      var getter = desc.get;
+      if (getter === undefined) {
+        return undefined;
+      }
+      return getter.call(receiver);
+    }
+  };
+  var _quill = __webpack_require__(1);
+  var _quill2 = _interopRequireDefault(_quill);
+
+  function _interopRequireDefault(obj) {
+    return obj && obj.__esModule ? obj : {
+      "default": obj
+    };
+  }
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  function _possibleConstructorReturn(self, call) {
+    if (!self) {
+      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    }
+    return call && (typeof call === "object" || typeof call === "function") ? call : self;
+  }
+
+  function _inherits(subClass, superClass) {
+    if (typeof superClass !== "function" && superClass !== null) {
+      throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+    }
+    subClass.prototype = Object.create(superClass && superClass.prototype, {
+      constructor: {
+        value: subClass,
+        enumerable: false,
+        writable: true,
+        configurable: true
+      }
+    });
+    if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+  }
+  var Inline = _quill2.default.import("blots/inline");
+  var SlackMention = function(_Inline) {
+    _inherits(SlackMention, _Inline);
+
+    function SlackMention() {
+      _classCallCheck(this, SlackMention);
+      return _possibleConstructorReturn(this, (SlackMention.__proto__ || Object.getPrototypeOf(SlackMention)).apply(this, arguments));
+    }
+    _createClass(SlackMention, null, [{
+      key: "create",
+      value: function create(value) {
+        var node = _get(SlackMention.__proto__ || Object.getPrototypeOf(SlackMention), "create", this).call(this, value);
+        node.setAttribute("data-id", value.id);
+        node.setAttribute("data-label", value.label);
+        return node;
+      }
+    }, {
+      key: "formats",
+      value: function formats(domNode) {
+        return {
+          id: domNode.getAttribute("data-id"),
+          label: domNode.getAttribute("data-label")
+        };
+      }
+    }]);
+    return SlackMention;
+  }(Inline);
+  exports.default = SlackMention;
+  SlackMention.blotName = "slackmention";
+  SlackMention.tagName = "ts-mention";
 }]);

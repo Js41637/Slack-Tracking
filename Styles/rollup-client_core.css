@@ -7592,6 +7592,13 @@ only screen and (min-resolution:2dppx) {
   display: none!important
 }
 
+.client_resize_optimizations #end_display_onboarding {
+  -ms-flex: 1;
+  -webkit-flex: 1;
+  flex: 1;
+  height: auto
+}
+
 #onboarding_header {
   padding-top: 1rem;
   color: #555459;

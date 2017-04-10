@@ -3,7 +3,7 @@
   {{!-- Todo: enable syntax linter and refactor with safeString --}}
   <div class="billing_contact {{#if member.is_primary_owner}}primary_owner{{/if}} {{#if member.deleted}}inactive{{/if}}" data-contact-id="{{contact.id}}">
     {{#if member}}
-      {{{makeMemberPreviewLinkImage member.id 48}}}
+      {{> member_preview_link_image (getMemberPreviewLinkImageArgs member 48)}}
       <div class="inline_block" style="margin-left: 8px">
         <div class="no_wrap">
           <strong>{{#if member.is_self}}{{#t note="Shown when primary owner is viewing primary owner field"}}You &bull;{{/t}} {{/if}}{{#feature flag="feature_name_tagging_client"}}{{getMemberFullName member}}{{else}}{{getMemberDisplayName member}}{{/feature}}</strong>

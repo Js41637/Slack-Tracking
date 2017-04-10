@@ -15177,10 +15177,6 @@ html:not(.supports_flexbox) .channel_modal_with_list .channel_modal_list {
   color: #717274
 }
 
-#channel_browser .channel_browser_channel_purpose {
-  padding-right: 4rem
-}
-
 #channel_browser .channel_browser_joined {
   font-size: 11px;
   margin-left: .25rem

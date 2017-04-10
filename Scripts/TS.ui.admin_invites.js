@@ -568,11 +568,15 @@
     if ($row) {
       $row.find("label.email").addClass("error").end().find(".error_msg").removeClass("hidden").html(error_msg);
       if (error_obj.error === "too_long") $row.find("label").addClass("error");
+      $row.find("input").on("keyup.admin_invite_error_fixed", function() {
+        _rowValid($row);
+      });
     }
   };
   var _rowValid = function($row) {
     if ($row) {
       $row.find("label").removeClass("error").end().find(".error_msg").addClass("hidden");
+      $row.find("input").off(".admin_invite_error_fixed");
     }
   };
   var _resetIndividualForm = function() {

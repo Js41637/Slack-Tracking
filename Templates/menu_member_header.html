@@ -25,6 +25,9 @@
             <span class="float_right left_margin">
           {{/or}}
         {{/experiment}}
+        {{#if show_admin_info}}
+          <span class="float_right left_margin">
+        {{/if}}
         <span class="timezone_label" data-member-id="{{member.id}}">{{memberLocalTime member}}</span>
         {{#if member.is_self}}
           (<a href='/account/settings' target="{{newWindowName}}" data-action="edit_member_profile_modal">{{#t note="A link to change your own timezone"}}change{{/t}}</a>)
@@ -38,6 +41,9 @@
             </span>
           {{/or}}
         {{/experiment}}
+        {{#if show_admin_info}}
+          </span>
+        {{/if}}
         {{#experiment name="guest_profiles_and_expiration"}}
         {{else}}
           {{#if member.is_restricted}}
@@ -58,13 +64,11 @@
           </span>
         {{/if}}
         {{#if show_admin_info}}
-          <span class="float_right" title="{{#t}}Team Role{{/t}}">
-            {{#if member.is_owner}}
-              {{#t}}Team Owner{{/t}}
-            {{else}}
-              {{#t}}Team Admin{{/t}}
-            {{/if}}
-          </span>
+          {{#if member.is_owner}}
+            {{#t}}Team Owner{{/t}}
+          {{else}}
+            {{#t}}Team Admin{{/t}}
+          {{/if}}
         {{/if}}
       </p>
     {{/unless}}
