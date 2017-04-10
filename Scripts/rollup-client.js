@@ -25183,6 +25183,14 @@
       TS.client.ui.addOrFlashEphemeralBotMsg({
         text: text
       });
+    },
+    startWithChannelOption: function(content_html, header_html, go_text, go_callback) {
+      _setOptionContentHtml(content_html);
+      _setHeaderHtml(header_html);
+      _setOptionGoText(go_text);
+      _current_option_go_callback = go_callback;
+      TS.ui.fs_modal.showBackButton();
+      _showOptionSection(true);
     }
   });
   var _$all_options;
@@ -25236,7 +25244,8 @@
       show_purpose_btn: show_purpose_btn,
       show_data_retention_link: show_data_retention_link,
       show_convert_to_shared_btn: show_convert_to_shared_btn,
-      show_manage_posting_privilege_btn: show_manage_posting_privilege_btn
+      show_manage_posting_privilege_btn: show_manage_posting_privilege_btn,
+      show_share_channel_btn: !model_ob.is_shared && TS.permissions.members.canRequestSharedChannel()
     };
     var title = TS.i18n.t("Additional Options for #{channel_name}", "channel_options")({
       channel_name: model_ob.name
@@ -25282,6 +25291,9 @@
           break;
         case "posting_privilege_btn":
           _showPostingPrivileges(model_ob);
+          break;
+        case "share_channel_btn":
+          TS.ui.share_channel_dialog.start(model_ob);
           break;
         default:
           break;
@@ -26283,6 +26295,45 @@
       html = '<p class="no_bottom_margin">' + TS.i18n.t("Oops! Something went wrong. Please try again.", "channel_options")() + "</p>";
     }
     _setOptionContentHtml(html);
+  };
+})();
+(function() {
+  "use strict";
+  TS.registerModule("ui.share_channel_dialog", {
+    start: function(model_ob) {
+      var content_html = TS.templates.channel_share_dialog(_generateTemplateArgs());
+      var header_html = TS.i18n.t("Share <strong>{channel_name}</strong>", "share_channels")({
+        channel_name: TS.templates.builders.makeChannelPrefix(model_ob) + TS.utility.htmlEntities(model_ob.name)
+      });
+      var go_label = TS.i18n.t("Share channel", "share_channels");
+      TS.ui.channel_options_dialog.startWithChannelOption(content_html, header_html, go_label, function() {
+        TS.ui.channel_options_dialog.ladda.start();
+        _handleSubmit();
+      });
+    },
+    test: function() {
+      var test_ob = {
+        _generateTemplateArgs: _generateTemplateArgs
+      };
+      Object.defineProperty(test_ob, "_generateTemplateArgs", {
+        get: function() {
+          return _generateTemplateArgs;
+        },
+        set: function(v) {
+          _generateTemplateArgs = v;
+        }
+      });
+      return test_ob;
+    }
+  });
+  var _handleSubmit = function(e, model_ob) {};
+  var _generateTemplateArgs = function(model_ob) {
+    return {
+      model_ob: model_ob,
+      can_create_shared_channel: TS.permissions.members.canCreateSharedChannel(),
+      show_heading: false,
+      show_buttons: false
+    };
   };
 })();
 (function() {

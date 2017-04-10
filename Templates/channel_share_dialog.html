@@ -1,0 +1,30 @@
+{{i18n_ns 'share_channels'}}
+
+<div class="share_channel_modal_contents">
+
+  {{#if show_heading}}
+    <h1>{{#t channel_name=model_ob.name}}Share #{channel_name}{{/t}}</h1>
+  {{/if}}
+
+  <p class="large_bottom_margin">
+    {{#t}}In a shared channel, two Slack teams can send messages, share files, and access the channel\u02bcs history. <a href="https://help.slack.com">Learn more</a>{{/t}}
+  </p>
+
+  <p>
+    <label for="text_input">{{#t note="Input label for share channel form"}}Email address of admin on receiving team{{/t}}</label>
+    <input type="text" id="text_input" placeholder="{{#t}}jane@acme-corp.com{{/t}}">
+  </p>
+
+  <p>
+    <label for="text_input">{{#t note="Input label for share channel form"}}Other team\u02bcs URL{{/t}}</label>
+    <input type="text" id="text_input" placeholder="{{#t}}acme-corp.slack.com{{/t}}">
+  </p>
+
+  {{#if show_buttons}}
+    <p class="align_right">
+      <button class="btn btn_large btn_outline btn cancel_share" type="button">{{#t}}Cancel{{/t}}</button>
+      <button class="btn btn_large ladda-button submit" data-style="expand-right">{{#t note="Form submit button label"}}Share channel{{/t}}</button>
+    </p>
+  {{/if}}
+
+</div>
