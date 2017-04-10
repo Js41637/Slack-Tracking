@@ -8,6 +8,7 @@
   <span class="no_print">{{{makeMemberPreviewLinkImage comment.user 36}}}</span>
   <p class="comment_meta">
     <span class="no_print">{{{makeMemberPreviewLinkById comment.user}}}</span>
+    {{#feature flag="feature_user_custom_status"}}{{> current_status for_message=true}}{{/feature}}
     <span class="print_only_inline"><strong>{{getMemberDisplayNameById comment.user}}</strong> \u2022 </span>
     <span class="comment_date_star_cog">
       {{#t
@@ -21,7 +22,7 @@
       <a class="comment_actions" {{#if file}}data-file-id="{{file.id}}"{{/if}} data-comment-id="{{comment.id}}"><i class="comment_cog ts_icon ts_icon_cog ts_icon_inherit"></i></a>
       {{/if}}
     </span>
-  </p>        
+  </p>
   <div class="comment_body">{{{formatMessage comment.comment}}}</div>
   {{rxnPanel comment._rxn_key}}
 </div>

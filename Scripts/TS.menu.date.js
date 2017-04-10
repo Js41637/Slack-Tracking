@@ -11,19 +11,25 @@
   });
   var _date_picker_args;
   var _onSelect;
-  var _DEFAULT_TOP_OFFSET = 5;
+  var _DEFAULT_Y_OFFSET = 5;
   var _showMenu = function(options) {
-    var position_args = options.position_args || {};
+    var attach_to_target = _.isUndefined(options.attach_to_target) ? true : options.attach_to_target;
     TS.menu.start(options.event, false, {
-      attach_to_target_at_full_width: true,
+      attach_to_target_at_full_width: attach_to_target,
       onClose: options.onClose
     });
-    TS.menu.$menu.css({
-      top: position_args.top || TS.menu.$menu.outerHeight() * -1 - _DEFAULT_TOP_OFFSET,
-      left: position_args.left || Math.floor(options.$target.position().left - options.$target.outerWidth() / 2),
-      right: position_args.right || "auto",
-      bottom: position_args.bottom || "auto"
-    });
+    if (attach_to_target) {
+      var top = TS.menu.$menu.outerHeight() * -1 - _DEFAULT_Y_OFFSET;
+      var left = options.$target.position().left - TS.menu.$menu.outerWidth() / 2 + options.$target.outerWidth() / 2;
+      TS.menu.$menu.css({
+        top: Math.floor(top),
+        left: Math.floor(left)
+      });
+    } else {
+      var x = options.$target.outerWidth() / 2 * -1;
+      var y = options.$target.outerHeight() + _DEFAULT_Y_OFFSET;
+      TS.menu.positionAt(options.$target, Math.floor(x), Math.floor(y));
+    }
   };
   var _setupPresetsMenu = function() {
     TS.menu.buildIfNeeded();

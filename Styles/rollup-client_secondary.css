@@ -4137,6 +4137,11 @@ html {
   border-color: transparent
 }
 
+#fs_modal.channel_options_modal .share_channel_modal_contents .error {
+  border: 2px solid #F6B63F;
+  border-left: 4px solid #F6B63F
+}
+
 @font-face {
   font-family: appleLogo;
   src: local("Lucida Grande");
@@ -13163,6 +13168,11 @@ audio {
   padding-right: .25rem;
   color: #3D3C40!important;
   font-size: 15px
+}
+
+.comment .message_current_status {
+  margin-left: -.2rem;
+  margin-right: .15rem
 }
 
 .comment_meta {

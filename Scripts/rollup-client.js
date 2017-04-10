@@ -8667,12 +8667,22 @@
         }
       });
     },
+    rebuildFilePreviewAndCommentsIncludingMember: function(member) {
+      var template_args = {
+        member: member,
+        for_message: true
+      };
+      $("#col_flex .message_current_status.color_" + member.id).replaceWith(TS.templates.current_status(template_args));
+    },
     appendFileComment: function(file, comment) {
+      var member;
       var $div = $(".file_comments_" + file.id);
+      if (TS.boot_data.feature_user_custom_status) member = TS.members.getMemberById(comment.user);
       $div.append(TS.templates.builders.buildCommentHTML({
         file: file,
         comment: comment,
-        show_comment_actions: true
+        show_comment_actions: true,
+        member: member
       }));
       TS.utility.makeSureAllLinksHaveTargets($div);
       if (comment.user == TS.model.user.id) {
@@ -8691,12 +8701,15 @@
       TS.ui.utility.updateClosestMonkeyScroller($scroller);
     },
     updateFileComment: function(file, comment) {
+      var member;
       var $comment_divs = $('.comment[data-comment-id="' + comment.id + '"]');
       if (!$comment_divs.length) return;
+      if (TS.boot_data.feature_user_custom_status) member = TS.members.getMemberById(comment.user);
       $comment_divs.replaceWith(TS.templates.builders.buildCommentHTML({
         file: file,
         comment: comment,
-        show_comment_actions: true
+        show_comment_actions: true,
+        member: member
       }));
       $comment_divs.each(function() {
         TS.utility.makeSureAllLinksHaveTargets($(this));
@@ -9467,6 +9480,8 @@
             $current_status_container.replaceWith(TS.templates.current_status(template_args));
           }
         });
+      } else if (flex_name === "files") {
+        TS.client.ui.files.rebuildFilePreviewAndCommentsIncludingMember(member);
       }
     },
     registerCurrentStatusInput: function() {
@@ -9605,7 +9620,8 @@
     var has_status = status && (status.text || status.emoji);
     if (has_status) {
       $(".current_status_cover .current_status").html(TS.format.formatCurrentStatus(status.text, undefined, {
-        stop_animations: true
+        stop_animations: true,
+        prevent_copy_paste: false
       }));
       $(".current_status_cover .current_status_emoji_cover").html(TS.format.formatCurrentStatus(status.emoji, undefined, {
         stop_animations: true
@@ -23670,12 +23686,10 @@
       $(step.hide_member).addClass("hidden");
       $(step.show_member).removeClass("hidden");
     }
-    if (group === "treatment") {
-      TS.clog.track("GROWTH_ONBOARDING", {
-        action: "enter_step",
-        step: _current_step_name
-      });
-    }
+    TS.clog.track("GROWTH_ONBOARDING", {
+      action: "enter_step",
+      step: _current_step_name
+    });
   };
   var _getBaseSteps = function() {
     var user_steps = ["start", "slackbot", "channels", "direct_messages", "complete"];
@@ -24546,7 +24560,7 @@
     var options = {
       event: e,
       $target: $(_DATE_PICKER_TARGET_SELECTOR),
-      callback: _onExpirationDateChanged,
+      onSelect: _onExpirationDateChanged,
       date_picker_args: {}
     };
     if (_expiration_ts) options.date_picker_args.selected_expiration_ts = _expiration_ts;
@@ -25210,15 +25224,15 @@
     var show_archive_btn = false;
     if (!TS.channels.isChannelRequired(model_ob)) {
       var do_check = true;
-      if (TS.boot_data.page_needs_enterprise && model_ob.is_shared) {
-        if (!TS.permissions.members.canManageSharedChannels() && !TS.model.user.enterprise_user.is_owner) {
+      if (TS.boot_data.page_needs_enterprise && model_ob.is_org_shared) {
+        if (!TS.permissions.members.canManageOrgSharedChannels() && !TS.model.user.enterprise_user.is_owner) {
           do_check = false;
         }
       }
       if (do_check) show_archive_btn = c_or_g === "channel" && TS.permissions.members.canArchiveChannels() || c_or_g === "group" && TS.permissions.members.canArchiveChannels() && !TS.model.user.is_restricted;
     }
     var show_rename_btn = false;
-    if (TS.boot_data.page_needs_enterprise && model_ob.is_shared && TS.permissions.members.canManageSharedChannels()) {
+    if (TS.boot_data.page_needs_enterprise && model_ob.is_org_shared && TS.permissions.members.canManageOrgSharedChannels()) {
       show_rename_btn = true;
     } else {
       if (TS.model.user.is_admin || model_ob.creator === TS.model.user.id) show_rename_btn = true;
@@ -25228,12 +25242,12 @@
     var show_data_retention_link = false;
     if (TS.model.team.plan !== "" && (TS.model.user.is_owner || c_or_g === "group") && TS.model.team.prefs.allow_retention_override) show_data_retention_link = true;
     var show_manage_posting_privilege_btn = false;
-    if (TS.boot_data.page_needs_enterprise && model_ob.is_shared && TS.permissions.members.canManageSharedChannels()) {
+    if (TS.boot_data.page_needs_enterprise && model_ob.is_org_shared && TS.permissions.members.canManageOrgSharedChannels()) {
       show_manage_posting_privilege_btn = true;
     }
     var show_convert_to_shared_btn = false;
     if (TS.boot_data.page_needs_enterprise && !model_ob.is_shared && (TS.boot_data.feature_allow_shared_general || !model_ob.is_general)) {
-      if (TS.permissions.members.canCreateConvertSharedChannels()) show_convert_to_shared_btn = true;
+      if (TS.permissions.members.canCreateConvertOrgSharedChannels()) show_convert_to_shared_btn = true;
     }
     var template_args = {
       c_or_g: c_or_g,
@@ -26307,13 +26321,19 @@
       });
       var go_label = TS.i18n.t("Share channel", "share_channels");
       TS.ui.channel_options_dialog.startWithChannelOption(content_html, header_html, go_label, function() {
-        TS.ui.channel_options_dialog.ladda.start();
-        _handleSubmit();
+        _handleSubmit({
+          model_ob: TS.shared.getActiveModelOb(),
+          target_domain: TS.ui.channel_options_dialog.div.find("#team_url").val(),
+          email: TS.ui.channel_options_dialog.div.find("#email").val()
+        });
       });
     },
     test: function() {
       var test_ob = {
-        _generateTemplateArgs: _generateTemplateArgs
+        _generateTemplateArgs: _generateTemplateArgs,
+        _handleSubmit: _handleSubmit,
+        _handleSuccess: _handleSuccess,
+        _handleError: _handleError
       };
       Object.defineProperty(test_ob, "_generateTemplateArgs", {
         get: function() {
@@ -26323,10 +26343,54 @@
           _generateTemplateArgs = v;
         }
       });
+      Object.defineProperty(test_ob, "_handleSubmit", {
+        get: function() {
+          return _handleSubmit;
+        },
+        set: function(v) {
+          _handleSubmit = v;
+        }
+      });
+      Object.defineProperty(test_ob, "_handleSuccess", {
+        get: function() {
+          return _handleSuccess;
+        },
+        set: function(v) {
+          _handleSuccess = v;
+        }
+      });
+      Object.defineProperty(test_ob, "_handleError", {
+        get: function() {
+          return _handleError;
+        },
+        set: function(v) {
+          _handleError = v;
+        }
+      });
       return test_ob;
     }
   });
-  var _handleSubmit = function(e, model_ob) {};
+  var _handleSubmit = function(options) {
+    TS.ui.channel_options_dialog.ladda.start();
+    TS.ui.channel_options_dialog.div.find(".error").remove();
+    TS.api.call("channels.inviteShared", {
+      channel: options.model_ob.id,
+      target_domain: options.target_domain,
+      email: options.email
+    }).then(_handleSuccess, _handleError);
+  };
+  var _handleSuccess = function(response) {
+    TS.log("shared_channels_connection", response);
+  };
+  var _handleError = function(response) {
+    if (!response.ok) {
+      TS.ui.channel_options_dialog.ladda.stop();
+      TS.ui.channel_options_dialog.div.find(".information").after(TS.templates.channel_share_dialog_error({
+        is_generic_error: true
+      }));
+    }
+    TS.log("shared_channels_connection", response.data);
+  };
   var _generateTemplateArgs = function(model_ob) {
     return {
       model_ob: model_ob,
@@ -33837,6 +33901,7 @@ function timezones_guess() {
       TS.ims.message_changed_sig.add(TS.ui.fs_modal_file_viewer.updateGallery, TS.ui.fs_modal_file_viewer);
       TS.groups.message_changed_sig.add(TS.ui.fs_modal_file_viewer.updateGallery, TS.ui.fs_modal_file_viewer);
       TS.mpims.message_changed_sig.add(TS.ui.fs_modal_file_viewer.updateGallery, TS.ui.fs_modal_file_viewer);
+      TS.members.changed_current_status_sig.add(TS.ui.fs_modal_file_viewer.updateCurrentStatusForMember, TS.ui.fs_modal_file_viewer);
       TS.ui.fs_modal.start(_generateFileViewerConfig());
       TS.ui.fs_modal_file_viewer.is_showing = true;
       _initGallery();
@@ -33879,6 +33944,14 @@ function timezones_guess() {
           _maybeUpdateArrows();
         }
       }, 500);
+    },
+    updateCurrentStatusForMember: function(member) {
+      if (!TS.ui.fs_modal_file_viewer.is_showing) return;
+      var template_args = {
+        member: member,
+        for_message: true
+      };
+      $(".aside_panel .message_current_status.color_" + member.id).replaceWith(TS.templates.current_status(template_args));
     },
     storeLastCommentInput: function() {
       if (!_$file_viewer) return;
@@ -38984,19 +39057,25 @@ function timezones_guess() {
   });
   var _date_picker_args;
   var _onSelect;
-  var _DEFAULT_TOP_OFFSET = 5;
+  var _DEFAULT_Y_OFFSET = 5;
   var _showMenu = function(options) {
-    var position_args = options.position_args || {};
+    var attach_to_target = _.isUndefined(options.attach_to_target) ? true : options.attach_to_target;
     TS.menu.start(options.event, false, {
-      attach_to_target_at_full_width: true,
+      attach_to_target_at_full_width: attach_to_target,
       onClose: options.onClose
     });
-    TS.menu.$menu.css({
-      top: position_args.top || TS.menu.$menu.outerHeight() * -1 - _DEFAULT_TOP_OFFSET,
-      left: position_args.left || Math.floor(options.$target.position().left - options.$target.outerWidth() / 2),
-      right: position_args.right || "auto",
-      bottom: position_args.bottom || "auto"
-    });
+    if (attach_to_target) {
+      var top = TS.menu.$menu.outerHeight() * -1 - _DEFAULT_Y_OFFSET;
+      var left = options.$target.position().left - TS.menu.$menu.outerWidth() / 2 + options.$target.outerWidth() / 2;
+      TS.menu.$menu.css({
+        top: Math.floor(top),
+        left: Math.floor(left)
+      });
+    } else {
+      var x = options.$target.outerWidth() / 2 * -1;
+      var y = options.$target.outerHeight() + _DEFAULT_Y_OFFSET;
+      TS.menu.positionAt(options.$target, Math.floor(x), Math.floor(y));
+    }
   };
   var _setupPresetsMenu = function() {
     TS.menu.buildIfNeeded();

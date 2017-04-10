@@ -709,7 +709,7 @@
     var options = {
       event: e,
       $target: $(_DATE_PICKER_TARGET_SELECTOR),
-      callback: _onExpirationDateChanged,
+      onSelect: _onExpirationDateChanged,
       date_picker_args: {}
     };
     if (_expiration_ts) options.date_picker_args.selected_expiration_ts = _expiration_ts;

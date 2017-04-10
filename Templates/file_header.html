@@ -16,6 +16,10 @@
 
     <span class="{{getMemberColorClassById member.id}}">{{{makeMemberPreviewLink member}}}</span>
 
+    {{#feature flag="feature_user_custom_status"}}
+      {{> current_status for_message=true}}
+    {{/feature}}
+
     <span class="title break_word">
       {{#if is_post}}
         {{#if preview}}

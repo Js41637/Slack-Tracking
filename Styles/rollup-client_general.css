@@ -668,7 +668,9 @@ html.no_touch .alert_page a:hover {
   -ms-user-select: none;
   user-select: none;
   z-index: 1000000;
-  position: absolute
+  position: absolute;
+  top: 0;
+  left: 0
 }
 
 .ts_tip.ts_tip_hide .ts_tip_tip {

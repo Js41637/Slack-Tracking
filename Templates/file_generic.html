@@ -64,10 +64,12 @@
     </p>
 
     {{#feature flag="feature_gsuite_rich_previews"}}
-      {{#if file.thumb_800}}
-        <div class="file_thumb{{#if_gt file.thumb_800_w compare=file.thumb_800_h}} file_thumb_landscape{{/if_gt}}" style="background-image: url('{{file.thumb_800}}');"></div>
-      {{else if file.thumb_480}}
-        <div class="file_thumb{{#if_gt file.thumb_480_w compare=file.thumb_480_h}} file_thumb_landscape{{/if_gt}}" style="background-image: url('{{file.thumb_480}}');"></div>
+      {{#if file.has_rich_preview}}
+        {{#if file.thumb_800}}
+          <div class="file_thumb{{#if_gt file.thumb_800_w compare=file.thumb_800_h}} file_thumb_landscape{{/if_gt}}" style="background-image: url('{{file.thumb_800}}');"></div>
+        {{else if file.thumb_480}}
+          <div class="file_thumb{{#if_gt file.thumb_480_w compare=file.thumb_480_h}} file_thumb_landscape{{/if_gt}}" style="background-image: url('{{file.thumb_480}}');"></div>
+        {{/if}}
       {{/if}}
     {{/feature}}
   </a>

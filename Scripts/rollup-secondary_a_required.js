@@ -2513,14 +2513,14 @@
       if (TS.model.user.is_restricted) return false;
       return _checkPrefCascade("who_can_kick_groups", TS.model.user, true);
     },
-    canCreateConvertSharedChannels: function() {
-      if (!TS.model.shared_channels_enabled) return false;
+    canCreateConvertOrgSharedChannels: function() {
+      if (!TS.boot_data.page_needs_enterprise) return false;
       if (TS.model.user.enterprise_user && TS.model.user.enterprise_user.is_owner) return true;
-      return TS.permissions.members.canManageSharedChannels();
+      return TS.permissions.members.canManageOrgSharedChannels();
     },
-    canManageSharedChannels: function() {
+    canManageOrgSharedChannels: function() {
       if (!TS.model.team.prefs.who_can_manage_shared_channels) return true;
-      if (!TS.model.shared_channels_enabled) return false;
+      if (!TS.boot_data.page_needs_enterprise) return false;
       var user = TS.model.user;
       if (user.is_restricted) return false;
       if (TS.model.team.prefs.can_user_manage_shared_channels !== undefined) return TS.model.team.prefs.can_user_manage_shared_channels;
@@ -2572,6 +2572,7 @@
   "use strict";
   TS.registerModule("tips", {
     onStart: function() {
+      _$body.append('<div id="ts_tip_float_floater_container"></div>');
       _$body.delegate(".ts_tip_lazy, .ts_tip_float", "mouseenter", _onMouseEnter);
       _$body.delegate(".ts_tip_float", "mouseleave", _onMouseLeave);
       _$body.on("click", ".ts_tip", function(e) {
@@ -2650,8 +2651,7 @@
         tip_html: _$tipped_el.find(".ts_tip_tip").clone()[0].outerHTML
       });
       _$floater = $(floater_html);
-      var $container = $("#ts_tip_float_floater_container");
-      ($container.length ? $container : _$body).append(_$floater);
+      $("#ts_tip_float_floater_container").append(_$floater);
       _last_tim = setTimeout(function() {
         _$floater.removeClass("ts_tip_hidden");
         _positionFloater();
@@ -6489,9 +6489,9 @@ TS.registerModule("constants", {
       } catch (err) {
         return false;
       }
-      var has_thumb = file.thumb_480;
+      var has_rich_preview = file.has_rich_preview;
       var gdrive_native = file.external_type === "gdrive" && file.mimetype.indexOf("image/") < 0;
-      return has_thumb && gdrive_native;
+      return has_rich_preview && gdrive_native;
     },
     fileIsSupportedAudio: function(file) {
       return TS.files.supported_audio_type_re.test(_ensureFileObject(file).filetype);
@@ -21370,13 +21370,16 @@ TS.registerModule("constants", {
       return html;
     },
     buildComments: function(file) {
+      var member;
       var comments = file.comments;
       var html = "";
       for (var i = 0; i < comments.length; i += 1) {
+        if (TS.boot_data.feature_user_custom_status) member = TS.members.getMemberById(comments[i].user);
         html += TS.templates.builders.buildCommentHTML({
           file: file,
           comment: comments[i],
-          show_comment_actions: true
+          show_comment_actions: true,
+          member: member
         });
       }
       return html;
@@ -24155,10 +24158,11 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("formatCurrentStatus", function(text) {
         return new Handlebars.SafeString(TS.format.formatCurrentStatus(text));
       });
-      Handlebars.registerHelper("formatCurrentStatusWithoutAnimations", function(text) {
-        return new Handlebars.SafeString(TS.format.formatCurrentStatus(text, undefined, {
+      Handlebars.registerHelper("formatCurrentStatusWithoutAnimations", function(text, options) {
+        options = options || {};
+        return new Handlebars.SafeString(TS.format.formatCurrentStatus(text, undefined, _.assign({
           stop_animations: true
-        }));
+        }, options)));
       });
       Handlebars.registerHelper("rxnPanel", function(rxn_key) {
         var panel_html = TS.templates.builders.rxnPanel(rxn_key);
@@ -24912,7 +24916,9 @@ TS.registerModule("constants", {
         return Handlebars.helpers.formatCurrentStatusWithoutAnimations(TS.members.getMemberCurrentStatus(member).emoji);
       });
       Handlebars.registerHelper("getMemberCurrentStatusText", function(member) {
-        return Handlebars.helpers.formatCurrentStatusWithoutAnimations(TS.members.getMemberCurrentStatus(member).text);
+        return Handlebars.helpers.formatCurrentStatusWithoutAnimations(TS.members.getMemberCurrentStatus(member).text, {
+          prevent_copy_paste: false
+        });
       });
       Handlebars.registerHelper("getMemberCurrentStatusForDisplay", function(member) {
         return new Handlebars.SafeString(TS.members.getMemberCurrentStatusForDisplay(member));
@@ -31103,6 +31109,7 @@ TS.registerModule("constants", {
         container_clone.appendChild(range.cloneContents());
         container_clone.classList.add("offscreen", "user_select_text");
         range.commonAncestorContainer.parentElement.appendChild(container_clone);
+        container_clone.innerHTML = container_clone.innerHTML.replace(/&nbsp;/g, "​");
         if (container_clone.lastChild && !container_clone.lastChild.textContent) {
           container_clone.removeChild(container_clone.lastChild);
         }
@@ -31110,6 +31117,7 @@ TS.registerModule("constants", {
         var restore = TS.selection.snapshot();
         selection = TS.selection.selectNodeContents(container_clone);
         selection_text = selection.toString();
+        selection_text = selection_text.replace(/ {2}/g, " ").replace(/\u200B/g, " ");
         container_clone.parentElement.removeChild(container_clone);
         restore();
       } else {
@@ -32672,7 +32680,7 @@ TS.registerModule("constants", {
         if ((signed_into_enterprise || template_args.current_team_is_in_enterprise) && (template_args.other_enterprise_accounts && Object.keys(template_args.other_enterprise_accounts).length || template_args.other_accounts && Object.keys(template_args.other_accounts).length)) template_args.show_switch_teams_submenu = true;
         template_args.can_show_leave_workspace = TS.permissions.enterprise.canUserLeaveTeam(TS.model.user, TS.model.team);
       }
-      template_args.show_shared_channels = TS.model.shared_channels_enabled && !TS.model.user.is_restricted;
+      template_args.show_shared_channels = TS.boot_data.page_needs_enterprise && !TS.model.user.is_restricted;
       TS.menu.$menu.addClass("team_menu slack_menu");
       TS.menu.$menu.attr("data-qa", "team_menu");
       TS.menu.$menu_header.addClass("hidden").empty();
@@ -33832,7 +33840,7 @@ var _on_esc;
       if (TS.notifs.isCorGMuted(channel.id)) template_args.channel_is_muted = true;
       if (channel.is_member && (!TS.channels.isChannelRequired(channel) || TS.permissions.members.canPostInChannel(channel))) template_args.show_advanced_item = true;
       if (TS.boot_data.page_needs_enterprise) {
-        var can_manage_shared_channels = TS.permissions.members.canManageSharedChannels();
+        var can_manage_shared_channels = TS.permissions.members.canManageOrgSharedChannels();
         if (!channel.is_shared && can_manage_shared_channels && !TS.channels.isChannelRequired(channel)) template_args.show_convert_item = true;
         if (channel.is_shared) {
           if (template_args.show_advanced_item) {
@@ -34955,7 +34963,7 @@ var _on_esc;
       if (TS.notifs.isCorGMuted(group.id)) template_args.group_is_muted = true;
       template_args.show_advanced_item = true;
       if (TS.boot_data.page_needs_enterprise) {
-        var can_manage_shared_channels = TS.permissions.members.canManageSharedChannels();
+        var can_manage_shared_channels = TS.permissions.members.canManageOrgSharedChannels();
         if (!group.is_shared && can_manage_shared_channels) template_args.show_convert_item = true;
         if (group.is_shared) {
           if (group.creator !== TS.model.user.id) template_args.show_advanced_item = false;
@@ -42966,7 +42974,7 @@ var _on_esc;
       var team_message_selector = "#textarea_ws_team_message";
       var form_selector = "#ws_request_form";
 
-      function checkTeamName() {
+      function checkForm() {
         var $parent = $(dialog_selector);
         var $go = $parent.find(go_btn_selector);
         var ok = TS.ui.validation.validate($(form_selector));
@@ -43035,7 +43043,8 @@ var _on_esc;
           return false;
         }
       });
-      $(team_name_selector).on("keyup change", checkTeamName).focus();
+      $([team_name_selector, team_message_selector].join(",")).on("keyup change", checkForm);
+      $(team_name_selector).focus();
       $(dialog_selector).find(go_btn_selector).attr("disabled", true);
     }
   });
@@ -51700,7 +51709,7 @@ $.fn.togglify = function(settings) {
     }
   };
   var _start = function() {
-    var show_create_shared_channel_btn = TS.permissions.members.canCreateConvertSharedChannels();
+    var show_create_shared_channel_btn = TS.permissions.members.canCreateConvertOrgSharedChannels();
     var settings = {
       body_template_html: TS.templates.shared_channels_invites_modal({
         show_create_shared_channel_btn: show_create_shared_channel_btn
@@ -58082,6 +58091,8 @@ $.fn.togglify = function(settings) {
       case _DATA_SOURCES.channels:
         return _getDataPromiseFromSearcher({
           channels: true
+        }, {
+          default_query: "#"
         });
       case _DATA_SOURCES.conversations:
         return TS.ui.file_share.promiseToGetFileShareSelectOptions;
@@ -58098,13 +58109,17 @@ $.fn.togglify = function(settings) {
     }
   }
 
-  function _getDataPromiseFromSearcher(searcher_options) {
+  function _getDataPromiseFromSearcher(searcher_options, options) {
     searcher_options = _.defaults(searcher_options, {
       sort: {
         frecency: true
       }
     });
+    options = _.defaults(options, {
+      default_query: ""
+    });
     return function(query) {
+      query = query || options.default_query;
       return new Promise(function(resolve, reject) {
         TS.searcher.search(query, searcher_options).then(function(response) {
           response.all_items_fetched = true;
@@ -65538,8 +65553,8 @@ $.fn.togglify = function(settings) {
             _d = oi(function(e, t) {
               return e - t;
             }, 0);
-          return n.after = Ru, n.ary = Pu, n.assign = Op, n.assignIn = Ip, n.assignInWith = Ap, n.assignWith = Np, n.at = Lp, n.before = Mu, n.bind = cp, n.bindAll = nd, n.bindKey = fp, n.castArray = Bu, n.chain = eu, n.chunk = ua, n.compact = sa, n.concat = la, n.cond = Ml, n.conforms = Ol, n.constant = Il, n.countBy = tp, n.create = Is, n.curry = Ou, n.curryRight = Iu, n.debounce = Au, n.defaults = Dp, n.defaultsDeep = jp, n.defer = pp, n.delay = dp, n.difference = jf, n.differenceBy = zf, n.differenceWith = Uf, n.drop = ca, n.dropRight = fa, n.dropRightWhile = pa, n.dropWhile = da, n.fill = ha, n.filter = fu, n.flatMap = pu, n.flatMapDeep = du, n.flatMapDepth = hu, n.flatten = ga, n.flattenDeep = _a, n.flattenDepth = ya, n.flip = Nu, n.flow = rd, n.flowRight = od, n.fromPairs = ba, n.functions = Us, n.functionsIn = Ws, n.groupBy = op, n.initial = Sa, n.intersection = Wf, n.intersectionBy = Ff, n.intersectionWith = Hf, n.invert = zp, n.invertBy = Up, n.invokeMap = ip, n.iteratee = Ll, n.keyBy = ap, n.keys = Gs, n.keysIn = Vs, n.map = _u, n.mapKeys = qs, n.mapValues = Ks, n.matches = Dl, n.matchesProperty = jl, n.memoize = Lu, n.merge = Fp, n.mergeWith = Hp, n.method = id, n.methodOf = ad, n.mixin = zl, n.negate = Du, n.nthArg = Fl, n.omit = Bp, n.omitBy = Ys, n.once = ju, n.orderBy = yu, n.over = ud, n.overArgs = hp, n.overEvery = sd, n.overSome = ld, n.partial = vp, n.partialRight = mp, n.partition = up, n.pick = Gp, n.pickBy = $s, n.property = Hl, n.propertyOf = Bl, n.pull = Bf, n.pullAll = Ra, n.pullAllBy = Pa, n.pullAllWith = Ma, n.pullAt = Gf, n.range = cd, n.rangeRight = fd, n.rearg = gp, n.reject = Cu, n.remove = Oa, n.rest = zu, n.reverse = Ia, n.sampleSize = xu, n.set = Xs, n.setWith = Zs, n.shuffle = ku, n.slice = Aa, n.sortBy = sp, n.sortedUniq = Wa, n.sortedUniqBy = Fa, n.split = yl, n.spread = Uu, n.tail = Ha, n.take = Ba, n.takeRight = Ga, n.takeRightWhile = Va, n.takeWhile = qa, n.tap = tu, n.throttle = Wu, n.thru = nu, n.toArray = xs, n.toPairs = Vp, n.toPairsIn = qp, n.toPath = Ql, n.toPlainObject = Ps, n.transform = Js, n.unary = Fu, n.union = Vf, n.unionBy = qf, n.unionWith = Kf, n.uniq = Ka, n.uniqBy = Ya, n.uniqWith = $a, n.unset = el, n.unzip = Qa, n.unzipWith = Xa, n.update = tl, n.updateWith = nl, n.values = rl, n.valuesIn = ol, n.without = Yf, n.words = Pl, n.wrap = Hu, n.xor = $f, n.xorBy = Qf, n.xorWith = Xf, n.zip = Zf, n.zipObject = Za, n.zipObjectDeep = Ja, n.zipWith = Jf, n.entries = Vp, n.entriesIn = qp, n.extend = Ip, n.extendWith = Ap, zl(n, n), n.add = pd, n.attempt = td, n.camelCase = Kp, n.capitalize = sl, n.ceil = dd,
-            n.clamp = il, n.clone = Gu, n.cloneDeep = qu, n.cloneDeepWith = Ku, n.cloneWith = Vu, n.conformsTo = Yu, n.deburr = ll, n.defaultTo = Al, n.divide = hd, n.endsWith = cl, n.eq = $u, n.escape = fl, n.escapeRegExp = pl, n.every = cu, n.find = np, n.findIndex = va, n.findKey = As, n.findLast = rp, n.findLastIndex = ma, n.findLastKey = Ns, n.floor = vd, n.forEach = vu, n.forEachRight = mu, n.forIn = Ls, n.forInRight = Ds, n.forOwn = js, n.forOwnRight = zs, n.get = Fs, n.gt = _p, n.gte = yp, n.has = Hs, n.hasIn = Bs, n.head = wa, n.identity = Nl, n.includes = gu, n.indexOf = Ca, n.inRange = al, n.invoke = Wp, n.isArguments = bp, n.isArray = wp, n.isArrayBuffer = Cp, n.isArrayLike = Qu, n.isArrayLikeObject = Xu, n.isBoolean = Zu, n.isBuffer = Sp, n.isDate = xp, n.isElement = Ju, n.isEmpty = es, n.isEqual = ts, n.isEqualWith = ns, n.isError = rs, n.isFinite = os, n.isFunction = is, n.isInteger = as, n.isLength = us, n.isMap = kp, n.isMatch = cs, n.isMatchWith = fs, n.isNaN = ps, n.isNative = ds, n.isNil = vs, n.isNull = hs, n.isNumber = ms, n.isObject = ss, n.isObjectLike = ls, n.isPlainObject = gs, n.isRegExp = Tp, n.isSafeInteger = _s, n.isSet = Ep, n.isString = ys, n.isSymbol = bs, n.isTypedArray = Rp, n.isUndefined = ws, n.isWeakMap = Cs, n.isWeakSet = Ss, n.join = xa, n.kebabCase = Yp, n.last = ka, n.lastIndexOf = Ta, n.lowerCase = $p, n.lowerFirst = Qp, n.lt = Pp, n.lte = Mp, n.max = Zl, n.maxBy = Jl, n.mean = ec, n.meanBy = tc, n.min = nc, n.minBy = rc, n.stubArray = Gl, n.stubFalse = Vl, n.stubObject = ql, n.stubString = Kl, n.stubTrue = Yl, n.multiply = md, n.nth = Ea, n.noConflict = Ul, n.noop = Wl, n.now = lp, n.pad = dl, n.padEnd = hl, n.padStart = vl, n.parseInt = ml, n.random = ul, n.reduce = bu, n.reduceRight = wu, n.repeat = gl, n.replace = _l, n.result = Qs, n.round = gd, n.runInContext = e, n.sample = Su, n.size = Tu, n.snakeCase = Xp, n.some = Eu, n.sortedIndex = Na, n.sortedIndexBy = La, n.sortedIndexOf = Da, n.sortedLastIndex = ja, n.sortedLastIndexBy = za, n.sortedLastIndexOf = Ua, n.startCase = Zp, n.startsWith = bl, n.subtract = _d, n.sum = oc, n.sumBy = ic, n.template = wl, n.times = $l, n.toFinite = ks, n.toInteger = Ts, n.toLength = Es, n.toLower = Cl, n.toNumber = Rs, n.toSafeInteger = Ms, n.toString = Os, n.toUpper = Sl, n.trim = xl, n.trimEnd = kl, n.trimStart = Tl, n.truncate = El, n.unescape = Rl, n.uniqueId = Xl, n.upperCase = Jp, n.upperFirst = ed, n.each = vu, n.eachRight = mu, n.first = wa, zl(n, function() {
+          return n.after = Ru, n.ary = Pu, n.assign = Op, n.assignIn = Ip, n.assignInWith = Ap, n.assignWith = Np, n.at = Lp, n.before = Mu, n.bind = cp, n.bindAll = nd, n.bindKey = fp, n.castArray = Bu, n.chain = eu, n.chunk = ua, n.compact = sa, n.concat = la, n.cond = Ml, n.conforms = Ol, n.constant = Il, n.countBy = tp, n.create = Is, n.curry = Ou, n.curryRight = Iu, n.debounce = Au, n.defaults = Dp, n.defaultsDeep = jp, n.defer = pp, n.delay = dp, n.difference = jf, n.differenceBy = zf, n.differenceWith = Uf, n.drop = ca, n.dropRight = fa, n.dropRightWhile = pa, n.dropWhile = da, n.fill = ha, n.filter = fu, n.flatMap = pu, n.flatMapDeep = du, n.flatMapDepth = hu, n.flatten = ga, n.flattenDeep = _a, n.flattenDepth = ya, n.flip = Nu, n.flow = rd, n.flowRight = od, n.fromPairs = ba, n.functions = Us, n.functionsIn = Ws, n.groupBy = op, n.initial = Sa, n.intersection = Wf, n.intersectionBy = Ff, n.intersectionWith = Hf, n.invert = zp, n.invertBy = Up, n.invokeMap = ip, n.iteratee = Ll, n.keyBy = ap, n.keys = Gs, n.keysIn = Vs, n.map = _u, n.mapKeys = qs, n.mapValues = Ks, n.matches = Dl, n.matchesProperty = jl, n.memoize = Lu, n.merge = Fp, n.mergeWith = Hp, n.method = id, n.methodOf = ad, n.mixin = zl, n.negate = Du, n.nthArg = Fl, n.omit = Bp, n.omitBy = Ys, n.once = ju, n.orderBy = yu, n.over = ud, n.overArgs = hp, n.overEvery = sd, n.overSome = ld, n.partial = vp, n.partialRight = mp, n.partition = up, n.pick = Gp, n.pickBy = $s, n.property = Hl, n.propertyOf = Bl, n.pull = Bf, n.pullAll = Ra, n.pullAllBy = Pa, n.pullAllWith = Ma, n.pullAt = Gf, n.range = cd, n.rangeRight = fd, n.rearg = gp, n.reject = Cu, n.remove = Oa, n.rest = zu, n.reverse = Ia, n.sampleSize = xu, n.set = Xs, n.setWith = Zs, n.shuffle = ku, n.slice = Aa, n.sortBy = sp, n.sortedUniq = Wa, n.sortedUniqBy = Fa, n.split = yl, n.spread = Uu, n.tail = Ha, n.take = Ba, n.takeRight = Ga, n.takeRightWhile = Va, n.takeWhile = qa, n.tap = tu, n.throttle = Wu, n.thru = nu, n.toArray = xs, n.toPairs = Vp, n.toPairsIn = qp, n.toPath = Ql, n.toPlainObject = Ps, n.transform = Js, n.unary = Fu, n.union = Vf, n.unionBy = qf,
+            n.unionWith = Kf, n.uniq = Ka, n.uniqBy = Ya, n.uniqWith = $a, n.unset = el, n.unzip = Qa, n.unzipWith = Xa, n.update = tl, n.updateWith = nl, n.values = rl, n.valuesIn = ol, n.without = Yf, n.words = Pl, n.wrap = Hu, n.xor = $f, n.xorBy = Qf, n.xorWith = Xf, n.zip = Zf, n.zipObject = Za, n.zipObjectDeep = Ja, n.zipWith = Jf, n.entries = Vp, n.entriesIn = qp, n.extend = Ip, n.extendWith = Ap, zl(n, n), n.add = pd, n.attempt = td, n.camelCase = Kp, n.capitalize = sl, n.ceil = dd, n.clamp = il, n.clone = Gu, n.cloneDeep = qu, n.cloneDeepWith = Ku, n.cloneWith = Vu, n.conformsTo = Yu, n.deburr = ll, n.defaultTo = Al, n.divide = hd, n.endsWith = cl, n.eq = $u, n.escape = fl, n.escapeRegExp = pl, n.every = cu, n.find = np, n.findIndex = va, n.findKey = As, n.findLast = rp, n.findLastIndex = ma, n.findLastKey = Ns, n.floor = vd, n.forEach = vu, n.forEachRight = mu, n.forIn = Ls, n.forInRight = Ds, n.forOwn = js, n.forOwnRight = zs, n.get = Fs, n.gt = _p, n.gte = yp, n.has = Hs, n.hasIn = Bs, n.head = wa, n.identity = Nl, n.includes = gu, n.indexOf = Ca, n.inRange = al, n.invoke = Wp, n.isArguments = bp, n.isArray = wp, n.isArrayBuffer = Cp, n.isArrayLike = Qu, n.isArrayLikeObject = Xu, n.isBoolean = Zu, n.isBuffer = Sp, n.isDate = xp, n.isElement = Ju, n.isEmpty = es, n.isEqual = ts, n.isEqualWith = ns, n.isError = rs, n.isFinite = os, n.isFunction = is, n.isInteger = as, n.isLength = us, n.isMap = kp, n.isMatch = cs, n.isMatchWith = fs, n.isNaN = ps, n.isNative = ds, n.isNil = vs, n.isNull = hs, n.isNumber = ms, n.isObject = ss, n.isObjectLike = ls, n.isPlainObject = gs, n.isRegExp = Tp, n.isSafeInteger = _s, n.isSet = Ep, n.isString = ys, n.isSymbol = bs, n.isTypedArray = Rp, n.isUndefined = ws, n.isWeakMap = Cs, n.isWeakSet = Ss, n.join = xa, n.kebabCase = Yp, n.last = ka, n.lastIndexOf = Ta, n.lowerCase = $p, n.lowerFirst = Qp, n.lt = Pp, n.lte = Mp, n.max = Zl, n.maxBy = Jl, n.mean = ec, n.meanBy = tc, n.min = nc, n.minBy = rc, n.stubArray = Gl, n.stubFalse = Vl, n.stubObject = ql, n.stubString = Kl, n.stubTrue = Yl, n.multiply = md, n.nth = Ea, n.noConflict = Ul, n.noop = Wl, n.now = lp, n.pad = dl, n.padEnd = hl, n.padStart = vl, n.parseInt = ml, n.random = ul, n.reduce = bu, n.reduceRight = wu, n.repeat = gl, n.replace = _l, n.result = Qs, n.round = gd, n.runInContext = e, n.sample = Su, n.size = Tu, n.snakeCase = Xp, n.some = Eu, n.sortedIndex = Na, n.sortedIndexBy = La, n.sortedIndexOf = Da, n.sortedLastIndex = ja, n.sortedLastIndexBy = za, n.sortedLastIndexOf = Ua, n.startCase = Zp, n.startsWith = bl, n.subtract = _d, n.sum = oc, n.sumBy = ic, n.template = wl, n.times = $l, n.toFinite = ks, n.toInteger = Ts, n.toLength = Es, n.toLower = Cl, n.toNumber = Rs, n.toSafeInteger = Ms, n.toString = Os, n.toUpper = Sl, n.trim = xl, n.trimEnd = kl, n.trimStart = Tl, n.truncate = El, n.unescape = Rl, n.uniqueId = Xl, n.upperCase = Jp, n.upperFirst = ed, n.each = vu, n.eachRight = mu, n.first = wa, zl(n, function() {
               var e = {};
               return nr(n, function(t, r) {
                 bc.call(n.prototype, r) || (e[r] = t);
@@ -71909,8 +71924,7 @@ $.fn.togglify = function(settings) {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
-          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0),
-            Object.defineProperty(e, r.key, r);
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
         }
       }
       return function(t, n, r) {
@@ -73465,7 +73479,8 @@ $.fn.togglify = function(settings) {
     }(),
     l = function() {
       function e(t) {
-        r(this, e), i.a.prototype.stopCallback = e.stopCallback, this.mousetrap = new i.a(t);
+        r(this, e),
+          i.a.prototype.stopCallback = e.stopCallback, this.mousetrap = new i.a(t);
       }
       return s(e, [{
         key: "bindAll",
@@ -75207,7 +75222,8 @@ $.fn.togglify = function(settings) {
     f = n(20),
     p = n(90),
     d = n(45),
-    h = (n(17), n(136)),
+    h = (n(17),
+      n(136)),
     v = n(36),
     m = n(42),
     g = (n(0), n(57)),
@@ -76560,8 +76576,7 @@ $.fn.togglify = function(settings) {
         },
         _reconcilerUpdateChildren: function(e, t, n, r, o, i) {
           var a, u = 0;
-          return a = h(t, u), d.updateChildren(e, a, n, r, o, this, this._hostContainerInfo, i, u),
-            a;
+          return a = h(t, u), d.updateChildren(e, a, n, r, o, this, this._hostContainerInfo, i, u), a;
         },
         mountChildren: function(e, t, n) {
           var r = this._reconcilerInstantiateChildren(e, t, n);
@@ -78163,29 +78178,28 @@ $.fn.togglify = function(settings) {
             },
             P = w > u ? this._scrollbarSize : 0,
             M = C > d ? this._scrollbarSize : 0;
-          return R.overflowX = C + P <= d ? "hidden" : "auto",
-            R.overflowY = w + M <= u ? "hidden" : "auto", m.a.createElement("div", {
-              ref: function(t) {
-                e._scrollingContainer = t;
-              },
-              "aria-label": this.props["aria-label"],
-              className: _()("ReactVirtualized__Collection", a),
-              id: l,
-              onScroll: this._onScroll,
-              role: "grid",
-              style: o()({}, R, f),
-              tabIndex: 0
-            }, r > 0 && m.a.createElement("div", {
-              className: "ReactVirtualized__Collection__innerScrollContainer",
-              style: {
-                height: w,
-                maxHeight: w,
-                maxWidth: C,
-                overflow: "hidden",
-                pointerEvents: v ? "none" : "",
-                width: C
-              }
-            }, E), 0 === r && c());
+          return R.overflowX = C + P <= d ? "hidden" : "auto", R.overflowY = w + M <= u ? "hidden" : "auto", m.a.createElement("div", {
+            ref: function(t) {
+              e._scrollingContainer = t;
+            },
+            "aria-label": this.props["aria-label"],
+            className: _()("ReactVirtualized__Collection", a),
+            id: l,
+            onScroll: this._onScroll,
+            role: "grid",
+            style: o()({}, R, f),
+            tabIndex: 0
+          }, r > 0 && m.a.createElement("div", {
+            className: "ReactVirtualized__Collection__innerScrollContainer",
+            style: {
+              height: w,
+              maxHeight: w,
+              maxWidth: C,
+              overflow: "hidden",
+              pointerEvents: v ? "none" : "",
+              width: C
+            }
+          }, E), 0 === r && c());
         }
       }, {
         key: "shouldComponentUpdate",
