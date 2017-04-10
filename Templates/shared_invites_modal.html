@@ -1,0 +1,26 @@
+{{i18n_ns 'invites'}}
+<div id="shared_invite_link_modal">
+
+  <div id="shared_invite_link_modal_header" class="bold small_bottom_margin">{{#t}}Share your team\u2019s invite link{{/t}}</div>
+
+  <div id="shared_invite_link_modal_body">
+    <div class="subtle_silver bottom_margin">{{#t}}Anyone can use this link to join your Slack team.{{/t}}</div>
+
+
+    <select name="select_shared_invite_expiration" class="small">
+    {{#t note="the amount of time before their shared invite link expires"}}
+      <option value="1_day">Expires in 1 day</option>
+      <option value="7_days">Expires in 7 days</option>
+      <option selected="selected" value="30_days">Expires in 30 days</option>
+      <option value="never">Never expires</option>
+    {{/t}}
+    </select>
+
+    <button type="button" class="btn full_width" data-action="shared_invite_create_link">{{#t}}Create Invite Link{{/t}}</button>
+  </div>
+
+  <div id="shared_invite_link_modal_footer">
+    <a class="link_btn no_underline" data-action="admin_invites_modal"><ts-icon class="ts_icon_envelope_o subtle_silver small_right_margin"></ts-icon>{{#t}}Invite people by email...{{/t}}</a>
+  </div>
+</div>
+

@@ -41976,7 +41976,7 @@ var _showDeprecationModal = function() {
       TS.utility.openInNewTab("https://get.slack.help/hc/en-us/articles/201746897", "_blank");
     },
     onShowComplete: function() {
-      document.activeElement.blur();
+      $("#fs_modal .dialog_go").focus();
     }
   });
   $(".deprecate_modal a").on("click", function() {
@@ -42003,7 +42003,7 @@ var _showDeprecationModalUnsupported = function() {
       TS.utility.openInNewTab("https://get.slack.help/hc/en-us/articles/201746897", "_blank");
     },
     onShowComplete: function() {
-      document.activeElement.blur();
+      $("#fs_modal .dialog_go").focus();
     }
   });
   $(".deprecate_modal a").on("click", function() {
@@ -42030,7 +42030,7 @@ var _showDeprecationModalWithInstall = function() {
       TS.utility.openInNewTab(_getDownloadLink(), "_blank");
     },
     onShowComplete: function() {
-      document.activeElement.blur();
+      $("#fs_modal .dialog_go").focus();
     }
   });
   $(".deprecate_modal a").on("click", function() {
@@ -42057,7 +42057,7 @@ var _showDeprecationModalWithInstallUnsupported = function() {
       TS.utility.openInNewTab(_getDownloadLink(), "_blank");
     },
     onShowComplete: function() {
-      document.activeElement.blur();
+      $("#fs_modal .dialog_go").focus();
     }
   });
   $(".deprecate_modal a").on("click", function() {
@@ -42084,7 +42084,7 @@ var _showSSBDeprecationModal = function() {
       TS.utility.openInNewTab(_getDownloadLink(), "_blank");
     },
     onShowComplete: function() {
-      document.activeElement.blur();
+      $("#fs_modal .dialog_go").focus();
     }
   });
   $(".deprecate_modal a").on("click", function() {
@@ -42348,4 +42348,15 @@ var _getDownloadLink = function() {
     }
     if (!TS.environment.supports_custom_scrollbar) TS.ui.utility.updateClosestMonkeyScroller(TS.client.ui.app_index.$scroller);
   };
+})();
+(function() {
+  "use strict";
+  TS.registerModule("ui.shared_invites_modal", {
+    onStart: function() {
+      $("body").on("click", '[data-action="admin_shared_invites_modal"]', function(e) {
+        if (TS.isPartiallyBooted()) return;
+        return TS.menu.startWithSharedInvitesMenu(e);
+      });
+    }
+  });
 })();

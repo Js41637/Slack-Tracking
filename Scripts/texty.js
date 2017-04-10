@@ -262,6 +262,9 @@
         }
         this._nextTextChangeCallbackSource = "api";
         this._quill.setText(text);
+        if (this.hasFocus()) {
+          this._quill.setSelection(this._quill.getLength(), 0);
+        }
       }
     }, {
       key: "insertText",
@@ -373,6 +376,9 @@
         }
         this._nextTextChangeCallbackSource = "silent";
         this._quill.setContents(state.contents);
+        if (this.hasFocus()) {
+          this._quill.setSelection(this._quill.getLength(), 0);
+        }
       }
     }, {
       key: "isCursorInPreBlock",
@@ -13580,7 +13586,7 @@
         }
         var nextText = data.text;
         var prevText = this._searchInFlight || this._prevInsertText || this._prevMatch.text;
-        var queryPunctuation = trailingPunctuation(this._prevMatch.text);
+        var queryPunctuation = trailingPunctuation(this._prevMatch.text, nextText);
         if (!(0, _utils.startsWith)(data.text, this._prevMatch.text)) nextText += queryPunctuation;
         var endIndex = this._prevMatch.index + prevText.length;
         var charAfterInsert = this.quill.getText(endIndex, 1);
@@ -13796,8 +13802,9 @@
     return TabComplete;
   }(Module);
   exports.default = TabComplete;
-  var trailingPunctuation = function trailingPunctuation(text) {
-    var match = TRAILING_PUNCTUATION_RX.exec(text);
+  var trailingPunctuation = function trailingPunctuation(searchText, insertText) {
+    if (insertText.indexOf(searchText) !== -1) return "";
+    var match = TRAILING_PUNCTUATION_RX.exec(searchText);
     return match ? match[0] : "";
   };
 }, function(module, exports) {

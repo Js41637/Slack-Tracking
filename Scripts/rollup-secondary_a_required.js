@@ -2636,7 +2636,7 @@
     }
     _$tipped_el.removeAttr("title");
     _$tipped_el.removeClass("ts_tip_lazy");
-    _$body.children("#ts_tip_float_floater").remove();
+    $("#ts_tip_float_floater").remove();
     if (_$tipped_el.hasClass("ts_tip_float")) {
       var classes = _$tipped_el.attr("class").split(/\s+/).filter(function(name) {
         if (name == "ts_tip_float") return false;
@@ -2650,7 +2650,8 @@
         tip_html: _$tipped_el.find(".ts_tip_tip").clone()[0].outerHTML
       });
       _$floater = $(floater_html);
-      _$body.append(_$floater);
+      var $container = $("#ts_tip_float_floater_container");
+      ($container.length ? $container : _$body).append(_$floater);
       _last_tim = setTimeout(function() {
         _$floater.removeClass("ts_tip_hidden");
         _positionFloater();
@@ -16739,7 +16740,7 @@ TS.registerModule("constants", {
       });
       _onMsgProvisional = _makeBufferHandler(function(e) {
         var imsg = JSON.parse(e.data);
-        if (imsg.type == "flannel" && imsg.subtype == "query_response") {
+        if (imsg.type == "flannel" && imsg.subtype == "user_query_response") {
           if (!imsg.reply_to) {
             TS.error("Received a pre-connection Flannel query response without a reply_to field: " + e.data);
             return;
@@ -18561,7 +18562,7 @@ TS.registerModule("constants", {
       return _model_ob_member_fetch_promises[model_ob.id];
     },
     fetchMemberCounts: function() {
-      return TS.ms.flannel.call("counts_request").then(function(response) {
+      return TS.ms.flannel.call("user_counts_request").then(function(response) {
         return response.counts;
       });
     },
@@ -18673,7 +18674,7 @@ TS.registerModule("constants", {
     },
     fetchMembershipCountsForChannel: function(channel_id) {
       if (!_.isString(channel_id)) throw new Error("Expected channel_id to be a string");
-      return TS.ms.flannel.call("counts_request", {
+      return TS.ms.flannel.call("user_counts_request", {
         channel: channel_id
       }).then(function(response) {
         return response.counts;
@@ -18684,7 +18685,7 @@ TS.registerModule("constants", {
   var _MAX_IDS_PER_QUERY = 100;
   var _model_ob_member_fetch_promises = {};
   var _fetchAndProcessObjects = function(query, objects, process_fn, limit) {
-    return TS.ms.flannel.call("query_request", query).then(function(resp) {
+    return TS.ms.flannel.call("user_query_request", query).then(function(resp) {
       if (_.get(resp, "results.length")) {
         objects = objects.concat(process_fn(resp.results));
         if (limit && (objects.length >= limit || !resp.next_marker)) {
@@ -32585,7 +32586,8 @@ TS.registerModule("constants", {
         show_statistics_link: TS.model.user.is_admin || !TS.model.team.prefs.stats_only_admins,
         is_our_app: TS.model.is_our_app,
         show_team_subdivider: TS.model.user.is_admin,
-        can_invite: TS.ui.admin_invites.canInvite()
+        can_invite: TS.ui.admin_invites.canInvite(),
+        is_in_invites_sidebar_exp: TS.boot_data.is_in_invites_sidebar_exp
       };
       var other_accounts_length = Object.keys(TS.boot_data.other_accounts).length;
       if (other_accounts_length) template_args.other_accounts = TS.boot_data.other_accounts;
@@ -32755,6 +32757,20 @@ TS.registerModule("constants", {
             });
             TS.menu._registerCurrentStatusInput();
             break;
+          case "team_invitations":
+            if (!TS.boot_data.is_in_invites_sidebar_exp) break;
+            TS.menu.$submenu_parent = $menu_content.find("#team_invitations");
+            TS.menu.$submenu_parent.submenu({
+              items_html: TS.templates.shared_invites_modal(),
+              onclick: function(e) {
+                if ($(e.target).data("action") == "admin_invites_modal") {
+                  e.preventDefault();
+                  TS.ui.admin_invites.start();
+                  TS.menu.end();
+                }
+              }
+            });
+            break;
           default:
         }
       }
@@ -32824,6 +32840,7 @@ TS.registerModule("constants", {
           });
           break;
         case "team_invitations":
+          if (TS.boot_data.is_in_invites_sidebar_exp) return;
           e.preventDefault();
           TS.ui.admin_invites.start();
           var params = TS.clog.parseParams(this.getAttribute("data-clog-params"));
@@ -33238,6 +33255,24 @@ TS.registerModule("constants", {
       });
       TS.menu.start(e);
       TS.menu.positionAt($(".searchable_member_list_filter"), 16, 56);
+    },
+    startWithSharedInvitesMenu: function(e, onclick) {
+      if (TS.menu.isRedundantClick(e)) return;
+      if (TS.menu.menu_is_showing) return;
+      TS.menu.buildIfNeeded();
+      var $el = $(e.target);
+      TS.menu.clean();
+      TS.menu.$menu_items.html(TS.templates.shared_invites_modal());
+      TS.menu.start(e);
+      if ($el.hasClass("channel_list_add_link_feat_link_in_sidebar")) {
+        TS.menu.positionAt($el, 0, -TS.menu.$menu.height() - 16);
+      } else {
+        TS.menu.positionAt($el, 0, 0);
+      }
+      TS.menu.$menu_items.on("click", '[data-action="admin_invites_modal"]', function() {
+        TS.menu.end();
+      });
+      TS.menu.keepInBounds();
     },
     positionAt: function($el, x_plus, y_plus) {
       x_plus = x_plus || 0;
@@ -40269,7 +40304,7 @@ var _on_esc;
         _go();
         e.preventDefault();
       }
-    } else if (e.which == TS.utility.keymap.esc && TS.utility.getActiveElementProp("NODENAME") == "BODY") {
+    } else if (e.which == TS.utility.keymap.esc) {
       if (_current_settings.disable_esc) return;
       if (_current_settings.esc_for_ok) {
         _go();
@@ -46445,6 +46480,7 @@ $.fn.togglify = function(settings) {
     instance.$input_container.on("click", ".lfs_token", _onTokenClick.bind(null, instance));
     instance.$input_container.on("mousedown", ".lfs_token", _onTokenMousedown.bind(null, instance));
     instance.$list_container.on("mousedown", _onListContainerMousedown.bind(null, instance));
+    instance.$list_container.on("mouseup", _onListContainerMouseup.bind(null, instance));
     instance.$list_container.on("mousemove", ".lfs_item", _onItemMousemove.bind(null, instance));
     instance.$list_container.on("mouseleave", ".lfs_item.active", _onActiveItemMouseleave.bind(null, instance));
     var item_click_event = _.get(TSSSB, "env.desktop_app_version") === null ? "click" : "mousedown";
@@ -47365,6 +47401,9 @@ $.fn.togglify = function(settings) {
   };
   var _onListContainerMousedown = function(instance, e) {
     if (e.which === 1) instance._prevent_blur = true;
+  };
+  var _onListContainerMouseup = function(instance) {
+    if (instance._prevent_blur) instance.$filter_input.focus();
   };
   var _onItemMousemove = function(instance, e) {
     if (instance.disabled) return;
@@ -65499,8 +65538,8 @@ $.fn.togglify = function(settings) {
             _d = oi(function(e, t) {
               return e - t;
             }, 0);
-          return n.after = Ru, n.ary = Pu, n.assign = Op, n.assignIn = Ip, n.assignInWith = Ap, n.assignWith = Np, n.at = Lp, n.before = Mu, n.bind = cp, n.bindAll = nd, n.bindKey = fp, n.castArray = Bu, n.chain = eu, n.chunk = ua, n.compact = sa, n.concat = la, n.cond = Ml, n.conforms = Ol, n.constant = Il, n.countBy = tp, n.create = Is, n.curry = Ou, n.curryRight = Iu, n.debounce = Au, n.defaults = Dp, n.defaultsDeep = jp, n.defer = pp, n.delay = dp, n.difference = jf, n.differenceBy = zf, n.differenceWith = Uf, n.drop = ca, n.dropRight = fa, n.dropRightWhile = pa, n.dropWhile = da, n.fill = ha, n.filter = fu, n.flatMap = pu, n.flatMapDeep = du, n.flatMapDepth = hu, n.flatten = ga, n.flattenDeep = _a, n.flattenDepth = ya, n.flip = Nu, n.flow = rd, n.flowRight = od, n.fromPairs = ba, n.functions = Us, n.functionsIn = Ws, n.groupBy = op, n.initial = Sa, n.intersection = Wf, n.intersectionBy = Ff, n.intersectionWith = Hf, n.invert = zp, n.invertBy = Up, n.invokeMap = ip, n.iteratee = Ll, n.keyBy = ap, n.keys = Gs, n.keysIn = Vs, n.map = _u, n.mapKeys = qs, n.mapValues = Ks, n.matches = Dl, n.matchesProperty = jl, n.memoize = Lu, n.merge = Fp, n.mergeWith = Hp, n.method = id, n.methodOf = ad, n.mixin = zl, n.negate = Du, n.nthArg = Fl, n.omit = Bp, n.omitBy = Ys, n.once = ju, n.orderBy = yu, n.over = ud, n.overArgs = hp, n.overEvery = sd, n.overSome = ld, n.partial = vp, n.partialRight = mp, n.partition = up, n.pick = Gp, n.pickBy = $s, n.property = Hl, n.propertyOf = Bl, n.pull = Bf, n.pullAll = Ra, n.pullAllBy = Pa, n.pullAllWith = Ma, n.pullAt = Gf, n.range = cd, n.rangeRight = fd, n.rearg = gp, n.reject = Cu, n.remove = Oa, n.rest = zu, n.reverse = Ia, n.sampleSize = xu, n.set = Xs, n.setWith = Zs, n.shuffle = ku, n.slice = Aa, n.sortBy = sp, n.sortedUniq = Wa, n.sortedUniqBy = Fa, n.split = yl, n.spread = Uu, n.tail = Ha, n.take = Ba, n.takeRight = Ga, n.takeRightWhile = Va, n.takeWhile = qa, n.tap = tu, n.throttle = Wu, n.thru = nu, n.toArray = xs, n.toPairs = Vp, n.toPairsIn = qp, n.toPath = Ql, n.toPlainObject = Ps, n.transform = Js, n.unary = Fu, n.union = Vf, n.unionBy = qf, n.unionWith = Kf, n.uniq = Ka, n.uniqBy = Ya, n.uniqWith = $a, n.unset = el, n.unzip = Qa, n.unzipWith = Xa, n.update = tl, n.updateWith = nl, n.values = rl, n.valuesIn = ol, n.without = Yf, n.words = Pl, n.wrap = Hu, n.xor = $f, n.xorBy = Qf, n.xorWith = Xf, n.zip = Zf, n.zipObject = Za, n.zipObjectDeep = Ja, n.zipWith = Jf, n.entries = Vp, n.entriesIn = qp, n.extend = Ip, n.extendWith = Ap, zl(n, n), n.add = pd, n.attempt = td, n.camelCase = Kp, n.capitalize = sl, n.ceil = dd, n.clamp = il, n.clone = Gu, n.cloneDeep = qu, n.cloneDeepWith = Ku, n.cloneWith = Vu, n.conformsTo = Yu, n.deburr = ll, n.defaultTo = Al, n.divide = hd, n.endsWith = cl, n.eq = $u, n.escape = fl, n.escapeRegExp = pl, n.every = cu, n.find = np, n.findIndex = va, n.findKey = As, n.findLast = rp, n.findLastIndex = ma, n.findLastKey = Ns, n.floor = vd, n.forEach = vu, n.forEachRight = mu, n.forIn = Ls, n.forInRight = Ds, n.forOwn = js, n.forOwnRight = zs, n.get = Fs, n.gt = _p, n.gte = yp, n.has = Hs, n.hasIn = Bs, n.head = wa, n.identity = Nl, n.includes = gu, n.indexOf = Ca, n.inRange = al, n.invoke = Wp, n.isArguments = bp, n.isArray = wp, n.isArrayBuffer = Cp, n.isArrayLike = Qu, n.isArrayLikeObject = Xu, n.isBoolean = Zu, n.isBuffer = Sp, n.isDate = xp, n.isElement = Ju, n.isEmpty = es, n.isEqual = ts, n.isEqualWith = ns, n.isError = rs, n.isFinite = os, n.isFunction = is, n.isInteger = as, n.isLength = us, n.isMap = kp, n.isMatch = cs, n.isMatchWith = fs, n.isNaN = ps, n.isNative = ds, n.isNil = vs, n.isNull = hs, n.isNumber = ms, n.isObject = ss, n.isObjectLike = ls, n.isPlainObject = gs, n.isRegExp = Tp, n.isSafeInteger = _s, n.isSet = Ep, n.isString = ys, n.isSymbol = bs, n.isTypedArray = Rp, n.isUndefined = ws, n.isWeakMap = Cs, n.isWeakSet = Ss, n.join = xa, n.kebabCase = Yp, n.last = ka, n.lastIndexOf = Ta, n.lowerCase = $p, n.lowerFirst = Qp, n.lt = Pp,
-            n.lte = Mp, n.max = Zl, n.maxBy = Jl, n.mean = ec, n.meanBy = tc, n.min = nc, n.minBy = rc, n.stubArray = Gl, n.stubFalse = Vl, n.stubObject = ql, n.stubString = Kl, n.stubTrue = Yl, n.multiply = md, n.nth = Ea, n.noConflict = Ul, n.noop = Wl, n.now = lp, n.pad = dl, n.padEnd = hl, n.padStart = vl, n.parseInt = ml, n.random = ul, n.reduce = bu, n.reduceRight = wu, n.repeat = gl, n.replace = _l, n.result = Qs, n.round = gd, n.runInContext = e, n.sample = Su, n.size = Tu, n.snakeCase = Xp, n.some = Eu, n.sortedIndex = Na, n.sortedIndexBy = La, n.sortedIndexOf = Da, n.sortedLastIndex = ja, n.sortedLastIndexBy = za, n.sortedLastIndexOf = Ua, n.startCase = Zp, n.startsWith = bl, n.subtract = _d, n.sum = oc, n.sumBy = ic, n.template = wl, n.times = $l, n.toFinite = ks, n.toInteger = Ts, n.toLength = Es, n.toLower = Cl, n.toNumber = Rs, n.toSafeInteger = Ms, n.toString = Os, n.toUpper = Sl, n.trim = xl, n.trimEnd = kl, n.trimStart = Tl, n.truncate = El, n.unescape = Rl, n.uniqueId = Xl, n.upperCase = Jp, n.upperFirst = ed, n.each = vu, n.eachRight = mu, n.first = wa, zl(n, function() {
+          return n.after = Ru, n.ary = Pu, n.assign = Op, n.assignIn = Ip, n.assignInWith = Ap, n.assignWith = Np, n.at = Lp, n.before = Mu, n.bind = cp, n.bindAll = nd, n.bindKey = fp, n.castArray = Bu, n.chain = eu, n.chunk = ua, n.compact = sa, n.concat = la, n.cond = Ml, n.conforms = Ol, n.constant = Il, n.countBy = tp, n.create = Is, n.curry = Ou, n.curryRight = Iu, n.debounce = Au, n.defaults = Dp, n.defaultsDeep = jp, n.defer = pp, n.delay = dp, n.difference = jf, n.differenceBy = zf, n.differenceWith = Uf, n.drop = ca, n.dropRight = fa, n.dropRightWhile = pa, n.dropWhile = da, n.fill = ha, n.filter = fu, n.flatMap = pu, n.flatMapDeep = du, n.flatMapDepth = hu, n.flatten = ga, n.flattenDeep = _a, n.flattenDepth = ya, n.flip = Nu, n.flow = rd, n.flowRight = od, n.fromPairs = ba, n.functions = Us, n.functionsIn = Ws, n.groupBy = op, n.initial = Sa, n.intersection = Wf, n.intersectionBy = Ff, n.intersectionWith = Hf, n.invert = zp, n.invertBy = Up, n.invokeMap = ip, n.iteratee = Ll, n.keyBy = ap, n.keys = Gs, n.keysIn = Vs, n.map = _u, n.mapKeys = qs, n.mapValues = Ks, n.matches = Dl, n.matchesProperty = jl, n.memoize = Lu, n.merge = Fp, n.mergeWith = Hp, n.method = id, n.methodOf = ad, n.mixin = zl, n.negate = Du, n.nthArg = Fl, n.omit = Bp, n.omitBy = Ys, n.once = ju, n.orderBy = yu, n.over = ud, n.overArgs = hp, n.overEvery = sd, n.overSome = ld, n.partial = vp, n.partialRight = mp, n.partition = up, n.pick = Gp, n.pickBy = $s, n.property = Hl, n.propertyOf = Bl, n.pull = Bf, n.pullAll = Ra, n.pullAllBy = Pa, n.pullAllWith = Ma, n.pullAt = Gf, n.range = cd, n.rangeRight = fd, n.rearg = gp, n.reject = Cu, n.remove = Oa, n.rest = zu, n.reverse = Ia, n.sampleSize = xu, n.set = Xs, n.setWith = Zs, n.shuffle = ku, n.slice = Aa, n.sortBy = sp, n.sortedUniq = Wa, n.sortedUniqBy = Fa, n.split = yl, n.spread = Uu, n.tail = Ha, n.take = Ba, n.takeRight = Ga, n.takeRightWhile = Va, n.takeWhile = qa, n.tap = tu, n.throttle = Wu, n.thru = nu, n.toArray = xs, n.toPairs = Vp, n.toPairsIn = qp, n.toPath = Ql, n.toPlainObject = Ps, n.transform = Js, n.unary = Fu, n.union = Vf, n.unionBy = qf, n.unionWith = Kf, n.uniq = Ka, n.uniqBy = Ya, n.uniqWith = $a, n.unset = el, n.unzip = Qa, n.unzipWith = Xa, n.update = tl, n.updateWith = nl, n.values = rl, n.valuesIn = ol, n.without = Yf, n.words = Pl, n.wrap = Hu, n.xor = $f, n.xorBy = Qf, n.xorWith = Xf, n.zip = Zf, n.zipObject = Za, n.zipObjectDeep = Ja, n.zipWith = Jf, n.entries = Vp, n.entriesIn = qp, n.extend = Ip, n.extendWith = Ap, zl(n, n), n.add = pd, n.attempt = td, n.camelCase = Kp, n.capitalize = sl, n.ceil = dd,
+            n.clamp = il, n.clone = Gu, n.cloneDeep = qu, n.cloneDeepWith = Ku, n.cloneWith = Vu, n.conformsTo = Yu, n.deburr = ll, n.defaultTo = Al, n.divide = hd, n.endsWith = cl, n.eq = $u, n.escape = fl, n.escapeRegExp = pl, n.every = cu, n.find = np, n.findIndex = va, n.findKey = As, n.findLast = rp, n.findLastIndex = ma, n.findLastKey = Ns, n.floor = vd, n.forEach = vu, n.forEachRight = mu, n.forIn = Ls, n.forInRight = Ds, n.forOwn = js, n.forOwnRight = zs, n.get = Fs, n.gt = _p, n.gte = yp, n.has = Hs, n.hasIn = Bs, n.head = wa, n.identity = Nl, n.includes = gu, n.indexOf = Ca, n.inRange = al, n.invoke = Wp, n.isArguments = bp, n.isArray = wp, n.isArrayBuffer = Cp, n.isArrayLike = Qu, n.isArrayLikeObject = Xu, n.isBoolean = Zu, n.isBuffer = Sp, n.isDate = xp, n.isElement = Ju, n.isEmpty = es, n.isEqual = ts, n.isEqualWith = ns, n.isError = rs, n.isFinite = os, n.isFunction = is, n.isInteger = as, n.isLength = us, n.isMap = kp, n.isMatch = cs, n.isMatchWith = fs, n.isNaN = ps, n.isNative = ds, n.isNil = vs, n.isNull = hs, n.isNumber = ms, n.isObject = ss, n.isObjectLike = ls, n.isPlainObject = gs, n.isRegExp = Tp, n.isSafeInteger = _s, n.isSet = Ep, n.isString = ys, n.isSymbol = bs, n.isTypedArray = Rp, n.isUndefined = ws, n.isWeakMap = Cs, n.isWeakSet = Ss, n.join = xa, n.kebabCase = Yp, n.last = ka, n.lastIndexOf = Ta, n.lowerCase = $p, n.lowerFirst = Qp, n.lt = Pp, n.lte = Mp, n.max = Zl, n.maxBy = Jl, n.mean = ec, n.meanBy = tc, n.min = nc, n.minBy = rc, n.stubArray = Gl, n.stubFalse = Vl, n.stubObject = ql, n.stubString = Kl, n.stubTrue = Yl, n.multiply = md, n.nth = Ea, n.noConflict = Ul, n.noop = Wl, n.now = lp, n.pad = dl, n.padEnd = hl, n.padStart = vl, n.parseInt = ml, n.random = ul, n.reduce = bu, n.reduceRight = wu, n.repeat = gl, n.replace = _l, n.result = Qs, n.round = gd, n.runInContext = e, n.sample = Su, n.size = Tu, n.snakeCase = Xp, n.some = Eu, n.sortedIndex = Na, n.sortedIndexBy = La, n.sortedIndexOf = Da, n.sortedLastIndex = ja, n.sortedLastIndexBy = za, n.sortedLastIndexOf = Ua, n.startCase = Zp, n.startsWith = bl, n.subtract = _d, n.sum = oc, n.sumBy = ic, n.template = wl, n.times = $l, n.toFinite = ks, n.toInteger = Ts, n.toLength = Es, n.toLower = Cl, n.toNumber = Rs, n.toSafeInteger = Ms, n.toString = Os, n.toUpper = Sl, n.trim = xl, n.trimEnd = kl, n.trimStart = Tl, n.truncate = El, n.unescape = Rl, n.uniqueId = Xl, n.upperCase = Jp, n.upperFirst = ed, n.each = vu, n.eachRight = mu, n.first = wa, zl(n, function() {
               var e = {};
               return nr(n, function(t, r) {
                 bc.call(n.prototype, r) || (e[r] = t);
@@ -71870,7 +71909,8 @@ $.fn.togglify = function(settings) {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
-          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0),
+            Object.defineProperty(e, r.key, r);
         }
       }
       return function(t, n, r) {
@@ -75195,8 +75235,7 @@ $.fn.togglify = function(settings) {
           v = e.getUpdateQueue(),
           g = i(h),
           _ = this._constructComponent(g, f, p, v);
-        g || null != _ && null != _.render ? a(h) ? this._compositeType = y.PureClass : this._compositeType = y.ImpureClass : (c = _, o(h, c), null === _ || _ === !1 || l.isValidElement(_) ? void 0 : u("105", h.displayName || h.name || "Component"), _ = new r(h), this._compositeType = y.StatelessFunctional),
-          _.props = f, _.context = p, _.refs = m, _.updater = v, this._instance = _, d.set(_, this);
+        g || null != _ && null != _.render ? a(h) ? this._compositeType = y.PureClass : this._compositeType = y.ImpureClass : (c = _, o(h, c), null === _ || _ === !1 || l.isValidElement(_) ? void 0 : u("105", h.displayName || h.name || "Component"), _ = new r(h), this._compositeType = y.StatelessFunctional), _.props = f, _.context = p, _.refs = m, _.updater = v, this._instance = _, d.set(_, this);
         var w = _.state;
         void 0 === w && (_.state = w = null), "object" != typeof w || Array.isArray(w) ? u("106", this.getName() || "ReactCompositeComponent") : void 0, this._pendingStateQueue = null, this._pendingReplaceState = !1, this._pendingForceUpdate = !1;
         var C;
@@ -76521,7 +76560,8 @@ $.fn.togglify = function(settings) {
         },
         _reconcilerUpdateChildren: function(e, t, n, r, o, i) {
           var a, u = 0;
-          return a = h(t, u), d.updateChildren(e, a, n, r, o, this, this._hostContainerInfo, i, u), a;
+          return a = h(t, u), d.updateChildren(e, a, n, r, o, this, this._hostContainerInfo, i, u),
+            a;
         },
         mountChildren: function(e, t, n) {
           var r = this._reconcilerInstantiateChildren(e, t, n);
@@ -76572,8 +76612,7 @@ $.fn.togglify = function(settings) {
                 m === g ? (c = s(c, this.moveChild(m, v, f, d)), d = Math.max(m._mountIndex, d), m._mountIndex = f) : (m && (d = Math.max(m._mountIndex, d)), c = s(c, this._mountChildAtIndex(g, i[h], v, f, t, n)), h++), f++, v = p.getHostNode(g);
               }
             for (u in o) o.hasOwnProperty(u) && (c = s(c, this._unmountChild(r[u], o[u])));
-            c && l(this, c),
-              this._renderedChildren = a;
+            c && l(this, c), this._renderedChildren = a;
           }
         },
         unmountChildren: function(e) {
@@ -78124,28 +78163,29 @@ $.fn.togglify = function(settings) {
             },
             P = w > u ? this._scrollbarSize : 0,
             M = C > d ? this._scrollbarSize : 0;
-          return R.overflowX = C + P <= d ? "hidden" : "auto", R.overflowY = w + M <= u ? "hidden" : "auto", m.a.createElement("div", {
-            ref: function(t) {
-              e._scrollingContainer = t;
-            },
-            "aria-label": this.props["aria-label"],
-            className: _()("ReactVirtualized__Collection", a),
-            id: l,
-            onScroll: this._onScroll,
-            role: "grid",
-            style: o()({}, R, f),
-            tabIndex: 0
-          }, r > 0 && m.a.createElement("div", {
-            className: "ReactVirtualized__Collection__innerScrollContainer",
-            style: {
-              height: w,
-              maxHeight: w,
-              maxWidth: C,
-              overflow: "hidden",
-              pointerEvents: v ? "none" : "",
-              width: C
-            }
-          }, E), 0 === r && c());
+          return R.overflowX = C + P <= d ? "hidden" : "auto",
+            R.overflowY = w + M <= u ? "hidden" : "auto", m.a.createElement("div", {
+              ref: function(t) {
+                e._scrollingContainer = t;
+              },
+              "aria-label": this.props["aria-label"],
+              className: _()("ReactVirtualized__Collection", a),
+              id: l,
+              onScroll: this._onScroll,
+              role: "grid",
+              style: o()({}, R, f),
+              tabIndex: 0
+            }, r > 0 && m.a.createElement("div", {
+              className: "ReactVirtualized__Collection__innerScrollContainer",
+              style: {
+                height: w,
+                maxHeight: w,
+                maxWidth: C,
+                overflow: "hidden",
+                pointerEvents: v ? "none" : "",
+                width: C
+              }
+            }, E), 0 === r && c());
         }
       }, {
         key: "shouldComponentUpdate",

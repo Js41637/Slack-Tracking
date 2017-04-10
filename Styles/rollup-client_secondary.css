@@ -5442,7 +5442,7 @@ ts-thread ts-message.new_reply .special_formatting_quote .quote_bar {
 
 .client_resize_optimizations #archives_msgs_div div.dynamic_content_max_width,
 .client_resize_optimizations #msgs_div div.dynamic_content_max_width {
-  word-break: break-all
+  word-break: break-word
 }
 
 .inline_attachment .attachment_author_icon,
@@ -28813,4 +28813,80 @@ html:not(.supports_sticky_position) #app_index_scroller_div {
   margin: 2rem auto;
   max-width: 535px;
   line-height: 22.5px
+}
+
+@font-face {
+  font-family: appleLogo;
+  src: local("Lucida Grande");
+  unicode-range: U+F8FF
+}
+
+.shared_invites_container {
+  padding-bottom: 2.5rem
+}
+
+.shared_invite_link_container {
+  padding: 1.5rem 2rem;
+  border-radius: .5rem;
+  width: 110%;
+  align-self: center
+}
+
+.shared_invite_link_label {
+  font-weight: 700;
+  font-size: 15px
+}
+
+.shared_invite_link_input_container {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex;
+  background: #fff;
+  border: 1px solid #BABBBF;
+  border-radius: 4px;
+  padding: .3rem .3rem .3rem .5rem;
+  height: auto;
+  margin-top: .5rem
+}
+
+.shared_invite_link_input_container.focus {
+  border-color: #2780F8
+}
+
+.shared_invite_link_input_container .shared_invite_link_input {
+  -ms-flex: 1 1 auto;
+  flex-grow: 1;
+  border: none;
+  padding: 0;
+  margin-bottom: 0;
+  cursor: pointer;
+  padding-right: .4rem;
+  min-height: 2.25rem
+}
+
+.shared_invite_link_input_container .shared_invite_link_input:focus {
+  box-shadow: none
+}
+
+.shared_invite_link_input_container .shared_invite_link_copy_btn {
+  -ms-flex: 0 0 auto;
+  flex-shrink: 0
+}
+
+.shared_invite_settings {
+  margin-top: .5rem;
+  font-size: 14px
+}
+
+#shared_invite_link_modal {
+  width: 276px;
+  padding: 0 .9375rem
+}
+
+#shared_invite_link_modal_footer {
+  margin: .9375rem 0;
+  padding-top: .9375rem;
+  border-top: 1px solid #E8E8E8
 }

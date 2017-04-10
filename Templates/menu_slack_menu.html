@@ -59,9 +59,18 @@
 
   <ul class="menu_list">
     {{#if can_invite}}
-      <li id="team_invitations" role="menuitem" data-clog-event="INVITEMODAL_ACTION" data-clog-params="action=open_modal,trigger=click_team_menu_invite_btn">
-        <a class="overflow_ellipsis" href="/admin/invites" target="{{newWindowName}}">{{#t}}Invite people{{/t}}</a>
-      </li>
+      {{#if is_in_invites_sidebar_exp}}
+        <li id="team_invitations" role="menuitem" class="has_submenu">
+          <a class="overflow_ellipsis">
+            {{#t}}Invite people{{/t}}
+            <ts-icon class="ts_icon_caret_right submenu_caret"></ts-icon>
+          </a>
+        </li>
+      {{else}}
+        <li id="team_invitations" role="menuitem" data-clog-event="INVITEMODAL_ACTION" data-clog-params="action=open_modal,trigger=click_team_menu_invite_btn">
+          <a class="overflow_ellipsis" href="/admin/invites" target="{{newWindowName}}">{{#t}}Invite people{{/t}}</a>
+        </li>
+      {{/if}}
     {{/if}}
 
     {{#pageNeedsEnterprise}}
