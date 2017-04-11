@@ -25854,16 +25854,52 @@
   var _members_lfs_identifier = "1.";
   var _groups_lfs_identifier = "0.";
   var _who_can_post_in_shared_channels_member_searcher = {};
+  var _who_can_thread_in_shared_channels_member_searcher = {};
   var _who_can_post_user_group_searcher = {
     count: 100,
     include_dangling: 1,
     items: []
   };
-  var _is_posting_privilege_lfs_started = false;
-  var _channel_prefs;
+  var _who_can_thread_user_group_searcher = {
+    count: 100,
+    include_dangling: 1,
+    items: []
+  };
+  var _is_posting_privilege_who_can_post_lfs_started = false;
+  var _is_posting_privilege_who_can_thread_lfs_started = false;
+  var _channel_prefs_who_can_post;
+  var _channel_prefs_who_can_thread;
   var _manage_posting_who_can_post_selected = {
     user: [],
     subteam: []
+  };
+  var _manage_posting_who_can_thread_selected = {
+    user: [],
+    subteam: []
+  };
+  var _formatDataForWhoCanPostApi = function(radios_selector, lfs_selector) {
+    var formatted_value;
+    var radio_val = _$current_option.find(radios_selector + ":checked").val();
+    var lfs_values = [];
+    if (radio_val === "multi") {
+      lfs_values = _$current_option.find(lfs_selector).lazyFilterSelect("value");
+      if (lfs_values.length) {
+        radio_val = "owner";
+      } else {
+        radio_val = "admin";
+      }
+    }
+    formatted_value = "type:" + radio_val;
+    if (lfs_values.length) {
+      lfs_values.forEach(function(value) {
+        if (value.member) {
+          formatted_value += ",user:" + value.member.id;
+        } else if (value.user_group) {
+          formatted_value += ",subteam:" + value.user_group.id;
+        }
+      });
+    }
+    return formatted_value;
   };
   var _formatDataForWhoCanPostTemplate = function(data) {
     var settings = _.merge({}, data);
@@ -26064,18 +26100,80 @@
   });
   var _maybeStartPostingPrivilegeWhoCanPostLFS = function() {
     var val = _$current_option.find("[name=who_can_post]:checked").val();
-    if (!_is_posting_privilege_lfs_started && val === "multi") {
+    if (!_is_posting_privilege_who_can_post_lfs_started && val === "multi") {
       _$current_option.find("#lfs_channel_posting").hide().lazyFilterSelect(_posting_privilege_lfs_who_can_post_options);
-      _is_posting_privilege_lfs_started = true;
+      _is_posting_privilege_who_can_post_lfs_started = true;
+    }
+  };
+  var _promiseToGetWhoCanThreadListData = function(query, page_number) {
+    if (query.charAt(0) === "@") query = query.substring(1);
+    var promises = [_promiseToGetMembers(_who_can_thread_in_shared_channels_member_searcher, _manage_posting_who_can_thread_selected, query, page_number), _promiseToGetUserGroups(_who_can_thread_user_group_searcher, _manage_posting_who_can_thread_selected, query, page_number)];
+    return Promise.all(promises).then(function(responses) {
+      var response = {
+        _replace_all_items: true,
+        items: []
+      };
+      var members = responses[0];
+      var groups = responses[1];
+      if (groups._items.length) {
+        response.items.push({
+          label: TS.i18n.t("User Groups", "channel_options")(),
+          children: groups._items
+        });
+      }
+      if (members.items.length) {
+        response.items.push({
+          label: TS.i18n.t("Members", "channel_options")(),
+          children: members.items
+        });
+      }
+      return response;
+    });
+  };
+  var _posting_privilege_lfs_who_can_thread_options = _.assign({}, _posting_privilege_lfs_base_options, {
+    data_promise: _promiseToGetWhoCanThreadListData,
+    onItemAdded: function(item) {
+      if (item.member) {
+        _manage_posting_who_can_thread_selected.user.push(item.member.id);
+        _manage_posting_who_can_thread_selected.user = _.uniq(_manage_posting_who_can_thread_selected.user);
+      } else if (item.user_group) {
+        _manage_posting_who_can_thread_selected.subteam.push(item.user_group.id);
+        _manage_posting_who_can_thread_selected.subteam = _.uniq(_manage_posting_who_can_thread_selected.subteam);
+      }
+      _toggleOptionGoButton(!_manage_posting_who_can_thread_selected.user.length && !_manage_posting_who_can_thread_selected.subteam.length);
+    },
+    onItemRemoved: function(item) {
+      if (item.member) {
+        _manage_posting_who_can_thread_selected.user = _manage_posting_who_can_thread_selected.user.filter(function(id) {
+          return id !== item.member.id;
+        });
+      } else if (item.user_group) {
+        _manage_posting_who_can_thread_selected.subteam = _manage_posting_who_can_thread_selected.subteam.filter(function(id) {
+          return id !== item.user_group.id;
+        });
+      }
+      _toggleOptionGoButton(!_manage_posting_who_can_thread_selected.user.length && !_manage_posting_who_can_thread_selected.subteam.length);
+    }
+  });
+  var _maybeStartPostingPrivilegeWhoCanThreadLFS = function() {
+    var val = _$current_option.find("[name=who_can_thread]:checked").val();
+    if (!_is_posting_privilege_who_can_thread_lfs_started && val === "multi") {
+      _$current_option.find("#lfs_channel_threading").hide().lazyFilterSelect(_posting_privilege_lfs_who_can_thread_options);
+      _is_posting_privilege_who_can_thread_lfs_started = true;
     }
   };
   var _showPostingPrivileges = function(model_ob) {
-    _channel_prefs = null;
+    _channel_prefs_who_can_post = null;
     _manage_posting_who_can_post_selected = {
       subteam: [],
       user: []
     };
-    _is_posting_privilege_lfs_started = false;
+    _is_posting_privilege_who_can_post_lfs_started = false;
+    _manage_posting_who_can_thread_selected = {
+      subteam: [],
+      user: []
+    };
+    _is_posting_privilege_who_can_thread_lfs_started = false;
     var header_html;
     if (model_ob.is_channel || model_ob.is_group) {
       header_html = TS.i18n.t("Manage posting privileges for {channel_name}", "channel_options")({
@@ -26092,35 +26190,16 @@
     _hideOptionButtons();
     _setOptionGoText(TS.i18n.t("Save Changes", "channel_options")());
     _current_option_go_callback = function() {
-      var who_can_post_formatted_value;
-      var who_can_post_val = _$current_option.find("[name=who_can_post]:checked").val();
-      var who_can_post_lfs_values = [];
-      if (who_can_post_val === "multi") {
-        who_can_post_lfs_values = _$current_option.find("#lfs_channel_posting").lazyFilterSelect("value");
-        if (who_can_post_lfs_values.length) {
-          who_can_post_val = "owner";
-        } else {
-          who_can_post_val = "admin";
-        }
-      }
-      who_can_post_formatted_value = "type:" + who_can_post_val;
-      if (who_can_post_lfs_values.length) {
-        who_can_post_lfs_values.forEach(function(value) {
-          if (value.member) {
-            who_can_post_formatted_value += ",user:" + value.member.id;
-          } else if (value.user_group) {
-            who_can_post_formatted_value += ",subteam:" + value.user_group.id;
-          }
-        });
-      }
-      var who_can_post_calling_args = {
-        prefs: JSON.stringify({
-          who_can_post: who_can_post_formatted_value
-        }),
+      var who_can_post_formatted_value = _formatDataForWhoCanPostApi("[name=who_can_post]", "#lfs_channel_posting");
+      var prefs = {
+        who_can_post: who_can_post_formatted_value
+      };
+      var calling_args = {
+        prefs: JSON.stringify(prefs),
         channel_id: model_ob.id
       };
       if (TS.ui.channel_options_dialog.ladda) TS.ui.channel_options_dialog.ladda.start();
-      TS.api.callImmediately("channels.prefs.set", who_can_post_calling_args, function(ok, data) {
+      TS.api.callImmediately("channels.prefs.set", calling_args, function(ok, data) {
         if (TS.ui.channel_options_dialog.ladda) TS.ui.channel_options_dialog.ladda.stop();
         if (!ok) {
           var str = TS.i18n.t("Failed! {error}", "channel_options")({
@@ -26133,21 +26212,34 @@
       });
     };
     _showOptionSection(true);
-    var channel_request_params = {
+    var promises = [TS.api.callImmediately("channels.prefs.get", {
       pref_name: "who_can_post",
       channel_id: model_ob.id
-    };
-    TS.api.callImmediately("channels.prefs.get", channel_request_params).then(function(response) {
-      _channel_prefs = response.data.pref_value;
-      if (_channel_prefs.user) _manage_posting_who_can_post_selected.user = _channel_prefs.user;
-      if (_channel_prefs.subteam) _manage_posting_who_can_post_selected.subteam = _channel_prefs.subteam;
+    })];
+    if (TS.boot_data.feature_default_shared_channels) {
+      promises.push(TS.api.callImmediately("channels.prefs.get", {
+        pref_name: "who_can_thread",
+        channel_id: model_ob.id
+      }));
+    }
+    Promise.all(promises).then(function(responses) {
+      _channel_prefs_who_can_post = responses[0].data.pref_value;
+      if (_channel_prefs_who_can_post.user) _manage_posting_who_can_post_selected.user = _channel_prefs_who_can_post.user;
+      if (_channel_prefs_who_can_post.subteam) _manage_posting_who_can_post_selected.subteam = _channel_prefs_who_can_post.subteam;
       var template_args = {
-        who_can_post: _formatDataForWhoCanPostTemplate(_channel_prefs),
+        who_can_post: _formatDataForWhoCanPostTemplate(_channel_prefs_who_can_post),
         hide_loading_overlay: true
       };
+      if (TS.boot_data.feature_default_shared_channels) {
+        _channel_prefs_who_can_thread = responses[1].data.pref_value;
+        if (_channel_prefs_who_can_thread.user) _manage_posting_who_can_thread_selected.user = _channel_prefs_who_can_thread.user;
+        if (_channel_prefs_who_can_thread.subteam) _manage_posting_who_can_thread_selected.subteam = _channel_prefs_who_can_thread.subteam;
+        template_args.who_can_thread = _formatDataForWhoCanPostTemplate(_channel_prefs_who_can_thread);
+      }
       _setOptionContentHtml(TS.templates.channel_options_posting_privileges(template_args));
       _bindManagePostingPrivilegeUI();
       _maybeStartPostingPrivilegeWhoCanPostLFS();
+      if (TS.boot_data.feature_default_shared_channels) _maybeStartPostingPrivilegeWhoCanThreadLFS();
       _showOptionButtons();
     });
   };
@@ -26162,6 +26254,18 @@
         _toggleOptionGoButton(false);
       }
     });
+    if (TS.boot_data.feature_default_shared_channels) {
+      _$current_option.find("[name=who_can_thread]").on("change", function() {
+        var val = $(this).val();
+        _$current_option.find(".lfs_channel_threading_selector").toggleClass("hidden", val !== "multi");
+        if (val === "multi") {
+          _toggleOptionGoButton(true);
+          _maybeStartPostingPrivilegeWhoCanThreadLFS();
+        } else {
+          _toggleOptionGoButton(false);
+        }
+      });
+    }
   };
   var _showDataRetention = function(model_ob) {
     var header_html;
