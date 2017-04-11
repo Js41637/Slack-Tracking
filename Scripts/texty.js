@@ -697,9 +697,6 @@
   module.exports = _quill2.default;
 }, function(module, exports, __webpack_require__) {
   "use strict";
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
   var container_1 = __webpack_require__(4);
   var format_1 = __webpack_require__(8);
   var leaf_1 = __webpack_require__(13);
@@ -734,31 +731,21 @@
       Store: store_1.default
     }
   };
-  exports.default = Parchment;
-}, function(module, exports, __webpack_require__) {
-  "use strict";
-  var __extends = this && this.__extends || function() {
-    var extendStatics = Object.setPrototypeOf || {
-      __proto__: []
-    }
-    instanceof Array && function(d, b) {
-      d.__proto__ = b;
-    } || function(d, b) {
-      for (var p in b)
-        if (b.hasOwnProperty(p)) d[p] = b[p];
-    };
-    return function(d, b) {
-      extendStatics(d, b);
-
-      function __() {
-        this.constructor = d;
-      }
-      d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __);
-    };
-  }();
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
+  exports.default = Parchment;
+}, function(module, exports, __webpack_require__) {
+  "use strict";
+  var __extends = this && this.__extends || function(d, b) {
+    for (var p in b)
+      if (b.hasOwnProperty(p)) d[p] = b[p];
+
+    function __() {
+      this.constructor = d;
+    }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __);
+  };
   var linked_list_1 = __webpack_require__(5);
   var shadow_1 = __webpack_require__(6);
   var Registry = __webpack_require__(7);
@@ -984,12 +971,12 @@
     }
     return blot;
   }
-  exports.default = ContainerBlot;
-}, function(module, exports) {
-  "use strict";
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
+  exports.default = ContainerBlot;
+}, function(module, exports) {
+  "use strict";
   var LinkedList = function() {
     function LinkedList() {
       this.head = this.tail = undefined;
@@ -1113,12 +1100,12 @@
     };
     return LinkedList;
   }();
-  exports.default = LinkedList;
-}, function(module, exports, __webpack_require__) {
-  "use strict";
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
+  exports.default = LinkedList;
+}, function(module, exports, __webpack_require__) {
+  "use strict";
   var Registry = __webpack_require__(7);
   var ShadowBlot = function() {
     function ShadowBlot(domNode) {
@@ -1259,31 +1246,21 @@
     return ShadowBlot;
   }();
   ShadowBlot.blotName = "abstract";
-  exports.default = ShadowBlot;
-}, function(module, exports) {
-  "use strict";
-  var __extends = this && this.__extends || function() {
-    var extendStatics = Object.setPrototypeOf || {
-      __proto__: []
-    }
-    instanceof Array && function(d, b) {
-      d.__proto__ = b;
-    } || function(d, b) {
-      for (var p in b)
-        if (b.hasOwnProperty(p)) d[p] = b[p];
-    };
-    return function(d, b) {
-      extendStatics(d, b);
-
-      function __() {
-        this.constructor = d;
-      }
-      d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __);
-    };
-  }();
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
+  exports.default = ShadowBlot;
+}, function(module, exports) {
+  "use strict";
+  var __extends = this && this.__extends || function(d, b) {
+    for (var p in b)
+      if (b.hasOwnProperty(p)) d[p] = b[p];
+
+    function __() {
+      this.constructor = d;
+    }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __);
+  };
   var ParchmentError = function(_super) {
     __extends(ParchmentError, _super);
 
@@ -1413,28 +1390,15 @@
   exports.register = register;
 }, function(module, exports, __webpack_require__) {
   "use strict";
-  var __extends = this && this.__extends || function() {
-    var extendStatics = Object.setPrototypeOf || {
-      __proto__: []
-    }
-    instanceof Array && function(d, b) {
-      d.__proto__ = b;
-    } || function(d, b) {
-      for (var p in b)
-        if (b.hasOwnProperty(p)) d[p] = b[p];
-    };
-    return function(d, b) {
-      extendStatics(d, b);
+  var __extends = this && this.__extends || function(d, b) {
+    for (var p in b)
+      if (b.hasOwnProperty(p)) d[p] = b[p];
 
-      function __() {
-        this.constructor = d;
-      }
-      d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __);
-    };
-  }();
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
+    function __() {
+      this.constructor = d;
+    }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __);
+  };
   var attributor_1 = __webpack_require__(9);
   var store_1 = __webpack_require__(10);
   var container_1 = __webpack_require__(4);
@@ -1498,12 +1462,12 @@
     };
     return FormatBlot;
   }(container_1.default);
-  exports.default = FormatBlot;
-}, function(module, exports, __webpack_require__) {
-  "use strict";
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
+  exports.default = FormatBlot;
+}, function(module, exports, __webpack_require__) {
+  "use strict";
   var Registry = __webpack_require__(7);
   var Attributor = function() {
     function Attributor(attrName, keyName, options) {
@@ -1546,12 +1510,12 @@
     };
     return Attributor;
   }();
-  exports.default = Attributor;
-}, function(module, exports, __webpack_require__) {
-  "use strict";
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
+  exports.default = Attributor;
+}, function(module, exports, __webpack_require__) {
+  "use strict";
   var attributor_1 = __webpack_require__(9);
   var class_1 = __webpack_require__(11);
   var style_1 = __webpack_require__(12);
@@ -1613,31 +1577,21 @@
     };
     return AttributorStore;
   }();
-  exports.default = AttributorStore;
-}, function(module, exports, __webpack_require__) {
-  "use strict";
-  var __extends = this && this.__extends || function() {
-    var extendStatics = Object.setPrototypeOf || {
-      __proto__: []
-    }
-    instanceof Array && function(d, b) {
-      d.__proto__ = b;
-    } || function(d, b) {
-      for (var p in b)
-        if (b.hasOwnProperty(p)) d[p] = b[p];
-    };
-    return function(d, b) {
-      extendStatics(d, b);
-
-      function __() {
-        this.constructor = d;
-      }
-      d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __);
-    };
-  }();
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
+  exports.default = AttributorStore;
+}, function(module, exports, __webpack_require__) {
+  "use strict";
+  var __extends = this && this.__extends || function(d, b) {
+    for (var p in b)
+      if (b.hasOwnProperty(p)) d[p] = b[p];
+
+    function __() {
+      this.constructor = d;
+    }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __);
+  };
   var attributor_1 = __webpack_require__(9);
 
   function match(node, prefix) {
@@ -1679,31 +1633,21 @@
     };
     return ClassAttributor;
   }(attributor_1.default);
-  exports.default = ClassAttributor;
-}, function(module, exports, __webpack_require__) {
-  "use strict";
-  var __extends = this && this.__extends || function() {
-    var extendStatics = Object.setPrototypeOf || {
-      __proto__: []
-    }
-    instanceof Array && function(d, b) {
-      d.__proto__ = b;
-    } || function(d, b) {
-      for (var p in b)
-        if (b.hasOwnProperty(p)) d[p] = b[p];
-    };
-    return function(d, b) {
-      extendStatics(d, b);
-
-      function __() {
-        this.constructor = d;
-      }
-      d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __);
-    };
-  }();
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
+  exports.default = ClassAttributor;
+}, function(module, exports, __webpack_require__) {
+  "use strict";
+  var __extends = this && this.__extends || function(d, b) {
+    for (var p in b)
+      if (b.hasOwnProperty(p)) d[p] = b[p];
+
+    function __() {
+      this.constructor = d;
+    }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __);
+  };
   var attributor_1 = __webpack_require__(9);
 
   function camelize(name) {
@@ -1742,31 +1686,21 @@
     };
     return StyleAttributor;
   }(attributor_1.default);
-  exports.default = StyleAttributor;
-}, function(module, exports, __webpack_require__) {
-  "use strict";
-  var __extends = this && this.__extends || function() {
-    var extendStatics = Object.setPrototypeOf || {
-      __proto__: []
-    }
-    instanceof Array && function(d, b) {
-      d.__proto__ = b;
-    } || function(d, b) {
-      for (var p in b)
-        if (b.hasOwnProperty(p)) d[p] = b[p];
-    };
-    return function(d, b) {
-      extendStatics(d, b);
-
-      function __() {
-        this.constructor = d;
-      }
-      d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __);
-    };
-  }();
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
+  exports.default = StyleAttributor;
+}, function(module, exports, __webpack_require__) {
+  "use strict";
+  var __extends = this && this.__extends || function(d, b) {
+    for (var p in b)
+      if (b.hasOwnProperty(p)) d[p] = b[p];
+
+    function __() {
+      this.constructor = d;
+    }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __);
+  };
   var shadow_1 = __webpack_require__(6);
   var Registry = __webpack_require__(7);
   var LeafBlot = function(_super) {
@@ -1794,31 +1728,21 @@
     return LeafBlot;
   }(shadow_1.default);
   LeafBlot.scope = Registry.Scope.INLINE_BLOT;
-  exports.default = LeafBlot;
-}, function(module, exports, __webpack_require__) {
-  "use strict";
-  var __extends = this && this.__extends || function() {
-    var extendStatics = Object.setPrototypeOf || {
-      __proto__: []
-    }
-    instanceof Array && function(d, b) {
-      d.__proto__ = b;
-    } || function(d, b) {
-      for (var p in b)
-        if (b.hasOwnProperty(p)) d[p] = b[p];
-    };
-    return function(d, b) {
-      extendStatics(d, b);
-
-      function __() {
-        this.constructor = d;
-      }
-      d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __);
-    };
-  }();
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
+  exports.default = LeafBlot;
+}, function(module, exports, __webpack_require__) {
+  "use strict";
+  var __extends = this && this.__extends || function(d, b) {
+    for (var p in b)
+      if (b.hasOwnProperty(p)) d[p] = b[p];
+
+    function __() {
+      this.constructor = d;
+    }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __);
+  };
   var container_1 = __webpack_require__(4);
   var Registry = __webpack_require__(7);
   var OBSERVER_CONFIG = {
@@ -1951,31 +1875,21 @@
   ScrollBlot.defaultChild = "block";
   ScrollBlot.scope = Registry.Scope.BLOCK_BLOT;
   ScrollBlot.tagName = "DIV";
-  exports.default = ScrollBlot;
-}, function(module, exports, __webpack_require__) {
-  "use strict";
-  var __extends = this && this.__extends || function() {
-    var extendStatics = Object.setPrototypeOf || {
-      __proto__: []
-    }
-    instanceof Array && function(d, b) {
-      d.__proto__ = b;
-    } || function(d, b) {
-      for (var p in b)
-        if (b.hasOwnProperty(p)) d[p] = b[p];
-    };
-    return function(d, b) {
-      extendStatics(d, b);
-
-      function __() {
-        this.constructor = d;
-      }
-      d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __);
-    };
-  }();
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
+  exports.default = ScrollBlot;
+}, function(module, exports, __webpack_require__) {
+  "use strict";
+  var __extends = this && this.__extends || function(d, b) {
+    for (var p in b)
+      if (b.hasOwnProperty(p)) d[p] = b[p];
+
+    function __() {
+      this.constructor = d;
+    }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __);
+  };
   var format_1 = __webpack_require__(8);
   var Registry = __webpack_require__(7);
 
@@ -2035,31 +1949,21 @@
   InlineBlot.blotName = "inline";
   InlineBlot.scope = Registry.Scope.INLINE_BLOT;
   InlineBlot.tagName = "SPAN";
-  exports.default = InlineBlot;
-}, function(module, exports, __webpack_require__) {
-  "use strict";
-  var __extends = this && this.__extends || function() {
-    var extendStatics = Object.setPrototypeOf || {
-      __proto__: []
-    }
-    instanceof Array && function(d, b) {
-      d.__proto__ = b;
-    } || function(d, b) {
-      for (var p in b)
-        if (b.hasOwnProperty(p)) d[p] = b[p];
-    };
-    return function(d, b) {
-      extendStatics(d, b);
-
-      function __() {
-        this.constructor = d;
-      }
-      d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __);
-    };
-  }();
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
+  exports.default = InlineBlot;
+}, function(module, exports, __webpack_require__) {
+  "use strict";
+  var __extends = this && this.__extends || function(d, b) {
+    for (var p in b)
+      if (b.hasOwnProperty(p)) d[p] = b[p];
+
+    function __() {
+      this.constructor = d;
+    }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __);
+  };
   var format_1 = __webpack_require__(8);
   var Registry = __webpack_require__(7);
   var BlockBlot = function(_super) {
@@ -2110,31 +2014,21 @@
   BlockBlot.blotName = "block";
   BlockBlot.scope = Registry.Scope.BLOCK_BLOT;
   BlockBlot.tagName = "P";
-  exports.default = BlockBlot;
-}, function(module, exports, __webpack_require__) {
-  "use strict";
-  var __extends = this && this.__extends || function() {
-    var extendStatics = Object.setPrototypeOf || {
-      __proto__: []
-    }
-    instanceof Array && function(d, b) {
-      d.__proto__ = b;
-    } || function(d, b) {
-      for (var p in b)
-        if (b.hasOwnProperty(p)) d[p] = b[p];
-    };
-    return function(d, b) {
-      extendStatics(d, b);
-
-      function __() {
-        this.constructor = d;
-      }
-      d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __);
-    };
-  }();
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
+  exports.default = BlockBlot;
+}, function(module, exports, __webpack_require__) {
+  "use strict";
+  var __extends = this && this.__extends || function(d, b) {
+    for (var p in b)
+      if (b.hasOwnProperty(p)) d[p] = b[p];
+
+    function __() {
+      this.constructor = d;
+    }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __);
+  };
   var leaf_1 = __webpack_require__(13);
   var EmbedBlot = function(_super) {
     __extends(EmbedBlot, _super);
@@ -2160,31 +2054,21 @@
     };
     return EmbedBlot;
   }(leaf_1.default);
-  exports.default = EmbedBlot;
-}, function(module, exports, __webpack_require__) {
-  "use strict";
-  var __extends = this && this.__extends || function() {
-    var extendStatics = Object.setPrototypeOf || {
-      __proto__: []
-    }
-    instanceof Array && function(d, b) {
-      d.__proto__ = b;
-    } || function(d, b) {
-      for (var p in b)
-        if (b.hasOwnProperty(p)) d[p] = b[p];
-    };
-    return function(d, b) {
-      extendStatics(d, b);
-
-      function __() {
-        this.constructor = d;
-      }
-      d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __);
-    };
-  }();
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
+  exports.default = EmbedBlot;
+}, function(module, exports, __webpack_require__) {
+  "use strict";
+  var __extends = this && this.__extends || function(d, b) {
+    for (var p in b)
+      if (b.hasOwnProperty(p)) d[p] = b[p];
+
+    function __() {
+      this.constructor = d;
+    }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __);
+  };
   var leaf_1 = __webpack_require__(13);
   var Registry = __webpack_require__(7);
   var TextBlot = function(_super) {
@@ -2265,6 +2149,9 @@
   }(leaf_1.default);
   TextBlot.blotName = "text";
   TextBlot.scope = Registry.Scope.INLINE_BLOT;
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
   exports.default = TextBlot;
 }, function(module, exports, __webpack_require__) {
   "use strict";
@@ -2957,14 +2844,16 @@
   var elem = document.createElement("div");
   elem.classList.toggle("test-class", false);
   if (elem.classList.contains("test-class")) {
-    var _toggle = DOMTokenList.prototype.toggle;
-    DOMTokenList.prototype.toggle = function(token, force) {
-      if (arguments.length > 1 && !this.contains(token) === !force) {
-        return force;
-      } else {
-        return _toggle.call(this, token);
-      }
-    };
+    (function() {
+      var _toggle = DOMTokenList.prototype.toggle;
+      DOMTokenList.prototype.toggle = function(token, force) {
+        if (arguments.length > 1 && !this.contains(token) === !force) {
+          return force;
+        } else {
+          return _toggle.call(this, token);
+        }
+      };
+    })();
   }
   if (!String.prototype.startsWith) {
     String.prototype.startsWith = function(searchString, position) {
@@ -4360,25 +4249,28 @@
     }, {
       key: "update",
       value: function update(change) {
+        var _this5 = this;
         var mutations = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
         var cursorIndex = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : undefined;
         var oldDelta = this.delta;
         if (mutations.length === 1 && mutations[0].type === "characterData" && _parchment2.default.find(mutations[0].target)) {
-          var textBlot = _parchment2.default.find(mutations[0].target);
-          var formats = (0, _block.bubbleFormats)(textBlot);
-          var index = textBlot.offset(this.scroll);
-          var oldValue = mutations[0].oldValue.replace(_cursor2.default.CONTENTS, "");
-          var oldText = (new _quillDelta2.default).insert(oldValue);
-          var newText = (new _quillDelta2.default).insert(textBlot.value());
-          var diffDelta = (new _quillDelta2.default).retain(index).concat(oldText.diff(newText, cursorIndex));
-          change = diffDelta.reduce(function(delta, op) {
-            if (op.insert) {
-              return delta.insert(op.insert, formats);
-            } else {
-              return delta.push(op);
-            }
-          }, new _quillDelta2.default);
-          this.delta = oldDelta.compose(change);
+          (function() {
+            var textBlot = _parchment2.default.find(mutations[0].target);
+            var formats = (0, _block.bubbleFormats)(textBlot);
+            var index = textBlot.offset(_this5.scroll);
+            var oldValue = mutations[0].oldValue.replace(_cursor2.default.CONTENTS, "");
+            var oldText = (new _quillDelta2.default).insert(oldValue);
+            var newText = (new _quillDelta2.default).insert(textBlot.value());
+            var diffDelta = (new _quillDelta2.default).retain(index).concat(oldText.diff(newText, cursorIndex));
+            change = diffDelta.reduce(function(delta, op) {
+              if (op.insert) {
+                return delta.insert(op.insert, formats);
+              } else {
+                return delta.push(op);
+              }
+            }, new _quillDelta2.default);
+            _this5.delta = oldDelta.compose(change);
+          })();
         } else {
           this.delta = this.getDelta();
           if (!change || !(0, _deepEqual2.default)(oldDelta.compose(change), this.delta)) {
@@ -5883,10 +5775,6 @@
     };
     var clone = function() {
       "use strict";
-
-      function _instanceof(obj, type) {
-        return type != null && obj instanceof type;
-      }
       var nativeMap;
       try {
         nativeMap = Map;
@@ -5927,11 +5815,11 @@
           if ((typeof parent === "undefined" ? "undefined" : _typeof(parent)) != "object") {
             return parent;
           }
-          if (_instanceof(parent, nativeMap)) {
+          if (parent instanceof nativeMap) {
             child = new nativeMap;
-          } else if (_instanceof(parent, nativeSet)) {
+          } else if (parent instanceof nativeSet) {
             child = new nativeSet;
-          } else if (_instanceof(parent, nativePromise)) {
+          } else if (parent instanceof nativePromise) {
             child = new nativePromise(function(resolve, reject) {
               parent.then(function(value) {
                 resolve(_clone(value, depth - 1));
@@ -5950,7 +5838,7 @@
             child = new Buffer(parent.length);
             parent.copy(child);
             return child;
-          } else if (_instanceof(parent, Error)) {
+          } else if (parent instanceof Error) {
             child = Object.create(parent);
           } else {
             if (typeof prototype == "undefined") {
@@ -5969,18 +5857,28 @@
             allParents.push(parent);
             allChildren.push(child);
           }
-          if (_instanceof(parent, nativeMap)) {
-            parent.forEach(function(value, key) {
-              var keyChild = _clone(key, depth - 1);
-              var valueChild = _clone(value, depth - 1);
+          if (parent instanceof nativeMap) {
+            var keyIterator = parent.keys();
+            while (true) {
+              var next = keyIterator.next();
+              if (next.done) {
+                break;
+              }
+              var keyChild = _clone(next.value, depth - 1);
+              var valueChild = _clone(parent.get(next.value), depth - 1);
               child.set(keyChild, valueChild);
-            });
+            }
           }
-          if (_instanceof(parent, nativeSet)) {
-            parent.forEach(function(value) {
-              var entryChild = _clone(value, depth - 1);
+          if (parent instanceof nativeSet) {
+            var iterator = parent.keys();
+            while (true) {
+              var next = iterator.next();
+              if (next.done) {
+                break;
+              }
+              var entryChild = _clone(next.value, depth - 1);
               child.add(entryChild);
-            });
+            }
           }
           for (var i in parent) {
             var attrs;
@@ -8032,26 +7930,28 @@
         }
         debug.info("setRange", range);
         if (range != null) {
-          var indexes = range.collapsed ? [range.index] : [range.index, range.index + range.length];
-          var args = [];
-          var scrollLength = this.scroll.length();
-          indexes.forEach(function(index, i) {
-            index = Math.min(scrollLength - 1, index);
-            var node = void 0,
-              _scroll$leaf5 = _this3.scroll.leaf(index),
-              _scroll$leaf6 = _slicedToArray(_scroll$leaf5, 2),
-              leaf = _scroll$leaf6[0],
-              offset = _scroll$leaf6[1];
-            var _leaf$position5 = leaf.position(offset, i !== 0);
-            var _leaf$position6 = _slicedToArray(_leaf$position5, 2);
-            node = _leaf$position6[0];
-            offset = _leaf$position6[1];
-            args.push(node, offset);
-          });
-          if (args.length < 2) {
-            args = args.concat(args);
-          }
-          this.setNativeRange.apply(this, _toConsumableArray(args).concat([force]));
+          (function() {
+            var indexes = range.collapsed ? [range.index] : [range.index, range.index + range.length];
+            var args = [];
+            var scrollLength = _this3.scroll.length();
+            indexes.forEach(function(index, i) {
+              index = Math.min(scrollLength - 1, index);
+              var node = void 0,
+                _scroll$leaf5 = _this3.scroll.leaf(index),
+                _scroll$leaf6 = _slicedToArray(_scroll$leaf5, 2),
+                leaf = _scroll$leaf6[0],
+                offset = _scroll$leaf6[1];
+              var _leaf$position5 = leaf.position(offset, i !== 0);
+              var _leaf$position6 = _slicedToArray(_leaf$position5, 2);
+              node = _leaf$position6[0];
+              offset = _leaf$position6[1];
+              args.push(node, offset);
+            });
+            if (args.length < 2) {
+              args = args.concat(args);
+            }
+            _this3.setNativeRange.apply(_this3, _toConsumableArray(args).concat([force]));
+          })();
         } else {
           this.setNativeRange(null);
         }
@@ -13327,7 +13227,9 @@
     LEFT = _utils.keymap.LEFT,
     RIGHT = _utils.keymap.RIGHT,
     TAB = _utils.keymap.TAB,
-    UP = _utils.keymap.UP;
+    UP = _utils.keymap.UP,
+    HOME = _utils.keymap.HOME,
+    END = _utils.keymap.END;
   var UI_ITEM_CLASS = "tab_complete_ui_item";
   var ALLOWED_TRAILING_PUNCTUATION = [".", ",", ";", ":", "?", "!", "]", ")", "*", "_", "~", ">"];
   var TRAILING_PUNCTUATION_RX = function(symbols) {
@@ -13391,11 +13293,35 @@
         this.quill.root.addEventListener("compositionend", this.onCompositionEnd);
         [UP, DOWN, LEFT, RIGHT].forEach(function(keyCode) {
           _this2.quill.keyboard.addBinding({
-            key: keyCode
-          }, function() {
-            return _this2.onArrow({
-              keyCode: keyCode
+            key: keyCode,
+            handler: function handler() {
+              return _this2.onArrow({
+                keyCode: keyCode
+              });
+            }
+          });
+        });
+        if ((0, _utils.isMac)(navigator)) {
+          [UP, DOWN].forEach(function(keyCode) {
+            _this2.quill.keyboard.addBinding({
+              key: keyCode,
+              shortKey: true,
+              handler: function handler() {
+                return _this2.onArrow({
+                  keyCode: keyCode,
+                  metaKey: true
+                });
+              }
             });
+          });
+        }[HOME, END].forEach(function(keyCode) {
+          _this2.quill.keyboard.addBinding({
+            key: keyCode,
+            handler: function handler() {
+              return _this2.onArrow({
+                keyCode: keyCode
+              });
+            }
           });
         });
       }
@@ -13412,15 +13338,25 @@
       value: function getNextSelectedIndex(_ref) {
         var keyCode = _ref.keyCode,
           _ref$shiftKey = _ref.shiftKey,
-          shiftKey = _ref$shiftKey === undefined ? false : _ref$shiftKey;
+          shiftKey = _ref$shiftKey === undefined ? false : _ref$shiftKey,
+          _ref$metaKey = _ref.metaKey,
+          metaKey = _ref$metaKey === undefined ? false : _ref$metaKey;
         if (!this._prevMatch || !(0, _utils.isNumber)(keyCode) || !this.isShowing()) return;
         if (this._prevMatch.completer.getNextSelectedIndex) {
           var nextIndex = this._prevMatch.completer.getNextSelectedIndex({
             keyCode: keyCode,
+            metaKey: metaKey,
             menu: this._menu,
             selectedIndex: this._selectedIndex
           });
           if ((0, _utils.isNumber)(nextIndex)) return nextIndex;
+        }
+        if (keyCode === HOME || keyCode === UP && metaKey) {
+          return 0;
+        }
+        if (keyCode === END || keyCode === DOWN && metaKey) {
+          var results = this.getResultElements();
+          return results.length - 1;
         }
         if (keyCode === DOWN || keyCode === TAB && !shiftKey) {
           return this._selectedIndex + 1;
@@ -13437,12 +13373,15 @@
     }, {
       key: "onArrow",
       value: function onArrow(_ref2) {
-        var keyCode = _ref2.keyCode;
+        var keyCode = _ref2.keyCode,
+          _ref2$metaKey = _ref2.metaKey,
+          metaKey = _ref2$metaKey === undefined ? false : _ref2$metaKey;
         if (!this.isShowing()) return true;
         if (this.options.useMentions && this.quill.getFormat(this.quill.getSelection()).slackmention) return true;
         this.startKeyboardMode();
         var index = this.getNextSelectedIndex({
-          keyCode: keyCode
+          keyCode: keyCode,
+          metaKey: metaKey
         });
         this.setSelectedIndex(index);
         return !(0, _utils.isNumber)(index);
@@ -14065,6 +14004,9 @@
     };
     addAttributes(element, attrs);
   };
+  var isMac = exports.isMac = function isMac(nav) {
+    return /Mac/i.test(nav.platform);
+  };
 }, function(module, exports, __webpack_require__) {
   "use strict";
   Object.defineProperty(exports, "__esModule", {
@@ -14265,8 +14207,7 @@
   var _getEarlyBindings = function _getEarlyBindings(_ref) {
     var onEnter = _ref.onEnter,
       onTab = _ref.onTab;
-    var isMac = /Mac/i.test(navigator.platform);
-    var SHORTKEY = isMac ? "metaKey" : "ctrlKey";
+    var SHORTKEY = (0, _utils.isMac)(navigator) ? "metaKey" : "ctrlKey";
     var bindings = {
       enter: {
         key: ENTER,
@@ -14342,7 +14283,7 @@
         }
       }
     };
-    if (isMac) {
+    if ((0, _utils.isMac)(navigator)) {
       return (0, _utils.assign)(bindings, _getMacSpecificBindings());
     }
     return bindings;
@@ -14510,14 +14451,16 @@
       value: function onTextChange(delta, oldDelta, source) {
         var _this2 = this;
         if (!this.isInComposition() && this.quill.getLength() > 1 && this.options.getTextPreferences && this.options.getTextPreferences().useSmartQuotes) {
-          var changes = this.buildSmartQuotesDelta(this.quill.getText());
-          if (changes.length() > 0) {
-            setTimeout(function() {
-              var range = _this2.quill.getSelection();
-              _this2.quill.updateContents(changes, "silent");
-              if (range) _this2.quill.setSelection(range.index, 0);
-            }, 0);
-          }
+          (function() {
+            var changes = _this2.buildSmartQuotesDelta(_this2.quill.getText());
+            if (changes.length() > 0) {
+              setTimeout(function() {
+                var range = _this2.quill.getSelection();
+                _this2.quill.updateContents(changes, "silent");
+                if (range) _this2.quill.setSelection(range.index, 0);
+              }, 0);
+            }
+          })();
         }
       }
     }, {

@@ -239,9 +239,9 @@
 
     <table class="member_data_table lato">
       {{#feature flag="feature_name_tagging_client"}}
-        {{#if member.profile.preferred_name}}
+        {{#if member.profile.display_name}}
           <tr>
-            <td><span class="small_right_padding old_petunia_grey" title="{{#t}}Preferred name{{/t}}">{{#t}}Preferred name{{/t}}</span></td>
+            <td><span class="small_right_padding old_petunia_grey" title="{{#t}}Display name{{/t}}">{{#t}}Display name{{/t}}</span></td>
             {{#if member.deleted}}
               {{#memberHasIm member=member}}
                 <td><a href="/archives/{{member.id}}" target="{{newWindowName}}">{{getMemberPreferredName member}}</a></td>

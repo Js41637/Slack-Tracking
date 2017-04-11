@@ -26,19 +26,10 @@
     <input id="show_typing_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_display_options">
     {{#t}}Display information about who is currently typing a message{{/t}}
   </label>
-  {{#feature flag="feature_name_tagging_client"}}
-    {{#feature flag="feature_name_tagging_preferred_name_pref"}}
-      <label class="checkbox">
-        <input id="display_preferred_names_cb" type="checkbox" data-inline-saver="#prefs_display_options">
-        {{#t}}Display full names instead of preferred names{{/t}}
-      </label>
-    {{/feature}}
-  {{else}}
-    <label class="checkbox">
-      <input id="display_real_names_override_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_display_options">
-      {{#t note="(team_default) appears twice here, but one of them will be removed via JavaScript, so don't worry about redundancy"}}Display real names <span id="display_real_names_default">(team default)</span> instead of usernames <span id="display_usernames_default">(team default)</span>{{/t}}
-    </label>
-  {{/feature}}
+  <label class="checkbox">
+    <input id="display_real_names_override_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_display_options">
+    {{#t note="(team_default) appears twice here, but one of them will be removed via JavaScript, so don't worry about redundancy"}}Display real names <span id="display_real_names_default">(team default)</span> instead of usernames <span id="display_usernames_default">(team default)</span>{{/t}}
+  </label>
   <label class="checkbox">
     <input id="time24_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_display_options">
     {{#t}}Show times with 24-hour clock <span class="normal">(16:00 rather than 4:00 PM)</span>{{/t}}

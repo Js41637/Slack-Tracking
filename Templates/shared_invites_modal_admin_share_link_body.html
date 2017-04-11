@@ -1,0 +1,26 @@
+{{i18n_ns 'invites'}}
+<div class="subtle_silver bottom_margin">{{#t}}Anyone can use this link to join your Slack team.{{/t}}
+</div>
+
+<div class="shared_invite_link_input_container">
+  <input type="text" id="shared_invite_link_url" class="shared_invite_link_input small" value="{{shared_invite_url}}" data-invite-url="{{shared_invite_url}}" readonly onclick="this.select();">
+  <button class="shared_invite_link_copy_btn btn ts_tip ts_tip_top ts_tip_hide" data-action="copy_shared_link" data-clog-click="true" data-clog-event="INVITE_SHARED_CLICK" data-clog-params="action=copy_shared_invite_link,trigger=click_copy_btn">
+    <span class="ts_tip_btn">{{#t}}Copy{{/t}}</span>
+    <span class="ts_tip_tip ts_tip_tip_with_emoji">{{#t}}Invite link copied!{{/t}}
+    </span>
+  </button>
+
+</div>
+
+<div class="subtle_silver top_margin small">
+<span class="bold">
+{{#if time_until_expiration_string}}
+  {{#t expiration_string=time_until_expiration_string}}Expires {expiration_string}.{{/t}}
+{{else}}
+  {{#t}}This link doesn't expire.{{/t}}
+{{/if}}
+</span>
+
+{{#t}}To change the expiry date, disable this link and choose a new duration. <a data-action="disable_shared_link" class="candy_red underline">Disable link</a>{{/t}}
+
+</div>

@@ -123,7 +123,7 @@
           </li>
         {{else}}
           {{#feature flag="feature_name_tagging_client"}}
-            <li data-replacement="{{../conversation_modifier}}{{#feature flag="feature_name_tagging_client_search"}}{{getMemberFullName this}}{{else}}@{{name}}{{/feature}}">
+            <li data-replacement="{{../conversation_modifier}}@{{name}}">
               <button class="result_item_btn btn_unstyle" type="button">
                 {{#if ../show_modifier}}
                   <span>{{../conversation_modifier}}</span>
@@ -163,7 +163,7 @@
   <ol class="results users">
     {{#each users}}
       {{#feature flag="feature_name_tagging_client"}}
-        <li data-replacement="from:{{#feature flag="feature_name_tagging_client_search"}}{{getMemberFullName this}}{{else}}@{{name}}{{/feature}}">
+        <li data-replacement="from:@{{name}}">
           <button class="result_item_btn btn_unstyle" type="button">
             {{#if ../show_modifier}}
               <span>{{#t}}from:{{/t}}</span>
@@ -212,7 +212,7 @@
       </li>
       {{#each users_deleted}}
         {{#feature flag="feature_name_tagging_client"}}
-          <li data-replacement="from:{{#feature flag="feature_name_tagging_client_search"}}{{getMemberFullName this}}{{else}}@{{name}}{{/feature}}" class="hidden">
+          <li data-replacement="from:@{{name}}" class="hidden">
             <button class="result_item_btn btn_unstyle" type="button">
               {{#if ../show_modifier}}
                 <span>{{#t}}from:{{/t}}</span>

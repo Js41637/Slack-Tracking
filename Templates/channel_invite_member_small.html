@@ -7,7 +7,7 @@
   <div class="name_container overflow_ellipsis">
     {{#feature flag="feature_name_tagging_client"}}
       <div class="bold">
-        {{getMemberFullName member}}
+        {{getMemberDisplayName member}}
         {{#feature flag="feature_user_custom_status"}}
           {{#or member.profile.status_emoji member.profile.status_text}}
             <span class="current_status greigh not_in_token normal">

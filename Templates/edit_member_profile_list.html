@@ -5,7 +5,6 @@
     {{#feature flag="feature_name_tagging_client"}}
       <label for="full_name_profile_field">{{#t note="For a members profile"}}Full name{{/t}}</label>
       <input type="text" class="no_bottom_margin" name="full_name" value="{{member.profile.full_name}}" placeholder="{{#t note='For a members profile'}}Full name{{/t}}" data-validation="required maxlength=71 keywords" data-validation-for="full_name_profile_field" id="full_name_profile_field" />
-      <span class="input_note">{{#t}}This is how your teammates will refer to you in Slack, unless you add a preferred name below.{{/t}}</span>
     {{else}}
       <label for="first_name_profile_field">{{#t note="For a members profile"}}First name{{/t}}</label>
       <input type="text" class="no_bottom_margin" name="first_name" value="{{member.profile.first_name}}" placeholder="{{#t note='For a members profile'}}First name{{/t}}" data-validation="maxlength=34" data-validation-for="first_name_profile_field" id="first_name_profile_field" />
@@ -29,9 +28,9 @@
 <div class="clearfix">
   <p class="col span_2_of_3">
     {{#feature flag="feature_name_tagging_client"}}
-      <label for="preferred_name_profile_field">{{#t note="For a members profile"}}Preferred name <span class="subtle_silver normal">(optional)</span>{{/t}}</label>
-      <input type="text" class="no_bottom_margin" name="preferred_name" value="{{member.profile.preferred_name}}" placeholder="{{#t note='For a members profile'}}Preferred name{{/t}}" data-validation="maxlength=71 keywords" data-validation-for="preferred_name_profile_field" id="preferred_name_profile_field" />
-      <span class="input_note">{{#t note="Helper note for setting a preferred name"}}If you\u2019d rather be called something shorter, set it here.{{/t}}</span>
+      <label for="display_name_profile_field">{{#t note="For a members profile"}}Display name <span class="subtle_silver normal">(optional)</span>{{/t}}</label>
+      <input type="text" class="no_bottom_margin" name="display_name" value="{{member.profile.display_name}}" placeholder="{{member.profile.full_name}}" data-validation="maxlength=71 keywords" data-validation-for="display_name_profile_field" id="display_name_profile_field" />
+      <span class="input_note">{{#t note="Helper note for setting a display name"}}This is how your name will show up in Slack. It\u2019s best kept simple: whatever people call you in everyday conversation. Changing this is optional.{{/t}}</span>
     {{else}}
       <label for="last_name_profile_field">{{#t note="For a members profile"}}Last name{{/t}}</label>
       <input type="text" class="no_bottom_margin" name="last_name" value="{{member.profile.last_name}}" placeholder="{{#t note='For a members profile'}}Last name{{/t}}" data-validation="maxlength=35" data-validation-for="last_name_profile_field" id="last_name_profile_field" />

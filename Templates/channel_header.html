@@ -28,7 +28,7 @@
         <button type="button" id="dm_title" class="btn_unstyle dm_title">{{mpimDisplayName mpim true}}</button>
       {{else}}
         {{#if member}}
-          <button type="button" id="im_title" class="btn_unstyle">{{#feature flag="feature_name_tagging_client"}}{{getMemberFullName member}}{{else}}{{getMemberDisplayName member}}{{/feature}} {{#if member.is_self}}<span class="normal subtle_silver"> {{#t}}(you){{/t}}</span>{{/if}}</button>
+          <button type="button" id="im_title" class="btn_unstyle">{{getMemberDisplayName member}} {{#if member.is_self}}<span class="normal subtle_silver"> {{#t}}(you){{/t}}</span>{{/if}}</button>
           {{#feature flag="feature_user_custom_status"}}
             {{#or member.profile.status_emoji member.profile.status_text}}
               <div class="channel_header_member_current_status overflow_ellipsis normal subtle_silver">

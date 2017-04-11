@@ -12,7 +12,7 @@
   {{/if}}
   {{#if size}} data-thumb-size="{{size}}" {{/if}}
   {{#if image}} style="background-image: {{image}}" {{/if}}
-  {{#if title}} title="{{#feature flag="feature_name_tagging_client"}}{{getMemberFullName entity}}{{else}}{{getMemberDisplayName entity}}{{/feature}}" {{/if}}
+  {{#if title}} title="{{getMemberDisplayName entity}}" {{/if}}
   class="member_image {{css_classes}}"
 >
   {{~#feature flag="feature_shared_channels_client"}}{{#if entity.is_external~}}

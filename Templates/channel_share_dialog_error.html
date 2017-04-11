@@ -3,6 +3,6 @@
 <div class="error large_bottom_margin normal_padding">
   {{#if is_generic_error}}
     <p class="bold tiny_bottom_margin">{{#t}}Error{{/t}}</p>
-    <p class="no_margin">{{#t}}Something went wrong, check the console with ?pri=shared_channels_connection.{{/t}}</p>
+    <p class="no_margin">{{#t}}Something went wrong, message: <code>{response.error}</code>{{/t}}</p>
   {{/if}}
 </div>

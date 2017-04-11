@@ -8033,9 +8033,6 @@ TS.registerModule("constants", {
       return null;
     },
     getDisplayNameOfUserForIm: function(im) {
-      if (TS.boot_data.feature_name_tagging_client) {
-        return TS.members.getMemberFullName(im.user);
-      }
       return TS.members.getMemberDisplayName(TS.members.getMemberById(im.user));
     },
     getDisplayNameOfUserForImLowerCase: function(im) {
@@ -8305,9 +8302,6 @@ TS.registerModule("constants", {
     onStart: function() {
       TS.prefs.display_real_names_override_changed_sig.add(_realNamePrefChanged);
       TS.prefs.team_display_real_names_changed_sig.add(_realNamePrefChanged);
-      if (TS.boot_data.feature_name_tagging_client) {
-        TS.prefs.display_preferred_names_changed_sig.add(_realNamePrefChanged);
-      }
       TS.members.changed_profile_sig.add(_memberRealNameChanged);
     },
     getVisibleMpims: function() {
@@ -11382,10 +11376,6 @@ TS.registerModule("constants", {
       var override = TS.model.prefs.display_real_names_override;
       return TS.model.team.prefs.display_real_names && override != -1 || override == 1;
     },
-    shouldDisplayPreferredNames: function() {
-      if (!TS.boot_data.feature_name_tagging_preferred_name_pref) return true;
-      return TS.model.prefs.display_preferred_names;
-    },
     getMemberDisplayNameById: function(id, should_escape, include_at_sign) {
       var member = TS.members.getMemberById(id);
       return member ? TS.members.getMemberDisplayName(member, should_escape, include_at_sign) : id;
@@ -11394,11 +11384,7 @@ TS.registerModule("constants", {
       if (!member) return "NO MEMBER??";
       var unescaped_display_name = function() {
         if (TS.boot_data.feature_name_tagging_client) {
-          var display_name = TS.members.getMemberFullName(member);
-          if (TS.members.shouldDisplayPreferredNames()) {
-            display_name = TS.members.getMemberPreferredName(member) || display_name;
-          }
-          return display_name;
+          return TS.members.getMemberPreferredName(member) || TS.members.getMemberFullName(member);
         }
         if (!TS.model.team) return member.name;
         var username_prefix = include_at_sign ? "@" : "";
@@ -11433,10 +11419,10 @@ TS.registerModule("constants", {
       return _getMemberNameHelper(member_or_id, "_full_name_normalized_lc");
     },
     getMemberPreferredName: function(member_or_id) {
-      return _getMemberNameHelper(member_or_id, "preferred_name");
+      return _getMemberNameHelper(member_or_id, "display_name");
     },
     getMemberPreferredNameLowerCase: function(member_or_id) {
-      return _getMemberNameHelper(member_or_id, "_preferred_name_normalized_lc");
+      return _getMemberNameHelper(member_or_id, "_display_name_normalized_lc");
     },
     getMemberUsernameAndRealNameInCorrectOrder: function(member_or_id) {
       var member = _ensureMember(member_or_id);
@@ -12042,7 +12028,7 @@ TS.registerModule("constants", {
       }).map(function(query) {
         if (query.length === 1 || !searcher.full_profile_filter) {
           if (TS.boot_data.feature_name_tagging_client) {
-            return TS.utility.search.makeConjunction("OR", [TS.utility.search.makeClause("full_name", query), TS.utility.search.makeClause("preferred_name", query)]);
+            return TS.utility.search.makeConjunction("OR", [TS.utility.search.makeClause("full_name", query), TS.utility.search.makeClause("display_name", query)]);
           }
           return TS.utility.search.makeConjunction("OR", [TS.utility.search.makeClause("name", query), TS.utility.search.makeClause("real_name", query)]);
         }
@@ -12142,7 +12128,7 @@ TS.registerModule("constants", {
           old_profile = _.omit(old_profile, ["status_text", "status_emoji"]);
           new_profile = _.omit(new_profile, ["status_text", "status_emoji"]);
           if (!_.isEqual(old_profile, new_profile)) {
-            var name_changed = _.some(["real_name", "full_name", "preferred_name"], function(name_type) {
+            var name_changed = _.some(["real_name", "full_name", "display_name"], function(name_type) {
               return new_profile[name_type] != old_profile[name_type];
             });
             if (!_.isUndefined(old_profile["fields"]) && _.isUndefined(new_profile["fields"])) {
@@ -12236,8 +12222,8 @@ TS.registerModule("constants", {
     member._last_name_lc = "";
     member._real_name_normalized_lc = "";
     if (TS.boot_data.feature_name_tagging_client) {
-      member._preferred_name_lc = "";
-      member._preferred_name_normalized_lc = "";
+      member._display_name_lc = "";
+      member._display_name_normalized_lc = "";
       member._full_name_lc = "";
       member._full_name_normalized_lc = "";
     }
@@ -12258,8 +12244,8 @@ TS.registerModule("constants", {
     if ("real_name" in member.profile) member._real_name_lc = _.toLower(member.profile.real_name);
     if ("real_name_normalized" in member.profile) member._real_name_normalized_lc = _.toLower(member.profile.real_name_normalized);
     if (TS.boot_data.feature_name_tagging_client) {
-      if ("preferred_name" in member.profile) member._preferred_name_lc = _.toLower(member.profile.preferred_name);
-      if ("preferred_name_normalized" in member.profile) member._preferred_name_normalized_lc = _.toLower(member.profile.preferred_name_normalized);
+      if ("display_name" in member.profile) member._display_name_lc = _.toLower(member.profile.display_name);
+      if ("display_name_normalized" in member.profile) member._display_name_normalized_lc = _.toLower(member.profile.display_name_normalized);
       if ("full_name" in member.profile) member._full_name_lc = _.toLower(member.profile.full_name);
       if ("full_name_normalized" in member.profile) member._full_name_normalized_lc = _.toLower(member.profile.full_name_normalized);
     }
@@ -13517,8 +13503,8 @@ TS.registerModule("constants", {
         if (query.length === 1 || !options.full_profile_filter) {
           if (TS.boot_data.feature_name_tagging_client) {
             var is_full_name_match = TS.utility.search.makeClause("full_name", query);
-            var is_preferred_name_match = TS.utility.search.makeClause("preferred_name", query);
-            var is_full_name_or_preferred_name_match = TS.utility.search.makeConjunction("OR", [is_full_name_match, is_preferred_name_match]);
+            var is_display_name_match = TS.utility.search.makeClause("display_name", query);
+            var is_full_name_or_preferred_name_match = TS.utility.search.makeConjunction("OR", [is_full_name_match, is_display_name_match]);
             return is_full_name_or_preferred_name_match;
           }
           var is_name_match = TS.utility.search.makeClause("name", query);
@@ -13952,7 +13938,7 @@ TS.registerModule("constants", {
     members.forEach(function(member) {
       var match;
       if (TS.boot_data.feature_name_tagging_client) {
-        match = member._full_name_lc && (member._full_name_lc.match(start_regex) || member._full_name_lc.match(suffix_regex)) || member.email && (member.email.match(start_regex) || member.email.match(suffix_regex)) || member.profile && member.profile.email && (member.profile.email.match(start_regex) || member.profile.email.match(suffix_regex)) || member.profile && member.profile.full_name_normalized && (member.profile.full_name_normalized.match(start_regex) || member.profile.full_name_normalized.match(suffix_regex)) || member.profile && member.profile.full_name && (member.profile.full_name.match(start_regex) || member.profile.full_name.match(suffix_regex)) || member.profile && member.profile.preferred_name_normalized && (member.profile.preferred_name_normalized.match(start_regex) || member.profile.preferred_name_normalized.match(suffix_regex)) || member.profile && member.profile.preferred_name && (member.profile.preferred_name.match(start_regex) || member.profile.preferred_name.match(suffix_regex));
+        match = member._full_name_lc && (member._full_name_lc.match(start_regex) || member._full_name_lc.match(suffix_regex)) || member.email && (member.email.match(start_regex) || member.email.match(suffix_regex)) || member.profile && member.profile.email && (member.profile.email.match(start_regex) || member.profile.email.match(suffix_regex)) || member.profile && member.profile.full_name_normalized && (member.profile.full_name_normalized.match(start_regex) || member.profile.full_name_normalized.match(suffix_regex)) || member.profile && member.profile.full_name && (member.profile.full_name.match(start_regex) || member.profile.full_name.match(suffix_regex)) || member.profile && member.profile.display_name_normalized && (member.profile.display_name_normalized.match(start_regex) || member.profile.display_name_normalized.match(suffix_regex)) || member.profile && member.profile.preferred_name && (member.profile.preferred_name.match(start_regex) || member.profile.preferred_name.match(suffix_regex));
       } else {
         match = member.name && (member.name.match(start_regex) || member.name.match(suffix_regex)) || member.first_name && (member.first_name.match(start_regex) || member.first_name.match(suffix_regex)) || member.last_name && (member.last_name.match(start_regex) || member.last_name.match(suffix_regex)) || member._real_name_lc && (member._real_name_lc.match(start_regex) || member._real_name_lc.match(suffix_regex)) || member.email && (member.email.match(start_regex) || member.email.match(suffix_regex)) || member.profile && member.profile.email && (member.profile.email.match(start_regex) || member.profile.email.match(suffix_regex)) || member.profile && member.profile.real_name_normalized && (member.profile.real_name_normalized.match(start_regex) || member.profile.real_name_normalized.match(suffix_regex)) || member.profile && member.profile.real_name && (member.profile.real_name.match(start_regex) || member.profile.real_name.match(suffix_regex));
       }
@@ -14053,7 +14039,6 @@ TS.registerModule("constants", {
     no_omnibox_in_channels_changed_sig: new signals.Signal,
     k_key_omnibox_auto_hide_count_changed_sig: new signals.Signal,
     prev_next_btn_changed_sig: new signals.Signal,
-    display_preferred_names_changed_sig: new signals.Signal,
     display_real_names_override_changed_sig: new signals.Signal,
     team_display_real_names_changed_sig: new signals.Signal,
     team_perms_pref_changed_sig: new signals.Signal,
@@ -14402,10 +14387,6 @@ TS.registerModule("constants", {
         case "display_real_names_override":
           TS.model.prefs.display_real_names_override = imsg.value;
           TS.prefs.display_real_names_override_changed_sig.dispatch();
-          break;
-        case "display_preferred_names":
-          TS.model.prefs.display_preferred_names = imsg.value;
-          TS.prefs.display_preferred_names_changed_sig.dispatch();
           break;
         case "growls_enabled":
           TS.model.prefs.growls_enabled = !!imsg.value;
@@ -28777,7 +28758,7 @@ TS.registerModule("constants", {
   TS.registerModule("utility.members", {
     checkMemberMatch: function(member, regex, names_only) {
       if (TS.boot_data.feature_name_tagging_client) {
-        return !names_only && member.profile && member.profile.email && member.profile.email.match(regex) || member.profile && member.profile.full_name_normalized && member.profile.full_name_normalized.match(regex) || member.profile && member.profile.full_name && member.profile.full_name.match(regex) || member.profile && member.profile.preferred_name_normalized && member.profile.preferred_name_normalized.match(regex) || member.profile && member.profile.preferred_name && member.profile.preferred_name.match(regex);
+        return !names_only && member.profile && member.profile.email && member.profile.email.match(regex) || member.profile && member.profile.full_name_normalized && member.profile.full_name_normalized.match(regex) || member.profile && member.profile.full_name && member.profile.full_name.match(regex) || member.profile && member.profile.display_name_normalized && member.profile.display_name_normalized.match(regex) || member.profile && member.profile.display_name && member.profile.display_name.match(regex);
       }
       return member.name && member.name.match(regex) || !names_only && member.profile && member.profile.email && member.profile.email.match(regex) || member.profile && member.profile.real_name_normalized && member.profile.real_name_normalized.match(regex) || member.profile && member.profile.real_name && member.profile.real_name.match(regex);
     },
@@ -32818,15 +32799,9 @@ TS.registerModule("constants", {
             if (!TS.boot_data.is_in_invites_sidebar_exp) break;
             TS.menu.$submenu_parent = $menu_content.find("#team_invitations");
             TS.menu.$submenu_parent.submenu({
-              items_html: TS.templates.shared_invites_modal(),
-              onclick: function(e) {
-                if ($(e.target).data("action") == "admin_invites_modal") {
-                  e.preventDefault();
-                  TS.ui.admin_invites.start();
-                  TS.menu.end();
-                }
-              }
+              items_html: TS.templates.shared_invites_modal()
             });
+            TS.ui.shared_invites_modal.start();
             break;
           default:
         }
@@ -33323,8 +33298,6 @@ TS.registerModule("constants", {
       TS.menu.start(e);
       if ($el.hasClass("channel_list_add_link_feat_link_in_sidebar")) {
         TS.menu.positionAt($el, 0, -TS.menu.$menu.height() - 16);
-      } else {
-        TS.menu.positionAt($el, 0, 0);
       }
       TS.menu.$menu_items.on("click", '[data-action="admin_invites_modal"]', function() {
         TS.menu.end();
@@ -33736,9 +33709,11 @@ TS.registerModule("constants", {
         top: y + "px"
       });
       var onclick = this.options.onclick;
-      this.$submenu.on("click", function(e) {
-        onclick.call(this, e);
-      });
+      if (onclick) {
+        this.$submenu.on("click", function(e) {
+          onclick.call(this, e);
+        });
+      }
     },
     _destroy: function() {
       TS.menu.$submenu = null;
@@ -41810,7 +41785,7 @@ var _on_esc;
     }
     var field_names = ["first_name", "last_name", "title", "phone"];
     if (TS.boot_data.feature_name_tagging_client) {
-      field_names = ["full_name", "preferred_name", "title", "phone"];
+      field_names = ["full_name", "display_name", "title", "phone"];
     }
     if (TS.boot_data.feature_user_custom_status && TS.client) {
       field_names = field_names.concat(["status_emoji", "status_text"]);
@@ -49665,6 +49640,18 @@ $.fn.togglify = function(settings) {
       TS.ui.thread.collapseInlineThread($thread);
     });
     TS.click.addClientHandler("a[href]", function(e, $el, origin) {
+      var url_path = $el.attr("href").toLowerCase();
+      var routes_to_auth = {
+        "/admin": true,
+        "/admin/billing": true,
+        "/pricing": true,
+        "/files": true
+      };
+      if (routes_to_auth[url_path]) {
+        e.preventDefault();
+        TS.utility.openAuthenticatedInBrowser(url_path);
+        return;
+      }
       if (TS.client.archives.maybeHandleArchiveLink($el, origin)) {
         if (TS.ui.fs_modal_file_viewer && TS.ui.fs_modal_file_viewer.is_showing) {
           TS.ui.fs_modal.close();
@@ -49676,12 +49663,12 @@ $.fn.togglify = function(settings) {
         e.preventDefault();
         return;
       }
-      if (!$el.attr("target") && $el.attr("href").toLowerCase().indexOf("skype:") !== 0) {
+      if (!$el.attr("target") && url_path.indexOf("skype:") !== 0) {
         e.preventDefault();
-        TS.utility.openInNewTab($el.attr("href"), TS.templates.builders.newWindowName());
+        TS.utility.openInNewTab(url_path, TS.templates.builders.newWindowName());
         return;
       }
-      var file_id = TS.utility.getFileIDFromURL($el.attr("href"));
+      var file_id = TS.utility.getFileIDFromURL(url_path);
       if (file_id && TS.client.windows.openFileWindow(file_id, "")) {
         e.preventDefault();
         return;
@@ -49852,10 +49839,6 @@ $.fn.togglify = function(settings) {
     }
     TS.click.addClientHandler("[data-js=sli_expert_search_toggle]", function(e) {
       if (TS.sli_expert_search) TS.sli_expert_search.toggleExpand(e);
-    });
-    TS.click.addClientHandler(".authenticate_in_browser", function(e, $el) {
-      var $url_path = $el.data("url_path");
-      TS.utility.openAuthenticatedInBrowser($url_path);
     });
   };
   var _setupBinding = function() {
@@ -50495,19 +50478,19 @@ $.fn.togglify = function(settings) {
     if (TS.boot_data.feature_name_tagging_client) {
       var full_name_score = Infinity;
       var full_name_normalized_score = Infinity;
-      var preferred_name_score = Infinity;
-      var preferred_name_normalized_score = Infinity;
+      var display_name_score = Infinity;
+      var display_name_normalized_score = Infinity;
       full_name_score = matcher.score(member._full_name_lc);
       if (member._full_name_lc !== member._full_name_normalized_lc) {
         full_name_normalized_score = matcher.score(member._full_name_normalized_lc);
       }
-      if (member._preferred_name_lc) {
-        preferred_name_score = matcher.score(member._preferred_name_lc);
-        if (member._preferred_name_lc !== member._preferred_name_normalized_lc) {
-          preferred_name_normalized_score = matcher.score(member._preferred_name_normalized_lc);
+      if (member._display_name_lc) {
+        display_name_score = matcher.score(member._display_name_lc);
+        if (member._display_name_lc !== member._display_name_normalized_lc) {
+          display_name_normalized_score = matcher.score(member._display_name_normalized_lc);
         }
       }
-      score = Math.min(full_name_score, full_name_normalized_score, preferred_name_score, preferred_name_normalized_score);
+      score = Math.min(full_name_score, full_name_normalized_score, display_name_score, display_name_normalized_score);
     } else {
       var name_score = Infinity;
       var rn_score = Infinity;
@@ -58063,7 +58046,7 @@ $.fn.togglify = function(settings) {
       var model = _.clone(action);
       model._disabled = model._disabled || !!is_disabled;
       model.data_source = _DATA_SOURCES[model.data_source] || _DATA_SOURCES.default;
-      model.placeholder_text = _getPlaceholderTextByDataSource(model.data_source);
+      model.text = model.text || _getDefaultPlaceholderText(model.data_source);
       return model;
     }
   });
@@ -58258,14 +58241,14 @@ $.fn.togglify = function(settings) {
   }
 
   function _getPlaceholderText($select) {
-    return $select.attr("placeholder") || _.get(_PLACEHOLDER_TEXT, $select.data("data-source"), _PLACEHOLDER_TEXT.default);
+    return $select.attr("placeholder") || _getDefaultPlaceholderText($select.data("data-source"));
   }
 
   function _getFilterPlaceholderText($select) {
     return _.get(_FILTER_PLACEHOLDER_TEXT, $select.data("data-source"), _FILTER_PLACEHOLDER_TEXT.default);
   }
 
-  function _getPlaceholderTextByDataSource(data_source) {
+  function _getDefaultPlaceholderText(data_source) {
     return _.get(_PLACEHOLDER_TEXT, data_source, _PLACEHOLDER_TEXT.default);
   }
 
@@ -61497,7 +61480,8 @@ $.fn.togglify = function(settings) {
 
   function s(e) {
     var t = e.dirtyComponentsLength;
-    t !== g.length ? c("124", t, g.length) : void 0, g.sort(a), _++;
+    t !== g.length ? c("124", t, g.length) : void 0, g.sort(a),
+      _++;
     for (var n = 0; n < t; n++) {
       var r = g[n],
         o = r._pendingCallbacks;
@@ -65572,7 +65556,8 @@ $.fn.togglify = function(settings) {
             Ff = io(function(e) {
               var t = ka(e),
                 n = v(e, ko);
-              return t === ka(n) ? t = oe : n.pop(), n.length && n[0] === e[0] ? Tr(n, ki(t, 2)) : [];
+              return t === ka(n) ? t = oe : n.pop(),
+                n.length && n[0] === e[0] ? Tr(n, ki(t, 2)) : [];
             }),
             Hf = io(function(e) {
               var t = ka(e),
@@ -66951,7 +66936,8 @@ $.fn.togglify = function(settings) {
         r = i.length,
         o = "<",
         a = ">";
-      for (t.style.display = "none", n(199).appendChild(t), t.src = "javascript:", e = t.contentWindow.document, e.open(), e.write(o + "script" + a + "document.F=Object" + o + "/script" + a), e.close(), l = e.F; r--;) delete l[u][i[r]];
+      for (t.style.display = "none", n(199).appendChild(t), t.src = "javascript:", e = t.contentWindow.document, e.open(), e.write(o + "script" + a + "document.F=Object" + o + "/script" + a),
+        e.close(), l = e.F; r--;) delete l[u][i[r]];
       return l();
     };
   e.exports = Object.create || function(e, t) {
@@ -68568,7 +68554,8 @@ $.fn.togglify = function(settings) {
       if (t.nodeType === N ? d("43") : void 0, a.useCreateElement) {
         for (; t.lastChild;) t.removeChild(t.lastChild);
         h.insertTreeBefore(t, e, null);
-      } else P(t, e), _.precacheNode(n, t.firstChild);
+      } else P(t, e),
+        _.precacheNode(n, t.firstChild);
     }
   };
   e.exports = U;
@@ -71721,8 +71708,7 @@ $.fn.togglify = function(settings) {
             i = r.width;
           e = e || this.props.scrollElement || window;
           var a = n.i(g.b)(v.a.findDOMNode(this), e);
-          this._positionFromTop = a.top,
-            this._positionFromLeft = a.left;
+          this._positionFromTop = a.top, this._positionFromLeft = a.left;
           var s = n.i(g.a)(e);
           o === s.height && i === s.width || (this.setState({
             height: s.height,
@@ -74809,15 +74795,14 @@ $.fn.togglify = function(settings) {
 
   function r() {
     S || (S = !0, _.EventEmitter.injectReactEventListener(g), _.EventPluginHub.injectEventPluginOrder(s), _.EventPluginUtils.injectComponentTree(p), _.EventPluginUtils.injectTreeTraversal(h), _.EventPluginHub.injectEventPluginsByName({
-        SimpleEventPlugin: C,
-        EnterLeaveEventPlugin: u,
-        ChangeEventPlugin: a,
-        SelectEventPlugin: w,
-        BeforeInputEventPlugin: i
-      }), _.HostComponent.injectGenericComponentClass(f), _.HostComponent.injectTextComponentClass(v), _.DOMProperty.injectDOMPropertyConfig(o), _.DOMProperty.injectDOMPropertyConfig(l), _.DOMProperty.injectDOMPropertyConfig(b), _.EmptyComponent.injectEmptyComponentFactory(function(e) {
-        return new d(e);
-      }), _.Updates.injectReconcileTransaction(y),
-      _.Updates.injectBatchingStrategy(m), _.Component.injectEnvironment(c));
+      SimpleEventPlugin: C,
+      EnterLeaveEventPlugin: u,
+      ChangeEventPlugin: a,
+      SelectEventPlugin: w,
+      BeforeInputEventPlugin: i
+    }), _.HostComponent.injectGenericComponentClass(f), _.HostComponent.injectTextComponentClass(v), _.DOMProperty.injectDOMPropertyConfig(o), _.DOMProperty.injectDOMPropertyConfig(l), _.DOMProperty.injectDOMPropertyConfig(b), _.EmptyComponent.injectEmptyComponentFactory(function(e) {
+      return new d(e);
+    }), _.Updates.injectReconcileTransaction(y), _.Updates.injectBatchingStrategy(m), _.Component.injectEnvironment(c));
   }
   var o = n(241),
     i = n(243),
@@ -74871,7 +74856,8 @@ $.fn.togglify = function(settings) {
   }
 
   function o(e, t) {
-    this.topLevelType = e, this.nativeEvent = t, this.ancestors = [];
+    this.topLevelType = e,
+      this.nativeEvent = t, this.ancestors = [];
   }
 
   function i(e) {

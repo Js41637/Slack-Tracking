@@ -123,12 +123,15 @@
             usergroups: usergroups,
             broadcast_keywords: broadcast_keywords
           });
-          var matched_user_groups = _.filter(api_results, "is_usergroup");
-          var user_group_promises = _.reduce(matched_user_groups, function(memo, user_group) {
-            var promise = TS.user_groups.ensureUserGroupMembersInModelObNumIsKnown(user_group.id, model_ob.id);
-            if (!promise.isResolved()) memo.push(promise);
-            return memo;
-          }, []);
+          var user_group_promises = [];
+          if (model_ob) {
+            var matched_user_groups = _.filter(api_results, "is_usergroup");
+            user_group_promises = _.reduce(matched_user_groups, function(memo, user_group) {
+              var promise = TS.user_groups.ensureUserGroupMembersInModelObNumIsKnown(user_group.id, model_ob.id);
+              if (!promise.isResolved()) memo.push(promise);
+              return memo;
+            }, []);
+          }
           if (user_group_promises.length) {
             Promise.all(user_group_promises).then(function() {
               delayed(function() {
@@ -292,13 +295,13 @@
       primary_name_classes.push("display_name");
       secondary_name_classes.push("secondary_name");
       primary_name = TS.members.getMemberDisplayName(member, false, false);
-      if (TS.members.shouldDisplayPreferredNames() && TS.members.getMemberPreferredName(member)) {
-        primary_name_classes.push("preferred_name");
+      if (TS.members.getMemberPreferredName(member)) {
+        primary_name_classes.push("display_name");
         secondary_name_classes.push("full_name");
         secondary_name = TS.members.getMemberFullName(member);
       } else {
         primary_name_classes.push("full_name");
-        secondary_name_classes.push("preferred_name");
+        secondary_name_classes.push("display_name");
         secondary_name = TS.members.getMemberPreferredName(member);
       }
     } else {
@@ -380,7 +383,7 @@
     if (!query) query = "";
     var display_text = member.name;
     if (TS.boot_data.feature_name_tagging_client) {
-      display_text = member.profile.preferred_name || member.profile.full_name;
+      display_text = member.profile.display_name || member.profile.full_name;
     }
     if (TS.boot_data.feature_shared_channels_client && TS.utility.teams.isMemberExternal(member)) {
       var team = TS.teams.getTeamById(member.team_id);

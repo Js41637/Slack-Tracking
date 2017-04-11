@@ -6,11 +6,7 @@
   <div id="channel_page_member_{{member.id}}" class="channel_page_member_row overflow_ellipsis {{#unless suppress_presence}}{{member.presence}}{{/unless}}">
     {{{makeMemberPreviewLinkImage member.id 20 lazy false true}}}
     {{#unless suppress_presence}}{{{makeMemberPresenceIcon member}}}{{/unless}}
-    {{#feature flag="feature_name_tagging_client"}}
-      <a href="/team/{{member.id}}" data-member-id="{{member.id}}" class="member">{{getMemberFullName member}}{{#if member.is_self}} {{#t}}(you){{/t}}{{/if}}</a>
-    {{else}}
-      <a href="/team/{{member.name}}" data-member-id="{{member.id}}" class="member">{{getMemberDisplayName member false}}{{#if member.is_self}} {{#t}}(you){{/t}}{{/if}}</a>
-    {{/feature}}
+    <a href="/team/{{member.name}}" data-member-id="{{member.id}}" class="member">{{getMemberDisplayName member false}}{{#if member.is_self}} {{#t}}(you){{/t}}{{/if}}</a>
     {{#feature flag="feature_user_custom_status"}}
       {{#if member.profile}}
         {{#or member.profile.status_emoji member.profile.status_text}}

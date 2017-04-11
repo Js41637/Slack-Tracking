@@ -17,11 +17,7 @@
         </a>
       {{else}}
         <a href="/archives/{{this.id}}" class="slate_blue">
-          {{#feature flag="feature_name_tagging_client"}}
-            {{getMemberFullName this.member}}
-          {{else}}
-            {{getMemberDisplayName this.member}}
-          {{/feature}}
+          {{getMemberDisplayName this.member}}
         </a>
       {{/if}}
     </h4>

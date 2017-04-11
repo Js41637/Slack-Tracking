@@ -9,11 +9,7 @@
     {{#feature flag="feature_texty_takes_over"}}
       <div id="menu_member_dm_input"></div>
     {{else}}
-      {{#feature flag="feature_name_tagging_client"}}
-        <input type="text" id="menu_member_dm_input" class="small" placeholder="{{#t name=(getMemberFullName member)}}Message {name}{{/t}}">
-      {{else}}
-        <input type="text" id="menu_member_dm_input" class="small" placeholder="{{#t name=(getMemberDisplayName member false true)}}Message {name}{{/t}}">
-      {{/feature}}
+      <input type="text" id="menu_member_dm_input" class="small" placeholder="{{#t name=(getMemberDisplayName member false true)}}Message {name}{{/t}}">
     {{/feature}}
   {{/if}}
 </div>

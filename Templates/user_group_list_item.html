@@ -51,15 +51,9 @@
         {{/or}}
         {{#if user_group.created_by}}
           <p class="small subtle_silver no_bottom_margin">
-            {{#feature flag="feature_name_tagging_client"}}
-              {{#t note="description of the user group creator and user group creation date" creator=(getMemberFullName user_group.created_by) creation_date=(convertTimestampToMilliseconds user_group.date_create)}}
-                Created by <strong>{creator}</strong> on {creation_date, date, long}
-              {{/t}}
-            {{else}}
-              {{#t note="description of the user group creator and user group creation date" creator=(getMemberDisplayNameById user_group.created_by) creation_date=(convertTimestampToMilliseconds user_group.date_create)}}
-                Created by <strong>{creator}</strong> on {creation_date, date, long}
-              {{/t}}
-            {{/feature}}
+            {{#t note="description of the user group creator and user group creation date" creator=(getMemberDisplayNameById user_group.created_by) creation_date=(convertTimestampToMilliseconds user_group.date_create)}}
+              Created by <strong>{creator}</strong> on {creation_date, date, long}
+            {{/t}}
           </p>
         {{/if}}
       </div>

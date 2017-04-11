@@ -7,11 +7,7 @@
       {{#if this.creator}}
         {{#if this.created}}
           <p class="lato subtle_silver tiny_bottom_margin">
-            {{#feature flag="feature_name_tagging_client"}}
-              <i>{{#t note="Channel created information" member=(getMemberFullName this.creator) date_created=(convertTimestampToMilliseconds this.created)}}Created by <b>{member}</b> on {date_created, date, long}{{/t}}</i>
-            {{else}}
-              <i>{{#t note="Channel created information" member=(getMemberDisplayNameById this.creator) date_created=(convertTimestampToMilliseconds this.created)}}Created by <b>{member}</b> on {date_created, date, long}{{/t}}</i>
-            {{/feature}}
+            <i>{{#t note="Channel created information" member=(getMemberDisplayNameById this.creator) date_created=(convertTimestampToMilliseconds this.created)}}Created by <b>{member}</b> on {date_created, date, long}{{/t}}</i>
           </p>
         {{/if}}
       {{/if}}

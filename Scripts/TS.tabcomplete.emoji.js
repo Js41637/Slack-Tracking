@@ -71,6 +71,12 @@
       if (direction === "left") {
         return params.selectedIndex > 0 ? params.selectedIndex - 1 : elements.length - 1;
       }
+      if (params.keyCode === TS.utility.keymap.home || direction === "up" && params.metaKey) {
+        return 0;
+      }
+      if (params.keyCode === TS.utility.keymap.end || direction === "down" && params.metaKey) {
+        return elements.length - 1;
+      }
       if (!TS.boot_data.feature_tinyspeck) return;
       var items = _.map(elements, function(element, i) {
         var data = _resultElementToData(element);

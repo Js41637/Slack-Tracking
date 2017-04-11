@@ -385,7 +385,7 @@
       } else if (TS.web.admin.sort_order == "full_name") {
         sort_func = TS.web.admin.sortByFullName;
       } else if (TS.web.admin.sort_order == "preferred_name") {
-        sort_func = TS.web.admin.sortByPreferredName;
+        sort_func = TS.web.admin.sortByDisplayName;
       }
       if (TS.web.admin.view == "list") {
         TS.web.admin.active_members.sort(sort_func);
@@ -405,12 +405,12 @@
     sortByFullName: function(a, b) {
       return a._full_name_normalized_lc > b._full_name_normalized_lc ? 1 : b._full_name_normalized_lc > a._full_name_normalized_lc ? -1 : 0;
     },
-    sortByPreferredName: function(a, b) {
-      if (a._preferred_name_normalized_lc && b._preferred_name_normalized_lc) {
-        return a._preferred_name_normalized_lc > b._preferred_name_normalized_lc ? 1 : b._preferred_name_normalized_lc > a._preferred_name_normalized_lc ? -1 : 0;
-      } else if (a._preferred_name_normalized_lc) {
+    sortByDisplayName: function(a, b) {
+      if (a._display_name_normalized_lc && b._display_name_normalized_lc) {
+        return a._display_name_normalized_lc > b._display_name_normalized_lc ? 1 : b._display_name_normalized_lc > a._display_name_normalized_lc ? -1 : 0;
+      } else if (a._display_name_normalized_lc) {
         return -1;
-      } else if (b._preferred_name_normalized_lc) {
+      } else if (b._display_name_normalized_lc) {
         return 1;
       }
       return 0;
