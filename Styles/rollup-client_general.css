@@ -7779,8 +7779,7 @@ ts-inline-saver.failed .failed {
 }
 
 .lazy_filter_select.single.filter_in_list_style {
-  max-width: 250px;
-  min-width: 150px
+  width: 150px
 }
 
 .lazy_filter_select.single.filter_in_list_style ._input_style {
@@ -7872,6 +7871,10 @@ ts-inline-saver.failed .failed {
 
 .lazy_filter_select.single.filter_in_list_style.disabled .lfs_input_container .lfs_item_desc {
   color: #BABBBF
+}
+
+.lazy_filter_select.single.filter_in_list_style.disabled .lfs_input_container::hover {
+  border-color: #c5c5c5
 }
 
 label.select[data-lazy-filter-select]:after,
