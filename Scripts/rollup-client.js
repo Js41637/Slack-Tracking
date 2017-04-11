@@ -2491,7 +2491,7 @@
           doing_an_overlay = true;
           TS.view.overlay.startWithCreatedChannel(channel);
         }
-      } else if (channel && channel.needs_invited_message && TS.utility.teams.isModelObShared(channel)) {
+      } else if (channel && channel.needs_invited_message && TS.shared.isModelObShared(channel)) {
         TS.view.overlay.startWithJoinedSharedChannel(channel);
       } else if (channel && channel.needs_invited_message) {
         if (TS.model.prefs.no_joined_overlays) {
@@ -9208,7 +9208,7 @@
       if (exclude !== "team") {
         if (TS.boot_data.feature_user_custom_status) TS.client.ui.flex._unregisterCurrentStatusInput();
         if (TS.lazyLoadMembersAndBots()) {
-          var searchable_member_list = TS.SearchableMemberList.get("team_list_scroller");
+          var searchable_member_list = TS.SearchableMemberList.get("team_directory");
           if (searchable_member_list) {
             searchable_member_list.destroy();
           }
@@ -13116,7 +13116,7 @@
       var call_button_template_args;
       if (TS.boot_data.page_needs_enterprise) {
         if (!model_ob) model_ob = TS.shared.getActiveModelOb();
-        if (model_ob && TS.utility.teams.isModelObShared(model_ob)) return;
+        if (model_ob && TS.shared.isModelObShared(model_ob)) return;
       }
       if (!TS.model.team.prefs.allow_calls) return;
       if (TS.model.active_im_id) {
@@ -13426,7 +13426,7 @@
     additional_template_args = additional_template_args || {};
     var model_ob = TS.shared.getActiveModelOb();
     if (!model_ob) return;
-    if (TS.utility.teams.isModelObShared(model_ob)) return;
+    if (TS.shared.isModelObShared(model_ob)) return;
     if (!TS.permissions.members.canPostInChannel(model_ob)) return;
     var is_call_window_ready = TS.utility.calls.isCallWindowReady() || !TS.utility.calls.platformHasCallsCode();
     var is_multiparty_enabled = TS.utility.calls.isMultiPartyEnabled();
@@ -19727,7 +19727,7 @@
       if (display && TS.members.isMemberInDnd(TS.model.user) && !msg._ignore_dnd) {
         display = false;
       }
-      if (TS.shared.isSharedModelOb(model_ob)) {
+      if (TS.shared.isModelObOrgShared(model_ob)) {
         var is_relevant_team = TS.shared.isRelevantTeamForSharedModelOb(model_ob);
         if (!is_relevant_team) {
           if (TS.pri) TS.log(67, "Shared channel " + model_ob.id + " is not relevant; suppressing notification.");
@@ -19870,7 +19870,7 @@
       if (display && TS.members.isMemberInDnd(TS.model.user) && !msg._ignore_dnd) {
         display = false;
       }
-      if (TS.shared.isSharedModelOb(im)) {
+      if (TS.shared.isModelObOrgShared(im)) {
         var is_relevant_team = TS.shared.isRelevantTeamForSharedModelOb(im);
         if (!is_relevant_team) {
           if (TS.pri) TS.log(67, "Shared channel " + im.id + " is not relevant; suppressing notification.");
@@ -20400,7 +20400,7 @@
     var $disabled_explain = $("#single_suppressed_disabled_explain");
     var $container = $("#single_suppressed_div");
     var $tip_link = $("#single_suppressed_disabled_explain_tip_link");
-    var is_suppressed = TS.notifs.hasUserSuppressedCorGChannelMentions(_c_id) || TS.notifs.hasUserSuppressedCorGPushChannelMentions(_c_id);
+    var is_suppressed = TS.notifs.hasUserSuppressedCorGChannelMentionsById(_c_id) || TS.notifs.hasUserSuppressedCorGPushChannelMentions(_c_id);
     var push_setting = TS.notifs.getCalculatedCorGPushNotifySetting(_c_id);
     var desktop_setting = TS.notifs.getCalculatedCorGNotifySetting(_c_id);
     var show_it = push_setting == "mentions" || desktop_setting == "mentions";
@@ -20459,7 +20459,7 @@
     var $container = $("#suppressed_span");
     var $tip_link = $("#suppressed_disabled_explain_tip_link");
     var show_it = setting == "mentions";
-    _setSuppressedLabelState(TS.notifs.hasUserSuppressedCorGChannelMentions(_c_id), "at_channel_suppressed_channels", show_it, $cb, $label, $disabled_explain, $container, $tip_link);
+    _setSuppressedLabelState(TS.notifs.hasUserSuppressedCorGChannelMentionsById(_c_id), "at_channel_suppressed_channels", show_it, $cb, $label, $disabled_explain, $container, $tip_link);
     _setSuppressedCheckboxState();
   };
   var _setSuppressedLabelState = function(is_suppressed, pref_name, show_it, $cb, $label, $disabled_explain, $container, $tip_link) {
@@ -28995,7 +28995,7 @@
       template_args.teams_shared_with = _.map(model_ob.shared_team_ids, function(id) {
         return TS.enterprise.getTeamById(id);
       });
-    } else if (TS.utility.teams.isModelObShared(model_ob)) {
+    } else if (TS.shared.isModelObShared(model_ob)) {
       template_args.team = TS.model.team;
       template_args.shared_teams = _.map(model_ob.shared_team_ids, function(id) {
         return TS.teams.getTeamById(id);
@@ -29633,7 +29633,7 @@
       },
       onEnd: function() {
         if (TS.lazyLoadMembersAndBots()) {
-          var searchable_member_list = TS.SearchableMemberList.get("channel_membership_dialog_scroller");
+          var searchable_member_list = TS.SearchableMemberList.get("channel_membership_dialog");
           if (searchable_member_list) {
             searchable_member_list.destroy();
           }
@@ -40499,6 +40499,7 @@ function timezones_guess() {
   };
   var _renderBroadcastButtons = function(model_ob, thread_ts, $reply_container) {
     if (!model_ob || !$reply_container || $reply_container.length === 0) return;
+    if (!TS.permissions.members.canPostInChannel(model_ob)) return;
     var require_at_for_mention = _.get(TS.model, ".team.prefs.require_at_for_mention");
     $reply_container.append(TS.templates.reply_broadcast_buttons({
       model_ob: model_ob,
