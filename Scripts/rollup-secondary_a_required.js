@@ -11732,7 +11732,7 @@ TS.registerModule("constants", {
       };
     },
     promiseToSearchMembers: function(maybe_searcher_p) {
-      if (!TS.model.shared_channels_enabled && !TS.lazyLoadMembersAndBots()) return Promise.reject(new Error("API search not yet enabled"));
+      if (!TS.boot_data.page_needs_enterprise && !TS.boot_data.feature_shared_channels_client && !TS.lazyLoadMembersAndBots()) return Promise.reject(new Error("API search not yet enabled"));
       return Promise.resolve(maybe_searcher_p).then(function(searcher) {
         if (!searcher) return Promise.reject(new Error("No search parameters provided"));
         searcher.query = searcher.query && searcher.query.trim() || "";
@@ -46344,14 +46344,17 @@ $.fn.togglify = function(settings) {
     style: TS.ui.lazy_filter_select.STYLES.default,
     template: function(item) {
       var text = item.toString();
+      var is_domish_element = item instanceof jQuery || item instanceof HTMLElement;
       var addl_text;
       var ts_icon;
-      if (item instanceof jQuery || item instanceof HTMLElement) {
+      if (is_domish_element) {
         text = $(item).text();
         addl_text = _formatTextForDisplay($(item).attr("data-additional-search-field"), this);
         ts_icon = _formatTextForDisplay($(item).attr("data-ts-icon"), this);
       }
-      text = _formatTextForDisplay(text, this);
+      text = _formatTextForDisplay(text, this, {
+        is_html_safe: is_domish_element
+      });
       if (addl_text) text += ' <span class="addl_text">' + addl_text + "</span>";
       if (ts_icon) text += ' <ts-icon class="addl_icon ' + ts_icon + '"></ts-icon>';
       return new Handlebars.SafeString(text);
@@ -47238,8 +47241,11 @@ $.fn.togglify = function(settings) {
     });
     instance.$select.val(values).trigger("change");
   };
-  var _formatTextForDisplay = function(text, instance) {
-    text = TS.utility.htmlEntities(text);
+  var _formatTextForDisplay = function(text, instance, options) {
+    options = options || {};
+    if (!options.is_html_safe) {
+      text = TS.utility.htmlEntities(text);
+    }
     if (_.get(instance, "should_graphic_replace_emoji")) {
       text = TS.emoji.graphicReplace(text);
     }

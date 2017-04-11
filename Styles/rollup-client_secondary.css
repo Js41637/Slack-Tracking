@@ -237,14 +237,10 @@
   display: -moz-flex;
   display: -ms-flexbox;
   display: flex;
-  margin-top: 9px
-}
-
-.flexpane_redesign #col_flex {
   margin-top: 8px
 }
 
-.flexpane_redesign.flex_pane_showing #col_flex {
+.flex_pane_showing #col_flex {
   -webkit-flex-basis: 500px;
   -moz-flex-basis: 500px;
   -ms-flex-preferred-size: 500px;
@@ -489,37 +485,15 @@ input.search_input {
   overflow: hidden
 }
 
-#client-ui:not(.flexpane_redesign) #flex_contents {
-  margin: 1px 4px 4px
-}
-
-.supports_custom_scrollbar #client-ui #flex_contents {
+.supports_custom_scrollbar #flex_contents {
   margin-right: 0
 }
 
 #flex_contents .heading {
+  border-bottom: .0625rem solid #E8E8E8;
   position: relative;
   z-index: 50;
-  background: #F7F7F7
-}
-
-#client-ui:not(.flexpane_redesign) #flex_contents .heading {
-  width: 100%;
-  font-family: Slack-Lato, appleLogo, sans-serif;
-  min-height: 2.75rem;
-  color: #555459;
-  font-size: 1.4rem;
-  line-height: 1.4rem;
-  font-weight: 400;
-  padding: 1rem .75rem;
-  margin-top: 3px;
-  border-top-left-radius: 6px;
-  border-top-right-radius: 6px;
-  border-bottom: none
-}
-
-.flexpane_redesign #flex_contents .heading {
-  border-bottom: .0625rem solid #E8E8E8;
+  background: #F7F7F7;
   padding: 19px 12px
 }
 
@@ -545,10 +519,6 @@ input.search_input {
   background: #fff;
   border-top: 0;
   border-bottom: 1px solid #E0E0E0
-}
-
-#client-ui:not(.flexpane_redesign) #flex_contents .subheading:not(:empty) {
-  width: 99%
 }
 
 .supports_custom_scrollbar #flex_contents .subheading:not(:empty) {
@@ -638,14 +608,8 @@ input.search_input {
   background: 0 0;
   color: #555459;
   float: left;
-  margin: -.5rem 0 -.5rem -.5rem;
-  padding: .5rem
-}
-
-.flexpane_redesign #flex_contents .heading .menu_icon {
   margin: 0;
-  padding-top: 0;
-  padding-bottom: 0;
+  padding: 0 .5rem;
   -webkit-transform: translateY(-1px);
   -moz-transform: translateY(-1px);
   -ms-transform: translateY(-1px);
@@ -670,11 +634,7 @@ input.search_input {
   border-top: 1px solid #E0E0E0
 }
 
-#client-ui:not(.flexpane_redesign) #flex_contents .local_only_sub_heading {
-  width: 99%
-}
-
-.flexpane_redesign #details_tab_header {
+#details_tab_header {
   display: -webkit-box;
   display: -webkit-flex;
   display: -moz-flex;
@@ -682,7 +642,7 @@ input.search_input {
   display: flex
 }
 
-.flexpane_redesign #details_tab_header .channel_name {
+#details_tab_header .channel_name {
   display: -webkit-box;
   display: -webkit-flex;
   display: -moz-flex;
@@ -691,7 +651,7 @@ input.search_input {
   margin-left: 6px
 }
 
-.flexpane_redesign #details_tab_header .ts_icon_lock {
+#details_tab_header .ts_icon_lock {
   -webkit-transform: translateY(-1px);
   -moz-transform: translateY(-1px);
   -ms-transform: translateY(-1px);
@@ -699,19 +659,19 @@ input.search_input {
   margin-left: -3px
 }
 
-.flexpane_redesign #details_tab_header .ts_icon_org_shared_channel {
+#details_tab_header .ts_icon_org_shared_channel {
   -webkit-transform: translateX(5px);
   -moz-transform: translateX(5px);
   -ms-transform: translateX(5px);
   transform: translateX(5px)
 }
 
-.flexpane_redesign #file_list_container .heading_text .btn_basic {
+#file_list_container .heading_text .btn_basic {
   display: inline-block;
   vertical-align: inherit
 }
 
-.flexpane_redesign #file_list_container .heading_text .ts_icon_caret_down {
+#file_list_container .heading_text .ts_icon_caret_down {
   -webkit-transform: translateX(3px) translateY(-1px);
   -moz-transform: translateX(3px) translateY(-1px);
   -ms-transform: translateX(3px) translateY(-1px);
@@ -803,25 +763,7 @@ input.search_input {
   font-size: .9rem
 }
 
-#client-ui:not(.flexpane_redesign) #flex_contents .close_flexpane {
-  float: right
-}
-
-#client-ui:not(.flexpane_redesign) #flex_contents .heading a.close_flexpane {
-  margin-top: 1px
-}
-
-#client-ui:not(.flexpane_redesign) #flex_contents .flex_highlight,
-#client-ui:not(.flexpane_redesign) #flex_contents .heading {
-  width: 99%!important
-}
-
-.supports_custom_scrollbar #client-ui:not(.flexpane_redesign) #flex_contents .flex_highlight,
-.supports_custom_scrollbar #client-ui:not(.flexpane_redesign) #flex_contents .heading {
-  width: calc(100% - 4px)!important
-}
-
-.flexpane_redesign .heading_row {
+.heading_row {
   display: -webkit-box;
   display: -webkit-flex;
   display: -moz-flex;
@@ -831,7 +773,7 @@ input.search_input {
   line-height: 1.125
 }
 
-.flexpane_redesign #flex_contents .heading_text {
+#flex_contents .heading_text {
   -ms-flex: 1;
   -webkit-flex: 1;
   flex: 1;
@@ -842,12 +784,12 @@ input.search_input {
   line-height: inherit
 }
 
-.flexpane_redesign .close_flexpane {
+.close_flexpane {
   color: #717274
 }
 
-.flexpane_redesign .close_flexpane:focus,
-.flexpane_redesign .close_flexpane:hover {
+.close_flexpane:focus,
+.close_flexpane:hover {
   color: #005E99
 }
 
@@ -937,10 +879,7 @@ input.search_input {
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
-  max-width: 150px
-}
-
-.flexpane_redesign #flex_contents .flexpane_tab_bar li a {
+  max-width: 150px;
   display: inline-block
 }
 
@@ -1117,7 +1056,7 @@ input.search_input {
   text-align: center
 }
 
-.flexpane_redesign #team_list_admin_link {
+#team_list_admin_link {
   color: #717274
 }
 
@@ -1256,10 +1195,7 @@ input.search_input {
 #downloads_tab #downloads_tab_clear {
   padding-left: .5rem;
   font-size: 1rem;
-  border-right: 1px solid #D8D8D8
-}
-
-.flexpane_redesign #downloads_tab #downloads_tab_clear {
+  border-right: 1px solid #D8D8D8;
   margin-right: 1rem
 }
 
@@ -1754,25 +1690,6 @@ html:not(.supports_flexbox) #downloads_tab .download_estimate {
   font-family: Slack-Lato, appleLogo, sans-serif
 }
 
-#client-ui:not(.flexpane_redesign) #details_tab .heading {
-  background: #fff;
-  border-bottom: none;
-  border-radius: 0
-}
-
-#client-ui:not(.flexpane_redesign) #details_tab .heading #details_tab_header {
-  max-width: calc(100% - 1.5625rem);
-  display: inline-block;
-  line-height: 1.125
-}
-
-html #client-ui:not(.flexpane_redesign) #details_tab .heading #details_tab_header {
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
-  display: inline-block
-}
-
 #details_tab .heading #details_tab_header .ts_icon_channel,
 #details_tab .heading #details_tab_header .ts_icon_lock {
   font-weight: bolder
@@ -1792,26 +1709,9 @@ html #client-ui:not(.flexpane_redesign) #details_tab .heading #details_tab_heade
   margin-right: -.125rem
 }
 
-#client-ui:not(.flexpane_redesign) #details_tab .heading a.close_flexpane {
-  margin-right: 5px;
-  margin-top: 4px;
-  color: #BABBBF
-}
-
-#client-ui:not(.flexpane_redesign) #details_tab .heading a.close_flexpane:hover {
-  color: #555459
-}
-
-#client-ui:not(.flexpane_redesign) #details_tab:not(.dm_info_pane) .heading {
-  padding-bottom: 1.4375rem
-}
-
 #details_tab .conversation_details {
   display: none;
-  z-index: 50
-}
-
-.flexpane_redesign #details_tab .conversation_details {
+  z-index: 50;
   margin-top: 12px;
   margin-left: 7px;
   margin-right: 10px
@@ -1828,11 +1728,6 @@ html #client-ui:not(.flexpane_redesign) #details_tab .heading #details_tab_heade
 #details_tab .conversation_details .member_info,
 #details_tab .conversation_details .slackbot_info {
   line-height: 1.2rem;
-  margin-bottom: 1.5rem
-}
-
-.flexpane_redesign #details_tab .conversation_details .member_info,
-.flexpane_redesign #details_tab .conversation_details .slackbot_info {
   margin-bottom: 12px
 }
 
@@ -1853,10 +1748,7 @@ html #client-ui:not(.flexpane_redesign) #details_tab .heading #details_tab_heade
 #details_tab .channel_page_section {
   background: #fff;
   position: relative;
-  border-top: 1px solid #E8E8E8
-}
-
-.flexpane_redesign #details_tab .channel_page_section {
+  border-top: 1px solid #E8E8E8;
   padding-left: 8px;
   padding-right: 8px
 }
@@ -1971,7 +1863,7 @@ html #client-ui:not(.flexpane_redesign) #details_tab .heading #details_tab_heade
   padding-bottom: 0
 }
 
-.flexpane_redesign #details_tab .channel_page_section.channel_page_about {
+#details_tab .channel_page_section.channel_page_about {
   border-top: none
 }
 
@@ -2309,25 +2201,8 @@ html.is_electron_mac #rxn_toast_div {
   vertical-align: bottom
 }
 
-#client-ui:not(.flexpane_redesign) #convo_tab .heading {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -moz-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -ms-flex-align: center;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -moz-align-items: center;
-  align-items: center
-}
-
 #convo_tab .heading .close_flexpane {
   float: none;
-  margin-left: 6px
-}
-
-.flexpane_redesign #convo_tab .heading .close_flexpane {
   margin-left: 12px
 }
 
@@ -2350,19 +2225,15 @@ html:not(.supports_flexbox) #convo_tab #convo_tab_header .thread_participants {
 }
 
 #convo_tab #convo_tab_back_container {
-  display: inline-block;
-  padding-left: 5px;
-  padding-right: 15px;
-  margin-right: 15px;
-  border-right: 1px solid #E0E0E0
-}
-
-.flexpane_redesign #convo_tab #convo_tab_back_container {
   display: -webkit-box;
   display: -webkit-flex;
   display: -moz-flex;
   display: -ms-flexbox;
-  display: flex
+  display: flex;
+  padding-left: 5px;
+  padding-right: 15px;
+  margin-right: 15px;
+  border-right: 1px solid #E0E0E0
 }
 
 #convo_tab #convo_tab_back {
@@ -2377,19 +2248,19 @@ html:not(.supports_flexbox) #convo_tab #convo_tab_header .thread_participants {
   color: #005E99
 }
 
-html:not(.supports_flexbox) #convo_tab #convo_tab_btns {
-  display: inline-block;
-  position: absolute;
-  right: 12px;
-  top: 20px
-}
-
-.flexpane_redesign #convo_tab #convo_tab_btns {
+#convo_tab #convo_tab_btns {
   display: -webkit-box;
   display: -webkit-flex;
   display: -moz-flex;
   display: -ms-flexbox;
   display: flex
+}
+
+html:not(.supports_flexbox) #convo_tab #convo_tab_btns {
+  display: inline-block;
+  position: absolute;
+  right: 12px;
+  top: 20px
 }
 
 #convo_tab #convo_tab_btns .close_flexpane:focus,
@@ -2467,7 +2338,7 @@ html:not(.supports_flexbox) #convo_tab #convo_tab_btns {
   font-weight: 700
 }
 
-.flexpane_redesign #member_mentions {
+#member_mentions {
   padding-left: 8px;
   padding-right: 8px
 }
@@ -6484,12 +6355,12 @@ only screen and (min-resolution:2dppx) {
   transform: translateY(-1px)
 }
 
-#client-ui.flexpane_redesign #team_list {
-  margin-left: 8px
+#team_list_scroller {
+  margin-top: 6px
 }
 
-.flexpane_redesign #team_list_scroller {
-  margin-top: 6px
+#client-ui #team_list {
+  margin-left: 8px
 }
 
 #client-ui #team_list .expanded_member_details {
@@ -7378,14 +7249,6 @@ only screen and (min-resolution:2dppx) {
   padding-right: 1rem
 }
 
-#client-ui:not(.flexpane_redesign) #team_tab #member_preview_container .heading {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -moz-flex;
-  display: -ms-flexbox;
-  display: flex
-}
-
 #team_tab #back_from_member_preview {
   -webkit-box-flex: 1;
   -webkit-flex-grow: 1;
@@ -7399,11 +7262,7 @@ only screen and (min-resolution:2dppx) {
 }
 
 #team_tab #member_preview_scroller .member_details {
-  padding: 0 .25rem
-}
-
-.flexpane_redesign #team_tab #member_preview_scroller .member_details {
-  padding-left: 8px
+  padding: 0 .25rem 0 8px
 }
 
 #team_tab #member_preview_scroller .member_details .member_image.thumb_512 {
@@ -10288,19 +10147,14 @@ body.winssb .file_list_item {
 }
 
 #file_preview_scroller {
-  padding: 0 1.5rem 0 .5rem;
+  padding: 0 6px 0 10px;
   -webkit-user-select: text;
   -moz-user-select: text;
   -ms-user-select: text;
   user-select: text
 }
 
-.flexpane_redesign #file_preview_scroller {
-  padding-left: 10px;
-  padding-right: 6px
-}
-
-.flexpane_redesign .monkey_scroll_wrapper #file_preview_scroller {
+.monkey_scroll_wrapper #file_preview_scroller {
   padding-left: 18px;
   padding-right: 18px
 }
@@ -10311,14 +10165,10 @@ body.winssb .file_list_item {
 
 #file_preview_head_section {
   position: relative;
-  margin: 1rem 0 2rem
+  margin: 10px 0 2rem
 }
 
-.flexpane_redesign #file_preview_head_section {
-  margin-top: 10px
-}
-
-.flexpane_redesign .monkey_scroll_wrapper #file_preview_head_section {
+.monkey_scroll_wrapper #file_preview_head_section {
   margin-top: 18px
 }
 
@@ -13443,18 +13293,11 @@ button.star {
 }
 
 .selectable_flex_pane_padder {
+  margin: 1rem 0;
   -webkit-user-select: text;
   -moz-user-select: text;
   -ms-user-select: text;
   user-select: text
-}
-
-#client-ui:not(.flexpane_redesign) .selectable_flex_pane_padder {
-  margin: 1rem .5rem
-}
-
-.flexpane_redesign .selectable_flex_pane_padder {
-  margin: 1rem 0
 }
 
 .star_item .message.file_reference .message_star_holder {
@@ -14059,8 +13902,8 @@ only screen and (min-resolution:2dppx) {
   background: #FFF;
   font-size: 15px;
   line-height: 18px;
-  margin: 0 .5rem 8px 0;
-  padding: 8px .25rem 0;
+  margin: 0 0 8px;
+  padding: 8px .25rem 0 8px;
   font-family: Slack-Lato, appleLogo, sans-serif;
   color: #3D3C40;
   word-wrap: break-word;
@@ -14072,11 +13915,6 @@ only screen and (min-resolution:2dppx) {
   position: relative;
   border: none;
   border-top: 2px solid #f5f5f5
-}
-
-.flexpane_redesign .search_message_result {
-  padding-left: 8px;
-  margin-right: 0
 }
 
 .search_message_result:first-child {
@@ -14237,7 +14075,7 @@ span.match {
   border-bottom-left-radius: 4px;
   border-bottom-right-radius: 4px;
   margin-bottom: 28px;
-  margin-right: 8px
+  margin-right: 0
 }
 
 .search_module_footer p {
@@ -14270,12 +14108,8 @@ span.match {
   color: #439fe0
 }
 
-.flexpane_redesign .top_search_results {
+.top_search_results {
   margin: 0 .5rem
-}
-
-.flexpane_redesign .top_search_results .search_module_footer {
-  margin-right: 0
 }
 
 .top_results_search_message_result {
@@ -14438,21 +14272,11 @@ ts-icon.sli_feedback::before {
 }
 
 #search_results_container .flex_content_scroller {
-  padding: 0 1rem 0 .5rem
-}
-
-.flexpane_redesign #search_results_container .flex_content_scroller {
-  padding-right: 0
+  padding: 0 0 0 .5rem
 }
 
 .client_resize_optimizations #search_results_container .flex_content_scroller.monkey_scroller {
   padding-right: 1rem
-}
-
-#search_results_container .heading {
-  border-bottom: none;
-  height: auto;
-  padding-right: .75rem
 }
 
 .no_results {
@@ -14480,6 +14304,7 @@ ts-icon.sli_feedback::before {
 #search_results_team .team_result {
   border-radius: 6px;
   padding: .5rem .5rem .5rem 48px;
+  margin-left: 4px;
   margin-bottom: .25rem;
   margin-right: .25rem;
   clear: both;
@@ -14489,10 +14314,6 @@ ts-icon.sli_feedback::before {
   font-size: .8rem;
   background-color: #f9fbfd;
   border: 1px solid #f3f3f3
-}
-
-.flexpane_redesign #search_results_team .team_result {
-  margin-left: 4px
 }
 
 .feature_new_team_list #search_results_team .team_result {
@@ -20342,14 +20163,9 @@ ts-message.selected {
 }
 
 #convo_container ts-conversation ts-message.selected {
-  border-top: 1px solid #E0E0E0;
-  padding-top: .9375rem!important;
-  padding-bottom: 0!important
-}
-
-.flexpane_redesign #convo_container ts-conversation ts-message.selected {
   border-top: 0;
   padding-top: 7px!important;
+  padding-bottom: 0!important;
   padding-right: 10px
 }
 
@@ -25792,14 +25608,10 @@ li:hover .current_status_badge {
   align-items: center;
   height: 34px;
   margin: 2px 0 0;
-  padding: 0 10px 0 2px;
+  padding: 0 10px 0 0;
   -webkit-transition: width .15s ease-out 0s;
   -moz-transition: width .15s ease-out 0s;
   transition: width .15s ease-out 0s
-}
-
-.flexpane_redesign .flex_header {
-  padding-left: 0
 }
 
 .whats_new_showing .flex_header {

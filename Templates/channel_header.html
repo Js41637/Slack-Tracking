@@ -111,9 +111,6 @@
       {{> ts_icon class="ts_icon_sync"}}
     </button>
 
-    {{#feature flag="feature_flexpane_redesign"}}{{else}}
-      <div class="divider_bar channel_header_unread_view_divider_bar"></div>
-    {{/feature}}
   {{else if threads.is_showing}}
     {{! Nothing yet }}
   {{else if app_index.is_showing}}
@@ -154,8 +151,5 @@
       {{/if}}
       {{> ts_icon class="ts_icon_side_panel"}}
     </button>
-    {{#feature flag="feature_flexpane_redesign"}}{{else}}
-      <div class="divider_bar"></div>
-    {{/feature}}
   {{/if}}
 </div>

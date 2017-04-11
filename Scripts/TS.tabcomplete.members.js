@@ -277,7 +277,7 @@
   var _getLocalMembers = function(model_ob, no_model_ob) {
     var active_members = TS.members.getActiveMembersWithSelfAndSlackbot();
     if (!no_model_ob) {
-      active_members.filter(function(member) {
+      active_members = active_members.filter(function(member) {
         return TS.utility.members.isMemberRelevantToModel(member, model_ob);
       });
     }

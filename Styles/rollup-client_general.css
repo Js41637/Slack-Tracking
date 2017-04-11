@@ -6598,6 +6598,11 @@ body.winssb #emoji_menu {
   z-index: 1052
 }
 
+.menu.avatar_menu ul li.highlighted a ts-icon,
+.menu.avatar_menu:not(.keyboard_active) ul li:hover:not(.disabled) a ts-icon {
+  color: #007AB8
+}
+
 .menu.avatar_menu ul {
   margin: .5rem 0
 }

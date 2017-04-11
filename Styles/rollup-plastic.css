@@ -11547,6 +11547,11 @@ body.winssb #emoji_menu {
   z-index: 1052
 }
 
+.menu.avatar_menu ul li.highlighted a ts-icon,
+.menu.avatar_menu:not(.keyboard_active) ul li:hover:not(.disabled) a ts-icon {
+  color: #007AB8
+}
+
 .menu.avatar_menu ul {
   margin: .5rem 0
 }
@@ -12834,12 +12839,12 @@ only screen and (min-resolution:2dppx) {
   transform: translateY(-1px)
 }
 
-#client-ui.flexpane_redesign #team_list {
-  margin-left: 8px
+#team_list_scroller {
+  margin-top: 6px
 }
 
-.flexpane_redesign #team_list_scroller {
-  margin-top: 6px
+#client-ui #team_list {
+  margin-left: 8px
 }
 
 #client-ui #team_list .expanded_member_details {
@@ -13728,14 +13733,6 @@ only screen and (min-resolution:2dppx) {
   padding-right: 1rem
 }
 
-#client-ui:not(.flexpane_redesign) #team_tab #member_preview_container .heading {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -moz-flex;
-  display: -ms-flexbox;
-  display: flex
-}
-
 #team_tab #back_from_member_preview {
   -webkit-box-flex: 1;
   -webkit-flex-grow: 1;
@@ -13749,11 +13746,7 @@ only screen and (min-resolution:2dppx) {
 }
 
 #team_tab #member_preview_scroller .member_details {
-  padding: 0 .25rem
-}
-
-.flexpane_redesign #team_tab #member_preview_scroller .member_details {
-  padding-left: 8px
+  padding: 0 .25rem 0 8px
 }
 
 #team_tab #member_preview_scroller .member_details .member_image.thumb_512 {

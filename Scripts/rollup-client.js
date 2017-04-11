@@ -10826,10 +10826,10 @@
         if (!$quick_switcher_btn.hasClass("hidden")) return;
       }
       $quick_switcher_btn.toggleClass("hidden", !!TS.model.prefs.no_omnibox_in_channels);
-      TS.client.channel_pane.updateFooterButtons();
+      return TS.client.channel_pane.updateFooterButtons();
     },
     updateFooterButtons: function() {
-      TS.ui.admin_invites.getInvitesExperimentGroups().then(function() {
+      return TS.ui.admin_invites.getInvitesExperimentGroups().then(function() {
         if (TS.ui.admin_invites.isInSidebarExperiment()) {
           var $col_footer = $("#col_channels_footer");
           var $unread_mentions_btn = $("#channel_scroll_down");
@@ -11394,7 +11394,7 @@
           action: "opened"
         });
       });
-      TS.client.channel_pane.updateQuickSwitcherBtnVisibility();
+      return TS.client.channel_pane.updateQuickSwitcherBtnVisibility();
     });
   };
 })();
@@ -14280,6 +14280,16 @@
       }
     });
     _newest_id = _$whats_new_updates.children().first().data("whats-new-id") || _newest_id;
+    if (TS.boot_data.feature_custom_status_whats_new_fix && TS.model.prefs.whats_new_read == 1492074e3) {
+      TS.prefs.onPrefChanged({
+        name: "whats_new_read",
+        value: 1491931700
+      });
+      TS.prefs.setPrefByAPI({
+        name: "whats_new_read",
+        value: 1491931700
+      });
+    }
     _updateEverything();
     _$what_new_read_cb.bind("change", function() {
       _setUserBadgingPref(!!$(this).prop("checked"));
@@ -28929,11 +28939,9 @@
     if (model_ob.is_channel || !model_ob.is_channel && model_ob.is_group && !model_ob.is_mpim) {
       $("#channel_page_title").text(TS.i18n.t("Channel Details", "client")());
       var formatted_channel_name = '<span class="channel_name">';
-      formatted_channel_name += TS.boot_data.feature_flexpane_redesign ? "" : "<strong>";
       formatted_channel_name += TS.templates.builders.makeChannelPrefix(model_ob);
       formatted_channel_name += TS.utility.htmlEntities(model_ob.name);
       if (model_ob.is_shared) formatted_channel_name += ' <ts-icon class="ts_icon_org_shared_channel"></ts-icon>';
-      formatted_channel_name += TS.boot_data.feature_flexpane_redesign ? "" : "</strong>";
       formatted_channel_name += "</span>";
       html = TS.i18n.t("About {formatted_channel_name}", "client")({
         formatted_channel_name: formatted_channel_name
