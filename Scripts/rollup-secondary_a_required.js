@@ -1836,7 +1836,7 @@
       if (abort_on_slow_progress) setProgressTimer(perc);
       if (progressHandler) progressHandler(perc);
     };
-    req.onerror = function(e) {};
+    req.onerror = function() {};
     req.onreadystatechange = function() {
       if (req.readyState == 1) {} else if (req.readyState == 2) {
         if (headersHandler) headersHandler(req);
@@ -2226,7 +2226,7 @@
     _pause({
       reason: reason
     });
-    return TS.api.connection.waitForAPIConnection(retry_interval, max_retries).catch(function(err) {}).then(_unPause).then(_notifyUnpaused).then(_nextFromQ).catch(function(err) {
+    return TS.api.connection.waitForAPIConnection(retry_interval, max_retries).catch(function() {}).then(_unPause).then(_notifyUnpaused).then(_nextFromQ).catch(function(err) {
       TS.error("An error occured while waiting for API connection to come back", err);
       throw err;
     });
@@ -2360,7 +2360,7 @@
       if (TS.model.ms_connected) {
         return Promise.resolve();
       }
-      _ms_reconnected_p = new Promise(function(resolve, reject) {
+      _ms_reconnected_p = new Promise(function(resolve) {
         var ms_asleep = TS.model.ms_asleep;
         var calling_rtm_start = TS.model.calling_rtm_start;
         var calling_test_fast_reconnect = TS.model.calling_test_fast_reconnect;
@@ -2402,7 +2402,7 @@
     $.ajax({
       url: TS.model.api_url + "api.test",
       timeout: connection_timeout_ms
-    }).then(function(data, status, resp) {
+    }).then(function(data) {
       var is_online = !!(data && data.ok);
       callback(is_online);
     }).fail(function() {
@@ -12857,7 +12857,7 @@ TS.registerModule("constants", {
       }
       return upsert;
     },
-    upsertBot: function(bot, log) {
+    upsertBot: function(bot) {
       var bots = TS.model.bots;
       var existing_bot = TS.bots.getBotById(bot.id);
       var status = "NOOP";
@@ -12900,7 +12900,7 @@ TS.registerModule("constants", {
         what_changed: what_changed
       };
     },
-    processNewBotForUpserting: function(bot) {},
+    processNewBotForUpserting: function() {},
     prepareBotsForLS: function() {
       var new_bots = [];
       var new_bot;
