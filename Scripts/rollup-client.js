@@ -948,7 +948,6 @@
     var cA = c_name.split(":");
     c_name = cA[0];
     var c_extra = cA.length > 1 ? cA[1] : "";
-    TS.info("_onPopState" + "\nc_name from new url:" + c_name + "\nc_extra from new url:" + c_extra + "\nflex_name from new url:" + flex_name + "\nflex_extra from new url:" + flex_extra);
     if (!TS.model.channels) return;
     var c_id;
     var im;
@@ -993,9 +992,10 @@
         if (mpim && mpim.is_open) c_id = mpim.id;
       }
     }
+    TS.info("_onPopState" + "\nc_extra from new url:" + c_extra + "\nflex_name from new url:" + flex_name + "\nflex_extra from new url:" + flex_extra);
     if (c_id) {
       is_good = true;
-      TS.info("c_name from new url is good:" + c_name + " " + c_id);
+      TS.info("c_name from new url is good, using id = " + c_id);
     } else if (!is_unread_view && !is_threads_view && !is_app_index_view) {
       if (TS.model.channels.length) {
         channel = TS.channels.getFirstChannelYouAreIn();
@@ -9697,6 +9697,9 @@
       this._fetchPage().then(function(members) {
         this_searchable_member_list._hideLoadingState();
         this_searchable_member_list._processPage(members);
+        TS.utility.rAF(function() {
+          this_searchable_member_list._updatePresenceListForVisibleMembers();
+        });
         this_searchable_member_list._setupLongListView();
         this_searchable_member_list._maybeSetupSearchBar();
         return null;
@@ -9744,7 +9747,17 @@
     },
     _processPage: function(members) {
       this._members = _.union(this._members, members);
-      if (!this._suppress_presence) this._presence_list.add(_.map(this._members, "id"));
+    },
+    _updatePresenceListForVisibleMembers: function() {
+      if (this._suppress_presence) return;
+      if (this._presence_list && this.$_long_list_view && this.$_long_list_view.longListView) {
+        var visible_users = this.$_long_list_view.longListView("getCurrentItemsInView") || [];
+        var visible_user_ids = _.map(visible_users, "id");
+        if (visible_user_ids.length) {
+          this._presence_list.clear();
+          this._presence_list.add(visible_user_ids);
+        }
+      }
     },
     _fetchProcessAndDisplayPage: function() {
       var this_searchable_member_list = this;
@@ -9759,6 +9772,7 @@
         return null;
       }).then(function() {
         TS.utility.rAF(function() {
+          this_searchable_member_list._updatePresenceListForVisibleMembers();
           this_searchable_member_list._long_list_view_height = this_searchable_member_list.$_long_list_view.height();
           this_searchable_member_list._long_list_view_items_height = this_searchable_member_list.$_long_list_view.find(".list_items").height();
           this_searchable_member_list._recursivelyFillLongListViewToHeight();
@@ -9859,6 +9873,7 @@
       }, RESIZE_THROTTLE_MS);
       TS.view.resize_sig.add(this._resize_sig_handler);
       this.$_long_list_view.on("scroll", _.debounce(function(e) {
+        this_searchable_member_list._updatePresenceListForVisibleMembers();
         if (this_searchable_member_list._current_query_for_match) return;
         var distance_from_bottom = this_searchable_member_list._long_list_view_items_height - ($(e.target).scrollTop() + this_searchable_member_list._long_list_view_height);
         if (distance_from_bottom < LOAD_MORE_AT_PIXELS_FROM_BOTTOM) {
@@ -21707,9 +21722,9 @@
       if (!window.CodeMirror) {
         if (_loading_scripts) {} else {
           _loading_scripts = true;
-          TS.utility.getCachedScript(cdn_url + "/cb0fd/js/libs/codemirror.js").done(function() {
-            TS.utility.getCachedScript(cdn_url + "/7adb/js/libs/codemirror/addon/simple.js").done(function() {
-              TS.utility.getCachedScript(cdn_url + "/7a13/js/codemirror_load.js").done(function() {
+          TS.utility.getCachedScript(_.get(TS, "boot_data.vvv_paths.codemirror", "/js/libs/codemirror.js")).done(function() {
+            TS.utility.getCachedScript(_.get(TS, "boot_data.vvv_paths.codemirror_addon_simple", "/js/libs/codemirror/addon/simple.js")).done(function() {
+              TS.utility.getCachedScript(_.get(TS, "boot_data.vvv_paths.codemirror_load", "/js/codemirror_load.js")).done(function() {
                 TS.ui.snippet_dialog.start(text, title, filetype);
               });
             });
@@ -27351,6 +27366,9 @@
     } else if (model_ob.is_channel) {
       api_endpoint = "channels.info";
       api_args.channel = model_ob.id;
+      if (TS.membership && TS.membership.lazyLoadChannelMembership()) {
+        api_args.no_members = true;
+      }
     } else {
       is_file = true;
       api_endpoint = "files.info";
@@ -27541,9 +27559,13 @@
       if (TS.client.archives.not_member) {
         TS.client.channel_pane.rebuild("starred", "channels");
         if (!model_ob.is_group) {
-          TS.api.callImmediately("channels.info", {
+          var channels_info_args = {
             channel: model_ob.id
-          }, function(ok, data) {
+          };
+          if (TS.membership && TS.membership.lazyLoadChannelMembership()) {
+            channels_info_args.no_members = true;
+          }
+          TS.api.callImmediately("channels.info", channels_info_args, function(ok, data) {
             if (!TS.model.archive_view_is_showing) {
               return;
             }

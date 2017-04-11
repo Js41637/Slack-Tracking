@@ -1670,6 +1670,9 @@
           channels_view_args.channel = last_active_model_ob;
         }
       }
+      if (TS.membership && TS.membership.lazyLoadChannelMembership()) {
+        channels_view_args.no_members = true;
+      }
       _setIncrementalBootUIState(true);
       TS.model.change_channels_when_offline = false;
       return TS.api.call("channels.view", channels_view_args).then(function(resp) {
@@ -2330,6 +2333,7 @@
       var wrap_start = options && options.strong ? "<strong>" : "";
       var wrap_end = options && options.strong ? "</strong>" : "";
       var no_escape = options && options.no_escape;
+      var item_prefix = options && options.item_prefix ? options.item_prefix : "";
       switch (_locale) {
         case "ja-JP":
           and = ", ";
@@ -2339,7 +2343,7 @@
       }
       arr.forEach(function(s, i) {
         if (!no_escape) s = TS.utility.htmlEntities(s);
-        list.push(wrap_start + s + wrap_end);
+        list.push(wrap_start + item_prefix + s + wrap_end);
         if (i < l - 2) {
           list.push(", ");
         } else if (i < l - 1) {
