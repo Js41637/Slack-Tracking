@@ -1222,8 +1222,8 @@
           body: TS.templates.admin_cant_deactivate_modal({
             team_name: TS.model.team.name,
             idp_label: TS.utility.enterprise.getProviderLabel(_.get(TS.model, "enterprise"), _.get(TS.model, "enterprise.sso_provider.label", "single sign-on")),
-            full_member_name: member.profile.real_name,
-            member_name: member.profile.first_name,
+            full_member_name: member.profile.real_name || "@" + member.name,
+            member_name: member.profile.first_name || "@" + member.name,
             groups: group_names
           }),
           show_go_button: false,

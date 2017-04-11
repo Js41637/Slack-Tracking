@@ -31,6 +31,18 @@
         },
         cls: "api_enable_ra"
       },
+      cant_reactivate_as_guest: {
+        primary: false,
+        label: function(data) {
+          var formatted_member_name = TS.members.getMemberDisplayName(data.member.object, true, true);
+          data = _.assign({}, data, {
+            formatted_member_name: formatted_member_name,
+            action: "cant_reactivate_as_guest"
+          });
+          return new Handlebars.SafeString(TS.templates.admin_cant_reactivate_or_convert_list_item_label(data));
+        },
+        cls: "inline_flex no_underline"
+      },
       deactivate: {
         primary: false,
         label: function(data) {
@@ -40,8 +52,42 @@
       },
       cant_deactivate: {
         primary: false,
-        label: new Handlebars.SafeString(TS.i18n.t('Can’t remove or convert member <ts-icon class="very_small_left_padding ts_icon_question_circle"></ts-icon>', "member_actions")()),
-        cls: "inline_flex no_underline api_cant_deactivate"
+        label: function(data) {
+          if (!TS.boot_data.feature_enterprise_guest_conversion) {
+            return new Handlebars.SafeString(TS.i18n.t('Can’t remove or convert member <ts-icon class="very_small_left_padding ts_icon_question_circle"></ts-icon>', "member_actions")());
+          }
+          var formatted_member_name = TS.members.getMemberDisplayName(data.member.object, true, true);
+          var group_list = _.map(TS.idp_groups.getGroupsForMember(data.member.object.id), "name");
+          var formatted_group_label = _getFormattedIdpGroups(group_list);
+          var idp_label = TS.utility.enterprise.getProviderLabel(_.get(TS.model, "enterprise"), _.get(TS.model, "enterprise.sso_provider.label", "single sign-on"));
+          data = _.assign({}, data, {
+            formatted_member_name: formatted_member_name,
+            action: "cant_deactivate",
+            group_list: group_list,
+            idp_label: idp_label,
+            formatted_group_label: formatted_group_label
+          });
+          return new Handlebars.SafeString(TS.templates.admin_cant_reactivate_or_convert_list_item_label(data));
+        },
+        cls: TS.boot_data.feature_enterprise_guest_conversion ? "inline_flex no_underline" : "inline_flex no_underline api_cant_deactivate"
+      },
+      cant_convert_or_deactivate: {
+        primary: false,
+        label: function(data) {
+          var formatted_member_name = TS.members.getMemberDisplayName(data.member.object, true, true);
+          var group_list = _.map(TS.idp_groups.getGroupsForMember(data.member.object.id), "name");
+          var formatted_group_label = _getFormattedIdpGroups(group_list);
+          var idp_label = TS.utility.enterprise.getProviderLabel(_.get(TS.model, "enterprise"), _.get(TS.model, "enterprise.sso_provider.label", "single sign-on"));
+          data = _.assign({}, data, {
+            formatted_member_name: formatted_member_name,
+            action: "cant_convert_or_deactivate",
+            group_list: group_list,
+            idp_label: idp_label,
+            formatted_group_label: formatted_group_label
+          });
+          return new Handlebars.SafeString(TS.templates.admin_cant_reactivate_or_convert_list_item_label(data));
+        },
+        cls: "inline_flex no_underline"
       },
       demote_admin: {
         primary: true,
@@ -74,6 +120,18 @@
         cls: function(data) {
           return data.team.is_paid ? "admin_member_restrict_link" : "admin_member_restrict_link_unpaid";
         }
+      },
+      cant_convert_member_role: {
+        primary: false,
+        label: function(data) {
+          var formatted_member_name = TS.members.getMemberDisplayName(data.member.object, true, true);
+          data = _.assign({}, data, {
+            formatted_member_name: formatted_member_name,
+            action: "cant_convert_member_role"
+          });
+          return new Handlebars.SafeString(TS.templates.admin_cant_reactivate_or_convert_list_item_label(data));
+        },
+        cls: "inline_flex no_underline"
       },
       promote_to_mc_guest: {
         primary: false,
@@ -212,12 +270,25 @@
         is_2fa: member.two_factor_auth_enabled,
         is_guest: member.is_restricted || member.is_ultra_restricted,
         is_single_channel_guest: member.is_ultra_restricted,
-        is_multi_channel_guest: member.is_restricted,
+        is_multi_channel_guest: member.is_restricted && !member.is_ultra_restricted,
         is_configurable: member.is_bot && member.bot_can_be_configured || member.is_slackbot,
         only_belongs_to_this_team: member.enterprise_user && member.enterprise_user.teams && member.enterprise_user.teams.length <= 1,
+        enabled_on_zero_teams: member.enterprise_user && member.enterprise_user.teams && member.enterprise_user.teams.length == 0,
         has_removal_restriction: TS.idp_groups && TS.idp_groups.memberBelongsToAnyGroup(member.id)
       }
     };
+  };
+  var _getFormattedIdpGroups = function(group_list) {
+    if (_.isEmpty(group_list)) {
+      TS.warn("trying to format idp_groups with empty list");
+      return;
+    }
+    if (group_list.length == 1) return _.head(group_list);
+    var formatted_groups = TS.i18n.t("{group_name} and {num_remaining_groups} more", "web_admin")({
+      num_remaining_groups: group_list.length - 1,
+      group_name: _.head(group_list)
+    });
+    return formatted_groups;
   };
   var _canPerform = function(action, data) {
     var team = data.team;
@@ -228,11 +299,15 @@
       case "activate":
         return member.is_human && member.is_deleted && actor.is_admin && (!team.is_paid || team.is_paid && !member.is_guest) && (!team.is_enterprise || team.is_enterprise && !member.is_guest);
       case "activate_as_guest":
-        return member.is_human && member.is_deleted && !member.is_primary_owner && team.is_paid && (!team.is_enterprise || team.is_enterprise && member.is_guest);
+        return member.is_human && member.is_deleted && !member.is_primary_owner && team.is_paid && (!team.is_enterprise || team.is_enterprise && member.is_guest || TS.boot_data.feature_enterprise_guest_conversion && team.is_enterprise && member.enabled_on_zero_teams);
+      case "cant_reactivate_as_guest":
+        return TS.boot_data.feature_enterprise_guest_conversion && member.is_human && member.is_deleted && !member.is_primary_owner && !member.is_guest && team.is_paid && team.is_enterprise && !member.enabled_on_zero_teams;
       case "deactivate":
         return member.is_human && !member.is_deleted && !member.is_primary_owner && !member.has_removal_restriction && (actor.is_primary_owner || actor.is_owner && !member.is_owner || actor.is_admin && !member.is_admin);
       case "cant_deactivate":
-        return member.has_removal_restriction && team.is_enterprise && member.is_human && !member.is_deleted && !member.is_primary_owner && (actor.is_primary_owner || actor.is_owner && !member.is_owner || actor.is_admin && !member.is_admin);
+        return member.has_removal_restriction && team.is_enterprise && member.is_human && !member.is_deleted && !member.is_primary_owner && member.only_belongs_to_this_team && (actor.is_primary_owner || actor.is_owner && !member.is_owner || actor.is_admin && !member.is_admin);
+      case "cant_convert_or_deactivate":
+        return TS.boot_data.feature_enterprise_guest_conversion && member.has_removal_restriction && team.is_enterprise && member.is_human && !member.is_deleted && !member.is_primary_owner && !member.only_belongs_to_this_team && (actor.is_primary_owner || actor.is_owner && !member.is_owner || actor.is_admin && !member.is_admin);
       case "demote_admin":
         return member.is_human && member.is_admin && !member.is_owner && !member.is_deleted && actor.is_owner;
       case "demote_owner":
@@ -245,6 +320,8 @@
         return member.is_human && !member.is_deleted && !member.is_owner && !member.is_guest && actor.is_owner;
       case "convert_to_guest":
         return member.is_human && !member.is_deleted && !member.is_guest && !member.is_admin && (!team.is_enterprise || team.is_enterprise && member.only_belongs_to_this_team);
+      case "cant_convert_member_role":
+        return TS.boot_data.feature_enterprise_guest_conversion && member.is_human && !member.has_removal_restriction && !member.is_deleted && team.is_paid && team.is_enterprise && !member.only_belongs_to_this_team;
       case "promote_to_mc_guest":
         return member.is_human && !member.is_deleted && member.is_single_channel_guest && team.is_paid && (!team.is_enterprise || team.is_enterprise && member.only_belongs_to_this_team);
       case "demote_to_sc_guest":

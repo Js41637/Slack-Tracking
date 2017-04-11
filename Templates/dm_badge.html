@@ -94,7 +94,7 @@
 </p>
 {{#if members}}
   {{#if desktop_notifs_enabled}}
-    <div class="mpim_notif_prefs special_formatting_quote medium_bottom_margin">
+    <div class="mpim_notif_prefs {{#feature flag="feature_client_resize_optimizations"}}{{else}}special_formatting_quote{{/feature}} medium_bottom_margin">
       <div class="quote_bar">
         <div class="shim"></div>
       </div>

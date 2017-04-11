@@ -4142,6 +4142,11 @@ html {
   border-left: 4px solid #F6B63F
 }
 
+#fs_modal.channel_options_modal .share_channel_modal_contents #team_url {
+  text-align: right;
+  width: 60%
+}
+
 @font-face {
   font-family: appleLogo;
   src: local("Lucida Grande");
@@ -4451,6 +4456,28 @@ html {
 
 #msgs_scroller_div #end_display_div #end_display_meta #im_meta .mpim_notif_prefs input[type=radio] {
   vertical-align: baseline
+}
+
+.client_resize_optimizations #msgs_scroller_div #end_display_div #end_display_meta #im_meta .mpim_notif_prefs {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex
+}
+
+.client_resize_optimizations #msgs_scroller_div #end_display_div #end_display_meta #im_meta .mpim_notif_prefs .content {
+  -ms-flex: 1;
+  -webkit-flex: 1;
+  flex: 1;
+  padding-left: 12px;
+  margin-bottom: 0
+}
+
+.client_resize_optimizations #msgs_scroller_div #end_display_div #end_display_meta #im_meta .mpim_notif_prefs .quote_bar {
+  width: 4px;
+  background: #e3e4e6;
+  border-radius: 8px
 }
 
 .client_resize_optimizations #msgs_scroller_div #end_display_div #end_display_meta {
@@ -5457,9 +5484,19 @@ ts-thread ts-message.new_reply .special_formatting_quote .quote_bar {
   max-width: none
 }
 
-.client_resize_optimizations #archives_msgs_div div.dynamic_content_max_width,
-.client_resize_optimizations #msgs_div div.dynamic_content_max_width {
-  word-break: break-word
+.client_resize_optimizations #col_flex .special_formatting_quote,
+.client_resize_optimizations #messages_container .special_formatting_quote {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex
+}
+
+.client_resize_optimizations #col_flex .special_formatting_quote .dynamic_content_max_width,
+.client_resize_optimizations #messages_container .special_formatting_quote .dynamic_content_max_width {
+  min-width: 1px;
+  max-width: none
 }
 
 .inline_attachment .attachment_author_icon,

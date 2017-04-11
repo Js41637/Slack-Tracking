@@ -10404,7 +10404,7 @@
   var _click_snippet_prompt = false;
   var _keymap = TS.utility.keymap;
   var _tabcomplete_completions_restored_inputs = {};
-  var _onTextChange = function(e, prev_txt) {
+  var _onTextChange = function() {
     var start = Date.now();
     var val = TS.utility.contenteditable.value(TS.client.msg_input.$input);
     var val_formatted = TS.format.cleanMsg(val);
@@ -10731,7 +10731,7 @@
       }
     };
     if (_maybeHandleReactionCmdInMsgInput(val)) return;
-    _maybeShareFilesInMessage(val, TS.shared.getActiveModelOb(), function(did_share) {
+    _maybeShareFilesInMessage(val, TS.shared.getActiveModelOb(), function() {
       submitter();
     });
   };
@@ -10901,7 +10901,7 @@
       if (!canSwitchChannels()) return TS.sounds.play("beep");
       _openDMBrowser(e);
     });
-    $("#channels_header").on("click", function(e) {
+    $("#channels_header").on("click", function() {
       if (!canSwitchChannels()) return TS.sounds.play("beep");
       _openChannelBrowser();
     });
@@ -11054,15 +11054,15 @@
     $("#left_arrow_btn").html(TS.templates.footer_tool_tip(left_arrow_args));
     $("#right_arrow_btn").html(TS.templates.footer_tool_tip(right_arrow_args));
   };
-  var _openDMBrowser = function(e) {
+  var _openDMBrowser = function() {
     TS.ui.im_browser.start();
     $("#direct_messages_header, .channels_list_new_btn").tooltip("hide");
   };
-  var _openChannelBrowser = function(e) {
+  var _openChannelBrowser = function() {
     TS.ui.channel_browser.start();
     $("#channels_header").find(".channel_list_header_label").tooltip("hide");
   };
-  var _openCreateChannelDialog = function(e) {
+  var _openCreateChannelDialog = function() {
     TS.ui.new_channel_modal.start();
     $(".channels_list_new_btn").tooltip("hide");
   };
@@ -11733,7 +11733,7 @@
     if (is_muted) {
       $mute_container.html(mute_button_html);
       $channel_name.addClass(muted_class);
-      $(".mute_btn").bind("click", function(e) {
+      $(".mute_btn").bind("click", function() {
         TS.notifs.muteOrUnmuteCorG(_model_ob.id);
       });
     } else {
@@ -11758,7 +11758,7 @@
     }
     _maybeAddIEClassname();
     var _$channel_topic_editable = _$header.find("#topic_inline_edit");
-    _$channel_topic_editable.on("click", function(e) {
+    _$channel_topic_editable.on("click", function() {
       TSSSB.call("updateNoDragRegion", {
         id: "channel-topic",
         width: _$channel_topic_editable.outerWidth(),
@@ -13098,7 +13098,7 @@
       if (!_$messages_container.hasClass("has_top_messages_banner")) return;
       _$messages_container.toggleClass("has_top_messages_banner", _getVisibleTopBanners().length > 0);
     },
-    cleanMsgDiv: function($msg) {},
+    cleanMsgDiv: function() {},
     addMaybeClick: function(key, handler) {
       if (!key) return;
       handler = _.isFunction(handler) ? handler : _.noop;
@@ -13507,7 +13507,7 @@
       $calls_container.html(html);
       $calls_container.removeClass("hidden");
       if (call_info.id && is_call_allowed) {
-        $(".channel_calls_button.voice_call").on("click.video_call", function(e) {
+        $(".channel_calls_button.voice_call").on("click.video_call", function() {
           if (is_channel_preview) return;
           var is_platform_call = TS.model.team.prefs.calling_app_name != "Slack";
           TS.clog.track("CALLS_START_VOICE_BUTTON_CLICKED", {
@@ -13683,7 +13683,7 @@
       }
       _updateDownload(dl, "completed");
     },
-    downloadWithTokenDidFailWithReasonAndCode: function(token, reason, status) {
+    downloadWithTokenDidFailWithReasonAndCode: function(token, reason) {
       var dl = _downloads_map[token];
       if (!dl) {
         TS.error("downloadWithTokenDidFailWithReasonAndCode: no download for token: " + token);
@@ -13777,16 +13777,14 @@
           _$downloads_tab.addClass("shift_key");
         }
       });
-      $(document).on("keyup", function(e) {
+      $(document).on("keyup", function() {
         _$downloads_tab.removeClass("shift_key");
       });
-      TS.ui.window_focus_changed_sig.add(function(has_focus) {
+      TS.ui.window_focus_changed_sig.add(function() {
         _$downloads_tab.removeClass("shift_key");
       });
     }
-    _$downloads_tab_clear.on("click.dl", function(e) {
-      _removeAllDownloads();
-    });
+    _$downloads_tab_clear.on("click.dl", _removeAllDownloads);
     if (_ssb_supports_shift_open) _$downloads_tab.addClass("supports_open_file");
     _fetchDownloadsDataAndRender();
   };
@@ -13975,7 +13973,7 @@
       }, 550);
     }
   };
-  var _updateProgress = function(state) {
+  var _updateProgress = function() {
     if (_$individual_download.length && _individual_file_id) {
       _updateIndividualProgress();
     }
@@ -14040,7 +14038,7 @@
         team_and_file = matches[0];
         file_id = team_and_file.split("-")[1];
         TS.warn("_buildItem: fetching file for dl.href: " + redacted_href);
-        _fetchFileInfo(file_id, function(id, file) {
+        _fetchFileInfo(file_id, function() {
           dl = _downloads_map[dl.token];
           if (!dl) return;
           _updateDownload(dl);
@@ -20070,7 +20068,7 @@
         TS.dir(23, "(TS-ONLY log)", hist);
       }
     },
-    resetPosition: function(why) {
+    resetPosition: function() {
       TS.model.input_history_index = -1;
     },
     onArrowKey: function(e, input) {
@@ -23674,7 +23672,7 @@
     if (!TS.model.user.is_restricted && !_click_tick) _click_tick = _composeClickTickOnboarding();
     $("#end_display_onboarding").removeClass("hidden");
   };
-  var _goToStep = function(step, group) {
+  var _goToStep = function(step) {
     _current_step_name = step.step_name;
     $(step.show).removeClass("hidden");
     $(step.hide).addClass("hidden");
@@ -26122,7 +26120,7 @@
         channel_id: model_ob.id
       };
       if (TS.ui.channel_options_dialog.ladda) TS.ui.channel_options_dialog.ladda.start();
-      TS.api.callImmediately("channels.prefs.set", who_can_post_calling_args, function(ok, data, args) {
+      TS.api.callImmediately("channels.prefs.set", who_can_post_calling_args, function(ok, data) {
         if (TS.ui.channel_options_dialog.ladda) TS.ui.channel_options_dialog.ladda.stop();
         if (!ok) {
           var str = TS.i18n.t("Failed! {error}", "channel_options")({
@@ -27431,7 +27429,7 @@
         if (!model_ob.is_group) {
           TS.api.callImmediately("channels.info", {
             channel: model_ob.id
-          }, function(ok, data, args) {
+          }, function(ok, data) {
             if (!TS.model.archive_view_is_showing) {
               return;
             }
@@ -27995,7 +27993,7 @@
         _end();
       }
     });
-    TS.client.ui.$msg_input.bind("textchange", function(e, prev_txt) {
+    TS.client.ui.$msg_input.bind("textchange", function() {
       if (!TS.model.archive_view_is_showing) return;
       if (TS.client.archives.not_member) return;
       var $this = $(this);
@@ -28073,7 +28071,7 @@
     if (channel.id != TS.client.archives.current_model_ob.id) return;
     _adjustForArchivesDisplay();
   };
-  var _msgSent = function(model_ob, rsp_id) {
+  var _msgSent = function(model_ob) {
     if (!TS.model.archive_view_is_showing) return;
     if (TS.client.archives.not_member) return;
     if (model_ob.id != TS.client.archives.current_model_ob.id) return;
@@ -28474,7 +28472,7 @@
       if (!model_ob.is_mpim) return;
       TS.ui.im_browser.startWithMpim(model_ob);
     });
-    _$container.on("click", ".creator_link", function(e) {
+    _$container.on("click", ".creator_link", function() {
       var model_ob = TS.shared.getActiveModelOb();
       var min_ts = model_ob.created;
       var last_visible = model_ob.msgs[model_ob.msgs.length - 1];
@@ -28516,7 +28514,7 @@
         }
       }
       return true;
-    }).catch(function(err) {
+    }).catch(function() {
       return TS.warn("Couldn’t find creation message at " + min_ts + " in channel: " + model_ob.id);
     });
   };
@@ -28650,7 +28648,7 @@
     var model_ob = TS.shared.getActiveModelOb();
     _rebuildChannelDetails(model_ob);
   };
-  var _notifPrefChanged = function(changed_model_ob) {
+  var _notifPrefChanged = function() {
     if (!_isChannelPageVisible()) return;
     var model_ob = TS.shared.getActiveModelOb();
     _rebuildNotifPrefs(model_ob);
@@ -29213,7 +29211,7 @@
         var member_ids = _.map(flannel_response.objects, "id").slice(0, display_count);
         _renderMemberList(model_ob, member_ids, silent_refresh, display_all_members_in_list);
         return null;
-      }).catch(function(errors) {
+      }).catch(function() {
         TS.log(1989, "Flannel error: failed to fetch all members for channel " + model_ob.id);
         TS.logError("failed to fetch all members for channel " + model_ob.id, "Flannel error");
         _$member_lists.removeClass("loading");
@@ -29391,7 +29389,7 @@
   var _loadFilesForChannel = function(model_ob) {
     if (_channels_currently_loading_files[model_ob.id]) return;
     _channels_currently_loading_files[model_ob.id] = true;
-    TS.files.fetchChannelFiles(model_ob.id, function(ok, data, args) {
+    TS.files.fetchChannelFiles(model_ob.id, function(ok) {
       delete _channels_currently_loading_files[model_ob.id];
       if (!ok) return;
       if (!model_ob.is_channel || model_ob.is_member) _channels_with_files_loaded[model_ob.id] = true;
@@ -29466,10 +29464,10 @@
       items: [],
       scrollable: $list_container,
       approx_item_height: approx_item_height,
-      makeElement: function(data) {
+      makeElement: function() {
         return $('<div class="list_item_container">');
       },
-      renderItem: function($el, member, data) {
+      renderItem: function($el, member) {
         var html = TS.templates.channel_page_member_row({
           member: member,
           lazy: false
@@ -29487,7 +29485,7 @@
       if (e.which == TS.utility.keymap.esc) {
         TS.generic_dialog.cancel();
       }
-    }).on("change keyup cut paste", function(e) {
+    }).on("change keyup cut paste", function() {
       var filter = _getFilter();
       _filterMembersInDialog(filter);
     });
