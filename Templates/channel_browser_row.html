@@ -2,7 +2,7 @@
 
 <div class="channel_browser_row">
   <div class="channel_browser_row_header overflow_ellipsis">
-    <ts-icon class="channel_browser_type_icon greigh"></ts-icon><span class="channel_browser_channel_name bold"></span> <ts-icon class="shared_channel_icon greigh ts_icon_shared_channel hidden"></ts-icon> <span class="channel_browser_joined hidden greigh">{{#t}}JOINED{{/t}}</span>
+    <ts-icon class="channel_browser_type_icon greigh"></ts-icon><span class="channel_browser_channel_name bold"></span> <ts-icon class="shared_channel_icon greigh ts_icon_shared_channel hidden"></ts-icon> <span class="channel_browser_joined hidden greigh">{{#t}}JOINED{{/t}}</span>{{#feature flag="feature_shared_channels_client"}}<span class="shared_channels_icon hidden">{{> shared_channels_icon}}</span>{{/feature}}
   </div>
   <div class="overflow_ellipsis italic">
     {{#t note="Populated by code and will have user name and date added, e.g. 'Created by {username} on {date}'"}}

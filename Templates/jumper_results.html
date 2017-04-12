@@ -101,8 +101,15 @@
               <span class="unread_count">{{this.model_ob.unread_highlight_cnt}}</span>
             {{/if}}
           {{/if}}
+          {{#feature flag="feature_shared_channels_client"}}
+            {{#if this.model_ob.is_shared}}
+              {{#unless this.model_ob.is_org_shared}}
+                {{> shared_channels_icon}}
+              {{/unless}}
+            {{/if}}
+          {{/feature}}
         </span>
-        {{#if this.model_ob.is_shared}}
+        {{#if this.model_ob.is_org_shared}}
           {{#unless this.model_ob.is_mpim}}
             <span class="channel_shared float_left">
               {{> shared_channel_icon}}

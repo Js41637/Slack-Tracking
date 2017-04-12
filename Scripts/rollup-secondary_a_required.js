@@ -3331,45 +3331,64 @@
 (function() {
   "use strict";
   TS.registerModule("redux", {
-    onStart: function() {},
+    onStart: function() {
+      if (TS.useRedux()) {
+        _store = window.Redux.ConfigureStore();
+      }
+    },
+    getState: function() {
+      return _store && _store.getState && _store.getState();
+    },
+    getStoreInstance: function() {
+      return _store;
+    },
+    dispatch: function(action) {
+      if (action && _store && _store.dispatch) {
+        return _store.dispatch(action);
+      }
+    },
     test: function() {
       var test_ob = {};
       return test_ob;
     }
   });
+  var _store;
 })();
 (function() {
   "use strict";
   TS.registerModule("redux.channels", {
     onStart: function() {
-      if (TS.boot_data.feature_store_channels_in_redux) {
+      if (TS.useRedux()) {
         _isGroup = window.Redux.Entities.Channels.isGroup;
         _isChannel = window.Redux.Entities.Channels.isChannel;
         _isMpim = window.Redux.Entities.Channels.isMpim;
         _isIm = window.Redux.Entities.Channels.isIm;
-        _store = window.Redux.ConfigureStore();
         _addSignalListeners();
         Object.defineProperty(TS.model, "channels", {
           get: function() {
-            var cids = window.Redux.Entities.ChannelIdsByType.getAllChannelIds(_store.getState());
+            var state = TS.redux.getState();
+            var cids = window.Redux.Entities.ChannelIdsByType.getAllChannelIds(state);
             return _.map(cids, TS.redux.channels.getEntityById);
           }
         });
         Object.defineProperty(TS.model, "groups", {
           get: function() {
-            var cids = window.Redux.Entities.ChannelIdsByType.getAllGroupIds(_store.getState());
+            var state = TS.redux.getState();
+            var cids = window.Redux.Entities.ChannelIdsByType.getAllGroupIds(state);
             return _.map(cids, TS.redux.channels.getEntityById);
           }
         });
         Object.defineProperty(TS.model, "mpims", {
           get: function() {
-            var cids = window.Redux.Entities.ChannelIdsByType.getAllMpimIds(_store.getState());
+            var state = TS.redux.getState();
+            var cids = window.Redux.Entities.ChannelIdsByType.getAllMpimIds(state);
             return _.map(cids, TS.redux.channels.getEntityById);
           }
         });
         Object.defineProperty(TS.model, "ims", {
           get: function() {
-            var cids = window.Redux.Entities.ChannelIdsByType.getAllImIds(_store.getState());
+            var state = TS.redux.getState();
+            var cids = window.Redux.Entities.ChannelIdsByType.getAllImIds(state);
             return _.map(cids, TS.redux.channels.getEntityById);
           }
         });
@@ -3379,27 +3398,24 @@
       if (!channel || !channel.id) {
         return;
       }
-      _store.dispatch(window.Redux.Entities.Channels.forceUpdateOfChannelById(channel.id));
+      TS.redux.dispatch(window.Redux.Entities.Channels.forceUpdateOfChannelById(channel.id));
     },
     bulkUpsertEntities: function(channels) {
-      _store.dispatch(window.Redux.Entities.Channels.bulkUpsertChannels(channels));
+      TS.redux.dispatch(window.Redux.Entities.Channels.bulkUpsertChannels(channels));
     },
     upsertEntity: function(channel) {
-      _store.dispatch(window.Redux.Entities.Channels.upsertChannel(channel));
+      TS.redux.dispatch(window.Redux.Entities.Channels.upsertChannel(channel));
     },
     removeEntity: function(channel) {
-      _store.dispatch(window.Redux.Entities.Channels.removeChannel(channel));
+      TS.redux.dispatch(window.Redux.Entities.Channels.removeChannel(channel));
     },
     removeEntityFromNameMap: function(name) {
-      _store.dispatch(window.Redux.Entities.ChannelNamesToIds.removeChannelFromNameMap({
+      TS.redux.dispatch(window.Redux.Entities.ChannelNamesToIds.removeChannelFromNameMap({
         name: name
       }));
     },
-    addEntityToNameMap: function(name, channel) {
-      _store.dispatch(window.Redux.Entities.ChannelNamesToIds.addChannelToNameMap({
-        name: name,
-        id: channel.id
-      }));
+    addEntityToNameMap: function(channel) {
+      TS.redux.dispatch(window.Redux.Entities.ChannelNamesToIds.addChannelToNameMap(channel));
     },
     replaceEntity: function(channel) {
       var previous_channel = TS.redux.channels.getEntityById(channel.id);
@@ -3409,14 +3425,26 @@
       TS.redux.channels.upsertEntity(channel);
     },
     getEntityById: function(id) {
-      return window.Redux.Entities.Channels.getChannelById(_store.getState(), id);
+      var state = TS.redux.getState();
+      var entity = window.Redux.Entities.Channels.getChannelById(state, id);
+      if (entity && window.Proxy && TS.boot_data && TS.boot_data.version_ts === "dev") {
+        entity = new window.Proxy(entity, {
+          set: function(target, property, value) {
+            _improperly_set_keys[property] = true;
+            target[property] = value;
+            return true;
+          }
+        });
+      }
+      return entity;
     },
     getEntityByName: function(name) {
       var normalized_name = _.toLower(name);
       if (normalized_name && normalized_name[0] === "#") {
         normalized_name = normalized_name.slice(1);
       }
-      var cid = window.Redux.Entities.ChannelNamesToIds.getChannelIdByName(_store.getState(), name);
+      var state = TS.redux.getState();
+      var cid = window.Redux.Entities.ChannelNamesToIds.getChannelIdByName(state, name);
       if (cid) {
         return TS.redux.channels.getEntityById(cid);
       }
@@ -3462,21 +3490,50 @@
       if (_isIm(channel)) return channel;
       return null;
     },
+    getImproperlySetKeys: function() {
+      TS.warn(Object.keys(_improperly_set_keys));
+    },
     test: function() {
       var test_ob = {};
       return test_ob;
     }
   });
-  var _store;
   var _isGroup;
   var _isChannel;
   var _isMpim;
   var _isIm;
+  var _improperly_set_keys = {};
   var _addSignalListeners = function() {
     TS.channels.unread_changed_sig.add(TS.redux.channels.forceUpdateOfEntityById);
     TS.channels.unread_highlight_changed_sig.add(TS.redux.channels.forceUpdateOfEntityById);
     TS.ims.unread_changed_sig.add(TS.redux.channels.forceUpdateOfEntityById);
     TS.ims.unread_highlight_changed_sig.add(TS.redux.channels.forceUpdateOfEntityById);
+  };
+})();
+(function() {
+  "use strict";
+  TS.registerModule("redux.presence", {
+    onStart: function() {
+      if (TS.useRedux()) {
+        _addSignalListeners();
+      }
+    },
+    test: function() {
+      var test_ob = {};
+      return test_ob;
+    }
+  });
+  var _updatePresenceForMember = function(member) {
+    if (!member || !member.id) {
+      return;
+    }
+    TS.redux.dispatch(window.Redux.Features.Presence.updatePresence({
+      memberId: member.id,
+      presence: member.presence
+    }));
+  };
+  var _addSignalListeners = function() {
+    TS.members.presence_changed_sig.add(_updatePresenceForMember);
   };
 })();
 (function() {
@@ -3970,7 +4027,7 @@
     },
     getChannelById: function(id) {
       if (!id) return null;
-      if (TS.boot_data.feature_store_channels_in_redux) {
+      if (TS.useRedux()) {
         return TS.redux.channels.getChannelById(id);
       }
       var channel = _id_map[id];
@@ -4016,7 +4073,7 @@
       return false;
     },
     getChannelByName: function(name) {
-      if (TS.boot_data.feature_store_channels_in_redux) {
+      if (TS.useRedux()) {
         return TS.redux.channels.getChannelByName(name);
       }
       name = _.toLower(name);
@@ -4041,7 +4098,7 @@
       return _upsertChannel(channel, is_bulk_upsert);
     },
     removeChannel: function(channel) {
-      if (TS.boot_data.feature_store_channels_in_redux) {
+      if (TS.useRedux()) {
         TS.redux.channels.removeEntity(channel);
       } else {
         var channels = TS.model.channels;
@@ -4069,14 +4126,14 @@
     },
     channelRenamed: function(channel) {
       var existing_channel = TS.channels.getChannelById(channel.id);
-      if (!TS.boot_data.feature_store_channels_in_redux) {
+      if (!TS.useRedux()) {
         delete _name_map[existing_channel._name_lc];
         delete _name_map["#" + existing_channel._name_lc];
       }
       channel.previous_names = [existing_channel._name_lc].concat(existing_channel.previous_names || []);
       var new_channel = TS.channels.upsertChannel(channel);
       new_channel._name_lc = _.toLower(new_channel.name);
-      if (!TS.boot_data.feature_store_channels_in_redux) {
+      if (!TS.useRedux()) {
         _name_map[new_channel._name_lc] = new_channel;
         _name_map["#" + new_channel._name_lc] = new_channel;
       }
@@ -4265,7 +4322,7 @@
     delete channel.unread_count;
     if (TS.boot_data.feature_tinyspeck && channel.id === "C00") TS.warn("_upsertChannel() got a bad channel id of C00", channel);
     if (existing_channel) {
-      if (TS.boot_data.feature_store_channels_in_redux) {
+      if (TS.useRedux()) {
         existing_channel = _.assign({}, existing_channel);
       }
       if (TS.pri) TS.log(5, 'updating existing channel "' + channel.id + '"');
@@ -4301,7 +4358,7 @@
         var should_defer_initial_msg_history = true;
         TS.shared.checkInitialMsgHistory(channel, TS.channels, should_defer_initial_msg_history);
       }
-      if (TS.boot_data.feature_store_channels_in_redux) {
+      if (TS.useRedux()) {
         if (is_bulk_upsert) {
           TS.redux.channels.removeEntity(channel);
         } else {
@@ -4309,12 +4366,12 @@
         }
       }
     } else {
-      if (!TS.boot_data.feature_store_channels_in_redux) {
+      if (!TS.useRedux()) {
         if (TS.pri) TS.log(5, 'adding channel "' + channel.id + '"');
         TS.model.channels.push(channel);
       }
       _processNewChannelForUpserting(channel);
-      if (TS.boot_data.feature_store_channels_in_redux) {
+      if (TS.useRedux()) {
         if (!is_bulk_upsert) {
           TS.redux.channels.upsertEntity(channel);
         }
@@ -5560,7 +5617,7 @@ TS.registerModule("constants", {
     },
     getGroupById: function(id) {
       if (!id) return null;
-      if (TS.boot_data.feature_store_channels_in_redux) {
+      if (TS.useRedux()) {
         return TS.redux.channels.getGroupById(id);
       }
       var groups = TS.model.groups;
@@ -5580,7 +5637,7 @@ TS.registerModule("constants", {
       return null;
     },
     getGroupByName: function(name) {
-      if (TS.boot_data.feature_store_channels_in_redux) {
+      if (TS.useRedux()) {
         return TS.redux.channels.getGroupByName(name);
       }
       name = _.toLower(name);
@@ -5605,7 +5662,7 @@ TS.registerModule("constants", {
       return _upsertGroup(group, is_bulk_upsert);
     },
     removeGroup: function(group) {
-      if (TS.boot_data.feature_store_channels_in_redux) {
+      if (TS.useRedux()) {
         TS.redux.channels.removeEntity(group);
       } else {
         var groups = TS.model.groups;
@@ -5633,13 +5690,13 @@ TS.registerModule("constants", {
     },
     groupRenamed: function(group) {
       var existing_group = TS.groups.getGroupById(group.id);
-      if (!TS.boot_data.feature_store_channels_in_redux) {
+      if (!TS.useRedux()) {
         delete _name_map[existing_group._name_lc];
         delete _name_map[TS.model.group_prefix + existing_group._name_lc];
       }
       var new_group = TS.groups.upsertGroup(group);
       new_group._name_lc = _.toLower(new_group.name);
-      if (!TS.boot_data.feature_store_channels_in_redux) {
+      if (!TS.useRedux()) {
         _name_map[new_group._name_lc] = new_group;
         _name_map[TS.model.group_prefix + new_group._name_lc] = new_group;
       }
@@ -5877,7 +5934,7 @@ TS.registerModule("constants", {
     var members;
     delete group.unread_count;
     if (existing_group) {
-      if (TS.boot_data.feature_store_channels_in_redux) {
+      if (TS.useRedux()) {
         existing_group = _.assign({}, existing_group);
       }
       TS.log(4, 'updating existing group "' + group.id + '"');
@@ -5907,7 +5964,7 @@ TS.registerModule("constants", {
         var should_defer_initial_msg_history = true;
         TS.shared.checkInitialMsgHistory(group, TS.groups, should_defer_initial_msg_history);
       }
-      if (TS.boot_data.feature_store_channels_in_redux) {
+      if (TS.useRedux()) {
         if (is_bulk_upsert) {
           TS.redux.channels.removeEntity(group);
         } else {
@@ -5915,13 +5972,13 @@ TS.registerModule("constants", {
         }
       }
     } else {
-      if (!TS.boot_data.feature_store_channels_in_redux) {
+      if (!TS.useRedux()) {
         TS.log(4, 'adding group "' + group.id + '"');
         TS.model.groups.push(group);
       }
       TS.utility.ensureInArray(TS.model.all_group_ids, group.id);
       _processNewGroupForUpserting(group);
-      if (TS.boot_data.feature_store_channels_in_redux) {
+      if (TS.useRedux()) {
         if (!is_bulk_upsert) {
           TS.redux.channels.upsertEntity(group);
         }
@@ -8012,7 +8069,7 @@ TS.registerModule("constants", {
     },
     getImById: function(id) {
       if (!id) return null;
-      if (TS.boot_data.feature_store_channels_in_redux) {
+      if (TS.useRedux()) {
         return TS.redux.channels.getImById(id);
       }
       var ims = TS.model.ims;
@@ -8043,7 +8100,7 @@ TS.registerModule("constants", {
       return TS.ims.getImByMemberId(member.id);
     },
     getImByMemberId: function(id) {
-      if (TS.boot_data.feature_store_channels_in_redux) {
+      if (TS.useRedux()) {
         return TS.redux.channels.getImByMemberId(id);
       }
       var ims = TS.model.ims;
@@ -8087,7 +8144,7 @@ TS.registerModule("constants", {
       var existing_im = TS.ims.getImById(im.id);
       delete im.unread_count;
       if (existing_im) {
-        if (TS.boot_data.feature_store_channels_in_redux) {
+        if (TS.useRedux()) {
           existing_im = _.assign({}, existing_im);
         }
         if (TS.pri) TS.log(4, 'updating existing im "' + im.id + '"');
@@ -8103,7 +8160,7 @@ TS.registerModule("constants", {
           var should_defer_initial_msg_history = true;
           TS.shared.checkInitialMsgHistory(im, TS.ims, should_defer_initial_msg_history);
         }
-        if (TS.boot_data.feature_store_channels_in_redux) {
+        if (TS.useRedux()) {
           if (is_bulk_upsert) {
             TS.redux.channels.removeEntity(im);
           } else {
@@ -8111,14 +8168,14 @@ TS.registerModule("constants", {
           }
         }
       } else {
-        if (!TS.boot_data.feature_store_channels_in_redux) {
+        if (!TS.useRedux()) {
           if (TS.pri) TS.log(4, 'adding im "' + im.id + '"');
           TS.model.ims.push(im);
         }
         TS.utility.ensureInArray(TS.model.all_im_ids, im.id);
         var member = TS.members.getMemberById(im.user);
         _processNewImForUpserting(im, member);
-        if (TS.boot_data.feature_store_channels_in_redux) {
+        if (TS.useRedux()) {
           if (!is_bulk_upsert) {
             TS.redux.channels.upsertEntity(im);
           }
@@ -8546,7 +8603,7 @@ TS.registerModule("constants", {
     },
     getMpimById: function(id) {
       if (!id) return null;
-      if (TS.boot_data.feature_store_channels_in_redux) {
+      if (TS.useRedux()) {
         return TS.redux.channels.getMpimById(id);
       }
       var mpims = TS.model.mpims;
@@ -8566,7 +8623,7 @@ TS.registerModule("constants", {
       return null;
     },
     getMpimByName: function(name) {
-      if (TS.boot_data.feature_store_channels_in_redux) {
+      if (TS.useRedux()) {
         return TS.redux.channels.getMpimByName(name);
       }
       name = _.toLower(name);
@@ -8698,7 +8755,7 @@ TS.registerModule("constants", {
       var existing_mpim = TS.mpims.getMpimById(mpim_group.id);
       delete mpim_group.unread_count;
       if (existing_mpim) {
-        if (TS.boot_data.feature_store_channels_in_redux) {
+        if (TS.useRedux()) {
           existing_mpim = _.assign({}, existing_mpim);
         }
         TS.log(4, 'updating existing mpim "' + existing_mpim.id + '"');
@@ -8715,7 +8772,7 @@ TS.registerModule("constants", {
           var should_defer_initial_msg_history = true;
           TS.shared.checkInitialMsgHistory(mpim_group, TS.mpims, should_defer_initial_msg_history);
         }
-        if (TS.boot_data.feature_store_channels_in_redux) {
+        if (TS.useRedux()) {
           if (is_bulk_upsert) {
             TS.redux.channels.removeEntity(mpim_group);
           } else {
@@ -8723,13 +8780,13 @@ TS.registerModule("constants", {
           }
         }
       } else {
-        if (!TS.boot_data.feature_store_channels_in_redux) {
+        if (!TS.useRedux()) {
           TS.log(4, 'adding mpim "' + mpim_group.id + '"');
           TS.model.mpims.push(mpim_group);
         }
         TS.utility.ensureInArray(TS.model.all_group_ids, mpim_group.id);
         _processNewMpimForUpserting(mpim_group);
-        if (TS.boot_data.feature_store_channels_in_redux) {
+        if (TS.useRedux()) {
           if (!is_bulk_upsert) {
             TS.redux.channels.upsertEntity(mpim_group);
           }
@@ -8910,7 +8967,7 @@ TS.registerModule("constants", {
   };
   var _updateMpimName = function(mpim) {
     if (mpim._name_lc) {
-      if (TS.boot_data.feature_store_channels_in_redux) {
+      if (TS.useRedux()) {
         TS.redux.channels.removeEntityFromNameMap(mpim._name_lc);
       } else {
         delete _name_map[mpim._name_lc];
@@ -8918,8 +8975,8 @@ TS.registerModule("constants", {
     }
     mpim.name = _makeNameForMpim(mpim);
     mpim._name_lc = _.toLower(mpim.name);
-    if (TS.boot_data.feature_store_channels_in_redux) {
-      TS.redux.channels.addEntityToNameMap(mpim._name_lc, mpim);
+    if (TS.useRedux()) {
+      TS.redux.channels.addEntityToNameMap(mpim);
     } else {
       _name_map[mpim._name_lc] = mpim;
     }
@@ -8982,7 +9039,7 @@ TS.registerModule("constants", {
   };
   var _processNewMpimForUpserting = function(mpim_group) {
     mpim_group._internal_name = mpim_group.name;
-    if (!TS.boot_data.feature_store_channels_in_redux) {
+    if (!TS.useRedux()) {
       _name_map[mpim_group._internal_name] = mpim_group;
     }
     _updateMpimName(mpim_group);
@@ -26285,6 +26342,9 @@ TS.registerModule("constants", {
     distanceInMinutes: function(date_a, date_b) {
       return TS.utility.date.distanceInSeconds(date_a, date_b) / 60;
     },
+    distanceInDays: function(date_a, date_b) {
+      return Math.round(TS.utility.date.distanceInSeconds(date_a, date_b) / (60 * 60 * 24));
+    },
     isToday: function(date_a) {
       var today = new Date;
       return TS.utility.date.sameDay(date_a, today);
@@ -31959,7 +32019,7 @@ TS.registerModule("constants", {
     if (!model_ob && _.isString(id)) {
       model_ob = _sharedChannelsNonUniqueUsernames(id);
     }
-    var specials = [".", "..", "...", "....", "-", "--", "_"];
+    var specials = [".", "..", "...", "....", "-", "--", "_", "…"];
     var i = 0;
     while (!model_ob && i < specials.length) {
       var special = specials[i];
@@ -51802,7 +51862,7 @@ $.fn.togglify = function(settings) {
         return $("<div>").addClass("channel_browser_divider");
       },
       renderItem: function($el, item, data) {
-        if (TS.boot_data.page_needs_enterprise && item.is_shared) {
+        if (TS.shared.isModelObOrgShared(item)) {
           data.$shared_channel_icon.removeClass("hidden");
         } else {
           data.$shared_channel_icon.addClass("hidden");
@@ -51847,7 +51907,7 @@ $.fn.togglify = function(settings) {
           $el.removeClass("group_link").removeAttr("data-group-id");
           $el.addClass("channel_link").attr("data-channel-id", item.id);
         }
-        if (item.is_shared) {
+        if (TS.shared.isModelObOrgShared(item)) {
           var team_icons_html = "";
           var additional_teams = 0;
           var shared_teams = [];
@@ -61179,7 +61239,7 @@ $.fn.togglify = function(settings) {
     return t.d(n, "a", n), n;
   }, t.o = function(e, t) {
     return Object.prototype.hasOwnProperty.call(e, t);
-  }, t.p = "/", t(t.s = 431);
+  }, t.p = "/", t(t.s = 432);
 }([function(e, t, n) {
   "use strict";
 
@@ -61584,7 +61644,7 @@ $.fn.togglify = function(settings) {
 }, function(e, t, n) {
   var r = n(68)("wks"),
     o = n(51),
-    i = n(21).Symbol,
+    i = n(22).Symbol,
     a = "function" == typeof i,
     s = e.exports = function(e) {
       return r[e] || (r[e] = a && i[e] || (a ? i : o)("Symbol." + e));
@@ -61653,33 +61713,6 @@ $.fn.togglify = function(settings) {
     current: null
   };
   e.exports = r;
-}, function(e, t, n) {
-  "use strict";
-
-  function r(e) {
-    return e && e.__esModule ? e : {
-      "default": e
-    };
-  }
-  t.__esModule = !0;
-  var o = n(176),
-    i = r(o);
-  t.default = i.default || function(e) {
-    for (var t = 1; t < arguments.length; t++) {
-      var n = arguments[t];
-      for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
-    }
-    return e;
-  };
-}, function(e, t) {
-  var n = e.exports = "undefined" != typeof window && window.Math == Math ? window : "undefined" != typeof self && self.Math == Math ? self : Function("return this")();
-  "number" == typeof __g && (__g = n);
-}, function(e, t, n) {
-  var r = n(104),
-    o = n(59);
-  e.exports = function(e) {
-    return r(o(e));
-  };
 }, function(e, t, n) {
   (function(e, r) {
     var o;
@@ -65960,7 +65993,34 @@ $.fn.togglify = function(settings) {
         return xr;
       }.call(t, n, t, r), !(o !== oe && (r.exports = o));
     }).call(this);
-  }).call(t, n(163), n(169)(e));
+  }).call(t, n(164), n(169)(e));
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e) {
+    return e && e.__esModule ? e : {
+      "default": e
+    };
+  }
+  t.__esModule = !0;
+  var o = n(176),
+    i = r(o);
+  t.default = i.default || function(e) {
+    for (var t = 1; t < arguments.length; t++) {
+      var n = arguments[t];
+      for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
+    }
+    return e;
+  };
+}, function(e, t) {
+  var n = e.exports = "undefined" != typeof window && window.Math == Math ? window : "undefined" != typeof self && self.Math == Math ? self : Function("return this")();
+  "number" == typeof __g && (__g = n);
+}, function(e, t, n) {
+  var r = n(104),
+    o = n(59);
+  e.exports = function(e) {
+    return r(o(e));
+  };
 }, function(e, t, n) {
   e.exports = !n(30)(function() {
     return 7 != Object.defineProperty({}, "a", {
@@ -65970,7 +66030,7 @@ $.fn.togglify = function(settings) {
     }).a;
   });
 }, function(e, t, n) {
-  var r = n(21),
+  var r = n(22),
     o = n(11),
     i = n(101),
     a = n(31),
@@ -66943,8 +67003,8 @@ $.fn.togglify = function(settings) {
         r = i.length,
         o = "<",
         a = ">";
-      for (t.style.display = "none", n(199).appendChild(t), t.src = "javascript:",
-        e = t.contentWindow.document, e.open(), e.write(o + "script" + a + "document.F=Object" + o + "/script" + a), e.close(), l = e.F; r--;) delete l[u][i[r]];
+      for (t.style.display = "none", n(199).appendChild(t), t.src = "javascript:", e = t.contentWindow.document,
+        e.open(), e.write(o + "script" + a + "document.F=Object" + o + "/script" + a), e.close(), l = e.F; r--;) delete l[u][i[r]];
       return l();
     };
   e.exports = Object.create || function(e, t) {
@@ -66954,7 +67014,7 @@ $.fn.togglify = function(settings) {
 }, function(e, t, n) {
   var r = n(48),
     o = n(49),
-    i = n(22),
+    i = n(23),
     a = n(70),
     s = n(26),
     u = n(103),
@@ -66995,7 +67055,7 @@ $.fn.togglify = function(settings) {
     return r[e] || (r[e] = o(e));
   };
 }, function(e, t, n) {
-  var r = n(21),
+  var r = n(22),
     o = "__core-js_shared__",
     i = r[o] || (r[o] = {});
   e.exports = function(e) {
@@ -67018,7 +67078,7 @@ $.fn.togglify = function(settings) {
     throw TypeError("Can't convert object to primitive value");
   };
 }, function(e, t, n) {
-  var r = n(21),
+  var r = n(22),
     o = n(11),
     i = n(61),
     a = n(72),
@@ -67049,7 +67109,7 @@ $.fn.togglify = function(settings) {
   });
 }, function(e, t, n) {
   n(215);
-  for (var r = n(21), o = n(31), i = n(41), a = n(17)("toStringTag"), s = ["NodeList", "DOMTokenList", "MediaList", "StyleSheetList", "CSSRuleList"], u = 0; u < 5; u++) {
+  for (var r = n(22), o = n(31), i = n(41), a = n(17)("toStringTag"), s = ["NodeList", "DOMTokenList", "MediaList", "StyleSheetList", "CSSRuleList"], u = 0; u < 5; u++) {
     var l = s[u],
       c = r[l],
       f = c && c.prototype;
@@ -67739,7 +67799,7 @@ $.fn.togglify = function(settings) {
   };
 }, function(e, t, n) {
   var r = n(40),
-    o = n(21).document,
+    o = n(22).document,
     i = r(o) && r(o.createElement);
   e.exports = function(e) {
     return i ? o.createElement(e) : {};
@@ -67830,7 +67890,7 @@ $.fn.togglify = function(settings) {
   };
 }, function(e, t, n) {
   var r = n(26),
-    o = n(22),
+    o = n(23),
     i = n(197)(!1),
     a = n(67)("IE_PROTO");
   e.exports = function(e, t) {
@@ -69065,7 +69125,7 @@ $.fn.togglify = function(settings) {
       return !!e;
     });
   }
-  var o = n(20),
+  var o = n(21),
     i = n.n(o),
     a = n(47),
     s = n.n(a),
@@ -69279,7 +69339,7 @@ $.fn.togglify = function(settings) {
     }(d.PureComponent);
 }, function(e, t, n) {
   "use strict";
-  var r = n(20),
+  var r = n(21),
     o = n.n(r),
     i = n(8),
     a = n.n(i),
@@ -70160,7 +70220,7 @@ $.fn.togglify = function(settings) {
     o = n.n(r),
     i = n(47),
     a = n.n(i),
-    s = n(20),
+    s = n(21),
     u = n.n(s),
     l = n(8),
     c = n.n(l),
@@ -70326,7 +70386,7 @@ $.fn.togglify = function(settings) {
   }
 
   function o() {}
-  var i = n(20),
+  var i = n(21),
     a = n.n(i),
     s = n(8),
     u = n.n(s),
@@ -70578,7 +70638,7 @@ $.fn.togglify = function(settings) {
   var x = {};
 }, function(e, t, n) {
   "use strict";
-  var r = n(20),
+  var r = n(21),
     o = n.n(r),
     i = n(47),
     a = n.n(i),
@@ -71154,7 +71214,7 @@ $.fn.togglify = function(settings) {
   t.a = r;
 }, function(e, t, n) {
   "use strict";
-  var r = n(20),
+  var r = n(21),
     o = n.n(r),
     i = n(8),
     a = n.n(i),
@@ -71665,7 +71725,7 @@ $.fn.togglify = function(settings) {
       style: p
     }), n);
   }
-  var o = n(20),
+  var o = n(21),
     i = n.n(o),
     a = n(2),
     s = n.n(a);
@@ -72060,7 +72120,7 @@ $.fn.togglify = function(settings) {
   var o = "function" == typeof Symbol && Symbol.iterator,
     i = "@@iterator";
   e.exports = r;
-}, function(e, t) {
+}, , function(e, t) {
   var n;
   n = function() {
     return this;
@@ -72146,9 +72206,9 @@ $.fn.togglify = function(settings) {
       o = a.a.get(t, "context");
     return n.i(s.a)(e, r)(o);
   }
-  var i = n(23),
+  var i = n(20),
     a = n.n(i),
-    s = n(382),
+    s = n(383),
     u = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
@@ -72192,7 +72252,7 @@ $.fn.togglify = function(settings) {
   n.d(t, "b", function() {
     return o.a;
   }), n(325), n(326), n(327), n(328), n(329);
-}, , , function(e, t) {
+}, , function(e, t) {
   e.exports = function(e) {
     return e.webpackPolyfill || (e.deprecate = function() {}, e.paths = [], e.children || (e.children = []), Object.defineProperty(e, "loaded", {
       enumerable: !0,
@@ -72215,7 +72275,7 @@ $.fn.togglify = function(settings) {
   }
   var o = n(2),
     i = n.n(o),
-    a = n(23),
+    a = n(20),
     s = n.n(a),
     u = n(15),
     l = n.n(u);
@@ -72235,7 +72295,7 @@ $.fn.togglify = function(settings) {
       return n.apply(void 0, arguments);
     };
   }
-  var o = n(23),
+  var o = n(20),
     i = n.n(o);
   t.a = r;
 }, , function(e, t, n) {
@@ -72363,7 +72423,7 @@ $.fn.togglify = function(settings) {
 }, function(e, t) {
   e.exports = function() {};
 }, function(e, t, n) {
-  var r = n(22),
+  var r = n(23),
     o = n(211),
     i = n(210);
   e.exports = function(e) {
@@ -72392,7 +72452,7 @@ $.fn.togglify = function(settings) {
     return t;
   };
 }, function(e, t, n) {
-  e.exports = n(21).document && document.documentElement;
+  e.exports = n(22).document && document.documentElement;
 }, function(e, t, n) {
   var r = n(58);
   e.exports = Array.isArray || function(e) {
@@ -72420,7 +72480,7 @@ $.fn.togglify = function(settings) {
   };
 }, function(e, t, n) {
   var r = n(32),
-    o = n(22);
+    o = n(23);
   e.exports = function(e, t) {
     for (var n, i = o(e), a = r(i), s = a.length, u = 0; s > u;)
       if (i[n = a[u++]] === t) return n;
@@ -72503,7 +72563,7 @@ $.fn.togglify = function(settings) {
     return e;
   };
 }, function(e, t, n) {
-  var r = n(22),
+  var r = n(23),
     o = n(106).f,
     i = {}.toString,
     a = "object" == typeof window && window && Object.getOwnPropertyNames ? Object.getOwnPropertyNames(window) : [],
@@ -72588,7 +72648,7 @@ $.fn.togglify = function(settings) {
   var r = n(196),
     o = n(202),
     i = n(41),
-    a = n(22);
+    a = n(23);
   e.exports = n(105)(Array, "Array", function(e, t) {
     this._t = a(e), this._i = 0, this._k = t;
   }, function() {
@@ -72613,7 +72673,7 @@ $.fn.togglify = function(settings) {
     defineProperty: n(27).f
   });
 }, function(e, t, n) {
-  var r = n(22),
+  var r = n(23),
     o = n(63).f;
   n(65)("getOwnPropertyDescriptor", function() {
     return function(e, t) {
@@ -72643,7 +72703,7 @@ $.fn.togglify = function(settings) {
   });
 }, function(e, t) {}, function(e, t, n) {
   "use strict";
-  var r = n(21),
+  var r = n(22),
     o = n(26),
     i = n(24),
     a = n(25),
@@ -72660,7 +72720,7 @@ $.fn.togglify = function(settings) {
     g = n(198),
     _ = n(200),
     y = n(29),
-    b = n(22),
+    b = n(23),
     w = n(70),
     C = n(49),
     S = n(62),
@@ -76279,7 +76339,7 @@ $.fn.togglify = function(settings) {
   n(137), n(308);
 }, function(e, t, n) {
   "use strict";
-  var r = n(20),
+  var r = n(21),
     o = n.n(r),
     i = n(8),
     a = n.n(i),
@@ -78462,7 +78522,7 @@ $.fn.togglify = function(settings) {
     c = (n(1), "."),
     f = ":";
   e.exports = i;
-}, , , , , function(e, t) {
+}, , , , , , function(e, t) {
   function n(e, t, n) {
     switch (n.length) {
       case 0:
@@ -78648,12 +78708,12 @@ $.fn.togglify = function(settings) {
   e.exports = a;
 }, , , , , , , , , , , , function(e, t, n) {
   "use strict";
-  var r = n(375);
+  var r = n(376);
   t.a = r.a;
 }, function(e, t, n) {
   "use strict";
-  var r = n(378),
-    o = n(377);
+  var r = n(379),
+    o = n(378);
   n.d(t, "a", function() {
     return r.a;
   }), n.d(t, "b", function() {
@@ -78770,8 +78830,8 @@ $.fn.togglify = function(settings) {
   }
   var a = n(2),
     s = n.n(a),
-    u = n(165),
-    l = n(164),
+    u = n(166),
+    l = n(165),
     c = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
@@ -78869,16 +78929,16 @@ $.fn.togglify = function(settings) {
       }
     }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
   }
-  var a = n(23),
+  var a = n(20),
     s = n.n(a),
     u = n(15),
     l = n.n(u),
     c = n(2),
     f = n.n(c),
-    p = n(166),
-    d = n(164),
+    p = n(167),
+    d = n(165),
     h = n(97),
-    v = n(165),
+    v = n(166),
     m = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
@@ -79114,22 +79174,22 @@ $.fn.togglify = function(settings) {
       }
     }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
   }
-  var a = n(23),
+  var a = n(20),
     s = n.n(a),
     u = n(2),
     l = n.n(u),
     c = n(15),
     f = n.n(c),
-    p = n(164),
-    d = n(374),
-    h = n(372),
-    v = n(376),
-    m = n(373),
+    p = n(165),
+    d = n(375),
+    h = n(373),
+    v = n(377),
+    m = n(374),
     g = n(97),
-    _ = n(165),
-    y = n(385),
-    b = n(379),
-    w = n(380),
+    _ = n(166),
+    y = n(386),
+    b = n(380),
+    w = n(381),
     C = function() {
       function e(e, t) {
         var n = [],
@@ -79711,14 +79771,14 @@ $.fn.togglify = function(settings) {
       }
     }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
   }
-  var a = n(23),
+  var a = n(20),
     s = n.n(a),
     u = n(2),
     l = n.n(u),
     c = n(15),
     f = n.n(c),
-    p = n(164),
-    d = n(165),
+    p = n(165),
+    d = n(166),
     h = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
@@ -79927,7 +79987,7 @@ $.fn.togglify = function(settings) {
   var a = n(2),
     s = n.n(a),
     u = n(39),
-    l = (n.n(u), n(406)),
+    l = (n.n(u), n(407)),
     c = n.n(l),
     f = function() {
       function e(e, t) {
@@ -80139,7 +80199,7 @@ $.fn.togglify = function(settings) {
   t.a = h, h.propTypes = p, h.defaultProps = d;
 }, function(e, t, n) {
   "use strict";
-  var r = n(381);
+  var r = n(382);
   n.d(t, "a", function() {
     return o;
   }), n.d(t, "b", function() {
@@ -80152,7 +80212,7 @@ $.fn.togglify = function(settings) {
     a = r.c;
 }, function(e, t, n) {
   "use strict";
-  var r = n(383);
+  var r = n(384);
   n.d(t, "a", function() {
     return o;
   }), n.d(t, "b", function() {
@@ -80210,9 +80270,9 @@ $.fn.togglify = function(settings) {
   function r(e, t) {
     if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
   }
-  var o = n(400),
+  var o = n(401),
     i = n.n(o),
-    a = n(23),
+    a = n(20),
     s = n.n(a),
     u = function() {
       function e(e, t) {
@@ -80575,12 +80635,12 @@ $.fn.togglify = function(settings) {
   }
   var o = n(2),
     i = n(39),
-    a = n(389),
-    s = o.createFactory(n(402)),
-    u = n(403),
-    l = n(388),
+    a = n(390),
+    s = o.createFactory(n(403)),
+    u = n(404),
+    l = n(389),
     c = n(39).unstable_renderSubtreeIntoContainer,
-    f = n(350),
+    f = n(351),
     p = a.canUseDOM ? window.HTMLElement : {},
     d = a.canUseDOM ? document.body : {
       appendChild: function() {}
@@ -80673,9 +80733,9 @@ $.fn.togglify = function(settings) {
 }, function(e, t, n) {
   var r = n(2),
     o = r.DOM.div,
-    i = n(404),
-    a = n(405),
-    s = n(350),
+    i = n(405),
+    a = n(406),
+    s = n(351),
     u = {
       overlay: {
         base: "ReactModal__Overlay",
@@ -80853,7 +80913,7 @@ $.fn.togglify = function(settings) {
       }, 0);
     }
   }
-  var i = n(351),
+  var i = n(352),
     a = null,
     s = null,
     u = !1;
@@ -80872,7 +80932,7 @@ $.fn.togglify = function(settings) {
     a = null, window.addEventListener ? (window.removeEventListener("blur", r), document.removeEventListener("focus", o)) : (window.detachEvent("onBlur", r), document.detachEvent("onFocus", o));
   };
 }, function(e, t, n) {
-  var r = n(351);
+  var r = n(352);
   e.exports = function(e, t) {
     var n = r(e);
     if (!n.length) return void t.preventDefault();
@@ -80885,7 +80945,7 @@ $.fn.togglify = function(settings) {
     }
   };
 }, function(e, t, n) {
-  e.exports = n(401);
+  e.exports = n(402);
 }, , , , , , , , , , , , , , , , , , , , , , , , , function(e, t, n) {
   "use strict";
   Object.defineProperty(t, "__esModule", {
@@ -80895,8 +80955,8 @@ $.fn.togglify = function(settings) {
     o = n.n(r),
     i = n(39),
     a = n.n(i),
-    s = n(363),
-    u = n(364);
+    s = n(364),
+    u = n(365);
   window.ReactComponents = {}, window.ReactComponents.EmojiPicker = s.a, window.ReactComponents.Popover = u.a, window.ReactComponents.PopoverTrigger = u.b, window.React = o.a, window.ReactDOM = a.a;
 }]);
 (function() {

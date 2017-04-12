@@ -29917,6 +29917,7 @@
         data.$creator = $el.find(".channel_browser_created_by");
         data.$date = $el.find(".channel_browser_created_on");
         data.$purpose = $el.find(".channel_browser_channel_purpose");
+        data.$external_shared_channels_icon = $el.find(".shared_channels_icon");
         data.$member_count = $el.find(".channel_browser_member_count");
         data.$open = $el.find(".channel_browser_open");
         data.$preview = $el.find(".channel_browser_preview");
@@ -29928,9 +29929,14 @@
         return $("<div>").addClass("channel_browser_divider");
       },
       renderItem: function($el, item, data) {
-        if (TS.boot_data.page_needs_enterprise && item.is_shared) {
+        if (TS.shared.isModelObOrgShared(item)) {
           data.$shared_channel_icon.removeClass("hidden");
+          data.$external_shared_channels_icon.addClass("hidden");
+        } else if (TS.shared.isModelObShared(item)) {
+          data.$external_shared_channels_icon.removeClass("hidden");
+          data.$shared_channel_icon.addClass("hidden");
         } else {
+          data.$external_shared_channels_icon.addClass("hidden");
           data.$shared_channel_icon.addClass("hidden");
         }
         if (item.is_channel) {
@@ -42566,6 +42572,7 @@ var _getDownloadLink = function() {
   "use strict";
   TS.registerModule("ui.shared_invites_modal", {
     onStart: function() {
+      if (!TS.boot_data.is_in_invites_sidebar_exp) return;
       $("body").on("click", '[data-action="admin_shared_invites_modal"]', function(e) {
         if (TS.isPartiallyBooted()) return;
         if (!TS.ui.shared_invites_modal.sharedInvitesAllowedOnTeam) return TS.ui.admin_invites.start();
@@ -42593,6 +42600,7 @@ var _getDownloadLink = function() {
     return !TS.model.user.is_admin && TS.ui.admin_invites.canInvite();
   };
   var _promiseToGetLastActiveCode = function() {
+    if (_active_invite_code_ob) return Promise.resolve();
     return TS.api.call("users.admin.listSharedInvites", {
       mode: "last_active"
     }).then(function(response) {
@@ -42601,6 +42609,19 @@ var _getDownloadLink = function() {
       } else {
         _active_invite_code_ob = null;
       }
+    }, function(response) {
+      TS.error("could not create shared invite link: " + response);
+    });
+  };
+  var _promiseToDeleteLastActiveCode = function() {
+    return _promiseToGetLastActiveCode().then(function() {
+      if (!_active_invite_code_ob) return;
+      return TS.api.call("users.admin.revokeSharedInvite", {
+        code: _active_invite_code_ob.code
+      }).then(function() {
+        _active_invite_code_ob = null;
+        return Promise.resolve();
+      });
     });
   };
   var _build = function(e) {
@@ -42650,7 +42671,8 @@ var _getDownloadLink = function() {
     return _enterView(view);
   };
   var _bindEmailInvitesLink = function() {
-    _$shared_invites_modal.on("click", '[data-action="admin_invites_modal"]', function() {
+    _$shared_invites_modal.on("click", '[data-action="shared_invite_open_email_invites"]', function() {
+      TS.ui.admin_invites.start();
       if (TS.menu) TS.menu.end();
     });
   };
@@ -42660,9 +42682,11 @@ var _getDownloadLink = function() {
     return Promise.resolve();
   };
   var _bindCreateLink = function() {
+    var $create_btn;
     _$shared_invites_modal.on("click", '[data-action="shared_invite_create_link"]', function() {
-      TS.ui.startButtonSpinner($(this).get(0));
-      var days_until_expiration = _$shared_invites_modal.find("#select_shared_invite_expiration").val();
+      $create_btn = $(this);
+      TS.ui.startButtonSpinner($create_btn.get(0));
+      var days_until_expiration = _.toInteger(_$shared_invites_modal.find("#select_shared_invite_expiration").val());
       return TS.api.call("users.admin.createSharedInvite", {
         expiration: days_until_expiration,
         max_signups: 500
@@ -42674,13 +42698,72 @@ var _getDownloadLink = function() {
           });
         }
       }, function(response) {
-        TS.ui.stopButtonSpinner($(this).get(0), false);
+        TS.ui.stopButtonSpinner($create_btn.get(0), false);
         TS.error("shared invites fail: " + response);
       });
     });
   };
   var _showAdminShareLinkView = function() {
+    var expiration_ts = _active_invite_code_ob.date_expire;
+    var time_until_expiration_string = _makeTimeUntilExpirationString(expiration_ts);
+    var html = TS.templates.shared_invites_modal_admin_share_link_body({
+      time_until_expiration_string: new Handlebars.SafeString(time_until_expiration_string),
+      shared_invite_url: _active_invite_code_ob.url,
+      expiration_date: TS.utility.date.toCalendarDate(expiration_ts),
+      expiration_time: TS.utility.date.toTime(expiration_ts, true)
+    });
+    _$shared_invites_modal_body.html(html);
+    _bindDisableLink();
+    _bindCopyLink();
     return Promise.resolve();
+  };
+  var _bindDisableLink = function() {
+    _$shared_invites_modal.on("click", '[data-action="disable_shared_link"]', function() {
+      _promiseToDeleteLastActiveCode().then(function() {
+        return _enterView("admin_create_link", {
+          warning: "disabled_link"
+        });
+      }, function() {
+        TS.error("disable share invites link failed");
+      });
+    });
+  };
+  var _bindCopyLink = function() {
+    _$shared_invites_modal.on("click", '[data-action="copy_shared_link"]', function(e) {
+      var $copy_btn = $(this);
+      var $el = $(e.target).closest("button");
+      var $input = $el.parent().find("input");
+      var link = $input.attr("data-invite-url");
+      TS.clipboard.writeText(link);
+      $input.select();
+      $copy_btn.removeClass("ts_tip_hide");
+      window.setTimeout(function() {
+        $copy_btn.addClass("ts_tip_hide");
+      }, 2e3);
+    });
+  };
+  var _makeTimeUntilExpirationString = function(ts, num_to_word) {
+    var date_str;
+    var date_now_ob = TS.utility.date.toDateObject(Date.now() / 1e3);
+    var days_until_expiration = TS.utility.date.distanceInDays(TS.utility.date.toDateObject(ts), date_now_ob);
+    var weeks_until_expiration = days_until_expiration / 7;
+    if (days_until_expiration > 30) {
+      return "";
+    }
+    if (_.isInteger(weeks_until_expiration)) {
+      var num_or_word_weeks = num_to_word ? TS.utility.date.numberToWords(weeks_until_expiration) : weeks_until_expiration;
+      date_str = TS.i18n.t("in {num_or_word_weeks} {num_weeks, plural, =1{week}other{weeks}}", "shared_invites_modal")({
+        num_weeks: weeks_until_expiration,
+        num_or_word_weeks: num_or_word_weeks
+      });
+    } else {
+      var num_or_word_days = num_to_word ? TS.utility.date.numberToWords(days_until_expiration) : days_until_expiration;
+      date_str = TS.i18n.t("in {num_or_word_days} {num_days, plural, =1{day}other{days}}", "shared_invites_modal")({
+        num_days: days_until_expiration,
+        num_or_word_days: num_or_word_days
+      });
+    }
+    return TS.utility.date.prettifyDateString(ts * 1e3, date_str);
   };
   var _showNonAdminShareLinkView = function() {
     return Promise.resolve();

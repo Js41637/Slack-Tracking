@@ -44,8 +44,8 @@
       active_bots_header_html = '<h5 class="bot_header large_top_margin no_bottom_margin subtle_silver"><i class="ts_icon ts_icon_bolt small_right_margin"></i> ' + TS.i18n.t("Bots", "web_admin")() + "</h5>";
       invite_restricted_html = TS.i18n.t('<p class="ra_invite_prompt subtle_silver top_margin align_center">Your team does not have any Multi-Channel Guests. <a data-action="admin_invites_modal" data-account-type="restricted">Invite a new Multi-Channel Guest</a></p>', "web_admin")();
       invite_ultra_restricted_html = TS.i18n.t('<p class="ra_invite_prompt subtle_silver top_margin align_center">Your team does not have any Single-Channel Guests. <a data-action="admin_invites_modal" data-account-type="ultra_restricted">Invite a new Single-Channel Guest</a></p>', "web_admin")();
-      restricted_header_html = '<h5 class="restricted_header small_bottom_margin"><i class="presence large away ra small_right_margin"></i> ' + TS.i18n.t("Multi-Channel Guests", "web_admin")() + "</h5>";
-      ultra_restricted_header_html = '<h5 class="restricted_header small_bottom_margin large_top_margin"><i class="presence large away ura small_right_margin"></i> ' + TS.i18n.t("Single-Channel Guests", "web_admin")() + "</h5>";
+      restricted_header_html = '<h5 class="restricted_header small_bottom_margin"><i class="ts_icon ts_icon_restricted_user ts_icon_guest_large soft_grey small_right_margin"></i> ' + TS.i18n.t("Multi-Channel Guests", "web_admin")() + "</h5>";
+      ultra_restricted_header_html = '<h5 class="restricted_header small_bottom_margin large_top_margin"><i class="ts_icon ts_icon_single_channel_guest ts_icon_guest_large soft_grey small_right_margin"></i> ' + TS.i18n.t("Single-Channel Guests", "web_admin")() + "</h5>";
       TS.web.login_sig.add(TS.web.admin.onLogin, TS.web.admin);
       TS.web.admin.member_profile_set_sig.add(TS.web.admin.memberProfileSet, TS.web.admin);
       TS.web.admin.member_profile_set_email_sig.add(TS.web.admin.memberProfileSetEmail, TS.web.admin);

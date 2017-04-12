@@ -402,15 +402,15 @@
 }
 
 .restriction_option .presence {
-  margin-top: 11px;
+  margin-top: -5px;
   display: block;
   float: left;
-  margin-left: .5rem;
-  margin-right: 1rem
+  margin-left: 2px;
+  margin-right: 24px
 }
 
-.restriction_option .restriction_icon {
-  color: #3fba92
+.restriction_option .presence:before {
+  font-size: 25px
 }
 
 .restriction_option .ts_icon_arrow_right {

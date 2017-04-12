@@ -5908,52 +5908,9 @@ only screen and (min-resolution:192dpi) {
   color: #FFF
 }
 
-.presence.large {
-  width: 11px;
-  height: 11px;
-  border-radius: 4px;
-  display: inline-block;
-  margin: 0 .15rem;
-  opacity: 1;
-  -moz-opacity: 1;
-  -khtml-opacity: 1
-}
-
-.presence.large i.presence_icon {
-  display: none!important
-}
-
-.presence.large.away {
-  background: #dbdbde
-}
-
-.presence.large.active {
-  background: #93cc93
-}
-
-.presence.large.ra,
-.presence.large.ura {
-  background-color: transparent!important;
-  background-image: url(/66f9/img/ra_icons.png);
-  -webkit-border-radius: 0!important;
-  -moz-border-radius: 0!important;
-  border-radius: 0!important
-}
-
-.presence.large.ra.away {
-  background-position: -91px -19px
-}
-
-.presence.large.ura.away {
-  background-position: -91px -4px
-}
-
-.presence.large.ra.active {
-  background-position: -76px -19px
-}
-
-.presence.large.ura.active {
-  background-position: -76px -4px
+.ts_icon_guest_large:before {
+  margin: 0 -9px 0 -4px;
+  font-size: 25px
 }
 
 .presence {
@@ -8117,6 +8074,12 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap
+}
+
+.ts_icon_shared_channels {
+  position: absolute;
+  bottom: 3px;
+  right: 4px
 }
 
 @font-face {
@@ -17388,6 +17351,16 @@ html:not(.supports_flexbox) .channel_modal_with_list .channel_modal_list {
   margin-left: 4px
 }
 
+#channel_browser .shared_channels_icon {
+  float: right
+}
+
+#channel_browser .shared_channels_icon .ts_icon_shared_channels {
+  position: relative;
+  right: 0;
+  bottom: -3px
+}
+
 #channel_browser .channel_browser_member_count_container {
   position: absolute;
   right: 10px;
@@ -24319,7 +24292,7 @@ ts-jumper ts-jumper-container {
   width: 460px;
   display: block;
   box-shadow: 0 1px 10px rgba(0, 0, 0, .5);
-  background: #fff;
+  background: #FFF;
   border-radius: 8px;
   padding: .75rem 1rem 0;
   margin: 0 auto
@@ -24411,7 +24384,7 @@ ts-jumper ol li {
 
 ts-jumper ol li .item_details {
   padding: 0 0 0 .75rem;
-  max-width: calc(100% - 2rem)
+  max-width: calc(100% - 4rem)
 }
 
 ts-jumper ol li .presence {
@@ -24449,6 +24422,14 @@ ts-jumper ol li ts-icon.ts_icon_pencil:before {
   font-size: 16px;
   margin-right: 3px;
   margin-left: 1px
+}
+
+ts-jumper ol li ts-icon.ts_icon_shared_channels {
+  color: #717274
+}
+
+ts-jumper ol li .unread_count+.ts_icon_shared_channels {
+  right: 40px
 }
 
 ts-jumper ol li .jumper_team_icon {
@@ -24511,7 +24492,7 @@ ts-jumper ol li .unread_count {
   top: 6px;
   right: 7px;
   border-radius: 9px;
-  color: #fff;
+  color: #FFF;
   background: #eb4d5c;
   padding: 2px 9px;
   text-shadow: 0 1px 0 rgba(0, 0, 0, .2);
@@ -24537,7 +24518,7 @@ ts-jumper ol li .jumper_score {
 ts-jumper ol li.highlighted:not(.no_hover),
 ts-jumper ol:not(.keyboard_active) li:hover:not(.no_hover) {
   background: #2D9EE0;
-  color: #fff;
+  color: #FFF;
   cursor: pointer
 }
 
@@ -24573,7 +24554,7 @@ ts-jumper ol:not(.keyboard_active) li:hover:not(.no_hover) .team_username,
 ts-jumper ol:not(.keyboard_active) li:hover:not(.no_hover) .view_name,
 ts-jumper ol:not(.keyboard_active) li:hover:not(.no_hover) i.presence_icon,
 ts-jumper ol:not(.keyboard_active) li:hover:not(.no_hover) ts-icon {
-  color: #fff
+  color: #FFF
 }
 
 ts-jumper ol.show_scores li .item_details {
@@ -24620,7 +24601,7 @@ ts-jumper ts-jumper-results:empty {
 .supports_custom_scrollbar ts-jumper ts-jumper-results::-webkit-scrollbar-track {
   background-clip: padding-box!important;
   border-radius: 3px;
-  color: #fff
+  color: #FFF
 }
 
 .supports_custom_scrollbar ts-jumper ts-jumper-results::-webkit-scrollbar-track {
@@ -24635,7 +24616,7 @@ ts-jumper ts-jumper-results:empty {
 }
 
 .supports_custom_scrollbar ts-jumper ts-jumper-results::-webkit-scrollbar-corner {
-  background: #fff
+  background: #FFF
 }
 
 @font-face {
@@ -28759,6 +28740,10 @@ html:not(.supports_sticky_position) #app_index_scroller_div {
 #shared_invite_link_modal {
   width: 276px;
   padding: 0 .9375rem
+}
+
+#shared_invite_modal_link_copy_btn .ts_tip_tip {
+  left: -60px
 }
 
 #shared_invite_link_modal_footer {

@@ -358,6 +358,12 @@
       }
       $(document).ready(_onDOMReady);
     },
+    useRedux: function() {
+      if (TS.boot_data.user_id === "W2V82BY0G" && !TS.boot_data.feature_drew_broke_his_own_app) {
+        return true;
+      }
+      return !!TS.boot_data.feature_store_models_in_redux;
+    },
     lazyLoadMembersAndBots: function() {
       return !!(TS.boot_data.should_use_flannel || TS.boot_data.feature_lazy_load_members_and_bots_everywhere);
     },
@@ -1253,7 +1259,7 @@
         TS.model.members = [];
         TS.members.clearMemberMaps();
         TS.model.rooms = [];
-        if (!TS.boot_data.feature_store_channels_in_redux) {
+        if (!TS.useRedux()) {
           TS.model.channels = [];
           TS.model.groups = [];
           TS.model.mpims = [];
@@ -1481,7 +1487,7 @@
         TS.utility.msgs.startBatchUnreadCalc();
         TS.metrics.mark("upsert_channels_start");
         var is_bulk_upsert = false;
-        if (TS.boot_data.feature_store_channels_in_redux) {
+        if (TS.useRedux()) {
           is_bulk_upsert = true;
         }
         var channels_to_upsert = _.map(data.channels, function(channel) {
@@ -1489,7 +1495,7 @@
           channel.all_read_this_session_once = false;
           return TS.channels.upsertChannel(channel, is_bulk_upsert);
         });
-        if (TS.boot_data.feature_store_channels_in_redux && is_bulk_upsert && channels_to_upsert.length) {
+        if (TS.useRedux() && is_bulk_upsert && channels_to_upsert.length) {
           TS.redux.channels.bulkUpsertEntities(_.compact(channels_to_upsert));
         }
         TS.metrics.measureAndClear("upsert_channels", "upsert_channels_start");
@@ -1500,7 +1506,7 @@
             im.all_read_this_session_once = false;
             return TS.ims.upsertIm(im, is_bulk_upsert);
           });
-          if (TS.boot_data.feature_store_channels_in_redux && is_bulk_upsert && ims_to_upsert.length) {
+          if (TS.useRedux() && is_bulk_upsert && ims_to_upsert.length) {
             TS.redux.channels.bulkUpsertEntities(_.compact(ims_to_upsert));
           }
         }
@@ -1524,7 +1530,7 @@
           group.all_read_this_session_once = false;
           return TS.groups.upsertGroup(group, is_bulk_upsert);
         });
-        if (TS.boot_data.feature_store_channels_in_redux && is_bulk_upsert && groups_to_upsert.length) {
+        if (TS.useRedux() && is_bulk_upsert && groups_to_upsert.length) {
           TS.redux.channels.bulkUpsertEntities(_.compact(groups_to_upsert));
         }
         TS.metrics.measureAndClear("upsert_groups", "upsert_groups_start");
@@ -1535,7 +1541,7 @@
               mpim.all_read_this_session_once = false;
               return TS.mpims.upsertMpim(mpim, is_bulk_upsert);
             });
-            if (TS.boot_data.feature_store_channels_in_redux && is_bulk_upsert && mpims_to_upsert.length) {
+            if (TS.useRedux() && is_bulk_upsert && mpims_to_upsert.length) {
               TS.redux.channels.bulkUpsertEntities(_.compact(mpims_to_upsert));
             }
           }

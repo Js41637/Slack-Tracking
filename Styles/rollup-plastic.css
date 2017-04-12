@@ -12389,52 +12389,9 @@ only screen and (min-resolution:192dpi) {
   color: #FFF
 }
 
-.presence.large {
-  width: 11px;
-  height: 11px;
-  border-radius: 4px;
-  display: inline-block;
-  margin: 0 .15rem;
-  opacity: 1;
-  -moz-opacity: 1;
-  -khtml-opacity: 1
-}
-
-.presence.large i.presence_icon {
-  display: none!important
-}
-
-.presence.large.away {
-  background: #dbdbde
-}
-
-.presence.large.active {
-  background: #93cc93
-}
-
-.presence.large.ra,
-.presence.large.ura {
-  background-color: transparent!important;
-  background-image: url(/66f9/img/ra_icons.png);
-  -webkit-border-radius: 0!important;
-  -moz-border-radius: 0!important;
-  border-radius: 0!important
-}
-
-.presence.large.ra.away {
-  background-position: -91px -19px
-}
-
-.presence.large.ura.away {
-  background-position: -91px -4px
-}
-
-.presence.large.ra.active {
-  background-position: -76px -19px
-}
-
-.presence.large.ura.active {
-  background-position: -76px -4px
+.ts_icon_guest_large:before {
+  margin: 0 -9px 0 -4px;
+  font-size: 25px
 }
 
 .presence {
@@ -15199,6 +15156,16 @@ html:not(.supports_flexbox) .channel_modal_with_list .channel_modal_list {
 
 #channel_browser .shared_channel_icon {
   margin-left: 4px
+}
+
+#channel_browser .shared_channels_icon {
+  float: right
+}
+
+#channel_browser .shared_channels_icon .ts_icon_shared_channels {
+  position: relative;
+  right: 0;
+  bottom: -3px
 }
 
 #channel_browser .channel_browser_member_count_container {
