@@ -24770,6 +24770,7 @@
   var _invitesSent = function() {
     var account_type = $("#account_type").val();
     var success_invites_html;
+    var expiration_msg;
     if (account_type == "full") {
       var full_member = TS.i18n.t("{invites_length,plural,=1{{invites_length} Team Member}other{{invites_length} Team Members}}", "invite")({
         invites_length: _success_invites.length
@@ -24786,19 +24787,24 @@
       });
       success_invites_html = "<strong>" + single_channel_guest + "</strong>";
     }
-    var api_args = {
+    if (_expiration_ts && (account_type === "restricted" || account_type === "ultra_restricted") && TS.experiment.getGroup("guest_profiles_and_expiration") === "treatment") {
+      expiration_msg = TS.i18n.t("Their {invites_length,plural,=1{account}other{accounts}} will expire on {datetime}.", "invite")({
+        invites_length: _success_invites.length,
+        datetime: TS.utility.date.formatDate("{date_long} at {time}", _expiration_ts)
+      });
+    }
+    var template_args = {
       success_invites_html: success_invites_html,
       success_invites: _success_invites,
       error_invites: _error_invites,
       team_name: TS.model.team.name,
       domains: _new_email_domains,
       paid_team: TS.model.team.plan !== "",
-      is_admin: TS.model.user.is_admin
+      is_admin: TS.model.user.is_admin,
+      expiration_msg: expiration_msg
     };
-    if (TS.model.team.plan) {
-      api_args["custom_message"] = _custom_message;
-    }
-    var html = TS.templates.admin_invite_summary(api_args);
+    if (TS.model.team.plan) template_args.custom_message = _custom_message;
+    var html = TS.templates.admin_invite_summary(template_args);
     _$div.find("#invite_notice").slideUp(100);
     _$div.find("#admin_invites_workflow, #admin_invites_header, #admin_invites_subheader").addClass("hidden");
     _$div.find("#admin_invites_success").html(html).removeClass("hidden");

@@ -132,7 +132,8 @@
   {{#feature flag="feature_user_custom_status"}}
     <label class="checkbox">
       <input id="allow_calls_to_set_current_status" checked="checked" type="checkbox" data-inline-saver="#prefs_other_options">
-      {{#t}}Set my status to \u201cOn a call\u201d when I start or join one{{/t}}
+      {{#t}}Set my status to \u201c\ud83d\udcde On a call\u201d when I join a Slack call{{/t}}
+      <span class="normal block greigh">{{#t}}If you already have a status set, Slack won\u2019t change it.{{/t}}</span>
     </label>
   {{/feature}}
   <label class="checkbox">

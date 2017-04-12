@@ -49707,6 +49707,7 @@ $.fn.togglify = function(settings) {
     TS.click.addClientHandler("a[href]", function(e, $el, origin) {
       var url_path = $el.attr("href").toLowerCase();
       var routes_to_auth = {
+        "/account/settings": true,
         "/admin": true,
         "/admin/billing": true,
         "/admin/settings": true,

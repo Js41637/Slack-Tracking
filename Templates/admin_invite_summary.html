@@ -25,6 +25,10 @@
     {{/if}}
   {{else}}
     {{#t success=(dangerouslyRenderHTML success_invites_html)}}You\u2019ve invited {success} to {team_name}.{{/t}}
+    {{#if expiration_msg}}
+      <br/>
+      {{expiration_msg}}
+    {{/if}}
   {{/if}}
 </p>
 

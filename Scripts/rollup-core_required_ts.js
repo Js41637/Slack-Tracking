@@ -3894,11 +3894,19 @@ var _cyrillicToLatin = function(char) {
         var all_names = _emoji.data[idx][3];
         var is_skin_tone_modifiable = TS.emoji.isIdxSkinToneModifiable(idx);
         all_names.forEach(function(name, i, names) {
+          var localized_name = name;
+          var localized_names = names;
           TS.model.emoji_names.push(name);
+          if (TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE) {
+            localized_name = TSFEmoji.getLocalEmojiString(name, TS.i18n.locale());
+            localized_names = names.map(function(name) {
+              return TSFEmoji.getLocalEmojiString(name, TS.i18n.locale());
+            });
+          }
           cat_map[name] = {
             html: TS.emoji.graphicReplace(":" + name + ":"),
-            name: ":" + name + ":",
-            names: ":" + names.join(": :") + ":"
+            name: ":" + localized_name + ":",
+            names: ":" + localized_names.join(": :") + ":"
           };
           TS.model.emoji_map.push({
             id: "E" + idx + (i > 0 ? "_alias_" + i : ""),
