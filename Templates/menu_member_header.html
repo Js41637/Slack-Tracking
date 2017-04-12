@@ -107,7 +107,7 @@
       {{/if}}
     </div>
 
-    {{#if show_member_restriction}}
+    {{#shouldShowMemberRestrictionBanner member}}
       <div class="member_restriction_over_image{{#if member.is_external}} external{{/if}}">
         <span class="overflow_ellipsis lato_black">
           {{#if member.is_external}}
@@ -124,7 +124,7 @@
           {{/if}}
         </span>
       </div>
-    {{/if}}
+    {{/shouldShowMemberRestrictionBanner}}
 
   </div>
 

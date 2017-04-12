@@ -5489,15 +5489,6 @@ button.close {
 }
 
 body {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -moz-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -ms-flex-direction: column;
-  -moz-flex-direction: column;
-  -webkit-flex-direction: column;
-  flex-direction: column;
   height: 100%;
   min-width: 768px;
   font-family: "Helvetica Neue", Helvetica, "Segoe UI", Tahoma, Arial, sans-serif;
@@ -5513,6 +5504,19 @@ body {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none
+}
+
+body.is_ie,
+body.is_old_safari {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: column;
+  -moz-flex-direction: column;
+  -webkit-flex-direction: column;
+  flex-direction: column
 }
 
 body:not(.loading) #client-ui:after,

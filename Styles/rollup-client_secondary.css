@@ -2872,7 +2872,8 @@ body.incremental_boot #col_channels .header_count {
 }
 
 .channels_list_holder ul li .ts_icon_pencil.prefix {
-  margin: 1px 1px 0 -1px
+  margin: 1px 1px 0 -1px;
+  height: 22px
 }
 
 .channels_list_holder ul li .ts_icon_pencil.prefix:before {
@@ -7447,24 +7448,30 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 }
 
 .member_restriction_banner {
+  position: relative;
   margin: 8px 4px 0;
   width: 100%;
+  padding: 10px 32px 10px 14px;
   border-radius: .2rem .2rem 0 0;
   background-color: #2C2D30;
   color: #FFF;
-  padding: 4px 8px 8px;
-  display: flex;
-  align-items: baseline
-}
-
-.member_restriction_banner .overflow_ellipsis {
-  font-size: 13px;
-  flex: 1 1 auto
+  font-size: 13px
 }
 
 .member_restriction_banner .ts_icon {
-  top: 3px;
-  flex: 0 0 auto
+  line-height: 0
+}
+
+.member_restriction_banner .ts_icon:before {
+  margin-left: -5px
+}
+
+.member_restriction_banner .external_team_badge,
+.member_restriction_banner .ts_icon_question_circle {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  line-height: .8
 }
 
 #member_preview_scroller .member_details .member_restriction_banner~.member_image.thumb_512 {

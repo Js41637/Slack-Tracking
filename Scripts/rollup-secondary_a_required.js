@@ -2581,7 +2581,6 @@
   "use strict";
   TS.registerModule("tips", {
     onStart: function() {
-      _$body.append('<div id="ts_tip_float_floater_container"></div>');
       _$body.delegate(".ts_tip_lazy, .ts_tip_float", "mouseenter", _onMouseEnter);
       _$body.delegate(".ts_tip_float", "mouseleave", _onMouseLeave);
       _$body.on("click", ".ts_tip", function(e) {
@@ -2660,7 +2659,7 @@
         tip_html: _$tipped_el.find(".ts_tip_tip").clone()[0].outerHTML
       });
       _$floater = $(floater_html);
-      $("#ts_tip_float_floater_container").append(_$floater);
+      _$body.append(_$floater);
       _last_tim = setTimeout(function() {
         _$floater.removeClass("ts_tip_hidden");
         _positionFloater();
@@ -24898,6 +24897,17 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("getMemberDisplayName", function(member, should_escape, include_at_sign) {
         return TS.members.getMemberDisplayName(member, should_escape === true, include_at_sign === true);
       });
+      Handlebars.registerHelper("shouldShowMemberRestrictionBanner", function(member, options) {
+        options = _optionsFnInverseBooleanHelper(options);
+        if (_.isString(member)) member = TS.members.getMemberById(member);
+        if (!member) return options.inverse(this);
+        var member_restriction_flag_enabled = TS.boot_data.feature_shared_channels_client || TS.experiment.getGroup("guest_profiles_and_expiration") === "treatment";
+        var member_restriction_supported_member = member.is_external || member.is_restricted;
+        if (member_restriction_flag_enabled && member_restriction_supported_member) {
+          return options.fn(this);
+        }
+        return options.inverse(this);
+      });
       Handlebars.registerHelper("getTeamNameByMember", function(member) {
         return TS.teams.getTeamNameByMember(member);
       });
@@ -35356,11 +35366,6 @@ var _on_esc;
       template_args.other_accounts = TS.boot_data.other_accounts;
       template_args.logout_url = TS.boot_data.logout_url;
       template_args.signin_url = TS.boot_data.signin_url;
-    }
-    var member_restriction_flag_enabled = TS.boot_data.feature_shared_channels_client || TS.experiment.getGroup("guest_profiles_and_expiration") === "treatment";
-    var member_restriction_supported_member = member.is_external || member.is_restricted;
-    if (member_restriction_flag_enabled && member_restriction_supported_member) {
-      template_args.show_member_restriction = true;
     }
     if (!member.deleted && !member.is_slackbot && member.id !== TS.model.user.id) {
       if (!TS.model.user.is_ultra_restricted && !member.is_ultra_restricted) {
@@ -49644,8 +49649,12 @@ $.fn.togglify = function(settings) {
       var routes_to_auth = {
         "/admin": true,
         "/admin/billing": true,
+        "/admin/settings": true,
+        "/apps": true,
+        "/customize": true,
+        "/files": true,
         "/pricing": true,
-        "/files": true
+        "/stats": true
       };
       if (routes_to_auth[url_path]) {
         e.preventDefault();
@@ -61122,13 +61131,13 @@ $.fn.togglify = function(settings) {
   var _searchRemote = function(query, options) {
     if (!TS.lazyLoadMembersAndBots()) return Promise.resolve(_searchLocal(query, options));
     var promises = [];
-    if (options.members) promises.push(_promiseRemoteMembers(query, options.members));
+    if (options.members) promises.push(_promiseRemoteMembers(query, options));
     return Promise.all(promises).then(function() {
       return _searchLocal(query, options);
     });
   };
   var _promiseRemoteMembers = function(query, options) {
-    options = _mergeDefaults(options, options.limit_option, _DEFAULT_MEMBER_OPTIONS);
+    options = _mergeDefaults(options.members, options.limit_option, _DEFAULT_MEMBER_OPTIONS);
     options.max_api_results = options.limit;
     if (query.charAt(0) === "@") query = query.slice(1);
     options.query = query;
@@ -61480,8 +61489,7 @@ $.fn.togglify = function(settings) {
 
   function s(e) {
     var t = e.dirtyComponentsLength;
-    t !== g.length ? c("124", t, g.length) : void 0, g.sort(a),
-      _++;
+    t !== g.length ? c("124", t, g.length) : void 0, g.sort(a), _++;
     for (var n = 0; n < t; n++) {
       var r = g[n],
         o = r._pendingCallbacks;
@@ -65556,8 +65564,7 @@ $.fn.togglify = function(settings) {
             Ff = io(function(e) {
               var t = ka(e),
                 n = v(e, ko);
-              return t === ka(n) ? t = oe : n.pop(),
-                n.length && n[0] === e[0] ? Tr(n, ki(t, 2)) : [];
+              return t === ka(n) ? t = oe : n.pop(), n.length && n[0] === e[0] ? Tr(n, ki(t, 2)) : [];
             }),
             Hf = io(function(e) {
               var t = ka(e),
@@ -66936,8 +66943,8 @@ $.fn.togglify = function(settings) {
         r = i.length,
         o = "<",
         a = ">";
-      for (t.style.display = "none", n(199).appendChild(t), t.src = "javascript:", e = t.contentWindow.document, e.open(), e.write(o + "script" + a + "document.F=Object" + o + "/script" + a),
-        e.close(), l = e.F; r--;) delete l[u][i[r]];
+      for (t.style.display = "none", n(199).appendChild(t), t.src = "javascript:",
+        e = t.contentWindow.document, e.open(), e.write(o + "script" + a + "document.F=Object" + o + "/script" + a), e.close(), l = e.F; r--;) delete l[u][i[r]];
       return l();
     };
   e.exports = Object.create || function(e, t) {
@@ -68554,8 +68561,7 @@ $.fn.togglify = function(settings) {
       if (t.nodeType === N ? d("43") : void 0, a.useCreateElement) {
         for (; t.lastChild;) t.removeChild(t.lastChild);
         h.insertTreeBefore(t, e, null);
-      } else P(t, e),
-        _.precacheNode(n, t.firstChild);
+      } else P(t, e), _.precacheNode(n, t.firstChild);
     }
   };
   e.exports = U;

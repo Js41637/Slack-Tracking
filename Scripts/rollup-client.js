@@ -926,6 +926,9 @@
     if (TS.ui.fs_modal.is_showing) {
       TS.ui.fs_modal.close();
     }
+    if (TS.ui.jumper.is_showing) {
+      TS.ui.jumper.end();
+    }
     var loc = history.location || document.location;
     TS.qs_args = TS.utility.url.queryStringParse(loc.search.substring(1));
     var is_unread_view = TS.utility.isUnreadViewPath(loc.pathname);
@@ -26416,7 +26419,7 @@
       if (model_type === "group") {
         model_type = "channel";
       }
-      html = '<p class="no_bottom_margin">' + TS.i18n.t("Sorry! You can’t change the retention duration for this {type, select, channel {channel} group {group} other {conversation}}.", "channel_options")({
+      html = '<p class="no_bottom_margin">' + TS.i18n.t("Sorry! You can’t change the retention duration for this {type, select, channel {channel} group {private channel} other {conversation}}.", "channel_options")({
         type: model_type
       });
       html += "</p>";
@@ -26506,6 +26509,15 @@
     }).then(_handleSuccess, _handleError);
   };
   var _handleSuccess = function(response) {
+    var content_html = TS.i18n.t("They have 72 hours to respond to the invitation before it expires", "share_channels")();
+    var header_html = TS.i18n.t("Request sent to {email}", "share_channels")({
+      email: "fake@acme-corp.com"
+    });
+    var go_label = TS.i18n.t("That Is All", "share_channels");
+    TS.ui.channel_options_dialog.startWithChannelOption(content_html, header_html, go_label, TS.ui.fs_modal.close);
+    TS.ui.channel_options_dialog.div.find(".option_cancel").addClass("hidden");
+    TS.ui.channel_options_dialog.ladda.stop();
+    TS.ui.fs_modal.hideBackButton();
     TS.log("shared_channels_connection", response);
   };
   var _handleError = function(response) {
