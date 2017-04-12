@@ -129,6 +129,12 @@
     <input id="enable_chan_suggestions" checked="checked" type="checkbox" data-inline-saver="#prefs_other_options">
     {{#t}}Send me occasional channel suggestions via Slackbot{{/t}}
   </label>
+  {{#feature flag="feature_user_custom_status"}}
+    <label class="checkbox">
+      <input id="allow_calls_to_set_current_status" checked="checked" type="checkbox" data-inline-saver="#prefs_other_options">
+      {{#t}}Set my status to \u201cOn a call\u201d when I start or join one{{/t}}
+    </label>
+  {{/feature}}
   <label class="checkbox">
     <input id="surprise_me" type="checkbox">
     {{#t}}Surprise me!{{/t}}

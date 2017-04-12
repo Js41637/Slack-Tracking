@@ -32331,6 +32331,16 @@
         value: val
       });
     });
+    if (TS.boot_data.feature_user_custom_status) {
+      $("#allow_calls_to_set_current_status").prop("checked", TS.model.prefs.allow_calls_to_set_current_status === true);
+      $("#allow_calls_to_set_current_status").on("change", function() {
+        var val = !!$(this).prop("checked");
+        TS.prefs.setPrefByAPI({
+          name: "allow_calls_to_set_current_status",
+          value: val
+        });
+      });
+    }
     $("#ls_disabled_cb").prop("checked", TS.model.prefs.ls_disabled === true);
     $("#ls_disabled_cb").bind("change", function() {
       var val = !!$(this).prop("checked");
