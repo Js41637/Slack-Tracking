@@ -67,21 +67,6 @@
     canInvite: function() {
       return _canInvite();
     },
-    getInvitesExperimentGroups: function() {
-      if (_invite_experiment_groups) return Promise.resolve();
-      return TS.experiment.loadUserAssignments().then(function() {
-        _invite_experiment_groups = {};
-        var invite_btn_redesign_old_teams_group = TS.experiment.getGroup("invite_btn_redesign_old_teams");
-        var invite_btn_redesign_new_teams_group = TS.experiment.getGroup("invite_btn_redesign_new_teams");
-        if (invite_btn_redesign_old_teams_group) _invite_experiment_groups["invite_btn_redesign_old_teams"] = invite_btn_redesign_old_teams_group;
-        if (invite_btn_redesign_new_teams_group) _invite_experiment_groups["invite_btn_redesign_new_teams"] = invite_btn_redesign_new_teams_group;
-        return Promise.resolve();
-      });
-    },
-    isInSidebarExperiment: function() {
-      if (!_invite_experiment_groups) return TS.error("haven't loaded invite experiment groups yet");
-      return _invite_experiment_groups["invite_btn_redesign_old_teams"] == "new_invite_btn" || _invite_experiment_groups["invite_btn_redesign_new_teams"] == "new_invite_btn";
-    },
     test: function() {
       var test_ob = {
         _error_map: _error_map,
@@ -125,7 +110,6 @@
   var _cancel_google_auth_polling;
   var _event_family_name = "INVITEMODAL";
   var _clog_name = _event_family_name + "_ACTION";
-  var _invite_experiment_groups;
   var _NUM_INVITES = 3;
   var _error_map = {
     url_in_message: TS.i18n.t("Sorry, but URLs are not allowed in the custom message. Please remove it and try again!", "invite")(),

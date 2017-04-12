@@ -2698,6 +2698,18 @@ body.incremental_boot #col_channels .header_count {
   margin: 1rem 0 2rem
 }
 
+#channels_header {
+  margin-top: -3px;
+  margin-bottom: -2px;
+  margin-left: 13px
+}
+
+#channels_header .channel_list_header_label {
+  margin-top: 3px;
+  margin-bottom: 3px;
+  margin-left: 3px
+}
+
 .channels_list_holder ul {
   list-style-type: none;
   text-align: left;
@@ -18243,10 +18255,6 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
   position: relative
 }
 
-#channel_invite_container.page_needs_enterprise .channel_invite_row .name_container>div.vertically_center_full_name {
-  line-height: 42px
-}
-
 #channel_invite_container.page_needs_enterprise {
   -ms-flex-direction: row;
   -moz-flex-direction: row;
@@ -28290,7 +28298,17 @@ ts-thread .thread_participants {
 }
 
 .sli_briefing__message ts-message .message_gutter {
-  width: 3.6rem
+  width: 3.6rem;
+  margin-top: 1.5rem
+}
+
+.sli_briefing__message ts-message .action_hover_container {
+  right: .625rem
+}
+
+.sli_briefing__message ts-message .btn_msg_action.ts_icon_heart_o::before {
+  font-size: 19px;
+  margin-top: -1px
 }
 
 .sli_briefing__message ts-message .message_content {
@@ -28306,52 +28324,13 @@ ts-thread .thread_participants {
   vertical-align: text-bottom
 }
 
-.sli_briefing__message:hover .sli_briefing_feedback {
-  display: inline-block
-}
-
-.sli_briefing_feedback {
-  display: none;
-  margin-left: 3px
-}
-
-.sli_briefing_feedback button {
-  outline: 0;
-  border: none;
-  padding: 0;
-  background-color: transparent;
-  color: #717274;
-  line-height: 1
-}
-
-.sli_briefing_feedback button:before {
-  font-size: 17px
-}
-
-.sli_briefing_feedback.helpful,
-.sli_briefing_feedback.not-helpful {
-  pointer-events: none
-}
-
-.sli_briefing_feedback.not-helpful button:not(.sli_briefing_feedback__not-helpful) {
-  opacity: .2
-}
-
-.sli_briefing_feedback.helpful button:not(.sli_briefing_feedback__helpful) {
-  opacity: .2
-}
-
-#sli_briefing_text_feedback {
-  width: 100%
-}
-
 .sli_briefing .sli_briefing__paragraph_separator {
   color: #A0A0A2;
   padding: 0 4px
 }
 
 .sli_briefing__justification {
-  padding-top: .625rem;
+  margin-bottom: .2rem;
   padding-left: .625rem;
   font-family: Slack-Lato, appleLogo, sans-serif;
   font-size: .75rem
@@ -28408,8 +28387,8 @@ ts-thread .thread_participants {
   align-self: baseline
 }
 
-.sli_briefing__feedback {
-  max-width: 300px
+.sli_briefing_feedback_text {
+  max-width: 340px
 }
 
 .sli_briefing__reveal {
@@ -28429,6 +28408,64 @@ ts-thread .thread_participants {
   font-size: .75rem;
   margin-top: .5rem;
   color: #717274
+}
+
+.sli_briefing__feedback--negative {
+  pointer-events: none;
+  opacity: .4;
+  transition: opacity .2s
+}
+
+.sli_briefing__feedback--positive ts-message .sli_briefing__feedback_positive {
+  color: #eb4d5c
+}
+
+.sli_briefing__feedback--positive ts-message .sli_briefing__feedback_negative {
+  color: #A0A0A2;
+  pointer-events: none;
+  cursor: default
+}
+
+.sli_briefing__feedback {
+  position: absolute;
+  top: -8px;
+  right: 8px
+}
+
+.sli_briefing__message ts-message .action_hover_container:not(.sli_briefing__feedback) {
+  right: 5.75rem
+}
+
+.sli_briefing__message ts-message .sli_briefing__feedback_positive:hover,
+.sli_briefing__message ts-message .sli_briefing__feedback_positive:hover::before {
+  color: #eb4d5c
+}
+
+.sli_briefing__message ts-message .ts_icon_heart_o:hover::before {
+  transform: scale(1.1)
+}
+
+.sli_briefing__message ts-message .sli_briefing__feedback_positive.ts_icon_heart::before {
+  font-size: 26px!important;
+  margin-top: -6px
+}
+
+.sli_briefing__message ts-message .sli_briefing__feedback_positive.ts_icon_heart.pulse::before {
+  transform-origin: 13px 14px;
+  animation: pulse .3s 1 ease-in-out
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1)
+  }
+  33% {
+    transform: scale(.2)
+  }
+  66% {
+    transform: scale(1.4)
+  }
 }
 
 @font-face {

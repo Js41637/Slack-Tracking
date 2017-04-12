@@ -866,7 +866,9 @@
         TS.utility.contenteditable.create(input, {
           modules: {
             tabcomplete: {
-              completeMemberSpecials: false,
+              searchOptions: {
+                complete_member_specials: false
+              },
               completers: [TS.tabcomplete.channels, TS.tabcomplete.emoji, TS.tabcomplete.members],
               positionMenu: function(menu) {
                 if (TS.web && TS.web.space) {

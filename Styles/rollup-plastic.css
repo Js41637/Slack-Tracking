@@ -16050,10 +16050,6 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
   position: relative
 }
 
-#channel_invite_container.page_needs_enterprise .channel_invite_row .name_container>div.vertically_center_full_name {
-  line-height: 42px
-}
-
 #channel_invite_container.page_needs_enterprise {
   -ms-flex-direction: row;
   -moz-flex-direction: row;

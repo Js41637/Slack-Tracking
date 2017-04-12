@@ -10852,17 +10852,16 @@
       return TS.client.channel_pane.updateFooterButtons();
     },
     updateFooterButtons: function() {
-      return TS.ui.admin_invites.getInvitesExperimentGroups().then(function() {
-        if (TS.ui.admin_invites.isInSidebarExperiment()) {
-          var $col_footer = $("#col_channels_footer");
-          var $unread_mentions_btn = $("#channel_scroll_down");
-          var $visible_footer_buttons = $col_footer.find("button").not(".hidden");
-          var num_footer_btns = $visible_footer_buttons.length;
-          $col_footer.toggleClass("col_channels_footer_feat_link_in_sidebar", !!num_footer_btns);
-          $unread_mentions_btn.toggleClass("col_channels_footer_feat_link_in_sidebar", !!num_footer_btns);
-          $visible_footer_buttons.toggleClass("single_footer_btn", num_footer_btns == 1);
-        }
-      }).then(_updateChannelPaneFooterVisibility);
+      if (TS.boot_data.is_in_invites_sidebar_exp) {
+        var $col_footer = $("#col_channels_footer");
+        var $unread_mentions_btn = $("#channel_scroll_down");
+        var $visible_footer_buttons = $col_footer.find("button").not(".hidden");
+        var num_footer_btns = $visible_footer_buttons.length;
+        $col_footer.toggleClass("col_channels_footer_feat_link_in_sidebar", !!num_footer_btns);
+        $unread_mentions_btn.toggleClass("col_channels_footer_feat_link_in_sidebar", !!num_footer_btns);
+        $visible_footer_buttons.toggleClass("single_footer_btn", num_footer_btns == 1);
+      }
+      _updateChannelPaneFooterVisibility();
     },
     getSortedList: function() {
       return _getSortedNormalList();
@@ -11389,33 +11388,27 @@
     return _getSortedStarredList().concat(_getSortedChannelList(), _getSortedDmList());
   };
   var _updateChannelPaneFooterVisibility = function() {
-    return TS.ui.admin_invites.getInvitesExperimentGroups().then(function() {
-      var is_footer_hidden = TS.model.prefs.no_omnibox_in_channels;
-      if (TS.boot_data.feature_prev_next_button) {
-        is_footer_hidden = is_footer_hidden && TS.model.prefs.prev_next_btn;
-      } else if (TS.ui.admin_invites.isInSidebarExperiment()) {
-        is_footer_hidden = is_footer_hidden && !TS.ui.admin_invites.canInvite();
-      }
-      var $channel_scroll_down = $("#channel_scroll_down");
-      $("#col_channels_footer").toggleClass("hidden", is_footer_hidden);
-      $channel_scroll_down.toggleClass("no_sidebar_footer", !!is_footer_hidden);
-      TS.utility.queueRAF(function() {
-        TS.view.resizeManually("TS.client.channel_pane _updateChannelPaneFooterVisibility");
-      });
-      return null;
+    var is_footer_hidden = TS.model.prefs.no_omnibox_in_channels;
+    if (TS.boot_data.feature_prev_next_button) {
+      is_footer_hidden = is_footer_hidden && TS.model.prefs.prev_next_btn;
+    } else if (TS.boot_data.is_in_invites_sidebar_exp) {
+      is_footer_hidden = is_footer_hidden && !TS.ui.admin_invites.canInvite();
+    }
+    var $channel_scroll_down = $("#channel_scroll_down");
+    $("#col_channels_footer").toggleClass("hidden", is_footer_hidden);
+    $channel_scroll_down.toggleClass("no_sidebar_footer", !!is_footer_hidden);
+    TS.utility.queueRAF(function() {
+      TS.view.resizeManually("TS.client.channel_pane _updateChannelPaneFooterVisibility");
     });
   };
   var _rebuildQuickSwitcherBtn = function() {
-    return TS.ui.admin_invites.getInvitesExperimentGroups().then(function() {
-      var in_invites_sidebar_exp = TS.ui.admin_invites.isInSidebarExperiment();
-      $("#quick_switcher_btn").off().html(TS.templates.builders.buildQuickSwitcherBtnHtml(in_invites_sidebar_exp)).on("click", function() {
-        if (TS.newxp.inOnboarding()) return false;
-        TS.ui.jumper.start();
-        TS.clog.track("QUICKSWITCHER_ACTION", {
-          click_target: "quick_switcher_btn",
-          trigger: "quick_switcher_btn",
-          action: "opened"
-        });
+    $("#quick_switcher_btn").off().html(TS.templates.builders.buildQuickSwitcherBtnHtml(TS.boot_data.is_in_invites_sidebar_exp)).on("click", function() {
+      if (TS.newxp.inOnboarding()) return false;
+      TS.ui.jumper.start();
+      TS.clog.track("QUICKSWITCHER_ACTION", {
+        click_target: "quick_switcher_btn",
+        trigger: "quick_switcher_btn",
+        action: "opened"
       });
       return TS.client.channel_pane.updateQuickSwitcherBtnVisibility();
     });
@@ -23946,21 +23939,6 @@
     canInvite: function() {
       return _canInvite();
     },
-    getInvitesExperimentGroups: function() {
-      if (_invite_experiment_groups) return Promise.resolve();
-      return TS.experiment.loadUserAssignments().then(function() {
-        _invite_experiment_groups = {};
-        var invite_btn_redesign_old_teams_group = TS.experiment.getGroup("invite_btn_redesign_old_teams");
-        var invite_btn_redesign_new_teams_group = TS.experiment.getGroup("invite_btn_redesign_new_teams");
-        if (invite_btn_redesign_old_teams_group) _invite_experiment_groups["invite_btn_redesign_old_teams"] = invite_btn_redesign_old_teams_group;
-        if (invite_btn_redesign_new_teams_group) _invite_experiment_groups["invite_btn_redesign_new_teams"] = invite_btn_redesign_new_teams_group;
-        return Promise.resolve();
-      });
-    },
-    isInSidebarExperiment: function() {
-      if (!_invite_experiment_groups) return TS.error("haven't loaded invite experiment groups yet");
-      return _invite_experiment_groups["invite_btn_redesign_old_teams"] == "new_invite_btn" || _invite_experiment_groups["invite_btn_redesign_new_teams"] == "new_invite_btn";
-    },
     test: function() {
       var test_ob = {
         _error_map: _error_map,
@@ -24004,7 +23982,6 @@
   var _cancel_google_auth_polling;
   var _event_family_name = "INVITEMODAL";
   var _clog_name = _event_family_name + "_ACTION";
-  var _invite_experiment_groups;
   var _NUM_INVITES = 3;
   var _error_map = {
     url_in_message: TS.i18n.t("Sorry, but URLs are not allowed in the custom message. Please remove it and try again!", "invite")(),
@@ -42625,7 +42602,7 @@ var _getDownloadLink = function() {
   };
   var _promiseToGetLastActiveCode = function() {
     if (_active_invite_code_ob) return Promise.resolve();
-    return TS.api.call("users.admin.listSharedInvites", {
+    return TS.api.call("users.listSharedInvites", {
       mode: "last_active"
     }).then(function(response) {
       if (response.data.invites && response.data.invites.length) {
@@ -42790,6 +42767,16 @@ var _getDownloadLink = function() {
     return TS.utility.date.prettifyDateString(ts * 1e3, date_str);
   };
   var _showNonAdminShareLinkView = function() {
+    var expiration_ts = _active_invite_code_ob.date_expire;
+    var time_until_expiration_string = _makeTimeUntilExpirationString(expiration_ts, true);
+    var html = TS.templates.shared_invites_modal_nonadmin_share_link_body({
+      time_until_expiration_string: new Handlebars.SafeString(time_until_expiration_string),
+      shared_invite_url: _active_invite_code_ob.url,
+      expiration_date: TS.utility.date.toCalendarDate(expiration_ts),
+      expiration_time: TS.utility.date.toTime(expiration_ts, true)
+    });
+    _$shared_invites_modal_body.html(html);
+    _bindCopyLink();
     return Promise.resolve();
   };
   var _SETUP_MAP = {

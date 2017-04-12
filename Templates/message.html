@@ -19,7 +19,7 @@
          data-selectable="{{selectable}}" {{#if msg.thread_ts}}data-thread-ts="{{msg.thread_ts}}" data-parent-user-id="{{msg.parent_user_id}}"{{/if}}
          >
   {{#unless hide_actions}}
-    <div class="action_hover_container stretch_btn_heights" data-show_rxn_action="{{show_rxn_action}}" data-show_reply_action="{{show_reply_action}}" data-show_comment_action="{{show_comment_action}}" data-abs_permalink="{{abs_permalink}}">
+    <div class="action_hover_container stretch_btn_heights" data-js="action_hover_container" data-show_rxn_action="{{show_rxn_action}}" data-show_reply_action="{{show_reply_action}}" data-show_comment_action="{{show_comment_action}}" data-abs_permalink="{{abs_permalink}}">
       {{! to be filled by action_hover_items on hover; the data attributes can be used to rebuild the contents with action_hover_items at anytime}}
     </div>
   {{/unless}}
@@ -83,18 +83,6 @@
             {{/if}}
           {{/feature}}
           {{#if show_star}}<span class="message_star_holder">{{>star_with_tip star_components}}</span>{{/if}}
-          {{#feature flag="feature_sli_briefing"}}
-            {{#if show_briefing_feedback}}
-              <div class="sli_briefing_feedback">
-                <button class="ts_tip ts_tip_top ts_icon ts_icon_minus_circle sli_briefing_feedback__not-helpful" data-sli-briefing-feedback="not-helpful">
-                  <span class="ts_tip_tip">{{#t}}This message was not helpful.{{/t}}</span>
-                </button>
-                <button class="ts_tip ts_tip_top ts_icon ts_icon_plus_circle sli_briefing_feedback__helpful" data-sli-briefing-feedback="helpful">
-                  <span class="ts_tip_tip">{{#t}}This message was helpful.{{/t}}</span>
-                </button>
-              </div>
-            {{/if}}
-          {{/feature}}
           {{#if format_for_thread_root}}{{> thread_channel_link}}{{/if}}
           {{#if for_top_results_search_display}}
             {{#if archive_link}}

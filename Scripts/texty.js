@@ -439,16 +439,10 @@
     }, {
       key: "_enforceEmptyStateConsistency",
       value: function _enforceEmptyStateConsistency() {
-        if (!this._quill) return;
-        var isEmpty = this.isEmpty();
-        var hasBlankState = this._quill.root.classList.contains("ql-blank");
-        if (isEmpty && !hasBlankState) {
-          this._quill.root.classList.add("ql-blank");
-          this.options.log("Texty: input missing blank state");
-        } else if (!isEmpty && hasBlankState) {
-          this._quill.root.classList.remove("ql-blank");
-          this.options.log("Texty: input has unnecessary blank state");
-        }
+        if (!this._placeholder) return;
+        this._placeholder.offsetHeight;
+        this._placeholder.style.transform = "translateZ(0)";
+        this._placeholder.style.transform = "";
       }
     }]);
     return Texty;
@@ -473,9 +467,9 @@
     });
     quill.on("text-change", function(delta, oldDelta, source) {
       texty._setLastSelection();
-      setTimeout(function() {
-        return texty._enforceEmptyStateConsistency();
-      }, 0);
+      if (delta.length() > 1 && oldDelta.length() <= 1) {
+        texty._enforceEmptyStateConsistency();
+      }
       if (options.onTextChange) {
         var callbackSource = texty._nextTextChangeCallbackSource || source;
         texty._nextTextChangeCallbackSource = null;
@@ -13265,9 +13259,6 @@
       _this._prevMatch = null;
       _this._menu = null;
       _this._searchInFlight = null;
-      _this._searchOptions = {
-        completeMemberSpecials: !!options.completeMemberSpecials
-      };
       _this.isInComposition = false;
       _this.completeAtNextSelectionChange = false;
       _this.preventCloseAtNextSelectionChange = false;
@@ -13558,7 +13549,7 @@
           index: match.index,
           no_model_ob: this.options.no_model_ob,
           isUserSolicited: isUserSolicited
-        }, this._searchOptions);
+        }, this.options.searchOptions);
         match.completer.search(match.text, searchParams, function(err) {
           var results = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
           if (match.text !== _this3._searchInFlight) {

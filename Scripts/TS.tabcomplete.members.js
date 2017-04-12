@@ -75,11 +75,14 @@
     search: function(text, options, callback) {
       var delay_ms = _getSearchDelay(text, options.isUserSolicited);
       var delayed = _delayedFunction(delay_ms);
-      var model_ob = options.no_model_ob ? null : TS.shared.getActiveModelOb();
+      var model_ob;
+      if (!options.no_model_ob) {
+        model_ob = options.model_ob || TS.shared.getActiveModelOb();
+      }
       var local_members = _getLocalMembers(model_ob, options.no_model_ob);
       var usergroups = TS.user_groups.getActiveUserGroups();
       var broadcast_keywords;
-      if (options.completeMemberSpecials) {
+      if (options.complete_member_specials) {
         broadcast_keywords = TS.utility.members.getBroadcastKeywordsForUser();
       }
       var local_results = _sortResults(model_ob, text, {

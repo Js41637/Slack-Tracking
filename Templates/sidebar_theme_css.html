@@ -231,4 +231,12 @@
       text-shadow: none !important;
     }
 
+    .client_channels_list_container .focus-ring:not(input) {
+            /* we want !important here because we want to override the generic
+             * `.focus-ring` color applied in client_layout.source.less
+             * such that focus outline matches the sidebar text theme
+             */
+      outline: 3px solid {{theme.text_color}} !important;
+    }
+
   </style>
