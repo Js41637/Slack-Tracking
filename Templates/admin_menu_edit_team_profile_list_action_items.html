@@ -1,8 +1,8 @@
 {{i18n_ns "team_profile"}}
 
 {{#if hidden}}
-  <li data-action="edit_team_profile_to_show" data-id="{{id}}"><a>{{#t}}Enable{{/t}}</a></li>
+  <li data-action="edit_team_profile_to_show" data-id="{{id}}"><a>{{#t}}Un-hide{{/t}}</a></li>
 {{else}}
-  <li data-action="edit_team_profile_to_hide" data-id="{{id}}"><a>{{#t}}Disable{{/t}}</a></li>
+  <li data-action="edit_team_profile_to_hide" data-id="{{id}}"><a>{{#t}}Hide{{/t}}</a></li>
 {{/if}}
 <li data-action="edit_team_profile_to_delete" class="danger" data-id="{{id}}"><a>{{#t}}Delete{{/t}}</a></li>

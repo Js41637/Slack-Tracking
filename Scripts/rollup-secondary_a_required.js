@@ -25359,10 +25359,11 @@ TS.registerModule("constants", {
         label = label.toLowerCase();
         if (icons.indexOf(label) > -1) return '<i class="ts_icon ts_icon_' + label + '"></i>';
       });
-      Handlebars.registerHelper("getVisibleTeamProfileFieldsForMember", function(member) {
+      Handlebars.registerHelper("getVisibleTeamProfileFieldsForMember", function(member, options) {
         var fields = TS.team.getVisibleTeamProfileFieldsForMember(member);
         return new Handlebars.SafeString(TS.templates.team_profile_fields({
-          fields: fields
+          fields: fields,
+          will_rebuild_user_fields: options && options.hash.will_rebuild_user_fields
         }));
       });
       Handlebars.registerHelper("isSkypeTeamProfileField", function(field, options) {
@@ -40752,11 +40753,11 @@ var _on_esc;
       event: e
     });
     var html = TS.templates.admin_edit_team_profile_hide(field);
-    var header_text = TS.i18n.t('Disable "{field_label}"', "team_profile")({
+    var header_text = TS.i18n.t('Hide "{field_label}"', "team_profile")({
       field_label: field.label
     });
     _$div.find("#edit_team_profile_header").text(header_text).addClass("center_and_narrow");
-    var note = TS.i18n.t("All data entered for this field will no longer be visible on your team’s profiles. You can re-enable it later.", "team_profile")();
+    var note = TS.i18n.t("All data entered for this field will no longer be visible on your team’s profiles. You can un-hide it later.", "team_profile")();
     _$div.find("#edit_team_profile_value_note").text(note).addClass("center_and_narrow").removeClass("hidden");
     _$div.find("#edit_team_profile_hide").html(html);
     _hideAllSectionsBut("#edit_team_profile_hide");

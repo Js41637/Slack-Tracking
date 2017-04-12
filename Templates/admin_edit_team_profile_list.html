@@ -51,7 +51,7 @@
   {{#if hidden_team_profile_fields}}
     {{#each hidden_team_profile_fields}}
       <div class="row clearfix hidden_row" data-action="edit_team_profile_to_edit" data-id="{{this.id}}">
-        <div class="col no_bottom_margin span_2_of_6"><span class="no_margin subtle_silver">{{this.label}}</span> <em class="subtle_silver normal">{{#t}}(Disabled){{/t}}</em></div>
+        <div class="col no_bottom_margin span_2_of_6"><span class="no_margin subtle_silver">{{this.label}}</span> <em class="subtle_silver normal">{{#t}}(Hidden){{/t}}</em></div>
         <div class="col no_bottom_margin span_3_of_6">
           <p class="subtle_silver no_bottom_margin">{{this.hint}}</p>
           {{#if_equal this.type compare="options_list"}}

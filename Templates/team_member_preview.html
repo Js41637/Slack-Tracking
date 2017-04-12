@@ -318,7 +318,9 @@
           </td>
         </tr>
       {{/if}}
-      {{getVisibleTeamProfileFieldsForMember member}}
+      <tbody id="member_data_table_team_fields">
+        {{getVisibleTeamProfileFieldsForMember member will_rebuild_user_fields=true}}
+      </tbody>
     </table>
   {{/if}}
 

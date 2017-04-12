@@ -8202,6 +8202,24 @@
     if (TS.boot_data.feature_user_custom_status) {
       if (member.is_self) TS.client.ui.flex.registerCurrentStatusInput();
     }
+    _rebuildTeamProfileFieldsForMember(member);
+  };
+  var _rebuildTeamProfileFieldsForMember = function(member) {
+    var fields = TS.team.getVisibleTeamProfileFieldsForMember(member);
+    if (!fields || !fields.length) return Promise.resolve();
+    var unique_member_ids = _.chain(fields).filter({
+      type: "user"
+    }).reduce(function(member_ids, field) {
+      return member_ids.concat(field.value.split(/\s*\,\s*/));
+    }, []).uniq().value();
+    if (!unique_member_ids.length) return Promise.resolve();
+    return TS.flannel.fetchAndUpsertObjectsByIds(unique_member_ids).then(function() {
+      if (TS.model.previewed_member_id === member.id) {
+        $("#member_data_table_team_fields").html(TS.templates.team_profile_fields({
+          fields: fields
+        }));
+      }
+    });
   };
   var _rebuildMemberCount = function(has_count, count) {
     var en_dash = "–";
