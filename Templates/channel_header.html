@@ -60,9 +60,9 @@
 
         <div class="channel_header_info_item channel_header_member_alt_name">
           {{#feature flag="feature_name_tagging_client"}}
-            {{#if member.profile.preferred_name}}
-              {{getMemberPreferredName member}}
-            {{/if}}
+            {{#memberHasSecondaryName member}}
+              {{getMemberSecondaryName member}}
+            {{/memberHasSecondaryName}}
           {{/feature}}
         </div>
 

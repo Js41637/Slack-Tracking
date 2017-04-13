@@ -79,7 +79,7 @@
 
         {{#feature flag="feature_name_tagging_client"}}
         <span class="admin_member_preferred_name_and_email">
-            {{#if member.profile.preferred_name}}
+            {{#if member.profile.display_name}}
             <span class="indifferent_grey">{{getMemberPreferredName member}}</span>
             <span class="bullet">\u2022</span>
             {{/if}}
@@ -268,7 +268,7 @@
     <div class="notice_processing progress_bar_progress_animated">{{#t}}Updating ...{{/t}}</div>
     <div class="notice_success">
         <span class="success_message"></span>
-        <a class="notice_dismiss neutral_white">{{#t}}Okay{{/t}}</a>
+        <a class="notice_dismiss neutral_white">{{#t}}OK{{/t}}</a>
     </div>
     <div class="notice_error">
         <span class="error_message">

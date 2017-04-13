@@ -3,8 +3,8 @@
 <h2 class="slack_menu_header">
   {{> member_preview_link_image (getMemberPreviewLinkImageArgs this.id 36)}}
   {{#feature flag="feature_name_tagging_client"}}
-    <span class="current_user_full_name slack_menu_header_primary overflow_ellipsis {{#unless this.profile.preferred_name}}vertically_center_full_name{{/unless}}"></span>
-    {{#if this.profile.preferred_name}}<span class="current_user_preferred_name slack_menu_header_secondary overflow_ellipsis">{{getMemberPreferredName this}}</span>{{/if}}
+    <span class="current_user_name slack_menu_header_primary overflow_ellipsis{{#unlessMemberHasSecondaryName this}} vertically_center_full_name{{/unlessMemberHasSecondaryName}}"></span>
+    {{#memberHasSecondaryName this}}<span class="current_user_preferred_name slack_menu_header_secondary overflow_ellipsis">{{getMemberSecondaryName this}}</span>{{/memberHasSecondaryName}}
   {{else}}
     <span class="current_user_name slack_menu_header_primary overflow_ellipsis"></span>
     <span class="current_name slack_menu_header_secondary overflow_ellipsis">@{{this.name}}</span>

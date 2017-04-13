@@ -78,33 +78,14 @@
           {{#t note="Jump to date in history in DM with yourself"}}Jump to date &hellip;{{/t}}
         </a>
       </li>
-      {{#feature flag="feature_name_tagging_client"}}
-        <li id="member_profile_item" role="menuitem"><a href="/team/{{member.id}}" target="{{newWindowName}}">
-          {{#if member.profile.preferred_name}}
-            {{#t preferred=(getMemberPreferredName member) posessive=(possessive (getMemberPreferredName member))}}View {preferred}{posessive} profile{{/t}}
-          {{else}}
-            {{#t fullname=(getMemberFullName member) posessive=(possessive (getMemberFullName member))}}View {fullname}{posessive} profile{{/t}}
-          {{/if}}
+      <li id="member_profile_item" role="menuitem"><a href="/team/{{member.name}}" target="{{newWindowName}}">
+        {{#t name=(getMemberDisplayName member) posessive=(possessive (getMemberDisplayName member))}}View {name}{posessive} profile{{/t}}
+      </a></li>
+      {{#if show_channel_invite}}
+        <li id="member_invite_channel_item" role="menuitem"><a>
+          {{#t name=(getMemberDisplayName member)}}Invite {name} to a channel &hellip;{{/t}}
         </a></li>
-        {{#if show_channel_invite}}
-          <li id="member_invite_channel_item" role="menuitem"><a>
-            {{#if member.profile.preferred_name}}
-              {{#t preferred=(getMemberPreferredName member)}}Invite {preferred} to a channel &hellip;{{/t}}
-            {{else}}
-              {{#t fullname=(getMemberFullName member)}}Invite {fullname} to a channel &hellip;{{/t}}
-            {{/if}}
-          </a></li>
-        {{/if}}
-      {{else}}
-        <li id="member_profile_item" role="menuitem"><a href="/team/{{member.name}}" target="{{newWindowName}}">
-          {{#t name=(getMemberDisplayName member) posessive=(possessive (getMemberDisplayName member))}}View {name}{posessive} profile{{/t}}
-        </a></li>
-        {{#if show_channel_invite}}
-          <li id="member_invite_channel_item" role="menuitem"><a>
-            {{#t name=(getMemberDisplayName member)}}Invite {name} to a channel &hellip;{{/t}}
-          </a></li>
-        {{/if}}
-      {{/feature}}
+      {{/if}}
       <li id="member_details_item">
         <a>{{#t}}View conversation details{{/t}}</a>
       </li>

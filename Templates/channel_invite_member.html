@@ -3,8 +3,8 @@
   {{makeMemberPreviewLinkImage member.id 36 false true}}
   <div class="name_container overflow_ellipsis">
     {{#feature flag="feature_name_tagging_client"}}
-      <div class="bold {{#unless member.profile.preferred_name}}{{#unless member.profile.title}}vertically_center_full_name{{/unless}}{{/unless}}">
-        {{getMemberFullName member}}
+      <div class="bold {{#unlessMemberHasSecondaryName member}}{{#unless member.profile.title}}vertically_center_full_name{{/unless}}{{/unlessMemberHasSecondaryName}}">
+        {{getMemberDisplayName member}}
         <span class="not_in_token">{{makeMemberPresenceIcon member}}</span>
         {{#feature flag="feature_user_custom_status"}}
           {{#or member.profile.status_emoji member.profile.status_text}}
@@ -14,18 +14,18 @@
           {{/or}}
         {{/feature}}
       </div>
-      {{#if member.profile.preferred_name}}
+      {{#memberHasSecondaryName member}}
         <div class="greigh not_in_token">
-          {{getMemberPreferredName member}}
-          {{~#if member.profile.title}}{{#if member.profile.preferred_name}},{{/if}} {{member.profile.title}}{{/if}}
+          {{getMemberSecondaryName member}}
+          {{~#if member.profile.title}}, {{member.profile.title}}{{/if}}
         </div>
       {{else}}
         <div class="greigh not_in_token">
           {{#if member.profile.title}}
-            {{#if member.profile.preferred_name}},{{/if}} {{member.profile.title}}
+            {{member.profile.title}}
           {{/if}}
         </div>
-      {{/if}}
+      {{/memberHasSecondaryName}}
     {{else}}
       {{#if member.profile.real_name}}
         <div class="bold">

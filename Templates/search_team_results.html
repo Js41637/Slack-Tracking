@@ -1,4 +1,4 @@
-  {{i18n_ns "search"}}  
+  {{i18n_ns "search"}}
 
   <p class="team_results_heading">{{#t}}We found <strong>{ matches.length, plural, =1 { # team member } other { # team members }}</strong> matching your query:{{/t}}</p>
   <div id="team_results_container">
@@ -7,7 +7,7 @@
 
       {{#feature flag="feature_name_tagging_client"}}
         {{makeMemberPreviewLinkImage this.id 32}}
-        <a href="/team/{{this.id}}" {{#isClient}}target="/team/{{this.id}}"{{/isClient}} class="black member_preview_link member_name" data-member-id="{{this.id}}">{{getMemberFullName this}}</a> <span class="{{makeMemberPresenceDomClass this}}">{{makeMemberPresenceIcon this}}</span> {{#if this.profile.preferred_name}}<span class="indifferent_grey bold">{{getMemberPreferredName this}}</span>{{/if}}<br/>
+        <a href="/team/{{this.id}}" {{#isClient}}target="/team/{{this.id}}"{{/isClient}} class="black member_preview_link member_name" data-member-id="{{this.id}}">{{getMemberDisplayName this}}</a> <span class="{{makeMemberPresenceDomClass this}}">{{makeMemberPresenceIcon this}}</span> {{#memberHasSecondaryName this}}<span class="indifferent_grey bold">{{getMemberSecondaryName this}}</span>{{/memberHasSecondaryName}}<br/>
 
         {{#if this.profile.title}}<span>{{this.profile.title}}</span> <span class="bullet">\u2022</span>{{/if}}
         {{#memberIsSelf id=this.id}}

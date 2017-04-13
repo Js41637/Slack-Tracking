@@ -28171,6 +28171,7 @@ ts-thread .thread_participants {
 }
 
 .sli_briefing__feedback {
+  display: flex;
   position: absolute;
   top: -8px;
   right: 8px
@@ -28180,6 +28181,10 @@ ts-thread .thread_participants {
   right: 5.75rem
 }
 
+.sli_briefing__message ts-message:hover .action_hover_container.sli_briefing__feedback {
+  display: flex
+}
+
 .sli_briefing__message ts-message .sli_briefing__feedback_positive:hover,
 .sli_briefing__message ts-message .sli_briefing__feedback_positive:hover::before {
   color: #eb4d5c
@@ -28187,6 +28192,10 @@ ts-thread .thread_participants {
 
 .sli_briefing__message ts-message .ts_icon_heart_o:hover::before {
   transform: scale(1.1)
+}
+
+.sli_briefing__message ts-message .sli_briefing__feedback_positive.ts_icon_heart {
+  padding-top: 4px
 }
 
 .sli_briefing__message ts-message .sli_briefing__feedback_positive.ts_icon_heart::before {

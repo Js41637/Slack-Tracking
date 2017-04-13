@@ -39373,14 +39373,15 @@ function timezones_guess() {
       var today = new Date;
       var today_ts = today.getTime();
       var selected_expiration_ts;
+      var selected_expiration_date;
       if (options.selected_expiration_ts) {
-        selected_expiration_ts = options.selected_expiration_ts * 1e3;
+        selected_expiration_date = new Date(options.selected_expiration_ts * 1e3);
       } else {
-        var default_expiration_date = new Date;
-        default_expiration_date.setHours(0, 0, 0, 0);
-        default_expiration_date.setDate(today.getDate() + _DEFAULT_GUEST_DURATION_DAYS);
-        selected_expiration_ts = default_expiration_date.getTime();
+        selected_expiration_date = new Date;
+        selected_expiration_date.setDate(today.getDate() + _DEFAULT_GUEST_DURATION_DAYS);
       }
+      selected_expiration_date.setHours(0, 0, 0, 0);
+      selected_expiration_ts = selected_expiration_date.getTime();
       var date_picker_args = {
         first_day: TS.i18n.start_of_the_week[TS.i18n.locale()] || 0,
         select_year: false,
@@ -39399,8 +39400,15 @@ function timezones_guess() {
         }
       };
       if (options.class_name) date_picker_args.class_name = options.class_name;
-      if (options.onChange) date_picker_args.change = options.onChange;
       if (options.onHide) date_picker_args.hide = options.onHide;
+      if (options.onChange) {
+        date_picker_args.change = function(seconds) {
+          var selected_date = new Date(seconds * 1e3);
+          selected_date.setHours(23, 59, 59, 0);
+          var selected_date_unix_ts = Math.floor(selected_date.getTime() / 1e3);
+          options.onChange(selected_date_unix_ts);
+        };
+      }
       TS.ui.date_picker.start($element, date_picker_args);
     },
     getOldestMsgTs: function() {

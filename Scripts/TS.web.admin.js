@@ -1228,7 +1228,7 @@
           }),
           show_go_button: false,
           show_cancel_button: true,
-          cancel_button_text: TS.i18n.t("Okay", "web_admin")(),
+          cancel_button_text: TS.i18n.t("OK", "web_admin")(),
           modal_class: "fs_modal_header align_center"
         });
         return false;
@@ -2197,8 +2197,9 @@
         member.profile.guest_expiration_ts = data.profile.guest_expiration_ts;
         TS.members.upsertMember(member);
         TS.web.admin.rebuildMember(member);
-        var success_message = TS.i18n.t("The time limit for <strong>{member_name}</strong> has been updated.", "web_admin")({
-          member_name: TS.utility.htmlEntities(member.name)
+        var success_message = TS.i18n.t("Got it! <strong>{member_name}</strong>'s account will be active until {date}.", "web_admin")({
+          member_name: TS.utility.htmlEntities(member.name),
+          date: TS.utility.date.formatDate("{date_long}", member.profile.guest_expiration_ts)
         });
         _.defer(function() {
           var $row = TS.web.admin.selectRow(member);
@@ -2641,9 +2642,6 @@
       },
       renderDivider: function($el, divider) {
         $el.html(divider.html);
-        $el.css({
-          "z-index": 0
-        });
       },
       renderItem: function($el, member) {
         var exclude_lazy_load = true;

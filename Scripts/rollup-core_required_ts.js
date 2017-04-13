@@ -359,6 +359,9 @@
       $(document).ready(_onDOMReady);
     },
     useRedux: function() {
+      if (!TS.client) {
+        return false;
+      }
       if (TS.boot_data.user_id === "W2V82BY0G" && !TS.boot_data.feature_drew_broke_his_own_app) {
         return true;
       }
