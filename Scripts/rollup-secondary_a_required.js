@@ -9055,8 +9055,7 @@ TS.registerModule("constants", {
   var _getDmBadgeDisplayName = function(mpim) {
     var members = TS.mpims.getMembersInDisplayOrder(mpim);
     var names = members.map(function(member) {
-      var name = TS.boot_data.feature_name_tagging_client ? TS.members.getMemberFullName(member) : TS.members.getMemberDisplayName(member);
-      return name;
+      return TS.members.getMemberDisplayName(member);
     });
     var display_name = TS.i18n.listify(names, {
       strong: true
@@ -10306,7 +10305,7 @@ TS.registerModule("constants", {
       if (!member) return;
       var escaped = true;
       var include_at_sign = true;
-      var member_display_name = TS.boot_data.feature_name_tagging_client ? TS.members.getMemberFullName(member) : TS.members.getMemberDisplayName(member, escaped, include_at_sign);
+      var member_display_name = TS.members.getMemberDisplayName(member, escaped, include_at_sign);
       var model_ob_display_name = TS.shared.getDisplayNameForModelOb(model_ob);
       TS.membership.ensureChannelMembershipIsKnownForUsers(model_ob.id, [member_id]).then(function() {
         if (!TS.membership.getUserChannelMembershipStatus(member_id, model_ob).is_member) {
@@ -19099,7 +19098,8 @@ TS.registerModule("constants", {
         TS.ds.disconnect();
       } else {
         TS.ds.logConnectionFlow("on_notconnected_failure");
-        var ms = TS.model.ds_reconnect_ms = (TS.model.ds_reconnect_ms + 1e3) * 1.3;
+        TS.model.ds_reconnect_ms = (TS.model.ds_reconnect_ms + 1e3) * 1.3;
+        var ms = TS.model.ds_reconnect_ms;
         if (TS.model.ds_reconnect_ms > 4e3) {
           TS.model.ds_reconnect_ms = _.random(ms, ms + ms / 3);
         }
@@ -20261,7 +20261,7 @@ TS.registerModule("constants", {
       } else if (user_id) {
         var member = TS.members.getMemberById(user_id);
         author = {
-          author_name: TS.boot_data.feature_name_tagging_client ? TS.members.getMemberFullName(member) : TS.members.getMemberRealName(member),
+          author_name: TS.members.getMemberRealName(member),
           author_subname: TS.boot_data.feature_name_tagging_client ? TS.members.getMemberPreferredName(member) : member.name,
           author_icon: member.profile.image_24,
           author_link: TS.boot_data.feature_name_tagging_client ? "/team/" + user_id : "/team/" + TS.utility.htmlEntities(member.name)
@@ -20317,12 +20317,7 @@ TS.registerModule("constants", {
       });
       var is_creator = room.created_by === TS.model.user.id;
       var dm_member = TS.model.active_im_id ? TS.members.getMemberById(TS.ims.getImById(TS.model.active_im_id).user) : null;
-      var dm_member_name;
-      if (TS.boot_data.feature_name_tagging_client) {
-        dm_member_name = dm_member ? TS.members.getMemberFullName(dm_member) : "";
-      } else {
-        dm_member_name = dm_member ? TS.members.getMemberDisplayName(dm_member) : "";
-      }
+      var dm_member_name = dm_member ? TS.members.getMemberDisplayName(dm_member) : "";
       var duration = room.date_end ? room.date_end - room.date_start : 0;
       var title = TS.i18n.t("Shared a call", "calls")();
       if (room.channels && room.channels[0] === TS.model.active_cid) {
@@ -21783,11 +21778,7 @@ TS.registerModule("constants", {
       if (show_you_for_current_user && member.id == TS.model.user.id) {
         html += TS.i18n.t("You", "templates_builders")();
       } else {
-        if (TS.boot_data.feature_name_tagging_client) {
-          html += TS.utility.htmlEntities(TS.members.getMemberFullName(member));
-        } else {
-          html += TS.members.getMemberDisplayName(member, true);
-        }
+        html += TS.members.getMemberDisplayName(member, true);
       }
       html += TS.templates.builders.makeMemberTypeBadgeCompact(member, false);
       html += "</a>";
@@ -22286,9 +22277,6 @@ TS.registerModule("constants", {
       return _.compact(participants.map(function(participant) {
         var member = TS.members.getMemberById(participant);
         if (member) {
-          if (TS.boot_data.feature_name_tagging_client) {
-            return TS.members.getMemberFullName(member);
-          }
           return TS.members.getMemberDisplayName(member);
         }
         return undefined;
@@ -22447,8 +22435,6 @@ TS.registerModule("constants", {
         if (args.user_reacted) {
           if (TS.boot_data.feature_thanks) return TS.i18n.t("You", "rxn")() + subtitle;
           return TS.i18n.t("You (click to remove)", "rxn")() + subtitle;
-        } else if (TS.boot_data.feature_name_tagging_client) {
-          return TS.utility.htmlEntities(TS.members.getMemberFullName(args.member_ids[0])) + subtitle;
         }
         return TS.utility.htmlEntities(TS.members.getMemberDisplayNameById(args.member_ids[0], should_escape, include_at_sign)) + subtitle;
       }
@@ -22457,8 +22443,6 @@ TS.registerModule("constants", {
         var name;
         if (TS.model.user.id === id) {
           name = index === 0 ? TS.i18n.t("You", "rxn")() : TS.i18n.t("you", "rxn")();
-        } else if (TS.boot_data.feature_name_tagging_client) {
-          name = TS.members.getMemberFullName(id);
         } else {
           name = TS.members.getMemberDisplayNameById(id, should_escape, include_at_sign);
         }
@@ -35270,12 +35254,7 @@ var _on_esc;
       var starting_im = false;
       var input = $("#menu_member_dm_input");
       if (TS.boot_data.feature_texty_takes_over) {
-        var member_name;
-        if (TS.boot_data.feature_name_tagging_client) {
-          member_name = TS.members.getMemberFullName(member);
-        } else {
-          member_name = TS.members.getMemberDisplayName(member);
-        }
+        var member_name = TS.members.getMemberDisplayName(member);
         TS.utility.contenteditable.create(input, {
           modules: {
             tabcomplete: {
@@ -42347,7 +42326,7 @@ var _on_esc;
 
   function _validateIsUrlBasic($el, options, protocols) {
     var value = _getTextInputValue($el);
-    var error_message = error_message = TS.i18n.t("This doesn‘t seem like a proper link. Sorry!", "ui_validation")();
+    var error_message = TS.i18n.t("This doesn‘t seem like a proper link. Sorry!", "ui_validation")();
     var allowed_protocols;
     var passes_protocols_requirement = false;
     var passes_well_formed_url_requirement = false;
@@ -56907,7 +56886,7 @@ $.fn.togglify = function(settings) {
       var div = TS.incoming_call.div;
       var html = TS.templates.calls_incoming_call({
         caller: setting.caller,
-        name: TS.boot_data.feature_name_tagging_client ? TS.members.getMemberFullName(setting.caller) : setting.name,
+        name: setting.name,
         is_video_call: setting.is_video_call,
         team: TS.model.team.name
       });
@@ -60867,7 +60846,7 @@ $.fn.togglify = function(settings) {
       } else if (model_ob.is_im) {
         if (TS.boot_data.feature_name_tagging_client) {
           name = TS.i18n.t("Direct message with {model_name}", "a11y")({
-            model_name: TS.members.getMemberFullName(model_ob.user)
+            model_name: TS.members.getMemberDisplayNameById(model_ob.user)
           });
         } else {
           name = TS.i18n.t("Direct message with {model_name}", "a11y")({
@@ -67017,7 +66996,8 @@ $.fn.togglify = function(settings) {
   if (o.canUseDOM) {
     var c = document.createElement("div");
     c.innerHTML = " ", "" === c.innerHTML && (l = function(e, t) {
-      if (e.parentNode && e.parentNode.replaceChild(e, e), a.test(t) || "<" === t[0] && s.test(t)) {
+      if (e.parentNode && e.parentNode.replaceChild(e, e),
+        a.test(t) || "<" === t[0] && s.test(t)) {
         e.innerHTML = String.fromCharCode(65279) + t;
         var n = e.firstChild;
         1 === n.data.length ? e.removeChild(n) : n.deleteData(0, 1);
@@ -68589,8 +68569,7 @@ $.fn.togglify = function(settings) {
     T = n(16),
     E = n(42),
     R = n(131),
-    P = (n(0),
-      n(56)),
+    P = (n(0), n(56)),
     I = n(90),
     M = (n(1), v.ID_ATTRIBUTE_NAME),
     O = v.ROOT_ATTRIBUTE_NAME,
@@ -68644,7 +68623,8 @@ $.fn.togglify = function(settings) {
             g = r && function() {
               r.call(v);
             };
-          return U._updateRootComponent(c, s, a, n, g), v;
+          return U._updateRootComponent(c, s, a, n, g),
+            v;
         }
         U.unmountComponentAtNode(n);
       }
@@ -74909,14 +74889,15 @@ $.fn.togglify = function(settings) {
 
   function r() {
     S || (S = !0, _.EventEmitter.injectReactEventListener(g), _.EventPluginHub.injectEventPluginOrder(s), _.EventPluginUtils.injectComponentTree(p), _.EventPluginUtils.injectTreeTraversal(h), _.EventPluginHub.injectEventPluginsByName({
-      SimpleEventPlugin: C,
-      EnterLeaveEventPlugin: u,
-      ChangeEventPlugin: a,
-      SelectEventPlugin: w,
-      BeforeInputEventPlugin: i
-    }), _.HostComponent.injectGenericComponentClass(f), _.HostComponent.injectTextComponentClass(v), _.DOMProperty.injectDOMPropertyConfig(o), _.DOMProperty.injectDOMPropertyConfig(l), _.DOMProperty.injectDOMPropertyConfig(b), _.EmptyComponent.injectEmptyComponentFactory(function(e) {
-      return new d(e);
-    }), _.Updates.injectReconcileTransaction(y), _.Updates.injectBatchingStrategy(m), _.Component.injectEnvironment(c));
+        SimpleEventPlugin: C,
+        EnterLeaveEventPlugin: u,
+        ChangeEventPlugin: a,
+        SelectEventPlugin: w,
+        BeforeInputEventPlugin: i
+      }), _.HostComponent.injectGenericComponentClass(f), _.HostComponent.injectTextComponentClass(v), _.DOMProperty.injectDOMPropertyConfig(o), _.DOMProperty.injectDOMPropertyConfig(l), _.DOMProperty.injectDOMPropertyConfig(b), _.EmptyComponent.injectEmptyComponentFactory(function(e) {
+        return new d(e);
+      }), _.Updates.injectReconcileTransaction(y), _.Updates.injectBatchingStrategy(m),
+      _.Component.injectEnvironment(c));
   }
   var o = n(240),
     i = n(242),

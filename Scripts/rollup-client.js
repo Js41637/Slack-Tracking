@@ -1176,7 +1176,8 @@
         TS.model.active_history.push(c_id);
       }
     }
-    var c_name = TS.model.c_name_in_url = TS.utility.getChannelNameFromUrl(location.href);
+    TS.model.c_name_in_url = TS.utility.getChannelNameFromUrl(location.href);
+    var c_name = TS.model.c_name_in_url;
     var unread_view = TS.utility.isUnreadViewPath(location.pathname);
     var threads_view = TS.utility.isThreadsViewPath(location.pathname);
     var app_index_view = TS.utility.isAppIndexViewPath(location.pathname);
@@ -1736,7 +1737,8 @@
         TS.log(389, start + " #2 " + (Date.now() - start) + "ms");
         start = Date.now();
         var wh_changed = TS.view.cached_wh === 0;
-        var wh = TS.view.cached_wh = TS.view.cached_wh || $(window).height();
+        TS.view.cached_wh = TS.view.cached_wh || $(window).height();
+        var wh = TS.view.cached_wh;
         if (TS.view.msgs_scroller_y == -1) {
           TS.view.msgs_scroller_y = $("#client_body").offset().top;
         }
@@ -1828,7 +1830,8 @@
       TS.ui.msg_tab_complete.positionUI();
       TS.view.resize_sig.dispatch();
       if (!TS.boot_data.feature_client_resize_optimizations) {
-        var msgs_div_w = TS.view.last_msgs_div_width = $("#msgs_div").width();
+        TS.view.last_msgs_div_width = $("#msgs_div").width();
+        var msgs_div_w = TS.view.last_msgs_div_width;
         TS.view.makeAttachmentWidthRule(msgs_div_w);
         if (msgs_div_w > 400) {
           $("#notification_bar").addClass("wide");
@@ -1850,7 +1853,8 @@
     never_set: true,
     measureInput: function() {
       if (TS.boot_data.feature_client_resize_optimizations) return;
-      TS.view.last_input_height = TS.view.footer_outer_h = $("#footer").outerHeight();
+      TS.view.last_input_height = $("#footer").outerHeight();
+      TS.view.footer_outer_h = TS.view.last_input_height;
     },
     measureMsgPreview: function() {
       TS.view.footer_outer_h = $("#footer").outerHeight();
@@ -2046,7 +2050,8 @@
         if (is_last && $msg_div_before_deleted && $msg_div_before_deleted.length) {
           var msg_before = TS.utility.msgs.getMsg($msg_div_before_deleted.data("ts"), TS.shared.getActiveModelOb().msgs);
           if (msg_before) {
-            TS.client.msg_pane.last_rendered_msg = TS.client.msg_pane.last_in_stream_msg = msg_before;
+            TS.client.msg_pane.last_rendered_msg = msg_before;
+            TS.client.msg_pane.last_in_stream_msg = TS.client.msg_pane.last_rendered_msg;
             TS.info("set a new TS.client.msg_pane.last_rendered_msg && TS.client.msg_pane.last_in_stream_msg because the deleted msg was the last one");
           }
         }
@@ -2930,7 +2935,9 @@
               }
             });
           };
-          _$active_members_list = _$restricted_members_list = _$deleted_members_list = null;
+          _$active_members_list = null;
+          _$restricted_members_list = null;
+          _$deleted_members_list = null;
           _$active_members_list = make($("#active_members_list"), [], approx_item_height, approx_divider_height, $scrollable);
           _$restricted_members_list = make($("#restricted_members_list"), [], approx_item_height, approx_divider_height, $scrollable);
           _$deleted_members_list = make($("#deleted_members_list"), [], approx_item_height, approx_divider_height, $scrollable);
@@ -4548,12 +4555,7 @@
       }
     },
     updateUserDisplayName: function() {
-      if (TS.boot_data.feature_name_tagging_client) {
-        $(".current_user_name").html(TS.members.getMemberDisplayName(TS.model.user, true));
-        $(".current_user_full_name").html(TS.utility.htmlEntities(TS.members.getMemberFullName(TS.model.user)));
-      } else {
-        $(".current_user_name").html(TS.members.getMemberDisplayName(TS.model.user, true));
-      }
+      $(".current_user_name").html(TS.members.getMemberDisplayName(TS.model.user, true));
     },
     updateUserCurrentStatus: function() {
       if (!TS.boot_data.feature_user_custom_status) return;
@@ -5172,7 +5174,8 @@
         wins = JSON.parse(windows_str);
         TS.dir(438, wins, "listWindows wins:");
         for (token in wins) {
-          win = _wins[token] = wins[token];
+          _wins[token] = wins[token];
+          win = _wins[token];
           win.token = token;
           if (win["windowType"] != "screenhero" && win["windowType"] !== "calls") {
             got_existing_win = true;
@@ -8789,7 +8792,8 @@
       }
 
       function resetReader(reader) {
-        reader.onload = reader.onerror = null;
+        reader.onerror = null;
+        reader.onload = null;
         return null;
       }
 
@@ -13494,7 +13498,7 @@
           }
         } else {
           if (is_third_party) {
-            voice_tip_text = voice_tip_text = TS.i18n.t("Start a call with {calling_app_name}", "client")({
+            voice_tip_text = TS.i18n.t("Start a call with {calling_app_name}", "client")({
               calling_app_name: TS.model.team.prefs.calling_app_name
             });
           } else {
@@ -21610,7 +21614,8 @@
       TS.ui.upload_dialog.cancel();
     },
     end: function() {
-      TS.ui.upload_dialog.showing = TS.model.dialog_is_showing = false;
+      TS.model.dialog_is_showing = false;
+      TS.ui.upload_dialog.showing = false;
       TS.ui.upload_dialog.file = null;
       _text_from_input = "";
       _confirmation_displayed = false;
@@ -22691,7 +22696,8 @@
       }
       TS.coachmark.clean();
       TS.coachmark.context = context;
-      TS.coachmark.is_showing = TS.model.coachmark_is_showing = true;
+      TS.model.coachmark_is_showing = true;
+      TS.coachmark.is_showing = true;
       $coachmark.removeClass("hidden");
       $coachmark.css("left", "").css("right", "").css("top", "").css("bottom", "").css("height", "auto").css("width", "auto");
       $("#coachmark_callout").css("left", "").css("right", "").css("top", "").css("bottom", "");
@@ -22892,7 +22898,8 @@
       if (e) e.stopPropagation();
     },
     end: function(hard) {
-      TS.coachmark.is_showing = TS.model.coachmark_is_showing = false;
+      TS.model.coachmark_is_showing = false;
+      TS.coachmark.is_showing = false;
       var $coachmark = TS.coachmark.$coachmark;
       $coachmark.css("opacity", 0);
       TS.coachmark.$coachmark.find(".coachmark_div").remove();
@@ -22954,7 +22961,8 @@
     $ui_wrapper.append(TS.templates.coachmark({
       can_include_invite_cta: !TS.calls && TS.newxp.canIncludeInviteCTA()
     }));
-    var $coachmark = TS.coachmark.$coachmark = $("#coachmark");
+    TS.coachmark.$coachmark = $("#coachmark");
+    var $coachmark = TS.coachmark.$coachmark;
     $coachmark.css("opacity", 0);
     $coachmark.on("click", ".coachmark_skip_link", TS.coachmark.reject);
     $coachmark.on("click", ".coachmark_got_it", TS.coachmark.resolve);

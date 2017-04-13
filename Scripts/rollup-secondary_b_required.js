@@ -2445,22 +2445,26 @@
         var img = new Image;
         var that = this;
         img.onload = function() {
-          img.onload = img.onerror = null;
+          img.onerror = null;
+          img.onload = null;
           img = null;
           clearTimeout(timer);
           if (callback) {
             callback.call(that, i, tstart, run, true);
           }
-          that = callback = null;
+          callback = null;
+          that = null;
         };
         img.onerror = function() {
-          img.onload = img.onerror = null;
+          img.onerror = null;
+          img.onload = null;
           img = null;
           clearTimeout(timer);
           if (callback) {
             callback.call(that, i, tstart, run, false);
           }
-          that = callback = null;
+          callback = null;
+          that = null;
         };
         timer = setTimeout(function() {
           if (callback) {
