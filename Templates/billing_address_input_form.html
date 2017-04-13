@@ -6,7 +6,7 @@
       <input type="hidden" name="done_address" value="1">
       <p>
         <fieldset class="settings_fieldset address_fieldset">
-          <label class="small">
+          <label class="small" data-qa="select_country">
             <div class="billing_settings_label_container">
               <p class="billing_settings_label_name">{{#t}}Country*{{/t}}</p>
               <div class="address_country_error settings_error settings_input_error_display" data-status-for="country_select"></div>
@@ -77,7 +77,7 @@
             <input type="text" class="small billing_settings_address_input" name="address_city" value="{{content.city}}" data-qa="city_input" maxlength=150 required/>
           </label>
 
-          <label data-state-label>
+          <label data-state-label data-qa="select_state">
             <div class="billing_settings_label_container">
               <p class="billing_settings_label_name">{{#t}}State/Province/Region{{/t}}<span class="required_region_asterisk">*</span></p>
               <div class="address_state_error settings_error settings_input_error_display" data-status-for="state_input"></div>

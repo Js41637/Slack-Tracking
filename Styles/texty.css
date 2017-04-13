@@ -296,6 +296,7 @@
   -moz-tab-size: 8;
   font-variant-ligatures: none;
   line-height: 1.2rem;
+  -webkit-user-select: text;
   overflow: auto;
   max-height: 10rem;
   max-width: 100%;

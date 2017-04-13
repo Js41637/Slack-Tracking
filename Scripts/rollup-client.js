@@ -24990,7 +24990,14 @@
     started_sig: new signals.Signal,
     ended_sig: new signals.Signal,
     map: {},
-    onStart: function() {},
+    onStart: function() {
+      if (TS.useRedux()) {
+        _getTypingByKey = TS.redux.bindSelectorToStore(window.Redux.Features.Typing.getTypingByKey);
+        _getNumberOfRecords = TS.redux.bindSelectorToStore(window.Redux.Features.Typing.getNumberOfRecords);
+        _getTyperIdsInChannel = TS.redux.bindSelectorToStore(window.Redux.Features.Typing.getTyperIdsInChannel);
+        _getAllTyping = TS.redux.bindSelectorToStore(window.Redux.Features.Typing.getAllTyping);
+      }
+    },
     maybeStartTimer: function() {
       if (_check_map_timer) return;
       _check_map_timer = setInterval(TS.typing.checkMap, 1e3);
@@ -25000,24 +25007,50 @@
       if (!model_ob) return;
       var member = TS.model.user;
       var key = model_ob.id + "_" + member.id;
-      if (TS.typing.map[key]) return;
+      if (TS.useRedux()) {
+        if (_getTypingByKey(key)) {
+          return;
+        }
+      } else {
+        if (TS.typing.map[key]) {
+          return;
+        }
+      }
       TS.ms.sendTyping(model_ob.id);
       TS.typing.memberStarted(model_ob, TS.model.user);
     },
     memberStarted: function(model_ob, member) {
       var key = model_ob.id + "_" + member.id;
       var now = Date.now();
-      if (TS.typing.map[key]) {
-        TS.typing.map[key].started = now;
-        TS.log(47, "updated " + key);
-      } else {
-        TS.typing.map[key] = {
+      if (TS.useRedux()) {
+        var dispatch_start_sig = !_getTypingByKey(key);
+        var action = window.Redux.Features.Typing.updateTyping({
+          key: key,
           started: now,
-          model_ob: model_ob,
-          member: member
-        };
-        TS.log(47, "added " + key);
-        TS.typing.started_sig.dispatch(model_ob, member);
+          model_ob_id: model_ob.id,
+          member_id: member.id,
+          member_is_self: member.is_self
+        });
+        TS.redux.dispatch(action);
+        if (dispatch_start_sig) {
+          TS.typing.started_sig.dispatch(model_ob, member);
+          TS.log(47, "added " + key);
+        } else {
+          TS.log(47, "updated " + key);
+        }
+      } else {
+        if (TS.typing.map[key]) {
+          TS.typing.map[key].started = now;
+          TS.log(47, "updated " + key);
+        } else {
+          TS.typing.map[key] = {
+            started: now,
+            model_ob: model_ob,
+            member: member
+          };
+          TS.log(47, "added " + key);
+          TS.typing.started_sig.dispatch(model_ob, member);
+        }
       }
       TS.typing.maybeStartTimer();
     },
@@ -25033,21 +25066,48 @@
     },
     expungeMember: function(model_ob, member) {
       var key = model_ob.id + "_" + member.id;
-      delete TS.typing.map[key];
+      if (TS.useRedux()) {
+        var action = window.Redux.Features.Typing.clearTyping({
+          key: key
+        });
+        TS.redux.dispatch(action);
+      } else {
+        delete TS.typing.map[key];
+      }
       TS.typing.ended_sig.dispatch(model_ob, member);
     },
     checkMap: function() {
       var now = Date.now();
       var record;
       var count = 0;
-      for (var key in TS.typing.map) {
-        record = TS.typing.map[key];
-        var lasts_ms = record.member.is_self ? TS.typing.typing_self_lasts_ms : TS.typing.typing_lasts_ms;
-        var elapsed_ms = now - record.started;
-        count += 1;
-        if (elapsed_ms >= lasts_ms) {
-          TS.typing.memberEnded(record.model_ob, record.member);
-          TS.log(47, "removed " + key + " after " + elapsed_ms);
+      if (TS.useRedux()) {
+        var before = _getAllTyping();
+        var action = window.Redux.Features.Typing.removeOldTypingRecords({
+          maxDurationForSelf: TS.typing.typing_self_lasts_ms,
+          maxDurationForOthers: TS.typing.typing_lasts_ms,
+          now: now
+        });
+        TS.redux.dispatch(action);
+        var after = _getAllTyping();
+        var deleted_keys = _.difference(Object.keys(before), Object.keys(after));
+        deleted_keys.forEach(function(key) {
+          var deleted_record = before[key];
+          var member = TS.members.getMemberById(deleted_record.member_id);
+          var model_ob = TS.redux.channels.getEntityById(deleted_record.model_ob_id);
+          TS.typing.ended_sig.dispatch(model_ob, member);
+          TS.log(47, "removed " + key + " after it exceeded its maximum duration");
+        });
+        count = _getNumberOfRecords();
+      } else {
+        for (var key in TS.typing.map) {
+          record = TS.typing.map[key];
+          var lasts_ms = record.member.is_self ? TS.typing.typing_self_lasts_ms : TS.typing.typing_lasts_ms;
+          var elapsed_ms = now - record.started;
+          count += 1;
+          if (elapsed_ms >= lasts_ms) {
+            TS.typing.memberEnded(record.model_ob, record.member);
+            TS.log(47, "removed " + key + " after " + elapsed_ms);
+          }
         }
       }
       if (count < 1) {
@@ -25058,10 +25118,14 @@
     getTypersInChannel: function(c_id) {
       var A = [];
       var record;
-      for (var key in TS.typing.map) {
-        record = TS.typing.map[key];
-        if (record.model_ob.id == c_id && !record.member.is_self) {
-          A.push(record.member);
+      if (TS.useRedux()) {
+        A = _.map(_getTyperIdsInChannel(c_id), TS.members.getMemberById);
+      } else {
+        for (var key in TS.typing.map) {
+          record = TS.typing.map[key];
+          if (record.model_ob.id == c_id && !record.member.is_self) {
+            A.push(record.member);
+          }
         }
       }
       A.sort(function(a, b) {
@@ -25073,6 +25137,10 @@
     }
   });
   var _check_map_timer = null;
+  var _getTypingByKey;
+  var _getNumberOfRecords;
+  var _getTyperIdsInChannel;
+  var _getAllTyping;
 })();
 (function() {
   "use strict";
