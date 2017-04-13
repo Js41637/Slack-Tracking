@@ -7,7 +7,7 @@
       if (TS.boot_data.feature_intl_channel_names) {
         channel_name_regex = /(^|\s)(#[^~`!@#$%^&*()+=[\]{}\\|;:'",.<>\/? ]*)$/i;
       } else {
-        channel_name_regex = /(^|\s)(#[\w\-]*)$/i;
+        channel_name_regex = /(^|\s)(#[\w-]*)$/i;
       }
       TS.i18n.deburr(text).replace(channel_name_regex, function(_, match_prefix, match_text, match_offset) {
         index = match_offset + match_prefix.length;

@@ -5,7 +5,7 @@
       if (!_.isString(text)) return;
       if (_.isNumber(start_index) && start_index !== 0) return;
       var match, index;
-      _.deburr(text).replace(/^(\/[\w\-]*)$/i, function(_, match_text, match_offset) {
+      _.deburr(text).replace(/^(\/[\w-]*)$/i, function(_, match_text, match_offset) {
         index = match_offset;
         match = text.substr(index, match_text.length);
       });

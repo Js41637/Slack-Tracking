@@ -12830,7 +12830,7 @@ TS.registerModule("constants", {
           }
           return '<span class="app_card_member_link" data-member-profile-link=' + user_id + ">A user</span>";
         });
-        installation_summary = installation_summary.replace(/\#([a-z0-9\-]+)/g, function(match, channel_name) {
+        installation_summary = installation_summary.replace(/#([a-z0-9-]+)/g, function(match, channel_name) {
           var installation_summary_channel = TS.channels.getChannelByName(channel_name);
           if (installation_summary_channel) {
             var prefix = TS.templates.builders.makeChannelPrefix(installation_summary_channel);
@@ -14060,7 +14060,7 @@ TS.registerModule("constants", {
           if (team_field.type === "user") {
             if (field.value) {
               var value = "";
-              field.value.split(/\s*\,\s*/).some(function(id) {
+              field.value.split(/\s*,\s*/).some(function(id) {
                 value = TS.members.getMemberDisplayNameById(id, false);
                 return value.match(start_regex) || value.match(suffix_regex);
               });
@@ -19843,7 +19843,7 @@ TS.registerModule("constants", {
           TS.warn("msg " + args.msg.ts + " has an invalid (non string) color:" + attachment.color + " (removed in client)");
           delete attachment.color;
         } else {
-          attachment.color = attachment.color.replace(/\#/g, "");
+          attachment.color = attachment.color.replace(/#/g, "");
         }
       }
       var short_fields = [];
@@ -20062,7 +20062,7 @@ TS.registerModule("constants", {
             do_simple = true;
           }
           if (TS.model.ampersands_are_inconsistent_in_from_urls) {
-            if (msg.text.indexOf(attachment.from_url.replace(/\&/g, "&amp;")) != -1) {
+            if (msg.text.indexOf(attachment.from_url.replace(/&/g, "&amp;")) != -1) {
               do_simple = true;
             }
           }
@@ -23745,7 +23745,7 @@ TS.registerModule("constants", {
           modified_items[item] = data[item];
           data[item] = Handlebars.Utils.escapeExpression(options.hash[item]);
         }
-        var tokens = str.match(/{[^\s\}]+}/g);
+        var tokens = str.match(/{[^\s}]+}/g);
         if (tokens && tokens.length) {
           var getValue = function(namespace) {
             var parts = namespace.split(".");
@@ -25096,7 +25096,7 @@ TS.registerModule("constants", {
       });
       Handlebars.registerHelper("makeMemberLinksWithDisplayNames", function(member_ids_string) {
         if (!member_ids_string) return "";
-        return member_ids_string.split(/\s*\,\s*/).map(function(id) {
+        return member_ids_string.split(/\s*,\s*/).map(function(id) {
           return TS.templates.builders.makeMemberPreviewLink(TS.members.getMemberById(id));
         }).join(", ");
       });
@@ -25397,7 +25397,7 @@ TS.registerModule("constants", {
         return options.inverse(this);
       });
       Handlebars.registerHelper("getSafeSkypeURLComponent", function(name) {
-        var match = name.match(/^[a-zA-Z][a-zA-Z0-9\.,\-_]{5,31}/);
+        var match = name.match(/^[a-zA-Z][a-zA-Z0-9.,\-_]{5,31}/);
         return match ? match[0] : "";
       });
       Handlebars.registerHelper("highlightSearchMatches", function(text) {
@@ -27298,7 +27298,7 @@ TS.registerModule("constants", {
           }
         }
         if (dont_check_highlight_words) return false;
-        txt = txt.replace(/<\!subteam\^(\w+\d+)\|@(.+)>/g, "");
+        txt = txt.replace(/<!subteam\^(\w+\d+)\|@(.+)>/g, "");
         txt = TS.format.swapOutAts(txt);
         if (highlight_rx.test(txt) && !ignore_highlight_words) return true;
         return false;
@@ -29245,13 +29245,13 @@ TS.registerModule("constants", {
     cleanChannelName: function(name) {
       var replace_regx = XRegExp("[^\\pL\\pM\\pN_-]+", "g");
       var zalgo_regx = XRegExp("[\\pM\\pM\\pM]", "g");
-      var leftovers_regx = /^[\-\_]+?$/;
+      var leftovers_regx = /^[-_]+?$/;
       name = name.toLowerCase();
       name = name.replace(/^#+/g, "");
       name = name.replace(/ /g, "-");
       name = name.replace(replace_regx, "_");
-      name = name.replace(/\-+/g, "-");
-      name = name.replace(/\_+/g, "_");
+      name = name.replace(/-+/g, "-");
+      name = name.replace(/_+/g, "_");
       if (leftovers_regx.test(name) || zalgo_regx.test(name)) {
         return null;
       }
@@ -29440,10 +29440,10 @@ TS.registerModule("constants", {
     },
     unHtmlEntities: function(str) {
       if (!str && str !== 0) return "";
-      return String(str).replace(/\&lt\;/g, "<").replace(/\&gt\;/g, ">").replace(/\&amp\;/g, "&").replace(/\&quot;/g, '"');
+      return String(str).replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&").replace(/&quot;/g, '"');
     },
     preg_quote: function(str) {
-      return (str + "").replace(/([\\\.\+\*\?\[\^\]\$\(\)\{\}\=\!\<\>\|\:])/g, "\\$1");
+      return (str + "").replace(/([\\.+*?[^\]$(){}=!<>|:])/g, "\\$1");
     },
     getActiveElementProp: function(name) {
       if (!document.activeElement) return "";
@@ -29537,8 +29537,8 @@ TS.registerModule("constants", {
         return;
       }
       url = TS.format.replaceHighlightMarkers(url);
-      var html_url = url.replace(/\&amp\;/g, "&");
-      if (html_url.match(/javascript\:/gi)) {
+      var html_url = url.replace(/&amp;/g, "&");
+      if (html_url.match(/javascript:/gi)) {
         html_url = "#";
       }
       var get_raw_node = true;
@@ -29547,7 +29547,7 @@ TS.registerModule("constants", {
         html_url = sanitized_node.href;
       }
       html_url = TS.utility.htmlEntities(html_url);
-      html_url = html_url.replace(/\&amp\;/g, "&");
+      html_url = html_url.replace(/&amp;/g, "&");
       if (url && url.lastIndexOf("/") !== url.length - 1) {
         if (html_url && html_url.lastIndexOf("/") === html_url.length - 1) {
           html_url = html_url.slice(0, -1);
@@ -29823,7 +29823,7 @@ TS.registerModule("constants", {
         return false;
       }
       var char = String.fromCharCode(e.keyCode);
-      if (/^(\w|[$-\/:-?{-~!"^_`\[\]])$/i.test(char)) return true;
+      if (/^(\w|[$-\/:-?{-~!"^_`[\]])$/i.test(char)) return true;
       return true;
     },
     isForwardDeleteKey: function(e) {
@@ -30614,8 +30614,8 @@ TS.registerModule("constants", {
     }
   });
   var _parser;
-  var _double_check_ids_channel_rx = /(?:"|<#)([CGD][0-9a-zA-Z]{8,10})(?:"|\||\>)/g;
-  var _double_check_ids_member_rx = /(?:"|<@)([WU][0-9a-zA-Z]{8,10})(?:"|\||\>)/g;
+  var _double_check_ids_channel_rx = /(?:"|<#)([CGD][0-9a-zA-Z]{8,10})(?:"|\||>)/g;
+  var _double_check_ids_member_rx = /(?:"|<@)([WU][0-9a-zA-Z]{8,10})(?:"|\||>)/g;
   var _me_en;
   var _you_en;
   var _spaceUnsafeLinkDialog = function(originalUrl, actionUrl, safeUrl) {
@@ -30738,7 +30738,7 @@ TS.registerModule("constants", {
     }
     return _referer_hiding_whitelist;
   };
-  var URL_REGEXP = /((ftp|http|https)\:\/\/|\bw{3}\.)[a-z0-9\-\.]+[a-z]+(:[a-z0-9]*)?\/?([@a-z0-9\-\._\?\,\'\/\\\+&amp;%\:!$#\=~])*/gi;
+  var URL_REGEXP = /((ftp|http|https):\/\/|\bw{3}\.)[a-z0-9\-.]+[a-z]+(:[a-z0-9]*)?\/?([@a-z0-9\-._?,'\/\\+&amp;%:!$#=~])*/gi;
   var _set_immediate_fn = window.setImmediate;
   if (!_set_immediate_fn) {
     if (window.MutationObserver) {
@@ -31279,7 +31279,7 @@ TS.registerModule("constants", {
     },
     swapOutAts: function(txt) {
       if (!txt) return txt;
-      return txt.replace(/@/g, _at_symbol_token).replace(/\-/g, _dash_symbol_token).replace(/\_/g, _underscore_symbol_token);
+      return txt.replace(/@/g, _at_symbol_token).replace(/-/g, _dash_symbol_token).replace(/_/g, _underscore_symbol_token);
     },
     test: function() {
       var test_obj = {
@@ -31304,9 +31304,9 @@ TS.registerModule("constants", {
   if (TS.boot_data.feature_shared_channels_client) {
     _at_mention_rx = /(^|\s|\{|\[|\(|&gt;|&lt;|\*|_|\/|"|“|‘|')(@([\w.\-+]+))/g;
   }
-  var _special_pre_rx = /(^|\s|[_*\?\.,\-!\^;:{(\[%$#+=\u2000-\u206F\u2E00-\u2E7F"])```([\s\S]*?)?```(?=$|\s|[_*\?\.,\-!\^;:})\]%$#+=\u2000-\u206F\u2E00-\u2E7F…"])/g;
-  var _special_code_rx = /(^|\s|[\?\.,\-!\^;:{(\[%$#+=\u2000-\u206F\u2E00-\u2E7F"])\`([^`]*?\S *)?\`/g;
-  var _special_quote_rx = /(^|\n)&gt;(?![\W_](?:&lt;|&gt;|[\|\/\\\[\]{}\(\)Dpb](?=\s|$)))(([^\n]*)(\n&gt;[^\n]*)*)/g;
+  var _special_pre_rx = /(^|\s|[_*?.,\-!^;:{([%$#+=\u2000-\u206F\u2E00-\u2E7F"])```([\s\S]*?)?```(?=$|\s|[_*?.,\-!^;:})\]%$#+=\u2000-\u206F\u2E00-\u2E7F…"])/g;
+  var _special_code_rx = /(^|\s|[?.,\-!^;:{([%$#+=\u2000-\u206F\u2E00-\u2E7F"])`([^`]*?\S *)?`/g;
+  var _special_quote_rx = /(^|\n)&gt;(?![\W_](?:&lt;|&gt;|[|\/\\[\]{}()Dpb](?=\s|$)))(([^\n]*)(\n&gt;[^\n]*)*)/g;
   var _stringify_transform_attrs = {
     "data-stringify-text": function(node) {
       return node.getAttribute("data-stringify-text");
@@ -31405,11 +31405,11 @@ TS.registerModule("constants", {
   };
   var _encodeSpecialFormattingChars = function(txt) {
     if (!txt) return "";
-    return txt.replace(/\*/g, "&ast;").replace(/\_/g, "&#95;").replace(/\`/g, "&#96;");
+    return txt.replace(/\*/g, "&ast;").replace(/_/g, "&#95;").replace(/`/g, "&#96;");
   };
   var _encodeSpecialFormattingCharsAndColon = function(txt) {
     if (!txt) return "";
-    return _encodeSpecialFormattingChars(txt).replace(/\:/g, "&#58;");
+    return _encodeSpecialFormattingChars(txt).replace(/:/g, "&#58;");
   };
   var _calculateOptions = function(msg, opts) {
     opts = opts || {};
@@ -31948,16 +31948,16 @@ TS.registerModule("constants", {
       var extra = "";
       var lc = at_member_id.toLowerCase();
       var cmd;
-      if (/^@everyone[\.|\-|_]*$/.test(lc)) {
+      if (/^@everyone[.|\-|_]*$/.test(lc)) {
         cmd = "<!everyone>";
         extra = lc.substr("!everyone".length);
-      } else if (/^@here[\.|\-|_]*$/.test(lc)) {
+      } else if (/^@here[.|\-|_]*$/.test(lc)) {
         cmd = "<!here|@here>";
         extra = lc.substr("!here".length);
-      } else if (/^@channel[\.|\-|_]*$/.test(lc)) {
+      } else if (/^@channel[.|\-|_]*$/.test(lc)) {
         cmd = "<!channel>";
         extra = lc.substr("!channel".length);
-      } else if (/^@group[\.|\-|_]*$/.test(lc)) {
+      } else if (/^@group[.|\-|_]*$/.test(lc)) {
         cmd = "<!group>";
         extra = lc.substr("!group".length);
       }
@@ -36621,7 +36621,7 @@ var _on_esc;
       desc: TS.i18n.t("Set a custom color for another member", "cmd_handlers")(),
       func: function(cmd, rest, words, in_reply_to_msg, model_ob) {
         var name = words.length > 1 ? words[1] : "";
-        var color = words.length > 2 ? words[2].replace(/\#/g, "") : "";
+        var color = words.length > 2 ? words[2].replace(/#/g, "") : "";
         var feedback_text;
         var input_text = cmd + " " + rest;
         var m;
@@ -38504,7 +38504,7 @@ var _on_esc;
         var url = $msg_inline_video_iframe_div.data("url");
         var inline_video = TS.model.inline_videos[url];
         if (!inline_video) {
-          var corrected_url = url.replace(/\&/g, "&amp;");
+          var corrected_url = url.replace(/&/g, "&amp;");
           inline_video = TS.model.inline_videos[corrected_url];
         }
         if (inline_video) {
@@ -38608,7 +38608,7 @@ var _on_esc;
       if (msg && msg.text) {
         if (msg.text.indexOf(attachment.from_url) == -1) {
           if (TS.model.ampersands_are_inconsistent_in_from_urls) {
-            if (msg.text.indexOf(attachment.from_url.replace(/\&/g, "&amp;")) == -1) {
+            if (msg.text.indexOf(attachment.from_url.replace(/&/g, "&amp;")) == -1) {
               return true;
             }
           } else {
@@ -39014,7 +39014,7 @@ var _on_esc;
           return attachments[i];
         }
         if (TS.model.ampersands_are_inconsistent_in_from_urls) {
-          if (attachments[i].from_url.replace(/\&/g, "&amp;") == url) {
+          if (attachments[i].from_url.replace(/&/g, "&amp;") == url) {
             return attachments[i];
           }
         }
@@ -42026,7 +42026,7 @@ var _on_esc;
   var _makePeoplePickers = function() {
     _$div.find(".edit_member_profile_lazy_filter_select").each(function(index, el) {
       var $el = $(el);
-      var preselected_ids = $el.val().split(/\s*\,\s*/);
+      var preselected_ids = $el.val().split(/\s*,\s*/);
       TS.ui.people_picker.make($el, {
         preselected_ids: preselected_ids
       });
@@ -42195,7 +42195,7 @@ var _on_esc;
     }
   });
   var OPTIONAL_PROTOCOL_URL_REGEXP = new RegExp("^" + "(?:(?:https?|ftp)://)?" + "(?:\\S+(?::\\S*)?@)?" + "(?:" + "(?!(?:10|127)(?:\\.\\d{1,3}){3})" + "(?!(?:169\\.254|192\\.168)(?:\\.\\d{1,3}){2})" + "(?!172\\.(?:1[6-9]|2\\d|3[0-1])(?:\\.\\d{1,3}){2})" + "(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])" + "(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}" + "(?:\\.(?:[1-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))" + "|" + "(?:localhost)" + "|" + "(?:(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)" + "(?:\\.(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)*" + "(?:\\.(?:[a-z\\u00a1-\\uffff]{2,}))" + "\\.?" + ")" + "(?::\\d{2,5})?" + "(?:[/?#]\\S*)?" + "$", "i");
-  var ALL_SCHEMES_LINK_REGEXP = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-]*)?\??(?:[\-\+=&;%@\.\w]*)#?(?:[\.\!\/\\\w]*))?)/gi;
+  var ALL_SCHEMES_LINK_REGEXP = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=+$,\w]+@)?[A-Za-z0-9.-]+|(?:www\.|[-;:&=+$,\w]+@)[A-Za-z0-9.-]+)((?:\/[+~%\/.\w-]*)?\??(?:[-+=&;%@.\w]*)#?(?:[.!\/\\\w]*))?)/gi;
   var _CHANNEL_CREATION_ERROR_MESSAGES = {
     name_taken: TS.i18n.t("{name} is already taken by a channel, username, or user group.", "ui_validation"),
     lowercase: TS.i18n.t("Channel names must be all lowercase. Try again?", "ui_validation"),
@@ -42434,12 +42434,12 @@ var _on_esc;
       length = +length;
       if (value === undefined || isNaN(length)) return void TS.error("Error: no length to validate");
       if (key === "mincsv") {
-        if (value.split(/\s*\,\s*/).length >= length) return true;
+        if (value.split(/\s*,\s*/).length >= length) return true;
         return void TS.ui.validation.showError($el, TS.i18n.t("This field can’t have less than {minlength, plural, =1{# value}other{# values}}", "ui_validation")({
           minlength: length
         }), options);
       } else if (key === "maxcsv") {
-        if (value.split(/\s*\,\s*/).length <= length) return true;
+        if (value.split(/\s*,\s*/).length <= length) return true;
         return void TS.ui.validation.showError($el, TS.i18n.t("This field can’t have more than {maxlength, plural, =1{# value}other{# values}}", "ui_validation")({
           maxlength: length
         }), options);
@@ -42514,7 +42514,7 @@ var _on_esc;
       maxlength: max_length + 1
     }), options);
     if (!_validateNospace($el, quiet_options)) return void TS.ui.validation.showWarning($el, _USERNAME_VALIDATION_ERROR_MESSAGES.specials(), options);
-    if (!_validatePattern($el, quiet_options, /^[\w\._-]+$/)) return void TS.ui.validation.showWarning($el, _USERNAME_VALIDATION_ERROR_MESSAGES.specials(), options);
+    if (!_validatePattern($el, quiet_options, /^[\w._-]+$/)) return void TS.ui.validation.showWarning($el, _USERNAME_VALIDATION_ERROR_MESSAGES.specials(), options);
     if (!_validateFirstAlphanumeric($el, quiet_options)) return void TS.ui.validation.showWarning($el, _USERNAME_VALIDATION_ERROR_MESSAGES.firstalphanumeric(), options);
     if (!_validateLowercase($el, quiet_options)) return void TS.ui.validation.showWarning($el, _USERNAME_VALIDATION_ERROR_MESSAGES.lowercase(), options);
     if (!_validateReservedWords($el, options, TS.model.RESERVED_USERNAMES.join(","))) return false;
@@ -42737,7 +42737,7 @@ var _on_esc;
       $input.on("paste", function() {
         setTimeout(function() {
           var val = $input.val().trim();
-          if (!/\,/.test(val)) return true;
+          if (!/,/.test(val)) return true;
           if (val) _tokenizeInput($input, options);
         }, 0);
       }).on("keydown", function(e) {
@@ -42790,7 +42790,7 @@ var _on_esc;
   };
   var _tokenizeInput = function($input, options) {
     var val = $input.val().trim();
-    var vals = val.split(/\s*[\,\s]\s*/);
+    var vals = val.split(/\s*[,\s]\s*/);
     var has_tokens = false;
     vals.forEach(function(value) {
       if (value) {
@@ -43925,7 +43925,7 @@ var _on_esc;
       if (data.ok) return null;
       if (data.error && data.info && TS.boot_data.feature_tinyspeck) {
         try {
-          return 'api error: "' + data.error + '"<br><br><div class="admin-section" style="word-wrap: break-word; word-break: break-word;">api rsp: ' + JSON.stringify(data).replace(/\,/g, ", ") + "</div>";
+          return 'api error: "' + data.error + '"<br><br><div class="admin-section" style="word-wrap: break-word; word-break: break-word;">api rsp: ' + JSON.stringify(data).replace(/,/g, ", ") + "</div>";
         } catch (error) {}
       }
       if (data.error) return 'api error: "' + data.error + '"';
@@ -45099,7 +45099,7 @@ $.fn.togglify = function(settings) {
     },
     doesRxnsHaveSkinlessRxn: function(rxns, name) {
       if (!rxns) return false;
-      var names = [name.replace(/(\::skin-tone-[2-6])/, "")];
+      var names = [name.replace(/(::skin-tone-[2-6])/, "")];
       TS.emoji.spliceSkinToneVariationsIntoAnArrayOfEmojiNames(names);
       for (var i = 0; i < names.length; i += 1) {
         if (TS.rxns.getRxnFromRxns(rxns, names[i])) return true;
@@ -45395,7 +45395,7 @@ $.fn.togglify = function(settings) {
       return pref && pref[c_id] && Object.keys(pref[c_id]).length && pref[c_id] || fallback;
     },
     getHandyRxnsTitleForEmojiByRxnKey: function(name, rxn_key) {
-      name = TS.emoji.stripWrappingColons(name).replace(/(\:\:skin-tone-[2-6])/g, "");
+      name = TS.emoji.stripWrappingColons(name).replace(/(::skin-tone-[2-6])/g, "");
       var datum = TS.rxns.getHandyRxnsDisplayDataByRxnKey(rxn_key).items[name];
       return datum && datum.use_title && datum.title || "";
     }
@@ -57536,7 +57536,7 @@ $.fn.togglify = function(settings) {
     return value;
   };
   var _cleanName = function(name) {
-    return TS.emoji.stripWrappingColons(name.replace(/(\::skin-tone-[2-6])/, ""));
+    return TS.emoji.stripWrappingColons(name.replace(/(::skin-tone-[2-6])/, ""));
   };
   var _getExistingRow = function(name) {
     return _$rows.filter(function() {
@@ -57937,7 +57937,7 @@ $.fn.togglify = function(settings) {
       }
       var slack_action_url = $target.data("slack-action-url");
       if (slack_action_url) {
-        var actual_url = slack_action_url.match(/\<(.*?)\|/)[1];
+        var actual_url = slack_action_url.match(/<(.*?)\|/)[1];
         if (actual_url && actual_url.indexOf(TS.utility.msgs.new_api_url_prefix) === 0) {
           TS.utility.msgs.doNewApiUrl(actual_url);
         } else {

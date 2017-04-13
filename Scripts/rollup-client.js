@@ -1111,7 +1111,7 @@
   var _cleanFlexExtra = function(flex_extra) {
     if (!flex_extra) return flex_extra;
     if (flex_extra.indexOf("#") != -1) {
-      flex_extra = flex_extra.replace(/\#/g, "%23");
+      flex_extra = flex_extra.replace(/#/g, "%23");
     }
     if (flex_extra.indexOf("/") != -1) {
       flex_extra = flex_extra.replace(/\//g, "%252F");
@@ -1123,7 +1123,7 @@
       TS.warn("This browser does not support pushState.");
       return;
     }
-    if (window.location.href.replace(/\%20/g, " ") !== new_url.replace(/\%20/g, " ")) {
+    if (window.location.href.replace(/%20/g, " ") !== new_url.replace(/%20/g, " ")) {
       if (replace_history_state) {
         window.history.replaceState(null, null, new_url);
       } else {
@@ -8213,7 +8213,7 @@
     var unique_member_ids = _.chain(fields).filter({
       type: "user"
     }).reduce(function(member_ids, field) {
-      return member_ids.concat(field.value.split(/\s*\,\s*/));
+      return member_ids.concat(field.value.split(/\s*,\s*/));
     }, []).uniq().value();
     if (!unique_member_ids.length) return Promise.resolve();
     return TS.flannel.fetchAndUpsertObjectsByIds(unique_member_ids).then(function() {
@@ -13389,7 +13389,7 @@
     if (model_ob.is_general) {
       var html;
       if (TS.model.team.prefs.auth_mode == "normal" && TS.model.team.email_domain) {
-        var hostname = location.hostname.replace(/[^\.]*/, TS.utility.htmlEntities(TS.model.team.domain));
+        var hostname = location.hostname.replace(/[^.]*/, TS.utility.htmlEntities(TS.model.team.domain));
         html = TS.i18n.t('<i class="ts_icon ts_icon_user ts_icon_inherit"></i> Send <a class="underline ts_tip ts_tip_top" href="https://{hostname}/signup">this link<span class="copied_ok ts_tip_tip hidden">Copied!</span></a> to your team to invite them', "client")({
           hostname: hostname
         });
@@ -31553,7 +31553,7 @@
     switch (section) {
       case "notifications":
         var highlight_words = TS.model.prefs.highlight_words || "";
-        highlight_words = highlight_words.replace(/\,/g, ", ").replace(/\ \ /g, " ");
+        highlight_words = highlight_words.replace(/,/g, ", ").replace(/ {2}/g, " ");
         template_args = {
           notification_sounds: TS.boot_data.notification_sounds,
           member: TS.model.user,

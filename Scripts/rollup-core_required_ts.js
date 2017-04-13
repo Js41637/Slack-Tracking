@@ -1163,7 +1163,7 @@
     if (TS.boot_data.template_groups) templates_url += "&template_groups=" + TS.boot_data.template_groups;
     if (TS.boot_data.template_exclude_feature_flagged) templates_url += "&template_exclude_feature_flagged=1";
     if (/&locale=[a-zA-Z-]/.test(templates_url)) {
-      templates_url = templates_url.replace(/\?locale=[a-zA-Z-]*&/, "?").replace(/[\?|&]locale=[a-zA-Z-]*/, "");
+      templates_url = templates_url.replace(/\?locale=[a-zA-Z-]*&/, "?").replace(/[?|&]locale=[a-zA-Z-]*/, "");
       templates_url = templates_url.replace(/&locale=[a-zA-Z-]/, "");
     }
     if (TS.i18n.locale() && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE) {
@@ -1246,7 +1246,6 @@
       if (TS.boot_data.page_needs_enterprise && data.can_manage_shared_channels !== undefined) {
         TS.model.team.prefs.can_user_manage_shared_channels = data.can_manage_shared_channels;
       }
-      TS.model.shared_channels_enabled = TS.boot_data.page_needs_enterprise || TS.boot_data.feature_shared_channels_client;
       if (!TS.model.last_team_name) {
         TS.model.last_team_name = TS.model.team.name;
         TS.model.last_team_domain = TS.model.team.domain;
@@ -3717,7 +3716,7 @@ var _cyrillicToLatin = function(char) {
     },
     nameToBaseName: function(name) {
       if (!_.isString(name)) return "";
-      name = name.replace(/(\:skin-tone-[2-6]:)/, "");
+      name = name.replace(/(:skin-tone-[2-6]:)/, "");
       name = TS.emoji.stripWrappingColons(name);
       return name;
     },

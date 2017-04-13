@@ -4,7 +4,7 @@
     getMatch: function(text, is_user_solicited) {
       if (!_.isString(text)) return;
       var match, index;
-      _.deburr(text).replace(/(^|\s+)([\+\-]?:[\w\-\+]*)$/i, function(_, match_prefix, match_text, match_offset) {
+      _.deburr(text).replace(/(^|\s+)([+-]?:[\w\-+]*)$/i, function(_, match_prefix, match_text, match_offset) {
         index = match_offset + match_prefix.length;
         match = text.substr(index, match_text.length);
       });
@@ -93,7 +93,7 @@
       return next_item.index;
     },
     search: function(text, options, callback) {
-      var prefix = /^(\+|\-):/.test(text) ? text[0] : "";
+      var prefix = /^(\+|-):/.test(text) ? text[0] : "";
       var index = options.index;
       var local_results = _getLocalResults(text);
       var data;
@@ -260,7 +260,7 @@
       limit: 50,
       prefer_exact_match: true
     };
-    var search_text = text.replace(/^(\+|\-)?:/, "");
+    var search_text = text.replace(/^(\+|-)?:/, "");
     results = TS.sorter.search(search_text, search_data, search_options);
     return _.map(results, "model_ob");
   };

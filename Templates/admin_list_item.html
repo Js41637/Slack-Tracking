@@ -174,8 +174,10 @@
         {{/if}}
     </span>
 
-    <i class="admin_member_caret ts_icon ts_icon_caret_right"></i>
-    <i class="admin_member_caret ts_icon ts_icon_caret_down"></i>
+    {{#unless omit_caret}}
+        <i class="admin_member_caret ts_icon ts_icon_caret_right"></i>
+        <i class="admin_member_caret ts_icon ts_icon_caret_down"></i>
+    {{/unless}}
 
     <div class="member_actions clearfix">
         {{#if actions}}
