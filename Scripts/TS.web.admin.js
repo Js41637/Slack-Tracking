@@ -1428,7 +1428,8 @@
     submitEmailForm: function(member_id) {
       var member = TS.members.getMemberById(member_id);
       var $row = TS.web.admin.selectRow(member);
-      var email = $.trim($row.find('input[name="email"]').val());
+      var raw_email = $.trim($row.find('input[name="email"]').val());
+      var email = Handlebars.Utils.escapeExpression(raw_email);
       var email_change_confirmation;
       var confirm_body = [];
       var args = {

@@ -42576,17 +42576,13 @@ var _getDownloadLink = function() {
       if (!TS.boot_data.is_in_invites_sidebar_exp) return;
       $("body").on("click", '[data-action="admin_shared_invites_modal"]', function(e) {
         if (TS.isPartiallyBooted()) return;
-        if (!TS.ui.shared_invites_modal.sharedInvitesAllowedOnTeam) return TS.ui.admin_invites.start();
-        if (!_active_invite_code_ob && _userCanOnlyViewLink()) return TS.ui.admin_invites.start();
+        if (!TS.boot_data.show_shared_invites) return TS.ui.admin_invites.start();
         _build(e);
       });
       return _promiseToGetLastActiveCode();
     },
     start: function(e) {
       return _start(e);
-    },
-    sharedInvitesAllowedOnTeam: function() {
-      return !TS.model.team.plan && TS.model.prefs.auth_mode == "normal" && !TS.model.prefs.two_factor_auth_required;
     }
   });
   var _$shared_invites_modal;
@@ -42596,9 +42592,6 @@ var _getDownloadLink = function() {
   var _$modal_trigger;
   var _userCanCreateLink = function() {
     return TS.model.user.is_admin;
-  };
-  var _userCanOnlyViewLink = function() {
-    return !TS.model.user.is_admin && TS.ui.admin_invites.canInvite();
   };
   var _promiseToGetLastActiveCode = function() {
     if (_active_invite_code_ob) return Promise.resolve();

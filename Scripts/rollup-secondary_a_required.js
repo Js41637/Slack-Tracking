@@ -3552,8 +3552,10 @@
   });
   var _bulk_upsert_payload = [];
   var _bulkUpsertPresences = function() {
-    TS.redux.dispatch(window.Redux.Features.Presence.bulkUpdatePresence(_bulk_upsert_payload));
-    _bulk_upsert_payload = [];
+    if (_bulk_upsert_payload.length) {
+      TS.redux.dispatch(window.Redux.Features.Presence.bulkUpdatePresence(_bulk_upsert_payload));
+      _bulk_upsert_payload = [];
+    }
   };
   var _addSignalListeners = function() {
     TS.members.presence_changed_sig.add(TS.redux.presence.updatePresenceForMember);
@@ -55243,7 +55245,8 @@ $.fn.togglify = function(settings) {
     mini_panel_dims: {
       width: 280,
       height: 64,
-      min_height: 34,
+      min_width: 280,
+      min_height: 44,
       x_offset: 50,
       y_offset: 50
     },
@@ -55394,7 +55397,7 @@ $.fn.togglify = function(settings) {
         break;
       case _utility_call_state.mini_panel_token:
         if (window.winssb && winssb.window && winssb.window.browserWindows && winssb.window.browserWindows[token] && winssb.window.browserWindows[token].setMinimumSize) {
-          winssb.window.browserWindows[token].setMinimumSize(_utility_calls_config.mini_panel_dims.width, _utility_calls_config.mini_panel_dims.min_height);
+          winssb.window.browserWindows[token].setMinimumSize(_utility_calls_config.mini_panel_dims.min_width, _utility_calls_config.mini_panel_dims.min_height);
           winssb.window.browserWindows[token].setSize(_utility_calls_config.mini_panel_dims.width, _utility_calls_config.mini_panel_dims.height);
         }
         break;
@@ -55537,6 +55540,7 @@ $.fn.togglify = function(settings) {
       y: display.bounds.y + _utility_calls_config.mini_panel_dims.y_offset,
       width: _utility_calls_config.mini_panel_dims.width,
       height: _utility_calls_config.mini_panel_dims.height,
+      minWidth: _utility_calls_config.mini_panel_dims.min_width,
       minHeight: _utility_calls_config.mini_panel_dims.min_height,
       hideMenuBar: true,
       resizable: false,

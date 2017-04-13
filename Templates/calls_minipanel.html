@@ -37,26 +37,21 @@
         <span id="minipanel_waiting_text"></span>
 
         <span id="button_holder">
-          <span id="minipanel_mute_button" class="ts_icon ts_icon_microphone mute"></span>
+          <span id="minipanel_mute_button" class="mute_button ts_icon ts_icon_microphone mute"></span>
           <span id="minipanel_leave_button" class="ts_icon ts_icon_phone_flat leave"></span>
         </span>
       </div>
     </div>
     <div id="screenshare_control">
-      <span class="state pending">{{#t}}Starting screen share...{{/t}}
-        <div class="infinite_spinner infinite_spinner_medium">
-          <svg class="infinite_spinner_spinner" viewBox="0 0 100 100">
-            <circle class="infinite_spinner_bg" cx="50%" cy="50%" r="35" />
-            <circle class="infinite_spinner_path infinite_spinner_white" cx="50%" cy="50%" r="35"/>
-          </svg>
-          <svg class="infinite_spinner_spinner infinite_spinner_tail" viewBox="0 0 100 100">
-            <circle class="infinite_spinner_path infinite_spinner_white" cx="50%" cy="50%" r="35"/>
-          </svg>
-        </div>
+      <span class="status">
+        <span class="presence"></span>
+        <span class="status_text"><span class="screen_sharer_name"></span></span>
       </span>
-      <span class="state complete">{{#t}}You are screen sharing{{/t}}</span>
-      <span class="state failed">{{#t}}Screen share issue...{{/t}}</span>
-      <span class="stop_button">{{#t}}Stop{{/t}}</span>
+      <span class="mute_button ts_icon ts_icon_microphone"></span>
+      <span class="stop_button ts_icon ts_icon_stop_screen_sharing_alt"></span>
+      <span class="tooltip tooltip_mute">{{#t}}Mute your microphone{{/t}}</span>
+      <span class="tooltip tooltip_unmute">{{#t}}Unmute your microphone{{/t}}</span>
+      <span class="tooltip tooltip_screen">{{#t}}Stop sharing your screen{{/t}}</span>
     </div>
   </div>
 </body>
