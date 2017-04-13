@@ -31121,6 +31121,7 @@ TS.registerModule("constants", {
       opts = opts || {};
       return TS.format.formatWithOptions(txt, msg, _.assign({
         no_jumbomoji: true,
+        no_linking: true,
         no_specials: true,
         no_highlights: true,
         no_emoji_text: true,
