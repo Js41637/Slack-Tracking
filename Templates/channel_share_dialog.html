@@ -6,26 +6,55 @@
     <h1>{{#t channel_name=model_ob.name}}Share #{channel_name}{{/t}}</h1>
   {{/if}}
 
-  <p class="large_bottom_margin information">
-    {{#t}}In a shared channel, two Slack teams can send messages, share files, and access the channel\u02bcs history. <a href="https://help.slack.com">Learn more</a>{{/t}}
-  </p>
+  {{#if can_create_shared_channel}}
 
-  <p>
-    <label for="email_address">{{#t note="Input label for share channel form"}}Email address of admin on receiving team{{/t}}</label>
-    <input type="text" name="email_address" id="email_address" placeholder="{{#t}}jane@acme-corp.com{{/t}}" data-validation="required">
-  </p>
-
-  <p>
-    <label for="team_url">{{#t note="Input label for share channel form"}}Other team\u02bcs URL{{/t}}</label>
-    <input type="text" name="team_url" id="team_url" placeholder="{{#t}}acme-corp{{/t}}" data-validation="required">
-    <span class="url_domain_slack_dot_com bold">.slack.com</span>
-  </p>
-
-  {{#if show_buttons}}
-    <p class="align_right">
-      <button class="btn btn_large btn_outline btn cancel_share" type="button">{{#t}}Cancel{{/t}}</button>
-      <button class="btn btn_large ladda-button submit" data-style="expand-right">{{#t note="Form submit button label"}}Share channel{{/t}}</button>
+    <p class="large_bottom_margin information">
+      {{#t}}In a shared channel, two Slack teams can send messages, share files, and access the channel\u02bcs history. <a href="https://help.slack.com">Learn more</a>{{/t}}
     </p>
+
+    <p>
+      <label for="email_address">{{#t note="Input label for share channel form"}}Email address of admin on receiving team{{/t}}</label>
+      <input type="text" name="email_address" id="email_address" placeholder="{{#t}}jane@acme-corp.com{{/t}}" data-validation="required">
+    </p>
+
+    <p>
+      <label for="team_url">{{#t note="Input label for share channel form"}}Other team\u02bcs URL{{/t}}</label>
+      <input type="text" name="team_url" id="team_url" placeholder="{{#t}}acme-corp{{/t}}" data-validation="required">
+      <span class="url_domain_slack_dot_com bold">.slack.com</span>
+    </p>
+
+    {{#if show_buttons}}
+      <p class="align_right">
+        <button class="btn btn_large btn_outline btn cancel_share" type="button">{{#t}}Cancel{{/t}}</button>
+        <button class="btn btn_large ladda-button submit" data-style="expand-right">{{#t note="Form submit button label"}}Share channel{{/t}}</button>
+      </p>
+    {{/if}}
+
+  {{else}}
+
+    <p>
+      {{#t}}Only Team Admins can share channels. If you'd like, you can request to share a channel with the form below.{{/t}}
+    </p>
+
+    <p class="tiny_bottom_margin">
+      <label for="select_admin">{{#t note="Form input label"}}Choose an Admin{{/t}}
+        <div class="lfs_container"></div>
+      </label>
+    </p>
+
+    <p class="tiny_bottom_margin">
+      <label for="message">{{#t note="Form input label"}}Add a message{{/t}}</label>
+    </p>
+
+    <div id="message" name="message">{{#t}}Hi there, I was hoping to add this shared channel to our team. Would you be able to help?{{/t}}</div>
+
+    {{#if show_buttons}}
+      <p class="align_right">
+        <button class="btn btn_large btn_outline btn cancel_share" type="button">{{#t}}Cancel{{/t}}</button>
+        <button class="btn btn_large ladda-button submit" data-style="expand-right">{{#t note="Form submit button label"}}Request channel share{{/t}}</button>
+      </p>
+    {{/if}}
+
   {{/if}}
 
 </div>

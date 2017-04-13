@@ -1836,6 +1836,12 @@
       if (TS.web) TS.web.login_sig.add(TS.metrics.onLogin);
       if (TS.client) TS.client.login_sig.add(TS.metrics.onLogin);
       _log_dom_node_count = TS.utility.enableFeatureForUser(10);
+      if (window.parse_times && window.parse_times.length) {
+        _.each(window.parse_times, function(label) {
+          TS.metrics.measureAndClear("parse_" + label, "parse_start_" + label, "parse_finish_" + label);
+        });
+        window.parse_times = null;
+      }
     },
     onLogin: function() {
       var noise_ms = Math.floor(Math.random() * _INTERVAL_DURATION_NOISE_MS);

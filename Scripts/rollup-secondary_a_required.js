@@ -3453,7 +3453,7 @@
       if (normalized_name && normalized_name[0] === "#") {
         normalized_name = normalized_name.slice(1);
       }
-      var cid = _getChannelIdByName(name);
+      var cid = _getChannelIdByName(normalized_name);
       if (cid) {
         return TS.redux.channels.getEntityById(cid);
       }
@@ -22813,11 +22813,8 @@ TS.registerModule("constants", {
       return "";
     },
     getMemberTypeClass: function(member) {
-      var type_class = "";
-      if (TS.boot_data.page_needs_enterprise) type_class = "page_needs_enterprise";
-      if (member.is_external) type_class += "";
-      if (member.is_restricted) type_class += " ra";
-      return type_class;
+      if (member.is_restricted) return " ra";
+      return "";
     },
     makeTeamlabel: function(team_id) {
       if (!team_id) return "ERROR: MISSING TEAM ID";
@@ -31235,7 +31232,8 @@ TS.registerModule("constants", {
         container_clone.appendChild(range.cloneContents());
         container_clone.classList.add("offscreen", "user_select_text");
         range.commonAncestorContainer.parentElement.appendChild(container_clone);
-        container_clone.innerHTML = container_clone.innerHTML.replace(/&nbsp;/g, "​");
+        var nbsp_placeholder = TS.boot_data.feature_keep_zero_width_spaces ? "\ufeff" : "​";
+        container_clone.innerHTML = container_clone.innerHTML.replace(/&nbsp;/g, nbsp_placeholder);
         if (container_clone.lastChild && !container_clone.lastChild.textContent) {
           container_clone.removeChild(container_clone.lastChild);
         }
@@ -31243,7 +31241,8 @@ TS.registerModule("constants", {
         var restore = TS.selection.snapshot();
         selection = TS.selection.selectNodeContents(container_clone);
         selection_text = selection.toString();
-        selection_text = selection_text.replace(/ {2}/g, " ").replace(/\u200B/g, " ");
+        var nbsp_placeholder_regex = new RegExp(nbsp_placeholder, "g");
+        selection_text = selection_text.replace(/ {2}/g, " ").replace(nbsp_placeholder_regex, " ");
         container_clone.parentElement.removeChild(container_clone);
         restore();
       } else {
@@ -31504,7 +31503,8 @@ TS.registerModule("constants", {
       txt += TS.format.tokenizeStr(html_token_map, _getThemeInstallButtonsHtml(theme_install_btns));
     }
     var A = TSF.getTokensArray($.trim(txt), tsf_mode, {
-      jumbomoji: !no_jumbomoji
+      jumbomoji: !no_jumbomoji,
+      keep_zero_width_spaces: !!TS.boot_data.feature_keep_zero_width_spaces
     });
     if (no_preformatted) A = A.map(_swapPreForCode);
     if (no_linking) {
@@ -31933,7 +31933,8 @@ TS.registerModule("constants", {
     }
     if (options.do_specials) {
       txt = TSF.getTokensString(txt, "CLEAN", {
-        jumbomoji: TS.model.prefs.jumbomoji
+        jumbomoji: TS.model.prefs.jumbomoji,
+        keep_zero_width_spaces: !!TS.boot_data.feature_keep_zero_width_spaces
       });
     }
     var replace_contents_map = [];
@@ -61532,11 +61533,12 @@ $.fn.togglify = function(settings) {
     };
   }
   var o = function() {};
-  o.thatReturns = r, o.thatReturnsFalse = r(!1), o.thatReturnsTrue = r(!0), o.thatReturnsNull = r(null), o.thatReturnsThis = function() {
-    return this;
-  }, o.thatReturnsArgument = function(e) {
-    return e;
-  }, e.exports = o;
+  o.thatReturns = r, o.thatReturnsFalse = r(!1), o.thatReturnsTrue = r(!0), o.thatReturnsNull = r(null),
+    o.thatReturnsThis = function() {
+      return this;
+    }, o.thatReturnsArgument = function(e) {
+      return e;
+    }, e.exports = o;
 }, function(e, t, n) {
   "use strict";
   var r = null;
@@ -66997,8 +66999,7 @@ $.fn.togglify = function(settings) {
   if (o.canUseDOM) {
     var c = document.createElement("div");
     c.innerHTML = " ", "" === c.innerHTML && (l = function(e, t) {
-      if (e.parentNode && e.parentNode.replaceChild(e, e),
-        a.test(t) || "<" === t[0] && s.test(t)) {
+      if (e.parentNode && e.parentNode.replaceChild(e, e), a.test(t) || "<" === t[0] && s.test(t)) {
         e.innerHTML = String.fromCharCode(65279) + t;
         var n = e.firstChild;
         1 === n.data.length ? e.removeChild(n) : n.deleteData(0, 1);
@@ -68624,8 +68625,7 @@ $.fn.togglify = function(settings) {
             g = r && function() {
               r.call(v);
             };
-          return U._updateRootComponent(c, s, a, n, g),
-            v;
+          return U._updateRootComponent(c, s, a, n, g), v;
         }
         U.unmountComponentAtNode(n);
       }
@@ -71797,12 +71797,13 @@ $.fn.togglify = function(settings) {
           s = i.width,
           u = i.height;
         return r.state = {
-          height: u,
-          width: s,
-          isScrolling: !1,
-          scrollLeft: 0,
-          scrollTop: 0
-        }, r._onResize = r._onResize.bind(r), r.__handleWindowScrollEvent = r.__handleWindowScrollEvent.bind(r), r.__resetIsScrolling = r.__resetIsScrolling.bind(r), r;
+            height: u,
+            width: s,
+            isScrolling: !1,
+            scrollLeft: 0,
+            scrollTop: 0
+          }, r._onResize = r._onResize.bind(r), r.__handleWindowScrollEvent = r.__handleWindowScrollEvent.bind(r), r.__resetIsScrolling = r.__resetIsScrolling.bind(r),
+          r;
       }
       return p()(t, e), u()(t, [{
         key: "updatePosition",
@@ -74897,8 +74898,8 @@ $.fn.togglify = function(settings) {
         BeforeInputEventPlugin: i
       }), _.HostComponent.injectGenericComponentClass(f), _.HostComponent.injectTextComponentClass(v), _.DOMProperty.injectDOMPropertyConfig(o), _.DOMProperty.injectDOMPropertyConfig(l), _.DOMProperty.injectDOMPropertyConfig(b), _.EmptyComponent.injectEmptyComponentFactory(function(e) {
         return new d(e);
-      }), _.Updates.injectReconcileTransaction(y), _.Updates.injectBatchingStrategy(m),
-      _.Component.injectEnvironment(c));
+      }),
+      _.Updates.injectReconcileTransaction(y), _.Updates.injectBatchingStrategy(m), _.Component.injectEnvironment(c));
   }
   var o = n(240),
     i = n(242),

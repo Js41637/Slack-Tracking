@@ -26372,6 +26372,12 @@
         channel_name: TS.templates.builders.makeChannelPrefix(model_ob) + TS.utility.htmlEntities(model_ob.name)
       });
       var go_label = TS.i18n.t("Share channel", "share_channels");
+      if (!TS.permissions.members.canCreateSharedChannel()) {
+        header_html = TS.i18n.t("Ask an admin to share <strong>{channel_name}</strong>", "share_channels")({
+          channel_name: TS.templates.builders.makeChannelPrefix(model_ob) + TS.utility.htmlEntities(model_ob.name)
+        });
+        go_label = TS.i18n.t("Send", "share_channels");
+      }
       TS.ui.channel_options_dialog.startWithChannelOption(content_html, header_html, go_label, function() {
         _handleSubmit({
           model_ob: TS.shared.getActiveModelOb(),
@@ -26379,6 +26385,7 @@
           email: TS.ui.channel_options_dialog.div.find("#email").val()
         });
       });
+      if (!TS.permissions.members.canCreateSharedChannel()) _initAdminRequestUI();
     },
     test: function() {
       var test_ob = {
@@ -26386,7 +26393,9 @@
         _handleSubmit: _handleSubmit,
         _handleSuccess: _handleSuccess,
         _handleError: _handleError,
-        _validateShare: _validateShare
+        _validateShare: _validateShare,
+        _promiseAdmins: _promiseAdmins,
+        _initAdminRequestUI: _initAdminRequestUI
       };
       Object.defineProperty(test_ob, "_generateTemplateArgs", {
         get: function() {
@@ -26426,6 +26435,22 @@
         },
         set: function(v) {
           _validateShare = v;
+        }
+      });
+      Object.defineProperty(test_ob, "_promiseAdmins", {
+        get: function() {
+          return _promiseAdmins;
+        },
+        set: function(v) {
+          _promiseAdmins = v;
+        }
+      });
+      Object.defineProperty(test_ob, "_initAdminRequestUI", {
+        get: function() {
+          return _initAdminRequestUI;
+        },
+        set: function(v) {
+          _initAdminRequestUI = v;
         }
       });
       return test_ob;
@@ -26469,6 +26494,47 @@
       channel: options.model_ob.id,
       target_domain: options.target_domain,
       email: options.email
+    });
+  };
+  var _initAdminRequestUI = function() {
+    var $input = TS.ui.channel_options_dialog.div.find("#message");
+    TS.ui.channel_options_dialog.div.find(".option_go").attr("disabled", "disabled");
+    TS.utility.contenteditable.create($input, {
+      modules: {
+        tabcomplete: {
+          positionMenu: function(menu) {
+            var offset = $input.offset();
+            var to_the_edge_width = $(window).width() - offset.left - 2;
+            menu.style.width = Math.min($input.outerWidth(), to_the_edge_width) + "px";
+            menu.style.minWidth = 0;
+            TS.tabcomplete.positionUIRelativeToInput(menu, $input);
+          }
+        }
+      }
+    });
+    TS.ui.channel_options_dialog.div.find(".lfs_container").lazyFilterSelect({
+      data_promise: _promiseAdmins,
+      single: true,
+      template: function(item) {
+        return new Handlebars.SafeString(TS.templates.file_sharing_channel_row({
+          item: item,
+          show_share_prefix: false
+        }));
+      }
+    });
+  };
+  var _promiseAdmins = function(query) {
+    return TS.flannel.fetchAndUpsertObjectsWithQuery({
+      query: query,
+      count: 10,
+      index: TS.members.shouldDisplayRealNames() ? "users_by_realname" : "users_by_name",
+      filter: "admins"
+    }).then(function(response) {
+      var items = response.objects;
+      items.forEach(function(item, i) {
+        items[i]["lfs_id"] = item.id;
+      });
+      return items;
     });
   };
   var _generateTemplateArgs = function(model_ob) {
