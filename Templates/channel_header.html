@@ -40,9 +40,12 @@
           <button type="button" span id="channel_title" class="btn_unstyle">{{name}}{{#if member.is_self}}<span class="normal subtle_silver"> {{#t}}(you){{/t}}</span>{{/if}}</button>
         {{/if}}
       {{/if}}
-      {{#if is_shared}}
-        {{#if is_dm_or_mpdm}}{{else}}{{> shared_channel_icon tooltip=true tooltip_position='bottom'}}{{/if}}
-      {{/if}}</span>{{!--
+      {{#unless is_dm_or_mpdm}}
+      {{#if is_org_shared}}
+        {{> shared_channel_icon tooltip=true tooltip_position='bottom'}}
+      {{else if is_shared}}
+        {{> shared_channels_icon}}
+      {{/if}}{{/unless}}</span>{{!--
       --}}<div class="channel_actions_container"><div id="mute_container"></div></div>
     </div>
 

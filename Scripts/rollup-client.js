@@ -11478,6 +11478,7 @@
       var is_im;
       var is_mpim;
       var is_shared = false;
+      var is_org_shared = false;
       var show_topic = false;
       var im;
       var member;
@@ -11500,11 +11501,13 @@
           show_topic = true;
           if (TS.model.user.is_restricted && (!_model_ob.topic || !_model_ob.topic.value)) show_topic = false;
         }
-        is_shared = _model_ob.is_shared;
+        is_shared = TS.shared.isModelObShared(_model_ob);
+        is_org_shared = TS.shared.isModelObOrgShared(_model_ob);
         name = _model_ob.name;
       }
       var template_args = {
         is_shared: is_shared,
+        is_org_shared: is_org_shared,
         name: name,
         member: member,
         is_dm_or_mpdm: is_im || is_mpim,
@@ -11675,10 +11678,10 @@
     if (member != TS.members.getMemberById(im.user)) {
       return;
     }
-    var is_shared = false;
+    var is_org_shared = false;
     var $shared_icon;
-    if (TS.boot_data.page_needs_enterprise && _model_ob && _model_ob.is_shared) {
-      is_shared = true;
+    if (TS.shared.isModelObOrgShared(_model_ob)) {
+      is_org_shared = true;
       $shared_icon = _$header.find(".ts_icon_shared_channel");
       $shared_icon.removeClass("away");
     }
@@ -11690,7 +11693,7 @@
     } else if (member.presence === "away") {
       status = TS.i18n.t("away", "client")();
       $im_title.addClass("away");
-      if (is_shared) $shared_icon.addClass("away");
+      if (is_org_shared) $shared_icon.addClass("away");
     } else {
       status = member.presence;
     }
@@ -26757,7 +26760,7 @@
 })();
 (function($) {
   var colpick = function() {
-    var tpl = '<div class="colpick"><div class="colpick_color"><div class="colpick_color_overlay1"><div class="colpick_color_overlay2"><div class="colpick_selector_outer"><div class="colpick_selector_inner"></div></div></div></div></div><div class="colpick_hue"><div class="colpick_hue_arrs"><div class="colpick_hue_larr"></div><div class="colpick_hue_rarr"></div></div></div><div class="colpick_new_color"></div><div class="colpick_current_color"></div><div class="colpick_hex_field"><div class="colpick_field_letter">#</div><input type="text" maxlength="6" size="6" /></div><div class="colpick_rgb_r colpick_field"><div class="colpick_field_letter">R</div><input type="text" maxlength="3" size="3" /><div class="colpick_field_arrs"><div class="colpick_field_uarr"></div><div class="colpick_field_darr"></div></div></div><div class="colpick_rgb_g colpick_field"><div class="colpick_field_letter">G</div><input type="text" maxlength="3" size="3" /><div class="colpick_field_arrs"><div class="colpick_field_uarr"></div><div class="colpick_field_darr"></div></div></div><div class="colpick_rgb_b colpick_field"><div class="colpick_field_letter">B</div><input type="text" maxlength="3" size="3" /><div class="colpick_field_arrs"><div class="colpick_field_uarr"></div><div class="colpick_field_darr"></div></div></div><div class="colpick_hsb_h colpick_field"><div class="colpick_field_letter">H</div><input type="text" maxlength="3" size="3" /><div class="colpick_field_arrs"><div class="colpick_field_uarr"></div><div class="colpick_field_darr"></div></div></div><div class="colpick_hsb_s colpick_field"><div class="colpick_field_letter">S</div><input type="text" maxlength="3" size="3" /><div class="colpick_field_arrs"><div class="colpick_field_uarr"></div><div class="colpick_field_darr"></div></div></div><div class="colpick_hsb_b colpick_field"><div class="colpick_field_letter">B</div><input type="text" maxlength="3" size="3" /><div class="colpick_field_arrs"><div class="colpick_field_uarr"></div><div class="colpick_field_darr"></div></div></div><div class="colpick_submit"></div></div>',
+    var tpl = '<div class="colpick"><div class="colpick_color"><div class="colpick_color_overlay1"><div class="colpick_color_overlay2"><div class="colpick_selector_outer"></div></div></div></div><div class="colpick_hue"><div class="colpick_hue_arrs"><div class="colpick_hue_larr"></div><div class="colpick_hue_rarr"></div></div></div><div class="colpick_controls"><div class="colpick_color_state"><div class="colpick_new_color"></div><div class="colpick_current_color"></div></div><div class="colpick_color_fields"><div class="colpick_rgb_hsb"><div class="colpick_rgb"><div class="colpick_rgb_r colpick_field"><div class="colpick_field_letter">R</div><input type="text" maxlength="3" size="3" /><div class="colpick_field_arrs"><div class="colpick_field_uarr"></div><div class="colpick_field_darr"></div></div></div><div class="colpick_rgb_g colpick_field"><div class="colpick_field_letter">G</div><input type="text" maxlength="3" size="3" /><div class="colpick_field_arrs"><div class="colpick_field_uarr"></div><div class="colpick_field_darr"></div></div></div><div class="colpick_rgb_b colpick_field"><div class="colpick_field_letter">B</div><input type="text" maxlength="3" size="3" /><div class="colpick_field_arrs"><div class="colpick_field_uarr"></div><div class="colpick_field_darr"></div></div></div></div><div class="colpick_hsb"><div class="colpick_hsb_h colpick_field"><div class="colpick_field_letter">H</div><input type="text" maxlength="3" size="3" /><div class="colpick_field_arrs"><div class="colpick_field_uarr"></div><div class="colpick_field_darr"></div></div></div><div class="colpick_hsb_s colpick_field"><div class="colpick_field_letter">S</div><input type="text" maxlength="3" size="3" /><div class="colpick_field_arrs"><div class="colpick_field_uarr"></div><div class="colpick_field_darr"></div></div></div><div class="colpick_hsb_b colpick_field"><div class="colpick_field_letter">B</div><input type="text" maxlength="3" size="3" /><div class="colpick_field_arrs"><div class="colpick_field_uarr"></div><div class="colpick_field_darr"></div></div></div></div></div><div class="colpick_hex_submit"><div class="colpick_hex_field"><div class="colpick_field_letter">#</div><input type="text" maxlength="6" size="6" /></div><div class="colpick_submit"></div></div></div></div></div>',
       defaults = {
         showEvent: "click",
         onShow: function() {},
@@ -26776,15 +26779,15 @@
       },
       fillRGBFields = function(hsb, cal) {
         var rgb = hsbToRgb(hsb),
-          fieldIndex = TS.boot_data.feature_better_app_info ? 0 : 1;
+          fieldIndex = 0;
         $(cal).data("colpick").fields.eq(fieldIndex).val(rgb.r).end().eq(fieldIndex + 1).val(rgb.g).end().eq(fieldIndex + 2).val(rgb.b).end();
       },
       fillHSBFields = function(hsb, cal) {
-        var fieldIndex = TS.boot_data.feature_better_app_info ? 3 : 4;
+        var fieldIndex = 3;
         $(cal).data("colpick").fields.eq(fieldIndex).val(Math.round(hsb.h)).end().eq(fieldIndex + 1).val(Math.round(hsb.s)).end().eq(fieldIndex + 2).val(Math.round(hsb.b)).end();
       },
       fillHexFields = function(hsb, cal) {
-        $(cal).data("colpick").fields.eq(TS.boot_data.feature_better_app_info ? 6 : 0).val(hsbToHex(hsb));
+        $(cal).data("colpick").fields.eq(6).val(hsbToHex(hsb));
       },
       setSelector = function(hsb, cal) {
         $(cal).data("colpick").selector.css("backgroundColor", "#" + hsbToHex({
@@ -26807,15 +26810,9 @@
         $(cal).data("colpick").newColor.css("backgroundColor", "#" + hsbToHex(hsb));
       },
       change = function(ev) {
-        var cal, col, fieldIndex;
-        if (TS.boot_data.feature_better_app_info) {
-          cal = $(this).parents(".colpick");
-          fieldIndex = 0;
-        } else {
-          cal = $(this).parent().parent();
-          fieldIndex = 1;
-        }
-        if (TS.boot_data.feature_better_app_info && this.parentNode.className.indexOf("_swatches") > 0) {
+        var cal = $(this).parents(".colpick"),
+          col, fieldIndex = 0;
+        if (this.parentNode.className.indexOf("_swatches") > 0) {
           col = hexToHsb($(ev.target).data("swatch-color"));
           fillHexFields(col, cal.get(0));
           fillRGBFields(col, cal.get(0));
@@ -26850,14 +26847,14 @@
         $(this).parent().removeClass("colpick_focus");
       },
       focus = function() {
-        var cal = TS.boot_data.feature_better_app_info ? $(this).parents(".colpick") : $(this).parent().parent();
+        var cal = $(this).parents(".colpick");
         cal.data("colpick").fields.parent().removeClass("colpick_focus");
         $(this).parent().addClass("colpick_focus");
       },
       downIncrement = function(ev) {
         ev.preventDefault ? ev.preventDefault() : ev.returnValue = false;
         var field = $(this).parent().find("input").focus(),
-          cal = TS.boot_data.feature_better_app_info ? $(this).parents(".colpick") : $(this).parent().parent(),
+          cal = $(this).parents(".colpick"),
           current = {
             el: $(this).parent().addClass("colpick_slider"),
             max: this.parentNode.className.indexOf("_hsb_h") > 0 ? 360 : this.parentNode.className.indexOf("_hsb") > 0 ? 100 : 255,
@@ -26892,12 +26889,12 @@
         $(document).on("mouseup touchend", current, upHue);
         $(document).on("mousemove touchmove", current, moveHue);
         var pageY = ev.type == "touchstart" ? ev.originalEvent.changedTouches[0].pageY : ev.pageY;
-        change.apply(current.cal.data("colpick").fields.eq(TS.boot_data.feature_better_app_info ? 3 : 4).val(parseInt(360 * (current.cal.data("colpick").height - (pageY - current.y)) / current.cal.data("colpick").height, 10)).get(0), [current.cal.data("colpick").livePreview]);
+        change.apply(current.cal.data("colpick").fields.eq(3).val(parseInt(360 * (current.cal.data("colpick").height - (pageY - current.y)) / current.cal.data("colpick").height, 10)).get(0), [current.cal.data("colpick").livePreview]);
         return false;
       },
       moveHue = function(ev) {
         var pageY = ev.type == "touchmove" ? ev.originalEvent.changedTouches[0].pageY : ev.pageY;
-        change.apply(ev.data.cal.data("colpick").fields.eq(TS.boot_data.feature_better_app_info ? 3 : 4).val(parseInt(360 * (ev.data.cal.data("colpick").height - Math.max(0, Math.min(ev.data.cal.data("colpick").height, pageY - ev.data.y))) / ev.data.cal.data("colpick").height, 10)).get(0), [ev.data.preview]);
+        change.apply(ev.data.cal.data("colpick").fields.eq(3).val(parseInt(360 * (ev.data.cal.data("colpick").height - Math.max(0, Math.min(ev.data.cal.data("colpick").height, pageY - ev.data.y))) / ev.data.cal.data("colpick").height, 10)).get(0), [ev.data.preview]);
         return false;
       },
       upHue = function(ev) {
@@ -26923,7 +26920,7 @@
           pageX = ev.pageX;
           pageY = ev.pageY;
         }
-        var fieldIndex = TS.boot_data.feature_better_app_info ? 4 : 5;
+        var fieldIndex = 4;
         change.apply(current.cal.data("colpick").fields.eq(fieldIndex + 1).val(parseInt(100 * (current.cal.data("colpick").height - (pageY - current.pos.top)) / current.cal.data("colpick").height, 10)).end().eq(fieldIndex).val(parseInt(100 * (pageX - current.pos.left) / current.cal.data("colpick").height, 10)).get(0), [current.preview]);
         return false;
       },
@@ -26935,7 +26932,7 @@
           pageX = ev.pageX;
           pageY = ev.pageY;
         }
-        var fieldIndex = TS.boot_data.feature_better_app_info ? 4 : 5;
+        var fieldIndex = 4;
         change.apply(ev.data.cal.data("colpick").fields.eq(fieldIndex + 1).val(parseInt(100 * (ev.data.cal.data("colpick").height - Math.max(0, Math.min(ev.data.cal.data("colpick").height, pageY - ev.data.pos.top))) / ev.data.cal.data("colpick").height, 10)).end().eq(fieldIndex).val(parseInt(100 * Math.max(0, Math.min(ev.data.cal.data("colpick").height, pageX - ev.data.pos.left)) / ev.data.cal.data("colpick").height, 10)).get(0), [ev.data.preview]);
         return false;
       },
@@ -26947,7 +26944,7 @@
         return false;
       },
       clickSubmit = function(ev) {
-        var cal = TS.boot_data.feature_better_app_info ? $(this).parents(".colpick") : $(this).parent();
+        var cal = $(this).parents(".colpick");
         var col = cal.data("colpick").color;
         cal.data("colpick").origColor = col;
         setCurrentColor(col, cal.get(0));
@@ -26972,11 +26969,7 @@
           top: top + "px"
         });
         if (cal.data("colpick").onShow.apply(this, [cal.get(0)]) != false) {
-          if (TS.boot_data.feature_better_app_info) {
-            cal.addClass("visible");
-          } else {
-            cal.show();
-          }
+          cal.addClass("visible");
         }
         $("html").mousedown({
           cal: cal
@@ -26987,11 +26980,7 @@
       },
       hide = function(ev) {
         if (ev.data.cal.data("colpick").onHide.apply(this, [ev.data.cal.get(0)]) != false) {
-          if (TS.boot_data.feature_better_app_info) {
-            ev.data.cal.removeClass("visible");
-          } else {
-            ev.data.cal.hide();
-          }
+          ev.data.cal.removeClass("visible");
         }
         $("html").off("mousedown", hide);
       },
@@ -27051,23 +27040,20 @@
         } else {
           return this;
         }
-        if (TS.boot_data.feature_better_app_info) {
-          tpl = '<div class="colpick feature_better_app_info"><div class="colpick_color"><div class="colpick_color_overlay1"><div class="colpick_color_overlay2"><div class="colpick_selector_outer"></div></div></div></div><div class="colpick_hue"><div class="colpick_hue_arrs"><div class="colpick_hue_larr"></div><div class="colpick_hue_rarr"></div></div></div><div class="colpick_controls"><div class="colpick_color_state"><div class="colpick_new_color"></div><div class="colpick_current_color"></div></div><div class="colpick_color_fields"><div class="colpick_rgb_hsb"><div class="colpick_rgb"><div class="colpick_rgb_r colpick_field"><div class="colpick_field_letter">R</div><input type="text" maxlength="3" size="3" /><div class="colpick_field_arrs"><div class="colpick_field_uarr"></div><div class="colpick_field_darr"></div></div></div><div class="colpick_rgb_g colpick_field"><div class="colpick_field_letter">G</div><input type="text" maxlength="3" size="3" /><div class="colpick_field_arrs"><div class="colpick_field_uarr"></div><div class="colpick_field_darr"></div></div></div><div class="colpick_rgb_b colpick_field"><div class="colpick_field_letter">B</div><input type="text" maxlength="3" size="3" /><div class="colpick_field_arrs"><div class="colpick_field_uarr"></div><div class="colpick_field_darr"></div></div></div></div><div class="colpick_hsb"><div class="colpick_hsb_h colpick_field"><div class="colpick_field_letter">H</div><input type="text" maxlength="3" size="3" /><div class="colpick_field_arrs"><div class="colpick_field_uarr"></div><div class="colpick_field_darr"></div></div></div><div class="colpick_hsb_s colpick_field"><div class="colpick_field_letter">S</div><input type="text" maxlength="3" size="3" /><div class="colpick_field_arrs"><div class="colpick_field_uarr"></div><div class="colpick_field_darr"></div></div></div><div class="colpick_hsb_b colpick_field"><div class="colpick_field_letter">B</div><input type="text" maxlength="3" size="3" /><div class="colpick_field_arrs"><div class="colpick_field_uarr"></div><div class="colpick_field_darr"></div></div></div></div></div><div class="colpick_hex_submit"><div class="colpick_hex_field"><div class="colpick_field_letter">#</div><input type="text" maxlength="6" size="6" /></div><div class="colpick_submit"></div></div></div></div>';
-          if (opt.swatches && Array.isArray(opt.swatches)) {
-            var swatchesTpl = "",
-              swatchColor;
-            for (i = 0; i < opt.swatches.length; i++) {
-              swatchColor = opt.swatches[i];
-              if (/(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(swatchColor)) {
-                swatchesTpl += '<div class="colpick_swatch" style="background-color: ' + swatchColor + ';" data-swatch-color="' + swatchColor + '"></div>';
-              }
-            }
-            if (swatchesTpl) {
-              swatchesTpl = '<div class="colpick_swatches">' + swatchesTpl + "</div>";
-              tpl += swatchesTpl;
+        var template = tpl;
+        if (opt.swatches && Array.isArray(opt.swatches)) {
+          var swatchesTpl = "",
+            swatchColor;
+          for (i = 0; i < opt.swatches.length; i++) {
+            swatchColor = opt.swatches[i];
+            if (/(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(swatchColor)) {
+              swatchesTpl += '<div class="colpick_swatch" style="background-color: ' + swatchColor + ';" data-swatch-color="' + swatchColor + '"></div>';
             }
           }
-          tpl += "</div>";
+          if (swatchesTpl) {
+            swatchesTpl = '<div class="colpick_swatches">' + swatchesTpl + "</div>";
+            template = tpl.slice(0, -6) + swatchesTpl + "</div>";
+          }
         }
         return this.each(function() {
           if (!$(this).data("colpickId")) {
@@ -27075,7 +27061,7 @@
             options.origColor = opt.color;
             var id = "collorpicker_" + parseInt(Math.random() * 1e3);
             $(this).data("colpickId", id);
-            var cal = $(tpl).attr("id", id);
+            var cal = $(template).attr("id", id);
             cal.addClass("colpick_" + options.layout + (options.submit ? "" : " colpick_" + options.layout + "_ns"));
             if (options.colorScheme != "light") {
               cal.addClass("colpick_" + options.colorScheme);
@@ -27083,7 +27069,7 @@
             cal.find("div.colpick_submit").html(options.submitText).click(clickSubmit);
             options.fields = cal.find("input").change(change).blur(blur).focus(focus);
             cal.find("div.colpick_field_arrs").mousedown(downIncrement).end().find("div.colpick_current_color").click(restoreOriginal);
-            if (TS.boot_data.feature_better_app_info) options.swatches = cal.find(".colpick_swatch").click(change);
+            options.swatches = cal.find(".colpick_swatch").click(change);
             options.selector = cal.find("div.colpick_color").on("mousedown touchstart", downSelector);
             options.selectorIndic = options.selector.find("div.colpick_selector_outer");
             options.el = this;
@@ -27120,7 +27106,7 @@
               var css = {
                 position: "relative"
               };
-              css.display = TS.boot_data.feature_better_app_info ? "flex" : "block";
+              css.display = "flex";
               cal.css(css);
             } else {
               cal.appendTo(document.body);
@@ -29059,12 +29045,16 @@
   };
   var _setTitle = function(model_ob) {
     var html;
-    if (model_ob.is_channel || !model_ob.is_channel && model_ob.is_group && !model_ob.is_mpim) {
+    if (model_ob.is_channel && !model_ob.is_mpim || !model_ob.is_channel && model_ob.is_group && !model_ob.is_mpim) {
       $("#channel_page_title").text(TS.i18n.t("Channel Details", "client")());
       var formatted_channel_name = '<span class="channel_name">';
       formatted_channel_name += TS.templates.builders.makeChannelPrefix(model_ob);
       formatted_channel_name += TS.utility.htmlEntities(model_ob.name);
-      if (model_ob.is_shared) formatted_channel_name += ' <ts-icon class="ts_icon_org_shared_channel"></ts-icon>';
+      if (TS.shared.isModelObOrgShared(model_ob)) {
+        formatted_channel_name += ' <ts-icon class="ts_icon_org_shared_channel"></ts-icon>';
+      } else if (TS.shared.isModelObShared(model_ob)) {
+        formatted_channel_name += TS.templates.shared_channels_icon();
+      }
       formatted_channel_name += "</span>";
       html = TS.i18n.t("About {formatted_channel_name}", "client")({
         formatted_channel_name: formatted_channel_name

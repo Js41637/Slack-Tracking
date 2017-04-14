@@ -3,12 +3,13 @@
 {{#each results as |result|}}
   <li class="tab_complete_ui_item" data-index="{{@index}}">
     <span class="channelname">#{{result.name}}</span>
-    {{~#if result.is_shared}}<ts-icon class="ts_icon_shared_channel very_small_left_margin"></ts-icon>{{/if}}
+    {{~#if result.is_org_shared}}<ts-icon class="ts_icon_shared_channel very_small_left_margin"></ts-icon>{{/if}}
     {{~#if result._jumper_previous_name_match~}}
       <span class="small_left_margin">
         {{~#t note="Shown when a user is typing the old name of a channel, e.g. '(formerly #cats)'" old_name=result._jumper_previous_name_match}}(formerly #{old_name}){{/t~}}
       </span>
     {{/if}}
+    {{~#if result.is_shared}}{{~#unless result.is_org_shared}}{{> shared_channels_icon}}{{/unless}}{{/if}}
   </li>
 {{/each}}
 </ul>

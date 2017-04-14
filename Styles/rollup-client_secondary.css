@@ -231,7 +231,7 @@
 }
 
 #col_flex {
-  background: #fff;
+  background: #FFF;
   display: -webkit-box;
   display: -webkit-flex;
   display: -moz-flex;
@@ -516,7 +516,7 @@ input.search_input {
 }
 
 #flex_contents .subheading:not(:empty)#mentions_options {
-  background: #fff;
+  background: #FFF;
   border-top: 0;
   border-bottom: 1px solid #E0E0E0
 }
@@ -666,6 +666,15 @@ input.search_input {
   transform: translateX(5px)
 }
 
+#details_tab_header .ts_icon_shared_channels {
+  position: relative;
+  right: 0;
+  margin-left: 7px;
+  bottom: 0;
+  font-size: 1.3rem;
+  color: #717274
+}
+
 #file_list_container .heading_text .btn_basic {
   display: inline-block;
   vertical-align: inherit
@@ -705,7 +714,7 @@ input.search_input {
 .supports_custom_scrollbar:not(.slim_scrollbar) .flex_content_scroller::-webkit-scrollbar-track {
   background-clip: padding-box!important;
   border-radius: 3px;
-  color: #fff
+  color: #FFF
 }
 
 .supports_custom_scrollbar:not(.slim_scrollbar) .flex_content_scroller::-webkit-scrollbar-track {
@@ -720,7 +729,7 @@ input.search_input {
 }
 
 .supports_custom_scrollbar:not(.slim_scrollbar) .flex_content_scroller::-webkit-scrollbar-corner {
-  background: #fff
+  background: #FFF
 }
 
 .supports_custom_scrollbar.slim_scrollbar .flex_content_scroller {
@@ -796,7 +805,7 @@ input.search_input {
 #flex_contents .toolbar_container {
   font-family: Slack-Lato, appleLogo, sans-serif;
   padding: .5rem .75rem 0 0;
-  background: #fff
+  background: #FFF
 }
 
 #flex_contents #file_list_container .toolbar {
@@ -980,7 +989,7 @@ input.search_input {
 }
 
 #flex_contents .flexpane_load_more btn {
-  background-color: #fff!important
+  background-color: #FFF!important
 }
 
 #flex_contents .flexpane_load_error_msg {
@@ -1135,7 +1144,7 @@ input.search_input {
 }
 
 .searchable_member_list_filter_menu ul li:hover a span {
-  color: #fff
+  color: #FFF
 }
 
 #flannel_team_dir_loading {
@@ -1298,8 +1307,8 @@ input.search_input {
   line-height: 15px;
   border-radius: 50%;
   background: #3aa3e3;
-  box-shadow: 0 0 0 3px #fff;
-  color: #fff;
+  box-shadow: 0 0 0 3px #FFF;
+  color: #FFF;
   opacity: 0;
   -webkit-transform: translate3d(0, -6px, 0);
   -moz-transform: translate3d(0, -6px, 0);
@@ -1471,7 +1480,7 @@ input.search_input {
   left: 0;
   top: 0;
   width: 100%;
-  background: #fff;
+  background: #FFF;
   opacity: 0;
   -webkit-transform: translate3d(0, -50%, 0);
   -moz-transform: translate3d(0, -50%, 0);
@@ -1746,7 +1755,7 @@ html:not(.supports_flexbox) #downloads_tab .download_estimate {
 }
 
 #details_tab .channel_page_section {
-  background: #fff;
+  background: #FFF;
   position: relative;
   border-top: 1px solid #E8E8E8;
   padding-left: 8px;
@@ -2129,7 +2138,7 @@ html:not(.supports_flexbox) #downloads_tab .download_estimate {
   left: 0;
   width: 100%;
   height: 18px;
-  background: #fff;
+  background: #FFF;
   background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #fff), color-stop(1, rgba(255, 255, 255, 0)));
   background: -moz-linear-gradient(center bottom, #fff 0, rgba(255, 255, 255, 0) 100%);
   background: -ms-linear-gradient(bottom, #fff, rgba(255, 255, 255, 0));
@@ -24885,7 +24894,7 @@ li:hover .current_status_badge {
   display: -moz-flex;
   display: -ms-flexbox;
   display: flex;
-  background: #fff;
+  background: #FFF;
   padding: .7rem 0 0;
   height: 100%;
   font-family: Slack-Lato, appleLogo, sans-serif
@@ -25004,6 +25013,14 @@ li:hover .current_status_badge {
   line-height: 0;
   margin-left: -5px;
   margin-right: -2px
+}
+
+.channel_title .ts_icon_shared_channels {
+  position: relative;
+  right: 0;
+  bottom: -2px;
+  margin-left: 6px;
+  color: #717274
 }
 
 .channel_title .ts_icon_shared_channel {
@@ -25665,11 +25682,11 @@ li:hover .current_status_badge {
   width: 20px;
   height: 18px;
   z-index: 2;
-  background: #fff
+  background: #FFF
 }
 
 #flex_menu_toggle .flex_menu_download_circle canvas {
-  background: #fff;
+  background: #FFF;
   border-radius: .5rem
 }
 
@@ -25727,7 +25744,7 @@ li:hover .current_status_badge {
   border-radius: .35rem;
   text-align: center;
   cursor: pointer;
-  background: #fff
+  background: #FFF
 }
 
 .whats_new_showing #rxn_toast_div {

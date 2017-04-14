@@ -6215,17 +6215,21 @@ body.winssb #emoji_menu {
   transition: opacity 50ms ease-in
 }
 
-#emoji_menu div#emoji_tip {
+#emoji_menu .emoji_tip {
   clear: both;
   font-weight: 400;
   font-size: .8rem;
-  padding: 10px 0;
+  margin: 10px 0;
   text-align: center;
   color: #696969
 }
 
-#emoji_menu div#emoji_tip .ts_icon_plus {
+#emoji_menu .emoji_tip .ts_icon_plus {
   vertical-align: middle
+}
+
+#emoji_menu .can_add_emoji_tip {
+  margin-top: 0
 }
 
 #emoji_menu div#emoji_zero_results {
@@ -6292,7 +6296,7 @@ body.winssb #emoji_menu {
   margin-bottom: 1px!important
 }
 
-#emoji_menu div#emoji_tip i,
+#emoji_menu .emoji_tip i,
 #emoji_menu div#emoji_zero_results i {
   color: #bababa
 }
@@ -7236,6 +7240,15 @@ body.ReactModal__Body--open {
   font-size: 1rem;
   line-height: 14px;
   vertical-align: middle
+}
+
+.tab_complete_ui li.tab_complete_ui_group .ts_icon_shared_channels,
+.tab_complete_ui li.tab_complete_ui_item .ts_icon_shared_channels {
+  position: relative;
+  right: 0;
+  bottom: -1px;
+  float: right;
+  height: 24px
 }
 
 .tab_complete_ui .not_in_channel {

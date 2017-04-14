@@ -28,33 +28,31 @@
           <td class="submission_modal_cell">{{dangerouslyRenderHTML long_desc_formatted}}</td>
         </tr>
       {{/if}}
-      {{#feature flag="feature_better_app_info"}}
-      {{#if app_card_color}}
-        <tr>
-          <td class="submission_modal_row_title">{{#t}}Background Color{{/t}}</td>
-          <td class="submission_modal_cell">
-            <div class="app_card_color_bg constrain_24 inline_block rounded align_middle" style="background-color: {{app_card_color}};"></div>
-            <div class="very_small_left_margin inline_block align_middle">{{app_card_color}}</div>
-          </td>
-        </tr>
-      {{/if}}
-      {{#if youtube_url}}
-        <tr>
-          <td class="submission_modal_row_title">{{#t}}YouTube URL{{/t}}</td>
-          <td class="submission_modal_cell">{{youtube_url}}</td>
-        </tr>
-      {{/if}}
-      {{#if screenshots}}
-        <tr>
-          <td class="submission_modal_row_title">{{#t}}App Images{{/t}}</td>
-          <td class="submission_modal_cell submission_modal_cell_screenshots">
-            {{#each screenshots}}
-              <img src="{{this.image_440}}" class="submission_screenshot" />
-            {{/each}}
-          </td>
-        </tr>
-      {{/if}}
-      {{/feature}}
+            {{#if app_card_color}}
+                <tr>
+                    <td class="submission_modal_row_title">{{#t}}Background Color{{/t}}</td>
+                    <td class="submission_modal_cell">
+                        <div class="app_card_color_bg constrain_24 inline_block rounded align_middle" style="background-color: {{app_card_color}};"></div>
+                        <div class="very_small_left_margin inline_block align_middle">{{app_card_color}}</div>
+                    </td>
+                </tr>
+            {{/if}}
+            {{#if youtube_url}}
+                <tr>
+                    <td class="submission_modal_row_title">{{#t}}YouTube URL{{/t}}</td>
+                    <td class="submission_modal_cell">{{youtube_url}}</td>
+                </tr>
+            {{/if}}
+            {{#if screenshots}}
+                <tr>
+                    <td class="submission_modal_row_title">{{#t}}App Images{{/t}}</td>
+                    <td class="submission_modal_cell submission_modal_cell_screenshots">
+                        {{#each screenshots}}
+                            <img src="{{this.image_440}}" class="submission_screenshot" />
+                        {{/each}}
+                    </td>
+                </tr>
+            {{/if}}
       {{#if url}}
         <tr>
           <td class="submission_modal_row_title">{{#t}}Landing Page{{/t}}</td>
