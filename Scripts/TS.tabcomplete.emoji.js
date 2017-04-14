@@ -33,7 +33,7 @@
     },
     getInsertData: function(result) {
       if (!result || !result.emoji) return;
-      var text = result.emoji.name_with_colons;
+      var text = ":" + result.emoji.display_name + ":";
       if (result.emoji.is_skin) text += TS.emoji.getChosenSkinToneModifier() || "";
       if (result.action === "add_rxn") {
         text = "+" + text;
@@ -272,6 +272,7 @@
     if (emoji.is_skin) {
       args.show_skin_tone_variant = emoji.is_skin;
       args.emoji_name_with_colons_and_skin = emoji.name_with_colons + TS.emoji.getChosenSkinToneModifier();
+      args.emoji_display_name_with_colons_and_skin = ":" + args.display_name + ":" + TS.emoji.getChosenSkinToneModifier();
     }
     return args;
   };

@@ -226,19 +226,21 @@
         {{#if paid_team}}
             {{#if member.is_restricted}}
                 {{#if member.is_ultra_restricted}}
-                    {{#if member.deleted}}
-                        <p class="small_bottom_margin small_top_margin show_pill_action">
-                            {{#each member.channels}}
-                                <a class="channel pill inline_block api_change_ura_channel" title="{{#t member_name=../member.name}}Change the channel that {member_name} can access{{/t}}">#{{this}} <i class="ts_icon ts_icon_pencil ts_icon_inherit pill_action edit"></i></a>
-                            {{/each}}
-                            {{#each member.groups}}
-                                <a class="group pill inline_block api_change_ura_channel" title="{{#t member_name=../member.name}}Change the channel that {member_name} can access{{/t}}">{{this}} <i class="ts_icon ts_icon_pencil ts_icon_inherit pill_action edit"></i></a>
-                            {{/each}}
-                            {{#if member.more_groups}}
-                                <a class="group pill inline_block api_change_ura_channel" title="{{#t member_name=../member.name}}Change the channel that {member_name} can access{{/t}}">{{#t}}Private Channel{{/t}} <i class="ts_icon ts_icon_pencil ts_icon_inherit pill_action edit"></i></a>
-                            {{/if}}
-                        </p>
-                    {{/if}}
+                  {{#if_equal is_enterprise compare=false}}
+                        {{#if member.deleted}}
+                            <p class="small_bottom_margin small_top_margin show_pill_action">
+                                {{#each member.channels}}
+                                    <a class="channel pill inline_block api_change_ura_channel" title="{{#t member_name=../member.name}}Change the channel that {member_name} can access{{/t}}">#{{this}} <i class="ts_icon ts_icon_pencil ts_icon_inherit pill_action edit"></i></a>
+                                {{/each}}
+                                {{#each member.groups}}
+                                    <a class="group pill inline_block api_change_ura_channel" title="{{#t member_name=../member.name}}Change the channel that {member_name} can access{{/t}}">{{this}} <i class="ts_icon ts_icon_pencil ts_icon_inherit pill_action edit"></i></a>
+                                {{/each}}
+                                {{#if member.more_groups}}
+                                    <a class="group pill inline_block api_change_ura_channel" title="{{#t member_name=../member.name}}Change the channel that {member_name} can access{{/t}}">{{#t}}Private Channel{{/t}} <i class="ts_icon ts_icon_pencil ts_icon_inherit pill_action edit"></i></a>
+                                {{/if}}
+                            </p>
+                        {{/if}}
+                      {{/if_equal}}
                 {{else}}
                     <p class="small_bottom_margin small_top_margin pill_container">
                         {{#if_gt total_memberships compare=1}}<span class="show_pill_action">{{/if_gt}}

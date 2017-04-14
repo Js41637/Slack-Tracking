@@ -32058,7 +32058,7 @@ TS.registerModule("constants", {
     if (TS.model.prefs.convert_emoticons && TS.model.prefs.emoji_mode != "as_text") {
       txt = TS.format.doEmoticonConversion(txt);
     }
-    if (TS.boot_data.feature_i18n_emoji) {
+    if (TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE) {
       txt = TSFEmoji.translateEmojiStringToCanonical(txt, TS.i18n.locale());
     }
     if (TS.boot_data.feature_ignore_code_mentions) {
@@ -50598,7 +50598,7 @@ $.fn.togglify = function(settings) {
           emoji._jumper_score = 0;
           return true;
         }
-        var score = fuzzy_emoji.score(emoji.name);
+        var score = fuzzy_emoji.score(emoji.display_name);
         emoji._jumper_score = score;
         return score <= fuzzy_limit;
       },
@@ -50795,7 +50795,7 @@ $.fn.togglify = function(settings) {
     }
     if (!searcher.only_channels && !searcher.only_members) {
       emoji_matches = data.emoji.filter(function(e) {
-        if (options.prefer_exact_match && e.name === searcher.query) {
+        if (options.prefer_exact_match && e.display_name === searcher.query) {
           e._jumper_exact_match = true;
           exact_matches.push(e);
           return false;

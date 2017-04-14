@@ -856,7 +856,7 @@
         $(this).addClass("disabled").prop("disabled", true);
       });
     },
-    startEnableRestrictedWorkflow: function(member) {
+    startEnableRestrictedWorkflow: function(member, type) {
       $("body").scrollTop(0);
       var $restrict_account = $("#restrict_account");
       $("#admin_list").addClass("hidden");
@@ -879,6 +879,13 @@
       function startURAWorkflow() {
         $("#step1").addClass("hidden");
         $("#step2_guest").removeClass("hidden");
+      }
+      if (type) {
+        if (type == "ra") {
+          startRAWorkflow();
+        } else if (type == "ura") {
+          startURAWorkflow();
+        }
       }
       $("#restricted_user").bind("click", startRAWorkflow);
       $("#guest_user").bind("click", startURAWorkflow);
@@ -1129,10 +1136,13 @@
         var channels;
         var groups;
         var handler;
+        var page_needs_enterprise = TS.boot_data.page_needs_enterprise;
         if (row.channels) channels = row.channels instanceof Array ? row.channels : Object.getOwnPropertyNames(row.channels);
         if (row.groups) groups = row.groups instanceof Array ? row.groups : Object.getOwnPropertyNames(row.groups);
         if (row.channels || row.groups) channels_or_groups = channels.concat(groups);
-        if (channels_or_groups.length == 1 && row.is_ultra_restricted) {
+        if (page_needs_enterprise && row.is_ultra_restricted) {
+          TS.web.admin.startEnableRestrictedWorkflow(row, "ura");
+        } else if (channels_or_groups.length == 1 && row.is_ultra_restricted) {
           handler = row.deleted ? TS.web.admin.onEnableUltraRestrictedMember : TS.web.admin.onMemberSetUltraRestricted;
           TS.api.call("users.admin.setUltraRestricted", {
             user: row.id,
