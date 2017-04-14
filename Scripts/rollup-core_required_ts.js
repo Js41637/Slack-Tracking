@@ -3090,10 +3090,11 @@ var _cyrillicToLatin = function(char) {
       });
     },
     incrementUnknownIdHandled: function(id) {
-      var ob = _unknown_ids_handled[id] = _unknown_ids_handled[id] || {
+      _unknown_ids_handled[id] = _unknown_ids_handled[id] || {
         tries: 0,
         state: 0
       };
+      var ob = _unknown_ids_handled[id];
       ob.tries += 1;
       ob.state = 0;
       if (ob.tries > 2) {
@@ -4240,7 +4241,8 @@ var _cyrillicToLatin = function(char) {
     },
     findByKeyword: function(k) {
       return _emoji.findByKeyword(k);
-    }
+    },
+    MISSING_EMOJI_HTML: '<span class="emoji-outer emoji-sizer emoji-missing" style="background-image: url(' + cdn_url + "/ecf3e/img/emoji_missing.png" + '); background-size: cover !important;"></span>'
   });
   var _frequents;
   var _makeFrequents = function() {

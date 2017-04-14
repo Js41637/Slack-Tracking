@@ -9641,7 +9641,8 @@
         prevent_copy_paste: false
       }));
       $(".current_status_cover .current_status_emoji_cover").html(TS.format.formatCurrentStatus(status.emoji, undefined, {
-        stop_animations: true
+        stop_animations: true,
+        transform_missing_emoji: true
       }));
     }
     $(".current_status_container").toggleClass("with_status_set", !!has_status);
@@ -19382,12 +19383,14 @@
       TS.ui.purpose_dialog.div.modal("hide");
     },
     end: function() {
-      TS.ui.purpose_dialog.showing = TS.model.dialog_is_showing = false;
+      TS.model.dialog_is_showing = false;
+      TS.ui.purpose_dialog.showing = false;
       $(window.document).unbind("keydown", TS.ui.purpose_dialog.onKeydown);
     },
     build: function() {
       $("body").append('<div id="purpose_dialog" class="modal hide fade"></div>');
-      var div = TS.ui.purpose_dialog.div = $("#purpose_dialog");
+      TS.ui.purpose_dialog.div = $("#purpose_dialog");
+      var div = TS.ui.purpose_dialog.div;
       div.on("hide", function(e) {
         if (e.target != this) return;
         TS.ui.purpose_dialog.end();
@@ -19395,7 +19398,8 @@
       });
       div.on("show", function(e) {
         if (e.target != this) return;
-        TS.ui.purpose_dialog.showing = TS.model.dialog_is_showing = true;
+        TS.model.dialog_is_showing = true;
+        TS.ui.purpose_dialog.showing = true;
       });
       div.on("shown", function(e) {
         if (e.target != this) return;
@@ -20625,7 +20629,8 @@
   };
   var _end = function() {
     _c_id = null;
-    TS.ui.channel_prefs_dialog.showing = TS.model.dialog_is_showing = false;
+    TS.model.dialog_is_showing = false;
+    TS.ui.channel_prefs_dialog.showing = false;
     $(window.document).unbind("keydown", _onKeydown);
   };
   var _build = function() {
@@ -20637,7 +20642,8 @@
     });
     _div.on("show", function(e) {
       if (e.target != this) return;
-      TS.ui.channel_prefs_dialog.showing = TS.model.dialog_is_showing = true;
+      TS.model.dialog_is_showing = true;
+      TS.ui.channel_prefs_dialog.showing = true;
     });
     _div.on("shown", function(e) {
       if (e.target != this) return;
@@ -21622,14 +21628,16 @@
     },
     build: function() {
       $("body").append('<div id="upload_dialog" class="modal hide fade" data-keyboard="false" data-backdrop="static"></div>');
-      var $div = TS.ui.upload_dialog.div = $("#upload_dialog");
+      TS.ui.upload_dialog.div = $("#upload_dialog");
+      var $div = TS.ui.upload_dialog.div;
       $div.on("hidden", function(e) {
         if (e.target != this) return;
         TS.ui.upload_dialog.end();
       });
       $div.on("show", function(e) {
         if (e.target != this) return;
-        TS.ui.upload_dialog.showing = TS.model.dialog_is_showing = true;
+        TS.model.dialog_is_showing = true;
+        TS.ui.upload_dialog.showing = true;
       });
       $div.on("shown", function(e) {
         if (e.target != this) return;
@@ -21891,7 +21899,8 @@
     end: function() {
       $(window.document).off("keydown", TS.ui.snippet_dialog.onKeyDown);
       $(window.document).off("keyup", _showSaveSnippetTip);
-      TS.ui.snippet_dialog.showing = TS.model.dialog_is_showing = false;
+      TS.model.dialog_is_showing = false;
+      TS.ui.snippet_dialog.showing = false;
       TS.ui.comments.unbindInput($("#file_comment_textarea"));
       if (TS.ui.snippet_dialog.editor && TS.ui.snippet_dialog.editor.cleanup) {
         TS.ui.snippet_dialog.editor.cleanup();
@@ -21921,14 +21930,16 @@
     },
     build: function() {
       $("body").append('<div id="snippet_dialog" class="modal hide fade" data-backdrop="static" data-keyboard="false"></div>');
-      var div = TS.ui.snippet_dialog.div = $("#snippet_dialog");
+      TS.ui.snippet_dialog.div = $("#snippet_dialog");
+      var div = TS.ui.snippet_dialog.div;
       div.on("hidden", function(e) {
         if (e.target != this) return;
         TS.ui.snippet_dialog.end();
       });
       div.on("show", function(e) {
         if (e.target != this) return;
-        TS.ui.snippet_dialog.showing = TS.model.dialog_is_showing = true;
+        TS.model.dialog_is_showing = true;
+        TS.ui.snippet_dialog.showing = true;
       });
     }
   });
@@ -22472,7 +22483,8 @@
       });
     },
     show: function(which) {
-      _last_which = which = which || _last_which;
+      which = which || _last_which;
+      _last_which = which;
       var $banner = TS.client.ui.$banner;
       $banner.removeClass("hidden");
       $("body").addClass("banner_showing");
@@ -25186,7 +25198,8 @@
       TS.ui.shortcuts_dialog.$div.modal("hide");
     },
     end: function() {
-      TS.ui.shortcuts_dialog.showing = TS.model.dialog_is_showing = false;
+      TS.model.dialog_is_showing = false;
+      TS.ui.shortcuts_dialog.showing = false;
       TS.ui.shortcuts_dialog.$div.empty();
       $(window.document).unbind("keydown", TS.ui.shortcuts_dialog.onKeydown);
       if (!TS.ui.shortcuts_dialog.is_space) TS.ui.a11y.restorePreviousFocusAndCleanUpElement(TS.ui.shortcuts_dialog.$div);
@@ -25195,10 +25208,12 @@
       var $div;
       if (TS.ui.shortcuts_dialog.is_space) {
         $("body").append('<div id="shortcuts_spaces_dialog" class="modal hide fade"></div>');
-        $div = TS.ui.shortcuts_dialog.$div = $("#shortcuts_spaces_dialog");
+        TS.ui.shortcuts_dialog.$div = $("#shortcuts_spaces_dialog");
+        $div = TS.ui.shortcuts_dialog.$div;
       } else {
         $("body").append('<div id="shortcuts_dialog" class="modal hide fade"></div>');
-        $div = TS.ui.shortcuts_dialog.$div = $("#shortcuts_dialog");
+        TS.ui.shortcuts_dialog.$div = $("#shortcuts_dialog");
+        $div = TS.ui.shortcuts_dialog.$div;
       }
       $div.on("hidden", function(e) {
         if (e.target != this) return;
@@ -25206,7 +25221,8 @@
       });
       $div.on("show", function(e) {
         if (e.target != this) return;
-        TS.ui.shortcuts_dialog.showing = TS.model.dialog_is_showing = true;
+        TS.model.dialog_is_showing = true;
+        TS.ui.shortcuts_dialog.showing = true;
       });
       $div.on("shown", function(e) {
         if (e.target != this) return;
@@ -25259,20 +25275,23 @@
     },
     end: function() {
       TS.ui.channel_options_dialog.c_id = null;
-      TS.ui.channel_options_dialog.showing = TS.model.dialog_is_showing = false;
+      TS.model.dialog_is_showing = false;
+      TS.ui.channel_options_dialog.showing = false;
       TS.ui.channel_options_dialog.params = null;
       $(window.document).unbind("keydown", TS.ui.channel_options_dialog.onKeydown);
     },
     build: function() {
       $("body").append('<div id="channel_options_dialog" class="modal hide fade"></div>');
-      var $div = TS.ui.channel_options_dialog.div = $("#channel_options_dialog");
+      TS.ui.channel_options_dialog.div = $("#channel_options_dialog");
+      var $div = TS.ui.channel_options_dialog.div;
       $div.on("hide", function(e) {
         if (e.target != this) return;
         TS.ui.channel_options_dialog.end();
       });
       $div.on("show", function(e) {
         if (e.target != this) return;
-        TS.ui.channel_options_dialog.showing = TS.model.dialog_is_showing = true;
+        TS.model.dialog_is_showing = true;
+        TS.ui.channel_options_dialog.showing = true;
       });
       $div.on("shown", function(e) {
         if (e.target != this) return;
@@ -27409,20 +27428,23 @@
       TS.ui.a11y.restorePreviousFocus();
     },
     end: function() {
-      TS.ui.at_channel_warning_dialog.showing = TS.model.dialog_is_showing = false;
+      TS.model.dialog_is_showing = false;
+      TS.ui.at_channel_warning_dialog.showing = false;
       $(window.document).unbind("keydown", TS.ui.at_channel_warning_dialog.onKeydown);
       $(window).unbind("resize", TS.ui.at_channel_warning_dialog.position);
     },
     build: function() {
       $("body").append('<div id="at_channel_warning_dialog" class="modal hide fade"></div>');
-      var $div = TS.ui.at_channel_warning_dialog.$div = $("#at_channel_warning_dialog");
+      TS.ui.at_channel_warning_dialog.$div = $("#at_channel_warning_dialog");
+      var $div = TS.ui.at_channel_warning_dialog.$div;
       $div.on("hide", function(e) {
         if (e.target != this) return;
         TS.ui.at_channel_warning_dialog.end();
       });
       $div.on("show", function(e) {
         if (e.target != this) return;
-        TS.ui.at_channel_warning_dialog.showing = TS.model.dialog_is_showing = true;
+        TS.model.dialog_is_showing = true;
+        TS.ui.at_channel_warning_dialog.showing = true;
       });
       $div.on("shown", function(e) {
         if (e.target != this) return;
@@ -35052,7 +35074,8 @@ function timezones_guess() {
       _$jumper[0].classList.add("active");
       _$jumper_input.removeAttr("disabled");
       _$jumper_input.focus();
-      TS.ui.jumper.is_showing = TS.model.dialog_is_showing = true;
+      TS.model.dialog_is_showing = true;
+      TS.ui.jumper.is_showing = true;
       TS.metrics.measureAndClear("jumper_open", "start_jumper_open");
       TS.searcher.search("", {
         members: _getMemberOptions(),
@@ -35075,7 +35098,8 @@ function timezones_guess() {
       _$jumper_input.blur();
       if (_search_p) _search_p.cancel();
       _search_p = null;
-      TS.ui.jumper.is_showing = TS.model.dialog_is_showing = false;
+      TS.model.dialog_is_showing = false;
+      TS.ui.jumper.is_showing = false;
     },
     debugQuery: function(query) {
       TS.sorter.printTest(query, {
@@ -35877,6 +35901,10 @@ function timezones_guess() {
     switched_sig: new signals.Signal,
     switched_away_sig: new signals.Signal,
     fetched_unreads_sig: new signals.Signal,
+    marked_group_as_read_sig: new signals.Signal,
+    marked_group_as_unread_sig: new signals.Signal,
+    marked_all_as_read: new signals.Signal,
+    marked_all_as_unread: new signals.Signal,
     new_messages_in_channels: [],
     messages_loaded: false,
     onStart: function() {
@@ -36019,6 +36047,7 @@ function timezones_guess() {
           is_count: true
         });
       }
+      TS.client.unread.marked_group_as_read_sig.dispatch(group);
       return group;
     },
     markGroupAsUnread: function(group) {
@@ -36028,6 +36057,7 @@ function timezones_guess() {
       _current_model_ob_id = group.id;
       group.total_unreads = group.marked_as_read_cnt;
       group.marked_as_read_cnt = 0;
+      TS.client.unread.marked_group_as_unread_sig.dispatch(group);
       return group;
     },
     markAllAsRead: function() {
@@ -36048,12 +36078,14 @@ function timezones_guess() {
           markers: JSON.stringify(markers)
         });
         TS.client.ui.unread.displayEmptyState(marked_as_read_cnt);
+        TS.client.unread.marked_all_as_read.dispatch();
       } else {
         TS.api.call("unread.markRead", {
           markers: JSON.stringify(markers)
         }).then(function() {
           if (!TS.model.unread_view_is_showing) return;
           TS.client.unread.reload();
+          TS.client.unread.marked_all_as_read.dispatch();
         });
       }
     },
@@ -36062,6 +36094,7 @@ function timezones_guess() {
         TS.client.unread.markGroupAsUnread(group);
       });
       TS.client.ui.unread.removeEmptyState();
+      TS.client.unread.marked_all_as_unread.dispatch(_groups);
     },
     getMarkerTS: function(group) {
       var ts = TS.client.unread.getNewestMsgTs(group);
@@ -42662,7 +42695,6 @@ var _getDownloadLink = function() {
   });
   var _$shared_invites_modal;
   var _$shared_invites_modal_body;
-  var _$shared_invites_modal_warning;
   var _active_invite_code_ob;
   var _$modal_trigger;
   var _userCanCreateLink = function() {
@@ -42713,8 +42745,13 @@ var _getDownloadLink = function() {
       TS.error("no shared invite modal view");
       return Promise.reject();
     }
-    _$shared_invites_modal_warning.toggleClass("hidden", !options.warning);
-    if (options.warning) {}
+    if (options.warning) {
+      TS.menu.$menu_header.html(TS.templates.shared_invites_modal_warning({
+        warning: options.warning
+      }));
+    } else {
+      $("#shared_invite_link_modal_warning").remove();
+    }
     return setup(options).then(function() {
       if (_$modal_trigger && _$modal_trigger.hasClass("channel_list_add_link_feat_link_in_sidebar")) {
         TS.menu.positionAt(_$modal_trigger, 0, -TS.menu.$menu.height() - 16);
@@ -42725,8 +42762,6 @@ var _getDownloadLink = function() {
   var _start = function() {
     _$shared_invites_modal = $("#shared_invite_link_modal");
     _$shared_invites_modal_body = $("#shared_invite_link_modal_body");
-    _$shared_invites_modal_warning = $("#shared_invite_link_modal_warning");
-    _bindEmailInvitesLink();
     var view;
     if (_active_invite_code_ob) {
       if (_userCanCreateLink()) {
@@ -42737,7 +42772,14 @@ var _getDownloadLink = function() {
     } else {
       view = "admin_create_link";
     }
+    _bindUI();
     return _enterView(view);
+  };
+  var _bindUI = function() {
+    _bindEmailInvitesLink();
+    _bindCreateLink();
+    _bindDisableLink();
+    _bindCopyLink();
   };
   var _bindEmailInvitesLink = function() {
     _$shared_invites_modal.on("click", '[data-action="shared_invite_open_email_invites"]', function() {
@@ -42747,7 +42789,6 @@ var _getDownloadLink = function() {
   };
   var _showAdminCreateLinkView = function() {
     _$shared_invites_modal_body.html(TS.templates.shared_invites_modal_admin_create_link_body());
-    _bindCreateLink();
     return Promise.resolve();
   };
   var _bindCreateLink = function() {
@@ -42759,20 +42800,21 @@ var _getDownloadLink = function() {
       return TS.api.call("users.admin.createSharedInvite", {
         expiration: days_until_expiration,
         max_signups: 500
-      }).then(function(response) {
-        if (response.data.ok) {
-          _active_invite_code_ob = response.data;
+      }, function(ok, data) {
+        if (ok) {
+          _active_invite_code_ob = data;
           return _enterView("admin_share_link", {
             copy: true
           });
         }
-      }, function(response) {
         TS.ui.stopButtonSpinner($create_btn.get(0), false);
-        TS.error("shared invites fail: " + response);
+        return _enterView("admin_create_link", {
+          warning: "ratelimited"
+        });
       });
     });
   };
-  var _showAdminShareLinkView = function() {
+  var _showAdminShareLinkView = function(options) {
     var expiration_ts = _active_invite_code_ob.date_expire;
     var time_until_expiration_string = _makeTimeUntilExpirationString(expiration_ts);
     var html = TS.templates.shared_invites_modal_admin_share_link_body({
@@ -42782,34 +42824,56 @@ var _getDownloadLink = function() {
       expiration_time: TS.utility.date.toTime(expiration_ts, true)
     });
     _$shared_invites_modal_body.html(html);
-    _bindDisableLink();
-    _bindCopyLink();
+    if (options && options.copy) {
+      var $copy_btn = $('[data-action="copy_shared_link"]');
+      _copyInviteLink($copy_btn);
+    }
     return Promise.resolve();
   };
   var _bindDisableLink = function() {
     _$shared_invites_modal.on("click", '[data-action="disable_shared_link"]', function() {
-      _promiseToDeleteLastActiveCode().then(function() {
-        return _enterView("admin_create_link", {
-          warning: "disabled_link"
+      TS.menu.needs_to_remain_open = function() {
+        return true;
+      };
+      return new Promise(function(resolve) {
+        TS.generic_dialog.start({
+          title: TS.i18n.t("Deactivate your invite link?", "pages_admin")(),
+          body: TS.i18n.t("<p>The invite link for <b>{team_name}</b> will stop working. Please note that if you sent the link to anyone, they may not be able to join your team.</p>", "pages_admin")({
+            team_name: TS.utility.htmlEntities(TS.model.team.name)
+          }),
+          go_button_class: "btn_danger ladda-button",
+          go_button_text: TS.i18n.t("Deactivate Link", "pages_admin")(),
+          onGo: resolve,
+          onEnd: function() {
+            TS.menu.needs_to_remain_open = undefined;
+          }
         });
-      }, function() {
-        TS.error("disable share invites link failed");
+      }).then(function() {
+        return _promiseToDeleteLastActiveCode().then(function() {
+          return _enterView("admin_create_link", {
+            warning: "link_disabled"
+          });
+        }, function() {
+          TS.error("disable share invites link failed");
+        });
       });
     });
   };
   var _bindCopyLink = function() {
-    _$shared_invites_modal.on("click", '[data-action="copy_shared_link"]', function(e) {
+    _$shared_invites_modal.on("click", '[data-action="copy_shared_link"]', function() {
       var $copy_btn = $(this);
-      var $el = $(e.target).closest("button");
-      var $input = $el.parent().find("input");
-      var link = $input.attr("data-invite-url");
-      TS.clipboard.writeText(link);
-      $input.select();
-      $copy_btn.removeClass("ts_tip_hide");
-      window.setTimeout(function() {
-        $copy_btn.addClass("ts_tip_hide");
-      }, 2e3);
+      _copyInviteLink($copy_btn);
     });
+  };
+  var _copyInviteLink = function($copy_btn) {
+    var $input = $copy_btn.parent().find("input");
+    var link = $input.attr("data-invite-url");
+    TS.clipboard.writeText(link);
+    $input.select();
+    $copy_btn.removeClass("ts_tip_hide");
+    window.setTimeout(function() {
+      $copy_btn.addClass("ts_tip_hide");
+    }, 2e3);
   };
   var _makeTimeUntilExpirationString = function(ts, num_to_word) {
     var date_str;
@@ -42832,7 +42896,7 @@ var _getDownloadLink = function() {
         num_or_word_days: num_or_word_days
       });
     }
-    return TS.utility.date.prettifyDateString(ts * 1e3, date_str);
+    return TS.utility.date.prettifyDateString(ts, date_str);
   };
   var _showNonAdminShareLinkView = function() {
     var expiration_ts = _active_invite_code_ob.date_expire;
@@ -42844,7 +42908,6 @@ var _getDownloadLink = function() {
       expiration_time: TS.utility.date.toTime(expiration_ts, true)
     });
     _$shared_invites_modal_body.html(html);
-    _bindCopyLink();
     return Promise.resolve();
   };
   var _SETUP_MAP = {

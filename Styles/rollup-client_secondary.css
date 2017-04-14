@@ -28528,12 +28528,18 @@ html:not(.supports_sticky_position) #app_index_scroller_div {
 }
 
 #shared_invite_link_modal {
-  width: 276px;
+  width: 286px;
   padding: 0 .9375rem
 }
 
+#shared_invite_link_modal_warning {
+  background: #E8E8E8;
+  padding: .9375rem
+}
+
 #shared_invite_modal_link_copy_btn .ts_tip_tip {
-  left: -60px
+  left: -60px;
+  opacity: inherit
 }
 
 #shared_invite_link_modal_footer {

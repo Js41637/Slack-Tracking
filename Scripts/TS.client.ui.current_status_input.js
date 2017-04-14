@@ -133,7 +133,8 @@
       this._$emoji_input.val(this._selected_emoji);
       this._$status_emoji_picker.find(".current_status_empty_emoji").toggleClass("hidden", !!this._selected_emoji);
       this._$status_emoji_picker.find(".current_status_emoji").html(TS.format.formatCurrentStatus(this._selected_emoji, undefined, {
-        stop_animations: true
+        stop_animations: true,
+        transform_missing_emoji: true
       }));
     },
     _startTabComplete: function() {

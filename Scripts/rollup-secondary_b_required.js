@@ -71,7 +71,8 @@
         }
         return;
       }
-      var current_setting = TS.generic_dialog.current_setting = _.defaults({}, setting, _DEFAULT_SETTING);
+      TS.generic_dialog.current_setting = _.defaults({}, setting, _DEFAULT_SETTING);
+      var current_setting = TS.generic_dialog.current_setting;
       if (typeof setting.show_close_button === "undefined") {
         current_setting.show_close_button = current_setting.show_cancel_button;
       }
@@ -211,7 +212,8 @@
     },
     end: function() {
       var current_setting = TS.generic_dialog.current_setting;
-      TS.generic_dialog.is_showing = TS.model.dialog_is_showing = false;
+      TS.model.dialog_is_showing = false;
+      TS.generic_dialog.is_showing = false;
       $(window.document).unbind("keydown", TS.generic_dialog.onKeydown);
       if (current_setting.$body) current_setting.$body.detach();
       TS.generic_dialog.div.empty();
@@ -230,7 +232,8 @@
     build: function() {
       var modal_type = TS.generic_dialog.current_setting && TS.generic_dialog.current_setting.type || "default";
       $("body").append('<div id="generic_dialog" class="modal c-modal--' + modal_type + ' hide fade" data-keyboard="false" data-backdrop="static"></div>');
-      var $div = TS.generic_dialog.div = $("#generic_dialog");
+      TS.generic_dialog.div = $("#generic_dialog");
+      var $div = TS.generic_dialog.div;
       $div.on("hidden", function(e) {
         if (e.target != this) return;
         setTimeout(function() {
@@ -240,7 +243,8 @@
       });
       $div.on("show", function(e) {
         if (e.target != this) return;
-        TS.generic_dialog.is_showing = TS.model.dialog_is_showing = true;
+        TS.model.dialog_is_showing = true;
+        TS.generic_dialog.is_showing = true;
       });
       $div.on("shown", function(e) {
         if (e.target != this) return;
@@ -1343,7 +1347,8 @@
         }
         return;
       }
-      var current_setting = TS.privacy_policy_dialog.current_setting = _.defaults({}, setting, TS.privacy_policy_dialog.default_setting);
+      TS.privacy_policy_dialog.current_setting = _.defaults({}, setting, TS.privacy_policy_dialog.default_setting);
+      var current_setting = TS.privacy_policy_dialog.current_setting;
       if (!TS.privacy_policy_dialog.div) TS.privacy_policy_dialog.build();
       var div = TS.privacy_policy_dialog.div;
       var html = TS.templates.privacy_policy_dialog({
@@ -1427,7 +1432,8 @@
     },
     end: function() {
       var current_setting = TS.privacy_policy_dialog.current_setting;
-      TS.privacy_policy_dialog.is_showing = TS.model.dialog_is_showing = false;
+      TS.model.dialog_is_showing = false;
+      TS.privacy_policy_dialog.is_showing = false;
       TS.privacy_policy_dialog.div.empty();
       if (current_setting.onEnd) {
         current_setting.onEnd();
@@ -1439,7 +1445,8 @@
     },
     build: function() {
       $("body").append('<div id="privacy_policy_dialog" class="modal" data-keyboard="false"></div>');
-      var div = TS.privacy_policy_dialog.div = $("#privacy_policy_dialog");
+      TS.privacy_policy_dialog.div = $("#privacy_policy_dialog");
+      var div = TS.privacy_policy_dialog.div;
       div.on("hidden", function(e) {
         if (e.target != this) return;
         setTimeout(function() {
@@ -1448,7 +1455,8 @@
       });
       div.on("show", function(e) {
         if (e.target != this) return;
-        TS.privacy_policy_dialog.is_showing = TS.model.dialog_is_showing = true;
+        TS.model.dialog_is_showing = true;
+        TS.privacy_policy_dialog.is_showing = true;
       });
     }
   });
@@ -1760,8 +1768,10 @@
           img.width = old_height;
         }
       }
-      img.width = img.display_w = parseInt(img.width, 10);
-      img.height = img.display_h = parseInt(img.height, 10);
+      img.display_w = parseInt(img.width, 10);
+      img.width = img.display_w;
+      img.display_h = parseInt(img.height, 10);
+      img.height = img.display_h;
       if (img.display_w > max_w) {
         img.display_w = max_w;
         img.display_h = parseInt(img.height * (img.display_w / img.width), 10);

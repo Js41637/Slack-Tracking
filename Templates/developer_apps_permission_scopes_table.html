@@ -12,7 +12,9 @@
         <tr class="permission_scopes_table_row">
           <td class="small_left_padding top_padding bottom_padding">
             <p class="bold no_margin">{{this.description}}</p>
-            <span class="subtle_silver">{{this.name}}</span>
+            <span class="subtle_silver">
+              {{this.name}}
+            </span>
           </td>
           <td class="top_padding bottom_padding no_right_padding display_flex align_items_center{{#if ../../show_reasons}}{{else}} justify_content_end{{/if}}">
             {{#if ../../show_reasons}}<textarea rows="1" data-scope-reason="{{this.name}}" class="no_bottom_margin small_padding permission_scopes_table_reason" placeholder="{{#t note='Placeholder text where user input reason for using scope'}}Reason for using scope...{{/t}}">{{this.reason}}</textarea>{{/if}}

@@ -1,0 +1,19 @@
+{{i18n_ns 'invites'}}
+
+{{#if_equal warning compare="link_disabled"}}
+  <div id="shared_invite_link_modal_warning">
+    <ts-icon class="ts_icon ts_icon_info_circle inline_block align_top candy_red"></ts-icon>
+    <div class="inline_block">
+      <div class="candy_red bold very_small_bottom_margin">{{#t}}Your invite link has been disabled{{/t}}</div>
+      <div class="small subtle_silver">{{#t}}If you'd like, you can create a new one.{{/t}}</div>
+    </div>
+   </div>
+{{else if_equal warning compare="ratelimited"}}
+  <div id="shared_invite_link_modal_warning">
+    <ts-icon class="ts_icon ts_icon_info_circle inline_block align_top candy_red"></ts-icon>
+    <div class="inline_block">
+      <div class="candy_red bold tiny_bottom_margin">{{#t}}You're creating links too fast!{{/t}}</div>
+      <div class="small subtle_silver">{{#t}}Try again in a few minutes, please.{{/t}}</div>
+    </div>
+  </div>
+{{/if_equal}}

@@ -7690,11 +7690,11 @@ html.no_touch .plastic_row:hover .chevron {
 
 .tab_set {
   position: relative;
-  max-height: 3rem
+  max-height: 3rem;
+  display: flex
 }
 
 .tab_set a {
-  display: inline-block;
   padding: 12px 32px 11px;
   font-weight: 700;
   margin-bottom: -1px;
@@ -7733,8 +7733,12 @@ html.no_touch .plastic_row:hover .chevron {
 }
 
 .tab_set a.secondary {
-  float: right;
+  margin-left: auto;
   color: #9e9ea6
+}
+
+.tab_set a.secondary~a.secondary {
+  margin-left: 0
 }
 
 .tab_set .tab_caret {
@@ -7978,7 +7982,8 @@ screen and (max-width:640px) {
   .tab_set {
     height: 3rem;
     z-index: 10;
-    margin-bottom: -1px
+    margin-bottom: -1px;
+    display: block
   }
   .tab_set a {
     display: block;
