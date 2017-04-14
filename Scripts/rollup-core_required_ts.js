@@ -3488,6 +3488,10 @@ var _cyrillicToLatin = function(char) {
     if (TS.log) {
       if (_is_debug_mode) TS.console.log(_LOG_PRI, payload);
       TS.log(_LOG_PRI, "Event called:", event, args);
+    } else {
+      if (_is_debug_mode) try {
+        console.log(payload);
+      } catch (e) {}
     }
   };
   var _sendDataAndEmptyQueue = function() {

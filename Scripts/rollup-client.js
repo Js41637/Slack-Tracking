@@ -2119,7 +2119,7 @@
           channel_or_group: "#<strong>" + active_model_ob.name + "</strong>"
         }));
         TS.utility.contenteditable.placeholder(TS.client.ui.$msg_input, "");
-      } else if (active_model_ob && (active_model_ob.is_channel || active_model_ob.is_group) && TS.boot_data.page_needs_enterprise && active_model_ob.is_shared && !TS.permissions.members.canPostInChannel(active_model_ob)) {
+      } else if (active_model_ob && (active_model_ob.is_channel || active_model_ob.is_group) && TS.shared.isModelObOrgShared(active_model_ob) && !TS.permissions.members.canPostInChannel(active_model_ob)) {
         TS.utility.contenteditable.clear(TS.client.ui.$msg_input, true);
         if (!TS.utility.contenteditable.supportsTexty()) {
           TS.client.ui.$msg_input.trigger("autosize").trigger("autosize-resize");
@@ -5795,6 +5795,7 @@
       if (!skip_rebuilding_channel_header) {
         TS.client.msg_pane.displayTitle();
         TS.client.msg_pane.updateEndMarker();
+        TS.view.members.updateUserCurrentStatus();
       }
       if (make_sure_active_channel_is_in_view) {
         TS.client.channel_pane.makeSureActiveChannelIsInView();
@@ -9009,7 +9010,7 @@
           });
           return false;
         }
-        if (model_ob && TS.boot_data.page_needs_enterprise && !TS.permissions.members.canPostInChannel(model_ob) && model_ob.is_shared) {
+        if (model_ob && TS.shared.isModelObOrgShared(model_ob) && !TS.permissions.members.canPostInChannel(model_ob)) {
           TS.generic_dialog.start({
             title: TS.i18n.t('Cannot Post To #{channel_name}<ts-icon class="ts_icon_org_shared_channel"></ts-icon>', "files")({
               channel_name: model_ob.name

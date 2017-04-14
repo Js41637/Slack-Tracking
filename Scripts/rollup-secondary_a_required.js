@@ -44229,6 +44229,12 @@ var _on_esc;
       return TS.api.call("pins.list", {
         channel: model_ob.id
       }).then(function(resp) {
+        if (TS.useRedux()) {
+          var new_model_ob = TS.redux.channels.getEntityById(model_ob.id);
+          if (new_model_ob) {
+            model_ob = new_model_ob;
+          }
+        }
         var pinned_items = resp.data.items;
         TS.pins.upsertPinnedItems(pinned_items);
         model_ob.pinned_items = pinned_items;
@@ -61448,7 +61454,8 @@ $.fn.togglify = function(settings) {
       }
     }
     return function(t, n, r) {
-      return n && e(t.prototype, n), r && e(t, r), t;
+      return n && e(t.prototype, n),
+        r && e(t, r), t;
     };
   }();
 }, function(e, t, n) {
@@ -68257,13 +68264,13 @@ $.fn.togglify = function(settings) {
     i = n(427),
     a = n(426),
     u = n(188);
-  n(190), n.d(t, "c", function() {
+  n(190), n.d(t, "d", function() {
     return r.b;
   }), n.d(t, "e", function() {
     return o.a;
   }), n.d(t, "a", function() {
     return i.a;
-  }), n.d(t, "d", function() {
+  }), n.d(t, "c", function() {
     return a.a;
   }), n.d(t, "b", function() {
     return u.a;
@@ -71656,11 +71663,10 @@ $.fn.togglify = function(settings) {
       function t(e, n) {
         c()(this, t);
         var r = h()(this, (t.__proto__ || s()(t)).call(this, e, n));
-        return r._invalidateOnUpdateStartIndex = null, r._invalidateOnUpdateStopIndex = null,
-          r._positionCache = new w.a, r._startIndex = null, r._startIndexMemoized = null, r._stopIndex = null, r._stopIndexMemoized = null, r.state = {
-            isScrolling: !1,
-            scrollTop: 0
-          }, r._debounceResetIsScrollingCallback = r._debounceResetIsScrollingCallback.bind(r), r._setScrollingContainerRef = r._setScrollingContainerRef.bind(r), r._onScroll = r._onScroll.bind(r), r;
+        return r._invalidateOnUpdateStartIndex = null, r._invalidateOnUpdateStopIndex = null, r._positionCache = new w.a, r._startIndex = null, r._startIndexMemoized = null, r._stopIndex = null, r._stopIndexMemoized = null, r.state = {
+          isScrolling: !1,
+          scrollTop: 0
+        }, r._debounceResetIsScrollingCallback = r._debounceResetIsScrollingCallback.bind(r), r._setScrollingContainerRef = r._setScrollingContainerRef.bind(r), r._onScroll = r._onScroll.bind(r), r;
       }
       return m()(t, e), p()(t, [{
         key: "clearCellPositions",
@@ -73723,8 +73729,9 @@ $.fn.togglify = function(settings) {
   }
 
   function o(e) {
-    var t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : [u.a];
-    return n.i(i.c)(s.a, e, h(i.d.apply(void 0, r(t))));
+    var t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : [u.a],
+      o = h(i.c.apply(void 0, r(t)));
+    return n.i(i.d)(s.a, e, o);
   }
   var i = n(107),
     a = n(425),
@@ -74936,7 +74943,8 @@ $.fn.togglify = function(settings) {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
-          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0),
+            Object.defineProperty(e, r.key, r);
         }
       }
       return function(t, n, r) {
@@ -78200,8 +78208,7 @@ $.fn.togglify = function(settings) {
       receiveComponent: function(e, t, n) {
         var r = this._currentElement,
           o = this._context;
-        this._pendingElement = null,
-          this.updateComponent(t, r, e, o, n);
+        this._pendingElement = null, this.updateComponent(t, r, e, o, n);
       },
       performUpdateIfNecessary: function(e) {
         null != this._pendingElement ? v.receiveComponent(this, this._pendingElement, e, this._context) : null !== this._pendingStateQueue || this._pendingForceUpdate ? this.updateComponent(e, this._currentElement, this._currentElement, this._context, this._context) : this._updateBatchNumber = null;
@@ -81272,7 +81279,8 @@ $.fn.togglify = function(settings) {
         f = n.keyMapper,
         p = n.minHeight,
         d = n.minWidth;
-      this._hasFixedHeight = u === !0, this._hasFixedWidth = c === !0, this._minHeight = p || 0, this._minWidth = d || 0, this._keyMapper = f || r, this._defaultHeight = Math.max(this._minHeight, "number" == typeof o ? o : s), this._defaultWidth = Math.max(this._minWidth, "number" == typeof a ? a : l), this._columnCount = 0, this._rowCount = 0, this._cellHeightCache = {}, this._cellWidthCache = {}, this._columnWidthCache = {}, this._rowHeightCache = {};
+      this._hasFixedHeight = u === !0, this._hasFixedWidth = c === !0, this._minHeight = p || 0, this._minWidth = d || 0, this._keyMapper = f || r, this._defaultHeight = Math.max(this._minHeight, "number" == typeof o ? o : s), this._defaultWidth = Math.max(this._minWidth, "number" == typeof a ? a : l),
+        this._columnCount = 0, this._rowCount = 0, this._cellHeightCache = {}, this._cellWidthCache = {}, this._columnWidthCache = {}, this._rowHeightCache = {};
     }
     return u()(e, [{
       key: "clear",
@@ -82865,8 +82873,7 @@ $.fn.togglify = function(settings) {
   }
 
   function u(e, t, n, r) {
-    this.result = e, this.keyPrefix = t,
-      this.func = n, this.context = r, this.count = 0;
+    this.result = e, this.keyPrefix = t, this.func = n, this.context = r, this.count = 0;
   }
 
   function s(e, t, n) {
