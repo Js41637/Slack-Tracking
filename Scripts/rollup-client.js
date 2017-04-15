@@ -6039,7 +6039,7 @@
             TS.client.archives.tryToJoin();
             return;
           }
-          if (!TS.boot_data.feature_keyboard_support) {
+          if (!TS.boot_data.feature_keyboard_navigation) {
             if (e.which == keymap.tab && !TS.utility.cmdKey(e) || e.which === keymap.enter) {
               e.preventDefault();
             }

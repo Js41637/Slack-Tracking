@@ -3926,7 +3926,6 @@ var _cyrillicToLatin = function(char) {
             id: "E" + idx + (i > 0 ? "_alias_" + i : ""),
             name: name,
             name_with_colons: ":" + name + ":",
-            display_name: localized_name,
             is_skin: is_skin_tone_modifiable,
             is_emoji: true
           });

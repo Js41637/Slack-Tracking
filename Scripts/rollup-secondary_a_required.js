@@ -5161,7 +5161,7 @@
       if (model_type === "group") {
         model_type = "channel";
       }
-      anim.replaceWith('<p class="no_bottom_margin">' + TS.i18n.t("Sorry! You can‘t change the retention duration for this {model_type}.", "channels")({
+      anim.replaceWith('<p class="no_bottom_margin">' + TS.i18n.t("Sorry! You can‘t change the retention duration for this {model_type, select, conversation {conversation} other {channel}}.", "channels")({
         model_type: model_type
       }) + "</p>");
     } else {
@@ -32058,7 +32058,7 @@ TS.registerModule("constants", {
     if (TS.model.prefs.convert_emoticons && TS.model.prefs.emoji_mode != "as_text") {
       txt = TS.format.doEmoticonConversion(txt);
     }
-    if (TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE) {
+    if (TS.boot_data.feature_i18n_emoji) {
       txt = TSFEmoji.translateEmojiStringToCanonical(txt, TS.i18n.locale());
     }
     if (TS.boot_data.feature_ignore_code_mentions) {
@@ -33784,9 +33784,13 @@ TS.registerModule("constants", {
         TS.menu._current_status_input.destroy();
         TS.menu._current_status_input = null;
       }
-      if (TS.experiment.getGroup("custom_status_callout") === "treatment" && !TS.model.prefs.seen_custom_status_badge) {
+      if (TS.experiment.getGroup("custom_status_callout") === "treatment" && !TS.model.prefs.seen_custom_status_badge && !TS.model.prefs.seen_custom_status_callout) {
         var $team_menu_status_callout_container = $("#team_menu_status_callout_container");
         if ($team_menu_status_callout_container.length) $team_menu_status_callout_container.replaceWith($("#team_menu_user"));
+        TS.prefs.setPrefByAPI({
+          name: "seen_custom_status_callout",
+          value: true
+        });
       }
       TS.menu.$menu_body.find("#member_current_status_item").off(".current_status_item");
     }
@@ -50604,7 +50608,7 @@ $.fn.togglify = function(settings) {
           emoji._jumper_score = 0;
           return true;
         }
-        var score = fuzzy_emoji.score(emoji.display_name);
+        var score = fuzzy_emoji.score(emoji.name);
         emoji._jumper_score = score;
         return score <= fuzzy_limit;
       },
@@ -50801,7 +50805,7 @@ $.fn.togglify = function(settings) {
     }
     if (!searcher.only_channels && !searcher.only_members) {
       emoji_matches = data.emoji.filter(function(e) {
-        if (options.prefer_exact_match && e.display_name === searcher.query) {
+        if (options.prefer_exact_match && e.name === searcher.query) {
           e._jumper_exact_match = true;
           exact_matches.push(e);
           return false;
@@ -56308,7 +56312,7 @@ $.fn.togglify = function(settings) {
           return true;
         },
         onTab: function() {
-          return false;
+          return TS.boot_data.feature_keyboard_navigation;
         },
         singleLineInput: false,
         onTextChange: _.noop,
