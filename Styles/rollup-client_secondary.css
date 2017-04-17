@@ -3672,6 +3672,10 @@ only screen and (min-resolution:2dppx) {
   font-size: 1.25rem
 }
 
+#col_channels ul li .primary_action .ts_icon_archived_channel.deleted_im {
+  margin-right: 1px
+}
+
 #col_channels ul li .primary_action .ts_icon_angle_arrow_up_left {
   margin: 1px 2px 0 -2px
 }
@@ -24215,6 +24219,7 @@ ts-jumper ol li .view_name {
 ts-jumper ol li .channel_archived,
 ts-jumper ol li .channel_not_member,
 ts-jumper ol li .current_status,
+ts-jumper ol li .member_deleted,
 ts-jumper ol li .member_full_name+.member_preferred_name,
 ts-jumper ol li .member_real_name+.member_username,
 ts-jumper ol li .member_username+.member_real_name,
@@ -24240,6 +24245,7 @@ ts-jumper ol li .channel_shared {
 ts-jumper ol li .channel_archived,
 ts-jumper ol li .channel_not_member,
 ts-jumper ol li .current_status,
+ts-jumper ol li .member_deleted,
 ts-jumper ol li .member_full_name+.member_preferred_name,
 ts-jumper ol li .member_real_name+.member_username,
 ts-jumper ol li .member_team_name,
@@ -24288,6 +24294,7 @@ ts-jumper ol li.highlighted:not(.no_hover) .channel_name,
 ts-jumper ol li.highlighted:not(.no_hover) .channel_not_member,
 ts-jumper ol li.highlighted:not(.no_hover) .current_status,
 ts-jumper ol li.highlighted:not(.no_hover) .jumper_score,
+ts-jumper ol li.highlighted:not(.no_hover) .member_deleted,
 ts-jumper ol li.highlighted:not(.no_hover) .member_full_name,
 ts-jumper ol li.highlighted:not(.no_hover) .member_full_name+.member_preferred_name,
 ts-jumper ol li.highlighted:not(.no_hover) .member_real_name,
@@ -24304,6 +24311,7 @@ ts-jumper ol:not(.keyboard_active) li:hover:not(.no_hover) .channel_name,
 ts-jumper ol:not(.keyboard_active) li:hover:not(.no_hover) .channel_not_member,
 ts-jumper ol:not(.keyboard_active) li:hover:not(.no_hover) .current_status,
 ts-jumper ol:not(.keyboard_active) li:hover:not(.no_hover) .jumper_score,
+ts-jumper ol:not(.keyboard_active) li:hover:not(.no_hover) .member_deleted,
 ts-jumper ol:not(.keyboard_active) li:hover:not(.no_hover) .member_full_name,
 ts-jumper ol:not(.keyboard_active) li:hover:not(.no_hover) .member_full_name+.member_preferred_name,
 ts-jumper ol:not(.keyboard_active) li:hover:not(.no_hover) .member_real_name,
@@ -24316,6 +24324,21 @@ ts-jumper ol:not(.keyboard_active) li:hover:not(.no_hover) .view_name,
 ts-jumper ol:not(.keyboard_active) li:hover:not(.no_hover) i.presence_icon,
 ts-jumper ol:not(.keyboard_active) li:hover:not(.no_hover) ts-icon {
   color: #FFF
+}
+
+ts-jumper ol li.highlighted.deleted_count,
+ts-jumper ol:not(.keyboard_active) li:hover.deleted_count {
+  background: 0 0;
+  color: #007AB8
+}
+
+ts-jumper ol .deleted_count {
+  padding-left: 35px;
+  font-weight: 400
+}
+
+ts-jumper ol .deleted {
+  display: none
 }
 
 ts-jumper ol.show_scores li .item_details {
@@ -24344,6 +24367,16 @@ ts-jumper ts-jumper-results {
 
 ts-jumper ts-jumper-results:empty {
   margin-top: -1rem
+}
+
+ts-jumper ts-jumper-results .only_deleted li.deleted_count,
+ts-jumper ts-jumper-results.show_deleted li.deleted_count {
+  display: none
+}
+
+ts-jumper ts-jumper-results .only_deleted li.deleted,
+ts-jumper ts-jumper-results.show_deleted li.deleted {
+  display: block
 }
 
 .supports_custom_scrollbar ts-jumper ts-jumper-results {

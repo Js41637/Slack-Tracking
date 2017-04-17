@@ -84,7 +84,11 @@
             {{else}}
               <a href="/messages/{{member.id}}" target="/messages/{{member.id}}" data-member-id="{{member.id}}" class="member_name internal_im_link" data-qa="member_name">{{getMemberFullName member}}</a>
             {{/if}}
-            {{makeMemberPresenceIcon member}}
+            {{#unless member.is_stranger}}
+              {{#isClient}}
+                {{makeMemberPresenceIcon member}}
+              {{/isClient}}
+            {{/unless}}
           {{/if}}
         {{else}}
           {{#if member.deleted}}
@@ -95,7 +99,11 @@
             {{else}}
               <a href="/messages/@{{member.name}}" target="/messages/@{{member.name}}" data-member-name="{{member.name}}" class="member_name internal_im_link" data-qa="member_name">{{#if member.profile.real_name}}{{member.profile.real_name}}{{else}}@{{member.name}}{{/if}}</a>
             {{/if}}
-            {{makeMemberPresenceIcon member}}
+            {{#unless member.is_stranger}}
+              {{#isClient}}
+                {{makeMemberPresenceIcon member}}
+              {{/isClient}}
+            {{/unless}}
           {{/if}}
         {{/feature}}
       </div>
@@ -125,6 +133,19 @@
         </span>
       </div>
     {{/shouldShowMemberRestrictionBanner}}
+
+    {{#feature flag="feature_deleted_dm_archives"}}
+      {{#unless member.is_restricted}}
+      {{#if member.deleted}}
+        <div class="member_restriction_over_image">
+          <span class="overflow_ellipsis lato_black">
+            <i aria-hidden="true" class="ts_icon ts_icon_archived_channel"></i>
+            {{#t note="Refers to deactivated account"}}This account is deactivated{{/t}}
+          </span>
+        </div>
+      {{/if}}
+      {{/unless}}
+    {{/feature}}
 
   </div>
 

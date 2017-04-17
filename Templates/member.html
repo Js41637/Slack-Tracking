@@ -21,7 +21,11 @@
           {{#showDraftIcon model_ob}}
             {{> ts_icon class="ts_icon_pencil prefix"}}
           {{else}}
-            {{{makeMemberPresenceIcon member}}}
+            {{#if member.deleted}}
+              {{> ts_icon class="ts_icon_archived_channel prefix deleted_im"}}
+            {{else}}
+              {{{makeMemberPresenceIcon member}}}
+            {{/if}}
           {{/showDraftIcon}}
           {{getDisplayNameOfUserForIm model_ob}}
           {{#if member.is_self}} ({{#t note="Appears next to user name when user is self, e.g. 'Steve (you)' when I am Steve"}}you{{/t}}){{/if}}

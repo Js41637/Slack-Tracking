@@ -52,14 +52,18 @@
     {{!-- line of misc meta below channel name (star, members, pins, topic, member name, presence, etc) --}}
     <div id="channel_header_info" class="channel_header_info">
 
-      <div id="star_container" class="channel_header_info_item"></div>
+      {{#unless member.deleted}}
+        <div id="star_container" class="channel_header_info_item"></div>
+      {{/unless}}
 
       {{~#if member~}}
 
-        <div class="channel_header_info_item channel_header_member_status">
-          {{{makeMemberPresenceIcon member}}}
-          <span id="header_status_message"></span>
-        </div>
+        {{#unless member.deleted}}
+          <div class="channel_header_info_item channel_header_member_status">
+            {{{makeMemberPresenceIcon member}}}
+            <span id="header_status_message"></span>
+          </div>
+        {{/unless}}
 
         <div class="channel_header_info_item channel_header_member_alt_name">
           {{#feature flag="feature_name_tagging_client"}}

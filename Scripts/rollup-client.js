@@ -1967,6 +1967,8 @@
         TS.client.archives.start();
       } else if (model_ob.is_group && model_ob.is_archived) {
         TS.client.archives.start();
+      } else if (TS.ims.isImWithDeletedMember(model_ob)) {
+        TS.client.archives.start();
       } else {
         TS.client.archives.cancel(true);
       }
@@ -2713,7 +2715,7 @@
         }
         $('<style type="text/css">' + derek_styles + "</style>").appendTo("head");
       }
-      if (TS.shared.getActiveModelOb().is_channel && !TS.shared.getActiveModelOb().is_member) {
+      if (TS.shared.getActiveModelOb().is_channel && !TS.shared.getActiveModelOb().is_member || TS.ims.isImWithDeletedMember(TS.shared.getActiveModelOb())) {
         TS.client.archives.start();
       }
     },
@@ -7658,7 +7660,7 @@
         TS.error("NO CHANNEL NO IM GROUP");
         return false;
       }
-      if (TS.ims.isImWithDeletedMember(model_ob)) return false;
+      if (TS.ims.isImWithDeletedMember(model_ob) && !TS.boot_data.feature_deleted_dm_archives) return false;
       var existing_msg = TS.utility.msgs.getMsg(ts, model_ob.msgs);
       if (existing_msg && TS.utility.msgs.isMsgReply(existing_msg)) {
         TS.ui.replies.openConversation(model_ob, existing_msg.thread_ts, existing_msg.ts);
@@ -8170,23 +8172,27 @@
       }
     }
     html = TS.templates.team_member_preview(template_args);
-    if (member.deleted) {
-      TS.api.callImmediately("im.list").then(function(response) {
-        if (response.data.ims) {
-          if (_.find(response.data.ims, function(im) {
-              return im.user == member.id;
-            })) {
-            $("#member_deleted_view_archives_btn").removeClass("hidden");
-          }
-        }
-      });
-    }
     $("#user_group_preview_container").hideWithRememberedScrollTop();
     $("#team_list_container").hideWithRememberedScrollTop();
     $member_preview.unhideWithRememberedScrollTop();
     var $member_preview_scroller = $("#member_preview_scroller");
     $member_preview_scroller.html(html);
     TS.utility.makeSureAllLinksHaveTargets($member_preview_scroller);
+    if (member.deleted) {
+      if (TS.boot_data.feature_deleted_dm_archives) {
+        $("#member_deleted_view_archives_btn").removeClass("hidden");
+      } else {
+        TS.api.callImmediately("im.list").then(function(response) {
+          if (response.data.ims) {
+            if (_.find(response.data.ims, function(im) {
+                return im.user == member.id;
+              })) {
+              $("#member_deleted_view_archives_btn").removeClass("hidden");
+            }
+          }
+        });
+      }
+    }
     if (TS.model.last_previewed_member_id != TS.model.previewed_member_id) {
       $("#member_preview_scroller").scrollTop(0);
     }
@@ -11351,12 +11357,12 @@
     var muted_mpims = [];
     _dm_members.clear();
     TS.members.getMembersForUser().forEach(function(member) {
-      if (member.deleted) return;
       var im = TS.ims.getImByMemberId(member.id);
+      if (member.deleted && !(TS.client.archives.current_model_ob === im)) return;
       if (!im || !im.is_open && !im.unread_cnt) {
         return;
       }
-      if (im.is_starred) return;
+      if (im.is_starred && !member.deleted) return;
       ims.push(im);
     });
     _dm_members.add(_.map(ims, "user"));
@@ -27700,8 +27706,18 @@
         var identifier = decodeURIComponent(path[1]);
         if (!identifier) return false;
         var model_ob = TS.shared.getModelObById(identifier) || TS.ims.getImByUsername(identifier) || TS.channels.getChannelByName(identifier) || TS.groups.getGroupByName(identifier) || TS.mpims.getMpimByName(identifier);
-        if (!model_ob) return false;
-        if (model_ob.is_im && TS.ims.isImWithDeletedMember(model_ob)) return false;
+        if (!model_ob) {
+          if (TS.boot_data.feature_deleted_dm_archives) {
+            var member = TS.members.getMemberByName(identifier);
+            if (member) {
+              TS.ims.startImByMemberId(member.id);
+              return true;
+            }
+          } else {
+            return false;
+          }
+        }
+        if (TS.ims.isImWithDeletedMember(model_ob) && !TS.boot_data.feature_deleted_dm_archives) return false;
         if (path.length == 2 || !path[2]) {
           if (model_ob.is_channel) {
             TS.channels.displayChannel({
@@ -27815,7 +27831,7 @@
     },
     cancel: function(going_somewhere) {
       if (!TS.model.archive_view_is_showing) return;
-      var go_back = TS.client.archives.not_member && !going_somewhere;
+      var go_back = !going_somewhere;
       _end(go_back);
     },
     rebuildMsg: function(msg) {
@@ -27987,7 +28003,7 @@
           imsg = data.messages[i];
           new_msgs.push(TS.utility.msgs.processImsgFromHistory(imsg, model_ob.id));
         }
-        if (!TS.client.archives.not_member && !overlapped && TS.utility.msgs.getMsg(id, model_ob.msgs)) {
+        if (!TS.client.archives.not_member && !model_ob.is_im && !overlapped && TS.utility.msgs.getMsg(id, model_ob.msgs)) {
           overlapped = true;
         }
       }
@@ -28053,12 +28069,13 @@
     var shared = "";
     if (model_ob.is_shared) shared = '<ts-icon class="ts_icon_shared_channel"></ts-icon>';
     $("#footer_archives_action_button").addClass("btn_outline");
-    if (TS.client.archives.not_member) {
+    var is_deleted_im = TS.ims.isImWithDeletedMember(model_ob);
+    if (TS.client.archives.not_member || is_deleted_im) {
       var archive_html;
       var action_tip_html;
       $("#footer_msgs").addClass("hidden");
       $("#footer").css("height", "auto");
-      $("#footer_archives").removeClass("hidden");
+      $("#footer_archives").removeClass("hidden no_tip");
       if (model_ob.is_archived) {
         if (model_ob.is_moved) {
           archive_html = TS.i18n.t("You are viewing <strong>{hash}{channel_name}{shared}</strong>, a moved channel", "archives")({
@@ -28077,6 +28094,12 @@
         $("#footer_archives_text").html(archive_html);
         $("#footer_archives_action_button").text(TS.i18n.t("Close Channel", "archives")());
         $("#footer_archives_action_tip").html('<span class="tiny dialog_cancel_hint">' + action_tip_html + "</span>");
+      } else if (is_deleted_im) {
+        archive_html = TS.i18n.t('<ts-icon class="ts_icon_archive"></ts-icon> You are viewing the archives of a deactivated account', "archives")();
+        $("#footer_archives").addClass("no_tip");
+        $("#footer_archives_text").html(archive_html);
+        $("#footer_archives_action_button").text(TS.i18n.t("Close", "archives")());
+        $("#footer_archives_action_tip").html("");
       } else {
         archive_html = TS.i18n.t("You are viewing a preview of <strong>{hash}{channel_name}{shared}</strong>", "archives")({
           hash: hash,
@@ -28201,6 +28224,9 @@
             TS.client.msg_pane.maybeSetupCalls();
           });
         }
+      } else if (model_ob.is_im) {
+        TS.ims.closeIm(model_ob.id);
+        _end(true);
       } else {
         TS.shared.closeArchivedChannel(model_ob.id);
       }
@@ -35162,9 +35188,13 @@ function timezones_guess() {
     } else {
       disambiguate_mpims = _shouldDisambiguateMpims(matches);
     }
+    var deleted = _.remove(matches, function(match) {
+      return match.model_ob.deleted;
+    });
     var template_args = {
       matches: matches,
       query: query,
+      deleted: deleted,
       disambiguate_mpims: disambiguate_mpims,
       show_new_channel_link: !!clean_name,
       clean_name: clean_name,
@@ -35174,8 +35204,11 @@ function timezones_guess() {
       show_scores: TS.boot_data.feature_show_jumper_scores && TS.model.prefs.show_jumper_scores
     };
     var html = TS.templates.jumper_results(template_args);
-    _$jumper_results.html(html);
-    _initKbNav(matches);
+    _$jumper_results.html(html).removeClass("show_deleted");
+    if (deleted.length === 1) {
+      _$jumper_results.addClass("show_deleted");
+    }
+    _initKbNav(matches.concat(deleted));
     _captureFakeMousemoveEvent();
     TS.ui.utility.updateClosestMonkeyScroller(_$jumper_results);
   };
@@ -35196,6 +35229,9 @@ function timezones_guess() {
       if (mpims.length > 1) disambiguate_mpims = true;
     }
     return disambiguate_mpims;
+  };
+  var _showDeletedUsers = function() {
+    _$jumper_results.addClass("show_deleted");
   };
   var _captureFakeMousemoveEvent = function() {
     _$jumper_results.one("mousemove", function() {
@@ -35247,6 +35283,10 @@ function timezones_guess() {
     var item_selected;
     var team_match = false;
     var query = _.trim(_$jumper_input.val());
+    if (id === "deleted_count") {
+      _showDeletedUsers();
+      return;
+    }
     if (id.charAt(0) === "G") {
       item_selected = TS.shared.getModelObById(id);
     } else if (id.charAt(0) === "C") {
@@ -35389,6 +35429,7 @@ function timezones_guess() {
       include_org: true,
       include_slackbot: true,
       include_self: true,
+      include_deleted: TS.boot_data.feature_deleted_dm_archives,
       full_profile_filter: false,
       org_team_ids: org_team_ids
     };
@@ -42675,24 +42716,33 @@ var _getDownloadLink = function() {
       if (!TS.boot_data.is_in_invites_sidebar_exp) return;
       $("body").on("click", '[data-action="admin_shared_invites_modal"]', function(e) {
         if (TS.isPartiallyBooted()) return;
-        if (!TS.boot_data.show_shared_invites) return TS.ui.admin_invites.start();
+        if (!_userCanViewSharedInvites()) return TS.ui.admin_invites.start();
         _build(e);
       });
       return _promiseToGetLastActiveCode();
     },
     start: function(e) {
       return _start(e);
+    },
+    updateCode: function() {
+      return _promiseToGetLastActiveCode();
+    },
+    userCanViewSharedInvites: function() {
+      return _userCanViewSharedInvites();
     }
   });
   var _$shared_invites_modal;
   var _$shared_invites_modal_body;
   var _active_invite_code_ob;
   var _$modal_trigger;
-  var _userCanCreateLink = function() {
-    return TS.model.user.is_admin;
+  var _userCanCreateSharedInvites = function() {
+    return !TS.model.team.plan && TS.model.user.is_admin;
+  };
+  var _userCanViewSharedInvites = function() {
+    if (TS.model.team.plan) return false;
+    return _userCanCreateSharedInvites() || TS.ui.admin_invites.canInvite() && _active_invite_code_ob;
   };
   var _promiseToGetLastActiveCode = function() {
-    if (_active_invite_code_ob) return Promise.resolve();
     return TS.api.call("users.listSharedInvites", {
       mode: "last_active"
     }).then(function(response) {
@@ -42755,7 +42805,7 @@ var _getDownloadLink = function() {
     _$shared_invites_modal_body = $("#shared_invite_link_modal_body");
     var view;
     if (_active_invite_code_ob) {
-      if (_userCanCreateLink()) {
+      if (_userCanCreateSharedInvites()) {
         view = "admin_share_link";
       } else {
         view = "nonadmin_share_link";

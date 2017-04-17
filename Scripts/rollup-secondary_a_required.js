@@ -2461,6 +2461,7 @@
   TS.registerModule("permissions.members", {
     canPostInChannel: function(model_ob) {
       if (model_ob.is_general) return TS.permissions.members.canPostInGeneral(TS.model.user);
+      if (TS.ims.isImWithDeletedMember(model_ob)) return false;
       return !TS.channels.read_only.isReadOnly(model_ob.id);
     },
     canPostInGeneral: function(user) {
@@ -2474,6 +2475,8 @@
         return TS.permissions.members.canPostInGeneral(member);
       } else if (TS.boot_data.page_needs_enterprise && model_ob.is_shared) {
         return TS.permissions.members.canPostInChannel(model_ob);
+      } else if (TS.ims.isImWithDeletedMember(model_ob)) {
+        return false;
       }
       return true;
     },
@@ -18417,6 +18420,14 @@ TS.registerModule("constants", {
     update_thread_state: function(imsg) {
       if (!TS.client) return;
       TS.client.threads.updateThreadState(imsg.has_unreads, imsg.mention_count, imsg.timestamp);
+    },
+    shared_invite_code_created: function() {
+      if (!TS.client) return;
+      TS.ui.shared_invites_modal.updateCode();
+    },
+    shared_invite_code_disabled: function() {
+      if (!TS.client) return;
+      TS.ui.shared_invites_modal.updateCode();
     }
   });
   var _isFileMsgRelevant = function(imsg, file_id) {
@@ -18424,6 +18435,22 @@ TS.registerModule("constants", {
     if (TS.web && TS.web.space && !TS.web.space.isFileRelevant(file_id)) return false;
     if (imsg.type == "file_created" && imsg.user_id == TS.model.user.id) return true;
     return !!TS.files.getFileById(file_id);
+  };
+  var _findFileObAndId = function(imsg) {
+    var ignored_types_for_ensure_file = ["message", "file_deleted", "file_private"];
+    if (_.includes(ignored_types_for_ensure_file, imsg.type)) return false;
+    if (imsg._file_attached) return false;
+    var ob_with_file = imsg;
+    var file_id = imsg.file && imsg.file.id || imsg.file_id;
+    if (!file_id && imsg.item) {
+      file_id = imsg.item.file && imsg.item.file.id || imsg.item.file_id;
+      if (file_id) ob_with_file = imsg.item;
+    }
+    if (!file_id) return false;
+    return {
+      ob_with_file: ob_with_file,
+      file_id: file_id
+    };
   };
   var _Q = [];
   var _q_grew_from_event_log = false;
@@ -18444,16 +18471,24 @@ TS.registerModule("constants", {
     _ensureFileObjectsOnMsgAndProceed(_Q[0]);
   };
   var _ensureFileObjectsOnMsgAndProceed = function(imsg) {
-    if (imsg.type == "message") return _ensureModelObsAndMembersAndProceed(imsg);
-    var ob_with_file = imsg;
-    var file_id = imsg.file && imsg.file.id || imsg.file_id;
-    if (!file_id && imsg.item) {
-      file_id = imsg.item.file && imsg.item.file.id || imsg.item.file_id;
-      if (file_id) ob_with_file = imsg.item;
+    var ob_with_file, file_id;
+    if (TS.boot_data.feature_dedupe_files_info_requests) {
+      var file_ob_and_id = _findFileObAndId(imsg);
+      if (!file_ob_and_id) return _ensureModelObsAndMembersAndProceed(imsg);
+      ob_with_file = file_ob_and_id.ob_with_file;
+      file_id = file_ob_and_id.file_id;
+    } else {
+      if (imsg.type == "message") return _ensureModelObsAndMembersAndProceed(imsg);
+      ob_with_file = imsg;
+      file_id = imsg.file && imsg.file.id || imsg.file_id;
+      if (!file_id && imsg.item) {
+        file_id = imsg.item.file && imsg.item.file.id || imsg.item.file_id;
+        if (file_id) ob_with_file = imsg.item;
+      }
+      if (!file_id) return _ensureModelObsAndMembersAndProceed(imsg);
+      if (imsg.type == "file_deleted") return _ensureModelObsAndMembersAndProceed(imsg);
+      if (imsg.type == "file_private") return _ensureModelObsAndMembersAndProceed(imsg);
     }
-    if (!file_id) return _ensureModelObsAndMembersAndProceed(imsg);
-    if (imsg.type == "file_deleted") return _ensureModelObsAndMembersAndProceed(imsg);
-    if (imsg.type == "file_private") return _ensureModelObsAndMembersAndProceed(imsg);
     if (!_isFileMsgRelevant(imsg, file_id)) {
       TS.maybeWarn(552, imsg.type + " referenced an irrelevant file: " + file_id);
       return Promise.resolve().then(function() {
@@ -18475,6 +18510,17 @@ TS.registerModule("constants", {
       }
       ob_with_file.file = file;
       TS.log(552, imsg.type + " now has a file definition");
+      if (TS.boot_data.feature_dedupe_files_info_requests) {
+        imsg._file_attached = true;
+        _.forEach(_Q, function(queued_imsg) {
+          var queued_file_ob_and_id = _findFileObAndId(queued_imsg);
+          if (queued_file_ob_and_id && queued_file_ob_and_id.file_id === file_id) {
+            queued_file_ob_and_id.ob_with_file.file = file;
+            queued_imsg._file_attached = true;
+            TS.log(552, imsg.type + " now has a file definition (courtesy of a previously queued imsg for " + file_id + ")");
+          }
+        });
+      }
       return _ensureModelObsAndMembersAndProceed(imsg);
     });
   };
@@ -19618,6 +19664,7 @@ TS.registerModule("constants", {
       return aria_label;
     },
     makeMemberPresenceIcon: function(member) {
+      if (member.deleted) return "";
       var presence_class = TS.templates.makeMemberPresenceDomClass(member.id);
       var presence_icon_class = "ts_icon_presence";
       if (member.is_ultra_restricted) {
@@ -22256,6 +22303,7 @@ TS.registerModule("constants", {
       return "";
     },
     makeLinksFromChannelOrGroupIds: function(channel_or_group_ids) {
+      channel_or_group_ids = TS.utility.parseJSONOrElse(channel_or_group_ids, channel_or_group_ids);
       channel_or_group_ids = _.isArray(channel_or_group_ids) ? channel_or_group_ids : [channel_or_group_ids];
       var channel_or_group_nodes = channel_or_group_ids.map(function(channel_or_group_id) {
         return TS.channels.getChannelById(channel_or_group_id) || TS.groups.getGroupById(channel_or_group_id);
@@ -27115,7 +27163,7 @@ TS.registerModule("constants", {
         } else if (msg.subtype === "tombstone") {
           actions.share_message = false;
         } else {
-          actions.share_message = !model_ob.is_archived || model_ob.is_channel;
+          actions.share_message = !TS.ims.isImWithDeletedMember(model_ob) && (!model_ob.is_archived || model_ob.is_channel);
         }
       }
       return actions;
@@ -32773,7 +32821,7 @@ TS.registerModule("constants", {
         is_our_app: TS.model.is_our_app,
         show_team_subdivider: TS.model.user.is_admin,
         can_invite: TS.ui.admin_invites.canInvite(),
-        is_in_invites_sidebar_exp: TS.boot_data.is_in_invites_sidebar_exp
+        can_view_shared_invites: TS.ui.shared_invites_modal.userCanViewSharedInvites()
       };
       var other_accounts_length = Object.keys(TS.boot_data.other_accounts).length;
       if (other_accounts_length) template_args.other_accounts = TS.boot_data.other_accounts;
@@ -32944,7 +32992,7 @@ TS.registerModule("constants", {
             TS.menu._registerCurrentStatusInput();
             break;
           case "team_invitations":
-            if (!TS.boot_data.is_in_invites_sidebar_exp) break;
+            if (!TS.ui.shared_invites_modal.userCanViewSharedInvites()) break;
             TS.menu.$submenu_parent = $menu_content.find("#team_invitations");
             TS.menu.$submenu_parent.submenu({
               items_html: TS.templates.shared_invites_modal()
@@ -33020,7 +33068,7 @@ TS.registerModule("constants", {
           });
           break;
         case "team_invitations":
-          if (TS.boot_data.is_in_invites_sidebar_exp) return;
+          if (TS.ui.shared_invites_modal.userCanViewSharedInvites()) return;
           e.preventDefault();
           TS.ui.admin_invites.start();
           var params = TS.clog.parseParams(this.getAttribute("data-clog-params"));
@@ -56325,7 +56373,7 @@ $.fn.togglify = function(settings) {
         log: _.partial(TS.log, 116),
         logError: TS.error
       };
-      if (TS.boot_data.feature_name_tagging_client) {
+      if (TS.boot_data.feature_texty_mentions) {
         default_options.modules.slackmention = {};
       }
       _.defaultsDeep(options, default_options);
@@ -59190,6 +59238,7 @@ $.fn.togglify = function(settings) {
       if (TS.utility.msgs.isFileMsg(msg)) return false;
       if (TS.utility.msgs.isTempMsg(msg) || msg.is_ephemeral) return false;
       if (TS.utility.msgs.isMsgReply(msg)) return false;
+      if (TS.ims.isImWithDeletedMember(model_ob)) return false;
       if (!ignore_membership) {
         if (model_ob.is_channel && !model_ob.is_member) return false;
       }
@@ -61458,8 +61507,7 @@ $.fn.togglify = function(settings) {
       }
     }
     return function(t, n, r) {
-      return n && e(t.prototype, n),
-        r && e(t, r), t;
+      return n && e(t.prototype, n), r && e(t, r), t;
     };
   }();
 }, function(e, t, n) {
@@ -63517,7 +63565,8 @@ $.fn.togglify = function(settings) {
           function fi(e) {
             var t = cc[e];
             return function(e, n) {
-              if (e = Ps(e), n = null == n ? 0 : Xc(ks(n), 292)) {
+              if (e = Ps(e),
+                n = null == n ? 0 : Xc(ks(n), 292)) {
                 var r = (Is(e) + "e").split("e"),
                   o = t(r[0] + "e" + (+r[1] + n));
                 return r = (Is(o) + "e").split("e"), +(r[0] + "e" + (+r[1] - n));
@@ -73284,7 +73333,8 @@ $.fn.togglify = function(settings) {
       },
       onMountComponent: function(e) {
         var t = l(e);
-        t ? void 0 : v("144"), t.isMounted = !0;
+        t ? void 0 : v("144"),
+          t.isMounted = !0;
         var n = 0 === t.parentID;
         n && p(e);
       },
@@ -74947,8 +74997,7 @@ $.fn.togglify = function(settings) {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
-          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0),
-            Object.defineProperty(e, r.key, r);
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
         }
       }
       return function(t, n, r) {
@@ -81283,8 +81332,7 @@ $.fn.togglify = function(settings) {
         f = n.keyMapper,
         p = n.minHeight,
         d = n.minWidth;
-      this._hasFixedHeight = u === !0, this._hasFixedWidth = c === !0, this._minHeight = p || 0, this._minWidth = d || 0, this._keyMapper = f || r, this._defaultHeight = Math.max(this._minHeight, "number" == typeof o ? o : s), this._defaultWidth = Math.max(this._minWidth, "number" == typeof a ? a : l),
-        this._columnCount = 0, this._rowCount = 0, this._cellHeightCache = {}, this._cellWidthCache = {}, this._columnWidthCache = {}, this._rowHeightCache = {};
+      this._hasFixedHeight = u === !0, this._hasFixedWidth = c === !0, this._minHeight = p || 0, this._minWidth = d || 0, this._keyMapper = f || r, this._defaultHeight = Math.max(this._minHeight, "number" == typeof o ? o : s), this._defaultWidth = Math.max(this._minWidth, "number" == typeof a ? a : l), this._columnCount = 0, this._rowCount = 0, this._cellHeightCache = {}, this._cellWidthCache = {}, this._columnWidthCache = {}, this._rowHeightCache = {};
     }
     return u()(e, [{
       key: "clear",

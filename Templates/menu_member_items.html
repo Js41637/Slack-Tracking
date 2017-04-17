@@ -107,9 +107,17 @@
     {{/unless}}
 
     {{#if show_dm_item}}
-      {{#unless member.deleted}}
-        <li id="member_dm_item" role="menuitem"><a href="/messages/@{{member.name}}">{{#t}}Direct Messages{{/t}}</a></li>
-      {{/unless}}
+      {{#feature flag="feature_deleted_dm_archives"}}
+        {{#if member.deleted}}
+          <li id="member_dm_item" role="menuitem"><a href="/messages/@{{member.name}}">{{#t}}Direct Message archives{{/t}}</a></li>
+        {{else}}
+          <li id="member_dm_item" role="menuitem"><a href="/messages/@{{member.name}}">{{#t}}Direct Messages{{/t}}</a></li>
+        {{/if}}
+      {{else}}
+        {{#unless member.deleted}}
+          <li id="member_dm_item" role="menuitem"><a href="/messages/@{{member.name}}">{{#t}}Direct Messages{{/t}}</a></li>
+        {{/unless}}
+      {{/feature}}
     {{/if}}
 
     <li id="member_files_item" role="menuitem"><a href="/files/{{member.name}}" target="{{newWindowName}}"> {{#t}}View files{{/t}}</a></li>

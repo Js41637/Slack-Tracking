@@ -6175,6 +6175,10 @@ only screen and (min-resolution:2dppx) {
   padding-top: .5rem
 }
 
+#footer_archives.no_tip #footer_archives_right {
+  padding-top: 0
+}
+
 #footer_archives:focus {
   outline: 0
 }
@@ -6191,6 +6195,11 @@ only screen and (min-resolution:2dppx) {
 
 #footer_archives_text .ts_icon_shared_channel {
   margin-left: 3px
+}
+
+#footer_archives_text .ts_icon_archive {
+  vertical-align: middle;
+  margin-right: 3px
 }
 
 #msg_preview {

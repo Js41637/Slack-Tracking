@@ -55,7 +55,7 @@
           TS.client.msg_input.tabcomplete_completions[model_ob.id].push(text.substring(1));
         }
       }
-      if (TS.boot_data.feature_name_tagging_client) {
+      if (TS.boot_data.feature_texty_mentions) {
         return {
           text: text,
           format: {
