@@ -8,16 +8,14 @@
         member_regex = /(^|\n|.)?(@[^\n@]*)$/i;
       }
       text.replace(member_regex, function(full_match, before, prefixed_match, offset) {
-        if (!_isValidPrefixedMatch(before, prefixed_match)) return;
+        if (!TS.tabcomplete.isAllowedSurroundingCharacter(before)) return;
         if (before) offset += before.length;
         match = prefixed_match;
         index = offset;
       });
       if (!match && (!TS.model.prefs.require_at || is_user_solicited)) {
         var last_word = _.last(/(^|\s)([^\s\n@]+)$/.exec(text));
-        ALLOWED_PRECEDING_SYMBOLS.forEach(function(symbol) {
-          last_word = _.trimStart(last_word, symbol);
-        });
+        last_word = TS.tabcomplete.trimSurroundingSymbols(last_word);
         if (_isValidUnprefixedMatch(last_word, is_user_solicited)) {
           match = last_word;
           index = text.length - last_word.length;
@@ -178,7 +176,6 @@
     },
     test: function() {
       var tests = {
-        ALLOWED_PRECEDING_SYMBOLS: ALLOWED_PRECEDING_SYMBOLS,
         IGNORED_SEARCH_TERMS: IGNORED_SEARCH_TERMS,
         MIN_UNPREFIXED_MATCH_LENGTH: MIN_UNPREFIXED_MATCH_LENGTH
       };
@@ -230,7 +227,6 @@
   var IGNORED_SEARCH_TERMS = ["the", "and"];
   var MIN_UNPREFIXED_MATCH_LENGTH = 3;
   var SEARCH_DELAY_MS = 500;
-  var ALLOWED_PRECEDING_SYMBOLS = ["{", "[", "(", "*", "_", "/", '"', "“", "'", "‘", "<"];
   var _sortResults = function(model_ob, text, search_data) {
     var search_options = {
       allow_empty_query: true,
@@ -352,15 +348,6 @@
       members_not_in_channel: members_not_in_channel,
       usergroup: usergroup
     };
-  };
-  var _isValidPrefixedMatch = function(before, match) {
-    if (!match) return false;
-    if (before) {
-      var is_allowed_character = _.includes(ALLOWED_PRECEDING_SYMBOLS, before);
-      var is_whitespace = !before.trim();
-      if (!is_allowed_character && !is_whitespace) return false;
-    }
-    return true;
   };
   var _isValidUnprefixedMatch = function(match, is_user_solicited) {
     if (!match) return false;
