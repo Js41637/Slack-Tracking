@@ -3887,18 +3887,30 @@ html {
   font-weight: 300;
   text-align: center;
   border-top: 1px solid transparent;
-  border-bottom: 1px solid #E8E8E8
+  border-bottom: 1px solid #E8E8E8;
+  display: block;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap
 }
 
+#fs_modal.channel_options_modal .channel_options_header .ts_icon_lock,
 #fs_modal.channel_options_modal .channel_options_header .ts_icon_org_shared_channel,
-#fs_modal.channel_options_modal .channel_options_header .ts_icon_shared_channel {
+#fs_modal.channel_options_modal .channel_options_header .ts_icon_shared_channel,
+#fs_modal.channel_options_modal .channel_options_header .ts_icon_shared_channels {
   margin-left: 5px
 }
 
+#fs_modal.channel_options_modal .channel_options_header .ts_icon_lock:before,
 #fs_modal.channel_options_modal .channel_options_header .ts_icon_org_shared_channel:before,
-#fs_modal.channel_options_modal .channel_options_header .ts_icon_shared_channel:before {
+#fs_modal.channel_options_modal .channel_options_header .ts_icon_shared_channel:before,
+#fs_modal.channel_options_modal .channel_options_header .ts_icon_shared_channels:before {
   font-size: 2rem;
   line-height: 2rem
+}
+
+#fs_modal.channel_options_modal .channel_options_header .ts_icon_shared_channels {
+  top: 5px
 }
 
 #fs_modal.channel_options_modal .input_wrapper {
@@ -3939,6 +3951,10 @@ html {
 
 #fs_modal.channel_options_modal .channel_option_content {
   position: relative
+}
+
+#fs_modal.channel_options_modal .channel_option_content .ts_icon_shared_channels {
+  top: 3px
 }
 
 #fs_modal.channel_options_modal .channel_options_loading_overlay {
@@ -7906,9 +7922,7 @@ only screen and (min-resolution:2dppx) {
 }
 
 .ts_icon_shared_channels {
-  position: absolute;
-  bottom: 3px;
-  right: 4px
+  position: relative
 }
 
 @font-face {
@@ -25051,7 +25065,7 @@ li:hover .current_status_badge {
 .channel_title .ts_icon_shared_channels {
   position: relative;
   right: 0;
-  bottom: -2px;
+  bottom: -3px;
   margin-left: 6px;
   color: #717274
 }
@@ -28540,7 +28554,7 @@ html:not(.supports_sticky_position) #app_index_scroller_div {
   display: -moz-flex;
   display: -ms-flexbox;
   display: flex;
-  background: #fff;
+  background: #FFF;
   border: 1px solid #BABBBF;
   border-radius: 4px;
   padding: .3rem .3rem .3rem .5rem;
@@ -28578,22 +28592,82 @@ html:not(.supports_sticky_position) #app_index_scroller_div {
 }
 
 #shared_invite_link_modal {
-  width: 286px;
-  padding: 0 .9375rem
+  width: 300px
 }
 
 #shared_invite_link_modal_warning {
-  background: #E8E8E8;
-  padding: .9375rem
+  background: #F9F9F9;
+  padding: 1.5rem
 }
 
-#shared_invite_modal_link_copy_btn .ts_tip_tip {
-  left: -60px;
-  opacity: inherit
+#shared_invite_link_modal_header {
+  margin: 1.5rem;
+  margin-bottom: 0
+}
+
+#shared_invite_modal_link_title {
+  font-weight: 700;
+  line-height: 1.5rem
+}
+
+#shared_invite_link_modal_body {
+  margin: .25rem 1.5rem
 }
 
 #shared_invite_link_modal_footer {
-  margin: .9375rem 0;
-  padding-top: .9375rem;
+  padding: 1rem 1.5rem .5rem;
+  margin-top: 1.5rem;
   border-top: 1px solid #E8E8E8
+}
+
+.shared_invite_link_description {
+  line-height: 1.5rem;
+  color: #717274;
+  margin-bottom: 1rem
+}
+
+.shared_invite_modal_expiration {
+  color: #717274;
+  line-height: 1.25rem
+}
+
+.shared_invite_modal_link_input_container {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex
+}
+
+.shared_invite_modal_link_input_container .shared_invite_link_input {
+  -webkit-box-flex: 1;
+  -webkit-flex-grow: 1;
+  -moz-flex-grow: 1;
+  -ms-flex-positive: 1;
+  flex-grow: 1;
+  background: #F9F9F9;
+  padding: .5rem;
+  margin-right: .4rem;
+  margin-bottom: 0rem;
+  cursor: pointer
+}
+
+.shared_invite_modal_link_input_container .shared_invite_link_input:focus {
+  box-shadow: none
+}
+
+.shared_invite_modal_link_input_container .shared_invite_link_copy_btn {
+  -webkit-flex-shrink: 0;
+  -moz-flex-shrink: 0;
+  -ms-flex-negative: 0;
+  flex-shrink: 0
+}
+
+#shared_invite_modal_link_copy_btn .ts_tip_tip {
+  left: -69px;
+  opacity: 1
+}
+
+#shared_invite_modal_link_copy_btn.hide_copy_btn_ts_tip .ts_tip_tip {
+  opacity: 0
 }

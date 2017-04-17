@@ -8,7 +8,7 @@
     {{else}}
       {{#t}}Additional Options for <strong><ts-icon class="ts_icon_inherit ts_icon_lock"></ts-icon>{model_ob.name}</strong>{{/t}}
     {{/if_equal}}
-    {{#if model_ob.is_shared}}<ts-icon class="ts_icon_org_shared_channel"></ts-icon>{{/if}}
+    {{#if model_ob.is_org_shared}}{{> shared_channel_icon org=true}}{{else if model_ob.is_shared}}{{> shared_channels_icon}}{{/if}}
   </div>
 
   {{#if show_archive_btn}}

@@ -1,14 +1,11 @@
 {{i18n_ns 'invites'}}
 
-<div id="shared_invite_link_modal_body">
-  <div class="subtle_silver bottom_margin">{{#t}}Anyone can use this link to join your Slack team.{{/t}}</div>
-  <select name="select_shared_invite_expiration" id="select_shared_invite_expiration" class="small">
-  {{#t note="the amount of time before their shared invite link expires"}}
-    <option value="1">Expires in 1 day</option>
-    <option value="7">Expires in 7 days</option>
-    <option selected="selected" value="30">Expires in 30 days</option>
-    <option value="365000">Never expires</option>
-  {{/t}}
-  </select>
-  <button type="button" class="btn full_width ladda-button" data-action="shared_invite_create_link" data-style="expand-right">{{#t}}<span class="ladda-label">Create Invite Link{{/t}}</span></button>
-</div>
+<select name="select_shared_invite_expiration" id="select_shared_invite_expiration" class="small">
+{{#t note="the amount of time before their shared invite link expires"}}
+  <option value="1">Expires in 1 day</option>
+  <option value="7">Expires in 7 days</option>
+  <option selected="selected" value="30">Expires in 30 days</option>
+  <option value="365000">Never expires</option>
+{{/t}}
+</select>
+<button type="button" class="btn full_width ladda-button" data-action="shared_invite_create_link" data-style="expand-right">{{#t}}<span class="ladda-label">Create Invite Link{{/t}}</span></button>

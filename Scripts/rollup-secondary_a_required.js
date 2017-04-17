@@ -7942,6 +7942,9 @@ TS.registerModule("constants", {
     startImByMemberId: function(member_id, from_history, and_send_txt) {
       var im = TS.ims.getImByMemberId(member_id);
       if (im) {
+        if (TS.ims.isImWithDeletedMember(im)) {
+          TS.client.archives.previous_model_ob = TS.shared.getActiveModelOb();
+        }
         TS.ims.displayIm(im.id, from_history);
         if (im.is_open) {
           if (and_send_txt) {
@@ -34065,8 +34068,8 @@ var _on_esc;
       if (channel.is_member && (!TS.channels.isChannelRequired(channel) || TS.permissions.members.canPostInChannel(channel))) template_args.show_advanced_item = true;
       if (TS.boot_data.page_needs_enterprise) {
         var can_manage_shared_channels = TS.permissions.members.canManageOrgSharedChannels();
-        if (!channel.is_shared && can_manage_shared_channels && !TS.channels.isChannelRequired(channel)) template_args.show_convert_item = true;
-        if (channel.is_shared) {
+        if (!TS.shared.isModelObOrgShared(channel) && can_manage_shared_channels && !TS.channels.isChannelRequired(channel)) template_args.show_convert_item = true;
+        if (TS.shared.isModelObOrgShared(channel)) {
           if (template_args.show_advanced_item) {
             if (can_manage_shared_channels) {
               template_args.show_manage_teams = !channel.is_global_shared;

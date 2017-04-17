@@ -25471,10 +25471,11 @@
     } else {
       return "";
     }
-    var shared = model_ob.is_shared ? TS.templates.shared_channel_icon({
+    var org_shared = TS.shared.isModelObOrgShared(model_ob) ? TS.templates.shared_channel_icon({
       org: true
     }) : "";
-    return "<strong>" + channel_name + shared + "</strong>";
+    var shared = TS.shared.isModelObShared(model_ob) ? TS.templates.shared_channels_icon() : "";
+    return "<strong>" + channel_name + org_shared + shared + "</strong>";
   };
   var _maybeCreateLadda = function() {
     if (TS.ui.channel_options_dialog.ladda) return;
@@ -25540,7 +25541,8 @@
     _setHeaderHtml(header_html);
     var template_args = {
       name: model_ob.name,
-      is_shared: TS.boot_data.page_needs_enterprise && model_ob.is_shared
+      is_org_shared: TS.shared.isModelObOrgShared(model_ob),
+      is_shared: TS.shared.isModelObShared(model_ob)
     };
     _setOptionContentHtml(TS.templates.channel_option_archive_channel(template_args));
     _setOptionGoText(TS.i18n.t("Yes, archive the channel", "channel_options")());
@@ -25594,7 +25596,7 @@
     _setOptionContentHtml(TS.templates.channel_option_archive_group({
       name: model_ob.name,
       group_prefix: TS.model.group_prefix,
-      is_shared: TS.boot_data.page_needs_enterprise && model_ob.is_shared
+      is_org_shared: TS.shared.isModelObOrgShared(model_ob)
     }));
     _setOptionGoText(TS.i18n.t("Yes, archive the channel", "channel_options")());
     _current_option_go_callback = function() {
@@ -42858,13 +42860,16 @@ var _getDownloadLink = function() {
   var _showAdminShareLinkView = function(options) {
     var expiration_ts = _active_invite_code_ob.date_expire;
     var time_until_expiration_string = _makeTimeUntilExpirationString(expiration_ts);
-    var html = TS.templates.shared_invites_modal_admin_share_link_body({
-      time_until_expiration_string: new Handlebars.SafeString(time_until_expiration_string),
+    var template_args = {
       shared_invite_url: _active_invite_code_ob.url,
-      expiration_date: TS.utility.date.toCalendarDate(expiration_ts),
-      expiration_time: TS.utility.date.toTime(expiration_ts, true)
-    });
-    _$shared_invites_modal_body.html(html);
+      is_admin: true
+    };
+    if (time_until_expiration_string) {
+      template_args.time_until_expiration_string = new Handlebars.SafeString(time_until_expiration_string);
+      template_args.expiration_date = TS.utility.date.toCalendarDate(expiration_ts);
+      template_args.expiration_time = TS.utility.date.toTime(expiration_ts, true);
+    }
+    _$shared_invites_modal_body.html(TS.templates.shared_invites_modal_share_link_body(template_args));
     if (options && options.copy) {
       var $copy_btn = $('[data-action="copy_shared_link"]');
       _copyInviteLink($copy_btn);
@@ -42911,12 +42916,12 @@ var _getDownloadLink = function() {
     var link = $input.attr("data-invite-url");
     TS.clipboard.writeText(link);
     $input.select();
-    $copy_btn.removeClass("ts_tip_hide");
+    $copy_btn.removeClass("hide_copy_btn_ts_tip");
     window.setTimeout(function() {
-      $copy_btn.addClass("ts_tip_hide");
+      $copy_btn.addClass("hide_copy_btn_ts_tip");
     }, 2e3);
   };
-  var _makeTimeUntilExpirationString = function(ts, num_to_word) {
+  var _makeTimeUntilExpirationString = function(ts) {
     var date_str;
     var date_now_ob = TS.utility.date.toDateObject(Date.now() / 1e3);
     var days_until_expiration = TS.utility.date.distanceInDays(TS.utility.date.toDateObject(ts), date_now_ob);
@@ -42925,30 +42930,29 @@ var _getDownloadLink = function() {
       return "";
     }
     if (_.isInteger(weeks_until_expiration)) {
-      var num_or_word_weeks = num_to_word ? TS.utility.date.numberToWords(weeks_until_expiration) : weeks_until_expiration;
-      date_str = TS.i18n.t("in {num_or_word_weeks} {num_weeks, plural, =1{week}other{weeks}}", "shared_invites_modal")({
-        num_weeks: weeks_until_expiration,
-        num_or_word_weeks: num_or_word_weeks
+      date_str = TS.i18n.t("in {num_weeks, plural, =1{one week}other{{num_weeks} weeks}}", "shared_invites_modal")({
+        num_weeks: weeks_until_expiration
       });
     } else {
-      var num_or_word_days = num_to_word ? TS.utility.date.numberToWords(days_until_expiration) : days_until_expiration;
-      date_str = TS.i18n.t("in {num_or_word_days} {num_days, plural, =1{day}other{days}}", "shared_invites_modal")({
-        num_days: days_until_expiration,
-        num_or_word_days: num_or_word_days
+      date_str = TS.i18n.t("in {num_days, plural, =1{one day}other{{num_days} days}}", "shared_invites_modal")({
+        num_days: days_until_expiration
       });
     }
     return TS.utility.date.prettifyDateString(ts, date_str);
   };
   var _showNonAdminShareLinkView = function() {
     var expiration_ts = _active_invite_code_ob.date_expire;
-    var time_until_expiration_string = _makeTimeUntilExpirationString(expiration_ts, true);
-    var html = TS.templates.shared_invites_modal_nonadmin_share_link_body({
-      time_until_expiration_string: new Handlebars.SafeString(time_until_expiration_string),
+    var time_until_expiration_string = _makeTimeUntilExpirationString(expiration_ts);
+    var template_args = {
       shared_invite_url: _active_invite_code_ob.url,
-      expiration_date: TS.utility.date.toCalendarDate(expiration_ts),
-      expiration_time: TS.utility.date.toTime(expiration_ts, true)
-    });
-    _$shared_invites_modal_body.html(html);
+      is_admin: false
+    };
+    if (time_until_expiration_string) {
+      template_args.time_until_expiration_string = new Handlebars.SafeString(time_until_expiration_string);
+      template_args.expiration_date = TS.utility.date.toCalendarDate(expiration_ts);
+      template_args.expiration_time = TS.utility.date.toTime(expiration_ts, true);
+    }
+    _$shared_invites_modal_body.html(TS.templates.shared_invites_modal_share_link_body(template_args));
     return Promise.resolve();
   };
   var _SETUP_MAP = {
