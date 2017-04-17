@@ -196,7 +196,8 @@
         _ranges = [];
         var $node;
         var findRange = function(value) {
-          var i, j;
+          var i;
+          var j;
           if (!_.isString(value)) return null;
           value = value.toUpperCase();
           for (i = 0, j = _ranges.length; i < j; i += 1) {
@@ -647,8 +648,8 @@
       }
       var show_add_channel_btn = false;
       if (member.is_restricted && !member.is_ultra_restricted) {
-        var channels_for_ra = [],
-          groups_for_ra = [];
+        var channels_for_ra = [];
+        var groups_for_ra = [];
         $.each(TS.channels.getChannelsForUser(), function(index, channel) {
           if (member.channels) {
             if (!member.channels.hasOwnProperty(channel.id) && !channel.is_archived) {
@@ -1066,7 +1067,10 @@
         }
       });
       $row.find("input").unbind("keyup").bind("keyup", function(e) {
-        var name, is_name, is_username, is_email;
+        var name;
+        var is_name;
+        var is_username;
+        var is_email;
         name = $(this).attr("name");
         if (!name) return;
         is_name = name.match(/first_name|last_name/i);
@@ -1500,7 +1504,8 @@
       });
     },
     onMemberProfileSet: function(ok, data, args) {
-      var member, error_messages;
+      var member;
+      var error_messages;
       error_messages = {
         reserved_name: TS.i18n.t("Unfortunately, that’s a reserved word. Try something else!", "web_admin")()
       };
@@ -1528,7 +1533,8 @@
       });
     },
     onMemberProfileSetEmail: function(ok, data, args) {
-      var member, error_messages;
+      var member;
+      var error_messages;
       error_messages = {
         email_bad: TS.i18n.t("Please choose a valid new email address.", "web_admin")(),
         email_taken: TS.i18n.t("That email address is being used by another account.", "web_admin")()
@@ -1557,7 +1563,8 @@
       }
     },
     onMemberProfileSetUsername: function(ok, data, args) {
-      var error_messages, member;
+      var error_messages;
+      var member;
       error_messages = {
         username_empty: TS.i18n.t("A name is required.", "web_admin")(),
         bad_username: TS.i18n.t("Usernames may only contain lowercase letters, numbers, periods, dashes and underscores and must start with a letter or number.", "web_admin")(),
@@ -2246,7 +2253,10 @@
       return _last_search_range;
     },
     buildRangeURL: function(range_label) {
-      var i, j, url, hash;
+      var i;
+      var j;
+      var url;
+      var hash;
       hash = window.location.hash;
       if (range_label === undefined || !range_label.toUpperCase) return null;
       var search_query = $("#team_filter input").val();

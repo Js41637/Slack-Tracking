@@ -1180,7 +1180,9 @@ if (typeof define !== "undefined" && define.amd) {
           return "\\" + match;
         });
         var $anchor = $('a[name="' + hash + '"], #' + hash);
-        var $tab, $pane, tab_name;
+        var $tab;
+        var $pane;
+        var tab_name;
         if ($anchor.length > 0) {
           $pane = $anchor.closest(".tab_pane");
           if ($pane.length > 0 && !$pane.hasClass("selected")) {

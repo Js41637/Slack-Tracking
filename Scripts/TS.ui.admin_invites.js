@@ -705,7 +705,8 @@
   };
   var _onExpirationDateChanged = function(date_ts) {
     if (!_.isNumber(date_ts) || date_ts === _expiration_ts) return;
-    var html, btn_text;
+    var html;
+    var btn_text;
     if (date_ts === 0) {
       _expiration_ts = null;
       html = TS.i18n.t("By default, guest accounts stay active indefinitely.", "invite")();

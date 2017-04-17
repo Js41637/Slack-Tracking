@@ -28671,3 +28671,7 @@ html:not(.supports_sticky_position) #app_index_scroller_div {
 #shared_invite_modal_link_copy_btn.hide_copy_btn_ts_tip .ts_tip_tip {
   opacity: 0
 }
+
+.hide_behind_dialog {
+  z-index: 1040
+}

@@ -3,7 +3,8 @@
   TS.registerModule("tabcomplete.emoji", {
     getMatch: function(text, is_user_solicited) {
       if (!_.isString(text)) return;
-      var match, index;
+      var match;
+      var index;
       _.deburr(text).replace(/(^|\s+)([+-]?:[\w\-+]*)$/i, function(_, match_prefix, match_text, match_offset) {
         index = match_offset + match_prefix.length;
         match = text.substr(index, match_text.length);

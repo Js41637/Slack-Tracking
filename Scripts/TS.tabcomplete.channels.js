@@ -3,13 +3,16 @@
   TS.registerModule("tabcomplete.channels", {
     getMatch: function(text) {
       if (!_.isString(text)) return;
-      var channel_name_regex, match, index;
+      var channel_name_regex;
+      var match;
+      var index;
       if (TS.boot_data.feature_intl_channel_names) {
-        channel_name_regex = /(^|\s)(#[^~`!@#$%^&*()+=[\]{}\\|;:'",.<>\/? ]*)$/i;
+        channel_name_regex = /(^|\n|.)(#[^~`!@#$%^&*()+=[\]{}\\|;:'",.<>\/? ]*)$/i;
       } else {
-        channel_name_regex = /(^|\s)(#[\w-]*)$/i;
+        channel_name_regex = /(^|\n|.)(#[\w-]*)$/i;
       }
       TS.i18n.deburr(text).replace(channel_name_regex, function(_, match_prefix, match_text, match_offset) {
+        if (!TS.tabcomplete.isAllowedSurroundingCharacter(match_prefix)) return;
         index = match_offset + match_prefix.length;
         match = text.substr(index, match_text.length);
       });

@@ -2085,7 +2085,10 @@
   ];
   var _fetchAndStoreMemoryStats = function() {
     if (desktop && desktop.stats && desktop.stats.getTeamsMemoryUsage && desktop.stats.getCombinedMemoryUsage) {
-      var memory_team_mb, memory_app_mb, memory_app_shared_mb, memory_app_private_mb;
+      var memory_team_mb;
+      var memory_app_mb;
+      var memory_app_shared_mb;
+      var memory_app_private_mb;
       var get_teams_p = TSSSB.call("getTeamsMemoryUsage");
       var get_app_p = TSSSB.call("getCombinedMemoryUsage");
       Promise.all([get_teams_p, get_app_p]).then(function(data) {
@@ -3898,7 +3901,8 @@ var _cyrillicToLatin = function(char) {
         tab_icon_name: "clock_o",
         emoji_names: _frequents
       });
-      var i, m;
+      var i;
+      var m;
       var defaults = [];
       for (i = 0; i < groupings.length; i += 1) {
         defaults = defaults.concat(groupings[i].emoji_names);
@@ -5292,7 +5296,8 @@ var _cyrillicToLatin = function(char) {
     }
     $("#select_share_channels .lfs_value .lfs_item").removeClass("new_channel_item");
     $(".modal .dialog_go").text(TS.i18n.t("Share", "files")());
-    var selected_val, type_prefix;
+    var selected_val;
+    var type_prefix;
     selected_val = item.model_ob.id;
     if (!selected_val) {
       return;

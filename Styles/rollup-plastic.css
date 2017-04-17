@@ -748,8 +748,8 @@
 
 @font-face {
   font-family: Slack;
-  src: url(/4d9e/fonts/slack-icons-Regular.eot);
-  src: url(/4d9e/fonts/slack-icons-Regular.eot?#iefix) format('embedded-opentype'), url(/4d9e/fonts/slack-icons-Regular.woff) format('woff'), url(/4d9e/fonts/slack-icons-Regular.ttf) format('truetype'), url(/4d9e/fonts/slack-icons-Regular.svg#Slack) format('svg');
+  src: url(/cf958/fonts/slack-icons-Regular.eot);
+  src: url(/cf958/fonts/slack-icons-Regular.eot?#iefix) format('embedded-opentype'), url(/cf958/fonts/slack-icons-Regular.woff) format('woff'), url(/cf958/fonts/slack-icons-Regular.ttf) format('truetype'), url(/cf958/fonts/slack-icons-Regular.svg#Slack) format('svg');
   font-style: normal;
   font-weight: 400
 }
@@ -1524,7 +1524,7 @@ svg.ts_icon_spinner svg {
   content: '\E174'
 }
 
-.ts_icon_mark_all_read:before {
+.ts_icon_keyboard:before {
   content: '\E175'
 }
 
@@ -1566,6 +1566,22 @@ svg.ts_icon_spinner svg {
 
 .ts_icon_desktop_notification:before {
   content: '\E185'
+}
+
+.ts_icon_collab_screenshare_on:before {
+  content: '\E186'
+}
+
+.ts_icon_collab_screenshare_off:before {
+  content: '\E187'
+}
+
+.ts_icon_thumbs_up:before {
+  content: '\E188'
+}
+
+.ts_icon_thumbs_down:before {
+  content: '\E189'
 }
 
 .ts_icon_expand:before {
@@ -1984,6 +2000,18 @@ svg.ts_icon_spinner svg {
 
 .ts_icon_shared_channels:before {
   content: '\E559'
+}
+
+.ts_icon_heart_large_filled:before {
+  content: '\E560'
+}
+
+.ts_icon_thumbs_up_filled:before {
+  content: '\E561'
+}
+
+.ts_icon_thumbs_down_filled:before {
+  content: '\E562'
 }
 
 .ts_icon_arrow_right:before {

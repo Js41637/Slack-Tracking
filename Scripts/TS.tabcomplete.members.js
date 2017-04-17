@@ -2,7 +2,8 @@
   "use strict";
   TS.registerModule("tabcomplete.members", {
     getMatch: function(text, is_user_solicited) {
-      var match, index;
+      var match;
+      var index;
       var member_regex = /(^|\n|.)?(@[^\s\n@]*)$/i;
       if (TS.boot_data.feature_name_tagging_client) {
         member_regex = /(^|\n|.)?(@[^\n@]*)$/i;

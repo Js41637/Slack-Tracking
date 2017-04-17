@@ -1862,7 +1862,11 @@
       TS.view.last_preview_height = TS.view.footer_outer_h;
     },
     makeAttachmentWidthRule: function(msgs_div_w) {
-      var max_width, style_id, $style, some, rule;
+      var max_width;
+      var style_id;
+      var $style;
+      var some;
+      var rule;
       some = -96;
       if (TS.model.prefs && TS.model.prefs.theme == "dense") {
         some = -144;
@@ -2072,7 +2076,11 @@
       }
     },
     updateTitleWithContext: function() {
-      var context_separator, model_ob, context_name, offset, title;
+      var context_separator;
+      var model_ob;
+      var context_name;
+      var offset;
+      var title;
       model_ob = TS.shared.getActiveModelOb();
       if (TS.model.unread_view_is_showing) {
         context_name = TS.i18n.t("Unread Messages", "view")();
@@ -2867,7 +2875,17 @@
         TS.view.last_team_list_html = null;
       }
       if (!TS.model.ui_state.flex_visible || TS.model.ui_state.flex_name !== "team") return;
-      var list_dom_id, list_dom_wrapper_id, list_scroller_id, $members, $lazy_nodes, $members_wrapper, members_for_user, is_large_team, $input, is_long_list_view, is_lazy;
+      var list_dom_id;
+      var list_dom_wrapper_id;
+      var list_scroller_id;
+      var $members;
+      var $lazy_nodes;
+      var $members_wrapper;
+      var members_for_user;
+      var is_large_team;
+      var $input;
+      var is_long_list_view;
+      var is_lazy;
       list_dom_id = "team_list_members";
       list_dom_wrapper_id = "team_list_members_wrapper";
       list_scroller_id = "team_list_scroller";
@@ -2950,7 +2968,8 @@
             _tab_scroll_tops[TS.model.ui_state.tab_name] = $scrollable.scrollTop();
           });
           $("#team_tabs").on("click", "li.tab", function() {
-            var $list, is_visible;
+            var $list;
+            var is_visible;
             if (_$active_members_list) {
               is_visible = TS.model.ui_state.tab_name == "active_members";
               if (is_visible) $list = _$active_members_list;
@@ -4409,7 +4428,9 @@
     },
     memberPresenceChanged: function(member) {
       if (!member) return;
-      var selector, $selected, presence;
+      var selector;
+      var $selected;
+      var presence;
       if (member.is_self) {
         if (TS.model.ms_connected) TS.view.ms.maybeChangeConnectionDisplay();
         var menu_presence_toggle = $("#menu").find("#member_presence").find(".menu_item_label");
@@ -6279,7 +6300,8 @@
       e.preventDefault();
       e.stopPropagation();
       var model_ob = TS.shared.getActiveModelOb();
-      var msg, msgs;
+      var msg;
+      var msgs;
       if (model_ob) {
         msgs = model_ob.msgs;
         msgs = TS.utility.msgs.getDisplayedMsgs(msgs);
@@ -6807,7 +6829,10 @@
     }),
     actuallyCheckUnseenChannelsImsGroupsWithUnreads: function() {
       TS.client.ui.getCachedDimensionsRect("cached_channels_scroller_rect", TS.client.channel_pane.$scroller);
-      var unseen_above, unseen_below, unseen_above_has_mention, unseen_below_has_mention = false;
+      var unseen_above;
+      var unseen_below;
+      var unseen_above_has_mention;
+      var unseen_below_has_mention = false;
       var $unreads;
       $unreads = TS.client.channel_pane.$scroller.find("li.unread:not(.muted_channel):not(.all_unreads)");
       $unreads.each(function() {
@@ -8601,10 +8626,10 @@
       }
     },
     toggleFileList: function(id) {
-      var $file_list = $("#file_list"),
-        $file_list_toggle_all = $("#file_list_toggle_all"),
-        $file_list_toggle_user = $("#file_list_toggle_user"),
-        $file_list_toggle_users = $("#file_list_toggle_users");
+      var $file_list = $("#file_list");
+      var $file_list_toggle_all = $("#file_list_toggle_all");
+      var $file_list_toggle_user = $("#file_list_toggle_user");
+      var $file_list_toggle_users = $("#file_list_toggle_users");
       var just_you_text = TS.i18n.t("Just You", "files")();
       if ($file_list.data("list") == id) return;
       $file_list.data("list", id);
@@ -8805,7 +8830,8 @@
       }
 
       function directoryFallbackTest(file, callback) {
-        var reader, result;
+        var reader;
+        var result;
         result = {
           isFile: null,
           isDirectory: null
@@ -8835,7 +8861,11 @@
       }
 
       function isUnsupportedType(file_object, entry_object, callback) {
-        var unsupported_item, result, period, extension, file_name;
+        var unsupported_item;
+        var result;
+        var period;
+        var extension;
+        var file_name;
         result = false;
         file_name = file_object.name || entry_object.name;
         if (!file_name) return false;
@@ -8863,7 +8893,15 @@
       }
 
       function maybeShowSupportDialog(file_list, onGoCallback) {
-        var i, j, file_names, good_files, title, unsupported_warning_html, file_html, suggestions_html, dont_worry_html;
+        var i;
+        var j;
+        var file_names;
+        var good_files;
+        var title;
+        var unsupported_warning_html;
+        var file_html;
+        var suggestions_html;
+        var dont_worry_html;
         if (excluded_files.length) {
           file_names = [];
           file_html = "";
@@ -8914,7 +8952,10 @@
       function loadFiles(files) {
         selected_file_count = files.length;
         updateExpectedFileCount(files.length);
-        var file, entry, file_object, entry_object;
+        var file;
+        var entry;
+        var file_object;
+        var entry_object;
         for (var i = 0; i < files.length; i += 1) {
           file = files[i];
           file_object = file;
@@ -12983,6 +13024,7 @@
       model_ob = model_ob || TS.shared.getActiveModelOb();
       if (!parseInt(model_ob.last_read, 10)) return false;
       if (!model_ob.msgs || !model_ob.msgs.length) return false;
+      if (model_ob.oldest_msg_ts && model_ob.last_read < model_ob.oldest_msg_ts) return false;
       return !_.some(model_ob.msgs, function(msg) {
         return msg.ts <= model_ob.last_read;
       });
@@ -14303,16 +14345,6 @@
       }
     });
     _newest_id = _$whats_new_updates.children().first().data("whats-new-id") || _newest_id;
-    if (TS.boot_data.feature_custom_status_whats_new_fix && TS.model.prefs.whats_new_read == 1492074e3) {
-      TS.prefs.onPrefChanged({
-        name: "whats_new_read",
-        value: 1491931700
-      });
-      TS.prefs.setPrefByAPI({
-        name: "whats_new_read",
-        value: 1491931700
-      });
-    }
     _updateEverything();
     _$what_new_read_cb.bind("change", function() {
       _setUserBadgingPref(!!$(this).prop("checked"));
@@ -15440,9 +15472,9 @@
       });
     },
     searchMembers: function() {
-      var query = TS.search.query_string,
-        $search_results_team = $("#search_results_team"),
-        real_name_regex = new RegExp("\\b" + TS.utility.regexpEscape(query) + "\\b", "i");
+      var query = TS.search.query_string;
+      var $search_results_team = $("#search_results_team");
+      var real_name_regex = new RegExp("\\b" + TS.utility.regexpEscape(query) + "\\b", "i");
       $search_results_team.removeClass("hidden");
       var query_lc = query.toLowerCase();
       var members = TS.members.getMembersForUser();
@@ -19049,7 +19081,9 @@
         },
         usersStarred: function() {
           var starred = [];
-          var member, im, i;
+          var member;
+          var im;
+          var i;
           for (i = 0; i < TS.model.ims.length; i += 1) {
             im = TS.model.ims[i];
             if (im.is_slackbot_im || !im.is_open) continue;
@@ -19064,7 +19098,9 @@
         },
         usersOpen: function() {
           var open_ims = [];
-          var member, im, i;
+          var member;
+          var im;
+          var i;
           for (i = 0; i < TS.model.ims.length; i += 1) {
             im = TS.model.ims[i];
             if (im.is_slackbot_im || !im.is_open) continue;
@@ -19083,7 +19119,8 @@
         channelsOpen: function() {
           var all_channels = TS.channels.getChannelsForUser();
           var open_channels = [];
-          var i, channel;
+          var i;
+          var channel;
           for (i = 0; i < all_channels.length; i += 1) {
             channel = all_channels[i];
             if (channel.is_starred) continue;
@@ -19100,7 +19137,8 @@
         groupsOpen: function() {
           var all_groups = TS.model.groups;
           var open_groups = [];
-          var group, i;
+          var group;
+          var i;
           for (i = 0; i < all_groups.length; i += 1) {
             group = all_groups[i];
             if (group.is_archived) continue;
@@ -19258,7 +19296,9 @@
   var _min_year = 1900;
   var _max_year = 2999;
   var _matchDate = function(str, allow_future) {
-    var year, month, day;
+    var year;
+    var month;
+    var day;
     var matches;
     var today = new Date;
     if (_just_year.test(str)) {
@@ -23554,7 +23594,8 @@
         step_name: "onboarding_recent_mentions",
         pref_name: "seen_onboarding_recent_mentions",
         promiseTo: function() {
-          var $target, $starburst;
+          var $target;
+          var $starburst;
           return new Promise(function(resolve, reject) {
             $target = $("#recent_mentions_toggle");
             _addClickTickStarburst($target);
@@ -23579,7 +23620,8 @@
         step_name: "onboarding_starred_items",
         pref_name: "seen_onboarding_starred_items",
         promiseTo: function() {
-          var $target, $starburst;
+          var $target;
+          var $starburst;
           return new Promise(function(resolve, reject) {
             $target = $("#stars_toggle");
             _addClickTickStarburst($target);
@@ -24604,7 +24646,8 @@
   };
   var _onExpirationDateChanged = function(date_ts) {
     if (!_.isNumber(date_ts) || date_ts === _expiration_ts) return;
-    var html, btn_text;
+    var html;
+    var btn_text;
     if (date_ts === 0) {
       _expiration_ts = null;
       html = TS.i18n.t("By default, guest accounts stay active indefinitely.", "invite")();
@@ -30200,7 +30243,8 @@
       });
     } else if (sort === "creator") {
       channels.sort(function(a, b) {
-        var a_creator, b_creator;
+        var a_creator;
+        var b_creator;
         a_creator = TS.members.getMemberById(a.creator);
         b_creator = TS.members.getMemberById(b.creator);
         if (a_creator && b_creator) {
@@ -35548,7 +35592,10 @@ function timezones_guess() {
       try {
         window_open = window.open;
         window.open = function(url, name, specs) {
-          var width, height, left, top;
+          var width;
+          var height;
+          var left;
+          var top;
           width = String(specs).match(/width\D+(\d+)/);
           width = parseInt(width && width[1] || 590, 10);
           height = String(specs).match(/height\D+(\d+)/);
@@ -35596,7 +35643,8 @@ function timezones_guess() {
       };
     }
   });
-  var _box_select, _box_window;
+  var _box_select;
+  var _box_window;
   var _getBoxSelect = function() {
     if (_box_select) return _box_select;
     _box_select = new window.BoxSelect({
@@ -39110,7 +39158,8 @@ function timezones_guess() {
     var last;
     _.findLast(config.sections, function(section) {
       if (!section.msgs || !section.msgs.length) return false;
-      var msg, ts;
+      var msg;
+      var ts;
       if (config.msg_order === "asc") {
         msg = _.first(section.msgs);
         ts = msg ? msg.ts : null;
@@ -39153,7 +39202,9 @@ function timezones_guess() {
     if (config.msg_order === "desc") return msgs;
     var processed = [];
     var jl_rolled_up_msgs = [];
-    var i, rollup, msg;
+    var i;
+    var rollup;
+    var msg;
     for (i = msgs.length - 1; i > -1; i -= 1) {
       msg = msgs[i];
       if (msg.no_display) continue;
@@ -40553,7 +40604,8 @@ function timezones_guess() {
     if (flex_name != "convo") {
       return;
     }
-    var model_ob_id, thread_ts;
+    var model_ob_id;
+    var thread_ts;
     var chunks = (flex_extra || "").split("-");
     if (chunks.length == 1) {
       model_ob_id = TS.shared.getActiveModelOb().id;
@@ -42789,7 +42841,8 @@ var _getDownloadLink = function() {
       return Promise.reject();
     }
     if (options.warning) {
-      TS.menu.$menu_header.html(TS.templates.shared_invites_modal_warning({
+      var $parent_menu = _$shared_invites_modal.closest(".menu");
+      $parent_menu.prepend(TS.templates.shared_invites_modal_warning({
         warning: options.warning
       }));
     } else {
@@ -42838,8 +42891,10 @@ var _getDownloadLink = function() {
     var $create_btn;
     _$shared_invites_modal.on("click", '[data-action="shared_invite_create_link"]', function() {
       $create_btn = $(this);
+      var $expiration_select = _$shared_invites_modal.find("#select_shared_invite_expiration");
       TS.ui.startButtonSpinner($create_btn.get(0));
-      var days_until_expiration = _.toInteger(_$shared_invites_modal.find("#select_shared_invite_expiration").val());
+      $expiration_select.attr("disabled", "disabled");
+      var days_until_expiration = _.toInteger($expiration_select.val());
       return TS.api.call("users.admin.createSharedInvite", {
         expiration: days_until_expiration,
         max_signups: 500
@@ -42850,6 +42905,7 @@ var _getDownloadLink = function() {
             copy: true
           });
         }
+        $expiration_select.removeAttr("disabled");
         TS.ui.stopButtonSpinner($create_btn.get(0), false);
         return _enterView("admin_create_link", {
           warning: "ratelimited"
@@ -42878,6 +42934,8 @@ var _getDownloadLink = function() {
   };
   var _bindDisableLink = function() {
     _$shared_invites_modal.on("click", '[data-action="disable_shared_link"]', function() {
+      var $menus = $(".menu");
+      $menus.addClass("hide_behind_dialog");
       TS.menu.needs_to_remain_open = function() {
         return true;
       };
@@ -42892,6 +42950,7 @@ var _getDownloadLink = function() {
           onGo: resolve,
           onEnd: function() {
             TS.menu.needs_to_remain_open = undefined;
+            $menus.removeClass("hide_behind_dialog");
           }
         });
       }).then(function() {
