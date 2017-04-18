@@ -370,8 +370,3 @@
 .ql-editor.ql-blank:before {
   display: none
 }
-
-ts-mention {
-  background: rgba(0, 122, 184, .1);
-  color: #007AB8
-}

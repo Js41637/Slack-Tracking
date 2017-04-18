@@ -28,6 +28,9 @@
       if (TS.boot_data.feature_name_tagging_client) {
         $("body").addClass("feature_name_tagging_client");
       }
+      if (TS.boot_data.feature_texty_mentions) {
+        $("body").addClass("feature_texty_mentions");
+      }
       if (TS.utility.contenteditable.supportsTexty()) {
         $("body").addClass("feature_texty");
       }
@@ -5648,6 +5651,8 @@
     $msgs_unread_divider: null,
     file_dropped_sig: new signals.Signal,
     file_pasted_sig: new signals.Signal,
+    did_rebuild_all_sig: new signals.Signal,
+    did_rebuild_all_but_msgs_sig: new signals.Signal,
     onStart: function() {
       TS.channels.data_updated_sig.add(_channelDataUpdated);
       TS.ui.window_focus_changed_sig.add(TS.client.ui.windowFocusChanged);
@@ -5833,10 +5838,12 @@
       }
       TS.client.ui.threads.updateChannelPaneActiveState();
       TS.client.ui.app_index.updateChannelPaneActiveState();
+      TS.client.ui.did_rebuild_all_but_msgs_sig.dispatch();
     },
     rebuildAll: function(make_sure_active_channel_is_in_view) {
       TS.client.ui.rebuildAllButMsgs(make_sure_active_channel_is_in_view);
       TS.client.msg_pane.rebuildMsgsWithReason("rebuildAll");
+      TS.client.ui.did_rebuild_all_sig.dispatch();
     },
     windowFocusChanged: function(has_focus) {
       if (has_focus) {
@@ -12220,6 +12227,7 @@
     dont_check_unreads_til_switch: false,
     date_change_timer: null,
     new_msgs_bar_showing: false,
+    did_rebuild_msgs_sig: new signals.Signal,
     onStart: function() {
       _member_presence_list = new TS.PresenceList;
       TS.team.team_email_domain_changed_sig.add(_updateGeneralChannelMetaInviteAction, TS.client.msg_pane);
@@ -12531,6 +12539,7 @@
         TS.recaps_signal.retrieveHighlights();
       }
       TS.client.msg_pane.is_rebuilding = false;
+      TS.client.msg_pane.did_rebuild_msgs_sig.dispatch();
     },
     displayTitle: function() {
       TS.client.channel_header.start();
@@ -25629,9 +25638,7 @@
           TS.ui.fs_modal.close();
           return;
         }
-        var err_str = TS.i18n.t("Archiving failed with error: {error}", "channel_options")({
-          error: data.error
-        });
+        var err_str = TS.i18n.t("For some weird reason, that didn’t work. Please try again to continue.", "channel_options")();
         if (data.error === "last_ra_channel") {
           if (TS.model.user.is_admin) {
             err_str = TS.i18n.t("Sorry, you can’t archive this channel because it is the only channel one of the guest account members belongs to. If you first disable the guest account, you will then be able to archive the channel.", "channel_options")();
@@ -25686,9 +25693,7 @@
         } else if (data.error === "restricted_action") {
           err_str = TS.i18n.t("<p>You don’t have permission to archive private channels.</p><p>Talk to your Team Owner.</p>", "channel_options")();
         } else {
-          err_str = TS.i18n.t("Archiving failed with error: {error}", "channel_options")({
-            error: data.error
-          });
+          err_str = TS.i18n.t("For some weird reason, that didn’t work. Please try again to continue.", "channel_options")();
         }
         setTimeout(TS.generic_dialog.alert, 500, err_str);
       });
@@ -25727,9 +25732,7 @@
         } else if (data.error === "name_taken") {
           err_str = TS.i18n.t('<p>Converting this channel failed because of a naming collision, which should never happen, but did. Please <a href="/help/requests/new">let us know</a> this happened.</p>', "channel_options")();
         } else {
-          err_str = TS.i18n.t("Converting to private channel failed with error: {error}", "channel_options")({
-            error: data.error
-          });
+          err_str = TS.i18n.t("For some weird reason, that didn’t work. Please try again to continue.", "channel_options")();
         }
         setTimeout(TS.generic_dialog.alert, 500, err_str);
       });
@@ -25752,7 +25755,7 @@
     };
     if (TS.boot_data.page_needs_enterprise) channel_conversion_dialog_args.enterprise_info = TS.model.enterprise;
     _setOptionContentHtml(TS.templates.shared_channel_conversion_dialog(channel_conversion_dialog_args));
-    _setOptionGoText(TS.i18n.t("Convert to Shared Channel", "channel_options")());
+    _setOptionGoText(TS.i18n.t("Convert to shared channel", "channel_options")());
     _current_option_go_callback = function() {
       if (TS.ui.channel_options_dialog.ladda) TS.ui.channel_options_dialog.ladda.start();
       var $convert_to_shared = _$current_option.find(".convert_to_shared");
@@ -25799,9 +25802,7 @@
         } else if (data.error === "last_ra_channel") {
           err_str = TS.i18n.t("<p>Sorry, you can’t convert this channel because it is the only channel one of the guest account members belongs to. If you first disable the guest account, you will then be able to convert the channel.</p>", "channel_options")();
         } else {
-          err_str = TS.i18n.t("Converting to a shared channel failed with error: {error}", "channel_options")({
-            error: data.error
-          });
+          err_str = TS.i18n.t("For some weird reason, that didn’t work. Please try again to continue.", "channel_options")();
         }
         setTimeout(TS.generic_dialog.alert, 500, err_str);
       });
@@ -25888,9 +25889,7 @@
             if (!ok) {
               _toggleChannelNameChecking(true, false);
               _bad_channel_name = true;
-              TS.generic_dialog.alert(TS.i18n.t("Something failed! : {error}", "channel_options")({
-                error: data.error
-              }));
+              TS.generic_dialog.alert(TS.i18n.t("For some weird reason, that didn’t work. Please try again to continue.", "channel_options")());
             } else {
               if (data.name_taken) {
                 _toggleChannelNameChecking(true, false);
@@ -25953,8 +25952,8 @@
     _setOptionContentHtml(TS.templates.channel_option_rename_channel({
       title: title
     }));
-    var go_text = TS.i18n.t("Rename Channel", "channel_options")();
-    if (model_ob.is_group) go_text = TS.i18n.t("Rename private Channel", "channel_options")();
+    var go_text = TS.i18n.t("Rename channel", "channel_options")();
+    if (model_ob.is_group) go_text = TS.i18n.t("Rename private channel", "channel_options")();
     _setOptionGoText(go_text);
     var new_title;
     var method;
@@ -26325,10 +26324,9 @@
       TS.api.callImmediately("channels.prefs.set", calling_args, function(ok, data) {
         if (TS.ui.channel_options_dialog.ladda) TS.ui.channel_options_dialog.ladda.stop();
         if (!ok) {
-          var str = TS.i18n.t("Failed! {error}", "channel_options")({
-            error: data.error
-          });
+          var str = TS.i18n.t("For some weird reason, that didn’t work. Please try again to continue.", "channel_options")();
           TS.generic_dialog.alert(str);
+          TS.error("Failed with error: " + data.error);
           return;
         }
         TS.ui.fs_modal.close();
@@ -42264,7 +42262,9 @@ function timezones_guess() {
     return TS.ui.thread.buildThreadHTML(thread);
   };
   var _renderAllReplyInputs = function(rerender) {
-    var $threads = TS.client.ui.threads.$container.find("ts-thread");
+    var $thread_container = TS.client.ui.threads.$container;
+    if (!$thread_container) return;
+    var $threads = $thread_container.find("ts-thread");
     _.forEach($threads, function(thread) {
       if (rerender) $(thread).data("input_rendered", false);
       _renderReplyInput($(thread));

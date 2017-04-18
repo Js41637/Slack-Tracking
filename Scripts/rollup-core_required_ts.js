@@ -3911,7 +3911,7 @@ var _cyrillicToLatin = function(char) {
           var localized_name = name;
           var localized_names = names;
           TS.model.emoji_names.push(name);
-          if (TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE) {
+          if (TS.boot_data.feature_i18n_emoji && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE) {
             localized_name = TSFEmoji.getLocalEmojiString(name, TS.i18n.locale());
             localized_names = names.map(function(name) {
               return TSFEmoji.getLocalEmojiString(name, TS.i18n.locale());
@@ -3926,6 +3926,7 @@ var _cyrillicToLatin = function(char) {
             id: "E" + idx + (i > 0 ? "_alias_" + i : ""),
             name: name,
             name_with_colons: ":" + name + ":",
+            display_name: localized_name,
             is_skin: is_skin_tone_modifiable,
             is_emoji: true
           });

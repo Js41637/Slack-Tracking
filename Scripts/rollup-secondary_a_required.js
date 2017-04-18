@@ -6362,12 +6362,12 @@ TS.registerModule("constants", {
         }, TS.files.onChannelFetch);
       }
     },
-    fetchMultipleFiles: function(file_ids, callback) {
+    fetchMultipleFiles: function(file_ids, callback, no_upsert) {
       return TS.api.call("files.list", {
         files: file_ids.join(",")
       }, function(ok, data, args) {
         if (ok) {
-          if (data.files) {
+          if (data.files && !no_upsert) {
             var file;
             for (var i = 0; i < data.files.length; i += 1) {
               file = data.files[i];
@@ -11134,6 +11134,7 @@ TS.registerModule("constants", {
     lazily_added_sig: new signals.Signal,
     batch_upserted_sig: new signals.Signal,
     non_loaded_changed_deleted_sig: new signals.Signal,
+    member_was_upserted_sig: new signals.Signal,
     is_in_bulk_upsert_mode: false,
     members_for_user_changed_sig: new signals.Signal,
     onStart: function() {
@@ -11344,6 +11345,7 @@ TS.registerModule("constants", {
         TS.members.invalidateActiveMembersArrayCaches();
       }
       if (status == "ADDED" || status == "CHANGED") TS.members.maybeStoreMembers();
+      TS.members.member_was_upserted_sig.dispatch();
       return {
         status: status,
         member: member,
@@ -17247,25 +17249,38 @@ TS.registerModule("constants", {
       TS.members.invalidateMembersUserCanSeeArrayCaches();
       TS.channels.left_sig.dispatch(channel);
     },
-    subtype__channel_leave: function(imsg) {
-      var user_id = imsg.user;
-      TS.info(user_id + " left channel " + imsg.channel);
-      var channel = TS.channels.getChannelById(imsg.channel);
-      if (!channel) return;
-      imsg.no_display = TS.utility.msgs.shouldHideChannelJoinOrLeaveMsg(imsg, channel);
-      var should_display_join_message = !imsg.no_display;
-      var is_member = false;
-      var membership_did_change = TS.membership.setUserChannelMembership(user_id, channel, is_member);
-      if (membership_did_change) TS.membership.notifyChannelMembershipChanged(user_id, channel, is_member, should_display_join_message);
-    },
     member_left_channel: function(imsg) {
       var channel;
+      var user_id = imsg.user;
       if (imsg.channel_type == "C") {
         channel = TS.channels.getChannelById(imsg.channel);
-        if (channel) TS.ms.msg_handlers.subtype__channel_leave(imsg);
+        if (channel) {
+          TS.info(user_id + " left channel " + imsg.channel);
+          imsg.no_display = TS.utility.msgs.shouldHideChannelJoinOrLeaveMsg(imsg, channel);
+          var should_display_join_message = !imsg.no_display;
+          var is_member = false;
+          var membership_did_change = TS.membership.setUserChannelMembership(user_id, channel, is_member);
+          if (membership_did_change) TS.membership.notifyChannelMembershipChanged(user_id, channel, is_member, should_display_join_message);
+        }
       } else if (imsg.channel_type == "G") {
         channel = TS.groups.getGroupById(imsg.channel);
-        if (channel) TS.ms.msg_handlers.subtype__group_leave(imsg);
+        if (channel) {
+          var member = TS.members.getMemberById(user_id);
+          if (!member) {
+            TS.error('unknown member: "' + user_id + '"');
+            return;
+          }
+          TS.info(member.id + " left group " + imsg.channel);
+          for (var i = 0; i < channel.members.length; i += 1) {
+            if (channel.members[i] == member.id) {
+              channel.members.splice(i, 1);
+              TS.groups.calcActiveMembersForGroup(channel);
+              break;
+            }
+          }
+          TS.members.invalidateMembersUserCanSeeArrayCaches();
+          TS.groups.member_left_sig.dispatch(channel, member);
+        }
       }
     },
     channel_joined: function(imsg) {
@@ -17449,29 +17464,51 @@ TS.registerModule("constants", {
       TS.info("renamed channel " + imsg.channel.id);
       TS.channels.channelRenamed(imsg.channel);
     },
-    subtype__channel_join: function(imsg) {
-      var user_id = imsg.user;
-      TS.info(user_id + " joined channel " + imsg.channel);
-      var channel = TS.channels.getChannelById(imsg.channel);
-      if (!channel) return;
-      if (user_id == TS.model.user.id && imsg.inviter) {
-        channel.needs_invited_message = true;
-        channel.inviter = imsg.inviter;
-      }
-      imsg.no_display = TS.utility.msgs.shouldHideChannelJoinOrLeaveMsg(imsg, channel);
-      var should_display_join_message = !imsg.no_display;
-      var is_member = true;
-      var membership_did_change = TS.membership.setUserChannelMembership(user_id, channel, is_member);
-      if (membership_did_change) TS.membership.notifyChannelMembershipChanged(user_id, channel, is_member, should_display_join_message);
-    },
     member_joined_channel: function(imsg) {
       var channel;
+      var user_id = imsg.user;
       if (imsg.channel_type == "C") {
         channel = TS.channels.getChannelById(imsg.channel);
-        if (channel) TS.ms.msg_handlers.subtype__channel_join(imsg);
+        if (channel) {
+          TS.info(user_id + " joined channel " + imsg.channel);
+          if (user_id == TS.model.user.id && imsg.inviter) {
+            channel.needs_invited_message = true;
+            channel.inviter = imsg.inviter;
+          }
+          imsg.no_display = TS.utility.msgs.shouldHideChannelJoinOrLeaveMsg(imsg, channel);
+          var should_display_join_message = !imsg.no_display;
+          var is_member = true;
+          var membership_did_change = TS.membership.setUserChannelMembership(user_id, channel, is_member);
+          if (membership_did_change) TS.membership.notifyChannelMembershipChanged(user_id, channel, is_member, should_display_join_message);
+        }
       } else if (imsg.channel_type == "G") {
         channel = TS.groups.getGroupById(imsg.channel);
-        if (channel) TS.ms.msg_handlers.subtype__group_join(imsg);
+        if (channel) {
+          var member = TS.members.getMemberById(user_id);
+          if (!member) {
+            TS.error('unknown member: "' + user_id + '"');
+            return;
+          }
+          if (imsg.is_mpim) return;
+          TS.info(member.id + " joined group " + imsg.channel);
+          var existing_member_id;
+          for (var i = 0; i < channel.members.length; i += 1) {
+            if (channel.members[i] == member.id) {
+              existing_member_id = channel.members[i];
+              break;
+            }
+          }
+          if (!existing_member_id && channel) {
+            channel.members.push(member.id);
+            TS.groups.calcActiveMembersForGroup(channel);
+          }
+          if (member.is_self && imsg.inviter) {
+            channel.needs_invited_message = true;
+            channel.inviter = imsg.inviter;
+          }
+          TS.members.invalidateMembersUserCanSeeArrayCaches();
+          TS.groups.member_joined_sig.dispatch(channel, member);
+        }
       }
     },
     channel_marked: function(imsg) {
@@ -17625,27 +17662,6 @@ TS.registerModule("constants", {
       TS.members.invalidateMembersUserCanSeeArrayCaches();
       TS.groups.left_sig.dispatch(group);
     },
-    subtype__group_leave: function(imsg) {
-      var user_id = imsg.user;
-      var member = TS.members.getMemberById(user_id);
-      if (!member) {
-        TS.error('unknown member: "' + user_id + '"');
-        return;
-      }
-      TS.info(member.id + " left group " + imsg.channel);
-      var group = TS.groups.getGroupById(imsg.channel);
-      if (group) {
-        for (var i = 0; i < group.members.length; i += 1) {
-          if (group.members[i] == member.id) {
-            group.members.splice(i, 1);
-            TS.groups.calcActiveMembersForGroup(group);
-            break;
-          }
-        }
-      }
-      TS.members.invalidateMembersUserCanSeeArrayCaches();
-      if (group) TS.groups.member_left_sig.dispatch(group, member);
-    },
     group_joined: function(imsg) {
       TS.info("You joined group " + imsg.channel.id);
       if (imsg.channel.is_mpim) return;
@@ -17712,36 +17728,6 @@ TS.registerModule("constants", {
       }
       TS.info("renamed group " + imsg.channel.id);
       TS.groups.groupRenamed(imsg.channel);
-    },
-    subtype__group_join: function(imsg) {
-      var user_id = imsg.user;
-      var member = TS.members.getMemberById(user_id);
-      if (!member) {
-        TS.error('unknown member: "' + user_id + '"');
-        return;
-      }
-      if (imsg.is_mpim) return;
-      TS.info(member.id + " joined group " + imsg.channel);
-      var group = TS.groups.getGroupById(imsg.channel);
-      var existing_member_id;
-      if (group) {
-        for (var i = 0; i < group.members.length; i += 1) {
-          if (group.members[i] == member.id) {
-            existing_member_id = group.members[i];
-            break;
-          }
-        }
-      }
-      if (!existing_member_id && group) {
-        group.members.push(member.id);
-        TS.groups.calcActiveMembersForGroup(group);
-      }
-      if (member.is_self && imsg.inviter) {
-        group.needs_invited_message = true;
-        group.inviter = imsg.inviter;
-      }
-      TS.members.invalidateMembersUserCanSeeArrayCaches();
-      if (group) TS.groups.member_joined_sig.dispatch(group, member);
     },
     group_open: function(imsg) {
       if (TS.mpims.getMpimById(imsg.channel)) {
@@ -18548,6 +18534,40 @@ TS.registerModule("constants", {
       return _ensureModelObsAndMembersAndProceed(imsg);
     }
     TS.log(552, imsg.type + " referenced a relevant file and we have to look it up via the API: " + file_id);
+    if (TS.boot_data.feature_dedupe_files_info_requests && _Q.length > 1) {
+      var file_ids = [file_id];
+      _.forEach(_Q, function(queued_imsg) {
+        if (file_ids.length >= 20) return false;
+        var maybe_file_info = _findFileObAndId(queued_imsg);
+        if (maybe_file_info && !_.includes(file_ids, maybe_file_info.file_id) && _isFileMsgRelevant(queued_imsg, maybe_file_info.file_id)) {
+          file_ids.push(maybe_file_info.file_id);
+        }
+      });
+      if (file_ids.length > 1) {
+        var no_upsert = true;
+        TS.files.fetchMultipleFiles(file_ids, function(ok, data) {
+          var files = data && data.files;
+          if (!ok || !_.isArray(files)) {
+            TS.maybeWarn(552, imsg.type + " multi-file fetch failed");
+            return Promise.resolve().then(function() {
+              return _afterMsgHandled();
+            });
+          }
+          var file_map = _.groupBy(files, "id");
+          _.forEach(_Q, function(queued_imsg) {
+            var queued_file_ob_and_id = _findFileObAndId(queued_imsg);
+            if (!queued_file_ob_and_id) return;
+            var file = file_map[queued_file_ob_and_id.file_id];
+            if (!file) return;
+            queued_file_ob_and_id.ob_with_file.file = file;
+            queued_imsg._file_attached = true;
+            TS.log(552, imsg.type + " now has a file definition (" + queued_file_ob_and_id.file_id + ")");
+          });
+          return _ensureModelObsAndMembersAndProceed(imsg);
+        }, no_upsert);
+        return;
+      }
+    }
     TS.files.fetchFileInfoRaw(file_id, function(id, file) {
       if (!file) {
         TS.maybeWarn(552, imsg.type + " file fetch failed (or the file has been deleted)");
@@ -18557,17 +18577,6 @@ TS.registerModule("constants", {
       }
       ob_with_file.file = file;
       TS.log(552, imsg.type + " now has a file definition");
-      if (TS.boot_data.feature_dedupe_files_info_requests) {
-        imsg._file_attached = true;
-        _.forEach(_Q, function(queued_imsg) {
-          var queued_file_ob_and_id = _findFileObAndId(queued_imsg);
-          if (queued_file_ob_and_id && queued_file_ob_and_id.file_id === file_id) {
-            queued_file_ob_and_id.ob_with_file.file = file;
-            queued_imsg._file_attached = true;
-            TS.log(552, imsg.type + " now has a file definition (courtesy of a previously queued imsg for " + file_id + ")");
-          }
-        });
-      }
       return _ensureModelObsAndMembersAndProceed(imsg);
     });
   };
@@ -31941,7 +31950,7 @@ TS.registerModule("constants", {
     });
     var display_name;
     var target;
-    if (TS.boot_data.feature_name_tagging_client) {
+    if (TS.boot_data.feature_texty_mentions) {
       if (tsf_mode == "EDIT") {
         return "@" + m.name;
       }
@@ -32006,10 +32015,15 @@ TS.registerModule("constants", {
           var target = TS.utility.shouldLinksHaveTargets() ? 'target="/usergroups/' + ug.id + '" ' : " ";
           var handle = TS.utility.htmlEntities(ug.handle);
           var display_name = no_highlights ? "@" + handle : _doHighlighting("@" + handle);
+          var classes = ["internal_user_group_link"];
           if (no_linking) {
             return display_name;
           }
-          return '<a href="/usergroups/' + ug.id + '" ' + target + 'data-user-group-id="' + ug.id + '" class="internal_user_group_link">' + display_name + "</a>";
+          if (TS.boot_data.feature_texty_mentions) {
+            display_name = "@" + handle;
+            if (!no_highlights) classes.push("mention");
+          }
+          return '<a href="/usergroups/' + ug.id + '" ' + target + 'data-user-group-id="' + ug.id + '" class="' + classes.join(" ") + '">' + display_name + "</a>";
         }
         if (tsf_mode != "GROWL" && tsf_mode != "EDIT") {
           return cmd_label;
@@ -32172,7 +32186,7 @@ TS.registerModule("constants", {
     if (TS.model.prefs.convert_emoticons && TS.model.prefs.emoji_mode != "as_text") {
       txt = TS.format.doEmoticonConversion(txt);
     }
-    if (TS.boot_data.feature_i18n_emoji) {
+    if (TS.boot_data.feature_i18n_emoji && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE) {
       txt = TSFEmoji.translateEmojiStringToCanonical(txt, TS.i18n.locale());
     }
     if (TS.boot_data.feature_ignore_code_mentions) {
@@ -35874,6 +35888,114 @@ var _on_esc;
 })();
 (function() {
   "use strict";
+  TS.registerModule("debug_widget", {
+    onStart: function() {
+      if (!TS.client) return;
+      if (!TS.client.ui) return;
+      if (!TS.members) return;
+      _$widget = $("#debug_widget");
+      if (!_$widget.length) return;
+      TS.client.ui.did_rebuild_all_sig.add(_didRebuildAll);
+      TS.client.ui.did_rebuild_all_but_msgs_sig.add(_didRebuildAllButMessages);
+      TS.client.msg_pane.did_rebuild_msgs_sig.add(_didRebuildMessages);
+      TS.members.member_was_upserted_sig.add(_didUpsertMember);
+      _$widget.click(function(e) {
+        e.preventDefault();
+        if (e.altKey) {
+          _rebuild_all_count = 0;
+          _rebuild_all_but_messages_count = 0;
+          _rebuild_messages_count = 0;
+          _member_upsert_count = 0;
+          _last_member_upsert_ts = 0;
+          _render();
+        }
+      });
+      if (window.localStorage.show_debug_widget) {
+        TS.debug_widget.toggle();
+      }
+    },
+    toggle: function() {
+      if (!TS.client || !_$widget) return;
+      _$widget.toggleClass("hidden");
+      if (_$widget.hasClass("hidden")) {
+        delete window.localStorage.show_debug_widget;
+        _$widget.empty();
+      } else {
+        window.localStorage.show_debug_widget = 1;
+        _render();
+      }
+    }
+  });
+  var _$widget;
+  var _last_member_upsert_ts = 0;
+  var _rebuild_all_count = 0;
+  var _rebuild_all_but_messages_count = 0;
+  var _rebuild_messages_count = 0;
+  var _member_upsert_count = 0;
+  var UPDATE_INTERVAL_MS = 500;
+  var _pending_render_t;
+  var template = Handlebars.compile('Rt={{rebuild_all_count}} Rb={{rebuild_all_but_messages_count}} Rm={{rebuild_messages_count}}<br>Um={{upsert_member_count}} <span class="{{color_class}}"><ts-icon class="ts_icon_add_user"></ts-icon> {{time_since_readable}}</span>');
+  var _didUpsertMember = function() {
+    _member_upsert_count += 1;
+    _last_member_upsert_ts = Date.now();
+    _maybeRender();
+  };
+  var _didRebuildAllButMessages = function() {
+    _rebuild_all_but_messages_count += 1;
+    _maybeRender();
+  };
+  var _didRebuildMessages = function() {
+    _rebuild_messages_count += 1;
+    _maybeRender();
+  };
+  var _didRebuildAll = function() {
+    _rebuild_all_count += 1;
+    _maybeRender();
+  };
+  var _getTemplateArgs = function() {
+    var time_since_last_member_upsert = Date.now() - _last_member_upsert_ts;
+    var color_class = "";
+    if (time_since_last_member_upsert < 2e3) {
+      color_class = "candy_red";
+    } else if (time_since_last_member_upsert < 1e4) {
+      color_class = "star_yellow";
+    } else if (time_since_last_member_upsert < 2e4) {
+      color_class = "ocean_teal";
+    }
+    var time_since_readable = "";
+    if (time_since_last_member_upsert < 1e3) {
+      time_since_readable = "<1s";
+    } else if (time_since_last_member_upsert < 2e4) {
+      time_since_readable = Math.floor(time_since_last_member_upsert / 1e3) + "s";
+    }
+    return {
+      has_recent_member_upsert: !!color_class,
+      color_class: color_class,
+      rebuild_all_count: _rebuild_all_count,
+      rebuild_all_but_messages_count: _rebuild_all_but_messages_count,
+      rebuild_messages_count: _rebuild_messages_count,
+      time_since_readable: time_since_readable,
+      upsert_member_count: _member_upsert_count
+    };
+  };
+  var _render = function() {
+    clearTimeout(_pending_render_t);
+    _pending_render_t = undefined;
+    var args = _getTemplateArgs();
+    var html = template(args);
+    _$widget.html(html);
+    if (args.has_recent_member_upsert) {
+      _maybeRender();
+    }
+  };
+  var _maybeRender = function() {
+    if (!_$widget) return;
+    if (_pending_render_t) return;
+    _pending_render_t = setTimeout(_render, UPDATE_INTERVAL_MS);
+  };
+})();
+(function() {
+  "use strict";
   TS.registerModule("cmd_handlers", {
     server_cmds: null,
     onStart: function() {
@@ -36179,6 +36301,16 @@ var _on_esc;
         if (!_.get(window, "desktop.app.toggleDevTools")) return;
         var also_open_electron_dev_tools = false;
         desktop.app.toggleDevTools(also_open_electron_dev_tools);
+      }
+    },
+    "/slackdebugwidget": {
+      type: "client",
+      autocomplete: false,
+      alias_of: null,
+      aliases: null,
+      func: function() {
+        if (!TS.debug_widget) return;
+        TS.debug_widget.toggle();
       }
     },
     "/away": {
@@ -50733,7 +50865,7 @@ $.fn.togglify = function(settings) {
           emoji._jumper_score = 0;
           return true;
         }
-        var score = fuzzy_emoji.score(emoji.name);
+        var score = fuzzy_emoji.score(emoji.display_name || emoji.name);
         emoji._jumper_score = score;
         return score <= fuzzy_limit;
       },
@@ -50930,7 +51062,7 @@ $.fn.togglify = function(settings) {
     }
     if (!searcher.only_channels && !searcher.only_members) {
       emoji_matches = data.emoji.filter(function(e) {
-        if (options.prefer_exact_match && e.name === searcher.query) {
+        if (options.prefer_exact_match && (e.display_name || e.name) === searcher.query) {
           e._jumper_exact_match = true;
           exact_matches.push(e);
           return false;
@@ -68622,8 +68754,7 @@ $.fn.togglify = function(settings) {
         return r(e);
       }
     };
-  i.injection = o,
-    e.exports = i;
+  i.injection = o, e.exports = i;
 }, function(e, t, n) {
   "use strict";
   var r = {
@@ -69972,7 +70103,8 @@ $.fn.togglify = function(settings) {
                 containerSize: a,
                 offset: v
               });
-            this._renderedColumnStartIndex = g.start, this._renderedColumnStopIndex = g.stop, this._renderedRowStartIndex = _.start, this._renderedRowStopIndex = _.stop;
+            this._renderedColumnStartIndex = g.start, this._renderedColumnStopIndex = g.stop, this._renderedRowStartIndex = _.start,
+              this._renderedRowStopIndex = _.stop;
             var w = u({
                 direction: "horizontal",
                 cellCount: o,
@@ -71714,8 +71846,7 @@ $.fn.togglify = function(settings) {
               r = function(e) {
                 "Enter" !== e.key && " " !== e.key || n(e);
               };
-            x["aria-label"] = t.props["aria-label"] || v || p,
-              x.role = "rowheader", x.tabIndex = 0, x.onClick = n, x.onKeyDown = r;
+            x["aria-label"] = t.props["aria-label"] || v || p, x.role = "rowheader", x.tabIndex = 0, x.onClick = n, x.onKeyDown = r;
           }(), _.a.createElement("div", o()({}, x, {
             key: "Header-Col" + n,
             className: b,
@@ -74919,8 +75050,7 @@ $.fn.togglify = function(settings) {
     s = n(7),
     u = n(55),
     l = (n(0), n(92), function(e) {
-      this._currentElement = e, this._stringText = "" + e, this._hostNode = null,
-        this._hostParent = null, this._domID = 0, this._mountIndex = 0, this._closingComment = null, this._commentNodes = null;
+      this._currentElement = e, this._stringText = "" + e, this._hostNode = null, this._hostParent = null, this._domID = 0, this._mountIndex = 0, this._closingComment = null, this._commentNodes = null;
     });
   o(l.prototype, {
     mountComponent: function(e, t, n, r) {
@@ -81223,7 +81353,8 @@ $.fn.togglify = function(settings) {
     a = n.n(i),
     s = n(366),
     u = n(367);
-  window.ReactComponents = {}, window.ReactComponents.EmojiPicker = s.a, window.ReactComponents.Popover = u.a, window.ReactComponents.PopoverTrigger = u.b, window.React = o.a, window.ReactDOM = a.a;
+  window.ReactComponents = {}, window.ReactComponents.EmojiPicker = s.a,
+    window.ReactComponents.Popover = u.a, window.ReactComponents.PopoverTrigger = u.b, window.React = o.a, window.ReactDOM = a.a;
 }]);
 (function() {
   "use strict";

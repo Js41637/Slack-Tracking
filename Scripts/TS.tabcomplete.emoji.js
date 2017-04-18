@@ -40,7 +40,7 @@
     },
     getInsertData: function(result) {
       if (!result || !result.emoji) return;
-      var text = result.emoji.name_with_colons;
+      var text = ":" + (result.emoji.display_name || result.emoji.name) + ":";
       if (result.emoji.is_skin) text += TS.emoji.getChosenSkinToneModifier() || "";
       if (result.action === "add_rxn") {
         text = "+" + text;
@@ -272,13 +272,16 @@
     return _.map(results, "model_ob");
   };
   var _getTemplateArgsForEmoji = function(emoji) {
+    var emoji_display_name_with_colons = ":" + emoji.display_name || emoji.name + ":";
     var args = {
       emoji_is_plain_text_only: TS.model.prefs.emoji_mode === "as_text",
-      emoji: emoji
+      emoji: emoji,
+      emoji_display_name_with_colons: emoji_display_name_with_colons
     };
     if (emoji.is_skin) {
       args.show_skin_tone_variant = emoji.is_skin;
       args.emoji_name_with_colons_and_skin = emoji.name_with_colons + TS.emoji.getChosenSkinToneModifier();
+      args.emoji_display_name_with_colons_and_skin = emoji_display_name_with_colons + TS.emoji.getChosenSkinToneModifier();
     }
     return args;
   };

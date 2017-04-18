@@ -19172,8 +19172,8 @@ ts-message.automated .message_body .topic {
   font-style: normal
 }
 
-.feature_name_tagging_client ts-message.automated .internal_member_link,
-.feature_name_tagging_client ts-message.ephemeral .internal_member_link {
+.feature_texty_mentions ts-message.automated .internal_member_link,
+.feature_texty_mentions ts-message.ephemeral .internal_member_link {
   color: inherit;
   background: inherit
 }
@@ -19729,33 +19729,47 @@ ts-message .theme_installer_btn {
   }
 }
 
-.feature_name_tagging_client .internal_member_link,
-.feature_name_tagging_client .internal_user_group_link {
-  background: rgba(0, 122, 184, .1);
-  color: #007AB8
+.feature_texty_mentions .internal_member_link,
+.feature_texty_mentions .internal_user_group_link,
+.feature_texty_mentions ts-mention {
+  background: rgba(0, 122, 184, .05);
+  color: #007AB8;
+  border: 1px solid rgba(0, 122, 184, .3)
 }
 
-.feature_name_tagging_client .internal_member_link:hover,
-.feature_name_tagging_client .internal_user_group_link:hover {
-  color: #007AB8
+.feature_texty_mentions .internal_member_link:hover,
+.feature_texty_mentions .internal_user_group_link:hover,
+.feature_texty_mentions ts-mention:hover {
+  color: #005E99;
+  border: 1px solid rgba(0, 122, 184, .6);
+  text-decoration: none
 }
 
-.feature_name_tagging_client .plastic_contenteditable .internal_member_link,
-.feature_name_tagging_client .plastic_contenteditable .internal_user_group_link {
+.feature_texty_mentions .plastic_contenteditable .internal_member_link,
+.feature_texty_mentions .plastic_contenteditable .internal_user_group_link {
   cursor: text
 }
 
-.feature_name_tagging_client .plastic_contenteditable .internal_member_link::selection,
-.feature_name_tagging_client .plastic_contenteditable .internal_user_group_link::selection {
+.feature_texty_mentions .plastic_contenteditable .internal_member_link::selection,
+.feature_texty_mentions .plastic_contenteditable .internal_user_group_link::selection {
   background: #007AB8;
   color: #fff
 }
 
 .comment .mention,
-.feature_name_tagging_client .comment .mention,
-.feature_name_tagging_client ts-message .mention,
 ts-message .mention {
   background: #FFF3B8
+}
+
+.feature_texty_mentions .comment .mention,
+.feature_texty_mentions ts-message .mention {
+  background: rgba(255, 243, 184, .3);
+  border: 1px solid rgba(237, 180, 49, .5)
+}
+
+.feature_texty_mentions .comment .mention:hover,
+.feature_texty_mentions ts-message .mention:hover {
+  border: 1px solid rgba(237, 180, 49, .7)
 }
 
 .comment .emoji-sizer .mention,
@@ -19763,10 +19777,11 @@ ts-message .emoji-sizer .mention {
   display: none
 }
 
-.feature_name_tagging_client .internal_member_link,
-.feature_name_tagging_client .internal_user_group_link,
-.feature_name_tagging_client .mention {
-  padding: 0 0 2px;
+.feature_texty_mentions .internal_member_link,
+.feature_texty_mentions .internal_user_group_link,
+.feature_texty_mentions .mention,
+.feature_texty_mentions ts-mention {
+  padding: 0 2px 2px;
   border-radius: 3px
 }
 
@@ -28112,11 +28127,6 @@ ts-thread .thread_participants {
   right: .625rem
 }
 
-.sli_briefing__message ts-message .btn_msg_action.ts_icon_heart_o::before {
-  font-size: 19px;
-  margin-top: -1px
-}
-
 .sli_briefing__message ts-message .message_content {
   margin-left: 3.7rem
 }
@@ -28223,7 +28233,7 @@ ts-thread .thread_participants {
 }
 
 .sli_briefing__feedback--positive ts-message .sli_briefing__feedback_positive {
-  color: #eb4d5c
+  color: #007AB8
 }
 
 .sli_briefing__feedback--positive ts-message .sli_briefing__feedback_negative {
@@ -28247,38 +28257,36 @@ ts-thread .thread_participants {
   display: flex
 }
 
-.sli_briefing__message ts-message .sli_briefing__feedback_positive:hover,
-.sli_briefing__message ts-message .sli_briefing__feedback_positive:hover::before {
-  color: #eb4d5c
-}
-
-.sli_briefing__message ts-message .ts_icon_heart_o:hover::before {
+.sli_briefing__message ts-message .ts_icon_thumbs_down:hover::before,
+.sli_briefing__message ts-message .ts_icon_thumbs_up:hover::before {
+  -webkit-transform: scale(1.1);
+  -moz-transform: scale(1.1);
+  -ms-transform: scale(1.1);
   transform: scale(1.1)
 }
 
-.sli_briefing__message ts-message .sli_briefing__feedback_positive.ts_icon_heart {
-  padding-top: 4px
-}
-
-.sli_briefing__message ts-message .sli_briefing__feedback_positive.ts_icon_heart::before {
-  font-size: 26px!important;
-  margin-top: -6px
-}
-
-.sli_briefing__message ts-message .sli_briefing__feedback_positive.ts_icon_heart.pulse::before {
-  transform-origin: 13px 14px;
+.sli_briefing__message ts-message .sli_briefing__feedback_positive.pulse::before {
   animation: pulse .3s 1 ease-in-out
 }
 
 @keyframes pulse {
   0%,
   100% {
+    -webkit-transform: scale(1);
+    -moz-transform: scale(1);
+    -ms-transform: scale(1);
     transform: scale(1)
   }
   33% {
+    -webkit-transform: scale(.2);
+    -moz-transform: scale(.2);
+    -ms-transform: scale(.2);
     transform: scale(.2)
   }
   66% {
+    -webkit-transform: scale(1.4);
+    -moz-transform: scale(1.4);
+    -ms-transform: scale(1.4);
     transform: scale(1.4)
   }
 }

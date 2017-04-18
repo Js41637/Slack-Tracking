@@ -4,12 +4,12 @@
     {{#if show_skin_tone_variant}}
       {{emojiGraphicReplace emoji_name_with_colons_and_skin}}
       {{#unless emoji_is_plain_text_only}}
-        {{emoji_name_with_colons_and_skin}}
+        {{emoji_display_name_with_colons_and_skin}}
       {{/unless}}
     {{else}}
       {{emojiGraphicReplace emoji.name_with_colons}}
       {{#unless emoji_is_plain_text_only}}
-        {{emoji.name_with_colons}}
+        {{emoji_display_name_with_colons}}
       {{/unless}}
     {{/if}}
   </li>
