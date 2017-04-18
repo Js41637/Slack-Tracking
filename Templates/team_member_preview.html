@@ -362,31 +362,8 @@
       {{#or (or member.profile.guest_invited_by member.profile.guest_expiration_ts) member.profile.guest_channels}}
         <hr class="member_details_divider">
 
-        <table class="member_data_table lato{{#pageNeedsEnterprise}}{{#if teams}} no_bottom_margin{{/if}}{{/pageNeedsEnterprise}}">
-          {{#if member.profile.guest_invited_by}}
-            <tr>
-              <td><span class="small_right_padding old_petunia_grey" title="{{#t note="owner or admin that invited the guest to the team"}}Invited By{{/t}}">{{#t note="owner or admin that invited the guest to the team"}}Invited By{{/t}}</span></td>
-              <td>
-                {{makeMemberPreviewLinkById member.profile.guest_invited_by}}
-              </td>
-            </tr>
-          {{/if}}
-          {{#if member.profile.guest_expiration_ts}}
-            <tr>
-              <td><span class="small_right_padding old_petunia_grey" title="{{#t note="date the guest account will be deactivated"}}Member Until{{/t}}">{{#t note="date the guest account will be deactivated"}}Member Until{{/t}}</span></td>
-              <td>
-                {{toCalendarDate member.profile.guest_expiration_ts}}
-              </td>
-            </tr>
-          {{/if}}
-          {{#if member.profile.guest_channels}}
-            <tr>
-              <td><span class="small_right_padding old_petunia_grey" title="{{#t note="list of channels the user is invited to" }}{member.is_ultra_restricted, select, true{Channel}other{Channels}}{{/t}}">{{#t note="list of channels the user is invited to" }}{member.is_ultra_restricted, select, true{Channel}other{Channels}}{{/t}}</span></td>
-              <td>
-                {{makeLinksFromChannelOrGroupIds member.profile.guest_channels}}
-              </td>
-            </tr>
-          {{/if}}
+        <table id="member_data_table_guest_fields" class="member_data_table lato{{#pageNeedsEnterprise}}{{#if teams}} no_bottom_margin{{/if}}{{/pageNeedsEnterprise}}">
+          {{> guest_profile_fields member=member will_rebuild_user_fields=true }}
         </table>
       {{/or}}
     {{/if}}

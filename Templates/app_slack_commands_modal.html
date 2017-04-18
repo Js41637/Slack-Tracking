@@ -26,7 +26,7 @@
     <label for="url" class="no_bottom_margin no_wrap right_margin">{{#t note="URL to send slash commands to"}}Request URL{{/t}}</label>
 
     <div class="app_slack_commands_form_input_label_container">
-      <input type="url" name="url" placeholder="https://example.com/slack/command" class="small no_bottom_margin overflow_ellipsis" value="{{url}}" data-validation="required isurlbasic{{#if https_only}}=https{{/if}}" data-validation-for="url_validation_label" data-validation-success="{{#t note="successful data validation message"}}Looks good.{{/t}}">
+      <input type="url" name="url" placeholder="https://example.com/slack/command" class="small no_bottom_margin overflow_ellipsis" value="{{url}}" data-validation="required isurl{{#if https_only}}=https{{else}}=http{{/if}}" data-validation-for="url_validation_label" data-validation-success="{{#t note="successful data validation message"}}Looks good.{{/t}}">
       <label for="url_validation_label" class="app_slack_commands_form_validation_label plastic_grey no_bottom_margin"></label>
     </div>
 

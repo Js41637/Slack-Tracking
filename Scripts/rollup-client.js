@@ -5759,7 +5759,7 @@
                 }
               }
             });
-            if (TS.boot_data.feature_texty_copy_paste) {
+            if (TS.boot_data.feature_texty_mentions && $(e.target).closest(".ql-editor").length) {
               selection_html = TS.format.formatSelectionAsHTML(selection);
             }
             if (selection_text) {
@@ -5769,8 +5769,9 @@
                 "public.utf8-plain-text": selection_text,
                 Text: selection_text
               };
-              if (TS.boot_data.feature_texty_copy_paste && selection_html) {
+              if (TS.boot_data.feature_texty_mentions && selection_html) {
                 mime_types["text/html"] = selection_html;
+                mime_types["slack/html"] = selection_html;
               }
               TS.clipboard.writeTextFromEvent(e, mime_types);
             }
@@ -8241,21 +8242,26 @@
     if (TS.boot_data.feature_user_custom_status) {
       if (member.is_self) TS.client.ui.flex.registerCurrentStatusInput();
     }
-    _rebuildTeamProfileFieldsForMember(member);
+    _fetchMemberObjectsAndRebuildUserProfileFields(member);
   };
-  var _rebuildTeamProfileFieldsForMember = function(member) {
-    var fields = TS.team.getVisibleTeamProfileFieldsForMember(member);
-    if (!fields || !fields.length) return Promise.resolve();
-    var unique_member_ids = _.chain(fields).filter({
+  var _fetchMemberObjectsAndRebuildUserProfileFields = function(member) {
+    var unique_member_ids = [];
+    if (member.is_restricted && member.profile.guest_invited_by) unique_member_ids.push(member.profile.guest_invited_by);
+    var profile_fields = TS.team.getVisibleTeamProfileFieldsForMember(member);
+    var profile_ids = _.chain(profile_fields).filter({
       type: "user"
     }).reduce(function(member_ids, field) {
       return member_ids.concat(field.value.split(/\s*,\s*/));
-    }, []).uniq().value();
-    if (!unique_member_ids.length) return Promise.resolve();
-    return TS.flannel.fetchAndUpsertObjectsByIds(unique_member_ids).then(function() {
+    }, []).value();
+    unique_member_ids = _.chain(unique_member_ids).concat(profile_ids).compact().uniq().value();
+    if (!unique_member_ids.length) return;
+    TS.flannel.fetchAndUpsertObjectsByIds(unique_member_ids).then(function() {
       if (TS.model.previewed_member_id === member.id) {
         $("#member_data_table_team_fields").html(TS.templates.team_profile_fields({
-          fields: fields
+          fields: profile_fields
+        }));
+        if (member.is_restricted) $("#member_data_table_guest_fields").html(TS.templates.guest_profile_fields({
+          member: member
         }));
       }
     });

@@ -1501,7 +1501,7 @@
           return TS.channels.upsertChannel(channel, is_bulk_upsert);
         });
         if (TS.useRedux() && is_bulk_upsert && channels_to_upsert.length) {
-          TS.redux.channels.bulkUpsertEntities(_.compact(channels_to_upsert));
+          TS.redux.channels.bulkAddEntities(_.compact(channels_to_upsert));
         }
         TS.metrics.measureAndClear("upsert_channels", "upsert_channels_start");
         var skip_ims_mpims = TS.boot_data.page_needs_enterprise && TS.boot_data.exclude_org_members;
@@ -1512,7 +1512,7 @@
             return TS.ims.upsertIm(im, is_bulk_upsert);
           });
           if (TS.useRedux() && is_bulk_upsert && ims_to_upsert.length) {
-            TS.redux.channels.bulkUpsertEntities(_.compact(ims_to_upsert));
+            TS.redux.channels.bulkAddEntities(_.compact(ims_to_upsert));
           }
         }
         TS.metrics.mark("upsert_groups_start");
@@ -1536,7 +1536,7 @@
           return TS.groups.upsertGroup(group, is_bulk_upsert);
         });
         if (TS.useRedux() && is_bulk_upsert && groups_to_upsert.length) {
-          TS.redux.channels.bulkUpsertEntities(_.compact(groups_to_upsert));
+          TS.redux.channels.bulkAddEntities(_.compact(groups_to_upsert));
         }
         TS.metrics.measureAndClear("upsert_groups", "upsert_groups_start");
         if (data.mpims) {
@@ -1547,7 +1547,7 @@
               return TS.mpims.upsertMpim(mpim, is_bulk_upsert);
             });
             if (TS.useRedux() && is_bulk_upsert && mpims_to_upsert.length) {
-              TS.redux.channels.bulkUpsertEntities(_.compact(mpims_to_upsert));
+              TS.redux.channels.bulkAddEntities(_.compact(mpims_to_upsert));
             }
           }
         }

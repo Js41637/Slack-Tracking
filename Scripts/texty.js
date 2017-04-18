@@ -691,6 +691,9 @@
   module.exports = _quill2.default;
 }, function(module, exports, __webpack_require__) {
   "use strict";
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
   var container_1 = __webpack_require__(4);
   var format_1 = __webpack_require__(8);
   var leaf_1 = __webpack_require__(13);
@@ -725,21 +728,31 @@
       Store: store_1.default
     }
   };
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
   exports.default = Parchment;
 }, function(module, exports, __webpack_require__) {
   "use strict";
-  var __extends = this && this.__extends || function(d, b) {
-    for (var p in b)
-      if (b.hasOwnProperty(p)) d[p] = b[p];
-
-    function __() {
-      this.constructor = d;
+  var __extends = this && this.__extends || function() {
+    var extendStatics = Object.setPrototypeOf || {
+      __proto__: []
     }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __);
-  };
+    instanceof Array && function(d, b) {
+      d.__proto__ = b;
+    } || function(d, b) {
+      for (var p in b)
+        if (b.hasOwnProperty(p)) d[p] = b[p];
+    };
+    return function(d, b) {
+      extendStatics(d, b);
+
+      function __() {
+        this.constructor = d;
+      }
+      d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __);
+    };
+  }();
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
   var linked_list_1 = __webpack_require__(5);
   var shadow_1 = __webpack_require__(6);
   var Registry = __webpack_require__(7);
@@ -965,12 +978,12 @@
     }
     return blot;
   }
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
   exports.default = ContainerBlot;
 }, function(module, exports) {
   "use strict";
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
   var LinkedList = function() {
     function LinkedList() {
       this.head = this.tail = undefined;
@@ -1094,12 +1107,12 @@
     };
     return LinkedList;
   }();
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
   exports.default = LinkedList;
 }, function(module, exports, __webpack_require__) {
   "use strict";
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
   var Registry = __webpack_require__(7);
   var ShadowBlot = function() {
     function ShadowBlot(domNode) {
@@ -1240,21 +1253,31 @@
     return ShadowBlot;
   }();
   ShadowBlot.blotName = "abstract";
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
   exports.default = ShadowBlot;
 }, function(module, exports) {
   "use strict";
-  var __extends = this && this.__extends || function(d, b) {
-    for (var p in b)
-      if (b.hasOwnProperty(p)) d[p] = b[p];
-
-    function __() {
-      this.constructor = d;
+  var __extends = this && this.__extends || function() {
+    var extendStatics = Object.setPrototypeOf || {
+      __proto__: []
     }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __);
-  };
+    instanceof Array && function(d, b) {
+      d.__proto__ = b;
+    } || function(d, b) {
+      for (var p in b)
+        if (b.hasOwnProperty(p)) d[p] = b[p];
+    };
+    return function(d, b) {
+      extendStatics(d, b);
+
+      function __() {
+        this.constructor = d;
+      }
+      d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __);
+    };
+  }();
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
   var ParchmentError = function(_super) {
     __extends(ParchmentError, _super);
 
@@ -1384,15 +1407,28 @@
   exports.register = register;
 }, function(module, exports, __webpack_require__) {
   "use strict";
-  var __extends = this && this.__extends || function(d, b) {
-    for (var p in b)
-      if (b.hasOwnProperty(p)) d[p] = b[p];
-
-    function __() {
-      this.constructor = d;
+  var __extends = this && this.__extends || function() {
+    var extendStatics = Object.setPrototypeOf || {
+      __proto__: []
     }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __);
-  };
+    instanceof Array && function(d, b) {
+      d.__proto__ = b;
+    } || function(d, b) {
+      for (var p in b)
+        if (b.hasOwnProperty(p)) d[p] = b[p];
+    };
+    return function(d, b) {
+      extendStatics(d, b);
+
+      function __() {
+        this.constructor = d;
+      }
+      d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __);
+    };
+  }();
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
   var attributor_1 = __webpack_require__(9);
   var store_1 = __webpack_require__(10);
   var container_1 = __webpack_require__(4);
@@ -1456,12 +1492,12 @@
     };
     return FormatBlot;
   }(container_1.default);
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
   exports.default = FormatBlot;
 }, function(module, exports, __webpack_require__) {
   "use strict";
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
   var Registry = __webpack_require__(7);
   var Attributor = function() {
     function Attributor(attrName, keyName, options) {
@@ -1504,12 +1540,12 @@
     };
     return Attributor;
   }();
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
   exports.default = Attributor;
 }, function(module, exports, __webpack_require__) {
   "use strict";
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
   var attributor_1 = __webpack_require__(9);
   var class_1 = __webpack_require__(11);
   var style_1 = __webpack_require__(12);
@@ -1571,21 +1607,31 @@
     };
     return AttributorStore;
   }();
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
   exports.default = AttributorStore;
 }, function(module, exports, __webpack_require__) {
   "use strict";
-  var __extends = this && this.__extends || function(d, b) {
-    for (var p in b)
-      if (b.hasOwnProperty(p)) d[p] = b[p];
-
-    function __() {
-      this.constructor = d;
+  var __extends = this && this.__extends || function() {
+    var extendStatics = Object.setPrototypeOf || {
+      __proto__: []
     }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __);
-  };
+    instanceof Array && function(d, b) {
+      d.__proto__ = b;
+    } || function(d, b) {
+      for (var p in b)
+        if (b.hasOwnProperty(p)) d[p] = b[p];
+    };
+    return function(d, b) {
+      extendStatics(d, b);
+
+      function __() {
+        this.constructor = d;
+      }
+      d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __);
+    };
+  }();
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
   var attributor_1 = __webpack_require__(9);
 
   function match(node, prefix) {
@@ -1627,21 +1673,31 @@
     };
     return ClassAttributor;
   }(attributor_1.default);
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
   exports.default = ClassAttributor;
 }, function(module, exports, __webpack_require__) {
   "use strict";
-  var __extends = this && this.__extends || function(d, b) {
-    for (var p in b)
-      if (b.hasOwnProperty(p)) d[p] = b[p];
-
-    function __() {
-      this.constructor = d;
+  var __extends = this && this.__extends || function() {
+    var extendStatics = Object.setPrototypeOf || {
+      __proto__: []
     }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __);
-  };
+    instanceof Array && function(d, b) {
+      d.__proto__ = b;
+    } || function(d, b) {
+      for (var p in b)
+        if (b.hasOwnProperty(p)) d[p] = b[p];
+    };
+    return function(d, b) {
+      extendStatics(d, b);
+
+      function __() {
+        this.constructor = d;
+      }
+      d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __);
+    };
+  }();
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
   var attributor_1 = __webpack_require__(9);
 
   function camelize(name) {
@@ -1680,21 +1736,31 @@
     };
     return StyleAttributor;
   }(attributor_1.default);
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
   exports.default = StyleAttributor;
 }, function(module, exports, __webpack_require__) {
   "use strict";
-  var __extends = this && this.__extends || function(d, b) {
-    for (var p in b)
-      if (b.hasOwnProperty(p)) d[p] = b[p];
-
-    function __() {
-      this.constructor = d;
+  var __extends = this && this.__extends || function() {
+    var extendStatics = Object.setPrototypeOf || {
+      __proto__: []
     }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __);
-  };
+    instanceof Array && function(d, b) {
+      d.__proto__ = b;
+    } || function(d, b) {
+      for (var p in b)
+        if (b.hasOwnProperty(p)) d[p] = b[p];
+    };
+    return function(d, b) {
+      extendStatics(d, b);
+
+      function __() {
+        this.constructor = d;
+      }
+      d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __);
+    };
+  }();
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
   var shadow_1 = __webpack_require__(6);
   var Registry = __webpack_require__(7);
   var LeafBlot = function(_super) {
@@ -1722,21 +1788,31 @@
     return LeafBlot;
   }(shadow_1.default);
   LeafBlot.scope = Registry.Scope.INLINE_BLOT;
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
   exports.default = LeafBlot;
 }, function(module, exports, __webpack_require__) {
   "use strict";
-  var __extends = this && this.__extends || function(d, b) {
-    for (var p in b)
-      if (b.hasOwnProperty(p)) d[p] = b[p];
-
-    function __() {
-      this.constructor = d;
+  var __extends = this && this.__extends || function() {
+    var extendStatics = Object.setPrototypeOf || {
+      __proto__: []
     }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __);
-  };
+    instanceof Array && function(d, b) {
+      d.__proto__ = b;
+    } || function(d, b) {
+      for (var p in b)
+        if (b.hasOwnProperty(p)) d[p] = b[p];
+    };
+    return function(d, b) {
+      extendStatics(d, b);
+
+      function __() {
+        this.constructor = d;
+      }
+      d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __);
+    };
+  }();
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
   var container_1 = __webpack_require__(4);
   var Registry = __webpack_require__(7);
   var OBSERVER_CONFIG = {
@@ -1869,21 +1945,31 @@
   ScrollBlot.defaultChild = "block";
   ScrollBlot.scope = Registry.Scope.BLOCK_BLOT;
   ScrollBlot.tagName = "DIV";
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
   exports.default = ScrollBlot;
 }, function(module, exports, __webpack_require__) {
   "use strict";
-  var __extends = this && this.__extends || function(d, b) {
-    for (var p in b)
-      if (b.hasOwnProperty(p)) d[p] = b[p];
-
-    function __() {
-      this.constructor = d;
+  var __extends = this && this.__extends || function() {
+    var extendStatics = Object.setPrototypeOf || {
+      __proto__: []
     }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __);
-  };
+    instanceof Array && function(d, b) {
+      d.__proto__ = b;
+    } || function(d, b) {
+      for (var p in b)
+        if (b.hasOwnProperty(p)) d[p] = b[p];
+    };
+    return function(d, b) {
+      extendStatics(d, b);
+
+      function __() {
+        this.constructor = d;
+      }
+      d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __);
+    };
+  }();
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
   var format_1 = __webpack_require__(8);
   var Registry = __webpack_require__(7);
 
@@ -1943,21 +2029,31 @@
   InlineBlot.blotName = "inline";
   InlineBlot.scope = Registry.Scope.INLINE_BLOT;
   InlineBlot.tagName = "SPAN";
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
   exports.default = InlineBlot;
 }, function(module, exports, __webpack_require__) {
   "use strict";
-  var __extends = this && this.__extends || function(d, b) {
-    for (var p in b)
-      if (b.hasOwnProperty(p)) d[p] = b[p];
-
-    function __() {
-      this.constructor = d;
+  var __extends = this && this.__extends || function() {
+    var extendStatics = Object.setPrototypeOf || {
+      __proto__: []
     }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __);
-  };
+    instanceof Array && function(d, b) {
+      d.__proto__ = b;
+    } || function(d, b) {
+      for (var p in b)
+        if (b.hasOwnProperty(p)) d[p] = b[p];
+    };
+    return function(d, b) {
+      extendStatics(d, b);
+
+      function __() {
+        this.constructor = d;
+      }
+      d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __);
+    };
+  }();
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
   var format_1 = __webpack_require__(8);
   var Registry = __webpack_require__(7);
   var BlockBlot = function(_super) {
@@ -2008,21 +2104,31 @@
   BlockBlot.blotName = "block";
   BlockBlot.scope = Registry.Scope.BLOCK_BLOT;
   BlockBlot.tagName = "P";
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
   exports.default = BlockBlot;
 }, function(module, exports, __webpack_require__) {
   "use strict";
-  var __extends = this && this.__extends || function(d, b) {
-    for (var p in b)
-      if (b.hasOwnProperty(p)) d[p] = b[p];
-
-    function __() {
-      this.constructor = d;
+  var __extends = this && this.__extends || function() {
+    var extendStatics = Object.setPrototypeOf || {
+      __proto__: []
     }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __);
-  };
+    instanceof Array && function(d, b) {
+      d.__proto__ = b;
+    } || function(d, b) {
+      for (var p in b)
+        if (b.hasOwnProperty(p)) d[p] = b[p];
+    };
+    return function(d, b) {
+      extendStatics(d, b);
+
+      function __() {
+        this.constructor = d;
+      }
+      d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __);
+    };
+  }();
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
   var leaf_1 = __webpack_require__(13);
   var EmbedBlot = function(_super) {
     __extends(EmbedBlot, _super);
@@ -2048,21 +2154,31 @@
     };
     return EmbedBlot;
   }(leaf_1.default);
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
   exports.default = EmbedBlot;
 }, function(module, exports, __webpack_require__) {
   "use strict";
-  var __extends = this && this.__extends || function(d, b) {
-    for (var p in b)
-      if (b.hasOwnProperty(p)) d[p] = b[p];
-
-    function __() {
-      this.constructor = d;
+  var __extends = this && this.__extends || function() {
+    var extendStatics = Object.setPrototypeOf || {
+      __proto__: []
     }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __);
-  };
+    instanceof Array && function(d, b) {
+      d.__proto__ = b;
+    } || function(d, b) {
+      for (var p in b)
+        if (b.hasOwnProperty(p)) d[p] = b[p];
+    };
+    return function(d, b) {
+      extendStatics(d, b);
+
+      function __() {
+        this.constructor = d;
+      }
+      d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __);
+    };
+  }();
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
   var leaf_1 = __webpack_require__(13);
   var Registry = __webpack_require__(7);
   var TextBlot = function(_super) {
@@ -2143,9 +2259,6 @@
   }(leaf_1.default);
   TextBlot.blotName = "text";
   TextBlot.scope = Registry.Scope.INLINE_BLOT;
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
   exports.default = TextBlot;
 }, function(module, exports, __webpack_require__) {
   "use strict";
@@ -2838,16 +2951,14 @@
   var elem = document.createElement("div");
   elem.classList.toggle("test-class", false);
   if (elem.classList.contains("test-class")) {
-    (function() {
-      var _toggle = DOMTokenList.prototype.toggle;
-      DOMTokenList.prototype.toggle = function(token, force) {
-        if (arguments.length > 1 && !this.contains(token) === !force) {
-          return force;
-        } else {
-          return _toggle.call(this, token);
-        }
-      };
-    })();
+    var _toggle = DOMTokenList.prototype.toggle;
+    DOMTokenList.prototype.toggle = function(token, force) {
+      if (arguments.length > 1 && !this.contains(token) === !force) {
+        return force;
+      } else {
+        return _toggle.call(this, token);
+      }
+    };
   }
   if (!String.prototype.startsWith) {
     String.prototype.startsWith = function(searchString, position) {
@@ -4243,28 +4354,25 @@
     }, {
       key: "update",
       value: function update(change) {
-        var _this5 = this;
         var mutations = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
         var cursorIndex = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : undefined;
         var oldDelta = this.delta;
         if (mutations.length === 1 && mutations[0].type === "characterData" && _parchment2.default.find(mutations[0].target)) {
-          (function() {
-            var textBlot = _parchment2.default.find(mutations[0].target);
-            var formats = (0, _block.bubbleFormats)(textBlot);
-            var index = textBlot.offset(_this5.scroll);
-            var oldValue = mutations[0].oldValue.replace(_cursor2.default.CONTENTS, "");
-            var oldText = (new _quillDelta2.default).insert(oldValue);
-            var newText = (new _quillDelta2.default).insert(textBlot.value());
-            var diffDelta = (new _quillDelta2.default).retain(index).concat(oldText.diff(newText, cursorIndex));
-            change = diffDelta.reduce(function(delta, op) {
-              if (op.insert) {
-                return delta.insert(op.insert, formats);
-              } else {
-                return delta.push(op);
-              }
-            }, new _quillDelta2.default);
-            _this5.delta = oldDelta.compose(change);
-          })();
+          var textBlot = _parchment2.default.find(mutations[0].target);
+          var formats = (0, _block.bubbleFormats)(textBlot);
+          var index = textBlot.offset(this.scroll);
+          var oldValue = mutations[0].oldValue.replace(_cursor2.default.CONTENTS, "");
+          var oldText = (new _quillDelta2.default).insert(oldValue);
+          var newText = (new _quillDelta2.default).insert(textBlot.value());
+          var diffDelta = (new _quillDelta2.default).retain(index).concat(oldText.diff(newText, cursorIndex));
+          change = diffDelta.reduce(function(delta, op) {
+            if (op.insert) {
+              return delta.insert(op.insert, formats);
+            } else {
+              return delta.push(op);
+            }
+          }, new _quillDelta2.default);
+          this.delta = oldDelta.compose(change);
         } else {
           this.delta = this.getDelta();
           if (!change || !(0, _deepEqual2.default)(oldDelta.compose(change), this.delta)) {
@@ -5769,6 +5877,10 @@
     };
     var clone = function() {
       "use strict";
+
+      function _instanceof(obj, type) {
+        return type != null && obj instanceof type;
+      }
       var nativeMap;
       try {
         nativeMap = Map;
@@ -5809,11 +5921,11 @@
           if ((typeof parent === "undefined" ? "undefined" : _typeof(parent)) != "object") {
             return parent;
           }
-          if (parent instanceof nativeMap) {
+          if (_instanceof(parent, nativeMap)) {
             child = new nativeMap;
-          } else if (parent instanceof nativeSet) {
+          } else if (_instanceof(parent, nativeSet)) {
             child = new nativeSet;
-          } else if (parent instanceof nativePromise) {
+          } else if (_instanceof(parent, nativePromise)) {
             child = new nativePromise(function(resolve, reject) {
               parent.then(function(value) {
                 resolve(_clone(value, depth - 1));
@@ -5832,7 +5944,7 @@
             child = new Buffer(parent.length);
             parent.copy(child);
             return child;
-          } else if (parent instanceof Error) {
+          } else if (_instanceof(parent, Error)) {
             child = Object.create(parent);
           } else {
             if (typeof prototype == "undefined") {
@@ -5851,28 +5963,18 @@
             allParents.push(parent);
             allChildren.push(child);
           }
-          if (parent instanceof nativeMap) {
-            var keyIterator = parent.keys();
-            while (true) {
-              var next = keyIterator.next();
-              if (next.done) {
-                break;
-              }
-              var keyChild = _clone(next.value, depth - 1);
-              var valueChild = _clone(parent.get(next.value), depth - 1);
+          if (_instanceof(parent, nativeMap)) {
+            parent.forEach(function(value, key) {
+              var keyChild = _clone(key, depth - 1);
+              var valueChild = _clone(value, depth - 1);
               child.set(keyChild, valueChild);
-            }
+            });
           }
-          if (parent instanceof nativeSet) {
-            var iterator = parent.keys();
-            while (true) {
-              var next = iterator.next();
-              if (next.done) {
-                break;
-              }
-              var entryChild = _clone(next.value, depth - 1);
+          if (_instanceof(parent, nativeSet)) {
+            parent.forEach(function(value) {
+              var entryChild = _clone(value, depth - 1);
               child.add(entryChild);
-            }
+            });
           }
           for (var i in parent) {
             var attrs;
@@ -7924,28 +8026,26 @@
         }
         debug.info("setRange", range);
         if (range != null) {
-          (function() {
-            var indexes = range.collapsed ? [range.index] : [range.index, range.index + range.length];
-            var args = [];
-            var scrollLength = _this3.scroll.length();
-            indexes.forEach(function(index, i) {
-              index = Math.min(scrollLength - 1, index);
-              var node = void 0,
-                _scroll$leaf5 = _this3.scroll.leaf(index),
-                _scroll$leaf6 = _slicedToArray(_scroll$leaf5, 2),
-                leaf = _scroll$leaf6[0],
-                offset = _scroll$leaf6[1];
-              var _leaf$position5 = leaf.position(offset, i !== 0);
-              var _leaf$position6 = _slicedToArray(_leaf$position5, 2);
-              node = _leaf$position6[0];
-              offset = _leaf$position6[1];
-              args.push(node, offset);
-            });
-            if (args.length < 2) {
-              args = args.concat(args);
-            }
-            _this3.setNativeRange.apply(_this3, _toConsumableArray(args).concat([force]));
-          })();
+          var indexes = range.collapsed ? [range.index] : [range.index, range.index + range.length];
+          var args = [];
+          var scrollLength = this.scroll.length();
+          indexes.forEach(function(index, i) {
+            index = Math.min(scrollLength - 1, index);
+            var node = void 0,
+              _scroll$leaf5 = _this3.scroll.leaf(index),
+              _scroll$leaf6 = _slicedToArray(_scroll$leaf5, 2),
+              leaf = _scroll$leaf6[0],
+              offset = _scroll$leaf6[1];
+            var _leaf$position5 = leaf.position(offset, i !== 0);
+            var _leaf$position6 = _slicedToArray(_leaf$position5, 2);
+            node = _leaf$position6[0];
+            offset = _leaf$position6[1];
+            args.push(node, offset);
+          });
+          if (args.length < 2) {
+            args = args.concat(args);
+          }
+          this.setNativeRange.apply(this, _toConsumableArray(args).concat([force]));
         } else {
           this.setNativeRange(null);
         }
@@ -13232,14 +13332,18 @@
     }).join("");
     return new RegExp("[" + patternSymbols + "]$");
   }(ALLOWED_TRAILING_PUNCTUATION);
+  var DEFAULT_OPTIONS = {
+    log: console.log,
+    logError: console.error,
+    searchOptions: {}
+  };
   var TabComplete = function(_Module) {
     _inherits(TabComplete, _Module);
 
     function TabComplete(quill, options) {
       _classCallCheck(this, TabComplete);
+      options = (0, _utils.assign)({}, DEFAULT_OPTIONS, options);
       var _this = _possibleConstructorReturn(this, (TabComplete.__proto__ || Object.getPrototypeOf(TabComplete)).call(this, quill, options));
-      if (!_this.options.log) _this.options.log = console.log;
-      if (!_this.options.logError) _this.options.logError = console.error;
       _this.onEscape = _this.onEscape.bind(_this);
       _this.onCompositionStart = _this.onCompositionStart.bind(_this);
       _this.onCompositionEnd = _this.onCompositionEnd.bind(_this);
@@ -13252,16 +13356,18 @@
       _this.onMouseDown = _this.onMouseDown.bind(_this);
       _this.onTab = _this.onTab.bind(_this);
       _this.maybeCompleteAtCursor = _this.maybeCompleteAtCursor.bind(_this);
-      _this._selectedIndex = 0;
-      _this._prevMousePosition = null;
-      _this._isInKeyboardMode = false;
-      _this._prevInsertText = null;
-      _this._prevMatch = null;
-      _this._menu = null;
-      _this._searchInFlight = null;
-      _this.isInComposition = false;
-      _this.completeAtNextSelectionChange = false;
-      _this.preventCloseAtNextSelectionChange = false;
+      _this.state = {
+        selectedIndex: 0,
+        prevMousePosition: null,
+        isInKeyboardMode: false,
+        prevInsertText: null,
+        prevMatch: null,
+        menu: null,
+        searchInFlight: null,
+        isInComposition: false,
+        completeAtNextSelectionChange: false,
+        preventCloseAtNextSelectionChange: false
+      };
       _this.listen();
       return _this;
     }
@@ -13271,8 +13377,7 @@
         this.quill.root.removeEventListener("compositionstart", this.onCompositionStart);
         this.quill.root.removeEventListener("compositionend", this.onCompositionEnd);
         this.hideMenu();
-        this._menu = null;
-        this._prevMatch = null;
+        this.state = null;
       }
     }, {
       key: "listen",
@@ -13332,13 +13437,13 @@
           shiftKey = _ref$shiftKey === undefined ? false : _ref$shiftKey,
           _ref$metaKey = _ref.metaKey,
           metaKey = _ref$metaKey === undefined ? false : _ref$metaKey;
-        if (!this._prevMatch || !(0, _utils.isNumber)(keyCode) || !this.isShowing()) return;
-        if (this._prevMatch.completer.getNextSelectedIndex) {
-          var nextIndex = this._prevMatch.completer.getNextSelectedIndex({
+        if (!this.state.prevMatch || !(0, _utils.isNumber)(keyCode) || !this.isShowing()) return;
+        if (this.state.prevMatch.completer.getNextSelectedIndex) {
+          var nextIndex = this.state.prevMatch.completer.getNextSelectedIndex({
             keyCode: keyCode,
             metaKey: metaKey,
-            menu: this._menu,
-            selectedIndex: this._selectedIndex
+            menu: this.state.menu,
+            selectedIndex: this.state.selectedIndex
           });
           if ((0, _utils.isNumber)(nextIndex)) return nextIndex;
         }
@@ -13350,10 +13455,10 @@
           return results.length - 1;
         }
         if (keyCode === DOWN || keyCode === TAB && !shiftKey) {
-          return this._selectedIndex + 1;
+          return this.state.selectedIndex + 1;
         }
         if (keyCode === UP || keyCode === TAB && shiftKey) {
-          return this._selectedIndex - 1;
+          return this.state.selectedIndex - 1;
         }
         if (keyCode === LEFT || keyCode === RIGHT) {
           this.hideMenu();
@@ -13396,7 +13501,7 @@
             this.onEnter(null, true);
             return true;
           }
-          if (this._prevInsertText) {
+          if (this.state.prevInsertText) {
             var nextIndex = this.getNextSelectedIndex({
               keyCode: TAB,
               shiftKey: shiftKey
@@ -13407,7 +13512,7 @@
           }
           return true;
         }
-        this._searchInFlight = null;
+        this.state.searchInFlight = null;
         if (this.quill.getLength() === 1) return false;
         var isUserSolicited = true;
         var currentMatchAtCursor = this.getCurrentMatchAtCursor(isUserSolicited);
@@ -13420,18 +13525,18 @@
     }, {
       key: "onCompositionStart",
       value: function onCompositionStart() {
-        this.isInComposition = true;
+        this.state.isInComposition = true;
       }
     }, {
       key: "onCompositionEnd",
       value: function onCompositionEnd() {
-        this.isInComposition = false;
+        this.state.isInComposition = false;
       }
     }, {
       key: "onTextChange",
       value: function onTextChange(delta, oldDelta, source) {
-        if (this.isInComposition) {
-          this.completeAtNextSelectionChange = true;
+        if (this.state.isInComposition) {
+          this.state.completeAtNextSelectionChange = true;
           return;
         }
         if (delta.length() === 1) {
@@ -13449,8 +13554,8 @@
     }, {
       key: "maybeCompleteAtCursor",
       value: function maybeCompleteAtCursor(source) {
-        this._searchInFlight = null;
-        this.completeAtNextSelectionChange = false;
+        this.state.searchInFlight = null;
+        this.state.completeAtNextSelectionChange = false;
         if (this.quill.getLength() <= 1) {
           this.hideMenu();
           return;
@@ -13466,8 +13571,8 @@
     }, {
       key: "onSelectionChange",
       value: function onSelectionChange(range, oldRange, source) {
-        if (this.preventCloseAtNextSelectionChange) {
-          this.preventCloseAtNextSelectionChange = false;
+        if (this.state.preventCloseAtNextSelectionChange) {
+          this.state.preventCloseAtNextSelectionChange = false;
           return;
         }
         if (range && range.length === 0 && this.options.useMentions) {
@@ -13480,11 +13585,11 @@
             }
           }
         }
-        if (range && this.completeAtNextSelectionChange) {
+        if (range && this.state.completeAtNextSelectionChange) {
           this.maybeCompleteAtCursor("user");
         } else {
-          this._searchInFlight = null;
-          this.completeAtNextSelectionChange = false;
+          this.state.searchInFlight = null;
+          this.state.completeAtNextSelectionChange = false;
           this.hideMenu();
         }
       }
@@ -13516,9 +13621,9 @@
           insertFirstResult = _ref4$insertFirstResu === undefined ? false : _ref4$insertFirstResu;
         var match = currentMatchAtCursor || this.getCurrentMatchAtCursor(isUserSolicited);
         if (!match) {
-          this._prevMatch = null;
-          this._searchInFlight = null;
-          this._prevInsertText = null;
+          this.state.prevMatch = null;
+          this.state.searchInFlight = null;
+          this.state.prevInsertText = null;
           this.hideMenu();
           return;
         }
@@ -13537,13 +13642,13 @@
           insertFirstResult = _ref5$insertFirstResu === undefined ? false : _ref5$insertFirstResu,
           _ref5$isUserSolicited = _ref5.isUserSolicited,
           isUserSolicited = _ref5$isUserSolicited === undefined ? false : _ref5$isUserSolicited;
-        if (this._searchInFlight === match.text) {
+        if (this.state.searchInFlight === match.text) {
           this.options.log('TabComplete: duplicate in-flight search for "' + match.text + '"');
           return;
         }
-        this._selectedIndex = 0;
-        this._prevInsertText = null;
-        this._searchInFlight = match.text;
+        this.state.selectedIndex = 0;
+        this.state.prevInsertText = null;
+        this.state.searchInFlight = match.text;
         this.options.log('TabComplete: searching for "' + match.text + '"');
         var searchParams = (0, _utils.assign)({
           index: match.index,
@@ -13552,14 +13657,14 @@
         }, this.options.searchOptions);
         match.completer.search(match.text, searchParams, function(err) {
           var results = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
-          if (match.text !== _this3._searchInFlight) {
+          if (match.text !== _this3.state.searchInFlight) {
             _this3.options.log('TabComplete: ignoring stale search for "' + match.text + '"');
             return;
           }
-          _this3._prevMatch = (0, _utils.assign)({
+          _this3.state.prevMatch = (0, _utils.assign)({
             results: results
           }, match);
-          var actuallyInsertFirstResult = !_this3._prevInsertText && insertFirstResult;
+          var actuallyInsertFirstResult = !_this3.state.prevInsertText && insertFirstResult;
           _this3.handleSearchResults(err, results, actuallyInsertFirstResult, isUserSolicited);
         });
       }
@@ -13568,31 +13673,31 @@
       value: function handleSearchResults(err, results) {
         var insertFirstResult = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
         var isUserSolicited = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
-        if (!this._prevMatch) return;
+        if (!this.state.prevMatch) return;
         if (err) {
           this.options.logError('TabComplete: search error "' + err + '"');
           this.hideMenu();
           return;
         }
         if ((0, _utils.isEmpty)(results)) {
-          this.options.log('TabComplete: no results for "' + this._prevMatch.text + '"');
+          this.options.log('TabComplete: no results for "' + this.state.prevMatch.text + '"');
           this.hideMenu();
           return;
         }
-        this.options.log("TabComplete: found " + results.length + ' results for "' + this._prevMatch.text + '"');
+        this.options.log("TabComplete: found " + results.length + ' results for "' + this.state.prevMatch.text + '"');
         if (insertFirstResult) {
           var firstResult = this.getResultAtIndex(0);
           var insertData = this.getInsertDataFromResult(firstResult);
           this.onSelect(insertData);
         }
-        if (this._prevMatch.completer.shouldDisplayResults) {
-          if (!this._prevMatch.completer.shouldDisplayResults(this._prevMatch.text, results, isUserSolicited)) {
+        if (this.state.prevMatch.completer.shouldDisplayResults) {
+          if (!this.state.prevMatch.completer.shouldDisplayResults(this.state.prevMatch.text, results, isUserSolicited)) {
             this.options.log("TabComplete: completer decided to hide " + results.length + " results");
             this.hideMenu();
             return;
           }
         }
-        this.showResults(this._prevMatch.completer, results, this._prevMatch.text);
+        this.showResults(this.state.prevMatch.completer, results, this.state.prevMatch.text);
       }
     }, {
       key: "setSelectedIndex",
@@ -13605,11 +13710,11 @@
         if (!this.isShowing()) return;
         var items = this.getResultElements();
         index = this.constrainIndexToResults(index, items.length);
-        if (index === this._selectedIndex) return true;
-        if (this._prevMatch.completer.onSelectedIndexChange) {
-          this._prevMatch.completer.onSelectedIndexChange(index);
+        if (index === this.state.selectedIndex) return true;
+        if (this.state.prevMatch.completer.onSelectedIndexChange) {
+          this.state.prevMatch.completer.onSelectedIndexChange(index);
         }
-        this._selectedIndex = index;
+        this.state.selectedIndex = index;
         var result = this.getResultAtIndex(index);
         var insertData = this.getInsertDataFromResult(result);
         this.onSelect(insertData);
@@ -13618,7 +13723,7 @@
     }, {
       key: "isShowing",
       value: function isShowing() {
-        return !!this._menu && document.body.contains(this._menu);
+        return !!this.state.menu && document.body.contains(this.state.menu);
       }
     }, {
       key: "onEnter",
@@ -13626,14 +13731,14 @@
         var doCloseMenu = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
         if (modifierKeys && modifierKeys.shiftKey) return false;
         if (!this.isShowing()) return false;
-        var result = this.getResultAtIndex(this._selectedIndex);
+        var result = this.getResultAtIndex(this.state.selectedIndex);
         var insertData = this.getInsertDataFromResult(result);
         this.onSelect(insertData);
         if (doCloseMenu) {
-          if (this._prevMatch.completer.onSelect) {
-            this._prevMatch.completer.onSelect(result, this._prevMatch.text);
+          if (this.state.prevMatch.completer.onSelect) {
+            this.state.prevMatch.completer.onSelect(result, this.state.prevMatch.text);
           }
-          this._prevMatch = null;
+          this.state.prevMatch = null;
           this.hideMenu();
         }
         return true;
@@ -13645,29 +13750,30 @@
           this.options.logError('TabComplete onSelect missing "data" param');
           return;
         }
-        if (!this._prevMatch) {
+        if (!this.state.prevMatch) {
+          console.log(this.state);
           this.options.logError("TabComplete: onSelect missing previous match");
           return;
         }
         var nextText = data.text;
-        var prevText = this._searchInFlight || this._prevInsertText || this._prevMatch.text;
-        var queryPunctuation = trailingPunctuation(this._prevMatch.text, nextText);
-        if (!(0, _utils.startsWith)(data.text, this._prevMatch.text)) nextText += queryPunctuation;
-        var endIndex = this._prevMatch.index + prevText.length;
+        var prevText = this.state.searchInFlight || this.state.prevInsertText || this.state.prevMatch.text;
+        var queryPunctuation = trailingPunctuation(this.state.prevMatch.text, nextText);
+        if (!(0, _utils.startsWith)(data.text, this.state.prevMatch.text)) nextText += queryPunctuation;
+        var endIndex = this.state.prevMatch.index + prevText.length;
         var charAfterInsert = this.quill.getText(endIndex, 1);
         var shouldAppendSpace = charAfterInsert !== " ";
         var delta = new _quillDelta2.default;
-        delta.retain(this._prevMatch.index);
+        delta.retain(this.state.prevMatch.index);
         delta.delete(prevText.length);
         delta.insert(nextText, data.format);
         if (shouldAppendSpace) delta.insert(" ", false);
         delta.retain(Infinity);
-        var newCursorIndex = this._prevMatch.index + nextText.length + 1;
+        var newCursorIndex = this.state.prevMatch.index + nextText.length + 1;
         this.quill.updateContents(delta, "api");
-        this.preventCloseAtNextSelectionChange = true;
+        this.state.preventCloseAtNextSelectionChange = true;
         this.quill.setSelection(newCursorIndex, 0);
-        this._searchInFlight = null;
-        this._prevInsertText = nextText;
+        this.state.searchInFlight = null;
+        this.state.prevInsertText = nextText;
       }
     }, {
       key: "textBetweenLastTokenAndIndex",
@@ -13720,30 +13826,30 @@
     }, {
       key: "showMenu",
       value: function showMenu(html) {
-        if (!this._menu) {
-          this._menu = this.buildMenu();
+        if (!this.state.menu) {
+          this.state.menu = this.buildMenu();
           this.bindEvents();
         }
-        this._menu.innerHTML = html;
+        this.state.menu.innerHTML = html;
         if (!this.isShowing()) {
-          this.options.appendMenu(this._menu);
+          this.options.appendMenu(this.state.menu);
           window.removeEventListener("resize", this.onWindowResize);
           window.addEventListener("resize", this.onWindowResize);
         }
-        if (this._prevMatch.completer.onSelectedIndexChange) {
-          this._prevMatch.completer.onSelectedIndexChange(this._selectedIndex);
+        if (this.state.prevMatch.completer.onSelectedIndexChange) {
+          this.state.prevMatch.completer.onSelectedIndexChange(this.state.selectedIndex);
         }
-        this.options.positionMenu(this._menu);
+        this.options.positionMenu(this.state.menu);
         this.startKeyboardMode();
       }
     }, {
       key: "hideMenu",
       value: function hideMenu() {
         if (!this.isShowing()) return;
-        this._menu.parentNode.removeChild(this._menu);
+        this.state.menu.parentNode.removeChild(this.state.menu);
         this.stopKeyboardMode();
         window.removeEventListener("resize", this.onWindowResize);
-        if (!this.isInComposition) {
+        if (!this.state.isInComposition) {
           this.quill.blur();
           this.quill.focus();
         }
@@ -13759,9 +13865,9 @@
     }, {
       key: "bindEvents",
       value: function bindEvents() {
-        if (!this._menu) return;
-        this._menu.addEventListener("mousedown", this.onMouseDown);
-        this._menu.addEventListener("click", this.onMenuClick);
+        if (!this.state.menu) return;
+        this.state.menu.addEventListener("mousedown", this.onMouseDown);
+        this.state.menu.addEventListener("click", this.onMenuClick);
         window.addEventListener("resize", this.onWindowResize);
       }
     }, {
@@ -13787,10 +13893,10 @@
         var result = this.getResultAtIndex(index);
         var insertData = this.getInsertDataFromResult(result);
         this.onSelect(insertData);
-        if (this._prevMatch.completer.onSelect) {
-          this._prevMatch.completer.onSelect(result, this._prevMatch.text);
+        if (this.state.prevMatch.completer.onSelect) {
+          this.state.prevMatch.completer.onSelect(result, this.state.prevMatch.text);
         }
-        this._prevMatch = null;
+        this.state.prevMatch = null;
         this.hideMenu();
         if (element) {
           e.preventDefault();
@@ -13809,14 +13915,14 @@
       value: function onMenuMouseMove(e) {
         var screenX = e.screenX,
           screenY = e.screenY;
-        if (this._prevMousePosition) {
-          var _prevMousePosition = this._prevMousePosition,
-            prevX = _prevMousePosition.x,
-            prevY = _prevMousePosition.y;
+        if (this.state.prevMousePosition) {
+          var _state$prevMousePosit = this.state.prevMousePosition,
+            prevX = _state$prevMousePosit.x,
+            prevY = _state$prevMousePosit.y;
           var hasMouseMoved = prevX !== screenX || prevY !== screenY;
           if (hasMouseMoved) this.stopKeyboardMode();
         }
-        this._prevMousePosition = {
+        this.state.prevMousePosition = {
           x: screenX,
           y: screenY
         };
@@ -13824,27 +13930,27 @@
     }, {
       key: "startKeyboardMode",
       value: function startKeyboardMode() {
-        if (this._isInKeyboardMode) return;
-        this._isInKeyboardMode = true;
-        if (this._menu) {
-          this._menu.addEventListener("mousemove", this.onMenuMouseMove);
-          this._menu.removeEventListener("mouseover", this.onMenuMouseOver);
+        if (this.state.isInKeyboardMode) return;
+        this.state.isInKeyboardMode = true;
+        if (this.state.menu) {
+          this.state.menu.addEventListener("mousemove", this.onMenuMouseMove);
+          this.state.menu.removeEventListener("mouseover", this.onMenuMouseOver);
         }
       }
     }, {
       key: "stopKeyboardMode",
       value: function stopKeyboardMode() {
-        if (!this._isInKeyboardMode) return;
-        this._isInKeyboardMode = false;
-        if (this._menu) {
-          this._menu.removeEventListener("mousemove", this.onMenuMouseMove);
-          this._menu.addEventListener("mouseover", this.onMenuMouseOver);
+        if (!this.state.isInKeyboardMode) return;
+        this.state.isInKeyboardMode = false;
+        if (this.state.menu) {
+          this.state.menu.removeEventListener("mousemove", this.onMenuMouseMove);
+          this.state.menu.addEventListener("mouseover", this.onMenuMouseOver);
         }
       }
     }, {
       key: "getResultElements",
       value: function getResultElements() {
-        var elements = this._menu.querySelectorAll("." + UI_ITEM_CLASS);
+        var elements = this.state.menu.querySelectorAll("." + UI_ITEM_CLASS);
         return Array.prototype.slice.call(elements);
       }
     }, {
@@ -13861,14 +13967,14 @@
     }, {
       key: "getInsertDataFromResult",
       value: function getInsertDataFromResult(result) {
-        if (!result || !this._prevMatch) return;
-        return this._prevMatch.completer.getInsertData(result, this._prevMatch.text);
+        if (!result || !this.state.prevMatch) return;
+        return this.state.prevMatch.completer.getInsertData(result, this.state.prevMatch.text);
       }
     }, {
       key: "getResultAtIndex",
       value: function getResultAtIndex(index) {
-        if (!(0, _utils.isNumber)(index) || !this._prevMatch) return;
-        return this._prevMatch.completer.getResultAtIndex(this._prevMatch.results, index);
+        if (!(0, _utils.isNumber)(index) || !this.state.prevMatch) return;
+        return this.state.prevMatch.completer.getResultAtIndex(this.state.prevMatch.results, index);
       }
     }]);
     return TabComplete;
@@ -14020,6 +14126,26 @@
       return Constructor;
     };
   }();
+  var _get = function get(object, property, receiver) {
+    if (object === null) object = Function.prototype;
+    var desc = Object.getOwnPropertyDescriptor(object, property);
+    if (desc === undefined) {
+      var parent = Object.getPrototypeOf(object);
+      if (parent === null) {
+        return undefined;
+      } else {
+        return get(parent, property, receiver);
+      }
+    } else if ("value" in desc) {
+      return desc.value;
+    } else {
+      var getter = desc.get;
+      if (getter === undefined) {
+        return undefined;
+      }
+      return getter.call(receiver);
+    }
+  };
   var _quill = __webpack_require__(1);
   var _quill2 = _interopRequireDefault(_quill);
   var _quillDelta = __webpack_require__(21);
@@ -14076,6 +14202,10 @@
       key: "onPaste",
       value: function onPaste(e) {
         var _this2 = this;
+        if (e && e.clipboardData && e.clipboardData.getData("slack/html")) {
+          _get(PlainClipboard.prototype.__proto__ || Object.getPrototypeOf(PlainClipboard.prototype), "onPaste", this).call(this, e);
+          return;
+        }
         if (e.defaultPrevented || !this.quill.isEnabled()) return;
         if (this.options.onPaste(e)) return;
         e.preventDefault();
@@ -14442,16 +14572,14 @@
       value: function onTextChange(delta, oldDelta, source) {
         var _this2 = this;
         if (!this.isInComposition() && this.quill.getLength() > 1 && this.options.getTextPreferences && this.options.getTextPreferences().useSmartQuotes) {
-          (function() {
-            var changes = _this2.options.buildSmartQuotesDelta(_this2.quill.getContents());
-            if (changes.length() > 0) {
-              setTimeout(function() {
-                var range = _this2.quill.getSelection();
-                _this2.quill.updateContents(changes, "silent");
-                if (range) _this2.quill.setSelection(range.index, 0);
-              }, 0);
-            }
-          })();
+          var changes = this.options.buildSmartQuotesDelta(this.quill.getContents());
+          if (changes.length() > 0) {
+            setTimeout(function() {
+              var range = _this2.quill.getSelection();
+              _this2.quill.updateContents(changes, "silent");
+              if (range) _this2.quill.setSelection(range.index, 0);
+            }, 0);
+          }
         }
       }
     }, {
@@ -14939,11 +15067,21 @@
       key: "listen",
       value: function listen() {
         this.quill.on("text-change", this.onTextChange);
+        this.quill.clipboard.addMatcher("ts-mention", this.handleMention);
       }
     }, {
       key: "onTextChange",
       value: function onTextChange(delta, oldDelta, source) {
         this.unformatBrokenMentions();
+      }
+    }, {
+      key: "handleMention",
+      value: function handleMention(node, delta) {
+        var op = delta.ops[0];
+        if (op.attributes && op.attributes.slackmention && op.attributes.slackmention.label !== op.insert) {
+          return (new _quillDelta2.default).insert(op.insert);
+        }
+        return delta;
       }
     }, {
       key: "unformatBrokenMentions",
