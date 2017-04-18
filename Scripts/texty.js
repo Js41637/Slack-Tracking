@@ -490,7 +490,7 @@
     if (!options || !options.modules || !options.modules.textsubstitutions) return false;
     return {
       getTextPreferences: options.modules.textsubstitutions.getTextPreferences,
-      replaceSmartQuotes: options.modules.textsubstitutions.replaceSmartQuotes,
+      buildSmartQuotesDelta: options.modules.textsubstitutions.buildSmartQuotesDelta,
       shouldDoSubstitutions: function shouldDoSubstitutions(range) {
         if (!range) return false;
         var textBefore = texty._quill.getText(0, range.index + range.length);
@@ -14480,7 +14480,6 @@
     if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
   }
   var Module = _quill2.default.import("core/module");
-  var QUOTES = ["'", '"', "“", "”", "‘", "’"];
   var TextSubstitutionsModule = function(_Module) {
     _inherits(TextSubstitutionsModule, _Module);
 
@@ -14542,7 +14541,7 @@
       value: function onTextChange(delta, oldDelta, source) {
         var _this2 = this;
         if (!this.isInComposition() && this.quill.getLength() > 1 && this.options.getTextPreferences && this.options.getTextPreferences().useSmartQuotes) {
-          var changes = this.buildSmartQuotesDelta(this.quill.getText());
+          var changes = this.options.buildSmartQuotesDelta(this.quill.getContents());
           if (changes.length() > 0) {
             setTimeout(function() {
               var range = _this2.quill.getSelection();
@@ -14551,20 +14550,6 @@
             }, 0);
           }
         }
-      }
-    }, {
-      key: "buildSmartQuotesDelta",
-      value: function buildSmartQuotesDelta(text) {
-        var changes = new _quillDelta2.default;
-        var lastReplacementIndex = 0;
-        var transformedString = this.options.replaceSmartQuotes ? this.options.replaceSmartQuotes(text) : text;
-        for (var i = 0; i < text.length; i++) {
-          if (text[i] !== transformedString[i] && QUOTES.indexOf(text[i]) !== -1 && QUOTES.indexOf(transformedString[i]) !== -1) {
-            changes.retain(i - lastReplacementIndex).delete(1).insert(transformedString[i]);
-            lastReplacementIndex = i + 1;
-          }
-        }
-        return changes;
       }
     }, {
       key: "onSpace",

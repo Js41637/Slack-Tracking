@@ -5,7 +5,13 @@
       if (!_.isString(text)) return;
       var match;
       var index;
-      _.deburr(text).replace(/(^|\s+)([+-]?:[\w\-+]*)$/i, function(_, match_prefix, match_text, match_offset) {
+      _.deburr(text).replace(/(^|\n|[^+-]+)([+-]?:[\w\-+]*)$/i, function(_, match_prefix, match_text, match_offset) {
+        var last_prefix_char = match_prefix[match_prefix.length - 1];
+        if (!TS.tabcomplete.isAllowedSurroundingCharacter(last_prefix_char)) return;
+        if (match_prefix.trim() && /^[+-]/.test(match_text)) {
+          match_text = match_text.slice(1);
+          match_offset += 1;
+        }
         index = match_offset + match_prefix.length;
         match = text.substr(index, match_text.length);
       });

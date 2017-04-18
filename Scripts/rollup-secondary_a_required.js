@@ -18064,6 +18064,10 @@ TS.registerModule("constants", {
           TS.info("goodbye handler: got disconnected some other way before we handled the goodbye message");
         }
       }
+      if (!TS.model.ui.is_window_focused) {
+        deferredGoodbyeHandler();
+        return;
+      }
       TS.ms.disconnected_sig.addOnce(deferredGoodbyeHandler);
       TS.ui.window_focus_changed_sig.addOnce(deferredGoodbyeHandler);
     },
@@ -18521,7 +18525,8 @@ TS.registerModule("constants", {
     _ensureFileObjectsOnMsgAndProceed(_Q[0]);
   };
   var _ensureFileObjectsOnMsgAndProceed = function(imsg) {
-    var ob_with_file, file_id;
+    var ob_with_file;
+    var file_id;
     if (TS.boot_data.feature_dedupe_files_info_requests) {
       var file_ob_and_id = _findFileObAndId(imsg);
       if (!file_ob_and_id) return _ensureModelObsAndMembersAndProceed(imsg);
@@ -56433,7 +56438,7 @@ $.fn.togglify = function(settings) {
           },
           textsubstitutions: {
             getTextPreferences: TS.utility.contenteditable.getTextPreferences,
-            replaceSmartQuotes: TS.format.texty.replaceSmartQuotes
+            buildSmartQuotesDelta: TS.format.texty.buildSmartQuotesDelta
           },
           clipboard: {}
         },

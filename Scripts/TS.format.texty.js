@@ -10,6 +10,35 @@
       var formatted_ops = compressed_ops.map(_formatOperation);
       return new Texty.Delta(formatted_ops);
     },
+    buildSmartQuotesDelta: function(contents) {
+      var changes = new Texty.Delta;
+      var last_replacement_index = 0;
+      var mention_replacements = [];
+      var text = contents.reduce(function(value, op) {
+        if (op.attributes && op.attributes.slackmention) {
+          var rando = "<mention-placeholder-" + Date.now() + mention_replacements.length + ">";
+          mention_replacements.push({
+            op: op,
+            placeholder: rando
+          });
+          return value + rando;
+        }
+        return value + op.insert;
+      }, "");
+      var transformed_string = TS.format.texty.replaceSmartQuotes(text);
+      if (text === transformed_string) return changes;
+      mention_replacements.forEach(function(replacement) {
+        text = text.replace(replacement.placeholder, replacement.op.insert);
+        transformed_string = transformed_string.replace(replacement.placeholder, replacement.op.insert);
+      });
+      for (var i = 0; i < text.length; i++) {
+        if (text[i] !== transformed_string[i] && QUOTES.indexOf(text[i]) !== -1 && QUOTES.indexOf(transformed_string[i]) !== -1) {
+          changes.retain(i - last_replacement_index).delete(1).insert(transformed_string[i]);
+          last_replacement_index = i + 1;
+        }
+      }
+      return changes;
+    },
     replaceSmartQuotes: function(str) {
       str = str.replace(/[\u2018|\u2019]/g, "'");
       str = str.replace(/[\u201c|\u201d]/g, '"');
@@ -62,6 +91,7 @@
   var SINGLE_LINE_FORMATS = ["bold", "italic", "code", "strike", "bracketed"];
   var IGNORED_FORMATS = ["code", "code-block"];
   var MONOSPACE_FONTS = ["monospace", "menlo", "consolas", "inconsolata", "courier", "monaco", "anonymous pro", "terminus", "source code pro"];
+  var QUOTES = ["'", '"', "“", "”", "‘", "’"];
 
   function _normalizeOperation(op) {
     var next_op = {
