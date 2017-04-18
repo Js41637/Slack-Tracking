@@ -4894,6 +4894,52 @@
 })();
 (function() {
   "use strict";
+  TS.registerModule("channels.read_only.threads", {
+    list_updated_sig: new signals.Signal,
+    updateList: function(channel_ids) {
+      if (!channel_ids || !_.isArray(channel_ids)) return;
+      var new_threadable_channels = _.uniq(channel_ids);
+      var new_channels = _.difference(new_threadable_channels, TS.model.threadable_channels);
+      var old_channels = _.difference(TS.model.threadable_channels, new_threadable_channels);
+      old_channels.forEach(function(channel_id) {
+        var channel = TS.shared.getModelObById(channel_id);
+        if (channel && channel.is_read_only) channel.can_thread = false;
+      });
+      new_channels.forEach(function(channel_id) {
+        var channel = TS.shared.getModelObById(channel_id);
+        if (channel && channel.is_read_only) channel.can_thread = true;
+      });
+      TS.model.threadable_channels = new_threadable_channels;
+      TS.channels.read_only.threads.list_updated_sig.dispatch();
+    },
+    addChannelToList: function(channel_id) {
+      TS.model.threadable_channels = _.uniq(_.concat(TS.model.threadable_channels, channel_id));
+      TS.channels.read_only.threads.list_updated_sig.dispatch();
+    },
+    removeChannelFromList: function(channel_id) {
+      TS.model.threadable_channels = TS.model.threadable_channels.filter(function(id) {
+        return id !== channel_id;
+      });
+      TS.channels.read_only.threads.list_updated_sig.dispatch();
+    },
+    canThread: function(channel_id) {
+      if (TS.boot_data.page_needs_enterprise) {
+        if (TS.model.user.enterprise_user && TS.model.user.enterprise_user.is_owner) return true;
+      } else {
+        if (TS.model.user.owner) return true;
+      }
+      var model_ob = TS.shared.getModelObById(channel_id);
+      if (!model_ob) return false;
+      if (model_ob.is_im || model_ob.is_mpim) return true;
+      if (!model_ob.is_shared) return true;
+      if (!TS.channels.read_only.isReadOnly(channel_id)) return true;
+      if (!_.isUndefined(model_ob.can_thread)) return model_ob.can_thread;
+      return TS.model.threadable_channels.indexOf(channel_id) > -1;
+    }
+  });
+})();
+(function() {
+  "use strict";
   TS.registerModule("channels.ui", {
     onStart: function() {},
     showDataRetentionDialog: function(channel_id, handler, retention_type, retention_duration) {

@@ -9740,8 +9740,10 @@
     },
     destroy: function() {
       if (this._resize_sig_handler) TS.view.resize_sig.remove(this._resize_sig_handler);
-      TS.members.joined_team_sig.remove(this._maybeSetupFilterInput, this);
-      TS.members.changed_deleted_sig.remove(this._maybeSetupFilterInput, this);
+      if (this._maybeSetupFilterInputDebounced) {
+        TS.members.joined_team_sig.remove(this._maybeSetupFilterInputDebounced, this);
+        TS.members.changed_deleted_sig.remove(this._maybeSetupFilterInputDebounced, this);
+      }
       this.$_container.off();
       if (this.$_long_list_view) this.$_long_list_view.off();
       if (this.$_search_input) this.$_search_input.off();
@@ -9892,10 +9894,20 @@
         this_searchable_member_list._filter_counts = counts;
         this_searchable_member_list.$_filter_input.replaceWith(TS.templates.team_search_bar_filter(this_searchable_member_list._generateFilterSearchBarTemplateArgs()));
         this_searchable_member_list.$_filter_input = this_searchable_member_list.$_search_bar.find(".searchable_member_list_filter");
-        TS.members.joined_team_sig.add(this_searchable_member_list._maybeSetupFilterInput, this_searchable_member_list);
-        TS.members.changed_deleted_sig.add(this_searchable_member_list._maybeSetupFilterInput, this_searchable_member_list);
+        if (!this_searchable_member_list._maybeSetupFilterInputDebounced) {
+          var debounce_interval = 1e3;
+          var debounce_options = {
+            trailing: true
+          };
+          this_searchable_member_list._maybeSetupFilterInputDebounced = _.debounce(function() {
+            return this_searchable_member_list._maybeSetupFilterInput.apply(this_searchable_member_list, arguments);
+          }, debounce_interval, debounce_options);
+        }
+        TS.members.joined_team_sig.add(this_searchable_member_list._maybeSetupFilterInputDebounced, this_searchable_member_list);
+        TS.members.changed_deleted_sig.add(this_searchable_member_list._maybeSetupFilterInputDebounced, this_searchable_member_list);
       });
     },
+    _maybeSetupFilterInputDebounced: null,
     _setupLongListView: function() {
       var this_searchable_member_list = this;
       this.$_long_list_view.longListView({
@@ -39790,8 +39802,19 @@ function timezones_guess() {
       TS.ims.history_fetched_sig.add(_historyFetched);
       TS.mpims.history_fetched_sig.add(_historyFetched);
       TS.ms.connected_sig.add(_onConnected);
+      TS.channels.read_only.list_updated_sig.add(TS.ui.replies.refreshConversation);
       _onScrollThrottled = TS.utility.throttleFunc(_onScrollThrottled, 250, true);
       _bindUI();
+    },
+    refreshConversation: function() {
+      var model_id = TS.ui.replies.activeConvoModelId();
+      var thread_ts = TS.ui.replies.activeConvoThreadTs();
+      if (!model_id || !thread_ts) return;
+      var model_ob = TS.shared.getModelObById(model_id);
+      var root_msg = TS.replies.getMessage(model_ob, thread_ts);
+      if (!root_msg) return;
+      _active_convo_can_reply = TS.permissions.members.canPostInModelOb(TS.model.user, model_ob) && !model_ob.is_archived;
+      _renderReplyContainer(model_ob, root_msg);
     },
     openConversation: function(model_ob, thread_ts, highlight_ts, origin) {
       try {
@@ -41766,6 +41789,7 @@ function timezones_guess() {
       TS.channels.unarchived_sig.add(_handleMembershipChange);
       TS.groups.unarchived_sig.add(_handleMembershipChange);
       TS.client.threads.new_thread_reply_count_changed.add(_showNewThreadsBanner);
+      TS.channels.read_only.list_updated_sig.add(_handlePermsChanged);
       _q = new TS.PromiseQueue;
     },
     showThreadsView: function() {
@@ -42268,6 +42292,14 @@ function timezones_guess() {
         _renderReplyInputForModelOb(general_channel);
       });
     }
+  };
+  var _handlePermsChanged = function() {
+    _.each(TS.model.read_only_channels, function(id) {
+      _q.addToQ(function() {
+        var model_ob = TS.shared.getModelObById(id);
+        if (model_ob) _renderReplyInputForModelOb(model_ob);
+      });
+    });
   };
   var _shouldShowNotificationBanner = function(section, threads_data) {
     var group = TS.experiment.getGroup("exp_threads_everything_pref");

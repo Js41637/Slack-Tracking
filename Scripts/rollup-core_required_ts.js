@@ -1271,6 +1271,7 @@
         TS.model.teams = [];
         TS.model.user_groups = [];
         TS.model.read_only_channels = [];
+        if (TS.boot_data.feature_default_shared_channels) TS.model.threadable_channels = [];
         TS.model.online_users = [];
       } else {
         var is_first_full_boot = TS._did_incremental_boot && !TS._did_full_boot;
@@ -1475,6 +1476,9 @@
       }
       if (data.read_only_channels) {
         TS.model.read_only_channels = data.read_only_channels;
+      }
+      if (TS.boot_data.feature_default_shared_channels && data.threadable_channels) {
+        TS.model.threadable_channels = data.threadable_channels;
       }
       TS.model.initial_msgs_cnt = 42;
       if (TS.qs_args["api_count"]) {
