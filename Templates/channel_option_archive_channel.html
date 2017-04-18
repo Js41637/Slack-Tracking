@@ -8,10 +8,5 @@
   <li>{{#t}}You will be able to search for archived messages from this channel{{/t}}</li>
   <li>{{#t}}You will always be able to un-archive it later{{/t}}</li>
 </ul>
-{{#if is_shared}}
-  <p>{{#t}}Are you sure you want to archive <strong>#{name} {{> shared_channels_icon}}</strong>?{{/t}}</p>
-{{else if is_org_shared}}
-  <p>{{#t}}Are you sure you want to archive <strong>#{name} {{> shared_channel_icon}}</strong>?{{/t}}</p>
-{{else}}
-  <p>{{#t}}Are you sure you want to archive <strong>#{name}</strong>?{{/t}}</p>
-{{/if}}
+
+<p>{{#t name=name}}Are you sure you want to archive {name}?{{/t}}</p>

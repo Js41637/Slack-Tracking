@@ -1380,6 +1380,10 @@
     if (TS.client.history_prefetch) TS.client.history_prefetch.processHistoryFetchQueue();
     TS.info("Finished processing users.counts");
     TS.info(ims_with_unreads + " IMs with unreads, " + total_dm_count + " total dm_count");
+    TS.info("users.counts IMs: " + JSON.stringify(_.cloneDeep(resp.data.ims).map(function(im) {
+      delete im.name;
+      return im;
+    })));
     return null;
   };
   var _enhanced_debugging_enabled;
@@ -9050,10 +9054,14 @@
         var model_ob = TS.shared.getActiveModelOb();
         if (model_ob && model_ob.is_general && !TS.members.canUserPostInGeneral()) {
           TS.generic_dialog.start({
-            title: TS.i18n.t("Cannot Post To General", "files")(),
-            body: TS.i18n.t("An Owner of your team has limited who can post to #<strong>general</strong>. Nothing personal! You can share your file in another channel.", "files")(),
+            title: TS.i18n.t("Can’t share in #{channel_name}", "files")({
+              channel_name: model_ob.name
+            }),
+            body: TS.i18n.t("To keep things tidy, your Team Owners have set limits on sharing files and sending messages in #<strong>{channel_name}</strong>.", "files")({
+              channel_name: model_ob.name
+            }),
             show_cancel_button: false,
-            go_button_text: TS.i18n.t("Okay!", "files")()
+            go_button_text: TS.i18n.t("OK", "files")()
           });
           return false;
         }
@@ -25388,9 +25396,9 @@
       TS.generic_dialog.alert('<p class="no_bottom_margin">' + alert_msg + "</p>");
       return;
     }
-    var c_or_g = model_ob.is_channel ? "channel" : "group";
+    var is_private = model_ob.is_private || model_ob.is_group;
     var show_convert_btn = false;
-    if (c_or_g === "channel" && !model_ob.is_general && TS.model.user.is_admin) {
+    if (!is_private && !model_ob.is_general && TS.model.user.is_admin) {
       show_convert_btn = TS.permissions.members.canCreateGroups();
     }
     var show_archive_btn = false;
@@ -25401,7 +25409,7 @@
           do_check = false;
         }
       }
-      if (do_check) show_archive_btn = c_or_g === "channel" && TS.permissions.members.canArchiveChannels() || c_or_g === "group" && TS.permissions.members.canArchiveChannels() && !TS.model.user.is_restricted;
+      if (do_check) show_archive_btn = model_ob.is_channel && TS.permissions.members.canArchiveChannels() || model_ob.is_group && TS.permissions.members.canArchiveChannels() && !TS.model.user.is_restricted;
     }
     var show_rename_btn = false;
     if (TS.boot_data.page_needs_enterprise && model_ob.is_org_shared && TS.permissions.members.canManageOrgSharedChannels()) {
@@ -25412,7 +25420,7 @@
     var show_purpose_btn = false;
     if (!TS.model.user.is_ultra_restricted && (!model_ob.is_general || TS.members.canUserPostInGeneral())) show_purpose_btn = true;
     var show_data_retention_link = false;
-    if (TS.model.team.plan !== "" && (TS.model.user.is_owner || c_or_g === "group") && TS.model.team.prefs.allow_retention_override) show_data_retention_link = true;
+    if (TS.model.team.plan !== "" && (TS.model.user.is_owner || is_private == true) && TS.model.team.prefs.allow_retention_override) show_data_retention_link = true;
     var show_manage_posting_privilege_btn = false;
     if (TS.boot_data.page_needs_enterprise && model_ob.is_org_shared && TS.permissions.members.canManageOrgSharedChannels()) {
       show_manage_posting_privilege_btn = true;
@@ -25422,7 +25430,7 @@
       if (TS.permissions.members.canCreateConvertOrgSharedChannels()) show_convert_to_shared_btn = true;
     }
     var template_args = {
-      c_or_g: c_or_g,
+      name: new Handlebars.SafeString(_createChannelNameMarkup(model_ob)),
       model_ob: model_ob,
       show_convert_btn: show_convert_btn,
       show_archive_btn: show_archive_btn,
@@ -25431,7 +25439,7 @@
       show_data_retention_link: show_data_retention_link,
       show_convert_to_shared_btn: show_convert_to_shared_btn,
       show_manage_posting_privilege_btn: show_manage_posting_privilege_btn,
-      show_share_channel_btn: !model_ob.is_shared && TS.permissions.members.canRequestSharedChannel()
+      show_share_channel_btn: !model_ob.is_shared && TS.permissions.members.canRequestSharedChannel() && !model_ob.is_general
     };
     var title = TS.i18n.t("Additional Options for #{channel_name}", "channel_options")({
       channel_name: model_ob.name
@@ -25595,9 +25603,7 @@
     }
     _setHeaderHtml(header_html);
     var template_args = {
-      name: model_ob.name,
-      is_org_shared: TS.shared.isModelObOrgShared(model_ob),
-      is_shared: TS.shared.isModelObShared(model_ob)
+      name: new Handlebars.SafeString(_createChannelNameMarkup(model_ob))
     };
     _setOptionContentHtml(TS.templates.channel_option_archive_channel(template_args));
     _setOptionGoText(TS.i18n.t("Yes, archive the channel", "channel_options")());
@@ -25649,9 +25655,7 @@
     }
     _setHeaderHtml(header_html);
     _setOptionContentHtml(TS.templates.channel_option_archive_group({
-      name: model_ob.name,
-      group_prefix: TS.model.group_prefix,
-      is_org_shared: TS.shared.isModelObOrgShared(model_ob)
+      name: new Handlebars.SafeString(_createChannelNameMarkup(model_ob))
     }));
     _setOptionGoText(TS.i18n.t("Yes, archive the channel", "channel_options")());
     _current_option_go_callback = function() {
@@ -26539,6 +26543,7 @@
           email: TS.ui.channel_options_dialog.div.find("#email").val()
         });
       });
+      _throttled_handle_form_change = _.throttle(_handleFormChange, 1e3);
       if (!TS.permissions.members.canCreateSharedChannel()) _initAdminRequestUI();
     },
     test: function() {
@@ -26549,7 +26554,8 @@
         _handleError: _handleError,
         _validateShare: _validateShare,
         _promiseAdmins: _promiseAdmins,
-        _initAdminRequestUI: _initAdminRequestUI
+        _initAdminRequestUI: _initAdminRequestUI,
+        _generateAttachment: _generateAttachment
       };
       Object.defineProperty(test_ob, "_generateTemplateArgs", {
         get: function() {
@@ -26607,9 +26613,21 @@
           _initAdminRequestUI = v;
         }
       });
+      Object.defineProperty(test_ob, "_generateAttachment", {
+        get: function() {
+          return _generateAttachment;
+        },
+        set: function(v) {
+          _generateAttachment = v;
+        }
+      });
       return test_ob;
     }
   });
+  var $_message_input;
+  var $_message_attachment;
+  var $_admin_select;
+  var _throttled_handle_form_change;
   var _handleSubmit = function(options) {
     TS.ui.channel_options_dialog.ladda.start();
     TS.ui.channel_options_dialog.div.find(".error").remove();
@@ -26643,6 +26661,15 @@
     }
     TS.log("shared_channels_connection", response.data);
   };
+  var _handleFormChange = function() {
+    if ($_admin_select.lazyFilterSelect("value").length > 0 && TS.utility.contenteditable.value($_message_input) !== "") {
+      $_message_attachment.html(_generateAttachment(TS.utility.contenteditable.value($_message_input)));
+      TS.ui.channel_options_dialog.ladda.enable();
+    } else {
+      if ($_message_attachment.children().length > 0) $_message_attachment.empty();
+      TS.ui.channel_options_dialog.ladda.disable();
+    }
+  };
   var _validateShare = function(options) {
     return TS.api.call("api.test", {
       channel: options.model_ob.id,
@@ -26651,22 +26678,32 @@
     });
   };
   var _initAdminRequestUI = function() {
-    var $input = TS.ui.channel_options_dialog.div.find("#message");
+    $_message_input = TS.ui.channel_options_dialog.div.find("#message");
+    $_admin_select = TS.ui.channel_options_dialog.div.find(".lfs_container");
     TS.ui.channel_options_dialog.div.find(".option_go").attr("disabled", "disabled");
-    TS.utility.contenteditable.create($input, {
+    TS.utility.contenteditable.create($_message_input, {
       modules: {
         tabcomplete: {
           positionMenu: function(menu) {
-            var offset = $input.offset();
+            var offset = $_message_input.offset();
             var to_the_edge_width = $(window).width() - offset.left - 2;
-            menu.style.width = Math.min($input.outerWidth(), to_the_edge_width) + "px";
+            menu.style.width = Math.min($_message_input.outerWidth(), to_the_edge_width) + "px";
             menu.style.minWidth = 0;
-            TS.tabcomplete.positionUIRelativeToInput(menu, $input);
+            TS.tabcomplete.positionUIRelativeToInput(menu, $_message_input);
           }
         }
-      }
+      },
+      onTextChange: _throttled_handle_form_change
     });
-    TS.ui.channel_options_dialog.div.find(".lfs_container").lazyFilterSelect({
+    TS.utility.contenteditable.cursorPosition($_message_input, TS.utility.contenteditable.value($_message_input).length);
+    TS.utility.contenteditable.blur($_message_input);
+    TS.ui.channel_options_dialog.div.find(".emo_menu").bind("click.open_emo_menu", function(e) {
+      TS.ui.react_emoji_menu.start({
+        e: e,
+        input_to_fill: TS.ui.channel_options_dialog.div.find("#message")
+      });
+    });
+    $_admin_select.lazyFilterSelect({
       data_promise: _promiseAdmins,
       single: true,
       template: function(item) {
@@ -26674,8 +26711,11 @@
           item: item,
           show_share_prefix: false
         }));
-      }
+      },
+      onItemAdded: _throttled_handle_form_change,
+      onItemRemoved: _throttled_handle_form_change
     });
+    $_message_attachment = TS.ui.channel_options_dialog.div.find(".message_attachment");
   };
   var _promiseAdmins = function(query) {
     return TS.flannel.fetchAndUpsertObjectsWithQuery({
@@ -26690,6 +26730,15 @@
       });
       return items;
     });
+  };
+  var _generateAttachment = function(text) {
+    var msg = {
+      type: "message",
+      ts: TS.utility.date.makeTsStamp(),
+      user: TS.model.user.id,
+      text: text
+    };
+    return TS.templates.builders.formatMessageAsAttachment(msg);
   };
   var _generateTemplateArgs = function(model_ob) {
     return {
@@ -28124,7 +28173,11 @@
       hash = '<ts-icon class="ts_icon_lock"></ts-icon>';
     }
     var shared = "";
-    if (model_ob.is_shared) shared = '<ts-icon class="ts_icon_shared_channel"></ts-icon>';
+    if (TS.shared.isModelObOrgShared(model_ob)) {
+      shared = TS.templates.shared_channel_icon();
+    } else if (TS.shared.isModelObShared(model_ob)) {
+      shared = TS.templates.shared_channels_icon();
+    }
     $("#footer_archives_action_button").addClass("btn_outline");
     var is_deleted_im = TS.ims.isImWithDeletedMember(model_ob);
     if (TS.client.archives.not_member || is_deleted_im) {
@@ -37182,8 +37235,8 @@ function timezones_guess() {
       };
       if (TS.boot_data.feature_sli_briefing) {
         _.assign(_msgs_config, {
-          afterPageDown: function() {
-            if (TS.highlights_briefing.isEnabled()) TS.highlights_briefing.hideBriefing();
+          afterPageDown: function(first) {
+            if (TS.highlights_briefing.isEnabled() && !first) TS.highlights_briefing.hideBriefing();
           },
           afterPageUp: function(first) {
             if (TS.highlights_briefing.isEnabled() && first) TS.highlights_briefing.showBriefing();
@@ -38557,7 +38610,12 @@ function timezones_guess() {
       if (!config._range || !config.page_size) return;
       _moveVisibleRangeForward(config);
       TS.ui.message_container.updateWithFocus(config, $element);
-      _.invoke(config, "afterPageDown");
+      if (config.afterPageDown) {
+        var all = _flattenAllMsgs(config);
+        var first_msg = _.first(all);
+        var on_first_page = _.isEqual(first_msg, config._range.start);
+        _.invoke(config, "afterPageDown", on_first_page);
+      }
     },
     test: function() {
       return {
@@ -39814,6 +39872,7 @@ function timezones_guess() {
       var root_msg = TS.replies.getMessage(model_ob, thread_ts);
       if (!root_msg) return;
       _active_convo_can_reply = TS.permissions.members.canPostInModelOb(TS.model.user, model_ob) && !model_ob.is_archived;
+      if (TS.boot_data.feature_default_shared_channels && !_active_convo_can_reply) _active_convo_can_reply = TS.channels.read_only.threads.canThread(model_ob.id);
       _renderReplyContainer(model_ob, root_msg);
     },
     openConversation: function(model_ob, thread_ts, highlight_ts, origin) {
@@ -39876,6 +39935,7 @@ function timezones_guess() {
       _active_convo_model_id = model_ob.id;
       _active_convo_thread_ts = thread_ts;
       _active_convo_can_reply = TS.permissions.members.canPostInModelOb(TS.model.user, model_ob) && !model_ob.is_archived;
+      if (TS.boot_data.feature_default_shared_channels && !_active_convo_can_reply) _active_convo_can_reply = TS.channels.read_only.threads.canThread(model_ob.id);
       _active_convo_messages = [];
       if (origin && _.includes(_SUPPORTED_ORIGINS, origin)) {
         _active_convo_origin = origin;
@@ -40796,6 +40856,7 @@ function timezones_guess() {
     var model_ob = TS.shared.getModelObById(_active_convo_model_id);
     if (!model_ob) return;
     var can_reply = TS.permissions.members.canPostInModelOb(TS.model.user, model_ob) && !model_ob.is_archived;
+    if (TS.boot_data.feature_default_shared_channels && !can_reply) can_reply = TS.channels.read_only.threads.canThread(model_ob.id);
     if (can_reply !== _active_convo_can_reply) {
       var root_msg = TS.replies.getMessage(model_ob, _active_convo_thread_ts);
       _active_convo_can_reply = can_reply;
@@ -42196,11 +42257,16 @@ function timezones_guess() {
   var _renderThread = function(thread) {
     return TS.ui.thread.buildThreadHTML(thread);
   };
-  var _renderAllReplyInputs = function() {
+  var _renderAllReplyInputs = function(rerender) {
     var $threads = TS.client.ui.threads.$container.find("ts-thread");
     _.forEach($threads, function(thread) {
+      if (rerender) $(thread).data("input_rendered", false);
       _renderReplyInput($(thread));
     });
+  };
+  var _handlePermsChanged = function() {
+    var rerender = true;
+    _renderAllReplyInputs(rerender);
   };
   var _renderReplyInputForModelOb = function(model_ob) {
     var $threads = TS.client.ui.threads.$container.find("ts-thread[data-model-ob-id=" + model_ob.id + "]");
@@ -42292,14 +42358,6 @@ function timezones_guess() {
         _renderReplyInputForModelOb(general_channel);
       });
     }
-  };
-  var _handlePermsChanged = function() {
-    _.each(TS.model.read_only_channels, function(id) {
-      _q.addToQ(function() {
-        var model_ob = TS.shared.getModelObById(id);
-        if (model_ob) _renderReplyInputForModelOb(model_ob);
-      });
-    });
   };
   var _shouldShowNotificationBanner = function(section, threads_data) {
     var group = TS.experiment.getGroup("exp_threads_everything_pref");
@@ -42802,7 +42860,7 @@ var _getDownloadLink = function() {
       if (!TS.boot_data.is_in_invites_sidebar_exp) return;
       $("body").on("click", '[data-action="admin_shared_invites_modal"]', function(e) {
         if (TS.isPartiallyBooted()) return;
-        if (!_userCanViewSharedInvites()) return TS.ui.admin_invites.start();
+        if (!_userCanViewSharedInvitesModal()) return TS.ui.admin_invites.start();
         _build(e);
       });
       return _promiseToGetLastActiveCode();
@@ -42813,18 +42871,20 @@ var _getDownloadLink = function() {
     updateCode: function() {
       return _promiseToGetLastActiveCode();
     },
-    userCanViewSharedInvites: function() {
-      return _userCanViewSharedInvites();
+    userCanViewSharedInvitesModal: function() {
+      return _userCanViewSharedInvitesModal();
     }
   });
   var _$shared_invites_modal;
   var _$shared_invites_modal_body;
   var _active_invite_code_ob;
   var _$modal_trigger;
+  var _update_on_expiry;
   var _userCanCreateSharedInvites = function() {
     return !TS.model.team.plan && TS.model.user.is_admin;
   };
-  var _userCanViewSharedInvites = function() {
+  var _userCanViewSharedInvitesModal = function() {
+    if (!TS.boot_data.is_in_invites_sidebar_exp) return false;
     if (TS.model.team.plan) return false;
     return _userCanCreateSharedInvites() || TS.ui.admin_invites.canInvite() && _active_invite_code_ob;
   };
@@ -42833,13 +42893,25 @@ var _getDownloadLink = function() {
       mode: "last_active"
     }).then(function(response) {
       if (response.data.invites && response.data.invites.length) {
-        _active_invite_code_ob = response.data.invites[0];
+        _setActiveCode(response.data.invites[0]);
       } else {
-        _active_invite_code_ob = null;
+        _setActiveCode(null);
       }
     }, function(response) {
       TS.error("could not create shared invite link: " + response);
     });
+  };
+  var _setActiveCode = function(active_invite_code_ob) {
+    _active_invite_code_ob = active_invite_code_ob;
+    clearTimeout(_update_on_expiry);
+    if (!_active_invite_code_ob) return;
+    var date_expire_in_ms = _active_invite_code_ob.date_expire * 1e3;
+    var ms_until_expiry = date_expire_in_ms - new Date;
+    if (ms_until_expiry < 0) {
+      _active_invite_code_ob = null;
+      return;
+    }
+    _update_on_expiry = setTimeout(_promiseToGetLastActiveCode, ms_until_expiry);
   };
   var _promiseToDeleteLastActiveCode = function() {
     return _promiseToGetLastActiveCode().then(function() {
@@ -42847,7 +42919,7 @@ var _getDownloadLink = function() {
       return TS.api.call("users.admin.revokeSharedInvite", {
         code: _active_invite_code_ob.code
       }).then(function() {
-        _active_invite_code_ob = null;
+        _setActiveCode(null);
         return Promise.resolve();
       });
     });
@@ -42862,6 +42934,7 @@ var _getDownloadLink = function() {
     _$modal_trigger = $(e.target);
     TS.menu.menu_closed_sig.addOnce(function() {
       _$modal_trigger = null;
+      $("#shared_invite_link_modal_warning").remove();
     });
     _start(e);
   };
@@ -42932,7 +43005,7 @@ var _getDownloadLink = function() {
         max_signups: 500
       }, function(ok, data) {
         if (ok) {
-          _active_invite_code_ob = data;
+          _setActiveCode(data);
           return _enterView("admin_share_link", {
             copy: true
           });

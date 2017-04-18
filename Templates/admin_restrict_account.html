@@ -1,41 +1,22 @@
 {{i18n_ns "restricted_accounts"}}
 
 <div class="col span_3_of_6">
-  
-    <h4>
-    {{#if enabling}}
-        {{#t}}Enable a multi-channel guest{{/t}}
-    {{else}}
-        {{#t}}Convert to Guest{{/t}}
-    {{/if}}
-    </h4>
+
+    <h4>{{#t}}About Guests{{/t}}</h4>
 
     <p class="small_bottom_margin">
-        {{#if enabling}}
-            {{#t}}Team members you enable with a Multi-Channel Guest will have the following capabilities:{{/t}}
-        {{else}}
-            {{#t}}Team members you convert to Multi-Channel Guest will have the following capabilities:{{/t}}
-        {{/if}}
+    {{#t}}Guest accounts are perfect for people who only need access to certain channels \u2014 like contractors, interns, or clients. Guests can do most of the same things as full Team Members, with a few restrictions. <a href='https://get.slack.help/hc/articles/202518103-Multi-Channel-and-Single-Channel-Guests'>Learn more about guest accounts</a>.{{/t}}
     </p>
-    {{#t note="List items describing multi-channel guest capabilities"}}
-    <ul>
-        <li>participate in the channels they are invited to join</li>
-        <li>exchange direct messages with others in the channels to which they belong</li>
-    </ul>
-    {{/t}}
-    <p class="small_bottom_margin">{{#t}}They will <strong>not</strong> be able to:{{/t}}</p>
-    {{#t note="List items preceded by '[Multi-channel guests] will not be able to:'"}}
-    <ul>
-        <li>create new channels</li>
-        <li>see files or messages in channels they don't belong to</li>
-    </ul>
-    {{/t}}
-    <p class="large_bottom_margin">{{#t}}Single-Channel Guests only have access to one channel.{{/t}}</p>
 
-    {{#t}}
-    <h4>Billing</h4>
-    <p class="large_bottom_margin">Multi-Channel Guests count as paid users when they are active. Single-Channel Guests are free.</p>
-    {{/t}}
+    <p>{{#t}}There are two types of guest accounts \u2014 Multi-Channel and Single-Channel.{{/t}}</p>
+
+    <p class="small_bottom_margin"><strong>{{#t}}Multi-Channel Guests{{/t}}</strong></p>
+
+    <p>{{#t}}Multi-Channel Guests are billed as regular team members, and can be added to unlimited channels.{{/t}}</p>
+
+    <p class="small_bottom_margin"><strong>{{#t}}Single-Channel Guests{{/t}}</strong></p>
+
+    <p>{{#t}}Single-Channel Guests are free. You can add up to 5 of them per paid member of your team.{{/t}}</p>
 </div>
 
 <div class="col span_3_of_6 invite_form_column">
@@ -47,9 +28,9 @@
         <h3 class="top_margin">
             {{#if enabling}}
                 {{#if member.profile.real_name}}
-                    {{#t}}Enable {member.profile.real_name} with:{{/t}}
+                    {{#t}}Enable {member.profile.real_name} as:{{/t}}
                 {{else}}
-                    {{#t}}Enable {member.name} with:{{/t}}
+                    {{#t}}Enable {member.name} as:{{/t}}
                 {{/if}}
             {{else}}
                 {{#if member.profile.real_name}}
@@ -60,12 +41,12 @@
             {{/if}}
         </h3>
 
-        {{#t note="Space before 'A multi-channel guest' and 'A single-channel guest' should be preserved"}}
+        {{#t note="Space before 'Multi-Channel Guest' and 'Single-Channel Guest' should be preserved"}}
         <a class="restriction_option" id="restricted_user">
-            <i class="ts_icon ts_icon_restricted_user presence active"></i> A multi-channel guest <i class="ts_icon ts_icon_arrow_right"></i>
+            <i class="ts_icon ts_icon_restricted_user presence active"></i> Multi-Channel Guest <i class="ts_icon ts_icon_arrow_right"></i>
         </a>
         <a class="restriction_option" id="guest_user">
-            <i class="ts_icon ts_icon_single_channel_guest presence active"></i> A single-channel guest <i class="ts_icon ts_icon_arrow_right"></i>
+            <i class="ts_icon ts_icon_single_channel_guest presence active"></i> Single-Channel Guest <i class="ts_icon ts_icon_arrow_right"></i>
         </a>
 
         <p class="subtle_silver large_top_margin">or <a class="cancel_admin_restrict_workflow subtle_silver">return to Team Administration</a></p>

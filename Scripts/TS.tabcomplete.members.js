@@ -154,7 +154,10 @@
       var header_html = TS.templates.tabcomplete_member_header({
         text: text
       });
-      var model_ob = options.no_model_ob ? null : TS.shared.getActiveModelOb();
+      var model_ob;
+      if (!options.no_model_ob) {
+        model_ob = options.model_ob || TS.shared.getActiveModelOb();
+      }
       var template_results = results.map(function(result) {
         if (result.is_broadcast_keyword) return result;
         if (result.is_usergroup) return _buildUserGroupTemplateArgs(model_ob, result);

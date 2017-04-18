@@ -2,7 +2,6 @@
   "use strict";
   TS.registerModule("presence_manager", {
     onStart: function() {
-      if (!TS.boot_data.feature_presence_sub) return;
       _has_started = true;
       if (_sub_list.length) _sendSubList();
       if (_query_list.length) _sendQueryList();
@@ -24,7 +23,6 @@
       }
     },
     queryMemberPresence: function(members) {
-      if (!TS.boot_data.feature_presence_sub) return;
       if (_.isArray(members)) {
         members.forEach(function(member) {
           _addMemberToQueryList(member);
@@ -208,12 +206,6 @@
       this.added_sig = new signals.Signal;
       this.removed_sig = new signals.Signal;
       TS.presence_manager.addPresenceList(this);
-      if (!TS.boot_data.feature_presence_sub) {
-        this.add = _.noop;
-        this.remove = _.noop;
-        this.clear = _.noop;
-        return;
-      }
       if (members) this.add(members);
     },
     add: function(members) {
@@ -32895,7 +32887,7 @@ TS.registerModule("constants", {
         is_our_app: TS.model.is_our_app,
         show_team_subdivider: TS.model.user.is_admin,
         can_invite: TS.ui.admin_invites.canInvite(),
-        can_view_shared_invites: TS.ui.shared_invites_modal.userCanViewSharedInvites()
+        can_view_shared_invites: TS.ui.shared_invites_modal.userCanViewSharedInvitesModal()
       };
       var other_accounts_length = Object.keys(TS.boot_data.other_accounts).length;
       if (other_accounts_length) template_args.other_accounts = TS.boot_data.other_accounts;
@@ -33066,7 +33058,7 @@ TS.registerModule("constants", {
             TS.menu._registerCurrentStatusInput();
             break;
           case "team_invitations":
-            if (!TS.ui.shared_invites_modal.userCanViewSharedInvites()) break;
+            if (!TS.ui.shared_invites_modal.userCanViewSharedInvitesModal()) break;
             TS.menu.$submenu_parent = $menu_content.find("#team_invitations");
             TS.menu.$submenu_parent.submenu({
               items_html: TS.templates.shared_invites_modal()
@@ -33142,7 +33134,7 @@ TS.registerModule("constants", {
           });
           break;
         case "team_invitations":
-          if (TS.ui.shared_invites_modal.userCanViewSharedInvites()) return;
+          if (TS.ui.shared_invites_modal.userCanViewSharedInvitesModal()) return;
           e.preventDefault();
           TS.ui.admin_invites.start();
           var params = TS.clog.parseParams(this.getAttribute("data-clog-params"));
@@ -60074,7 +60066,9 @@ $.fn.togglify = function(settings) {
       var experiment_group = TS.experiment.getGroup("exp_thread_at_mention");
       var $reply_container = $thread.find(".reply_input_container");
       $reply_container.empty();
-      if (!TS.permissions.members.canPostInModelOb(TS.model.user, model_ob) || model_ob.is_archived) {
+      var can_reply = TS.permissions.members.canPostInModelOb(TS.model.user, model_ob);
+      if (TS.boot_data.feature_default_shared_channels && !can_reply) can_reply = TS.channels.read_only.threads.canThread(model_ob.id);
+      if (!can_reply || model_ob.is_archived) {
         _renderRestrictedReply(model_ob, $reply_container);
         return;
       }
@@ -65658,10 +65652,9 @@ $.fn.togglify = function(settings) {
             Lf = ta(xf),
             zf = Ki(function(e) {
               var t = [];
-              return At.test(e) && t.push(""),
-                e.replace(Nt, function(e, n, r, o) {
-                  t.push(r ? o.replace(Bt, "$1") : n || e);
-                }), t;
+              return At.test(e) && t.push(""), e.replace(Nt, function(e, n, r, o) {
+                t.push(r ? o.replace(Bt, "$1") : n || e);
+              }), t;
             }),
             jf = io(function(e, t) {
               return Xs(e) ? qn(e, tr(t, 1, Xs, !0)) : [];
@@ -68629,7 +68622,8 @@ $.fn.togglify = function(settings) {
         return r(e);
       }
     };
-  i.injection = o, e.exports = i;
+  i.injection = o,
+    e.exports = i;
 }, function(e, t, n) {
   "use strict";
   var r = {
@@ -71720,7 +71714,8 @@ $.fn.togglify = function(settings) {
               r = function(e) {
                 "Enter" !== e.key && " " !== e.key || n(e);
               };
-            x["aria-label"] = t.props["aria-label"] || v || p, x.role = "rowheader", x.tabIndex = 0, x.onClick = n, x.onKeyDown = r;
+            x["aria-label"] = t.props["aria-label"] || v || p,
+              x.role = "rowheader", x.tabIndex = 0, x.onClick = n, x.onKeyDown = r;
           }(), _.a.createElement("div", o()({}, x, {
             key: "Header-Col" + n,
             className: b,
@@ -73534,8 +73529,7 @@ $.fn.togglify = function(settings) {
       for (var r in e)
         if (e.hasOwnProperty(r)) {
           var o = e[r];
-          null != o && (n += u(r) + ":",
-            n += i(r, o, t) + ";");
+          null != o && (n += u(r) + ":", n += i(r, o, t) + ";");
         }
       return n || null;
     },
@@ -74925,7 +74919,8 @@ $.fn.togglify = function(settings) {
     s = n(7),
     u = n(55),
     l = (n(0), n(91), function(e) {
-      this._currentElement = e, this._stringText = "" + e, this._hostNode = null, this._hostParent = null, this._domID = 0, this._mountIndex = 0, this._closingComment = null, this._commentNodes = null;
+      this._currentElement = e, this._stringText = "" + e, this._hostNode = null,
+        this._hostParent = null, this._domID = 0, this._mountIndex = 0, this._closingComment = null, this._commentNodes = null;
     });
   o(l.prototype, {
     mountComponent: function(e, t, n, r) {

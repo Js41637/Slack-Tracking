@@ -6197,6 +6197,12 @@ only screen and (min-resolution:2dppx) {
   margin-left: 3px
 }
 
+#footer_archives_text .ts_icon_shared_channels {
+  right: 2px;
+  top: 2px;
+  margin-right: -5px
+}
+
 #footer_archives_text .ts_icon_archive {
   vertical-align: middle;
   margin-right: 3px
@@ -6253,7 +6259,10 @@ only screen and (min-resolution:2dppx) {
 .current_status_input_container .emo_menu,
 .inline_message_input_container .current_status_empty_emoji,
 .inline_message_input_container .current_status_empty_emoji_cover,
-.inline_message_input_container .emo_menu {
+.inline_message_input_container .emo_menu,
+.share_channel_modal_contents .current_status_empty_emoji,
+.share_channel_modal_contents .current_status_empty_emoji_cover,
+.share_channel_modal_contents .emo_menu {
   position: absolute;
   z-index: 1;
   right: 0;
@@ -6287,7 +6296,10 @@ only screen and (min-resolution:2dppx) {
 .current_status_input_container .emo_menu .ts_icon,
 .inline_message_input_container .current_status_empty_emoji .ts_icon,
 .inline_message_input_container .current_status_empty_emoji_cover .ts_icon,
-.inline_message_input_container .emo_menu .ts_icon {
+.inline_message_input_container .emo_menu .ts_icon,
+.share_channel_modal_contents .current_status_empty_emoji .ts_icon,
+.share_channel_modal_contents .current_status_empty_emoji_cover .ts_icon,
+.share_channel_modal_contents .emo_menu .ts_icon {
   position: absolute;
   top: -1px;
   width: 100%;
@@ -6323,7 +6335,13 @@ only screen and (min-resolution:2dppx) {
 .inline_message_input_container .current_status_empty_emoji_cover .ts_icon_circle_fill,
 .inline_message_input_container .current_status_empty_emoji_cover .ts_icon_happy_smile,
 .inline_message_input_container .emo_menu .ts_icon_circle_fill,
-.inline_message_input_container .emo_menu .ts_icon_happy_smile {
+.inline_message_input_container .emo_menu .ts_icon_happy_smile,
+.share_channel_modal_contents .current_status_empty_emoji .ts_icon_circle_fill,
+.share_channel_modal_contents .current_status_empty_emoji .ts_icon_happy_smile,
+.share_channel_modal_contents .current_status_empty_emoji_cover .ts_icon_circle_fill,
+.share_channel_modal_contents .current_status_empty_emoji_cover .ts_icon_happy_smile,
+.share_channel_modal_contents .emo_menu .ts_icon_circle_fill,
+.share_channel_modal_contents .emo_menu .ts_icon_happy_smile {
   opacity: 0
 }
 
@@ -6331,7 +6349,8 @@ only screen and (min-resolution:2dppx) {
 #msg_form .current_status_empty_emoji,
 .current_status_container .current_status_empty_emoji,
 .current_status_input_container .current_status_empty_emoji,
-.inline_message_input_container .current_status_empty_emoji {
+.inline_message_input_container .current_status_empty_emoji,
+.share_channel_modal_contents .current_status_empty_emoji {
   width: 100%;
   height: 37px;
   line-height: 35px
@@ -6341,7 +6360,8 @@ only screen and (min-resolution:2dppx) {
 #msg_form .current_status_empty_emoji .ts_icon,
 .current_status_container .current_status_empty_emoji .ts_icon,
 .current_status_input_container .current_status_empty_emoji .ts_icon,
-.inline_message_input_container .current_status_empty_emoji .ts_icon {
+.inline_message_input_container .current_status_empty_emoji .ts_icon,
+.share_channel_modal_contents .current_status_empty_emoji .ts_icon {
   top: 0;
   height: 100%
 }
@@ -6350,7 +6370,8 @@ only screen and (min-resolution:2dppx) {
 #msg_form .current_status_input.focus~.current_status_emoji_picker .current_status_empty_emoji,
 .current_status_container .current_status_input.focus~.current_status_emoji_picker .current_status_empty_emoji,
 .current_status_input_container .current_status_input.focus~.current_status_emoji_picker .current_status_empty_emoji,
-.inline_message_input_container .current_status_input.focus~.current_status_emoji_picker .current_status_empty_emoji {
+.inline_message_input_container .current_status_input.focus~.current_status_emoji_picker .current_status_empty_emoji,
+.share_channel_modal_contents .current_status_input.focus~.current_status_emoji_picker .current_status_empty_emoji {
   color: #717274
 }
 
@@ -6358,7 +6379,8 @@ only screen and (min-resolution:2dppx) {
 #msg_form .current_status_empty_emoji_cover,
 .current_status_container .current_status_empty_emoji_cover,
 .current_status_input_container .current_status_empty_emoji_cover,
-.inline_message_input_container .current_status_empty_emoji_cover {
+.inline_message_input_container .current_status_empty_emoji_cover,
+.share_channel_modal_contents .current_status_empty_emoji_cover {
   width: 100%;
   height: 37px
 }
@@ -6367,7 +6389,8 @@ only screen and (min-resolution:2dppx) {
 #msg_form .current_status_empty_emoji_cover .ts_icon,
 .current_status_container .current_status_empty_emoji_cover .ts_icon,
 .current_status_input_container .current_status_empty_emoji_cover .ts_icon,
-.inline_message_input_container .current_status_empty_emoji_cover .ts_icon {
+.inline_message_input_container .current_status_empty_emoji_cover .ts_icon,
+.share_channel_modal_contents .current_status_empty_emoji_cover .ts_icon {
   top: -5px;
   left: -1px;
   height: 100%
@@ -6412,7 +6435,15 @@ only screen and (min-resolution:2dppx) {
 .inline_message_input_container .message_input:focus~#primary_file_button:not(:hover):not(.active),
 .inline_message_input_container .message_input:focus~.emo_menu,
 .inline_message_input_container.focus~#primary_file_button:not(:hover):not(.active),
-.inline_message_input_container.focus~.emo_menu {
+.inline_message_input_container.focus~.emo_menu,
+.share_channel_modal_contents #msg_input.focus~#primary_file_button:not(:hover):not(.active),
+.share_channel_modal_contents #msg_input.focus~.emo_menu,
+.share_channel_modal_contents #msg_input:focus~#primary_file_button:not(:hover):not(.active),
+.share_channel_modal_contents #msg_input:focus~.emo_menu,
+.share_channel_modal_contents .message_input:focus~#primary_file_button:not(:hover):not(.active),
+.share_channel_modal_contents .message_input:focus~.emo_menu,
+.share_channel_modal_contents.focus~#primary_file_button:not(:hover):not(.active),
+.share_channel_modal_contents.focus~.emo_menu {
   color: #717274
 }
 
@@ -6420,7 +6451,8 @@ only screen and (min-resolution:2dppx) {
 #msg_form .with-emoji-menu.has_scrollbar~.emo_menu,
 .current_status_container .with-emoji-menu.has_scrollbar~.emo_menu,
 .current_status_input_container .with-emoji-menu.has_scrollbar~.emo_menu,
-.inline_message_input_container .with-emoji-menu.has_scrollbar~.emo_menu {
+.inline_message_input_container .with-emoji-menu.has_scrollbar~.emo_menu,
+.share_channel_modal_contents .with-emoji-menu.has_scrollbar~.emo_menu {
   right: 18px;
   width: 30px
 }
@@ -6444,7 +6476,11 @@ only screen and (min-resolution:2dppx) {
 .inline_message_input_container .current_status_emoji_picker.active .current_status_empty_emoji,
 .inline_message_input_container .current_status_emoji_picker:hover .current_status_empty_emoji,
 .inline_message_input_container .emo_menu.active,
-.inline_message_input_container .emo_menu:hover {
+.inline_message_input_container .emo_menu:hover,
+.share_channel_modal_contents .current_status_emoji_picker.active .current_status_empty_emoji,
+.share_channel_modal_contents .current_status_emoji_picker:hover .current_status_empty_emoji,
+.share_channel_modal_contents .emo_menu.active,
+.share_channel_modal_contents .emo_menu:hover {
   -webkit-transform: scale(1.25);
   -moz-transform: scale(1.25);
   -ms-transform: scale(1.25);
@@ -6470,7 +6506,11 @@ only screen and (min-resolution:2dppx) {
 .inline_message_input_container .current_status_emoji_picker.active .current_status_empty_emoji .ts_icon_circle_fill,
 .inline_message_input_container .current_status_emoji_picker:hover .current_status_empty_emoji .ts_icon_circle_fill,
 .inline_message_input_container .emo_menu.active .ts_icon_circle_fill,
-.inline_message_input_container .emo_menu:hover .ts_icon_circle_fill {
+.inline_message_input_container .emo_menu:hover .ts_icon_circle_fill,
+.share_channel_modal_contents .current_status_emoji_picker.active .current_status_empty_emoji .ts_icon_circle_fill,
+.share_channel_modal_contents .current_status_emoji_picker:hover .current_status_empty_emoji .ts_icon_circle_fill,
+.share_channel_modal_contents .emo_menu.active .ts_icon_circle_fill,
+.share_channel_modal_contents .emo_menu:hover .ts_icon_circle_fill {
   opacity: 1;
   color: #FFD06D
 }
@@ -6494,7 +6534,11 @@ only screen and (min-resolution:2dppx) {
 .inline_message_input_container .current_status_emoji_picker.active .current_status_empty_emoji .ts_icon_smile_o,
 .inline_message_input_container .current_status_emoji_picker:hover .current_status_empty_emoji .ts_icon_smile_o,
 .inline_message_input_container .emo_menu.active .ts_icon_smile_o,
-.inline_message_input_container .emo_menu:hover .ts_icon_smile_o {
+.inline_message_input_container .emo_menu:hover .ts_icon_smile_o,
+.share_channel_modal_contents .current_status_emoji_picker.active .current_status_empty_emoji .ts_icon_smile_o,
+.share_channel_modal_contents .current_status_emoji_picker:hover .current_status_empty_emoji .ts_icon_smile_o,
+.share_channel_modal_contents .emo_menu.active .ts_icon_smile_o,
+.share_channel_modal_contents .emo_menu:hover .ts_icon_smile_o {
   opacity: 0
 }
 
@@ -6517,7 +6561,11 @@ only screen and (min-resolution:2dppx) {
 .inline_message_input_container .current_status_emoji_picker.active .current_status_empty_emoji .ts_icon_happy_smile,
 .inline_message_input_container .current_status_emoji_picker:hover .current_status_empty_emoji .ts_icon_happy_smile,
 .inline_message_input_container .emo_menu.active .ts_icon_happy_smile,
-.inline_message_input_container .emo_menu:hover .ts_icon_happy_smile {
+.inline_message_input_container .emo_menu:hover .ts_icon_happy_smile,
+.share_channel_modal_contents .current_status_emoji_picker.active .current_status_empty_emoji .ts_icon_happy_smile,
+.share_channel_modal_contents .current_status_emoji_picker:hover .current_status_empty_emoji .ts_icon_happy_smile,
+.share_channel_modal_contents .emo_menu.active .ts_icon_happy_smile,
+.share_channel_modal_contents .emo_menu:hover .ts_icon_happy_smile {
   opacity: 1;
   color: #C19A87
 }

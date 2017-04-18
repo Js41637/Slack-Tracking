@@ -46,7 +46,12 @@
       <label for="message">{{#t note="Form input label"}}Add a message{{/t}}</label>
     </p>
 
-    <div id="message" name="message">{{#t}}Hi there, I was hoping to add this shared channel to our team. Would you be able to help?{{/t}}</div>
+    <div class="message_field">
+      <div id="message" name="message">{{#t}}Hi there, I was hoping to add this shared channel to our team. Would you be able to help?{{/t}}</div>
+      <button class="emo_menu btn_unstyle" aria-label="{{#t}}emoji menu{{/t}}" type="button"><i class="ts_icon ts_icon_circle_fill"></i><i class="ts_icon ts_icon_smile_o"></i><i class="ts_icon ts_icon_happy_smile"></i></button>
+    </div>
+
+    <div class="message_attachment"></div>
 
     {{#if show_buttons}}
       <p class="align_right">

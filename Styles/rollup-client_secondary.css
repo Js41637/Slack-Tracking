@@ -669,8 +669,8 @@ input.search_input {
 #details_tab_header .ts_icon_shared_channels {
   position: relative;
   right: 0;
-  margin-left: 7px;
-  bottom: 0;
+  margin-left: 3px;
+  bottom: 1px;
   font-size: 1.3rem;
   color: #717274
 }
@@ -3887,18 +3887,7 @@ html {
   font-weight: 300;
   text-align: center;
   border-top: 1px solid transparent;
-  border-bottom: 1px solid #E8E8E8;
-  display: block;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap
-}
-
-#fs_modal.channel_options_modal .channel_options_header .ts_icon_lock,
-#fs_modal.channel_options_modal .channel_options_header .ts_icon_org_shared_channel,
-#fs_modal.channel_options_modal .channel_options_header .ts_icon_shared_channel,
-#fs_modal.channel_options_modal .channel_options_header .ts_icon_shared_channels {
-  margin-left: 5px
+  border-bottom: 1px solid #E8E8E8
 }
 
 #fs_modal.channel_options_modal .channel_options_header .ts_icon_lock:before,
@@ -3910,7 +3899,8 @@ html {
 }
 
 #fs_modal.channel_options_modal .channel_options_header .ts_icon_shared_channels {
-  top: 5px
+  top: 5px;
+  right: 3px
 }
 
 #fs_modal.channel_options_modal .input_wrapper {
@@ -3954,7 +3944,8 @@ html {
 }
 
 #fs_modal.channel_options_modal .channel_option_content .ts_icon_shared_channels {
-  top: 3px
+  top: 3px;
+  margin-left: -3px
 }
 
 #fs_modal.channel_options_modal .channel_options_loading_overlay {
@@ -4060,6 +4051,10 @@ html {
 #fs_modal.channel_options_modal .share_channel_modal_contents #team_url {
   text-align: right;
   width: 60%
+}
+
+#fs_modal.channel_options_modal .share_channel_modal_contents .message_field {
+  position: relative
 }
 
 #fs_modal.channel_options_modal .share_channel_modal_contents #message {
@@ -24204,7 +24199,10 @@ ts-jumper ol li ts-icon.ts_icon_pencil:before {
 }
 
 ts-jumper ol li ts-icon.ts_icon_shared_channels {
-  color: #717274
+  color: #717274;
+  position: absolute;
+  right: 5px;
+  bottom: 5px
 }
 
 ts-jumper ol li .unread_count+.ts_icon_shared_channels {
@@ -25066,7 +25064,7 @@ li:hover .current_status_badge {
   position: relative;
   right: 0;
   bottom: -3px;
-  margin-left: 6px;
+  margin-left: 1px;
   color: #717274
 }
 
@@ -28649,6 +28647,7 @@ html:not(.supports_sticky_position) #app_index_scroller_div {
   padding: .5rem;
   margin-right: .4rem;
   margin-bottom: 0rem;
+  min-width: 0;
   cursor: pointer
 }
 
