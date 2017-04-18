@@ -60722,6 +60722,8 @@ $.fn.togglify = function(settings) {
   var _DEFAULT_OFFSET_X = 0;
   var _DEFAULT_OFFSET_Y = -6;
   var _DEFAULT_POSITION = "top-left";
+  var _TARGET_NODE_ID = "reactroot_emoji_picker";
+  var _emoji_picker_target;
   var _$trigger;
   var _input_to_fill = "#msg_input";
   var _rxn_key;
@@ -60890,11 +60892,20 @@ $.fn.togglify = function(settings) {
     if (_rxn_key) _updateHandyRxns(_rxn_key);
     _reRender();
   };
+  var _createEmojiPickerTarget = function() {
+    if (!document.getElementById(_TARGET_NODE_ID)) {
+      var target = document.createElement("div");
+      target.setAttribute("id", _TARGET_NODE_ID);
+      document.body.appendChild(target);
+    }
+    return document.getElementById(_TARGET_NODE_ID);
+  };
   var _renderEmojiPickerPopover = function(picker_props, popover_props) {
     TS.metrics.mark("react_emoji_menu_render_mark");
+    if (!_emoji_picker_target) _emoji_picker_target = _createEmojiPickerTarget();
     var emoji_picker = React.createElement(ReactComponents.EmojiPicker, picker_props, null);
     var popover = React.createElement(ReactComponents.Popover, popover_props, emoji_picker);
-    ReactDOM.render(popover, document.getElementById("reactroot_emoji_picker"), function() {
+    ReactDOM.render(popover, _emoji_picker_target, function() {
       TS.metrics.measureAndClear("react_emoji_menu_render", "react_emoji_menu_render_mark");
     });
   };
@@ -65596,9 +65607,10 @@ $.fn.togglify = function(settings) {
             Lf = ta(xf),
             zf = Ki(function(e) {
               var t = [];
-              return At.test(e) && t.push(""), e.replace(Nt, function(e, n, r, o) {
-                t.push(r ? o.replace(Bt, "$1") : n || e);
-              }), t;
+              return At.test(e) && t.push(""),
+                e.replace(Nt, function(e, n, r, o) {
+                  t.push(r ? o.replace(Bt, "$1") : n || e);
+                }), t;
             }),
             jf = io(function(e, t) {
               return Xs(e) ? qn(e, tr(t, 1, Xs, !0)) : [];
@@ -73471,7 +73483,8 @@ $.fn.togglify = function(settings) {
       for (var r in e)
         if (e.hasOwnProperty(r)) {
           var o = e[r];
-          null != o && (n += u(r) + ":", n += i(r, o, t) + ";");
+          null != o && (n += u(r) + ":",
+            n += i(r, o, t) + ";");
         }
       return n || null;
     },
@@ -74873,8 +74886,7 @@ $.fn.togglify = function(settings) {
           f = c.createComment(i),
           p = c.createComment(l),
           d = a(c.createDocumentFragment());
-        return a.queueChild(d, a(f)), this._stringText && a.queueChild(d, a(c.createTextNode(this._stringText))),
-          a.queueChild(d, a(p)), s.precacheNode(this, f), this._closingComment = p, d;
+        return a.queueChild(d, a(f)), this._stringText && a.queueChild(d, a(c.createTextNode(this._stringText))), a.queueChild(d, a(p)), s.precacheNode(this, f), this._closingComment = p, d;
       }
       var h = u(this._stringText);
       return e.renderToStaticMarkup ? h : "<!--" + i + "-->" + h + "<!--" + l + "-->";
@@ -76563,11 +76575,10 @@ $.fn.togglify = function(settings) {
         u()(this, t);
         var o = p()(this, (t.__proto__ || a()(t)).call(this, e, r));
         return o.state = {
-            isScrolling: !1,
-            scrollLeft: 0,
-            scrollTop: 0
-          }, o._calculateSizeAndPositionDataOnNextUpdate = !1, o._onSectionRenderedMemoizer = n.i(y.a)(), o._onScrollMemoizer = n.i(y.a)(!1), o._invokeOnSectionRenderedHelper = o._invokeOnSectionRenderedHelper.bind(o), o._onScroll = o._onScroll.bind(o), o._setScrollingContainerRef = o._setScrollingContainerRef.bind(o), o._updateScrollPositionForScrollToCell = o._updateScrollPositionForScrollToCell.bind(o),
-          o;
+          isScrolling: !1,
+          scrollLeft: 0,
+          scrollTop: 0
+        }, o._calculateSizeAndPositionDataOnNextUpdate = !1, o._onSectionRenderedMemoizer = n.i(y.a)(), o._onScrollMemoizer = n.i(y.a)(!1), o._invokeOnSectionRenderedHelper = o._invokeOnSectionRenderedHelper.bind(o), o._onScroll = o._onScroll.bind(o), o._setScrollingContainerRef = o._setScrollingContainerRef.bind(o), o._updateScrollPositionForScrollToCell = o._updateScrollPositionForScrollToCell.bind(o), o;
       }
       return h()(t, e), c()(t, [{
         key: "recomputeCellSizesAndPositions",
@@ -78164,8 +78175,7 @@ $.fn.togglify = function(settings) {
           var o = n in w;
           o ? p("78", n) : void 0;
           var i = n in e;
-          i ? p("79", n) : void 0,
-            e[n] = r;
+          i ? p("79", n) : void 0, e[n] = r;
         }
       }
   }
@@ -80369,12 +80379,7 @@ $.fn.togglify = function(settings) {
             n = this.getInitialPosition(e),
             r = n.left,
             o = n.top;
-          if (n.left < t.left ? r = t.left : n.right > t.right && (r = Math.max(t.left, t.right - n.width)), n.top < t.top) o = n.top + (t.top - n.top);
-          else if (n.bottom > t.bottom) {
-            var i = n.bottom - Math.max(t.top, t.bottom - n.height);
-            o = n.top - i;
-          }
-          return {
+          return n.left < t.left ? r = t.left : n.right > t.right && (r = Math.max(t.left, t.right - n.width)), n.top < t.top ? o = t.top : n.bottom > t.bottom && (o = Math.max(t.top, t.bottom - n.height)), {
             left: r,
             top: o
           };

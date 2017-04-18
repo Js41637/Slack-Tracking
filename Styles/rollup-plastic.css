@@ -10787,7 +10787,8 @@ html.fs_modal_active {
   font-size: .95rem;
   font-family: Slack-Lato, appleLogo, sans-serif;
   background: #F7F7F7;
-  line-height: 1rem
+  line-height: 1rem;
+  outline: 0
 }
 
 #emoji_menu #emoji_menu_content {
@@ -10843,7 +10844,12 @@ body.winssb #emoji_menu {
   padding: .6rem .7rem .8rem 0;
   background: #F7F7F7;
   color: #555459;
-  font-weight: 700
+  font-weight: 700;
+  float: left;
+  display: block;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap
 }
 
 #emoji_menu #emoji_preview_text.is_shortened {
@@ -10861,7 +10867,9 @@ body.winssb #emoji_menu {
   max-height: 270px;
   overflow-y: auto;
   overflow-x: hidden;
-  background: #fff
+  background: #fff;
+  position: relative;
+  border-right: 0!important
 }
 
 .supports_custom_scrollbar:not(.slim_scrollbar) #emoji_menu #emoji_menu_items_scroller {
@@ -10918,9 +10926,13 @@ body.winssb #emoji_menu {
   background-color: rgba(113, 114, 116, .8)
 }
 
-#emoji_menu #emoji_menu_items_scroller .icon_search {
-  top: 21px;
-  left: 16px;
+#emoji_menu .emoji_menu_items_scroller {
+  outline: 0
+}
+
+#emoji_menu .icon_search {
+  top: .8125rem;
+  left: 1rem;
   text-shadow: none;
   display: block;
   position: absolute
@@ -10981,8 +10993,9 @@ body.winssb #emoji_menu {
 
 #emoji_menu #emoji_menu_items_div {
   position: relative;
-  min-height: 270px;
-  padding: 8px 0 8px 8px
+  padding: 33px 0 0 8px;
+  margin-top: -33px;
+  min-height: 270px
 }
 
 #emoji_menu #emoji_menu_footer {
@@ -10998,7 +11011,31 @@ body.winssb #emoji_menu {
 
 #emoji_menu #emoji_menu_header {
   padding: 4px 0 0 7px;
-  border-bottom: 1px solid rgba(0, 0, 0, .15)
+  border-bottom: 1px solid rgba(0, 0, 0, .15);
+  height: 38px
+}
+
+#emoji_menu #emoji_menu_header .emoji_grouping_tab {
+  height: 100%
+}
+
+#emoji_menu #emoji_menu_header .emoji_grouping_tab.active {
+  margin-bottom: -1px
+}
+
+#emoji_menu .emoji_sticky_header {
+  position: absolute;
+  width: 100%;
+  z-index: 10;
+  top: -1px;
+  padding-top: 1px
+}
+
+#emoji_menu .emoji_sticky_header h3 {
+  position: absolute!important;
+  right: 12px;
+  left: 0;
+  padding: 0 8px
 }
 
 #emoji_menu .emoji_li {
@@ -11118,7 +11155,8 @@ body.winssb #emoji_menu {
 #emoji_menu #emoji_skin_picker_label {
   font-size: .9rem;
   display: inline-block;
-  margin: 0 3px
+  margin: 0 3px;
+  font-weight: 700
 }
 
 #emoji_menu #emoji_menu_content:hover #emoji_skin_button_container {
@@ -11150,7 +11188,8 @@ body.winssb #emoji_menu {
   bottom: -50px;
   right: 14px;
   z-index: 2;
-  pointer-events: none
+  pointer-events: none;
+  font-weight: 700
 }
 
 #emoji_menu #emoji_skin_tip.shown {
@@ -11210,7 +11249,7 @@ body.winssb #emoji_menu {
   margin-top: 0
 }
 
-#emoji_menu div#emoji_zero_results {
+#emoji_menu #emoji_zero_results {
   clear: both;
   font-weight: 400;
   font-size: 1rem;
@@ -11223,9 +11262,9 @@ body.winssb #emoji_menu {
 
 #emoji_menu #emoji_input {
   font-size: 15px;
-  width: 95%;
+  margin: 0;
   height: 28px;
-  margin: .5rem 0 .6rem;
+  width: 100%;
   border-radius: 1rem;
   padding: 2px 32px
 }
@@ -11235,8 +11274,10 @@ body.winssb #emoji_menu {
   border-color: #C5C5C5
 }
 
-.supports_custom_scrollbar #emoji_menu #emoji_input {
-  width: 97%
+#emoji_menu #emoji_input_container {
+  background: #fff;
+  padding: 8px;
+  position: relative
 }
 
 #emoji_menu #emoji_menu.key_mode .emoji_li:not(.key_selection) a:hover {
@@ -11417,6 +11458,15 @@ body.winssb #emoji_menu {
 .popover_menu.menu .menu_footer,
 .popover_menu.menu .menu_simple_header {
   border-radius: 10px
+}
+
+body.ReactModal__Body--open {
+  position: relative
+}
+
+.popover_mask.react_popover_mask {
+  z-index: 1053;
+  position: absolute
 }
 
 #menu.search_filter_menu {
@@ -11745,156 +11795,6 @@ body.winssb #emoji_menu {
 
 .member_file_filter_menu #menu_list_container {
   margin-bottom: 1rem
-}
-
-@font-face {
-  font-family: appleLogo;
-  src: local("Lucida Grande");
-  unicode-range: U+F8FF
-}
-
-body.ReactModal__Body--open {
-  position: relative
-}
-
-.supports_custom_scrollbar:not(.slim_scrollbar) .emoji_menu_ng .emoji_menu_items_scroller {
-  border-right: .25rem solid transparent
-}
-
-.supports_custom_scrollbar:not(.slim_scrollbar) .emoji_menu_ng .emoji_menu_items_scroller::-webkit-scrollbar {
-  position: absolute;
-  -webkit-appearance: none;
-  width: 8px
-}
-
-.supports_custom_scrollbar:not(.slim_scrollbar) .emoji_menu_ng .emoji_menu_items_scroller::-webkit-scrollbar-thumb,
-.supports_custom_scrollbar:not(.slim_scrollbar) .emoji_menu_ng .emoji_menu_items_scroller::-webkit-scrollbar-track {
-  background-clip: padding-box!important;
-  border-radius: 3px;
-  color: #fff
-}
-
-.supports_custom_scrollbar:not(.slim_scrollbar) .emoji_menu_ng .emoji_menu_items_scroller::-webkit-scrollbar-track {
-  background: #f3f3f3;
-  box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0
-}
-
-.supports_custom_scrollbar:not(.slim_scrollbar) .emoji_menu_ng .emoji_menu_items_scroller::-webkit-scrollbar-thumb {
-  background: #d9d9de;
-  box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;
-  min-height: 36px
-}
-
-.supports_custom_scrollbar:not(.slim_scrollbar) .emoji_menu_ng .emoji_menu_items_scroller::-webkit-scrollbar-corner {
-  background: #fff
-}
-
-.supports_custom_scrollbar.slim_scrollbar .emoji_menu_ng .emoji_menu_items_scroller {
-  margin-right: 2px
-}
-
-.supports_custom_scrollbar.slim_scrollbar .emoji_menu_ng .emoji_menu_items_scroller::-webkit-scrollbar {
-  position: absolute;
-  -webkit-appearance: none;
-  width: 6px
-}
-
-.supports_custom_scrollbar.slim_scrollbar .emoji_menu_ng .emoji_menu_items_scroller::-webkit-scrollbar-thumb {
-  background-color: rgba(113, 114, 116, .5);
-  background-clip: padding-box!important;
-  border-radius: 3px;
-  color: #717274;
-  min-height: 36px
-}
-
-.supports_custom_scrollbar.slim_scrollbar .emoji_menu_ng .emoji_menu_items_scroller::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(113, 114, 116, .8)
-}
-
-.react_popover_mask {
-  z-index: 1053;
-  position: absolute
-}
-
-.emoji_menu_ng {
-  outline: 0
-}
-
-.emoji_menu_ng .icon_search {
-  top: .8125rem;
-  left: 1rem;
-  text-shadow: none;
-  display: block;
-  position: absolute
-}
-
-.emoji_menu_ng #emoji_menu_items_div {
-  padding: 33px 0 0 8px!important;
-  margin-top: -33px
-}
-
-.emoji_menu_ng #emoji_input_container {
-  background: #fff;
-  padding: 8px;
-  position: relative
-}
-
-.emoji_menu_ng #emoji_input {
-  margin: 0!important;
-  width: 100%!important
-}
-
-.emoji_menu_ng #emoji_preview_text {
-  float: left;
-  display: block;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap
-}
-
-.emoji_menu_ng .emoji_menu_items_scroller {
-  outline: 0
-}
-
-.emoji_menu_ng #emoji_skin_picker_label,
-.emoji_menu_ng #emoji_skin_tip {
-  font-weight: 700
-}
-
-.emoji_menu_ng #emoji_menu_items_scroller {
-  position: relative;
-  border-right: 0!important
-}
-
-.emoji_menu_ng #emoji_menu_header {
-  height: 38px
-}
-
-.emoji_menu_ng #emoji_menu_header .emoji_grouping_tab {
-  height: 100%
-}
-
-.emoji_menu_ng #emoji_menu_header .emoji_grouping_tab.active {
-  margin-bottom: -1px
-}
-
-.emoji_menu_ng .emoji_sticky_header {
-  position: absolute;
-  width: 100%;
-  z-index: 10;
-  top: -1px;
-  padding-top: 1px
-}
-
-.emoji_menu_ng .emoji_sticky_header h3 {
-  position: absolute!important;
-  right: 12px;
-  left: 0;
-  padding: 0 8px
-}
-
-.emoji_menu_ng div#emoji_zero_results {
-  padding-top: 103px
 }
 
 @font-face {
