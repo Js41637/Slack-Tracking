@@ -59294,7 +59294,11 @@ $.fn.togglify = function(settings) {
             end_date: "end_date"
           });
         default:
-          break;
+          return build({
+            date_range: "current_date_range",
+            start_date: "start_date",
+            end_date: "end_date"
+          });
       }
     }
   });
@@ -70118,8 +70122,7 @@ $.fn.togglify = function(settings) {
                 containerSize: a,
                 offset: v
               });
-            this._renderedColumnStartIndex = g.start, this._renderedColumnStopIndex = g.stop, this._renderedRowStartIndex = _.start,
-              this._renderedRowStopIndex = _.stop;
+            this._renderedColumnStartIndex = g.start, this._renderedColumnStopIndex = g.stop, this._renderedRowStartIndex = _.start, this._renderedRowStopIndex = _.stop;
             var w = u({
                 direction: "horizontal",
                 cellCount: o,
@@ -74894,7 +74897,8 @@ $.fn.togglify = function(settings) {
         if (null != o) {
           var i = "" + o;
           i !== r.value && (r.value = i);
-        } else null == t.value && null != t.defaultValue && r.defaultValue !== "" + t.defaultValue && (r.defaultValue = "" + t.defaultValue), null == t.checked && null != t.defaultChecked && (r.defaultChecked = !!t.defaultChecked);
+        } else null == t.value && null != t.defaultValue && r.defaultValue !== "" + t.defaultValue && (r.defaultValue = "" + t.defaultValue),
+          null == t.checked && null != t.defaultChecked && (r.defaultChecked = !!t.defaultChecked);
       },
       postMountWrapper: function(e) {
         var t = e._currentElement.props,
@@ -81368,8 +81372,7 @@ $.fn.togglify = function(settings) {
     a = n.n(i),
     s = n(366),
     u = n(367);
-  window.ReactComponents = {}, window.ReactComponents.EmojiPicker = s.a,
-    window.ReactComponents.Popover = u.a, window.ReactComponents.PopoverTrigger = u.b, window.React = o.a, window.ReactDOM = a.a;
+  window.ReactComponents = {}, window.ReactComponents.EmojiPicker = s.a, window.ReactComponents.Popover = u.a, window.ReactComponents.PopoverTrigger = u.b, window.React = o.a, window.ReactDOM = a.a;
 }]);
 (function() {
   "use strict";
