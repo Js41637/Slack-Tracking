@@ -51459,6 +51459,7 @@ $.fn.togglify = function(settings) {
   var _name_check_timer;
   var _name_available_timer;
   var _name_available_show_time = 1e3;
+  var _name_check_api_call;
   var _toggleChannelNameChecking = function(disable, trigger_available) {
     if (!disable) disable = false;
     if (!trigger_available) trigger_available = false;
@@ -51513,7 +51514,11 @@ $.fn.togglify = function(settings) {
         clearTimeout(_name_check_timer);
         _name_check_timer = null;
       }
-      _name_check_timer = setTimeout(function() {
+      var nameCheckFunction = function() {
+        if (_name_check_api_call && _name_check_api_call.isPending()) {
+          _name_check_timer = setTimeout(nameCheckFunction.bind(this), _name_check_wait_time);
+          return;
+        }
         var do_validation = false;
         var is_disabled = true;
         var disable_checking_spinner = true;
@@ -51524,7 +51529,7 @@ $.fn.togglify = function(settings) {
         if (validation) {
           var $el = $(this);
           var new_name = $el.val().trim();
-          TS.api.callImmediately("enterprise.nameTaken", {
+          _name_check_api_call = TS.api.callImmediately("enterprise.nameTaken", {
             name: new_name,
             ignore_local_team: true
           }, function(ok, data) {
@@ -51548,12 +51553,19 @@ $.fn.togglify = function(settings) {
               is_disabled = false;
               _toggleButton(null, $create_button, do_validation, is_disabled);
             }
+            return null;
+          }).catch(function() {
+            _name_check_api_call = null;
+            disable_checking_spinner = true;
+            trigger_available_name_message = false;
+            _toggleChannelNameChecking(disable_checking_spinner, trigger_available_name_message);
           });
         } else {
           disable_checking_spinner = true;
           _toggleChannelNameChecking(disable_checking_spinner);
         }
-      }.bind(this), _name_check_wait_time);
+      };
+      _name_check_timer = setTimeout(nameCheckFunction.bind(this), _name_check_wait_time);
     });
     _$div.on("input", '#sci_channels_create [data-validation]:not([name="channel_name"])', function() {
       var $container = _$div.find("#sci_channels_create");
@@ -63526,9 +63538,10 @@ $.fn.togglify = function(settings) {
 
           function Co(e, t) {
             var n = e;
-            return n instanceof b && (n = n.value()), g(t, function(e, t) {
-              return t.func.apply(t.thisArg, m([e], t.args));
-            }, n);
+            return n instanceof b && (n = n.value()),
+              g(t, function(e, t) {
+                return t.func.apply(t.thisArg, m([e], t.args));
+              }, n);
           }
 
           function So(e, t, n) {
@@ -66981,7 +66994,8 @@ $.fn.togglify = function(settings) {
 
   function o(e, t, n) {
     var o = r(e, n, t);
-    o && (n._dispatchListeners = v(n._dispatchListeners, o), n._dispatchInstances = v(n._dispatchInstances, e));
+    o && (n._dispatchListeners = v(n._dispatchListeners, o),
+      n._dispatchInstances = v(n._dispatchInstances, e));
   }
 
   function i(e) {
@@ -74897,8 +74911,7 @@ $.fn.togglify = function(settings) {
         if (null != o) {
           var i = "" + o;
           i !== r.value && (r.value = i);
-        } else null == t.value && null != t.defaultValue && r.defaultValue !== "" + t.defaultValue && (r.defaultValue = "" + t.defaultValue),
-          null == t.checked && null != t.defaultChecked && (r.defaultChecked = !!t.defaultChecked);
+        } else null == t.value && null != t.defaultValue && r.defaultValue !== "" + t.defaultValue && (r.defaultValue = "" + t.defaultValue), null == t.checked && null != t.defaultChecked && (r.defaultChecked = !!t.defaultChecked);
       },
       postMountWrapper: function(e) {
         var t = e._currentElement.props,
@@ -79791,14 +79804,15 @@ $.fn.togglify = function(settings) {
           t.preventDefault(), this.element.focus();
           var r = this.moveCursor(n),
             o = void 0;
-          o = r[1] < this.state.cursorPosition[1] || 1 === r[1] ? r[1] - 1 : r[1], this.setState({
-            cursorPosition: r,
-            currentSelection: this.getCell(r),
-            scrollToIndex: o,
-            isPreviewing: !0,
-            usingKeyboard: !0,
-            mousePosition: null
-          });
+          o = r[1] < this.state.cursorPosition[1] || 1 === r[1] ? r[1] - 1 : r[1],
+            this.setState({
+              cursorPosition: r,
+              currentSelection: this.getCell(r),
+              scrollToIndex: o,
+              isPreviewing: !0,
+              usingKeyboard: !0,
+              mousePosition: null
+            });
         }
       }, {
         key: "onEmojiMouseEnter",

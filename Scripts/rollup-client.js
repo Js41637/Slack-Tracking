@@ -25813,6 +25813,7 @@
   var _name_check_wait_time = 325;
   var _name_check_timer;
   var _bad_channel_name = false;
+  var _name_check_api_call;
   var _shouldDisableGoButtonForConvertToShared = function() {
     var $convert_to_shared = _$current_option.find(".convert_to_shared");
     var should_disable = false;
@@ -25875,14 +25876,18 @@
         clearTimeout(_name_check_timer);
         _name_check_timer = null;
       }
-      _name_check_timer = setTimeout(function() {
+      var nameCheckFunction = function() {
+        if (_name_check_api_call && _name_check_api_call.isPending()) {
+          _name_check_timer = setTimeout(nameCheckFunction.bind(this), _name_check_wait_time);
+          return;
+        }
         _toggleChannelNameChecking();
         _toggleOptionGoButton(true);
         var validation = TS.ui.validation.validate($(this));
         if (validation) {
           var $el = $(this);
           var new_name = $el.val().trim();
-          TS.api.callImmediately("enterprise.nameTaken", {
+          _name_check_api_call = TS.api.callImmediately("enterprise.nameTaken", {
             name: new_name,
             ignore_local_team: true
           }, function(ok, data) {
@@ -25904,12 +25909,16 @@
               _bad_channel_name = false;
               _toggleOptionGoButton(_shouldDisableGoButtonForConvertToShared());
             }
+          }).catch(function() {
+            _name_check_api_call = null;
+            _toggleChannelNameChecking(true, false);
           });
         } else {
           _toggleChannelNameChecking(true);
           _bad_channel_name = true;
         }
-      }.bind(this), _name_check_wait_time);
+      };
+      _name_check_timer = setTimeout(nameCheckFunction.bind(this), _name_check_wait_time);
     });
   };
   var _toggleChannelNameChecking = function(disable, trigger_available) {
