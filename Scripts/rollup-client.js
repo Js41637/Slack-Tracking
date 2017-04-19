@@ -8196,7 +8196,8 @@
       bot_configure_url: bot_configure_url,
       show_call_action: TS.utility.calls.isEnabled() && !member.is_bot && member.id != "USLACKBOT",
       team_name: TS.model.team.name,
-      show_admin_info: TS.boot_data.feature_admin_profile_info && member.is_admin && member.team_id === TS.model.user.team_id
+      show_admin_info: TS.boot_data.feature_admin_profile_info && member.is_admin && member.team_id === TS.model.user.team_id,
+      lazy_load_profile_fields: true
     };
     _member_presence_list.clear();
     _member_presence_list.add(member.id);
@@ -8249,29 +8250,20 @@
     if (TS.boot_data.feature_user_custom_status) {
       if (member.is_self) TS.client.ui.flex.registerCurrentStatusInput();
     }
-    _fetchMemberObjectsAndRebuildUserProfileFields(member);
-  };
-  var _fetchMemberObjectsAndRebuildUserProfileFields = function(member) {
-    var unique_member_ids = [];
-    if (member.is_restricted && member.profile.guest_invited_by) unique_member_ids.push(member.profile.guest_invited_by);
-    var profile_fields = TS.team.getVisibleTeamProfileFieldsForMember(member);
-    var profile_ids = _.chain(profile_fields).filter({
-      type: "user"
-    }).reduce(function(member_ids, field) {
-      return member_ids.concat(field.value.split(/\s*,\s*/));
-    }, []).value();
-    unique_member_ids = _.chain(unique_member_ids).concat(profile_ids).compact().uniq().value();
-    if (!unique_member_ids.length) return;
-    TS.flannel.fetchAndUpsertObjectsByIds(unique_member_ids).then(function() {
-      if (TS.model.previewed_member_id === member.id) {
-        $("#member_data_table_team_fields").html(TS.templates.team_profile_fields({
-          fields: profile_fields
-        }));
-        if (member.is_restricted) $("#member_data_table_guest_fields").html(TS.templates.guest_profile_fields({
-          member: member
-        }));
-      }
+    TS.members.fetchMemberObjectsForUserProfileFields(member).then(function() {
+      _rebuildMemberPreviewProfileFields(member);
     });
+  };
+  var _rebuildMemberPreviewProfileFields = function(member) {
+    if (TS.model.previewed_member_id === member.id) {
+      var fields = TS.team.getVisibleTeamProfileFieldsForMember(member);
+      $("#member_data_table_team_fields").html(TS.templates.team_profile_fields({
+        fields: fields
+      }));
+      if (member.is_restricted) $("#member_data_table_guest_fields").html(TS.templates.guest_profile_fields({
+        member: member
+      }));
+    }
   };
   var _rebuildMemberCount = function(has_count, count) {
     var en_dash = "–";

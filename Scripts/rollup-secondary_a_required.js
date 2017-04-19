@@ -11925,6 +11925,19 @@ TS.registerModule("constants", {
       });
       TS.members.upsertMember(updated_member);
     },
+    fetchMemberObjectsForUserProfileFields: function(member) {
+      var unique_member_ids = [];
+      if (member.is_restricted && member.profile.guest_invited_by) unique_member_ids.push(member.profile.guest_invited_by);
+      var profile_fields = TS.team.getVisibleTeamProfileFieldsForMember(member);
+      var profile_ids = _.chain(profile_fields).filter({
+        type: "user"
+      }).reduce(function(member_ids, field) {
+        return member_ids.concat(field.value.split(/\s*,\s*/));
+      }, []).value();
+      unique_member_ids = _.chain(unique_member_ids).concat(profile_ids).compact().uniq().value();
+      if (!unique_member_ids.length) return Promise.resolve();
+      return TS.members.ensureMembersArePresent(unique_member_ids);
+    },
     test: function() {
       var test = {};
       Object.defineProperty(test, "_maybeRefetchAccessibleUserIds", {
@@ -17071,6 +17084,18 @@ TS.registerModule("constants", {
     onStart: function() {
       TS.ms.on_msg_sig.add(TS.ms.msg_handlers.msgReceived);
     },
+    test: function() {
+      var test_ob = {};
+      Object.defineProperty(test_ob, "_is_batch_upserting_users", {
+        get: function() {
+          return _is_batch_upserting_users;
+        },
+        set: function(v) {
+          _is_batch_upserting_users = v;
+        }
+      });
+      return test_ob;
+    },
     msgReceivedFromParentWindow: function(imsg) {
       TS.ms.msg_handlers.msgReceived(imsg);
     },
@@ -17084,6 +17109,10 @@ TS.registerModule("constants", {
       TS.log(2, "recved message type " + imsg.type);
       if (imsg.is_ephemeral && !imsg.ts) {
         imsg.ts = TS.utility.date.makeTsStamp();
+      }
+      if (_is_batch_upserting_users && imsg.type !== "user_change") {
+        TS.members.finishBatchUpsert();
+        _is_batch_upserting_users = false;
       }
       var subtype_method_name = "subtype__" + imsg.subtype;
       if (subtype_method_name in TS.ms.msg_handlers) {
@@ -18081,6 +18110,10 @@ TS.registerModule("constants", {
         TS.error("user_change: wtf no member " + imsg.user.id + "?");
         return;
       }
+      if (!_is_batch_upserting_users && !TS.members.is_in_bulk_upsert_mode) {
+        _is_batch_upserting_users = true;
+        TS.members.startBatchUpsert();
+      }
       if (imsg.user && imsg.user.id === TS.model.user.id) {
         if (TS.model.team && TS.model.team.prefs && !TS.model.team.prefs.display_email_addresses && imsg.user.profile && !imsg.user.profile.email) {
           var local_email = member.profile && member.profile.email;
@@ -18462,6 +18495,7 @@ TS.registerModule("constants", {
       TS.ui.shared_invites_modal.updateCode();
     }
   });
+  var _is_batch_upserting_users = false;
   var _isFileMsgRelevant = function(imsg, file_id) {
     if (!file_id) return false;
     if (TS.web && TS.web.space && !TS.web.space.isFileRelevant(file_id)) return false;
@@ -23626,7 +23660,11 @@ TS.registerModule("constants", {
               var uploader_name_possessive = TS.i18n.possessive(TS.members.getMemberDisplayName(template_args.uploader));
               var target_attribute = TS.boot_data.app === "client" ? 'target="' + msg.file.permalink + '" ' : "";
               var permalink_anchor_tag = '<a href="' + msg.file.permalink + '" ' + target_attribute + 'data-file-id="' + msg.file.id + '">';
-              var uploader_name_possessive_html = "</a> " + uploader_name + uploader_name_possessive + permalink_anchor_tag;
+              var possessive_icu = TS.i18n.t("{uploader_name}{uploader_name_affix}", "message")({
+                uploader_name: uploader_name,
+                uploader_name_affix: uploader_name_possessive
+              });
+              var uploader_name_possessive_html = "</a> " + possessive_icu + permalink_anchor_tag;
               template_args.file_share_html = get_file_share_html({
                 file_display_name: file_display_name,
                 uploader_name_possessive_html: uploader_name_possessive_html
@@ -24135,6 +24173,9 @@ TS.registerModule("constants", {
       });
       Handlebars.registerHelper("possessive", function(str) {
         return TS.i18n.possessive(str);
+      });
+      Handlebars.registerHelper("fullPossessiveString", function(str) {
+        return TS.i18n.fullPossessiveString(str);
       });
       Handlebars.registerHelper("possessiveForMemberById", function(id) {
         var member = TS.members.getMemberById(id);
@@ -25539,7 +25580,7 @@ TS.registerModule("constants", {
         var fields = TS.team.getVisibleTeamProfileFieldsForMember(member);
         return new Handlebars.SafeString(TS.templates.team_profile_fields({
           fields: fields,
-          will_rebuild_user_fields: options && options.hash.will_rebuild_user_fields
+          lazy_load_profile_fields: options && options.hash.lazy_load_profile_fields
         }));
       });
       Handlebars.registerHelper("isSkypeTeamProfileField", function(field, options) {
@@ -51531,7 +51572,7 @@ $.fn.togglify = function(settings) {
           var new_name = $el.val().trim();
           _name_check_api_call = TS.api.callImmediately("enterprise.nameTaken", {
             name: new_name,
-            ignore_local_team: true
+            ignore_local_team: false
           }, function(ok, data) {
             if (!ok) {
               disable_checking_spinner = true;

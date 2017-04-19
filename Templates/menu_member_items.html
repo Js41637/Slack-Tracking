@@ -79,7 +79,7 @@
         </a>
       </li>
       <li id="member_profile_item" role="menuitem"><a href="/team/{{member.name}}" target="{{newWindowName}}">
-        {{#t name=(getMemberDisplayName member) posessive=(possessive (getMemberDisplayName member))}}View {name}{posessive} profile{{/t}}
+        {{#t name_possessive=(fullPossessiveString (getMemberDisplayName member))}}View {name_possessive} profile{{/t}}
       </a></li>
       {{#if show_channel_invite}}
         <li id="member_invite_channel_item" role="menuitem"><a>

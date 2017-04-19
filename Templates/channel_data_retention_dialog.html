@@ -1,11 +1,11 @@
 {{i18n_ns 'channel_options'}}
 
-<p>{{#t}}This message retention policy will only affect this {model_type}. Retention policies can also be set on a team-wide basis in your <a target="new" href="/admin/settings#data_retention">team settings</a>.{{/t}}</p>
+<p>{{#t}}This message retention policy will only affect this {model_type, select, conversation {conversation} other {channel}}. Retention policies can also be set on a team-wide basis in your <a target="new" href="/admin/settings#data_retention">team settings</a>.{{/t}}</p>
 
 <p id="retention_duration_warning" class="alert alert_warning hidden {{#isWeb}}small{{/isWeb}}">
   <i class="ts_icon ts_icon_warning"></i>
   <strong>{{#t}}An important note about message retention policies{{/t}}</strong><br />
-  {{#t}}Setting a custom duration for message retention means that messages in this {model_type} will be  deleted after the number of days you set. This deletion is permanent and the messages will be irretrievable. Proceed with caution!{{/t}}
+  {{#t}}Setting a custom duration for message retention means that messages in this {model_type, select, conversation {conversation} other {channel}} will be deleted after the number of days you set. This deletion is permanent and the messages will be irretrievable. Proceed with caution!{{/t}}
 </p>
 
 <div class="clearfix">

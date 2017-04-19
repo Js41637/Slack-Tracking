@@ -352,7 +352,7 @@
         </tr>
       {{/if}}
       <tbody id="member_data_table_team_fields">
-        {{getVisibleTeamProfileFieldsForMember member will_rebuild_user_fields=true}}
+        {{getVisibleTeamProfileFieldsForMember member lazy_load_profile_fields=lazy_load_profile_fields}}
       </tbody>
     </table>
   {{/if}}
@@ -363,7 +363,7 @@
         <hr class="member_details_divider">
 
         <table id="member_data_table_guest_fields" class="member_data_table lato{{#pageNeedsEnterprise}}{{#if teams}} no_bottom_margin{{/if}}{{/pageNeedsEnterprise}}">
-          {{> guest_profile_fields member=member will_rebuild_user_fields=true }}
+          {{> guest_profile_fields member lazy_load_profile_fields=lazy_load_profile_fields }}
         </table>
       {{/or}}
     {{/if}}

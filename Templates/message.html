@@ -145,12 +145,12 @@
           <span class="meta meta_feature_fix_files message_body no_jumbomoji">
             {{#if uploader}}
               {{#if_equal file.mode compare="snippet"}}
-                {{#t note="[sender] commented on joe's snippet" uploader_link=(makeMemberPreviewLinkById uploader.id false) uploader_possessive=(possessive (getMemberDisplayNameById uploader.id))}}
-                  commented on {uploader_link}{uploader_possessive} snippet
+                {{#t note="[sender] commented on joe's snippet. Also, the possessive affix is localized, but please move it before or after the variable depending on whether possessives are prefixes or suffixes for your language." uploader_link=(makeMemberPreviewLinkById uploader.id false) uploader_possessive_affix=(possessive (getMemberDisplayNameById uploader.id))}}
+                  commented on {uploader_link}{uploader_possessive_affix} snippet
                 {{/t}}
               {{else}}
-                {{#t note="[sender] commented on joe's file" uploader_link=(makeMemberPreviewLinkById uploader.id false) uploader_possessive=(possessive (getMemberDisplayNameById uploader.id))}}
-                  commented on {uploader_link}{uploader_possessive} file
+                {{#t note="[sender] commented on joe's file. Also, the possessive affix is localized, but please move it before or after the variable depending on whether possessives are prefixes or suffixes for your language." uploader_link=(makeMemberPreviewLinkById uploader.id false) uploader_possessive_affix=(possessive (getMemberDisplayNameById uploader.id))}}
+                  commented on {uploader_link}{uploader_possessive_affix} file
                 {{/t}}
               {{/if_equal}}
             {{else}}

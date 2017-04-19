@@ -2332,10 +2332,27 @@
     },
     possessive: function(str) {
       _maybeSetup();
-      if (str.substr && str.substr(str.length - 1) === "s") {
-        return "’";
+      switch (TS.i18n.locale()) {
+        case "fr-FR":
+        case "es-ES":
+          return "de ";
+        case "de-DE":
+          return str.substr && str.substr(str.length - 1) === "s" ? "" : "s";
+        case "ja-JP":
+          return "の";
+        default:
+          return str.substr && str.substr(str.length - 1) === "s" ? "’" : "’s";
       }
-      return "’s";
+    },
+    fullPossessiveString: function(str) {
+      _maybeSetup();
+      switch (TS.i18n.locale()) {
+        case "es-ES":
+        case "fr-FR":
+          return TS.i18n.possessive(str) + str;
+        default:
+          return str + TS.i18n.possessive(str);
+      }
     },
     listify: function(arr, options) {
       _maybeSetup();
