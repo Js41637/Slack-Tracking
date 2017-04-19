@@ -1318,7 +1318,7 @@
       throw new ParchmentError("Unable to create " + input + " blot");
     }
     var BlotClass = match;
-    var node = input instanceof Node ? input : BlotClass.create(value);
+    var node = input instanceof Node || input["nodeType"] === Node.TEXT_NODE ? input : BlotClass.create(value);
     return new BlotClass(node, value);
   }
   exports.create = create;
@@ -1341,7 +1341,7 @@
     var match;
     if (typeof query === "string") {
       match = types[query] || attributes[query];
-    } else if (query instanceof Text) {
+    } else if (query instanceof Text || query["nodeType"] === Node.TEXT_NODE) {
       match = types["text"];
     } else if (typeof query === "number") {
       if (query & Scope.LEVEL & Scope.BLOCK) {
@@ -2193,7 +2193,9 @@
       return document.createTextNode(value);
     };
     TextBlot.value = function(domNode) {
-      return domNode.data;
+      var text = domNode.data;
+      if (text["normalize"]) text = text["normalize"]();
+      return text;
     };
     TextBlot.prototype.deleteAt = function(index, length) {
       this.domNode.data = this.text = this.text.slice(0, index) + this.text.slice(index + length);
@@ -2409,6 +2411,8 @@
           this.imports[path] = target;
           if ((path.startsWith("blots/") || path.startsWith("formats/")) && target.blotName !== "abstract") {
             _parchment2.default.register(target);
+          } else if (path.startsWith("modules") && typeof target.register === "function") {
+            target.register();
           }
         }
       }
@@ -2420,7 +2424,6 @@
       _classCallCheck(this, Quill);
       this.options = expandConfig(container, options);
       this.container = this.options.container;
-      this.scrollingContainer = this.options.scrollingContainer || document.body;
       if (this.container == null) {
         return debug.error("Invalid Quill container", container);
       }
@@ -2433,9 +2436,11 @@
       this.container.__quill = this;
       this.root = this.addContainer("ql-editor");
       this.root.classList.add("ql-blank");
+      this.scrollingContainer = this.options.scrollingContainer || this.root;
       this.emitter = new _emitter4.default;
       this.scroll = _parchment2.default.create(this.root, {
         emitter: this.emitter,
+        scrollingContainer: this.scrollingContainer,
         whitelist: this.options.formats
       });
       this.editor = new _editor2.default(this.scroll);
@@ -2573,11 +2578,21 @@
       key: "getBounds",
       value: function getBounds(index) {
         var length = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+        var bounds = void 0;
         if (typeof index === "number") {
-          return this.selection.getBounds(index, length);
+          bounds = this.selection.getBounds(index, length);
         } else {
-          return this.selection.getBounds(index.index, index.length);
+          bounds = this.selection.getBounds(index.index, index.length);
         }
+        var containerBounds = this.container.getBoundingClientRect();
+        return {
+          bottom: bounds.bottom - containerBounds.top,
+          height: bounds.height,
+          left: bounds.left - containerBounds.left,
+          right: bounds.right - containerBounds.left,
+          top: bounds.top - containerBounds.top,
+          width: bounds.width
+        };
       }
     }, {
       key: "getContents",
@@ -3002,6 +3017,7 @@
   }
   document.addEventListener("DOMContentLoaded", function() {
     document.execCommand("enableObjectResizing", false, false);
+    document.execCommand("autoUrlDetect", false, false);
   });
 }, function(module, exports, __webpack_require__) {
   "use strict";
@@ -3189,7 +3205,7 @@
         if (op.insert != null) {
           return typeof op.insert === "string" ? op.insert : NULL_CHARACTER;
         }
-        var prep = ops === other.ops ? "on" : "with";
+        var prep = delta === other ? "on" : "with";
         throw new Error("diff() called " + prep + " non-document");
       }).join("");
     });
@@ -3231,6 +3247,7 @@
     newline = newline || "\n";
     var iter = op.iterator(this.ops);
     var line = new Delta;
+    var i = 0;
     while (iter.hasNext()) {
       if (iter.peekType() !== "insert") return;
       var thisOp = iter.peek();
@@ -3241,12 +3258,15 @@
       } else if (index > 0) {
         line.push(iter.next(index));
       } else {
-        predicate(line, iter.next(1).attributes || {});
+        if (predicate(line, iter.next(1).attributes || {}, i) === false) {
+          return;
+        }
+        i += 1;
         line = new Delta;
       }
     }
     if (line.length() > 0) {
-      predicate(line, {});
+      predicate(line, {}, i);
     }
   };
   Delta.prototype.transform = function(other, priority) {
@@ -7776,6 +7796,7 @@
         }
       });
       this.emitter.on(_emitter4.default.events.SCROLL_BEFORE_UPDATE, function() {
+        if (!_this.hasFocus()) return;
         var native = _this.getNativeRange();
         if (native == null) return;
         if (native.start.node === _this.cursor.textNode) return;
@@ -7824,8 +7845,7 @@
         var scrollLength = this.scroll.length();
         index = Math.min(index, scrollLength - 1);
         length = Math.min(index + length, scrollLength - 1) - index;
-        var bounds = void 0,
-          node = void 0,
+        var node = void 0,
           _scroll$leaf = this.scroll.leaf(index),
           _scroll$leaf2 = _slicedToArray(_scroll$leaf, 2),
           leaf = _scroll$leaf2[0],
@@ -7848,7 +7868,7 @@
           node = _leaf$position4[0];
           offset = _leaf$position4[1];
           range.setEnd(node, offset);
-          bounds = range.getBoundingClientRect();
+          return range.getBoundingClientRect();
         } else {
           var side = "left";
           var rect = void 0;
@@ -7866,22 +7886,15 @@
             rect = leaf.domNode.getBoundingClientRect();
             if (offset > 0) side = "right";
           }
-          bounds = {
+          return {
+            bottom: rect.top + rect.height,
             height: rect.height,
             left: rect[side],
-            width: 0,
-            top: rect.top
+            right: rect[side],
+            top: rect.top,
+            width: 0
           };
         }
-        var containerBounds = this.root.parentNode.getBoundingClientRect();
-        return {
-          left: bounds.left - containerBounds.left,
-          right: bounds.left + bounds.width - containerBounds.left,
-          top: bounds.top - containerBounds.top,
-          bottom: bounds.top + bounds.height - containerBounds.top,
-          height: bounds.height,
-          width: bounds.width
-        };
       }
     }, {
       key: "getNativeRange",
@@ -7966,16 +7979,23 @@
         if (range == null) return;
         var bounds = this.getBounds(range.index, range.length);
         if (bounds == null) return;
-        if (this.root.offsetHeight < bounds.bottom) {
-          var _scroll$line = this.scroll.line(Math.min(range.index + range.length, this.scroll.length() - 1)),
-            _scroll$line2 = _slicedToArray(_scroll$line, 1),
-            line = _scroll$line2[0];
-          this.root.scrollTop = line.domNode.offsetTop + line.domNode.offsetHeight - this.root.offsetHeight;
-        } else if (bounds.top < 0) {
-          var _scroll$line3 = this.scroll.line(Math.min(range.index, this.scroll.length() - 1)),
-            _scroll$line4 = _slicedToArray(_scroll$line3, 1),
-            _line = _scroll$line4[0];
-          this.root.scrollTop = _line.domNode.offsetTop;
+        var limit = this.scroll.length() - 1;
+        var _scroll$line = this.scroll.line(Math.min(range.index, limit)),
+          _scroll$line2 = _slicedToArray(_scroll$line, 1),
+          first = _scroll$line2[0];
+        var last = first;
+        if (range.length > 0) {
+          var _scroll$line3 = this.scroll.line(Math.min(range.index + range.length, limit));
+          var _scroll$line4 = _slicedToArray(_scroll$line3, 1);
+          last = _scroll$line4[0];
+        }
+        if (first == null || last == null) return;
+        var scroller = this.scroll.scrollingContainer;
+        var scrollBounds = scroller.getBoundingClientRect();
+        if (bounds.top < scrollBounds.top) {
+          scroller.scrollTop -= scrollBounds.top - bounds.top;
+        } else if (bounds.bottom > scrollBounds.bottom) {
+          scroller.scrollTop += bounds.bottom - scrollBounds.bottom;
         }
       }
     }, {
@@ -8340,6 +8360,7 @@
       _classCallCheck(this, Scroll);
       var _this = _possibleConstructorReturn(this, (Scroll.__proto__ || Object.getPrototypeOf(Scroll)).call(this, domNode));
       _this.emitter = config.emitter;
+      _this.scrollingContainer = config.scrollingContainer;
       if (Array.isArray(config.whitelist)) {
         _this.whitelist = config.whitelist.reduce(function(whitelist, format) {
           whitelist[format] = true;
@@ -8497,6 +8518,11 @@
     value: true
   });
   exports.matchText = exports.matchSpacing = exports.matchNewline = exports.matchBlot = exports.matchAttributor = exports.default = undefined;
+  var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function(obj) {
+    return typeof obj;
+  } : function(obj) {
+    return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+  };
   var _slicedToArray = function() {
     function sliceIterator(arr, i) {
       var _arr = [];
@@ -8546,6 +8572,8 @@
       return Constructor;
     };
   }();
+  var _extend2 = __webpack_require__(26);
+  var _extend3 = _interopRequireDefault(_extend2);
   var _quillDelta = __webpack_require__(21);
   var _quillDelta2 = _interopRequireDefault(_quillDelta);
   var _parchment = __webpack_require__(3);
@@ -8625,12 +8653,14 @@
   var DOM_KEY = "__ql-matcher";
   var CLIPBOARD_CONFIG = [
     [Node.TEXT_NODE, matchText],
+    [Node.TEXT_NODE, matchNewline],
     ["br", matchBreak],
     [Node.ELEMENT_NODE, matchNewline],
     [Node.ELEMENT_NODE, matchBlot],
     [Node.ELEMENT_NODE, matchSpacing],
     [Node.ELEMENT_NODE, matchAttributor],
     [Node.ELEMENT_NODE, matchStyles],
+    ["li", matchIndent],
     ["b", matchAlias.bind(matchAlias, "bold")],
     ["i", matchAlias.bind(matchAlias, "italic")],
     ["style", matchIgnore]
@@ -8668,7 +8698,7 @@
       key: "convert",
       value: function convert(html) {
         if (typeof html === "string") {
-          this.container.innerHTML = html;
+          this.container.innerHTML = html.replace(/\>\r?\n +\</g, "><");
         }
         var _prepareMatching = this.prepareMatching(),
           _prepareMatching2 = _slicedToArray(_prepareMatching, 2),
@@ -8745,6 +8775,22 @@
     matchers: []
   };
 
+  function applyFormat(delta, format, value) {
+    if ((typeof format === "undefined" ? "undefined" : _typeof(format)) === "object") {
+      return Object.keys(format).reduce(function(delta, key) {
+        return applyFormat(delta, key, format[key]);
+      }, delta);
+    } else {
+      return delta.reduce(function(delta, op) {
+        if (op.attributes && op.attributes[format]) {
+          return delta.push(op);
+        } else {
+          return delta.insert(op.insert, (0, _extend3.default)({}, _defineProperty({}, format, value), op.attributes));
+        }
+      }, new _quillDelta2.default);
+    }
+  }
+
   function computeStyle(node) {
     if (node.nodeType !== Node.ELEMENT_NODE) return {};
     var DOM_KEY = "__ql-computed-style";
@@ -8791,7 +8837,7 @@
   }
 
   function matchAlias(format, node, delta) {
-    return delta.compose((new _quillDelta2.default).retain(delta.length(), _defineProperty({}, format, true)));
+    return applyFormat(delta, format, true);
   }
 
   function matchAttributor(node, delta) {
@@ -8815,7 +8861,7 @@
       }
     });
     if (Object.keys(formats).length > 0) {
-      delta = delta.compose((new _quillDelta2.default).retain(delta.length(), formats));
+      delta = applyFormat(delta, formats);
     }
     return delta;
   }
@@ -8831,8 +8877,7 @@
         delta = (new _quillDelta2.default).insert(embed, match.formats(node));
       }
     } else if (typeof match.formats === "function") {
-      var formats = _defineProperty({}, match.blotName, match.formats(node));
-      delta = delta.compose((new _quillDelta2.default).retain(delta.length(), formats));
+      delta = applyFormat(delta, match.blotName, match.formats(node));
     }
     return delta;
   }
@@ -8848,9 +8893,30 @@
     return new _quillDelta2.default;
   }
 
+  function matchIndent(node, delta) {
+    var match = _parchment2.default.query(node);
+    if (match == null || match.blotName !== "list-item" || !deltaEndsWith(delta, "\n")) {
+      return delta;
+    }
+    var indent = -1,
+      parent = node.parentNode;
+    while (!parent.classList.contains("ql-clipboard")) {
+      if ((_parchment2.default.query(parent) || {}).blotName === "list") {
+        indent += 1;
+      }
+      parent = parent.parentNode;
+    }
+    if (indent <= 0) return delta;
+    return delta.compose((new _quillDelta2.default).retain(delta.length() - 1).retain(1, {
+      indent: indent
+    }));
+  }
+
   function matchNewline(node, delta) {
-    if (isLine(node) && !deltaEndsWith(delta, "\n")) {
-      delta.insert("\n");
+    if (!deltaEndsWith(delta, "\n")) {
+      if (isLine(node) || delta.length() > 0 && node.nextSibling && isLine(node.nextSibling)) {
+        delta.insert("\n");
+      }
     }
     return delta;
   }
@@ -8875,7 +8941,7 @@
       formats.bold = true;
     }
     if (Object.keys(formats).length > 0) {
-      delta = delta.compose((new _quillDelta2.default).retain(delta.length(), formats));
+      delta = applyFormat(delta, formats);
     }
     if (parseFloat(style.textIndent || 0) > 0) {
       delta = (new _quillDelta2.default).insert("	").concat(delta);
@@ -8887,6 +8953,9 @@
     var text = node.data;
     if (node.parentNode.tagName === "O:P") {
       return delta.insert(text.trim());
+    }
+    if (text.trim().length === 0 && node.parentNode.classList.contains("ql-clipboard")) {
+      return delta;
     }
     if (!computeStyle(node.parentNode).whiteSpace.startsWith("pre")) {
       var replacer = function replacer(collapse, match) {
@@ -9416,6 +9485,7 @@
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
+  exports.SHORTKEY = exports.default = undefined;
   var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function(obj) {
     return typeof obj;
   } : function(obj) {
@@ -9528,9 +9598,8 @@
       key: "match",
       value: function match(evt, binding) {
         binding = normalize(binding);
-        if (!!binding.shortKey !== evt[SHORTKEY] && binding.shortKey !== null) return false;
         if (["altKey", "ctrlKey", "metaKey", "shiftKey"].some(function(key) {
-            return key != SHORTKEY && !!binding[key] !== evt[key] && binding[key] !== null;
+            return !!binding[key] !== evt[key] && binding[key] !== null;
           })) {
           return false;
         }
@@ -9593,10 +9662,14 @@
         collapsed: false
       }, handleDeleteRange);
       _this.addBinding({
-        key: Keyboard.keys.BACKSPACE
+        key: Keyboard.keys.BACKSPACE,
+        altKey: null,
+        ctrlKey: null,
+        metaKey: null,
+        shiftKey: null
       }, {
-        empty: true,
-        shortKey: true
+        collapsed: true,
+        offset: 0
       }, handleBackspace);
       _this.listen();
       return _this;
@@ -9726,6 +9799,10 @@
       "outdent backspace": {
         key: Keyboard.keys.BACKSPACE,
         collapsed: true,
+        shiftKey: null,
+        metaKey: null,
+        ctrlKey: null,
+        altKey: null,
         format: ["blockquote", "indent", "list"],
         offset: 0,
         handler: function handler(range, context) {
@@ -9806,11 +9883,25 @@
         format: {
           list: false
         },
-        prefix: /^\s*?(1\.|-)$/,
+        prefix: /^\s*?(1\.|-|\[ ?\]|\[x\])$/,
         handler: function handler(range, context) {
           if (this.quill.scroll.whitelist != null && !this.quill.scroll.whitelist["list"]) return true;
           var length = context.prefix.length;
-          var value = context.prefix.trim().length === 1 ? "bullet" : "ordered";
+          var value = void 0;
+          switch (context.prefix.trim()) {
+            case "[]":
+            case "[ ]":
+              value = "unchecked";
+              break;
+            case "[x]":
+              value = "checked";
+              break;
+            case "-":
+              value = "bullet";
+              break;
+            default:
+              value = "ordered";
+          }
           this.quill.scroll.deleteAt(range.index - length, length);
           this.quill.formatLine(range.index - length, 1, "list", value, _quill2.default.sources.USER);
           this.quill.setSelection(range.index - length, _quill2.default.sources.SILENT);
@@ -9837,9 +9928,14 @@
       line = _quill$getLine6[0];
     var formats = {};
     if (context.offset === 0) {
-      var curFormats = line.formats();
-      var prevFormats = this.quill.getFormat(range.index - 1, 1);
-      formats = _op2.default.attributes.diff(curFormats, prevFormats) || {};
+      var _quill$getLine7 = this.quill.getLine(range.index - 1),
+        _quill$getLine8 = _slicedToArray(_quill$getLine7, 1),
+        prev = _quill$getLine8[0];
+      if (prev != null && prev.length() > 1) {
+        var curFormats = line.formats();
+        var prevFormats = this.quill.getFormat(range.index - 1, 1);
+        formats = _op2.default.attributes.diff(curFormats, prevFormats) || {};
+      }
     }
     var length = /[\uD800-\uDBFF][\uDC00-\uDFFF]$/.test(context.prefix) ? 2 : 1;
     this.quill.deleteText(range.index - length, length, _quill2.default.sources.USER);
@@ -9852,7 +9948,26 @@
   function handleDelete(range, context) {
     var length = /^[\uD800-\uDBFF][\uDC00-\uDFFF]/.test(context.suffix) ? 2 : 1;
     if (range.index >= this.quill.getLength() - length) return;
+    var formats = {},
+      nextLength = 0;
+    var _quill$getLine9 = this.quill.getLine(range.index),
+      _quill$getLine10 = _slicedToArray(_quill$getLine9, 1),
+      line = _quill$getLine10[0];
+    if (context.offset >= line.length() - 1) {
+      var _quill$getLine11 = this.quill.getLine(range.index + 1),
+        _quill$getLine12 = _slicedToArray(_quill$getLine11, 1),
+        next = _quill$getLine12[0];
+      if (next) {
+        var curFormats = line.formats();
+        var nextFormats = this.quill.getFormat(range.index, 1);
+        formats = _op2.default.attributes.diff(curFormats, nextFormats) || {};
+        nextLength = next.length();
+      }
+    }
     this.quill.deleteText(range.index, length, _quill2.default.sources.USER);
+    if (Object.keys(formats).length > 0) {
+      this.quill.formatLine(range.index + nextLength - 1, length, formats, _quill2.default.sources.USER);
+    }
   }
 
   function handleDeleteRange(range) {
@@ -9958,9 +10073,14 @@
         return null;
       }
     }
+    if (binding.shortKey) {
+      binding[SHORTKEY] = binding.shortKey;
+      delete binding.shortKey;
+    }
     return binding;
   }
   exports.default = Keyboard;
+  exports.SHORTKEY = SHORTKEY;
 }, function(module, exports, __webpack_require__) {
   "use strict";
   Object.defineProperty(exports, "__esModule", {
@@ -11265,6 +11385,8 @@
   var _embed2 = _interopRequireDefault(_embed);
   var _quill = __webpack_require__(19);
   var _quill2 = _interopRequireDefault(_quill);
+  var _module = __webpack_require__(45);
+  var _module2 = _interopRequireDefault(_module);
 
   function _interopRequireDefault(obj) {
     return obj && obj.__esModule ? obj : {
@@ -11333,13 +11455,25 @@
   FormulaBlot.blotName = "formula";
   FormulaBlot.className = "ql-formula";
   FormulaBlot.tagName = "SPAN";
+  var Formula = function(_Module) {
+    _inherits(Formula, _Module);
+    _createClass(Formula, null, [{
+      key: "register",
+      value: function register() {
+        _quill2.default.register(FormulaBlot, true);
+      }
+    }]);
 
-  function Formula() {
-    if (window.katex == null) {
-      throw new Error("Formula module requires KaTeX.");
+    function Formula() {
+      _classCallCheck(this, Formula);
+      var _this2 = _possibleConstructorReturn(this, (Formula.__proto__ || Object.getPrototypeOf(Formula)).call(this));
+      if (window.katex == null) {
+        throw new Error("Formula module requires KaTeX.");
+      }
+      return _this2;
     }
-    _quill2.default.register(FormulaBlot, true);
-  }
+    return Formula;
+  }(_module2.default);
   exports.FormulaBlot = FormulaBlot;
   exports.default = Formula;
 }, function(module, exports, __webpack_require__) {
@@ -11461,6 +11595,13 @@
   });
   var Syntax = function(_Module) {
     _inherits(Syntax, _Module);
+    _createClass(Syntax, null, [{
+      key: "register",
+      value: function register() {
+        _quill2.default.register(CodeToken, true);
+        _quill2.default.register(SyntaxCodeBlock, true);
+      }
+    }]);
 
     function Syntax(quill, options) {
       _classCallCheck(this, Syntax);
@@ -11468,8 +11609,6 @@
       if (typeof _this2.options.highlight !== "function") {
         throw new Error("Syntax module requires highlight.js. Please include the library on the page before Quill.");
       }
-      _quill2.default.register(CodeToken, true);
-      _quill2.default.register(SyntaxCodeBlock, true);
       var timer = null;
       _this2.quill.on(_quill2.default.events.SCROLL_OPTIMIZE, function() {
         if (timer != null) return;
@@ -12412,9 +12551,11 @@
       this.boundsContainer = boundsContainer || document.body;
       this.root = quill.addContainer("ql-tooltip");
       this.root.innerHTML = this.constructor.TEMPLATE;
-      this.quill.root.addEventListener("scroll", function() {
-        _this.root.style.marginTop = -1 * _this.quill.root.scrollTop + "px";
-      });
+      if (this.quill.root === this.quill.scrollingContainer) {
+        this.quill.root.addEventListener("scroll", function() {
+          _this.root.style.marginTop = -1 * _this.quill.root.scrollTop + "px";
+        });
+      }
       this.hide();
     }
     _createClass(Tooltip, [{
@@ -12443,8 +12584,8 @@
         }
         if (rootBounds.bottom > containerBounds.bottom) {
           var height = rootBounds.bottom - rootBounds.top;
-          var verticalShift = containerBounds.bottom - rootBounds.bottom - height;
-          this.root.style.top = top + verticalShift + "px";
+          var verticalShift = reference.bottom - reference.top + height;
+          this.root.style.top = top - verticalShift + "px";
           this.root.classList.add("ql-flip");
         }
         return shift;
@@ -12654,7 +12795,7 @@
     }]);
     return BubbleTooltip;
   }(_base.BaseTooltip);
-  BubbleTooltip.TEMPLATE = ['<span class="ql-tooltip-arrow"></span>', '<div class="ql-tooltip-editor">', '<input type="text" data-formula="e=mc^2" data-link="quilljs.com" data-video="Embed URL">', '<a class="ql-close"></a>', "</div>"].join("");
+  BubbleTooltip.TEMPLATE = ['<span class="ql-tooltip-arrow"></span>', '<div class="ql-tooltip-editor">', '<input type="text" data-formula="e=mc^2" data-link="https://quilljs.com" data-video="Embed URL">', '<a class="ql-close"></a>', "</div>"].join("");
   exports.BubbleTooltip = BubbleTooltip;
   exports.default = BubbleTheme;
 }, function(module, exports, __webpack_require__) {
@@ -12863,7 +13004,7 @@
             if (fileInput == null) {
               fileInput = document.createElement("input");
               fileInput.setAttribute("type", "file");
-              fileInput.setAttribute("accept", "image/png, image/gif, image/jpeg, image/bmp, image/x-icon, image/svg+xml");
+              fileInput.setAttribute("accept", "image/png, image/gif, image/jpeg, image/bmp, image/x-icon");
               fileInput.classList.add("ql-image");
               fileInput.addEventListener("change", function() {
                 if (fileInput.files != null && fileInput.files[0] != null) {
@@ -12938,9 +13079,9 @@
     }, {
       key: "restoreFocus",
       value: function restoreFocus() {
-        var scrollTop = this.quill.root.scrollTop;
+        var scrollTop = this.quill.scrollingContainer.scrollTop;
         this.quill.focus();
-        this.quill.root.scrollTop = scrollTop;
+        this.quill.scrollingContainer.scrollTop = scrollTop;
       }
     }, {
       key: "save",
@@ -13253,7 +13394,7 @@
     }]);
     return SnowTooltip;
   }(_base.BaseTooltip);
-  SnowTooltip.TEMPLATE = ['<a class="ql-preview" target="_blank" href="about:blank"></a>', '<input type="text" data-formula="e=mc^2" data-link="quilljs.com" data-video="Embed URL">', '<a class="ql-action"></a>', '<a class="ql-remove"></a>'].join("");
+  SnowTooltip.TEMPLATE = ['<a class="ql-preview" target="_blank" href="about:blank"></a>', '<input type="text" data-formula="e=mc^2" data-link="https://quilljs.com" data-video="Embed URL">', '<a class="ql-action"></a>', '<a class="ql-remove"></a>'].join("");
   exports.default = SnowTheme;
 }, function(module, exports, __webpack_require__) {
   "use strict";
@@ -13532,7 +13673,11 @@
     }, {
       key: "onCompositionEnd",
       value: function onCompositionEnd() {
+        var _this3 = this;
         this.state.isInComposition = false;
+        setTimeout(function() {
+          return _this3.maybeCompleteAtCursor("user");
+        }, 0);
       }
     }, {
       key: "onTextChange",

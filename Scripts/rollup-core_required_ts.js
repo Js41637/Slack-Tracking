@@ -2341,7 +2341,7 @@
         case "ja-JP":
           return "の";
         default:
-          return str.substr && str.substr(str.length - 1) === "s" ? "’" : "’s";
+          return "’s";
       }
     },
     fullPossessiveString: function(str) {

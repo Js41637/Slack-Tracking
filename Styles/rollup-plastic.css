@@ -10872,49 +10872,53 @@ body.winssb #emoji_menu {
   border-right: 0!important
 }
 
-.supports_custom_scrollbar:not(.slim_scrollbar) #emoji_menu #emoji_menu_items_scroller {
+#emoji_menu .emoji_menu_items_scroller {
+  outline: 0
+}
+
+.supports_custom_scrollbar:not(.slim_scrollbar) #emoji_menu .emoji_menu_items_scroller {
   border-right: .25rem solid transparent
 }
 
-.supports_custom_scrollbar:not(.slim_scrollbar) #emoji_menu #emoji_menu_items_scroller::-webkit-scrollbar {
+.supports_custom_scrollbar:not(.slim_scrollbar) #emoji_menu .emoji_menu_items_scroller::-webkit-scrollbar {
   position: absolute;
   -webkit-appearance: none;
   width: 8px
 }
 
-.supports_custom_scrollbar:not(.slim_scrollbar) #emoji_menu #emoji_menu_items_scroller::-webkit-scrollbar-thumb,
-.supports_custom_scrollbar:not(.slim_scrollbar) #emoji_menu #emoji_menu_items_scroller::-webkit-scrollbar-track {
+.supports_custom_scrollbar:not(.slim_scrollbar) #emoji_menu .emoji_menu_items_scroller::-webkit-scrollbar-thumb,
+.supports_custom_scrollbar:not(.slim_scrollbar) #emoji_menu .emoji_menu_items_scroller::-webkit-scrollbar-track {
   background-clip: padding-box!important;
   border-radius: 3px;
   color: #fff
 }
 
-.supports_custom_scrollbar:not(.slim_scrollbar) #emoji_menu #emoji_menu_items_scroller::-webkit-scrollbar-track {
+.supports_custom_scrollbar:not(.slim_scrollbar) #emoji_menu .emoji_menu_items_scroller::-webkit-scrollbar-track {
   background: #f3f3f3;
   box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0
 }
 
-.supports_custom_scrollbar:not(.slim_scrollbar) #emoji_menu #emoji_menu_items_scroller::-webkit-scrollbar-thumb {
+.supports_custom_scrollbar:not(.slim_scrollbar) #emoji_menu .emoji_menu_items_scroller::-webkit-scrollbar-thumb {
   background: #d9d9de;
   box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;
   min-height: 36px
 }
 
-.supports_custom_scrollbar:not(.slim_scrollbar) #emoji_menu #emoji_menu_items_scroller::-webkit-scrollbar-corner {
+.supports_custom_scrollbar:not(.slim_scrollbar) #emoji_menu .emoji_menu_items_scroller::-webkit-scrollbar-corner {
   background: #fff
 }
 
-.supports_custom_scrollbar.slim_scrollbar #emoji_menu #emoji_menu_items_scroller {
+.supports_custom_scrollbar.slim_scrollbar #emoji_menu .emoji_menu_items_scroller {
   margin-right: 2px
 }
 
-.supports_custom_scrollbar.slim_scrollbar #emoji_menu #emoji_menu_items_scroller::-webkit-scrollbar {
+.supports_custom_scrollbar.slim_scrollbar #emoji_menu .emoji_menu_items_scroller::-webkit-scrollbar {
   position: absolute;
   -webkit-appearance: none;
   width: 6px
 }
 
-.supports_custom_scrollbar.slim_scrollbar #emoji_menu #emoji_menu_items_scroller::-webkit-scrollbar-thumb {
+.supports_custom_scrollbar.slim_scrollbar #emoji_menu .emoji_menu_items_scroller::-webkit-scrollbar-thumb {
   background-color: rgba(113, 114, 116, .5);
   background-clip: padding-box!important;
   border-radius: 3px;
@@ -10922,12 +10926,8 @@ body.winssb #emoji_menu {
   min-height: 36px
 }
 
-.supports_custom_scrollbar.slim_scrollbar #emoji_menu #emoji_menu_items_scroller::-webkit-scrollbar-thumb:hover {
+.supports_custom_scrollbar.slim_scrollbar #emoji_menu .emoji_menu_items_scroller::-webkit-scrollbar-thumb:hover {
   background-color: rgba(113, 114, 116, .8)
-}
-
-#emoji_menu .emoji_menu_items_scroller {
-  outline: 0
 }
 
 #emoji_menu .icon_search {
@@ -14548,7 +14548,8 @@ only screen and (min-resolution:2dppx) {
 
 .tab_complete_ui .not_in_channel {
   color: #717274;
-  font-size: .7rem
+  font-size: .7rem;
+  line-height: 1
 }
 
 @font-face {

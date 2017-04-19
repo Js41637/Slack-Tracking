@@ -22381,9 +22381,11 @@ TS.registerModule("constants", {
     makeLinksFromChannelOrGroupIds: function(channel_or_group_ids) {
       channel_or_group_ids = TS.utility.parseJSONOrElse(channel_or_group_ids, channel_or_group_ids);
       channel_or_group_ids = _.isArray(channel_or_group_ids) ? channel_or_group_ids : [channel_or_group_ids];
+      var private_channel_or_group_count = 0;
       var channel_or_group_nodes = channel_or_group_ids.map(function(channel_or_group_id) {
         return TS.channels.getChannelById(channel_or_group_id) || TS.groups.getGroupById(channel_or_group_id);
       }).filter(function(channel_or_group) {
+        if (!channel_or_group) private_channel_or_group_count += 1;
         return !!channel_or_group;
       }).map(function(channel_or_group) {
         var html = '<span class="no_wrap">';
@@ -22391,6 +22393,12 @@ TS.registerModule("constants", {
         html += "</span>";
         return html;
       });
+      if (private_channel_or_group_count) {
+        var private_channel_or_group_message = TS.i18n.t("{private_channel_or_group_count, plural, =1{# private channel}other{# private channels}}", "templates_builders")({
+          private_channel_or_group_count: private_channel_or_group_count
+        });
+        channel_or_group_nodes.push('<span class="no_wrap">' + private_channel_or_group_message + "</span>");
+      }
       return TS.i18n.listify(channel_or_group_nodes, {
         no_escape: true
       }).join("");
@@ -25878,6 +25886,9 @@ TS.registerModule("constants", {
           return team.icon["image_" + size];
         }
         return null;
+      });
+      Handlebars.registerHelper("listItemCount", function(list) {
+        return list.split(",").length;
       });
       Handlebars.registerHelper("getIconSizeToFit", function(size) {
         var possible_sizes = [230, 132, 102, 88, 68, 44, 34];
@@ -31741,6 +31752,9 @@ TS.registerModule("constants", {
           }
         } else if (item.indexOf("<") == -1) {
           if (tsf_mode == "EDIT") {
+            if (TS.boot_data.feature_i18n_emoji && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE) {
+              item = TSFEmoji.translateEmojiStringToLocal(item, TS.i18n.locale());
+            }
             str += TS.utility.unHtmlEntities(item);
           } else {
             if (TS.utility.platformSupportsHtmlNotifications()) {
@@ -31753,6 +31767,9 @@ TS.registerModule("constants", {
             } else {
               var safe_str = TS.utility.unHtmlEntities(item);
               safe_str = TS.emoji.maybeUnifiedReplace(safe_str);
+              if (TS.boot_data.feature_i18n_emoji && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE) {
+                item = TSFEmoji.translateEmojiStringToLocal(item, TS.i18n.locale());
+              }
               str += safe_str;
             }
           }
@@ -50903,7 +50920,8 @@ $.fn.togglify = function(settings) {
           emoji._jumper_score = 0;
           return true;
         }
-        var score = fuzzy_emoji.score(emoji.display_name || emoji.name);
+        var emoji_name = TS.i18n.deburr(emoji.display_name || emoji.name);
+        var score = fuzzy_emoji.score(emoji_name);
         emoji._jumper_score = score;
         return score <= fuzzy_limit;
       },
@@ -58657,6 +58675,7 @@ $.fn.togglify = function(settings) {
 
   function _getDataPromiseFromSearcher(searcher_options, options) {
     searcher_options = _.defaults(searcher_options, {
+      limit: 100,
       sort: {
         frecency: true
       }
@@ -63536,12 +63555,12 @@ $.fn.togglify = function(settings) {
             e: for (; ++r < i;) {
               var c = e[r],
                 f = t ? t(c) : c;
-              if (c = n || 0 !== c ? c : 0, a && f === f) {
+              if (c = n || 0 !== c ? c : 0,
+                a && f === f) {
                 for (var d = u.length; d--;)
                   if (u[d] === f) continue e;
                 t && u.push(f), s.push(c);
-              } else o(u, f, n) || (u !== s && u.push(f),
-                s.push(c));
+              } else o(u, f, n) || (u !== s && u.push(f), s.push(c));
             }
             return s;
           }
@@ -66997,8 +67016,7 @@ $.fn.togglify = function(settings) {
       },
       processEventQueue: function(e) {
         var t = d;
-        d = null,
-          e ? c(t, h) : c(t, v), d ? i("95") : void 0, u.rethrowCaughtError();
+        d = null, e ? c(t, h) : c(t, v), d ? i("95") : void 0, u.rethrowCaughtError();
       },
       __purge: function() {
         f = {};
@@ -78144,7 +78162,8 @@ $.fn.togglify = function(settings) {
       if (this.leftPoints[l] === e) {
         this.count -= 1, this.leftPoints.splice(l, 1);
         for (var r = g.a.ge(this.rightPoints, e, p); r < this.rightPoints.length && this.rightPoints[r][1] === e[1]; ++r)
-          if (this.rightPoints[r] === e) return this.rightPoints.splice(r, 1), y;
+          if (this.rightPoints[r] === e) return this.rightPoints.splice(r, 1),
+            y;
       }
     return _;
   }, w.queryPoint = function(e, t) {

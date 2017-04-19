@@ -18822,6 +18822,18 @@ img.jcrop-preview {
   background-color: rgba(113, 114, 116, .8)
 }
 
+#fs_modal.prefs_modal .badge_example {
+  display: inline-block;
+  border-radius: 9px;
+  width: 25px;
+  padding: 2px 0;
+  color: #fff;
+  background: #717274;
+  line-height: 14px;
+  font-size: 13px;
+  text-align: center
+}
+
 .jumbomoji_disabled_note {
   display: none;
   color: #555459;

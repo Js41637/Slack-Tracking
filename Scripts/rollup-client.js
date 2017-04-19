@@ -31854,7 +31854,11 @@
           has_tz: !!TS.model.prefs.tz,
           tz_guess: !TS.model.prefs.tz && _dndTzGuess()
         };
-        html = TS.templates.prefs_notifications(template_args);
+        if (TS.boot_data.feature_notif_prefs_overhaul) {
+          html = TS.templates.prefs_notifications_new(template_args);
+        } else {
+          html = TS.templates.prefs_notifications(template_args);
+        }
         break;
       case "win_ssb":
       case "lin_ssb":
@@ -33050,6 +33054,7 @@
     return send_notifications_for;
   };
   var _updateNotificationSummary = function() {
+    if (TS.boot_data.feature_notif_prefs_overhaul) return;
     var template_args = {
       send_notifications_for: _getSendNotificationsForPref(),
       mute_sounds: TS.model.prefs.mute_sounds,
@@ -33075,6 +33080,7 @@
     _$div.find("#prefs_notifications").find(".section_rollup_summary").html(notifications_summary_html);
   };
   var _updateDnDSummary = function() {
+    if (TS.boot_data.feature_notif_prefs_overhaul) return;
     var props = _getDndProps();
     var start = props.dnd_start_hour;
     var end = props.dnd_end_hour;

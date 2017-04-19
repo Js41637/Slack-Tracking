@@ -22,7 +22,7 @@
 {{/if}}
 {{#if member.profile.guest_channels}}
   <tr>
-    <td><span class="small_right_padding old_petunia_grey" title="{{#t note="list of channels the user is invited to" }}{member.is_ultra_restricted, select, true{Channel}other{Channels}}{{/t}}">{{#t note="list of channels the user is invited to" }}{member.is_ultra_restricted, select, true{Channel}other{Channels}}{{/t}}</span></td>
+    <td><span class="small_right_padding old_petunia_grey" title="{{#t note="list of channels the user is invited to" }}{member.is_ultra_restricted, select, true{Channel}other{Channels}}{{/t}}">{{#t note="list of channels the user is invited to" channel_count=(listItemCount member.profile.guest_channels)}}{channel_count, plural, =1{Channel}other{Channels}}{{/t}}</span></td>
     <td>
       {{makeLinksFromChannelOrGroupIds member.profile.guest_channels}}
     </td>
