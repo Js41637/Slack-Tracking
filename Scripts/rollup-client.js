@@ -4580,7 +4580,7 @@
     memberAdminPermsChanged: function(member) {
       if (member && member.id == TS.model.user.id) TS.ui.admin_invites.maybeShowInviteLink();
       $("#team_list_admin_link").toggleClass("hidden", !member.is_admin);
-      if (TS.boot_data.feature_admin_profile_info && TS.model.previewed_member_id === member.id) {
+      if (TS.model.previewed_member_id === member.id) {
         TS.client.ui.previewMember(member.id);
       }
     },
@@ -8196,7 +8196,7 @@
       bot_configure_url: bot_configure_url,
       show_call_action: TS.utility.calls.isEnabled() && !member.is_bot && member.id != "USLACKBOT",
       team_name: TS.model.team.name,
-      show_admin_info: TS.boot_data.feature_admin_profile_info && member.is_admin && member.team_id === TS.model.user.team_id,
+      show_admin_info: member.is_admin && member.team_id === TS.model.user.team_id,
       lazy_load_profile_fields: true
     };
     _member_presence_list.clear();

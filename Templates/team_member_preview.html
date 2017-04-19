@@ -363,7 +363,7 @@
         <hr class="member_details_divider">
 
         <table id="member_data_table_guest_fields" class="member_data_table lato{{#pageNeedsEnterprise}}{{#if teams}} no_bottom_margin{{/if}}{{/pageNeedsEnterprise}}">
-          {{> guest_profile_fields member lazy_load_profile_fields=lazy_load_profile_fields }}
+          {{> guest_profile_fields member=member lazy_load_profile_fields=lazy_load_profile_fields }}
         </table>
       {{/or}}
     {{/if}}

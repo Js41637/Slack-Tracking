@@ -4442,6 +4442,10 @@ ul.end_display_actions li {
   font-size: .9rem
 }
 
+ul.end_display_actions .end_action_integration {
+  display: inline-block
+}
+
 ul.end_display_actions .end_action_integration .ts_icon_plus {
   position: relative;
   top: 1px
