@@ -19175,7 +19175,14 @@ ts-message.automated .message_body .topic {
 .feature_texty_mentions ts-message.automated .internal_member_link,
 .feature_texty_mentions ts-message.ephemeral .internal_member_link {
   color: inherit;
-  background: inherit
+  background: inherit;
+  border: none;
+  padding: 0
+}
+
+.feature_texty_mentions ts-message.automated .internal_member_link:hover,
+.feature_texty_mentions ts-message.ephemeral .internal_member_link:hover {
+  text-decoration: underline
 }
 
 ts-message .action_hover_container {
@@ -28668,6 +28675,26 @@ html:not(.supports_sticky_position) #app_index_scroller_div {
   -moz-flex-shrink: 0;
   -ms-flex-negative: 0;
   flex-shrink: 0
+}
+
+#select_shared_invite_expiration_container {
+  position: relative
+}
+
+#select_shared_invite_expiration_container:after {
+  content: "\E271";
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding-right: 10px;
+  transform: translateY(50%);
+  pointer-events: none;
+  font-family: Slack;
+  font-size: 1.25rem
+}
+
+#select_shared_invite_expiration::-ms-expand {
+  display: none
 }
 
 #shared_invite_modal_link_copy_btn .ts_tip_tip {

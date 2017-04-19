@@ -27941,7 +27941,7 @@
     },
     cancel: function(going_somewhere) {
       if (!TS.model.archive_view_is_showing) return;
-      var go_back = !going_somewhere;
+      var go_back = (TS.client.archives.not_member || TS.ims.isImWithDeletedMember(TS.client.archives.current_model_ob)) && !going_somewhere;
       _end(go_back);
     },
     rebuildMsg: function(msg) {
@@ -42867,6 +42867,31 @@ var _getDownloadLink = function() {
       $("body").on("click", '[data-action="admin_shared_invites_modal"]', function(e) {
         if (TS.isPartiallyBooted()) return;
         if (!_userCanViewSharedInvitesModal()) return TS.ui.admin_invites.start();
+        if (e.target.id == "channel_list_invites_link") {
+          TS.clog.track("INAPP_INVITES", {
+            contexts: {
+              ui_context: {
+                step: "invite_people",
+                action: "click",
+                ui_element: "invite_people_button"
+              }
+            }
+          });
+          TS.clog.track("INAPP_INVITES", {
+            contexts: {
+              ui_context: {
+                step: "share_link",
+                action: "impression",
+                ui_element: "share_invite_link_modal"
+              },
+              referring_ui_context: {
+                step: "invite_people",
+                ui_element: "invite_people_menu"
+              }
+            },
+            referring_event_id: "INAPP_INVITES"
+          });
+        }
         _build(e);
       });
       return _promiseToGetLastActiveCode();
@@ -42987,11 +43012,36 @@ var _getDownloadLink = function() {
     _bindCreateLink();
     _bindDisableLink();
     _bindCopyLink();
+    _bindSharedLinkInput();
+    _bindExpirationSelect();
+  };
+  var _bindSharedLinkInput = function() {
+    var $input = _$shared_invites_modal.find("#shared_invite_link_url");
+    $input.on("select", function() {
+      TS.clog.track("INAPP_INVITES", {
+        contexts: {
+          ui_context: {
+            step: "share_link",
+            action: "select",
+            ui_element: "invite_link"
+          }
+        }
+      });
+    });
   };
   var _bindEmailInvitesLink = function() {
     _$shared_invites_modal.on("click", '[data-action="shared_invite_open_email_invites"]', function() {
       TS.ui.admin_invites.start();
       if (TS.menu) TS.menu.end();
+      TS.clog.track("INAPP_INVITES", {
+        contexts: {
+          ui_context: {
+            step: "share_link",
+            action: "click",
+            ui_element: "email_invite_link"
+          }
+        }
+      });
     });
   };
   var _showAdminCreateLinkView = function() {
@@ -43006,15 +43056,22 @@ var _getDownloadLink = function() {
       TS.ui.startButtonSpinner($create_btn.get(0));
       $expiration_select.attr("disabled", "disabled");
       var days_until_expiration = _.toInteger($expiration_select.val());
+      TS.clog.track("INAPP_INVITES", {
+        contexts: {
+          ui_context: {
+            step: "share_link",
+            action: "click",
+            ui_element: "create_invite_link_button"
+          }
+        }
+      });
       return TS.api.call("users.admin.createSharedInvite", {
         expiration: days_until_expiration,
         max_signups: 500
       }, function(ok, data) {
         if (ok) {
           _setActiveCode(data);
-          return _enterView("admin_share_link", {
-            copy: true
-          });
+          return _enterView("admin_share_link");
         }
         $expiration_select.removeAttr("disabled");
         TS.ui.stopButtonSpinner($create_btn.get(0), false);
@@ -43024,7 +43081,20 @@ var _getDownloadLink = function() {
       });
     });
   };
-  var _showAdminShareLinkView = function(options) {
+  var _bindExpirationSelect = function() {
+    _$shared_invites_modal.on("click", "#select_shared_invite_expiration", function() {
+      TS.clog.track("INAPP_INVITES", {
+        contexts: {
+          ui_context: {
+            step: "share_link",
+            action: "click",
+            ui_element: "expiration_period_menu"
+          }
+        }
+      });
+    });
+  };
+  var _showAdminShareLinkView = function() {
     var expiration_ts = _active_invite_code_ob.date_expire;
     var time_until_expiration_string = _makeTimeUntilExpirationString(expiration_ts);
     var template_args = {
@@ -43037,10 +43107,6 @@ var _getDownloadLink = function() {
       template_args.expiration_time = TS.utility.date.toTime(expiration_ts, true);
     }
     _$shared_invites_modal_body.html(TS.templates.shared_invites_modal_share_link_body(template_args));
-    if (options && options.copy) {
-      var $copy_btn = $('[data-action="copy_shared_link"]');
-      _copyInviteLink($copy_btn);
-    }
     return Promise.resolve();
   };
   var _bindDisableLink = function() {
@@ -43050,6 +43116,15 @@ var _getDownloadLink = function() {
       TS.menu.needs_to_remain_open = function() {
         return true;
       };
+      TS.clog.track("INAPP_INVITES", {
+        contexts: {
+          ui_context: {
+            step: "share_link",
+            action: "click",
+            ui_element: "disable_link"
+          }
+        }
+      });
       return new Promise(function(resolve) {
         TS.generic_dialog.start({
           title: TS.i18n.t("Deactivate your invite link?", "pages_admin")(),
@@ -43058,7 +43133,29 @@ var _getDownloadLink = function() {
           }),
           go_button_class: "btn_danger ladda-button",
           go_button_text: TS.i18n.t("Deactivate Link", "pages_admin")(),
-          onGo: resolve,
+          onGo: function() {
+            TS.clog.track("INAPP_INVITES", {
+              contexts: {
+                ui_context: {
+                  step: "deactivate_link",
+                  action: "click",
+                  ui_element: "deactivate_link_button"
+                }
+              }
+            });
+            resolve();
+          },
+          onCancel: function() {
+            TS.clog.track("INAPP_INVITES", {
+              contexts: {
+                ui_context: {
+                  step: "deactivate_link",
+                  action: "click",
+                  ui_element: "cancel_button"
+                }
+              }
+            });
+          },
           onEnd: function() {
             TS.menu.needs_to_remain_open = undefined;
             $menus.removeClass("hide_behind_dialog");
@@ -43079,6 +43176,15 @@ var _getDownloadLink = function() {
     _$shared_invites_modal.on("click", '[data-action="copy_shared_link"]', function() {
       var $copy_btn = $(this);
       _copyInviteLink($copy_btn);
+      TS.clog.track("INAPP_INVITES", {
+        contexts: {
+          ui_context: {
+            step: "share_link",
+            action: "click",
+            ui_element: "copy_button"
+          }
+        }
+      });
     });
   };
   var _copyInviteLink = function($copy_btn) {

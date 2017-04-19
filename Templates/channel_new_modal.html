@@ -27,7 +27,6 @@
           type="text"
           class="lowercase title_input large_left_padding"
           value="{{title}}"
-          {{#feature flag="feature_intl_channel_names"}}{{else}}maxlength="{{ChannelNameMaxLength}}"{{/feature}}
           placeholder="{{#t}}e.g. leads{{/t}}"
           data-validation="channel_name=fix"
           data-validation-for="channel_create_title"

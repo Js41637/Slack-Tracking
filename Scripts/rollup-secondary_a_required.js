@@ -30752,6 +30752,15 @@ TS.registerModule("constants", {
       }
       return false;
     },
+    openAuthenticatedInBrowser: function(url_path) {
+      var is_ssb = TS.model.desktop_app_version !== null;
+      if (is_ssb && parseFloat(TS.model.desktop_app_version.major + "." + TS.model.desktop_app_version.minor) >= 2.6) {
+        var url = TS.boot_data.team_url + "web/open" + url_path;
+        TSSSB.call("openAuthenticatedInBrowser", url);
+      } else {
+        window.open(url_path);
+      }
+    },
     test: {
       clearAndGetRefererPolicy: function() {
         _referer_policy = undefined;
@@ -30762,15 +30771,6 @@ TS.registerModule("constants", {
       },
       rafQueue: function() {
         return _rafQueue;
-      }
-    },
-    openAuthenticatedInBrowser: function(url_path) {
-      var is_ssb = TS.model.desktop_app_version !== null;
-      if (is_ssb && parseFloat(TS.model.desktop_app_version.major + "." + TS.model.desktop_app_version.minor) >= 2.6) {
-        var url = TS.boot_data.team_url + "web/open" + url_path;
-        TSSSB.call("openAuthenticatedInBrowser", url);
-      } else {
-        window.open(url_path);
       }
     }
   });
@@ -31948,27 +31948,28 @@ TS.registerModule("constants", {
     _.forEach(data_tags_object, function(value, key) {
       data_tags += "data-" + key + '="' + value + '" ';
     });
-    var display_name;
+    var display_name = "@" + m.name;
     var target;
     if (TS.boot_data.feature_texty_mentions) {
       if (tsf_mode == "EDIT") {
         return "@" + m.name;
       }
-      display_name = TS.members.getMemberDisplayName(m, true);
+      if (TS.boot_data.feature_name_tagging_client) {
+        display_name = TS.members.getMemberDisplayName(m, true, true);
+      }
       if (tsf_mode == "GROWL" || !TS.permissions.members.canUserSeeMember(m)) {
         return display_name;
       }
       target = TS.utility.shouldLinksHaveTargets() ? 'target="/team/' + m.id + '" ' : "";
       if (m.id == TS.model.user.id) classes.push("mention");
       if (no_linking) {
-        return "@" + display_name;
+        return display_name;
       }
-      return '<a href="/team/' + m.id + '" ' + target + data_tags + 'class="' + classes.join(" ") + '">@' + display_name + "</a>";
+      return '<a href="/team/' + m.id + '" ' + target + data_tags + 'class="' + classes.join(" ") + '">' + display_name + "</a>";
     }
     if (tsf_mode == "EDIT" || tsf_mode == "GROWL") {
       return "@" + m.name;
     }
-    display_name = "@" + m.name;
     if (TS.permissions.members.canUserSeeMember(m) && !no_linking) {
       target = TS.utility.shouldLinksHaveTargets() ? 'target="/team/' + m.name + '" ' : "";
       if (!no_highlights) display_name = _doHighlighting(display_name);
@@ -33076,6 +33077,20 @@ TS.registerModule("constants", {
             TS.menu.$submenu_parent = $menu_content.find("#team_invitations");
             TS.menu.$submenu_parent.submenu({
               items_html: TS.templates.shared_invites_modal()
+            });
+            TS.clog.track("INAPP_INVITES", {
+              contexts: {
+                ui_context: {
+                  step: "share_link",
+                  action: "impression",
+                  ui_element: "share_invite_link_modal"
+                },
+                referring_ui_context: {
+                  step: "invite_people",
+                  ui_element: "invite_people_menu"
+                }
+              },
+              referring_event_id: "INAPP_INVITES"
             });
             TS.ui.shared_invites_modal.start();
             break;

@@ -3,7 +3,7 @@
 {{#each channels}}
   <div class="{{#unless @first}}top_padding{{/unless}} {{#unless @last}}bottom_border{{/unless}}">
     <h4 class="no_bottom_margin">
-      <a href="/archives/{{#feature flag='feature_intl_channel_names'}}{{this.id}}{{else}}{{this.name}}{{/feature}}" class="slate_blue">
+      <a href="/archives/{{this.id}}" class="slate_blue">
         <ts-icon class="{{#if this.is_group}}ts_icon_lock_o{{else}}ts_icon_channel{{/if}}"></ts-icon>
         {{~this.name~}}
         {{#pageNeedsEnterprise}}
