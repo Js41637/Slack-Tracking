@@ -56569,7 +56569,7 @@ $.fn.togglify = function(settings) {
             event: _utility_calls_config.log_events.mini_panel_click,
             value: evt.data
           });
-          if (evt.data.action === "mute" || evt.data.action === "leave" || evt.data.action === "stop_screenshare") {
+          if (evt.data.action === "mute" || evt.data.action === "leave" || evt.data.action === "screenhero" || evt.data.action === "stop_screenshare") {
             _sendMessageToCallWindow({
               message_type: TS.utility.calls.messages_to_call_window_types.mini_panel_action,
               action: evt.data.action
@@ -63540,7 +63540,8 @@ $.fn.togglify = function(settings) {
                 for (var d = u.length; d--;)
                   if (u[d] === f) continue e;
                 t && u.push(f), s.push(c);
-              } else o(u, f, n) || (u !== s && u.push(f), s.push(c));
+              } else o(u, f, n) || (u !== s && u.push(f),
+                s.push(c));
             }
             return s;
           }
@@ -66996,7 +66997,8 @@ $.fn.togglify = function(settings) {
       },
       processEventQueue: function(e) {
         var t = d;
-        d = null, e ? c(t, h) : c(t, v), d ? i("95") : void 0, u.rethrowCaughtError();
+        d = null,
+          e ? c(t, h) : c(t, v), d ? i("95") : void 0, u.rethrowCaughtError();
       },
       __purge: function() {
         f = {};
@@ -68640,8 +68642,7 @@ $.fn.togglify = function(settings) {
       }, e.prototype.checkpoint = function() {
         return this._callbacks ? this._callbacks.length : 0;
       }, e.prototype.rollback = function(e) {
-        this._callbacks && this._contexts && (this._callbacks.length = e,
-          this._contexts.length = e);
+        this._callbacks && this._contexts && (this._callbacks.length = e, this._contexts.length = e);
       }, e.prototype.reset = function() {
         this._callbacks = null, this._contexts = null;
       }, e.prototype.destructor = function() {
@@ -79826,15 +79827,14 @@ $.fn.togglify = function(settings) {
           t.preventDefault(), this.element.focus();
           var r = this.moveCursor(n),
             o = void 0;
-          o = r[1] < this.state.cursorPosition[1] || 1 === r[1] ? r[1] - 1 : r[1],
-            this.setState({
-              cursorPosition: r,
-              currentSelection: this.getCell(r),
-              scrollToIndex: o,
-              isPreviewing: !0,
-              usingKeyboard: !0,
-              mousePosition: null
-            });
+          o = r[1] < this.state.cursorPosition[1] || 1 === r[1] ? r[1] - 1 : r[1], this.setState({
+            cursorPosition: r,
+            currentSelection: this.getCell(r),
+            scrollToIndex: o,
+            isPreviewing: !0,
+            usingKeyboard: !0,
+            mousePosition: null
+          });
         }
       }, {
         key: "onEmojiMouseEnter",

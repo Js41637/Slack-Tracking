@@ -27,7 +27,7 @@
         <span class="overflow_ellipsis">
           {{model_ob.name}}
         </span>
-        {{#if model_ob.is_shared}}{{> shared_channel_icon}}{{/if}}
+        {{#if model_ob.is_org_shared}}{{> shared_channel_icon}}{{else if model_ob.is_shared}}{{> shared_channels_icon}}{{/if}}
       </span>
     </a>
   </li>

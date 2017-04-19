@@ -2912,7 +2912,11 @@ body.incremental_boot #col_channels .header_count {
 }
 
 .channels_list_holder ul li .ts_icon_shared_channel {
-  margin-top: -3px;
+  margin-top: -3px
+}
+
+.channels_list_holder ul li .ts_icon_shared_channel,
+.channels_list_holder ul li .ts_icon_shared_channels {
   margin-left: 2px
 }
 
