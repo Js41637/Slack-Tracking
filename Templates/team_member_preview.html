@@ -19,7 +19,7 @@
         {{/if}}
       </span>
       {{#if member.is_restricted}}
-        <i class="ts_icon ts_icon_question_circle ts_tip ts_tip_bottom ts_tip_multiline ts_tip_float">
+        <i class="ts_icon ts_icon_question_circle ts_tip ts_tip_left ts_tip_multiline ts_tip_float">
           <span class="ts_tip_tip">
             <span class="ts_tip_multiline_inner">{{#if member.is_ultra_restricted}}{{#t}}Single-Channel Guests see a partial directory and can only access messages and files from selected channels.{{/t}}{{else}}{{#t}}Multi-Channel Guests see a partial directory and can only access messages and files from selected channels.{{/t}}{{/if}}</span>
           </span>
@@ -223,7 +223,11 @@
                     <div class="current_status_cover_content">
                       <span class="current_status_emoji_picker_cover">
                         <div class="current_status_emoji_cover">
-                          {{getMemberCurrentStatusEmoji member}}
+                          {{#if_equal (emojiModePref) compare="as_text"}}
+                            {{getMemberCurrentStatusEmoji member ignore_emoji_mode_pref=true show_icon_for_emoji_in_as_text_mode=false}}
+                          {{else}}
+                            {{getMemberCurrentStatusEmoji member}}
+                          {{/if_equal}}
                         </div>
                       </span>
                       <span class="current_status">

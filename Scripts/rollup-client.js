@@ -9703,7 +9703,8 @@
       }));
       $(".current_status_cover .current_status_emoji_cover").html(TS.format.formatCurrentStatus(status.emoji, undefined, {
         stop_animations: true,
-        transform_missing_emoji: true
+        transform_missing_emoji: true,
+        ignore_emoji_mode_pref: TS.model.prefs.emoji_mode === "as_text"
       }));
     }
     $(".current_status_container").toggleClass("with_status_set", !!has_status);
@@ -26530,7 +26531,7 @@
   "use strict";
   TS.registerModule("ui.share_channel_dialog", {
     start: function(model_ob) {
-      var content_html = TS.templates.channel_share_dialog(_generateTemplateArgs());
+      var content_html = TS.templates.channel_share_dialog(_generateTemplateArgs(model_ob));
       var header_html = TS.i18n.t("Share <strong>{channel_name}</strong>", "share_channels")({
         channel_name: TS.templates.builders.makeChannelPrefix(model_ob) + TS.utility.htmlEntities(model_ob.name)
       });
@@ -26542,11 +26543,15 @@
         go_label = TS.i18n.t("Send", "share_channels");
       }
       TS.ui.channel_options_dialog.startWithChannelOption(content_html, header_html, go_label, function() {
-        _handleSubmit({
-          model_ob: TS.shared.getActiveModelOb(),
-          target_domain: TS.ui.channel_options_dialog.div.find("#team_url").val(),
-          email: TS.ui.channel_options_dialog.div.find("#email").val()
-        });
+        if (TS.permissions.members.canCreateSharedChannel()) {
+          _handleSubmitCreate({
+            model_ob: TS.shared.getActiveModelOb(),
+            target_domain: TS.ui.channel_options_dialog.div.find("#team_url").val(),
+            email: TS.ui.channel_options_dialog.div.find("#email").val()
+          });
+        } else {
+          _handleSubmitRequest();
+        }
       });
       _throttled_handle_form_change = _.throttle(_handleFormChange, 1e3);
       if (!TS.permissions.members.canCreateSharedChannel()) _initAdminRequestUI();
@@ -26554,13 +26559,15 @@
     test: function() {
       var test_ob = {
         _generateTemplateArgs: _generateTemplateArgs,
-        _handleSubmit: _handleSubmit,
+        _handleSubmitCreate: _handleSubmitCreate,
         _handleSuccess: _handleSuccess,
         _handleError: _handleError,
         _validateShare: _validateShare,
         _promiseAdmins: _promiseAdmins,
         _initAdminRequestUI: _initAdminRequestUI,
-        _generateAttachment: _generateAttachment
+        _generateAttachment: _generateAttachment,
+        _handleSubmitRequest: _handleSubmitRequest,
+        $_admin_select: $_admin_select
       };
       Object.defineProperty(test_ob, "_generateTemplateArgs", {
         get: function() {
@@ -26570,12 +26577,12 @@
           _generateTemplateArgs = v;
         }
       });
-      Object.defineProperty(test_ob, "_handleSubmit", {
+      Object.defineProperty(test_ob, "_handleSubmitCreate", {
         get: function() {
-          return _handleSubmit;
+          return _handleSubmitCreate;
         },
         set: function(v) {
-          _handleSubmit = v;
+          _handleSubmitCreate = v;
         }
       });
       Object.defineProperty(test_ob, "_handleSuccess", {
@@ -26626,6 +26633,22 @@
           _generateAttachment = v;
         }
       });
+      Object.defineProperty(test_ob, "_handleSubmitRequest", {
+        get: function() {
+          return _handleSubmitRequest;
+        },
+        set: function(v) {
+          _handleSubmitRequest = v;
+        }
+      });
+      Object.defineProperty(test_ob, "$_admin_select", {
+        get: function() {
+          return $_admin_select;
+        },
+        set: function(v) {
+          $_admin_select = v;
+        }
+      });
       return test_ob;
     }
   });
@@ -26633,7 +26656,7 @@
   var $_message_attachment;
   var $_admin_select;
   var _throttled_handle_form_change;
-  var _handleSubmit = function(options) {
+  var _handleSubmitCreate = function(options) {
     TS.ui.channel_options_dialog.ladda.start();
     TS.ui.channel_options_dialog.div.find(".error").remove();
     return _validateShare(options).then(function() {
@@ -26643,6 +26666,25 @@
         email: options.email
       });
     }).then(_handleSuccess, _handleError);
+  };
+  var _handleSubmitRequest = function() {
+    TS.ui.channel_options_dialog.ladda.start();
+    TS.ui.channel_options_dialog.div.find(".error").remove();
+    var admin = $_admin_select.lazyFilterSelect("value");
+    var message = TS.utility.contenteditable.value($_message_input);
+    return TS.api.call("im.open", {
+      user: admin[0].id
+    }).then(function() {
+      return TS.api.call("chat.postMessage", {
+        channel: admin[0].id,
+        text: message,
+        link_names: true
+      }).then(function(message_response) {
+        TS.ui.fs_modal.close();
+        TS.ims.startImById(message_response.data.channel);
+        return null;
+      });
+    }).then(null, _handleError);
   };
   var _handleSuccess = function(response) {
     var content_html = TS.i18n.t("They have 72 hours to respond to the invitation before it expires", "share_channels")();

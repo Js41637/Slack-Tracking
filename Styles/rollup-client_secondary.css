@@ -3595,6 +3595,10 @@ ul.member_list li .nuc {
   overflow: hidden
 }
 
+.channels_list_holder ul li .feature_user_custom_status.primary_action .current_status ts-icon {
+  color: #fff
+}
+
 @-webkit-keyframes typing-sprite {
   100% {
     background-position: -240px

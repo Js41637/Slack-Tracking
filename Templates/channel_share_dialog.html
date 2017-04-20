@@ -32,7 +32,7 @@
 
   {{else}}
 
-    <p>
+    <p class="information">
       {{#t}}Only Team Admins can share channels. If you'd like, you can request to share a channel with the form below.{{/t}}
     </p>
 
@@ -47,7 +47,7 @@
     </p>
 
     <div class="message_field">
-      <div id="message" name="message">{{#t}}Hi there, I was hoping to add this shared channel to our team. Would you be able to help?{{/t}}</div>
+      <div id="message" name="message">{{#t channel_name=model_ob.name}}Hi there, I was hoping to make #{channel_name} a shared channel on our team. Would you be able to help?{{/t}}</div>
       <button class="emo_menu btn_unstyle" aria-label="{{#t}}emoji menu{{/t}}" type="button"><i class="ts_icon ts_icon_circle_fill"></i><i class="ts_icon ts_icon_smile_o"></i><i class="ts_icon ts_icon_happy_smile"></i></button>
     </div>
 

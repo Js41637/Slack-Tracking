@@ -134,7 +134,8 @@
       this._$status_emoji_picker.find(".current_status_empty_emoji").toggleClass("hidden", !!this._selected_emoji);
       this._$status_emoji_picker.find(".current_status_emoji").html(TS.format.formatCurrentStatus(this._selected_emoji, undefined, {
         stop_animations: true,
-        transform_missing_emoji: true
+        transform_missing_emoji: true,
+        ignore_emoji_mode_pref: TS.model.prefs.emoji_mode === "as_text"
       }));
     },
     _startTabComplete: function() {

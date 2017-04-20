@@ -5745,7 +5745,9 @@ body:not(.loading) #team_menu:hover:before {
 }
 
 body:not(.loading) #team_menu.active #team_menu_user_name,
-body:not(.loading) #team_menu:hover #team_menu_user_name {
+body:not(.loading) #team_menu.active .current_user_current_status,
+body:not(.loading) #team_menu:hover #team_menu_user_name,
+body:not(.loading) #team_menu:hover .current_user_current_status {
   color: #fff;
   opacity: 1;
   -moz-opacity: 1;
@@ -5887,25 +5889,24 @@ body:not(.loading) #team_menu:hover #team_menu_user_name {
   display: -webkit-flex;
   display: -moz-flex;
   display: -ms-flexbox;
-  display: flex;
-  opacity: .6
-}
-
-#team_menu_user_details:hover {
-  opacity: 1
+  display: flex
 }
 
 #team_menu_user_details #team_menu_user_name {
   -ms-flex: 0 1 auto;
   -webkit-flex: 0 1 auto;
-  flex: 0 1 auto;
-  opacity: 1
+  flex: 0 1 auto
 }
 
 #team_menu_user_details .current_user_current_status {
   -ms-flex: 0 0 auto;
   -webkit-flex: 0 0 auto;
-  flex: 0 0 auto
+  flex: 0 0 auto;
+  opacity: .6
+}
+
+#team_menu_user_details .current_user_current_status ts-icon {
+  color: #fff
 }
 
 .current_user_current_status {

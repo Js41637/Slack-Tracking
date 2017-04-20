@@ -89,11 +89,10 @@
       color: {{theme.text_color}} !important;
       opacity: 0.6;
     }
-    #team_menu_user_details #team_menu_user_name {
-      opacity: 1;
-    }
     #team_menu_user,
-    #team_menu_status_callout_container #team_menu_status_callout #team_menu_status_callout_new_text {
+    #team_menu_status_callout_container #team_menu_status_callout #team_menu_status_callout_new_text,
+    #team_menu_user_details .current_status ts-icon,
+    .channels_list_holder ul li .feature_user_custom_status.primary_action .current_status ts-icon {
       color: {{theme.text_color}};
     }
     #quick_switcher_label,
@@ -150,7 +149,8 @@
     .channels_list_holder h2.hoverable:hover,
     #team_menu:hover .team_name_caret,
     #team_menu.active .team_name_caret,
-    #team_menu_user_details:hover,
+    #team_menu:hover #team_menu_user_name,
+    #team_menu:hover .current_user_current_status,
     .invite_widget_link:hover {
       opacity: 1;
     }

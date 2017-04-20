@@ -6242,7 +6242,8 @@ span.emoji {
 .current_user_current_status .emoji-sizer,
 .message_current_status .emoji-sizer {
   width: 1rem;
-  height: 1rem
+  height: 1rem;
+  font-size: 1rem
 }
 
 .current_status .ts_icon,
@@ -6250,6 +6251,11 @@ span.emoji {
 .message_current_status .ts_icon {
   position: relative;
   top: -4px
+}
+
+.current_status ts-icon,
+.message_current_status ts-icon {
+  color: #717274
 }
 
 span.emoji-outer {

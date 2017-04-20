@@ -4098,6 +4098,9 @@ var _cyrillicToLatin = function(char) {
     graphicReplace: function(str, options) {
       if (!str) return "";
       options = options || {};
+      if (options.show_icon_for_emoji_in_as_text_mode && TS.emoji.isValidName(str)) {
+        return '<ts-icon class="emoji-sizer ts_icon_info_circle ts_icon_inherit" title="' + str.replace(/:/g, "") + '"></ts-icon>';
+      }
       _emoji.init_env();
       var was_text_mode = _emoji.text_mode;
       var was_include_title = _emoji.include_title;

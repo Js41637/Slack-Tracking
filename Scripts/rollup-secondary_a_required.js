@@ -18548,39 +18548,12 @@ TS.registerModule("constants", {
     }
     TS.log(552, imsg.type + " referenced a relevant file and we have to look it up via the API: " + file_id);
     if (TS.boot_data.feature_dedupe_files_info_requests && _Q.length > 1) {
-      var file_ids = [file_id];
-      _.forEach(_Q, function(queued_imsg) {
-        if (file_ids.length >= 20) return false;
-        var maybe_file_info = _findFileObAndId(queued_imsg);
-        if (maybe_file_info && !_.includes(file_ids, maybe_file_info.file_id) && _isFileMsgRelevant(queued_imsg, maybe_file_info.file_id)) {
-          file_ids.push(maybe_file_info.file_id);
-        }
-      });
-      if (file_ids.length > 1) {
-        var no_upsert = true;
-        TS.files.fetchMultipleFiles(file_ids, function(ok, data) {
-          var files = data && data.files;
-          if (!ok || !_.isArray(files)) {
-            TS.maybeWarn(552, imsg.type + " multi-file fetch failed");
-            return Promise.resolve().then(function() {
-              return _afterMsgHandled();
-            });
-          }
-          var file_map = _.groupBy(files, "id");
-          _.forEach(_Q, function(queued_imsg) {
-            var queued_file_ob_and_id = _findFileObAndId(queued_imsg);
-            if (!queued_file_ob_and_id) return;
-            var file = file_map[queued_file_ob_and_id.file_id];
-            if (!file) return;
-            queued_file_ob_and_id.ob_with_file.file = file;
-            queued_imsg._file_attached = true;
-            TS.log(552, imsg.type + " now has a file definition (" + queued_file_ob_and_id.file_id + ")");
-          });
-          return _ensureModelObsAndMembersAndProceed(imsg);
-        }, no_upsert);
-        return;
-      }
+      _maybeFetchMultipleFileDefinitions(imsg, file_id, ob_with_file);
+    } else {
+      _fetchSingleFileDefinition(imsg, file_id, ob_with_file);
     }
+  };
+  var _fetchSingleFileDefinition = function(imsg, file_id, ob_with_file) {
     TS.files.fetchFileInfoRaw(file_id, function(id, file) {
       if (!file) {
         TS.maybeWarn(552, imsg.type + " file fetch failed (or the file has been deleted)");
@@ -18590,8 +18563,61 @@ TS.registerModule("constants", {
       }
       ob_with_file.file = file;
       TS.log(552, imsg.type + " now has a file definition");
-      return _ensureModelObsAndMembersAndProceed(imsg);
+      if (TS.boot_data.feature_dedupe_files_info_requests) {
+        imsg._file_attached = true;
+        _.forEach(_Q, function(queued_imsg) {
+          var queued_file_ob_and_id = _findFileObAndId(queued_imsg);
+          if (queued_file_ob_and_id && queued_file_ob_and_id.file_id === file_id) {
+            queued_file_ob_and_id.ob_with_file.file = file;
+            queued_imsg._file_attached = true;
+            TS.log(552, imsg.type + " now has a file definition (courtesy of a previously queued imsg for " + file_id + ")");
+          }
+        });
+      }
+      _ensureModelObsAndMembersAndProceed(imsg);
     });
+  };
+  var _maybeFetchMultipleFileDefinitions = function(imsg, file_id, ob_with_file) {
+    var file_ids = [file_id];
+    _.forEach(_Q, function(queued_imsg) {
+      if (file_ids.length >= 20) return false;
+      var maybe_file_info = _findFileObAndId(queued_imsg);
+      if (maybe_file_info && !_.includes(file_ids, maybe_file_info.file_id) && _isFileMsgRelevant(queued_imsg, maybe_file_info.file_id)) {
+        file_ids.push(maybe_file_info.file_id);
+      }
+    });
+    if (file_ids.length > 1) {
+      var no_upsert = true;
+      TS.files.fetchMultipleFiles(file_ids, function(ok, data) {
+        var files = data && data.files;
+        if (!ok || !_.isArray(files)) {
+          TS.maybeWarn(552, imsg.type + " multi-file fetch failed");
+          return Promise.resolve().then(function() {
+            return _afterMsgHandled();
+          });
+        }
+        var file_map = {};
+        _.forEach(files, function(file) {
+          file_map[file.id] = file;
+        });
+        _.forEach(_Q, function(queued_imsg) {
+          var queued_file_ob_and_id = _findFileObAndId(queued_imsg);
+          if (!queued_file_ob_and_id) return;
+          var file = file_map[queued_file_ob_and_id.file_id];
+          if (!file) return;
+          queued_file_ob_and_id.ob_with_file.file = file;
+          queued_imsg._file_attached = true;
+          TS.log(552, imsg.type + " now has a file definition (" + queued_file_ob_and_id.file_id + ")");
+        });
+        if (!file_map[file_id]) {
+          _fetchSingleFileDefinition(imsg, file_id, ob_with_file);
+        } else {
+          _ensureModelObsAndMembersAndProceed(imsg);
+        }
+      }, no_upsert);
+    } else {
+      _fetchSingleFileDefinition(imsg, file_id, ob_with_file);
+    }
   };
   var _ensureModelObsAndMembersAndProceed = function(imsg) {
     TS.log(2, imsg.type + " is now being handled");
@@ -24420,6 +24446,7 @@ TS.registerModule("constants", {
       });
       Handlebars.registerHelper("formatCurrentStatusWithoutAnimations", function(text, options) {
         options = options || {};
+        options = options.hash || options;
         return new Handlebars.SafeString(TS.format.formatCurrentStatus(text, undefined, _.assign({
           stop_animations: true
         }, options)));
@@ -24892,6 +24919,9 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("emojiGraphicReplaceByName", function(name) {
         return TS.emoji.graphicReplace(":" + name + ":");
       });
+      Handlebars.registerHelper("emojiModePref", function() {
+        return TS.model.prefs.emoji_mode;
+      });
       Handlebars.registerHelper("makeUsernameImage", function(msg, size) {
         var img_src;
         var size_class;
@@ -25208,10 +25238,13 @@ TS.registerModule("constants", {
         }
         return new Handlebars.SafeString(full_name_and_preferred_name_html);
       });
-      Handlebars.registerHelper("getMemberCurrentStatusEmoji", function(member) {
-        return Handlebars.helpers.formatCurrentStatusWithoutAnimations(TS.members.getMemberCurrentStatus(member).emoji, {
-          transform_missing_emoji: true
-        });
+      Handlebars.registerHelper("getMemberCurrentStatusEmoji", function(member, options) {
+        options = options || {};
+        options = options.hash || options;
+        return Handlebars.helpers.formatCurrentStatusWithoutAnimations(TS.members.getMemberCurrentStatus(member).emoji, _.assign({
+          transform_missing_emoji: true,
+          show_icon_for_emoji_in_as_text_mode: true
+        }, options));
       });
       Handlebars.registerHelper("getMemberCurrentStatusText", function(member) {
         return Handlebars.helpers.formatCurrentStatusWithoutAnimations(TS.members.getMemberCurrentStatus(member).text, {
@@ -31625,6 +31658,8 @@ TS.registerModule("constants", {
     var stop_animations = !!opts.stop_animations || undefined;
     var no_emoji_text = !!opts.no_emoji_text || undefined;
     var transform_missing_emoji = !!opts.transform_missing_emoji || undefined;
+    var show_icon_for_emoji_in_as_text_mode = !!opts.show_icon_for_emoji_in_as_text_mode || undefined;
+    var ignore_emoji_mode_pref = !!opts.ignore_emoji_mode_pref || undefined;
     var prevent_copy_paste = !!opts.prevent_copy_paste || undefined;
     var no_linking = TS.boot_data.feature_new_broadcast && !!opts.no_linking || undefined;
     var token_overrides = TS.boot_data.feature_new_broadcast && opts.token_overrides || undefined;
@@ -31664,6 +31699,8 @@ TS.registerModule("constants", {
       stop_animations: stop_animations,
       no_emoji_text: no_emoji_text,
       transform_missing_emoji: transform_missing_emoji,
+      show_icon_for_emoji_in_as_text_mode: show_icon_for_emoji_in_as_text_mode,
+      ignore_emoji_mode_pref: ignore_emoji_mode_pref,
       prevent_copy_paste: prevent_copy_paste,
       no_linking: no_linking,
       token_overrides: token_overrides
@@ -31683,6 +31720,8 @@ TS.registerModule("constants", {
     var stop_animations = opts.stop_animations;
     var no_emoji_text = opts.no_emoji_text;
     var transform_missing_emoji = opts.transform_missing_emoji;
+    var show_icon_for_emoji_in_as_text_mode = opts.show_icon_for_emoji_in_as_text_mode;
+    var ignore_emoji_mode_pref = opts.ignore_emoji_mode_pref;
     var prevent_copy_paste = opts.prevent_copy_paste;
     var no_linking = opts.no_linking;
     var token_overrides = opts.token_overrides;
@@ -31869,9 +31908,27 @@ TS.registerModule("constants", {
               }
             }
           } else if (item.indexOf(TSF.JUMBOMOJI_COLONS.split(" ")[0]) === 0) {
-            str += _parseEmojiToken(tsf_mode, item, no_emoji, !no_jumbomoji, stop_animations, no_emoji_text, transform_missing_emoji);
+            str += _parseEmojiToken(item, {
+              tsf_mode: tsf_mode,
+              no_emoji: no_emoji,
+              do_jumbomoji: !no_jumbomoji,
+              stop_animations: stop_animations,
+              no_emoji_text: no_emoji_text,
+              transform_missing_emoji: transform_missing_emoji,
+              show_icon_for_emoji_in_as_text_mode: show_icon_for_emoji_in_as_text_mode,
+              ignore_emoji_mode_pref: ignore_emoji_mode_pref
+            });
           } else if (item.indexOf(TSF.EMOJI_COLONS.split(" ")[0]) === 0) {
-            str += _parseEmojiToken(tsf_mode, item, no_emoji, false, stop_animations, no_emoji_text, transform_missing_emoji);
+            str += _parseEmojiToken(item, {
+              tsf_mode: tsf_mode,
+              no_emoji: no_emoji,
+              do_jumbomoji: false,
+              stop_animations: stop_animations,
+              no_emoji_text: no_emoji_text,
+              transform_missing_emoji: transform_missing_emoji,
+              show_icon_for_emoji_in_as_text_mode: show_icon_for_emoji_in_as_text_mode,
+              ignore_emoji_mode_pref: ignore_emoji_mode_pref
+            });
           } else if (item.indexOf(TSF.HEX_BLOCK.split(" ")[0]) === 0) {
             str += _parseHexToken(tsf_mode, item, no_hex_colors);
           } else {
@@ -31936,21 +31993,26 @@ TS.registerModule("constants", {
     }
     return "#deleted-channel";
   };
-  var _parseEmojiToken = function(tsf_mode, item, no_emoji, do_jumbomoji, stop_animations, no_emoji_text, transform_missing_emoji) {
+  var _parseEmojiToken = function(item, options) {
+    options = options || {};
     var colons = item.split(" ")[1].replace(">", "");
-    if (no_emoji) {
+    if (options.no_emoji) {
       return colons;
     }
     var replaced;
-    if (transform_missing_emoji && !TS.emoji.isValidName(colons)) {
+    if (options.transform_missing_emoji && !TS.emoji.isValidName(colons)) {
       replaced = TS.emoji.MISSING_EMOJI_HTML;
+    } else if (options.show_icon_for_emoji_in_as_text_mode && TS.model.prefs.emoji_mode === "as_text") {
+      replaced = TS.emoji.graphicReplace(colons, {
+        show_icon_for_emoji_in_as_text_mode: true
+      });
     } else {
       replaced = TS.emoji.graphicReplace(colons, {
-        obey_emoji_mode_pref: true,
+        obey_emoji_mode_pref: !options.ignore_emoji_mode_pref,
         include_title: true,
-        include_text: !no_emoji_text,
-        jumbomoji: do_jumbomoji,
-        stop_animations: stop_animations
+        include_text: !options.no_emoji_text,
+        jumbomoji: options.do_jumbomoji,
+        stop_animations: options.stop_animations
       });
     }
     if (replaced && replaced.indexOf(">>") !== -1) {
@@ -61706,7 +61768,7 @@ $.fn.togglify = function(settings) {
     return t.d(n, "a", n), n;
   }, t.o = function(e, t) {
     return Object.prototype.hasOwnProperty.call(e, t);
-  }, t.p = "/", t(t.s = 437);
+  }, t.p = "/", t(t.s = 439);
 }([function(e, t, n) {
   "use strict";
 
@@ -61728,7 +61790,7 @@ $.fn.togglify = function(settings) {
   e.exports = r;
 }, function(e, t, n) {
   "use strict";
-  var r = n(13),
+  var r = n(14),
     o = r;
   e.exports = o;
 }, function(e, t, n) {
@@ -61953,26 +62015,6 @@ $.fn.togglify = function(settings) {
     };
   e.exports = o;
 }, function(e, t, n) {
-  "use strict";
-
-  function r(e) {
-    return function() {
-      return e;
-    };
-  }
-  var o = function() {};
-  o.thatReturns = r, o.thatReturnsFalse = r(!1), o.thatReturnsTrue = r(!0), o.thatReturnsNull = r(null), o.thatReturnsThis = function() {
-    return this;
-  }, o.thatReturnsArgument = function(e) {
-    return e;
-  }, e.exports = o;
-}, function(e, t, n) {
-  "use strict";
-  var r = null;
-  e.exports = {
-    debugTool: r
-  };
-}, function(e, t, n) {
   var r, o;
   ! function() {
     "use strict";
@@ -61995,6 +62037,26 @@ $.fn.togglify = function(settings) {
       return n;
     }.apply(t, r), !(void 0 !== o && (e.exports = o)));
   }();
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e) {
+    return function() {
+      return e;
+    };
+  }
+  var o = function() {};
+  o.thatReturns = r, o.thatReturnsFalse = r(!1), o.thatReturnsTrue = r(!0), o.thatReturnsNull = r(null), o.thatReturnsThis = function() {
+    return this;
+  }, o.thatReturnsArgument = function(e) {
+    return e;
+  }, e.exports = o;
+}, function(e, t, n) {
+  "use strict";
+  var r = null;
+  e.exports = {
+    debugTool: r
+  };
 }, function(e, t, n) {
   (function(e, r) {
     var o;
@@ -63555,8 +63617,7 @@ $.fn.togglify = function(settings) {
             e: for (; ++r < i;) {
               var c = e[r],
                 f = t ? t(c) : c;
-              if (c = n || 0 !== c ? c : 0,
-                a && f === f) {
+              if (c = n || 0 !== c ? c : 0, a && f === f) {
                 for (var d = u.length; d--;)
                   if (u[d] === f) continue e;
                 t && u.push(f), s.push(c);
@@ -66415,7 +66476,7 @@ $.fn.togglify = function(settings) {
   }
   var o = n(4),
     i = n(28),
-    a = n(13),
+    a = n(14),
     s = (n(1), "function" == typeof Proxy, ["dispatchConfig", "_targetInst", "nativeEvent", "isDefaultPrevented", "isPropagationStopped", "_dispatchListeners", "_dispatchInstances"]),
     u = {
       type: null,
@@ -66754,7 +66815,7 @@ $.fn.togglify = function(settings) {
     o.attachRefs(this, this._currentElement);
   }
   var o = n(276),
-    i = (n(14), n(1), {
+    i = (n(15), n(1), {
       mountComponent: function(e, t, n, o, i, a) {
         var s = e.mountComponent(t, n, o, i, a);
         return e._currentElement && null != e._currentElement.ref && t.getReactMountReady().enqueue(r, e), s;
@@ -67647,7 +67708,7 @@ $.fn.togglify = function(settings) {
   }
   var c = n(33),
     f = n(245),
-    d = (n(7), n(14), n(86)),
+    d = (n(7), n(15), n(86)),
     p = n(56),
     h = n(134),
     v = d(function(e, t, n) {
@@ -68013,7 +68074,7 @@ $.fn.togglify = function(settings) {
   }
   var a = n(3),
     s = (n(20), n(45)),
-    u = (n(14), n(17)),
+    u = (n(15), n(17)),
     l = (n(0), n(1), {
       isMounted: function(e) {
         var t = s.get(e);
@@ -68126,7 +68187,7 @@ $.fn.togglify = function(settings) {
   e.exports = r;
 }, function(e, t, n) {
   "use strict";
-  var r = (n(4), n(13)),
+  var r = (n(4), n(14)),
     o = (n(1), r);
   e.exports = o;
 }, function(e, t, n) {
@@ -68393,7 +68454,7 @@ $.fn.togglify = function(settings) {
   e.exports = t.default;
 }, function(e, t, n) {
   "use strict";
-  var r = n(13),
+  var r = n(14),
     o = {
       listen: function(e, t, n) {
         return e.addEventListener ? (e.addEventListener(t, n, !1), {
@@ -68679,7 +68740,7 @@ $.fn.togglify = function(settings) {
     return null == t || e.hasBooleanValue && !t || e.hasNumericValue && isNaN(t) || e.hasPositiveNumericValue && t < 1 || e.hasOverloadedBooleanValue && t === !1;
   }
   var i = n(34),
-    a = (n(7), n(14), n(302)),
+    a = (n(7), n(15), n(302)),
     s = (n(1), new RegExp("^[" + i.ATTRIBUTE_NAME_START_CHAR + "][" + i.ATTRIBUTE_NAME_CHAR + "]*$")),
     u = {},
     l = {},
@@ -68993,7 +69054,7 @@ $.fn.togglify = function(settings) {
     b = n(257),
     w = n(122),
     C = n(45),
-    S = (n(14), n(271)),
+    S = (n(15), n(271)),
     x = n(35),
     k = n(85),
     T = n(17),
@@ -69820,7 +69881,7 @@ $.fn.togglify = function(settings) {
     h = n.n(p),
     v = n(2),
     m = n.n(v),
-    g = n(15),
+    g = n(13),
     _ = n.n(g),
     y = n(318),
     b = n(317),
@@ -70702,7 +70763,7 @@ $.fn.togglify = function(settings) {
     y = n(57),
     b = n(2),
     w = n.n(b),
-    C = n(15),
+    C = n(13),
     S = n.n(C),
     x = function(e) {
       function t(e, n) {
@@ -70867,7 +70928,7 @@ $.fn.togglify = function(settings) {
     m = n.n(v),
     g = n(2),
     _ = n.n(g),
-    y = n(15),
+    y = n(13),
     b = n.n(y),
     w = n(322),
     C = 150,
@@ -71675,7 +71736,7 @@ $.fn.togglify = function(settings) {
   }
   var o = n(2),
     i = n.n(o),
-    a = n(15),
+    a = n(13),
     s = n.n(a),
     u = n(93);
   t.a = r;
@@ -71693,7 +71754,7 @@ $.fn.togglify = function(settings) {
     d = n.n(f),
     p = n(9),
     h = n.n(p),
-    v = n(15),
+    v = n(13),
     m = n.n(v),
     g = (n(149), n(2)),
     _ = n.n(g),
@@ -72675,7 +72736,7 @@ $.fn.togglify = function(settings) {
   }
   var i = n(16),
     a = n.n(i),
-    s = n(384),
+    s = n(385),
     u = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
@@ -72734,7 +72795,7 @@ $.fn.togglify = function(settings) {
     i = n.n(o),
     a = n(16),
     s = n.n(a),
-    u = n(15),
+    u = n(13),
     l = n.n(u);
   t.a = r, r.propTypes = {
     type: i.a.PropTypes.string.isRequired,
@@ -73710,7 +73771,7 @@ $.fn.togglify = function(settings) {
   "use strict";
   var r = n(116),
     o = n(12),
-    i = (n(14), n(228), n(294)),
+    i = (n(15), n(228), n(294)),
     a = n(235),
     s = n(238),
     u = (n(1), s(function(e) {
@@ -73875,7 +73936,7 @@ $.fn.togglify = function(settings) {
     o = n(33),
     i = n(12),
     a = n(231),
-    s = n(13),
+    s = n(14),
     u = (n(0), {
       dangerouslyReplaceNodeWithMarkup: function(e, t) {
         if (i.canUseDOM ? void 0 : r("56"), t ? void 0 : r("57"), "HTML" === e.nodeName ? r("58") : void 0, "string" == typeof t) {
@@ -74206,7 +74267,7 @@ $.fn.togglify = function(settings) {
     f = n(20),
     d = n(84),
     p = n(45),
-    h = (n(14), n(126)),
+    h = (n(15), n(126)),
     v = n(35),
     m = n(42),
     g = (n(0), n(76)),
@@ -74544,9 +74605,9 @@ $.fn.togglify = function(settings) {
     P = n(260),
     I = n(120),
     M = n(263),
-    O = (n(14), n(272)),
+    O = (n(15), n(272)),
     A = n(277),
-    N = (n(13), n(55)),
+    N = (n(14), n(55)),
     L = (n(0), n(90), n(76), n(92), n(1), T),
     z = S.deleteListener,
     j = E.getNodeFromInstance,
@@ -75287,7 +75348,7 @@ $.fn.togglify = function(settings) {
   var o = n(4),
     i = n(17),
     a = n(54),
-    s = n(13),
+    s = n(14),
     u = {
       initialize: s,
       close: function() {
@@ -75549,9 +75610,9 @@ $.fn.togglify = function(settings) {
   }
   var c = n(3),
     f = n(83),
-    d = (n(45), n(14), n(20), n(35)),
+    d = (n(45), n(15), n(20), n(35)),
     p = n(250),
-    h = (n(13), n(296)),
+    h = (n(14), n(296)),
     v = (n(0), {
       Mixin: {
         _reconcilerInstantiateChildren: function(e, t, n) {
@@ -75669,7 +75730,7 @@ $.fn.togglify = function(settings) {
     a = n(28),
     s = n(52),
     u = n(124),
-    l = (n(14), n(54)),
+    l = (n(15), n(54)),
     c = n(85),
     f = {
       initialize: u.getSelectionInformation,
@@ -75753,7 +75814,7 @@ $.fn.togglify = function(settings) {
   var o = n(4),
     i = n(28),
     a = n(54),
-    s = (n(14), n(278)),
+    s = (n(15), n(278)),
     u = [],
     l = {
       enqueue: function() {}
@@ -76185,7 +76246,7 @@ $.fn.togglify = function(settings) {
     g = n(291),
     _ = n(46),
     y = n(292),
-    b = n(13),
+    b = n(14),
     w = n(87),
     C = (n(0), {}),
     S = {};
@@ -76809,7 +76870,7 @@ $.fn.togglify = function(settings) {
     h = n.n(p),
     v = n(2),
     m = n.n(v),
-    g = n(15),
+    g = n(13),
     _ = n.n(g),
     y = n(94),
     b = n(111),
@@ -78162,8 +78223,7 @@ $.fn.togglify = function(settings) {
       if (this.leftPoints[l] === e) {
         this.count -= 1, this.leftPoints.splice(l, 1);
         for (var r = g.a.ge(this.rightPoints, e, p); r < this.rightPoints.length && this.rightPoints[r][1] === e[1]; ++r)
-          if (this.rightPoints[r] === e) return this.rightPoints.splice(r, 1),
-            y;
+          if (this.rightPoints[r] === e) return this.rightPoints.splice(r, 1), y;
       }
     return _;
   }, w.queryPoint = function(e, t) {
@@ -78362,7 +78422,7 @@ $.fn.togglify = function(settings) {
   }
   var h = n(336),
     v = n(37),
-    m = n(13),
+    m = n(14),
     g = n(345),
     _ = h.twoArgumentPooler,
     y = h.fourArgumentPooler,
@@ -78894,7 +78954,7 @@ $.fn.togglify = function(settings) {
   var w = n(37),
     C = n(161),
     S = n(341),
-    x = n(13),
+    x = n(14),
     k = n(163),
     T = (n(1), "<<anonymous>>"),
     E = {
@@ -78989,7 +79049,7 @@ $.fn.togglify = function(settings) {
     c = (n(1), "."),
     f = ":";
   e.exports = i;
-}, , , , , , , , function(e, t) {
+}, , , , , , , , , function(e, t) {
   function n(e, t, n) {
     switch (n.length) {
       case 0:
@@ -79175,12 +79235,12 @@ $.fn.togglify = function(settings) {
   e.exports = a;
 }, , , , , , , , , , , , function(e, t, n) {
   "use strict";
-  var r = n(377);
+  var r = n(378);
   t.a = r.a;
 }, function(e, t, n) {
   "use strict";
-  var r = n(380),
-    o = n(379);
+  var r = n(381),
+    o = n(380);
   n.d(t, "a", function() {
     return r.a;
   }), n.d(t, "b", function() {
@@ -79211,7 +79271,7 @@ $.fn.togglify = function(settings) {
   }
   var a = n(2),
     s = n.n(a),
-    u = n(15),
+    u = n(13),
     l = n.n(u),
     c = n(98),
     f = function() {
@@ -79398,7 +79458,7 @@ $.fn.togglify = function(settings) {
   }
   var a = n(16),
     s = n.n(a),
-    u = n(15),
+    u = n(13),
     l = n.n(u),
     c = n(2),
     f = n.n(c),
@@ -79652,18 +79712,18 @@ $.fn.togglify = function(settings) {
     s = n.n(a),
     u = n(2),
     l = n.n(u),
-    c = n(15),
+    c = n(13),
     f = n.n(c),
     d = n(165),
-    p = n(376),
-    h = n(374),
-    v = n(378),
-    m = n(375),
+    p = n(377),
+    h = n(375),
+    v = n(379),
+    m = n(376),
     g = n(98),
     _ = n(166),
-    y = n(390),
-    b = n(381),
-    w = n(382),
+    y = n(391),
+    b = n(382),
+    w = n(383),
     C = function() {
       function e(e, t) {
         var n = [],
@@ -80250,7 +80310,7 @@ $.fn.togglify = function(settings) {
     s = n.n(a),
     u = n(2),
     l = n.n(u),
-    c = n(15),
+    c = n(13),
     f = n.n(c),
     d = n(165),
     p = n(166),
@@ -80374,7 +80434,7 @@ $.fn.togglify = function(settings) {
   }
   var a = n(2),
     s = n.n(a),
-    u = n(15),
+    u = n(13),
     l = n.n(u),
     c = function() {
       function e(e, t) {
@@ -80462,7 +80522,7 @@ $.fn.togglify = function(settings) {
   var a = n(2),
     s = n.n(a),
     u = n(39),
-    l = (n.n(u), n(411)),
+    l = (n.n(u), n(413)),
     c = n.n(l),
     f = function() {
       function e(e, t) {
@@ -80707,7 +80767,7 @@ $.fn.togglify = function(settings) {
   t.a = h, h.propTypes = d, h.defaultProps = p;
 }, function(e, t, n) {
   "use strict";
-  var r = n(383);
+  var r = n(384);
   n.d(t, "a", function() {
     return o;
   }), n.d(t, "b", function() {
@@ -80720,7 +80780,7 @@ $.fn.togglify = function(settings) {
     a = r.c;
 }, function(e, t, n) {
   "use strict";
-  var r = n(385);
+  var r = n(386);
   n.d(t, "a", function() {
     return o;
   }), n.d(t, "b", function() {
@@ -80778,7 +80838,7 @@ $.fn.togglify = function(settings) {
   function r(e, t) {
     if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
   }
-  var o = n(405),
+  var o = n(407),
     i = n.n(o),
     a = n(16),
     s = n.n(a),
@@ -80877,7 +80937,7 @@ $.fn.togglify = function(settings) {
       return i;
     }.call(t, n, t, e), !(void 0 !== r && (e.exports = r));
   }();
-}, , , , , , , , , , , function(e, t, n) {
+}, , , , , , , , , , , , function(e, t, n) {
   var r;
   ! function(o, i, a) {
     function s(e, t, n) {
@@ -81143,12 +81203,12 @@ $.fn.togglify = function(settings) {
   }
   var o = n(2),
     i = n(39),
-    a = n(394),
-    s = o.createFactory(n(407)),
-    u = n(408),
-    l = n(393),
+    a = n(395),
+    s = o.createFactory(n(409)),
+    u = n(410),
+    l = n(394),
     c = n(39).unstable_renderSubtreeIntoContainer,
-    f = n(353),
+    f = n(354),
     d = a.canUseDOM ? window.HTMLElement : {},
     p = a.canUseDOM ? document.body : {
       appendChild: function() {}
@@ -81241,9 +81301,9 @@ $.fn.togglify = function(settings) {
 }, function(e, t, n) {
   var r = n(2),
     o = r.DOM.div,
-    i = n(409),
-    a = n(410),
-    s = n(353),
+    i = n(411),
+    a = n(412),
+    s = n(354),
     u = {
       overlay: {
         base: "ReactModal__Overlay",
@@ -81421,7 +81481,7 @@ $.fn.togglify = function(settings) {
       }, 0);
     }
   }
-  var i = n(354),
+  var i = n(355),
     a = null,
     s = null,
     u = !1;
@@ -81440,7 +81500,7 @@ $.fn.togglify = function(settings) {
     a = null, window.addEventListener ? (window.removeEventListener("blur", r), document.removeEventListener("focus", o)) : (window.detachEvent("onBlur", r), document.detachEvent("onFocus", o));
   };
 }, function(e, t, n) {
-  var r = n(354);
+  var r = n(355);
   e.exports = function(e, t) {
     var n = r(e);
     if (!n.length) return void t.preventDefault();
@@ -81453,7 +81513,7 @@ $.fn.togglify = function(settings) {
     }
   };
 }, function(e, t, n) {
-  e.exports = n(406);
+  e.exports = n(408);
 }, , , , , , , , , , , , , , , , , , , , , , , , , , function(e, t, n) {
   "use strict";
   Object.defineProperty(t, "__esModule", {
@@ -81463,8 +81523,8 @@ $.fn.togglify = function(settings) {
     o = n.n(r),
     i = n(39),
     a = n.n(i),
-    s = n(366),
-    u = n(367);
+    s = n(367),
+    u = n(368);
   window.ReactComponents = {}, window.ReactComponents.EmojiPicker = s.a, window.ReactComponents.Popover = u.a, window.ReactComponents.PopoverTrigger = u.b, window.React = o.a, window.ReactDOM = a.a;
 }]);
 (function() {
