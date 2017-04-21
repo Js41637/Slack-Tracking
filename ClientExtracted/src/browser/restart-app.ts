@@ -1,6 +1,10 @@
-import {app, BrowserWindow} from 'electron';
+/**
+ * @module Browser
+ */ /** for typedoc */
 
-import {logger} from '../logger';
+import { app, BrowserWindow } from 'electron';
+
+import { logger } from '../logger';
 
 /**
  * Causes the app to restart on exit, then exits.

@@ -1,3 +1,7 @@
+/**
+ * @module MemoryUsage
+ */ /** for typedoc */
+
 export interface CombinedStats {
   memory: NodeJS.ProcessMemoryInfo;
   resources?: Electron.ResourceUsages;

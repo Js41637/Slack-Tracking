@@ -1,7 +1,11 @@
+/**
+ * @module RendererComponents
+ */ /** for typedoc */
+
 import * as Color from 'color';
 
-import {Component} from '../../lib/component';
-import {AsyncImage} from './async-image';
+import { Component } from '../../lib/component';
+import { AsyncImage } from './async-image';
 
 import * as React from 'react'; // tslint:disable-line
 
@@ -12,7 +16,7 @@ export interface TeamProps {
   };
   size: number;
   color: string;
-  darkened: boolean;
+  darkened?: boolean;
   boxShadow?: string;
   borderRadius: number;
 }
@@ -42,7 +46,7 @@ export class TeamIcon extends Component<TeamProps, TeamState> {
   };
 
   private readonly eventHandlers = {
-    onError: () => this.setState({imgError: true}),
+    onError: () => this.setState({ imgError: true }),
   };
 
   constructor() {
@@ -51,14 +55,14 @@ export class TeamIcon extends Component<TeamProps, TeamState> {
   }
 
   public render(): JSX.Element | null {
-    const {team, size, darkened, boxShadow, borderRadius} = this.props;
+    const { team, size, darkened, boxShadow, borderRadius } = this.props;
 
     let display = this.renderTextIcon();
 
     // If there is a custom icon we display it instead of initials.
     // Icon defaults don't give any indication of what team it is, so we ignore them.
     if (!this.state.imgError && (team!.icons && Object.keys(team!.icons).length > 0) && !team!.icons.image_default) {
-      const {src, srcset} = this.extractSourceSet(team!.icons, size);
+      const { src, srcset } = this.extractSourceSet(team!.icons, size);
       display = (
         <AsyncImage
           className='TeamIcon-icon'
@@ -66,7 +70,7 @@ export class TeamIcon extends Component<TeamProps, TeamState> {
           draggable={false}
           srcSet={srcset}
           width={size}
-          style={{opacity: darkened ? 0.4 : 1.0}}
+          style={{ opacity: darkened ? 0.4 : 1.0 }}
           renderPending={this.renderTextIcon}
           onError={this.eventHandlers.onError}
         />
@@ -77,7 +81,7 @@ export class TeamIcon extends Component<TeamProps, TeamState> {
       <span
         className='TeamIcon'
         ref={this.refHandlers.icon}
-        style={{boxShadow, borderRadius}}
+        style={{ boxShadow, borderRadius }}
       >
         {display}
       </span>
@@ -96,7 +100,7 @@ export class TeamIcon extends Component<TeamProps, TeamState> {
       const match = digit.exec(id);
       if (!match) continue;
       const size = match[0];
-      iconData.push({url, size});
+      iconData.push({ url, size });
     }
 
     // Determine the closest size to the target size
@@ -120,7 +124,7 @@ export class TeamIcon extends Component<TeamProps, TeamState> {
   }
 
   private renderTextIcon(): JSX.Element {
-    const {team, size, color, darkened} = this.props;
+    const { team, size, color, darkened } = this.props;
     const initials = team!.initials || '';
     const initialsStyle = {
       color: 'white',

@@ -1,11 +1,33 @@
-import {WindowSetting} from '../browser/behaviors/window-behavior';
-import {remote, webFrame} from 'electron';
-import {executeJavaScriptMethod} from 'electron-remote';
+/**
+ * @module SSBIntegration
+ */ /** for typedoc */
 
-import {logger} from '../logger';
-import {getMemoryUsage, CombinedStats} from '../memory-usage';
-import {windowFrameStore} from '../stores/window-frame-store';
+import { WindowSetting } from '../browser/behaviors/window-behavior';
+import { remote, webFrame } from 'electron';
+import { executeJavaScriptMethod } from 'electron-remote';
 
+import { logger } from '../logger';
+import { getMemoryUsage, CombinedStats } from '../memory-usage';
+import { requestGC } from '../run-gc';
+import { windowFrameStore } from '../stores/window-frame-store';
+import { getInstanceUuid } from '../uuid';
+import { locale } from '../i18n/locale';
+
+export interface TelemetryId {
+  instanceUid: string;
+}
+
+interface LocaleInformation {
+  systemLocale: string;
+  systemRegion: string;
+  keyboardLayouts: Array<string>;
+  inputMethods: Array<string>;
+}
+
+/**
+ * Provides interfaces to webapp for desktop-application specific data, as well as
+ * interfaces for telemetry to be provided to clogs.
+ */
 export class Stats {
 
   /**
@@ -14,6 +36,7 @@ export class Stats {
    */
   public clearCache(): void {
     webFrame.clearCache();
+    requestGC();
   }
 
   /**
@@ -66,6 +89,21 @@ export class Stats {
     const displays = remote.screen.getAllDisplays();
     const windowFrame = windowFrameStore.getWindowSettings();
 
-    return {displays, windowFrame};
+    return { displays, windowFrame };
+  }
+
+  /**
+   * Returns an object containing information about current system's locale.
+   */
+  public getLocaleInformation(): TelemetryId & LocaleInformation {
+    const localeInfo = locale.currentLocale;
+
+    const ret =  Object.assign(localeInfo, {
+      instanceUid: getInstanceUuid(),
+      keyboardLayouts: [],
+      inputMethods: []
+    });
+
+    return ret;
   }
 }

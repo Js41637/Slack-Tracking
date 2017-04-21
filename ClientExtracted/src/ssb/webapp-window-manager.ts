@@ -1,21 +1,25 @@
-import {Window} from '../stores/window-store-helper';
+/**
+ * @module SSBIntegration
+ */ /** for typedoc */
+
 import * as difference from 'lodash.difference';
-import {logger} from '../logger';
-import {getUserAgent} from '../ssb-user-agent';
-import {ipcRenderer, remote, screen as Screen} from 'electron';
-import {getSenderIdentifier, remoteEval} from 'electron-remote';
+import { ipcRenderer, remote, screen as Screen } from 'electron';
+import { getSenderIdentifier } from 'electron-remote';
+import { Signal } from 'signals';
 
-import {ReduxComponent} from '../lib/redux-component';
-import {WindowHelpers} from '../utils/window-helpers';
-import {windowStore} from '../stores/window-store';
-import {getPostMessageTemplate} from './post-message';
+import { canAccessLocalStorage } from './post-dom-tasks';
+import { executeRemoteEval, RemoteEvalOption } from './execute-remote-eval';
+import { logger } from '../logger';
+import { getPostMessageTemplate } from './post-message';
+import { getUserAgent } from '../ssb-user-agent';
 
-import {WINDOW_TYPES} from '../utils/shared-constants';
-import {StringMap} from '../utils/string-map';
+import { ReduxComponent } from '../lib/redux-component';
+import { Window } from '../stores/window-store-helper';
+import { WindowHelpers } from '../utils/window-helpers';
+import { windowStore } from '../stores/window-store';
+import { StringMap, WINDOW_TYPES } from '../utils/shared-constants';
 
-import {Signal} from 'signals';
-
-const {BrowserWindow} = remote;
+const { BrowserWindow } = remote;
 
 const LOCAL_STORAGE_PREFIX = 'webappWindowManager';
 const LOCAL_STORAGE_REGEX = new RegExp(`^${LOCAL_STORAGE_PREFIX}_(\\d*)`);
@@ -52,8 +56,7 @@ export class WebappWindowManager extends ReduxComponent<WebappWindowManagerState
 
   constructor() {
     super();
-    if (window.location.protocol !== 'data:' &&
-      window.location.protocol !== 'about:') {
+    if (canAccessLocalStorage()) {
       this.doConsistencyCheck();
     }
 
@@ -112,7 +115,9 @@ export class WebappWindowManager extends ReduxComponent<WebappWindowManagerState
 
       // Stash the parameters used to create this window in localStorage, so
       // that we can tell the webapp about them later.
-      localStorage.setItem(`${LOCAL_STORAGE_PREFIX}_${windowId}`, JSON.stringify(params));
+      if (canAccessLocalStorage()) {
+        localStorage.setItem(`${LOCAL_STORAGE_PREFIX}_${windowId}`, JSON.stringify(params));
+      }
 
       // Return the token to the webapp, so we're all on the same page.
       return windowId;
@@ -123,12 +128,47 @@ export class WebappWindowManager extends ReduxComponent<WebappWindowManagerState
   }
 
   /**
+   * Takes a "open in Browser" Slack url, authenticates it using the API, and then opens
+   * the returned url in a browser, if the returned url begins with https.
+   *
+   * @param {string} url
+   * @returns {Promise<boolean>} Promise that resolves with true once the link is opened
+   */
+  public openAuthenticatedInBrowser(url: string): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      return fetch(url, { credentials: 'include' })
+        .then((response) => response.json())
+        .then((result) => {
+          if (!result || !result.url) {
+            return reject('Response not valid: Did not contain url');
+          }
+
+          if (!result.url.startsWith('https://')) {
+            return reject('Response not valid: Url did not start with https://');
+          }
+
+          try {
+            logger.info(`Opening authenticated Slack url in browser ${result.url}`);
+            remote.shell.openExternal(result.url);
+
+            return resolve(true);
+          } catch (error) {
+            logger.error('Tried to open authenticated url in browser, but failed', error);
+            return reject('Tried to open authenticated url in browser, but failed');
+          }
+        });
+    });
+  }
+
+  /**
    * Returns a list of all currently active windows created with `open`.
    *
    * @return {String}  A stringified JSON dictionary whose keys are window
    * tokens, and whose values are the original metadata values passed to `open`
    */
   public list(): string {
+    if (!canAccessLocalStorage()) return '{}';
+
     const windowMetadata = Object.keys(localStorage).reduce((acc, key) => {
       const match = key.match(LOCAL_STORAGE_REGEX);
       if (match) {
@@ -173,7 +213,7 @@ export class WebappWindowManager extends ReduxComponent<WebappWindowManagerState
                     window_token: string,
                     window_type: string
                   }, ...args: Array<any>): void {
-    const {window_token, window_type} = options;
+    const { window_token, window_type } = options;
 
     if (!window_token && !window_type) {
       throw new Error('Missing parameters, needs window_token or window_type');
@@ -212,21 +252,8 @@ export class WebappWindowManager extends ReduxComponent<WebappWindowManagerState
    *
    * @return {Promise}         A Promise with the result of the code
    */
-  public executeJavaScriptInWindow(options: {
-    window_token: string,
-    code: string,
-    callback?: Function
-  }): Promise<string> {
-    const browserWindow = browserWindowFromToken(options.window_token);
-    const ret = remoteEval(browserWindow, options.code);
-
-    if (options.callback) {
-      return ret
-        .then((x: any) => options.callback!(null, x))
-        .catch((e: Error) => options.callback!(e));
-    } else {
-      return ret;
-    }
+  public executeJavaScriptInWindow(options: RemoteEvalOption & {window_token: string}): Promise<string> {
+    return executeRemoteEval(options, browserWindowFromToken(options.window_token));
   }
 
   /**
@@ -448,7 +475,9 @@ export class WebappWindowManager extends ReduxComponent<WebappWindowManagerState
   }
 
   private removeKeyForWindowId(id: string): void {
-    localStorage.removeItem(`${LOCAL_STORAGE_PREFIX}_${id}`);
+    if (canAccessLocalStorage()) {
+      localStorage.removeItem(`${LOCAL_STORAGE_PREFIX}_${id}`);
+    }
   }
 
   /**

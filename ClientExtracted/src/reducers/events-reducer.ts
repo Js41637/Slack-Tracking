@@ -1,24 +1,28 @@
-import {omit} from '../utils/omit';
-import {Action} from '../actions/action';
-import {DIALOG, EVENTS, NOTIFICATIONS, TEAMS} from '../actions';
+/**
+ * @module Reducers
+ */ /** for typedoc */
+
+import { omit } from '../utils/omit';
+import { Action } from '../actions/action';
+import { APP, DIALOG, EVENTS, NOTIFICATIONS, TEAMS } from '../actions';
 
 const eventSignatures = {};
 
 // Simple events, no additional data
-eventSignatures[EVENTS.MAIN_WINDOW_FOCUSED] = {name: 'mainWindowFocused'};
-eventSignatures[EVENTS.FOREGROUND_APP] = {name: 'foregroundApp'};
-eventSignatures[EVENTS.TOGGLE_FULL_SCREEN] = {name: 'toggleFullScreen'};
-eventSignatures[EVENTS.SHOW_ABOUT] = {name: 'showAbout'};
-eventSignatures[EVENTS.SHOW_RELEASE_NOTES] = {name: 'showReleaseNotes'};
-eventSignatures[EVENTS.CONFIRM_AND_RESET_APP] = {name: 'confirmAndResetApp'};
-eventSignatures[EVENTS.CLEAR_CACHE_RESTART_APP] = {name: 'clearCacheRestartApp'};
-eventSignatures[EVENTS.REPORT_ISSUE] = {name: 'reportIssue'};
-eventSignatures[EVENTS.PREPARE_AND_REVEAL_LOGS] = {name: 'prepareAndRevealLogs'};
-eventSignatures[EVENTS.CLOSE_ALL_UPDATE_BANNERS] = {name: 'closeAllUpdateBanners'};
-eventSignatures[EVENTS.SYSTEM_TEXT_SETTINGS_CHANGED] = {name: 'systemTextSettingsChanged'};
+eventSignatures[EVENTS.MAIN_WINDOW_FOCUSED] = { name: 'mainWindowFocused' };
+eventSignatures[EVENTS.FOREGROUND_APP] = { name: 'foregroundApp' };
+eventSignatures[EVENTS.TOGGLE_FULL_SCREEN] = { name: 'toggleFullScreen' };
+eventSignatures[EVENTS.SHOW_ABOUT] = { name: 'showAbout' };
+eventSignatures[EVENTS.SHOW_RELEASE_NOTES] = { name: 'showReleaseNotes' };
+eventSignatures[EVENTS.CLEAR_CACHE_RESTART_APP] = { name: 'clearCacheRestartApp' };
+eventSignatures[EVENTS.CONFIRM_AND_RESET_APP] = { name: 'confirmAndResetApp' };
+eventSignatures[EVENTS.REPORT_ISSUE] = { name: 'reportIssue' };
+eventSignatures[EVENTS.PREPARE_AND_REVEAL_LOGS] = { name: 'prepareAndRevealLogs' };
+eventSignatures[EVENTS.CLOSE_ALL_UPDATE_BANNERS] = { name: 'closeAllUpdateBanners' };
+eventSignatures[EVENTS.SYSTEM_TEXT_SETTINGS_CHANGED] = { name: 'systemTextSettingsChanged' };
 
 // Aliased events
-eventSignatures[DIALOG.SHOW_AUTH_DIALOG] = {name: 'foregroundApp'};
+eventSignatures[DIALOG.SHOW_AUTH_DIALOG] = { name: 'foregroundApp' };
 
 // Events which require additional arguments
 eventSignatures[NOTIFICATIONS.CLICK_NOTIFICATION] = {
@@ -37,6 +41,10 @@ eventSignatures[NOTIFICATIONS.REPLY_TO_NOTIFICATION] = {
   teamId: null,
   messageId: null,
   threadTimestamp: null
+};
+eventSignatures[APP.CUSTOM_MENU_ITEM_CLICKED] = {
+  name: 'customMenuItemClicked',
+  itemId: null
 };
 eventSignatures[EVENTS.EDITING_COMMAND] = {
   name: 'editingCommand',
@@ -81,6 +89,11 @@ eventSignatures[EVENTS.POPUP_APP_MENU] = {
   invokedViaKeyboard: null
 };
 
+eventSignatures[EVENTS.REPORT_CRASH_TELEMETRY] = {
+  name: 'reportCrashTelemetry',
+  count: 0
+};
+
 // NB: When a session ends, the webapp calls `didSignIn` again for that team,
 // which maps to an ADD_NEW_TEAM(S) action. But in this case we don't want to
 // do anything besides refresh the existing team.
@@ -88,14 +101,14 @@ eventSignatures[TEAMS.ADD_NEW_TEAM] = {
   name: 'refreshTeam',
   teamId: null,
   actionMapper: (team: any) => {
-    return {teamId: team.team_id};
+    return { teamId: team.team_id };
   }
 };
 eventSignatures[TEAMS.ADD_NEW_TEAMS] = {
   name: 'refreshTeams',
   teamIds: null,
   actionMapper: (teams: Array<any>) => {
-    return {teamIds: teams.map((team) => team.team_id)};
+    return { teamIds: teams.map((team) => team.team_id) };
   }
 };
 
@@ -104,14 +117,17 @@ const initialState = Object.keys(eventSignatures).reduce((result, key) => {
 
   // The initial state of each event is a zero timestamp, in addition to
   // the keys defined in the signature
-  result[evt.name] = {timestamp: 0, ...omit(evt, 'name')};
+  result[evt.name] = { timestamp: 0, ...omit(evt, 'name') };
   return result;
 }, {});
 
 // Typically we'd switch on the action type, but in this case we'll handle
 // every event with a signature in the same way: update the timestamp and
 // blindly append the additional arguments from the action.
-export function reduce(state: {} = initialState, action: Action) {
+/**
+ * @hidden
+ */
+export function reduce(state: {} = initialState, action: Action<any>) {
   const evt = eventSignatures[action.type];
   if (evt) {
     const actionData = evt.actionMapper ?
@@ -128,4 +144,4 @@ export function reduce(state: {} = initialState, action: Action) {
   } else {
     return state;
   }
-}
+};

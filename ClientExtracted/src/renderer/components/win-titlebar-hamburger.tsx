@@ -1,6 +1,10 @@
-import {Observable} from 'rxjs';
-import {Component} from '../../lib/component';
-import {eventActions} from '../../actions/event-actions';
+/**
+ * @module RendererComponents
+ */ /** for typedoc */
+
+import { Observable } from 'rxjs';
+import { Component } from '../../lib/component';
+import { eventActions } from '../../actions/event-actions';
 
 import * as React from 'react'; // tslint:disable-line:no-unused-variable
 
@@ -21,6 +25,7 @@ export class WinHamburger extends Component<WinHamburgerProps, WinHamburgerState
   };
 
   public componentWillMount() {
+    super.componentWillMount();
     const keyboardListener = this.listenToAltPress()
       .subscribe(() => eventActions.popupAppMenu(true));
 
@@ -65,7 +70,7 @@ export class WinHamburger extends Component<WinHamburgerProps, WinHamburgerState
     const keyUpOrMouseClick = Observable.merge(
       keyUp,
       shiftDown,
-      Observable.fromEvent(document, 'mousedown', {capture: true},  () => 0)
+      Observable.fromEvent(document, 'mousedown', { capture: true },  () => 0)
     );
 
     return debouncedAltDown

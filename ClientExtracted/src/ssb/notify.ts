@@ -1,6 +1,10 @@
-import {logger} from '../logger';
-import {nativeInterop} from '../native-interop';
-import {notificationActions, Notification} from '../actions/notification-actions';
+/**
+ * @module SSBIntegration
+ */ /** for typedoc */
+
+import { logger } from '../logger';
+import { nativeInterop } from '../native-interop';
+import { notificationActions, Notification } from '../actions/notification-actions';
 
 let getIsQuietHours = () => false;
 try {

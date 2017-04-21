@@ -1,23 +1,16 @@
-import {Store} from '../lib/store';
-import {DIALOG} from './';
+/**
+ * @module Actions
+ */ /** for typedoc */
+
+import { Store } from '../lib/store';
+import { DIALOG } from './';
+
+import { Credentials } from '../utils/shared-constants';
 
 export interface BalloonContent {
   title: string;
   content: string;
   icon?: Electron.NativeImage;
-}
-
-export interface Credentials {
-  username: string;
-  password: string;
-}
-
-export interface AuthenticationInfo {
-  isProxy: boolean;
-  scheme: string;
-  host: string;
-  port: number;
-  realm: string;
 }
 
 export interface UrlScheme {
@@ -28,17 +21,17 @@ export interface UrlScheme {
 
 export class DialogActions {
   public showLoginDialog(): void {
-    Store.dispatch({type: DIALOG.SET_LOGIN_DIALOG, data: true});
+    Store.dispatch({ type: DIALOG.SET_LOGIN_DIALOG, data: true });
   }
 
   public hideLoginDialog(): void {
-    Store.dispatch({type: DIALOG.SET_LOGIN_DIALOG, data: false});
+    Store.dispatch({ type: DIALOG.SET_LOGIN_DIALOG, data: false });
   }
 
-  public showUrlSchemeModal({url, disposition}: UrlScheme): void {
+  public showUrlSchemeModal({ url, disposition }: UrlScheme): void {
     Store.dispatch({
       type: DIALOG.SHOW_URL_SCHEME_MODAL,
-      data: {isShowing: true, url, disposition},
+      data: { isShowing: true, url, disposition },
       omitKeysFromLog: ['url']
     });
   }
@@ -46,12 +39,12 @@ export class DialogActions {
   public hideUrlSchemeModal(): void {
     Store.dispatch({
       type: DIALOG.SHOW_URL_SCHEME_MODAL,
-      data: {isShowing: false, url: '', disposition: ''}
+      data: { isShowing: false, url: '', disposition: '' }
     });
   }
 
-  public showAuthenticationDialog(authInfo: AuthenticationInfo): void {
-    Store.dispatch({type: DIALOG.SHOW_AUTH_DIALOG, data: authInfo});
+  public showAuthenticationDialog(authInfo: Electron.LoginAuthInfo): void {
+    Store.dispatch({ type: DIALOG.SHOW_AUTH_DIALOG, data: authInfo });
   }
 
   public submitCredentials(credentials: Credentials): void {
@@ -64,7 +57,7 @@ export class DialogActions {
   }
 
   public showBalloon(balloon: BalloonContent): void {
-    Store.dispatch({type: DIALOG.SHOW_TRAY_BALLOON, data: balloon});
+    Store.dispatch({ type: DIALOG.SHOW_TRAY_BALLOON, data: balloon });
   }
 }
 

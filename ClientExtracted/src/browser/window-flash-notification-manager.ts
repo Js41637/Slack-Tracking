@@ -1,13 +1,17 @@
-import {BrowserWindow} from 'electron';
-import {nativeInterop} from '../native-interop';
+/**
+ * @module Browser
+ */ /** for typedoc */
 
-import {notificationStore} from '../stores/notification-store';
-import {StoreEvent} from '../stores/event-store';
-import {ReduxComponent} from '../lib/redux-component';
-import {settingStore} from '../stores/setting-store';
-import {windowStore} from '../stores/window-store';
-import {windowFlashBehaviorType} from './behaviors/main-window-close-behavior';
-const {getIdleTimeInMs} = nativeInterop;
+import { BrowserWindow } from 'electron';
+import { nativeInterop } from '../native-interop';
+
+import { notificationStore } from '../stores/notification-store';
+import { StoreEvent } from '../stores/event-store';
+import { ReduxComponent } from '../lib/redux-component';
+import { settingStore } from '../stores/setting-store';
+import { windowStore } from '../stores/window-store';
+import { windowFlashBehaviorType } from './behaviors/main-window-close-behavior';
+const { getIdleTimeInMs } = nativeInterop;
 
 // The amount of time (in milliseconds) that a user must be inactive before
 // we'll flash their taskbar icon.

@@ -1,5 +1,9 @@
-import {nativeInterop} from '../native-interop';
-import {Store} from '../lib/store';
+/**
+ * @module Stores
+ */ /** for typedoc */
+
+import { nativeInterop } from '../native-interop';
+import { Store } from '../lib/store';
 
 export class SettingStore {
   public getSettings() {

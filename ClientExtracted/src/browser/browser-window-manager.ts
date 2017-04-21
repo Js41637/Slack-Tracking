@@ -1,23 +1,26 @@
-import {nativeImage, BrowserWindow} from 'electron';
-import {ipc} from '../ipc-rx';
-import {logger} from '../logger';
-import {Subscription} from 'rxjs/Subscription';
+/**
+ * @module Browser
+ */ /** for typedoc */
 
-import {appStore} from '../stores/app-store';
-import {appTeamsStore} from '../stores/app-teams-store';
-import {dialogStore} from '../stores/dialog-store';
-import {eventStore, StoreEvent} from '../stores/event-store';
-import {ReduxComponent} from '../lib/redux-component';
-import {settingStore} from '../stores/setting-store';
-import {teamStore} from '../stores/team-store';
-import {WindowHelpers} from '../utils/window-helpers';
-import {windowStore} from '../stores/window-store';
-import {Window} from '../stores/window-store-helper';
-import {Team} from '../actions/team-actions';
+import { nativeImage, BrowserWindow } from 'electron';
+import { ipc } from '../ipc-rx';
+import { logger } from '../logger';
+import { Subscription } from 'rxjs/Subscription';
 
-import {WINDOW_TYPES, UPDATE_STATUS} from '../utils/shared-constants';
-import {StringMap} from '../utils/string-map';
-import {intl as $intl, LOCALE_NAMESPACE} from '../i18n/intl';
+import { appStore } from '../stores/app-store';
+import { appTeamsStore } from '../stores/app-teams-store';
+import { dialogStore } from '../stores/dialog-store';
+import { eventStore, StoreEvent } from '../stores/event-store';
+import { ReduxComponent } from '../lib/redux-component';
+import { settingStore } from '../stores/setting-store';
+import { teamStore } from '../stores/team-store';
+import { WindowHelpers } from '../utils/window-helpers';
+import { windowStore } from '../stores/window-store';
+import { Window } from '../stores/window-store-helper';
+import { Team } from '../actions/team-actions';
+
+import { StringMap, WINDOW_TYPES, UPDATE_STATUS } from '../utils/shared-constants';
+import { intl as $intl, LOCALE_NAMESPACE } from '../i18n/intl';
 
 const CHILD_WINDOWS = [WINDOW_TYPES.WEBAPP];
 
@@ -106,7 +109,7 @@ export class BrowserWindowManager<S extends BrowserWindowManagerState> extends R
    *
    * @param {Object.string} {teamId}
    */
-  public signOutTeamEvent({teamId}: {teamId: string}): void {
+  public signOutTeamEvent({ teamId }: {teamId: string}): void {
     if (!teamId) return;
 
     this.forEachWindowOfTeam([teamId], (win) => {
@@ -121,7 +124,7 @@ export class BrowserWindowManager<S extends BrowserWindowManagerState> extends R
    * @param  {Bool} {everything}  True to reload the main window, false to reload
    *                              just the focused window or a single team
    */
-  public async reloadEvent({everything}: {everything: boolean}) {
+  public async reloadEvent({ everything }: {everything: boolean}) {
     const mainWindow = this.getMainWindow();
 
     if (everything) {
@@ -175,7 +178,7 @@ export class BrowserWindowManager<S extends BrowserWindowManagerState> extends R
    * Passes editing commands to the specified window or the currently focused
    * window, if no ID is provided.
    */
-  public editingCommandEvent({command, windowId}: {command: string, windowId: number}) {
+  public editingCommandEvent({ command, windowId }: {command: string, windowId: number}) {
     const webContentFunctions = {
       undo: (w: Electron.WebContents) => w.undo(),
       redo: (w: Electron.WebContents) => w.redo(),
@@ -263,15 +266,11 @@ export class BrowserWindowManager<S extends BrowserWindowManagerState> extends R
 
     if (!this.state.selectedTeam) {
       mainWindow = this.getMainWindow();
-
-      if (!mainWindow) return;
       mainWindow.setTitle($intl.t(`Slack`, LOCALE_NAMESPACE.GENERAL)());
     } else if (!prevSelectedTeam && this.state.selectedTeam ||
       prevSelectedTeam!.team_name !== this.state.selectedTeam.team_name) {
       mainWindow = this.getMainWindow();
-
-      if (!mainWindow) return;
-      mainWindow.setTitle($intl.t(`Slack - {teamName}`, LOCALE_NAMESPACE.GENERAL)({teamName: this.state.selectedTeam.team_name}));
+      mainWindow.setTitle($intl.t(`Slack - {teamName}`, LOCALE_NAMESPACE.GENERAL)({ teamName: this.state.selectedTeam.team_name }));
     }
   }
 

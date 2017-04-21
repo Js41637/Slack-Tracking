@@ -1,33 +1,38 @@
-import {remote} from 'electron';
-const {Menu, MenuItem} = remote;
+/**
+ * @module RendererComponents
+ */ /** for typedoc */
+
+import { remote } from 'electron';
+const { Menu, MenuItem } = remote;
 const currentWindow = remote.getCurrentWindow();
 
 import * as clamp from 'lodash.clamp';
 import * as React from 'react';
 import rxjsconfig from 'recompose/rxjsObservableConfig';
-import {Motion, spring} from 'react-motion';
-import {createEventHandler, setObservableConfig} from 'recompose';
-import {Observable} from 'rxjs/Observable';
-import {Subscription} from 'rxjs/Subscription';
+import { Motion, spring } from 'react-motion';
+import { createEventHandler, setObservableConfig } from 'recompose';
+import { Observable } from 'rxjs/Observable';
+import { Subscription } from 'rxjs/Subscription';
 
-import {appTeamsStore} from '../../stores/app-teams-store';
-import {appTeamsActions} from '../../actions/app-teams-actions';
-import {Component} from '../../lib/component';
-import {dialogActions} from '../../actions/dialog-actions';
-import {eventActions} from '../../actions/event-actions';
-import {getScaledBorderRadius} from '../../utils/component-helpers';
-import {getSidebarColor, getTextColor} from '../../utils/color';
-import {isEqualArrays} from '../../utils/array-is-equal';
-import {ScrollableArea} from './scrollable-area';
-import {settingStore} from '../../stores/setting-store';
-import {TeamAddButton} from './team-add-button';
-import {TeamSidebarItem} from './team-sidebar-item';
-import {teamStore} from '../../stores/team-store';
-import {TitleBarButtonsContainer} from './title-bar-buttons-container';
-import {windowFrameStore} from '../../stores/window-frame-store';
+import { appTeamsStore } from '../../stores/app-teams-store';
+import { appTeamsActions } from '../../actions/app-teams-actions';
+import { Component } from '../../lib/component';
+import { dialogActions } from '../../actions/dialog-actions';
+import { eventActions } from '../../actions/event-actions';
+import { getScaledBorderRadius } from '../../utils/component-helpers';
+import { getSidebarColor, getTextColor } from '../../utils/color';
+import { ScrollableArea } from './scrollable-area';
+import { settingStore } from '../../stores/setting-store';
+import { TeamAddButton } from './team-add-button';
+import { TeamSidebarItem } from './team-sidebar-item';
+import { teamStore } from '../../stores/team-store';
+import { TitleBarButtonsContainer } from './title-bar-buttons-container';
+import { unreadsStore } from '../../stores/unreads-store';
+import { UnreadsInfo } from '../../actions/unreads-actions';
+import { windowFrameStore } from '../../stores/window-frame-store';
 
-import {intl as $intl, LOCALE_NAMESPACE} from '../../i18n/intl';
-import {SIDEBAR_WIDTH, SIDEBAR_ROW_HEIGHT, SIDEBAR_ICON_SIZE,
+import { intl as $intl, LOCALE_NAMESPACE } from '../../i18n/intl';
+import {StringMap, SIDEBAR_WIDTH, SIDEBAR_ROW_HEIGHT, SIDEBAR_ICON_SIZE,
   SIDEBAR_ITEM_MARGIN_LEFT, SIDEBAR_ITEM_MARGIN_TOP,
   SIDEBAR_ITEM_MARGIN_TOP_NO_TITLE_BAR} from '../../utils/shared-constants';
 
@@ -42,8 +47,8 @@ export interface TeamSidebarProps {
 export interface TeamSidebarState {
   teams: any;
   teamsByIndex: Array<string>;
+  unreads: StringMap<UnreadsInfo>;
   numberOfTeams: number;
-  hiddenTeams: Array<string>;
   sidebarItemOffset: Array<number>;
   isTitleBarHidden: boolean;
   selectedTeamId: string;
@@ -85,7 +90,7 @@ export class TeamSidebar extends Component<TeamSidebarProps, Partial<TeamSidebar
       mouseY: 0,
       dragMoveDistance: 0,
       isDragging: false,
-      teamsByIndex: this.getVisibleTeams()
+      teamsByIndex: appTeamsStore.getTeamsByIndex()
     };
   }
 
@@ -105,7 +110,7 @@ export class TeamSidebar extends Component<TeamSidebarProps, Partial<TeamSidebar
       isTitleBarHidden,
       isFullScreen,
       teams: teamStore.teams,
-      hiddenTeams: appTeamsStore.getHiddenTeams(),
+      unreads: unreadsStore.unreads,
       numberOfTeams: teamStore.getNumTeams(),
       selectedTeamId: appTeamsStore.getSelectedTeamId(),
       isMac: settingStore.isMac(),
@@ -135,16 +140,15 @@ export class TeamSidebar extends Component<TeamSidebarProps, Partial<TeamSidebar
    * added or removed. This ain't pretty.
    */
   public componentWillUpdate(_nextProps: TeamSidebarProps, nextState: Partial<TeamSidebarState>) {
-    const didTeamsChange = this.state.numberOfTeams !== nextState.numberOfTeams ||
-      this.state.hiddenTeams!.length !== nextState.hiddenTeams!.length;
+    const didTeamsChange = this.state.numberOfTeams !== nextState.numberOfTeams;
 
     if (didTeamsChange) {
-      this.setState({ teamsByIndex: this.getVisibleTeams() });
+      this.setState({ teamsByIndex: appTeamsStore.getTeamsByIndex() });
     }
   }
 
   public render(): JSX.Element {
-    const {teams, teamsByIndex, hiddenTeams, selectedTeamId, isMac,
+    const {teams, teamsByIndex, selectedTeamId, unreads, isMac,
       sidebarItemOffset, mouseY, isDragging, lastMovedTeamId} = this.state as TeamSidebarState;
 
     const selectedTeam = teams[selectedTeamId];
@@ -153,13 +157,13 @@ export class TeamSidebar extends Component<TeamSidebarProps, Partial<TeamSidebar
     const [left, top] = sidebarItemOffset;
 
     const teamSidebarItems = Object.keys(teams)
-      .filter((teamId) => !hiddenTeams.includes(teamId))
       .map((teamId: string) => {
 
         const team = teams[teamId];
+        const unreadsInfo = unreads[teamId];
         const order = teamsByIndex.indexOf(teamId);
 
-        const renderTeamSidebarItem = ({y, scale, shadow}: MotionCallbackArgs) => {
+        const renderTeamSidebarItem = ({ y, scale, shadow }: MotionCallbackArgs) => {
           const itemStyle: React.CSSProperties = {
             left,
             top,
@@ -179,6 +183,7 @@ export class TeamSidebar extends Component<TeamSidebarProps, Partial<TeamSidebar
               <TeamSidebarItem
                 index={order}
                 team={team}
+                unreadsInfo={unreadsInfo}
                 selectedTeam={selectedTeam}
                 iconSize={SIDEBAR_ICON_SIZE}
                 boxShadow={`rgba(0, 0, 0, 0.25) 0px ${shadow}px ${2 * shadow}px 0px`}
@@ -228,7 +233,7 @@ export class TeamSidebar extends Component<TeamSidebarProps, Partial<TeamSidebar
         {this.renderTitleBarButtonsContainer(backgroundColor)}
 
         <ScrollableArea
-          style={{height: '100%'}}
+          style={{ height: '100%' }}
           scrollbar={isMac ? 'none' : 'custom'}
         >
           {teamSidebarItems}
@@ -286,6 +291,8 @@ export class TeamSidebar extends Component<TeamSidebarProps, Partial<TeamSidebar
 
   private handleMouseMove(e: MouseEvent): void {
     let { isDragging, dragMoveDistance } = this.state;
+    dragMoveDistance = dragMoveDistance || 0;
+
     const { teamsByIndex, isMouseDown, topDeltaY, lastMovedTeamId } = this.state as TeamSidebarState;
 
     // NB: Chrome fires a `mousemove` event immediately after `mousedown`.
@@ -352,7 +359,7 @@ export class TeamSidebar extends Component<TeamSidebarProps, Partial<TeamSidebar
       click: () => eventActions.signOutTeam(teamId)
     }));
 
-    menu.popup(currentWindow);
+    menu.popup(currentWindow, { async: true } as any);
   }
 
   /**
@@ -369,7 +376,7 @@ export class TeamSidebar extends Component<TeamSidebarProps, Partial<TeamSidebar
       click: dialogActions.showLoginDialog
     }));
 
-    menu.popup(currentWindow);
+    menu.popup(currentWindow, { async: true } as any);
   }
 
   /**
@@ -384,7 +391,6 @@ export class TeamSidebar extends Component<TeamSidebarProps, Partial<TeamSidebar
       .filter(() => !this.state.isDragging)
       .debounceTime(100)
       .map(() => this.state.teamsByIndex)
-      .filter((teamsByIndex) => !isEqualArrays(teamsByIndex, this.getVisibleTeams()))
       .subscribe(appTeamsActions.setTeamsByIndex);
 
     return { handler, subscription };
@@ -423,10 +429,6 @@ export class TeamSidebar extends Component<TeamSidebarProps, Partial<TeamSidebar
       .subscribe((e: KeyboardEvent) => e.shiftKey ?
         appTeamsActions.selectPreviousTeam() :
         appTeamsActions.selectNextTeam());
-  }
-
-  private getVisibleTeams() {
-    return appTeamsStore.getTeamsByIndex({ visibleTeamsOnly: true });
   }
 }
 

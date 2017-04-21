@@ -1,12 +1,16 @@
-import {noop} from '../utils/noop';
-import {remote} from 'electron';
-import {RecursiveProxyHandler} from 'electron-remote';
+/**
+ * @module SSBIntegration
+ */ /** for typedoc */
+
+import { noop } from '../utils/noop';
+import { remote } from 'electron';
+import { RecursiveProxyHandler } from 'electron-remote';
 import * as Hammer from 'hammerjs';
 
-import {logger} from '../logger';
-import {appTeamsActions} from '../actions/app-teams-actions';
+import { logger } from '../logger';
+import { appTeamsActions } from '../actions/app-teams-actions';
 
-const {systemPreferences} = remote;
+const { systemPreferences } = remote;
 const invalidEventTargetHeader = ['#search_container', '#topic_inline_edit'];
 
 /**

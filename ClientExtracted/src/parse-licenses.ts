@@ -1,3 +1,7 @@
+/**
+ * @module Utilities
+ */ /** for typedoc */
+
 import * as fs from 'graceful-fs';
 import * as sortBy from 'lodash.sortby';
 

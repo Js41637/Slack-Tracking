@@ -4,12 +4,10 @@ using SlackNotifier;
 
 public class Startup
 {
-  public async Task<object> Invoke(object isWin10)
+  public async Task<object> Invoke(object args)
   {
     try {
-      var notifier = (bool)isWin10 ?
-        (INotifier)new Win10Notifier() :
-        (INotifier)new Win7Notifier();
+      var notifier = (INotifier)new Win7Notifier();
 
       var ret = new Func<object, Task<object>>(async opts => {
         if (opts == null) {

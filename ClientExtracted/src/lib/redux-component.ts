@@ -1,12 +1,16 @@
-import * as assignIn from 'lodash.assignin';
-import {Subscription} from 'rxjs/Subscription';
-import {shallowEqual} from '../utils/shallow-equal';
-import {stateEventHandler} from './state-events';
+/**
+ * @module Component
+ */ /** for typedoc */
 
-import {noop} from '../utils/noop';
-import {Store} from './store';
-import {settingStore} from '../stores/setting-store';
-import {ComponentBase} from './component-base';
+import * as assignIn from 'lodash.assignin';
+import { Subscription } from 'rxjs/Subscription';
+import { shallowEqual } from '../utils/shallow-equal';
+import { stateEventHandler } from './state-events';
+
+import { noop } from '../utils/noop';
+import { Store } from './store';
+import { settingStore } from '../stores/setting-store';
+import { ComponentBase } from './component-base';
 
 /**
  * This is our way of extending the goodness of React Components to the Browser
@@ -86,10 +90,10 @@ export class ReduxComponent<S extends {}> implements ComponentBase {
     if (this.disposables.closed) return; // Sometimes update is called even after unsubscribed
 
     const prevState = this.state as any; //TS 2.1 spread only support object type, not yet with <T> requires cast
-    const newState = this.syncState() || {};
+    const newState = (this.syncState() || {}) as any;
     if (!shallowEqual(prevState, newState)) {
-      const current = {...prevState};
-      this.state = {...current, ...newState} as any;
+      const current = { ...prevState };
+      this.state = { ...current, ...newState } as any;
 
       Object.keys(newState).forEach((key) => {
         const value = newState[key];

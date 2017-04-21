@@ -1,4 +1,8 @@
 /**
+ * @module Browser
+ */ /** for typedoc */
+
+/**
  * Interfaces to windowCreator instance,
  * physically separated to avoid circular module references
  *

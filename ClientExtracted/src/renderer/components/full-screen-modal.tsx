@@ -1,7 +1,11 @@
-import * as classNames from 'classnames';
-import {Component} from '../../lib/component';
+/**
+ * @module RendererComponents
+ */ /** for typedoc */
 
-import {intl as $intl, LOCALE_NAMESPACE} from '../../i18n/intl';
+import * as classNames from 'classnames';
+import { Component } from '../../lib/component';
+
+import { intl as $intl, LOCALE_NAMESPACE } from '../../i18n/intl';
 
 import * as React from 'react'; // tslint:disable-line:no-unused-variable
 
@@ -30,7 +34,7 @@ export interface FullScreenModalState {
  * Naming conventions have been left in place to ease replacement or porting
  * modifications.
  */
-export class FullScreenModal extends Component<FullScreenModalProps, FullScreenModalState> {
+export class FullScreenModal extends Component<Partial<FullScreenModalProps>, FullScreenModalState> {
   public static readonly defaultProps: FullScreenModalProps = {
     headerText: '',
     compactHeader: true,
@@ -45,19 +49,19 @@ export class FullScreenModal extends Component<FullScreenModalProps, FullScreenM
   };
 
   public componentDidMount(): void {
-    this.setState({isActive: true});
+    this.setState({ isActive: true });
   }
 
   /**
    * Animate the dialog out, then call the action that will unmount it.
    */
   public cancel(): void {
-    this.setState({isActive: false});
+    this.setState({ isActive: false });
     setTimeout(this.props.onCancel, TRANSITION_DURATION);
   }
 
   public render(): JSX.Element | null {
-    const {headerText, compactHeader, showBack, showCancel, onBack} = this.props;
+    const { headerText, compactHeader, showBack, showCancel, onBack } = this.props;
 
     const classes = {
       active: this.state.isActive,

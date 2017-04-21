@@ -1,8 +1,12 @@
-import {networkStatusType} from './utils/shared-constants';
-import {logger} from './logger';
-import {Observable} from 'rxjs/Observable';
-import {Subject} from 'rxjs/Subject';
-import {async} from 'rxjs/scheduler/async';
+/**
+ * @module NetworkStatus
+ */ /** for typedoc */
+
+import { networkStatusType } from './utils/shared-constants';
+import { logger } from './logger';
+import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
+import { async } from 'rxjs/scheduler/async';
 
 import './custom-operators';
 
@@ -14,7 +18,10 @@ export class NetworkStatus {
   private readonly offlineEventObservable = Observable.fromEvent(window, 'offline');
   private readonly networkCheckSuccess = new Subject<boolean>();
   private readonly scheduler = async;
-  private reason: networkStatusType;
+  private _reason: networkStatusType;
+  public get reason(): networkStatusType {
+    return this._reason;
+  }
   private currentStatus: boolean;
 
   /**
@@ -26,7 +33,7 @@ export class NetworkStatus {
    * @param  {Function} options.isOnline        Returns whether we are online according to `navigator.isOnLine`
    */
   constructor(options: any = {}) {
-    const {onlineEvent, offlineEvent, isOnline, scheduler} = options;
+    const { onlineEvent, offlineEvent, isOnline, scheduler } = options;
     if (onlineEvent) this.onlineEventObservable = onlineEvent;
     if (offlineEvent) this.offlineEventObservable = offlineEvent;
     if (isOnline) this.isOnline = isOnline;
@@ -116,16 +123,16 @@ export class NetworkStatus {
     logger.info('Checking network connection to Slack...');
 
     const ret = Observable.ajax.post('https://slack.com/api/api.test?error=')
-      .mergeMap(({status, response}) => {
+      .mergeMap(({ status, response }) => {
 
         // NB: DNS failure
         if (status === 0) {
-          this.reason = 'offline';
+          this._reason = 'offline';
           return Observable.throw(new Error('Bad Status'));
         }
 
         if (status > 499) {
-          this.reason = 'slackDown';
+          this._reason = 'slackDown';
         }
 
         if (status > 399) {
@@ -133,7 +140,7 @@ export class NetworkStatus {
         }
 
         if (!response.ok) {
-          this.reason = 'slackDown';
+          this._reason = 'slackDown';
           return Observable.throw(new Error('Bad Response'));
         }
 

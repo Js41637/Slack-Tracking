@@ -1,12 +1,16 @@
+/**
+ * @module RendererComponents
+ */ /** for typedoc */
+
 import * as path from 'path';
-import {logger} from '../../logger';
-import {parseLicenses, License} from '../../parse-licenses';
-import {VirtualScroll} from 'react-virtualized';
+import { logger } from '../../logger';
+import { parseLicenses, License } from '../../parse-licenses';
+import { VirtualScroll } from 'react-virtualized';
 
 import * as ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import * as ReactHeight from 'react-height';
-import {Component} from '../../lib/component';
-import {settingStore} from '../../stores/setting-store';
+import { Component } from '../../lib/component';
+import { settingStore } from '../../stores/setting-store';
 
 import * as React from 'react'; // tslint:disable-line
 
@@ -65,7 +69,7 @@ export class DependenciesView extends Component<DependenciesViewProps, Partial<D
   }
 
   public render(): JSX.Element | null {
-    const {dependencies} = this.state;
+    const { dependencies } = this.state;
 
     return dependencies ? (
       <VirtualScroll
@@ -79,7 +83,7 @@ export class DependenciesView extends Component<DependenciesViewProps, Partial<D
   }
 
   private getLicensePath(): string {
-    const {resourcePath, isDevMode, isMac} = this.state;
+    const { resourcePath, isDevMode, isMac } = this.state;
 
     const pathChanges = isDevMode ? [] : isMac ? ['..'] : ['..', '..'] ;
     const licensePath = path.resolve(resourcePath, ...pathChanges, 'LICENSE');
@@ -87,7 +91,7 @@ export class DependenciesView extends Component<DependenciesViewProps, Partial<D
     return licensePath;
   }
 
-  private getHeightForRow({index}: {index: number}): number {
+  private getHeightForRow({ index }: {index: number}): number {
     return this.state.rowHeights![index] || DEFAULT_ROW_HEIGHT;
   }
 
@@ -138,7 +142,7 @@ export class DependenciesView extends Component<DependenciesViewProps, Partial<D
 
     return (
       <ReactHeight onHeightReady={this.rowMeasured.bind(this, index)}>
-        <div className='Dependency-licenseText' style={{width}}>
+        <div className='Dependency-licenseText' style={{ width }}>
           {licenseText.split('\r\n').map(renderLicenseLine)}
         </div>
       </ReactHeight>
@@ -151,7 +155,7 @@ export class DependenciesView extends Component<DependenciesViewProps, Partial<D
    * @param  {Number} {index} The index of this dependency in the list
    * @return {Node}           A DOM node representing the dependency
    */
-  private renderRow({index}: {index: number}): JSX.Element {
+  private renderRow({ index }: {index: number}): JSX.Element {
     const visibleLicenses = this.state.visibleLicenses || [];
     const dependencies = this.state.dependencies || [];
     const dependency = dependencies[index];

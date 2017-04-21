@@ -1,7 +1,11 @@
-import {intl as $intl, LOCALE_NAMESPACE} from './i18n/intl';
-import {ContextMenuBuilder} from 'electron-spellchecker';
+/**
+ * @module ContextMenu
+ */ /** for typedoc */
 
-const contextMenuStringTable = {
+import { intl as $intl, LOCALE_NAMESPACE } from './i18n/intl';
+import { ContextMenuBuilder } from 'electron-spellchecker';
+
+export const contextMenuStringTable = {
   copyMail: $intl.t(`Copy Email Address`, LOCALE_NAMESPACE.MENU),
   copyLinkUrl: $intl.t(`Copy Link`, LOCALE_NAMESPACE.MENU),
   openLinkUrl: $intl.t(`Open Link`, LOCALE_NAMESPACE.MENU),

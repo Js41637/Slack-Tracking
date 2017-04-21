@@ -1,13 +1,47 @@
+/**
+ * @module UserAgent
+ */ /** for typedoc */
+
 import * as os from 'os';
-import {version} from '../package.json';
-import {nativeInterop} from './native-interop';
-const {isWindows10OrHigher, getOSVersion} = nativeInterop;
+import { version } from '../package.json';
+import { nativeInterop } from './native-interop';
+import { IS_WINDOWS_STORE } from './utils/shared-constants';
+import { settingStore } from './stores/setting-store';
+import { LinuxSettings } from './browser/application';
+const { isWindows10OrHigher, getOSVersion } = nativeInterop;
+
+// NB: This must be the last segment of the user agent.
+const userAgentLastSegment = `Slack_SSB/${version.split('-')[0]}`;
+
+// From http://www.ietf.org/rfc/rfc2616.txt
+const httpSeparators = /[()<>@,;:\\<>\/\[\]?={}\t\n\r]/g;
+let cachedUserAgent = '';
+
+function getLinuxUserAgentSegment(): string {
+    let { os: osName, release } = settingStore.getSetting<LinuxSettings>('linux');
+    let linuxUserAgentSegment = '';
+
+    // Make sure we don't bork the useragent string
+    osName = osName.replace(httpSeparators, '');
+    release = release.replace(httpSeparators, '');
+
+    if (!osName || !release) return '';
+    linuxUserAgentSegment += `; ${osName} ${release}`;
+
+    let desktopEnvironment = process.env.XDG_CURRENT_DESKTOP;
+
+    if (desktopEnvironment) {
+      desktopEnvironment = desktopEnvironment.replace(httpSeparators, '');
+      linuxUserAgentSegment += `; ${desktopEnvironment}`;
+    }
+
+    return linuxUserAgentSegment;
+}
 
 export function getUserAgent(inputUserAgent?: string): string {
+  if (cachedUserAgent) return cachedUserAgent;
+
   const agent = inputUserAgent || global.navigator.userAgent;
-  if (agent.match(/Slack_SSB/)) {
-    return agent;
-  }
 
   // NB: We used to pass AtomShell as part of the user agent, but now it's
   // the productName, which is unfortunately also Slack. For sanity's sake,
@@ -15,11 +49,11 @@ export function getUserAgent(inputUserAgent?: string): string {
   let userAgent = agent.replace(/(Slack|Electron)\/([\d\.]+) /, 'AtomShell/$2 ');
 
   if (process.platform === 'win32') {
-    const {major, minor, build} = getOSVersion();
+    const { major, minor, build } = getOSVersion();
     const versionString = `${major}.${minor}.${build}`;
 
     // Keep track of Windows Store versions
-    if (process.windowsStore) {
+    if (IS_WINDOWS_STORE) {
       userAgent += ` WindowsStore/${versionString}`;
     }
 
@@ -33,7 +67,11 @@ export function getUserAgent(inputUserAgent?: string): string {
     userAgent += ` MacAppStore/${os.release()}`;
   }
 
-  // NB: This must be the last segment of the user agent.
-  userAgent += ` Slack_SSB/${version.split('-')[0]}`;
-  return userAgent;
+  if (process.platform === 'linux') {
+    const userAgentFirstSegment = /^Mozilla[^\)]+/;
+    userAgent = userAgent.replace(userAgentFirstSegment, `$&${getLinuxUserAgentSegment()}`);
+  }
+
+  cachedUserAgent = `${userAgent} ${userAgentLastSegment}`;
+  return cachedUserAgent;
 }

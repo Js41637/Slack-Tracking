@@ -1,8 +1,13 @@
-import {Store} from '../lib/store';
-import {StoreEvent} from './event-store';
+/**
+ * @module Stores
+ */ /** for typedoc */
+
+import { Store } from '../lib/store';
+import { StoreEvent } from './event-store';
+import { Notification } from '../actions/notification-actions';
 
 export class NotificationStore {
-  public getNotifications(): any {
+  public getNotifications(): Array<Notification> {
     return Store.getState().notifications.notifications;
   }
 

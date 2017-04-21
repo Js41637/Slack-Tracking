@@ -1,19 +1,23 @@
-import {shell} from 'electron';
+/**
+ * @module RendererComponents
+ */ /** for typedoc */
+
+import { shell } from 'electron';
 
 import * as React from 'react'; // tslint:disable-line
 import * as ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import * as reactStringReplace from 'react-string-replace-recursively';
 
-import {appStore} from '../../stores/app-store';
-import {Component} from '../../lib/component';
-import {ConnectionTrouble} from './connection-trouble';
-import {eventActions} from '../../actions/event-actions';
-import {networkStatusType} from '../../utils/shared-constants';
+import { appStore } from '../../stores/app-store';
+import { Component } from '../../lib/component';
+import { ConnectionTrouble } from './connection-trouble';
+import { eventActions } from '../../actions/event-actions';
+import { networkStatusType } from '../../utils/shared-constants';
 
-import {intl as $intl, LOCALE_NAMESPACE} from '../../i18n/intl';
+import { intl as $intl, LOCALE_NAMESPACE } from '../../i18n/intl';
 
 export interface LoadingScreenProps {
-  className: string;
+  className?: string;
   hasConnectionTrouble?: boolean;
 }
 
@@ -26,11 +30,11 @@ export class LoadingScreen extends Component<LoadingScreenProps, LoadingScreenSt
     className: 'Startup'
   };
 
-  private readonly statusLinkElementReplaceConfig = {
+  private readonly statusPageReplaceConfig = {
     statusPage: {
-      pattern: /status.slack.com/,
-      matcherFn: (_rawText: string, _processed: string, key: any) =>
-        <a key={key} href='http://status.slack.com' onClick={this.openStatusPage}>status.slack.com.</a>
+      pattern: /(status page)/,
+      matcherFn: (_text: string, processed: string, key: any) =>
+        <a key={key} onClick={this.openStatusPage} className='LoadingScreen-link'>{processed}</a>
     }
   };
 
@@ -41,8 +45,8 @@ export class LoadingScreen extends Component<LoadingScreenProps, LoadingScreenSt
   }
 
   public render(): JSX.Element | null {
-    const {networkStatus} = this.state;
-    let {hasConnectionTrouble} = this.props;
+    const { networkStatus } = this.state;
+    let { hasConnectionTrouble } = this.props;
     hasConnectionTrouble = hasConnectionTrouble || networkStatus === 'connectionTrouble';
 
     const content = hasConnectionTrouble ? (
@@ -50,7 +54,7 @@ export class LoadingScreen extends Component<LoadingScreenProps, LoadingScreenSt
         reloadApp={this.reloadApp}
         openStatusPage={this.openStatusPage}
       />
-      ) : this.contentForStatus(networkStatus);
+    ) : this.contentForStatus(networkStatus);
 
     return (
       <ReactCSSTransitionGroup
@@ -80,49 +84,47 @@ export class LoadingScreen extends Component<LoadingScreenProps, LoadingScreenSt
 
   private renderConnectingStatus(): JSX.Element {
     return (
-      <div className='LoadingScreen-connecting'>
+      <div className='LoadingScreen-centerColumn'>
         <img width='90' height='90' srcSet='trying.webp 1x, trying@2x.webp 2x' />
-        <span className='LoadingScreen-text'>{$intl.t(`Connecting ...`, LOCALE_NAMESPACE.RENDERER)()}</span>
+        <div>{$intl.t(`Connecting ...`, LOCALE_NAMESPACE.RENDERER)()}</div>
       </div>
     );
   }
 
   private renderOfflineStatus(): JSX.Element {
     return (
-      <div className='LoadingScreen-noService'>
+      <div className='LoadingScreen-centerColumn'>
         <img width='362' height='102' src='./offline.webp'/>
-        <span className='LoadingScreen-text'>
-          {$intl.t(`It appears you don't have an internet connection right now.`, LOCALE_NAMESPACE.RENDERER)()}<br/>
-          <span style={{color: '#4c9689'}}>{$intl.t(`Slack will attempt to automatically reconnect.`, LOCALE_NAMESPACE.RENDERER)()}</span>
-            <br/><br/>
-            <center>
-              <a className='LoadingScreen-button' onClick={this.reloadApp}>{$intl.t(`Try now`, LOCALE_NAMESPACE.RENDERER)()}</a>
-            </center>
-        </span>
+        <div className='LoadingScreen-title'>{$intl.t(`Slack can’t connect`, LOCALE_NAMESPACE.RENDERER)()}</div>
+        <div style={{ marginTop: '8px' }}>
+          {$intl.t(`Either your computer is offline, or Slack is having problems of its own.`, LOCALE_NAMESPACE.RENDERER)()}
+        </div>
+        <div style={{ marginTop: '2px' }}>{this.renderCheckStatusPageMessage()}</div>
+        <div style={{ marginTop: '16px' }}>
+          <a className='LoadingScreen-button' onClick={this.reloadApp}>{$intl.t(`Try now`, LOCALE_NAMESPACE.RENDERER)()}</a>
+        </div>
       </div>
     );
   }
 
   private renderSlackDownStatus(): JSX.Element {
-    const slackDownTranslatedMessage = $intl.t(`The Slack service appears to be unavailable. Please check status.slack.com.`,
-      LOCALE_NAMESPACE.GENERAL)();
-
-    //message-format returns translated string as plain string and does not provide escape hatch for JSX element,
-    //post-process translated string to attach <a/>
-    const downMesssageElement = reactStringReplace(this.statusLinkElementReplaceConfig)(slackDownTranslatedMessage);
-
     return (
-      <div className='LoadingScreen-offline'>
-        <img width='284' height='284' src='./slackdown.webp'/><br/>
-        <span className='LoadingScreen-text'>
-          {downMesssageElement}
-          <br/><br/>
-          <center>
-            <a className='LoadingScreen-button' onClick={this.reloadApp}>{$intl.t(`Try now`, LOCALE_NAMESPACE.RENDERER)()}</a>
-          </center>
-        </span>
+      <div className='LoadingScreen-centerColumn'>
+        <img width='200' height='200' src='./slackdown.webp'/><br/>
+        <div className='LoadingScreen-title'>{$intl.t(`The Slack service is unavailable`, LOCALE_NAMESPACE.RENDERER)()}</div>
+        <div style={{ marginTop: '8px' }}>{this.renderCheckStatusPageMessage()}</div>
+        <div style={{ marginTop: '16px' }}>
+          <a className='LoadingScreen-button' onClick={this.reloadApp}>{$intl.t(`Try now`, LOCALE_NAMESPACE.RENDERER)()}</a>
+        </div>
       </div>
     );
+  }
+
+  private renderCheckStatusPageMessage() {
+    const checkStatusPageMessage = $intl.t(`Check our status page for updates, and we’ll keep trying to reconnect.`,
+      LOCALE_NAMESPACE.GENERAL)();
+
+    return reactStringReplace(this.statusPageReplaceConfig)(checkStatusPageMessage);
   }
 
   private reloadApp(): void {

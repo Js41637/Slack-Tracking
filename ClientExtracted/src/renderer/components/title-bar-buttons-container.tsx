@@ -1,4 +1,8 @@
-import {Component} from '../../lib/component';
+/**
+ * @module RendererComponents
+ */ /** for typedoc */
+
+import { Component } from '../../lib/component';
 
 import * as React from 'react'; // tslint:disable-line:no-unused-variable
 

@@ -1,11 +1,9 @@
-import {remoteEval} from 'electron-remote';
-import {noop} from '../utils/noop';
-import {getPostMessageTemplate} from './post-message';
+/**
+ * @module SSBIntegration
+ */ /** for typedoc */
 
-export interface WindowOpenOptions {
-  code: string;
-  callback: (err: Error | null, result?: any) => void;
-}
+import { getPostMessageTemplate } from './post-message';
+import { executeRemoteEval, RemoteEvalOption } from './execute-remote-eval';
 
 export class WindowOpener {
   /**
@@ -22,20 +20,8 @@ export class WindowOpener {
    * @param  {Function} options.callback  Callback to run on completion
    * @return {Promise}                    A Promise indicating completion
    */
-  public executeJavaScript(options: WindowOpenOptions): Promise<any> {
-    if (!options.code) {
-      throw new Error('Missing parameters, needs code');
-    }
-
-    const ret = remoteEval(null, options.code);
-
-    if (options.callback) {
-      return ret
-        .then((x: any) => options.callback(null, x))
-        .catch((e: Error) => options.callback(e));
-    } else {
-      return ret;
-    }
+  public executeJavaScript(options: RemoteEvalOption): Promise<any> {
+    return executeRemoteEval(options);
   }
 
   /**
@@ -50,6 +36,6 @@ export class WindowOpener {
   public postMessage(data: string | Object = ''): Promise<any> {
     const code = getPostMessageTemplate(data, document.location.origin, window.winssb.browserWindowId!);
 
-    return this.executeJavaScript({code, callback: noop});
+    return this.executeJavaScript({ code });
   }
 }

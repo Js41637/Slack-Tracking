@@ -1,6 +1,10 @@
-import {WindowSetting} from '../browser/behaviors/window-behavior';
-import {Action} from '../actions/action';
-import {WINDOW_FRAME, MIGRATIONS} from '../actions';
+/**
+ * @module Reducers
+ */ /** for typedoc */
+
+import { WindowSetting } from '../browser/behaviors/window-behavior';
+import { Action } from '../actions/action';
+import { WINDOW_FRAME, MIGRATIONS } from '../actions';
 
 export interface WindowFrameState {
   windowSettings: WindowSetting | null;
@@ -12,12 +16,15 @@ const initialState: WindowFrameState = {
   isFullScreen: false
 };
 
-export function reduce(state: WindowFrameState = initialState, action: Action): WindowFrameState {
+/**
+ * @hidden
+ */
+export function reduce(state: WindowFrameState = initialState, action: Action<any>): WindowFrameState {
   switch (action.type) {
   case WINDOW_FRAME.SAVE_WINDOW_SETTINGS:
-    return {...state, windowSettings: action.data};
+    return { ...state, windowSettings: action.data };
   case WINDOW_FRAME.SET_FULL_SCREEN:
-    return {...state, isFullScreen: action.data};
+    return { ...state, isFullScreen: action.data };
   case MIGRATIONS.REDUX_STATE:
     return {
       ...state,
@@ -28,4 +35,4 @@ export function reduce(state: WindowFrameState = initialState, action: Action): 
   default:
     return state;
   }
-}
+};

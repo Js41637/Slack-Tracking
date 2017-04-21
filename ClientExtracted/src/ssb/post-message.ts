@@ -1,3 +1,7 @@
+/**
+ * @module SSBIntegration
+ */ /** for typedoc */
+
 export function getPostMessageTemplate(data: string | Object, origin: string, browserWindowId: number): string {
   const stringData = (typeof data === 'string') ? `'${data}'` : JSON.stringify(data);
 

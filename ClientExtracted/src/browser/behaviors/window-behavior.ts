@@ -1,5 +1,9 @@
-import {ReduxComponent} from '../../lib/redux-component';
-import {Subscription} from 'rxjs/Subscription';
+/**
+ * @module BrowserBehaviors
+ */ /** for typedoc */
+
+import { ReduxComponent } from '../../lib/redux-component';
+import { Subscription } from 'rxjs/Subscription';
 
 export interface WindowGeometrySetting {
   position: Array<number | undefined>;

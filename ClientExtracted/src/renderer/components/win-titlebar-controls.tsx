@@ -1,12 +1,16 @@
-import {Component} from '../../lib/component';
-import {remote} from 'electron';
-import {logger} from '../../logger';
-import {Observable} from 'rxjs';
+/**
+ * @module RendererComponents
+ */ /** for typedoc */
+
+import { Component } from '../../lib/component';
+import { remote } from 'electron';
+import { logger } from '../../logger';
+import { Observable } from 'rxjs';
 import 'rxjs/add/operator/merge';
 import 'rxjs/add/observable/fromEvent';
 import 'rxjs/add/operator/takeUntil';
 
-import {intl as $intl, LOCALE_NAMESPACE} from '../../i18n/intl';
+import { intl as $intl, LOCALE_NAMESPACE } from '../../i18n/intl';
 
 import * as React from 'react'; // tslint:disable-line:no-unused-variable
 
@@ -40,23 +44,31 @@ export class WinWindowControls extends Component<WinWindowControlsProps, WinWind
 
     this.window = remote.getCurrentWindow();
 
-    if (this.window) {
-      if (this.window.isMaximized()) {
-        this.state = { isMaximized: true };
-      }
+    //setup eventhandlers once component is ready
+    this.componentMountedObservable.filter((x: boolean) => x)
+      .first()
+      .subscribe(() => {
+        if (this.window) {
+          if (this.window.isMaximized()) {
+            this.state = { isMaximized: true };
+          }
 
-      this.disposables.add(Observable.merge(
-        Observable.fromEvent(this.window, 'enter-full-screen'),
-        Observable.fromEvent(this.window, 'maximize'))
-      .subscribe(() => this.setState({ isMaximized: true })));
+          this.disposables.add(Observable.merge(
+            Observable.fromEvent(this.window, 'enter-full-screen'),
+            Observable.fromEvent(this.window, 'maximize'))
+            .takeUntil(this.componentMountedObservable.filter((x: boolean) => !x))
+            .subscribe(() => this.setState({ isMaximized: true })));
 
-      this.disposables.add(Observable.merge(
-        Observable.fromEvent(this.window, 'leave-full-screen'),
-        Observable.fromEvent(this.window, 'unmaximize'))
-      .subscribe(() => this.setState({ isMaximized: false })));
-    } else {
-      logger.warn('Titlebar could not find window object');
-    }
+          this.disposables.add(Observable.merge(
+            Observable.fromEvent(this.window, 'leave-full-screen'),
+            Observable.fromEvent(this.window, 'unmaximize'))
+            .takeUntil(this.componentMountedObservable.filter((x: boolean) => !x))
+            .subscribe(() => this.setState({ isMaximized: false })));
+        } else {
+          logger.warn('WinTitleBar: Titlebar could not find window object');
+        }
+      });
+
   }
 
   public render(): JSX.Element | null {

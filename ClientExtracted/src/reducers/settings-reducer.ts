@@ -1,9 +1,59 @@
-import {nativeInterop} from '../native-interop';
-import {objectMerge} from '../utils/object-merge';
-import {channel} from '../../package.json';
-import {Action} from '../actions/action';
+/**
+ * @module Reducers
+ */ /** for typedoc */
 
-import {SETTINGS, EVENTS, MIGRATIONS} from '../actions';
+import { nativeInterop } from '../native-interop';
+import { objectMerge } from '../utils/object-merge';
+import { omit } from '../utils/omit';
+import { channel } from '../../package.json';
+import { Action } from '../actions/action';
+import { ReleaseChannel } from '../utils/shared-constants';
+import { NotifyPosition } from '../notification/notification-window-helpers';
+
+import { SETTINGS, EVENTS, MIGRATIONS } from '../actions';
+
+export interface SettingsState {
+  appVersion: string;
+  versionName: string | null;
+  platform: string;
+  platformVersion: {
+    major: string | null;
+    minor: string | null;
+    build: string | null;
+  };
+  isWin10: boolean;
+  isBeforeWin10: boolean;
+  resourcePath: string | null;
+  webappSrcPath: string | null;
+  webappParams: Object | null;
+  isDevMode: boolean;
+  devEnv: string | null;
+  launchedWithLink: string | null;
+  logFile: string | null;
+  openDevToolsOnStart: boolean;
+  pretendNotReallyWindows10: boolean;
+  releaseChannel: ReleaseChannel;
+  autoHideMenuBar: boolean;
+  isTitleBarHidden: boolean;
+  hasRunApp: boolean;
+  hasRunFromTray: boolean;
+  reportIssueOnStartup: boolean;
+  runFromTray: boolean;
+  launchOnStartup: boolean;
+  zoomLevel: number;
+  whitelistedUrlSchemes: Array<string>;
+  PrefSSBFileDownloadPath: string | null;
+
+  isAeroGlassEnabled?: boolean;
+  windowFlashBehavior?: string;
+  hasExplainedWindowFlash?: boolean;
+  clearNotificationsOnExit?: boolean;
+  useHwAcceleration?: boolean;
+  notifyPosition?: NotifyPosition;
+  os?: boolean;
+  release?: boolean;
+  desktopEnvironment?: boolean;
+}
 
 // The default settings differ between OS's so we specify it here and return
 // the actual default settings in a getDefaultSettings() method
@@ -24,6 +74,7 @@ export const defaultSettings = {
     // Command line / protocol URL settings
     resourcePath: null,
     webappSrcPath: null,
+    webappParams: null,
     isDevMode: false,
     devEnv: null,
     launchedWithLink: null,
@@ -40,10 +91,6 @@ export const defaultSettings = {
     hasRunApp: false,
     hasRunFromTray: false,
     reportIssueOnStartup: false,
-    hasMigratedData:  {
-      macgap: false,
-      redux: false
-    },
 
     // User configurable settings
     runFromTray: true,
@@ -72,22 +119,28 @@ export const defaultSettings = {
     isAeroGlassEnabled: true,
     windowFlashBehavior: 'idle',
     hasExplainedWindowFlash: false,
-    notifyPosition: {corner: 'bottom_right', display: 'same_as_app'},
+    notifyPosition: { corner: 'bottom_right', display: 'same_as_app' },
   },
 
   // Settings specific to Linux
   linux: {
-    useHwAcceleration: true
+    useHwAcceleration: true,
+    os: false,
+    release: false,
+    desktopEnvironment: false,
   },
 
   // Settings specific to Mac
   darwin: {
   }
 };
-export type SettingType = Partial<typeof defaultSettings & { zoomLevel: number }>;
+
 const initialSettings = getDefaultSettings();
 
-export function reduce(settings: SettingType = initialSettings, action: Action): SettingType {
+/**
+ * @hidden
+ */
+export function reduce(settings: SettingsState = initialSettings, action: Action<any>): SettingsState {
   switch (action.type) {
     case SETTINGS.UPDATE_SETTINGS:
       return updateSettings(settings, action.data);
@@ -96,45 +149,45 @@ export function reduce(settings: SettingType = initialSettings, action: Action):
     case SETTINGS.ZOOM_OUT:
       return changeWindowZoom(settings, -1);
     case SETTINGS.RESET_ZOOM:
-      return changeWindowZoom(settings, -settings.zoomLevel);
+      return changeWindowZoom(settings, -(settings.zoomLevel || 0));
     case EVENTS.REPORT_ISSUE:
       return { ...settings, reportIssueOnStartup: false };
     case EVENTS.HANDLE_DEEP_LINK:
       return { ...settings, launchedWithLink: null };
 
     case MIGRATIONS.REDUX_STATE:
-      return objectMerge(settings, action.data.settings);
+      return updateSettings(settings, action.data.settings);
+    case MIGRATIONS.COMPLETED:
+      // NB: We used to track migrations in settings.
+      return omit(settings, 'hasMigratedData') as SettingsState;
     default:
       return settings;
   }
-}
+};
 
-function getDefaultSettings() {
-  const {base, linux, winBefore10, win10, darwin} = defaultSettings;
+function getDefaultSettings(): SettingsState {
+  const { base, linux, winBefore10, win10, darwin } = defaultSettings;
   const notWin10 = !nativeInterop.isWindows10OrHigher();
 
   switch (base.platform) {
   case 'linux':
-    return {...base, ...linux};
+    return { ...base, ...linux };
   case 'win32':
-    return {...base, ...(notWin10 ? winBefore10 : win10)};
+    return { ...base, ...(notWin10 ? winBefore10 : win10) };
   case 'darwin':
-    return {...base, ...darwin};
+    return { ...base, ...darwin };
   default:
     throw new Error('No platform specified');
   }
 }
 
-function updateSettings(settings: SettingType, update: SettingType) {
-  return {
-    ...settings,
-    ...update
-  };
+function updateSettings(settings: SettingsState, update: Partial<SettingsState>) {
+  return objectMerge(settings, update);
 }
 
-function changeWindowZoom(settings: SettingType, change: number) {
+function changeWindowZoom(settings: SettingsState, change: number) {
   // clamp the zoom to be between [-3, 3]
-  const zoomLevel = Math.min(Math.max(settings.zoomLevel + change, -3), 3);
+  const zoomLevel = Math.min(Math.max((settings.zoomLevel || 0) + change, -3), 3);
   return {
     ...settings,
     zoomLevel

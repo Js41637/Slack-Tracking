@@ -2,12 +2,13 @@ import assignIn from 'lodash.assignin';
 import fs from 'graceful-fs';
 import temp from 'temp';
 
-import {logger} from '../logger';
-import runScript from '../edge-loader';
-import {nativeInterop} from '../native-interop';
-import {requireTaskPool} from 'electron-remote';
+import { logger } from '../logger';
+import { runScript } from '../edge-loader';
+import { nativeInterop } from '../native-interop';
+import { requireTaskPool } from 'electron-remote';
+import { IS_WINDOWS_STORE } from '../utils/shared-constants';
 
-const {downloadFileOrUrl} = requireTaskPool(require.resolve('electron-remote/remote-ajax'));
+const { downloadFileOrUrl } = requireTaskPool(require.resolve('electron-remote/remote-ajax'));
 const isWindows10OrHigher = nativeInterop.isWindows10OrHigher();
 
 temp.track();
@@ -73,13 +74,13 @@ export default class WindowsNativeNotification {
     if (isWindows10OrHigher) {
       notifier = notifier || require('../renderer/components/node-rt-toast-notification').default;
 
-      if (process.windowsStore) {
+      if (IS_WINDOWS_STORE) {
         try {
           logger.debug('NativeNotification: Creating new NodeRT tile notification.');
           tileNotifier = tileNotifier || require('../renderer/components/node-rt-tile-notification').default;
           tileNotifier(options);
         } catch (e) {
-          logger.warn('Sending tile notification failed with error.', e);
+          logger.warn('NativeNotification: Sending tile notification failed with error.', e);
         }
       }
 
@@ -88,8 +89,7 @@ export default class WindowsNativeNotification {
     } else {
       logger.info('NativeNotification: Creating new CSX toast notification.');
       notifier = notifier || await runScript({
-        absolutePath: require.resolve('./native-notifications.csx'),
-        args: false
+        absolutePath: require.resolve('./native-notifications.csx')
       });
       result = await notifier(JSON.stringify(options));
     }
@@ -112,9 +112,9 @@ export default class WindowsNativeNotification {
   dispatchError(error) {
     // WinRT only returns an errorCode, so that's what we get from NodeRT
     if (isWindows10OrHigher) {
-      logger.warn('Error while showing notification: WinRT error.', error);
+      logger.warn('NativeNotification: Error while showing notification: WinRT error.', error);
     } else {
-      logger.warn('Error while showing notification:', error);
+      logger.warn('NativeNotification: Error while showing notification:', error);
     }
 
     this.dispatchEventWithReplay('error', {

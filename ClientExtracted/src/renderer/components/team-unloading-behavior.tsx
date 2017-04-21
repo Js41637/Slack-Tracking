@@ -1,13 +1,17 @@
-import {Subscription} from 'rxjs/Subscription';
-import {Subject} from 'rxjs/Subject';
-import {Observable} from 'rxjs/Observable';
+/**
+ * @module RendererComponents
+ */ /** for typedoc */
+
+import { Subscription } from 'rxjs/Subscription';
+import { Subject } from 'rxjs/Subject';
+import { Observable } from 'rxjs/Observable';
 import SerialSubscription from 'rxjs-serial-subscription';
 
-import {logger} from '../../logger';
+import { logger } from '../../logger';
 
-import {appTeamsStore} from '../../stores/app-teams-store';
-import {Component} from '../../lib/component';
-import {teamStore} from '../../stores/team-store';
+import { appTeamsStore } from '../../stores/app-teams-store';
+import { Component } from '../../lib/component';
+import { teamStore } from '../../stores/team-store';
 
 export interface TeamUnloadingBehaviorProps {
   teamId: string;
@@ -60,7 +64,7 @@ export class TeamUnloadingBehavior extends Component<TeamUnloadingBehaviorProps,
    * create a new one.
    */
   public componentDidUpdate(_prevProps: TeamUnloadingBehaviorProps, prevState: TeamUnloadingBehaviorState): void {
-    const {idleTimeout, selectedTeamId} = this.state;
+    const { idleTimeout, selectedTeamId } = this.state;
 
     if (idleTimeout !== prevState.idleTimeout) {
       this.teamUnloadingSubscription.add(this.setupTeamUnloading());
@@ -105,12 +109,12 @@ export class TeamUnloadingBehavior extends Component<TeamUnloadingBehaviorProps,
       .takeUntil(teamSelected)
       .repeat()
       .filter(() => this.props.canUnloadTeam())
-      .do(() => logger.info(`Unloading team ${this.state.teamName}`))
+      .do(() => logger.info(`Team Unloading: Unloading team ${this.state.teamName}`))
       .flatMap(() => this.props.unloadTeam())
       .filter((wasUnloaded: boolean) => wasUnloaded)
       .subscribe(
         () => this.props.setTeamUnloaded(true),
-        (err: Error) => logger.warn(`Unable to unload team: ${err.message}`)
+        (err: Error) => logger.warn(`Team Unloading: Unable to unload team.`, err)
       );
   }
 
@@ -123,12 +127,12 @@ export class TeamUnloadingBehavior extends Component<TeamUnloadingBehaviorProps,
   private restoreTeamOn(teamSelected: Observable<any>): Subscription {
     return teamSelected
       .filter(() => this.props.isTeamUnloaded())
-      .do(() => logger.info(`Restoring team ${this.state.teamName}`))
+      .do(() => logger.info(`Team Unloading: Restoring team ${this.state.teamName}`))
       .flatMap(() => this.props.reloadTeam())
       .filter((wasReloaded: boolean) => wasReloaded)
       .subscribe(
         () => this.props.setTeamUnloaded(false),
-        (err: Error) => logger.warn(`Unable to reload team: ${err.message}`)
+        (err: Error) => logger.warn('Team Unloading: Unable to reload team.', err)
       );
   }
 }

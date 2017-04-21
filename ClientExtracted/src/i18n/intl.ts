@@ -1,4 +1,8 @@
 /**
+ * @module i18n
+ */ /** for typedoc */
+
+/**
  * Provides interface to lookup i18n translated ICU strings.
  * This modules provides identical interface to webapp
  * (https://slack-github.com/slack/docs/blob/master/i18n/javascript.md#overview)
@@ -9,8 +13,8 @@
  */
 
 import * as MessageFormat from 'message-format';
-import {parseCommandLine} from '../parse-command-line';
-import {StringMap} from '../utils/string-map';
+import { parseCommandLine } from '../parse-command-line';
+import { StringMap } from '../utils/shared-constants';
 
 export type translationFormatFunction = (...args: Array<any>) => string;
 

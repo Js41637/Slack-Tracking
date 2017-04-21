@@ -1,4 +1,8 @@
-export function getScaledBorderRadius(iconSize: number): number {
+/**
+ * @module Utilities
+ */ /** for typedoc */
+
+ export function getScaledBorderRadius(iconSize: number): number {
   const rounding = process.platform === 'darwin' ? 6.0 : 2.0;
 
   // Linearly scale the border radius based on 36px == 6px border, but clamp

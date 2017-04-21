@@ -1,4 +1,8 @@
-import {isObject} from './is-object';
+/**
+ * @module Utilities
+ */ /** for typedoc */
+
+import { isObject } from './is-object';
 
 export function objectMerge<T extends {}, U extends {}>(objA: T, objB: U): T & U {
   const merged = {};

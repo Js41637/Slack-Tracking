@@ -1,3 +1,7 @@
+/**
+ * @module Utilities
+ */ /** for typedoc */
+
 /*
 Source: The source of the data, containing all the information to fill the sink with
 Sink: The shape of the data to be filled, describing the desired objects by giving

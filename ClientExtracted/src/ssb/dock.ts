@@ -1,11 +1,14 @@
-import {Subscription} from 'rxjs/Subscription';
+/**
+ * @module SSBIntegration
+ */ /** for typedoc */
+
+import { remote } from 'electron';
+import { Subscription } from 'rxjs/Subscription';
 import SerialSubscription from 'rxjs-serial-subscription';
-import {noop} from '../utils/noop';
-import {remote} from 'electron';
+const { app } = remote;
 
-const {app} = remote;
-
-import {teamActions} from '../actions/team-actions';
+import { noop } from '../utils/noop';
+import { unreadsActions } from '../actions/unreads-actions';
 
 class FakeDock {
   public getBadge = noop;
@@ -43,9 +46,14 @@ export class DockIntegration {
     this.subscription.add(Subscription.EMPTY);
   }
 
-  public setBadgeCount(unreadHighlights: number, unread: number, showBullet: boolean) {
+  public setBadgeCount(unreadHighlights: number, unreads: number, showBullet: boolean) {
     if (window.teamId) {
-      teamActions.updateUnreadsInfo(unread, unreadHighlights, showBullet, window.teamId);
+      unreadsActions.updateUnreadsInfo({
+        unreads,
+        unreadHighlights,
+        showBullet,
+        teamId: window.teamId
+      });
     }
   }
 }

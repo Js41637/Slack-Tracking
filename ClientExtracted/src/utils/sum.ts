@@ -1,3 +1,7 @@
+/**
+ * @module Utilities
+ */ /** for typedoc */
+
 function sumArray<T, R>(array: Array<T> = [], iteratee: ((value: T) => T | R) | string = (v) => v) {
   if (!array || array.length === 0) return 0;
   const _iteratee = (typeof iteratee === 'string') ? (v: {}) => v[iteratee] : iteratee;

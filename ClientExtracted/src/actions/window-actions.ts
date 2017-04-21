@@ -1,8 +1,12 @@
-import {Store} from '../lib/store';
-import {WINDOWS} from './';
-import {windowType} from '../utils/shared-constants';
+/**
+ * @module Actions
+ */ /** for typedoc */
 
-export interface WindowCreationOptions {
+import { Store } from '../lib/store';
+import { WINDOWS } from './';
+import { windowType } from '../utils/shared-constants';
+
+export interface Window {
   windowId: number;
   windowType: windowType;
   subType?: string;
@@ -10,7 +14,7 @@ export interface WindowCreationOptions {
 }
 
 export class WindowActions {
-  public addWindow(options: WindowCreationOptions): void {
+  public addWindow(options: Window): void {
     Store.dispatch({
       type: WINDOWS.ADD_WINDOW,
       data: options

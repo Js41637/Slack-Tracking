@@ -1,4 +1,8 @@
-import {Subscription} from 'rxjs/Subscription';
+/**
+ * @module RendererBehaviors
+ */ /** for typedoc */
+
+import { Subscription } from 'rxjs/Subscription';
 
 //taking different approach to window-behavior uses abstract class for base class extend
 export interface WebViewBehavior {

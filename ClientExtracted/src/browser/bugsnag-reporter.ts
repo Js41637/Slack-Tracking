@@ -1,12 +1,17 @@
-import {app, BrowserWindow, dialog} from 'electron';
+/**
+ * @module Bugsnag
+ */ /** for typedoc */
+
+import { app, BrowserWindow, dialog } from 'electron';
 import * as fs from 'graceful-fs';
 import * as path from 'path';
 
 import * as bugsnag from './bugsnag/bugsnag';
-import {logger} from '../logger';
-import {restartApp} from './restart-app';
+import { logger } from '../logger';
+import { restartApp } from './restart-app';
 
-import {intl as $intl, LOCALE_NAMESPACE} from '../i18n/intl';
+import { intl as $intl, LOCALE_NAMESPACE } from '../i18n/intl';
+import { getInstanceUuid } from '../uuid';
 
 export class BugsnagReporter {
   private handlingFatalError: boolean;
@@ -20,6 +25,11 @@ export class BugsnagReporter {
       appVersion: version,
       packageJson,
       projectRoot: resourcePath,
+      metaData: {
+        user: {
+          id: getInstanceUuid()
+        }
+      },
       onUncaughtError: (e: Error) => {
         logger.error('**** ABOUT TO CRASH ****');
         if (!e) {
@@ -81,7 +91,7 @@ export class BugsnagReporter {
       const button = await this.showDialogOfShame();
       if (button === 2) {
         const SettingActions = require('../actions/setting-actions').settingActions;
-        SettingActions.updateSettings({reportIssueOnStartup: true});
+        SettingActions.updateSettings({ reportIssueOnStartup: true });
       }
 
       if (button === 0) {

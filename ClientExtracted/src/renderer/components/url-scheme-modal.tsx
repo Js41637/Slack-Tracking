@@ -1,16 +1,20 @@
-import {logger} from '../../logger';
-import {shell} from 'electron';
-import {Observable} from 'rxjs/Observable';
+/**
+ * @module RendererComponents
+ */ /** for typedoc */
+
+import { logger } from '../../logger';
+import { shell } from 'electron';
+import { Observable } from 'rxjs/Observable';
 import * as url from 'url';
 
-import {dialogActions, UrlScheme} from '../../actions/dialog-actions';
-import {settingStore} from '../../stores/setting-store';
-import {settingActions} from '../../actions/setting-actions';
-import {Component} from '../../lib/component';
-import {Modal} from './modal';
+import { dialogActions, UrlScheme } from '../../actions/dialog-actions';
+import { settingStore } from '../../stores/setting-store';
+import { settingActions } from '../../actions/setting-actions';
+import { Component } from '../../lib/component';
+import { Modal } from './modal';
 
 import * as reactStringReplace from 'react-string-replace-recursively';
-import {intl as $intl, LOCALE_NAMESPACE} from '../../i18n/intl';
+import { intl as $intl, LOCALE_NAMESPACE } from '../../i18n/intl';
 
 import * as React from 'react'; // tslint:disable-line
 
@@ -106,10 +110,10 @@ export class UrlSchemeModal extends Component<UrlSchemeModalProps, UrlSchemeModa
    */
   private handleConfirm(): void {
     try {
-      logger.debug(`Opening external window to ${this.props.url}`);
-      shell.openExternal(this.props.url, {activate: this.props.disposition !== 'background-tab'});
+      logger.debug(`UrlSchemeModal: Opening external window to ${this.props.url}`);
+      shell.openExternal(this.props.url, { activate: this.props.disposition !== 'background-tab' });
     } catch (error) {
-      logger.warn(`Failed to open protocol link: ${error.message}`);
+      logger.warn(`UrlSchemeModal: Failed to open protocol link:`, error);
     }
 
     if (this.whitelistElement.checked) this.whitelistProtocol();
@@ -127,13 +131,13 @@ export class UrlSchemeModal extends Component<UrlSchemeModalProps, UrlSchemeModa
     const whitelistedUrlSchemes = this.state.whitelistedUrlSchemes;
 
     if (!this.protocol) {
-      logger.warn('Attempted to whitelist undefined or not parseable url');
+      logger.warn('UrlSchemeModal: Attempted to whitelist undefined or not parseable url.');
       return;
     }
 
     if (whitelistedUrlSchemes.indexOf(this.protocol) < 0) {
       whitelistedUrlSchemes.push(this.protocol);
-      settingActions.updateSettings({whitelistedUrlSchemes});
+      settingActions.updateSettings({ whitelistedUrlSchemes });
     }
   }
 }

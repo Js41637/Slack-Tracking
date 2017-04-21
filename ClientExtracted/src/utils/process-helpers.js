@@ -1,3 +1,7 @@
+/**
+ * @module Utilities
+ */ /** for typedoc */
+
 // NB: Memoize me cap'n!
 let isRunningFromPrebuilt;
 

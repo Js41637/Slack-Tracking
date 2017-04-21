@@ -1,5 +1,9 @@
-import {Subscription} from 'rxjs/Subscription';
-import {logger} from '../logger';
+/**
+ * @module Renderer
+ */ /** for typedoc */
+
+import { Subscription } from 'rxjs/Subscription';
+import { logger } from '../logger';
 
 export class ObservableStorage {
   public data: any;
@@ -19,7 +23,7 @@ export class ObservableStorage {
                 initialState?: any;
                 localStorage?: Storage;
               } = {}) {
-    const {initialState, localStorage} = options;
+    const { initialState, localStorage } = options;
 
     this.localStorage = localStorage || global.localStorage;
     this.data = initialState || this.load() || {};

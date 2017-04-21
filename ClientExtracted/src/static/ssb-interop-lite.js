@@ -1,3 +1,4 @@
+//do not migrate preload script into TypeScript
 require('../stat-cache');
 
 const profiler = require('../utils/profiler.js');

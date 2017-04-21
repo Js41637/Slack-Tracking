@@ -1,4 +1,8 @@
 /**
+ * @module Utilities
+ */ /** for typedoc */
+
+/**
  * Tests a string for invalid UTF characters,
  * resulting in a � when parsed.
  *

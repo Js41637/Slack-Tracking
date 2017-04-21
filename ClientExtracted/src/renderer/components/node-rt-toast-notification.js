@@ -64,15 +64,49 @@
  *
  * * slack://reply/?channel=D221YR34P&userId=U211G89NY&teamId=TW2104UHEX
  *   &userData=[{"key":"message","value":"The response!"}]
- */
+ *
+ * @module Notifications
+ * @preferred
+ */ /** for typedoc */
 
-import {ToastNotification} from 'electron-windows-notifications';
-import {getAppId} from '../../utils/app-id';
-import {logger} from '../../logger';
-import {NodeRTNotificationHelpers as Helpers} from './node-rt-notification-helpers';
-import {settingActions} from '../../actions/setting-actions';
+import { ToastNotification } from 'electron-windows-notifications';
+import { getAppId } from '../../utils/app-id';
+import { IS_WINDOWS_STORE } from '../../utils/shared-constants';
+import { logger } from '../../logger';
+import { NodeRTNotificationHelpers as Helpers } from './node-rt-notification-helpers';
+import { settingActions } from '../../actions/setting-actions';
+import { settingStore } from '../../stores/setting-store';
+import { teamStore } from '../../stores/team-store';
 
 const appId = getAppId();
+
+const standardTemplate = (header, ...elements) => `
+  <toast activationType="%s" launch="%s">${header}
+    <visual>
+      <binding template="ToastGeneric">
+        <text hint-wrap="false" hint-maxLines="1">%s</text>
+        <text hint-maxLines="10" hint-style="bodySubtle" hint-wrap="true">%s</text>
+        ${elements.join('')}
+      </binding>
+    </visual>
+    <audio silent="true" />
+  </toast>`.replace(/\>\s+\</g, '><');
+
+const interactiveTemplate = (header, ...elements) => `
+  <toast activationType="%s" launch="%s">${header}
+    <visual>
+      <binding template="ToastGeneric">
+        <text hint-wrap="false" hint-maxLines="1">%s</text>
+        <text hint-maxLines="10" hint-style="bodySubtle" hint-wrap="true">%s</text>
+        ${elements.join('')}
+      </binding>
+    </visual>
+    <audio silent="true" />
+    <actions>
+      <input id="message" type="text" placeHolderContent="Type a reply" />
+      <action hint-inputId="message" activationType="background" content="Reply" arguments="%s" />
+    </actions>
+  </toast>`.replace(/\>\s+\</g, '><');
 
 /**
  * Creates a template for a WinRT Toast Notification.
@@ -88,39 +122,22 @@ const appId = getAppId();
  */
 function createTemplate(args) {
   const mainImageElement = args.imageUri ? `<image placement="hero" src="${args.imageUri}" />`: '';
-  const activationType = (process.windowsStore || !args.launchUri) ? 'foreground' : 'protocol';
+  const activationType = (IS_WINDOWS_STORE || !args.launchUri) ? 'foreground' : 'protocol';
   const launchUri = args.launchUri ? args.launchUri : 'lol.no.op';
   const strings = [activationType, launchUri, args.title, args.body];
   const activated = Helpers.activatorRegistered && Helpers.activatorRegistered !== 'failed';
+  const { build } = (settingStore.getSetting('platformVersion') || { build: 0 });
+  let header = '';
 
-  const standard = (...elements) => `
-    <toast activationType="%s" launch="%s">
-      <visual>
-        <binding template="ToastGeneric">
-          <text hint-wrap="false">%s</text>
-          <text>%s</text>
-          ${elements.join('')}
-        </binding>
-      </visual>
-      <audio silent="true" />
-    </toast>`.replace(/\>\s+\</g, '><');
+  // If we're sending a notification from a team, we'll group them under
+  // one team header
+  if (args.teamId && build > 15000) {
+    const headerLaunchUri = `slack://channel?team=${args.teamId}`;
+    const { team_name } = teamStore.getTeam(args.teamId);
+    header = `<header id="%s" title="%s" activationType="%s" arguments="%s"></header>`;
 
-  const interactive = (...elements) => `
-    <toast activationType="%s" launch="%s">
-      <visual>
-        <binding template="ToastGeneric">
-          <text hint-wrap="false" hint-maxLines="1">%s</text>
-          <text hint-maxLines="10">%s</text>
-          ${elements.join('')}
-          <text hint-maxLines="10" hint-style="bodySubtle" hint-wrap="true">%s</text>
-        </binding>
-      </visual>
-      <audio silent="true" />
-      <actions>
-        <input id="message" type="text" placeHolderContent="Type a reply" />
-        <action hint-inputId="message" activationType="background" content="Reply" arguments="%s" />
-      </actions>
-    </toast>`.replace(/\>\s+\</g, '><');
+    strings.splice(2, 0, args.teamId, team_name, activationType, headerLaunchUri);
+  }
 
   let avatarImageElement = '';
 
@@ -129,23 +146,19 @@ function createTemplate(args) {
     avatarImageElement = `<image placement="appLogoOverride" hint-crop="circle" src="${args.avatarImage}" />`;
   }
 
+  // We have more space available than webapp ever imagined, so let's
+  // be creative with it.
+  //
+  // [helixcorp] from Hello
+  // Result: ["[helixcorp] from Hello", helixcorp", "hello"]
+  // [tinyspeck] in #desktop-dev-only
+  // Result: ["[tinyspeck] in #desktop-dev-only", tinyspeck", "#desktop-dev-only"]
+  const channelAndIdentifier = /\[([\s\S]*)\] (?:from|in) ([\s\S]*$)/.exec(args.title);
+  if (channelAndIdentifier && channelAndIdentifier.length === 3 && header) {
+    strings[6] = channelAndIdentifier[2];
+  }
+
   if (args.channel && (args.userId || args.teamId) && args.msg && args.interactive && activated) {
-    // We have more space available than webapp ever imagined, so let's
-    // be creative with it.
-    //
-    // [helixcorp] from Hello
-    // Result: ["[helixcorp] from Hello", helixcorp", "hello"]
-    // [tinyspeck] in #desktop-dev-only
-    // Result: ["[tinyspeck] in #desktop-dev-only", tinyspeck", "#desktop-dev-only"]
-    const channelAndIdentifier = /\[([\s\S]*)\] (?:from|in) ([\s\S]*$)/.exec(args.title);
-
-    if (channelAndIdentifier && channelAndIdentifier.length === 3) {
-      strings[2] = channelAndIdentifier[2];           // Name
-      strings.splice(3, 0, channelAndIdentifier[1]);  // Team Name
-    } else {
-      strings.splice(3, 0, 'New message');            // Weird notification? Use "New message"
-    }
-
     let queryString = 'reply';
     queryString += `?channel=${encodeURIComponent(args.channel)}`;
     queryString += `&userId=${encodeURIComponent(args.userId)}`;
@@ -157,9 +170,9 @@ function createTemplate(args) {
 
     strings.push(queryString);
 
-    return {strings, type: 'interactive', template: interactive(avatarImageElement, mainImageElement)};
+    return {strings, type: 'interactive', template: interactiveTemplate(header, avatarImageElement, mainImageElement)};
   } else {
-    return {strings, type: 'standard', template: standard(avatarImageElement, mainImageElement)};
+    return {strings, type: 'standard', template: standardTemplate(header, avatarImageElement, mainImageElement)};
   }
 }
 
@@ -182,7 +195,7 @@ export default async function showNotification(options) {
   }
 
   const group = options.channel;
-  const {template, strings, type} = createTemplate(options);
+  const { template, strings, type } = createTemplate(options);
 
   const toast = new ToastNotification({template, strings, appId, group});
   const result = new Promise((resolve, reject) => {

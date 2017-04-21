@@ -1,7 +1,11 @@
-export const NOTIFICATION_SIZE = {width: 375, height: 88};
+/**
+ * @module Notifications
+ */ /** for typedoc */
+
+export const NOTIFICATION_SIZE = { width: 375, height: 88 };
 export const MAX_NOTIFICATIONS = 3;
 
-import {screen as Screen} from 'electron';
+import { screen as Screen } from 'electron';
 
 export interface NotifyPosition {
   corner: string;
@@ -53,9 +57,9 @@ export class NotificationWindowHelpers {
     maxCount: number;
     screenApi: Electron.Screen;
   }): Electron.Rectangle {
-    const {size, parent, maxCount, screenApi} = options;
+    const { size, parent, maxCount, screenApi } = options;
     let screenPosition = options.screenPosition;
-    screenPosition = screenPosition || {corner: 'bottom_right', display: 'same_as_app'};
+    screenPosition = screenPosition || { corner: 'bottom_right', display: 'same_as_app' };
 
     const display = NotificationWindowHelpers.getDisplayForHost(parent, screenPosition, screenApi);
     const bounds = display.workArea;

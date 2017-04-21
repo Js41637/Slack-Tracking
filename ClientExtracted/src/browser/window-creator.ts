@@ -1,41 +1,45 @@
-import {ipcMain, BrowserWindow} from 'electron';
+/**
+ * @module Browser
+ */ /** for typedoc */
+
+import { ipcMain, BrowserWindow } from 'electron';
 import * as profiler from '../utils/profiler';
 
-const {app} = require('electron');
-import {omit} from '../utils/omit';
+const { app } = require('electron');
+import { omit } from '../utils/omit';
 import * as assignIn from 'lodash.assignin';
 import * as kebabCase from 'lodash.kebabcase';
-import {logger} from '../logger';
-import {executeJavaScriptMethod, remoteEval} from 'electron-remote';
-import {Subscription} from 'rxjs/Subscription';
-import {Observable} from 'rxjs/Observable';
+import { logger } from '../logger';
+import { executeJavaScriptMethod, remoteEval } from 'electron-remote';
+import { Subscription } from 'rxjs/Subscription';
+import { Observable } from 'rxjs/Observable';
 
-import {AppMenu} from './app-menu';
-import {BrowserWindowManager} from './browser-window-manager';
-import {DownloadListener} from './download-listener';
-import {eventActions} from '../actions/event-actions';
-import {behaviors as windowBehaviors} from './behaviors';
-import {externalLinkBehavior} from '../renderer/behaviors/external-link-behavior';
-import {WindowBehavior} from './behaviors/window-behavior';
-import {MainWindowCloseBehavior} from './behaviors/main-window-close-behavior';
-import {MetricsReporter} from './metrics-reporter';
-import {NotificationWindowManager} from './notification-window-manager';
-import {ReduxComponent} from '../lib/redux-component';
-import {RepositionWindowBehavior} from './behaviors/reposition-window-behavior';
-import {settingStore} from '../stores/setting-store';
-import {windowActions} from '../actions/window-actions';
-import {windowFrameActions} from '../actions/window-frame-actions';
-import {WindowFlashNotificationManager} from './window-flash-notification-manager';
-import {WindowHelpers} from '../utils/window-helpers';
-import {windowStore} from '../stores/window-store';
-import {resolveImage} from '../utils/resolve-image';
+import { AppMenu } from './app-menu';
+import { BrowserWindowManager } from './browser-window-manager';
+import { DownloadListener } from './download-listener';
+import { eventActions } from '../actions/event-actions';
+import { behaviors as windowBehaviors } from './behaviors';
+import { externalLinkBehavior } from '../renderer/behaviors/external-link-behavior';
+import { WindowBehavior } from './behaviors/window-behavior';
+import { MainWindowCloseBehavior } from './behaviors/main-window-close-behavior';
+import { MetricsReporter } from './metrics-reporter';
+import { NotificationWindowManager } from './notification-window-manager';
+import { ReduxComponent } from '../lib/redux-component';
+import { RepositionWindowBehavior } from './behaviors/reposition-window-behavior';
+import { settingStore } from '../stores/setting-store';
+import { windowActions } from '../actions/window-actions';
+import { windowFrameActions } from '../actions/window-frame-actions';
+import { WindowFlashNotificationManager } from './window-flash-notification-manager';
+import { WindowHelpers } from '../utils/window-helpers';
+import { windowStore } from '../stores/window-store';
+import { resolveImage } from '../utils/resolve-image';
 
-import {SLACK_PROTOCOL, WINDOW_TYPES, SIDEBAR_WIDTH} from '../utils/shared-constants';
-import {WindowCreatorBase} from './window-creator-base';
+import { SLACK_PROTOCOL, WINDOW_TYPES, SIDEBAR_WIDTH } from '../utils/shared-constants';
+import { WindowCreatorBase } from './window-creator-base';
 
-import {intl as $intl, LOCALE_NAMESPACE} from '../i18n/intl';
+import { intl as $intl, LOCALE_NAMESPACE } from '../i18n/intl';
 
-const {reportRendererCrashes, reportWindowMetrics, loadWindowFileUrl} = WindowHelpers;
+const { reportRendererCrashes, reportWindowMetrics, loadWindowFileUrl } = WindowHelpers;
 
 export interface WindowCreatorState {
   title: string;
@@ -113,7 +117,7 @@ export class WindowCreator extends ReduxComponent<WindowCreatorState> implements
    * @return {BrowserWindow}  The created window
    */
   public createMainWindow(params: any): Electron.BrowserWindow {
-    const options = {...this.getSlackWindowOpts(), ...params};
+    const options = { ...this.getSlackWindowOpts(), ...params };
     options.windowType = WINDOW_TYPES.MAIN;
     options.bootstrapScript = require.resolve('../renderer/main');
 
@@ -138,7 +142,7 @@ export class WindowCreator extends ReduxComponent<WindowCreatorState> implements
     const browserWindow = new BrowserWindow(options);
     const disposable = new Subscription();
 
-    windowActions.addWindow({windowId: browserWindow.id, windowType: WINDOW_TYPES.MAIN});
+    windowActions.addWindow({ windowId: browserWindow.id, windowType: WINDOW_TYPES.MAIN });
 
     const behaviors: Array<WindowBehavior> = windowBehaviors
                                               .filter((x) => x.isSupported(this.state.platform))
@@ -152,6 +156,22 @@ export class WindowCreator extends ReduxComponent<WindowCreatorState> implements
     browserWindow.on('enter-full-screen', () => {
       windowFrameActions.setFullScreen(true);
     });
+
+    //once main window appears and if there's any crash report generated before application starts,
+    //ask any team (current selected team will picks up this event) to send clogs, then flush out reported crashes
+    //NOTE: disabled until get clarification from https://github.com/electron/electron/issues/9100,
+    //since this failure prevents user to use slack at all
+    /*
+    browserWindow.once('show', () => {
+      const report = crashReporter.getUploadedReports();
+      const count = Array.isArray(report) ? report.length : 0;
+
+      if (count > 0) {
+        logger.info('WindowCreator: Found native crash reports, reporting to webapp');
+        eventActions.reportCrashLogs(count);
+        flushCurrentReports();
+      }
+    });*/
 
     browserWindow.on('leave-full-screen', () => {
       windowFrameActions.setFullScreen(false);
@@ -230,7 +250,7 @@ export class WindowCreator extends ReduxComponent<WindowCreatorState> implements
     loadWindowFileUrl(browserWindow, options);
     this.preventWindowNavigation(browserWindow);
 
-    windowActions.addWindow({windowId, windowType: WINDOW_TYPES.NOTIFICATIONS});
+    windowActions.addWindow({ windowId, windowType: WINDOW_TYPES.NOTIFICATIONS });
     disposable.add(() => windowActions.removeWindow(windowId));
 
     browserWindow.once('close', () => {
@@ -358,8 +378,8 @@ export class WindowCreator extends ReduxComponent<WindowCreatorState> implements
     };
 
     // Ensure that the new window pops up on the same screen as the app
-    const rect: Electron.Rectangle = {x: params.x!, y: params.y!, width: params.width!, height: params.height!};
-    const senderWindow = BrowserWindow.fromWebContents(sender!) || BrowserWindow.getFocusedWindow();
+    const rect: Electron.Rectangle = { x: params.x!, y: params.y!, width: params.width!, height: params.height! };
+    const senderWindow = (sender ? BrowserWindow.fromWebContents(sender!) : null) || BrowserWindow.getFocusedWindow();
     Object.assign(params, RepositionWindowBehavior.moveRectToDisplay(rect, senderWindow));
 
     Object.keys(params).forEach((key) => {
@@ -372,7 +392,7 @@ export class WindowCreator extends ReduxComponent<WindowCreatorState> implements
     options.fullscreenable = (params.fullscreenable !== undefined) ? params.fullscreenable : true;
     options = RepositionWindowBehavior.getValidWindowPositionAndSize(options) as any;
 
-    logger.info(`Creating webapp window with ${JSON.stringify(omit(options, 'url', 'content_html'))}`);
+    logger.info('Creating webapp window.', omit(options, 'url', 'content_html'));
 
     const browserWindow = new BrowserWindow(options);
     const windowId = browserWindow.id;
@@ -533,7 +553,7 @@ export class WindowCreator extends ReduxComponent<WindowCreatorState> implements
    * @param  {Object}         senderInfo    Identifies the `WebContents`
    * @return {Subscription}                   A Subscription that will unsubscribe the event
    */
-  private setParentInformation(browserWindow: Electron.BrowserWindow, senderInfo: Object): Subscription {
+  private setParentInformation(browserWindow: Electron.BrowserWindow, senderInfo: object): Subscription {
     const parentInfoFailed = (error: Error) => {
       logger.error(`Setting parentInfo failed: ${error.message}`);
       return Observable.of(false);

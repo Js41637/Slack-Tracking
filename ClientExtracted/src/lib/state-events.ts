@@ -1,5 +1,9 @@
-import {logger} from '../logger';
-import {ComponentBase} from './component-base';
+/**
+ * @module Stores
+ */ /** for typedoc */
+
+import { logger } from '../logger';
+import { ComponentBase } from './component-base';
 
 export interface State {
   timestamp?: number;

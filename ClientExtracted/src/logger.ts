@@ -1,12 +1,20 @@
+/**
+ * @module Logger
+ */ /** for typedoc */
+
 import * as fs from 'graceful-fs';
 import * as path from 'path';
 import * as winston from 'winston';
-import {p} from './get-path';
-import {noop} from './utils/noop';
-import promisify from './promisify';
-import {LoggerConfiguration} from './logger-configuration';
-import {Observable} from 'rxjs/Observable';
-import {Subscription} from 'rxjs/Subscription';
+import * as packageJson from '../package.json';
+import * as os from 'os';
+import * as util from 'util';
+import { p } from './get-path';
+import { noop } from './utils/noop';
+import { IS_WINDOWS_STORE, UUID_FILENAME } from './utils/shared-constants';
+import { promisify } from './promisify';
+import { LoggerConfiguration } from './logger-configuration';
+import { Observable } from 'rxjs/Observable';
+import { Subscription } from 'rxjs/Subscription';
 import 'rxjs/add/observable/from';
 import 'rxjs/add/operator/filter';
 import 'rxjs/add/operator/take';
@@ -17,11 +25,21 @@ const isBrowser = process.type === 'browser';
 const isWebView = !!process.guestInstanceId;
 const identifier = isWebView ? 'webview' : process.type;
 
-const LOG_EXPIRY = 30 * 24 * 3600000;
+// 14 Days
+const LOG_EXPIRY = 14 * 24 * 3600000;
 
 let d: {
   (...args: Array<any>): void;
-  useColors: () => boolean;
+  useColors: boolean;
+};
+
+export type GetMostRecentLogFilesTransform = ((observable: Observable<any>) => Observable<any>) | null;
+
+export const LogLevels = {
+  DEBUG: 'debug' as 'debug',
+  INFO: 'info' as 'info',
+  WARN: 'warn' as 'warn',
+  ERROR: 'error' as 'error'
 };
 
 export interface LoggerOptions {
@@ -30,11 +48,18 @@ export interface LoggerOptions {
   dontSetUpWinston?: boolean;
 }
 
+export interface FormatterOptions {
+  timestamp?: () => string;
+  message: string;
+  level: string;
+  meta: any;
+}
+
 export class Logger {
   public readonly logLocation: string;
   private readonly logApi: winston.LoggerInstance;
   private readonly sub: Subscription;
-  private readonly consoleErrorExclusionList: Readonly<Array<string>> = ['Warning: Possible EventEmitter memory leak detected.'];
+  private readonly isWindows10orHigher: boolean = false;
 
   /**
    * Creates a new logger instance.
@@ -46,16 +71,16 @@ export class Logger {
   constructor(options: LoggerOptions = {}) {
     this.logApi = new winston.Logger();
 
-    const {identifierOverride, showTimestamp, dontSetUpWinston} = options;
+    const { identifierOverride, showTimestamp } = options;
     const loggerConfig = this.getLoggerConfiguration();
-    const {devMode, logFile} = loggerConfig;
+    const { devMode, testMode, logFile } = loggerConfig;
     const logLevel = loggerConfig.logLevel || process.env.SLACK_DEBUG_LEVEL || (devMode ? 'debug' : 'info');
 
     if (devMode) {
       d = require('debug')(`logger:${identifier}`);
 
       // `debug` occasionally throws exceptions early on because of this method
-      d.useColors = () => false;
+      d.useColors = false;
     } else {
       // In production we only rely on the log files; wipe out `debug`
       d = noop as any;
@@ -72,7 +97,7 @@ export class Logger {
       p`${'userData'}/logs`;
 
     // NB: On early startup, `userData` may not actually exist yet
-    if (!fs.statSyncNoException(this.logLocation)) {
+    if (!fs.statSyncNoException(this.logLocation) && !testMode) {
       try {
         require('mkdirp').sync(this.logLocation);
       } catch (error) {
@@ -92,11 +117,12 @@ export class Logger {
       this.hookConsoleError();
     }
 
-    if (!dontSetUpWinston) {
+    if (!testMode) {
       this.logApi.add(winston.transports.File, {
         level: logLevel,
-        timestamp: showTimestamp,
+        timestamp: showTimestamp !== false ? this.getTimestamp : false,
         filename: path.join(this.logLocation, `${uniqueId}.log`),
+        formatter: this.formatter,
         maxsize: 5 * 1048576,
         json: false,
       });
@@ -105,6 +131,16 @@ export class Logger {
     } else {
       this.sub = new Subscription();
     }
+
+    if (process.platform === 'win32') {
+      const release = os.release() || 'unknown';
+      const win10regex = /(\d{1,2})\.\d*.\d*/;
+      const result = release.match(win10regex);
+
+      this.isWindows10orHigher = !!(result && result.length === 2 && parseInt(result[1], 10) >= 10);
+    }
+
+    this.logWelcome();
   }
 
   public debug(message: string, ...meta: Array<any>): void {
@@ -141,14 +177,69 @@ export class Logger {
   }
 
   /**
+   * We use a custom formatter to seperate meta-data (objects)
+   * from the actual log message.
+   *
+   * @param {FormatterOptions} options
+   * @returns {string}
+   */
+  public formatter(options: FormatterOptions): string {
+    const { timestamp, level, message, meta } = options;
+
+    // util.inspect is superior to JSON.stringify in almost every way
+    const metaString = meta && Object.keys(meta).length > 0 ? `${os.EOL}${util.inspect(meta)}` : '';
+    const messageString = `${level || 'nolevel'}: ${message || '(no message)'}${metaString}`;
+    const timestampString = typeof timestamp === 'function' ? `[${timestamp()}] ` : '';
+
+    return `${timestampString}${messageString}`;
+  }
+
+  /**
+   * Returns a pretty timestamp in the current timezone.
+   * @returns {string}
+   */
+  public getTimestamp(): string {
+    const options = {
+      hour12: false,
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+      month: '2-digit',
+      year: '2-digit',
+      day: '2-digit'
+    };
+    const date = new Date();
+    let ms: string | number = date.getMilliseconds();
+    ms = ms < 999 ? `00${ms}`.slice(-3) : ms;
+
+    return `${date.toLocaleString('en-US', options)}:${ms}`;
+  }
+
+  /**
+   * Logs a welcome message for the current session
+   */
+  public logWelcome() {
+    const version = packageJson.version;
+    const store = IS_WINDOWS_STORE || process.mas ? ' (Store) ' : ' ';
+    const title = `      Slack ${version}, ${os.platform()}${store}${os.release()} on ${os.arch()} at ${this.getTimestamp()}      `;
+    const fancyFiller = new Array(title.length + 1).join('═');
+    const dumbFiller = new Array(title.length + 1).join('=');
+
+    if (process.platform === 'win32' && !this.isWindows10orHigher) {
+      [`=${dumbFiller}=`, `=${title}=`, `=${dumbFiller}=`].forEach((line) => this.info(line));
+    } else {
+      [`╔${fancyFiller}╗`, `║${title}║`, `╚${fancyFiller}╝`].forEach((line) => this.info(line));
+    }
+  }
+
+  /**
    * Returns our app log files. The logs will be sorted by
    * modification time, so we'll only grab the most recent `n` files.
    *
-   * @param  {Number} days                The oldest modified day to pick up logs.
    * @param  {Function} [transform=null]  An optional function to apply to the Observable
-   * @return {Promise<Array<File>>}       A Promise that resolves with an array of Files
+   * @return {Promise<Array<string>>}     A Promise that resolves with an array of files
    */
-  public getMostRecentLogFiles(days: number = 7, transform: Function | null = null): Promise<Array<string>> {
+  public getMostRecentLogFiles(days: number = 7, transform: GetMostRecentLogFilesTransform = null): Promise<Array<string>> {
     const transformFunction = transform || (<T>(observable: Observable<T>) => observable);
 
     type fileObject = { fileName: string, date: number }; //tslint:disable-line:interface-over-type-literal
@@ -163,22 +254,45 @@ export class Logger {
         //we do not need accurate date calculation, take rough way to estimate it
         ret.date = (stat && stat.mtime) ? Math.floor((Date.now() - stat.mtime.getTime()) / 86400000) : Number.NEGATIVE_INFINITY;
         return ret;
-      }).filter((file: fileObject) => file.date >= 0 && file.date < days)
+      })
+      .filter((file: fileObject) => file.date >= 0 && file.date < days)
       .sort((a: fileObject, b: fileObject) => {
         if (a.date === b.date) {
           return 0;
         }
         return a.date < b.date ? -1 : 1;
-      }).map((x: fileObject) => x.fileName);
+      })
+      .map((x: fileObject) => x.fileName);
 
     return transformFunction(Observable.from(recentLogs))
       .catch(() => Observable.of(null))
-      .filter((x: string) => !!x && x.length)
+      .filter((x: string) => !!(!!x && x.length))
       .reduce((acc: Array<string>, file: string) => {
         if (file) acc.push(file);
         return acc;
       }, [])
       .toPromise();
+  }
+
+  /**
+   * Returns files that should be archived for diagnosis - the most recent log files
+   * as well as state files. On Windows DDL, it also adds Squirrel logs.
+   *
+   * @returns {Promise<Array<string>>}
+   */
+  public async getFilesToArchive(): Promise<Array<string>> {
+    const logFiles = await this.getMostRecentLogFiles();
+
+    const storagePath = p`${'userData'}/storage`;
+    const storageFiles = fs.readdirSync(storagePath).map((file) => p`${storagePath}/${file}`);
+
+    const installerLogPath = `${process.execPath}/../SquirrelSetup.log`;
+    const installerLogFiles = process.platform === 'win32' && !!fs.statSyncNoException(installerLogPath) ?
+      [installerLogPath] : [];
+
+    const uuidFile = p`${'userData'}/${UUID_FILENAME}`;
+
+    return [...logFiles, ...storageFiles, ...installerLogFiles, uuidFile];
   }
 
   /**
@@ -192,18 +306,18 @@ export class Logger {
 
     for (const logFile of logFiles) {
       try {
-        const {mtime} = await pfs.stat(logFile);
+        const { mtime } = await pfs.stat(logFile);
         const hasLogFileExpired = Date.now() - mtime.getTime() >= LOG_EXPIRY;
         if (hasLogFileExpired || clearEverything) {
           try {
             await pfs.unlink(logFile);
-            this.info(`Removed log file at ${logFile}`);
+            this.info(`Removed log file`, logFile);
           } catch (err) {
-            this.error(`Couldn't remove log file at ${logFile}: ${err}`);
+            this.error(`Couldn't remove log file`, { logFile, error: err });
           }
         }
       } catch (err) {
-        this.error(`Couldn't stat ${logFile}: ${err}`);
+        this.error(`Couldn't stat log file`, { logFile, error: err });
         return;
       }
     }
@@ -221,7 +335,7 @@ export class Logger {
    */
   private getLoggerConfiguration(): LoggerConfiguration {
     if (!global.loadSettings) {
-      const {parseCommandLine} = require('./parse-command-line');
+      const { parseCommandLine } = require('./parse-command-line');
       return parseCommandLine();
     }
     return global.loadSettings;
@@ -255,13 +369,8 @@ export class Logger {
       try {
         this.error(message, ...args);
 
-        let excludeNotify = false;
-        if (message && typeof message === 'string') {
-          excludeNotify = this.consoleErrorExclusionList.some((value: string) => (message as string).indexOf(value) !== -1);
-        }
-
         const reporter = window.Bugsnag || global.Bugsnag;
-        if (!!reporter && !excludeNotify) {
+        if (!!reporter) {
           const metaData = (!!args && args.length > 0) ?
             args.reduce((acc: {}, value: any, index: number) => {
               acc[index] = value;

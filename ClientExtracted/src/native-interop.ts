@@ -1,30 +1,17 @@
+/**
+ * @module NativeInterop
+ */ /** for typedoc */
+
 import * as fs from 'graceful-fs';
 import * as path from 'path';
-import {spawn} from 'spawn-rx';
-import {logger} from './logger';
+import * as os from 'os';
+import { spawn } from 'spawn-rx';
 
-//this is trick to load type definition only when loading module lazy via `require`
-//unless imported modules are used as value types, TS won't generate corresponding javascript
-//https://github.com/Microsoft/TypeScript/wiki/FAQ#why-are-imports-being-elided-in-my-emit
-import _ref = require('ref');
-import _refStruct = require('ref-struct');
-import _refArray = require('ref-array');
-import _ffi = require('ffi');
-
-let ref: typeof _ref | null = null;
-let refStruct: typeof _refStruct | null = null;
-let refArray: typeof _refArray | null = null;
-let ffi: typeof _ffi | null = null;
-let getIdleTime: any = null;
-
-let OSVERSIONINFO: any = null;
-let pOSVERSIONINFO: _ref.Type | null = null;
-let intPtr: _ref.Type | null = null;
-let shell32: any = null;
-let kernel32: any = null;
+import { logger } from './logger';
 
 const globalScope: any = global || window;
 let win10OrHigher: boolean | null = null;
+let getIdleTime: any = null;
 
 export interface NativeInterop {
   shouldDisplayNotifications: () => boolean;
@@ -38,57 +25,29 @@ export interface NativeInterop {
   isWindows10OrHigher: (dontLieToMe?: boolean) => boolean;
 }
 
-const setupWindowsLibs = () => {
-  // NB: Work around atom/electron#4025 by delay-loading ref
-  ref = ref! || require('ref');
-  refStruct = refStruct! || require('ref-struct');
-  refArray = refArray! || require('ref-array');
-  ffi = ffi! || require('ffi');
-
-  intPtr = intPtr || ref.refType(ref.types.int32);
-
-  OSVERSIONINFO = OSVERSIONINFO || refStruct({
-    dwOSVersionInfoSize: ref.types.uint32,
-    dwMajorVersion: ref.types.uint32,
-    dwMinorVersion: ref.types.uint32,
-    dwBuildNumber: ref.types.uint32,
-    dwPlatformId: ref.types.uint32,
-    szCSDVersion: refArray(ref.types.byte, 128)
-  });
-
-  pOSVERSIONINFO = pOSVERSIONINFO || ref.refType(OSVERSIONINFO);
-
-  shell32 = shell32 || ffi.Library('shell32', {
-    SHQueryUserNotificationState: [ 'int', [ intPtr ] ]
-  });
-
-  kernel32 = kernel32 || ffi.Library('kernel32', {
-    GetVersionExA: [ 'int', [ pOSVERSIONINFO ] ],
-    GetLastError: [ 'uint32', [] ]
-  });
-};
-
-const interop = {
+export const interops = {
   'win32': {
-
     shouldDisplayNotifications: () => {
-      setupWindowsLibs();
+      let notificationState = null;
 
-      const outVal = ref!.alloc(intPtr!);
-      const hr = shell32.SHQueryUserNotificationState(outVal);
-
-      if (hr !== 0) {
-        throw new Error(`Failed to query notification state, hr is 0x${hr.toString(16)}`);
+      try {
+        const { getNotificationState } = require('windows-notification-state');
+        notificationState = getNotificationState();
+      } catch (error) {
+        logger.error('Tried to query notification state, but failed', error);
+        return true;
       }
 
-      const result = outVal[0];
+      // NB: The call can succeed but return an empty state.
+      if (notificationState === '') return true;
+      // Screensaver is running or machine is locked, who cares?
+      if (notificationState === 'QUNS_NOT_PRESENT') return true;
+      // All's good under the hood, boss
+      if (notificationState === 'QUNS_ACCEPTS_NOTIFICATIONS') return true;
+      // Windows Store app is running, who cares?
+      if (notificationState === 'QUNS_APP') return true;
 
-      if (result === 0) return true;    // NB: The call can succeed but return an empty state.
-      if (result === 1) return true;    // Screensaver is running or machine is locked, who cares?
-      if (result === 5) return true;    // All's good under the hood, boss
-      if (result === 7) return true;    // Windows Store app is running, who cares?
-
-      logger.info(`Suppressing notification due to Presentation Mode: ${result}`);
+      logger.info(`Suppressing notification due to Presentation Mode: ${notificationState}`);
       return false;
     },
 
@@ -97,22 +56,19 @@ const interop = {
       return getIdleTime!();
     },
 
-    getOSVersion: () => {
-      setupWindowsLibs();
+    getOSVersion: (passedRelease?: string) => {
+      const release = passedRelease || os.release() || '';
+      const versionMatcher = /(\d{1,2})\.(\d{1,2})\.(\d{1,6})/;
+      const result = release.match(versionMatcher);
 
-      const result = new OSVERSIONINFO();
-      result.dwOSVersionInfoSize = OSVERSIONINFO.size;
-
-      const failed = (kernel32.GetVersionExA(result.ref()) === 0);
-      if (failed) {
-        const gle = kernel32.GetLastError();
-        throw new Error(`Failed to get version information: 0x${gle.toString(16)}`);
+      if (!result || result.length < 4) {
+        logger.error(`Tried to query the OS version, but failed. Data might be incomplete.`);
       }
 
       return {
-        major: result.dwMajorVersion,
-        minor: result.dwMinorVersion,
-        build: result.dwBuildNumber
+        major: result && result[1] ? result[1] : null,
+        minor: result && result[2] ? result[2] : null,
+        build: result && result[3] ? result[3] : null
       };
     },
 
@@ -149,7 +105,6 @@ const interop = {
   },
 
   darwin: {
-
     // NB: The concept of presentation mode is not the same on OS X, and is
     // also quite a bit trickier to detect. We're just going to punt for now.
     shouldDisplayNotifications: () => true,
@@ -191,7 +146,6 @@ const interop = {
   },
 
   linux: {
-
     shouldDisplayNotifications: () => {
       return true;
     },
@@ -208,7 +162,7 @@ const interop = {
   }
 };
 
-const nativeInterop: NativeInterop = interop[process.platform];
+const nativeInterop: NativeInterop = interops[process.platform];
 export {
   nativeInterop
 }

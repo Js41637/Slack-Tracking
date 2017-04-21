@@ -1,4 +1,8 @@
-import {Store} from '../lib/store';
+/**
+ * @module Stores
+ */ /** for typedoc */
+
+import { Store } from '../lib/store';
 
 export class DownloadStore {
   public getEvent(eventName: string): any  {

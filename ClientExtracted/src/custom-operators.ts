@@ -1,9 +1,13 @@
-import {Observable} from 'rxjs/Observable';
-import {Scheduler} from 'rxjs/Scheduler';
-import {async} from 'rxjs/scheduler/async';
-import {EventTargetLike} from 'rxjs/observable/FromEventObservable';
-import {logger} from './logger';
-import {Action} from 'redux';
+/**
+ * @module CustomOperators
+ */ /** for typedoc */
+
+import { Observable } from 'rxjs/Observable';
+import { Scheduler } from 'rxjs/Scheduler';
+import { async } from 'rxjs/scheduler/async';
+import { EventTargetLike } from 'rxjs/observable/FromEventObservable';
+import { logger } from './logger';
+import { Action } from 'redux';
 
 /* tslint:disable:object-literal-shorthand */
 export const newCoolOperators = {
@@ -19,7 +23,7 @@ export const newCoolOperators = {
 
   // Provides utility function to ActionsObservable for pure-side-effect epic does not need to dispatch further action
   completeAction: function<T>(this: Observable<T>): Observable<Action> {
-    return this.mapTo({type: 'EPIC_ACTION_COMPLETED'});
+    return this.mapTo({ type: 'EPIC_ACTION_COMPLETED' });
   }
 };
 /* tslint:enable */
@@ -38,7 +42,7 @@ function retryWithDelayOrError(errors: Observable<any>, maxRetries: number): Obs
     .zip(errors, (i, e) => {
       return { attempts: i, error: e };
     })
-    .flatMap(({attempts, error}) => {
+    .flatMap(({ attempts, error }) => {
       return attempts <= maxRetries ?
         Observable.timer(attempts * 1000) :
         Observable.throw(error);
@@ -57,7 +61,7 @@ export function loggableFromEventObservable<T>(target: EventTargetLike, eventNam
     eventName,
     event: e
   })).catch((err: Error) => {
-    logger.warn(`error occurred in ${eventName}: ${(err && err.message) || 'error is empty'}`);
+    logger.warn(`LoggableFromEvent: Error occurred in ${eventName}:`, err);
     return Observable.throw(err);
   });
 }

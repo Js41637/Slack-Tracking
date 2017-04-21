@@ -1,6 +1,10 @@
+/**
+ * @module RendererComponents
+ */ /** for typedoc */
+
 import * as classNames from 'classnames';
-import {Observable} from 'rxjs/Observable';
-import {Component} from '../../lib/component';
+import { Observable } from 'rxjs/Observable';
+import { Component } from '../../lib/component';
 import 'rxjs/add/observable/fromEvent';
 
 import * as React from 'react'; // tslint:disable-line:no-unused-variable
@@ -56,7 +60,12 @@ export class ScrollableArea extends Component<ScrollableAreaProps, ScrollableAre
 
   private handleScroll(e: Event): void {
     const scrollable = this.scrollableElement;
-    const maxScrollTop = this.props.maxScroll - scrollable.clientHeight;
+    const maxScroll = this.props.maxScroll;
+    if (!maxScroll || isNaN(maxScroll)) {
+      return;
+    }
+
+    const maxScrollTop = maxScroll - scrollable.clientHeight;
     if (this.props.maxScroll && scrollable.scrollTop >= maxScrollTop) {
       scrollable.scrollTop = maxScrollTop;
       e.preventDefault();

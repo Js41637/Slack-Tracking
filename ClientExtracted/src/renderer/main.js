@@ -1,14 +1,19 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import '../rx-operators';
-import {Observable} from 'rxjs/Observable';
-import {requestGC} from '../run-gc';
+import { EventEmitter } from 'events';
+import { Observable } from 'rxjs/Observable';
+import { requestGC } from '../run-gc';
 
-import {initializeEvalHandler} from 'electron-remote';
+import { initializeEvalHandler } from 'electron-remote';
 
-import SlackApp from './components/slack-app.jsx';
+import { SlackApp } from './components/slack-app';
 import Reporter from './metrics-reporter';
-import WebappSharedMainModule from '../webapp-shared/main';
+import { WebappSharedMainModule } from '../webapp-shared/main';
+
+// Increase EventEmitter limit: 0 would remove the warning completely, but we
+// probably shouldn't have more than a hundred on anything
+EventEmitter.defaultMaxListeners = 100;
 
 initializeEvalHandler();
 

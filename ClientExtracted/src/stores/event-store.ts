@@ -1,9 +1,14 @@
-import {Store} from '../lib/store';
-import {State} from '../lib/state-events';
+/**
+ * @module Stores
+ */ /** for typedoc */
+
+import { Store } from '../lib/store';
+import { State } from '../lib/state-events';
 
 export interface StoreEvent extends State {
   name: string;
 }
+
 /**
  * A store for temporal actions, which do not persist state, but still need to
  * notify subscribers. We attach a timestamp indicating when the event last

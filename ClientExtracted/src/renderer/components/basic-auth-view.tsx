@@ -1,14 +1,18 @@
-import {dialogActions, AuthenticationInfo} from '../../actions/dialog-actions';
-import {dialogStore} from '../../stores/dialog-store';
-import {Component} from '../../lib/component';
-import {Modal} from './modal';
+/**
+ * @module RendererComponents
+ */ /** for typedoc */
 
-import {intl as $intl, LOCALE_NAMESPACE} from '../../i18n/intl';
+import { dialogActions } from '../../actions/dialog-actions';
+import { dialogStore } from '../../stores/dialog-store';
+import { Component } from '../../lib/component';
+import { Modal } from './modal';
+
+import { intl as $intl, LOCALE_NAMESPACE } from '../../i18n/intl';
 
 import * as React from 'react'; // tslint:disable-line
 
 export interface BasicAuthViewProps {
-  authInfo: AuthenticationInfo;
+  authInfo: Electron.LoginAuthInfo;
 }
 
 export interface BasicAuthViewState {
@@ -45,7 +49,7 @@ export class BasicAuthView extends Component<BasicAuthViewProps, Partial<BasicAu
   }
 
   public render(): JSX.Element | null {
-    const {isProxy, host} = this.props.authInfo;
+    const { isProxy, host } = this.props.authInfo;
     const message = $intl.t(`To connect to Slack, you need to enter a username and password for the {hostType} `, LOCALE_NAMESPACE.RENDERER)({
       hostType: isProxy ? $intl.t(`proxy`, LOCALE_NAMESPACE.GENERAL)() : $intl.t(`server`, LOCALE_NAMESPACE.GENERAL)()
     });
@@ -57,7 +61,7 @@ export class BasicAuthView extends Component<BasicAuthViewProps, Partial<BasicAu
         height={340}
         transitionAppear={true}
       >
-        <div className='AuthView-dialog' style={{height: '100%', backgroundColor: 'white'}}>
+        <div className='AuthView-dialog' style={{ height: '100%', backgroundColor: 'white' }}>
           <div className='AuthView-message'>
             {message}
             <strong>{host}</strong>

@@ -1,15 +1,19 @@
+/**
+ * @module Browser
+ */ /** for typedoc */
+
 import * as fs from 'graceful-fs';
-import {ipc} from '../ipc-rx';
+import { ipc } from '../ipc-rx';
 import * as mkdirp from 'mkdirp';
-import {Observable} from 'rxjs/Observable';
-import {p} from '../get-path';
+import { Observable } from 'rxjs/Observable';
+import { p } from '../get-path';
 import * as path from 'path';
 
-import {downloadActions} from '../actions/download-actions';
-import {downloadStore} from '../stores/download-store';
-import {ReduxComponent} from '../lib/redux-component';
-import {settingActions} from '../actions/setting-actions';
-import {settingStore} from '../stores/setting-store';
+import { downloadActions } from '../actions/download-actions';
+import { downloadStore } from '../stores/download-store';
+import { ReduxComponent } from '../lib/redux-component';
+import { settingActions } from '../actions/setting-actions';
+import { settingStore } from '../stores/setting-store';
 
 const d = require('debug')('downloads:listener');
 
@@ -64,7 +68,7 @@ export class DownloadListener extends ReduxComponent<DownloadListenerState> {
     };
   }
 
-  public cancelDownloadEvent({token}: {token: number}): void {
+  public cancelDownloadEvent({ token }: {token: number}): void {
     if (this.downloadItems[token]) {
       d(`Canceling download with ${token}`);
       this.downloadItems[token].cancel();
@@ -105,7 +109,7 @@ export class DownloadListener extends ReduxComponent<DownloadListenerState> {
       d(`Unable to set save path for: ${this.state.downloadsDirectory}`);
     }
 
-    return {item, filePath};
+    return { item, filePath };
   }
 
   /**
@@ -119,14 +123,14 @@ export class DownloadListener extends ReduxComponent<DownloadListenerState> {
     d(`Monitoring download at: ${filePath}`);
     this.downloadItems[token] = item;
 
-    downloadActions.downloadStarted({token, filePath});
+    downloadActions.downloadStarted({ token, filePath });
 
     const progressListener = () => {
       this.updateMainWindowProgress();
 
       const progress = this.getDownloadItemProgress(item);
       d(`Download progress: ${progress}`);
-      this.webContents.send('download-progress', {token, progress});
+      this.webContents.send('download-progress', { token, progress });
     };
 
     const finishedListener = (_e: Event, state: any) => {
@@ -134,7 +138,7 @@ export class DownloadListener extends ReduxComponent<DownloadListenerState> {
       item.removeListener('done', finishedListener);
 
       d(`Download finished: ${state}`);
-      downloadActions.downloadFinished({token, state});
+      downloadActions.downloadFinished({ token, state });
 
       delete this.downloadItems[token];
       this.updateMainWindowProgress();

@@ -1,4 +1,8 @@
 /**
+ * @module Utilities
+ */ /** for typedoc */
+
+/**
  * Transform our zoom level into one that matches Chromium, and assign it on
  * the given webContents or webView.
  *

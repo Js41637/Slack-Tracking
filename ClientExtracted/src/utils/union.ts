@@ -1,4 +1,8 @@
 /**
+ * @module Utilities
+ */ /** for typedoc */
+
+/**
  * A lightweight implementation of `_.union`, creating an array of unique values,
  * in order, from all of the provided arrays.
  *
@@ -10,7 +14,7 @@
  * union([1, 2], [4, 2], [2, 1]);
  * // => [1, 2, 4]
  */
-export function union(...arrays: Array<Array<any>>): Array<any> {
+export function union<T>(...arrays: Array<Array<any>>): Array<T> {
   const result: Array<any> = [];
 
   arrays.forEach((v = []) => v.forEach((av) => {

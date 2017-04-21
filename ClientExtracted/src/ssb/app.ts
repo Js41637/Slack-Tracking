@@ -1,26 +1,30 @@
-import {Region} from '../region';
+/**
+ * @module SSBIntegration
+ */ /** for typedoc */
+
 import * as fs from 'graceful-fs';
-import {ipcRenderer, remote} from 'electron';
+import { EventEmitter } from 'events';
+import { ipcRenderer, remote } from 'electron';
 import * as path from 'path';
-import {Observable} from 'rxjs/Observable';
-import {Subscription} from 'rxjs/Subscription';
+import { Subscription } from 'rxjs/Subscription';
 
 import * as profiler from '../utils/profiler';
-import {logger} from '../logger';
-import {channel} from '../../package.json';
-import {domFileFromPath, createZipArchiver} from '../utils/file-helpers';
+import { IS_WINDOWS_STORE } from '../utils/shared-constants';
+import { logger } from '../logger';
+import { channel } from '../../package.json';
+import { domFileFromPath, createZipArchiver } from '../utils/file-helpers';
 import '../rx-operators';
 
-import {appActions} from '../actions/app-actions';
-import {eventActions} from '../actions/event-actions';
-import {settingActions} from '../actions/setting-actions';
-import {settingStore} from '../stores/setting-store';
+import { appActions } from '../actions/app-actions';
+import { eventActions } from '../actions/event-actions';
+import { settingActions } from '../actions/setting-actions';
+import { settingStore } from '../stores/setting-store';
 
 const globalProcess = (window as any).process;
 const isDarwin = globalProcess.platform === 'darwin';
 const isWin32 = globalProcess.platform === 'win32';
 
-import {UPDATE_STATUS} from '../utils/shared-constants';
+import { Region, StringMap, UPDATE_STATUS } from '../utils/shared-constants';
 
 let dialog: Electron.Dialog;
 let performTextSubstitution: (input: HTMLElement) => Subscription;
@@ -74,6 +78,10 @@ export class AppIntegration {
       this.readSystemTextPreferences =
         require('electron-text-substitutions/preference-helpers').readSystemTextPreferences;
     }
+
+    // Increase EventEmitter limit: 0 would remove the warning completely, but we
+    // probably shouldn't have more than a hundred on anything
+    EventEmitter.defaultMaxListeners = 100;
   }
 
   /**
@@ -152,17 +160,17 @@ export class AppIntegration {
   public showOpenDialog(options: any, callback?: (fileNames: Array<string>) => void): Promise<string> | void {
     dialog = dialog || remote.dialog;
 
-    const {type, title, defaultPath, multiSelect, filters} = options;
+    const { type, title, defaultPath, multiSelect, filters } = options;
     const properties = [type];
     if (multiSelect) properties.push('multiSelections');
 
     if (callback) {
-      dialog.showOpenDialog(this.wnd, {title, defaultPath, filters, properties}, callback);
+      dialog.showOpenDialog(this.wnd, { title, defaultPath, filters, properties }, callback);
       return;
     }
 
     return new Promise((resolve) => {
-      dialog.showOpenDialog(this.wnd, {title, defaultPath, filters, properties}, (filenames) => {
+      dialog.showOpenDialog(this.wnd, { title, defaultPath, filters, properties }, (filenames) => {
         resolve(filenames);
       });
     });
@@ -190,6 +198,15 @@ export class AppIntegration {
         resolve(filename);
       });
     });
+  }
+
+  /**
+   * Adds additional items to the application menu.
+   *
+   * @param {StringMap<Array<Electron.MenuItemOptions>>} customItems  A map describing the items
+   */
+  public setCustomMenuItems(customItems: StringMap<Array<Electron.MenuItemOptions>>): void {
+    if (window.teamId) appActions.setCustomMenuItems(customItems, window.teamId);
   }
 
   /**
@@ -264,7 +281,7 @@ export class AppIntegration {
 
   public isAppStoreBuild(): boolean {
     return (isDarwin && channel === 'mas') ||
-      (isWin32 && process.windowsStore!);
+      (isWin32 && IS_WINDOWS_STORE!);
   }
 
   public isBetaChannel(): boolean {
@@ -301,32 +318,33 @@ export class AppIntegration {
    * @return {Promise<Array<File>>} A Promise that resolves with an array of Files
    */
   public async getAppLogFiles(): Promise<Array<File>> {
+    logger.info('AppIntegration: prepare get application log files to report issue');
+    let files: Array<string> = [];
+
     try {
-      const logFiles = await logger.getMostRecentLogFiles();
+      files = await logger.getFilesToArchive();
+    } catch (err) {
+      logger.error('Tried to get files to archive during getAppLogFiles, but failed', err);
+      return [];
+    }
 
-      if (isWin32) {
-        logFiles.push(`${process.execPath}/../SquirrelSetup.log`);
-      }
-
-      //convert in-memory zip archive buffer into dom file directly
-      const archiver = await createZipArchiver(logFiles).toPromise();
+    try {
+      // Convert in-memory zip archive buffer to DOMFile directly
+      const archiver = await createZipArchiver(files).toPromise();
       const archiveBuffer = await archiver.generateAsync({
         compression: 'DEFLATE',
         compressionOptions: { level: 7 },
         type: 'nodebuffer'
       } as any);
-      const file = new File([archiveBuffer], 'logs.zip', {type: 'text/plain'});
+      const file = new File([archiveBuffer], 'logs.zip', { type: 'text/plain' });
 
+      logger.info(`AppIntegration: log files are prepared`, files);
       return [file];
-    } catch (error) {
-      logger.warn(`Couldn't zip log files: ${error}`);
+    } catch (err) {
+      logger.warn(`Couldn't zip log files: ${err}`);
 
-      return logger.getMostRecentLogFiles(7, (observable: Observable<any>) => {
-        return observable.flatMap((logFile) => domFileFromPath(logFile)
-          .catch((err: Error) => {
-          logger.warn(`Unable to get file: ${err.message}`);
-          return Observable.empty();
-        }));
+      return files.map((file) => {
+        return domFileFromPath(file).catch((err) => logger.warn(`Unable to get file`, err));
       }) as any;
     }
   }
@@ -406,7 +424,7 @@ export class AppIntegration {
    * @param {number} zoomLevel
    */
   public setZoom(zoomLevel: number): void {
-    settingActions.updateSettings({zoomLevel: Math.max(-3, Math.min(zoomLevel, 3))});
+    settingActions.updateSettings({ zoomLevel: Math.max(-3, Math.min(zoomLevel, 3)) });
   }
 
   /**

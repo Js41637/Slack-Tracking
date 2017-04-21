@@ -1,18 +1,21 @@
-import * as assignIn from 'lodash.assignin';
+/**
+ * @module Notifications
+ */ /** for typedoc */
+
+ import * as assignIn from 'lodash.assignin';
 import * as path from 'path';
 import * as url from 'url';
-import {Observable} from 'rxjs/Observable';
+import { Observable } from 'rxjs/Observable';
 
-import {logger} from '../../logger';
-import {appTeamsStore} from '../../stores/app-teams-store';
-import {notificationActions, Notification} from '../../actions/notification-actions';
-import {eventStore, StoreEvent} from '../../stores/event-store';
-import {notificationStore} from '../../stores/notification-store';
-import {ReduxComponent} from '../../lib/redux-component';
-import {settingStore} from '../../stores/setting-store';
-import {teamStore} from '../../stores/team-store';
-import {NotifyPosition} from '../../notification/notification-window-helpers';
-import {NodeRTNotificationHelpers} from './node-rt-notification-helpers';
+import { logger } from '../../logger';
+import { notificationActions, Notification } from '../../actions/notification-actions';
+import { eventStore, StoreEvent } from '../../stores/event-store';
+import { notificationStore } from '../../stores/notification-store';
+import { ReduxComponent } from '../../lib/redux-component';
+import { settingStore } from '../../stores/setting-store';
+import { teamStore } from '../../stores/team-store';
+import { NotifyPosition } from '../../notification/notification-window-helpers';
+import { NodeRTNotificationHelpers } from './node-rt-notification-helpers';
 
 let NativeNotification: NativeNotificationCtor;
 
@@ -22,7 +25,6 @@ export interface NativeNotificationCtor {
 export interface NativeNotificationManagerState {
   isWindows: boolean;
   isMac: boolean;
-  selectedChannelId: string;
   notifyPosition: NotifyPosition;
 }
 
@@ -38,18 +40,18 @@ export interface NotificationUserData {
 export class NativeNotificationManager extends ReduxComponent<NativeNotificationManagerState> {
   constructor() {
     super();
-    this.update();
 
     // We need to do this eventually, but Windows will leave
     // us a bit of time, so let's  do this after initial boot.
-    if (this.state.isWindows) setTimeout(() => this.setupWindowsNotifications(), 500);
+    if (this.state.isWindows) setTimeout(() => {
+      this.setupWindowsNotifications();
+    }, 500);
   }
 
   public syncState() {
     const state = {
       newNotificationEvent: notificationStore.getNewNotificationEvent() as StoreEvent,
       handleReplyLinkEvent: eventStore.getEvent('handleReplyLink'),
-      selectedChannelId: appTeamsStore.getSelectedChannelId(),
       isWindows: settingStore.isWindows(),
       isMac: settingStore.isMac()
     };
@@ -64,16 +66,6 @@ export class NativeNotificationManager extends ReduxComponent<NativeNotification
     return state;
   }
 
-  public update(prevState: Partial<NativeNotificationManagerState> = {}) {
-    if (!this.state.isWindows) return;
-
-    if (this.state.selectedChannelId &&
-      this.state.selectedChannelId !== prevState.selectedChannelId) {
-      logger.info(`Clearing Action Center for channel: ${this.state.selectedChannelId}`);
-      NodeRTNotificationHelpers.clearToastNotificationsForChannel(this.state.selectedChannelId);
-    }
-  }
-
   /**
    * Each platform implements their own flavor of the HTML5 Notification API.
    * On Windows, this calls out to our own C# library via Edge.js. On Mac, we
@@ -81,7 +73,7 @@ export class NativeNotificationManager extends ReduxComponent<NativeNotification
    *
    * @param  {Object} {notification} Contains the webapp notification arguments
    */
-  public newNotificationEvent({notification}: {notification: Notification}) {
+  public newNotificationEvent({ notification }: {notification: Notification}) {
     if (this.state.isWindows) {
       // NB: We delay-initialize notifications here because if we attempt to
       // load Edge.js and SlackNotifier during startup it hangs Electron.
@@ -106,15 +98,15 @@ export class NativeNotificationManager extends ReduxComponent<NativeNotification
 
     this.disposables.add(Observable.fromEvent(element, 'click').take(1)
       .subscribe(() => {
-        const {id, channel, msg, thread_ts} = notification;
+        const { id, channel, msg, thread_ts } = notification;
 
         if (this.state.isMac) element.close();
         notificationActions.clickNotification(id, channel, teamId!, msg, thread_ts);
       }));
 
     this.disposables.add(Observable.fromEvent(element, 'reply').take(1)
-      .subscribe(({response}) => {
-        const {channel, msg, thread_ts} = notification;
+      .subscribe(({ response }) => {
+        const { channel, msg, thread_ts } = notification;
 
         if (this.state.isMac) element.close();
         notificationActions.replyToNotification(response, channel, userId!, teamId!, msg, thread_ts);
@@ -151,7 +143,7 @@ export class NativeNotificationManager extends ReduxComponent<NativeNotification
       userData = JSON.parse(decodeURIComponent(args.userData));
     } catch (e) {
       // We failed to parse the message, which is troublesome.
-      logger.warn(`Failed to parse reply from deeplink: ${JSON.stringify(e)}`);
+      logger.warn(`Native Notification Manager: Failed to parse reply from deeplink: ${JSON.stringify(e)}`);
     }
 
     if (userData.length > 0 && userData[0].value && /\S/.test(userData[0].value)) {

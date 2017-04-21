@@ -1,15 +1,19 @@
-import {app} from 'electron';
-import {Subscription} from 'rxjs/Subscription';
-import {Observable} from 'rxjs/Observable';
-import {logger} from '../../logger';
-import {WindowBehavior} from './window-behavior';
+/**
+ * @module BrowserBehaviors
+ */ /** for typedoc */
 
-import {dialogActions, BalloonContent} from '../../actions/dialog-actions';
-import {settingActions} from '../../actions/setting-actions';
-import {settingStore} from '../../stores/setting-store';
-import {WindowHelpers} from '../../utils/window-helpers';
+import { app } from 'electron';
+import { Subscription } from 'rxjs/Subscription';
+import { Observable } from 'rxjs/Observable';
+import { logger } from '../../logger';
+import { WindowBehavior } from './window-behavior';
 
-import {intl as $intl, LOCALE_NAMESPACE} from '../../i18n/intl';
+import { dialogActions, BalloonContent } from '../../actions/dialog-actions';
+import { settingActions } from '../../actions/setting-actions';
+import { settingStore } from '../../stores/setting-store';
+import { WindowHelpers } from '../../utils/window-helpers';
+
+import { intl as $intl, LOCALE_NAMESPACE } from '../../i18n/intl';
 
 export type windowFlashBehaviorType = 'idle' | 'always';
 
@@ -106,14 +110,14 @@ export class MainWindowCloseBehavior extends WindowBehavior {
     let args: BalloonContent | null = null;
 
     if (keepAppInTaskbar && !this.state.hasExplainedWindowFlash) {
-      settingActions.updateSettings({hasExplainedWindowFlash: true});
+      settingActions.updateSettings({ hasExplainedWindowFlash: true });
       args = {
         title: $intl.t(`Why didn't Slack quit?`, LOCALE_NAMESPACE.BROWSER)(),
         content: $intl.t(`Slack’s set to always flash when you get notifications. To change this, visit Preferences > Notifications.`,
                           LOCALE_NAMESPACE.BROWSER)()
       };
     } else if (!keepAppInTaskbar && !this.state.hasRunFromTray) {
-      settingActions.updateSettings({hasRunFromTray: true});
+      settingActions.updateSettings({ hasRunFromTray: true });
       args = {
         title: $intl.t(`Why didn't Slack quit?`, LOCALE_NAMESPACE.BROWSER)(),
         content: $intl.t(`Slack's set to stay running in the notification area. To change this, visit Preferences > {platform} App.`, // tslint:disable-line:max-line-length

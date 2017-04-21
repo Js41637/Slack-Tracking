@@ -1,14 +1,18 @@
-import {logger} from '../../logger';
-import {Subscription} from 'rxjs/Subscription';
-import {Observable} from 'rxjs/Observable';
-import {async} from 'rxjs/scheduler/async';
-import {isObject} from '../../utils/is-object';
+/**
+ * @module BrowserBehaviors
+ */ /** for typedoc */
+
+import { logger } from '../../logger';
+import { Subscription } from 'rxjs/Subscription';
+import { Observable } from 'rxjs/Observable';
+import { async } from 'rxjs/scheduler/async';
+import { isObject } from '../../utils/is-object';
 import 'rxjs/add/observable/timer';
 
-import {windowFrameActions} from '../../actions/window-frame-actions';
-import {windowFrameStore} from '../../stores/window-frame-store';
-import {WindowBehavior, WindowSetting} from './window-behavior';
-import {RepositionWindowBehavior} from './reposition-window-behavior';
+import { windowFrameActions } from '../../actions/window-frame-actions';
+import { windowFrameStore } from '../../stores/window-frame-store';
+import { WindowBehavior, WindowSetting } from './window-behavior';
+import { RepositionWindowBehavior } from './reposition-window-behavior';
 
 export interface PersistSettingsWindowBehaviorState {
   windowSettings: WindowSetting;
@@ -34,9 +38,10 @@ export class PersistSettingsWindowBehavior extends WindowBehavior {
   public setup(browserWindow: Electron.BrowserWindow): Subscription {
     this.window = browserWindow;
 
-    const {position, size, isMaximized} = this.loadSettings();
+    const { position, size, isMaximized } = this.loadSettings();
     const [x, y] = position;
-    const [width, height] = size;
+    const width = size[0] || 0;
+    const height = size[1] || 0;
 
     const [minWidth, minHeight] = browserWindow.getMinimumSize();
     const defaultSizeIsSmallerThanMinimum = !isObject(this.state.windowSettings) &&
@@ -45,8 +50,10 @@ export class PersistSettingsWindowBehavior extends WindowBehavior {
     if (defaultSizeIsSmallerThanMinimum) {
       browserWindow.setSize(minWidth, minHeight);
     } else {
-      browserWindow.setPosition(x!, y!);
-      browserWindow.setSize(width!, height!);
+      if (x && y) {
+        browserWindow.setPosition(x, y);
+      }
+      browserWindow.setSize(width, height);
     }
 
     // Maximizing the window immediately has no effect; delay it a bit.
@@ -65,11 +72,14 @@ export class PersistSettingsWindowBehavior extends WindowBehavior {
    */
   private loadSettings() {
     let settings: WindowSetting | null = this.state.windowSettings;
-    logger.info(`Loading windowMetrics: ${JSON.stringify(settings)}`);
+    logger.info(`Loading windowMetrics`, settings);
 
     // If this is the first time the app was run or the window was out of
     // bounds, clear out the settings object (we'll use a default position).
+    // Also handle stale (pre-2.0) window settings – those folks are out there!
     if (!isObject(settings) ||
+      (settings as any).MAIN ||
+      (settings as any).SINGLE_TEAM ||
       !RepositionWindowBehavior.windowPositionInBounds(settings!)) {
       settings = null;
     }

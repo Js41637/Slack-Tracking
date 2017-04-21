@@ -1,8 +1,12 @@
-import {logger} from '../logger';
-import {p} from '../get-path';
-import {Subject} from 'rxjs/Subject';
+/**
+ * @module Browser
+ */ /** for typedoc */
+
+import { logger } from '../logger';
+import { p } from '../get-path';
+import { Subject } from 'rxjs/Subject';
 import * as fs from 'graceful-fs';
-import {sync as writeFileAtomicSync} from 'write-file-atomic';
+import { sync as writeFileAtomicSync } from 'write-file-atomic';
 import 'rxjs/add/operator/throttleTime';
 import '../rx-operators';
 

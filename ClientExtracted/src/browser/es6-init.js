@@ -1,4 +1,4 @@
-/*eslint prefer-template:0 */
+ /*eslint prefer-template:0 */
 
 // NB: This file is intentionally written using ES5 because at this time,
 // electron-compile is not yet initialized

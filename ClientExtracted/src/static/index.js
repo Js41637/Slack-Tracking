@@ -1,3 +1,4 @@
+//do not migrate preload script into TypeScript
 require('../stat-cache');
 const profiler = require('../utils/profiler');
 
@@ -27,7 +28,7 @@ var startup = function() {
   var noCommitVersion = loadSettings.version.split('-')[0];
   var shouldSuppressErrors = loadSettings.devMode;
   if (!loadSettings.isSpec) {
-    require('../renderer/bugsnag-setup').default(shouldSuppressErrors, noCommitVersion);
+    require('../renderer/bugsnag-setup').setupBugsnag(shouldSuppressErrors, noCommitVersion);
   }
 
   if (loadSettings.bootstrapScript) {

@@ -1,10 +1,14 @@
-import {shell} from 'electron';
+/**
+ * @module RendererComponents
+ */ /** for typedoc */
+
+import { shell } from 'electron';
 import * as React from 'react'; // tslint:disable-line
 import * as reactStringReplace from 'react-string-replace-recursively';
 
-import {Component} from '../../lib/component';
-import {eventActions} from '../../actions/event-actions';
-import {intl as $intl, LOCALE_NAMESPACE} from '../../i18n/intl';
+import { Component } from '../../lib/component';
+import { eventActions } from '../../actions/event-actions';
+import { intl as $intl, LOCALE_NAMESPACE } from '../../i18n/intl';
 
 export interface ConnectionTroubleProps {
   reloadApp: () => void;

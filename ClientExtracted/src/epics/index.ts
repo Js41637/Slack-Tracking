@@ -1,7 +1,11 @@
-import {browserWindowEpics} from './browser-window-epics';
-import {combineEpics, Epic} from 'redux-observable';
+/**
+ * @module Epics
+ */ /** for typedoc */
 
-const epics: Epic<any> = combineEpics(...browserWindowEpics);
+import { browserWindowEpics } from './browser-window-epics';
+import { combineEpics, Epic } from 'redux-observable';
+
+const epics: Epic<any, any> = combineEpics(...browserWindowEpics);
 export {
   epics
 };

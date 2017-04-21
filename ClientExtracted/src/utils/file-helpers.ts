@@ -1,11 +1,15 @@
+/**
+ * @module Utilities
+ */ /** for typedoc */
+
 import * as fs from 'graceful-fs';
 import * as path from 'path';
 
 import * as jszip from 'jszip';
-import {logger} from '../logger';
-import promisify from '../promisify';
-import {spawnPromise} from 'spawn-rx';
-import {Observable} from 'rxjs/Observable';
+import { logger } from '../logger';
+import { promisify } from '../promisify';
+import { spawnPromise } from 'spawn-rx';
+import { Observable } from 'rxjs/Observable';
 
 const pfs = promisify(fs);
 
@@ -19,7 +23,7 @@ const pfs = promisify(fs);
  */
 export async function domFileFromPath(filePath: string, type: string = 'text/plain'): Promise<File> {
   // Read the file into a Node Buffer.
-  const {buffer, byteOffset, byteLength} = await pfs.readFile(filePath);
+  const { buffer, byteOffset, byteLength } = await pfs.readFile(filePath);
 
   // Buffers are Uint8Arrays, so just grab its underlying ArrayBuffer.
   // The slice is required because small Buffers are views on a shared ArrayBuffer.
@@ -28,7 +32,7 @@ export async function domFileFromPath(filePath: string, type: string = 'text/pla
   const fileName = path.basename(filePath);
 
   // Create a new File object.
-  return new File([arrayBuffer], fileName, {type});
+  return new File([arrayBuffer], fileName, { type });
 }
 
 export function copySmallFileSync(from: string, to: string): void {
@@ -97,7 +101,7 @@ export function createZipArchiveWithPowershell(sourceDirectory: string, destinat
   return spawnPromise('powershell.exe', args);
 }
 
-export async function getCurrentUser(): Promise<{uid: number, gid: number}> {
+export async function getCurrentUser(): Promise<{ uid: number, gid: number }> {
   const { uid, gid } = await pfs.stat(process.env.HOME);
   return { uid, gid };
 }

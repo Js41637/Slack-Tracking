@@ -1,5 +1,9 @@
-import {Store} from '../lib/store';
-import {WindowSetting} from '../browser/behaviors/window-behavior';
+/**
+ * @module Stores
+ */ /** for typedoc */
+
+import { Store } from '../lib/store';
+import { WindowSetting } from '../browser/behaviors/window-behavior';
 /**
  * Handles all data related to Slack's window frame.
  *

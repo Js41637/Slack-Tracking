@@ -1,7 +1,11 @@
-/*eslint no-unused-vars:0*/
+/**
+ * @module SSBIntegration
+ */ /** for typedoc */
 
-import {remote} from 'electron';
-import {logger} from '../logger';
+import { remote } from 'electron';
+import { logger } from '../logger';
+import { IS_WINDOWS_STORE } from '../utils/shared-constants';
+import { clipboard } from 'electron';
 
 let WebRTC: any = null;
 const path = require('path');
@@ -146,8 +150,21 @@ export class Calls {
       supports_video: true,
       supports_screen_sharing: true,
       supports_disconnection_cb: true,
-      supports_mmap_minipanel: (process.platform === 'darwin')
+      supports_mmap_minipanel: (process.platform === 'darwin'),
+      supports_screenhero: true,
+      is_mas: !!process.mas,
+      is_ws: !!IS_WINDOWS_STORE
     };
+  }
+
+  public readClipboardData() {
+    // Eventually, this should also support images, html and rtf
+    return clipboard.readText();
+  }
+
+  public writeClipboardData(obj: { data: any, dataType: string }): void {
+    // Eventually, this should also support images, html and rtf
+    if (obj.dataType === 'string') clipboard.writeText(obj.data);
   }
 
   private onRemoteFrame(...args: Array<any>): void {

@@ -1,8 +1,13 @@
+/**
+ * @module Browser
+ */ /** for typedoc */
+
 import { app } from 'electron';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 
-import { Credentials, dialogActions } from '../actions/dialog-actions';
+import { Credentials } from '../utils/shared-constants';
+import { dialogActions } from '../actions/dialog-actions';
 import { dialogStore } from '../stores/dialog-store';
 import { logger } from '../logger';
 import { ReduxComponent } from '../lib/redux-component';

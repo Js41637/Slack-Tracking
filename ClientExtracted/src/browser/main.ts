@@ -1,29 +1,40 @@
+/**
+ * @module Browser
+ */ /** for typedoc */
+
 global.shellStartTime = Date.now();
 
-import {app, protocol} from 'electron';
-import {channel} from '../../package.json';
-import {getMemoryUsage} from '../memory-usage';
-import {initializeEvalHandler} from 'electron-remote';
-import {parseCommandLine} from '../parse-command-line';
-import {parseProtocolUrl} from '../parse-protocol-url';
-import {p} from '../get-path';
-import {spawn} from 'spawn-rx';
-import {createShortcuts, removeShortcuts, removeStartMenuFolder, updateShortcuts} from './squirrel-shortcuts';
-import {Observable} from 'rxjs/Observable';
-
-import * as assignIn from 'lodash.assignin';
-import {BugsnagReporter} from './bugsnag-reporter';
 import * as fs from 'graceful-fs';
-import {logger} from '../logger';
+import * as assignIn from 'lodash.assignin';
 import * as mkdirp from 'mkdirp';
 import * as path from 'path';
-import {setupCrashReporter} from '../setup-crash-reporter';
-import {getAppId} from '../utils/app-id';
+import { app, protocol } from 'electron';
+import { initializeEvalHandler } from 'electron-remote';
+import { Observable } from 'rxjs/Observable';
+import { EventEmitter } from 'events';
+
+import { BugsnagReporter } from './bugsnag-reporter';
+import { channel } from '../../package.json';
+import { getAppId } from '../utils/app-id';
+import { getMemoryUsage } from '../memory-usage';
+import { logger } from '../logger';
+import { p } from '../get-path';
+import { parseCommandLine } from '../parse-command-line';
+import { parseProtocolUrl } from '../parse-protocol-url';
+import { setupCrashReporter } from '../setup-crash-reporter';
+import { onInstall, onUpdate, onUninstall } from './squirrel-event-handlers';
+import { IS_WINDOWS_STORE } from '../utils/shared-constants';
+import { OsInfo, getLinuxDistro } from '../webapp-shared/linux-distro';
 
 import '../rx-operators';
 import '../custom-operators';
+import { locale } from '../i18n/locale';
 
 protocol.registerStandardSchemes(['slack-resources', 'slack-webapp-dev']);
+
+// Increase EventEmitter limit: 0 would remove the warning completely, but we
+// probably shouldn't have more than a hundred on anything
+EventEmitter.defaultMaxListeners = 100;
 
 initializeEvalHandler();
 
@@ -34,7 +45,7 @@ console.log = require('nslog');
  * invokes our executable with specific parameters, usually of the form
  * '--squirrel-$EVENT $VERSION' (i.e. '--squirrel-install 0.1.0'). This is our
  * chance to do custom install / uninstall actions. Once these events are
- * handled, we **must** exit imediately
+ * handled, we **must** exit immediately.
  *
  * @return {Promise}  A Promise whose value is a Boolean - if 'true', start the
  * app. If 'false', quit immediately
@@ -43,7 +54,6 @@ async function handleSquirrelEvents() {
   if (process.platform === 'linux') return true;
 
   const options = process.argv.slice(1);
-
   if (!(options && options.length >= 1)) return true;
 
   const m = options[0].match(/--squirrel-([a-z]+)/);
@@ -51,25 +61,17 @@ async function handleSquirrelEvents() {
 
   if (m[1] === 'firstrun') return true;
 
-  const defaultLocations = 'Desktop,StartMenu,Startup';
+  logger.info('In Squirrel event: ', m[1]);
 
-  // NB: Babel currently hates switch + await, /shrug
+  const defaultLocations = 'Desktop,StartMenu';
+  const allLocations = 'Desktop,StartMenu,Startup';
+
   if (m[1] === 'install') {
-    await createShortcuts(defaultLocations);
-  }
-
-  if (m[1] === 'updated') {
-    await updateShortcuts(defaultLocations);
-  }
-
-  if (m[1] === 'uninstall') {
-    app.removeAsDefaultProtocolClient('slack');
-    await removeShortcuts(defaultLocations);
-    removeStartMenuFolder();
-
-    const taskKill = p`${'SYSTEMROOT'}/system32/taskkill.exe`;
-    const args = ['/F', '/IM', 'slack.exe', '/T'];
-    await spawn(taskKill, args);
+    await onInstall(defaultLocations);
+  } else if (m[1] === 'updated') {
+    await onUpdate(defaultLocations);
+  } else if (m[1] === 'uninstall') {
+    await onUninstall(allLocations);
   }
 
   return false;
@@ -84,7 +86,6 @@ async function handleSquirrelEvents() {
  * @return {Bool}           The modified `shouldRun`
  */
 function handleDisableGpuOnLinux(shouldRun: boolean): boolean {
-
   const LocalStorage = require('./local-storage').LocalStorage;
   const localStorage = new LocalStorage();
 
@@ -96,7 +97,7 @@ function handleDisableGpuOnLinux(shouldRun: boolean): boolean {
     return shouldRun;
   }
 
-  app.relaunch({args: process.argv.slice(1).concat(['--disable-gpu'])});
+  app.relaunch({ args: process.argv.slice(1).concat(['--disable-gpu']) });
   return false;
 }
 
@@ -108,13 +109,13 @@ function handleDisableGpuOnLinux(shouldRun: boolean): boolean {
  * @param {string} url  The URL from `open-url`
  */
 function handleDeepLinkWhenReady(url: string = ''): void {
-  logger.info(`Got open-url with: ${url}`);
+  logger.info(`Slack received protocol link (slack://), handling when ready`, url);
 
   // If the user is supplying a dev environment using our protocol URL,
   // open-url comes in too late for us to be able to set the user data path.
   // So we need to relaunch ourselves with the URL appended as args.
   if (url.match(/devEnv=(dev\d+)/)) {
-    app.relaunch({args: process.argv.slice(1).concat([url])});
+    app.relaunch({ args: process.argv.slice(1).concat([url]) });
   } else {
     // Wait until the application is set up before we touch the Store. Because
     // the component that sends the link to the webapp might not be ready (if
@@ -128,8 +129,8 @@ function handleDeepLinkWhenReady(url: string = ''): void {
       .retryAtIntervals(20)
       .delay(50)
       .subscribe(() => {
-        const {updateSettings} = require('../actions/setting-actions').settingActions;
-        updateSettings({launchedWithLink: url});
+        const { updateSettings } = require('../actions/setting-actions').settingActions;
+        updateSettings({ launchedWithLink: url });
       });
   }
 }
@@ -138,7 +139,7 @@ function handleDeepLinkWhenReady(url: string = ''): void {
  * Ensure only a single instance of the app is open and deal with shuffling
  * arguments for deep links, protocol URLs, etc.
  */
-function handleSingleInstance(shouldRun: boolean): void {
+function handleSingleInstance(shouldRun: boolean): any {
   // NB: We don't want to mess about with single instance if we're in the
   // process of forking to disable GPU
   if (!shouldRun) {
@@ -183,9 +184,6 @@ async function waitForAppReady(args: any): Promise<any> {
   app.commandLine.appendSwitch('disable-pinch');
 
   if (process.platform === 'win32') {
-    // Refer to https://github.com/electron/electron/issues/7655 for more info
-    app.commandLine.appendSwitch('enable-use-zoom-for-dsf', 'false');
-
     // NB: We need to have our own directory in PATH in order to affect DLL
     // search order so that Calls can find the UCRT that's in the same
     // directory as slack.exe
@@ -218,7 +216,10 @@ async function waitForAppReady(args: any): Promise<any> {
   global.reporter = new BugsnagReporter(args.resourcePath, args.devMode);
   global.getMemoryUsage = getMemoryUsage;
 
-  await new Promise((res) => app.on('ready', res));
+  await new Promise((res) => app.once('ready', (e: any) => {
+    locale.invalidate(); //memoize locale values as soon as application initialized
+    res(e);
+  }));
 }
 
 /**
@@ -227,9 +228,36 @@ async function waitForAppReady(args: any): Promise<any> {
  * @return {Promise}  A Promise indicating completion
  */
 async function createBrowserStore() {
-  const {Store} = require('../lib/store');
+  const { Store } = require('../lib/store');
   await Store.loadPersistentState();
   await Store.migrateLegacyState();
+}
+
+async function getLinuxInfo(): Promise<{
+  os: string;
+  release: string;
+  desktopEnvironment?: string;
+}> {
+  try {
+    const osInfo: OsInfo = await getLinuxDistro();
+    const { os, release } = osInfo;
+
+    if (!os || !release) throw new Error();
+
+    const desktopEnvironment = process.env.XDG_CURRENT_DESKTOP;
+    return {
+      os,
+      release,
+      desktopEnvironment
+    };
+  } catch (err) {
+    logger.error(`Couldn't get Linux distro info`, err);
+    return {
+      os: '',
+      release: '',
+      desktopEnvironment: ''
+    };
+  }
 }
 
 /**
@@ -240,8 +268,8 @@ async function createBrowserStore() {
  */
 function createSlackApplication(args: any) {
   // Set our AppUserModelId based on the Squirrel shortcut
-  if (!process.windowsStore && !args.devMode) app.setAsDefaultProtocolClient('slack');
-  if (!process.windowsStore) app.setAppUserModelId(getAppId());
+  if (!IS_WINDOWS_STORE && !args.devMode) app.setAsDefaultProtocolClient('slack');
+  if (!IS_WINDOWS_STORE) app.setAppUserModelId(getAppId());
 
   console.log('Creating Slack Application'); //tslint:disable-line:no-console
 
@@ -251,9 +279,9 @@ function createSlackApplication(args: any) {
     setupCrashReporter(args);
 
     if (args.devMode) {
-      Application = require(path.join(args.resourcePath, 'src', 'browser', 'application')).default;
+      Application = require(path.join(args.resourcePath, 'src', 'browser', 'application')).Application;
     } else {
-      Application = require('../browser/application').default;
+      Application = require('../browser/application').Application;
       process.env.NODE_ENV = 'production';
     }
 
@@ -279,7 +307,10 @@ async function main() {
 
     await waitForAppReady(commandLineArgs);
     await createBrowserStore();
-    createSlackApplication(commandLineArgs);
+    createSlackApplication({
+      ...commandLineArgs,
+      linux: process.platform === 'linux' && await getLinuxInfo()
+    });
   } catch (e) {
     console.error(e);
     app.quit();

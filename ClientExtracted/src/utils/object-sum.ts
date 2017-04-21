@@ -1,4 +1,8 @@
-import {isObject} from './is-object';
+/**
+ * @module Utilities
+ */ /** for typedoc */
+
+import { isObject } from './is-object';
 
 /**
  * An accumulator function that will keep a running sum of all keys defined on

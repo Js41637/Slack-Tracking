@@ -1,12 +1,16 @@
+/**
+ * @module Browser
+ */ /** for typedoc */
+
 import * as transform from 'lodash.transform';
-import {pick} from '../utils/pick';
+import { pick } from '../utils/pick';
 import * as path from 'path';
 import * as fs from 'graceful-fs';
-import {session} from 'electron';
+import { session } from 'electron';
 
-import {getInitialsOfName} from '../reducers/teams-reducer';
-import {logger} from '../logger';
-import {p} from '../get-path';
+import { getInitialsOfName } from '../reducers/teams-reducer';
+import { logger } from '../logger';
+import { p } from '../get-path';
 import * as CookieParser from './safari-cookies';
 
 /**

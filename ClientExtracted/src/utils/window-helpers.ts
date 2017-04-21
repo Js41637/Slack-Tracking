@@ -1,11 +1,15 @@
-import {logger} from '../logger';
-import {Subscription} from 'rxjs/Subscription';
-import {Observable} from 'rxjs/Observable';
-import {async} from 'rxjs/scheduler/async';
+/**
+ * @module Utilities
+ */ /** for typedoc */
+
+import { logger } from '../logger';
+import { Subscription } from 'rxjs/Subscription';
+import { Observable } from 'rxjs/Observable';
+import { async } from 'rxjs/scheduler/async';
 import * as assignIn from 'lodash.assignin';
 import * as url from 'url';
 
-import {MetricsReporter} from '../browser/metrics-reporter';
+import { MetricsReporter } from '../browser/metrics-reporter';
 import 'rxjs/add/observable/fromEvent';
 
 declare const global: any;
@@ -22,14 +26,14 @@ export abstract class WindowHelpers {
     const ret = new Subscription();
     ret.add(
       Observable.fromEvent(browserWindow, 'move').throttleTime(750).subscribe(() => {
-        const {x, y} = browserWindow.getBounds();
+        const { x, y } = browserWindow.getBounds();
         reporter.sendEvent('window', 'x', null, x);
         reporter.sendEvent('window', 'y', null, y);
       }));
 
     ret.add(
       Observable.fromEvent(browserWindow, 'resize').throttleTime(750).subscribe(() => {
-        const {width, height} = browserWindow.getBounds();
+        const { width, height } = browserWindow.getBounds();
         reporter.sendEvent('window', 'width', null, width);
         reporter.sendEvent('window', 'height', null, height);
       }));
@@ -81,7 +85,7 @@ export abstract class WindowHelpers {
     const targetUrl = url.format({
       protocol: 'file',
       slashes: true,
-      query: {loadSettings: JSON.stringify(loadSettings)},
+      query: { loadSettings: JSON.stringify(loadSettings) },
       pathname
     });
 

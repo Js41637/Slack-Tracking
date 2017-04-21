@@ -1,7 +1,11 @@
-import {shell} from 'electron';
-import {uniqueId} from '../utils/unique-id';
+/**
+ * @module SSBIntegration
+ */ /** for typedoc */
 
-import {downloadActions} from '../actions/download-actions';
+import { shell } from 'electron';
+import { uniqueId } from '../utils/unique-id';
+
+import { downloadActions } from '../actions/download-actions';
 
 export class DownloadIntegration {
   /**
@@ -14,7 +18,7 @@ export class DownloadIntegration {
    */
   public startDownload(url: string): string {
     const token = uniqueId();
-    downloadActions.startDownload({token, url, teamId: window.teamId});
+    downloadActions.startDownload({ token, url, teamId: window.teamId });
     return token;
   }
 

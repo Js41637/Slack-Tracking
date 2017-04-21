@@ -1,4 +1,8 @@
-import {pickBy} from './pick-by';
+/**
+ * @module Utilities
+ */ /** for typedoc */
+
+import { pickBy } from './pick-by';
 
 /**
  * The opposite of `pick`; this method creates an object composed of the

@@ -1,9 +1,13 @@
-import {applyMiddleware, createStore, combineReducers, compose} from 'redux';
-import {electronEnhancer} from 'redux-electron-store';
-import {isPrebuilt} from '../utils/process-helpers';
-import {reducers} from '../reducers';
-import {BaseStore} from './base-store';
-import {WINDOW_TYPES, windowType} from '../utils/shared-constants';
+/**
+ * @module Stores
+ */ /** for typedoc */
+
+import { applyMiddleware, createStore, combineReducers, compose } from 'redux';
+import { electronEnhancer } from 'redux-electron-store';
+import { isPrebuilt } from '../utils/process-helpers';
+import { reducers } from '../reducers';
+import { BaseStore } from './base-store';
+import { WINDOW_TYPES, windowType } from '../utils/shared-constants';
 
 /**
  * This store is used by any renderer process. It receives data from the
@@ -15,7 +19,7 @@ export class RendererStore<T> extends BaseStore<T> {
   constructor() {
     super();
 
-    const {devMode, testMode, windowType} = global.loadSettings;
+    const { devMode, testMode, windowType } = global.loadSettings;
     this.windowType = windowType;
 
     const toCompose = [
@@ -52,32 +56,19 @@ export class RendererStore<T> extends BaseStore<T> {
   private getShapeForWindow(type: windowType) {
     switch (type) {
     case WINDOW_TYPES.MAIN:
-      return {
-        app: true,
-        appTeams: true,
-        notifications: true,
-        settings: true,
-        events: true,
-        teams: true,
-        dialog: true,
-        downloads: true,
-        tray: true,
-        windows: true,
-        windowFrame: true
-      };
+      return true;
     case WINDOW_TYPES.NOTIFICATIONS:
       return {
         appTeams: true,
         notifications: true,
-        windows: true,
-        windowFrame: true,
-        teams: true,
         settings: {
           zoomLevel: true,
           notifyPosition: true,
-          hasMigratedData: true,
           isDevMode: true
-        }
+        },
+        teams: true,
+        windows: true,
+        windowFrame: true
       };
     case WINDOW_TYPES.WEBAPP:
       return this.getWebViewShape();

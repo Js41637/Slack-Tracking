@@ -1,9 +1,12 @@
-import {pickBy} from '../utils/pick-by';
-import {Store} from '../lib/store';
-import {getWindowOfType, Window, getWindows} from './window-store-helper';
+/**
+ * @module Stores
+ */ /** for typedoc */
 
-import {WINDOW_TYPES, CALLS_WINDOW_TYPES, windowType} from '../utils/shared-constants';
-import {StringMap} from '../utils/string-map';
+import { pickBy } from '../utils/pick-by';
+import { Store } from '../lib/store';
+import { getWindowOfType, Window, getWindows } from './window-store-helper';
+
+import { StringMap, WINDOW_TYPES, CALLS_WINDOW_TYPES, windowType } from '../utils/shared-constants';
 
 const CURRENT_WINDOW_ID = process.type === 'renderer' ?
   require('electron').remote.getCurrentWindow().id : null;
@@ -24,7 +27,7 @@ export class WindowStore {
     return pickBy<StringMap<Window>, StringMap<Window>>(windows, (win: Window) => win.teamId === teamId);
   }
 
-  public getWindowOfSubType(subType: string) {
+  public getWindowOfSubType(subType: string): Window | null {
     const windows = Store.getState().windows as StringMap<Window>;
     const foundKey = Object.keys(windows).find((key) => {
       return windows[key] && windows[key].type === WINDOW_TYPES.WEBAPP && windows[key].subType === subType;

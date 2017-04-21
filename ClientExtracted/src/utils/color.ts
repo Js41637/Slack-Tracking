@@ -1,6 +1,10 @@
+/**
+ * @module Utilities
+ */ /** for typedoc */
+
 import * as Kolor from 'color';
-import ThemeMock from '../mocks/theme-mock';
-import {Team} from '../actions/team-actions';
+import { themeMock } from '../mocks/theme-mock';
+import { Team, TeamTheme } from '../actions/team-actions';
 
 /**
  * Returns a suitable sidebar color as a hex string.
@@ -33,7 +37,7 @@ export function getTextColor(team: Team): string {
 function getSidebarColorForTeam(team: Team): Color.Color {
   const theme = team && team.theme ?
     team.theme :
-    ThemeMock.get();
+    themeMock.get<TeamTheme>();
 
   const column = Kolor(theme.column_bg);
 

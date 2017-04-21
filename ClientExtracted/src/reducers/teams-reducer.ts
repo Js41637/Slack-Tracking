@@ -1,20 +1,26 @@
+/**
+ * @module Reducers
+ */ /** for typedoc */
+
 import * as fs from 'graceful-fs';
 import * as url from 'url';
 
-import {p} from '../get-path';
-import {pick} from '../utils/pick';
-import {pickBy} from '../utils/pick-by';
-import {objectMerge} from '../utils/object-merge';
-import {StringMap} from '../utils/string-map';
+import { p } from '../get-path';
+import { pick } from '../utils/pick';
+import { pickBy } from '../utils/pick-by';
+import { objectMerge } from '../utils/object-merge';
 
-import {Action} from '../actions/action';
-import {TEAMS, SETTINGS, MIGRATIONS} from '../actions';
-import {Team, TeamBase} from '../actions/team-actions';
-import {SLACK_CORP_TEAM_ID} from '../utils/shared-constants';
+import { Action } from '../actions/action';
+import { TEAMS, SETTINGS, MIGRATIONS } from '../actions';
+import { Team, TeamBase } from '../actions/team-actions';
+import { StringMap, SLACK_CORP_TEAM_ID } from '../utils/shared-constants';
 
 let savedTsDevMenu = false;
 
-export function reduce(teams: StringMap<Team> = {}, action: Action): StringMap<Team> {
+/**
+ * @hidden
+ */
+export function reduce(teams: StringMap<Team> = {}, action: Action<any>): StringMap<Team> {
   switch (action.type) {
   case TEAMS.ADD_NEW_TEAM:
     return addTeam(teams, action.data);
@@ -29,8 +35,6 @@ export function reduce(teams: StringMap<Team> = {}, action: Action): StringMap<T
     return updateFieldOnTeam(teams, action.data.teamId, 'theme', action.data.theme);
   case TEAMS.UPDATE_TEAM_ICONS:
     return updateFieldOnTeam(teams, action.data.teamId, 'icons', action.data.icons);
-  case TEAMS.UPDATE_UNREADS_INFO:
-    return updateUnreadsInfo(teams, action.data);
   case TEAMS.UPDATE_TEAM_USAGE:
     return updateTeamUsage(teams, action.data);
   case TEAMS.UPDATE_TEAM_NAME:
@@ -48,7 +52,7 @@ export function reduce(teams: StringMap<Team> = {}, action: Action): StringMap<T
   default:
     return teams;
   }
-}
+};
 
 /**
  * Returns the initial characters of the first `maxLength` words of `name`.
@@ -82,9 +86,6 @@ function parseTeamFromSsb(ssbTeam: any) {
     team.icons = ssbTeam.team_icon;
   }
 
-  team.unreads = 0;
-  team.unreadHighlights = 0;
-  team.showBullet = false;
   team.initials = getInitialsOfName(team.team_name);
   team.user_id = ssbTeam.id;
 
@@ -115,7 +116,7 @@ function addTeams(teamList: StringMap<Team>, newTeams: Array<Team>) {
     return acc;
   }, {});
 
-  return {...teamList, ...update};
+  return { ...teamList, ...update };
 }
 
 function removeTeamWithId(teamList: StringMap<Team>, teamId: string) {
@@ -151,29 +152,15 @@ function updateFieldOnTeam(teams: StringMap<Team>, teamId: string, key: string, 
   };
 }
 
-function updateUnreadsInfo(teams: StringMap<Team>, {unreads, unreadHighlights, showBullet, teamId}: Partial<Team> & {teamId: string}) {
-  const team = teams[teamId];
-  if (!team) return teams;
-  return {
-    ...teams,
-    [teamId]: {
-      ...team,
-      unreads,
-      unreadHighlights,
-      showBullet
-    }
-  };
-}
-
 function updateTeamUsage(teams: StringMap<Team>, usagePerTeam: StringMap<any>) {
   const update = {};
   for (const teamId of Object.keys(usagePerTeam)) {
     if (!teams[teamId]) continue;
 
     const usage = (teams[teamId].usage || 0) + usagePerTeam[teamId];
-    update[teamId] = {...teams[teamId], usage};
+    update[teamId] = { ...teams[teamId], usage };
   }
-  return {...teams, ...update};
+  return { ...teams, ...update };
 }
 
 function setTeamIdleTimeout(teams: StringMap<Team>, singleTeamId: string, timeout: number) {
@@ -186,7 +173,7 @@ function setTeamIdleTimeout(teams: StringMap<Team>, singleTeamId: string, timeou
   }
 }
 
-function updateTeamsForDevEnvironment(teams: StringMap<Team>, {devEnv}: {devEnv: boolean}) {
+function updateTeamsForDevEnvironment(teams: StringMap<Team>, { devEnv }: {devEnv: boolean}) {
   if (!devEnv) return teams;
   return Object.keys(teams).reduce((acc, teamId) => {
     const team = teams[teamId];

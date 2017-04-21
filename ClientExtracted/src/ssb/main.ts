@@ -1,26 +1,53 @@
-import {webFrame, remote} from 'electron';
-import {initializeEvalHandler} from 'electron-remote';
-import {logger} from '../logger';
-import {overrideWindowOpen} from './override-window-open';
-import {overrideDropbox} from './override-dropbox';
-import {setupCrashReporter} from '../setup-crash-reporter';
+/**
+ * # SSB Integration
+ * This module exposes fancy APIs to the webapp, allowing Slack to use native APIs and integrate with
+ * the operating system. Available in the webapp under `window.desktop`, exposed are the following:
+ *
+ * - `desktop.app`: [[AppIntegration]]
+ * - `desktop.clipboard`: [[ClipboardIntegration]]
+ * - `desktop.dock`: [[DockIntegration]]
+ * - `desktop.notice`: [[NotificationIntegration]]
+ * - `desktop.teams`: [[TeamIntegration]]
+ * - `desktop.downloads:` [[DownloadIntegration]]
+ * - `desktop.window`: [[WebappWindowManager]]
+ * - `desktop.stats`: [[Stats]]
+ * - `desktop.calls`: [[Calls]]
+ * - `desktop.spellCheckingHelper`: [[SpellCheckingHelper]]
+ * - `desktop.store`: [[Store]]
+ * - `desktop.deviceStorage`: [[DeviceStorage]]
+ * - `desktop.reduxHelper`: [[ReduxHelper]]
+ * - `desktop.touchbar`: [[TouchBarIntegration]]
+ *
+ * To learn more about an individual namespace, check out the corresponding module.
+ *
+ * @module SSBIntegration
+ * @preferred
+ */ /** for typedoc */
 
-import {AppIntegration} from './app';
-import {Calls} from './calls';
-import {ClipboardIntegration} from './clipboard';
-import {DeviceStorage} from './device-storage';
-import {DockIntegration} from './dock';
-import {DownloadIntegration} from './downloads';
-import {NotificationIntegration} from './notify';
+import { TouchBarIntegration } from './touchbar';
+import { webFrame, remote } from 'electron';
+import { initializeEvalHandler } from 'electron-remote';
+import { logger } from '../logger';
+import { overrideWindowOpen } from './override-window-open';
+import { overrideDropbox } from './override-dropbox';
+import { setupCrashReporter } from '../setup-crash-reporter';
+
+import { AppIntegration } from './app';
+import { Calls } from './calls';
+import { ClipboardIntegration } from './clipboard';
+import { DeviceStorage } from './device-storage';
+import { DockIntegration } from './dock';
+import { DownloadIntegration } from './downloads';
+import { NotificationIntegration } from './notify';
 import {setupTouchscreenEvents, setupDoubleClickHandler,
   canAccessLocalStorage, disableDesktopIntegration} from './post-dom-tasks';
-import {SpellCheckingHelper} from './spell-checking';
-import {Stats as StatsIntegration} from './stats';
-import {Store} from '../lib/store';
-import {ReduxHelper} from './redux-helper';
-import {TeamIntegration} from './team';
-import {WebappWindowManager} from './webapp-window-manager';
-import {WindowOpener} from './window-opener';
+import { SpellCheckingHelper } from './spell-checking';
+import { Stats as StatsIntegration } from './stats';
+import { Store } from '../lib/store';
+import { ReduxHelper } from './redux-helper';
+import { TeamIntegration } from './team';
+import { WebappWindowManager } from './webapp-window-manager';
+import { WindowOpener } from './window-opener';
 
 (window as any).globalLogger = logger;
 
@@ -124,7 +151,9 @@ window.winssb = {
 
   deviceStorage: new DeviceStorage(),
 
-  reduxHelper: new ReduxHelper()
+  reduxHelper: new ReduxHelper(),
+
+  touchbar: new TouchBarIntegration()
 };
 
 // NB: We will be moving to this more generic name for our desktop integration global.
@@ -139,5 +168,5 @@ if (process.guestInstanceId) {
   window.opener = new WindowOpener();
 }
 
-overrideWindowOpen((opts: Function) => window.winssb.window.open(opts));
+overrideWindowOpen((opts: () => void) => window.winssb.window.open(opts));
 overrideDropbox();

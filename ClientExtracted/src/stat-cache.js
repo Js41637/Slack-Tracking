@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */ /** for typedoc */
+
 // NB: This is loaded very very early, so we don't use nice things like import
 var lru = require('lru-cache')({max: 256, maxAge: 250/*ms*/});
 var fs = require('fs');

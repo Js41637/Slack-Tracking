@@ -1,5 +1,9 @@
-import {Subscription} from 'rxjs/Subscription';
-import {Observable} from 'rxjs/Observable';
+/**
+ * @module Browser
+ */ /** for typedoc */
+
+import { Subscription } from 'rxjs/Subscription';
+import { Observable } from 'rxjs/Observable';
 
 // Public: Reporter handles sending metrics and command information to Google
 // Analytics.
@@ -23,7 +27,7 @@ export class MetricsReporter {
   // Returns an {Observable} that signals completion
   public sendEvent(category: string, action: string, label: string | number | null | undefined, value: number = 0): Observable<boolean> {
     if (!this.mainWindow) return Observable.of(false);
-    this.mainWindow.send('reporter:sendEvent', {category, action, label, value});
+    this.mainWindow.send('reporter:sendEvent', { category, action, label, value });
     return Observable.of(true);
   }
 
@@ -63,7 +67,7 @@ export class MetricsReporter {
   public sendTiming(category: string, name: string, value: number, label?: string): Observable<boolean> {
     if (!this.mainWindow) return Observable.of(false);
 
-    this.mainWindow.send('reporter:sendTiming', {category, name, value, label});
+    this.mainWindow.send('reporter:sendTiming', { category, name, value, label });
     return Observable.of(true);
   }
 

@@ -1,29 +1,30 @@
+/**
+ * @module RendererComponents
+ */ /** for typedoc */
+
 import * as assignIn from 'lodash.assignin';
 import * as path from 'path';
 import * as url from 'url';
-import {Observable} from 'rxjs/Observable';
-import {Subject} from 'rxjs/Subject';
-import {Subscription} from 'rxjs/Subscription';
-import {executeJavaScriptMethod, remoteEval, remoteEvalObservable, setParentInformation} from 'electron-remote';
+import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
+import { Subscription } from 'rxjs/Subscription';
+import { executeJavaScriptMethod, setParentInformation } from 'electron-remote';
 
-import {getUserAgent} from '../../ssb-user-agent';
-import {releaseDocumentFocus} from '../../utils/document-focus';
-import {logger, Logger} from '../../logger';
-import {noop} from '../../utils/noop';
+import { getUserAgent } from '../../ssb-user-agent';
+import { releaseDocumentFocus } from '../../utils/document-focus';
+import { logger, Logger } from '../../logger';
+import { noop } from '../../utils/noop';
 
-import {Component} from '../../lib/component';
-import {AuthenticationInfo} from '../../actions/dialog-actions';
-import {dialogStore} from '../../stores/dialog-store';
-import {eventActions} from '../../actions/event-actions';
-import {WebViewBehavior} from '../behaviors/webView-behavior';
-import {contextMenuBehavior} from '../behaviors/context-menu-behavior';
-import {externalLinkBehavior} from '../behaviors/external-link-behavior';
-import {settingStore} from '../../stores/setting-store';
-import {setZoomLevelAndLimits} from '../../utils/zoomlevels';
+import { Component } from '../../lib/component';
+import { dialogStore } from '../../stores/dialog-store';
+import { eventActions } from '../../actions/event-actions';
+import { WebViewBehavior } from '../behaviors/webView-behavior';
+import { contextMenuBehavior } from '../behaviors/context-menu-behavior';
+import { externalLinkBehavior } from '../behaviors/external-link-behavior';
+import { settingStore } from '../../stores/setting-store';
+import { setZoomLevelAndLimits } from '../../utils/zoomlevels';
 
 import * as React from 'react'; // tslint:disable-line:no-unused-variable
-
-import {IS_BOOTED_EVAL} from '../../utils/shared-constants';
 
 /**
  * Webview `did-fail-load` happens in many cases we don't care about. See
@@ -31,6 +32,7 @@ import {IS_BOOTED_EVAL} from '../../utils/shared-constants';
  * for the complete list of codes.
  */
 const ERROR_CODES_TO_IGNORE: Array<number> = [
+  0,    // We're not actually hitting an error (lolwut)
   -3,   // Redirect responses give an aborted code, see https://github.com/atom/electron/issues/4396
   -105, // Host name not resolved (no network)
   -106, // Internet disconnected
@@ -44,15 +46,20 @@ const ERROR_CODES_TO_IGNORE: Array<number> = [
 const CHROMIUM_BLANK_PAGE_URL = 'data:text/html,chromewebdata';
 
 /**
- * Only do the empty page check on some URLs, to avoid us detecting teams' auth
- * pages as empty during signin.
+ * Some logic should only be applied to the /messages page of the webapp
+ * (e.g., the empty page check), as auth pages can throw this off.
  */
-const LOAD_CHECK_WHITELIST = [/^https:\/\/(\w*\.?)slack\.com\/messages/];
+export const WEBAPP_MESSAGES_URL = /^https:\/\/(\w*\.?)slack\.com\/messages/;
+
+export interface WebViewContextOptions extends Electron.LoadURLOptions {
+  src: string;
+}
 
 // View a complete list of webview options at
 // https://github.com/atom/electron/blob/master/docs/api/web-view-tag.md
 export interface WebViewContextProps {
-  options: Electron.LoadURLOptions;
+  options: WebViewContextOptions;
+  className?: string;
   id?: string;
   login?: boolean;
   onPageLoad?: typeof noop;
@@ -66,7 +73,7 @@ export interface WebViewContextProps {
 export interface WebViewContextState {
   zoomLevel: number;
   isMac: boolean;
-  authInfo: AuthenticationInfo;
+  authInfo: Electron.LoginAuthInfo;
 }
 
 export class WebViewContext extends Component<WebViewContextProps, Partial<WebViewContextState>> {
@@ -121,7 +128,7 @@ export class WebViewContext extends Component<WebViewContextProps, Partial<WebVi
 
     this.disposables.add(
       Observable.fromEvent(webView, 'ipc-message')
-        .filter(({channel}) => channel === 'didFinishLoading')
+        .filter(({ channel }) => channel === 'didFinishLoading')
         .subscribe(this.props.onWebappLoad)
     );
 
@@ -133,8 +140,13 @@ export class WebViewContext extends Component<WebViewContextProps, Partial<WebVi
       this.props.onPageLoad!();
     }));
 
+    // Chromium's WebView does not respond well to interactions
+    // immediately after issuing an event. This is terrible, but
+    // for now, we circumvent this by manually delaying subscribed
+    // operations by an artificial 100ms.
     this.disposables.add(Observable.fromEvent(webView, 'did-fail-load')
-      .filter(({errorCode}) => !ERROR_CODES_TO_IGNORE.includes(errorCode))
+      .filter(({ errorCode }) => !ERROR_CODES_TO_IGNORE.includes(errorCode))
+      .flatMap((e) => Observable.timer(100).map(() => e))
       .subscribe((e) => this.props.onPageError!(e)));
 
     this.disposables.add(Observable.fromEvent(webView, 'close').subscribe(() => {
@@ -145,9 +157,9 @@ export class WebViewContext extends Component<WebViewContextProps, Partial<WebVi
     this.disposables.add(this.setupErrorHandling(webView));
 
     this.disposables.add(Observable.fromEvent(webView, 'did-get-redirect-request')
-      .filter(({isMainFrame}) => isMainFrame)
+      .filter(({ isMainFrame }) => isMainFrame)
       .subscribe((e: HashChangeEvent) => {
-        logger.info(`WebView received redirect request from ${e.oldURL} to ${e.newURL}`);
+        logger.info(`WebView: Received redirect request from ${e.oldURL} to ${e.newURL}.`);
         this.props.onRedirect!(e);
       })
     );
@@ -180,44 +192,6 @@ export class WebViewContext extends Component<WebViewContextProps, Partial<WebVi
   }
 
   /**
-   * `executeJavaScriptMethod`, but with patience. Checks if the webapp is
-   * fully booted, and if it isn't, waits until it is.
-   *
-   * @param {String} pathToObject Path to the method to be called
-   * @param {Array} ...args       Arguments passed on to the method
-   * @returns {Promise}           A Promise containing the result of the execution
-   */
-  public executeJavaScriptMethodWhenBooted(pathToObject: string, ...args: Array<any>): Promise<any> {
-    const webView = this.webViewElement;
-
-    return Observable.of(true)
-      .flatMap(() => remoteEval(webView, IS_BOOTED_EVAL))
-      .map((result: any) => {
-        if (!result) throw new Error('WebApp not ready or not fully booted');
-        else return result;
-      })
-      .retryAtIntervals(20)
-      .flatMap(() => executeJavaScriptMethod(webView, pathToObject, ...args))
-      .toPromise();
-  }
-
-  /**
-   * `executeJavaScriptMethod`, but only if it given webview is allowed to execute.
-   * If it's not ready and not able to, simply will skip execution.
-   *
-   * @param {String} pathToObject         Path to the method to be called
-   * @param {Array} ...args               Arguments passed on to the method
-   * @returns {Observable<any>}           An Observable containing the result of the execution
-   */
-  public executeJavaScriptIfBooted(pathToObject: string, ...args: Array<any>): Observable<any> {
-    const webView = this.webViewElement;
-
-    return remoteEvalObservable(webView, IS_BOOTED_EVAL)
-      .filter((x: boolean) => !!x)
-      .flatMap((_: boolean) => executeJavaScriptMethod(webView, pathToObject, ...args));
-  }
-
-  /**
    * Executes a JavaScript method inside the <WebView>.
    *
    * @param {string} pathToObject - Path to the method to be called
@@ -230,6 +204,14 @@ export class WebViewContext extends Component<WebViewContextProps, Partial<WebVi
 
   public executeJavaScript(str: string): Promise<any> {
     return new Promise((resolve) => this.webViewElement.executeJavaScript(str, false, resolve));
+  }
+
+  public getURL() {
+    return this.webViewElement.getURL() || '';
+  }
+
+  public isMessagesURL() {
+    return !!this.getURL().match(WEBAPP_MESSAGES_URL);
   }
 
   public downloadURL(theUrl: string): void {
@@ -319,7 +301,7 @@ export class WebViewContext extends Component<WebViewContextProps, Partial<WebVi
     return (
       <webview
         {...options}
-        style={{width: '100%', height: '100%', backgroundColor: 'white'}}
+        style={{ width: '100%', height: '100%', backgroundColor: 'white' }}
         className='WebViewContext'
         ref={this.refHandlers.webView}
       />
@@ -339,7 +321,7 @@ export class WebViewContext extends Component<WebViewContextProps, Partial<WebVi
       Observable.fromEvent(webView, 'plugin-crashed').map((n, v) => `Plugin ${n} ${v}`))
       .filter((type) => !type.startsWith('Plugin'))
       .subscribe((type) => {
-        logger.error(`${type} crash occurred in webView: ${JSON.stringify(this.props.options)}`);
+        logger.error(`WebView: ${type} crash occurred in webView: ${JSON.stringify(this.props.options)}`);
 
         // NB: Reload the entire window. We can't reload the webView in this
         // case because we can't even access it.
@@ -364,7 +346,7 @@ export class WebViewContext extends Component<WebViewContextProps, Partial<WebVi
       .filter(() => !this.shouldSkipLoadCheck(webView))
       .flatMap(() => this.executeJavaScript(checkBlankPage))
       .catch(() => Observable.of(null))
-      .filter((isFullyLoaded) => isFullyLoaded === false)
+      .filter((isFullyLoaded: boolean | null) => isFullyLoaded === false)
       .do(() => logger.error(`${webView.getURL()} was stuck at ${CHROMIUM_BLANK_PAGE_URL}`))
       .subscribe(() => this.props.onPageEmptyAfterLoad!(webView.getURL()));
   }
@@ -376,13 +358,13 @@ export class WebViewContext extends Component<WebViewContextProps, Partial<WebVi
    * @return {Boolean}  True to bypass the empty page check, false otherwise
    */
   private shouldSkipLoadCheck(webView: Electron.WebViewElement): boolean {
-    if (!webView || !LOAD_CHECK_WHITELIST.some((regExp) => regExp.test(webView.getURL()))) {
-      logger.warn('Skipping empty page check for ', webView ? webView.getURL() : 'empty webview');
+    if (!webView || !this.isMessagesURL()) {
+      logger.warn('WebView: Skipping empty page check for ', webView ? webView.getURL() : 'empty webview');
       return true;
     }
 
     if (this.state.authInfo) {
-      logger.warn('Skipping empty page check during basic auth');
+      logger.warn('WebView: Skipping empty page check during basic auth');
       return true;
     }
 
@@ -398,7 +380,7 @@ export class WebViewContext extends Component<WebViewContextProps, Partial<WebVi
    */
   private logConsoleMessages(webView: Electron.WebViewElement): Subscription {
     return Observable.fromEvent(webView, 'console-message')
-      .subscribe(({level, message}) => {
+      .subscribe(({ level, message }) => {
         switch (level) {
         case 0:
           this.consoleLogger.info(message);

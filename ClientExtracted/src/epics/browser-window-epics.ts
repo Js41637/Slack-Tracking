@@ -1,13 +1,17 @@
-import {Action} from '../actions/action';
-import {MiddlewareAPI} from 'redux';
-import {Epic, ActionsObservable} from 'redux-observable';
-import {BrowserWindow, webContents} from 'electron';
-import {APP} from '../actions/';
-import {logger} from '../logger';
-import {EVENTS} from '../actions';
-import {WINDOW_TYPES} from '../utils/shared-constants';
-import {getWindowOfType, getWindows} from '../stores/window-store-helper';
-import {NodeRTNotificationHelpers} from '../renderer/components/node-rt-notification-helpers';
+/**
+ * @module Epics
+ */ /** for typedoc */
+
+import { Action } from '../actions/action';
+import { MiddlewareAPI } from 'redux';
+import { Epic, ActionsObservable } from 'redux-observable';
+import { BrowserWindow, webContents } from 'electron';
+import { APP } from '../actions/';
+import { logger } from '../logger';
+import { EVENTS } from '../actions';
+import { WINDOW_TYPES, IS_WINDOWS_STORE } from '../utils/shared-constants';
+import { getWindowOfType, getWindows } from '../stores/window-store-helper';
+import { NodeRTNotificationHelpers } from '../renderer/components/node-rt-notification-helpers';
 import '../custom-operators';
 
 const CHILD_WINDOWS = [WINDOW_TYPES.WEBAPP];
@@ -35,27 +39,21 @@ const clearActionCenter = (store: MiddlewareAPI<any>) => {
     // Clear() isn't async, but it's not sync either. If we exit early,
     // we won't have cleared. We're hoping to be done in 500ms.
     try {
-      const {settings} = store.getState();
-
-      // Toast Notifications
-      if (settings.clearNotificationsOnExit) {
-        logger.info('Clearing toast notifications due to setting "clearNotificationsOnExit"');
-        NodeRTNotificationHelpers.clearToastNotifications();
-      }
+      const { settings } = store.getState();
 
       // Tile Notifications
-      if (process.windowsStore) {
-        logger.info('Clearing toast notifications due to setting "clearNotificationsOnExit"');
+      if (IS_WINDOWS_STORE) {
+        logger.info('BrowserWindow Epic: Clearing toast notifications due to setting "clearNotificationsOnExit"');
         NodeRTNotificationHelpers.clearTileNotifications();
       }
 
-      if (process.windowsStore || settings.clearNotificationsOnExit) {
+      if (IS_WINDOWS_STORE || settings.clearNotificationsOnExit) {
         setTimeout(() => resolve(), 500);
       } else {
         resolve();
       }
     } catch (e) {
-      logger.warn(`Clearing action center failed: ${JSON.stringify(e)}`);
+      logger.warn(`BrowserWindow Epic: Clearing action center failed: ${JSON.stringify(e)}`);
       resolve();
     }
   });
@@ -70,7 +68,7 @@ const exitApplication = (store: MiddlewareAPI<any>): void => {
   mainWnd.close();
 };
 
-export const quitApplicationEpic: Epic<Action> = (actionObservable: ActionsObservable<Action>, store: MiddlewareAPI<any>) => {
+export const quitApplicationEpic: Epic<Action<any>, any> = (actionObservable: ActionsObservable<Action<any>>, store: MiddlewareAPI<any>) => {
   return actionObservable.ofType(EVENTS.QUIT_APP)
   .take(1)
   .do(() => clearActionCenter(store))
@@ -85,7 +83,7 @@ const canOpenDevtools = (store: MiddlewareAPI<any>, contents: Electron.WebConten
     return true;
   }
 
-  const {appTeams, teams} = store.getState();
+  const { appTeams, teams } = store.getState();
   const selectedTeam = teams[appTeams.selectedTeamId];
 
   // If we're not signed into any teams, open any webapp page.
@@ -115,11 +113,11 @@ const buildDevtoolsContext = (electron: boolean) => {
  * @param  {Boolean} electronDevTools  True to open devTools for the main renderer,
  *                                     false for just the selected team's webView
  */
-export const openDevToolsEpic: Epic<Action> = (actionObservable: ActionsObservable<Action>, store: MiddlewareAPI<any>) => {
+export const openDevToolsEpic: Epic<Action<any>, any> = (actionObservable: ActionsObservable<Action<any>>, store: MiddlewareAPI<any>) => {
   return actionObservable.ofType(EVENTS.TOGGLE_DEV_TOOLS)
     .map((x) => buildDevtoolsContext(x.data))
     .do((context) => {
-      const {opened, contents, electron} = context;
+      const { opened, contents, electron } = context;
 
       if (opened.length > 0) {
         opened.forEach((wc) => wc.closeDevTools());

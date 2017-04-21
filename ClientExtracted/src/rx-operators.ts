@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */ /** for typedoc */
+
 //instead of loading full Rx modules,
 //patch Observable to import only necessary operators
 

@@ -1,14 +1,17 @@
+/**
+ * @module Notifications
+ */ /** for typedoc */
+
 import * as fs from 'fs';
 import * as path from 'path';
-import {spawnPromise} from 'spawn-rx';
-import {requireTaskPool} from 'electron-remote';
+import { spawnPromise } from 'spawn-rx';
+import { requireTaskPool } from 'electron-remote';
 
-import {logger} from '../../logger';
-import {nativeInterop} from '../../native-interop';
-import {getAppId} from '../../utils/app-id';
+import { logger } from '../../logger';
+import { nativeInterop } from '../../native-interop';
+import { IS_WINDOWS_STORE } from '../../utils/shared-constants';
 
 const isWindows10 = (process.platform === 'win32' && nativeInterop.isWindows10OrHigher(true));
-const appId = getAppId();
 
 /**
  * Helper class supporting activation of various code paths for
@@ -27,20 +30,6 @@ export class NodeRTNotificationHelpers {
   public static activatorRegistered: boolean|string = false;
 
   /**
-   * Safely tries to remove toast notifications for a given channel.
-   *
-   * @param {string} group
-   * @returns {Promise<boolean|undefined>} success
-   */
-  public static clearToastNotificationsForChannel(group: string) {
-    if (!isWindows10 || !group || group.length === 0 ) {
-      return Promise.resolve();
-    } else {
-      return this.clearToastNotifications(group);
-    }
-  }
-
-  /**
    * Safely tries to remove tile notifications.
    *
    * @returns {boolean|undefined} success
@@ -57,7 +46,7 @@ export class NodeRTNotificationHelpers {
         if (windowsNotifications) {
           logger.info(`${prefix}Successfully initialized electron-windows-notifications on rendererTaskPool.`);
 
-          const {TileUpdater} = windowsNotifications;
+          const { TileUpdater } = windowsNotifications;
           const tileUpdater = new TileUpdater();
           tileUpdater.clear();
           resolve();
@@ -73,51 +62,6 @@ export class NodeRTNotificationHelpers {
   }
 
   /**
-   * Safely tries to remove toast notifications for a given channel (or all notifications).
-   *
-   * @param {string} [group] - Group ID (optional)
-   * @returns {boolean|null} success
-   */
-  public static clearToastNotifications(group?: string) {
-    const prefix = 'Windows Notifications History: ';
-
-    return new Promise((resolve) => {
-      if (!isWindows10) return resolve();
-
-      try {
-        const windowsNotifications = requireTaskPool(require.resolve('electron-windows-notifications'));
-
-        if (windowsNotifications) {
-          logger.info(`${prefix}Successfully initialized electron-windows-notifications on rendererTaskPool.`);
-
-          const {history} = windowsNotifications;
-          let result: boolean|undefined;
-
-          if (group && group.length > 0) {
-            logger.info(`${prefix}Trying to clear notifications for channel ${group}.`);
-            result = history.removeGroup({group, appId});
-            logger.info(`${prefix}Tried to clear notifications for channel ${group}. Result: ${result}`);
-          } else {
-            // electron-windows-notifications will automatically drop the appId
-            // for the right value if we're running in the Windows Store
-            logger.info(`${prefix}Trying to clear notifications for app.`);
-            result = history.clear(getAppId());
-            logger.info(`${prefix}Tried to clear notifications for app. Result: ${result}`);
-          }
-
-          resolve(result);
-        } else {
-          logger.error(`${prefix}Tried to clear toasts, but couldn't initialize electron-windows-notifications (no error)`);
-          resolve(false);
-        }
-      } catch (error) {
-        logger.error(`${prefix}Tried to clear toasts, but encountered error:`, error);
-        resolve(false);
-      }
-    });
-  }
-
-  /**
    * Registers a notifications activator with Windows - if we're running inside the Windows Store,
    * we'll go with a background task, if we're not, we'll go with a good old COM component.
    *
@@ -126,18 +70,18 @@ export class NodeRTNotificationHelpers {
   public static async registerActivator() {
     if (!isWindows10) return;
 
-    if (!this.activatorRegistered && process.windowsStore) {
+    if (!this.activatorRegistered && IS_WINDOWS_STORE) {
       logger.info('Windows Store Notifications: Background Task not already registered, attempting now.');
 
       try {
         const result = await this.registerBackgroundTask();
-        logger.info('Windows Store Background Task registration result:', result);
+        logger.info('Windows Store Notifications: Background Task registration result:', result);
       } catch (e) {
         // A failure here is no reason to take things down, but we should obviously log what's wrong
-        logger.warn('Windows Store Background Task registration failed', e);
+        logger.warn('Windows Store Notifications: Background Task registration failed', e);
       }
     } else if (!this.activatorRegistered) {
-      logger.info('Windows COM Notifications Component not already registered, attempting now.');
+      logger.info('Windows Notifications: Windows COM Notifications Component not already registered, attempting now.');
       this.registerCOMComponent();
     }
   }
@@ -150,7 +94,7 @@ export class NodeRTNotificationHelpers {
   public static enableNotificationQueue(): void {
     const prefix = 'Windows Store Tile Notifications Queue: ';
 
-    if (!process.windowsStore) return;
+    if (!IS_WINDOWS_STORE) return;
 
     try {
       const windowsNotifications = require('electron-windows-notifications');
@@ -158,7 +102,7 @@ export class NodeRTNotificationHelpers {
       if (windowsNotifications) {
         logger.info(`${prefix}Successfully initialized electron-windows-notifications .`);
 
-        const {TileUpdater} = windowsNotifications;
+        const { TileUpdater } = windowsNotifications;
         const tileUpdater = new TileUpdater();
 
         tileUpdater.enableNotificationQueue();
@@ -180,7 +124,7 @@ export class NodeRTNotificationHelpers {
     return new Promise((resolve, reject) => {
       const prefix = 'Windows Store Background Task Registration: ';
 
-      if (!process.windowsStore) {
+      if (!IS_WINDOWS_STORE) {
         logger.warn(`${prefix}Tried to register background task, but is not Windows Store app!`);
         return reject('Cannot register background task in non-Windows Store context!');
       }

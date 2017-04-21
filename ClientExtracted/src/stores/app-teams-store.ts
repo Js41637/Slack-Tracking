@@ -1,5 +1,9 @@
-import {Store} from '../lib/store';
-import {appTeamsActions} from '../actions/app-teams-actions';
+/**
+ * @module Stores
+ */ /** for typedoc */
+
+import { Store } from '../lib/store';
+import { appTeamsActions } from '../actions/app-teams-actions';
 
 export class AppTeamsStore {
   private get appTeams() {
@@ -14,16 +18,12 @@ export class AppTeamsStore {
     return this.appTeams.selectedChannelId;
   }
 
-  public getTeamsByIndex({visibleTeamsOnly = false}: {visibleTeamsOnly?: boolean} = {}): Array<string> {
-    if (visibleTeamsOnly) {
-      return this.appTeams.teamsByIndex.filter((teamId: string) => !this.appTeams.hiddenTeams.includes(teamId));
-    }
-
+  public getTeamsByIndex(): Array<string> {
     return this.appTeams.teamsByIndex;
   }
 
-  public getHiddenTeams() {
-    return this.appTeams.hiddenTeams;
+  public getTeamsToSignOut(): Array<string> {
+    return this.appTeams.teamsToSignOut;
   }
 }
 
@@ -35,12 +35,14 @@ export class AppTeamsStore {
  * @return {AppTeamsStore}  The store
  */
 function getCheckedStore() {
-  const {teams, appTeams} = Store.getState();
+  const { teams, appTeams } = Store.getState();
+  const { teamsByIndex, selectedTeamId } = appTeams;
   const teamIds = Object.keys(teams);
 
-  if (appTeams.teamsByIndex.length !== teamIds.length ||
-    (teamIds.length > 0 && !(teamIds.includes as any)(...appTeams.teamsByIndex)) ||
-    (!appTeams.selectedTeamId && teamIds.length > 0)) {
+  if (teamsByIndex.length !== teamIds.length ||
+    teamsByIndex.some((teamId: string) => teamId === null) ||
+    (teamIds.length > 0 && !(teamIds.includes as any)(...teamsByIndex)) ||
+    (!selectedTeamId && teamIds.length > 0)) {
     appTeamsActions.repairTeamsByIndex(teamIds);
   }
 

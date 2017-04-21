@@ -1,4 +1,8 @@
-import {logger} from '../logger';
+/**
+ * @module Utilities
+ */ /** for typedoc */
+
+import { logger } from '../logger';
 
 /**
  * Catches any errors thrown from `require`-ing a module. This is especially

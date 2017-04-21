@@ -1,4 +1,8 @@
-import {clipboard, nativeImage} from 'electron';
+/**
+ * @module SSBIntegration
+ */ /** for typedoc */
+
+import { clipboard, nativeImage } from 'electron';
 
 export class ClipboardIntegration {
   /**

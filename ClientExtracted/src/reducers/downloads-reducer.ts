@@ -1,5 +1,9 @@
-import {Action} from '../actions/action';
-import {DOWNLOADS} from '../actions';
+/**
+ * @module Reducers
+ */ /** for typedoc */
+
+import { Action } from '../actions/action';
+import { DOWNLOADS } from '../actions';
 
 export interface DownloadEventState {
   timestamp: number;
@@ -17,28 +21,31 @@ export interface DownloadState {
 }
 
 const initialState: DownloadState = {
-  startDownload: {timestamp: 0, token: null, url: null, teamId: null},
-  cancelDownload: {timestamp: 0, token: null},
-  retryDownload: {timestamp: 0, token: null},
-  revealDownload: {timestamp: 0, token: null},
-  clearDownloads: {timestamp: 0, tokens: null},
+  startDownload: { timestamp: 0, token: null, url: null, teamId: null },
+  cancelDownload: { timestamp: 0, token: null },
+  retryDownload: { timestamp: 0, token: null },
+  revealDownload: { timestamp: 0, token: null },
+  clearDownloads: { timestamp: 0, tokens: null },
 
-  downloadStarted: {timestamp: 0, token: null, filePath: null},
-  downloadFinished: {timestamp: 0, token: null, state: null}
+  downloadStarted: { timestamp: 0, token: null, filePath: null },
+  downloadFinished: { timestamp: 0, token: null, state: null }
 };
 
-export function reduce(state: DownloadState = initialState, action: Action): DownloadState {
+/**
+ * @hidden
+ */
+export function reduce(state: DownloadState = initialState, action: Action<any>): DownloadState {
   switch (action.type) {
   case DOWNLOADS.START_DOWNLOAD:
     return downloadEvent(state, 'startDownload', action.data);
   case DOWNLOADS.CANCEL_DOWNLOAD:
-    return downloadEvent(state, 'cancelDownload', {token: action.data});
+    return downloadEvent(state, 'cancelDownload', { token: action.data });
   case DOWNLOADS.RETRY_DOWNLOAD:
-    return downloadEvent(state, 'retryDownload', {token: action.data});
+    return downloadEvent(state, 'retryDownload', { token: action.data });
   case DOWNLOADS.REVEAL_DOWNLOAD:
-    return downloadEvent(state, 'revealDownload', {token: action.data});
+    return downloadEvent(state, 'revealDownload', { token: action.data });
   case DOWNLOADS.CLEAR_DOWNLOADS:
-    return downloadEvent(state, 'clearDownloads', {tokens: action.data});
+    return downloadEvent(state, 'clearDownloads', { tokens: action.data });
 
   case DOWNLOADS.DOWNLOAD_STARTED:
     return downloadEvent(state, 'downloadStarted', action.data);
@@ -47,10 +54,10 @@ export function reduce(state: DownloadState = initialState, action: Action): Dow
   default:
     return state;
   }
-}
+};
 
 function downloadEvent(state: DownloadState, eventName: string, data: any = {}) {
   const update = {};
-  update[eventName] = {timestamp: Date.now(), ...data};
-  return {...state, ...update};
+  update[eventName] = { timestamp: Date.now(), ...data };
+  return { ...state, ...update };
 }

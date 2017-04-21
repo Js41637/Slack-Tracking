@@ -1,8 +1,12 @@
-import {applyMiddleware, createStore, combineReducers, compose} from 'redux';
-import {electronEnhancer} from 'redux-electron-store';
-import {reducers} from '../reducers';
+/**
+ * @module Stores
+ */ /** for typedoc */
 
-import {BaseStore} from './base-store';
+import { applyMiddleware, createStore, combineReducers, compose } from 'redux';
+import { electronEnhancer } from 'redux-electron-store';
+import { reducers } from '../reducers';
+
+import { BaseStore } from './base-store';
 
 export class WebappStore<T> extends BaseStore<T> {
   constructor() {

@@ -1,26 +1,27 @@
-import {Observable} from 'rxjs/Observable';
+/**
+ * @module Browser
+ */ /** for typedoc */
 
-import {logger} from '../logger';
-import {appActions} from '../actions/app-actions';
-import {UPDATE_STATUS, updateStatusType} from '../utils/shared-constants';
+import { Observable } from 'rxjs/Observable';
 
-import {intl as $intl, LOCALE_NAMESPACE} from '../i18n/intl';
+import { logger } from '../logger';
+import { appActions } from '../actions/app-actions';
+import { UPDATE_STATUS, updateStatusType, UpdateInformation } from '../utils/shared-constants';
 
-export interface ReleaseUpdateItem {
-}
+import { intl as $intl, LOCALE_NAMESPACE } from '../i18n/intl';
 
 /**
  * Returns an Observable that hooks several Squirrel events and turns them
  * into something that indicates update success.
  *
- * @param  {Object} autoUpdater   The auto-updater to use (typically from Electron)
- * @return {Observable<Object>}  An Observable which yields a single value, one of:
+ * @param  {Object} autoUpdater             The auto-updater to use (typically from Electron)
+ * @return {Observable<UpdateInformation>}  An Observable which yields a single value, one of:
  *
- *    Object - Contains details about the downloaded release
+ *    UpdateInformation - Contains details about the downloaded release
  *    null - No update was available
  *    (OnError) - We failed while trying to download or apply the update
  */
-export function autoUpdaterFinished(autoUpdater: Electron.AutoUpdater): Observable<ReleaseUpdateItem | null> {
+export function autoUpdaterFinished(autoUpdater: Electron.AutoUpdater): Observable<UpdateInformation | null> {
   const notAvailable = Observable.fromEvent(autoUpdater, 'update-not-available').mapTo(null);
   const downloaded = Observable.fromEvent(autoUpdater, 'update-downloaded', updateDownloadedSelector);
   const error = Observable.fromEvent(autoUpdater, 'error').flatMap((e: Error) => {
@@ -42,10 +43,9 @@ export function autoUpdaterFinished(autoUpdater: Electron.AutoUpdater): Observab
  * Returns arguments to create a menu item based on the current update status.
  *
  * @param  {String} updateStatus  The current update status
- * @return {Object}               Arguments for creating a {Electron.MenuItem}.
- *                                This object is partial implementation of MenuItem.
+ * @return {MenuItemOptions}      Arguments for creating a {Electron.MenuItem}
  */
-export function getMenuItemForUpdateStatus(updateStatus: updateStatusType): Partial<Electron.MenuItem> {
+export function getMenuItemForUpdateStatus(updateStatus: updateStatusType): Electron.MenuItemOptions {
   switch (updateStatus) {
   case UPDATE_STATUS.CHECKING_FOR_UPDATE:
   case UPDATE_STATUS.CHECKING_FOR_UPDATE_MANUAL:
@@ -74,7 +74,7 @@ export function getMenuItemForUpdateStatus(updateStatus: updateStatusType): Part
   case UPDATE_STATUS.ERROR:
   default:
     return {
-      label: $intl.t(`Check for Updates…`, LOCALE_NAMESPACE.MENU)(),
+      label: $intl.t(`&Check for Updates…`, LOCALE_NAMESPACE.MENU)(),
       enabled: true,
       click: () => appActions.checkForUpdate()
     };
@@ -85,20 +85,20 @@ export function getMenuItemForUpdateStatus(updateStatus: updateStatusType): Part
  * Returns the appropriate release notes URL for the current platform and
  * release channel.
  *
- * @param  {Bool} isBetaChannel True if on the beta release channel
+ * @param  {Bool} isPreRelease  True if on the alpha or beta channel
  * @return {String}             The release notes URL
  */
-export function getReleaseNotesUrl(isBetaChannel: boolean): string {
+export function getReleaseNotesUrl(isPreRelease: boolean): string {
   let url = 'https://www.slack.com/apps/';
   switch (process.platform) {
   case 'win32': url += 'windows'; break;
   case 'darwin': url += 'mac'; break;
   case 'linux': url += 'linux'; break;
   }
-  url += isBetaChannel ? '/release-notes-beta' : '/release-notes';
+  url += isPreRelease ? '/release-notes-beta' : '/release-notes';
   return url;
 }
 
-function updateDownloadedSelector(_e: Error, releaseNotes: string, releaseName: string, releaseDate: string, _updateURL: string) {
+function updateDownloadedSelector(_e: Error, releaseNotes: string, releaseName: string, releaseDate: Date, _updateURL: string): UpdateInformation {
   return { releaseNotes, releaseName, releaseDate };
 }

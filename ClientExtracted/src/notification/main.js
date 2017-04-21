@@ -1,7 +1,11 @@
+/**
+ * @module Notifications
+ */ /** for typedoc */
+
 import React from 'react';
 import ReactDOM from 'react-dom';
 import '../rx-operators';
-import NotificationHost from './notification-host.jsx';
+import {NotificationHost} from './notification-host';
 
 // Rendering directly into document.body is discouraged due to third-party scripts
 // and browser extensions frequently manipulating it

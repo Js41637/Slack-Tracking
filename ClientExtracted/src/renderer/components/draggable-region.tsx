@@ -1,4 +1,8 @@
-import {Component} from '../../lib/component';
+/**
+ * @module RendererComponents
+ */ /** for typedoc */
+
+import { Component } from '../../lib/component';
 
 import * as React from 'react'; // tslint:disable-line
 
@@ -15,7 +19,7 @@ export class DraggableRegion extends Component<DraggableRegionProps, DraggableRe
       <div
         className='DraggableRegion'
         tabIndex={-1}
-        style={{height: this.props.height}}
+        style={{ height: this.props.height }}
       >
         {this.props.children}
       </div>

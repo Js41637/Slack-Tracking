@@ -1,5 +1,4 @@
 .TeamSidebarItem {
-
   width: 36px;
   cursor: pointer;
   position: relative;
@@ -33,22 +32,18 @@
     transition: all 0.15s ease-out;
     position: absolute;
     background: #f66;
-    padding: 2px 6px 2px 6px;
     border-radius: 50px;
     z-index: 10;
-    font-size: 9pt;
     pointer-events: none;
-    font-family: BlinkMacSystemFont, Slack-Lato, "Segoe UI";
+    font-family: BlinkMacSystemFont, "Segoe UI", Slack-Lato;
 
-    left: 22px;
-    top: -5px;
+    min-width: 6px;
+    top: -10px;
     color: white;
     opacity: 0.0;
   }
 
   &.highlight &-unreadHighlights {
-    left: 25px;
-    top: -10px;
     opacity: 1.0;
   }
 

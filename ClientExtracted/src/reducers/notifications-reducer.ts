@@ -1,6 +1,10 @@
-import {Notification} from '../actions/notification-actions';
-import {Action} from '../actions/action';
-import {NOTIFICATIONS} from '../actions';
+/**
+ * @module Reducers
+ */ /** for typedoc */
+
+import { Notification } from '../actions/notification-actions';
+import { Action } from '../actions/action';
+import { NOTIFICATIONS } from '../actions';
 
 export interface NotificationState {
   notifications: Array<Notification>;
@@ -18,10 +22,13 @@ export interface NotificationState {
 // use the array as the source of truth it quickly becomes bogus.
 const initialState: NotificationState = {
   notifications: [],
-  newNotification: {timestamp: 0, notification: {} as any}
+  newNotification: { timestamp: 0, notification: {} as any }
 };
 
-export function reduce(state: NotificationState = initialState, action: Action): NotificationState {
+/**
+ * @hidden
+ */
+export function reduce(state: NotificationState = initialState, action: Action<any>): NotificationState {
   switch (action.type) {
   case NOTIFICATIONS.NEW_NOTIFICATION:
     return newNotification(state, action.data);
@@ -32,7 +39,7 @@ export function reduce(state: NotificationState = initialState, action: Action):
   default:
     return state;
   }
-}
+};
 
 function newNotification(state: NotificationState, notification: Notification): NotificationState {
   return {
@@ -46,5 +53,5 @@ function newNotification(state: NotificationState, notification: Notification): 
 }
 
 function removeNotification(state: NotificationState, notificationId: string): NotificationState {
-  return {...state, notifications: state.notifications.filter((item) => item.id !== notificationId)};
+  return { ...state, notifications: state.notifications.filter((item) => item.id !== notificationId) };
 }

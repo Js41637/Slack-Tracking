@@ -1,7 +1,11 @@
-import {getContextMenuBuilder} from '../context-menu';
-import {ContextMenuListener, SpellCheckHandler, setGlobalLogger} from 'electron-spellchecker';
-import {ipc} from '../ipc-rx';
-import {logger} from '../logger';
+/**
+ * @module SSBIntegration
+ */ /** for typedoc */
+
+import { getContextMenuBuilder } from '../context-menu';
+import { ContextMenuListener, SpellCheckHandler, setGlobalLogger } from 'electron-spellchecker';
+import { ipc } from '../ipc-rx';
+import { logger } from '../logger';
 
 setGlobalLogger(logger.info.bind(logger));
 

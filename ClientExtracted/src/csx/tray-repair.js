@@ -1,4 +1,4 @@
-import runScript from '../edge-loader';
+import {runScript} from '../edge-loader';
 
 export async function repairTrayRegistryKey() {
   // Not Windows? Seeya

@@ -1,18 +1,28 @@
+/**
+ * @module Component
+ */ /** for typedoc */
+
 import * as clone from 'lodash.clone';
 import * as React from 'react'; // tslint:disable-line
 
-import {ComponentBase} from './component-base';
-import {logger} from '../logger';
-import {settingStore} from '../stores/setting-store';
-import {shallowEqual} from '../utils/shallow-equal';
-import {stateEventHandler} from './state-events';
-import {Store} from './store';
-import {Subscription} from 'rxjs/Subscription';
+import { ComponentBase } from './component-base';
+import { logger } from '../logger';
+import { settingStore } from '../stores/setting-store';
+import { shallowEqual } from '../utils/shallow-equal';
+import { stateEventHandler } from './state-events';
+import { Store } from './store';
+import { Subscription } from 'rxjs/Subscription';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { Observable } from 'rxjs/Observable';
 
 export class Component<P, S> extends React.Component<P, S> implements ComponentBase {
   protected disposables: Subscription;
-  private mounted: boolean = true;
+  private readonly mounted: BehaviorSubject<boolean> = new BehaviorSubject(false);
   private isDevMode: boolean;
+
+  protected get componentMountedObservable(): Observable<boolean> {
+    return this.mounted.asObservable();
+  }
 
   constructor(...args: Array<any>);
   constructor(props: P) {
@@ -33,9 +43,12 @@ export class Component<P, S> extends React.Component<P, S> implements ComponentB
   public shouldComponentUpdate(nextProps: P, nextState: S): boolean {
     return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
   }
+  public componentWillMount(): void {
+    this.mounted.next(true);
+  }
 
   public componentWillUnmount(): void {
-    this.mounted = false;
+    this.mounted.next(false);
     this.disposables.unsubscribe();
   }
 
@@ -44,7 +57,7 @@ export class Component<P, S> extends React.Component<P, S> implements ComponentB
   }
 
   private update(): void {
-    if (this.mounted) {
+    if (!this.mounted.closed && this.mounted.value) {
       const prevState = clone(this.state);
       const stateUpdates = (this.syncState() || {}) as S;
 
@@ -66,7 +79,7 @@ export class Component<P, S> extends React.Component<P, S> implements ComponentB
         if (handler) handler(value);
       });
     } else {
-      logger.warn(`Attempting to update ${this.constructor.name} when unmounted`);
+      logger.warn(`Base Component: Attempting to update ${this.constructor.name} when unmounted.`);
     }
   }
 }

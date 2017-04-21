@@ -1,4 +1,8 @@
 /**
+ * @module Utilities
+ */ /** for typedoc */
+
+/**
  * Creates an object with the same keys as `object` and values generated
  * by running each own enumerable string keyed property of `object` thru
  * `iteratee`. The iteratee is invoked with three arguments:

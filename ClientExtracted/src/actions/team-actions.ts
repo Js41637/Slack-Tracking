@@ -1,6 +1,32 @@
-import {Store} from '../lib/store';
-import {TEAMS} from './';
-import {StringMap} from '../utils/string-map';
+/**
+ * @module Actions
+ */ /** for typedoc */
+
+import { Store } from '../lib/store';
+import { TEAMS } from './';
+import { StringMap } from '../utils/shared-constants';
+
+export interface TeamIcons {
+  image_34: string;
+  image_44: string;
+  image_68: string;
+  image_88: string;
+  image_102: string;
+  image_132: string;
+  image_230: string;
+  image_original: string;
+}
+
+export interface TeamTheme {
+  active_item: string;
+  active_item_text: string;
+  active_presence: string;
+  badge: string;
+  column_bg: string;
+  hover_item: string;
+  menu_bg: string;
+  text_color: string;
+}
 
 export interface TeamBase {
   id?: string;
@@ -8,15 +34,15 @@ export interface TeamBase {
   team_id: string;
   team_name: string;
   team_url: string;
-  unreads: number;
-  unreadHighlights: number;
-  showBullet: boolean;
   initials: string;
   user_id: string;
-  theme: StringMap<string>;
-  icons: StringMap<string>;
+  theme: TeamTheme;
+  icons: TeamIcons;
   usage: number;
   idle_timeout: number;
+  showBullet: boolean;
+  unreadHighlights: number;
+  unreads: number;
 }
 
 export type Team = Readonly<TeamBase>;
@@ -26,6 +52,7 @@ export class TeamActions {
     Store.dispatch({
       type: TEAMS.ADD_NEW_TEAM,
       data: team,
+      omitKeysFromLog: ['name', 'team_name', 'team_url'],
       selectTeam
     });
   }
@@ -34,7 +61,8 @@ export class TeamActions {
     Store.dispatch({
       type: TEAMS.ADD_NEW_TEAMS,
       data: teams,
-      selectTeam
+      omitKeysFromLog: ['name', 'team_name', 'team_url'],
+      selectTeam,
     });
   }
 
@@ -55,21 +83,14 @@ export class TeamActions {
   public updateTheme(theme: StringMap<string>, teamId: string): void {
     Store.dispatch({
       type: TEAMS.UPDATE_TEAM_THEME,
-      data: {theme, teamId}
+      data: { theme, teamId }
     });
   }
 
   public updateIcons(icons: string, teamId: string): void {
     Store.dispatch({
       type: TEAMS.UPDATE_TEAM_ICONS,
-      data: {icons, teamId}
-    });
-  }
-
-  public updateUnreadsInfo(unreads: number, unreadHighlights: number, showBullet: boolean, teamId: string): void {
-    Store.dispatch({
-      type: TEAMS.UPDATE_UNREADS_INFO,
-      data: {unreads, unreadHighlights, showBullet, teamId}
+      data: { icons, teamId }
     });
   }
 
@@ -83,28 +104,30 @@ export class TeamActions {
   public updateTeamName(name: string, teamId: string): void {
     Store.dispatch({
       type: TEAMS.UPDATE_TEAM_NAME,
-      data: {name, teamId}
+      data: { name, teamId },
+      omitKeysFromLog: ['name']
     });
   }
 
   public updateTeamUrl(url: string, teamId: string): void {
     Store.dispatch({
       type: TEAMS.UPDATE_TEAM_URL,
-      data: {url, teamId}
+      data: { url, teamId },
+      omitKeysFromLog: ['url']
     });
   }
 
   public updateUserId(userId: string, teamId: string): void {
     Store.dispatch({
       type: TEAMS.UPDATE_USER_ID,
-      data: {userId, teamId}
+      data: { userId, teamId }
     });
   }
 
   public setTeamIdleTimeout(timeout: number, teamId: string): void {
     Store.dispatch({
       type: TEAMS.SET_TEAM_IDLE_TIMEOUT,
-      data: {timeout, teamId}
+      data: { timeout, teamId }
     });
   }
 }

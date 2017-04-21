@@ -1,14 +1,18 @@
-import {BrowserWindow, powerMonitor, screen} from 'electron';
+/**
+ * @module Browser
+ */ /** for typedoc */
 
-import {logger} from '../logger';
-import {Observable} from 'rxjs/Observable';
-import {Subscription} from 'rxjs/Subscription';
+import { BrowserWindow, powerMonitor, screen } from 'electron';
+
+import { logger } from '../logger';
+import { Observable } from 'rxjs/Observable';
+import { Subscription } from 'rxjs/Subscription';
 import '../custom-operators';
 
-import {ReduxComponent} from '../lib/redux-component';
-import {settingStore} from '../stores/setting-store';
-import {WindowCreatorBase} from './window-creator-base';
-import {windowStore} from '../stores/window-store';
+import { ReduxComponent } from '../lib/redux-component';
+import { settingStore } from '../stores/setting-store';
+import { WindowCreatorBase } from './window-creator-base';
+import { windowStore } from '../stores/window-store';
 
 export interface NotificationWindowManagerState {
   isShowingHtmlNotifications: boolean;
@@ -60,7 +64,7 @@ export class NotificationWindowManager extends ReduxComponent<NotificationWindow
       .guaranteedThrottle(3000)
       .filter(() => this.state.isShowingHtmlNotifications)
       .subscribe(() => {
-        logger.info('Display changed! Recreating notifications window');
+        logger.info('Notification Window Manager: Display changed! Recreating notifications window.');
         this.closeNotificationsWindow();
         this.windowCreator.createNotificationsWindow();
       });
@@ -73,7 +77,7 @@ export class NotificationWindowManager extends ReduxComponent<NotificationWindow
       const browserWindow = BrowserWindow.fromId(entry.id);
       browserWindow.close();
     } catch (error) {
-      logger.warn(`Unable to close notifications window: ${error.message}`);
+      logger.warn(`Notification Window Manager: Unable to close notifications window:`, error);
     }
   }
 }

@@ -1,6 +1,10 @@
-import {uniqueId} from '../utils/unique-id';
-import {Store} from '../lib/store';
-import {NOTIFICATIONS} from './';
+/**
+ * @module Actions
+ */ /** for typedoc */
+
+import { uniqueId } from '../utils/unique-id';
+import { Store } from '../lib/store';
+import { NOTIFICATIONS } from './';
 
 // NB: Don't log personally-identifying information
 const keysToOmit = ['content', 'title', 'onclick', 'onclick_arg', 'subtitle'];
@@ -25,8 +29,8 @@ export interface Notification {
 }
 
 export class NotificationActions {
-  public newNotification(notification: Notification): void {
-    notification = {id: uniqueId(), ...notification};
+  public newNotification(notification: Partial<Notification>): void {
+    notification = { id: uniqueId(), ...notification };
 
     Store.dispatch({
       type: NOTIFICATIONS.NEW_NOTIFICATION,

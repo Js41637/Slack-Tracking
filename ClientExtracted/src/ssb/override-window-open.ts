@@ -1,8 +1,12 @@
-import {Region} from '../region';
-import {logger} from '../logger';
-import {remote} from 'electron';
+/**
+ * @module SSBIntegration
+ */ /** for typedoc */
 
-const {BrowserWindow} = remote;
+import { remote } from 'electron';
+import { logger } from '../logger';
+import { Region } from '../utils/shared-constants';
+
+const { BrowserWindow } = remote;
 
 /**
  * Overrides `window.open` to use our `WindowApi` for certain URLs. This

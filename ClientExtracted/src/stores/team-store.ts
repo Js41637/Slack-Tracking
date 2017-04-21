@@ -1,8 +1,13 @@
-import {sum} from '../utils/sum';
-import {Store} from '../lib/store';
+/**
+ * @module Stores
+ */ /** for typedoc */
+
+import { Store } from '../lib/store';
+import { TeamBase } from '../actions/team-actions';
+import { StringMap } from '../utils/shared-constants';
 
 export class TeamStore {
-  public get teams() {
+  public get teams(): StringMap<TeamBase> {
     return Store.getState().teams;
   }
 
@@ -20,19 +25,6 @@ export class TeamStore {
 
   public getNumTeams(): number {
     return this.getTeamIds().length;
-  }
-
-  public getCombinedUnreadInfo() {
-    const teamList = this.teams;
-
-    return {
-      unreads: sum(teamList, 'unreads'),
-      unreadHighlights: sum(teamList, 'unreadHighlights'),
-      showBullet: Object.keys(teamList).some((key) => {
-        const {showBullet, unreads} = teamList[key];
-        return showBullet && unreads > 0;
-      })
-    };
   }
 }
 

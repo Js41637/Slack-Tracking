@@ -2,14 +2,14 @@ doctype html
 html(style='width: 100%; height: 100%;')
   head
     title
-    if isProduction
-      meta(http-equiv='Content-Security-Policy', content="default-src *; img-src data: *; script-src 'unsafe-eval' 'self' https://www.google-analytics.com; style-src 'self' 'unsafe-inline';")
-    else
-      script.
-        require('react-devtools');
     link(rel='stylesheet', type='text/css', href='lato.less')
     link(rel='stylesheet', type='text/css', href='slack-icons-font.less')
     link(rel='import', href='../renderer/components/styles/styles.html')
     link(rel='import', href='../notification/styles/styles.html')
-    script(src='bugsnag-2.js', data-apikey='acaff8df67924f677747922423057034')
+    script(src='bugsnag-3.js', data-apikey='acaff8df67924f677747922423057034')
   body(tabindex='-1', style='width: 100%; height: 100%; margin: 0; overflow: hidden')
+    if (!isProduction)
+      script.
+        const core = require('react-devtools-core');
+        let count = 2;
+        core.connectToDevTools({ isAppActive: () => count-- > 0 });

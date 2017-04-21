@@ -1,16 +1,20 @@
-import {Subscription} from 'rxjs/Subscription';
-import {Observable} from 'rxjs/Observable';
-import {Observer} from 'rxjs/Observer';
-import {logger} from '../logger';
-import {isObject} from '../utils/is-object';
+/**
+ * @module SSBIntegration
+ */ /** for typedoc */
 
-import {appTeamsActions} from '../actions/app-teams-actions';
-import {dialogActions} from '../actions/dialog-actions';
-import {Team, teamActions} from '../actions/team-actions';
-import {teamStore} from '../stores/team-store';
+import { Subscription } from 'rxjs/Subscription';
+import { Observable } from 'rxjs/Observable';
+import { Observer } from 'rxjs/Observer';
+import { logger } from '../logger';
+import { isObject } from '../utils/is-object';
+
+import { appTeamsActions } from '../actions/app-teams-actions';
+import { dialogActions } from '../actions/dialog-actions';
+import { Team, teamActions } from '../actions/team-actions';
+import { teamStore } from '../stores/team-store';
 
 function fetchRecentMessages() {
-  const {msgs} = window.TSSSB.recentMessagesFromCurrentChannel();
+  const { msgs } = window.TSSSB.recentMessagesFromCurrentChannel();
 
   const ret = msgs.reduce((acc: Array<string>, x: any) => {
     if (!x || !x.text) return acc;
@@ -114,7 +118,7 @@ export class TeamIntegration {
 
     fetchWithRetry.subscribe(
       (msgs: string) => window.winssb.spellCheckingHelper.spellCheckHandler.provideHintText(msgs),
-      (e: Error) => logger.info(`Failed to get messages from webapp: ${e.message}`));
+      (e: Error) => logger.info(`Couldn't get hint text from messages in channel: ${e.message}`));
   }
 
   public displayChannel(channelId: string): void {

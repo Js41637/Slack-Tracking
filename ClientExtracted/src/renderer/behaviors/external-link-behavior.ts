@@ -1,12 +1,16 @@
-import * as url from 'url';
-import {shell} from 'electron';
-import {Observable} from 'rxjs/Observable';
-import {Subscription} from 'rxjs/Subscription';
+/**
+ * @module RendererBehaviors
+ */ /** for typedoc */
 
-import {WebViewBehavior} from './webView-behavior';
-import {logger} from '../../logger';
-import {dialogActions} from '../../actions/dialog-actions';
-import {settingStore} from '../../stores/setting-store';
+import * as url from 'url';
+import { shell } from 'electron';
+import { Observable } from 'rxjs/Observable';
+import { Subscription } from 'rxjs/Subscription';
+
+import { WebViewBehavior } from './webView-behavior';
+import { logger } from '../../logger';
+import { dialogActions } from '../../actions/dialog-actions';
+import { settingStore } from '../../stores/setting-store';
 
 export class ExternalLinkBehavior implements WebViewBehavior {
 
@@ -22,9 +26,9 @@ export class ExternalLinkBehavior implements WebViewBehavior {
       // NB: On `webview` tags, the other parameters are attached to the event.
       // But for `WebContents`, they're passed as arguments.
       return e.url ?
-        {e, urlString: e.url, disposition: e.disposition} :
-        {e, urlString, disposition};
-    }).subscribe(({e, urlString, disposition}) => {
+        { e, urlString: e.url, disposition: e.disposition } :
+        { e, urlString, disposition };
+    }).subscribe(({ e, urlString, disposition }) => {
       try {
         e.preventDefault();
         const parsedUrl = url.parse(urlString);
@@ -32,10 +36,10 @@ export class ExternalLinkBehavior implements WebViewBehavior {
 
         if (settingStore.getSetting<Array<string>>('whitelistedUrlSchemes').includes(parsedUrl.protocol!)) {
           try {
-            logger.debug(`Opening external window to ${formattedUrl}`);
-            shell.openExternal(formattedUrl, {activate: disposition !== 'background-tab'});
+            logger.debug(`ExternalLinkBehavior: Opening external window to ${formattedUrl}.`);
+            shell.openExternal(formattedUrl, { activate: disposition !== 'background-tab' });
           } catch (error) {
-            logger.warn(`Failed to open external window: ${error.message}`);
+            logger.warn(`ExternalLinkBehavior: Failed to open external window:`, error);
           }
         } else {
           dialogActions.showUrlSchemeModal({
@@ -44,7 +48,7 @@ export class ExternalLinkBehavior implements WebViewBehavior {
           });
         }
       } catch (error) {
-        logger.warn(`Ignoring ${urlString} due to ${error.message}`);
+        logger.warn(`ExternalLinkBehavior: Ignoring ${urlString} due to error:`, error);
       }
     });
   }
@@ -66,14 +70,14 @@ export class ExternalLinkBehavior implements WebViewBehavior {
   private escapeUrlWhenNeeded(parsedUrl: url.Url): string {
     const safeChars = /^[0-9a-zA-Z\$-_\.\+\!'\(\)]*$/;
     if (!(parsedUrl.hash || ' ').substring(1).match(safeChars)) {
-      logger.info('Reformatting URL hash section');
+      logger.info('ExternalLinkBehavior: Reformatting URL hash section.');
 
       // NB: .hash includes the hash itself for whatever reason
       parsedUrl.hash = `#${encodeURIComponent(parsedUrl.hash!.substring(1))}`;
     }
 
     if (!(parsedUrl.query || '').match(safeChars)) {
-      logger.info('Reformatting URL query section');
+      logger.info('ExternalLinkBehavior: Reformatting URL query section.');
       parsedUrl.query = encodeURIComponent(parsedUrl.query);
     }
 

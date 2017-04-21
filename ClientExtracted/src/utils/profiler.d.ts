@@ -1,3 +1,7 @@
+/**
+ * @module Utilities
+ */ /** for typedoc */
+
 //since profiler is being used early stage of init,
 //does not migrate to typescript but having ambient type definition to pass compiler
 export const profiler: any;

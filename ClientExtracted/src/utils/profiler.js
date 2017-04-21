@@ -1,3 +1,7 @@
+/**
+ * @module Utilities
+ */ /** for typedoc */
+
 // NB: This can be included before electron-compile is set up, so it
 // needs to be busted-old JS
 
@@ -12,7 +16,7 @@ module.exports = {
 
   startProfiling: () => {
     profiler = profiler || require('@paulcbetts/v8-profiler');
-  
+
     console.log("STARTING PROFILING");
     profiler.startProfiling();
   },

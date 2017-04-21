@@ -1,17 +1,21 @@
-import {getContextMenuBuilder} from '../../context-menu';
-import {Observable} from 'rxjs/Observable';
-import {Subscription} from 'rxjs/Subscription';
-import {setGlobalLogger} from 'electron-spellchecker';
-import {createProxyForRemote} from 'electron-remote';
-import {remote} from 'electron';
+/**
+ * @module RendererBehaviors
+ */ /** for typedoc */
 
-import {windowFrameStore} from '../../stores/window-frame-store';
-import {eventActions} from '../../actions/event-actions';
-import {settingStore} from '../../stores/setting-store';
-import {WebViewBehavior} from './webView-behavior';
-import {logger} from '../../logger';
+import { contextMenuStringTable, getContextMenuBuilder } from '../../context-menu';
+import { Observable } from 'rxjs/Observable';
+import { Subscription } from 'rxjs/Subscription';
+import { setGlobalLogger } from 'electron-spellchecker';
+import { createProxyForRemote } from 'electron-remote';
+import { remote } from 'electron';
 
-import {intl as $intl, LOCALE_NAMESPACE} from '../../i18n/intl';
+import { windowFrameStore } from '../../stores/window-frame-store';
+import { eventActions } from '../../actions/event-actions';
+import { settingStore } from '../../stores/setting-store';
+import { WebViewBehavior } from './webView-behavior';
+import { logger } from '../../logger';
+
+import { intl as $intl, LOCALE_NAMESPACE } from '../../i18n/intl';
 
 setGlobalLogger(logger.info.bind(logger));
 
@@ -25,7 +29,7 @@ export class ContextMenuBehavior implements WebViewBehavior {
    */
   public setup(webView: Electron.WebViewElement): Subscription {
     const signal = Observable.fromEvent(webView, 'ipc-message')
-      .filter(({channel}) => channel === 'context-menu-show')
+      .filter(({ channel }) => channel === 'context-menu-show')
       .map((message: {
         args: Array<any>
       }) => message.args[0]);
@@ -56,6 +60,19 @@ export class ContextMenuBehavior implements WebViewBehavior {
    * @returns {Electron.Menu} menu
    */
   private processMenu(menu: Electron.Menu, /* info */) {
+    // Temporary for Electron 1.6: Remove "Look up" until we'll get it back 😢
+    // TODO: Evaluate constantly whether or not we still need this
+    if (process.platform === 'darwin') {
+      const expectedLabel = contextMenuStringTable.lookUpDefinition({ word: '' }) || 'Look up';
+      const labelMatchable = expectedLabel.replace('""', '');
+
+      menu.items.forEach((item) => {
+        if (item && item.label && (item.label.includes(labelMatchable))) {
+          item.visible = false;
+        };
+      });
+    }
+
     if (windowFrameStore.isFullScreen()) {
       menu.append(new remote.MenuItem({ type: 'separator' }));
       menu.append(new remote.MenuItem({

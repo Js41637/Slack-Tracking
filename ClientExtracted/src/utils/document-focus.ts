@@ -1,4 +1,8 @@
 /**
+ * @module Utilities
+ */ /** for typedoc */
+
+/**
  * Document focus (aka selection ranges) in the main renderer overrides the
  * focused element in child webview tags, when it comes time for Chromium to
  * decide where to position popups like the text palette. To workaround this,

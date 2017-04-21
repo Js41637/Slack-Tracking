@@ -1,3 +1,7 @@
+/**
+ * @module Utilities
+ */ /** for typedoc */
+
 // Stolen from https://github.com/rackt/react-redux/blob/master/src/utils/shallowEqual.js
 export function shallowEqual(objA: any, objB: any): boolean {
   if (objA === objB) {

@@ -1,5 +1,57 @@
+/**
+ * The Slack Desktop App uses Redux to manage the application state.
+ *
+ * [Redux](https://github.com/reactjs/redux) is what we use for our model layer.In Redux, your model is contained
+ * in a single state tree (in our case, a plain-old JavaScript object), and you write "reducers," which are just
+ * functions that modify a portion of that tree. Reducers should not mutate state directly, but should return a
+ * new object for each modification. In other words, model data must be treated as immutable. React components
+ * call `shouldComponentUpdate` before re-rendering, and because of immutable models, we can do a simple reference
+ * check (`prevState !== newState`) rather than a deep equality check.
+ *
+ * Redux has a strong focus on __unidirectional data flow__, where all changes in an app must follow the same
+ * sequence of `An Action (a label and a payload) is fired` -> `Reducers watch for action specific action labels
+ * and change their data to respond to it` -> `The Views (React Components) react to those changes in the stores`.
+ * The biggest benefit to this architecture is that there is a __single source of truth for all data and data
+ * mutations__.
+ *
+ * If a component isn't behaving to specification, something is either wrong in:
+ * 1. The Component behavior itself (for example its `render` function)
+ * 1. The Component's inputs (either its props or its state).
+ *
+ * The developer now needs only consider these locations for determining the cause of the bug
+ *  - If the issue is in the Component, the fix can be applied there.
+ *  - If it is in the props, then the two possibilities should be checked in the parent component.
+ *  - If the issue is in the state, then there is incorrect data being given by the Reducer. Reducers
+ *    handle all possible changes to the data they provide, therefore an issue in the Reducer data can
+ *    only originate from something it itself does.
+ *
+ * ### Actions
+ * Every mutation to the data stored in the app should be initiated through an Action. An action is simply a function
+ * which takes some input and sends a bundle of the action type and its payload to all the reducers. All actions must
+ * follow this structure of `{type: string, data: *}`
+ *
+ * ```js
+ * export const UPDATE_TEAMS = 'UPDATE_TEAMS'
+ * class TeamActions {
+ *   updateTeams(teamList) {
+ *     Dispatcher.dispatch({type: UPDATE_TEAMS, data: teamList});
+ *   }
+ * }
+ * export default new TeamActions();
+ * ```
+ *
+ * Actions are usually very simple and are often just one liners. They are sometimes more complex if there
+ * are situations such as asynchronous events which need handling.
+ *
+ * __Actions can only be called by Views__. This is a critical rule to maintaining unidirectional flow.
+ *
+ * @preferred
+ * @module Actions
+ */ /** for typedoc */
+
 export type appType = 'SET_SUSPEND_STATUS' | 'SET_NETWORK_STATUS' |
                       'SET_UPDATE_STATUS' | 'MARK_DEVTOOLS_STATE' |
+                      'SET_CUSTOM_MENU_ITEMS' | 'CUSTOM_MENU_ITEM_CLICKED' |
                       'UPDATE_NO_DRAG_REGION';
 
 export const APP = {
@@ -7,6 +59,8 @@ export const APP = {
   SET_NETWORK_STATUS: 'SET_NETWORK_STATUS' as appType,
   SET_UPDATE_STATUS: 'SET_UPDATE_STATUS' as appType,
   MARK_DEVTOOLS_STATE: 'MARK_DEVTOOLS_STATE' as appType,
+  SET_CUSTOM_MENU_ITEMS: 'SET_CUSTOM_MENU_ITEMS' as appType,
+  CUSTOM_MENU_ITEM_CLICKED: 'CUSTOM_MENU_ITEM_CLICKED' as appType,
   UPDATE_NO_DRAG_REGION: 'UPDATE_NO_DRAG_REGION' as appType
 };
 
@@ -14,7 +68,7 @@ export type appTeamsType = 'SELECT_TEAM' | 'SELECT_TEAM_BY_USER_ID' |
                       'SET_TEAMS_BY_INDEX' | 'SELECT_CHANNEL' |
                       'SELECT_NEXT_TEAM' | 'SELECT_PREVIOUS_TEAM' |
                       'SELECT_TEAM_BY_INDEX' | 'REPAIR_TEAMS_BY_INDEX' |
-                      'HIDE_TEAM';
+                      'SIGNED_OUT_TEAM';
 
 export const APP_TEAMS = {
   SELECT_TEAM: 'SELECT_TEAM' as appTeamsType,
@@ -25,7 +79,7 @@ export const APP_TEAMS = {
   SELECT_NEXT_TEAM: 'SELECT_NEXT_TEAM' as appTeamsType,
   SELECT_PREVIOUS_TEAM: 'SELECT_PREVIOUS_TEAM' as appTeamsType,
   REPAIR_TEAMS_BY_INDEX: 'REPAIR_TEAMS_BY_INDEX' as appTeamsType,
-  HIDE_TEAM: 'HIDE_TEAM' as appTeamsType
+  SIGNED_OUT_TEAM: 'SIGNED_OUT_TEAM' as appTeamsType
 };
 
 export type dialogType = 'SET_LOGIN_DIALOG' | 'SHOW_AUTH_DIALOG' |
@@ -65,7 +119,8 @@ export type eventsType = 'EDITING_COMMAND' | 'APP_COMMAND' |
                          'CONFIRM_AND_RESET_APP' | 'CLEAR_CACHE_RESTART_APP' |
                          'REPORT_ISSUE' | 'PREPARE_AND_REVEAL_LOGS' |
                          'CLOSE_ALL_UPDATE_BANNERS' | 'POPUP_APP_MENU' |
-                         'TOGGLE_DEV_TOOLS' | 'SYSTEM_TEXT_SETTINGS_CHANGED';
+                         'TOGGLE_DEV_TOOLS' | 'SYSTEM_TEXT_SETTINGS_CHANGED' |
+                         'REPORT_CRASH_TELEMETRY';
 
 export const EVENTS = {
   EDITING_COMMAND: 'EDITING_COMMAND' as eventsType,
@@ -90,7 +145,8 @@ export const EVENTS = {
   CLOSE_ALL_UPDATE_BANNERS: 'CLOSE_ALL_UPDATE_BANNERS' as eventsType,
   POPUP_APP_MENU: 'POPUP_APP_MENU' as eventsType,
   TOGGLE_DEV_TOOLS: 'TOGGLE_DEV_TOOLS' as eventsType,
-  SYSTEM_TEXT_SETTINGS_CHANGED: 'SYSTEM_TEXT_SETTINGS_CHANGED' as eventsType
+  SYSTEM_TEXT_SETTINGS_CHANGED: 'SYSTEM_TEXT_SETTINGS_CHANGED' as eventsType,
+  REPORT_CRASH_TELEMETRY: 'REPORT_CRASH_TELEMETRY' as eventsType
 };
 
 export type notificationsType = 'NEW_NOTIFICATION' | 'REMOVE_NOTIFICATION' |
@@ -119,9 +175,9 @@ export const SETTINGS = {
 export type teamsType = 'ADD_NEW_TEAM' | 'ADD_NEW_TEAMS' |
                         'REMOVE_TEAM' | 'REMOVE_TEAMS' |
                         'UPDATE_TEAM_THEME' | 'UPDATE_TEAM_ICONS' |
-                        'UPDATE_UNREADS_INFO' | 'UPDATE_TEAM_USAGE' |
-                        'UPDATE_TEAM_NAME' | 'UPDATE_TEAM_URL' |
-                        'UPDATE_USER_ID' | 'SET_TEAM_IDLE_TIMEOUT';
+                        'UPDATE_TEAM_USAGE' | 'UPDATE_TEAM_NAME' |
+                        'UPDATE_TEAM_URL' | 'UPDATE_USER_ID' |
+                        'SET_TEAM_IDLE_TIMEOUT';
 
 export const TEAMS = {
   ADD_NEW_TEAM: 'ADD_NEW_TEAM' as teamsType,
@@ -130,12 +186,17 @@ export const TEAMS = {
   REMOVE_TEAMS: 'REMOVE_TEAMS' as teamsType,
   UPDATE_TEAM_THEME: 'UPDATE_TEAM_THEME' as teamsType,
   UPDATE_TEAM_ICONS: 'UPDATE_TEAM_ICONS' as teamsType,
-  UPDATE_UNREADS_INFO: 'UPDATE_UNREADS_INFO' as teamsType,
   UPDATE_TEAM_USAGE: 'UPDATE_TEAM_USAGE' as teamsType,
   UPDATE_TEAM_NAME: 'UPDATE_TEAM_NAME' as teamsType,
   UPDATE_TEAM_URL: 'UPDATE_TEAM_URL' as teamsType,
   UPDATE_USER_ID: 'UPDATE_USER_ID' as teamsType,
   SET_TEAM_IDLE_TIMEOUT: 'SET_TEAM_IDLE_TIMEOUT' as teamsType
+};
+
+export type unreadsType = 'UPDATE_UNREADS';
+
+export const UNREADS = {
+  UPDATE_UNREADS: 'UPDATE_UNREADS' as unreadsType
 };
 
 export type windowFrameType = 'SET_FULL_SCREEN' | 'SAVE_WINDOW_SETTINGS';
@@ -152,11 +213,16 @@ export const WINDOWS = {
   REMOVE_WINDOW: 'REMOVE_WINDOW' as windowsType
 };
 
-export type migrationsType = 'REDUX_STATE';
+export type migrationsType = 'REDUX_STATE' | 'COMPLETED';
 
 export const MIGRATIONS = {
   /**
    * Performs one-time migration from the redux-state.json file
    */
-  REDUX_STATE: 'REDUX_STATE' as migrationsType
+  REDUX_STATE: 'REDUX_STATE' as migrationsType,
+
+  /**
+   * Occurs when migrations are finished running
+   */
+  COMPLETED: 'COMPLETED' as migrationsType
 };

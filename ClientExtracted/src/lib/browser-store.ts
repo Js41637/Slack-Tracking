@@ -1,43 +1,48 @@
-import * as assignIn from 'lodash.assignin';
-import {applyMiddleware, createStore, combineReducers, compose} from 'redux';
-import {persistStore, autoRehydrate} from 'redux-persist';
-import {electronEnhancer} from 'redux-electron-store';
+/**
+ * @module Stores
+ */ /** for typedoc */
+
+import { applyMiddleware, createStore, combineReducers, compose } from 'redux';
+import { persistStore, autoRehydrate, Persistor } from 'redux-persist';
+import { electronEnhancer } from 'redux-electron-store';
 import * as createFilter from 'redux-persist-transform-filter';
-import * as createEncryptor from 'redux-persist-transform-encrypt';
+import createEncryptor from 'redux-persist-transform-encrypt';
 import * as fs from 'graceful-fs';
-import promisify from '../promisify';
+import { promisify } from '../promisify';
 
-import {logger} from '../logger';
-import {p} from '../get-path';
-import {isPrebuilt} from '../utils/process-helpers';
-import {shallowEqual} from '../utils/shallow-equal';
-import {reducers} from '../reducers';
-import {createEpicMiddleware} from 'redux-observable';
-import {epics} from '../epics';
+import { logger } from '../logger';
+import { p } from '../get-path';
+import { isPrebuilt } from '../utils/process-helpers';
+import { reducers } from '../reducers';
+import { createEpicMiddleware } from 'redux-observable';
+import { epics } from '../epics';
 
-import {BaseStore} from './base-store';
-import {LocalStorage} from '../browser/local-storage';
-import {migrationManager} from '../browser/migration-manager';
-import {ReduxPersistStorage} from '../browser/redux-persist-storage';
+import { BaseStore } from './base-store';
+import { LocalStorage } from '../browser/local-storage';
+import { migrationManager } from '../browser/migration-manager';
+import { MigrationType } from '../utils/shared-constants';
+import { ReduxPersistStorage } from '../browser/redux-persist-storage';
 
-import {TEAMS, SETTINGS, MIGRATIONS} from '../actions';
-import {Action} from '../actions/action';
+import { TEAMS, MIGRATIONS } from '../actions';
+import { Action } from '../actions/action';
 
-const pfs = promisify(fs);
+const pfs = promisify(fs) as typeof fs;
 
 // The keys to persist to local files.
 const persistWhitelist = [
   'appTeams',
   'dialog',
+  'migrations',
   'settings',
   'teams',
+  'unreads',
   'windowFrame'
 ];
 
 // Controls the subkeys that are persisted. If a filter isn't defined, all of
 // the state is persisted.
 const filterByReducer = {
-  appTeams: ['selectedTeamId', 'teamsByIndex'],
+  appTeams: ['selectedTeamId', 'teamsByIndex', 'teamsToSignOut'],
   dialog: ['credentials'],
   windowFrame: ['windowSettings']
 };
@@ -45,11 +50,21 @@ const filterByReducer = {
 // The prefix to use for our storage filenames.
 const keyPrefix = 'slack-';
 
+// Controls keys that are never reset.
+const permanentKeys = [
+  `${keyPrefix}migrations`
+];
+
 // Controls which keys are saved immediately. By default our storage mechanism
 // debounces writes to avoid thrashing the file system. But some changes should
 // take effect immediately (e.g., add / remove teams, team usage on exit).
 const saveImmediateWhitelist = [
-  `${keyPrefix}teams`
+  `${keyPrefix}teams`,
+  `${keyPrefix}settings`
+];
+
+const saveEventuallyWhitelist = [
+  `${keyPrefix}unreads`
 ];
 
 // We're more interested in obfuscating the user's proxy credentials than
@@ -66,8 +81,8 @@ const encryptor = createEncryptor({
 export class BrowserStore<T> extends BaseStore<T> {
   private storagePath: string;
   private reduxStatePath: string;
-  private persistor: any;
-  private isTestMode: boolean;
+  private persistor: Persistor;
+  private storage: ReduxPersistStorage;
 
   /**
    * Creates a new BrowserStore instance.
@@ -76,14 +91,13 @@ export class BrowserStore<T> extends BaseStore<T> {
    * @param  {String} options.storagePath     The path to persist data files to
    * @param  {String} options.reduxStatePath  The path to the legacy Redux state file
    */
-  constructor({storagePath, reduxStatePath}: {
+  constructor({ storagePath, reduxStatePath }: {
     storagePath?: string;
     reduxStatePath?: string;
   } = {}) {
     super();
     this.storagePath = storagePath || p`${'userData'}/storage`;
     this.reduxStatePath = reduxStatePath || p`${'userData'}/redux-state.json`;
-    this.isTestMode = !!reduxStatePath;
 
     const epicMiddleware = createEpicMiddleware(epics);
 
@@ -94,7 +108,7 @@ export class BrowserStore<T> extends BaseStore<T> {
         postDispatchCallback: this.postDispatchCallback.bind(this),
         // Allows synced actions to pass through all enhancers
         // check https://github.com/samiskin/redux-electron-store/issues/31#issuecomment-260240981 for details of this practice
-        dispatchProxy: (action: Action) => this.store.dispatch(action),
+        dispatchProxy: (action: Action<any>) => this.store.dispatch(action),
       }),
       autoRehydrate()
     ];
@@ -109,7 +123,14 @@ export class BrowserStore<T> extends BaseStore<T> {
    * Returns the store to its default state.
    */
   public async resetStore(): Promise<void> {
-    if (this.persistor) await this.persistor.purge();
+    if (this.persistor) {
+      const keys = await this.storage.getAllKeys();
+      const keysToPurge = keys
+        .filter((key) => !permanentKeys.includes(key))
+        .map((key) => key.slice(keyPrefix.length));
+
+      await this.persistor.purge(keysToPurge);
+    }
   }
 
   /**
@@ -123,13 +144,19 @@ export class BrowserStore<T> extends BaseStore<T> {
       return createFilter.default(reducer, filterByReducer[reducer]);
     });
 
+    this.storage = new ReduxPersistStorage({
+      storagePath: this.storagePath,
+      saveImmediateWhitelist,
+      saveEventuallyWhitelist
+    });
+
     await new Promise((res, rej) => {
       this.persistor = persistStore(this.store, {
         whitelist: persistWhitelist,
-        storage: new ReduxPersistStorage(this.storagePath, saveImmediateWhitelist),
+        storage: this.storage,
         transforms: [...filters, encryptor],
         keyPrefix
-      }, (err: Error, restoredState: any) => {
+      } as any, (err: Error, restoredState: any) => {
         if (err) {
           rej(err);
         } else {
@@ -146,69 +173,87 @@ export class BrowserStore<T> extends BaseStore<T> {
    * @return {Promise}  A Promise indicating completion
    */
   public async migrateLegacyState(): Promise<void> {
-    const {devMode, devEnv} = global.loadSettings;
+    const { devMode, devEnv } = global.loadSettings;
     if (devEnv && devEnv.length > 1) return;
 
     const state = this.getState() as any;
-    let hasMigratedData = state.settings ? state.settings.hasMigratedData : {};
-    const didMigrateData = {...hasMigratedData};
+    const initialLaunch = !state.migrations.macgap && !state.migrations.redux;
+    let wasMigrationPerformed = false;
+    let hasMigratedRedux = this.hasMigrated(state, 'redux');
+    let hasMigratedMacGap = this.hasMigrated(state, 'macgap');
 
-    if (!hasMigratedData.redux) {
-      hasMigratedData = this.populateStoreFromReduxState(hasMigratedData);
+    if (!hasMigratedRedux) {
+      logger.info(`BrowserStore: Let's migrate Redux state`);
 
       // Because the legacy state file also kept track of migrations, we need
-      // to copy that forward into `didMigrateData`.
-      assignIn(didMigrateData, {
-        redux: true,
-        macgap: hasMigratedData.macgap
-      });
+      // to take that into account
+      hasMigratedMacGap = hasMigratedMacGap || this.populateStoreFromReduxState();
+      hasMigratedRedux = true;
+      wasMigrationPerformed = true;
     }
 
-    if (!hasMigratedData.macgap && process.platform === 'darwin') {
+    if (!hasMigratedMacGap && process.platform === 'darwin') {
+      logger.info(`BrowserStore: Let's migrate teams from MacGap`);
+
       await this.populateStoreFromMacGap(devMode && isPrebuilt());
-      assignIn(didMigrateData, {macgap: true});
+      hasMigratedMacGap = true;
+      wasMigrationPerformed = true;
     }
 
-    if (!shallowEqual(hasMigratedData, didMigrateData)) {
+    if (wasMigrationPerformed || initialLaunch) {
+      const migrationsPerformed = {
+        redux: hasMigratedRedux,
+        macgap: hasMigratedMacGap
+      };
+
+      logger.info(`BrowserStore: Finished migration, make a note of it`);
+
       this.dispatch({
-        type: SETTINGS.UPDATE_SETTINGS,
-        data: {hasMigratedData: didMigrateData}
+        type: MIGRATIONS.COMPLETED,
+        data: migrationsPerformed
       });
     }
   }
 
   /**
+   * We've kept track of migrations in different places over time.
+   *
+   * @param state The current store state
+   * @param type  The type of migration to check
+   */
+  private hasMigrated(state: any, type: MigrationType) {
+    return (state.migrations && state.migrations[type]) ||
+      (state.settings.hasMigratedData && state.settings.hasMigratedData[type]);
+  }
+
+  /**
    * Performs one-time migration from our legacy redux-state JSON file.
    *
-   * @param  {Object} hasMigratedData An object that specifies which migrations are done
-   * @return {Object}                 An object that specifies which migrations are done,
-   *                                  taking into account the legacy state
+   * @return {Boolean}  True if we already migrated MacGap, and made note of it
+   *                    in the legacy state
    */
-  private populateStoreFromReduxState(hasMigratedData: any) {
+  private populateStoreFromReduxState() {
     const localStorage = new LocalStorage(this.reduxStatePath);
     const stateBlob = localStorage.getItem('state');
+    let hasMigratedMacGap = false;
 
     if (stateBlob) {
       try {
         const data = JSON.parse(stateBlob);
-        this.dispatch({type: MIGRATIONS.REDUX_STATE, data});
+        this.dispatch({ type: MIGRATIONS.REDUX_STATE, data });
 
         // So, we have state to migrate. That means its notion of what
         // migrations have already run is accurate, rather than our current.
-        hasMigratedData = data.settings.hasMigratedData;
-
-        // These are from old migrations that we no longer need to do.
-        delete hasMigratedData.browser;
-        delete hasMigratedData.renderer;
+        hasMigratedMacGap = data.settings.hasMigratedData.macgap;
 
         // Delete old redux state file
         this.pruneOldReduxStore();
       } catch (err) {
-        logger.warn(`Migrating Redux state failed: ${err.message}`);
+        logger.warn(`BrowserStore: Migrating Redux state failed:`, err);
       }
     }
 
-    return hasMigratedData;
+    return hasMigratedMacGap;
   }
 
   /**
@@ -233,14 +278,13 @@ export class BrowserStore<T> extends BaseStore<T> {
    * Performs a one-time deletion of a no longer needed redux-store.json
    */
   private async pruneOldReduxStore() {
-    if (this.isTestMode) return;
-    const hasOldFile: boolean = !!fs.statSyncNoException(this.reduxStatePath);
+    const hasOldFile = !!fs.statSyncNoException(this.reduxStatePath);
 
     if (hasOldFile) {
       try {
         await pfs.unlink(this.reduxStatePath);
       } catch (err) {
-        logger.warn(`Could not remove old redux-state file: ${err ? err.message : '(no error)'}`);
+        logger.warn(`BrowserStore: Could not remove old redux-state file:`, err);
       }
     }
   }

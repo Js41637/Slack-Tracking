@@ -1,16 +1,20 @@
-import * as traverse from 'traverse';
-import {logger} from '../logger';
+/**
+ * @module Stores
+ */ /** for typedoc */
 
-import {noop} from '../utils/noop';
-import {Action} from '../actions/action';
-import {Unsubscribe, Store, Reducer} from 'redux';
+import * as traverse from 'traverse';
+import { logger } from '../logger';
+
+import { noop } from '../utils/noop';
+import { Action } from '../actions/action';
+import { Unsubscribe, Store, Reducer } from 'redux';
 /**
  * Provides some basic functionality for every store.
  */
 export class BaseStore<T> implements Store<T> {
   protected store: BaseStore<T>;
-  protected readonly postDispatchCallback: (action: Action) => void;
-  private postDispatchListeners: Set<(action: Action) => void> = new Set();
+  protected readonly postDispatchCallback: (action: Action<any>) => void;
+  private postDispatchListeners: Set<(action: Action<any>) => void> = new Set();
 
   constructor() {
     this.postDispatchCallback = (action) => {
@@ -26,7 +30,7 @@ export class BaseStore<T> implements Store<T> {
     return this.store.subscribe(listener);
   }
 
-  public dispatch<S extends Action>(action: S): S {
+  public dispatch<S extends Action<any>>(action: S): S {
     return this.store.dispatch(action);
   }
 
@@ -67,7 +71,8 @@ export class BaseStore<T> implements Store<T> {
         reload: true,
         editingCommand: true,
         sidebarClicked: true,
-        systemTextSettingsChanged: true
+        systemTextSettingsChanged: true,
+        customMenuItemClicked: true
       },
       windows: true,
       windowFrame: true,
@@ -80,22 +85,28 @@ export class BaseStore<T> implements Store<T> {
    * @return {Function}  A function that applies the next middleware
    */
   protected logDispatches() {
-    return (next: (action: Action) => any) => (action: Action) => {
+    return (next: (action: Action<any>) => any) => (action: Action<any>) => {
       if (action.omitFromLog) return next(action);
 
       let payload;
 
       if (action.omitKeysFromLog) {
         payload = traverse(action.data).map(function(this: any) {
-          if ((action as any).omitKeysFromLog.includes(this.key)) {
-            this.delete();
+          if (action.omitKeysFromLog!.includes(this.key)) {
+            this.update('[REDACTED]');
           }
         });
       } else {
         payload = action.data;
       }
 
-      logger.info(`${action.type} ${payload != null ? `: ${JSON.stringify(payload, null, 2)}` : ''}`);
+      // Allow store actions to define a log level
+      if (action.logLevel && typeof logger[action.logLevel] === 'function') {
+        logger[action.logLevel](`Store: ${action.type}`, payload);
+      } else {
+        logger.info(`Store: ${action.type}`, payload);
+      }
+
       return next(action);
     };
   }

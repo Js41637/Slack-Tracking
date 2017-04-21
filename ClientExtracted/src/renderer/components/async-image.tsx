@@ -1,9 +1,13 @@
-import {Observable} from 'rxjs/Observable';
-import {Observer} from 'rxjs/Observer';
-import {Component} from '../../lib/component';
-import {logger} from '../../logger';
-import {omit} from '../../utils/omit';
-import {shallowEqual} from '../../utils/shallow-equal';
+/**
+ * @module RendererComponents
+ */ /** for typedoc */
+
+import { Observable } from 'rxjs/Observable';
+import { Observer } from 'rxjs/Observer';
+import { Component } from '../../lib/component';
+import { logger } from '../../logger';
+import { omit } from '../../utils/omit';
+import { shallowEqual } from '../../utils/shallow-equal';
 
 import * as React from 'react'; // tslint:disable-line
 
@@ -46,7 +50,7 @@ export class AsyncImage extends Component<AsyncImageProps, AsyncImageState> {
   }
 
   public componentDidMount() {
-    const {srcSet, src} = this.props;
+    const { srcSet, src } = this.props;
 
     this.fetchImage(src, srcSet).subscribe(() => {
       this.handleLoad();
@@ -98,7 +102,7 @@ export class AsyncImage extends Component<AsyncImageProps, AsyncImageState> {
   }
 
   public render(): JSX.Element | null {
-    const {status} = this.state;
+    const { status } = this.state;
 
     if (status === IMAGE_STATUS.LOADED || status === IMAGE_STATUS.LOADING) {
       const props = omit(this.props, 'renderPending');
@@ -118,7 +122,7 @@ export class AsyncImage extends Component<AsyncImageProps, AsyncImageState> {
       status: IMAGE_STATUS.LOADED
     });
 
-    const {onLoad} = this.props;
+    const { onLoad } = this.props;
     if (onLoad) onLoad();
   }
 
@@ -129,7 +133,7 @@ export class AsyncImage extends Component<AsyncImageProps, AsyncImageState> {
       status: IMAGE_STATUS.ERROR
     });
 
-    const {onError} = this.props;
+    const { onError } = this.props;
     if (onError) onError();
   }
 }

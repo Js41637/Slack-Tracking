@@ -1,36 +1,40 @@
+/**
+ * @module RendererComponents
+ */ /** for typedoc */
+
 import * as theURL from 'url';
 import * as assignIn from 'lodash.assignin';
-import {clipboard, remote} from 'electron';
+import { clipboard, remote } from 'electron';
 import * as ReactCSSTransitionGroup from 'react-addons-css-transition-group';
-import {Subscription} from 'rxjs/Subscription';
-import {Observable} from 'rxjs/Observable';
-import {Subject} from 'rxjs/Subject';
-import {AsyncSubject} from 'rxjs/AsyncSubject';
-import {executeJavaScriptMethod} from 'electron-remote';
+import { Subscription } from 'rxjs/Subscription';
+import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
+import { AsyncSubject } from 'rxjs/AsyncSubject';
+import { executeJavaScriptMethod } from 'electron-remote';
 
 import * as profiler from '../../utils/profiler';
-import {logger} from '../../logger';
-import {omit} from '../../utils/omit';
+import { logger } from '../../logger';
+import { omit } from '../../utils/omit';
 import '../../custom-operators';
 
-import {appTeamsActions} from '../../actions/app-teams-actions';
-import {appTeamsStore} from '../../stores/app-teams-store';
-import {Component} from '../../lib/component';
-import {DownloadManager} from './download-manager';
-import {dialogStore} from '../../stores/dialog-store';
-import {eventActions} from '../../actions/event-actions';
-import {eventStore, StoreEvent} from '../../stores/event-store';
-import {LoadingScreen} from './loading-screen';
-import {settingStore} from '../../stores/setting-store';
-import {teamActions} from '../../actions/team-actions';
-import {teamStore} from '../../stores/team-store';
-import {WebViewContext} from './web-view-ctx';
-import {windowStore} from '../../stores/window-store';
+import { appTeamsActions } from '../../actions/app-teams-actions';
+import { appTeamsStore } from '../../stores/app-teams-store';
+import { Component } from '../../lib/component';
+import { DownloadManager } from './download-manager';
+import { dialogStore } from '../../stores/dialog-store';
+import { eventStore, StoreEvent } from '../../stores/event-store';
+import { LoadingScreen } from './loading-screen';
+import { settingStore } from '../../stores/setting-store';
+import { teamActions } from '../../actions/team-actions';
+import { teamStore } from '../../stores/team-store';
+import { WebViewContext } from './web-view-ctx';
+import { windowStore } from '../../stores/window-store';
 
-import {intl as $intl, LOCALE_NAMESPACE} from '../../i18n/intl';
-import {CALLS_WINDOW_TYPES} from '../../utils/shared-constants';
+import { intl as $intl, LOCALE_NAMESPACE } from '../../i18n/intl';
+import { CALLS_WINDOW_TYPES } from '../../utils/shared-constants';
 
 import * as React from 'react'; // tslint:disable-line
+import { getInstanceUuid } from '../../uuid';
 
 const LOCAL_WEBAPP_ASSETS_PARAM = 'local_assets';
 const RELOAD_RETRIES = 5;
@@ -49,6 +53,7 @@ export interface TeamViewState {
   isShowingLoginDialog: boolean;
   isDevMode: boolean;
   webappSrcPath: string;
+  webappParams: object;
   showWebappDialogEvent: StoreEvent;
   clickNotificationEvent: StoreEvent;
   replyToNotificationEvent: StoreEvent;
@@ -58,6 +63,7 @@ export interface TeamViewState {
   refreshTeamEvent: StoreEvent;
   refreshTeamsEvent: StoreEvent;
   reloadEvent: StoreEvent;
+  reportCrashTelemetryEvent: StoreEvent;
   isWebViewLoaded: boolean;
   hasConnectionTrouble: boolean;
   isTeamUnloaded: boolean;
@@ -75,8 +81,11 @@ export interface NotificationReplyArgs extends NotificationClickArgs {
 }
 
 export class TeamView extends Component<TeamViewProps, Partial<TeamViewState>> {
-  private issueReload = new Subject<void>();
-  private webAppHasLoaded = new AsyncSubject<boolean>();
+  private readonly issueReload = new Subject<void>();
+  private _webAppHasLoaded = new AsyncSubject<boolean>();
+  public get webAppHasLoaded() {
+    return this._webAppHasLoaded.asObservable();
+  }
   private downloadManager: DownloadManager;
 
   private webViewElement: WebViewContext;
@@ -89,7 +98,7 @@ export class TeamView extends Component<TeamViewProps, Partial<TeamViewState>> {
     onWebappLoad: () => this.onWebappLoaded(),
     onPageEmptyAfterLoad: (webViewURL: string) => this.onWebViewEmpty(webViewURL),
     onRedirect: (e: HashChangeEvent) => this.onRedirect(e),
-    onPageError: ({errorCode, errorDescription, validatedURL}: {
+    onPageError: ({ errorCode, errorDescription, validatedURL }: {
       errorCode: number, errorDescription: string, validatedURL: string
     }) => this.onWebViewError({ errorCode, errorDescription, validatedURL }),
   };
@@ -109,6 +118,7 @@ export class TeamView extends Component<TeamViewProps, Partial<TeamViewState>> {
       isShowingLoginDialog: dialogStore.isShowingLoginDialog(),
       isDevMode: settingStore.getSetting<boolean>('isDevMode'),
       webappSrcPath: settingStore.getSetting<string>('webappSrcPath'),
+      webappParams: settingStore.getSetting<object>('webappParams'),
 
       showWebappDialogEvent: eventStore.getEvent('showWebappDialog'),
       clickNotificationEvent: eventStore.getEvent('clickNotification'),
@@ -118,7 +128,8 @@ export class TeamView extends Component<TeamViewProps, Partial<TeamViewState>> {
       editingCommandEvent: eventStore.getEvent('editingCommand'),
       refreshTeamEvent: eventStore.getEvent('refreshTeam'),
       refreshTeamsEvent: eventStore.getEvent('refreshTeams'),
-      reloadEvent: eventStore.getEvent('reload')
+      reloadEvent: eventStore.getEvent('reload'),
+      reportCrashTelemetryEvent: eventStore.getEvent('reportCrashTelemetry')
     };
   }
 
@@ -127,7 +138,7 @@ export class TeamView extends Component<TeamViewProps, Partial<TeamViewState>> {
   }
 
   public componentDidUpdate(_prevProps: TeamViewProps, prevState: TeamViewState) {
-    const {selectedTeamId, team, isShowingLoginDialog} = this.state;
+    const { selectedTeamId, team, isShowingLoginDialog } = this.state;
 
     if (selectedTeamId === this.props.teamId) {
       this.setBugsnagMetadata(team);
@@ -146,8 +157,8 @@ export class TeamView extends Component<TeamViewProps, Partial<TeamViewState>> {
    * @param  {string} code  The code to execute
    * @return {Promise<any>} The result of the code
    */
-  public executeJavaScript(code: string): Promise<string> {
-    return this.webAppHasLoaded
+  public executeJavaScript(code: string): Promise<any> {
+    return this._webAppHasLoaded
       .flatMap(() => this.webViewElement.executeJavaScript(code))
       .toPromise();
   }
@@ -157,14 +168,15 @@ export class TeamView extends Component<TeamViewProps, Partial<TeamViewState>> {
    * current state of the team. If unloaded, use min-web, otherwise use the
    * full TSSSB object.
    *
-   * @returns {Observable}
+   * @returns {Promise<any>}
    */
-  public executeInteropMethod(method: string, ...args: Array<any>): Observable<string> {
+  public executeInteropMethod(method: string, ...args: Array<any>): Promise<any> {
     const interopGlobal = this.isTeamUnloaded() ? 'MW' : 'TSSSB';
     const pathToObject = `${interopGlobal}.${method}`;
 
-    return this.webAppHasLoaded
-      .flatMap(() => this.webViewElement.executeJavaScriptMethod(pathToObject, ...args));
+    return this._webAppHasLoaded
+      .flatMap(() => this.webViewElement.executeJavaScriptMethod(pathToObject, ...args))
+      .toPromise();
   }
 
   /**
@@ -173,57 +185,37 @@ export class TeamView extends Component<TeamViewProps, Partial<TeamViewState>> {
    * @param {string} pathToObject - Path to the method to be called
    * @param {any} ...args - Arguments passed on to the method
    */
-  public executeJavaScriptMethod(pathToObject: string, ...args: Array<any>): Promise<string> {
-    return this.webAppHasLoaded
+  public executeJavaScriptMethod(pathToObject: string, ...args: Array<any>): Promise<any> {
+    return this._webAppHasLoaded
       .flatMap(() => this.webViewElement.executeJavaScriptMethod(pathToObject, ...args))
       .toPromise();
   }
 
-  /**
-   * `executeJavaScriptMethod`, but with patience. Checks if `pathToObject` is reachable.
-   * If it isn't, it'll keep checking at 250ms intervals for up to one minute.
-   *
-   * @param {string} pathToObject - Path to the method to be called
-   * @param {any} ...args - Arguments passed on to the method
-   * @returns {Promise}
-   */
-  public executeJavaScriptMethodWhenBooted(pathToObject: string, ...args: Array<any>): Promise<string> {
-    return this.webAppHasLoaded
-      .flatMap(() => this.webViewElement.executeJavaScriptMethodWhenBooted(pathToObject, ...args))
-      .toPromise();
-  }
-
-  /**
-   * `executeJavaScriptMethod`, but only if possible. Checks if `pathToObject` is reachable.
-   * If it isn't, given execution will be simply skipped.
-   *
-   * @param {string} pathToObject - Path to the method to be called
-   * @param {any} ...args - Arguments passed on to the method
-   * @returns {Promise}
-   */
-  public executeJavaScriptIfBooted(pathToObject: string, ...args: Array<any>): Promise<string> {
-    return this.webAppHasLoaded
-      .flatMap(() => this.webViewElement.executeJavaScriptIfBooted(pathToObject, ...args))
-      .toPromise();
-  }
-
   public downloadURL(url: string): void {
-    this.webViewElement.downloadURL(url);
+    if (this.webViewElement) {
+      this.webViewElement.downloadURL(url);
+    } else {
+      logger.warn(`Tried to download url, but webViewElement is not ready`);
+    }
   }
 
   public focus(): void {
-    this.webViewElement.focus();
+    if (!!this.webViewElement) {
+      this.webViewElement.focus();
+    } else {
+      logger.warn('Tried to focus, but webViewElement is not ready');
+    }
   }
 
-  public refreshTeamEvent({teamId}: {teamId: string}): void {
+  public refreshTeamEvent({ teamId }: {teamId: string}): void {
     if (teamId === this.props.teamId) this.loadTeamURL();
   }
 
-  public refreshTeamsEvent({teamIds}: {teamIds: Array<string>}): void {
+  public refreshTeamsEvent({ teamIds }: {teamIds: Array<string>}): void {
     if (teamIds.includes(this.props.teamId)) this.loadTeamURL();
   }
 
-  public reloadEvent({everything}: {everything: boolean}): void {
+  public reloadEvent({ everything }: {everything: boolean}): void {
     // Check if reload target
     if (everything ||
       !remote.getCurrentWindow().isFocused() ||
@@ -236,7 +228,13 @@ export class TeamView extends Component<TeamViewProps, Partial<TeamViewState>> {
     }
   }
 
-  public showWebappDialogEvent({dialogType}: {dialogType: string}): Promise<string> {
+  public reportCrashTelemetryEvent({ count }: {count: number}): void {
+    if (this.state.selectedTeamId === this.props.teamId) {
+      this.executeJavaScriptMethod(`TS.clog.track`, 'DESKTOP_CRASH', { instanceUid: getInstanceUuid(), crashes: count });
+    }
+  }
+
+  public showWebappDialogEvent({ dialogType }: {dialogType: string}): Promise<string> {
     if (this.state.selectedTeamId === this.props.teamId) {
       return this.executeJavaScriptMethod('TSSSB.openDialog', dialogType);
     }
@@ -250,7 +248,7 @@ export class TeamView extends Component<TeamViewProps, Partial<TeamViewState>> {
     }
   }
 
-  public appCommandEvent({command}: {command: string}): void {
+  public appCommandEvent({ command }: {command: string}): void {
     if (this.state.selectedTeamId === this.props.teamId) {
       switch (command) {
       case 'browser-backward':
@@ -268,17 +266,17 @@ export class TeamView extends Component<TeamViewProps, Partial<TeamViewState>> {
    *
    * @param  {String} {command}   The type of command being handled
    */
-  public editingCommandEvent({command}: {command: string}): void {
+  public editingCommandEvent({ command }: {command: string}): void {
     if (this.state.selectedTeamId === this.props.teamId) {
       switch (command) {
       case 'find':
         this.executeJavaScriptMethod('TSSSB.searchForTxt', clipboard.readFindText())
-          .catch((err) => logger.warn(`searchForTxt failed: ${err.message}`));
+          .catch((err) => logger.warn(`TeamView: searchForTxt failed.`, err));
         break;
       case 'use-selection-for-find':
         this.executeJavaScriptMethod('TSSSB.getSelectedInputTxt')
           .then((text) => clipboard.writeFindText(text))
-          .catch((err) => logger.warn(`getSelectedInputTxt failed: ${err.message}`));
+          .catch((err) => logger.warn(`TeamView: getSelectedInputTxt failed.`, err));
         break;
       }
     }
@@ -292,15 +290,17 @@ export class TeamView extends Component<TeamViewProps, Partial<TeamViewState>> {
    */
   public async clickNotificationEvent(clickArgs: NotificationClickArgs): Promise<void> {
     if (clickArgs.teamId === this.props.teamId) {
-      const {teamId, channel, messageId, threadTimestamp} = clickArgs;
+      const { teamId, channel, messageId, threadTimestamp } = clickArgs;
       const method = this.isTeamUnloaded() ?
         'MW.setClientPathForNotificationClick' :
         'TSSSB.focusTabAndSwitchToChannel';
 
       try {
+        logger.info(`TeamView: Dispatching click notification event to webapp.`);
+        logger.debug('TeamView: Dispath details', method, channel, messageId, threadTimestamp);
         await this.executeJavaScriptMethod(method, channel, messageId, threadTimestamp);
       } catch (err) {
-        logger.warn(`${method}(${channel}) failed: ${err.message}`);
+        logger.warn(`TeamView: ${method}(${channel}) failed.`, err);
       }
 
       appTeamsActions.selectTeam(teamId);
@@ -315,11 +315,10 @@ export class TeamView extends Component<TeamViewProps, Partial<TeamViewState>> {
   public async replyToNotificationEvent(replyArgs: NotificationReplyArgs): Promise<void> {
     if (replyArgs.teamId === this.props.teamId) {
       try {
-        const {channel, response, messageId, threadTimestamp} = replyArgs;
-        await this.executeInteropMethod('sendMsgFromUser', channel, response, messageId, threadTimestamp)
-          .toPromise();
+        const { channel, response, messageId, threadTimestamp } = replyArgs;
+        await this.executeInteropMethod('sendMsgFromUser', channel, response, messageId, threadTimestamp);
       } catch (err) {
-        logger.warn(`sendMsgFromUser failed: ${err.message}`);
+        logger.warn('TeamView: sendMsgFromUser failed.', err);
       }
     }
   }
@@ -341,7 +340,7 @@ export class TeamView extends Component<TeamViewProps, Partial<TeamViewState>> {
    * @param  {Boolean} isTeamUnloaded True if the team is unloaded, false otherwise
    */
   public setTeamUnloaded(isTeamUnloaded: boolean): void {
-    this.webAppHasLoaded = new AsyncSubject();
+    this._webAppHasLoaded = new AsyncSubject();
     this.setState({ isTeamUnloaded });
   }
 
@@ -372,7 +371,12 @@ export class TeamView extends Component<TeamViewProps, Partial<TeamViewState>> {
   }
 
   public render(): JSX.Element | null {
-    const {team, selectedTeamId, isWebViewLoaded, hasConnectionTrouble} = this.state;
+    const { team, selectedTeamId, isWebViewLoaded, hasConnectionTrouble } = this.state;
+    if (!team || (team && !team.team_url)) {
+      logger.warn(`Team url is missing in state, cannot render team view`, this.state);
+      return null;
+    }
+
     const webViewOptions = {
       src: this.getTeamURL(team.team_url)
     };
@@ -423,8 +427,8 @@ export class TeamView extends Component<TeamViewProps, Partial<TeamViewState>> {
     );
   }
 
-  private issueReloadWithReason(reason: string): void {
-    logger.error(reason);
+  private issueReloadWithReason(reason: string, ...meta: Array<any>): void {
+    logger.error(reason, ...meta);
     this.issueReload.next();
   }
 
@@ -433,7 +437,7 @@ export class TeamView extends Component<TeamViewProps, Partial<TeamViewState>> {
    * subscriptions that rely on the webview.
    */
   private onWebViewLoaded(): void {
-    this.setState({isWebViewLoaded: true});
+    this.setState({ isWebViewLoaded: true });
 
     if (!this.state.team.id) this.patchUserIdFromWebapp();
 
@@ -447,13 +451,13 @@ export class TeamView extends Component<TeamViewProps, Partial<TeamViewState>> {
    * Occurs when the webapp `didFinishLoading` signal fires.
    */
   private onWebappLoaded(): void {
-    this.webAppHasLoaded.next(true);
-    this.webAppHasLoaded.complete();
+    logger.info(`Webapp finished loading`);
 
-    this.issueReload = new Subject<void>();
+    this._webAppHasLoaded.next(true);
+    this._webAppHasLoaded.complete();
 
     if (this.downloadManager) this.downloadManager.dispose();
-    this.downloadManager = new DownloadManager({teamView: this});
+    this.downloadManager = new DownloadManager({ teamView: this });
 
     if (hasStoppedProfiling) return;
     hasStoppedProfiling = true;
@@ -461,8 +465,13 @@ export class TeamView extends Component<TeamViewProps, Partial<TeamViewState>> {
   }
 
   private onRedirect(e: HashChangeEvent): void {
-    if (this.shouldPatchTeamURL(e.newURL!)) {
-      this.webViewElement.loadURL(this.getTeamURL(e.newURL!));
+    const url = e.newURL;
+    if (!!url) {
+      if (this.shouldPatchTeamURL(url)) {
+        this.webViewElement.loadURL(this.getTeamURL(url));
+      }
+    } else {
+      logger.warn(`HashChangedEvent doesn't carry correct url, cannot redirect`, e);
     }
   }
 
@@ -472,14 +481,25 @@ export class TeamView extends Component<TeamViewProps, Partial<TeamViewState>> {
       url.includes(this.state.team.team_url);
   }
 
+  /**
+   * Constructs the real client URL to /min or /messages and optionally append
+   * query parameters.
+   *
+   * @param url The original team URL
+   */
   private getTeamURL(url: string): string {
-    if (this.shouldPatchTeamURL(url)) {
-      return `${url}?${LOCAL_WEBAPP_ASSETS_PARAM}=1`;
-    }
-
-    return this.props.loadMinWeb ?
+    const clientUrl = this.props.loadMinWeb ?
       theURL.resolve(url, 'min') :
       theURL.resolve(url, 'messages');
+
+    const query = this.state.webappParams || {};
+    if (this.shouldPatchTeamURL(url)) {
+      query[LOCAL_WEBAPP_ASSETS_PARAM] = 1;
+    }
+
+    return Object.keys(query).length > 0 ?
+      theURL.format({ ...theURL.parse(clientUrl), query }) :
+      clientUrl;
   }
 
   /**
@@ -489,13 +509,13 @@ export class TeamView extends Component<TeamViewProps, Partial<TeamViewState>> {
    * @param  {String} errorDescription A string describing the error
    * @param  {String} validatedURL}    The URL where the error occurred
    */
-  private onWebViewError({errorCode, errorDescription, validatedURL}: {
+  private onWebViewError({ errorCode, errorDescription, validatedURL }: {
     errorCode: number, errorDescription: string, validatedURL: string
   }): void {
     if (validatedURL.startsWith(this.state.team.team_url)) {
-      this.issueReloadWithReason(`WebView failed to load ${validatedURL} with ${errorCode}: ${errorDescription}`);
+      this.issueReloadWithReason(`WebView ${validatedURL} failed to load, issuing refresh.`, { errorCode, errorDescription });
     } else {
-      logger.info(`WebView ${validatedURL} encountered error, but not team url - not issuing refresh.`, {errorCode, errorDescription});
+      logger.info(`WebView ${validatedURL} encountered error, but not team url - not issuing refresh.`, { errorCode, errorDescription });
     }
   }
 
@@ -506,7 +526,7 @@ export class TeamView extends Component<TeamViewProps, Partial<TeamViewState>> {
     if (!isSigninURL && !isTeamUnloading) {
       this.issueReloadWithReason('WebView was empty after did-stop-loading; issuing refresh.');
     } else {
-      logger.info(`Determined that the webView ${webViewURL} is empty, but not issuing a refresh.`, {isSigninURL, isTeamUnloading});
+      logger.info(`Determined that the webView ${webViewURL} is empty, but not issuing a refresh.`, { isSigninURL, isTeamUnloading });
     }
   }
 
@@ -515,8 +535,13 @@ export class TeamView extends Component<TeamViewProps, Partial<TeamViewState>> {
   }
 
   private loadTeamURL(): Observable<boolean> {
-    this.webViewElement.loadURL(this.getTeamURL(this.state.team.team_url));
-    return this.webAppHasLoaded;
+    const team = this.state.team;
+    if (!team || (team && !team.team_url)) {
+      logger.warn(`Team url is missing in state, cannot load team url`, this.state);
+    } else if (!!this.webViewElement && !!this.webViewElement.loadURL) {
+      this.webViewElement.loadURL(this.getTeamURL(this.state.team.team_url));
+    }
+    return this._webAppHasLoaded;
   }
 
   /**
@@ -541,7 +566,7 @@ export class TeamView extends Component<TeamViewProps, Partial<TeamViewState>> {
             this.webViewElement.reload();
           })
           .catch((e: Error) => {
-            logger.warn(`Could not close call before reloading: ${JSON.stringify(e)}`);
+            logger.warn('TeamView: Could not close call before reloading.', e);
           });
       }
     });
@@ -555,12 +580,12 @@ export class TeamView extends Component<TeamViewProps, Partial<TeamViewState>> {
   private setBugsnagMetadata(team: any): void {
     if (global.Bugsnag) {
       if (!global.Bugsnag.user) {
-        logger.info(`Bugsnag user: ${team.id}`);
+        logger.info(`TeamView: Bugsnag user: ${team.id}`);
       }
 
       global.Bugsnag.user = {
-        id: team.id,
-        name: team.team_name
+        id: getInstanceUuid(),
+        name: `${team.id}:${team.team_name}`
       };
 
       global.Bugsnag.metaData = {
@@ -579,7 +604,7 @@ export class TeamView extends Component<TeamViewProps, Partial<TeamViewState>> {
     return Observable.fromPromise(this.webViewElement.executeJavaScript(command))
       .retryAtIntervals()
       .catch((e) => {
-        logger.error(`Unable to set teamId: ${e.message}`);
+        logger.error(`TeamView: Unable to set teamId.`, e);
         return Observable.of(false);
       })
       .subscribe();
@@ -595,7 +620,7 @@ export class TeamView extends Component<TeamViewProps, Partial<TeamViewState>> {
       const userId = await this.executeJavaScriptMethod('TS.model.user.id');
       if (userId) teamActions.updateUserId(userId, this.props.teamId);
     } catch (e) {
-      logger.error(`Unable to patch userId: ${e.message}`);
+      logger.error('TeamView: Unable to patch userId', e);
     }
   }
 
@@ -607,12 +632,11 @@ export class TeamView extends Component<TeamViewProps, Partial<TeamViewState>> {
    * @return {Subscription}     A Subscription that will disconnect this listener
    */
   private setupLoadTimeout(waitTime: number = 80): Subscription {
-    return this.webAppHasLoaded.mapTo(true)
+    return this._webAppHasLoaded.mapTo(true)
       .timeout(waitTime * 1000)
       .catch(() => Observable.of(false))
       .filter((x) => x === false)
-      .do(() => logger.warn(`Took over ${waitTime} seconds to load, refreshing`))
-      .subscribe(() => eventActions.reload(true));
+      .subscribe(() => logger.warn(`TeamView: Took over ${waitTime} seconds to load.`));
   }
 
   /**
@@ -623,7 +647,7 @@ export class TeamView extends Component<TeamViewProps, Partial<TeamViewState>> {
     return this.issueReload
       .takeWhile((_, idx) => idx < RELOAD_RETRIES)
       .subscribe(() => this.webViewElement.reload(),
-        (err) => logger.warn(`Unable to reload: ${err.message}`),
+        (err) => logger.warn('TeamView: Unable to reload.', err),
         () => this.setState({
           isWebViewLoaded: false,
           hasConnectionTrouble: true

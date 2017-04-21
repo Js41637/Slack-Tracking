@@ -1,5 +1,9 @@
-import {executeJavaScriptMethod} from 'electron-remote';
-import {remote} from 'electron';
+/**
+ * @module SSBIntegration
+ */ /** for typedoc */
+
+import { executeJavaScriptMethod } from 'electron-remote';
+import { remote } from 'electron';
 
 export class DeviceStorage {
   private readonly wnd: Electron.BrowserWindow = remote.getCurrentWindow();

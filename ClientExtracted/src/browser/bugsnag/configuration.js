@@ -8,10 +8,11 @@ var PAYLOAD_VERSION = "2";
 var Configuration = {
     filters: ["password"],
     notifyReleaseStages: null,
-    projectRoot: require.main === undefined ? null : path.dirname(require.main.filename),
+    projectRoot: require.main !== undefined && require.main.filename !== undefined ? path.dirname(require.main.filename) : null,
     autoNotifyUncaught: true,
     useSSL: true,
     proxy: null,
+    headers: {},
     notifyHost: "notify.bugsnag.com",
     notifyPath: "/",
     notifyPort: undefined,
@@ -60,11 +61,12 @@ var Configuration = {
         Configuration.onUncaughtError = options.onUncaughtError || Configuration.onUncaughtError;
         Configuration.hostname = options.hostname || Configuration.hostname;
         Configuration.proxy = options.proxy;
+        Configuration.headers = options.headers;
         if (options.projectRoot != null) {
             Configuration.projectRoot = Utils.fullPath(options.projectRoot);
         }
         if ((options.packageJSON != null) && !Configuration.appVersion) {
-            return Configuration.appVersion = Utils.getPackageVersion(Utils.fullPath(options.packageJSON));
+            Configuration.appVersion = Utils.getPackageVersion(Utils.fullPath(options.packageJSON));
         }
         Configuration.sendCode = options.sendCode || Configuration.sendCode;
     }

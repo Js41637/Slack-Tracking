@@ -1,6 +1,11 @@
-import {ReduxComponent} from '../../lib/redux-component';
-import {teamStore} from '../../stores/team-store';
-import {ipcRenderer} from 'electron';
+/**
+ * @module RendererComponents
+ */ /** for typedoc */
+
+import { ipcRenderer } from 'electron';
+import { ReduxComponent } from '../../lib/redux-component';
+import { unreadsStore } from '../../stores/unreads-store';
+import { UnreadsInfo } from '../../actions/unreads-actions';
 
 const ratio = window.devicePixelRatio;
 const scale = (size: number) => size * ratio;
@@ -9,15 +14,13 @@ const iconWidth = 16;
 const iconHeight = 16;
 
 export interface OverlayState {
-  unreadInfo?: {
-    unreadHighlights: number;
-  };
+  unreadsInfo: UnreadsInfo;
 }
 
-export class OverlayManager extends ReduxComponent<OverlayState> {
+export class OverlayManager extends ReduxComponent<Partial<OverlayState>> {
   private readonly canvas: HTMLCanvasElement = document.createElement('canvas');
 
-  constructor(props: any) {
+  constructor(props?: any) {
     super(props);
 
     this.canvas.width = scale(iconWidth);
@@ -25,18 +28,18 @@ export class OverlayManager extends ReduxComponent<OverlayState> {
     this.update({});
   }
 
-  public syncState(): OverlayState {
+  public syncState(): Partial<OverlayState> {
     return {
-      unreadInfo: teamStore.getCombinedUnreadInfo()
+      unreadsInfo: unreadsStore.getCombinedUnreadsInfo()
     };
   }
 
-  public update(prevState: OverlayState): void {
-    if (prevState.unreadInfo === this.state.unreadInfo) return;
-    const unreadHighlights = this.state.unreadInfo ? this.state.unreadInfo.unreadHighlights : 0;
+  public update(prevState: Partial<OverlayState>): void {
+    if (prevState.unreadsInfo === this.state.unreadsInfo) return;
+    const unreadHighlights = this.state.unreadsInfo ? this.state.unreadsInfo.unreadHighlights : 0;
 
-    ipcRenderer.send('window:set-overlay-icon',
-      unreadHighlights < 1 ? null : this.renderOverlayIcon(unreadHighlights));
+    const overlayIcon = (!unreadHighlights || unreadHighlights < 1) ? null : this.renderOverlayIcon(unreadHighlights);
+    ipcRenderer.send('window:set-overlay-icon', overlayIcon);
   }
 
   private renderOverlayIcon(unreadHighlights: number): Buffer | null {

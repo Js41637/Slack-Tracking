@@ -1,13 +1,17 @@
-import {app, BrowserWindow} from 'electron';
+/**
+ * @module Browser
+ */ /** for typedoc */
 
-import {ReduxComponent} from '../lib/redux-component';
-import {settingStore} from '../stores/setting-store';
-import {setZoomLevelAndLimits} from '../utils/zoomlevels';
-import {windowStore} from '../stores/window-store';
-import {Window} from '../stores/window-store-helper';
+import { app, BrowserWindow } from 'electron';
 
-import {WINDOW_TYPES} from '../utils/shared-constants';
-import {StringMap} from '../utils/string-map';
+import { ReduxComponent } from '../lib/redux-component';
+import { settingStore } from '../stores/setting-store';
+import { setZoomLevelAndLimits } from '../utils/zoomlevels';
+import { windowStore } from '../stores/window-store';
+import { Window } from '../stores/window-store-helper';
+
+import { StringMap, WINDOW_TYPES } from '../utils/shared-constants';
+
 export interface WebContentsMediatorState {
   zoomLevel: number;
   childWindows: StringMap<Window>;

@@ -1,21 +1,26 @@
-import {appStore} from '../stores/app-store';
-import {appTeamsStore} from '../stores/app-teams-store';
-import {eventStore, StoreEvent} from '../stores/event-store';
-import {ReduxComponent} from '../lib/redux-component';
-import {settingStore} from '../stores/setting-store';
+/**
+ * @module SSBIntegration
+ */ /** for typedoc */
 
-import {getReleaseNotesUrl} from '../browser/updater-utils';
-import {UpdateInformation, updateStatusType, UPDATE_STATUS, IS_STORE_BUILD} from '../utils/shared-constants';
+import { appStore } from '../stores/app-store';
+import { appTeamsStore } from '../stores/app-teams-store';
+import { eventStore, StoreEvent } from '../stores/event-store';
+import { ReduxComponent } from '../lib/redux-component';
+import { settingStore } from '../stores/setting-store';
 
-import {logger} from '../logger';
+import { getReleaseNotesUrl } from '../browser/updater-utils';
+import { UpdateInformation, updateStatusType, UPDATE_STATUS, IS_STORE_BUILD } from '../utils/shared-constants';
+
+import { logger } from '../logger';
 
 export interface ReduxHelperState {
   isMachineAwake: boolean;
   currentTeamId: string;
   updateStatus: updateStatusType;
-  updateInfo: UpdateInformation;
+  updateInfo: UpdateInformation | null;
   releaseChannel: string;
   canUpdate: boolean;
+  customMenuItemClickedEvent: StoreEvent;
   systemTextSettingsChangedEvent: StoreEvent;
 }
 
@@ -37,6 +42,7 @@ export class ReduxHelper extends ReduxComponent<ReduxHelperState> {
       updateStatus: appStore.getUpdateStatus(),
       updateInfo: appStore.getUpdateInfo(),
       releaseChannel: settingStore.getSetting<string>('releaseChannel'),
+      customMenuItemClickedEvent: eventStore.getEvent('customMenuItemClicked'),
       systemTextSettingsChangedEvent: eventStore.getEvent('systemTextSettingsChanged'),
       canUpdate: process.platform !== 'linux' && !IS_STORE_BUILD
     };
@@ -75,12 +81,12 @@ export class ReduxHelper extends ReduxComponent<ReduxHelperState> {
    *    releaseVersion  The version number for the available update
    */
   public updateUpdateStatus(prevState: Partial<ReduxHelperState>) {
-    const {updateStatus, updateInfo, releaseChannel, canUpdate} = this.state as ReduxHelperState;
+    const { updateStatus, updateInfo, releaseChannel, canUpdate } = this.state as ReduxHelperState;
     if (updateStatus === prevState.updateStatus) return;
 
     if (window.TSSSB &&
       window.TSSSB.showUpdateBanner &&
-      updateStatus === UPDATE_STATUS.UPDATE_DOWNLOADED) {
+      updateInfo && updateStatus === UPDATE_STATUS.UPDATE_DOWNLOADED) {
 
       window.TSSSB.showUpdateBanner({
         canUpdate,
@@ -97,6 +103,14 @@ export class ReduxHelper extends ReduxComponent<ReduxHelperState> {
     }, {});
 
     return this.lastSelectedTeams.filter((x) => x in teamLookup);
+  }
+
+  public customMenuItemClickedEvent({ itemId }: { itemId: string }): void {
+    if (window.TSSSB &&
+      window.TSSSB.customMenuItemClicked &&
+      window.teamId === this.state.currentTeamId) {
+      window.TSSSB.customMenuItemClicked(itemId);
+    }
   }
 
   public systemTextSettingsChangedEvent(): void {

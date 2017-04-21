@@ -1,4 +1,8 @@
 /**
+ * @module Utilities
+ */ /** for typedoc */
+
+/**
  * A more lightweight implementation of  `_.pickBy` without support for iteratee shorthands.
  *
  * @param {Object} object The source object.

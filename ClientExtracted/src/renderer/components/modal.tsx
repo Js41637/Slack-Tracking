@@ -1,10 +1,14 @@
+/**
+ * @module RendererComponents
+ */ /** for typedoc */
+
 import * as ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import * as assignIn from 'lodash.assignin';
-import {Observable} from 'rxjs/Observable';
+import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/observable/fromEvent';
 
-import {noop} from '../../utils/noop';
-import {Component} from '../../lib/component';
+import { noop } from '../../utils/noop';
+import { Component } from '../../lib/component';
 
 import * as React from 'react'; // tslint:disable-line:no-unused-variable
 

@@ -1,3 +1,7 @@
+/**
+ * @module SharedConstants
+ */ /** for typedoc */
+
 export const SIDEBAR_WIDTH = 68;
 export const SIDEBAR_ROW_HEIGHT = 72;
 export const SIDEBAR_ICON_SIZE = 36;
@@ -10,8 +14,6 @@ export const CHANNEL_HEADER_HEIGHT = 65;
 
 export const SLACK_PROTOCOL = 'slack:';
 export const SLACK_CORP_TEAM_ID = 'T024BE7LD';
-
-export const TEAM_SIGNOUT_TIMEOUT = 60000;
 
 export type windowType = 'MAIN' | 'NOTIFICATIONS' | 'WEBAPP' | 'OTHER';
 export const WINDOW_TYPES = {
@@ -59,16 +61,47 @@ export const UPDATE_STATUS = {
 
 export type networkStatusType = 'online' | 'slackDown' | 'offline' | 'connectionTrouble';
 
+export type ReleaseChannel = 'prod' | 'alpha' | 'beta';
+export type MigrationType = 'redux' | 'macgap';
+
 export interface UpdateInformation {
   releaseNotes: string;
   releaseName: string;
-  releaseDate: string;
+  releaseDate: Date;
 }
 
-export const IS_STORE_BUILD = process.mas || process.windowsStore;
-export const IS_BOOTED_EVAL = `!!(typeof TSSSB !== 'undefined' && TS && TS.boot_data)`;
+export interface UpdaterOption {
+  version: string;
+  releaseChannel?: ReleaseChannel;
+  ssbUpdateUrl?: string;
+  credentials?: Credentials;
+}
 
-export const DEFAULT_CLEAR_STORAGE_OPTIONS = {
+export interface Credentials {
+  username: string;
+  password: string;
+}
+
+export interface Region {
+  width: number;
+  height: number;
+  top: number;
+  left: number;
+  id: string;
+}
+
+export interface StringMap<T> {
+  [key: string]: T;
+}
+
+export type MenuItemsMap = StringMap<Array<Electron.MenuItemOptions>> | null;
+export const IS_WINDOWS_STORE = process.windowsStore;
+export const IS_STORE_BUILD = process.mas || IS_WINDOWS_STORE;
+export const IS_SIGNED_IN_EVAL = `!!(typeof TSSSB !== 'undefined' && TS && TS.boot_data)`;
+
+export const DEFAULT_CLEAR_STORAGE_OPTIONS: Electron.ClearStorageDataOptions = {
   storages: [ 'appcache', 'cookies', 'filesystem', 'indexdb', 'localstorage', 'shadercache', 'websql', 'serviceworkers' ],
   quotas: [ 'temporary', 'persistent', 'syncable' ]
 };
+
+export const UUID_FILENAME = 'installation';

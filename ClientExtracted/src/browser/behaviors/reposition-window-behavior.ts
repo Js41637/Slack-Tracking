@@ -1,8 +1,12 @@
-import {screen} from 'electron';
-import {WindowBehavior, WindowGeometrySetting} from './window-behavior';
-import {Subscription} from 'rxjs/Subscription';
-import {Observable} from 'rxjs/Observable';
-import {Scheduler} from 'rxjs/Scheduler';
+/**
+ * @module BrowserBehaviors
+ */ /** for typedoc */
+
+import { screen } from 'electron';
+import { Subscription } from 'rxjs/Subscription';
+import { Observable } from 'rxjs/Observable';
+import { Scheduler } from 'rxjs/Scheduler';
+
 import 'rxjs/add/observable/fromEvent';
 import 'rxjs/add/observable/merge';
 import 'rxjs/add/observable/empty';
@@ -11,7 +15,8 @@ import 'rxjs/add/operator/filter';
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/throttleTime';
 
-const d = require('debug')('reposition-window-behavior');
+import { logger } from '../../logger';
+import { WindowBehavior, WindowGeometrySetting } from './window-behavior';
 
 export type recalculateWinPositionFnType = (browserWindow: Electron.BrowserWindow) => void;
 
@@ -23,15 +28,16 @@ export class RepositionWindowBehavior extends WindowBehavior {
    * @return {Boolean}           True if the window is within bounds, false if
    * the window is mostly off-screen
    */
-  public static windowPositionInBounds({position, size}: WindowGeometrySetting): boolean {
+  public static windowPositionInBounds({ position, size }: WindowGeometrySetting): boolean {
     const [x, y] = position;
-    const [width, height] = size;
+    const width = size[0] || 0;
+    const height = size[1] || 0;
     const windowRect = [x, y, width, height];
 
     // NB: Check for bizarro sizes and fail them
     if (width < 10 || height < 10) return false;
 
-    return !!screen.getAllDisplays().find(({bounds}) => {
+    return !!screen.getAllDisplays().find(({ bounds }) => {
       const displayRect = [
         bounds.x,
         bounds.y,
@@ -39,9 +45,7 @@ export class RepositionWindowBehavior extends WindowBehavior {
         bounds.height
       ];
 
-      const result = RepositionWindowBehavior.rectIsMostlyContainedIn(windowRect as Array<number>, displayRect);
-      d(`Window ${JSON.stringify(windowRect)} is mostly contained in ${JSON.stringify(displayRect)}: ${result}`);
-      return result;
+      return RepositionWindowBehavior.rectIsMostlyContainedIn(windowRect as Array<number>, displayRect);
     });
   }
 
@@ -55,23 +59,27 @@ export class RepositionWindowBehavior extends WindowBehavior {
    * @return {WindowGeometrySetting}           An object with window geometry
    */
   public static calculateDefaultPosition(settings?: WindowGeometrySetting,
-                                         percentSize: {x: number, y: number} = {x: 0.6, y: 0.8}): WindowGeometrySetting {
+                                         percentSize: {x: number, y: number} = { x: 0.6, y: 0.8 }): WindowGeometrySetting {
     let activeDisplay = screen.getPrimaryDisplay();
 
     // If we were given existing window metrics, try to return a position
     // within the same display.
     if (settings) {
-      const centerPoint = {
-        x: Math.round(settings.position[0] + settings.size[0] / 2.0),
-        y: Math.round(settings.position[1] + settings.size[1] / 2.0)
-      };
-      activeDisplay = screen.getDisplayNearestPoint(centerPoint);
+      const x = (settings.position[0] || 0) + (settings.size[0] || 0);
+      const y = (settings.position[1] || 0) + (settings.size[1] || 0);
+      if (x > 0 && y > 0) {
+        const centerPoint = {
+          x: Math.round(x / 2.0),
+          y: Math.round(y / 2.0)
+        };
+
+        activeDisplay = screen.getDisplayNearestPoint(centerPoint);
+      }
     }
 
     const bounds = activeDisplay.workArea;
 
-    const windowWidth = Math.round(bounds.width * percentSize.x);
-    const windowHeight = Math.round(bounds.height * percentSize.y);
+    const { width: windowWidth, height: windowHeight } = RepositionWindowBehavior.getDefaultWindowSize(bounds, percentSize);
 
     const centerX = bounds.x + bounds.width / 2.0;
     const centerY = bounds.y + bounds.height / 2.0;
@@ -106,10 +114,10 @@ export class RepositionWindowBehavior extends WindowBehavior {
 
     const position = [params.x, params.y];
     const size = [params.width, params.height];
-    const inDisplay = this.windowPositionInBounds({position, size});
+    const inDisplay = this.windowPositionInBounds({ position, size });
 
     if (!inDisplay) {
-      const newPos = this.calculateDefaultPosition({position, size});
+      const newPos = this.calculateDefaultPosition({ position, size });
 
       // Should never happen, but better save then sorry
       if (!newPos.position || newPos.position.length < 2 || !newPos.size || newPos.size.length < 2) return params;
@@ -135,16 +143,16 @@ export class RepositionWindowBehavior extends WindowBehavior {
   public static moveRectToDisplay(rect: Electron.Rectangle,
                                   browserWindow: Electron.BrowserWindow): Electron.Rectangle {
     if (!rect || !browserWindow) {
-      d('Called moveRectToDisplay with insufficient parameters');
+      logger.warn('RepositionWindowBehavior: Called moveRectToDisplay with insufficient parameters');
       return rect;
     }
 
     if (!rect.x || !rect.y) {
-      d('Rect does not contain values to determine display matching');
+      logger.warn('RepositionWindowBehavior: Rect is missing coordinates', rect);
       return rect;
     }
 
-    let ret = (Object.assign as any)(...Object.keys(rect).map((key) => ({[key]: Math.round(rect[key])})));
+    let ret = (Object.assign as any)(...Object.keys(rect).map((key) => ({ [key]: Math.round(rect[key]) })));
 
     const senderDisplay = screen.getDisplayMatching(browserWindow.getBounds());
     const paramsDisplay = screen.getDisplayMatching(ret);
@@ -172,18 +180,18 @@ export class RepositionWindowBehavior extends WindowBehavior {
   private static rectIsMostlyContainedIn(
     [x, y, width, height]: Array<number>,
     [hostX, hostY, hostWidth, hostHeight]: Array<number>,
-    fudgeFactor: {width: number, height: number} = {width: 0.2, height: 0.2}): boolean {
+    fudgeFactor: {width: number, height: number} = { width: 0.2, height: 0.2 }): boolean {
 
     const leftMost = x + (width * fudgeFactor.width);
     const topMost = y + (height * fudgeFactor.height);
 
     if (leftMost < hostX) {
-      d(`Window too far left for display`);
+      logger.info(`RepositionWindowBehavior: Window too far left for display (${leftMost} < ${hostX})`);
       return false;
     }
 
     if (topMost < hostY) {
-      d(`Window too far top for display`);
+      logger.info(`RepositionWindowBehavior: Window too far top for display (${topMost} < ${hostY})`);
       return false;
     }
 
@@ -191,12 +199,12 @@ export class RepositionWindowBehavior extends WindowBehavior {
     const bottomMost = y + height - (height * fudgeFactor.height);
 
     if (rightMost > hostX + hostWidth) {
-      d(`Window too far right for display`);
+      logger.info(`RepositionWindowBehavior: Window too far right for display (${rightMost} > ${hostX + hostWidth})`);
       return false;
     }
 
     if (bottomMost > hostY + hostHeight) {
-      d(`Window too far bottom for display`);
+      logger.info(`RepositionWindowBehavior: Window too far bottom for display (${bottomMost} > ${hostY + hostHeight})`);
       return false;
     }
 
@@ -217,6 +225,37 @@ export class RepositionWindowBehavior extends WindowBehavior {
     return {
       x: bounds.x + bounds.width / 2.0,
       y: bounds.y + bounds.height / 2.0
+    };
+  }
+
+  /**
+   * Calculates the default window size based on an ideal minimum window size (1024 x 768 by default):
+   * if the display's size is at least as large as the ideal minimum window size, the window size will be at
+   * least as large as the ideal minimum window size; if the display size is less than the ideal minimum window size,
+   * the window size will fill the screen.
+   *
+   * @param  {Electron.Rectangle} displaySize     The current size of the display
+   * @param  {Object} percentSize                 Determines the percentage of the display the
+   * window should be resized to fill
+   * @return {Object}                             An object representing the window dimensions
+   */
+  private static getDefaultWindowSize(displaySize: Electron.Rectangle,
+                                      percentSize: {x: number, y: number}): {width: number, height: number} {
+    const idealMinWindowSize = {
+      width: 1024,
+      height: 768
+    };
+
+    // Sometimes, Electron doesn't _really_ understand that there's a taskbar
+    // So we'll just shave an extra 30px of the workare
+    const { width, height: displayHeight } = displaySize;
+    const height = process.platform === 'win32' ? displayHeight - 30 : displayHeight;
+    const windowWidth =  width < idealMinWindowSize.width ? width : Math.max(idealMinWindowSize.width, Math.round(width * percentSize.x));
+    const windowHeight = height < idealMinWindowSize.height ? height : Math.max(idealMinWindowSize.height, Math.round(height * percentSize.y));
+
+    return {
+      width: windowWidth,
+      height: windowHeight
     };
   }
 
@@ -253,11 +292,8 @@ export class RepositionWindowBehavior extends WindowBehavior {
    */
   public setup(browserWindow: Electron.BrowserWindow, scheduler?: Scheduler): Subscription {
     if (process.platform === 'darwin' && !global.loadSettings.testMode) {
-      d("Don't reposition windows on Mac");
       return Subscription.EMPTY;
     }
-
-    d('Attaching behavior to window');
 
     if (!this.shouldRecheckWindowPos) {
       // `power-monitor` can only be used from the browser process.
@@ -275,7 +311,6 @@ export class RepositionWindowBehavior extends WindowBehavior {
     }
 
     return this.shouldRecheckWindowPos
-      .do(() => d('About to check window bounds against display'))
       .filter(() => {
         const coords = {
           position: browserWindow.getPosition(),
@@ -294,8 +329,8 @@ export class RepositionWindowBehavior extends WindowBehavior {
    * screen geometry changes.
    */
   private recalculateWindowPositionFunc: recalculateWinPositionFnType = (browserWindow: Electron.BrowserWindow) => {
-    const {position, size} = RepositionWindowBehavior.calculateDefaultPosition();
-    d(`Setting new window bounds: ${JSON.stringify(position)}, ${JSON.stringify(size)}`);
+    const { position, size } = RepositionWindowBehavior.calculateDefaultPosition();
+    logger.debug(`Setting new window bounds: ${JSON.stringify(position)}, ${JSON.stringify(size)}`);
 
     browserWindow.setPosition(position[0]!, position[1]!);
     browserWindow.setSize(size[0]!, size[1]!);

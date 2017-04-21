@@ -1,5 +1,9 @@
+/**
+ * @module RendererComponents
+ */ /** for typedoc */
+
 import * as ReactDOM from 'react-dom';
-import {logger} from '../../logger';
+import { logger } from '../../logger';
 
 import * as React from 'react'; // tslint:disable-line
 
@@ -38,7 +42,7 @@ function getComponent(): React.ComponentClass<any> | null {
       logger.error(`Component Window: Could not require component for component window: ${e.message}`);
     }
   } else {
-    logger.warn('window does not includes any loadSettings, skipping to create component');
+    logger.warn('Component Window: window does not includes any loadSettings, skipping to create component.');
   }
   return null;
 };

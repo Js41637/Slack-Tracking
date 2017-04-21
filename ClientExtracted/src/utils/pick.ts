@@ -1,4 +1,8 @@
-import {pickBy} from './pick-by';
+/**
+ * @module Utilities
+ */ /** for typedoc */
+
+import { pickBy } from './pick-by';
 
 /**
  * A more lightweight implementation of `_.pick` without support for individual

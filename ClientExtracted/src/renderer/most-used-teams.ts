@@ -1,4 +1,8 @@
-import {sum} from '../utils/sum';
+/**
+ * @module Renderer
+ */ /** for typedoc */
+
+import { sum } from '../utils/sum';
 import * as sortBy from 'lodash.sortby';
 
 /**

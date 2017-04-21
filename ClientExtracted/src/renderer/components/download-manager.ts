@@ -1,11 +1,15 @@
+/**
+ * @module RendererComponents
+ */ /** for typedoc */
+
 import * as assignIn from 'lodash.assignin';
 import * as fs from 'graceful-fs';
-import {remote, ipcRenderer} from 'electron';
+import { remote, ipcRenderer } from 'electron';
 
-import {downloadStore} from '../../stores/download-store';
-import {ObservableStorage} from '../observable-storage';
-import {ReduxComponent} from '../../lib/redux-component';
-import {Component} from '../../lib/component';
+import { downloadStore } from '../../stores/download-store';
+import { ObservableStorage } from '../observable-storage';
+import { ReduxComponent } from '../../lib/redux-component';
+import { Component } from '../../lib/component';
 
 const d = require('debug')('downloads:manager');
 
@@ -47,7 +51,7 @@ export class DownloadManager extends ReduxComponent<DownloadManagerState> {
   private readonly storage: ObservableStorage;
   private readonly downloadsByToken = {};
 
-  constructor(options: {teamView: TeamViewBase, storage?: ObservableStorage} = {teamView: null as any}) {
+  constructor(options: {teamView: TeamViewBase, storage?: ObservableStorage} = { teamView: null as any }) {
     super();
 
     if (!options.teamView) {
@@ -90,7 +94,7 @@ export class DownloadManager extends ReduxComponent<DownloadManagerState> {
     };
   }
 
-  public startDownload({token, url, teamId}: DownloadInformation): void {
+  public startDownload({ token, url, teamId }: DownloadInformation): void {
     // {DownloadListener} tracks downloads for all teams, so we'll receive
     // events that might not pertain to us
     if (this.teamId !== teamId) return;
@@ -108,7 +112,7 @@ export class DownloadManager extends ReduxComponent<DownloadManagerState> {
     this.teamView.downloadURL(url!);
   }
 
-  public retryDownload({token}: DownloadInformation): void {
+  public retryDownload({ token }: DownloadInformation): void {
     const metadata = this.downloadsByToken[token];
     if (metadata && metadata.href) {
       this.startDownload({
@@ -121,7 +125,7 @@ export class DownloadManager extends ReduxComponent<DownloadManagerState> {
     }
   }
 
-  public revealDownload({token}: DownloadInformation): void {
+  public revealDownload({ token }: DownloadInformation): void {
     const metadata = this.downloadsByToken[token];
     if (metadata && fs.statSyncNoException(metadata.file_path)) {
       d(`Showing download in folder: ${metadata.file_path}`);
@@ -129,7 +133,7 @@ export class DownloadManager extends ReduxComponent<DownloadManagerState> {
     }
   }
 
-  public clearDownloads({tokens}: {tokens: Array<string>}): void {
+  public clearDownloads({ tokens }: {tokens: Array<string>}): void {
     d('Clearing all downloads');
 
     let shouldSave = false;
@@ -144,7 +148,7 @@ export class DownloadManager extends ReduxComponent<DownloadManagerState> {
   }
 
   // Based on the {Session} `will-download` event from the browser process
-  public downloadStarted({token, filePath}: DownloadInformation): Promise<any> {
+  public downloadStarted({ token, filePath }: DownloadInformation): Promise<any> {
     const metadata = this.downloadsByToken[token];
     if (!metadata) return Promise.resolve(null);
 
@@ -159,7 +163,7 @@ export class DownloadManager extends ReduxComponent<DownloadManagerState> {
   }
 
   // Based on the {DownloadItem} `done` event
-  public async downloadFinished({token, state}: DownloadInformation): Promise<any> {
+  public async downloadFinished({ token, state }: DownloadInformation): Promise<any> {
     const metadata = this.downloadsByToken[token];
     if (!metadata) return;
 
@@ -196,7 +200,7 @@ export class DownloadManager extends ReduxComponent<DownloadManagerState> {
 
   // Saves the download metadata to {ObservableStorage}
   private async save(): Promise<void> {
-    this.storage.data = {downloadsByToken: this.downloadsByToken};
+    this.storage.data = { downloadsByToken: this.downloadsByToken };
     this.storage.save();
     await this.syncWebApp();
   }
@@ -206,7 +210,7 @@ export class DownloadManager extends ReduxComponent<DownloadManagerState> {
     for (const token of Object.keys(this.downloadsByToken)) {
       const state = this.downloadsByToken[token].state;
       if (state === 'failed') {
-        this.retryDownload({token});
+        this.retryDownload({ token });
       }
     }
   }
@@ -225,7 +229,7 @@ export class DownloadManager extends ReduxComponent<DownloadManagerState> {
   }
 
   // Based on the {DownloadItem} `updated` event
-  private downloadUpdated({token, progress}: DownloadInformation): Promise<any> {
+  private downloadUpdated({ token, progress }: DownloadInformation): Promise<any> {
     const metadata = this.downloadsByToken[token];
     if (!metadata) return Promise.resolve(null);
 

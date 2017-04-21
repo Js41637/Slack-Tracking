@@ -1,5 +1,9 @@
-import {WINDOW_TYPES} from '../utils/shared-constants';
-import {BaseStore} from '../lib/base-store';
+/**
+ * @module Stores
+ */ /** for typedoc */
+
+import { WINDOW_TYPES } from '../utils/shared-constants';
+import { BaseStore } from '../lib/base-store';
 
 const isBrowser = process.type === 'browser';
 const isWebapp = process.guestInstanceId || global.loadSettings.windowType === WINDOW_TYPES.WEBAPP;

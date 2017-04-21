@@ -1,5 +1,11 @@
-import {Store} from '../lib/store';
-import {UrlScheme, Credentials, BalloonContent, AuthenticationInfo} from '../actions/dialog-actions';
+/**
+ * @module Stores
+ */ /** for typedoc */
+
+import { Store } from '../lib/store';
+import { UrlScheme, BalloonContent } from '../actions/dialog-actions';
+import { Credentials } from '../utils/shared-constants';
+
 /*
   Handles all data related to dialogs and other popup-y
   windows.
@@ -13,7 +19,7 @@ export class DialogStore {
     return this.dialog.isShowingLoginDialog;
   }
 
-  public getInfoForAuthDialog(): AuthenticationInfo {
+  public getInfoForAuthDialog(): Electron.LoginAuthInfo {
     return this.dialog.authInfo;
   }
 

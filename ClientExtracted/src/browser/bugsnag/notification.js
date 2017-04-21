@@ -1,14 +1,13 @@
 
 var Utils = require("./utils"),
     Configuration = require("./configuration"),
-    requestInfo = require("./request_info"),
-    path = require("path");
+    requestInfo = require("./request_info");
 
 const { requireTaskPool } = require('electron-remote');
 const remoteAjax = requireTaskPool(require.resolve('electron-remote/remote-ajax'));
 
 var NOTIFIER_NAME = "Bugsnag Node Notifier",
-    NOTIFIER_VERSION = Utils.getPackageVersion(path.join(__dirname, '..', 'package.json')),
+    NOTIFIER_VERSION = '1.9.0',// original pkg read reporter version from package.json, but we can't - manually hardcode it.
     NOTIFIER_URL = "https://github.com/bugsnag/bugsnag-node",
     SUPPORTED_SEVERITIES = ["error", "warning", "info"];
 
@@ -133,7 +132,7 @@ Notification.prototype._deliver = function (cb) {
     }
 
     // Filter before sending
-    Utils.filterObject(this.events[0].metaData, Configuration.filters);
+    this.events[0].metaData = Utils.filterObject(this.events[0].metaData, Configuration.filters);
 
     var port = Configuration.notifyPort || (Configuration.useSSL ? 443 : 80);
 
@@ -152,10 +151,14 @@ Notification.prototype._deliver = function (cb) {
         return value;
     });
 
+    var headers = Utils.cloneObject(Configuration.headers || {});
+    headers["Content-Type"] = "application/json";
+
     var options = {
         url: "" + (Configuration.useSSL ? "https" : "http") + "://" + Configuration.notifyHost + ":" + port + Configuration.notifyPath,
+        proxy: Configuration.proxy,
         body: payload,
-        headers: { "Content-Type": 'application/json', },
+        headers: headers,
         crossDomain: true
     };
 

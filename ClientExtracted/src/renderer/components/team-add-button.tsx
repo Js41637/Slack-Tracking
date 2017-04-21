@@ -1,7 +1,11 @@
+/**
+ * @module RendererComponents
+ */ /** for typedoc */
+
 import * as React from 'react'; // tslint:disable-line:no-unused-variable
 
-import {Component} from '../../lib/component';
-import {intl as $intl, LOCALE_NAMESPACE} from '../../i18n/intl';
+import { Component } from '../../lib/component';
+import { intl as $intl, LOCALE_NAMESPACE } from '../../i18n/intl';
 
 const ITEM_MARGIN_BETWEEN = 16;
 

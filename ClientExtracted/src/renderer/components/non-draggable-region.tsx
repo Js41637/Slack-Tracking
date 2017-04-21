@@ -1,5 +1,9 @@
-import {Region} from '../../region';
-import {Component} from '../../lib/component';
+/**
+ * @module RendererComponents
+ */ /** for typedoc */
+
+import { Region } from '../../utils/shared-constants';
+import { Component } from '../../lib/component';
 
 import * as React from 'react'; // tslint:disable-line
 
@@ -15,7 +19,7 @@ export class NonDraggableRegion extends Component<NonDraggableRegionProps, NonDr
       <div
         className='NonDraggableRegion'
         tabIndex={-1}
-        style={{width: this.props.width, height: this.props.height, left: this.props.left, top: this.props.top}}
+        style={{ width: this.props.width, height: this.props.height, left: this.props.left, top: this.props.top }}
       />
     );
   }

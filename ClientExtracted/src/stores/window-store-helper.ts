@@ -1,7 +1,10 @@
-import {MiddlewareAPI} from 'redux';
-import {windowType} from '../utils/shared-constants';
-import {pickBy} from '../utils/pick-by';
-import {StringMap} from '../utils/string-map';
+/**
+ * @module Stores
+ */ /** for typedoc */
+
+import { MiddlewareAPI } from 'redux';
+import { StringMap, windowType } from '../utils/shared-constants';
+import { pickBy } from '../utils/pick-by';
 
 export interface Window {
   subType: any;
@@ -21,5 +24,5 @@ export function getWindowOfType(store: MiddlewareAPI<any>, windowType: windowTyp
 export function getWindows(store: MiddlewareAPI<any>, windowTypes: Array<windowType>): StringMap<Window> {
   const windows = store.getState().windows;
   if (!windowTypes) return windows;
-  return pickBy<StringMap<Window>, any>(windows, ({type}) => windowTypes.includes(type));
+  return pickBy<StringMap<Window>, any>(windows, ({ type }) => windowTypes.includes(type));
 }

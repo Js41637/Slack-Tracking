@@ -1,6 +1,10 @@
+/**
+ * @module Utilities
+ */ /** for typedoc */
+
 import * as collect from '@paulcbetts/gc';
-import {Module} from 'module';
-import {Subject} from 'rxjs/Subject';
+import { Module } from 'module';
+import { Subject } from 'rxjs/Subject';
 import './rx-operators';
 
 const gcSignal = new Subject();

@@ -1,5 +1,10 @@
-import {TileNotification} from 'electron-windows-notifications';
-import {logger} from '../../logger';
+/**
+ * @module Notifications
+ */ /** for typedoc */
+
+import { TileNotification } from 'electron-windows-notifications';
+import { logger } from '../../logger';
+import { IS_WINDOWS_STORE } from '../../utils/shared-constants';
 
 function getTemplate(image, base) {
   return `<tile>
@@ -30,7 +35,7 @@ function getTemplate(image, base) {
 }
 
 export default function showNotification(options) {
-  if (!process.windowsStore) return;
+  if (!IS_WINDOWS_STORE) return;
 
   const title = options.title || '';
   const body = options.body || '';

@@ -1,12 +1,17 @@
-import * as Color from 'color';
-import {WinWindowControls} from './win-titlebar-controls';
-import {WinHamburger} from './win-titlebar-hamburger';
-import {Component} from '../../lib/component';
-import {appTeamsStore} from '../../stores/app-teams-store';
-import {teamStore} from '../../stores/team-store';
-import {getSidebarColor, getTextColor} from '../../utils/color';
+/**
+ * @module RendererComponents
+ */ /** for typedoc */
 
-import {intl as $intl, LOCALE_NAMESPACE} from '../../i18n/intl';
+import * as Color from 'color';
+import { WinWindowControls } from './win-titlebar-controls';
+import { WinHamburger } from './win-titlebar-hamburger';
+import { Component } from '../../lib/component';
+import { appTeamsStore } from '../../stores/app-teams-store';
+import { teamStore } from '../../stores/team-store';
+import { getSidebarColor, getTextColor } from '../../utils/color';
+import { RazerChroma } from './razer-chroma';
+
+import { intl as $intl, LOCALE_NAMESPACE } from '../../i18n/intl';
 
 import * as React from 'react'; // tslint:disable-line:no-unused-variable
 
@@ -45,18 +50,20 @@ export class WinTitlebar extends Component<WinTitlebarProps, WinTitlebarState> {
     let backgroundColor = defaultBackgroundColor;
     let textColor = defaultTextColor;
     let title = defaultTitle;
+    let sidebarColor;
 
     if (this.state.selectedTeam) {
-      const sidebarColor = getSidebarColor(this.state.selectedTeam);
+      sidebarColor = getSidebarColor(this.state.selectedTeam);
       backgroundColor = Color(sidebarColor).darken(0.15).rgbaString();
       textColor = getTextColor(this.state.selectedTeam);
-      title = $intl.t(`Slack - {teamName}`, LOCALE_NAMESPACE.GENERAL)({teamName: this.state.selectedTeam.team_name});
+      title = $intl.t(`Slack - {teamName}`, LOCALE_NAMESPACE.GENERAL)({ teamName: this.state.selectedTeam.team_name });
     }
 
     const style = { backgroundColor, color: textColor };
 
     return (
       <div className='Windows-Titlebar' style={style}>
+        <RazerChroma keyboardColor={Color(sidebarColor)} />
         <WinHamburger fillColor={textColor} />
         <div className='Windows-Titlebar-title'>
           {title}
