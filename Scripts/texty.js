@@ -13673,10 +13673,10 @@
     }, {
       key: "onCompositionEnd",
       value: function onCompositionEnd() {
-        var _this3 = this;
+        var _this4 = this;
         this.state.isInComposition = false;
         setTimeout(function() {
-          return _this3.maybeCompleteAtCursor("user");
+          return _this4.maybeCompleteAtCursor("user");
         }, 0);
       }
     }, {
@@ -13785,7 +13785,7 @@
     }, {
       key: "search",
       value: function search(_ref5) {
-        var _this4 = this;
+        var _this5 = this;
         var match = _ref5.match,
           _ref5$insertFirstResu = _ref5.insertFirstResult,
           insertFirstResult = _ref5$insertFirstResu === undefined ? false : _ref5$insertFirstResu,
@@ -13806,15 +13806,15 @@
         }, this.options.searchOptions);
         match.completer.search(match.text, searchParams, function(err) {
           var results = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
-          if (match.text !== _this4.state.searchInFlight) {
-            _this4.options.log('TabComplete: ignoring stale search for "' + match.text + '"');
+          if (match.text !== _this5.state.searchInFlight) {
+            _this5.options.log('TabComplete: ignoring stale search for "' + match.text + '"');
             return;
           }
-          _this4.state.prevMatch = (0, _utils.assign)({
+          _this5.state.prevMatch = (0, _utils.assign)({
             results: results
           }, match);
-          var actuallyInsertFirstResult = !_this4.state.prevInsertText && insertFirstResult;
-          _this4.handleSearchResults(err, results, actuallyInsertFirstResult, isUserSolicited);
+          var actuallyInsertFirstResult = !_this5.state.prevInsertText && insertFirstResult;
+          _this5.handleSearchResults(err, results, actuallyInsertFirstResult, isUserSolicited);
         });
       }
     }, {
@@ -15357,6 +15357,8 @@
         var node = _get(SlackMention.__proto__ || Object.getPrototypeOf(SlackMention), "create", this).call(this, value);
         node.setAttribute("data-id", value.id);
         node.setAttribute("data-label", value.label);
+        node.setAttribute("spellcheck", "false");
+        if (value.mention) node.setAttribute("class", "mention");
         return node;
       }
     }, {
@@ -15364,7 +15366,8 @@
       value: function formats(domNode) {
         return {
           id: domNode.getAttribute("data-id"),
-          label: domNode.getAttribute("data-label")
+          label: domNode.getAttribute("data-label"),
+          mention: domNode.getAttribute("class") === "mention"
         };
       }
     }]);

@@ -4,7 +4,7 @@
   <header{{#if query}} class="query_header"{{/if}}>
     {{#unless query}}
       <span class="header_label">{{#t}}Narrow your search{{/t}}</span>
-      <a class="learn_more_link ts_icon ts_icon_info_circle ts_icon_inherit ts_tip ts_tip_left" href="https://get.slack.help/hc/en-us/articles/202528808-Searching-in-Slack" target="{{newWindowName}}">
+      <a class="learn_more_link ts_icon ts_icon_info_circle ts_icon_inherit ts_tip ts_tip_left" href="https://get.slack.help/hc/en-us/articles/202528808-Searching-in-Slack" target="{{newWindowName}}" tabindex="-1">
         <span class="ts_tip_tip">{{#t}}Learn more{{/t}}</span>
       </a>
     {{else}}
@@ -22,7 +22,7 @@
   <ol class="results modifiers">
     {{#each modifiers}}
       <li data-replacement="{{modifier}}{{matching_keyword}}"{{#if matching_keyword}} data-matching-keyword="{{matching_keyword}}"{{/if}}>
-        <button class="result_item_btn btn_unstyle" type="button">
+        <button class="result_item_btn btn_unstyle" type="button" tabindex="-1">
           {{#if matching_keyword}}
             <span class="modifier muted_text">{{name}}</span>
             <strong class="keyword">{{matching_keyword}}</strong>
@@ -42,7 +42,7 @@
 {{#if modifier_groups}}
   <ol class="conversation_modifiers results modifiers" aria-label="{{#t}}conversation modifier{{/t}}">
     <li data-replacement="from:">
-      <button class="result_item_btn btn_unstyle" type="button">
+      <button class="result_item_btn btn_unstyle" type="button" tabindex="-1">
         <strong>{{#t}}from: {{/t}}</strong>
         {{#feature flag="feature_name_tagging_client"}}
         <span class="muted_text">{{#t}}team member{{/t}}</span>
@@ -53,14 +53,14 @@
       </button>
     </li>
     <li data-replacement="in:">
-      <button class="result_item_btn btn_unstyle" type="button">
+      <button class="result_item_btn btn_unstyle" type="button" tabindex="-1">
         {{#t}}<strong>in: </strong>
         <span class="muted_text">channel or direct message</span>{{/t}}
         {{> ts_icon class="ts_icon_plus_square_o ts_icon_inherit modifier_icon"}}
       </button>
     </li>
     <li data-replacement="has:">
-      <button class="result_item_btn btn_unstyle" type="button">
+      <button class="result_item_btn btn_unstyle" type="button" tabindex="-1">
         {{#t}}<strong>has: </strong>
         <span class="muted_text">star, link, or reaction</span>{{/t}}
         {{> ts_icon class="ts_icon_plus_square_o ts_icon_inherit modifier_icon"}}
@@ -70,21 +70,21 @@
 
   <ol class="time_modifiers results modifiers" aria-label="{{#t}}time modifier{{/t}}">
     <li data-replacement="after:">
-      <button class="result_item_btn btn_unstyle" type="button">
+      <button class="result_item_btn btn_unstyle" type="button" tabindex="-1">
         {{#t}}<strong>after: </strong>
         <span class="muted_text">date</span>{{/t}}
         {{> ts_icon class="ts_icon_plus_square_o ts_icon_inherit modifier_icon"}}
       </button>
     </li>
     <li data-replacement="before:">
-      <button class="result_item_btn btn_unstyle" type="button">
+      <button class="result_item_btn btn_unstyle" type="button" tabindex="-1">
         {{#t}}<strong>before: </strong>
         <span class="muted_text">date</span>{{/t}}
         {{> ts_icon class="ts_icon_plus_square_o ts_icon_inherit modifier_icon"}}
       </button>
     </li>
     <li data-replacement="on:">
-      <button class="result_item_btn btn_unstyle" type="button">
+      <button class="result_item_btn btn_unstyle" type="button" tabindex="-1">
         {{#t}}<strong>on: </strong>
         <span class="muted_text">date, month or year</span>{{/t}}
         {{> ts_icon class="ts_icon_plus_square_o ts_icon_inherit modifier_icon"}}
@@ -102,7 +102,7 @@
     {{#each special}}
       {{#if is_channel}}
         <li data-replacement="{{../conversation_modifier}}#{{name}}">
-          <button class="result_item_btn btn_unstyle" type="button">
+          <button class="result_item_btn btn_unstyle" type="button" tabindex="-1">
             {{#if ../show_modifier}}
               <span>{{../conversation_modifier}}</span>
             {{/if}}
@@ -113,7 +113,7 @@
       {{else}}
         {{#if is_group}}
           <li data-replacement="{{../conversation_modifier}}{{name}}">
-            <button class="result_item_btn btn_unstyle" type="button">
+            <button class="result_item_btn btn_unstyle" type="button" tabindex="-1">
               {{#if ../show_modifier}}
                 <span>{{.../conversation_modifier}}</span>
               {{/if}}
@@ -124,7 +124,7 @@
         {{else}}
           {{#feature flag="feature_name_tagging_client"}}
             <li data-replacement="{{../conversation_modifier}}@{{name}}">
-              <button class="result_item_btn btn_unstyle" type="button">
+              <button class="result_item_btn btn_unstyle" type="button" tabindex="-1">
                 {{#if ../show_modifier}}
                   <span>{{../conversation_modifier}}</span>
                 {{/if}}
@@ -136,7 +136,7 @@
             </li>
           {{else}}
             <li data-replacement="{{../conversation_modifier}}@{{name}}">
-              <button class="result_item_btn btn_unstyle" type="button">
+              <button class="result_item_btn btn_unstyle" type="button" tabindex="-1">
                 {{#if ../show_modifier}}
                   <span>{{../conversation_modifier}}</span>
                 {{/if}}
@@ -164,7 +164,7 @@
     {{#each users}}
       {{#feature flag="feature_name_tagging_client"}}
         <li data-replacement="from:@{{name}}">
-          <button class="result_item_btn btn_unstyle" type="button">
+          <button class="result_item_btn btn_unstyle" type="button" tabindex="-1">
             {{#if ../show_modifier}}
               <span>{{#t}}from:{{/t}}</span>
             {{/if}}
@@ -180,7 +180,7 @@
         </li>
       {{else}}
         <li data-replacement="from:@{{name}}">
-          <button class="result_item_btn btn_unstyle" type="button">
+          <button class="result_item_btn btn_unstyle" type="button" tabindex="-1">
             {{#if ../show_modifier}}
               <span>{{#t}}from:{{/t}}</span>
             {{/if}}
@@ -213,7 +213,7 @@
       {{#each users_deleted}}
         {{#feature flag="feature_name_tagging_client"}}
           <li data-replacement="from:@{{name}}" class="hidden">
-            <button class="result_item_btn btn_unstyle" type="button">
+            <button class="result_item_btn btn_unstyle" type="button" tabindex="-1">
               {{#if ../show_modifier}}
                 <span>{{#t}}from:{{/t}}</span>
               {{/if}}
@@ -225,7 +225,7 @@
           </li>
         {{else}}
           <li data-replacement="from:@{{name}}" class="hidden">
-            <button class="result_item_btn btn_unstyle" type="button">
+            <button class="result_item_btn btn_unstyle" type="button" tabindex="-1">
               {{#if ../show_modifier}}
                 <span>{{#t}}from:{{/t}}</span>
               {{/if}}
@@ -252,7 +252,7 @@
   <ol class="results bots">
     {{#each bots}}
       <li data-replacement="{{../bot_modifier}}{{name}}">
-        <button class="result_item_btn btn_unstyle" type="button">
+        <button class="result_item_btn btn_unstyle" type="button" tabindex="-1">
           {{#if ../show_modifier}}
             <span>{{../bot_modifier}}</span>
           {{/if}}
@@ -271,7 +271,7 @@
   <ol class="results has">
     {{#each has}}
       <li data-replacement="has:{{name}}">
-        <button class="result_item_btn btn_unstyle" type="button">
+        <button class="result_item_btn btn_unstyle" type="button" tabindex="-1">
           {{#if ../show_modifier}}
             <span>{{#t}}has:{{/t}}</span>
           {{/if}}
@@ -295,7 +295,7 @@
             data-bot-id={{this.profile.bot_id}}
           {{/if}}
         >
-          <button class="result_item_btn btn_unstyle" type="button">
+          <button class="result_item_btn btn_unstyle" type="button" tabindex="-1">
             <div class="profile_image float_left small_right_margin">{{makeMemberPreviewLinkImage this.id 32 false true}}</div>
             <div class="search_mini overflow_ellipsis">
               <span class="black profile_full_name">{{getMemberFullName this}}</span>
@@ -322,7 +322,7 @@
             data-bot-id={{this.profile.bot_id}}
           {{/if}}
         >
-          <button class="result_item_btn btn_unstyle" type="button">
+          <button class="result_item_btn btn_unstyle" type="button" tabindex="-1">
             <div class="profile_image float_left small_right_margin">{{makeMemberPreviewLinkImage this.id 32 false true}}</div>
             <div class="search_mini overflow_ellipsis">
               <span class="black profile_username">{{name}}</span>
@@ -354,7 +354,7 @@
   <ol class="results history">
     {{#each history}}
       <li class="history_item with_two_actions" data-replacement="{{text}}">
-        <button class="result_item_btn btn_unstyle" type="button">
+        <button class="result_item_btn btn_unstyle" type="button" tabindex="-1">
           <span class="history_query">{{html}}</span>
 
           {{> ts_icon class="ts_icon_plus_square_o ts_icon_inherit modifier_icon"}}

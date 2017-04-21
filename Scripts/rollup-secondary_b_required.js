@@ -1901,6 +1901,9 @@
         return;
       }
       if (key == keymap.tab) {
+        if (TS.boot_data.feature_keyboard_navigation && _isElementTextInput(e.target) && $(e.target).val().length === 0) {
+          return;
+        }
         e.stopPropagation();
         e.preventDefault();
         _enableKeyboardMode();

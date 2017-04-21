@@ -3737,9 +3737,10 @@ var _cyrillicToLatin = function(char) {
     },
     emojiMatchesTerm: function(emoji, term, keywords) {
       if (!emoji || !term) return false;
-      var emoji_base_name = TS.emoji.nameToBaseName(emoji.name);
+      var emoji_base_name = TS.emoji.nameToBaseName(emoji.display_name || emoji.name);
       if (TS.emoji.substringMatchesName(emoji_base_name, term)) return true;
-      var aliases = emoji.names.split(" ");
+      var emoji_display_names = emoji.display_names || emoji.names;
+      var aliases = emoji_display_names.split(" ");
       for (var i = 0; i < aliases.length; i += 1) {
         if (TS.emoji.substringMatchesName(TS.emoji.nameToBaseName(aliases[i]), term)) return true;
       }
@@ -3792,7 +3793,7 @@ var _cyrillicToLatin = function(char) {
       }
       for (idx in customs) {
         custom = customs[idx];
-        if (typeof custom == "object") {
+        if (typeof custom === "object") {
           TS.model.emoji_complex_customs[idx] = custom;
           _emoji.data[idx] = [
             [], null, null, [idx], null, null, null, custom["apple"]
@@ -3814,7 +3815,7 @@ var _cyrillicToLatin = function(char) {
       }
       for (idx in customs) {
         custom = customs[idx];
-        if (typeof custom == "object" || custom.indexOf("alias:") !== 0) continue;
+        if (typeof custom === "object" || custom.indexOf("alias:") !== 0) continue;
         if (isEmojiNameTaken(idx)) {
           TS.error("can't ingest custom emoji :" + idx + ": because that already exists");
           continue;
@@ -3936,8 +3937,10 @@ var _cyrillicToLatin = function(char) {
           }
           cat_map[name] = {
             html: TS.emoji.graphicReplace(":" + name + ":"),
-            name: ":" + localized_name + ":",
-            names: ":" + localized_names.join(": :") + ":"
+            name: ":" + name + ":",
+            names: ":" + names.join(": :") + ":",
+            display_name: ":" + localized_name + ":",
+            display_names: ":" + localized_names.join(": :") + ":"
           };
           TS.model.emoji_map.push({
             id: "E" + idx + (i > 0 ? "_alias_" + i : ""),
@@ -3960,12 +3963,23 @@ var _cyrillicToLatin = function(char) {
               var colon_names_with_skins = names.map(function(n) {
                 return n + "::" + skin_name;
               });
+              var colon_display_name_with_skin = colon_name_with_skin;
+              var colon_display_names_with_skins = colon_names_with_skins;
+              if (TS.boot_data.feature_i18n_emoji && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE) {
+                var skin_display_name = TSFEmoji.getLocalEmojiString(skin_name, TS.i18n.locale());
+                colon_display_name_with_skin = ":" + localized_name + "::" + skin_display_name + ":";
+                colon_display_names_with_skins = localized_names.map(function(name) {
+                  return name + "::" + skin_display_name;
+                });
+              }
               cat_map[name_with_skin] = {
                 is_skin: true,
                 skin_tone_id: skin_name.substr(-1, 1),
                 html: TS.emoji.graphicReplace(colon_name_with_skin),
                 name: colon_name_with_skin,
-                names: ":" + colon_names_with_skins.join(": :") + ":"
+                names: ":" + colon_names_with_skins.join(": :") + ":",
+                display_name: colon_display_name_with_skin,
+                display_names: ":" + colon_display_names_with_skins.join(": :") + ":"
               };
             });
           }
@@ -4592,7 +4606,7 @@ var _cyrillicToLatin = function(char) {
           if (err) {
             TS.error('_executeInAtomSSBParentWin\n\n"' + code + '"\n\nreturned err: ' + err);
           } else {
-            var data_log = typeof data == "object" ? JSON.stringify(data, null, 2) : data;
+            var data_log = typeof data === "object" ? JSON.stringify(data, null, 2) : data;
             var pri = attempts == 1 ? 438 : 0;
             TS.log(pri, '_executeInAtomSSBParentWin\n\n"' + code + '"\n\nreturned data: ' + data_log);
           }
@@ -4642,7 +4656,7 @@ var _cyrillicToLatin = function(char) {
           if (err) {
             TS.error("_executeInAtomSSBWin token: " + win.token + '\n\n"' + code + '"\n\nreturned err: ' + err);
           } else {
-            var data_log = typeof data == "object" ? JSON.stringify(data, null, 2) : data;
+            var data_log = typeof data === "object" ? JSON.stringify(data, null, 2) : data;
             var pri = attempts == 1 ? 438 : 0;
             TS.log(pri, "_executeInAtomSSBWin token: " + win.token + '\n\n"' + code + '"\n\nreturned data: ' + data_log);
           }
@@ -4687,14 +4701,14 @@ var _cyrillicToLatin = function(char) {
     setUpWindowUnloadHandlers: function() {
       if (window.macgap) {
         window.onbeforeunload = TS.ui.onWindowUnload;
-      } else if (typeof window.addEventListener != "undefined") {
+      } else if (typeof window.addEventListener !== "undefined") {
         window.addEventListener("beforeunload", TS.ui.onWindowUnload, false);
-      } else if (typeof document.addEventListener != "undefined") {
+      } else if (typeof document.addEventListener !== "undefined") {
         document.addEventListener("beforeunload", TS.ui.onWindowUnload, false);
-      } else if (typeof window.attachEvent != "undefined") {
+      } else if (typeof window.attachEvent !== "undefined") {
         window.attachEvent("onbeforeunload", TS.ui.onWindowUnload);
       } else {
-        if (typeof window.onbeforeunload == "function") {
+        if (typeof window.onbeforeunload === "function") {
           window.onbeforeunload = function() {
             TS.ui.onWindowUnload();
             return false;

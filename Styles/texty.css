@@ -245,8 +245,14 @@
   resize: none!important;
   margin: 0 0 .5rem;
   font-size: 15px;
-  line-height: 1.2rem;
+  line-height: 1.4;
   color: #3D3C40
+}
+
+.feature_texty_mentions #file_comment_textarea.texty_comment_input,
+.feature_texty_mentions .comment_form .texty_comment_input,
+.feature_texty_mentions .edit_comment_form .texty_comment_input {
+  line-height: 1.46667
 }
 
 #file_comment_textarea.texty_comment_input.focus,
@@ -295,7 +301,7 @@
   tab-size: 8;
   -moz-tab-size: 8;
   font-variant-ligatures: none;
-  line-height: 1.2rem;
+  line-height: 1.4;
   -webkit-user-select: text;
   overflow: auto;
   max-height: 10rem;
@@ -303,6 +309,10 @@
   min-height: 39px;
   padding: 9px 30px 9px 9px;
   margin-right: 2px
+}
+
+.feature_texty_mentions .ql-editor {
+  line-height: 1.46667
 }
 
 .supports_custom_scrollbar .ql-container:not(.texty_single_line_input) .ql-editor {

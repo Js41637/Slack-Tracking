@@ -1,12 +1,12 @@
 {{i18n_ns "jumper"}}{{!-- don't add whitespace here, or the ts-jumper-results:empty selector won't be applied --}}{{#if matches}}{{!-- hbslint-disable unwrapped --}}{{!-- Todo: enable unwrapped linter --}}
   <ol class="no_pointer_events {{#if show_scores}}show_scores{{/if}}">{{!-- no_pointer_events to workaround webkit bug: see TS.ui.jumper._captureFakeMousemoveEvent() --}}
     {{#each matches}}
-      {{> jumper_results_row this}}
+      {{> jumper_results_row this=this jumper=..}}
     {{/each}}
     {{#if deleted}}
       <li class="deleted_count" data-item-id="deleted_count">{{#t}}Show { deleted.length, plural, =1 { # disabled account } other { # disabled accounts }}{{/t}}</li>
       {{#each deleted}}
-        {{> jumper_results_row this}}
+        {{> jumper_results_row this=this jumper=..}}
       {{/each}}
     {{/if}}
     {{#if show_extended_search}}
@@ -16,7 +16,7 @@
 {{else if deleted}}
   <ol class="no_pointer_events {{#if show_scores}}show_scores{{/if}} only_deleted">
     {{#each deleted}}
-      {{> jumper_results_row this}}
+      {{> jumper_results_row this=this jumper=..}}
     {{/each}}
   </ol>
 {{else if show_extended_search}}

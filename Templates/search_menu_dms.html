@@ -6,7 +6,7 @@
     {{#each dms}}
       {{#feature flag="feature_name_tagging_client"}}
         <li data-replacement="{{../conversation_modifier}}{{getMemberFullName this}}">
-          <button class="result_item_btn btn_unstyle" type="button">
+          <button class="result_item_btn btn_unstyle" type="button" tabindex="-1">
             {{#if ../show_modifier}}
               <span>{{../conversation_modifier}}</span>
             {{/if}}
@@ -18,7 +18,7 @@
         </li>
       {{else}}
         <li data-replacement="{{../conversation_modifier}}@{{name}}">
-          <button class="result_item_btn btn_unstyle" type="button">
+          <button class="result_item_btn btn_unstyle" type="button" tabindex="-1">
             {{#if ../show_modifier}}
               <span>{{../conversation_modifier}}</span>
             {{/if}}
@@ -46,7 +46,7 @@
       {{#each dms_deleted}}
         {{#feature flag="feature_name_tagging_client"}}
           <li data-replacement="{{../conversation_modifier}}{{getMemberFullName this}}" class="hidden">
-            <button class="result_item_btn btn_unstyle" type="button">
+            <button class="result_item_btn btn_unstyle" type="button" tabindex="-1">
               {{#if ../show_modifier}}
                 <span>{{../conversation_modifier}}</span>
               {{/if}}
@@ -58,7 +58,7 @@
           </li>
         {{else}}
           <li data-replacement="{{../conversation_modifier}}@{{name}}" class="hidden">
-            <button class="result_item_btn btn_unstyle" type="button">
+            <button class="result_item_btn btn_unstyle" type="button" tabindex="-1">
               {{#if ../show_modifier}}
                 <span>{{../conversation_modifier}}</span>
               {{/if}}

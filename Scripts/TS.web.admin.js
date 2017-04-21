@@ -1878,7 +1878,14 @@
       }
       if (!ok) {
         TS.error("failed onMemberSetRestricted");
-        $("#step2_restricted").find(".error_message").removeClass("hidden").end().find(".api_set_restricted").removeClass("disabled").prop("disabled", false).text(TS.i18n.t("Try Again", "web_admin")());
+        if (data.error == "not_permitted_for_user_on_enterprise") {
+          var error_message = TS.i18n.t("Oops! You cannot make this user a Multi-Channel Guest because they are on multiple teams in this Organization.", "web_admin")();
+          var error_alert = '<p class="alert alert_info align_left"><i class="ts_icon ts_icon_warning small_right_margin"></i>' + error_message + "</p>";
+          TS.web.admin.rowError(member, error_message);
+          $("#step2_restricted").find("#convert_to_ra_confirmation").after(error_alert);
+        } else {
+          $("#step2_restricted").find(".error_message").removeClass("hidden").end().find(".api_set_restricted").removeClass("disabled").prop("disabled", false).text(TS.i18n.t("Try Again", "web_admin")());
+        }
         return;
       }
       if (_.isArray(data.memberships.channels)) {
@@ -1927,6 +1934,11 @@
         if (data.error == "ura_limit_reached") {
           var error = '<p class="alert alert_info align_left"><i class="ts_icon ts_icon_warning small_right_margin"></i>' + TS.i18n.t("You’ve reached your limit for the number of Single-Channel Guests you can invite. You must invite more paid team members before you can add more Single-Channel Guests.", "web_admin")() + "</p>";
           $("#step2_guest").find("#convert_to_ura_confirmation").after(error);
+        } else if (data.error == "not_permitted_for_user_on_enterprise") {
+          var error_message = TS.i18n.t("Oops! You cannot make this user a Single-Channel Guest because they are on multiple teams in this Organization.", "web_admin")();
+          var error_alert = '<p class="alert alert_info align_left"><i class="ts_icon ts_icon_warning small_right_margin"></i>' + error_message + "</p>";
+          TS.web.admin.rowError(member, error_message);
+          $("#step2_guest").find("#convert_to_ura_confirmation").after(error_alert);
         } else {
           $("#step2_guest").find(".error_message").removeClass("hidden").end().find(".api_set_ultra_restricted").removeClass("disabled").prop("disabled", false).text(TS.i18n.t("Try Again", "web_admin")());
         }
@@ -1974,7 +1986,12 @@
       }
       if (!ok) {
         TS.error("failed onMemberUnrestricted");
-        TS.web.admin.rowError(member);
+        if (data.error == "not_permitted_for_user_on_enterprise") {
+          var error_message = TS.i18n.t("Oops! You cannot make this user a Full Member because they are on multiple teams in this Organization.", "web_admin")();
+          TS.web.admin.rowError(member, error_message);
+        } else {
+          TS.web.admin.rowError(member);
+        }
         return;
       }
       member.is_restricted = false;

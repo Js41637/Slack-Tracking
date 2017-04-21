@@ -82,7 +82,7 @@
           {{/unless}}
         </a></li>{{/isChannelRequired}}
       {{/if}}
-      {{#unless channel.is_moved}}
+      {{#unless (if_equal channel.is_moved compare=1)}}
         <li id="channel_unarchive_item" role="menuitem"><a>
           {{#unless channel.is_private}}
             {{#t}}Un-archive #{channel.name}{{/t}}

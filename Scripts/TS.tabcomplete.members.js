@@ -57,12 +57,14 @@
         }
       }
       if (TS.boot_data.feature_texty_mentions) {
+        var should_highlight = result.id === TS.model.user.id || result.is_subteam && TS.model.highlight_words.indexOf("@" + result.handle) !== -1;
         return {
           text: text,
           format: {
             slackmention: {
               id: result.id,
-              label: text
+              label: text,
+              mention: should_highlight
             }
           }
         };

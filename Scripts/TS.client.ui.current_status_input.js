@@ -339,11 +339,6 @@
         throw error;
       }.bind(this)).then(function() {
         this.clogStatusChange(new_status_text, new_status_emoji, custom_status_set_origin);
-        if (TS.experiment.getGroup("custom_status_callout") !== "treatment" || TS.model.prefs.seen_custom_status_badge) return;
-        return TS.prefs.setPrefByAPI({
-          name: "seen_custom_status_badge",
-          value: true
-        });
       }.bind(this));
       TS.ui.inline_saver.show({
         target: this._$inline_saver,

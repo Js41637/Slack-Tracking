@@ -62,7 +62,7 @@
       </a>
       </li>
       <li class="divider"></li>
-      {{#unless group.is_moved}}
+      {{#unless (if_equal group.is_moved compare=1)}}
         <li id="group_unarchive_item" role="menuitem"><a>
           {{#t note="Un-achive a private channel"}}Un-archive channel{{/t}}
         </a></li>

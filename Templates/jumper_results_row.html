@@ -58,7 +58,7 @@
         <ts-icon class="ts_icon_bolt"></ts-icon>
       {{/if_equal}}
       {{#if_equal this.model_ob.id compare="Vall_threads"}}
-        {{#if ../threads_has_unreads}}
+        {{#if jumper.threads_has_unreads}}
           <span class="view_name">{{#t}}New Threads{{/t}}</span>
         {{else}}
           <span class="view_name">{{#t}}All Threads{{/t}}</span>
@@ -69,7 +69,7 @@
     {{else}}
       {{#if this.model_ob.is_mpim}}
         {{! remove disambiguate_mpims after feature_name_tagging_client }}
-        <span class="channel_name">{{#if ../disambiguate_mpims}}{{mpimDisplayName this.model_ob false true}}{{else}}{{mpimDisplayName this.model_ob}}{{/if}}</span>
+        <span class="channel_name">{{#if jumper.disambiguate_mpims}}{{mpimDisplayName this.model_ob false true}}{{else}}{{mpimDisplayName this.model_ob}}{{/if}}</span>
       {{else}}
         {{#if this.model_ob.team_url}}
           <span class="channel_name">{{this.model_ob.team_name}}</span> <span class="team_username">{{#t note='When switching to another team in jumper, Signed in as myusername' username=this.model_ob.name}}Signed in as {username}{{/t}}</span>
@@ -86,7 +86,7 @@
         <span class="channel_not_member">{{#t note='Indicates renamed channels, #new-name (formerly #old-name)' previous_name=this.model_ob._jumper_previous_name_match}}(formerly #{previous_name}){{/t}}</span>
       {{/if}}
     {{/if}}
-    {{#if ../show_scores}}
+    {{#if jumper.show_scores}}
       <span class="jumper_score">{{#if this.score}}{{roundToThree this.score}}{{else}}0{{/if}}</span>
     {{/if}}
     {{#if this.model_ob.is_mpim}}
@@ -99,7 +99,7 @@
       {{/memberHasImUnreadCount}}
     {{else if this.model_ob.is_view}}
       {{#if_equal this.model_ob.id compare="Vall_threads"}}
-        {{#if ../threads_mention_count}}<span class="unread_count">{{../threads_mention_count}}</span>{{/if}}
+        {{#if jumper.threads_mention_count}}<span class="unread_count">{{jumper.threads_mention_count}}</span>{{/if}}
       {{/if_equal}}
     {{else}}
       {{#if this.model_ob.unread_highlight_cnt}}

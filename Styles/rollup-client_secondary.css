@@ -2378,6 +2378,12 @@ html:not(.supports_flexbox) #convo_tab #convo_tab_btns {
   padding-right: 1rem
 }
 
+.feature_texty_mentions #user_groups_list .internal_user_group_link {
+  border: none;
+  background: inherit;
+  padding: 0
+}
+
 @font-face {
   font-family: appleLogo;
   src: local("Lucida Grande");
@@ -4079,6 +4085,15 @@ html {
 
 #fs_modal.channel_options_modal .share_channel_modal_contents #message.focus {
   border-color: #2780F8
+}
+
+#fs_modal.channel_options_modal .share_channel_modal_contents .message_attachment {
+  margin-left: 4px
+}
+
+#fs_modal.channel_options_modal .share_channel_modal_contents .extra_help {
+  font-size: .9rem;
+  display: block
 }
 
 @font-face {
@@ -7901,6 +7916,12 @@ only screen and (min-resolution:2dppx) {
 .team_image.icon_36 {
   width: 36px;
   height: 36px
+}
+
+.team_image.icon_20 {
+  width: 20px;
+  height: 20px;
+  font-size: 10px
 }
 
 .shared_team_details,
@@ -14722,7 +14743,6 @@ body.winssb .search_result_with_extract {
 }
 
 .sli_expert_search__result {
-  display: flex;
   padding: 1rem .75rem;
   border: 1px solid #f2f2f5;
   border-top: none;
@@ -14836,12 +14856,33 @@ body.winssb .search_result_with_extract {
   cursor: pointer
 }
 
+.sli_expert_search_cta__faces {
+  -ms-flex: 0 0 auto;
+  -webkit-flex: 0 0 auto;
+  flex: 0 0 auto
+}
+
 .sli_expert_search_cta__face_pile .member_image {
   -ms-flex: 0 0 auto;
   -webkit-flex: 0 0 auto;
   flex: 0 0 auto;
-  border-radius: 2px;
-  margin-right: .3rem
+  border-radius: 2px
+}
+
+.sli_expert_search__plus_sign_overlay {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 24px;
+  height: 24px;
+  background-color: rgba(0, 0, 0, .5);
+  color: #fff;
+  border-radius: 2px
+}
+
+.sli_expert_search__plus_sign_overlay .ts_icon_plus_thick::before {
+  margin-top: 4px;
+  font-size: 14px
 }
 
 .sli_expert_search_header {
@@ -14864,6 +14905,12 @@ body.winssb .search_result_with_extract {
 .sli_expert_search_cta:hover .sli_expert_search__arrow,
 .sli_expert_search_header:hover .sli_expert_search__arrow {
   color: #717274
+}
+
+.sli_expert_search__partial_terms {
+  padding-left: calc(36px + .6rem);
+  font-size: 12px;
+  color: #A4A4A6
 }
 
 .pickmeup {
@@ -17201,14 +17248,18 @@ html:not(.supports_flexbox) .channel_modal_with_list .channel_modal_list {
   margin-left: 4px
 }
 
-#channel_browser .shared_channels_icon {
-  float: right
-}
-
 #channel_browser .shared_channels_icon .ts_icon_shared_channels {
   position: relative;
   right: 0;
   bottom: -3px
+}
+
+#channel_browser .channel_browser_teams_info {
+  color: #2C2D30
+}
+
+#channel_browser .channel_browser_shared_teams {
+  top: 5px
 }
 
 #channel_browser .channel_browser_member_count_container {
@@ -19788,22 +19839,26 @@ ts-message .theme_installer_btn {
 }
 
 .comment .mention,
+.ql-editor .mention,
 ts-message .mention {
   background: #FFF3B8
 }
 
 .feature_texty_mentions .comment .mention,
+.feature_texty_mentions .ql-editor .mention,
 .feature_texty_mentions ts-message .mention {
   background: rgba(255, 243, 184, .3);
   border: 1px solid rgba(237, 180, 49, .5)
 }
 
 .feature_texty_mentions .comment .mention:hover,
+.feature_texty_mentions .ql-editor .mention:hover,
 .feature_texty_mentions ts-message .mention:hover {
   border: 1px solid rgba(237, 180, 49, .7)
 }
 
 .comment .emoji-sizer .mention,
+.ql-editor .emoji-sizer .mention,
 ts-message .emoji-sizer .mention {
   display: none
 }
@@ -19812,7 +19867,7 @@ ts-message .emoji-sizer .mention {
 .feature_texty_mentions .internal_user_group_link,
 .feature_texty_mentions .mention,
 .feature_texty_mentions ts-mention {
-  padding: 0 2px 2px;
+  padding: 0 2px 1px;
   border-radius: 3px
 }
 
@@ -24646,23 +24701,6 @@ ts-jumper ts-jumper-results.show_deleted li.deleted {
 
 .supports_custom_scrollbar .team_menu.slack_menu .menu_content {
   background: #fff
-}
-
-.current_status_badge {
-  padding: 0 6px;
-  color: #007AB8
-}
-
-li:hover .current_status_badge {
-  color: #fff
-}
-
-.current_status_badge .ts_icon {
-  position: relative;
-  margin-right: 0;
-  top: 2px;
-  font-size: inherit;
-  color: inherit
 }
 
 .submenu[data-origin-id=member_current_status_item] {

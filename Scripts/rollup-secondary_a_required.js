@@ -838,7 +838,7 @@
     }
   };
   var _prepareValForStorage = function(val) {
-    return typeof val == "string" || typeof val == "number" || !val ? val : JSON.stringify(val);
+    return typeof val === "string" || typeof val === "number" || !val ? val : JSON.stringify(val);
   };
   var _correctBadValsFromStorage = function(val) {
     if (val == "undefined") return null;
@@ -942,7 +942,7 @@
     var result = _correctBadValsFromStorage(val);
     if (log) TS.info("_get _correctBadValsFromStorage(_ls.getItem(k)) k:" + k + " typeof result:" + typeof result + " /^[{[]/.test(result):" + /^[{[]/.test(result));
     var storage_size;
-    if (result && typeof result == "string" && /^[{[]/.test(result)) {
+    if (result && typeof result === "string" && /^[{[]/.test(result)) {
       result = TS.utility.parseJSONOrElse(result) || result;
     }
     result = result || (default_value !== undefined ? default_value : null);
@@ -2089,11 +2089,11 @@
       resolve_promise = resolve;
       reject_promise = reject;
       onCancel(function() {
-        if (typeof handler == "function") TS.error("Because you passed a handler, which is deprecated, this API call has been cancelled but your handler has not been called. Use Promise chaining to cancel and react.");
+        if (typeof handler === "function") TS.error("Because you passed a handler, which is deprecated, this API call has been cancelled but your handler has not been called. Use Promise chaining to cancel and react.");
         promisfy_obj.onCancel();
       });
     });
-    if (typeof handler == "function") {
+    if (typeof handler === "function") {
       promise = promise.caught(_.noop);
     }
     var inner_handler = function(ok, data, args, request_id) {
@@ -2167,7 +2167,7 @@
     return method_name.replace(/^(channels|groups|im|mpim)\./, "_modelob_.");
   };
   var _pause = function(info) {
-    if (typeof info == "undefined") {
+    if (typeof info === "undefined") {
       throw new Error("Please specify the reason pausing the API");
     }
     if (!_is_paused) {
@@ -2291,10 +2291,10 @@
       var retry_interval = arguments.length <= 0 || arguments[0] === undefined ? 1e3 : arguments[0];
       var max_retries = arguments[1];
       var retry_attempts = 0;
-      var retry_interval_value = typeof retry_interval == "function" ? retry_interval() : retry_interval;
+      var retry_interval_value = typeof retry_interval === "function" ? retry_interval() : retry_interval;
       var retry_interval_ms = retry_interval_value;
       var _retryLater = function() {
-        if (typeof max_retries == "number" && retry_attempts > max_retries) {
+        if (typeof max_retries === "number" && retry_attempts > max_retries) {
           var error_msg = "Unable to reconnect to the API after " + retry_attempts + " retry attempts";
           TS.warn(error_msg);
           failure_sig.dispatch(new Error(error_msg));
@@ -4421,7 +4421,7 @@
       if (channel.shared_team_ids) delete channel.shared_team_ids;
       return;
     }
-    if (channel.shares && channel.is_org_shared) {
+    if (channel.shares && TS.shared.isModelObOrgShared(channel)) {
       channel.shared_team_ids = _(channel.shared_team_ids || []).concat(_.map(channel.shares, "id")).value();
       if (channel.shares) delete channel.shares;
     } else if (channel.shares && TS.shared.isModelObShared(channel)) {
@@ -4429,6 +4429,7 @@
       if (channel.shares) delete channel.shares;
     }
     channel.shared_team_ids = _(channel.shared_team_ids || []).uniq().value();
+    if (TS.shared.isModelObShared(channel) && channel.shared_team_ids.length) TS.teams.ensureTeamsArePresent(channel.shared_team_ids);
   };
   var _processNewChannelForUpserting = function(channel) {
     TS.shared.setPriorityForDev(channel);
@@ -6174,7 +6175,7 @@ TS.registerModule("constants", {
             TS.generic_dialog.alert(TS.i18n.t("An administator has disabled public file URL creation. You will not be able to create a public URL for this space.", "files")());
           }
         }
-        if (callback && typeof callback == "function") {
+        if (callback && typeof callback === "function") {
           callback(ok, data, args);
         }
       });
@@ -6200,7 +6201,7 @@ TS.registerModule("constants", {
             TS.utility.openInNewTab(url, file.id);
           }
         }
-        if (typeof optional_callback == "function") {
+        if (typeof optional_callback === "function") {
           optional_callback(file);
         }
       });
@@ -6226,7 +6227,7 @@ TS.registerModule("constants", {
             TS.utility.openInNewTab(url, file.id);
           }
         }
-        if (typeof optional_callback == "function") {
+        if (typeof optional_callback === "function") {
           optional_callback(file);
         }
       });
@@ -7068,7 +7069,7 @@ TS.registerModule("constants", {
             if (file[k] && !TS.utility.isScalar(file[k])) {
               existing_file[k] = file[k];
               TS.warn(k + " is not scalar! it needs to be handled by upsertFile specifically to test if it has changed! " + typeof file[k]);
-            } else if (typeof file[k] != "boolean" || !file[k] != !existing_file[k]) {
+            } else if (typeof file[k] !== "boolean" || !file[k] != !existing_file[k]) {
               what_changed.push(k + " [" + existing_file[k] + "] -> [" + file[k] + "]");
               existing_file[k] = file[k];
               status = "CHANGED";
@@ -7206,7 +7207,7 @@ TS.registerModule("constants", {
       } else {
         display_name = args.title || args.filename || args.file && args.file.name || "blob";
         TS.files.file_uploading_sig.dispatch(display_name, args.retry_num > 0, cancelable);
-        if (typeof args.file == "string") {
+        if (typeof args.file === "string") {
           form_data.append("content64", args.file);
         } else {
           form_data.append("file", args.file);
@@ -7220,7 +7221,7 @@ TS.registerModule("constants", {
       }
       form_data.append("token", TS.model.api_token);
       if (args.channels && args.channels.length) {
-        var channels_str = typeof args.channels == "string" ? args.channels : args.channels.join ? args.channels.join(",") : "";
+        var channels_str = typeof args.channels === "string" ? args.channels : args.channels.join ? args.channels.join(",") : "";
         form_data.append("channels", channels_str);
       }
       form_data.append("title", args.title);
@@ -7839,7 +7840,7 @@ TS.registerModule("constants", {
             if (room[k] && !TS.utility.isScalar(room[k])) {
               existing_room[k] = room[k];
               TS.warn(k + " is not scalar! it needs to be handled by upsertRoom specifically to test if it has changed! " + typeof room[k]);
-            } else if (typeof room[k] != "boolean" || !room[k] != !existing_room[k]) {
+            } else if (typeof room[k] !== "boolean" || !room[k] != !existing_room[k]) {
               what_changed.push(k);
               existing_room[k] = room[k];
               status = "CHANGED";
@@ -9388,7 +9389,7 @@ TS.registerModule("constants", {
         api_args = {
           channel: model_ob.id,
           count: initial_count,
-          inclusive: typeof model_ob.latest == "string",
+          inclusive: typeof model_ob.latest === "string",
           ignore_replies: true
         };
         if (latest_ts) {
@@ -10942,6 +10943,13 @@ TS.registerModule("constants", {
       if (team && team.name) return team.name;
       return null;
     },
+    getTeamNameById: function(id) {
+      if (!TS.boot_data.feature_shared_channels_client) return;
+      var team = TS.teams.getTeamById(id);
+      if (!_.isObject(team)) return null;
+      if (team && team.name) return team.name;
+      return null;
+    },
     updateTeamName: function(imsg) {
       if (!imsg.name) return;
       var team = TS.teams.getTeamById(imsg.source_team);
@@ -10995,7 +11003,7 @@ TS.registerModule("constants", {
               what_changed.push(key);
             }
           } else if (existing_team[key] != team[key]) {
-            if (typeof team[key] != "boolean" || !team[key] != !existing_team[key]) {
+            if (typeof team[key] !== "boolean" || !team[key] != !existing_team[key]) {
               what_changed.push(key);
               existing_team[key] = team[key];
               status = "CHANGED";
@@ -12350,7 +12358,7 @@ TS.registerModule("constants", {
         if (member[k] && !TS.utility.isScalar(member[k])) {
           existing_member[k] = member[k];
           TS.warn(k + " is not scalar! it needs to be handled by upsertMember specifically to test if it has changed! " + typeof member[k]);
-        } else if (typeof member[k] != "boolean" || !member[k] != !existing_member[k]) {
+        } else if (typeof member[k] !== "boolean" || !member[k] != !existing_member[k]) {
           what_changed.push(k);
           existing_member[k] = member[k];
           status = "CHANGED";
@@ -12592,7 +12600,7 @@ TS.registerModule("constants", {
             if (team[k] && !TS.utility.isScalar(team[k])) {
               existing_team[k] = team[k];
               TS.warn(k + " is not scalar! it needs to be handled by upsertTeam specifically to test if it has changed! " + typeof team[k]);
-            } else if (typeof team[k] != "boolean" || !team[k] != !existing_team[k]) {
+            } else if (typeof team[k] !== "boolean" || !team[k] != !existing_team[k]) {
               existing_team[k] = team[k];
               what_changed.push(k);
               status = "CHANGED";
@@ -12654,10 +12662,13 @@ TS.registerModule("constants", {
       });
     },
     sortTeamProfileFieldsByOrdering: function() {
-      if (!TS.model.team.profile.fields.length) return void TS.warn("Ensure profile fields exist before calling sortTeamProfileFieldsByOrdering");
-      TS.model.team.profile.fields.sort(function(this_field, that_field) {
-        return this_field.ordering - that_field.ordering;
-      });
+      if (!TS.model.team.profile.fields.length) {
+        TS.warn("Ensure profile fields exist before calling sortTeamProfileFieldsByOrdering");
+      } else {
+        TS.model.team.profile.fields.sort(function(this_field, that_field) {
+          return this_field.ordering - that_field.ordering;
+        });
+      }
     },
     getVisibleTeamProfileFieldsForMember: function(member, include_empty_member_fields) {
       if (!(member && member.profile)) return [];
@@ -13062,7 +13073,7 @@ TS.registerModule("constants", {
             if (bot[k] && !TS.utility.isScalar(bot[k])) {
               existing_bot[k] = bot[k];
               TS.warn(k + " is not scalar! it needs to be handled by upsertBot specifically to test if it has changed! " + typeof bot[k]);
-            } else if (typeof bot[k] != "boolean" || !bot[k] != !existing_bot[k]) {
+            } else if (typeof bot[k] !== "boolean" || !bot[k] != !existing_bot[k]) {
               what_changed.push(k);
               existing_bot[k] = bot[k];
               status = "CHANGED";
@@ -13349,7 +13360,10 @@ TS.registerModule("constants", {
   };
   var _getFilterArgumentsByScrollerId = function(scroller_id) {
     var args = _arguments_map[scroller_id];
-    if (!args) return void TS.error("Missing arguments for a bound filter");
+    if (!args) {
+      TS.error("Missing arguments for a bound filter");
+      return;
+    }
     if (_.isFunction(args)) args = args() || {};
     args.include_org = _includeOrg();
     return args;
@@ -14295,7 +14309,7 @@ TS.registerModule("constants", {
         }
       }
       TS.model.highlight_words.push("<@" + TS.model.user.id);
-      if (highlight_words && typeof highlight_words == "string") {
+      if (highlight_words && typeof highlight_words === "string") {
         TS.model.highlight_words = TS.model.highlight_words.concat(highlight_words.split(","));
       }
       TS.model.highlight_words_regex = null;
@@ -14303,34 +14317,34 @@ TS.registerModule("constants", {
     setSuppressedChannels: function(at_channel_suppressed_channels) {
       TS.model.prefs.at_channel_suppressed_channels = at_channel_suppressed_channels;
       TS.model.at_channel_suppressed_channels = [];
-      if (at_channel_suppressed_channels && typeof at_channel_suppressed_channels == "string") {
+      if (at_channel_suppressed_channels && typeof at_channel_suppressed_channels === "string") {
         TS.model.at_channel_suppressed_channels = TS.model.at_channel_suppressed_channels.concat(at_channel_suppressed_channels.split(","));
       }
     },
     setPushSuppressedChannels: function(push_at_channel_suppressed_channels) {
       TS.model.prefs.push_at_channel_suppressed_channels = push_at_channel_suppressed_channels;
       TS.model.push_at_channel_suppressed_channels = [];
-      if (push_at_channel_suppressed_channels && typeof push_at_channel_suppressed_channels == "string") {
+      if (push_at_channel_suppressed_channels && typeof push_at_channel_suppressed_channels === "string") {
         TS.model.push_at_channel_suppressed_channels = TS.model.push_at_channel_suppressed_channels.concat(push_at_channel_suppressed_channels.split(","));
       }
     },
     setLoudChannels: function(loud_channels) {
       TS.model.prefs.loud_channels = loud_channels;
       TS.model.loud_channels = [];
-      if (loud_channels && typeof loud_channels == "string") {
+      if (loud_channels && typeof loud_channels === "string") {
         TS.model.loud_channels = TS.model.loud_channels.concat(loud_channels.split(","));
       }
     },
     setNeverChannels: function(never_channels) {
       TS.model.prefs.never_channels = never_channels;
       TS.model.never_channels = [];
-      if (never_channels && typeof never_channels == "string") {
+      if (never_channels && typeof never_channels === "string") {
         TS.model.never_channels = TS.model.never_channels.concat(never_channels.split(","));
       }
     },
     setMutedChannels: function(muted_channels) {
       if (TS.model.prefs.muted_channels !== muted_channels || !_has_set_muted_channels_before) {
-        TS.model.prev_muted_channels = TS.model.prefs.muted_channels && typeof TS.model.prefs.muted_channels == "string" ? TS.model.prefs.muted_channels.split(",") : [];
+        TS.model.prev_muted_channels = TS.model.prefs.muted_channels && typeof TS.model.prefs.muted_channels === "string" ? TS.model.prefs.muted_channels.split(",") : [];
         TS.model.prefs.muted_channels = muted_channels;
       } else {
         return;
@@ -14341,7 +14355,7 @@ TS.registerModule("constants", {
       TS.model.muted_channels = [];
       TS.model.newly_muted_channels = [];
       TS.model.newly_unmuted_channels = [];
-      if (muted_channels && typeof muted_channels == "string") {
+      if (muted_channels && typeof muted_channels === "string") {
         TS.model.muted_channels = TS.model.muted_channels.concat(muted_channels.split(","));
         TS.model.newly_unmuted_channels = _.difference(TS.model.prev_muted_channels, TS.model.muted_channels);
         TS.model.newly_muted_channels = _.difference(TS.model.muted_channels, TS.model.prev_muted_channels);
@@ -14366,35 +14380,35 @@ TS.registerModule("constants", {
     setLoudChannelsSet: function(loud_channels_set) {
       TS.model.prefs.loud_channels_set = loud_channels_set;
       TS.model.loud_channels_set = [];
-      if (loud_channels_set && typeof loud_channels_set == "string") {
+      if (loud_channels_set && typeof loud_channels_set === "string") {
         TS.model.loud_channels_set = TS.model.loud_channels_set.concat(loud_channels_set.split(","));
       }
     },
     setPushLoudChannels: function(push_loud_channels) {
       TS.model.prefs.push_loud_channels = push_loud_channels;
       TS.model.push_loud_channels = [];
-      if (push_loud_channels && typeof push_loud_channels == "string") {
+      if (push_loud_channels && typeof push_loud_channels === "string") {
         TS.model.push_loud_channels = TS.model.push_loud_channels.concat(push_loud_channels.split(","));
       }
     },
     setPushMentionChannels: function(push_mention_channels) {
       TS.model.prefs.push_mention_channels = push_mention_channels;
       TS.model.push_mention_channels = [];
-      if (push_mention_channels && typeof push_mention_channels == "string") {
+      if (push_mention_channels && typeof push_mention_channels === "string") {
         TS.model.push_mention_channels = TS.model.push_mention_channels.concat(push_mention_channels.split(","));
       }
     },
     setPushLoudChannelsSet: function(push_loud_channels_set) {
       TS.model.prefs.push_loud_channels_set = push_loud_channels_set;
       TS.model.push_loud_channels_set = [];
-      if (push_loud_channels_set && typeof push_loud_channels_set == "string") {
+      if (push_loud_channels_set && typeof push_loud_channels_set === "string") {
         TS.model.push_loud_channels_set = TS.model.push_loud_channels_set.concat(push_loud_channels_set.split(","));
       }
     },
     setSearchExcludeChannels: function(search_exclude_channels) {
       TS.model.prefs.search_exclude_channels = search_exclude_channels;
       TS.model.search_exclude_channels = [];
-      if (search_exclude_channels && typeof search_exclude_channels == "string") {
+      if (search_exclude_channels && typeof search_exclude_channels === "string") {
         TS.model.search_exclude_channels = TS.model.search_exclude_channels.concat(search_exclude_channels.split(","));
       }
     },
@@ -14406,7 +14420,7 @@ TS.registerModule("constants", {
       return true;
     },
     mergeEmojiUse: function(emoji_use) {
-      TS.emoji.makeMenuLists();
+      if (!TS.model.emoji_names) TS.emoji.makeMenuLists();
       if (!emoji_use || typeof emoji_use !== "object") {
         emoji_use = TS.utility.parseJSONOrElse(emoji_use || null) || {};
         emoji_use = _.pickBy(emoji_use, function(count, name) {
@@ -15179,6 +15193,10 @@ TS.registerModule("constants", {
           onEnter: function() {
             TS.search.submitSearch();
             return true;
+          },
+          onTextChange: function() {
+            var is_empty = TS.utility.contenteditable.isEmpty(TS.search.input);
+            $("#header_search_form").toggleClass("active", !is_empty);
           }
         });
       }
@@ -16788,7 +16806,7 @@ TS.registerModule("constants", {
   var _makeBufferHandler = function(fn) {
     var buf = [];
     var handler = function() {
-      if (typeof fn == "function") {
+      if (typeof fn === "function") {
         var should_buffer = fn.apply(this, arguments);
         if (should_buffer === false) return;
       }
@@ -17082,12 +17100,21 @@ TS.registerModule("constants", {
   "use strict";
   TS.registerModule("ms.msg_handlers", {
     onStart: function() {
+      _profiling_enabled = window.performance && TS.boot_data && TS.boot_data.feature_ms_msg_handlers_profiling;
+      if (TS.client && TS.client.stats) {
+        TS.client.stats.start_collecting_sig.add(_profiling.enableStatsCollecting);
+        TS.client.stats.stop_collecting_sig.add(_profiling.disableStatsCollecting);
+      }
       TS.ms.on_msg_sig.add(TS.ms.msg_handlers.msgReceived);
     },
     msgReceivedFromParentWindow: function(imsg) {
       TS.ms.msg_handlers.msgReceived(imsg);
     },
     msgReceived: function(imsg) {
+      if (_profiling_enabled) {
+        _profiling_total_imsgs_received += 1;
+        if (!_profiling_start_time) _profiling_start_time = Date.now();
+      }
       if (imsg.reply_to) return;
       if (!TS.ms.msg_handlers[imsg.type]) return;
       _addToQ(imsg);
@@ -17098,13 +17125,16 @@ TS.registerModule("constants", {
       if (imsg.is_ephemeral && !imsg.ts) {
         imsg.ts = TS.utility.date.makeTsStamp();
       }
+      var profiling_callback;
       var subtype_method_name = "subtype__" + imsg.subtype;
       if (subtype_method_name in TS.ms.msg_handlers) {
         if (TS.boot_data.feature_channel_eventlog_client) {
           if (imsg.subtype == "message_changed" || imsg.subtype == "message_deleted" || imsg.subtype == "channel_history_changed" || imsg.subtype == "group_history_changed" || imsg.subtype == "im_history_changed" || imsg.subtype == "mpim_history_changed" || imsg.subtype == "message_replied") {
             imsg.type = imsg.subtype;
             delete imsg.subtype;
+            if (_profiling_enabled) profiling_callback = _profiling.start(imsg.type);
             TS.ms.msg_handlers[imsg.type](imsg);
+            if (profiling_callback) profiling_callback();
             return;
           }
           if (imsg.hidden) {
@@ -17112,8 +17142,11 @@ TS.registerModule("constants", {
             TS.console.dir(2, 0, imsg);
           }
         }
+        if (_profiling_enabled) profiling_callback = _profiling.start(subtype_method_name);
         TS.ms.msg_handlers[subtype_method_name](imsg);
+        if (profiling_callback) profiling_callback();
       }
+      if (_profiling_enabled) profiling_callback = _profiling.start(imsg.type);
       var msg = TS.utility.msgs.processImsg(imsg, imsg.channel);
       if (TS.ims.getImById(imsg.channel)) {
         if (imsg.text == "start_profile_AAAAAA") {
@@ -17142,6 +17175,7 @@ TS.registerModule("constants", {
       var model_ob = TS.shared.getModelObById(imsg.channel);
       var member = TS.members.getMemberById(msg.user);
       if (TS.typing && member && model_ob) TS.typing.memberEnded(model_ob, member);
+      if (profiling_callback) profiling_callback();
     },
     subtype__file_share: function(imsg) {
       if (!imsg.file) return;
@@ -18621,13 +18655,16 @@ TS.registerModule("constants", {
   };
   var _ensureModelObsAndMembersAndProceed = function(imsg) {
     TS.log(2, imsg.type + " is now being handled");
+    var ensure_profiling_callback;
+    if (_profiling_enabled) ensure_profiling_callback = _profiling.start(imsg.type);
     var ensureModelObs = function() {
       return TS.shared.ensureModelObsArePresent(missing_c_ids).then(function() {
         return ensureBotsAndMembers();
       }, function(err) {
-        if (imsg.channel && typeof imsg.channel == "string" && !TS.shared.getModelObById(imsg.channel)) {
+        if (imsg.channel && typeof imsg.channel === "string" && !TS.shared.getModelObById(imsg.channel)) {
           TS.error(full_type + " could not be handled because imsg.channel could not be fetched. full err: " + err.message);
           TS.log(0, "imsg.ts:" + imsg.ts + ", imsg.channel:" + imsg.channel);
+          if (ensure_profiling_callback) ensure_profiling_callback();
           return _afterMsgHandled();
         }
         TS.maybeWarn(794, full_type + " held some references to model_obs we could not fetch, but we have imsg.channel (or there was no imsg.channel) so we can still proceed");
@@ -18648,9 +18685,10 @@ TS.registerModule("constants", {
       return TS.members.ensureMembersArePresent(missing_m_ids.m_ids, missing_m_ids.c_ids, missing_m_ids.t_ids).then(function() {
         return proceedWithImsg();
       }, function(err) {
-        if (imsg.user && typeof imsg.user == "string" && !TS.members.getMemberById(imsg.user) || imsg.channel && typeof imsg.channel == "object" && imsg.channel.user && typeof imsg.channel.user == "string" && !TS.members.getMemberById(imsg.channel.user)) {
+        if (imsg.user && typeof imsg.user === "string" && !TS.members.getMemberById(imsg.user) || imsg.channel && typeof imsg.channel === "object" && imsg.channel.user && typeof imsg.channel.user === "string" && !TS.members.getMemberById(imsg.channel.user)) {
           TS.error(full_type + " could not be handled because imsg.user or imsg.channel.user could not be fetched. full err: " + err.message);
           TS.log(0, "imsg.ts:" + imsg.ts + ", imsg.user:" + imsg.user + ", imsg.channel.user:" + imsg.channel && imsg.channel.user);
+          if (ensure_profiling_callback) ensure_profiling_callback();
           return _afterMsgHandled();
         }
         TS.maybeWarn(794, full_type + " held some references to members we could not fetch, but we have imsg.user and imsg.channel.user (or they did not exist) so we can still proceed");
@@ -18665,6 +18703,7 @@ TS.registerModule("constants", {
         TS.error(full_type + " errored out when being handled, with err: " + err.message, err);
         TS.console.logStackTrace();
       }
+      if (ensure_profiling_callback) ensure_profiling_callback();
       return _afterMsgHandled();
     };
     if (imsg.type === "presence_change" && TS.lazyLoadMembersAndBots()) return proceedWithImsg(imsg);
@@ -18782,6 +18821,85 @@ TS.registerModule("constants", {
     }, delay);
   };
 })();
+var _profiling_enabled = false;
+var _stats_collecting_enabled = false;
+var _profiling_default_warn_threshold = 1e3;
+var _profiling_report_timer = null;
+var _profiling_report_interval = 6e4;
+var _profiling_stats = {};
+var _profiling_stats_meta = {};
+var _profiling_total_imsgs_received = 0;
+var _profiling_start_time = 0;
+var _profiling = {
+  start: function(label, warn_threshold) {
+    if (!_stats_collecting_enabled) return;
+    warn_threshold = warn_threshold && parseInt(warn_threshold, 10) || _profiling_default_warn_threshold;
+    var data = {
+      start: performance.now(),
+      end: 0
+    };
+    var finish = function() {
+      data.end = performance.now();
+      var elapsed = data.end - data.start;
+      if (elapsed > warn_threshold) {
+        TS.warn("'" + label + "' msg_handler took " + _.round(elapsed, 2) + "ms" + (warn_threshold !== _profiling_default_warn_threshold ? " (threshold = " + warn_threshold + ")" : ""));
+      }
+      _profiling.count(label, elapsed);
+    };
+    return finish;
+  },
+  count: function(label, duration) {
+    if (!_profiling_stats_meta.start_time) _profiling_stats_meta.start_time = performance.now();
+    if (!_profiling_stats[label]) {
+      _profiling_stats[label] = {
+        call_count: 0,
+        elapsed_time: 0
+      };
+    }
+    _profiling_stats[label].call_count += 1;
+    _profiling_stats[label].elapsed_time += duration;
+    _profiling.maybeReport();
+  },
+  report: function() {
+    _profiling.finish();
+    if (_.size(_profiling_stats)) {
+      var calls = _.sum(_.map(_profiling_stats, "call_count"));
+      TS.log(808, "🏔️ MS message stats: " + calls + " handler calls in " + parseInt(_profiling_stats_meta.elapsed_time / 1e3, 10) + "s window, " + _profiling_total_imsgs_received + " imsgs since " + new Date(_profiling_start_time), _profiling_stats);
+      _profiling.beacon();
+    }
+    _profiling.reset();
+  },
+  beacon: function() {
+    _.each(_profiling_stats, function(value, key) {
+      TS.metrics.count(key + "_count", value.call_count);
+      TS.metrics.store(key + "_time", value.elapsed_time);
+    });
+    TS.metrics.store("imsgs_received_total", _profiling_total_imsgs_received, {
+      is_count: true
+    });
+  },
+  finish: function() {
+    _profiling_stats_meta.end_time = performance.now();
+    _profiling_stats_meta.elapsed_time = _profiling_stats_meta.end_time - _profiling_stats_meta.start_time;
+  },
+  reset: function() {
+    _profiling_stats = {};
+    _profiling_stats_meta = {};
+    _profiling_report_timer = null;
+  },
+  maybeReport: function() {
+    if (_profiling_report_timer) return;
+    _profiling_report_timer = window.setTimeout(_profiling.report, _profiling_report_interval);
+  },
+  enableStatsCollecting: function() {
+    TS.log(808, "🏔️ MS message handler stat collecting enabled");
+    _stats_collecting_enabled = true;
+  },
+  disableStatsCollecting: function() {
+    TS.log(808, "🏔️ MS message handler stat collecting disabled");
+    _stats_collecting_enabled = false;
+  }
+};
 (function() {
   "use strict";
   TS.registerModule("flannel", {
@@ -20000,7 +20118,7 @@ TS.registerModule("constants", {
         }
       }
       if (attachment.color) {
-        if (typeof attachment.color == "number") attachment.color = attachment.color.toString();
+        if (typeof attachment.color === "number") attachment.color = attachment.color.toString();
         if (!attachment.color.indexOf) {
           TS.warn("msg " + args.msg.ts + " has an invalid (non string) color:" + attachment.color + " (removed in client)");
           delete attachment.color;
@@ -24909,7 +25027,7 @@ TS.registerModule("constants", {
       });
       Handlebars.registerHelper("emojiGraphicReplace", function(emoji, force_style) {
         var options = {};
-        if (force_style && typeof force_style == "string") {
+        if (force_style && typeof force_style === "string") {
           options.force_style = force_style;
         } else {
           options.obey_emoji_mode_pref = true;
@@ -25182,6 +25300,17 @@ TS.registerModule("constants", {
       });
       Handlebars.registerHelper("getTeamById", function(id) {
         return TS.teams.getTeamById(id);
+      });
+      Handlebars.registerHelper("getTeamNameById", function(id) {
+        return TS.teams.getTeamNameById(id);
+      });
+      Handlebars.registerHelper("getSharedTeamsList", function(model_ob) {
+        var shared_teams = model_ob.shared_team_ids.map(function(id) {
+          var name = TS.teams.getTeamNameById(id);
+          return name;
+        });
+        shared_teams.push(TS.model.team.name);
+        return TS.i18n.listify(shared_teams).join("");
       });
       Handlebars.registerHelper("getMemberPreviewLinkTarget", function(member) {
         if (TS.utility.shouldLinksHaveTargets()) return new Handlebars.SafeString('target="/team/' + member.name + '"');
@@ -29280,7 +29409,7 @@ TS.registerModule("constants", {
       try {
         return JSON.stringify(json_ob, replacer, space);
       } catch (err) {
-        if (typeof fallback == "function") {
+        if (typeof fallback === "function") {
           return fallback(err);
         }
         return fallback;
@@ -30438,7 +30567,7 @@ TS.registerModule("constants", {
       if (x.length !== y.length) return false;
       var p;
       for (p in y) {
-        if (typeof x[p] == "undefined" && typeof y[p] != "undefined") return false;
+        if (typeof x[p] === "undefined" && typeof y[p] !== "undefined") return false;
         if (y[p]) {
           switch (typeof y[p]) {
             case "object":
@@ -30455,7 +30584,7 @@ TS.registerModule("constants", {
         }
       }
       for (p in x) {
-        if (typeof y[p] == "undefined" && typeof x[p] != "undefined") return false;
+        if (typeof y[p] === "undefined" && typeof x[p] !== "undefined") return false;
       }
       return true;
     },
@@ -30602,8 +30731,8 @@ TS.registerModule("constants", {
             if (isPropertyAMemberIdThatNeedsChecking(k)) {
               if (TS.utility.strLooksLikeAMemberId(val)) {
                 if (TS.utility.ensureInArray(m_ids, val)) {
-                  c_ids.push(typeof obj.channel == "string" && obj.channel || typeof obj.channel == "object" && obj.channel && obj.channel.id || channel_id || undefined);
-                  t_ids.push(typeof obj.team == "string" && obj.team || typeof obj.team == "object" && obj.team && obj.team.id || undefined);
+                  c_ids.push(typeof obj.channel === "string" && obj.channel || typeof obj.channel === "object" && obj.channel && obj.channel.id || channel_id || undefined);
+                  t_ids.push(typeof obj.team === "string" && obj.team || typeof obj.team === "object" && obj.team && obj.team.id || undefined);
                 }
               }
             } else {
@@ -30624,8 +30753,8 @@ TS.registerModule("constants", {
               val.forEach(function(m_id) {
                 if (TS.utility.strLooksLikeAMemberId(m_id)) {
                   if (TS.utility.ensureInArray(m_ids, m_id)) {
-                    c_ids.push(typeof obj.id == "string" && obj.channel || channel_id || undefined);
-                    t_ids.push(typeof obj.team == "string" && obj.team || typeof obj.team == "object" && obj.team && obj.team.id || undefined);
+                    c_ids.push(typeof obj.id === "string" && obj.channel || channel_id || undefined);
+                    t_ids.push(typeof obj.team === "string" && obj.team || typeof obj.team === "object" && obj.team && obj.team.id || undefined);
                   }
                 }
               });
@@ -32127,7 +32256,7 @@ TS.registerModule("constants", {
           }
           if (TS.boot_data.feature_texty_mentions) {
             display_name = "@" + handle;
-            if (!no_highlights) classes.push("mention");
+            if (!no_highlights && TS.model.highlight_words.indexOf("@" + handle) !== -1) classes.push("mention");
           }
           return '<a href="/usergroups/' + ug.id + '" ' + target + 'data-user-group-id="' + ug.id + '" class="' + classes.join(" ") + '">' + display_name + "</a>";
         }
@@ -33132,9 +33261,6 @@ TS.registerModule("constants", {
         if (!TS.boot_data.page_needs_enterprise) {
           $menu_content.on("highlighted", "li:not(.divider)", TS.menu.onTeamAndUserItemMouseenter);
         }
-        if (TS.experiment.getGroup("custom_status_callout") === "treatment" && !TS.model.prefs.seen_custom_status_badge) {
-          $(".current_status_badge").removeClass("hidden");
-        }
       }
       TS.view.setFlexMenuSize();
     },
@@ -34030,14 +34156,6 @@ TS.registerModule("constants", {
       if (TS.menu._current_status_input) {
         TS.menu._current_status_input.destroy();
         TS.menu._current_status_input = null;
-      }
-      if (TS.experiment.getGroup("custom_status_callout") === "treatment" && !TS.model.prefs.seen_custom_status_badge && !TS.model.prefs.seen_custom_status_callout) {
-        var $team_menu_status_callout_container = $("#team_menu_status_callout_container");
-        if ($team_menu_status_callout_container.length) $team_menu_status_callout_container.replaceWith($("#team_menu_user"));
-        TS.prefs.setPrefByAPI({
-          name: "seen_custom_status_callout",
-          value: true
-        });
       }
       TS.menu.$menu_body.find("#member_current_status_item").off(".current_status_item");
     }
@@ -39590,7 +39708,7 @@ var _on_esc;
       if (attachment.google_map_config) {
         google_map_config = TS.utility.parseJSONOrElse(attachment.google_map_config, undefined);
       }
-      if (google_map_config && google_map_config.center && typeof google_map_config.center.lat != "string") {
+      if (google_map_config && google_map_config.center && typeof google_map_config.center.lat !== "string") {
         google_map_config.scrollwheel = false;
         var dom_id = "googmap_" + (_googmap_index += 1);
         attachment.other_html = '<div class="google-maps" id="' + dom_id + '" style="width:100%; min-width:' + TS.utility.htmlEntities(attachment.other_html_width) + "px; height:" + TS.utility.htmlEntities(attachment.other_html_height) + 'px;"></div>			<script>TS.inline_others.runGoogleMapCode("' + dom_id + "\", '" + JSON.stringify(google_map_config) + "')</script>";
@@ -39616,7 +39734,7 @@ var _on_esc;
       var map = new google.maps.Map(document.getElementById(map_id), config);
       if (!config.query) return;
       var geocoder = new google.maps.Geocoder;
-      var max_results = typeof config.max_results == "number" ? config.max_results : 10;
+      var max_results = typeof config.max_results === "number" ? config.max_results : 10;
       if (max_results < 0) {
         max_results = Number.MAX_VALUE;
       }
@@ -40665,7 +40783,10 @@ var _on_esc;
     is_showing: false,
     transition_duration: 250,
     start: function(settings) {
-      if (TS.ui.fs_modal.is_showing) return void _swap(settings);
+      if (TS.ui.fs_modal.is_showing) {
+        _swap(settings);
+        return;
+      }
       _current_settings = _.defaults({}, settings, _default_settings);
       TS.ui.fs_modal.is_showing = true;
       _build();
@@ -41279,8 +41400,11 @@ var _on_esc;
   };
   var _maybeShowOptionRemoveAction = function() {
     var options = _$div.find(".option_row");
-    if (options.length >= 3) return void options.addClass("show_remove_action");
-    options.removeClass("show_remove_action");
+    if (options.length >= 3) {
+      options.addClass("show_remove_action");
+    } else {
+      options.removeClass("show_remove_action");
+    }
   };
   var _maybeUpdateOptionPreviewValue = function() {
     _updatePreviewValue({
@@ -42577,8 +42701,14 @@ var _on_esc;
       }, true);
     },
     register: function(key, value) {
-      if (_validator_map[key]) return void TS.warn(key + " cannot be registered because that key is already in use.");
-      if (typeof value !== "function") return void TS.warn("Only functions can be registered as validators.");
+      if (_validator_map[key]) {
+        TS.warn(key + " cannot be registered because that key is already in use.");
+        return;
+      }
+      if (typeof value !== "function") {
+        TS.warn("Only functions can be registered as validators.");
+        return;
+      }
       _validator_map[key] = value;
     },
     showCustomValidation: function($el, message, options, hide_after_ms) {
@@ -42694,18 +42824,19 @@ var _on_esc;
   function _validateRequired($el, options) {
     if ($el.is('input[type="radio"]')) {
       if ($(document.querySelectorAll('[name="' + $el.prop("name") + '"][data-validation]')).filter(":checked").length) return true;
-      return void TS.ui.validation.showWarning($el, TS.i18n.t("Please select an option", "ui_validation")(), options);
+      TS.ui.validation.showWarning($el, TS.i18n.t("Please select an option", "ui_validation")(), options);
     } else if ($el.is('input[type="checkbox"]')) {
       if ($(document.querySelectorAll('[name="' + $el.prop("name") + '"][data-validation]')).filter(":checked").length) return true;
-      return void TS.ui.validation.showWarning($el, TS.i18n.t("Please select at least one option", "ui_validation")(), options);
+      TS.ui.validation.showWarning($el, TS.i18n.t("Please select at least one option", "ui_validation")(), options);
     } else if ($el.is("select")) {
       if ($el.val()) return true;
-      return void TS.ui.validation.showWarning($el, TS.i18n.t("Please select an option", "ui_validation")(), options);
+      TS.ui.validation.showWarning($el, TS.i18n.t("Please select an option", "ui_validation")(), options);
     } else if (_isElementTextInput($el)) {
       if (_getTextInputValue($el).trim()) return true;
-      return void TS.ui.validation.showWarning($el, TS.i18n.t("This field can’t be empty", "ui_validation")(), options);
+      TS.ui.validation.showWarning($el, TS.i18n.t("This field can’t be empty", "ui_validation")(), options);
+    } else {
+      TS.error("Error: cannot validate");
     }
-    return void TS.error("Error: cannot validate");
   }
 
   function _validateReservedWords($el, options, reserved) {
@@ -42714,11 +42845,12 @@ var _on_esc;
       var value = _getTextInputValue($el).trim().toLowerCase();
       var reserved_words = reserved.split(",");
       if (reserved_words.indexOf(value) === -1) return true;
-      return void TS.ui.validation.showWarning($el, TS.i18n.t('"{word}" is a reserved word. Try something else!', "ui_validation")({
+      TS.ui.validation.showWarning($el, TS.i18n.t('"{word}" is a reserved word. Try something else!', "ui_validation")({
         word: TS.utility.htmlEntities(value)
       }), options);
+    } else {
+      TS.error("WTF: cannot validate");
     }
-    return void TS.error("WTF: cannot validate");
   }
 
   function _validateKeywords($el, options) {
@@ -42747,9 +42879,10 @@ var _on_esc;
           }
         }
       }
-      return void TS.ui.validation.showWarning($el, error_message, options);
+      TS.ui.validation.showWarning($el, error_message, options);
+    } else {
+      TS.error("Error: cannot validate");
     }
-    return void TS.error("Error: cannot validate");
   }
 
   function _validateIsUrl($el, options, protocols) {
@@ -42761,7 +42894,8 @@ var _on_esc;
     if (!value) return true;
     if ($el.is('input[type="radio"]') || $el.is('input[type="checkbox"]') || $el.is("select")) return true;
     if (!_isElementTextInput($el)) {
-      return void TS.error("Error: cannot validate");
+      TS.error("Error: cannot validate");
+      return;
     }
     if (protocols) {
       allowed_protocols = protocols.split(",");
@@ -42786,7 +42920,7 @@ var _on_esc;
     if (passes_well_formed_url_requirement && passes_protocols_requirement) {
       return true;
     }
-    return void TS.ui.validation.showWarning($el, error_message, options);
+    TS.ui.validation.showWarning($el, error_message, options);
   }
 
   function _validateIsLink($el, options) {
@@ -42797,9 +42931,10 @@ var _on_esc;
       if (!value) return true;
       var found = value.match(ALL_SCHEMES_LINK_REGEXP);
       if (found && found.length === 1 && found[0] === value) return true;
-      return void TS.ui.validation.showWarning($el, error_message, options);
+      TS.ui.validation.showWarning($el, error_message, options);
+    } else {
+      TS.error("Error: cannot validate");
     }
-    return void TS.error("Error: cannot validate");
   }
 
   function _validateHasNoUrl($el, options) {
@@ -42810,9 +42945,10 @@ var _on_esc;
       if (!TS.utility.findUrls(value).length) {
         return true;
       }
-      return void TS.ui.validation.showWarning($el, TS.i18n.t("Unfortunately, custom messages can’t contain URLs.", "ui_validation")(), options);
+      TS.ui.validation.showWarning($el, TS.i18n.t("Unfortunately, custom messages can’t contain URLs.", "ui_validation")(), options);
+    } else {
+      TS.error("Error: cannot validate");
     }
-    return void TS.error("Error: cannot validate");
   }
 
   function _validateMinLength($el, options, length, hide_countdown) {
@@ -42828,21 +42964,24 @@ var _on_esc;
     if (_isElementTextInput($el)) {
       var value = _getTextInputValue($el);
       length = +length;
-      if (value === undefined || isNaN(length)) return void TS.error("Error: no length to validate");
+      if (value === undefined || isNaN(length)) {
+        TS.error("Error: no length to validate");
+        return;
+      }
       if (key === "minlength") {
         if (value.length >= length) return true;
-        return void TS.ui.validation.showError($el, TS.i18n.t("This field can’t be less than {minlength, plural, =1{# character}other{# characters}}", "ui_validation")({
+        TS.ui.validation.showError($el, TS.i18n.t("This field can’t be less than {minlength, plural, =1{# character}other{# characters}}", "ui_validation")({
           minlength: length
         }), options);
       } else if (key === "maxlength") {
         if (!hide_countdown) _countdown($el, value.length, length, options);
         if (value.length <= length) return true;
-        return void TS.ui.validation.showError($el, TS.i18n.t("This field can’t be more than {maxlength, plural, =1{# character}other{# characters}}", "ui_validation")({
+        TS.ui.validation.showError($el, TS.i18n.t("This field can’t be more than {maxlength, plural, =1{# character}other{# characters}}", "ui_validation")({
           maxlength: length
         }), options);
       }
     } else {
-      return void TS.error("Error: cannot validate");
+      TS.error("Error: cannot validate");
     }
   }
 
@@ -42859,20 +42998,23 @@ var _on_esc;
     if (_isElementTextInput($el)) {
       var value = _getTextInputValue($el).trim();
       length = +length;
-      if (value === undefined || isNaN(length)) return void TS.error("Error: no length to validate");
+      if (value === undefined || isNaN(length)) {
+        TS.error("Error: no length to validate");
+        return;
+      }
       if (key === "mincsv") {
         if (value.split(/\s*,\s*/).length >= length) return true;
-        return void TS.ui.validation.showError($el, TS.i18n.t("This field can’t have less than {minlength, plural, =1{# value}other{# values}}", "ui_validation")({
+        TS.ui.validation.showError($el, TS.i18n.t("This field can’t have less than {minlength, plural, =1{# value}other{# values}}", "ui_validation")({
           minlength: length
         }), options);
       } else if (key === "maxcsv") {
         if (value.split(/\s*,\s*/).length <= length) return true;
-        return void TS.ui.validation.showError($el, TS.i18n.t("This field can’t have more than {maxlength, plural, =1{# value}other{# values}}", "ui_validation")({
+        TS.ui.validation.showError($el, TS.i18n.t("This field can’t have more than {maxlength, plural, =1{# value}other{# values}}", "ui_validation")({
           maxlength: length
         }), options);
       }
     } else {
-      return void TS.error("Error: cannot validate");
+      TS.error("Error: cannot validate");
     }
   }
 
@@ -42899,17 +43041,21 @@ var _on_esc;
           if (match) valid = _isValidISODate("0000-" + value + "T00:00:00.000Z");
           break;
         default:
-          return void TS.error("Error: cannot validate");
+          TS.error("Error: cannot validate");
+          return;
       }
       if (match && valid) return true;
-      if (!match) return void TS.ui.validation.showWarning($el, TS.i18n.t("This needs to be in the format {pattern}. Sorry!", "ui_validation")({
-        pattern: ui_pattern
-      }), options);
-      if (!valid) return void TS.ui.validation.showWarning($el, TS.i18n.t("{value} doesn’t appear to be a valid date. Sorry!", "ui_validation")({
-        value: TS.utility.htmlEntities(value)
-      }), options);
+      if (!match) {
+        TS.ui.validation.showWarning($el, TS.i18n.t("This needs to be in the format {pattern}. Sorry!", "ui_validation")({
+          pattern: ui_pattern
+        }), options);
+      } else if (!valid) {
+        TS.ui.validation.showWarning($el, TS.i18n.t("{value} doesn’t appear to be a valid date. Sorry!", "ui_validation")({
+          value: TS.utility.htmlEntities(value)
+        }), options);
+      }
     } else {
-      return void TS.error("Error: cannot validate");
+      TS.error("Error: cannot validate");
     }
   }
 
@@ -42917,21 +43063,21 @@ var _on_esc;
     var value = _isElementTextInput($el) ? _getTextInputValue($el) : $el.val();
     var is_lowercase = value === value.toLocaleLowerCase();
     if (is_lowercase) return true;
-    return void TS.ui.validation.showWarning($el, TS.i18n.t("This field must be lowercase only", "ui_validation")(), options);
+    TS.ui.validation.showWarning($el, TS.i18n.t("This field must be lowercase only", "ui_validation")(), options);
   }
 
   function _validateNospace($el, options) {
     var value = _isElementTextInput($el) ? _getTextInputValue($el) : $el.val();
     var has_spaces = /\s/.test(value);
     if (!has_spaces) return true;
-    return void TS.ui.validation.showWarning($el, TS.i18n.t("This field can’t contain spaces", "ui_validation")(), options);
+    TS.ui.validation.showWarning($el, TS.i18n.t("This field can’t contain spaces", "ui_validation")(), options);
   }
 
   function _validateFirstAlphanumeric($el, options) {
     var value = _isElementTextInput($el) ? _getTextInputValue($el) : $el.val();
     var is_first_alphanumeric = /^[^\W_]/.test(value);
     if (is_first_alphanumeric) return true;
-    return void TS.ui.validation.showWarning($el, TS.i18n.t("This first character must be a letter or number", "ui_validation")(), options);
+    TS.ui.validation.showWarning($el, TS.i18n.t("This first character must be a letter or number", "ui_validation")(), options);
   }
 
   function _validateUsername($el, options) {
@@ -42939,16 +43085,25 @@ var _on_esc;
     var quiet_options = $.extend({}, options, {
       quiet: true
     });
-    if (!_validateRequired($el, quiet_options)) return void TS.ui.validation.showWarning($el, _USERNAME_VALIDATION_ERROR_MESSAGES.required(), options);
-    if (!_validateMaxLength($el, quiet_options, max_length, true)) return void TS.ui.validation.showWarning($el, _USERNAME_VALIDATION_ERROR_MESSAGES.maxlength({
-      maxlength: max_length + 1
-    }), options);
-    if (!_validateNospace($el, quiet_options)) return void TS.ui.validation.showWarning($el, _USERNAME_VALIDATION_ERROR_MESSAGES.specials(), options);
-    if (!_validatePattern($el, quiet_options, /^[\w._-]+$/)) return void TS.ui.validation.showWarning($el, _USERNAME_VALIDATION_ERROR_MESSAGES.specials(), options);
-    if (!_validateFirstAlphanumeric($el, quiet_options)) return void TS.ui.validation.showWarning($el, _USERNAME_VALIDATION_ERROR_MESSAGES.firstalphanumeric(), options);
-    if (!_validateLowercase($el, quiet_options)) return void TS.ui.validation.showWarning($el, _USERNAME_VALIDATION_ERROR_MESSAGES.lowercase(), options);
-    if (!_validateReservedWords($el, options, TS.model.RESERVED_USERNAMES.join(","))) return false;
-    return true;
+    if (!_validateRequired($el, quiet_options)) {
+      TS.ui.validation.showWarning($el, _USERNAME_VALIDATION_ERROR_MESSAGES.required(), options);
+    } else if (!_validateMaxLength($el, quiet_options, max_length, true)) {
+      TS.ui.validation.showWarning($el, _USERNAME_VALIDATION_ERROR_MESSAGES.maxlength({
+        maxlength: max_length + 1
+      }), options);
+    } else if (!_validateNospace($el, quiet_options)) {
+      TS.ui.validation.showWarning($el, _USERNAME_VALIDATION_ERROR_MESSAGES.specials(), options);
+    } else if (!_validatePattern($el, quiet_options, /^[\w._-]+$/)) {
+      TS.ui.validation.showWarning($el, _USERNAME_VALIDATION_ERROR_MESSAGES.specials(), options);
+    } else if (!_validateFirstAlphanumeric($el, quiet_options)) {
+      TS.ui.validation.showWarning($el, _USERNAME_VALIDATION_ERROR_MESSAGES.firstalphanumeric(), options);
+    } else if (!_validateLowercase($el, quiet_options)) {
+      TS.ui.validation.showWarning($el, _USERNAME_VALIDATION_ERROR_MESSAGES.lowercase(), options);
+    } else if (!_validateReservedWords($el, options, TS.model.RESERVED_USERNAMES.join(","))) {
+      return false;
+    } else {
+      return true;
+    }
   }
 
   function _channelNameValidation($el, options) {
@@ -42987,7 +43142,8 @@ var _on_esc;
   function _validateChannelName($el, options, raw_params) {
     if ($el.is('input[type="radio"]') || $el.is('input[type="checkbox"]') || $el.is("select")) return true;
     if (!_isElementTextInput($el)) {
-      return void TS.error("Error: cannot validate");
+      TS.error("Error: cannot validate");
+      return;
     }
     var value = _getTextInputValue($el);
     var params = _parseParams(raw_params);
@@ -43001,7 +43157,7 @@ var _on_esc;
     }
     var other_channel = TS.channels.getChannelByName(value) || TS.groups.getGroupByName(value) || TS.members.getMemberByName(value);
     if (!other_channel) return true;
-    return void TS.ui.validation.showWarning($el, TS.i18n.t('"{name}" is already taken by a channel, username, or user group.', "ui_validation")({
+    TS.ui.validation.showWarning($el, TS.i18n.t('"{name}" is already taken by a channel, username, or user group.', "ui_validation")({
       name: TS.utility.htmlEntities(value)
     }), options);
   }
@@ -43009,7 +43165,8 @@ var _on_esc;
   function _validateSharedChannelName($el, options, raw_params) {
     if ($el.is('input[type="radio"]') || $el.is('input[type="checkbox"]') || $el.is("select")) return true;
     if (!_isElementTextInput($el)) {
-      return void TS.error("Error: cannot validate");
+      TS.error("Error: cannot validate");
+      return;
     }
     var value = _getTextInputValue($el);
     var params = _parseParams(raw_params);
@@ -43022,9 +43179,12 @@ var _on_esc;
     var current_model_ob = TS.shared.getActiveModelOb();
     if (!other_channel) need_to_check_api = true;
     if (other_channel && other_channel.id === current_model_ob.id) need_to_check_api = true;
-    if (other_channel && other_channel.id !== current_model_ob.id) return void TS.ui.validation.showWarning($el, TS.i18n.t("{name} has already been taken. Try something else!", "ui_validation")({
-      name: TS.utility.htmlEntities(value)
-    }), options);
+    if (other_channel && other_channel.id !== current_model_ob.id) {
+      TS.ui.validation.showWarning($el, TS.i18n.t("{name} has already been taken. Try something else!", "ui_validation")({
+        name: TS.utility.htmlEntities(value)
+      }), options);
+      return;
+    }
     return need_to_check_api;
   }
 
@@ -43035,17 +43195,19 @@ var _on_esc;
       if (!value) return true;
       var found = value.match(TS.utility.email_regex);
       if (found && found.length === 1 && found[0] === value) return true;
-      return void TS.ui.validation.showWarning($el, TS.i18n.t("This doesn’t seem like an email address. Sorry!", "ui_validation")(), options);
+      TS.ui.validation.showWarning($el, TS.i18n.t("This doesn’t seem like an email address. Sorry!", "ui_validation")(), options);
+    } else {
+      TS.error("Error: cannot validate");
     }
-    return void TS.error("Error: cannot validate");
   }
 
   function _validatePattern($el, options, pattern) {
     var value = _isElementTextInput($el) ? _getTextInputValue($el) : $el.val();
     if (!pattern.test(value)) {
-      return void TS.ui.validation.showWarning($el, TS.i18n.t("This field contains invalid characters", "ui_validation")(), options);
+      TS.ui.validation.showWarning($el, TS.i18n.t("This field contains invalid characters", "ui_validation")(), options);
+    } else {
+      return true;
     }
-    return true;
   }
   var _isValidISODate = function(iso_date_string) {
     if (!isNaN(Date.parse(iso_date_string))) {
@@ -44488,7 +44650,7 @@ var _on_esc;
         TS.warn("model_ob_id is not set! " + $("#select_share_channels").val());
         return;
       }
-      if (TS.ui.share_dialog.delegate && typeof TS.ui.share_dialog.delegate.submit == "function") {
+      if (TS.ui.share_dialog.delegate && typeof TS.ui.share_dialog.delegate.submit === "function") {
         TS.ui.share_dialog.delegate.submit($div, share_fn);
       } else {
         share_fn();
@@ -45597,9 +45759,9 @@ $.fn.togglify = function(settings) {
       var simple_format = false;
       if (imsg.item.type == "message" && imsg.item.ts) {
         simple_format = true;
-      } else if (imsg.item.type == "file" && typeof imsg.item.file == "string") {
+      } else if (imsg.item.type == "file" && typeof imsg.item.file === "string") {
         simple_format = true;
-      } else if (imsg.item.type == "file_comment" && imsg.item.file_comment && typeof imsg.item.file == "string") {
+      } else if (imsg.item.type == "file_comment" && imsg.item.file_comment && typeof imsg.item.file === "string") {
         simple_format = true;
       }
       if (!simple_format) return;
@@ -50786,7 +50948,7 @@ $.fn.togglify = function(settings) {
       starred_channel: 10,
       member_of_this_channel: 10,
       archived_channel_or_group: -50,
-      not_in_channel: -25,
+      not_in_channel: -50,
       usergroup_or_keyword: -25,
       fuzzy_match: 50,
       exact_match: 100,
@@ -51648,7 +51810,8 @@ $.fn.togglify = function(settings) {
                 _toggleChannelNameChecking(disable_checking_spinner, trigger_available_name_message);
                 is_disabled = true;
                 _toggleButton(null, $create_button, do_validation, is_disabled);
-                return void TS.ui.validation.showWarning($el, '"' + TS.utility.htmlEntities(new_name) + '" is already taken by a channel, username, or user group.', {});
+                TS.ui.validation.showWarning($el, '"' + TS.utility.htmlEntities(new_name) + '" is already taken by a channel, username, or user group.', {});
+                return;
               }
               disable_checking_spinner = true;
               trigger_available_name_message = true;
@@ -52067,8 +52230,9 @@ $.fn.togglify = function(settings) {
   var _onKeyUp = function(e) {
     if (e.which !== TS.utility.keymap.enter) return;
     var $el = $(e.target);
-    if ($el.is("input[data-invite-id]")) return void _sendInviteEmail(e);
-    if ($el.is('input[name="domain"], input[name="channel_name"]')) {
+    if ($el.is("input[data-invite-id]")) {
+      _sendInviteEmail(e);
+    } else if ($el.is('input[name="domain"], input[name="channel_name"]')) {
       TS.ui.startButtonSpinner($('#sci_channels_create [data-action="sci_channels_create"]').get(0));
       _createInvite(e);
     }
@@ -52426,7 +52590,8 @@ $.fn.togglify = function(settings) {
           team_icons_html += TS.templates.shared_channel_list_team_icon({
             teams: shared_teams,
             show_additional_teams: additional_teams > 0,
-            additional_teams: additional_teams
+            additional_teams: additional_teams,
+            org_shared: TS.shared.isModelObOrgShared(item)
           });
           data.$teams.html(team_icons_html);
         } else {
@@ -52578,7 +52743,8 @@ $.fn.togglify = function(settings) {
     if (_findSharedInviteByTeamDomainAndChannelName(domain, channel)) {
       if (!options.quiet) $el.addClass("invalid_invite");
       var warning = TS.i18n.t("This invite already exists. Try a different team or channel!", "shared")();
-      return void TS.ui.validation.showWarning($el, warning, options);
+      TS.ui.validation.showWarning($el, warning, options);
+      return;
     }
     if ($domain_el === $el) {
       if (channel && !options.quiet && $channel_el.hasClass("invalid_invite")) {
@@ -53775,7 +53941,7 @@ $.fn.togglify = function(settings) {
               if (enterprise[k] && !TS.utility.isScalar(enterprise[k])) {
                 existing_enterprise[k] = enterprise[k];
                 TS.warn(k + " is not scalar! it needs to be handled by upsertEnterprise specifically to test if it has changed! " + typeof enterprise[k]);
-              } else if (typeof enterprise[k] != "boolean" || !enterprise[k] != !existing_enterprise[k]) {
+              } else if (typeof enterprise[k] !== "boolean" || !enterprise[k] != !existing_enterprise[k]) {
                 existing_enterprise[k] = enterprise[k];
                 what_changed.push(k);
                 status = "CHANGED";
@@ -54875,13 +55041,26 @@ $.fn.togglify = function(settings) {
     }
   });
   var _validateClauseParameters = function(type, value, field_id) {
-    if (!type) return void TS.error("cannot make a clause without a type");
-    if (!value) return void TS.error("cannot make a clause without a value");
-    if (type === "custom" && !field_id) return void TS.error("cannot make a custom type clause without a field id");
+    if (!type) {
+      TS.error("cannot make a clause without a type");
+      return;
+    }
+    if (!value) {
+      TS.error("cannot make a clause without a value");
+      return;
+    }
+    if (type === "custom" && !field_id) {
+      TS.error("cannot make a custom type clause without a field id");
+    }
   };
   var _validateConjunctionParameters = function(type, clauses) {
-    if (!type) return void TS.error("cannot make a conjunction without an 'and' or 'or' type");
-    if (!clauses || clauses.length < 2) return void TS.error("cannot make a conjunction without at least two clauses");
+    if (!type) {
+      TS.error("cannot make a conjunction without an 'and' or 'or' type");
+      return;
+    }
+    if (!clauses || clauses.length < 2) {
+      TS.error("cannot make a conjunction without at least two clauses");
+    }
   };
   var _handleError = function(error) {
     TS.error(error.data.error + " error occured while searching");
@@ -56886,6 +57065,13 @@ $.fn.togglify = function(settings) {
         return texty.getText();
       }
       return "";
+    },
+    isEmpty: function(input, ignore_whitespace) {
+      var value = TS.utility.contenteditable.value(input);
+      if (value && ignore_whitespace) {
+        value = value.trim();
+      }
+      return value.length === 0;
     },
     clear: function(input, is_silent) {
       input = _normalizeInput(input);
@@ -61129,14 +61315,15 @@ $.fn.togglify = function(settings) {
   };
   var _fillInput = function(e, emoji) {
     var $input_to_fill = $(_input_to_fill);
+    var emoji_display_name = emoji.display_name || emoji.name;
     var should_focus = !(e && e.shiftKey);
     if (TS.utility.contenteditable.supportsTexty() && TS.utility.contenteditable.isContenteditable($input_to_fill)) {
-      setTimeout(TS.utility.contenteditable.insertTextAtCursor, 0, $input_to_fill, emoji.name, should_focus);
+      setTimeout(TS.utility.contenteditable.insertTextAtCursor, 0, $input_to_fill, emoji_display_name, should_focus);
     } else {
       var current_pos = TS.utility.getCursorPosition($input_to_fill).start;
-      var new_pos = current_pos + emoji.name.length;
+      var new_pos = current_pos + emoji_display_name.length;
       var current_val = TS.utility.contenteditable.value($input_to_fill);
-      var new_val = current_val.substr(0, current_pos) + emoji.name + current_val.substr(current_pos);
+      var new_val = current_val.substr(0, current_pos) + emoji_display_name + current_val.substr(current_pos);
       TS.utility.populateInput($input_to_fill, new_val);
       if (should_focus) setTimeout(TS.utility.setCursorPosition, 0, _input_to_fill, new_pos);
     }
@@ -61768,7 +61955,7 @@ $.fn.togglify = function(settings) {
     return t.d(n, "a", n), n;
   }, t.o = function(e, t) {
     return Object.prototype.hasOwnProperty.call(e, t);
-  }, t.p = "/", t(t.s = 439);
+  }, t.p = "/", t(t.s = 446);
 }([function(e, t, n) {
   "use strict";
 
@@ -61790,12 +61977,12 @@ $.fn.togglify = function(settings) {
   e.exports = r;
 }, function(e, t, n) {
   "use strict";
+  e.exports = n(37);
+}, function(e, t, n) {
+  "use strict";
   var r = n(14),
     o = r;
   e.exports = o;
-}, function(e, t, n) {
-  "use strict";
-  e.exports = n(36);
 }, function(e, t, n) {
   "use strict";
 
@@ -61860,7 +62047,7 @@ $.fn.togglify = function(settings) {
     };
   }
   t.__esModule = !0;
-  var o = n(177),
+  var o = n(183),
     i = r(o);
   t.default = function() {
     function e(e, t) {
@@ -61938,8 +62125,8 @@ $.fn.togglify = function(settings) {
     return e._hostNode;
   }
   var f = n(3),
-    d = n(34),
-    p = n(119),
+    d = n(35),
+    p = n(120),
     h = (n(0), d.ID_ATTRIBUTE_NAME),
     v = p,
     m = "__reactInternalInstance$" + Math.random().toString(36).slice(2),
@@ -61954,7 +62141,7 @@ $.fn.togglify = function(settings) {
   e.exports = g;
 }, function(e, t, n) {
   e.exports = {
-    "default": n(189),
+    "default": n(195),
     __esModule: !0
   };
 }, function(e, t, n) {
@@ -61966,9 +62153,9 @@ $.fn.togglify = function(settings) {
     };
   }
   t.__esModule = !0;
-  var o = n(179),
+  var o = n(185),
     i = r(o),
-    a = n(176),
+    a = n(182),
     s = r(a),
     u = n(100),
     l = r(u);
@@ -62051,12 +62238,6 @@ $.fn.togglify = function(settings) {
   }, o.thatReturnsArgument = function(e) {
     return e;
   }, e.exports = o;
-}, function(e, t, n) {
-  "use strict";
-  var r = null;
-  e.exports = {
-    debugTool: r
-  };
 }, function(e, t, n) {
   (function(e, r) {
     var o;
@@ -66337,7 +66518,13 @@ $.fn.togglify = function(settings) {
         return xr;
       }.call(t, n, t, r), !(o !== oe && (r.exports = o));
     }).call(this);
-  }).call(t, n(164), n(168)(e));
+  }).call(t, n(166), n(171)(e));
+}, function(e, t, n) {
+  "use strict";
+  var r = null;
+  e.exports = {
+    debugTool: r
+  };
 }, function(e, t, n) {
   "use strict";
 
@@ -66383,10 +66570,10 @@ $.fn.togglify = function(settings) {
   }
   var c = n(3),
     f = n(4),
-    d = n(117),
-    p = n(28),
-    h = n(122),
-    v = n(35),
+    d = n(118),
+    p = n(29),
+    h = n(123),
+    v = n(36),
     m = n(54),
     g = (n(0), []),
     _ = 0,
@@ -66475,9 +66662,9 @@ $.fn.togglify = function(settings) {
     return u ? this.isDefaultPrevented = a.thatReturnsTrue : this.isDefaultPrevented = a.thatReturnsFalse, this.isPropagationStopped = a.thatReturnsFalse, this;
   }
   var o = n(4),
-    i = n(28),
+    i = n(29),
     a = n(14),
-    s = (n(1), "function" == typeof Proxy, ["dispatchConfig", "_targetInst", "nativeEvent", "isDefaultPrevented", "isPropagationStopped", "_dispatchListeners", "_dispatchInstances"]),
+    s = (n(2), "function" == typeof Proxy, ["dispatchConfig", "_targetInst", "nativeEvent", "isDefaultPrevented", "isPropagationStopped", "_dispatchListeners", "_dispatchInstances"]),
     u = {
       type: null,
       target: null,
@@ -66532,7 +66719,7 @@ $.fn.togglify = function(settings) {
     };
   }
   t.__esModule = !0;
-  var o = n(175),
+  var o = n(181),
     i = r(o);
   t.default = i.default || function(e) {
     for (var t = 1; t < arguments.length; t++) {
@@ -66551,7 +66738,10 @@ $.fn.togglify = function(settings) {
     return r(o(e));
   };
 }, function(e, t, n) {
-  e.exports = !n(30)(function() {
+  "use strict";
+  e.exports = n(262);
+}, function(e, t, n) {
+  e.exports = !n(31)(function() {
     return 7 != Object.defineProperty({}, "a", {
       get: function() {
         return 7;
@@ -66562,7 +66752,7 @@ $.fn.togglify = function(settings) {
   var r = n(22),
     o = n(11),
     i = n(102),
-    a = n(31),
+    a = n(32),
     s = "prototype",
     u = function(e, t, n) {
       var l, c, f, d = e & u.F,
@@ -66600,11 +66790,11 @@ $.fn.togglify = function(settings) {
     return n.call(e, t);
   };
 }, function(e, t, n) {
-  var r = n(29),
+  var r = n(30),
     o = n(104),
     i = n(71),
     a = Object.defineProperty;
-  t.f = n(24) ? Object.defineProperty : function(e, t, n) {
+  t.f = n(25) ? Object.defineProperty : function(e, t, n) {
     if (r(e), t = i(t, !0), r(n), o) try {
       return a(e, t, n);
     } catch (e) {}
@@ -66679,9 +66869,9 @@ $.fn.togglify = function(settings) {
     }
   };
 }, function(e, t, n) {
-  var r = n(27),
+  var r = n(28),
     o = n(49);
-  e.exports = n(24) ? function(e, t, n) {
+  e.exports = n(25) ? function(e, t, n) {
     return r.f(e, t, o(1, n));
   } : function(e, t, n) {
     return e[t] = n, e;
@@ -66737,7 +66927,7 @@ $.fn.togglify = function(settings) {
   var c = n(78),
     f = n(56),
     d = n(86),
-    p = n(134),
+    p = n(135),
     h = 1,
     v = 11,
     m = "undefined" != typeof document && "number" == typeof document.documentMode || "undefined" != typeof navigator && "string" == typeof navigator.userAgent && /\bEdge\/\d/.test(navigator.userAgent),
@@ -66814,8 +67004,8 @@ $.fn.togglify = function(settings) {
   function r() {
     o.attachRefs(this, this._currentElement);
   }
-  var o = n(276),
-    i = (n(15), n(1), {
+  var o = n(285),
+    i = (n(16), n(2), {
       mountComponent: function(e, t, n, o, i, a) {
         var s = e.mountComponent(t, n, o, i, a);
         return e._currentElement && null != e._currentElement.ref && t.getReactMountReady().enqueue(r, e), s;
@@ -66841,16 +67031,16 @@ $.fn.togglify = function(settings) {
 }, function(e, t, n) {
   "use strict";
   var r = n(4),
-    o = n(337),
+    o = n(352),
     i = n(95),
-    a = n(342),
-    s = n(338),
-    u = n(339),
-    l = n(37),
-    c = n(340),
-    f = n(343),
-    d = n(344),
-    p = (n(1), l.createElement),
+    a = n(357),
+    s = n(353),
+    u = n(354),
+    l = n(38),
+    c = n(355),
+    f = n(358),
+    d = n(359),
+    p = (n(2), l.createElement),
     h = l.createFactory,
     v = l.cloneElement,
     m = r,
@@ -66890,8 +67080,8 @@ $.fn.togglify = function(settings) {
   }
   var i = n(4),
     a = n(20),
-    s = (n(1), n(162), Object.prototype.hasOwnProperty),
-    u = n(160),
+    s = (n(2), n(164), Object.prototype.hasOwnProperty),
+    u = n(162),
     l = {
       key: !0,
       ref: !0,
@@ -66969,9 +67159,6 @@ $.fn.togglify = function(settings) {
     throw o.name = "Invariant Violation", o.framesToPop = 1, o;
   }
   e.exports = r;
-}, function(e, t, n) {
-  "use strict";
-  e.exports = n(253);
 }, function(e, t) {
   e.exports = function(e) {
     return "object" == typeof e ? null !== e : "function" == typeof e;
@@ -67010,8 +67197,8 @@ $.fn.togglify = function(settings) {
     a = n(79),
     s = n(80),
     u = n(84),
-    l = n(128),
-    c = n(129),
+    l = n(129),
+    c = n(130),
     f = (n(0), {}),
     d = null,
     p = function(e, t) {
@@ -67141,9 +67328,9 @@ $.fn.togglify = function(settings) {
   }
   var p = n(43),
     h = n(80),
-    v = n(128),
-    m = n(129),
-    g = (n(1), p.getListener),
+    v = n(129),
+    m = n(130),
+    g = (n(2), p.getListener),
     _ = {
       accumulateTwoPhaseDispatches: l,
       accumulateTwoPhaseDispatchesSkipTarget: c,
@@ -67226,9 +67413,9 @@ $.fn.togglify = function(settings) {
   }
   var o, i = n(4),
     a = n(79),
-    s = n(268),
-    u = n(127),
-    l = n(301),
+    s = n(277),
+    u = n(128),
+    l = n(310),
     c = n(90),
     f = {},
     d = !1,
@@ -67345,7 +67532,7 @@ $.fn.togglify = function(settings) {
     return o.call(this, e, t, n, r);
   }
   var o = n(46),
-    i = n(127),
+    i = n(128),
     a = n(88),
     s = {
       screenX: null,
@@ -67498,14 +67685,14 @@ $.fn.togglify = function(settings) {
   e.exports = l;
 }, function(e, t, n) {
   "use strict";
-  var r = n(141);
+  var r = n(143);
   n.d(t, "a", function() {
     return r.a;
   });
-  var o = n(315);
+  var o = n(330);
   n.d(t, "b", function() {
     return o.a;
-  }), n(142), n(143);
+  }), n(144), n(145);
 }, , function(e, t) {
   var n = {}.toString;
   e.exports = function(e) {
@@ -67521,8 +67708,8 @@ $.fn.togglify = function(settings) {
 }, function(e, t) {
   e.exports = !0;
 }, function(e, t, n) {
-  var r = n(29),
-    o = n(205),
+  var r = n(30),
+    o = n(211),
     i = n(61),
     a = n(68)("IE_PROTO"),
     s = function() {},
@@ -67532,7 +67719,7 @@ $.fn.togglify = function(settings) {
         r = i.length,
         o = "<",
         a = ">";
-      for (t.style.display = "none", n(198).appendChild(t), t.src = "javascript:", e = t.contentWindow.document, e.open(), e.write(o + "script" + a + "document.F=Object" + o + "/script" + a), e.close(), l = e.F; r--;) delete l[u][i[r]];
+      for (t.style.display = "none", n(204).appendChild(t), t.src = "javascript:", e = t.contentWindow.document, e.open(), e.write(o + "script" + a + "document.F=Object" + o + "/script" + a), e.close(), l = e.F; r--;) delete l[u][i[r]];
       return l();
     };
   e.exports = Object.create || function(e, t) {
@@ -67544,10 +67731,10 @@ $.fn.togglify = function(settings) {
     o = n(49),
     i = n(23),
     a = n(71),
-    s = n(26),
+    s = n(27),
     u = n(104),
     l = Object.getOwnPropertyDescriptor;
-  t.f = n(24) ? l : function(e, t) {
+  t.f = n(25) ? l : function(e, t) {
     if (e = i(e), t = a(t, !0), u) try {
       return l(e, t);
     } catch (e) {}
@@ -67556,9 +67743,9 @@ $.fn.togglify = function(settings) {
 }, function(e, t) {
   t.f = Object.getOwnPropertySymbols;
 }, function(e, t, n) {
-  var r = n(25),
+  var r = n(26),
     o = n(11),
-    i = n(30);
+    i = n(31);
   e.exports = function(e, t) {
     var n = (o.Object || {})[e] || Object[e],
       a = {};
@@ -67567,8 +67754,8 @@ $.fn.togglify = function(settings) {
     }), "Object", a);
   };
 }, function(e, t, n) {
-  var r = n(27).f,
-    o = n(26),
+  var r = n(28).f,
+    o = n(27),
     i = n(18)("toStringTag");
   e.exports = function(e, t, n) {
     e && !o(e = n ? e : e.prototype, i) && r(e, i, {
@@ -67610,7 +67797,7 @@ $.fn.togglify = function(settings) {
     o = n(11),
     i = n(62),
     a = n(73),
-    s = n(27).f;
+    s = n(28).f;
   e.exports = function(e) {
     var t = o.Symbol || (o.Symbol = i ? {} : r.Symbol || {});
     "_" == e.charAt(0) || e in t || s(t, e, {
@@ -67621,7 +67808,7 @@ $.fn.togglify = function(settings) {
   t.f = n(18);
 }, function(e, t, n) {
   "use strict";
-  var r = n(208)(!0);
+  var r = n(214)(!0);
   n(106)(String, "String", function(e) {
     this._t = String(e), this._i = 0;
   }, function() {
@@ -67636,8 +67823,8 @@ $.fn.togglify = function(settings) {
     });
   });
 }, function(e, t, n) {
-  n(214);
-  for (var r = n(22), o = n(31), i = n(41), a = n(18)("toStringTag"), s = ["NodeList", "DOMTokenList", "MediaList", "StyleSheetList", "CSSRuleList"], u = 0; u < 5; u++) {
+  n(220);
+  for (var r = n(22), o = n(32), i = n(41), a = n(18)("toStringTag"), s = ["NodeList", "DOMTokenList", "MediaList", "StyleSheetList", "CSSRuleList"], u = 0; u < 5; u++) {
     var l = s[u],
       c = r[l],
       f = c && c.prototype;
@@ -67706,11 +67893,11 @@ $.fn.togglify = function(settings) {
       o = e.nextSibling;
     o === t ? n && v(r, document.createTextNode(n), o) : n ? (h(o, n), u(r, o, t)) : u(r, e, t);
   }
-  var c = n(33),
-    f = n(245),
-    d = (n(7), n(15), n(86)),
+  var c = n(34),
+    f = n(254),
+    d = (n(7), n(16), n(86)),
     p = n(56),
-    h = n(134),
+    h = n(135),
     v = d(function(e, t, n) {
       e.insertBefore(t, n);
     }),
@@ -67884,7 +68071,7 @@ $.fn.togglify = function(settings) {
   }
   var d, p, h = n(3),
     v = n(84),
-    m = (n(0), n(1), {
+    m = (n(0), n(2), {
       injectComponentTree: function(e) {
         d = e;
       },
@@ -67978,9 +68165,9 @@ $.fn.togglify = function(settings) {
     return "";
   }
   var s = n(3),
-    u = n(36),
-    l = n(274),
-    c = (n(0), n(1), {
+    u = n(37),
+    l = n(283),
+    c = (n(0), n(2), {
       button: !0,
       checkbox: !0,
       image: !0,
@@ -68074,8 +68261,8 @@ $.fn.togglify = function(settings) {
   }
   var a = n(3),
     s = (n(20), n(45)),
-    u = (n(15), n(17)),
-    l = (n(0), n(1), {
+    u = (n(16), n(17)),
+    l = (n(0), n(2), {
       isMounted: function(e) {
         var t = s.get(e);
         return !!t && !!t._renderedComponent;
@@ -68155,7 +68342,8 @@ $.fn.togglify = function(settings) {
 
   function r(e) {
     var t = e.target || e.srcElement || window;
-    return t.correspondingUseElement && (t = t.correspondingUseElement), 3 === t.nodeType ? t.parentNode : t;
+    return t.correspondingUseElement && (t = t.correspondingUseElement),
+      3 === t.nodeType ? t.parentNode : t;
   }
   e.exports = r;
 }, function(e, t, n) {
@@ -68188,7 +68376,7 @@ $.fn.togglify = function(settings) {
 }, function(e, t, n) {
   "use strict";
   var r = (n(4), n(14)),
-    o = (n(1), r);
+    o = (n(2), r);
   e.exports = o;
 }, function(e, t, n) {
   "use strict";
@@ -68228,10 +68416,10 @@ $.fn.togglify = function(settings) {
   function r(e, t, n) {
     this.props = e, this.context = t, this.refs = a, this.updater = n || i;
   }
-  var o = n(38),
+  var o = n(39),
     i = n(96),
-    a = (n(162), n(42));
-  n(0), n(1), r.prototype.isReactComponent = {}, r.prototype.setState = function(e, t) {
+    a = (n(164), n(42));
+  n(0), n(2), r.prototype.isReactComponent = {}, r.prototype.setState = function(e, t) {
     "object" != typeof e && "function" != typeof e && null != e ? o("85") : void 0, this.updater.enqueueSetState(this, e), t && this.updater.enqueueCallback(this, t, "setState");
   }, r.prototype.forceUpdate = function(e) {
     this.updater.enqueueForceUpdate(this), e && this.updater.enqueueCallback(this, e, "forceUpdate");
@@ -68240,7 +68428,7 @@ $.fn.togglify = function(settings) {
   "use strict";
 
   function r(e, t) {}
-  var o = (n(1), {
+  var o = (n(2), {
     isMounted: function(e) {
       return !1;
     },
@@ -68258,11 +68446,11 @@ $.fn.togglify = function(settings) {
   e.exports = o;
 }, , function(e, t, n) {
   "use strict";
-  var r = n(170);
+  var r = n(174);
   t.a = r.a;
 }, function(e, t, n) {
   e.exports = {
-    "default": n(190),
+    "default": n(196),
     __esModule: !0
   };
 }, function(e, t, n) {
@@ -68274,9 +68462,9 @@ $.fn.togglify = function(settings) {
     };
   }
   t.__esModule = !0;
-  var o = n(181),
+  var o = n(187),
     i = r(o),
-    a = n(180),
+    a = n(186),
     s = r(a),
     u = "function" == typeof s.default && "symbol" == typeof i.default ? function(e) {
       return typeof e;
@@ -68304,7 +68492,7 @@ $.fn.togglify = function(settings) {
     return void 0 === e ? "Undefined" : null === e ? "Null" : "string" == typeof(n = a(t = Object(e), o)) ? n : i ? r(t) : "Object" == (s = r(t)) && "function" == typeof t.callee ? "Arguments" : s;
   };
 }, function(e, t, n) {
-  var r = n(194);
+  var r = n(200);
   e.exports = function(e, t, n) {
     if (r(e), void 0 === t) return e;
     switch (n) {
@@ -68333,7 +68521,7 @@ $.fn.togglify = function(settings) {
     return i ? o.createElement(e) : {};
   };
 }, function(e, t, n) {
-  e.exports = !n(24) && !n(30)(function() {
+  e.exports = !n(25) && !n(31)(function() {
     return 7 != Object.defineProperty(n(103)("div"), "a", {
       get: function() {
         return 7;
@@ -68348,12 +68536,12 @@ $.fn.togglify = function(settings) {
 }, function(e, t, n) {
   "use strict";
   var r = n(62),
-    o = n(25),
+    o = n(26),
     i = n(110),
-    a = n(31),
-    s = n(26),
+    a = n(32),
+    s = n(27),
     u = n(41),
-    l = n(200),
+    l = n(206),
     c = n(67),
     f = n(108),
     d = n(18)("iterator"),
@@ -68409,7 +68597,7 @@ $.fn.togglify = function(settings) {
     return r(e, o);
   };
 }, function(e, t, n) {
-  var r = n(26),
+  var r = n(27),
     o = n(50),
     i = n(68)("IE_PROTO"),
     a = Object.prototype;
@@ -68417,9 +68605,9 @@ $.fn.togglify = function(settings) {
     return e = o(e), r(e, i) ? e[i] : "function" == typeof e.constructor && e instanceof e.constructor ? e.constructor.prototype : e instanceof Object ? a : null;
   };
 }, function(e, t, n) {
-  var r = n(26),
+  var r = n(27),
     o = n(23),
-    i = n(196)(!1),
+    i = n(202)(!1),
     a = n(68)("IE_PROTO");
   e.exports = function(e, t) {
     var n, s = o(e),
@@ -68430,7 +68618,7 @@ $.fn.togglify = function(settings) {
     return l;
   };
 }, function(e, t, n) {
-  e.exports = n(31);
+  e.exports = n(32);
 }, function(e, t, n) {
   "use strict";
 
@@ -68448,7 +68636,7 @@ $.fn.togglify = function(settings) {
     }
     return a;
   };
-  var o = n(226),
+  var o = n(232),
     i = r(o),
     a = void 0;
   e.exports = t.default;
@@ -68500,6 +68688,159 @@ $.fn.togglify = function(settings) {
     }
   }
   e.exports = r;
+}, function(e, t) {
+  function n(e, t, n) {
+    switch (n.length) {
+      case 0:
+        return e.call(t);
+      case 1:
+        return e.call(t, n[0]);
+      case 2:
+        return e.call(t, n[0], n[1]);
+      case 3:
+        return e.call(t, n[0], n[1], n[2]);
+    }
+    return e.apply(t, n);
+  }
+
+  function r(e, t) {
+    for (var n = -1, r = Array(e); ++n < e;) r[n] = t(n);
+    return r;
+  }
+
+  function o(e, t) {
+    return function(n) {
+      return e(t(n));
+    };
+  }
+
+  function i(e, t) {
+    var n = L(e) || v(e) ? r(e.length, String) : [],
+      o = n.length,
+      i = !!o;
+    for (var a in e) !t && !P.call(e, a) || i && ("length" == a || f(a, o)) || n.push(a);
+    return n;
+  }
+
+  function a(e, t, n) {
+    var r = e[t];
+    P.call(e, t) && h(r, n) && (void 0 !== n || t in e) || (e[t] = n);
+  }
+
+  function s(e) {
+    if (!p(e)) return O(e);
+    var t = [];
+    for (var n in Object(e)) P.call(e, n) && "constructor" != n && t.push(n);
+    return t;
+  }
+
+  function u(e, t) {
+    return t = A(void 0 === t ? e.length - 1 : t, 0),
+      function() {
+        for (var r = arguments, o = -1, i = A(r.length - t, 0), a = Array(i); ++o < i;) a[o] = r[t + o];
+        o = -1;
+        for (var s = Array(t + 1); ++o < t;) s[o] = r[o];
+        return s[t] = a, n(e, this, s);
+      };
+  }
+
+  function l(e, t, n, r) {
+    n || (n = {});
+    for (var o = -1, i = t.length; ++o < i;) {
+      var s = t[o],
+        u = r ? r(n[s], e[s], s, n, e) : void 0;
+      a(n, s, void 0 === u ? e[s] : u);
+    }
+    return n;
+  }
+
+  function c(e) {
+    return u(function(t, n) {
+      var r = -1,
+        o = n.length,
+        i = o > 1 ? n[o - 1] : void 0,
+        a = o > 2 ? n[2] : void 0;
+      for (i = e.length > 3 && "function" == typeof i ? (o--, i) : void 0, a && d(n[0], n[1], a) && (i = o < 3 ? void 0 : i, o = 1), t = Object(t); ++r < o;) {
+        var s = n[r];
+        s && e(t, s, r, i);
+      }
+      return t;
+    });
+  }
+
+  function f(e, t) {
+    return t = null == t ? S : t, !!t && ("number" == typeof e || E.test(e)) && e > -1 && e % 1 == 0 && e < t;
+  }
+
+  function d(e, t, n) {
+    if (!b(n)) return !1;
+    var r = typeof t;
+    return !!("number" == r ? m(n) && f(t, n.length) : "string" == r && t in n) && h(n[t], e);
+  }
+
+  function p(e) {
+    var t = e && e.constructor,
+      n = "function" == typeof t && t.prototype || R;
+    return e === n;
+  }
+
+  function h(e, t) {
+    return e === t || e !== e && t !== t;
+  }
+
+  function v(e) {
+    return g(e) && P.call(e, "callee") && (!M.call(e, "callee") || I.call(e) == x);
+  }
+
+  function m(e) {
+    return null != e && y(e.length) && !_(e);
+  }
+
+  function g(e) {
+    return w(e) && m(e);
+  }
+
+  function _(e) {
+    var t = b(e) ? I.call(e) : "";
+    return t == k || t == T;
+  }
+
+  function y(e) {
+    return "number" == typeof e && e > -1 && e % 1 == 0 && e <= S;
+  }
+
+  function b(e) {
+    var t = typeof e;
+    return !!e && ("object" == t || "function" == t);
+  }
+
+  function w(e) {
+    return !!e && "object" == typeof e;
+  }
+
+  function C(e) {
+    return m(e) ? i(e) : s(e);
+  }
+  var S = 9007199254740991,
+    x = "[object Arguments]",
+    k = "[object Function]",
+    T = "[object GeneratorFunction]",
+    E = /^(?:0|[1-9]\d*)$/,
+    R = Object.prototype,
+    P = R.hasOwnProperty,
+    I = R.toString,
+    M = R.propertyIsEnumerable,
+    O = o(Object.keys, Object),
+    A = Math.max,
+    N = !M.call({
+      valueOf: 1
+    }, "valueOf"),
+    L = Array.isArray,
+    z = c(function(e, t) {
+      if (N || p(t) || m(t)) return void l(t, C(t), e);
+      for (var n in t) P.call(t, n) && a(e, n, t[n]);
+    });
+  e.exports = z;
 }, function(e, t) {
   function n() {
     throw new Error("setTimeout has not been defined");
@@ -68702,7 +69043,7 @@ $.fn.togglify = function(settings) {
     if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
   }
   var o = n(3),
-    i = n(28),
+    i = n(29),
     a = (n(0), function() {
       function e(t) {
         r(this, e), this._callbacks = null, this._contexts = null, this._arg = t;
@@ -68739,9 +69080,9 @@ $.fn.togglify = function(settings) {
   function o(e, t) {
     return null == t || e.hasBooleanValue && !t || e.hasNumericValue && isNaN(t) || e.hasPositiveNumericValue && t < 1 || e.hasOverloadedBooleanValue && t === !1;
   }
-  var i = n(34),
-    a = (n(7), n(15), n(302)),
-    s = (n(1), new RegExp("^[" + i.ATTRIBUTE_NAME_START_CHAR + "][" + i.ATTRIBUTE_NAME_CHAR + "]*$")),
+  var i = n(35),
+    a = (n(7), n(16), n(311)),
+    s = (n(2), new RegExp("^[" + i.ATTRIBUTE_NAME_START_CHAR + "][" + i.ATTRIBUTE_NAME_CHAR + "]*$")),
     u = {},
     l = {},
     c = {
@@ -68846,7 +69187,7 @@ $.fn.togglify = function(settings) {
     s = n(82),
     u = n(7),
     l = n(17),
-    c = (n(1), !1),
+    c = (n(2), !1),
     f = {
       getHostProps: function(e, t) {
         return a({}, t, {
@@ -68934,8 +69275,8 @@ $.fn.togglify = function(settings) {
   function r(e) {
     return i(document.documentElement, e);
   }
-  var o = n(261),
-    i = n(229),
+  var o = n(270),
+    i = n(237),
     a = n(113),
     s = n(114),
     u = {
@@ -69045,24 +69386,24 @@ $.fn.togglify = function(settings) {
     return t ? t._hostContainerInfo._topLevelWrapper : null;
   }
   var p = n(3),
-    h = n(33),
-    v = n(34),
-    m = n(36),
+    h = n(34),
+    v = n(35),
+    m = n(37),
     g = n(52),
     _ = (n(20), n(7)),
-    y = n(255),
-    b = n(257),
-    w = n(122),
+    y = n(264),
+    b = n(266),
+    w = n(123),
     C = n(45),
-    S = (n(15), n(271)),
-    x = n(35),
+    S = (n(16), n(280)),
+    x = n(36),
     k = n(85),
     T = n(17),
     E = n(42),
-    R = n(132),
+    R = n(133),
     P = (n(0), n(56)),
     I = n(91),
-    M = (n(1), v.ID_ATTRIBUTE_NAME),
+    M = (n(2), v.ID_ATTRIBUTE_NAME),
     O = v.ROOT_ATTRIBUTE_NAME,
     A = 1,
     N = 9,
@@ -69156,7 +69497,7 @@ $.fn.togglify = function(settings) {
 }, function(e, t, n) {
   "use strict";
   var r = n(3),
-    o = n(36),
+    o = n(37),
     i = (n(0), {
       HOST: 0,
       COMPOSITE: 1,
@@ -69199,7 +69540,7 @@ $.fn.togglify = function(settings) {
       (t = e._renderedNodeType) === o.COMPOSITE;) e = e._renderedComponent;
     return t === o.HOST ? e._renderedComponent : t === o.EMPTY ? null : void 0;
   }
-  var o = n(126);
+  var o = n(127);
   e.exports = r;
 }, function(e, t, n) {
   "use strict";
@@ -69241,10 +69582,10 @@ $.fn.togglify = function(settings) {
   }
   var a = n(3),
     s = n(4),
-    u = n(252),
-    l = n(121),
-    c = n(123),
-    f = (n(299), n(0), n(1), function(e) {
+    u = n(261),
+    l = n(122),
+    c = n(124),
+    f = (n(308), n(0), n(2), function(e) {
       this.construct(e);
     });
   s(f.prototype, u, {
@@ -69328,12 +69669,43 @@ $.fn.togglify = function(settings) {
     return null == e ? 0 : o(e, "", t, n);
   }
   var a = n(3),
-    s = (n(20), n(267)),
-    u = n(298),
+    s = (n(20), n(276)),
+    u = n(307),
     l = (n(0), n(81)),
-    c = (n(1), "."),
+    c = (n(2), "."),
     f = ":";
   e.exports = i;
+}, function(e, t) {
+  function n(e, t) {
+    var n = e.nodeName.toLowerCase();
+    return (/input|select|textarea|button|object/.test(n) ? !e.disabled : "a" === n ? e.href || t : t) && o(e);
+  }
+
+  function r(e) {
+    return e.offsetWidth <= 0 && e.offsetHeight <= 0 || "none" === e.style.display;
+  }
+
+  function o(e) {
+    for (; e && e !== document.body;) {
+      if (r(e)) return !1;
+      e = e.parentNode;
+    }
+    return !0;
+  }
+
+  function i(e) {
+    var t = e.getAttribute("tabindex");
+    null === t && (t = void 0);
+    var r = isNaN(t);
+    return (r || t >= 0) && n(e, !r);
+  }
+
+  function a(e) {
+    return [].slice.call(e.querySelectorAll("*"), 0).filter(function(e) {
+      return i(e);
+    });
+  }
+  e.exports = a;
 }, function(e, t, n) {
   "use strict";
   var r = n(8),
@@ -69346,7 +69718,7 @@ $.fn.togglify = function(settings) {
     c = n.n(l),
     f = n(9),
     d = n.n(f),
-    p = n(2),
+    p = n(1),
     h = n.n(p),
     v = function(e) {
       function t(e, n) {
@@ -69465,9 +69837,9 @@ $.fn.togglify = function(settings) {
     c = n.n(l),
     f = n(9),
     d = n.n(f),
-    p = n(2),
+    p = n(1),
     h = n.n(p),
-    v = n(333),
+    v = n(348),
     m = function(e) {
       function t(e) {
         a()(this, t);
@@ -69554,8 +69926,8 @@ $.fn.togglify = function(settings) {
     c = n.n(l),
     f = n(9),
     d = n.n(f),
-    p = n(2),
-    h = (n.n(p), n(39));
+    p = n(1),
+    h = (n.n(p), n(24));
   n.n(h),
     function(e) {
       function t(e, n) {
@@ -69667,11 +70039,11 @@ $.fn.togglify = function(settings) {
     v = n.n(h),
     m = n(9),
     g = n.n(m),
-    _ = n(2),
+    _ = n(1),
     y = n.n(_),
-    b = n(309),
-    w = n(313),
-    C = n(331),
+    b = n(324),
+    w = n(328),
+    C = n(346),
     S = function(e) {
       function t(e, n) {
         f()(this, t);
@@ -69816,7 +70188,7 @@ $.fn.togglify = function(settings) {
     c = n.n(l),
     f = n(9),
     d = n.n(f),
-    p = n(2);
+    p = n(1);
   n.n(p),
     function(e) {
       function t(e, n) {
@@ -69879,16 +70251,16 @@ $.fn.togglify = function(settings) {
     d = n.n(f),
     p = n(9),
     h = n.n(p),
-    v = n(2),
+    v = n(1),
     m = n.n(v),
     g = n(13),
     _ = n.n(g),
-    y = n(318),
-    b = n(317),
+    y = n(333),
+    b = n(332),
     w = n(94),
-    C = n(143),
-    S = n(319),
-    x = n(142),
+    C = n(145),
+    S = n(334),
+    x = n(144),
     k = n(111),
     T = n.n(k),
     E = 150,
@@ -70660,7 +71032,7 @@ $.fn.togglify = function(settings) {
     p = n.n(d),
     h = n(9),
     v = n.n(h),
-    m = n(2),
+    m = n(1),
     g = (n.n(m), n(94)),
     _ = function(e) {
       function t(e, r) {
@@ -70744,7 +71116,7 @@ $.fn.togglify = function(settings) {
   };
 }, function(e, t, n) {
   "use strict";
-  var r = n(178),
+  var r = n(184),
     o = n.n(r),
     i = n(47),
     a = n.n(i),
@@ -70761,7 +71133,7 @@ $.fn.togglify = function(settings) {
     g = n(9),
     _ = n.n(g),
     y = n(57),
-    b = n(2),
+    b = n(1),
     w = n.n(b),
     C = n(13),
     S = n.n(C),
@@ -70926,11 +71298,11 @@ $.fn.togglify = function(settings) {
     h = n.n(p),
     v = n(9),
     m = n.n(v),
-    g = n(2),
+    g = n(1),
     _ = n.n(g),
     y = n(13),
     b = n.n(y),
-    w = n(322),
+    w = n(337),
     C = 150,
     S = function(e) {
       function t(e, n) {
@@ -71180,7 +71552,7 @@ $.fn.togglify = function(settings) {
     h = n.n(p),
     v = n(9),
     m = n.n(v),
-    g = n(2),
+    g = n(1),
     _ = n.n(g),
     y = n(57),
     b = 20,
@@ -71627,7 +71999,7 @@ $.fn.togglify = function(settings) {
     c = n.n(l),
     f = n(9),
     d = n.n(f),
-    p = n(2);
+    p = n(1);
   n.n(p),
     function(e) {
       function t(e, n) {
@@ -71693,10 +72065,10 @@ $.fn.togglify = function(settings) {
     u = n.n(s),
     l = n(9),
     c = n.n(l),
-    f = n(2),
-    d = (n.n(f), n(154)),
-    p = n(153),
-    h = n(152),
+    f = n(1),
+    d = (n.n(f), n(156)),
+    p = n(155),
+    h = n(154),
     v = function(e) {
       function t() {
         return a()(this, t), u()(this, (t.__proto__ || o()(t)).apply(this, arguments));
@@ -71734,7 +72106,7 @@ $.fn.togglify = function(settings) {
       fill: "none"
     }));
   }
-  var o = n(2),
+  var o = n(1),
     i = n.n(o),
     a = n(13),
     s = n.n(a),
@@ -71756,12 +72128,12 @@ $.fn.togglify = function(settings) {
     h = n.n(p),
     v = n(13),
     m = n.n(v),
-    g = (n(149), n(2)),
+    g = (n(151), n(1)),
     _ = n.n(g),
-    y = n(39),
+    y = n(24),
     b = (n.n(y), n(57)),
-    w = n(156),
-    C = n(155),
+    w = n(158),
+    C = n(157),
     S = n(93),
     x = function(e) {
       function t(e) {
@@ -72187,9 +72559,9 @@ $.fn.togglify = function(settings) {
       sortDirection: o
     })), u;
   }
-  var o = n(2),
+  var o = n(1),
     i = n.n(o),
-    a = n(150);
+    a = n(152);
   t.a = r;
 }, function(e, t, n) {
   "use strict";
@@ -72204,7 +72576,7 @@ $.fn.togglify = function(settings) {
       style: r
     }, n);
   }
-  var o = n(2),
+  var o = n(1),
     i = n.n(o);
   t.a = r;
 }, function(e, t, n) {
@@ -72255,7 +72627,7 @@ $.fn.togglify = function(settings) {
   }
   var o = n(21),
     i = n.n(o),
-    a = n(2),
+    a = n(1),
     s = n.n(a);
   t.a = r;
 }, function(e, t, n) {
@@ -72270,11 +72642,11 @@ $.fn.togglify = function(settings) {
     c = n.n(l),
     f = n(9),
     d = n.n(f),
-    p = n(2),
-    h = (n.n(p), n(39)),
+    p = n(1),
+    h = (n.n(p), n(24)),
     v = n.n(h),
-    m = n(158),
-    g = n(329),
+    m = n(160),
+    g = n(344),
     _ = function(e) {
       function t(e) {
         a()(this, t);
@@ -72464,9 +72836,9 @@ $.fn.togglify = function(settings) {
       o = k.getOwnerID(e);
     return o && (t = k.getDisplayName(o)), i(n, r && r._source, t);
   }
-  var u, l, c, f, d, p, h, v = n(38),
+  var u, l, c, f, d, p, h, v = n(39),
     m = n(20),
-    g = (n(0), n(1), "function" == typeof Array.from && "function" == typeof Map && r(Map) && null != Map.prototype && "function" == typeof Map.prototype.keys && r(Map.prototype.keys) && "function" == typeof Set && r(Set) && null != Set.prototype && "function" == typeof Set.prototype.keys && r(Set.prototype.keys));
+    g = (n(0), n(2), "function" == typeof Array.from && "function" == typeof Map && r(Map) && null != Map.prototype && "function" == typeof Map.prototype.keys && r(Map.prototype.keys) && "function" == typeof Set && r(Set) && null != Set.prototype && "function" == typeof Set.prototype.keys && r(Set.prototype.keys));
   if (g) {
     var _ = new Map,
       y = new Set;
@@ -72682,7 +73054,7 @@ $.fn.togglify = function(settings) {
       }
     }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
   }
-  var a = n(2),
+  var a = n(1),
     s = n.n(a),
     u = function() {
       function e(e, t) {
@@ -72734,9 +73106,9 @@ $.fn.togglify = function(settings) {
       o = a.a.get(t, "context");
     return n.i(s.a)(e, r)(o);
   }
-  var i = n(16),
+  var i = n(15),
     a = n.n(i),
-    s = n(385),
+    s = n(401),
     u = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
@@ -72770,7 +73142,7 @@ $.fn.togglify = function(settings) {
       }]), e;
     }();
   t.a = l;
-}, , function(e, t) {
+}, , , function(e, t) {
   e.exports = function(e) {
     return e.webpackPolyfill || (e.deprecate = function() {}, e.paths = [], e.children || (e.children = []), Object.defineProperty(e, "loaded", {
       enumerable: !0,
@@ -72784,6 +73156,15 @@ $.fn.togglify = function(settings) {
       }
     }), e.webpackPolyfill = 1), e;
   };
+}, function(e, t, n) {
+  "use strict";
+  var r = n(176),
+    o = n(175);
+  n.d(t, "b", function() {
+    return r.a;
+  }), n.d(t, "c", function() {
+    return o.a;
+  }), t.a = r.a;
 }, , function(e, t, n) {
   "use strict";
 
@@ -72791,9 +73172,9 @@ $.fn.togglify = function(settings) {
     var t = s.a.clone(e);
     return t.className = l()("ts_icon ts_icon_" + e.type, e.className), delete t.type, i.a.createElement("i", t);
   }
-  var o = n(2),
+  var o = n(1),
     i = n.n(o),
-    a = n(16),
+    a = n(15),
     s = n.n(a),
     u = n(13),
     l = n.n(u);
@@ -72807,43 +73188,380 @@ $.fn.togglify = function(settings) {
   "use strict";
 
   function r(e, t) {
+    if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
+  }
+
+  function o(e, t) {
+    if (!e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    return !t || "object" != typeof t && "function" != typeof t ? e : t;
+  }
+
+  function i(e, t) {
+    if ("function" != typeof t && null !== t) throw new TypeError("Super expression must either be null or a function, not " + typeof t);
+    e.prototype = Object.create(t && t.prototype, {
+      constructor: {
+        value: e,
+        enumerable: !1,
+        writable: !0,
+        configurable: !0
+      }
+    }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
+  }
+  var a = n(1),
+    s = n.n(a),
+    u = n(13),
+    l = n.n(u),
+    c = function() {
+      function e(e, t) {
+        for (var n = 0; n < t.length; n++) {
+          var r = t[n];
+          r.enumerable = r.enumerable || !1, r.configurable = !0,
+            "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
+        }
+      }
+      return function(t, n, r) {
+        return n && e(t.prototype, n), r && e(t, r), t;
+      };
+    }(),
+    f = {
+      renderPopover: a.PropTypes.func.isRequired,
+      children: a.PropTypes.node.isRequired,
+      startsOpen: a.PropTypes.bool
+    },
+    d = {
+      startsOpen: !1
+    },
+    p = function(e) {
+      function t(e) {
+        r(this, t);
+        var n = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
+        return n.state = {
+          isOpen: n.props.startsOpen
+        }, n.closePopover = n.closePopover.bind(n), n.onTrigger = n.onTrigger.bind(n), n;
+      }
+      return i(t, e), c(t, [{
+        key: "onTrigger",
+        value: function() {
+          this.setState({
+            isOpen: !this.state.isOpen
+          });
+        }
+      }, {
+        key: "closePopover",
+        value: function() {
+          this.setState({
+            isOpen: !1
+          });
+        }
+      }, {
+        key: "render",
+        value: function() {
+          var e = this.props.children,
+            t = s.a.cloneElement(e, {
+              onClick: this.onTrigger,
+              className: l()(e.props.className, {
+                active: this.state.isOpen
+              })
+            }),
+            n = this.props.renderPopover({
+              isOpen: this.state.isOpen,
+              onClose: this.closePopover
+            });
+          return s.a.createElement("div", null, t, n);
+        }
+      }]), t;
+    }(a.Component);
+  t.a = p, p.propTypes = f, p.defaultProps = d;
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e, t) {
+    if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
+  }
+
+  function o(e, t) {
+    if (!e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    return !t || "object" != typeof t && "function" != typeof t ? e : t;
+  }
+
+  function i(e, t) {
+    if ("function" != typeof t && null !== t) throw new TypeError("Super expression must either be null or a function, not " + typeof t);
+    e.prototype = Object.create(t && t.prototype, {
+      constructor: {
+        value: e,
+        enumerable: !1,
+        writable: !0,
+        configurable: !0
+      }
+    }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
+  }
+  var a = n(1),
+    s = n.n(a),
+    u = n(24),
+    l = (n.n(u), n(318)),
+    c = n.n(l),
+    f = function() {
+      function e(e, t) {
+        for (var n = 0; n < t.length; n++) {
+          var r = t[n];
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
+        }
+      }
+      return function(t, n, r) {
+        return n && e(t.prototype, n), r && e(t, r), t;
+      };
+    }(),
+    d = {
+      children: a.PropTypes.node.isRequired,
+      isOpen: a.PropTypes.bool,
+      onOpen: a.PropTypes.func,
+      onClose: a.PropTypes.func,
+      position: a.PropTypes.string,
+      allowanceX: a.PropTypes.number,
+      allowanceY: a.PropTypes.number,
+      offsetX: a.PropTypes.number,
+      offsetY: a.PropTypes.number,
+      targetBounds: a.PropTypes.shape({
+        top: a.PropTypes.number,
+        left: a.PropTypes.number,
+        right: a.PropTypes.number,
+        bottom: a.PropTypes.number,
+        height: a.PropTypes.number,
+        width: a.PropTypes.number
+      }),
+      overlayClassName: a.PropTypes.string
+    },
+    p = {
+      allowanceX: 16,
+      allowanceY: 10,
+      offsetX: 0,
+      offsetY: 0,
+      isOpen: !1,
+      onOpen: function() {},
+      onClose: function() {},
+      position: null,
+      targetBounds: {
+        top: 0,
+        left: 0,
+        right: 20,
+        bottom: 20
+      },
+      overlayClassName: "popover_mask react_popover_mask"
+    },
+    h = function(e) {
+      function t(e) {
+        r(this, t);
+        var n = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
+        return n.onResize = n.onResize.bind(n), n.onOpen = n.onOpen.bind(n), n.onClose = n.onClose.bind(n), n.state = {
+          contentBounds: {}
+        }, n;
+      }
+      return i(t, e), f(t, [{
+        key: "componentDidMount",
+        value: function() {
+          window.addEventListener("resize", this.onResize);
+        }
+      }, {
+        key: "componentWillUnmount",
+        value: function() {
+          window.removeEventListener("resize", this.onResize);
+        }
+      }, {
+        key: "onResize",
+        value: function() {
+          this.props.isOpen && this.measureContents();
+        }
+      }, {
+        key: "onOpen",
+        value: function() {
+          this.props.onOpen(), this.measureContents();
+        }
+      }, {
+        key: "onClose",
+        value: function() {
+          this.props.onClose(), this.setState({
+            contentBounds: {}
+          });
+        }
+      }, {
+        key: "getInitialPosition",
+        value: function(e) {
+          var t = this.props,
+            n = t.position,
+            r = t.targetBounds,
+            o = t.offsetX,
+            i = t.offsetY;
+          switch (n) {
+            case "top":
+              return {
+                width: e.width,
+                height: e.height,
+                top: r.top - e.height + i,
+                bottom: r.top + i,
+                right: r.right + (r.width - e.width) / 2 + o,
+                left: r.left + (r.width - e.width) / 2 + o
+              };
+            case "top-left":
+              return {
+                width: e.width,
+                height: e.height,
+                top: r.top - e.height + i,
+                bottom: r.top + i,
+                right: r.left + e.width + o,
+                left: r.left + o
+              };
+            case "top-right":
+              return {
+                width: e.width,
+                height: e.height,
+                top: r.top - e.height + i,
+                bottom: r.top + i,
+                right: r.right + o,
+                left: r.right - e.width + o
+              };
+            case "left":
+              return {
+                width: e.width,
+                height: e.height,
+                top: r.top + (r.height - e.height) / 2 + i,
+                bottom: r.bottom + (r.height - e.heigh) / 2 + i,
+                right: r.left + o,
+                left: r.left - e.width + o
+              };
+            case "right":
+              return {
+                width: e.width,
+                height: e.height,
+                top: r.top + (r.height - e.height) / 2 + i,
+                bottom: r.bottom + (r.height - e.heigh) / 2 + i,
+                right: r.right + r.width + o,
+                left: r.right + o
+              };
+            case "bottom":
+              return {
+                width: e.width,
+                height: e.height,
+                top: r.bottom + i,
+                bottom: r.bottom + e.height + i,
+                right: r.right + (r.width - e.width) / 2 + o,
+                left: r.left + (r.width - e.width) / 2 + o
+              };
+            case "bottom-left":
+              return {
+                width: e.width,
+                height: e.height,
+                top: r.bottom + i,
+                bottom: r.bottom + e.height + i,
+                right: r.left + e.width + o,
+                left: r.left + o
+              };
+            case "bottom-right":
+              return {
+                width: e.width,
+                height: e.height,
+                top: r.bottom + i,
+                bottom: r.bottom + e.height + i,
+                right: r.right + o,
+                left: r.right - e.width + o
+              };
+            default:
+              return e;
+          }
+        }
+      }, {
+        key: "getBoundaries",
+        value: function() {
+          var e = window,
+            t = e.pageYOffset,
+            n = e.innerWidth,
+            r = e.innerHeight;
+          return {
+            top: t + this.props.allowanceY,
+            right: n - this.props.allowanceX,
+            bottom: t + r - this.props.allowanceY,
+            left: this.props.allowanceX
+          };
+        }
+      }, {
+        key: "getContentStyle",
+        value: function() {
+          var e = this.state.contentBounds || {},
+            t = this.getBoundaries();
+          return {
+            content: {
+              position: "absolute",
+              left: e.left || t.left,
+              top: e.top || t.top,
+              outline: "none"
+            }
+          };
+        }
+      }, {
+        key: "keepInBounds",
+        value: function(e) {
+          var t = this.getBoundaries(),
+            n = this.getInitialPosition(e),
+            r = n.left,
+            o = n.top;
+          return n.left < t.left ? r = t.left : n.right > t.right && (r = Math.max(t.left, t.right - n.width)), n.top < t.top ? o = t.top : n.bottom > t.bottom && (o = Math.max(t.top, t.bottom - n.height)), {
+            left: r,
+            top: o
+          };
+        }
+      }, {
+        key: "measureContents",
+        value: function() {
+          if (this.popoverContent) {
+            var e = n.i(u.findDOMNode)(this.popoverContent).getBoundingClientRect(),
+              t = this.keepInBounds(e);
+            this.setState({
+              contentBounds: t
+            });
+          }
+        }
+      }, {
+        key: "render",
+        value: function() {
+          var e = this,
+            t = s.a.cloneElement(this.props.children, {
+              ref: function(t) {
+                e.popoverContent = t;
+              }
+            });
+          return s.a.createElement(c.a, {
+            isOpen: this.props.isOpen,
+            contentLabel: "popover",
+            className: "popover",
+            overlayClassName: this.props.overlayClassName,
+            style: this.getContentStyle(),
+            onAfterOpen: this.onOpen,
+            onRequestClose: this.onClose
+          }, t);
+        }
+      }]), t;
+    }(a.PureComponent);
+  t.a = h, h.propTypes = d, h.defaultProps = p;
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e, t) {
     return function() {
       if (!i.a.has(window, e)) return t.apply(void 0, arguments);
       var n = i.a.get(window, e);
       return n.apply(void 0, arguments);
     };
   }
-  var o = n(16),
+  var o = n(15),
     i = n.n(o);
   t.a = r;
 }, , function(e, t, n) {
   e.exports = {
-    "default": n(183),
+    "default": n(189),
     __esModule: !0
   };
 }, function(e, t, n) {
   e.exports = {
-    "default": n(184),
-    __esModule: !0
-  };
-}, function(e, t, n) {
-  e.exports = {
-    "default": n(185),
-    __esModule: !0
-  };
-}, function(e, t, n) {
-  e.exports = {
-    "default": n(186),
-    __esModule: !0
-  };
-}, function(e, t, n) {
-  e.exports = {
-    "default": n(187),
-    __esModule: !0
-  };
-}, function(e, t, n) {
-  e.exports = {
-    "default": n(188),
+    "default": n(190),
     __esModule: !0
   };
 }, function(e, t, n) {
@@ -72862,6 +73580,26 @@ $.fn.togglify = function(settings) {
     __esModule: !0
   };
 }, function(e, t, n) {
+  e.exports = {
+    "default": n(194),
+    __esModule: !0
+  };
+}, function(e, t, n) {
+  e.exports = {
+    "default": n(197),
+    __esModule: !0
+  };
+}, function(e, t, n) {
+  e.exports = {
+    "default": n(198),
+    __esModule: !0
+  };
+}, function(e, t, n) {
+  e.exports = {
+    "default": n(199),
+    __esModule: !0
+  };
+}, function(e, t, n) {
   "use strict";
 
   function r(e) {
@@ -72870,9 +73608,9 @@ $.fn.togglify = function(settings) {
     };
   }
   t.__esModule = !0;
-  var o = n(174),
+  var o = n(180),
     i = r(o),
-    a = n(173),
+    a = n(179),
     s = r(a);
   t.default = function() {
     function e(e, t) {
@@ -72900,37 +73638,37 @@ $.fn.togglify = function(settings) {
     };
   }();
 }, function(e, t, n) {
-  n(75), n(74), e.exports = n(212);
+  n(75), n(74), e.exports = n(218);
 }, function(e, t, n) {
-  n(75), n(74), e.exports = n(213);
+  n(75), n(74), e.exports = n(219);
 }, function(e, t, n) {
-  n(215), e.exports = n(11).Object.assign;
+  n(221), e.exports = n(11).Object.assign;
 }, function(e, t, n) {
-  n(216);
+  n(222);
   var r = n(11).Object;
   e.exports = function(e, t) {
     return r.create(e, t);
   };
 }, function(e, t, n) {
-  n(217);
+  n(223);
   var r = n(11).Object;
   e.exports = function(e, t, n) {
     return r.defineProperty(e, t, n);
   };
 }, function(e, t, n) {
-  n(218);
+  n(224);
   var r = n(11).Object;
   e.exports = function(e, t) {
     return r.getOwnPropertyDescriptor(e, t);
   };
 }, function(e, t, n) {
-  n(219), e.exports = n(11).Object.getPrototypeOf;
+  n(225), e.exports = n(11).Object.getPrototypeOf;
 }, function(e, t, n) {
-  n(220), e.exports = n(11).Object.keys;
+  n(226), e.exports = n(11).Object.keys;
 }, function(e, t, n) {
-  n(221), e.exports = n(11).Object.setPrototypeOf;
+  n(227), e.exports = n(11).Object.setPrototypeOf;
 }, function(e, t, n) {
-  n(223), n(222), n(224), n(225), e.exports = n(11).Symbol;
+  n(229), n(228), n(230), n(231), e.exports = n(11).Symbol;
 }, function(e, t, n) {
   n(74), n(75), e.exports = n(73).f("iterator");
 }, function(e, t) {
@@ -72942,8 +73680,8 @@ $.fn.togglify = function(settings) {
   e.exports = function() {};
 }, function(e, t, n) {
   var r = n(23),
-    o = n(210),
-    i = n(209);
+    o = n(216),
+    i = n(215);
   e.exports = function(e) {
     return function(t, n, a) {
       var s, u = r(t),
@@ -72959,7 +73697,7 @@ $.fn.togglify = function(settings) {
     };
   };
 }, function(e, t, n) {
-  var r = n(32),
+  var r = n(33),
     o = n(65),
     i = n(48);
   e.exports = function(e) {
@@ -72982,7 +73720,7 @@ $.fn.togglify = function(settings) {
     o = n(49),
     i = n(67),
     a = {};
-  n(31)(a, n(18)("iterator"), function() {
+  n(32)(a, n(18)("iterator"), function() {
     return this;
   }), e.exports = function(e, t, n) {
     e.prototype = r(a, {
@@ -72997,7 +73735,7 @@ $.fn.togglify = function(settings) {
     };
   };
 }, function(e, t, n) {
-  var r = n(32),
+  var r = n(33),
     o = n(23);
   e.exports = function(e, t) {
     for (var n, i = o(e), a = r(i), s = a.length, u = 0; s > u;)
@@ -73006,13 +73744,13 @@ $.fn.togglify = function(settings) {
 }, function(e, t, n) {
   var r = n(51)("meta"),
     o = n(40),
-    i = n(26),
-    a = n(27).f,
+    i = n(27),
+    a = n(28).f,
     s = 0,
     u = Object.isExtensible || function() {
       return !0;
     },
-    l = !n(30)(function() {
+    l = !n(31)(function() {
       return u(Object.preventExtensions({}));
     }),
     c = function(e) {
@@ -73052,13 +73790,13 @@ $.fn.togglify = function(settings) {
     };
 }, function(e, t, n) {
   "use strict";
-  var r = n(32),
+  var r = n(33),
     o = n(65),
     i = n(48),
     a = n(50),
     s = n(105),
     u = Object.assign;
-  e.exports = !u || n(30)(function() {
+  e.exports = !u || n(31)(function() {
     var e = {},
       t = {},
       n = Symbol(),
@@ -73072,10 +73810,10 @@ $.fn.togglify = function(settings) {
     return n;
   } : u;
 }, function(e, t, n) {
-  var r = n(27),
-    o = n(29),
-    i = n(32);
-  e.exports = n(24) ? Object.defineProperties : function(e, t) {
+  var r = n(28),
+    o = n(30),
+    i = n(33);
+  e.exports = n(25) ? Object.defineProperties : function(e, t) {
     o(e);
     for (var n, a = i(t), s = a.length, u = 0; s > u;) r.f(e, n = a[u++], t[n]);
     return e;
@@ -73097,7 +73835,7 @@ $.fn.togglify = function(settings) {
   };
 }, function(e, t, n) {
   var r = n(40),
-    o = n(29),
+    o = n(30),
     i = function(e, t) {
       if (o(e), !r(t) && null !== t) throw TypeError(t + ": can't set as prototype!");
     };
@@ -73146,8 +73884,8 @@ $.fn.togglify = function(settings) {
     if (void 0 != e) return e[o] || e["@@iterator"] || i[r(e)];
   };
 }, function(e, t, n) {
-  var r = n(29),
-    o = n(211);
+  var r = n(30),
+    o = n(217);
   e.exports = n(11).getIterator = function(e) {
     var t = o(e);
     if ("function" != typeof t) throw TypeError(e + " is not iterable!");
@@ -73163,8 +73901,8 @@ $.fn.togglify = function(settings) {
   };
 }, function(e, t, n) {
   "use strict";
-  var r = n(195),
-    o = n(201),
+  var r = n(201),
+    o = n(207),
     i = n(41),
     a = n(23);
   e.exports = n(106)(Array, "Array", function(e, t) {
@@ -73176,19 +73914,19 @@ $.fn.togglify = function(settings) {
     return !e || n >= e.length ? (this._t = void 0, o(1)) : "keys" == t ? o(0, n) : "values" == t ? o(0, e[n]) : o(0, [n, e[n]]);
   }, "values"), i.Arguments = i.Array, r("keys"), r("values"), r("entries");
 }, function(e, t, n) {
-  var r = n(25);
+  var r = n(26);
   r(r.S + r.F, "Object", {
-    assign: n(204)
+    assign: n(210)
   });
 }, function(e, t, n) {
-  var r = n(25);
+  var r = n(26);
   r(r.S, "Object", {
     create: n(63)
   });
 }, function(e, t, n) {
-  var r = n(25);
-  r(r.S + r.F * !n(24), "Object", {
-    defineProperty: n(27).f
+  var r = n(26);
+  r(r.S + r.F * !n(25), "Object", {
+    defineProperty: n(28).f
   });
 }, function(e, t, n) {
   var r = n(23),
@@ -73208,44 +73946,44 @@ $.fn.togglify = function(settings) {
   });
 }, function(e, t, n) {
   var r = n(50),
-    o = n(32);
+    o = n(33);
   n(66)("keys", function() {
     return function(e) {
       return o(r(e));
     };
   });
 }, function(e, t, n) {
-  var r = n(25);
+  var r = n(26);
   r(r.S, "Object", {
-    setPrototypeOf: n(207).set
+    setPrototypeOf: n(213).set
   });
 }, function(e, t) {}, function(e, t, n) {
   "use strict";
   var r = n(22),
-    o = n(26),
-    i = n(24),
-    a = n(25),
+    o = n(27),
+    i = n(25),
+    a = n(26),
     s = n(110),
-    u = n(203).KEY,
-    l = n(30),
+    u = n(209).KEY,
+    l = n(31),
     c = n(69),
     f = n(67),
     d = n(51),
     p = n(18),
     h = n(73),
     v = n(72),
-    m = n(202),
-    g = n(197),
-    _ = n(199),
-    y = n(29),
+    m = n(208),
+    g = n(203),
+    _ = n(205),
+    y = n(30),
     b = n(23),
     w = n(71),
     C = n(49),
     S = n(63),
-    x = n(206),
+    x = n(212),
     k = n(64),
-    T = n(27),
-    E = n(32),
+    T = n(28),
+    E = n(33),
     R = k.f,
     P = T.f,
     I = x.f,
@@ -73369,7 +74107,7 @@ $.fn.togglify = function(settings) {
         }), r[1] = t, A.apply(O, r);
       }
     }
-  }), M[N][z] || n(31)(M[N], z, M[N].valueOf), f(M, "Symbol"), f(Math, "Math", !0), f(r.JSON, "JSON", !0);
+  }), M[N][z] || n(32)(M[N], z, M[N].valueOf), f(M, "Symbol"), f(Math, "Math", !0), f(r.JSON, "JSON", !0);
 }, function(e, t, n) {
   n(72)("asyncIterator");
 }, function(e, t, n) {
@@ -73379,6 +74117,60 @@ $.fn.togglify = function(settings) {
   Object.defineProperty(t, "__esModule", {
     value: !0
   }), t.default = !("undefined" == typeof window || !window.document || !window.document.createElement), e.exports = t.default;
+}, function(e, t) {
+  function n(e, t) {
+    if (e.indexOf) return e.indexOf(t);
+    for (var n = 0, r = e.length; n < r; n++)
+      if (e[n] === t) return n;
+    return -1;
+  }
+
+  function r(e) {
+    return this instanceof r ? (e || (e = {}), e.nodeType && (e = {
+      el: e
+    }), this.opts = e, this.el = e.el || document.body, "object" != typeof this.el && (this.el = document.querySelector(this.el)), void 0) : new r(e);
+  }
+  e.exports = function(e) {
+    return new r(e);
+  }, r.prototype.add = function(e) {
+    var t = this.el;
+    if (t) {
+      if ("" === t.className) return t.className = e;
+      var r = t.className.split(" ");
+      return n(r, e) > -1 ? r : (r.push(e), t.className = r.join(" "), r);
+    }
+  }, r.prototype.remove = function(e) {
+    var t = this.el;
+    if (t && "" !== t.className) {
+      var r = t.className.split(" "),
+        o = n(r, e);
+      return o > -1 && r.splice(o, 1), t.className = r.join(" "), r;
+    }
+  }, r.prototype.has = function(e) {
+    var t = this.el;
+    if (t) {
+      var r = t.className.split(" ");
+      return n(r, e) > -1;
+    }
+  }, r.prototype.toggle = function(e) {
+    var t = this.el;
+    t && (this.has(e) ? this.remove(e) : this.add(e));
+  };
+}, function(e, t, n) {
+  var r;
+  ! function() {
+    "use strict";
+    var o = !("undefined" == typeof window || !window.document || !window.document.createElement),
+      i = {
+        canUseDOM: o,
+        canUseWorkers: "undefined" != typeof Worker,
+        canUseEventListeners: o && !(!window.addEventListener && !window.attachEvent),
+        canUseViewport: o && !!window.screen
+      };
+    r = function() {
+      return i;
+    }.call(t, n, t, e), !(void 0 !== r && (e.exports = r));
+  }();
 }, function(e, t, n) {
   "use strict";
 
@@ -73395,7 +74187,7 @@ $.fn.togglify = function(settings) {
   function r(e) {
     return o(e.replace(i, "ms-"));
   }
-  var o = n(227),
+  var o = n(235),
     i = /^-ms-/;
   e.exports = r;
 }, function(e, t, n) {
@@ -73404,7 +74196,7 @@ $.fn.togglify = function(settings) {
   function r(e, t) {
     return !(!e || !t) && (e === t || !o(e) && (o(t) ? r(e, t.parentNode) : "contains" in e ? e.contains(t) : !!e.compareDocumentPosition && !!(16 & e.compareDocumentPosition(t))));
   }
-  var o = n(237);
+  var o = n(245);
   e.exports = r;
 }, function(e, t, n) {
   "use strict";
@@ -73450,8 +74242,8 @@ $.fn.togglify = function(settings) {
     return d;
   }
   var i = n(12),
-    a = n(230),
-    s = n(232),
+    a = n(238),
+    s = n(240),
     u = n(0),
     l = i.canUseDOM ? document.createElement("div") : null,
     c = /^\s*<(\w+)/;
@@ -73518,7 +74310,7 @@ $.fn.togglify = function(settings) {
   function r(e) {
     return o(e).replace(i, "-ms-");
   }
-  var o = n(234),
+  var o = n(242),
     i = /^ms-/;
   e.exports = r;
 }, function(e, t, n) {
@@ -73534,7 +74326,7 @@ $.fn.togglify = function(settings) {
   function r(e) {
     return o(e) && 3 == e.nodeType;
   }
-  var o = n(236);
+  var o = n(244);
   e.exports = r;
 }, function(e, t, n) {
   "use strict";
@@ -73546,7 +74338,7 @@ $.fn.togglify = function(settings) {
     };
   }
   e.exports = r;
-}, , function(e, t, n) {
+}, , , function(e, t, n) {
   "use strict";
   var r = {
     Properties: {
@@ -73716,9 +74508,9 @@ $.fn.togglify = function(settings) {
   }
   var p = n(44),
     h = n(12),
-    v = n(248),
-    m = n(285),
-    g = n(288),
+    v = n(257),
+    m = n(294),
+    g = n(297),
     _ = [9, 13, 27, 32],
     y = 229,
     b = h.canUseDOM && "CompositionEvent" in window,
@@ -73769,12 +74561,12 @@ $.fn.togglify = function(settings) {
   e.exports = P;
 }, function(e, t, n) {
   "use strict";
-  var r = n(116),
+  var r = n(117),
     o = n(12),
-    i = (n(15), n(228), n(294)),
-    a = n(235),
-    s = n(238),
-    u = (n(1), s(function(e) {
+    i = (n(16), n(236), n(303)),
+    a = n(243),
+    s = n(246),
+    u = (n(2), s(function(e) {
       return a(e);
     })),
     l = !1,
@@ -73889,7 +74681,7 @@ $.fn.togglify = function(settings) {
     S = n(19),
     x = n(89),
     k = n(90),
-    T = n(133),
+    T = n(134),
     E = {
       change: {
         phasedRegistrationNames: {
@@ -73933,9 +74725,9 @@ $.fn.togglify = function(settings) {
 }, function(e, t, n) {
   "use strict";
   var r = n(3),
-    o = n(33),
+    o = n(34),
     i = n(12),
-    a = n(231),
+    a = n(239),
     s = n(14),
     u = (n(0), {
       dangerouslyReplaceNodeWithMarkup: function(e, t) {
@@ -73999,8 +74791,8 @@ $.fn.togglify = function(settings) {
     this._root = e, this._startText = this.getText(), this._fallbackText = null;
   }
   var o = n(4),
-    i = n(28),
-    a = n(131);
+    i = n(29),
+    a = n(132);
   o(r.prototype, {
     destructor: function() {
       this._root = null, this._startText = null, this._fallbackText = null;
@@ -74023,7 +74815,7 @@ $.fn.togglify = function(settings) {
   }), i.addPoolingTo(r), e.exports = r;
 }, function(e, t, n) {
   "use strict";
-  var r = n(34),
+  var r = n(35),
     o = r.injection.MUST_USE_PROPERTY,
     i = r.injection.HAS_BOOLEAN_VALUE,
     a = r.injection.HAS_NUMERIC_VALUE,
@@ -74194,11 +74986,11 @@ $.fn.togglify = function(settings) {
       var o = void 0 === e[n];
       null != t && o && (e[n] = i(t, !0));
     }
-    var o = n(35),
-      i = n(132),
+    var o = n(36),
+      i = n(133),
       a = (n(81), n(91)),
-      s = n(135);
-    n(1), "undefined" != typeof t && n.i({
+      s = n(136);
+    n(2), "undefined" != typeof t && n.i({
       NODE_ENV: "production"
     }), 1;
     var u = {
@@ -74236,11 +75028,11 @@ $.fn.togglify = function(settings) {
       }
     };
     e.exports = u;
-  }).call(t, n(115));
+  }).call(t, n(116));
 }, function(e, t, n) {
   "use strict";
   var r = n(77),
-    o = n(258),
+    o = n(267),
     i = {
       processChildrenUpdates: o.dangerouslyProcessChildrenUpdates,
       replaceNodeWithMarkup: r.dangerouslyReplaceNodeWithMarkup
@@ -74262,17 +75054,17 @@ $.fn.togglify = function(settings) {
   }
   var s = n(3),
     u = n(4),
-    l = n(36),
+    l = n(37),
     c = n(83),
     f = n(20),
     d = n(84),
     p = n(45),
-    h = (n(15), n(126)),
-    v = n(35),
+    h = (n(16), n(127)),
+    v = n(36),
     m = n(42),
     g = (n(0), n(76)),
     _ = n(91),
-    y = (n(1), {
+    y = (n(2), {
       ImpureClass: 0,
       PureClass: 1,
       StatelessFunctional: 2
@@ -74464,15 +75256,15 @@ $.fn.togglify = function(settings) {
 }, function(e, t, n) {
   "use strict";
   var r = n(7),
-    o = n(266),
-    i = n(125),
-    a = n(35),
+    o = n(275),
+    i = n(126),
+    a = n(36),
     s = n(17),
-    u = n(279),
-    l = n(295),
-    c = n(130),
-    f = n(303);
-  n(1), o.inject();
+    u = n(288),
+    l = n(304),
+    c = n(131),
+    f = n(312);
+  n(2), o.inject();
   var d = {
     findDOMNode: l,
     render: i.render,
@@ -74590,25 +75382,25 @@ $.fn.togglify = function(settings) {
   }
   var v = n(3),
     m = n(4),
-    g = n(241),
-    _ = n(243),
-    y = n(33),
+    g = n(250),
+    _ = n(252),
+    y = n(34),
     b = n(78),
-    w = n(34),
-    C = n(118),
+    w = n(35),
+    C = n(119),
     S = n(43),
     x = n(79),
     k = n(52),
-    T = n(119),
+    T = n(120),
     E = n(7),
-    R = n(259),
-    P = n(260),
-    I = n(120),
-    M = n(263),
-    O = (n(15), n(272)),
-    A = n(277),
+    R = n(268),
+    P = n(269),
+    I = n(121),
+    M = n(272),
+    O = (n(16), n(281)),
+    A = n(286),
     N = (n(14), n(55)),
-    L = (n(0), n(90), n(76), n(92), n(1), T),
+    L = (n(0), n(90), n(76), n(92), n(2), T),
     z = S.deleteListener,
     j = E.getNodeFromInstance,
     D = k.listenTo,
@@ -74904,7 +75696,7 @@ $.fn.togglify = function(settings) {
 }, function(e, t, n) {
   "use strict";
   var r = n(4),
-    o = n(33),
+    o = n(34),
     i = n(7),
     a = function(e) {
       this._currentElement = null, this._hostNode = null, this._hostParent = null, this._hostContainerInfo = null, this._domID = 0;
@@ -74973,11 +75765,11 @@ $.fn.togglify = function(settings) {
   }
   var i = n(3),
     a = n(4),
-    s = n(118),
+    s = n(119),
     u = n(82),
     l = n(7),
     c = n(17),
-    f = (n(0), n(1), {
+    f = (n(0), n(2), {
       getHostProps: function(e, t) {
         var n = u.getValue(t),
           r = u.getChecked(t),
@@ -75049,10 +75841,10 @@ $.fn.togglify = function(settings) {
     }), t;
   }
   var o = n(4),
-    i = n(36),
+    i = n(37),
     a = n(7),
-    s = n(120),
-    u = (n(1), !1),
+    s = n(121),
+    u = (n(2), !1),
     l = {
       mountWrapper: function(e, t, n) {
         var o = null;
@@ -75167,8 +75959,8 @@ $.fn.togglify = function(settings) {
     }
   }
   var u = n(12),
-    l = n(300),
-    c = n(131),
+    l = n(309),
+    c = n(132),
     f = u.canUseDOM && "selection" in document && !("getSelection" in window),
     d = {
       getOffsets: f ? o : i,
@@ -75180,7 +75972,7 @@ $.fn.togglify = function(settings) {
   var r = n(3),
     o = n(4),
     i = n(77),
-    a = n(33),
+    a = n(34),
     s = n(7),
     u = n(55),
     l = (n(0), n(92), function(e) {
@@ -75246,7 +76038,7 @@ $.fn.togglify = function(settings) {
     s = n(82),
     u = n(7),
     l = n(17),
-    c = (n(0), n(1), {
+    c = (n(0), n(2), {
       getHostProps: function(e, t) {
         null != t.dangerouslySetInnerHTML ? i("91") : void 0;
         var n = a({}, t, {
@@ -75388,25 +76180,25 @@ $.fn.togglify = function(settings) {
       return new p(e);
     }), _.Updates.injectReconcileTransaction(y), _.Updates.injectBatchingStrategy(m), _.Component.injectEnvironment(c));
   }
-  var o = n(240),
-    i = n(242),
-    a = n(244),
-    s = n(246),
-    u = n(247),
-    l = n(249),
-    c = n(251),
-    f = n(254),
+  var o = n(249),
+    i = n(251),
+    a = n(253),
+    s = n(255),
+    u = n(256),
+    l = n(258),
+    c = n(260),
+    f = n(263),
     d = n(7),
-    p = n(256),
-    h = n(264),
-    v = n(262),
-    m = n(265),
-    g = n(269),
-    _ = n(270),
-    y = n(275),
-    b = n(280),
-    w = n(281),
-    C = n(282),
+    p = n(265),
+    h = n(273),
+    v = n(271),
+    m = n(274),
+    g = n(278),
+    _ = n(279),
+    y = n(284),
+    b = n(289),
+    w = n(290),
+    C = n(291),
     S = !1;
   e.exports = {
     inject: r
@@ -75458,11 +76250,11 @@ $.fn.togglify = function(settings) {
   var s = n(4),
     u = n(112),
     l = n(12),
-    c = n(28),
+    c = n(29),
     f = n(7),
     d = n(17),
     p = n(89),
-    h = n(233);
+    h = n(241);
   s(o.prototype, {
     destructor: function() {
       this.topLevelType = null, this.nativeEvent = null, this.ancestors.length = 0;
@@ -75505,13 +76297,13 @@ $.fn.togglify = function(settings) {
   e.exports = v;
 }, function(e, t, n) {
   "use strict";
-  var r = n(34),
+  var r = n(35),
     o = n(43),
     i = n(80),
     a = n(83),
-    s = n(121),
+    s = n(122),
     u = n(52),
-    l = n(123),
+    l = n(124),
     c = n(17),
     f = {
       Component: a.injection,
@@ -75526,7 +76318,7 @@ $.fn.togglify = function(settings) {
   e.exports = f;
 }, function(e, t, n) {
   "use strict";
-  var r = n(293),
+  var r = n(302),
     o = /\/?>/,
     i = /^<\!\-\-/,
     a = {
@@ -75610,9 +76402,9 @@ $.fn.togglify = function(settings) {
   }
   var c = n(3),
     f = n(83),
-    d = (n(45), n(15), n(20), n(35)),
-    p = n(250),
-    h = (n(14), n(296)),
+    d = (n(45), n(16), n(20), n(36)),
+    p = n(259),
+    h = (n(14), n(305)),
     v = (n(0), {
       Mixin: {
         _reconcilerInstantiateChildren: function(e, t, n) {
@@ -75726,11 +76518,11 @@ $.fn.togglify = function(settings) {
     this.reinitializeTransaction(), this.renderToStaticMarkup = !1, this.reactMountReady = i.getPooled(null), this.useCreateElement = e;
   }
   var o = n(4),
-    i = n(117),
-    a = n(28),
+    i = n(118),
+    a = n(29),
     s = n(52),
-    u = n(124),
-    l = (n(15), n(54)),
+    u = n(125),
+    l = (n(16), n(54)),
     c = n(85),
     f = {
       initialize: u.getSelectionInformation,
@@ -75785,7 +76577,7 @@ $.fn.togglify = function(settings) {
   function o(e, t, n) {
     "function" == typeof e ? e(null) : i.removeComponentAsRefFrom(t, e, n);
   }
-  var i = n(273),
+  var i = n(282),
     a = {};
   a.attachRefs = function(e, t) {
     if (null !== t && "object" == typeof t) {
@@ -75812,9 +76604,9 @@ $.fn.togglify = function(settings) {
     this.reinitializeTransaction(), this.renderToStaticMarkup = e, this.useCreateElement = !1, this.updateQueue = new s(this);
   }
   var o = n(4),
-    i = n(28),
+    i = n(29),
     a = n(54),
-    s = (n(15), n(278)),
+    s = (n(16), n(287)),
     u = [],
     l = {
       enqueue: function() {}
@@ -75843,7 +76635,7 @@ $.fn.togglify = function(settings) {
 
   function o(e, t) {}
   var i = n(85),
-    a = (n(1), function() {
+    a = (n(2), function() {
       function e(t) {
         r(this, e), this.transaction = t;
       }
@@ -76170,10 +76962,10 @@ $.fn.togglify = function(settings) {
   var i = n(44),
     a = n(12),
     s = n(7),
-    u = n(124),
+    u = n(125),
     l = n(19),
     c = n(114),
-    f = n(133),
+    f = n(134),
     d = n(76),
     p = a.canUseDOM && "documentMode" in document && document.documentMode <= 11,
     h = {
@@ -76235,17 +77027,17 @@ $.fn.togglify = function(settings) {
     a = n(112),
     s = n(44),
     u = n(7),
-    l = n(283),
-    c = n(284),
+    l = n(292),
+    c = n(293),
     f = n(19),
-    d = n(287),
-    p = n(289),
+    d = n(296),
+    p = n(298),
     h = n(53),
-    v = n(286),
-    m = n(290),
-    g = n(291),
+    v = n(295),
+    m = n(299),
+    g = n(300),
     _ = n(46),
-    y = n(292),
+    y = n(301),
     b = n(14),
     w = n(87),
     C = (n(0), {}),
@@ -76454,7 +77246,7 @@ $.fn.togglify = function(settings) {
   }
   var o = n(46),
     i = n(87),
-    a = n(297),
+    a = n(306),
     s = n(88),
     u = {
       key: a,
@@ -76549,8 +77341,8 @@ $.fn.togglify = function(settings) {
     var o = isNaN(t);
     return o || 0 === t || i.hasOwnProperty(e) && i[e] ? "" + t : ("string" == typeof t && (t = t.trim()), t + "px");
   }
-  var o = n(116),
-    i = (n(1), o.isUnitlessNumber);
+  var o = n(117),
+    i = (n(2), o.isUnitlessNumber);
   e.exports = r;
 }, function(e, t, n) {
   "use strict";
@@ -76564,8 +77356,8 @@ $.fn.togglify = function(settings) {
   var o = n(3),
     i = (n(20), n(7)),
     a = n(45),
-    s = n(130);
-  n(0), n(1), e.exports = r;
+    s = n(131);
+  n(0), n(2), e.exports = r;
 }, function(e, t, n) {
   "use strict";
   (function(t) {
@@ -76582,11 +77374,11 @@ $.fn.togglify = function(settings) {
       var n = {};
       return i(e, r, n), n;
     }
-    var i = (n(81), n(135));
-    n(1), "undefined" != typeof t && n.i({
+    var i = (n(81), n(136));
+    n(2), "undefined" != typeof t && n.i({
       NODE_ENV: "production"
     }), e.exports = o;
-  }).call(t, n(115));
+  }).call(t, n(116));
 }, function(e, t, n) {
   "use strict";
 
@@ -76737,14 +77529,331 @@ $.fn.togglify = function(settings) {
   e.exports = r;
 }, function(e, t, n) {
   "use strict";
-  var r = n(125);
+  var r = n(126);
   e.exports = r.renderSubtreeIntoContainer;
+}, function(e, t, n) {
+  function r(e) {
+    return e();
+  }
+  var o = n(1),
+    i = n(24),
+    a = n(234),
+    s = o.createFactory(n(314)),
+    u = n(315),
+    l = n(233),
+    c = n(24).unstable_renderSubtreeIntoContainer,
+    f = n(115),
+    d = a.canUseDOM ? window.HTMLElement : {},
+    p = a.canUseDOM ? document.body : {
+      appendChild: function() {}
+    },
+    h = o.createClass({
+      displayName: "Modal",
+      statics: {
+        setAppElement: function(e) {
+          p = u.setElement(e);
+        },
+        injectCSS: function() {}
+      },
+      propTypes: {
+        isOpen: o.PropTypes.bool.isRequired,
+        style: o.PropTypes.shape({
+          content: o.PropTypes.object,
+          overlay: o.PropTypes.object
+        }),
+        portalClassName: o.PropTypes.string,
+        appElement: o.PropTypes.instanceOf(d),
+        onAfterOpen: o.PropTypes.func,
+        onRequestClose: o.PropTypes.func,
+        closeTimeoutMS: o.PropTypes.number,
+        ariaHideApp: o.PropTypes.bool,
+        shouldCloseOnOverlayClick: o.PropTypes.bool,
+        parentSelector: o.PropTypes.func,
+        role: o.PropTypes.string,
+        contentLabel: o.PropTypes.string.isRequired
+      },
+      getDefaultProps: function() {
+        return {
+          isOpen: !1,
+          portalClassName: "ReactModalPortal",
+          ariaHideApp: !0,
+          closeTimeoutMS: 0,
+          shouldCloseOnOverlayClick: !0,
+          parentSelector: function() {
+            return document.body;
+          }
+        };
+      },
+      componentDidMount: function() {
+        this.node = document.createElement("div"), this.node.className = this.props.portalClassName;
+        var e = r(this.props.parentSelector);
+        e.appendChild(this.node), this.renderPortal(this.props);
+      },
+      componentWillReceiveProps: function(e) {
+        var t = r(this.props.parentSelector),
+          n = r(e.parentSelector);
+        n !== t && (t.removeChild(this.node), n.appendChild(this.node)), this.renderPortal(e);
+      },
+      componentWillUnmount: function() {
+        this.props.ariaHideApp && u.show(this.props.appElement), i.unmountComponentAtNode(this.node);
+        var e = r(this.props.parentSelector);
+        e.removeChild(this.node), l(document.body).remove("ReactModal__Body--open");
+      },
+      renderPortal: function(e) {
+        e.isOpen ? l(document.body).add("ReactModal__Body--open") : l(document.body).remove("ReactModal__Body--open"), e.ariaHideApp && u.toggle(e.isOpen, e.appElement), this.portal = c(this, s(f({}, e, {
+          defaultStyles: h.defaultStyles
+        })), this.node);
+      },
+      render: function() {
+        return o.DOM.noscript();
+      }
+    });
+  h.defaultStyles = {
+    overlay: {
+      position: "fixed",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: "rgba(255, 255, 255, 0.75)"
+    },
+    content: {
+      position: "absolute",
+      top: "40px",
+      left: "40px",
+      right: "40px",
+      bottom: "40px",
+      border: "1px solid #ccc",
+      background: "#fff",
+      overflow: "auto",
+      WebkitOverflowScrolling: "touch",
+      borderRadius: "4px",
+      outline: "none",
+      padding: "20px"
+    }
+  }, e.exports = h;
+}, function(e, t, n) {
+  var r = n(1),
+    o = r.DOM.div,
+    i = n(316),
+    a = n(317),
+    s = n(115),
+    u = {
+      overlay: {
+        base: "ReactModal__Overlay",
+        afterOpen: "ReactModal__Overlay--after-open",
+        beforeClose: "ReactModal__Overlay--before-close"
+      },
+      content: {
+        base: "ReactModal__Content",
+        afterOpen: "ReactModal__Content--after-open",
+        beforeClose: "ReactModal__Content--before-close"
+      }
+    };
+  e.exports = r.createClass({
+    displayName: "ModalPortal",
+    shouldClose: null,
+    getDefaultProps: function() {
+      return {
+        style: {
+          overlay: {},
+          content: {}
+        }
+      };
+    },
+    getInitialState: function() {
+      return {
+        afterOpen: !1,
+        beforeClose: !1
+      };
+    },
+    componentDidMount: function() {
+      this.props.isOpen && (this.setFocusAfterRender(!0), this.open());
+    },
+    componentWillUnmount: function() {
+      clearTimeout(this.closeTimer);
+    },
+    componentWillReceiveProps: function(e) {
+      !this.props.isOpen && e.isOpen ? (this.setFocusAfterRender(!0), this.open()) : this.props.isOpen && !e.isOpen && this.close();
+    },
+    componentDidUpdate: function() {
+      this.focusAfterRender && (this.focusContent(), this.setFocusAfterRender(!1));
+    },
+    setFocusAfterRender: function(e) {
+      this.focusAfterRender = e;
+    },
+    open: function() {
+      this.state.afterOpen && this.state.beforeClose ? (clearTimeout(this.closeTimer), this.setState({
+        beforeClose: !1
+      })) : (i.setupScopedFocus(this.node), i.markForFocusLater(), this.setState({
+        isOpen: !0
+      }, function() {
+        this.setState({
+          afterOpen: !0
+        }), this.props.isOpen && this.props.onAfterOpen && this.props.onAfterOpen();
+      }.bind(this)));
+    },
+    close: function() {
+      this.props.closeTimeoutMS > 0 ? this.closeWithTimeout() : this.closeWithoutTimeout();
+    },
+    focusContent: function() {
+      this.contentHasFocus() || this.refs.content.focus();
+    },
+    closeWithTimeout: function() {
+      this.setState({
+        beforeClose: !0
+      }, function() {
+        this.closeTimer = setTimeout(this.closeWithoutTimeout, this.props.closeTimeoutMS);
+      }.bind(this));
+    },
+    closeWithoutTimeout: function() {
+      this.setState({
+        beforeClose: !1,
+        isOpen: !1,
+        afterOpen: !1
+      }, this.afterClose);
+    },
+    afterClose: function() {
+      i.returnFocus(), i.teardownScopedFocus();
+    },
+    handleKeyDown: function(e) {
+      9 == e.keyCode && a(this.refs.content, e), 27 == e.keyCode && (e.preventDefault(), this.requestClose(e));
+    },
+    handleOverlayMouseDown: function(e) {
+      null === this.shouldClose && (this.shouldClose = !0);
+    },
+    handleOverlayMouseUp: function(e) {
+      this.shouldClose && this.props.shouldCloseOnOverlayClick && (this.ownerHandlesClose() ? this.requestClose(e) : this.focusContent()), this.shouldClose = null;
+    },
+    handleContentMouseDown: function(e) {
+      this.shouldClose = !1;
+    },
+    handleContentMouseUp: function(e) {
+      this.shouldClose = !1;
+    },
+    requestClose: function(e) {
+      this.ownerHandlesClose() && this.props.onRequestClose(e);
+    },
+    ownerHandlesClose: function() {
+      return this.props.onRequestClose;
+    },
+    shouldBeClosed: function() {
+      return !this.props.isOpen && !this.state.beforeClose;
+    },
+    contentHasFocus: function() {
+      return document.activeElement === this.refs.content || this.refs.content.contains(document.activeElement);
+    },
+    buildClassName: function(e, t) {
+      var n = u[e].base;
+      return this.state.afterOpen && (n += " " + u[e].afterOpen), this.state.beforeClose && (n += " " + u[e].beforeClose), t ? n + " " + t : n;
+    },
+    render: function() {
+      var e = this.props.className ? {} : this.props.defaultStyles.content,
+        t = this.props.overlayClassName ? {} : this.props.defaultStyles.overlay;
+      return this.shouldBeClosed() ? o() : o({
+        ref: "overlay",
+        className: this.buildClassName("overlay", this.props.overlayClassName),
+        style: s({}, t, this.props.style.overlay || {}),
+        onMouseDown: this.handleOverlayMouseDown,
+        onMouseUp: this.handleOverlayMouseUp
+      }, o({
+        ref: "content",
+        style: s({}, e, this.props.style.content || {}),
+        className: this.buildClassName("content", this.props.className),
+        tabIndex: "-1",
+        onKeyDown: this.handleKeyDown,
+        onMouseDown: this.handleContentMouseDown,
+        onMouseUp: this.handleContentMouseUp,
+        role: this.props.role,
+        "aria-label": this.props.contentLabel
+      }, this.props.children));
+    }
+  });
+}, function(e, t) {
+  function n(e) {
+    if ("string" == typeof e) {
+      var t = document.querySelectorAll(e);
+      e = "length" in t ? t[0] : t;
+    }
+    return u = e || u;
+  }
+
+  function r(e) {
+    a(e), (e || u).setAttribute("aria-hidden", "true");
+  }
+
+  function o(e) {
+    a(e), (e || u).removeAttribute("aria-hidden");
+  }
+
+  function i(e, t) {
+    e ? r(t) : o(t);
+  }
+
+  function a(e) {
+    if (!e && !u) throw new Error("react-modal: You must set an element with `Modal.setAppElement(el)` to make this accessible");
+  }
+
+  function s() {
+    u = document.body;
+  }
+  var u = "undefined" != typeof document ? document.body : null;
+  t.toggle = i, t.setElement = n, t.show = o, t.hide = r, t.resetForTesting = s;
+}, function(e, t, n) {
+  function r(e) {
+    u = !0;
+  }
+
+  function o(e) {
+    if (u) {
+      if (u = !1, !a) return;
+      setTimeout(function() {
+        if (!a.contains(document.activeElement)) {
+          var e = i(a)[0] || a;
+          e.focus();
+        }
+      }, 0);
+    }
+  }
+  var i = n(137),
+    a = null,
+    s = null,
+    u = !1;
+  t.markForFocusLater = function() {
+    s = document.activeElement;
+  }, t.returnFocus = function() {
+    try {
+      s.focus();
+    } catch (e) {
+      console.warn("You tried to return focus to " + s + " but it is not in the DOM anymore");
+    }
+    s = null;
+  }, t.setupScopedFocus = function(e) {
+    a = e, window.addEventListener ? (window.addEventListener("blur", r, !1), document.addEventListener("focus", o, !0)) : (window.attachEvent("onBlur", r), document.attachEvent("onFocus", o));
+  }, t.teardownScopedFocus = function() {
+    a = null, window.addEventListener ? (window.removeEventListener("blur", r), document.removeEventListener("focus", o)) : (window.detachEvent("onBlur", r), document.detachEvent("onFocus", o));
+  };
+}, function(e, t, n) {
+  var r = n(137);
+  e.exports = function(e, t) {
+    var n = r(e);
+    if (!n.length) return void t.preventDefault();
+    var o = n[t.shiftKey ? 0 : n.length - 1],
+      i = o === document.activeElement || e === document.activeElement;
+    if (i) {
+      t.preventDefault();
+      var a = n[t.shiftKey ? n.length - 1 : 0];
+      a.focus();
+    }
+  };
+}, function(e, t, n) {
+  e.exports = n(313);
 }, , function(e, t, n) {
   "use strict";
-  n(136);
+  n(138);
 }, function(e, t, n) {
   "use strict";
-  var r = n(137);
+  var r = n(139);
   n.d(t, "a", function() {
     return r.a;
   });
@@ -76828,7 +77937,8 @@ $.fn.togglify = function(settings) {
       key: "set",
       value: function(e, t, n, r) {
         var o = this._keyMapper(e, t);
-        t >= this._columnCount && (this._columnCount = t + 1), e >= this._rowCount && (this._rowCount = e + 1), this._cellHeightCache[o] = r, this._cellWidthCache[o] = n, this._updateCachedColumnAndRowSizes(e, t);
+        t >= this._columnCount && (this._columnCount = t + 1),
+          e >= this._rowCount && (this._rowCount = e + 1), this._cellHeightCache[o] = r, this._cellWidthCache[o] = n, this._updateCachedColumnAndRowSizes(e, t);
       }
     }, {
       key: "_updateCachedColumnAndRowSizes",
@@ -76853,7 +77963,7 @@ $.fn.togglify = function(settings) {
   }();
 }, function(e, t, n) {
   "use strict";
-  n(138), n(307);
+  n(140), n(322);
 }, function(e, t, n) {
   "use strict";
   var r = n(21),
@@ -76868,7 +77978,7 @@ $.fn.togglify = function(settings) {
     d = n.n(f),
     p = n(9),
     h = n.n(p),
-    v = n(2),
+    v = n(1),
     m = n.n(v),
     g = n(13),
     _ = n.n(g),
@@ -77208,7 +78318,7 @@ $.fn.togglify = function(settings) {
     a = n.n(i),
     s = n(6),
     u = n.n(s),
-    l = n(310),
+    l = n(325),
     c = 100,
     f = function() {
       function e() {
@@ -77286,7 +78396,7 @@ $.fn.togglify = function(settings) {
   t.a = f;
 }, function(e, t, n) {
   "use strict";
-  n(139);
+  n(141);
 }, function(e, t, n) {
   "use strict";
 
@@ -77308,11 +78418,11 @@ $.fn.togglify = function(settings) {
       width: u
     };
   }
-  var o = n(311);
+  var o = n(326);
   t.a = r;
 }, function(e, t, n) {
   "use strict";
-  n(140);
+  n(142);
 }, function(e, t, n) {
   "use strict";
 
@@ -77521,7 +78631,7 @@ $.fn.togglify = function(settings) {
     a = n.n(i),
     s = n(6),
     u = n.n(s),
-    l = n(316),
+    l = n(331),
     c = 15e5,
     f = function() {
       function e(t) {
@@ -77708,22 +78818,22 @@ $.fn.togglify = function(settings) {
   t.a = r;
 }, function(e, t, n) {
   "use strict";
-  n(144);
+  n(146);
 }, function(e, t, n) {
   "use strict";
-  var r = n(145);
+  var r = n(147);
   n.d(t, "a", function() {
     return r.a;
   });
 }, function(e, t, n) {
   "use strict";
-  var r = n(182),
+  var r = n(188),
     o = n.n(r),
     i = n(5),
     a = n.n(i),
     s = n(6),
     u = n.n(s),
-    l = n(334),
+    l = n(349),
     c = function() {
       function e() {
         a()(this, e), this._columnSizeMap = {}, this._intervalTree = n.i(l.a)(), this._leftMap = {};
@@ -77785,19 +78895,19 @@ $.fn.togglify = function(settings) {
   t.a = c;
 }, function(e, t, n) {}, function(e, t, n) {
   "use strict";
-  n(146), n(323);
+  n(148), n(338);
 }, function(e, t, n) {
   "use strict";
-  n(147);
+  n(149);
 }, function(e, t, n) {
   "use strict";
-  n(148);
+  n(150);
 }, function(e, t, n) {
   "use strict";
-  n(151), n(152), n(153), n(155), n(154), n(156), n(149), n(93), n(150);
+  n(153), n(154), n(155), n(157), n(156), n(158), n(151), n(93), n(152);
 }, function(e, t, n) {
   "use strict";
-  n(157), n(158);
+  n(159), n(160);
 }, function(e, t, n) {
   "use strict";
 
@@ -77841,14 +78951,14 @@ $.fn.togglify = function(settings) {
   t.a = r, t.b = o, t.c = i;
 }, function(e, t, n) {
   "use strict";
-  var r = (n(305), n(306));
+  var r = (n(320), n(321));
   n.d(t, "a", function() {
     return r.a;
   });
-  var o = (n(308), n(312), n(314), n(57), n(320), n(321));
+  var o = (n(323), n(327), n(329), n(57), n(335), n(336));
   n.d(t, "b", function() {
     return o.a;
-  }), n(324), n(325), n(326), n(327), n(328);
+  }), n(339), n(340), n(341), n(342), n(343);
 }, function(e, t, n) {
   "use strict";
 
@@ -78172,7 +79282,7 @@ $.fn.togglify = function(settings) {
   function m(e) {
     return new v(e && 0 !== e.length ? h(e) : null);
   }
-  var g = n(332);
+  var g = n(347);
   t.a = m;
   var _ = 0,
     y = 1,
@@ -78308,7 +79418,7 @@ $.fn.togglify = function(settings) {
   e.exports = i;
 }, function(e, t, n) {
   "use strict";
-  var r = n(38),
+  var r = n(39),
     o = (n(0), function(e) {
       var t = this;
       if (t.instancePool.length) {
@@ -78418,12 +79528,13 @@ $.fn.togglify = function(settings) {
 
   function p(e) {
     var t = [];
-    return l(e, t, null, m.thatReturnsArgument), t;
+    return l(e, t, null, m.thatReturnsArgument),
+      t;
   }
-  var h = n(336),
-    v = n(37),
+  var h = n(351),
+    v = n(38),
     m = n(14),
-    g = n(345),
+    g = n(360),
     _ = h.twoArgumentPooler,
     y = h.fourArgumentPooler,
     b = /\/+/g;
@@ -78525,13 +79636,13 @@ $.fn.togglify = function(settings) {
       e[r] = c(e, o);
     }
   }
-  var d = n(38),
+  var d = n(39),
     p = n(4),
     h = n(95),
-    v = n(37),
-    m = (n(161), n(96)),
+    v = n(38),
+    m = (n(163), n(96)),
     g = n(42),
-    _ = (n(0), n(1), "mixins"),
+    _ = (n(0), n(2), "mixins"),
     y = [],
     b = {
       mixins: "DEFINE_MANY",
@@ -78607,7 +79718,7 @@ $.fn.togglify = function(settings) {
   e.exports = x;
 }, function(e, t, n) {
   "use strict";
-  var r = n(37),
+  var r = n(38),
     o = r.createFactory,
     i = {
       a: o("a"),
@@ -78951,12 +80062,12 @@ $.fn.togglify = function(settings) {
   function b(e) {
     return e.constructor && e.constructor.name ? e.constructor.name : T;
   }
-  var w = n(37),
-    C = n(161),
-    S = n(341),
+  var w = n(38),
+    C = n(163),
+    S = n(356),
     x = n(14),
-    k = n(163),
-    T = (n(1), "<<anonymous>>"),
+    k = n(165),
+    T = (n(2), "<<anonymous>>"),
     E = {
       array: a("array"),
       bool: a("boolean"),
@@ -79002,8 +80113,8 @@ $.fn.togglify = function(settings) {
   function r(e) {
     return i.isValidElement(e) ? void 0 : o("143"), e;
   }
-  var o = n(38),
-    i = n(37);
+  var o = n(39),
+    i = n(38);
   n(0), e.exports = r;
 }, function(e, t, n) {
   "use strict";
@@ -79042,210 +80153,17 @@ $.fn.togglify = function(settings) {
   function i(e, t, n) {
     return null == e ? 0 : o(e, "", t, n);
   }
-  var a = n(38),
-    s = (n(20), n(160)),
-    u = n(163),
-    l = (n(0), n(335)),
-    c = (n(1), "."),
+  var a = n(39),
+    s = (n(20), n(162)),
+    u = n(165),
+    l = (n(0), n(350)),
+    c = (n(2), "."),
     f = ":";
   e.exports = i;
-}, , , , , , , , , function(e, t) {
-  function n(e, t, n) {
-    switch (n.length) {
-      case 0:
-        return e.call(t);
-      case 1:
-        return e.call(t, n[0]);
-      case 2:
-        return e.call(t, n[0], n[1]);
-      case 3:
-        return e.call(t, n[0], n[1], n[2]);
-    }
-    return e.apply(t, n);
-  }
-
-  function r(e, t) {
-    for (var n = -1, r = Array(e); ++n < e;) r[n] = t(n);
-    return r;
-  }
-
-  function o(e, t) {
-    return function(n) {
-      return e(t(n));
-    };
-  }
-
-  function i(e, t) {
-    var n = L(e) || v(e) ? r(e.length, String) : [],
-      o = n.length,
-      i = !!o;
-    for (var a in e) !t && !P.call(e, a) || i && ("length" == a || f(a, o)) || n.push(a);
-    return n;
-  }
-
-  function a(e, t, n) {
-    var r = e[t];
-    P.call(e, t) && h(r, n) && (void 0 !== n || t in e) || (e[t] = n);
-  }
-
-  function s(e) {
-    if (!p(e)) return O(e);
-    var t = [];
-    for (var n in Object(e)) P.call(e, n) && "constructor" != n && t.push(n);
-    return t;
-  }
-
-  function u(e, t) {
-    return t = A(void 0 === t ? e.length - 1 : t, 0),
-      function() {
-        for (var r = arguments, o = -1, i = A(r.length - t, 0), a = Array(i); ++o < i;) a[o] = r[t + o];
-        o = -1;
-        for (var s = Array(t + 1); ++o < t;) s[o] = r[o];
-        return s[t] = a, n(e, this, s);
-      };
-  }
-
-  function l(e, t, n, r) {
-    n || (n = {});
-    for (var o = -1, i = t.length; ++o < i;) {
-      var s = t[o],
-        u = r ? r(n[s], e[s], s, n, e) : void 0;
-      a(n, s, void 0 === u ? e[s] : u);
-    }
-    return n;
-  }
-
-  function c(e) {
-    return u(function(t, n) {
-      var r = -1,
-        o = n.length,
-        i = o > 1 ? n[o - 1] : void 0,
-        a = o > 2 ? n[2] : void 0;
-      for (i = e.length > 3 && "function" == typeof i ? (o--, i) : void 0, a && d(n[0], n[1], a) && (i = o < 3 ? void 0 : i, o = 1), t = Object(t); ++r < o;) {
-        var s = n[r];
-        s && e(t, s, r, i);
-      }
-      return t;
-    });
-  }
-
-  function f(e, t) {
-    return t = null == t ? S : t, !!t && ("number" == typeof e || E.test(e)) && e > -1 && e % 1 == 0 && e < t;
-  }
-
-  function d(e, t, n) {
-    if (!b(n)) return !1;
-    var r = typeof t;
-    return !!("number" == r ? m(n) && f(t, n.length) : "string" == r && t in n) && h(n[t], e);
-  }
-
-  function p(e) {
-    var t = e && e.constructor,
-      n = "function" == typeof t && t.prototype || R;
-    return e === n;
-  }
-
-  function h(e, t) {
-    return e === t || e !== e && t !== t;
-  }
-
-  function v(e) {
-    return g(e) && P.call(e, "callee") && (!M.call(e, "callee") || I.call(e) == x);
-  }
-
-  function m(e) {
-    return null != e && y(e.length) && !_(e);
-  }
-
-  function g(e) {
-    return w(e) && m(e);
-  }
-
-  function _(e) {
-    var t = b(e) ? I.call(e) : "";
-    return t == k || t == T;
-  }
-
-  function y(e) {
-    return "number" == typeof e && e > -1 && e % 1 == 0 && e <= S;
-  }
-
-  function b(e) {
-    var t = typeof e;
-    return !!e && ("object" == t || "function" == t);
-  }
-
-  function w(e) {
-    return !!e && "object" == typeof e;
-  }
-
-  function C(e) {
-    return m(e) ? i(e) : s(e);
-  }
-  var S = 9007199254740991,
-    x = "[object Arguments]",
-    k = "[object Function]",
-    T = "[object GeneratorFunction]",
-    E = /^(?:0|[1-9]\d*)$/,
-    R = Object.prototype,
-    P = R.hasOwnProperty,
-    I = R.toString,
-    M = R.propertyIsEnumerable,
-    O = o(Object.keys, Object),
-    A = Math.max,
-    N = !M.call({
-      valueOf: 1
-    }, "valueOf"),
-    L = Array.isArray,
-    z = c(function(e, t) {
-      if (N || p(t) || m(t)) return void l(t, C(t), e);
-      for (var n in t) P.call(t, n) && a(e, n, t[n]);
-    });
-  e.exports = z;
-}, function(e, t) {
-  function n(e, t) {
-    var n = e.nodeName.toLowerCase();
-    return (/input|select|textarea|button|object/.test(n) ? !e.disabled : "a" === n ? e.href || t : t) && o(e);
-  }
-
-  function r(e) {
-    return e.offsetWidth <= 0 && e.offsetHeight <= 0 || "none" === e.style.display;
-  }
-
-  function o(e) {
-    for (; e && e !== document.body;) {
-      if (r(e)) return !1;
-      e = e.parentNode;
-    }
-    return !0;
-  }
-
-  function i(e) {
-    var t = e.getAttribute("tabindex");
-    null === t && (t = void 0);
-    var r = isNaN(t);
-    return (r || t >= 0) && n(e, !r);
-  }
-
-  function a(e) {
-    return [].slice.call(e.querySelectorAll("*"), 0).filter(function(e) {
-      return i(e);
-    });
-  }
-  e.exports = a;
-}, , , , , , , , , , , , function(e, t, n) {
+}, , , , , , , , , , , , , , , , , , , , , , , , function(e, t, n) {
   "use strict";
-  var r = n(378);
+  var r = n(394);
   t.a = r.a;
-}, function(e, t, n) {
-  "use strict";
-  var r = n(381),
-    o = n(380);
-  n.d(t, "a", function() {
-    return r.a;
-  }), n.d(t, "b", function() {
-    return o.a;
-  }), r.a;
 }, , , , , , , function(e, t, n) {
   "use strict";
 
@@ -79269,7 +80187,7 @@ $.fn.togglify = function(settings) {
       }
     }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
   }
-  var a = n(2),
+  var a = n(1),
     s = n.n(a),
     u = n(13),
     l = n.n(u),
@@ -79355,10 +80273,10 @@ $.fn.togglify = function(settings) {
       }
     }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
   }
-  var a = n(2),
+  var a = n(1),
     s = n.n(a),
-    u = n(166),
-    l = n(165),
+    u = n(168),
+    l = n(167),
     c = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
@@ -79456,16 +80374,16 @@ $.fn.togglify = function(settings) {
       }
     }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
   }
-  var a = n(16),
+  var a = n(15),
     s = n.n(a),
     u = n(13),
     l = n.n(u),
-    c = n(2),
+    c = n(1),
     f = n.n(c),
-    d = n(330),
-    p = n(165),
+    d = n(345),
+    p = n(167),
     h = n(98),
-    v = n(166),
+    v = n(168),
     m = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
@@ -79708,22 +80626,22 @@ $.fn.togglify = function(settings) {
       }
     }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
   }
-  var a = n(16),
+  var a = n(15),
     s = n.n(a),
-    u = n(2),
+    u = n(1),
     l = n.n(u),
     c = n(13),
     f = n.n(c),
-    d = n(165),
-    p = n(377),
-    h = n(375),
-    v = n(379),
-    m = n(376),
+    d = n(167),
+    p = n(393),
+    h = n(391),
+    v = n(395),
+    m = n(392),
     g = n(98),
-    _ = n(166),
-    y = n(391),
-    b = n(382),
-    w = n(383),
+    _ = n(168),
+    y = n(406),
+    b = n(398),
+    w = n(399),
     C = function() {
       function e(e, t) {
         var n = [],
@@ -79850,7 +80768,7 @@ $.fn.togglify = function(settings) {
             if (":" === e.charAt(0) && ":" === e.slice(-1)) {
               var t = e.slice(1, -1);
               return n.filter(function(e) {
-                return b.a(e.name) === t;
+                return b.a(e.display_name || e.name) === t;
               });
             }
             var r = [];
@@ -80071,8 +80989,8 @@ $.fn.togglify = function(settings) {
       }, {
         key: "getEmojiPreviewData",
         value: function(e) {
-          var t = b.a(e.name),
-            n = (e.names || "").replace(/(::skin-tone-[2-6]:)/g, ":");
+          var t = b.a(e.display_name || e.name),
+            n = (e.display_names || e.names || "").replace(/(::skin-tone-[2-6]:)/g, ":");
           return {
             name: t,
             aliases: n
@@ -80306,14 +81224,14 @@ $.fn.togglify = function(settings) {
       }
     }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
   }
-  var a = n(16),
+  var a = n(15),
     s = n.n(a),
-    u = n(2),
+    u = n(1),
     l = n.n(u),
     c = n(13),
     f = n.n(c),
-    d = n(165),
-    p = n(166),
+    d = n(167),
+    p = n(168),
     h = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
@@ -80409,365 +81327,9 @@ $.fn.togglify = function(settings) {
       }]), t;
     }(u.PureComponent);
   t.a = _, _.propTypes = m, _.defaultProps = g;
-}, function(e, t, n) {
+}, , , function(e, t, n) {
   "use strict";
-
-  function r(e, t) {
-    if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
-  }
-
-  function o(e, t) {
-    if (!e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-    return !t || "object" != typeof t && "function" != typeof t ? e : t;
-  }
-
-  function i(e, t) {
-    if ("function" != typeof t && null !== t) throw new TypeError("Super expression must either be null or a function, not " + typeof t);
-    e.prototype = Object.create(t && t.prototype, {
-      constructor: {
-        value: e,
-        enumerable: !1,
-        writable: !0,
-        configurable: !0
-      }
-    }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
-  }
-  var a = n(2),
-    s = n.n(a),
-    u = n(13),
-    l = n.n(u),
-    c = function() {
-      function e(e, t) {
-        for (var n = 0; n < t.length; n++) {
-          var r = t[n];
-          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
-        }
-      }
-      return function(t, n, r) {
-        return n && e(t.prototype, n), r && e(t, r), t;
-      };
-    }(),
-    f = {
-      renderPopover: a.PropTypes.func.isRequired,
-      children: a.PropTypes.node.isRequired,
-      startsOpen: a.PropTypes.bool
-    },
-    d = {
-      startsOpen: !1
-    },
-    p = function(e) {
-      function t(e) {
-        r(this, t);
-        var n = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
-        return n.state = {
-          isOpen: n.props.startsOpen
-        }, n.closePopover = n.closePopover.bind(n), n.onTrigger = n.onTrigger.bind(n), n;
-      }
-      return i(t, e), c(t, [{
-        key: "onTrigger",
-        value: function() {
-          this.setState({
-            isOpen: !this.state.isOpen
-          });
-        }
-      }, {
-        key: "closePopover",
-        value: function() {
-          this.setState({
-            isOpen: !1
-          });
-        }
-      }, {
-        key: "render",
-        value: function() {
-          var e = this.props.children,
-            t = s.a.cloneElement(e, {
-              onClick: this.onTrigger,
-              className: l()(e.props.className, {
-                active: this.state.isOpen
-              })
-            }),
-            n = this.props.renderPopover({
-              isOpen: this.state.isOpen,
-              onClose: this.closePopover
-            });
-          return s.a.createElement("div", null, t, n);
-        }
-      }]), t;
-    }(a.Component);
-  t.a = p, p.propTypes = f, p.defaultProps = d;
-}, function(e, t, n) {
-  "use strict";
-
-  function r(e, t) {
-    if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
-  }
-
-  function o(e, t) {
-    if (!e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-    return !t || "object" != typeof t && "function" != typeof t ? e : t;
-  }
-
-  function i(e, t) {
-    if ("function" != typeof t && null !== t) throw new TypeError("Super expression must either be null or a function, not " + typeof t);
-    e.prototype = Object.create(t && t.prototype, {
-      constructor: {
-        value: e,
-        enumerable: !1,
-        writable: !0,
-        configurable: !0
-      }
-    }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
-  }
-  var a = n(2),
-    s = n.n(a),
-    u = n(39),
-    l = (n.n(u), n(413)),
-    c = n.n(l),
-    f = function() {
-      function e(e, t) {
-        for (var n = 0; n < t.length; n++) {
-          var r = t[n];
-          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
-        }
-      }
-      return function(t, n, r) {
-        return n && e(t.prototype, n), r && e(t, r), t;
-      };
-    }(),
-    d = {
-      children: a.PropTypes.node.isRequired,
-      isOpen: a.PropTypes.bool,
-      onOpen: a.PropTypes.func,
-      onClose: a.PropTypes.func,
-      position: a.PropTypes.string,
-      allowanceX: a.PropTypes.number,
-      allowanceY: a.PropTypes.number,
-      offsetX: a.PropTypes.number,
-      offsetY: a.PropTypes.number,
-      targetBounds: a.PropTypes.shape({
-        top: a.PropTypes.number,
-        left: a.PropTypes.number,
-        right: a.PropTypes.number,
-        bottom: a.PropTypes.number,
-        height: a.PropTypes.number,
-        width: a.PropTypes.number
-      }),
-      overlayClassName: a.PropTypes.string
-    },
-    p = {
-      allowanceX: 16,
-      allowanceY: 10,
-      offsetX: 0,
-      offsetY: 0,
-      isOpen: !1,
-      onOpen: function() {},
-      onClose: function() {},
-      position: null,
-      targetBounds: {
-        top: 0,
-        left: 0,
-        right: 20,
-        bottom: 20
-      },
-      overlayClassName: "popover_mask react_popover_mask"
-    },
-    h = function(e) {
-      function t(e) {
-        r(this, t);
-        var n = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
-        return n.onResize = n.onResize.bind(n), n.onOpen = n.onOpen.bind(n), n.onClose = n.onClose.bind(n), n.state = {
-          contentBounds: {}
-        }, n;
-      }
-      return i(t, e), f(t, [{
-        key: "componentDidMount",
-        value: function() {
-          window.addEventListener("resize", this.onResize);
-        }
-      }, {
-        key: "componentWillUnmount",
-        value: function() {
-          window.removeEventListener("resize", this.onResize);
-        }
-      }, {
-        key: "onResize",
-        value: function() {
-          this.props.isOpen && this.measureContents();
-        }
-      }, {
-        key: "onOpen",
-        value: function() {
-          this.props.onOpen(), this.measureContents();
-        }
-      }, {
-        key: "onClose",
-        value: function() {
-          this.props.onClose(), this.setState({
-            contentBounds: {}
-          });
-        }
-      }, {
-        key: "getInitialPosition",
-        value: function(e) {
-          var t = this.props,
-            n = t.position,
-            r = t.targetBounds,
-            o = t.offsetX,
-            i = t.offsetY;
-          switch (n) {
-            case "top":
-              return {
-                width: e.width,
-                height: e.height,
-                top: r.top - e.height + i,
-                bottom: r.top + i,
-                right: r.right + (r.width - e.width) / 2 + o,
-                left: r.left + (r.width - e.width) / 2 + o
-              };
-            case "top-left":
-              return {
-                width: e.width,
-                height: e.height,
-                top: r.top - e.height + i,
-                bottom: r.top + i,
-                right: r.left + e.width + o,
-                left: r.left + o
-              };
-            case "top-right":
-              return {
-                width: e.width,
-                height: e.height,
-                top: r.top - e.height + i,
-                bottom: r.top + i,
-                right: r.right + o,
-                left: r.right - e.width + o
-              };
-            case "left":
-              return {
-                width: e.width,
-                height: e.height,
-                top: r.top + (r.height - e.height) / 2 + i,
-                bottom: r.bottom + (r.height - e.heigh) / 2 + i,
-                right: r.left + o,
-                left: r.left - e.width + o
-              };
-            case "right":
-              return {
-                width: e.width,
-                height: e.height,
-                top: r.top + (r.height - e.height) / 2 + i,
-                bottom: r.bottom + (r.height - e.heigh) / 2 + i,
-                right: r.right + r.width + o,
-                left: r.right + o
-              };
-            case "bottom":
-              return {
-                width: e.width,
-                height: e.height,
-                top: r.bottom + i,
-                bottom: r.bottom + e.height + i,
-                right: r.right + (r.width - e.width) / 2 + o,
-                left: r.left + (r.width - e.width) / 2 + o
-              };
-            case "bottom-left":
-              return {
-                width: e.width,
-                height: e.height,
-                top: r.bottom + i,
-                bottom: r.bottom + e.height + i,
-                right: r.left + e.width + o,
-                left: r.left + o
-              };
-            case "bottom-right":
-              return {
-                width: e.width,
-                height: e.height,
-                top: r.bottom + i,
-                bottom: r.bottom + e.height + i,
-                right: r.right + o,
-                left: r.right - e.width + o
-              };
-            default:
-              return e;
-          }
-        }
-      }, {
-        key: "getBoundaries",
-        value: function() {
-          var e = window,
-            t = e.pageYOffset,
-            n = e.innerWidth,
-            r = e.innerHeight;
-          return {
-            top: t + this.props.allowanceY,
-            right: n - this.props.allowanceX,
-            bottom: t + r - this.props.allowanceY,
-            left: this.props.allowanceX
-          };
-        }
-      }, {
-        key: "getContentStyle",
-        value: function() {
-          var e = this.state.contentBounds || {},
-            t = this.getBoundaries();
-          return {
-            content: {
-              position: "absolute",
-              left: e.left || t.left,
-              top: e.top || t.top,
-              outline: "none"
-            }
-          };
-        }
-      }, {
-        key: "keepInBounds",
-        value: function(e) {
-          var t = this.getBoundaries(),
-            n = this.getInitialPosition(e),
-            r = n.left,
-            o = n.top;
-          return n.left < t.left ? r = t.left : n.right > t.right && (r = Math.max(t.left, t.right - n.width)), n.top < t.top ? o = t.top : n.bottom > t.bottom && (o = Math.max(t.top, t.bottom - n.height)), {
-            left: r,
-            top: o
-          };
-        }
-      }, {
-        key: "measureContents",
-        value: function() {
-          if (this.popoverContent) {
-            var e = n.i(u.findDOMNode)(this.popoverContent).getBoundingClientRect(),
-              t = this.keepInBounds(e);
-            this.setState({
-              contentBounds: t
-            });
-          }
-        }
-      }, {
-        key: "render",
-        value: function() {
-          var e = this,
-            t = s.a.cloneElement(this.props.children, {
-              ref: function(t) {
-                e.popoverContent = t;
-              }
-            });
-          return s.a.createElement(c.a, {
-            isOpen: this.props.isOpen,
-            contentLabel: "popover",
-            className: "popover",
-            overlayClassName: this.props.overlayClassName,
-            style: this.getContentStyle(),
-            onAfterOpen: this.onOpen,
-            onRequestClose: this.onClose
-          }, t);
-        }
-      }]), t;
-    }(a.PureComponent);
-  t.a = h, h.propTypes = d, h.defaultProps = p;
-}, function(e, t, n) {
-  "use strict";
-  var r = n(384);
+  var r = n(400);
   n.d(t, "a", function() {
     return o;
   }), n.d(t, "b", function() {
@@ -80780,7 +81342,7 @@ $.fn.togglify = function(settings) {
     a = r.c;
 }, function(e, t, n) {
   "use strict";
-  var r = n(386);
+  var r = n(402);
   n.d(t, "a", function() {
     return o;
   }), n.d(t, "b", function() {
@@ -80790,7 +81352,7 @@ $.fn.togglify = function(settings) {
     i = r.b;
 }, function(e, t, n) {
   "use strict";
-  var r = n(171);
+  var r = n(177);
   n.d(t, "c", function() {
     return o;
   }), n.d(t, "b", function() {
@@ -80809,7 +81371,7 @@ $.fn.togglify = function(settings) {
     });
 }, function(e, t, n) {
   "use strict";
-  var r = n(171);
+  var r = n(177);
   n.d(t, "a", function() {
     return o;
   });
@@ -80820,7 +81382,7 @@ $.fn.togglify = function(settings) {
   });
 }, function(e, t, n) {
   "use strict";
-  var r = n(171);
+  var r = n(177);
   n.d(t, "a", function() {
     return o;
   }), n.d(t, "b", function() {
@@ -80832,15 +81394,15 @@ $.fn.togglify = function(settings) {
     i = n.i(r.a)("TS.metrics.measureAndClear", function() {
       return null;
     });
-}, , , , , function(e, t, n) {
+}, , , , function(e, t, n) {
   "use strict";
 
   function r(e, t) {
     if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
   }
-  var o = n(407),
+  var o = n(421),
     i = n.n(o),
-    a = n(16),
+    a = n(15),
     s = n.n(a),
     u = function() {
       function e(e, t) {
@@ -80883,61 +81445,7 @@ $.fn.togglify = function(settings) {
       }]), e;
     }();
   t.a = l;
-}, , , function(e, t) {
-  function n(e, t) {
-    if (e.indexOf) return e.indexOf(t);
-    for (var n = 0, r = e.length; n < r; n++)
-      if (e[n] === t) return n;
-    return -1;
-  }
-
-  function r(e) {
-    return this instanceof r ? (e || (e = {}), e.nodeType && (e = {
-      el: e
-    }), this.opts = e, this.el = e.el || document.body, "object" != typeof this.el && (this.el = document.querySelector(this.el)), void 0) : new r(e);
-  }
-  e.exports = function(e) {
-    return new r(e);
-  }, r.prototype.add = function(e) {
-    var t = this.el;
-    if (t) {
-      if ("" === t.className) return t.className = e;
-      var r = t.className.split(" ");
-      return n(r, e) > -1 ? r : (r.push(e), t.className = r.join(" "), r);
-    }
-  }, r.prototype.remove = function(e) {
-    var t = this.el;
-    if (t && "" !== t.className) {
-      var r = t.className.split(" "),
-        o = n(r, e);
-      return o > -1 && r.splice(o, 1), t.className = r.join(" "), r;
-    }
-  }, r.prototype.has = function(e) {
-    var t = this.el;
-    if (t) {
-      var r = t.className.split(" ");
-      return n(r, e) > -1;
-    }
-  }, r.prototype.toggle = function(e) {
-    var t = this.el;
-    t && (this.has(e) ? this.remove(e) : this.add(e));
-  };
-}, function(e, t, n) {
-  var r;
-  ! function() {
-    "use strict";
-    var o = !("undefined" == typeof window || !window.document || !window.document.createElement),
-      i = {
-        canUseDOM: o,
-        canUseWorkers: "undefined" != typeof Worker,
-        canUseEventListeners: o && !(!window.addEventListener && !window.attachEvent),
-        canUseViewport: o && !!window.screen
-      };
-    r = function() {
-      return i;
-    }.call(t, n, t, e), !(void 0 !== r && (e.exports = r));
-  }();
-}, , , , , , , , , , , , function(e, t, n) {
+}, , , , , , , , , , , , , , , function(e, t, n) {
   var r;
   ! function(o, i, a) {
     function s(e, t, n) {
@@ -81197,335 +81705,18 @@ $.fn.togglify = function(settings) {
       }.call(t, n, t, e), !(r !== a && (e.exports = r));
     }
   }("undefined" != typeof window ? window : null, "undefined" != typeof window ? document : null);
-}, function(e, t, n) {
-  function r(e) {
-    return e();
-  }
-  var o = n(2),
-    i = n(39),
-    a = n(395),
-    s = o.createFactory(n(409)),
-    u = n(410),
-    l = n(394),
-    c = n(39).unstable_renderSubtreeIntoContainer,
-    f = n(354),
-    d = a.canUseDOM ? window.HTMLElement : {},
-    p = a.canUseDOM ? document.body : {
-      appendChild: function() {}
-    },
-    h = o.createClass({
-      displayName: "Modal",
-      statics: {
-        setAppElement: function(e) {
-          p = u.setElement(e);
-        },
-        injectCSS: function() {}
-      },
-      propTypes: {
-        isOpen: o.PropTypes.bool.isRequired,
-        style: o.PropTypes.shape({
-          content: o.PropTypes.object,
-          overlay: o.PropTypes.object
-        }),
-        portalClassName: o.PropTypes.string,
-        appElement: o.PropTypes.instanceOf(d),
-        onAfterOpen: o.PropTypes.func,
-        onRequestClose: o.PropTypes.func,
-        closeTimeoutMS: o.PropTypes.number,
-        ariaHideApp: o.PropTypes.bool,
-        shouldCloseOnOverlayClick: o.PropTypes.bool,
-        parentSelector: o.PropTypes.func,
-        role: o.PropTypes.string,
-        contentLabel: o.PropTypes.string.isRequired
-      },
-      getDefaultProps: function() {
-        return {
-          isOpen: !1,
-          portalClassName: "ReactModalPortal",
-          ariaHideApp: !0,
-          closeTimeoutMS: 0,
-          shouldCloseOnOverlayClick: !0,
-          parentSelector: function() {
-            return document.body;
-          }
-        };
-      },
-      componentDidMount: function() {
-        this.node = document.createElement("div"), this.node.className = this.props.portalClassName;
-        var e = r(this.props.parentSelector);
-        e.appendChild(this.node), this.renderPortal(this.props);
-      },
-      componentWillReceiveProps: function(e) {
-        var t = r(this.props.parentSelector),
-          n = r(e.parentSelector);
-        n !== t && (t.removeChild(this.node), n.appendChild(this.node)), this.renderPortal(e);
-      },
-      componentWillUnmount: function() {
-        this.props.ariaHideApp && u.show(this.props.appElement), i.unmountComponentAtNode(this.node);
-        var e = r(this.props.parentSelector);
-        e.removeChild(this.node), l(document.body).remove("ReactModal__Body--open");
-      },
-      renderPortal: function(e) {
-        e.isOpen ? l(document.body).add("ReactModal__Body--open") : l(document.body).remove("ReactModal__Body--open"), e.ariaHideApp && u.toggle(e.isOpen, e.appElement), this.portal = c(this, s(f({}, e, {
-          defaultStyles: h.defaultStyles
-        })), this.node);
-      },
-      render: function() {
-        return o.DOM.noscript();
-      }
-    });
-  h.defaultStyles = {
-    overlay: {
-      position: "fixed",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: "rgba(255, 255, 255, 0.75)"
-    },
-    content: {
-      position: "absolute",
-      top: "40px",
-      left: "40px",
-      right: "40px",
-      bottom: "40px",
-      border: "1px solid #ccc",
-      background: "#fff",
-      overflow: "auto",
-      WebkitOverflowScrolling: "touch",
-      borderRadius: "4px",
-      outline: "none",
-      padding: "20px"
-    }
-  }, e.exports = h;
-}, function(e, t, n) {
-  var r = n(2),
-    o = r.DOM.div,
-    i = n(411),
-    a = n(412),
-    s = n(354),
-    u = {
-      overlay: {
-        base: "ReactModal__Overlay",
-        afterOpen: "ReactModal__Overlay--after-open",
-        beforeClose: "ReactModal__Overlay--before-close"
-      },
-      content: {
-        base: "ReactModal__Content",
-        afterOpen: "ReactModal__Content--after-open",
-        beforeClose: "ReactModal__Content--before-close"
-      }
-    };
-  e.exports = r.createClass({
-    displayName: "ModalPortal",
-    shouldClose: null,
-    getDefaultProps: function() {
-      return {
-        style: {
-          overlay: {},
-          content: {}
-        }
-      };
-    },
-    getInitialState: function() {
-      return {
-        afterOpen: !1,
-        beforeClose: !1
-      };
-    },
-    componentDidMount: function() {
-      this.props.isOpen && (this.setFocusAfterRender(!0), this.open());
-    },
-    componentWillUnmount: function() {
-      clearTimeout(this.closeTimer);
-    },
-    componentWillReceiveProps: function(e) {
-      !this.props.isOpen && e.isOpen ? (this.setFocusAfterRender(!0), this.open()) : this.props.isOpen && !e.isOpen && this.close();
-    },
-    componentDidUpdate: function() {
-      this.focusAfterRender && (this.focusContent(), this.setFocusAfterRender(!1));
-    },
-    setFocusAfterRender: function(e) {
-      this.focusAfterRender = e;
-    },
-    open: function() {
-      this.state.afterOpen && this.state.beforeClose ? (clearTimeout(this.closeTimer), this.setState({
-        beforeClose: !1
-      })) : (i.setupScopedFocus(this.node), i.markForFocusLater(), this.setState({
-        isOpen: !0
-      }, function() {
-        this.setState({
-          afterOpen: !0
-        }), this.props.isOpen && this.props.onAfterOpen && this.props.onAfterOpen();
-      }.bind(this)));
-    },
-    close: function() {
-      this.props.closeTimeoutMS > 0 ? this.closeWithTimeout() : this.closeWithoutTimeout();
-    },
-    focusContent: function() {
-      this.contentHasFocus() || this.refs.content.focus();
-    },
-    closeWithTimeout: function() {
-      this.setState({
-        beforeClose: !0
-      }, function() {
-        this.closeTimer = setTimeout(this.closeWithoutTimeout, this.props.closeTimeoutMS);
-      }.bind(this));
-    },
-    closeWithoutTimeout: function() {
-      this.setState({
-        beforeClose: !1,
-        isOpen: !1,
-        afterOpen: !1
-      }, this.afterClose);
-    },
-    afterClose: function() {
-      i.returnFocus(), i.teardownScopedFocus();
-    },
-    handleKeyDown: function(e) {
-      9 == e.keyCode && a(this.refs.content, e), 27 == e.keyCode && (e.preventDefault(), this.requestClose(e));
-    },
-    handleOverlayMouseDown: function(e) {
-      null === this.shouldClose && (this.shouldClose = !0);
-    },
-    handleOverlayMouseUp: function(e) {
-      this.shouldClose && this.props.shouldCloseOnOverlayClick && (this.ownerHandlesClose() ? this.requestClose(e) : this.focusContent()), this.shouldClose = null;
-    },
-    handleContentMouseDown: function(e) {
-      this.shouldClose = !1;
-    },
-    handleContentMouseUp: function(e) {
-      this.shouldClose = !1;
-    },
-    requestClose: function(e) {
-      this.ownerHandlesClose() && this.props.onRequestClose(e);
-    },
-    ownerHandlesClose: function() {
-      return this.props.onRequestClose;
-    },
-    shouldBeClosed: function() {
-      return !this.props.isOpen && !this.state.beforeClose;
-    },
-    contentHasFocus: function() {
-      return document.activeElement === this.refs.content || this.refs.content.contains(document.activeElement);
-    },
-    buildClassName: function(e, t) {
-      var n = u[e].base;
-      return this.state.afterOpen && (n += " " + u[e].afterOpen), this.state.beforeClose && (n += " " + u[e].beforeClose), t ? n + " " + t : n;
-    },
-    render: function() {
-      var e = this.props.className ? {} : this.props.defaultStyles.content,
-        t = this.props.overlayClassName ? {} : this.props.defaultStyles.overlay;
-      return this.shouldBeClosed() ? o() : o({
-        ref: "overlay",
-        className: this.buildClassName("overlay", this.props.overlayClassName),
-        style: s({}, t, this.props.style.overlay || {}),
-        onMouseDown: this.handleOverlayMouseDown,
-        onMouseUp: this.handleOverlayMouseUp
-      }, o({
-        ref: "content",
-        style: s({}, e, this.props.style.content || {}),
-        className: this.buildClassName("content", this.props.className),
-        tabIndex: "-1",
-        onKeyDown: this.handleKeyDown,
-        onMouseDown: this.handleContentMouseDown,
-        onMouseUp: this.handleContentMouseUp,
-        role: this.props.role,
-        "aria-label": this.props.contentLabel
-      }, this.props.children));
-    }
-  });
-}, function(e, t) {
-  function n(e) {
-    if ("string" == typeof e) {
-      var t = document.querySelectorAll(e);
-      e = "length" in t ? t[0] : t;
-    }
-    return u = e || u;
-  }
-
-  function r(e) {
-    a(e), (e || u).setAttribute("aria-hidden", "true");
-  }
-
-  function o(e) {
-    a(e), (e || u).removeAttribute("aria-hidden");
-  }
-
-  function i(e, t) {
-    e ? r(t) : o(t);
-  }
-
-  function a(e) {
-    if (!e && !u) throw new Error("react-modal: You must set an element with `Modal.setAppElement(el)` to make this accessible");
-  }
-
-  function s() {
-    u = document.body;
-  }
-  var u = "undefined" != typeof document ? document.body : null;
-  t.toggle = i, t.setElement = n, t.show = o, t.hide = r, t.resetForTesting = s;
-}, function(e, t, n) {
-  function r(e) {
-    u = !0;
-  }
-
-  function o(e) {
-    if (u) {
-      if (u = !1, !a) return;
-      setTimeout(function() {
-        if (!a.contains(document.activeElement)) {
-          var e = i(a)[0] || a;
-          e.focus();
-        }
-      }, 0);
-    }
-  }
-  var i = n(355),
-    a = null,
-    s = null,
-    u = !1;
-  t.markForFocusLater = function() {
-    s = document.activeElement;
-  }, t.returnFocus = function() {
-    try {
-      s.focus();
-    } catch (e) {
-      console.warn("You tried to return focus to " + s + " but it is not in the DOM anymore");
-    }
-    s = null;
-  }, t.setupScopedFocus = function(e) {
-    a = e, window.addEventListener ? (window.addEventListener("blur", r, !1), document.addEventListener("focus", o, !0)) : (window.attachEvent("onBlur", r), document.attachEvent("onFocus", o));
-  }, t.teardownScopedFocus = function() {
-    a = null, window.addEventListener ? (window.removeEventListener("blur", r), document.removeEventListener("focus", o)) : (window.detachEvent("onBlur", r), document.detachEvent("onFocus", o));
-  };
-}, function(e, t, n) {
-  var r = n(355);
-  e.exports = function(e, t) {
-    var n = r(e);
-    if (!n.length) return void t.preventDefault();
-    var o = n[t.shiftKey ? 0 : n.length - 1],
-      i = o === document.activeElement || e === document.activeElement;
-    if (i) {
-      t.preventDefault();
-      var a = n[t.shiftKey ? n.length - 1 : 0];
-      a.focus();
-    }
-  };
-}, function(e, t, n) {
-  e.exports = n(408);
-}, , , , , , , , , , , , , , , , , , , , , , , , , , function(e, t, n) {
+}, , , , , , , , , , , , , , , , , , , , , , , , , function(e, t, n) {
   "use strict";
   Object.defineProperty(t, "__esModule", {
     value: !0
   });
-  var r = n(2),
+  var r = n(1),
     o = n.n(r),
-    i = n(39),
+    i = n(24),
     a = n.n(i),
-    s = n(367),
-    u = n(368);
-  window.ReactComponents = {}, window.ReactComponents.EmojiPicker = s.a, window.ReactComponents.Popover = u.a, window.ReactComponents.PopoverTrigger = u.b, window.React = o.a, window.ReactDOM = a.a;
+    s = n(384),
+    u = n(172);
+  window.ReactComponents = {}, window.ReactComponents.EmojiPicker = s.a, window.ReactComponents.Popover = u.b, window.ReactComponents.PopoverTrigger = u.c, window.React = o.a, window.ReactDOM = a.a;
 }]);
 (function() {
   "use strict";
@@ -81554,8 +81745,10 @@ $.fn.togglify = function(settings) {
         return _.map(expert_group.users, function(id) {
           return TS.members.getMemberById(id);
         });
-      }).flatten().uniqBy("id").take(5).value();
-      var cta_text = _getCtaTextForUsers(users_for_cta);
+      }).flatten().uniqBy("id").value();
+      var user_count = users_for_cta.length;
+      var show_plus_sign_on_last_face = users_for_cta.length > 4;
+      users_for_cta = _.take(users_for_cta, 4);
       var results = _.map(experts, function(expert_group) {
         var users = _.map(expert_group["users"], TS.members.getMemberById);
         var channels = _.map(expert_group["channels"], TS.channels.getChannelById);
@@ -81563,7 +81756,9 @@ $.fn.togglify = function(settings) {
           users: users,
           faces: _.take(users, 2),
           description: _getDescription(users, channels),
-          channels: channels
+          channels: channels,
+          partial_terms: !_allTermsMatch(query, expert_group.terms),
+          terms: _getTermsAsArray(query, expert_group.terms)
         };
       });
       var channel_matches = [];
@@ -81581,7 +81776,8 @@ $.fn.togglify = function(settings) {
       html += TS.templates.sli_expert_search_results({
         query: query,
         users: users_for_cta,
-        cta_text: cta_text,
+        user_count: user_count,
+        show_plus_sign_on_last_face: show_plus_sign_on_last_face,
         terms: query,
         results: results,
         channel_matches: channel_matches,
@@ -81594,21 +81790,6 @@ $.fn.togglify = function(settings) {
       $("[data-js=sli_expert_search]").toggleClass("sli_expert_search--collapsed", !TS.sli_expert_search.is_expanded);
     }
   });
-  var _getCtaTextForUsers = function(users) {
-    var full_names = _.map(users, function(user) {
-      return _.escape(TS.members.getMemberDisplayName(user));
-    });
-    var cta = null;
-    if (full_names.length === 1) {
-      cta = new Handlebars.SafeString("<strong>" + full_names[0] + "</strong>");
-    } else {
-      cta = TS.i18n.t('<span class="black">{name}</span> and {remaining_count, plural, =1 {# other} other {# others}}', "search")({
-        name: full_names[0],
-        remaining_count: full_names.length - 1
-      });
-    }
-    return cta;
-  };
   var _getDescription = function(users, channels) {
     var user_links = _.map(users, TS.templates.builders.makeMemberPreviewLink);
     var user_link_text = TS.i18n.listify(user_links, {
@@ -81623,6 +81804,19 @@ $.fn.togglify = function(settings) {
       user_link_text: user_link_text,
       maybe_linebreak: users.length === 1 ? "<br>" : "",
       channel_link_text: channel_link_text
+    });
+  };
+  var _allTermsMatch = function(query, terms) {
+    return _(query).split(" ").map(function(word) {
+      return terms[word.toLowerCase()];
+    }).every(Boolean);
+  };
+  var _getTermsAsArray = function(query, terms) {
+    return _.map(query.split(" "), function(word) {
+      return {
+        word: word,
+        present: terms[word.toLowerCase()]
+      };
     });
   };
 })();

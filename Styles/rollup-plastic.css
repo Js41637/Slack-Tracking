@@ -6690,7 +6690,7 @@ code {
   background: #F9F9F9;
   color: #C25;
   font-size: .75rem;
-  padding: 1px 3px;
+  padding: 2px 3px 1px;
   white-space: normal
 }
 
@@ -14899,14 +14899,18 @@ html:not(.supports_flexbox) .channel_modal_with_list .channel_modal_list {
   margin-left: 4px
 }
 
-#channel_browser .shared_channels_icon {
-  float: right
-}
-
 #channel_browser .shared_channels_icon .ts_icon_shared_channels {
   position: relative;
   right: 0;
   bottom: -3px
+}
+
+#channel_browser .channel_browser_teams_info {
+  color: #2C2D30
+}
+
+#channel_browser .channel_browser_shared_teams {
+  top: 5px
 }
 
 #channel_browser .channel_browser_member_count_container {

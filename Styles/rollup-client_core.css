@@ -5820,8 +5820,6 @@ body:not(.loading) #team_menu:hover .current_user_current_status {
   text-align: center
 }
 
-#team_menu_status_callout,
-#team_menu_status_callout_container,
 #team_menu_user {
   position: relative;
   margin-top: 2px;
@@ -5830,58 +5828,6 @@ body:not(.loading) #team_menu:hover .current_user_current_status {
   font-weight: 400;
   line-height: 1.5;
   z-index: 1
-}
-
-#team_menu_status_callout_container {
-  height: 21px
-}
-
-#team_menu_status_callout_container #team_menu_status_callout,
-#team_menu_status_callout_container #team_menu_user {
-  margin-top: 0;
-  -webkit-transition: transform .15s ease-out, opacity .15s ease-out;
-  -moz-transition: transform .15s ease-out, opacity .15s ease-out;
-  transition: transform .15s ease-out, opacity .15s ease-out
-}
-
-#team_menu_status_callout_container #team_menu_status_callout {
-  opacity: 0;
-  -moz-opacity: 0;
-  -khtml-opacity: 0;
-  line-height: 1
-}
-
-#team_menu_status_callout_container #team_menu_status_callout #team_menu_status_callout_new_text {
-  color: #fff
-}
-
-#team_menu_status_callout_container #team_menu_status_callout .ts_icon_happy_smile {
-  position: relative;
-  top: 2px
-}
-
-#team_menu_status_callout_container #team_menu_status_callout .ts_icon_happy_smile:before {
-  font-size: 16px
-}
-
-.client_channels_list_container:hover #team_menu_status_callout_container #team_menu_user {
-  opacity: 0;
-  -moz-opacity: 0;
-  -khtml-opacity: 0
-}
-
-.client_channels_list_container:hover #team_menu_status_callout_container #team_menu_status_callout,
-.client_channels_list_container:hover #team_menu_status_callout_container #team_menu_user {
-  -webkit-transform: translateX(0) translateY(-20px);
-  -moz-transform: translateX(0) translateY(-20px);
-  -ms-transform: translateX(0) translateY(-20px);
-  transform: translateX(0) translateY(-20px)
-}
-
-.client_channels_list_container:hover #team_menu_status_callout_container #team_menu_status_callout {
-  opacity: 1;
-  -moz-opacity: 1;
-  -khtml-opacity: 1
 }
 
 #team_menu_user_details {
