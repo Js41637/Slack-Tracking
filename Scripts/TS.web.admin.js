@@ -1401,14 +1401,14 @@
       };
       if (!member.deleted) {
         if (TS.model.user.id === member.id) {
-          confirm_body.push(confirmation_messages["self"]);
+          confirm_body.push(confirmation_messages.self);
         } else if (member.is_bot) {
-          confirm_body.push(confirmation_messages["bot"]);
+          confirm_body.push(confirmation_messages.bot);
         } else {
-          confirm_body.push(confirmation_messages["member"]);
+          confirm_body.push(confirmation_messages.member);
         }
       } else {
-        confirm_body.push(confirmation_messages["disabled"]);
+        confirm_body.push(confirmation_messages.disabled);
       }
       TS.generic_dialog.start({
         title: TS.i18n.t("Confirm username change", "web_admin")(),
@@ -1472,12 +1472,12 @@
       };
       if (!member.deleted) {
         if (TS.model.user.id === member.id) {
-          confirm_body.push(confirmation_messages["self"]);
+          confirm_body.push(confirmation_messages.self);
         } else {
-          confirm_body.push(confirmation_messages["member"]);
+          confirm_body.push(confirmation_messages.member);
         }
       } else {
-        confirm_body.push(confirmation_messages["disabled"]);
+        confirm_body.push(confirmation_messages.disabled);
       }
       TS.generic_dialog.start({
         title: TS.i18n.t("Confirm email change", "web_admin")(),

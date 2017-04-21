@@ -3733,8 +3733,15 @@ var _cyrillicToLatin = function(char) {
     emojiMatchesTerm: function(emoji, term, keywords) {
       if (!emoji || !term) return false;
       var emoji_base_name = TS.emoji.nameToBaseName(emoji.display_name || emoji.name);
+      if (TS.boot_data.feature_i18n_emoji) {
+        term = TS.i18n.deburr(term);
+        emoji_base_name = TS.i18n.deburr(emoji_base_name);
+      }
       if (TS.emoji.substringMatchesName(emoji_base_name, term)) return true;
       var emoji_display_names = emoji.display_names || emoji.names;
+      if (TS.boot_data.feature_i18n_emoji) {
+        emoji_display_names = TS.i18n.deburr(emoji_display_names);
+      }
       var aliases = emoji_display_names.split(" ");
       for (var i = 0; i < aliases.length; i += 1) {
         if (TS.emoji.substringMatchesName(TS.emoji.nameToBaseName(aliases[i]), term)) return true;

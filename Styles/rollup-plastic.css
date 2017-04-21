@@ -15821,13 +15821,17 @@ html:not(.supports_flexbox) #im_browser_tokens .member_token {
 
 #channel_invite_modal .enter_to_go_label {
   position: absolute;
-  top: 54px;
-  right: 16px
+  top: 54px
 }
 
 #channel_invite_modal .enter_to_go_label .ts_icon_enter:before {
   position: relative;
   top: 2px
+}
+
+#channel_invite_modal .ts_icon_shared_channels {
+  right: 2px;
+  top: 5px
 }
 
 #channel_invite_modal #channel_invite_container:not(.keyboard_active).not_scrolling .channel_invite_row:hover,
@@ -15845,6 +15849,10 @@ html:not(.supports_flexbox) #im_browser_tokens .member_token {
 #channel_invite_modal #channel_invite_container:not(.keyboard_active).not_scrolling .channel_invite_row:hover+.channel_invite_row,
 #channel_invite_modal .channel_invite_row.highlighted+.channel_invite_row {
   border-color: transparent
+}
+
+#channel_invite_modal .enter_to_go_label {
+  right: 16px
 }
 
 #channel_invite_tokens .member_token.ra,

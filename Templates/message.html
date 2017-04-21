@@ -171,6 +171,7 @@
             {{#if_equal file.external_type compare="gdrive"}}<i class="ts_icon ts_icon_google_drive"></i>{{/if_equal}}
             {{#if_equal file.external_type compare="dropbox"}}<i class="ts_icon ts_icon_dropbox"></i>{{/if_equal}}
             {{#if_equal file.external_type compare="box"}}<i class="ts_icon ts_icon_box_square"></i>{{/if_equal}}
+            {{#if_equal file.external_type compare="onedrive"}}<i class="ts_icon ts_icon_onedrive hidden"></i>{{/if_equal}}
 
             {{#if file_title_only}}
               <span class="file_preview_link no_jumbomoji file_force_flexpane bold msg_inline_file_preview_title">{{#if file.title}}{{{formatFileTitle file}}}{{else}}{{file.name}}{{/if}}</span>

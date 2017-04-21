@@ -653,7 +653,7 @@
       TS.model.is_msg_rate_limited = true;
       if (args.notify_user) {
         TS.client.ui.addEphemeralBotMsg({
-          text: TS.i18n.t("_Avalanche!_ That’s too many messages for Slack to handle — could you slow down just a bit?", "client")(),
+          text: TS.i18n.t("To stop overzealous bots from flooding channels, Slack sets a limit on flurries of messages. You are reading this, so you are not a bot. And yet — somehow — you hit this limit.", "client")(),
           ephemeral_type: "disconnected_feedback",
           slackbot_feels: "sad_surprise"
         });
@@ -31068,7 +31068,8 @@
       var template_args = {
         channel_name: channel.name,
         is_private: !!channel.is_group,
-        is_shared: channel.is_shared,
+        is_shared: TS.shared.isModelObShared(channel),
+        is_org_shared: TS.shared.isModelObOrgShared(channel),
         async_data: _needs_async_data
       };
       if (_needs_async_data) template_args.preselected = _selected_members;
@@ -32145,6 +32146,14 @@
       });
       $(this).addClass("disabled");
     });
+    if (TS.boot_data.feature_notif_prefs_overhaul) {
+      $('[data-action="your_keywords_jump"]').click(function() {
+        $("#prefs_highlight_words").scrollintoview({
+          offset: "bottom",
+          px_offset: -100
+        }).highlight();
+      });
+    }
   };
   var _getDndProps = function() {
     return {
@@ -32960,7 +32969,11 @@
     if (!_is_open) return;
     var send_notifications_for = _getSendNotificationsForPref();
     $("#growls_test").css("visibility", "");
-    $('input:radio[name="notifications_rd"]').filter('[value="' + send_notifications_for + '"]').prop("checked", true);
+    var $checked_input = $('input:radio[name="notifications_rd"]').filter('[value="' + send_notifications_for + '"]').prop("checked", true);
+    if (TS.boot_data.feature_notif_prefs_overhaul) {
+      $(".global_notification_block.selected").removeClass("selected");
+      $checked_input.closest(".global_notification_block").addClass("selected");
+    }
     var non_default_html = TS.templates.builders.buildNonDefaultNotificationBlock("margin-left");
     if (non_default_html) {
       $(".non_default").removeClass("hidden");
@@ -42825,7 +42838,7 @@ var _getDownloadLink = function() {
               },
               referring_ui_context: {
                 step: "invite_people",
-                ui_element: "invite_people_menu"
+                ui_element: "invite_people_button"
               }
             },
             referring_event_id: "INAPP_INVITES"
@@ -42956,12 +42969,12 @@ var _getDownloadLink = function() {
   };
   var _bindSharedLinkInput = function() {
     var $input = _$shared_invites_modal.find("#shared_invite_link_url");
-    $input.on("select", function() {
+    $input.on("click", function() {
       TS.clog.track("INAPP_INVITES", {
         contexts: {
           ui_context: {
             step: "share_link",
-            action: "select",
+            action: "click",
             ui_element: "invite_link"
           }
         }
