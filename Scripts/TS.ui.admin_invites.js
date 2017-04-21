@@ -741,10 +741,8 @@
         if (first_name) invite.first_name = first_name;
         if (last_name) invite.last_name = last_name;
         invites.push(invite);
-      } else {
-        if ($(".admin_invite_row").length > 1) {
-          _removeRow($(this));
-        }
+      } else if ($(".admin_invite_row").length > 1) {
+        _removeRow($(this));
       }
     });
     _unprocessed_invites = invites;
@@ -764,10 +762,8 @@
         } else {
           _rowValid($(this));
         }
-      } else {
-        if ($(".admin_invite_row").length > 1) {
-          _removeRow($(this));
-        }
+      } else if ($(".admin_invite_row").length > 1) {
+        _removeRow($(this));
       }
     });
     if (validation_error) {

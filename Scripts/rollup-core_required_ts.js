@@ -1217,16 +1217,14 @@
       TS.error("WTF app? " + TS.boot_data.app);
       return;
     }
-    var module;
     var name;
     var delete_after_calling = !TS.qs_args["keep_onstart"];
     try {
-      for (name in _modules) {
-        module = _modules[name];
-        if (!module.onStart) continue;
+      _.forOwn(_modules, function(module) {
+        if (!module.onStart) return;
         module.onStart();
         if (delete_after_calling) module.onStart = _.noop;
-      }
+      });
     } catch (e) {
       TS.error("TS." + name + ".onStart encountered an error:");
       TS.logError(e);
@@ -1349,8 +1347,8 @@
         if (should_check_if_local && !TS.members.isLocalTeamMember(member)) continue;
         if (TS.lazyLoadMembersAndBots()) {
           member.presence = _.has(member, "presence") && member.presence === "active" ? "active" : "away";
-        } else {
-          if (data.online_users) member.presence = _.includes(data.online_users, member.id) ? "active" : "away";
+        } else if (data.online_users) {
+          member.presence = _.includes(data.online_users, member.id) ? "active" : "away";
         }
         if (_.get(member, "profile.always_active")) member.presence = "active";
         upsert = TS.members.upsertAndSignal(member);
@@ -2453,13 +2451,12 @@
     var parsed = parseMessageFormatString(str);
     if (parsed.error) TS.error(parsed.error);
     var substr;
-    var key;
     str = parsed.tokens.map(function(t) {
       if (t[0] === "text") {
         substr = t[1];
-        for (key in _PSEUDO_MAP) {
-          substr = substr.replace(_PSEUDO_MAP[key][0], _PSEUDO_MAP[key][1]);
-        }
+        _.forOwn(_PSEUDO_MAP, function(val) {
+          substr = substr.replace(val[0], val[1]);
+        });
         return substr.split(" ").map(function(word) {
           word += new Array(Math.round(word.length * 1.3) - word.length + 1).join("~");
           return word;
@@ -3079,12 +3076,10 @@ var _cyrillicToLatin = function(char) {
       } else if (window.winssb && winssb.window && winssb.window.list) {
         TS.model.supports_spaces_in_windows = true;
       }
-      var k;
       if (TS.boot_data.special_flex_panes) {
-        for (k in TS.boot_data.special_flex_panes) {
-          var special = TS.boot_data.special_flex_panes[k];
+        _.forOwn(TS.boot_data.special_flex_panes, function(special) {
           TS.model.flex_names.push(special.flex_name);
-        }
+        });
       }
       TS.model.expandable_state = TS.storage.fetchExpandableState();
     },
@@ -3504,8 +3499,8 @@ var _cyrillicToLatin = function(char) {
     if (TS.log) {
       if (_is_debug_mode) TS.console.log(_LOG_PRI, payload);
       TS.log(_LOG_PRI, "Event called:", event, args);
-    } else {
-      if (_is_debug_mode) try {
+    } else if (_is_debug_mode) {
+      try {
         console.log(payload);
       } catch (e) {}
     }
@@ -3580,12 +3575,12 @@ var _cyrillicToLatin = function(char) {
   };
   var _mergeParams = function(obj1, obj2) {
     var obj3 = {};
-    for (var attrname in obj1) {
+    Object.keys(obj1).forEach(function(attrname) {
       obj3[attrname] = obj1[attrname];
-    }
-    for (var property in obj2) {
+    });
+    Object.keys(obj2).forEach(function(property) {
       obj3[property] = obj2[property];
-    }
+    });
     return obj3;
   };
   var _fetchModelValues = function() {
@@ -3781,18 +3776,15 @@ var _cyrillicToLatin = function(char) {
       TS.model.emoji_complex_customs = {};
       var alias_key;
       var datum;
-      var custom;
-      var idx;
       var temp_emoji_names = [];
-      for (idx in _emoji.data) {
-        temp_emoji_names.push.apply(temp_emoji_names, _emoji.data[idx][3]);
-      }
+      _.forOwn(_emoji.data, function(data) {
+        temp_emoji_names.push.apply(temp_emoji_names, data[3]);
+      });
 
       function isEmojiNameTaken(name) {
         return _emoji.map.colons.hasOwnProperty(name) || temp_emoji_names.indexOf(name) >= 0;
       }
-      for (idx in customs) {
-        custom = customs[idx];
+      _.forOwn(customs, function(custom, idx) {
         if (typeof custom === "object") {
           TS.model.emoji_complex_customs[idx] = custom;
           _emoji.data[idx] = [
@@ -3801,10 +3793,10 @@ var _cyrillicToLatin = function(char) {
           _emoji.map.colons[idx] = idx;
           TS.model.all_custom_emoji.push(idx);
         } else {
-          if (custom.indexOf("alias:") === 0) continue;
+          if (custom.indexOf("alias:") === 0) return;
           if (isEmojiNameTaken(idx)) {
             TS.error("can't ingest custom emoji :" + idx + ": because that already exists");
-            continue;
+            return;
           }
           _emoji.data[idx] = [
             [], null, null, [idx], null, null, null, custom
@@ -3812,30 +3804,29 @@ var _cyrillicToLatin = function(char) {
           _emoji.map.colons[idx] = idx;
           TS.model.all_custom_emoji.push(idx);
         }
-      }
-      for (idx in customs) {
-        custom = customs[idx];
-        if (typeof custom === "object" || custom.indexOf("alias:") !== 0) continue;
+      });
+      _.forOwn(customs, function(custom, idx) {
+        if (typeof custom === "object" || custom.indexOf("alias:") !== 0) return;
         if (isEmojiNameTaken(idx)) {
           TS.error("can't ingest custom emoji :" + idx + ": because that already exists");
-          continue;
+          return;
         }
         alias_key = custom.replace("alias:", "");
         datum = _emoji.data.hasOwnProperty(alias_key) && _emoji.data[alias_key];
         if (datum) {
           datum[3].push(idx);
           _emoji.map.colons[idx] = alias_key;
-          continue;
+          return;
         }
         alias_key = _emoji.map.colons.hasOwnProperty(alias_key) && _emoji.map.colons[alias_key];
         datum = _emoji.data.hasOwnProperty(alias_key) && _emoji.data[alias_key];
         if (datum) {
           datum[3].push(idx);
           _emoji.map.colons[idx] = alias_key;
-          continue;
+          return;
         }
         if (TS.boot_data && TS.boot_data.feature_tinyspeck) TS.warn('alias for "' + idx + '":"' + custom + '" not recognized');
-      }
+      });
       TS.model.all_custom_emoji = TS.model.all_custom_emoji.sort();
       if (_emoji && _emoji.inits) {
         delete _emoji.inits.emoticons;
@@ -3888,8 +3879,13 @@ var _cyrillicToLatin = function(char) {
       _resetUpEmojiThrottled();
     },
     maybeRemakeMenuListsIfFrequentsChanged: function() {
-      if (!TS.utility.areSimpleObjectsEqual(_makeFrequents(), _frequents, "maybemakeMenuLists")) {
-        TS.emoji.makeMenuLists();
+      var new_frequents = _makeFrequents();
+      if (!TS.utility.areSimpleObjectsEqual(new_frequents, _frequents, "maybemakeMenuLists")) {
+        if (TS.boot_data.feature_i18n_emoji) {
+          _updateFrequentsGroup(new_frequents);
+        } else {
+          TS.emoji.makeMenuLists();
+        }
       }
     },
     makeMenuLists: function() {
@@ -3985,6 +3981,7 @@ var _cyrillicToLatin = function(char) {
           }
         });
       });
+      _name_to_emoji_item_map = cat_map;
       TS.model.emoji_map = _.uniqBy(TS.model.emoji_map, "id");
       for (i = 0; i < defaults.length; i += 1) {
         var name = defaults[i];
@@ -4288,13 +4285,13 @@ var _cyrillicToLatin = function(char) {
   var _makeFrequents = function() {
     var root_name;
     var condensed = {};
-    for (var k in TS.model.emoji_use) {
+    _.each(_.keys(TS.model.emoji_use), function(k) {
       root_name = TS.emoji.nameToCanonicalName(k.split("::")[0]);
       if (!condensed.hasOwnProperty(root_name)) {
         condensed[root_name] = 0;
       }
       condensed[root_name] += TS.model.emoji_use[k];
-    }
+    });
     TS.dir(777, condensed, "condensed emoji names:");
     var A = Object.keys(condensed).sort(function(a, b) {
       var a_val = condensed[a];
@@ -4315,6 +4312,21 @@ var _cyrillicToLatin = function(char) {
     TS.emoji.spliceSkinToneVariationsIntoAnArrayOfEmojiNames(A);
     return A;
   };
+  var _updateFrequentsGroup = function(frequents) {
+    _frequents = frequents;
+    var frequents_group = _.find(_.get(TS.model, "emoji_groups"), {
+      name: "mine"
+    });
+    if (!frequents_group) {
+      TS.emoji.makeMenuLists();
+    }
+    var new_frequents_items = [];
+    _frequents.forEach(function(frequent_emoji_name) {
+      var item = _name_to_emoji_item_map[frequent_emoji_name];
+      if (item) new_frequents_items.push(item);
+    });
+    frequents_group.items = new_frequents_items;
+  };
   var _canonical_names_map;
   var _getCanonicalNamesMap = function() {
     _canonical_names_map = _canonical_names_map || _makeCanonicalNamesMap();
@@ -4334,6 +4346,7 @@ var _cyrillicToLatin = function(char) {
     return map;
   };
   var _emoji = emoji;
+  var _name_to_emoji_item_map = {};
   var _groupings = [{
     name: "people",
     display_name: TS.i18n.t("People", "emoji")(),
@@ -4707,15 +4720,13 @@ var _cyrillicToLatin = function(char) {
         document.addEventListener("beforeunload", TS.ui.onWindowUnload, false);
       } else if (typeof window.attachEvent !== "undefined") {
         window.attachEvent("onbeforeunload", TS.ui.onWindowUnload);
+      } else if (typeof window.onbeforeunload === "function") {
+        window.onbeforeunload = function() {
+          TS.ui.onWindowUnload();
+          return false;
+        };
       } else {
-        if (typeof window.onbeforeunload === "function") {
-          window.onbeforeunload = function() {
-            TS.ui.onWindowUnload();
-            return false;
-          };
-        } else {
-          window.onbeforeunload = TS.ui.onWindowUnload;
-        }
+        window.onbeforeunload = TS.ui.onWindowUnload;
       }
     },
     onWindowUnload: function() {

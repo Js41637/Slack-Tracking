@@ -25834,12 +25834,14 @@ ts-jumper ts-jumper-results.show_deleted li.deleted {
 }
 
 #whats_new_toggle.exp_expanding .ts_icon_emoji_celebration:before {
-  vertical-align: text-top
+  vertical-align: text-bottom
 }
 
 #whats_new_toggle.exp_expanding .num_only,
 #whats_new_toggle.exp_expanding .num_updates {
   display: inline-block;
+  vertical-align: bottom;
+  margin-bottom: 2px;
   font-size: .9rem;
   font-weight: 700
 }

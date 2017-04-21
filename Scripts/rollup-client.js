@@ -859,12 +859,10 @@
     script_node.src = url;
     if (target_node) {
       target_node.appendChild(script_node);
-    } else {
-      if (TS.logError) {
-        TS.logError({
-          message: error_msg
-        }, "No target_node for TS.client._dynamicallyLoadJS");
-      }
+    } else if (TS.logError) {
+      TS.logError({
+        message: error_msg
+      }, "No target_node for TS.client._dynamicallyLoadJS");
     }
   };
   var _boxEnabledChanged = function() {
@@ -1318,14 +1316,12 @@
             if (model_ob.is_starred) {
               if (TS.pri) TS.log(58, model_ob.id + " IS STARRED - showing even though no unreads.");
               model_ob._show_in_list_even_though_no_unreads = true;
+            } else if (model_ob.id == TS.model.active_cid) {
+              if (TS.pri) TS.log(58, model_ob.id + " is currently being viewed. showing even though no unreads.");
+              model_ob._show_in_list_even_though_no_unreads = true;
             } else {
-              if (model_ob.id == TS.model.active_cid) {
-                if (TS.pri) TS.log(58, model_ob.id + " is currently being viewed. showing even though no unreads.");
-                model_ob._show_in_list_even_though_no_unreads = true;
-              } else {
-                if (TS.pri) TS.log(58, model_ob.id + " is not the active channel. no unreads, can be hidden.");
-                model_ob._show_in_list_even_though_no_unreads = false;
-              }
+              if (TS.pri) TS.log(58, model_ob.id + " is not the active channel. no unreads, can be hidden.");
+              model_ob._show_in_list_even_though_no_unreads = false;
             }
           } else {
             if (TS.pri) TS.log(58, model_ob.id + " has unreads.");
@@ -1801,22 +1797,18 @@
                 if (was_at_bottom) {
                   if (TS.pri) TS.log(888, "view resize: was at bottom, so insta-scrolling to bottom.");
                   TS.utility.queueRAF(TS.client.ui.instaScrollMsgsToBottom);
-                } else {
-                  if (TS.pri) TS.log(888, "view resize: was NOT scrolled to bottom before resize, so not doing anything.");
+                } else if (TS.pri) {
+                  TS.log(888, "view resize: was NOT scrolled to bottom before resize, so not doing anything.");
                 }
+              } else if (model_ob._has_auto_scrolled) {
+                if (TS.pri) TS.log(888, "view resize: NOT scrolling first unread into view despite unread AND start_scroll_at_oldest AND scroll_top == -1 or undefined (actual value: " + model_ob.scroll_top + "), because _has_auto_scrolled is true.");
               } else {
-                if (model_ob._has_auto_scrolled) {
-                  if (TS.pri) TS.log(888, "view resize: NOT scrolling first unread into view despite unread AND start_scroll_at_oldest AND scroll_top == -1 or undefined (actual value: " + model_ob.scroll_top + "), because _has_auto_scrolled is true.");
-                } else {
-                  if (TS.pri) TS.log(888, "view resize: scrolling first unread into view because unread AND start_scroll_at_oldest AND scroll_top == -1 or undefined (actual value: " + model_ob.scroll_top + ")");
-                  TS.client.ui.scrollMsgsSoFirstUnreadMsgIsInView();
-                }
+                if (TS.pri) TS.log(888, "view resize: scrolling first unread into view because unread AND start_scroll_at_oldest AND scroll_top == -1 or undefined (actual value: " + model_ob.scroll_top + ")");
+                TS.client.ui.scrollMsgsSoFirstUnreadMsgIsInView();
               }
-            } else {
-              if (was_at_bottom) {
-                if (TS.pri) TS.log(888, "view resize: insta-scrolling to bottom because was_at_bottom, AND, !unread_cnt (" + model_ob.unread_cnt + ") OR scroll_top (" + model_ob.scroll_top + ") OR !TS.client.ui.$msgs_unread_divider (" + TS.client.ui.$msgs_unread_divider + ") OR $msg_unread_divider has .no_unreads (" + (TS.client.ui.$msgs_unread_divider ? TS.client.ui.$msgs_unread_divider.hasClass("no_unreads") : "undefined") + ")");
-                TS.utility.queueRAF(TS.client.ui.instaScrollMsgsToBottom);
-              }
+            } else if (was_at_bottom) {
+              if (TS.pri) TS.log(888, "view resize: insta-scrolling to bottom because was_at_bottom, AND, !unread_cnt (" + model_ob.unread_cnt + ") OR scroll_top (" + model_ob.scroll_top + ") OR !TS.client.ui.$msgs_unread_divider (" + TS.client.ui.$msgs_unread_divider + ") OR $msg_unread_divider has .no_unreads (" + (TS.client.ui.$msgs_unread_divider ? TS.client.ui.$msgs_unread_divider.hasClass("no_unreads") : "undefined") + ")");
+              TS.utility.queueRAF(TS.client.ui.instaScrollMsgsToBottom);
             }
           } else {
             TS.utility.queueRAF(TS.client.ui.instaScrollMsgsToBottom);
@@ -3195,24 +3187,19 @@
         }
         TS.info("markIt " + model_ob.id + " " + msg.ts);
       }
-      var i;
-      var model_ob;
-      for (i in TS.model.channels) {
-        model_ob = TS.model.channels[i];
-        if (model_ob.is_archived) continue;
-        if (!model_ob.is_member) continue;
+      _.forOwn(TS.model.channels, function(model_ob) {
+        if (model_ob.is_archived) return;
+        if (!model_ob.is_member) return;
         markIt(model_ob);
-      }
-      for (i in TS.model.ims) {
-        model_ob = TS.model.ims[i];
-        if (!model_ob.is_open) continue;
+      });
+      _.forOwn(TS.model.ims, function(model_ob) {
+        if (!model_ob.is_open) return;
         markIt(model_ob);
-      }
-      for (i in TS.model.groups) {
-        model_ob = TS.model.groups[i];
-        if (model_ob.is_archived) continue;
+      });
+      _.forOwn(TS.model.groups, function(model_ob) {
+        if (model_ob.is_archived) return;
         markIt(model_ob);
-      }
+      });
       TS.model.client.reads.length = 0;
       TS.client.markLastReadsWithAPI();
       TS.client.msg_pane.clearUnreadDividerAndHideNewMsgsBar();
@@ -3610,12 +3597,10 @@
       var $unread = $(selector);
       if (channel.unread_cnt === 0) {
         $unread.html(channel.unread_cnt).addClass("hidden");
+      } else if (channel.unread_cnt < 10) {
+        $unread.html(channel.unread_cnt).removeClass("hidden");
       } else {
-        if (channel.unread_cnt < 10) {
-          $unread.html(channel.unread_cnt).removeClass("hidden");
-        } else {
-          $unread.html("9+").removeClass("hidden");
-        }
+        $unread.html("9+").removeClass("hidden");
       }
       TS.client.ui.checkUnseenChannelsImsGroupsWithUnreads();
       TS.client.msg_pane.maybeInsertUnreadDividerAndNewMsgsBar(channel);
@@ -3626,12 +3611,10 @@
       var selector = "." + TS.templates.makeUnreadHighlightDomId(channel);
       if (channel.unread_highlight_cnt === 0) {
         $(selector).html(channel.unread_highlight_cnt).addClass("hidden");
+      } else if (channel.unread_highlight_cnt < 10) {
+        $(selector).html(channel.unread_highlight_cnt).removeClass("hidden");
       } else {
-        if (channel.unread_highlight_cnt < 10) {
-          $(selector).html(channel.unread_highlight_cnt).removeClass("hidden");
-        } else {
-          $(selector).html("9+").removeClass("hidden");
-        }
+        $(selector).html("9+").removeClass("hidden");
       }
     },
     channelTopicChanged: function(channel) {
@@ -3861,17 +3844,15 @@
               user: "<strong>" + TS.members.getMemberDisplayName(member, true) + "</strong>"
             });
           }
-        } else {
-          if (list_type === "user") {
-            html_str = TS.i18n.t("No {files_type} from you.", "files")({
-              files_type: TS.model.file_list_type_map[types[0]]
-            });
-          } else if (member) {
-            html_str = TS.i18n.t("No {files_type} from {user}.", "files")({
-              files_type: TS.model.file_list_type_map[types[0]],
-              user: "<strong>" + TS.members.getMemberDisplayName(member, true) + "</strong>"
-            });
-          }
+        } else if (list_type === "user") {
+          html_str = TS.i18n.t("No {files_type} from you.", "files")({
+            files_type: TS.model.file_list_type_map[types[0]]
+          });
+        } else if (member) {
+          html_str = TS.i18n.t("No {files_type} from {user}.", "files")({
+            files_type: TS.model.file_list_type_map[types[0]],
+            user: "<strong>" + TS.members.getMemberDisplayName(member, true) + "</strong>"
+          });
         }
         if (_file_list_initialized) {
           $file_list.longListView("destroy");
@@ -4206,12 +4187,10 @@
       var $unread = $(selector);
       if (group.unread_cnt === 0) {
         $unread.html(group.unread_cnt).addClass("hidden");
+      } else if (group.unread_cnt < 10) {
+        $unread.html(group.unread_cnt).removeClass("hidden");
       } else {
-        if (group.unread_cnt < 10) {
-          $unread.html(group.unread_cnt).removeClass("hidden");
-        } else {
-          $unread.html("9+").removeClass("hidden");
-        }
+        $unread.html("9+").removeClass("hidden");
       }
       TS.client.ui.checkUnseenChannelsImsGroupsWithUnreads();
       TS.client.msg_pane.maybeInsertUnreadDividerAndNewMsgsBar(group);
@@ -4222,12 +4201,10 @@
       var selector = "." + TS.templates.makeUnreadHighlightDomId(group);
       if (group.unread_highlight_cnt === 0) {
         $(selector).html(group.unread_highlight_cnt).addClass("hidden");
+      } else if (group.unread_highlight_cnt < 10) {
+        $(selector).html(group.unread_highlight_cnt).removeClass("hidden");
       } else {
-        if (group.unread_highlight_cnt < 10) {
-          $(selector).html(group.unread_highlight_cnt).removeClass("hidden");
-        } else {
-          $(selector).html("9+").removeClass("hidden");
-        }
+        $(selector).html("9+").removeClass("hidden");
       }
     },
     groupTopicChanged: function(group) {
@@ -4378,14 +4355,12 @@
       if (im.unread_cnt === 0) {
         $im.removeClass("unread mention");
         $(highlight_selector).html(im.unread_cnt).addClass("hidden");
+      } else if (im.unread_cnt < 10) {
+        $im.addClass("unread mention");
+        $(highlight_selector).html(im.unread_cnt).removeClass("hidden");
       } else {
-        if (im.unread_cnt < 10) {
-          $im.addClass("unread mention");
-          $(highlight_selector).html(im.unread_cnt).removeClass("hidden");
-        } else {
-          $im.addClass("unread mention");
-          $(highlight_selector).html("9+").removeClass("hidden");
-        }
+        $im.addClass("unread mention");
+        $(highlight_selector).html("9+").removeClass("hidden");
       }
       var $im_link = $im.find(".im_name");
       if ($im_link.length) {
@@ -5196,14 +5171,13 @@
     onLogin: function() {
       var wins;
       var win;
-      var token;
       var got_existing_win = false;
       var windows_str = TSSSB.call("listWindows");
       TS.log(438, "listWindows windows_str:" + windows_str);
       if (windows_str) {
         wins = JSON.parse(windows_str);
         TS.dir(438, wins, "listWindows wins:");
-        for (token in wins) {
+        _.each(_.keys(wins), function(token) {
           _wins[token] = wins[token];
           win = _wins[token];
           win.token = token;
@@ -5212,7 +5186,7 @@
           }
           win.no_spinner = true;
           _setUpWindow(win);
-        }
+        });
       }
       if (got_existing_win) {
         _storeWins();
@@ -5224,10 +5198,9 @@
       var delay_ms = 3e3;
       setTimeout(function() {
         var reopen = function() {
-          for (token in LS_wins) {
-            win = LS_wins[token];
+          _.forOwn(LS_wins, function(win) {
             TS.client.windows.openWindow(win);
-          }
+          });
         };
         TS.generic_dialog.start({
           unique: "reopen_windows",
@@ -5319,28 +5292,28 @@
     },
     getWinByProp: function(name, value) {
       if (!name) return null;
-      var win;
-      for (var token in _wins) {
-        win = _wins[token];
-        if (win[name] == value) return win;
-      }
-      return null;
+      var match = null;
+      _.forOwn(_wins, function(win) {
+        if (win[name] == value) {
+          match = win;
+          return false;
+        }
+      });
+      return match;
     },
     distributeMsgToWins: function(imsg) {
-      var win;
-      for (var token in _wins) {
-        win = _wins[token];
-        if (!win) continue;
-        if (win.windowType != "screenhero" && win.windowType !== "calls") continue;
+      _.forOwn(_wins, function(win, token) {
+        if (!win) return;
+        if (win.windowType != "screenhero" && win.windowType !== "calls") return;
         if (TS.utility.calls.isSupportedMessage(imsg.type)) {
           TS.ssb.distributeMsgToWin(token, imsg);
         }
-      }
+      });
     },
     closeAll: function() {
-      for (var token in _wins) {
+      _.each(_.keys(_wins), function(token) {
         TSSSB.call("closeWindow", token);
-      }
+      });
     },
     windowWithTokenBecameKey: function(token) {
       TS.log(438, "windowWithTokenBecameKey token:" + token);
@@ -5504,14 +5477,12 @@
     }
   };
   var _clientWindowUnloaded = function() {
-    var win;
-    for (var token in _wins) {
-      win = _wins[token];
-      if (!win.window) continue;
+    _.forOwn(_wins, function(win) {
+      if (!win.window) return;
       delete win.document.ssb_main.TS;
       win.window.removeEventListener("unload", _macSSBWinUnloaded);
       win.window.removeEventListener("resize", _macSSBWinResized);
-    }
+    });
     _storeWins();
   };
   var _getSpinnerHtml = function(win) {
@@ -5600,10 +5571,8 @@
       TS.storage.storeClientWindows(LS_wins);
       return;
     }
-    var win;
-    for (var token in _wins) {
-      win = _wins[token];
-      if (!win.worth_saving) continue;
+    _.forOwn(_wins, function(win, token) {
+      if (!win.worth_saving) return;
       _updateWin(win, function(token) {
         return function() {
           var win = _wins[token];
@@ -5628,7 +5597,7 @@
           }
         };
       }(token));
-    }
+    });
     if (!Object.keys(LS_wins).length) {
       TS.storage.storeClientWindows("");
     }
@@ -5691,8 +5660,8 @@
           if ($mouse_down_el && $mouse_down_el.closest(".monkey_scroll_handle").length) {
             if (TS.model.archive_view_is_showing) {
               TS.client.archives.maybeLoadScrollBackHistory();
-            } else {
-              if (!TS.model.showing_welcome_2) TS.client.ui.maybeLoadScrollBackHistory();
+            } else if (!TS.model.showing_welcome_2) {
+              TS.client.ui.maybeLoadScrollBackHistory();
             }
           }
           $mouse_down_el = null;
@@ -5993,113 +5962,111 @@
           }
           e.preventDefault();
         }
-      } else {
-        if (e.which == keymap.shift || e.which == keymap.space) {
-          if (TS.model.prefs && TS.model.prefs.pagekeys_handled) {
-            if (TS.utility.isFocusOnInput()) {
-              if (e.which == keymap.space && e.shiftKey && !TS.utility.contenteditable.value(TS.client.ui.$msg_input) && TS.utility.contenteditable.isActiveElement(TS.client.ui.$msg_input)) {
-                TS.client.ui.$msg_input.blur();
+      } else if (e.which == keymap.shift || e.which == keymap.space) {
+        if (TS.model.prefs && TS.model.prefs.pagekeys_handled) {
+          if (TS.utility.isFocusOnInput()) {
+            if (e.which == keymap.space && e.shiftKey && !TS.utility.contenteditable.value(TS.client.ui.$msg_input) && TS.utility.contenteditable.isActiveElement(TS.client.ui.$msg_input)) {
+              TS.client.ui.$msg_input.blur();
+              e.preventDefault();
+            }
+          } else if (TS.model.is_FF) {
+            TS.client.ui.$msgs_scroller_div.focus();
+          }
+        }
+      } else if (e.which == keymap.esc) {
+        TS.client.ui.onEscKey(e);
+      } else if (TS.utility.isPageKey(e.which) && TS.model.prefs && TS.model.prefs.pagekeys_handled && !e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey) {
+        var msg_input_focused = TS.utility.contenteditable.isActiveElement(TS.client.ui.$msg_input);
+        var other_input_focused = !msg_input_focused && TS.utility.isFocusOnInput();
+        var in_archives = TS.model.archive_view_is_showing;
+        var $scroller = in_archives ? TS.client.archives.$scroller : TS.client.ui.$msgs_scroller_div;
+        var st = $scroller[0].scrollTop;
+        var sh = $scroller[0].scrollHeight;
+        var h = $scroller.height();
+        start = st;
+        if (TS.client.ui.page_scroll_dest !== null) {
+          start = TS.client.ui.page_scroll_dest;
+        }
+        var scroll_msgs = true;
+        var $ae = $(document.activeElement);
+        var dont_scroll_if_text_in_input = false;
+        if (e.which == keymap.pageup) {
+          if (other_input_focused) {
+            scroll_msgs = false;
+          } else if (dont_scroll_if_text_in_input && msg_input_focused && $ae.val()) {
+            scroll_msgs = false;
+          } else {
+            TS.client.ui.page_scroll_dest = start - h;
+          }
+        } else if (e.which == keymap.pagedown) {
+          if (other_input_focused) {
+            scroll_msgs = false;
+          } else if (dont_scroll_if_text_in_input && msg_input_focused && $ae.val()) {
+            scroll_msgs = false;
+          } else {
+            TS.client.ui.page_scroll_dest = start + h;
+          }
+        } else if (e.which == keymap.home) {
+          if (other_input_focused || msg_input_focused && $ae.val()) {
+            if (TS.model.is_mac) {
+              if (e.shiftKey) {} else {
+                $ae.setCursorPosition(0);
                 e.preventDefault();
               }
-            } else {
-              if (TS.model.is_FF) TS.client.ui.$msgs_scroller_div.focus();
             }
+            scroll_msgs = false;
+          } else {
+            TS.client.ui.page_scroll_dest = 0;
           }
-        } else if (e.which == keymap.esc) {
-          TS.client.ui.onEscKey(e);
-        } else if (TS.utility.isPageKey(e.which) && TS.model.prefs && TS.model.prefs.pagekeys_handled && !e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey) {
-          var msg_input_focused = TS.utility.contenteditable.isActiveElement(TS.client.ui.$msg_input);
-          var other_input_focused = !msg_input_focused && TS.utility.isFocusOnInput();
-          var in_archives = TS.model.archive_view_is_showing;
-          var $scroller = in_archives ? TS.client.archives.$scroller : TS.client.ui.$msgs_scroller_div;
-          var st = $scroller[0].scrollTop;
-          var sh = $scroller[0].scrollHeight;
-          var h = $scroller.height();
-          start = st;
-          if (TS.client.ui.page_scroll_dest !== null) {
-            start = TS.client.ui.page_scroll_dest;
-          }
-          var scroll_msgs = true;
-          var $ae = $(document.activeElement);
-          var dont_scroll_if_text_in_input = false;
-          if (e.which == keymap.pageup) {
-            if (other_input_focused) {
-              scroll_msgs = false;
-            } else if (dont_scroll_if_text_in_input && msg_input_focused && $ae.val()) {
-              scroll_msgs = false;
-            } else {
-              TS.client.ui.page_scroll_dest = start - h;
-            }
-          } else if (e.which == keymap.pagedown) {
-            if (other_input_focused) {
-              scroll_msgs = false;
-            } else if (dont_scroll_if_text_in_input && msg_input_focused && $ae.val()) {
-              scroll_msgs = false;
-            } else {
-              TS.client.ui.page_scroll_dest = start + h;
-            }
-          } else if (e.which == keymap.home) {
-            if (other_input_focused || msg_input_focused && $ae.val()) {
-              if (TS.model.is_mac) {
-                if (e.shiftKey) {} else {
-                  $ae.setCursorPosition(0);
-                  e.preventDefault();
-                }
+        } else if (e.which == keymap.end) {
+          if (other_input_focused || msg_input_focused && $ae.val()) {
+            if (TS.model.is_mac) {
+              if (e.shiftKey) {} else {
+                $ae.setCursorPosition(1e6);
+                e.preventDefault();
               }
-              scroll_msgs = false;
-            } else {
-              TS.client.ui.page_scroll_dest = 0;
             }
-          } else if (e.which == keymap.end) {
-            if (other_input_focused || msg_input_focused && $ae.val()) {
-              if (TS.model.is_mac) {
-                if (e.shiftKey) {} else {
-                  $ae.setCursorPosition(1e6);
-                  e.preventDefault();
-                }
-              }
-              scroll_msgs = false;
-            } else {
-              TS.client.ui.page_scroll_dest = sh;
-            }
+            scroll_msgs = false;
+          } else {
+            TS.client.ui.page_scroll_dest = sh;
           }
-          if (scroll_msgs) {
-            TS.client.ui.slowScrollMsgsToPosition(TS.client.ui.page_scroll_dest, true, function() {
-              TS.client.ui.page_scroll_dest = null;
-            });
+        }
+        if (scroll_msgs) {
+          TS.client.ui.slowScrollMsgsToPosition(TS.client.ui.page_scroll_dest, true, function() {
+            TS.client.ui.page_scroll_dest = null;
+          });
+          e.preventDefault();
+        }
+      } else if (!TS.utility.isFocusOnInput() && TS.client.ui.isUserAttentionOnChat() && !TS.client.activeChannelIsHidden() && !TS.utility.isArrowKey(e.which) && !TS.utility.isPageKey(e.which) && !e.metaKey && !e.ctrlKey && !e.altKey && !TS.ui.react_emoji_menu.is_showing) {
+        if (TS.model.archive_view_is_showing && e.which === keymap.enter) {
+          TS.client.archives.tryToJoin();
+          return;
+        }
+        if (!TS.boot_data.feature_keyboard_navigation) {
+          if (e.which == keymap.tab && !TS.utility.cmdKey(e) || e.which === keymap.enter) {
             e.preventDefault();
           }
-        } else if (!TS.utility.isFocusOnInput() && TS.client.ui.isUserAttentionOnChat() && !TS.client.activeChannelIsHidden() && !TS.utility.isArrowKey(e.which) && !TS.utility.isPageKey(e.which) && !e.metaKey && !e.ctrlKey && !e.altKey && !TS.ui.react_emoji_menu.is_showing) {
-          if (TS.model.archive_view_is_showing && e.which === keymap.enter) {
-            TS.client.archives.tryToJoin();
-            return;
-          }
-          if (!TS.boot_data.feature_keyboard_navigation) {
-            if (e.which == keymap.tab && !TS.utility.cmdKey(e) || e.which === keymap.enter) {
-              e.preventDefault();
-            }
-            TS.view.focusMessageInput();
-          }
-        } else if ((window.macgap || window.winssb) && !TS.utility.isFocusOnInput() && TS.client.ui.isUserAttentionOnChat() && !TS.client.activeChannelIsHidden() && e.which == keymap.V && !e.altKey && TS.utility.cmdKey(e)) {
-          var paste_txt;
-          var paste_img;
-          var ssb_api = window.macgap || window.winssb;
-          if (ssb_api.clipboard && ssb_api.clipboard.readString && ssb_api.clipboard.readImage) {
-            paste_txt = ssb_api.clipboard.readString();
-            if (paste_txt) {
-              TS.client.msg_input.populate(TS.utility.contenteditable.value(TS.client.ui.$msg_input) + paste_txt);
-              e.preventDefault();
-            } else {
-              paste_img = ssb_api.clipboard.readImage();
-              if (paste_img) {
-                TS.ui.paste.startUploadFromMacSSBReadImage(paste_img, e.shiftKey);
-                e.preventDefault();
-              }
-            }
-          }
           TS.view.focusMessageInput();
-        } else if (TS.model.archive_view_is_showing && e.which == keymap.enter && !e.metaKey && !e.ctrlKey && !e.altKey) {}
-      }
+        }
+      } else if ((window.macgap || window.winssb) && !TS.utility.isFocusOnInput() && TS.client.ui.isUserAttentionOnChat() && !TS.client.activeChannelIsHidden() && e.which == keymap.V && !e.altKey && TS.utility.cmdKey(e)) {
+        var paste_txt;
+        var paste_img;
+        var ssb_api = window.macgap || window.winssb;
+        if (ssb_api.clipboard && ssb_api.clipboard.readString && ssb_api.clipboard.readImage) {
+          paste_txt = ssb_api.clipboard.readString();
+          if (paste_txt) {
+            TS.client.msg_input.populate(TS.utility.contenteditable.value(TS.client.ui.$msg_input) + paste_txt);
+            e.preventDefault();
+          } else {
+            paste_img = ssb_api.clipboard.readImage();
+            if (paste_img) {
+              TS.ui.paste.startUploadFromMacSSBReadImage(paste_img, e.shiftKey);
+              e.preventDefault();
+            }
+          }
+        }
+        TS.view.focusMessageInput();
+      } else if (TS.model.archive_view_is_showing && e.which == keymap.enter && !e.metaKey && !e.ctrlKey && !e.altKey) {}
       if (TS.model.profiling_keys) TS.model.addProfilingKeyTime("onWindowKeyDown", Date.now() - start);
       if (e.which == keymap.shift || e.shiftKey) {
         TS.model.shift_key_pressed = true;
@@ -6718,8 +6685,8 @@
             $(this).closest(".msg_inline_holder, .image_body").addClass("broken_image");
           });
           $holder.data(loaded_data, true);
-        } else {
-          if (log) TS.warn("no");
+        } else if (log) {
+          TS.warn("no");
         }
         $figure = null;
         $img = null;
@@ -7430,8 +7397,8 @@
       if (!user_group) return false;
       if (TS.lazyLoadMembersAndBots()) {
         if (!TS.client.ui.flex._displayFlexTab("groups")) return false;
-      } else {
-        if (!TS.client.ui.flex._displayFlexTab("team")) return false;
+      } else if (!TS.client.ui.flex._displayFlexTab("team")) {
+        return false;
       }
       if (TS.view.user_groups_members_list_lazyload) {
         TS.view.user_groups_members_list_lazyload.detachEvents();
@@ -8818,12 +8785,10 @@
                 dispatchFiles();
               }
             });
+          } else if (validateCallback) {
+            validateCallback(good_files, dispatchFiles);
           } else {
-            if (validateCallback) {
-              validateCallback(good_files, dispatchFiles);
-            } else {
-              dispatchFiles();
-            }
+            dispatchFiles();
           }
         }
       }
@@ -8892,10 +8857,8 @@
         directoryFallbackTest(file_object, function(test_result) {
           if (test_result.isDirectory) {
             result = true;
-          } else {
-            if (unsupported_item && unsupported_item.applyToFile) {
-              result = true;
-            }
+          } else if (unsupported_item && unsupported_item.applyToFile) {
+            result = true;
           }
           return callback(result);
         });
@@ -9312,14 +9275,12 @@
     toggleFlex: function() {
       if (TS.model.ui_state.flex_visible) {
         TS.client.ui.flex.hideFlex();
+      } else if (!TS.model.ui.active_tab_id) {
+        TS.client.ui.flex.openFlexTab(TS.model.default_flex_name);
       } else {
-        if (!TS.model.ui.active_tab_id) {
-          TS.client.ui.flex.openFlexTab(TS.model.default_flex_name);
-        } else {
-          var fade_in = TS.model.ui.active_tab_id == "list";
-          TS.client.ui.flex.showFlex(fade_in);
-          TS.client.flexDisplaySwitched(TS.model.ui.active_tab_id || "", TS.model.ui.last_flex_extra || "");
-        }
+        var fade_in = TS.model.ui.active_tab_id == "list";
+        TS.client.ui.flex.showFlex(fade_in);
+        TS.client.flexDisplaySwitched(TS.model.ui.active_tab_id || "", TS.model.ui.last_flex_extra || "");
       }
     },
     hideFlex: function(no_history, replace_state) {
@@ -9455,8 +9416,8 @@
       TS.model.ui.active_tab_ts = Date.now();
       if (flex_name === "search") {
         TS.ui.utility.updateClosestMonkeyScroller($("#search_results"));
-      } else {
-        if (!no_resize) TS.view.resizeManually("TS.client.ui.flex._displayFlexTab flex_name:" + flex_name);
+      } else if (!no_resize) {
+        TS.view.resizeManually("TS.client.ui.flex._displayFlexTab flex_name:" + flex_name);
       }
       TS.client.ui.flex.adjustIFramesInSpecialFlexPanes();
       return true;
@@ -9465,24 +9426,22 @@
       if (!TS.boot_data.special_flex_panes) return;
       var flex_name = TS.model.ui.active_tab_id;
       var src;
-      var special;
       var $t;
       var $iframe;
-      for (var k in TS.boot_data.special_flex_panes) {
-        special = TS.boot_data.special_flex_panes[k];
+      _.forOwn(TS.boot_data.special_flex_panes, function(special) {
         TS.log(82, "special_flex_pane: " + flex_name);
         $t = $("#" + special.flex_name + "_tab");
-        if (!$t.length) continue;
+        if (!$t.length) return;
         $iframe = $t.find("iframe");
-        if (!$iframe.length) continue;
+        if (!$iframe.length) return;
         src = "about:blank";
         if (TS.model.ui_state.flex_visible && special.flex_name === flex_name) {
           src = $iframe.data("src");
         }
-        if ($iframe.attr("src") === src) continue;
+        if ($iframe.attr("src") === src) return;
         TS.log(82, "loading src: " + src);
         $iframe.attr("src", src);
-      }
+      });
     },
     openFlexTab: function(flex_name, replace_state) {
       if (!TS.client.ui.flex._displayFlexTab(flex_name)) return;
@@ -11007,8 +10966,8 @@
       var $quick_switcher_btn = $("#quick_switcher_btn");
       if (TS.model.prefs.no_omnibox_in_channels) {
         if ($quick_switcher_btn.hasClass("hidden")) return;
-      } else {
-        if (!$quick_switcher_btn.hasClass("hidden")) return;
+      } else if (!$quick_switcher_btn.hasClass("hidden")) {
+        return;
       }
       $quick_switcher_btn.toggleClass("hidden", !!TS.model.prefs.no_omnibox_in_channels);
       return TS.client.channel_pane.updateFooterButtons();
@@ -12701,19 +12660,17 @@
       if (model_ob.unread_cnt && TS.client.msg_pane.last_in_stream_msg && !TS.client.msg_pane.dont_check_unreads_til_switch) {
         if (is_rebuild || !TS.model.ui.is_window_focused) {
           if (TS.pri) TS.log(888, "TS.view.addMsg() on " + model_ob.id + ": inserting red line because is_rebuild, or window not focused.");
-        } else {
-          if (TS.model.ui.is_window_focused) {
-            var msg_in_view = TS.client.ui.isMsgInView(TS.client.msg_pane.last_in_stream_msg.ts);
-            if (msg_in_view) {
-              if (model_ob.is_im) {
-                if (TS.pri) TS.log(888, "TS.view.addMsg() on " + model_ob.id + ": clearing red line because new msg is in view.");
-                TS.client.msg_pane.clearUnreadDivider();
-              }
-              TS.utility.msgs.maybeClearPrevLastRead();
-              skip_red_line = true;
-            } else {
-              if (TS.pri) TS.log(888, "TS.view.addMsg() on " + model_ob.id + ": inserting red line because new msg is out of view.");
+        } else if (TS.model.ui.is_window_focused) {
+          var msg_in_view = TS.client.ui.isMsgInView(TS.client.msg_pane.last_in_stream_msg.ts);
+          if (msg_in_view) {
+            if (model_ob.is_im) {
+              if (TS.pri) TS.log(888, "TS.view.addMsg() on " + model_ob.id + ": clearing red line because new msg is in view.");
+              TS.client.msg_pane.clearUnreadDivider();
             }
+            TS.utility.msgs.maybeClearPrevLastRead();
+            skip_red_line = true;
+          } else if (TS.pri) {
+            TS.log(888, "TS.view.addMsg() on " + model_ob.id + ": inserting red line because new msg is out of view.");
           }
         }
       }
@@ -13185,13 +13142,11 @@
             }
           }
         }
-      } else {
-        if (model_ob.oldest_unread_ts) {
-          all_unreads_are_seen = TS.client.ui.isMsgInView(model_ob.oldest_unread_ts);
-          if (TS.pri) TS.log(142, "checkUnreads " + model_ob.id + ": oldest_unread_ts = " + model_ob.oldest_unread_ts + ", isMsgInView (all_unreads_are_seen) = " + all_unreads_are_seen);
-        } else {
-          if (TS.pri) TS.log(142, "checkUnreads " + model_ob.id + ": no oldest_unread_ts?");
-        }
+      } else if (model_ob.oldest_unread_ts) {
+        all_unreads_are_seen = TS.client.ui.isMsgInView(model_ob.oldest_unread_ts);
+        if (TS.pri) TS.log(142, "checkUnreads " + model_ob.id + ": oldest_unread_ts = " + model_ob.oldest_unread_ts + ", isMsgInView (all_unreads_are_seen) = " + all_unreads_are_seen);
+      } else if (TS.pri) {
+        TS.log(142, "checkUnreads " + model_ob.id + ": no oldest_unread_ts?");
       }
       if (TS.boot_data.feature_wait_for_all_mentions_in_client) {
         if (!is_muted && model_ob._mention_count_display_via_users_counts && model_ob.unread_highlight_cnt_in_client < model_ob._mention_count_display_via_users_counts) {
@@ -13383,12 +13338,10 @@
         if (TS.pri) TS.log(99, "channelUnreadCountChanged: " + model_ob.id + " - window is not in focus, so removing and re-inserting unread divider so it can be updated.");
         TS.client.msg_pane.clearUnreadDividerAndHideNewMsgsBar();
         TS.utility.msgs.maybeClearPrevLastRead();
-      } else {
-        if (TS.model.prefs && !TS.model.prefs.mark_msgs_read_immediately && TS.client.ui.$msgs_unread_divider && !TS.client.ui.isUnreadDividerInView()) {
-          if (TS.pri) TS.log(99, "channelUnreadCountChanged: " + model_ob.id + " - window is in focus, BUT, unread divider is not in view - clearing existing state, will show in new position.");
-          TS.client.msg_pane.clearUnreadDivider();
-          TS.utility.msgs.maybeClearPrevLastRead();
-        }
+      } else if (TS.model.prefs && !TS.model.prefs.mark_msgs_read_immediately && TS.client.ui.$msgs_unread_divider && !TS.client.ui.isUnreadDividerInView()) {
+        if (TS.pri) TS.log(99, "channelUnreadCountChanged: " + model_ob.id + " - window is in focus, BUT, unread divider is not in view - clearing existing state, will show in new position.");
+        TS.client.msg_pane.clearUnreadDivider();
+        TS.utility.msgs.maybeClearPrevLastRead();
       }
       TS.client.msg_pane.insertUnreadDivider();
       if (TS.model.ui.is_window_focused) {
@@ -13497,11 +13450,9 @@
       });
       $("#new_msg_info").html(unread_str);
       TS.ui.a11y.saveUnreadCountMessage(model_ob, unread_str);
-    } else {
-      if (TS.client.msg_pane.new_msgs_bar_showing) {
-        if (TS.pri) TS.log(999, "_updateNewMsgsDisplay: " + model_ob.id + ", unread_cnt = " + unread_cnt + " - maybe starting new msgs timer.");
-        TS.client.msg_pane.maybeStartNewMsgsTimer();
-      }
+    } else if (TS.client.msg_pane.new_msgs_bar_showing) {
+      if (TS.pri) TS.log(999, "_updateNewMsgsDisplay: " + model_ob.id + ", unread_cnt = " + unread_cnt + " - maybe starting new msgs timer.");
+      TS.client.msg_pane.maybeStartNewMsgsTimer();
     }
   };
   var _resetHasAutoScrolled = function(model_ob) {
@@ -13660,21 +13611,17 @@
               });
             }
           }
+        } else if (is_third_party) {
+          voice_tip_text = TS.i18n.t("Start a call with {calling_app_name}", "client")({
+            calling_app_name: TS.model.team.prefs.calling_app_name
+          });
         } else {
-          if (is_third_party) {
-            voice_tip_text = TS.i18n.t("Start a call with {calling_app_name}", "client")({
-              calling_app_name: TS.model.team.prefs.calling_app_name
-            });
-          } else {
-            voice_tip_text = TS.i18n.t("Start a call", "client")();
-          }
+          voice_tip_text = TS.i18n.t("Start a call", "client")();
         }
+      } else if (call_info.is_mpdm) {
+        voice_tip_text = TS.i18n.t("Only paid teams can call from group conversations.", "client")();
       } else {
-        if (call_info.is_mpdm) {
-          voice_tip_text = TS.i18n.t("Only paid teams can call from group conversations.", "client")();
-        } else {
-          voice_tip_text = TS.i18n.t("Only paid teams can start calls from channels.", "client")();
-        }
+        voice_tip_text = TS.i18n.t("Only paid teams can start calls from channels.", "client")();
       }
       var html = "";
       html += TS.templates.menu_call_button({
@@ -14051,22 +13998,22 @@
     _downloads.length = 0;
     if (downloads_str) {
       _downloads_map = JSON.parse(downloads_str);
-      for (var k in _downloads_map) {
-        _downloads_map[k].token = k;
-        _downloads_map[k].start_ts = parseFloat(_downloads_map[k].start_ts);
-        if (_downloads_map[k].start_ts > 9999999999) {
-          _downloads_map[k].start_ts /= 1e3;
+      _.forOwn(_downloads_map, function(v, k) {
+        v.token = k;
+        v.start_ts = parseFloat(v.start_ts);
+        if (v.start_ts > 9999999999) {
+          v.start_ts /= 1e3;
         }
         if (was_downloads_map[k]) {
-          if (!_downloads_map[k].hasOwnProperty("progress")) {
-            _downloads_map[k].progress = was_downloads_map[k].progress;
+          if (!v.hasOwnProperty("progress")) {
+            v.progress = was_downloads_map[k].progress;
           }
-          _downloads_map[k].dl_start_ts = was_downloads_map[k].dl_start_ts;
+          v.dl_start_ts = was_downloads_map[k].dl_start_ts;
         } else {
-          _downloads_map[k].dl_start_ts = _downloads_map[k].start_ts;
+          v.dl_start_ts = v.start_ts;
         }
-        _downloads.push(_downloads_map[k]);
-      }
+        _downloads.push(v);
+      });
     }
     _sortDownloads();
   };
@@ -14268,20 +14215,18 @@
     return file.url_private_download;
   };
   var _updateOverallProgress = function() {
-    var dl;
     var total_bytes = 0;
     var downloaded_bytes = 0;
-    for (var k in _downloads_map) {
-      dl = _downloads_map[k];
-      if (dl.state != "in_progress") continue;
-      if (isNaN(dl.progress)) continue;
-      if (dl.progress >= 1) continue;
+    _.forOwn(_downloads_map, function(dl) {
+      if (dl.state != "in_progress") return;
+      if (isNaN(dl.progress)) return;
+      if (dl.progress >= 1) return;
       var file = _getFileForDl(dl);
-      if (!file) continue;
-      if (!file.size) continue;
+      if (!file) return;
+      if (!file.size) return;
       total_bytes += file.size;
       downloaded_bytes += file.size * Math.max(0, dl.progress);
-    }
+    });
     if (total_bytes) {
       var percentage = _getVisualDownloadPercentage(downloaded_bytes, total_bytes);
       _$flex_menu_download_circle.circleProgress({
@@ -14294,25 +14239,24 @@
     }
   };
   var _updateIndividualProgress = function() {
-    var dl;
+    var file;
     var total_bytes = 0;
     var downloaded_bytes = 0;
-    for (var k in _downloads_map) {
-      dl = _downloads_map[k];
-      if (dl.state != "in_progress") continue;
-      if (isNaN(dl.progress)) continue;
-      if (dl.progress >= 1) continue;
-      var file = _getFileForDl(dl);
-      if (!file) continue;
+    _.forOwn(_downloads_map, function(dl) {
+      if (dl.state != "in_progress") return;
+      if (isNaN(dl.progress)) return;
+      if (dl.progress >= 1) return;
+      file = _getFileForDl(dl);
+      if (!file) return;
       if (file.id === _individual_file_id) {
         if (file.size) {
           total_bytes += file.size;
           downloaded_bytes += file.size * Math.max(0, dl.progress);
         }
-        break;
+        return false;
       }
-    }
-    if (total_bytes) {
+    });
+    if (total_bytes && file) {
       var percentage = _getVisualDownloadPercentage(downloaded_bytes, file.size);
       _$individual_download.circleProgress({
         value: percentage
@@ -14753,8 +14697,7 @@
   TS.registerModule("key_triggers", {
     onStart: function() {
       if (TS.boot_data.special_flex_panes) {
-        for (var k in TS.boot_data.special_flex_panes) {
-          var special = TS.boot_data.special_flex_panes[k];
+        _.forOwn(TS.boot_data.special_flex_panes, function(special) {
           if (special.keycode) {
             (function(keycode, flex_name) {
               TS.key_triggers[keycode.toString()] = {
@@ -14764,7 +14707,7 @@
               };
             })(special.keycode, special.flex_name);
           }
-        }
+        });
       }
     },
     220: {
@@ -14840,13 +14783,11 @@
       func: function(e) {
         if (TS.boot_data.feature_star_shortcut && e.altKey) {
           TS.stars.toggleStarOnActiveModelObject();
-        } else {
-          if (e.shiftKey) {
-            if (TS.model.ui_state.flex_visible && TS.model.ui_state.flex_name === "stars") {
-              TS.client.ui.flex.hideFlex();
-            } else {
-              TS.client.ui.flex.openFlexTab("stars");
-            }
+        } else if (e.shiftKey) {
+          if (TS.model.ui_state.flex_visible && TS.model.ui_state.flex_name === "stars") {
+            TS.client.ui.flex.hideFlex();
+          } else {
+            TS.client.ui.flex.openFlexTab("stars");
           }
         }
       }
@@ -15381,10 +15322,8 @@
         if (_cached_msgs_scroll_position) {
           $("#search_results").scrollTop(_cached_msgs_scroll_position);
         }
-      } else {
-        if (_cached_files_scroll_position) {
-          $("#search_results").scrollTop(_cached_files_scroll_position);
-        }
+      } else if (_cached_files_scroll_position) {
+        $("#search_results").scrollTop(_cached_files_scroll_position);
       }
     },
     showResults: function() {
@@ -15489,12 +15428,10 @@
               names: name_list
             });
           }
+        } else if (result_type === "messages") {
+          include_text = TS.i18n.t("only messages from people", "search")();
         } else {
-          if (result_type === "messages") {
-            include_text = TS.i18n.t("only messages from people", "search")();
-          } else {
-            include_text = TS.i18n.t("only files from people", "search");
-          }
+          include_text = TS.i18n.t("only files from people", "search");
         }
       }
       if (TS.boot_data.page_needs_enterprise) {
@@ -19033,11 +18970,9 @@
       if (TS.search.filter == "files") {
         TS.search.view.switchBackToFiles();
       }
-    } else {
-      if (query.length >= 2 || from_enter_key) {
-        _pending_query = query;
-        TS.search.searchAll(query);
-      }
+    } else if (query.length >= 2 || from_enter_key) {
+      _pending_query = query;
+      TS.search.searchAll(query);
     }
   };
   var _cancelDelayedSearch = function() {
@@ -19858,8 +19793,8 @@
         if (!is_relevant_team) {
           if (TS.pri) TS.log(67, "Shared channel " + model_ob.id + " is not relevant; suppressing notification.");
           display = false;
-        } else {
-          if (TS.pri) TS.log(67, "Shared channel " + model_ob.id + " is relevant; allowing notification.");
+        } else if (TS.pri) {
+          TS.log(67, "Shared channel " + model_ob.id + " is relevant; allowing notification.");
         }
       }
       if (!display && !force) return;
@@ -20001,8 +19936,8 @@
         if (!is_relevant_team) {
           if (TS.pri) TS.log(67, "Shared channel " + im.id + " is not relevant; suppressing notification.");
           display = false;
-        } else {
-          if (TS.pri) TS.log(67, "Shared channel " + im.id + " is relevant; allowing notification.");
+        } else if (TS.pri) {
+          TS.log(67, "Shared channel " + im.id + " is relevant; allowing notification.");
         }
       }
       if (!display && !force) return;
@@ -20042,28 +19977,24 @@
           if (msg._ignore_dnd) subtitle = TS.i18n.t("{name} is trying to reach you", "growl")({
             name: from_name
           });
-        } else {
-          if (msg._ignore_dnd) {
-            title = TS.i18n.t("{name} is trying to reach you", "growl")({
-              name: from_name
-            });
-          } else {
-            title = TS.i18n.t("[{team_domain}] from {name}", "growl")({
-              team_domain: TS.model.team.domain,
-              name: from_name
-            });
-          }
-        }
-      } else {
-        if (msg._ignore_dnd) {
+        } else if (msg._ignore_dnd) {
           title = TS.i18n.t("{name} is trying to reach you", "growl")({
             name: from_name
           });
         } else {
-          title = TS.i18n.t("New message from {name}", "growl")({
+          title = TS.i18n.t("[{team_domain}] from {name}", "growl")({
+            team_domain: TS.model.team.domain,
             name: from_name
           });
         }
+      } else if (msg._ignore_dnd) {
+        title = TS.i18n.t("{name} is trying to reach you", "growl")({
+          name: from_name
+        });
+      } else {
+        title = TS.i18n.t("New message from {name}", "growl")({
+          name: from_name
+        });
       }
       var avatar_image = TS.ui.growls.getProfileImageFromUserId(im.user);
       TS.ui.growls.show(title, TS.format.formatNotification(growl_txt, msg), onclick, {
@@ -20129,8 +20060,8 @@
       if (!TS.model.prefs.mac_ssb_bounce) return;
       if (TS.model.prefs.mac_ssb_bounce == "long") {
         if (ssb_api.dock.bounceIndefinitely) ssb_api.dock.bounceIndefinitely();
-      } else {
-        if (ssb_api.dock.bounceOnce) ssb_api.dock.bounceOnce();
+      } else if (ssb_api.dock.bounceOnce) {
+        ssb_api.dock.bounceOnce();
       }
     },
     maybeGetThreadTsForLastNotification: function(c_id) {
@@ -20281,10 +20212,8 @@
         if (!TS.utility.isFocusOnInput() || TS.utility.contenteditable.isActiveElement(TS.client.ui.$msg_input)) {
           return true;
         }
-      } else {
-        if (!TS.utility.isFocusOnInput() || document.activeElement == TS.client.ui.$msg_input[0]) {
-          return true;
-        }
+      } else if (!TS.utility.isFocusOnInput() || document.activeElement == TS.client.ui.$msg_input[0]) {
+        return true;
       }
       return false;
     },
@@ -20476,15 +20405,13 @@
         $("#notifications_working").addClass("hidden");
         $("#notifications_not_working").removeClass("hidden");
         $("#notifications_not_yet_allowed").removeClass("hidden");
-      } else {
-        if (!TS.ui.growls.checkPermission()) {
-          $("#notifications_working").addClass("hidden");
-          $("#notifications_not_working").removeClass("hidden");
-          if (TS.ui.growls.no_notifications) {
-            $("#notifications_impossible").removeClass("hidden");
-          } else if (TS.ui.growls.getPermissionLevel() == "denied") {
-            $("#notifications_not_allowed").removeClass("hidden");
-          }
+      } else if (!TS.ui.growls.checkPermission()) {
+        $("#notifications_working").addClass("hidden");
+        $("#notifications_not_working").removeClass("hidden");
+        if (TS.ui.growls.no_notifications) {
+          $("#notifications_impossible").removeClass("hidden");
+        } else if (TS.ui.growls.getPermissionLevel() == "denied") {
+          $("#notifications_not_allowed").removeClass("hidden");
         }
       }
       _div.modal("show");
@@ -20614,12 +20541,10 @@
       var tip_html;
       if (c_or_g == "group") {
         tip_html = TS.i18n.t("A Team Owner has restricted the use of <b>@channel</b> to admins and/or owners, which renders you powerless to ignore those notifications.", "channel_prefs")();
+      } else if (model_ob.is_general) {
+        tip_html = TS.i18n.t("A Team Owner has restricted who can post to general and/or restricted the use of <b>@channel</b> and/or <b>@everyone</b> to admins and/or owners, which renders you powerless to ignore those notifications.", "channel_prefs")();
       } else {
-        if (model_ob.is_general) {
-          tip_html = TS.i18n.t("A Team Owner has restricted who can post to general and/or restricted the use of <b>@channel</b> and/or <b>@everyone</b> to admins and/or owners, which renders you powerless to ignore those notifications.", "channel_prefs")();
-        } else {
-          tip_html = TS.i18n.t("A Team Owner has restricted the use of <b>@channel</b> to admins and/or owners, which renders you powerless to ignore those notifications.", "channel_prefs")();
-        }
+        tip_html = TS.i18n.t("A Team Owner has restricted the use of <b>@channel</b> to admins and/or owners, which renders you powerless to ignore those notifications.", "channel_prefs")();
       }
       $tip_link.tooltip("destroy").attr("title", tip_html).tooltip({
         html: true,
@@ -21554,35 +21479,33 @@
       };
       if (typeof file === "string") {
         displayImg("data:image/png;base64," + file);
-      } else {
-        if (window.FileReader) {
-          try {
-            if (EXIF) {
-              var exif_reader = new FileReader;
-              exif_reader.onload = function(e) {
-                var exif = EXIF.readFromBinaryFile(e.target.result);
-                if (exif.Orientation && typeof exif.Orientation === "number" && exif.Orientation !== 1) {
-                  $("#upload_image_preview").find("img").addClass("orientation_" + exif.Orientation);
-                }
-              };
-              exif_reader.readAsArrayBuffer(file);
-            }
-            var reader = new FileReader;
-            reader.onload = function(e) {
-              var str = e.target.result;
-              if (str.indexOf("data:image/") !== 0) return;
-              displayImg(str);
-            };
-            reader.onloadstart = function(e) {
-              if (e.total > 1024 * 1024 * 32) {
-                TS.info("skipping image preview for large file: " + e.total);
-                reader.abort();
+      } else if (window.FileReader) {
+        try {
+          if (EXIF) {
+            var exif_reader = new FileReader;
+            exif_reader.onload = function(e) {
+              var exif = EXIF.readFromBinaryFile(e.target.result);
+              if (exif.Orientation && typeof exif.Orientation === "number" && exif.Orientation !== 1) {
+                $("#upload_image_preview").find("img").addClass("orientation_" + exif.Orientation);
               }
             };
-            reader.readAsDataURL(file);
-          } catch (err) {
-            TS.info(err);
+            exif_reader.readAsArrayBuffer(file);
           }
+          var reader = new FileReader;
+          reader.onload = function(e) {
+            var str = e.target.result;
+            if (str.indexOf("data:image/") !== 0) return;
+            displayImg(str);
+          };
+          reader.onloadstart = function(e) {
+            if (e.total > 1024 * 1024 * 32) {
+              TS.info("skipping image preview for large file: " + e.total);
+              reader.abort();
+            }
+          };
+          reader.readAsDataURL(file);
+        } catch (err) {
+          TS.info(err);
         }
       }
       var $file_comment_textarea = $("#file_comment_textarea");
@@ -22503,16 +22426,19 @@
       TS.ui.growls.permission_changed_sig.add(TS.ui.banner.growlsPermissionChanged, TS.ui.banner);
     },
     loggedIn: function() {
-      for (var arg in TS.qs_args) {
+      var should_return = false;
+      _.forOwn(TS.qs_args, function(val, arg) {
         var banner_regex = /^show_([\w_]+)_banner$/;
-        if (banner_regex.test(arg) && TS.qs_args[arg] === "1") {
+        if (banner_regex.test(arg) && val === "1") {
           var requested_banner = arg.replace(banner_regex, "$1");
           if ($("#" + requested_banner + "_banner").length > 0) {
             TS.ui.banner.show(requested_banner);
-            return;
+            should_return = true;
+            return false;
           }
         }
-      }
+      });
+      if (should_return) return;
       var show_notifications_banner = !TS.model.is_iOS && !TS.ui.growls.no_notifications && TS.ui.growls.shouldShowPermissionButton() && TS.ui.growls.getPermissionLevel() != "denied" && readCookie("no_growl_banner") != "1";
       if (show_notifications_banner) {
         TS.ui.banner.show("notifications");
@@ -22617,11 +22543,9 @@
           if ($(e.target).closest('[data-action="dismiss_banner"]').length) {
             $("#macelectron2_banner").addClass("hidden");
             TS.ui.banner.close();
-          } else {
-            if (!$(e.target).hasClass("update_link")) {
-              var $update_link = $(this).find(".update_link");
-              $update_link.click();
-            }
+          } else if (!$(e.target).hasClass("update_link")) {
+            var $update_link = $(this).find(".update_link");
+            $update_link.click();
           }
         });
         TS.prefs.setPrefByAPI({
@@ -22633,12 +22557,10 @@
         $banner.unbind("click").bind("click", function(e) {
           if ($(e.target).closest('[data-action="dismiss_banner"]').length) {
             $("#macssb1_banner").addClass("hidden");
-          } else {
-            if (!$(e.target).hasClass("apps_page_link")) {
-              var $apps_page_link = $(this).find(".apps_page_link");
-              TS.utility.openInNewTab($apps_page_link.attr("href"), $apps_page_link.attr("target"));
-              $apps_page_link.click();
-            }
+          } else if (!$(e.target).hasClass("apps_page_link")) {
+            var $apps_page_link = $(this).find(".apps_page_link");
+            TS.utility.openInNewTab($apps_page_link.attr("href"), $apps_page_link.attr("target"));
+            $apps_page_link.click();
           }
         });
       } else if (which == "winssb1") {
@@ -22646,12 +22568,10 @@
         $banner.unbind("click").bind("click", function(e) {
           if ($(e.target).closest('[data-action="dismiss_banner"]').length) {
             $("#winssb1_banner").addClass("hidden");
-          } else {
-            if (!$(e.target).hasClass("apps_page_link")) {
-              var $apps_page_link = $(this).find(".apps_page_link");
-              TS.utility.openInNewTab($apps_page_link.attr("href"), $apps_page_link.attr("target"));
-              $apps_page_link.click();
-            }
+          } else if (!$(e.target).hasClass("apps_page_link")) {
+            var $apps_page_link = $(this).find(".apps_page_link");
+            TS.utility.openInNewTab($apps_page_link.attr("href"), $apps_page_link.attr("target"));
+            $apps_page_link.click();
           }
         });
       } else if (which == "macssb_osx_deprecated") {
@@ -23773,8 +23693,8 @@
         if (_user_onboarding.isCancelled() && _cancel_onboarding) _cancel_onboarding.cancel();
       });
       _user_onboarding.cancel();
-    } else {
-      if (_cancel_onboarding) _cancel_onboarding.cancel();
+    } else if (_cancel_onboarding) {
+      _cancel_onboarding.cancel();
     }
   };
   var _startOnboarding = function() {
@@ -23892,8 +23812,8 @@
     TS.client.ui.$msgs_scroller_div.on("scroll.onboarding", function() {
       if (TS.client.ui.$msgs_scroller_div[0].scrollTop > 300) {
         if (!$fade_out.hasClass("hidden")) $fade_out.addClass("hidden");
-      } else {
-        if ($fade_out.hasClass("hidden")) $fade_out.removeClass("hidden");
+      } else if ($fade_out.hasClass("hidden")) {
+        $fade_out.removeClass("hidden");
       }
     });
   };
@@ -23956,11 +23876,11 @@
         show: ".coachmark_got_it"
       }
     };
-    for (var step in additional_show_hide) {
-      for (var prop in additional_show_hide[step]) {
-        TS.newxp.onboarding[step][prop] += ", " + additional_show_hide[step][prop];
-      }
-    }
+    _.forOwn(additional_show_hide, function(step_name, step) {
+      _.each(_.keys(step_name), function(prop) {
+        TS.newxp.onboarding[step][prop] += ", " + step_name[prop];
+      });
+    });
     var group = TS.experiment.getGroup("update_invite_coachmarks_cta");
     if (group === "invite_cm_invite_people") {
       _can_include_invite_cta = true;
@@ -24713,10 +24633,8 @@
         if (first_name) invite.first_name = first_name;
         if (last_name) invite.last_name = last_name;
         invites.push(invite);
-      } else {
-        if ($(".admin_invite_row").length > 1) {
-          _removeRow($(this));
-        }
+      } else if ($(".admin_invite_row").length > 1) {
+        _removeRow($(this));
       }
     });
     _unprocessed_invites = invites;
@@ -24736,10 +24654,8 @@
         } else {
           _rowValid($(this));
         }
-      } else {
-        if ($(".admin_invite_row").length > 1) {
-          _removeRow($(this));
-        }
+      } else if ($(".admin_invite_row").length > 1) {
+        _removeRow($(this));
       }
     });
     if (validation_error) {
@@ -25107,10 +25023,8 @@
         if (_getTypingByKey(key)) {
           return;
         }
-      } else {
-        if (TS.typing.map[key]) {
-          return;
-        }
+      } else if (TS.typing.map[key]) {
+        return;
       }
       TS.ms.sendTyping(model_ob.id);
       TS.typing.memberStarted(model_ob, TS.model.user);
@@ -25134,19 +25048,17 @@
         } else {
           TS.log(47, "updated " + key);
         }
+      } else if (TS.typing.map[key]) {
+        TS.typing.map[key].started = now;
+        TS.log(47, "updated " + key);
       } else {
-        if (TS.typing.map[key]) {
-          TS.typing.map[key].started = now;
-          TS.log(47, "updated " + key);
-        } else {
-          TS.typing.map[key] = {
-            started: now,
-            model_ob: model_ob,
-            member: member
-          };
-          TS.log(47, "added " + key);
-          TS.typing.started_sig.dispatch(model_ob, member);
-        }
+        TS.typing.map[key] = {
+          started: now,
+          model_ob: model_ob,
+          member: member
+        };
+        TS.log(47, "added " + key);
+        TS.typing.started_sig.dispatch(model_ob, member);
       }
       TS.typing.maybeStartTimer();
     },
@@ -25174,7 +25086,6 @@
     },
     checkMap: function() {
       var now = Date.now();
-      var record;
       var count = 0;
       if (TS.useRedux()) {
         var before = _getAllTyping();
@@ -25195,8 +25106,7 @@
         });
         count = _getNumberOfRecords();
       } else {
-        for (var key in TS.typing.map) {
-          record = TS.typing.map[key];
+        _.forOwn(TS.typing.map, function(record, key) {
           var lasts_ms = record.member.is_self ? TS.typing.typing_self_lasts_ms : TS.typing.typing_lasts_ms;
           var elapsed_ms = now - record.started;
           count += 1;
@@ -25204,7 +25114,7 @@
             TS.typing.memberEnded(record.model_ob, record.member);
             TS.log(47, "removed " + key + " after " + elapsed_ms);
           }
-        }
+        });
       }
       if (count < 1) {
         clearTimeout(_check_map_timer);
@@ -25213,16 +25123,14 @@
     },
     getTypersInChannel: function(c_id) {
       var A = [];
-      var record;
       if (TS.useRedux()) {
         A = _.map(_getTyperIdsInChannel(c_id), TS.members.getMemberById);
       } else {
-        for (var key in TS.typing.map) {
-          record = TS.typing.map[key];
+        _.forOwn(TS.typing.map, function(record) {
           if (record.model_ob.id == c_id && !record.member.is_self) {
             A.push(record.member);
           }
-        }
+        });
       }
       A.sort(function(a, b) {
         if (TS.members.getMemberDisplayNameLowerCase(a) < TS.members.getMemberDisplayNameLowerCase(b)) return -1;
@@ -25425,8 +25333,8 @@
     var show_rename_btn = false;
     if (TS.boot_data.page_needs_enterprise && model_ob.is_org_shared && TS.permissions.members.canManageOrgSharedChannels()) {
       show_rename_btn = true;
-    } else {
-      if (TS.model.user.is_admin || model_ob.creator === TS.model.user.id) show_rename_btn = true;
+    } else if (TS.model.user.is_admin || model_ob.creator === TS.model.user.id) {
+      show_rename_btn = true;
     }
     var show_purpose_btn = false;
     if (!TS.model.user.is_ultra_restricted && (!model_ob.is_general || TS.members.canUserPostInGeneral())) show_purpose_btn = true;
@@ -28787,8 +28695,8 @@
     _$container.on("click keydown", ".edit_purpose, .purpose_cancel", function(e) {
       if (e.type == "click") {
         _togglePurposeInput();
-      } else {
-        if (e.which == TS.utility.keymap.enter) _togglePurposeInput();
+      } else if (e.which == TS.utility.keymap.enter) {
+        _togglePurposeInput();
       }
     });
     _$container.on("click keydown", ".purpose_done", function(e) {
@@ -28853,12 +28761,10 @@
       if (type === "message") {
         if (thread_ts && thread_ts != ts && !is_broadcast) {
           TS.ui.replies.openConversation(model_ob, thread_ts, ts, origin);
+        } else if (TS.boot_data.feature_new_broadcast) {
+          TS.view.displayMsgInModelOb(model_ob, ts);
         } else {
-          if (TS.boot_data.feature_new_broadcast) {
-            TS.view.displayMsgInModelOb(model_ob, ts);
-          } else {
-            TS.client.ui.tryToJump(model_ob.id, ts.toString());
-          }
+          TS.client.ui.tryToJump(model_ob.id, ts.toString());
         }
       } else if (type === "file" || type === "file_comment") {
         TS.client.ui.files.previewFile(file_id, origin);
@@ -29444,19 +29350,15 @@
                 if (member.presence === "active") online_count += 1;
                 if (member.is_restricted) restricted_count += 1;
               }
-            } else {
-              if (member.enterprise_user && member.enterprise_user.teams && member.enterprise_user.teams.length && member.enterprise_user.teams.indexOf(TS.model.team.id) > -1) {
-                member_count += 1;
-                if (member.presence === "active") online_count += 1;
-                if (member.is_restricted) restricted_count += 1;
-              }
-            }
-          } else {
-            if (!member.deleted) {
+            } else if (member.enterprise_user && member.enterprise_user.teams && member.enterprise_user.teams.length && member.enterprise_user.teams.indexOf(TS.model.team.id) > -1) {
               member_count += 1;
               if (member.presence === "active") online_count += 1;
               if (member.is_restricted) restricted_count += 1;
             }
+          } else if (!member.deleted) {
+            member_count += 1;
+            if (member.presence === "active") online_count += 1;
+            if (member.is_restricted) restricted_count += 1;
           }
         }
       }
@@ -29524,15 +29426,11 @@
             if (!member.deleted) {
               members.push(member);
             }
-          } else {
-            if (member.enterprise_user && member.enterprise_user.teams && member.enterprise_user.teams.length && member.enterprise_user.teams.indexOf(TS.model.team.id) > -1) {
-              members.push(member);
-            }
-          }
-        } else {
-          if (!member.deleted) {
+          } else if (member.enterprise_user && member.enterprise_user.teams && member.enterprise_user.teams.length && member.enterprise_user.teams.indexOf(TS.model.team.id) > -1) {
             members.push(member);
           }
+        } else if (!member.deleted) {
+          members.push(member);
         }
       }
     }
@@ -30679,20 +30577,18 @@
         template_args.secondary_name = null;
         if (model_ob && model_ob.is_mpim) {
           template_args.display_name = TS.mpims.getDisplayName(model_ob);
+        } else if (TS.boot_data.feature_name_tagging_client) {
+          template_args.display_name = TS.members.getMemberFullName(item.member);
+          if (item.member.profile.title) template_args.title = item.member.profile.title;
+          template_args.secondary_name = TS.members.getMemberPreferredName(item.member);
         } else {
-          if (TS.boot_data.feature_name_tagging_client) {
-            template_args.display_name = TS.members.getMemberFullName(item.member);
-            if (item.member.profile.title) template_args.title = item.member.profile.title;
-            template_args.secondary_name = TS.members.getMemberPreferredName(item.member);
-          } else {
-            template_args.display_name = TS.members.getMemberDisplayName(item.member);
-            if (item.member.profile.title) template_args.title = item.member.profile.title;
-            if (item.member.profile.real_name && item.member.name !== item.member.profile.real_name) {
-              if (template_args.display_name === item.member.profile.real_name) {
-                template_args.secondary_name = item.member.name;
-              } else {
-                template_args.secondary_name = item.member.profile.real_name;
-              }
+          template_args.display_name = TS.members.getMemberDisplayName(item.member);
+          if (item.member.profile.title) template_args.title = item.member.profile.title;
+          if (item.member.profile.real_name && item.member.name !== item.member.profile.real_name) {
+            if (template_args.display_name === item.member.profile.real_name) {
+              template_args.secondary_name = item.member.name;
+            } else {
+              template_args.secondary_name = item.member.profile.real_name;
             }
           }
         }
@@ -31471,8 +31367,8 @@
         if (member.is_self) return undefined;
         if (TS.lazyLoadMembersAndBots()) {
           if (TS.flannel.isMemberDeleted(member.id)) return undefined;
-        } else {
-          if (member.deleted) return undefined;
+        } else if (member.deleted) {
+          return undefined;
         }
         if (!is_admin && member.is_restricted && !channel.is_group) return undefined;
         var membership_status = TS.membership.getUserChannelMembershipStatus(member.id, channel);
@@ -32096,17 +31992,13 @@
     }).addClass("hidden");
     if (TS.ui.growls.shouldShowPermissionButton()) {
       $("#growls_permission_div").removeClass("hidden");
-    } else {
-      if (TS.ui.growls.checkPermission()) {
-        $("#growls_allowed_div").removeClass("hidden");
-        $("#growls_test").removeClass("hidden");
-      } else {
-        if (TS.ui.growls.no_notifications) {
-          $("#growls_impossible_div").removeClass("hidden");
-        } else if (TS.ui.growls.getPermissionLevel() == "denied") {
-          $("#growls_disallowed_div").removeClass("hidden");
-        }
-      }
+    } else if (TS.ui.growls.checkPermission()) {
+      $("#growls_allowed_div").removeClass("hidden");
+      $("#growls_test").removeClass("hidden");
+    } else if (TS.ui.growls.no_notifications) {
+      $("#growls_impossible_div").removeClass("hidden");
+    } else if (TS.ui.growls.getPermissionLevel() == "denied") {
+      $("#growls_disallowed_div").removeClass("hidden");
     }
     $('input:radio[name="notifications_rd"]').on("change", function() {
       var val = $(this).val();
@@ -33236,8 +33128,7 @@
       if (a_srt > b_srt) return 1;
       return 0;
     });
-    for (var i in channels) {
-      var c = channels[i];
+    _.forOwn(channels, function(c) {
       search_channel_exclusion = false;
       if ($.inArray(c.id, TS.model.search_exclude_channels) != -1) search_channel_exclusion = true;
       if (c.is_archived) {
@@ -33251,7 +33142,7 @@
           channel: c
         });
       }
-    }
+    });
     return {
       active_channels: active_channels,
       archived_channels: archived_channels
@@ -35047,11 +34938,9 @@ function timezones_guess() {
           _current_file.index = i;
           break;
         }
-      } else {
-        if (_gallery[i].getAttribute("data-src") === _current_file.external_file_src) {
-          _current_file.index = i;
-          break;
-        }
+      } else if (_gallery[i].getAttribute("data-src") === _current_file.external_file_src) {
+        _current_file.index = i;
+        break;
       }
     }
   };
@@ -37690,15 +37579,13 @@ function timezones_guess() {
       var $group_footer = $group.find(".unread_group_footer");
       if (group.collapsed) {
         TS.client.ui.unread.updateHeader(group);
-      } else {
-        if (group.new_unread_cnt > 0 && group.new_unread_msgs) {
-          $group_footer.find(".unread_group_new_text").text(TS.i18n.t("{new_unread_cnt, plural, =1 {# new message} other {# new messages}}", "all_unreads")({
-            new_unread_cnt: group.new_unread_cnt
-          }));
-          $group.addClass("with_footer");
-        } else if ($group_footer) {
-          $group.removeClass("with_footer");
-        }
+      } else if (group.new_unread_cnt > 0 && group.new_unread_msgs) {
+        $group_footer.find(".unread_group_new_text").text(TS.i18n.t("{new_unread_cnt, plural, =1 {# new message} other {# new messages}}", "all_unreads")({
+          new_unread_cnt: group.new_unread_cnt
+        }));
+        $group.addClass("with_footer");
+      } else if ($group_footer) {
+        $group.removeClass("with_footer");
       }
     },
     updateHeader: function(group) {
@@ -40092,10 +39979,8 @@ function timezones_guess() {
         _replaceMessagesAndUpdateMessageContainer(messages, thread.has_more_beginning, thread.has_more_end);
         if (highlight_ts) {
           TS.ui.message_container.jumpToTS(_msg_container_config, highlight_ts, _MESSAGE_CONTAINER_PAGE_SIZE);
-        } else {
-          if (thread.has_more_beginning) {
-            TS.ui.message_container.jumpToEnd(_msg_container_config);
-          }
+        } else if (thread.has_more_beginning) {
+          TS.ui.message_container.jumpToEnd(_msg_container_config);
         }
       } else {
         var $convo = $("#convo_tab ts-conversation");
@@ -40189,10 +40074,8 @@ function timezones_guess() {
           }
           _doLazyImageLoading();
         });
-      } else {
-        if (TS.boot_data.feature_threads_paging_flexpane) {
-          _updateMessageContainer();
-        }
+      } else if (TS.boot_data.feature_threads_paging_flexpane) {
+        _updateMessageContainer();
       }
       _updateHeaderData(_.find(_active_convo_messages, {
         ts: msg.thread_ts || msg.ts
@@ -40228,12 +40111,10 @@ function timezones_guess() {
               _replies_section.msgs.splice(insert_at, 0, msg);
             }
           }
+        } else if (_root_msg_section.msgs.length) {
+          _root_msg_section.msgs[0] = msg;
         } else {
-          if (_root_msg_section.msgs.length) {
-            _root_msg_section.msgs[0] = msg;
-          } else {
-            _root_msg_section.msgs.push(msg);
-          }
+          _root_msg_section.msgs.push(msg);
         }
       }
       if (_isActiveThreadDeleted()) {
@@ -40328,19 +40209,17 @@ function timezones_guess() {
             if (TS.boot_data.feature_threads_slash_cmds) {
               TS.ui.replies.clearReplyInput(model_ob, thread_ts);
               TS.client.ui.sendSlashCommand(model_ob, text, root_msg);
+            } else if (text.indexOf("/shrug") === 0) {
+              TS.ui.replies.clearReplyInput(model_ob, thread_ts);
+              TS.client.ui.sendSlashCommand(model_ob, text, root_msg);
             } else {
-              if (text.indexOf("/shrug") === 0) {
-                TS.ui.replies.clearReplyInput(model_ob, thread_ts);
-                TS.client.ui.sendSlashCommand(model_ob, text, root_msg);
-              } else {
-                TS.client.ui.addOrFlashEphemeralBotMsg({
-                  text: TS.i18n.t("You cannot use slash commands in threads. Sorry!", "threads")(),
-                  ephemeral_type: "threads_temp_slash_cmd_feedback",
-                  slackbot_feels: "sad_surprise",
-                  channel: model_ob.id,
-                  thread_ts: thread_ts
-                });
-              }
+              TS.client.ui.addOrFlashEphemeralBotMsg({
+                text: TS.i18n.t("You cannot use slash commands in threads. Sorry!", "threads")(),
+                ephemeral_type: "threads_temp_slash_cmd_feedback",
+                slackbot_feels: "sad_surprise",
+                channel: model_ob.id,
+                thread_ts: thread_ts
+              });
             }
           } else {
             TS.utility.msgs.removeAllEphemeralMsgsByType("threads_temp_slash_cmd_feedback", model_ob.id, thread_ts);
@@ -40398,18 +40277,16 @@ function timezones_guess() {
       var prev_val = TS.storage.fetchReplyInput(model_ob.id, thread_ts);
       if (prev_val) {
         TS.ui.replies.populateReplyInput(prev_val);
-      } else {
-        if (experiment_group === "copy") {
-          $reply_container.toggleClass("show_mention_teammates_info", !_has_responded_to_thread);
-        } else if (experiment_group === "autofill" || !experiment_group) {
-          if (!root_msg.reply_count) {
-            var user = root_msg.user && TS.members.getMemberById(root_msg.user);
-            if (user && !user.is_self && !user.is_bot && !user.is_slackbot) {
-              if (TS.model.team.prefs.require_at_for_mention) {
-                TS.ui.replies.populateReplyInput("@" + user.name + " ");
-              } else {
-                TS.ui.replies.populateReplyInput(user.name + ": ");
-              }
+      } else if (experiment_group === "copy") {
+        $reply_container.toggleClass("show_mention_teammates_info", !_has_responded_to_thread);
+      } else if (experiment_group === "autofill" || !experiment_group) {
+        if (!root_msg.reply_count) {
+          var user = root_msg.user && TS.members.getMemberById(root_msg.user);
+          if (user && !user.is_self && !user.is_bot && !user.is_slackbot) {
+            if (TS.model.team.prefs.require_at_for_mention) {
+              TS.ui.replies.populateReplyInput("@" + user.name + " ");
+            } else {
+              TS.ui.replies.populateReplyInput(user.name + ": ");
             }
           }
         }
@@ -41411,13 +41288,11 @@ function timezones_guess() {
       if (!TS.model.threads_has_unreads) {
         TS.metrics.count("threads_unread_inconsistency_no_local_unreads");
       }
-    } else {
-      if (TS.model.threads_has_unreads) {
-        TS.metrics.count("threads_unread_inconsistency_has_local_unreads");
-        TS.warn("Correcting threads_has_unreads: was true but threads view has no new replies");
-        TS.client.threads.setThreadsUnreadData(false, 0);
-        TS.client.threads.logThreadState("_markAllThreadsAfterLoading: false 0");
-      }
+    } else if (TS.model.threads_has_unreads) {
+      TS.metrics.count("threads_unread_inconsistency_has_local_unreads");
+      TS.warn("Correcting threads_has_unreads: was true but threads view has no new replies");
+      TS.client.threads.setThreadsUnreadData(false, 0);
+      TS.client.threads.logThreadState("_markAllThreadsAfterLoading: false 0");
     }
   };
   var _loadData = function() {
@@ -42479,12 +42354,10 @@ function timezones_guess() {
             } else {
               _showDeprecationModalWithInstallUnsupported();
             }
+          } else if (TS.client.deprecation.isBrowserFamilySupported()) {
+            _showDeprecationModal();
           } else {
-            if (TS.client.deprecation.isBrowserFamilySupported()) {
-              _showDeprecationModal();
-            } else {
-              _showDeprecationModalUnsupported();
-            }
+            _showDeprecationModalUnsupported();
           }
         }
       });

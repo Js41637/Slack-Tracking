@@ -485,10 +485,8 @@
               TS.web.admin.ultra_restricted_members.push(member);
             } else if (member.is_restricted) {
               TS.web.admin.restricted_members.push(member);
-            } else {
-              if (!member.is_slackbot) {
-                TS.web.admin.active_members.push(member);
-              }
+            } else if (!member.is_slackbot) {
+              TS.web.admin.active_members.push(member);
             }
           }
           if (is_subset) {
@@ -500,10 +498,8 @@
                 TS.web.admin.subset_data.ultra_restricted_members_count += 1;
               } else if (member.is_restricted) {
                 TS.web.admin.subset_data.restricted_members_count += 1;
-              } else {
-                if (!member.is_slackbot) {
-                  TS.web.admin.subset_data.active_members_count += 1;
-                }
+              } else if (!member.is_slackbot) {
+                TS.web.admin.subset_data.active_members_count += 1;
               }
             }
           } else {
@@ -614,24 +610,22 @@
         show_email_edit = 0;
         show_username_edit = 0;
         show_rename = 0;
-      } else {
-        if (!TS.model.user.is_owner && member.is_owner) {
+      } else if (!TS.model.user.is_owner && member.is_owner) {
+        show_rename = 0;
+        show_email_edit = 0;
+        show_username_edit = 0;
+      } else if (!member.deleted) {
+        if (TS.model.user.is_owner && !TS.model.user.is_primary_owner && member.is_owner) {
           show_rename = 0;
           show_email_edit = 0;
           show_username_edit = 0;
-        } else if (!member.deleted) {
-          if (TS.model.user.is_owner && !TS.model.user.is_primary_owner && member.is_owner) {
-            show_rename = 0;
-            show_email_edit = 0;
-            show_username_edit = 0;
-          } else if (TS.model.user.is_admin && !TS.model.user.is_owner && member.is_admin) {
-            show_rename = 0;
-            show_email_edit = 0;
-            show_username_edit = 0;
-          }
-          if (TS.model.user.id === member.id) {
-            show_email_edit = 0;
-          }
+        } else if (TS.model.user.is_admin && !TS.model.user.is_owner && member.is_admin) {
+          show_rename = 0;
+          show_email_edit = 0;
+          show_username_edit = 0;
+        }
+        if (TS.model.user.id === member.id) {
+          show_email_edit = 0;
         }
       }
       if (member.is_bot) {
@@ -927,14 +921,12 @@
         member_type = TS.i18n.t("Single-Channel Guest", "web_admin")();
       } else if (member.is_restricted) {
         member_type = TS.i18n.t("Multi-Channel Guest", "web_admin")();
+      } else if (member.is_bot || member.is_slackbot) {
+        member_type = TS.i18n.t("Bot", "web_admin")();
+      } else if (TS.boot_data.page_needs_enterprise) {
+        member_type = TS.i18n.t("Team Member", "web_admin")();
       } else {
-        if (member.is_bot || member.is_slackbot) {
-          member_type = TS.i18n.t("Bot", "web_admin")();
-        } else if (TS.boot_data.page_needs_enterprise) {
-          member_type = TS.i18n.t("Team Member", "web_admin")();
-        } else {
-          member_type = TS.i18n.t("Member", "web_admin")();
-        }
+        member_type = TS.i18n.t("Member", "web_admin")();
       }
       if (member.deleted && !TS.boot_data.page_needs_enterprise) {
         if (member_type == "Member") {
@@ -1410,12 +1402,10 @@
       if (!member.deleted) {
         if (TS.model.user.id === member.id) {
           confirm_body.push(confirmation_messages["self"]);
+        } else if (member.is_bot) {
+          confirm_body.push(confirmation_messages["bot"]);
         } else {
-          if (member.is_bot) {
-            confirm_body.push(confirmation_messages["bot"]);
-          } else {
-            confirm_body.push(confirmation_messages["member"]);
-          }
+          confirm_body.push(confirmation_messages["member"]);
         }
       } else {
         confirm_body.push(confirmation_messages["disabled"]);
