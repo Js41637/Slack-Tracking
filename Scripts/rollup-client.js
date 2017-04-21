@@ -9774,7 +9774,10 @@
   var _sendStats = function() {
     _.each(_stats, function(value, key) {
       TS.log(1991, "client.stats: " + key + " = " + value);
-      TS.metrics.count("cs_" + key, value);
+      TS.metrics.store("cs_" + key, value, {
+        allow_zero: true,
+        is_count: true
+      });
       _stats[key] = 0;
     });
   };

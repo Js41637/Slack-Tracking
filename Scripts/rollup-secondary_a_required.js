@@ -3799,8 +3799,7 @@
           TS.warn("NOT going back in time on channel " + log_msg);
           return;
         }
-        if (TS.pri) TS.log(142, "going back in time on channel " + log_msg);
-        if (TS.pri && channel.last_read - ts > 10) TS.console.logStackTrace("going back in time callstack");
+        if (TS.pri) TS.log(142, "going back in time on channel " + log_msg, TS.console.getStackTrace());
         TS.utility.msgs.maybeClearPrevLastRead(channel);
         TS.utility.msgs.setPrevLastRead(channel, ts);
       } else {
