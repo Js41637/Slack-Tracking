@@ -25829,9 +25829,9 @@ var _profiling = {
       });
       Handlebars.registerHelper("versioned_basic_analytics_coming_soon", function(res) {
         if (res === "1x") {
-          return "https://dev.slack.com/img/enterprise/ent_basic_analytics_coming_soon.png";
+          return cdn_url + "/7573/img/enterprise/ent_basic_analytics_coming_soon.png";
         } else if (res === "2x") {
-          return "https://dev.slack.com/img/enterprise/ent_basic_analytics_coming_soon@2x.png";
+          return cdn_url + "/7573/img/enterprise/ent_basic_analytics_coming_soon@2x.png";
         }
       });
       Handlebars.registerHelper("versioned_slack_logo_240", function() {
@@ -66556,31 +66556,32 @@ $.fn.togglify = function(settings) {
       isTrusted: null
     };
   o(r.prototype, {
-    preventDefault: function() {
-      this.defaultPrevented = !0;
-      var e = this.nativeEvent;
-      e && (e.preventDefault ? e.preventDefault() : "unknown" != typeof e.returnValue && (e.returnValue = !1), this.isDefaultPrevented = a.thatReturnsTrue);
-    },
-    stopPropagation: function() {
-      var e = this.nativeEvent;
-      e && (e.stopPropagation ? e.stopPropagation() : "unknown" != typeof e.cancelBubble && (e.cancelBubble = !0), this.isPropagationStopped = a.thatReturnsTrue);
-    },
-    persist: function() {
-      this.isPersistent = a.thatReturnsTrue;
-    },
-    isPersistent: a.thatReturnsFalse,
-    destructor: function() {
-      var e = this.constructor.Interface;
-      for (var t in e) this[t] = null;
-      for (var n = 0; n < s.length; n++) this[s[n]] = null;
-    }
-  }), r.Interface = u, r.augmentClass = function(e, t) {
-    var n = this,
-      r = function() {};
-    r.prototype = n.prototype;
-    var a = new r;
-    o(a, e.prototype), e.prototype = a, e.prototype.constructor = e, e.Interface = o({}, n.Interface, t), e.augmentClass = n.augmentClass, i.addPoolingTo(e, i.fourArgumentPooler);
-  }, i.addPoolingTo(r, i.fourArgumentPooler), e.exports = r;
+      preventDefault: function() {
+        this.defaultPrevented = !0;
+        var e = this.nativeEvent;
+        e && (e.preventDefault ? e.preventDefault() : "unknown" != typeof e.returnValue && (e.returnValue = !1), this.isDefaultPrevented = a.thatReturnsTrue);
+      },
+      stopPropagation: function() {
+        var e = this.nativeEvent;
+        e && (e.stopPropagation ? e.stopPropagation() : "unknown" != typeof e.cancelBubble && (e.cancelBubble = !0), this.isPropagationStopped = a.thatReturnsTrue);
+      },
+      persist: function() {
+        this.isPersistent = a.thatReturnsTrue;
+      },
+      isPersistent: a.thatReturnsFalse,
+      destructor: function() {
+        var e = this.constructor.Interface;
+        for (var t in e) this[t] = null;
+        for (var n = 0; n < s.length; n++) this[s[n]] = null;
+      }
+    }), r.Interface = u, r.augmentClass = function(e, t) {
+      var n = this,
+        r = function() {};
+      r.prototype = n.prototype;
+      var a = new r;
+      o(a, e.prototype), e.prototype = a, e.prototype.constructor = e, e.Interface = o({}, n.Interface, t), e.augmentClass = n.augmentClass, i.addPoolingTo(e, i.fourArgumentPooler);
+    }, i.addPoolingTo(r, i.fourArgumentPooler),
+    e.exports = r;
 }, function(e, t, n) {
   "use strict";
   var r = {
@@ -68158,8 +68159,7 @@ $.fn.togglify = function(settings) {
       },
       enqueueReplaceState: function(e, t) {
         var n = i(e, "replaceState");
-        n && (n._pendingStateQueue = [t], n._pendingReplaceState = !0,
-          r(n));
+        n && (n._pendingStateQueue = [t], n._pendingReplaceState = !0, r(n));
       },
       enqueueSetState: function(e, t) {
         var n = i(e, "setState");
@@ -79328,8 +79328,7 @@ $.fn.togglify = function(settings) {
     },
     u = function(e) {
       var t = this;
-      e instanceof t ? void 0 : r("25"), e.destructor(),
-        t.instancePool.length < t.poolSize && t.instancePool.push(e);
+      e instanceof t ? void 0 : r("25"), e.destructor(), t.instancePool.length < t.poolSize && t.instancePool.push(e);
     },
     l = 10,
     c = o,
