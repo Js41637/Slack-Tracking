@@ -10,14 +10,14 @@
     onKeydown: function(e) {
       var current_setting = TS.generic_dialog.current_setting;
       if (e.which == TS.utility.keymap.enter) {
-        if (TS.utility.getActiveElementProp("NODENAME") == "BODY" || current_setting.enter_always_gos) {
+        if (TS.utility.getActiveElementProp("NODENAME") === "BODY" || current_setting.enter_always_gos) {
           if (current_setting.show_go_button) {
             TS.generic_dialog.go();
             e.preventDefault();
           }
         }
       } else if (e.which == TS.utility.keymap.esc) {
-        if (TS.utility.getActiveElementProp("NODENAME") == "BODY") {
+        if (TS.utility.getActiveElementProp("NODENAME") === "BODY") {
           if (current_setting.show_cancel_button) {
             TS.generic_dialog.cancel();
           } else if (current_setting.esc_for_ok) {
@@ -591,9 +591,9 @@
     };
     for (var i = 0; i < TS.help.issues.length; i += 1) {
       var issue = TS.help.issues[i];
-      if (issue.state == "unread") {
+      if (issue.state === "unread") {
         settings.unread_count += 1;
-      } else if (issue.state == "open") {
+      } else if (issue.state === "open") {
         settings.open_count += 1;
       }
     }
@@ -1174,19 +1174,19 @@
         TS.error('unknown member: "' + imsg.user + '"');
         return;
       }
-      if (imsg.presence != "away" && imsg.presence != "active") {
+      if (imsg.presence !== "away" && imsg.presence !== "active") {
         TS.error('unknown presence: "' + imsg.presence + '"');
         return;
       }
-      if (member.ds_active && imsg.presence == "active") return;
-      if (!member.ds_active && imsg.presence == "away") return;
-      member.ds_active = imsg.presence == "active";
+      if (member.ds_active && imsg.presence === "active") return;
+      if (!member.ds_active && imsg.presence === "away") return;
+      member.ds_active = imsg.presence === "active";
       TS.members.ds_presence_changed_sig.dispatch(member);
     }
   });
   var _msgReceived = function(imsg) {
     if (imsg.reply_to) return;
-    if (imsg.event == "rocket") return;
+    if (imsg.event === "rocket") return;
     if (!TS.ds.msg_handlers[imsg.type]) {
       TS.error("non handled non rocket event received\n" + JSON.stringify(imsg, null, "  "));
       return;
@@ -1782,7 +1782,7 @@
       }
       opt.width = img.display_w;
       opt.height = img.display_h;
-      if (img.content_type == "image/svg+xml") {
+      if (img.content_type === "image/svg+xml") {
         opt.render_svg = true;
       }
       var proxied_src = TS.utility.getImgProxyURLWithOptions(img.src, opt);
@@ -2152,13 +2152,13 @@
       return should_mute;
     },
     filenameForSoundName: function(which, options) {
-      if (which == "new_message") {
+      if (which === "new_message") {
         which = TS.model.prefs.new_msg_snd;
       }
-      if (which == "none") {
+      if (which === "none") {
         return;
       }
-      if (which == "beep") {
+      if (which === "beep") {
         which = "frog.mp3";
       }
       if (!(which in _sounds)) {

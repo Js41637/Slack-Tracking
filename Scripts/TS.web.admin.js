@@ -128,7 +128,7 @@
                 match.two_factor_type = member.two_factor_type;
               }
             }
-            if (boot_data.auth_mode != "normal" && member.has_sso_token !== undefined) {
+            if (boot_data.auth_mode !== "normal" && member.has_sso_token !== undefined) {
               match.has_sso_token = member.has_sso_token;
             }
             match.created = member.created;
@@ -633,7 +633,7 @@
         }
       }
       var show_inactive_tip = false;
-      if (member.is_inactive && !member.deleted && TS.boot_data.app != "mobile") show_inactive_tip = true;
+      if (member.is_inactive && !member.deleted && TS.boot_data.app !== "mobile") show_inactive_tip = true;
       if (show_inactive_tip && (member.is_bot || member.is_slackbot)) {
         show_inactive_tip = false;
       }
@@ -2493,9 +2493,9 @@
         active_matches: active_results_members,
         disabled_matches: disabled_results_members,
         restricted_matches: restricted_results_members,
-        show_active_matches: tab.name != "active" && has_active_results,
-        show_disabled_matches: tab.name != "disabled" && has_disabled_results,
-        show_restricted_matches: tab.name != "restricted" && has_restricted_results
+        show_active_matches: tab.name !== "active" && has_active_results,
+        show_disabled_matches: tab.name !== "disabled" && has_disabled_results,
+        show_restricted_matches: tab.name !== "restricted" && has_restricted_results
       };
       if (_isApiAdminPage()) {
         template_args.active_matches = {

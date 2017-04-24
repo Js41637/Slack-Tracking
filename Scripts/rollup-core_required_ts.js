@@ -63,7 +63,7 @@
           console.info(TS.makeLogDate() + "[** " + pri + " **] " + txt + " " + st);
           return;
         } catch (err) {
-          if (err != "too long") {
+          if (err !== "too long") {
             console.info(TS.makeLogDate() + "[** " + pri + " **] " + txt + " " + ob);
             return;
           }
@@ -505,7 +505,7 @@
       if (!no_cache && _qs_url_args_cache) return _qs_url_args_cache;
       _qs_url_args_cache = "";
       for (var k in TS.qs_args) {
-        if (k == "export_test") continue;
+        if (k === "export_test") continue;
         _qs_url_args_cache += "&" + k + "=" + TS.qs_args[k];
       }
       return _qs_url_args_cache;
@@ -561,19 +561,7 @@
       }
       TS.info("TS.reload() called: " + (reason || "no reason specified"));
       if (TS.console) TS.console.logStackTrace();
-      if (TS.client && TSSSB.call("reload")) {
-        if (TS.model.mac_ssb_version) {
-          setInterval(function() {
-            window.callSlackAPIUnauthed("api.test", {}, function(ok) {
-              if (ok) {
-                window.location.reload(no_cache);
-              }
-            });
-          }, 1e3);
-        }
-      } else {
-        window.location.reload(no_cache);
-      }
+      window.location.reload(no_cache);
     },
     reloadIfVersionsChanged: function(data) {
       if (TS.model.ms_logged_in_once && data.min_version_ts && TS.boot_data.version_ts !== "dev") {
@@ -651,7 +639,7 @@
     _raw_templates = null;
   }
   var _shouldSuppressTestExport = function() {
-    return !(typeof window.jasmine !== "undefined" || TS.boot_data.version_ts == "dev" && TS.qs_args.export_test);
+    return !(typeof window.jasmine !== "undefined" || TS.boot_data.version_ts === "dev" && TS.qs_args.export_test);
   };
   var _reconnectRequestedMS = function() {
     TS.console.logStackTrace("MS reconnection requested");
@@ -833,16 +821,16 @@
   };
   var _rtmStartErrorHandler = function(resp) {
     var error = resp.data && resp.data.error;
-    if (error == "user_removed_from_team") {
+    if (error === "user_removed_from_team") {
       TS.warn("You have been removed from the " + TS.model.team.name + " team.");
       if (TS.client) TS.client.userRemovedFromTeam(TS.model.team.id);
     }
-    if (error == "account_inactive" || error == "team_disabled" || error == "invalid_auth") {
+    if (error === "account_inactive" || error === "team_disabled" || error === "invalid_auth") {
       TSSSB.call("invalidateAuth");
       TS.reload(null, "resp.data.error: " + error);
       return;
     }
-    if (error == "clear_cache" || error == "org_login_required" || error == "team_added_to_org") {
+    if (error === "clear_cache" || error === "org_login_required" || error === "team_added_to_org") {
       var also_clear_cache = true;
       TS.storage.flush(also_clear_cache);
       TS.reload(null, "TS.storage.flush() and TS.reload() because resp.data.error: " + error);
@@ -1064,9 +1052,9 @@
       _initSleepWake();
     }
     TS.ui.setUpWindowUnloadHandlers();
-    if (TS.boot_data.app == "client") {
+    if (TS.boot_data.app === "client") {
       TS.client.gogogo();
-    } else if (TS.boot_data.app == "web" || TS.boot_data.app == "space" || TS.boot_data.app == "calls") {
+    } else if (TS.boot_data.app === "web" || TS.boot_data.app === "space" || TS.boot_data.app === "calls") {
       TS.web.gogogo();
     }
     if (TS.boot_data.no_login) {
@@ -1095,8 +1083,8 @@
   };
   var _configureBluebirdBeforeFirstUse = function(boot_data) {
     Promise.config({
-      longStackTraces: boot_data.version_ts == "dev" || TS.qs_args.js_path,
-      warnings: boot_data.version_ts == "dev" || TS.qs_args.js_path,
+      longStackTraces: boot_data.version_ts === "dev" || TS.qs_args.js_path,
+      warnings: boot_data.version_ts === "dev" || TS.qs_args.js_path,
       cancellation: true
     });
   };
@@ -1187,7 +1175,7 @@
     var templates_cb;
     if (TS.boot_data.hbs_templates_version && TS.boot_data.version_ts !== "dev") {
       templates_cb = TS.boot_data.hbs_templates_version;
-    } else if (TS.boot_data.version_ts == "dev") {
+    } else if (TS.boot_data.version_ts === "dev") {
       templates_cb = Date.now();
     } else {
       templates_cb = TS.boot_data.version_ts;
@@ -1236,15 +1224,15 @@
   };
   var _callOnStarts = function() {
     TS.log(Date() - TS.boot_data.start_ms + "ms from first html to calling onStarts()");
-    if (TS.boot_data.app == "client") {
+    if (TS.boot_data.app === "client") {
       TS.client.onStart();
       TS.client.onStart = _.noop;
-    } else if (TS.boot_data.app == "web" || TS.boot_data.app == "space" || TS.boot_data.app == "calls") {
+    } else if (TS.boot_data.app === "web" || TS.boot_data.app === "space" || TS.boot_data.app === "calls") {
       TS.web.onStart();
       TS.web.onStart = _.noop;
-    } else if (TS.boot_data.app == "test") {
+    } else if (TS.boot_data.app === "test") {
       return;
-    } else if (TS.boot_data.app == "api" || TS.boot_data.app == "oauth") {} else {
+    } else if (TS.boot_data.app === "api" || TS.boot_data.app === "oauth") {} else {
       TS.error("WTF app? " + TS.boot_data.app);
       return;
     }
@@ -1536,7 +1524,7 @@
         var skip_ims_mpims = TS.boot_data.page_needs_enterprise && TS.boot_data.exclude_org_members;
         if (!skip_ims_mpims) {
           var ims_to_upsert = _.map(data.ims, function(im) {
-            if (just_general && im.user != "USLACKBOT") return;
+            if (just_general && im.user !== "USLACKBOT") return;
             im.all_read_this_session_once = false;
             return TS.ims.upsertIm(im, is_bulk_upsert);
           });
@@ -1811,7 +1799,7 @@
       data.users.push(data.self);
     }
     data.users.forEach(function(user) {
-      if (user.id == "USLACKBOT" || user.id == TS.boot_data.user_id) {
+      if (user.id === "USLACKBOT" || user.id == TS.boot_data.user_id) {
         user.presence = "active";
       }
     });
@@ -1891,7 +1879,7 @@
       if (window.performance && performance.clearMarks) performance.clearMarks(mark_label);
     },
     measure: function(measure_label, start_mark_label, end_mark_label, options) {
-      if (start_mark_label == "start_nav") start_mark_label = "navigationStart";
+      if (start_mark_label === "start_nav") start_mark_label = "navigationStart";
       var clear_end_mark = false;
       if (!end_mark_label) {
         clear_end_mark = true;
@@ -3204,7 +3192,7 @@ var _cyrillicToLatin = function(char) {
     Object.keys(_unknown_ids_handled).forEach(function(id) {
       var ob = _unknown_ids_handled[id];
       if (min_tries > ob.tries) return;
-      if (state != "any" && ob.state != state) return;
+      if (state !== "any" && ob.state != state) return;
       obs[id] = _unknown_ids_handled[id];
     });
     return {
@@ -3338,7 +3326,7 @@ var _cyrillicToLatin = function(char) {
   var JS_PREFIX_REGEXP = new RegExp("^(" + JS_PREFIXES.slice(0, JS_PREFIXES.length - 1).join("|") + ")");
 
   function _isRetina() {
-    return window["devicePixelRatio"] > 1;
+    return window.devicePixelRatio > 1;
   }
 
   function _decoratePageWithSupport() {
@@ -3413,7 +3401,7 @@ var _cyrillicToLatin = function(char) {
     test.style.height = "40px";
     test.style.position = "absolute";
     test.style.left = "-40px";
-    test["innerHTML"] = "&shy;<style>#__sb::-webkit-scrollbar {width:10px;}</style>";
+    test.innerHTML = "&shy;<style>#__sb::-webkit-scrollbar {width:10px;}</style>";
     document.body.appendChild(test);
     var is_css_scrollbar_supported = test.scrollWidth == 30;
     document.body.removeChild(test);
@@ -4096,7 +4084,7 @@ var _cyrillicToLatin = function(char) {
           TS.error("testGroupings() expected these emoji names to be in a category, but they were not found! " + names.join(","));
         }
       };
-      if (TS.boot_data.version_ts == "dev") {
+      if (TS.boot_data.version_ts === "dev") {
         testGroupings(groupings);
       }
     },
@@ -4193,7 +4181,7 @@ var _cyrillicToLatin = function(char) {
       return _emoji.replace_colons(str);
     },
     maybeUnifiedReplace: function(new_text) {
-      if (_emoji.replace_mode != "unified") return new_text;
+      if (_emoji.replace_mode !== "unified") return new_text;
       return _emoji.replace_colons_with_unified(new_text);
     },
     replaceEmoticons: function(str) {

@@ -655,8 +655,8 @@
     _$div.find("#admin_invites_channel_picker_container").html(channel_picker_html);
     _$div.find("#account_type").val(invite_type);
     _$div.find("#admin_invites_switcher, #admin_invites_workflow").toggleClass("hidden");
-    _$div.find("#admin_invites_billing_notice", "#admin_guide_to_billing_at_slack").toggleClass("hidden", !(TS.model.team.plan !== "" && invite_type != "ultra_restricted"));
-    _$div.find("#ura_warning").toggleClass("hidden", invite_type != "restricted" && invite_type != "ultra_restricted");
+    _$div.find("#admin_invites_billing_notice", "#admin_guide_to_billing_at_slack").toggleClass("hidden", !(TS.model.team.plan !== "" && invite_type !== "ultra_restricted"));
+    _$div.find("#ura_warning").toggleClass("hidden", invite_type !== "restricted" && invite_type !== "ultra_restricted");
     _$div.find("#invite_notice").hide();
     if (TS.experiment.getGroup("guest_profiles_and_expiration") === "treatment") {
       var admin_invite_subheader_text = "";
