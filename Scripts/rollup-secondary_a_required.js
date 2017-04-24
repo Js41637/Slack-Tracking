@@ -51608,7 +51608,7 @@ $.fn.togglify = function(settings) {
     if (!invite) return;
     _$div.find('.sci_send_email_container [data-action="replace_sent_emails"]').replaceWith(TS.templates.shared_channels_invites_sent_emails(invite));
   };
-  var _name_check_wait_time = 325;
+  var _name_check_wait_time = 1e3;
   var _name_check_timer;
   var _name_available_timer;
   var _name_available_show_time = 1e3;
@@ -51656,70 +51656,75 @@ $.fn.togglify = function(settings) {
     _$div.on("click", '[data-action="sci_cancel"]', _switchToManage);
     _$div.on("change", '[type="radio"][name="share_with"]', _toggleShareWith);
     _$div.on("click", '[data-action="sci_show_action"]', _showAction);
-    _$div.on("input", '#sci_channels_create input[name="channel_name"]', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
+    var channel_name_input = '#sci_channels_create input[name="channel_name"]';
+    var $create_button = _$div.find('#sci_channels_create [data-action="sci_channels_create"]');
+    var debounced_name_check_method = _.debounce(function($el) {
+      if (_name_check_api_call && _name_check_api_call.isPending()) {
+        if (_name_check_timer) {
+          clearTimeout(_name_check_timer);
+          _name_check_timer = null;
+        }
+        _name_check_timer = setTimeout(function($el) {
+          debounced_name_check_method($el);
+        }, _name_check_wait_time, $el);
+        return;
+      }
       $(".validation_message").remove();
       $('label[for="channel_name"]').removeClass("validation_warning");
-      $(this).removeClass("validation_warning");
-      var $create_button = _$div.find('#sci_channels_create [data-action="sci_channels_create"]');
-      if (_name_check_timer) {
-        clearTimeout(_name_check_timer);
-        _name_check_timer = null;
-      }
-      var nameCheckFunction = function() {
-        if (_name_check_api_call && _name_check_api_call.isPending()) {
-          _name_check_timer = setTimeout(nameCheckFunction.bind(this), _name_check_wait_time);
-          return;
-        }
-        var do_validation = false;
-        var is_disabled = true;
-        var disable_checking_spinner = true;
-        var trigger_available_name_message = false;
-        _toggleChannelNameChecking();
-        _toggleButton(null, $create_button, do_validation, is_disabled);
-        var validation = TS.ui.validation.validate($(this));
-        if (validation) {
-          var $el = $(this);
-          var new_name = $el.val().trim();
-          _name_check_api_call = TS.api.callImmediately("enterprise.nameTaken", {
-            name: new_name,
-            ignore_local_team: false
-          }, function(ok, data) {
-            if (!ok) {
-              disable_checking_spinner = true;
-              trigger_available_name_message = false;
-              _toggleChannelNameChecking(disable_checking_spinner, trigger_available_name_message);
-              TS.generic_dialog.alert("Something failed! " + data.error);
-            } else {
-              if (data.name_taken) {
-                disable_checking_spinner = true;
-                trigger_available_name_message = false;
-                _toggleChannelNameChecking(disable_checking_spinner, trigger_available_name_message);
-                is_disabled = true;
-                _toggleButton(null, $create_button, do_validation, is_disabled);
-                TS.ui.validation.showWarning($el, '"' + TS.utility.htmlEntities(new_name) + '" is already taken by a channel, username, or user group.', {});
-                return;
-              }
-              disable_checking_spinner = true;
-              trigger_available_name_message = true;
-              _toggleChannelNameChecking(disable_checking_spinner, trigger_available_name_message);
-              is_disabled = false;
-              _toggleButton(null, $create_button, do_validation, is_disabled);
-            }
-            return null;
-          }).catch(function() {
-            _name_check_api_call = null;
+      $el.removeClass("validation_warning");
+      var do_validation = false;
+      var is_disabled = true;
+      var disable_checking_spinner = true;
+      var trigger_available_name_message = false;
+      _toggleChannelNameChecking();
+      _toggleButton(null, $create_button, do_validation, is_disabled);
+      var validation = TS.ui.validation.validate($el);
+      if (validation) {
+        var new_name = $el.val().trim();
+        _name_check_api_call = TS.api.callImmediately("enterprise.nameTaken", {
+          name: new_name,
+          ignore_local_team: false
+        }, function(ok, data) {
+          if (!ok) {
             disable_checking_spinner = true;
             trigger_available_name_message = false;
             _toggleChannelNameChecking(disable_checking_spinner, trigger_available_name_message);
-          });
-        } else {
+            TS.generic_dialog.alert("Something failed! " + data.error);
+          } else {
+            if (data.name_taken) {
+              disable_checking_spinner = true;
+              trigger_available_name_message = false;
+              _toggleChannelNameChecking(disable_checking_spinner, trigger_available_name_message);
+              is_disabled = true;
+              _toggleButton(null, $create_button, do_validation, is_disabled);
+              TS.ui.validation.showWarning($el, '"' + TS.utility.htmlEntities(new_name) + '" is already taken by a channel, username, or user group.', {});
+              return;
+            }
+            disable_checking_spinner = true;
+            trigger_available_name_message = true;
+            _toggleChannelNameChecking(disable_checking_spinner, trigger_available_name_message);
+            is_disabled = false;
+            _toggleButton(null, $create_button, do_validation, is_disabled);
+          }
+          return null;
+        }).catch(function() {
+          _name_check_api_call = null;
           disable_checking_spinner = true;
-          _toggleChannelNameChecking(disable_checking_spinner);
-        }
-      };
-      _name_check_timer = setTimeout(nameCheckFunction.bind(this), _name_check_wait_time);
+          trigger_available_name_message = false;
+          _toggleChannelNameChecking(disable_checking_spinner, trigger_available_name_message);
+        });
+      } else {
+        disable_checking_spinner = true;
+        _toggleChannelNameChecking(disable_checking_spinner);
+      }
+    }, _name_check_wait_time, {
+      leading: false,
+      trailing: true
+    });
+    _$div.on("input", channel_name_input, function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      debounced_name_check_method($(this));
     });
     _$div.on("input", '#sci_channels_create [data-validation]:not([name="channel_name"])', function() {
       var $container = _$div.find("#sci_channels_create");
