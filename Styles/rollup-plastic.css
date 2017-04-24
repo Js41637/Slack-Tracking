@@ -748,8 +748,8 @@
 
 @font-face {
   font-family: Slack;
-  src: url(/cf958/fonts/slack-icons-Regular.eot);
-  src: url(/cf958/fonts/slack-icons-Regular.eot?#iefix) format('embedded-opentype'), url(/cf958/fonts/slack-icons-Regular.woff) format('woff'), url(/cf958/fonts/slack-icons-Regular.ttf) format('truetype'), url(/cf958/fonts/slack-icons-Regular.svg#Slack) format('svg');
+  src: url(/87c48/fonts/slack-icons-Regular.eot);
+  src: url(/87c48/fonts/slack-icons-Regular.eot?#iefix) format('embedded-opentype'), url(/87c48/fonts/slack-icons-Regular.woff) format('woff'), url(/87c48/fonts/slack-icons-Regular.ttf) format('truetype'), url(/87c48/fonts/slack-icons-Regular.svg#Slack) format('svg');
   font-style: normal;
   font-weight: 400
 }
@@ -2012,6 +2012,10 @@ svg.ts_icon_spinner svg {
 
 .ts_icon_thumbs_down_filled:before {
   content: '\E562'
+}
+
+.ts_icon_slow_network:before {
+  content: '\E563'
 }
 
 .ts_icon_arrow_right:before {
@@ -13957,6 +13961,10 @@ only screen and (min-resolution:2dppx) {
   margin-bottom: 0!important
 }
 
+.dm_badge .dm_badge_meta .member_team_name {
+  color: #A0A0A2
+}
+
 .dm_badge a.app_preview_link,
 .dm_badge a.member_preview_link {
   font-weight: 600;
@@ -14200,7 +14208,7 @@ only screen and (min-resolution:2dppx) {
 
 .external_team_badge.team_badge_22.default {
   font-size: 13px;
-  line-height: 1.6
+  line-height: 1.8
 }
 
 #channel_list .ts_icon_shared_channel {
@@ -16408,6 +16416,10 @@ html:not(.supports_flexbox) #im_browser_tokens .member_token {
 
 .lazy_filter_select .addl_icon {
   line-height: .5rem
+}
+
+.lazy_filter_select .addl_icon.ts_icon_shared_channels {
+  top: 4px
 }
 
 .lazy_filter_select.normal_style .lfs_input_container,

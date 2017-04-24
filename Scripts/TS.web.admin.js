@@ -774,7 +774,8 @@
       TS.web.admin.tabs_need_rebuild = true;
     },
     selectRow: function(item) {
-      return $("#row_" + item.id);
+      var row = _isApiAdminPage() ? $("#admin_list .tab_pane.selected .long_list").find("#row_" + item.id) : $("#row_" + item.id);
+      return row;
     },
     rowProcessing: function(member) {
       _setMemberRowState(member, {

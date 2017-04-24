@@ -54,7 +54,7 @@
       if (pri && !TS.shouldLog(pri)) return;
       txt = txt || "";
       ob = _maybeRedactFields(ob);
-      var dir_json = parseInt(TS.qs_args["dir_json"], 10);
+      var dir_json = parseInt(TS.qs_args.dir_json, 10);
       if (dir_json) {
         var limit = dir_json == 1 ? "2000" : dir_json;
         try {
@@ -430,9 +430,9 @@
           this.id = name + "_auto_guid_" + _guid;
           _guid += 1;
         }
-        if (this["test"] && _shouldSuppressTestExport()) {
+        if (this.test && _shouldSuppressTestExport()) {
           this.test = undefined;
-        } else if (typeof this["test"] === "function") {
+        } else if (typeof this.test === "function") {
           this.test = this.test();
         }
         Component._add(this.id, this);
@@ -651,7 +651,7 @@
     _raw_templates = null;
   }
   var _shouldSuppressTestExport = function() {
-    return !(typeof window.jasmine !== "undefined" || TS.boot_data.version_ts == "dev" && TS.qs_args["export_test"]);
+    return !(typeof window.jasmine !== "undefined" || TS.boot_data.version_ts == "dev" && TS.qs_args.export_test);
   };
   var _reconnectRequestedMS = function() {
     TS.console.logStackTrace("MS reconnection requested");
@@ -769,11 +769,11 @@
     });
   };
   var _promiseToCallRTMStart = function() {
-    if (TS.qs_args["no_rtm_start"]) {
+    if (TS.qs_args.no_rtm_start) {
       return new Promise(function(resolve, reject) {
         TS.resumeRTMStart = function() {
           delete TS.resumeRTMStart;
-          delete TS.qs_args["no_rtm_start"];
+          delete TS.qs_args.no_rtm_start;
           _promiseToCallRTMStart().then(function(resp) {
             resolve(resp);
           }).catch(reject);
@@ -1249,7 +1249,7 @@
       return;
     }
     var name;
-    var delete_after_calling = !TS.qs_args["keep_onstart"];
+    var delete_after_calling = !TS.qs_args.keep_onstart;
     try {
       _.forOwn(_modules, function(module) {
         if (!module.onStart) return;
@@ -1508,8 +1508,8 @@
         TS.model.threadable_channels = data.threadable_channels;
       }
       TS.model.initial_msgs_cnt = 42;
-      if (TS.qs_args["api_count"]) {
-        var api_count_override = parseInt(TS.qs_args["api_count"], 10) || TS.model.initial_msgs_cnt;
+      if (TS.qs_args.api_count) {
+        var api_count_override = parseInt(TS.qs_args.api_count, 10) || TS.model.initial_msgs_cnt;
         TS.model.initial_msgs_cnt = Math.min(TS.model.initial_msgs_cnt, api_count_override);
       }
       var max = TS.model.hard_msg_limit;
@@ -1627,10 +1627,10 @@
     TS.ms.onFailure("_onBadUserCache problem: " + problem);
   };
   var _extractAndDeleteTestProps = function(ob) {
-    if (ob["test"] && _shouldSuppressTestExport()) {
-      delete ob["test"];
-    } else if (typeof ob["test"] === "function") {
-      var test_getter = ob["test"];
+    if (ob.test && _shouldSuppressTestExport()) {
+      delete ob.test;
+    } else if (typeof ob.test === "function") {
+      var test_getter = ob.test;
       Object.defineProperty(ob, "test", {
         get: test_getter
       });
@@ -1905,7 +1905,7 @@
         if (!start_ms) return;
         var end_mark_measures = performance.getEntriesByName(end_mark_label);
         if (end_mark_measures.length === 0) return;
-        var t0 = pt["navigationStart"];
+        var t0 = pt.navigationStart;
         var end_ms = t0 + end_mark_measures[end_mark_measures.length - 1].startTime;
         duration = end_ms - start_ms;
         if (clear_end_mark && window.performance && performance.clearMarks) performance.clearMarks(end_mark_label);
@@ -1965,7 +1965,7 @@
       var pt = performance.timing;
       if (!pt) return;
       TS.metrics.special_start_mark_labels.forEach(function(n) {
-        var val = pt[n] - pt["navigationStart"];
+        var val = pt[n] - pt.navigationStart;
         if (val) TS.metrics.store("pt_" + n, val, {
           allow_zero: true
         });
@@ -2014,7 +2014,7 @@
   };
   var _beaconDataAndEmptyQueue = function() {
     if (Object.keys(_measures).length === 0) return;
-    if (window.performance && performance.memory && performance.memory.usedJSHeapSize) _measures["used_js_heap_size"] = [TS.utility.roundToThree(TS.utility.convertBytesToMegabytes(performance.memory.usedJSHeapSize))];
+    if (window.performance && performance.memory && performance.memory.usedJSHeapSize) _measures.used_js_heap_size = [TS.utility.roundToThree(TS.utility.convertBytesToMegabytes(performance.memory.usedJSHeapSize))];
     if (_log_dom_node_count) {
       var dom_node_count = document.getElementsByTagName("*").length;
       TS.metrics.store("dom_node_count", dom_node_count, {
@@ -3523,9 +3523,9 @@ var _cyrillicToLatin = function(char) {
       args: args
     };
     _fetchModelValues();
-    if (_team_id) payload["team_id"] = _team_id;
-    if (_enterprise_id) payload["enterprise_id"] = _enterprise_id;
-    if (_user_id) payload["user_id"] = _user_id;
+    if (_team_id) payload.team_id = _team_id;
+    if (_enterprise_id) payload.enterprise_id = _enterprise_id;
+    if (_user_id) payload.user_id = _user_id;
     _logs.push(payload);
     if (TS.log) {
       if (_is_debug_mode) TS.console.log(_LOG_PRI, payload);
@@ -3596,7 +3596,7 @@ var _cyrillicToLatin = function(char) {
     }
     switch (event.toUpperCase()) {
       case "WEBSITE_CLICK":
-        params["page_url"] = location.href;
+        params.page_url = location.href;
         break;
       default:
         break;
@@ -3826,7 +3826,7 @@ var _cyrillicToLatin = function(char) {
         if (typeof custom === "object") {
           TS.model.emoji_complex_customs[idx] = custom;
           _emoji.data[idx] = [
-            [], null, null, [idx], null, null, null, custom["apple"]
+            [], null, null, [idx], null, null, null, custom.apple
           ];
           _emoji.map.colons[idx] = idx;
           TS.model.all_custom_emoji.push(idx);
