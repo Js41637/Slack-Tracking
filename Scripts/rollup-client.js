@@ -42894,6 +42894,9 @@ var _getDownloadLink = function() {
       _active_invite_code_ob = null;
       return;
     }
+    if (ms_until_expiry > 2147483647) {
+      ms_until_expiry = 2147483647;
+    }
     _update_on_expiry = setTimeout(_promiseToGetLastActiveCode, ms_until_expiry);
   };
   var _promiseToDeleteLastActiveCode = function() {
