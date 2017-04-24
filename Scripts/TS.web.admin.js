@@ -269,9 +269,6 @@
       var bots = result.items.bots;
       var restricted_members = result.items.restricted_members;
       var ultra_restricted_members = result.items.ultra_restricted_members;
-      _.remove(bots, {
-        is_slackbot: true
-      });
       var active_members_list_items = members.slice(0);
       if (bots.length) {
         if (!result.no_dividers) active_members_list_items.push({
@@ -777,7 +774,7 @@
       TS.web.admin.tabs_need_rebuild = true;
     },
     selectRow: function(item) {
-      return $("#row_" + item.id);
+      return $("#admin_list .tab_pane.selected .long_list").find("#row_" + item.id);
     },
     rowProcessing: function(member) {
       _setMemberRowState(member, {
@@ -1897,7 +1894,6 @@
     memberRestricted: function(member) {
       var previous_collection = _moveMemberTo(member, TS.web.admin.restricted_members);
       TS.web.admin.rebuildMember(member);
-      TS.web.admin.updateRowLocations();
       var success_msg_html = TS.i18n.t("<strong>{member_name}</strong> is now a Multi-Channel Guest.", "web_admin")({
         member_name: TS.utility.htmlEntities(member.name)
       });
@@ -1905,13 +1901,15 @@
         var undo = '<a class="api_unrestrict_account undo_link" data-member-id="' + member.id + '">' + TS.i18n.t("Undo", "web_admin")() + "</a>";
         success_msg_html += undo;
       }
+      var timeout = _isApiAdminPage() ? 1500 : 0;
       setTimeout(function() {
-        TS.web.admin.showSuccessMessageForMember(member, success_msg_html, true);
-        TS.web.admin.rowFadeSuccess(member);
+        var $row = TS.web.admin.selectRow(member);
+        TS.web.admin.showSuccessMessageOnRow($row, success_msg_html, true);
+        TS.web.admin.rowFadeSuccess(member, TS.web.admin.updateRowLocations);
         $("#restrict_account").addClass("hidden");
         $("#admin_list").removeClass("hidden");
         TS.web.admin.showRestrictedMembersTab();
-      }, 0);
+      }, timeout);
     },
     onMemberSetUltraRestricted: function(ok, data, args) {
       var member = TS.members.getMemberById(args.user);
@@ -1953,20 +1951,20 @@
     memberUltraRestricted: function(member) {
       _moveMemberTo(member, TS.web.admin.ultra_restricted_members);
       TS.web.admin.rebuildMember(member);
-      TS.web.admin.updateRowLocations();
       var success_message = TS.i18n.t('<strong>{member_name}</strong> is now a Single-Channel Guest. <a class="api_unrestrict_account undo_link" data-member-id="{member_id}">Undo</a>', "web_admin")({
         member_name: TS.utility.htmlEntities(member.name),
         member_id: member.id
       });
+      var timeout = _isApiAdminPage() ? 1500 : 0;
       setTimeout(function() {
         var $row = TS.web.admin.selectRow(member);
         TS.web.admin.showSuccessMessageOnRow($row, success_message, true);
         TS.web.admin.bindActions(member);
-        TS.web.admin.rowFadeSuccess(member);
+        TS.web.admin.rowFadeSuccess(member, TS.web.admin.updateRowLocations);
         $("#restrict_account").addClass("hidden");
         $("#admin_list").removeClass("hidden");
         TS.web.admin.showRestrictedMembersTab();
-      }, 0);
+      }, timeout);
     },
     onMemberUnrestricted: function(ok, data, args) {
       var member = TS.members.getMemberById(args.user);
@@ -1998,9 +1996,8 @@
         var $row = TS.web.admin.selectRow(member);
         TS.web.admin.showSuccessMessageOnRow($row, success_message, true);
         TS.web.admin.bindActions(member);
-        TS.web.admin.rowFadeSuccess(member);
+        TS.web.admin.rowFadeSuccess(member, TS.web.admin.updateRowLocations);
         _moveMemberTo(member, TS.web.admin.active_members);
-        TS.web.admin.updateTabCounts();
       }, 0);
     },
     onMemberInviteChannel: function(ok, data, args) {
@@ -2152,9 +2149,8 @@
       $row = TS.web.admin.selectRow(member);
       TS.web.admin.showSuccessMessageOnRow($row, success_message);
       TS.web.admin.bindActions(member);
-      TS.web.admin.rowFadeSuccess(member);
+      TS.web.admin.rowFadeSuccess(member, TS.web.admin.updateRowLocations);
       _moveMemberTo(member, TS.web.admin.restricted_members);
-      TS.web.admin.updateTabCounts();
       if (TS.web.admin.isAdminListHidden()) {
         $("#restrict_account").addClass("hidden");
         $("#admin_list").removeClass("hidden");
@@ -2245,9 +2241,8 @@
       });
       TS.web.admin.showSuccessMessageOnRow($row, success_message);
       TS.web.admin.bindActions(member);
-      TS.web.admin.rowFadeSuccess(member);
+      TS.web.admin.rowFadeSuccess(member, TS.web.admin.updateRowLocations);
       _moveMemberTo(member, TS.web.admin.ultra_restricted_members);
-      TS.web.admin.updateTabCounts();
     },
     showRestrictedMembersTab: function() {
       $("#restricted_members_tab").click();
@@ -2518,9 +2513,9 @@
         html: html
       });
     });
-    $("#active_members .long_list").longListView("setItems", results.active);
-    $("#disabled_members .long_list").longListView("setItems", results.disabled);
-    $("#restricted_members .long_list").longListView("setItems", results.restricted);
+    $("#active_members .long_list").longListView("setItems", results.active, true);
+    $("#disabled_members .long_list").longListView("setItems", results.disabled, true);
+    $("#restricted_members .long_list").longListView("setItems", results.restricted, true);
   };
   var _getSortByForApi = function() {
     switch (TS.web.admin.sort_order) {
@@ -2549,6 +2544,7 @@
         full_profile_filter: true,
         is_long_list_view: true,
         include_bots: true,
+        exclude_slackbot: true,
         include_deleted: false,
         sort_dir: "asc",
         sort: _getSortByForApi(),
@@ -2714,7 +2710,7 @@
     _restricted_api_count = result.num_found.restricted || 0;
     _disabled_api_count = result.num_found.disabled || 0;
     var members_api_count = result.num_found.members || 0;
-    _members_api_count = Math.max(0, members_api_count - result.items.bots.length - _restricted_api_count);
+    _members_api_count = Math.max(0, members_api_count - _restricted_api_count);
     var $restricted_members_tab = $("#restricted_members_tab");
     if (_restricted_api_count === 0) {
       if (!result.query) $restricted_members_tab.addClass("hidden");

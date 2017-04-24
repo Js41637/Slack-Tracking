@@ -3,7 +3,12 @@
 <div class="share_channel_modal_contents">
 
   {{#if show_heading}}
-    <h1>{{#t channel_name=model_ob.name}}Share #{channel_name}{{/t}}</h1>
+    <h1>
+      {{#if model_ob}}
+        {{#t channel_name=model_ob.name}}Share #{channel_name}{{/t}}</h1>
+      {{else}}
+        {{#t}}Share a new channel{{/t}}</h1>
+      {{/if}}
   {{/if}}
 
   {{#if can_create_shared_channel}}
@@ -11,6 +16,37 @@
     <p class="large_bottom_margin information">
       {{#t}}In a shared channel, two Slack teams can send messages, share files, and access the channel\u02bcs history. <a href="https://help.slack.com">Learn more</a>{{/t}}
     </p>
+
+    {{#unless model_ob}}
+
+      <p>
+        <label class="checkbox">
+          <input id="channel_public_private_toggle" type="checkbox" name="public" value="public" checked="checked" data-on-text="{{#t}}Public{{/t}}" data-off-text="{{#t}}Private{{/t}}" data-label="{{#t}}Anyone on your team can view and join this channel.{{/t}}" data-off-label="{{#t}}This channel can only be joined or viewed by invite.{{/t}}" data-off-class="ts_toggle_orange">
+        </label>
+      </p>
+
+      <p class="no_margin">
+        <label for="channel_create_title" class="block align_left">{{#t}}Channel name{{/t}}</label>
+        <div class="channel_modal_title_input_container no_margin">
+          <i class="channel_icon private_channel_item subtle_silver ts_icon_lock ts_icon hidden" />
+          <i class="channel_icon public_channel_item subtle_silver ts_icon_channel ts_icon" />
+          <input
+            id="channel_create_title"
+            name="title_input"
+            type="text"
+            class="lowercase title_input large_left_padding tiny_bottom_margin"
+            placeholder="{{#t}}e.g. leads{{/t}}"
+            data-validation="channel_name=fix"
+            data-validation-for="channel_create_title"
+            data-validation-success=""
+            autocapitalize="off"
+            autocorrect="off"
+            autocomplete="off"
+          />
+        </div>
+      </p>
+
+    {{/unless}}
 
     <p>
       <label for="email_address">{{#t note="Input label for share channel form"}}Email address of admin on receiving team{{/t}}</label>
@@ -26,9 +62,9 @@
     </p>
 
     {{#if show_buttons}}
-      <p class="align_right">
+      <p class="align_right large_top_margin">
         <button class="btn btn_large btn_outline btn cancel_share" type="button">{{#t}}Cancel{{/t}}</button>
-        <button class="btn btn_large ladda-button submit" data-style="expand-right">{{#t note="Form submit button label"}}Share channel{{/t}}</button>
+        <button class="btn btn_large ladda-button submit" disabled="disabled" data-style="expand-right">{{#t note="Form submit button label"}}Share channel{{/t}}</button>
       </p>
     {{/if}}
 

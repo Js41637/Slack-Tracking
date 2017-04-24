@@ -1381,7 +1381,7 @@
       }
     },
     debugShowStatus: function() {
-      console.group("TS.api status");
+      TS.console.group("TS.api status");
       if (_is_paused) {
         if (_pause_secs) {
           TS.console.log(2, "API calls are paused for " + _pause_secs + "more seconds");
@@ -1403,14 +1403,14 @@
       } else {
         TS.console.log(2, "No non-200 API responses");
       }
-      console.groupEnd("TS.api status");
+      TS.console.groupEnd("TS.api status");
     },
     debugShowQueue: function() {
       _.forEach({
         main: _main_Q,
         "one-at-a-time": _one_at_a_time_Q
       }, function(queue, queue_name) {
-        console.group("TS.api " + queue_name + " queue");
+        TS.console.group("TS.api " + queue_name + " queue");
         if (queue.length) {
           queue.forEach(function(pending_call) {
             TS.console.log(2, pending_call.method, pending_call.args);
@@ -1418,7 +1418,7 @@
         } else {
           TS.console.log(2, "Nothing pending in " + queue_name + " queue");
         }
-        console.groupEnd("TS.api " + queue_name + " queue");
+        TS.console.groupEnd("TS.api " + queue_name + " queue");
       });
     },
     debugSetPaused: function(paused) {
@@ -13666,6 +13666,7 @@ TS.registerModule("constants", {
       query: query,
       count: _FILTER_API_COUNT,
       include_bots: options.include_bots,
+      exclude_slackbot: options.exclude_slackbot,
       include_deleted: options.include_deleted
     };
     if (options.sort) calling_args.sort = options.sort;
@@ -46191,7 +46192,8 @@ $.fn.togglify = function(settings) {
         is_public: _is_public,
         can_toggle_private: can_toggle_private,
         compliance_exports_enabled_for_team: !!TS.model.team.prefs.compliance_export_start,
-        is_ra: TS.model.user.is_restricted
+        is_ra: TS.model.user.is_restricted,
+        can_create_shared_channel: TS.permissions.members.canCreateSharedChannel()
       }));
       _ladda = Ladda.create(_$modal_container.find(".new_channel_go")[0]);
       _bindUI(preselected_ids);
@@ -46465,6 +46467,10 @@ $.fn.togglify = function(settings) {
     _bindFilterSelect(preselected_ids);
     _$modal_container.find(".lfs_input").attr("id", "invite_members_input");
     _$modal_container.find(".new_channel_go").click(TS.ui.new_channel_modal.go);
+    _$modal_container.find(".create_share_channel").click(function() {
+      TS.ui.new_channel_modal.end();
+      TS.ui.share_channel_dialog.start();
+    });
     _bindKeyboardShortcuts();
     _bindPublicPrivateToggle();
     _$modal_container.find(".title_input").keydown(function() {
@@ -54847,6 +54853,12 @@ $.fn.togglify = function(settings) {
             });
             if (deleted_bots.length) TS.log(1989, "Flannel: removed these bots from results:", deleted_bots);
           }
+          if (args.exclude_slackbot && args.include_bots) {
+            var deleted_slackbot = _.remove(members, {
+              is_slackbot: true
+            });
+            if (deleted_slackbot.length) TS.log(1989, "Flannel: removed slackbot from results:", deleted_slackbot);
+          }
           if (TS.boot_data.page_needs_enterprise && !args.all_of_org) {
             var deleted_org_members = _.remove(members, function(member) {
               var teams_for_member = _.get(member, "enterprise_user.teams", []);
@@ -54879,7 +54891,7 @@ $.fn.togglify = function(settings) {
       var calling_args = {
         query: JSON.stringify(args.query)
       };
-      ["sort", "sort_direction", "count", "cursor_mark", "include_bots", "include_deleted"].forEach(function(key) {
+      ["sort", "sort_direction", "count", "cursor_mark", "include_bots", "include_deleted", "exclude_slackbot"].forEach(function(key) {
         if (args[key]) calling_args[key] = args[key];
       });
       var endpoint = args.endpoint;
@@ -66622,8 +66634,7 @@ $.fn.togglify = function(settings) {
         return t[s] = e[s], t;
       }(f) : v && "function" == typeof f ? i(Function.call, f) : f, v && ((_.virtual || (_.virtual = {}))[l] = f, e & u.R && y && !y[l] && a(y, l, f)));
     };
-  u.F = 1,
-    u.G = 2, u.S = 4, u.P = 8, u.B = 16, u.W = 32, u.U = 64, u.R = 128, e.exports = u;
+  u.F = 1, u.G = 2, u.S = 4, u.P = 8, u.B = 16, u.W = 32, u.U = 64, u.R = 128, e.exports = u;
 }, function(e, t) {
   var n = {}.hasOwnProperty;
   e.exports = function(e, t) {
@@ -68153,7 +68164,8 @@ $.fn.togglify = function(settings) {
 
   function r(e) {
     var t, n = e.keyCode;
-    return "charCode" in e ? (t = e.charCode, 0 === t && 13 === n && (t = 13)) : t = n, t >= 32 || 13 === t ? t : 0;
+    return "charCode" in e ? (t = e.charCode,
+      0 === t && 13 === n && (t = 13)) : t = n, t >= 32 || 13 === t ? t : 0;
   }
   e.exports = r;
 }, function(e, t, n) {
@@ -69889,128 +69901,127 @@ $.fn.togglify = function(settings) {
         var r = v()(this, (t.__proto__ || l()(t)).call(this, e, n));
         return r._cellMetadata = [], r._lastRenderedCellIndices = [], r._cellCache = [], r._isScrollingChange = r._isScrollingChange.bind(r), r._setCollectionViewRef = r._setCollectionViewRef.bind(r), r;
       }
-      return g()(t, e),
-        d()(t, [{
-          key: "forceUpdate",
-          value: function() {
-            void 0 !== this._collectionView && this._collectionView.forceUpdate();
-          }
-        }, {
-          key: "recomputeCellSizesAndPositions",
-          value: function() {
-            this._cellCache = [], this._collectionView.recomputeCellSizesAndPositions();
-          }
-        }, {
-          key: "render",
-          value: function() {
-            var e = s()(this.props, []);
-            return y.a.createElement(b.a, i()({
-              cellLayoutManager: this,
-              isScrollingChange: this._isScrollingChange,
-              ref: this._setCollectionViewRef
-            }, e));
-          }
-        }, {
-          key: "calculateSizeAndPositionData",
-          value: function() {
-            var e = this.props,
-              t = e.cellCount,
-              r = e.cellSizeAndPositionGetter,
-              o = e.sectionSize,
-              i = n.i(w.a)({
-                cellCount: t,
-                cellSizeAndPositionGetter: r,
-                sectionSize: o
-              });
-            this._cellMetadata = i.cellMetadata, this._sectionManager = i.sectionManager, this._height = i.height, this._width = i.width;
-          }
-        }, {
-          key: "getLastRenderedIndices",
-          value: function() {
-            return this._lastRenderedCellIndices;
-          }
-        }, {
-          key: "getScrollPositionForCell",
-          value: function(e) {
-            var t = e.align,
-              r = e.cellIndex,
-              o = e.height,
-              i = e.scrollLeft,
-              a = e.scrollTop,
-              s = e.width,
-              u = this.props.cellCount;
-            if (r >= 0 && r < u) {
-              var l = this._cellMetadata[r];
-              i = n.i(C.a)({
-                align: t,
-                cellOffset: l.x,
-                cellSize: l.width,
-                containerSize: s,
-                currentOffset: i,
-                targetIndex: r
-              }), a = n.i(C.a)({
-                align: t,
-                cellOffset: l.y,
-                cellSize: l.height,
-                containerSize: o,
-                currentOffset: a,
-                targetIndex: r
-              });
-            }
-            return {
-              scrollLeft: i,
-              scrollTop: a
-            };
-          }
-        }, {
-          key: "getTotalSize",
-          value: function() {
-            return {
-              height: this._height,
-              width: this._width
-            };
-          }
-        }, {
-          key: "cellRenderers",
-          value: function(e) {
-            var t = this,
-              n = e.height,
-              r = e.isScrolling,
-              o = e.width,
-              i = e.x,
-              a = e.y,
-              s = this.props,
-              u = s.cellGroupRenderer,
-              l = s.cellRenderer;
-            return this._lastRenderedCellIndices = this._sectionManager.getCellIndices({
-              height: n,
-              width: o,
-              x: i,
-              y: a
-            }), u({
-              cellCache: this._cellCache,
-              cellRenderer: l,
-              cellSizeAndPositionGetter: function(e) {
-                var n = e.index;
-                return t._sectionManager.getCellMetadata({
-                  index: n
-                });
-              },
-              indices: this._lastRenderedCellIndices,
-              isScrolling: r
+      return g()(t, e), d()(t, [{
+        key: "forceUpdate",
+        value: function() {
+          void 0 !== this._collectionView && this._collectionView.forceUpdate();
+        }
+      }, {
+        key: "recomputeCellSizesAndPositions",
+        value: function() {
+          this._cellCache = [], this._collectionView.recomputeCellSizesAndPositions();
+        }
+      }, {
+        key: "render",
+        value: function() {
+          var e = s()(this.props, []);
+          return y.a.createElement(b.a, i()({
+            cellLayoutManager: this,
+            isScrollingChange: this._isScrollingChange,
+            ref: this._setCollectionViewRef
+          }, e));
+        }
+      }, {
+        key: "calculateSizeAndPositionData",
+        value: function() {
+          var e = this.props,
+            t = e.cellCount,
+            r = e.cellSizeAndPositionGetter,
+            o = e.sectionSize,
+            i = n.i(w.a)({
+              cellCount: t,
+              cellSizeAndPositionGetter: r,
+              sectionSize: o
+            });
+          this._cellMetadata = i.cellMetadata, this._sectionManager = i.sectionManager, this._height = i.height, this._width = i.width;
+        }
+      }, {
+        key: "getLastRenderedIndices",
+        value: function() {
+          return this._lastRenderedCellIndices;
+        }
+      }, {
+        key: "getScrollPositionForCell",
+        value: function(e) {
+          var t = e.align,
+            r = e.cellIndex,
+            o = e.height,
+            i = e.scrollLeft,
+            a = e.scrollTop,
+            s = e.width,
+            u = this.props.cellCount;
+          if (r >= 0 && r < u) {
+            var l = this._cellMetadata[r];
+            i = n.i(C.a)({
+              align: t,
+              cellOffset: l.x,
+              cellSize: l.width,
+              containerSize: s,
+              currentOffset: i,
+              targetIndex: r
+            }), a = n.i(C.a)({
+              align: t,
+              cellOffset: l.y,
+              cellSize: l.height,
+              containerSize: o,
+              currentOffset: a,
+              targetIndex: r
             });
           }
-        }, {
-          key: "_isScrollingChange",
-          value: function(e) {
-            e || (this._cellCache = []);
-          }
-        }, {
-          key: "_setCollectionViewRef",
-          value: function(e) {
-            this._collectionView = e;
-          }
-        }]), t;
+          return {
+            scrollLeft: i,
+            scrollTop: a
+          };
+        }
+      }, {
+        key: "getTotalSize",
+        value: function() {
+          return {
+            height: this._height,
+            width: this._width
+          };
+        }
+      }, {
+        key: "cellRenderers",
+        value: function(e) {
+          var t = this,
+            n = e.height,
+            r = e.isScrolling,
+            o = e.width,
+            i = e.x,
+            a = e.y,
+            s = this.props,
+            u = s.cellGroupRenderer,
+            l = s.cellRenderer;
+          return this._lastRenderedCellIndices = this._sectionManager.getCellIndices({
+            height: n,
+            width: o,
+            x: i,
+            y: a
+          }), u({
+            cellCache: this._cellCache,
+            cellRenderer: l,
+            cellSizeAndPositionGetter: function(e) {
+              var n = e.index;
+              return t._sectionManager.getCellMetadata({
+                index: n
+              });
+            },
+            indices: this._lastRenderedCellIndices,
+            isScrolling: r
+          });
+        }
+      }, {
+        key: "_isScrollingChange",
+        value: function(e) {
+          e || (this._cellCache = []);
+        }
+      }, {
+        key: "_setCollectionViewRef",
+        value: function(e) {
+          this._collectionView = e;
+        }
+      }]), t;
     }(_.PureComponent);
   S.defaultProps = {
     "aria-label": "grid",
@@ -74855,8 +74866,7 @@ $.fn.togglify = function(settings) {
                 n.push(g);
               }
             }
-          for (p in e) !e.hasOwnProperty(p) || t && t.hasOwnProperty(p) || (d = e[p],
-            r[p] = o.getHostNode(d), o.unmountComponent(d, !1));
+          for (p in e) !e.hasOwnProperty(p) || t && t.hasOwnProperty(p) || (d = e[p], r[p] = o.getHostNode(d), o.unmountComponent(d, !1));
         }
       },
       unmountChildren: function(e, t) {
@@ -79341,7 +79351,8 @@ $.fn.togglify = function(settings) {
       a = e.func,
       s = e.context,
       u = a.call(s, t, e.count++);
-    Array.isArray(u) ? l(u, o, n, m.thatReturnsArgument) : null != u && (v.isValidElement(u) && (u = v.cloneAndReplaceKey(u, i + (!u.key || t && t.key === u.key ? "" : r(u.key) + "/") + n)), o.push(u));
+    Array.isArray(u) ? l(u, o, n, m.thatReturnsArgument) : null != u && (v.isValidElement(u) && (u = v.cloneAndReplaceKey(u, i + (!u.key || t && t.key === u.key ? "" : r(u.key) + "/") + n)),
+      o.push(u));
   }
 
   function l(e, t, n, o, i) {

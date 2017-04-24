@@ -4068,21 +4068,21 @@ html {
   border-color: transparent
 }
 
-#fs_modal.channel_options_modal .share_channel_modal_contents .error {
+.share_channel_modal_contents .error {
   border: 2px solid #F6B63F;
   border-left: 4px solid #F6B63F
 }
 
-#fs_modal.channel_options_modal .share_channel_modal_contents #team_url {
+.share_channel_modal_contents #team_url {
   text-align: right;
   width: 60%
 }
 
-#fs_modal.channel_options_modal .share_channel_modal_contents .message_field {
+.share_channel_modal_contents .message_field {
   position: relative
 }
 
-#fs_modal.channel_options_modal .share_channel_modal_contents #message {
+.share_channel_modal_contents #message {
   border: 1px solid #C5C5C5;
   border-radius: 4px;
   height: 96px;
@@ -4090,19 +4090,19 @@ html {
   font-size: 15px
 }
 
-#fs_modal.channel_options_modal .share_channel_modal_contents #message>div[contenteditable] {
+.share_channel_modal_contents #message>div[contenteditable] {
   padding: 7px 30px 7px 9px
 }
 
-#fs_modal.channel_options_modal .share_channel_modal_contents #message.focus {
+.share_channel_modal_contents #message.focus {
   border-color: #2780F8
 }
 
-#fs_modal.channel_options_modal .share_channel_modal_contents .message_attachment {
+.share_channel_modal_contents .message_attachment {
   margin-left: 4px
 }
 
-#fs_modal.channel_options_modal .share_channel_modal_contents .extra_help {
+.share_channel_modal_contents .extra_help {
   font-size: .9rem;
   display: block
 }
@@ -17401,6 +17401,16 @@ html:not(.supports_flexbox) #channel_browser .channel_browser_sort_container {
 
 #new_channel_modal .ts_toggle {
   margin-bottom: .5rem
+}
+
+#new_channel_modal .create_share_channel {
+  top: 20px;
+  left: 40px;
+  font-size: 1rem
+}
+
+#new_channel_modal .create_share_channel ts-icon {
+  top: 3px
 }
 
 .new_channel_modal_footer {

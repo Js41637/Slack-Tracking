@@ -15043,6 +15043,16 @@ html:not(.supports_flexbox) #channel_browser .channel_browser_sort_container {
   margin-bottom: .5rem
 }
 
+#new_channel_modal .create_share_channel {
+  top: 20px;
+  left: 40px;
+  font-size: 1rem
+}
+
+#new_channel_modal .create_share_channel ts-icon {
+  top: 3px
+}
+
 .new_channel_modal_footer {
   padding-top: .75rem
 }

@@ -26443,30 +26443,52 @@
   "use strict";
   TS.registerModule("ui.share_channel_dialog", {
     start: function(model_ob) {
+      _is_new_channel = typeof model_ob === "undefined";
       var content_html = TS.templates.channel_share_dialog(_generateTemplateArgs(model_ob));
-      var header_html = TS.i18n.t("Share <strong>{channel_name}</strong>", "share_channels")({
-        channel_name: TS.templates.builders.makeChannelPrefix(model_ob) + TS.utility.htmlEntities(model_ob.name)
-      });
       var go_label = TS.i18n.t("Share channel", "share_channels");
-      if (!TS.permissions.members.canCreateSharedChannel()) {
-        header_html = TS.i18n.t("Ask an admin to share <strong>{channel_name}</strong>", "share_channels")({
+      if (!_is_new_channel) {
+        var header_html = TS.i18n.t("Share <strong>{channel_name}</strong>", "share_channels")({
           channel_name: TS.templates.builders.makeChannelPrefix(model_ob) + TS.utility.htmlEntities(model_ob.name)
         });
-        go_label = TS.i18n.t("Send", "share_channels");
-      }
-      TS.ui.channel_options_dialog.startWithChannelOption(content_html, header_html, go_label, function() {
-        if (TS.permissions.members.canCreateSharedChannel()) {
-          _handleSubmitCreate({
-            model_ob: TS.shared.getActiveModelOb(),
-            target_domain: TS.ui.channel_options_dialog.div.find("#team_url").val(),
-            email: TS.ui.channel_options_dialog.div.find("#email").val()
+        if (!TS.permissions.members.canCreateSharedChannel()) {
+          header_html = TS.i18n.t("Ask an admin to share <strong>{channel_name}</strong>", "share_channels")({
+            channel_name: TS.templates.builders.makeChannelPrefix(model_ob) + TS.utility.htmlEntities(model_ob.name)
           });
-        } else {
-          _handleSubmitRequest();
+          go_label = TS.i18n.t("Send", "share_channels");
         }
-      });
+        TS.ui.channel_options_dialog.startWithChannelOption(content_html, header_html, go_label, function() {
+          if (TS.permissions.members.canCreateSharedChannel()) {
+            _handleSubmitCreate({
+              model_ob: TS.shared.getActiveModelOb(),
+              target_domain: $_modal_content.find("#team_url").val(),
+              email: $_modal_content.find("#email").val()
+            });
+          } else {
+            _handleSubmitRequest();
+          }
+        });
+        $_modal_content = TS.ui.channel_options_dialog.div;
+        _ladda = TS.ui.channel_options_dialog.ladda;
+        if (!TS.permissions.members.canCreateSharedChannel()) _initAdminRequestUI();
+      } else {
+        TS.ui.fs_modal.start({
+          body_template_html: content_html,
+          onShow: function() {
+            $_modal_content = $(".share_channel_modal_contents");
+            $_inputs.channel_name = $_modal_content.find("#channel_create_title");
+            $_inputs.email_address = $_modal_content.find("#email_address");
+            $_inputs.team_url = $_modal_content.find("#team_url");
+            $_buttons.cancel = $_modal_content.find(".cancel_share");
+            $_buttons.submit = $_modal_content.find(".submit");
+            _ladda = Ladda.create($_buttons.submit[0]);
+            _initNewChannelUI();
+          },
+          onShowComplete: function() {
+            $_inputs.channel_name.focus();
+          }
+        });
+      }
       _throttled_handle_form_change = _.throttle(_handleFormChange, 1e3);
-      if (!TS.permissions.members.canCreateSharedChannel()) _initAdminRequestUI();
     },
     test: function() {
       var test_ob = {
@@ -26479,7 +26501,9 @@
         _initAdminRequestUI: _initAdminRequestUI,
         _generateAttachment: _generateAttachment,
         _handleSubmitRequest: _handleSubmitRequest,
-        $_admin_select: $_admin_select
+        $_admin_select: $_admin_select,
+        $_modal_content: $_modal_content,
+        _ladda: _ladda
       };
       Object.defineProperty(test_ob, "_generateTemplateArgs", {
         get: function() {
@@ -26561,27 +26585,48 @@
           $_admin_select = v;
         }
       });
+      Object.defineProperty(test_ob, "_ladda", {
+        get: function() {
+          return _ladda;
+        },
+        set: function(v) {
+          _ladda = v;
+        }
+      });
+      Object.defineProperty(test_ob, "$_modal_content", {
+        get: function() {
+          return $_modal_content;
+        },
+        set: function(v) {
+          $_modal_content = v;
+        }
+      });
       return test_ob;
     }
   });
   var $_message_input;
   var $_message_attachment;
   var $_admin_select;
+  var $_modal_content;
+  var $_inputs = {};
+  var $_buttons = {};
+  var _ladda;
   var _throttled_handle_form_change;
+  var _is_new_channel;
   var _handleSubmitCreate = function(options) {
-    TS.ui.channel_options_dialog.ladda.start();
-    TS.ui.channel_options_dialog.div.find(".error").remove();
+    _ladda.start();
+    $_modal_content.find(".error").remove();
     return _validateShare(options).then(function() {
       return TS.api.call("channels.inviteShared", {
-        channel: options.model_ob.id,
+        channel: options.model_ob ? options.model_ob.id : options.channel_name,
         target_domain: options.target_domain,
         email: options.email
       });
     }).then(_handleSuccess, _handleError);
   };
   var _handleSubmitRequest = function() {
-    TS.ui.channel_options_dialog.ladda.start();
-    TS.ui.channel_options_dialog.div.find(".error").remove();
+    _ladda.start();
+    $_modal_content.find(".error").remove();
     var admin = $_admin_select.lazyFilterSelect("value");
     var message = TS.utility.contenteditable.value($_message_input);
     return TS.api.call("im.open", {
@@ -26599,21 +26644,23 @@
     }).then(null, _handleError);
   };
   var _handleSuccess = function(response) {
-    var content_html = TS.i18n.t("They have 72 hours to respond to the invitation before it expires", "share_channels")();
-    var header_html = TS.i18n.t("Request sent to {email}", "share_channels")({
-      email: "fake@acme-corp.com"
-    });
-    var go_label = TS.i18n.t("That Is All", "share_channels");
-    TS.ui.channel_options_dialog.startWithChannelOption(content_html, header_html, go_label, TS.ui.fs_modal.close);
-    TS.ui.channel_options_dialog.div.find(".option_cancel").addClass("hidden");
-    TS.ui.channel_options_dialog.ladda.stop();
-    TS.ui.fs_modal.hideBackButton();
-    TS.log("shared_channels_connection", response);
+    if (_is_new_channel) {} else {
+      var content_html = TS.i18n.t("They have 72 hours to respond to the invitation before it expires", "share_channels")();
+      var header_html = TS.i18n.t("Request sent to {email}", "share_channels")({
+        email: "fake@acme-corp.com"
+      });
+      var go_label = TS.i18n.t("That Is All", "share_channels");
+      TS.ui.channel_options_dialog.startWithChannelOption(content_html, header_html, go_label, TS.ui.fs_modal.close);
+      $_modal_content.find(".option_cancel").addClass("hidden");
+      _ladda.stop();
+      TS.ui.fs_modal.hideBackButton();
+      TS.log("shared_channels_connection", response);
+    }
   };
   var _handleError = function(response) {
     if (!response.ok) {
-      TS.ui.channel_options_dialog.ladda.stop();
-      TS.ui.channel_options_dialog.div.find(".information").after(TS.templates.channel_share_dialog_error({
+      _ladda.stop();
+      $_modal_content.find(".information").after(TS.templates.channel_share_dialog_error({
         is_generic_error: true,
         response: response.data
       }));
@@ -26621,25 +26668,32 @@
     TS.log("shared_channels_connection", response.data);
   };
   var _handleFormChange = function() {
-    if ($_admin_select.lazyFilterSelect("value").length > 0 && TS.utility.contenteditable.value($_message_input) !== "") {
-      $_message_attachment.html(_generateAttachment(TS.utility.contenteditable.value($_message_input)));
-      TS.ui.channel_options_dialog.ladda.enable();
+    if (_is_new_channel) {
+      if (!_.isEmpty($_inputs.channel_name.val()) && !_.isEmpty($_inputs.email_address.val()) && !_.isEmpty($_inputs.team_url.val())) {
+        $_buttons.submit.removeAttr("disabled");
+      } else {
+        $_buttons.submit.attr("disabled", "disabled");
+      }
     } else {
+      if ($_admin_select.lazyFilterSelect("value").length > 0 && TS.utility.contenteditable.value($_message_input) !== "") {
+        $_message_attachment.html(_generateAttachment(TS.utility.contenteditable.value($_message_input)));
+        _ladda.enable();
+      }
       if ($_message_attachment.children().length > 0) $_message_attachment.empty();
-      TS.ui.channel_options_dialog.ladda.disable();
+      _ladda.disable();
     }
   };
   var _validateShare = function(options) {
     return TS.api.call("api.test", {
-      channel: options.model_ob.id,
+      channel: options.model_ob ? options.model_ob.id : options.channel_name,
       target_domain: options.target_domain,
       email: options.email
     });
   };
   var _initAdminRequestUI = function() {
-    $_message_input = TS.ui.channel_options_dialog.div.find("#message");
-    $_admin_select = TS.ui.channel_options_dialog.div.find(".lfs_container");
-    TS.ui.channel_options_dialog.div.find(".option_go").attr("disabled", "disabled");
+    $_message_input = $_modal_content.find("#message");
+    $_admin_select = $_modal_content.find(".lfs_container");
+    $_modal_content.find(".option_go").attr("disabled", "disabled");
     TS.utility.contenteditable.create($_message_input, {
       modules: {
         tabcomplete: {
@@ -26656,10 +26710,10 @@
     });
     TS.utility.contenteditable.cursorPosition($_message_input, TS.utility.contenteditable.value($_message_input).length);
     TS.utility.contenteditable.blur($_message_input);
-    TS.ui.channel_options_dialog.div.find(".emo_menu").bind("click.open_emo_menu", function(e) {
+    $_modal_content.find(".emo_menu").bind("click.open_emo_menu", function(e) {
       TS.ui.react_emoji_menu.start({
         e: e,
-        input_to_fill: TS.ui.channel_options_dialog.div.find("#message")
+        input_to_fill: $_modal_content.find("#message")
       });
     });
     $_admin_select.lazyFilterSelect({
@@ -26674,7 +26728,32 @@
       onItemAdded: _throttled_handle_form_change,
       onItemRemoved: _throttled_handle_form_change
     });
-    $_message_attachment = TS.ui.channel_options_dialog.div.find(".message_attachment");
+    $_message_attachment = $_modal_content.find(".message_attachment");
+  };
+  var _initNewChannelUI = function() {
+    $_inputs["privacy"] = $(".share_channel_modal_contents #channel_public_private_toggle");
+    $_inputs["privacy"].togglify();
+    $_inputs["privacy"].bind("change", function() {
+      if ($_inputs["privacy"].is(":checked")) {
+        $_modal_content.find(".private_channel_item").addClass("hidden");
+        $_modal_content.find(".public_channel_item").removeClass("hidden");
+      } else {
+        $_modal_content.find(".public_channel_item").addClass("hidden");
+        $_modal_content.find(".private_channel_item").removeClass("hidden");
+      }
+    });
+    $_modal_content.find("input").on("keyup", _throttled_handle_form_change);
+    $_buttons.cancel.click(function() {
+      TS.ui.new_channel_modal.startInContainer($_modal_content);
+    });
+    $_buttons.submit.click(function() {
+      _ladda.start();
+      _handleSubmitCreate({
+        channel_name: $_inputs["channel_name"],
+        target_domain: $_inputs["team_url"],
+        email: $_inputs["email_address"]
+      });
+    });
   };
   var _promiseAdmins = function(query) {
     return TS.flannel.fetchAndUpsertObjectsWithQuery({
@@ -26703,8 +26782,8 @@
     return {
       model_ob: model_ob,
       can_create_shared_channel: TS.permissions.members.canCreateSharedChannel(),
-      show_heading: false,
-      show_buttons: false
+      show_heading: _is_new_channel,
+      show_buttons: _is_new_channel
     };
   };
 })();
