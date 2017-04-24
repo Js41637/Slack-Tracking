@@ -1,9 +1,0 @@
-<h2 class="slack_menu_header">
-  {{#if this.icon.image_default}}
-    <ts-icon class="team_icon small default" {{#if this.color}}style="background: {{this.color}};"{{/if}} aria-hidden="true">{{initialsSafe this.name}}</ts-icon>
-  {{else}}
-    <ts-icon class="team_icon small" style="background-image: url('{{this.icon.image_88}}');" aria-hidden="true"></ts-icon>
-  {{/if}}
-  <span class="slack_menu_header_primary overflow_ellipsis">{{this.name}}</span>
-  <span class="current_team_name slack_menu_header_secondary overflow_ellipsis">{{#isEnterpriseTeam}}{{currentEnterpriseName}}{{else}}{{currentTeamHostSafe}}{{/isEnterpriseTeam}}</span>
-</h2>

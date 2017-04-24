@@ -545,7 +545,7 @@
       $("html").trigger("touchstart");
       $(".modal-backdrop").trigger("click");
     },
-    reload: function(msg, reason) {
+    reload: function(msg, reason, no_cache) {
       if (msg) {
         TS.info("TS.reload called: " + msg);
         TS.generic_dialog.start({
@@ -560,18 +560,19 @@
         return;
       }
       TS.info("TS.reload() called: " + (reason || "no reason specified"));
+      if (TS.console) TS.console.logStackTrace();
       if (TS.client && TSSSB.call("reload")) {
         if (TS.model.mac_ssb_version) {
           setInterval(function() {
             window.callSlackAPIUnauthed("api.test", {}, function(ok) {
               if (ok) {
-                window.location.reload();
+                window.location.reload(no_cache);
               }
             });
           }, 1e3);
         }
       } else {
-        window.location.reload();
+        window.location.reload(no_cache);
       }
     },
     reloadIfVersionsChanged: function(data) {
@@ -4918,7 +4919,7 @@ var _cyrillicToLatin = function(char) {
         go_button_text: TS.i18n.t("Close", "ui")(),
         show_secondary_go_button: false,
         onSecondaryGo: function() {
-          window.location.reload();
+          TS.reload(false, "TS.ui.showVersionsInfo dialog");
         }
       });
       TS.api.callImmediately("test.versionInfo").then(function(resp) {

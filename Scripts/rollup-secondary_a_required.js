@@ -1983,7 +1983,7 @@
         if (!TS.boot_data.active_migration_reload_underway) {
           TS.warn('About to reload because API returned "active_migration" (enterprise org migration) for ' + method + " and api_active_migration_error_response_type allows reload.", data);
           TS.boot_data.active_migration_reload_underway = true;
-          window.location.reload();
+          TS.reload(false, "TS.api._callOutsideHandler");
         }
       } else if (response_type == "show_dialog") {
         if (TS.boot_data.user_saw_migration_dialog) {
@@ -7585,7 +7585,7 @@ TS.registerModule("constants", {
       }
       if (TS.web && ok) {
         TS.menu.$menu.find("#refresh_file").find(".item_label").text(TS.i18n.t("Reloading...", "files")());
-        location.reload();
+        TS.reload(false, "TS.files.onFileRefresh");
       }
       if (!ok) {
         if (data.error == "file_deleted") {
@@ -37414,6 +37414,22 @@ var _on_esc;
           }), cmd + " " + rest, "", "sad_surprise");
           return;
         }
+        if (member.is_app_user) {
+          var channel = _getActiveChannel();
+          TS.api.call("apps.permissions.remove", {
+            channel: channel.id,
+            app_user: member.id
+          }).then(function() {
+            TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("{user} has been removed from the channel.", "cmd_handlers")({
+              user: _getUserIdentifier(member)
+            }));
+          }).catch(function() {
+            TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("Hmm, something went wrong, try again?", "cmd_handlers")({
+              user: _getUserIdentifier(member)
+            }), cmd + " " + rest);
+          });
+          return;
+        }
         if (TS.channels.isChannelRequired(model_ob) && !member.is_restricted && !member.is_bot) {
           TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("You can’t remove this member from *{channel}*!", "cmd_handlers")({
             channel: (TS.model.active_channel_id ? "#" : "") + model_ob.name
@@ -37969,9 +37985,9 @@ var _on_esc;
   var _maybeInviteAppUserToChannel = function(user, channel, input_txt) {
     if (!_.isObject(user)) throw new Error("Expected user to be an object");
     if (!_.isObject(channel)) throw new Error("Expected channel to be an object");
-    TS.api.call("channels.addApp", {
+    TS.api.call("apps.permissions.add", {
       channel: channel.id,
-      user: user.id
+      app_user: user.id
     }).then(function(response) {
       var scopes = _.get(response, "data.permission.scopes");
       var scope_list = scopes.join(", ");
@@ -40372,7 +40388,7 @@ var _on_esc;
               if (prev_link.attr("href")) {
                 window.location = prev_link.attr("href");
               } else {
-                window.location.reload();
+                TS.reload(false, "TS.msg_edit.commitEdit");
               }
             }
           }
@@ -62865,7 +62881,8 @@ $.fn.togglify = function(settings) {
 
           function tn(e) {
             var t = this.has(e) && delete this.__data__[e];
-            return this.size -= t ? 1 : 0, t;
+            return this.size -= t ? 1 : 0,
+              t;
           }
 
           function nn(e) {
@@ -68138,7 +68155,8 @@ $.fn.togglify = function(settings) {
         var n = i(e, "setState");
         if (n) {
           var o = n._pendingStateQueue || (n._pendingStateQueue = []);
-          o.push(t), r(n);
+          o.push(t),
+            r(n);
         }
       },
       enqueueElementInternal: function(e, t, n) {
@@ -68164,8 +68182,7 @@ $.fn.togglify = function(settings) {
 
   function r(e) {
     var t, n = e.keyCode;
-    return "charCode" in e ? (t = e.charCode,
-      0 === t && 13 === n && (t = 13)) : t = n, t >= 32 || 13 === t ? t : 0;
+    return "charCode" in e ? (t = e.charCode, 0 === t && 13 === n && (t = 13)) : t = n, t >= 32 || 13 === t ? t : 0;
   }
   e.exports = r;
 }, function(e, t, n) {
@@ -73021,7 +73038,8 @@ $.fn.togglify = function(settings) {
 
   function r(e) {
     var t = s.a.clone(e);
-    return t.className = l()("ts_icon ts_icon_" + e.type, e.className), delete t.type, i.a.createElement("i", t);
+    return t.className = l()("ts_icon ts_icon_" + e.type, e.className),
+      delete t.type, i.a.createElement("i", t);
   }
   var o = n(1),
     i = n.n(o),
@@ -79351,8 +79369,7 @@ $.fn.togglify = function(settings) {
       a = e.func,
       s = e.context,
       u = a.call(s, t, e.count++);
-    Array.isArray(u) ? l(u, o, n, m.thatReturnsArgument) : null != u && (v.isValidElement(u) && (u = v.cloneAndReplaceKey(u, i + (!u.key || t && t.key === u.key ? "" : r(u.key) + "/") + n)),
-      o.push(u));
+    Array.isArray(u) ? l(u, o, n, m.thatReturnsArgument) : null != u && (v.isValidElement(u) && (u = v.cloneAndReplaceKey(u, i + (!u.key || t && t.key === u.key ? "" : r(u.key) + "/") + n)), o.push(u));
   }
 
   function l(e, t, n, o, i) {

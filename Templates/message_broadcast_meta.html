@@ -1,9 +1,0 @@
-{{i18n_ns 'threads'}}
-{{#if root_excerpt}}
-  <div class="meta broadcast_meta">{{#t}}replied to a thread:{{/t}} <a href="{{permalink}}" target="{{newWindowName}}">{{root_excerpt}}</a></div>
-{{else}}
-  <div class="meta broadcast_meta">{{#t new_window_name=(newWindowName)}}replied to <a href="{permalink}" target="{new_window_name}">a thread</a>{{/t}}</div>
-{{/if}}
-{{#if root_repliers_summary}}
-  <div class="broadcast_repliers"><ts-icon class="ts_icon_comment_alt repliers_icon"></ts-icon> <a href="{{permalink}}" target="{{newWindowName}}">{{root_repliers_summary}}</a></div>
-{{/if}}
