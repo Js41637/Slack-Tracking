@@ -1428,15 +1428,26 @@ input.search_input {
   padding-bottom: .5rem
 }
 
-#downloads_tab a.download_cancel_link {
-  font-size: .9rem;
-  color: #b1b1b1;
+#downloads_tab .download_data .download_extra_actions {
   position: absolute;
-  top: 0;
+  top: 1px;
   right: 0;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex;
   transition: opacity linear .5s;
   opacity: 1;
   pointer-events: auto
+}
+
+#downloads_tab a.download_cancel_link,
+#downloads_tab a.download_pause_link,
+#downloads_tab a.download_resume_link {
+  font-size: .8rem;
+  margin-left: 5px;
+  color: #b1b1b1
 }
 
 #downloads_tab i.download_remove_link {
@@ -1544,7 +1555,7 @@ html:not(.supports_flexbox) #downloads_tab .download_estimate {
   font-size: .8rem
 }
 
-#downloads_tab .download_item:not(.in_progress) a.download_cancel_link {
+#downloads_tab .download_item:not(.in_progress) span.download_extra_actions {
   pointer-events: none;
   opacity: 0
 }

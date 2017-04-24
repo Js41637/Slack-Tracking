@@ -1,5 +1,17 @@
 (function() {
   "use strict";
+  var _beaconError = function(e, desc) {
+    var team_id = TS.model && TS.model.team && TS.model.team.id ? TS.model.team.id : "none";
+    var user_id = TS.model && TS.model.user && TS.model.user.id ? TS.model.user.id : "none";
+    var beacon_data = {
+      description: desc,
+      error_json: JSON.stringify(e),
+      team: team_id,
+      user: user_id,
+      version: TS.boot_data.version_ts
+    };
+    $.post(TS.boot_data.beacon_error_url, beacon_data);
+  };
   var _console = function(type, pri, args) {
     if (!window.console || !console[type]) return;
     var clean_log = TS.qs_args.clean_log;
@@ -28,74 +40,14 @@
       console[type].apply(console, args);
     }
   };
-  var _beaconError = function(e, desc) {
-    var team_id = TS.model && TS.model.team && TS.model.team.id ? TS.model.team.id : "none";
-    var user_id = TS.model && TS.model.user && TS.model.user.id ? TS.model.user.id : "none";
-    var beacon_data = {
-      description: desc,
-      error_json: JSON.stringify(e),
-      team: team_id,
-      user: user_id,
-      version: TS.boot_data.version_ts
-    };
-    $.post(TS.boot_data.beacon_error_url, beacon_data);
-  };
   if (!window.TS) window.TS = {};
   TS.console = {
     onStart: function() {
       TS.console.setAppropriatePri(true);
       TS.console.watchForErrors();
     },
-    setAppropriatePri: function(use_boot) {
-      var pri = "";
-      if (TS.qs_args.pri) pri += TS.qs_args.pri;
-      if (use_boot && TS.boot_data.client_logs_pri) {
-        if (pri !== "") pri += ",";
-        pri += TS.boot_data.client_logs_pri;
-      }
-      if (TS.model && TS.model.prefs && TS.model.prefs.client_logs_pri) {
-        if (pri !== "") pri += ",";
-        pri += TS.model.prefs.client_logs_pri;
-      }
-      if (pri !== "") pri += ",";
-      pri += "0";
-      TS.pri = _.uniq(pri.split(",")).join(",");
-      _determineKeysToCheck();
-    },
-    watchForErrors: function() {
-      if (!TS.boot_data || !TS.boot_data.feature_tinyspeck) return;
-      var capture = true;
-      window.addEventListener("error", _windowErrorHandler, capture);
-    },
-    log: function(pri) {
-      _console("log", pri, arguments);
-    },
-    info: function() {
-      _console("info", null, arguments);
-    },
-    warn: function() {
-      _console("warn", null, arguments);
-    },
-    maybeWarn: function(pri) {
-      _console("warn", pri, arguments);
-    },
-    error: function() {
-      _console("error", null, arguments);
-    },
-    maybeError: function(pri) {
-      _console("error", pri, arguments);
-    },
-    logError: function(e, desc, subtype, silent) {
-      var error = e instanceof Error ? e : new Error;
-      var error_json = {
-        subtype: subtype || "none",
-        message: e instanceof Error ? e.message || e.description : JSON.stringify(e),
-        fileName: error.fileName || error.sourceURL,
-        lineNumber: error.lineNumber || error.line,
-        stack: error.stack || error.backtrace || error.stacktrace
-      };
-      _beaconError(error_json, desc);
-      if (!silent && window.console && console.error) console.error(TS.makeLogDate() + "logging " + (e ? "e: " + e : "") + (e && e.stack ? " e.stack: " + e.stack : "") + (desc ? " desc: " + desc : "") + (e && e.message ? " e.message: " + e.message : ""));
+    count: function() {
+      _console("count", null, arguments);
     },
     dir: function(pri, ob, txt) {
       if (!window.console || !console.dir) return;
@@ -124,6 +76,21 @@
       } catch (err) {
         TS.warn("could not dir ob:" + ob + " err:" + err);
       }
+    },
+    error: function() {
+      _console("error", null, arguments);
+    },
+    group: function() {
+      _console("group", null, arguments);
+    },
+    groupCollapsed: function() {
+      _console("groupCollapsed", null, arguments);
+    },
+    groupEnd: function() {
+      _console("groupEnd", null, arguments);
+    },
+    maybeError: function(pri) {
+      _console("error", pri, arguments);
     },
     getStackTrace: function() {
       var is_dev = _.get(TS, "boot_data.version_ts") === "dev" || _.get(TS, "qs_args.js_path");
@@ -157,20 +124,83 @@
       var details = bits.join("\n");
       return details;
     },
+    info: function() {
+      _console("info", null, arguments);
+    },
+    log: function(pri) {
+      _console("log", pri, arguments);
+    },
+    logError: function(e, desc, subtype, silent) {
+      var error = e instanceof Error ? e : new Error;
+      var error_json = {
+        subtype: subtype || "none",
+        message: e instanceof Error ? e.message || e.description : JSON.stringify(e),
+        fileName: error.fileName || error.sourceURL,
+        lineNumber: error.lineNumber || error.line,
+        stack: error.stack || error.backtrace || error.stacktrace
+      };
+      _beaconError(error_json, desc);
+      if (!silent && window.console && console.error) console.error(TS.makeLogDate() + "logging " + (e ? "e: " + e : "") + (e && e.stack ? " e.stack: " + e.stack : "") + (desc ? " desc: " + desc : "") + (e && e.message ? " e.message: " + e.message : ""));
+    },
     logStackTrace: function(message) {
       var prefix = _.isUndefined(message) ? "" : message + "\n";
       TS.console.info(prefix + "Stacktrace: ↴\n", TS.console.getStackTrace());
+    },
+    profile: function() {
+      _console("profile", null, arguments);
+    },
+    profileEnd: function() {
+      _console("profileEnd", null, arguments);
     },
     replaceConsoleFunction: function(fn) {
       var prev_console = _console;
       _console = fn;
       return prev_console;
     },
+    setAppropriatePri: function(use_boot) {
+      var pri = "";
+      if (TS.qs_args.pri) pri += TS.qs_args.pri;
+      if (use_boot && TS.boot_data.client_logs_pri) {
+        if (pri !== "") pri += ",";
+        pri += TS.boot_data.client_logs_pri;
+      }
+      if (TS.model && TS.model.prefs && TS.model.prefs.client_logs_pri) {
+        if (pri !== "") pri += ",";
+        pri += TS.model.prefs.client_logs_pri;
+      }
+      if (pri !== "") pri += ",";
+      pri += "0";
+      TS.pri = _.uniq(pri.split(",")).join(",");
+      _determineKeysToCheck();
+    },
     shouldLog: function(pri) {
       var A = String(TS.pri).split(",");
       if (A.indexOf("all") !== -1 || A.indexOf("*") !== -1) return true;
       if (A.indexOf(String(pri)) !== -1) return true;
       return _keys_to_check.indexOf(pri) > -1;
+    },
+    table: function() {
+      _console("table", null, arguments);
+    },
+    time: function() {
+      _console("time", null, arguments);
+    },
+    timeEnd: function() {
+      _console("timeEnd", null, arguments);
+    },
+    timeStamp: function() {
+      _console("timeStamp", null, arguments);
+    },
+    warn: function() {
+      _console("warn", null, arguments);
+    },
+    maybeWarn: function(pri) {
+      _console("warn", pri, arguments);
+    },
+    watchForErrors: function() {
+      if (!TS.boot_data || !TS.boot_data.feature_tinyspeck) return;
+      var capture = true;
+      window.addEventListener("error", _windowErrorHandler, capture);
     },
     trace: function() {
       _console("trace", null, arguments);

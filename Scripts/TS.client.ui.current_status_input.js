@@ -231,6 +231,18 @@
     _maybeRemoveBodyClickHandler: function() {
       if (!this._has_form_context && this._has_presets_menu) $(document.body).off(".client_ui_current_status_input");
     },
+    _maybeGetCanonicalStatus: function(status) {
+      if (TS.boot_data.feature_i18n_emoji && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE) {
+        return TSFEmoji.translateEmojiStringToCanonical(status, TS.i18n.locale());
+      }
+      return status;
+    },
+    _getLocalizedStatus: function(status) {
+      if (TS.boot_data.feature_i18n_emoji && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE) {
+        return TSFEmoji.translateEmojiStringToLocal(status, TS.i18n.locale());
+      }
+      return status;
+    },
     _openEmojiPicker: function(event) {
       var target_bounds = $(event.target).closest(".current_status_emoji_picker").dimensions_rect();
       var is_in_team_menu = !this._has_presets_menu;
@@ -311,7 +323,7 @@
       }
       if (!this.isSaveable()) return Promise.resolve();
       this._maybeRemoveBodyClickHandler();
-      var new_status_text = TS.utility.contenteditable.value(this._$input).trim();
+      var new_status_text = this._maybeGetCanonicalStatus(TS.utility.contenteditable.value(this._$input).trim());
       var new_status_emoji = this._selected_emoji || new_status_text && TS.model.team.prefs.custom_status_default_emoji;
       var custom_status_set_origin;
       if (this._has_presets_menu) {
@@ -385,7 +397,7 @@
           return false;
         }
       });
-      TS.utility.contenteditable.value($input, _.get(TS, "model.user.profile.status_text", ""));
+      TS.utility.contenteditable.value($input, this._getLocalizedStatus(_.get(TS, "model.user.profile.status_text", "")));
       TS.utility.contenteditable.enable($input);
     }
   });

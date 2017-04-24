@@ -12028,10 +12028,6 @@ TS.registerModule("constants", {
   };
   var _maybeSetDeletedStatus = function(member) {
     if (!TS.boot_data.page_needs_enterprise) return;
-    if (TS.lazyLoadMembersAndBots() && TS.flannel.isMemberDeleted(member.id)) {
-      member.deleted = true;
-      return;
-    }
     if (member.enterprise_user && member.enterprise_user.teams && member.enterprise_user.teams.length > 0) {
       if (TS.boot_data.app === "web") {
         if (member.enterprise_user.teams.indexOf(TS.model.team.id) > -1) member.deleted = false;
@@ -18082,16 +18078,6 @@ TS.registerModule("constants", {
     user_change: function(imsg) {
       var member = TS.members.getMemberById(imsg.user.id);
       var is_synthetic_event_from_flannel = !imsg.hasOwnProperty("cache_ts") && !imsg.hasOwnProperty("event_ts");
-      if (_.has(imsg, "user.id") && _.has(imsg, "user.deleted")) {
-        var is_deleted = !!imsg.user.deleted;
-        if (is_deleted && _.get(imsg, "user.enterprise_user.teams.length")) {
-          is_deleted = false;
-        }
-        var did_change_deleted_status = TS.flannel.setMemberDeletedStatus(imsg.user.id, is_deleted);
-        if (did_change_deleted_status && !member) {
-          TS.members.non_loaded_changed_deleted_sig.dispatch(imsg.user.id);
-        }
-      }
       if (!member) {
         if (!is_synthetic_event_from_flannel) {
           TS.log(1989, "Flannel: user_change for member not in model; ignoring");
@@ -18880,18 +18866,9 @@ var _profiling = {
     },
     test: function() {
       var test_ob = {
-        _deleted_user_ids: _deleted_user_ids,
         _batchUpsertObjects: _batchUpsertObjects,
         _updatePresenceOnSlowReconnect: _updatePresenceOnSlowReconnect
       };
-      Object.defineProperty(test_ob, "_deleted_user_ids", {
-        get: function() {
-          return _deleted_user_ids;
-        },
-        set: function(ids) {
-          _deleted_user_ids = ids;
-        }
-      });
       Object.defineProperty(test_ob, "_batchUpsertObjects", {
         get: function() {
           return _batchUpsertObjects;
@@ -18944,7 +18921,6 @@ var _profiling = {
         delete data.updated_users;
         delete data.updated_bots;
         data.bots = [];
-        _deleted_user_ids = start_data.deleted_users;
         var required_member_ids = _([data.mpims, data.ims]).flatten().map(function(ob) {
           return ob.members || [ob.user];
         }).flatten().concat(_.get(data, "self.id")).concat(_.get(TS.boot_data, "file.user")).uniq().compact().value();
@@ -18985,24 +18961,6 @@ var _profiling = {
           throw err;
         });
       });
-    },
-    setMemberDeletedStatus: function(user_id, is_deleted) {
-      if (!_.isString(user_id)) {
-        throw new Error("Expected user_id to be a string");
-      }
-      var was_deleted = TS.flannel.isMemberDeleted(user_id);
-      if (is_deleted && !was_deleted) {
-        _deleted_user_ids.push(user_id);
-      } else if (was_deleted && !is_deleted) {
-        _.pull(_deleted_user_ids, user_id);
-      }
-      return is_deleted != was_deleted;
-    },
-    isMemberDeleted: function(user_id) {
-      if (!_.isString(user_id)) {
-        throw new Error("Expected user_id to be a string");
-      }
-      return _.includes(_deleted_user_ids, user_id);
     },
     batchUpsertObjects: function(objects) {
       return _batchUpsertObjects(objects);
@@ -19046,7 +19004,6 @@ var _profiling = {
       });
     }
   });
-  var _deleted_user_ids = [];
   var _MAX_IDS_PER_QUERY = 100;
   var _model_ob_member_fetch_promises = {};
   var _fetchAndProcessObjects = function(query, objects, process_fn, limit) {
@@ -46415,7 +46372,7 @@ $.fn.togglify = function(settings) {
         items = response.objects;
       }
       return items.filter(function(item) {
-        return !(item.is_ultra_restricted || TS.flannel.isMemberDeleted(item.id));
+        return !(item.is_ultra_restricted || item.deleted);
       }).map(function(item) {
         return {
           member: item,
@@ -66561,32 +66518,31 @@ $.fn.togglify = function(settings) {
       isTrusted: null
     };
   o(r.prototype, {
-      preventDefault: function() {
-        this.defaultPrevented = !0;
-        var e = this.nativeEvent;
-        e && (e.preventDefault ? e.preventDefault() : "unknown" != typeof e.returnValue && (e.returnValue = !1), this.isDefaultPrevented = a.thatReturnsTrue);
-      },
-      stopPropagation: function() {
-        var e = this.nativeEvent;
-        e && (e.stopPropagation ? e.stopPropagation() : "unknown" != typeof e.cancelBubble && (e.cancelBubble = !0), this.isPropagationStopped = a.thatReturnsTrue);
-      },
-      persist: function() {
-        this.isPersistent = a.thatReturnsTrue;
-      },
-      isPersistent: a.thatReturnsFalse,
-      destructor: function() {
-        var e = this.constructor.Interface;
-        for (var t in e) this[t] = null;
-        for (var n = 0; n < s.length; n++) this[s[n]] = null;
-      }
-    }), r.Interface = u, r.augmentClass = function(e, t) {
-      var n = this,
-        r = function() {};
-      r.prototype = n.prototype;
-      var a = new r;
-      o(a, e.prototype), e.prototype = a, e.prototype.constructor = e, e.Interface = o({}, n.Interface, t), e.augmentClass = n.augmentClass, i.addPoolingTo(e, i.fourArgumentPooler);
-    }, i.addPoolingTo(r, i.fourArgumentPooler),
-    e.exports = r;
+    preventDefault: function() {
+      this.defaultPrevented = !0;
+      var e = this.nativeEvent;
+      e && (e.preventDefault ? e.preventDefault() : "unknown" != typeof e.returnValue && (e.returnValue = !1), this.isDefaultPrevented = a.thatReturnsTrue);
+    },
+    stopPropagation: function() {
+      var e = this.nativeEvent;
+      e && (e.stopPropagation ? e.stopPropagation() : "unknown" != typeof e.cancelBubble && (e.cancelBubble = !0), this.isPropagationStopped = a.thatReturnsTrue);
+    },
+    persist: function() {
+      this.isPersistent = a.thatReturnsTrue;
+    },
+    isPersistent: a.thatReturnsFalse,
+    destructor: function() {
+      var e = this.constructor.Interface;
+      for (var t in e) this[t] = null;
+      for (var n = 0; n < s.length; n++) this[s[n]] = null;
+    }
+  }), r.Interface = u, r.augmentClass = function(e, t) {
+    var n = this,
+      r = function() {};
+    r.prototype = n.prototype;
+    var a = new r;
+    o(a, e.prototype), e.prototype = a, e.prototype.constructor = e, e.Interface = o({}, n.Interface, t), e.augmentClass = n.augmentClass, i.addPoolingTo(e, i.fourArgumentPooler);
+  }, i.addPoolingTo(r, i.fourArgumentPooler), e.exports = r;
 }, function(e, t, n) {
   "use strict";
   var r = {
@@ -66666,7 +66622,8 @@ $.fn.togglify = function(settings) {
         return t[s] = e[s], t;
       }(f) : v && "function" == typeof f ? i(Function.call, f) : f, v && ((_.virtual || (_.virtual = {}))[l] = f, e & u.R && y && !y[l] && a(y, l, f)));
     };
-  u.F = 1, u.G = 2, u.S = 4, u.P = 8, u.B = 16, u.W = 32, u.U = 64, u.R = 128, e.exports = u;
+  u.F = 1,
+    u.G = 2, u.S = 4, u.P = 8, u.B = 16, u.W = 32, u.U = 64, u.R = 128, e.exports = u;
 }, function(e, t) {
   var n = {}.hasOwnProperty;
   e.exports = function(e, t) {
@@ -69932,127 +69889,128 @@ $.fn.togglify = function(settings) {
         var r = v()(this, (t.__proto__ || l()(t)).call(this, e, n));
         return r._cellMetadata = [], r._lastRenderedCellIndices = [], r._cellCache = [], r._isScrollingChange = r._isScrollingChange.bind(r), r._setCollectionViewRef = r._setCollectionViewRef.bind(r), r;
       }
-      return g()(t, e), d()(t, [{
-        key: "forceUpdate",
-        value: function() {
-          void 0 !== this._collectionView && this._collectionView.forceUpdate();
-        }
-      }, {
-        key: "recomputeCellSizesAndPositions",
-        value: function() {
-          this._cellCache = [], this._collectionView.recomputeCellSizesAndPositions();
-        }
-      }, {
-        key: "render",
-        value: function() {
-          var e = s()(this.props, []);
-          return y.a.createElement(b.a, i()({
-            cellLayoutManager: this,
-            isScrollingChange: this._isScrollingChange,
-            ref: this._setCollectionViewRef
-          }, e));
-        }
-      }, {
-        key: "calculateSizeAndPositionData",
-        value: function() {
-          var e = this.props,
-            t = e.cellCount,
-            r = e.cellSizeAndPositionGetter,
-            o = e.sectionSize,
-            i = n.i(w.a)({
-              cellCount: t,
-              cellSizeAndPositionGetter: r,
-              sectionSize: o
-            });
-          this._cellMetadata = i.cellMetadata, this._sectionManager = i.sectionManager, this._height = i.height, this._width = i.width;
-        }
-      }, {
-        key: "getLastRenderedIndices",
-        value: function() {
-          return this._lastRenderedCellIndices;
-        }
-      }, {
-        key: "getScrollPositionForCell",
-        value: function(e) {
-          var t = e.align,
-            r = e.cellIndex,
-            o = e.height,
-            i = e.scrollLeft,
-            a = e.scrollTop,
-            s = e.width,
-            u = this.props.cellCount;
-          if (r >= 0 && r < u) {
-            var l = this._cellMetadata[r];
-            i = n.i(C.a)({
-              align: t,
-              cellOffset: l.x,
-              cellSize: l.width,
-              containerSize: s,
-              currentOffset: i,
-              targetIndex: r
-            }), a = n.i(C.a)({
-              align: t,
-              cellOffset: l.y,
-              cellSize: l.height,
-              containerSize: o,
-              currentOffset: a,
-              targetIndex: r
+      return g()(t, e),
+        d()(t, [{
+          key: "forceUpdate",
+          value: function() {
+            void 0 !== this._collectionView && this._collectionView.forceUpdate();
+          }
+        }, {
+          key: "recomputeCellSizesAndPositions",
+          value: function() {
+            this._cellCache = [], this._collectionView.recomputeCellSizesAndPositions();
+          }
+        }, {
+          key: "render",
+          value: function() {
+            var e = s()(this.props, []);
+            return y.a.createElement(b.a, i()({
+              cellLayoutManager: this,
+              isScrollingChange: this._isScrollingChange,
+              ref: this._setCollectionViewRef
+            }, e));
+          }
+        }, {
+          key: "calculateSizeAndPositionData",
+          value: function() {
+            var e = this.props,
+              t = e.cellCount,
+              r = e.cellSizeAndPositionGetter,
+              o = e.sectionSize,
+              i = n.i(w.a)({
+                cellCount: t,
+                cellSizeAndPositionGetter: r,
+                sectionSize: o
+              });
+            this._cellMetadata = i.cellMetadata, this._sectionManager = i.sectionManager, this._height = i.height, this._width = i.width;
+          }
+        }, {
+          key: "getLastRenderedIndices",
+          value: function() {
+            return this._lastRenderedCellIndices;
+          }
+        }, {
+          key: "getScrollPositionForCell",
+          value: function(e) {
+            var t = e.align,
+              r = e.cellIndex,
+              o = e.height,
+              i = e.scrollLeft,
+              a = e.scrollTop,
+              s = e.width,
+              u = this.props.cellCount;
+            if (r >= 0 && r < u) {
+              var l = this._cellMetadata[r];
+              i = n.i(C.a)({
+                align: t,
+                cellOffset: l.x,
+                cellSize: l.width,
+                containerSize: s,
+                currentOffset: i,
+                targetIndex: r
+              }), a = n.i(C.a)({
+                align: t,
+                cellOffset: l.y,
+                cellSize: l.height,
+                containerSize: o,
+                currentOffset: a,
+                targetIndex: r
+              });
+            }
+            return {
+              scrollLeft: i,
+              scrollTop: a
+            };
+          }
+        }, {
+          key: "getTotalSize",
+          value: function() {
+            return {
+              height: this._height,
+              width: this._width
+            };
+          }
+        }, {
+          key: "cellRenderers",
+          value: function(e) {
+            var t = this,
+              n = e.height,
+              r = e.isScrolling,
+              o = e.width,
+              i = e.x,
+              a = e.y,
+              s = this.props,
+              u = s.cellGroupRenderer,
+              l = s.cellRenderer;
+            return this._lastRenderedCellIndices = this._sectionManager.getCellIndices({
+              height: n,
+              width: o,
+              x: i,
+              y: a
+            }), u({
+              cellCache: this._cellCache,
+              cellRenderer: l,
+              cellSizeAndPositionGetter: function(e) {
+                var n = e.index;
+                return t._sectionManager.getCellMetadata({
+                  index: n
+                });
+              },
+              indices: this._lastRenderedCellIndices,
+              isScrolling: r
             });
           }
-          return {
-            scrollLeft: i,
-            scrollTop: a
-          };
-        }
-      }, {
-        key: "getTotalSize",
-        value: function() {
-          return {
-            height: this._height,
-            width: this._width
-          };
-        }
-      }, {
-        key: "cellRenderers",
-        value: function(e) {
-          var t = this,
-            n = e.height,
-            r = e.isScrolling,
-            o = e.width,
-            i = e.x,
-            a = e.y,
-            s = this.props,
-            u = s.cellGroupRenderer,
-            l = s.cellRenderer;
-          return this._lastRenderedCellIndices = this._sectionManager.getCellIndices({
-            height: n,
-            width: o,
-            x: i,
-            y: a
-          }), u({
-            cellCache: this._cellCache,
-            cellRenderer: l,
-            cellSizeAndPositionGetter: function(e) {
-              var n = e.index;
-              return t._sectionManager.getCellMetadata({
-                index: n
-              });
-            },
-            indices: this._lastRenderedCellIndices,
-            isScrolling: r
-          });
-        }
-      }, {
-        key: "_isScrollingChange",
-        value: function(e) {
-          e || (this._cellCache = []);
-        }
-      }, {
-        key: "_setCollectionViewRef",
-        value: function(e) {
-          this._collectionView = e;
-        }
-      }]), t;
+        }, {
+          key: "_isScrollingChange",
+          value: function(e) {
+            e || (this._cellCache = []);
+          }
+        }, {
+          key: "_setCollectionViewRef",
+          value: function(e) {
+            this._collectionView = e;
+          }
+        }]), t;
     }(_.PureComponent);
   S.defaultProps = {
     "aria-label": "grid",
@@ -74897,7 +74855,8 @@ $.fn.togglify = function(settings) {
                 n.push(g);
               }
             }
-          for (p in e) !e.hasOwnProperty(p) || t && t.hasOwnProperty(p) || (d = e[p], r[p] = o.getHostNode(d), o.unmountComponent(d, !1));
+          for (p in e) !e.hasOwnProperty(p) || t && t.hasOwnProperty(p) || (d = e[p],
+            r[p] = o.getHostNode(d), o.unmountComponent(d, !1));
         }
       },
       unmountChildren: function(e, t) {

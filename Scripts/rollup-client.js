@@ -31366,11 +31366,7 @@
         if (member.is_ultra_restricted) return undefined;
         if (member.is_slackbot) return undefined;
         if (member.is_self) return undefined;
-        if (TS.lazyLoadMembersAndBots()) {
-          if (TS.flannel.isMemberDeleted(member.id)) return undefined;
-        } else if (member.deleted) {
-          return undefined;
-        }
+        if (member.deleted) return undefined;
         if (!is_admin && member.is_restricted && !channel.is_group) return undefined;
         var membership_status = TS.membership.getUserChannelMembershipStatus(member.id, channel);
         if (!membership_status.is_member) {
