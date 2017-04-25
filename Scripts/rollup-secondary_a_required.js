@@ -2016,6 +2016,7 @@
       });
     };
     var ensureMembers = function() {
+      if (TS.boot_data.feature_unknown_members) return Promise.resolve();
       if (method.indexOf("users.") === 0) return Promise.resolve();
       TS.log(528, 'running api data from "' + method + '" through TS.members.ensureMembersInDataArePresent()');
       return TS.members.ensureMembersInDataArePresent(data, method, args.channel || undefined).catch(function(err) {
@@ -3588,6 +3589,73 @@
   var _addSignalListeners = function() {
     TS.members.presence_changed_sig.add(TS.redux.presence.updatePresenceForMember);
     TS.members.batch_upserted_sig.add(_bulkUpsertPresences);
+  };
+})();
+(function() {
+  "use strict";
+  TS.registerModule("redux.dnd", {
+    onStart: function() {
+      if (TS.useRedux()) {
+        _getDndByMemberId = TS.redux.bindSelectorToStore(window.Redux.Features.Dnd.getDndByMemberId);
+      }
+    },
+    updateMemberTypeForMember: function(member) {
+      if (!member || !member.id) {
+        return;
+      }
+      TS.redux.dispatch(window.Redux.Entities.MemberTypesById.updateMemberType(member));
+    },
+    isMemberInDndById: function(id) {
+      return _getDndByMemberId(id);
+    },
+    updateDndForMember: function(id, is_in_dnd) {
+      if (!id) {
+        return;
+      }
+      TS.redux.dispatch(window.Redux.Features.Dnd.updateDnd({
+        memberId: id,
+        isInDnd: is_in_dnd
+      }));
+    },
+    test: function() {
+      var test_ob = {};
+      return test_ob;
+    }
+  });
+  var _getDndByMemberId;
+})();
+(function() {
+  "use strict";
+  TS.registerModule("redux.member_types", {
+    onStart: function() {
+      if (TS.useRedux()) {
+        _addSignalListeners();
+      }
+    },
+    updateMemberTypeForMember: function(member) {
+      if (!member || !member.id) {
+        return;
+      }
+      TS.redux.dispatch(window.Redux.Entities.MemberTypesById.updateMemberType(member));
+    },
+    addToBulkUpdatePayload: function(member) {
+      _bulk_update_payload.push(member);
+    },
+    test: function() {
+      var test_ob = {};
+      return test_ob;
+    }
+  });
+  var _bulk_update_payload = [];
+  var _bulkUpdateMemberTypes = function() {
+    if (_bulk_update_payload.length) {
+      TS.redux.dispatch(window.Redux.Entities.MemberTypesById.bulkUpdateMemberType(_bulk_update_payload));
+      _bulk_update_payload = [];
+    }
+  };
+  var _addSignalListeners = function() {
+    TS.members.changed_account_type_sig.add(TS.redux.member_types.updateMemberTypeForMember);
+    TS.members.batch_upserted_sig.add(_bulkUpdateMemberTypes);
   };
 })();
 (function() {
@@ -11201,7 +11269,7 @@ TS.registerModule("constants", {
         });
       }
     },
-    getMemberById: function(id) {
+    getMemberById: function(id, no_unknown) {
       if (!_.isString(id)) return null;
       if (id && id.charAt(0) === "@") id = id.substring(1);
       if (_id_map[id]) return _id_map[id];
@@ -11213,7 +11281,10 @@ TS.registerModule("constants", {
         return null;
       }
       var _id_map_size = _id_map._size || 0;
-      if (_id_map_size >= TS.model.members.length) return null;
+      if (_id_map_size >= TS.model.members.length) {
+        if (TS.boot_data.feature_unknown_members && !no_unknown) return _getUnknownMemberAndFetch(id);
+        return null;
+      }
       var count = 0;
       var item;
       var item_id;
@@ -11233,6 +11304,7 @@ TS.registerModule("constants", {
         TS.warn("found member id " + id + " in TS.model.members, added to map");
         return _id_map[id];
       }
+      if (TS.boot_data.feature_unknown_members && !no_unknown) return _getUnknownMemberAndFetch(id);
       return null;
     },
     getMemberByName: function(name) {
@@ -11363,6 +11435,13 @@ TS.registerModule("constants", {
             TS.redux.presence.updatePresenceForMember(existing_member);
           }
         }
+        if (TS.useRedux() && (_.includes(what_changed, "is_restricted") || _.includes(what_changed, "is_ultra_restricted"))) {
+          if (TS.members.is_in_bulk_upsert_mode) {
+            TS.redux.member_types.addToBulkUpdatePayload(existing_member);
+          } else {
+            TS.redux.member_types.updateMemberTypeForMember(existing_member);
+          }
+        }
         member = existing_member;
       } else if (member.id) {
         status = "ADDED";
@@ -11376,6 +11455,13 @@ TS.registerModule("constants", {
             TS.redux.presence.addToBulkUpsertPayload(member);
           } else {
             TS.redux.presence.updatePresenceForMember(member);
+          }
+        }
+        if (TS.useRedux()) {
+          if (TS.members.is_in_bulk_upsert_mode) {
+            TS.redux.member_types.addToBulkUpdatePayload(member);
+          } else {
+            TS.redux.member_types.updateMemberTypeForMember(member);
           }
         }
         members.push(member);
@@ -11809,6 +11895,10 @@ TS.registerModule("constants", {
       if (!m_ids || !m_ids.length) {
         return Promise.resolve();
       }
+      if (TS.boot_data.feature_unknown_members) {
+        _.each(m_ids, TS.members.ensureMemberIsHydrated);
+        return Promise.resolve();
+      }
       var known_unique_m_ids = _(m_ids).uniq().filter(TS.members.getMemberById).value();
       var unknown_unique_m_ids = _.difference(m_ids, known_unique_m_ids);
       var batch_size = TS.useSocket() && TS.boot_data.should_use_flannel ? _flannel_max_users : _users_info_api_max_users;
@@ -11855,6 +11945,9 @@ TS.registerModule("constants", {
       });
       if (!m_ids.length) return Promise.resolve();
       return TS.members.ensureMembersArePresent(m_ids, c_ids);
+    },
+    ensureMemberIsHydrated: function(id) {
+      if (TS.boot_data.feature_unknown_members) TS.members.getMemberById(id);
     },
     startBatchUpsert: function() {
       if (TS.members.is_in_bulk_upsert_mode) return false;
@@ -12077,10 +12170,23 @@ TS.registerModule("constants", {
   var _active_local_members_with_slackbot_and_not_self = [];
   var _active_local_members_with_self_and_slackbot = [];
   var _members_for_user = [];
+  var _unknown_member_ids = [];
   var _users_info_api_max_users = 250;
   var _flannel_max_users = 100;
   var _ensureMember = function(member_or_id) {
     return _.isString(member_or_id) ? TS.members.getMemberById(member_or_id) : member_or_id;
+  };
+  var _maybeSetMemberKnown = function(member) {
+    if (TS.boot_data.feature_unknown_members) return;
+    if (member.is_unknown) delete member.is_unknown;
+    _.pull(_unknown_member_ids, member.id);
+  };
+  var _maybeSetMemberColor = function(member) {
+    if (member.member_color) return;
+    member.member_color = member.color;
+    if (TS.model.user_colors[member.id]) {
+      TS.members.setMemberUserColor(member, TS.model.user_colors[member.id]);
+    }
   };
   var _maybeSetDeletedStatus = function(member) {
     if (!TS.boot_data.page_needs_enterprise) return;
@@ -12114,6 +12220,9 @@ TS.registerModule("constants", {
     }
     if (TS.boot_data.feature_shared_channels_client) {
       member.is_external = TS.utility.teams.isMemberExternal(member);
+      if (TS.useRedux()) {
+        TS.redux.member_types.updateMemberTypeForMember(member);
+      }
     }
   };
   var _setImAndMpimNames = function(member) {
@@ -12401,6 +12510,8 @@ TS.registerModule("constants", {
         }
       }
     });
+    _maybeSetMemberKnown(existing_member);
+    _maybeSetMemberColor(existing_member);
     _maybeSetDeletedStatus(existing_member);
     _maybeSetTeamId(existing_member);
     _maybeSetLocality(existing_member);
@@ -12409,6 +12520,60 @@ TS.registerModule("constants", {
       what_changed: what_changed
     };
   };
+  var _fetchAndUpsertUnknownMembers = function() {
+    if (!TS.boot_data.feature_unknown_members) return Promise.resolve();
+    if (!_unknown_member_ids.length) return Promise.resolve();
+    var batch_size = TS.useSocket() && TS.boot_data.should_use_flannel ? _flannel_max_users : _users_info_api_max_users;
+    var ids = _unknown_member_ids.splice(0, batch_size);
+    return _fetchAndUpsertMembersWithIds(ids).then(function(members) {
+      var id_map = _.keyBy(members, "id");
+      ids.forEach(function(id) {
+        var member = _id_map[id];
+        if (!member) return;
+        if (member === id_map[id]) {
+          TS.warn("member id " + id + " is no longer unknown");
+          _maybeSetMemberKnown(member);
+        } else {
+          TS.warn("member id " + id + " is for a non-existent member");
+          member.is_non_existent = true;
+        }
+      });
+      return _fetchAndUpsertUnknownMembers();
+    });
+  };
+  var _getUnknownMemberAndFetch = function(id) {
+    if (!TS.boot_data.feature_unknown_members) return null;
+    if (!id || _id_map[id]) return;
+    if (!TS.model.ms_logged_in_once) return;
+    TS.warn("member id " + id + " not found in members map, added unknown member to map");
+    var member = _makeUnknownMemberStub(id);
+    _id_map[id] = member;
+    _unknown_member_ids.push(id);
+    _id_map._size += 1;
+    if (_unknown_member_ids.length === 1) _.defer(_fetchAndUpsertUnknownMembers);
+    return member;
+  };
+  var _makeUnknownMemberStub = function(id) {
+    var member = {
+      id: id,
+      name: id
+    };
+    _processNewMemberForUpserting(member);
+    member.is_unknown = true;
+    member.is_non_existent = false;
+    return member;
+  };
+  var _setImagesForUnknownMember = function(member) {
+    if (!TS.boot_data.feature_unknown_members) return;
+    if (!_.isObject(member.profile)) return;
+    if (!member.is_unknown && !member.is_non_existent) return;
+    member.profile.image_24 = cdn_url + "/66f9/img/avatars/ava_0002-24.png";
+    member.profile.image_32 = cdn_url + "/0180/img/avatars/ava_0002-32.png";
+    member.profile.image_48 = cdn_url + "/66f9/img/avatars/ava_0002-48.png";
+    member.profile.image_72 = cdn_url + "/66f9/img/avatars/ava_0002-72.png";
+    member.profile.image_192 = cdn_url + "/7fa9/img/avatars/ava_0002-192.png";
+    member.profile.image_512 = cdn_url + "/7fa9/img/avatars/ava_0002-512.png";
+  };
   var _processNewMemberForUpserting = function(member) {
     if (!member.profile || typeof member.profile !== "object") {
       member.profile = {};
@@ -12416,10 +12581,8 @@ TS.registerModule("constants", {
     if (member.id === "USLACKBOT") {
       member.is_slackbot = true;
     }
-    member.member_color = member.color;
-    if (TS.model.user_colors[member.id]) {
-      TS.members.setMemberUserColor(member, TS.model.user_colors[member.id]);
-    }
+    _maybeSetMemberKnown(member);
+    _maybeSetMemberColor(member);
     _maybeSetDeletedStatus(member);
     _maybeSetTeamId(member);
     _maybeSetLocality(member);
@@ -12458,6 +12621,7 @@ TS.registerModule("constants", {
   var _setImagesForMember = function(member) {
     if (!_.isObject(member.profile)) return;
     _maybeSetTeamId(member);
+    if (TS.boot_data.feature_unknown_members && !member.profile.avatar_hash && member.is_unknown) return _setImagesForUnknownMember(member);
     var image_url = TS.model.team.avatar_base_url + member.team_id + "-" + member.id + "-" + member.profile.avatar_hash + "-";
     _.forEach(["24", "32", "48", "72", "192", "512", "1024"], function(size) {
       member.profile["image_" + size] = image_url + size;
@@ -18566,6 +18730,18 @@ TS.registerModule("constants", {
   };
   var _Q = [];
   var _q_grew_from_event_log = false;
+  var _debouncedQueueMetrics = function() {
+    var delay = 500;
+    var options = {
+      trailing: true
+    };
+    return _.debounce(function(metrics_label, q_length) {
+      TS.log(2, "TS.metrics: " + metrics_label + ", Q length = " + q_length);
+      TS.metrics.store(metrics_label, q_length, {
+        is_count: true
+      });
+    }, delay, options);
+  }();
   var _addToQ = function(imsg) {
     if (imsg._from_evt_log) _q_grew_from_event_log = true;
     _Q.push(imsg);
@@ -18573,9 +18749,12 @@ TS.registerModule("constants", {
       _nextFromQ();
     } else {
       TS.log(2, imsg.type + " is Qed and not being handled immediately _Q.length:" + _Q.length);
+      if (!TS.client || !TS.client.stats.isEnabled()) return;
       if (_q_grew_from_event_log) {
-        if (_Q.length > 100) {}
-      } else if (_Q.length > 10) {}
+        if (_Q.length > 100) _debouncedQueueMetrics("ms_event_from_log_q", _Q.length);
+      } else if (_Q.length > 10) {
+        _debouncedQueueMetrics("ms_event_q", _Q.length);
+      }
     }
   };
   var _nextFromQ = function() {
@@ -25039,42 +25218,42 @@ var _profiling = {
         switch (size) {
           case 24:
             size_class = "thumb_24";
-            default_img_src = "https://i0.wp.com/slack-assets2.s3-us-west-2.amazonaws.com/8390/img/avatars/ava_0002-24.png?ssl=1";
+            default_img_src = cdn_url + "/66f9/img/avatars/ava_0002-24.png";
             if (member_for_default) {
               default_img_src = member_for_default.profile.image_24;
             }
             break;
           case 32:
             size_class = "thumb_32";
-            default_img_src = "https://i0.wp.com/slack-assets2.s3-us-west-2.amazonaws.com/8390/img/avatars/ava_0002-32.png?ssl=1";
+            default_img_src = cdn_url + "/0180/img/avatars/ava_0002-32.png";
             if (member_for_default) {
               default_img_src = member_for_default.profile.image_32;
             }
             break;
           case 36:
             size_class = "thumb_36";
-            default_img_src = "https://i0.wp.com/slack-assets2.s3-us-west-2.amazonaws.com/8390/img/avatars/ava_0002-48.png?ssl=1";
+            default_img_src = cdn_url + "/66f9/img/avatars/ava_0002-48.png";
             if (member_for_default) {
               default_img_src = member_for_default.profile.image_48;
             }
             break;
           case 72:
             size_class = "thumb_72";
-            default_img_src = "https://i0.wp.com/slack-assets2.s3-us-west-2.amazonaws.com/8390/img/avatars/ava_0002-72.png?ssl=1";
+            default_img_src = cdn_url + "/66f9/img/avatars/ava_0002-72.png";
             if (member_for_default) {
               default_img_src = member_for_default.profile.image_72;
             }
             break;
           case 192:
             size_class = "thumb_192";
-            default_img_src = "https://i0.wp.com/slack-assets2.s3-us-west-2.amazonaws.com/8390/img/avatars/ava_0002-192.png?ssl=1";
+            default_img_src = cdn_url + "/7fa9/img/avatars/ava_0002-192.png";
             if (member_for_default) {
               default_img_src = member_for_default.profile.image_192;
             }
             break;
           default:
             size_class = "thumb_48";
-            default_img_src = "https://i0.wp.com/slack-assets2.s3-us-west-2.amazonaws.com/8390/img/avatars/ava_0002-48.png?ssl=1";
+            default_img_src = cdn_url + "/7fa9/img/avatars/ava_0002-192.png";
             if (member_for_default) {
               default_img_src = member_for_default.profile.image_48;
             }
@@ -28836,12 +29015,18 @@ var _profiling = {
           });
           TS.error(log_prefix + " NOT GOOD!");
         } else {
+          if (TS.useRedux()) {
+            model_ob = TS.redux.channels.getUpdatedReferenceToEntity(model_ob);
+          }
           model_ob._consistency_has_been_checked = true;
           TS.log(773, log_prefix + " all good!");
         }
       }).catch(function(err) {
         TS.error(log_prefix + " err:" + err);
       }).finally(function() {
+        if (TS.useRedux()) {
+          model_ob = TS.redux.channels.getUpdatedReferenceToEntity(model_ob);
+        }
         delete model_ob._consistency_is_being_checked;
       });
     },
@@ -30206,8 +30391,7 @@ var _profiling = {
       var test_url;
       if (!opts.emoji && url.indexOf("https://") === 0) {
         test_url = url.replace(/^https:\/\//, "");
-        for (i = 0,
-          j = whitelist.length; i < j; i += 1) {
+        for (i = 0, j = whitelist.length; i < j; i += 1) {
           if (test_url.indexOf(whitelist[i] + "/") === 0) {
             if (opts.stop_animations && whitelist[i] === "slack-imgs.com") {
               var o1 = TS.utility.url.urlQueryStringParse(test_url).o1;
@@ -33762,6 +33946,37 @@ var _profiling = {
       }
       TS.menu.$menu_items.on("click", '[data-action="admin_invites_modal"]', function() {
         TS.menu.end();
+      });
+      TS.menu.keepInBounds();
+    },
+    startWithSoundsMenu: function(e, callback) {
+      if (TS.menu.isRedundantClick(e)) return;
+      if (TS.menu.menu_is_showing) return;
+      TS.menu.buildIfNeeded();
+      var sounds = TS.boot_data.notification_sounds;
+      sounds = _.reject(sounds, {
+        value: "none"
+      });
+      var template_args = {
+        notification_sounds: sounds
+      };
+      TS.menu.clean();
+      TS.menu.$menu_header.addClass("hidden").empty();
+      TS.menu.$menu_items.html(TS.templates.menu_sound_items(template_args));
+      TS.menu.start(e);
+      TS.menu.$menu_items.on("click.menu", '[data-action="set_sound"]', function(e) {
+        var sound = $(this).data("sound");
+        if (!sound) return;
+        e.preventDefault();
+        callback(sound);
+        TS.menu.end();
+      }).on("click.menu", '[data-action="play_sound"]', function(e) {
+        var sound = $(this).data("sound");
+        if (!sound) return;
+        e.preventDefault();
+        TS.sounds.play(sound, {
+          ignore_mute: true
+        });
       });
       TS.menu.keepInBounds();
     },
@@ -48624,6 +48839,9 @@ $.fn.togglify = function(settings) {
     current_user_dnd_status_changed_sig: new signals.Signal,
     onStart: function() {
       if (!TS.client) return;
+      if (TS.useRedux()) {
+        delete TS.model.dnd.current_statuses;
+      }
       TS.ms.connected_sig.add(_onConnected);
       TS.ms.disconnected_sig.add(_onDisconnected);
       var team_delay = _.random(_TEAM_INFO_DELAY_MIN, _TEAM_INFO_DELAY_MAX);
@@ -48698,6 +48916,9 @@ $.fn.togglify = function(settings) {
       return is_in_dnd;
     },
     isMemberInDnd: function(member) {
+      if (TS.useRedux()) {
+        return !!TS.redux.dnd.isMemberInDndById(member.id);
+      }
       return !!TS.model.dnd.current_statuses[member.id];
     },
     checkForChanges: function() {
@@ -48705,7 +48926,6 @@ $.fn.togglify = function(settings) {
       var self_changed = false;
       var all_members = TS.members.getMembersForUser();
       var now = _now();
-      var current_statuses = TS.model.dnd.current_statuses || {};
       if (TS.model.dnd.snooze_enabled) {
         if (now >= TS.model.dnd.snooze_endtime) {
           TS.model.dnd.snooze_enabled = false;
@@ -48715,11 +48935,16 @@ $.fn.togglify = function(settings) {
       var members_with_stale_times = [];
       var members_with_updates = all_members.filter(function(member) {
         if (member.deleted) return false;
-        var was_in_dnd = current_statuses[member.id] || false;
+        var was_in_dnd = TS.dnd.isMemberInDnd(member) || false;
         var is_in_dnd = TS.dnd.calculateMemberDndFromTimestamp(member, now);
         var changed = false;
         if (was_in_dnd != is_in_dnd) {
-          current_statuses[member.id] = is_in_dnd;
+          if (TS.useRedux()) {
+            TS.redux.dnd.updateDndForMember(member.id, is_in_dnd);
+          } else {
+            var current_statuses = TS.model.dnd.current_statuses || {};
+            current_statuses[member.id] = is_in_dnd;
+          }
           if (member.is_self) self_changed = true;
           changed = true;
         }
@@ -48805,7 +49030,7 @@ $.fn.togglify = function(settings) {
     },
     debugMember: function(member) {
       var logging = ["DND member debugging:"];
-      logging.push("is in DND: " + !!TS.model.dnd.current_statuses[member.id] + " (" + TS.dnd.calculateMemberDndFromTimestamp(member) + ")");
+      logging.push("is in DND: " + !!TS.dnd.isMemberInDnd(member) + " (" + TS.dnd.calculateMemberDndFromTimestamp(member) + ")");
       logging.push("start: " + _readableTs(_startTime(member), true));
       logging.push("end  : " + _readableTs(_endTime(member), true));
       logging.push("next : " + _readableTs(_nextTime(member), true));
@@ -48868,11 +49093,12 @@ $.fn.togglify = function(settings) {
     if (!now) now = _now();
     var next_self = _nextTime(TS.model.user, now);
     if (next_self) next_ts = next_self;
+    var no_unknown = true;
     var next_member;
     var next_member_time;
     for (var uid in TS.model.dnd.team) {
       if (uid == TS.model.user.id) continue;
-      next_member = TS.members.getMemberById(uid);
+      next_member = TS.members.getMemberById(uid, no_unknown);
       if (!next_member) continue;
       next_member_time = _nextTime(next_member, now);
       if (!next_member_time) continue;
@@ -58750,28 +58976,28 @@ $.fn.togglify = function(settings) {
         $new_els.each(function() {
           var $el = $(this);
           var context = TS.attachment_actions.getActionContext($el);
-          var selected_options = _.get(context, "action.selected_options");
           var lfs_options = {
             adjustAvailableSpaceAbove: _adjustAvailableSpaceAbove,
             adjustAvailableSpaceBelow: _adjustAvailableSpaceBelow,
             allow_list_position_above: true,
             classes: "select_attachment",
-            data_promise: _getDataPromise($el),
+            data_promise: _getDataPromise(context),
             disabled: $el.attr("disabled"),
             errorTemplate: _errorTemplate,
             filter: _filter,
-            input_debounce_wait_time: _getInputDebounceWaitTime($el),
+            input_debounce_wait_time: _getInputDebounceWaitTime(context),
             min_query_length: _.get(context, "action.min_query_length", 0),
             no_default_selection: true,
             onItemAdded: _onItemAdded,
-            onListShown: _getOnListShownCallback($el),
-            placeholder_text: _getPlaceholderText($el),
-            filter_placeholder_text: _getFilterPlaceholderText($el),
+            onListShown: _getOnListShownCallback(context),
+            placeholder_text: _getPlaceholderText(context),
+            filter_placeholder_text: _getFilterPlaceholderText(context),
             should_graphic_replace_emoji: true,
             style: TS.ui.lazy_filter_select.STYLES.filter_in_list,
-            template: _getItemTemplate($el)
+            template: _getItemTemplate(context)
           };
           $el.lazyFilterSelect(lfs_options).addClass("hidden");
+          var selected_options = _.get(context, "action.selected_options");
           if (!_.isEmpty(selected_options)) {
             var lfs_instance = $el.lazyFilterSelect("getInstance");
             var formatted_text = TS.format.formatWithOptions(selected_options[0].text, {
@@ -58855,9 +59081,9 @@ $.fn.togglify = function(settings) {
     return _.isEmpty(query) || TS.fuzzy.score(item.text.toLowerCase(), query.toLowerCase()) < Infinity;
   }
 
-  function _getOnListShownCallback($select) {
-    var data_source = $select.data("data-source");
-    var service_id = $select.closest("ts-message").data("bot-id");
+  function _getOnListShownCallback(context) {
+    var data_source = _.get(context, "action.data_source");
+    var service_id = _getServiceId(context);
     return function onListShown() {
       _logMenuOpen(data_source, service_id);
     };
@@ -58873,8 +59099,8 @@ $.fn.togglify = function(settings) {
     return available_space_above - header_height;
   }
 
-  function _getDataPromise($select) {
-    switch ($select.data("data-source")) {
+  function _getDataPromise(context) {
+    switch (_.get(context, "action.data_source")) {
       case _DATA_SOURCES.channels:
         return _getDataPromiseFromSearcher({
           channels: {
@@ -58886,7 +59112,7 @@ $.fn.togglify = function(settings) {
       case _DATA_SOURCES.conversations:
         return _getDataPromiseForConversations();
       case _DATA_SOURCES.external:
-        return _getDataPromiseForExternal($select);
+        return _getDataPromiseForExternal(context);
       case _DATA_SOURCES.users:
         return _getDataPromiseFromSearcher({
           members: {
@@ -58938,10 +59164,9 @@ $.fn.togglify = function(settings) {
     };
   }
 
-  function _getDataPromiseForExternal($select) {
+  function _getDataPromiseForExternal(context) {
     return function(query) {
       return new Promise(function(resolve, reject) {
-        var context = TS.attachment_actions.getActionContext($select);
         var payload = {
           name: context.action.name,
           value: query,
@@ -58951,12 +59176,8 @@ $.fn.togglify = function(settings) {
           is_ephemeral: true,
           message_ts: context.message.ts
         };
-        var service_id = context.message.bot_id;
-        if (context.attachment.is_app_unfurl) {
-          service_id = context.attachment.bot_id;
-        }
         TS.api.call("chat.attachmentSuggestion", {
-          service_id: service_id,
+          service_id: _getServiceId(context),
           payload: JSON.stringify(payload)
         }).then(function(response) {
           resolve({
@@ -58971,24 +59192,24 @@ $.fn.togglify = function(settings) {
     };
   }
 
-  function _getInputDebounceWaitTime($select) {
-    if ($select.data("data-source") !== _DATA_SOURCES.default) {
+  function _getInputDebounceWaitTime(context) {
+    if (_.get(context, "action.data_source") !== _DATA_SOURCES.default) {
       return _EXTERNAL_INPUT_DEBOUNCE_WAIT_TIME;
     }
   }
 
-  function _getItemTemplate($select) {
-    if (_.includes(_CONVERSATIONS_TEMPLATE_DATA_SOURCES, $select.data("data-source"))) {
+  function _getItemTemplate(context) {
+    if (_.includes(_CONVERSATIONS_TEMPLATE_DATA_SOURCES, _.get(context, "action.data_source"))) {
       return _itemTemplateForConversations;
     }
   }
 
-  function _getPlaceholderText($select) {
-    return $select.attr("placeholder") || _getDefaultPlaceholderText($select.data("data-source"));
+  function _getPlaceholderText(context) {
+    return _.get(context, "action.text") || _getDefaultPlaceholderText(_.get(context, "action.data_source"));
   }
 
-  function _getFilterPlaceholderText($select) {
-    return _.get(_FILTER_PLACEHOLDER_TEXT, $select.data("data-source"), _FILTER_PLACEHOLDER_TEXT.default);
+  function _getFilterPlaceholderText(context) {
+    return _.get(_FILTER_PLACEHOLDER_TEXT, _.get(context, "action.data_source"), _FILTER_PLACEHOLDER_TEXT.default);
   }
 
   function _getDefaultPlaceholderText(data_source) {
@@ -59035,6 +59256,13 @@ $.fn.togglify = function(settings) {
       data_source: data_source,
       service_id: service_id
     });
+  }
+
+  function _getServiceId(context) {
+    if (_.get(context, "attachment.is_app_unfurl")) {
+      return context.attachment.bot_id;
+    }
+    return _.get(context, "message.bot_id");
   }
 })();
 (function() {
@@ -61930,7 +62158,7 @@ $.fn.togglify = function(settings) {
     return t.d(n, "a", n), n;
   }, t.o = function(e, t) {
     return Object.prototype.hasOwnProperty.call(e, t);
-  }, t.p = "/", t(t.s = 445);
+  }, t.p = "/", t(t.s = 447);
 }([function(e, t, n) {
   "use strict";
   e.exports = n(39);
@@ -62071,7 +62299,7 @@ $.fn.togglify = function(settings) {
       }
 
       function w(e) {
-        return e.match(Bt) || [];
+        return e.match(Ht) || [];
       }
 
       function C(e, t, n) {
@@ -62184,11 +62412,11 @@ $.fn.togglify = function(settings) {
         return "\\" + nr[e];
       }
 
-      function H(e, t) {
+      function B(e, t) {
         return null == e ? oe : e[t];
       }
 
-      function B(e) {
+      function H(e) {
         return Kn.test(e);
       }
 
@@ -62252,11 +62480,11 @@ $.fn.togglify = function(settings) {
       }
 
       function J(e) {
-        return B(e) ? te(e) : _r(e);
+        return H(e) ? te(e) : _r(e);
       }
 
       function ee(e) {
-        return B(e) ? ne(e) : b(e);
+        return H(e) ? ne(e) : b(e);
       }
 
       function te(e) {
@@ -62318,8 +62546,8 @@ $.fn.togglify = function(settings) {
           ["partialRight", Se],
           ["rearg", Te]
         ],
-        He = "[object Arguments]",
-        Be = "[object Array]",
+        Be = "[object Arguments]",
+        He = "[object Array]",
         Ge = "[object AsyncFunction]",
         Ve = "[object Boolean]",
         qe = "[object Date]",
@@ -62372,8 +62600,8 @@ $.fn.togglify = function(settings) {
         Ut = /\s+$/,
         Wt = /\{(?:\n\/\* \[wrapped with .+\] \*\/)?\n?/,
         Ft = /\{\n\/\* \[wrapped with (.+)\] \*/,
-        Ht = /,? & /,
-        Bt = /[^\x00-\x2f\x3a-\x40\x5b-\x60\x7b-\x7f]+/g,
+        Bt = /,? & /,
+        Ht = /[^\x00-\x2f\x3a-\x40\x5b-\x60\x7b-\x7f]+/g,
         Gt = /\\(\\)?/g,
         Vt = /\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g,
         qt = /\w*$/,
@@ -62425,19 +62653,19 @@ $.fn.togglify = function(settings) {
         Un = "\\d*(?:(?:1ST|2ND|3RD|(?![123])\\dTH)\\b)",
         Wn = Ln + Nn + Dn,
         Fn = "(?:" + [wn, En, Pn].join("|") + ")" + Wn,
-        Hn = "(?:" + [kn + _n + "?", _n, En, Pn, gn].join("|") + ")",
-        Bn = RegExp(mn, "g"),
+        Bn = "(?:" + [kn + _n + "?", _n, En, Pn, gn].join("|") + ")",
+        Hn = RegExp(mn, "g"),
         Gn = RegExp(_n, "g"),
-        Vn = RegExp(xn + "(?=" + xn + ")|" + Hn + Wn, "g"),
+        Vn = RegExp(xn + "(?=" + xn + ")|" + Bn + Wn, "g"),
         qn = RegExp([On + "?" + Cn + "+" + An + "(?=" + [yn, On, "$"].join("|") + ")", Mn + "+" + jn + "(?=" + [yn, On + In, "$"].join("|") + ")", On + "?" + In + "+" + An, On + "+" + jn, Un, zn, bn, Fn].join("|"), "g"),
         Kn = RegExp("[" + Rn + tn + an + hn + "]"),
         Yn = /[a-z][A-Z]|[A-Z]{2,}[a-z]|[0-9][a-zA-Z]|[a-zA-Z][0-9]|[^a-zA-Z0-9 ]/,
         Qn = ["Array", "Buffer", "DataView", "Date", "Error", "Float32Array", "Float64Array", "Function", "Int8Array", "Int16Array", "Int32Array", "Map", "Math", "Object", "Promise", "RegExp", "Set", "String", "Symbol", "TypeError", "Uint8Array", "Uint8ClampedArray", "Uint16Array", "Uint32Array", "WeakMap", "_", "clearTimeout", "isFinite", "parseInt", "setTimeout"],
         Xn = -1,
         $n = {};
-      $n[pt] = $n[dt] = $n[ht] = $n[vt] = $n[mt] = $n[gt] = $n[yt] = $n[_t] = $n[bt] = !0, $n[He] = $n[Be] = $n[ct] = $n[Ve] = $n[ft] = $n[qe] = $n[Ye] = $n[Qe] = $n[$e] = $n[Ze] = $n[et] = $n[rt] = $n[ot] = $n[it] = $n[ut] = !1;
+      $n[pt] = $n[dt] = $n[ht] = $n[vt] = $n[mt] = $n[gt] = $n[yt] = $n[_t] = $n[bt] = !0, $n[Be] = $n[He] = $n[ct] = $n[Ve] = $n[ft] = $n[qe] = $n[Ye] = $n[Qe] = $n[$e] = $n[Ze] = $n[et] = $n[rt] = $n[ot] = $n[it] = $n[ut] = !1;
       var Zn = {};
-      Zn[He] = Zn[Be] = Zn[ct] = Zn[ft] = Zn[Ve] = Zn[qe] = Zn[pt] = Zn[dt] = Zn[ht] = Zn[vt] = Zn[mt] = Zn[$e] = Zn[Ze] = Zn[et] = Zn[rt] = Zn[ot] = Zn[it] = Zn[at] = Zn[gt] = Zn[yt] = Zn[_t] = Zn[bt] = !0, Zn[Ye] = Zn[Qe] = Zn[ut] = !1;
+      Zn[Be] = Zn[He] = Zn[ct] = Zn[ft] = Zn[Ve] = Zn[qe] = Zn[pt] = Zn[dt] = Zn[ht] = Zn[vt] = Zn[mt] = Zn[$e] = Zn[Ze] = Zn[et] = Zn[rt] = Zn[ot] = Zn[it] = Zn[at] = Zn[gt] = Zn[yt] = Zn[_t] = Zn[bt] = !0, Zn[Ye] = Zn[Qe] = Zn[ut] = !1;
       var Jn = {
           "À": "A",
           "Á": "A",
@@ -62752,7 +62980,7 @@ $.fn.togglify = function(settings) {
             }
           }
 
-          function Bt() {
+          function Ht() {
             this.__data__ = sf ? sf(null) : {}, this.size = 0;
           }
 
@@ -62947,11 +63175,11 @@ $.fn.togglify = function(settings) {
           }
 
           function Nn(e, t) {
-            return e && Ho(t, Gu(t), e);
+            return e && Bo(t, Gu(t), e);
           }
 
           function Ln(e, t) {
-            return e && Ho(t, Vu(t), e);
+            return e && Bo(t, Vu(t), e);
           }
 
           function Dn(e, t, n) {
@@ -62985,8 +63213,8 @@ $.fn.togglify = function(settings) {
               var p = If(e),
                 d = p == Qe || p == Xe;
               if (Sp(e)) return Oo(e, s);
-              if (p == et || p == He || d && !o) {
-                if (a = u || d ? {} : ji(e), !s) return u ? Go(e, Ln(a, e)) : Bo(e, Nn(a, e));
+              if (p == et || p == Be || d && !o) {
+                if (a = u || d ? {} : ji(e), !s) return u ? Go(e, Ln(a, e)) : Ho(e, Nn(a, e));
               } else {
                 if (!Zn[p]) return o ? e : {};
                 a = Ni(e, p, Wn, s);
@@ -63006,11 +63234,11 @@ $.fn.togglify = function(settings) {
           function Fn(e) {
             var t = Gu(e);
             return function(n) {
-              return Hn(n, e, t);
+              return Bn(n, e, t);
             };
           }
 
-          function Hn(e, t, n) {
+          function Bn(e, t, n) {
             var r = n.length;
             if (null == e) return !r;
             for (e = fc(e); r--;) {
@@ -63170,7 +63398,7 @@ $.fn.togglify = function(settings) {
           }
 
           function Or(e) {
-            return lu(e) && fr(e) == He;
+            return lu(e) && fr(e) == Be;
           }
 
           function Rr(e) {
@@ -63188,9 +63416,9 @@ $.fn.togglify = function(settings) {
           function Ar(e, t, n, r, o, i) {
             var a = wp(e),
               s = wp(t),
-              u = a ? Be : If(e),
-              l = s ? Be : If(t);
-            u = u == He ? et : u, l = l == He ? et : l;
+              u = a ? He : If(e),
+              l = s ? He : If(t);
+            u = u == Be ? et : u, l = l == Be ? et : l;
             var c = u == et,
               f = l == et,
               p = u == l;
@@ -63241,7 +63469,7 @@ $.fn.togglify = function(settings) {
           }
 
           function Lr(e) {
-            if (!uu(e) || Bi(e)) return !1;
+            if (!uu(e) || Hi(e)) return !1;
             var t = iu(e) ? kc : Qt;
             return t.test(oa(e));
           }
@@ -63259,7 +63487,7 @@ $.fn.togglify = function(settings) {
           }
 
           function Wr(e) {
-            return "function" == typeof e ? e : null == e ? jl : "object" == typeof e ? wp(e) ? qr(e[0], e[1]) : Vr(e) : Hl(e);
+            return "function" == typeof e ? e : null == e ? jl : "object" == typeof e ? wp(e) ? qr(e[0], e[1]) : Vr(e) : Bl(e);
           }
 
           function Fr(e) {
@@ -63269,7 +63497,7 @@ $.fn.togglify = function(settings) {
             return t;
           }
 
-          function Hr(e) {
+          function Br(e) {
             if (!uu(e)) return Qi(e);
             var t = Gi(e),
               n = [];
@@ -63277,7 +63505,7 @@ $.fn.togglify = function(settings) {
             return n;
           }
 
-          function Br(e, t) {
+          function Hr(e, t) {
             return e < t;
           }
 
@@ -63299,7 +63527,7 @@ $.fn.togglify = function(settings) {
           function qr(e, t) {
             return Wi(e) && Vi(t) ? qi(ra(e), t) : function(n) {
               var r = Fu(n, e);
-              return r === oe && r === t ? Bu(n, e) : Mr(t, r, ve | me);
+              return r === oe && r === t ? Hu(n, e) : Mr(t, r, ve | me);
             };
           }
 
@@ -63354,7 +63582,7 @@ $.fn.togglify = function(settings) {
 
           function $r(e, t) {
             return Zr(e, t, function(t, n) {
-              return Bu(e, n);
+              return Hu(e, n);
             });
           }
 
@@ -63396,18 +63624,18 @@ $.fn.togglify = function(settings) {
           }
 
           function no(e, t) {
-            return e + Bc(Jc() * (t - e + 1));
+            return e + Hc(Jc() * (t - e + 1));
           }
 
           function ro(e, t, n, r) {
-            for (var o = -1, i = Qc(Hc((t - e) / (n || 1)), 0), a = ac(i); i--;) a[r ? i : ++o] = e, e += n;
+            for (var o = -1, i = Qc(Bc((t - e) / (n || 1)), 0), a = ac(i); i--;) a[r ? i : ++o] = e, e += n;
             return a;
           }
 
           function oo(e, t) {
             var n = "";
             if (!e || t < 1 || t > Ne) return n;
-            do t % 2 && (n += e), t = Bc(t / 2), t && (e += e); while (t);
+            do t % 2 && (n += e), t = Hc(t / 2), t && (e += e); while (t);
             return n;
           }
 
@@ -63475,7 +63703,7 @@ $.fn.togglify = function(settings) {
           function ho(e, t, n, r) {
             t = n(t);
             for (var o = 0, i = null == e ? 0 : e.length, a = t !== t, s = null === t, u = bu(t), l = t === oe; o < i;) {
-              var c = Bc((o + i) / 2),
+              var c = Hc((o + i) / 2),
                 f = n(e[c]),
                 p = f !== oe,
                 d = null === f,
@@ -63681,7 +63909,7 @@ $.fn.togglify = function(settings) {
             return t;
           }
 
-          function Ho(e, t, n, r) {
+          function Bo(e, t, n, r) {
             var o = !n;
             n || (n = {});
             for (var i = -1, a = t.length; ++i < a;) {
@@ -63692,12 +63920,12 @@ $.fn.togglify = function(settings) {
             return n;
           }
 
-          function Bo(e, t) {
-            return Ho(e, Of(e), t);
+          function Ho(e, t) {
+            return Bo(e, Of(e), t);
           }
 
           function Go(e, t) {
-            return Ho(e, Rf(e), t);
+            return Bo(e, Rf(e), t);
           }
 
           function Vo(e, t) {
@@ -63755,7 +63983,7 @@ $.fn.togglify = function(settings) {
           function Xo(e) {
             return function(t) {
               t = Iu(t);
-              var n = B(t) ? ee(t) : oe,
+              var n = H(t) ? ee(t) : oe,
                 r = n ? n[0] : t.charAt(0),
                 o = n ? Po(n, 1).join("") : t.slice(1);
               return r[e]() + o;
@@ -63764,7 +63992,7 @@ $.fn.togglify = function(settings) {
 
           function $o(e) {
             return function(t) {
-              return g(Ol(ll(t).replace(Bn, "")), e, "");
+              return g(Ol(ll(t).replace(Hn, "")), e, "");
             };
           }
 
@@ -63835,7 +64063,7 @@ $.fn.togglify = function(settings) {
                 a = t[r];
                 var u = Si(a),
                   l = "wrapper" == u ? Pf(a) : oe;
-                s = l && Hi(l[0]) && l[1] == (xe | be | Ce | Te) && !l[4].length && 1 == l[9] ? s[Si(l[0])].apply(s, l[3]) : 1 == a.length && Hi(a) ? s[u]() : s.thru(a);
+                s = l && Bi(l[0]) && l[1] == (xe | be | Ce | Te) && !l[4].length && 1 == l[9] ? s[Si(l[0])].apply(s, l[3]) : 1 == a.length && Bi(a) ? s[u]() : s.thru(a);
               }
               return function() {
                 var e = arguments,
@@ -63902,8 +64130,8 @@ $.fn.togglify = function(settings) {
             t = t === oe ? " " : go(t);
             var n = t.length;
             if (n < 2) return n ? oo(t, e) : t;
-            var r = oo(t, Hc(e / J(t)));
-            return B(t) ? Po(ee(r), 0, e).join("") : r.slice(0, e);
+            var r = oo(t, Bc(e / J(t)));
+            return H(t) ? Po(ee(r), 0, e).join("") : r.slice(0, e);
           }
 
           function si(e, t, n, r) {
@@ -63938,7 +64166,7 @@ $.fn.togglify = function(settings) {
             t |= c ? Ce : Se, t &= ~(c ? Se : Ce), t & _e || (t &= ~(ge | ye));
             var v = [e, t, o, d, f, h, p, s, u, l],
               m = n.apply(oe, v);
-            return Hi(e) && Af(m, v), m.placeholder = r, ea(m, e, t);
+            return Bi(e) && Af(m, v), m.placeholder = r, ea(m, e, t);
           }
 
           function fi(e) {
@@ -64135,7 +64363,7 @@ $.fn.togglify = function(settings) {
           }
 
           function Pi(e, t) {
-            var n = H(e, t);
+            var n = B(e, t);
             return Lr(n) ? n : oe;
           }
 
@@ -64176,7 +64404,7 @@ $.fn.togglify = function(settings) {
 
           function Ii(e) {
             var t = e.match(Ft);
-            return t ? t[1].split(Ht) : [];
+            return t ? t[1].split(Bt) : [];
           }
 
           function Mi(e, t, n) {
@@ -64265,7 +64493,7 @@ $.fn.togglify = function(settings) {
             return "string" == t || "number" == t || "symbol" == t || "boolean" == t ? "__proto__" !== e : null === e;
           }
 
-          function Hi(e) {
+          function Bi(e) {
             var t = Si(e),
               r = n[t];
             if ("function" != typeof r || !(t in b.prototype)) return !1;
@@ -64274,7 +64502,7 @@ $.fn.togglify = function(settings) {
             return !!o && e === o[0];
           }
 
-          function Bi(e) {
+          function Hi(e) {
             return !!Cc && Cc in e;
           }
 
@@ -64416,7 +64644,7 @@ $.fn.togglify = function(settings) {
             t = (n ? Ui(e, t, n) : t === oe) ? 1 : Qc(ku(t), 0);
             var r = null == e ? 0 : e.length;
             if (!r || t < 1) return [];
-            for (var o = 0, i = 0, a = ac(Hc(r / t)); o < r;) a[i++] = co(e, o, o += t);
+            for (var o = 0, i = 0, a = ac(Bc(r / t)); o < r;) a[i++] = co(e, o, o += t);
             return a;
           }
 
@@ -64607,12 +64835,12 @@ $.fn.togglify = function(settings) {
             return e && e.length ? vo(e, Ti(t, 2)) : [];
           }
 
-          function Ha(e) {
+          function Ba(e) {
             var t = null == e ? 0 : e.length;
             return t ? co(e, 1, t) : [];
           }
 
-          function Ba(e, t, n) {
+          function Ha(e, t, n) {
             return e && e.length ? (t = n || t === oe ? 1 : ku(t), co(e, 0, t < 0 ? 0 : t)) : [];
           }
 
@@ -64900,8 +65128,7 @@ $.fn.togglify = function(settings) {
                 n = a(e);
               if (p = arguments, d = this, g = e, n) {
                 if (m === oe) return o(g);
-                if (b) return m = jf(s, t),
-                  r(g);
+                if (b) return m = jf(s, t), r(g);
               }
               return m === oe && (m = jf(s, t)), v;
             }
@@ -64981,11 +65208,11 @@ $.fn.togglify = function(settings) {
             return Os(e, 1);
           }
 
-          function Hs(e, t) {
+          function Bs(e, t) {
             return vp(ko(t), e);
           }
 
-          function Bs() {
+          function Hs() {
             if (!arguments.length) return [];
             var e = arguments[0];
             return wp(e) ? e : [e];
@@ -65008,7 +65235,7 @@ $.fn.togglify = function(settings) {
           }
 
           function Ys(e, t) {
-            return null == t || Hn(e, t, Gu(t));
+            return null == t || Bn(e, t, Gu(t));
           }
 
           function Qs(e, t) {
@@ -65188,7 +65415,7 @@ $.fn.togglify = function(settings) {
           }
 
           function Ou(e) {
-            return Ho(e, Vu(e));
+            return Bo(e, Vu(e));
           }
 
           function Ru(e) {
@@ -65241,11 +65468,11 @@ $.fn.togglify = function(settings) {
             return r === oe ? n : r;
           }
 
-          function Hu(e, t) {
+          function Bu(e, t) {
             return null != e && Mi(e, t, _r);
           }
 
-          function Bu(e, t) {
+          function Hu(e, t) {
             return null != e && Mi(e, t, Sr);
           }
 
@@ -65254,7 +65481,7 @@ $.fn.togglify = function(settings) {
           }
 
           function Vu(e) {
-            return Xs(e) ? En(e, !0) : Hr(e);
+            return Xs(e) ? En(e, !0) : Br(e);
           }
 
           function qu(e, t) {
@@ -65385,7 +65612,7 @@ $.fn.togglify = function(settings) {
             var r = t ? J(e) : 0;
             if (!t || r >= t) return e;
             var o = (t - r) / 2;
-            return ai(Bc(o), n) + e + ai(Hc(o), n);
+            return ai(Hc(o), n) + e + ai(Bc(o), n);
           }
 
           function hl(e, t, n) {
@@ -65415,7 +65642,7 @@ $.fn.togglify = function(settings) {
           }
 
           function _l(e, t, n) {
-            return n && "number" != typeof n && Ui(e, t, n) && (t = n = oe), (n = n === oe ? ze : n >>> 0) ? (e = Iu(e), e && ("string" == typeof t || null != t && !kp(t)) && (t = go(t), !t && B(e)) ? Po(ee(e), 0, n) : e.split(t, n)) : [];
+            return n && "number" != typeof n && Ui(e, t, n) && (t = n = oe), (n = n === oe ? ze : n >>> 0) ? (e = Iu(e), e && ("string" == typeof t || null != t && !kp(t)) && (t = go(t), !t && H(e)) ? Po(ee(e), 0, n) : e.split(t, n)) : [];
           }
 
           function bl(e, t, n) {
@@ -65488,7 +65715,7 @@ $.fn.togglify = function(settings) {
             }
             e = Iu(e);
             var i = e.length;
-            if (B(e)) {
+            if (H(e)) {
               var a = ee(e);
               i = a.length;
             }
@@ -65598,11 +65825,11 @@ $.fn.togglify = function(settings) {
             });
           }
 
-          function Hl(e) {
+          function Bl(e) {
             return Wi(e) ? P(ra(e)) : Jr(e);
           }
 
-          function Bl(e) {
+          function Hl(e) {
             return function(t) {
               return null == e ? oe : ur(e, t);
             };
@@ -65663,11 +65890,11 @@ $.fn.togglify = function(settings) {
           }
 
           function nc(e) {
-            return e && e.length ? Yn(e, jl, Br) : oe;
+            return e && e.length ? Yn(e, jl, Hr) : oe;
           }
 
           function rc(e, t) {
-            return e && e.length ? Yn(e, Ti(t, 2), Br) : oe;
+            return e && e.length ? Yn(e, Ti(t, 2), Hr) : oe;
           }
 
           function oc(e) {
@@ -65722,8 +65949,8 @@ $.fn.togglify = function(settings) {
             Uc = t.clearTimeout !== sr.clearTimeout && t.clearTimeout,
             Wc = sc && sc.now !== sr.Date.now && sc.now,
             Fc = t.setTimeout !== sr.setTimeout && t.setTimeout,
-            Hc = cc.ceil,
-            Bc = cc.floor,
+            Bc = cc.ceil,
+            Hc = cc.floor,
             Gc = fc.getOwnPropertySymbols,
             Vc = Ec ? Ec.isBuffer : oe,
             qc = t.isFinite,
@@ -65769,7 +65996,7 @@ $.fn.togglify = function(settings) {
             imports: {
               _: n
             }
-          }, n.prototype = r.prototype, n.prototype.constructor = n, o.prototype = yf(r.prototype), o.prototype.constructor = o, b.prototype = yf(r.prototype), b.prototype.constructor = b, ne.prototype.clear = Bt, ne.prototype.delete = tn, ne.prototype.get = nn, ne.prototype.has = rn, ne.prototype.set = on, an.prototype.clear = sn, an.prototype.delete = un, an.prototype.get = ln, an.prototype.has = cn, an.prototype.set = fn, pn.prototype.clear = dn, pn.prototype.delete = hn, pn.prototype.get = vn, pn.prototype.has = mn, pn.prototype.set = gn, yn.prototype.add = yn.prototype.push = _n, yn.prototype.has = bn, wn.prototype.clear = Cn, wn.prototype.delete = Sn, wn.prototype.get = xn, wn.prototype.has = Tn, wn.prototype.set = kn;
+          }, n.prototype = r.prototype, n.prototype.constructor = n, o.prototype = yf(r.prototype), o.prototype.constructor = o, b.prototype = yf(r.prototype), b.prototype.constructor = b, ne.prototype.clear = Ht, ne.prototype.delete = tn, ne.prototype.get = nn, ne.prototype.has = rn, ne.prototype.set = on, an.prototype.clear = sn, an.prototype.delete = un, an.prototype.get = ln, an.prototype.has = cn, an.prototype.set = fn, pn.prototype.clear = dn, pn.prototype.delete = hn, pn.prototype.get = vn, pn.prototype.has = mn, pn.prototype.set = gn, yn.prototype.add = yn.prototype.push = _n, yn.prototype.has = bn, wn.prototype.clear = Cn, wn.prototype.delete = Sn, wn.prototype.get = xn, wn.prototype.has = Tn, wn.prototype.set = kn;
           var _f = Ko(nr),
             bf = Ko(ir, !0),
             wf = Yo(),
@@ -65855,12 +66082,12 @@ $.fn.togglify = function(settings) {
                 n = v(e, To);
               return t === Ta(n) ? t = oe : n.pop(), n.length && n[0] === e[0] ? kr(n, Ti(t, 2)) : [];
             }),
-            Hf = io(function(e) {
+            Bf = io(function(e) {
               var t = Ta(e),
                 n = v(e, To);
               return t = "function" == typeof t ? t : oe, t && n.pop(), n.length && n[0] === e[0] ? kr(n, oe, t) : [];
             }),
-            Bf = io(Pa),
+            Hf = io(Pa),
             Gf = bi(function(e, t) {
               var n = null == e ? 0 : e.length,
                 r = zn(e, t);
@@ -66008,29 +66235,29 @@ $.fn.togglify = function(settings) {
             kp = mr ? N(mr) : Dr,
             Ep = gr ? N(gr) : zr,
             Pp = yr ? N(yr) : Ur,
-            Op = li(Br),
+            Op = li(Hr),
             Rp = li(function(e, t) {
               return e <= t;
             }),
             Ip = qo(function(e, t) {
-              if (Gi(t) || Xs(t)) return void Ho(t, Gu(t), e);
+              if (Gi(t) || Xs(t)) return void Bo(t, Gu(t), e);
               for (var n in t) bc.call(t, n) && Mn(e, n, t[n]);
             }),
             Mp = qo(function(e, t) {
-              Ho(t, Vu(t), e);
+              Bo(t, Vu(t), e);
             }),
             Ap = qo(function(e, t, n, r) {
-              Ho(t, Vu(t), e, r);
+              Bo(t, Vu(t), e, r);
             }),
             jp = qo(function(e, t, n, r) {
-              Ho(t, Gu(t), e, r);
+              Bo(t, Gu(t), e, r);
             }),
             Np = bi(zn),
             Lp = io(function(e) {
               return e.push(oe, hi), s(Ap, oe, e);
             }),
             Dp = io(function(e) {
-              return e.push(oe, vi), s(Hp, oe, e);
+              return e.push(oe, vi), s(Bp, oe, e);
             }),
             zp = ri(function(e, t, n) {
               e[t] = n;
@@ -66042,16 +66269,16 @@ $.fn.togglify = function(settings) {
             Fp = qo(function(e, t, n) {
               Kr(e, t, n);
             }),
-            Hp = qo(function(e, t, n, r) {
+            Bp = qo(function(e, t, n, r) {
               Kr(e, t, n, r);
             }),
-            Bp = bi(function(e, t) {
+            Hp = bi(function(e, t) {
               var n = {};
               if (null == e) return n;
               var r = !1;
               t = v(t, function(t) {
                 return t = Eo(t, e), r || (r = t.length > 1), t;
-              }), Ho(e, Ci(e), n), r && (n = Wn(n, pe | de | he, mi));
+              }), Bo(e, Ci(e), n), r && (n = Wn(n, pe | de | he, mi));
               for (var o = t.length; o--;) _o(n, t[o]);
               return n;
             }),
@@ -66124,7 +66351,7 @@ $.fn.togglify = function(settings) {
             yd = oi(function(e, t) {
               return e - t;
             }, 0);
-          return n.after = Ps, n.ary = Os, n.assign = Ip, n.assignIn = Mp, n.assignInWith = Ap, n.assignWith = jp, n.at = Np, n.before = Rs, n.bind = cp, n.bindAll = nd, n.bindKey = fp, n.castArray = Bs, n.chain = es, n.chunk = sa, n.compact = ua, n.concat = la, n.cond = Rl, n.conforms = Il, n.constant = Ml, n.countBy = tp, n.create = Mu, n.curry = Is, n.curryRight = Ms, n.debounce = As, n.defaults = Lp, n.defaultsDeep = Dp, n.defer = pp, n.delay = dp, n.difference = Df, n.differenceBy = zf, n.differenceWith = Uf, n.drop = ca, n.dropRight = fa, n.dropRightWhile = pa, n.dropWhile = da, n.fill = ha, n.filter = fs, n.flatMap = ps, n.flatMapDeep = ds, n.flatMapDepth = hs, n.flatten = ga, n.flattenDeep = ya, n.flattenDepth = _a, n.flip = js, n.flow = rd, n.flowRight = od, n.fromPairs = ba, n.functions = Uu, n.functionsIn = Wu, n.groupBy = op, n.initial = Sa, n.intersection = Wf, n.intersectionBy = Ff, n.intersectionWith = Hf, n.invert = zp, n.invertBy = Up, n.invokeMap = ip, n.iteratee = Nl, n.keyBy = ap, n.keys = Gu, n.keysIn = Vu, n.map = ys, n.mapKeys = qu, n.mapValues = Ku, n.matches = Ll, n.matchesProperty = Dl, n.memoize = Ns, n.merge = Fp, n.mergeWith = Hp, n.method = id, n.methodOf = ad, n.mixin = zl, n.negate = Ls, n.nthArg = Fl, n.omit = Bp, n.omitBy = Yu, n.once = Ds, n.orderBy = _s, n.over = sd, n.overArgs = hp, n.overEvery = ud, n.overSome = ld, n.partial = vp, n.partialRight = mp, n.partition = sp, n.pick = Gp, n.pickBy = Qu, n.property = Hl, n.propertyOf = Bl, n.pull = Bf, n.pullAll = Pa, n.pullAllBy = Oa, n.pullAllWith = Ra, n.pullAt = Gf, n.range = cd, n.rangeRight = fd, n.rearg = gp, n.reject = Cs, n.remove = Ia, n.rest = zs, n.reverse = Ma, n.sampleSize = xs, n.set = $u, n.setWith = Zu, n.shuffle = Ts, n.slice = Aa, n.sortBy = up, n.sortedUniq = Wa, n.sortedUniqBy = Fa, n.split = _l, n.spread = Us, n.tail = Ha, n.take = Ba, n.takeRight = Ga, n.takeRightWhile = Va, n.takeWhile = qa, n.tap = ts, n.throttle = Ws, n.thru = ns, n.toArray = xu, n.toPairs = Vp, n.toPairsIn = qp, n.toPath = Xl, n.toPlainObject = Ou, n.transform = Ju, n.unary = Fs, n.union = Vf, n.unionBy = qf, n.unionWith = Kf, n.uniq = Ka, n.uniqBy = Ya, n.uniqWith = Qa, n.unset = el, n.unzip = Xa, n.unzipWith = $a, n.update = tl, n.updateWith = nl, n.values = rl, n.valuesIn = ol, n.without = Yf, n.words = Ol, n.wrap = Hs, n.xor = Qf, n.xorBy = Xf, n.xorWith = $f, n.zip = Zf, n.zipObject = Za, n.zipObjectDeep = Ja, n.zipWith = Jf, n.entries = Vp, n.entriesIn = qp, n.extend = Mp, n.extendWith = Ap, zl(n, n), n.add = pd, n.attempt = td, n.camelCase = Kp, n.capitalize = ul, n.ceil = dd, n.clamp = il, n.clone = Gs, n.cloneDeep = qs, n.cloneDeepWith = Ks, n.cloneWith = Vs, n.conformsTo = Ys, n.deburr = ll, n.defaultTo = Al, n.divide = hd, n.endsWith = cl, n.eq = Qs, n.escape = fl, n.escapeRegExp = pl, n.every = cs, n.find = np, n.findIndex = va, n.findKey = Au, n.findLast = rp, n.findLastIndex = ma, n.findLastKey = ju, n.floor = vd, n.forEach = vs, n.forEachRight = ms, n.forIn = Nu, n.forInRight = Lu, n.forOwn = Du, n.forOwnRight = zu, n.get = Fu, n.gt = yp, n.gte = _p, n.has = Hu, n.hasIn = Bu, n.head = wa, n.identity = jl, n.includes = gs, n.indexOf = Ca, n.inRange = al, n.invoke = Wp, n.isArguments = bp, n.isArray = wp, n.isArrayBuffer = Cp, n.isArrayLike = Xs, n.isArrayLikeObject = $s, n.isBoolean = Zs, n.isBuffer = Sp, n.isDate = xp, n.isElement = Js, n.isEmpty = eu, n.isEqual = tu, n.isEqualWith = nu, n.isError = ru, n.isFinite = ou, n.isFunction = iu, n.isInteger = au, n.isLength = su, n.isMap = Tp, n.isMatch = cu, n.isMatchWith = fu, n.isNaN = pu, n.isNative = du, n.isNil = vu, n.isNull = hu, n.isNumber = mu, n.isObject = uu, n.isObjectLike = lu, n.isPlainObject = gu, n.isRegExp = kp, n.isSafeInteger = yu, n.isSet = Ep, n.isString = _u, n.isSymbol = bu, n.isTypedArray = Pp, n.isUndefined = wu, n.isWeakMap = Cu, n.isWeakSet = Su, n.join = xa, n.kebabCase = Yp, n.last = Ta, n.lastIndexOf = ka, n.lowerCase = Qp, n.lowerFirst = Xp, n.lt = Op, n.lte = Rp, n.max = Zl, n.maxBy = Jl, n.mean = ec, n.meanBy = tc, n.min = nc, n.minBy = rc, n.stubArray = Gl, n.stubFalse = Vl, n.stubObject = ql, n.stubString = Kl, n.stubTrue = Yl, n.multiply = md, n.nth = Ea, n.noConflict = Ul, n.noop = Wl, n.now = lp, n.pad = dl, n.padEnd = hl, n.padStart = vl, n.parseInt = ml, n.random = sl, n.reduce = bs, n.reduceRight = ws, n.repeat = gl, n.replace = yl, n.result = Xu, n.round = gd, n.runInContext = e, n.sample = Ss, n.size = ks, n.snakeCase = $p, n.some = Es, n.sortedIndex = ja, n.sortedIndexBy = Na, n.sortedIndexOf = La, n.sortedLastIndex = Da, n.sortedLastIndexBy = za, n.sortedLastIndexOf = Ua, n.startCase = Zp, n.startsWith = bl, n.subtract = yd, n.sum = oc, n.sumBy = ic, n.template = wl, n.times = Ql, n.toFinite = Tu, n.toInteger = ku, n.toLength = Eu, n.toLower = Cl, n.toNumber = Pu, n.toSafeInteger = Ru, n.toString = Iu, n.toUpper = Sl, n.trim = xl, n.trimEnd = Tl, n.trimStart = kl, n.truncate = El, n.unescape = Pl, n.uniqueId = $l, n.upperCase = Jp, n.upperFirst = ed, n.each = vs, n.eachRight = ms, n.first = wa, zl(n, function() {
+          return n.after = Ps, n.ary = Os, n.assign = Ip, n.assignIn = Mp, n.assignInWith = Ap, n.assignWith = jp, n.at = Np, n.before = Rs, n.bind = cp, n.bindAll = nd, n.bindKey = fp, n.castArray = Hs, n.chain = es, n.chunk = sa, n.compact = ua, n.concat = la, n.cond = Rl, n.conforms = Il, n.constant = Ml, n.countBy = tp, n.create = Mu, n.curry = Is, n.curryRight = Ms, n.debounce = As, n.defaults = Lp, n.defaultsDeep = Dp, n.defer = pp, n.delay = dp, n.difference = Df, n.differenceBy = zf, n.differenceWith = Uf, n.drop = ca, n.dropRight = fa, n.dropRightWhile = pa, n.dropWhile = da, n.fill = ha, n.filter = fs, n.flatMap = ps, n.flatMapDeep = ds, n.flatMapDepth = hs, n.flatten = ga, n.flattenDeep = ya, n.flattenDepth = _a, n.flip = js, n.flow = rd, n.flowRight = od, n.fromPairs = ba, n.functions = Uu, n.functionsIn = Wu, n.groupBy = op, n.initial = Sa, n.intersection = Wf, n.intersectionBy = Ff, n.intersectionWith = Bf, n.invert = zp, n.invertBy = Up, n.invokeMap = ip, n.iteratee = Nl, n.keyBy = ap, n.keys = Gu, n.keysIn = Vu, n.map = ys, n.mapKeys = qu, n.mapValues = Ku, n.matches = Ll, n.matchesProperty = Dl, n.memoize = Ns, n.merge = Fp, n.mergeWith = Bp, n.method = id, n.methodOf = ad, n.mixin = zl, n.negate = Ls, n.nthArg = Fl, n.omit = Hp, n.omitBy = Yu, n.once = Ds, n.orderBy = _s, n.over = sd, n.overArgs = hp, n.overEvery = ud, n.overSome = ld, n.partial = vp, n.partialRight = mp, n.partition = sp, n.pick = Gp, n.pickBy = Qu, n.property = Bl, n.propertyOf = Hl, n.pull = Hf, n.pullAll = Pa, n.pullAllBy = Oa, n.pullAllWith = Ra, n.pullAt = Gf, n.range = cd, n.rangeRight = fd, n.rearg = gp, n.reject = Cs, n.remove = Ia, n.rest = zs, n.reverse = Ma, n.sampleSize = xs, n.set = $u, n.setWith = Zu, n.shuffle = Ts, n.slice = Aa, n.sortBy = up, n.sortedUniq = Wa, n.sortedUniqBy = Fa, n.split = _l, n.spread = Us, n.tail = Ba, n.take = Ha, n.takeRight = Ga, n.takeRightWhile = Va, n.takeWhile = qa, n.tap = ts, n.throttle = Ws, n.thru = ns, n.toArray = xu, n.toPairs = Vp, n.toPairsIn = qp, n.toPath = Xl, n.toPlainObject = Ou, n.transform = Ju, n.unary = Fs, n.union = Vf, n.unionBy = qf, n.unionWith = Kf, n.uniq = Ka, n.uniqBy = Ya, n.uniqWith = Qa, n.unset = el, n.unzip = Xa, n.unzipWith = $a, n.update = tl, n.updateWith = nl, n.values = rl, n.valuesIn = ol, n.without = Yf, n.words = Ol, n.wrap = Bs, n.xor = Qf, n.xorBy = Xf, n.xorWith = $f, n.zip = Zf, n.zipObject = Za, n.zipObjectDeep = Ja, n.zipWith = Jf, n.entries = Vp, n.entriesIn = qp, n.extend = Mp, n.extendWith = Ap, zl(n, n), n.add = pd, n.attempt = td, n.camelCase = Kp, n.capitalize = ul, n.ceil = dd, n.clamp = il, n.clone = Gs, n.cloneDeep = qs, n.cloneDeepWith = Ks, n.cloneWith = Vs, n.conformsTo = Ys, n.deburr = ll, n.defaultTo = Al, n.divide = hd, n.endsWith = cl, n.eq = Qs, n.escape = fl, n.escapeRegExp = pl, n.every = cs, n.find = np, n.findIndex = va, n.findKey = Au, n.findLast = rp, n.findLastIndex = ma, n.findLastKey = ju, n.floor = vd, n.forEach = vs, n.forEachRight = ms, n.forIn = Nu, n.forInRight = Lu, n.forOwn = Du, n.forOwnRight = zu, n.get = Fu, n.gt = yp, n.gte = _p, n.has = Bu, n.hasIn = Hu, n.head = wa, n.identity = jl, n.includes = gs, n.indexOf = Ca, n.inRange = al, n.invoke = Wp, n.isArguments = bp, n.isArray = wp, n.isArrayBuffer = Cp, n.isArrayLike = Xs, n.isArrayLikeObject = $s, n.isBoolean = Zs, n.isBuffer = Sp, n.isDate = xp, n.isElement = Js, n.isEmpty = eu, n.isEqual = tu, n.isEqualWith = nu, n.isError = ru, n.isFinite = ou, n.isFunction = iu, n.isInteger = au, n.isLength = su, n.isMap = Tp, n.isMatch = cu, n.isMatchWith = fu, n.isNaN = pu, n.isNative = du, n.isNil = vu, n.isNull = hu, n.isNumber = mu, n.isObject = uu, n.isObjectLike = lu, n.isPlainObject = gu, n.isRegExp = kp, n.isSafeInteger = yu, n.isSet = Ep, n.isString = _u, n.isSymbol = bu, n.isTypedArray = Pp, n.isUndefined = wu, n.isWeakMap = Cu, n.isWeakSet = Su, n.join = xa, n.kebabCase = Yp, n.last = Ta, n.lastIndexOf = ka, n.lowerCase = Qp, n.lowerFirst = Xp, n.lt = Op, n.lte = Rp, n.max = Zl, n.maxBy = Jl, n.mean = ec, n.meanBy = tc, n.min = nc, n.minBy = rc, n.stubArray = Gl, n.stubFalse = Vl, n.stubObject = ql, n.stubString = Kl, n.stubTrue = Yl, n.multiply = md, n.nth = Ea, n.noConflict = Ul, n.noop = Wl, n.now = lp, n.pad = dl, n.padEnd = hl, n.padStart = vl, n.parseInt = ml, n.random = sl, n.reduce = bs, n.reduceRight = ws, n.repeat = gl, n.replace = yl, n.result = Xu, n.round = gd, n.runInContext = e, n.sample = Ss, n.size = ks, n.snakeCase = $p, n.some = Es, n.sortedIndex = ja, n.sortedIndexBy = Na, n.sortedIndexOf = La, n.sortedLastIndex = Da, n.sortedLastIndexBy = za, n.sortedLastIndexOf = Ua, n.startCase = Zp, n.startsWith = bl, n.subtract = yd, n.sum = oc, n.sumBy = ic, n.template = wl, n.times = Ql, n.toFinite = Tu, n.toInteger = ku, n.toLength = Eu, n.toLower = Cl, n.toNumber = Pu, n.toSafeInteger = Ru, n.toString = Iu, n.toUpper = Sl, n.trim = xl, n.trimEnd = Tl, n.trimStart = kl, n.truncate = El, n.unescape = Pl, n.uniqueId = $l, n.upperCase = Jp, n.upperFirst = ed, n.each = vs, n.eachRight = ms, n.first = wa, zl(n, function() {
             var e = {};
             return nr(n, function(t, r) {
               bc.call(n.prototype, r) || (e[r] = t);
@@ -66249,7 +66476,7 @@ $.fn.togglify = function(settings) {
         return xr;
       }.call(t, n, t, r), !(o !== oe && (r.exports = o));
     }).call(this);
-  }).call(t, n(110), n(201)(e));
+  }).call(t, n(110), n(203)(e));
 }, function(e, t, n) {
   "use strict";
 
@@ -66304,7 +66531,7 @@ $.fn.togglify = function(settings) {
     };
   }
   t.__esModule = !0;
-  var o = n(233),
+  var o = n(235),
     i = r(o);
   t.default = function() {
     function e(e, t) {
@@ -66383,7 +66610,7 @@ $.fn.togglify = function(settings) {
   }
   var f = n(3),
     p = n(37),
-    d = n(142),
+    d = n(144),
     h = (n(1), p.ID_ATTRIBUTE_NAME),
     v = d,
     m = "__reactInternalInstance$" + Math.random().toString(36).slice(2),
@@ -66421,7 +66648,7 @@ $.fn.togglify = function(settings) {
   }();
 }, function(e, t, n) {
   e.exports = {
-    "default": n(245),
+    "default": n(247),
     __esModule: !0
   };
 }, function(e, t, n) {
@@ -66433,11 +66660,11 @@ $.fn.togglify = function(settings) {
     };
   }
   t.__esModule = !0;
-  var o = n(235),
+  var o = n(237),
     i = r(o),
-    a = n(232),
+    a = n(234),
     s = r(a),
-    u = n(120),
+    u = n(122),
     l = r(u);
   t.default = function(e, t) {
     if ("function" != typeof t && null !== t) throw new TypeError("Super expression must either be null or a function, not " + ("undefined" == typeof t ? "undefined" : (0, l.default)(t)));
@@ -66459,7 +66686,7 @@ $.fn.togglify = function(settings) {
     };
   }
   t.__esModule = !0;
-  var o = n(120),
+  var o = n(122),
     i = r(o);
   t.default = function(e, t) {
     if (!e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -66501,6 +66728,77 @@ $.fn.togglify = function(settings) {
   e.exports = {
     debugTool: r
   };
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e) {
+    if (e && e.__esModule) return e;
+    var t = {};
+    if (null != e)
+      for (var n in e) Object.prototype.hasOwnProperty.call(e, n) && (t[n] = e[n]);
+    return t.default = e, t;
+  }
+
+  function o(e) {
+    return e && e.__esModule ? e : {
+      "default": e
+    };
+  }
+  Object.defineProperty(t, "__esModule", {
+    value: !0
+  }), t.types = t.loggers = t.disbatch = t.batch = t.bindAll = t.assignAll = t.createReducer = t.createAction = void 0;
+  var i = n(195);
+  Object.defineProperty(t, "createAction", {
+    enumerable: !0,
+    get: function() {
+      return o(i).default;
+    }
+  });
+  var a = n(435);
+  Object.defineProperty(t, "createReducer", {
+    enumerable: !0,
+    get: function() {
+      return o(a).default;
+    }
+  });
+  var s = n(433);
+  Object.defineProperty(t, "assignAll", {
+    enumerable: !0,
+    get: function() {
+      return o(s).default;
+    }
+  });
+  var u = n(434);
+  Object.defineProperty(t, "bindAll", {
+    enumerable: !0,
+    get: function() {
+      return o(u).default;
+    }
+  });
+  var l = n(64);
+  Object.defineProperty(t, "batch", {
+    enumerable: !0,
+    get: function() {
+      return o(l).default;
+    }
+  });
+  var c = n(436);
+  Object.defineProperty(t, "disbatch", {
+    enumerable: !0,
+    get: function() {
+      return o(c).default;
+    }
+  });
+  var f = n(437);
+  Object.defineProperty(t, "loggers", {
+    enumerable: !0,
+    get: function() {
+      return o(f).default;
+    }
+  });
+  var p = n(196),
+    d = r(p);
+  t.types = d;
 }, function(e, t, n) {
   "use strict";
 
@@ -66546,9 +66844,9 @@ $.fn.togglify = function(settings) {
   }
   var c = n(3),
     f = n(5),
-    p = n(140),
+    p = n(142),
     d = n(30),
-    h = n(145),
+    h = n(147),
     v = n(38),
     m = n(60),
     g = (n(1), []),
@@ -66688,78 +66986,7 @@ $.fn.togglify = function(settings) {
   e.exports = r;
 }, function(e, t, n) {
   "use strict";
-
-  function r(e) {
-    if (e && e.__esModule) return e;
-    var t = {};
-    if (null != e)
-      for (var n in e) Object.prototype.hasOwnProperty.call(e, n) && (t[n] = e[n]);
-    return t.default = e, t;
-  }
-
-  function o(e) {
-    return e && e.__esModule ? e : {
-      "default": e
-    };
-  }
-  Object.defineProperty(t, "__esModule", {
-    value: !0
-  }), t.types = t.loggers = t.disbatch = t.batch = t.bindAll = t.assignAll = t.createReducer = t.createAction = void 0;
-  var i = n(193);
-  Object.defineProperty(t, "createAction", {
-    enumerable: !0,
-    get: function() {
-      return o(i).default;
-    }
-  });
-  var a = n(433);
-  Object.defineProperty(t, "createReducer", {
-    enumerable: !0,
-    get: function() {
-      return o(a).default;
-    }
-  });
-  var s = n(431);
-  Object.defineProperty(t, "assignAll", {
-    enumerable: !0,
-    get: function() {
-      return o(s).default;
-    }
-  });
-  var u = n(432);
-  Object.defineProperty(t, "bindAll", {
-    enumerable: !0,
-    get: function() {
-      return o(u).default;
-    }
-  });
-  var l = n(64);
-  Object.defineProperty(t, "batch", {
-    enumerable: !0,
-    get: function() {
-      return o(l).default;
-    }
-  });
-  var c = n(434);
-  Object.defineProperty(t, "disbatch", {
-    enumerable: !0,
-    get: function() {
-      return o(c).default;
-    }
-  });
-  var f = n(435);
-  Object.defineProperty(t, "loggers", {
-    enumerable: !0,
-    get: function() {
-      return o(f).default;
-    }
-  });
-  var p = n(194),
-    d = r(p);
-  t.types = d;
-}, function(e, t, n) {
-  "use strict";
-  e.exports = n(325);
+  e.exports = n(327);
 }, function(e, t, n) {
   "use strict";
 
@@ -66769,7 +66996,7 @@ $.fn.togglify = function(settings) {
     };
   }
   t.__esModule = !0;
-  var o = n(231),
+  var o = n(233),
     i = r(o);
   t.default = i.default || function(e) {
     for (var t = 1; t < arguments.length; t++) {
@@ -66782,7 +67009,7 @@ $.fn.togglify = function(settings) {
   var n = e.exports = "undefined" != typeof window && window.Math == Math ? window : "undefined" != typeof self && self.Math == Math ? self : Function("return this")();
   "number" == typeof __g && (__g = n);
 }, function(e, t, n) {
-  var r = n(125),
+  var r = n(127),
     o = n(69);
   e.exports = function(e) {
     return r(o(e));
@@ -66798,7 +67025,7 @@ $.fn.togglify = function(settings) {
 }, function(e, t, n) {
   var r = n(24),
     o = n(13),
-    i = n(122),
+    i = n(124),
     a = n(34),
     s = "prototype",
     u = function(e, t, n) {
@@ -66838,7 +67065,7 @@ $.fn.togglify = function(settings) {
   };
 }, function(e, t, n) {
   var r = n(32),
-    o = n(124),
+    o = n(126),
     i = n(80),
     a = Object.defineProperty;
   t.f = n(26) ? Object.defineProperty : function(e, t, n) {
@@ -66917,7 +67144,7 @@ $.fn.togglify = function(settings) {
   });
   var o = n(4),
     i = n.n(o),
-    a = n(21);
+    a = n(17);
   n.n(a), n.d(t, "bulkAddChannels", function() {
     return l;
   }), n.d(t, "addChannel", function() {
@@ -67006,7 +67233,7 @@ $.fn.togglify = function(settings) {
     return e[t] = n, e;
   };
 }, function(e, t, n) {
-  var r = n(129),
+  var r = n(131),
     o = n(70);
   e.exports = Object.keys || function(e) {
     return r(e, o);
@@ -67056,7 +67283,7 @@ $.fn.togglify = function(settings) {
   var c = n(89),
     f = n(62),
     p = n(97),
-    d = n(157),
+    d = n(159),
     h = 1,
     v = 11,
     m = "undefined" != typeof document && "number" == typeof document.documentMode || "undefined" != typeof navigator && "string" == typeof navigator.userAgent && /\bEdge\/\d/.test(navigator.userAgent),
@@ -67133,7 +67360,7 @@ $.fn.togglify = function(settings) {
   function r() {
     o.attachRefs(this, this._currentElement);
   }
-  var o = n(348),
+  var o = n(350),
     i = (n(16), n(2), {
       mountComponent: function(e, t, n, o, i, a) {
         var s = e.mountComponent(t, n, o, i, a);
@@ -67160,15 +67387,15 @@ $.fn.togglify = function(settings) {
 }, function(e, t, n) {
   "use strict";
   var r = n(5),
-    o = n(422),
+    o = n(424),
     i = n(107),
-    a = n(427),
-    s = n(423),
-    u = n(424),
+    a = n(429),
+    s = n(425),
+    u = n(426),
     l = n(40),
-    c = n(425),
-    f = n(428),
-    p = n(429),
+    c = n(427),
+    f = n(430),
+    p = n(431),
     d = (n(2), l.createElement),
     h = l.createFactory,
     v = l.cloneElement,
@@ -67208,9 +67435,9 @@ $.fn.togglify = function(settings) {
     return void 0 !== e.key;
   }
   var i = n(5),
-    a = n(20),
-    s = (n(2), n(191), Object.prototype.hasOwnProperty),
-    u = n(189),
+    a = n(21),
+    s = (n(2), n(193), Object.prototype.hasOwnProperty),
+    u = n(191),
     l = {
       key: !0,
       ref: !0,
@@ -67326,8 +67553,8 @@ $.fn.togglify = function(settings) {
     a = n(90),
     s = n(91),
     u = n(95),
-    l = n(151),
-    c = n(152),
+    l = n(153),
+    c = n(154),
     f = (n(1), {}),
     p = null,
     d = function(e, t) {
@@ -67457,8 +67684,8 @@ $.fn.togglify = function(settings) {
   }
   var d = n(45),
     h = n(91),
-    v = n(151),
-    m = n(152),
+    v = n(153),
+    m = n(154),
     g = (n(2), d.getListener),
     y = {
       accumulateTwoPhaseDispatches: l,
@@ -67490,7 +67717,7 @@ $.fn.togglify = function(settings) {
   function r(e, t, n, r) {
     return o.call(this, e, t, n, r);
   }
-  var o = n(19),
+  var o = n(20),
     i = n(100),
     a = {
       view: function(e) {
@@ -67570,7 +67797,7 @@ $.fn.togglify = function(settings) {
   t.a = f, f.propTypes = l, f.defaultProps = c;
 }, function(e, t, n) {
   "use strict";
-  var r = n(215);
+  var r = n(217);
   t.a = r.a;
 }, function(e, t, n) {
   "use strict";
@@ -67586,7 +67813,7 @@ $.fn.togglify = function(settings) {
   }
   var i = n(4),
     a = n.n(i),
-    s = n(223),
+    s = n(225),
     u = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
@@ -67657,9 +67884,9 @@ $.fn.togglify = function(settings) {
   }
   var o, i = n(5),
     a = n(90),
-    s = n(340),
-    u = n(150),
-    l = n(373),
+    s = n(342),
+    u = n(152),
+    l = n(375),
     c = n(101),
     f = {},
     p = !1,
@@ -67776,7 +68003,7 @@ $.fn.togglify = function(settings) {
     return o.call(this, e, t, n, r);
   }
   var o = n(48),
-    i = n(150),
+    i = n(152),
     a = n(99),
     s = {
       screenX: null,
@@ -67929,14 +68156,14 @@ $.fn.togglify = function(settings) {
   e.exports = l;
 }, function(e, t, n) {
   "use strict";
-  var r = n(169);
+  var r = n(171);
   n.d(t, "a", function() {
     return r.a;
   });
-  var o = n(401);
+  var o = n(403);
   n.d(t, "b", function() {
     return o.a;
-  }), n(170), n(171);
+  }), n(172), n(173);
 }, function(e, t, n) {
   "use strict";
 
@@ -67948,7 +68175,7 @@ $.fn.togglify = function(settings) {
   Object.defineProperty(t, "__esModule", {
     value: !0
   });
-  var o = n(193),
+  var o = n(195),
     i = r(o);
   t.default = (0, i.default)("Batch", function() {
     for (var e = arguments.length, t = Array(e), n = 0; n < e; n++) t[n] = arguments[n];
@@ -67956,8 +68183,8 @@ $.fn.togglify = function(settings) {
   });
 }, function(e, t, n) {
   "use strict";
-  var r = n(382),
-    o = (n(160), n(383));
+  var r = n(384),
+    o = (n(162), n(385));
   n.d(t, "a", function() {
     return r.a;
   }), n.d(t, "b", function() {
@@ -67987,7 +68214,7 @@ $.fn.togglify = function(settings) {
       writable: !0
     }) : e[t] = n, e;
   }
-  var o = n(21),
+  var o = n(17),
     i = (n.n(o), n(4)),
     a = n.n(i);
   n.d(t, "d", function() {
@@ -68069,17 +68296,17 @@ $.fn.togglify = function(settings) {
   e.exports = !0;
 }, function(e, t, n) {
   var r = n(32),
-    o = n(261),
+    o = n(263),
     i = n(70),
     a = n(77)("IE_PROTO"),
     s = function() {},
     u = "prototype",
     l = function() {
-      var e, t = n(123)("iframe"),
+      var e, t = n(125)("iframe"),
         r = i.length,
         o = "<",
         a = ">";
-      for (t.style.display = "none", n(254).appendChild(t), t.src = "javascript:", e = t.contentWindow.document, e.open(), e.write(o + "script" + a + "document.F=Object" + o + "/script" + a), e.close(), l = e.F; r--;) delete l[u][i[r]];
+      for (t.style.display = "none", n(256).appendChild(t), t.src = "javascript:", e = t.contentWindow.document, e.open(), e.write(o + "script" + a + "document.F=Object" + o + "/script" + a), e.close(), l = e.F; r--;) delete l[u][i[r]];
       return l();
     };
   e.exports = Object.create || function(e, t) {
@@ -68092,7 +68319,7 @@ $.fn.togglify = function(settings) {
     i = n(25),
     a = n(80),
     s = n(28),
-    u = n(124),
+    u = n(126),
     l = Object.getOwnPropertyDescriptor;
   t.f = n(26) ? l : function(e, t) {
     if (e = i(e), t = a(t, !0), u) try {
@@ -68116,7 +68343,7 @@ $.fn.togglify = function(settings) {
 }, function(e, t, n) {
   var r = n(29).f,
     o = n(28),
-    i = n(18)("toStringTag");
+    i = n(19)("toStringTag");
   e.exports = function(e, t, n) {
     e && !o(e = n ? e : e.prototype, i) && r(e, i, {
       configurable: !0,
@@ -68165,11 +68392,11 @@ $.fn.togglify = function(settings) {
     });
   };
 }, function(e, t, n) {
-  t.f = n(18);
+  t.f = n(19);
 }, function(e, t, n) {
   "use strict";
-  var r = n(264)(!0);
-  n(126)(String, "String", function(e) {
+  var r = n(266)(!0);
+  n(128)(String, "String", function(e) {
     this._t = String(e), this._i = 0;
   }, function() {
     var e, t = this._t,
@@ -68183,8 +68410,8 @@ $.fn.togglify = function(settings) {
     });
   });
 }, function(e, t, n) {
-  n(270);
-  for (var r = n(24), o = n(34), i = n(43), a = n(18)("toStringTag"), s = ["NodeList", "DOMTokenList", "MediaList", "StyleSheetList", "CSSRuleList"], u = 0; u < 5; u++) {
+  n(272);
+  for (var r = n(24), o = n(34), i = n(43), a = n(19)("toStringTag"), s = ["NodeList", "DOMTokenList", "MediaList", "StyleSheetList", "CSSRuleList"], u = 0; u < 5; u++) {
     var l = s[u],
       c = r[l],
       f = c && c.prototype;
@@ -68219,9 +68446,9 @@ $.fn.togglify = function(settings) {
     var r = f.call(t, "constructor") && t.constructor;
     return "function" == typeof r && r instanceof r && c.call(r) == p;
   }
-  var o = n(303),
-    i = n(305),
-    a = n(310),
+  var o = n(305),
+    i = n(307),
+    a = n(312),
     s = "[object Object]",
     u = Function.prototype,
     l = Object.prototype,
@@ -68274,10 +68501,10 @@ $.fn.togglify = function(settings) {
     o === t ? n && v(r, document.createTextNode(n), o) : n ? (h(o, n), u(r, o, t)) : u(r, e, t);
   }
   var c = n(36),
-    f = n(317),
+    f = n(319),
     p = (n(8), n(16), n(97)),
     d = n(62),
-    h = n(157),
+    h = n(159),
     v = p(function(e, t, n) {
       e.insertBefore(t, n);
     }),
@@ -68546,7 +68773,7 @@ $.fn.togglify = function(settings) {
   }
   var s = n(3),
     u = n(39),
-    l = n(346),
+    l = n(348),
     c = (n(1), n(2), {
       button: !0,
       checkbox: !0,
@@ -68640,8 +68867,8 @@ $.fn.togglify = function(settings) {
     return n ? n : null;
   }
   var a = n(3),
-    s = (n(20), n(47)),
-    u = (n(16), n(17)),
+    s = (n(21), n(47)),
+    u = (n(16), n(18)),
     l = (n(1), n(2), {
       isMounted: function(e) {
         var t = s.get(e);
@@ -68796,7 +69023,7 @@ $.fn.togglify = function(settings) {
       t = o, s && u && r(o);
     };
   }
-  var o = n(119),
+  var o = n(121),
     i = n.n(o);
   t.a = r;
 }, function(e, t, n) {
@@ -68807,7 +69034,7 @@ $.fn.togglify = function(settings) {
   }
   var o = n(41),
     i = n(108),
-    a = (n(191), n(44));
+    a = (n(193), n(44));
   n(1), n(2), r.prototype.isReactComponent = {}, r.prototype.setState = function(e, t) {
     "object" != typeof e && "function" != typeof e && null != e ? o("85") : void 0, this.updater.enqueueSetState(this, e), t && this.updater.enqueueCallback(this, t, "setState");
   }, r.prototype.forceUpdate = function(e) {
@@ -68835,12 +69062,12 @@ $.fn.togglify = function(settings) {
   e.exports = o;
 }, function(e, t, n) {
   "use strict";
-  var r = n(196),
-    o = n(440),
-    i = n(439),
-    a = n(438),
-    s = n(195);
-  n(197), n.d(t, "d", function() {
+  var r = n(198),
+    o = n(442),
+    i = n(441),
+    a = n(440),
+    s = n(197);
+  n(199), n.d(t, "d", function() {
     return r.b;
   }), n.d(t, "e", function() {
     return o.a;
@@ -68864,8 +69091,8 @@ $.fn.togglify = function(settings) {
   e.exports = n;
 }, function(e, t, n) {
   "use strict";
-  var r = n(217),
-    o = n(216);
+  var r = n(219),
+    o = n(218);
   n.d(t, "a", function() {
     return r.a;
   }), n.d(t, "b", function() {
@@ -68895,7 +69122,7 @@ $.fn.togglify = function(settings) {
   });
   var i = n(4),
     a = n.n(i),
-    s = n(21),
+    s = n(17),
     u = (n.n(s), n(31));
   n.d(t, "getAllChannelIds", function() {
     return h;
@@ -68978,7 +69205,7 @@ $.fn.togglify = function(settings) {
   });
   var o = n(4),
     i = n.n(o),
-    a = n(21),
+    a = n(17),
     s = (n.n(a), n(31));
   n.d(t, "removeChannelFromNameMap", function() {
     return c;
@@ -69059,7 +69286,103 @@ $.fn.togglify = function(settings) {
   });
   var o = n(4),
     i = n.n(o),
-    a = n(21);
+    a = n(17);
+  n.n(a), n.d(t, "updateMemberType", function() {
+    return l;
+  }), n.d(t, "bulkUpdateMemberType", function() {
+    return c;
+  }), n.d(t, "getMemberTypeById", function() {
+    return h;
+  });
+  var s, u = Object.assign || function(e) {
+      for (var t = 1; t < arguments.length; t++) {
+        var n = arguments[t];
+        for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
+      }
+      return e;
+    },
+    l = n.i(a.createAction)("Store a member's type by id"),
+    c = n.i(a.createAction)("Store multiple member's type by id"),
+    f = {},
+    p = function(e) {
+      var t = "member";
+      return e && e.id ? (e.is_external ? t = "external" : e.is_restricted && !e.is_ultra_restricted ? t = "ra" : e.is_ultra_restricted && (t = "ura"), t) : t;
+    },
+    d = n.i(a.createReducer)((s = {}, r(s, l, function(e, t) {
+      if (!t || !t.id) return e;
+      var n = p(t);
+      return e[t.id] === n ? e : u({}, e, r({}, t.id, n));
+    }), r(s, c, function(e, t) {
+      if (!i.a.isArray(t)) return e;
+      var n = i.a.filter(t, function(e) {
+        return !(!e || !e.id);
+      });
+      return n.length ? i.a.reduce(n, function(e, t) {
+        var n = p(t);
+        return e[t.id] = n, e;
+      }, u({}, e)) : e;
+    }), s), f);
+  t.default = d;
+  var h = function(e, t) {
+    var n = e && e.memberTypesById && e.memberTypesById[t];
+    return n || (n = "member"), n;
+  };
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e, t, n) {
+    return t in e ? Object.defineProperty(e, t, {
+      value: n,
+      enumerable: !0,
+      configurable: !0,
+      writable: !0
+    }) : e[t] = n, e;
+  }
+  Object.defineProperty(t, "__esModule", {
+    value: !0
+  });
+  var o = n(17);
+  n.n(o), n.d(t, "updateDnd", function() {
+    return a;
+  }), n.d(t, "getDndByMemberId", function() {
+    return l;
+  });
+  var i = Object.assign || function(e) {
+      for (var t = 1; t < arguments.length; t++) {
+        var n = arguments[t];
+        for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
+      }
+      return e;
+    },
+    a = n.i(o.createAction)("Update the DND status of a user"),
+    s = {},
+    u = n.i(o.createReducer)(r({}, a, function(e) {
+      var t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : {},
+        n = t.memberId,
+        o = t.isInDnd;
+      return n && e[n] !== o ? i({}, e, r({}, n, o)) : e;
+    }), s);
+  t.default = u;
+  var l = function(e, t) {
+    return e && e.dnd && e.dnd[t];
+  };
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e, t, n) {
+    return t in e ? Object.defineProperty(e, t, {
+      value: n,
+      enumerable: !0,
+      configurable: !0,
+      writable: !0
+    }) : e[t] = n, e;
+  }
+  Object.defineProperty(t, "__esModule", {
+    value: !0
+  });
+  var o = n(4),
+    i = n.n(o),
+    a = n(17);
   n.n(a), n.d(t, "updatePresence", function() {
     return l;
   }), n.d(t, "bulkUpdatePresence", function() {
@@ -69117,7 +69440,7 @@ $.fn.togglify = function(settings) {
   });
   var i = n(4),
     a = n.n(i),
-    s = n(21);
+    s = n(17);
   n.n(s), n.d(t, "updateTyping", function() {
     return c;
   }), n.d(t, "clearTyping", function() {
@@ -69199,7 +69522,7 @@ $.fn.togglify = function(settings) {
     i = n.n(o),
     a = n(9),
     s = n.n(a),
-    u = n(200),
+    u = n(202),
     l = (n.n(u), {
       children: o.PropTypes.node.isRequired,
       position: o.PropTypes.string,
@@ -69333,7 +69656,7 @@ $.fn.togglify = function(settings) {
   }
   var i = n(4),
     a = n.n(i),
-    s = n(21);
+    s = n(17);
   n.n(s), t.a = o;
   var u = Object.assign || function(e) {
     for (var t = 1; t < arguments.length; t++) {
@@ -69344,7 +69667,7 @@ $.fn.togglify = function(settings) {
   };
 }, function(e, t, n) {
   e.exports = {
-    "default": n(246),
+    "default": n(248),
     __esModule: !0
   };
 }, function(e, t, n) {
@@ -69356,9 +69679,9 @@ $.fn.togglify = function(settings) {
     };
   }
   t.__esModule = !0;
-  var o = n(237),
+  var o = n(239),
     i = r(o),
-    a = n(236),
+    a = n(238),
     s = r(a),
     u = "function" == typeof s.default && "symbol" == typeof i.default ? function(e) {
       return typeof e;
@@ -69372,7 +69695,7 @@ $.fn.togglify = function(settings) {
   };
 }, function(e, t, n) {
   var r = n(68),
-    o = n(18)("toStringTag"),
+    o = n(19)("toStringTag"),
     i = "Arguments" == r(function() {
       return arguments;
     }()),
@@ -69386,7 +69709,7 @@ $.fn.togglify = function(settings) {
     return void 0 === e ? "Undefined" : null === e ? "Null" : "string" == typeof(n = a(t = Object(e), o)) ? n : i ? r(t) : "Object" == (s = r(t)) && "function" == typeof t.callee ? "Arguments" : s;
   };
 }, function(e, t, n) {
-  var r = n(250);
+  var r = n(252);
   e.exports = function(e, t, n) {
     if (r(e), void 0 === t) return e;
     switch (n) {
@@ -69416,7 +69739,7 @@ $.fn.togglify = function(settings) {
   };
 }, function(e, t, n) {
   e.exports = !n(26) && !n(33)(function() {
-    return 7 != Object.defineProperty(n(123)("div"), "a", {
+    return 7 != Object.defineProperty(n(125)("div"), "a", {
       get: function() {
         return 7;
       }
@@ -69431,14 +69754,14 @@ $.fn.togglify = function(settings) {
   "use strict";
   var r = n(71),
     o = n(27),
-    i = n(130),
+    i = n(132),
     a = n(34),
     s = n(28),
     u = n(43),
-    l = n(256),
+    l = n(258),
     c = n(76),
-    f = n(128),
-    p = n(18)("iterator"),
+    f = n(130),
+    p = n(19)("iterator"),
     d = !([].keys && "next" in [].keys()),
     h = "@@iterator",
     v = "keys",
@@ -69485,7 +69808,7 @@ $.fn.togglify = function(settings) {
     return C;
   };
 }, function(e, t, n) {
-  var r = n(129),
+  var r = n(131),
     o = n(70).concat("length", "prototype");
   t.f = Object.getOwnPropertyNames || function(e) {
     return r(e, o);
@@ -69501,7 +69824,7 @@ $.fn.togglify = function(settings) {
 }, function(e, t, n) {
   var r = n(28),
     o = n(25),
-    i = n(252)(!1),
+    i = n(254)(!1),
     a = n(77)("IE_PROTO");
   e.exports = function(e, t) {
     var n, s = o(e),
@@ -69553,7 +69876,7 @@ $.fn.togglify = function(settings) {
     }
     return a;
   };
-  var o = n(284),
+  var o = n(286),
     i = r(o),
     a = void 0;
   e.exports = t.default;
@@ -69607,7 +69930,7 @@ $.fn.togglify = function(settings) {
   e.exports = r;
 }, function(e, t, n) {
   "use strict";
-  var r = n(309),
+  var r = n(311),
     o = r.a.Symbol;
   t.a = o;
 }, function(e, t) {
@@ -70003,7 +70326,7 @@ $.fn.togglify = function(settings) {
     return null == t || e.hasBooleanValue && !t || e.hasNumericValue && isNaN(t) || e.hasPositiveNumericValue && t < 1 || e.hasOverloadedBooleanValue && t === !1;
   }
   var i = n(37),
-    a = (n(8), n(16), n(374)),
+    a = (n(8), n(16), n(376)),
     s = (n(2), new RegExp("^[" + i.ATTRIBUTE_NAME_START_CHAR + "][" + i.ATTRIBUTE_NAME_CHAR + "]*$")),
     u = {},
     l = {},
@@ -70108,7 +70431,7 @@ $.fn.togglify = function(settings) {
   var a = n(5),
     s = n(93),
     u = n(8),
-    l = n(17),
+    l = n(18),
     c = (n(2), !1),
     f = {
       getHostProps: function(e, t) {
@@ -70197,10 +70520,10 @@ $.fn.togglify = function(settings) {
   function r(e) {
     return i(document.documentElement, e);
   }
-  var o = n(333),
-    i = n(289),
-    a = n(134),
-    s = n(135),
+  var o = n(335),
+    i = n(291),
+    a = n(136),
+    s = n(137),
     u = {
       hasSelectionCapabilities: function(e) {
         var t = e && e.nodeName && e.nodeName.toLowerCase();
@@ -70312,17 +70635,17 @@ $.fn.togglify = function(settings) {
     v = n(37),
     m = n(39),
     g = n(58),
-    y = (n(20), n(8)),
-    _ = n(327),
-    b = n(329),
-    w = n(145),
+    y = (n(21), n(8)),
+    _ = n(329),
+    b = n(331),
+    w = n(147),
     C = n(47),
-    S = (n(16), n(343)),
+    S = (n(16), n(345)),
     x = n(38),
     T = n(96),
-    k = n(17),
+    k = n(18),
     E = n(44),
-    P = n(155),
+    P = n(157),
     O = (n(1), n(62)),
     R = n(102),
     I = (n(2), v.ID_ATTRIBUTE_NAME),
@@ -70462,7 +70785,7 @@ $.fn.togglify = function(settings) {
       (t = e._renderedNodeType) === o.COMPOSITE;) e = e._renderedComponent;
     return t === o.HOST ? e._renderedComponent : t === o.EMPTY ? null : void 0;
   }
-  var o = n(149);
+  var o = n(151);
   e.exports = r;
 }, function(e, t, n) {
   "use strict";
@@ -70504,10 +70827,10 @@ $.fn.togglify = function(settings) {
   }
   var a = n(3),
     s = n(5),
-    u = n(324),
-    l = n(144),
-    c = n(146),
-    f = (n(371), n(1), n(2), function(e) {
+    u = n(326),
+    l = n(146),
+    c = n(148),
+    f = (n(373), n(1), n(2), function(e) {
       this.construct(e);
     });
   s(f.prototype, u, {
@@ -70591,8 +70914,8 @@ $.fn.togglify = function(settings) {
     return null == e ? 0 : o(e, "", t, n);
   }
   var a = n(3),
-    s = (n(20), n(339)),
-    u = n(370),
+    s = (n(21), n(341)),
+    u = n(372),
     l = (n(1), n(92)),
     c = (n(2), "."),
     f = ":";
@@ -70758,13 +71081,13 @@ $.fn.togglify = function(settings) {
       return p.WrappedComponent = t, p.displayName = l, p.childContextTypes = N, p.contextTypes = j, p.propTypes = j, f()(p, t);
     };
   }
-  var c = n(299),
+  var c = n(301),
     f = n.n(c),
-    p = n(300),
+    p = n(302),
     d = n.n(p),
     h = n(0),
-    v = (n.n(h), n(389)),
-    m = n(162);
+    v = (n.n(h), n(391)),
+    m = n(164);
   t.a = l;
   var g = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
@@ -70804,7 +71127,7 @@ $.fn.togglify = function(settings) {
       }, r;
     };
   }
-  n(163), t.b = r, t.a = i;
+  n(165), t.b = r, t.a = i;
 }, function(e, t, n) {
   "use strict";
   var r = n(0);
@@ -70960,7 +71283,7 @@ $.fn.togglify = function(settings) {
     p = n.n(f),
     d = n(0),
     h = n.n(d),
-    v = n(418),
+    v = n(420),
     m = function(e) {
       function t(e) {
         a()(this, t);
@@ -71162,9 +71485,9 @@ $.fn.togglify = function(settings) {
     g = n.n(m),
     y = n(0),
     _ = n.n(y),
-    b = n(395),
-    w = n(399),
-    C = n(416),
+    b = n(397),
+    w = n(401),
+    C = n(418),
     S = function(e) {
       function t(e, n) {
         f()(this, t);
@@ -71376,13 +71699,13 @@ $.fn.togglify = function(settings) {
     m = n.n(v),
     g = n(9),
     y = n.n(g),
-    _ = n(404),
-    b = n(403),
+    _ = n(406),
+    b = n(405),
     w = n(106),
-    C = n(171),
-    S = n(405),
-    x = n(170),
-    T = n(132),
+    C = n(173),
+    S = n(407),
+    x = n(172),
+    T = n(134),
     k = n.n(T),
     E = 150,
     P = {
@@ -72237,7 +72560,7 @@ $.fn.togglify = function(settings) {
   };
 }, function(e, t, n) {
   "use strict";
-  var r = n(234),
+  var r = n(236),
     o = n.n(r),
     i = n(52),
     a = n.n(i),
@@ -72423,7 +72746,7 @@ $.fn.togglify = function(settings) {
     y = n.n(g),
     _ = n(9),
     b = n.n(_),
-    w = n(408),
+    w = n(410),
     C = 150,
     S = function(e) {
       function t(e, n) {
@@ -72699,8 +73022,7 @@ $.fn.togglify = function(settings) {
             n = void 0 === t ? 0 : t,
             r = e.rowIndex,
             o = void 0 === r ? 0 : r;
-          this._deferredInvalidateColumnIndex = "number" == typeof this._deferredInvalidateColumnIndex ? Math.min(this._deferredInvalidateColumnIndex, n) : n,
-            this._deferredInvalidateRowIndex = "number" == typeof this._deferredInvalidateRowIndex ? Math.min(this._deferredInvalidateRowIndex, o) : o;
+          this._deferredInvalidateColumnIndex = "number" == typeof this._deferredInvalidateColumnIndex ? Math.min(this._deferredInvalidateColumnIndex, n) : n, this._deferredInvalidateRowIndex = "number" == typeof this._deferredInvalidateRowIndex ? Math.min(this._deferredInvalidateRowIndex, o) : o;
         }
       }, {
         key: "measureAllCells",
@@ -73188,9 +73510,9 @@ $.fn.togglify = function(settings) {
     l = n(11),
     c = n.n(l),
     f = n(0),
-    p = (n.n(f), n(182)),
-    d = n(181),
-    h = n(180),
+    p = (n.n(f), n(184)),
+    d = n(183),
+    h = n(182),
     v = function(e) {
       function t() {
         return a()(this, t), u()(this, (t.__proto__ || o()(t)).apply(this, arguments));
@@ -73250,12 +73572,12 @@ $.fn.togglify = function(settings) {
     h = n.n(d),
     v = n(9),
     m = n.n(v),
-    g = (n(177), n(0)),
+    g = (n(179), n(0)),
     y = n.n(g),
     _ = n(22),
     b = (n.n(_), n(63)),
-    w = n(184),
-    C = n(183),
+    w = n(186),
+    C = n(185),
     S = n(105),
     x = function(e) {
       function t(e) {
@@ -73683,7 +74005,7 @@ $.fn.togglify = function(settings) {
   }
   var o = n(0),
     i = n.n(o),
-    a = n(178);
+    a = n(180);
   t.a = r;
 }, function(e, t, n) {
   "use strict";
@@ -73767,8 +74089,8 @@ $.fn.togglify = function(settings) {
     d = n(0),
     h = (n.n(d), n(22)),
     v = n.n(h),
-    m = n(186),
-    g = n(415),
+    m = n(188),
+    g = n(417),
     y = function(e) {
       function t(e) {
         a()(this, t);
@@ -73923,14 +74245,14 @@ $.fn.togglify = function(settings) {
     p = 150;
 }, function(e, t, n) {
   "use strict";
-  var r = (n(391), n(392));
+  var r = (n(393), n(394));
   n.d(t, "a", function() {
     return r.a;
   });
-  var o = (n(394), n(398), n(400), n(63), n(406), n(407));
+  var o = (n(396), n(400), n(402), n(63), n(408), n(409));
   n.d(t, "b", function() {
     return o.a;
-  }), n(410), n(411), n(412), n(413), n(414);
+  }), n(412), n(413), n(414), n(415), n(416);
 }, function(e, t, n) {
   "use strict";
 
@@ -73969,7 +74291,7 @@ $.fn.togglify = function(settings) {
     return o && (t = T.getDisplayName(o)), i(n, r && r._source, t);
   }
   var u, l, c, f, p, d, h, v = n(41),
-    m = n(20),
+    m = n(21),
     g = (n(1), n(2), "function" == typeof Array.from && "function" == typeof Map && r(Map) && null != Map.prototype && "function" == typeof Map.prototype.keys && r(Map.prototype.keys) && "function" == typeof Set && r(Set) && null != Set.prototype && "function" == typeof Set.prototype.keys && r(Set.prototype.keys));
   if (g) {
     var y = new Map,
@@ -74226,7 +74548,7 @@ $.fn.togglify = function(settings) {
     return e && "function" == typeof Symbol && e.constructor === Symbol ? "symbol" : typeof e;
   };
   t.default = r;
-  var i = n(194),
+  var i = n(196),
     a = 0,
     s = function(e) {
       return e;
@@ -74365,7 +74687,7 @@ $.fn.togglify = function(settings) {
     }, h[a.a] = d, h;
   }
   var o = n(87),
-    i = n(442),
+    i = n(444),
     a = n.n(i);
   n.d(t, "a", function() {
     return s;
@@ -74496,8 +74818,7 @@ $.fn.togglify = function(settings) {
   function o(e, t) {
     var n = v(),
       r = y[y.length - 1];
-    if ("top" === e.insertAt) r ? r.nextSibling ? n.insertBefore(t, r.nextSibling) : n.appendChild(t) : n.insertBefore(t, n.firstChild),
-      y.push(t);
+    if ("top" === e.insertAt) r ? r.nextSibling ? n.insertBefore(t, r.nextSibling) : n.appendChild(t) : n.insertBefore(t, n.firstChild), y.push(t);
     else {
       if ("bottom" !== e.insertAt) throw new Error("Invalid value for parameter 'insertAt'. Must be 'top' or 'bottom'.");
       n.appendChild(t);
@@ -74616,10 +74937,10 @@ $.fn.togglify = function(settings) {
     };
   }();
 }, function(e, t, n) {
-  var r = n(282);
+  var r = n(284);
   "string" == typeof r && (r = [
     [e.i, r, ""]
-  ]), n(199)(r, {}), r.locals && (e.exports = r.locals);
+  ]), n(201)(r, {}), r.locals && (e.exports = r.locals);
 }, function(e, t) {
   e.exports = function(e) {
     return e.webpackPolyfill || (e.deprecate = function() {}, e.paths = [], e.children || (e.children = []), Object.defineProperty(e, "loaded", {
@@ -74636,11 +74957,11 @@ $.fn.togglify = function(settings) {
   };
 }, function(e, t, n) {
   "use strict";
-  var r = n(208);
+  var r = n(210);
   t.a = r.a;
 }, function(e, t, n) {
   "use strict";
-  var r = n(213);
+  var r = n(215);
   t.a = r.a;
 }, function(e, t, n) {
   "use strict";
@@ -74659,9 +74980,9 @@ $.fn.togglify = function(settings) {
     return n.i(i.d)(u.a, e, o);
   }
   var i = n(109),
-    a = n(437),
+    a = n(439),
     s = n.n(a),
-    u = n(227),
+    u = n(229),
     l = n(31);
   t.a = o;
   var c = Object.assign || function(e) {
@@ -74725,10 +75046,10 @@ $.fn.togglify = function(settings) {
     l = n.n(u),
     c = n(9),
     f = n.n(c),
-    p = n(187),
-    d = n(218),
-    h = n(207),
-    v = n(117),
+    p = n(189),
+    d = n(220),
+    h = n(209),
+    v = n(119),
     m = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
@@ -74987,10 +75308,10 @@ $.fn.togglify = function(settings) {
     s = n.n(a),
     u = n(0),
     l = n.n(u),
-    c = n(198),
-    f = (n.n(c), n(205)),
-    p = n(209),
-    d = n(441),
+    c = n(200),
+    f = (n.n(c), n(207)),
+    p = n(211),
+    d = n(443),
     h = (n.n(d), Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
@@ -75279,9 +75600,9 @@ $.fn.togglify = function(settings) {
   var r = n(4),
     o = n.n(r),
     i = n(65),
-    a = n(198),
+    a = n(200),
     s = (n.n(a), n(67)),
-    u = n(206),
+    u = n(208),
     l = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
@@ -75592,7 +75913,7 @@ $.fn.togglify = function(settings) {
     l = n.n(u),
     c = n(0),
     f = n.n(c),
-    p = n(187),
+    p = n(189),
     d = n(49),
     h = n(50),
     v = n(51),
@@ -75845,15 +76166,15 @@ $.fn.togglify = function(settings) {
     c = n(9),
     f = n.n(c),
     p = n(49),
-    d = n(212),
-    h = n(210),
-    v = n(214),
-    m = n(211),
+    d = n(214),
+    h = n(212),
+    v = n(216),
+    m = n(213),
     g = n(50),
     y = n(51),
-    _ = n(228),
-    b = n(220),
-    w = n(221),
+    _ = n(230),
+    b = n(222),
+    w = n(223),
     C = function() {
       function e(e, t) {
         var n = [],
@@ -76671,7 +76992,7 @@ $.fn.togglify = function(settings) {
   var a = n(0),
     s = n.n(a),
     u = n(22),
-    l = (n.n(u), n(381)),
+    l = (n.n(u), n(383)),
     c = n.n(l),
     f = function() {
       function e(e, t) {
@@ -76916,8 +77237,8 @@ $.fn.togglify = function(settings) {
   t.a = h, h.propTypes = p, h.defaultProps = d;
 }, function(e, t, n) {
   "use strict";
-  var r = n(219);
-  n(116), t.a = r.a;
+  var r = n(221);
+  n(118), t.a = r.a;
 }, function(e, t, n) {
   "use strict";
 
@@ -76946,11 +77267,11 @@ $.fn.togglify = function(settings) {
     u = n(0),
     l = n.n(u),
     c = n(9),
-    f = (n.n(c), n(116)),
+    f = (n.n(c), n(118)),
     p = n(111),
     d = n(22),
-    h = (n.n(d), n(117)),
-    v = n(200),
+    h = (n.n(d), n(119)),
+    v = n(202),
     m = (n.n(v), Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
@@ -77114,7 +77435,7 @@ $.fn.togglify = function(settings) {
   b.propTypes = y, b.defaultProps = _, t.a = b;
 }, function(e, t, n) {
   "use strict";
-  var r = n(222);
+  var r = n(224);
   n.d(t, "a", function() {
     return o;
   }), n.d(t, "b", function() {
@@ -77127,7 +77448,7 @@ $.fn.togglify = function(settings) {
     a = r.c;
 }, function(e, t, n) {
   "use strict";
-  var r = n(224);
+  var r = n(226);
   n.d(t, "a", function() {
     return o;
   }), n.d(t, "b", function() {
@@ -77196,8 +77517,8 @@ $.fn.togglify = function(settings) {
       writable: !0
     }) : e[t] = n, e;
   }
-  var o, i = n(21),
-    a = (n.n(i), n(118)),
+  var o, i = n(17),
+    a = (n.n(i), n(120)),
     s = n.i(i.createAction)("Upsert a download"),
     u = n.i(i.createAction)("Upsert multiple downloads"),
     l = n.i(i.createAction)("Remove a download by ID"),
@@ -77222,8 +77543,8 @@ $.fn.togglify = function(settings) {
   }), o), {});
 }, function(e, t, n) {
   "use strict";
-  var r = n(21),
-    o = (n.n(r), n(118)),
+  var r = n(17),
+    o = (n.n(r), n(120)),
     i = n.i(r.createAction)("Upsert a file"),
     a = n.i(r.createAction)("Upsert multiple files"),
     s = n.i(r.createAction)("Remove a file by ID"),
@@ -77238,31 +77559,35 @@ $.fn.togglify = function(settings) {
   "use strict";
   var r = n(109),
     o = n(67),
-    i = n(114),
+    i = n(116),
     a = n(115),
-    s = n(31),
-    u = n(113),
-    l = n(112),
-    c = n(226),
-    f = n(225),
-    p = n.i(r.e)({
+    s = n(117),
+    u = n(31),
+    l = n(113),
+    c = n(112),
+    f = n(228),
+    p = n(227),
+    d = n(114),
+    h = n.i(r.e)({
       channelSidebar: o.h,
-      channels: s.default,
-      channelNamesToIds: u.default,
-      channelIdsByType: l.default,
+      channels: u.default,
+      channelNamesToIds: l.default,
+      channelIdsByType: c.default,
       presence: i.default,
-      files: c.a,
-      downloads: f.a,
-      typing: a.default
+      dnd: a.default,
+      files: f.a,
+      downloads: p.a,
+      typing: s.default,
+      memberTypesById: d.default
     });
-  t.a = p;
+  t.a = h;
 }, function(e, t, n) {
   "use strict";
 
   function r(e, t) {
     if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
   }
-  var o = n(311),
+  var o = n(313),
     i = n.n(o),
     a = n(4),
     s = n.n(a),
@@ -77309,16 +77634,6 @@ $.fn.togglify = function(settings) {
   t.a = l;
 }, function(e, t, n) {
   e.exports = {
-    "default": n(239),
-    __esModule: !0
-  };
-}, function(e, t, n) {
-  e.exports = {
-    "default": n(240),
-    __esModule: !0
-  };
-}, function(e, t, n) {
-  e.exports = {
     "default": n(241),
     __esModule: !0
   };
@@ -77339,17 +77654,27 @@ $.fn.togglify = function(settings) {
   };
 }, function(e, t, n) {
   e.exports = {
-    "default": n(247),
+    "default": n(245),
     __esModule: !0
   };
 }, function(e, t, n) {
   e.exports = {
-    "default": n(248),
+    "default": n(246),
     __esModule: !0
   };
 }, function(e, t, n) {
   e.exports = {
     "default": n(249),
+    __esModule: !0
+  };
+}, function(e, t, n) {
+  e.exports = {
+    "default": n(250),
+    __esModule: !0
+  };
+}, function(e, t, n) {
+  e.exports = {
+    "default": n(251),
     __esModule: !0
   };
 }, function(e, t, n) {
@@ -77361,9 +77686,9 @@ $.fn.togglify = function(settings) {
     };
   }
   t.__esModule = !0;
-  var o = n(230),
+  var o = n(232),
     i = r(o),
-    a = n(229),
+    a = n(231),
     s = r(a);
   t.default = function() {
     function e(e, t) {
@@ -77391,37 +77716,37 @@ $.fn.togglify = function(settings) {
     };
   }();
 }, function(e, t, n) {
-  n(84), n(83), e.exports = n(268);
+  n(84), n(83), e.exports = n(270);
 }, function(e, t, n) {
-  n(84), n(83), e.exports = n(269);
+  n(84), n(83), e.exports = n(271);
 }, function(e, t, n) {
-  n(271), e.exports = n(13).Object.assign;
+  n(273), e.exports = n(13).Object.assign;
 }, function(e, t, n) {
-  n(272);
+  n(274);
   var r = n(13).Object;
   e.exports = function(e, t) {
     return r.create(e, t);
   };
 }, function(e, t, n) {
-  n(273);
+  n(275);
   var r = n(13).Object;
   e.exports = function(e, t, n) {
     return r.defineProperty(e, t, n);
   };
 }, function(e, t, n) {
-  n(274);
+  n(276);
   var r = n(13).Object;
   e.exports = function(e, t) {
     return r.getOwnPropertyDescriptor(e, t);
   };
 }, function(e, t, n) {
-  n(275), e.exports = n(13).Object.getPrototypeOf;
+  n(277), e.exports = n(13).Object.getPrototypeOf;
 }, function(e, t, n) {
-  n(276), e.exports = n(13).Object.keys;
+  n(278), e.exports = n(13).Object.keys;
 }, function(e, t, n) {
-  n(277), e.exports = n(13).Object.setPrototypeOf;
+  n(279), e.exports = n(13).Object.setPrototypeOf;
 }, function(e, t, n) {
-  n(279), n(278), n(280), n(281), e.exports = n(13).Symbol;
+  n(281), n(280), n(282), n(283), e.exports = n(13).Symbol;
 }, function(e, t, n) {
   n(83), n(84), e.exports = n(82).f("iterator");
 }, function(e, t) {
@@ -77433,8 +77758,8 @@ $.fn.togglify = function(settings) {
   e.exports = function() {};
 }, function(e, t, n) {
   var r = n(25),
-    o = n(266),
-    i = n(265);
+    o = n(268),
+    i = n(267);
   e.exports = function(e) {
     return function(t, n, a) {
       var s, u = r(t),
@@ -77473,7 +77798,7 @@ $.fn.togglify = function(settings) {
     o = n(54),
     i = n(76),
     a = {};
-  n(34)(a, n(18)("iterator"), function() {
+  n(34)(a, n(19)("iterator"), function() {
     return this;
   }), e.exports = function(e, t, n) {
     e.prototype = r(a, {
@@ -77547,7 +77872,7 @@ $.fn.togglify = function(settings) {
     o = n(74),
     i = n(53),
     a = n(55),
-    s = n(125),
+    s = n(127),
     u = Object.assign;
   e.exports = !u || n(33)(function() {
     var e = {},
@@ -77573,7 +77898,7 @@ $.fn.togglify = function(settings) {
   };
 }, function(e, t, n) {
   var r = n(25),
-    o = n(127).f,
+    o = n(129).f,
     i = {}.toString,
     a = "object" == typeof window && window && Object.getOwnPropertyNames ? Object.getOwnPropertyNames(window) : [],
     s = function(e) {
@@ -77595,7 +77920,7 @@ $.fn.togglify = function(settings) {
   e.exports = {
     set: Object.setPrototypeOf || ("__proto__" in {} ? function(e, t, r) {
       try {
-        r = n(122)(Function.call, n(73).f(Object.prototype, "__proto__").set, 2), r(e, []), t = !(e instanceof Array);
+        r = n(124)(Function.call, n(73).f(Object.prototype, "__proto__").set, 2), r(e, []), t = !(e instanceof Array);
       } catch (e) {
         t = !0;
       }
@@ -77630,23 +77955,23 @@ $.fn.togglify = function(settings) {
     return e > 0 ? o(r(e), 9007199254740991) : 0;
   };
 }, function(e, t, n) {
-  var r = n(121),
-    o = n(18)("iterator"),
+  var r = n(123),
+    o = n(19)("iterator"),
     i = n(43);
   e.exports = n(13).getIteratorMethod = function(e) {
     if (void 0 != e) return e[o] || e["@@iterator"] || i[r(e)];
   };
 }, function(e, t, n) {
   var r = n(32),
-    o = n(267);
+    o = n(269);
   e.exports = n(13).getIterator = function(e) {
     var t = o(e);
     if ("function" != typeof t) throw TypeError(e + " is not iterable!");
     return r(t.call(e));
   };
 }, function(e, t, n) {
-  var r = n(121),
-    o = n(18)("iterator"),
+  var r = n(123),
+    o = n(19)("iterator"),
     i = n(43);
   e.exports = n(13).isIterable = function(e) {
     var t = Object(e);
@@ -77654,11 +77979,11 @@ $.fn.togglify = function(settings) {
   };
 }, function(e, t, n) {
   "use strict";
-  var r = n(251),
-    o = n(257),
+  var r = n(253),
+    o = n(259),
     i = n(43),
     a = n(25);
-  e.exports = n(126)(Array, "Array", function(e, t) {
+  e.exports = n(128)(Array, "Array", function(e, t) {
     this._t = a(e), this._i = 0, this._k = t;
   }, function() {
     var e = this._t,
@@ -77669,7 +77994,7 @@ $.fn.togglify = function(settings) {
 }, function(e, t, n) {
   var r = n(27);
   r(r.S + r.F, "Object", {
-    assign: n(260)
+    assign: n(262)
   });
 }, function(e, t, n) {
   var r = n(27);
@@ -77691,7 +78016,7 @@ $.fn.togglify = function(settings) {
   });
 }, function(e, t, n) {
   var r = n(55),
-    o = n(128);
+    o = n(130);
   n(75)("getPrototypeOf", function() {
     return function(e) {
       return o(r(e));
@@ -77708,7 +78033,7 @@ $.fn.togglify = function(settings) {
 }, function(e, t, n) {
   var r = n(27);
   r(r.S, "Object", {
-    setPrototypeOf: n(263).set
+    setPrototypeOf: n(265).set
   });
 }, function(e, t) {}, function(e, t, n) {
   "use strict";
@@ -77716,24 +78041,24 @@ $.fn.togglify = function(settings) {
     o = n(28),
     i = n(26),
     a = n(27),
-    s = n(130),
-    u = n(259).KEY,
+    s = n(132),
+    u = n(261).KEY,
     l = n(33),
     c = n(78),
     f = n(76),
     p = n(56),
-    d = n(18),
+    d = n(19),
     h = n(82),
     v = n(81),
-    m = n(258),
-    g = n(253),
-    y = n(255),
+    m = n(260),
+    g = n(255),
+    y = n(257),
     _ = n(32),
     b = n(25),
     w = n(80),
     C = n(54),
     S = n(72),
-    x = n(262),
+    x = n(264),
     T = n(73),
     k = n(29),
     E = n(35),
@@ -77751,9 +78076,9 @@ $.fn.togglify = function(settings) {
     U = c("symbols"),
     W = c("op-symbols"),
     F = Object[j],
-    H = "function" == typeof I,
-    B = r.QObject,
-    G = !B || !B[j] || !B[j].findChild,
+    B = "function" == typeof I,
+    H = r.QObject,
+    G = !H || !H[j] || !H[j].findChild,
     V = i && l(function() {
       return 7 != S(O({}, "a", {
         get: function() {
@@ -77770,7 +78095,7 @@ $.fn.togglify = function(settings) {
       var t = U[e] = S(I[j]);
       return t._k = e, t;
     },
-    K = H && "symbol" == typeof I.iterator ? function(e) {
+    K = B && "symbol" == typeof I.iterator ? function(e) {
       return "symbol" == typeof e;
     } : function(e) {
       return e instanceof I;
@@ -77806,7 +78131,7 @@ $.fn.togglify = function(settings) {
       for (var t, n = e === F, r = R(n ? W : b(e)), i = [], a = 0; r.length > a;) !o(U, t = r[a++]) || n && !o(F, t) || i.push(U[t]);
       return i;
     };
-  H || (I = function() {
+  B || (I = function() {
     if (this instanceof I) throw TypeError("Symbol is not a constructor!");
     var e = p(arguments.length > 0 ? arguments[0] : void 0),
       t = function(n) {
@@ -77818,14 +78143,14 @@ $.fn.togglify = function(settings) {
     }), q(e);
   }, s(I[j], "toString", function() {
     return this._k;
-  }), T.f = Z, k.f = Y, n(127).f = x.f = J, n(53).f = $, n(74).f = ee, i && !n(71) && s(F, "propertyIsEnumerable", $, !0), h.f = function(e) {
+  }), T.f = Z, k.f = Y, n(129).f = x.f = J, n(53).f = $, n(74).f = ee, i && !n(71) && s(F, "propertyIsEnumerable", $, !0), h.f = function(e) {
     return q(d(e));
-  }), a(a.G + a.W + a.F * !H, {
+  }), a(a.G + a.W + a.F * !B, {
     Symbol: I
   });
   for (var te = "hasInstance,isConcatSpreadable,iterator,match,replace,search,species,split,toPrimitive,toStringTag,unscopables".split(","), ne = 0; te.length > ne;) d(te[ne++]);
   for (var te = E(d.store), ne = 0; te.length > ne;) v(te[ne++]);
-  a(a.S + a.F * !H, "Symbol", {
+  a(a.S + a.F * !B, "Symbol", {
     "for": function(e) {
       return o(z, e += "") ? z[e] : z[e] = I(e);
     },
@@ -77839,14 +78164,14 @@ $.fn.togglify = function(settings) {
     useSimple: function() {
       G = !1;
     }
-  }), a(a.S + a.F * !H, "Object", {
+  }), a(a.S + a.F * !B, "Object", {
     create: X,
     defineProperty: Y,
     defineProperties: Q,
     getOwnPropertyDescriptor: Z,
     getOwnPropertyNames: J,
     getOwnPropertySymbols: ee
-  }), M && a(a.S + a.F * (!H || l(function() {
+  }), M && a(a.S + a.F * (!B || l(function() {
     var e = I();
     return "[null]" != A([e]) || "{}" != A({
       a: e
@@ -77866,9 +78191,9 @@ $.fn.togglify = function(settings) {
 }, function(e, t, n) {
   n(81)("observable");
 }, function(e, t, n) {
-  t = e.exports = n(131)(), t.push([e.i, '.c-tooltip,.c-tooltip__tip{display:inline-block}.c-tooltip__tip{color:#fff;background-color:#2c2d30;max-width:250px;padding:.5rem;border-radius:4px;position:relative;font-size:.8125rem;font-weight:700;text-align:center}.c-tooltip__tip:after{position:absolute;content:"";width:0;height:0;margin:-5px;border:6px solid transparent}.c-tooltip__tip--left{margin-right:.5rem}.c-tooltip__tip--left:after{border-left-color:#2c2d30;right:-6px;top:50%}.c-tooltip__tip--right{margin-left:.5rem}.c-tooltip__tip--right:after{border-right-color:#2c2d30;left:-6px;top:50%}.c-tooltip__tip--top{margin-bottom:.5rem}.c-tooltip__tip--top:after{border-top-color:#2c2d30;bottom:-6px;left:50%}.c-tooltip__tip--top-left{margin-bottom:.5rem}.c-tooltip__tip--top-left:after{border-top-color:#2c2d30;bottom:-6px;left:50%;left:25%}.c-tooltip__tip--top-right{margin-bottom:.5rem}.c-tooltip__tip--top-right:after{border-top-color:#2c2d30;bottom:-6px;left:50%;left:75%}.c-tooltip__tip--bottom{margin-top:.5rem}.c-tooltip__tip--bottom:after{border-bottom-color:#2c2d30;top:-6px;left:50%}.c-tooltip__tip--bottom-left{margin-top:.5rem}.c-tooltip__tip--bottom-left:after{border-bottom-color:#2c2d30;top:-6px;left:50%;left:25%}.c-tooltip__tip--bottom-right{margin-top:.5rem}.c-tooltip__tip--bottom-right:after{border-bottom-color:#2c2d30;top:-6px;left:50%;left:75%}.c-tooltip__tip--success{background-color:#2ab27b}.c-tooltip__tip--success.c-tooltip__tip--left:after{border-left-color:#2ab27b}.c-tooltip__tip--success.c-tooltip__tip--right:after{border-right-color:#2ab27b}.c-tooltip__tip--success.c-tooltip__tip--top-left:after,.c-tooltip__tip--success.c-tooltip__tip--top-right:after,.c-tooltip__tip--success.c-tooltip__tip--top:after{border-top-color:#2ab27b}.c-tooltip__tip--success.c-tooltip__tip--bottom-left:after,.c-tooltip__tip--success.c-tooltip__tip--bottom-right:after,.c-tooltip__tip--success.c-tooltip__tip--bottom:after{border-bottom-color:#2ab27b}', ""]);
+  t = e.exports = n(133)(), t.push([e.i, '.c-tooltip,.c-tooltip__tip{display:inline-block}.c-tooltip__tip{color:#fff;background-color:#2c2d30;max-width:250px;padding:.5rem;border-radius:4px;position:relative;font-size:.8125rem;font-weight:700;text-align:center}.c-tooltip__tip:after{position:absolute;content:"";width:0;height:0;margin:-5px;border:6px solid transparent}.c-tooltip__tip--left{margin-right:.5rem}.c-tooltip__tip--left:after{border-left-color:#2c2d30;right:-6px;top:50%}.c-tooltip__tip--right{margin-left:.5rem}.c-tooltip__tip--right:after{border-right-color:#2c2d30;left:-6px;top:50%}.c-tooltip__tip--top{margin-bottom:.5rem}.c-tooltip__tip--top:after{border-top-color:#2c2d30;bottom:-6px;left:50%}.c-tooltip__tip--top-left{margin-bottom:.5rem}.c-tooltip__tip--top-left:after{border-top-color:#2c2d30;bottom:-6px;left:50%;left:25%}.c-tooltip__tip--top-right{margin-bottom:.5rem}.c-tooltip__tip--top-right:after{border-top-color:#2c2d30;bottom:-6px;left:50%;left:75%}.c-tooltip__tip--bottom{margin-top:.5rem}.c-tooltip__tip--bottom:after{border-bottom-color:#2c2d30;top:-6px;left:50%}.c-tooltip__tip--bottom-left{margin-top:.5rem}.c-tooltip__tip--bottom-left:after{border-bottom-color:#2c2d30;top:-6px;left:50%;left:25%}.c-tooltip__tip--bottom-right{margin-top:.5rem}.c-tooltip__tip--bottom-right:after{border-bottom-color:#2c2d30;top:-6px;left:50%;left:75%}.c-tooltip__tip--success{background-color:#2ab27b}.c-tooltip__tip--success.c-tooltip__tip--left:after{border-left-color:#2ab27b}.c-tooltip__tip--success.c-tooltip__tip--right:after{border-right-color:#2ab27b}.c-tooltip__tip--success.c-tooltip__tip--top-left:after,.c-tooltip__tip--success.c-tooltip__tip--top-right:after,.c-tooltip__tip--success.c-tooltip__tip--top:after{border-top-color:#2ab27b}.c-tooltip__tip--success.c-tooltip__tip--bottom-left:after,.c-tooltip__tip--success.c-tooltip__tip--bottom-right:after,.c-tooltip__tip--success.c-tooltip__tip--bottom:after{border-bottom-color:#2ab27b}', ""]);
 }, function(e, t, n) {
-  t = e.exports = n(131)(), t.push([e.i, '.p-channel_sidebar{width:220px;height:100vh;position:relative;background:#4d394b;padding:0;color:#fff}.p-channel_sidebar__header{padding:0 .5rem;color:hsla(0,0%,100%,.7);margin:0}.p-channel_sidebar__banner{text-align:center;position:absolute;display:block;z-index:2;color:#fff;left:.5rem;right:.5rem;font-weight:700;text-transform:uppercase;font-size:.75rem;line-height:1.5rem}.p-channel_sidebar__banner--top{border-top-right-radius:0;border-bottom-right-radius:.25rem;border-bottom-left-radius:.25rem;border-top-left-radius:0;background-clip:padding-box;top:0}.p-channel_sidebar__banner--bottom{border-top-right-radius:.25rem;border-bottom-right-radius:0;border-bottom-left-radius:0;border-top-left-radius:.25rem;background-clip:padding-box;bottom:0}.p-channel_sidebar__banner--mentions{background:#eb4d5c}.p-channel_sidebar__banner--unreads{background:#2d9ee0}.p-channel_sidebar__channel,.p-channel_sidebar__link{display:block;height:26px;line-height:1.625rem;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;color:#fff;border-top-right-radius:.25rem;border-bottom-right-radius:.25rem;border-bottom-left-radius:0;border-top-left-radius:0;background-clip:padding-box;padding:0 .25rem 0 .5rem;margin-right:.5rem}.p-channel_sidebar__channel:after,.p-channel_sidebar__channel:before,.p-channel_sidebar__link:after,.p-channel_sidebar__link:before{font-family:Slack;font-style:normal;font-weight:400;display:inline-block;width:20px;color:hsla(0,0%,100%,.7)}.p-channel_sidebar__channel:before,.p-channel_sidebar__link:before{font-size:1rem;float:left}.p-channel_sidebar__channel:after,.p-channel_sidebar__link:after{float:right}.p-channel_sidebar__channel:hover,.p-channel_sidebar__link:hover{color:#fff;background:#3e313c;text-decoration:none}.p-channel_sidebar__channel:before{content:"\\E104"}.p-channel_sidebar__channel--private:before{content:"\\E503";margin-top:-2px}.p-channel_sidebar__channel--shared:after{content:"\\E165"}.p-channel_sidebar__channel--ent-shared:after{content:"\\E166"}.p-channel_sidebar__channel--mpim:before{font-size:1.25rem;margin:-3px 2px 0 -2px}.p-channel_sidebar__channel--mpim[data-user-count="2"]:before{content:"\\E521"}.p-channel_sidebar__channel--mpim[data-user-count="3"]:before{content:"\\E522"}.p-channel_sidebar__channel--mpim[data-user-count="4"]:before{content:"\\E523"}.p-channel_sidebar__channel--mpim[data-user-count="5"]:before{content:"\\E524"}.p-channel_sidebar__channel--mpim[data-user-count="6"]:before{content:"\\E525"}.p-channel_sidebar__channel--mpim[data-user-count="7"]:before{content:"\\E526"}.p-channel_sidebar__channel--mpim[data-user-count="8"]:before{content:"\\E527"}.p-channel_sidebar__channel--mpim[data-user-count="9"]:before{content:"\\E528"}.p-channel_sidebar__channel--im:before{content:"\\E506";color:#38978d;margin-top:-3px}.p-channel_sidebar__channel--im-slackbot:before{content:"\\E515";font-size:1.125rem;margin-top:-3px}.p-channel_sidebar__channel--im-you:after{content:"(you)";float:none;margin-left:.5rem;font-weight:400}.p-channel_sidebar__channel--selected,.p-channel_sidebar__channel--selected:hover{background:#4c9689}.p-channel_sidebar__channel--selected:after,.p-channel_sidebar__channel--selected:before,.p-channel_sidebar__channel--selected:hover:after,.p-channel_sidebar__channel--selected:hover:before{color:#fff}.p-channel_sidebar__channel--muted:not(.p-channel_sidebar__channel--selected),.p-channel_sidebar__channel--muted:not(.p-channel_sidebar__channel--selected):after,.p-channel_sidebar__channel--muted:not(.p-channel_sidebar__channel--selected):before{color:hsla(0,0%,100%,.25)}.p-channel_sidebar__channel--unread{font-weight:900}.p-channel_sidebar__channel--draft:before{content:"\\E024";color:#fff;font-size:.875rem;margin-top:1px}.p-channel_sidebar__badge{float:right;background:#eb4d5c;padding:.1rem .6rem;border-radius:1rem;line-height:1rem;margin:3px 0;font-size:.75rem;font-weight:700;color:#fff}.p-channel_sidebar__status{margin-left:.5rem}.p-channel_sidebar__link--unreads:before{content:"\\E103"}.p-channel_sidebar__link--threads:before{content:"\\E004"}.p-channel_sidebar__link--invite:before{content:"\\E281"}', ""]);
+  t = e.exports = n(133)(), t.push([e.i, '.p-channel_sidebar{width:220px;height:100vh;position:relative;background:#4d394b;padding:0;color:#fff}.p-channel_sidebar__header{padding:0 .5rem;color:hsla(0,0%,100%,.7);margin:0}.p-channel_sidebar__banner{text-align:center;position:absolute;display:block;z-index:2;color:#fff;left:.5rem;right:.5rem;font-weight:700;text-transform:uppercase;font-size:.75rem;line-height:1.5rem}.p-channel_sidebar__banner--top{border-top-right-radius:0;border-bottom-right-radius:.25rem;border-bottom-left-radius:.25rem;border-top-left-radius:0;background-clip:padding-box;top:0}.p-channel_sidebar__banner--bottom{border-top-right-radius:.25rem;border-bottom-right-radius:0;border-bottom-left-radius:0;border-top-left-radius:.25rem;background-clip:padding-box;bottom:0}.p-channel_sidebar__banner--mentions{background:#eb4d5c}.p-channel_sidebar__banner--unreads{background:#2d9ee0}.p-channel_sidebar__channel,.p-channel_sidebar__link{display:block;height:26px;line-height:1.625rem;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;color:#fff;border-top-right-radius:.25rem;border-bottom-right-radius:.25rem;border-bottom-left-radius:0;border-top-left-radius:0;background-clip:padding-box;padding:0 .25rem 0 .5rem;margin-right:.5rem}.p-channel_sidebar__channel:after,.p-channel_sidebar__channel:before,.p-channel_sidebar__link:after,.p-channel_sidebar__link:before{font-family:Slack;font-style:normal;font-weight:400;display:inline-block;width:20px;color:hsla(0,0%,100%,.7)}.p-channel_sidebar__channel:before,.p-channel_sidebar__link:before{font-size:1rem;float:left}.p-channel_sidebar__channel:after,.p-channel_sidebar__link:after{float:right}.p-channel_sidebar__channel:hover,.p-channel_sidebar__link:hover{color:#fff;background:#3e313c;text-decoration:none}.p-channel_sidebar__channel:before{content:"\\E104"}.p-channel_sidebar__channel--private:before{content:"\\E503";margin-top:-2px}.p-channel_sidebar__channel--shared:after{content:"\\E165"}.p-channel_sidebar__channel--ent-shared:after{content:"\\E166"}.p-channel_sidebar__channel--mpim:before{font-size:1.25rem;margin:-3px 2px 0 -2px}.p-channel_sidebar__channel--mpim[data-user-count="2"]:before{content:"\\E521"}.p-channel_sidebar__channel--mpim[data-user-count="3"]:before{content:"\\E522"}.p-channel_sidebar__channel--mpim[data-user-count="4"]:before{content:"\\E523"}.p-channel_sidebar__channel--mpim[data-user-count="5"]:before{content:"\\E524"}.p-channel_sidebar__channel--mpim[data-user-count="6"]:before{content:"\\E525"}.p-channel_sidebar__channel--mpim[data-user-count="7"]:before{content:"\\E526"}.p-channel_sidebar__channel--mpim[data-user-count="8"]:before{content:"\\E527"}.p-channel_sidebar__channel--mpim[data-user-count="9"]:before{content:"\\E528"}.p-channel_sidebar__channel--im:before{content:"\\E506";color:#38978d;margin-top:-3px}.p-channel_sidebar__channel--im-slackbot:before{content:"\\E515";font-size:1.125rem;margin-top:-3px}.p-channel_sidebar__channel--im-you:after{content:"(you)";float:none;margin-left:.5rem;font-weight:400}.p-channel_sidebar__channel--selected,.p-channel_sidebar__channel--selected:hover{background:#4c9689}.p-channel_sidebar__channel--selected:after,.p-channel_sidebar__channel--selected:before,.p-channel_sidebar__channel--selected:hover:after,.p-channel_sidebar__channel--selected:hover:before{color:#fff}.p-channel_sidebar__channel--muted:not(.p-channel_sidebar__channel--selected),.p-channel_sidebar__channel--muted:not(.p-channel_sidebar__channel--selected):after,.p-channel_sidebar__channel--muted:not(.p-channel_sidebar__channel--selected):before{color:hsla(0,0%,100%,.25)}.p-channel_sidebar__channel--unread{font-weight:900}.p-channel_sidebar__channel--draft:before{content:"\\E024";color:#fff;font-size:.875rem;margin-top:1px}.p-channel_sidebar__badge{float:right;background:#eb4d5c;padding:.1rem .6rem;border-radius:1rem;line-height:1rem;margin:3px 0;font-size:.75rem;font-weight:700;color:#fff}.p-channel_sidebar__status{margin-left:.5rem}.p-channel_sidebar__link--unreads:before{content:"\\E103"}.p-channel_sidebar__link--threads:before{content:"\\E004"}.p-channel_sidebar__link--invite:before{content:"\\E281"}', ""]);
 }, function(e, t, n) {
   "use strict";
   Object.defineProperty(t, "__esModule", {
@@ -77944,7 +78269,7 @@ $.fn.togglify = function(settings) {
   function r(e) {
     return o(e.replace(i, "ms-"));
   }
-  var o = n(287),
+  var o = n(289),
     i = /^-ms-/;
   e.exports = r;
 }, function(e, t, n) {
@@ -77953,7 +78278,7 @@ $.fn.togglify = function(settings) {
   function r(e, t) {
     return !(!e || !t) && (e === t || !o(e) && (o(t) ? r(e, t.parentNode) : "contains" in e ? e.contains(t) : !!e.compareDocumentPosition && !!(16 & e.compareDocumentPosition(t))));
   }
-  var o = n(297);
+  var o = n(299);
   e.exports = r;
 }, function(e, t, n) {
   "use strict";
@@ -77999,8 +78324,8 @@ $.fn.togglify = function(settings) {
     return p;
   }
   var i = n(14),
-    a = n(290),
-    s = n(292),
+    a = n(292),
+    s = n(294),
     u = n(1),
     l = i.canUseDOM ? document.createElement("div") : null,
     c = /^\s*<(\w+)/;
@@ -78067,7 +78392,7 @@ $.fn.togglify = function(settings) {
   function r(e) {
     return o(e).replace(i, "-ms-");
   }
-  var o = n(294),
+  var o = n(296),
     i = /^ms-/;
   e.exports = r;
 }, function(e, t, n) {
@@ -78083,7 +78408,7 @@ $.fn.togglify = function(settings) {
   function r(e) {
     return o(e) && 3 == e.nodeType;
   }
-  var o = n(296);
+  var o = n(298);
   e.exports = r;
 }, function(e, t, n) {
   "use strict";
@@ -78150,9 +78475,9 @@ $.fn.togglify = function(settings) {
   function r(e) {
     return null == e ? void 0 === e ? u : s : l && l in Object(e) ? n.i(i.a)(e) : n.i(a.a)(e);
   }
-  var o = n(136),
-    i = n(306),
-    a = n(307),
+  var o = n(138),
+    i = n(308),
+    a = n(309),
     s = "[object Null]",
     u = "[object Undefined]",
     l = o.a ? o.a.toStringTag : void 0;
@@ -78165,7 +78490,7 @@ $.fn.togglify = function(settings) {
   }).call(t, n(110));
 }, function(e, t, n) {
   "use strict";
-  var r = n(308),
+  var r = n(310),
     o = n.i(r.a)(Object.getPrototypeOf, Object);
   t.a = o;
 }, function(e, t, n) {
@@ -78181,7 +78506,7 @@ $.fn.togglify = function(settings) {
     var o = s.call(e);
     return r && (t ? e[u] = n : delete e[u]), o;
   }
-  var o = n(136),
+  var o = n(138),
     i = Object.prototype,
     a = i.hasOwnProperty,
     s = i.toString,
@@ -78207,7 +78532,7 @@ $.fn.togglify = function(settings) {
   t.a = r;
 }, function(e, t, n) {
   "use strict";
-  var r = n(304),
+  var r = n(306),
     o = "object" == typeof self && self && self.Object === Object && self,
     i = r.a || o || Function("return this")();
   t.a = i;
@@ -78538,7 +78863,7 @@ $.fn.togglify = function(settings) {
 }, function(e, t, n) {
   "use strict";
   var r = n(8),
-    o = n(134),
+    o = n(136),
     i = {
       focusDOMComponent: function() {
         o(r.getNodeFromInstance(this));
@@ -78648,9 +78973,9 @@ $.fn.togglify = function(settings) {
   }
   var d = n(46),
     h = n(14),
-    v = n(320),
-    m = n(357),
-    g = n(360),
+    v = n(322),
+    m = n(359),
+    g = n(362),
     y = [9, 13, 27, 32],
     _ = 229,
     b = h.canUseDOM && "CompositionEvent" in window,
@@ -78701,11 +79026,11 @@ $.fn.togglify = function(settings) {
   e.exports = O;
 }, function(e, t, n) {
   "use strict";
-  var r = n(139),
+  var r = n(141),
     o = n(14),
-    i = (n(16), n(288), n(366)),
-    a = n(295),
-    s = n(298),
+    i = (n(16), n(290), n(368)),
+    a = n(297),
+    s = n(300),
     u = (n(2), s(function(e) {
       return a(e);
     })),
@@ -78817,11 +79142,11 @@ $.fn.togglify = function(settings) {
     _ = n(46),
     b = n(14),
     w = n(8),
-    C = n(17),
-    S = n(19),
+    C = n(18),
+    S = n(20),
     x = n(100),
     T = n(101),
-    k = n(156),
+    k = n(158),
     E = {
       change: {
         phasedRegistrationNames: {
@@ -78867,7 +79192,7 @@ $.fn.togglify = function(settings) {
   var r = n(3),
     o = n(36),
     i = n(14),
-    a = n(291),
+    a = n(293),
     s = n(15),
     u = (n(1), {
       dangerouslyReplaceNodeWithMarkup: function(e, t) {
@@ -78932,7 +79257,7 @@ $.fn.togglify = function(settings) {
   }
   var o = n(5),
     i = n(30),
-    a = n(154);
+    a = n(156);
   o(r.prototype, {
     destructor: function() {
       this._root = null, this._startText = null, this._fallbackText = null;
@@ -79127,9 +79452,9 @@ $.fn.togglify = function(settings) {
       null != t && o && (e[n] = i(t, !0));
     }
     var o = n(38),
-      i = n(155),
+      i = n(157),
       a = (n(92), n(102)),
-      s = n(158);
+      s = n(160);
     n(2), "undefined" != typeof t && n.i({
       NODE_ENV: "production"
     }), 1;
@@ -79168,11 +79493,11 @@ $.fn.togglify = function(settings) {
       }
     };
     e.exports = u;
-  }).call(t, n(138));
+  }).call(t, n(140));
 }, function(e, t, n) {
   "use strict";
   var r = n(88),
-    o = n(330),
+    o = n(332),
     i = {
       processChildrenUpdates: o.dangerouslyProcessChildrenUpdates,
       replaceNodeWithMarkup: r.dangerouslyReplaceNodeWithMarkup
@@ -79196,10 +79521,10 @@ $.fn.togglify = function(settings) {
     u = n(5),
     l = n(39),
     c = n(94),
-    f = n(20),
+    f = n(21),
     p = n(95),
     d = n(47),
-    h = (n(16), n(149)),
+    h = (n(16), n(151)),
     v = n(38),
     m = n(44),
     g = (n(1), n(85)),
@@ -79396,14 +79721,14 @@ $.fn.togglify = function(settings) {
 }, function(e, t, n) {
   "use strict";
   var r = n(8),
-    o = n(338),
-    i = n(148),
+    o = n(340),
+    i = n(150),
     a = n(38),
-    s = n(17),
-    u = n(351),
-    l = n(367),
-    c = n(153),
-    f = n(375);
+    s = n(18),
+    u = n(353),
+    l = n(369),
+    c = n(155),
+    f = n(377);
   n(2), o.inject();
   var p = {
     findDOMNode: l,
@@ -79438,7 +79763,7 @@ $.fn.togglify = function(settings) {
   }
 
   function o(e, t) {
-    t && (Y[e._tag] && (null != t.children || null != t.dangerouslySetInnerHTML ? v("137", e._tag, e._currentElement._owner ? " Check the render method of " + e._currentElement._owner.getName() + "." : "") : void 0), null != t.dangerouslySetInnerHTML && (null != t.children ? v("60") : void 0, "object" == typeof t.dangerouslySetInnerHTML && H in t.dangerouslySetInnerHTML ? void 0 : v("61")), null != t.style && "object" != typeof t.style ? v("62", r(e)) : void 0);
+    t && (Y[e._tag] && (null != t.children || null != t.dangerouslySetInnerHTML ? v("137", e._tag, e._currentElement._owner ? " Check the render method of " + e._currentElement._owner.getName() + "." : "") : void 0), null != t.dangerouslySetInnerHTML && (null != t.children ? v("60") : void 0, "object" == typeof t.dangerouslySetInnerHTML && B in t.dangerouslySetInnerHTML ? void 0 : v("61")), null != t.style && "object" != typeof t.style ? v("62", r(e)) : void 0);
   }
 
   function i(e, t, n, r) {
@@ -79522,23 +79847,23 @@ $.fn.togglify = function(settings) {
   }
   var v = n(3),
     m = n(5),
-    g = n(313),
-    y = n(315),
+    g = n(315),
+    y = n(317),
     _ = n(36),
     b = n(89),
     w = n(37),
-    C = n(141),
+    C = n(143),
     S = n(45),
     x = n(90),
     T = n(58),
-    k = n(142),
+    k = n(144),
     E = n(8),
-    P = n(331),
-    O = n(332),
-    R = n(143),
-    I = n(335),
-    M = (n(16), n(344)),
-    A = n(349),
+    P = n(333),
+    O = n(334),
+    R = n(145),
+    I = n(337),
+    M = (n(16), n(346)),
+    A = n(351),
     j = (n(15), n(61)),
     N = (n(1), n(101), n(85), n(103), n(2), k),
     L = S.deleteListener,
@@ -79550,8 +79875,8 @@ $.fn.togglify = function(settings) {
       number: !0
     },
     F = "style",
-    H = "__html",
-    B = {
+    B = "__html",
+    H = {
       children: null,
       dangerouslySetInnerHTML: null,
       suppressContentEditableWarning: null
@@ -79689,7 +80014,7 @@ $.fn.togglify = function(settings) {
             else {
               r === F && (o && (o = this._previousStyleCopy = m({}, t.style)), o = y.createMarkupForStyles(o, this));
               var a = null;
-              null != this._tag && d(this._tag, t) ? B.hasOwnProperty(r) || (a = C.createMarkupForCustomAttribute(r, o)) : a = C.createMarkupForProperty(r, o), a && (n += " " + a);
+              null != this._tag && d(this._tag, t) ? H.hasOwnProperty(r) || (a = C.createMarkupForCustomAttribute(r, o)) : a = C.createMarkupForProperty(r, o), a && (n += " " + a);
             }
         }
       return e.renderToStaticMarkup ? n : (this._hostParent || (n += " " + C.createMarkupForRoot()), n += " " + C.createMarkupForID(this._domID));
@@ -79759,7 +80084,7 @@ $.fn.togglify = function(settings) {
             var s = this._previousStyleCopy;
             for (o in s) s.hasOwnProperty(o) && (a = a || {}, a[o] = "");
             this._previousStyleCopy = null;
-          } else U.hasOwnProperty(r) ? e[r] && L(this, r) : d(this._tag, e) ? B.hasOwnProperty(r) || C.deleteValueForAttribute(D(this), r) : (w.properties[r] || w.isCustomAttribute(r)) && C.deleteValueForProperty(D(this), r);
+          } else U.hasOwnProperty(r) ? e[r] && L(this, r) : d(this._tag, e) ? H.hasOwnProperty(r) || C.deleteValueForAttribute(D(this), r) : (w.properties[r] || w.isCustomAttribute(r)) && C.deleteValueForProperty(D(this), r);
       for (r in t) {
         var u = t[r],
           l = r === F ? this._previousStyleCopy : null != e ? e[r] : void 0;
@@ -79770,7 +80095,7 @@ $.fn.togglify = function(settings) {
               for (o in u) u.hasOwnProperty(o) && l[o] !== u[o] && (a = a || {}, a[o] = u[o]);
             } else a = u;
         else if (U.hasOwnProperty(r)) u ? i(this, r, u, n) : l && L(this, r);
-        else if (d(this._tag, t)) B.hasOwnProperty(r) || C.setValueForAttribute(D(this), r, u);
+        else if (d(this._tag, t)) H.hasOwnProperty(r) || C.setValueForAttribute(D(this), r, u);
         else if (w.properties[r] || w.isCustomAttribute(r)) {
           var c = D(this);
           null != u ? C.setValueForProperty(c, r, u) : C.deleteValueForProperty(c, r);
@@ -79905,10 +80230,10 @@ $.fn.togglify = function(settings) {
   }
   var i = n(3),
     a = n(5),
-    s = n(141),
+    s = n(143),
     u = n(93),
     l = n(8),
-    c = n(17),
+    c = n(18),
     f = (n(1), n(2), {
       getHostProps: function(e, t) {
         var n = u.getValue(t),
@@ -79983,7 +80308,7 @@ $.fn.togglify = function(settings) {
   var o = n(5),
     i = n(39),
     a = n(8),
-    s = n(143),
+    s = n(145),
     u = (n(2), !1),
     l = {
       mountWrapper: function(e, t, n) {
@@ -80099,8 +80424,8 @@ $.fn.togglify = function(settings) {
     }
   }
   var u = n(14),
-    l = n(372),
-    c = n(154),
+    l = n(374),
+    c = n(156),
     f = u.canUseDOM && "selection" in document && !("getSelection" in window),
     p = {
       getOffsets: f ? o : i,
@@ -80177,7 +80502,7 @@ $.fn.togglify = function(settings) {
     a = n(5),
     s = n(93),
     u = n(8),
-    l = n(17),
+    l = n(18),
     c = (n(1), n(2), {
       getHostProps: function(e, t) {
         null != t.dangerouslySetInnerHTML ? i("91") : void 0;
@@ -80278,7 +80603,7 @@ $.fn.togglify = function(settings) {
     this.reinitializeTransaction();
   }
   var o = n(5),
-    i = n(17),
+    i = n(18),
     a = n(60),
     s = n(15),
     u = {
@@ -80320,25 +80645,25 @@ $.fn.togglify = function(settings) {
       return new d(e);
     }), y.Updates.injectReconcileTransaction(_), y.Updates.injectBatchingStrategy(m), y.Component.injectEnvironment(c));
   }
-  var o = n(312),
-    i = n(314),
-    a = n(316),
-    s = n(318),
-    u = n(319),
-    l = n(321),
-    c = n(323),
-    f = n(326),
+  var o = n(314),
+    i = n(316),
+    a = n(318),
+    s = n(320),
+    u = n(321),
+    l = n(323),
+    c = n(325),
+    f = n(328),
     p = n(8),
-    d = n(328),
-    h = n(336),
-    v = n(334),
-    m = n(337),
-    g = n(341),
-    y = n(342),
-    _ = n(347),
-    b = n(352),
-    w = n(353),
-    C = n(354),
+    d = n(330),
+    h = n(338),
+    v = n(336),
+    m = n(339),
+    g = n(343),
+    y = n(344),
+    _ = n(349),
+    b = n(354),
+    w = n(355),
+    C = n(356),
     S = !1;
   e.exports = {
     inject: r
@@ -80388,13 +80713,13 @@ $.fn.togglify = function(settings) {
     e(t);
   }
   var s = n(5),
-    u = n(133),
+    u = n(135),
     l = n(14),
     c = n(30),
     f = n(8),
-    p = n(17),
+    p = n(18),
     d = n(100),
-    h = n(293);
+    h = n(295);
   s(o.prototype, {
     destructor: function() {
       this.topLevelType = null, this.nativeEvent = null, this.ancestors.length = 0;
@@ -80441,10 +80766,10 @@ $.fn.togglify = function(settings) {
     o = n(45),
     i = n(91),
     a = n(94),
-    s = n(144),
+    s = n(146),
     u = n(58),
-    l = n(146),
-    c = n(17),
+    l = n(148),
+    c = n(18),
     f = {
       Component: a.injection,
       DOMProperty: r.injection,
@@ -80458,7 +80783,7 @@ $.fn.togglify = function(settings) {
   e.exports = f;
 }, function(e, t, n) {
   "use strict";
-  var r = n(365),
+  var r = n(367),
     o = /\/?>/,
     i = /^<\!\-\-/,
     a = {
@@ -80542,9 +80867,9 @@ $.fn.togglify = function(settings) {
   }
   var c = n(3),
     f = n(94),
-    p = (n(47), n(16), n(20), n(38)),
-    d = n(322),
-    h = (n(15), n(368)),
+    p = (n(47), n(16), n(21), n(38)),
+    d = n(324),
+    h = (n(15), n(370)),
     v = (n(1), {
       Mixin: {
         _reconcilerInstantiateChildren: function(e, t, n) {
@@ -80658,10 +80983,10 @@ $.fn.togglify = function(settings) {
     this.reinitializeTransaction(), this.renderToStaticMarkup = !1, this.reactMountReady = i.getPooled(null), this.useCreateElement = e;
   }
   var o = n(5),
-    i = n(140),
+    i = n(142),
     a = n(30),
     s = n(58),
-    u = n(147),
+    u = n(149),
     l = (n(16), n(60)),
     c = n(96),
     f = {
@@ -80717,7 +81042,7 @@ $.fn.togglify = function(settings) {
   function o(e, t, n) {
     "function" == typeof e ? e(null) : i.removeComponentAsRefFrom(t, e, n);
   }
-  var i = n(345),
+  var i = n(347),
     a = {};
   a.attachRefs = function(e, t) {
     if (null !== t && "object" == typeof t) {
@@ -80746,7 +81071,7 @@ $.fn.togglify = function(settings) {
   var o = n(5),
     i = n(30),
     a = n(60),
-    s = (n(16), n(350)),
+    s = (n(16), n(352)),
     u = [],
     l = {
       enqueue: function() {}
@@ -81102,10 +81427,10 @@ $.fn.togglify = function(settings) {
   var i = n(46),
     a = n(14),
     s = n(8),
-    u = n(147),
-    l = n(19),
-    c = n(135),
-    f = n(156),
+    u = n(149),
+    l = n(20),
+    c = n(137),
+    f = n(158),
     p = n(85),
     d = a.canUseDOM && "documentMode" in document && document.documentMode <= 11,
     h = {
@@ -81164,20 +81489,20 @@ $.fn.togglify = function(settings) {
     return "button" === e || "input" === e || "select" === e || "textarea" === e;
   }
   var i = n(3),
-    a = n(133),
+    a = n(135),
     s = n(46),
     u = n(8),
-    l = n(355),
-    c = n(356),
-    f = n(19),
-    p = n(359),
-    d = n(361),
+    l = n(357),
+    c = n(358),
+    f = n(20),
+    p = n(361),
+    d = n(363),
     h = n(59),
-    v = n(358),
-    m = n(362),
-    g = n(363),
+    v = n(360),
+    m = n(364),
+    g = n(365),
     y = n(48),
-    _ = n(364),
+    _ = n(366),
     b = n(15),
     w = n(98),
     C = (n(1), {}),
@@ -81314,7 +81639,7 @@ $.fn.togglify = function(settings) {
   function r(e, t, n, r) {
     return o.call(this, e, t, n, r);
   }
-  var o = n(19),
+  var o = n(20),
     i = {
       animationName: null,
       elapsedTime: null,
@@ -81327,7 +81652,7 @@ $.fn.togglify = function(settings) {
   function r(e, t, n, r) {
     return o.call(this, e, t, n, r);
   }
-  var o = n(19),
+  var o = n(20),
     i = {
       clipboardData: function(e) {
         return "clipboardData" in e ? e.clipboardData : window.clipboardData;
@@ -81340,7 +81665,7 @@ $.fn.togglify = function(settings) {
   function r(e, t, n, r) {
     return o.call(this, e, t, n, r);
   }
-  var o = n(19),
+  var o = n(20),
     i = {
       data: null
     };
@@ -81373,7 +81698,7 @@ $.fn.togglify = function(settings) {
   function r(e, t, n, r) {
     return o.call(this, e, t, n, r);
   }
-  var o = n(19),
+  var o = n(20),
     i = {
       data: null
     };
@@ -81386,7 +81711,7 @@ $.fn.togglify = function(settings) {
   }
   var o = n(48),
     i = n(98),
-    a = n(369),
+    a = n(371),
     s = n(99),
     u = {
       key: a,
@@ -81434,7 +81759,7 @@ $.fn.togglify = function(settings) {
   function r(e, t, n, r) {
     return o.call(this, e, t, n, r);
   }
-  var o = n(19),
+  var o = n(20),
     i = {
       propertyName: null,
       elapsedTime: null,
@@ -81481,7 +81806,7 @@ $.fn.togglify = function(settings) {
     var o = isNaN(t);
     return o || 0 === t || i.hasOwnProperty(e) && i[e] ? "" + t : ("string" == typeof t && (t = t.trim()), t + "px");
   }
-  var o = n(139),
+  var o = n(141),
     i = (n(2), o.isUnitlessNumber);
   e.exports = r;
 }, function(e, t, n) {
@@ -81494,9 +81819,9 @@ $.fn.togglify = function(settings) {
     return t ? (t = s(t), t ? i.getNodeFromInstance(t) : null) : void("function" == typeof e.render ? o("44") : o("45", Object.keys(e)));
   }
   var o = n(3),
-    i = (n(20), n(8)),
+    i = (n(21), n(8)),
     a = n(47),
-    s = n(153);
+    s = n(155);
   n(1), n(2), e.exports = r;
 }, function(e, t, n) {
   "use strict";
@@ -81514,11 +81839,11 @@ $.fn.togglify = function(settings) {
       var n = {};
       return i(e, r, n), n;
     }
-    var i = (n(92), n(158));
+    var i = (n(92), n(160));
     n(2), "undefined" != typeof t && n.i({
       NODE_ENV: "production"
     }), e.exports = o;
-  }).call(t, n(138));
+  }).call(t, n(140));
 }, function(e, t, n) {
   "use strict";
 
@@ -81669,7 +81994,7 @@ $.fn.togglify = function(settings) {
   e.exports = r;
 }, function(e, t, n) {
   "use strict";
-  var r = n(148);
+  var r = n(150);
   e.exports = r.renderSubtreeIntoContainer;
 }, function(e, t, n) {
   function r(e) {
@@ -81677,12 +82002,12 @@ $.fn.togglify = function(settings) {
   }
   var o = n(0),
     i = n(22),
-    a = n(286),
-    s = o.createFactory(n(377)),
-    u = n(378),
-    l = n(285),
+    a = n(288),
+    s = o.createFactory(n(379)),
+    u = n(380),
+    l = n(287),
     c = n(22).unstable_renderSubtreeIntoContainer,
-    f = n(137),
+    f = n(139),
     p = a.canUseDOM ? window.HTMLElement : {},
     d = a.canUseDOM ? document.body : {
       appendChild: function() {}
@@ -81775,9 +82100,9 @@ $.fn.togglify = function(settings) {
 }, function(e, t, n) {
   var r = n(0),
     o = r.DOM.div,
-    i = n(379),
-    a = n(380),
-    s = n(137),
+    i = n(381),
+    a = n(382),
+    s = n(139),
     u = {
       overlay: {
         base: "ReactModal__Overlay",
@@ -81955,7 +82280,7 @@ $.fn.togglify = function(settings) {
       }, 0);
     }
   }
-  var i = n(159),
+  var i = n(161),
     a = null,
     s = null,
     u = !1;
@@ -81974,7 +82299,7 @@ $.fn.togglify = function(settings) {
     a = null, window.addEventListener ? (window.removeEventListener("blur", r), document.removeEventListener("focus", o)) : (window.detachEvent("onBlur", r), document.detachEvent("onFocus", o));
   };
 }, function(e, t, n) {
-  var r = n(159);
+  var r = n(161);
   e.exports = function(e, t) {
     var n = r(e);
     if (!n.length) return void t.preventDefault();
@@ -81987,7 +82312,7 @@ $.fn.togglify = function(settings) {
     }
   };
 }, function(e, t, n) {
-  e.exports = n(376);
+  e.exports = n(378);
 }, function(e, t, n) {
   "use strict";
 
@@ -82012,7 +82337,7 @@ $.fn.togglify = function(settings) {
     }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
   }
   var a = n(0),
-    s = (n.n(a), n(162));
+    s = (n.n(a), n(164));
   n(104), n.d(t, "a", function() {
     return u;
   });
@@ -82106,12 +82431,12 @@ $.fn.togglify = function(settings) {
       }, x));
     };
   }
-  var s = n(160),
-    u = n(390),
-    l = n(384),
-    c = n(385),
-    f = n(386),
-    p = n(387),
+  var s = n(162),
+    u = n(392),
+    l = n(386),
+    c = n(387),
+    f = n(388),
+    p = n(389),
     d = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
@@ -82141,7 +82466,7 @@ $.fn.togglify = function(settings) {
     }) : void 0;
   }
   var a = n(109),
-    s = n(161);
+    s = n(163);
   t.a = [r, o, i];
 }, function(e, t, n) {
   "use strict";
@@ -82155,7 +82480,7 @@ $.fn.togglify = function(settings) {
       return {};
     });
   }
-  var i = n(161);
+  var i = n(163);
   t.a = [r, o];
 }, function(e, t, n) {
   "use strict";
@@ -82186,7 +82511,7 @@ $.fn.togglify = function(settings) {
       return r;
     };
   }
-  var s = (n(163), Object.assign || function(e) {
+  var s = (n(165), Object.assign || function(e) {
     for (var t = 1; t < arguments.length; t++) {
       var n = arguments[t];
       for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
@@ -82258,7 +82583,7 @@ $.fn.togglify = function(settings) {
       p = u.pure ? i : o;
     return p(l, c, f, e, u);
   }
-  n(388), t.a = a;
+  n(390), t.a = a;
 }, function(e, t, n) {
   "use strict";
   n(104);
@@ -82332,10 +82657,10 @@ $.fn.togglify = function(settings) {
   var i = Object.prototype.hasOwnProperty;
 }, function(e, t, n) {
   "use strict";
-  n(164);
+  n(166);
 }, function(e, t, n) {
   "use strict";
-  var r = n(165);
+  var r = n(167);
   n.d(t, "a", function() {
     return r.a;
   });
@@ -82444,7 +82769,7 @@ $.fn.togglify = function(settings) {
   }();
 }, function(e, t, n) {
   "use strict";
-  n(166), n(393);
+  n(168), n(395);
 }, function(e, t, n) {
   "use strict";
   var r = n(23),
@@ -82464,7 +82789,7 @@ $.fn.togglify = function(settings) {
     g = n(9),
     y = n.n(g),
     _ = n(106),
-    b = n(132),
+    b = n(134),
     w = n.n(b),
     C = 150,
     S = {
@@ -82793,13 +83118,13 @@ $.fn.togglify = function(settings) {
   t.a = s;
 }, function(e, t, n) {
   "use strict";
-  var r = n(119),
+  var r = n(121),
     o = n.n(r),
     i = n(6),
     a = n.n(i),
     s = n(7),
     u = n.n(s),
-    l = n(396),
+    l = n(398),
     c = 100,
     f = function() {
       function e() {
@@ -82877,7 +83202,7 @@ $.fn.togglify = function(settings) {
   t.a = f;
 }, function(e, t, n) {
   "use strict";
-  n(167);
+  n(169);
 }, function(e, t, n) {
   "use strict";
 
@@ -82899,11 +83224,11 @@ $.fn.togglify = function(settings) {
       width: u
     };
   }
-  var o = n(397);
+  var o = n(399);
   t.a = r;
 }, function(e, t, n) {
   "use strict";
-  n(168);
+  n(170);
 }, function(e, t, n) {
   "use strict";
 
@@ -83112,7 +83437,7 @@ $.fn.togglify = function(settings) {
     a = n.n(i),
     s = n(7),
     u = n.n(s),
-    l = n(402),
+    l = n(404),
     c = 15e5,
     f = function() {
       function e(t) {
@@ -83299,22 +83624,22 @@ $.fn.togglify = function(settings) {
   t.a = r;
 }, function(e, t, n) {
   "use strict";
-  n(172);
+  n(174);
 }, function(e, t, n) {
   "use strict";
-  var r = n(173);
+  var r = n(175);
   n.d(t, "a", function() {
     return r.a;
   });
 }, function(e, t, n) {
   "use strict";
-  var r = n(238),
+  var r = n(240),
     o = n.n(r),
     i = n(6),
     a = n.n(i),
     s = n(7),
     u = n.n(s),
-    l = n(419),
+    l = n(421),
     c = function() {
       function e() {
         a()(this, e), this._columnSizeMap = {}, this._intervalTree = n.i(l.a)(), this._leftMap = {};
@@ -83376,19 +83701,19 @@ $.fn.togglify = function(settings) {
   t.a = c;
 }, function(e, t, n) {}, function(e, t, n) {
   "use strict";
-  n(174), n(409);
+  n(176), n(411);
 }, function(e, t, n) {
   "use strict";
-  n(175);
+  n(177);
 }, function(e, t, n) {
   "use strict";
-  n(176);
+  n(178);
 }, function(e, t, n) {
   "use strict";
-  n(179), n(180), n(181), n(183), n(182), n(184), n(177), n(105), n(178);
+  n(181), n(182), n(183), n(185), n(184), n(186), n(179), n(105), n(180);
 }, function(e, t, n) {
   "use strict";
-  n(185), n(186);
+  n(187), n(188);
 }, function(e, t, n) {
   "use strict";
 
@@ -83679,8 +84004,7 @@ $.fn.togglify = function(settings) {
   }
 
   function o(e, t) {
-    e.mid = t.mid, e.left = t.left,
-      e.right = t.right, e.leftPoints = t.leftPoints, e.rightPoints = t.rightPoints, e.count = t.count;
+    e.mid = t.mid, e.left = t.left, e.right = t.right, e.leftPoints = t.leftPoints, e.rightPoints = t.rightPoints, e.count = t.count;
   }
 
   function i(e, t) {
@@ -83754,7 +84078,7 @@ $.fn.togglify = function(settings) {
   function m(e) {
     return new v(e && 0 !== e.length ? h(e) : null);
   }
-  var g = n(417);
+  var g = n(419);
   t.a = m;
   var y = 0,
     _ = 1,
@@ -84002,10 +84326,10 @@ $.fn.togglify = function(settings) {
     var t = [];
     return l(e, t, null, m.thatReturnsArgument), t;
   }
-  var h = n(421),
+  var h = n(423),
     v = n(40),
     m = n(15),
-    g = n(430),
+    g = n(432),
     y = h.twoArgumentPooler,
     _ = h.fourArgumentPooler,
     b = /\/+/g;
@@ -84111,7 +84435,7 @@ $.fn.togglify = function(settings) {
     d = n(5),
     h = n(107),
     v = n(40),
-    m = (n(190), n(108)),
+    m = (n(192), n(108)),
     g = n(44),
     y = (n(1), n(2), "mixins"),
     _ = [],
@@ -84534,10 +84858,10 @@ $.fn.togglify = function(settings) {
     return e.constructor && e.constructor.name ? e.constructor.name : k;
   }
   var w = n(40),
-    C = n(190),
-    S = n(426),
+    C = n(192),
+    S = n(428),
     x = n(15),
-    T = n(192),
+    T = n(194),
     k = (n(2), "<<anonymous>>"),
     E = {
       array: a("array"),
@@ -84625,9 +84949,9 @@ $.fn.togglify = function(settings) {
     return null == e ? 0 : o(e, "", t, n);
   }
   var a = n(41),
-    s = (n(20), n(189)),
-    u = n(192),
-    l = (n(1), n(420)),
+    s = (n(21), n(191)),
+    u = n(194),
+    l = (n(1), n(422)),
     c = (n(2), "."),
     f = ":";
   e.exports = i;
@@ -84805,7 +85129,7 @@ $.fn.togglify = function(settings) {
   Object.defineProperty(t, "__esModule", {
     value: !0
   });
-  var o = n(436),
+  var o = n(438),
     i = r(o);
   t.default = {
     reduxLogger: i
@@ -84880,7 +85204,7 @@ $.fn.togglify = function(settings) {
       };
     };
   }
-  var o = n(195);
+  var o = n(197);
   t.a = r;
   var i = Object.assign || function(e) {
     for (var t = 1; t < arguments.length; t++) {
@@ -84961,15 +85285,15 @@ $.fn.togglify = function(settings) {
       return o ? i : e;
     };
   }
-  var a = n(196);
-  n(87), n(197), t.a = i;
+  var a = n(198);
+  n(87), n(199), t.a = i;
 }, function(e, t, n) {
-  var r = n(283);
+  var r = n(285);
   "string" == typeof r && (r = [
     [e.i, r, ""]
-  ]), n(199)(r, {}), r.locals && (e.exports = r.locals);
+  ]), n(201)(r, {}), r.locals && (e.exports = r.locals);
 }, function(e, t, n) {
-  e.exports = n(443);
+  e.exports = n(445);
 }, function(e, t, n) {
   "use strict";
   (function(e, r) {
@@ -84981,12 +85305,12 @@ $.fn.togglify = function(settings) {
     Object.defineProperty(t, "__esModule", {
       value: !0
     });
-    var i, a = n(444),
+    var i, a = n(446),
       s = o(a);
     i = "undefined" != typeof self ? self : "undefined" != typeof window ? window : "undefined" != typeof e ? e : r;
     var u = (0, s.default)(i);
     t.default = u;
-  }).call(t, n(110), n(201)(e));
+  }).call(t, n(110), n(203)(e));
 }, function(e, t, n) {
   "use strict";
 
@@ -85007,27 +85331,31 @@ $.fn.togglify = function(settings) {
     i = n(22),
     a = n.n(i),
     s = n(65),
-    u = n(203),
+    u = n(205),
     l = n(111),
-    c = n(204),
+    c = n(206),
     f = n(31),
     p = n(113),
     d = n(112),
     h = n(114),
-    v = n(115),
-    m = n(202);
+    v = n(116),
+    m = n(115),
+    g = n(117),
+    y = n(204);
   window.ReactComponents = {}, window.ReactComponents.EmojiPicker = u.a, window.ReactComponents.Popover = l.a, window.ReactComponents.PopoverTrigger = l.b, window.React = o.a, window.ReactDOM = a.a, window.Redux = {
     ConfigureStore: c.a,
     Entities: {
       Channels: f,
       ChannelIdsByType: d,
-      ChannelNamesToIds: p
+      ChannelNamesToIds: p,
+      MemberTypesById: h
     },
     Features: {
-      Presence: h,
-      Typing: v
+      Presence: v,
+      Dnd: m,
+      Typing: g
     },
-    ChannelSidebar: m.a,
+    ChannelSidebar: y.a,
     Provider: s.a
   };
 }]);

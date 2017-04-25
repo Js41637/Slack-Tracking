@@ -344,7 +344,7 @@
   var _fully_booted_p_resolve;
   var _fully_booted_p;
   var _is_user_forced_into_redux_feature;
-  var _users_to_force_into_redux_feature = ["W2V82BY0G"];
+  var _users_to_force_into_redux_feature = ["W2V82BY0G", "W1W7LCMHU", "W1M2KRM8E"];
   window.TS = {
     boot_data: {},
     qs_args: {},
@@ -2945,6 +2945,7 @@ var _cyrillicToLatin = function(char) {
       snippets: TS.i18n.t("Snippets", "model")(),
       emails: TS.i18n.t("Emails", "model")(),
       images: TS.i18n.t("Images", "model")(),
+      videos: TS.i18n.t("Videos", "model")(),
       pdfs: TS.i18n.t("PDF Files", "model")(),
       gdocs: TS.i18n.t("Google Docs", "model")()
     },

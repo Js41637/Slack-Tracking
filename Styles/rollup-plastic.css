@@ -11807,6 +11807,36 @@ body.ReactModal__Body--open {
   margin-bottom: 1rem
 }
 
+.sounds_menu_option {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex
+}
+
+.sounds_menu_option a {
+  -ms-flex: 1;
+  -webkit-flex: 1;
+  flex: 1
+}
+
+.sounds_menu_option .sound_preview_button {
+  visibility: hidden;
+  margin-right: 15px;
+  height: 25px
+}
+
+.sounds_menu_option .sound_preview_button:before {
+  position: relative;
+  top: -1px
+}
+
+.sounds_menu_option.highlighted .sound_preview_button,
+.sounds_menu_option:hover .sound_preview_button {
+  visibility: visible
+}
+
 @font-face {
   font-family: appleLogo;
   src: local("Lucida Grande");
