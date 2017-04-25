@@ -5688,7 +5688,8 @@ a:not([href]) {
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
-  user-select: none
+  user-select: none;
+  opacity: 0
 }
 
 .responsive_image {

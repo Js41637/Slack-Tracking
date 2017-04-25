@@ -4284,7 +4284,6 @@
         TS.error("failed to get history for channel " + args.channel);
         channel.history_is_being_fetched = false;
         channel.history_fetch_retries = (channel.history_fetch_retries || 0) + 1;
-        if (!TS.boot_data.feature_improved_history_retries) return;
         var min_delay = 2500;
         var max_delay = 5e3;
         var delay = _.random(min_delay, max_delay);
@@ -5893,7 +5892,6 @@ TS.registerModule("constants", {
         TS.error("failed to get history for group " + args.channel);
         group.history_is_being_fetched = false;
         group.history_fetch_retries = (group.history_fetch_retries || 0) + 1;
-        if (!TS.boot_data.feature_improved_history_retries) return;
         var min_delay = 2500;
         var max_delay = 5e3;
         var delay = _.random(min_delay, max_delay);
@@ -8384,7 +8382,6 @@ TS.registerModule("constants", {
         TS.error("failed to get history for im " + args.channel);
         im.history_is_being_fetched = false;
         im.history_fetch_retries = (im.history_fetch_retries || 0) + 1;
-        if (!TS.boot_data.feature_improved_history_retries) return;
         var min_delay = 2500;
         var max_delay = 5e3;
         var delay = _.random(min_delay, max_delay);
@@ -8995,7 +8992,6 @@ TS.registerModule("constants", {
         TS.error("failed to get history for mpim " + args.channel);
         mpim.history_is_being_fetched = false;
         mpim.history_fetch_retries = (mpim.history_fetch_retries || 0) + 1;
-        if (!TS.boot_data.feature_improved_history_retries) return;
         var min_delay = 2500;
         var max_delay = 5e3;
         var delay = _.random(min_delay, max_delay);
@@ -9572,7 +9568,7 @@ TS.registerModule("constants", {
     loadScrollBackHistory: function(model_ob, controller) {
       if (!model_ob.msgs.length) {
         if (TS.pri) TS.log(58, "TS.shared.loadScrollbackHistory: No messages in " + model_ob.id + " yet; not loading scrollback history.");
-        if (TS.boot_data.feature_improved_history_retries && !model_ob._history_fetched_since_last_connect) {
+        if (!model_ob._history_fetched_since_last_connect) {
           if (TS.pri) TS.log(58, "TS.shared.loadScrollBackHistory: No messages, and history has not been fetched since last connect; doing an initial fetch.");
           TS.shared.checkInitialMsgHistory(model_ob, controller);
         }
@@ -14438,6 +14434,7 @@ TS.registerModule("constants", {
     team_disable_file_deleting_changed_sig: new signals.Signal,
     team_display_email_addresses_changed_sig: new signals.Signal,
     all_unreads_sort_order_changed_sig: new signals.Signal,
+    email_alerts_changed_sig: new signals.Signal,
     a11y_animations_changed_sig: new signals.Signal,
     setPrefs: function(prefs) {
       TS.model.prefs = prefs;
@@ -15150,6 +15147,10 @@ TS.registerModule("constants", {
         case "client_logs_pri":
           TS.model.prefs[imsg.name] = imsg.value;
           TS.console.setAppropriatePri();
+          break;
+        case "email_alerts":
+          TS.model.prefs[imsg.name] = imsg.value;
+          TS.prefs.email_alerts_changed_sig.dispatch();
           break;
         default:
           TS.model.prefs[imsg.name] = imsg.value;
@@ -25981,28 +25982,28 @@ var _profiling = {
         return cdn_url + "/0180/img/slackbot_72.png";
       });
       Handlebars.registerHelper("versioned_theme_thumb_brinjal", function() {
-        return cdn_url + "/d7a0/img/themes/brinjal@2x.png";
+        return cdn_url + "/52841/img/themes/brinjal@2x.png";
       });
       Handlebars.registerHelper("versioned_theme_thumb_chocolate", function() {
-        return cdn_url + "/d7a0/img/themes/chocolate@2x.png";
+        return cdn_url + "/52841/img/themes/chocolate@2x.png";
       });
       Handlebars.registerHelper("versioned_theme_thumb_default", function() {
-        return cdn_url + "/d7a0/img/themes/aubergine@2x.png";
+        return cdn_url + "/52841/img/themes/aubergine@2x.png";
       });
       Handlebars.registerHelper("versioned_theme_thumb_hoth", function() {
-        return cdn_url + "/d7a0/img/themes/hoth@2x.png";
+        return cdn_url + "/52841/img/themes/hoth@2x.png";
       });
       Handlebars.registerHelper("versioned_theme_thumb_monument", function() {
-        return cdn_url + "/d7a0/img/themes/monument@2x.png";
+        return cdn_url + "/52841/img/themes/monument@2x.png";
       });
       Handlebars.registerHelper("versioned_theme_thumb_ocean", function() {
-        return cdn_url + "/d7a0/img/themes/ochin@2x.png";
+        return cdn_url + "/52841/img/themes/ochin@2x.png";
       });
       Handlebars.registerHelper("versioned_theme_thumb_solanum", function() {
-        return cdn_url + "/d7a0/img/themes/solanum@2x.png";
+        return cdn_url + "/52841/img/themes/solanum@2x.png";
       });
       Handlebars.registerHelper("versioned_theme_thumb_workhard", function() {
-        return cdn_url + "/d7a0/img/themes/workhard@2x.png";
+        return cdn_url + "/52841/img/themes/workhard@2x.png";
       });
       Handlebars.registerHelper("versioned_twitter_64", function() {
         return cdn_url + "/66f9/img/services/twitter_64.png";
@@ -33977,6 +33978,28 @@ var _profiling = {
         TS.sounds.play(sound, {
           ignore_mute: true
         });
+      });
+      TS.menu.keepInBounds();
+    },
+    startWithGeneric: function(e, options, callback) {
+      if (TS.menu.isRedundantClick(e)) return;
+      if (TS.menu.menu_is_showing) return;
+      TS.menu.buildIfNeeded();
+      var html = "";
+      _.each(options, function(option) {
+        html += TS.templates.menu_generic_item({
+          label: option.label,
+          value: option.value
+        });
+      });
+      TS.menu.clean();
+      TS.menu.$menu_header.addClass("hidden").empty();
+      TS.menu.$menu_items.html(html);
+      TS.menu.start(e);
+      TS.menu.$menu_items.on("click.menu", "a[data-value]", function() {
+        e.preventDefault();
+        callback($(this).data("value"));
+        TS.menu.end();
       });
       TS.menu.keepInBounds();
     },
