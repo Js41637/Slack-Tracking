@@ -46390,7 +46390,7 @@ $.fn.togglify = function(settings) {
         items = response.objects;
       }
       return items.filter(function(item) {
-        return !(item.is_ultra_restricted || item.deleted);
+        return !(item.is_ultra_restricted || item.deleted || !item._is_local);
       }).map(function(item) {
         return {
           member: item,
