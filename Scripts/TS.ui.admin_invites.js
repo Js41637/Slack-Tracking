@@ -569,6 +569,7 @@
       _$div.find(".admin_invite_row").remove();
       _success_invites = [];
       _error_invites = [];
+      _expiration_ts = null;
       _updateSendButtonLabel();
       _.times(_NUM_INVITES, _addRow);
     }, 0);
@@ -713,10 +714,9 @@
       btn_text = TS.i18n.t("Set a time limit", "invite")();
     } else {
       _expiration_ts = date_ts;
-      var formatted_date = TS.utility.date.formatDate("{date_long}", date_ts);
-      var date_html = '<span id="admin_invites_guest_expiration_date_set_date" class="bold">' + TS.utility.htmlEntities(formatted_date) + "</span>";
-      html = TS.i18n.t("These guests will remain active until {date_html}.", "invite")({
-        date_html: date_html
+      html = TS.i18n.t("These accounts will be deactivated on <strong>{date} at {time}</strong>.", "invite")({
+        date: TS.utility.date.formatDate("{date}", date_ts),
+        time: TS.utility.date.formatDate("{time}", date_ts)
       });
       btn_text = TS.i18n.t("Change", "invite")();
     }
@@ -908,9 +908,10 @@
       success_invites_html = "<strong>" + single_channel_guest + "</strong>";
     }
     if (_expiration_ts && (account_type === "restricted" || account_type === "ultra_restricted") && TS.experiment.getGroup("guest_profiles_and_expiration") === "treatment") {
-      expiration_msg = TS.i18n.t("Their {invites_length,plural,=1{account}other{accounts}} will expire on {datetime}.", "invite")({
+      expiration_msg = TS.i18n.t("{invites_length,plural,=1{This account}other{These accounts}} will be deactivated on {date} at {time}.", "invite")({
         invites_length: _success_invites.length,
-        datetime: TS.utility.date.formatDate("{date_long} at {time}", _expiration_ts)
+        date: TS.utility.date.formatDate("{date}", _expiration_ts),
+        time: TS.utility.date.formatDate("{time}", _expiration_ts)
       });
     }
     var template_args = {

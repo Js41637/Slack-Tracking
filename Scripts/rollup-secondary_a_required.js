@@ -11856,9 +11856,6 @@ TS.registerModule("constants", {
       if (!m_ids.length) return Promise.resolve();
       return TS.members.ensureMembersArePresent(m_ids, c_ids);
     },
-    isMemberInDnd: function(member) {
-      return !!member._is_in_dnd;
-    },
     startBatchUpsert: function() {
       if (TS.members.is_in_bulk_upsert_mode) return false;
       TS.members.is_in_bulk_upsert_mode = true;
@@ -16118,9 +16115,8 @@ TS.registerModule("constants", {
           if (_measure_ping_pong_latency) {
             TS.metrics.clearMarks("ms_ping_sent");
           }
-        } else {
-          _maybeAddToImsgLog(imsg);
         }
+        _maybeAddToImsgLog(imsg);
         if (sent) {
           var type = imsg.type ? imsg.type : imsg.SENT_MSG.type ? imsg.SENT_MSG.type : "";
           TS.log(2, "msg " + (type ? '"' + type + '" ' : "") + "rsp time " + (Date.now() - sent.ts) + "ms");
@@ -16582,6 +16578,7 @@ TS.registerModule("constants", {
     var since_last_pong_ms = Date.now() - TS.ms.last_pong_time;
     TS.log(2, "MS since_last_pong_ms:" + since_last_pong_ms + " pong_timeout_ms:" + _pong_timeout_ms);
     if (since_last_pong_ms < _pong_timeout_ms) return;
+    if (TS.boot_data.feature_no_pong_timeout) return;
     TS.warn("since_last_pong_ms too long! " + since_last_pong_ms + " > " + _pong_timeout_ms);
     _maybePrintImsgLog();
     _maybeClearImsgLog();
@@ -18136,6 +18133,8 @@ TS.registerModule("constants", {
       if (TS.client) TS.view.showProperTeamPaneFiller();
     },
     user_change: function(imsg) {
+      var group = TS.boot_data.feature_user_change_improvements_experiment ? TS.experiment.getGroup("user_change_improvements") : "";
+      if (group !== "experiment") return TS.ms.msg_handlers.user_change_control(imsg);
       var member = TS.members.getMemberById(imsg.user.id);
       var is_synthetic_event_from_flannel = !imsg.hasOwnProperty("cache_ts") && !imsg.hasOwnProperty("event_ts");
       if (!member) {
@@ -18145,15 +18144,29 @@ TS.registerModule("constants", {
         }
         TS.log(1989, "Flannel: user_change for member not in model; will upsert because this looks like a Flannel hint");
       }
-      if (TS.boot_data.feature_flannel_batch_upsert_users) {
-        var may_bulk_upsert_this_event = !member && is_synthetic_event_from_flannel;
-        if (may_bulk_upsert_this_event && !_is_batch_upserting_users && !TS.members.is_in_bulk_upsert_mode) {
-          _is_batch_upserting_users = true;
-          TS.members.startBatchUpsert();
-        } else if (_is_batch_upserting_users && !may_bulk_upsert_this_event) {
-          TS.members.finishBatchUpsert();
-          _is_batch_upserting_users = false;
+      var may_bulk_upsert_this_event = !member && is_synthetic_event_from_flannel;
+      if (may_bulk_upsert_this_event && !_is_batch_upserting_users && !TS.members.is_in_bulk_upsert_mode) {
+        _is_batch_upserting_users = true;
+        TS.members.startBatchUpsert();
+      } else if (_is_batch_upserting_users && !may_bulk_upsert_this_event) {
+        TS.members.finishBatchUpsert();
+        _is_batch_upserting_users = false;
+      }
+      if (imsg.user && imsg.user.id === TS.model.user.id) {
+        if (TS.model.team && TS.model.team.prefs && !TS.model.team.prefs.display_email_addresses && imsg.user.profile && !imsg.user.profile.email) {
+          var local_email = member.profile && member.profile.email;
+          if (local_email) {
+            TS.info("user_change: email hidden via team pref. appending email from model for local user, so it is not lost in upsert.");
+            imsg.user.profile.email = local_email;
+          }
         }
+      }
+      TS.members.upsertAndSignal(imsg.user);
+    },
+    user_change_control: function(imsg) {
+      var member = TS.members.getMemberById(imsg.user.id);
+      if (!member) {
+        TS.log(1989, "Flannel: user_change for member not in model; will upsert");
       }
       if (imsg.user && imsg.user.id === TS.model.user.id) {
         if (TS.model.team && TS.model.team.prefs && !TS.model.team.prefs.display_email_addresses && imsg.user.profile && !imsg.user.profile.email) {
@@ -19844,7 +19857,7 @@ var _profiling = {
     },
     makeMemberPresenceStateClass: function(member) {
       var presence = member.presence;
-      if (TS.members.isMemberInDnd(member)) presence += " dnd";
+      if (TS.dnd.isMemberInDnd(member)) presence += " dnd";
       return presence;
     },
     makeMemberPresenceStateAriaLabel: function(member) {
@@ -19855,7 +19868,7 @@ var _profiling = {
       } else if (presence === "away") {
         aria_label += "away";
       }
-      if (TS.members.isMemberInDnd(member)) {
+      if (TS.dnd.isMemberInDnd(member)) {
         aria_label += ", do not disturb";
       }
       return aria_label;
@@ -30193,7 +30206,8 @@ var _profiling = {
       var test_url;
       if (!opts.emoji && url.indexOf("https://") === 0) {
         test_url = url.replace(/^https:\/\//, "");
-        for (i = 0, j = whitelist.length; i < j; i += 1) {
+        for (i = 0,
+          j = whitelist.length; i < j; i += 1) {
           if (test_url.indexOf(whitelist[i] + "/") === 0) {
             if (opts.stop_animations && whitelist[i] === "slack-imgs.com") {
               var o1 = TS.utility.url.urlQueryStringParse(test_url).o1;
@@ -39736,6 +39750,7 @@ var _on_esc;
     deleting_from_editing: false,
     current_msg: null,
     current_model_ob: null,
+    mousedown_active: false,
     edit_interv: 0,
     onStart: function() {},
     onCountDownInterval: function() {
@@ -40021,6 +40036,12 @@ var _on_esc;
       });
       form.find("#cancel_edit").bind("click", function() {
         TS.msg_edit.onCancelEdit();
+      });
+      form.bind("mousedown", function() {
+        TS.msg_edit.mousedown_active = true;
+      });
+      form.bind("mouseup", function() {
+        TS.msg_edit.mousedown_active = false;
       });
       var $emo_menu = form.find(".emo_menu");
       $emo_menu.removeClass("hidden");
@@ -48616,7 +48637,7 @@ $.fn.togglify = function(settings) {
       }
     },
     memberDndStatus: function() {
-      var in_dnd = TS.dnd.isMemberInDnd(TS.model.user);
+      var in_dnd = TS.dnd.calculateMemberDndFromTimestamp(TS.model.user);
       var snoozing = in_dnd && TS.model.dnd.snooze_enabled;
       var end_time_ts = _endTime(TS.model.user);
       var readable_end_time;
@@ -48664,7 +48685,7 @@ $.fn.togglify = function(settings) {
         _log("dnd.endDnd succeeded");
       });
     },
-    isMemberInDnd: function(member, now) {
+    calculateMemberDndFromTimestamp: function(member, now) {
       var is_in_dnd;
       if (!now) now = _now();
       var start = _startTime(member);
@@ -48676,11 +48697,15 @@ $.fn.togglify = function(settings) {
       is_in_dnd = end > now && (start <= now || start > end);
       return is_in_dnd;
     },
+    isMemberInDnd: function(member) {
+      return !!TS.model.dnd.current_statuses[member.id];
+    },
     checkForChanges: function() {
       if (!TS.model.ms_connected) return;
       var self_changed = false;
       var all_members = TS.members.getMembersForUser();
       var now = _now();
+      var current_statuses = TS.model.dnd.current_statuses || {};
       if (TS.model.dnd.snooze_enabled) {
         if (now >= TS.model.dnd.snooze_endtime) {
           TS.model.dnd.snooze_enabled = false;
@@ -48690,11 +48715,11 @@ $.fn.togglify = function(settings) {
       var members_with_stale_times = [];
       var members_with_updates = all_members.filter(function(member) {
         if (member.deleted) return false;
-        var was_in_dnd = member._is_in_dnd || false;
-        var is_in_dnd = TS.dnd.isMemberInDnd(member, now);
+        var was_in_dnd = current_statuses[member.id] || false;
+        var is_in_dnd = TS.dnd.calculateMemberDndFromTimestamp(member, now);
         var changed = false;
         if (was_in_dnd != is_in_dnd) {
-          member._is_in_dnd = is_in_dnd;
+          current_statuses[member.id] = is_in_dnd;
           if (member.is_self) self_changed = true;
           changed = true;
         }
@@ -48708,7 +48733,7 @@ $.fn.togglify = function(settings) {
       TS.dnd.dnd_statuses_changed_sig.dispatch(members_with_updates);
       if (self_changed) {
         TS.dnd.current_user_dnd_status_changed_sig.dispatch();
-        TSSSB.call("dndStatusChanged", TS.members.isMemberInDnd(TS.model.user));
+        TSSSB.call("dndStatusChanged", TS.dnd.isMemberInDnd(TS.model.user));
       }
       TS.dnd.kickOffNextEventTimer();
       return members_with_stale_times;
@@ -48780,7 +48805,7 @@ $.fn.togglify = function(settings) {
     },
     debugMember: function(member) {
       var logging = ["DND member debugging:"];
-      logging.push("is in DND: " + !!member._is_in_dnd + " (" + TS.dnd.isMemberInDnd(member) + ")");
+      logging.push("is in DND: " + !!TS.model.dnd.current_statuses[member.id] + " (" + TS.dnd.calculateMemberDndFromTimestamp(member) + ")");
       logging.push("start: " + _readableTs(_startTime(member), true));
       logging.push("end  : " + _readableTs(_endTime(member), true));
       logging.push("next : " + _readableTs(_nextTime(member), true));
@@ -50360,7 +50385,7 @@ $.fn.togglify = function(settings) {
       }
       TS.client.msg_pane.rebuildMsgs();
     });
-    TS.click.addClientHandler(".attachment_actions_buttons .btn", function(e) {
+    TS.click.addClientHandler(".attachement_actions_interactions .btn", function(e) {
       e.preventDefault();
       var context = TS.attachment_actions.handleActionEventAndGetContext($(e.target));
       if (context.action.confirm) {
@@ -56217,7 +56242,7 @@ $.fn.togglify = function(settings) {
       });
       return;
     }
-    if (TS.members.isMemberInDnd(TS.model.user)) {
+    if (TS.dnd.isMemberInDnd(TS.model.user)) {
       TS.utility.calls.sendInvitationResponseToCaller({
         user_id: imsg.caller,
         room_id: imsg.room,
@@ -58548,17 +58573,6 @@ $.fn.togglify = function(settings) {
       }
       return context;
     },
-    getPendingAttachment: function(attachment, actions) {
-      if (!attachment || !actions || !actions.length) return;
-      var changed_ids = _.map(actions, "id");
-      var pending_attachment = _.cloneDeep(attachment);
-      pending_attachment.actions.forEach(function(action) {
-        action._disabled = true;
-        action._loading = _.includes(changed_ids, action.id);
-      });
-      pending_attachment._pending = true;
-      return pending_attachment;
-    },
     confirmAction: function(action, onGo, onCancel) {
       var confirm_class = action.style === "danger" ? "btn_danger" : "btn_primary";
       var config = _.defaults(action.confirm, {
@@ -58591,7 +58605,7 @@ $.fn.togglify = function(settings) {
       if (!attachment || !message_ts) return;
       var $container = _getAttachmentActionsContainer(attachment, message_ts);
       if (!$container.length) return;
-      if (!only_render_if_pending || $container.find(".attachment_actions_buttons").hasClass("attachment_pending")) {
+      if (!only_render_if_pending || $container.find(".attachement_actions_interactions").hasClass("attachment_pending")) {
         var html = TS.templates.attachment_actions({
           attachment: attachment
         });
@@ -58609,16 +58623,36 @@ $.fn.togglify = function(settings) {
           _getActionContextDataFromDOM = v;
         }
       });
+      Object.defineProperty(test_obj, "_getPendingAttachment", {
+        get: function() {
+          return _getPendingAttachment;
+        },
+        set: function(v) {
+          _getPendingAttachment = v;
+        }
+      });
       return test_obj;
     }
   });
+
+  function _getPendingAttachment(attachment, actions) {
+    if (!attachment || !actions || !actions.length) return;
+    var changed_ids = _.map(actions, "id");
+    var pending_attachment = _.cloneDeep(attachment);
+    pending_attachment.actions.forEach(function(action) {
+      action._disabled = true;
+      action._loading = _.includes(changed_ids, action.id);
+    });
+    pending_attachment._pending = true;
+    return pending_attachment;
+  }
 
   function _onActionTriggered(data) {
     if (!data || !data.message || !data.attachment || !data.action || !data.channel_id) {
       TS.warn("_onActionTriggered: missing message, attachment, action, or channel_id");
       return;
     }
-    var pending_attachment = TS.attachment_actions.getPendingAttachment(data.attachment, [data.action]);
+    var pending_attachment = _getPendingAttachment(data.attachment, [data.action]);
     if (pending_attachment) {
       TS.attachment_actions.render(pending_attachment, data.message.ts);
     }
@@ -58712,7 +58746,7 @@ $.fn.togglify = function(settings) {
     decorateNewElements: function($container) {
       if (TS.boot_data.feature_message_menus) {
         $container = $container || TS.client.ui.$msgs_div;
-        var $new_els = $container.find(".attachment_actions_buttons select:not(.hidden)");
+        var $new_els = $container.find(".attachement_actions_interactions select:not(.hidden)");
         $new_els.each(function() {
           var $el = $(this);
           var context = TS.attachment_actions.getActionContext($el);
@@ -62863,8 +62897,7 @@ $.fn.togglify = function(settings) {
               if (!nf || r.length < ae - 1) return r.push([e, t]), this.size = ++n.size, this;
               n = this.__data__ = new pn(r);
             }
-            return n.set(e, t), this.size = n.size,
-              this;
+            return n.set(e, t), this.size = n.size, this;
           }
 
           function En(e, t) {
@@ -64867,7 +64900,8 @@ $.fn.togglify = function(settings) {
                 n = a(e);
               if (p = arguments, d = this, g = e, n) {
                 if (m === oe) return o(g);
-                if (b) return m = jf(s, t), r(g);
+                if (b) return m = jf(s, t),
+                  r(g);
               }
               return m === oe && (m = jf(s, t)), v;
             }
@@ -69232,7 +69266,7 @@ $.fn.togglify = function(settings) {
         return e < .5 ? 16 * e * e * e * e * e : 1 + 16 * --e * e * e * e * e;
       }
     };
-    return a.a.get(t, e, t.linear);
+    return a.a.get(t, e, t[s]);
   }
 
   function o(e) {
@@ -69240,30 +69274,31 @@ $.fn.togglify = function(settings) {
       n = e.toValue,
       o = e.duration,
       i = void 0 === o ? 500 : o,
-      s = e.easing,
-      u = void 0 === s ? "easeInOutQuad" : s,
-      l = e.onTick,
-      c = e.onComplete,
-      f = performance.now(),
-      p = a.a.isFunction(u) ? u : r(u),
-      d = function(e) {
-        return e > i ? n : t + (n - t) * p(e / i);
-      },
-      h = function() {
-        var e = performance.now() - f;
-        l({
-          value: d(e),
-          nextTick: e <= i ? v : c
-        });
+      u = e.easing,
+      l = void 0 === u ? s : u,
+      c = e.onTick,
+      f = e.onComplete,
+      p = performance.now(),
+      d = a.a.isFunction(l) ? l : r(l),
+      h = function(e) {
+        return e > i ? n : t + (n - t) * d(e / i);
       },
       v = function() {
-        return window.requestAnimationFrame(h);
+        var e = performance.now() - p;
+        c({
+          value: h(e),
+          nextTick: e <= i ? m : f
+        });
+      },
+      m = function() {
+        return window.requestAnimationFrame(v);
       };
-    v();
+    m();
   }
   var i = n(4),
     a = n.n(i);
   t.a = o;
+  var s = "easeInOutQuad";
 }, function(e, t, n) {
   "use strict";
 
@@ -69803,22 +69838,21 @@ $.fn.togglify = function(settings) {
     v = !1,
     m = -1;
   p.nextTick = function(e) {
-      var t = new Array(arguments.length - 1);
-      if (arguments.length > 1)
-        for (var n = 1; n < arguments.length; n++) t[n - 1] = arguments[n];
-      h.push(new u(e, t)), 1 !== h.length || v || o(s);
-    }, u.prototype.run = function() {
-      this.fun.apply(null, this.array);
-    }, p.title = "browser", p.browser = !0, p.env = {}, p.argv = [], p.version = "", p.versions = {}, p.on = l, p.addListener = l, p.once = l, p.off = l, p.removeListener = l, p.removeAllListeners = l,
-    p.emit = l, p.binding = function(e) {
-      throw new Error("process.binding is not supported");
-    }, p.cwd = function() {
-      return "/";
-    }, p.chdir = function(e) {
-      throw new Error("process.chdir is not supported");
-    }, p.umask = function() {
-      return 0;
-    };
+    var t = new Array(arguments.length - 1);
+    if (arguments.length > 1)
+      for (var n = 1; n < arguments.length; n++) t[n - 1] = arguments[n];
+    h.push(new u(e, t)), 1 !== h.length || v || o(s);
+  }, u.prototype.run = function() {
+    this.fun.apply(null, this.array);
+  }, p.title = "browser", p.browser = !0, p.env = {}, p.argv = [], p.version = "", p.versions = {}, p.on = l, p.addListener = l, p.once = l, p.off = l, p.removeListener = l, p.removeAllListeners = l, p.emit = l, p.binding = function(e) {
+    throw new Error("process.binding is not supported");
+  }, p.cwd = function() {
+    return "/";
+  }, p.chdir = function(e) {
+    throw new Error("process.chdir is not supported");
+  }, p.umask = function() {
+    return 0;
+  };
 }, function(e, t, n) {
   "use strict";
 
@@ -71360,13 +71394,12 @@ $.fn.togglify = function(settings) {
         u()(this, t);
         var o = p()(this, (t.__proto__ || a()(t)).call(this, e, r));
         o.state = {
-            isScrolling: !1,
-            scrollDirectionHorizontal: C.a,
-            scrollDirectionVertical: C.a,
-            scrollLeft: 0,
-            scrollTop: 0
-          }, o._onGridRenderedMemoizer = n.i(w.a)(),
-          o._onScrollMemoizer = n.i(w.a)(!1), o._debounceScrollEndedCallback = o._debounceScrollEndedCallback.bind(o), o._invokeOnGridRenderedHelper = o._invokeOnGridRenderedHelper.bind(o), o._onScroll = o._onScroll.bind(o), o._setScrollingContainerRef = o._setScrollingContainerRef.bind(o), o._columnWidthGetter = o._wrapSizeGetter(e.columnWidth), o._rowHeightGetter = o._wrapSizeGetter(e.rowHeight), o._deferredInvalidateColumnIndex = null, o._deferredInvalidateRowIndex = null, o._recomputeScrollLeftFlag = !1, o._recomputeScrollTopFlag = !1;
+          isScrolling: !1,
+          scrollDirectionHorizontal: C.a,
+          scrollDirectionVertical: C.a,
+          scrollLeft: 0,
+          scrollTop: 0
+        }, o._onGridRenderedMemoizer = n.i(w.a)(), o._onScrollMemoizer = n.i(w.a)(!1), o._debounceScrollEndedCallback = o._debounceScrollEndedCallback.bind(o), o._invokeOnGridRenderedHelper = o._invokeOnGridRenderedHelper.bind(o), o._onScroll = o._onScroll.bind(o), o._setScrollingContainerRef = o._setScrollingContainerRef.bind(o), o._columnWidthGetter = o._wrapSizeGetter(e.columnWidth), o._rowHeightGetter = o._wrapSizeGetter(e.rowHeight), o._deferredInvalidateColumnIndex = null, o._deferredInvalidateRowIndex = null, o._recomputeScrollLeftFlag = !1, o._recomputeScrollTopFlag = !1;
         var i = e.deferredMeasurementCache,
           s = "undefined" != typeof i;
         return o._columnSizeAndPositionManager = new b.a({
@@ -72666,7 +72699,8 @@ $.fn.togglify = function(settings) {
             n = void 0 === t ? 0 : t,
             r = e.rowIndex,
             o = void 0 === r ? 0 : r;
-          this._deferredInvalidateColumnIndex = "number" == typeof this._deferredInvalidateColumnIndex ? Math.min(this._deferredInvalidateColumnIndex, n) : n, this._deferredInvalidateRowIndex = "number" == typeof this._deferredInvalidateRowIndex ? Math.min(this._deferredInvalidateRowIndex, o) : o;
+          this._deferredInvalidateColumnIndex = "number" == typeof this._deferredInvalidateColumnIndex ? Math.min(this._deferredInvalidateColumnIndex, n) : n,
+            this._deferredInvalidateRowIndex = "number" == typeof this._deferredInvalidateRowIndex ? Math.min(this._deferredInvalidateRowIndex, o) : o;
         }
       }, {
         key: "measureAllCells",
@@ -74462,7 +74496,8 @@ $.fn.togglify = function(settings) {
   function o(e, t) {
     var n = v(),
       r = y[y.length - 1];
-    if ("top" === e.insertAt) r ? r.nextSibling ? n.insertBefore(t, r.nextSibling) : n.appendChild(t) : n.insertBefore(t, n.firstChild), y.push(t);
+    if ("top" === e.insertAt) r ? r.nextSibling ? n.insertBefore(t, r.nextSibling) : n.appendChild(t) : n.insertBefore(t, n.firstChild),
+      y.push(t);
     else {
       if ("bottom" !== e.insertAt) throw new Error("Invalid value for parameter 'insertAt'. Must be 'top' or 'bottom'.");
       n.appendChild(t);
@@ -77032,7 +77067,7 @@ $.fn.togglify = function(settings) {
                 return m({}, e, {
                   tipOpacity: n
                 });
-              }), r();
+              }, r);
             },
             onComplete: i
           });
@@ -77831,7 +77866,7 @@ $.fn.togglify = function(settings) {
 }, function(e, t, n) {
   n(81)("observable");
 }, function(e, t, n) {
-  t = e.exports = n(131)(), t.push([e.i, '.c-tooltip,.c-tooltip__tip{display:inline-block}.c-tooltip__tip{color:#fff;background-color:#2c2d30;max-width:250px;padding:.5rem;border-radius:4px;position:relative;font-size:.8125rem;font-weight:700;text-align:center}.c-tooltip__tip:after{position:absolute;content:"";width:0;height:0;margin:-5px;border:6px solid transparent}.c-tooltip__tip--left{margin-right:.5rem}.c-tooltip__tip--left:after{border-left-color:#2c2d30;right:-6px;top:50%}.c-tooltip__tip--right{margin-left:.5rem}.c-tooltip__tip--right:after{border-right-color:#2c2d30;left:-6px;top:50%}.c-tooltip__tip--top{margin-bottom:.5rem}.c-tooltip__tip--top:after{border-top-color:#2c2d30;bottom:-6px;left:50%}.c-tooltip__tip--top-left{margin-bottom:.5rem}.c-tooltip__tip--top-left:after{border-top-color:#2c2d30;bottom:-6px;left:50%;left:25%}.c-tooltip__tip--top-right{margin-bottom:.5rem}.c-tooltip__tip--top-right:after{border-top-color:#2c2d30;bottom:-6px;left:50%;left:75%}.c-tooltip__tip--bottom{margin-top:.5rem}.c-tooltip__tip--bottom:after{border-bottom-color:#2c2d30;top:-6px;left:50%}.c-tooltip__tip--bottom-left{margin-top:.5rem}.c-tooltip__tip--bottom-left:after{border-bottom-color:#2c2d30;top:-6px;left:50%;left:25%}.c-tooltip__tip--bottom-right{margin-top:.5rem}.c-tooltip__tip--bottom-right:after{border-bottom-color:#2c2d30;top:-6px;left:50%;left:75%}.c-tooltip__tip--success{background-color:#2ab27b}.c-tooltip__tip--success.c-tooltip__tip--left:after{border-left-color:#2ab27b}.c-tooltip__tip--success.c-tooltip__tip--right:after{border-right-color:#2ab27b}.c-tooltip__tip--success.c-tooltip__tip--top:after{border-top-color:#2ab27b}.c-tooltip__tip--success.c-tooltip__tip--bottom:after{border-bottom-color:#2ab27b}', ""]);
+  t = e.exports = n(131)(), t.push([e.i, '.c-tooltip,.c-tooltip__tip{display:inline-block}.c-tooltip__tip{color:#fff;background-color:#2c2d30;max-width:250px;padding:.5rem;border-radius:4px;position:relative;font-size:.8125rem;font-weight:700;text-align:center}.c-tooltip__tip:after{position:absolute;content:"";width:0;height:0;margin:-5px;border:6px solid transparent}.c-tooltip__tip--left{margin-right:.5rem}.c-tooltip__tip--left:after{border-left-color:#2c2d30;right:-6px;top:50%}.c-tooltip__tip--right{margin-left:.5rem}.c-tooltip__tip--right:after{border-right-color:#2c2d30;left:-6px;top:50%}.c-tooltip__tip--top{margin-bottom:.5rem}.c-tooltip__tip--top:after{border-top-color:#2c2d30;bottom:-6px;left:50%}.c-tooltip__tip--top-left{margin-bottom:.5rem}.c-tooltip__tip--top-left:after{border-top-color:#2c2d30;bottom:-6px;left:50%;left:25%}.c-tooltip__tip--top-right{margin-bottom:.5rem}.c-tooltip__tip--top-right:after{border-top-color:#2c2d30;bottom:-6px;left:50%;left:75%}.c-tooltip__tip--bottom{margin-top:.5rem}.c-tooltip__tip--bottom:after{border-bottom-color:#2c2d30;top:-6px;left:50%}.c-tooltip__tip--bottom-left{margin-top:.5rem}.c-tooltip__tip--bottom-left:after{border-bottom-color:#2c2d30;top:-6px;left:50%;left:25%}.c-tooltip__tip--bottom-right{margin-top:.5rem}.c-tooltip__tip--bottom-right:after{border-bottom-color:#2c2d30;top:-6px;left:50%;left:75%}.c-tooltip__tip--success{background-color:#2ab27b}.c-tooltip__tip--success.c-tooltip__tip--left:after{border-left-color:#2ab27b}.c-tooltip__tip--success.c-tooltip__tip--right:after{border-right-color:#2ab27b}.c-tooltip__tip--success.c-tooltip__tip--top-left:after,.c-tooltip__tip--success.c-tooltip__tip--top-right:after,.c-tooltip__tip--success.c-tooltip__tip--top:after{border-top-color:#2ab27b}.c-tooltip__tip--success.c-tooltip__tip--bottom-left:after,.c-tooltip__tip--success.c-tooltip__tip--bottom-right:after,.c-tooltip__tip--success.c-tooltip__tip--bottom:after{border-bottom-color:#2ab27b}', ""]);
 }, function(e, t, n) {
   t = e.exports = n(131)(), t.push([e.i, '.p-channel_sidebar{width:220px;height:100vh;position:relative;background:#4d394b;padding:0;color:#fff}.p-channel_sidebar__header{padding:0 .5rem;color:hsla(0,0%,100%,.7);margin:0}.p-channel_sidebar__banner{text-align:center;position:absolute;display:block;z-index:2;color:#fff;left:.5rem;right:.5rem;font-weight:700;text-transform:uppercase;font-size:.75rem;line-height:1.5rem}.p-channel_sidebar__banner--top{border-top-right-radius:0;border-bottom-right-radius:.25rem;border-bottom-left-radius:.25rem;border-top-left-radius:0;background-clip:padding-box;top:0}.p-channel_sidebar__banner--bottom{border-top-right-radius:.25rem;border-bottom-right-radius:0;border-bottom-left-radius:0;border-top-left-radius:.25rem;background-clip:padding-box;bottom:0}.p-channel_sidebar__banner--mentions{background:#eb4d5c}.p-channel_sidebar__banner--unreads{background:#2d9ee0}.p-channel_sidebar__channel,.p-channel_sidebar__link{display:block;height:26px;line-height:1.625rem;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;color:#fff;border-top-right-radius:.25rem;border-bottom-right-radius:.25rem;border-bottom-left-radius:0;border-top-left-radius:0;background-clip:padding-box;padding:0 .25rem 0 .5rem;margin-right:.5rem}.p-channel_sidebar__channel:after,.p-channel_sidebar__channel:before,.p-channel_sidebar__link:after,.p-channel_sidebar__link:before{font-family:Slack;font-style:normal;font-weight:400;display:inline-block;width:20px;color:hsla(0,0%,100%,.7)}.p-channel_sidebar__channel:before,.p-channel_sidebar__link:before{font-size:1rem;float:left}.p-channel_sidebar__channel:after,.p-channel_sidebar__link:after{float:right}.p-channel_sidebar__channel:hover,.p-channel_sidebar__link:hover{color:#fff;background:#3e313c;text-decoration:none}.p-channel_sidebar__channel:before{content:"\\E104"}.p-channel_sidebar__channel--private:before{content:"\\E503";margin-top:-2px}.p-channel_sidebar__channel--shared:after{content:"\\E165"}.p-channel_sidebar__channel--ent-shared:after{content:"\\E166"}.p-channel_sidebar__channel--mpim:before{font-size:1.25rem;margin:-3px 2px 0 -2px}.p-channel_sidebar__channel--mpim[data-user-count="2"]:before{content:"\\E521"}.p-channel_sidebar__channel--mpim[data-user-count="3"]:before{content:"\\E522"}.p-channel_sidebar__channel--mpim[data-user-count="4"]:before{content:"\\E523"}.p-channel_sidebar__channel--mpim[data-user-count="5"]:before{content:"\\E524"}.p-channel_sidebar__channel--mpim[data-user-count="6"]:before{content:"\\E525"}.p-channel_sidebar__channel--mpim[data-user-count="7"]:before{content:"\\E526"}.p-channel_sidebar__channel--mpim[data-user-count="8"]:before{content:"\\E527"}.p-channel_sidebar__channel--mpim[data-user-count="9"]:before{content:"\\E528"}.p-channel_sidebar__channel--im:before{content:"\\E506";color:#38978d;margin-top:-3px}.p-channel_sidebar__channel--im-slackbot:before{content:"\\E515";font-size:1.125rem;margin-top:-3px}.p-channel_sidebar__channel--im-you:after{content:"(you)";float:none;margin-left:.5rem;font-weight:400}.p-channel_sidebar__channel--selected,.p-channel_sidebar__channel--selected:hover{background:#4c9689}.p-channel_sidebar__channel--selected:after,.p-channel_sidebar__channel--selected:before,.p-channel_sidebar__channel--selected:hover:after,.p-channel_sidebar__channel--selected:hover:before{color:#fff}.p-channel_sidebar__channel--muted:not(.p-channel_sidebar__channel--selected),.p-channel_sidebar__channel--muted:not(.p-channel_sidebar__channel--selected):after,.p-channel_sidebar__channel--muted:not(.p-channel_sidebar__channel--selected):before{color:hsla(0,0%,100%,.25)}.p-channel_sidebar__channel--unread{font-weight:900}.p-channel_sidebar__channel--draft:before{content:"\\E024";color:#fff;font-size:.875rem;margin-top:1px}.p-channel_sidebar__badge{float:right;background:#eb4d5c;padding:.1rem .6rem;border-radius:1rem;line-height:1rem;margin:3px 0;font-size:.75rem;font-weight:700;color:#fff}.p-channel_sidebar__status{margin-left:.5rem}.p-channel_sidebar__link--unreads:before{content:"\\E103"}.p-channel_sidebar__link--threads:before{content:"\\E004"}.p-channel_sidebar__link--invite:before{content:"\\E281"}', ""]);
 }, function(e, t, n) {
@@ -80507,8 +80542,7 @@ $.fn.togglify = function(settings) {
   }
   var c = n(3),
     f = n(94),
-    p = (n(47), n(16),
-      n(20), n(38)),
+    p = (n(47), n(16), n(20), n(38)),
     d = n(322),
     h = (n(15), n(368)),
     v = (n(1), {
@@ -83645,7 +83679,8 @@ $.fn.togglify = function(settings) {
   }
 
   function o(e, t) {
-    e.mid = t.mid, e.left = t.left, e.right = t.right, e.leftPoints = t.leftPoints, e.rightPoints = t.rightPoints, e.count = t.count;
+    e.mid = t.mid, e.left = t.left,
+      e.right = t.right, e.leftPoints = t.leftPoints, e.rightPoints = t.rightPoints, e.count = t.count;
   }
 
   function i(e, t) {
@@ -83726,8 +83761,7 @@ $.fn.togglify = function(settings) {
     b = 2,
     w = r.prototype;
   w.intervals = function(e) {
-    return e.push.apply(e, this.leftPoints), this.left && this.left.intervals(e), this.right && this.right.intervals(e),
-      e;
+    return e.push.apply(e, this.leftPoints), this.left && this.left.intervals(e), this.right && this.right.intervals(e), e;
   }, w.insert = function(e) {
     var t = this.count - this.leftPoints.length;
     if (this.count += 1, e[1] < this.mid) this.left ? 4 * (this.left.count + 1) > 3 * (t + 1) ? a(this, e) : this.left.insert(e) : this.left = h([e]);

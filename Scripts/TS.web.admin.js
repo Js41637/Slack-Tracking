@@ -659,8 +659,13 @@
       }
       var is_enterprise = TS.boot_data.page_needs_enterprise;
       var can_convert_between_member_and_guest = !is_enterprise || is_enterprise && member.enterprise_user && member.enterprise_user.teams && member.enterprise_user.teams.length <= 1;
-      var guest_expiration_ts = null;
-      if (member.profile.guest_expiration_ts) guest_expiration_ts = TS.utility.date.formatDate("{date_long}", member.profile.guest_expiration_ts);
+      var guest_expiration_str = null;
+      if (member.profile.guest_expiration_ts) {
+        guest_expiration_str = TS.i18n.t("Will be deactivated on {date} at {time}", "web_admin")({
+          date: TS.utility.date.formatDate("{date}", member.profile.guest_expiration_ts),
+          time: TS.utility.date.formatDate("{time}", member.profile.guest_expiration_ts)
+        });
+      }
       var template_args = {
         member: member,
         member_type: TS.web.admin.getType(member),
@@ -676,7 +681,7 @@
         paid_team: TS.boot_data.pay_prod_cur,
         is_enterprise: is_enterprise,
         can_convert_between_member_and_guest: can_convert_between_member_and_guest,
-        guest_expiration_ts: guest_expiration_ts
+        guest_expiration_str: guest_expiration_str
       };
       if (member.is_restricted) {
         template_args.channels_count = 0;
@@ -798,7 +803,7 @@
           success: false
         });
         if (callback) callback();
-      }, 3e3);
+      }, 4e3);
     },
     startRestrictWorkflow: function(member, type) {
       $("body").scrollTop(0);
@@ -1793,6 +1798,7 @@
       member.is_admin = false;
       member.is_owner = false;
       member.is_primary_owner = false;
+      if (member.is_restricted && member.profile.guest_expiration_ts) delete member.profile.guest_expiration_ts;
       if (TS.boot_data.page_needs_enterprise && member.enterprise_user && member.enterprise_user.teams && member.enterprise_user.teams.indexOf(TS.model.team.id) > -1) {
         member.enterprise_user.teams.splice(member.enterprise_user.teams.indexOf(TS.model.team.id), 1);
       }
@@ -1983,6 +1989,7 @@
         }
         return;
       }
+      if (member.profile.guest_expiration_ts) delete member.profile.guest_expiration_ts;
       member.is_restricted = false;
       member.is_ultra_restricted = false;
       TS.members.upsertMember(member);
@@ -2215,13 +2222,25 @@
         return;
       }
       if (ok) {
-        member.profile.guest_expiration_ts = data.profile.guest_expiration_ts;
+        var success_message;
+        var member_name = TS.utility.htmlEntities(member.name);
+        if (data.profile.guest_expiration_ts) {
+          member.profile.guest_expiration_ts = data.profile.guest_expiration_ts;
+          success_message = TS.i18n.t("Got it! <strong>{member_name}</strong>{possessive_affix} account will be deactivated on {date} at {time}.", "web_admin")({
+            member_name: member_name,
+            possessive_affix: TS.i18n.possessive(member_name),
+            date: TS.utility.date.formatDate("{date}", member.profile.guest_expiration_ts),
+            time: TS.utility.date.formatDate("{time}", member.profile.guest_expiration_ts)
+          });
+        } else {
+          delete member.profile.guest_expiration_ts;
+          success_message = TS.i18n.t("Got it! <strong>{member_name}</strong>{possessive_affix} account will stay active until you specify otherwise.", "web_admin")({
+            member_name: member_name,
+            possessive_affix: TS.i18n.possessive(member_name)
+          });
+        }
         TS.members.upsertMember(member);
         TS.web.admin.rebuildMember(member);
-        var success_message = TS.i18n.t("Got it! <strong>{member_name}</strong>'s account will be active until {date}.", "web_admin")({
-          member_name: TS.utility.htmlEntities(member.name),
-          date: TS.utility.date.formatDate("{date_long}", member.profile.guest_expiration_ts)
-        });
         _.defer(function() {
           var $row = TS.web.admin.selectRow(member);
           TS.web.admin.showSuccessMessageOnRow($row, success_message, true);

@@ -366,17 +366,6 @@
         _fully_booted_p_resolve = resolve;
       });
       TS.boot_data = boot_data;
-      if (TS.boot_data.is_in_flannel_experiment) {
-        var byte_counting_duration = 10 * 60 * 1e3;
-        TS._count_bytes_received = true;
-        TS._bytes_received = 0;
-        setTimeout(function() {
-          TS.info("Received " + TS._bytes_received + " bytes in the first " + _.round(byte_counting_duration / 6e4, 2) + " minutes of the session");
-          TS._count_bytes_received = false;
-          TS.metrics.count("client_session_bytes_received", TS._bytes_received);
-          TS.metrics.count("client_total_members_loaded", TS.model.members.length);
-        }, byte_counting_duration);
-      }
       TS.console.onStart();
       if (TS.client) TS.client.setClientLoadWatchdogTimer();
       TS.model.api_url = TS.boot_data.api_url;
@@ -659,31 +648,31 @@
       return;
     }
     TS.metrics.mark("ms_reconnect_requested");
-    var _apiPaused = function() {
-      TS.info("API queue got paused while waiting for MS reconnection");
-      TS.ms.connected_sig.remove(_didGetConnected);
-      TS.api.unpaused_sig.addOnce(function() {
-        if (TS.model.calling_rtm_start) {
-          TS.info("API queue got unpaused, but rtm.start calling is pending, so doing nothing");
-          return;
-        }
-        _reconnectRequestedMS();
-      });
-    };
-    var _didGetConnected = function() {
-      var reconnect_duration_ms = TS.metrics.measureAndClear("ms_reconnect_delay", "ms_reconnect_requested");
-      TS.info("OK, MS is now reconnected -- it took " + _.round(reconnect_duration_ms / 1e3, 2) + " seconds");
-      TS.api.paused_sig.remove(_apiPaused);
-      TS.api.unpaused_sig.remove(_reconnectRequestedMS);
-    };
-    TS.api.paused_sig.addOnce(_apiPaused);
-    TS.ms.connected_sig.addOnce(_didGetConnected);
+    if (!TS.api.paused_sig.has(_apiPaused)) TS.api.paused_sig.addOnce(_apiPaused);
+    if (!TS.ms.connected_sig.has(_didGetConnected)) TS.ms.connected_sig.addOnce(_didGetConnected);
     if (TS.isPartiallyBooted()) {
       var rtm_start_p = _callRTMStart();
       _finalizeIncrementalBoot(rtm_start_p);
     } else {
       _callRTMStart().then(_processStartData);
     }
+  };
+  var _apiPaused = function() {
+    TS.info("API queue got paused while waiting for MS reconnection");
+    TS.ms.connected_sig.remove(_didGetConnected);
+    TS.api.unpaused_sig.addOnce(function() {
+      if (TS.model.calling_rtm_start) {
+        TS.info("API queue got unpaused, but rtm.start calling is pending, so doing nothing");
+        return;
+      }
+      _reconnectRequestedMS();
+    });
+  };
+  var _didGetConnected = function() {
+    var reconnect_duration_ms = TS.metrics.measureAndClear("ms_reconnect_delay", "ms_reconnect_requested");
+    TS.info("OK, MS is now reconnected -- it took " + _.round(reconnect_duration_ms / 1e3, 2) + " seconds");
+    TS.api.paused_sig.remove(_apiPaused);
+    TS.api.unpaused_sig.remove(_reconnectRequestedMS);
   };
   var _getMSLoginArgs = function() {
     var login_args = {
@@ -3025,7 +3014,8 @@ var _cyrillicToLatin = function(char) {
       next_dnd_end_ts: null,
       snooze_enabled: null,
       snooze_endtime: null,
-      team: {}
+      team: {},
+      current_statuses: {}
     },
     frecency_jumper: {},
     typing_msg: TS.i18n.t("several people are typing", "model")(),
