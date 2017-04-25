@@ -3423,11 +3423,34 @@
       }
       TS.redux.channels.addEntity(channel);
     },
+    getUpdatedReferenceToEntity: function(channel) {
+      if (TS.useRedux() && channel && channel.id) {
+        var updated_channel = TS.redux.channels.getEntityById(channel.id);
+        if (updated_channel) {
+          return updated_channel;
+        }
+      }
+      return channel;
+    },
     getEntityById: function(id) {
       var entity = _getChannelById(id);
-      if (entity && window.Proxy && TS.boot_data && TS.boot_data.version_ts === "dev") {
+      var use_a_proxy = entity && window.Proxy && TS.boot_data && TS.boot_data.version_ts === "dev";
+      if (TS.boot_data.feature_tinyspeck) {
+        use_a_proxy = entity && window.Proxy;
+      }
+      if (use_a_proxy) {
         entity = new window.Proxy(entity, {
           set: function(target, property, value) {
+            if (target && target.id && _getChannelById(target.id) !== target) {
+              TS.console.logStackTrace("Setting a property on a stale model object");
+              TS.generic_dialog.alert("Set a property on a stale model object, check the logs!", "Stale model object reference");
+              var stack = TS.console.getStackTrace();
+              var immediate_caller = _.get(stack.split("\n"), "[2]");
+              if (!_redux_did_warn_about_stack[immediate_caller]) {
+                _redux_did_warn_about_stack[immediate_caller] = true;
+                _logStaleModelObAccess(immediate_caller, stack);
+              }
+            }
             _improperly_set_keys[property] = true;
             target[property] = value;
             return true;
@@ -3502,11 +3525,32 @@
   var _getAllImIds;
   var _getChannelById;
   var _getChannelIdByName;
+  var _redux_did_warn_about_stack = {};
   var _addSignalListeners = function() {
     TS.channels.unread_changed_sig.add(TS.redux.channels.forceUpdateOfEntityById);
     TS.channels.unread_highlight_changed_sig.add(TS.redux.channels.forceUpdateOfEntityById);
     TS.ims.unread_changed_sig.add(TS.redux.channels.forceUpdateOfEntityById);
     TS.ims.unread_highlight_changed_sig.add(TS.redux.channels.forceUpdateOfEntityById);
+  };
+  var _logStaleModelObAccess = function(immediate_caller, stack) {
+    var STALE_MODEL_SET_VERSION = 1;
+    TS.metrics.count("redux_stale_model_set_v" + STALE_MODEL_SET_VERSION);
+    var info = {
+      message: "Setting a property on a stale model object. Immediate caller: " + immediate_caller,
+      stack: stack
+    };
+    var filename_and_line_number = immediate_caller.match(/\((.+):(\d+:\d+)\)/);
+    if (filename_and_line_number && filename_and_line_number.length == 3) {
+      info.fileName = filename_and_line_number[1];
+      info.lineNumber = filename_and_line_number[2];
+    }
+    $.post(TS.boot_data.beacon_error_url, {
+      description: "redux_stale_model_set_caller_v" + STALE_MODEL_SET_VERSION,
+      error_json: JSON.stringify(info),
+      team: _.get(TS, "model.team.id", "none"),
+      user: TS.boot_data.user_id,
+      version: TS.boot_data.version_ts
+    });
   };
 })();
 (function() {
@@ -9414,6 +9458,9 @@ TS.registerModule("constants", {
             if (TS.pri) TS.log(58, 'NOT fetching history on "' + model_ob.id + '", history already being fetched');
           } else {
             if (TS.pri) TS.log(58, 'fetching history for "' + model_ob.id + '" with api_args', api_args);
+            if (TS.useRedux()) {
+              model_ob = TS.redux.channels.getUpdatedReferenceToEntity(model_ob);
+            }
             controller.fetchHistory(model_ob, api_args);
           }
         };
@@ -9588,6 +9635,8 @@ TS.registerModule("constants", {
           })(user_group_id);
         }
       }
+      var stats_enabled = TS.client && TS.client.stats && TS.client.stats.isEnabled();
+      if (stats_enabled) TS.metrics.measureAndClear("send_msg_" + TS.shared.getTypeForModelOb(), "msg_input_try_to_submit");
     },
     sendMsg: function(c_id, raw_text, controller, in_reply_to_msg, should_broadcast_reply) {
       if (!raw_text) return false;
@@ -9935,6 +9984,16 @@ TS.registerModule("constants", {
       }
       TS.warn("getDisplayNameForModelOb: unknown model_ob type: " + model_ob.id);
       return model_ob.id;
+    },
+    getTypeForModelOb: function(model_ob) {
+      model_ob = model_ob || TS.shared.getActiveModelOb();
+      if (!model_ob) return "";
+      if (model_ob.is_mpim) return "mpim";
+      if (model_ob.is_slackbot_im) return "slackbot";
+      if (model_ob.is_im) return "im";
+      if (model_ob.is_group) return "group";
+      if (model_ob.is_channel) return "channel";
+      return "";
     },
     getDisplayNameForModelObNoSigns: function(model_ob) {
       if (model_ob.is_mpim) {
@@ -16687,8 +16746,8 @@ TS.registerModule("constants", {
           });
           TS.ms.connected_sig.addOnce(TS.client.deactivateMsgRateLimit);
         }
-        TS.info("_onErrorMsg imsg.msg: " + imsg.msg + ", imsg.code: " + imsg.code);
-        TS.ms.onFailure("_onErrorMsg imsg.error:" + imsg.error);
+        TS.info("_onErrorMsg imsg.error.msg: " + imsg.error.msg + ", imsg.error.code: " + imsg.error.code);
+        TS.ms.onFailure("_onErrorMsg imsg.error: " + JSON.stringify(imsg.error));
       }
     } else {
       TS.info("_onErrorMsg imsg: " + (imsg ? JSON.stringify(imsg) : "no imsg?"));
@@ -19944,6 +20003,7 @@ var _profiling = {
       var member = TS.utility.members.getEntityFromFile(file);
       var actions = TS.files.getFileActions(file);
       var html;
+      var is_hosted_or_external = file.mode === "hosted" || file.mode === "external";
       var template_args = {
         member: member,
         file: file,
@@ -19955,7 +20015,8 @@ var _profiling = {
         is_space: file.mode === "space",
         is_post: file.mode === "post",
         is_snippet: file.mode === "snippet",
-        is_hosted_or_external: file.mode === "hosted" || file.mode === "external",
+        is_hosted_or_external: is_hosted_or_external,
+        has_image: is_hosted_or_external && file.thumb_80 && !file.has_rich_preview,
         can_share: !!actions.share
       };
       if (TS.client) {
@@ -34285,7 +34346,7 @@ var _on_esc;
       if (id === "channel_join_item") {
         e.preventDefault();
         if (TS.model.archive_view_is_showing && TS.client.archives.current_model_ob.id == TS.menu.channel.channel.id) {
-          TS.channels.join(TS.client.archives.current_model_ob.name);
+          TS.channels.join(TS.client.archives.getCurrentModelOb().name);
         } else {
           TS.channels.displayChannel({
             id: TS.menu.channel.channel.id
@@ -44641,10 +44702,7 @@ var _on_esc;
         channel: model_ob.id
       }).then(function(resp) {
         if (TS.useRedux()) {
-          var new_model_ob = TS.redux.channels.getEntityById(model_ob.id);
-          if (new_model_ob) {
-            model_ob = new_model_ob;
-          }
+          model_ob = TS.redux.channels.getUpdatedReferenceToEntity(model_ob);
         }
         var pinned_items = resp.data.items;
         TS.pins.upsertPinnedItems(pinned_items);
@@ -46485,7 +46543,10 @@ $.fn.togglify = function(settings) {
     _$modal_container.find(".new_channel_go").click(TS.ui.new_channel_modal.go);
     _$modal_container.find(".create_share_channel").click(function() {
       TS.ui.new_channel_modal.end();
-      TS.ui.share_channel_dialog.start();
+      TS.ui.share_channel_dialog.start({
+        title: $("#channel_create_title").val(),
+        is_public: $("#channel_public_private_toggle").is(":checked")
+      });
     });
     _bindKeyboardShortcuts();
     _bindPublicPrivateToggle();
@@ -49927,7 +49988,8 @@ $.fn.togglify = function(settings) {
       if ($el.is($el) || $el.closest(".msg_cog").length) {
         e.preventDefault();
         if (TS.model.archive_view_is_showing) {
-          TS.menu.startWithMessageActions(e, msg_ts, TS.client.archives.current_model_ob._archive_msgs);
+          var current_model_ob = TS.client.archives.getCurrentModelOb() || {};
+          TS.menu.startWithMessageActions(e, msg_ts, current_model_ob._archive_msgs);
         } else {
           TS.menu.startWithMessageActions(e, msg_ts, TS.shared.getActiveModelOb().msgs);
         }
@@ -62801,7 +62863,8 @@ $.fn.togglify = function(settings) {
               if (!nf || r.length < ae - 1) return r.push([e, t]), this.size = ++n.size, this;
               n = this.__data__ = new pn(r);
             }
-            return n.set(e, t), this.size = n.size, this;
+            return n.set(e, t), this.size = n.size,
+              this;
           }
 
           function En(e, t) {
@@ -69740,21 +69803,22 @@ $.fn.togglify = function(settings) {
     v = !1,
     m = -1;
   p.nextTick = function(e) {
-    var t = new Array(arguments.length - 1);
-    if (arguments.length > 1)
-      for (var n = 1; n < arguments.length; n++) t[n - 1] = arguments[n];
-    h.push(new u(e, t)), 1 !== h.length || v || o(s);
-  }, u.prototype.run = function() {
-    this.fun.apply(null, this.array);
-  }, p.title = "browser", p.browser = !0, p.env = {}, p.argv = [], p.version = "", p.versions = {}, p.on = l, p.addListener = l, p.once = l, p.off = l, p.removeListener = l, p.removeAllListeners = l, p.emit = l, p.binding = function(e) {
-    throw new Error("process.binding is not supported");
-  }, p.cwd = function() {
-    return "/";
-  }, p.chdir = function(e) {
-    throw new Error("process.chdir is not supported");
-  }, p.umask = function() {
-    return 0;
-  };
+      var t = new Array(arguments.length - 1);
+      if (arguments.length > 1)
+        for (var n = 1; n < arguments.length; n++) t[n - 1] = arguments[n];
+      h.push(new u(e, t)), 1 !== h.length || v || o(s);
+    }, u.prototype.run = function() {
+      this.fun.apply(null, this.array);
+    }, p.title = "browser", p.browser = !0, p.env = {}, p.argv = [], p.version = "", p.versions = {}, p.on = l, p.addListener = l, p.once = l, p.off = l, p.removeListener = l, p.removeAllListeners = l,
+    p.emit = l, p.binding = function(e) {
+      throw new Error("process.binding is not supported");
+    }, p.cwd = function() {
+      return "/";
+    }, p.chdir = function(e) {
+      throw new Error("process.chdir is not supported");
+    }, p.umask = function() {
+      return 0;
+    };
 }, function(e, t, n) {
   "use strict";
 
@@ -71296,12 +71360,13 @@ $.fn.togglify = function(settings) {
         u()(this, t);
         var o = p()(this, (t.__proto__ || a()(t)).call(this, e, r));
         o.state = {
-          isScrolling: !1,
-          scrollDirectionHorizontal: C.a,
-          scrollDirectionVertical: C.a,
-          scrollLeft: 0,
-          scrollTop: 0
-        }, o._onGridRenderedMemoizer = n.i(w.a)(), o._onScrollMemoizer = n.i(w.a)(!1), o._debounceScrollEndedCallback = o._debounceScrollEndedCallback.bind(o), o._invokeOnGridRenderedHelper = o._invokeOnGridRenderedHelper.bind(o), o._onScroll = o._onScroll.bind(o), o._setScrollingContainerRef = o._setScrollingContainerRef.bind(o), o._columnWidthGetter = o._wrapSizeGetter(e.columnWidth), o._rowHeightGetter = o._wrapSizeGetter(e.rowHeight), o._deferredInvalidateColumnIndex = null, o._deferredInvalidateRowIndex = null, o._recomputeScrollLeftFlag = !1, o._recomputeScrollTopFlag = !1;
+            isScrolling: !1,
+            scrollDirectionHorizontal: C.a,
+            scrollDirectionVertical: C.a,
+            scrollLeft: 0,
+            scrollTop: 0
+          }, o._onGridRenderedMemoizer = n.i(w.a)(),
+          o._onScrollMemoizer = n.i(w.a)(!1), o._debounceScrollEndedCallback = o._debounceScrollEndedCallback.bind(o), o._invokeOnGridRenderedHelper = o._invokeOnGridRenderedHelper.bind(o), o._onScroll = o._onScroll.bind(o), o._setScrollingContainerRef = o._setScrollingContainerRef.bind(o), o._columnWidthGetter = o._wrapSizeGetter(e.columnWidth), o._rowHeightGetter = o._wrapSizeGetter(e.rowHeight), o._deferredInvalidateColumnIndex = null, o._deferredInvalidateRowIndex = null, o._recomputeScrollLeftFlag = !1, o._recomputeScrollTopFlag = !1;
         var i = e.deferredMeasurementCache,
           s = "undefined" != typeof i;
         return o._columnSizeAndPositionManager = new b.a({
@@ -71353,8 +71418,7 @@ $.fn.togglify = function(settings) {
           var e = this.props,
             t = e.columnCount,
             n = e.rowCount;
-          this._columnSizeAndPositionManager.getSizeAndPositionOfCell(t - 1),
-            this._rowSizeAndPositionManager.getSizeAndPositionOfCell(n - 1);
+          this._columnSizeAndPositionManager.getSizeAndPositionOfCell(t - 1), this._rowSizeAndPositionManager.getSizeAndPositionOfCell(n - 1);
         }
       }, {
         key: "recomputeGridSize",
@@ -79172,8 +79236,7 @@ $.fn.togglify = function(settings) {
               var n = this.getName() + ".componentWillUnmount()";
               p.invokeGuardedCallback(n, t.componentWillUnmount.bind(t));
             } else t.componentWillUnmount();
-          this._renderedComponent && (v.unmountComponent(this._renderedComponent, e), this._renderedNodeType = null, this._renderedComponent = null, this._instance = null), this._pendingStateQueue = null, this._pendingReplaceState = !1, this._pendingForceUpdate = !1, this._pendingCallbacks = null, this._pendingElement = null,
-            this._context = null, this._rootNodeID = 0, this._topLevelWrapper = null, d.remove(t);
+          this._renderedComponent && (v.unmountComponent(this._renderedComponent, e), this._renderedNodeType = null, this._renderedComponent = null, this._instance = null), this._pendingStateQueue = null, this._pendingReplaceState = !1, this._pendingForceUpdate = !1, this._pendingCallbacks = null, this._pendingElement = null, this._context = null, this._rootNodeID = 0, this._topLevelWrapper = null, d.remove(t);
         }
       },
       _maskContext: function(e) {
@@ -80444,7 +80507,8 @@ $.fn.togglify = function(settings) {
   }
   var c = n(3),
     f = n(94),
-    p = (n(47), n(16), n(20), n(38)),
+    p = (n(47), n(16),
+      n(20), n(38)),
     d = n(322),
     h = (n(15), n(368)),
     v = (n(1), {
@@ -82273,8 +82337,7 @@ $.fn.togglify = function(settings) {
         f = n.keyMapper,
         p = n.minHeight,
         d = n.minWidth;
-      this._hasFixedHeight = s === !0, this._hasFixedWidth = c === !0,
-        this._minHeight = p || 0, this._minWidth = d || 0, this._keyMapper = f || r, this._defaultHeight = Math.max(this._minHeight, "number" == typeof o ? o : u), this._defaultWidth = Math.max(this._minWidth, "number" == typeof a ? a : l), this._columnCount = 0, this._rowCount = 0, this._cellHeightCache = {}, this._cellWidthCache = {}, this._columnWidthCache = {}, this._rowHeightCache = {};
+      this._hasFixedHeight = s === !0, this._hasFixedWidth = c === !0, this._minHeight = p || 0, this._minWidth = d || 0, this._keyMapper = f || r, this._defaultHeight = Math.max(this._minHeight, "number" == typeof o ? o : u), this._defaultWidth = Math.max(this._minWidth, "number" == typeof a ? a : l), this._columnCount = 0, this._rowCount = 0, this._cellHeightCache = {}, this._cellWidthCache = {}, this._columnWidthCache = {}, this._rowHeightCache = {};
     }
     return s()(e, [{
       key: "clear",
@@ -83663,7 +83726,8 @@ $.fn.togglify = function(settings) {
     b = 2,
     w = r.prototype;
   w.intervals = function(e) {
-    return e.push.apply(e, this.leftPoints), this.left && this.left.intervals(e), this.right && this.right.intervals(e), e;
+    return e.push.apply(e, this.leftPoints), this.left && this.left.intervals(e), this.right && this.right.intervals(e),
+      e;
   }, w.insert = function(e) {
     var t = this.count - this.leftPoints.length;
     if (this.count += 1, e[1] < this.mid) this.left ? 4 * (this.left.count + 1) > 3 * (t + 1) ? a(this, e) : this.left.insert(e) : this.left = h([e]);
@@ -84993,6 +85057,7 @@ $.fn.togglify = function(settings) {
           var channel_ob = TS.channels.getChannelById(channel.id);
           return TS.templates.builders.makeChannelLink(channel_ob);
         });
+        channel_links = _.compact(channel_links);
         channel_matches.push({
           channels: new Handlebars.SafeString(TS.i18n.listify(channel_links, {
             no_escape: true

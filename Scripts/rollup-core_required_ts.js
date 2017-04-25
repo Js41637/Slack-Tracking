@@ -343,6 +343,8 @@
   var _guid = 0;
   var _fully_booted_p_resolve;
   var _fully_booted_p;
+  var _is_user_forced_into_redux_feature;
+  var _users_to_force_into_redux_feature = ["W2V82BY0G"];
   window.TS = {
     boot_data: {},
     qs_args: {},
@@ -392,7 +394,10 @@
       if (!TS.client) {
         return false;
       }
-      if (TS.boot_data.user_id === "W2V82BY0G" && !TS.boot_data.feature_drew_broke_his_own_app) {
+      if (_.isUndefined(_is_user_forced_into_redux_feature)) {
+        _is_user_forced_into_redux_feature = _.includes(_users_to_force_into_redux_feature, TS.boot_data.user_id);
+      }
+      if (_is_user_forced_into_redux_feature && !TS.boot_data.feature_drew_broke_his_own_app) {
         return true;
       }
       return !!TS.boot_data.feature_store_models_in_redux;
