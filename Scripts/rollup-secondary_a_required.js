@@ -40851,7 +40851,7 @@ var _on_esc;
     }
   };
   var _onKeyDown = function(e) {
-    if (e.which == TS.utility.keymap.enter && (TS.utility.getActiveElementProp("NODENAME") == "BODY" || _current_settings.enter_always_gos)) {
+    if (e.which == TS.utility.keymap.enter && (TS.utility.getActiveElementProp("NODENAME") === "BODY" || _current_settings.enter_always_gos)) {
       if (_current_settings.show_go_button) {
         _go();
         e.preventDefault();
@@ -42748,13 +42748,13 @@ var _on_esc;
         if (!protocols) return true;
         var allowed_protocols = protocols.split(",");
         for (var i = 0; i < allowed_protocols.length; i += 1) {
-          if (allowed_protocols[i] == "http") {
+          if (allowed_protocols[i] === "http") {
             if (found[0].indexOf("http://") === 0 || found[0].indexOf("https://") === 0) {
               return true;
             }
           } else if (found[0].indexOf(allowed_protocols[i] + "://") === 0) {
             return true;
-          } else if (allowed_protocols[i] == "https") {
+          } else if (allowed_protocols[i] === "https") {
             error_message = TS.i18n.t("Please use https (for security).", "ui_validation")();
           }
         }
@@ -44416,12 +44416,12 @@ var _on_esc;
     onKeydown: function(e) {
       if (!TS.ui.share_dialog.showing) return;
       if (e.which == TS.utility.keymap.enter) {
-        if (TS.utility.getActiveElementProp("NODENAME") == "BODY") {
+        if (TS.utility.getActiveElementProp("NODENAME") === "BODY") {
           TS.ui.share_dialog.go();
           e.preventDefault();
         }
       } else if (e.which == TS.utility.keymap.esc) {
-        if (TS.utility.getActiveElementProp("NODENAME") == "BODY") {
+        if (TS.utility.getActiveElementProp("NODENAME") === "BODY") {
           TS.ui.share_dialog.cancel();
         }
       }
@@ -44432,13 +44432,13 @@ var _on_esc;
       _item_id = item_id;
       var item = TS.files.getFileById(item_id);
       var type = "file";
-      if (item.mode == "post") {
+      if (item.mode === "post") {
         type = "file_post";
-      } else if (item.mode == "space") {
+      } else if (item.mode === "space") {
         type = "file_space";
-      } else if (item.mode == "snippet") {
+      } else if (item.mode === "snippet") {
         type = "file_snippet";
-      } else if (item.mode == "arugula") {
+      } else if (item.mode === "arugula") {
         type = "file_arugula";
       }
       var sharing_html = TS.templates.builders.buildFileSharingControls(item, true, null, has_title);
@@ -48514,7 +48514,7 @@ $.fn.togglify = function(settings) {
     var has_explicit_tabindex = tab_index !== null && tab_index >= 0;
     var in_tab_flow = has_implicit_tabindex || has_explicit_tabindex;
     var is_form_element = _form_element_names_re.test(node_name);
-    var is_anchor = node_name == "a";
+    var is_anchor = node_name === "a";
     if (is_form_element && !node.disabled && node.type !== "hidden" && in_tab_flow) {
       return true;
     }
@@ -48528,7 +48528,7 @@ $.fn.togglify = function(settings) {
   };
   var _isVisible = function(node) {
     var $node = $(node);
-    return $node.css("visibility") == "visible" && $node.css("display") !== "none" && $node.css("opacity") == 1;
+    return $node.css("visibility") === "visible" && $node.css("display") !== "none" && $node.css("opacity") == 1;
   };
   var _lastMsgFromPrevGroup = function($message, container_selector, last_message_selector) {
     var last_selector = last_message_selector || ".message:last-child";
@@ -60436,7 +60436,7 @@ $.fn.togglify = function(settings) {
             _clearInput($reply_container, model_ob, thread_ts);
           });
           if (handled_reaction) return;
-          if (text.substr(0, 1) == "/" && text.substr(0, 2) !== "//") {
+          if (text.substr(0, 1) === "/" && text.substr(0, 2) !== "//") {
             if (TS.boot_data.feature_threads_slash_cmds) {
               _clearInput($reply_container, model_ob, thread_ts);
               TS.client.ui.sendSlashCommand(model_ob, text, thread.root_msg);
@@ -61641,7 +61641,7 @@ $.fn.togglify = function(settings) {
   };
   var _updateZoomLevel = function(zoom_level) {
     var value = _zoom_level_to_percent[zoom_level] || "100";
-    var percentage = value == "normal" ? "100" : value;
+    var percentage = value === "normal" ? "100" : value;
     var html = TS.i18n.t("zoom: <strong>{zoom_percentage}%</strong>", "a11y")({
       zoom_percentage: percentage
     });
@@ -85061,9 +85061,8 @@ $.fn.togglify = function(settings) {
       strong: true,
       no_escape: true
     }).join("");
-    return TS.i18n.t("{user_link_text}{maybe_linebreak} in {channel_link_text}", "search")({
+    return TS.i18n.t("{user_link_text} in {channel_link_text}", "search")({
       user_link_text: user_link_text,
-      maybe_linebreak: users.length === 1 ? "<br>" : "",
       channel_link_text: channel_link_text
     });
   };

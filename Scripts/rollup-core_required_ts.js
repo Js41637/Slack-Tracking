@@ -4938,9 +4938,9 @@ var _cyrillicToLatin = function(char) {
     },
     setThemeClasses: function() {
       $("body").removeClass("dense_theme light_theme");
-      if (TS.model.prefs.theme == "dense") {
+      if (TS.model.prefs.theme === "dense") {
         $("body").addClass("dense_theme");
-      } else if (TS.model.prefs.theme == "light") {
+      } else if (TS.model.prefs.theme === "light") {
         $("body").addClass("light_theme");
       } else {
         TS.error("no theme?");

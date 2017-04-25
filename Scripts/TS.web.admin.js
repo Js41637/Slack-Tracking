@@ -82,7 +82,7 @@
       var show_bounce_warning = false;
       if (boot_data.admin_view) TS.web.admin.view = boot_data.admin_view;
       TS.members.startBatchUpsert();
-      if (TS.web.admin.view == "list") {
+      if (TS.web.admin.view === "list") {
         if (TS.boot_data.feature_name_tagging_client) {
           TS.web.admin.sort_order = $("#admin_sort").val() || "full_name";
         } else {
@@ -142,7 +142,7 @@
         } else {
           _bindLongListFilterUI();
         }
-      } else if (TS.web.admin.view == "invites") {
+      } else if (TS.web.admin.view === "invites") {
         TS.web.admin.sort_order = "invite_date";
         TS.web.admin.active_tab = "pending";
         $.each(boot_data.pending_invites, function(index, invite) {
@@ -245,9 +245,9 @@
       $("#admin_list").trigger("resize-immediate");
       _maybeReRenderLongList();
       TS.members.finishBatchUpsert();
-      if (TS.web.admin.view == "list") {
+      if (TS.web.admin.view === "list") {
         TS.metrics.measure("admin_list_load", "start_nav");
-      } else if (TS.web.admin.view == "invites") {
+      } else if (TS.web.admin.view === "invites") {
         TS.metrics.measure("admin_invites_load", "start_nav");
       }
       if (TS.shouldLog(1e3)) {
@@ -364,35 +364,35 @@
     sortList: function() {
       if (!TS.web.admin.sort_order) return;
       var sort_func;
-      if (TS.web.admin.sort_order == "screen_name") {
+      if (TS.web.admin.sort_order === "screen_name") {
         sort_func = TS.web.admin.sortByScreenName;
-      } else if (TS.web.admin.sort_order == "real_name") {
+      } else if (TS.web.admin.sort_order === "real_name") {
         sort_func = TS.web.admin.sortByRealName;
-      } else if (TS.web.admin.sort_order == "invite_date") {
+      } else if (TS.web.admin.sort_order === "invite_date") {
         sort_func = TS.web.admin.sortByInviteDate;
-      } else if (TS.web.admin.sort_order == "created_date") {
+      } else if (TS.web.admin.sort_order === "created_date") {
         sort_func = TS.web.admin.sortByCreatedDate;
-      } else if (TS.web.admin.sort_order == "type") {
+      } else if (TS.web.admin.sort_order === "type") {
         sort_func = TS.web.admin.sortByType;
       } else if (TS.web.admin.sort_order == "2fa") {
         sort_func = TS.web.admin.sortBy2FA;
-      } else if (TS.web.admin.sort_order == "sso") {
+      } else if (TS.web.admin.sort_order === "sso") {
         sort_func = TS.web.admin.sortBySSO;
-      } else if (TS.web.admin.sort_order == "inactive") {
+      } else if (TS.web.admin.sort_order === "inactive") {
         sort_func = TS.web.admin.sortByInactive;
-      } else if (TS.web.admin.sort_order == "full_name") {
+      } else if (TS.web.admin.sort_order === "full_name") {
         sort_func = TS.web.admin.sortByFullName;
-      } else if (TS.web.admin.sort_order == "preferred_name") {
+      } else if (TS.web.admin.sort_order === "preferred_name") {
         sort_func = TS.web.admin.sortByDisplayName;
       }
-      if (TS.web.admin.view == "list") {
+      if (TS.web.admin.view === "list") {
         TS.web.admin.active_members.sort(sort_func);
         if (sort_func != TS.web.admin.sortByType) {
           TS.web.admin.restricted_members.sort(sort_func);
           TS.web.admin.ultra_restricted_members.sort(sort_func);
           TS.web.admin.disabled_members.sort(sort_func);
         }
-      } else if (TS.web.admin.view == "invites") {
+      } else if (TS.web.admin.view === "invites") {
         TS.web.admin.pending_invites.sort(sort_func);
         TS.web.admin.accepted_invites.sort(sort_func);
       }
@@ -472,7 +472,7 @@
         members = TS.model.members;
       }
       _members = members;
-      if (TS.web.admin.view == "list") {
+      if (TS.web.admin.view === "list") {
         if (TS.web.admin.active_members.length === 0) {
           for (i = 0; i < members.length; i += 1) {
             member = members[i];
@@ -506,7 +506,7 @@
             TS.web.admin.subset_data.active_members_count = TS.web.admin.active_members.length;
           }
         }
-      } else if (TS.web.admin.view == "invites") {
+      } else if (TS.web.admin.view === "invites") {
         if (TS.web.admin.pending_invites.length === 0) {
           $.each(boot_data.pending_invites, function(index, invite) {
             TS.web.admin.pending_invites.push(invite);
@@ -539,7 +539,7 @@
         $($restricted_members).find(".restricted_info").remove();
         $($restricted_members).find(".restricted_info_sso").remove();
       }
-      if (TS.web.admin.view == "list") {
+      if (TS.web.admin.view === "list") {
         if (!_isApiAdminPage()) $($restricted_members).find(".ra_invite_prompt").parent().remove();
         if (!$($active_members).find(".long_list").length) {
           var $active_members_content = $("<div>").appendTo($active_members);
@@ -547,7 +547,7 @@
           var $disabled_members_content = $("<div>").appendTo($disabled_members);
           _buildLongLists($active_members_content, $restricted_members_content, $disabled_members_content);
         }
-      } else if (TS.web.admin.view == "invites") {
+      } else if (TS.web.admin.view === "invites") {
         scroller_id = "#invite_list";
         var pending_invites_html = "";
         $.each(TS.web.admin.pending_invites, function(index, invite) {
@@ -703,9 +703,9 @@
       }
       var invite_type_label = "";
       if (invite.type) {
-        if (invite.type == "restricted") {
+        if (invite.type === "restricted") {
           invite_type_label = TS.i18n.t("Multi-Channel Guest", "web_admin")();
-        } else if (invite.type == "ultra_restricted") {
+        } else if (invite.type === "ultra_restricted") {
           invite_type_label = TS.i18n.t("Single-Channel Guest", "web_admin")();
         }
       }
@@ -822,9 +822,9 @@
       $("#restricted_user").bind("click", startRAWorkflow);
       $("#guest_user").bind("click", startURAWorkflow);
       if (type) {
-        if (type == "ra") {
+        if (type === "ra") {
           startRAWorkflow();
-        } else if (type == "ura") {
+        } else if (type === "ura") {
           startURAWorkflow();
         }
       }
@@ -874,9 +874,9 @@
         $("#step2_guest").removeClass("hidden");
       }
       if (type) {
-        if (type == "ra") {
+        if (type === "ra") {
           startRAWorkflow();
-        } else if (type == "ura") {
+        } else if (type === "ura") {
           startURAWorkflow();
         }
       }
@@ -927,7 +927,7 @@
         member_type = TS.i18n.t("Member", "web_admin")();
       }
       if (member.deleted && !TS.boot_data.page_needs_enterprise) {
-        if (member_type == "Member") {
+        if (member_type === "Member") {
           member_type = TS.i18n.t("Deactivated Account", "web_admin")();
         } else {
           member_type = TS.i18n.t("Deactivated {member_type}", "web_admin")({
@@ -1064,8 +1064,8 @@
         name = $(this).attr("name");
         if (!name) return;
         is_name = name.match(/first_name|last_name/i);
-        is_email = name == "email";
-        is_username = name == "username";
+        is_email = name === "email";
+        is_username = name === "username";
         if (e.which == TS.utility.keymap.enter) {
           if (is_name) {
             TS.web.admin.submitNameForm(row.id);
@@ -1366,7 +1366,7 @@
         TS.api.call("users.profile.set", args, TS.web.admin.onMemberProfileSetUsername);
         TS.web.admin.rowProcessing(member);
       }
-      if (username.charAt(0) == "@") {
+      if (username.charAt(0) === "@") {
         username = username.substr(1);
       }
       args = {
@@ -1866,7 +1866,7 @@
       }
       if (!ok) {
         TS.error("failed onMemberSetRestricted");
-        if (data.error == "not_permitted_for_user_on_enterprise") {
+        if (data.error === "not_permitted_for_user_on_enterprise") {
           var error_message = TS.i18n.t("Oops! You cannot make this user a Multi-Channel Guest because they are on multiple teams in this Organization.", "web_admin")();
           var error_alert = '<p class="alert alert_info align_left"><i class="ts_icon ts_icon_warning small_right_margin"></i>' + error_message + "</p>";
           TS.web.admin.rowError(member, error_message);
@@ -1920,10 +1920,10 @@
       }
       if (!ok) {
         TS.error("failed onMemberSetRestricted");
-        if (data.error == "ura_limit_reached") {
+        if (data.error === "ura_limit_reached") {
           var error = '<p class="alert alert_info align_left"><i class="ts_icon ts_icon_warning small_right_margin"></i>' + TS.i18n.t("You’ve reached your limit for the number of Single-Channel Guests you can invite. You must invite more paid team members before you can add more Single-Channel Guests.", "web_admin")() + "</p>";
           $("#step2_guest").find("#convert_to_ura_confirmation").after(error);
-        } else if (data.error == "not_permitted_for_user_on_enterprise") {
+        } else if (data.error === "not_permitted_for_user_on_enterprise") {
           var error_message = TS.i18n.t("Oops! You cannot make this user a Single-Channel Guest because they are on multiple teams in this Organization.", "web_admin")();
           var error_alert = '<p class="alert alert_info align_left"><i class="ts_icon ts_icon_warning small_right_margin"></i>' + error_message + "</p>";
           TS.web.admin.rowError(member, error_message);
@@ -1975,7 +1975,7 @@
       }
       if (!ok) {
         TS.error("failed onMemberUnrestricted");
-        if (data.error == "not_permitted_for_user_on_enterprise") {
+        if (data.error === "not_permitted_for_user_on_enterprise") {
           var error_message = TS.i18n.t("Oops! You cannot make this user a Full Member because they are on multiple teams in this Organization.", "web_admin")();
           TS.web.admin.rowError(member, error_message);
         } else {
@@ -2166,7 +2166,7 @@
       }
       if (!ok) {
         TS.error("failed onEnableUltraRestrictedMember");
-        if (data.error == "ura_limit_reached") {
+        if (data.error === "ura_limit_reached") {
           var error = '<p class="alert alert_info align_left"><i class="ts_icon ts_icon_warning small_right_margin"></i>' + TS.i18n.t("You’ve reached your limit for the number of Single-Channel Guests you can invite. You must invite more paid team members before you can add more Single-Channel Guests.", "web_admin")() + "</p>";
           $("#step2_guest").find("#convert_to_ura_confirmation").after(error);
         } else {
@@ -2767,7 +2767,7 @@
         need_upsert = true;
       }
     }
-    if (TS.boot_data.auth_mode == "normal" && !_.isUndefined(member.has_sso_token)) {
+    if (TS.boot_data.auth_mode === "normal" && !_.isUndefined(member.has_sso_token)) {
       delete member.has_sso_token;
       need_upsert = true;
     }
@@ -2780,6 +2780,6 @@
     if (need_upsert) TS.members.upsertMember(member);
   };
   var _isApiAdminPage = function() {
-    return TS.boot_data.page_needs_enterprise && TS.boot_data.feature_api_admin_page && TS.web.admin.view == "list";
+    return TS.boot_data.page_needs_enterprise && TS.boot_data.feature_api_admin_page && TS.web.admin.view === "list";
   };
 })();

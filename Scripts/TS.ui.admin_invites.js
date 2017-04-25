@@ -484,13 +484,13 @@
   var _updateSendButtonLabel = function() {
     var account_type = $("#account_type").val();
     var label;
-    if (account_type == "full") {
+    if (account_type === "full") {
       label = TS.i18n.t("Send Invitations", "invite")();
     } else if (TS.experiment.getGroup("guest_profiles_and_expiration") === "treatment") {
       label = TS.i18n.t("Invite Guests", "invite")();
-    } else if (account_type == "restricted") {
+    } else if (account_type === "restricted") {
       label = TS.i18n.t("Invite Multi-Channel Guests", "invite")();
-    } else if (account_type == "ultra_restricted") {
+    } else if (account_type === "ultra_restricted") {
       label = TS.i18n.t("Invite Single-Channel Guests", "invite")();
     }
     _$div.find('button[data-action="api_send_invites"]').find(".ladda-label").text(label);
@@ -512,15 +512,15 @@
         account_type: account_type
       });
     }
-    if (TS.model.team.prefs.auth_mode == "google") {
-      if (invite_type == "full" && (TS.model.team.prefs.sso_auth_restrictions === 0 || TS.model.team.prefs.sso_auth_restrictions === 1)) {
+    if (TS.model.team.prefs.auth_mode === "google") {
+      if (invite_type === "full" && (TS.model.team.prefs.sso_auth_restrictions === 0 || TS.model.team.prefs.sso_auth_restrictions === 1)) {
         show_google_auth_email_domain_notice = true;
-      } else if ((invite_type == "restricted" || invite_type == "ultra_restricted") && TS.model.team.prefs.sso_auth_restrictions === 0) {
+      } else if ((invite_type === "restricted" || invite_type === "ultra_restricted") && TS.model.team.prefs.sso_auth_restrictions === 0) {
         show_google_auth_email_domain_notice = true;
       }
-    } else if (TS.model.team.prefs.auth_mode == "saml") {
+    } else if (TS.model.team.prefs.auth_mode === "saml") {
       if (TS.model.team.prefs.sso_auth_restrictions === 0 || TS.model.team.prefs.sso_auth_restrictions === 1) {
-        if (invite_type == "full") {
+        if (invite_type === "full") {
           if (!team_in_enterprise_org) {
             var admin_invites_switcher_html = TS.templates.admin_invite_switcher({
               can_add_ura: TS.model.can_add_ura,
@@ -587,14 +587,14 @@
     TS.ui.fs_modal.hideBackButton();
   };
   var _switchInviteView = function(view) {
-    if (view == "individual") {
+    if (view === "individual") {
       _$div.find("#individual_invites").removeClass("hidden");
       _$div.find("#bulk_invites, #bulk_notice").addClass("hidden");
       _$div.find("#bulk_emails").val("");
       _$div.find(".email_field").first().focus();
       _$div.find(".invite_modal_options_container").removeClass("hidden");
       _resetBulkForm();
-    } else if (view == "bulk") {
+    } else if (view === "bulk") {
       _$div.find("#bulk_invites").removeClass("hidden");
       _$div.find("#individual_invites").addClass("hidden");
       _$div.find(".invite_modal_options_container").addClass("hidden");
@@ -781,10 +781,10 @@
       var $custom_message = _$div.find("#admin_invite_custom_message");
       var channels;
       var invite_mode = TS.google_auth.isAuthed(_google_auth_instance_id) ? "contact" : "manual";
-      if (account_type == "full" || account_type == "restricted") {
+      if (account_type === "full" || account_type === "restricted") {
         var default_channels = _$div.find("#defaultchannelsmulti").val();
         if (default_channels) channels = default_channels.join(",");
-      } else if (account_type == "ultra_restricted") {
+      } else if (account_type === "ultra_restricted") {
         channels = _$div.find("#ultra_restricted_channel_picker").val();
       }
       if (!$show_custom_message.hasClass("hidden")) {
@@ -807,9 +807,9 @@
         if ((account_type === "restricted" || account_type === "ultra_restricted") && _expiration_ts) {
           args.expiration_ts = _expiration_ts;
         }
-        if (account_type == "restricted") {
+        if (account_type === "restricted") {
           args.restricted = 1;
-        } else if (account_type == "ultra_restricted") {
+        } else if (account_type === "ultra_restricted") {
           args.ultra_restricted = 1;
         }
         TS.api.call("users.admin.invite", args, _onInviteSent);
@@ -828,14 +828,14 @@
       _removeRow($row);
     } else {
       var message_html;
-      if (data.error == "requires_channel") {
+      if (data.error === "requires_channel") {
         setTimeout(Ladda.stopAll, 0);
         _$div.find("#ra_channel_picker_header").highlightText();
         var pick_at_least_one_channel = TS.i18n.t("Pick at least one channel before inviting Multi-Channel Guests.", "invite")();
         message_html = '<i class="ts_icon ts_icon_info_circle"></i> ' + pick_at_least_one_channel;
         _showInfoMessage("alert_warning", message_html);
         return;
-      } else if (data.error == "requires_one_channel") {
+      } else if (data.error === "requires_one_channel") {
         setTimeout(Ladda.stopAll, 0);
         _$div.find("#ura_channel_picker_header").highlightText();
         var pick_a_channel = TS.i18n.t("Pick a channel before inviting Single-Channel Guests.", "invite")();
@@ -891,17 +891,17 @@
     var account_type = $("#account_type").val();
     var success_invites_html;
     var expiration_msg;
-    if (account_type == "full") {
+    if (account_type === "full") {
       var full_member = TS.i18n.t("{invites_length,plural,=1{{invites_length} Team Member}other{{invites_length} Team Members}}", "invite")({
         invites_length: _success_invites.length
       });
       success_invites_html = "<strong>" + full_member + "</strong>";
-    } else if (account_type == "restricted") {
+    } else if (account_type === "restricted") {
       var multi_channel_guest = TS.i18n.t("{invites_length,plural,=1{{invites_length} Multi-Channel Guest}other{{invites_length} Multi-Channel Guests}}", "invite")({
         invites_length: _success_invites.length
       });
       success_invites_html = "<strong>" + multi_channel_guest + "</strong>";
-    } else if (account_type == "ultra_restricted") {
+    } else if (account_type === "ultra_restricted") {
       var single_channel_guest = TS.i18n.t("{invites_length,plural,=1{{invites_length} Single-Channel Guest}other{{invites_length} Single-Channel Guests}}", "invite")({
         invites_length: _success_invites.length
       });
@@ -1002,7 +1002,7 @@
   };
   var _canSaveDomains = function() {
     var account_type = $("#account_type").val();
-    return account_type == "full" && TS.model.user.is_owner && TS.model.team.prefs.auth_mode == "normal";
+    return account_type === "full" && TS.model.user.is_owner && TS.model.team.prefs.auth_mode === "normal";
   };
   var _collectNewDomains = function(invites) {
     if (!_canSaveDomains()) return "";

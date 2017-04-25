@@ -1132,7 +1132,7 @@
           if (TS.client) {} else {
             TS.files.deleteCommentOnFile(comment.id, file);
           }
-        } else if (data.error == "comment_not_found") {
+        } else if (data.error === "comment_not_found") {
           TS.files.deleteCommentOnFile(comment.id, file);
         }
       });
