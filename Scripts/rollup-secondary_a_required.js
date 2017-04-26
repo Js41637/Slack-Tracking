@@ -11901,6 +11901,24 @@ TS.registerModule("constants", {
     },
     ensureMembersInDataArePresent: function(data, source, channel_id) {
       var ret = TS.utility.extractAllMemberIds(data, source, channel_id);
+      if (_.get(TS, "model.team.id") === "T02J3DPUE" && !_.isEmpty(ret.m_ids)) {
+        var has_u_ids = _.some(ret.m_ids, function(id) {
+          return id[0] === "U";
+        });
+        if (has_u_ids) {
+          var info = {
+            message: "Fetching U users on W team from source: " + source,
+            stack: TS.console.getStackTrace()
+          };
+          $.post(TS.boot_data.beacon_error_url, {
+            description: "fetch_u_on_w_team",
+            error_json: JSON.stringify(info),
+            team: _.get(TS, "model.team.id", "none"),
+            user: TS.boot_data.user_id,
+            version: TS.boot_data.version_ts
+          });
+        }
+      }
       return TS.members.ensureMembersArePresent(ret.m_ids, ret.c_ids, ret.t_ids);
     },
     getMemberIdsNotPresent: function(m_ids, c_ids, t_ids) {
@@ -18789,6 +18807,7 @@ TS.registerModule("constants", {
   var _ensureModelObsAndMembersAndProceed = function(imsg) {
     TS.log(2, imsg.type + " is now being handled");
     var ensure_profiling_callback;
+    var is_async = true;
     if (_profiling_enabled) ensure_profiling_callback = _profiling.start(imsg.type);
     var ensureModelObs = function() {
       return TS.shared.ensureModelObsArePresent(missing_c_ids).then(function() {
@@ -18797,7 +18816,7 @@ TS.registerModule("constants", {
         if (imsg.channel && typeof imsg.channel === "string" && !TS.shared.getModelObById(imsg.channel)) {
           TS.error(full_type + " could not be handled because imsg.channel could not be fetched. full err: " + err.message);
           TS.log(0, "imsg.ts:" + imsg.ts + ", imsg.channel:" + imsg.channel);
-          if (ensure_profiling_callback) ensure_profiling_callback();
+          if (ensure_profiling_callback) ensure_profiling_callback(is_async);
           return _afterMsgHandled();
         }
         TS.maybeWarn(794, full_type + " held some references to model_obs we could not fetch, but we have imsg.channel (or there was no imsg.channel) so we can still proceed");
@@ -18821,7 +18840,7 @@ TS.registerModule("constants", {
         if (imsg.user && typeof imsg.user === "string" && !TS.members.getMemberById(imsg.user) || imsg.channel && typeof imsg.channel === "object" && imsg.channel.user && typeof imsg.channel.user === "string" && !TS.members.getMemberById(imsg.channel.user)) {
           TS.error(full_type + " could not be handled because imsg.user or imsg.channel.user could not be fetched. full err: " + err.message);
           TS.log(0, "imsg.ts:" + imsg.ts + ", imsg.user:" + imsg.user + ", imsg.channel.user:" + imsg.channel && imsg.channel.user);
-          if (ensure_profiling_callback) ensure_profiling_callback();
+          if (ensure_profiling_callback) ensure_profiling_callback(is_async);
           return _afterMsgHandled();
         }
         TS.maybeWarn(794, full_type + " held some references to members we could not fetch, but we have imsg.user and imsg.channel.user (or they did not exist) so we can still proceed");
@@ -18836,7 +18855,7 @@ TS.registerModule("constants", {
         TS.error(full_type + " errored out when being handled, with err: " + err.message, err);
         TS.console.logStackTrace();
       }
-      if (ensure_profiling_callback) ensure_profiling_callback();
+      if (ensure_profiling_callback) ensure_profiling_callback(is_async);
       return _afterMsgHandled();
     };
     if (imsg.type === "presence_change") return proceedWithImsg(imsg);
@@ -18970,24 +18989,27 @@ var _profiling = {
       start: performance.now(),
       end: 0
     };
-    var finish = function() {
+    var finish = function(async) {
+      async = !!async;
       data.end = performance.now();
       var elapsed = data.end - data.start;
       if (elapsed > warn_threshold) {
         TS.warn("'" + label + "' msg_handler took " + _.round(elapsed, 2) + "ms" + (warn_threshold !== _profiling_default_warn_threshold ? " (threshold = " + warn_threshold + ")" : ""));
       }
-      _profiling.count(label, elapsed);
+      _profiling.count(label, elapsed, async);
     };
     return finish;
   },
-  count: function(label, duration) {
+  count: function(label, duration, async) {
     if (!_profiling_stats_meta.start_time) _profiling_stats_meta.start_time = performance.now();
     if (!_profiling_stats[label]) {
       _profiling_stats[label] = {
         call_count: 0,
-        elapsed_time: 0
+        elapsed_time: 0,
+        async: !!async
       };
     }
+    if (async) _profiling_stats[label].async = async;
     _profiling_stats[label].call_count += 1;
     _profiling_stats[label].elapsed_time += duration;
     _profiling.maybeReport();
@@ -19002,11 +19024,17 @@ var _profiling = {
     _profiling.reset();
   },
   beacon: function() {
+    var prefix = "ms_handler_";
     _.each(_profiling_stats, function(value, key) {
+      if (value.async) {
+        key = prefix + "async_" + key;
+      } else {
+        key = prefix + key;
+      }
       TS.metrics.count(key + "_count", value.call_count);
       TS.metrics.store(key + "_time", value.elapsed_time);
     });
-    TS.metrics.store("imsgs_received_total", _profiling_total_imsgs_received, {
+    TS.metrics.store(prefix + "imsgs_received_total", _profiling_total_imsgs_received, {
       is_count: true
     });
   },
@@ -30812,6 +30840,10 @@ var _profiling = {
                   if (TS.utility.ensureInArray(m_ids, m_id)) {
                     c_ids.push(typeof obj.id === "string" && obj.channel || channel_id || undefined);
                     t_ids.push(typeof obj.team === "string" && obj.team || typeof obj.team === "object" && obj.team && obj.team.id || undefined);
+                  }
+                } else if (typeof m_id === "object" && m_id.id) {
+                  if (TS.utility.strLooksLikeAMemberId(m_id.id)) {
+                    m_ids.push(m_id.id);
                   }
                 }
               });

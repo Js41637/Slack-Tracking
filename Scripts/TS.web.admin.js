@@ -238,7 +238,11 @@
           _last_search_range = range;
         });
       }
-      if (!_isApiAdminPage()) _removeLoadingAnimation();
+      if (_isApiAdminPage()) {
+        _bindCsvFetch();
+      } else {
+        _removeLoadingAnimation();
+      }
       if (!TS.web.admin.lazyload) {
         TS.web.admin.lazyload = $("#admin_list").find(".lazy").lazyload();
       }
@@ -2800,5 +2804,72 @@
   };
   var _isApiAdminPage = function() {
     return TS.boot_data.page_needs_enterprise && TS.boot_data.feature_api_admin_page && TS.web.admin.view === "list";
+  };
+  var _msDownload = function(blob, filename) {
+    window.navigator.msSaveBlob(blob, filename);
+  };
+  var _linkDownload = function(data, filename, link) {
+    var blob = new Blob([data], {
+      type: "text/csv"
+    });
+    var url_object = window.URL || window.webkitURL;
+    var url = url_object.createObjectURL(blob);
+    if (link) {
+      link.href = url;
+      link.download = filename;
+      link.click();
+    }
+    url_object.revokeObjectURL(url);
+    Ladda.stopAll();
+  };
+  var _readerDownload = function(data) {
+    var blob = new Blob([data], {
+      type: "text/csv"
+    });
+    var reader = new FileReader;
+    reader.onloadend = function() {
+      var url = reader.result;
+      var opened = window.open(url, "_blank");
+      if (!opened) window.location.href = url;
+    };
+    try {
+      reader.readAsDataURL(blob);
+    } catch (e) {
+      TS.warn("Failed to download CSV for admin team members for id: " + TS.model.team.id);
+    } finally {
+      Ladda.stopAll();
+    }
+  };
+  var _forcedDownload = function(data) {
+    var blob = new Blob([data], {
+      type: "application/octet-stream"
+    });
+    var url_object = window.URL || window.webkitURL;
+    var url = url_object.createObjectURL(blob);
+    window.location.href = url;
+    Ladda.stopAll();
+  };
+  var _onload = function() {
+    if (this.status === 200) {
+      var filename = "slack-" + TS.model.team.domain + "-members.csv";
+      var link = $("#admin_list").find("[data-admin-csv-download-link]").get(0);
+      if (window.navigator.msSaveBlob) return _msDownload(this.response, filename);
+      if ("download" in link) return _linkDownload(this.response, filename, link);
+      if (window.FileReader && !window.safari) return _readerDownload(this.response);
+      if (window.safari) return _forcedDownload(this.response);
+    }
+  };
+  var _bindCsvFetch = function() {
+    Ladda.bind("#admin_list .ladda-button");
+    $("#admin_list").on("click", "[data-admin-csv-download]", function(e) {
+      e.preventDefault();
+      var xhr = new XMLHttpRequest;
+      xhr.open("POST", TS.model.api_url + "users.admin.fetchTeamUsersCsv", true);
+      xhr.responseType = "blob";
+      xhr.onload = _onload;
+      var form_data = new FormData;
+      form_data.append("token", TS.model.api_token);
+      xhr.send(form_data);
+    });
   };
 })();

@@ -14,6 +14,10 @@
   padding-right: 1rem
 }
 
+#admin_list [data-admin-csv-download]:disabled {
+  color: #fff!important
+}
+
 .admin_action_bar {
   border-bottom: 1px solid #DDD;
   padding: 1rem .5rem;
