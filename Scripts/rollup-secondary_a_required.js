@@ -17312,10 +17312,6 @@ TS.registerModule("constants", {
         imsg.ts = TS.utility.date.makeTsStamp();
       }
       var profiling_callback;
-      if (_is_batch_upserting_users && imsg.type !== "user_change") {
-        TS.members.finishBatchUpsert();
-        _is_batch_upserting_users = false;
-      }
       var subtype_method_name = "subtype__" + imsg.subtype;
       if (subtype_method_name in TS.ms.msg_handlers) {
         if (TS.boot_data.feature_channel_eventlog_client) {
@@ -18945,6 +18941,10 @@ TS.registerModule("constants", {
     return Promise.resolve();
   };
   var _handleMsg = function(imsg) {
+    if (_is_batch_upserting_users && imsg.type !== "user_change") {
+      TS.members.finishBatchUpsert();
+      _is_batch_upserting_users = false;
+    }
     TS.ms.msg_handlers[imsg.type](imsg);
     if (TS.client && TS.model.is_our_app) {
       TS.dir(236, imsg, "calling TS.client.windows.distributeMsgToWins");
@@ -22854,14 +22854,14 @@ var _profiling = {
     buildRxnTitle: function(args) {
       var handy_title = TS.rxns.getHandyRxnsTitleForEmojiByRxnKey(args.name, args.rxn_key);
       var emoji_formatted;
-      var display_name = args.name;
+      var display_name = ":" + args.name + ":";
       if (TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE) {
-        display_name = TSFEmoji.getLocalEmojiString(args.name, TS.i18n.locale());
+        display_name = TSFEmoji.translateEmojiStringToLocal(display_name, TS.i18n.locale());
       }
       if (args.is_handy || args.is_poll && !args.count) {
         if (args.is_poll) return "Vote for “" + TS.utility.htmlEntities(handy_title || args.name) + "”";
         if (handy_title) return "Say “" + TS.utility.htmlEntities(handy_title) + "”";
-        emoji_formatted = ":" + TS.utility.htmlEntities(display_name || args.name) + ":";
+        emoji_formatted = TS.utility.htmlEntities(display_name || args.name);
         return TS.i18n.t("Add reaction {emoji}", "rxn")({
           emoji: emoji_formatted
         });
@@ -22874,7 +22874,7 @@ var _profiling = {
       } else if (handy_title) {
         subtitle = "said “" + TS.utility.htmlEntities(handy_title) + "”";
       } else {
-        emoji_formatted = ":" + TS.utility.htmlEntities(display_name || args.name) + ":";
+        emoji_formatted = TS.utility.htmlEntities(display_name || args.name);
         subtitle = TS.i18n.t("reacted with {emoji}", "rxn")({
           emoji: emoji_formatted
         });
@@ -46804,7 +46804,7 @@ $.fn.togglify = function(settings) {
       TS.ui.new_channel_modal.end();
       TS.ui.share_channel_dialog.start({
         title: $("#channel_create_title").val(),
-        is_public: $("#channel_public_private_toggle").is(":checked")
+        is_private: !$("#channel_public_private_toggle").is(":checked")
       });
     });
     _bindKeyboardShortcuts();
@@ -51165,7 +51165,7 @@ $.fn.togglify = function(settings) {
       starred_channel: 10,
       member_of_this_channel: 10,
       archived_channel_or_group: -50,
-      not_in_channel: -50,
+      not_in_channel: -25,
       usergroup_or_keyword: -25,
       fuzzy_match: 50,
       exact_match: 100,
@@ -76546,8 +76546,8 @@ $.fn.togglify = function(settings) {
         key: "getEmojiPreviewData",
         value: function(e) {
           var t = b.a(e.display_name || e.name),
-            n = (e.display_names || e.names || "").replace(/(::skin-tone-[2-6]:)/g, ":");
-          return {
+            n = e.display_names || e.names || "";
+          return n = b.d(n), {
             name: t,
             aliases: n
           };
@@ -77465,10 +77465,13 @@ $.fn.togglify = function(settings) {
     return i;
   }), n.d(t, "c", function() {
     return a;
+  }), n.d(t, "d", function() {
+    return s;
   });
   var o = r.a,
     i = r.b,
-    a = r.c;
+    a = r.c,
+    s = r.d;
 }, function(e, t, n) {
   "use strict";
   var r = n(226);
@@ -77488,6 +77491,8 @@ $.fn.togglify = function(settings) {
     return i;
   }), n.d(t, "a", function() {
     return a;
+  }), n.d(t, "d", function() {
+    return s;
   });
   var o = n.i(r.a)("TS.emoji.emojiMatchesTerm", function() {
       return !1;
@@ -77496,6 +77501,9 @@ $.fn.togglify = function(settings) {
       return [];
     }),
     a = n.i(r.a)("TS.emoji.nameToBaseName", function() {
+      return "";
+    }),
+    s = n.i(r.a)("TS.emoji.stripLocalizedSkinTone", function() {
       return "";
     });
 }, function(e, t, n) {
@@ -80442,7 +80450,8 @@ $.fn.togglify = function(settings) {
         u = l(e, i);
       if (s && u) {
         var f = document.createRange();
-        f.setStart(s.node, s.offset), n.removeAllRanges(), o > i ? (n.addRange(f), n.extend(u.node, u.offset)) : (f.setEnd(u.node, u.offset), n.addRange(f));
+        f.setStart(s.node, s.offset), n.removeAllRanges(), o > i ? (n.addRange(f),
+          n.extend(u.node, u.offset)) : (f.setEnd(u.node, u.offset), n.addRange(f));
       }
     }
   }

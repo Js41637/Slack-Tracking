@@ -2302,7 +2302,7 @@
       locale = locale || _locale;
       var key = locale + ":" + ns + ":" + str;
       if (_translations[key] === undefined) {
-        if (_is_pseudo) {
+        if (_is_pseudo || locale === "pseudo") {
           _translations[key] = new MessageFormat(locale, _getPseudoTranslation(str)).format;
         } else {
           _translations[key] = new MessageFormat(locale, str).format;
@@ -2471,7 +2471,7 @@
           substr = substr.replace(val[0], val[1]);
         });
         return substr.split(" ").map(function(word) {
-          word += new Array(Math.round(word.length * 1.3) - word.length + 1).join("~");
+          word += new Array(Math.floor(.3 * word.length) + 1).join("~");
           return word;
         }).join(" ");
       }
@@ -3765,8 +3765,21 @@ var _cyrillicToLatin = function(char) {
     },
     nameToBaseName: function(name) {
       if (!_.isString(name)) return "";
-      name = name.replace(/(:skin-tone-[2-6]:)/, "");
+      if (TS.boot_data.feature_i18n_emoji) {
+        name = TS.emoji.stripLocalizedSkinTone(name);
+      } else {
+        name = name.replace(/(:skin-tone-[2-6]:)/, "");
+      }
       name = TS.emoji.stripWrappingColons(name);
+      return name;
+    },
+    stripLocalizedSkinTone: function(name) {
+      var local_skin_tone_regex = /::skin-tone-[2-6]:/g;
+      if (TS.boot_data.feature_i18n_emoji && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE) {
+        var local_skin_tone_name = TS.emoji.getLocalSkinToneName();
+        local_skin_tone_regex = new RegExp("::" + local_skin_tone_name + "-[2-6]:", "g");
+      }
+      name = name.replace(local_skin_tone_regex, ":");
       return name;
     },
     stripWrappingColons: function(str) {
@@ -4186,13 +4199,21 @@ var _cyrillicToLatin = function(char) {
     eachEmoticon: function(str, callback) {
       str.replace(_emoji.rx_emoticons, callback);
     },
-    getChosenSkinTone: function() {
+    getLocalSkinToneName: function() {
+      var skin_tone_name = "skin-tone";
+      if (TS.boot_data.feature_i18n_emoji && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE) {
+        skin_tone_name = TSFEmoji.getLocalSkinToneName(TS.i18n.locale());
+      }
+      return skin_tone_name;
+    },
+    getChosenSkinTone: function(use_localized_skin_tone_name) {
       var pref = parseInt(_.get(TS, "model.prefs.preferred_skin_tone"), 10);
       if (!pref || pref == "1" || !_.includes([2, 3, 4, 5, 6], pref)) return "";
-      return "skin-tone-" + pref;
+      var skin_tone_name = use_localized_skin_tone_name ? TS.emoji.getLocalSkinToneName() : "skin-tone";
+      return skin_tone_name + "-" + pref;
     },
-    getChosenSkinToneModifier: function() {
-      var tone = TS.emoji.getChosenSkinTone();
+    getChosenSkinToneModifier: function(use_localized_skin_tone_name) {
+      var tone = TS.emoji.getChosenSkinTone(use_localized_skin_tone_name);
       if (!tone) return "";
       return ":" + tone + ":";
     },
