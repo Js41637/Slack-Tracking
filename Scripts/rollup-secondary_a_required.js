@@ -293,12 +293,17 @@
       return;
     }
     var LZString_url = _.get(TS, "boot_data.vvv_paths.lz_string", "/js/libs/lz-string-1.4.4.js");
+    var webpack_manifest_url = _.get(TS, "boot_data.vvv_paths.webpack_manifest", "");
+    var include_webpack_manifest = _.get(TS, "boot_data.feature_es6_build_pipeline", false) && webpack_manifest_url !== "";
     var using_local_js = TS.qs_args.local_assets || TS.qs_args.js_path;
     var is_dev = TS.environment.is_dev;
     if (using_local_js || is_dev) {
       LZString_url = location.protocol + "//" + location.host + LZString_url;
+      if (include_webpack_manifest) {
+        webpack_manifest_url = location.protocol + "//" + location.host + webpack_manifest_url;
+      }
     }
-    _worker = TS.utility.makeWebWorker("function() {			self.importScripts('" + LZString_url + "');			self.onmessage = function(e) {				var start = Date.now();				var result;				if (e.data.request === 'compress') {					result = LZString.compress(e.data.input)				}				var elapsed = Date.now() - start;				postMessage({					request: e.data.request,					result: result,					job_key: e.data.job_key,					k: e.data.k,					elapsed: elapsed				});			}		}", function(e) {
+    _worker = TS.utility.makeWebWorker("function() {			" + (include_webpack_manifest ? "self.importScripts('" + webpack_manifest_url + "');" : "") + "			self.importScripts('" + LZString_url + "');			self.onmessage = function(e) {				var start = Date.now();				var result;				if (e.data.request === 'compress') {					result = LZString.compress(e.data.input)				}				var elapsed = Date.now() - start;				postMessage({					request: e.data.request,					result: result,					job_key: e.data.job_key,					k: e.data.k,					elapsed: elapsed				});			}		}", function(e) {
       var callback = _callbacks[e.data.job_key];
       if (!callback) {
         TS.error("e.data.job_key:" + e.data.job_key + " had no record in _callbacks??");
@@ -9667,7 +9672,6 @@ TS.registerModule("constants", {
         new_msg.thread_ts = imsg.SENT_MSG.thread_ts;
       }
       controller.addMsg(imsg.SENT_MSG.channel || model_ob.id, TS.utility.msgs.processImsg(new_msg, model_ob.id));
-      TS.client.ui.maybeHandleSingleEmoji(imsg.text);
       var channel_type;
       if (model_ob.is_channel) {
         channel_type = TS.i18n.t("channel", "shared")();
@@ -29653,18 +29657,19 @@ var _profiling = {
         return result;
       }, []).join(" ");
     },
-    convertFilesize: function(size) {
-      size = parseInt(size, 10);
-      if (size === 0) return "0 bytes";
-      var units = ["b", "KB", "MB", "GB"];
-      var power = parseInt(Math.floor(Math.log(size) / Math.log(1024)), 10);
-      var calc_size = size / Math.pow(1024, power);
-      var rounded_size = Math.round(calc_size, 2);
-      if (rounded_size > 999) {
-        rounded_size = 1;
-        power += 1;
+    convertFilesize: function(bytes, decimalPlaces, iec) {
+      if (bytes === 0) return iec ? "0 bits" : "0 bytes";
+      var threshold = iec ? 1024 : 1e3;
+      if (Math.abs(bytes) < threshold) {
+        return bytes + "B";
       }
-      return rounded_size + units[power];
+      var units = iec ? ["KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"] : ["kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
+      var power = -1;
+      do {
+        bytes /= threshold;
+        power += 1;
+      } while (Math.abs(bytes) >= threshold && power < units.length - 1);
+      return decimalPlaces ? bytes.toFixed(decimalPlaces) + units[power] : Math.round(bytes) + units[power];
     },
     numberWithCommas: function(x) {
       if (x === undefined || x === null) return "";
@@ -67843,6 +67848,11 @@ $.fn.togglify = function(settings) {
         value: function(e, t) {
           return o(e, t);
         }
+      }, {
+        key: "locale",
+        value: function() {
+          return n.i(s.b)();
+        }
       }]), e;
     }();
   t.a = l;
@@ -69634,13 +69644,14 @@ $.fn.togglify = function(settings) {
   }
 
   function o(e, t) {
-    var o, i = ["upsert", "bulkUpsert", "remove", "bulkRemove"],
+    var o, i = ["upsert", "bulkUpsert", "remove", "bulkRemove", "clear"],
       l = a.a.pick(e, i),
       c = l.upsert,
       f = l.bulkUpsert,
       p = l.remove,
       d = l.bulkRemove,
-      h = a.a.omit(e, i);
+      h = l.clear,
+      v = a.a.omit(e, i);
     return n.i(s.createReducer)(u((o = {}, r(o, c, function(e, t) {
       return t && t.id ? u({}, e, r({}, t.id, t)) : e;
     }), r(o, f, function(e, t) {
@@ -69651,7 +69662,9 @@ $.fn.togglify = function(settings) {
       return a.a.omit(e, t);
     }), r(o, d, function(e, t) {
       return a.a.omit(e, t);
-    }), o), h), t);
+    }), r(o, h, function() {
+      return {};
+    }), o), v), t);
   }
   var i = n(4),
     a = n.n(i),
@@ -72752,9 +72765,10 @@ $.fn.togglify = function(settings) {
         c()(this, t);
         var r = h()(this, (t.__proto__ || u()(t)).call(this, e, n));
         return r._invalidateOnUpdateStartIndex = null, r._invalidateOnUpdateStopIndex = null, r._positionCache = new w.a, r._startIndex = null, r._startIndexMemoized = null, r._stopIndex = null, r._stopIndexMemoized = null, r.state = {
-          isScrolling: !1,
-          scrollTop: 0
-        }, r._debounceResetIsScrollingCallback = r._debounceResetIsScrollingCallback.bind(r), r._setScrollingContainerRef = r._setScrollingContainerRef.bind(r), r._onScroll = r._onScroll.bind(r), r;
+            isScrolling: !1,
+            scrollTop: 0
+          }, r._debounceResetIsScrollingCallback = r._debounceResetIsScrollingCallback.bind(r), r._setScrollingContainerRef = r._setScrollingContainerRef.bind(r), r._onScroll = r._onScroll.bind(r),
+          r;
       }
       return m()(t, e), p()(t, [{
         key: "clearCellPositions",
@@ -76863,8 +76877,8 @@ $.fn.togglify = function(settings) {
   "use strict";
 
   function r(e) {
-    var t = s.a.clone(e);
-    return t.className = l()("ts_icon ts_icon_" + e.type, e.className), delete t.type, i.a.createElement("i", t);
+    var t = s.a.omit(e, "type");
+    return t.className = e.type ? l()("ts_icon ts_icon_" + e.type, e.className) : l()("ts_icon", e.className), i.a.createElement("i", t);
   }
   var o = n(0),
     i = n.n(o),
@@ -76873,9 +76887,10 @@ $.fn.togglify = function(settings) {
     u = n(9),
     l = n.n(u);
   t.a = r, r.propTypes = {
-    type: i.a.PropTypes.string.isRequired,
+    type: i.a.PropTypes.string,
     className: i.a.PropTypes.string
   }, r.defaultProps = {
+    type: null,
     className: null
   };
 }, function(e, t, n) {
@@ -77489,16 +77504,21 @@ $.fn.togglify = function(settings) {
     i = n(66);
   n.d(t, "a", function() {
     return a;
+  }), n.d(t, "b", function() {
+    return s;
   });
   var a = n.i(i.a)("TS.i18n.t", function(e) {
-    return function(t) {
-      var n = o.a.keys(t);
-      return o.a.reduce(n, function(e, n) {
-        var r = new RegExp("{" + n + "}");
-        return e.replace(r, t[n]);
-      }, e);
-    };
-  });
+      return function(t) {
+        var n = o.a.keys(t);
+        return o.a.reduce(n, function(e, n) {
+          var r = new RegExp("{" + n + "}");
+          return e.replace(r, t[n]);
+        }, e);
+      };
+    }),
+    s = n.i(i.a)("TS.i18n.locale", function() {
+      return "en-US";
+    });
 }, function(e, t, n) {
   "use strict";
   var r = n(66);
@@ -77515,39 +77535,20 @@ $.fn.togglify = function(settings) {
     });
 }, function(e, t, n) {
   "use strict";
-
-  function r(e, t, n) {
-    return t in e ? Object.defineProperty(e, t, {
-      value: n,
-      enumerable: !0,
-      configurable: !0,
-      writable: !0
-    }) : e[t] = n, e;
-  }
-  var o, i = n(17),
-    a = (n.n(i), n(120)),
-    s = n.i(i.createAction)("Upsert a download"),
-    u = n.i(i.createAction)("Upsert multiple downloads"),
-    l = n.i(i.createAction)("Remove a download by ID"),
-    c = n.i(i.createAction)("Remove multiple downloads by IDs"),
-    f = n.i(i.createAction)("Show the location of a download in the filesystem"),
-    p = n.i(i.createAction)("Open a download in the filesystem"),
-    d = n.i(i.createAction)("Cancel a download"),
-    h = n.i(i.createAction)("Retry a canceled download");
-  t.a = n.i(a.a)((o = {
-    upsert: s,
-    bulkUpsert: u,
-    remove: l,
-    bulkRemove: c
-  }, r(o, f, function(e) {
-    return e;
-  }), r(o, p, function(e) {
-    return e;
-  }), r(o, d, function(e) {
-    return e;
-  }), r(o, h, function(e) {
-    return e;
-  }), o), {});
+  var r = n(17),
+    o = (n.n(r), n(120)),
+    i = n.i(r.createAction)("Upsert a download"),
+    a = n.i(r.createAction)("Upsert multiple downloads"),
+    s = n.i(r.createAction)("Remove a download by ID"),
+    u = n.i(r.createAction)("Remove multiple downloads by IDs"),
+    l = n.i(r.createAction)("Clear all downloads");
+  t.a = n.i(o.a)({
+    upsert: i,
+    bulkUpsert: a,
+    remove: s,
+    bulkRemove: u,
+    clear: l
+  }, {});
 }, function(e, t, n) {
   "use strict";
   var r = n(17),
@@ -77555,12 +77556,14 @@ $.fn.togglify = function(settings) {
     i = n.i(r.createAction)("Upsert a file"),
     a = n.i(r.createAction)("Upsert multiple files"),
     s = n.i(r.createAction)("Remove a file by ID"),
-    u = n.i(r.createAction)("Remove multiple files by IDs");
+    u = n.i(r.createAction)("Remove multiple files by IDs"),
+    l = n.i(r.createAction)("Clear all files");
   t.a = n.i(o.a)({
     upsert: i,
     bulkUpsert: a,
     remove: s,
-    bulkRemove: u
+    bulkRemove: u,
+    clear: l
   }, {});
 }, function(e, t, n) {
   "use strict";
@@ -79035,7 +79038,8 @@ $.fn.togglify = function(settings) {
   "use strict";
   var r = n(141),
     o = n(14),
-    i = (n(16), n(290), n(368)),
+    i = (n(16),
+      n(290), n(368)),
     a = n(297),
     s = n(300),
     u = (n(2), s(function(e) {
@@ -80426,8 +80430,7 @@ $.fn.togglify = function(settings) {
         u = l(e, i);
       if (s && u) {
         var f = document.createRange();
-        f.setStart(s.node, s.offset), n.removeAllRanges(), o > i ? (n.addRange(f),
-          n.extend(u.node, u.offset)) : (f.setEnd(u.node, u.offset), n.addRange(f));
+        f.setStart(s.node, s.offset), n.removeAllRanges(), o > i ? (n.addRange(f), n.extend(u.node, u.offset)) : (f.setEnd(u.node, u.offset), n.addRange(f));
       }
     }
   }

@@ -654,3 +654,7 @@ label[for=enable_calls_checkbox] input[type=checkbox] {
     margin: 0 .8rem
   }
 }
+
+[name=workspace_access_type_closed_option_channel] .lazy_filter_select .lfs_item .ts_icon:before {
+  line-height: .9rem
+}
