@@ -24328,6 +24328,12 @@ var _profiling = {
         }
         return options.inverse(this);
       });
+      Handlebars.registerHelper("sharedChannelsEnabled", function(options) {
+        if (TS.boot_data.page_needs_enterprise || TS.boot_data.feature_shared_channels_client) {
+          return options.fn(this);
+        }
+        return options.inverse(this);
+      });
       Handlebars.registerHelper("isChannelRequired", function(channel, options) {
         return TS.channels.isChannelRequired(channel) ? options.fn(this) : options.inverse(this);
       });
@@ -47240,6 +47246,7 @@ $.fn.togglify = function(settings) {
     },
     tokenClass: null,
     tokenTemplate: null,
+    tokenTemplateSingle: null,
     use_data_attributes: false,
     _$active: null,
     _all_done_fetching: false,
@@ -47428,6 +47435,8 @@ $.fn.togglify = function(settings) {
     var content;
     if (token && _.isFunction(instance.tokenTemplate)) {
       content = instance.tokenTemplate(item);
+    } else if (instance.single && _.isFunction(instance.tokenTemplateSingle)) {
+      content = instance.tokenTemplateSingle(item);
     } else {
       content = instance.template(item);
     }

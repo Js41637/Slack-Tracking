@@ -14740,7 +14740,8 @@ only screen and (min-resolution:2dppx) {
 .channel_modal .channel_modal_filter_container input[type=text] {
   width: 100%;
   padding-left: 2.5rem;
-  padding-right: 3rem
+  padding-right: 3rem;
+  padding-top: .65rem
 }
 
 .channel_modal .channel_modal_filter_container .search_icon {
@@ -14894,7 +14895,7 @@ html:not(.supports_flexbox) .channel_modal_with_list .channel_modal_list {
   background-color: rgba(113, 114, 116, .8)
 }
 
-.channel_modal_with_list .lazy_filter_select:not(.team_picker) {
+.channel_modal_with_list .lazy_filter_select:not(.team_picker):not(.show_which_channels_selector):not(.channel_browser_sort) {
   overflow-y: hidden
 }
 
@@ -15025,20 +15026,6 @@ html:not(.supports_flexbox) .channel_modal_with_list .channel_modal_list {
   padding-left: 1rem;
   font-weight: 700;
   background: #fff
-}
-
-#channel_browser .channel_browser_sort_container {
-  position: relative
-}
-
-#channel_browser .channel_browser_sort_container:after {
-  content: attr(data-prefix-text);
-  color: #717274;
-  font-size: 16px;
-  position: absolute;
-  top: 10px;
-  left: 19px;
-  pointer-events: none
 }
 
 #channel_browser #channel_browser_sort {
