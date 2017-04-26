@@ -3371,25 +3371,25 @@
         Object.defineProperty(TS.model, "channels", {
           get: function() {
             var cids = _getAllChannelIds();
-            return _.map(cids, TS.redux.channels.getEntityById);
+            return _buildModelArrayFromCids(cids, "channels");
           }
         });
         Object.defineProperty(TS.model, "groups", {
           get: function() {
             var cids = _getAllGroupIds();
-            return _.map(cids, TS.redux.channels.getEntityById);
+            return _buildModelArrayFromCids(cids, "groups");
           }
         });
         Object.defineProperty(TS.model, "mpims", {
           get: function() {
             var cids = _getAllMpimIds();
-            return _.map(cids, TS.redux.channels.getEntityById);
+            return _buildModelArrayFromCids(cids, "mpims");
           }
         });
         Object.defineProperty(TS.model, "ims", {
           get: function() {
             var cids = _getAllImIds();
-            return _.map(cids, TS.redux.channels.getEntityById);
+            return _buildModelArrayFromCids(cids, "ims");
           }
         });
       }
@@ -3526,6 +3526,24 @@
   var _getAllImIds;
   var _getChannelById;
   var _getChannelIdByName;
+  var _cached_ids = {
+    channels: [],
+    groups: [],
+    mpims: [],
+    ims: []
+  };
+  var _cached_objects = {
+    channels: [],
+    groups: [],
+    mpims: [],
+    ims: []
+  };
+  var _clear_timeouts = {
+    channels: undefined,
+    groups: undefined,
+    mpims: undefined,
+    ims: undefined
+  };
   var _redux_did_warn_about_stack = {};
   var _addSignalListeners = function() {
     TS.channels.unread_changed_sig.add(TS.redux.channels.forceUpdateOfEntityById);
@@ -3552,6 +3570,21 @@
       user: TS.boot_data.user_id,
       version: TS.boot_data.version_ts
     });
+  };
+  var _buildModelArrayFromCids = function(cids, key) {
+    if (cids === _cached_ids[key]) {
+      return _cached_objects[key];
+    }
+    _cached_ids[key] = cids;
+    _cached_objects[key] = _.map(cids, TS.redux.channels.getEntityById);
+    if (!_clear_timeouts[key]) {
+      _clear_timeouts[key] = _.defer(function() {
+        _cached_ids[key] = [];
+        _cached_objects[key] = [];
+        delete _clear_timeouts[key];
+      });
+    }
+    return _cached_objects[key];
   };
 })();
 (function() {
@@ -13329,7 +13362,8 @@ TS.registerModule("constants", {
       return TS.bots.ensureBotsArePresent(bot_ids);
     },
     ensureBotsArePresent: function(bot_ids) {
-      var required_bot_ids = _.reject(bot_ids, TS.bots.getBotById);
+      var bot_id_blacklist = ["B01", "BSLACKBOT"];
+      var required_bot_ids = _(bot_ids).difference(bot_id_blacklist).reject(TS.bots.getBotById).value();
       if (!required_bot_ids.length) return Promise.resolve();
       var fetched_bots_p;
       if (TS.useSocket() && TS.boot_data.should_use_flannel) {
@@ -15423,12 +15457,12 @@ TS.registerModule("constants", {
         _pending_dispatch_search_args = arguments;
         return;
       }
-      if (!page || page == 1) {
+      if (!page || page === 1) {
         var system_find_str = TS.search.extractNonModifierSearchTxt(query);
         if (system_find_str) TSSSB.call("writeFindString", system_find_str);
       }
       if (TS.search.separateMessagesAndFiles()) {
-        if (!page || page == 1) TS.search.results[query] = null;
+        if (!page || page === 1) TS.search.results[query] = null;
         var response_tracker = _makeSearchCallbackTracker();
         _callSearchPerSe("search.messages", query, count, page, response_tracker.msgs);
         _callSearchPerSe("search.files", query, count, page, response_tracker.files);
@@ -15486,7 +15520,7 @@ TS.registerModule("constants", {
       });
     },
     setSort: function(sort, no_reissue_search) {
-      if (TS.search.sort == sort) return;
+      if (TS.search.sort === sort) return;
       $(".search_toggle").toggleClass("active");
       TS.search.sort = sort;
       TS.search.search_sort_set_sig.dispatch();
@@ -15549,120 +15583,6 @@ TS.registerModule("constants", {
       }
       TS.search.search_member_set_sig.dispatch();
     },
-    buildQueryString: function(query, set_params) {
-      var from_matches = query.match(TS.search.from_regex);
-      if (from_matches) {
-        var from_matched = false;
-        $.each(from_matches, function(i, match) {
-          if (from_matched) {
-            query = $.trim(query.replace(match, ""));
-          } else {
-            var from_str = match.replace("from:", "");
-            if (from_str.toLowerCase() === "me") {
-              if (set_params) TS.search.member = TS.model.user;
-              TS.search.from = null;
-              from_matched = true;
-            } else {
-              var member = TS.members.getMemberByName(from_str);
-              if (member) {
-                if (set_params) TS.search.member = member;
-                TS.search.from = null;
-                from_matched = true;
-              } else {
-                if (set_params) {
-                  TS.search.from = from_str;
-                  TS.search.member = null;
-                } else if (TS.search.member) {
-                  TS.search.from = null;
-                }
-                from_matched = true;
-              }
-            }
-            if (from_matched) query = $.trim(query.replace(match, ""));
-          }
-        });
-      } else if (TS.search.filter === "messages") {
-        TS.search.member = null;
-        TS.search.from = null;
-      }
-      var in_matches = query.match(TS.search.in_regex);
-      if (in_matches) {
-        var in_matched = false;
-        $.each(in_matches, function(i, match) {
-          if (in_matched) {
-            query = $.trim(query.replace(match, ""));
-          } else {
-            var match_name = match.replace("in:", "");
-            var channel = TS.channels.getChannelByName(match_name);
-            var group = TS.groups.getGroupByName(match_name);
-            var im = TS.ims.getImByUsername(match_name);
-            if (channel) {
-              in_matched = true;
-              if (set_params) {
-                TS.search.channel = channel;
-                TS.search.group = null;
-                TS.search.im = null;
-              }
-            } else if (group) {
-              in_matched = true;
-              if (set_params) {
-                TS.search.group = group;
-                TS.search.channel = null;
-                TS.search.im = null;
-              }
-            } else if (im) {
-              in_matched = true;
-              if (set_params) {
-                TS.search.im = im;
-                TS.search.channel = null;
-                TS.search.group = null;
-              }
-            } else {
-              TS.info("Unable to filter search results by channel, group, or IM named '" + match_name + "'");
-            }
-            in_matched = true;
-          }
-          if (in_matched) query = $.trim(query.replace(match, ""));
-        });
-      } else {
-        TS.search.channel = null;
-        TS.search.group = null;
-        TS.search.im = null;
-      }
-      if (!from_matches) {
-        if (TS.search.previous_query == TS.search.query && set_params) {
-          TS.search.member = null;
-          TS.search.from = null;
-        }
-      }
-      if (!in_matches) {
-        if (TS.search.previous_query == TS.search.query && set_params) {
-          TS.search.channel = null;
-          TS.search.group = null;
-          TS.search.im = null;
-        }
-      }
-      TS.search.query = $.trim(query);
-      TS.search.query_string = TS.search.query;
-      if (TS.search.member !== null) TS.search.query_string += " from:" + TS.search.member.name;
-      if (TS.search.from !== null) TS.search.query_string += " from:" + TS.search.from;
-      if (TS.search.channel !== null) TS.search.query_string += " in:" + TS.search.channel.name;
-      if (TS.search.group !== null) TS.search.query_string += " in:" + TS.search.group.name;
-      if (TS.search.im !== null) TS.search.query_string += " in:" + TS.search.im.name;
-      TS.search.query_string = $.trim(TS.search.query_string);
-    },
-    quickSearch: function(query) {
-      TS.search.query = query;
-      TS.search.buildQueryString(query);
-      var count = 5;
-      TS.search.startSearchTimer(query, count, TS.search.onQuickSearch);
-    },
-    onQuickSearch: function(ok, data) {
-      if (!ok) {
-        return;
-      }
-      TS.search.quick_search_results_fetched_sig.dispatch(data);
-    },
     searchAll: function(query) {
       if (!TS.client) {
         clearTimeout(TS.search.widget.key_tim);
@@ -15688,7 +15608,7 @@ TS.registerModule("constants", {
       }
     },
     onSearchAll: function(ok, data, args) {
-      if (TS.qs_args.force_search_fail == "1") {
+      if (TS.qs_args.force_search_fail === "1") {
         window.failed_once = true;
         ok = false;
         data = {
@@ -15726,7 +15646,7 @@ TS.registerModule("constants", {
           matches: []
         };
       }
-      if (args.query != TS.search.query_string) {
+      if (args.query !== TS.search.query_string) {
         if (!TS.search.results[args.query] || !TS.search.results[args.query].error) {
           return;
         }
@@ -15734,7 +15654,7 @@ TS.registerModule("constants", {
       TS.search.last_search_query = args.query;
       if (TS.client) TS.search.upsertFiles(data);
       TS.search.expandChannelsAndCheckForMsgsInModel(data);
-      if (args.page == 1) {
+      if (args.page === 1) {
         TS.search.results[args.query] = data;
         TS.search.results[args.query]._time_of_search = Date.now();
         TS.search.all_search_results_fetched_sig.dispatch(data, args);
@@ -15763,7 +15683,7 @@ TS.registerModule("constants", {
         return;
       }
       TS.search.suggestions = [];
-      if (data.suggestions[0] == TS.search.query && data.suggestions.length == 1) {
+      if (data.suggestions[0] === TS.search.query && data.suggestions.length === 1) {
         TS.search.suggestions = [];
       } else {
         $.each(data.suggestions, function(i, value) {
@@ -15873,7 +15793,7 @@ TS.registerModule("constants", {
           TS.error("WTF no match?");
           continue;
         }
-        if ((!channel_id || match.channel.id == channel_id) && match.ts == ts) {
+        if ((!channel_id || match.channel.id === channel_id) && match.ts === ts) {
           if (return_ob) {
             return {
               match: match,
@@ -15913,7 +15833,7 @@ TS.registerModule("constants", {
           TS.error("WTF no match?");
           continue;
         }
-        if ((!channel_id || match.channel.id == channel_id) && match.ts == ts) {
+        if ((!channel_id || match.channel.id === channel_id) && match.ts === ts) {
           if (return_ob) {
             return {
               match: match,
@@ -15991,7 +15911,7 @@ TS.registerModule("constants", {
   var _pending_dispatch_search_args;
   var _callSearchPerSe = function(method, query, count, page, callback) {
     var args = {
-      query: query,
+      query: TS.emoji.maybeGetCanonicalEmojiString(query),
       highlight: true,
       count: count,
       types: [TS.search.filetype],
@@ -16003,7 +15923,7 @@ TS.registerModule("constants", {
       highlight_attachments: 1,
       active_cid: TS.model.active_cid,
       top_results: 1,
-      locale: TS.i18n.locale()
+      locale: TS.i18n.localeOrPseudo()
     };
     if (method === "search.all") args.no_posts = 1;
     if (method !== "search.files") args.more_matches = true;
@@ -16034,7 +15954,9 @@ TS.registerModule("constants", {
         matches: []
       };
     }
-    if (args.query != TS.search.query_string) {
+    data.query = TS.emoji.maybeGetLocalizedEmojiString(data.query);
+    args.query = TS.emoji.maybeGetLocalizedEmojiString(args.query);
+    if (args.query !== TS.search.query_string) {
       if (!TS.search.results[args.query] || !TS.search.results[args.query].error) {
         return;
       }
@@ -16085,7 +16007,9 @@ TS.registerModule("constants", {
         matches: []
       };
     }
-    if (args.query != TS.search.query_string) {
+    data.query = TS.emoji.maybeGetLocalizedEmojiString(data.query);
+    args.query = TS.emoji.maybeGetLocalizedEmojiString(args.query);
+    if (args.query !== TS.search.query_string) {
       if (!TS.search.results[args.query] || !TS.search.results[args.query].error) {
         return;
       }
@@ -16097,7 +16021,7 @@ TS.registerModule("constants", {
     TS.search.last_files_request_id = request_id;
     if (TS.client) TS.search.upsertFiles(data);
     var existing = TS.search.results[args.query];
-    if (args.page == 1) {
+    if (args.page === 1) {
       if (!existing) {
         TS.search.results[args.query] = data;
         existing = data;
@@ -49700,6 +49624,17 @@ $.fn.togglify = function(settings) {
   });
   var _handlers = [];
   var _addAll = function() {
+    TS.click.addClientHandler("#archive_msg_lim_btn, #msg_lim_header_link, #msg_lim_header_btn", function(e, $el) {
+      TS.clog.track("GROWTH_PRICING", {
+        contexts: {
+          ui_context: {
+            step: "history",
+            action: "click",
+            ui_element: $el.data("data-clog-ui-element")
+          }
+        }
+      });
+    });
     TS.click.addClientHandler(function(e) {
       if (TS.client.ui.checkForEditing(e)) e.preventDefault();
     });
@@ -85407,10 +85342,12 @@ $.fn.togglify = function(settings) {
     last_query: "",
     last_api_response: {},
     sli_expert_search_group: null,
+    sli_expert_search_debug_group: null,
     onStart: function() {
       if (TS.client) {
         TS.experiment.loadUserAssignments().then(function() {
           TS.sli_expert_search.sli_expert_search_group = TS.experiment.getGroup("sli_expert_search");
+          TS.sli_expert_search.sli_expert_search_debug_group = TS.experiment.getGroup("sli_expert_search_debug");
         });
       }
     },
@@ -85475,7 +85412,8 @@ $.fn.togglify = function(settings) {
         terms: query,
         results: results,
         channel_matches: channel_matches,
-        expanded: TS.sli_expert_search.is_expanded
+        expanded: TS.sli_expert_search.is_expanded,
+        debug: TS.sli_expert_search.sli_expert_search_debug_group === "sli_expert_search_debug"
       });
       return html;
     },

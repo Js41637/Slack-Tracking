@@ -344,7 +344,7 @@
   var _fully_booted_p_resolve;
   var _fully_booted_p;
   var _is_user_forced_into_redux_feature;
-  var _users_to_force_into_redux_feature = ["W2V82BY0G", "W1W7LCMHU", "W1M2KRM8E"];
+  var _users_to_force_into_redux_feature = ["W1W7LCMHU", "W1M2KRM8E"];
   window.TS = {
     boot_data: {},
     qs_args: {},
@@ -2281,6 +2281,12 @@
     locale: function() {
       _maybeSetup();
       return _locale;
+    },
+    localeOrPseudo: function() {
+      if (_is_pseudo) {
+        return "pseudo";
+      }
+      return TS.i18n.locale();
     },
     zdLocale: function() {
       _maybeSetup();
@@ -4321,6 +4327,18 @@ var _cyrillicToLatin = function(char) {
     },
     findByKeyword: function(k) {
       return _emoji.findByKeyword(k);
+    },
+    maybeGetCanonicalEmojiString: function(str) {
+      if (TS.boot_data.feature_i18n_emoji && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE) {
+        return TSFEmoji.translateEmojiStringToCanonical(str, TS.i18n.locale());
+      }
+      return str;
+    },
+    maybeGetLocalizedEmojiString: function(str) {
+      if (TS.boot_data.feature_i18n_emoji && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE) {
+        return TSFEmoji.translateEmojiStringToLocal(str, TS.i18n.locale());
+      }
+      return str;
     },
     MISSING_EMOJI_HTML: '<span class="emoji-outer emoji-sizer emoji-missing" style="background-image: url(' + cdn_url + "/ecf3e/img/emoji_missing.png" + '); background-size: cover !important;"></span>'
   });
