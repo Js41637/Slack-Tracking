@@ -266,7 +266,11 @@
     var cache = {};
     return function(obj) {
       var key = typeof obj;
-      var result = obj === null ? "null" : obj === global ? "global" : key !== "object" ? key : obj.nodeType ? "DOM node" : cache[key = {}.toString.call(obj)] || (cache[key] = key.slice(8, -1).toLowerCase());
+      if (obj === null) return "null";
+      if (obj === global) return "global";
+      if (key !== "object") return key;
+      if (obj.nodeType) return "DOM node";
+      var result = cache[key = {}.toString.call(obj)] || (cache[key] = key.slice(8, -1).toLowerCase());
       return result;
     };
   }(this);

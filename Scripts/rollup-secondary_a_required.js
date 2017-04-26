@@ -7354,7 +7354,12 @@ TS.registerModule("constants", {
       }
       form_data.append("token", TS.model.api_token);
       if (args.channels && args.channels.length) {
-        var channels_str = typeof args.channels === "string" ? args.channels : args.channels.join ? args.channels.join(",") : "";
+        var channels_str = "";
+        if (typeof args.channels === "string") {
+          channels_str = args.channels;
+        } else if (args.channels.join) {
+          channels_str = args.channels.join(",");
+        }
         form_data.append("channels", channels_str);
       }
       form_data.append("title", args.title);
@@ -12026,13 +12031,17 @@ TS.registerModule("constants", {
         members_for_user.sort(function(a, b) {
           var a_name = a._full_name_lc || a._name_lc;
           var b_name = b._full_name_lc || b._name_lc;
-          return a_name > b_name ? 1 : b_name > a_name ? -1 : 0;
+          if (a_name > b_name) return 1;
+          if (b_name > a_name) return -1;
+          return 0;
         });
       } else {
         members_for_user.sort(function(a, b) {
           var a_name = a._real_name_lc || a._name_lc;
           var b_name = b._real_name_lc || b._name_lc;
-          return a_name > b_name ? 1 : b_name > a_name ? -1 : 0;
+          if (a_name > b_name) return 1;
+          if (b_name > a_name) return -1;
+          return 0;
         });
       }
       for (var i = 0; i < members_for_user.length; i += 1) {
@@ -16229,7 +16238,7 @@ TS.registerModule("constants", {
         }
         _maybeAddToImsgLog(imsg);
         if (sent) {
-          var type = imsg.type ? imsg.type : imsg.SENT_MSG.type ? imsg.SENT_MSG.type : "";
+          var type = imsg.type || imsg.SENT_MSG.type || "";
           TS.log(2, "msg " + (type ? '"' + type + '" ' : "") + "rsp time " + (Date.now() - sent.ts) + "ms");
         } else {
           TS.log(2, 'msg "' + imsg.type + '"');
@@ -19468,7 +19477,7 @@ var _profiling = {
         _check_last_pong_time = false;
       } else {
         if (sent) {
-          var type = imsg.type ? imsg.type : imsg.SENT_MSG.type ? imsg.SENT_MSG.type : "";
+          var type = imsg.type || imsg.SENT_MSG.type || "";
           TS.log(2, "msg " + (type ? '"' + type + '" ' : "") + "rsp time " + (Date.now() - sent.ts) + "ms");
         }
         TS.log(2, "TS.ds <-- \n" + JSON.stringify(imsg, null, " "));
@@ -25406,6 +25415,13 @@ var _profiling = {
         }
         return options.inverse(this);
       });
+      Handlebars.registerHelper("shouldUseUnifiedMemberDisplay", function(options) {
+        options = _optionsFnInverseBooleanHelper(options);
+        if (TS.boot_data.feature_shared_chan_unify_user) {
+          return options.fn(this);
+        }
+        return options.inverse(this);
+      });
       Handlebars.registerHelper("getTeamNameByMember", function(member) {
         return TS.teams.getTeamNameByMember(member);
       });
@@ -25427,7 +25443,7 @@ var _profiling = {
         if (TS.utility.shouldLinksHaveTargets()) return new Handlebars.SafeString('target="/team/' + member.name + '"');
         return "";
       });
-      if (TS.boot_data.feature_name_tagging_client) {
+      if (TS.boot_data.feature_name_tagging_client || TS.boot_data.feature_shared_chan_unify_user) {
         Handlebars.registerHelper("getMemberPreferredName", function(member_or_id) {
           return TS.members.getMemberPreferredName(member_or_id);
         });
@@ -29762,7 +29778,10 @@ var _profiling = {
       var sanitized = _sanitizeNode(body.children[0]);
       body = null;
       doc = null;
-      return sanitized ? return_node_only ? sanitized : sanitized.outerHTML : "";
+      if (sanitized) {
+        return return_node_only ? sanitized : sanitized.outerHTML;
+      }
+      return "";
     },
     getChildTextNodes: function(el) {
       var nodes = [];
@@ -30359,7 +30378,12 @@ var _profiling = {
           if (test_url.indexOf(whitelist[i] + "/") === 0) {
             if (opts.stop_animations && whitelist[i] === "slack-imgs.com") {
               var o1 = TS.utility.url.urlQueryStringParse(test_url).o1;
-              var value = opts.stop_animations || TS.model.prefs.a11y_animations === false ? o1 ? o1 + ".gu" : "gu" : o1 && o1.replace(/\.gu|gu/, "");
+              var value;
+              if (opts.stop_animations || TS.model.prefs.a11y_animations === false) {
+                value = o1 ? o1 + ".gu" : "gu";
+              } else {
+                value = o1 && o1.replace(/\.gu|gu/, "");
+              }
               return TS.utility.url.setUrlQueryStringValue(url, "o1", value);
             }
             return url;
@@ -52415,7 +52439,10 @@ $.fn.togglify = function(settings) {
     return public_channels.concat(private_channels);
   };
   var _numMembers = function(channel) {
-    return ("num_members" in channel ? channel.num_members : channel.active_members ? channel.active_members.length : 0) || 0;
+    if ("num_members" in channel) {
+      return channel.num_members || 0;
+    }
+    return channel.active_members ? channel.active_members.length : 0;
   };
   var _onCancel = function() {
     _updateBackButton(true);
@@ -52643,7 +52670,9 @@ $.fn.togglify = function(settings) {
   var _sortChannelsBy = function(channels, sort) {
     if (sort === "name") {
       channels.sort(function(a, b) {
-        return a._name_lc > b._name_lc ? 1 : b._name_lc > a._name_lc ? -1 : 0;
+        if (a._name_lc > b._name_lc) return 1;
+        if (b._name_lc > a._name_lc) return -1;
+        return 0;
       });
     } else if (sort === "creator") {
       channels.sort(function(a, b) {
@@ -52652,7 +52681,9 @@ $.fn.togglify = function(settings) {
         a_creator = TS.members.getMemberById(a.creator);
         b_creator = TS.members.getMemberById(b.creator);
         if (a_creator && b_creator) {
-          return a_creator._name_lc > b_creator._name_lc ? 1 : b_creator._name_lc > a_creator._name_lc ? -1 : 0;
+          if (a_creator._name_lc > b_creator._name_lc) return 1;
+          if (b_creator._name_lc > a_creator._name_lc) return -1;
+          return 0;
         } else if (a_creator && !b_creator) {
           return -1;
         } else if (!a_creator && b_creator) {
@@ -52662,19 +52693,25 @@ $.fn.togglify = function(settings) {
       });
     } else if (sort === "created") {
       channels.sort(function(a, b) {
-        return a.created < b.created ? 1 : b.created < a.created ? -1 : 0;
+        if (a.created < b.created) return 1;
+        if (b.created < a.created) return -1;
+        return 0;
       });
     } else if (sort === "members_high") {
       channels.sort(function(a, b) {
         var num_a = _numMembers(a);
         var num_b = _numMembers(b);
-        return num_a < num_b ? 1 : num_b < num_a ? -1 : 0;
+        if (num_a < num_b) return 1;
+        if (num_b < num_a) return -1;
+        return 0;
       });
     } else if (sort === "members_low") {
       channels.sort(function(a, b) {
         var num_a = _numMembers(a);
         var num_b = _numMembers(b);
-        return num_a > num_b ? 1 : num_b > num_a ? -1 : 0;
+        if (num_a > num_b) return 1;
+        if (num_b > num_a) return -1;
+        return 0;
       });
     }
   };
@@ -55406,7 +55443,15 @@ $.fn.togglify = function(settings) {
     _utility_call_analytics_state.room_id = options.room_id;
   };
   var _sigLoggedIn = function() {
-    _calls_analytics_config.os = TS.model.is_mac ? "mac" : TS.model.is_win ? "win" : TS.model.is_lin ? "lin" : navigator.userAgent;
+    if (TS.model.is_mac) {
+      _calls_analytics_config.os = "mac";
+    } else if (TS.model.is_win) {
+      _calls_analytics_config.os = "win";
+    } else if (TS.model.is_lin) {
+      _calls_analytics_config.os = "lin";
+    } else {
+      _calls_analytics_config.os = navigator.userAgent;
+    }
     _calls_analytics_config.webapp_version = TS.boot_data.min_sh_version_ts;
     if (TS.model.mac_ssb_version) {
       if (window.macgap && macgap.screenhero && macgap.screenhero.getAppVersion) {
@@ -57237,6 +57282,18 @@ $.fn.togglify = function(settings) {
       }
       return "";
     },
+    getTextForRange: function(input, index, length) {
+      input = _normalizeInput(input);
+      if (!input) return "";
+      if (_isFormElement(input)) {
+        var value = TS.utility.contenteditable.value(input);
+        return value.substr(index, length);
+      } else if (_isTextyElement(input)) {
+        var texty = _getTextyInstance(input);
+        return texty.getTextForRange(index, length);
+      }
+      return "";
+    },
     insertTextAtCursor: function(input, value, focus_after_insert) {
       input = _normalizeInput(input);
       if (!input) return "";
@@ -57256,6 +57313,15 @@ $.fn.togglify = function(settings) {
         if (_.isString(value)) texty.insertTextAtCursor(value, focus_after_insert);
       }
       return "";
+    },
+    getFormats: function(input, index) {
+      input = _normalizeInput(input);
+      if (!input) return {};
+      if (_isTextyElement(input)) {
+        var texty = _getTextyInstance(input);
+        return texty.getFormats(index);
+      }
+      return {};
     },
     displayValue: function(input) {
       input = _normalizeInput(input);
@@ -59813,6 +59879,9 @@ $.fn.togglify = function(settings) {
             end_date: "end_date"
           });
       }
+    },
+    maybeGetUpdatedAtTime: function(ts) {
+      return ts ? TS.utility.date.formatDate("{time}", ts * 1e3) : null;
     }
   });
 })();

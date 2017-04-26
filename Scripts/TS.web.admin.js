@@ -402,14 +402,20 @@
       }
     },
     sortByScreenName: function(a, b) {
-      return a._name_lc > b._name_lc ? 1 : b._name_lc > a._name_lc ? -1 : 0;
+      if (a._name_lc > b._name_lc) return 1;
+      if (b._name_lc > a._name_lc) return -1;
+      return 0;
     },
     sortByFullName: function(a, b) {
-      return a._full_name_normalized_lc > b._full_name_normalized_lc ? 1 : b._full_name_normalized_lc > a._full_name_normalized_lc ? -1 : 0;
+      if (a._full_name_normalized_lc > b._full_name_normalized_lc) return 1;
+      if (b._full_name_normalized_lc > a._full_name_normalized_lc) return -1;
+      return 0;
     },
     sortByDisplayName: function(a, b) {
       if (a._display_name_normalized_lc && b._display_name_normalized_lc) {
-        return a._display_name_normalized_lc > b._display_name_normalized_lc ? 1 : b._display_name_normalized_lc > a._display_name_normalized_lc ? -1 : 0;
+        if (a._display_name_normalized_lc > b._display_name_normalized_lc) return 1;
+        if (b._display_name_normalized_lc > a._display_name_normalized_lc) return -1;
+        return 0;
       } else if (a._display_name_normalized_lc) {
         return -1;
       } else if (b._display_name_normalized_lc) {
@@ -419,7 +425,9 @@
     },
     sortByRealName: function(a, b) {
       if (a._real_name_lc && b._real_name_lc) {
-        return a._real_name_lc > b._real_name_lc ? 1 : b._real_name_lc > a._real_name_lc ? -1 : 0;
+        if (a._real_name_lc > b._real_name_lc) return 1;
+        if (b._real_name_lc > a._real_name_lc) return -1;
+        return 0;
       } else if (a.real_name) {
         return -1;
       } else if (b.real_name) {
@@ -429,17 +437,27 @@
     },
     sortByInviteDate: function(a, b) {
       if (a.date_resent != "0" && b.date_resent != "0") {
-        return a.date_resent < b.date_resent ? 1 : b.date_resent < a.date_resent ? -1 : 0;
+        if (a.date_resent < b.date_resent) return 1;
+        if (b.date_resent < a.date_resent) return -1;
+        return 0;
       } else if (a.date_resent != "0") {
-        return a.date_resent < b.date_create ? 1 : b.date_create < a.date_resent ? -1 : 0;
+        if (a.date_resent < b.date_create) return 1;
+        if (b.date_create < a.date_resent) return -1;
+        return 0;
       } else if (b.date_resent != "0") {
-        return a.date_create < b.date_resent ? 1 : b.date_resent < a.date_create ? -1 : 0;
+        if (a.date_create < b.date_resent) return 1;
+        if (b.date_resent < a.date_create) return -1;
+        return 0;
       }
-      return a.date_create < b.date_create ? 1 : b.date_create < a.date_create ? -1 : 0;
+      if (a.date_create < b.date_create) return 1;
+      if (b.date_create < a.date_create) return -1;
+      return 0;
     },
     sortByCreatedDate: function(a, b) {
       if (a.created && b.created) {
-        return a.created < b.created ? 1 : b.created < a.created ? -1 : 0;
+        if (a.created < b.created) return 1;
+        if (b.created < a.created) return -1;
+        return 0;
       } else if (a.created) {
         return -1;
       } else if (b.created) {
@@ -448,13 +466,19 @@
       return 0;
     },
     sortBy2FA: function(a, b) {
-      return a.two_factor_auth_enabled && !b.two_factor_auth_enabled ? -1 : b.two_factor_auth_enabled && !a.two_factor_auth_enabled ? 1 : 0;
+      if (a.two_factor_auth_enabled && !b.two_factor_auth_enabled) return -1;
+      if (b.two_factor_auth_enabled && !a.two_factor_auth_enabled) return 1;
+      return 0;
     },
     sortBySSO: function(a, b) {
-      return a.has_sso_token && !b.has_sso_token ? -1 : b.has_sso_token && !a.has_sso_token ? 1 : 0;
+      if (a.has_sso_token && !b.has_sso_token) return -1;
+      if (b.has_sso_token && !a.has_sso_token) return 1;
+      return 0;
     },
     sortByInactive: function(a, b) {
-      return a.is_inactive && !b.is_inactive ? -1 : b.is_inactive && !a.is_inactive ? 1 : 0;
+      if (a.is_inactive && !b.is_inactive) return -1;
+      if (b.is_inactive && !a.is_inactive) return 1;
+      return 0;
     },
     sortByType: function(a, b) {
       if (a.is_primary_owner && !b.is_primary_owner || a.is_owner && !b.is_owner || a.is_admin && !b.is_admin || !a.is_restricted && b.is_restricted || !a.is_ultra_restricted && b.is_ultra_restricted || !a.is_deleted && b.is_deleted) {
@@ -1190,8 +1214,18 @@
         TS.web.admin.startRestrictWorkflow(row);
       });
       $row.find(".admin_member_restrict_link_ura").unbind("click").bind("click", function() {
-        var channels = row.channels instanceof Array ? row.channels : row.channels ? Object.getOwnPropertyNames(row.channels) : [];
-        var groups = row.groups instanceof Array ? row.groups : row.groups ? Object.getOwnPropertyNames(row.groups) : [];
+        var channels = [];
+        if (row.channels instanceof Array) {
+          channels = row.channels;
+        } else if (row.channels) {
+          channels = Object.getOwnPropertyNames(row.channels);
+        }
+        var groups = [];
+        if (row.groups instanceof Array) {
+          groups = row.groups;
+        } else if (row.groups) {
+          groups = Object.getOwnPropertyNames(row.groups);
+        }
         var channels_or_groups = channels.concat(groups);
         if (channels_or_groups.length == 1) {
           TS.api.call("users.admin.setUltraRestricted", {
