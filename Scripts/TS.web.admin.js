@@ -666,7 +666,8 @@
         show_inactive_tip = false;
       }
       var show_add_channel_btn = false;
-      if (member.is_restricted && !member.is_ultra_restricted) {
+      var member_is_ura_without_channels = member.is_ultra_restricted && !Object.keys(member.channels).length && !Object.keys(member.groups).length;
+      if (member.is_restricted && !member.is_ultra_restricted || member_is_ura_without_channels) {
         var channels_for_ra = [];
         var groups_for_ra = [];
         $.each(TS.channels.getChannelsForUser(), function(index, channel) {
@@ -2088,8 +2089,10 @@
     },
     rerenderMemberAndHighlight: function(member) {
       TS.web.admin.rerenderMember(member);
-      var $row = TS.web.admin.selectRow(member);
-      $row.addClass("expanded").find(".admin_member_type").highlightText();
+      if (!member.is_ultra_restricted) {
+        var $row = TS.web.admin.selectRow(member);
+        $row.addClass("expanded").find(".admin_member_type").highlightText();
+      }
     },
     onMemberKickChannel: function(ok, data, args) {
       var member = TS.members.getMemberById(args.user);

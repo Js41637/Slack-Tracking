@@ -6876,7 +6876,7 @@ s::after {
   line-height: 2rem
 }
 
-.show_pill_action .pill {
+.show_pill_action .pill:not(.no_pill_action) {
   padding-right: 1.8rem
 }
 
