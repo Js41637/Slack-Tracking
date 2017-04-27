@@ -12714,11 +12714,11 @@ only screen and (min-resolution:2dppx) {
   opacity: 1
 }
 
-.member_details_divider.feature_user_custom_status .small_margin_top {
+.member_details_divider.with_current_status .small_margin_top {
   margin-bottom: 20px
 }
 
-.member_details_divider.feature_user_custom_status .small_margin_bottom {
+.member_details_divider.with_current_status .small_margin_bottom {
   margin-top: 20px
 }
 

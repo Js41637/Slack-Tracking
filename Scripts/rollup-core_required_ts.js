@@ -3887,6 +3887,7 @@ var _cyrillicToLatin = function(char) {
           return resolve();
         }
         var complete = function() {
+          _emoji.buildKeywordIndex();
           _customEmojiDidChange();
           if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Done setting up emoji");
           resolve();

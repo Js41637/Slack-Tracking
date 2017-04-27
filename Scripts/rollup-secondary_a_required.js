@@ -8891,7 +8891,7 @@ TS.registerModule("constants", {
       }
       var names = members.map(function(member) {
         var current_status = "";
-        if (TS.boot_data.feature_user_custom_status && (TS.members.getMemberCurrentStatus(member).emoji || TS.members.getMemberCurrentStatus(member).text)) {
+        if (TS.members.getMemberCurrentStatus(member).emoji || TS.members.getMemberCurrentStatus(member).text) {
           current_status = " " + TS.templates.current_status({
             tip_direction: "bottom",
             member: member,
@@ -9216,7 +9216,7 @@ TS.registerModule("constants", {
       var name = TS.members.getMemberDisplayName(member);
       if (for_header) {
         var current_status = "";
-        if (TS.boot_data.feature_user_custom_status && (TS.members.getMemberCurrentStatus(member).emoji || TS.members.getMemberCurrentStatus(member).text)) {
+        if (TS.members.getMemberCurrentStatus(member).emoji || TS.members.getMemberCurrentStatus(member).text) {
           current_status = " " + TS.templates.current_status({
             tip_direction: "bottom",
             member: member,
@@ -11416,7 +11416,7 @@ TS.registerModule("constants", {
       if (upsert.status === "ADDED" && TS.lazyLoadMembersAndBots()) {
         TS.members.lazily_added_sig.dispatch(upsert.member);
       } else if (upsert.status === "CHANGED") {
-        if (TS.boot_data.feature_user_custom_status && upsert.what_changed.indexOf("current_status") != -1) {
+        if (upsert.what_changed.indexOf("current_status") != -1) {
           TS.members.changed_current_status_sig.dispatch(upsert.member);
         }
         if (upsert.what_changed.indexOf("profile") != -1) {
@@ -11802,7 +11802,7 @@ TS.registerModule("constants", {
     },
     getMemberCurrentStatus: function(member_or_id) {
       var member = _ensureMember(member_or_id);
-      if (!TS.boot_data.feature_user_custom_status || !(member && member.profile)) {
+      if (!(member && member.profile)) {
         return {
           emoji: "",
           text: ""
@@ -12940,7 +12940,6 @@ TS.registerModule("constants", {
       });
     },
     getTeamCustomStatusPresets: function() {
-      if (!TS.boot_data.feature_user_custom_status) return;
       return _.map(TS.model.team.prefs.custom_status_presets, function(preset) {
         return {
           text: preset[1],
@@ -21925,7 +21924,7 @@ var _profiling = {
       var comments = file.comments;
       var html = "";
       for (var i = 0; i < comments.length; i += 1) {
-        if (TS.boot_data.feature_user_custom_status) member = TS.members.getMemberById(comments[i].user);
+        member = TS.members.getMemberById(comments[i].user);
         html += TS.templates.builders.buildCommentHTML({
           file: file,
           comment: comments[i],
@@ -24302,6 +24301,18 @@ var _profiling = {
         }
         return options.inverse(this);
       });
+      Handlebars.registerHelper("isWin", function(options) {
+        if (TS.model.is_win) {
+          return options.fn(this);
+        }
+        return options.inverse(this);
+      });
+      Handlebars.registerHelper("isLin", function(options) {
+        if (TS.model.is_lin) {
+          return options.fn(this);
+        }
+        return options.inverse(this);
+      });
       Handlebars.registerHelper("isOurApp", function(options) {
         if (TS.model.is_our_app) {
           return options.fn(this);
@@ -26230,15 +26241,27 @@ var _profiling = {
         return selected_size;
       });
       Handlebars.registerHelper("prefsNotificationExampleAll", function() {
+        var name = "Jeff";
+        if (!TS.model.is_mac) {
+          name = TS.i18n.t("from {name}", "prefs")({
+            name: name
+          });
+        }
         var html = TS.templates.prefs_notification_example({
-          name: "Jeff",
+          name: name,
           text: TS.i18n.t("Good morning everyone!", "prefs")()
         });
         return new Handlebars.SafeString(html);
       });
       Handlebars.registerHelper("prefsNotificationExampleMentions", function() {
+        var name = "Linda";
+        if (!TS.model.is_mac) {
+          name = TS.i18n.t("from {name}", "prefs")({
+            name: name
+          });
+        }
         var html = TS.templates.prefs_notification_example({
-          name: "Linda",
+          name: name,
           text: new Handlebars.SafeString(TS.i18n.t("Hi <strong>@hubert</strong>, how are you?", "prefs")())
         });
         return new Handlebars.SafeString(html);
@@ -33417,15 +33440,13 @@ var _profiling = {
       });
       TS.menu.positionAt($("#team_menu"), 10, menu_offset_y);
       TS.view.members.updateUserDisplayName();
-      if (TS.boot_data.feature_user_custom_status) {
-        TS.view.members.updateUserCurrentStatus();
-        TS.menu.has_submenu = true;
-        TS.menu.submenu_template_args.member_current_status_item = {
-          member: TS.model.user
-        };
-        if (!TS.boot_data.page_needs_enterprise) {
-          $menu_content.on("highlighted", "li:not(.divider)", TS.menu.onTeamAndUserItemMouseenter);
-        }
+      TS.view.members.updateUserCurrentStatus();
+      TS.menu.has_submenu = true;
+      TS.menu.submenu_template_args.member_current_status_item = {
+        member: TS.model.user
+      };
+      if (!TS.boot_data.page_needs_enterprise) {
+        $menu_content.on("highlighted", "li:not(.divider)", TS.menu.onTeamAndUserItemMouseenter);
       }
       TS.view.setFlexMenuSize();
     },
@@ -42505,7 +42526,7 @@ var _on_esc;
       template_args.member_tz = TS.model.user.tz || TS.boot_data.default_tz;
       var html = TS.templates.edit_member_profile_list(template_args);
       _$div.find("#edit_member_profile_list").html(html);
-      if (TS.boot_data.feature_user_custom_status && TS.client) TS.ui.edit_member_profile._registerCurrentStatusInput();
+      if (TS.client) TS.ui.edit_member_profile._registerCurrentStatusInput();
     }
     _hideAllSectionsBut("#edit_member_profile_list");
     TS.ui.fs_modal.showFooter();
@@ -42666,9 +42687,7 @@ var _on_esc;
     if (TS.boot_data.feature_name_tagging_client) {
       field_names = ["full_name", "display_name", "title", "phone"];
     }
-    if (TS.boot_data.feature_user_custom_status && TS.client) {
-      field_names = field_names.concat(["status_emoji", "status_text"]);
-    }
+    if (TS.client) field_names = field_names.concat(["status_emoji", "status_text"]);
     var profile = {};
     field_names.forEach(function(name) {
       var $field;
@@ -42685,7 +42704,7 @@ var _on_esc;
         $field.val("").val(value);
       }
     });
-    if (TS.boot_data.feature_user_custom_status && TS.client) {
+    if (TS.client) {
       var current_status_input = TS.ui.edit_member_profile._current_status_input;
       if (current_status_input && current_status_input.isEdited()) {
         current_status_input.clogStatusChange(profile.status_text, profile.status_emoji, "EDIT_PROFILE");
@@ -42726,7 +42745,7 @@ var _on_esc;
         TS.model.user.profile = response.data.profile;
         TS.members.upsertMember(TS.model.user);
       }
-      if (TS.boot_data.feature_user_custom_status && TS.client) TS.ui.edit_member_profile._unregisterCurrentStatusInput();
+      if (TS.client) TS.ui.edit_member_profile._unregisterCurrentStatusInput();
       TS.ui.fs_modal.close();
     }).catch(function(error) {
       $(".edit_member_profile_confirm_edit_btn").addClass("disabled");
@@ -66474,8 +66493,8 @@ $.fn.togglify = function(settings) {
             yd = oi(function(e, t) {
               return e - t;
             }, 0);
-          return n.after = Ps, n.ary = Os, n.assign = Ip, n.assignIn = Mp, n.assignInWith = Ap, n.assignWith = jp, n.at = Np, n.before = Rs, n.bind = cp, n.bindAll = nd, n.bindKey = fp, n.castArray = Hs, n.chain = es, n.chunk = sa, n.compact = ua, n.concat = la, n.cond = Rl, n.conforms = Il, n.constant = Ml, n.countBy = tp, n.create = Mu, n.curry = Is, n.curryRight = Ms, n.debounce = As, n.defaults = Lp, n.defaultsDeep = Dp, n.defer = pp, n.delay = dp, n.difference = Df, n.differenceBy = zf, n.differenceWith = Uf, n.drop = ca, n.dropRight = fa, n.dropRightWhile = pa, n.dropWhile = da, n.fill = ha, n.filter = fs, n.flatMap = ps, n.flatMapDeep = ds, n.flatMapDepth = hs, n.flatten = ga, n.flattenDeep = ya, n.flattenDepth = _a, n.flip = js, n.flow = rd, n.flowRight = od, n.fromPairs = ba, n.functions = Uu, n.functionsIn = Wu, n.groupBy = op, n.initial = Sa, n.intersection = Wf, n.intersectionBy = Ff, n.intersectionWith = Bf, n.invert = zp, n.invertBy = Up, n.invokeMap = ip, n.iteratee = Nl, n.keyBy = ap, n.keys = Gu, n.keysIn = Vu, n.map = ys, n.mapKeys = qu, n.mapValues = Ku, n.matches = Ll, n.matchesProperty = Dl, n.memoize = Ns, n.merge = Fp, n.mergeWith = Bp, n.method = id, n.methodOf = ad, n.mixin = zl, n.negate = Ls, n.nthArg = Fl, n.omit = Hp, n.omitBy = Yu, n.once = Ds, n.orderBy = _s, n.over = sd, n.overArgs = hp, n.overEvery = ud, n.overSome = ld, n.partial = vp, n.partialRight = mp, n.partition = sp, n.pick = Gp, n.pickBy = Qu, n.property = Bl, n.propertyOf = Hl, n.pull = Hf, n.pullAll = Pa, n.pullAllBy = Oa, n.pullAllWith = Ra, n.pullAt = Gf, n.range = cd, n.rangeRight = fd, n.rearg = gp, n.reject = Cs, n.remove = Ia, n.rest = zs, n.reverse = Ma, n.sampleSize = xs, n.set = $u, n.setWith = Zu, n.shuffle = Ts, n.slice = Aa, n.sortBy = up, n.sortedUniq = Wa, n.sortedUniqBy = Fa, n.split = _l, n.spread = Us, n.tail = Ba, n.take = Ha, n.takeRight = Ga, n.takeRightWhile = Va, n.takeWhile = qa, n.tap = ts, n.throttle = Ws, n.thru = ns, n.toArray = xu, n.toPairs = Vp, n.toPairsIn = qp, n.toPath = Xl, n.toPlainObject = Ou, n.transform = Ju, n.unary = Fs, n.union = Vf, n.unionBy = qf, n.unionWith = Kf, n.uniq = Ka, n.uniqBy = Ya, n.uniqWith = Qa, n.unset = el, n.unzip = Xa, n.unzipWith = $a, n.update = tl, n.updateWith = nl, n.values = rl, n.valuesIn = ol, n.without = Yf, n.words = Ol, n.wrap = Bs, n.xor = Qf, n.xorBy = Xf, n.xorWith = $f, n.zip = Zf, n.zipObject = Za, n.zipObjectDeep = Ja, n.zipWith = Jf, n.entries = Vp, n.entriesIn = qp, n.extend = Mp, n.extendWith = Ap, zl(n, n), n.add = pd, n.attempt = td, n.camelCase = Kp, n.capitalize = ul, n.ceil = dd, n.clamp = il, n.clone = Gs, n.cloneDeep = qs, n.cloneDeepWith = Ks, n.cloneWith = Vs, n.conformsTo = Ys, n.deburr = ll, n.defaultTo = Al, n.divide = hd, n.endsWith = cl, n.eq = Qs, n.escape = fl,
-            n.escapeRegExp = pl, n.every = cs, n.find = np, n.findIndex = va, n.findKey = Au, n.findLast = rp, n.findLastIndex = ma, n.findLastKey = ju, n.floor = vd, n.forEach = vs, n.forEachRight = ms, n.forIn = Nu, n.forInRight = Lu, n.forOwn = Du, n.forOwnRight = zu, n.get = Fu, n.gt = yp, n.gte = _p, n.has = Bu, n.hasIn = Hu, n.head = wa, n.identity = jl, n.includes = gs, n.indexOf = Ca, n.inRange = al, n.invoke = Wp, n.isArguments = bp, n.isArray = wp, n.isArrayBuffer = Cp, n.isArrayLike = Xs, n.isArrayLikeObject = $s, n.isBoolean = Zs, n.isBuffer = Sp, n.isDate = xp, n.isElement = Js, n.isEmpty = eu, n.isEqual = tu, n.isEqualWith = nu, n.isError = ru, n.isFinite = ou, n.isFunction = iu, n.isInteger = au, n.isLength = su, n.isMap = Tp, n.isMatch = cu, n.isMatchWith = fu, n.isNaN = pu, n.isNative = du, n.isNil = vu, n.isNull = hu, n.isNumber = mu, n.isObject = uu, n.isObjectLike = lu, n.isPlainObject = gu, n.isRegExp = kp, n.isSafeInteger = yu, n.isSet = Ep, n.isString = _u, n.isSymbol = bu, n.isTypedArray = Pp, n.isUndefined = wu, n.isWeakMap = Cu, n.isWeakSet = Su, n.join = xa, n.kebabCase = Yp, n.last = Ta, n.lastIndexOf = ka, n.lowerCase = Qp, n.lowerFirst = Xp, n.lt = Op, n.lte = Rp, n.max = Zl, n.maxBy = Jl, n.mean = ec, n.meanBy = tc, n.min = nc, n.minBy = rc, n.stubArray = Gl, n.stubFalse = Vl, n.stubObject = ql, n.stubString = Kl, n.stubTrue = Yl, n.multiply = md, n.nth = Ea, n.noConflict = Ul, n.noop = Wl, n.now = lp, n.pad = dl, n.padEnd = hl, n.padStart = vl, n.parseInt = ml, n.random = sl, n.reduce = bs, n.reduceRight = ws, n.repeat = gl, n.replace = yl, n.result = Xu, n.round = gd, n.runInContext = e, n.sample = Ss, n.size = ks, n.snakeCase = $p, n.some = Es, n.sortedIndex = ja, n.sortedIndexBy = Na, n.sortedIndexOf = La, n.sortedLastIndex = Da, n.sortedLastIndexBy = za, n.sortedLastIndexOf = Ua, n.startCase = Zp, n.startsWith = bl, n.subtract = yd, n.sum = oc, n.sumBy = ic, n.template = wl, n.times = Ql, n.toFinite = Tu, n.toInteger = ku, n.toLength = Eu, n.toLower = Cl, n.toNumber = Pu, n.toSafeInteger = Ru, n.toString = Iu, n.toUpper = Sl, n.trim = xl, n.trimEnd = Tl, n.trimStart = kl, n.truncate = El, n.unescape = Pl, n.uniqueId = $l, n.upperCase = Jp, n.upperFirst = ed, n.each = vs, n.eachRight = ms, n.first = wa, zl(n, function() {
+          return n.after = Ps, n.ary = Os, n.assign = Ip, n.assignIn = Mp, n.assignInWith = Ap, n.assignWith = jp, n.at = Np, n.before = Rs, n.bind = cp, n.bindAll = nd, n.bindKey = fp, n.castArray = Hs, n.chain = es, n.chunk = sa, n.compact = ua, n.concat = la, n.cond = Rl, n.conforms = Il, n.constant = Ml, n.countBy = tp, n.create = Mu, n.curry = Is, n.curryRight = Ms, n.debounce = As, n.defaults = Lp, n.defaultsDeep = Dp, n.defer = pp, n.delay = dp, n.difference = Df, n.differenceBy = zf, n.differenceWith = Uf, n.drop = ca, n.dropRight = fa, n.dropRightWhile = pa, n.dropWhile = da, n.fill = ha, n.filter = fs, n.flatMap = ps, n.flatMapDeep = ds, n.flatMapDepth = hs, n.flatten = ga, n.flattenDeep = ya, n.flattenDepth = _a, n.flip = js, n.flow = rd, n.flowRight = od, n.fromPairs = ba, n.functions = Uu, n.functionsIn = Wu, n.groupBy = op, n.initial = Sa, n.intersection = Wf, n.intersectionBy = Ff, n.intersectionWith = Bf, n.invert = zp, n.invertBy = Up, n.invokeMap = ip, n.iteratee = Nl, n.keyBy = ap, n.keys = Gu, n.keysIn = Vu, n.map = ys, n.mapKeys = qu, n.mapValues = Ku, n.matches = Ll, n.matchesProperty = Dl, n.memoize = Ns, n.merge = Fp, n.mergeWith = Bp, n.method = id, n.methodOf = ad, n.mixin = zl, n.negate = Ls, n.nthArg = Fl, n.omit = Hp, n.omitBy = Yu, n.once = Ds, n.orderBy = _s, n.over = sd, n.overArgs = hp, n.overEvery = ud, n.overSome = ld, n.partial = vp, n.partialRight = mp, n.partition = sp, n.pick = Gp, n.pickBy = Qu, n.property = Bl, n.propertyOf = Hl, n.pull = Hf, n.pullAll = Pa, n.pullAllBy = Oa, n.pullAllWith = Ra, n.pullAt = Gf, n.range = cd, n.rangeRight = fd, n.rearg = gp, n.reject = Cs, n.remove = Ia, n.rest = zs, n.reverse = Ma, n.sampleSize = xs, n.set = $u, n.setWith = Zu, n.shuffle = Ts, n.slice = Aa, n.sortBy = up, n.sortedUniq = Wa, n.sortedUniqBy = Fa, n.split = _l, n.spread = Us, n.tail = Ba, n.take = Ha, n.takeRight = Ga, n.takeRightWhile = Va, n.takeWhile = qa, n.tap = ts, n.throttle = Ws, n.thru = ns, n.toArray = xu, n.toPairs = Vp, n.toPairsIn = qp, n.toPath = Xl, n.toPlainObject = Ou, n.transform = Ju, n.unary = Fs, n.union = Vf, n.unionBy = qf, n.unionWith = Kf, n.uniq = Ka, n.uniqBy = Ya, n.uniqWith = Qa, n.unset = el, n.unzip = Xa, n.unzipWith = $a, n.update = tl, n.updateWith = nl, n.values = rl, n.valuesIn = ol, n.without = Yf, n.words = Ol, n.wrap = Bs, n.xor = Qf, n.xorBy = Xf, n.xorWith = $f, n.zip = Zf, n.zipObject = Za, n.zipObjectDeep = Ja, n.zipWith = Jf, n.entries = Vp, n.entriesIn = qp, n.extend = Mp, n.extendWith = Ap, zl(n, n), n.add = pd, n.attempt = td, n.camelCase = Kp, n.capitalize = ul, n.ceil = dd, n.clamp = il, n.clone = Gs, n.cloneDeep = qs, n.cloneDeepWith = Ks, n.cloneWith = Vs, n.conformsTo = Ys, n.deburr = ll, n.defaultTo = Al, n.divide = hd, n.endsWith = cl, n.eq = Qs, n.escape = fl, n.escapeRegExp = pl, n.every = cs, n.find = np, n.findIndex = va, n.findKey = Au, n.findLast = rp, n.findLastIndex = ma, n.findLastKey = ju, n.floor = vd, n.forEach = vs, n.forEachRight = ms,
+            n.forIn = Nu, n.forInRight = Lu, n.forOwn = Du, n.forOwnRight = zu, n.get = Fu, n.gt = yp, n.gte = _p, n.has = Bu, n.hasIn = Hu, n.head = wa, n.identity = jl, n.includes = gs, n.indexOf = Ca, n.inRange = al, n.invoke = Wp, n.isArguments = bp, n.isArray = wp, n.isArrayBuffer = Cp, n.isArrayLike = Xs, n.isArrayLikeObject = $s, n.isBoolean = Zs, n.isBuffer = Sp, n.isDate = xp, n.isElement = Js, n.isEmpty = eu, n.isEqual = tu, n.isEqualWith = nu, n.isError = ru, n.isFinite = ou, n.isFunction = iu, n.isInteger = au, n.isLength = su, n.isMap = Tp, n.isMatch = cu, n.isMatchWith = fu, n.isNaN = pu, n.isNative = du, n.isNil = vu, n.isNull = hu, n.isNumber = mu, n.isObject = uu, n.isObjectLike = lu, n.isPlainObject = gu, n.isRegExp = kp, n.isSafeInteger = yu, n.isSet = Ep, n.isString = _u, n.isSymbol = bu, n.isTypedArray = Pp, n.isUndefined = wu, n.isWeakMap = Cu, n.isWeakSet = Su, n.join = xa, n.kebabCase = Yp, n.last = Ta, n.lastIndexOf = ka, n.lowerCase = Qp, n.lowerFirst = Xp, n.lt = Op, n.lte = Rp, n.max = Zl, n.maxBy = Jl, n.mean = ec, n.meanBy = tc, n.min = nc, n.minBy = rc, n.stubArray = Gl, n.stubFalse = Vl, n.stubObject = ql, n.stubString = Kl, n.stubTrue = Yl, n.multiply = md, n.nth = Ea, n.noConflict = Ul, n.noop = Wl, n.now = lp, n.pad = dl, n.padEnd = hl, n.padStart = vl, n.parseInt = ml, n.random = sl, n.reduce = bs, n.reduceRight = ws, n.repeat = gl, n.replace = yl, n.result = Xu, n.round = gd, n.runInContext = e, n.sample = Ss, n.size = ks, n.snakeCase = $p, n.some = Es, n.sortedIndex = ja, n.sortedIndexBy = Na, n.sortedIndexOf = La, n.sortedLastIndex = Da, n.sortedLastIndexBy = za, n.sortedLastIndexOf = Ua, n.startCase = Zp, n.startsWith = bl, n.subtract = yd, n.sum = oc, n.sumBy = ic, n.template = wl, n.times = Ql, n.toFinite = Tu, n.toInteger = ku, n.toLength = Eu, n.toLower = Cl, n.toNumber = Pu, n.toSafeInteger = Ru, n.toString = Iu, n.toUpper = Sl, n.trim = xl, n.trimEnd = Tl, n.trimStart = kl, n.truncate = El, n.unescape = Pl, n.uniqueId = $l, n.upperCase = Jp, n.upperFirst = ed, n.each = vs, n.eachRight = ms, n.first = wa, zl(n, function() {
               var e = {};
               return nr(n, function(t, r) {
                 bc.call(n.prototype, r) || (e[r] = t);
@@ -67942,8 +67961,7 @@ $.fn.togglify = function(settings) {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
-          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0),
-            Object.defineProperty(e, r.key, r);
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
         }
       }
       return function(t, n, r) {
@@ -71170,8 +71188,7 @@ $.fn.togglify = function(settings) {
           function f(e, t) {
             r(this, f);
             var n = o(this, a.call(this, e, t));
-            return n.version = A, n.state = {}, n.renderCount = 0, n.store = e[P] || t[P], n.propsMode = Boolean(e[P]), n.setWrappedInstance = n.setWrappedInstance.bind(n), d()(n.store, 'Could not find "' + P + '" in either the context or props of ' + ('"' + l + '". Either wrap the root component in a <Provider>, ') + ('or explicitly pass "' + P + '" as a prop to "' + l + '".')),
-              n.initSelector(), n.initSubscription(), n;
+            return n.version = A, n.state = {}, n.renderCount = 0, n.store = e[P] || t[P], n.propsMode = Boolean(e[P]), n.setWrappedInstance = n.setWrappedInstance.bind(n), d()(n.store, 'Could not find "' + P + '" in either the context or props of ' + ('"' + l + '". Either wrap the root component in a <Provider>, ') + ('or explicitly pass "' + P + '" as a prop to "' + l + '".')), n.initSelector(), n.initSubscription(), n;
           }
           return i(f, a), f.prototype.getChildContext = function() {
             var e, t = this.propsMode ? null : this.subscription;
@@ -77452,8 +77469,8 @@ $.fn.togglify = function(settings) {
             isShowing: !1,
             tipOpacity: 0,
             contentsRect: null
-          }, e.delayTimer = null, e.tooltipContent = null, e.setRef = e.setRef.bind(e), e.onMouseEnter = e.onMouseEnter.bind(e),
-          e.onMouseLeave = e.onMouseLeave.bind(e), e.showTip = e.showTip.bind(e), e.hideTip = e.hideTip.bind(e), e.fadeTip = e.fadeTip.bind(e), e.measureContents = e.measureContents.bind(e), e;
+          }, e.delayTimer = null, e.tooltipContent = null, e.setRef = e.setRef.bind(e), e.onMouseEnter = e.onMouseEnter.bind(e), e.onMouseLeave = e.onMouseLeave.bind(e),
+          e.showTip = e.showTip.bind(e), e.hideTip = e.hideTip.bind(e), e.fadeTip = e.fadeTip.bind(e), e.measureContents = e.measureContents.bind(e), e;
       }
       return i(t, e), g(t, [{
         key: "setRef",
