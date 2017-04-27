@@ -14591,6 +14591,16 @@ only screen and (min-resolution:2dppx) {
   height: 24px
 }
 
+.tab_complete_ui li.tab_complete_ui_group .c-member--small .presence,
+.tab_complete_ui li.tab_complete_ui_item .c-member--small .presence {
+  top: 8px
+}
+
+.tab_complete_ui li.tab_complete_ui_group .c-member--small .team_image,
+.tab_complete_ui li.tab_complete_ui_item .c-member--small .team_image {
+  top: 5px
+}
+
 .tab_complete_ui .not_in_channel {
   color: #717274;
   font-size: .7rem;

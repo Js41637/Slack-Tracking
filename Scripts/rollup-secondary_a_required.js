@@ -1475,7 +1475,7 @@
   var _timing_methodsA = ["rtm.start", "rtm.leanStart", "files.list"];
   var _progress_check_methodsA = ["rtm.start", "rtm.leanStart", "activity.mentions", "stars.list", "files.list", "files.info", "apps.list", "commands.list", "channels.list", "emoji.list", "help.issues.list", "subteams.list", "subteams.users.list", "rtm.checkFastReconnect"];
   var _one_at_a_time_methodsA = ["users.prefs.set", "rtm.start", "rtm.leanStart", "rtm.checkFastReconnect", "enterprise.setPhoto", "signup.createTeam"];
-  var _no_retry_methodsA = ["dnd.teamInfo", "screenhero.rooms.create", "screenhero.rooms.join", "screenhero.rooms.refreshToken", "screenhero.rooms.invite"];
+  var _no_retry_methodsA = ["channels.view", "dnd.teamInfo", "screenhero.rooms.create", "screenhero.rooms.join", "screenhero.rooms.refreshToken", "screenhero.rooms.invite"];
   var _no_token = ["api.test", "auth.emailToken", "auth.findTeam", "auth.findUser", "auth.loginMagic", "auth.signin", "enterprise.signup.complete", "enterprise.signup.checkDomain", "enterprise.signup.checkPassword", "helpdesk.get", "search.apps", "signup.addLead", "team.checkEmailDomains", "test.versionInfo", "oauth.access"];
   var _pending = 0;
   var _main_Q = [];
@@ -30919,7 +30919,7 @@ var _profiling = {
                     c_ids.push(typeof obj.id === "string" && obj.channel || channel_id || undefined);
                     t_ids.push(typeof obj.team === "string" && obj.team || typeof obj.team === "object" && obj.team && obj.team.id || undefined);
                   }
-                } else if (typeof m_id === "object" && m_id.id) {
+                } else if (m_id && typeof m_id === "object" && m_id.id) {
                   if (TS.utility.strLooksLikeAMemberId(m_id.id)) {
                     m_ids.push(m_id.id);
                   }
