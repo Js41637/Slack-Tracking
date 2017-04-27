@@ -348,7 +348,7 @@
   var _fully_booted_p_resolve;
   var _fully_booted_p;
   var _is_user_forced_into_redux_feature;
-  var _users_to_force_into_redux_feature = ["W1W7LCMHU", "W1M2KRM8E"];
+  var _users_to_force_into_redux_feature = ["W2V82BY0G", "W1W7LCMHU", "W1M2KRM8E"];
   window.TS = {
     boot_data: {},
     qs_args: {},
