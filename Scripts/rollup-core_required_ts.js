@@ -349,6 +349,8 @@
   var _fully_booted_p;
   var _is_user_forced_into_redux_feature;
   var _users_to_force_into_redux_feature = ["W2V82BY0G", "W1W7LCMHU", "W1M2KRM8E"];
+  var _did_call_did_finish_loading = false;
+  var FORCE_CALL_DID_FINISH_LOADING_DELAY_MS = 7e4;
   window.TS = {
     boot_data: {},
     qs_args: {},
@@ -900,6 +902,7 @@
         _fully_booted_p_resolve();
         _fully_booted_p_resolve = null;
         TSSSB.call("didFinishLoading");
+        _did_call_did_finish_loading = true;
       }
       TS.model.ms_logged_in_once = true;
       if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Holy guacamole, we're all done!");
@@ -1092,6 +1095,15 @@
   var _delayed_component_loads = {};
   var _onDOMReady = function() {
     TS.info("_onDOMReady");
+    setTimeout(function() {
+      if (!TS.model.is_our_app) return;
+      if (TS.environment.isSSBAndAtLeastVersion("2.6")) return;
+      if (!_did_call_did_finish_loading) {
+        TSSSB.call("didFinishLoading");
+        _did_call_did_finish_loading = true;
+        TS.metrics.count("fake_call_did_finish_loading_for_older_SSBs");
+      }
+    }, FORCE_CALL_DID_FINISH_LOADING_DELAY_MS);
     _logSessionLoadCount();
     _maybeOpenTokenlessConnection();
     if ((TS.model.is_chrome_desktop || TS.model.is_FF || TS.model.is_safari_desktop) && TS.storage.do_compression) {

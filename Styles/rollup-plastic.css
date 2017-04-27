@@ -16736,6 +16736,15 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   font-weight: 700
 }
 
+.feature_texty_mentions .rxn.user_reacted {
+  background: rgba(0, 122, 184, .05);
+  border-color: rgba(0, 122, 184, .3)!important
+}
+
+.feature_texty_mentions .rxn.user_reacted .emoji_rxn_count {
+  color: #007AB8
+}
+
 .rxn .emoji-sizer {
   line-height: 20px;
   font-size: 16px;
