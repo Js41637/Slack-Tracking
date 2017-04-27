@@ -1800,6 +1800,7 @@
       if (user.id === "USLACKBOT" || user.id == TS.boot_data.user_id) {
         user.presence = "active";
       }
+      delete user.updated;
     });
     if (focal_model_ob.is_channel) {
       _upsertModelOb(focal_model_ob, data.channels);
