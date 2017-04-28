@@ -1253,6 +1253,7 @@
     try {
       _.forOwn(_modules, function(module) {
         if (!module.onStart) return;
+        name = module._name;
         module.onStart();
         if (delete_after_calling) module.onStart = _.noop;
       });
@@ -1697,9 +1698,6 @@
         count: TS.model.initial_msgs_cnt - 1,
         ignore_replies: true
       };
-      if (TS.boot_data.feature_name_tagging_client) {
-        channels_view_args.name_tagging = true;
-      }
       var channel_name = TS.utility.getChannelNameFromUrl(window.location.toString());
       if (channel_name) {
         TS.model.c_name_in_url = channel_name;
