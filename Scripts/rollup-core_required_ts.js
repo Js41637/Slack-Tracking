@@ -1527,7 +1527,7 @@
           channel.all_read_this_session_once = false;
           return TS.channels.upsertChannel(channel, is_bulk_upsert);
         });
-        if (TS.useRedux() && is_bulk_upsert && channels_to_upsert.length) {
+        if (TS.useRedux() && channels_to_upsert.length) {
           TS.redux.channels.bulkAddEntities(_.compact(channels_to_upsert));
         }
         TS.metrics.measureAndClear("upsert_channels", "upsert_channels_start");
@@ -1538,7 +1538,7 @@
             im.all_read_this_session_once = false;
             return TS.ims.upsertIm(im, is_bulk_upsert);
           });
-          if (TS.useRedux() && is_bulk_upsert && ims_to_upsert.length) {
+          if (TS.useRedux() && ims_to_upsert.length) {
             TS.redux.channels.bulkAddEntities(_.compact(ims_to_upsert));
           }
         }
@@ -1562,7 +1562,7 @@
           group.all_read_this_session_once = false;
           return TS.groups.upsertGroup(group, is_bulk_upsert);
         });
-        if (TS.useRedux() && is_bulk_upsert && groups_to_upsert.length) {
+        if (TS.useRedux() && groups_to_upsert.length) {
           TS.redux.channels.bulkAddEntities(_.compact(groups_to_upsert));
         }
         TS.metrics.measureAndClear("upsert_groups", "upsert_groups_start");
@@ -1573,7 +1573,7 @@
               mpim.all_read_this_session_once = false;
               return TS.mpims.upsertMpim(mpim, is_bulk_upsert);
             });
-            if (TS.useRedux() && is_bulk_upsert && mpims_to_upsert.length) {
+            if (TS.useRedux() && mpims_to_upsert.length) {
               TS.redux.channels.bulkAddEntities(_.compact(mpims_to_upsert));
             }
           }
