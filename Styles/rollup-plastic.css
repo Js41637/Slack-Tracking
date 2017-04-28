@@ -10176,20 +10176,15 @@ html.fs_modal_active {
   margin-right: .25rem
 }
 
-.deprecate_10_8#fs_modal .actions .btn_link,
 .deprecate_modal#fs_modal .actions .btn_link {
   line-height: 1.2rem;
   text-shadow: none
 }
 
-.deprecate_10_8#fs_modal .actions .btn_link:after,
 .deprecate_modal#fs_modal .actions .btn_link:after {
   display: none
 }
 
-.deprecate_10_8#fs_modal .actions .btn_link:active,
-.deprecate_10_8#fs_modal .actions .btn_link:focus,
-.deprecate_10_8#fs_modal .actions .btn_link:hover,
 .deprecate_modal#fs_modal .actions .btn_link:active,
 .deprecate_modal#fs_modal .actions .btn_link:focus,
 .deprecate_modal#fs_modal .actions .btn_link:hover {
@@ -10197,7 +10192,6 @@ html.fs_modal_active {
   box-shadow: none
 }
 
-.deprecate_10_8#fs_modal .actions .btn_link:hover,
 .deprecate_modal#fs_modal .actions .btn_link:hover {
   text-decoration: underline
 }

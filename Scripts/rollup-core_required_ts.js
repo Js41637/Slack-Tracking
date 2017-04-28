@@ -935,9 +935,11 @@
   var _ensureInitialChannelIsKnown = function() {
     if (!TS.client) return;
     if (TS.model.initial_cid) {
+      if (TS.boot_data.feature_archive_deeplink) TS.client.calculateInitialMessage();
       return;
     }
     TS.client.calculateInitialCid();
+    if (TS.boot_data.feature_archive_deeplink) TS.client.calculateInitialMessage();
     if (!TS.model.initial_cid) {
       var error_msg = "TS.client.calculateInitialCid() failed to find a channel";
       TS.error(error_msg);
