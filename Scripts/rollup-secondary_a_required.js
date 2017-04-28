@@ -1669,8 +1669,6 @@
           };
         } else if (data.status == 429) {
           _pauseFor(args._delay_ms);
-        } else if (data.status == 503) {
-          _pauseFor(args._delay_ms);
         } else if (data.status >= 500 && _exceededMaxConsecutiveErrors(method, args._attempts)) {
           var retry_delay = function() {
             var args = {};
@@ -14515,7 +14513,6 @@ TS.registerModule("constants", {
     frecency_jumper_changed_sig: new signals.Signal,
     jumbomoji_changed_sig: new signals.Signal,
     hide_hex_swatch_changed_sig: new signals.Signal,
-    attachments_with_borders_changed_sig: new signals.Signal,
     channel_sort_changed_sig: new signals.Signal,
     show_memory_instrument_changed_sig: new signals.Signal,
     enable_unread_view_changed_sig: new signals.Signal,
@@ -15196,12 +15193,6 @@ TS.registerModule("constants", {
                 a11y_animations: TS.model.prefs.a11y_animations
               });
             }
-          }
-          break;
-        case "attachments_with_borders":
-          if (TS.model.prefs.attachments_with_borders !== imsg.value) {
-            TS.model.prefs.attachments_with_borders = imsg.value;
-            TS.prefs.attachments_with_borders_changed_sig.dispatch();
           }
           break;
         case "show_memory_instrument":
@@ -16174,6 +16165,18 @@ TS.registerModule("constants", {
     send: function(msg, handler, temp_ts) {
       _msg_id += 1;
       msg.id = _msg_id;
+      var MAX_SEND_SIZE_BYTES = 32768;
+      var data = JSON.stringify(msg);
+      if (data.length > MAX_SEND_SIZE_BYTES) {
+        var msg_description = msg.subtype ? msg.type + "." + msg.subtype : msg.type;
+        var e = new Error("Unable to send " + msg_description + " message to MS because it exceeds " + MAX_SEND_SIZE_BYTES + " bytes");
+        TS.console.logError(e, "too_big_to_send");
+        var ok = false;
+        handler(ok, {
+          error: "too_big_to_send"
+        });
+        return;
+      }
       TS.ms.sent_map[msg.id.toString()] = {
         msg: msg,
         handler: handler,
@@ -16198,7 +16201,7 @@ TS.registerModule("constants", {
         TS.console.logStackTrace("TS.ms.sendMsg(...)");
         throw err;
       }
-      _websocket.send(JSON.stringify(msg));
+      _websocket.send(data);
       return msg.id;
     },
     sendTyping: function(c_id) {
@@ -20561,11 +20564,11 @@ var _profiling = {
     formatAttachmentGroup: function(attachments, msg, enable_slack_action_links, msg_dom_id, model_ob) {
       enable_slack_action_links = enable_slack_action_links === true;
       var html = "";
+      var has_container = false;
       attachments = attachments.map(function(attachment) {
         return TS.utility.attachments.getDecoratedAttachment(attachment, msg);
       });
       var is_broadcast = msg && msg.subtype === "reply_broadcast";
-      var has_container = !!TS.model.prefs.attachments_with_borders;
       if (is_broadcast) has_container = true;
       var use_shrink_wrap = has_container && _.some(attachments, TS.utility.attachments.getMediaType);
       var has_border = has_container ? _.some(attachments, "color") : true;
@@ -20669,7 +20672,8 @@ var _profiling = {
           has_container: has_container,
           has_link: has_link,
           use_shrink_wrap: use_shrink_wrap,
-          attachments_html: html && new Handlebars.SafeString(html)
+          attachments_html: html && new Handlebars.SafeString(html),
+          enable_slack_action_links: enable_slack_action_links
         });
       }
       return html;
@@ -26239,11 +26243,11 @@ var _profiling = {
         return selected_size;
       });
       Handlebars.registerHelper("prefsNotificationExampleAll", function() {
-        var name = "Jeff";
-        if (!TS.model.is_mac) {
-          name = TS.i18n.t("from {name}", "prefs")({
-            name: name
-          });
+        var name;
+        if (TS.model.is_mac) {
+          name = TS.i18n.t("Jeff", "prefs")();
+        } else {
+          name = TS.i18n.t("from Jeff", "prefs")();
         }
         var html = TS.templates.prefs_notification_example({
           name: name,
@@ -26252,15 +26256,17 @@ var _profiling = {
         return new Handlebars.SafeString(html);
       });
       Handlebars.registerHelper("prefsNotificationExampleMentions", function() {
-        var name = "Linda";
-        if (!TS.model.is_mac) {
-          name = TS.i18n.t("from {name}", "prefs")({
-            name: name
-          });
+        var name;
+        if (TS.model.is_mac) {
+          name = TS.i18n.t("Linda", "prefs")();
+        } else {
+          name = TS.i18n.t("from Linda", "prefs")();
         }
         var html = TS.templates.prefs_notification_example({
           name: name,
-          text: new Handlebars.SafeString(TS.i18n.t("Hi <strong>@hubert</strong>, how are you?", "prefs")())
+          text: new Handlebars.SafeString(TS.i18n.t("Hi <strong>@{username}</strong>", "prefs")({
+            username: TS.utility.htmlEntities(TS.model.user.name)
+          }))
         });
         return new Handlebars.SafeString(html);
       });
@@ -39385,11 +39391,6 @@ var _on_esc;
     no_scrolling: false,
     expand_sig: new signals.Signal,
     collapse_sig: new signals.Signal,
-    onStart: function() {
-      if (TS.client) {
-        TS.prefs.attachments_with_borders_changed_sig.add(TS.client.msg_pane.rebuildMsgs);
-      }
-    },
     shouldExpand: function(container_id, inline_attachment) {
       if (TS.model.expandable_state["attach_" + container_id + inline_attachment.from_url]) return true;
       if (TS.model.expandable_state["attach_" + container_id + inline_attachment.from_url] === false) return false;
@@ -57669,9 +57670,6 @@ $.fn.togglify = function(settings) {
       } else if (attachment.service_name === "salesforce") {
         attachment = _decorateForSalesforce(attachment);
       }
-      if (attachment.from_url && TS.model.prefs.attachments_with_borders) {
-        attachment = _removeDuplicativeLinks(attachment);
-      }
       if (TS.boot_data.feature_auth_unfurls && attachment.is_app_unfurl && attachment.bot_id) {
         var bot = TS.bots.getBotById(attachment.bot_id);
         if (bot) {
@@ -57726,7 +57724,6 @@ $.fn.togglify = function(settings) {
   });
   var _CONTENT_PROPS = ["title", "text", "pretext", "video_html", "audio_html", "audio_url", "other_html", "from_url", "fields", "actions", "image_url", "thumb_url", "author_name", "service_name", "footer", "footer_icon", "ts"];
   var _POSSIBLE_CARET_LOCATIONS = ["ts", "footer", "fields", "text", "title", "_source"];
-  var _ATTACHMENT_LINKS = ["_source.link", "_source.author_link", "thumb_link", "title_link", "image_link"];
   var _getSource = function(attachment) {
     var source = {};
     source.icon = attachment.service_icon || attachment.author_icon;
@@ -57814,14 +57811,6 @@ $.fn.togglify = function(settings) {
     attachment._source.author_name = attachment.author_subname;
     attachment._unfurl_type_message = true;
     attachment._always_expand = true;
-    return attachment;
-  };
-  var _removeDuplicativeLinks = function(attachment) {
-    _ATTACHMENT_LINKS.forEach(function(prop) {
-      if (_.get(attachment, prop) == attachment.from_url) {
-        _.set(attachment, prop, null);
-      }
-    });
     return attachment;
   };
   var _getProxiedIcon = function(url) {
@@ -66492,8 +66481,8 @@ $.fn.togglify = function(settings) {
             yd = oi(function(e, t) {
               return e - t;
             }, 0);
-          return n.after = Ps, n.ary = Os, n.assign = Ip, n.assignIn = Mp, n.assignInWith = Ap, n.assignWith = jp, n.at = Np, n.before = Rs, n.bind = cp, n.bindAll = nd, n.bindKey = fp, n.castArray = Hs, n.chain = es, n.chunk = sa, n.compact = ua, n.concat = la, n.cond = Rl, n.conforms = Il, n.constant = Ml, n.countBy = tp, n.create = Mu, n.curry = Is, n.curryRight = Ms, n.debounce = As, n.defaults = Lp, n.defaultsDeep = Dp, n.defer = pp, n.delay = dp, n.difference = Df, n.differenceBy = zf, n.differenceWith = Uf, n.drop = ca, n.dropRight = fa, n.dropRightWhile = pa, n.dropWhile = da, n.fill = ha, n.filter = fs, n.flatMap = ps, n.flatMapDeep = ds, n.flatMapDepth = hs, n.flatten = ga, n.flattenDeep = ya, n.flattenDepth = _a, n.flip = js, n.flow = rd, n.flowRight = od, n.fromPairs = ba, n.functions = Uu, n.functionsIn = Wu, n.groupBy = op, n.initial = Sa, n.intersection = Wf, n.intersectionBy = Ff, n.intersectionWith = Bf, n.invert = zp, n.invertBy = Up, n.invokeMap = ip, n.iteratee = Nl, n.keyBy = ap, n.keys = Gu, n.keysIn = Vu, n.map = ys, n.mapKeys = qu, n.mapValues = Ku, n.matches = Ll, n.matchesProperty = Dl, n.memoize = Ns, n.merge = Fp, n.mergeWith = Bp, n.method = id, n.methodOf = ad, n.mixin = zl, n.negate = Ls, n.nthArg = Fl, n.omit = Hp, n.omitBy = Yu, n.once = Ds, n.orderBy = _s, n.over = sd, n.overArgs = hp, n.overEvery = ud, n.overSome = ld, n.partial = vp, n.partialRight = mp, n.partition = sp, n.pick = Gp, n.pickBy = Qu, n.property = Bl, n.propertyOf = Hl, n.pull = Hf, n.pullAll = Pa, n.pullAllBy = Oa, n.pullAllWith = Ra, n.pullAt = Gf, n.range = cd, n.rangeRight = fd, n.rearg = gp, n.reject = Cs, n.remove = Ia, n.rest = zs, n.reverse = Ma, n.sampleSize = xs, n.set = $u, n.setWith = Zu, n.shuffle = Ts, n.slice = Aa, n.sortBy = up, n.sortedUniq = Wa, n.sortedUniqBy = Fa, n.split = _l, n.spread = Us, n.tail = Ba, n.take = Ha, n.takeRight = Ga, n.takeRightWhile = Va, n.takeWhile = qa, n.tap = ts, n.throttle = Ws, n.thru = ns, n.toArray = xu, n.toPairs = Vp, n.toPairsIn = qp, n.toPath = Xl, n.toPlainObject = Ou, n.transform = Ju, n.unary = Fs, n.union = Vf, n.unionBy = qf, n.unionWith = Kf, n.uniq = Ka, n.uniqBy = Ya, n.uniqWith = Qa, n.unset = el, n.unzip = Xa, n.unzipWith = $a, n.update = tl, n.updateWith = nl, n.values = rl, n.valuesIn = ol, n.without = Yf, n.words = Ol, n.wrap = Bs, n.xor = Qf, n.xorBy = Xf, n.xorWith = $f, n.zip = Zf, n.zipObject = Za, n.zipObjectDeep = Ja, n.zipWith = Jf, n.entries = Vp, n.entriesIn = qp, n.extend = Mp, n.extendWith = Ap, zl(n, n), n.add = pd, n.attempt = td, n.camelCase = Kp, n.capitalize = ul, n.ceil = dd, n.clamp = il, n.clone = Gs, n.cloneDeep = qs, n.cloneDeepWith = Ks, n.cloneWith = Vs, n.conformsTo = Ys, n.deburr = ll, n.defaultTo = Al, n.divide = hd, n.endsWith = cl, n.eq = Qs, n.escape = fl, n.escapeRegExp = pl, n.every = cs, n.find = np, n.findIndex = va, n.findKey = Au, n.findLast = rp, n.findLastIndex = ma, n.findLastKey = ju, n.floor = vd, n.forEach = vs, n.forEachRight = ms, n.forIn = Nu,
-            n.forInRight = Lu, n.forOwn = Du, n.forOwnRight = zu, n.get = Fu, n.gt = yp, n.gte = _p, n.has = Bu, n.hasIn = Hu, n.head = wa, n.identity = jl, n.includes = gs, n.indexOf = Ca, n.inRange = al, n.invoke = Wp, n.isArguments = bp, n.isArray = wp, n.isArrayBuffer = Cp, n.isArrayLike = Xs, n.isArrayLikeObject = $s, n.isBoolean = Zs, n.isBuffer = Sp, n.isDate = xp, n.isElement = Js, n.isEmpty = eu, n.isEqual = tu, n.isEqualWith = nu, n.isError = ru, n.isFinite = ou, n.isFunction = iu, n.isInteger = au, n.isLength = su, n.isMap = Tp, n.isMatch = cu, n.isMatchWith = fu, n.isNaN = pu, n.isNative = du, n.isNil = vu, n.isNull = hu, n.isNumber = mu, n.isObject = uu, n.isObjectLike = lu, n.isPlainObject = gu, n.isRegExp = kp, n.isSafeInteger = yu, n.isSet = Ep, n.isString = _u, n.isSymbol = bu, n.isTypedArray = Pp, n.isUndefined = wu, n.isWeakMap = Cu, n.isWeakSet = Su, n.join = xa, n.kebabCase = Yp, n.last = Ta, n.lastIndexOf = ka, n.lowerCase = Qp, n.lowerFirst = Xp, n.lt = Op, n.lte = Rp, n.max = Zl, n.maxBy = Jl, n.mean = ec, n.meanBy = tc, n.min = nc, n.minBy = rc, n.stubArray = Gl, n.stubFalse = Vl, n.stubObject = ql, n.stubString = Kl, n.stubTrue = Yl, n.multiply = md, n.nth = Ea, n.noConflict = Ul, n.noop = Wl, n.now = lp, n.pad = dl, n.padEnd = hl, n.padStart = vl, n.parseInt = ml, n.random = sl, n.reduce = bs, n.reduceRight = ws, n.repeat = gl, n.replace = yl, n.result = Xu, n.round = gd, n.runInContext = e, n.sample = Ss, n.size = ks, n.snakeCase = $p, n.some = Es, n.sortedIndex = ja, n.sortedIndexBy = Na, n.sortedIndexOf = La, n.sortedLastIndex = Da, n.sortedLastIndexBy = za, n.sortedLastIndexOf = Ua, n.startCase = Zp, n.startsWith = bl, n.subtract = yd, n.sum = oc, n.sumBy = ic, n.template = wl, n.times = Ql, n.toFinite = Tu, n.toInteger = ku, n.toLength = Eu, n.toLower = Cl, n.toNumber = Pu, n.toSafeInteger = Ru, n.toString = Iu, n.toUpper = Sl, n.trim = xl, n.trimEnd = Tl, n.trimStart = kl, n.truncate = El, n.unescape = Pl, n.uniqueId = $l, n.upperCase = Jp, n.upperFirst = ed, n.each = vs, n.eachRight = ms, n.first = wa, zl(n, function() {
+          return n.after = Ps, n.ary = Os, n.assign = Ip, n.assignIn = Mp, n.assignInWith = Ap, n.assignWith = jp, n.at = Np, n.before = Rs, n.bind = cp, n.bindAll = nd, n.bindKey = fp, n.castArray = Hs, n.chain = es, n.chunk = sa, n.compact = ua, n.concat = la, n.cond = Rl, n.conforms = Il, n.constant = Ml, n.countBy = tp, n.create = Mu, n.curry = Is, n.curryRight = Ms, n.debounce = As, n.defaults = Lp, n.defaultsDeep = Dp, n.defer = pp, n.delay = dp, n.difference = Df, n.differenceBy = zf, n.differenceWith = Uf, n.drop = ca, n.dropRight = fa, n.dropRightWhile = pa, n.dropWhile = da, n.fill = ha, n.filter = fs, n.flatMap = ps, n.flatMapDeep = ds, n.flatMapDepth = hs, n.flatten = ga, n.flattenDeep = ya, n.flattenDepth = _a, n.flip = js, n.flow = rd, n.flowRight = od, n.fromPairs = ba, n.functions = Uu, n.functionsIn = Wu, n.groupBy = op, n.initial = Sa, n.intersection = Wf, n.intersectionBy = Ff, n.intersectionWith = Bf, n.invert = zp, n.invertBy = Up, n.invokeMap = ip, n.iteratee = Nl, n.keyBy = ap, n.keys = Gu, n.keysIn = Vu, n.map = ys, n.mapKeys = qu, n.mapValues = Ku, n.matches = Ll, n.matchesProperty = Dl, n.memoize = Ns, n.merge = Fp, n.mergeWith = Bp, n.method = id, n.methodOf = ad, n.mixin = zl, n.negate = Ls, n.nthArg = Fl, n.omit = Hp, n.omitBy = Yu, n.once = Ds, n.orderBy = _s, n.over = sd, n.overArgs = hp, n.overEvery = ud, n.overSome = ld, n.partial = vp, n.partialRight = mp, n.partition = sp, n.pick = Gp, n.pickBy = Qu, n.property = Bl, n.propertyOf = Hl, n.pull = Hf, n.pullAll = Pa, n.pullAllBy = Oa, n.pullAllWith = Ra, n.pullAt = Gf, n.range = cd, n.rangeRight = fd, n.rearg = gp, n.reject = Cs, n.remove = Ia, n.rest = zs, n.reverse = Ma, n.sampleSize = xs, n.set = $u, n.setWith = Zu, n.shuffle = Ts, n.slice = Aa, n.sortBy = up, n.sortedUniq = Wa, n.sortedUniqBy = Fa, n.split = _l, n.spread = Us, n.tail = Ba, n.take = Ha, n.takeRight = Ga, n.takeRightWhile = Va, n.takeWhile = qa, n.tap = ts, n.throttle = Ws, n.thru = ns, n.toArray = xu, n.toPairs = Vp, n.toPairsIn = qp, n.toPath = Xl, n.toPlainObject = Ou, n.transform = Ju, n.unary = Fs, n.union = Vf, n.unionBy = qf, n.unionWith = Kf, n.uniq = Ka, n.uniqBy = Ya, n.uniqWith = Qa, n.unset = el, n.unzip = Xa, n.unzipWith = $a, n.update = tl, n.updateWith = nl, n.values = rl, n.valuesIn = ol, n.without = Yf, n.words = Ol, n.wrap = Bs, n.xor = Qf, n.xorBy = Xf, n.xorWith = $f, n.zip = Zf, n.zipObject = Za, n.zipObjectDeep = Ja, n.zipWith = Jf, n.entries = Vp, n.entriesIn = qp, n.extend = Mp, n.extendWith = Ap, zl(n, n), n.add = pd, n.attempt = td, n.camelCase = Kp, n.capitalize = ul, n.ceil = dd, n.clamp = il, n.clone = Gs, n.cloneDeep = qs, n.cloneDeepWith = Ks, n.cloneWith = Vs, n.conformsTo = Ys, n.deburr = ll, n.defaultTo = Al, n.divide = hd, n.endsWith = cl, n.eq = Qs, n.escape = fl, n.escapeRegExp = pl, n.every = cs, n.find = np, n.findIndex = va, n.findKey = Au, n.findLast = rp, n.findLastIndex = ma, n.findLastKey = ju, n.floor = vd, n.forEach = vs, n.forEachRight = ms, n.forIn = Nu, n.forInRight = Lu, n.forOwn = Du, n.forOwnRight = zu, n.get = Fu, n.gt = yp, n.gte = _p, n.has = Bu, n.hasIn = Hu, n.head = wa, n.identity = jl, n.includes = gs, n.indexOf = Ca, n.inRange = al, n.invoke = Wp, n.isArguments = bp, n.isArray = wp, n.isArrayBuffer = Cp, n.isArrayLike = Xs, n.isArrayLikeObject = $s, n.isBoolean = Zs, n.isBuffer = Sp, n.isDate = xp, n.isElement = Js, n.isEmpty = eu, n.isEqual = tu, n.isEqualWith = nu, n.isError = ru, n.isFinite = ou, n.isFunction = iu, n.isInteger = au, n.isLength = su, n.isMap = Tp, n.isMatch = cu, n.isMatchWith = fu, n.isNaN = pu, n.isNative = du, n.isNil = vu, n.isNull = hu, n.isNumber = mu, n.isObject = uu, n.isObjectLike = lu, n.isPlainObject = gu, n.isRegExp = kp, n.isSafeInteger = yu, n.isSet = Ep, n.isString = _u, n.isSymbol = bu, n.isTypedArray = Pp, n.isUndefined = wu,
+            n.isWeakMap = Cu, n.isWeakSet = Su, n.join = xa, n.kebabCase = Yp, n.last = Ta, n.lastIndexOf = ka, n.lowerCase = Qp, n.lowerFirst = Xp, n.lt = Op, n.lte = Rp, n.max = Zl, n.maxBy = Jl, n.mean = ec, n.meanBy = tc, n.min = nc, n.minBy = rc, n.stubArray = Gl, n.stubFalse = Vl, n.stubObject = ql, n.stubString = Kl, n.stubTrue = Yl, n.multiply = md, n.nth = Ea, n.noConflict = Ul, n.noop = Wl, n.now = lp, n.pad = dl, n.padEnd = hl, n.padStart = vl, n.parseInt = ml, n.random = sl, n.reduce = bs, n.reduceRight = ws, n.repeat = gl, n.replace = yl, n.result = Xu, n.round = gd, n.runInContext = e, n.sample = Ss, n.size = ks, n.snakeCase = $p, n.some = Es, n.sortedIndex = ja, n.sortedIndexBy = Na, n.sortedIndexOf = La, n.sortedLastIndex = Da, n.sortedLastIndexBy = za, n.sortedLastIndexOf = Ua, n.startCase = Zp, n.startsWith = bl, n.subtract = yd, n.sum = oc, n.sumBy = ic, n.template = wl, n.times = Ql, n.toFinite = Tu, n.toInteger = ku, n.toLength = Eu, n.toLower = Cl, n.toNumber = Pu, n.toSafeInteger = Ru, n.toString = Iu, n.toUpper = Sl, n.trim = xl, n.trimEnd = Tl, n.trimStart = kl, n.truncate = El, n.unescape = Pl, n.uniqueId = $l, n.upperCase = Jp, n.upperFirst = ed, n.each = vs, n.eachRight = ms, n.first = wa, zl(n, function() {
               var e = {};
               return nr(n, function(t, r) {
                 bc.call(n.prototype, r) || (e[r] = t);
@@ -67973,8 +67962,7 @@ $.fn.togglify = function(settings) {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
-          r.enumerable = r.enumerable || !1, r.configurable = !0,
-            "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
         }
       }
       return function(t, n, r) {
@@ -77472,11 +77460,10 @@ $.fn.togglify = function(settings) {
         r(this, t);
         var e = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this));
         return e.state = {
-            isShowing: !1,
-            tipOpacity: 0,
-            contentsRect: null
-          }, e.delayTimer = null, e.tooltipContent = null,
-          e.setRef = e.setRef.bind(e), e.onMouseEnter = e.onMouseEnter.bind(e), e.onMouseLeave = e.onMouseLeave.bind(e), e.showTip = e.showTip.bind(e), e.hideTip = e.hideTip.bind(e), e.fadeTip = e.fadeTip.bind(e), e.measureContents = e.measureContents.bind(e), e;
+          isShowing: !1,
+          tipOpacity: 0,
+          contentsRect: null
+        }, e.delayTimer = null, e.tooltipContent = null, e.setRef = e.setRef.bind(e), e.onMouseEnter = e.onMouseEnter.bind(e), e.onMouseLeave = e.onMouseLeave.bind(e), e.showTip = e.showTip.bind(e), e.hideTip = e.hideTip.bind(e), e.fadeTip = e.fadeTip.bind(e), e.measureContents = e.measureContents.bind(e), e;
       }
       return i(t, e), g(t, [{
         key: "setRef",
@@ -78938,7 +78925,8 @@ $.fn.togglify = function(settings) {
         return n.bind.call(n, e, function() {}, t);
       }, _.prototype.trigger = function(e, t) {
         var n = this;
-        return n._directMap[e + ":" + t] && n._directMap[e + ":" + t]({}, e), n;
+        return n._directMap[e + ":" + t] && n._directMap[e + ":" + t]({}, e),
+          n;
       }, _.prototype.reset = function() {
         var e = this;
         return e._callbacks = {}, e._directMap = {}, e;
@@ -80334,7 +80322,8 @@ $.fn.togglify = function(settings) {
       if (e.useCreateElement) {
         var u = n._ownerDocument,
           l = u.createComment(s);
-        return i.precacheNode(this, l), o(l);
+        return i.precacheNode(this, l),
+          o(l);
       }
       return e.renderToStaticMarkup ? "" : "<!--" + s + "-->";
     },
