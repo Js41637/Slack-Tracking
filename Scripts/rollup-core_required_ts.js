@@ -2443,7 +2443,7 @@
   var _maybeSetup = function() {
     if (_is_setup) return;
     _is_dev = location.host.match(/^([^.]+\.)?(?:enterprise\.)?(dev[0-9]*)\.slack\.com/);
-    var locale = location.search.match(new RegExp("locale=(.*?)($|&)", "i"));
+    var locale = location.search.match(new RegExp("\\?locale=(.*?)($|&)", "i"));
     if (locale) _locale = locale[1];
     if (!_locale) {
       _locale = document.documentElement.getAttribute("data-locale") || TS.i18n.DEFAULT_LOCALE;

@@ -50574,6 +50574,9 @@ $.fn.togglify = function(settings) {
         name: "seen_threads_notification_banner",
         value: true
       });
+      var is_confirmation_banner = $banner.hasClass("show_confirmation");
+      var clog_event = is_confirmation_banner ? "THREADS_EVERYTHING_EXP_CLOSE_CONFIRMATION" : "THREADS_EVERYTHING_EXP_CLOSE_PROMPT";
+      TS.clog.track(clog_event);
     });
     TS.click.addClientHandler("#thread_notification_banner_pref_link", function(e) {
       e.preventDefault();
@@ -58744,7 +58747,7 @@ $.fn.togglify = function(settings) {
       if (!_canShareToOtherChannels()) {
         copy_link_tooltip = TS.i18n.t("Copy a link to this message.<br>It’s private, so sharing is limited.", "share_message")();
         warning = TS.templates.share_message_dialog_warning({
-          from_private_channel: model_ob.is_group && !model_ob.is_mpim
+          from_private_channel: (model_ob.is_private || model_ob.is_group) && !model_ob.is_mpim
         });
         warning = new Handlebars.SafeString(warning);
       }
@@ -58852,7 +58855,7 @@ $.fn.togglify = function(settings) {
     });
   };
   var _canShareToOtherChannels = function() {
-    return _model_ob.is_channel;
+    return _model_ob.is_channel && !_model_ob.is_private;
   };
   var _clogMsgSharedClickEvent = function(model_ob_id, msg_ts) {
     if (!model_ob_id || !msg_ts) return;
@@ -62496,7 +62499,8 @@ $.fn.togglify = function(settings) {
 
       function N(e) {
         var t, n, r = {};
-        for (n in e) c(e, n) && (t = H(n), t && (r[t] = e[n]));
+        for (n in e) c(e, n) && (t = H(n),
+          t && (r[t] = e[n]));
         return r;
       }
 
@@ -63782,22 +63786,21 @@ $.fn.togglify = function(settings) {
       };
       var ho = kr;
       J("M", ["MM", 2], "Mo", function() {
-          return this.month() + 1;
-        }), J("MMM", 0, 0, function(e) {
-          return this.localeData().monthsShort(this, e);
-        }), J("MMMM", 0, 0, function(e) {
-          return this.localeData().months(this, e);
-        }), A("month", "M"), z("month", 8),
-        Z("M", Ur), Z("MM", Ur, Nr), Z("MMM", function(e, t) {
-          return t.monthsShortRegex(e);
-        }), Z("MMMM", function(e, t) {
-          return t.monthsRegex(e);
-        }), re(["M", "MM"], function(e, t) {
-          t[oo] = w(e) - 1;
-        }), re(["MMM", "MMMM"], function(e, t, n, r) {
-          var o = n._locale.monthsParse(e, r, n._strict);
-          null != o ? t[oo] = o : p(n).invalidMonth = e;
-        });
+        return this.month() + 1;
+      }), J("MMM", 0, 0, function(e) {
+        return this.localeData().monthsShort(this, e);
+      }), J("MMMM", 0, 0, function(e) {
+        return this.localeData().months(this, e);
+      }), A("month", "M"), z("month", 8), Z("M", Ur), Z("MM", Ur, Nr), Z("MMM", function(e, t) {
+        return t.monthsShortRegex(e);
+      }), Z("MMMM", function(e, t) {
+        return t.monthsRegex(e);
+      }), re(["M", "MM"], function(e, t) {
+        t[oo] = w(e) - 1;
+      }), re(["MMM", "MMMM"], function(e, t, n, r) {
+        var o = n._locale.monthsParse(e, r, n._strict);
+        null != o ? t[oo] = o : p(n).invalidMonth = e;
+      });
       var po = /D[oD]?(\[[^\[\]]*\]|\s)+MMMM?/,
         _o = "January_February_March_April_May_June_July_August_September_October_November_December".split("_"),
         mo = "Jan_Feb_Mar_Apr_May_Jun_Jul_Aug_Sep_Oct_Nov_Dec".split("_"),
@@ -68934,8 +68937,7 @@ $.fn.togglify = function(settings) {
           }
           return e.apply(this, arguments);
         };
-        return t[s] = e[s],
-          t;
+        return t[s] = e[s], t;
       }(d) : _ && "function" == typeof d ? i(Function.call, d) : d, _ && ((y.virtual || (y.virtual = {}))[l] = d, e & u.R && g && !g[l] && a(g, l, d)));
     };
   u.F = 1, u.G = 2, u.S = 4, u.P = 8, u.B = 16, u.W = 32, u.U = 64, u.R = 128, e.exports = u;
@@ -70538,8 +70540,7 @@ $.fn.togglify = function(settings) {
     if (Array.isArray(n))
       for (var o = 0; o < n.length && !e.isPropagationStopped(); o++) a(e, t, n[o], r[o]);
     else n && a(e, t, n, r);
-    e._dispatchListeners = null,
-      e._dispatchInstances = null;
+    e._dispatchListeners = null, e._dispatchInstances = null;
   }
 
   function u(e) {
@@ -87926,8 +87927,7 @@ $.fn.togglify = function(settings) {
   "use strict";
 
   function r(e) {
-    return a ? void 0 : i(!1), f.hasOwnProperty(e) || (e = "*"), s.hasOwnProperty(e) || ("*" === e ? a.innerHTML = "<link />" : a.innerHTML = "<" + e + "></" + e + ">", s[e] = !a.firstChild),
-      s[e] ? f[e] : null;
+    return a ? void 0 : i(!1), f.hasOwnProperty(e) || (e = "*"), s.hasOwnProperty(e) || ("*" === e ? a.innerHTML = "<link />" : a.innerHTML = "<" + e + "></" + e + ">", s[e] = !a.firstChild), s[e] ? f[e] : null;
   }
   var o = n(15),
     i = n(2),
@@ -92669,14 +92669,14 @@ $.fn.togglify = function(settings) {
             u = s.scrollLeft,
             l = s.scrollPositionChangeReason,
             c = s.scrollTop;
-          l === L.REQUESTED && (u >= 0 && u !== t.scrollLeft && u !== this._scrollingContainer.scrollLeft && (this._scrollingContainer.scrollLeft = u), c >= 0 && c !== t.scrollTop && c !== this._scrollingContainer.scrollTop && (this._scrollingContainer.scrollTop = c)), r === e.height && o === e.scrollToAlignment && i === e.scrollToCell && a === e.width || this._updateScrollPositionForScrollToCell(), this._invokeOnSectionRenderedHelper();
+          l === L.REQUESTED && (u >= 0 && u !== t.scrollLeft && u !== this._scrollingContainer.scrollLeft && (this._scrollingContainer.scrollLeft = u), c >= 0 && c !== t.scrollTop && c !== this._scrollingContainer.scrollTop && (this._scrollingContainer.scrollTop = c)),
+            r === e.height && o === e.scrollToAlignment && i === e.scrollToCell && a === e.width || this._updateScrollPositionForScrollToCell(), this._invokeOnSectionRenderedHelper();
         }
       }, {
         key: "componentWillMount",
         value: function() {
           var e = this.props.cellLayoutManager;
-          e.calculateSizeAndPositionData(), this._scrollbarSize = b()(),
-            void 0 === this._scrollbarSize ? (this._scrollbarSizeMeasured = !1, this._scrollbarSize = 0) : this._scrollbarSizeMeasured = !0;
+          e.calculateSizeAndPositionData(), this._scrollbarSize = b()(), void 0 === this._scrollbarSize ? (this._scrollbarSizeMeasured = !1, this._scrollbarSize = 0) : this._scrollbarSizeMeasured = !0;
         }
       }, {
         key: "componentWillUnmount",
