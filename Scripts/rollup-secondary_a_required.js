@@ -15937,6 +15937,7 @@ TS.registerModule("constants", {
       highlight_attachments: 1,
       active_cid: TS.model.active_cid,
       top_results: 1,
+      experts: 1,
       locale: TS.i18n.localeOrPseudo()
     };
     if (method === "search.all") args.no_posts = 1;
