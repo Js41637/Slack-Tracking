@@ -1474,9 +1474,7 @@
         TS.bots.maybeStoreBots(true);
       }
       TS.model.makeYouRegex();
-      if (first_time || true) {
-        TS.prefs.setHighlightWords(TS.model.prefs.highlight_words);
-      }
+      TS.prefs.setHighlightWords(TS.model.prefs.highlight_words);
       if (data.subteams) {
         TS.user_groups.startBatchUpsert();
         data.subteams.all.forEach(function(user_group) {
