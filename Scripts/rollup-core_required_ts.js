@@ -116,7 +116,7 @@
       }
       bits = _.filter(bits, function(bit) {
         if (bit.indexOf("Error") === 0) return false;
-        return bit.trim().length && bit.indexOf("logStackTrace") === -1;
+        return bit.trim().length && bit.indexOf("StackTrace") === -1;
       });
       bits = _.map(bits, function(bit) {
         return bit.trim();
