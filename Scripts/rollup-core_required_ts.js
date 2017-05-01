@@ -2448,7 +2448,6 @@
     }
     if (_locale === "pseudo") {
       _is_pseudo = true;
-      _locale = "fr-FR";
     }
     if (Intl.Collator) {
       _collator = Intl.Collator(_locale);
@@ -3197,6 +3196,15 @@ var _cyrillicToLatin = function(char) {
         return;
       }
       return view;
+    },
+    isMac: function() {
+      return TS.model.is_mac;
+    },
+    getUserModel: function() {
+      return TS.model.user;
+    },
+    getUserPrefs: function() {
+      return TS.model.prefs;
     }
   });
   _.merge(TS.model, _sniffUserAgent(navigator.userAgent));
