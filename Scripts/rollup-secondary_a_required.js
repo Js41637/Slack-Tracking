@@ -4186,6 +4186,9 @@
       }
       TS.generic_dialog.alert(alert_text);
     },
+    getChannelsFilteredBy: function(filter) {
+      return TS.shared.getEntitiesFilteredBy("channels", filter);
+    },
     getChannelById: function(id) {
       if (!id) return null;
       if (TS.useRedux()) {
@@ -4209,9 +4212,10 @@
     },
     getFirstChannelYouAreIn: function() {
       var channels = TS.model.channels;
-      var channel;
       if (!channels) return null;
-      for (var i = 0; i < channels.length; i += 1) {
+      var channels_length = channels.length;
+      var channel;
+      for (var i = 0; i < channels_length; i += 1) {
         channel = channels[i];
         if (channel.is_member) return channel;
       }
@@ -4219,8 +4223,9 @@
     },
     getGeneralChannel: function() {
       var channels = TS.model.channels;
+      var channels_length = channels.length;
       var channel;
-      for (var i = 0; i < channels.length; i += 1) {
+      for (var i = 0; i < channels_length; i += 1) {
         channel = channels[i];
         if (channel.is_general) return channel;
       }
@@ -5826,6 +5831,9 @@ TS.registerModule("constants", {
         TS.channels.alertSetPurposeError(data.error);
       }
     },
+    getGroupsFilteredBy: function(filter) {
+      return TS.shared.getEntitiesFilteredBy("groups", filter);
+    },
     getGroupById: function(id) {
       if (!id) return null;
       if (TS.useRedux()) {
@@ -7286,32 +7294,36 @@ TS.registerModule("constants", {
       var file = TS.files.getFileById(file_id);
       if (file) file.is_deleted = true;
       var channels = TS.model.channels;
+      var channels_length = channels.length;
       var channel;
-      for (i = 0; i < channels.length; i += 1) {
+      for (i = 0; i < channels_length; i += 1) {
         channel = channels[i];
         if (file) TS.utility.msgs.removeFileSharesAndMentions(channel, file);
         if (file) TS.utility.msgs.removeFileComments(channel, file);
         TS.utility.msgs.removeFileReferences(channel, file_id);
       }
       var groups = TS.model.groups;
+      var groups_length = groups.length;
       var group;
-      for (i = 0; i < groups.length; i += 1) {
+      for (i = 0; i < groups_length; i += 1) {
         group = groups[i];
         if (file) TS.utility.msgs.removeFileSharesAndMentions(group, file);
         if (file) TS.utility.msgs.removeFileComments(group, file);
         TS.utility.msgs.removeFileReferences(group, file_id);
       }
       var ims = TS.model.ims;
+      var ims_length = ims.length;
       var im;
-      for (i = 0; i < ims.length; i += 1) {
+      for (i = 0; i < ims_length; i += 1) {
         im = ims[i];
         if (file) TS.utility.msgs.removeFileSharesAndMentions(im, file);
         if (file) TS.utility.msgs.removeFileComments(im, file);
         TS.utility.msgs.removeFileReferences(im, file_id);
       }
       var mpims = TS.model.mpims;
+      var mpims_length = mpims.length;
       var mpim;
-      for (i = 0; i < mpims.length; i += 1) {
+      for (i = 0; i < mpims_length; i += 1) {
         mpim = mpims[i];
         if (file) TS.utility.msgs.removeFileSharesAndMentions(mpim, file);
         if (file) TS.utility.msgs.removeFileComments(mpim, file);
@@ -8279,6 +8291,9 @@ TS.registerModule("constants", {
       }
       if (!ok) im.needs_api_marking = true;
     },
+    getImsFilteredBy: function(filter) {
+      return TS.shared.getEntitiesFilteredBy("ims", filter);
+    },
     getImById: function(id) {
       if (!id) return null;
       if (TS.useRedux()) {
@@ -8807,6 +8822,9 @@ TS.registerModule("constants", {
         return;
       }
       if (!ok) mpim.needs_api_marking = true;
+    },
+    getMpimsFilteredBy: function(filter) {
+      return TS.shared.getEntitiesFilteredBy("mpims", filter);
     },
     getMpimById: function(id) {
       if (!id) return null;
@@ -10114,6 +10132,13 @@ TS.registerModule("constants", {
       }
       TS.warn("getDisplayNameForModelOb: unknown model_ob type: " + model_ob.id);
       return model_ob.id;
+    },
+    getEntitiesFilteredBy: function(type, filter) {
+      if (!type) return [];
+      if (!filter) {
+        return TS.model[type];
+      }
+      return _.filter(TS.model[type], filter);
     },
     getModelObById: function(id) {
       if (!id) return null;
@@ -14601,13 +14626,17 @@ TS.registerModule("constants", {
         if (!model_ob.unread_cnt) continue;
         model_ob._show_in_list_even_though_no_unreads = true;
       }
-      for (i = 0; i < TS.model.channels.length; i += 1) {
-        model_ob = TS.model.channels[i];
+      var channels = TS.model.channels;
+      var channels_length = channels.length;
+      for (i = 0; i < channels_length; i += 1) {
+        model_ob = channels[i];
         if (TS.notifs.isCorGMuted(model_ob.id)) continue;
         model_ob._show_in_list_even_though_no_unreads = false;
       }
-      for (i = 0; i < TS.model.groups.length; i += 1) {
-        model_ob = TS.model.groups[i];
+      var groups = TS.model.groups;
+      var groups_length = groups.length;
+      for (i = 0; i < groups_length; i += 1) {
+        model_ob = groups[i];
         if (TS.notifs.isCorGMuted(model_ob.id)) continue;
         model_ob._show_in_list_even_though_no_unreads = false;
       }
@@ -27898,7 +27927,8 @@ var _profiling = {
       var unread;
       var highlight;
       var channels = TS.channels.getChannelsForUser();
-      for (i = 0; i < channels.length; i += 1) {
+      var channels_length = channels.length;
+      for (i = 0; i < channels_length; i += 1) {
         channel = channels[i];
         if (channel.is_archived && !channel.was_archived_this_session || TS.notifs.isCorGMuted(channel.id)) continue;
         unread = parseInt(channel.unread_cnt, 10) || 0;
@@ -27907,8 +27937,10 @@ var _profiling = {
         TS.model.all_unread_highlights_cnt += highlight;
         TS.utility.msgs.maybeExcludeUnreads(channel, unread, highlight);
       }
-      for (i = 0; i < TS.model.groups.length; i += 1) {
-        group = TS.model.groups[i];
+      var groups = TS.model.groups;
+      var groups_length = groups.length;
+      for (i = 0; i < groups_length; i += 1) {
+        group = groups[i];
         if (group.is_archived && !group.was_archived_this_session || TS.notifs.isCorGMuted(group.id)) continue;
         unread = parseInt(group.unread_cnt, 10) || 0;
         highlight = parseInt(group.unread_highlight_cnt, 10) || 0;
@@ -27916,16 +27948,20 @@ var _profiling = {
         TS.model.all_unread_highlights_cnt += highlight;
         TS.utility.msgs.maybeExcludeUnreads(group, unread, highlight);
       }
-      for (i = 0; i < TS.model.ims.length; i += 1) {
-        im = TS.model.ims[i];
+      var ims = TS.model.ims;
+      var ims_length = ims.length;
+      for (i = 0; i < ims_length; i += 1) {
+        im = ims[i];
         unread = parseInt(im.unread_cnt, 10) || 0;
         highlight = parseInt(im.unread_cnt, 10) || 0;
         TS.model.all_unread_cnt += unread;
         TS.model.all_unread_highlights_cnt += highlight;
         TS.utility.msgs.maybeExcludeUnreads(im, unread, highlight);
       }
-      for (i = 0; i < TS.model.mpims.length; i += 1) {
-        mpim = TS.model.mpims[i];
+      var mpims = TS.model.mpims;
+      var mpims_length = mpims.length;
+      for (i = 0; i < mpims_length; i += 1) {
+        mpim = mpims[i];
         unread = parseInt(mpim.unread_cnt, 10) || 0;
         highlight = parseInt(mpim.unread_cnt, 10) || 0;
         TS.model.all_unread_cnt += unread;
@@ -28005,27 +28041,34 @@ var _profiling = {
       var channel;
       var group;
       var channels = TS.channels.getChannelsForUser();
+      var channels_length = channels.length;
       var defer_api_check = true;
       TS.utility.msgs.startBatchUnreadCalc();
-      for (i = 0; i < channels.length; i += 1) {
+      for (i = 0; i < channels_length; i += 1) {
         channel = channels[i];
         if (channel.is_archived && !channel.was_archived_this_session) continue;
         if (defer_api_check && channel._did_defer_initial_msg_history) delete channel._did_defer_initial_msg_history;
         TS.channels.calcUnreadCnts(channel);
       }
-      for (i = 0; i < TS.model.groups.length; i += 1) {
-        group = TS.model.groups[i];
+      var groups = TS.model.groups;
+      var groups_length = groups.length;
+      for (i = 0; i < groups_length; i += 1) {
+        group = groups[i];
         if (group.is_archived && !group.was_archived_this_session) continue;
         if (defer_api_check && group._did_defer_initial_msg_history) delete group._did_defer_initial_msg_history;
         TS.groups.calcUnreadCnts(group);
       }
-      for (i = 0; i < TS.model.ims.length; i += 1) {
-        im = TS.model.ims[i];
+      var ims = TS.model.ims;
+      var ims_length = ims.length;
+      for (i = 0; i < ims_length; i += 1) {
+        im = ims[i];
         if (defer_api_check && im._did_defer_initial_msg_history) delete im._did_defer_initial_msg_history;
         TS.ims.calcUnreadCnts(im);
       }
-      for (i = 0; i < TS.model.mpims.length; i += 1) {
-        mpim = TS.model.mpims[i];
+      var mpims = TS.model.mpims;
+      var mpims_length = mpims.length;
+      for (i = 0; i < mpims_length; i += 1) {
+        mpim = mpims[i];
         if (defer_api_check && mpim._did_defer_initial_msg_history) delete mpim._did_defer_initial_msg_history;
         TS.mpims.calcUnreadCnts(mpim);
       }
@@ -28040,28 +28083,19 @@ var _profiling = {
       TS.utility.msgs.countAllUnreads();
     },
     whatisunread: function() {
-      var i;
-      var im;
-      var mpim;
-      var channel;
-      var group;
       var A = [];
-      for (i = 0; i < TS.model.channels.length; i += 1) {
-        channel = TS.model.channels[i];
-        if (channel.unread_cnt) A.push("C:" + channel.name + " " + channel.unread_cnt);
-      }
-      for (i = 0; i < TS.model.groups.length; i += 1) {
-        group = TS.model.groups[i];
-        if (group.unread_cnt) A.push("G:" + group.name + " " + group.unread_cnt);
-      }
-      for (i = 0; i < TS.model.ims.length; i += 1) {
-        im = TS.model.ims[i];
-        if (im.unread_cnt) A.push("D:" + im.name + " " + im.unread_cnt);
-      }
-      for (i = 0; i < TS.model.mpims.length; i += 1) {
-        mpim = TS.model.mpims[i];
-        if (mpim.unread_cnt) A.push("G:" + mpim.name + " " + mpim.unread_cnt);
-      }
+      TS.channels.getChannelsFilteredBy("unread_cnt").forEach(function(channel) {
+        A.push("C:" + channel.name + " " + channel.unread_cnt);
+      });
+      TS.groups.getGroupsFilteredBy("unread_cnt").forEach(function(group) {
+        A.push("G:" + group.name + " " + group.unread_cnt);
+      });
+      TS.ims.getImsFilteredBy("unread_cnt").forEach(function(im) {
+        A.push("D:" + im.name + " " + im.unread_cnt);
+      });
+      TS.mpims.getMpimsFilteredBy("unread_cnt").forEach(function(mpim) {
+        A.push("G:" + mpim.name + " " + mpim.unread_cnt);
+      });
       TS.info("unreads: " + A.join(","));
     },
     maybeSetOldestMsgsTsAfterMsgAdded: function(model_ob) {
@@ -36339,20 +36373,18 @@ var _on_esc;
           _render();
         }
       });
-      if (window.localStorage.show_debug_widget) {
-        TS.debug_widget.toggle();
-      }
+      if (window.localStorage && window.localStorage.show_debug_widget) TS.debug_widget.toggle();
     },
     toggle: function() {
       if (!TS.client || !_$widget) return;
       _$widget.toggleClass("hidden");
       if (_$widget.hasClass("hidden")) {
         _is_visible = false;
-        delete window.localStorage.show_debug_widget;
+        if (window.localStorage) delete window.localStorage.show_debug_widget;
         _$widget.empty();
       } else {
         _is_visible = true;
-        window.localStorage.show_debug_widget = 1;
+        if (window.localStorage) window.localStorage.show_debug_widget = 1;
         _render();
       }
     },
@@ -59928,7 +59960,7 @@ $.fn.togglify = function(settings) {
       }
     },
     maybeGetUpdatedAtTime: function(ts) {
-      return ts ? TS.utility.date.formatDate("{time}", ts * 1e3) : null;
+      return ts ? TS.utility.date.toTimeAgo(ts) : null;
     }
   });
 })();
@@ -62500,8 +62532,7 @@ $.fn.togglify = function(settings) {
 
       function N(e) {
         var t, n, r = {};
-        for (n in e) c(e, n) && (t = H(n),
-          t && (r[t] = e[n]));
+        for (n in e) c(e, n) && (t = H(n), t && (r[t] = e[n]));
         return r;
       }
 
@@ -68863,7 +68894,8 @@ $.fn.togglify = function(settings) {
       r = function() {};
     r.prototype = n.prototype;
     var a = new r;
-    o(a, e.prototype), e.prototype = a, e.prototype.constructor = e, e.Interface = o({}, n.Interface, t), e.augmentClass = n.augmentClass, i.addPoolingTo(e, i.fourArgumentPooler);
+    o(a, e.prototype),
+      e.prototype = a, e.prototype.constructor = e, e.Interface = o({}, n.Interface, t), e.augmentClass = n.augmentClass, i.addPoolingTo(e, i.fourArgumentPooler);
   }, i.addPoolingTo(r, i.fourArgumentPooler), e.exports = r;
 }, function(e, t, n) {
   "use strict";
@@ -92670,8 +92702,7 @@ $.fn.togglify = function(settings) {
             u = s.scrollLeft,
             l = s.scrollPositionChangeReason,
             c = s.scrollTop;
-          l === L.REQUESTED && (u >= 0 && u !== t.scrollLeft && u !== this._scrollingContainer.scrollLeft && (this._scrollingContainer.scrollLeft = u), c >= 0 && c !== t.scrollTop && c !== this._scrollingContainer.scrollTop && (this._scrollingContainer.scrollTop = c)),
-            r === e.height && o === e.scrollToAlignment && i === e.scrollToCell && a === e.width || this._updateScrollPositionForScrollToCell(), this._invokeOnSectionRenderedHelper();
+          l === L.REQUESTED && (u >= 0 && u !== t.scrollLeft && u !== this._scrollingContainer.scrollLeft && (this._scrollingContainer.scrollLeft = u), c >= 0 && c !== t.scrollTop && c !== this._scrollingContainer.scrollTop && (this._scrollingContainer.scrollTop = c)), r === e.height && o === e.scrollToAlignment && i === e.scrollToCell && a === e.width || this._updateScrollPositionForScrollToCell(), this._invokeOnSectionRenderedHelper();
         }
       }, {
         key: "componentWillMount",
