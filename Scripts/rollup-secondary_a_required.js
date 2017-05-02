@@ -22628,17 +22628,19 @@ var _profiling = {
       }
       return "";
     },
-    makeLinksFromChannelOrGroupIds: function(channel_or_group_ids) {
+    makeLinksFromChannelOrGroupIds: function(channel_or_group_ids, options) {
+      options = options || {};
       channel_or_group_ids = TS.utility.parseJSONOrElse(channel_or_group_ids, channel_or_group_ids);
       channel_or_group_ids = _.isArray(channel_or_group_ids) ? channel_or_group_ids : [channel_or_group_ids];
       var private_channel_or_group_count = 0;
+      var additional_class_names = options.new_lines ? " block" : "";
       var channel_or_group_nodes = channel_or_group_ids.map(function(channel_or_group_id) {
         return TS.channels.getChannelById(channel_or_group_id) || TS.groups.getGroupById(channel_or_group_id);
       }).filter(function(channel_or_group) {
         if (!channel_or_group) private_channel_or_group_count += 1;
         return !!channel_or_group;
       }).map(function(channel_or_group) {
-        var html = '<span class="no_wrap">';
+        var html = '<span class="no_wrap' + additional_class_names + '">';
         html += channel_or_group.is_channel ? TS.templates.builders.makeChannelLink(channel_or_group) : TS.templates.builders.makeGroupLink(channel_or_group);
         html += "</span>";
         return html;
@@ -22647,8 +22649,9 @@ var _profiling = {
         var private_channel_or_group_message = TS.i18n.t("{private_channel_or_group_count, plural, =1{# private channel}other{# private channels}}", "templates_builders")({
           private_channel_or_group_count: private_channel_or_group_count
         });
-        channel_or_group_nodes.push('<span class="no_wrap">' + private_channel_or_group_message + "</span>");
+        channel_or_group_nodes.push('<span class="no_wrap' + additional_class_names + '">' + private_channel_or_group_message + "</span>");
       }
+      if (options.new_lines) return channel_or_group_nodes.join("");
       return TS.i18n.listify(channel_or_group_nodes, {
         no_escape: true
       }).join("");
@@ -24866,7 +24869,9 @@ var _profiling = {
         return TS.templates.makeChannelDomId(channel);
       });
       Handlebars.registerHelper("makeLinksFromChannelOrGroupIds", function(channel_or_group_ids) {
-        return new Handlebars.SafeString(TS.templates.builders.makeLinksFromChannelOrGroupIds(channel_or_group_ids));
+        return new Handlebars.SafeString(TS.templates.builders.makeLinksFromChannelOrGroupIds(channel_or_group_ids, {
+          new_lines: true
+        }));
       });
       Handlebars.registerHelper("makeChannelDragData", function(channel) {
         return TS.templates.makeChannelDragData(channel);
