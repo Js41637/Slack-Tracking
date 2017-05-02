@@ -2424,6 +2424,38 @@
     start_of_the_week: {
       "en-US": 0
     },
+    number_abbreviations: {
+      "de-DE": {
+        12: "Bio.",
+        9: "Mrd.",
+        6: "Mio.",
+        3: "Tsd."
+      },
+      "es-ES": {
+        12: "Bill",
+        9: "Mrd",
+        6: "Mill",
+        3: "Mil"
+      },
+      "fr-FR": {
+        12: "T",
+        9: "iG",
+        6: "M",
+        3: "k"
+      },
+      "ja-JP": {
+        12: "兆",
+        9: "億",
+        6: "万",
+        3: "千"
+      },
+      "en-US": {
+        12: "T",
+        9: "B",
+        6: "M",
+        3: "K"
+      }
+    },
     test: {
       setLocale: function(locale) {
         _locale = locale;

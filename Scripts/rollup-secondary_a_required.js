@@ -3980,7 +3980,6 @@
         if (channel.is_member && (channel.msgs && channel.msgs.length || !channel._latest_via_users_counts)) TS.warn('no valid tses for channel "' + channel.id + '"???');
         return;
       }
-      TS.utility.msgs.maybeClearUsersCountsMentionCountDisplay(channel);
       channel.all_read_this_session_once = true;
       TS.channels.markReadMsg(channel.id, most_recent_valid_ts, reason);
     },
@@ -4898,7 +4897,8 @@
           TS.log(1989, "Channel member counts from flannel (" + model_ob.id + "): " + JSON.stringify(counts));
           return {
             member_count: counts.members,
-            restricted_member_count: counts.guests
+            restricted_member_count: counts.guests,
+            teams_member_count: counts.external_teams || {}
           };
         }).finally(function() {
           _membership_counts_api_promises[model_ob.id] = null;
@@ -4918,7 +4918,8 @@
         TS.log(1989, "Channel member counts (" + model_ob.id + "): " + JSON.stringify(counts));
         return {
           member_count: counts.display_counts,
-          restricted_member_count: counts.guest_counts
+          restricted_member_count: counts.guest_counts,
+          teams_member_count: {}
         };
       }).finally(function() {
         _membership_counts_api_promises[model_ob.id] = null;
@@ -5643,7 +5644,6 @@ TS.registerModule("constants", {
         if (group.msgs && group.msgs.length || !group._latest_via_users_counts) TS.warn('no valid tses for group "' + group.id + '"???');
         return;
       }
-      TS.utility.msgs.maybeClearUsersCountsMentionCountDisplay(group);
       group.all_read_this_session_once = true;
       TS.groups.markReadMsg(group.id, most_recent_valid_ts, reason);
     },
@@ -8249,7 +8249,6 @@ TS.registerModule("constants", {
         if (im.msgs && im.msgs.length || !im._latest_via_users_counts) TS.warn('no valid tses for im "' + im.id + '"???');
         return;
       }
-      TS.utility.msgs.maybeClearUsersCountsMentionCountDisplay(im);
       im.all_read_this_session_once = true;
       TS.ims.markReadMsg(im.id, most_recent_valid_ts, reason);
     },
@@ -8781,7 +8780,6 @@ TS.registerModule("constants", {
         if (mpim.msgs && mpim.msgs.length || !mpim._latest_via_users_counts) TS.warn('no valid tses for mpim "' + mpim.id + '"???');
         return;
       }
-      TS.utility.msgs.maybeClearUsersCountsMentionCountDisplay(mpim);
       mpim.all_read_this_session_once = true;
       TS.mpims.markReadMsg(mpim.id, most_recent_valid_ts, reason);
     },
@@ -9385,10 +9383,6 @@ TS.registerModule("constants", {
         if (model_ob.unread_cnt) model_ob._show_in_list_even_though_no_unreads = true;
       }
       model_ob.unread_highlight_cnt = model_ob.unread_highlights.length;
-      if (TS.boot_data.feature_wait_for_all_mentions_in_client) {
-        model_ob.unread_highlight_cnt_in_client = parseInt(model_ob.unread_highlight_cnt, 10);
-        if (TS.model.prefs && TS.model.prefs.mark_msgs_read_immediately && model_ob._mention_count_display_via_users_counts) model_ob.unread_highlight_cnt = Math.max(model_ob.unread_highlight_cnt_in_client, model_ob._mention_count_display_via_users_counts || 0);
-      }
       TS.shared.maybeMarkReadIfMuted(model_ob, controller);
       TS.utility.msgs.countAllUnreads();
       if (was_cnt != model_ob.unread_cnt) {
@@ -16175,6 +16169,9 @@ TS.registerModule("constants", {
         TS.console.logStackTrace("TS.ms.sendMsg(...)");
         throw err;
       }
+      if (TS.client && TS.client.stats.isEnabled() && msg.type === "message") {
+        TS.metrics.mark("user_send_message_" + _msg_id);
+      }
       _websocket.send(data);
       return msg.id;
     },
@@ -17145,6 +17142,9 @@ TS.registerModule("constants", {
     if (!imsg.reply_to) return;
     var sent = TS.ms.sent_map[imsg.reply_to];
     if (!sent) return;
+    if (TS.client && TS.client.stats.isEnabled() && sent.msg && sent.msg.type === "message") {
+      TS.metrics.measureAndClear("message_server_reply", "user_send_message_" + imsg.reply_to);
+    }
     imsg.SENT_MSG = sent.msg;
     delete TS.ms.sent_map[imsg.reply_to];
     return sent;
@@ -29113,17 +29113,9 @@ var _profiling = {
     },
     maybeClearUsersCountsInfo: function(model_ob) {
       if (!model_ob) return;
-      if (model_ob.last_read >= model_ob.latest) TS.utility.msgs.maybeClearUsersCountsMentionCountDisplay(model_ob);
       if (!model_ob._users_counts_info) return;
       if (TS.pri) TS.log(888, "Deleting _users_counts_info on " + model_ob.id);
       delete model_ob._users_counts_info;
-    },
-    maybeClearUsersCountsMentionCountDisplay: function(model_ob) {
-      if (!model_ob || !TS.boot_data.feature_wait_for_all_mentions_in_client) return;
-      if (model_ob._mention_count_display_via_users_counts) {
-        if (TS.pri) TS.log(888, "deleting _mention_count_display_via_users_counts on " + model_ob.id);
-        delete model_ob._mention_count_display_via_users_counts;
-      }
     },
     isMsgReply: function(msg) {
       if (!msg) return false;
@@ -49177,7 +49169,9 @@ $.fn.togglify = function(settings) {
   var _ensureDndTimesForMemberIds = function(member_ids, force) {
     if (!member_ids || !member_ids.length) return Promise.resolve();
     var members = _.map(member_ids, TS.members.getMemberById);
-    members = _.reject(members, "is_bot");
+    members = _.filter(members, function(m) {
+      return m && !m.is_bot && !m.deleted;
+    });
     if (!force) {
       members = _.filter(members, function(m) {
         return !_requested_member_ids[m.id] && !TS.model.dnd.team[m.id];
@@ -49201,12 +49195,16 @@ $.fn.togglify = function(settings) {
         });
         TS.dnd.checkForChanges();
       }
+      var missing_members = 0;
       _.forEach(member_ids, function(id) {
         if (!TS.model.dnd.team[id]) {
           _log("dnd lookup failed for " + id);
-          TS.metrics.count("dnd_lookup_failed");
+          missing_members += 1;
         }
       });
+      if (missing_members) TS.metrics.count("dnd_lookup_failed", missing_members);
+    }).catch(function() {
+      TS.metrics.count("dnd_lookup_request_failed");
     }).finally(function() {
       _.forEach(member_ids, function(id) {
         delete _requested_member_ids[id];
@@ -60021,6 +60019,32 @@ $.fn.togglify = function(settings) {
     },
     maybeGetUpdatedAtTime: function(ts) {
       return ts ? TS.utility.date.toTimeAgo(ts) : null;
+    },
+    getObjectsForIds: function(objects, ids) {
+      if (_.isEmpty(objects) || _.isEmpty(ids)) return [];
+      return _.intersectionWith(objects, ids, function(object, id) {
+        return object.id === id;
+      });
+    },
+    getQueryForIds: function(ids) {
+      if (_.isEmpty(ids)) return;
+      if (ids.length === 1) return {
+        query: {
+          type: "id",
+          value: _.head(ids)
+        }
+      };
+      return {
+        query: {
+          type: "or",
+          clauses: _.map(ids, function(id) {
+            return {
+              type: "id",
+              value: id
+            };
+          })
+        }
+      };
     }
   });
 })();
@@ -62467,9 +62491,9 @@ $.fn.togglify = function(settings) {
 
         function y(e, t) {
           var n, r, o;
-          if (m(t._isAMomentObject) || (e._isAMomentObject = t._isAMomentObject), m(t._i) || (e._i = t._i), m(t._f) || (e._f = t._f), m(t._l) || (e._l = t._l),
-            m(t._strict) || (e._strict = t._strict), m(t._tzm) || (e._tzm = t._tzm), m(t._isUTC) || (e._isUTC = t._isUTC), m(t._offset) || (e._offset = t._offset), m(t._pf) || (e._pf = h(t)), m(t._locale) || (e._locale = t._locale), gr.length > 0)
-            for (n in gr) r = gr[n], o = t[r], m(o) || (e[r] = o);
+          if (m(t._isAMomentObject) || (e._isAMomentObject = t._isAMomentObject), m(t._i) || (e._i = t._i), m(t._f) || (e._f = t._f), m(t._l) || (e._l = t._l), m(t._strict) || (e._strict = t._strict), m(t._tzm) || (e._tzm = t._tzm), m(t._isUTC) || (e._isUTC = t._isUTC), m(t._offset) || (e._offset = t._offset), m(t._pf) || (e._pf = h(t)), m(t._locale) || (e._locale = t._locale), gr.length > 0)
+            for (n in gr) r = gr[n],
+              o = t[r], m(o) || (e[r] = o);
           return e;
         }
 
@@ -78442,7 +78466,8 @@ $.fn.togglify = function(settings) {
           return e < 2 ? " யாமம்" : e < 6 ? " வைகறை" : e < 10 ? " காலை" : e < 14 ? " நண்பகல்" : e < 18 ? " எற்பாடு" : e < 22 ? " மாலை" : " யாமம்";
         },
         meridiemHour: function(e, t) {
-          return 12 === e && (e = 0), "யாமம்" === t ? e < 2 ? e : e + 12 : "வைகறை" === t || "காலை" === t ? e : "நண்பகல்" === t && e >= 10 ? e : e + 12;
+          return 12 === e && (e = 0),
+            "யாமம்" === t ? e < 2 ? e : e + 12 : "வைகறை" === t || "காலை" === t ? e : "நண்பகல்" === t && e >= 10 ? e : e + 12;
         },
         week: {
           dow: 0,
@@ -82956,8 +82981,7 @@ $.fn.togglify = function(settings) {
     l = n(12),
     c = n.n(l),
     d = n(1),
-    f = (n.n(d),
-      n(298)),
+    f = (n.n(d), n(298)),
     h = n(297),
     p = n(296);
   ((function(e) {
@@ -86205,8 +86229,9 @@ $.fn.togglify = function(settings) {
         r(this, t);
         var n = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
         return n.state = {
-          isOpen: n.props.startsOpen
-        }, n.closePopover = n.closePopover.bind(n), n.onTrigger = n.onTrigger.bind(n), n;
+            isOpen: n.props.startsOpen
+          }, n.closePopover = n.closePopover.bind(n), n.onTrigger = n.onTrigger.bind(n),
+          n;
       }
       return i(t, e), c(t, [{
         key: "onTrigger",
