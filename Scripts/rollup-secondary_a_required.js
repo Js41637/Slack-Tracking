@@ -18868,7 +18868,7 @@ TS.registerModule("constants", {
       if (ensure_profiling_callback) ensure_profiling_callback(is_async);
       return _afterMsgHandled();
     };
-    if (imsg.type === "presence_change") return _afterMsgHandled();
+    if (imsg.type === "presence_change") return proceedWithImsg(imsg);
     var full_type = "type:" + imsg.type + (imsg.subtype ? " subtype:" + imsg.subtype : "");
     var c_ids = TS.utility.extractAllModelObIds(imsg, full_type);
     var m_ids = TS.utility.extractAllMemberIds(imsg, full_type);
@@ -48951,7 +48951,7 @@ $.fn.togglify = function(settings) {
       var members_with_stale_times = [];
       var members_with_updates = [];
       var checkMember = function(member) {
-        if (!member || member.deleted) return false;
+        if (!member || member.deleted) return;
         var was_in_dnd = TS.dnd.isMemberInDnd(member) || false;
         var is_in_dnd = TS.dnd.calculateMemberDndFromTimestamp(member, now);
         if (was_in_dnd != is_in_dnd) {
@@ -49170,27 +49170,38 @@ $.fn.togglify = function(settings) {
     _ensureDndTimesForMemberIds(TS.presence_manager.getSubList());
   };
   var _ensureDndTimesForMemberIds = function(member_ids, force) {
+    if (!member_ids || !member_ids.length) return Promise.resolve();
+    var members = _.map(member_ids, TS.members.getMemberById);
+    members = _.reject(members, "is_bot");
     if (!force) {
-      member_ids = _.filter(member_ids, function(id) {
-        return !_requested_member_ids[id] && !TS.model.dnd.team[id];
+      members = _.filter(members, function(m) {
+        return !_requested_member_ids[m.id] && !TS.model.dnd.team[m.id];
       });
     }
-    if (!member_ids || !member_ids.length) return Promise.resolve();
+    if (!members.length) return Promise.resolve();
+    member_ids = _.map(members, "id");
+    var member_map = _.groupBy(member_ids);
     _.forEach(member_ids, function(id) {
       _requested_member_ids[id] = true;
     });
     _log("_ensureDndTimesForMemberIds requesting " + member_ids.length);
-    if (_record_metrics) TS.metrics.count("dnd_lookup", member_ids.length);
+    if (_record_metrics) TS.metrics.count("dnd_lookup_lazy", member_ids.length);
     return TS.api.call("dnd.teamInfo", {
       users: member_ids.join(",")
     }).then(function(resp) {
       var data = resp.data;
       if (data.users) {
         _.forOwn(data.users, function(props, user_id) {
-          _updateUserDndProps(user_id, props);
+          if (member_map[user_id]) _updateUserDndProps(user_id, props);
         });
         TS.dnd.checkForChanges();
       }
+      _.forEach(member_ids, function(id) {
+        if (!TS.model.dnd.team[id]) {
+          _log("dnd lookup failed for " + id);
+          TS.metrics.count("dnd_lookup_failed");
+        }
+      });
     }).finally(function() {
       _.forEach(member_ids, function(id) {
         delete _requested_member_ids[id];
@@ -49290,7 +49301,10 @@ $.fn.togglify = function(settings) {
   var _fetchUsersInfo = function(members) {
     if (_team_multi_fetch_in_progress) return;
     _team_multi_fetch_in_progress = true;
-    if (_record_metrics) TS.metrics.count("dnd_lookup", members.length);
+    if (_record_metrics) {
+      var lookup_label = TS.dnd.isLazy() ? "dnd_lookup_lazy" : "dnd_lookup";
+      TS.metrics.count(lookup_label, members.length);
+    }
     var member_ids = _.map(members, "id").join(",");
     return TS.api.call("dnd.teamInfo", {
       users: member_ids
@@ -49326,7 +49340,10 @@ $.fn.togglify = function(settings) {
             users: member_ids.join(",")
           };
         }
-        if (_record_metrics) TS.metrics.count("dnd_lookup", member_ids.length);
+        if (_record_metrics) {
+          var lookup_label = TS.dnd.isLazy() ? "dnd_lookup_lazy" : "dnd_lookup";
+          TS.metrics.count(lookup_label, member_ids.length);
+        }
         TS.api.call(api_method, api_args, function(ok, data) {
           if (!ok) {
             if (member_ids.length > 1) {
@@ -55856,7 +55873,10 @@ $.fn.togglify = function(settings) {
       return _utility_call_state.is_reachability_online && _utility_call_state.is_ms_connected;
     },
     isMultiPartyEnabled: function() {
-      return TS.utility.calls.isEnabled() && TS.model.team.plan !== "";
+      return TS.utility.calls.isEnabled() && TS.utility.calls.isPaidTeam();
+    },
+    isPaidTeam: function() {
+      return TS.model.team.plan !== "";
     },
     isCurrentContextMultiParty: function() {
       if (TS.model.active_channel_id || TS.model.active_group_id || TS.model.active_mpim_id) {
@@ -62442,7 +62462,8 @@ $.fn.togglify = function(settings) {
 
         function y(e, t) {
           var n, r, o;
-          if (m(t._isAMomentObject) || (e._isAMomentObject = t._isAMomentObject), m(t._i) || (e._i = t._i), m(t._f) || (e._f = t._f), m(t._l) || (e._l = t._l), m(t._strict) || (e._strict = t._strict), m(t._tzm) || (e._tzm = t._tzm), m(t._isUTC) || (e._isUTC = t._isUTC), m(t._offset) || (e._offset = t._offset), m(t._pf) || (e._pf = h(t)), m(t._locale) || (e._locale = t._locale), gr.length > 0)
+          if (m(t._isAMomentObject) || (e._isAMomentObject = t._isAMomentObject), m(t._i) || (e._i = t._i), m(t._f) || (e._f = t._f), m(t._l) || (e._l = t._l),
+            m(t._strict) || (e._strict = t._strict), m(t._tzm) || (e._tzm = t._tzm), m(t._isUTC) || (e._isUTC = t._isUTC), m(t._offset) || (e._offset = t._offset), m(t._pf) || (e._pf = h(t)), m(t._locale) || (e._locale = t._locale), gr.length > 0)
             for (n in gr) r = gr[n], o = t[r], m(o) || (e[r] = o);
           return e;
         }
@@ -82930,7 +82951,8 @@ $.fn.togglify = function(settings) {
     l = n(12),
     c = n.n(l),
     d = n(1),
-    f = (n.n(d), n(298)),
+    f = (n.n(d),
+      n(298)),
     h = n(297),
     p = n(296);
   ((function(e) {
