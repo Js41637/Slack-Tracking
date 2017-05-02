@@ -12859,7 +12859,7 @@ TS.registerModule("constants", {
               what_changed.push(k);
               status = "CHANGED";
             }
-          } else if (k === "prefs" || k === "icon") {
+          } else if (k === "prefs" || k === "icon" || k === "cannot_leave_reasons") {
             existing_team[k] = team[k];
           } else if (existing_team[k] != team[k]) {
             if (team[k] && !TS.utility.isScalar(team[k])) {
