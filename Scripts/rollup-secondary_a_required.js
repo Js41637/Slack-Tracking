@@ -44191,16 +44191,25 @@ var _on_esc;
       if (TS.model.is_our_app) {
         e.preventDefault();
         e.stopPropagation();
-        var team_id = $(this).data("id");
-        var team = TS.enterprise.getTeamById(team_id);
-        var params = {
-          name: TS.model.user.name,
-          id: TS.model.user.id,
-          team_id: team.id,
-          team_name: team.name,
-          team_url: TS.utility.enterprise.buildTeamUrl(team.domain)
-        };
-        TSSSB.call("didSignIn", params);
+        var clicked_team_id = $(this).data("id");
+        var teams = _.map(TS.model.user.enterprise_user.teams, function(team_id) {
+          var team = TS.enterprise.getTeamById(team_id);
+          return {
+            name: TS.model.user.name,
+            id: TS.model.user.id,
+            team_id: team.id,
+            team_name: team.name,
+            team_url: TS.utility.enterprise.buildTeamUrl(team.domain)
+          };
+        }).sort(function(a, b) {
+          if (a.id === clicked_team_id) return -1;
+          if (b.id === clicked_team_id) return 1;
+          if (a.team_name < b.team_name) return -1;
+          if (a.team_name > b.team_name) return 1;
+          return 0;
+        });
+        var select_team = true;
+        TSSSB.call("didSignIn", teams, select_team);
       }
     };
     $container.on("click", ".enterprise_team_card [data-name=launch_team_button]", launchTeamButtonHandler);
@@ -63658,7 +63667,8 @@ $.fn.togglify = function(settings) {
 
         function En(e, t, n, r, o) {
           var i;
-          return null == e ? Le(this, r, o).year : (i = ke(e, r, o), t > i && (t = i), jn.call(this, e, t, n, r, o));
+          return null == e ? Le(this, r, o).year : (i = ke(e, r, o),
+            t > i && (t = i), jn.call(this, e, t, n, r, o));
         }
 
         function jn(e, t, n, r, o) {
@@ -65097,7 +65107,8 @@ $.fn.togglify = function(settings) {
           }
 
           function hn(e) {
-            return this.__data__.set(e, ue), this;
+            return this.__data__.set(e, ue),
+              this;
           }
 
           function vn(e) {
@@ -70261,8 +70272,7 @@ $.fn.togglify = function(settings) {
     d = {},
     f = function(e) {
       var t = "member";
-      return e && e.id ? (e.is_external ? t = "external" : e.is_restricted && !e.is_ultra_restricted ? t = "ra" : e.is_ultra_restricted && (t = "ura"),
-        t) : t;
+      return e && e.id ? (e.is_external ? t = "external" : e.is_restricted && !e.is_ultra_restricted ? t = "ra" : e.is_ultra_restricted && (t = "ura"), t) : t;
     },
     h = n.i(a.createReducer)((s = {}, r(s, l, function(e, t) {
       if (!t || !t.id) return e;
@@ -71894,7 +71904,8 @@ $.fn.togglify = function(settings) {
       x = Y || w(m),
       D = m ? k ? w("entries") : x : void 0,
       C = "Array" == t ? S.entries || Y : Y;
-    if (C && (b = d(C.call(new e))) !== Object.prototype && (c(b, L, !0), r || s(b, f) || a(b, f, p)), k && Y && "values" !== Y.name && (T = !0, x = function() {
+    if (C && (b = d(C.call(new e))) !== Object.prototype && (c(b, L, !0),
+        r || s(b, f) || a(b, f, p)), k && Y && "values" !== Y.name && (T = !0, x = function() {
         return Y.call(this);
       }), r && !v || !h && !T && S[f] || a(S, f, x), u[t] = x, u[L] = p, m)
       if (g = {
@@ -92340,10 +92351,10 @@ $.fn.togglify = function(settings) {
     }
     s = null;
   }, t.setupScopedFocus = function(e) {
-    a = e, window.addEventListener ? (window.addEventListener("blur", r, !1), document.addEventListener("focus", o, !0)) : (window.attachEvent("onBlur", r), document.attachEvent("onFocus", o));
+    a = e, window.addEventListener ? (window.addEventListener("blur", r, !1), document.addEventListener("focus", o, !0)) : (window.attachEvent("onBlur", r),
+      document.attachEvent("onFocus", o));
   }, t.teardownScopedFocus = function() {
-    a = null, window.addEventListener ? (window.removeEventListener("blur", r),
-      document.removeEventListener("focus", o)) : (window.detachEvent("onBlur", r), document.detachEvent("onFocus", o));
+    a = null, window.addEventListener ? (window.removeEventListener("blur", r), document.removeEventListener("focus", o)) : (window.detachEvent("onBlur", r), document.detachEvent("onFocus", o));
   };
 }, function(e, t, n) {
   var r = n(279);
@@ -93957,9 +93968,10 @@ $.fn.togglify = function(settings) {
           if (!(e.target.className.indexOf("contract-trigger") < 0 && e.target.className.indexOf("expand-trigger") < 0)) {
             var t = this;
             o(this), this.__resizeRAF__ && r(this.__resizeRAF__), this.__resizeRAF__ = n(function() {
-              i(t) && (t.__resizeLast__.width = t.offsetWidth, t.__resizeLast__.height = t.offsetHeight, t.__resizeListeners__.forEach(function(n) {
-                n.call(t, e);
-              }));
+              i(t) && (t.__resizeLast__.width = t.offsetWidth,
+                t.__resizeLast__.height = t.offsetHeight, t.__resizeListeners__.forEach(function(n) {
+                  n.call(t, e);
+                }));
             });
           }
         },
