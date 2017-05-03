@@ -16537,7 +16537,8 @@ html:not(.supports_flexbox) #im_browser_tokens .member_token {
 }
 
 .lazy_filter_select.single.filter_in_list_style {
-  width: 150px
+  min-width: 150px;
+  max-width: 250px
 }
 
 .lazy_filter_select.single.filter_in_list_style ._input_style {
