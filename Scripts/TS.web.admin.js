@@ -1366,11 +1366,11 @@
       var $row = TS.web.admin.selectRow(member);
       var args;
       if (TS.boot_data.feature_name_tagging_client) {
-        var fullname = $.trim($row.find('input[name="full_name"]').val());
+        var real_name = $.trim($row.find('input[name="real_name"]').val());
         args = {
           user: member.id,
           profile: JSON.stringify({
-            full_name: fullname
+            real_name: real_name
           })
         };
       } else {

@@ -1288,7 +1288,6 @@
       if (first_time) {
         TS.model.bots = [];
         TS.model.members = [];
-        TS.members.clearMemberMaps();
         TS.model.rooms = [];
         if (!TS.useRedux()) {
           TS.model.channels = [];
@@ -1696,6 +1695,9 @@
         count: TS.model.initial_msgs_cnt - 1,
         ignore_replies: true
       };
+      if (TS.boot_data.feature_name_tagging_client) {
+        channels_view_args.name_tagging = true;
+      }
       var channel_name = TS.utility.getChannelNameFromUrl(window.location.toString());
       if (channel_name) {
         TS.model.c_name_in_url = channel_name;
@@ -4325,10 +4327,18 @@ var _cyrillicToLatin = function(char) {
           var prev_emoji_colons_mode = _emoji.colons_mode;
           _emoji.colons_mode = true;
           var colons = _emoji.replace_unified.apply(_emoji, arguments);
+          if (TS.boot_data.feature_i18n_emoji && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE) {
+            colons = TSFEmoji.translateEmojiStringToCanonical(colons, TS.i18n.locale());
+          }
           _emoji.colons_mode = prev_emoji_colons_mode;
           return colons;
         }
       };
+      if (TS.boot_data.feature_i18n_emoji && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE) {
+        ob.getLocalEmojiString = function(emoji_name) {
+          return TSFEmoji.getLocalEmojiString(emoji_name, TS.i18n.locale()) || emoji_name;
+        };
+      }
       Object.keys(_emoji.data).forEach(function(idx) {
         var datum = _emoji.data[idx];
         var names = datum[3];

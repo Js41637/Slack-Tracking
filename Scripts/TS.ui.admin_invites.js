@@ -397,8 +397,12 @@
     var current_invite_email = elem.$container[0];
     var current_invite_row = $(current_invite_email).parents(".admin_invite_row");
     if (item) {
-      $(current_invite_row).find("input[name*=first_name]").val(item.given_name);
-      $(current_invite_row).find("input[name*=last_name]").val(item.family_name);
+      if (TS.boot_data.feature_name_tagging_client) {
+        $(current_invite_row).find("input[name*=real_name]").val(item.full_name);
+      } else {
+        $(current_invite_row).find("input[name*=first_name]").val(item.given_name);
+        $(current_invite_row).find("input[name*=last_name]").val(item.family_name);
+      }
       $(current_invite_row).find("input[name*=email_address]").val(item.email);
     } else {
       var custom_input_email = $(current_invite_row).find("input.lfs_input").val();
@@ -436,7 +440,7 @@
       $row.find('[name="email_address"]').val(email.email);
       $row.find(".lfs_input_container input.lfs_input").val(email.email);
       if (TS.boot_data.feature_name_tagging_client) {
-        $row.find('[name="full_name"]').val(email.full_name);
+        $row.find('[name="real_name"]').val(email.real_name);
       } else {
         $row.find('[name="first_name"]').val(email.first_name);
         $row.find('[name="last_name"]').val(email.last_name);
@@ -729,7 +733,7 @@
     _$div.find(".admin_invite_row").each(function() {
       email = $.trim($(this).find('[name="email_address"]').val());
       if (TS.boot_data.feature_name_tagging_client) {
-        var full_name = $.trim($(this).find('[name="full_name"]').val());
+        var real_name = $.trim($(this).find('[name="real_name"]').val());
       } else {
         var first_name = $.trim($(this).find('[name="first_name"]').val());
         var last_name = $.trim($(this).find('[name="last_name"]').val());
@@ -737,7 +741,7 @@
       if (email) {
         var invite = {};
         invite.email = email;
-        if (TS.boot_data.feature_name_tagging_client && full_name) invite.full_name = full_name;
+        if (TS.boot_data.feature_name_tagging_client && real_name) invite.real_name = real_name;
         if (first_name) invite.first_name = first_name;
         if (last_name) invite.last_name = last_name;
         invites.push(invite);
@@ -801,7 +805,7 @@
         };
         if (channels) args.channels = channels;
         if (_custom_message) args.extra_message = _custom_message;
-        if (invite.full_name) args.full_name = invite.full_name;
+        if (invite.real_name) args.real_name = invite.real_name;
         if (invite.first_name) args.first_name = invite.first_name;
         if (invite.last_name) args.last_name = invite.last_name;
         if ((account_type === "restricted" || account_type === "ultra_restricted") && _expiration_ts) {
@@ -820,7 +824,7 @@
     if (ok) {
       _success_invites.push({
         email: args.email,
-        full_name: args.full_name,
+        real_name: args.real_name,
         first_name: args.first_name,
         last_name: args.last_name
       });

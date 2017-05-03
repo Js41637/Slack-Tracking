@@ -748,8 +748,8 @@
 
 @font-face {
   font-family: Slack;
-  src: url(/87c48/fonts/slack-icons-Regular.eot);
-  src: url(/87c48/fonts/slack-icons-Regular.eot?#iefix) format('embedded-opentype'), url(/87c48/fonts/slack-icons-Regular.woff) format('woff'), url(/87c48/fonts/slack-icons-Regular.ttf) format('truetype'), url(/87c48/fonts/slack-icons-Regular.svg#Slack) format('svg');
+  src: url(/269f3/fonts/slack-icons-Regular.eot);
+  src: url(/269f3/fonts/slack-icons-Regular.eot?#iefix) format('embedded-opentype'), url(/269f3/fonts/slack-icons-Regular.woff) format('woff'), url(/269f3/fonts/slack-icons-Regular.ttf) format('truetype'), url(/269f3/fonts/slack-icons-Regular.svg#Slack) format('svg');
   font-style: normal;
   font-weight: 400
 }
@@ -1556,7 +1556,7 @@ svg.ts_icon_spinner svg {
   content: '\E182'
 }
 
-.ts_icon_custom_status:before {
+.ts_icon_frowning_face:before {
   content: '\E183'
 }
 
@@ -2440,6 +2440,10 @@ svg.ts_icon_spinner svg {
 
 .ts_icon_pocket_casts:before {
   content: '\E834'
+}
+
+.ts_icon_onedrive:before {
+  content: '\E835'
 }
 
 .ts_icon_file_generic:before {
@@ -12212,6 +12216,11 @@ a.plastic_typeahead_item:hover {
   height: 48px
 }
 
+.member_image.thumb_56 {
+  width: 56px;
+  height: 56px
+}
+
 .member_image.thumb_72 {
   width: 72px;
   height: 72px
@@ -14412,7 +14421,7 @@ only screen and (min-resolution:2dppx) {
   color: #797979
 }
 
-.tab_complete_ui ul.type_members .member_image {
+body:not(.unify_user) .tab_complete_ui ul.type_members .member_image {
   margin-right: .4rem;
   margin-top: -2px;
   vertical-align: middle
@@ -14449,12 +14458,12 @@ only screen and (min-resolution:2dppx) {
   color: #717274
 }
 
-.feature_texty .tab_complete_ui ul.type_members .broadcast,
-.feature_texty .tab_complete_ui ul.type_members .bullet,
-.feature_texty .tab_complete_ui ul.type_members .display_name,
-.feature_texty .tab_complete_ui ul.type_members .presence,
-.feature_texty .tab_complete_ui ul.type_members .secondary_name,
-.feature_texty .tab_complete_ui ul.type_members .username {
+.feature_texty:not(.unify_user) .tab_complete_ui ul.type_members .broadcast,
+.feature_texty:not(.unify_user) .tab_complete_ui ul.type_members .bullet,
+.feature_texty:not(.unify_user) .tab_complete_ui ul.type_members .display_name,
+.feature_texty:not(.unify_user) .tab_complete_ui ul.type_members .presence,
+.feature_texty:not(.unify_user) .tab_complete_ui ul.type_members .secondary_name,
+.feature_texty:not(.unify_user) .tab_complete_ui ul.type_members .username {
   margin-right: 6px
 }
 
@@ -14548,6 +14557,12 @@ only screen and (min-resolution:2dppx) {
   text-overflow: ellipsis
 }
 
+.unify_user .tab_complete_ui li.tab_complete_ui_group,
+.unify_user .tab_complete_ui li.tab_complete_ui_item {
+  font-size: 15px;
+  line-height: 2
+}
+
 .tab_complete_ui li.tab_complete_ui_group.active,
 .tab_complete_ui li.tab_complete_ui_item.active {
   background: #2D9EE0;
@@ -14585,14 +14600,9 @@ only screen and (min-resolution:2dppx) {
   height: 24px
 }
 
-.tab_complete_ui li.tab_complete_ui_group .c-member--small .presence,
-.tab_complete_ui li.tab_complete_ui_item .c-member--small .presence {
-  top: 8px
-}
-
-.tab_complete_ui li.tab_complete_ui_group .c-member--small .team_image,
-.tab_complete_ui li.tab_complete_ui_item .c-member--small .team_image {
-  top: 5px
+.unify_user .tab_complete_ui li.tab_complete_ui_group .ts_icon_shared_channels,
+.unify_user .tab_complete_ui li.tab_complete_ui_item .ts_icon_shared_channels {
+  bottom: 3px
 }
 
 .tab_complete_ui .not_in_channel {
