@@ -4720,10 +4720,7 @@
       return test_ob;
     },
     lazyLoadChannelMembership: function() {
-      if (!TS.lazyLoadMembersAndBots()) {
-        return false;
-      }
-      return !!TS.boot_data.feature_thin_channel_membership;
+      return TS.lazyLoadMembersAndBots();
     },
     lazyLoadGroupMembership: function() {
       return false;
@@ -49325,17 +49322,12 @@ $.fn.togglify = function(settings) {
     if (!now) now = _now();
     var next_self = _nextTime(TS.model.user, now);
     if (next_self) next_ts = next_self;
-    var no_unknown = true;
-    var next_member;
-    var next_member_time;
-    for (var uid in TS.model.dnd.team) {
-      if (uid == TS.model.user.id) continue;
-      next_member = TS.members.getMemberById(uid, no_unknown);
-      if (!next_member) continue;
-      next_member_time = _nextTime(next_member, now);
-      if (!next_member_time) continue;
+    TS.model.members.forEach(function(next_member) {
+      if (next_member.id == TS.model.user.id) return;
+      var next_member_time = _nextTime(next_member, now);
+      if (!next_member_time) return;
       if (!next_ts || next_member_time < next_ts) next_ts = next_member_time;
-    }
+    });
     var max_delay = _MAX_TIMER_DELAY + now;
     if (!next_ts || next_ts > max_delay) next_ts = max_delay;
     var min_delay = _MIN_TIMER_DELAY + now;
@@ -63677,7 +63669,8 @@ $.fn.togglify = function(settings) {
 
         function En(e, t, n, r, o) {
           var i;
-          return null == e ? ke(this, r, o).year : (i = Le(e, r, o), t > i && (t = i), jn.call(this, e, t, n, r, o));
+          return null == e ? ke(this, r, o).year : (i = Le(e, r, o),
+            t > i && (t = i), jn.call(this, e, t, n, r, o));
         }
 
         function jn(e, t, n, r, o) {
@@ -65116,7 +65109,8 @@ $.fn.togglify = function(settings) {
           }
 
           function hn(e) {
-            return this.__data__.set(e, ue), this;
+            return this.__data__.set(e, ue),
+              this;
           }
 
           function vn(e) {
@@ -68687,8 +68681,7 @@ $.fn.togglify = function(settings) {
       var i;
       if (p.logTopLevelRenders) {
         var s = r;
-        r._currentElement.type.isReactTopLevelWrapper && (s = r._renderedComponent),
-          i = "React update: " + s.getName(), console.time(i);
+        r._currentElement.type.isReactTopLevelWrapper && (s = r._renderedComponent), i = "React update: " + s.getName(), console.time(i);
       }
       if (_.performUpdateIfNecessary(r, e.reconcileTransaction, v), i && console.timeEnd(i), o)
         for (var u = 0; u < o.length; u++) e.callbackQueue.enqueue(o[u], r.getPublicInstance());
@@ -71887,7 +71880,8 @@ $.fn.togglify = function(settings) {
         }
       }
       return function(t, n, r) {
-        return n && e(t.prototype, n), r && e(t, r), t;
+        return n && e(t.prototype, n),
+          r && e(t, r), t;
       };
     }(),
     l = function() {
@@ -81542,13 +81536,12 @@ $.fn.togglify = function(settings) {
         u()(this, t);
         var o = f()(this, (t.__proto__ || a()(t)).call(this, e, r));
         o.state = {
-            isScrolling: !1,
-            scrollDirectionHorizontal: w.a,
-            scrollDirectionVertical: w.a,
-            scrollLeft: 0,
-            scrollTop: 0
-          }, o._onGridRenderedMemoizer = n.i(b.a)(), o._onScrollMemoizer = n.i(b.a)(!1), o._debounceScrollEndedCallback = o._debounceScrollEndedCallback.bind(o), o._invokeOnGridRenderedHelper = o._invokeOnGridRenderedHelper.bind(o), o._onScroll = o._onScroll.bind(o), o._setScrollingContainerRef = o._setScrollingContainerRef.bind(o), o._columnWidthGetter = o._wrapSizeGetter(e.columnWidth), o._rowHeightGetter = o._wrapSizeGetter(e.rowHeight),
-          o._deferredInvalidateColumnIndex = null, o._deferredInvalidateRowIndex = null, o._recomputeScrollLeftFlag = !1, o._recomputeScrollTopFlag = !1;
+          isScrolling: !1,
+          scrollDirectionHorizontal: w.a,
+          scrollDirectionVertical: w.a,
+          scrollLeft: 0,
+          scrollTop: 0
+        }, o._onGridRenderedMemoizer = n.i(b.a)(), o._onScrollMemoizer = n.i(b.a)(!1), o._debounceScrollEndedCallback = o._debounceScrollEndedCallback.bind(o), o._invokeOnGridRenderedHelper = o._invokeOnGridRenderedHelper.bind(o), o._onScroll = o._onScroll.bind(o), o._setScrollingContainerRef = o._setScrollingContainerRef.bind(o), o._columnWidthGetter = o._wrapSizeGetter(e.columnWidth), o._rowHeightGetter = o._wrapSizeGetter(e.rowHeight), o._deferredInvalidateColumnIndex = null, o._deferredInvalidateRowIndex = null, o._recomputeScrollLeftFlag = !1, o._recomputeScrollTopFlag = !1;
         var i = e.deferredMeasurementCache,
           s = void 0 !== i;
         return o._columnSizeAndPositionManager = new M.a({
@@ -82894,8 +82887,7 @@ $.fn.togglify = function(settings) {
           a = n.rowHeight;
         if (r === e.columnWidth && o === e.fixedColumnCount || (this._leftGridWidth = null), i === e.fixedRowCount && a === e.rowHeight || (this._topGridHeight = null), e.scrollLeft !== this.props.scrollLeft || e.scrollTop !== this.props.scrollTop) {
           var s = {};
-          null != e.scrollLeft && e.scrollLeft >= 0 && (s.scrollLeft = e.scrollLeft), null != e.scrollTop && e.scrollTop >= 0 && (s.scrollTop = e.scrollTop),
-            this.setState(s);
+          null != e.scrollLeft && e.scrollLeft >= 0 && (s.scrollLeft = e.scrollLeft), null != e.scrollTop && e.scrollTop >= 0 && (s.scrollTop = e.scrollTop), this.setState(s);
         }
         this._maybeCalculateCachedStyles(this.props, e, this.state, t);
       }
@@ -82905,7 +82897,8 @@ $.fn.togglify = function(settings) {
         var e = this.props,
           t = e.onScroll,
           n = e.onSectionRendered,
-          r = (e.scrollLeft, e.scrollToColumn),
+          r = (e.scrollLeft,
+            e.scrollToColumn),
           i = (e.scrollTop, e.scrollToRow),
           s = a()(e, ["onScroll", "onSectionRendered", "scrollLeft", "scrollToColumn", "scrollTop", "scrollToRow"]);
         if (0 === this.props.width || 0 === this.props.height) return null;
@@ -86266,7 +86259,8 @@ $.fn.togglify = function(settings) {
       }, {
         key: "triggerClose",
         value: function(e) {
-          this.resetSelection(), this.props.onClosed(), e.stopPropagation();
+          this.resetSelection(), this.props.onClosed(),
+            e.stopPropagation();
         }
       }, {
         key: "moveCursor",
@@ -87494,21 +87488,21 @@ $.fn.togglify = function(settings) {
   "use strict";
   var r = n(1),
     o = n.n(r),
-    i = n(34),
-    a = n(8),
-    s = n.n(a),
+    i = n(8),
+    a = n.n(i),
+    s = n(34),
     u = n(581),
     l = (n.n(u), function(e) {
       var t = e.isActive,
         n = e.isDnd,
         r = e.userType,
-        a = t ? "presence_online" : "presence_offline",
-        u = s()("c-presence", {
+        i = t ? "presence_online" : "presence_offline",
+        u = a()("c-presence", {
           "c-presence--active": t,
           "c-presence--away": !t
         });
-      return "member" === r ? n && (a = t ? "presence_dnd" : "presence_dnd_offline") : "ra" === r ? a = n ? t ? "presence_ra_dnd" : "presence_ra_dnd_offline" : t ? "presence_ra_online" : "presence_ra_offline" : "ura" === r ? a = n ? t ? "presence_ura_dnd" : "presence_ura_dnd_offline" : t ? "presence_ura_online" : "presence_ura_offline" : "external" === r && (a = n ? t ? "presence_external_dnd" : "presence_external_dnd_offline" : t ? "presence_external_online" : "presence_external_offline"), o.a.createElement(i.a, {
-        type: a,
+      return "member" === r ? n && (i = t ? "presence_dnd" : "presence_dnd_offline") : "ra" === r ? i = n ? t ? "presence_ra_dnd" : "presence_ra_dnd_offline" : t ? "presence_ra_online" : "presence_ra_offline" : "ura" === r ? i = n ? t ? "presence_ura_dnd" : "presence_ura_dnd_offline" : t ? "presence_ura_online" : "presence_ura_offline" : "external" === r && (i = n ? t ? "presence_external_dnd" : "presence_external_dnd_offline" : t ? "presence_external_online" : "presence_external_offline"), o.a.createElement(s.a, {
+        type: i,
         className: u,
         "aria-hidden": !0
       });

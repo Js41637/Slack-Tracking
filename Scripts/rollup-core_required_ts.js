@@ -1309,6 +1309,7 @@
           TS.refreshTeams();
         }
       }
+      _maybeUseAsyncQueue();
       if (data.online_users && _.isArray(data.online_users)) {
         TS.model.online_users = _.filter(data.online_users, function(user_id) {
           return user_id !== "USLACKBOT";
@@ -1673,6 +1674,10 @@
     };
     window.addEventListener("sleep", _onSleep, false);
     window.addEventListener("wake", _onWake, false);
+  };
+  var _maybeUseAsyncQueue = function() {
+    var _users_to_force_into_async_queue_feature = ["W41F5BSV6", "W2S2NCZUN", "W4CEUAN95"];
+    TS.boot_data.feature_async_queue = TS.boot_data.feature_async_queue || _.includes(_users_to_force_into_async_queue_feature, TS.boot_data.user_id);
   };
 })();
 (function() {
