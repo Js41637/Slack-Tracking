@@ -85667,7 +85667,7 @@ $.fn.togglify = function(settings) {
       function t(e) {
         r(this, t);
         var n = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
-        return n.getRowHeight = n.getRowHeight.bind(n), n.renderRow = n.renderRow.bind(n), n;
+        return n.getRowHeight = n.getRowHeight.bind(n), n.renderRow = n.renderRow.bind(n), n.setListRef = n.setListRef.bind(n), n.virtualList = null, n;
       }
       return i(t, e), y(t, null, [{
         key: "renderGroupItem",
@@ -85686,6 +85686,11 @@ $.fn.togglify = function(settings) {
           }, v("No emoji found")));
         }
       }]), y(t, [{
+        key: "componentWillReceiveProps",
+        value: function(e) {
+          s.a.isNumber(e.scrollToIndex) && this.virtualList.scrollToRow(e.scrollToIndex);
+        }
+      }, {
         key: "onEmojiClick",
         value: function(e, t) {
           e.preventDefault(), this.props.onSelected(e, t);
@@ -85802,35 +85807,38 @@ $.fn.togglify = function(settings) {
           }, u);
         }
       }, {
+        key: "setListRef",
+        value: function(e) {
+          this.virtualList = e;
+        }
+      }, {
         key: "render",
         value: function() {
           var e = this,
-            t = s.a.isNumber(this.props.scrollToIndex),
-            n = t ? this.props.scrollToIndex : void 0,
-            r = this.props,
-            o = r.screenRows,
-            i = r.numBackgroundColors,
-            a = r.numEmojiPerRow,
-            u = {
-              screenRows: o,
-              numBackgroundColors: i,
-              numEmojiPerRow: a
+            t = this.props,
+            n = t.screenRows,
+            r = t.numBackgroundColors,
+            o = t.numEmojiPerRow,
+            i = {
+              screenRows: n,
+              numBackgroundColors: r,
+              numEmojiPerRow: o
             };
           return d.a.createElement(f.a, null, function(t) {
-            var r = t.height,
-              o = t.width;
-            return d.a.createElement(f.b, m({}, u, {
+            var n = t.height,
+              r = t.width;
+            return d.a.createElement(f.b, m({}, i, {
               className: "emoji_menu_items_scroller",
-              height: r,
+              height: n,
               rowCount: e.props.screenRows.length,
               rowHeight: e.getRowHeight,
               rowRenderer: e.renderRow,
               scrollToAlignment: e.usingKeyboard() ? "auto" : "start",
-              scrollToIndex: n,
-              width: o,
+              width: r,
               onRowsRendered: e.props.onScroll,
               noRowsRenderer: e.renderEmptyState,
-              cursorPosition: e.props.cursorPosition
+              cursorPosition: e.props.cursorPosition,
+              ref: e.setListRef
             }));
           });
         }

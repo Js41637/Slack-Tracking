@@ -2088,12 +2088,19 @@
   var _recordLabelMeasurement = function(label, value, is_experiment_metric_variant) {
     if (!_measures[label]) _measures[label] = [];
     _measures[label].push(value);
-    if (!is_experiment_metric_variant && TS.boot_data.experiment_client_metrics && TS.boot_data.experiment_client_metrics[label]) {
-      TS.boot_data.experiment_client_metrics[label].forEach(function(experiment_name) {
-        var bucket_name = TS.boot_data["exp_" + experiment_name];
-        if (!bucket_name) return;
+    if (!is_experiment_metric_variant) {
+      if (TS.boot_data.experiment_client_metrics && TS.boot_data.experiment_client_metrics[label]) {
+        TS.boot_data.experiment_client_metrics[label].forEach(function(experiment_name) {
+          var bucket_name = TS.boot_data["exp_" + experiment_name];
+          if (!bucket_name) return;
+          var is_experiment_metric_variant = true;
+          _recordLabelMeasurement("exp_" + experiment_name + "_" + bucket_name + "_" + label, value, is_experiment_metric_variant);
+        });
+      }
+      var metric_experiments = TS.experiment ? TS.experiment.getExperimentsForMetric(label) : [];
+      metric_experiments.forEach(function(experiment) {
         var is_experiment_metric_variant = true;
-        _recordLabelMeasurement("exp_" + experiment_name + "_" + bucket_name + "_" + label, value, is_experiment_metric_variant);
+        _recordLabelMeasurement("exp--" + experiment.experiment_id + "--" + experiment.group + "--" + label, value, is_experiment_metric_variant);
       });
     }
   };
@@ -3714,12 +3721,25 @@ var _cyrillicToLatin = function(char) {
       }
       return _promise_user_assignments;
     },
-    getGroup: function(name) {
-      if (_assignments[name]) {
-        if (_assignments[name].log_exposures) _logExposure(name, _assignments[name]);
-        return _assignments[name].group;
+    getGroup: function(name, metrics) {
+      if (!_assignments[name]) return null;
+      if (_assignments[name].log_exposures) _logExposure(name, _assignments[name]);
+      if (metrics && _assignments[name].group) {
+        metrics.forEach(function(metric) {
+          _metric_experiments[metric] = _metric_experiments[metric] || [];
+          if (_metric_experiments[metric].indexOf(name) < 0) {
+            _metric_experiments[metric].push(name);
+          }
+        });
       }
-      return null;
+      return _assignments[name].group;
+    },
+    getExperimentsForMetric: function(metric) {
+      var experiment_names = _metric_experiments[metric];
+      if (!experiment_names) return [];
+      return experiment_names.map(function(name) {
+        return _assignments[name];
+      });
     },
     test: function() {
       var test_ob = {};
@@ -3731,6 +3751,14 @@ var _cyrillicToLatin = function(char) {
           _recordAssignments = v;
         }
       });
+      Object.defineProperty(test_ob, "_metric_experiments", {
+        get: function() {
+          return _metric_experiments;
+        },
+        set: function(v) {
+          _metric_experiments = v;
+        }
+      });
       return test_ob;
     }
   });
@@ -3738,6 +3766,7 @@ var _cyrillicToLatin = function(char) {
   var _method;
   var _assignments = {};
   var _clogged = {};
+  var _metric_experiments = {};
   var _promise_lead_assignments;
   var _promise_user_assignments;
   var _promise_visitor_assignments;
