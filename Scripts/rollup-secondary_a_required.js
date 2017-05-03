@@ -3351,7 +3351,7 @@
   "use strict";
   TS.registerModule("redux", {
     onStart: function() {
-      if (TS.useRedux()) {
+      if (TS.useRedux() || TS.useReactDownloads()) {
         _store = window.Redux.ConfigureStore();
       }
     },
@@ -9323,7 +9323,9 @@ TS.registerModule("constants", {
         return;
       }
       if (model_ob._did_defer_initial_msg_history) {
-        if (TS.boot_data.feature_delay_channel_history_fetch && !model_ob.is_im && !model_ob.is_mpim) {
+        if (TS.boot_data.feature_disable_history_prefetch) {
+          TS.log(58, "calcUnreadCnts (" + model_ob.id + "): History prefetch disabled. msgs.length: " + (model_ob.msgs && model_ob.msgs.length));
+        } else if (TS.boot_data.feature_delay_channel_history_fetch && !model_ob.is_im && !model_ob.is_mpim) {
           if (!model_ob._delayed_fetch_timer) {
             var min_delay = 2500;
             var max_delay = 1e4;
@@ -9526,6 +9528,14 @@ TS.registerModule("constants", {
       } else if (defer_api_check) {
         model_ob._did_defer_initial_msg_history = true;
       } else {
+        if (TS.boot_data && TS.boot_data.feature_disable_history_prefetch) {
+          if (TS.shared.getActiveModelOb().id === model_ob.id) {
+            TS.log(58, "checkInitialMsgHistory: Allowing fetch for active of " + model_ob.id);
+          } else {
+            TS.log(58, "checkInitialMsgHistory: NOT fetching for " + model_ob.id + " (not active)");
+            return;
+          }
+        }
         TS.log(58, 'WE DO NOT HAVE ALL RECENT MESSAGES for "' + model_ob.id + '" unread_count:' + model_ob.unread_count + " unread_cnt:" + model_ob.unread_cnt + " initial_count:" + initial_count);
         var no_oldest = false;
         if (!model_ob.msgs.length) {}
@@ -62474,7 +62484,7 @@ $.fn.togglify = function(settings) {
     return t.d(n, "a", n), n;
   }, t.o = function(e, t) {
     return Object.prototype.hasOwnProperty.call(e, t);
-  }, t.p = "/", t(t.s = 344);
+  }, t.p = "/", t(t.s = 351);
 }([function(e, t, n) {
   (function(e) {
     ! function(t, r) {
@@ -62602,11 +62612,11 @@ $.fn.togglify = function(settings) {
           return a + i;
         }
 
-        function L(e) {
+        function k(e) {
           !1 === t.suppressDeprecationWarnings && "undefined" != typeof console && console.warn && console.warn("Deprecation warning: " + e);
         }
 
-        function k(e, n) {
+        function L(e, n) {
           var r = !0;
           return c(function() {
             if (null != t.deprecationHandler && t.deprecationHandler(null, e), r) {
@@ -62618,14 +62628,14 @@ $.fn.togglify = function(settings) {
                 } else o = arguments[a];
                 i.push(o);
               }
-              L(e + "\nArguments: " + Array.prototype.slice.call(i).join("") + "\n" + (new Error).stack), r = !1;
+              k(e + "\nArguments: " + Array.prototype.slice.call(i).join("") + "\n" + (new Error).stack), r = !1;
             }
             return n.apply(this, arguments);
           }, n);
         }
 
         function T(e, n) {
-          null != t.deprecationHandler && t.deprecationHandler(e, n), br[e] || (L(n), br[e] = !0);
+          null != t.deprecationHandler && t.deprecationHandler(e, n), br[e] || (k(n), br[e] = !0);
         }
 
         function S(e) {
@@ -62638,14 +62648,14 @@ $.fn.togglify = function(settings) {
           this._config = e, this._ordinalParseLenient = new RegExp(this._ordinalParse.source + "|" + /\d{1,2}/.source);
         }
 
-        function x(e, t) {
+        function D(e, t) {
           var n, r = c({}, e);
           for (n in t) l(t, n) && (o(e[n]) && o(t[n]) ? (r[n] = {}, c(r[n], e[n]), c(r[n], t[n])) : null != t[n] ? r[n] = t[n] : delete r[n]);
           for (n in e) l(e, n) && !l(t, n) && o(e[n]) && (r[n] = c({}, r[n]));
           return r;
         }
 
-        function D(e) {
+        function x(e) {
           null != e && this.set(e);
         }
 
@@ -62682,11 +62692,11 @@ $.fn.togglify = function(settings) {
 
         function I(e, t) {
           var n = e.toLowerCase();
-          xr[n] = xr[n + "s"] = xr[t] = e;
+          Dr[n] = Dr[n + "s"] = Dr[t] = e;
         }
 
         function A(e) {
-          return "string" == typeof e ? xr[e] || xr[e.toLowerCase()] : void 0;
+          return "string" == typeof e ? Dr[e] || Dr[e.toLowerCase()] : void 0;
         }
 
         function H(e) {
@@ -62696,14 +62706,14 @@ $.fn.togglify = function(settings) {
         }
 
         function N(e, t) {
-          Dr[e] = t;
+          xr[e] = t;
         }
 
         function z(e) {
           var t = [];
           for (var n in e) t.push({
             unit: n,
-            priority: Dr[n]
+            priority: xr[n]
           });
           return t.sort(function(e, t) {
             return e.priority - t.priority;
@@ -62921,23 +62931,23 @@ $.fn.togglify = function(settings) {
           };
         }
 
-        function Le(e, t, n) {
+        function ke(e, t, n) {
           var r, o, i = be(e.year(), t, n),
             a = Math.floor((e.dayOfYear() - i - 1) / 7) + 1;
-          return a < 1 ? (o = e.year() - 1, r = a + ke(o, t, n)) : a > ke(e.year(), t, n) ? (r = a - ke(e.year(), t, n), o = e.year() + 1) : (o = e.year(), r = a), {
+          return a < 1 ? (o = e.year() - 1, r = a + Le(o, t, n)) : a > Le(e.year(), t, n) ? (r = a - Le(e.year(), t, n), o = e.year() + 1) : (o = e.year(), r = a), {
             week: r,
             year: o
           };
         }
 
-        function ke(e, t, n) {
+        function Le(e, t, n) {
           var r = be(e, t, n),
             o = be(e + 1, t, n);
           return (me(e) - r + o) / 7;
         }
 
         function Te(e) {
-          return Le(e, this._week.dow, this._week.doy).week;
+          return ke(e, this._week.dow, this._week.doy).week;
         }
 
         function Se() {
@@ -62948,13 +62958,13 @@ $.fn.togglify = function(settings) {
           return this._week.doy;
         }
 
-        function xe(e) {
+        function De(e) {
           var t = this.localeData().week(this);
           return null == e ? t : this.add(7 * (e - t), "d");
         }
 
-        function De(e) {
-          var t = Le(this, 1, 4).week;
+        function xe(e) {
+          var t = ke(this, 1, 4).week;
           return null == e ? t : this.add(7 * (e - t), "d");
         }
 
@@ -63087,7 +63097,7 @@ $.fn.togglify = function(settings) {
         function Xe(t) {
           var r = null;
           if (!ho[t] && void 0 !== e && e && e.exports) try {
-            r = lo._abbr, n(441)("./" + t), Ze(r);
+            r = lo._abbr, n(450)("./" + t), Ze(r);
           } catch (e) {}
           return ho[t];
         }
@@ -63108,7 +63118,7 @@ $.fn.togglify = function(settings) {
               }), null;
               n = ho[t.parentLocale]._config;
             }
-            return ho[e] = new D(x(n, t)), po[e] && po[e].forEach(function(e) {
+            return ho[e] = new x(D(n, t)), po[e] && po[e].forEach(function(e) {
               et(e.name, e.config);
             }), Ze(e), ho[e];
           }
@@ -63118,7 +63128,7 @@ $.fn.togglify = function(settings) {
         function tt(e, t) {
           if (null != t) {
             var n, r = fo;
-            null != ho[e] && (r = ho[e]._config), t = x(r, t), n = new D(t), n.parentLocale = ho[e], ho[e] = n, Ze(e);
+            null != ho[e] && (r = ho[e]._config), t = D(r, t), n = new x(t), n.parentLocale = ho[e], ho[e] = n, Ze(e);
           } else null != ho[e] && (null != ho[e].parentLocale ? ho[e] = ho[e].parentLocale : null != ho[e] && delete ho[e]);
           return ho[e];
         }
@@ -63134,7 +63144,7 @@ $.fn.togglify = function(settings) {
         }
 
         function rt() {
-          return kr(ho);
+          return Lr(ho);
         }
 
         function ot(e) {
@@ -63195,13 +63205,13 @@ $.fn.togglify = function(settings) {
 
         function ct(e) {
           var t, n, r, o, i, a, s, u;
-          if (t = e._w, null != t.GG || null != t.W || null != t.E) i = 1, a = 4, n = st(t.GG, e._a[zr], Le(gt(), 1, 4).year), r = st(t.W, 1), ((o = st(t.E, 1)) < 1 || o > 7) && (u = !0);
+          if (t = e._w, null != t.GG || null != t.W || null != t.E) i = 1, a = 4, n = st(t.GG, e._a[zr], ke(gt(), 1, 4).year), r = st(t.W, 1), ((o = st(t.E, 1)) < 1 || o > 7) && (u = !0);
           else {
             i = e._locale._week.dow, a = e._locale._week.doy;
-            var l = Le(gt(), i, a);
+            var l = ke(gt(), i, a);
             n = st(t.gg, e._a[zr], l.year), r = st(t.w, l.week), null != t.d ? ((o = t.d) < 0 || o > 6) && (u = !0) : null != t.e ? (o = t.e + i, (t.e < 0 || t.e > 6) && (u = !0)) : o = i;
           }
-          r < 1 || r > ke(n, i, a) ? h(e)._overflowWeeks = !0 : null != u ? h(e)._overflowWeekday = !0 : (s = we(n, r, o, i, a), e._a[zr] = s.year, e._dayOfYear = s.dayOfYear);
+          r < 1 || r > Le(n, i, a) ? h(e)._overflowWeeks = !0 : null != u ? h(e)._overflowWeekday = !0 : (s = we(n, r, o, i, a), e._a[zr] = s.year, e._dayOfYear = s.dayOfYear);
         }
 
         function dt(e) {
@@ -63279,7 +63289,7 @@ $.fn.togglify = function(settings) {
           return Mt("isAfter", [].slice.call(arguments, 0));
         }
 
-        function Lt(e) {
+        function kt(e) {
           var t = H(e),
             n = t.year || 0,
             r = t.quarter || 0,
@@ -63293,8 +63303,8 @@ $.fn.togglify = function(settings) {
           this._milliseconds = +c + 1e3 * l + 6e4 * u + 1e3 * s * 60 * 60, this._days = +a + 7 * i, this._months = +o + 3 * r + 12 * n, this._data = {}, this._locale = nt(), this._bubble();
         }
 
-        function kt(e) {
-          return e instanceof Lt;
+        function Lt(e) {
+          return e instanceof kt;
         }
 
         function Tt(e) {
@@ -63313,17 +63323,17 @@ $.fn.togglify = function(settings) {
           var n = (t || "").match(e);
           if (null === n) return null;
           var r = n[n.length - 1] || [],
-            o = (r + "").match(ko) || ["-", 0, 0],
+            o = (r + "").match(Lo) || ["-", 0, 0],
             i = 60 * o[1] + b(o[2]);
           return 0 === i ? 0 : "+" === o[0] ? i : -i;
         }
 
-        function xt(e, n) {
+        function Dt(e, n) {
           var r, o;
           return n._isUTC ? (r = n.clone(), o = (g(e) || s(e) ? e.valueOf() : gt(e).valueOf()) - r.valueOf(), r._d.setTime(r._d.valueOf() + o), t.updateOffset(r, !1), r) : gt(e).local();
         }
 
-        function Dt(e) {
+        function xt(e) {
           return 15 * -Math.round(e._d.getTimezoneOffset() / 15);
         }
 
@@ -63334,9 +63344,9 @@ $.fn.togglify = function(settings) {
             if ("string" == typeof e) {
               if (null === (e = Yt(Ir, e))) return this;
             } else Math.abs(e) < 16 && (e *= 60);
-            return !this._isUTC && n && (r = Dt(this)), this._offset = e, this._isUTC = !0, null != r && this.add(r, "m"), o !== e && (!n || this._changeInProgress ? Vt(this, Wt(e - o, "m"), 1, !1) : this._changeInProgress || (this._changeInProgress = !0, t.updateOffset(this, !0), this._changeInProgress = null)), this;
+            return !this._isUTC && n && (r = xt(this)), this._offset = e, this._isUTC = !0, null != r && this.add(r, "m"), o !== e && (!n || this._changeInProgress ? Vt(this, Wt(e - o, "m"), 1, !1) : this._changeInProgress || (this._changeInProgress = !0, t.updateOffset(this, !0), this._changeInProgress = null)), this;
           }
-          return this._isUTC ? o : Dt(this);
+          return this._isUTC ? o : xt(this);
         }
 
         function Pt(e, t) {
@@ -63348,7 +63358,7 @@ $.fn.togglify = function(settings) {
         }
 
         function jt(e) {
-          return this._isUTC && (this.utcOffset(0, e), this._isUTC = !1, e && this.subtract(Dt(this), "m")), this;
+          return this._isUTC && (this.utcOffset(0, e), this._isUTC = !1, e && this.subtract(xt(this), "m")), this;
         }
 
         function Ot() {
@@ -63393,7 +63403,7 @@ $.fn.togglify = function(settings) {
         function Wt(e, t) {
           var n, r, o, i = e,
             s = null;
-          return kt(e) ? i = {
+          return Lt(e) ? i = {
             ms: e._milliseconds,
             d: e._days,
             M: e._months
@@ -63412,7 +63422,7 @@ $.fn.togglify = function(settings) {
             h: Ft(s[6], n),
             m: Ft(s[7], n),
             s: Ft(s[8], n)
-          }) : null == i ? i = {} : "object" == typeof i && ("from" in i || "to" in i) && (o = Gt(gt(i.from), gt(i.to)), i = {}, i.ms = o.milliseconds, i.M = o.months), r = new Lt(i), kt(e) && l(e, "_locale") && (r._locale = e._locale), r;
+          }) : null == i ? i = {} : "object" == typeof i && ("from" in i || "to" in i) && (o = Gt(gt(i.from), gt(i.to)), i = {}, i.ms = o.milliseconds, i.M = o.months), r = new kt(i), Lt(e) && l(e, "_locale") && (r._locale = e._locale), r;
         }
 
         function Ft(e, t) {
@@ -63430,7 +63440,7 @@ $.fn.togglify = function(settings) {
 
         function Gt(e, t) {
           var n;
-          return e.isValid() && t.isValid() ? (t = xt(t, e), e.isBefore(t) ? n = Ut(e, t) : (n = Ut(t, e), n.milliseconds = -n.milliseconds, n.months = -n.months), n) : {
+          return e.isValid() && t.isValid() ? (t = Dt(t, e), e.isBefore(t) ? n = Ut(e, t) : (n = Ut(t, e), n.milliseconds = -n.milliseconds, n.months = -n.months), n) : {
             milliseconds: 0,
             months: 0
           };
@@ -63457,7 +63467,7 @@ $.fn.togglify = function(settings) {
 
         function Jt(e, n) {
           var r = e || gt(),
-            o = xt(r, this).startOf("day"),
+            o = Dt(r, this).startOf("day"),
             i = t.calendarFormat(this, o) || "sameElse",
             a = n && (S(n[i]) ? n[i].call(this, r) : n[i]);
           return this.format(a || this.localeData().calendar(i, this, gt(r)));
@@ -63496,7 +63506,7 @@ $.fn.togglify = function(settings) {
 
         function nn(e, t, n) {
           var r, o, i, a;
-          return this.isValid() ? (r = xt(e, this), r.isValid() ? (o = 6e4 * (r.utcOffset() - this.utcOffset()), t = A(t), "year" === t || "month" === t || "quarter" === t ? (a = rn(this, r), "quarter" === t ? a /= 3 : "year" === t && (a /= 12)) : (i = this - r, a = "second" === t ? i / 1e3 : "minute" === t ? i / 6e4 : "hour" === t ? i / 36e5 : "day" === t ? (i - o) / 864e5 : "week" === t ? (i - o) / 6048e5 : i), n ? a : M(a)) : NaN) : NaN;
+          return this.isValid() ? (r = Dt(e, this), r.isValid() ? (o = 6e4 * (r.utcOffset() - this.utcOffset()), t = A(t), "year" === t || "month" === t || "quarter" === t ? (a = rn(this, r), "quarter" === t ? a /= 3 : "year" === t && (a /= 12)) : (i = this - r, a = "second" === t ? i / 1e3 : "minute" === t ? i / 6e4 : "hour" === t ? i / 36e5 : "day" === t ? (i - o) / 864e5 : "week" === t ? (i - o) / 6048e5 : i), n ? a : M(a)) : NaN) : NaN;
         }
 
         function rn(e, t) {
@@ -63622,11 +63632,11 @@ $.fn.togglify = function(settings) {
           return this.isValid() ? this.toISOString() : null;
         }
 
-        function Ln() {
+        function kn() {
           return p(this);
         }
 
-        function kn() {
+        function Ln() {
           return c({}, h(this));
         }
 
@@ -63648,27 +63658,26 @@ $.fn.togglify = function(settings) {
           q(0, [e, e.length], 0, t);
         }
 
-        function xn(e) {
+        function Dn(e) {
           return En.call(this, e, this.week(), this.weekday(), this.localeData()._week.dow, this.localeData()._week.doy);
         }
 
-        function Dn(e) {
+        function xn(e) {
           return En.call(this, e, this.isoWeek(), this.isoWeekday(), 1, 4);
         }
 
         function Cn() {
-          return ke(this.year(), 1, 4);
+          return Le(this.year(), 1, 4);
         }
 
         function Pn() {
           var e = this.localeData()._week;
-          return ke(this.year(), e.dow, e.doy);
+          return Le(this.year(), e.dow, e.doy);
         }
 
         function En(e, t, n, r, o) {
           var i;
-          return null == e ? Le(this, r, o).year : (i = ke(e, r, o),
-            t > i && (t = i), jn.call(this, e, t, n, r, o));
+          return null == e ? ke(this, r, o).year : (i = Le(e, r, o), t > i && (t = i), jn.call(this, e, t, n, r, o));
         }
 
         function jn(e, t, n, r, o) {
@@ -63897,7 +63906,7 @@ $.fn.togglify = function(settings) {
           for (t in e) l(e, t) && n.push(t);
           return n;
         };
-        var Lr, kr = wr,
+        var kr, Lr = wr,
           Tr = {
             sameDay: "[Today at] LT",
             nextDay: "[Tomorrow at] LT",
@@ -63929,8 +63938,8 @@ $.fn.togglify = function(settings) {
             y: "a year",
             yy: "%d years"
           },
-          xr = {},
           Dr = {},
+          xr = {},
           Cr = /(\[[^\[]*\])|(\\)?([Hh]mm(ss)?|Mo|MM?M?M?|Do|DDDo|DD?D?D?|ddd?d?|do?|w[o|w]?|W[o|W]?|Qo?|YYYYYY|YYYYY|YYYY|YY|gg(ggg?)?|GG(GGG?)?|e|E|a|A|hh?|HH?|kk?|mm?|ss?|S{1,9}|x|X|zz?|ZZ?|.)/g,
           Pr = /(\[[^\[]*\])|(\\)?(LTS|LT|LL?L?L?|l{1,4})/g,
           Er = {},
@@ -63950,13 +63959,13 @@ $.fn.togglify = function(settings) {
           Vr = 6,
           qr = 7,
           Jr = 8;
-        Lr = Array.prototype.indexOf ? Array.prototype.indexOf : function(e) {
+        kr = Array.prototype.indexOf ? Array.prototype.indexOf : function(e) {
           var t;
           for (t = 0; t < this.length; ++t)
             if (this[t] === e) return t;
           return -1;
         };
-        var Kr = Lr;
+        var Kr = kr;
         q("M", ["MM", 2], "Mo", function() {
           return this.month() + 1;
         }), q("MMM", 0, 0, function(e) {
@@ -64097,32 +64106,32 @@ $.fn.togglify = function(settings) {
             ["HH", /\d\d/]
           ],
           Mo = /^\/?Date\((\-?\d+)/i;
-        t.createFromInputFallback = k("value provided is not in a recognized ISO format. moment construction falls back to js Date(), which is not reliable across all browsers and versions. Non ISO date formats are discouraged and will be removed in an upcoming major release. Please refer to http://momentjs.com/guides/#/warnings/js-date/ for more info.", function(e) {
+        t.createFromInputFallback = L("value provided is not in a recognized ISO format. moment construction falls back to js Date(), which is not reliable across all browsers and versions. Non ISO date formats are discouraged and will be removed in an upcoming major release. Please refer to http://momentjs.com/guides/#/warnings/js-date/ for more info.", function(e) {
           e._d = new Date(e._i + (e._useUTC ? " UTC" : ""));
         }), t.ISO_8601 = function() {};
-        var bo = k("moment().min is deprecated, use moment.max instead. http://momentjs.com/guides/#/warnings/min-max/", function() {
+        var bo = L("moment().min is deprecated, use moment.max instead. http://momentjs.com/guides/#/warnings/min-max/", function() {
             var e = gt.apply(null, arguments);
             return this.isValid() && e.isValid() ? e < this ? this : e : _();
           }),
-          wo = k("moment().max is deprecated, use moment.min instead. http://momentjs.com/guides/#/warnings/min-max/", function() {
+          wo = L("moment().max is deprecated, use moment.min instead. http://momentjs.com/guides/#/warnings/min-max/", function() {
             var e = gt.apply(null, arguments);
             return this.isValid() && e.isValid() ? e > this ? this : e : _();
           }),
-          Lo = function() {
+          ko = function() {
             return Date.now ? Date.now() : +new Date;
           };
         St("Z", ":"), St("ZZ", ""), X("Z", Ir), X("ZZ", Ir), ne(["Z", "ZZ"], function(e, t, n) {
           n._useUTC = !0, n._tzm = Yt(Ir, e);
         });
-        var ko = /([\+\-]|\d\d)/gi;
+        var Lo = /([\+\-]|\d\d)/gi;
         t.updateOffset = function() {};
         var To = /^(\-)?(?:(\d*)[. ])?(\d+)\:(\d+)(?:\:(\d+)(\.\d*)?)?$/,
           So = /^(-)?P(?:(-?[0-9,.]*)Y)?(?:(-?[0-9,.]*)M)?(?:(-?[0-9,.]*)W)?(?:(-?[0-9,.]*)D)?(?:T(?:(-?[0-9,.]*)H)?(?:(-?[0-9,.]*)M)?(?:(-?[0-9,.]*)S)?)?$/;
-        Wt.fn = Lt.prototype;
+        Wt.fn = kt.prototype;
         var Yo = Bt(1, "add"),
-          xo = Bt(-1, "subtract");
+          Do = Bt(-1, "subtract");
         t.defaultFormat = "YYYY-MM-DDTHH:mm:ssZ", t.defaultFormatUtc = "YYYY-MM-DDTHH:mm:ss[Z]";
-        var Do = k("moment().lang() is deprecated. Instead, use moment().localeData() to get the language configuration. Use moment().locale() to change languages.", function(e) {
+        var xo = L("moment().lang() is deprecated. Instead, use moment().localeData() to get the language configuration. Use moment().locale() to change languages.", function(e) {
           return void 0 === e ? this.localeData() : this.locale(e);
         });
         q(0, ["gg", 2], 0, function() {
@@ -64170,15 +64179,15 @@ $.fn.togglify = function(settings) {
         var Oo = W("Milliseconds", !1);
         q("z", 0, 0, "zoneAbbr"), q("zz", 0, 0, "zoneName");
         var Ro = v.prototype;
-        Ro.add = Yo, Ro.calendar = Jt, Ro.clone = Kt, Ro.diff = nn, Ro.endOf = mn, Ro.format = un, Ro.from = ln, Ro.fromNow = cn, Ro.to = dn, Ro.toNow = fn, Ro.get = G, Ro.invalidAt = Tn, Ro.isAfter = $t, Ro.isBefore = Qt, Ro.isBetween = Xt, Ro.isSame = Zt, Ro.isSameOrAfter = en, Ro.isSameOrBefore = tn, Ro.isValid = Ln, Ro.lang = Do, Ro.locale = hn, Ro.localeData = pn, Ro.max = wo, Ro.min = bo, Ro.parsingFlags = kn, Ro.set = B, Ro.startOf = _n, Ro.subtract = xo, Ro.toArray = Mn, Ro.toObject = bn, Ro.toDate = gn, Ro.toISOString = an, Ro.inspect = sn, Ro.toJSON = wn, Ro.toString = on, Ro.unix = vn, Ro.valueOf = yn, Ro.creationData = Sn, Ro.year = to, Ro.isLeapYear = ve, Ro.weekYear = xn, Ro.isoWeekYear = Dn, Ro.quarter = Ro.quarters = On, Ro.month = de, Ro.daysInMonth = fe, Ro.week = Ro.weeks = xe, Ro.isoWeek = Ro.isoWeeks = De, Ro.weeksInYear = Pn, Ro.isoWeeksInYear = Cn, Ro.date = Co, Ro.day = Ro.days = Ae, Ro.weekday = He, Ro.isoWeekday = Ne, Ro.dayOfYear = Rn, Ro.hour = Ro.hours = co, Ro.minute = Ro.minutes = Po, Ro.second = Ro.seconds = Eo, Ro.millisecond = Ro.milliseconds = Oo, Ro.utcOffset = Ct, Ro.utc = Et, Ro.local = jt, Ro.parseZone = Ot, Ro.hasAlignedHourOffset = Rt, Ro.isDST = It, Ro.isLocal = Ht, Ro.isUtcOffset = Nt, Ro.isUtc = zt, Ro.isUTC = zt, Ro.zoneAbbr = An, Ro.zoneName = Hn, Ro.dates = k("dates accessor is deprecated. Use date instead.", Co), Ro.months = k("months accessor is deprecated. Use month instead", de), Ro.years = k("years accessor is deprecated. Use year instead", to), Ro.zone = k("moment().zone is deprecated, use moment().utcOffset instead. http://momentjs.com/guides/#/warnings/zone/", Pt), Ro.isDSTShifted = k("isDSTShifted is deprecated. See http://momentjs.com/guides/#/warnings/dst-shifted/ for more information", At);
-        var Io = D.prototype;
+        Ro.add = Yo, Ro.calendar = Jt, Ro.clone = Kt, Ro.diff = nn, Ro.endOf = mn, Ro.format = un, Ro.from = ln, Ro.fromNow = cn, Ro.to = dn, Ro.toNow = fn, Ro.get = G, Ro.invalidAt = Tn, Ro.isAfter = $t, Ro.isBefore = Qt, Ro.isBetween = Xt, Ro.isSame = Zt, Ro.isSameOrAfter = en, Ro.isSameOrBefore = tn, Ro.isValid = kn, Ro.lang = xo, Ro.locale = hn, Ro.localeData = pn, Ro.max = wo, Ro.min = bo, Ro.parsingFlags = Ln, Ro.set = B, Ro.startOf = _n, Ro.subtract = Do, Ro.toArray = Mn, Ro.toObject = bn, Ro.toDate = gn, Ro.toISOString = an, Ro.inspect = sn, Ro.toJSON = wn, Ro.toString = on, Ro.unix = vn, Ro.valueOf = yn, Ro.creationData = Sn, Ro.year = to, Ro.isLeapYear = ve, Ro.weekYear = Dn, Ro.isoWeekYear = xn, Ro.quarter = Ro.quarters = On, Ro.month = de, Ro.daysInMonth = fe, Ro.week = Ro.weeks = De, Ro.isoWeek = Ro.isoWeeks = xe, Ro.weeksInYear = Pn, Ro.isoWeeksInYear = Cn, Ro.date = Co, Ro.day = Ro.days = Ae, Ro.weekday = He, Ro.isoWeekday = Ne, Ro.dayOfYear = Rn, Ro.hour = Ro.hours = co, Ro.minute = Ro.minutes = Po, Ro.second = Ro.seconds = Eo, Ro.millisecond = Ro.milliseconds = Oo, Ro.utcOffset = Ct, Ro.utc = Et, Ro.local = jt, Ro.parseZone = Ot, Ro.hasAlignedHourOffset = Rt, Ro.isDST = It, Ro.isLocal = Ht, Ro.isUtcOffset = Nt, Ro.isUtc = zt, Ro.isUTC = zt, Ro.zoneAbbr = An, Ro.zoneName = Hn, Ro.dates = L("dates accessor is deprecated. Use date instead.", Co), Ro.months = L("months accessor is deprecated. Use month instead", de), Ro.years = L("years accessor is deprecated. Use year instead", to), Ro.zone = L("moment().zone is deprecated, use moment().utcOffset instead. http://momentjs.com/guides/#/warnings/zone/", Pt), Ro.isDSTShifted = L("isDSTShifted is deprecated. See http://momentjs.com/guides/#/warnings/dst-shifted/ for more information", At);
+        var Io = x.prototype;
         Io.calendar = C, Io.longDateFormat = P, Io.invalidDate = E, Io.ordinal = j, Io.preparse = Wn, Io.postformat = Wn, Io.relativeTime = O, Io.pastFuture = R, Io.set = Y, Io.months = ae, Io.monthsShort = se, Io.monthsParse = le, Io.monthsRegex = pe, Io.monthsShortRegex = he, Io.week = Te, Io.firstDayOfYear = Ye, Io.firstDayOfWeek = Se, Io.weekdays = Ee, Io.weekdaysMin = Oe, Io.weekdaysShort = je, Io.weekdaysParse = Ie, Io.weekdaysRegex = ze, Io.weekdaysShortRegex = We, Io.weekdaysMinRegex = Fe, Io.isPM = Je, Io.meridiem = Ke, Ze("en", {
           ordinalParse: /\d{1,2}(th|st|nd|rd)/,
           ordinal: function(e) {
             var t = e % 10;
             return e + (1 === b(e % 100 / 10) ? "th" : 1 === t ? "st" : 2 === t ? "nd" : 3 === t ? "rd" : "th");
           }
-        }), t.lang = k("moment.lang is deprecated. Use moment.locale instead.", Ze), t.langData = k("moment.langData is deprecated. Use moment.localeData instead.", nt);
+        }), t.lang = L("moment.lang is deprecated. Use moment.locale instead.", Ze), t.langData = L("moment.langData is deprecated. Use moment.localeData instead.", nt);
         var Ao = Math.abs,
           Ho = ar("ms"),
           No = ar("s"),
@@ -64204,21 +64213,21 @@ $.fn.togglify = function(settings) {
             M: 11
           },
           ti = Math.abs,
-          ni = Lt.prototype;
-        return ni.abs = $n, ni.add = Xn, ni.subtract = Zn, ni.as = or, ni.asMilliseconds = Ho, ni.asSeconds = No, ni.asMinutes = zo, ni.asHours = Wo, ni.asDays = Fo, ni.asWeeks = Uo, ni.asMonths = Go, ni.asYears = Bo, ni.valueOf = ir, ni._bubble = tr, ni.get = sr, ni.milliseconds = Vo, ni.seconds = qo, ni.minutes = Jo, ni.hours = Ko, ni.days = $o, ni.weeks = lr, ni.months = Qo, ni.years = Xo, ni.humanize = pr, ni.toISOString = _r, ni.toString = _r, ni.toJSON = _r, ni.locale = hn, ni.localeData = pn, ni.toIsoString = k("toIsoString() is deprecated. Please use toISOString() instead (notice the capitals)", _r), ni.lang = Do, q("X", 0, 0, "unix"), q("x", 0, 0, "valueOf"), X("x", /[+-]?\d+/), X("X", /[+-]?\d+(\.\d{1,3})?/), ne("X", function(e, t, n) {
+          ni = kt.prototype;
+        return ni.abs = $n, ni.add = Xn, ni.subtract = Zn, ni.as = or, ni.asMilliseconds = Ho, ni.asSeconds = No, ni.asMinutes = zo, ni.asHours = Wo, ni.asDays = Fo, ni.asWeeks = Uo, ni.asMonths = Go, ni.asYears = Bo, ni.valueOf = ir, ni._bubble = tr, ni.get = sr, ni.milliseconds = Vo, ni.seconds = qo, ni.minutes = Jo, ni.hours = Ko, ni.days = $o, ni.weeks = lr, ni.months = Qo, ni.years = Xo, ni.humanize = pr, ni.toISOString = _r, ni.toString = _r, ni.toJSON = _r, ni.locale = hn, ni.localeData = pn, ni.toIsoString = L("toIsoString() is deprecated. Please use toISOString() instead (notice the capitals)", _r), ni.lang = xo, q("X", 0, 0, "unix"), q("x", 0, 0, "valueOf"), X("x", /[+-]?\d+/), X("X", /[+-]?\d+(\.\d{1,3})?/), ne("X", function(e, t, n) {
             n._d = new Date(1e3 * parseFloat(e, 10));
           }), ne("x", function(e, t, n) {
             n._d = new Date(b(e));
           }), t.version = "2.17.1",
           function(e) {
             mr = e;
-          }(gt), t.fn = Ro, t.min = bt, t.max = wt, t.now = Lo, t.utc = d, t.unix = Nn, t.months = Bn, t.isDate = s, t.locale = Ze, t.invalid = _, t.duration = Wt, t.isMoment = g, t.weekdays = qn, t.parseZone = zn, t.localeData = nt, t.isDuration = kt, t.monthsShort = Vn, t.weekdaysMin = Kn, t.defineLocale = et, t.updateLocale = tt, t.locales = rt, t.weekdaysShort = Jn, t.normalizeUnits = A, t.relativeTimeRounding = fr, t.relativeTimeThreshold = hr, t.calendarFormat = qt, t.prototype = Ro, t;
+          }(gt), t.fn = Ro, t.min = bt, t.max = wt, t.now = ko, t.utc = d, t.unix = Nn, t.months = Bn, t.isDate = s, t.locale = Ze, t.invalid = _, t.duration = Wt, t.isMoment = g, t.weekdays = qn, t.parseZone = zn, t.localeData = nt, t.isDuration = Lt, t.monthsShort = Vn, t.weekdaysMin = Kn, t.defineLocale = et, t.updateLocale = tt, t.locales = rt, t.weekdaysShort = Jn, t.normalizeUnits = A, t.relativeTimeRounding = fr, t.relativeTimeThreshold = hr, t.calendarFormat = qt, t.prototype = Ro, t;
       }();
     }();
-  }).call(t, n(118)(e));
+  }).call(t, n(120)(e));
 }, function(e, t, n) {
   "use strict";
-  e.exports = n(41);
+  e.exports = n(42);
 }, function(e, t, n) {
   "use strict";
 
@@ -64312,7 +64321,7 @@ $.fn.togglify = function(settings) {
       }
 
       function h(e, t) {
-        return !!(null == e ? 0 : e.length) && k(e, t, 0) > -1;
+        return !!(null == e ? 0 : e.length) && L(e, t, 0) > -1;
       }
 
       function p(e, t, n) {
@@ -64365,14 +64374,14 @@ $.fn.togglify = function(settings) {
         }), r;
       }
 
-      function L(e, t, n, r) {
+      function k(e, t, n, r) {
         for (var o = e.length, i = n + (r ? 1 : -1); r ? i-- : ++i < o;)
           if (t(e[i], i, e)) return i;
         return -1;
       }
 
-      function k(e, t, n) {
-        return t === t ? Q(e, t, n) : L(e, S, n);
+      function L(e, t, n) {
+        return t === t ? Q(e, t, n) : k(e, S, n);
       }
 
       function T(e, t, n, r) {
@@ -64390,13 +64399,13 @@ $.fn.togglify = function(settings) {
         return n ? E(e, t) / n : Oe;
       }
 
-      function x(e) {
+      function D(e) {
         return function(t) {
           return null == t ? oe : t[e];
         };
       }
 
-      function D(e) {
+      function x(e) {
         return function(t) {
           return null == e ? oe : e[t];
         };
@@ -64450,12 +64459,12 @@ $.fn.togglify = function(settings) {
       }
 
       function H(e, t) {
-        for (var n = -1, r = e.length; ++n < r && k(t, e[n], 0) > -1;);
+        for (var n = -1, r = e.length; ++n < r && L(t, e[n], 0) > -1;);
         return n;
       }
 
       function N(e, t) {
-        for (var n = e.length; n-- && k(t, e[n], 0) > -1;);
+        for (var n = e.length; n-- && L(t, e[n], 0) > -1;);
         return n;
       }
 
@@ -64573,13 +64582,13 @@ $.fn.togglify = function(settings) {
         Me = 32,
         be = 64,
         we = 128,
-        Le = 256,
-        ke = 512,
+        ke = 256,
+        Le = 512,
         Te = 30,
         Se = "...",
         Ye = 800,
-        xe = 16,
-        De = 1,
+        De = 16,
+        xe = 1,
         Ce = 2,
         Pe = 1 / 0,
         Ee = 9007199254740991,
@@ -64594,10 +64603,10 @@ $.fn.togglify = function(settings) {
           ["bindKey", me],
           ["curry", ve],
           ["curryRight", ge],
-          ["flip", ke],
+          ["flip", Le],
           ["partial", Me],
           ["partialRight", be],
-          ["rearg", Le]
+          ["rearg", ke]
         ],
         Ne = "[object Arguments]",
         ze = "[object Array]",
@@ -64637,13 +64646,13 @@ $.fn.togglify = function(settings) {
         Mt = /&(?:amp|lt|gt|quot|#39);/g,
         bt = /[&<>"']/g,
         wt = RegExp(Mt.source),
-        Lt = RegExp(bt.source),
-        kt = /<%=([\s\S]+?)%>/g,
+        kt = RegExp(bt.source),
+        Lt = /<%=([\s\S]+?)%>/g,
         Tt = /\.|\[(?:[^[\]]*|(["'])(?:(?!\1)[^\\]|\\.)*?\1)\]/,
         St = /^\w*$/,
         Yt = /^\./,
-        xt = /[\\^$.*+?()[\]{}|]/g,
-        Dt = RegExp(xt.source),
+        Dt = /[\\^$.*+?()[\]{}|]/g,
+        xt = RegExp(Dt.source),
         Ct = /^\s+|\s+$/g,
         Pt = /^\s+/,
         Et = /\s+$/,
@@ -64902,14 +64911,14 @@ $.fn.togglify = function(settings) {
           "\u2029": "u2029"
         },
         wn = parseFloat,
-        Ln = parseInt,
-        kn = "object" == typeof e && e && e.Object === Object && e,
+        kn = parseInt,
+        Ln = "object" == typeof e && e && e.Object === Object && e,
         Tn = "object" == typeof self && self && self.Object === Object && self,
-        Sn = kn || Tn || Function("return this")(),
+        Sn = Ln || Tn || Function("return this")(),
         Yn = "object" == typeof t && t && !t.nodeType && t,
-        xn = Yn && "object" == typeof r && r && !r.nodeType && r,
-        Dn = xn && xn.exports === Yn,
-        Cn = Dn && kn.process,
+        Dn = Yn && "object" == typeof r && r && !r.nodeType && r,
+        xn = Dn && Dn.exports === Yn,
+        Cn = xn && Ln.process,
         Pn = function() {
           try {
             return Cn && Cn.binding && Cn.binding("util");
@@ -64921,10 +64930,10 @@ $.fn.togglify = function(settings) {
         Rn = Pn && Pn.isRegExp,
         In = Pn && Pn.isSet,
         An = Pn && Pn.isTypedArray,
-        Hn = x("length"),
-        Nn = D(vn),
-        zn = D(gn),
-        Wn = D(Mn),
+        Hn = D("length"),
+        Nn = x(vn),
+        zn = x(gn),
+        Wn = x(Mn),
         Fn = function e(t) {
           function n(e) {
             if (eu(e) && !ff(e) && !(e instanceof M)) {
@@ -64944,7 +64953,7 @@ $.fn.togglify = function(settings) {
             this.__wrapped__ = e, this.__actions__ = [], this.__dir__ = 1, this.__filtered__ = !1, this.__iteratees__ = [], this.__takeCount__ = Re, this.__views__ = [];
           }
 
-          function D() {
+          function x() {
             var e = new M(this.__wrapped__);
             return e.__actions__ = jo(this.__actions__), e.__dir__ = this.__dir__, e.__filtered__ = this.__filtered__, e.__iteratees__ = jo(this.__iteratees__), e.__takeCount__ = this.__takeCount__, e.__views__ = jo(this.__views__), e;
           }
@@ -64983,7 +64992,7 @@ $.fn.togglify = function(settings) {
                   M = v(m);
                 if (g == Ce) m = M;
                 else if (!M) {
-                  if (g == De) continue e;
+                  if (g == xe) continue e;
                   break e;
                 }
               }
@@ -65107,8 +65116,7 @@ $.fn.togglify = function(settings) {
           }
 
           function hn(e) {
-            return this.__data__.set(e, ue),
-              this;
+            return this.__data__.set(e, ue), this;
           }
 
           function vn(e) {
@@ -65130,7 +65138,7 @@ $.fn.togglify = function(settings) {
             return this.size = t.size, n;
           }
 
-          function kn(e) {
+          function Ln(e) {
             return this.__data__.get(e);
           }
 
@@ -65148,7 +65156,7 @@ $.fn.togglify = function(settings) {
             return n.set(e, t), this.size = n.size, this;
           }
 
-          function xn(e, t) {
+          function Dn(e, t) {
             var n = ff(e),
               r = !n && df(e),
               o = !n && !r && pf(e),
@@ -65203,7 +65211,7 @@ $.fn.togglify = function(settings) {
           }
 
           function Kn(e, t, n) {
-            "__proto__" == t && Dc ? Dc(e, t, {
+            "__proto__" == t && xc ? xc(e, t, {
               configurable: !0,
               enumerable: !0,
               value: n,
@@ -65272,7 +65280,7 @@ $.fn.togglify = function(settings) {
 
           function tr(e, t, n) {
             if ("function" != typeof e) throw new ic(se);
-            return kd(function() {
+            return Ld(function() {
               e.apply(oe, n);
             }, t);
           }
@@ -65331,7 +65339,7 @@ $.fn.togglify = function(settings) {
           function sr(e, t, n, r, o) {
             var i = -1,
               a = e.length;
-            for (n || (n = Di), o || (o = []); ++i < a;) {
+            for (n || (n = xi), o || (o = []); ++i < a;) {
               var s = e[i];
               t > 0 && n(s) ? t > 1 ? sr(s, t - 1, n, r, o) : m(o, s) : r || (o[o.length] = s);
             }
@@ -65364,7 +65372,7 @@ $.fn.togglify = function(settings) {
           }
 
           function hr(e) {
-            return null == e ? e === oe ? rt : $e : xc && xc in nc(e) ? bi(e) : Wi(e);
+            return null == e ? e === oe ? rt : $e : Dc && Dc in nc(e) ? bi(e) : Wi(e);
           }
 
           function pr(e, t) {
@@ -65425,12 +65433,12 @@ $.fn.togglify = function(settings) {
             return eu(e) && hr(e) == at;
           }
 
-          function Lr(e) {
+          function kr(e) {
             return eu(e) && hr(e) == Ue;
           }
 
-          function kr(e, t, n, r, o) {
-            return e === t || (null == e || null == t || !eu(e) && !eu(t) ? e !== e && t !== t : Tr(e, t, n, r, kr, o));
+          function Lr(e, t, n, r, o) {
+            return e === t || (null == e || null == t || !eu(e) && !eu(t) ? e !== e && t !== t : Tr(e, t, n, r, Lr, o));
           }
 
           function Tr(e, t, n, r, o, i) {
@@ -65482,17 +65490,17 @@ $.fn.togglify = function(settings) {
               } else {
                 var d = new gn;
                 if (r) var f = r(l, c, u, e, t, d);
-                if (!(f === oe ? kr(c, l, he | pe, r, d) : f)) return !1;
+                if (!(f === oe ? Lr(c, l, he | pe, r, d) : f)) return !1;
               }
             }
             return !0;
           }
 
-          function xr(e) {
+          function Dr(e) {
             return !(!Zs(e) || Ri(e)) && ($s(e) ? yc : Wt).test(Ki(e));
           }
 
-          function Dr(e) {
+          function xr(e) {
             return eu(e) && hr(e) == Ze;
           }
 
@@ -65545,7 +65553,7 @@ $.fn.togglify = function(settings) {
           function Hr(e, t) {
             return Ei(e) && Ai(t) ? Hi(Ji(e), t) : function(n) {
               var r = Eu(n, e);
-              return r === oe && r === t ? Ou(n, e) : kr(t, r, he | pe);
+              return r === oe && r === t ? Ou(n, e) : Lr(t, r, he | pe);
             };
           }
 
@@ -65570,7 +65578,7 @@ $.fn.togglify = function(settings) {
               var f = ff(u),
                 h = !f && pf(u),
                 p = !f && !h && gf(u);
-              c = u, f || h || p ? ff(s) ? c = s : Fs(s) ? c = jo(s) : h ? (d = !1, c = bo(u, !0)) : p ? (d = !1, c = xo(u, !0)) : c = [] : uu(u) || df(u) ? (c = s, df(s) ? c = Mu(s) : (!Zs(s) || r && $s(s)) && (c = Si(u))) : d = !1;
+              c = u, f || h || p ? ff(s) ? c = s : Fs(s) ? c = jo(s) : h ? (d = !1, c = bo(u, !0)) : p ? (d = !1, c = Do(u, !0)) : c = [] : uu(u) || df(u) ? (c = s, df(s) ? c = Mu(s) : (!Zs(s) || r && $s(s)) && (c = Si(u))) : d = !1;
             }
             d && (a.set(u, c), o(c, u, r, i, a), a.delete(u)), Un(e, n, c);
           }
@@ -65617,7 +65625,7 @@ $.fn.togglify = function(settings) {
           }
 
           function Vr(e, t, n, r) {
-            var o = r ? T : k,
+            var o = r ? T : L,
               i = -1,
               a = t.length,
               s = e;
@@ -65848,12 +65856,12 @@ $.fn.togglify = function(settings) {
             return new Mc(t).set(new Mc(e)), t;
           }
 
-          function Lo(e, t) {
+          function ko(e, t) {
             var n = t ? wo(e.buffer) : e.buffer;
             return new e.constructor(n, e.byteOffset, e.byteLength);
           }
 
-          function ko(e, t, n) {
+          function Lo(e, t, n) {
             return y(t ? n(V(e), ce) : V(e), i, new e.constructor);
           }
 
@@ -65870,12 +65878,12 @@ $.fn.togglify = function(settings) {
             return ad ? nc(ad.call(e)) : {};
           }
 
-          function xo(e, t) {
+          function Do(e, t) {
             var n = t ? wo(e.buffer) : e.buffer;
             return new e.constructor(n, e.byteOffset, e.length);
           }
 
-          function Do(e, t) {
+          function xo(e, t) {
             if (e !== t) {
               var n = e !== oe,
                 r = null === e,
@@ -65893,7 +65901,7 @@ $.fn.togglify = function(settings) {
 
           function Co(e, t, n) {
             for (var r = -1, o = e.criteria, i = t.criteria, a = o.length, s = n.length; ++r < a;) {
-              var u = Do(o[r], i[r]);
+              var u = xo(o[r], i[r]);
               if (u) return r >= s ? u : u * ("desc" == n[r] ? -1 : 1);
             }
             return e.index - t.index;
@@ -66071,7 +66079,7 @@ $.fn.togglify = function(settings) {
                 a = t[r];
                 var u = _i(a),
                   l = "wrapper" == u ? vd(a) : oe;
-                s = l && Oi(l[0]) && l[1] == (we | ve | Me | Le) && !l[4].length && 1 == l[9] ? s[_i(l[0])].apply(s, l[3]) : 1 == a.length && Oi(a) ? s[u]() : s.thru(a);
+                s = l && Oi(l[0]) && l[1] == (we | ve | Me | ke) && !l[4].length && 1 == l[9] ? s[_i(l[0])].apply(s, l[3]) : 1 == a.length && Oi(a) ? s[u]() : s.thru(a);
               }
               return function() {
                 var e = arguments,
@@ -66092,15 +66100,15 @@ $.fn.togglify = function(settings) {
                 var w = J(v, M);
                 return ni(e, t, Jo, c.placeholder, n, v, w, s, u, l - y);
               }
-              var L = f ? n : this,
-                k = h ? L[e] : e;
-              return y = v.length, s ? v = Gi(v, s) : _ && y > 1 && v.reverse(), d && u < y && (v.length = u), this && this !== Sn && this instanceof c && (k = m || Go(k)), k.apply(L, v);
+              var k = f ? n : this,
+                L = h ? k[e] : e;
+              return y = v.length, s ? v = Gi(v, s) : _ && y > 1 && v.reverse(), d && u < y && (v.length = u), this && this !== Sn && this instanceof c && (L = m || Go(L)), L.apply(k, v);
             }
             var d = t & we,
               f = t & _e,
               h = t & me,
               p = t & (ve | ge),
-              _ = t & ke,
+              _ = t & Le,
               m = h ? oe : Go(e);
             return c;
           }
@@ -66174,7 +66182,7 @@ $.fn.togglify = function(settings) {
             t |= c ? Me : be, (t &= ~(c ? be : Me)) & ye || (t &= ~(_e | me));
             var _ = [e, t, o, h, d, p, f, s, u, l],
               m = n.apply(oe, _);
-            return Oi(e) && Ld(m, _), m.placeholder = r, Bi(m, e, t);
+            return Oi(e) && kd(m, _), m.placeholder = r, Bi(m, e, t);
           }
 
           function ri(e) {
@@ -66208,7 +66216,7 @@ $.fn.togglify = function(settings) {
               h = [e, t, n, r, o, c, d, i, a, s];
             if (f && Ni(h, f), e = h[0], t = h[1], n = h[2], r = h[3], o = h[4], s = h[9] = h[9] === oe ? u ? 0 : e.length : zc(h[9] - l, 0), !s && t & (ve | ge) && (t &= ~(ve | ge)), t && t != _e) p = t == ve || t == ge ? Bo(e, t, s) : t != Me && t != (_e | Me) || o.length ? Jo.apply(oe, h) : Zo(e, t, n, r);
             else var p = Wo(e, t, n);
-            return Bi((f ? hd : Ld)(p, h), e, t);
+            return Bi((f ? hd : kd)(p, h), e, t);
           }
 
           function ai(e, t, n, r) {
@@ -66367,17 +66375,17 @@ $.fn.togglify = function(settings) {
 
           function Mi(e, t) {
             var n = F(e, t);
-            return xr(n) ? n : oe;
+            return Dr(n) ? n : oe;
           }
 
           function bi(e) {
-            var t = dc.call(e, xc),
-              n = e[xc];
+            var t = dc.call(e, Dc),
+              n = e[Dc];
             try {
-              e[xc] = oe;
+              e[Dc] = oe;
             } catch (e) {}
             var r = pc.call(e);
-            return t ? e[xc] = n : delete e[xc], r;
+            return t ? e[Dc] = n : delete e[Dc], r;
           }
 
           function wi(e, t, n) {
@@ -66404,12 +66412,12 @@ $.fn.togglify = function(settings) {
             };
           }
 
-          function Li(e) {
+          function ki(e) {
             var t = e.match(Ot);
             return t ? t[1].split(Rt) : [];
           }
 
-          function ki(e, t, n) {
+          function Li(e, t, n) {
             t = go(t, e);
             for (var r = -1, o = t.length, i = !1; ++r < o;) {
               var a = Ji(t[r]);
@@ -66438,7 +66446,7 @@ $.fn.togglify = function(settings) {
               case Ue:
                 return new o(+e);
               case st:
-                return Lo(e, r);
+                return ko(e, r);
               case ut:
               case lt:
               case ct:
@@ -66448,9 +66456,9 @@ $.fn.togglify = function(settings) {
               case pt:
               case _t:
               case mt:
-                return xo(e, r);
+                return Do(e, r);
               case Je:
-                return ko(e, r, n);
+                return Lo(e, r, n);
               case Ke:
               case tt:
                 return new o(e);
@@ -66463,14 +66471,14 @@ $.fn.togglify = function(settings) {
             }
           }
 
-          function xi(e, t) {
+          function Di(e, t) {
             var n = t.length;
             if (!n) return e;
             var r = n - 1;
             return t[r] = (n > 1 ? "& " : "") + t[r], t = t.join(n > 2 ? ", " : " "), e.replace(jt, "{\n/* [wrapped with " + t + "] */\n");
           }
 
-          function Di(e) {
+          function xi(e) {
             return ff(e) || df(e) || !!(Sc && e && e[Sc]);
           }
 
@@ -66528,7 +66536,7 @@ $.fn.togglify = function(settings) {
               r = t[1],
               o = n | r,
               i = o < (_e | me | we),
-              a = r == we && n == ve || r == we && n == Le && e[7].length <= t[8] || r == (we | Le) && t[7].length <= t[8] && n == ve;
+              a = r == we && n == ve || r == we && n == ke && e[7].length <= t[8] || r == (we | ke) && t[7].length <= t[8] && n == ve;
             if (!i && !a) return e;
             r & _e && (e[2] = t[2], o |= n & _e ? 0 : ye);
             var s = t[3];
@@ -66574,7 +66582,7 @@ $.fn.togglify = function(settings) {
 
           function Bi(e, t, n) {
             var r = t + "";
-            return Td(e, xi(r, $i(Li(r), n)));
+            return Td(e, Di(r, $i(ki(r), n)));
           }
 
           function Vi(e) {
@@ -66582,7 +66590,7 @@ $.fn.togglify = function(settings) {
               n = 0;
             return function() {
               var r = Fc(),
-                o = xe - (r - n);
+                o = De - (r - n);
               if (n = r, o > 0) {
                 if (++t >= Ye) return arguments[0];
               } else t = 0;
@@ -66683,14 +66691,14 @@ $.fn.togglify = function(settings) {
             var r = null == e ? 0 : e.length;
             if (!r) return -1;
             var o = null == n ? 0 : yu(n);
-            return o < 0 && (o = zc(r + o, 0)), L(e, yi(t, 3), o);
+            return o < 0 && (o = zc(r + o, 0)), k(e, yi(t, 3), o);
           }
 
           function sa(e, t, n) {
             var r = null == e ? 0 : e.length;
             if (!r) return -1;
             var o = r - 1;
-            return n !== oe && (o = yu(n), o = n < 0 ? zc(r + o, 0) : Wc(o, r - 1)), L(e, yi(t, 3), o, !0);
+            return n !== oe && (o = yu(n), o = n < 0 ? zc(r + o, 0) : Wc(o, r - 1)), k(e, yi(t, 3), o, !0);
           }
 
           function ua(e) {
@@ -66721,7 +66729,7 @@ $.fn.togglify = function(settings) {
             var r = null == e ? 0 : e.length;
             if (!r) return -1;
             var o = null == n ? 0 : yu(n);
-            return o < 0 && (o = zc(r + o, 0)), k(e, t, o);
+            return o < 0 && (o = zc(r + o, 0)), L(e, t, o);
           }
 
           function pa(e) {
@@ -66741,7 +66749,7 @@ $.fn.togglify = function(settings) {
             var r = null == e ? 0 : e.length;
             if (!r) return -1;
             var o = r;
-            return n !== oe && (o = yu(n), o = o < 0 ? zc(r + o, 0) : Wc(o, r - 1)), t === t ? X(e, t, o) : L(e, S, o, !0);
+            return n !== oe && (o = yu(n), o = o < 0 ? zc(r + o, 0) : Wc(o, r - 1)), t === t ? X(e, t, o) : k(e, S, o, !0);
           }
 
           function va(e, t) {
@@ -66773,11 +66781,11 @@ $.fn.togglify = function(settings) {
             return qr(e, o), n;
           }
 
-          function La(e) {
+          function ka(e) {
             return null == e ? e : Bc.call(e);
           }
 
-          function ka(e, t, n) {
+          function La(e, t, n) {
             var r = null == e ? 0 : e.length;
             return r ? (n && "number" != typeof n && Pi(e, t, n) ? (t = 0, n = r) : (t = null == t ? 0 : yu(t), n = n === oe ? r : yu(n)), no(e, t, n)) : [];
           }
@@ -66799,11 +66807,11 @@ $.fn.togglify = function(settings) {
             return -1;
           }
 
-          function xa(e, t) {
+          function Da(e, t) {
             return oo(e, t, !0);
           }
 
-          function Da(e, t, n) {
+          function xa(e, t, n) {
             return io(e, t, yi(n, 2), !0);
           }
 
@@ -66863,7 +66871,7 @@ $.fn.togglify = function(settings) {
             return e = f(e, function(e) {
               if (Fs(e)) return t = zc(e.length, t), !0;
             }), j(t, function(t) {
-              return _(e, x(t));
+              return _(e, D(t));
             });
           }
 
@@ -66933,11 +66941,11 @@ $.fn.togglify = function(settings) {
               var t = e;
               return this.__actions__.length && (t = new M(this)), t = t.reverse(), t.__actions__.push({
                 func: qa,
-                args: [La],
+                args: [ka],
                 thisArg: oe
               }), new o(t, this.__chain__);
             }
-            return this.thru(La);
+            return this.thru(ka);
           }
 
           function es() {
@@ -66976,7 +66984,7 @@ $.fn.togglify = function(settings) {
           function us(e, t, n, r) {
             e = Ws(e) ? e : Ju(e), n = n && !r ? yu(n) : 0;
             var o = e.length;
-            return n < 0 && (n = zc(o + n, 0)), cu(e) ? n <= o && e.indexOf(t, n) > -1 : !!o && k(e, t, n) > -1;
+            return n < 0 && (n = zc(o + n, 0)), cu(e) ? n <= o && e.indexOf(t, n) > -1 : !!o && L(e, t, n) > -1;
           }
 
           function ls(e, t) {
@@ -67054,13 +67062,13 @@ $.fn.togglify = function(settings) {
             return r.placeholder = ws.placeholder, r;
           }
 
-          function Ls(e, t, n) {
+          function ks(e, t, n) {
             t = n ? oe : t;
             var r = ii(e, ge, oe, oe, oe, oe, oe, t);
-            return r.placeholder = Ls.placeholder, r;
+            return r.placeholder = ks.placeholder, r;
           }
 
-          function ks(e, t, n) {
+          function Ls(e, t, n) {
             function r(t) {
               var n = f,
                 r = h;
@@ -67068,7 +67076,7 @@ $.fn.togglify = function(settings) {
             }
 
             function o(e) {
-              return v = e, m = kd(s, t), g ? r(e) : _;
+              return v = e, m = Ld(s, t), g ? r(e) : _;
             }
 
             function i(e) {
@@ -67087,7 +67095,7 @@ $.fn.togglify = function(settings) {
             function s() {
               var e = Zd();
               if (a(e)) return u(e);
-              m = kd(s, i(e));
+              m = Ld(s, i(e));
             }
 
             function u(e) {
@@ -67107,9 +67115,9 @@ $.fn.togglify = function(settings) {
                 n = a(e);
               if (f = arguments, h = this, y = e, n) {
                 if (m === oe) return o(y);
-                if (M) return m = kd(s, t), r(y);
+                if (M) return m = Ld(s, t), r(y);
               }
-              return m === oe && (m = kd(s, t)), _;
+              return m === oe && (m = Ld(s, t)), _;
             }
             var f, h, p, _, m, y, v = 0,
               g = !1,
@@ -67120,7 +67128,7 @@ $.fn.togglify = function(settings) {
           }
 
           function Ts(e) {
-            return ii(e, ke);
+            return ii(e, Le);
           }
 
           function Ss(e, t) {
@@ -67154,11 +67162,11 @@ $.fn.togglify = function(settings) {
             };
           }
 
-          function xs(e) {
+          function Ds(e) {
             return bs(2, e);
           }
 
-          function Ds(e, t) {
+          function xs(e, t) {
             if ("function" != typeof e) throw new ic(se);
             return t = t === oe ? t : yu(t), Qr(e, t);
           }
@@ -67176,7 +67184,7 @@ $.fn.togglify = function(settings) {
             var r = !0,
               o = !0;
             if ("function" != typeof e) throw new ic(se);
-            return Zs(n) && (r = "leading" in n ? !!n.leading : r, o = "trailing" in n ? !!n.trailing : o), ks(e, t, {
+            return Zs(n) && (r = "leading" in n ? !!n.leading : r, o = "trailing" in n ? !!n.trailing : o), Ls(e, t, {
               leading: r,
               maxWait: t,
               trailing: o
@@ -67249,13 +67257,13 @@ $.fn.togglify = function(settings) {
           }
 
           function Vs(e, t) {
-            return kr(e, t);
+            return Lr(e, t);
           }
 
           function qs(e, t, n) {
             n = "function" == typeof n ? n : oe;
             var r = n ? n(e, t) : oe;
-            return r === oe ? kr(e, t, oe, n) : !!r;
+            return r === oe ? Lr(e, t, oe, n) : !!r;
           }
 
           function Js(e) {
@@ -67305,7 +67313,7 @@ $.fn.togglify = function(settings) {
 
           function ou(e) {
             if (wd(e)) throw new Zl(ae);
-            return xr(e);
+            return Dr(e);
           }
 
           function iu(e) {
@@ -67384,7 +67392,7 @@ $.fn.togglify = function(settings) {
             if ("string" != typeof e) return 0 === e ? e : +e;
             e = e.replace(Ct, "");
             var n = zt.test(e);
-            return n || Ft.test(e) ? Ln(e.slice(2), n ? 2 : 8) : Nt.test(e) ? Oe : +e;
+            return n || Ft.test(e) ? kn(e.slice(2), n ? 2 : 8) : Nt.test(e) ? Oe : +e;
           }
 
           function Mu(e) {
@@ -67399,12 +67407,12 @@ $.fn.togglify = function(settings) {
             return null == e ? "" : uo(e);
           }
 
-          function Lu(e, t) {
+          function ku(e, t) {
             var n = ud(e);
             return null == t ? n : qn(n, t);
           }
 
-          function ku(e, t) {
+          function Lu(e, t) {
             return w(e, yi(t, 3), ur);
           }
 
@@ -67420,11 +67428,11 @@ $.fn.togglify = function(settings) {
             return null == e ? e : fd(e, yi(t, 3), Iu);
           }
 
-          function xu(e, t) {
+          function Du(e, t) {
             return e && ur(e, yi(t, 3));
           }
 
-          function Du(e, t) {
+          function xu(e, t) {
             return e && lr(e, yi(t, 3));
           }
 
@@ -67442,19 +67450,19 @@ $.fn.togglify = function(settings) {
           }
 
           function ju(e, t) {
-            return null != e && ki(e, t, _r);
+            return null != e && Li(e, t, _r);
           }
 
           function Ou(e, t) {
-            return null != e && ki(e, t, mr);
+            return null != e && Li(e, t, mr);
           }
 
           function Ru(e) {
-            return Ws(e) ? xn(e) : jr(e);
+            return Ws(e) ? Dn(e) : jr(e);
           }
 
           function Iu(e) {
-            return Ws(e) ? xn(e, !0) : Or(e);
+            return Ws(e) ? Dn(e, !0) : Or(e);
           }
 
           function Au(e, t) {
@@ -67573,11 +67581,11 @@ $.fn.togglify = function(settings) {
           }
 
           function nl(e) {
-            return e = wu(e), e && Lt.test(e) ? e.replace(bt, zn) : e;
+            return e = wu(e), e && kt.test(e) ? e.replace(bt, zn) : e;
           }
 
           function rl(e) {
-            return e = wu(e), e && Dt.test(e) ? e.replace(xt, "\\$&") : e;
+            return e = wu(e), e && xt.test(e) ? e.replace(Dt, "\\$&") : e;
           }
 
           function ol(e, t, n) {
@@ -67624,14 +67632,14 @@ $.fn.togglify = function(settings) {
 
           function fl(e, t, r) {
             var o = n.templateSettings;
-            r && Pi(e, t, r) && (t = oe), e = wu(e), t = kf({}, t, o, ai);
-            var i, a, s = kf({}, t.imports, o.imports, ai),
+            r && Pi(e, t, r) && (t = oe), e = wu(e), t = Lf({}, t, o, ai);
+            var i, a, s = Lf({}, t.imports, o.imports, ai),
               u = Ru(s),
               l = I(s, u),
               c = 0,
               d = t.interpolate || Bt,
               f = "__p += '",
-              h = rc((t.escape || Bt).source + "|" + d.source + "|" + (d === kt ? At : Bt).source + "|" + (t.evaluate || Bt).source + "|$", "g"),
+              h = rc((t.escape || Bt).source + "|" + d.source + "|" + (d === Lt ? At : Bt).source + "|" + (t.evaluate || Bt).source + "|$", "g"),
               p = "//# sourceURL=" + ("sourceURL" in t ? t.sourceURL : "lodash.templateSources[" + ++_n + "]") + "\n";
             e.replace(h, function(t, n, r, o, s, u) {
               return r || (r = o), f += e.slice(c, u).replace(Vt, W), n && (i = !0, f += "' +\n__e(" + n + ") +\n'"), s && (a = !0, f += "';\n" + s + ";\n__p += '"), r && (f += "' +\n((__t = (" + r + ")) == null ? '' : __t) +\n'"), c = u + t.length, t;
@@ -67732,13 +67740,13 @@ $.fn.togglify = function(settings) {
             return Zn(Xn(e, ce));
           }
 
-          function Ll(e) {
+          function kl(e) {
             return function() {
               return e;
             };
           }
 
-          function kl(e, t) {
+          function Ll(e, t) {
             return null == e || e !== e ? t : e;
           }
 
@@ -67754,11 +67762,11 @@ $.fn.togglify = function(settings) {
             return Ar(Xn(e, ce));
           }
 
-          function xl(e, t) {
+          function Dl(e, t) {
             return Hr(e, Xn(t, ce));
           }
 
-          function Dl(e, t, n) {
+          function xl(e, t, n) {
             var r = Ru(t),
               o = cr(t, r);
             null != n || Zs(t) && (o.length || !r.length) || (n = t, t = e, e = this, o = cr(t, Ru(t)));
@@ -67794,7 +67802,7 @@ $.fn.togglify = function(settings) {
           }
 
           function jl(e) {
-            return Ei(e) ? x(Ji(e)) : Br(e);
+            return Ei(e) ? D(Ji(e)) : Br(e);
           }
 
           function Ol(e) {
@@ -67896,19 +67904,19 @@ $.fn.togglify = function(settings) {
             pc = uc.toString,
             _c = cc.call(nc),
             mc = Sn._,
-            yc = rc("^" + cc.call(dc).replace(xt, "\\$&").replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, "$1.*?") + "$"),
-            vc = Dn ? t.Buffer : oe,
+            yc = rc("^" + cc.call(dc).replace(Dt, "\\$&").replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, "$1.*?") + "$"),
+            vc = xn ? t.Buffer : oe,
             gc = t.Symbol,
             Mc = t.Uint8Array,
             bc = vc ? vc.allocUnsafe : oe,
             wc = q(nc.getPrototypeOf, nc),
-            Lc = nc.create,
-            kc = uc.propertyIsEnumerable,
+            kc = nc.create,
+            Lc = uc.propertyIsEnumerable,
             Tc = ac.splice,
             Sc = gc ? gc.isConcatSpreadable : oe,
             Yc = gc ? gc.iterator : oe,
-            xc = gc ? gc.toStringTag : oe,
-            Dc = function() {
+            Dc = gc ? gc.toStringTag : oe,
+            xc = function() {
               try {
                 var e = Mi(nc, "defineProperty");
                 return e({}, "", {}), e;
@@ -67950,7 +67958,7 @@ $.fn.togglify = function(settings) {
               function e() {}
               return function(t) {
                 if (!Zs(t)) return {};
-                if (Lc) return Lc(t);
+                if (kc) return kc(t);
                 e.prototype = t;
                 var n = new e;
                 return e.prototype = oe, n;
@@ -67959,12 +67967,12 @@ $.fn.togglify = function(settings) {
           n.templateSettings = {
             escape: /<%-([\s\S]+?)%>/g,
             evaluate: /<%([\s\S]+?)%>/g,
-            interpolate: kt,
+            interpolate: Lt,
             variable: "",
             imports: {
               _: n
             }
-          }, n.prototype = r.prototype, n.prototype.constructor = n, o.prototype = ud(r.prototype), o.prototype.constructor = o, M.prototype = ud(r.prototype), M.prototype.constructor = M, ne.prototype.clear = It, ne.prototype.delete = qt, ne.prototype.get = Jt, ne.prototype.has = Kt, ne.prototype.set = $t, Qt.prototype.clear = Xt, Qt.prototype.delete = Zt, Qt.prototype.get = en, Qt.prototype.has = tn, Qt.prototype.set = nn, rn.prototype.clear = on, rn.prototype.delete = an, rn.prototype.get = sn, rn.prototype.has = cn, rn.prototype.set = dn, fn.prototype.add = fn.prototype.push = hn, fn.prototype.has = vn, gn.prototype.clear = Mn, gn.prototype.delete = bn, gn.prototype.get = kn, gn.prototype.has = Tn, gn.prototype.set = Yn;
+          }, n.prototype = r.prototype, n.prototype.constructor = n, o.prototype = ud(r.prototype), o.prototype.constructor = o, M.prototype = ud(r.prototype), M.prototype.constructor = M, ne.prototype.clear = It, ne.prototype.delete = qt, ne.prototype.get = Jt, ne.prototype.has = Kt, ne.prototype.set = $t, Qt.prototype.clear = Xt, Qt.prototype.delete = Zt, Qt.prototype.get = en, Qt.prototype.has = tn, Qt.prototype.set = nn, rn.prototype.clear = on, rn.prototype.delete = an, rn.prototype.get = sn, rn.prototype.has = cn, rn.prototype.set = dn, fn.prototype.add = fn.prototype.push = hn, fn.prototype.has = vn, gn.prototype.clear = Mn, gn.prototype.delete = bn, gn.prototype.get = Ln, gn.prototype.has = Tn, gn.prototype.set = Yn;
           var ld = No(ur),
             cd = No(lr, !0),
             dd = zo(),
@@ -67972,11 +67980,11 @@ $.fn.togglify = function(settings) {
             hd = Xc ? function(e, t) {
               return Xc.set(e, t), e;
             } : Tl,
-            pd = Dc ? function(e, t) {
-              return Dc(e, "toString", {
+            pd = xc ? function(e, t) {
+              return xc(e, "toString", {
                 configurable: !0,
                 enumerable: !1,
-                value: Ll(t),
+                value: kl(t),
                 writable: !0
               });
             } : Tl,
@@ -67992,7 +68000,7 @@ $.fn.togglify = function(settings) {
             } : Pl,
             gd = Rc ? function(e) {
               return null == e ? [] : (e = nc(e), f(Rc(e), function(t) {
-                return kc.call(e, t);
+                return Lc.call(e, t);
               }));
             } : Rl,
             Md = Rc ? function(e) {
@@ -68019,8 +68027,8 @@ $.fn.togglify = function(settings) {
             return t;
           });
           var wd = lc ? $s : Il,
-            Ld = Vi(hd),
-            kd = Ec || function(e, t) {
+            kd = Vi(hd),
+            Ld = Ec || function(e, t) {
               return Sn.setTimeout(e, t);
             },
             Td = Vi(pd),
@@ -68039,11 +68047,11 @@ $.fn.togglify = function(settings) {
             Yd = Qr(function(e, t) {
               return Fs(e) ? nr(e, sr(t, 1, Fs, !0)) : [];
             }),
-            xd = Qr(function(e, t) {
+            Dd = Qr(function(e, t) {
               var n = ma(t);
               return Fs(n) && (n = oe), Fs(e) ? nr(e, sr(t, 1, Fs, !0), yi(n, 2)) : [];
             }),
-            Dd = Qr(function(e, t) {
+            xd = Qr(function(e, t) {
               var n = ma(t);
               return Fs(n) && (n = oe), Fs(e) ? nr(e, sr(t, 1, Fs, !0), oe, n) : [];
             }),
@@ -68067,7 +68075,7 @@ $.fn.togglify = function(settings) {
                 r = $n(e, t);
               return qr(e, _(t, function(e) {
                 return Ci(e, n) ? +e : e;
-              }).sort(Do)), r;
+              }).sort(xo)), r;
             }),
             Rd = Qr(function(e) {
               return lo(sr(e, 1, Fs, !0));
@@ -68187,31 +68195,31 @@ $.fn.togglify = function(settings) {
             var n = J(t, mi(sf));
             return ii(e, be, oe, t, n);
           }), uf = fi(function(e, t) {
-            return ii(e, Le, oe, oe, oe, t);
+            return ii(e, ke, oe, oe, oe, t);
           }), lf = ti(pr), cf = ti(function(e, t) {
             return e >= t;
           }), df = br(function() {
             return arguments;
           }()) ? br : function(e) {
-            return eu(e) && dc.call(e, "callee") && !kc.call(e, "callee");
-          }, ff = Ql.isArray, hf = En ? R(En) : wr, pf = Ic || Il, _f = jn ? R(jn) : Lr, mf = On ? R(On) : Sr, yf = Rn ? R(Rn) : Dr, vf = In ? R(In) : Cr, gf = An ? R(An) : Pr, Mf = ti(Rr), bf = ti(function(e, t) {
+            return eu(e) && dc.call(e, "callee") && !Lc.call(e, "callee");
+          }, ff = Ql.isArray, hf = En ? R(En) : wr, pf = Ic || Il, _f = jn ? R(jn) : kr, mf = On ? R(On) : Sr, yf = Rn ? R(Rn) : xr, vf = In ? R(In) : Cr, gf = An ? R(An) : Pr, Mf = ti(Rr), bf = ti(function(e, t) {
             return e <= t;
           }), wf = Ho(function(e, t) {
             if (Ii(t) || Ws(t)) return void Oo(t, Ru(t), e);
             for (var n in t) dc.call(t, n) && Gn(e, n, t[n]);
-          }), Lf = Ho(function(e, t) {
+          }), kf = Ho(function(e, t) {
             Oo(t, Iu(t), e);
-          }), kf = Ho(function(e, t, n, r) {
+          }), Lf = Ho(function(e, t, n, r) {
             Oo(t, Iu(t), e, r);
           }), Tf = Ho(function(e, t, n, r) {
             Oo(t, Ru(t), e, r);
           }), Sf = fi($n), Yf = Qr(function(e) {
-            return e.push(oe, ai), s(kf, oe, e);
-          }), xf = Qr(function(e) {
+            return e.push(oe, ai), s(Lf, oe, e);
+          }), Df = Qr(function(e) {
             return e.push(oe, si), s(jf, oe, e);
-          }), Df = Ko(function(e, t, n) {
+          }), xf = Ko(function(e, t, n) {
             e[t] = n;
-          }, Ll(Tl)), Cf = Ko(function(e, t, n) {
+          }, kl(Tl)), Cf = Ko(function(e, t, n) {
             dc.call(e, t) ? e[t].push(n) : e[t] = [n];
           }, yi), Pf = Qr(Mr), Ef = Ho(function(e, t, n) {
             Nr(e, t, n);
@@ -68267,7 +68275,7 @@ $.fn.togglify = function(settings) {
           }, 1), uh = ri("round"), lh = $o(function(e, t) {
             return e - t;
           }, 0);
-          return n.after = gs, n.ary = Ms, n.assign = wf, n.assignIn = Lf, n.assignInWith = kf, n.assignWith = Tf, n.at = Sf, n.before = bs, n.bind = ef, n.bindAll = qf, n.bindKey = tf, n.castArray = Os, n.chain = Ba, n.chunk = Xi, n.compact = Zi, n.concat = ea, n.cond = bl, n.conforms = wl, n.constant = Ll, n.countBy = Bd, n.create = Lu, n.curry = ws, n.curryRight = Ls, n.debounce = ks, n.defaults = Yf, n.defaultsDeep = xf, n.defer = nf, n.delay = rf, n.difference = Yd, n.differenceBy = xd, n.differenceWith = Dd, n.drop = ta, n.dropRight = na, n.dropRightWhile = ra, n.dropWhile = oa, n.fill = ia, n.filter = ns, n.flatMap = rs, n.flatMapDeep = os, n.flatMapDepth = is, n.flatten = ua, n.flattenDeep = la, n.flattenDepth = ca, n.flip = Ts, n.flow = Jf, n.flowRight = Kf, n.fromPairs = da, n.functions = Cu, n.functionsIn = Pu, n.groupBy = Jd, n.initial = pa, n.intersection = Cd, n.intersectionBy = Pd, n.intersectionWith = Ed, n.invert = Df, n.invertBy = Cf, n.invokeMap = Kd, n.iteratee = Sl, n.keyBy = $d, n.keys = Ru, n.keysIn = Iu, n.map = ls, n.mapKeys = Au, n.mapValues = Hu, n.matches = Yl, n.matchesProperty = xl, n.memoize = Ss, n.merge = Ef, n.mergeWith = jf, n.method = $f, n.methodOf = Qf, n.mixin = Dl, n.negate = Ys, n.nthArg = El, n.omit = Of, n.omitBy = Nu, n.once = xs, n.orderBy = cs, n.over = Xf, n.overArgs = of , n.overEvery = Zf, n.overSome = eh, n.partial = af, n.partialRight = sf, n.partition = Qd, n.pick = Rf, n.pickBy = zu, n.property = jl, n.propertyOf = Ol, n.pull = jd, n.pullAll = ga, n.pullAllBy = Ma, n.pullAllWith = ba, n.pullAt = Od, n.range = th, n.rangeRight = nh, n.rearg = uf, n.reject = hs, n.remove = wa, n.rest = Ds, n.reverse = La, n.sampleSize = _s, n.set = Fu, n.setWith = Uu, n.shuffle = ms, n.slice = ka, n.sortBy = Xd, n.sortedUniq = Pa, n.sortedUniqBy = Ea, n.split = cl, n.spread = Cs, n.tail = ja, n.take = Oa, n.takeRight = Ra, n.takeRightWhile = Ia, n.takeWhile = Aa, n.tap = Va, n.throttle = Ps, n.thru = qa, n.toArray = _u, n.toPairs = If, n.toPairsIn = Af, n.toPath = Wl, n.toPlainObject = Mu, n.transform = Gu, n.unary = Es, n.union = Rd, n.unionBy = Id, n.unionWith = Ad, n.uniq = Ha, n.uniqBy = Na, n.uniqWith = za, n.unset = Bu, n.unzip = Wa, n.unzipWith = Fa, n.update = Vu, n.updateWith = qu, n.values = Ju, n.valuesIn = Ku, n.without = Hd, n.words = Ml, n.wrap = js, n.xor = Nd, n.xorBy = zd, n.xorWith = Wd, n.zip = Fd, n.zipObject = Ua, n.zipObjectDeep = Ga, n.zipWith = Ud, n.entries = If, n.entriesIn = Af, n.extend = Lf, n.extendWith = kf, Dl(n, n), n.add = rh, n.attempt = Vf, n.camelCase = Hf, n.capitalize = Zu, n.ceil = oh, n.clamp = $u, n.clone = Rs, n.cloneDeep = As, n.cloneDeepWith = Hs, n.cloneWith = Is, n.conformsTo = Ns, n.deburr = el, n.defaultTo = kl, n.divide = ih, n.endsWith = tl, n.eq = zs, n.escape = nl, n.escapeRegExp = rl, n.every = ts, n.find = Vd, n.findIndex = aa, n.findKey = ku, n.findLast = qd, n.findLastIndex = sa, n.findLastKey = Tu, n.floor = ah, n.forEach = as, n.forEachRight = ss, n.forIn = Su, n.forInRight = Yu, n.forOwn = xu, n.forOwnRight = Du, n.get = Eu, n.gt = lf, n.gte = cf, n.has = ju, n.hasIn = Ou, n.head = fa, n.identity = Tl, n.includes = us, n.indexOf = ha, n.inRange = Qu, n.invoke = Pf, n.isArguments = df, n.isArray = ff, n.isArrayBuffer = hf, n.isArrayLike = Ws, n.isArrayLikeObject = Fs, n.isBoolean = Us, n.isBuffer = pf, n.isDate = _f, n.isElement = Gs, n.isEmpty = Bs, n.isEqual = Vs, n.isEqualWith = qs, n.isError = Js, n.isFinite = Ks, n.isFunction = $s, n.isInteger = Qs, n.isLength = Xs, n.isMap = mf, n.isMatch = tu, n.isMatchWith = nu, n.isNaN = ru, n.isNative = ou, n.isNil = au, n.isNull = iu, n.isNumber = su, n.isObject = Zs, n.isObjectLike = eu, n.isPlainObject = uu, n.isRegExp = yf, n.isSafeInteger = lu, n.isSet = vf, n.isString = cu, n.isSymbol = du, n.isTypedArray = gf, n.isUndefined = fu, n.isWeakMap = hu, n.isWeakSet = pu, n.join = _a, n.kebabCase = Nf, n.last = ma, n.lastIndexOf = ya, n.lowerCase = zf, n.lowerFirst = Wf, n.lt = Mf, n.lte = bf, n.max = Ul, n.maxBy = Gl, n.mean = Bl, n.meanBy = Vl, n.min = ql, n.minBy = Jl, n.stubArray = Rl, n.stubFalse = Il, n.stubObject = Al, n.stubString = Hl, n.stubTrue = Nl, n.multiply = sh, n.nth = va, n.noConflict = Cl, n.noop = Pl, n.now = Zd, n.pad = ol, n.padEnd = il, n.padStart = al, n.parseInt = sl, n.random = Xu, n.reduce = ds, n.reduceRight = fs, n.repeat = ul, n.replace = ll, n.result = Wu, n.round = uh, n.runInContext = e, n.sample = ps, n.size = ys, n.snakeCase = Ff, n.some = vs, n.sortedIndex = Ta, n.sortedIndexBy = Sa, n.sortedIndexOf = Ya, n.sortedLastIndex = xa, n.sortedLastIndexBy = Da, n.sortedLastIndexOf = Ca, n.startCase = Uf, n.startsWith = dl, n.subtract = lh, n.sum = Kl, n.sumBy = $l, n.template = fl, n.times = zl, n.toFinite = mu, n.toInteger = yu, n.toLength = vu, n.toLower = hl, n.toNumber = gu, n.toSafeInteger = bu, n.toString = wu, n.toUpper = pl, n.trim = _l, n.trimEnd = ml, n.trimStart = yl, n.truncate = vl, n.unescape = gl, n.uniqueId = Fl, n.upperCase = Gf, n.upperFirst = Bf, n.each = as, n.eachRight = ss, n.first = fa, Dl(n, function() {
+          return n.after = gs, n.ary = Ms, n.assign = wf, n.assignIn = kf, n.assignInWith = Lf, n.assignWith = Tf, n.at = Sf, n.before = bs, n.bind = ef, n.bindAll = qf, n.bindKey = tf, n.castArray = Os, n.chain = Ba, n.chunk = Xi, n.compact = Zi, n.concat = ea, n.cond = bl, n.conforms = wl, n.constant = kl, n.countBy = Bd, n.create = ku, n.curry = ws, n.curryRight = ks, n.debounce = Ls, n.defaults = Yf, n.defaultsDeep = Df, n.defer = nf, n.delay = rf, n.difference = Yd, n.differenceBy = Dd, n.differenceWith = xd, n.drop = ta, n.dropRight = na, n.dropRightWhile = ra, n.dropWhile = oa, n.fill = ia, n.filter = ns, n.flatMap = rs, n.flatMapDeep = os, n.flatMapDepth = is, n.flatten = ua, n.flattenDeep = la, n.flattenDepth = ca, n.flip = Ts, n.flow = Jf, n.flowRight = Kf, n.fromPairs = da, n.functions = Cu, n.functionsIn = Pu, n.groupBy = Jd, n.initial = pa, n.intersection = Cd, n.intersectionBy = Pd, n.intersectionWith = Ed, n.invert = xf, n.invertBy = Cf, n.invokeMap = Kd, n.iteratee = Sl, n.keyBy = $d, n.keys = Ru, n.keysIn = Iu, n.map = ls, n.mapKeys = Au, n.mapValues = Hu, n.matches = Yl, n.matchesProperty = Dl, n.memoize = Ss, n.merge = Ef, n.mergeWith = jf, n.method = $f, n.methodOf = Qf, n.mixin = xl, n.negate = Ys, n.nthArg = El, n.omit = Of, n.omitBy = Nu, n.once = Ds, n.orderBy = cs, n.over = Xf, n.overArgs = of , n.overEvery = Zf, n.overSome = eh, n.partial = af, n.partialRight = sf, n.partition = Qd, n.pick = Rf, n.pickBy = zu, n.property = jl, n.propertyOf = Ol, n.pull = jd, n.pullAll = ga, n.pullAllBy = Ma, n.pullAllWith = ba, n.pullAt = Od, n.range = th, n.rangeRight = nh, n.rearg = uf, n.reject = hs, n.remove = wa, n.rest = xs, n.reverse = ka, n.sampleSize = _s, n.set = Fu, n.setWith = Uu, n.shuffle = ms, n.slice = La, n.sortBy = Xd, n.sortedUniq = Pa, n.sortedUniqBy = Ea, n.split = cl, n.spread = Cs, n.tail = ja, n.take = Oa, n.takeRight = Ra, n.takeRightWhile = Ia, n.takeWhile = Aa, n.tap = Va, n.throttle = Ps, n.thru = qa, n.toArray = _u, n.toPairs = If, n.toPairsIn = Af, n.toPath = Wl, n.toPlainObject = Mu, n.transform = Gu, n.unary = Es, n.union = Rd, n.unionBy = Id, n.unionWith = Ad, n.uniq = Ha, n.uniqBy = Na, n.uniqWith = za, n.unset = Bu, n.unzip = Wa, n.unzipWith = Fa, n.update = Vu, n.updateWith = qu, n.values = Ju, n.valuesIn = Ku, n.without = Hd, n.words = Ml, n.wrap = js, n.xor = Nd, n.xorBy = zd, n.xorWith = Wd, n.zip = Fd, n.zipObject = Ua, n.zipObjectDeep = Ga, n.zipWith = Ud, n.entries = If, n.entriesIn = Af, n.extend = kf, n.extendWith = Lf, xl(n, n), n.add = rh, n.attempt = Vf, n.camelCase = Hf, n.capitalize = Zu, n.ceil = oh, n.clamp = $u, n.clone = Rs, n.cloneDeep = As, n.cloneDeepWith = Hs, n.cloneWith = Is, n.conformsTo = Ns, n.deburr = el, n.defaultTo = Ll, n.divide = ih, n.endsWith = tl, n.eq = zs, n.escape = nl, n.escapeRegExp = rl, n.every = ts, n.find = Vd, n.findIndex = aa, n.findKey = Lu, n.findLast = qd, n.findLastIndex = sa, n.findLastKey = Tu, n.floor = ah, n.forEach = as, n.forEachRight = ss, n.forIn = Su, n.forInRight = Yu, n.forOwn = Du, n.forOwnRight = xu, n.get = Eu, n.gt = lf, n.gte = cf, n.has = ju, n.hasIn = Ou, n.head = fa, n.identity = Tl, n.includes = us, n.indexOf = ha, n.inRange = Qu, n.invoke = Pf, n.isArguments = df, n.isArray = ff, n.isArrayBuffer = hf, n.isArrayLike = Ws, n.isArrayLikeObject = Fs, n.isBoolean = Us, n.isBuffer = pf, n.isDate = _f, n.isElement = Gs, n.isEmpty = Bs, n.isEqual = Vs, n.isEqualWith = qs, n.isError = Js, n.isFinite = Ks, n.isFunction = $s, n.isInteger = Qs, n.isLength = Xs, n.isMap = mf, n.isMatch = tu, n.isMatchWith = nu, n.isNaN = ru, n.isNative = ou, n.isNil = au, n.isNull = iu, n.isNumber = su, n.isObject = Zs, n.isObjectLike = eu, n.isPlainObject = uu, n.isRegExp = yf, n.isSafeInteger = lu, n.isSet = vf, n.isString = cu, n.isSymbol = du, n.isTypedArray = gf, n.isUndefined = fu, n.isWeakMap = hu, n.isWeakSet = pu, n.join = _a, n.kebabCase = Nf, n.last = ma, n.lastIndexOf = ya, n.lowerCase = zf, n.lowerFirst = Wf, n.lt = Mf, n.lte = bf, n.max = Ul, n.maxBy = Gl, n.mean = Bl, n.meanBy = Vl, n.min = ql, n.minBy = Jl, n.stubArray = Rl, n.stubFalse = Il, n.stubObject = Al, n.stubString = Hl, n.stubTrue = Nl, n.multiply = sh, n.nth = va, n.noConflict = Cl, n.noop = Pl, n.now = Zd, n.pad = ol, n.padEnd = il, n.padStart = al, n.parseInt = sl, n.random = Xu, n.reduce = ds, n.reduceRight = fs, n.repeat = ul, n.replace = ll, n.result = Wu, n.round = uh, n.runInContext = e, n.sample = ps, n.size = ys, n.snakeCase = Ff, n.some = vs, n.sortedIndex = Ta, n.sortedIndexBy = Sa, n.sortedIndexOf = Ya, n.sortedLastIndex = Da, n.sortedLastIndexBy = xa, n.sortedLastIndexOf = Ca, n.startCase = Uf, n.startsWith = dl, n.subtract = lh, n.sum = Kl, n.sumBy = $l, n.template = fl, n.times = zl, n.toFinite = mu, n.toInteger = yu, n.toLength = vu, n.toLower = hl, n.toNumber = gu, n.toSafeInteger = bu, n.toString = wu, n.toUpper = pl, n.trim = _l, n.trimEnd = ml, n.trimStart = yl, n.truncate = vl, n.unescape = gl, n.uniqueId = Fl, n.upperCase = Gf, n.upperFirst = Bf, n.each = as, n.eachRight = ss, n.first = fa, xl(n, function() {
             var e = {};
             return ur(n, function(t, r) {
               dc.call(n.prototype, r) || (e[r] = t);
@@ -68289,7 +68297,7 @@ $.fn.togglify = function(settings) {
             };
           }), l(["filter", "map", "takeWhile"], function(e, t) {
             var n = t + 1,
-              r = n == De || 3 == n;
+              r = n == xe || 3 == n;
             M.prototype[e] = function(e) {
               var t = this.clone();
               return t.__iteratees__.push({
@@ -68384,13 +68392,13 @@ $.fn.togglify = function(settings) {
           }), Zc[Jo(oe, me).name] = [{
             name: "wrapper",
             func: oe
-          }], M.prototype.clone = D, M.prototype.reverse = Q, M.prototype.value = te, n.prototype.at = Gd, n.prototype.chain = Ja, n.prototype.commit = Ka, n.prototype.next = $a, n.prototype.plant = Xa, n.prototype.reverse = Za, n.prototype.toJSON = n.prototype.valueOf = n.prototype.value = es, n.prototype.first = n.prototype.head, Yc && (n.prototype[Yc] = Qa), n;
+          }], M.prototype.clone = x, M.prototype.reverse = Q, M.prototype.value = te, n.prototype.at = Gd, n.prototype.chain = Ja, n.prototype.commit = Ka, n.prototype.next = $a, n.prototype.plant = Xa, n.prototype.reverse = Za, n.prototype.toJSON = n.prototype.valueOf = n.prototype.value = es, n.prototype.first = n.prototype.head, Yc && (n.prototype[Yc] = Qa), n;
         }();
       Sn._ = Fn, (o = function() {
         return Fn;
       }.call(t, n, t, r)) !== oe && (r.exports = o);
     }).call(this);
-  }).call(t, n(117), n(118)(e));
+  }).call(t, n(119), n(120)(e));
 }, function(e, t, n) {
   "use strict";
 
@@ -68434,9 +68442,32 @@ $.fn.togglify = function(settings) {
     if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
   };
 }, function(e, t, n) {
+  var r, o;
+  ! function() {
+    "use strict";
+
+    function n() {
+      for (var e = [], t = 0; t < arguments.length; t++) {
+        var r = arguments[t];
+        if (r) {
+          var o = typeof r;
+          if ("string" === o || "number" === o) e.push(r);
+          else if (Array.isArray(r)) e.push(n.apply(null, r));
+          else if ("object" === o)
+            for (var a in r) i.call(r, a) && r[a] && e.push(a);
+        }
+      }
+      return e.join(" ");
+    }
+    var i = {}.hasOwnProperty;
+    void 0 !== e && e.exports ? e.exports = n : (r = [], void 0 !== (o = function() {
+      return n;
+    }.apply(t, r)) && (e.exports = o));
+  }();
+}, function(e, t, n) {
   "use strict";
   t.__esModule = !0;
-  var r = n(362),
+  var r = n(371),
     o = function(e) {
       return e && e.__esModule ? e : {
         "default": e
@@ -68518,8 +68549,8 @@ $.fn.togglify = function(settings) {
     return e._hostNode;
   }
   var d = n(4),
-    f = n(39),
-    h = n(262),
+    f = n(40),
+    h = n(265),
     p = (n(2), f.ID_ATTRIBUTE_NAME),
     _ = h,
     m = "__reactInternalInstance$" + Math.random().toString(36).slice(2),
@@ -68533,31 +68564,8 @@ $.fn.togglify = function(settings) {
     };
   e.exports = y;
 }, function(e, t, n) {
-  var r, o;
-  ! function() {
-    "use strict";
-
-    function n() {
-      for (var e = [], t = 0; t < arguments.length; t++) {
-        var r = arguments[t];
-        if (r) {
-          var o = typeof r;
-          if ("string" === o || "number" === o) e.push(r);
-          else if (Array.isArray(r)) e.push(n.apply(null, r));
-          else if ("object" === o)
-            for (var a in r) i.call(r, a) && r[a] && e.push(a);
-        }
-      }
-      return e.join(" ");
-    }
-    var i = {}.hasOwnProperty;
-    void 0 !== e && e.exports ? e.exports = n : (r = [], void 0 !== (o = function() {
-      return n;
-    }.apply(t, r)) && (e.exports = o));
-  }();
-}, function(e, t, n) {
   e.exports = {
-    "default": n(374),
+    "default": n(383),
     __esModule: !0
   };
 }, function(e, t, n) {
@@ -68569,11 +68577,11 @@ $.fn.togglify = function(settings) {
     };
   }
   t.__esModule = !0;
-  var o = n(364),
+  var o = n(373),
     i = r(o),
-    a = n(361),
+    a = n(370),
     s = r(a),
-    u = n(133),
+    u = n(136),
     l = r(u);
   t.default = function(e, t) {
     if ("function" != typeof t && null !== t) throw new TypeError("Super expression must either be null or a function, not " + (void 0 === t ? "undefined" : (0, l.default)(t)));
@@ -68589,7 +68597,7 @@ $.fn.togglify = function(settings) {
 }, function(e, t, n) {
   "use strict";
   t.__esModule = !0;
-  var r = n(133),
+  var r = n(136),
     o = function(e) {
       return e && e.__esModule ? e : {
         "default": e
@@ -68636,6 +68644,22 @@ $.fn.togglify = function(settings) {
   };
 }, function(e, t, n) {
   "use strict";
+  e.exports = n(465);
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e, t) {
+    return function() {
+      if (!i.a.hasIn(window, e)) return t.apply(void 0, arguments);
+      var n = i.a.get(window, e);
+      return i.a.isFunction(n) ? n.apply(void 0, arguments) : n;
+    };
+  }
+  var o = n(5),
+    i = n.n(o);
+  t.a = r;
+}, function(e, t, n) {
+  "use strict";
 
   function r() {
     Y.ReactReconcileTransaction && b || c("123");
@@ -68663,7 +68687,8 @@ $.fn.togglify = function(settings) {
       var i;
       if (p.logTopLevelRenders) {
         var s = r;
-        r._currentElement.type.isReactTopLevelWrapper && (s = r._renderedComponent), i = "React update: " + s.getName(), console.time(i);
+        r._currentElement.type.isReactTopLevelWrapper && (s = r._renderedComponent),
+          i = "React update: " + s.getName(), console.time(i);
       }
       if (_.performUpdateIfNecessary(r, e.reconcileTransaction, v), i && console.timeEnd(i), o)
         for (var u = 0; u < o.length; u++) e.callbackQueue.enqueue(o[u], r.getPublicInstance());
@@ -68680,10 +68705,10 @@ $.fn.togglify = function(settings) {
   }
   var c = n(4),
     d = n(6),
-    f = n(260),
-    h = n(32),
-    p = n(265),
-    _ = n(40),
+    f = n(263),
+    h = n(33),
+    p = n(268),
+    _ = n(41),
     m = n(65),
     y = (n(2), []),
     v = 0,
@@ -68698,7 +68723,7 @@ $.fn.togglify = function(settings) {
         this.dirtyComponentsLength !== y.length ? (y.splice(0, this.dirtyComponentsLength), T()) : y.length = 0;
       }
     },
-    L = {
+    k = {
       initialize: function() {
         this.callbackQueue.reset();
       },
@@ -68706,10 +68731,10 @@ $.fn.togglify = function(settings) {
         this.callbackQueue.notifyAll();
       }
     },
-    k = [w, L];
+    L = [w, k];
   d(o.prototype, m, {
     getTransactionWrappers: function() {
-      return k;
+      return L;
     },
     destructor: function() {
       this.dirtyComponentsLength = null, f.release(this.callbackQueue), this.callbackQueue = null, Y.ReactReconcileTransaction.release(this.reconcileTransaction), this.reconcileTransaction = null;
@@ -68759,28 +68784,28 @@ $.fn.togglify = function(settings) {
   Object.defineProperty(t, "__esModule", {
     value: !0
   }), t.types = t.loggers = t.disbatch = t.batch = t.bindAll = t.assignAll = t.createReducer = t.createAction = void 0;
-  var o = n(313);
+  var o = n(316);
   Object.defineProperty(t, "createAction", {
     enumerable: !0,
     get: function() {
       return r(o).default;
     }
   });
-  var i = n(564);
+  var i = n(573);
   Object.defineProperty(t, "createReducer", {
     enumerable: !0,
     get: function() {
       return r(i).default;
     }
   });
-  var a = n(562);
+  var a = n(571);
   Object.defineProperty(t, "assignAll", {
     enumerable: !0,
     get: function() {
       return r(a).default;
     }
   });
-  var s = n(563);
+  var s = n(572);
   Object.defineProperty(t, "bindAll", {
     enumerable: !0,
     get: function() {
@@ -68794,21 +68819,21 @@ $.fn.togglify = function(settings) {
       return r(u).default;
     }
   });
-  var l = n(565);
+  var l = n(574);
   Object.defineProperty(t, "disbatch", {
     enumerable: !0,
     get: function() {
       return r(l).default;
     }
   });
-  var c = n(566);
+  var c = n(575);
   Object.defineProperty(t, "loggers", {
     enumerable: !0,
     get: function() {
       return r(c).default;
     }
   });
-  var d = n(314),
+  var d = n(317),
     f = function(e) {
       if (e && e.__esModule) return e;
       var t = {};
@@ -68818,12 +68843,9 @@ $.fn.togglify = function(settings) {
     }(d);
   t.types = f;
 }, function(e, t, n) {
-  "use strict";
-  e.exports = n(456);
-}, function(e, t, n) {
-  var r = n(83)("wks"),
+  var r = n(84)("wks"),
     o = n(62),
-    i = n(25).Symbol,
+    i = n(26).Symbol,
     a = "function" == typeof i;
   (e.exports = function(e) {
     return r[e] || (r[e] = a && i[e] || (a ? i : o)("Symbol." + e));
@@ -68843,7 +68865,7 @@ $.fn.togglify = function(settings) {
     return this.isDefaultPrevented = u ? a.thatReturnsTrue : a.thatReturnsFalse, this.isPropagationStopped = a.thatReturnsFalse, this;
   }
   var o = n(6),
-    i = n(32),
+    i = n(33),
     a = n(16),
     s = (n(3), ["dispatchConfig", "_targetInst", "nativeEvent", "isDefaultPrevented", "isPropagationStopped", "_dispatchListeners", "_dispatchInstances"]),
     u = {
@@ -68894,7 +68916,7 @@ $.fn.togglify = function(settings) {
 }, function(e, t, n) {
   "use strict";
   t.__esModule = !0;
-  var r = n(360),
+  var r = n(369),
     o = function(e) {
       return e && e.__esModule ? e : {
         "default": e
@@ -68911,24 +68933,22 @@ $.fn.togglify = function(settings) {
   var n = e.exports = "undefined" != typeof window && window.Math == Math ? window : "undefined" != typeof self && self.Math == Math ? self : Function("return this")();
   "number" == typeof __g && (__g = n);
 }, function(e, t, n) {
-  var r = n(138),
-    o = n(74);
+  var r = n(141),
+    o = n(75);
   e.exports = function(e) {
     return r(o(e));
   };
 }, function(e, t, n) {
   "use strict";
-
-  function r(e, t) {
-    return function() {
-      return i.a.has(window, e) ? i.a.get(window, e).apply(void 0, arguments) : t.apply(void 0, arguments);
-    };
-  }
-  var o = n(5),
-    i = n.n(o);
-  t.a = r;
+  var r = n(522),
+    o = (n(283), n(523));
+  n.d(t, "a", function() {
+    return r.a;
+  }), n.d(t, "b", function() {
+    return o.a;
+  });
 }, function(e, t, n) {
-  e.exports = !n(35)(function() {
+  e.exports = !n(36)(function() {
     return 7 != Object.defineProperty({}, "a", {
       get: function() {
         return 7;
@@ -68936,10 +68956,10 @@ $.fn.togglify = function(settings) {
     }).a;
   });
 }, function(e, t, n) {
-  var r = n(25),
+  var r = n(26),
     o = n(14),
-    i = n(135),
-    a = n(36),
+    i = n(138),
+    a = n(37),
     s = function(e, t, n) {
       var u, l, c, d = e & s.F,
         f = e & s.G,
@@ -68976,11 +68996,11 @@ $.fn.togglify = function(settings) {
     return n.call(e, t);
   };
 }, function(e, t, n) {
-  var r = n(34),
-    o = n(137),
-    i = n(85),
+  var r = n(35),
+    o = n(140),
+    i = n(86),
     a = Object.defineProperty;
-  t.f = n(28) ? Object.defineProperty : function(e, t, n) {
+  t.f = n(29) ? Object.defineProperty : function(e, t, n) {
     if (r(e), t = i(t, !0), r(n), o) try {
       return a(e, t, n);
     } catch (e) {}
@@ -69041,15 +69061,10 @@ $.fn.togglify = function(settings) {
   e.exports = d;
 }, function(e, t, n) {
   "use strict";
-  var r = n(513),
-    o = (n(280), n(514));
-  n.d(t, "a", function() {
-    return r.a;
-  }), n.d(t, "b", function() {
-    return o.a;
-  });
+  var r = n(342);
+  t.a = r.a;
 }, function(e, t, n) {
-  var r = n(46);
+  var r = n(47);
   e.exports = function(e) {
     if (!r(e)) throw TypeError(e + " is not an object!");
     return e;
@@ -69063,16 +69078,16 @@ $.fn.togglify = function(settings) {
     }
   };
 }, function(e, t, n) {
-  var r = n(31),
+  var r = n(32),
     o = n(60);
-  e.exports = n(28) ? function(e, t, n) {
+  e.exports = n(29) ? function(e, t, n) {
     return r.f(e, t, o(1, n));
   } : function(e, t, n) {
     return e[t] = n, e;
   };
 }, function(e, t, n) {
-  var r = n(142),
-    o = n(75);
+  var r = n(145),
+    o = n(76);
   e.exports = Object.keys || function(e) {
     return r(e, o);
   };
@@ -69118,10 +69133,10 @@ $.fn.togglify = function(settings) {
       toString: u
     };
   }
-  var c = n(95),
+  var c = n(96),
     d = n(67),
-    f = n(103),
-    h = n(277),
+    f = n(104),
+    h = n(280),
     p = "undefined" != typeof document && "number" == typeof document.documentMode || "undefined" != typeof navigator && "string" == typeof navigator.userAgent && /\bEdge\/\d/.test(navigator.userAgent),
     _ = f(function(e, t, n) {
       11 === t.node.nodeType || 1 === t.node.nodeType && "object" === t.node.nodeName.toLowerCase() && (null == t.node.namespaceURI || t.node.namespaceURI === c.html) ? (r(t), e.insertBefore(t.node, n)) : (e.insertBefore(t.node, n), r(t));
@@ -69194,7 +69209,7 @@ $.fn.togglify = function(settings) {
   function r() {
     o.attachRefs(this, this._currentElement);
   }
-  var o = n(479),
+  var o = n(488),
     i = (n(17), n(3), {
       mountComponent: function(e, t, n, o, i, a) {
         var s = e.mountComponent(t, n, o, i, a);
@@ -69221,15 +69236,15 @@ $.fn.togglify = function(settings) {
 }, function(e, t, n) {
   "use strict";
   var r = n(6),
-    o = n(553),
-    i = n(113),
-    a = n(558),
-    s = n(554),
-    u = n(555),
-    l = n(42),
-    c = n(556),
-    d = n(559),
-    f = n(560),
+    o = n(562),
+    i = n(114),
+    a = n(567),
+    s = n(563),
+    u = n(564),
+    l = n(43),
+    c = n(565),
+    d = n(568),
+    f = n(569),
     h = (n(3), l.createElement),
     p = l.createFactory,
     _ = l.cloneElement,
@@ -69269,9 +69284,9 @@ $.fn.togglify = function(settings) {
     return void 0 !== e.key;
   }
   var i = n(6),
-    a = n(23),
-    s = (n(3), n(311), Object.prototype.hasOwnProperty),
-    u = n(309),
+    a = n(24),
+    s = (n(3), n(314), Object.prototype.hasOwnProperty),
+    u = n(312),
     l = {
       key: !0,
       ref: !0,
@@ -69359,7 +69374,7 @@ $.fn.togglify = function(settings) {
   });
   var o = n(5),
     i = n.n(o),
-    a = n(19);
+    a = n(21);
   n.n(a), n.d(t, "bulkAddChannels", function() {
     return l;
   }), n.d(t, "addChannel", function() {
@@ -69437,8 +69452,57 @@ $.fn.togglify = function(settings) {
     };
 }, function(e, t, n) {
   "use strict";
-  var r = n(335);
-  t.a = r.a;
+
+  function r(e, t) {
+    if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
+  }
+
+  function o(e, t) {
+    var r = a.a.get(t, "ns"),
+      o = a.a.omit(t, "ns");
+    return n.i(s.a)(e, r)(o);
+  }
+  var i = n(5),
+    a = n.n(i),
+    s = n(355),
+    u = function() {
+      function e(e, t) {
+        for (var n = 0; n < t.length; n++) {
+          var r = t[n];
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
+        }
+      }
+      return function(t, n, r) {
+        return n && e(t.prototype, n), r && e(t, r), t;
+      };
+    }(),
+    l = function() {
+      function e(t) {
+        return r(this, e),
+          function(e, n) {
+            return o(e, a.a.defaults(n, t));
+          };
+      }
+      return u(e, null, [{
+        key: "ns",
+        value: function(t) {
+          return new e({
+            ns: t
+          });
+        }
+      }, {
+        key: "t",
+        value: function(e, t) {
+          return o(e, t);
+        }
+      }, {
+        key: "locale",
+        value: function() {
+          return n.i(s.b)();
+        }
+      }]), e;
+    }();
+  t.a = l;
 }, function(e, t) {
   e.exports = function(e) {
     return "object" == typeof e ? null !== e : "function" == typeof e;
@@ -69474,11 +69538,11 @@ $.fn.togglify = function(settings) {
     }
   }
   var i = n(4),
-    a = n(96),
-    s = n(97),
-    u = n(101),
-    l = n(271),
-    c = n(272),
+    a = n(97),
+    s = n(98),
+    u = n(102),
+    l = n(274),
+    c = n(275),
     d = (n(2), {}),
     f = null,
     h = function(e, t) {
@@ -69602,10 +69666,10 @@ $.fn.togglify = function(settings) {
   function f(e) {
     m(e, u);
   }
-  var h = n(50),
-    p = n(97),
-    _ = n(271),
-    m = n(272),
+  var h = n(51),
+    p = n(98),
+    _ = n(274),
+    m = n(275),
     y = (n(3), h.getListener),
     v = {
       accumulateTwoPhaseDispatches: l,
@@ -69637,8 +69701,8 @@ $.fn.togglify = function(settings) {
   function r(e, t, n, r) {
     return o.call(this, e, t, n, r);
   }
-  var o = n(22),
-    i = n(106),
+  var o = n(23),
+    i = n(107),
     a = {
       view: function(e) {
         if (e.view) return e.view;
@@ -69726,7 +69790,7 @@ $.fn.togglify = function(settings) {
       writable: !0
     }) : e[t] = n, e;
   }
-  var o = n(19),
+  var o = n(21),
     i = (n.n(o), n(5)),
     a = n.n(i);
   n.d(t, "e", function() {
@@ -69853,59 +69917,6 @@ $.fn.togglify = function(settings) {
   t.a = r;
 }, function(e, t, n) {
   "use strict";
-
-  function r(e, t) {
-    if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
-  }
-
-  function o(e, t) {
-    var r = a.a.get(t, "ns"),
-      o = a.a.omit(t, "ns");
-    return n.i(s.a)(e, r)(o);
-  }
-  var i = n(5),
-    a = n.n(i),
-    s = n(347),
-    u = function() {
-      function e(e, t) {
-        for (var n = 0; n < t.length; n++) {
-          var r = t[n];
-          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
-        }
-      }
-      return function(t, n, r) {
-        return n && e(t.prototype, n), r && e(t, r), t;
-      };
-    }(),
-    l = function() {
-      function e(t) {
-        return r(this, e),
-          function(e, n) {
-            return o(e, a.a.defaults(n, t));
-          };
-      }
-      return u(e, null, [{
-        key: "ns",
-        value: function(t) {
-          return new e({
-            ns: t
-          });
-        }
-      }, {
-        key: "t",
-        value: function(e, t) {
-          return o(e, t);
-        }
-      }, {
-        key: "locale",
-        value: function() {
-          return n.i(s.b)();
-        }
-      }]), e;
-    }();
-  t.a = l;
-}, function(e, t, n) {
-  "use strict";
   t.__esModule = !0, t.default = function(e, t) {
     var n = {};
     for (var r in e) t.indexOf(r) >= 0 || Object.prototype.hasOwnProperty.call(e, r) && (n[r] = e[r]);
@@ -69923,7 +69934,7 @@ $.fn.togglify = function(settings) {
     };
   };
 }, function(e, t, n) {
-  var r = n(74);
+  var r = n(75);
   e.exports = function(e) {
     return Object(r(e));
   };
@@ -69940,11 +69951,11 @@ $.fn.togglify = function(settings) {
     return Object.prototype.hasOwnProperty.call(e, _) || (e[_] = h++, d[e[_]] = {}), d[e[_]];
   }
   var o, i = n(6),
-    a = n(96),
-    s = n(471),
-    u = n(270),
-    l = n(504),
-    c = n(107),
+    a = n(97),
+    s = n(480),
+    u = n(273),
+    l = n(513),
+    c = n(108),
     d = {},
     f = !1,
     h = 0,
@@ -70059,9 +70070,9 @@ $.fn.togglify = function(settings) {
   function r(e, t, n, r) {
     return o.call(this, e, t, n, r);
   }
-  var o = n(53),
-    i = n(270),
-    a = n(105),
+  var o = n(54),
+    i = n(273),
+    a = n(106),
     s = {
       screenX: null,
       screenY: null,
@@ -70189,10 +70200,10 @@ $.fn.togglify = function(settings) {
 }, function(e, t, n) {
   "use strict";
   var r, o = n(15),
-    i = n(95),
+    i = n(96),
     a = /^[ \r\n\t\f]/,
     s = /<(!--|link|noscript|meta|script|style)[ \r\n\t\f\/>]/,
-    u = n(103),
+    u = n(104),
     l = u(function(e, t) {
       if (e.namespaceURI !== i.svg || "innerHTML" in e) e.innerHTML = t;
       else {
@@ -70213,20 +70224,20 @@ $.fn.togglify = function(settings) {
   e.exports = l;
 }, function(e, t, n) {
   "use strict";
-  var r = n(289);
+  var r = n(292);
   n.d(t, "a", function() {
     return r.a;
   });
-  var o = n(532);
+  var o = n(541);
   n.d(t, "b", function() {
     return o.a;
-  }), n(290), n(291);
+  }), n(293), n(294);
 }, function(e, t, n) {
   "use strict";
   Object.defineProperty(t, "__esModule", {
     value: !0
   });
-  var r = n(313),
+  var r = n(316),
     o = function(e) {
       return e && e.__esModule ? e : {
         "default": e
@@ -70252,7 +70263,7 @@ $.fn.togglify = function(settings) {
   });
   var o = n(5),
     i = n.n(o),
-    a = n(19);
+    a = n(21);
   n.n(a), n.d(t, "updateMemberType", function() {
     return l;
   }), n.d(t, "bulkUpdateMemberType", function() {
@@ -70307,7 +70318,7 @@ $.fn.togglify = function(settings) {
   Object.defineProperty(t, "__esModule", {
     value: !0
   });
-  var o = n(19);
+  var o = n(21);
   n.n(o), n.d(t, "updateDnd", function() {
     return a;
   }), n.d(t, "getDndByMemberId", function() {
@@ -70334,6 +70345,35 @@ $.fn.togglify = function(settings) {
   };
 }, function(e, t, n) {
   "use strict";
+  Object.defineProperty(t, "__esModule", {
+    value: !0
+  });
+  var r = n(5),
+    o = n.n(r),
+    i = n(21);
+  n.n(i), n.d(t, "syncDownloads", function() {
+    return a;
+  }), n.d(t, "getDownloads", function() {
+    return l;
+  });
+  var a = n.i(i.createAction)("Sync downloads from desktop"),
+    s = {},
+    u = n.i(i.createReducer)(function(e, t, n) {
+      return t in e ? Object.defineProperty(e, t, {
+        value: n,
+        enumerable: !0,
+        configurable: !0,
+        writable: !0
+      }) : e[t] = n, e;
+    }({}, a, function(e) {
+      return arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : {};
+    }), s);
+  t.default = u;
+  var l = function(e) {
+    return o.a.values(e.downloads);
+  };
+}, function(e, t, n) {
+  "use strict";
 
   function r(e, t, n) {
     return t in e ? Object.defineProperty(e, t, {
@@ -70348,7 +70388,7 @@ $.fn.togglify = function(settings) {
   });
   var o = n(5),
     i = n.n(o),
-    a = n(19);
+    a = n(21);
   n.n(a), n.d(t, "updatePresence", function() {
     return l;
   }), n.d(t, "bulkUpdatePresence", function() {
@@ -70399,15 +70439,15 @@ $.fn.togglify = function(settings) {
 }, function(e, t) {
   e.exports = !0;
 }, function(e, t, n) {
-  var r = n(34),
-    o = n(390),
-    i = n(75),
-    a = n(82)("IE_PROTO"),
+  var r = n(35),
+    o = n(399),
+    i = n(76),
+    a = n(83)("IE_PROTO"),
     s = function() {},
     u = function() {
-      var e, t = n(136)("iframe"),
+      var e, t = n(139)("iframe"),
         r = i.length;
-      for (t.style.display = "none", n(383).appendChild(t), t.src = "javascript:", e = t.contentWindow.document, e.open(), e.write("<script>document.F=Object</script>"), e.close(), u = e.F; r--;) delete u.prototype[i[r]];
+      for (t.style.display = "none", n(392).appendChild(t), t.src = "javascript:", e = t.contentWindow.document, e.open(), e.write("<script>document.F=Object</script>"), e.close(), u = e.F; r--;) delete u.prototype[i[r]];
       return u();
     };
   e.exports = Object.create || function(e, t) {
@@ -70417,12 +70457,12 @@ $.fn.togglify = function(settings) {
 }, function(e, t, n) {
   var r = n(59),
     o = n(60),
-    i = n(26),
-    a = n(85),
-    s = n(30),
-    u = n(137),
+    i = n(27),
+    a = n(86),
+    s = n(31),
+    u = n(140),
     l = Object.getOwnPropertyDescriptor;
-  t.f = n(28) ? l : function(e, t) {
+  t.f = n(29) ? l : function(e, t) {
     if (e = i(e), t = a(t, !0), u) try {
       return l(e, t);
     } catch (e) {}
@@ -70431,9 +70471,9 @@ $.fn.togglify = function(settings) {
 }, function(e, t) {
   t.f = Object.getOwnPropertySymbols;
 }, function(e, t, n) {
-  var r = n(29),
+  var r = n(30),
     o = n(14),
-    i = n(35);
+    i = n(36);
   e.exports = function(e, t) {
     var n = (o.Object || {})[e] || Object[e],
       a = {};
@@ -70442,9 +70482,9 @@ $.fn.togglify = function(settings) {
     }), "Object", a);
   };
 }, function(e, t, n) {
-  var r = n(31).f,
-    o = n(30),
-    i = n(21)("toStringTag");
+  var r = n(32).f,
+    o = n(31),
+    i = n(22)("toStringTag");
   e.exports = function(e, t, n) {
     e && !o(e = n ? e : e.prototype, i) && r(e, i, {
       configurable: !0,
@@ -70452,13 +70492,13 @@ $.fn.togglify = function(settings) {
     });
   };
 }, function(e, t, n) {
-  var r = n(83)("keys"),
+  var r = n(84)("keys"),
     o = n(62);
   e.exports = function(e) {
     return r[e] || (r[e] = o(e));
   };
 }, function(e, t, n) {
-  var r = n(25),
+  var r = n(26),
     o = r["__core-js_shared__"] || (r["__core-js_shared__"] = {});
   e.exports = function(e) {
     return o[e] || (o[e] = {});
@@ -70470,7 +70510,7 @@ $.fn.togglify = function(settings) {
     return isNaN(e = +e) ? 0 : (e > 0 ? r : n)(e);
   };
 }, function(e, t, n) {
-  var r = n(46);
+  var r = n(47);
   e.exports = function(e, t) {
     if (!r(e)) return e;
     var n, o;
@@ -70480,11 +70520,11 @@ $.fn.togglify = function(settings) {
     throw TypeError("Can't convert object to primitive value");
   };
 }, function(e, t, n) {
-  var r = n(25),
+  var r = n(26),
     o = n(14),
-    i = n(76),
-    a = n(87),
-    s = n(31).f;
+    i = n(77),
+    a = n(88),
+    s = n(32).f;
   e.exports = function(e) {
     var t = o.Symbol || (o.Symbol = i ? {} : r.Symbol || {});
     "_" == e.charAt(0) || e in t || s(t, e, {
@@ -70492,11 +70532,11 @@ $.fn.togglify = function(settings) {
     });
   };
 }, function(e, t, n) {
-  t.f = n(21);
+  t.f = n(22);
 }, function(e, t, n) {
   "use strict";
-  var r = n(393)(!0);
-  n(139)(String, "String", function(e) {
+  var r = n(402)(!0);
+  n(142)(String, "String", function(e) {
     this._t = String(e), this._i = 0;
   }, function() {
     var e, t = this._t,
@@ -70510,8 +70550,8 @@ $.fn.togglify = function(settings) {
     });
   });
 }, function(e, t, n) {
-  n(399);
-  for (var r = n(25), o = n(36), i = n(47), a = n(21)("toStringTag"), s = ["NodeList", "DOMTokenList", "MediaList", "StyleSheetList", "CSSRuleList"], u = 0; u < 5; u++) {
+  n(408);
+  for (var r = n(26), o = n(37), i = n(48), a = n(22)("toStringTag"), s = ["NodeList", "DOMTokenList", "MediaList", "StyleSheetList", "CSSRuleList"], u = 0; u < 5; u++) {
     var l = s[u],
       c = r[l],
       d = c && c.prototype;
@@ -70569,9 +70609,9 @@ $.fn.togglify = function(settings) {
     var r = d.call(t, "constructor") && t.constructor;
     return "function" == typeof r && r instanceof r && c.call(r) == f;
   }
-  var o = n(433),
-    i = n(435),
-    a = n(440),
+  var o = n(442),
+    i = n(444),
+    a = n(449),
     s = "[object Object]",
     u = Function.prototype,
     l = Object.prototype,
@@ -70623,11 +70663,11 @@ $.fn.togglify = function(settings) {
       o = e.nextSibling;
     o === t ? n && _(r, document.createTextNode(n), o) : n ? (p(o, n), u(r, o, t)) : u(r, e, t);
   }
-  var c = n(38),
-    d = n(448),
-    f = (n(9), n(17), n(103)),
+  var c = n(39),
+    d = n(457),
+    f = (n(10), n(17), n(104)),
     h = n(67),
-    p = n(277),
+    p = n(280),
     _ = f(function(e, t, n) {
       e.insertBefore(t, n);
     }),
@@ -70800,7 +70840,7 @@ $.fn.togglify = function(settings) {
     return !!e._dispatchListeners;
   }
   var f, h, p = n(4),
-    _ = n(101),
+    _ = n(102),
     m = (n(2), n(3), {
       injectComponentTree: function(e) {
         f = e;
@@ -70891,8 +70931,8 @@ $.fn.togglify = function(settings) {
     return "";
   }
   var s = n(4),
-    u = n(41),
-    l = n(477),
+    u = n(42),
+    l = n(486),
     c = (n(2), n(3), {
       button: !0,
       checkbox: !0,
@@ -70986,8 +71026,8 @@ $.fn.togglify = function(settings) {
     return n || null;
   }
   var a = n(4),
-    s = (n(23), n(52)),
-    u = (n(17), n(18)),
+    s = (n(24), n(53)),
+    u = (n(17), n(20)),
     l = (n(2), n(3), {
       isMounted: function(e) {
         var t = s.get(e);
@@ -71140,7 +71180,7 @@ $.fn.togglify = function(settings) {
       t = o, s && u && r(o);
     };
   }
-  var o = n(132),
+  var o = n(135),
     i = n.n(o);
   t.a = r;
 }, function(e, t, n) {
@@ -71149,9 +71189,9 @@ $.fn.togglify = function(settings) {
   function r(e, t, n) {
     this.props = e, this.context = t, this.refs = a, this.updater = n || i;
   }
-  var o = n(43),
-    i = n(114),
-    a = (n(311), n(48));
+  var o = n(44),
+    i = n(115),
+    a = (n(314), n(49));
   n(2), n(3), r.prototype.isReactComponent = {}, r.prototype.setState = function(e, t) {
     "object" != typeof e && "function" != typeof e && null != e && o("85"), this.updater.enqueueSetState(this, e), t && this.updater.enqueueCallback(this, t, "setState");
   }, r.prototype.forceUpdate = function(e) {
@@ -71171,12 +71211,12 @@ $.fn.togglify = function(settings) {
   e.exports = r;
 }, function(e, t, n) {
   "use strict";
-  var r = n(316),
-    o = n(571),
-    i = n(570),
-    a = n(569),
-    s = n(315);
-  n(317), n.d(t, "d", function() {
+  var r = n(319),
+    o = n(580),
+    i = n(579),
+    a = n(578),
+    s = n(318);
+  n(320), n.d(t, "d", function() {
     return r.b;
   }), n.d(t, "e", function() {
     return o.a;
@@ -71187,6 +71227,86 @@ $.fn.togglify = function(settings) {
   }), n.d(t, "b", function() {
     return s.a;
   });
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e) {
+    if (Array.isArray(e)) {
+      for (var t = 0, n = Array(e.length); t < e.length; t++) n[t] = e[t];
+      return n;
+    }
+    return Array.from(e);
+  }
+
+  function o(e, t) {
+    return e === t;
+  }
+
+  function i(e) {
+    var t = arguments.length <= 1 || void 0 === arguments[1] ? o : arguments[1],
+      n = null,
+      r = null;
+    return function() {
+      for (var o = arguments.length, i = Array(o), a = 0; a < o; a++) i[a] = arguments[a];
+      return null !== n && n.length === i.length && i.every(function(e, r) {
+        return t(e, n[r]);
+      }) || (r = e.apply(void 0, i)), n = i, r;
+    };
+  }
+
+  function a(e) {
+    var t = Array.isArray(e[0]) ? e[0] : e;
+    if (!t.every(function(e) {
+        return "function" == typeof e;
+      })) {
+      var n = t.map(function(e) {
+        return typeof e;
+      }).join(", ");
+      throw new Error("Selector creators expect all input-selectors to be functions, instead received the following types: [" + n + "]");
+    }
+    return t;
+  }
+
+  function s(e) {
+    for (var t = arguments.length, n = Array(t > 1 ? t - 1 : 0), o = 1; o < t; o++) n[o - 1] = arguments[o];
+    return function() {
+      for (var t = arguments.length, o = Array(t), i = 0; i < t; i++) o[i] = arguments[i];
+      var s = 0,
+        u = o.pop(),
+        l = a(o),
+        c = e.apply(void 0, [function() {
+          return s++, u.apply(void 0, arguments);
+        }].concat(n)),
+        d = function(e, t) {
+          for (var n = arguments.length, o = Array(n > 2 ? n - 2 : 0), i = 2; i < n; i++) o[i - 2] = arguments[i];
+          var a = l.map(function(n) {
+            return n.apply(void 0, [e, t].concat(o));
+          });
+          return c.apply(void 0, r(a));
+        };
+      return d.resultFunc = u, d.recomputations = function() {
+        return s;
+      }, d.resetRecomputations = function() {
+        return s = 0;
+      }, d;
+    };
+  }
+
+  function u(e) {
+    var t = arguments.length <= 1 || void 0 === arguments[1] ? l : arguments[1];
+    if ("object" != typeof e) throw new Error("createStructuredSelector expects first argument to be an object where each property is a selector, instead received a " + typeof e);
+    var n = Object.keys(e);
+    return t(n.map(function(t) {
+      return e[t];
+    }), function() {
+      for (var e = arguments.length, t = Array(e), r = 0; r < e; r++) t[r] = arguments[r];
+      return t.reduce(function(e, t, r) {
+        return e[n[r]] = t, e;
+      }, {});
+    });
+  }
+  t.__esModule = !0, t.defaultMemoize = i, t.createSelectorCreator = s, t.createStructuredSelector = u;
+  var l = t.createSelector = s(i);
 }, function(e, t) {
   function n(e, t) {
     for (var n = 0; n < e.length; n++) {
@@ -71372,12 +71492,12 @@ $.fn.togglify = function(settings) {
   };
 }, function(e, t, n) {
   "use strict";
-  var r = n(327);
+  var r = n(330);
   t.a = r.a;
 }, function(e, t, n) {
   "use strict";
-  var r = n(337),
-    o = n(336);
+  var r = n(344),
+    o = n(343);
   n.d(t, "a", function() {
     return r.a;
   }), n.d(t, "b", function() {
@@ -71399,8 +71519,8 @@ $.fn.togglify = function(settings) {
   });
   var o = n(5),
     i = n.n(o),
-    a = n(19),
-    s = (n.n(a), n(44));
+    a = n(21),
+    s = (n.n(a), n(45));
   n.d(t, "removeChannelFromNameMap", function() {
     return c;
   }), n.d(t, "addChannelToNameMap", function() {
@@ -71475,7 +71595,7 @@ $.fn.togglify = function(settings) {
   });
   var i = n(5),
     a = n.n(i),
-    s = n(19);
+    s = n(21);
   n.n(s), n.d(t, "updateTyping", function() {
     return c;
   }), n.d(t, "clearTyping", function() {
@@ -71554,9 +71674,9 @@ $.fn.togglify = function(settings) {
   var r = n(5),
     o = (n.n(r), n(1)),
     i = n.n(o),
-    a = n(10),
+    a = n(8),
     s = n.n(a),
-    u = n(319),
+    u = n(321),
     l = (n.n(u), {
       children: o.PropTypes.node.isRequired,
       position: o.PropTypes.string,
@@ -71580,12 +71700,12 @@ $.fn.togglify = function(settings) {
   d.propTypes = l, d.defaultProps = c, t.a = d;
 }, function(e, t, n) {
   "use strict";
-  var r = n(27),
+  var r = n(19),
     o = n.i(r.a)("TS.exportToLegacy", function() {});
   t.a = o;
 }, function(e, t, n) {
   "use strict";
-  var r = n(27);
+  var r = n(19);
   n.d(t, "a", function() {
     return o;
   }), n.d(t, "b", function() {
@@ -71597,6 +71717,21 @@ $.fn.togglify = function(settings) {
     i = n.i(r.a)("TS.metrics.measureAndClear", function() {
       return null;
     });
+}, function(e, t, n) {
+  "use strict";
+  var r = n(19);
+  n.d(t, "a", function() {
+    return o;
+  }), n.d(t, "b", function() {
+    return i;
+  }), n.d(t, "c", function() {
+    return a;
+  });
+  var o = n.i(r.a)("TS.model.isMac", function() {
+      return !1;
+    }),
+    i = n.i(r.a)("TS.model.getUserModel", function() {}),
+    a = n.i(r.a)("TS.model.getUserPrefs", function() {});
 }, function(e, t, n) {
   "use strict";
 
@@ -71704,7 +71839,7 @@ $.fn.togglify = function(settings) {
       unitsOut: "days"
     });
   }
-  var o = n(56);
+  var o = n(57);
   t.a = r;
 }, function(e, t, n) {
   "use strict";
@@ -71718,7 +71853,7 @@ $.fn.togglify = function(settings) {
       unitsOut: "hours"
     });
   }
-  var o = n(56);
+  var o = n(57);
   t.a = r;
 }, function(e, t, n) {
   "use strict";
@@ -71732,57 +71867,62 @@ $.fn.togglify = function(settings) {
       unitsOut: "weeks"
     });
   }
-  var o = n(56);
+  var o = n(57);
   t.a = r;
 }, function(e, t, n) {
   "use strict";
 
-  function r(e, t, n) {
-    return t in e ? Object.defineProperty(e, t, {
-      value: n,
-      enumerable: !0,
-      configurable: !0,
-      writable: !0
-    }) : e[t] = n, e;
+  function r(e, t) {
+    if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
   }
-
-  function o(e, t) {
-    var o, i = ["upsert", "bulkUpsert", "remove", "bulkRemove", "clear"],
-      l = a.a.pick(e, i),
-      c = l.upsert,
-      d = l.bulkUpsert,
-      f = l.remove,
-      h = l.bulkRemove,
-      p = l.clear,
-      _ = a.a.omit(e, i);
-    return n.i(s.createReducer)(u((o = {}, r(o, c, function(e, t) {
-      return t && t.id ? u({}, e, r({}, t.id, t)) : e;
-    }), r(o, d, function(e, t) {
-      return t && t.length && a.a.isArray(t) ? a.a.reduce(t, function(e, t) {
-        return t && t.id && (e[t.id] = t), e;
-      }, u({}, e)) : e;
-    }), r(o, f, function(e, t) {
-      return a.a.omit(e, t);
-    }), r(o, h, function(e, t) {
-      return a.a.omit(e, t);
-    }), r(o, p, function() {
-      return {};
-    }), o), _), t);
-  }
-  var i = n(5),
-    a = n.n(i),
-    s = n(19);
-  n.n(s), t.a = o;
-  var u = Object.assign || function(e) {
-    for (var t = 1; t < arguments.length; t++) {
-      var n = arguments[t];
-      for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
-    }
-    return e;
-  };
+  var o = n(451),
+    i = n.n(o),
+    a = n(5),
+    s = n.n(a),
+    u = function() {
+      function e(e, t) {
+        for (var n = 0; n < t.length; n++) {
+          var r = t[n];
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
+        }
+      }
+      return function(t, n, r) {
+        return n && e(t.prototype, n), r && e(t, r), t;
+      };
+    }(),
+    l = function() {
+      function e(t) {
+        r(this, e), i.a.prototype.stopCallback = e.stopCallback, this.mousetrap = new i.a(t);
+      }
+      return u(e, [{
+        key: "bindAll",
+        value: function(e) {
+          var t = this;
+          e.forEach(function(e) {
+            t.mousetrap.bind(e.keys, e.handler, e.action);
+          });
+        }
+      }, {
+        key: "reset",
+        value: function() {
+          this.mousetrap.reset();
+        }
+      }, {
+        key: "unbindAll",
+        value: function(e) {
+          this.mousetrap.unbind(s.a.flatMap(e, "keys"));
+        }
+      }], [{
+        key: "stopCallback",
+        value: function(e, t) {
+          return t.hasAttribute("data-no-key-commands");
+        }
+      }]), e;
+    }();
+  t.a = l;
 }, function(e, t, n) {
   e.exports = {
-    "default": n(375),
+    "default": n(384),
     __esModule: !0
   };
 }, function(e, t, n) {
@@ -71794,9 +71934,9 @@ $.fn.togglify = function(settings) {
     };
   }
   t.__esModule = !0;
-  var o = n(366),
+  var o = n(375),
     i = r(o),
-    a = n(365),
+    a = n(374),
     s = r(a),
     u = "function" == typeof s.default && "symbol" == typeof i.default ? function(e) {
       return typeof e;
@@ -71809,8 +71949,8 @@ $.fn.togglify = function(settings) {
     return e && "function" == typeof s.default && e.constructor === s.default && e !== s.default.prototype ? "symbol" : void 0 === e ? "undefined" : u(e);
   };
 }, function(e, t, n) {
-  var r = n(73),
-    o = n(21)("toStringTag"),
+  var r = n(74),
+    o = n(22)("toStringTag"),
     i = "Arguments" == r(function() {
       return arguments;
     }()),
@@ -71824,7 +71964,7 @@ $.fn.togglify = function(settings) {
     return void 0 === e ? "Undefined" : null === e ? "Null" : "string" == typeof(n = a(t = Object(e), o)) ? n : i ? r(t) : "Object" == (s = r(t)) && "function" == typeof t.callee ? "Arguments" : s;
   };
 }, function(e, t, n) {
-  var r = n(379);
+  var r = n(388);
   e.exports = function(e, t, n) {
     if (r(e), void 0 === t) return e;
     switch (n) {
@@ -71846,37 +71986,37 @@ $.fn.togglify = function(settings) {
     };
   };
 }, function(e, t, n) {
-  var r = n(46),
-    o = n(25).document,
+  var r = n(47),
+    o = n(26).document,
     i = r(o) && r(o.createElement);
   e.exports = function(e) {
     return i ? o.createElement(e) : {};
   };
 }, function(e, t, n) {
-  e.exports = !n(28) && !n(35)(function() {
-    return 7 != Object.defineProperty(n(136)("div"), "a", {
+  e.exports = !n(29) && !n(36)(function() {
+    return 7 != Object.defineProperty(n(139)("div"), "a", {
       get: function() {
         return 7;
       }
     }).a;
   });
 }, function(e, t, n) {
-  var r = n(73);
+  var r = n(74);
   e.exports = Object("z").propertyIsEnumerable(0) ? Object : function(e) {
     return "String" == r(e) ? e.split("") : Object(e);
   };
 }, function(e, t, n) {
   "use strict";
-  var r = n(76),
-    o = n(29),
-    i = n(143),
-    a = n(36),
-    s = n(30),
-    u = n(47),
-    l = n(385),
-    c = n(81),
-    d = n(141),
-    f = n(21)("iterator"),
+  var r = n(77),
+    o = n(30),
+    i = n(146),
+    a = n(37),
+    s = n(31),
+    u = n(48),
+    l = n(394),
+    c = n(82),
+    d = n(144),
+    f = n(22)("iterator"),
     h = !([].keys && "next" in [].keys()),
     p = function() {
       return this;
@@ -71896,46 +72036,45 @@ $.fn.togglify = function(settings) {
           return new n(this, e);
         };
       },
-      L = t + " Iterator",
-      k = "values" == m,
+      k = t + " Iterator",
+      L = "values" == m,
       T = !1,
       S = e.prototype,
       Y = S[f] || S["@@iterator"] || m && S[m],
-      x = Y || w(m),
-      D = m ? k ? w("entries") : x : void 0,
+      D = Y || w(m),
+      x = m ? L ? w("entries") : D : void 0,
       C = "Array" == t ? S.entries || Y : Y;
-    if (C && (b = d(C.call(new e))) !== Object.prototype && (c(b, L, !0),
-        r || s(b, f) || a(b, f, p)), k && Y && "values" !== Y.name && (T = !0, x = function() {
+    if (C && (b = d(C.call(new e))) !== Object.prototype && (c(b, k, !0), r || s(b, f) || a(b, f, p)), L && Y && "values" !== Y.name && (T = !0, D = function() {
         return Y.call(this);
-      }), r && !v || !h && !T && S[f] || a(S, f, x), u[t] = x, u[L] = p, m)
+      }), r && !v || !h && !T && S[f] || a(S, f, D), u[t] = D, u[k] = p, m)
       if (g = {
-          values: k ? x : w("values"),
-          keys: y ? x : w("keys"),
-          entries: D
+          values: L ? D : w("values"),
+          keys: y ? D : w("keys"),
+          entries: x
         }, v)
         for (M in g) M in S || i(S, M, g[M]);
       else o(o.P + o.F * (h || T), t, g);
     return g;
   };
 }, function(e, t, n) {
-  var r = n(142),
-    o = n(75).concat("length", "prototype");
+  var r = n(145),
+    o = n(76).concat("length", "prototype");
   t.f = Object.getOwnPropertyNames || function(e) {
     return r(e, o);
   };
 }, function(e, t, n) {
-  var r = n(30),
+  var r = n(31),
     o = n(61),
-    i = n(82)("IE_PROTO"),
+    i = n(83)("IE_PROTO"),
     a = Object.prototype;
   e.exports = Object.getPrototypeOf || function(e) {
     return e = o(e), r(e, i) ? e[i] : "function" == typeof e.constructor && e instanceof e.constructor ? e.constructor.prototype : e instanceof Object ? a : null;
   };
 }, function(e, t, n) {
-  var r = n(30),
-    o = n(26),
-    i = n(381)(!1),
-    a = n(82)("IE_PROTO");
+  var r = n(31),
+    o = n(27),
+    i = n(390)(!1),
+    a = n(83)("IE_PROTO");
   e.exports = function(e, t) {
     var n, s = o(e),
       u = 0,
@@ -71945,7 +72084,7 @@ $.fn.togglify = function(settings) {
     return l;
   };
 }, function(e, t, n) {
-  e.exports = n(36);
+  e.exports = n(37);
 }, function(e, t, n) {
   "use strict";
   Object.defineProperty(t, "__esModule", {
@@ -71957,7 +72096,7 @@ $.fn.togglify = function(settings) {
     }
     return i;
   };
-  var r = n(414),
+  var r = n(423),
     o = function(e) {
       return e && e.__esModule ? e : {
         "default": e
@@ -72015,7 +72154,7 @@ $.fn.togglify = function(settings) {
   e.exports = r;
 }, function(e, t, n) {
   "use strict";
-  var r = n(439),
+  var r = n(448),
     o = r.a.Symbol;
   t.a = o;
 }, function(e, t) {
@@ -72098,7 +72237,7 @@ $.fn.togglify = function(settings) {
   }
 
   function h(e) {
-    return _(e) && Y.call(e, "callee") && (!D.call(e, "callee") || x.call(e) == w);
+    return _(e) && Y.call(e, "callee") && (!x.call(e, "callee") || D.call(e) == w);
   }
 
   function p(e) {
@@ -72110,8 +72249,8 @@ $.fn.togglify = function(settings) {
   }
 
   function m(e) {
-    var t = v(e) ? x.call(e) : "";
-    return t == L || t == k;
+    var t = v(e) ? D.call(e) : "";
+    return t == k || t == L;
   }
 
   function y(e) {
@@ -72132,20 +72271,20 @@ $.fn.togglify = function(settings) {
   }
   var b = 9007199254740991,
     w = "[object Arguments]",
-    L = "[object Function]",
-    k = "[object GeneratorFunction]",
+    k = "[object Function]",
+    L = "[object GeneratorFunction]",
     T = /^(?:0|[1-9]\d*)$/,
     S = Object.prototype,
     Y = S.hasOwnProperty,
-    x = S.toString,
-    D = S.propertyIsEnumerable,
+    D = S.toString,
+    x = S.propertyIsEnumerable,
     C = function(e, t) {
       return function(n) {
         return e(t(n));
       };
     }(Object.keys, Object),
     P = Math.max,
-    E = !D.call({
+    E = !x.call({
       valueOf: 1
     }, "valueOf"),
     j = Array.isArray,
@@ -79979,7 +80118,7 @@ $.fn.togglify = function(settings) {
     if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
   }
   var o = n(4),
-    i = n(32),
+    i = n(33),
     a = (n(2), function() {
       function e(t) {
         r(this, e), this._callbacks = null, this._contexts = null, this._arg = t;
@@ -80016,8 +80155,8 @@ $.fn.togglify = function(settings) {
   function o(e, t) {
     return null == t || e.hasBooleanValue && !t || e.hasNumericValue && isNaN(t) || e.hasPositiveNumericValue && t < 1 || e.hasOverloadedBooleanValue && !1 === t;
   }
-  var i = n(39),
-    a = (n(9), n(17), n(505)),
+  var i = n(40),
+    a = (n(10), n(17), n(514)),
     s = (n(3), new RegExp("^[" + i.ATTRIBUTE_NAME_START_CHAR + "][" + i.ATTRIBUTE_NAME_CHAR + "]*$")),
     u = {},
     l = {},
@@ -80120,9 +80259,9 @@ $.fn.togglify = function(settings) {
     return this._rootNodeID && (this._wrapperState.pendingUpdate = !0), l.asap(r, this), n;
   }
   var a = n(6),
-    s = n(99),
-    u = n(9),
-    l = n(18),
+    s = n(100),
+    u = n(10),
+    l = n(20),
     c = (n(3), !1),
     d = {
       getHostProps: function(e, t) {
@@ -80211,10 +80350,10 @@ $.fn.togglify = function(settings) {
   function r(e) {
     return i(document.documentElement, e);
   }
-  var o = n(464),
-    i = n(419),
-    a = n(146),
-    s = n(147),
+  var o = n(473),
+    i = n(428),
+    a = n(149),
+    s = n(150),
     u = {
       hasSelectionCapabilities: function(e) {
         var t = e && e.nodeName && e.nodeName.toLowerCase();
@@ -80286,7 +80425,7 @@ $.fn.togglify = function(settings) {
         s = a.type;
       i = "React mount: " + ("string" == typeof s ? s : s.displayName || s.name), console.time(i);
     }
-    var u = k.mountComponent(e, n, null, g(e, t), o, 0);
+    var u = L.mountComponent(e, n, null, g(e, t), o, 0);
     i && console.timeEnd(i), e._renderedComponent._topLevelWrapper = e, N._mountImageIntoNode(u, t, e, r, n);
   }
 
@@ -80296,7 +80435,7 @@ $.fn.togglify = function(settings) {
   }
 
   function u(e, t, n) {
-    for (k.unmountComponent(e, n), t.nodeType === O && (t = t.documentElement); t.lastChild;) t.removeChild(t.lastChild);
+    for (L.unmountComponent(e, n), t.nodeType === O && (t = t.documentElement); t.lastChild;) t.removeChild(t.lastChild);
   }
 
   function l(e) {
@@ -80322,23 +80461,23 @@ $.fn.togglify = function(settings) {
     return t ? t._hostContainerInfo._topLevelWrapper : null;
   }
   var h = n(4),
-    p = n(38),
-    _ = n(39),
-    m = n(41),
+    p = n(39),
+    _ = n(40),
+    m = n(42),
     y = n(63),
-    v = (n(23), n(9)),
-    g = n(458),
-    M = n(460),
-    b = n(265),
-    w = n(52),
-    L = (n(17), n(474)),
-    k = n(40),
-    T = n(102),
-    S = n(18),
-    Y = n(48),
-    x = n(275),
-    D = (n(2), n(67)),
-    C = n(108),
+    v = (n(24), n(10)),
+    g = n(467),
+    M = n(469),
+    b = n(268),
+    w = n(53),
+    k = (n(17), n(483)),
+    L = n(41),
+    T = n(103),
+    S = n(20),
+    Y = n(49),
+    D = n(278),
+    x = (n(2), n(67)),
+    C = n(109),
     P = (n(3), _.ID_ATTRIBUTE_NAME),
     E = _.ROOT_ATTRIBUTE_NAME,
     j = 1,
@@ -80365,7 +80504,7 @@ $.fn.togglify = function(settings) {
     },
     _renderNewRootComponent: function(e, t, n, r) {
       c(t) || h("37"), y.ensureScrollValueMonitoring();
-      var o = x(e, !1);
+      var o = D(e, !1);
       S.batchedUpdates(s, o, t, n, r);
       var i = o._instance.rootID;
       return I[i] = o, o;
@@ -80399,8 +80538,8 @@ $.fn.togglify = function(settings) {
         g = v && !!i(v),
         M = l(n),
         b = g && !c && !M,
-        L = N._renderNewRootComponent(s, n, b, a)._renderedComponent.getPublicInstance();
-      return r && r.call(L), L;
+        k = N._renderNewRootComponent(s, n, b, a)._renderedComponent.getPublicInstance();
+      return r && r.call(k), k;
     },
     render: function(e, t, n) {
       return N._renderSubtreeIntoContainer(null, e, t, n);
@@ -80413,11 +80552,11 @@ $.fn.togglify = function(settings) {
     _mountImageIntoNode: function(e, t, n, i, a) {
       if (c(t) || h("41"), i) {
         var s = o(t);
-        if (L.canReuseMarkup(e, s)) return void v.precacheNode(n, s);
-        var u = s.getAttribute(L.CHECKSUM_ATTR_NAME);
-        s.removeAttribute(L.CHECKSUM_ATTR_NAME);
+        if (k.canReuseMarkup(e, s)) return void v.precacheNode(n, s);
+        var u = s.getAttribute(k.CHECKSUM_ATTR_NAME);
+        s.removeAttribute(k.CHECKSUM_ATTR_NAME);
         var l = s.outerHTML;
-        s.setAttribute(L.CHECKSUM_ATTR_NAME, u);
+        s.setAttribute(k.CHECKSUM_ATTR_NAME, u);
         var d = e,
           f = r(d, l),
           _ = " (client) " + d.substring(f - 20, f + 20) + "\n (server) " + l.substring(f - 20, f + 20);
@@ -80426,14 +80565,14 @@ $.fn.togglify = function(settings) {
       if (t.nodeType === O && h("43"), a.useCreateElement) {
         for (; t.lastChild;) t.removeChild(t.lastChild);
         p.insertTreeBefore(t, e, null);
-      } else D(t, e), v.precacheNode(n, t.firstChild);
+      } else x(t, e), v.precacheNode(n, t.firstChild);
     }
   };
   e.exports = N;
 }, function(e, t, n) {
   "use strict";
   var r = n(4),
-    o = n(41),
+    o = n(42),
     i = (n(2), {
       HOST: 0,
       COMPOSITE: 1,
@@ -80476,7 +80615,7 @@ $.fn.togglify = function(settings) {
       (t = e._renderedNodeType) === o.COMPOSITE;) e = e._renderedComponent;
     return t === o.HOST ? e._renderedComponent : t === o.EMPTY ? null : void 0;
   }
-  var o = n(269);
+  var o = n(272);
   e.exports = r;
 }, function(e, t, n) {
   "use strict";
@@ -80518,10 +80657,10 @@ $.fn.togglify = function(settings) {
   }
   var a = n(4),
     s = n(6),
-    u = n(455),
-    l = n(264),
-    c = n(266),
-    d = (n(502), n(2), n(3), function(e) {
+    u = n(464),
+    l = n(267),
+    c = n(269),
+    d = (n(511), n(2), n(3), function(e) {
       this.construct(e);
     });
   s(d.prototype, u, {
@@ -80594,8 +80733,8 @@ $.fn.togglify = function(settings) {
             w && (h = w[1], p = m + l.escape(w[0]) + d + r(h, 0), _ += o(h, p, n, i));
           }
       } else if ("object" === f) {
-        var L = String(e);
-        a("31", "[object Object]" === L ? "object with keys {" + Object.keys(e).join(", ") + "}" : L, "");
+        var k = String(e);
+        a("31", "[object Object]" === k ? "object with keys {" + Object.keys(e).join(", ") + "}" : k, "");
       }
     }
     return _;
@@ -80605,9 +80744,9 @@ $.fn.togglify = function(settings) {
     return null == e ? 0 : o(e, "", t, n);
   }
   var a = n(4),
-    s = (n(23), n(470)),
-    u = n(501),
-    l = (n(2), n(98)),
+    s = (n(24), n(479)),
+    u = n(510),
+    l = (n(2), n(99)),
     c = (n(3), "."),
     d = ":";
   e.exports = i;
@@ -80696,18 +80835,18 @@ $.fn.togglify = function(settings) {
       } : f,
       b = c.methodName,
       w = void 0 === b ? "connectAdvanced" : b,
-      L = c.renderCountProp,
-      k = void 0 === L ? void 0 : L,
+      k = c.renderCountProp,
+      L = void 0 === k ? void 0 : k,
       T = c.shouldHandleStateChanges,
       S = void 0 === T || T,
       Y = c.storeKey,
-      x = void 0 === Y ? "store" : Y,
-      D = c.withRef,
-      C = void 0 !== D && D,
+      D = void 0 === Y ? "store" : Y,
+      x = c.withRef,
+      C = void 0 !== x && x,
       P = a(c, ["getDisplayName", "methodName", "renderCountProp", "shouldHandleStateChanges", "storeKey", "withRef"]),
-      E = x + "Subscription",
+      E = D + "Subscription",
       j = v++,
-      O = (t = {}, t[x] = m.a, t[E] = m.b, t),
+      O = (t = {}, t[D] = m.a, t[E] = m.b, t),
       R = (l = {}, l[E] = m.b, l);
     return function(t) {
       h()("function" == typeof t, "You must pass a component to the function returned by connect. Instead received " + JSON.stringify(t));
@@ -80716,9 +80855,9 @@ $.fn.togglify = function(settings) {
         c = y({}, P, {
           getDisplayName: M,
           methodName: w,
-          renderCountProp: k,
+          renderCountProp: L,
           shouldHandleStateChanges: S,
-          storeKey: x,
+          storeKey: D,
           withRef: C,
           displayName: l,
           wrappedComponentName: a,
@@ -80728,7 +80867,7 @@ $.fn.togglify = function(settings) {
           function d(e, t) {
             r(this, d);
             var n = o(this, a.call(this, e, t));
-            return n.version = j, n.state = {}, n.renderCount = 0, n.store = e[x] || t[x], n.propsMode = Boolean(e[x]), n.setWrappedInstance = n.setWrappedInstance.bind(n), h()(n.store, 'Could not find "' + x + '" in either the context or props of "' + l + '". Either wrap the root component in a <Provider>, or explicitly pass "' + x + '" as a prop to "' + l + '".'), n.initSelector(), n.initSubscription(), n;
+            return n.version = j, n.state = {}, n.renderCount = 0, n.store = e[D] || t[D], n.propsMode = Boolean(e[D]), n.setWrappedInstance = n.setWrappedInstance.bind(n), h()(n.store, 'Could not find "' + D + '" in either the context or props of "' + l + '". Either wrap the root component in a <Provider>, or explicitly pass "' + D + '" as a prop to "' + l + '".'), n.initSelector(), n.initSubscription(), n;
           }
           return i(d, a), d.prototype.getChildContext = function() {
             var e, t = this.propsMode ? null : this.subscription;
@@ -80760,9 +80899,9 @@ $.fn.togglify = function(settings) {
           }, d.prototype.isSubscribed = function() {
             return Boolean(this.subscription) && this.subscription.isSubscribed();
           }, d.prototype.addExtraProps = function(e) {
-            if (!(C || k || this.propsMode && this.subscription)) return e;
+            if (!(C || L || this.propsMode && this.subscription)) return e;
             var t = y({}, e);
-            return C && (t.ref = this.setWrappedInstance), k && (t[k] = this.renderCount++), this.propsMode && this.subscription && (t[E] = this.subscription), t;
+            return C && (t.ref = this.setWrappedInstance), L && (t[L] = this.renderCount++), this.propsMode && this.subscription && (t[E] = this.subscription), t;
           }, d.prototype.render = function() {
             var e = this.selector;
             if (e.shouldComponentUpdate = !1, e.error) throw e.error;
@@ -80772,13 +80911,13 @@ $.fn.togglify = function(settings) {
       return f.WrappedComponent = t, f.displayName = l, f.childContextTypes = R, f.contextTypes = O, f.propTypes = O, d()(f, t);
     };
   }
-  var c = n(429),
+  var c = n(438),
     d = n.n(c),
-    f = n(430),
+    f = n(439),
     h = n.n(f),
     p = n(1),
-    _ = (n.n(p), n(520)),
-    m = n(282);
+    _ = (n.n(p), n(529)),
+    m = n(285);
   t.a = l;
   var y = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
@@ -80818,7 +80957,7 @@ $.fn.togglify = function(settings) {
       }, r;
     };
   }
-  n(283), t.b = r, t.a = i;
+  n(286), t.b = r, t.a = i;
 }, function(e, t, n) {
   "use strict";
   var r = n(1);
@@ -80840,14 +80979,14 @@ $.fn.togglify = function(settings) {
     });
 }, function(e, t, n) {
   "use strict";
-  n(93), n(110);
+  n(94), n(111);
 }, function(e, t, n) {
   "use strict";
   var r = n(11),
     o = n.n(r),
     i = n(7),
     a = n.n(i),
-    s = n(8),
+    s = n(9),
     u = n.n(s),
     l = n(13),
     c = n.n(l),
@@ -80965,7 +81104,7 @@ $.fn.togglify = function(settings) {
     o = n.n(r),
     i = n(7),
     a = n.n(i),
-    s = n(8),
+    s = n(9),
     u = n.n(s),
     l = n(13),
     c = n.n(l),
@@ -80973,7 +81112,7 @@ $.fn.togglify = function(settings) {
     f = n.n(d),
     h = n(1),
     p = n.n(h),
-    _ = n(549),
+    _ = n(558),
     m = function(e) {
       function t(e) {
         a()(this, t);
@@ -81054,14 +81193,14 @@ $.fn.togglify = function(settings) {
     o = n.n(r),
     i = n(7),
     a = n.n(i),
-    s = n(8),
+    s = n(9),
     u = n.n(s),
     l = n(13),
     c = n.n(l),
     d = n(12),
     f = n.n(d),
     h = n(1),
-    p = (n.n(h), n(20));
+    p = (n.n(h), n(18));
   n.n(p),
     function(e) {
       function t(e, n) {
@@ -81159,7 +81298,7 @@ $.fn.togglify = function(settings) {
       return !!e;
     });
   }
-  var o = n(24),
+  var o = n(25),
     i = n.n(o),
     a = n(58),
     s = n.n(a),
@@ -81167,7 +81306,7 @@ $.fn.togglify = function(settings) {
     l = n.n(u),
     c = n(7),
     d = n.n(c),
-    f = n(8),
+    f = n(9),
     h = n.n(f),
     p = n(13),
     _ = n.n(p),
@@ -81175,9 +81314,9 @@ $.fn.togglify = function(settings) {
     y = n.n(m),
     v = n(1),
     g = n.n(v),
-    M = n(526),
-    b = n(530),
-    w = n(547);
+    M = n(535),
+    b = n(539),
+    w = n(556);
   ((function(e) {
     function t(e, n) {
       d()(this, t);
@@ -81315,7 +81454,7 @@ $.fn.togglify = function(settings) {
     o = n.n(r),
     i = n(7),
     a = n.n(i),
-    s = n(8),
+    s = n(9),
     u = n.n(s),
     l = n(13),
     c = n.n(l),
@@ -81370,13 +81509,13 @@ $.fn.togglify = function(settings) {
     }(h.PureComponent);
 }, function(e, t, n) {
   "use strict";
-  var r = n(24),
+  var r = n(25),
     o = n.n(r),
     i = n(11),
     a = n.n(i),
     s = n(7),
     u = n.n(s),
-    l = n(8),
+    l = n(9),
     c = n.n(l),
     d = n(13),
     f = n.n(d),
@@ -81384,31 +81523,32 @@ $.fn.togglify = function(settings) {
     p = n.n(h),
     _ = n(1),
     m = n.n(_),
-    y = n(10),
+    y = n(8),
     v = n.n(y),
-    g = n(535),
-    M = n(534),
-    b = n(112),
-    w = n(291),
-    L = n(536),
-    k = n(290),
-    T = n(144),
+    g = n(544),
+    M = n(543),
+    b = n(113),
+    w = n(294),
+    k = n(545),
+    L = n(293),
+    T = n(147),
     S = n.n(T),
     Y = {
       OBSERVED: "observed",
       REQUESTED: "requested"
     },
-    x = function(e) {
+    D = function(e) {
       function t(e, r) {
         u()(this, t);
         var o = f()(this, (t.__proto__ || a()(t)).call(this, e, r));
         o.state = {
-          isScrolling: !1,
-          scrollDirectionHorizontal: w.a,
-          scrollDirectionVertical: w.a,
-          scrollLeft: 0,
-          scrollTop: 0
-        }, o._onGridRenderedMemoizer = n.i(b.a)(), o._onScrollMemoizer = n.i(b.a)(!1), o._debounceScrollEndedCallback = o._debounceScrollEndedCallback.bind(o), o._invokeOnGridRenderedHelper = o._invokeOnGridRenderedHelper.bind(o), o._onScroll = o._onScroll.bind(o), o._setScrollingContainerRef = o._setScrollingContainerRef.bind(o), o._columnWidthGetter = o._wrapSizeGetter(e.columnWidth), o._rowHeightGetter = o._wrapSizeGetter(e.rowHeight), o._deferredInvalidateColumnIndex = null, o._deferredInvalidateRowIndex = null, o._recomputeScrollLeftFlag = !1, o._recomputeScrollTopFlag = !1;
+            isScrolling: !1,
+            scrollDirectionHorizontal: w.a,
+            scrollDirectionVertical: w.a,
+            scrollLeft: 0,
+            scrollTop: 0
+          }, o._onGridRenderedMemoizer = n.i(b.a)(), o._onScrollMemoizer = n.i(b.a)(!1), o._debounceScrollEndedCallback = o._debounceScrollEndedCallback.bind(o), o._invokeOnGridRenderedHelper = o._invokeOnGridRenderedHelper.bind(o), o._onScroll = o._onScroll.bind(o), o._setScrollingContainerRef = o._setScrollingContainerRef.bind(o), o._columnWidthGetter = o._wrapSizeGetter(e.columnWidth), o._rowHeightGetter = o._wrapSizeGetter(e.rowHeight),
+          o._deferredInvalidateColumnIndex = null, o._deferredInvalidateRowIndex = null, o._recomputeScrollLeftFlag = !1, o._recomputeScrollTopFlag = !1;
         var i = e.deferredMeasurementCache,
           s = void 0 !== i;
         return o._columnSizeAndPositionManager = new M.a({
@@ -81538,7 +81678,7 @@ $.fn.togglify = function(settings) {
             y = p.scrollTop;
           this._handleInvalidatedGridSize();
           var v = s > 0 && 0 === e.columnCount || l > 0 && 0 === e.rowCount;
-          if (m === Y.REQUESTED && (!a && _ >= 0 && (_ !== t.scrollLeft && _ !== this._scrollingContainer.scrollLeft || v) && (this._scrollingContainer.scrollLeft = _), !i && y >= 0 && (y !== t.scrollTop && y !== this._scrollingContainer.scrollTop || v) && (this._scrollingContainer.scrollTop = y)), this._recomputeScrollLeftFlag ? (this._recomputeScrollLeftFlag = !1, this._updateScrollLeftForScrollToColumn(this.props)) : n.i(L.a)({
+          if (m === Y.REQUESTED && (!a && _ >= 0 && (_ !== t.scrollLeft && _ !== this._scrollingContainer.scrollLeft || v) && (this._scrollingContainer.scrollLeft = _), !i && y >= 0 && (y !== t.scrollTop && y !== this._scrollingContainer.scrollTop || v) && (this._scrollingContainer.scrollTop = y)), this._recomputeScrollLeftFlag ? (this._recomputeScrollLeftFlag = !1, this._updateScrollLeftForScrollToColumn(this.props)) : n.i(k.a)({
               cellSizeAndPositionManager: this._columnSizeAndPositionManager,
               previousCellsCount: e.columnCount,
               previousCellSize: e.columnWidth,
@@ -81552,7 +81692,7 @@ $.fn.togglify = function(settings) {
               updateScrollIndexCallback: function(e) {
                 return r._updateScrollLeftForScrollToColumn(r.props);
               }
-            }), this._recomputeScrollTopFlag ? (this._recomputeScrollTopFlag = !1, this._updateScrollTopForScrollToRow(this.props)) : n.i(L.a)({
+            }), this._recomputeScrollTopFlag ? (this._recomputeScrollTopFlag = !1, this._updateScrollTopForScrollToRow(this.props)) : n.i(k.a)({
               cellSizeAndPositionManager: this._rowSizeAndPositionManager,
               previousCellsCount: e.rowCount,
               previousCellSize: e.rowHeight,
@@ -81680,7 +81820,7 @@ $.fn.togglify = function(settings) {
             b = y > h ? this._scrollbarSize : 0;
           _.overflowX = y + M <= h ? "hidden" : "auto", _.overflowY = g + b <= s ? "hidden" : "auto";
           var w = this._childrenToDisplay,
-            L = 0 === w.length && s > 0 && h > 0;
+            k = 0 === w.length && s > 0 && h > 0;
           return m.a.createElement("div", {
             ref: this._setScrollingContainerRef,
             "aria-label": this.props["aria-label"],
@@ -81701,7 +81841,7 @@ $.fn.togglify = function(settings) {
               pointerEvents: p ? "none" : "",
               position: "relative"
             }, a)
-          }, w), L && l());
+          }, w), k && l());
         }
       }, {
         key: "_calculateChildrenToRender",
@@ -82010,9 +82150,9 @@ $.fn.togglify = function(settings) {
         }
       }]), t;
     }(_.PureComponent);
-  x.defaultProps = {
+  D.defaultProps = {
     "aria-label": "grid",
-    cellRangeRenderer: k.a,
+    cellRangeRenderer: L.a,
     estimatedColumnSize: 100,
     estimatedRowSize: 30,
     getScrollbarSize: S.a,
@@ -82035,18 +82175,18 @@ $.fn.togglify = function(settings) {
     scrollToRow: -1,
     style: {},
     tabIndex: 0
-  }, t.a = x;
+  }, t.a = D;
 }, function(e, t, n) {
   "use strict";
 
   function r(e) {
     for (var t = e.cellCache, n = e.cellRenderer, r = e.columnSizeAndPositionManager, o = e.columnStartIndex, i = e.columnStopIndex, a = e.deferredMeasurementCache, s = e.horizontalOffsetAdjustment, u = e.isScrolling, l = e.parent, c = e.rowSizeAndPositionManager, d = e.rowStartIndex, f = e.rowStopIndex, h = (e.scrollLeft, e.scrollTop, e.styleCache), p = e.verticalOffsetAdjustment, _ = e.visibleColumnIndices, m = e.visibleRowIndices, y = void 0 !== a, v = [], g = r.areOffsetsAdjusted() || c.areOffsetsAdjusted(), M = !u || !g, b = d; b <= f; b++)
-      for (var w = c.getSizeAndPositionOfCell(b), L = o; L <= i; L++) {
-        var k = r.getSizeAndPositionOfCell(L),
-          T = L >= _.start && L <= _.stop && b >= m.start && b <= m.stop,
-          S = b + "-" + L,
+      for (var w = c.getSizeAndPositionOfCell(b), k = o; k <= i; k++) {
+        var L = r.getSizeAndPositionOfCell(k),
+          T = k >= _.start && k <= _.stop && b >= m.start && b <= m.stop,
+          S = b + "-" + k,
           Y = void 0;
-        M && h[S] ? Y = h[S] : y && !a.has(b, L) ? Y = {
+        M && h[S] ? Y = h[S] : y && !a.has(b, k) ? Y = {
           height: "auto",
           left: 0,
           position: "absolute",
@@ -82054,13 +82194,13 @@ $.fn.togglify = function(settings) {
           width: "auto"
         } : (Y = {
           height: w.size,
-          left: k.offset + s,
+          left: L.offset + s,
           position: "absolute",
           top: w.offset + p,
-          width: k.size
+          width: L.size
         }, h[S] = Y);
-        var x = {
-            columnIndex: L,
+        var D = {
+            columnIndex: k,
             isScrolling: u,
             isVisible: T,
             key: S,
@@ -82068,8 +82208,8 @@ $.fn.togglify = function(settings) {
             rowIndex: b,
             style: Y
           },
-          D = void 0;
-        !u || s || p ? D = n(x) : (t[S] || (t[S] = n(x)), D = t[S]), null != D && !1 !== D && v.push(D);
+          x = void 0;
+        !u || s || p ? x = n(D) : (t[S] || (t[S] = n(D)), x = t[S]), null != x && !1 !== x && v.push(x);
       }
     return v;
   }
@@ -82151,14 +82291,14 @@ $.fn.togglify = function(settings) {
     s = n.n(a),
     u = n(7),
     l = n.n(u),
-    c = n(8),
+    c = n(9),
     d = n.n(c),
     f = n(13),
     h = n.n(f),
     p = n(12),
     _ = n.n(p),
     m = n(1),
-    y = (n.n(m), n(112));
+    y = (n.n(m), n(113));
   ((function(e) {
     function t(e, r) {
       l()(this, t);
@@ -82239,17 +82379,17 @@ $.fn.togglify = function(settings) {
   };
 }, function(e, t, n) {
   "use strict";
-  var r = n(363),
+  var r = n(372),
     o = n.n(r),
     i = n(58),
     a = n.n(i),
-    s = n(24),
+    s = n(25),
     u = n.n(s),
     l = n(11),
     c = n.n(l),
     d = n(7),
     f = n.n(d),
-    h = n(8),
+    h = n(9),
     p = n.n(h),
     _ = n(13),
     m = n.n(_),
@@ -82258,9 +82398,9 @@ $.fn.togglify = function(settings) {
     g = n(68),
     M = n(1),
     b = n.n(M),
-    w = n(10),
-    L = n.n(w),
-    k = function(e) {
+    w = n(8),
+    k = n.n(w),
+    L = function(e) {
       function t(e, n) {
         f()(this, t);
         var r = m()(this, (t.__proto__ || c()(t)).call(this, e, n));
@@ -82319,7 +82459,7 @@ $.fn.togglify = function(settings) {
             n = e.noRowsRenderer,
             r = e.scrollToIndex,
             o = e.width,
-            i = L()("ReactVirtualized__List", t);
+            i = k()("ReactVirtualized__List", t);
           return b.a.createElement(g.a, u()({}, this.props, {
             autoContainerWidth: !0,
             cellRenderer: this._cellRenderer,
@@ -82378,7 +82518,7 @@ $.fn.togglify = function(settings) {
         }
       }]), t;
     }(M.PureComponent);
-  k.defaultProps = {
+  L.defaultProps = {
     estimatedRowSize: 30,
     noRowsRenderer: function() {
       return null;
@@ -82394,7 +82534,7 @@ $.fn.togglify = function(settings) {
     scrollToAlignment: "auto",
     scrollToIndex: -1,
     style: {}
-  }, t.a = k;
+  }, t.a = L;
 }, function(e, t, n) {
   "use strict";
 
@@ -82403,13 +82543,13 @@ $.fn.togglify = function(settings) {
   }
 
   function o() {}
-  var i = n(24),
+  var i = n(25),
     a = n.n(i),
     s = n(11),
     u = n.n(s),
     l = n(7),
     c = n.n(l),
-    d = n(8),
+    d = n(9),
     f = n.n(d),
     h = n(13),
     p = n.n(h),
@@ -82417,9 +82557,9 @@ $.fn.togglify = function(settings) {
     m = n.n(_),
     y = n(1),
     v = n.n(y),
-    g = n(10),
+    g = n(8),
     M = n.n(g),
-    b = n(539);
+    b = n(548);
   ((function(e) {
     function t(e, n) {
       c()(this, t);
@@ -82492,10 +82632,10 @@ $.fn.togglify = function(settings) {
           g = m.scrollTop,
           b = [],
           w = this._getEstimatedTotalHeight(),
-          L = this._positionCache.shortestColumnSize,
-          k = this._positionCache.count;
-        if (L < g + u + d && k < r)
-          for (var T = Math.min(r - k, Math.ceil((g + u + d - L) / o.defaultHeight * _ / o.defaultWidth)), S = k; S < k + T; S++) b.push(i({
+          k = this._positionCache.shortestColumnSize,
+          L = this._positionCache.count;
+        if (k < g + u + d && L < r)
+          for (var T = Math.min(r - L, Math.ceil((g + u + d - k) / o.defaultHeight * _ / o.defaultWidth)), S = L; S < L + T; S++) b.push(i({
             index: S,
             isScrolling: y,
             key: c(S),
@@ -82649,7 +82789,7 @@ $.fn.togglify = function(settings) {
   var w = {};
 }, function(e, t, n) {
   "use strict";
-  var r = n(24),
+  var r = n(25),
     o = n.n(r),
     i = n(58),
     a = n.n(i),
@@ -82657,7 +82797,7 @@ $.fn.togglify = function(settings) {
     u = n.n(s),
     l = n(7),
     c = n.n(l),
-    d = n(8),
+    d = n(9),
     f = n.n(d),
     h = n(13),
     p = n.n(h),
@@ -82754,7 +82894,8 @@ $.fn.togglify = function(settings) {
           a = n.rowHeight;
         if (r === e.columnWidth && o === e.fixedColumnCount || (this._leftGridWidth = null), i === e.fixedRowCount && a === e.rowHeight || (this._topGridHeight = null), e.scrollLeft !== this.props.scrollLeft || e.scrollTop !== this.props.scrollTop) {
           var s = {};
-          null != e.scrollLeft && e.scrollLeft >= 0 && (s.scrollLeft = e.scrollLeft), null != e.scrollTop && e.scrollTop >= 0 && (s.scrollTop = e.scrollTop), this.setState(s);
+          null != e.scrollLeft && e.scrollLeft >= 0 && (s.scrollLeft = e.scrollLeft), null != e.scrollTop && e.scrollTop >= 0 && (s.scrollTop = e.scrollTop),
+            this.setState(s);
         }
         this._maybeCalculateCachedStyles(this.props, e, this.state, t);
       }
@@ -83097,7 +83238,7 @@ $.fn.togglify = function(settings) {
     o = n.n(r),
     i = n(7),
     a = n.n(i),
-    s = n(8),
+    s = n(9),
     u = n.n(s),
     l = n(13),
     c = n.n(l),
@@ -83170,9 +83311,9 @@ $.fn.togglify = function(settings) {
     l = n(12),
     c = n.n(l),
     d = n(1),
-    f = (n.n(d), n(302)),
-    h = n(301),
-    p = n(300);
+    f = (n.n(d), n(305)),
+    h = n(304),
+    p = n(303);
   ((function(e) {
     function t() {
       return a()(this, t), u()(this, (t.__proto__ || o()(t)).apply(this, arguments));
@@ -83211,33 +83352,33 @@ $.fn.togglify = function(settings) {
   }
   var o = n(1),
     i = n.n(o),
-    a = n(10),
+    a = n(8),
     s = n.n(a),
-    u = n(111);
+    u = n(112);
   t.a = r;
 }, function(e, t, n) {
   "use strict";
-  var r = n(24),
+  var r = n(25),
     o = n.n(r),
     i = n(11),
     a = n.n(i),
     s = n(7),
     u = n.n(s),
-    l = n(8),
+    l = n(9),
     c = n.n(l),
     d = n(13),
     f = n.n(d),
     h = n(12),
     p = n.n(h),
-    _ = n(10),
+    _ = n(8),
     m = n.n(_),
-    y = (n(297), n(1)),
+    y = (n(300), n(1)),
     v = n.n(y),
-    g = n(20),
+    g = n(18),
     M = (n.n(g), n(68)),
-    b = n(304),
-    w = n(303),
-    L = n(111);
+    b = n(307),
+    w = n(306),
+    k = n(112);
   ((function(e) {
     function t(e) {
       u()(this, t);
@@ -83323,10 +83464,10 @@ $.fn.togglify = function(settings) {
           g = t.width,
           b = this.state.scrollbarWidth,
           w = i ? c : c - u,
-          L = "function" == typeof h ? h({
+          k = "function" == typeof h ? h({
             index: -1
           }) : h,
-          k = "function" == typeof p ? p({
+          L = "function" == typeof p ? p({
             index: -1
           }) : p;
         return this._cachedColumnStyles = [], v.a.Children.toArray(n).forEach(function(t, n) {
@@ -83340,9 +83481,9 @@ $.fn.togglify = function(settings) {
           role: "grid",
           style: y
         }, !i && l({
-          className: m()("ReactVirtualized__Table__headerRow", L),
+          className: m()("ReactVirtualized__Table__headerRow", k),
           columns: this._getHeaderColumns(),
-          style: o()({}, k, {
+          style: o()({}, L, {
             height: u,
             overflow: "hidden",
             paddingRight: b,
@@ -83437,9 +83578,9 @@ $.fn.togglify = function(settings) {
             sortBy: l,
             sortDirection: c
           }),
-          k = {};
+          L = {};
         return (g || s) && function() {
-          var e = l !== f || c === L.a.DESC ? L.a.ASC : L.a.DESC,
+          var e = l !== f || c === k.a.DESC ? k.a.ASC : k.a.DESC,
             n = function(t) {
               g && u({
                 sortBy: f,
@@ -83453,8 +83594,8 @@ $.fn.togglify = function(settings) {
             r = function(e) {
               "Enter" !== e.key && " " !== e.key || n(e);
             };
-          k["aria-label"] = t.props["aria-label"] || _ || f, k.role = "rowheader", k.tabIndex = 0, k.onClick = n, k.onKeyDown = r;
-        }(), v.a.createElement("div", o()({}, k, {
+          L["aria-label"] = t.props["aria-label"] || _ || f, L.role = "rowheader", L.tabIndex = 0, L.onClick = n, L.onKeyDown = r;
+        }(), v.a.createElement("div", o()({}, L, {
           key: "Header-Col" + n,
           className: M,
           style: b
@@ -83486,16 +83627,16 @@ $.fn.togglify = function(settings) {
           w = "function" == typeof g ? g({
             index: n
           }) : g,
-          L = _({
+          k = _({
             index: n
           }),
-          k = v.a.Children.toArray(l).map(function(e, o) {
+          L = v.a.Children.toArray(l).map(function(e, o) {
             return t._createColumn({
               column: e,
               columnIndex: o,
               isScrolling: r,
               parent: a,
-              rowData: L,
+              rowData: k,
               rowIndex: n,
               scrollbarWidth: M
             });
@@ -83508,7 +83649,7 @@ $.fn.togglify = function(settings) {
           });
         return y({
           className: T,
-          columns: k,
+          columns: L,
           index: n,
           isScrolling: r,
           key: i,
@@ -83516,7 +83657,7 @@ $.fn.togglify = function(settings) {
           onRowDoubleClick: d,
           onRowMouseOver: f,
           onRowMouseOut: h,
-          rowData: L,
+          rowData: k,
           style: S
         });
       }
@@ -83657,7 +83798,7 @@ $.fn.togglify = function(settings) {
   }
   var o = n(1),
     i = n.n(o),
-    a = n(298);
+    a = n(301);
   t.a = r;
 }, function(e, t, n) {
   "use strict";
@@ -83721,7 +83862,7 @@ $.fn.togglify = function(settings) {
       style: f
     }), n);
   }
-  var o = n(24),
+  var o = n(25),
     i = n.n(o),
     a = n(1),
     s = n.n(a);
@@ -83732,17 +83873,17 @@ $.fn.togglify = function(settings) {
     o = n.n(r),
     i = n(7),
     a = n.n(i),
-    s = n(8),
+    s = n(9),
     u = n.n(s),
     l = n(13),
     c = n.n(l),
     d = n(12),
     f = n.n(d),
     h = n(1),
-    p = (n.n(h), n(20)),
+    p = (n.n(h), n(18)),
     _ = n.n(p),
-    m = n(306),
-    y = n(546);
+    m = n(309),
+    y = n(555);
   ((function(e) {
     function t(e) {
       a()(this, t);
@@ -83895,14 +84036,14 @@ $.fn.togglify = function(settings) {
     f = 150;
 }, function(e, t, n) {
   "use strict";
-  var r = (n(522), n(523));
+  var r = (n(531), n(532));
   n.d(t, "a", function() {
     return r.a;
   });
-  var o = (n(525), n(529), n(531), n(68), n(537), n(538));
+  var o = (n(534), n(538), n(540), n(68), n(546), n(547));
   n.d(t, "b", function() {
     return o.a;
-  }), n(541), n(542), n(543), n(544), n(545);
+  }), n(550), n(551), n(552), n(553), n(554);
 }, function(e, t, n) {
   "use strict";
 
@@ -83935,13 +84076,13 @@ $.fn.togglify = function(settings) {
   }
 
   function s(e) {
-    var t, n = k.getDisplayName(e),
-      r = k.getElement(e),
-      o = k.getOwnerID(e);
-    return o && (t = k.getDisplayName(o)), i(n, r && r._source, t);
+    var t, n = L.getDisplayName(e),
+      r = L.getElement(e),
+      o = L.getOwnerID(e);
+    return o && (t = L.getDisplayName(o)), i(n, r && r._source, t);
   }
-  var u, l, c, d, f, h, p, _ = n(43),
-    m = n(23);
+  var u, l, c, d, f, h, p, _ = n(44),
+    m = n(24);
   if (n(2), n(3), "function" == typeof Array.from && "function" == typeof Map && r(Map) && null != Map.prototype && "function" == typeof Map.prototype.keys && r(Map.prototype.keys) && "function" == typeof Set && r(Set) && null != Set.prototype && "function" == typeof Set.prototype.keys && r(Set.prototype.keys)) {
     var y = new Map,
       v = new Set;
@@ -83990,8 +84131,8 @@ $.fn.togglify = function(settings) {
       return Object.keys(M).map(w);
     };
   }
-  var L = [],
-    k = {
+  var k = [],
+    L = {
       onSetChildren: function(e, t) {
         var n = l(e);
         n || _("144"), n.childIDs = t;
@@ -84025,12 +84166,12 @@ $.fn.togglify = function(settings) {
       },
       onUnmountComponent: function(e) {
         var t = l(e);
-        t && (t.isMounted = !1, 0 === t.parentID && h(e)), L.push(e);
+        t && (t.isMounted = !1, 0 === t.parentID && h(e)), k.push(e);
       },
       purgeUnmountedComponents: function() {
-        if (!k._preventPurging) {
-          for (var e = 0; e < L.length; e++) o(L[e]);
-          L.length = 0;
+        if (!L._preventPurging) {
+          for (var e = 0; e < k.length; e++) o(k[e]);
+          k.length = 0;
         }
       },
       isMounted: function(e) {
@@ -84046,10 +84187,10 @@ $.fn.togglify = function(settings) {
         }
         var o = m.current,
           s = o && o._debugID;
-        return t += k.getStackAddendumByID(s);
+        return t += L.getStackAddendumByID(s);
       },
       getStackAddendumByID: function(e) {
-        for (var t = ""; e;) t += s(e), e = k.getParentID(e);
+        for (var t = ""; e;) t += s(e), e = L.getParentID(e);
         return t;
       },
       getChildIDs: function(e) {
@@ -84057,7 +84198,7 @@ $.fn.togglify = function(settings) {
         return t ? t.childIDs : [];
       },
       getDisplayName: function(e) {
-        var t = k.getElement(e);
+        var t = L.getElement(e);
         return t ? a(t) : null;
       },
       getElement: function(e) {
@@ -84065,7 +84206,7 @@ $.fn.togglify = function(settings) {
         return t ? t.element : null;
       },
       getOwnerID: function(e) {
-        var t = k.getElement(e);
+        var t = L.getElement(e);
         return t && t._owner ? t._owner._debugID : null;
       },
       getParentID: function(e) {
@@ -84078,7 +84219,7 @@ $.fn.togglify = function(settings) {
         return null != n ? n._source : null;
       },
       getText: function(e) {
-        var t = k.getElement(e);
+        var t = L.getElement(e);
         return "string" == typeof t ? t : "number" == typeof t ? "" + t : null;
       },
       getUpdateCount: function(e) {
@@ -84088,7 +84229,7 @@ $.fn.togglify = function(settings) {
       getRootIDs: p,
       getRegisteredIDs: d
     };
-  e.exports = k;
+  e.exports = L;
 }, function(e, t, n) {
   "use strict";
   var r = "function" == typeof Symbol && Symbol.for && Symbol.for("react.element") || 60103;
@@ -84184,7 +84325,7 @@ $.fn.togglify = function(settings) {
     return e && "function" == typeof Symbol && e.constructor === Symbol ? "symbol" : typeof e;
   };
   t.default = r;
-  var i = n(314),
+  var i = n(317),
     a = 0,
     s = function(e) {
       return e;
@@ -84320,8 +84461,8 @@ $.fn.togglify = function(settings) {
       replaceReducer: f
     }, p[a.a] = h, p;
   }
-  var o = n(93),
-    i = n(574),
+  var o = n(94),
+    i = n(583),
     a = n.n(i);
   n.d(t, "a", function() {
     return s;
@@ -84330,105 +84471,29 @@ $.fn.togglify = function(settings) {
     INIT: "@@redux/INIT"
   };
 }, function(e, t, n) {}, function(e, t, n) {
-  "use strict";
-
-  function r(e) {
-    if (Array.isArray(e)) {
-      for (var t = 0, n = Array(e.length); t < e.length; t++) n[t] = e[t];
-      return n;
-    }
-    return Array.from(e);
-  }
-
-  function o(e, t) {
-    return e === t;
-  }
-
-  function i(e) {
-    var t = arguments.length <= 1 || void 0 === arguments[1] ? o : arguments[1],
-      n = null,
-      r = null;
-    return function() {
-      for (var o = arguments.length, i = Array(o), a = 0; a < o; a++) i[a] = arguments[a];
-      return null !== n && n.length === i.length && i.every(function(e, r) {
-        return t(e, n[r]);
-      }) || (r = e.apply(void 0, i)), n = i, r;
-    };
-  }
-
-  function a(e) {
-    var t = Array.isArray(e[0]) ? e[0] : e;
-    if (!t.every(function(e) {
-        return "function" == typeof e;
-      })) {
-      var n = t.map(function(e) {
-        return typeof e;
-      }).join(", ");
-      throw new Error("Selector creators expect all input-selectors to be functions, instead received the following types: [" + n + "]");
-    }
-    return t;
-  }
-
-  function s(e) {
-    for (var t = arguments.length, n = Array(t > 1 ? t - 1 : 0), o = 1; o < t; o++) n[o - 1] = arguments[o];
-    return function() {
-      for (var t = arguments.length, o = Array(t), i = 0; i < t; i++) o[i] = arguments[i];
-      var s = 0,
-        u = o.pop(),
-        l = a(o),
-        c = e.apply(void 0, [function() {
-          return s++, u.apply(void 0, arguments);
-        }].concat(n)),
-        d = function(e, t) {
-          for (var n = arguments.length, o = Array(n > 2 ? n - 2 : 0), i = 2; i < n; i++) o[i - 2] = arguments[i];
-          var a = l.map(function(n) {
-            return n.apply(void 0, [e, t].concat(o));
-          });
-          return c.apply(void 0, r(a));
-        };
-      return d.resultFunc = u, d.recomputations = function() {
-        return s;
-      }, d.resetRecomputations = function() {
-        return s = 0;
-      }, d;
-    };
-  }
-
-  function u(e) {
-    var t = arguments.length <= 1 || void 0 === arguments[1] ? l : arguments[1];
-    if ("object" != typeof e) throw new Error("createStructuredSelector expects first argument to be an object where each property is a selector, instead received a " + typeof e);
-    var n = Object.keys(e);
-    return t(n.map(function(t) {
-      return e[t];
-    }), function() {
-      for (var e = arguments.length, t = Array(e), r = 0; r < e; r++) t[r] = arguments[r];
-      return t.reduce(function(e, t, r) {
-        return e[n[r]] = t, e;
-      }, {});
-    });
-  }
-  t.__esModule = !0, t.defaultMemoize = i, t.createSelectorCreator = s, t.createStructuredSelector = u;
-  var l = t.createSelector = s(i);
-}, function(e, t, n) {
-  var r = n(412);
+  var r = n(421);
   "string" == typeof r && (r = [
     [e.i, r, ""]
-  ]), n(116)(r, {}), r.locals && (e.exports = r.locals);
+  ]), n(118)(r, {}), r.locals && (e.exports = r.locals);
 }, function(e, t, n) {
   "use strict";
-  var r = n(333);
+  var r = n(336);
+  t.a = r.a;
+}, function(e, t, n) {
+  "use strict";
+  var r = n(338);
   t.a = r.a;
 }, function(e, t, n) {
   "use strict";
   var r = n(1),
     o = n.n(r),
-    i = n(20),
+    i = n(18),
     a = n.n(i),
-    s = n(124),
-    u = n(125),
-    l = n(350),
-    c = n(33),
-    d = n(119);
+    s = n(126),
+    u = n(127),
+    l = n(357),
+    c = n(28),
+    d = n(121);
   n.i(s.a)("ui.react_channel_sidebar", {
     render: function(e) {
       var t = "react_channel_sidebar_render";
@@ -84441,14 +84506,14 @@ $.fn.togglify = function(settings) {
   });
 }, function(e, t, n) {
   "use strict";
-  var r = n(124),
-    o = n(127),
-    i = n(356),
-    a = n(129),
-    s = n(128),
-    u = n(130),
-    l = n(355),
-    c = n(56);
+  var r = n(126),
+    o = n(130),
+    i = n(364),
+    a = n(132),
+    s = n(131),
+    u = n(133),
+    l = n(363),
+    c = n(57);
   n.i(r.a)("utility.datetime", {
     toDateObject: o.a,
     toTime: i.a,
@@ -84474,11 +84539,11 @@ $.fn.togglify = function(settings) {
       t = p(i.c.apply(void 0, r(e)));
     return n.i(i.d)(u.a, t);
   }
-  var i = n(115),
-    a = n(568),
+  var i = n(116),
+    a = n(577),
     s = n.n(a),
-    u = n(353),
-    l = n(44);
+    u = n(360),
+    l = n(45);
   t.a = o;
   var c = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
@@ -84539,12 +84604,12 @@ $.fn.togglify = function(settings) {
     s = n.n(a),
     u = n(1),
     l = n.n(u),
-    c = n(10),
-    d = (n.n(c), n(307)),
-    f = n(341),
-    h = n(326),
-    p = n(328),
-    _ = n(126),
+    c = n(8),
+    d = (n.n(c), n(310)),
+    f = n(348),
+    h = n(329),
+    p = n(331),
+    _ = n(129),
     m = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
@@ -84769,10 +84834,10 @@ $.fn.togglify = function(settings) {
     s = n.n(a),
     u = n(1),
     l = n.n(u),
-    c = n(318),
-    d = (n.n(c), n(324)),
-    f = n(329),
-    h = n(573),
+    c = n(117),
+    d = (n.n(c), n(327)),
+    f = n(332),
+    h = n(582),
     p = (n.n(h), Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
@@ -84963,12 +85028,12 @@ $.fn.togglify = function(settings) {
     s = n.n(a),
     u = n(5),
     l = n.n(u),
-    c = n(33),
-    d = n(10),
+    c = n(28),
+    d = n(8),
     f = n.n(d),
-    h = n(55),
-    p = n(44),
-    _ = n(339),
+    h = n(56),
+    p = n(45),
+    _ = n(346),
     m = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
@@ -85086,16 +85151,16 @@ $.fn.togglify = function(settings) {
               "data-user-count": h
             },
             w = "im" === t && !o && !l && this.renderPresence(v),
-            L = i && s.a.createElement("span", {
+            k = i && s.a.createElement("span", {
               className: "p-channel_sidebar__you_label"
             }, "(you)"),
-            k = _ && s.a.createElement("span", {
+            L = _ && s.a.createElement("span", {
               className: "p-channel_sidebar__status"
             }, _);
           return s.a.createElement("a", m({
             className: g,
             onClick: this.selectItem
-          }, b), w, p, L, k, M);
+          }, b), w, p, k, L, M);
         }
       }]), t;
     }(s.a.Component);
@@ -85133,10 +85198,10 @@ $.fn.togglify = function(settings) {
   "use strict";
   var r = n(5),
     o = n.n(r),
-    i = n(33),
-    a = n(318),
-    s = (n.n(a), n(55)),
-    u = n(325),
+    i = n(28),
+    a = n(117),
+    s = (n.n(a), n(56)),
+    u = n(328),
     l = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
@@ -85213,10 +85278,10 @@ $.fn.togglify = function(settings) {
   var a = n(1),
     s = n.n(a),
     u = n(5),
-    l = (n.n(u), n(33)),
-    c = n(10),
+    l = (n.n(u), n(28)),
+    c = n(8),
     d = n.n(c),
-    f = n(55),
+    f = n(56),
     h = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
@@ -85317,8 +85382,8 @@ $.fn.togglify = function(settings) {
   }
   var o = n(1),
     i = n.n(o),
-    a = n(45),
-    s = n(10),
+    a = n(34),
+    s = n(8),
     u = n.n(s);
   t.a = r;
   var l = Object.assign || function(e) {
@@ -85362,9 +85427,9 @@ $.fn.togglify = function(settings) {
   }
   var a = n(1),
     s = n.n(a),
-    u = n(10),
+    u = n(8),
     l = n.n(u),
-    c = n(45),
+    c = n(34),
     d = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
@@ -85448,8 +85513,8 @@ $.fn.togglify = function(settings) {
   }
   var a = n(1),
     s = n.n(a),
-    u = n(57),
-    l = n(54),
+    u = n(46),
+    l = n(55),
     c = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
@@ -85549,14 +85614,14 @@ $.fn.togglify = function(settings) {
   }
   var a = n(5),
     s = n.n(a),
-    u = n(10),
+    u = n(8),
     l = n.n(u),
     c = n(1),
     d = n.n(c),
-    f = n(307),
-    h = n(54),
-    p = n(45),
-    _ = n(57),
+    f = n(310),
+    h = n(55),
+    p = n(34),
+    _ = n(46),
     m = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
@@ -85799,18 +85864,18 @@ $.fn.togglify = function(settings) {
     s = n.n(a),
     u = n(1),
     l = n.n(u),
-    c = n(10),
+    c = n(8),
     d = n.n(c),
-    f = n(54),
-    h = n(332),
-    p = n(330),
-    _ = n(334),
-    m = n(331),
-    y = n(45),
-    v = n(57),
-    g = n(357),
-    M = n(343),
-    b = n(345),
+    f = n(55),
+    h = n(335),
+    p = n(333),
+    _ = n(337),
+    m = n(334),
+    y = n(34),
+    v = n(46),
+    g = n(134),
+    M = n(350),
+    b = n(352),
     w = function() {
       function e(e, t) {
         var n = [],
@@ -85836,7 +85901,7 @@ $.fn.togglify = function(settings) {
         throw new TypeError("Invalid attempt to destructure non-iterable instance");
       };
     }(),
-    L = function() {
+    k = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
@@ -85847,7 +85912,7 @@ $.fn.togglify = function(settings) {
         return n && e(t.prototype, n), r && e(t, r), t;
       };
     }(),
-    k = v.a.ns("emoji_picker"),
+    L = v.a.ns("emoji_picker"),
     T = [0, -1],
     S = [0, 1],
     Y = {
@@ -85862,7 +85927,7 @@ $.fn.togglify = function(settings) {
       onSkinToneChanged: u.PropTypes.func,
       canAddEmoji: u.PropTypes.bool
     },
-    x = {
+    D = {
       numBackgroundColors: 6,
       canAddEmoji: !0,
       onSkinToneChanged: s.a.noop,
@@ -85874,7 +85939,7 @@ $.fn.togglify = function(settings) {
       onSelected: s.a.noop,
       onClosed: s.a.noop
     },
-    D = function(e) {
+    x = function(e) {
       function t(e) {
         r(this, t);
         var n = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
@@ -85918,7 +85983,7 @@ $.fn.togglify = function(settings) {
           handler: n.onArrowKey.bind(n, "right")
         }], n;
       }
-      return i(t, e), L(t, null, [{
+      return i(t, e), k(t, null, [{
         key: "getAllEmoji",
         value: function(e) {
           return s.a.chain(e).flatMap("items").compact().uniqBy("name").value();
@@ -85949,7 +86014,7 @@ $.fn.togglify = function(settings) {
         value: function(e, t) {
           return !e.is_skin || e.skin_tone_id === (t || "1");
         }
-      }]), L(t, [{
+      }]), k(t, [{
         key: "componentWillMount",
         value: function() {
           this.props.searchQuery && this.onSearch(this.props.searchQuery), b.a("react_emoji_menu_mount_mark");
@@ -86307,9 +86372,9 @@ $.fn.togglify = function(settings) {
             className: i
           }, l.a.createElement("span", {
             id: "emoji_name"
-          }, e ? k("Oh no!") : r.name), l.a.createElement("br", null), l.a.createElement("span", {
+          }, e ? L("Oh no!") : r.name), l.a.createElement("br", null), l.a.createElement("span", {
             id: "emoji_aliases"
-          }, e ? k("We couldn't find that emoji") : r.aliases)));
+          }, e ? L("We couldn't find that emoji") : r.aliases)));
         }
       }, {
         key: "renderStickyHeader",
@@ -86348,7 +86413,7 @@ $.fn.togglify = function(settings) {
             ref: this.setSearchInputRef,
             id: "emoji_input",
             type: "text",
-            placeholder: k("Search"),
+            placeholder: L("Search"),
             onChange: this.onSearchInputChange,
             value: this.state.searchQuery
           }), l.a.createElement(y.a, {
@@ -86376,11 +86441,11 @@ $.fn.togglify = function(settings) {
             id: "emoji_preview_deluxe"
           }, l.a.createElement("span", {
             className: "bold"
-          }, k("Emoji Deluxe")), "™"), this.maybeRenderSkinTonePicker())));
+          }, L("Emoji Deluxe")), "™"), this.maybeRenderSkinTonePicker())));
         }
       }]), t;
     }(u.Component);
-  t.a = D, D.propTypes = Y, D.defaultProps = x;
+  t.a = x, x.propTypes = Y, x.defaultProps = D;
 }, function(e, t, n) {
   "use strict";
 
@@ -86408,10 +86473,10 @@ $.fn.togglify = function(settings) {
     s = n.n(a),
     u = n(1),
     l = n.n(u),
-    c = n(10),
+    c = n(8),
     d = n.n(c),
-    f = n(54),
-    h = n(57),
+    f = n(55),
+    h = n(46),
     p = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
@@ -86509,6 +86574,432 @@ $.fn.togglify = function(settings) {
   t.a = v, v.propTypes = m, v.defaultProps = y;
 }, function(e, t, n) {
   "use strict";
+  var r = n(28),
+    o = n(117),
+    i = (n.n(o), n(72)),
+    a = n(354),
+    s = n(340),
+    u = n(341),
+    l = Object.assign || function(e) {
+      for (var t = 1; t < arguments.length; t++) {
+        var n = arguments[t];
+        for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
+      }
+      return e;
+    },
+    c = function(e) {
+      return e.files;
+    },
+    d = n.i(o.createSelector)([i.getDownloads, c], function(e, t) {
+      return e.map(function(e) {
+        var r = t[e.id] ? t[e.id] : n.i(a.a)(e.id) || {};
+        return n.i(s.a)(e, r);
+      });
+    }),
+    f = function(e) {
+      var t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : {};
+      return l({}, t, {
+        downloads: d(e)
+      });
+    };
+  t.a = n.i(r.b)(f)(u.a);
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e, t) {
+    if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
+  }
+
+  function o(e, t) {
+    if (!e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    return !t || "object" != typeof t && "function" != typeof t ? e : t;
+  }
+
+  function i(e, t) {
+    if ("function" != typeof t && null !== t) throw new TypeError("Super expression must either be null or a function, not " + typeof t);
+    e.prototype = Object.create(t && t.prototype, {
+      constructor: {
+        value: e,
+        enumerable: !1,
+        writable: !0,
+        configurable: !0
+      }
+    }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
+  }
+  var a = n(1),
+    s = n.n(a),
+    u = n(8),
+    l = n.n(u),
+    c = n(0),
+    d = n.n(c),
+    f = n(362),
+    h = n(46),
+    p = n(34),
+    _ = n(128),
+    m = n(358),
+    y = n(365),
+    v = function() {
+      function e(e, t) {
+        for (var n = 0; n < t.length; n++) {
+          var r = t[n];
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
+        }
+      }
+      return function(t, n, r) {
+        return n && e(t.prototype, n), r && e(t, r), t;
+      };
+    }(),
+    g = h.a.ns("downloads");
+  d.a.locale(h.a.locale());
+  var M = {
+      id: s.a.PropTypes.string.isRequired,
+      downloadPath: s.a.PropTypes.string,
+      downloadState: s.a.PropTypes.string,
+      startTime: s.a.PropTypes.number,
+      progress: s.a.PropTypes.number,
+      isPaused: s.a.PropTypes.bool,
+      fileName: s.a.PropTypes.string,
+      imageSource: s.a.PropTypes.string,
+      fileType: s.a.PropTypes.string,
+      prettyType: s.a.PropTypes.string,
+      fileSize: s.a.PropTypes.number
+    },
+    b = {
+      id: "",
+      downloadPath: "",
+      downloadState: "",
+      startTime: 0,
+      progress: 0,
+      isPaused: !1,
+      fileName: "",
+      imageSource: "",
+      fileType: "",
+      prettyType: "",
+      fileSize: 0
+    },
+    w = function(e) {
+      function t(e) {
+        r(this, t);
+        var n = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
+        return n.state = {}, n.onRootDivClick = n.onRootDivClick.bind(n), n.onCancel = n.onCancel.bind(n), n.onRetry = n.onRetry.bind(n), n.onRemove = n.onRemove.bind(n), n.onPause = n.onPause.bind(n), n.onResume = n.onResume.bind(n), n;
+      }
+      return i(t, e), v(t, null, [{
+        key: "getEstimatedTimeRemaining",
+        value: function(e) {
+          var t = e.downloadState,
+            n = e.progress,
+            r = e.startTime;
+          if ("progressing" !== t) return "";
+          if (n >= 1) return "";
+          if (-1 === n) return "";
+          if (!n) return "";
+          var o = Date.now() - r,
+            i = o * (1 / n),
+            a = i - o;
+          return g("{duration} remaining", {
+            duration: d.a.duration(a, "milliseconds").humanize()
+          });
+        }
+      }, {
+        key: "mapStateToClassName",
+        value: function(e) {
+          switch (e) {
+            case "progressing":
+              return "in_progress";
+            case "interrupted":
+              return "failed";
+            case "cancelled":
+              return "canceled";
+            default:
+              return e;
+          }
+        }
+      }]), v(t, [{
+        key: "onRootDivClick",
+        value: function(e) {
+          var t = this.props,
+            r = t.id,
+            o = t.downloadState;
+          "completed" === o ? (e.stopPropagation(), e.shiftKey ? n.i(y.a)(r) : n.i(y.b)(r)) : "cancelled" !== o && "interrupted" !== o || (e.stopPropagation(), n.i(y.c)(r));
+        }
+      }, {
+        key: "onCancel",
+        value: function(e) {
+          e.stopPropagation(), n.i(y.d)(this.props.id);
+        }
+      }, {
+        key: "onRetry",
+        value: function(e) {
+          e.stopPropagation(), n.i(y.c)(this.props.id);
+        }
+      }, {
+        key: "onRemove",
+        value: function(e) {
+          e.stopPropagation(), n.i(y.e)(this.props.id);
+        }
+      }, {
+        key: "onPause",
+        value: function(e) {
+          e.stopPropagation(), n.i(y.f)(this.props.id);
+        }
+      }, {
+        key: "onResume",
+        value: function(e) {
+          e.stopPropagation(), n.i(y.g)(this.props.id);
+        }
+      }, {
+        key: "renderDownloadIcon",
+        value: function() {
+          var e = this.props,
+            t = e.fileType,
+            n = e.imageSource,
+            r = function() {
+              return s.a.createElement(p.a, {
+                className: "filetype_icon " + t + " s48 download_icon download_filetype"
+              });
+            };
+          return n ? s.a.createElement(f.a, {
+            src: n,
+            renderPending: r,
+            width: "32",
+            height: "32",
+            className: "download_icon download_img",
+            alt: "icon"
+          }) : r();
+        }
+      }, {
+        key: "renderExtraActions",
+        value: function() {
+          var e = this.props.isPaused ? s.a.createElement("a", {
+            className: "download_resume_link",
+            onClick: this.onResume,
+            role: "button"
+          }, g("Resume")) : s.a.createElement("a", {
+            className: "download_pause_link",
+            onClick: this.onPause,
+            role: "button"
+          }, g("Pause"));
+          return s.a.createElement("span", {
+            className: "download_extra_actions"
+          }, e, s.a.createElement("a", {
+            className: "download_cancel_link",
+            onClick: this.onCancel,
+            role: "button"
+          }, g("Cancel")));
+        }
+      }, {
+        key: "render",
+        value: function() {
+          var e = this.props,
+            r = e.downloadPath,
+            o = e.downloadState,
+            i = e.progress,
+            a = e.fileName,
+            u = e.imageSource,
+            c = e.fileType,
+            d = e.prettyType,
+            f = e.fileSize,
+            h = a || r.split(/\/|\\/).reverse()[0],
+            y = "completed" === o ? 100 : 100 * i,
+            v = "progressing" === o && i ? i * f : void 0,
+            M = void 0;
+          M = v ? g("{partialSize} of {size} {prettyType}", {
+            partialSize: n.i(m.a)(v, 2),
+            size: n.i(m.a)(f, 2),
+            prettyType: d
+          }) : n.i(m.a)(f, 2) + " " + d;
+          var b = t.getEstimatedTimeRemaining(this.props),
+            w = l()("download_item", "clearfix", t.mapStateToClassName(o)),
+            k = g(n.i(_.a)() ? "Show in Finder" : "Open containing folder"),
+            L = {
+              width: y + "%",
+              backgroundColor: "#57B1E7"
+            };
+          return s.a.createElement("div", {
+            className: w,
+            onClick: this.onRootDivClick,
+            role: "presentation"
+          }, s.a.createElement("div", {
+            className: "icon_actions"
+          }, this.renderDownloadIcon(), s.a.createElement(p.a, {
+            className: "action_icon " + c + " " + (u ? "image" : "")
+          })), s.a.createElement(p.a, {
+            type: "times_circle",
+            className: "download_remove_link",
+            onClick: this.onRemove
+          }), s.a.createElement("div", {
+            className: "download_data"
+          }, s.a.createElement("div", {
+            className: "download_name_row"
+          }, s.a.createElement("span", {
+            className: "download_name overflow_ellipsis"
+          }, h), this.renderExtraActions()), s.a.createElement("div", {
+            className: "download_size_row"
+          }, s.a.createElement("span", {
+            className: "download_size overflow_ellipsis"
+          }, s.a.createElement("span", {
+            className: "partial_size"
+          }, M)), s.a.createElement("span", {
+            className: "download_actions"
+          }, s.a.createElement("a", {
+            className: "download_show_link"
+          }, k), s.a.createElement("a", {
+            className: "download_open_link"
+          }, g("Click to open")), s.a.createElement("a", {
+            className: "download_retry_link",
+            onClick: this.onRetry,
+            role: "button"
+          }, g("Retry"))), s.a.createElement("span", {
+            className: "download_estimate"
+          }, b)), s.a.createElement("div", {
+            className: "download_progress_row progress_bar"
+          }, s.a.createElement("div", {
+            className: "progress_bar_progress",
+            style: L
+          }))));
+        }
+      }]), t;
+    }(s.a.Component);
+  w.propTypes = M, w.defaultProps = b, t.a = w;
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e, t) {
+    return o({}, e, {
+      fileName: t.name,
+      imageSource: t.thumb_160 || t.thumb_80,
+      fileType: t.filetype,
+      prettyType: t.pretty_type,
+      fileSize: t.size
+    });
+  }
+  t.a = r;
+  var o = Object.assign || function(e) {
+    for (var t = 1; t < arguments.length; t++) {
+      var n = arguments[t];
+      for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
+    }
+    return e;
+  };
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e, t) {
+    if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
+  }
+
+  function o(e, t) {
+    if (!e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    return !t || "object" != typeof t && "function" != typeof t ? e : t;
+  }
+
+  function i(e, t) {
+    if ("function" != typeof t && null !== t) throw new TypeError("Super expression must either be null or a function, not " + typeof t);
+    e.prototype = Object.create(t && t.prototype, {
+      constructor: {
+        value: e,
+        enumerable: !1,
+        writable: !0,
+        configurable: !0
+      }
+    }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
+  }
+  var a = n(1),
+    s = n.n(a),
+    u = n(18),
+    l = n.n(u),
+    c = n(5),
+    d = n.n(c),
+    f = n(8),
+    h = n.n(f),
+    p = n(339),
+    _ = n(134),
+    m = Object.assign || function(e) {
+      for (var t = 1; t < arguments.length; t++) {
+        var n = arguments[t];
+        for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
+      }
+      return e;
+    },
+    y = function() {
+      function e(e, t) {
+        for (var n = 0; n < t.length; n++) {
+          var r = t[n];
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
+        }
+      }
+      return function(t, n, r) {
+        return n && e(t.prototype, n), r && e(t, r), t;
+      };
+    }(),
+    v = {
+      downloads: s.a.PropTypes.array.isRequired
+    },
+    g = {
+      downloads: []
+    },
+    M = function(e) {
+      function t(e) {
+        r(this, t);
+        var n = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
+        return n.state = {}, n;
+      }
+      return i(t, e), y(t, [{
+        key: "componentDidMount",
+        value: function() {
+          var e = this,
+            t = function(t, n) {
+              t.preventDefault(), e.setState(function() {
+                return {
+                  isShiftDown: n
+                };
+              });
+            };
+          this.keyCommands = new _.a, this.keyCommands.bindAll([{
+            keys: "shift",
+            action: "keydown",
+            handler: function(e) {
+              return t(e, !0);
+            }
+          }, {
+            keys: "shift",
+            action: "keyup",
+            handler: function(e) {
+              return t(e, !1);
+            }
+          }]), l.a.findDOMNode(this.element).focus();
+        }
+      }, {
+        key: "componentWillUnmount",
+        value: function() {
+          this.keyCommands && this.keyCommands.reset();
+        }
+      }, {
+        key: "render",
+        value: function() {
+          var e = this,
+            t = h()({
+              shift_key: this.state.isShiftDown,
+              supports_open_file: !0
+            });
+          return s.a.createElement("div", {
+            id: "downloads_tab",
+            className: t,
+            tabIndex: "-1",
+            ref: function(t) {
+              e.element = t;
+            }
+          }, d.a.map(this.props.downloads, function(e) {
+            return s.a.createElement(p.a, m({
+              key: e.id
+            }, e));
+          }));
+        }
+      }]), t;
+    }(s.a.Component);
+  M.propTypes = v, M.defaultProps = g, t.a = M;
+}, function(e, t, n) {
+  "use strict";
 
   function r(e) {
     var t = s.a.omit(e, "type");
@@ -86518,7 +87009,7 @@ $.fn.togglify = function(settings) {
     i = n.n(o),
     a = n(5),
     s = n.n(a),
-    u = n(10),
+    u = n(8),
     l = n.n(u);
   t.a = r, r.propTypes = {
     type: i.a.PropTypes.string,
@@ -86552,7 +87043,7 @@ $.fn.togglify = function(settings) {
   }
   var a = n(1),
     s = n.n(a),
-    u = n(10),
+    u = n(8),
     l = n.n(u),
     c = function() {
       function e(e, t) {
@@ -86639,8 +87130,8 @@ $.fn.togglify = function(settings) {
   }
   var a = n(1),
     s = n.n(a),
-    u = n(20),
-    l = (n.n(u), n(512)),
+    u = n(18),
+    l = (n.n(u), n(521)),
     c = n.n(l),
     d = function() {
       function e(e, t) {
@@ -86910,12 +87401,12 @@ $.fn.togglify = function(settings) {
     s = n.n(a),
     u = n(5),
     l = n.n(u),
-    c = n(33),
-    d = n(72),
+    c = n(28),
+    d = n(73),
     f = n(71),
     h = n(70),
-    p = n(349),
-    _ = n(340),
+    p = n(356),
+    _ = n(347),
     m = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
@@ -86989,16 +87480,16 @@ $.fn.togglify = function(settings) {
   t.a = n.i(c.b)(b)(M);
 }, function(e, t, n) {
   "use strict";
-  var r = n(338);
+  var r = n(345);
   t.a = r.a;
 }, function(e, t, n) {
   "use strict";
   var r = n(1),
     o = n.n(r),
-    i = n(45),
-    a = n(10),
+    i = n(34),
+    a = n(8),
     s = n.n(a),
-    u = n(572),
+    u = n(581),
     l = (n.n(u), function(e) {
       var t = e.isActive,
         n = e.isDnd,
@@ -87025,8 +87516,8 @@ $.fn.togglify = function(settings) {
   }, t.a = l;
 }, function(e, t, n) {
   "use strict";
-  var r = n(342);
-  n(123), t.a = r.a;
+  var r = n(349);
+  n(125), t.a = r.a;
 }, function(e, t, n) {
   "use strict";
 
@@ -87054,12 +87545,12 @@ $.fn.togglify = function(settings) {
     s = n.n(a),
     u = n(1),
     l = n.n(u),
-    c = n(10),
-    d = (n.n(c), n(123)),
-    f = n(120),
-    h = n(20),
-    p = (n.n(h), n(126)),
-    _ = n(319),
+    c = n(8),
+    d = (n.n(c), n(125)),
+    f = n(122),
+    h = n(18),
+    p = (n.n(h), n(129)),
+    _ = n(321),
     m = (n.n(_), Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
@@ -87223,7 +87714,7 @@ $.fn.togglify = function(settings) {
   M.propTypes = v, M.defaultProps = g, t.a = M;
 }, function(e, t, n) {
   "use strict";
-  var r = n(346);
+  var r = n(353);
   n.d(t, "a", function() {
     return o;
   }), n.d(t, "b", function() {
@@ -87244,39 +87735,43 @@ $.fn.togglify = function(settings) {
   });
   var r = n(1),
     o = n.n(r),
-    i = n(20),
+    i = n(18),
     a = n.n(i),
-    s = n(33),
+    s = n(28),
     u = n(0),
     l = n.n(u),
-    c = n(320),
-    d = n(120),
-    f = n(323),
-    h = n(44),
-    p = n(121),
-    _ = n(70),
-    m = n(72),
-    y = n(71),
-    v = n(122),
-    g = n(119);
-  n(321), n(322), window.ReactComponents = {}, window.ReactComponents.EmojiPicker = c.a, window.ReactComponents.Popover = d.a, window.ReactComponents.PopoverTrigger = d.b, window.React = o.a, window.ReactDOM = a.a, window.Redux = {
-    ConfigureStore: f.a,
+    c = n(322),
+    d = n(323),
+    f = n(122),
+    h = n(326),
+    p = n(45),
+    _ = n(123),
+    m = n(70),
+    y = n(73),
+    v = n(71),
+    g = n(124),
+    M = n(72),
+    b = n(121);
+  n(324), n(325), window.ReactComponents = {}, window.ReactComponents.EmojiPicker = c.a, window.ReactComponents.Popover = f.a, window.ReactComponents.PopoverTrigger = f.b, window.React = o.a, window.ReactDOM = a.a, window.Redux = {
+    ConfigureStore: h.a,
     Entities: {
-      Channels: h,
-      ChannelNamesToIds: p,
-      MemberTypesById: _
+      Channels: p,
+      ChannelNamesToIds: _,
+      MemberTypesById: m
     },
     Features: {
-      Presence: m,
-      Dnd: y,
-      Typing: v
+      Presence: y,
+      Dnd: v,
+      Typing: g,
+      Downloads: M
     },
-    ChannelSidebar: g.a,
+    ChannelSidebar: b.a,
+    DownloadsView: d.a,
     Provider: s.a
   }, window.Moment = l.a;
 }, function(e, t, n) {
   "use strict";
-  var r = n(125);
+  var r = n(127);
   n.d(t, "a", function() {
     return o;
   }), n.d(t, "b", function() {
@@ -87286,7 +87781,7 @@ $.fn.togglify = function(settings) {
     i = r.b;
 }, function(e, t, n) {
   "use strict";
-  var r = n(27);
+  var r = n(19);
   n.d(t, "c", function() {
     return o;
   }), n.d(t, "b", function() {
@@ -87310,9 +87805,16 @@ $.fn.togglify = function(settings) {
     });
 }, function(e, t, n) {
   "use strict";
+  var r = n(19);
+  n.d(t, "a", function() {
+    return o;
+  });
+  var o = n.i(r.a)("TS.files.getFileById", function() {});
+}, function(e, t, n) {
+  "use strict";
   var r = n(5),
     o = n.n(r),
-    i = n(27);
+    i = n(19);
   n.d(t, "a", function() {
     return a;
   }), n.d(t, "b", function() {
@@ -87332,46 +87834,25 @@ $.fn.togglify = function(settings) {
     });
 }, function(e, t, n) {
   "use strict";
-  var r = n(27);
-  n.d(t, "a", function() {
-    return o;
-  }), n.d(t, "b", function() {
-    return i;
-  });
-  var o = (n.i(r.a)("TS.model.isMac", function() {
-      return !1;
-    }), n.i(r.a)("TS.model.getUserModel", function() {})),
-    i = n.i(r.a)("TS.model.getUserPrefs", function() {});
-}, function(e, t, n) {
-  "use strict";
-  var r = n(27),
+  var r = n(19),
     o = n.i(r.a)("TS.PresenceList.createNewPresenceList", function() {});
   t.a = o;
 }, function(e, t, n) {
   "use strict";
-  var r = n(27),
+  var r = n(19),
     o = n.i(r.a)("TS.redux.getStoreInstance", function() {});
   t.a = o;
 }, function(e, t, n) {
   "use strict";
   var r = n(19),
-    o = (n.n(r), n(131)),
-    i = n.i(r.createAction)("Upsert a download"),
-    a = n.i(r.createAction)("Upsert multiple downloads"),
-    s = n.i(r.createAction)("Remove a download by ID"),
-    u = n.i(r.createAction)("Remove multiple downloads by IDs"),
-    l = n.i(r.createAction)("Clear all downloads");
-  t.a = n.i(o.a)({
-    upsert: i,
-    bulkUpsert: a,
-    remove: s,
-    bulkRemove: u,
-    clear: l
-  }, {});
+    o = n.i(r.a)("TS.utility.convertFilesize", function() {
+      return "0 bytes";
+    });
+  t.a = o;
 }, function(e, t, n) {
   "use strict";
-  var r = n(19),
-    o = (n.n(r), n(131)),
+  var r = n(21),
+    o = (n.n(r), n(366)),
     i = n.i(r.createAction)("Upsert a file"),
     a = n.i(r.createAction)("Upsert multiple files"),
     s = n.i(r.createAction)("Remove a file by ID"),
@@ -87386,29 +87867,168 @@ $.fn.togglify = function(settings) {
   }, {});
 }, function(e, t, n) {
   "use strict";
-  var r = n(115),
-    o = n(55),
-    i = n(72),
+  var r = n(116),
+    o = n(56),
+    i = n(73),
     a = n(71),
-    s = n(122),
-    u = n(44),
-    l = n(121),
-    c = n(352),
-    d = n(351),
+    s = n(124),
+    u = n(72),
+    l = n(45),
+    c = n(123),
+    d = n(359),
     f = n(70),
     h = n.i(r.e)({
       channelSidebar: o.j,
-      channels: u.default,
-      channelNamesToIds: l.default,
+      channels: l.default,
+      channelNamesToIds: c.default,
       presence: i.default,
       dnd: a.default,
-      files: c.a,
-      downloads: d.a,
+      files: d.a,
+      downloads: u.default,
       typing: s.default,
       memberTypesById: f.default
     });
   t.a = h;
 }, , function(e, t, n) {
+  "use strict";
+
+  function r(e, t) {
+    if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
+  }
+
+  function o(e, t) {
+    if (!e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    return !t || "object" != typeof t && "function" != typeof t ? e : t;
+  }
+
+  function i(e, t) {
+    if ("function" != typeof t && null !== t) throw new TypeError("Super expression must either be null or a function, not " + typeof t);
+    e.prototype = Object.create(t && t.prototype, {
+      constructor: {
+        value: e,
+        enumerable: !1,
+        writable: !0,
+        configurable: !0
+      }
+    }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
+  }
+  var a = n(1),
+    s = n.n(a),
+    u = n(5),
+    l = n.n(u),
+    c = Object.assign || function(e) {
+      for (var t = 1; t < arguments.length; t++) {
+        var n = arguments[t];
+        for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
+      }
+      return e;
+    },
+    d = function() {
+      function e(e, t) {
+        for (var n = 0; n < t.length; n++) {
+          var r = t[n];
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
+        }
+      }
+      return function(t, n, r) {
+        return n && e(t.prototype, n), r && e(t, r), t;
+      };
+    }(),
+    f = {
+      PENDING: "pending",
+      LOADED: "loaded",
+      LOADING: "loading",
+      ERROR: "error"
+    },
+    h = {
+      onError: s.a.PropTypes.func,
+      onLoad: s.a.PropTypes.func,
+      renderPending: s.a.PropTypes.func,
+      srcSet: s.a.PropTypes.string,
+      src: s.a.PropTypes.string
+    },
+    p = {
+      onError: null,
+      onLoad: null,
+      renderPending: null,
+      srcSet: "",
+      src: ""
+    },
+    _ = function(e) {
+      function t() {
+        r(this, t);
+        var e = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this));
+        return e.state = {
+          status: f.PENDING
+        }, e;
+      }
+      return i(t, e), d(t, [{
+        key: "componentDidMount",
+        value: function() {
+          var e = this.props,
+            t = e.srcSet,
+            n = e.src;
+          this.fetchImage(n, t);
+        }
+      }, {
+        key: "componentWillReceiveProps",
+        value: function(e) {
+          e.src === this.props.src && e.srcSet === this.props.srcSet || this.setState(function() {
+            return {
+              status: f.LOADING
+            };
+          });
+        }
+      }, {
+        key: "shouldComponentUpdate",
+        value: function(e, t) {
+          return this.props !== e && t.status !== f.LOADING || this.state !== t;
+        }
+      }, {
+        key: "componentDidUpdate",
+        value: function(e) {
+          var t = this.props,
+            n = t.srcSet,
+            r = t.src;
+          e.src === r && e.srcSet === n || this.fetchImage(r, n);
+        }
+      }, {
+        key: "fetchImage",
+        value: function(e, t) {
+          var n = this;
+          return new Promise(function(n, r) {
+            var o = new Image;
+            o.src = e, t && (o.srcset = t), o.onerror = r, o.onload = n;
+          }).then(function() {
+            n.setState(function() {
+              return {
+                status: f.LOADED
+              };
+            }), n.props.onLoad && n.props.onLoad();
+          }).catch(function() {
+            n.setState(function() {
+              return {
+                status: f.ERROR
+              };
+            }), n.props.onError && n.props.onError();
+          });
+        }
+      }, {
+        key: "render",
+        value: function() {
+          var e = this.state.status;
+          if (e === f.LOADED || e === f.LOADING) {
+            var t = l.a.omit(this.props, "renderPending");
+            return s.a.createElement("img", c({
+              alt: ""
+            }, t));
+          }
+          return this.props.renderPending();
+        }
+      }]), t;
+    }(s.a.Component);
+  _.propTypes = h, _.defaultProps = p, t.a = _;
+}, function(e, t, n) {
   "use strict";
 
   function r(e) {
@@ -87431,9 +88051,9 @@ $.fn.togglify = function(settings) {
       mi: e % 60
     };
   }
-  var o = n(130),
-    i = n(128),
-    a = n(129);
+  var o = n(133),
+    i = n(131),
+    a = n(132);
   t.a = r;
 }, function(e, t, n) {
   "use strict";
@@ -87449,97 +88069,85 @@ $.fn.togglify = function(settings) {
       d = n.i(o.a)(e, {
         returnMoment: !0
       }),
-      f = n.i(i.a)() && n.i(i.b)() && n.i(i.b)().time24;
+      f = n.i(i.b)() && n.i(i.c)() && n.i(i.c)().time24;
     return c ? d.format(c) : f ? a ? u ? d.format("hh:mm:ss A") : d.format("hh:mm A") : u ? d.format("HH:mm:ss") : d.format("HH:mm") : a ? u ? d.format("h:mm:ss A") : d.format("h:mm A") : u ? d.format("h:mm:ss") : d.format("h:mm");
   }
-  var o = n(127),
-    i = n(348);
+  var o = n(130),
+    i = n(128);
   t.a = r;
 }, function(e, t, n) {
   "use strict";
+  var r = n(5),
+    o = n.n(r),
+    i = n(19);
+  n.d(t, "b", function() {
+    return a;
+  }), n.d(t, "a", function() {
+    return s;
+  }), n.d(t, "d", function() {
+    return u;
+  }), n.d(t, "c", function() {
+    return l;
+  }), n.d(t, "e", function() {
+    return c;
+  }), n.d(t, "f", function() {
+    return d;
+  }), n.d(t, "g", function() {
+    return f;
+  });
+  var a = (n.i(i.a)("desktop.downloads.startDownload", o.a.noop), n.i(i.a)("desktop.downloads.showDownload", o.a.noop)),
+    s = n.i(i.a)("desktop.downloads.openDownload", o.a.noop),
+    u = n.i(i.a)("desktop.downloads.cancelDownload", o.a.noop),
+    l = n.i(i.a)("desktop.downloads.retryDownload", o.a.noop),
+    c = n.i(i.a)("desktop.downloads.removeDownload", o.a.noop),
+    d = n.i(i.a)("desktop.downloads.pauseDownload", o.a.noop),
+    f = n.i(i.a)("desktop.downloads.resumeDownload", o.a.noop);
+  n.i(i.a)("desktop.downloads.clearDownloads", o.a.noop);
+}, function(e, t, n) {
+  "use strict";
 
-  function r(e, t) {
-    if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
+  function r(e, t, n) {
+    return t in e ? Object.defineProperty(e, t, {
+      value: n,
+      enumerable: !0,
+      configurable: !0,
+      writable: !0
+    }) : e[t] = n, e;
   }
-  var o = n(442),
-    i = n.n(o),
-    a = n(5),
-    s = n.n(a),
-    u = function() {
-      function e(e, t) {
-        for (var n = 0; n < t.length; n++) {
-          var r = t[n];
-          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
-        }
-      }
-      return function(t, n, r) {
-        return n && e(t.prototype, n), r && e(t, r), t;
-      };
-    }(),
-    l = function() {
-      function e(t) {
-        r(this, e), i.a.prototype.stopCallback = e.stopCallback, this.mousetrap = new i.a(t);
-      }
-      return u(e, [{
-        key: "bindAll",
-        value: function(e) {
-          var t = this;
-          e.forEach(function(e) {
-            t.mousetrap.bind(e.keys, e.handler, e.action);
-          });
-        }
-      }, {
-        key: "reset",
-        value: function() {
-          this.mousetrap.reset();
-        }
-      }, {
-        key: "unbindAll",
-        value: function(e) {
-          this.mousetrap.unbind(s.a.flatMap(e, "keys"));
-        }
-      }], [{
-        key: "stopCallback",
-        value: function(e, t) {
-          return t.hasAttribute("data-no-key-commands");
-        }
-      }]), e;
-    }();
-  t.a = l;
-}, function(e, t, n) {
-  e.exports = {
-    "default": n(368),
-    __esModule: !0
-  };
-}, function(e, t, n) {
-  e.exports = {
-    "default": n(369),
-    __esModule: !0
-  };
-}, function(e, t, n) {
-  e.exports = {
-    "default": n(370),
-    __esModule: !0
-  };
-}, function(e, t, n) {
-  e.exports = {
-    "default": n(371),
-    __esModule: !0
-  };
-}, function(e, t, n) {
-  e.exports = {
-    "default": n(372),
-    __esModule: !0
-  };
-}, function(e, t, n) {
-  e.exports = {
-    "default": n(373),
-    __esModule: !0
-  };
-}, function(e, t, n) {
-  e.exports = {
-    "default": n(376),
-    __esModule: !0
+
+  function o(e, t) {
+    var o, i = ["upsert", "bulkUpsert", "remove", "bulkRemove", "clear"],
+      l = a.a.pick(e, i),
+      c = l.upsert,
+      d = l.bulkUpsert,
+      f = l.remove,
+      h = l.bulkRemove,
+      p = l.clear,
+      _ = a.a.omit(e, i);
+    return n.i(s.createReducer)(u((o = {}, r(o, c, function(e, t) {
+      return t && t.id ? u({}, e, r({}, t.id, t)) : e;
+    }), r(o, d, function(e, t) {
+      return t && t.length && a.a.isArray(t) ? a.a.reduce(t, function(e, t) {
+        return t && t.id && (e[t.id] = t), e;
+      }, u({}, e)) : e;
+    }), r(o, f, function(e, t) {
+      return a.a.omit(e, t);
+    }), r(o, h, function(e, t) {
+      return a.a.omit(e, t);
+    }), r(o, p, function() {
+      return {};
+    }), o), _), t);
+  }
+  var i = n(5),
+    a = n.n(i),
+    s = n(21);
+  n.n(s), t.a = o;
+  var u = Object.assign || function(e) {
+    for (var t = 1; t < arguments.length; t++) {
+      var n = arguments[t];
+      for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
+    }
+    return e;
   };
 }, function(e, t, n) {
   e.exports = {
@@ -87552,6 +88160,41 @@ $.fn.togglify = function(settings) {
     __esModule: !0
   };
 }, function(e, t, n) {
+  e.exports = {
+    "default": n(379),
+    __esModule: !0
+  };
+}, function(e, t, n) {
+  e.exports = {
+    "default": n(380),
+    __esModule: !0
+  };
+}, function(e, t, n) {
+  e.exports = {
+    "default": n(381),
+    __esModule: !0
+  };
+}, function(e, t, n) {
+  e.exports = {
+    "default": n(382),
+    __esModule: !0
+  };
+}, function(e, t, n) {
+  e.exports = {
+    "default": n(385),
+    __esModule: !0
+  };
+}, function(e, t, n) {
+  e.exports = {
+    "default": n(386),
+    __esModule: !0
+  };
+}, function(e, t, n) {
+  e.exports = {
+    "default": n(387),
+    __esModule: !0
+  };
+}, function(e, t, n) {
   "use strict";
 
   function r(e) {
@@ -87560,9 +88203,9 @@ $.fn.togglify = function(settings) {
     };
   }
   t.__esModule = !0;
-  var o = n(359),
+  var o = n(368),
     i = r(o),
-    a = n(358),
+    a = n(367),
     s = r(a);
   t.default = function() {
     function e(e, t) {
@@ -87590,39 +88233,39 @@ $.fn.togglify = function(settings) {
     };
   }();
 }, function(e, t, n) {
-  n(89), n(88), e.exports = n(397);
+  n(90), n(89), e.exports = n(406);
 }, function(e, t, n) {
-  n(89), n(88), e.exports = n(398);
+  n(90), n(89), e.exports = n(407);
 }, function(e, t, n) {
-  n(400), e.exports = n(14).Object.assign;
+  n(409), e.exports = n(14).Object.assign;
 }, function(e, t, n) {
-  n(401);
+  n(410);
   var r = n(14).Object;
   e.exports = function(e, t) {
     return r.create(e, t);
   };
 }, function(e, t, n) {
-  n(402);
+  n(411);
   var r = n(14).Object;
   e.exports = function(e, t, n) {
     return r.defineProperty(e, t, n);
   };
 }, function(e, t, n) {
-  n(403);
+  n(412);
   var r = n(14).Object;
   e.exports = function(e, t) {
     return r.getOwnPropertyDescriptor(e, t);
   };
 }, function(e, t, n) {
-  n(404), e.exports = n(14).Object.getPrototypeOf;
+  n(413), e.exports = n(14).Object.getPrototypeOf;
 }, function(e, t, n) {
-  n(405), e.exports = n(14).Object.keys;
+  n(414), e.exports = n(14).Object.keys;
 }, function(e, t, n) {
-  n(406), e.exports = n(14).Object.setPrototypeOf;
+  n(415), e.exports = n(14).Object.setPrototypeOf;
 }, function(e, t, n) {
-  n(408), n(407), n(409), n(410), e.exports = n(14).Symbol;
+  n(417), n(416), n(418), n(419), e.exports = n(14).Symbol;
 }, function(e, t, n) {
-  n(88), n(89), e.exports = n(87).f("iterator");
+  n(89), n(90), e.exports = n(88).f("iterator");
 }, function(e, t) {
   e.exports = function(e) {
     if ("function" != typeof e) throw TypeError(e + " is not a function!");
@@ -87631,9 +88274,9 @@ $.fn.togglify = function(settings) {
 }, function(e, t) {
   e.exports = function() {};
 }, function(e, t, n) {
-  var r = n(26),
-    o = n(395),
-    i = n(394);
+  var r = n(27),
+    o = n(404),
+    i = n(403);
   e.exports = function(e) {
     return function(t, n, a) {
       var s, u = r(t),
@@ -87649,8 +88292,8 @@ $.fn.togglify = function(settings) {
     };
   };
 }, function(e, t, n) {
-  var r = n(37),
-    o = n(79),
+  var r = n(38),
+    o = n(80),
     i = n(59);
   e.exports = function(e) {
     var t = r(e),
@@ -87660,19 +88303,19 @@ $.fn.togglify = function(settings) {
     return t;
   };
 }, function(e, t, n) {
-  e.exports = n(25).document && document.documentElement;
+  e.exports = n(26).document && document.documentElement;
 }, function(e, t, n) {
-  var r = n(73);
+  var r = n(74);
   e.exports = Array.isArray || function(e) {
     return "Array" == r(e);
   };
 }, function(e, t, n) {
   "use strict";
-  var r = n(77),
+  var r = n(78),
     o = n(60),
-    i = n(81),
+    i = n(82),
     a = {};
-  n(36)(a, n(21)("iterator"), function() {
+  n(37)(a, n(22)("iterator"), function() {
     return this;
   }), e.exports = function(e, t, n) {
     e.prototype = r(a, {
@@ -87687,22 +88330,22 @@ $.fn.togglify = function(settings) {
     };
   };
 }, function(e, t, n) {
-  var r = n(37),
-    o = n(26);
+  var r = n(38),
+    o = n(27);
   e.exports = function(e, t) {
     for (var n, i = o(e), a = r(i), s = a.length, u = 0; s > u;)
       if (i[n = a[u++]] === t) return n;
   };
 }, function(e, t, n) {
   var r = n(62)("meta"),
-    o = n(46),
-    i = n(30),
-    a = n(31).f,
+    o = n(47),
+    i = n(31),
+    a = n(32).f,
     s = 0,
     u = Object.isExtensible || function() {
       return !0;
     },
-    l = !n(35)(function() {
+    l = !n(36)(function() {
       return u(Object.preventExtensions({}));
     }),
     c = function(e) {
@@ -87742,13 +88385,13 @@ $.fn.togglify = function(settings) {
     };
 }, function(e, t, n) {
   "use strict";
-  var r = n(37),
-    o = n(79),
+  var r = n(38),
+    o = n(80),
     i = n(59),
     a = n(61),
-    s = n(138),
+    s = n(141),
     u = Object.assign;
-  e.exports = !u || n(35)(function() {
+  e.exports = !u || n(36)(function() {
     var e = {},
       t = {},
       n = Symbol(),
@@ -87762,17 +88405,17 @@ $.fn.togglify = function(settings) {
     return n;
   } : u;
 }, function(e, t, n) {
-  var r = n(31),
-    o = n(34),
-    i = n(37);
-  e.exports = n(28) ? Object.defineProperties : function(e, t) {
+  var r = n(32),
+    o = n(35),
+    i = n(38);
+  e.exports = n(29) ? Object.defineProperties : function(e, t) {
     o(e);
     for (var n, a = i(t), s = a.length, u = 0; s > u;) r.f(e, n = a[u++], t[n]);
     return e;
   };
 }, function(e, t, n) {
-  var r = n(26),
-    o = n(140).f,
+  var r = n(27),
+    o = n(143).f,
     i = {}.toString,
     a = "object" == typeof window && window && Object.getOwnPropertyNames ? Object.getOwnPropertyNames(window) : [],
     s = function(e) {
@@ -87786,15 +88429,15 @@ $.fn.togglify = function(settings) {
     return a && "[object Window]" == i.call(e) ? s(e) : o(r(e));
   };
 }, function(e, t, n) {
-  var r = n(46),
-    o = n(34),
+  var r = n(47),
+    o = n(35),
     i = function(e, t) {
       if (o(e), !r(t) && null !== t) throw TypeError(t + ": can't set as prototype!");
     };
   e.exports = {
     set: Object.setPrototypeOf || ("__proto__" in {} ? function(e, t, r) {
       try {
-        r = n(135)(Function.call, n(78).f(Object.prototype, "__proto__").set, 2), r(e, []), t = !(e instanceof Array);
+        r = n(138)(Function.call, n(79).f(Object.prototype, "__proto__").set, 2), r(e, []), t = !(e instanceof Array);
       } catch (e) {
         t = !0;
       }
@@ -87805,8 +88448,8 @@ $.fn.togglify = function(settings) {
     check: i
   };
 }, function(e, t, n) {
-  var r = n(84),
-    o = n(74);
+  var r = n(85),
+    o = n(75);
   e.exports = function(e) {
     return function(t, n) {
       var i, a, s = String(o(t)),
@@ -87816,48 +88459,48 @@ $.fn.togglify = function(settings) {
     };
   };
 }, function(e, t, n) {
-  var r = n(84),
+  var r = n(85),
     o = Math.max,
     i = Math.min;
   e.exports = function(e, t) {
     return e = r(e), e < 0 ? o(e + t, 0) : i(e, t);
   };
 }, function(e, t, n) {
-  var r = n(84),
+  var r = n(85),
     o = Math.min;
   e.exports = function(e) {
     return e > 0 ? o(r(e), 9007199254740991) : 0;
   };
 }, function(e, t, n) {
-  var r = n(134),
-    o = n(21)("iterator"),
-    i = n(47);
+  var r = n(137),
+    o = n(22)("iterator"),
+    i = n(48);
   e.exports = n(14).getIteratorMethod = function(e) {
     if (void 0 != e) return e[o] || e["@@iterator"] || i[r(e)];
   };
 }, function(e, t, n) {
-  var r = n(34),
-    o = n(396);
+  var r = n(35),
+    o = n(405);
   e.exports = n(14).getIterator = function(e) {
     var t = o(e);
     if ("function" != typeof t) throw TypeError(e + " is not iterable!");
     return r(t.call(e));
   };
 }, function(e, t, n) {
-  var r = n(134),
-    o = n(21)("iterator"),
-    i = n(47);
+  var r = n(137),
+    o = n(22)("iterator"),
+    i = n(48);
   e.exports = n(14).isIterable = function(e) {
     var t = Object(e);
     return void 0 !== t[o] || "@@iterator" in t || i.hasOwnProperty(r(t));
   };
 }, function(e, t, n) {
   "use strict";
-  var r = n(380),
-    o = n(386),
-    i = n(47),
-    a = n(26);
-  e.exports = n(139)(Array, "Array", function(e, t) {
+  var r = n(389),
+    o = n(395),
+    i = n(48),
+    a = n(27);
+  e.exports = n(142)(Array, "Array", function(e, t) {
     this._t = a(e), this._i = 0, this._k = t;
   }, function() {
     var e = this._t,
@@ -87866,79 +88509,79 @@ $.fn.togglify = function(settings) {
     return !e || n >= e.length ? (this._t = void 0, o(1)) : "keys" == t ? o(0, n) : "values" == t ? o(0, e[n]) : o(0, [n, e[n]]);
   }, "values"), i.Arguments = i.Array, r("keys"), r("values"), r("entries");
 }, function(e, t, n) {
-  var r = n(29);
+  var r = n(30);
   r(r.S + r.F, "Object", {
-    assign: n(389)
+    assign: n(398)
   });
 }, function(e, t, n) {
-  var r = n(29);
+  var r = n(30);
   r(r.S, "Object", {
-    create: n(77)
+    create: n(78)
   });
 }, function(e, t, n) {
-  var r = n(29);
-  r(r.S + r.F * !n(28), "Object", {
-    defineProperty: n(31).f
+  var r = n(30);
+  r(r.S + r.F * !n(29), "Object", {
+    defineProperty: n(32).f
   });
 }, function(e, t, n) {
-  var r = n(26),
-    o = n(78).f;
-  n(80)("getOwnPropertyDescriptor", function() {
+  var r = n(27),
+    o = n(79).f;
+  n(81)("getOwnPropertyDescriptor", function() {
     return function(e, t) {
       return o(r(e), t);
     };
   });
 }, function(e, t, n) {
   var r = n(61),
-    o = n(141);
-  n(80)("getPrototypeOf", function() {
+    o = n(144);
+  n(81)("getPrototypeOf", function() {
     return function(e) {
       return o(r(e));
     };
   });
 }, function(e, t, n) {
   var r = n(61),
-    o = n(37);
-  n(80)("keys", function() {
+    o = n(38);
+  n(81)("keys", function() {
     return function(e) {
       return o(r(e));
     };
   });
 }, function(e, t, n) {
-  var r = n(29);
+  var r = n(30);
   r(r.S, "Object", {
-    setPrototypeOf: n(392).set
+    setPrototypeOf: n(401).set
   });
 }, function(e, t) {}, function(e, t, n) {
   "use strict";
-  var r = n(25),
-    o = n(30),
-    i = n(28),
-    a = n(29),
-    s = n(143),
-    u = n(388).KEY,
-    l = n(35),
-    c = n(83),
-    d = n(81),
+  var r = n(26),
+    o = n(31),
+    i = n(29),
+    a = n(30),
+    s = n(146),
+    u = n(397).KEY,
+    l = n(36),
+    c = n(84),
+    d = n(82),
     f = n(62),
-    h = n(21),
-    p = n(87),
-    _ = n(86),
-    m = n(387),
-    y = n(382),
-    v = n(384),
-    g = n(34),
-    M = n(26),
-    b = n(85),
+    h = n(22),
+    p = n(88),
+    _ = n(87),
+    m = n(396),
+    y = n(391),
+    v = n(393),
+    g = n(35),
+    M = n(27),
+    b = n(86),
     w = n(60),
-    L = n(77),
-    k = n(391),
-    T = n(78),
-    S = n(31),
-    Y = n(37),
-    x = T.f,
-    D = S.f,
-    C = k.f,
+    k = n(78),
+    L = n(400),
+    T = n(79),
+    S = n(32),
+    Y = n(38),
+    D = T.f,
+    x = S.f,
+    C = L.f,
     P = r.Symbol,
     E = r.JSON,
     j = E && E.stringify,
@@ -87953,19 +88596,19 @@ $.fn.togglify = function(settings) {
     F = r.QObject,
     U = !F || !F.prototype || !F.prototype.findChild,
     G = i && l(function() {
-      return 7 != L(D({}, "a", {
+      return 7 != k(x({}, "a", {
         get: function() {
-          return D(this, "a", {
+          return x(this, "a", {
             value: 7
           }).a;
         }
       })).a;
     }) ? function(e, t, n) {
-      var r = x(z, t);
-      r && delete z[t], D(e, t, n), r && e !== z && D(z, t, r);
-    } : D,
+      var r = D(z, t);
+      r && delete z[t], x(e, t, n), r && e !== z && x(z, t, r);
+    } : x,
     B = function(e) {
-      var t = H[e] = L(P.prototype);
+      var t = H[e] = k(P.prototype);
       return t._k = e, t;
     },
     V = W && "symbol" == typeof P.iterator ? function(e) {
@@ -87974,9 +88617,9 @@ $.fn.togglify = function(settings) {
       return e instanceof P;
     },
     q = function(e, t, n) {
-      return e === z && q(N, t, n), g(e), t = b(t, !0), g(n), o(H, t) ? (n.enumerable ? (o(e, O) && e[O][t] && (e[O][t] = !1), n = L(n, {
+      return e === z && q(N, t, n), g(e), t = b(t, !0), g(n), o(H, t) ? (n.enumerable ? (o(e, O) && e[O][t] && (e[O][t] = !1), n = k(n, {
         enumerable: w(0, !1)
-      })) : (o(e, O) || D(e, O, w(1, {})), e[O][t] = !0), G(e, t, n)) : D(e, t, n);
+      })) : (o(e, O) || x(e, O, w(1, {})), e[O][t] = !0), G(e, t, n)) : x(e, t, n);
     },
     J = function(e, t) {
       g(e);
@@ -87984,7 +88627,7 @@ $.fn.togglify = function(settings) {
       return e;
     },
     K = function(e, t) {
-      return void 0 === t ? L(e) : J(L(e), t);
+      return void 0 === t ? k(e) : J(k(e), t);
     },
     $ = function(e) {
       var t = I.call(this, e = b(e, !0));
@@ -87992,7 +88635,7 @@ $.fn.togglify = function(settings) {
     },
     Q = function(e, t) {
       if (e = M(e), t = b(t, !0), e !== z || !o(H, t) || o(N, t)) {
-        var n = x(e, t);
+        var n = D(e, t);
         return !n || !o(H, t) || o(e, O) && e[O][t] || (n.enumerable = !0), n;
       }
     },
@@ -88016,7 +88659,7 @@ $.fn.togglify = function(settings) {
     }), B(e);
   }, s(P.prototype, "toString", function() {
     return this._k;
-  }), T.f = Q, S.f = q, n(140).f = k.f = X, n(59).f = $, n(79).f = Z, i && !n(76) && s(z, "propertyIsEnumerable", $, !0), p.f = function(e) {
+  }), T.f = Q, S.f = q, n(143).f = L.f = X, n(59).f = $, n(80).f = Z, i && !n(77) && s(z, "propertyIsEnumerable", $, !0), p.f = function(e) {
     return B(h(e));
   }), a(a.G + a.W + a.F * !W, {
     Symbol: P
@@ -88058,17 +88701,17 @@ $.fn.togglify = function(settings) {
         }), r[1] = t, j.apply(E, r);
       }
     }
-  }), P.prototype[R] || n(36)(P.prototype, R, P.prototype.valueOf), d(P, "Symbol"), d(Math, "Math", !0), d(r.JSON, "JSON", !0);
+  }), P.prototype[R] || n(37)(P.prototype, R, P.prototype.valueOf), d(P, "Symbol"), d(Math, "Math", !0), d(r.JSON, "JSON", !0);
 }, function(e, t, n) {
-  n(86)("asyncIterator");
+  n(87)("asyncIterator");
 }, function(e, t, n) {
-  n(86)("observable");
+  n(87)("observable");
 }, function(e, t, n) {
-  t = e.exports = n(90)(), t.push([e.i, ".c-presence--active{color:#93cc93}.c-presence--away{color:#717274}", ""]);
+  t = e.exports = n(91)(), t.push([e.i, ".c-presence--active{color:#93cc93}.c-presence--away{color:#717274}", ""]);
 }, function(e, t, n) {
-  t = e.exports = n(90)(), t.push([e.i, '.c-tooltip,.c-tooltip__tip{display:inline-block}.c-tooltip__tip{color:#fff;background-color:#2c2d30;max-width:250px;padding:.5rem;border-radius:4px;position:relative;font-size:.8125rem;font-weight:700;text-align:center}.c-tooltip__tip:after{position:absolute;content:"";width:0;height:0;margin:-5px;border:6px solid transparent}.c-tooltip__tip--left{margin-right:.5rem}.c-tooltip__tip--left:after{border-left-color:#2c2d30;right:-6px;top:50%}.c-tooltip__tip--right{margin-left:.5rem}.c-tooltip__tip--right:after{border-right-color:#2c2d30;left:-6px;top:50%}.c-tooltip__tip--top{margin-bottom:.5rem}.c-tooltip__tip--top:after{border-top-color:#2c2d30;bottom:-6px;left:50%}.c-tooltip__tip--top-left{margin-bottom:.5rem}.c-tooltip__tip--top-left:after{border-top-color:#2c2d30;bottom:-6px;left:50%;left:25%}.c-tooltip__tip--top-right{margin-bottom:.5rem}.c-tooltip__tip--top-right:after{border-top-color:#2c2d30;bottom:-6px;left:50%;left:75%}.c-tooltip__tip--bottom{margin-top:.5rem}.c-tooltip__tip--bottom:after{border-bottom-color:#2c2d30;top:-6px;left:50%}.c-tooltip__tip--bottom-left{margin-top:.5rem}.c-tooltip__tip--bottom-left:after{border-bottom-color:#2c2d30;top:-6px;left:50%;left:25%}.c-tooltip__tip--bottom-right{margin-top:.5rem}.c-tooltip__tip--bottom-right:after{border-bottom-color:#2c2d30;top:-6px;left:50%;left:75%}.c-tooltip__tip--success{background-color:#2ab27b}.c-tooltip__tip--success.c-tooltip__tip--left:after{border-left-color:#2ab27b}.c-tooltip__tip--success.c-tooltip__tip--right:after{border-right-color:#2ab27b}.c-tooltip__tip--success.c-tooltip__tip--top-left:after,.c-tooltip__tip--success.c-tooltip__tip--top-right:after,.c-tooltip__tip--success.c-tooltip__tip--top:after{border-top-color:#2ab27b}.c-tooltip__tip--success.c-tooltip__tip--bottom-left:after,.c-tooltip__tip--success.c-tooltip__tip--bottom-right:after,.c-tooltip__tip--success.c-tooltip__tip--bottom:after{border-bottom-color:#2ab27b}', ""]);
+  t = e.exports = n(91)(), t.push([e.i, '.c-tooltip,.c-tooltip__tip{display:inline-block}.c-tooltip__tip{color:#fff;background-color:#2c2d30;max-width:250px;padding:.5rem;border-radius:4px;position:relative;font-size:.8125rem;font-weight:700;text-align:center}.c-tooltip__tip:after{position:absolute;content:"";width:0;height:0;margin:-5px;border:6px solid transparent}.c-tooltip__tip--left{margin-right:.5rem}.c-tooltip__tip--left:after{border-left-color:#2c2d30;right:-6px;top:50%}.c-tooltip__tip--right{margin-left:.5rem}.c-tooltip__tip--right:after{border-right-color:#2c2d30;left:-6px;top:50%}.c-tooltip__tip--top{margin-bottom:.5rem}.c-tooltip__tip--top:after{border-top-color:#2c2d30;bottom:-6px;left:50%}.c-tooltip__tip--top-left{margin-bottom:.5rem}.c-tooltip__tip--top-left:after{border-top-color:#2c2d30;bottom:-6px;left:50%;left:25%}.c-tooltip__tip--top-right{margin-bottom:.5rem}.c-tooltip__tip--top-right:after{border-top-color:#2c2d30;bottom:-6px;left:50%;left:75%}.c-tooltip__tip--bottom{margin-top:.5rem}.c-tooltip__tip--bottom:after{border-bottom-color:#2c2d30;top:-6px;left:50%}.c-tooltip__tip--bottom-left{margin-top:.5rem}.c-tooltip__tip--bottom-left:after{border-bottom-color:#2c2d30;top:-6px;left:50%;left:25%}.c-tooltip__tip--bottom-right{margin-top:.5rem}.c-tooltip__tip--bottom-right:after{border-bottom-color:#2c2d30;top:-6px;left:50%;left:75%}.c-tooltip__tip--success{background-color:#2ab27b}.c-tooltip__tip--success.c-tooltip__tip--left:after{border-left-color:#2ab27b}.c-tooltip__tip--success.c-tooltip__tip--right:after{border-right-color:#2ab27b}.c-tooltip__tip--success.c-tooltip__tip--top-left:after,.c-tooltip__tip--success.c-tooltip__tip--top-right:after,.c-tooltip__tip--success.c-tooltip__tip--top:after{border-top-color:#2ab27b}.c-tooltip__tip--success.c-tooltip__tip--bottom-left:after,.c-tooltip__tip--success.c-tooltip__tip--bottom-right:after,.c-tooltip__tip--success.c-tooltip__tip--bottom:after{border-bottom-color:#2ab27b}', ""]);
 }, function(e, t, n) {
-  t = e.exports = n(90)(), t.push([e.i, '.p-channel_sidebar{width:220px;height:100vh;position:relative;background:#4d394b;padding:0;color:#fff}.p-channel_sidebar__header{padding:0 .5rem;color:hsla(0,0%,100%,.7);margin:0}.p-channel_sidebar__banner{text-align:center;position:absolute;display:block;z-index:2;color:#fff;left:.5rem;right:.5rem;font-weight:700;text-transform:uppercase;font-size:.75rem;line-height:1.5rem}.p-channel_sidebar__banner--top{border-top-right-radius:0;border-bottom-right-radius:.25rem;border-bottom-left-radius:.25rem;border-top-left-radius:0;background-clip:padding-box;top:0}.p-channel_sidebar__banner--bottom{border-top-right-radius:.25rem;border-bottom-right-radius:0;border-bottom-left-radius:0;border-top-left-radius:.25rem;background-clip:padding-box;bottom:0}.p-channel_sidebar__banner--mentions{background:#eb4d5c}.p-channel_sidebar__banner--unreads{background:#2d9ee0}.p-channel_sidebar__channel,.p-channel_sidebar__link{display:block;height:26px;line-height:1.625rem;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;color:#fff;border-top-right-radius:.25rem;border-bottom-right-radius:.25rem;border-bottom-left-radius:0;border-top-left-radius:0;background-clip:padding-box;padding:0 .25rem 0 .5rem;margin-right:.5rem}.p-channel_sidebar__channel:after,.p-channel_sidebar__channel:before,.p-channel_sidebar__link:after,.p-channel_sidebar__link:before{font-family:Slack;font-style:normal;font-weight:400;display:inline-block;width:20px;color:hsla(0,0%,100%,.7)}.p-channel_sidebar__channel:before,.p-channel_sidebar__link:before{font-size:1rem;float:left}.p-channel_sidebar__channel:after,.p-channel_sidebar__link:after{float:right}.p-channel_sidebar__channel:hover,.p-channel_sidebar__link:hover{color:#fff;background:#3e313c;text-decoration:none}.p-channel_sidebar__channel:before{content:"\\E104"}.p-channel_sidebar__channel--private:before{content:"\\E503";margin-top:-2px}.p-channel_sidebar__channel--shared:after{content:"\\E165"}.p-channel_sidebar__channel--ent-shared:after{content:"\\E166"}.p-channel_sidebar__channel--mpim:before{font-size:1.25rem;margin:-3px 2px 0 -2px}.p-channel_sidebar__channel--mpim[data-user-count="2"]:before{content:"\\E521"}.p-channel_sidebar__channel--mpim[data-user-count="3"]:before{content:"\\E522"}.p-channel_sidebar__channel--mpim[data-user-count="4"]:before{content:"\\E523"}.p-channel_sidebar__channel--mpim[data-user-count="5"]:before{content:"\\E524"}.p-channel_sidebar__channel--mpim[data-user-count="6"]:before{content:"\\E525"}.p-channel_sidebar__channel--mpim[data-user-count="7"]:before{content:"\\E526"}.p-channel_sidebar__channel--mpim[data-user-count="8"]:before{content:"\\E527"}.p-channel_sidebar__channel--mpim[data-user-count="9"]:before{content:"\\E528"}.p-channel_sidebar__channel--im:before{content:""}.p-channel_sidebar__channel--im .c-presence{margin:-4px 1px 0 -1px;float:left}.p-channel_sidebar__channel--im .c-presence--active{color:#38978d}.p-channel_sidebar__channel--im .c-presence--away{color:hsla(0,0%,100%,.7)}.p-channel_sidebar__channel--im.p-channel_sidebar__channel--selected .c-presence--active{color:#fff}.p-channel_sidebar__channel--im-slackbot:before{content:"\\E515";font-size:1.125rem;margin-top:-3px}.p-channel_sidebar__channel--selected,.p-channel_sidebar__channel--selected:hover,.p-channel_sidebar__link--selected,.p-channel_sidebar__link--selected:hover{background:#4c9689}.p-channel_sidebar__channel--selected:after,.p-channel_sidebar__channel--selected:before,.p-channel_sidebar__channel--selected:hover:after,.p-channel_sidebar__channel--selected:hover:before,.p-channel_sidebar__link--selected:after,.p-channel_sidebar__link--selected:before,.p-channel_sidebar__link--selected:hover:after,.p-channel_sidebar__link--selected:hover:before{color:#fff}.p-channel_sidebar__channel--muted:not(.p-channel_sidebar__channel--selected),.p-channel_sidebar__channel--muted:not(.p-channel_sidebar__channel--selected):after,.p-channel_sidebar__channel--muted:not(.p-channel_sidebar__channel--selected):before{color:hsla(0,0%,100%,.25)}.p-channel_sidebar__channel--unread{font-weight:900}.p-channel_sidebar__channel--draft:before{content:"\\E024";color:#fff;font-size:.875rem;margin:1px -1px 0 1px}.p-channel_sidebar__badge{float:right;background:#eb4d5c;padding:.1rem .6rem;border-radius:1rem;line-height:1rem;margin:3px 0;font-size:.75rem;font-weight:700;color:#fff}.p-channel_sidebar__status{margin-left:.5rem}.p-channel_sidebar__you_label{margin-left:.5rem;font-weight:400;color:hsla(0,0%,100%,.7)}.p-channel_sidebar__link--unreads:before{content:"\\E103"}.p-channel_sidebar__link--threads:before{content:"\\E004"}.p-channel_sidebar__link--invites:before{content:"\\E281"}', ""]);
+  t = e.exports = n(91)(), t.push([e.i, '.p-channel_sidebar{width:220px;height:100vh;position:relative;background:#4d394b;padding:0;color:#fff}.p-channel_sidebar__header{padding:0 .5rem;color:hsla(0,0%,100%,.7);margin:0}.p-channel_sidebar__banner{text-align:center;position:absolute;display:block;z-index:2;color:#fff;left:.5rem;right:.5rem;font-weight:700;text-transform:uppercase;font-size:.75rem;line-height:1.5rem}.p-channel_sidebar__banner--top{border-top-right-radius:0;border-bottom-right-radius:.25rem;border-bottom-left-radius:.25rem;border-top-left-radius:0;background-clip:padding-box;top:0}.p-channel_sidebar__banner--bottom{border-top-right-radius:.25rem;border-bottom-right-radius:0;border-bottom-left-radius:0;border-top-left-radius:.25rem;background-clip:padding-box;bottom:0}.p-channel_sidebar__banner--mentions{background:#eb4d5c}.p-channel_sidebar__banner--unreads{background:#2d9ee0}.p-channel_sidebar__channel,.p-channel_sidebar__link{display:block;height:26px;line-height:1.625rem;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;color:#fff;border-top-right-radius:.25rem;border-bottom-right-radius:.25rem;border-bottom-left-radius:0;border-top-left-radius:0;background-clip:padding-box;padding:0 .25rem 0 .5rem;margin-right:.5rem}.p-channel_sidebar__channel:after,.p-channel_sidebar__channel:before,.p-channel_sidebar__link:after,.p-channel_sidebar__link:before{font-family:Slack;font-style:normal;font-weight:400;display:inline-block;width:20px;color:hsla(0,0%,100%,.7)}.p-channel_sidebar__channel:before,.p-channel_sidebar__link:before{font-size:1rem;float:left}.p-channel_sidebar__channel:after,.p-channel_sidebar__link:after{float:right}.p-channel_sidebar__channel:hover,.p-channel_sidebar__link:hover{color:#fff;background:#3e313c;text-decoration:none}.p-channel_sidebar__channel:before{content:"\\E104"}.p-channel_sidebar__channel--private:before{content:"\\E503";margin-top:-2px}.p-channel_sidebar__channel--shared:after{content:"\\E165"}.p-channel_sidebar__channel--ent-shared:after{content:"\\E166"}.p-channel_sidebar__channel--mpim:before{font-size:1.25rem;margin:-3px 2px 0 -2px}.p-channel_sidebar__channel--mpim[data-user-count="2"]:before{content:"\\E521"}.p-channel_sidebar__channel--mpim[data-user-count="3"]:before{content:"\\E522"}.p-channel_sidebar__channel--mpim[data-user-count="4"]:before{content:"\\E523"}.p-channel_sidebar__channel--mpim[data-user-count="5"]:before{content:"\\E524"}.p-channel_sidebar__channel--mpim[data-user-count="6"]:before{content:"\\E525"}.p-channel_sidebar__channel--mpim[data-user-count="7"]:before{content:"\\E526"}.p-channel_sidebar__channel--mpim[data-user-count="8"]:before{content:"\\E527"}.p-channel_sidebar__channel--mpim[data-user-count="9"]:before{content:"\\E528"}.p-channel_sidebar__channel--im:before{content:""}.p-channel_sidebar__channel--im .c-presence{margin:-4px 1px 0 -1px;float:left}.p-channel_sidebar__channel--im .c-presence--active{color:#38978d}.p-channel_sidebar__channel--im .c-presence--away{color:hsla(0,0%,100%,.7)}.p-channel_sidebar__channel--im.p-channel_sidebar__channel--selected .c-presence--active{color:#fff}.p-channel_sidebar__channel--im-slackbot:before{content:"\\E515";font-size:1.125rem;margin-top:-3px}.p-channel_sidebar__channel--selected,.p-channel_sidebar__channel--selected:hover,.p-channel_sidebar__link--selected,.p-channel_sidebar__link--selected:hover{background:#4c9689}.p-channel_sidebar__channel--selected:after,.p-channel_sidebar__channel--selected:before,.p-channel_sidebar__channel--selected:hover:after,.p-channel_sidebar__channel--selected:hover:before,.p-channel_sidebar__link--selected:after,.p-channel_sidebar__link--selected:before,.p-channel_sidebar__link--selected:hover:after,.p-channel_sidebar__link--selected:hover:before{color:#fff}.p-channel_sidebar__channel--muted:not(.p-channel_sidebar__channel--selected),.p-channel_sidebar__channel--muted:not(.p-channel_sidebar__channel--selected):after,.p-channel_sidebar__channel--muted:not(.p-channel_sidebar__channel--selected):before{color:hsla(0,0%,100%,.25)}.p-channel_sidebar__channel--unread{font-weight:900}.p-channel_sidebar__channel--draft:before{content:"\\E024";color:#fff;font-size:.875rem;margin:1px -1px 0 1px}.p-channel_sidebar__badge{float:right;background:#eb4d5c;padding:.1rem .6rem;border-radius:1rem;line-height:1rem;margin:3px 0;font-size:.75rem;font-weight:700;color:#fff}.p-channel_sidebar__status{margin-left:.5rem}.p-channel_sidebar__you_label{margin-left:.5rem;font-weight:400;color:hsla(0,0%,100%,.7)}.p-channel_sidebar__link--unreads:before{content:"\\E103"}.p-channel_sidebar__link--threads:before{content:"\\E004"}.p-channel_sidebar__link--invites:before{content:"\\E281"}', ""]);
 }, function(e, t, n) {
   "use strict";
   Object.defineProperty(t, "__esModule", {
@@ -88141,7 +88784,7 @@ $.fn.togglify = function(settings) {
   function r(e) {
     return o(e.replace(i, "ms-"));
   }
-  var o = n(417),
+  var o = n(426),
     i = /^-ms-/;
   e.exports = r;
 }, function(e, t, n) {
@@ -88150,7 +88793,7 @@ $.fn.togglify = function(settings) {
   function r(e, t) {
     return !(!e || !t) && (e === t || !o(e) && (o(t) ? r(e, t.parentNode) : "contains" in e ? e.contains(t) : !!e.compareDocumentPosition && !!(16 & e.compareDocumentPosition(t))));
   }
-  var o = n(427);
+  var o = n(436);
   e.exports = r;
 }, function(e, t, n) {
   "use strict";
@@ -88196,8 +88839,8 @@ $.fn.togglify = function(settings) {
     return f;
   }
   var i = n(15),
-    a = n(420),
-    s = n(422),
+    a = n(429),
+    s = n(431),
     u = n(2),
     l = i.canUseDOM ? document.createElement("div") : null,
     c = /^\s*<(\w+)/;
@@ -88263,7 +88906,7 @@ $.fn.togglify = function(settings) {
   function r(e) {
     return o(e).replace(i, "-ms-");
   }
-  var o = n(424),
+  var o = n(433),
     i = /^ms-/;
   e.exports = r;
 }, function(e, t, n) {
@@ -88279,7 +88922,7 @@ $.fn.togglify = function(settings) {
   function r(e) {
     return o(e) && 3 == e.nodeType;
   }
-  var o = n(426);
+  var o = n(435);
   e.exports = r;
 }, function(e, t, n) {
   "use strict";
@@ -88346,9 +88989,9 @@ $.fn.togglify = function(settings) {
   function r(e) {
     return null == e ? void 0 === e ? u : s : l && l in Object(e) ? n.i(i.a)(e) : n.i(a.a)(e);
   }
-  var o = n(148),
-    i = n(436),
-    a = n(437),
+  var o = n(151),
+    i = n(445),
+    a = n(446),
     s = "[object Null]",
     u = "[object Undefined]",
     l = o.a ? o.a.toStringTag : void 0;
@@ -88358,10 +89001,10 @@ $.fn.togglify = function(settings) {
   (function(e) {
     var n = "object" == typeof e && e && e.Object === Object && e;
     t.a = n;
-  }).call(t, n(117));
+  }).call(t, n(119));
 }, function(e, t, n) {
   "use strict";
-  var r = n(438),
+  var r = n(447),
     o = n.i(r.a)(Object.getPrototypeOf, Object);
   t.a = o;
 }, function(e, t, n) {
@@ -88376,7 +89019,7 @@ $.fn.togglify = function(settings) {
     var r = s.call(e);
     return t ? e[u] = n : delete e[u], r;
   }
-  var o = n(148),
+  var o = n(151),
     i = Object.prototype,
     a = i.hasOwnProperty,
     s = i.toString,
@@ -88402,7 +89045,7 @@ $.fn.togglify = function(settings) {
   t.a = r;
 }, function(e, t, n) {
   "use strict";
-  var r = n(434),
+  var r = n(443),
     o = "object" == typeof self && self && self.Object === Object && self,
     i = r.a || o || Function("return this")();
   t.a = i;
@@ -88424,226 +89067,226 @@ $.fn.togglify = function(settings) {
     return t;
   }
   var i = {
-    "./af": 150,
-    "./af.js": 150,
-    "./ar": 156,
-    "./ar-dz": 151,
-    "./ar-dz.js": 151,
-    "./ar-ly": 152,
-    "./ar-ly.js": 152,
-    "./ar-ma": 153,
-    "./ar-ma.js": 153,
-    "./ar-sa": 154,
-    "./ar-sa.js": 154,
-    "./ar-tn": 155,
-    "./ar-tn.js": 155,
-    "./ar.js": 156,
-    "./az": 157,
-    "./az.js": 157,
-    "./be": 158,
-    "./be.js": 158,
-    "./bg": 159,
-    "./bg.js": 159,
-    "./bn": 160,
-    "./bn.js": 160,
-    "./bo": 161,
-    "./bo.js": 161,
-    "./br": 162,
-    "./br.js": 162,
-    "./bs": 163,
-    "./bs.js": 163,
-    "./ca": 164,
-    "./ca.js": 164,
-    "./cs": 165,
-    "./cs.js": 165,
-    "./cv": 166,
-    "./cv.js": 166,
-    "./cy": 167,
-    "./cy.js": 167,
-    "./da": 168,
-    "./da.js": 168,
-    "./de": 170,
-    "./de-at": 169,
-    "./de-at.js": 169,
-    "./de.js": 170,
-    "./dv": 171,
-    "./dv.js": 171,
-    "./el": 172,
-    "./el.js": 172,
-    "./en-au": 173,
-    "./en-au.js": 173,
-    "./en-ca": 174,
-    "./en-ca.js": 174,
-    "./en-gb": 175,
-    "./en-gb.js": 175,
-    "./en-ie": 176,
-    "./en-ie.js": 176,
-    "./en-nz": 177,
-    "./en-nz.js": 177,
-    "./eo": 178,
-    "./eo.js": 178,
-    "./es": 180,
-    "./es-do": 179,
-    "./es-do.js": 179,
-    "./es.js": 180,
-    "./et": 181,
-    "./et.js": 181,
-    "./eu": 182,
-    "./eu.js": 182,
-    "./fa": 183,
-    "./fa.js": 183,
-    "./fi": 184,
-    "./fi.js": 184,
-    "./fo": 185,
-    "./fo.js": 185,
-    "./fr": 188,
-    "./fr-ca": 186,
-    "./fr-ca.js": 186,
-    "./fr-ch": 187,
-    "./fr-ch.js": 187,
-    "./fr.js": 188,
-    "./fy": 189,
-    "./fy.js": 189,
-    "./gd": 190,
-    "./gd.js": 190,
-    "./gl": 191,
-    "./gl.js": 191,
-    "./he": 192,
-    "./he.js": 192,
-    "./hi": 193,
-    "./hi.js": 193,
-    "./hr": 194,
-    "./hr.js": 194,
-    "./hu": 195,
-    "./hu.js": 195,
-    "./hy-am": 196,
-    "./hy-am.js": 196,
-    "./id": 197,
-    "./id.js": 197,
-    "./is": 198,
-    "./is.js": 198,
-    "./it": 199,
-    "./it.js": 199,
-    "./ja": 200,
-    "./ja.js": 200,
-    "./jv": 201,
-    "./jv.js": 201,
-    "./ka": 202,
-    "./ka.js": 202,
-    "./kk": 203,
-    "./kk.js": 203,
-    "./km": 204,
-    "./km.js": 204,
-    "./ko": 205,
-    "./ko.js": 205,
-    "./ky": 206,
-    "./ky.js": 206,
-    "./lb": 207,
-    "./lb.js": 207,
-    "./lo": 208,
-    "./lo.js": 208,
-    "./lt": 209,
-    "./lt.js": 209,
-    "./lv": 210,
-    "./lv.js": 210,
-    "./me": 211,
-    "./me.js": 211,
-    "./mi": 212,
-    "./mi.js": 212,
-    "./mk": 213,
-    "./mk.js": 213,
-    "./ml": 214,
-    "./ml.js": 214,
-    "./mr": 215,
-    "./mr.js": 215,
-    "./ms": 217,
-    "./ms-my": 216,
-    "./ms-my.js": 216,
-    "./ms.js": 217,
-    "./my": 218,
-    "./my.js": 218,
-    "./nb": 219,
-    "./nb.js": 219,
-    "./ne": 220,
-    "./ne.js": 220,
-    "./nl": 222,
-    "./nl-be": 221,
-    "./nl-be.js": 221,
-    "./nl.js": 222,
-    "./nn": 223,
-    "./nn.js": 223,
-    "./pa-in": 224,
-    "./pa-in.js": 224,
-    "./pl": 225,
-    "./pl.js": 225,
-    "./pt": 227,
-    "./pt-br": 226,
-    "./pt-br.js": 226,
-    "./pt.js": 227,
-    "./ro": 228,
-    "./ro.js": 228,
-    "./ru": 229,
-    "./ru.js": 229,
-    "./se": 230,
-    "./se.js": 230,
-    "./si": 231,
-    "./si.js": 231,
-    "./sk": 232,
-    "./sk.js": 232,
-    "./sl": 233,
-    "./sl.js": 233,
-    "./sq": 234,
-    "./sq.js": 234,
-    "./sr": 236,
-    "./sr-cyrl": 235,
-    "./sr-cyrl.js": 235,
-    "./sr.js": 236,
-    "./ss": 237,
-    "./ss.js": 237,
-    "./sv": 238,
-    "./sv.js": 238,
-    "./sw": 239,
-    "./sw.js": 239,
-    "./ta": 240,
-    "./ta.js": 240,
-    "./te": 241,
-    "./te.js": 241,
-    "./tet": 242,
-    "./tet.js": 242,
-    "./th": 243,
-    "./th.js": 243,
-    "./tl-ph": 244,
-    "./tl-ph.js": 244,
-    "./tlh": 245,
-    "./tlh.js": 245,
-    "./tr": 246,
-    "./tr.js": 246,
-    "./tzl": 247,
-    "./tzl.js": 247,
-    "./tzm": 249,
-    "./tzm-latn": 248,
-    "./tzm-latn.js": 248,
-    "./tzm.js": 249,
-    "./uk": 250,
-    "./uk.js": 250,
-    "./uz": 251,
-    "./uz.js": 251,
-    "./vi": 252,
-    "./vi.js": 252,
-    "./x-pseudo": 253,
-    "./x-pseudo.js": 253,
-    "./yo": 254,
-    "./yo.js": 254,
-    "./zh-cn": 255,
-    "./zh-cn.js": 255,
-    "./zh-hk": 256,
-    "./zh-hk.js": 256,
-    "./zh-tw": 257,
-    "./zh-tw.js": 257
+    "./af": 153,
+    "./af.js": 153,
+    "./ar": 159,
+    "./ar-dz": 154,
+    "./ar-dz.js": 154,
+    "./ar-ly": 155,
+    "./ar-ly.js": 155,
+    "./ar-ma": 156,
+    "./ar-ma.js": 156,
+    "./ar-sa": 157,
+    "./ar-sa.js": 157,
+    "./ar-tn": 158,
+    "./ar-tn.js": 158,
+    "./ar.js": 159,
+    "./az": 160,
+    "./az.js": 160,
+    "./be": 161,
+    "./be.js": 161,
+    "./bg": 162,
+    "./bg.js": 162,
+    "./bn": 163,
+    "./bn.js": 163,
+    "./bo": 164,
+    "./bo.js": 164,
+    "./br": 165,
+    "./br.js": 165,
+    "./bs": 166,
+    "./bs.js": 166,
+    "./ca": 167,
+    "./ca.js": 167,
+    "./cs": 168,
+    "./cs.js": 168,
+    "./cv": 169,
+    "./cv.js": 169,
+    "./cy": 170,
+    "./cy.js": 170,
+    "./da": 171,
+    "./da.js": 171,
+    "./de": 173,
+    "./de-at": 172,
+    "./de-at.js": 172,
+    "./de.js": 173,
+    "./dv": 174,
+    "./dv.js": 174,
+    "./el": 175,
+    "./el.js": 175,
+    "./en-au": 176,
+    "./en-au.js": 176,
+    "./en-ca": 177,
+    "./en-ca.js": 177,
+    "./en-gb": 178,
+    "./en-gb.js": 178,
+    "./en-ie": 179,
+    "./en-ie.js": 179,
+    "./en-nz": 180,
+    "./en-nz.js": 180,
+    "./eo": 181,
+    "./eo.js": 181,
+    "./es": 183,
+    "./es-do": 182,
+    "./es-do.js": 182,
+    "./es.js": 183,
+    "./et": 184,
+    "./et.js": 184,
+    "./eu": 185,
+    "./eu.js": 185,
+    "./fa": 186,
+    "./fa.js": 186,
+    "./fi": 187,
+    "./fi.js": 187,
+    "./fo": 188,
+    "./fo.js": 188,
+    "./fr": 191,
+    "./fr-ca": 189,
+    "./fr-ca.js": 189,
+    "./fr-ch": 190,
+    "./fr-ch.js": 190,
+    "./fr.js": 191,
+    "./fy": 192,
+    "./fy.js": 192,
+    "./gd": 193,
+    "./gd.js": 193,
+    "./gl": 194,
+    "./gl.js": 194,
+    "./he": 195,
+    "./he.js": 195,
+    "./hi": 196,
+    "./hi.js": 196,
+    "./hr": 197,
+    "./hr.js": 197,
+    "./hu": 198,
+    "./hu.js": 198,
+    "./hy-am": 199,
+    "./hy-am.js": 199,
+    "./id": 200,
+    "./id.js": 200,
+    "./is": 201,
+    "./is.js": 201,
+    "./it": 202,
+    "./it.js": 202,
+    "./ja": 203,
+    "./ja.js": 203,
+    "./jv": 204,
+    "./jv.js": 204,
+    "./ka": 205,
+    "./ka.js": 205,
+    "./kk": 206,
+    "./kk.js": 206,
+    "./km": 207,
+    "./km.js": 207,
+    "./ko": 208,
+    "./ko.js": 208,
+    "./ky": 209,
+    "./ky.js": 209,
+    "./lb": 210,
+    "./lb.js": 210,
+    "./lo": 211,
+    "./lo.js": 211,
+    "./lt": 212,
+    "./lt.js": 212,
+    "./lv": 213,
+    "./lv.js": 213,
+    "./me": 214,
+    "./me.js": 214,
+    "./mi": 215,
+    "./mi.js": 215,
+    "./mk": 216,
+    "./mk.js": 216,
+    "./ml": 217,
+    "./ml.js": 217,
+    "./mr": 218,
+    "./mr.js": 218,
+    "./ms": 220,
+    "./ms-my": 219,
+    "./ms-my.js": 219,
+    "./ms.js": 220,
+    "./my": 221,
+    "./my.js": 221,
+    "./nb": 222,
+    "./nb.js": 222,
+    "./ne": 223,
+    "./ne.js": 223,
+    "./nl": 225,
+    "./nl-be": 224,
+    "./nl-be.js": 224,
+    "./nl.js": 225,
+    "./nn": 226,
+    "./nn.js": 226,
+    "./pa-in": 227,
+    "./pa-in.js": 227,
+    "./pl": 228,
+    "./pl.js": 228,
+    "./pt": 230,
+    "./pt-br": 229,
+    "./pt-br.js": 229,
+    "./pt.js": 230,
+    "./ro": 231,
+    "./ro.js": 231,
+    "./ru": 232,
+    "./ru.js": 232,
+    "./se": 233,
+    "./se.js": 233,
+    "./si": 234,
+    "./si.js": 234,
+    "./sk": 235,
+    "./sk.js": 235,
+    "./sl": 236,
+    "./sl.js": 236,
+    "./sq": 237,
+    "./sq.js": 237,
+    "./sr": 239,
+    "./sr-cyrl": 238,
+    "./sr-cyrl.js": 238,
+    "./sr.js": 239,
+    "./ss": 240,
+    "./ss.js": 240,
+    "./sv": 241,
+    "./sv.js": 241,
+    "./sw": 242,
+    "./sw.js": 242,
+    "./ta": 243,
+    "./ta.js": 243,
+    "./te": 244,
+    "./te.js": 244,
+    "./tet": 245,
+    "./tet.js": 245,
+    "./th": 246,
+    "./th.js": 246,
+    "./tl-ph": 247,
+    "./tl-ph.js": 247,
+    "./tlh": 248,
+    "./tlh.js": 248,
+    "./tr": 249,
+    "./tr.js": 249,
+    "./tzl": 250,
+    "./tzl.js": 250,
+    "./tzm": 252,
+    "./tzm-latn": 251,
+    "./tzm-latn.js": 251,
+    "./tzm.js": 252,
+    "./uk": 253,
+    "./uk.js": 253,
+    "./uz": 254,
+    "./uz.js": 254,
+    "./vi": 255,
+    "./vi.js": 255,
+    "./x-pseudo": 256,
+    "./x-pseudo.js": 256,
+    "./yo": 257,
+    "./yo.js": 257,
+    "./zh-cn": 258,
+    "./zh-cn.js": 258,
+    "./zh-hk": 259,
+    "./zh-hk.js": 259,
+    "./zh-tw": 260,
+    "./zh-tw.js": 260
   };
   r.keys = function() {
     return Object.keys(i);
-  }, r.resolve = o, e.exports = r, r.id = 441;
+  }, r.resolve = o, e.exports = r, r.id = 450;
 }, function(e, t, n) {
   var r;
   ! function(o, i, a) {
@@ -88701,7 +89344,7 @@ $.fn.togglify = function(settings) {
 
     function y(e, t) {
       var n, r, o, i = [];
-      for (n = m(e), o = 0; o < n.length; ++o) r = n[o], k[r] && (r = k[r]), t && "keypress" != t && L[r] && (r = L[r], i.push("shift")), h(r) && i.push(r);
+      for (n = m(e), o = 0; o < n.length; ++o) r = n[o], L[r] && (r = L[r]), t && "keypress" != t && k[r] && (r = k[r], i.push("shift")), h(r) && i.push(r);
       return t = _(r, i, t), {
         key: r,
         modifiers: i,
@@ -88718,7 +89361,7 @@ $.fn.togglify = function(settings) {
         e = e || {};
         var t, n = !1;
         for (t in M) e[t] ? n = !0 : M[t] = 0;
-        n || (L = !1);
+        n || (k = !1);
       }
 
       function n(e, t, n, r, o, i) {
@@ -88757,7 +89400,7 @@ $.fn.togglify = function(settings) {
           var c = l + 1 === n.length,
             d = c ? s : function(t) {
               return function() {
-                L = t, ++M[e], a();
+                k = t, ++M[e], a();
               };
             }(i || y(n[l + 1]).action);
           _(n[l], d, i, e, l);
@@ -88785,7 +89428,7 @@ $.fn.togglify = function(settings) {
       var v, M = {},
         b = !1,
         w = !1,
-        L = !1;
+        k = !1;
       m._handleKey = function(e, o, i) {
         var a, s = n(e, o, i),
           u = {},
@@ -88798,7 +89441,7 @@ $.fn.togglify = function(settings) {
             c = !0, u[s[a].seq] = 1, r(s[a].callback, i, s[a].combo, s[a].seq);
           } else c || r(s[a].callback, i, s[a].combo);
         var d = "keypress" == i.type && w;
-        i.type != L || h(e) || d || t(u), w = c && "keydown" == i.type;
+        i.type != k || h(e) || d || t(u), w = c && "keydown" == i.type;
       }, m._bindMultiple = function(e, t, n) {
         for (var r = 0; r < e.length; ++r) _(e[r], t, n);
       }, s(e, "keypress", o), s(e, "keydown", o), s(e, "keyup", o);
@@ -88844,7 +89487,7 @@ $.fn.togglify = function(settings) {
           220: "\\",
           221: "]",
           222: "'"
-        }, L = {
+        }, k = {
           "~": "`",
           "!": "1",
           "@": "2",
@@ -88864,7 +89507,7 @@ $.fn.togglify = function(settings) {
           ">": ".",
           "?": "/",
           "|": "\\"
-        }, k = {
+        }, L = {
           option: "alt",
           command: "meta",
           "return": "enter",
@@ -88965,8 +89608,8 @@ $.fn.togglify = function(settings) {
   e.exports = r;
 }, function(e, t, n) {
   "use strict";
-  var r = n(9),
-    o = n(146),
+  var r = n(10),
+    o = n(149),
     i = {
       focusDOMComponent: function() {
         o(r.getNodeFromInstance(this));
@@ -89033,10 +89676,10 @@ $.fn.togglify = function(settings) {
       case "topCompositionEnd":
         return s(t);
       case "topKeyPress":
-        return t.which !== L ? null : (S = !0, k);
+        return t.which !== k ? null : (S = !0, L);
       case "topTextInput":
         var n = t.data;
-        return n === k && S ? null : n;
+        return n === L && S ? null : n;
       default:
         return null;
     }
@@ -89068,11 +89711,11 @@ $.fn.togglify = function(settings) {
     var i = m.getPooled(T.beforeInput, t, n, r);
     return i.data = o, f.accumulateTwoPhaseDispatches(i), i;
   }
-  var f = n(51),
+  var f = n(52),
     h = n(15),
-    p = n(451),
-    _ = n(488),
-    m = n(491),
+    p = n(460),
+    _ = n(497),
+    m = n(500),
     y = [9, 13, 27, 32],
     v = 229,
     g = h.canUseDOM && "CompositionEvent" in window,
@@ -89083,8 +89726,8 @@ $.fn.togglify = function(settings) {
       return "object" == typeof e && "function" == typeof e.version && parseInt(e.version(), 10) <= 12;
     }(),
     w = h.canUseDOM && (!g || M && M > 8 && M <= 11),
-    L = 32,
-    k = String.fromCharCode(L),
+    k = 32,
+    L = String.fromCharCode(k),
     T = {
       beforeInput: {
         phasedRegistrationNames: {
@@ -89117,20 +89760,20 @@ $.fn.togglify = function(settings) {
     },
     S = !1,
     Y = null,
-    x = {
+    D = {
       eventTypes: T,
       extractEvents: function(e, t, n, r) {
         return [u(e, t, n, r), d(e, t, n, r)];
       }
     };
-  e.exports = x;
+  e.exports = D;
 }, function(e, t, n) {
   "use strict";
-  var r = n(259),
+  var r = n(262),
     o = n(15),
-    i = (n(17), n(418), n(497)),
-    a = n(425),
-    s = n(428),
+    i = (n(17), n(427), n(506)),
+    a = n(434),
+    s = n(437),
     u = (n(3), s(function(e) {
       return a(e);
     })),
@@ -89180,7 +89823,7 @@ $.fn.togglify = function(settings) {
   }
 
   function o(e) {
-    var t = L.getPooled(Y.change, D, e, k(e));
+    var t = k.getPooled(Y.change, x, e, L(e));
     g.accumulateTwoPhaseDispatches(t), w.batchedUpdates(i, t);
   }
 
@@ -89189,11 +89832,11 @@ $.fn.togglify = function(settings) {
   }
 
   function a(e, t) {
-    x = e, D = t, x.attachEvent("onchange", o);
+    D = e, x = t, D.attachEvent("onchange", o);
   }
 
   function s() {
-    x && (x.detachEvent("onchange", o), x = null, D = null);
+    D && (D.detachEvent("onchange", o), D = null, x = null);
   }
 
   function u(e, t) {
@@ -89205,11 +89848,11 @@ $.fn.togglify = function(settings) {
   }
 
   function c(e, t) {
-    x = e, D = t, C = e.value, P = Object.getOwnPropertyDescriptor(e.constructor.prototype, "value"), Object.defineProperty(x, "value", O), x.attachEvent ? x.attachEvent("onpropertychange", f) : x.addEventListener("propertychange", f, !1);
+    D = e, x = t, C = e.value, P = Object.getOwnPropertyDescriptor(e.constructor.prototype, "value"), Object.defineProperty(D, "value", O), D.attachEvent ? D.attachEvent("onpropertychange", f) : D.addEventListener("propertychange", f, !1);
   }
 
   function d() {
-    x && (delete x.value, x.detachEvent ? x.detachEvent("onpropertychange", f) : x.removeEventListener("propertychange", f, !1), x = null, D = null, C = null, P = null);
+    D && (delete D.value, D.detachEvent ? D.detachEvent("onpropertychange", f) : D.removeEventListener("propertychange", f, !1), D = null, x = null, C = null, P = null);
   }
 
   function f(e) {
@@ -89228,7 +89871,7 @@ $.fn.togglify = function(settings) {
   }
 
   function _(e, t) {
-    if (("topSelectionChange" === e || "topKeyUp" === e || "topKeyDown" === e) && x && x.value !== C) return C = x.value, D;
+    if (("topSelectionChange" === e || "topKeyUp" === e || "topKeyDown" === e) && D && D.value !== C) return C = D.value, x;
   }
 
   function m(e) {
@@ -89238,15 +89881,15 @@ $.fn.togglify = function(settings) {
   function y(e, t) {
     if ("topClick" === e) return t;
   }
-  var v = n(50),
-    g = n(51),
+  var v = n(51),
+    g = n(52),
     M = n(15),
-    b = n(9),
-    w = n(18),
-    L = n(22),
-    k = n(106),
-    T = n(107),
-    S = n(276),
+    b = n(10),
+    w = n(20),
+    k = n(23),
+    L = n(107),
+    T = n(108),
+    S = n(279),
     Y = {
       change: {
         phasedRegistrationNames: {
@@ -89256,8 +89899,8 @@ $.fn.togglify = function(settings) {
         dependencies: ["topBlur", "topChange", "topClick", "topFocus", "topInput", "topKeyDown", "topKeyUp", "topSelectionChange"]
       }
     },
-    x = null,
     D = null,
+    x = null,
     C = null,
     P = null,
     E = !1;
@@ -89279,7 +89922,7 @@ $.fn.togglify = function(settings) {
         if (r(s) ? E ? i = u : a = l : S(s) ? j ? i = h : (i = _, a = p) : m(s) && (i = y), i) {
           var c = i(e, t);
           if (c) {
-            var d = L.getPooled(Y.change, c, n, o);
+            var d = k.getPooled(Y.change, c, n, o);
             return d.type = "change", g.accumulateTwoPhaseDispatches(d), d;
           }
         }
@@ -89290,9 +89933,9 @@ $.fn.togglify = function(settings) {
 }, function(e, t, n) {
   "use strict";
   var r = n(4),
-    o = n(38),
+    o = n(39),
     i = n(15),
-    a = n(421),
+    a = n(430),
     s = n(16),
     u = (n(2), {
       dangerouslyReplaceNodeWithMarkup: function(e, t) {
@@ -89309,8 +89952,8 @@ $.fn.togglify = function(settings) {
   e.exports = r;
 }, function(e, t, n) {
   "use strict";
-  var r = n(51),
-    o = n(9),
+  var r = n(52),
+    o = n(10),
     i = n(64),
     a = {
       mouseEnter: {
@@ -89356,8 +89999,8 @@ $.fn.togglify = function(settings) {
     this._root = e, this._startText = this.getText(), this._fallbackText = null;
   }
   var o = n(6),
-    i = n(32),
-    a = n(274);
+    i = n(33),
+    a = n(277);
   o(r.prototype, {
     destructor: function() {
       this._root = null, this._startText = null, this._fallbackText = null;
@@ -89380,7 +90023,7 @@ $.fn.togglify = function(settings) {
   }), i.addPoolingTo(r), e.exports = r;
 }, function(e, t, n) {
   "use strict";
-  var r = n(39),
+  var r = n(40),
     o = r.injection.MUST_USE_PROPERTY,
     i = r.injection.HAS_BOOLEAN_VALUE,
     a = r.injection.HAS_NUMERIC_VALUE,
@@ -89551,10 +90194,10 @@ $.fn.togglify = function(settings) {
       var o = void 0 === e[n];
       null != t && o && (e[n] = i(t, !0));
     }
-    var o = n(40),
-      i = n(275),
-      a = (n(98), n(108)),
-      s = n(278);
+    var o = n(41),
+      i = n(278),
+      a = (n(99), n(109)),
+      s = n(281);
     n(3), void 0 !== t && n.i({
       NODE_ENV: "production"
     });
@@ -89593,11 +90236,11 @@ $.fn.togglify = function(settings) {
       }
     };
     e.exports = u;
-  }).call(t, n(258));
+  }).call(t, n(261));
 }, function(e, t, n) {
   "use strict";
-  var r = n(94),
-    o = n(461),
+  var r = n(95),
+    o = n(470),
     i = {
       processChildrenUpdates: o.dangerouslyProcessChildrenUpdates,
       replaceNodeWithMarkup: r.dangerouslyReplaceNodeWithMarkup
@@ -89617,16 +90260,16 @@ $.fn.togglify = function(settings) {
   }
   var a = n(4),
     s = n(6),
-    u = n(41),
-    l = n(100),
-    c = n(23),
-    d = n(101),
-    f = n(52),
-    h = (n(17), n(269)),
-    p = n(40),
-    _ = n(48),
-    m = (n(2), n(91)),
-    y = n(108),
+    u = n(42),
+    l = n(101),
+    c = n(24),
+    d = n(102),
+    f = n(53),
+    h = (n(17), n(272)),
+    p = n(41),
+    _ = n(49),
+    m = (n(2), n(92)),
+    y = n(109),
     v = (n(3), {
       ImpureClass: 0,
       PureClass: 1,
@@ -89808,15 +90451,15 @@ $.fn.togglify = function(settings) {
   e.exports = M;
 }, function(e, t, n) {
   "use strict";
-  var r = n(9),
-    o = n(469),
-    i = n(268),
-    a = n(40),
-    s = n(18),
-    u = n(482),
-    l = n(498),
-    c = n(273),
-    d = n(506);
+  var r = n(10),
+    o = n(478),
+    i = n(271),
+    a = n(41),
+    s = n(20),
+    u = n(491),
+    l = n(507),
+    c = n(276),
+    d = n(515);
   n(3), o.inject();
   var f = {
     findDOMNode: l,
@@ -89869,12 +90512,12 @@ $.fn.togglify = function(settings) {
 
   function a() {
     var e = this;
-    L.putListener(e.inst, e.registrationName, e.listener);
+    k.putListener(e.inst, e.registrationName, e.listener);
   }
 
   function s() {
     var e = this;
-    x.postMountWrapper(e);
+    D.postMountWrapper(e);
   }
 
   function u() {
@@ -89884,7 +90527,7 @@ $.fn.togglify = function(settings) {
 
   function l() {
     var e = this;
-    D.postMountWrapper(e);
+    x.postMountWrapper(e);
   }
 
   function c() {
@@ -89935,29 +90578,29 @@ $.fn.togglify = function(settings) {
   }
   var _ = n(4),
     m = n(6),
-    y = n(444),
-    v = n(446),
-    g = n(38),
-    M = n(95),
-    b = n(39),
-    w = n(261),
-    L = n(50),
-    k = n(96),
+    y = n(453),
+    v = n(455),
+    g = n(39),
+    M = n(96),
+    b = n(40),
+    w = n(264),
+    k = n(51),
+    L = n(97),
     T = n(63),
-    S = n(262),
-    Y = n(9),
-    x = n(462),
-    D = n(463),
-    C = n(263),
-    P = n(466),
-    E = (n(17), n(475)),
-    j = n(480),
+    S = n(265),
+    Y = n(10),
+    D = n(471),
+    x = n(472),
+    C = n(266),
+    P = n(475),
+    E = (n(17), n(484)),
+    j = n(489),
     O = (n(16), n(66)),
-    R = (n(2), n(107), n(91), n(109), n(3), S),
-    I = L.deleteListener,
+    R = (n(2), n(108), n(92), n(110), n(3), S),
+    I = k.deleteListener,
     A = Y.getNodeFromInstance,
     H = T.listenTo,
-    N = k.registrationNameModules,
+    N = L.registrationNameModules,
     z = {
       string: !0,
       number: !0
@@ -90041,10 +90684,10 @@ $.fn.togglify = function(settings) {
           }, e.getReactMountReady().enqueue(c, this);
           break;
         case "input":
-          x.mountWrapper(this, i, t), i = x.getHostProps(this, i), e.getReactMountReady().enqueue(c, this);
+          D.mountWrapper(this, i, t), i = D.getHostProps(this, i), e.getReactMountReady().enqueue(c, this);
           break;
         case "option":
-          D.mountWrapper(this, i, t), i = D.getHostProps(this, i);
+          x.mountWrapper(this, i, t), i = x.getHostProps(this, i);
           break;
         case "select":
           C.mountWrapper(this, i, t), i = C.getHostProps(this, i), e.getReactMountReady().enqueue(c, this);
@@ -90070,8 +90713,8 @@ $.fn.togglify = function(settings) {
         this._createInitialChildren(e, i, r, v), f = v;
       } else {
         var b = this._createOpenTagMarkupAndPutListeners(e, i),
-          L = this._createContentMarkup(e, i, r);
-        f = !L && B[this._tag] ? b + "/>" : b + ">" + L + "</" + this._currentElement.type + ">";
+          k = this._createContentMarkup(e, i, r);
+        f = !k && B[this._tag] ? b + "/>" : b + ">" + k + "</" + this._currentElement.type + ">";
       }
       switch (this._tag) {
         case "input":
@@ -90139,10 +90782,10 @@ $.fn.togglify = function(settings) {
         a = this._currentElement.props;
       switch (this._tag) {
         case "input":
-          i = x.getHostProps(this, i), a = x.getHostProps(this, a);
+          i = D.getHostProps(this, i), a = D.getHostProps(this, a);
           break;
         case "option":
-          i = D.getHostProps(this, i), a = D.getHostProps(this, a);
+          i = x.getHostProps(this, i), a = x.getHostProps(this, a);
           break;
         case "select":
           i = C.getHostProps(this, i), a = C.getHostProps(this, a);
@@ -90152,7 +90795,7 @@ $.fn.togglify = function(settings) {
       }
       switch (o(this, a), this._updateDOMProperties(i, a, e), this._updateDOMChildren(i, a, e, r), this._tag) {
         case "input":
-          x.updateWrapper(this);
+          D.updateWrapper(this);
           break;
         case "textarea":
           P.updateWrapper(this);
@@ -90221,7 +90864,7 @@ $.fn.togglify = function(settings) {
         case "body":
           _("66", this._tag);
       }
-      this.unmountChildren(e), Y.uncacheNode(this), L.deleteAllListeners(this), this._rootNodeID = 0, this._domID = 0, this._wrapperState = null;
+      this.unmountChildren(e), Y.uncacheNode(this), k.deleteAllListeners(this), this._rootNodeID = 0, this._domID = 0, this._wrapperState = null;
     },
     getPublicInstance: function() {
       return A(this);
@@ -90240,13 +90883,13 @@ $.fn.togglify = function(settings) {
       _namespaceURI: t ? t.namespaceURI : null
     };
   }
-  var o = (n(109), 9);
+  var o = (n(110), 9);
   e.exports = r;
 }, function(e, t, n) {
   "use strict";
   var r = n(6),
-    o = n(38),
-    i = n(9),
+    o = n(39),
+    i = n(10),
     a = function(e) {
       this._currentElement = null, this._hostNode = null, this._hostParent = null, this._hostContainerInfo = null, this._domID = 0;
     };
@@ -90279,8 +90922,8 @@ $.fn.togglify = function(settings) {
   e.exports = r;
 }, function(e, t, n) {
   "use strict";
-  var r = n(94),
-    o = n(9),
+  var r = n(95),
+    o = n(10),
     i = {
       dangerouslyProcessChildrenUpdates: function(e, t) {
         var n = o.getNodeFromInstance(e);
@@ -90314,10 +90957,10 @@ $.fn.togglify = function(settings) {
   }
   var i = n(4),
     a = n(6),
-    s = n(261),
-    u = n(99),
-    l = n(9),
-    c = n(18),
+    s = n(264),
+    u = n(100),
+    l = n(10),
+    c = n(20),
     d = (n(2), n(3), {
       getHostProps: function(e, t) {
         var n = u.getValue(t),
@@ -90389,9 +91032,9 @@ $.fn.togglify = function(settings) {
     }), t;
   }
   var o = n(6),
-    i = n(41),
-    a = n(9),
-    s = n(263),
+    i = n(42),
+    a = n(10),
+    s = n(266),
     u = (n(3), !1),
     l = {
       mountWrapper: function(e, t, n) {
@@ -90503,8 +91146,8 @@ $.fn.togglify = function(settings) {
     }
   }
   var u = n(15),
-    l = n(503),
-    c = n(274),
+    l = n(512),
+    c = n(277),
     d = u.canUseDOM && "selection" in document && !("getSelection" in window),
     f = {
       getOffsets: d ? o : i,
@@ -90515,11 +91158,11 @@ $.fn.togglify = function(settings) {
   "use strict";
   var r = n(4),
     o = n(6),
-    i = n(94),
-    a = n(38),
-    s = n(9),
+    i = n(95),
+    a = n(39),
+    s = n(10),
     u = n(66),
-    l = (n(2), n(109), function(e) {
+    l = (n(2), n(110), function(e) {
       this._currentElement = e, this._stringText = "" + e, this._hostNode = null, this._hostParent = null, this._domID = 0, this._mountIndex = 0, this._closingComment = null, this._commentNodes = null;
     });
   o(l.prototype, {
@@ -90578,9 +91221,9 @@ $.fn.togglify = function(settings) {
   }
   var i = n(4),
     a = n(6),
-    s = n(99),
-    u = n(9),
-    l = n(18),
+    s = n(100),
+    u = n(10),
+    l = n(20),
     c = (n(2), n(3), {
       getHostProps: function(e, t) {
         return null != t.dangerouslySetInnerHTML && i("91"), a({}, t, {
@@ -90679,7 +91322,7 @@ $.fn.togglify = function(settings) {
     this.reinitializeTransaction();
   }
   var o = n(6),
-    i = n(18),
+    i = n(20),
     a = n(65),
     s = n(16),
     u = {
@@ -90711,7 +91354,7 @@ $.fn.togglify = function(settings) {
   "use strict";
 
   function r() {
-    L || (L = !0, v.EventEmitter.injectReactEventListener(y), v.EventPluginHub.injectEventPluginOrder(s), v.EventPluginUtils.injectComponentTree(f), v.EventPluginUtils.injectTreeTraversal(p), v.EventPluginHub.injectEventPluginsByName({
+    k || (k = !0, v.EventEmitter.injectReactEventListener(y), v.EventPluginHub.injectEventPluginOrder(s), v.EventPluginUtils.injectComponentTree(f), v.EventPluginUtils.injectTreeTraversal(p), v.EventPluginHub.injectEventPluginsByName({
       SimpleEventPlugin: w,
       EnterLeaveEventPlugin: u,
       ChangeEventPlugin: a,
@@ -90721,26 +91364,26 @@ $.fn.togglify = function(settings) {
       return new h(e);
     }), v.Updates.injectReconcileTransaction(g), v.Updates.injectBatchingStrategy(m), v.Component.injectEnvironment(c));
   }
-  var o = n(443),
-    i = n(445),
-    a = n(447),
-    s = n(449),
-    u = n(450),
-    l = n(452),
-    c = n(454),
-    d = n(457),
-    f = n(9),
-    h = n(459),
-    p = n(467),
-    _ = n(465),
-    m = n(468),
-    y = n(472),
-    v = n(473),
-    g = n(478),
-    M = n(483),
-    b = n(484),
-    w = n(485),
-    L = !1;
+  var o = n(452),
+    i = n(454),
+    a = n(456),
+    s = n(458),
+    u = n(459),
+    l = n(461),
+    c = n(463),
+    d = n(466),
+    f = n(10),
+    h = n(468),
+    p = n(476),
+    _ = n(474),
+    m = n(477),
+    y = n(481),
+    v = n(482),
+    g = n(487),
+    M = n(492),
+    b = n(493),
+    w = n(494),
+    k = !1;
   e.exports = {
     inject: r
   };
@@ -90754,7 +91397,7 @@ $.fn.togglify = function(settings) {
   function r(e) {
     o.enqueueEvents(e), o.processEventQueue(!1);
   }
-  var o = n(50),
+  var o = n(51),
     i = {
       handleTopLevel: function(e, t, n, i) {
         r(o.extractEvents(e, t, n, i));
@@ -90789,13 +91432,13 @@ $.fn.togglify = function(settings) {
     e(p(window));
   }
   var s = n(6),
-    u = n(145),
+    u = n(148),
     l = n(15),
-    c = n(32),
-    d = n(9),
-    f = n(18),
-    h = n(106),
-    p = n(423);
+    c = n(33),
+    d = n(10),
+    f = n(20),
+    h = n(107),
+    p = n(432);
   s(o.prototype, {
     destructor: function() {
       this.topLevelType = null, this.nativeEvent = null, this.ancestors.length = 0;
@@ -90838,14 +91481,14 @@ $.fn.togglify = function(settings) {
   e.exports = _;
 }, function(e, t, n) {
   "use strict";
-  var r = n(39),
-    o = n(50),
-    i = n(97),
-    a = n(100),
-    s = n(264),
+  var r = n(40),
+    o = n(51),
+    i = n(98),
+    a = n(101),
+    s = n(267),
     u = n(63),
-    l = n(266),
-    c = n(18),
+    l = n(269),
+    c = n(20),
     d = {
       Component: a.injection,
       DOMProperty: r.injection,
@@ -90859,7 +91502,7 @@ $.fn.togglify = function(settings) {
   e.exports = d;
 }, function(e, t, n) {
   "use strict";
-  var r = n(496),
+  var r = n(505),
     o = /^<\!\-\-/,
     i = {
       CHECKSUM_ATTR_NAME: "data-react-checksum",
@@ -90939,10 +91582,10 @@ $.fn.togglify = function(settings) {
     d.processChildrenUpdates(e, t);
   }
   var c = n(4),
-    d = n(100),
-    f = (n(52), n(17), n(23), n(40)),
-    h = n(453),
-    p = (n(16), n(499)),
+    d = n(101),
+    f = (n(53), n(17), n(24), n(41)),
+    h = n(462),
+    p = (n(16), n(508)),
     _ = (n(2), {
       Mixin: {
         _reconcilerInstantiateChildren: function(e, t, n) {
@@ -91052,12 +91695,12 @@ $.fn.togglify = function(settings) {
     this.reinitializeTransaction(), this.renderToStaticMarkup = !1, this.reactMountReady = i.getPooled(null), this.useCreateElement = e;
   }
   var o = n(6),
-    i = n(260),
-    a = n(32),
+    i = n(263),
+    a = n(33),
     s = n(63),
-    u = n(267),
+    u = n(270),
     l = (n(17), n(65)),
-    c = n(102),
+    c = n(103),
     d = {
       initialize: u.getSelectionInformation,
       close: u.restoreSelection
@@ -91111,7 +91754,7 @@ $.fn.togglify = function(settings) {
   function o(e, t, n) {
     "function" == typeof e ? e(null) : i.removeComponentAsRefFrom(t, e, n);
   }
-  var i = n(476),
+  var i = n(485),
     a = {};
   a.attachRefs = function(e, t) {
     if (null !== t && "object" == typeof t) {
@@ -91138,9 +91781,9 @@ $.fn.togglify = function(settings) {
     this.reinitializeTransaction(), this.renderToStaticMarkup = e, this.useCreateElement = !1, this.updateQueue = new s(this);
   }
   var o = n(6),
-    i = n(32),
+    i = n(33),
     a = n(65),
-    s = (n(17), n(481)),
+    s = (n(17), n(490)),
     u = [],
     l = {
       enqueue: function() {}
@@ -91166,7 +91809,7 @@ $.fn.togglify = function(settings) {
   function r(e, t) {
     if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
   }
-  var o = n(102),
+  var o = n(103),
     i = (n(3), function() {
       function e(t) {
         r(this, e), this.transaction = t;
@@ -91491,14 +92134,14 @@ $.fn.togglify = function(settings) {
     }
     return null;
   }
-  var i = n(51),
+  var i = n(52),
     a = n(15),
-    s = n(9),
-    u = n(267),
-    l = n(22),
-    c = n(147),
-    d = n(276),
-    f = n(91),
+    s = n(10),
+    u = n(270),
+    l = n(23),
+    c = n(150),
+    d = n(279),
+    f = n(92),
     h = a.canUseDOM && "documentMode" in document && document.documentMode <= 11,
     p = {
       select: {
@@ -91556,24 +92199,24 @@ $.fn.togglify = function(settings) {
     return "button" === e || "input" === e || "select" === e || "textarea" === e;
   }
   var i = n(4),
-    a = n(145),
-    s = n(51),
-    u = n(9),
-    l = n(486),
-    c = n(487),
-    d = n(22),
-    f = n(490),
-    h = n(492),
+    a = n(148),
+    s = n(52),
+    u = n(10),
+    l = n(495),
+    c = n(496),
+    d = n(23),
+    f = n(499),
+    h = n(501),
     p = n(64),
-    _ = n(489),
-    m = n(493),
-    y = n(494),
-    v = n(53),
-    g = n(495),
+    _ = n(498),
+    m = n(502),
+    y = n(503),
+    v = n(54),
+    g = n(504),
     M = n(16),
-    b = n(104),
+    b = n(105),
     w = (n(2), {}),
-    L = {};
+    k = {};
   ["abort", "animationEnd", "animationIteration", "animationStart", "blur", "canPlay", "canPlayThrough", "click", "contextMenu", "copy", "cut", "doubleClick", "drag", "dragEnd", "dragEnter", "dragExit", "dragLeave", "dragOver", "dragStart", "drop", "durationChange", "emptied", "encrypted", "ended", "error", "focus", "input", "invalid", "keyDown", "keyPress", "keyUp", "load", "loadedData", "loadedMetadata", "loadStart", "mouseDown", "mouseMove", "mouseOut", "mouseOver", "mouseUp", "paste", "pause", "play", "playing", "progress", "rateChange", "reset", "scroll", "seeked", "seeking", "stalled", "submit", "suspend", "timeUpdate", "touchCancel", "touchEnd", "touchMove", "touchStart", "transitionEnd", "volumeChange", "waiting", "wheel"].forEach(function(e) {
     var t = e[0].toUpperCase() + e.slice(1),
       n = "on" + t,
@@ -91585,13 +92228,13 @@ $.fn.togglify = function(settings) {
         },
         dependencies: [r]
       };
-    w[e] = o, L[r] = o;
+    w[e] = o, k[r] = o;
   });
-  var k = {},
+  var L = {},
     T = {
       eventTypes: w,
       extractEvents: function(e, t, n, r) {
-        var o = L[e];
+        var o = k[e];
         if (!o) return null;
         var a;
         switch (e) {
@@ -91689,13 +92332,13 @@ $.fn.togglify = function(settings) {
         if ("onClick" === t && !o(e._tag)) {
           var i = r(e),
             s = u.getNodeFromInstance(e);
-          k[i] || (k[i] = a.listen(s, "click", M));
+          L[i] || (L[i] = a.listen(s, "click", M));
         }
       },
       willDeleteListener: function(e, t) {
         if ("onClick" === t && !o(e._tag)) {
           var n = r(e);
-          k[n].remove(), delete k[n];
+          L[n].remove(), delete L[n];
         }
       }
     };
@@ -91706,7 +92349,7 @@ $.fn.togglify = function(settings) {
   function r(e, t, n, r) {
     return o.call(this, e, t, n, r);
   }
-  var o = n(22),
+  var o = n(23),
     i = {
       animationName: null,
       elapsedTime: null,
@@ -91719,7 +92362,7 @@ $.fn.togglify = function(settings) {
   function r(e, t, n, r) {
     return o.call(this, e, t, n, r);
   }
-  var o = n(22),
+  var o = n(23),
     i = {
       clipboardData: function(e) {
         return "clipboardData" in e ? e.clipboardData : window.clipboardData;
@@ -91732,7 +92375,7 @@ $.fn.togglify = function(settings) {
   function r(e, t, n, r) {
     return o.call(this, e, t, n, r);
   }
-  var o = n(22),
+  var o = n(23),
     i = {
       data: null
     };
@@ -91754,7 +92397,7 @@ $.fn.togglify = function(settings) {
   function r(e, t, n, r) {
     return o.call(this, e, t, n, r);
   }
-  var o = n(53),
+  var o = n(54),
     i = {
       relatedTarget: null
     };
@@ -91765,7 +92408,7 @@ $.fn.togglify = function(settings) {
   function r(e, t, n, r) {
     return o.call(this, e, t, n, r);
   }
-  var o = n(22),
+  var o = n(23),
     i = {
       data: null
     };
@@ -91776,10 +92419,10 @@ $.fn.togglify = function(settings) {
   function r(e, t, n, r) {
     return o.call(this, e, t, n, r);
   }
-  var o = n(53),
-    i = n(104),
-    a = n(500),
-    s = n(105),
+  var o = n(54),
+    i = n(105),
+    a = n(509),
+    s = n(106),
     u = {
       key: a,
       location: null,
@@ -91807,8 +92450,8 @@ $.fn.togglify = function(settings) {
   function r(e, t, n, r) {
     return o.call(this, e, t, n, r);
   }
-  var o = n(53),
-    i = n(105),
+  var o = n(54),
+    i = n(106),
     a = {
       touches: null,
       targetTouches: null,
@@ -91826,7 +92469,7 @@ $.fn.togglify = function(settings) {
   function r(e, t, n, r) {
     return o.call(this, e, t, n, r);
   }
-  var o = n(22),
+  var o = n(23),
     i = {
       propertyName: null,
       elapsedTime: null,
@@ -91870,7 +92513,7 @@ $.fn.togglify = function(settings) {
   function r(e, t, n) {
     return null == t || "boolean" == typeof t || "" === t ? "" : isNaN(t) || 0 === t || i.hasOwnProperty(e) && i[e] ? "" + t : ("string" == typeof t && (t = t.trim()), t + "px");
   }
-  var o = n(259),
+  var o = n(262),
     i = (n(3), o.isUnitlessNumber);
   e.exports = r;
 }, function(e, t, n) {
@@ -91884,9 +92527,9 @@ $.fn.togglify = function(settings) {
     "function" == typeof e.render ? o("44") : o("45", Object.keys(e));
   }
   var o = n(4),
-    i = (n(23), n(9)),
-    a = n(52),
-    s = n(273);
+    i = (n(24), n(10)),
+    a = n(53),
+    s = n(276);
   n(2), n(3), e.exports = r;
 }, function(e, t, n) {
   "use strict";
@@ -91903,11 +92546,11 @@ $.fn.togglify = function(settings) {
       var n = {};
       return i(e, r, n), n;
     }
-    var i = (n(98), n(278));
+    var i = (n(99), n(281));
     n(3), void 0 !== t && n.i({
       NODE_ENV: "production"
     }), e.exports = o;
-  }).call(t, n(258));
+  }).call(t, n(261));
 }, function(e, t, n) {
   "use strict";
 
@@ -91922,7 +92565,7 @@ $.fn.togglify = function(settings) {
     }
     return "keydown" === e.type || "keyup" === e.type ? a[e.keyCode] || "Unidentified" : "";
   }
-  var o = n(104),
+  var o = n(105),
     i = {
       Esc: "Escape",
       Spacebar: " ",
@@ -92058,20 +92701,20 @@ $.fn.togglify = function(settings) {
   e.exports = r;
 }, function(e, t, n) {
   "use strict";
-  var r = n(268);
+  var r = n(271);
   e.exports = r.renderSubtreeIntoContainer;
 }, function(e, t, n) {
   function r(e) {
     return e();
   }
   var o = n(1),
-    i = n(20),
-    a = n(416),
-    s = o.createFactory(n(508)),
-    u = n(509),
-    l = n(415),
-    c = n(20).unstable_renderSubtreeIntoContainer,
-    d = n(149),
+    i = n(18),
+    a = n(425),
+    s = o.createFactory(n(517)),
+    u = n(518),
+    l = n(424),
+    c = n(18).unstable_renderSubtreeIntoContainer,
+    d = n(152),
     f = a.canUseDOM ? window.HTMLElement : {},
     h = a.canUseDOM ? document.body : {
       appendChild: function() {}
@@ -92160,9 +92803,9 @@ $.fn.togglify = function(settings) {
 }, function(e, t, n) {
   var r = n(1),
     o = r.DOM.div,
-    i = n(510),
-    a = n(511),
-    s = n(149),
+    i = n(519),
+    a = n(520),
+    s = n(152),
     u = {
       overlay: {
         base: "ReactModal__Overlay",
@@ -92337,7 +92980,7 @@ $.fn.togglify = function(settings) {
       }, 0);
     }
   }
-  var i = n(279),
+  var i = n(282),
     a = null,
     s = null,
     u = !1;
@@ -92351,20 +92994,19 @@ $.fn.togglify = function(settings) {
     }
     s = null;
   }, t.setupScopedFocus = function(e) {
-    a = e, window.addEventListener ? (window.addEventListener("blur", r, !1), document.addEventListener("focus", o, !0)) : (window.attachEvent("onBlur", r),
-      document.attachEvent("onFocus", o));
+    a = e, window.addEventListener ? (window.addEventListener("blur", r, !1), document.addEventListener("focus", o, !0)) : (window.attachEvent("onBlur", r), document.attachEvent("onFocus", o));
   }, t.teardownScopedFocus = function() {
     a = null, window.addEventListener ? (window.removeEventListener("blur", r), document.removeEventListener("focus", o)) : (window.detachEvent("onBlur", r), document.detachEvent("onFocus", o));
   };
 }, function(e, t, n) {
-  var r = n(279);
+  var r = n(282);
   e.exports = function(e, t) {
     var n = r(e);
     if (!n.length) return void t.preventDefault();
     n[t.shiftKey ? 0 : n.length - 1] !== document.activeElement && e !== document.activeElement || (t.preventDefault(), n[t.shiftKey ? n.length - 1 : 0].focus());
   };
 }, function(e, t, n) {
-  e.exports = n(507);
+  e.exports = n(516);
 }, function(e, t, n) {
   "use strict";
 
@@ -92389,8 +93031,8 @@ $.fn.togglify = function(settings) {
     }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
   }
   var a = n(1),
-    s = (n.n(a), n(282));
-  n(110), n.d(t, "a", function() {
+    s = (n.n(a), n(285));
+  n(111), n.d(t, "a", function() {
     return u;
   });
   var u = function(e) {
@@ -92437,12 +93079,12 @@ $.fn.togglify = function(settings) {
   function i(e, t) {
     return e === t;
   }
-  var a = n(280),
-    s = n(521),
-    u = n(515),
-    l = n(516),
-    c = n(517),
-    d = n(518),
+  var a = n(283),
+    s = n(530),
+    u = n(524),
+    l = n(525),
+    c = n(526),
+    d = n(527),
     f = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
@@ -92473,8 +93115,8 @@ $.fn.togglify = function(settings) {
         g = u.areStatePropsEqual,
         b = void 0 === g ? s.a : g,
         w = u.areMergedPropsEqual,
-        L = void 0 === w ? s.a : w,
-        k = r(u, ["pure", "areStatesEqual", "areOwnPropsEqual", "areStatePropsEqual", "areMergedPropsEqual"]),
+        k = void 0 === w ? s.a : w,
+        L = r(u, ["pure", "areStatesEqual", "areOwnPropsEqual", "areStatePropsEqual", "areMergedPropsEqual"]),
         T = o(e, p, "mapStateToProps"),
         S = o(t, m, "mapDispatchToProps"),
         Y = o(a, v, "mergeProps");
@@ -92491,8 +93133,8 @@ $.fn.togglify = function(settings) {
         areStatesEqual: h,
         areOwnPropsEqual: y,
         areStatePropsEqual: b,
-        areMergedPropsEqual: L
-      }, k));
+        areMergedPropsEqual: k
+      }, L));
     };
   }();
 }, function(e, t, n) {
@@ -92515,8 +93157,8 @@ $.fn.togglify = function(settings) {
       return n.i(a.a)(e, t);
     }) : void 0;
   }
-  var a = n(115),
-    s = n(281);
+  var a = n(116),
+    s = n(284);
   t.a = [r, o, i];
 }, function(e, t, n) {
   "use strict";
@@ -92530,7 +93172,7 @@ $.fn.togglify = function(settings) {
       return {};
     });
   }
-  var i = n(281);
+  var i = n(284);
   t.a = [r, o];
 }, function(e, t, n) {
   "use strict";
@@ -92561,7 +93203,7 @@ $.fn.togglify = function(settings) {
       return r;
     };
   }
-  var s = (n(283), Object.assign || function(e) {
+  var s = (n(286), Object.assign || function(e) {
     for (var t = 1; t < arguments.length; t++) {
       var n = arguments[t];
       for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
@@ -92632,10 +93274,10 @@ $.fn.togglify = function(settings) {
       d = s(e, u);
     return (u.pure ? i : o)(l, c, d, e, u);
   }
-  n(519), t.a = a;
+  n(528), t.a = a;
 }, function(e, t, n) {
   "use strict";
-  n(110);
+  n(111);
 }, function(e, t, n) {
   "use strict";
 
@@ -92706,10 +93348,10 @@ $.fn.togglify = function(settings) {
   var i = Object.prototype.hasOwnProperty;
 }, function(e, t, n) {
   "use strict";
-  n(284);
+  n(287);
 }, function(e, t, n) {
   "use strict";
-  var r = n(285);
+  var r = n(288);
   n.d(t, "a", function() {
     return r.a;
   });
@@ -92721,7 +93363,7 @@ $.fn.togglify = function(settings) {
   }
   var o = n(7),
     i = n.n(o),
-    a = n(8),
+    a = n(9),
     s = n.n(a);
   ! function() {
     function e() {
@@ -92816,16 +93458,16 @@ $.fn.togglify = function(settings) {
   }();
 }, function(e, t, n) {
   "use strict";
-  n(286), n(524);
+  n(289), n(533);
 }, function(e, t, n) {
   "use strict";
-  var r = n(24),
+  var r = n(25),
     o = n.n(r),
     i = n(11),
     a = n.n(i),
     s = n(7),
     u = n.n(s),
-    l = n(8),
+    l = n(9),
     c = n.n(l),
     d = n(13),
     f = n.n(d),
@@ -92833,16 +93475,16 @@ $.fn.togglify = function(settings) {
     p = n.n(h),
     _ = n(1),
     m = n.n(_),
-    y = n(10),
+    y = n(8),
     v = n.n(y),
-    g = n(112),
-    M = n(144),
+    g = n(113),
+    M = n(147),
     b = n.n(M),
     w = {
       OBSERVED: "observed",
       REQUESTED: "requested"
     },
-    L = function(e) {
+    k = function(e) {
       function t(e, r) {
         u()(this, t);
         var o = f()(this, (t.__proto__ || a()(t)).call(this, e, r));
@@ -92940,15 +93582,15 @@ $.fn.togglify = function(settings) {
             M = g.height,
             b = g.width,
             w = Math.max(0, _ - s),
-            L = Math.max(0, y - d),
-            k = Math.min(b, _ + f + s),
+            k = Math.max(0, y - d),
+            L = Math.min(b, _ + f + s),
             T = Math.min(M, y + a + d),
             S = a > 0 && f > 0 ? r.cellRenderers({
-              height: T - L,
+              height: T - k,
               isScrolling: p,
-              width: k - w,
+              width: L - w,
               x: w,
-              y: L
+              y: k
             }) : [],
             Y = {
               boxSizing: "border-box",
@@ -92959,9 +93601,9 @@ $.fn.togglify = function(settings) {
               width: f,
               willChange: "transform"
             },
-            x = M > a ? this._scrollbarSize : 0,
-            D = b > f ? this._scrollbarSize : 0;
-          return Y.overflowX = b + x <= f ? "hidden" : "auto", Y.overflowY = M + D <= a ? "hidden" : "auto", m.a.createElement("div", {
+            D = M > a ? this._scrollbarSize : 0,
+            x = b > f ? this._scrollbarSize : 0;
+          return Y.overflowX = b + D <= f ? "hidden" : "auto", Y.overflowY = M + x <= a ? "hidden" : "auto", m.a.createElement("div", {
             ref: this._setScrollingContainerRef,
             "aria-label": this.props["aria-label"],
             className: v()("ReactVirtualized__Collection", i),
@@ -93108,7 +93750,7 @@ $.fn.togglify = function(settings) {
         }
       }]), t;
     }(_.PureComponent);
-  L.defaultProps = {
+  k.defaultProps = {
     "aria-label": "grid",
     horizontalOverscanSize: 0,
     noContentRenderer: function() {
@@ -93124,12 +93766,12 @@ $.fn.togglify = function(settings) {
     scrollToCell: -1,
     style: {},
     verticalOverscanSize: 0
-  }, t.a = L;
+  }, t.a = k;
 }, function(e, t, n) {
   "use strict";
   var r = n(7),
     o = n.n(r),
-    i = n(8),
+    i = n(9),
     a = n.n(i),
     s = function() {
       function e(t) {
@@ -93160,13 +93802,13 @@ $.fn.togglify = function(settings) {
   t.a = s;
 }, function(e, t, n) {
   "use strict";
-  var r = n(132),
+  var r = n(135),
     o = n.n(r),
     i = n(7),
     a = n.n(i),
-    s = n(8),
+    s = n(9),
     u = n.n(s),
-    l = n(527),
+    l = n(536),
     c = 100,
     d = function() {
       function e() {
@@ -93244,7 +93886,7 @@ $.fn.togglify = function(settings) {
   t.a = d;
 }, function(e, t, n) {
   "use strict";
-  n(287);
+  n(290);
 }, function(e, t, n) {
   "use strict";
 
@@ -93266,11 +93908,11 @@ $.fn.togglify = function(settings) {
       width: u
     };
   }
-  var o = n(528);
+  var o = n(537);
   t.a = r;
 }, function(e, t, n) {
   "use strict";
-  n(288);
+  n(291);
 }, function(e, t, n) {
   "use strict";
 
@@ -93301,7 +93943,7 @@ $.fn.togglify = function(settings) {
   "use strict";
   var r = n(7),
     o = n.n(r),
-    i = n(8),
+    i = n(9),
     a = n.n(i),
     s = function() {
       function e(t) {
@@ -93476,9 +94118,9 @@ $.fn.togglify = function(settings) {
     o = n.n(r),
     i = n(7),
     a = n.n(i),
-    s = n(8),
+    s = n(9),
     u = n.n(s),
-    l = n(533),
+    l = n(542),
     c = 15e5,
     d = function() {
       function e(t) {
@@ -93665,22 +94307,22 @@ $.fn.togglify = function(settings) {
   t.a = r;
 }, function(e, t, n) {
   "use strict";
-  n(292);
+  n(295);
 }, function(e, t, n) {
   "use strict";
-  var r = n(293);
+  var r = n(296);
   n.d(t, "a", function() {
     return r.a;
   });
 }, function(e, t, n) {
   "use strict";
-  var r = n(367),
+  var r = n(376),
     o = n.n(r),
     i = n(7),
     a = n.n(i),
-    s = n(8),
+    s = n(9),
     u = n.n(s),
-    l = n(550),
+    l = n(559),
     c = function() {
       function e() {
         a()(this, e), this._columnSizeMap = {}, this._intervalTree = n.i(l.a)(), this._leftMap = {};
@@ -93742,19 +94384,19 @@ $.fn.togglify = function(settings) {
   t.a = c;
 }, function(e, t, n) {}, function(e, t, n) {
   "use strict";
-  n(294), n(540);
+  n(297), n(549);
 }, function(e, t, n) {
   "use strict";
-  n(295);
+  n(298);
 }, function(e, t, n) {
   "use strict";
-  n(296);
+  n(299);
 }, function(e, t, n) {
   "use strict";
-  n(299), n(300), n(301), n(303), n(302), n(304), n(297), n(111), n(298);
+  n(302), n(303), n(304), n(306), n(305), n(307), n(300), n(112), n(301);
 }, function(e, t, n) {
   "use strict";
-  n(305), n(306);
+  n(308), n(309);
 }, function(e, t, n) {
   "use strict";
 
@@ -93968,10 +94610,9 @@ $.fn.togglify = function(settings) {
           if (!(e.target.className.indexOf("contract-trigger") < 0 && e.target.className.indexOf("expand-trigger") < 0)) {
             var t = this;
             o(this), this.__resizeRAF__ && r(this.__resizeRAF__), this.__resizeRAF__ = n(function() {
-              i(t) && (t.__resizeLast__.width = t.offsetWidth,
-                t.__resizeLast__.height = t.offsetHeight, t.__resizeListeners__.forEach(function(n) {
-                  n.call(t, e);
-                }));
+              i(t) && (t.__resizeLast__.width = t.offsetWidth, t.__resizeLast__.height = t.offsetHeight, t.__resizeListeners__.forEach(function(n) {
+                n.call(t, e);
+              }));
             });
           }
         },
@@ -94105,7 +94746,7 @@ $.fn.togglify = function(settings) {
   function m(e) {
     return new _(e && 0 !== e.length ? p(e) : null);
   }
-  var y = n(548);
+  var y = n(557);
   t.a = m;
   var v = 0,
     g = 1,
@@ -94234,7 +94875,7 @@ $.fn.togglify = function(settings) {
   e.exports = i;
 }, function(e, t, n) {
   "use strict";
-  var r = n(43),
+  var r = n(44),
     o = (n(2), function(e) {
       var t = this;
       if (t.instancePool.length) {
@@ -94345,10 +94986,10 @@ $.fn.togglify = function(settings) {
     var t = [];
     return l(e, t, null, m.thatReturnsArgument), t;
   }
-  var p = n(552),
-    _ = n(42),
+  var p = n(561),
+    _ = n(43),
     m = n(16),
-    y = n(561),
+    y = n(570),
     v = p.twoArgumentPooler,
     g = p.fourArgumentPooler,
     M = /\/+/g;
@@ -94449,12 +95090,12 @@ $.fn.togglify = function(settings) {
       e[r] = c(e, o);
     }
   }
-  var f = n(43),
+  var f = n(44),
     h = n(6),
-    p = n(113),
-    _ = n(42),
-    m = (n(310), n(114)),
-    y = n(48),
+    p = n(114),
+    _ = n(43),
+    m = (n(313), n(115)),
+    y = n(49),
     v = (n(2), n(3), "mixins"),
     g = [],
     M = {
@@ -94509,16 +95150,16 @@ $.fn.togglify = function(settings) {
         return this.updater.isMounted(this);
       }
     },
-    L = function() {};
-  h(L.prototype, p.prototype, w);
-  var k = {
+    k = function() {};
+  h(k.prototype, p.prototype, w);
+  var L = {
     createClass: function(e) {
       var t = r(function(e, n, r) {
         this.__reactAutoBindPairs.length && d(this), this.props = e, this.context = n, this.refs = y, this.updater = r || m, this.state = null;
         var o = this.getInitialState ? this.getInitialState() : null;
         ("object" != typeof o || Array.isArray(o)) && f("82", t.displayName || "ReactCompositeComponent"), this.state = o;
       });
-      t.prototype = new L, t.prototype.constructor = t, t.prototype.__reactAutoBindPairs = [], g.forEach(i.bind(null, t)), i(t, e), t.getDefaultProps && (t.defaultProps = t.getDefaultProps()), t.prototype.render || f("83");
+      t.prototype = new k, t.prototype.constructor = t, t.prototype.__reactAutoBindPairs = [], g.forEach(i.bind(null, t)), i(t, e), t.getDefaultProps && (t.defaultProps = t.getDefaultProps()), t.prototype.render || f("83");
       for (var n in M) t.prototype[n] || (t.prototype[n] = null);
       return t;
     },
@@ -94528,10 +95169,10 @@ $.fn.togglify = function(settings) {
       }
     }
   };
-  e.exports = k;
+  e.exports = L;
 }, function(e, t, n) {
   "use strict";
-  var r = n(42),
+  var r = n(43),
     o = r.createFactory,
     i = {
       a: o("a"),
@@ -94681,7 +95322,7 @@ $.fn.togglify = function(settings) {
 
   function i(e) {
     function t(t, n, r, i, a, s, u) {
-      if (i = i || L, s = s || r, null == n[r]) {
+      if (i = i || k, s = s || r, null == n[r]) {
         var l = g[a];
         return t ? new o(null === n[r] ? "The " + l + " `" + s + "` is marked as required in `" + i + "`, but its value is `null`." : "The " + l + " `" + s + "` is marked as required in `" + i + "`, but its value is `undefined`.") : null;
       }
@@ -94717,7 +95358,7 @@ $.fn.togglify = function(settings) {
     function t(t, n, r, i, a) {
       if (!(t[n] instanceof e)) {
         var s = g[i],
-          u = e.name || L;
+          u = e.name || k;
         return new o("Invalid " + s + " `" + a + "` of type `" + y(t[n]) + "` supplied to `" + r + "`, expected instance of `" + u + "`.");
       }
       return null;
@@ -94823,15 +95464,15 @@ $.fn.togglify = function(settings) {
   }
 
   function y(e) {
-    return e.constructor && e.constructor.name ? e.constructor.name : L;
+    return e.constructor && e.constructor.name ? e.constructor.name : k;
   }
-  var v = n(42),
-    g = n(310),
-    M = n(557),
+  var v = n(43),
+    g = n(313),
+    M = n(566),
     b = n(16),
-    w = n(312),
-    L = (n(3), "<<anonymous>>"),
-    k = {
+    w = n(315),
+    k = (n(3), "<<anonymous>>"),
+    L = {
       array: a("array"),
       bool: a("boolean"),
       func: a("function"),
@@ -94862,7 +95503,7 @@ $.fn.togglify = function(settings) {
       oneOfType: d,
       shape: f
     };
-  o.prototype = Error.prototype, e.exports = k;
+  o.prototype = Error.prototype, e.exports = L;
 }, function(e, t, n) {
   "use strict";
   e.exports = "SECRET_DO_NOT_PASS_THIS_OR_YOU_WILL_BE_FIRED";
@@ -94875,9 +95516,9 @@ $.fn.togglify = function(settings) {
 
   function o() {}
   var i = n(6),
-    a = n(113),
-    s = n(114),
-    u = n(48);
+    a = n(114),
+    s = n(115),
+    u = n(49);
   o.prototype = a.prototype, r.prototype = new o, r.prototype.constructor = r, i(r.prototype, a.prototype), r.prototype.isPureReactComponent = !0, e.exports = r;
 }, function(e, t, n) {
   "use strict";
@@ -94888,8 +95529,8 @@ $.fn.togglify = function(settings) {
   function r(e) {
     return i.isValidElement(e) || o("143"), e;
   }
-  var o = n(43),
-    i = n(42);
+  var o = n(44),
+    i = n(43);
   n(2), e.exports = r;
 }, function(e, t, n) {
   "use strict";
@@ -94917,8 +95558,8 @@ $.fn.togglify = function(settings) {
             w && (h = w[1], p = m + l.escape(w[0]) + d + r(h, 0), _ += o(h, p, n, i));
           }
       } else if ("object" === f) {
-        var L = String(e);
-        a("31", "[object Object]" === L ? "object with keys {" + Object.keys(e).join(", ") + "}" : L, "");
+        var k = String(e);
+        a("31", "[object Object]" === k ? "object with keys {" + Object.keys(e).join(", ") + "}" : k, "");
       }
     }
     return _;
@@ -94927,10 +95568,10 @@ $.fn.togglify = function(settings) {
   function i(e, t, n) {
     return null == e ? 0 : o(e, "", t, n);
   }
-  var a = n(43),
-    s = (n(23), n(309)),
-    u = n(312),
-    l = (n(2), n(551)),
+  var a = n(44),
+    s = (n(24), n(312)),
+    u = n(315),
+    l = (n(2), n(560)),
     c = (n(3), "."),
     d = ":";
   e.exports = i;
@@ -95096,7 +95737,7 @@ $.fn.togglify = function(settings) {
   Object.defineProperty(t, "__esModule", {
     value: !0
   });
-  var r = n(567),
+  var r = n(576),
     o = function(e) {
       if (e && e.__esModule) return e;
       var t = {};
@@ -95174,7 +95815,7 @@ $.fn.togglify = function(settings) {
       };
     };
   }
-  var o = n(315);
+  var o = n(318);
   t.a = r;
   var i = Object.assign || function(e) {
     for (var t = 1; t < arguments.length; t++) {
@@ -95252,27 +95893,27 @@ $.fn.togglify = function(settings) {
       return o ? i : e;
     };
   }
-  var a = n(316);
-  n(93), n(317), t.a = i;
+  var a = n(319);
+  n(94), n(320), t.a = i;
 }, function(e, t, n) {
-  var r = n(411);
+  var r = n(420);
   "string" == typeof r && (r = [
     [e.i, r, ""]
-  ]), n(116)(r, {}), r.locals && (e.exports = r.locals);
+  ]), n(118)(r, {}), r.locals && (e.exports = r.locals);
 }, function(e, t, n) {
-  var r = n(413);
+  var r = n(422);
   "string" == typeof r && (r = [
     [e.i, r, ""]
-  ]), n(116)(r, {}), r.locals && (e.exports = r.locals);
+  ]), n(118)(r, {}), r.locals && (e.exports = r.locals);
 }, function(e, t, n) {
-  e.exports = n(575);
+  e.exports = n(584);
 }, function(e, t, n) {
   "use strict";
   (function(e, r) {
     Object.defineProperty(t, "__esModule", {
       value: !0
     });
-    var o, i = n(576),
+    var o, i = n(585),
       a = function(e) {
         return e && e.__esModule ? e : {
           "default": e
@@ -95281,7 +95922,7 @@ $.fn.togglify = function(settings) {
     o = "undefined" != typeof self ? self : "undefined" != typeof window ? window : void 0 !== e ? e : r;
     var s = (0, a.default)(o);
     t.default = s;
-  }).call(t, n(117), n(118)(e));
+  }).call(t, n(119), n(120)(e));
 }, function(e, t, n) {
   "use strict";
 

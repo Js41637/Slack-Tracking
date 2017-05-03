@@ -395,7 +395,10 @@
       if (_is_user_forced_into_redux_feature && !TS.boot_data.feature_drew_broke_his_own_app) {
         return true;
       }
-      return !!TS.boot_data.feature_store_models_in_redux;
+      return TS.boot_data.feature_store_models_in_redux;
+    },
+    useReactDownloads: function() {
+      return window.TS && TS.environment.isSSBAndAtLeastVersion("2.7");
     },
     lazyLoadMembersAndBots: function() {
       return !!(TS.boot_data.should_use_flannel || TS.boot_data.feature_lazy_load_members_and_bots_everywhere);
