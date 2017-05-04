@@ -12349,11 +12349,17 @@ TS.registerModule("constants", {
       TS.members.setMemberUserColor(member, TS.model.user_colors[member.id]);
     }
   };
-  var _maybeSetDeletedStatus = function(member) {
+  var _maybeSetDeletedStatus = function(member, what_changed) {
     if (!TS.boot_data.page_needs_enterprise) return;
     if (member.enterprise_user && member.enterprise_user.teams && member.enterprise_user.teams.length > 0) {
       if (TS.boot_data.app === "web") {
         if (member.enterprise_user.teams.indexOf(TS.model.team.id) > -1) member.deleted = false;
+      } else if (what_changed && what_changed.length && what_changed.indexOf("deleted") >= 0) {
+        if (member.deleted) {
+          member.deleted = false;
+          var index = what_changed.indexOf("deleted");
+          if (index >= 0) what_changed.splice(index, 1);
+        }
       } else {
         member.deleted = false;
       }
@@ -12691,7 +12697,7 @@ TS.registerModule("constants", {
     });
     _maybeSetMemberKnown(existing_member);
     _maybeSetMemberColor(existing_member);
-    _maybeSetDeletedStatus(existing_member);
+    _maybeSetDeletedStatus(existing_member, what_changed);
     _maybeSetTeamId(existing_member);
     _maybeSetLocality(existing_member);
     return {
