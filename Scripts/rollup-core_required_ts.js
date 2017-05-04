@@ -3140,6 +3140,7 @@ var _cyrillicToLatin = function(char) {
             if (capabilities.supports_screen_sharing && winssb.stats && winssb.stats.getDisplayInformation) TS.model.supports_screen_sharing = true;
             if (capabilities.supports_screenhero && !capabilities.is_mas && !capabilities.is_ws) TS.model.supports_screenhero = true;
             if (capabilities.supports_mmap_minipanel) TS.model.supports_mmap_minipanel_calls = true;
+            TS.model.is_mas_or_ws = capabilities.is_mas || capabilities.is_ws;
           }
         }
       } else if (TS.model.is_chrome_desktop) {

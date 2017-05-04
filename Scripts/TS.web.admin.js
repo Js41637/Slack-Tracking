@@ -2840,7 +2840,7 @@
     if (need_upsert) TS.members.upsertMember(member);
   };
   var _isApiAdminPage = function() {
-    return TS.boot_data.page_needs_enterprise && TS.boot_data.feature_api_admin_page && TS.web.admin.view === "list";
+    return (TS.boot_data.page_needs_enterprise || TS.boot_data.feature_api_admin_page_not_ent) && TS.boot_data.feature_api_admin_page && TS.web.admin.view === "list";
   };
   var _msDownload = function(blob, filename) {
     window.navigator.msSaveBlob(blob, filename);
