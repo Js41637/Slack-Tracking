@@ -12182,6 +12182,10 @@ a.plastic_typeahead_item:hover {
   position: relative
 }
 
+.member_image_unknown {
+  background: #E8E8E8
+}
+
 .member_image:focus {
   outline: 0
 }
@@ -14063,6 +14067,16 @@ only screen and (min-resolution:2dppx) {
 
 .member_preview_link .member_type_badge {
   pointer-events: none
+}
+
+.message_sender_unknown {
+  display: none;
+  background: #E8E8E8;
+  width: 80px;
+  height: 15px;
+  position: relative;
+  top: 3px;
+  border-radius: 8px
 }
 
 .member_type_badge {

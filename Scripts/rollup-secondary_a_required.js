@@ -12338,8 +12338,8 @@ TS.registerModule("constants", {
     return _.isString(member_or_id) ? TS.members.getMemberById(member_or_id) : member_or_id;
   };
   var _maybeSetMemberKnown = function(member) {
-    if (TS.boot_data.feature_unknown_members) return;
-    if (member.is_unknown) delete member.is_unknown;
+    if (!TS.boot_data.feature_unknown_members) return;
+    if (member.is_unknown) member.is_unknown = false;
     _.pull(_unknown_member_ids, member.id);
   };
   var _maybeSetMemberColor = function(member) {
@@ -22363,6 +22363,9 @@ var _profiling = {
       if (member.is_bot || member.is_service) {
         html += '<span class="bot_label">' + TS.i18n.t("APP", "templates_builders")() + "</span>";
       }
+      if (TS.boot_data.feature_unknown_members && member.is_unknown) {
+        html = '<span class="message_sender_unknown"></span>';
+      }
       return html;
     },
     showDraftIcon: function(model_ob) {
@@ -24264,6 +24267,7 @@ var _profiling = {
     if (TS.boot_data.feature_new_broadcast) {
       if (template_args.is_broadcast) msg_classes.push("thread_broadcast");
     }
+    if (TS.boot_data.feature_unknown_members && template_args.member.is_unknown) msg_classes.push("member_is_unknown");
     return msg_classes;
   }
 
@@ -63571,26 +63575,25 @@ $.fn.togglify = function(settings) {
           var n, r, o, i = e,
             s = null;
           return Lt(e) ? i = {
-              ms: e._milliseconds,
-              d: e._days,
-              M: e._months
-            } : a(e) ? (i = {}, t ? i[t] = e : i.milliseconds = e) : (s = To.exec(e)) ? (n = "-" === s[1] ? -1 : 1, i = {
-              y: 0,
-              d: b(s[Fr]) * n,
-              h: b(s[Ur]) * n,
-              m: b(s[Gr]) * n,
-              s: b(s[Br]) * n,
-              ms: b(Tt(1e3 * s[Vr])) * n
-            }) : (s = So.exec(e)) ? (n = "-" === s[1] ? -1 : 1, i = {
-              y: Ft(s[2], n),
-              M: Ft(s[3], n),
-              w: Ft(s[4], n),
-              d: Ft(s[5], n),
-              h: Ft(s[6], n),
-              m: Ft(s[7], n),
-              s: Ft(s[8], n)
-            }) : null == i ? i = {} : "object" == typeof i && ("from" in i || "to" in i) && (o = Gt(gt(i.from), gt(i.to)), i = {}, i.ms = o.milliseconds, i.M = o.months), r = new kt(i), Lt(e) && l(e, "_locale") && (r._locale = e._locale),
-            r;
+            ms: e._milliseconds,
+            d: e._days,
+            M: e._months
+          } : a(e) ? (i = {}, t ? i[t] = e : i.milliseconds = e) : (s = To.exec(e)) ? (n = "-" === s[1] ? -1 : 1, i = {
+            y: 0,
+            d: b(s[Fr]) * n,
+            h: b(s[Ur]) * n,
+            m: b(s[Gr]) * n,
+            s: b(s[Br]) * n,
+            ms: b(Tt(1e3 * s[Vr])) * n
+          }) : (s = So.exec(e)) ? (n = "-" === s[1] ? -1 : 1, i = {
+            y: Ft(s[2], n),
+            M: Ft(s[3], n),
+            w: Ft(s[4], n),
+            d: Ft(s[5], n),
+            h: Ft(s[6], n),
+            m: Ft(s[7], n),
+            s: Ft(s[8], n)
+          }) : null == i ? i = {} : "object" == typeof i && ("from" in i || "to" in i) && (o = Gt(gt(i.from), gt(i.to)), i = {}, i.ms = o.milliseconds, i.M = o.months), r = new kt(i), Lt(e) && l(e, "_locale") && (r._locale = e._locale), r;
         }
 
         function Ft(e, t) {
@@ -97775,7 +97778,7 @@ $.fn.togglify = function(settings) {
     return _.map(query.split(" "), function(word) {
       return {
         word: word,
-        present: terms[word.toLowerCase()]
+        present: terms[word]
       };
     });
   };
