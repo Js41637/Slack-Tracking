@@ -3568,11 +3568,16 @@
     TS.ims.unread_changed_sig.add(TS.redux.channels.forceUpdateOfEntityById);
     TS.ims.unread_highlight_changed_sig.add(TS.redux.channels.forceUpdateOfEntityById);
   };
-  var _logStaleModelObAccess = function(immediate_caller, stack) {
+  var _logStaleModelObAccess = function(immediate_caller, stack, is_get_call) {
     var STALE_MODEL_SET_VERSION = 1;
-    TS.metrics.count("redux_stale_model_set_v" + STALE_MODEL_SET_VERSION);
+    if (is_get_call) {
+      TS.metrics.count("redux_stale_model_get_v" + STALE_MODEL_SET_VERSION);
+    } else {
+      TS.metrics.count("redux_stale_model_set_v" + STALE_MODEL_SET_VERSION);
+    }
+    var message_verb = is_get_call ? "Getting" : "Setting";
     var info = {
-      message: "Setting a property on a stale model object. Immediate caller: " + immediate_caller,
+      message: message_verb + " a property on a stale model object. Immediate caller: " + immediate_caller,
       stack: stack
     };
     var filename_and_line_number = immediate_caller.match(/\((.+):(\d+:\d+)\)/);
@@ -3580,8 +3585,9 @@
       info.fileName = filename_and_line_number[1];
       info.lineNumber = filename_and_line_number[2];
     }
+    var description = is_get_call ? "redux_stale_model_get_caller_v" + STALE_MODEL_SET_VERSION : "redux_stale_model_set_caller_v" + STALE_MODEL_SET_VERSION;
     $.post(TS.boot_data.beacon_error_url, {
-      description: "redux_stale_model_set_caller_v" + STALE_MODEL_SET_VERSION,
+      description: description,
       error_json: JSON.stringify(info),
       team: _.get(TS, "model.team.id", "none"),
       user: TS.boot_data.user_id,
@@ -3598,13 +3604,12 @@
   var _maybeWrapEntityInProxyObject = function(entity) {
     var use_a_proxy = entity && _shouldWrapEntityInProxyObject();
     if (use_a_proxy) {
-      entity = new window.Proxy(entity, {
+      var handler = {
         set: function(target, property, value) {
           if (target && target.id && _getChannelById(target.id) !== target) {
             TS.console.logStackTrace("Setting a property on a stale model object");
-            TS.generic_dialog.alert("Set a property on a stale model object, check the logs!", "Stale model object reference");
             var stack = TS.console.getStackTrace();
-            var immediate_caller = _.get(stack.split("\n"), "[2]");
+            var immediate_caller = _.get(stack.split("\n"), "[1]");
             if (!_redux_did_warn_about_stack[immediate_caller]) {
               _redux_did_warn_about_stack[immediate_caller] = true;
               _logStaleModelObAccess(immediate_caller, stack);
@@ -3614,7 +3619,23 @@
           target[property] = value;
           return true;
         }
-      });
+      };
+      if (TS.boot_data.user_id === "W2V82BY0G") {
+        handler.get = function(target, prop) {
+          if (prop !== "id" && target && target.id && _getChannelById(target.id) !== target) {
+            TS.console.logStackTrace("Getting a property on a stale model object");
+            var stack = TS.console.getStackTrace();
+            var immediate_caller = _.get(stack.split("\n"), "[1]");
+            if (!_redux_did_warn_about_stack[immediate_caller]) {
+              _redux_did_warn_about_stack[immediate_caller] = true;
+              var is_get_call = true;
+              _logStaleModelObAccess(immediate_caller, stack, is_get_call);
+            }
+          }
+          return target[prop];
+        };
+      }
+      entity = new window.Proxy(entity, handler);
     }
     return entity;
   };
@@ -9661,6 +9682,9 @@ TS.registerModule("constants", {
           }
         }
         var doIt = function() {
+          if (TS.useRedux()) {
+            model_ob = TS.redux.channels.getUpdatedReferenceToEntity(model_ob);
+          }
           if (model_ob.history_is_being_fetched) {
             if (TS.pri) TS.log(58, 'NOT fetching history on "' + model_ob.id + '", history already being fetched');
           } else {
@@ -12716,10 +12740,10 @@ TS.registerModule("constants", {
         var member = _id_map[id];
         if (!member) return;
         if (member === id_map[id]) {
-          TS.warn("member id " + id + " is no longer unknown");
+          TS.log(6655, "member id " + id + " is no longer unknown");
           _maybeSetMemberKnown(member);
         } else {
-          TS.warn("member id " + id + " is for a non-existent member");
+          TS.log(6655, "member id " + id + " is for a non-existent member");
           member.is_non_existent = true;
         }
       });
@@ -12730,7 +12754,7 @@ TS.registerModule("constants", {
     if (!TS.boot_data.feature_unknown_members) return null;
     if (!id || _id_map[id]) return;
     if (!TS.model.ms_logged_in_once) return;
-    TS.warn("member id " + id + " not found in members map, added unknown member to map");
+    TS.log(6655, "member id " + id + " not found in members map, added unknown member to map");
     var member = _makeUnknownMemberStub(id);
     _id_map[id] = member;
     _unknown_member_ids.push(id);
@@ -38426,8 +38450,9 @@ var _on_esc;
         return null;
       }
       if (!model_ob.is_mpim && TS.boot_data.page_needs_enterprise && !TS.permissions.channels.canMemberJoinChannel(model_ob, user)) {
-        TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("This channel is not available to {user}", "cmd_handlers")({
-          user: _getUserIdentifier(user)
+        TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("{user} is not a member of {team_name}.", "cmd_handlers")({
+          user: _getUserIdentifier(user),
+          team_name: TS.model.team.name
         }), input_txt, "sad_surprise");
         return null;
       }
