@@ -38474,6 +38474,12 @@ var _on_esc;
     }).then(function(response) {
       var scopes = _.get(response, "data.permission.scopes");
       var scope_list = scopes.join(", ");
+      if (_.get(response, "data.should_confirm")) {
+        TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("Need to confirm adding {user}.", "cmd_handlers")({
+          user: _getUserIdentifier(user)
+        }));
+        return;
+      }
       TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("{user} has been added with the following scopes: {scopes}.", "cmd_handlers")({
         user: _getUserIdentifier(user),
         scopes: scope_list
@@ -63559,25 +63565,26 @@ $.fn.togglify = function(settings) {
           var n, r, o, i = e,
             s = null;
           return Lt(e) ? i = {
-            ms: e._milliseconds,
-            d: e._days,
-            M: e._months
-          } : a(e) ? (i = {}, t ? i[t] = e : i.milliseconds = e) : (s = To.exec(e)) ? (n = "-" === s[1] ? -1 : 1, i = {
-            y: 0,
-            d: b(s[Fr]) * n,
-            h: b(s[Ur]) * n,
-            m: b(s[Gr]) * n,
-            s: b(s[Br]) * n,
-            ms: b(Tt(1e3 * s[Vr])) * n
-          }) : (s = So.exec(e)) ? (n = "-" === s[1] ? -1 : 1, i = {
-            y: Ft(s[2], n),
-            M: Ft(s[3], n),
-            w: Ft(s[4], n),
-            d: Ft(s[5], n),
-            h: Ft(s[6], n),
-            m: Ft(s[7], n),
-            s: Ft(s[8], n)
-          }) : null == i ? i = {} : "object" == typeof i && ("from" in i || "to" in i) && (o = Gt(gt(i.from), gt(i.to)), i = {}, i.ms = o.milliseconds, i.M = o.months), r = new kt(i), Lt(e) && l(e, "_locale") && (r._locale = e._locale), r;
+              ms: e._milliseconds,
+              d: e._days,
+              M: e._months
+            } : a(e) ? (i = {}, t ? i[t] = e : i.milliseconds = e) : (s = To.exec(e)) ? (n = "-" === s[1] ? -1 : 1, i = {
+              y: 0,
+              d: b(s[Fr]) * n,
+              h: b(s[Ur]) * n,
+              m: b(s[Gr]) * n,
+              s: b(s[Br]) * n,
+              ms: b(Tt(1e3 * s[Vr])) * n
+            }) : (s = So.exec(e)) ? (n = "-" === s[1] ? -1 : 1, i = {
+              y: Ft(s[2], n),
+              M: Ft(s[3], n),
+              w: Ft(s[4], n),
+              d: Ft(s[5], n),
+              h: Ft(s[6], n),
+              m: Ft(s[7], n),
+              s: Ft(s[8], n)
+            }) : null == i ? i = {} : "object" == typeof i && ("from" in i || "to" in i) && (o = Gt(gt(i.from), gt(i.to)), i = {}, i.ms = o.milliseconds, i.M = o.months), r = new kt(i), Lt(e) && l(e, "_locale") && (r._locale = e._locale),
+            r;
         }
 
         function Ft(e, t) {
@@ -63590,8 +63597,7 @@ $.fn.togglify = function(settings) {
             milliseconds: 0,
             months: 0
           };
-          return n.months = t.month() - e.month() + 12 * (t.year() - e.year()), e.clone().add(n.months, "M").isAfter(t) && --n.months,
-            n.milliseconds = +t - +e.clone().add(n.months, "M"), n;
+          return n.months = t.month() - e.month() + 12 * (t.year() - e.year()), e.clone().add(n.months, "M").isAfter(t) && --n.months, n.milliseconds = +t - +e.clone().add(n.months, "M"), n;
         }
 
         function Gt(e, t) {
