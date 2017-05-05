@@ -12773,6 +12773,7 @@ TS.registerModule("constants", {
     _processNewMemberForUpserting(member);
     member.is_unknown = true;
     member.is_non_existent = false;
+    TS.model.members.push(member);
     return member;
   };
   var _setImagesForUnknownMember = function(member) {
@@ -51185,6 +51186,12 @@ $.fn.togglify = function(settings) {
         }
       });
     }
+    if (TS.boot_data.feature_sli_briefing && TS.highlights_briefing) {
+      TS.click.addClientHandler('[data-js="sli_briefing_back_button"]', function() {
+        if (!TS.highlights_briefing.isEnabled()) return;
+        TS.client.unread.showUnreadView();
+      });
+    }
     TS.click.addClientHandler("[data-js=sli_expert_search_toggle]", function(e) {
       if (TS.sli_expert_search) TS.sli_expert_search.toggleExpand(e);
     });
@@ -63566,7 +63573,8 @@ $.fn.togglify = function(settings) {
         }
 
         function Rt(e) {
-          return !!this.isValid() && (e = e ? gt(e).utcOffset() : 0, (this.utcOffset() - e) % 60 == 0);
+          return !!this.isValid() && (e = e ? gt(e).utcOffset() : 0,
+            (this.utcOffset() - e) % 60 == 0);
         }
 
         function It() {
@@ -63576,8 +63584,7 @@ $.fn.togglify = function(settings) {
         function At() {
           if (!m(this._isDSTShifted)) return this._isDSTShifted;
           var e = {};
-          if (y(e, this), e = mt(e),
-            e._a) {
+          if (y(e, this), e = mt(e), e._a) {
             var t = e._isUTC ? d(e._a) : gt(e._a);
             this._isDSTShifted = this.isValid() && w(e._a, t.toArray()) > 0;
           } else this._isDSTShifted = !1;
