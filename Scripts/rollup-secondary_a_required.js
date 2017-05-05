@@ -6133,7 +6133,7 @@ TS.registerModule("constants", {
       var i;
       var max_l = TS.model.channel_name_max_length;
       for (i = 0; i < member_idsA.length; i += 1) {
-        member = TS.members.getMemberById(member_idsA[i]);
+        member = TS.members.getKnownMemberById(member_idsA[i]);
         if (!member) continue;
         membersA.push(member);
       }
@@ -7336,7 +7336,7 @@ TS.registerModule("constants", {
           }
         }
         files.push(file);
-        var member = TS.members.getMemberById(file.user);
+        var member = TS.members.getKnownMemberById(file.user);
         if (member) {
           member.files.push(file);
           TS.files.sortFiles(member.files);
@@ -9450,7 +9450,7 @@ TS.registerModule("constants", {
         return;
       }
       if (TS.shared.didDeferMessageHistoryById(model_ob.id)) {
-        if (TS.boot_data.feature_disable_history_prefetch) {
+        if (TS.boot_data.feature_disable_history_prefetch && !model_ob.is_im && !model_ob.msgs.length) {
           TS.log(58, "calcUnreadCnts (" + model_ob.id + "): History prefetch disabled. msgs.length: " + (model_ob.msgs && model_ob.msgs.length));
         } else if (TS.boot_data.feature_delay_channel_history_fetch && !model_ob.is_im && !model_ob.is_mpim) {
           if (!_delayed_fetch_timer_map[model_ob.id]) {
@@ -9658,9 +9658,13 @@ TS.registerModule("constants", {
         if (TS.boot_data && TS.boot_data.feature_disable_history_prefetch) {
           if (TS.shared.getActiveModelOb().id === model_ob.id) {
             TS.log(58, "checkInitialMsgHistory: Allowing fetch for active of " + model_ob.id);
-          } else {
-            TS.log(58, "checkInitialMsgHistory: NOT fetching for " + model_ob.id + " (not active)");
+          } else if (model_ob.is_im) {
+            TS.log(58, "checkInitialMsgHistory: Allowing fetch for IM of " + model_ob.id);
+          } else if (!model_ob.msgs.length) {
+            TS.log(58, "checkInitialMsgHistory: NOT fetching for " + model_ob.id + " until view because !msgs.length");
             return;
+          } else if (TS.notifs.isCorGMuted(model_ob.id)) {
+            TS.log(58, "checkInitialMsgHistory: NOT fetching for " + model_ob.id + " until view because muted");
           }
         }
         TS.log(58, 'WE DO NOT HAVE ALL RECENT MESSAGES for "' + model_ob.id + '" unread_count:' + model_ob.unread_count + " unread_cnt:" + model_ob.unread_cnt + " initial_count:" + initial_count);
@@ -11484,6 +11488,9 @@ TS.registerModule("constants", {
       if (TS.boot_data.feature_unknown_members && !no_unknown) return _getUnknownMemberAndFetch(id);
       return null;
     },
+    getKnownMemberById: function(id) {
+      return TS.members.getMemberById(id, NO_UNKNOWN);
+    },
     getMemberByName: function(name) {
       name = _.toLower(name);
       if (!_name_map.hasOwnProperty(name)) {
@@ -11590,7 +11597,7 @@ TS.registerModule("constants", {
     },
     upsertMember: function(member) {
       var members = TS.model.members;
-      var existing_member = TS.members.getMemberById(member.id);
+      var existing_member = TS.members.getKnownMemberById(member.id);
       var status = "NOOP";
       var what_changed = [];
       var existing_member_updated_at = _.get(existing_member, "updated", NaN);
@@ -11840,7 +11847,7 @@ TS.registerModule("constants", {
       _members_for_user = Object.keys(user_id_map).map(function(user_id) {
         return {
           id: user_id,
-          user: TS.members.getMemberById(user_id)
+          user: TS.members.getKnownMemberById(user_id)
         };
       }).filter(function(id_and_user) {
         var user = id_and_user.user;
@@ -11915,7 +11922,9 @@ TS.registerModule("constants", {
         names_in_order: [],
         is_username_first: true
       };
-      if (display_name === member.name) {
+      if (!member) {
+        name_data.names_in_order.push(display_name);
+      } else if (display_name === member.name) {
         name_data.names_in_order.push(member.name);
         if (member.is_self) {
           name_data.names_in_order.push(TS.i18n.t("(you)", "members")());
@@ -12085,7 +12094,7 @@ TS.registerModule("constants", {
       var new_c_ids = [];
       var new_t_ids = [];
       m_ids.forEach(function(m_id, i) {
-        if (!TS.members.getMemberById(m_id, true)) {
+        if (!TS.members.getKnownMemberById(m_id)) {
           new_m_ids.push(m_id);
           new_c_ids.push(c_ids[i]);
           new_t_ids.push(t_ids[i]);
@@ -12101,11 +12110,7 @@ TS.registerModule("constants", {
       if (!m_ids || !m_ids.length) {
         return Promise.resolve();
       }
-      if (TS.boot_data.feature_unknown_members) {
-        _.each(m_ids, TS.members.ensureMemberIsHydrated);
-        return Promise.resolve();
-      }
-      var known_unique_m_ids = _(m_ids).uniq().filter(TS.members.getMemberById).value();
+      var known_unique_m_ids = _(m_ids).uniq().filter(TS.members.getKnownMemberById).value();
       var unknown_unique_m_ids = _.difference(m_ids, known_unique_m_ids);
       var batch_size = TS.useSocket() && TS.boot_data.should_use_flannel ? _flannel_max_users : _users_info_api_max_users;
       var promises = _(unknown_unique_m_ids).chunk(batch_size).map(function(batch) {
@@ -12375,6 +12380,7 @@ TS.registerModule("constants", {
       return test;
     }
   });
+  var NO_UNKNOWN = true;
   var _id_map = {};
   var _name_map = {};
   var _active_members_with_self_and_not_slackbot = [];
@@ -12390,7 +12396,7 @@ TS.registerModule("constants", {
   var _users_info_api_max_users = 250;
   var _flannel_max_users = 100;
   var _ensureMember = function(member_or_id) {
-    return _.isString(member_or_id) ? TS.members.getMemberById(member_or_id) : member_or_id;
+    return _.isString(member_or_id) ? TS.members.getKnownMemberById(member_or_id) : member_or_id;
   };
   var _maybeSetMemberKnown = function(member) {
     if (!TS.boot_data.feature_unknown_members) return;
@@ -12615,7 +12621,7 @@ TS.registerModule("constants", {
       searcher.num_remaining -= response.data.items.length;
       searcher._cursor_mark = response.data.next_cursor_mark;
       var matches = response.data.items.map(function(member) {
-        var full_member = TS.members.getMemberById(member.id);
+        var full_member = TS.members.getKnownMemberById(member.id);
         if (!full_member) {
           if (searcher._last_include_org && member.team_id !== TS.model.team.id) {
             member.is_primary_owner = false;
@@ -12787,9 +12793,7 @@ TS.registerModule("constants", {
     if (!TS.model.ms_logged_in_once) return;
     TS.log(6655, "member id " + id + " not found in members map, added unknown member to map");
     var member = _makeUnknownMemberStub(id);
-    _id_map[id] = member;
     _unknown_member_ids.push(id);
-    _id_map._size += 1;
     if (_unknown_member_ids.length === 1) _.defer(_fetchAndUpsertUnknownMembers);
     return member;
   };
@@ -12798,11 +12802,10 @@ TS.registerModule("constants", {
       id: id,
       name: id
     };
-    _processNewMemberForUpserting(member);
+    member = TS.members.upsertMember(member).member;
     member.is_unknown = true;
     member.is_non_existent = false;
     _setImagesForUnknownMember(member);
-    TS.model.members.push(member);
     return member;
   };
   var _setImagesForUnknownMember = function(member) {
@@ -13332,7 +13335,7 @@ TS.registerModule("constants", {
       }
       if (app.installation_summary) {
         var installation_summary = app.installation_summary.replace(/<@([A-Z0-9]+)>/g, function(match, user_id) {
-          if (TS.members.getMemberById(user_id)) {
+          if (TS.members.getKnownMemberById(user_id)) {
             return '<span class="app_card_member_link" data-member-profile-link=' + user_id + ">" + TS.members.getMemberDisplayNameById(user_id, true, true) + "</span>";
           }
           return '<span class="app_card_member_link" data-member-profile-link=' + user_id + ">A user</span>";
@@ -17509,7 +17512,7 @@ TS.registerModule("constants", {
         TS.channels.addMsg(imsg.channel, msg);
       }
       var model_ob = TS.shared.getModelObById(imsg.channel);
-      var member = TS.members.getMemberById(msg.user);
+      var member = TS.members.getKnownMemberById(msg.user);
       if (TS.typing && member && model_ob) TS.typing.memberEnded(model_ob, member);
       if (profiling_callback) profiling_callback();
     },
@@ -17652,7 +17655,7 @@ TS.registerModule("constants", {
       } else if (imsg.channel_type === "G") {
         channel = TS.groups.getGroupById(imsg.channel);
         if (channel) {
-          var member = TS.members.getMemberById(user_id);
+          var member = TS.members.getKnownMemberById(user_id);
           if (!member) {
             TS.error('unknown member: "' + user_id + '"');
             return;
@@ -17875,7 +17878,7 @@ TS.registerModule("constants", {
       } else if (imsg.channel_type === "G") {
         channel = TS.groups.getGroupById(imsg.channel);
         if (channel) {
-          var member = TS.members.getMemberById(user_id);
+          var member = TS.members.getKnownMemberById(user_id);
           if (!member) {
             TS.error('unknown member: "' + user_id + '"');
             return;
@@ -17921,7 +17924,7 @@ TS.registerModule("constants", {
         return;
       }
       var user_id = imsg.user;
-      var member = TS.members.getMemberById(user_id);
+      var member = TS.members.getKnownMemberById(user_id);
       if (!member) {
         TS.error('unknown member: "' + user_id + '"');
         return;
@@ -17936,7 +17939,7 @@ TS.registerModule("constants", {
         return;
       }
       var user_id = imsg.user;
-      var member = TS.members.getMemberById(user_id);
+      var member = TS.members.getKnownMemberById(user_id);
       if (!member) {
         TS.error('unknown member: "' + user_id + '"');
         return;
@@ -17969,7 +17972,7 @@ TS.registerModule("constants", {
     },
     subtype__mpim_join: function(imsg) {
       var user_id = imsg.user;
-      var member = TS.members.getMemberById(user_id);
+      var member = TS.members.getKnownMemberById(user_id);
       if (!member) {
         TS.error('unknown member: "' + user_id + '"');
         return;
@@ -18178,7 +18181,7 @@ TS.registerModule("constants", {
         return;
       }
       var user_id = imsg.user;
-      var member = TS.members.getMemberById(user_id);
+      var member = TS.members.getKnownMemberById(user_id);
       if (!member) {
         TS.error('unknown member: "' + user_id + '"');
         return;
@@ -18195,7 +18198,7 @@ TS.registerModule("constants", {
         return;
       }
       var user_id = imsg.user;
-      var member = TS.members.getMemberById(user_id);
+      var member = TS.members.getKnownMemberById(user_id);
       if (!member) {
         TS.error('unknown member: "' + user_id + '"');
         return;
@@ -18229,7 +18232,7 @@ TS.registerModule("constants", {
         TS.error("error why can we not find this im: " + imsg.channel.id);
         return;
       }
-      var member = TS.members.getMemberById(imsg.user);
+      var member = TS.members.getKnownMemberById(imsg.user);
       if (!member) {
         TS.error('unknown member: "' + imsg.user + '"');
         return;
@@ -18251,7 +18254,7 @@ TS.registerModule("constants", {
         return;
       }
       im.is_open = true;
-      var member = TS.members.getMemberById(imsg.user);
+      var member = TS.members.getKnownMemberById(imsg.user);
       if (!member) {
         TS.error('unknown member: "' + imsg.user + '"');
         return;
@@ -18321,7 +18324,7 @@ TS.registerModule("constants", {
       }
     },
     status_change: function(imsg) {
-      var member = TS.members.getMemberById(imsg.user);
+      var member = TS.members.getKnownMemberById(imsg.user);
       if (!member) {
         TS.error('unknown member: "' + imsg.user + '"');
         return;
@@ -18443,7 +18446,7 @@ TS.registerModule("constants", {
       var member = imsg.user;
       TS.info(member.id + " joined the team");
       TS.members.upsertMember(member);
-      member = TS.members.getMemberById(member.id);
+      member = TS.members.getKnownMemberById(member.id);
       if (!member) {
         TS.error("team_join: wtf no member " + member.id + "?");
         return;
@@ -18452,7 +18455,7 @@ TS.registerModule("constants", {
       if (TS.client) TS.view.showProperTeamPaneFiller();
     },
     user_change: function(imsg) {
-      var member = TS.members.getMemberById(imsg.user.id);
+      var member = TS.members.getKnownMemberById(imsg.user.id);
       var is_synthetic_event_from_flannel = imsg.from_flannel;
       if (!member) {
         if (!is_synthetic_event_from_flannel) {
@@ -18488,7 +18491,7 @@ TS.registerModule("constants", {
         TS.error(imsg.type + " has no item");
         return;
       }
-      var member = TS.members.getMemberById(imsg.user);
+      var member = TS.members.getKnownMemberById(imsg.user);
       if (!member) {
         TS.error('unknown member: "' + imsg.user + '"');
         return;
@@ -18504,7 +18507,7 @@ TS.registerModule("constants", {
         TS.error(imsg.type + " has no item");
         return;
       }
-      var member = TS.members.getMemberById(imsg.user);
+      var member = TS.members.getKnownMemberById(imsg.user);
       if (!member) {
         TS.error('unknown member: "' + imsg.user + '"');
         return;
@@ -18644,7 +18647,7 @@ TS.registerModule("constants", {
     error: function() {},
     user_typing: function(imsg) {
       if (!TS.typing) return;
-      var member = TS.members.getMemberById(imsg.user);
+      var member = TS.members.getKnownMemberById(imsg.user);
       if (!member) {
         TS.error("unknown imsg.user:" + imsg.user);
         return;
@@ -18760,7 +18763,7 @@ TS.registerModule("constants", {
       TS.dnd.dndOverride(imsg.channel, imsg.timestamp);
     },
     dnd_updated: function(imsg) {
-      var member = TS.members.getMemberById(imsg.user);
+      var member = TS.members.getKnownMemberById(imsg.user);
       if (!member) {
         TS.error('unknown member: "' + imsg.user + '"');
         return;
@@ -18768,7 +18771,7 @@ TS.registerModule("constants", {
       TS.dnd.updateUserPropsAndSignal(member.id, imsg.dnd_status);
     },
     dnd_updated_user: function(imsg) {
-      var member = TS.members.getMemberById(imsg.user);
+      var member = TS.members.getKnownMemberById(imsg.user);
       if (!member) {
         TS.error('unknown member: "' + imsg.user + '"');
         return;
@@ -19060,7 +19063,7 @@ TS.registerModule("constants", {
       return TS.members.ensureMembersArePresent(missing_m_ids.m_ids, missing_m_ids.c_ids, missing_m_ids.t_ids).then(function() {
         return proceedWithImsg();
       }, function(err) {
-        if (imsg.user && typeof imsg.user === "string" && !TS.members.getMemberById(imsg.user) || imsg.channel && typeof imsg.channel === "object" && imsg.channel.user && typeof imsg.channel.user === "string" && !TS.members.getMemberById(imsg.channel.user)) {
+        if (imsg.user && typeof imsg.user === "string" && !TS.members.getKnownMemberById(imsg.user) || imsg.channel && typeof imsg.channel === "object" && imsg.channel.user && typeof imsg.channel.user === "string" && !TS.members.getKnownMemberById(imsg.channel.user)) {
           TS.error(full_type + " could not be handled because imsg.user or imsg.channel.user could not be fetched. full err: " + err.message);
           TS.log(0, "imsg.ts:" + imsg.ts + ", imsg.user:" + imsg.user + ", imsg.channel.user:" + imsg.channel && imsg.channel.user);
           if (ensure_profiling_callback) ensure_profiling_callback(is_async);
@@ -19201,7 +19204,7 @@ TS.registerModule("constants", {
       TS.error('unknown presence: "' + presence + '"');
       return;
     }
-    var member = TS.members.getMemberById(member_id);
+    var member = TS.members.getKnownMemberById(member_id);
     if (!member) {
       return;
     }
@@ -19396,9 +19399,7 @@ TS.registerModule("constants", {
           return data;
         }
         TS.info("Got rtm.start data but need to fetch " + required_member_ids.length + " members");
-        if (TS.shouldLog(1989) || TS.boot_data.feature_tinyspeck) {
-          TS.info(required_member_ids.join(", "));
-        }
+        TS.log(1989, required_member_ids.join(", "));
         return _fetchRawObjectsByIds(required_member_ids).then(function(members) {
           TS.info("Got " + members.length + " members for rtm.start :tada:");
           if (required_member_ids.length !== members.length) {
@@ -24740,6 +24741,9 @@ TS.registerModule("constants", {
       });
       Handlebars.registerHelper("canKickFromGroups", function(options) {
         return TS.permissions.members.canKickFromGroups() ? options.fn(this) : options.inverse(this);
+      });
+      Handlebars.registerHelper("shouldShowMemberEmail", function(member) {
+        return member.is_self || TS.model.team.prefs.display_email_addresses;
       });
       Handlebars.registerHelper("numberWithMax", function(number, max) {
         if (number >= max) {
@@ -30863,7 +30867,7 @@ TS.registerModule("constants", {
         if (pathname_parts.length < 3) return null;
         var member_name = pathname_parts[1];
         if (!member_name) return null;
-        if (!(TS.members.getMemberByName(member_name) || TS.members.getMemberById(member_name))) return null;
+        if (!(TS.members.getMemberByName(member_name) || TS.members.getKnownMemberById(member_name))) return null;
         file_id = pathname_parts[2];
       } else if (pathname.indexOf("files-pri/") === 0) {
         pathname_parts = pathname.split("/");
@@ -37156,7 +37160,7 @@ var _on_esc;
         var input_text = cmd + " " + rest;
         var m;
         if (TS.boot_data.feature_name_tagging_client_extras) {
-          m = TS.members.getMemberById(name);
+          m = TS.members.getKnownMemberById(name);
         } else {
           m = TS.members.getMemberByName(name);
         }
@@ -37236,7 +37240,7 @@ var _on_esc;
         var ug;
         var m;
         if (TS.boot_data.feature_name_tagging_client_extras) {
-          m = TS.members.getMemberById(name);
+          m = TS.members.getKnownMemberById(name);
         } else {
           m = TS.members.getMemberByName(name);
         }
@@ -37643,7 +37647,7 @@ var _on_esc;
         var input_text = cmd + " " + rest;
         var m;
         if (TS.boot_data.feature_name_tagging_client_extras) {
-          m = TS.members.getMemberById(name);
+          m = TS.members.getKnownMemberById(name);
         } else {
           m = TS.members.getMemberByName(name);
         }
@@ -38010,7 +38014,7 @@ var _on_esc;
         }
         var member;
         if (TS.boot_data.feature_name_tagging_client_extras) {
-          member = TS.members.getMemberById(rest);
+          member = TS.members.getKnownMemberById(rest);
         } else {
           member = TS.members.getMemberByName(rest);
         }
@@ -38227,7 +38231,7 @@ var _on_esc;
       can_be_overridden_by_server_cmd: true,
       func: function(cmd, rest) {
         var model_ob = TS.shared.getActiveModelOb();
-        var member = TS.members.getMemberById(model_ob.user);
+        var member = TS.members.getKnownMemberById(model_ob.user);
         if (TS.boot_data.page_needs_enterprise) {
           var team = TS.model.team;
           if (TS.shared.isModelObShared(model_ob) || member && team && member.team_id !== team.id) {
@@ -50751,7 +50755,7 @@ $.fn.togglify = function(settings) {
       };
       if (file) {
         payload.is_successful = true;
-        var user = TS.members.getMemberById(file.user);
+        var user = TS.members.getKnownMemberById(file.user);
         if (user && user.is_bot) {
           var bot_id = user.profile.bot_id;
           var bot = TS.bots.getBotById(bot_id);
@@ -54544,7 +54548,7 @@ $.fn.togglify = function(settings) {
       var template_args = {
         query: query,
         tab: {
-          label: "User Groups"
+          label: TS.i18n.t("User Groups", "pages_admin")()
         }
       };
       html = '<div class="no_results top_margin">' + TS.templates.team_list_no_results(template_args) + "</div>";
@@ -56998,7 +57002,7 @@ $.fn.togglify = function(settings) {
       });
       return;
     }
-    var caller = TS.members.getMemberById(imsg.caller);
+    var caller = TS.members.getKnownMemberById(imsg.caller);
     var caller_p = Promise.resolve(caller);
     if (!caller) {
       caller_p = TS.api.call("users.info", {
@@ -59102,7 +59106,7 @@ $.fn.togglify = function(settings) {
     }
     TS.generic_dialog.div.on("shown", function shown() {
       TS.generic_dialog.div.off("shown", shown);
-      $container.find(".message_input").select();
+      TS.utility.contenteditable.focus($input);
     });
     $dialog.find(".share_dialog_attachment_container").find("a[href]", "button").attr("tabindex", "-1");
     if (_options.onShow) _options.onShow();
@@ -62664,7 +62668,9 @@ $.fn.togglify = function(settings) {
     return views;
   };
   var _searchRemote = function(query, options) {
-    if (!TS.lazyLoadMembersAndBots()) return Promise.resolve(_searchLocal(query, options));
+    if (!TS.lazyLoadMembersAndBots() || !TS.useSocket()) {
+      return Promise.resolve(_searchLocal(query, options));
+    }
     var promises = [];
     if (options.members) promises.push(_promiseRemoteMembers(query, options));
     return Promise.all(promises).then(function() {
@@ -63497,7 +63503,8 @@ $.fn.togglify = function(settings) {
 
         function vt(e, t, n, a, s) {
           var u = {};
-          return !0 !== n && !1 !== n || (a = n, n = void 0), (o(e) && i(e) || r(e) && 0 === e.length) && (e = void 0), u._isAMomentObject = !0, u._useUTC = u._isUTC = s, u._l = n, u._i = e, u._f = t, u._strict = a, _t(u);
+          return !0 !== n && !1 !== n || (a = n, n = void 0), (o(e) && i(e) || r(e) && 0 === e.length) && (e = void 0), u._isAMomentObject = !0, u._useUTC = u._isUTC = s,
+            u._l = n, u._i = e, u._f = t, u._strict = a, _t(u);
         }
 
         function gt(e, t, n, r) {

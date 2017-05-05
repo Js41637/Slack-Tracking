@@ -2528,15 +2528,15 @@
     var has_restricted_results = restricted_results_members.length > 0;
     var tabs = [{
       name: "active",
-      label: "full team members",
+      label: TS.i18n.t("full team members", "web_admin")(),
       list_items: results.active
     }, {
       name: "restricted",
-      label: "multi-channel guests",
+      label: TS.i18n.t("multi-channel guests", "web_admin")(),
       list_items: results.restricted
     }, {
       name: "disabled",
-      label: "deactivated accounts",
+      label: TS.i18n.t("deactivated accounts", "web_admin")(),
       list_items: results.disabled
     }];
     tabs.forEach(function(tab) {

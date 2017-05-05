@@ -1318,7 +1318,7 @@
           var dispatched = 0;
           var start = Date.now();
           TS.model.online_users = _.filter(TS.model.online_users, function(id) {
-            var member = TS.members.getMemberById(id);
+            var member = TS.members.getKnownMemberById(id);
             if (member) {
               if (member.presence !== "active") {
                 member.presence = "active";
@@ -1441,7 +1441,7 @@
         });
         var unknown_user_ids = [];
         for (var id in ids) {
-          if (!TS.members.getMemberById(id)) unknown_user_ids.push(id);
+          if (!TS.members.getKnownMemberById(id)) unknown_user_ids.push(id);
         }
         if (unknown_user_ids.length) {
           log_data.push("doAllMembersFromChannelsInRawDataExist() found (" + unknown_user_ids.length + ") unknown members: " + unknown_user_ids.join(", "));

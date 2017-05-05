@@ -1160,7 +1160,7 @@
       if (!imsg.active || !imsg.active.length) return;
       var member;
       for (var i = 0; i < imsg.active.length; i += 1) {
-        member = TS.members.getMemberById(imsg.active[i]);
+        member = TS.members.getKnownMemberById(imsg.active[i]);
         if (!member) {
           TS.error('unknown member: "' + imsg.active[i] + '"');
           return;
@@ -1169,7 +1169,7 @@
       }
     },
     presence_change: function(imsg) {
-      var member = TS.members.getMemberById(imsg.user);
+      var member = TS.members.getKnownMemberById(imsg.user);
       if (!member) {
         TS.error('unknown member: "' + imsg.user + '"');
         return;
