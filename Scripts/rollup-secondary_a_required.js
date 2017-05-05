@@ -3985,7 +3985,7 @@
         return;
       }
       if (TS.pri) TS.log(999, "displayChannel: " + channel.id);
-      if (channel._did_defer_initial_msg_history) {
+      if (TS.shared.didDeferMessageHistoryById(channel.id)) {
         TS.shared.checkInitialMsgHistory(channel, TS.channels);
       }
       if (!channel.is_member) {
@@ -5650,7 +5650,7 @@ TS.registerModule("constants", {
       TS.utility.msgs.maybeClearPrevLastRead();
       TS.utility.msgs.maybeClearPrevLastRead(group);
       TS.shared.maybeClearHasAutoScrolled();
-      if (group._did_defer_initial_msg_history) {
+      if (TS.shared.didDeferMessageHistoryById(group.id)) {
         TS.shared.checkInitialMsgHistory(group, TS.groups);
       }
       TS.log(999, "displayGroup " + group.id + " from_history:" + from_history + " replace_history_state:" + replace_history_state);
@@ -8280,7 +8280,7 @@ TS.registerModule("constants", {
       TS.utility.msgs.maybeClearPrevLastRead();
       TS.utility.msgs.maybeClearPrevLastRead(im);
       TS.shared.maybeClearHasAutoScrolled();
-      if (im._did_defer_initial_msg_history) {
+      if (TS.shared.didDeferMessageHistoryById(im.id)) {
         TS.shared.checkInitialMsgHistory(im, TS.ims);
       }
       if (im_id == TS.model.active_im_id && !TS.client.activeChannelIsHidden()) {
@@ -8808,7 +8808,7 @@ TS.registerModule("constants", {
       TS.utility.msgs.maybeClearPrevLastRead();
       TS.utility.msgs.maybeClearPrevLastRead(mpim);
       TS.shared.maybeClearHasAutoScrolled();
-      if (mpim._did_defer_initial_msg_history) {
+      if (TS.shared.didDeferMessageHistoryById(mpim.id)) {
         TS.shared.checkInitialMsgHistory(mpim, TS.mpims);
       }
       if (mpim_id == TS.model.active_mpim_id && !replace_history_state && !TS.client.activeChannelIsHidden()) {
@@ -9425,22 +9425,42 @@ TS.registerModule("constants", {
       });
       return test_ob;
     },
+    didDeferMessageHistoryById: function(id) {
+      if (!id) return false;
+      return _did_defer_initial_msg_history_map[id];
+    },
+    setDeferMessageHistoryForId: function(id, did_defer_initial_msg_history) {
+      if (!id) return;
+      _did_defer_initial_msg_history_map[id] = !!did_defer_initial_msg_history;
+    },
+    getUserCountsInfoById: function(id) {
+      if (!id) return;
+      return _user_counts_info_map[id];
+    },
+    setUserCountsInfoForId: function(id, user_counts_info) {
+      if (!id) return;
+      _user_counts_info_map[id] = user_counts_info;
+    },
+    deleteUserCountsInfoForId: function(id) {
+      if (!id) return;
+      delete _user_counts_info_map[id];
+    },
     calcUnreadCnts: function(model_ob, controller, and_mark) {
       if (TS._incremental_boot) {
         return;
       }
-      if (model_ob._did_defer_initial_msg_history) {
+      if (TS.shared.didDeferMessageHistoryById(model_ob.id)) {
         if (TS.boot_data.feature_disable_history_prefetch) {
           TS.log(58, "calcUnreadCnts (" + model_ob.id + "): History prefetch disabled. msgs.length: " + (model_ob.msgs && model_ob.msgs.length));
         } else if (TS.boot_data.feature_delay_channel_history_fetch && !model_ob.is_im && !model_ob.is_mpim) {
-          if (!model_ob._delayed_fetch_timer) {
+          if (!_delayed_fetch_timer_map[model_ob.id]) {
             var min_delay = 2500;
             var max_delay = 1e4;
             var delay = _.random(min_delay, max_delay);
             if (TS.pri) TS.log(58, "calcUnreadCnts (" + model_ob.id + "): no history in model, no history call yet - delaying " + delay + " ms before history fetch.");
-            model_ob._delayed_fetch_timer = window.setTimeout(function() {
+            _delayed_fetch_timer_map[model_ob.id] = window.setTimeout(function() {
               if (TS.pri) TS.log(58, "calcUnreadCnts (" + model_ob.id + "): fetching after " + delay + " ms delay.");
-              delete model_ob._delayed_fetch_timer;
+              delete _delayed_fetch_timer_map[model_ob.id];
               TS.shared.checkInitialMsgHistory(model_ob, controller);
             }, delay);
           }
@@ -9516,10 +9536,10 @@ TS.registerModule("constants", {
         controller.unread_highlight_changed_sig.dispatch(model_ob);
       }
       if (TS.client) {
-        if (!model_ob._users_counts_info || !model_ob._users_counts_info.has_unreads) return;
+        if (!_user_counts_info_map[model_ob.id] || !_user_counts_info_map[model_ob.id].has_unreads) return;
         if (!model_ob._history_fetched_since_last_connect || model_ob.history_is_being_fetched) return;
         if (!model_ob.msgs.length || model_ob.unread_cnt) return;
-        delete model_ob._users_counts_info;
+        delete _user_counts_info_map[model_ob.id];
         if (TS.notifs.isCorGMuted(model_ob.id)) {
           if (TS.pri) TS.log(99, "TS.shared.calcUnreadCnts: " + model_ob.id + ": ignoring possible users.counts has_unreads discrepancy because channel is muted.");
           return;
@@ -9600,12 +9620,12 @@ TS.registerModule("constants", {
         TS.warn('checkInitialMsgHistory NOT DOING ANYTHING, because "' + model_ob.id + '" history_is_being_fetched:true');
         return;
       }
-      if (TS.boot_data.feature_delay_channel_history_fetch && model_ob._delayed_fetch_timer) {
+      if (TS.boot_data.feature_delay_channel_history_fetch && _delayed_fetch_timer_map[model_ob.id]) {
         if (TS.pri) TS.log(58, "checkInitialMsgHistory (" + model_ob.id + "): Clearing _delayed_fetch_timer and fetching immediately");
-        window.clearTimeout(model_ob._delayed_fetch_timer);
-        delete model_ob._delayed_fetch_timer;
+        window.clearTimeout(_delayed_fetch_timer_map[model_ob.id]);
+        delete _delayed_fetch_timer_map[model_ob.id];
       }
-      delete model_ob._did_defer_initial_msg_history;
+      TS.shared.setDeferMessageHistoryForId(model_ob.id, false);
       if (defer_api_check) {
         model_ob._needs_unread_recalc = true;
       } else {
@@ -9633,7 +9653,7 @@ TS.registerModule("constants", {
           return true;
         }
       } else if (defer_api_check) {
-        model_ob._did_defer_initial_msg_history = true;
+        TS.shared.setDeferMessageHistoryForId(model_ob.id, true);
       } else {
         if (TS.boot_data && TS.boot_data.feature_disable_history_prefetch) {
           if (TS.shared.getActiveModelOb().id === model_ob.id) {
@@ -10901,6 +10921,9 @@ TS.registerModule("constants", {
   });
   var _ensure_im_ids_p;
   var _ensure_group_ids_p;
+  var _did_defer_initial_msg_history_map = {};
+  var _delayed_fetch_timer_map = {};
+  var _user_counts_info_map = {};
   var _addMsgsWorker = function(model_ob, msgs) {
     var added_any = false;
     if (!model_ob._history_fetched_since_last_connect) {
@@ -19102,12 +19125,12 @@ TS.registerModule("constants", {
     if (!_Q.length) _q_grew_from_event_log = false;
     if (_waitAFrame()) {
       return new Promise(function(resolve) {
-        TS.utility.rAF(function() {
-          TS.log(794, "dequeuing too much per frame; need to take a break");
+        setTimeout(function() {
+          TS.log(794, "too much work per frame; need to take a break");
           _sync_processing = null;
           _nextFromQ();
           return resolve();
-        });
+        }, 0);
       });
     }
     _nextFromQ();
@@ -25373,7 +25396,7 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("makeMemberPreviewLinkById", function(id, show_you_for_current_user) {
         if (show_you_for_current_user !== true) show_you_for_current_user = false;
         var member = TS.members.getMemberById(id) || TS.bots.getBotById(id);
-        if (!member) return new Handlebars.SafeString(id);
+        if (!member) return new Handlebars.SafeString(TS.utility.htmlEntities(id));
         return new Handlebars.SafeString(TS.templates.builders.makeMemberPreviewLink(member, show_you_for_current_user));
       });
       Handlebars.registerHelper("makeMemberPreviewLinkImage", function() {
@@ -28257,20 +28280,20 @@ TS.registerModule("constants", {
       TS.utility.msgs.startBatchUnreadCalc();
       channels.forEach(function(channel) {
         if (channel.is_archived && !channel.was_archived_this_session) return;
-        if (defer_api_check && channel._did_defer_initial_msg_history) delete channel._did_defer_initial_msg_history;
+        if (defer_api_check && TS.shared.didDeferMessageHistoryById(channel.id)) TS.shared.setDeferMessageHistoryForId(channel.id, false);
         TS.channels.calcUnreadCnts(channel);
       });
       TS.model.groups.forEach(function(group) {
         if (group.is_archived && !group.was_archived_this_session) return;
-        if (defer_api_check && group._did_defer_initial_msg_history) delete group._did_defer_initial_msg_history;
+        if (defer_api_check && TS.shared.didDeferMessageHistoryById(group.id)) TS.shared.setDeferMessageHistoryForId(group.id, false);
         TS.groups.calcUnreadCnts(group);
       });
       TS.model.ims.forEach(function(im) {
-        if (defer_api_check && im._did_defer_initial_msg_history) delete im._did_defer_initial_msg_history;
+        if (defer_api_check && TS.shared.didDeferMessageHistoryById(im.id)) TS.shared.setDeferMessageHistoryForId(im.id, false);
         TS.ims.calcUnreadCnts(im);
       });
       TS.model.mpims.forEach(function(mpim) {
-        if (defer_api_check && mpim._did_defer_initial_msg_history) delete mpim._did_defer_initial_msg_history;
+        if (defer_api_check && TS.shared.didDeferMessageHistoryById(mpim.id)) TS.shared.setDeferMessageHistoryForId(mpim.id, false);
         TS.mpims.calcUnreadCnts(mpim);
       });
       TS.utility.msgs.finishBatchUnreadCalc();
@@ -29369,9 +29392,9 @@ TS.registerModule("constants", {
     },
     maybeClearUsersCountsInfo: function(model_ob) {
       if (!model_ob) return;
-      if (!model_ob._users_counts_info) return;
-      if (TS.pri) TS.log(888, "Deleting _users_counts_info on " + model_ob.id);
-      delete model_ob._users_counts_info;
+      if (!TS.shared.getUserCountsInfoById(model_ob.id)) return;
+      if (TS.pri) TS.log(888, "Deleting users_counts_info for " + model_ob.id);
+      TS.shared.deleteUserCountsInfoForId(model_ob.id);
     },
     isMsgReply: function(msg) {
       if (!msg) return false;
