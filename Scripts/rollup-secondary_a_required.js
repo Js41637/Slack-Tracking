@@ -12773,6 +12773,7 @@ TS.registerModule("constants", {
     _processNewMemberForUpserting(member);
     member.is_unknown = true;
     member.is_non_existent = false;
+    _setImagesForUnknownMember(member);
     TS.model.members.push(member);
     return member;
   };
@@ -12780,12 +12781,9 @@ TS.registerModule("constants", {
     if (!TS.boot_data.feature_unknown_members) return;
     if (!_.isObject(member.profile)) return;
     if (!member.is_unknown && !member.is_non_existent) return;
-    member.profile.image_24 = cdn_url + "/66f9/img/avatars/ava_0002-24.png";
-    member.profile.image_32 = cdn_url + "/0180/img/avatars/ava_0002-32.png";
-    member.profile.image_48 = cdn_url + "/66f9/img/avatars/ava_0002-48.png";
-    member.profile.image_72 = cdn_url + "/66f9/img/avatars/ava_0002-72.png";
-    member.profile.image_192 = cdn_url + "/7fa9/img/avatars/ava_0002-192.png";
-    member.profile.image_512 = cdn_url + "/7fa9/img/avatars/ava_0002-512.png";
+    _.forEach(["24", "32", "48", "72", "192", "512", "1024"], function(size) {
+      member.profile["image_" + size] = cdn_url + "/1e11/img/unknown_avatar.png";
+    });
   };
   var _processNewMemberForUpserting = function(member) {
     if (!member.profile || typeof member.profile !== "object") {
@@ -12831,7 +12829,6 @@ TS.registerModule("constants", {
   var _setImagesForMember = function(member) {
     if (!_.isObject(member.profile)) return;
     _maybeSetTeamId(member);
-    if (TS.boot_data.feature_unknown_members && !member.profile.avatar_hash && member.is_unknown) return _setImagesForUnknownMember(member);
     var image_url = TS.model.team.avatar_base_url + member.team_id + "-" + member.id + "-" + member.profile.avatar_hash + "-";
     _.forEach(["24", "32", "48", "72", "192", "512", "1024"], function(size) {
       member.profile["image_" + size] = image_url + size;
@@ -19203,95 +19200,95 @@ TS.registerModule("constants", {
       callback(pending_event.cache_ts);
     }, delay);
   };
-})();
-var _profiling_enabled = false;
-var _stats_collecting_enabled = false;
-var _profiling_default_warn_threshold = 1e3;
-var _profiling_report_timer = null;
-var _profiling_report_interval = 6e4;
-var _profiling_stats = {};
-var _profiling_stats_meta = {};
-var _profiling_total_imsgs_received = 0;
-var _profiling_start_time = 0;
-var _profiling = {
-  start: function(label, warn_threshold) {
-    if (!_stats_collecting_enabled) return;
-    warn_threshold = warn_threshold && parseInt(warn_threshold, 10) || _profiling_default_warn_threshold;
-    var data = {
-      start: performance.now(),
-      end: 0
-    };
-    var finish = function(async) {
-      async = !!async;
-      data.end = performance.now();
-      var elapsed = data.end - data.start;
-      if (elapsed > warn_threshold) {
-        TS.warn("'" + label + "' msg_handler took " + _.round(elapsed, 2) + "ms" + (warn_threshold !== _profiling_default_warn_threshold ? " (threshold = " + warn_threshold + ")" : ""));
-      }
-      _profiling.count(label, elapsed, async);
-    };
-    return finish;
-  },
-  count: function(label, duration, async) {
-    if (!_profiling_stats_meta.start_time) _profiling_stats_meta.start_time = performance.now();
-    if (!_profiling_stats[label]) {
-      _profiling_stats[label] = {
-        call_count: 0,
-        elapsed_time: 0,
-        async: !!async
+  var _profiling_enabled = false;
+  var _stats_collecting_enabled = false;
+  var _profiling_default_warn_threshold = 1e3;
+  var _profiling_report_timer = null;
+  var _profiling_report_interval = 6e4;
+  var _profiling_stats = {};
+  var _profiling_stats_meta = {};
+  var _profiling_total_imsgs_received = 0;
+  var _profiling_start_time = 0;
+  var _profiling = {
+    start: function(label, warn_threshold) {
+      if (!_stats_collecting_enabled) return;
+      warn_threshold = warn_threshold && parseInt(warn_threshold, 10) || _profiling_default_warn_threshold;
+      var data = {
+        start: performance.now(),
+        end: 0
       };
-    }
-    if (async) _profiling_stats[label].async = async;
-    _profiling_stats[label].call_count += 1;
-    _profiling_stats[label].elapsed_time += duration;
-    _profiling.maybeReport();
-  },
-  report: function() {
-    _profiling.finish();
-    if (_.size(_profiling_stats)) {
-      var calls = _.sum(_.map(_profiling_stats, "call_count"));
-      TS.log(808, "🏔️ MS message stats: " + calls + " handler calls in " + parseInt(_profiling_stats_meta.elapsed_time / 1e3, 10) + "s window, " + _profiling_total_imsgs_received + " imsgs since " + new Date(_profiling_start_time), _profiling_stats);
-      _profiling.beacon();
-    }
-    _profiling.reset();
-  },
-  beacon: function() {
-    var prefix = "ms_handler_";
-    _.each(_profiling_stats, function(value, key) {
-      if (value.async) {
-        key = prefix + "async_" + key;
-      } else {
-        key = prefix + key;
+      var finish = function(async) {
+        async = !!async;
+        data.end = performance.now();
+        var elapsed = data.end - data.start;
+        if (elapsed > warn_threshold) {
+          TS.warn("'" + label + "' msg_handler took " + _.round(elapsed, 2) + "ms" + (warn_threshold !== _profiling_default_warn_threshold ? " (threshold = " + warn_threshold + ")" : ""));
+        }
+        _profiling.count(label, elapsed, async);
+      };
+      return finish;
+    },
+    count: function(label, duration, async) {
+      if (!_profiling_stats_meta.start_time) _profiling_stats_meta.start_time = performance.now();
+      if (!_profiling_stats[label]) {
+        _profiling_stats[label] = {
+          call_count: 0,
+          elapsed_time: 0,
+          async: !!async
+        };
       }
-      TS.metrics.count(key + "_count", value.call_count);
-      TS.metrics.store(key + "_time", value.elapsed_time);
-    });
-    TS.metrics.store(prefix + "imsgs_received_total", _profiling_total_imsgs_received, {
-      is_count: true
-    });
-  },
-  finish: function() {
-    _profiling_stats_meta.end_time = performance.now();
-    _profiling_stats_meta.elapsed_time = _profiling_stats_meta.end_time - _profiling_stats_meta.start_time;
-  },
-  reset: function() {
-    _profiling_stats = {};
-    _profiling_stats_meta = {};
-    _profiling_report_timer = null;
-  },
-  maybeReport: function() {
-    if (_profiling_report_timer) return;
-    _profiling_report_timer = window.setTimeout(_profiling.report, _profiling_report_interval);
-  },
-  enableStatsCollecting: function() {
-    TS.log(808, "🏔️ MS message handler stat collecting enabled");
-    _stats_collecting_enabled = true;
-  },
-  disableStatsCollecting: function() {
-    TS.log(808, "🏔️ MS message handler stat collecting disabled");
-    _stats_collecting_enabled = false;
-  }
-};
+      if (async) _profiling_stats[label].async = async;
+      _profiling_stats[label].call_count += 1;
+      _profiling_stats[label].elapsed_time += duration;
+      _profiling.maybeReport();
+    },
+    report: function() {
+      _profiling.finish();
+      if (_.size(_profiling_stats)) {
+        var calls = _.sum(_.map(_profiling_stats, "call_count"));
+        TS.log(808, "🏔️ MS message stats: " + calls + " handler calls in " + parseInt(_profiling_stats_meta.elapsed_time / 1e3, 10) + "s window, " + _profiling_total_imsgs_received + " imsgs since " + new Date(_profiling_start_time), _profiling_stats);
+        _profiling.beacon();
+      }
+      _profiling.reset();
+    },
+    beacon: function() {
+      var prefix = "ms_handler_";
+      _.each(_profiling_stats, function(value, key) {
+        if (value.async) {
+          key = prefix + "async_" + key;
+        } else {
+          key = prefix + key;
+        }
+        TS.metrics.count(key + "_count", value.call_count);
+        TS.metrics.store(key + "_time", value.elapsed_time);
+      });
+      TS.metrics.store(prefix + "imsgs_received_total", _profiling_total_imsgs_received, {
+        is_count: true
+      });
+    },
+    finish: function() {
+      _profiling_stats_meta.end_time = performance.now();
+      _profiling_stats_meta.elapsed_time = _profiling_stats_meta.end_time - _profiling_stats_meta.start_time;
+    },
+    reset: function() {
+      _profiling_stats = {};
+      _profiling_stats_meta = {};
+      _profiling_report_timer = null;
+    },
+    maybeReport: function() {
+      if (_profiling_report_timer) return;
+      _profiling_report_timer = window.setTimeout(_profiling.report, _profiling_report_interval);
+    },
+    enableStatsCollecting: function() {
+      TS.log(808, "🏔️ MS message handler stat collecting enabled");
+      _stats_collecting_enabled = true;
+    },
+    disableStatsCollecting: function() {
+      TS.log(808, "🏔️ MS message handler stat collecting disabled");
+      _stats_collecting_enabled = false;
+    }
+  };
+})();
 (function() {
   "use strict";
   TS.registerModule("flannel", {
@@ -19476,18 +19473,24 @@ var _profiling = {
   };
   var _batchUpsertObjects = function(objects) {
     TS.log(1989, "Flannel: upserting batch of " + objects.length + " objects");
-    var is_upserting_bots = _.some(objects, _isBot);
+    var partitioned_objects = _.partition(objects, function(ob) {
+      return TS.shared.getModelObById(ob.id);
+    });
+    var non_batch_upsertable_objects = partitioned_objects[0].map(_upsertObject);
+    if (non_batch_upsertable_objects.length === objects.length) return _.compact(non_batch_upsertable_objects);
+    var batch_upsertable_objects = partitioned_objects[1];
+    var is_upserting_bots = _.some(batch_upsertable_objects, _isBot);
     if (is_upserting_bots) TS.bots.startBatchUpsert();
-    var is_upserting_members = _.some(objects, TS.utility.members.isMember);
+    var is_upserting_members = _.some(batch_upsertable_objects, TS.utility.members.isMember);
     if (is_upserting_members) TS.members.startBatchUpsert();
-    var upserted_objects;
+    var batch_upserted_objects;
     try {
-      upserted_objects = _(objects).map(_upsertObject).compact().value();
+      batch_upserted_objects = _(batch_upsertable_objects).map(_upsertObject).value();
     } finally {
       if (is_upserting_bots) TS.bots.finishBatchUpsert();
       if (is_upserting_members) TS.members.finishBatchUpsert();
     }
-    return upserted_objects;
+    return _(non_batch_upsertable_objects).concat(batch_upserted_objects).compact().value();
   };
   var _upsertObject = function(ob) {
     if (_isBot(ob)) {
@@ -24291,7 +24294,7 @@ var _profiling = {
     if (TS.boot_data.feature_new_broadcast) {
       if (template_args.is_broadcast) msg_classes.push("thread_broadcast");
     }
-    if (TS.boot_data.feature_unknown_members && template_args.member.is_unknown) msg_classes.push("member_is_unknown");
+    if (TS.boot_data.feature_unknown_members && _.get(template_args.member, "is_unknown")) msg_classes.push("member_is_unknown");
     return msg_classes;
   }
 
@@ -63573,8 +63576,7 @@ $.fn.togglify = function(settings) {
         }
 
         function Rt(e) {
-          return !!this.isValid() && (e = e ? gt(e).utcOffset() : 0,
-            (this.utcOffset() - e) % 60 == 0);
+          return !!this.isValid() && (e = e ? gt(e).utcOffset() : 0, (this.utcOffset() - e) % 60 == 0);
         }
 
         function It() {
