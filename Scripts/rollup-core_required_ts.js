@@ -2469,6 +2469,32 @@
         3: "K"
       }
     },
+    locales_number_formatting: {
+      "default": {
+        decimal_symbol: ".",
+        thousands_separator: ","
+      },
+      "en-US": {
+        decimal_symbol: ".",
+        thousands_separator: ","
+      },
+      "es-ES": {
+        decimal_symbol: ",",
+        thousands_separator: " "
+      },
+      "fr-FR": {
+        decimal_symbol: ",",
+        thousands_separator: " "
+      },
+      "ja-JP": {
+        decimal_symbol: ".",
+        thousands_separator: ","
+      },
+      "de-DE": {
+        decimal_symbol: ",",
+        thousands_separator: "."
+      }
+    },
     test: {
       setLocale: function(locale) {
         _locale = locale;

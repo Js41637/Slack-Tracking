@@ -3572,7 +3572,7 @@
     TS.ims.unread_highlight_changed_sig.add(TS.redux.channels.forceUpdateOfEntityById);
   };
   var _logStaleModelObAccess = function(immediate_caller, stack, is_get_call) {
-    var STALE_MODEL_SET_VERSION = 1;
+    var STALE_MODEL_SET_VERSION = 2;
     if (is_get_call) {
       TS.metrics.count("redux_stale_model_get_v" + STALE_MODEL_SET_VERSION);
     } else {
@@ -3625,7 +3625,7 @@
       };
       if (TS.boot_data.user_id === "W2V82BY0G") {
         handler.get = function(target, prop) {
-          if (prop !== "id" && target && target.id && _getChannelById(target.id) !== target) {
+          if (prop !== "id" && !window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ && target && target.id && _getChannelById(target.id) !== target) {
             TS.console.logStackTrace("Getting a property on a stale model object");
             var stack = TS.console.getStackTrace();
             var immediate_caller = _.get(stack.split("\n"), "[1]");
@@ -3664,6 +3664,7 @@
       return _cached_objects[key];
     }
     _cached_entities = entities;
+    _cached_objects = {};
     _cached_objects[key] = _.filter(entities, filter);
     if (_shouldWrapEntityInProxyObject()) {
       _cached_objects[key] = _.map(_cached_objects[key], _maybeWrapEntityInProxyObject);
@@ -3672,6 +3673,7 @@
       _clear_timeouts[key] = _.defer(function() {
         delete _cached_objects[key];
         delete _clear_timeouts[key];
+        _cached_entities = null;
       });
     }
     return _cached_objects[key];
@@ -4798,6 +4800,9 @@
     getUserChannelMembershipStatus: function(user_id, channel) {
       if (!_.isString(user_id)) throw new Error("Expected user_id to be a string");
       if (!_.isObject(channel)) throw new Error("Expected channel to be an object");
+      if (TS.useRedux()) {
+        channel = TS.redux.channels.getUpdatedReferenceToEntity(channel);
+      }
       if (channel.is_im) {
         return {
           is_known: true,
@@ -22957,10 +22962,16 @@ TS.registerModule("constants", {
       comment = comment || "";
       $("#file_sharing_div").remove();
       var is_owner = false;
+      var owner_team = false;
       if (!file) {
         is_owner = true;
       } else if (file.user === TS.model.user.id) {
         is_owner = true;
+      } else if (file.user) {
+        var file_owner = TS.members.getMemberById(file.user);
+        if (file_owner && file_owner.is_external) {
+          owner_team = TS.teams.getTeamNameByMember(file_owner);
+        }
       }
       var file_sharing_notice = TS.i18n.t("Files are private until they are shared in a public channel.", "templates_builders")();
       if (file) {
@@ -22990,6 +23001,7 @@ TS.registerModule("constants", {
         file: file,
         file_sharing_notice: file_sharing_notice,
         is_owner: is_owner,
+        owner_team: owner_team,
         has_title: has_title,
         hide_checkbox: hide_checkbox,
         comment: comment,
@@ -28149,6 +28161,9 @@ TS.registerModule("constants", {
         TS.utility.msgs.maybeExcludeUnreads(channel, unread, highlight);
       });
       TS.model.groups.forEach(function(group) {
+        if (TS.useRedux()) {
+          group = TS.redux.channels.getUpdatedReferenceToEntity(group);
+        }
         if (group.is_archived && !group.was_archived_this_session || TS.notifs.isCorGMuted(group.id)) return;
         unread = parseInt(group.unread_cnt, 10) || 0;
         highlight = parseInt(group.unread_highlight_cnt, 10) || 0;
@@ -28304,6 +28319,9 @@ TS.registerModule("constants", {
       TS.storage.storeOldestTs(model_ob.id, null);
     },
     getOlderMsgsStatus: function(model_ob) {
+      if (TS.useRedux()) {
+        model_ob = TS.redux.channels.getUpdatedReferenceToEntity(model_ob);
+      }
       var msgs = model_ob.msgs;
       var oldest_msg_ts = model_ob.oldest_msg_ts;
       var latest_msg_ts = TS.shared.getLatestMsgTs(model_ob) || null;
@@ -29936,10 +29954,12 @@ TS.registerModule("constants", {
       return decimalPlaces ? bytes.toFixed(decimalPlaces) + units[power] : Math.round(bytes) + units[power];
     },
     numberWithCommas: function(x) {
+      var locale = TS.i18n.locale();
+      var separator = TS.i18n.locales_number_formatting[locale] || TS.i18n.locales_number_formatting.default;
       if (x === undefined || x === null) return "";
       var parts = x.toString().split(".");
-      parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-      return parts.join(".");
+      parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, separator.thousands_separator);
+      return parts.join(separator.decimal_symbol);
     },
     numberWithK: function(x) {
       if (x > 999) {
@@ -61762,9 +61782,9 @@ $.fn.togglify = function(settings) {
         return "";
       }
       amount = amount ? parseInt(amount, 10) : 0;
-      var default_locale_options = _locales_number_formatting.default;
-      var decimal_symbol = _locales_number_formatting[_locale] ? _locales_number_formatting[_locale].decimal_symbol : default_locale_options.decimal_symbol;
-      var thousands_separator = _locales_number_formatting[currency_code] ? _locales_number_formatting[_locale].thousands_separator : default_locale_options.thousands_separator;
+      var default_locale_options = TS.i18n.locales_number_formatting.default;
+      var decimal_symbol = TS.i18n.locales_number_formatting[_locale] ? TS.i18n.locales_number_formatting[_locale].decimal_symbol : default_locale_options.decimal_symbol;
+      var thousands_separator = TS.i18n.locales_number_formatting[currency_code] ? TS.i18n.locales_number_formatting[_locale].thousands_separator : default_locale_options.thousands_separator;
       var currency_symbol = _currencies[currency_code] ? _currencies[currency_code].currency_symbol : currency_code;
       if (!NUMBER_FORMAT_ONLY.test(amount)) {
         TS.warn("Incorrect input passed as parameter: amount should only contain numbers");
@@ -61816,7 +61836,7 @@ $.fn.togglify = function(settings) {
       var test_ob = {
         isInString: _isInString,
         currencies: _currencies,
-        locales_number_formatting: _locales_number_formatting,
+        locales_number_formatting: TS.i18n.locales_number_formatting,
         locale: _locale,
         number_format_cache: _number_format_cache,
         getNumFormatKey: _getNumFormatKey,
@@ -61840,10 +61860,10 @@ $.fn.togglify = function(settings) {
       });
       Object.defineProperty(test_ob, "locales_number_formatting", {
         get: function() {
-          return _locales_number_formatting;
+          return TS.i18n.locales_number_formatting;
         },
         set: function(v) {
-          _locales_number_formatting = v;
+          TS.i18n.locales_number_formatting = v;
         }
       });
       Object.defineProperty(test_ob, "locale", {
@@ -61896,32 +61916,6 @@ $.fn.togglify = function(settings) {
     },
     JPY: {
       currency_symbol: "¥"
-    }
-  };
-  var _locales_number_formatting = {
-    "default": {
-      decimal_symbol: ".",
-      thousands_separator: ","
-    },
-    "en-US": {
-      decimal_symbol: ".",
-      thousands_separator: ","
-    },
-    "es-ES": {
-      decimal_symbol: ",",
-      thousands_separator: " "
-    },
-    "fr-FR": {
-      decimal_symbol: ",",
-      thousands_separator: " "
-    },
-    "ja-JP": {
-      decimal_symbol: ".",
-      thousands_separator: ","
-    },
-    "de-DE": {
-      decimal_symbol: ",",
-      thousands_separator: "."
     }
   };
   var _has_Intl = window.Intl && typeof window.Intl === "object";
@@ -62062,6 +62056,13 @@ $.fn.togglify = function(settings) {
       if (should_focus) setTimeout(TS.utility.setCursorPosition, 0, _input_to_fill, new_pos);
     }
   };
+  var _recordFrecency = function(emoji, query) {
+    var emoji_map_result = _.filter(TS.model.emoji_map, {
+      name_with_colons: TS.emoji.stripLocalizedSkinTone(emoji.name)
+    });
+    if (query) query = query.replace(/^:/, "");
+    if (emoji_map_result) TS.ui.frecency.record(emoji_map_result, query);
+  };
   var _buildEmojiPickerProps = function(args) {
     args = args || {};
     var props = {
@@ -62090,7 +62091,8 @@ $.fn.togglify = function(settings) {
       onClose: _onClose
     };
   };
-  var _onSelect = function(e, emoji) {
+  var _onSelect = function(e, emoji, query) {
+    _recordFrecency(emoji, query);
     if (_callback) {
       setTimeout(_callback, 0, emoji.name);
       return;
@@ -86616,7 +86618,7 @@ $.fn.togglify = function(settings) {
       }, {
         key: "triggerSelect",
         value: function(e, t) {
-          this.props.onSelected(e, t), e.shiftKey || this.triggerClose(e);
+          this.props.onSelected(e, t, this.state.searchQuery), e.shiftKey || this.triggerClose(e);
         }
       }, {
         key: "triggerClose",
