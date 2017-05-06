@@ -3871,13 +3871,13 @@ var _cyrillicToLatin = function(char) {
     emojiMatchesTerm: function(emoji, term, keywords) {
       if (!emoji || !term) return false;
       var emoji_base_name = TS.emoji.nameToBaseName(emoji.display_name || emoji.name);
-      if (TS.boot_data.feature_i18n_emoji) {
+      if (TS.boot_data.feature_localization) {
         term = TS.i18n.deburr(term);
         emoji_base_name = TS.i18n.deburr(emoji_base_name);
       }
       if (TS.emoji.substringMatchesName(emoji_base_name, term)) return true;
       var emoji_display_names = emoji.display_names || emoji.names;
-      if (TS.boot_data.feature_i18n_emoji) {
+      if (TS.boot_data.feature_localization) {
         emoji_display_names = TS.i18n.deburr(emoji_display_names);
       }
       var aliases = emoji_display_names.split(" ");
@@ -3888,7 +3888,7 @@ var _cyrillicToLatin = function(char) {
     },
     nameToBaseName: function(name) {
       if (!_.isString(name)) return "";
-      if (TS.boot_data.feature_i18n_emoji) {
+      if (TS.boot_data.feature_localization) {
         name = TS.emoji.stripLocalizedSkinTone(name);
       } else {
         name = name.replace(/(:skin-tone-[2-6]:)/, "");
@@ -3898,7 +3898,7 @@ var _cyrillicToLatin = function(char) {
     },
     stripLocalizedSkinTone: function(name) {
       var local_skin_tone_regex = /::skin-tone-[2-6]:/g;
-      if (TS.boot_data.feature_i18n_emoji && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE) {
+      if (TS.boot_data.feature_localization && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE) {
         var local_skin_tone_name = TS.emoji.getLocalSkinToneName();
         local_skin_tone_regex = new RegExp("::" + local_skin_tone_name + "-[2-6]:", "g");
       }
@@ -4040,7 +4040,7 @@ var _cyrillicToLatin = function(char) {
     maybeRemakeMenuListsIfFrequentsChanged: function() {
       var new_frequents = _makeFrequents();
       if (!TS.utility.areSimpleObjectsEqual(new_frequents, _frequents, "maybemakeMenuLists")) {
-        if (TS.boot_data.feature_i18n_emoji) {
+        if (TS.boot_data.feature_localization) {
           _updateFrequentsGroup(new_frequents);
         } else {
           TS.emoji.makeMenuLists();
@@ -4084,7 +4084,7 @@ var _cyrillicToLatin = function(char) {
           var localized_name = name;
           var localized_names = names;
           TS.model.emoji_names.push(name);
-          if (TS.boot_data.feature_i18n_emoji && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE) {
+          if (TS.boot_data.feature_localization && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE) {
             localized_name = TSFEmoji.getLocalEmojiString(name, TS.i18n.locale());
             localized_names = names.map(function(name) {
               return TSFEmoji.getLocalEmojiString(name, TS.i18n.locale());
@@ -4120,7 +4120,7 @@ var _cyrillicToLatin = function(char) {
               });
               var colon_display_name_with_skin = colon_name_with_skin;
               var colon_display_names_with_skins = colon_names_with_skins;
-              if (TS.boot_data.feature_i18n_emoji && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE) {
+              if (TS.boot_data.feature_localization && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE) {
                 var skin_display_name = TSFEmoji.getLocalEmojiString(skin_name, TS.i18n.locale());
                 colon_display_name_with_skin = ":" + localized_name + "::" + skin_display_name + ":";
                 colon_display_names_with_skins = localized_names.map(function(name) {
@@ -4325,7 +4325,7 @@ var _cyrillicToLatin = function(char) {
     },
     getLocalSkinToneName: function() {
       var skin_tone_name = "skin-tone";
-      if (TS.boot_data.feature_i18n_emoji && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE) {
+      if (TS.boot_data.feature_localization && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE) {
         skin_tone_name = TSFEmoji.getLocalSkinToneName(TS.i18n.locale());
       }
       return skin_tone_name;
@@ -4387,14 +4387,14 @@ var _cyrillicToLatin = function(char) {
           var prev_emoji_colons_mode = _emoji.colons_mode;
           _emoji.colons_mode = true;
           var colons = _emoji.replace_unified.apply(_emoji, arguments);
-          if (TS.boot_data.feature_i18n_emoji && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE) {
+          if (TS.boot_data.feature_localization && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE) {
             colons = TSFEmoji.translateEmojiStringToCanonical(colons, TS.i18n.locale());
           }
           _emoji.colons_mode = prev_emoji_colons_mode;
           return colons;
         }
       };
-      if (TS.boot_data.feature_i18n_emoji && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE) {
+      if (TS.boot_data.feature_localization && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE) {
         ob.getLocalEmojiString = function(emoji_name) {
           return TSFEmoji.getLocalEmojiString(emoji_name, TS.i18n.locale()) || emoji_name;
         };
@@ -4455,13 +4455,13 @@ var _cyrillicToLatin = function(char) {
       return _emoji.findByKeyword(k);
     },
     maybeGetCanonicalEmojiString: function(str) {
-      if (TS.boot_data.feature_i18n_emoji && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE) {
+      if (TS.boot_data.feature_localization && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE) {
         return TSFEmoji.translateEmojiStringToCanonical(str, TS.i18n.locale());
       }
       return str;
     },
     maybeGetLocalizedEmojiString: function(str) {
-      if (TS.boot_data.feature_i18n_emoji && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE) {
+      if (TS.boot_data.feature_localization && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE) {
         return TSFEmoji.translateEmojiStringToLocal(str, TS.i18n.locale());
       }
       return str;
