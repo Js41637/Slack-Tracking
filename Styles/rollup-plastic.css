@@ -11692,8 +11692,11 @@ body.ReactModal__Body--open {
 }
 
 #toggle-subscription-status {
-  min-height: 44px;
-  min-width: 260px
+  min-height: 44px
+}
+
+#toggle-subscription-status.fetching_status {
+  min-width: 269px
 }
 
 #toggle-subscription-status .subscription_desc {
