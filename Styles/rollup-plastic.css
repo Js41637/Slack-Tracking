@@ -14069,14 +14069,14 @@ only screen and (min-resolution:2dppx) {
   pointer-events: none
 }
 
-.message_sender_unknown {
+.member_unknown {
   display: none;
   background: #E8E8E8;
   width: 80px;
-  height: 15px;
+  height: 10px;
   position: relative;
-  top: 3px;
-  border-radius: 8px
+  top: 0;
+  border-radius: 5px
 }
 
 .member_type_badge {
