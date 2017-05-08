@@ -12279,6 +12279,7 @@ TS.registerModule("constants", {
     },
     ditchMap: function() {
       _id_map = {};
+      _name_map = {};
     },
     test: function() {
       var test = {};
@@ -12404,7 +12405,7 @@ TS.registerModule("constants", {
     if (member.is_unknown) member.is_unknown = false;
     if (TS.members.getKnownMemberById(member.name)) {
       var name_keyed_member = TS.members.getKnownMemberById(member.name);
-      _maybeSetMemberKnown(name_keyed_member);
+      if (name_keyed_member.is_unknown) name_keyed_member.is_unknown = false;
       TS.members.changed_name_sig.dispatch(name_keyed_member);
     }
     _.pull(_unknown_member_ids, member.id);
@@ -18778,7 +18779,7 @@ TS.registerModule("constants", {
     dnd_updated_user: function(imsg) {
       var member = TS.members.getKnownMemberById(imsg.user);
       if (!member) {
-        TS.error('unknown member: "' + imsg.user + '"');
+        TS.log(2002, 'unknown member in dnd_updated_user: "' + imsg.user + '"');
         return;
       }
       TS.dnd.updateUserPropsAndSignal(member.id, imsg.dnd_status);
@@ -19089,7 +19090,7 @@ TS.registerModule("constants", {
       if (ensure_profiling_callback) ensure_profiling_callback(is_async);
       return _afterMsgHandled();
     };
-    var no_fetch_missing_object_types = ["channel_joined", "dnd_updated", "manual_presence_change", "member_left_channel", "presence_change", "status_change", "subteam_created", "user_removed_from_team", "user_change"];
+    var no_fetch_missing_object_types = ["channel_joined", "dnd_updated", "dnd_updated_user", "manual_presence_change", "member_left_channel", "presence_change", "status_change", "subteam_created", "user_removed_from_team", "user_change"];
     if (no_fetch_missing_object_types.indexOf(imsg.type) >= 0) return proceedWithImsg(is_sync);
     var full_type = "type:" + imsg.type + (imsg.subtype ? " subtype:" + imsg.subtype : "");
     var c_ids = TS.utility.extractAllModelObIds(imsg, full_type);
@@ -22933,7 +22934,7 @@ TS.registerModule("constants", {
         if (member && member.is_unknown && TS.boot_data.feature_unknown_members) {
           return TS.templates.message_member_unknown();
         } else if (member) {
-          return TS.members.getMemberDisplayName(member);
+          return TS.utility.htmlEntities(TS.members.getMemberDisplayName(member));
         }
         return undefined;
       })).join(", ");
@@ -49209,6 +49210,12 @@ $.fn.togglify = function(settings) {
       if (promise) return promise.finally(TS.dnd.checkForChanges);
     },
     updateUserPropsAndSignal: function(user_id, props) {
+      if (TS.boot_data.feature_dnd_on_demand) {
+        if (!TS.model.dnd.team[user_id]) {
+          _log("Ignoring new DND props for " + user_id);
+          return;
+        }
+      }
       _updateUserDndProps(user_id, props);
       if (user_id === TS.model.user.id) {
         TS.dnd.checkForChanges();
@@ -49361,22 +49368,36 @@ $.fn.togglify = function(settings) {
       users: member_ids.join(",")
     }).then(function(resp) {
       var data = resp.data;
+      var received_members = [];
       if (data.users) {
         _.forOwn(data.users, function(props, user_id) {
+          received_members.push(user_id);
           if (member_map[user_id]) _updateUserDndProps(user_id, props);
         });
-        TS.dnd.checkForChanges();
       }
-      var missing_members = 0;
-      _.forEach(member_ids, function(id) {
-        if (!TS.model.dnd.team[id]) {
-          _log("dnd lookup failed for " + id);
-          missing_members += 1;
+      if (TS.boot_data.feature_tinyspeck) {
+        var missing_members = [];
+        _.forEach(member_ids, function(id) {
+          if (!TS.model.dnd.team[id]) {
+            _log("dnd lookup failed for " + id);
+            missing_members.push(id);
+          }
+        });
+        if (missing_members.length) {
+          TS.metrics.count("dnd_lookup_failed", missing_members.length);
+          var error_ob = {
+            requested: member_ids,
+            received: received_members,
+            missing: missing_members
+          };
+          TS.console.logError(error_ob, "dnd_lookup_failed_members", null, true);
         }
-      });
-      if (missing_members) TS.metrics.count("dnd_lookup_failed", missing_members);
-    }).catch(function() {
-      TS.metrics.count("dnd_lookup_request_failed");
+      }
+      TS.dnd.checkForChanges();
+    }).catch(function(e) {
+      if (TS.boot_data.feature_tinyspeck) {
+        TS.console.logError(e, "dnd_lookup_request_failed");
+      }
     }).finally(function() {
       _.forEach(member_ids, function(id) {
         delete _requested_member_ids[id];
@@ -49405,12 +49426,20 @@ $.fn.togglify = function(settings) {
     if (!now) now = _now();
     var next_self = _nextTime(TS.model.user, now);
     if (next_self) next_ts = next_self;
-    TS.model.members.forEach(function(next_member) {
+    var findNextTime = function(next_member) {
       if (next_member.id == TS.model.user.id) return;
       var next_member_time = _nextTime(next_member, now);
       if (!next_member_time) return;
       if (!next_ts || next_member_time < next_ts) next_ts = next_member_time;
-    });
+    };
+    if (TS.boot_data.feature_dnd_on_demand) {
+      _.forOwn(TS.model.dnd.team, function(props, member_id) {
+        var member = TS.members.getKnownMemberById(member_id);
+        if (member) findNextTime(member);
+      });
+    } else {
+      TS.model.members.forEach(findNextTime);
+    }
     var max_delay = _MAX_TIMER_DELAY + now;
     if (!next_ts || next_ts > max_delay) next_ts = max_delay;
     var min_delay = _MIN_TIMER_DELAY + now;
@@ -63567,8 +63596,7 @@ $.fn.togglify = function(settings) {
 
         function Qt(e, t) {
           var n = g(e) ? e : gt(e);
-          return !(!this.isValid() || !n.isValid()) && (t = A(m(t) ? "millisecond" : t),
-            "millisecond" === t ? this.valueOf() < n.valueOf() : this.clone().endOf(t).valueOf() < n.valueOf());
+          return !(!this.isValid() || !n.isValid()) && (t = A(m(t) ? "millisecond" : t), "millisecond" === t ? this.valueOf() < n.valueOf() : this.clone().endOf(t).valueOf() < n.valueOf());
         }
 
         function Xt(e, t, n, r) {
@@ -66981,7 +67009,8 @@ $.fn.togglify = function(settings) {
           }
 
           function Va(e, t) {
-            return t(e), e;
+            return t(e),
+              e;
           }
 
           function qa(e, t) {
@@ -68565,8 +68594,7 @@ $.fn.togglify = function(settings) {
       }
     }
     return function(t, n, r) {
-      return n && e(t.prototype, n),
-        r && e(t, r), t;
+      return n && e(t.prototype, n), r && e(t, r), t;
     };
   }();
 }, function(e, t, n) {
@@ -70176,8 +70204,7 @@ $.fn.togglify = function(settings) {
       listenTo: function(e, t) {
         for (var n = t, o = r(n), i = a.registrationNameDependencies[e], s = 0; s < i.length; s++) {
           var u = i[s];
-          o.hasOwnProperty(u) && o[u] || ("topWheel" === u ? c("wheel") ? m.ReactEventListener.trapBubbledEvent("topWheel", "wheel", n) : c("mousewheel") ? m.ReactEventListener.trapBubbledEvent("topWheel", "mousewheel", n) : m.ReactEventListener.trapBubbledEvent("topWheel", "DOMMouseScroll", n) : "topScroll" === u ? c("scroll", !0) ? m.ReactEventListener.trapCapturedEvent("topScroll", "scroll", n) : m.ReactEventListener.trapBubbledEvent("topScroll", "scroll", m.ReactEventListener.WINDOW_HANDLE) : "topFocus" === u || "topBlur" === u ? (c("focus", !0) ? (m.ReactEventListener.trapCapturedEvent("topFocus", "focus", n),
-            m.ReactEventListener.trapCapturedEvent("topBlur", "blur", n)) : c("focusin") && (m.ReactEventListener.trapBubbledEvent("topFocus", "focusin", n), m.ReactEventListener.trapBubbledEvent("topBlur", "focusout", n)), o.topBlur = !0, o.topFocus = !0) : p.hasOwnProperty(u) && m.ReactEventListener.trapBubbledEvent(u, p[u], n), o[u] = !0);
+          o.hasOwnProperty(u) && o[u] || ("topWheel" === u ? c("wheel") ? m.ReactEventListener.trapBubbledEvent("topWheel", "wheel", n) : c("mousewheel") ? m.ReactEventListener.trapBubbledEvent("topWheel", "mousewheel", n) : m.ReactEventListener.trapBubbledEvent("topWheel", "DOMMouseScroll", n) : "topScroll" === u ? c("scroll", !0) ? m.ReactEventListener.trapCapturedEvent("topScroll", "scroll", n) : m.ReactEventListener.trapBubbledEvent("topScroll", "scroll", m.ReactEventListener.WINDOW_HANDLE) : "topFocus" === u || "topBlur" === u ? (c("focus", !0) ? (m.ReactEventListener.trapCapturedEvent("topFocus", "focus", n), m.ReactEventListener.trapCapturedEvent("topBlur", "blur", n)) : c("focusin") && (m.ReactEventListener.trapBubbledEvent("topFocus", "focusin", n), m.ReactEventListener.trapBubbledEvent("topBlur", "focusout", n)), o.topBlur = !0, o.topFocus = !0) : p.hasOwnProperty(u) && m.ReactEventListener.trapBubbledEvent(u, p[u], n), o[u] = !0);
         }
       },
       trapBubbledEvent: function(e, t, n) {
@@ -71705,7 +71732,8 @@ $.fn.togglify = function(settings) {
     }), r(u, s.addChannel, p), r(u, d, p), r(u, s.removeChannel, function(e, t) {
       if (!f(t)) return e;
       var r = l({}, e);
-      return n.i(s.isIm)(t) && t.user ? delete r[t.user] : delete r[i.a.toLower(t.name)], n.i(s.isMpim)(t) && t._internal_name && delete r[t._internal_name], r;
+      return n.i(s.isIm)(t) && t.user ? delete r[t.user] : delete r[i.a.toLower(t.name)],
+        n.i(s.isMpim)(t) && t._internal_name && delete r[t._internal_name], r;
     }), r(u, c, function(e) {
       var t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : {},
         n = t.name;
@@ -81346,7 +81374,8 @@ $.fn.togglify = function(settings) {
       return f()(t, e), u()(t, [{
         key: "componentDidMount",
         value: function() {
-          this._parentNode = this._autoSizer.parentNode, this._detectElementResize = n.i(_.a)(), this._detectElementResize.addResizeListener(this._parentNode, this._onResize), this._onResize();
+          this._parentNode = this._autoSizer.parentNode, this._detectElementResize = n.i(_.a)(),
+            this._detectElementResize.addResizeListener(this._parentNode, this._onResize), this._onResize();
         }
       }, {
         key: "componentWillUnmount",
@@ -82814,7 +82843,8 @@ $.fn.togglify = function(settings) {
     }, {
       key: "componentDidUpdate",
       value: function(e, t) {
-        this._checkInvalidateOnUpdate(), this._invokeOnScrollCallback(), this._invokeOnCellsRenderedCallback();
+        this._checkInvalidateOnUpdate(), this._invokeOnScrollCallback(),
+          this._invokeOnCellsRenderedCallback();
       }
     }, {
       key: "componentWillUnmount",
@@ -86194,7 +86224,7 @@ $.fn.togglify = function(settings) {
           isSkinTonePickerOpen: !1,
           searchQuery: e.searchQuery,
           scrollToIndex: null,
-          activeGroup: n.getFirstTab(),
+          activeGroup: n.getFirstTab(e.groups),
           isScrolledToBottom: !1,
           screenRows: n.getAllRows(e.groups, e.activeSkinToneId, e.searchQuery),
           handyRxns: n.filterEmojiByName(i, e.handyRxnNames),
@@ -86270,16 +86300,19 @@ $.fn.togglify = function(settings) {
       }, {
         key: "componentWillReceiveProps",
         value: function(e) {
-          var n = !s.a.isEqual(this.props.groups, e.groups),
-            r = this.props.activeSkinToneId !== e.activeSkinToneId,
-            o = this.state.searchQuery !== e.searchQuery,
-            i = o ? e.searchQuery : this.state.searchQuery;
-          if (o && this.onSearch(i), n || r) {
-            var a = t.getAllEmoji(e.groups);
-            this.setState({
-              handyRxns: this.filterEmojiByName(a, e.handyRxnNames),
-              skinToneChoices: this.filterEmojiByName(a, e.skinToneChoiceNames),
-              screenRows: this.getAllRows(e.groups, e.activeSkinToneId, i)
+          var n = this,
+            r = !s.a.isEqual(this.props.groups, e.groups),
+            o = this.props.activeSkinToneId !== e.activeSkinToneId,
+            i = this.state.searchQuery !== e.searchQuery,
+            a = i ? e.searchQuery : this.state.searchQuery;
+          if (i && this.onSearch(a), r || o) {
+            var u = t.getAllEmoji(e.groups);
+            this.setState(function(t, r) {
+              return {
+                handyRxns: n.filterEmojiByName(u, e.handyRxnNames),
+                skinToneChoices: n.filterEmojiByName(u, e.skinToneChoiceNames),
+                screenRows: n.getAllRows(e.groups, e.activeSkinToneId, a)
+              };
             });
           }
         }
@@ -86301,30 +86334,35 @@ $.fn.togglify = function(settings) {
       }, {
         key: "onArrowKey",
         value: function(e, t) {
-          var n = e;
+          var n = this,
+            r = e;
           if (t.target === this.searchInput)
             if ("right" === e && this.searchInput.selectionEnd === this.searchInput.value.length);
             else if ("left" === e || "right" === e) return;
           t.preventDefault(), this.element.focus();
-          var r = this.moveCursor(n),
-            o = void 0;
-          o = r[1] < this.state.cursorPosition[1] || 1 === r[1] ? r[1] - 1 : r[1], this.setState({
-            cursorPosition: r,
-            currentSelection: this.getCell(r),
-            scrollToIndex: o,
-            isPreviewing: !0,
-            usingKeyboard: !0,
-            mousePosition: null
+          var o = this.moveCursor(r),
+            i = void 0;
+          i = o[1] < this.state.cursorPosition[1] || 1 === o[1] ? o[1] - 1 : o[1], this.setState(function(e, t) {
+            return {
+              cursorPosition: o,
+              currentSelection: n.getCell(e.screenRows, o),
+              scrollToIndex: i,
+              isPreviewing: !0,
+              usingKeyboard: !0,
+              mousePosition: null
+            };
           });
         }
       }, {
         key: "onEmojiMouseEnter",
         value: function(e) {
-          this.state.usingKeyboard || this.setState({
-            currentSelection: e,
-            cursorPosition: T,
-            isPreviewing: !0,
-            isSkinTonePickerOpen: !1
+          this.state.usingKeyboard || this.setState(function(t, n) {
+            return {
+              currentSelection: e,
+              cursorPosition: T,
+              isPreviewing: !0,
+              isSkinTonePickerOpen: !1
+            };
           });
         }
       }, {
@@ -86337,36 +86375,46 @@ $.fn.togglify = function(settings) {
         value: function(e) {
           if (this.state.usingKeyboard) {
             var t = [e.clientX, e.clientY];
-            if (!this.state.mousePosition) return void this.setState({
-              mousePosition: t
+            if (!this.state.mousePosition) return void this.setState(function(e, n) {
+              return {
+                mousePosition: t
+              };
             });
-            s.a.isEqual(t, this.state.mousePosition) || this.setState({
-              mousePosition: null,
-              usingKeyboard: !1,
-              scrollToIndex: null,
-              cursorPosition: T
+            s.a.isEqual(t, this.state.mousePosition) || this.setState(function(e, t) {
+              return {
+                mousePosition: null,
+                usingKeyboard: !1,
+                scrollToIndex: null,
+                cursorPosition: T
+              };
             });
           }
         }
       }, {
         key: "onEmojiPickerClick",
         value: function() {
-          this.setState({
-            isSkinTonePickerOpen: !1
+          this.setState(function(e, t) {
+            return {
+              isSkinTonePickerOpen: !1
+            };
           });
         }
       }, {
         key: "onSkinToneChanged",
         value: function(e) {
-          this.props.onSkinToneChanged(e.skin_tone_id), this.setState({
-            isSkinTonePickerOpen: !1
+          this.props.onSkinToneChanged(e.skin_tone_id), this.setState(function(e, t) {
+            return {
+              isSkinTonePickerOpen: !1
+            };
           });
         }
       }, {
         key: "onSkinTonePickerOpened",
         value: function() {
-          this.setState({
-            isSkinTonePickerOpen: !0
+          this.setState(function(e, t) {
+            return {
+              isSkinTonePickerOpen: !0
+            };
           });
         }
       }, {
@@ -86377,19 +86425,22 @@ $.fn.togglify = function(settings) {
       }, {
         key: "onSearch",
         value: function(e) {
+          var t = this;
           b.a("react_emoji_menu_search_mark");
-          var t = this.getAllRows(this.props.groups, this.props.activeSkinToneId, e),
-            n = t.length >= 2 && s.a.get(t, "[1].items.length") >= 1,
-            r = e && n ? S : T,
-            o = e && n && s.a.get(t, "[1].items[0]") || {},
-            i = !(!e || !n);
-          this.setState({
-            activeGroup: this.getFirstTab(),
-            cursorPosition: r,
-            searchQuery: e,
-            screenRows: t,
-            currentSelection: o,
-            isPreviewing: i
+          var n = this.getAllRows(this.props.groups, this.props.activeSkinToneId, e),
+            r = n.length >= 2 && s.a.get(n, "[1].items.length") >= 1,
+            o = e && r ? S : T,
+            i = e && r && s.a.get(n, "[1].items[0]") || {},
+            a = !(!e || !r);
+          this.setState(function(r, s) {
+            return {
+              activeGroup: t.getFirstTab(s.groups),
+              cursorPosition: o,
+              searchQuery: e,
+              screenRows: n,
+              currentSelection: i,
+              isPreviewing: a
+            };
           }, function() {
             return b.b("react_emoji_menu_search", "react_emoji_menu_search_mark");
           });
@@ -86401,10 +86452,12 @@ $.fn.togglify = function(settings) {
             n = e.stopIndex;
           if (!this.state.searchQuery) {
             var r = this.state.screenRows[t];
-            this.setState({
-              activeGroup: r.group,
-              isScrolledToBottom: n === this.state.screenRows.length - 1,
-              scrollToIndex: null
+            this.setState(function(e, t) {
+              return {
+                activeGroup: r.group,
+                isScrolledToBottom: n === e.screenRows.length - 1,
+                scrollToIndex: null
+              };
             });
           }
         }
@@ -86415,12 +86468,14 @@ $.fn.togglify = function(settings) {
             n = s.a.findIndex(t, function(t) {
               return "group" === t.type && t.group === e;
             });
-          this.setState({
-            activeGroup: e,
-            scrollToIndex: n || 0,
-            cursorPosition: T,
-            searchQuery: "",
-            screenRows: t
+          this.setState(function(r, o) {
+            return {
+              activeGroup: e,
+              scrollToIndex: n || 0,
+              cursorPosition: T,
+              searchQuery: "",
+              screenRows: t
+            };
           });
         }
       }, {
@@ -86430,16 +86485,16 @@ $.fn.togglify = function(settings) {
         }
       }, {
         key: "getCell",
-        value: function(e) {
-          var t = w(e, 2),
-            n = t[0],
-            r = t[1];
-          return s.a.get(this.state.screenRows, "[" + r + "].items[" + n + "]");
+        value: function(e, t) {
+          var n = w(t, 2),
+            r = n[0],
+            o = n[1];
+          return s.a.get(e, "[" + o + "].items[" + r + "]");
         }
       }, {
         key: "getFirstTab",
-        value: function() {
-          return s.a.get(this.props, "groups[0]");
+        value: function(e) {
+          return s.a.get(e, "[0]");
         }
       }, {
         key: "getRowsForGroup",
@@ -86548,16 +86603,18 @@ $.fn.togglify = function(settings) {
                 }) && (l = 0), "emoji" !== this.getRow(l).type && (l += 1), u = 0;
               }
           }
-          return "emoji" !== this.getRow(l).type ? this.moveCursor(e, [u, l]) : (this.getCell([u, l]) || (u = this.getRow(l).items.length - 1), [u, l]);
+          return "emoji" !== this.getRow(l).type ? this.moveCursor(e, [u, l]) : (this.getCell(this.state.screenRows, [u, l]) || (u = this.getRow(l).items.length - 1), [u, l]);
         }
       }, {
         key: "resetSelection",
         value: function() {
-          this.setState({
-            currentSelection: {},
-            isPreviewing: !1,
-            scrollToIndex: null,
-            cursorPosition: T
+          this.setState(function(e, t) {
+            return {
+              currentSelection: {},
+              isPreviewing: !1,
+              scrollToIndex: null,
+              cursorPosition: T
+            };
           });
         }
       }, {
