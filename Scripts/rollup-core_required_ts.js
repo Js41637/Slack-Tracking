@@ -699,6 +699,10 @@
       if (TS.membership && TS.membership.lazyLoadChannelMembership()) {
         login_args.no_members = 1;
       }
+    } else if (TS.boot_data.page_needs_just_me) {
+      TS.storage.disableMemberBotCache();
+      login_args.just_me = true;
+      login_args.no_members = true;
     } else {
       login_args.cache_ts = _last_rtm_start_event_ts || TS.storage.fetchLastCacheTS();
     }
@@ -707,10 +711,6 @@
         login_args.no_presence = true;
       } else {
         login_args.no_state = true;
-      }
-      if (TS.boot_data.page_needs_just_me) {
-        login_args.just_me = true;
-        login_args.no_members = true;
       }
     }
     if (TS.calls) {
