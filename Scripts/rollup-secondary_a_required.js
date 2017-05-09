@@ -14123,7 +14123,10 @@ TS.registerModule("constants", {
           var is_name_or_real_name_match = TS.utility.search.makeConjunction("OR", [is_name_match, is_real_name_match]);
           return is_name_or_real_name_match;
         }
-        return TS.utility.search.makeClause("fuzzy_with_email", query);
+        if (TS.boot_data.feature_name_tagging_client) {
+          return TS.utility.search.makeConjunction("OR", [TS.utility.search.makeClause("real_name", query), TS.utility.search.makeClause("display_name", query)]);
+        }
+        return TS.utility.search.makeConjunction("OR", [TS.utility.search.makeClause("name", query), TS.utility.search.makeClause("real_name", query)]);
       });
     }
     matchers.push(TS.utility.search.makeClause("is", "user"));
@@ -16318,7 +16321,14 @@ TS.registerModule("constants", {
         _maybeAddToImsgLog = _.noop;
         _maybePrintImsgLog = _.noop;
       }
-      _should_record_queue_metrics = TS.boot_data.feature_queue_metrics && TS.client && TS.client.stats.isEnabled();
+      if (TS.client && TS.client.stats) {
+        TS.client.stats.start_collecting_sig.add(function() {
+          _should_record_queue_metrics = TS.boot_data.feature_queue_metrics && TS.utility.enableFeatureForUser(_QUEUE_METRICS_ENABLED_FOR);
+        });
+        TS.client.stats.stop_collecting_sig.add(function() {
+          _should_record_queue_metrics = false;
+        });
+      }
     },
     test: function() {
       return {
@@ -17431,6 +17441,7 @@ TS.registerModule("constants", {
     _disconnected_timestamp = undefined;
     _last_disconnect_was_requested_by_server = undefined;
   };
+  var _QUEUE_METRICS_ENABLED_FOR = 50;
 })();
 (function() {
   "use strict";
@@ -17438,11 +17449,16 @@ TS.registerModule("constants", {
     onStart: function() {
       _profiling_enabled = window.performance && TS.boot_data && TS.boot_data.feature_ms_msg_handlers_profiling;
       if (TS.client && TS.client.stats) {
-        TS.client.stats.start_collecting_sig.add(_profiling.enableStatsCollecting);
-        TS.client.stats.stop_collecting_sig.add(_profiling.disableStatsCollecting);
+        TS.client.stats.start_collecting_sig.add(function() {
+          _should_record_queue_metrics = TS.boot_data.feature_queue_metrics && TS.utility.enableFeatureForUser(_QUEUE_METRICS_ENABLED_FOR);
+          _profiling.enableStatsCollecting();
+        });
+        TS.client.stats.stop_collecting_sig.add(function() {
+          _should_record_queue_metrics = false;
+          _profiling.disableStatsCollecting();
+        });
       }
       TS.ms.on_msg_sig.add(TS.ms.msg_handlers.msgReceived);
-      _should_record_queue_metrics = TS.boot_data.feature_queue_metrics && TS.client && TS.client.stats.isEnabled();
     },
     test: function() {
       var test_ob = {};
@@ -19328,6 +19344,7 @@ TS.registerModule("constants", {
       _stats_collecting_enabled = false;
     }
   };
+  var _QUEUE_METRICS_ENABLED_FOR = 50;
 })();
 (function() {
   "use strict";
@@ -59980,7 +59997,7 @@ $.fn.togglify = function(settings) {
         _.each(query_terms, function(term) {
           if (term.length >= 2) {
             results.push({
-              type: type || "fuzzy_with_email",
+              type: type || "fuzzy",
               value: term
             });
           }
@@ -70181,8 +70198,7 @@ $.fn.togglify = function(settings) {
       listenTo: function(e, t) {
         for (var n = t, o = r(n), i = a.registrationNameDependencies[e], s = 0; s < i.length; s++) {
           var u = i[s];
-          o.hasOwnProperty(u) && o[u] || ("topWheel" === u ? c("wheel") ? m.ReactEventListener.trapBubbledEvent("topWheel", "wheel", n) : c("mousewheel") ? m.ReactEventListener.trapBubbledEvent("topWheel", "mousewheel", n) : m.ReactEventListener.trapBubbledEvent("topWheel", "DOMMouseScroll", n) : "topScroll" === u ? c("scroll", !0) ? m.ReactEventListener.trapCapturedEvent("topScroll", "scroll", n) : m.ReactEventListener.trapBubbledEvent("topScroll", "scroll", m.ReactEventListener.WINDOW_HANDLE) : "topFocus" === u || "topBlur" === u ? (c("focus", !0) ? (m.ReactEventListener.trapCapturedEvent("topFocus", "focus", n),
-            m.ReactEventListener.trapCapturedEvent("topBlur", "blur", n)) : c("focusin") && (m.ReactEventListener.trapBubbledEvent("topFocus", "focusin", n), m.ReactEventListener.trapBubbledEvent("topBlur", "focusout", n)), o.topBlur = !0, o.topFocus = !0) : p.hasOwnProperty(u) && m.ReactEventListener.trapBubbledEvent(u, p[u], n), o[u] = !0);
+          o.hasOwnProperty(u) && o[u] || ("topWheel" === u ? c("wheel") ? m.ReactEventListener.trapBubbledEvent("topWheel", "wheel", n) : c("mousewheel") ? m.ReactEventListener.trapBubbledEvent("topWheel", "mousewheel", n) : m.ReactEventListener.trapBubbledEvent("topWheel", "DOMMouseScroll", n) : "topScroll" === u ? c("scroll", !0) ? m.ReactEventListener.trapCapturedEvent("topScroll", "scroll", n) : m.ReactEventListener.trapBubbledEvent("topScroll", "scroll", m.ReactEventListener.WINDOW_HANDLE) : "topFocus" === u || "topBlur" === u ? (c("focus", !0) ? (m.ReactEventListener.trapCapturedEvent("topFocus", "focus", n), m.ReactEventListener.trapCapturedEvent("topBlur", "blur", n)) : c("focusin") && (m.ReactEventListener.trapBubbledEvent("topFocus", "focusin", n), m.ReactEventListener.trapBubbledEvent("topBlur", "focusout", n)), o.topBlur = !0, o.topFocus = !0) : p.hasOwnProperty(u) && m.ReactEventListener.trapBubbledEvent(u, p[u], n), o[u] = !0);
         }
       },
       trapBubbledEvent: function(e, t, n) {
@@ -82829,10 +82845,11 @@ $.fn.togglify = function(settings) {
     }, {
       key: "componentWillReceiveProps",
       value: function(e) {
-        this.props.scrollTop !== e.scrollTop && (this._debounceResetIsScrolling(), this.setState({
-          isScrolling: !0,
-          scrollTop: e.scrollTop
-        }));
+        this.props.scrollTop !== e.scrollTop && (this._debounceResetIsScrolling(),
+          this.setState({
+            isScrolling: !0,
+            scrollTop: e.scrollTop
+          }));
       }
     }, {
       key: "render",
