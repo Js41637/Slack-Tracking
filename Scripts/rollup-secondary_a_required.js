@@ -3355,10 +3355,12 @@
         _store = window.Redux.ConfigureStore();
       }
     },
-    bindSelectorToStore: function(selector) {
-      return function() {
-        var args = [TS.redux.getState()].concat(Array.prototype.slice.apply(arguments));
-        return selector.apply(undefined, args);
+    bindSingleArgSelectorToStore: function(selector) {
+      return function(arg) {
+        if (arguments.length > 1) {
+          throw new Error("bindSingleArgSelectorToStore only supports zero or one arguments");
+        }
+        return selector.call(undefined, TS.redux.getState(), arg);
       };
     },
     getState: function() {
@@ -3388,10 +3390,10 @@
         _isChannel = window.Redux.Entities.Channels.isChannel;
         _isMpim = window.Redux.Entities.Channels.isMpim;
         _isIm = window.Redux.Entities.Channels.isIm;
-        _getAllChannels = TS.redux.bindSelectorToStore(window.Redux.Entities.Channels.getAllChannels);
-        _getChannelById = TS.redux.bindSelectorToStore(window.Redux.Entities.Channels.getChannelById);
-        _getChannelIdByName = TS.redux.bindSelectorToStore(window.Redux.Entities.ChannelsMeta.ChannelNamesToIds.getChannelIdByName);
-        _getAllIdsNeedingMarking = TS.redux.bindSelectorToStore(window.Redux.Entities.ChannelsMeta.NeedsApiMarking.getAllIdsNeedingMarking);
+        _getAllChannels = TS.redux.bindSingleArgSelectorToStore(window.Redux.Entities.Channels.getAllChannels);
+        _getChannelById = TS.redux.bindSingleArgSelectorToStore(window.Redux.Entities.Channels.getChannelById);
+        _getChannelIdByName = TS.redux.bindSingleArgSelectorToStore(window.Redux.Entities.ChannelsMeta.ChannelNamesToIds.getChannelIdByName);
+        _getAllIdsNeedingMarking = TS.redux.bindSingleArgSelectorToStore(window.Redux.Entities.ChannelsMeta.NeedsApiMarking.getAllIdsNeedingMarking);
         _addSignalListeners();
         Object.defineProperty(TS.model, "channels", {
           get: function() {
@@ -3490,7 +3492,7 @@
     },
     getEntityById: function(id) {
       var entity = _getChannelById(id);
-      return _maybeWrapEntityInProxyObject(entity);
+      return _maybeWrapEntity(entity);
     },
     getEntityByName: function(name) {
       var cid = _getChannelIdByName(name);
@@ -3571,16 +3573,11 @@
     TS.ims.unread_changed_sig.add(TS.redux.channels.forceUpdateOfEntityById);
     TS.ims.unread_highlight_changed_sig.add(TS.redux.channels.forceUpdateOfEntityById);
   };
-  var _logStaleModelObAccess = function(immediate_caller, stack, is_get_call) {
-    var STALE_MODEL_SET_VERSION = 2;
-    if (is_get_call) {
-      TS.metrics.count("redux_stale_model_get_v" + STALE_MODEL_SET_VERSION);
-    } else {
-      TS.metrics.count("redux_stale_model_set_v" + STALE_MODEL_SET_VERSION);
-    }
-    var message_verb = is_get_call ? "Getting" : "Setting";
+  var _logUnknownModelObKeyAccess = function(immediate_caller, stack, key) {
+    var UNKNOWN_MODEL_KEY_ACCESS_VERSION = 1;
+    TS.metrics.count("redux_unknown_model_key_access_v" + UNKNOWN_MODEL_KEY_ACCESS_VERSION);
     var info = {
-      message: message_verb + " a property on a stale model object. Immediate caller: " + immediate_caller,
+      message: "Getting or setting " + key + " on a stale model object. Immediate caller: " + immediate_caller,
       stack: stack
     };
     var filename_and_line_number = immediate_caller.match(/\((.+):(\d+:\d+)\)/);
@@ -3588,9 +3585,8 @@
       info.fileName = filename_and_line_number[1];
       info.lineNumber = filename_and_line_number[2];
     }
-    var description = is_get_call ? "redux_stale_model_get_caller_v" + STALE_MODEL_SET_VERSION : "redux_stale_model_set_caller_v" + STALE_MODEL_SET_VERSION;
     $.post(TS.boot_data.beacon_error_url, {
-      description: description,
+      description: "redux_unknown_model_key_access_caller_v" + UNKNOWN_MODEL_KEY_ACCESS_VERSION,
       error_json: JSON.stringify(info),
       team: _.get(TS, "model.team.id", "none"),
       user: TS.boot_data.user_id,
@@ -3604,43 +3600,85 @@
     }
     return use_a_proxy;
   };
-  var _maybeWrapEntityInProxyObject = function(entity) {
-    var use_a_proxy = entity && _shouldWrapEntityInProxyObject();
-    if (use_a_proxy) {
-      var handler = {
-        set: function(target, property, value) {
-          if (target && target.id && _getChannelById(target.id) !== target) {
-            TS.console.logStackTrace("Setting a property on a stale model object");
-            var stack = TS.console.getStackTrace();
-            var immediate_caller = _.get(stack.split("\n"), "[1]");
-            if (!_redux_did_warn_about_stack[immediate_caller]) {
-              _redux_did_warn_about_stack[immediate_caller] = true;
-              _logStaleModelObAccess(immediate_caller, stack);
-            }
-          }
-          _improperly_set_keys[property] = true;
-          target[property] = value;
-          return true;
-        }
-      };
-      if (TS.boot_data.user_id === "W2V82BY0G") {
-        handler.get = function(target, prop) {
-          if (prop !== "id" && !window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ && target && target.id && _getChannelById(target.id) !== target) {
-            TS.console.logStackTrace("Getting a property on a stale model object");
-            var stack = TS.console.getStackTrace();
-            var immediate_caller = _.get(stack.split("\n"), "[1]");
-            if (!_redux_did_warn_about_stack[immediate_caller]) {
-              _redux_did_warn_about_stack[immediate_caller] = true;
-              var is_get_call = true;
-              _logStaleModelObAccess(immediate_caller, stack, is_get_call);
-            }
-          }
-          return target[prop];
-        };
-      }
-      entity = new window.Proxy(entity, handler);
+  var model_ob_keys = ["last_made_active", "last_msg_input", "_fetched_user_data_from_ls", "last_time_divider", "_has_auto_scrolled", "_display_name", "_display_name_lc", "_needs_unread_recalc", "_did_defer_initial_msg_history", "history_is_being_fetched", "history_fetch_failed", "_msgs_to_merge_on_history", "_delayed_fetch_timer", "oldest_unread_ts", "unread_cnt", "unread_highlight_cnt", "unread_highlight_cnt_in_client", "_history_fetched_since_last_connect", "msgs", "_latest_via_users_counts", "_mention_count_display_via_users_counts", "_users_counts_info", "_show_in_list_even_though_no_unreads", "all_read_this_session_once", "pinned_items", "has_pins", "_consistency_is_being_checked", "_consistency_has_been_checked", "last_read", "_marked_reason", "needs_api_marking", "needs_invited_message", "_jumper_exact_match", "_jumper_score", "_jumper_previous_name_scores", "_jumper_only_matched_previous_names", "_jumper_previous_name_match", "_mark_most_recent_read_timer", "_prev_last_read", "scroll_top", "is_archived", "id", "is_channel", "name", "is_im", "is_mpim", "is_group", "is_member", "latest", "unread_count", "is_starred", "was_archived_this_session", "is_private", "presence", "is_general", "is_read_only", "is_org_shared", "is_shared", "is_required", "topic", "oldest_msg_ts", "is_limited", "is_slackbot_im", "_temp_unread_cnt", "_cached_html", "_temp_last_read", "needs_created_message", "needs_joined_message", "length", "created", "creator", "is_moved", "name_normalized", "purpose", "previous_names", "_name_lc", "unread_highlights", "unreads", "has_fetched_history_after_scrollback", "unread_count_display", "enterprise_id", "is_global_shared", "is_open", "members", "user", "is_self_im", "_display_name_truncated", "_members", "_checking_at_channel_status", "opened_this_session", "history_changed", "history_fetch_retries", "then", "_archive_msgs", "shared_team_ids"];
+  var model_ob_keys_as_map = _.reduce(model_ob_keys, function(result, key) {
+    result[key] = true;
+    return result;
+  }, {});
+  var _entity_wrappers = {};
+  var _createWrappedEntityById = function(id) {
+    if (!id) {
+      throw new Error("Must pass in a valid id to _createWrappedEntityById");
     }
-    return entity;
+    var wrapped_entity;
+    var use_a_proxy = _shouldWrapEntityInProxyObject();
+    if (_entity_wrappers[id]) {
+      wrapped_entity = _entity_wrappers[id];
+    } else {
+      wrapped_entity = {
+        id: id
+      };
+      _.without(model_ob_keys, "id").forEach(function(key) {
+        Object.defineProperty(wrapped_entity, key, {
+          enumerable: true,
+          get: function() {
+            var entity = _getChannelById(id);
+            if (entity) {
+              return entity[key];
+            }
+          },
+          set: function(v) {
+            var entity = _getChannelById(id);
+            if (entity) {
+              entity[key] = v;
+            }
+          }
+        });
+      });
+      if (use_a_proxy) {
+        wrapped_entity = new window.Proxy(wrapped_entity, {
+          get: function(target, property) {
+            if (!model_ob_keys_as_map[property]) {
+              TS.console.logStackTrace("Accessing an unknown key on a model object");
+              var stack = TS.console.getStackTrace();
+              var immediate_caller = _.get(stack.split("\n"), "[1]");
+              if (!_redux_did_warn_about_stack[immediate_caller]) {
+                _redux_did_warn_about_stack[immediate_caller] = true;
+                _logUnknownModelObKeyAccess(immediate_caller, stack, property);
+              }
+              var entity = _getChannelById(target.id);
+              return entity && entity[property];
+            }
+            return target[property];
+          },
+          set: function(target, property, value) {
+            if (!model_ob_keys_as_map[property]) {
+              TS.console.logStackTrace("Setting an unknown key on a model object");
+              var stack = TS.console.getStackTrace();
+              var immediate_caller = _.get(stack.split("\n"), "[1]");
+              if (!_redux_did_warn_about_stack[immediate_caller]) {
+                _redux_did_warn_about_stack[immediate_caller] = true;
+                _logUnknownModelObKeyAccess(immediate_caller, stack, property);
+              }
+              var entity = _getChannelById(target.id);
+              if (entity) {
+                entity[property] = value;
+              }
+            }
+            target[property] = value;
+            return true;
+          }
+        });
+      }
+      _entity_wrappers[id] = wrapped_entity;
+    }
+    return wrapped_entity;
+  };
+  var _maybeWrapEntity = function(entity) {
+    if (!entity || !entity.id) {
+      return entity;
+    }
+    return _createWrappedEntityById(entity.id);
   };
   var _buildModelArrayKey = function(key) {
     var entities = _getAllChannels();
@@ -3667,7 +3705,7 @@
     _cached_objects = {};
     _cached_objects[key] = _.filter(entities, filter);
     if (_shouldWrapEntityInProxyObject()) {
-      _cached_objects[key] = _.map(_cached_objects[key], _maybeWrapEntityInProxyObject);
+      _cached_objects[key] = _.map(_cached_objects[key], _maybeWrapEntity);
     }
     if (!_clear_timeouts[key]) {
       _clear_timeouts[key] = _.defer(function() {
@@ -3721,7 +3759,7 @@
   TS.registerModule("redux.dnd", {
     onStart: function() {
       if (TS.useRedux()) {
-        _getDndByMemberId = TS.redux.bindSelectorToStore(window.Redux.Features.Dnd.getDndByMemberId);
+        _getDndByMemberId = TS.redux.bindSingleArgSelectorToStore(window.Redux.Features.Dnd.getDndByMemberId);
       }
     },
     updateMemberTypeForMember: function(member) {
@@ -4421,7 +4459,7 @@
         }, delay);
         return;
       }
-      delete channel.history_fetch_retries;
+      channel.history_fetch_retries = 0;
       var fetching_more = TS.shared.onHistory(channel, data, args, TS.channels);
       if (!fetching_more) {
         channel.history_is_being_fetched = false;
@@ -4441,7 +4479,7 @@
       TS.channels.history_being_fetched_sig.dispatch(channel);
       if (channel.history_fetch_retries > 5) {
         TS.error("giving up on channels.history for " + channel.id + ", channel.history_fetch_retries = " + channel.history_fetch_retries);
-        delete channel.history_fetch_retries;
+        channel.history_fetch_retries = 0;
         channel.history_is_being_fetched = false;
         channel.history_fetch_failed = true;
         if (TS.client) TS.client.msg_pane.updateEndMarker();
@@ -4652,16 +4690,16 @@
   var _maybeSetSharedTeams = function(channel) {
     if (!channel.is_shared) return;
     if (channel.is_global_shared) {
-      if (channel.shares) delete channel.shares;
-      if (channel.shared_team_ids) delete channel.shared_team_ids;
+      if (channel.shares) channel.shares = undefined;
+      if (channel.shared_team_ids) channel.shared_team_ids = undefined;
       return;
     }
     if (channel.shares && TS.shared.isModelObOrgShared(channel)) {
       channel.shared_team_ids = _(channel.shared_team_ids || []).concat(_.map(channel.shares, "id")).value();
-      if (channel.shares) delete channel.shares;
+      if (channel.shares) channel.shares = undefined;
     } else if (channel.shares && TS.shared.isModelObShared(channel)) {
       channel.shared_team_ids = _.map(channel.shares, "team.id");
-      if (channel.shares) delete channel.shares;
+      if (channel.shares) channel.shares = undefined;
     }
     channel.shared_team_ids = _(channel.shared_team_ids || []).uniq().value();
     if (TS.shared.isModelObShared(channel) && channel.shared_team_ids.length) TS.teams.ensureTeamsArePresent(channel.shared_team_ids);
@@ -6048,7 +6086,7 @@ TS.registerModule("constants", {
         }, delay);
         return;
       }
-      delete group.history_fetch_retries;
+      group.history_fetch_retries = 0;
       var fetching_more = TS.shared.onHistory(group, data, args, TS.groups);
       if (!fetching_more) {
         group.history_is_being_fetched = false;
@@ -6067,7 +6105,7 @@ TS.registerModule("constants", {
       group.history_fetch_failed = false;
       TS.groups.history_being_fetched_sig.dispatch(group);
       if (group.history_fetch_retries > 5) {
-        delete group.history_fetch_retries;
+        group.history_fetch_retries = 0;
         group.history_is_being_fetched = false;
         group.history_fetch_failed = true;
         if (TS.client) TS.client.msg_pane.updateEndMarker();
@@ -6313,13 +6351,13 @@ TS.registerModule("constants", {
     if (!channel.is_shared) return;
     if (!TS.boot_data.page_needs_enterprise) return;
     if (channel.is_global_shared) {
-      if (channel.shares) delete channel.shares;
-      if (channel.shared_team_ids) delete channel.shared_team_ids;
+      if (channel.shares) channel.shares = undefined;
+      if (channel.shared_team_ids) channel.shared_team_ids = undefined;
       return;
     }
     if (channel.shares) {
       channel.shared_team_ids = _(channel.shared_team_ids || []).concat(_.map(channel.shares, "id")).value();
-      if (channel.shares) delete channel.shares;
+      if (channel.shares) channel.shares = undefined;
     }
     channel.shared_team_ids = _(channel.shared_team_ids || []).uniq().value();
   };
@@ -8542,7 +8580,7 @@ TS.registerModule("constants", {
         }, delay);
         return;
       }
-      delete im.history_fetch_retries;
+      im.history_fetch_retries = 0;
       var fetching_more = TS.shared.onHistory(im, data, args, TS.ims);
       if (!fetching_more) {
         im.history_is_being_fetched = false;
@@ -8566,7 +8604,7 @@ TS.registerModule("constants", {
       im.history_fetch_failed = false;
       TS.ims.history_being_fetched_sig.dispatch(im);
       if (im.history_fetch_retries > 5) {
-        delete im.history_fetch_retries;
+        im.history_fetch_retries = 0;
         im.history_is_being_fetched = false;
         im.history_fetch_failed = true;
         if (TS.client) TS.client.msg_pane.updateEndMarker();
@@ -9166,7 +9204,7 @@ TS.registerModule("constants", {
         }, delay);
         return;
       }
-      delete mpim.history_fetch_retries;
+      mpim.history_fetch_retries = 0;
       var fetching_more = TS.shared.onHistory(mpim, data, args, TS.mpims);
       if (!fetching_more) {
         mpim.history_is_being_fetched = false;
@@ -9190,7 +9228,7 @@ TS.registerModule("constants", {
       mpim.history_fetch_failed = false;
       TS.mpims.history_being_fetched_sig.dispatch(mpim);
       if (mpim.history_fetch_retries > 5) {
-        delete mpim.history_fetch_retries;
+        mpim.history_fetch_retries = 0;
         mpim.history_is_being_fetched = false;
         mpim.history_fetch_failed = true;
         if (TS.client) TS.client.msg_pane.updateEndMarker();
@@ -9271,7 +9309,7 @@ TS.registerModule("constants", {
         TS.warn("Some members (" + still_missing_members.join(",") + ") were still unavailable when we tried again; unable to recover");
       } else {
         TS.info("All members were available when we tried again; recovering");
-        delete mpim._members;
+        mpim._members = undefined;
         members = TS.mpims.getMembersInDisplayOrder();
       }
       if (!_did_log_mpim_debug_msg) {
@@ -9314,8 +9352,8 @@ TS.registerModule("constants", {
     TS.model.mpims.forEach(_clearDisplayNameCache);
   };
   var _clearDisplayNameCache = function(mpim) {
-    delete mpim._display_name;
-    delete mpim._display_name_lc;
+    mpim._display_name = undefined;
+    mpim._display_name_lc = undefined;
   };
   var _getFirstLetter = function(word) {
     var first = word.charCodeAt(0);
@@ -19221,7 +19259,7 @@ TS.registerModule("constants", {
           model_ob.latest = latest;
         }
       }
-      delete model_ob.history_changed;
+      model_ob.history_changed = false;
     });
   };
   var _setMemberPresence = function(member_id, presence) {
@@ -28366,7 +28404,7 @@ TS.registerModule("constants", {
         if (TS.pri) TS.console.log(58, "setOldestMsgsTs (" + model_ob.id + '): setting oldest_msg_ts from "' + model_ob.oldest_msg_ts + '" -> ' + oldest_valid_ts);
         model_ob.oldest_msg_ts = oldest_valid_ts;
         TS.storage.storeOldestTs(model_ob.id, model_ob.oldest_msg_ts);
-        if (model_ob._latest_via_users_counts) delete model_ob._latest_via_users_counts;
+        if (model_ob._latest_via_users_counts) model_ob._latest_via_users_counts = undefined;
       }
     },
     resetOldestMsgsTs: function(model_ob) {
@@ -29325,7 +29363,7 @@ TS.registerModule("constants", {
         if (TS.useRedux()) {
           model_ob = TS.redux.channels.getUpdatedReferenceToEntity(model_ob);
         }
-        delete model_ob._consistency_is_being_checked;
+        model_ob._consistency_is_being_checked = false;
       });
     },
     checkConsistency: function(c_id, from_msgs) {
@@ -29421,7 +29459,7 @@ TS.registerModule("constants", {
     },
     maybeClearPrevLastRead: function(model_ob) {
       model_ob = model_ob || TS.shared.getActiveModelOb();
-      if (model_ob && model_ob._prev_last_read) delete model_ob._prev_last_read;
+      if (model_ob && model_ob._prev_last_read) model_ob._prev_last_read = undefined;
     },
     maybeClearUsersCountsInfo: function(model_ob) {
       if (!model_ob) return;
@@ -54538,7 +54576,11 @@ $.fn.togglify = function(settings) {
       var is_current_team = TS.model.team && team.id === TS.model.team.id;
       if (existing_enterprise_team) {
         _.each(_.keys(team), function(k) {
-          existing_enterprise_team[k] = team[k];
+          if (k === "description") {
+            existing_enterprise_team[k] = TS.utility.unHtmlEntities(team[k]);
+          } else {
+            existing_enterprise_team[k] = team[k];
+          }
         });
         team = existing_enterprise_team;
         _maybeSetTopChannels(team);
@@ -54662,6 +54704,7 @@ $.fn.togglify = function(settings) {
         team.is_unlisted = true;
         break;
     }
+    team.description = TS.utility.unHtmlEntities(team.description);
     if (!team.user_counts) team.user_counts = {};
     if (team.user_counts && !team.user_counts.active_members) team.user_counts.active_members = 0;
     _maybeSetTopChannels(team);
@@ -63457,7 +63500,8 @@ $.fn.togglify = function(settings) {
         }
 
         function Pt(e, t) {
-          return null != e ? ("string" != typeof e && (e = -e), this.utcOffset(e, t), this) : -this.utcOffset();
+          return null != e ? ("string" != typeof e && (e = -e), this.utcOffset(e, t),
+            this) : -this.utcOffset();
         }
 
         function Et(e) {
@@ -82805,10 +82849,11 @@ $.fn.togglify = function(settings) {
     function t(e, n) {
       c()(this, t);
       var r = p()(this, (t.__proto__ || u()(t)).call(this, e, n));
-      return r._invalidateOnUpdateStartIndex = null, r._invalidateOnUpdateStopIndex = null, r._positionCache = new b.a, r._startIndex = null, r._startIndexMemoized = null, r._stopIndex = null, r._stopIndexMemoized = null, r.state = {
-        isScrolling: !1,
-        scrollTop: 0
-      }, r._debounceResetIsScrollingCallback = r._debounceResetIsScrollingCallback.bind(r), r._setScrollingContainerRef = r._setScrollingContainerRef.bind(r), r._onScroll = r._onScroll.bind(r), r;
+      return r._invalidateOnUpdateStartIndex = null,
+        r._invalidateOnUpdateStopIndex = null, r._positionCache = new b.a, r._startIndex = null, r._startIndexMemoized = null, r._stopIndex = null, r._stopIndexMemoized = null, r.state = {
+          isScrolling: !1,
+          scrollTop: 0
+        }, r._debounceResetIsScrollingCallback = r._debounceResetIsScrollingCallback.bind(r), r._setScrollingContainerRef = r._setScrollingContainerRef.bind(r), r._onScroll = r._onScroll.bind(r), r;
     }
     return m()(t, e), f()(t, [{
       key: "clearCellPositions",
@@ -82845,11 +82890,10 @@ $.fn.togglify = function(settings) {
     }, {
       key: "componentWillReceiveProps",
       value: function(e) {
-        this.props.scrollTop !== e.scrollTop && (this._debounceResetIsScrolling(),
-          this.setState({
-            isScrolling: !0,
-            scrollTop: e.scrollTop
-          }));
+        this.props.scrollTop !== e.scrollTop && (this._debounceResetIsScrolling(), this.setState({
+          isScrolling: !0,
+          scrollTop: e.scrollTop
+        }));
       }
     }, {
       key: "render",
@@ -87594,9 +87638,10 @@ $.fn.togglify = function(settings) {
       }, {
         key: "onClose",
         value: function() {
-          this.props.onClose(), this.setState({
-            contentBounds: {}
-          });
+          this.props.onClose(),
+            this.setState({
+              contentBounds: {}
+            });
         }
       }, {
         key: "getInitialPosition",

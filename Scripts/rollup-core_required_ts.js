@@ -348,7 +348,7 @@
   var _fully_booted_p_resolve;
   var _fully_booted_p;
   var _is_user_forced_into_redux_feature;
-  var _users_to_force_into_redux_feature = ["W2V82BY0G", "W1W7LCMHU", "W1M2KRM8E", "W1NTZGLCW", "W1H5Z2EUQ", "W1NUHTDRQ", "W1FLK9CAK", "W28S2MKA5", "W1NU0NFAL", "W31BTQUUF", "W29NEV64V", "W32AJ7MGS"];
+  var _users_to_force_into_redux_feature = ["W2V82BY0G"];
   var _did_call_did_finish_loading = false;
   var FORCE_CALL_DID_FINISH_LOADING_DELAY_MS = 7e4;
   window.TS = {
@@ -1019,8 +1019,8 @@
   };
   var _socketDisconnectedMS = function() {
     TS.shared.getAllModelObsForUser().forEach(function(model_ob) {
-      if (model_ob._consistency_has_been_checked) delete model_ob._consistency_has_been_checked;
-      if (model_ob._consistency_is_being_checked) delete model_ob._consistency_is_being_checked;
+      if (model_ob._consistency_has_been_checked) model_ob._consistency_has_been_checked = false;
+      if (model_ob._consistency_is_being_checked) model_ob._consistency_is_being_checked = false;
     });
   };
   var _rtm_start_retry_delay_ms;
