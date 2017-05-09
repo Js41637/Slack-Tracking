@@ -12425,11 +12425,15 @@ h3 .presence {
   min-height: 72px
 }
 
-.team_list_item .member_item_inset {
+.unify_user .team_list_item .member_details {
+  min-height: 64px
+}
+
+body:not(.unify_user) .team_list_item .member_item_inset {
   padding-left: 82px
 }
 
-.team_list_item .member_image {
+body:not(.unify_user) .team_list_item .member_image {
   float: left;
   margin: 0 0 0 -82px
 }
@@ -14165,6 +14169,7 @@ only screen and (min-resolution:2dppx) {
 .member_image.thumb_32 .member_type_badge,
 .member_image.thumb_36 .member_type_badge,
 .member_image.thumb_48 .member_type_badge,
+.member_image.thumb_56 .member_type_badge,
 .member_image.thumb_72 .member_type_badge {
   position: absolute;
   right: -6px;
@@ -17063,4 +17068,266 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 #handy_rxns_controller #handy_rxns_controller_empty p {
   font-size: 1.3rem;
   line-height: 1.6rem
+}
+
+.c-member__display-name {
+  color: #2C2D30;
+  font-weight: 700
+}
+
+.c-member .presence.active {
+  color: #93cc93
+}
+
+.c-member .presence.away {
+  opacity: .6
+}
+
+.c-member .member_image {
+  display: inline-block;
+  position: relative;
+  float: left;
+  flex: 0 0 20px;
+  border-radius: .2rem;
+  background-size: 100%;
+  background-repeat: no-repeat;
+  top: 5px
+}
+
+.c-member__current-status .emoji-outer.emoji-sizer {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  background-size: 4100%!important;
+  overflow: hidden;
+  font-size: 1rem;
+  line-height: 1;
+  vertical-align: middle;
+  margin-top: -4px;
+  margin-left: .1rem
+}
+
+.c-member__current-status--small:before,
+.c-member__secondary-name--large+.c-member__current-status--large:before,
+.c-member__secondary-name--medium+.c-member__current-status--medium:before {
+  padding: 0 .2rem 0 .4rem;
+  color: rgba(113, 114, 116, .3);
+  content: '|'
+}
+
+.c-member__current-status .prevent_copy_paste:before {
+  content: attr(aria-label)
+}
+
+.c-member__current-status .prevent_copy_paste {
+  margin-left: .125rem
+}
+
+.c-member .external_team_badge {
+  display: inline-block;
+  vertical-align: bottom;
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  border-radius: 3px;
+  box-shadow: 0 0 0 2px #FFF;
+  background-size: 100%;
+  background-color: #FFF;
+  background-repeat: no-repeat
+}
+
+.c-member .external_team_badge.team_badge_16 {
+  width: 16px;
+  height: 16px
+}
+
+.c-member .external_team_badge.default {
+  background-color: #717274;
+  font-weight: 800;
+  font-size: 10px;
+  line-height: 1.6;
+  color: #FFF;
+  font-style: normal;
+  letter-spacing: 0;
+  text-align: center;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, .2);
+  float: left
+}
+
+.c-member .external_team_badge:after {
+  content: '';
+  display: block;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  box-shadow: inset 0 0 0 1px rgba(44, 45, 48, .08);
+  border-radius: 3px
+}
+
+.c-member--small {
+  display: flex;
+  font-size: 15px;
+  line-height: 2
+}
+
+.c-member__name--small {
+  color: #717274;
+  font-weight: 400;
+  word-break: break-word;
+  display: block;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  flex: 1 1 auto
+}
+
+.c-member__context--small {
+  line-height: 1.9
+}
+
+.c-member__unread-context--small {
+  order: 4;
+  position: relative;
+  bottom: 1px;
+  margin-left: .6rem
+}
+
+.c-member--small>* {
+  display: inline-block;
+  margin-left: .5rem
+}
+
+.c-member--small .presence {
+  margin: 0 .15rem;
+  position: relative;
+  color: #717274;
+  flex: 0 0 8px;
+  bottom: 1px
+}
+
+.c-member--small .presence .presence_icon {
+  font-size: 20px;
+  line-height: 1;
+  position: absolute;
+  left: -5px;
+  top: 2px
+}
+
+.c-member--small .member_image {
+  width: 20px;
+  height: 20px
+}
+
+.c-member--small .team_image.icon_16 {
+  width: 16px;
+  height: 16px;
+  float: right;
+  line-height: 1.6;
+  flex: 0 0 16px;
+  order: 3;
+  border-radius: 3px;
+  background-size: 100%;
+  background-repeat: no-repeat;
+  display: inline-block;
+  position: relative;
+  top: 7px
+}
+
+.c-member--small .team_image.default {
+  background-color: #717274;
+  font-weight: 800;
+  line-height: 1.6;
+  font-size: 10px;
+  color: #FFF;
+  font-style: normal;
+  letter-spacing: 0;
+  text-align: center;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, .2);
+  float: left
+}
+
+.c-member__secondary-name--small {
+  margin-left: .25rem
+}
+
+.c-member__deleted--small {
+  margin: 4px -5px 0 -3px
+}
+
+.c-member--medium {
+  position: relative;
+  margin: 12px 12px 20px;
+  font-size: 15px;
+  color: #717274;
+  font-weight: 400;
+  height: 42px
+}
+
+.c-member__name--medium,
+.c-member__title--medium {
+  line-height: 1.1;
+  word-break: break-word;
+  display: block;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  margin-bottom: 2px;
+  padding-left: 12px
+}
+
+.c-member__secondary-name--medium {
+  color: #2C2D30
+}
+
+.c-member--medium .presence .presence_icon {
+  margin-left: .25rem
+}
+
+.c-member--medium .member_image {
+  width: 36px;
+  height: 36px
+}
+
+.c-member--large {
+  position: relative;
+  font-size: 15px;
+  color: #717274;
+  font-weight: 400;
+  min-height: 61px
+}
+
+.c-member__display-name--large,
+.c-member__other-names--large,
+.c-member__title--large {
+  line-height: 18px;
+  word-break: break-word;
+  display: block;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  margin-bottom: 2px;
+  padding-left: 12px
+}
+
+.c-member__title--large {
+  white-space: pre-wrap
+}
+
+.c-member__display-name--large,
+.c-member__title--large {
+  color: #2C2D30
+}
+
+.c-member__display-name--large {
+  font-weight: 700
+}
+
+.c-member--large .presence .presence_icon {
+  margin-left: .25rem
+}
+
+.c-member--large .member_image {
+  width: 56px;
+  height: 56px
 }
