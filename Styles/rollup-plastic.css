@@ -13869,11 +13869,29 @@ only screen and (min-resolution:2dppx) {
   width: calc(100% - 1rem)
 }
 
+.unify_user #client-ui .searchable_member_list .member_item,
+.unify_user #client-ui .searchable_member_list .team_list_item {
+  width: 100%
+}
+
 #client-ui .searchable_member_list .team_list_item {
-  padding: .5rem;
+  padding: .5rem
+}
+
+body:not(.unify_user) #client-ui .searchable_member_list .team_list_item {
   margin: .5rem;
   border-radius: 5px;
   border: 1px solid transparent
+}
+
+.unify_user #client-ui .searchable_member_list .team_list_item {
+  border-top: 1px solid transparent;
+  border-bottom: 1px solid transparent;
+  padding-left: 1rem
+}
+
+.unify_user #client-ui .searchable_member_list .team_list_item:first-of-type {
+  border-top: none
 }
 
 #client-ui .searchable_member_list .team_list_item:hover {
@@ -14005,7 +14023,10 @@ only screen and (min-resolution:2dppx) {
 }
 
 .dm_badge .member_image {
-  float: left;
+  float: left
+}
+
+body:not(.unify_user) .dm_badge .member_image {
   margin: 0 .75rem 0 0;
   -ms-flex: none;
   -webkit-flex: none;
@@ -17090,8 +17111,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   flex: 0 0 20px;
   border-radius: .2rem;
   background-size: 100%;
-  background-repeat: no-repeat;
-  top: 5px
+  background-repeat: no-repeat
 }
 
 .c-member__current-status .emoji-outer.emoji-sizer {
@@ -17167,6 +17187,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 
 .c-member--small {
   display: flex;
+  align-items: center;
   font-size: 15px;
   line-height: 2
 }
@@ -17179,7 +17200,12 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
-  flex: 1 1 auto
+  flex: 1 1 auto;
+  margin-left: .25rem
+}
+
+.c-member__with-avatar--small .c-member__name--small {
+  margin-left: .5rem
 }
 
 .c-member__context--small {
@@ -17193,30 +17219,27 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   margin-left: .6rem
 }
 
-.c-member--small>* {
-  display: inline-block;
-  margin-left: .5rem
-}
-
 .c-member--small .presence {
-  margin: 0 .15rem;
+  width: 18px;
+  height: 30px;
+  margin: 0 0 0 .15rem;
   position: relative;
   color: #717274;
-  flex: 0 0 8px;
-  bottom: 1px
+  flex: 0 0 6px
 }
 
 .c-member--small .presence .presence_icon {
   font-size: 20px;
   line-height: 1;
-  position: absolute;
-  left: -5px;
-  top: 2px
+  top: 0;
+  left: 0;
+  position: relative
 }
 
 .c-member--small .member_image {
   width: 20px;
-  height: 20px
+  height: 20px;
+  margin-left: .5rem
 }
 
 .c-member--small .team_image.icon_16 {
@@ -17230,8 +17253,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   background-size: 100%;
   background-repeat: no-repeat;
   display: inline-block;
-  position: relative;
-  top: 7px
+  position: relative
 }
 
 .c-member--small .team_image.default {
@@ -17293,8 +17315,14 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   position: relative;
   font-size: 15px;
   color: #717274;
-  font-weight: 400;
-  min-height: 61px
+  font-weight: 400
+}
+
+.c-member__flex-container--large {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 56px
 }
 
 .c-member__display-name--large,
@@ -17306,8 +17334,8 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
-  margin-bottom: 2px;
-  padding-left: 12px
+  padding-left: 12px;
+  flex: 0 0 auto
 }
 
 .c-member__title--large {
