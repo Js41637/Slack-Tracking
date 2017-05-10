@@ -6482,7 +6482,9 @@ TS.registerModule("constants", {
       });
     },
     createSpace: function(callback) {
-      TS.api.callSynchronously("files.createSpace", {}, function(ok, data) {
+      var calling_args = {};
+      if (TS.boot_data.page_needs_enterprise) calling_args.team = TS.model.team.id;
+      TS.api.callSynchronously("files.createSpace", calling_args, function(ok, data) {
         if (ok) {
           var file = TS.files.upsertAndSignal(data.file).file;
           if (TS.web) TS.ssb.upsertFileInSSBParentWin(file);
@@ -6497,6 +6499,13 @@ TS.registerModule("constants", {
       TS.files.createSpace(function(file) {
         if (file) {
           var qs = TS.model.active_cid ? "?origin_channel=" + TS.model.active_cid : "";
+          if (TS.boot_data.page_needs_enterprise) {
+            if (qs.length) {
+              qs += "&origin_team=" + TS.model.team.id;
+            } else {
+              qs = "?origin_team=" + TS.model.team.id;
+            }
+          }
           var url = file.permalink + qs;
           if (open_in_browser || !TS.ssb.openNewFileWindow(file, url, qs)) {
             TS.utility.openInNewTab(url, file.id);
