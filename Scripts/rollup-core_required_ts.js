@@ -3872,7 +3872,7 @@ var _cyrillicToLatin = function(char) {
       if (!emoji || !term) return false;
       var emoji_base_name = TS.emoji.nameToBaseName(emoji.display_name || emoji.name);
       if (TS.boot_data.feature_localization) {
-        term = TS.i18n.deburr(term);
+        term = TS.emoji.normalizeSearchTerm(term);
         emoji_base_name = TS.i18n.deburr(emoji_base_name);
       }
       if (TS.emoji.substringMatchesName(emoji_base_name, term)) return true;
@@ -3885,6 +3885,13 @@ var _cyrillicToLatin = function(char) {
         if (TS.emoji.substringMatchesName(TS.emoji.nameToBaseName(aliases[i]), term)) return true;
       }
       return _.indexOf(keywords, emoji_base_name) !== -1;
+    },
+    normalizeSearchTerm: function(term) {
+      if (!term || !_.isString(term)) return;
+      term = term.toLowerCase();
+      term = TS.i18n.deburr(term);
+      term = term.replace(/['ʼ’]/g, "'");
+      return term;
     },
     nameToBaseName: function(name) {
       if (!_.isString(name)) return "";

@@ -26508,11 +26508,11 @@ TS.registerModule("constants", {
         return selected_size;
       });
       Handlebars.registerHelper("prefsNotificationExampleAll", function() {
-        var name;
-        if (TS.model.is_mac) {
-          name = TS.i18n.t("Jeff", "prefs")();
-        } else {
-          name = TS.i18n.t("from Jeff", "prefs")();
+        var name = TS.utility.htmlEntities(TS.model.team.name);
+        if (!TS.model.is_mac) {
+          name = TS.i18n.t("from {team_name}", "prefs")({
+            team_name: name
+          });
         }
         var html = TS.templates.prefs_notification_example({
           name: name,
@@ -26521,11 +26521,11 @@ TS.registerModule("constants", {
         return new Handlebars.SafeString(html);
       });
       Handlebars.registerHelper("prefsNotificationExampleMentions", function() {
-        var name;
-        if (TS.model.is_mac) {
-          name = TS.i18n.t("Linda", "prefs")();
-        } else {
-          name = TS.i18n.t("from Linda", "prefs")();
+        var name = TS.utility.htmlEntities(TS.model.team.name);
+        if (!TS.model.is_mac) {
+          name = TS.i18n.t("from {team_name}", "prefs")({
+            team_name: name
+          });
         }
         var html = TS.templates.prefs_notification_example({
           name: name,
