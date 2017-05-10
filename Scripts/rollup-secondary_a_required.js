@@ -3485,18 +3485,9 @@
     maybeCalculateSidebarSections: function() {
       TS.redux.dispatch(window.Redux.Features.ChannelSidebar.maybeCalculateSidebarSections());
     },
-    getUpdatedReferenceToEntity: function(channel) {
-      if (TS.useRedux() && channel && channel.id) {
-        var updated_channel = TS.redux.channels.getEntityById(channel.id);
-        if (updated_channel) {
-          return updated_channel;
-        }
-      }
-      return channel;
-    },
     getEntityById: function(id) {
       var entity = _getChannelById(id);
-      return _maybeWrapEntity(entity);
+      return TS.redux.channels.interop.maybeWrapEntity(entity);
     },
     getEntityByName: function(name) {
       var cid = _getChannelIdByName(name);
@@ -3566,15 +3557,79 @@
     mpims: undefined,
     ims: undefined
   };
-  var _redux_did_warn_about_stack = {};
   var _addSignalListeners = function() {
     TS.channels.unread_changed_sig.add(TS.redux.channels.forceUpdateOfEntityById);
     TS.channels.unread_highlight_changed_sig.add(TS.redux.channels.forceUpdateOfEntityById);
     TS.ims.unread_changed_sig.add(TS.redux.channels.forceUpdateOfEntityById);
     TS.ims.unread_highlight_changed_sig.add(TS.redux.channels.forceUpdateOfEntityById);
   };
+  var _buildModelArrayKey = function(key) {
+    var entities = _getAllChannels();
+    var filter;
+    switch (key) {
+      case "channels":
+        filter = _isChannel;
+        break;
+      case "groups":
+        filter = _isGroup;
+        break;
+      case "ims":
+        filter = _isIm;
+        break;
+      case "mpims":
+        filter = _isMpim;
+        break;
+      default:
+    }
+    if (entities === _cached_entities && _cached_objects[key]) {
+      return _cached_objects[key];
+    }
+    _cached_entities = entities;
+    _cached_objects = {};
+    _cached_objects[key] = _.filter(entities, filter);
+    _cached_objects[key] = _.map(_cached_objects[key], TS.redux.channels.interop.maybeWrapEntity);
+    if (!_clear_timeouts[key]) {
+      _clear_timeouts[key] = _.defer(function() {
+        delete _cached_objects[key];
+        delete _clear_timeouts[key];
+        _cached_entities = null;
+      });
+    }
+    return _cached_objects[key];
+  };
+})();
+(function() {
+  "use strict";
+  TS.registerModule("redux.channels.interop", {
+    onStart: function() {
+      if (TS.useRedux()) {
+        _getChannelById = TS.redux.bindSingleArgSelectorToStore(window.Redux.Entities.Channels.getChannelById);
+      }
+    },
+    maybeWrapEntity: function(entity) {
+      if (!TS.useRedux() || !entity || !entity.id) {
+        return entity;
+      }
+      return _createWrappedEntityById(entity.id);
+    },
+    getSetCounts: function() {
+      return _.chain(_set_counts).map(function(value, key) {
+        return {
+          key: key,
+          value: value
+        };
+      }).sortBy("value").reverse().value();
+    },
+    test: function() {
+      var test_ob = {};
+      return test_ob;
+    }
+  });
+  var _getChannelById;
+  var _set_counts = {};
+  var _redux_did_warn_about_key = {};
   var _logUnknownModelObKeyAccess = function(immediate_caller, stack, key) {
-    var UNKNOWN_MODEL_KEY_ACCESS_VERSION = 3;
+    var UNKNOWN_MODEL_KEY_ACCESS_VERSION = 5;
     TS.metrics.count("redux_unknown_model_key_access_v" + UNKNOWN_MODEL_KEY_ACCESS_VERSION);
     var info = {
       message: "Getting or setting an unknown key on a model object, key:" + key + ". Immediate caller: " + immediate_caller,
@@ -3600,19 +3655,24 @@
     }
     return use_a_proxy;
   };
-  var model_ob_keys = ["last_made_active", "last_msg_input", "_fetched_user_data_from_ls", "last_time_divider", "_has_auto_scrolled", "_display_name", "_display_name_lc", "_needs_unread_recalc", "_did_defer_initial_msg_history", "history_is_being_fetched", "history_fetch_failed", "_msgs_to_merge_on_history", "_delayed_fetch_timer", "oldest_unread_ts", "unread_cnt", "unread_highlight_cnt", "unread_highlight_cnt_in_client", "_history_fetched_since_last_connect", "msgs", "_latest_via_users_counts", "_mention_count_display_via_users_counts", "_users_counts_info", "_show_in_list_even_though_no_unreads", "all_read_this_session_once", "pinned_items", "has_pins", "_consistency_is_being_checked", "_consistency_has_been_checked", "last_read", "_marked_reason", "needs_api_marking", "needs_invited_message", "_jumper_previous_name_match", "_mark_most_recent_read_timer", "_prev_last_read", "scroll_top", "is_archived", "id", "is_channel", "name", "is_im", "is_mpim", "is_group", "is_member", "latest", "unread_count", "is_starred", "was_archived_this_session", "is_private", "presence", "is_general", "is_read_only", "is_org_shared", "is_shared", "is_required", "topic", "oldest_msg_ts", "is_limited", "is_slackbot_im", "_temp_unread_cnt", "_cached_html", "_temp_last_read", "needs_created_message", "needs_joined_message", "length", "created", "creator", "is_moved", "name_normalized", "purpose", "previous_names", "_name_lc", "unread_highlights", "unreads", "has_fetched_history_after_scrollback", "unread_count_display", "enterprise_id", "is_global_shared", "is_open", "members", "user", "is_self_im", "_display_name_truncated", "_members", "_checking_at_channel_status", "opened_this_session", "history_changed", "history_fetch_retries", "then", "_archive_msgs", "shared_team_ids", "never_needs_joined_msg", "priority", "is_usergroup", "is_broadcast_keyword", "is_emoji", "deleted", "team_url", "is_view", "active_members", "parent_group", "window", "nodeType"];
+  var model_ob_keys = ["last_made_active", "last_msg_input", "_fetched_user_data_from_ls", "last_time_divider", "_has_auto_scrolled", "_display_name", "_display_name_lc", "_needs_unread_recalc", "_did_defer_initial_msg_history", "history_is_being_fetched", "history_fetch_failed", "_msgs_to_merge_on_history", "_delayed_fetch_timer", "oldest_unread_ts", "unread_cnt", "unread_highlight_cnt", "unread_highlight_cnt_in_client", "_history_fetched_since_last_connect", "msgs", "_latest_via_users_counts", "_mention_count_display_via_users_counts", "_users_counts_info", "_show_in_list_even_though_no_unreads", "all_read_this_session_once", "pinned_items", "has_pins", "_consistency_is_being_checked", "_consistency_has_been_checked", "last_read", "_marked_reason", "needs_api_marking", "needs_invited_message", "_jumper_previous_name_match", "_mark_most_recent_read_timer", "_prev_last_read", "scroll_top", "is_archived", "id", "is_channel", "name", "is_im", "is_mpim", "is_group", "latest", "unread_count", "is_starred", "was_archived_this_session", "is_private", "presence", "is_general", "is_read_only", "is_org_shared", "is_shared", "is_required", "topic", "oldest_msg_ts", "is_limited", "is_slackbot_im", "_temp_unread_cnt", "_cached_html", "_temp_last_read", "needs_created_message", "needs_joined_message", "length", "created", "creator", "is_moved", "name_normalized", "purpose", "previous_names", "_name_lc", "unread_highlights", "unreads", "has_fetched_history_after_scrollback", "unread_count_display", "enterprise_id", "is_global_shared", "is_open", "members", "user", "is_self_im", "_display_name_truncated", "_members", "_checking_at_channel_status", "opened_this_session", "history_changed", "history_fetch_retries", "_archive_msgs", "shared_team_ids", "never_needs_joined_msg", "priority", "deleted", "team_url", "active_members", "parent_group", "is_default", "fetched_history_after_scrollback_time", "is_member"];
+  var known_harmless_get_keys = ["then", "is_usergroup", "is_broadcast_keyword", "is_emoji", "is_view", "nodeType", "window", "is_divider", "_i18n_ns", "old_name"];
   var model_ob_keys_as_map = _.reduce(model_ob_keys, function(result, key) {
+    result[key] = true;
+    return result;
+  }, {});
+  var known_harmless_get_keys_as_map = _.reduce(known_harmless_get_keys, function(result, key) {
     result[key] = true;
     return result;
   }, {});
   var _entity_wrappers = {};
   var _proxyGet = function(target, property) {
-    if (!model_ob_keys_as_map[property] && _.isString(property)) {
+    if (!model_ob_keys_as_map[property] && !known_harmless_get_keys_as_map[property] && _.isString(property)) {
       TS.console.logStackTrace("Accessing an unknown key on a model object");
       var stack = TS.console.getStackTrace();
-      var immediate_caller = _.get(stack.split("\n"), "[1]");
-      if (!_redux_did_warn_about_stack[immediate_caller]) {
-        _redux_did_warn_about_stack[immediate_caller] = true;
+      var immediate_caller = _.get(stack.split("\n"), "[2]");
+      if (!_redux_did_warn_about_key[property]) {
+        _redux_did_warn_about_key[property] = true;
         _logUnknownModelObKeyAccess(immediate_caller, stack, property);
       }
       var entity = _getChannelById(target.id);
@@ -3621,12 +3681,15 @@
     return target[property];
   };
   var _proxySet = function(target, property, value) {
+    if (_.isString(property)) {
+      _set_counts[property] = (_set_counts[property] || 0) + 1;
+    }
     if (!model_ob_keys_as_map[property] && _.isString(property)) {
       TS.console.logStackTrace("Setting an unknown key on a model object");
       var stack = TS.console.getStackTrace();
-      var immediate_caller = _.get(stack.split("\n"), "[1]");
-      if (!_redux_did_warn_about_stack[immediate_caller]) {
-        _redux_did_warn_about_stack[immediate_caller] = true;
+      var immediate_caller = _.get(stack.split("\n"), "[2]");
+      if (!_redux_did_warn_about_key[property]) {
+        _redux_did_warn_about_key[property] = true;
         _logUnknownModelObKeyAccess(immediate_caller, stack, property);
       }
       var entity = _getChannelById(target.id);
@@ -3690,46 +3753,6 @@
       _entity_wrappers[id] = wrapped_entity;
     }
     return wrapped_entity;
-  };
-  var _maybeWrapEntity = function(entity) {
-    if (!entity || !entity.id) {
-      return entity;
-    }
-    return _createWrappedEntityById(entity.id);
-  };
-  var _buildModelArrayKey = function(key) {
-    var entities = _getAllChannels();
-    var filter;
-    switch (key) {
-      case "channels":
-        filter = _isChannel;
-        break;
-      case "groups":
-        filter = _isGroup;
-        break;
-      case "ims":
-        filter = _isIm;
-        break;
-      case "mpims":
-        filter = _isMpim;
-        break;
-      default:
-    }
-    if (entities === _cached_entities && _cached_objects[key]) {
-      return _cached_objects[key];
-    }
-    _cached_entities = entities;
-    _cached_objects = {};
-    _cached_objects[key] = _.filter(entities, filter);
-    _cached_objects[key] = _.map(_cached_objects[key], _maybeWrapEntity);
-    if (!_clear_timeouts[key]) {
-      _clear_timeouts[key] = _.defer(function() {
-        delete _cached_objects[key];
-        delete _clear_timeouts[key];
-        _cached_entities = null;
-      });
-    }
-    return _cached_objects[key];
   };
 })();
 (function() {
@@ -4853,9 +4876,6 @@
     getUserChannelMembershipStatus: function(user_id, channel) {
       if (!_.isString(user_id)) throw new Error("Expected user_id to be a string");
       if (!_.isObject(channel)) throw new Error("Expected channel to be an object");
-      if (TS.useRedux()) {
-        channel = TS.redux.channels.getUpdatedReferenceToEntity(channel);
-      }
       if (channel.is_im) {
         return {
           is_known: true,
@@ -9780,16 +9800,10 @@ TS.registerModule("constants", {
           }
         }
         var doIt = function() {
-          if (TS.useRedux()) {
-            model_ob = TS.redux.channels.getUpdatedReferenceToEntity(model_ob);
-          }
           if (model_ob.history_is_being_fetched) {
             if (TS.pri) TS.log(58, 'NOT fetching history on "' + model_ob.id + '", history already being fetched');
           } else {
             if (TS.pri) TS.log(58, 'fetching history for "' + model_ob.id + '" with api_args', api_args);
-            if (TS.useRedux()) {
-              model_ob = TS.redux.channels.getUpdatedReferenceToEntity(model_ob);
-            }
             controller.fetchHistory(model_ob, api_args);
           }
         };
@@ -15640,6 +15654,7 @@ TS.registerModule("constants", {
           placeholder: TS.i18n.t("Search", "page_client")(),
           onFocus: function() {
             $("#client-ui").addClass("search_focused");
+            TS.search.autocomplete.setUpMenu();
           },
           onBlur: function() {
             $("#client-ui").removeClass("search_focused");
@@ -28277,9 +28292,6 @@ TS.registerModule("constants", {
         TS.utility.msgs.maybeExcludeUnreads(channel, unread, highlight);
       });
       TS.model.groups.forEach(function(group) {
-        if (TS.useRedux()) {
-          group = TS.redux.channels.getUpdatedReferenceToEntity(group);
-        }
         if (group.is_archived && !group.was_archived_this_session || TS.notifs.isCorGMuted(group.id)) return;
         unread = parseInt(group.unread_cnt, 10) || 0;
         highlight = parseInt(group.unread_highlight_cnt, 10) || 0;
@@ -28435,9 +28447,6 @@ TS.registerModule("constants", {
       TS.storage.storeOldestTs(model_ob.id, null);
     },
     getOlderMsgsStatus: function(model_ob) {
-      if (TS.useRedux()) {
-        model_ob = TS.redux.channels.getUpdatedReferenceToEntity(model_ob);
-      }
       var msgs = model_ob.msgs;
       var oldest_msg_ts = model_ob.oldest_msg_ts;
       var latest_msg_ts = TS.shared.getLatestMsgTs(model_ob) || null;
@@ -29373,18 +29382,12 @@ TS.registerModule("constants", {
           });
           TS.error(log_prefix + " NOT GOOD!");
         } else {
-          if (TS.useRedux()) {
-            model_ob = TS.redux.channels.getUpdatedReferenceToEntity(model_ob);
-          }
           model_ob._consistency_has_been_checked = true;
           TS.log(773, log_prefix + " all good!");
         }
       }).catch(function(err) {
         TS.error(log_prefix + " err:" + err);
       }).finally(function() {
-        if (TS.useRedux()) {
-          model_ob = TS.redux.channels.getUpdatedReferenceToEntity(model_ob);
-        }
         model_ob._consistency_is_being_checked = false;
       });
     },
@@ -45347,9 +45350,6 @@ var _on_esc;
       return TS.api.call("pins.list", {
         channel: model_ob.id
       }).then(function(resp) {
-        if (TS.useRedux()) {
-          model_ob = TS.redux.channels.getUpdatedReferenceToEntity(model_ob);
-        }
         var pinned_items = resp.data.items;
         TS.pins.upsertPinnedItems(pinned_items);
         model_ob.pinned_items = pinned_items;
@@ -63435,7 +63435,8 @@ var _getMetaFieldForId = function(id, key) {
           else {
             i = e._locale._week.dow, a = e._locale._week.doy;
             var l = ke(gt(), i, a);
-            n = st(t.gg, e._a[zr], l.year), r = st(t.w, l.week), null != t.d ? ((o = t.d) < 0 || o > 6) && (u = !0) : null != t.e ? (o = t.e + i, (t.e < 0 || t.e > 6) && (u = !0)) : o = i;
+            n = st(t.gg, e._a[zr], l.year), r = st(t.w, l.week), null != t.d ? ((o = t.d) < 0 || o > 6) && (u = !0) : null != t.e ? (o = t.e + i,
+              (t.e < 0 || t.e > 6) && (u = !0)) : o = i;
           }
           r < 1 || r > Le(n, i, a) ? p(e)._overflowWeeks = !0 : null != u ? p(e)._overflowWeekday = !0 : (s = we(n, r, o, i, a), e._a[zr] = s.year, e._dayOfYear = s.dayOfYear);
         }
@@ -63452,8 +63453,7 @@ var _getMetaFieldForId = function(id, key) {
 
         function ft(e, t, n) {
           var r;
-          return null == n ? t : null != e.meridiemHour ? e.meridiemHour(t, n) : null != e.isPM ? (r = e.isPM(n),
-            r && t < 12 && (t += 12), r || 12 !== t || (t = 0), t) : t;
+          return null == n ? t : null != e.meridiemHour ? e.meridiemHour(t, n) : null != e.isPM ? (r = e.isPM(n), r && t < 12 && (t += 12), r || 12 !== t || (t = 0), t) : t;
         }
 
         function pt(e) {
@@ -68492,8 +68492,8 @@ var _getMetaFieldForId = function(id, key) {
           }, 1), up = ri("round"), lp = $o(function(e, t) {
             return e - t;
           }, 0);
-          return n.after = gs, n.ary = bs, n.assign = wf, n.assignIn = kf, n.assignInWith = Lf, n.assignWith = Tf, n.at = Sf, n.before = Ms, n.bind = ef, n.bindAll = qf, n.bindKey = tf, n.castArray = Os, n.chain = Ba, n.chunk = Xi, n.compact = Zi, n.concat = ea, n.cond = Ml, n.conforms = wl, n.constant = kl, n.countBy = Bd, n.create = ku, n.curry = ws, n.curryRight = ks, n.debounce = Ls, n.defaults = Yf, n.defaultsDeep = xf, n.defer = nf, n.delay = rf, n.difference = Yd, n.differenceBy = xd, n.differenceWith = Dd, n.drop = ta, n.dropRight = na, n.dropRightWhile = ra, n.dropWhile = oa, n.fill = ia, n.filter = ns, n.flatMap = rs, n.flatMapDeep = os, n.flatMapDepth = is, n.flatten = ua, n.flattenDeep = la, n.flattenDepth = ca, n.flip = Ts, n.flow = Jf, n.flowRight = Kf, n.fromPairs = da, n.functions = Cu, n.functionsIn = Pu, n.groupBy = Jd, n.initial = ha, n.intersection = Cd, n.intersectionBy = Pd, n.intersectionWith = Ed, n.invert = Df, n.invertBy = Cf, n.invokeMap = Kd, n.iteratee = Sl, n.keyBy = $d, n.keys = Ru, n.keysIn = Iu, n.map = ls, n.mapKeys = Au, n.mapValues = Hu, n.matches = Yl, n.matchesProperty = xl, n.memoize = Ss, n.merge = Ef, n.mergeWith = jf, n.method = $f, n.methodOf = Qf, n.mixin = Dl, n.negate = Ys, n.nthArg = El, n.omit = Of, n.omitBy = Nu, n.once = xs, n.orderBy = cs, n.over = Xf, n.overArgs = of , n.overEvery = Zf, n.overSome = ep, n.partial = af, n.partialRight = sf, n.partition = Qd, n.pick = Rf, n.pickBy = zu, n.property = jl, n.propertyOf = Ol, n.pull = jd, n.pullAll = ga, n.pullAllBy = ba, n.pullAllWith = Ma, n.pullAt = Od, n.range = tp, n.rangeRight = np, n.rearg = uf, n.reject = ps, n.remove = wa, n.rest = Ds, n.reverse = ka, n.sampleSize = _s, n.set = Fu, n.setWith = Uu, n.shuffle = ms, n.slice = La, n.sortBy = Xd, n.sortedUniq = Pa, n.sortedUniqBy = Ea, n.split = cl, n.spread = Cs, n.tail = ja, n.take = Oa, n.takeRight = Ra, n.takeRightWhile = Ia, n.takeWhile = Aa, n.tap = Va, n.throttle = Ps, n.thru = qa, n.toArray = _u, n.toPairs = If, n.toPairsIn = Af, n.toPath = Wl, n.toPlainObject = bu, n.transform = Gu, n.unary = Es, n.union = Rd, n.unionBy = Id, n.unionWith = Ad, n.uniq = Ha, n.uniqBy = Na, n.uniqWith = za, n.unset = Bu, n.unzip = Wa, n.unzipWith = Fa, n.update = Vu, n.updateWith = qu, n.values = Ju, n.valuesIn = Ku, n.without = Hd, n.words = bl, n.wrap = js, n.xor = Nd, n.xorBy = zd, n.xorWith = Wd, n.zip = Fd, n.zipObject = Ua, n.zipObjectDeep = Ga, n.zipWith = Ud, n.entries = If, n.entriesIn = Af, n.extend = kf, n.extendWith = Lf, Dl(n, n), n.add = rp, n.attempt = Vf, n.camelCase = Hf, n.capitalize = Zu, n.ceil = op, n.clamp = $u, n.clone = Rs, n.cloneDeep = As, n.cloneDeepWith = Hs, n.cloneWith = Is, n.conformsTo = Ns, n.deburr = el, n.defaultTo = Ll, n.divide = ip, n.endsWith = tl, n.eq = zs, n.escape = nl, n.escapeRegExp = rl, n.every = ts, n.find = Vd, n.findIndex = aa, n.findKey = Lu, n.findLast = qd, n.findLastIndex = sa, n.findLastKey = Tu, n.floor = ap, n.forEach = as, n.forEachRight = ss, n.forIn = Su, n.forInRight = Yu, n.forOwn = xu, n.forOwnRight = Du, n.get = Eu, n.gt = lf, n.gte = cf, n.has = ju, n.hasIn = Ou, n.head = fa, n.identity = Tl, n.includes = us, n.indexOf = pa, n.inRange = Qu, n.invoke = Pf, n.isArguments = df, n.isArray = ff, n.isArrayBuffer = pf, n.isArrayLike = Ws, n.isArrayLikeObject = Fs, n.isBoolean = Us, n.isBuffer = hf, n.isDate = _f, n.isElement = Gs, n.isEmpty = Bs, n.isEqual = Vs, n.isEqualWith = qs, n.isError = Js, n.isFinite = Ks, n.isFunction = $s, n.isInteger = Qs, n.isLength = Xs, n.isMap = mf, n.isMatch = tu, n.isMatchWith = nu, n.isNaN = ru, n.isNative = ou, n.isNil = au, n.isNull = iu, n.isNumber = su, n.isObject = Zs, n.isObjectLike = eu, n.isPlainObject = uu, n.isRegExp = yf, n.isSafeInteger = lu, n.isSet = vf, n.isString = cu, n.isSymbol = du, n.isTypedArray = gf, n.isUndefined = fu, n.isWeakMap = pu, n.isWeakSet = hu, n.join = _a, n.kebabCase = Nf, n.last = ma, n.lastIndexOf = ya, n.lowerCase = zf, n.lowerFirst = Wf, n.lt = bf, n.lte = Mf, n.max = Ul, n.maxBy = Gl, n.mean = Bl, n.meanBy = Vl, n.min = ql, n.minBy = Jl, n.stubArray = Rl, n.stubFalse = Il, n.stubObject = Al, n.stubString = Hl, n.stubTrue = Nl,
-            n.multiply = sp, n.nth = va, n.noConflict = Cl, n.noop = Pl, n.now = Zd, n.pad = ol, n.padEnd = il, n.padStart = al, n.parseInt = sl, n.random = Xu, n.reduce = ds, n.reduceRight = fs, n.repeat = ul, n.replace = ll, n.result = Wu, n.round = up, n.runInContext = e, n.sample = hs, n.size = ys, n.snakeCase = Ff, n.some = vs, n.sortedIndex = Ta, n.sortedIndexBy = Sa, n.sortedIndexOf = Ya, n.sortedLastIndex = xa, n.sortedLastIndexBy = Da, n.sortedLastIndexOf = Ca, n.startCase = Uf, n.startsWith = dl, n.subtract = lp, n.sum = Kl, n.sumBy = $l, n.template = fl, n.times = zl, n.toFinite = mu, n.toInteger = yu, n.toLength = vu, n.toLower = pl, n.toNumber = gu, n.toSafeInteger = Mu, n.toString = wu, n.toUpper = hl, n.trim = _l, n.trimEnd = ml, n.trimStart = yl, n.truncate = vl, n.unescape = gl, n.uniqueId = Fl, n.upperCase = Gf, n.upperFirst = Bf, n.each = as, n.eachRight = ss, n.first = fa, Dl(n, function() {
+          return n.after = gs, n.ary = bs, n.assign = wf, n.assignIn = kf, n.assignInWith = Lf, n.assignWith = Tf, n.at = Sf, n.before = Ms, n.bind = ef, n.bindAll = qf, n.bindKey = tf, n.castArray = Os, n.chain = Ba, n.chunk = Xi, n.compact = Zi, n.concat = ea, n.cond = Ml, n.conforms = wl, n.constant = kl, n.countBy = Bd, n.create = ku, n.curry = ws, n.curryRight = ks, n.debounce = Ls, n.defaults = Yf, n.defaultsDeep = xf, n.defer = nf, n.delay = rf, n.difference = Yd, n.differenceBy = xd, n.differenceWith = Dd, n.drop = ta, n.dropRight = na, n.dropRightWhile = ra, n.dropWhile = oa, n.fill = ia, n.filter = ns, n.flatMap = rs, n.flatMapDeep = os, n.flatMapDepth = is, n.flatten = ua, n.flattenDeep = la, n.flattenDepth = ca, n.flip = Ts, n.flow = Jf, n.flowRight = Kf, n.fromPairs = da, n.functions = Cu, n.functionsIn = Pu, n.groupBy = Jd, n.initial = ha, n.intersection = Cd, n.intersectionBy = Pd, n.intersectionWith = Ed, n.invert = Df, n.invertBy = Cf, n.invokeMap = Kd, n.iteratee = Sl, n.keyBy = $d, n.keys = Ru, n.keysIn = Iu, n.map = ls, n.mapKeys = Au, n.mapValues = Hu, n.matches = Yl, n.matchesProperty = xl, n.memoize = Ss, n.merge = Ef, n.mergeWith = jf, n.method = $f, n.methodOf = Qf, n.mixin = Dl, n.negate = Ys, n.nthArg = El, n.omit = Of, n.omitBy = Nu, n.once = xs, n.orderBy = cs, n.over = Xf, n.overArgs = of , n.overEvery = Zf, n.overSome = ep, n.partial = af, n.partialRight = sf, n.partition = Qd, n.pick = Rf, n.pickBy = zu, n.property = jl, n.propertyOf = Ol, n.pull = jd, n.pullAll = ga, n.pullAllBy = ba, n.pullAllWith = Ma, n.pullAt = Od, n.range = tp, n.rangeRight = np, n.rearg = uf, n.reject = ps, n.remove = wa, n.rest = Ds, n.reverse = ka, n.sampleSize = _s, n.set = Fu, n.setWith = Uu, n.shuffle = ms, n.slice = La, n.sortBy = Xd, n.sortedUniq = Pa, n.sortedUniqBy = Ea, n.split = cl, n.spread = Cs, n.tail = ja, n.take = Oa, n.takeRight = Ra, n.takeRightWhile = Ia, n.takeWhile = Aa, n.tap = Va, n.throttle = Ps, n.thru = qa, n.toArray = _u, n.toPairs = If, n.toPairsIn = Af, n.toPath = Wl, n.toPlainObject = bu, n.transform = Gu, n.unary = Es, n.union = Rd, n.unionBy = Id, n.unionWith = Ad, n.uniq = Ha, n.uniqBy = Na, n.uniqWith = za, n.unset = Bu, n.unzip = Wa, n.unzipWith = Fa, n.update = Vu, n.updateWith = qu, n.values = Ju, n.valuesIn = Ku, n.without = Hd, n.words = bl, n.wrap = js, n.xor = Nd, n.xorBy = zd, n.xorWith = Wd, n.zip = Fd, n.zipObject = Ua, n.zipObjectDeep = Ga, n.zipWith = Ud, n.entries = If, n.entriesIn = Af, n.extend = kf, n.extendWith = Lf, Dl(n, n), n.add = rp, n.attempt = Vf, n.camelCase = Hf, n.capitalize = Zu, n.ceil = op, n.clamp = $u, n.clone = Rs, n.cloneDeep = As, n.cloneDeepWith = Hs, n.cloneWith = Is, n.conformsTo = Ns, n.deburr = el, n.defaultTo = Ll, n.divide = ip, n.endsWith = tl, n.eq = zs, n.escape = nl, n.escapeRegExp = rl, n.every = ts, n.find = Vd, n.findIndex = aa, n.findKey = Lu, n.findLast = qd, n.findLastIndex = sa, n.findLastKey = Tu, n.floor = ap, n.forEach = as, n.forEachRight = ss, n.forIn = Su, n.forInRight = Yu,
+            n.forOwn = xu, n.forOwnRight = Du, n.get = Eu, n.gt = lf, n.gte = cf, n.has = ju, n.hasIn = Ou, n.head = fa, n.identity = Tl, n.includes = us, n.indexOf = pa, n.inRange = Qu, n.invoke = Pf, n.isArguments = df, n.isArray = ff, n.isArrayBuffer = pf, n.isArrayLike = Ws, n.isArrayLikeObject = Fs, n.isBoolean = Us, n.isBuffer = hf, n.isDate = _f, n.isElement = Gs, n.isEmpty = Bs, n.isEqual = Vs, n.isEqualWith = qs, n.isError = Js, n.isFinite = Ks, n.isFunction = $s, n.isInteger = Qs, n.isLength = Xs, n.isMap = mf, n.isMatch = tu, n.isMatchWith = nu, n.isNaN = ru, n.isNative = ou, n.isNil = au, n.isNull = iu, n.isNumber = su, n.isObject = Zs, n.isObjectLike = eu, n.isPlainObject = uu, n.isRegExp = yf, n.isSafeInteger = lu, n.isSet = vf, n.isString = cu, n.isSymbol = du, n.isTypedArray = gf, n.isUndefined = fu, n.isWeakMap = pu, n.isWeakSet = hu, n.join = _a, n.kebabCase = Nf, n.last = ma, n.lastIndexOf = ya, n.lowerCase = zf, n.lowerFirst = Wf, n.lt = bf, n.lte = Mf, n.max = Ul, n.maxBy = Gl, n.mean = Bl, n.meanBy = Vl, n.min = ql, n.minBy = Jl, n.stubArray = Rl, n.stubFalse = Il, n.stubObject = Al, n.stubString = Hl, n.stubTrue = Nl, n.multiply = sp, n.nth = va, n.noConflict = Cl, n.noop = Pl, n.now = Zd, n.pad = ol, n.padEnd = il, n.padStart = al, n.parseInt = sl, n.random = Xu, n.reduce = ds, n.reduceRight = fs, n.repeat = ul, n.replace = ll, n.result = Wu, n.round = up, n.runInContext = e, n.sample = hs, n.size = ys, n.snakeCase = Ff, n.some = vs, n.sortedIndex = Ta, n.sortedIndexBy = Sa, n.sortedIndexOf = Ya, n.sortedLastIndex = xa, n.sortedLastIndexBy = Da, n.sortedLastIndexOf = Ca, n.startCase = Uf, n.startsWith = dl, n.subtract = lp, n.sum = Kl, n.sumBy = $l, n.template = fl, n.times = zl, n.toFinite = mu, n.toInteger = yu, n.toLength = vu, n.toLower = pl, n.toNumber = gu, n.toSafeInteger = Mu, n.toString = wu, n.toUpper = hl, n.trim = _l, n.trimEnd = ml, n.trimStart = yl, n.truncate = vl, n.unescape = gl, n.uniqueId = Fl, n.upperCase = Gf, n.upperFirst = Bf, n.each = as, n.eachRight = ss, n.first = fa, Dl(n, function() {
               var e = {};
               return ur(n, function(t, r) {
                 dc.call(n.prototype, r) || (e[r] = t);
@@ -71632,8 +71632,7 @@ var _getMetaFieldForId = function(id, key) {
         for (var n in e)
           if (e.hasOwnProperty(n)) {
             var o = e[n];
-            u.hasOwnProperty(n) && u[n] === o || (u[n] && a("102", n), u[n] = o,
-              t = !0);
+            u.hasOwnProperty(n) && u[n] === o || (u[n] && a("102", n), u[n] = o, t = !0);
           }
         t && r();
       },
@@ -81323,8 +81322,7 @@ var _getMetaFieldForId = function(id, key) {
       P = a(c, ["getDisplayName", "methodName", "renderCountProp", "shouldHandleStateChanges", "storeKey", "withRef"]),
       E = x + "Subscription",
       j = v++,
-      O = (t = {},
-        t[x] = m.a, t[E] = m.b, t),
+      O = (t = {}, t[x] = m.a, t[E] = m.b, t),
       R = (l = {}, l[E] = m.b, l);
     return function(t) {
       p()("function" == typeof t, "You must pass a component to the function returned by connect. Instead received " + JSON.stringify(t));
@@ -84307,31 +84305,32 @@ var _getMetaFieldForId = function(id, key) {
       d = e.rowData,
       f = e.style,
       p = {};
-    return (a || u || l || c) && (p["aria-label"] = "row", p.tabIndex = 0, a && (p.onClick = function(e) {
-      return a({
-        event: e,
-        index: r,
-        rowData: d
-      });
-    }), u && (p.onDoubleClick = function(e) {
-      return u({
-        event: e,
-        index: r,
-        rowData: d
-      });
-    }), c && (p.onMouseOut = function(e) {
-      return c({
-        event: e,
-        index: r,
-        rowData: d
-      });
-    }), l && (p.onMouseOver = function(e) {
-      return l({
-        event: e,
-        index: r,
-        rowData: d
-      });
-    })), s.a.createElement("div", i()({}, p, {
+    return (a || u || l || c) && (p["aria-label"] = "row",
+      p.tabIndex = 0, a && (p.onClick = function(e) {
+        return a({
+          event: e,
+          index: r,
+          rowData: d
+        });
+      }), u && (p.onDoubleClick = function(e) {
+        return u({
+          event: e,
+          index: r,
+          rowData: d
+        });
+      }), c && (p.onMouseOut = function(e) {
+        return c({
+          event: e,
+          index: r,
+          rowData: d
+        });
+      }), l && (p.onMouseOver = function(e) {
+        return l({
+          event: e,
+          index: r,
+          rowData: d
+        });
+      })), s.a.createElement("div", i()({}, p, {
       className: t,
       key: o,
       role: "row",
