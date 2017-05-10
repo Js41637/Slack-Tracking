@@ -6335,7 +6335,7 @@ input.search_input {
   padding-right: 30px!important
 }
 
-.inactive {
+.inactive body:not(.unify_user) {
   background-image: url(/9e77/img/bkg_inactive.png);
   background-repeat: repeat
 }
@@ -12404,13 +12404,13 @@ h3 .presence {
   border-bottom-color: transparent
 }
 
-#member_preview_scroller a:not(.member_name):not(.current_status_preset_option),
-.team_list_item a:not(.member_name):not(.current_status_preset_option) {
+#member_preview_scroller a:not(.member_name):not(.current_status_preset_option):not(.member_details_manage_link),
+.team_list_item a:not(.member_name):not(.current_status_preset_option):not(.member_details_manage_link) {
   color: #555459
 }
 
-#member_preview_scroller a:not(.member_name):not(.current_status_preset_option):hover,
-.team_list_item a:not(.member_name):not(.current_status_preset_option):hover {
+#member_preview_scroller a:not(.member_name):not(.current_status_preset_option):not(.member_details_manage_link):hover,
+.team_list_item a:not(.member_name):not(.current_status_preset_option):not(.member_details_manage_link):hover {
   color: #005E99;
   text-decoration: underline
 }
@@ -12426,7 +12426,10 @@ h3 .presence {
 }
 
 .unify_user .team_list_item .member_details {
-  min-height: 64px
+  min-height: 64px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center
 }
 
 body:not(.unify_user) .team_list_item .member_item_inset {
@@ -12535,13 +12538,13 @@ body:not(.unify_user) .team_list_item .member_image {
   margin-bottom: 0
 }
 
-#member_preview_scroller .member_data_table a:not(.current_status_preset_option),
-#team_list .member_data_table a:not(.current_status_preset_option) {
+#member_preview_scroller .member_data_table a:not(.current_status_preset_option):not(.member_details_manage_link),
+#team_list .member_data_table a:not(.current_status_preset_option):not(.member_details_manage_link) {
   color: #555459
 }
 
-#member_preview_scroller .member_data_table a:not(.current_status_preset_option):hover,
-#team_list .member_data_table a:not(.current_status_preset_option):hover {
+#member_preview_scroller .member_data_table a:not(.current_status_preset_option):not(.member_details_manage_link):hover,
+#team_list .member_data_table a:not(.current_status_preset_option):not(.member_details_manage_link):hover {
   color: #005E99
 }
 
@@ -13043,18 +13046,18 @@ only screen and (min-resolution:2dppx) {
   width: 40%
 }
 
-#member_preview_scroller .member_data_table a:not(.current_status_preset_option),
-#member_preview_web_container .member_data_table a:not(.current_status_preset_option),
-#team_list .member_data_table a:not(.current_status_preset_option),
-.menu_member_header .member_data_table a:not(.current_status_preset_option) {
+#member_preview_scroller .member_data_table a:not(.current_status_preset_option):not(.member_details_manage_link),
+#member_preview_web_container .member_data_table a:not(.current_status_preset_option):not(.member_details_manage_link),
+#team_list .member_data_table a:not(.current_status_preset_option):not(.member_details_manage_link),
+.menu_member_header .member_data_table a:not(.current_status_preset_option):not(.member_details_manage_link) {
   color: #2C2D30;
   font-weight: 400!important
 }
 
-#member_preview_scroller .member_data_table a:not(.current_status_preset_option):hover,
-#member_preview_web_container .member_data_table a:not(.current_status_preset_option):hover,
-#team_list .member_data_table a:not(.current_status_preset_option):hover,
-.menu_member_header .member_data_table a:not(.current_status_preset_option):hover {
+#member_preview_scroller .member_data_table a:not(.current_status_preset_option):not(.member_details_manage_link):hover,
+#member_preview_web_container .member_data_table a:not(.current_status_preset_option):not(.member_details_manage_link):hover,
+#team_list .member_data_table a:not(.current_status_preset_option):not(.member_details_manage_link):hover,
+.menu_member_header .member_data_table a:not(.current_status_preset_option):not(.member_details_manage_link):hover {
   color: #005E99
 }
 
@@ -13253,6 +13256,16 @@ only screen and (min-resolution:2dppx) {
   border-bottom: none;
   margin: 1rem 0;
   width: 100%
+}
+
+#member_preview_scroller .member_details_manage_link .ts_icon_cog_o::before,
+#member_preview_web_container .member_details_manage_link .ts_icon_cog_o::before,
+.menu_member_header .member_details_manage_link .ts_icon_cog_o::before {
+  font-size: 18px;
+  position: relative;
+  top: 3px;
+  line-height: 0;
+  margin-right: 3px
 }
 
 #member_preview_scroller {
@@ -13871,7 +13884,7 @@ only screen and (min-resolution:2dppx) {
 
 .unify_user #client-ui .searchable_member_list .member_item,
 .unify_user #client-ui .searchable_member_list .team_list_item {
-  width: 100%
+  width: calc(100% - .5rem)
 }
 
 #client-ui .searchable_member_list .team_list_item {
@@ -13884,18 +13897,18 @@ body:not(.unify_user) #client-ui .searchable_member_list .team_list_item {
   border: 1px solid transparent
 }
 
-.unify_user #client-ui .searchable_member_list .team_list_item {
-  border-top: 1px solid transparent;
-  border-bottom: 1px solid transparent;
-  padding-left: 1rem
-}
-
-.unify_user #client-ui .searchable_member_list .team_list_item:first-of-type {
-  border-top: none
-}
-
-#client-ui .searchable_member_list .team_list_item:hover {
+body:not(.unify_user) #client-ui .searchable_member_list .team_list_item:hover {
   border-color: #E0E0E0
+}
+
+.unify_user #client-ui .searchable_member_list .team_list_item {
+  border-bottom: 1px solid #E0E0E0;
+  border-top: none;
+  padding-left: 12px
+}
+
+.unify_user #client-ui .searchable_member_list .team_list_item:hover {
+  background: #F9F9F9
 }
 
 #client-ui .searchable_member_list .searchable_member_list_scroller {
