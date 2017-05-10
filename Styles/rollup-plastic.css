@@ -10363,6 +10363,12 @@ html.fs_modal_active {
   font-size: 17px
 }
 
+.menu ul li i.file_menu_icon.ts_icon_create_post,
+.menu ul li i.file_menu_icon.ts_icon_laptop {
+  position: relative;
+  top: 1px
+}
+
 .menu ul li:not(.dm_list_item) .member_image {
   vertical-align: top;
   margin-left: -11px;

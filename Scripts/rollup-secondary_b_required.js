@@ -1300,15 +1300,12 @@
       var $inline_audio_play_link = $el.closest(".inline_audio_play_link");
       if ($inline_audio_play_link.length) {
         e.preventDefault();
-        var url = $inline_audio_play_link.attr("href");
-        return alert("play " + url);
       }
     },
     makeInternalInlineAudio: function(key, attachment) {
       if (!attachment.audio_html) return;
       attachment.safe_audio_html = attachment.audio_html;
-      attachment.safe_audio_html = TS.utility.swapInRedirUrlForIframe(attachment.safe_audio_html);
-      if (TS.client) attachment.safe_audio_html = TS.utility.getPlaceholderHTMLFromIframe(attachment.safe_audio_html);
+      if (TS.client && !TS.boot_data.feature_no_placeholders_in_messages) attachment.safe_audio_html = TS.utility.getPlaceholderHTMLFromIframe(attachment.safe_audio_html);
       TS.model.inline_audios[key] = {
         src: TS.utility.htmlEntities(attachment.audio_url || attachment.audio_html),
         attachment: attachment

@@ -201,6 +201,23 @@
   padding: .3rem
 }
 
+.user_group_settings_form .ts_icon_shared_channels {
+  font-size: 14px;
+  bottom: -2px
+}
+
+.user_group_settings_form .ts_icon_shared_channels:before {
+  font-size: inherit
+}
+
+.user_group_settings_form .ts_icon_shared_channel {
+  font-size: 15px
+}
+
+.user_group_settings_form .ts_icon_lock {
+  margin-left: -3px
+}
+
 @-webkit-keyframes highlight_fade {
   from {
     background-color: #FFFCE0

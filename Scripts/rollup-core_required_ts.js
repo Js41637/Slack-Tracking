@@ -4624,7 +4624,8 @@ var _cyrillicToLatin = function(char) {
     TS.emoji.makeMenuLists();
     var make_sure_active_channel_is_in_view = false;
     var should_rebuild_ui = !!TS.model.ms_logged_in_once;
-    if (TS.client && should_rebuild_ui) TS.client.ui.rebuildAll(make_sure_active_channel_is_in_view);
+    var should_throttle_rebuild = true;
+    if (TS.client && should_rebuild_ui) TS.client.ui.rebuildAll(make_sure_active_channel_is_in_view, should_throttle_rebuild);
   };
   var _updateCustomEmoji = function(name, value, cache_ts) {
     if (!_emoji) return;
