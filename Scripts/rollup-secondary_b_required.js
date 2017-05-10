@@ -677,7 +677,7 @@
       TS.error("not showing?");
       return;
     }
-    TS.utility.openInNewTab("/help/requests/new", "_blank");
+    TS.utility.openAuthenticatedInBrowser("/help/requests/new");
     TS.ui.fs_modal.close(true);
     TS.clog.track("HELP_MODAL_ACTION", {
       action: "submit_new_request",
