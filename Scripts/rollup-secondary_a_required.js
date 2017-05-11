@@ -2002,7 +2002,7 @@
           TS.info('API returned "active_migration" (enterprise org migration) for ' + method + ". Showing migration dialog.");
           TS.ui.fs_modal.start({
             title: "This team is joining an Enterprise Organization!",
-            body: "Apologies for the interruption. This team is currently being migrated into " + (data.enterprise_name ? "the <b>" + TS.utility.htmlEntities(data.enterprise_name) + "</b> Organization" : "an Organization") + ", which can take some time to complete. In the meantime, you won’t be able to use it, but we’ll email you once it’s done.",
+            body: "Apologies for the interruption. This team is currently being migrated into " + (data.enterprise_name ? "the <b>" + _.escape(data.enterprise_name) + "</b> Organization" : "an Organization") + ", which can take some time to complete. In the meantime, you won’t be able to use it, but we’ll email you once it’s done.",
             show_cancel_button: false,
             show_go_button: false,
             disable_default_controls: true,
@@ -3657,7 +3657,7 @@
     }
     return use_a_proxy;
   };
-  var model_ob_keys = ["last_made_active", "last_msg_input", "_has_auto_scrolled", "_display_name", "_display_name_lc", "_needs_unread_recalc", "_did_defer_initial_msg_history", "history_is_being_fetched", "history_fetch_failed", "_msgs_to_merge_on_history", "_delayed_fetch_timer", "oldest_unread_ts", "unread_cnt", "unread_highlight_cnt", "unread_highlight_cnt_in_client", "_history_fetched_since_last_connect", "msgs", "_latest_via_users_counts", "_mention_count_display_via_users_counts", "_users_counts_info", "_show_in_list_even_though_no_unreads", "pinned_items", "has_pins", "_consistency_is_being_checked", "_consistency_has_been_checked", "last_read", "_marked_reason", "needs_invited_message", "_jumper_previous_name_match", "_mark_most_recent_read_timer", "_prev_last_read", "scroll_top", "is_archived", "id", "is_channel", "name", "is_im", "is_mpim", "is_group", "latest", "unread_count", "is_starred", "was_archived_this_session", "is_private", "presence", "is_general", "is_read_only", "is_org_shared", "is_shared", "is_required", "topic", "oldest_msg_ts", "is_limited", "is_slackbot_im", "_temp_unread_cnt", "_temp_last_read", "needs_created_message", "needs_joined_message", "length", "created", "creator", "is_moved", "name_normalized", "purpose", "previous_names", "_name_lc", "unread_highlights", "unreads", "has_fetched_history_after_scrollback", "unread_count_display", "enterprise_id", "is_global_shared", "is_open", "members", "user", "is_self_im", "_display_name_truncated", "_members", "_checking_at_channel_status", "opened_this_session", "history_changed", "history_fetch_retries", "_archive_msgs", "shared_team_ids", "never_needs_joined_msg", "priority", "deleted", "team_url", "active_members", "parent_group", "is_default", "fetched_history_after_scrollback_time", "is_member", "create_channel"];
+  var model_ob_keys = ["last_made_active", "last_msg_input", "_has_auto_scrolled", "_display_name", "_display_name_lc", "_needs_unread_recalc", "_did_defer_initial_msg_history", "history_is_being_fetched", "history_fetch_failed", "_msgs_to_merge_on_history", "_delayed_fetch_timer", "unread_cnt", "unread_highlight_cnt", "unread_highlight_cnt_in_client", "_history_fetched_since_last_connect", "msgs", "_latest_via_users_counts", "_mention_count_display_via_users_counts", "_users_counts_info", "_show_in_list_even_though_no_unreads", "pinned_items", "has_pins", "_consistency_is_being_checked", "_consistency_has_been_checked", "last_read", "_marked_reason", "needs_invited_message", "_jumper_previous_name_match", "_mark_most_recent_read_timer", "_prev_last_read", "scroll_top", "is_archived", "id", "is_channel", "name", "is_im", "is_mpim", "is_group", "latest", "unread_count", "is_starred", "was_archived_this_session", "is_private", "presence", "is_general", "is_read_only", "is_org_shared", "is_shared", "is_required", "topic", "oldest_msg_ts", "is_limited", "is_slackbot_im", "_temp_unread_cnt", "_temp_last_read", "needs_created_message", "needs_joined_message", "length", "created", "creator", "is_moved", "name_normalized", "purpose", "previous_names", "_name_lc", "unread_highlights", "unreads", "has_fetched_history_after_scrollback", "unread_count_display", "enterprise_id", "is_global_shared", "is_open", "members", "user", "is_self_im", "_display_name_truncated", "_members", "_checking_at_channel_status", "opened_this_session", "history_changed", "history_fetch_retries", "_archive_msgs", "shared_team_ids", "never_needs_joined_msg", "priority", "deleted", "team_url", "active_members", "parent_group", "is_default", "fetched_history_after_scrollback_time", "is_member", "create_channel"];
   var known_harmless_get_keys = ["then", "is_usergroup", "is_broadcast_keyword", "is_emoji", "is_view", "nodeType", "window", "is_divider", "_i18n_ns", "old_name"];
   var model_ob_keys_as_map = _.reduce(model_ob_keys, function(result, key) {
     result[key] = true;
@@ -3670,7 +3670,7 @@
   var _entity_wrappers = {};
   var _proxyGet = function(target, property) {
     if (!model_ob_keys_as_map[property] && !known_harmless_get_keys_as_map[property] && _.isString(property)) {
-      TS.console.logStackTrace("Accessing an unknown key on a model object");
+      TS.console.logStackTrace("Accessing an unknown key " + property + " on a model object");
       var stack = TS.console.getStackTrace();
       var immediate_caller = _.get(stack.split("\n"), "[2]");
       if (!_redux_did_warn_about_key[property]) {
@@ -3687,7 +3687,7 @@
       _set_counts[property] = (_set_counts[property] || 0) + 1;
     }
     if (!model_ob_keys_as_map[property] && _.isString(property)) {
-      TS.console.logStackTrace("Setting an unknown key on a model object");
+      TS.console.logStackTrace("Setting an unknown key " + property + " on a model object");
       var stack = TS.console.getStackTrace();
       var immediate_caller = _.get(stack.split("\n"), "[2]");
       if (!_redux_did_warn_about_key[property]) {
@@ -4767,7 +4767,7 @@
     channel.unread_highlights = [];
     channel.unread_cnt = 0;
     channel.unreads = [];
-    channel.oldest_unread_ts = null;
+    TS.shared.setOldestUnreadTsForId(channel.id, null);
     channel.has_fetched_history_after_scrollback = false;
     if (TS.client) {
       if (TS._incremental_boot && channel.msgs && channel.msgs.length > 0) {
@@ -5260,10 +5260,10 @@
         channel_name = "this conversation";
       } else if (model_ob.is_group || model_ob.is_private) {
         model_type = "channel";
-        channel_name = TS.utility.htmlEntities(model_ob.name);
+        channel_name = _.escape(model_ob.name);
       } else {
         model_type = "channel";
-        channel_name = "#" + TS.utility.htmlEntities(model_ob.name);
+        channel_name = "#" + _.escape(model_ob.name);
       }
       var team_type = TS.model.team.prefs.retention_type;
       var team_duration = TS.model.team.prefs.retention_duration;
@@ -6412,7 +6412,7 @@ TS.registerModule("constants", {
     group.unread_highlights = [];
     group.unread_cnt = 0;
     group.unreads = [];
-    group.oldest_unread_ts = null;
+    TS.shared.setOldestUnreadTsForId(group.id, null);
     group.has_fetched_history_after_scrollback = false;
     if (TS.client) {
       if (TS._incremental_boot && group.msgs && group.msgs.length > 0) {
@@ -7234,9 +7234,9 @@ TS.registerModule("constants", {
                 $first_fragment.find("li:not(:first)").remove();
               }
               if ($first_fragment.prop("tagName").toLowerCase() === "pre") {
-                file.preview_in_list = $first_fragment.length ? '<span class="monospace">' + TS.utility.htmlEntities($first_fragment.text()) + "</span>" : "";
+                file.preview_in_list = $first_fragment.length ? '<span class="monospace">' + _.escape($first_fragment.text()) + "</span>" : "";
               } else {
-                file.preview_in_list = $first_fragment.length ? TS.utility.htmlEntities($first_fragment.text()) : "";
+                file.preview_in_list = $first_fragment.length ? _.escape($first_fragment.text()) : "";
               }
             }
           }
@@ -7664,7 +7664,7 @@ TS.registerModule("constants", {
                 TS.generic_dialog.start({
                   title: TS.i18n.t("Folders not supported", "files")(),
                   body: TS.i18n.t("<p>Sorry, <strong>{folder_name}</strong> is a folder, and folder uploads are not supported by Slack.</p>									<p>Try uploading a .zip version of the file instead.</p>", "files")({
-                    folder_name: TS.utility.htmlEntities(args.filename)
+                    folder_name: _.escape(args.filename)
                   }),
                   show_cancel_button: false,
                   esc_for_ok: true,
@@ -7810,7 +7810,7 @@ TS.registerModule("constants", {
           TS.generic_dialog.alert(TS.i18n.t("Something’s gone wrong, and your change didn’t save. If you see this message more than once, you may want to try restarting Slack.", "files")(), TS.i18n.t("Oh, crumbs!", "files")(), TS.i18n.t("Got it", "files")());
         }
       });
-      val = TS.utility.htmlEntities(val);
+      val = _.escape(val);
       TS.files.upsertAndSignal({
         id: file_id,
         title: val
@@ -8712,7 +8712,7 @@ TS.registerModule("constants", {
     im.unread_highlights = [];
     im.unread_cnt = 0;
     im.unreads = [];
-    im.oldest_unread_ts = null;
+    TS.shared.setOldestUnreadTsForId(im.id, null);
     im.has_fetched_history_after_scrollback = false;
     if (TS.client) {
       if (TS._incremental_boot && im.msgs && im.msgs.length > 0) {
@@ -9106,14 +9106,14 @@ TS.registerModule("constants", {
             name += " " + _getFirstLetter(last_name) + ".";
           }
           if (for_header) {
-            name = TS.utility.htmlEntities($.trim(name));
+            name = _.escape($.trim(name));
             name = '<span class="mpdm_member ' + TS.templates.makeMemberDomId(member) + " " + TS.templates.makeMemberPresenceStateClass(member) + '" data-member-id="' + member.id + '">' + name + current_status + "</span>";
           }
           return name;
         }
         var user_name = $.trim(member.name);
         if (for_header) {
-          user_name = TS.utility.htmlEntities(user_name);
+          user_name = _.escape(user_name);
           user_name = '<span class="mpdm_member ' + TS.templates.makeMemberDomId(member) + " " + TS.templates.makeMemberPresenceStateClass(member) + '" data-member-id="' + member.id + '">' + user_name + current_status + "</span>";
         }
         return user_name;
@@ -9421,7 +9421,7 @@ TS.registerModule("constants", {
             classes: "ts_tip_float"
           });
         }
-        name = TS.utility.htmlEntities($.trim(name));
+        name = _.escape($.trim(name));
         name = '<li class="mpdm_member ' + TS.templates.makeMemberDomId(member) + " " + TS.templates.makeMemberPresenceStateClass(member) + '" data-member-id="' + member.id + '">' + name + current_status + "</li>";
       }
       return name;
@@ -9458,7 +9458,7 @@ TS.registerModule("constants", {
     mpim_group.unread_highlights = [];
     mpim_group.unread_cnt = 0;
     mpim_group.unreads = [];
-    mpim_group.oldest_unread_ts = null;
+    TS.shared.setOldestUnreadTsForId(mpim_group.id, null);
     mpim_group.has_fetched_history_after_scrollback = false;
     if (TS.client) {
       TS.shared.maybeResetHistoryFetched(mpim_group);
@@ -9525,6 +9525,14 @@ TS.registerModule("constants", {
       if (!id) return;
       delete _user_counts_info_map[id];
     },
+    getOldestUnreadTsForId: function(id) {
+      if (!id) return;
+      return _oldest_unread_ts_map[id];
+    },
+    setOldestUnreadTsForId: function(id, oldest_unread_ts) {
+      if (!id) return;
+      _oldest_unread_ts_map[id] = oldest_unread_ts;
+    },
     calcUnreadCnts: function(model_ob, controller, and_mark) {
       if (TS._incremental_boot) {
         return;
@@ -9551,7 +9559,7 @@ TS.registerModule("constants", {
       }
       model_ob.unreads.length = 0;
       model_ob.unread_highlights.length = 0;
-      model_ob.oldest_unread_ts = null;
+      TS.shared.setOldestUnreadTsForId(model_ob.id, null);
       var msgs = model_ob.msgs;
       var was_cnt = model_ob.unread_cnt;
       var was_highlight_cnt = model_ob.unread_highlight_cnt;
@@ -9579,8 +9587,9 @@ TS.registerModule("constants", {
           some_can_cnt_as_unread = some_can_cnt_as_unread || this_can_cnt_as_unread;
           if (!this_can_cnt_as_unread) continue;
           model_ob.unreads.push(msg.ts);
-          if (!model_ob.oldest_unread_ts || msg.ts < model_ob.oldest_unread_ts) {
-            model_ob.oldest_unread_ts = msg.ts;
+          var prev_oldest_unread_ts = TS.shared.getOldestUnreadTsForId(model_ob.id);
+          if (!prev_oldest_unread_ts || msg.ts < prev_oldest_unread_ts) {
+            TS.shared.setOldestUnreadTsForId(model_ob.id, msg.ts);
           }
           if (channel_mentions_can_count) {
             var msg_time_ms = parseFloat(msg.ts) * 1e3;
@@ -9596,7 +9605,7 @@ TS.registerModule("constants", {
       if (!some_can_cnt_as_unread && model_ob.unreads.length) {
         model_ob.unreads.length = 0;
         model_ob.unread_highlights.length = 0;
-        model_ob.oldest_unread_ts = null;
+        TS.shared.setOldestUnreadTsForId(model_ob.id, null);
         if (and_mark) {
           controller.markMostRecentReadMsg(model_ob, TS.model.marked_reasons.none_qualify);
         }
@@ -10084,7 +10093,7 @@ TS.registerModule("constants", {
               everyone: TS.templates.builders.atLabel("everyone")
             }),
             body: TS.i18n.t('<p class="bold">Would you like to switch to {general_channel} and send your message?</p><p class="">Using <strong>{everyone}</strong> in a message is a way to address your whole team, but it must be done in the {general_channel} channel.</p><p class="no_bottom_margin">If you just want to address everyone in this {conversation_or_channel}, use <strong>{channel}</strong> instead.</p>', "shared")({
-              general_channel: "#" + TS.utility.htmlEntities(general.name),
+              general_channel: "#" + _.escape(general.name),
               conversation_or_channel: model_label,
               everyone: TS.templates.builders.atLabel("everyone"),
               channel: TS.templates.builders.atLabel("channel")
@@ -11008,6 +11017,7 @@ TS.registerModule("constants", {
   var _did_defer_initial_msg_history_map = {};
   var _delayed_fetch_timer_map = {};
   var _user_counts_info_map = {};
+  var _oldest_unread_ts_map = {};
   var _addMsgsWorker = function(model_ob, msgs) {
     var added_any = false;
     if (!model_ob._history_fetched_since_last_connect) {
@@ -11555,7 +11565,7 @@ TS.registerModule("constants", {
     },
     getMemberById: function(id, no_unknown) {
       if (TS.boot_data.feature_unknown_members && no_unknown !== true) {
-        var UNKNOWN_MEMBERS_FIX_VERSION = 1;
+        var UNKNOWN_MEMBERS_FIX_VERSION = 2;
         var stack = TS.console.getStackTrace();
         var immediate_caller = _.get(stack.split("\n"), "[1]");
         if (!_get_member_by_id_warned_for_caller[immediate_caller]) {
@@ -11768,7 +11778,7 @@ TS.registerModule("constants", {
       _processNewMemberForUpserting(member);
     },
     setMemberUserColor: function(member, color) {
-      color = TS.utility.htmlEntities(color);
+      color = _.escape(color);
       member.member_color = color || member.color;
       if (color && color != member.color) {
         TS.model.user_colors[member.id] = color;
@@ -11952,14 +11962,14 @@ TS.registerModule("constants", {
         }
         return username_prefix + member.name;
       }();
-      return should_escape ? TS.utility.htmlEntities(unescaped_display_name) : unescaped_display_name;
+      return should_escape ? _.escape(unescaped_display_name) : unescaped_display_name;
     },
     getMemberDisplayNameLowerCase: function(member, should_escape) {
       if (!member) return "NO MEMBER??";
       if (!TS.model.team) return member._name_lc;
       if (TS.members.shouldDisplayRealNames()) {
         if (member.profile && member.profile.real_name) {
-          if (should_escape) return TS.utility.htmlEntities(member._real_name_lc);
+          if (should_escape) return _.escape(member._real_name_lc);
           return member._real_name_lc;
         }
       }
@@ -13374,7 +13384,7 @@ TS.registerModule("constants", {
       if (app.config && app.config.is_custom_integration) {
         if (app.config.icons) {
           if (app.config.icons.emoji) {
-            var emoji_img_html = TS.emoji.graphicReplace(TS.utility.htmlEntities(app.config.icons.emoji), {
+            var emoji_img_html = TS.emoji.graphicReplace(_.escape(app.config.icons.emoji), {
               force_img: true
             });
             template_args.emoji_img_tag = new Handlebars.SafeString(emoji_img_html);
@@ -15681,12 +15691,16 @@ TS.registerModule("constants", {
           placeholder: TS.i18n.t("Search", "page_client")(),
           onFocus: function() {
             $("#client-ui").addClass("search_focused");
+            var value = TS.utility.contenteditable.value(TS.search.input);
+            TS.utility.contenteditable.cursorPosition(TS.search.input, value.length);
             TS.search.autocomplete.setUpMenu();
             TS.search.autocomplete.onInputFocus();
+            TS.search.autocomplete.triggerInputEvent("focus");
           },
           onBlur: function() {
             $("#client-ui").removeClass("search_focused");
             TS.search.autocomplete.maybeLogSearchInputBlur();
+            TS.search.autocomplete.triggerInputEvent("blur");
           },
           onEnter: function() {
             TS.search.submitSearch();
@@ -15973,7 +15987,7 @@ TS.registerModule("constants", {
         $.each(data.suggestions, function(i, value) {
           TS.search.suggestions[i] = {
             value: value,
-            highlighted: TS.search.highlightSuggestion(TS.utility.htmlEntities(value))
+            highlighted: TS.search.highlightSuggestion(_.escape(value))
           };
         });
       }
@@ -20409,7 +20423,7 @@ TS.registerModule("constants", {
     },
     makeUserColorRule: function(member) {
       var cls = "color_" + member.id;
-      var color = "#" + TS.utility.htmlEntities(member.member_color);
+      var color = "#" + _.escape(member.member_color);
       var rule;
       if (TS.client) {
         rule = "				." + cls + ":not(.nuc), 				#col_channels ul li:not(.active):not(.away) > ." + cls + ":not(.nuc) {					color:" + color + ";				}			";
@@ -21038,7 +21052,7 @@ TS.registerModule("constants", {
           author_name: TS.members.getMemberRealName(member),
           author_subname: TS.boot_data.feature_name_tagging_client ? TS.members.getMemberPreferredName(member) : member.name,
           author_icon: member.profile.image_24,
-          author_link: TS.boot_data.feature_name_tagging_client ? "/team/" + user_id : "/team/" + TS.utility.htmlEntities(member.name)
+          author_link: TS.boot_data.feature_name_tagging_client ? "/team/" + user_id : "/team/" + _.escape(member.name)
         };
       } else if (bot_id) {
         var bot = TS.bots.getBotByMsg(msg);
@@ -21136,8 +21150,8 @@ TS.registerModule("constants", {
         room: room,
         participants: participants,
         room_url: TS.utility.calls.getUrlForRoom(room),
-        meta_room_name: TS.utility.htmlEntities(room_name),
-        room_name: TS.utility.htmlEntities(room.name),
+        meta_room_name: _.escape(room_name),
+        room_name: _.escape(room.name),
         title: title,
         description: description,
         show_description_ellipsis: room.participants.length === 2,
@@ -21965,18 +21979,20 @@ TS.registerModule("constants", {
           });
           too_large_explain = '<span class="too_large_for_auto_expand"> ' + too_large_explain_str + "</span>";
         } else if (would_expand && too_many_b) {
+          var link_title = TS.i18n.t("Open original in new tab", "templates_builders")();
+          var referer_link_a_tag = "<a " + TS.utility.makeRefererSafeLink(link_url) + ' target="_blank" title="' + link_title + '">';
           if (TS.model.show_inline_img_size_pref_reminder && !TS.model.shown_inline_img_size_pref_reminder_once) {
-            too_large_explain_str = TS.i18n.t('(Not automatically expanded because {file_size} is too large. 						You can <a class="cursor_pointer too_large_but_expand_anyway" data-real-src="{real_src}">expand it anyway</a> or <a {referer_safe_link} target="_blank" title="Open original in new tab">open it in a new window</a>. 						You can also <a class="cursor_pointer" onclick="TS.ui.prefs_dialog.start(\'messages_media\', \'#prefs_inline_media\')">change your preferences</a> to allow images of any file size to auto expand.)', "templates_builders")({
+            too_large_explain_str = TS.i18n.t('(Not automatically expanded because {file_size} is too large. 						You can <a class="cursor_pointer too_large_but_expand_anyway" data-real-src="{real_src}">expand it anyway</a> or {referer_link_a_tag}open it in a new window</a>. 						You can also <a class="cursor_pointer" onclick="TS.ui.prefs_dialog.start(\'messages_media\', \'#prefs_inline_media\')">change your preferences</a> to allow images of any file size to auto expand.)', "templates_builders")({
               file_size: TS.utility.convertFilesize(inline_img.bytes),
-              real_src: TS.utility.htmlEntities(inline_img.src),
-              referer_safe_link: TS.utility.makeRefererSafeLink(link_url)
+              real_src: _.escape(inline_img.src),
+              referer_link_a_tag: referer_link_a_tag
             });
             TS.model.shown_inline_img_size_pref_reminder_once = true;
           } else {
-            too_large_explain_str = TS.i18n.t('(Not automatically expanded because {file_size} is too large. 						You can <a class="cursor_pointer too_large_but_expand_anyway" data-real-src="{real_src}">expand it anyway</a> or <a {referer_safe_link} target="_blank" title="Open original in new tab">open it in a new window</a>.)', "templates_builders")({
+            too_large_explain_str = TS.i18n.t('(Not automatically expanded because {file_size} is too large. 						You can <a class="cursor_pointer too_large_but_expand_anyway" data-real-src="{real_src}">expand it anyway</a> or {referer_link_a_tag}open it in a new window</a>.)', "templates_builders")({
               file_size: TS.utility.convertFilesize(inline_img.bytes),
-              real_src: TS.utility.htmlEntities(inline_img.src),
-              referer_safe_link: TS.utility.makeRefererSafeLink(link_url)
+              real_src: _.escape(inline_img.src),
+              referer_link_a_tag: referer_link_a_tag
             });
           }
           too_large_explain = '<span class="too_large_for_auto_expand"> ' + too_large_explain_str + "</span>";
@@ -22022,7 +22038,7 @@ TS.registerModule("constants", {
       }
       div_class += " msg_inline_holder_rounded";
       if (!preserve_aspect_ratio) div_class += " file_container_fixed_dimensions";
-      html += '<div data-real-src="' + TS.utility.htmlEntities(inline_img.src) + '" class="' + div_class + '" ';
+      html += '<div data-real-src="' + _.escape(inline_img.src) + '" class="' + div_class + '" ';
       if (inline_img.internal_file_id) html += 'data-file-id="' + inline_img.internal_file_id + '" ';
       if (preserve_aspect_ratio) html += 'style="width:' + inline_img.width + 'px;" ';
       html += ">";
@@ -22038,7 +22054,7 @@ TS.registerModule("constants", {
           show_file_viewer_link = may_show_file_viewer;
           if (file.external_type === "dropbox" || file.external_type === "gdrive" || file.external_type === "box" || file.external_type === "onedrive") {
             var file_to_show = file.thumb_720 ? file.thumb_720 : file.thumb_360;
-            html += "<a " + TS.utility.makeRefererSafeLink(link_url) + ' target="_blank" title="' + open_new_tab_str + '" class="file_viewer_external_link" data-src="' + TS.utility.htmlEntities(file_to_show) + '"data-link-url="' + TS.utility.htmlEntities(link_url) + '">';
+            html += "<a " + TS.utility.makeRefererSafeLink(link_url) + ' target="_blank" title="' + open_new_tab_str + '" class="file_viewer_external_link" data-src="' + _.escape(file_to_show) + '"data-link-url="' + _.escape(link_url) + '">';
           } else if (show_file_viewer_link) {
             html += '<a href="' + link_url + '" target="_blank" class="file_viewer_channel_link file_viewer_link" data-file-id="' + inline_img.internal_file_id + '">';
           } else {
@@ -22055,11 +22071,11 @@ TS.registerModule("constants", {
         } else {
           img_title = TS.i18n.t("Click to open original in new tab", "templates_builders")();
         }
-        html += "<a " + TS.utility.makeRefererSafeLink(link_url) + ' target="_blank" title="' + img_title + '" class="' + img_class + '" data-src="' + TS.utility.htmlEntities(inline_img.src) + '" data-link-url="' + TS.utility.htmlEntities(inline_img.link_url) + '"';
-        if (inline_img.width) html += ' data-width="' + TS.utility.htmlEntities(inline_img.width) + '"';
-        if (inline_img.height) html += ' data-height="' + TS.utility.htmlEntities(inline_img.height) + '"';
-        if (inline_img.rotation) html += ' data-rotation="' + TS.utility.htmlEntities(inline_img.rotation) + '"';
-        if (inline_img.content_type) html += ' data-content-type="' + TS.utility.htmlEntities(inline_img.content_type) + '"';
+        html += "<a " + TS.utility.makeRefererSafeLink(link_url) + ' target="_blank" title="' + img_title + '" class="' + img_class + '" data-src="' + _.escape(inline_img.src) + '" data-link-url="' + _.escape(inline_img.link_url) + '"';
+        if (inline_img.width) html += ' data-width="' + _.escape(inline_img.width) + '"';
+        if (inline_img.height) html += ' data-height="' + _.escape(inline_img.height) + '"';
+        if (inline_img.rotation) html += ' data-rotation="' + _.escape(inline_img.rotation) + '"';
+        if (inline_img.content_type) html += ' data-content-type="' + _.escape(inline_img.content_type) + '"';
         html += ">";
       }
       if (preserve_aspect_ratio) html = html.replace("<a ", '<a style="width:' + inline_img.width + 'px;" ');
@@ -22095,7 +22111,7 @@ TS.registerModule("constants", {
       }
       html += ">";
       inline_img.proxied_src = TS.utility.getImgProxyURLWithOptions(inline_img.src, {});
-      var src = TS.utility.htmlEntities(inline_img.proxied_src || inline_img.src);
+      var src = _.escape(inline_img.proxied_src || inline_img.src);
       var figure_class = hide_by_default ? "msg_inline_img msg_inline_child hidden" : "msg_inline_img msg_inline_child";
       var figure_attr = use_placeholder ? 'data-real-background-image="' + src + '"' : 'style="background-image:url(' + src + ');"';
       var img_attr = use_placeholder ? 'data-real-src="' + src + '"' : 'src="' + src + '"';
@@ -22188,7 +22204,7 @@ TS.registerModule("constants", {
       var inline_other = TS.model.inline_others[key];
       if (!inline_other) return "";
       var expand_it = TS.inline_others.shouldExpand(container_id, inline_other);
-      return '<div data-real-src="' + TS.utility.htmlEntities(inline_other.src) + '" class="clear_both msg_inline_other_holder msg_inline_holder ' + (expand_it ? "" : "hidden") + '">' + content + "</div>";
+      return '<div data-real-src="' + _.escape(inline_other.src) + '" class="clear_both msg_inline_other_holder msg_inline_holder ' + (expand_it ? "" : "hidden") + '">' + content + "</div>";
     },
     buildInlineVideoTogglerAndDiv: function(key, container_id) {
       var inline_video = TS.model.inline_videos[key];
@@ -22445,7 +22461,7 @@ TS.registerModule("constants", {
     },
     makeChannelLinkAriaLabelSafe: function(channel) {
       if (!channel) TS.warn("No valid channel to make channel link aria label");
-      var name = TS.utility.htmlEntities(channel.name);
+      var name = _.escape(channel.name);
       var active_or_regular_channel = TS.model.active_channel_id === channel.id ? TS.i18n.t("active channel", "templates_builders")() : TS.i18n.t("channel", "templates_builders")();
       var unread_message = _getUnreadMessageLabelText(channel);
       var draft_message = null;
@@ -22470,7 +22486,7 @@ TS.registerModule("constants", {
     },
     makeGroupLinkAriaLabelSafe: function(group) {
       if (!group) TS.warn("No valid group to make private channel link aria label");
-      var name = TS.utility.htmlEntities(group.name);
+      var name = _.escape(group.name);
       var active_or_regular_channel = TS.model.active_group_id === group.id ? TS.i18n.t("active channel", "templates_builders")() : TS.i18n.t("channel", "templates_builders")();
       var unread_message = _getUnreadMessageLabelText(group);
       var draft_message = null;
@@ -22514,7 +22530,7 @@ TS.registerModule("constants", {
     makeMemberPreviewLink: function(member, show_you_for_current_user) {
       if (!member) return "";
       if (show_you_for_current_user !== true) show_you_for_current_user = false;
-      var safe_name = TS.utility.htmlEntities(member.name);
+      var safe_name = _.escape(member.name);
       var class_extras = TS.templates.builders.makeMemberColorClass(member);
       var html;
       var target;
@@ -22774,7 +22790,7 @@ TS.registerModule("constants", {
       var im = direct_message.model_ob;
       var aria_label = "";
       if (member && im) {
-        var name = TS.utility.htmlEntities(TS.ims.getDisplayNameOfUserForIm(im));
+        var name = _.escape(TS.ims.getDisplayNameOfUserForIm(im));
         var active_or_regular_direct_message = TS.model.active_im_id === member.id ? TS.i18n.t("active direct message", "templates_builders")() : TS.i18n.t("direct message", "templates_builders")();
         var presence_state = TS.templates.makeMemberPresenceStateAriaLabel(member);
         var unread_message = _getUnreadMessageLabelText(im);
@@ -22844,7 +22860,7 @@ TS.registerModule("constants", {
           username = bot.name;
         }
       }
-      return new Handlebars.SafeString(bot_link.start_a + TS.utility.htmlEntities(username) + bot_link.end_a);
+      return new Handlebars.SafeString(bot_link.start_a + _.escape(username) + bot_link.end_a);
     },
     makeBotLink: function(bot) {
       var start_a = "";
@@ -23039,7 +23055,7 @@ TS.registerModule("constants", {
       return new Handlebars.SafeString(html);
     },
     makeMessageLinkLabelSafe: function(url) {
-      var html = TS.i18n.t("From URL:", "templates_builders")() + " " + "<a " + TS.utility.makeRefererSafeLink(url) + ' class="external_link"' + 'title="' + TS.utility.htmlEntities(url) + '"' + 'target="_blank">' + TS.utility.htmlEntities(url) + "</a>";
+      var html = TS.i18n.t("From URL:", "templates_builders")() + " " + "<a " + TS.utility.makeRefererSafeLink(url) + ' class="external_link"' + 'title="' + _.escape(url) + '"' + 'target="_blank">' + _.escape(url) + "</a>";
       return new Handlebars.SafeString(html);
     },
     makeSHRoomParticipantList: function(room) {
@@ -23049,7 +23065,7 @@ TS.registerModule("constants", {
         if (member && member.is_unknown && TS.boot_data.feature_unknown_members) {
           return TS.templates.message_member_unknown();
         } else if (member) {
-          return TS.utility.htmlEntities(TS.members.getMemberDisplayName(member));
+          return _.escape(TS.members.getMemberDisplayName(member));
         }
         return undefined;
       })).join(", ");
@@ -23182,7 +23198,7 @@ TS.registerModule("constants", {
     strBuilder: function(str, args) {
       return str.replace(/\${([a-z_]+)}/g, function(m, $1) {
         if ($1.indexOf("_html") > -1) return args[$1];
-        return TS.utility.htmlEntities(args[$1]);
+        return _.escape(args[$1]);
       });
     },
     buildRxnTitle: function(args, force) {
@@ -23194,9 +23210,9 @@ TS.registerModule("constants", {
         display_name = TSFEmoji.translateEmojiStringToLocal(display_name, TS.i18n.locale());
       }
       if (args.is_handy || args.is_poll && !args.count) {
-        if (args.is_poll) return "Vote for “" + TS.utility.htmlEntities(handy_title || args.name) + "”";
-        if (handy_title) return "Say “" + TS.utility.htmlEntities(handy_title) + "”";
-        emoji_formatted = TS.utility.htmlEntities(display_name || args.name);
+        if (args.is_poll) return "Vote for “" + _.escape(handy_title || args.name) + "”";
+        if (handy_title) return "Say “" + _.escape(handy_title) + "”";
+        emoji_formatted = _.escape(display_name || args.name);
         return TS.i18n.t("Add reaction {emoji}", "rxn")({
           emoji: emoji_formatted
         });
@@ -23205,11 +23221,11 @@ TS.registerModule("constants", {
       var include_at_sign = true;
       var subtitle;
       if (args.is_poll) {
-        subtitle = "voted for “" + TS.utility.htmlEntities(handy_title || args.name) + "”";
+        subtitle = "voted for “" + _.escape(handy_title || args.name) + "”";
       } else if (handy_title) {
-        subtitle = "said “" + TS.utility.htmlEntities(handy_title) + "”";
+        subtitle = "said “" + _.escape(handy_title) + "”";
       } else {
-        emoji_formatted = TS.utility.htmlEntities(display_name || args.name);
+        emoji_formatted = _.escape(display_name || args.name);
         subtitle = TS.i18n.t("reacted with {emoji}", "rxn")({
           emoji: emoji_formatted
         });
@@ -23221,7 +23237,7 @@ TS.registerModule("constants", {
           if (TS.boot_data.feature_thanks) return TS.i18n.t("You", "rxn")() + subtitle;
           return TS.i18n.t("You (click to remove)", "rxn")() + subtitle;
         }
-        return TS.utility.htmlEntities(TS.members.getMemberDisplayNameById(args.member_ids[0], should_escape, include_at_sign)) + subtitle;
+        return _.escape(TS.members.getMemberDisplayNameById(args.member_ids[0], should_escape, include_at_sign)) + subtitle;
       }
       var was_already_truncated = args.member_ids.length != args.count;
       var names = args.member_ids.map(function(id, index) {
@@ -23234,7 +23250,7 @@ TS.registerModule("constants", {
         return name;
       });
       if (was_already_truncated) names.push(TS.i18n.t("others", "rxn")());
-      return TS.utility.htmlEntities(TS.i18n.listify(names, {
+      return _.escape(TS.i18n.listify(names, {
         no_escape: true
       }).join("")) + subtitle;
     },
@@ -23613,7 +23629,7 @@ TS.registerModule("constants", {
       } else {
         return "ERROR: UNABLE TO GET TEAMS INFO";
       }
-      html = '<span class="org_team_tag_name">' + TS.utility.htmlEntities(matching_team_data.name) + "</span>";
+      html = '<span class="org_team_tag_name">' + _.escape(matching_team_data.name) + "</span>";
       return html;
     },
     loadingHTML: function() {
@@ -23661,28 +23677,28 @@ TS.registerModule("constants", {
         if (user_ids[0] === TS.model.user.id) {
           return TS.i18n.t("Just you", "threads")();
         }
-        return TS.utility.htmlEntities(participant_names[0]);
+        return _.escape(participant_names[0]);
       } else if (user_ids.length === 2) {
         if (user_ids[1] === TS.model.user.id) {
           return TS.i18n.t("{user_name} and you", "threads")({
-            user_name: TS.utility.htmlEntities(participant_names[0])
+            user_name: _.escape(participant_names[0])
           });
         }
         return TS.i18n.t("{user_name1} and {user_name2}", "threads")({
-          user_name1: TS.utility.htmlEntities(participant_names[0]),
-          user_name2: TS.utility.htmlEntities(participant_names[1])
+          user_name1: _.escape(participant_names[0]),
+          user_name2: _.escape(participant_names[1])
         });
       } else if (user_ids.length === 3) {
         if (user_ids[2] === TS.model.user.id) {
           return TS.i18n.t("{user_name1}, {user_name2}, and you", "threads")({
-            user_name1: TS.utility.htmlEntities(participant_names[0]),
-            user_name2: TS.utility.htmlEntities(participant_names[1])
+            user_name1: _.escape(participant_names[0]),
+            user_name2: _.escape(participant_names[1])
           });
         }
         return TS.i18n.t("{user_name1}, {user_name2}, and {user_name3}", "threads")({
-          user_name1: TS.utility.htmlEntities(participant_names[0]),
-          user_name2: TS.utility.htmlEntities(participant_names[1]),
-          user_name3: TS.utility.htmlEntities(participant_names[2])
+          user_name1: _.escape(participant_names[0]),
+          user_name2: _.escape(participant_names[1]),
+          user_name3: _.escape(participant_names[2])
         });
       } else if (user_ids.length > 3) {
         var num_others = user_ids.length - 2;
@@ -23751,33 +23767,33 @@ TS.registerModule("constants", {
         }
         return TS.i18n.t("{reply_count, plural, =1{1 reply} other{# replies}} from {user_name}", "threads")({
           reply_count: reply_count,
-          user_name: TS.utility.htmlEntities(names[0])
+          user_name: _.escape(names[0])
         });
       } else if (entities.length === 2) {
         if (includes_self) {
           return TS.i18n.t("{reply_count, plural, =1{1 reply} other{# replies}} from {user_name} and you", "threads")({
             reply_count: reply_count,
-            user_name: TS.utility.htmlEntities(names[0])
+            user_name: _.escape(names[0])
           });
         }
         return TS.i18n.t("{reply_count, plural, =1{1 reply} other{# replies}} from {user_name1} and {user_name2}", "threads")({
           reply_count: reply_count,
-          user_name1: TS.utility.htmlEntities(names[0]),
-          user_name2: TS.utility.htmlEntities(names[1])
+          user_name1: _.escape(names[0]),
+          user_name2: _.escape(names[1])
         });
       } else if (entities.length === 3) {
         if (includes_self) {
           return TS.i18n.t("{reply_count, plural, =1{1 reply} other{# replies}} from {user_name1}, {user_name2}, and you", "threads")({
             reply_count: reply_count,
-            user_name1: TS.utility.htmlEntities(names[0]),
-            user_name2: TS.utility.htmlEntities(names[1])
+            user_name1: _.escape(names[0]),
+            user_name2: _.escape(names[1])
           });
         }
         return TS.i18n.t("{reply_count, plural, =1{1 reply} other{# replies}} from {user_name1}, {user_name2}, and {user_name3}", "threads")({
           reply_count: reply_count,
-          user_name1: TS.utility.htmlEntities(names[0]),
-          user_name2: TS.utility.htmlEntities(names[1]),
-          user_name3: TS.utility.htmlEntities(names[2])
+          user_name1: _.escape(names[0]),
+          user_name2: _.escape(names[1]),
+          user_name3: _.escape(names[2])
         });
       } else if (entities.length > 3) {
         var leftover_names = _.drop(names, 2);
@@ -24919,7 +24935,7 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("toTimeAgoShort", function(ts, really_short) {
         really_short = _.isBoolean(really_short) ? really_short : false;
         var time = TS.utility.date.toTimeAgoShort(ts, really_short);
-        var html = '<span class="relative_ts" data-ts="' + TS.utility.htmlEntities(ts) + '" data-really-short="' + !!really_short + '">' + TS.utility.htmlEntities(time) + "</span>";
+        var html = '<span class="relative_ts" data-ts="' + _.escape(ts) + '" data-really-short="' + !!really_short + '">' + _.escape(time) + "</span>";
         return new Handlebars.SafeString(html);
       });
       Handlebars.registerHelper("toTimeDuration", function(ts) {
@@ -25036,8 +25052,8 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("formatFileTitle", function(file) {
         if (!file || !file.title) return "";
         var file_title = file.title;
-        file_title = TS.utility.unHtmlEntities(file_title);
-        file_title = TS.utility.htmlEntities(file_title);
+        file_title = _.unescape(file_title);
+        file_title = _.escape(file_title);
         return new Handlebars.SafeString(TS.format.formatWithOptions(file_title, null, {
           no_specials: true
         }));
@@ -25191,11 +25207,11 @@ TS.registerModule("constants", {
         if (concatenated && last_extract && last_extract.truncated_tail) concatenated += ellipsis;
         if (!concatenated && extracts.fields && !extracts.fallback) {
           extracts.fields.forEach(function(field) {
-            var value = TS.utility.htmlEntities(field.value.text);
+            var value = _.escape(field.value.text);
             value = TS.utility.msgs.handleSearchHighlights(value);
             if (field.value.truncated_head) value = ellipsis + value;
             if (field.value.truncated_tail) value += ellipsis;
-            concatenated += "<strong>" + TS.utility.htmlEntities(field.title) + "</strong> &bull; " + value + "<br>";
+            concatenated += "<strong>" + _.escape(field.title) + "</strong> &bull; " + value + "<br>";
           });
         }
         if (!concatenated && attachment.fallback) {
@@ -25212,12 +25228,12 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("newWindowName", TS.templates.builders.newWindowName);
       Handlebars.registerHelper("nl2br", function(text) {
         if (!text) return text;
-        text = TS.utility.htmlEntities(text);
+        text = _.escape(text);
         return text.replace(/\n/g, "<br />").replace(/&amp;#95;/g, "_");
       });
       Handlebars.registerHelper("smartnl2br", function(text) {
         if (!text) return text;
-        text = TS.utility.htmlEntities(text);
+        text = _.escape(text);
         text = text.replace(/\n\r\n\r/g, '<span class="para_break"><br /></span>');
         text = text.replace(/\n\r\n/g, '<span class="para_break"><br /></span>');
         text = text.replace(/\n\n/g, '<span class="para_break"><br /></span>');
@@ -25528,7 +25544,7 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("makeMemberPreviewLinkById", function(id, show_you_for_current_user) {
         if (show_you_for_current_user !== true) show_you_for_current_user = false;
         var member = TS.members.getKnownMemberById(id) || TS.bots.getBotById(id);
-        if (!member) return new Handlebars.SafeString(TS.utility.htmlEntities(id));
+        if (!member) return new Handlebars.SafeString(_.escape(id));
         return new Handlebars.SafeString(TS.templates.builders.makeMemberPreviewLink(member, show_you_for_current_user));
       });
       Handlebars.registerHelper("makeMemberPreviewLinkImage", function() {
@@ -25629,7 +25645,7 @@ TS.registerModule("constants", {
         if (img_src) {
           html = bot_link.start_a + '<img style="border: 0" src="' + img_src + '" class="member_image ' + size_class + '" />' + bot_link.end_a;
         } else if (emoji_str) {
-          html = bot_link.start_a + '<div style="border: 0" class="member_image ' + size_class + '">' + TS.emoji.graphicReplace(TS.utility.htmlEntities(emoji_str)) + "</div>" + bot_link.end_a;
+          html = bot_link.start_a + '<div style="border: 0" class="member_image ' + size_class + '">' + TS.emoji.graphicReplace(_.escape(emoji_str)) + "</div>" + bot_link.end_a;
         } else if (member_for_default) {
           html = bot_link.start_a + '<img src="' + default_img_src + '" class="member_image ' + size_class + '" />' + bot_link.end_a;
         } else {
@@ -25883,17 +25899,17 @@ TS.registerModule("constants", {
         if (!name_data.is_username_first) class_names_in_order.reverse();
         var names_in_correct_order_html = name_data.names_in_order.map(function(name, index) {
           var class_name = _.get(class_names_in_order, index, "");
-          return '<span class="' + class_name + '">' + TS.utility.htmlEntities(name) + "</span>";
+          return '<span class="' + class_name + '">' + _.escape(name) + "</span>";
         }).join("");
         return new Handlebars.SafeString(names_in_correct_order_html);
       });
       Handlebars.registerHelper("getMemberPreferredNameandRealNameInCorrectOrder", function(member) {
-        var primary_name = TS.utility.htmlEntities(TS.members.getMemberDisplayName(member));
+        var primary_name = _.escape(TS.members.getMemberDisplayName(member));
         var secondary_name;
         if (member.is_self) {
           secondary_name = TS.i18n.t("(you)", "templates_helpers")();
         } else {
-          secondary_name = TS.utility.htmlEntities(TS.members.getMemberSecondaryName(member));
+          secondary_name = _.escape(TS.members.getMemberSecondaryName(member));
         }
         var primary_html = '<span class="member_real_name">' + primary_name + "</span>";
         var secondary_html = '<span class="member_preferred_name">' + secondary_name + "</span>";
@@ -25999,7 +26015,7 @@ TS.registerModule("constants", {
       });
 
       function getBotNameAndIcon(msg) {
-        var username = TS.utility.htmlEntities(msg.username);
+        var username = _.escape(msg.username);
         var bot_icons;
         var bot = TS.bots.getBotByMsg(msg);
         if (msg.icons) {
@@ -26008,7 +26024,7 @@ TS.registerModule("constants", {
           bot_icons = bot.icons;
         } else {}
         if (!username && bot && bot.name) {
-          username = TS.utility.htmlEntities(bot.name);
+          username = _.escape(bot.name);
         }
         var bot_link = TS.templates.builders.makeBotLink(bot, msg.username);
         if (!bot_icons) {
@@ -26016,7 +26032,7 @@ TS.registerModule("constants", {
         }
         var html;
         if (bot_icons.emoji && bot_icons.emoji.substr(0, 1) === ":" && bot_icons.emoji.substr(bot_icons.emoji.length - 1, 1) === ":") {
-          html = bot_link.start_a + TS.emoji.graphicReplace(TS.utility.htmlEntities(bot_icons.emoji)) + bot_link.end_a + " " + bot_link.start_a + username + bot_link.end_a;
+          html = bot_link.start_a + TS.emoji.graphicReplace(_.escape(bot_icons.emoji)) + bot_link.end_a + " " + bot_link.start_a + username + bot_link.end_a;
         } else if (bot_icons.image_36 && !TS.environment.is_retina) {
           html = bot_link.start_a + '<img src="' + bot_icons.image_36 + '" class="inline_bot_icon">' + bot_link.end_a + " " + bot_link.start_a + username + bot_link.end_a;
         } else if (bot_icons.image_72 && TS.environment.is_retina) {
@@ -26158,7 +26174,7 @@ TS.registerModule("constants", {
             }
           }
           if (root_node.nodeType == Node.TEXT_NODE) {
-            var safe_text_content = TS.utility.htmlEntities(root_node.textContent);
+            var safe_text_content = _.escape(root_node.textContent);
             var emojified_html = TS.emoji.graphicReplace(TS.emoji.replaceEmoticons(safe_text_content), {
               include_title: true,
               include_text: false
@@ -26245,7 +26261,7 @@ TS.registerModule("constants", {
       });
       Handlebars.registerHelper("nl2brAndHighlightSearchMatches", function(text) {
         if (!text) return;
-        text = TS.utility.htmlEntities(text);
+        text = _.escape(text);
         text = text.replace(/\n/g, "<br />");
         return new Handlebars.SafeString(TS.utility.msgs.handleSearchHighlights(text));
       });
@@ -26273,7 +26289,7 @@ TS.registerModule("constants", {
       });
       Handlebars.registerHelper("highlightSearchMatches", function(text) {
         if (!text) return;
-        text = TS.utility.htmlEntities(text);
+        text = _.escape(text);
         return TS.utility.msgs.handleSearchHighlights(text);
       });
       Handlebars.registerHelper("highlightSearchMatchesInSpacesHtml", function(html) {
@@ -26283,8 +26299,8 @@ TS.registerModule("constants", {
       });
       Handlebars.registerHelper("highlightSearchMatchesInFileTitle", function(text) {
         if (!text) return;
-        text = TS.utility.unHtmlEntities(text);
-        text = TS.utility.htmlEntities(text);
+        text = _.unescape(text);
+        text = _.escape(text);
         text = TS.emoji.graphicReplace(text);
         return new Handlebars.SafeString(TS.utility.msgs.handleSearchHighlights(text));
       });
@@ -26445,7 +26461,7 @@ TS.registerModule("constants", {
         if (model_ob.is_im || model_ob.is_mpim) {
           text += TS.i18n.t("this conversation", "pins")();
         } else {
-          text += TS.utility.htmlEntities(model_ob.name);
+          text += _.escape(model_ob.name);
         }
         return new Handlebars.SafeString(text);
       });
@@ -26609,7 +26625,7 @@ TS.registerModule("constants", {
         return selected_size;
       });
       Handlebars.registerHelper("prefsNotificationExampleAll", function() {
-        var name = TS.utility.htmlEntities(TS.model.team.name);
+        var name = _.escape(TS.model.team.name);
         if (!TS.model.is_mac) {
           name = TS.i18n.t("from {team_name}", "prefs")({
             team_name: name
@@ -26622,7 +26638,7 @@ TS.registerModule("constants", {
         return new Handlebars.SafeString(html);
       });
       Handlebars.registerHelper("prefsNotificationExampleMentions", function() {
-        var name = TS.utility.htmlEntities(TS.model.team.name);
+        var name = _.escape(TS.model.team.name);
         if (!TS.model.is_mac) {
           name = TS.i18n.t("from {team_name}", "prefs")({
             team_name: name
@@ -26631,7 +26647,7 @@ TS.registerModule("constants", {
         var html = TS.templates.prefs_notification_example({
           name: name,
           text: new Handlebars.SafeString(TS.i18n.t("Hi <strong>@{username}</strong>", "prefs")({
-            username: TS.utility.htmlEntities(TS.model.user.name)
+            username: _.escape(TS.model.user.name)
           }))
         });
         return new Handlebars.SafeString(html);
@@ -29815,7 +29831,7 @@ TS.registerModule("constants", {
       if (message.user === "USLACKBOT" && message.file && message.file.bot_id) {
         member = TS.utility.members.getEntityFromFile(message.file);
       } else {
-        member = message.comment ? TS.members.getKnownMemberById(message.comment.user) : TS.members.getKnownMemberById(message.user);
+        member = message.comment ? TS.members.getMemberById(message.comment.user) : TS.members.getMemberById(message.user);
       }
       return member;
     },
@@ -29891,13 +29907,9 @@ TS.registerModule("constants", {
     },
     email_regex: new RegExp("^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$", "i"),
     regexpEscape: function(text, len_limit) {
-      text = text || "";
-      len_limit = len_limit || 5e5;
-      len_limit = Math.min(len_limit, 5e5);
-      if (text.length > len_limit) {
-        text = text.substr(0, len_limit);
-      }
-      return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+      len_limit = Math.min(len_limit || 5e5, 5e5);
+      if (text.length > len_limit) text = text.slice(0, len_limit);
+      return _.escapeRegExp(text);
     },
     ensureInArray: function(A, val) {
       if (A.indexOf(val) > -1) return false;
@@ -30165,7 +30177,7 @@ TS.registerModule("constants", {
       return name;
     },
     openInNewTab: function(url, target) {
-      url = TS.utility.htmlEntities(url);
+      url = _.escape(url);
       if (url.indexOf("/") === 0 && TS.boot_data.team_url) {
         var team_url = TS.boot_data.team_url;
         team_url = team_url.substr(0, team_url.length - 1);
@@ -30190,20 +30202,20 @@ TS.registerModule("constants", {
               } else {
                 new_query_string += "&";
               }
-              new_query_string += TS.utility.htmlEntities(pair[0]);
+              new_query_string += _.escape(pair[0]);
               if (pair.length > 1) {
-                new_query_string += "=" + TS.utility.htmlEntities(pair[1]);
+                new_query_string += "=" + _.escape(pair[1]);
               }
             } else {
-              fields += '<input type="hidden" name="' + TS.utility.htmlEntities(pair[0]) + '" value="' + (pair.length > 1 ? TS.utility.htmlEntities(pair[1]) : "") + '">';
+              fields += '<input type="hidden" name="' + _.escape(pair[0]) + '" value="' + (pair.length > 1 ? _.escape(pair[1]) : "") + '">';
             }
           }
           if (url_needs_referer_hiding) {
-            fields = '<input type="hidden" name="url" value="' + TS.utility.htmlEntities(url.substring(0, query_index)) + new_query_string + '">';
+            fields = '<input type="hidden" name="url" value="' + _.escape(url.substring(0, query_index)) + new_query_string + '">';
           }
         }
       } else if (url_needs_referer_hiding) {
-        fields = '<input type="hidden" name="url" value="' + TS.utility.htmlEntities(url) + '">';
+        fields = '<input type="hidden" name="url" value="' + _.escape(url) + '">';
         action = "https://" + TS.boot_data.redir_domain + "/link";
       }
       $("<form>" + fields + "</form>").attr({
@@ -30363,14 +30375,6 @@ TS.registerModule("constants", {
         }
       }
     },
-    htmlEntities: function(str) {
-      if (!str && str !== 0) return "";
-      return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-    },
-    unHtmlEntities: function(str) {
-      if (!str && str !== 0) return "";
-      return String(str).replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&").replace(/&quot;/g, '"');
-    },
     preg_quote: function(str) {
       return (str + "").replace(/([\\.+*?[^\]$(){}=!<>|:])/g, "\\$1");
     },
@@ -30461,7 +30465,7 @@ TS.registerModule("constants", {
       if (sanitized_node) {
         html_url = sanitized_node.href;
       }
-      html_url = TS.utility.htmlEntities(html_url);
+      html_url = _.escape(html_url);
       html_url = html_url.replace(/&amp;/g, "&");
       if (url && url.lastIndexOf("/") !== url.length - 1) {
         if (html_url && html_url.lastIndexOf("/") === html_url.length - 1) {
@@ -30481,7 +30485,7 @@ TS.registerModule("constants", {
       if (TS.utility.externalURLsNeedRedirecting()) {
         var encoded_url = encodeURIComponent(html_url);
         var proxy_url = "https://" + TS.boot_data.redir_domain + "/link?url=" + encoded_url + (referer_policy && referer_policy.redirect_type ? "&v=" + referer_policy.redirect_type : "");
-        var map_key = TS.utility.htmlEntities(encoded_url);
+        var map_key = _.escape(encoded_url);
         TS.utility.referer_safe_url_map[map_key] = html_url;
         html += ' data-referer-safe="1" ' + on_method + '="this.href=&quot;' + proxy_url + '&quot;" onmouseover="this.href=TS.utility.referer_safe_url_map[&quot;' + map_key + '&quot;]" data-referer-original-href="' + html_url + '" rel="noreferrer"';
       } else {
@@ -30960,7 +30964,7 @@ TS.registerModule("constants", {
       return html;
     },
     getPlaceholderHTMLFromIframe: function(html) {
-      if (TS.boot_data.no_placeholders_in_messages) throw new Error("Unsupported");
+      if (TS.boot_data.feature_no_placeholders_in_messages) throw new Error("Unsupported");
       html = html.replace(/<iframe/, "<div").replace(/<\/iframe/, "</div");
       var $html = $(html);
       $html.css("height", $html.attr("height") + "px").css("width", $html.attr("width") + "px").attr("data-real-src", $html.attr("src")).attr("src", "").addClass("iframe_placeholder");
@@ -30968,7 +30972,7 @@ TS.registerModule("constants", {
       return html;
     },
     getIframeHTMLFromPlaceholder: function(html) {
-      if (TS.boot_data.no_placeholders_in_messages) throw new Error("Unsupported");
+      if (TS.boot_data.feature_no_placeholders_in_messages) throw new Error("Unsupported");
       html = html.replace(/<div/, "<iframe").replace(/<\/div/, "</iframe");
       var $html = $(html);
       $html.attr("src", $html.data("real-src")).removeClass("iframe_placeholder");
@@ -31380,8 +31384,8 @@ TS.registerModule("constants", {
       return truncated_str.substring(0, truncated_str.length - 1) + ellipsis;
     },
     truncateAndEscape: function(str, len) {
-      if (str.length <= len) return TS.utility.htmlEntities(str);
-      return TS.utility.htmlEntities(str.substring(0, len - 1)) + "&hellip;";
+      if (str.length <= len) return _.escape(str);
+      return _.escape(str.substring(0, len - 1)) + "&hellip;";
     },
     truncateHTML: function() {
       var parser;
@@ -31555,10 +31559,10 @@ TS.registerModule("constants", {
     title += TS.i18n.t("Caution: Tricky Link", "utility")();
     body += "<p>";
     body += '  <span class="inline_block">' + TS.i18n.t("The link you clicked (<strong>{url}</strong>) is tricky.", "utility")({
-      url: TS.utility.htmlEntities(safeUrl)
+      url: _.escape(safeUrl)
     }) + "</span>";
     body += '  <span class="inline_block">' + TS.i18n.t("It has been formatted to look like another web address (<strong>{url}</strong>).", "utility")({
-      url: TS.utility.htmlEntities(originalUrl)
+      url: _.escape(originalUrl)
     }) + "</span>";
     body += "</p>";
     body += "<p>" + TS.i18n.t("Are you sure you want to follow it?", "utility")() + "</p>";
@@ -31945,7 +31949,7 @@ TS.registerModule("constants", {
       if (!_.isString(txt)) txt = "";
       if (!_.isInteger(cursor_pos)) cursor_pos = 0;
       var new_cursor_pos = cursor_pos;
-      var txt_escaped = TS.utility.htmlEntities(txt);
+      var txt_escaped = _.escape(txt);
       var new_html = txt_escaped.replace(_at_mention_rx, function(match, boundry, at_member_id, member_id, offset) {
         var extra = "";
         if (member_id.length > TS.model.model_ob_id_length) {
@@ -32325,7 +32329,7 @@ TS.registerModule("constants", {
       if (has_ats) word = TS.format.swapOutAts(word);
       word = TS.utility.regexpEscape(word);
       if (word === "don") word += "(?!['’]t)";
-      word = TS.utility.htmlEntities(word);
+      word = _.escape(word);
       if (has_ats) {
         rx = new RegExp("(\\b(?!.)|_|\\s|^)(" + word + ")\\b((?!.)|_|\\s|$)", "ig");
       } else {
@@ -32511,7 +32515,7 @@ TS.registerModule("constants", {
             if (TS.boot_data.feature_localization && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE) {
               item = TSFEmoji.translateEmojiStringToLocal(item, TS.i18n.locale());
             }
-            str += TS.utility.unHtmlEntities(item);
+            str += _.unescape(item);
           } else if (TS.utility.platformSupportsHtmlNotifications()) {
             if (TS.utility.platformSupportsImgEmojiInHtmlNotifications()) {
               str += TS.emoji.graphicReplace(item, {
@@ -32520,7 +32524,7 @@ TS.registerModule("constants", {
               });
             }
           } else {
-            var safe_str = TS.utility.unHtmlEntities(item);
+            var safe_str = _.unescape(item);
             safe_str = TS.emoji.maybeUnifiedReplace(safe_str);
             if (TS.boot_data.feature_localization && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE) {
               item = TSFEmoji.translateEmojiStringToLocal(item, TS.i18n.locale());
@@ -32576,14 +32580,14 @@ TS.registerModule("constants", {
               str += '<a href="' + url + '" ' + target + 'data-bot-id="' + bot_id + '" data-app-id="' + app_id + '" class="internal_bot_link app_preview_link">' + display_name;
             } else if (url.indexOf(TS.utility.msgs.api_url_prefix + "chat.help") === 0) {
               if (enable_slack_action_links) {
-                js_url = TS.utility.htmlEntities(JSON.stringify("" + url));
+                js_url = _.escape(JSON.stringify("" + url));
                 str += '<a onclick="TS.utility.msgs.doApiUrl(' + js_url + ')" class="api_url">';
               } else {
                 str += '<a class="api_url muted">(Disabled) ';
               }
             } else if (url.indexOf(TS.utility.msgs.new_api_url_prefix) === 0) {
               if (enable_slack_action_links) {
-                js_url = TS.utility.htmlEntities(JSON.stringify("" + url));
+                js_url = _.escape(JSON.stringify("" + url));
                 str += '<a onclick="TS.utility.msgs.doNewApiUrl(' + js_url + ')" class="api_url">';
               } else {
                 str += '<a class="api_url muted">(Disabled) ';
@@ -32659,7 +32663,7 @@ TS.registerModule("constants", {
             if (prevent_copy_paste) {
               item = _.map($.parseHTML(item), function(node) {
                 if (node.nodeType === Node.TEXT_NODE) {
-                  return '<span class="prevent_copy_paste" aria-label="' + TS.utility.htmlEntities(node.textContent) + '"></span>';
+                  return '<span class="prevent_copy_paste" aria-label="' + _.escape(node.textContent) + '"></span>';
                 }
                 return node.outerHTML;
               }).join("");
@@ -32675,7 +32679,7 @@ TS.registerModule("constants", {
       var from_name = TS.ui.growls.extractFromNameFromCorGMessage(msg);
       if (from_name) {
         if (tsf_mode !== "GROWL" || TS.utility.platformSupportsHtmlNotifications()) {
-          from_name = TS.utility.htmlEntities(from_name);
+          from_name = _.escape(from_name);
         }
         from_name += ": ";
       }
@@ -32837,7 +32841,7 @@ TS.registerModule("constants", {
             return "@" + ug.handle;
           }
           var target = TS.utility.shouldLinksHaveTargets() ? 'target="/usergroups/' + ug.id + '" ' : " ";
-          var handle = TS.utility.htmlEntities(ug.handle);
+          var handle = _.escape(ug.handle);
           var display_name = no_highlights ? "@" + handle : _doHighlighting("@" + handle);
           var classes = ["internal_user_group_link"];
           if (no_linking) {
@@ -32876,7 +32880,7 @@ TS.registerModule("constants", {
   var _getThemeInstallButtonHtml = function(theme, curr_theme_index) {
     var inner_html = "Switch sidebar theme";
     if (curr_theme_index) inner_html += " (" + curr_theme_index + ")";
-    return '<a data-theme="' + TS.utility.htmlEntities(theme) + '" class="btn btn_small btn_outline very_small_top_margin very_small_bottom_margin tiny_right_margin theme_installer_btn">' + inner_html + "</a>";
+    return '<a data-theme="' + _.escape(theme) + '" class="btn btn_small btn_outline very_small_top_margin very_small_bottom_margin tiny_right_margin theme_installer_btn">' + inner_html + "</a>";
   };
   var _getThemeInstallButtonsHtml = function(theme_install_btns) {
     if (theme_install_btns && theme_install_btns.length) {
@@ -32913,7 +32917,7 @@ TS.registerModule("constants", {
 
   function _getMemberSlug(member) {
     var member_name = TS.members.getMemberDisplayName(member);
-    var member_name_escaped = TS.utility.htmlEntities(member_name);
+    var member_name_escaped = _.escape(member_name);
     var slug_html = TS.templates.member_slug({
       member_username: member.name,
       member_id: member.id,
@@ -35477,7 +35481,7 @@ var _on_esc;
           var team = TS.enterprise.getTeamById(args.team);
           var success_message = emoji.replace_colons(":sparkles:");
           success_message += TS.i18n.t(" You’ve successfully left <strong>{team_name}</strong>", "enterprise_workspaces")({
-            team_name: TS.utility.htmlEntities(team.name)
+            team_name: _.escape(team.name)
           });
           if (ok) {
             _updateTeamsList(args.team);
@@ -36340,7 +36344,7 @@ var _on_esc;
             TS.menu.end();
           },
           placeholder: TS.i18n.t("Message {name}", "menu")({
-            name: TS.utility.htmlEntities(member_name)
+            name: _.escape(member_name)
           })
         });
         TS.utility.contenteditable.enable(input);
@@ -37449,12 +37453,12 @@ var _on_esc;
         if (m && m.is_ultra_restricted) {
           if (TS.model.user.is_admin) {
             TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("{user} is a Single-Channel Guest, and can’t be added to a second channel. To invite {user} to this channel, you’ll need to <{team_url}admin#restricted|upgrade their membership> to a Multi-Channel Guest. ​Note: This will add a billable seat to your team.", "cmd_handlers")({
-              user: TS.utility.htmlEntities(name),
+              user: _.escape(name),
               team_url: TS.boot_data.team_url
             }), cmd + " " + rest, "sad_surprise");
           } else {
             TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("{user} is a Single-Channel Guest, and can’t be added to a second channel. Your Team Admin can upgrade their membership to a Multi-Channel Guest.", "cmd_handlers")({
-              user: TS.utility.htmlEntities(name)
+              user: _.escape(name)
             }), cmd + " " + rest, "sad_surprise");
           }
           return;
@@ -37764,7 +37768,7 @@ var _on_esc;
             return;
           }
         }
-        var next_name = TS.utility.htmlEntities(rest) || model_ob.name;
+        var next_name = _.escape(rest) || model_ob.name;
         TS.ui.channel_options_dialog.start(model_ob.id, "rename", {
           name: next_name
         });
@@ -38225,7 +38229,7 @@ var _on_esc;
         }
         if (!member) {
           TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("*{input}* is not a recognized member name.", "cmd_handlers")({
-            input: TS.utility.htmlEntities(rest)
+            input: _.escape(rest)
           }), cmd + " " + rest, "", "sad_surprise");
           return;
         }
@@ -38255,7 +38259,7 @@ var _on_esc;
           var membership_status = TS.membership.getUserChannelMembershipStatus(member.id, model_ob);
           if (!membership_status.is_member) {
             TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("*{user}* is not a member of this {channel}.", "cmd_handlers")({
-              user: TS.utility.htmlEntities(rest),
+              user: _.escape(rest),
               channel: model_ob.is_channel ? TS.i18n.t("channel", "cmd_handlers")() : TS.i18n.t("private channel", "cmd_handlers")()
             }), cmd + " " + rest, "sad_surprise");
             return null;
@@ -39749,7 +39753,7 @@ var _on_esc;
           }
         } else {
           var error_html = TS.i18n.t('<div style="padding:10px; color:white">Error: unable to find "{url}" in TS.model.inline_videos</div>', "inline_videos")({
-            url: TS.utility.htmlEntities(url)
+            url: _.escape(url)
           });
           $msg_inline_video_iframe_div.html(error_html);
         }
@@ -39879,7 +39883,7 @@ var _on_esc;
       $holder.removeClass("hidden");
       $el.find(".msg_inline_attachment_expander").filter(filter).addClass("hidden");
       $el.find(".msg_inline_attachment_collapser").filter(filter).removeClass("hidden");
-      if (TS.client && !TS.boot_data.no_placeholders_in_messages) TS.client.ui.checkInlineImgsAndIframesEverywhere();
+      if (TS.client && !TS.boot_data.feature_no_placeholders_in_messages) TS.client.ui.checkInlineImgsAndIframesEverywhere();
       $holder.css("opacity", 0).stop().animate({
         opacity: 1
       }, 300);
@@ -39902,7 +39906,7 @@ var _on_esc;
         }
       }
       TS.inline_attachments.expand_sig.dispatch(container_id);
-      if (TS.client && !TS.boot_data.no_placeholders_in_messages) TS.client.ui.checkInlineImgsAndIframesEverywhere();
+      if (TS.client && !TS.boot_data.feature_no_placeholders_in_messages) TS.client.ui.checkInlineImgsAndIframesEverywhere();
     },
     collapse: function(container_id, src) {
       TS.model.expandable_state["attach_" + container_id + src] = false;
@@ -40071,7 +40075,7 @@ var _on_esc;
     },
     makeBlackListSelect: function(url) {
       if (!url) return "";
-      url = TS.utility.htmlEntities(url).replace("https://", "").replace("http://", "");
+      url = _.escape(url).replace("https://", "").replace("http://", "");
       var html = "";
       var parts = url.split("/");
       var host = parts[0];
@@ -40397,7 +40401,7 @@ var _on_esc;
       if (google_map_config && google_map_config.center && typeof google_map_config.center.lat !== "string") {
         google_map_config.scrollwheel = false;
         var dom_id = "googmap_" + (_googmap_index += 1);
-        attachment.other_html = '<div class="google-maps" id="' + dom_id + '" style="width:100%; min-width:' + TS.utility.htmlEntities(attachment.other_html_width) + "px; height:" + TS.utility.htmlEntities(attachment.other_html_height) + 'px;"></div>			<script>TS.inline_others.runGoogleMapCode("' + dom_id + "\", '" + JSON.stringify(google_map_config) + "')</script>";
+        attachment.other_html = '<div class="google-maps" id="' + dom_id + '" style="width:100%; min-width:' + _.escape(attachment.other_html_width) + "px; height:" + _.escape(attachment.other_html_height) + 'px;"></div>			<script>TS.inline_others.runGoogleMapCode("' + dom_id + "\", '" + JSON.stringify(google_map_config) + "')</script>";
         attachment.safe_other_html = attachment.other_html;
       } else {
         if (attachment.other_html.indexOf("oldwidth") == -1) {
@@ -40409,7 +40413,7 @@ var _on_esc;
         if (TS.client && !TS.boot_data.feature_no_placeholders_in_messages) attachment.safe_other_html = TS.utility.getPlaceholderHTMLFromIframe(attachment.safe_other_html);
       }
       TS.model.inline_others[attachment.other_html] = {
-        src: TS.utility.htmlEntities(attachment.other_html),
+        src: _.escape(attachment.other_html),
         attachment: attachment
       };
     },
@@ -40707,7 +40711,7 @@ var _on_esc;
         var blocked_keyword = TS.ui.needToBlockAtChannelKeyword(edited_text, null, TS.msg_edit.current_model_ob.id);
         if (blocked_keyword) {
           TS.generic_dialog.alert("<p>" + TS.i18n.t("A Team Owner has restricted the use of <strong>{blocked_keyword}</strong> messages.", "msg_edit")({
-            blocked_keyword: TS.utility.htmlEntities(blocked_keyword)
+            blocked_keyword: _.escape(blocked_keyword)
           }) + "</p>");
           return;
         }
@@ -43537,7 +43541,7 @@ var _on_esc;
       var reserved_words = reserved.split(",");
       if (reserved_words.indexOf(value) === -1) return true;
       TS.ui.validation.showWarning($el, TS.i18n.t('"{word}" is a reserved word. Try something else!', "ui_validation")({
-        word: TS.utility.htmlEntities(value)
+        word: _.escape(value)
       }), options);
     } else {
       TS.error("WTF: cannot validate");
@@ -43742,7 +43746,7 @@ var _on_esc;
         }), options);
       } else if (!valid) {
         TS.ui.validation.showWarning($el, TS.i18n.t("{value} doesn’t appear to be a valid date. Sorry!", "ui_validation")({
-          value: TS.utility.htmlEntities(value)
+          value: _.escape(value)
         }), options);
       }
     } else {
@@ -43849,7 +43853,7 @@ var _on_esc;
     var other_channel = TS.channels.getChannelByName(value) || TS.groups.getGroupByName(value) || TS.members.getMemberByName(value);
     if (!other_channel) return true;
     TS.ui.validation.showWarning($el, TS.i18n.t('"{name}" is already taken by a channel, username, or user group.', "ui_validation")({
-      name: TS.utility.htmlEntities(value)
+      name: _.escape(value)
     }), options);
   }
 
@@ -43872,7 +43876,7 @@ var _on_esc;
     if (other_channel && other_channel.id === current_model_ob.id) need_to_check_api = true;
     if (other_channel && other_channel.id !== current_model_ob.id) {
       TS.ui.validation.showWarning($el, TS.i18n.t("{name} has already been taken. Try something else!", "ui_validation")({
-        name: TS.utility.htmlEntities(value)
+        name: _.escape(value)
       }), options);
       return;
     }
@@ -44182,7 +44186,7 @@ var _on_esc;
       return TS.api.call("enterprise.teams.join", calling_args, function(ok, data, args) {
         var team = TS.enterprise.getTeamById(args.team);
         var message = new Handlebars.SafeString(emoji.replace_colons(":sparkles:") + TS.i18n.t(" You‘ve successfully joined <strong>{team_name}</strong>", "enterprise_dashboard")({
-          team_name: TS.utility.htmlEntities(team.name)
+          team_name: _.escape(team.name)
         }));
         if (ok) {
           team = _.merge({}, TS.enterprise.getTeamById(args.team));
@@ -44410,7 +44414,7 @@ var _on_esc;
             TS.ui.toast.show({
               type: "success",
               message: TS.i18n.t("Request to create <b>{team_name}</b> sent! You‘ll be notified once it‘s reviewed.", "enterprise_workspaces")({
-                team_name: TS.utility.htmlEntities(name_value)
+                team_name: _.escape(name_value)
               })
             });
             TS.generic_dialog.end();
@@ -44423,7 +44427,7 @@ var _on_esc;
             var data = resp.data;
             var errors = {
               name_taken: TS.i18n.t("Request failed: The team name <b>{team_name}</b> is already taken.", "enterprise_workspaces")({
-                team_name: TS.utility.htmlEntities(name_value)
+                team_name: _.escape(name_value)
               }),
               name_is_empty: TS.i18n.t("Request failed: A team name is required.", "enterprise_workspaces")(),
               name_too_long: TS.i18n.t("Request failed: The team name you provided is too long.", "enterprise_workspaces")(),
@@ -47749,7 +47753,7 @@ $.fn.togglify = function(settings) {
         });
       }
       return TS.i18n.t("No items matched {query}", "lazy_filter_select")({
-        query: "<strong>" + TS.utility.htmlEntities(query) + "</strong>"
+        query: "<strong>" + _.escape(query) + "</strong>"
       });
     },
     errorTemplate: function(error) {
@@ -48689,7 +48693,7 @@ $.fn.togglify = function(settings) {
     instance.$select.val(values).trigger("change");
   };
   var _formatTextForDisplay = function(text, instance) {
-    text = TS.utility.htmlEntities(text);
+    text = _.escape(text);
     if (_.get(instance, "should_graphic_replace_emoji")) {
       text = TS.emoji.graphicReplace(text);
     }
@@ -49000,7 +49004,7 @@ $.fn.togglify = function(settings) {
               return TS.i18n.t("No one found", "people_picker")();
             }
             return TS.i18n.t("No one found matching <strong>{query}</strong>", "people_picker")({
-              query: TS.utility.htmlEntities(query)
+              query: _.escape(query)
             });
           },
           onItemAdded: options.onItemAdded,
@@ -49054,7 +49058,7 @@ $.fn.togglify = function(settings) {
               return TS.i18n.t("No one found", "people_picker")();
             }
             return TS.i18n.t("No one found matching <strong>{query}</strong>", "people_picker")({
-              query: TS.utility.htmlEntities(query)
+              query: _.escape(query)
             });
           },
           onItemAdded: options.onItemAdded,
@@ -52676,7 +52680,7 @@ var _getMetaFieldForId = function(id, key) {
               _toggleChannelNameChecking(disable_checking_spinner, trigger_available_name_message);
               is_disabled = true;
               _toggleButton(null, $create_button, do_validation, is_disabled);
-              TS.ui.validation.showWarning($el, '"' + TS.utility.htmlEntities(new_name) + '" is already taken by a channel, username, or user group.', {});
+              TS.ui.validation.showWarning($el, '"' + _.escape(new_name) + '" is already taken by a channel, username, or user group.', {});
               return;
             }
             disable_checking_spinner = true;
@@ -52960,7 +52964,7 @@ var _getMetaFieldForId = function(id, key) {
   var _getToggleInputLabel = function() {
     var label = TS.i18n.t("Anyone on your team can join", "shared")();
     if (_isEnterprise()) {
-      var name = TS.utility.htmlEntities(TS.model.enterprise.name);
+      var name = _.escape(TS.model.enterprise.name);
       switch (_$div.find('[name^="share_with"]:checked').val()) {
         case "specific":
           label = TS.i18n.t("Specific teams at {name} can join", "shared")({
@@ -52981,7 +52985,7 @@ var _getMetaFieldForId = function(id, key) {
   var _getToggleInputOffLabel = function() {
     var label = TS.i18n.t("Restricted to invited members", "shared")();
     if (_isEnterprise()) {
-      var name = TS.utility.htmlEntities(TS.model.enterprise.name);
+      var name = _.escape(TS.model.enterprise.name);
       switch (_$div.find('[name^="share_with"]:checked').val()) {
         case "specific":
           label = TS.i18n.t("Restricted to invited members on specific {name} teams", "shared")({
@@ -53695,7 +53699,7 @@ var _getMetaFieldForId = function(id, key) {
             return TS.i18n.t("No teams found", "team_picker")();
           }
           return TS.i18n.t("No teams found matching <strong>{query}</strong>", "team_picker")({
-            query: TS.utility.htmlEntities(query)
+            query: _.escape(query)
           });
         }
       };
@@ -54423,7 +54427,7 @@ var _getMetaFieldForId = function(id, key) {
         } else {
           template = "#";
         }
-        template += TS.utility.htmlEntities(item.name);
+        template += _.escape(item.name);
         if (TS.shared.isModelObOrgShared(item)) {
           template += ' <ts-icon class="ts_icon_shared_channel ts_icon_inherit"></ts-icon>';
         } else if (TS.shared.isModelObShared(item)) {
@@ -54854,7 +54858,7 @@ var _getMetaFieldForId = function(id, key) {
       if (existing_enterprise_team) {
         _.each(_.keys(team), function(k) {
           if (k === "description") {
-            existing_enterprise_team[k] = TS.utility.unHtmlEntities(team[k]);
+            existing_enterprise_team[k] = _.unescape(team[k]);
           } else {
             existing_enterprise_team[k] = team[k];
           }
@@ -54981,7 +54985,7 @@ var _getMetaFieldForId = function(id, key) {
         team.is_unlisted = true;
         break;
     }
-    team.description = TS.utility.unHtmlEntities(team.description);
+    team.description = _.unescape(team.description);
     if (!team.user_counts) team.user_counts = {};
     if (team.user_counts && !team.user_counts.active_members) team.user_counts.active_members = 0;
     _maybeSetTopChannels(team);
@@ -55168,7 +55172,7 @@ var _getMetaFieldForId = function(id, key) {
           var error_message;
           if (data.error === TS.signup.ERROR_USERNAME_NOT_ALLOWED) {
             error_message = _ERROR_MESSAGES[error_key]({
-              username: TS.utility.htmlEntities(username)
+              username: _.escape(username)
             });
           } else if (data.error === "taken") {
             error_key = TS.signup.ERROR_USERNAME_TAKEN;
@@ -55351,7 +55355,7 @@ var _getMetaFieldForId = function(id, key) {
           }
           var error_message;
           if (data.error === TS.signup.ERROR_BAD_EMAIL_DOMAIN && TS.utility.email_regex.test(api_args.email)) {
-            var email_domain = TS.utility.htmlEntities(api_args.email.split("@")[1]);
+            var email_domain = _.escape(api_args.email.split("@")[1]);
             error_message = _ERROR_MESSAGES[data.error]({
               email_domain: email_domain
             });
@@ -63508,7 +63512,8 @@ var _getMetaFieldForId = function(id, key) {
             s = [],
             u = [],
             l = [];
-          for (t = 0; t < 7; t++) n = d([2e3, 1]).day(t), r = this.weekdaysMin(n, ""), o = this.weekdaysShort(n, ""), i = this.weekdays(n, ""), a.push(r), s.push(o), u.push(i), l.push(r), l.push(o), l.push(i);
+          for (t = 0; t < 7; t++) n = d([2e3, 1]).day(t), r = this.weekdaysMin(n, ""),
+            o = this.weekdaysShort(n, ""), i = this.weekdays(n, ""), a.push(r), s.push(o), u.push(i), l.push(r), l.push(o), l.push(i);
           for (a.sort(e), s.sort(e), u.sort(e), l.sort(e), t = 0; t < 7; t++) s[t] = te(s[t]), u[t] = te(u[t]), l[t] = te(l[t]);
           this._weekdaysRegex = new RegExp("^(" + l.join("|") + ")", "i"), this._weekdaysShortRegex = this._weekdaysRegex, this._weekdaysMinRegex = this._weekdaysRegex, this._weekdaysStrictRegex = new RegExp("^(" + u.join("|") + ")", "i"), this._weekdaysShortStrictRegex = new RegExp("^(" + s.join("|") + ")", "i"), this._weekdaysMinStrictRegex = new RegExp("^(" + a.join("|") + ")", "i");
         }
@@ -64640,16 +64645,16 @@ var _getMetaFieldForId = function(id, key) {
         var Oo = W("Milliseconds", !1);
         q("z", 0, 0, "zoneAbbr"), q("zz", 0, 0, "zoneName");
         var Ro = v.prototype;
-        Ro.add = Yo, Ro.calendar = Jt, Ro.clone = Kt, Ro.diff = nn, Ro.endOf = mn, Ro.format = un, Ro.from = ln, Ro.fromNow = cn, Ro.to = dn, Ro.toNow = fn, Ro.get = G, Ro.invalidAt = Tn, Ro.isAfter = $t, Ro.isBefore = Qt, Ro.isBetween = Xt, Ro.isSame = Zt, Ro.isSameOrAfter = en, Ro.isSameOrBefore = tn, Ro.isValid = kn, Ro.lang = Do, Ro.locale = pn, Ro.localeData = hn, Ro.max = wo, Ro.min = Mo, Ro.parsingFlags = Ln, Ro.set = B, Ro.startOf = _n, Ro.subtract = xo, Ro.toArray = bn, Ro.toObject = Mn, Ro.toDate = gn, Ro.toISOString = an, Ro.inspect = sn, Ro.toJSON = wn, Ro.toString = on, Ro.unix = vn, Ro.valueOf = yn, Ro.creationData = Sn,
-          Ro.year = to, Ro.isLeapYear = ve, Ro.weekYear = xn, Ro.isoWeekYear = Dn, Ro.quarter = Ro.quarters = On, Ro.month = de, Ro.daysInMonth = fe, Ro.week = Ro.weeks = xe, Ro.isoWeek = Ro.isoWeeks = De, Ro.weeksInYear = Pn, Ro.isoWeeksInYear = Cn, Ro.date = Co, Ro.day = Ro.days = Ae, Ro.weekday = He, Ro.isoWeekday = Ne, Ro.dayOfYear = Rn, Ro.hour = Ro.hours = co, Ro.minute = Ro.minutes = Po, Ro.second = Ro.seconds = Eo, Ro.millisecond = Ro.milliseconds = Oo, Ro.utcOffset = Ct, Ro.utc = Et, Ro.local = jt, Ro.parseZone = Ot, Ro.hasAlignedHourOffset = Rt, Ro.isDST = It, Ro.isLocal = Ht, Ro.isUtcOffset = Nt, Ro.isUtc = zt, Ro.isUTC = zt, Ro.zoneAbbr = An, Ro.zoneName = Hn, Ro.dates = L("dates accessor is deprecated. Use date instead.", Co), Ro.months = L("months accessor is deprecated. Use month instead", de), Ro.years = L("years accessor is deprecated. Use year instead", to), Ro.zone = L("moment().zone is deprecated, use moment().utcOffset instead. http://momentjs.com/guides/#/warnings/zone/", Pt), Ro.isDSTShifted = L("isDSTShifted is deprecated. See http://momentjs.com/guides/#/warnings/dst-shifted/ for more information", At);
+        Ro.add = Yo, Ro.calendar = Jt, Ro.clone = Kt, Ro.diff = nn, Ro.endOf = mn, Ro.format = un, Ro.from = ln, Ro.fromNow = cn, Ro.to = dn, Ro.toNow = fn, Ro.get = G, Ro.invalidAt = Tn, Ro.isAfter = $t, Ro.isBefore = Qt, Ro.isBetween = Xt, Ro.isSame = Zt, Ro.isSameOrAfter = en, Ro.isSameOrBefore = tn, Ro.isValid = kn, Ro.lang = Do, Ro.locale = pn, Ro.localeData = hn, Ro.max = wo, Ro.min = Mo, Ro.parsingFlags = Ln, Ro.set = B, Ro.startOf = _n, Ro.subtract = xo, Ro.toArray = bn, Ro.toObject = Mn, Ro.toDate = gn, Ro.toISOString = an, Ro.inspect = sn, Ro.toJSON = wn, Ro.toString = on, Ro.unix = vn, Ro.valueOf = yn, Ro.creationData = Sn, Ro.year = to, Ro.isLeapYear = ve, Ro.weekYear = xn, Ro.isoWeekYear = Dn, Ro.quarter = Ro.quarters = On, Ro.month = de, Ro.daysInMonth = fe, Ro.week = Ro.weeks = xe, Ro.isoWeek = Ro.isoWeeks = De, Ro.weeksInYear = Pn, Ro.isoWeeksInYear = Cn, Ro.date = Co, Ro.day = Ro.days = Ae, Ro.weekday = He, Ro.isoWeekday = Ne, Ro.dayOfYear = Rn, Ro.hour = Ro.hours = co, Ro.minute = Ro.minutes = Po, Ro.second = Ro.seconds = Eo, Ro.millisecond = Ro.milliseconds = Oo, Ro.utcOffset = Ct, Ro.utc = Et, Ro.local = jt, Ro.parseZone = Ot, Ro.hasAlignedHourOffset = Rt, Ro.isDST = It, Ro.isLocal = Ht, Ro.isUtcOffset = Nt, Ro.isUtc = zt, Ro.isUTC = zt, Ro.zoneAbbr = An, Ro.zoneName = Hn, Ro.dates = L("dates accessor is deprecated. Use date instead.", Co), Ro.months = L("months accessor is deprecated. Use month instead", de), Ro.years = L("years accessor is deprecated. Use year instead", to), Ro.zone = L("moment().zone is deprecated, use moment().utcOffset instead. http://momentjs.com/guides/#/warnings/zone/", Pt), Ro.isDSTShifted = L("isDSTShifted is deprecated. See http://momentjs.com/guides/#/warnings/dst-shifted/ for more information", At);
         var Io = D.prototype;
-        Io.calendar = C, Io.longDateFormat = P, Io.invalidDate = E, Io.ordinal = j, Io.preparse = Wn, Io.postformat = Wn, Io.relativeTime = O, Io.pastFuture = R, Io.set = Y, Io.months = ae, Io.monthsShort = se, Io.monthsParse = le, Io.monthsRegex = he, Io.monthsShortRegex = pe, Io.week = Te, Io.firstDayOfYear = Ye, Io.firstDayOfWeek = Se, Io.weekdays = Ee, Io.weekdaysMin = Oe, Io.weekdaysShort = je, Io.weekdaysParse = Ie, Io.weekdaysRegex = ze, Io.weekdaysShortRegex = We, Io.weekdaysMinRegex = Fe, Io.isPM = Je, Io.meridiem = Ke, Ze("en", {
-          ordinalParse: /\d{1,2}(th|st|nd|rd)/,
-          ordinal: function(e) {
-            var t = e % 10;
-            return e + (1 === M(e % 100 / 10) ? "th" : 1 === t ? "st" : 2 === t ? "nd" : 3 === t ? "rd" : "th");
-          }
-        }), t.lang = L("moment.lang is deprecated. Use moment.locale instead.", Ze), t.langData = L("moment.langData is deprecated. Use moment.localeData instead.", nt);
+        Io.calendar = C, Io.longDateFormat = P, Io.invalidDate = E, Io.ordinal = j, Io.preparse = Wn, Io.postformat = Wn, Io.relativeTime = O, Io.pastFuture = R, Io.set = Y, Io.months = ae, Io.monthsShort = se,
+          Io.monthsParse = le, Io.monthsRegex = he, Io.monthsShortRegex = pe, Io.week = Te, Io.firstDayOfYear = Ye, Io.firstDayOfWeek = Se, Io.weekdays = Ee, Io.weekdaysMin = Oe, Io.weekdaysShort = je, Io.weekdaysParse = Ie, Io.weekdaysRegex = ze, Io.weekdaysShortRegex = We, Io.weekdaysMinRegex = Fe, Io.isPM = Je, Io.meridiem = Ke, Ze("en", {
+            ordinalParse: /\d{1,2}(th|st|nd|rd)/,
+            ordinal: function(e) {
+              var t = e % 10;
+              return e + (1 === M(e % 100 / 10) ? "th" : 1 === t ? "st" : 2 === t ? "nd" : 3 === t ? "rd" : "th");
+            }
+          }), t.lang = L("moment.lang is deprecated. Use moment.locale instead.", Ze), t.langData = L("moment.langData is deprecated. Use moment.localeData instead.", nt);
         var Ao = Math.abs,
           Ho = ar("ms"),
           No = ar("s"),
@@ -66577,8 +66582,7 @@ var _getMetaFieldForId = function(id, key) {
               if (n === oe && r === oe) return t;
               if (n !== oe && (o = n), r !== oe) {
                 if (o === oe) return r;
-                "string" == typeof n || "string" == typeof r ? (n = uo(n), r = uo(r)) : (n = so(n), r = so(r)),
-                  o = e(n, r);
+                "string" == typeof n || "string" == typeof r ? (n = uo(n), r = uo(r)) : (n = so(n), r = so(r)), o = e(n, r);
               }
               return o;
             };
@@ -68573,8 +68577,7 @@ var _getMetaFieldForId = function(id, key) {
                 args: [i],
                 thisArg: oe
               }), new o(r, this.__chain__).thru(function(e) {
-                return t && !e.length && e.push(oe),
-                  e;
+                return t && !e.length && e.push(oe), e;
               })) : this.thru(i);
             }),
             Bd = Ao(function(e, t, n) {
@@ -81222,8 +81225,7 @@ var _getMetaFieldForId = function(id, key) {
     _ = n(47),
     m = n(49),
     y = n(71),
-    v = (n(26),
-      n(10)),
+    v = (n(26), n(10)),
     g = n(492),
     b = n(494),
     M = n(274),
@@ -93259,8 +93261,7 @@ var _getMetaFieldForId = function(id, key) {
   r(a.prototype, {
     mountComponent: function(e, t, n, r) {
       var a = n._idCounter++;
-      this._domID = a,
-        this._hostParent = t, this._hostContainerInfo = n;
+      this._domID = a, this._hostParent = t, this._hostContainerInfo = n;
       var s = " react-empty: " + this._domID + " ";
       if (e.useCreateElement) {
         var u = n._ownerDocument,
@@ -96575,7 +96576,8 @@ var _getMetaFieldForId = function(id, key) {
             o = this._findNearestCell(n),
             i = this.getSizeAndPositionOfCell(o);
           n = i.offset + i.size;
-          for (var a = o; n < r && a < this._cellCount - 1;) a++, n += this.getSizeAndPositionOfCell(a).size;
+          for (var a = o; n < r && a < this._cellCount - 1;) a++,
+            n += this.getSizeAndPositionOfCell(a).size;
           return {
             start: o,
             stop: a

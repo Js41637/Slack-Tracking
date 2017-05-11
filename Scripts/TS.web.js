@@ -111,7 +111,7 @@
       if ($section.hasClass("open")) TS.web.toggleSection(section);
     },
     autoToggleSection: function() {
-      var hash = TS.utility.htmlEntities(window.location.hash);
+      var hash = _.escape(window.location.hash);
       if (hash) {
         if (hash.charAt(0) === "#") {
           hash = hash.substring(1);

@@ -2416,7 +2416,7 @@
           and = oxford + " " + conjunction + " ";
       }
       arr.forEach(function(s, i) {
-        if (!no_escape) s = TS.utility.htmlEntities(s);
+        if (!no_escape) s = _.escape(s);
         list.push(wrap_start + item_prefix + s + wrap_end);
         if (i < l - 2) {
           list.push(", ");
@@ -3845,7 +3845,7 @@ var _cyrillicToLatin = function(char) {
     isValidName: function(name) {
       if (!name) return false;
       name = TS.emoji.stripWrappingColons(name).toLowerCase();
-      if (TS.model.emoji_names.indexOf(name) == -1) return false;
+      if (typeof _emoji_name_lookup[name] === "undefined") return false;
       return name;
     },
     substringMatchesName: function(name, term, rxn_key) {
@@ -3912,8 +3912,16 @@ var _cyrillicToLatin = function(char) {
     },
     stripWrappingColons: function(str) {
       if (!str) return "";
-      str = String(str);
-      return str.replace(/^:|:$/g, "");
+      str = typeof str === "string" ? str : str + "";
+      if (str[0] === ":") {
+        if (str[str.length - 1] === ":") {
+          return str.slice(1, str.length - 1);
+        }
+        return str.slice(1, str.length);
+      } else if (str[str.length - 1] === ":") {
+        return str.slice(0, str.length - 1);
+      }
+      return str;
     },
     nameToCanonicalName: function(name) {
       name = TS.emoji.stripWrappingColons(name);
@@ -4055,6 +4063,7 @@ var _cyrillicToLatin = function(char) {
     makeMenuLists: function() {
       TS.model.emoji_groups.length = 0;
       TS.model.emoji_names.length = 0;
+      _emoji_name_lookup = {};
       var groupings = _.cloneDeep(_groupings);
       if (TS.model.all_custom_emoji && TS.model.all_custom_emoji.length) {
         groupings.push({
@@ -4089,6 +4098,7 @@ var _cyrillicToLatin = function(char) {
           var localized_name = name;
           var localized_names = names;
           TS.model.emoji_names.push(name);
+          _emoji_name_lookup[name] = true;
           if (TS.boot_data.feature_localization && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE) {
             localized_name = TSFEmoji.getLocalEmojiString(name, TS.i18n.locale());
             localized_names = names.map(function(name) {
@@ -4119,6 +4129,7 @@ var _cyrillicToLatin = function(char) {
               var skin_name = skin_datum[3][0];
               var name_with_skin = name + "::" + skin_name;
               TS.model.emoji_names.push(name_with_skin);
+              _emoji_name_lookup[name_with_skin] = true;
               var colon_name_with_skin = ":" + name_with_skin + ":";
               var colon_names_with_skins = names.map(function(n) {
                 return n + "::" + skin_name;
@@ -4316,6 +4327,7 @@ var _cyrillicToLatin = function(char) {
       return html;
     },
     replaceColons: function(str) {
+      if (str.indexOf(":") < 0) return str;
       return _emoji.replace_colons(str);
     },
     maybeUnifiedReplace: function(new_text) {
@@ -4473,6 +4485,7 @@ var _cyrillicToLatin = function(char) {
     },
     MISSING_EMOJI_HTML: '<span class="emoji-outer emoji-sizer emoji-missing" style="background-image: url(' + cdn_url + "/ecf3e/img/emoji_missing.png" + '); background-size: cover !important;"></span>'
   });
+  var _emoji_name_lookup = {};
   var _frequents;
   var _makeFrequents = function() {
     var root_name;
@@ -5235,13 +5248,13 @@ var _cyrillicToLatin = function(char) {
         renderDividerFunc: function($el, item) {
           if (item.create_channel) {
             $el.html(TS.i18n.t('<span class="new">No items matched <strong>{query}</strong></span>', "files")({
-              query: TS.utility.htmlEntities(item.label)
+              query: _.escape(item.label)
             }));
             $("#select_share_channels .lfs_list_container").addClass("new_channel_container");
             return;
           }
           $("#select_share_channels .lfs_list_container").removeClass("new_channel_container");
-          $el.html(TS.utility.htmlEntities(item.label)).removeClass("new_channel_not_found");
+          $el.html(_.escape(item.label)).removeClass("new_channel_not_found");
         },
         setValue: function(val) {
           var i;

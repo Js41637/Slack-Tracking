@@ -1679,7 +1679,7 @@
       TS.web.admin.rebuildMember(member);
       var $row = TS.web.admin.selectRow(member);
       var html = TS.i18n.t("<strong>{member_name}</strong> is now an Admin.", "web_admin")({
-        member_name: TS.utility.htmlEntities(member.name)
+        member_name: _.escape(member.name)
       });
       var demote_admin = TS.web.member_actions.actions.demote_admin;
       if (TS.web.member_actions.canPerformAction(demote_admin, member)) {
@@ -1709,7 +1709,7 @@
       TS.web.admin.rebuildMember(member);
       var $row = TS.web.admin.selectRow(member);
       var html = TS.i18n.t("<strong>{member_name}</strong> is no longer an Admin.", "web_admin")({
-        member_name: TS.utility.htmlEntities(member.name)
+        member_name: _.escape(member.name)
       });
       var promote_admin = TS.web.member_actions.actions.promote_to_admin;
       if (TS.web.member_actions.canPerformAction(promote_admin, member)) {
@@ -1739,7 +1739,7 @@
       TS.web.admin.rebuildMember(member);
       var $row = TS.web.admin.selectRow(member);
       var html = TS.i18n.t("<strong>{member_name}</strong> is now an Owner of this team.", "web_admin")({
-        member_name: TS.utility.htmlEntities(member.name)
+        member_name: _.escape(member.name)
       });
       var demote_owner = TS.web.member_actions.actions.demote_owner;
       if (TS.web.member_actions.canPerformAction(demote_owner, member)) {
@@ -1770,7 +1770,7 @@
       TS.web.admin.rebuildMember(member);
       var $row = TS.web.admin.selectRow(member);
       var html = TS.i18n.t("<strong>{member_name}</strong> is no longer an Owner of this team.", "web_admin")({
-        member_name: TS.utility.htmlEntities(member.name)
+        member_name: _.escape(member.name)
       });
       var promote_to_owner = TS.web.member_actions.actions.promote_to_owner;
       if (TS.web.member_actions.canPerformAction(promote_to_owner, member)) {
@@ -1809,7 +1809,7 @@
         html = TS.i18n.t("This user has been added to the team.", "web_admin")();
       } else {
         html = TS.i18n.t("<strong>{member_name}</strong> is now enabled.", "web_admin")({
-          member_name: TS.utility.htmlEntities(member.name)
+          member_name: _.escape(member.name)
         });
       }
       var deactivate = TS.web.member_actions.actions.deactivate;
@@ -1897,7 +1897,7 @@
       TS.web.admin.rebuildMember(member);
       var $row = TS.web.admin.selectRow(member);
       var success_message = TS.i18n.t("<strong>{member_name}</strong> has been sent a re-binding email.", "web_admin")({
-        member_name: TS.utility.htmlEntities(member.name)
+        member_name: _.escape(member.name)
       });
       TS.web.admin.showSuccessMessageOnRow($row, success_message);
       TS.web.admin.bindActions(member);
@@ -1941,7 +1941,7 @@
       var previous_collection = _moveMemberTo(member, TS.web.admin.restricted_members);
       TS.web.admin.rebuildMember(member);
       var success_msg_html = TS.i18n.t("<strong>{member_name}</strong> is now a Multi-Channel Guest.", "web_admin")({
-        member_name: TS.utility.htmlEntities(member.name)
+        member_name: _.escape(member.name)
       });
       if (previous_collection === TS.web.admin.active_members) {
         var undo = '<a class="api_unrestrict_account undo_link" data-member-id="' + member.id + '">' + TS.i18n.t("Undo", "web_admin")() + "</a>";
@@ -1998,7 +1998,7 @@
       _moveMemberTo(member, TS.web.admin.ultra_restricted_members);
       TS.web.admin.rebuildMember(member);
       var success_message = TS.i18n.t('<strong>{member_name}</strong> is now a Single-Channel Guest. <a class="api_unrestrict_account undo_link" data-member-id="{member_id}">Undo</a>', "web_admin")({
-        member_name: TS.utility.htmlEntities(member.name),
+        member_name: _.escape(member.name),
         member_id: member.id
       });
       var timeout = _isApiAdminPage() ? 1500 : 0;
@@ -2037,7 +2037,7 @@
     memberUnrestricted: function(member) {
       TS.web.admin.rebuildMember(member);
       var success_message = TS.i18n.t("<strong>{member_name}</strong> is now a full team member.", "web_admin")({
-        member_name: TS.utility.htmlEntities(member.name)
+        member_name: _.escape(member.name)
       });
       setTimeout(function() {
         var $row = TS.web.admin.selectRow(member);
@@ -2191,7 +2191,7 @@
         });
       } else {
         success_message = TS.i18n.t('<strong>{member_name}</strong> is now enabled as a Multi-Channel Guest. <a class="api_disable_account undo_link" data-member-id="{member_id}">Undo</a>', "web_admin")({
-          member_name: TS.utility.htmlEntities(member.name),
+          member_name: _.escape(member.name),
           member_id: member.id
         });
       }
@@ -2264,7 +2264,7 @@
       }
       if (ok) {
         var success_message;
-        var member_name = TS.utility.htmlEntities(member.name);
+        var member_name = _.escape(member.name);
         if (data.profile.guest_expiration_ts) {
           member.profile.guest_expiration_ts = data.profile.guest_expiration_ts;
           success_message = TS.i18n.t("Got it! <strong>{member_name}</strong>{possessive_affix} account will be deactivated on {date} at {time}.", "web_admin")({
@@ -2297,7 +2297,7 @@
       TS.web.admin.rebuildMember(member);
       var $row = TS.web.admin.selectRow(member);
       var success_message = TS.i18n.t('<strong>{member_name}</strong> is now a Single-Channel Guest. <a class="api_disable_account undo_link" data-member-id="{member_id}">Undo</a>', "web_admin")({
-        member_name: TS.utility.htmlEntities(member.name),
+        member_name: _.escape(member.name),
         member_id: member.id
       });
       TS.web.admin.showSuccessMessageOnRow($row, success_message);
@@ -2494,7 +2494,7 @@
       }
       return _(results).map(function(matches, key) {
         var label = TS.members.view.getHeaderLabelForMatchKey(key);
-        var divider_html = '<div class="filter_header"><strong>' + TS.utility.htmlEntities(label) + "</strong></div>";
+        var divider_html = '<div class="filter_header"><strong>' + _.escape(label) + "</strong></div>";
         var divider_for_key = {
           is_divider: true,
           html: divider_html

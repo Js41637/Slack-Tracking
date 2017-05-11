@@ -359,7 +359,7 @@
       },
       noResultsTemplate: function(query) {
         var no_results = TS.i18n.t("None of your Google contacts match <strong>{query}</strong>", "invite")({
-          query: TS.utility.htmlEntities(query)
+          query: _.escape(query)
         });
         return no_results;
       },

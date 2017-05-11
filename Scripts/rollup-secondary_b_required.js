@@ -1202,8 +1202,8 @@
     collapse_sig: new signals.Signal,
     onStart: function() {},
     shouldExpand: function(container_id, inline_audio) {
-      if (TS.model.expandable_state["aud_" + container_id + TS.utility.htmlEntities(inline_audio.src)]) return true;
-      if (TS.model.expandable_state["aud_" + container_id + TS.utility.htmlEntities(inline_audio.src)] === false) return false;
+      if (TS.model.expandable_state["aud_" + container_id + _.escape(inline_audio.src)]) return true;
+      if (TS.model.expandable_state["aud_" + container_id + _.escape(inline_audio.src)] === false) return false;
       if (inline_audio.internal_file_id) return TS.model.prefs.expand_internal_inline_imgs;
       return TS.model.prefs.expand_inline_imgs;
     },
@@ -1221,7 +1221,7 @@
       $(".msg_inline_media_toggler[data-media-type=audio].expanded").trigger("click");
     },
     expand: function(container_id, src) {
-      TS.model.expandable_state["aud_" + container_id + TS.utility.htmlEntities(src)] = true;
+      TS.model.expandable_state["aud_" + container_id + _.escape(src)] = true;
       TS.storage.storeExpandableState(TS.model.expandable_state);
       var selector = "#" + TS.utility.makeSafeForDomId(container_id);
       var $el = $(selector);
@@ -1260,7 +1260,7 @@
       if (TS.client) TS.client.ui.checkInlineImgsAndIframesEverywhere();
     },
     collapse: function(container_id, src) {
-      TS.model.expandable_state["aud_" + container_id + TS.utility.htmlEntities(src)] = false;
+      TS.model.expandable_state["aud_" + container_id + _.escape(src)] = false;
       TS.storage.storeExpandableState(TS.model.expandable_state);
       var selector = "#" + TS.utility.makeSafeForDomId(container_id);
       var $el = $(selector);
@@ -1307,7 +1307,7 @@
       attachment.safe_audio_html = attachment.audio_html;
       if (TS.client && !TS.boot_data.feature_no_placeholders_in_messages) attachment.safe_audio_html = TS.utility.getPlaceholderHTMLFromIframe(attachment.safe_audio_html);
       TS.model.inline_audios[key] = {
-        src: TS.utility.htmlEntities(attachment.audio_url || attachment.audio_html),
+        src: _.escape(attachment.audio_url || attachment.audio_html),
         attachment: attachment
       };
     }
