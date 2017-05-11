@@ -1328,7 +1328,7 @@ svg.ts_icon_spinner svg {
   content: '\E122'
 }
 
-.ts_icon_phone_flat_slash:before {
+.ts_icon_sparkles:before {
   content: '\E123'
 }
 
@@ -2016,6 +2016,10 @@ svg.ts_icon_spinner svg {
 
 .ts_icon_slow_network:before {
   content: '\E563'
+}
+
+.ts_icon_sparkles_filled:before {
+  content: '\E564'
 }
 
 .ts_icon_arrow_right:before {
@@ -14687,6 +14691,12 @@ body:not(.unify_user) .tab_complete_ui ul.type_members .member_image {
   bottom: 3px
 }
 
+.tab_complete_ui li.tab_complete_ui_group .ts_icon_shared_channels:before,
+.tab_complete_ui li.tab_complete_ui_item .ts_icon_shared_channels:before {
+  position: absolute;
+  right: 0
+}
+
 .tab_complete_ui .not_in_channel {
   color: #717274;
   font-size: .7rem;
@@ -17236,6 +17246,10 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   position: relative;
   bottom: 1px;
   margin-left: .6rem
+}
+
+.c-member--small .team_image~.c-member__not-in-channel-context--small {
+  padding-right: .5rem
 }
 
 .c-member--small .presence {
