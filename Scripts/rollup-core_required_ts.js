@@ -1528,7 +1528,6 @@
         }
         var channels_to_upsert = _.map(data.channels, function(channel) {
           if (just_general && !channel.is_general) return;
-          channel.all_read_this_session_once = false;
           return TS.channels.upsertChannel(channel, is_bulk_upsert);
         });
         if (TS.useRedux() && channels_to_upsert.length) {
@@ -1539,7 +1538,6 @@
         if (!skip_ims_mpims) {
           var ims_to_upsert = _.map(data.ims, function(im) {
             if (just_general && im.user !== "USLACKBOT") return;
-            im.all_read_this_session_once = false;
             return TS.ims.upsertIm(im, is_bulk_upsert);
           });
           if (TS.useRedux() && ims_to_upsert.length) {
@@ -1563,7 +1561,6 @@
         }
         var groups_to_upsert = _.map(data.groups, function(group) {
           if (just_general) return;
-          group.all_read_this_session_once = false;
           return TS.groups.upsertGroup(group, is_bulk_upsert);
         });
         if (TS.useRedux() && groups_to_upsert.length) {
@@ -1574,7 +1571,6 @@
           if (!skip_ims_mpims) {
             var mpims_to_upsert = _.map(data.mpims, function(mpim) {
               if (just_general) return;
-              mpim.all_read_this_session_once = false;
               return TS.mpims.upsertMpim(mpim, is_bulk_upsert);
             });
             if (TS.useRedux() && mpims_to_upsert.length) {
