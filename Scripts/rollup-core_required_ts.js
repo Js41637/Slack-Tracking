@@ -1039,6 +1039,8 @@
         var name = pairs[i].substring(0, p);
         var value = pairs[i].substring(p + 1);
         args[name] = unescape(value);
+      } else if (pairs[i].length) {
+        args[pairs[i]] = "";
       }
     }
     return args;

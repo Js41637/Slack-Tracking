@@ -30185,7 +30185,6 @@ TS.registerModule("constants", {
       return name;
     },
     openInNewTab: function(url, target) {
-      url = _.escape(url);
       if (url.indexOf("/") === 0 && TS.boot_data.team_url) {
         var team_url = TS.boot_data.team_url;
         team_url = team_url.substr(0, team_url.length - 1);
@@ -30193,36 +30192,24 @@ TS.registerModule("constants", {
       }
       var action = url;
       var fields = "";
-      var url_needs_referer_hiding = TS.utility.urlNeedsRefererHiding(url);
       var query_index = action.indexOf("?");
-      var new_query_string = "";
+      var url_needs_referer_hiding = TS.utility.urlNeedsRefererHiding(url);
       if (query_index !== -1) {
+        if (url_needs_referer_hiding) url = _.escape(url.substring(0, query_index));
         var query = action.substring(query_index + 1, action.length);
         action = action.substring(0, query_index);
-        if (url_needs_referer_hiding) action = "https://" + TS.boot_data.redir_domain + "/link";
         if (query.length) {
-          var params = query.split("&amp;");
-          for (var i = 0; i < params.length; i += 1) {
-            var pair = params[i].split("=");
+          var params = TS.utility.url.queryStringParse(query);
+          _.forEach(params, function(value, key) {
             if (url_needs_referer_hiding) {
-              if (i === 0) {
-                new_query_string += "?";
-              } else {
-                new_query_string += "&";
-              }
-              new_query_string += _.escape(pair[0]);
-              if (pair.length > 1) {
-                new_query_string += "=" + _.escape(pair[1]);
-              }
+              url = TS.utility.url.setUrlQueryStringValue(url, key, value || "");
             } else {
-              fields += '<input type="hidden" name="' + _.escape(pair[0]) + '" value="' + (pair.length > 1 ? _.escape(pair[1]) : "") + '">';
+              fields += '<input type="hidden" name="' + _.escape(key) + '" value="' + _.escape(value || "") + '">';
             }
-          }
-          if (url_needs_referer_hiding) {
-            fields = '<input type="hidden" name="url" value="' + _.escape(url.substring(0, query_index)) + new_query_string + '">';
-          }
+          });
         }
-      } else if (url_needs_referer_hiding) {
+      }
+      if (url_needs_referer_hiding) {
         fields = '<input type="hidden" name="url" value="' + _.escape(url) + '">';
         action = "https://" + TS.boot_data.redir_domain + "/link";
       }
@@ -31831,6 +31818,8 @@ TS.registerModule("constants", {
           var name = pairs[i].substring(0, p);
           var value = pairs[i].substring(p + 1);
           args[name] = unescape(value);
+        } else if (pairs[i].length) {
+          args[pairs[i]] = "";
         }
       }
       return args;
@@ -50092,6 +50081,7 @@ $.fn.togglify = function(settings) {
       }
       var is_in_conversation = $msg.closest("ts-conversation").length > 0;
       var is_in_threads_view = $msg.closest("#threads_msgs").length > 0;
+      var is_briefing_msg = TS.boot_data.feature_sli_briefing && $msg.closest("#sli_briefing").length > 0;
       var is_in_thread = is_in_conversation || is_in_threads_view;
       var is_root_msg = !msg.thread_ts || msg.thread_ts === msg.ts;
       var hide_actions_menu = msg.subtype === "tombstone" && model_ob.is_channel && !model_ob.is_member;
@@ -50103,6 +50093,7 @@ $.fn.togglify = function(settings) {
         is_in_threads_view: is_in_threads_view,
         is_in_thread: is_in_thread,
         is_root_msg: is_root_msg,
+        is_briefing_msg: is_briefing_msg,
         hide_actions_menu: hide_actions_menu,
         show_rxn_action: !!$ahc.data("show_rxn_action") && (!handy_rxns_dd || !handy_rxns_dd.restrict),
         show_reply_action: !!$ahc.data("show_reply_action"),
@@ -50217,6 +50208,11 @@ $.fn.togglify = function(settings) {
             if (TS.model.threads_view_is_showing) TS.client.ui.threads.trackThreadsViewClosed("OPEN_IN_CHANNEL");
             thread_ts = msg.thread_ts || msg.ts;
             TS.client.ui.tryToJump(model_ob.id, thread_ts);
+          }
+          break;
+        case "open_in_channel_from_briefing":
+          if (TS.boot_data.feature_sli_briefing && TS.highlights_briefing) {
+            TS.highlights_briefing.jumpToMessageInChannel(model_ob.id, msg.thread_ts || msg.ts);
           }
           break;
         case "open_conversation":
@@ -50551,119 +50547,67 @@ $.fn.togglify = function(settings) {
       var is_image;
       var file_id;
       var file;
-      if (!TS.boot_data.feature_new_message_click_logging) {
-        $message = $el.closest("ts-message");
-        message_ts = $message.data("ts") + "";
-        message_c_id = $message.data("model-ob-id");
-        member_id = $message.data("member-id");
-        app_id = $message.data("app-id");
-        bot_id = $message.data("bot-id");
-        var original_href = $el.data("referer-original-href");
-        url = original_href || $el.attr("href");
-        payload = {
-          message_timestamp: message_ts,
-          channel_id: message_c_id,
-          channel_type: message_c_id ? message_c_id.charAt(0) : "",
-          member_id: member_id,
-          app_id: app_id,
-          bot_id: bot_id,
-          url: url || ""
-        };
-        if ($el.is(".channel_link, .internal_channel_link")) {
-          var channel_id = $el.data("channel-id");
-          payload.item_id = channel_id;
-          payload.item_type = "C";
-        } else if ($el.is("[data-file-id]")) {
-          file_id = $el.data("file-id");
-          payload.item_id = file_id;
-          payload.item_type = "F";
-        }
-        if (TS.model.unread_view_is_showing) {
-          _.merge(payload, TS.client.ui.unread.getTrackingData(message_ts));
-          TS.client.ui.unread.incrementTrackingSeqId();
-        }
-        is_image = $el.closest(".msg_inline_img_holder").length > 0;
-        file_id = $el.attr("data-file-id");
-        if (!file_id) file_id = $el.closest("[data-file-id]").attr("data-file-id");
-        file = file_id ? TS.files.getFileById(file_id) : null;
-        if (_.get(file, "external_type") === "gdrive") {
-          if (!payload.contexts) {
-            payload.contexts = {};
-          }
-          if (!payload.contexts.platform) {
-            payload.contexts.platform = {};
-          }
-          payload.contexts.platform.service_type = "GSUITE";
-          payload.contexts.platform.app_id = 9;
-          payload.contexts.platform.has_rich_preview = TS.files.fileHasRichPreview(file);
-        }
-        if (is_image || file && TS.files.fileIsImage(file)) {
-          TS.clog.track("MSG_PHOTO_EXPAND", payload);
-        }
-        TS.clog.track("MSG_LINK_CLICKED", payload);
-      } else {
-        var $target = $(e.target);
-        $message = $el.closest("ts-message");
-        message_ts = $message.data("ts") + "";
-        message_c_id = $message.data("model-ob-id");
-        var message_ob = message_ts && message_c_id ? TS.utility.msgs.findMsg(message_ts, message_c_id) : null;
-        member_id = $message.data("member-id");
-        app_id = $message.data("app-id");
-        bot_id = $message.data("bot-id");
-        url = $el.data("referer-original-href") || $el.attr("href");
-        payload = {
-          message_timestamp: message_ts,
-          channel_id: message_c_id,
-          channel_type: message_c_id ? message_c_id.charAt(0) : "",
-          member_id: member_id,
-          app_id: app_id,
-          bot_id: bot_id,
-          url: url || ""
-        };
-        var is_raw = TS.utility.msgs.isRawLink($target, url);
-        if (is_raw) payload.link_is_raw = true;
-        var type = TS.utility.msgs.extractLinkType($el, $target, url);
-        payload.link_type = type;
-        var action = TS.utility.msgs.extractLinkAction($el, $target);
-        if (action) payload.link_action = action;
-        var item_id = TS.utility.msgs.extractLinkItemId($el, $target, type);
-        if (item_id) {
-          payload.item_id = item_id;
-          payload.item_type = item_id.charAt(0);
-        }
-        var has_attachments = message_ob && message_ob.attachments;
-        if (has_attachments) {
-          var is_attachment_link = $el.closest(".attachment_group").length > 0;
-          if (is_attachment_link) {
-            payload.link_is_attachment = true;
-            var field = TS.utility.msgs.extractLinkAttachmentField($el);
-            if (field) payload.link_attachment_field = field;
-          }
-        }
-        if (TS.model.unread_view_is_showing) {
-          _.merge(payload, TS.client.ui.unread.getTrackingData(message_ts));
-          TS.client.ui.unread.incrementTrackingSeqId();
-        }
-        is_image = $el.closest(".msg_inline_img_holder").length > 0;
-        file_id = $el.attr("data-file-id");
-        if (!file_id) file_id = $el.closest("[data-file-id]").attr("data-file-id");
-        file = file_id ? TS.files.getFileById(file_id) : null;
-        if (_.get(file, "external_type") === "gdrive") {
-          if (!payload.contexts) {
-            payload.contexts = {};
-          }
-          if (!payload.contexts.platform) {
-            payload.contexts.platform = {};
-          }
-          payload.contexts.platform.service_type = "GSUITE";
-          payload.contexts.platform.app_id = 9;
-          payload.contexts.platform.has_rich_preview = TS.files.fileHasRichPreview(file);
-        }
-        if (is_image || file && TS.files.fileIsImage(file)) {
-          TS.clog.track("MSG_PHOTO_EXPAND", payload);
-        }
-        TS.clog.track("MSG_LINK_CLICKED", payload);
+      var $target = $(e.target);
+      $message = $el.closest("ts-message");
+      message_ts = $message.data("ts") + "";
+      message_c_id = $message.data("model-ob-id");
+      var message_ob = message_ts && message_c_id ? TS.utility.msgs.findMsg(message_ts, message_c_id) : null;
+      member_id = $message.data("member-id");
+      app_id = $message.data("app-id");
+      bot_id = $message.data("bot-id");
+      url = $el.data("referer-original-href") || $el.attr("href");
+      payload = {
+        message_timestamp: message_ts,
+        channel_id: message_c_id,
+        channel_type: message_c_id ? message_c_id.charAt(0) : "",
+        member_id: member_id,
+        app_id: app_id,
+        bot_id: bot_id,
+        url: url || ""
+      };
+      var is_raw = TS.utility.msgs.isRawLink($target, url);
+      if (is_raw) payload.link_is_raw = true;
+      var type = TS.utility.msgs.extractLinkType($el, $target, url);
+      payload.link_type = type;
+      var action = TS.utility.msgs.extractLinkAction($el, $target);
+      if (action) payload.link_action = action;
+      var item_id = TS.utility.msgs.extractLinkItemId($el, $target, type);
+      if (item_id) {
+        payload.item_id = item_id;
+        payload.item_type = item_id.charAt(0);
       }
+      var has_attachments = message_ob && message_ob.attachments;
+      if (has_attachments) {
+        var is_attachment_link = $el.closest(".attachment_group").length > 0;
+        if (is_attachment_link) {
+          payload.link_is_attachment = true;
+          var field = TS.utility.msgs.extractLinkAttachmentField($el);
+          if (field) payload.link_attachment_field = field;
+        }
+      }
+      if (TS.model.unread_view_is_showing) {
+        _.merge(payload, TS.client.ui.unread.getTrackingData(message_ts));
+        TS.client.ui.unread.incrementTrackingSeqId();
+      }
+      is_image = $el.closest(".msg_inline_img_holder").length > 0;
+      file_id = $el.attr("data-file-id");
+      if (!file_id) file_id = $el.closest("[data-file-id]").attr("data-file-id");
+      file = file_id ? TS.files.getFileById(file_id) : null;
+      if (_.get(file, "external_type") === "gdrive") {
+        if (!payload.contexts) {
+          payload.contexts = {};
+        }
+        if (!payload.contexts.platform) {
+          payload.contexts.platform = {};
+        }
+        payload.contexts.platform.service_type = "GSUITE";
+        payload.contexts.platform.app_id = 9;
+        payload.contexts.platform.has_rich_preview = TS.files.fileHasRichPreview(file);
+      }
+      if (is_image || file && TS.files.fileIsImage(file)) {
+        TS.clog.track("MSG_PHOTO_EXPAND", payload);
+      }
+      TS.clog.track("MSG_LINK_CLICKED", payload);
       var auth_complete = TS.utility.url.urlQueryStringParse(url).auth_complete;
       if (!auth_complete) {
         var auto = TS.utility.url.urlQueryStringParse(url).auto;
@@ -63528,8 +63472,7 @@ var _getMetaFieldForId = function(id, key) {
         }
 
         function ze(e) {
-          return this._weekdaysParseExact ? (l(this, "_weekdaysRegex") || Ue.call(this), e ? this._weekdaysStrictRegex : this._weekdaysRegex) : (l(this, "_weekdaysRegex") || (this._weekdaysRegex = ao),
-            this._weekdaysStrictRegex && e ? this._weekdaysStrictRegex : this._weekdaysRegex);
+          return this._weekdaysParseExact ? (l(this, "_weekdaysRegex") || Ue.call(this), e ? this._weekdaysStrictRegex : this._weekdaysRegex) : (l(this, "_weekdaysRegex") || (this._weekdaysRegex = ao), this._weekdaysStrictRegex && e ? this._weekdaysStrictRegex : this._weekdaysRegex);
         }
 
         function We(e) {
@@ -64680,8 +64623,7 @@ var _getMetaFieldForId = function(id, key) {
         var Oo = W("Milliseconds", !1);
         q("z", 0, 0, "zoneAbbr"), q("zz", 0, 0, "zoneName");
         var Ro = v.prototype;
-        Ro.add = Yo, Ro.calendar = Jt, Ro.clone = Kt, Ro.diff = nn, Ro.endOf = mn, Ro.format = un, Ro.from = ln, Ro.fromNow = cn, Ro.to = dn, Ro.toNow = fn, Ro.get = G, Ro.invalidAt = Tn, Ro.isAfter = $t, Ro.isBefore = Qt, Ro.isBetween = Xt, Ro.isSame = Zt, Ro.isSameOrAfter = en, Ro.isSameOrBefore = tn, Ro.isValid = kn, Ro.lang = Do, Ro.locale = pn, Ro.localeData = hn, Ro.max = wo, Ro.min = Mo, Ro.parsingFlags = Ln, Ro.set = B, Ro.startOf = _n, Ro.subtract = xo, Ro.toArray = bn, Ro.toObject = Mn, Ro.toDate = gn, Ro.toISOString = an, Ro.inspect = sn, Ro.toJSON = wn, Ro.toString = on, Ro.unix = vn, Ro.valueOf = yn, Ro.creationData = Sn, Ro.year = to, Ro.isLeapYear = ve, Ro.weekYear = xn, Ro.isoWeekYear = Dn, Ro.quarter = Ro.quarters = On, Ro.month = de, Ro.daysInMonth = fe, Ro.week = Ro.weeks = xe, Ro.isoWeek = Ro.isoWeeks = De, Ro.weeksInYear = Pn, Ro.isoWeeksInYear = Cn, Ro.date = Co, Ro.day = Ro.days = Ae, Ro.weekday = He, Ro.isoWeekday = Ne, Ro.dayOfYear = Rn, Ro.hour = Ro.hours = co, Ro.minute = Ro.minutes = Po, Ro.second = Ro.seconds = Eo, Ro.millisecond = Ro.milliseconds = Oo,
-          Ro.utcOffset = Ct, Ro.utc = Et, Ro.local = jt, Ro.parseZone = Ot, Ro.hasAlignedHourOffset = Rt, Ro.isDST = It, Ro.isLocal = Ht, Ro.isUtcOffset = Nt, Ro.isUtc = zt, Ro.isUTC = zt, Ro.zoneAbbr = An, Ro.zoneName = Hn, Ro.dates = L("dates accessor is deprecated. Use date instead.", Co), Ro.months = L("months accessor is deprecated. Use month instead", de), Ro.years = L("years accessor is deprecated. Use year instead", to), Ro.zone = L("moment().zone is deprecated, use moment().utcOffset instead. http://momentjs.com/guides/#/warnings/zone/", Pt), Ro.isDSTShifted = L("isDSTShifted is deprecated. See http://momentjs.com/guides/#/warnings/dst-shifted/ for more information", At);
+        Ro.add = Yo, Ro.calendar = Jt, Ro.clone = Kt, Ro.diff = nn, Ro.endOf = mn, Ro.format = un, Ro.from = ln, Ro.fromNow = cn, Ro.to = dn, Ro.toNow = fn, Ro.get = G, Ro.invalidAt = Tn, Ro.isAfter = $t, Ro.isBefore = Qt, Ro.isBetween = Xt, Ro.isSame = Zt, Ro.isSameOrAfter = en, Ro.isSameOrBefore = tn, Ro.isValid = kn, Ro.lang = Do, Ro.locale = pn, Ro.localeData = hn, Ro.max = wo, Ro.min = Mo, Ro.parsingFlags = Ln, Ro.set = B, Ro.startOf = _n, Ro.subtract = xo, Ro.toArray = bn, Ro.toObject = Mn, Ro.toDate = gn, Ro.toISOString = an, Ro.inspect = sn, Ro.toJSON = wn, Ro.toString = on, Ro.unix = vn, Ro.valueOf = yn, Ro.creationData = Sn, Ro.year = to, Ro.isLeapYear = ve, Ro.weekYear = xn, Ro.isoWeekYear = Dn, Ro.quarter = Ro.quarters = On, Ro.month = de, Ro.daysInMonth = fe, Ro.week = Ro.weeks = xe, Ro.isoWeek = Ro.isoWeeks = De, Ro.weeksInYear = Pn, Ro.isoWeeksInYear = Cn, Ro.date = Co, Ro.day = Ro.days = Ae, Ro.weekday = He, Ro.isoWeekday = Ne, Ro.dayOfYear = Rn, Ro.hour = Ro.hours = co, Ro.minute = Ro.minutes = Po, Ro.second = Ro.seconds = Eo, Ro.millisecond = Ro.milliseconds = Oo, Ro.utcOffset = Ct, Ro.utc = Et, Ro.local = jt, Ro.parseZone = Ot, Ro.hasAlignedHourOffset = Rt, Ro.isDST = It, Ro.isLocal = Ht, Ro.isUtcOffset = Nt, Ro.isUtc = zt, Ro.isUTC = zt, Ro.zoneAbbr = An, Ro.zoneName = Hn, Ro.dates = L("dates accessor is deprecated. Use date instead.", Co), Ro.months = L("months accessor is deprecated. Use month instead", de), Ro.years = L("years accessor is deprecated. Use year instead", to), Ro.zone = L("moment().zone is deprecated, use moment().utcOffset instead. http://momentjs.com/guides/#/warnings/zone/", Pt), Ro.isDSTShifted = L("isDSTShifted is deprecated. See http://momentjs.com/guides/#/warnings/dst-shifted/ for more information", At);
         var Io = D.prototype;
         Io.calendar = C, Io.longDateFormat = P, Io.invalidDate = E, Io.ordinal = j, Io.preparse = Wn, Io.postformat = Wn, Io.relativeTime = O, Io.pastFuture = R, Io.set = Y, Io.months = ae, Io.monthsShort = se, Io.monthsParse = le, Io.monthsRegex = he, Io.monthsShortRegex = pe, Io.week = Te, Io.firstDayOfYear = Ye, Io.firstDayOfWeek = Se, Io.weekdays = Ee, Io.weekdaysMin = Oe, Io.weekdaysShort = je, Io.weekdaysParse = Ie, Io.weekdaysRegex = ze, Io.weekdaysShortRegex = We, Io.weekdaysMinRegex = Fe, Io.isPM = Je, Io.meridiem = Ke, Ze("en", {
           ordinalParse: /\d{1,2}(th|st|nd|rd)/,
@@ -81357,7 +81299,8 @@ var _getMetaFieldForId = function(id, key) {
     if (M.logTopLevelRenders) {
       var a = e._currentElement.props.child,
         s = a.type;
-      i = "React mount: " + ("string" == typeof s ? s : s.displayName || s.name), console.time(i);
+      i = "React mount: " + ("string" == typeof s ? s : s.displayName || s.name),
+        console.time(i);
     }
     var u = L.mountComponent(e, n, null, g(e, t), o, 0);
     i && console.timeEnd(i), e._renderedComponent._topLevelWrapper = e, N._mountImageIntoNode(u, t, e, r, n);
@@ -96574,11 +96517,10 @@ var _getMetaFieldForId = function(id, key) {
         index: l
       });
       if (null == c.height || isNaN(c.height) || null == c.width || isNaN(c.width) || null == c.x || isNaN(c.x) || null == c.y || isNaN(c.y)) throw Error("Invalid metadata returned for cell " + l + ":\n        x:" + c.x + ", y:" + c.y + ", width:" + c.width + ", height:" + c.height);
-      s = Math.max(s, c.y + c.height),
-        u = Math.max(u, c.x + c.width), i[l] = c, a.registerCell({
-          cellMetadatum: c,
-          index: l
-        });
+      s = Math.max(s, c.y + c.height), u = Math.max(u, c.x + c.width), i[l] = c, a.registerCell({
+        cellMetadatum: c,
+        index: l
+      });
     }
     return {
       cellMetadata: i,
