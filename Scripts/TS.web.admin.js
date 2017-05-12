@@ -84,7 +84,7 @@
       TS.members.startBatchUpsert();
       if (TS.web.admin.view === "list") {
         if (TS.boot_data.feature_name_tagging_client) {
-          TS.web.admin.sort_order = $("#admin_sort").val() || "full_name";
+          TS.web.admin.sort_order = $("#admin_sort").val() || "real_name";
         } else {
           TS.web.admin.sort_order = $("#admin_sort").val() || "screen_name";
         }
@@ -729,12 +729,7 @@
       $row.replaceWith(TS.web.admin.buildMemberHTML(member, true, true));
     },
     buildInviteHTML: function(invite) {
-      var display_invite_name = false;
-      if (invite.first_name || invite.last_name) {
-        display_invite_name = true;
-      } else if (TS.boot_data.feature_name_tagging_client && invite.full_name) {
-        display_invite_name = true;
-      }
+      var display_invite_name = invite.first_name || invite.last_name || invite.real_name;
       var invite_type_label = "";
       if (invite.type) {
         if (invite.type === "restricted") {
@@ -743,13 +738,8 @@
           invite_type_label = TS.i18n.t("Single-Channel Guest", "web_admin")();
         }
       }
-      var inviter_link;
-      if (TS.boot_data.feature_name_tagging_client) {
-        var inviter_ob = TS.members.getMemberById(invite.inviter.id);
-        inviter_link = new Handlebars.SafeString(TS.templates.builders.makeMemberPreviewLink(inviter_ob));
-      } else {
-        inviter_link = new Handlebars.SafeString(TS.templates.builders.makeMemberPreviewLink(invite.inviter));
-      }
+      var inviter_ob = TS.members.getMemberById(invite.inviter.id);
+      var inviter_link = new Handlebars.SafeString(TS.templates.builders.makeMemberPreviewLink(inviter_ob));
       var template_args = {
         invite: invite,
         display_invite_name: display_invite_name,
@@ -762,10 +752,6 @@
       }
       var html = TS.templates.admin_invite_list_item(template_args);
       return html;
-    },
-    rebuildInvite: function(invite) {
-      var $row = TS.web.admin.selectRow(invite);
-      $row.replaceWith(TS.web.admin.buildInviteHTML(invite));
     },
     updateRowLocations: function() {
       TS.web.admin.updateTabCounts();

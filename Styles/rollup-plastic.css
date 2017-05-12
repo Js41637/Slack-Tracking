@@ -14697,6 +14697,11 @@ body:not(.unify_user) .tab_complete_ui ul.type_members .member_image {
   right: 0
 }
 
+.unify_user .tab_complete_ui li.tab_complete_ui_group .ts_icon_shared_channel:before,
+.unify_user .tab_complete_ui li.tab_complete_ui_item .ts_icon_shared_channel:before {
+  line-height: 20px
+}
+
 .tab_complete_ui .not_in_channel {
   color: #717274;
   font-size: .7rem;

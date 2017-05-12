@@ -22067,8 +22067,7 @@ TS.registerModule("constants", {
       var preserve_aspect_ratio = !args.flush_with_attachment && inline_img.width > 0 && inline_img.height > 0;
       var file;
       if (inline_img.internal_file_id) file = TS.files.getFileById(inline_img.internal_file_id);
-      var hide_by_default = !!TS.client;
-      var use_placeholder = hide_by_default && !TS.boot_data.feature_no_placeholders_in_messages;
+      var hide_by_default = !!TS.client && !TS.boot_data.feature_no_placeholders_in_messages;
       var html = "";
       var div_class = "clear_both msg_inline_img_holder msg_inline_holder";
       if (!expand_it) div_class += " hidden";
@@ -22161,8 +22160,8 @@ TS.registerModule("constants", {
       inline_img.proxied_src = TS.utility.getImgProxyURLWithOptions(inline_img.src, {});
       var src = _.escape(inline_img.proxied_src || inline_img.src);
       var figure_class = hide_by_default ? "msg_inline_img msg_inline_child hidden" : "msg_inline_img msg_inline_child";
-      var figure_attr = use_placeholder ? 'data-real-background-image="' + src + '"' : 'style="background-image:url(' + src + ');"';
-      var img_attr = use_placeholder ? 'data-real-src="' + src + '"' : 'src="' + src + '"';
+      var figure_attr = hide_by_default ? 'data-real-background-image="' + src + '"' : 'style="background-image:url(' + src + ');"';
+      var img_attr = hide_by_default ? 'data-real-src="' + src + '"' : 'src="' + src + '"';
       html += '<figure class="' + figure_class + '" ' + figure_attr + ">";
       html += "<img " + img_attr + " />";
       html += "</figure>";
@@ -22274,8 +22273,7 @@ TS.registerModule("constants", {
       if (!inline_video) return "";
       var expand_it = TS.inline_videos.shouldExpand(container_id, inline_video);
       var link_url = inline_video.link_url || key;
-      var hide_by_default = !!TS.client;
-      var use_placeholder = hide_by_default && !TS.boot_data.feature_no_placeholders_in_messages;
+      var hide_by_default = !!TS.client && !TS.boot_data.feature_no_placeholders_in_messages;
       var show_play = true;
       if (!inline_video.html) {
         show_play = false;
@@ -22285,7 +22283,6 @@ TS.registerModule("constants", {
         data_url: key,
         referrer_safe_url_attributes: TS.utility.makeRefererSafeLink(link_url),
         hide_by_default: hide_by_default,
-        use_placeholder: use_placeholder,
         show_play: show_play,
         proxied_src_or_src: inline_video.proxied_src || inline_video.src,
         display_w: inline_video.display_w,
@@ -28003,7 +28000,7 @@ TS.registerModule("constants", {
       } else if (msg.subtype === "retention") {
         actions.delete_msg = false;
       } else if (msg_from_other_team) {
-        if (TS.boot_data.page_needs_enterprise && msg_belongs_to_user) {
+        if (TS.boot_data.page_needs_enterprise && (msg_belongs_to_user || TS.model.user.enterprise_user.is_owner)) {
           actions.delete_msg = true;
         } else {
           actions.delete_msg = false;
@@ -34346,7 +34343,7 @@ TS.registerModule("constants", {
       });
       $("#mentions_filter_menu_label").addClass("active");
     },
-    startWithEditTeamProfileListActions: function(e, onclick) {
+    startWithEditTeamProfileListActions: function(e, onclick, options) {
       if (TS.menu.isRedundantClick(e)) return;
       if (TS.model.menu_is_showing) return;
       TS.menu.buildIfNeeded();
@@ -34354,7 +34351,8 @@ TS.registerModule("constants", {
       var field = TS.team.getTeamProfileFieldById($el.data("id"));
       var template_args = {
         id: field.id,
-        hidden: !!(field && field.is_hidden)
+        hidden: !!(field && field.is_hidden),
+        is_scim: options.is_scim
       };
       TS.menu.clean();
       TS.menu.$menu_header.addClass("hidden").empty();
@@ -42255,11 +42253,13 @@ var _on_esc;
   var _openListMenu = function(e) {
     e.stopPropagation();
     var real_target = $(e.target).closest("[data-id]").get(0);
+    var options = {};
+    options.is_scim = $(e.target).closest("[data-is-scim]").data("is-scim");
     var menu_event = jQuery.Event("click", {
       target: real_target,
       currentTarget: real_target
     });
-    TS.menu.startWithEditTeamProfileListActions(menu_event, _onListMenuClick);
+    TS.menu.startWithEditTeamProfileListActions(menu_event, _onListMenuClick, options);
   };
   var _onListMenuClick = function(e) {
     e.preventDefault();
@@ -50648,15 +50648,6 @@ $.fn.togglify = function(settings) {
         TS.clog.track("MSG_PHOTO_EXPAND", payload);
       }
       TS.clog.track("MSG_LINK_CLICKED", payload);
-      var auth_complete = TS.utility.url.urlQueryStringParse(url).auth_complete;
-      if (!auth_complete) {
-        var auto = TS.utility.url.urlQueryStringParse(url).auto;
-        var service_type_id = TS.utility.url.urlQueryStringParse(url).service_type_id;
-        var event_name = !auto ? "PLATFORM_APPS_TARGETED_SUGGESTIONS_JUST_THIS_ONCE_SELECTED" : "PLATFORM_APPS_TARGETED_SUGGESTIONS_SELECTED";
-        TS.clog.track(event_name, {
-          app_id: service_type_id
-        });
-      }
     });
     TS.click.addClientHandler("ts-message .msg_inline_video_buttons_div .msg_inline_video_play_button", function(e, $el) {
       var $message = $el.closest("ts-message");
@@ -64698,7 +64689,8 @@ var _getMetaFieldForId = function(id, key) {
           },
           ti = Math.abs,
           ni = kt.prototype;
-        return ni.abs = $n, ni.add = Xn, ni.subtract = Zn, ni.as = or, ni.asMilliseconds = Ho, ni.asSeconds = No, ni.asMinutes = zo, ni.asHours = Wo, ni.asDays = Fo, ni.asWeeks = Uo, ni.asMonths = Go, ni.asYears = Bo, ni.valueOf = ir, ni._bubble = tr, ni.get = sr, ni.milliseconds = Vo, ni.seconds = qo, ni.minutes = Jo, ni.hours = Ko, ni.days = $o, ni.weeks = lr, ni.months = Qo, ni.years = Xo, ni.humanize = hr, ni.toISOString = _r, ni.toString = _r, ni.toJSON = _r, ni.locale = pn, ni.localeData = hn, ni.toIsoString = L("toIsoString() is deprecated. Please use toISOString() instead (notice the capitals)", _r), ni.lang = Do, q("X", 0, 0, "unix"), q("x", 0, 0, "valueOf"), X("x", /[+-]?\d+/), X("X", /[+-]?\d+(\.\d{1,3})?/), ne("X", function(e, t, n) {
+        return ni.abs = $n, ni.add = Xn, ni.subtract = Zn, ni.as = or, ni.asMilliseconds = Ho, ni.asSeconds = No,
+          ni.asMinutes = zo, ni.asHours = Wo, ni.asDays = Fo, ni.asWeeks = Uo, ni.asMonths = Go, ni.asYears = Bo, ni.valueOf = ir, ni._bubble = tr, ni.get = sr, ni.milliseconds = Vo, ni.seconds = qo, ni.minutes = Jo, ni.hours = Ko, ni.days = $o, ni.weeks = lr, ni.months = Qo, ni.years = Xo, ni.humanize = hr, ni.toISOString = _r, ni.toString = _r, ni.toJSON = _r, ni.locale = pn, ni.localeData = hn, ni.toIsoString = L("toIsoString() is deprecated. Please use toISOString() instead (notice the capitals)", _r), ni.lang = Do, q("X", 0, 0, "unix"), q("x", 0, 0, "valueOf"), X("x", /[+-]?\d+/), X("X", /[+-]?\d+(\.\d{1,3})?/), ne("X", function(e, t, n) {
             n._d = new Date(1e3 * parseFloat(e, 10));
           }), ne("x", function(e, t, n) {
             n._d = new Date(M(e));

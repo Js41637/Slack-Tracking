@@ -1056,6 +1056,7 @@
       TS.ms.reconnect_requested_sig.add(_reconnectRequestedMS);
       TS.ms.disconnected_sig.add(_socketDisconnectedMS);
     }
+    TS.boot_data.feature_unknown_members = typeof TS.qs_args.feature_unknown_members === "undefined" ? _.includes(_users_to_force_into_unknown_members_feature, TS.boot_data.user_id) : TS.qs_args.feature_unknown_members == "1";
     _callOnStarts();
     _dom_is_ready = true;
     if (TS.model.is_our_app) {
@@ -1597,7 +1598,6 @@
         if (data.dnd.snooze_enabled) TS.model.dnd.snooze_enabled = data.dnd.snooze_enabled;
         if (data.dnd.snooze_endtime) TS.model.dnd.snooze_endtime = data.dnd.snooze_endtime;
       }
-      TS.boot_data.feature_unknown_members = typeof TS.qs_args.feature_unknown_members === "undefined" ? _.includes(_users_to_force_into_unknown_members_feature, TS.boot_data.user_id) : TS.qs_args.feature_unknown_members == "1";
       if (!TS._incremental_boot) {
         var maybe_shared_model_obs = data.ims.concat(data.mpims || [], data.groups || []);
         return TS.members.ensureMembersArePresentInSharedModelObs(maybe_shared_model_obs).then(function() {
