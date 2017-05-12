@@ -32826,6 +32826,7 @@ TS.registerModule("constants", {
       if (no_linking) {
         return display_name;
       }
+      data_tags += 'data-member-label="' + display_name + '" ';
       return '<a href="/team/' + m.id + '" ' + target + data_tags + 'class="' + classes.join(" ") + '">' + display_name + "</a>";
     }
     if (tsf_mode === "EDIT" || tsf_mode === "GROWL") {
@@ -57808,7 +57809,11 @@ var _getMetaFieldForId = function(id, key) {
             getTextPreferences: TS.utility.contenteditable.getTextPreferences,
             buildSmartQuotesDelta: TS.format.texty.buildSmartQuotesDelta
           },
-          clipboard: {}
+          clipboard: {
+            onPaste: function(e) {
+              return TS.utility.contenteditable.paste(input, e);
+            }
+          }
         },
         onEnter: function() {
           return true;
@@ -57987,7 +57992,7 @@ var _getMetaFieldForId = function(id, key) {
     },
     insertTextAtCursor: function(input, value, focus_after_insert) {
       input = _normalizeInput(input);
-      if (!input) return "";
+      if (!input) return;
       var current_cursor;
       if (_isFormElement(input)) {
         if (!_.isString(value)) return input.value;
@@ -58003,7 +58008,40 @@ var _getMetaFieldForId = function(id, key) {
         var texty = _getTextyInstance(input);
         if (_.isString(value)) texty.insertTextAtCursor(value, focus_after_insert);
       }
-      return "";
+    },
+    insertContentsAtCursor: function(input, contents, focus_after_insert) {
+      input = _normalizeInput(input);
+      if (!input) return;
+      if (_isFormElement(input)) {
+        TS.utility.contenteditable.insertTextAtCursor(input, TS.format.texty.convertContentsToString(contents), focus_after_insert);
+      } else if (_isTextyElement(input)) {
+        var texty = _getTextyInstance(input);
+        texty.insertContentsAtCursor(contents, focus_after_insert);
+      }
+    },
+    paste: function(input, e) {
+      input = _normalizeInput(input);
+      if (!input) return false;
+      if (_isFormElement(input)) return false;
+      if (_isTextyElement(input)) {
+        var text;
+        var contents;
+        if (e && e.clipboardData && e.clipboardData.getData("slack/plain")) {
+          e.preventDefault();
+          text = _cleanPastedText(input, e.clipboardData.getData("slack/plain"));
+          contents = TS.format.texty.convertContentsStringToContents(text);
+          TS.utility.contenteditable.insertContentsAtCursor(input, contents, true);
+          return true;
+        }
+        text = TS.ui.paste.getPlainTextFromClipboard(e);
+        if (!_.isEmpty(text)) {
+          e.preventDefault();
+          text = _cleanPastedText(input, text);
+          TS.utility.contenteditable.insertTextAtCursor(input, text, true);
+          return true;
+        }
+      }
+      return false;
     },
     getFormats: function(input, index) {
       input = _normalizeInput(input);
@@ -58245,6 +58283,10 @@ var _getMetaFieldForId = function(id, key) {
     TS.utility.contenteditable.value(input, prev_command);
     TS.utility.contenteditable.cursorPosition(input, prev_command.length, 0);
     return true;
+  };
+  var _cleanPastedText = function(input, text) {
+    if ($(input).hasClass("texty_single_line_input")) text = text.replace(/\n/g, " ");
+    return text.replace(/^[\u200b\uFEFF]+|[\u200b\uFEFF]+$/gm, "");
   };
 })();
 (function() {
@@ -64654,7 +64696,8 @@ var _getMetaFieldForId = function(id, key) {
         var Oo = W("Milliseconds", !1);
         q("z", 0, 0, "zoneAbbr"), q("zz", 0, 0, "zoneName");
         var Ro = v.prototype;
-        Ro.add = Yo, Ro.calendar = Jt, Ro.clone = Kt, Ro.diff = nn, Ro.endOf = mn, Ro.format = un, Ro.from = ln, Ro.fromNow = cn, Ro.to = dn, Ro.toNow = fn, Ro.get = G, Ro.invalidAt = Tn, Ro.isAfter = $t, Ro.isBefore = Qt, Ro.isBetween = Xt, Ro.isSame = Zt, Ro.isSameOrAfter = en, Ro.isSameOrBefore = tn, Ro.isValid = kn, Ro.lang = Do, Ro.locale = pn, Ro.localeData = hn, Ro.max = wo, Ro.min = Mo, Ro.parsingFlags = Ln, Ro.set = B, Ro.startOf = _n, Ro.subtract = xo, Ro.toArray = bn, Ro.toObject = Mn, Ro.toDate = gn, Ro.toISOString = an, Ro.inspect = sn, Ro.toJSON = wn, Ro.toString = on, Ro.unix = vn, Ro.valueOf = yn, Ro.creationData = Sn, Ro.year = to, Ro.isLeapYear = ve, Ro.weekYear = xn, Ro.isoWeekYear = Dn, Ro.quarter = Ro.quarters = On, Ro.month = de, Ro.daysInMonth = fe, Ro.week = Ro.weeks = xe, Ro.isoWeek = Ro.isoWeeks = De, Ro.weeksInYear = Pn, Ro.isoWeeksInYear = Cn, Ro.date = Co, Ro.day = Ro.days = Ae, Ro.weekday = He, Ro.isoWeekday = Ne, Ro.dayOfYear = Rn, Ro.hour = Ro.hours = co, Ro.minute = Ro.minutes = Po, Ro.second = Ro.seconds = Eo, Ro.millisecond = Ro.milliseconds = Oo, Ro.utcOffset = Ct, Ro.utc = Et, Ro.local = jt, Ro.parseZone = Ot, Ro.hasAlignedHourOffset = Rt, Ro.isDST = It, Ro.isLocal = Ht, Ro.isUtcOffset = Nt, Ro.isUtc = zt, Ro.isUTC = zt, Ro.zoneAbbr = An, Ro.zoneName = Hn, Ro.dates = L("dates accessor is deprecated. Use date instead.", Co), Ro.months = L("months accessor is deprecated. Use month instead", de), Ro.years = L("years accessor is deprecated. Use year instead", to), Ro.zone = L("moment().zone is deprecated, use moment().utcOffset instead. http://momentjs.com/guides/#/warnings/zone/", Pt), Ro.isDSTShifted = L("isDSTShifted is deprecated. See http://momentjs.com/guides/#/warnings/dst-shifted/ for more information", At);
+        Ro.add = Yo, Ro.calendar = Jt, Ro.clone = Kt, Ro.diff = nn, Ro.endOf = mn, Ro.format = un, Ro.from = ln, Ro.fromNow = cn, Ro.to = dn, Ro.toNow = fn, Ro.get = G, Ro.invalidAt = Tn, Ro.isAfter = $t, Ro.isBefore = Qt, Ro.isBetween = Xt, Ro.isSame = Zt, Ro.isSameOrAfter = en, Ro.isSameOrBefore = tn, Ro.isValid = kn, Ro.lang = Do, Ro.locale = pn, Ro.localeData = hn, Ro.max = wo, Ro.min = Mo, Ro.parsingFlags = Ln, Ro.set = B, Ro.startOf = _n, Ro.subtract = xo, Ro.toArray = bn, Ro.toObject = Mn, Ro.toDate = gn, Ro.toISOString = an, Ro.inspect = sn, Ro.toJSON = wn, Ro.toString = on, Ro.unix = vn, Ro.valueOf = yn, Ro.creationData = Sn, Ro.year = to, Ro.isLeapYear = ve, Ro.weekYear = xn, Ro.isoWeekYear = Dn, Ro.quarter = Ro.quarters = On, Ro.month = de, Ro.daysInMonth = fe, Ro.week = Ro.weeks = xe, Ro.isoWeek = Ro.isoWeeks = De, Ro.weeksInYear = Pn, Ro.isoWeeksInYear = Cn, Ro.date = Co, Ro.day = Ro.days = Ae, Ro.weekday = He, Ro.isoWeekday = Ne, Ro.dayOfYear = Rn, Ro.hour = Ro.hours = co, Ro.minute = Ro.minutes = Po, Ro.second = Ro.seconds = Eo, Ro.millisecond = Ro.milliseconds = Oo, Ro.utcOffset = Ct, Ro.utc = Et, Ro.local = jt, Ro.parseZone = Ot, Ro.hasAlignedHourOffset = Rt,
+          Ro.isDST = It, Ro.isLocal = Ht, Ro.isUtcOffset = Nt, Ro.isUtc = zt, Ro.isUTC = zt, Ro.zoneAbbr = An, Ro.zoneName = Hn, Ro.dates = L("dates accessor is deprecated. Use date instead.", Co), Ro.months = L("months accessor is deprecated. Use month instead", de), Ro.years = L("years accessor is deprecated. Use year instead", to), Ro.zone = L("moment().zone is deprecated, use moment().utcOffset instead. http://momentjs.com/guides/#/warnings/zone/", Pt), Ro.isDSTShifted = L("isDSTShifted is deprecated. See http://momentjs.com/guides/#/warnings/dst-shifted/ for more information", At);
         var Io = D.prototype;
         Io.calendar = C, Io.longDateFormat = P, Io.invalidDate = E, Io.ordinal = j, Io.preparse = Wn, Io.postformat = Wn, Io.relativeTime = O, Io.pastFuture = R, Io.set = Y, Io.months = ae, Io.monthsShort = se, Io.monthsParse = le, Io.monthsRegex = he, Io.monthsShortRegex = pe, Io.week = Te, Io.firstDayOfYear = Ye, Io.firstDayOfWeek = Se, Io.weekdays = Ee, Io.weekdaysMin = Oe, Io.weekdaysShort = je, Io.weekdaysParse = Ie, Io.weekdaysRegex = ze, Io.weekdaysShortRegex = We, Io.weekdaysMinRegex = Fe, Io.isPM = Je, Io.meridiem = Ke, Ze("en", {
           ordinalParse: /\d{1,2}(th|st|nd|rd)/,
@@ -64689,8 +64732,7 @@ var _getMetaFieldForId = function(id, key) {
           },
           ti = Math.abs,
           ni = kt.prototype;
-        return ni.abs = $n, ni.add = Xn, ni.subtract = Zn, ni.as = or, ni.asMilliseconds = Ho, ni.asSeconds = No,
-          ni.asMinutes = zo, ni.asHours = Wo, ni.asDays = Fo, ni.asWeeks = Uo, ni.asMonths = Go, ni.asYears = Bo, ni.valueOf = ir, ni._bubble = tr, ni.get = sr, ni.milliseconds = Vo, ni.seconds = qo, ni.minutes = Jo, ni.hours = Ko, ni.days = $o, ni.weeks = lr, ni.months = Qo, ni.years = Xo, ni.humanize = hr, ni.toISOString = _r, ni.toString = _r, ni.toJSON = _r, ni.locale = pn, ni.localeData = hn, ni.toIsoString = L("toIsoString() is deprecated. Please use toISOString() instead (notice the capitals)", _r), ni.lang = Do, q("X", 0, 0, "unix"), q("x", 0, 0, "valueOf"), X("x", /[+-]?\d+/), X("X", /[+-]?\d+(\.\d{1,3})?/), ne("X", function(e, t, n) {
+        return ni.abs = $n, ni.add = Xn, ni.subtract = Zn, ni.as = or, ni.asMilliseconds = Ho, ni.asSeconds = No, ni.asMinutes = zo, ni.asHours = Wo, ni.asDays = Fo, ni.asWeeks = Uo, ni.asMonths = Go, ni.asYears = Bo, ni.valueOf = ir, ni._bubble = tr, ni.get = sr, ni.milliseconds = Vo, ni.seconds = qo, ni.minutes = Jo, ni.hours = Ko, ni.days = $o, ni.weeks = lr, ni.months = Qo, ni.years = Xo, ni.humanize = hr, ni.toISOString = _r, ni.toString = _r, ni.toJSON = _r, ni.locale = pn, ni.localeData = hn, ni.toIsoString = L("toIsoString() is deprecated. Please use toISOString() instead (notice the capitals)", _r), ni.lang = Do, q("X", 0, 0, "unix"), q("x", 0, 0, "valueOf"), X("x", /[+-]?\d+/), X("X", /[+-]?\d+(\.\d{1,3})?/), ne("X", function(e, t, n) {
             n._d = new Date(1e3 * parseFloat(e, 10));
           }), ne("x", function(e, t, n) {
             n._d = new Date(M(e));
@@ -68619,7 +68661,8 @@ var _getMetaFieldForId = function(id, key) {
             Xd = Qr(function(e, t) {
               if (null == e) return [];
               var n = t.length;
-              return n > 1 && Pi(e, t[0], t[1]) ? t = [] : n > 2 && Pi(t[0], t[1], t[2]) && (t = [t[0]]), Fr(e, sr(t, 1), []);
+              return n > 1 && Pi(e, t[0], t[1]) ? t = [] : n > 2 && Pi(t[0], t[1], t[2]) && (t = [t[0]]),
+                Fr(e, sr(t, 1), []);
             }),
             Zd = Pc || function() {
               return Sn.Date.now();
@@ -96557,10 +96600,11 @@ var _getMetaFieldForId = function(id, key) {
         index: l
       });
       if (null == c.height || isNaN(c.height) || null == c.width || isNaN(c.width) || null == c.x || isNaN(c.x) || null == c.y || isNaN(c.y)) throw Error("Invalid metadata returned for cell " + l + ":\n        x:" + c.x + ", y:" + c.y + ", width:" + c.width + ", height:" + c.height);
-      s = Math.max(s, c.y + c.height), u = Math.max(u, c.x + c.width), i[l] = c, a.registerCell({
-        cellMetadatum: c,
-        index: l
-      });
+      s = Math.max(s, c.y + c.height),
+        u = Math.max(u, c.x + c.width), i[l] = c, a.registerCell({
+          cellMetadatum: c,
+          index: l
+        });
     }
     return {
       cellMetadata: i,
