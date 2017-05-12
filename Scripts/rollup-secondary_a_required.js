@@ -3557,12 +3557,7 @@
     mpims: undefined,
     ims: undefined
   };
-  var _addSignalListeners = function() {
-    TS.channels.unread_changed_sig.add(TS.redux.channels.forceUpdateOfEntityById);
-    TS.channels.unread_highlight_changed_sig.add(TS.redux.channels.forceUpdateOfEntityById);
-    TS.ims.unread_changed_sig.add(TS.redux.channels.forceUpdateOfEntityById);
-    TS.ims.unread_highlight_changed_sig.add(TS.redux.channels.forceUpdateOfEntityById);
-  };
+  var _addSignalListeners = function() {};
   var _buildModelArrayKey = function(key) {
     var entities = _getAllChannels();
     var filter;
@@ -3622,6 +3617,14 @@
         };
       }).sortBy("value").reverse().value();
     },
+    getReduxSetCounts: function() {
+      return _.chain(_redux_set_counts).map(function(value, key) {
+        return {
+          key: key,
+          value: value
+        };
+      }).sortBy("value").reverse().value();
+    },
     test: function() {
       var test_ob = {};
       return test_ob;
@@ -3629,6 +3632,7 @@
   });
   var _getChannelById;
   var _set_counts = {};
+  var _redux_set_counts = {};
   var _redux_did_warn_about_key = {};
   var _logUnknownModelObKeyAccess = function(immediate_caller, stack, key) {
     var UNKNOWN_MODEL_KEY_ACCESS_VERSION = 5;
@@ -3657,8 +3661,23 @@
     }
     return use_a_proxy;
   };
-  var model_ob_keys = ["last_made_active", "last_msg_input", "_has_auto_scrolled", "_display_name", "_display_name_lc", "_needs_unread_recalc", "_did_defer_initial_msg_history", "history_is_being_fetched", "history_fetch_failed", "_msgs_to_merge_on_history", "_delayed_fetch_timer", "unread_cnt", "unread_highlight_cnt", "unread_highlight_cnt_in_client", "_history_fetched_since_last_connect", "msgs", "_latest_via_users_counts", "_mention_count_display_via_users_counts", "_users_counts_info", "_show_in_list_even_though_no_unreads", "pinned_items", "has_pins", "_consistency_is_being_checked", "_consistency_has_been_checked", "last_read", "_marked_reason", "needs_invited_message", "_jumper_previous_name_match", "_mark_most_recent_read_timer", "_prev_last_read", "scroll_top", "is_archived", "id", "is_channel", "name", "is_im", "is_mpim", "is_group", "latest", "unread_count", "is_starred", "was_archived_this_session", "is_private", "presence", "is_general", "is_read_only", "is_org_shared", "is_shared", "is_required", "topic", "oldest_msg_ts", "is_limited", "is_slackbot_im", "_temp_unread_cnt", "_temp_last_read", "needs_created_message", "needs_joined_message", "length", "created", "creator", "is_moved", "name_normalized", "purpose", "previous_names", "_name_lc", "unread_highlights", "unreads", "has_fetched_history_after_scrollback", "unread_count_display", "enterprise_id", "is_global_shared", "is_open", "members", "user", "is_self_im", "_display_name_truncated", "_members", "_checking_at_channel_status", "opened_this_session", "history_changed", "history_fetch_retries", "_archive_msgs", "shared_team_ids", "never_needs_joined_msg", "priority", "deleted", "team_url", "active_members", "parent_group", "is_default", "fetched_history_after_scrollback_time", "is_member", "create_channel"];
+  var _updateOneKeyForChannel = function(id, key, value) {
+    if (!id || !key) {
+      return;
+    }
+    var update = {
+      id: id
+    };
+    update[key] = value;
+    TS.redux.dispatch(window.Redux.Entities.Channels.updateOneKeyForChannel(update));
+  };
+  var keys_to_update_in_redux = ["deleted", "is_archived", "is_channel", "is_group", "is_im", "is_mpim", "is_org_shared", "is_self_im", "is_shared", "is_slackbot_im", "is_starred", "members", "unread_cnt", "unread_highlight_cnt"];
+  var model_ob_keys = ["_archive_msgs", "_checking_at_channel_status", "_consistency_has_been_checked", "_consistency_is_being_checked", "_delayed_fetch_timer", "_did_defer_initial_msg_history", "_display_name_lc", "_display_name_truncated", "_display_name", "_has_auto_scrolled", "_history_fetched_since_last_connect", "_jumper_previous_name_match", "_latest_via_users_counts", "_mark_most_recent_read_timer", "_marked_reason", "_members", "_mention_count_display_via_users_counts", "_msgs_to_merge_on_history", "_name_lc", "_needs_unread_recalc", "_prev_last_read", "_show_in_list_even_though_no_unreads", "_temp_last_read", "_temp_unread_cnt", "_users_counts_info", "active_members", "create_channel", "created", "creator", "enterprise_id", "fetched_history_after_scrollback_time", "has_fetched_history_after_scrollback", "has_pins", "history_changed", "history_fetch_failed", "history_fetch_retries", "history_is_being_fetched", "id", "is_default", "is_general", "is_global_shared", "is_limited", "is_member", "is_moved", "is_open", "is_private", "is_read_only", "is_required", "last_made_active", "last_msg_input", "last_read", "latest", "length", "msgs", "name", "name_normalized", "needs_created_message", "needs_invited_message", "needs_joined_message", "never_needs_joined_msg", "oldest_msg_ts", "opened_this_session", "parent_group", "pinned_items", "presence", "previous_names", "priority", "purpose", "scroll_top", "shared_team_ids", "team_url", "topic", "unread_count_display", "unread_count", "unread_highlight_cnt_in_client", "unread_highlights", "unreads", "user", "was_archived_this_session"];
   var known_harmless_get_keys = ["then", "is_usergroup", "is_broadcast_keyword", "is_emoji", "is_view", "nodeType", "window", "is_divider", "_i18n_ns", "old_name"];
+  var keys_to_update_in_redux_as_map = _.reduce(keys_to_update_in_redux, function(result, key) {
+    result[key] = true;
+    return result;
+  }, {});
   var model_ob_keys_as_map = _.reduce(model_ob_keys, function(result, key) {
     result[key] = true;
     return result;
@@ -3669,7 +3688,7 @@
   }, {});
   var _entity_wrappers = {};
   var _proxyGet = function(target, property) {
-    if (!model_ob_keys_as_map[property] && !known_harmless_get_keys_as_map[property] && _.isString(property)) {
+    if (!model_ob_keys_as_map[property] && !keys_to_update_in_redux_as_map[property] && !known_harmless_get_keys_as_map[property] && _.isString(property)) {
       TS.console.logStackTrace("Accessing an unknown key " + property + " on a model object");
       var stack = TS.console.getStackTrace();
       var immediate_caller = _.get(stack.split("\n"), "[2]");
@@ -3686,7 +3705,7 @@
     if (_.isString(property)) {
       _set_counts[property] = (_set_counts[property] || 0) + 1;
     }
-    if (!model_ob_keys_as_map[property] && _.isString(property)) {
+    if (!model_ob_keys_as_map[property] && !keys_to_update_in_redux_as_map[property] && _.isString(property)) {
       TS.console.logStackTrace("Setting an unknown key " + property + " on a model object");
       var stack = TS.console.getStackTrace();
       var immediate_caller = _.get(stack.split("\n"), "[2]");
@@ -3717,6 +3736,17 @@
         return this._set(key, value);
       }
     };
+    keys_to_update_in_redux.forEach(function(key) {
+      props_to_define[key] = {
+        enumerable: true,
+        get: function() {
+          return this._get(key);
+        },
+        set: function(value) {
+          return this._setWithReduxAction(key, value);
+        }
+      };
+    });
   });
   _Channel.prototype.props_to_define = props_to_define;
   _Channel.prototype._get = function(key) {
@@ -3729,6 +3759,16 @@
     var entity = _getChannelById(this.id);
     if (entity) {
       entity[key] = value;
+    }
+    return true;
+  };
+  _Channel.prototype._setWithReduxAction = function(key, value) {
+    var entity = _getChannelById(this.id);
+    if (entity) {
+      if (entity[key] !== value) {
+        _updateOneKeyForChannel(this.id, key, value);
+        _redux_set_counts[key] = (_redux_set_counts[key] || 0) + 1;
+      }
     }
     return true;
   };
@@ -24259,7 +24299,7 @@ TS.registerModule("constants", {
             }
             $.extend(template_args, TS.files.getFileTemplateArguments(msg.file, 360));
             template_args.is_message = true;
-            template_args.image_lazyload = !!TS.client;
+            template_args.image_lazyload = !!TS.client && !TS.boot_data.feature_no_placeholders_in_messages;
             template_args.lightbox = true;
             if (msg.subtype === "file_share" && msg.upload) {
               if (msg.file.mode === "email") template_args.is_added = true;
@@ -56018,7 +56058,7 @@ var _getMetaFieldForId = function(id, key) {
       };
       return TS.api.call("screenhero.rooms.proxyAnalytics", {
         data: JSON.stringify(data)
-      }).catch(_.noop);
+      }, null, true).catch(_.noop);
     },
     flush: function() {
       if (_record_buffer.length) {
@@ -56032,7 +56072,7 @@ var _getMetaFieldForId = function(id, key) {
             database: _getDatabaseName(),
             points: _record_buffer
           })
-        }).catch(_.noop);
+        }, null, true).catch(_.noop);
         _record_buffer = [];
       }
       clearTimeout(_record_timer);
@@ -69647,32 +69687,34 @@ var _getMetaFieldForId = function(id, key) {
     return c;
   }), n.d(t, "removeChannel", function() {
     return d;
-  }), n.d(t, "forceUpdateOfChannelById", function() {
+  }), n.d(t, "updateOneKeyForChannel", function() {
     return f;
+  }), n.d(t, "forceUpdateOfChannelById", function() {
+    return p;
   }), n.d(t, "getChannelById", function() {
-    return h;
-  }), n.d(t, "getAllChannels", function() {
     return _;
-  }), n.d(t, "isGroup", function() {
+  }), n.d(t, "getAllChannels", function() {
     return m;
-  }), n.d(t, "isChannel", function() {
+  }), n.d(t, "isGroup", function() {
     return y;
-  }), n.d(t, "isMpim", function() {
+  }), n.d(t, "isChannel", function() {
     return v;
-  }), n.d(t, "isIm", function() {
+  }), n.d(t, "isMpim", function() {
     return g;
-  }), n.d(t, "isMemberOfChannel", function() {
+  }), n.d(t, "isIm", function() {
     return b;
-  }), n.d(t, "isStarred", function() {
+  }), n.d(t, "isMemberOfChannel", function() {
     return M;
-  }), n.d(t, "isRead", function() {
+  }), n.d(t, "isStarred", function() {
     return w;
-  }), n.d(t, "isYou", function() {
+  }), n.d(t, "isRead", function() {
     return k;
-  }), n.d(t, "isSlackbot", function() {
+  }), n.d(t, "isYou", function() {
     return L;
-  }), n.d(t, "getChannelType", function() {
+  }), n.d(t, "isSlackbot", function() {
     return T;
+  }), n.d(t, "getChannelType", function() {
+    return S;
   });
   var s, u = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
@@ -69684,8 +69726,9 @@ var _getMetaFieldForId = function(id, key) {
     l = n.i(a.createAction)("Bulk add channels, overwriting anything previously stored with the same id"),
     c = n.i(a.createAction)("Add a channel, overwriting anything previously stored with the same id"),
     d = n.i(a.createAction)("Remove a channel"),
-    f = n.i(a.createAction)("Legacy hack: Force an update of a channel, because it broke immutability and updated in place"),
-    p = n.i(a.createReducer)((s = {}, r(s, l, function(e, t) {
+    f = n.i(a.createAction)("Update one key for a channel by id"),
+    p = n.i(a.createAction)("Legacy hack: Force an update of a channel, because it broke immutability and updated in place"),
+    h = n.i(a.createReducer)((s = {}, r(s, l, function(e, t) {
       if (!t || !t.length || !i.a.isArray(t)) return e;
       var n = i.a.filter(t, "id");
       if (!n.length) return e;
@@ -69693,53 +69736,59 @@ var _getMetaFieldForId = function(id, key) {
       return n.forEach(function(e) {
         r[e.id] = e;
       }), r;
+    }), r(s, f, function(e, t) {
+      if (!t || !t.id || 2 !== Object.keys(t).length) return e;
+      if (!e[t.id]) return e;
+      var n = i.a.omit(t, "id"),
+        o = Object.keys(n)[0];
+      return e[t.id][o] === n[o] ? e : u({}, e, r({}, t.id, u({}, e[t.id], n)));
     }), r(s, c, function(e, t) {
       return t && t.id ? u({}, e, r({}, t.id, t)) : e;
     }), r(s, d, function(e, t) {
       return t && t.id && e[t.id] ? i.a.omit(e, t.id) : e;
-    }), r(s, f, function(e) {
+    }), r(s, p, function(e) {
       var t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : {},
         n = t.id;
       if (!n || !e[n]) return e;
       var r = u({}, e);
       return r[n] = u({}, r[n]), r;
     }), s), {});
-  t.default = p;
-  var h = function(e, t) {
+  t.default = h;
+  var _ = function(e, t) {
       return e && e.channels && e.channels[t];
     },
-    _ = function(e) {
+    m = function(e) {
       return e.channels;
     },
-    m = function(e) {
+    y = function(e) {
       return e && e.is_group && !e.is_mpim;
     },
-    y = function(e) {
+    v = function(e) {
       return e && e.is_channel;
     },
-    v = function(e) {
+    g = function(e) {
       return e && e.is_mpim;
     },
-    g = function(e) {
+    b = function(e) {
       return e && e.is_im;
     },
-    b = function(e) {
+    M = function(e) {
       return e && e.is_channel && e.is_member;
     },
-    M = function(e) {
+    w = function(e) {
       return e && e.is_starred;
     },
-    w = function(e) {
+    k = function(e) {
       return e && e.unread_cnt < 1;
     },
-    k = function(e) {
+    L = function(e) {
       return e && e.is_self_im;
     },
-    L = function(e) {
+    T = function(e) {
       return e && e.is_slackbot_im;
     },
-    T = function(e) {
-      return m(e) ? "group" : v(e) ? "mpim" : g(e) ? "im" : "channel";
+    S = function(e) {
+      return y(e) ? "group" : g(e) ? "mpim" : b(e) ? "im" : "channel";
     };
 }, function(e, t, n) {
   "use strict";
@@ -81299,8 +81348,7 @@ var _getMetaFieldForId = function(id, key) {
     if (M.logTopLevelRenders) {
       var a = e._currentElement.props.child,
         s = a.type;
-      i = "React mount: " + ("string" == typeof s ? s : s.displayName || s.name),
-        console.time(i);
+      i = "React mount: " + ("string" == typeof s ? s : s.displayName || s.name), console.time(i);
     }
     var u = L.mountComponent(e, n, null, g(e, t), o, 0);
     i && console.timeEnd(i), e._renderedComponent._topLevelWrapper = e, N._mountImageIntoNode(u, t, e, r, n);
@@ -89299,7 +89347,7 @@ var _getMetaFieldForId = function(id, key) {
   "use strict";
 
   function r(e) {
-    var t = n.i(o.a)().substract(1, "days");
+    var t = n.i(o.a)().subtract(1, "days");
     return n.i(i.a)(e, t);
   }
   var o = n(40),
