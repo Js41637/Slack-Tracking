@@ -384,9 +384,7 @@
         sort_func = TS.web.admin.sortBySSO;
       } else if (TS.web.admin.sort_order === "inactive") {
         sort_func = TS.web.admin.sortByInactive;
-      } else if (TS.web.admin.sort_order === "full_name") {
-        sort_func = TS.web.admin.sortByFullName;
-      } else if (TS.web.admin.sort_order === "preferred_name") {
+      } else if (TS.web.admin.sort_order === "display_name") {
         sort_func = TS.web.admin.sortByDisplayName;
       }
       if (TS.web.admin.view === "list") {
@@ -404,11 +402,6 @@
     sortByScreenName: function(a, b) {
       if (a._name_lc > b._name_lc) return 1;
       if (b._name_lc > a._name_lc) return -1;
-      return 0;
-    },
-    sortByFullName: function(a, b) {
-      if (a._full_name_normalized_lc > b._full_name_normalized_lc) return 1;
-      if (b._full_name_normalized_lc > a._full_name_normalized_lc) return -1;
       return 0;
     },
     sortByDisplayName: function(a, b) {
@@ -2570,10 +2563,8 @@
         return "name";
       case "real_name":
         return "real_name";
-      case "full_name":
-        return "full_name";
-      case "preferred_name":
-        return "preferred_name";
+      case "display_name":
+        return "display_name";
       default:
         return "";
     }

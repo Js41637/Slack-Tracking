@@ -11606,15 +11606,18 @@ TS.registerModule("constants", {
     },
     getMemberById: function(id, no_unknown) {
       if (TS.boot_data.feature_unknown_members && no_unknown !== true) {
-        var UNKNOWN_MEMBERS_FIX_VERSION = 4;
+        var UNKNOWN_MEMBERS_FIX_VERSION = 5;
         var stack = TS.console.getStackTrace();
         var immediate_caller = _.get(stack.split("\n"), "[1]");
+        var immediate_caller_name_match = immediate_caller.match(/Object.([a-zA-Z]+)\s/);
+        var immediate_caller_function_name = immediate_caller_name_match.length > 0 ? immediate_caller_name_match[1] : "";
         if (!_get_member_by_id_warned_for_caller[immediate_caller]) {
           _get_member_by_id_warned_for_caller[immediate_caller] = true;
-          if (immediate_caller.indexOf("makeMemberPreviewLinkImage") === -1 && immediate_caller.indexOf("allUnknownUsersInMessage") === -1 && immediate_caller.indexOf("getMemberFromMemberMarkup") === -1 && immediate_caller.indexOf("makeMemberPreviewCardLinkImageBackground") === -1 && immediate_caller.indexOf("makeMemberPreviewCardLinkImageBackground") === -1 && immediate_caller.indexOf("_rebuildChannelDetails") === -1 && immediate_caller.indexOf("formatMessageByType") === -1 && immediate_caller.indexOf("makeMemberPreviewCardLinkImage") === -1 && immediate_caller.indexOf("updateFileComment") === -1 && immediate_caller.indexOf("appendFileComment") === -1 && immediate_caller.indexOf("buildComments") === -1 && immediate_caller.indexOf("rebuildFilePreview") === -1 && immediate_caller.indexOf("getEntityFromMessage") === -1 && immediate_caller.indexOf("_rebuildSharedFiles") === -1 && immediate_caller.indexOf("_rebuildConversationDetails") === -1 && immediate_caller.indexOf("pinnedItemHtml") === -1 && immediate_caller.indexOf("buildSHRoomAttachment") === -1 && stack.indexOf("buildReplyBarHTML") === -1 && stack.indexOf("buildBroadcastRepliersSummaryHTML") === -1 && stack.indexOf("previewMember") === -1) {
+          if (_immediate_caller_return_unknown_whitelist.indexOf(immediate_caller_function_name) === -1 && stack.indexOf("buildReplyBarHTML") === -1 && stack.indexOf("buildBroadcastRepliersSummaryHTML") === -1 && stack.indexOf("previewMember") === -1) {
             var e = new Error(stack);
             var description = "unintentional_create_unknown_member_v" + UNKNOWN_MEMBERS_FIX_VERSION;
-            TS.console.logError(e, description);
+            var silent = true;
+            TS.console.logError(e, description, silent);
           }
         }
       }
@@ -12526,6 +12529,7 @@ TS.registerModule("constants", {
   var _users_info_api_max_users = 250;
   var _flannel_max_users = 100;
   var _get_member_by_id_warned_for_caller = {};
+  var _immediate_caller_return_unknown_whitelist = ["makeMemberPreviewLinkImage", "allUnknownUsersInMessage", "getMemberFromMemberMarkup", "makeMemberPreviewCardLinkImageBackground", "makeMemberPreviewCardLinkImageBackground", "_rebuildChannelDetails", "formatMessageByType", "makeMemberPreviewCardLinkImage", "updateFileComment", "appendFileComment", "buildComments", "rebuildFilePreview", "getEntityFromMessage", "_rebuildSharedFiles", "_rebuildConversationDetails", "pinnedItemHtml", "buildSHRoomAttachment"];
   var _ensureMember = function(member_or_id) {
     return _.isString(member_or_id) ? TS.members.getKnownMemberById(member_or_id) : member_or_id;
   };
@@ -19088,25 +19092,10 @@ TS.registerModule("constants", {
     _ensureFileObjectsOnMsgAndProceed(next_imsg);
   };
   var _ensureFileObjectsOnMsgAndProceed = function(imsg) {
-    var ob_with_file;
-    var file_id;
-    if (TS.boot_data.feature_dedupe_files_info_requests) {
-      var file_ob_and_id = _findFileObAndId(imsg);
-      if (!file_ob_and_id) return _ensureModelObsAndMembersAndProceed(imsg);
-      ob_with_file = file_ob_and_id.ob_with_file;
-      file_id = file_ob_and_id.file_id;
-    } else {
-      if (imsg.type === "message") return _ensureModelObsAndMembersAndProceed(imsg);
-      ob_with_file = imsg;
-      file_id = imsg.file && imsg.file.id || imsg.file_id;
-      if (!file_id && imsg.item) {
-        file_id = imsg.item.file && imsg.item.file.id || imsg.item.file_id;
-        if (file_id) ob_with_file = imsg.item;
-      }
-      if (!file_id) return _ensureModelObsAndMembersAndProceed(imsg);
-      if (imsg.type === "file_deleted") return _ensureModelObsAndMembersAndProceed(imsg);
-      if (imsg.type === "file_private") return _ensureModelObsAndMembersAndProceed(imsg);
-    }
+    var file_ob_and_id = _findFileObAndId(imsg);
+    if (!file_ob_and_id) return _ensureModelObsAndMembersAndProceed(imsg);
+    var ob_with_file = file_ob_and_id.ob_with_file;
+    var file_id = file_ob_and_id.file_id;
     if (!_isFileMsgRelevant(imsg, file_id)) {
       TS.maybeWarn(552, imsg.type + " referenced an irrelevant file: " + file_id);
       return Promise.resolve().then(function() {
@@ -19119,7 +19108,7 @@ TS.registerModule("constants", {
       return _ensureModelObsAndMembersAndProceed(imsg);
     }
     TS.log(552, imsg.type + " referenced a relevant file and we have to look it up via the API: " + file_id);
-    if (TS.boot_data.feature_dedupe_files_info_requests && _Q.length > 1) {
+    if (_Q.length > 1) {
       _maybeFetchMultipleFileDefinitions(imsg, file_id, ob_with_file);
     } else {
       _fetchSingleFileDefinition(imsg, file_id, ob_with_file);
@@ -19135,17 +19124,15 @@ TS.registerModule("constants", {
       }
       ob_with_file.file = file;
       TS.log(552, imsg.type + " now has a file definition");
-      if (TS.boot_data.feature_dedupe_files_info_requests) {
-        imsg._file_attached = true;
-        _.forEach(_Q, function(queued_imsg) {
-          var queued_file_ob_and_id = _findFileObAndId(queued_imsg);
-          if (queued_file_ob_and_id && queued_file_ob_and_id.file_id === file_id) {
-            queued_file_ob_and_id.ob_with_file.file = file;
-            queued_imsg._file_attached = true;
-            TS.log(552, imsg.type + " now has a file definition (courtesy of a previously queued imsg for " + file_id + ")");
-          }
-        });
-      }
+      imsg._file_attached = true;
+      _.forEach(_Q, function(queued_imsg) {
+        var queued_file_ob_and_id = _findFileObAndId(queued_imsg);
+        if (queued_file_ob_and_id && queued_file_ob_and_id.file_id === file_id) {
+          queued_file_ob_and_id.ob_with_file.file = file;
+          queued_imsg._file_attached = true;
+          TS.log(552, imsg.type + " now has a file definition (courtesy of a previously queued imsg for " + file_id + ")");
+        }
+      });
       _ensureModelObsAndMembersAndProceed(imsg);
     });
   };
@@ -24856,30 +24843,12 @@ TS.registerModule("constants", {
         return str.replace(/\s+/g, "");
       });
       Handlebars.registerHelper("cash", function(options) {
-        var out;
-        if (TS.boot_data.feature_i18n_currencies) {
-          var include_all_digits = options.hash.all_digits || false;
-          var currency_code = options.hash.currency_code || "USD";
-          var amount = parseInt(options.hash.value, 10);
-          out = TS.utility.money.formatMoney(amount, currency_code, {
-            all_digits: include_all_digits
-          });
-          return out;
-        }
-        var all_digits = options.hash.all_digits || false;
-        var neg = false;
-        var val = parseInt(options.hash.value, 10);
-        if (val < 0) {
-          neg = true;
-          val = 0 - val;
-        }
-        var dollars = (val / 100).toString();
-        out = (neg ? "-" : "") + "$" + dollars;
-        if (!all_digits && out.substring(-3) === ".00") {
-          out = out.substring(0, -3);
-        } else if (_REGEX_CASH_DECIMAL_FORMATTING.test(dollars)) {
-          out += "0";
-        }
+        var include_all_digits = options.hash.all_digits || false;
+        var currency_code = options.hash.currency_code || "USD";
+        var amount = parseInt(options.hash.value, 10);
+        var out = TS.utility.money.formatMoney(amount, currency_code, {
+          all_digits: include_all_digits
+        });
         return out;
       });
       Handlebars.registerHelper("possessive", function(str) {
@@ -26749,7 +26718,6 @@ TS.registerModule("constants", {
       };
     }
   });
-  var _REGEX_CASH_DECIMAL_FORMATTING = /\.\d{1}$/;
   var _optionsFnInverseBooleanHelper = function(options) {
     if (typeof options.fn !== "function") {
       options.fn = function() {
@@ -98737,7 +98705,7 @@ var _getMetaFieldForId = function(id, key) {
       var results = _.map(experts, function(expert_group, key) {
         if (key === "order") return;
         var users = _.map(expert_group.users, function(user_data) {
-          return TS.members.getMemberById(user_data.id);
+          return TS.members.getKnownMemberById(user_data.id);
         });
         var channels = _.map(expert_group.channels, function(channel_data) {
           return TS.channels.getChannelById(channel_data.id);
