@@ -349,7 +349,7 @@
   var _fully_booted_p;
   var _is_user_forced_into_redux_feature;
   var _users_to_force_into_redux_feature = ["W2V82BY0G", "W1W7LCMHU", "W1M2KRM8E"];
-  var _users_to_force_into_unknown_members_feature = ["W1W7LCMHU", "W1FK52ED9", "W1VRQPG9L", "W1W7NQ9AQ", "W1W6AGD6X"];
+  var _users_to_force_into_unknown_members_feature = ["W1W7LCMHU", "W1FK52ED9", "W1VRQPG9L", "W1W7NQ9AQ", "W1W6AGD6X", "W1M2GKF2R"];
   var _did_call_did_finish_loading = false;
   var FORCE_CALL_DID_FINISH_LOADING_DELAY_MS = 7e4;
   window.TS = {
@@ -5325,7 +5325,7 @@ var _cyrillicToLatin = function(char) {
         if (!query && !preselected && current_model_ob) {
           var current_channel = TS.shared.getModelObById(current_model_ob);
           if (_.get(current_channel, "is_im")) {
-            var member = TS.members.getMemberById(current_channel.user);
+            var member = TS.members.getKnownMemberById(current_channel.user);
             data.push({
               preselected: true,
               lfs_id: member.id,

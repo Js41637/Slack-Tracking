@@ -11532,7 +11532,7 @@ TS.registerModule("constants", {
       return !member._is_local && !member._is_from_org;
     },
     isMemberExternalById: function(id) {
-      var member = TS.members.getMemberById(id);
+      var member = TS.members.getKnownMemberById(id);
       if (!member) {
         TS.console.warn("Trying to check for external team membership by id (" + id + ") but member is not present in the model.");
         return false;
@@ -11606,12 +11606,12 @@ TS.registerModule("constants", {
     },
     getMemberById: function(id, no_unknown) {
       if (TS.boot_data.feature_unknown_members && no_unknown !== true) {
-        var UNKNOWN_MEMBERS_FIX_VERSION = 3;
+        var UNKNOWN_MEMBERS_FIX_VERSION = 4;
         var stack = TS.console.getStackTrace();
         var immediate_caller = _.get(stack.split("\n"), "[1]");
         if (!_get_member_by_id_warned_for_caller[immediate_caller]) {
           _get_member_by_id_warned_for_caller[immediate_caller] = true;
-          if (immediate_caller.indexOf("makeMemberPreviewLinkImage") === -1 && immediate_caller.indexOf("allUnknownUsersInMessage") === -1 && immediate_caller.indexOf("getMemberFromMemberMarkup") === -1 && immediate_caller.indexOf("makeMemberPreviewCardLinkImageBackground") === -1 && immediate_caller.indexOf("makeMemberPreviewCardLinkImageBackground") === -1 && immediate_caller.indexOf("_rebuildChannelDetails") === -1 && immediate_caller.indexOf("formatMessageByType") === -1 && immediate_caller.indexOf("makeMemberPreviewCardLinkImage") === -1 && immediate_caller.indexOf("updateFileComment") === -1 && immediate_caller.indexOf("appendFileComment") === -1 && immediate_caller.indexOf("buildComments") === -1 && immediate_caller.indexOf("rebuildFilePreview") === -1 && immediate_caller.indexOf("getEntityFromMessage") === -1 && stack.indexOf("buildReplyBarHTML") === -1 && stack.indexOf("buildBroadcastRepliersSummaryHTML") === -1 && stack.indexOf("previewMember") === -1) {
+          if (immediate_caller.indexOf("makeMemberPreviewLinkImage") === -1 && immediate_caller.indexOf("allUnknownUsersInMessage") === -1 && immediate_caller.indexOf("getMemberFromMemberMarkup") === -1 && immediate_caller.indexOf("makeMemberPreviewCardLinkImageBackground") === -1 && immediate_caller.indexOf("makeMemberPreviewCardLinkImageBackground") === -1 && immediate_caller.indexOf("_rebuildChannelDetails") === -1 && immediate_caller.indexOf("formatMessageByType") === -1 && immediate_caller.indexOf("makeMemberPreviewCardLinkImage") === -1 && immediate_caller.indexOf("updateFileComment") === -1 && immediate_caller.indexOf("appendFileComment") === -1 && immediate_caller.indexOf("buildComments") === -1 && immediate_caller.indexOf("rebuildFilePreview") === -1 && immediate_caller.indexOf("getEntityFromMessage") === -1 && immediate_caller.indexOf("_rebuildSharedFiles") === -1 && immediate_caller.indexOf("_rebuildConversationDetails") === -1 && immediate_caller.indexOf("pinnedItemHtml") === -1 && immediate_caller.indexOf("buildSHRoomAttachment") === -1 && stack.indexOf("buildReplyBarHTML") === -1 && stack.indexOf("buildBroadcastRepliersSummaryHTML") === -1 && stack.indexOf("previewMember") === -1) {
             var e = new Error(stack);
             var description = "unintentional_create_unknown_member_v" + UNKNOWN_MEMBERS_FIX_VERSION;
             TS.console.logError(e, description);
@@ -16320,6 +16320,12 @@ TS.registerModule("constants", {
         start: 0,
         count: _.get(data.messages, "matches.length", 0)
       }];
+      if (_.has(existing, "messages.modules.score.matches")) {
+        existing.messages.modules.score.pages = [{
+          start: 0,
+          count: _.get(existing.messages.modules.score, "matches.length", 0)
+        }];
+      }
       existing._time_of_search = Date.now();
       TS.search.message_search_results_fetched_sig.dispatch(existing, args);
     } else {
@@ -21840,11 +21846,11 @@ TS.registerModule("constants", {
         var newest_rxn = rxns[rxns.length - 1];
         var newest_rxn_member_id = newest_rxn.users[newest_rxn.users.length - 1];
         if (!TS.rxns.getRxnFromRxns(rxns, newest_rxn.name)) return "";
-        var newest_member = TS.members.getMemberById(newest_rxn_member_id);
+        var newest_member = TS.members.getKnownMemberById(newest_rxn_member_id);
         var all_rxners_but_newest = TS.rxns.getAllUniqueRxners(rxns, newest_rxn_member_id);
         var total_count = all_rxners_but_newest.length + 1;
         if (total_count == 2) {
-          var other_member = TS.members.getMemberById(all_rxners_but_newest[0]);
+          var other_member = TS.members.getKnownMemberById(all_rxners_but_newest[0]);
           rxn_members = TS.i18n.t("{user} & {another_user}", "rxn")({
             user: TS.templates.builders.makeMemberPreviewLink(newest_member, true),
             another_user: TS.templates.builders.makeMemberPreviewLink(other_member)
@@ -21946,7 +21952,7 @@ TS.registerModule("constants", {
           return "";
         }
         if (model_ob.is_im) {
-          var recipient = TS.members.getMemberById(model_ob.user);
+          var recipient = TS.members.getKnownMemberById(model_ob.user);
           star.message.recipient = recipient;
           if (TS.ims.isImWithDeletedMember(model_ob)) {
             im_with_disabled_user = true;
@@ -28810,6 +28816,11 @@ TS.registerModule("constants", {
         } else {
           TS.error("ERROR: invalid imsg.text type: " + typeof imsg.text + " " + TS.utility.stringifyJSONOrElse(imsg.text, null, 2, "(and it is not JSON.stringifiable)"));
         }
+        if (TS.boot_data.feature_parsed_mrkdwn) {
+          new_msg.text_formats = TSF.getTokensArray(new_msg.text, "NORMAL", {
+            jumbomoji: !!TS.model.prefs.jumbomoji
+          });
+        }
       }
       if (imsg.sound) {
         new_msg.sound = imsg.sound;
@@ -32504,9 +32515,14 @@ TS.registerModule("constants", {
       });
       txt += TS.format.tokenizeStr(html_token_map, _getThemeInstallButtonsHtml(theme_install_btns));
     }
-    var A = TSF.getTokensArray($.trim(txt), tsf_mode, {
-      jumbomoji: !no_jumbomoji
-    });
+    var A;
+    if (TS.boot_data.feature_parsed_mrkdwn && tsf_mode === "NORMAL" && msg && msg.text_formats) {
+      A = msg.text_formats;
+    } else {
+      A = TSF.getTokensArray($.trim(txt), tsf_mode, {
+        jumbomoji: !no_jumbomoji
+      });
+    }
     if (no_preformatted) A = A.map(_swapPreForCode);
     if (no_linking) {
       A = _.reject(A, _isLinkStartOrEnd);
@@ -34829,7 +34845,7 @@ TS.registerModule("constants", {
     },
     _registerCurrentStatusInput: function() {
       TS.menu._unregisterCurrentStatusInput();
-      TS.menu._current_status_input = new TS.client.ui.CurrentStatusInput({
+      TS.menu._current_status_input = new TS.ui.CurrentStatusInput({
         $parent: $("#slack_menu_current_status_submenu"),
         onEscape: TS.menu.end,
         onSave: TS.menu.end
@@ -42405,7 +42421,7 @@ var _on_esc;
     },
     _registerCurrentStatusInput: function() {
       TS.ui.edit_member_profile._unregisterCurrentStatusInput();
-      TS.ui.edit_member_profile._current_status_input = new TS.client.ui.CurrentStatusInput({
+      TS.ui.edit_member_profile._current_status_input = new TS.ui.CurrentStatusInput({
         $parent: $("#edit_member_profile_container"),
         has_presets_menu: true,
         has_form_context: true
