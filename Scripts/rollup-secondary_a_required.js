@@ -29744,6 +29744,46 @@ TS.registerModule("constants", {
       if (!$target.is("a")) return false;
       var url_no_protocol = url.replace(/(^\w+:|^)\/\//, "");
       return $target.text() === url || $target.text() === url_no_protocol;
+    },
+    charsOverLimit: function(s) {
+      if (s.length <= TS.model.input_maxbytes / 4) return 0;
+      var bytes = 0;
+      var points = [];
+      var last = 0;
+      for (var i = 0; i < s.length; i++) {
+        var c = s.charCodeAt(i);
+        if (c < 55296 || c > 57343) {
+          points.push(c);
+          bytes += TS.utility.bytesInUnicodeCodePoint(c);
+        }
+        if (c >= 56320 && c <= 57343) {
+          points.push(65533);
+          bytes += 1;
+        }
+        if (c >= 55296 && c <= 56319) {
+          if (i == s.length - 1) {
+            points.push(65533);
+            bytes += 1;
+          } else {
+            var d = s.charCodeAt(i + 1);
+            if (d >= 56320 && d <= 57343) {
+              var a = c & 1023;
+              var b = d & 1023;
+              var p = (1 << 16) + (1 << 10) + a + b;
+              points.push(p);
+              bytes += TS.utility.bytesInUnicodeCodePoint(p);
+              i += 1;
+            } else {
+              points.push(65533);
+              bytes += 1;
+            }
+          }
+        }
+        if (bytes <= TS.model.input_maxbytes) {
+          last = points.length;
+        }
+      }
+      return points.length - last;
     }
   });
   var _is_in_bulk_unread_calc_mode = false;
@@ -31552,6 +31592,15 @@ TS.registerModule("constants", {
       var context = this._measure_text_width_canvas.getContext("2d");
       context.font = font_descriptor;
       return context.measureText(text).width;
+    },
+    bytesInUnicodeCodePoint: function(p) {
+      if (p < 0 || p > 1114111) {
+        throw new RangeError("Invalid unicode code point {" + p + "}");
+      }
+      if (p < 128) return 1;
+      if (p < 2048) return 2;
+      if (p < 65536) return 3;
+      if (p <= 1114111) return 4;
     },
     test: {
       clearAndGetRefererPolicy: function() {
@@ -40870,7 +40919,11 @@ var _on_esc;
       TS.msg_edit.edit_interv = setInterval(TS.msg_edit.onCountDownInterval, 1e3);
     },
     isMessageTooLong: function(input) {
-      return TS.format.cleanMsg(TS.utility.contenteditable.value(input)).length > TS.model.input_maxlength;
+      var message = TS.format.cleanMsg(TS.utility.contenteditable.value(input));
+      if (TS.features.isEnabled("message_input_byte_limit")) {
+        return TS.utility.msgs.charsOverLimit(message) > 0;
+      }
+      return message.length > TS.model.input_maxlength;
     },
     updateTooLongWarning: function(input, too_long) {
       if (too_long) {
@@ -64636,8 +64689,7 @@ var _getMetaFieldForId = function(id, key) {
           }), t.version = "2.17.1",
           function(e) {
             mr = e;
-          }(gt), t.fn = Ro, t.min = Mt, t.max = wt, t.now = ko, t.utc = d, t.unix = Nn, t.months = Bn, t.isDate = s, t.locale = Ze, t.invalid = _,
-          t.duration = Wt, t.isMoment = g, t.weekdays = qn, t.parseZone = zn, t.localeData = nt, t.isDuration = Lt, t.monthsShort = Vn, t.weekdaysMin = Kn, t.defineLocale = et, t.updateLocale = tt, t.locales = rt, t.weekdaysShort = Jn, t.normalizeUnits = A, t.relativeTimeRounding = fr, t.relativeTimeThreshold = pr, t.calendarFormat = qt, t.prototype = Ro, t;
+          }(gt), t.fn = Ro, t.min = Mt, t.max = wt, t.now = ko, t.utc = d, t.unix = Nn, t.months = Bn, t.isDate = s, t.locale = Ze, t.invalid = _, t.duration = Wt, t.isMoment = g, t.weekdays = qn, t.parseZone = zn, t.localeData = nt, t.isDuration = Lt, t.monthsShort = Vn, t.weekdaysMin = Kn, t.defineLocale = et, t.updateLocale = tt, t.locales = rt, t.weekdaysShort = Jn, t.normalizeUnits = A, t.relativeTimeRounding = fr, t.relativeTimeThreshold = pr, t.calendarFormat = qt, t.prototype = Ro, t;
       }();
     }();
   }).call(t, n(80)(e));
@@ -73173,7 +73225,8 @@ var _getMetaFieldForId = function(id, key) {
     i = n(95)("IE_PROTO"),
     a = Object.prototype;
   e.exports = Object.getPrototypeOf || function(e) {
-    return e = o(e), r(e, i) ? e[i] : "function" == typeof e.constructor && e instanceof e.constructor ? e.constructor.prototype : e instanceof Object ? a : null;
+    return e = o(e),
+      r(e, i) ? e[i] : "function" == typeof e.constructor && e instanceof e.constructor ? e.constructor.prototype : e instanceof Object ? a : null;
   };
 }, function(e, t, n) {
   var r = n(34),
@@ -84239,9 +84292,8 @@ var _getMetaFieldForId = function(id, key) {
       u()(this, t);
       var n = f()(this, (t.__proto__ || a()(t)).call(this, e));
       return n.state = {
-          scrollbarWidth: 0
-        }, n._createColumn = n._createColumn.bind(n), n._createRow = n._createRow.bind(n), n._onScroll = n._onScroll.bind(n), n._onSectionRendered = n._onSectionRendered.bind(n), n._setRef = n._setRef.bind(n),
-        n;
+        scrollbarWidth: 0
+      }, n._createColumn = n._createColumn.bind(n), n._createRow = n._createRow.bind(n), n._onScroll = n._onScroll.bind(n), n._onSectionRendered = n._onSectionRendered.bind(n), n._setRef = n._setRef.bind(n), n;
     }
     return h()(t, e), c()(t, [{
       key: "forceUpdateGrid",
@@ -89137,8 +89189,7 @@ var _getMetaFieldForId = function(id, key) {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
-          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0),
-            Object.defineProperty(e, r.key, r);
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
         }
       }
       return function(t, n, r) {
