@@ -34587,15 +34587,14 @@ TS.registerModule("constants", {
       $(window.document).bind("keydown", TS.menu.onKeyDown);
       $("html").bind("mousedown touchstart", TS.menu.onMouseDown);
       var $menu_list = $menu.find(".menu_list");
+      var $menu_context_el = $menu_list.length ? $menu_list : $menu.find("#menu_items");
       if (TS.menu.has_submenu) {
-        TS.kb_nav.start($menu.find("#menu_items"), "li:not(.divider)", $menu, {
+        TS.kb_nav.start($menu_context_el, "li:not(.divider)", $menu, {
           onLeftKeyDownIfSubmenuExists: TS.menu.onLeftKeyDownIfSubmenuExists,
           onRightKeyDownIfSubmenuExists: TS.menu.onRightKeyDownIfSubmenuExists
         });
-      } else if ($menu_list.length) {
-        TS.kb_nav.start($menu_list, "li");
       } else {
-        TS.kb_nav.start($menu.find("#menu_items"), "li:not(.divider)");
+        TS.kb_nav.start($menu_context_el, "li:not(.divider)");
       }
       var $first_menu_list_link = $menu_list.length ? $menu_list.first().find("a, button").first() : null;
       if (TS.ui && TS.ui.a11y) TS.ui.a11y.focusAndAddTabindex($first_menu_list_link);
@@ -88066,7 +88065,7 @@ var _getMetaFieldForId = function(id, key) {
           var e = void 0;
           try {
             e = l.a.createElement("img", {
-              src: cdn_url + "/0180/img/downloads_empty.png",
+              src: vvv("/img/downloads_empty.png"),
               alt: ""
             });
           } catch (t) {
