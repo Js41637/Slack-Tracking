@@ -41511,7 +41511,7 @@ var _on_esc;
       });
     }
     if (time.h >= 1) {
-      expiration_text += TS.i18n.t("{hour_count, plural, =1 {an hour} other {# others}}", "msg_edit")({
+      expiration_text += TS.i18n.t("{hour_count, plural, =1 {an hour} other {# hours}}", "msg_edit")({
         hour_count: time.h
       });
     }
