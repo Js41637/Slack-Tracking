@@ -12536,10 +12536,11 @@ TS.registerModule("constants", {
     if (!TS.boot_data.feature_unknown_members) return;
     if (member && member.is_unknown) member.is_unknown = false;
     if (TS.members.getKnownMemberById(member.name)) {
-      var name_keyed_member = TS.members.getKnownMemberById(member.name);
-      if (name_keyed_member.is_unknown) name_keyed_member.is_unknown = false;
-      TS.members.changed_name_sig.dispatch(name_keyed_member);
+      member = TS.members.getKnownMemberById(member.name);
+      if (member.is_unknown) member.is_unknown = false;
+      TS.members.changed_name_sig.dispatch(member);
     }
+    TS.statsd.measure("unknown_member_resolution_timing", "unknown_member_resolution_timing_" + member.id);
     _.pull(_unknown_member_ids, member.id);
   };
   var _maybeSetMemberColor = function(member) {
@@ -12933,6 +12934,7 @@ TS.registerModule("constants", {
     member.is_unknown = true;
     member.is_non_existent = false;
     _setImagesForUnknownMember(member);
+    TS.statsd.mark("unknown_member_resolution_timing_" + id);
     return member;
   };
   var _setImagesForUnknownMember = function(member) {
@@ -15748,14 +15750,17 @@ TS.registerModule("constants", {
           },
           onEnter: function() {
             TS.search.submitSearch();
+            TS.search.autocomplete.triggerInputEvent("on-enter");
             return true;
           },
           onTextChange: function() {
             var is_empty = TS.utility.contenteditable.isEmpty(TS.search.input);
             $("#header_search_form").toggleClass("active", !is_empty);
+            TS.search.autocomplete.triggerInputEvent("input");
           },
           onEscape: function() {
             TS.utility.contenteditable.blur(TS.search.input);
+            TS.search.autocomplete.triggerInputEvent("on-escape");
           }
         });
       }
@@ -33746,7 +33751,7 @@ TS.registerModule("constants", {
         current_team_is_in_enterprise: false,
         current_team_gets_logout_url: true,
         show_customize_link: TS.model.user.is_admin || !TS.model.team.prefs.emoji_only_admins || !TS.model.team.prefs.slackbot_responses_only_admins || !TS.model.team.prefs.loading_only_admins,
-        show_statistics_link: TS.model.user.is_admin || !TS.model.team.prefs.stats_only_admins,
+        show_statistics_link: TS.model.user.is_admin || !TS.model.team.prefs.stats_only_admins && !TS.model.user.is_restricted,
         is_our_app: TS.model.is_our_app,
         show_team_subdivider: TS.model.user.is_admin,
         can_invite: TS.ui.admin_invites.canInvite(),
@@ -98693,7 +98698,7 @@ var _getMetaFieldForId = function(id, key) {
   };
   var _allTermsMatch = function(query, terms) {
     return _(query).split(" ").map(function(word) {
-      return terms[word.toLowerCase()];
+      return terms[word];
     }).every(Boolean);
   };
   var _getTermsAsArray = function(query, terms) {

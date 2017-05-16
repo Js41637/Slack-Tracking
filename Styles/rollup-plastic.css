@@ -16243,7 +16243,7 @@ html:not(.supports_flexbox) #im_browser_tokens .member_token {
   margin-bottom: 3px;
   border: 1px solid #D8D8D8;
   border-radius: 4px;
-  background: #fff;
+  background: #FFF;
   box-shadow: 0 0 3px rgba(0, 0, 0, .1);
   padding: 4px 3px 4px 4px
 }
@@ -16276,8 +16276,8 @@ html:not(.supports_flexbox) #im_browser_tokens .member_token {
 .supports_custom_scrollbar:not(.slim_scrollbar) .lazy_filter_select .lfs_list_container .lfs_list::-webkit-scrollbar-thumb,
 .supports_custom_scrollbar:not(.slim_scrollbar) .lazy_filter_select .lfs_list_container .lfs_list::-webkit-scrollbar-track {
   background-clip: padding-box!important;
-  color: #fff;
-  border-left: 4px solid #fff;
+  color: #FFF;
+  border-left: 4px solid #FFF;
   border-radius: 8px 4px 4px 8px/4px
 }
 
@@ -16293,7 +16293,7 @@ html:not(.supports_flexbox) #im_browser_tokens .member_token {
 }
 
 .supports_custom_scrollbar:not(.slim_scrollbar) .lazy_filter_select .lfs_list_container .lfs_list::-webkit-scrollbar-corner {
-  background: #fff
+  background: #FFF
 }
 
 .supports_custom_scrollbar.slim_scrollbar .lazy_filter_select .lfs_list_container .lfs_list {
@@ -16381,7 +16381,35 @@ html:not(.supports_flexbox) #im_browser_tokens .member_token {
   white-space: nowrap
 }
 
+.unify_user .lazy_filter_select .lfs_list .lfs_item {
+  color: #2C2D30;
+  font-weight: 700;
+  font-size: 15px;
+  padding: 0;
+  margin: 0;
+  height: 32px;
+  width: calc(99%)
+}
+
+.unify_user .lazy_filter_select .lfs_list .lfs_item .c-member--small {
+  margin-right: 6px
+}
+
+.unify_user .lazy_filter_select .lfs_list .lfs_item .ts_icon_channel:before {
+  font-size: 18px;
+  margin-left: 3px;
+  margin-right: 3px
+}
+
+.unify_user .lazy_filter_select .lfs_list .lfs_item .ts_icon:not(.presence_icon) {
+  color: #717274
+}
+
 .lazy_filter_select .lfs_list .lfs_item.selected {
+  color: #2780F8
+}
+
+.lazy_filter_select .lfs_list .lfs_item.selected .ts_icon:not(.presence_icon) {
   color: #2780F8
 }
 
@@ -16422,7 +16450,7 @@ html:not(.supports_flexbox) #im_browser_tokens .member_token {
   border: 1px solid #439fe0;
   border-radius: 3px;
   background: #439fe0;
-  color: #fff;
+  color: #FFF;
   cursor: pointer;
   font-size: .85rem;
   font-weight: 700;
@@ -16434,7 +16462,7 @@ html:not(.supports_flexbox) #im_browser_tokens .member_token {
   content: '\00D7';
   font-weight: 400;
   line-height: 0;
-  color: #fff;
+  color: #FFF;
   display: inline-block;
   margin-left: 8px;
   font-size: 1.3rem;
@@ -16534,8 +16562,30 @@ html:not(.supports_flexbox) #im_browser_tokens .member_token {
   display: none
 }
 
-.lazy_filter_select .lfs_value {
+body:not(.unify_user) .lazy_filter_select .lfs_value {
   padding: .45rem 2.5rem .55rem 8px
+}
+
+body:not(.unify_user) .lazy_filter_select .lfs_value .ts_icon_shared_channels {
+  top: 0
+}
+
+.unify_user .lazy_filter_select .lfs_value {
+  padding: .25rem 2.5rem .15rem 8px
+}
+
+.unify_user .lazy_filter_select .lfs_value .lfs_item.selected {
+  height: initial;
+  color: #2C2D30;
+  font-weight: 700
+}
+
+.unify_user .lazy_filter_select .lfs_value .lfs_item.selected .ts_icon_shared_channels {
+  margin-right: 40px
+}
+
+.unify_user .lazy_filter_select .lfs_value .lfs_item.selected .ts_icon:not(.presence_icon) {
+  color: #717274
 }
 
 .lazy_filter_select .lfs_token .addl_text,
