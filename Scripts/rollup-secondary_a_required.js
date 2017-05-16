@@ -11604,10 +11604,10 @@ TS.registerModule("constants", {
     },
     getMemberById: function(id, no_unknown) {
       if (TS.boot_data.feature_unknown_members && no_unknown !== true) {
-        var UNKNOWN_MEMBERS_FIX_VERSION = 5;
+        var UNKNOWN_MEMBERS_FIX_VERSION = 6;
         var stack = TS.console.getStackTrace();
         var immediate_caller = _.get(stack.split("\n"), "[1]");
-        var immediate_caller_name_match = immediate_caller.match(/Object.([a-zA-Z]+)\s/);
+        var immediate_caller_name_match = immediate_caller.match(/at(?:\s|\sObject\.)([_a-zA-Z]+)\s/);
         var immediate_caller_function_name = immediate_caller_name_match && immediate_caller_name_match.length > 0 ? immediate_caller_name_match[1] : "";
         if (!_get_member_by_id_warned_for_caller[immediate_caller]) {
           _get_member_by_id_warned_for_caller[immediate_caller] = true;
@@ -11615,6 +11615,7 @@ TS.registerModule("constants", {
             var e = new Error(stack);
             var description = "unintentional_create_unknown_member_v" + UNKNOWN_MEMBERS_FIX_VERSION;
             var silent = true;
+            e.immediate_caller_function_name = immediate_caller_function_name;
             TS.console.logError(e, description, silent);
           }
         }
