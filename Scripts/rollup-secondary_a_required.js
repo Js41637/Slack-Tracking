@@ -3720,7 +3720,7 @@
     update[key] = value;
     TS.redux.dispatch(window.Redux.Entities.Channels.updateOneKeyForChannel(update));
   };
-  var keys_to_update_in_redux = ["deleted", "is_archived", "is_channel", "is_group", "is_im", "is_mpim", "is_open", "is_org_shared", "is_self_im", "is_shared", "is_slackbot_im", "is_starred", "members", "priority", "unread_cnt", "unread_highlight_cnt"];
+  var keys_to_update_in_redux = ["deleted", "has_draft", "is_archived", "is_channel", "is_group", "is_im", "is_mpim", "is_open", "is_org_shared", "is_self_im", "is_shared", "is_slackbot_im", "is_starred", "members", "priority", "unread_cnt", "unread_highlight_cnt"];
   var model_ob_keys = ["_archive_msgs", "_checking_at_channel_status", "_consistency_has_been_checked", "_consistency_is_being_checked", "_delayed_fetch_timer", "_did_defer_initial_msg_history", "_display_name_lc", "_display_name_truncated", "_display_name", "_has_auto_scrolled", "_history_fetched_since_last_connect", "_i18n_ns_history", "_i18n_ns", "_internal_name", "_jumper_previous_name_match", "_latest_via_users_counts", "_mark_most_recent_read_timer", "_marked_reason", "_members", "_mention_count_display_via_users_counts", "_msgs_to_merge_on_history", "_name_lc", "_needs_unread_recalc", "_prev_last_read", "_score", "_show_in_list_even_though_no_unreads", "_temp_last_read", "_temp_unread_cnt", "_users_counts_info", "active_members", "create_channel", "created", "creator", "date_created", "enterprise_id", "fetched_history_after_scrollback_time", "has_fetched_history_after_scrollback", "has_pins", "history_changed", "history_fetch_failed", "history_fetch_retries", "history_is_being_fetched", "id", "inviter", "is_default", "is_general", "is_global_shared", "is_limited", "is_member", "is_moved", "is_private", "is_read_only", "is_required", "last_made_active", "last_msg_input", "last_read", "latest", "length", "member", "msgs", "name_normalized", "name", "needs_created_message", "needs_invited_message", "needs_joined_message", "never_needs_joined_msg", "note", "num_members", "old_name", "oldest_msg_ts", "opened_this_session", "parent_group", "pinned_items", "presence", "previous_names", "purpose", "scroll_top", "shared_team_ids", "team_url", "tooltip", "topic", "unread_count_display", "unread_count", "unread_highlight_cnt_in_client", "unread_highlights", "unreads", "user", "was_archived_this_session"];
   var known_harmless_get_keys = ["_is_interop_channel_object", "attributes", "children", "disabled", "is_broadcast_keyword", "is_divider", "is_emoji", "is_usergroup", "is_view", "nodeType", "old_name", "selector", "then", "title", "toJSON", "window"];
   var keys_to_update_in_redux_as_map = _.reduce(keys_to_update_in_redux, function(result, key) {
@@ -4885,6 +4885,7 @@
     }
     channel.oldest_msg_ts = TS.storage.fetchOldestTs(channel.id) || null;
     channel.last_msg_input = TS.storage.fetchLastMsgInput(channel.id) || null;
+    channel.has_draft = !!channel.last_msg_input;
     if (TS.model.created_channels[channel.name]) {
       channel.needs_created_message = true;
       delete TS.model.created_channels[channel.name];
@@ -6530,6 +6531,7 @@ TS.registerModule("constants", {
     }
     group.oldest_msg_ts = TS.storage.fetchOldestTs(group.id) || null;
     group.last_msg_input = TS.storage.fetchLastMsgInput(group.id) || null;
+    group.has_draft = !!group.last_msg_input;
     if (TS.model.created_groups[group.name]) {
       delete TS.model.created_groups[group.name];
     }
@@ -8066,7 +8068,7 @@ TS.registerModule("constants", {
     },
     reShareConfirmation: function(files, callback) {
       var file_owners = files.map(function(file) {
-        return TS.members.getMemberDisplayNameById(file.user, true);
+        return TS.members.getPrefCompliantMemberNameById(file.user, true);
       });
       file_owners = _.uniq(file_owners);
       var msg_title = TS.i18n.t("You’re about to share {file_count, plural, =1 {a private file} other {private files}}", "files")({
@@ -8830,6 +8832,7 @@ TS.registerModule("constants", {
     }
     im.oldest_msg_ts = TS.storage.fetchOldestTs(im.id) || null;
     im.last_msg_input = TS.storage.fetchLastMsgInput(im.id) || null;
+    im.has_draft = !!im.last_msg_input;
   };
 })();
 (function() {
@@ -9577,6 +9580,7 @@ TS.registerModule("constants", {
     }
     mpim_group.oldest_msg_ts = TS.storage.fetchOldestTs(mpim_group.id);
     mpim_group.last_msg_input = TS.storage.fetchLastMsgInput(mpim_group.id);
+    mpim_group.has_draft = !!mpim_group.last_msg_input;
   };
 })();
 (function() {
@@ -10439,7 +10443,7 @@ TS.registerModule("constants", {
       } else if (model_ob.is_im) {
         var escaped = false;
         var include_at_sign = true;
-        return TS.members.getMemberDisplayNameById(model_ob.user, escaped, include_at_sign);
+        return TS.members.getPrefCompliantMemberNameById(model_ob.user, escaped, include_at_sign);
       } else if (model_ob.is_group || model_ob.is_private) {
         return model_ob.name;
       } else if (model_ob.is_channel) {
@@ -10464,7 +10468,7 @@ TS.registerModule("constants", {
       } else if (model_ob.is_im) {
         var escaped = false;
         var include_at_sign = false;
-        return TS.members.getMemberDisplayNameById(model_ob.user, escaped, include_at_sign);
+        return TS.members.getPrefCompliantMemberNameById(model_ob.user, escaped, include_at_sign);
       } else if (model_ob.is_group || model_ob.is_channel) {
         return model_ob.name;
       }
@@ -10624,7 +10628,9 @@ TS.registerModule("constants", {
     moveLastMsgInput: function(from_channel, to_channel) {
       if (!from_channel.last_msg_input) return;
       to_channel.last_msg_input = from_channel.last_msg_input;
+      to_channel.has_draft = !!to_channel.last_msg_input;
       from_channel.last_msg_input = "";
+      from_channel.has_draft = !!from_channel.last_msg_input;
       TS.storage.storeLastMsgInput(from_channel.id, from_channel.last_msg_input);
       TS.storage.storeLastMsgInput(to_channel.id, to_channel.last_msg_input);
     },
@@ -12054,7 +12060,7 @@ TS.registerModule("constants", {
       var override = TS.model.prefs.display_real_names_override;
       return TS.model.team.prefs.display_real_names && override != -1 || override == 1;
     },
-    getMemberDisplayNameById: function(id, should_escape, include_at_sign) {
+    getPrefCompliantMemberNameById: function(id, should_escape, include_at_sign) {
       var member = TS.members.getKnownMemberById(id);
       return member ? TS.members.getMemberDisplayName(member, should_escape, include_at_sign) : id;
     },
@@ -13528,7 +13534,7 @@ TS.registerModule("constants", {
         template_args.username = app.config.username;
         template_args.custom_integration_type = app.config.custom_integration_type;
         template_args.date_created = app.config.date_created;
-        var creator_name = '<a class="bold member charcoal_grey" data-member-id=' + app.config.created_by + ">" + TS.members.getMemberDisplayNameById(app.config.created_by, true, true) + "</a>";
+        var creator_name = '<a class="bold member charcoal_grey" data-member-id=' + app.config.created_by + ">" + TS.members.getPrefCompliantMemberNameById(app.config.created_by, true, true) + "</a>";
         template_args.custom_integration_creator = new Handlebars.SafeString(creator_name);
       }
       if (_.get(app.config, "date_deleted") > 0 || _.get(app.auth, "revoked") === true) {
@@ -13554,7 +13560,7 @@ TS.registerModule("constants", {
       if (app.installation_summary) {
         var installation_summary = app.installation_summary.replace(/<@([A-Z0-9]+)>/g, function(match, user_id) {
           if (TS.members.getKnownMemberById(user_id)) {
-            return '<span class="app_card_member_link" data-member-profile-link=' + user_id + ">" + TS.members.getMemberDisplayNameById(user_id, true, true) + "</span>";
+            return '<span class="app_card_member_link" data-member-profile-link=' + user_id + ">" + TS.members.getPrefCompliantMemberNameById(user_id, true, true) + "</span>";
           }
           return '<span class="app_card_member_link" data-member-profile-link=' + user_id + ">A user</span>";
         });
@@ -14784,7 +14790,7 @@ TS.registerModule("constants", {
             if (field.value) {
               var value = "";
               field.value.split(/\s*,\s*/).some(function(id) {
-                value = TS.members.getMemberDisplayNameById(id, false);
+                value = TS.members.getPrefCompliantMemberNameById(id, false);
                 return value.match(start_regex) || value.match(suffix_regex);
               });
               if (match) {
@@ -21956,7 +21962,7 @@ TS.registerModule("constants", {
           var should_escape = true;
           var include_at_sign = true;
           var tooltip_names = all_rxners_but_newest.map(function(member_id) {
-            return TS.members.getMemberDisplayNameById(member_id, should_escape, include_at_sign);
+            return TS.members.getPrefCompliantMemberNameById(member_id, should_escape, include_at_sign);
           });
           var final_count = total_count - 1;
           rxn_members = TS.i18n.t('{user} & <span class="ts_tip ts_tip_multiline ts_tip_lazy ts_tip_top" title="{names}">{count, plural, =1 {# other} other {# others}}</span>', "rxn")({
@@ -23389,7 +23395,7 @@ TS.registerModule("constants", {
           if (TS.boot_data.feature_thanks) return TS.i18n.t("You", "rxn")() + subtitle;
           return TS.i18n.t("You (click to remove)", "rxn")() + subtitle;
         }
-        return _.escape(TS.members.getMemberDisplayNameById(args.member_ids[0], should_escape, include_at_sign)) + subtitle;
+        return _.escape(TS.members.getPrefCompliantMemberNameById(args.member_ids[0], should_escape, include_at_sign)) + subtitle;
       }
       var was_already_truncated = args.member_ids.length != args.count;
       var names = args.member_ids.map(function(id, index) {
@@ -23397,7 +23403,7 @@ TS.registerModule("constants", {
         if (TS.model.user.id === id) {
           name = index === 0 ? TS.i18n.t("You", "rxn")() : TS.i18n.t("you", "rxn")();
         } else {
-          name = TS.members.getMemberDisplayNameById(id, should_escape, include_at_sign);
+          name = TS.members.getPrefCompliantMemberNameById(id, should_escape, include_at_sign);
         }
         return name;
       });
@@ -23821,7 +23827,7 @@ TS.registerModule("constants", {
         } else if (id === TS.model.user.id) {
           participant_name = TS.i18n.t("you", "threads")();
         } else {
-          participant_name = TS.members.getMemberDisplayNameById(id);
+          participant_name = TS.members.getPrefCompliantMemberNameById(id);
         }
         return participant_name;
       });
@@ -24770,7 +24776,7 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("getDisplayNames", function(arr) {
         var names = arr.map(function(member_or_id) {
           var member_id = _.isString(member_or_id) ? member_or_id : member_or_id.id;
-          return TS.members.getMemberDisplayNameById(member_id, true, false);
+          return TS.members.getPrefCompliantMemberNameById(member_id, true, false);
         });
         return names;
       });
@@ -25949,14 +25955,14 @@ TS.registerModule("constants", {
         var member = TS.members.getKnownMemberById(id);
         return member ? member.name : id;
       });
+      Handlebars.registerHelper("getPrefCompliantMemberNameById", function(id) {
+        return TS.members.getPrefCompliantMemberNameById(id);
+      });
       Handlebars.registerHelper("getMemberNameNoModel", function(profile, username) {
         if (TS.boot_data.name_tagging_client) {
           return profile.display_name || profile.real_name || username;
         }
         return profile.real_name || username;
-      });
-      Handlebars.registerHelper("getMemberDisplayNameById", function(id) {
-        return TS.members.getMemberDisplayNameById(id);
       });
       Handlebars.registerHelper("getMemberDisplayName", function(member, should_escape, include_at_sign) {
         return TS.members.getMemberDisplayName(member, should_escape === true, include_at_sign === true);
@@ -29001,6 +29007,7 @@ TS.registerModule("constants", {
       if (_fetched_user_data_from_ls[model_ob.id]) return;
       if (!model_ob.last_msg_input) {
         model_ob.last_msg_input = TS.storage.fetchLastMsgInput(model_ob.id);
+        model_ob.has_draft = !!model_ob.last_msg_input;
         if (model_ob.last_msg_input && TS.pri) TS.log(667, 'Got last_msg_input for "' + model_ob.id + '": length = ' + (model_ob.last_msg_input.length || "unknown"));
       }
       _fetched_user_data_from_ls[model_ob.id] = true;
@@ -62881,7 +62888,7 @@ var _getMetaFieldForId = function(id, key) {
       } else if (model_ob.is_im) {
         if (TS.boot_data.feature_name_tagging_client) {
           name = TS.i18n.t("Direct message with {model_name}", "a11y")({
-            model_name: TS.members.getMemberDisplayNameById(model_ob.user)
+            model_name: TS.members.getPrefCompliantMemberNameById(model_ob.user)
           });
         } else {
           name = TS.i18n.t("Direct message with {model_name}", "a11y")({
@@ -86542,7 +86549,7 @@ var _getMetaFieldForId = function(id, key) {
       isMuted: n.i(_.isChannelMutedById)(e, r),
       isStarred: o.is_starred,
       hasUnreads: !!o.unread_cnt,
-      hasDraft: !!o.last_msg_input,
+      hasDraft: o.has_draft,
       isArchived: o.is_archived,
       isDeleted: o.is_im && o.deleted,
       displayName: o.name,
@@ -87183,6 +87190,11 @@ var _getMetaFieldForId = function(id, key) {
           }
         }
       }, {
+        key: "setListRef",
+        value: function(e) {
+          this.virtualList = e;
+        }
+      }, {
         key: "isEmojiSelected",
         value: function(e, t) {
           var n = this.props,
@@ -87279,11 +87291,6 @@ var _getMetaFieldForId = function(id, key) {
             key: o,
             style: i
           }, u);
-        }
-      }, {
-        key: "setListRef",
-        value: function(e) {
-          this.virtualList = e;
         }
       }, {
         key: "render",
