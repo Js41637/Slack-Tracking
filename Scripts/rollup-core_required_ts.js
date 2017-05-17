@@ -912,7 +912,6 @@
       TS.model.ms_logged_in_once = true;
       if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Holy guacamole, we're all done!");
       TS.info("User id: " + _.get(TS.boot_data, "user_id") + ", team id: " + _.get(TS.model, "team.id"));
-      return null;
     }).catch(function(err) {
       TS.error("_setUpModel failed with err: " + (err ? err.message : "no err provided"));
       TS.dir(err);
@@ -983,7 +982,6 @@
       }
       TS.incremental_boot.afterFullBoot();
       TS.info("Completed incremental boot");
-      return null;
     }).catch(function(err) {
       TS.error("Tried to finalize incremental boot, but rtm.start failed. Will recover when we reconnect.");
       throw err;
@@ -1076,7 +1074,6 @@
     } else {
       TS.error("_initialDataFetchesComplete expected to receive rtm.start data; we cannot continue.");
     }
-    return null;
   };
   var _logSessionLoadCount = function() {
     if (!window.sessionStorage) return;
@@ -1095,7 +1092,9 @@
   var _configureBluebirdBeforeFirstUse = function(boot_data) {
     Promise.config({
       longStackTraces: boot_data.version_ts === "dev" || TS.qs_args.js_path,
-      warnings: boot_data.version_ts === "dev" || TS.qs_args.js_path,
+      warnings: {
+        wForgottenReturn: false
+      },
       cancellation: true
     });
   };
@@ -4942,6 +4941,9 @@ var _cyrillicToLatin = function(char) {
       if (TS.client) TS.client.markLastReadsWithAPI();
       TS.model.window_unloading = true;
       TS.ui.window_unloaded_sig.dispatch();
+      if (TS.useRedux() || TS.useReactDownloads()) {
+        TS.redux.dispatch(window.Redux.Entities.Window.setUnloading(true));
+      }
     },
     maybeTickleMS: function() {
       if (!TS.client) return;
@@ -4975,6 +4977,9 @@ var _cyrillicToLatin = function(char) {
       TS.model.ui.is_window_focused = true;
       if (TS.view) TS.view.updateTitleBarColor();
       TS.ui.window_focus_changed_sig.dispatch(true);
+      if (TS.useRedux() || TS.useReactDownloads()) {
+        TS.redux.dispatch(window.Redux.Entities.Window.updateFocus(true));
+      }
     },
     onWindowBlur: function(e) {
       if (e.target !== window && e.target !== document) return;
@@ -4983,6 +4988,9 @@ var _cyrillicToLatin = function(char) {
       TS.model.insert_key_pressed = false;
       TS.model.ui.is_window_focused = false;
       TS.ui.window_focus_changed_sig.dispatch(false);
+      if (TS.useRedux() || TS.useReactDownloads()) {
+        TS.redux.dispatch(window.Redux.Entities.Window.updateFocus(false));
+      }
     },
     onWindowVisibilityChange: function(e) {
       if (document.visibilityState === "hidden") {

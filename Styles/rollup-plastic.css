@@ -15611,8 +15611,13 @@ html:not(.supports_flexbox) #im_browser_tokens .member_token {
 .channel_invite_pending_user_small {
   font-size: 14px;
   position: relative;
-  padding-left: 42px;
   height: 36px
+}
+
+body:not(.unify_user) .channel_invite_member,
+body:not(.unify_user) .channel_invite_member_small,
+body:not(.unify_user) .channel_invite_pending_user_small {
+  padding-left: 42px
 }
 
 .channel_invite_member .add_icon,
@@ -15641,12 +15646,12 @@ html:not(.supports_flexbox) #im_browser_tokens .member_token {
   color: #439fe0
 }
 
-.channel_invite_member .invite_user_group_avatar,
-.channel_invite_member .member_image,
-.channel_invite_member_small .invite_user_group_avatar,
-.channel_invite_member_small .member_image,
-.channel_invite_pending_user_small .invite_user_group_avatar,
-.channel_invite_pending_user_small .member_image {
+body:not(.unify_user) .channel_invite_member .invite_user_group_avatar,
+body:not(.unify_user) .channel_invite_member .member_image,
+body:not(.unify_user) .channel_invite_member_small .invite_user_group_avatar,
+body:not(.unify_user) .channel_invite_member_small .member_image,
+body:not(.unify_user) .channel_invite_pending_user_small .invite_user_group_avatar,
+body:not(.unify_user) .channel_invite_pending_user_small .member_image {
   margin-right: .5rem;
   position: absolute;
   left: 0;
@@ -15741,7 +15746,7 @@ html:not(.supports_flexbox) #im_browser_tokens .member_token {
   font-size: 22px
 }
 
-.channel_invite_member {
+body:not(.unify_user) .channel_invite_member {
   padding-left: 50px;
   height: 40px
 }
@@ -15926,6 +15931,14 @@ html:not(.supports_flexbox) #im_browser_tokens .member_token {
   padding: .625rem .75rem
 }
 
+body:not(.unify_user) #channel_invite_container.page_needs_enterprise .channel_invite_row {
+  height: 64px
+}
+
+.unify_user #channel_invite_container.page_needs_enterprise .channel_invite_row {
+  height: 58px
+}
+
 #channel_invite_container.page_needs_enterprise .channel_invite_row.disabled {
   cursor: default;
   color: #2780F8
@@ -15936,11 +15949,11 @@ html:not(.supports_flexbox) #im_browser_tokens .member_token {
   display: none
 }
 
-#channel_invite_container.page_needs_enterprise .channel_invite_row .channel_invite_member {
+body:not(.unify_user) #channel_invite_container.page_needs_enterprise .channel_invite_row .channel_invite_member {
   height: 42px
 }
 
-#channel_invite_container.page_needs_enterprise .channel_invite_row .channel_invite_member .member_image {
+body:not(.unify_user) #channel_invite_container.page_needs_enterprise .channel_invite_row .channel_invite_member .member_image {
   top: 3px
 }
 
@@ -17367,11 +17380,10 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 
 .c-member--medium {
   position: relative;
-  margin: 12px 12px 20px;
   font-size: 15px;
   color: #717274;
   font-weight: 400;
-  height: 42px
+  height: 36px
 }
 
 .c-member__name--medium,
@@ -17382,7 +17394,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
-  margin-bottom: 2px;
+  padding-bottom: 2px;
   padding-left: 12px
 }
 
@@ -17390,8 +17402,20 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   color: #2C2D30
 }
 
+.c-member--medium .presence {
+  color: #717274;
+  margin: 0;
+  width: 24px;
+  height: 18px
+}
+
 .c-member--medium .presence .presence_icon {
-  margin-left: .25rem
+  margin: 0 .25rem;
+  font-size: 20px;
+  line-height: .4;
+  top: 0;
+  left: 0;
+  position: relative
 }
 
 .c-member--medium .member_image {
