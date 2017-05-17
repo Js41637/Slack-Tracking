@@ -3632,7 +3632,7 @@
   var _redux_set_counts = {};
   var _redux_did_warn_about_key = {};
   var _logUnknownModelObKeyAccess = function(immediate_caller, stack, key) {
-    var UNKNOWN_MODEL_KEY_ACCESS_VERSION = 6;
+    var UNKNOWN_MODEL_KEY_ACCESS_VERSION = 7;
     TS.metrics.count("redux_unknown_model_key_access_v" + UNKNOWN_MODEL_KEY_ACCESS_VERSION);
     var info = {
       message: "Getting or setting an unknown key on a model object, key:" + key + ". Immediate caller: " + immediate_caller,
@@ -3669,8 +3669,8 @@
     TS.redux.dispatch(window.Redux.Entities.Channels.updateOneKeyForChannel(update));
   };
   var keys_to_update_in_redux = ["deleted", "is_archived", "is_channel", "is_group", "is_im", "is_mpim", "is_open", "is_org_shared", "is_self_im", "is_shared", "is_slackbot_im", "is_starred", "members", "priority", "unread_cnt", "unread_highlight_cnt"];
-  var model_ob_keys = ["_archive_msgs", "_checking_at_channel_status", "_consistency_has_been_checked", "_consistency_is_being_checked", "_delayed_fetch_timer", "_did_defer_initial_msg_history", "_display_name_lc", "_display_name_truncated", "_display_name", "_has_auto_scrolled", "_history_fetched_since_last_connect", "_i18n_ns", "_internal_name", "_jumper_previous_name_match", "_latest_via_users_counts", "_mark_most_recent_read_timer", "_marked_reason", "_members", "_mention_count_display_via_users_counts", "_msgs_to_merge_on_history", "_name_lc", "_needs_unread_recalc", "_prev_last_read", "_score", "_show_in_list_even_though_no_unreads", "_temp_last_read", "_temp_unread_cnt", "_users_counts_info", "active_members", "create_channel", "created", "creator", "enterprise_id", "fetched_history_after_scrollback_time", "has_fetched_history_after_scrollback", "has_pins", "history_changed", "history_fetch_failed", "history_fetch_retries", "history_is_being_fetched", "id", "inviter", "is_default", "is_general", "is_global_shared", "is_limited", "is_member", "is_moved", "is_private", "is_read_only", "is_required", "last_made_active", "last_msg_input", "last_read", "latest", "length", "msgs", "name_normalized", "name", "needs_created_message", "needs_invited_message", "needs_joined_message", "never_needs_joined_msg", "old_name", "oldest_msg_ts", "opened_this_session", "parent_group", "pinned_items", "presence", "previous_names", "purpose", "scroll_top", "shared_team_ids", "team_url", "tooltip", "topic", "unread_count_display", "unread_count", "unread_highlight_cnt_in_client", "unread_highlights", "unreads", "user", "was_archived_this_session"];
-  var known_harmless_get_keys = ["_i18n_ns_history", "_is_interop_channel_object", "attributes", "children", "disabled", "is_broadcast_keyword", "is_divider", "is_emoji", "is_usergroup", "is_view", "nodeType", "note", "old_name", "selector", "then", "title", "toJSON", "window"];
+  var model_ob_keys = ["_archive_msgs", "_checking_at_channel_status", "_consistency_has_been_checked", "_consistency_is_being_checked", "_delayed_fetch_timer", "_did_defer_initial_msg_history", "_display_name_lc", "_display_name_truncated", "_display_name", "_has_auto_scrolled", "_history_fetched_since_last_connect", "_i18n_ns_history", "_i18n_ns", "_internal_name", "_jumper_previous_name_match", "_latest_via_users_counts", "_mark_most_recent_read_timer", "_marked_reason", "_members", "_mention_count_display_via_users_counts", "_msgs_to_merge_on_history", "_name_lc", "_needs_unread_recalc", "_prev_last_read", "_score", "_show_in_list_even_though_no_unreads", "_temp_last_read", "_temp_unread_cnt", "_users_counts_info", "active_members", "create_channel", "created", "creator", "date_created", "enterprise_id", "fetched_history_after_scrollback_time", "has_fetched_history_after_scrollback", "has_pins", "history_changed", "history_fetch_failed", "history_fetch_retries", "history_is_being_fetched", "id", "inviter", "is_default", "is_general", "is_global_shared", "is_limited", "is_member", "is_moved", "is_private", "is_read_only", "is_required", "last_made_active", "last_msg_input", "last_read", "latest", "length", "member", "msgs", "name_normalized", "name", "needs_created_message", "needs_invited_message", "needs_joined_message", "never_needs_joined_msg", "note", "num_members", "old_name", "oldest_msg_ts", "opened_this_session", "parent_group", "pinned_items", "presence", "previous_names", "purpose", "scroll_top", "shared_team_ids", "team_url", "tooltip", "topic", "unread_count_display", "unread_count", "unread_highlight_cnt_in_client", "unread_highlights", "unreads", "user", "was_archived_this_session"];
+  var known_harmless_get_keys = ["_is_interop_channel_object", "attributes", "children", "disabled", "is_broadcast_keyword", "is_divider", "is_emoji", "is_usergroup", "is_view", "nodeType", "old_name", "selector", "then", "title", "toJSON", "window"];
   var keys_to_update_in_redux_as_map = _.reduce(keys_to_update_in_redux, function(result, key) {
     result[key] = true;
     return result;
@@ -8527,7 +8527,7 @@ TS.registerModule("constants", {
       return TS.members.getMemberDisplayName(TS.members.getKnownMemberById(im.user));
     },
     getDisplayNameOfUserForImLowerCase: function(im) {
-      return TS.members.getMemberDisplayNameLowerCase(TS.members.getKnownMemberById(im.user));
+      return TS.members.getPrefCompliantMemberNameLowerCase(TS.members.getKnownMemberById(im.user));
     },
     getImByUsername: function(name) {
       var member = TS.members.getMemberByName(name);
@@ -12003,7 +12003,7 @@ TS.registerModule("constants", {
       }();
       return should_escape ? _.escape(unescaped_display_name) : unescaped_display_name;
     },
-    getMemberDisplayNameLowerCase: function(member, should_escape) {
+    getPrefCompliantMemberNameLowerCase: function(member, should_escape) {
       if (!member) return "NO MEMBER??";
       if (!TS.model.team) return member._name_lc;
       if (TS.members.shouldDisplayRealNames()) {
@@ -12113,8 +12113,8 @@ TS.registerModule("constants", {
         if (a.presence === "active") return -1;
         if (b.presence === "active") return 1;
       }
-      var a_srt = TS.members.getMemberDisplayNameLowerCase(a);
-      var b_srt = TS.members.getMemberDisplayNameLowerCase(b);
+      var a_srt = TS.members.getPrefCompliantMemberNameLowerCase(a);
+      var b_srt = TS.members.getPrefCompliantMemberNameLowerCase(b);
       if (a_srt < b_srt) return -1;
       if (a_srt > b_srt) return 1;
       return 0;
@@ -12130,8 +12130,8 @@ TS.registerModule("constants", {
         if (!a_bot) return -1;
         if (!b_bot) return 1;
       }
-      var a_srt = TS.members.getMemberDisplayNameLowerCase(a);
-      var b_srt = TS.members.getMemberDisplayNameLowerCase(b);
+      var a_srt = TS.members.getPrefCompliantMemberNameLowerCase(a);
+      var b_srt = TS.members.getPrefCompliantMemberNameLowerCase(b);
       if (a_srt < b_srt) return -1;
       if (a_srt > b_srt) return 1;
       return 0;
@@ -12144,7 +12144,7 @@ TS.registerModule("constants", {
       return 0;
     },
     getMemberNameForSort: function(member) {
-      return TS.members.getMemberDisplayNameLowerCase(member);
+      return TS.members.getPrefCompliantMemberNameLowerCase(member);
     },
     prepareMembersForLS: function() {
       var new_members = [];
@@ -12521,13 +12521,14 @@ TS.registerModule("constants", {
   var _users_info_api_max_users = 250;
   var _flannel_max_users = 100;
   var _get_member_by_id_warned_for_caller = {};
+  var _persistent_unknown_member_timers = {};
   var _immediate_caller_return_unknown_whitelist = ["makeMemberPreviewLinkImage", "allUnknownUsersInMessage", "getMemberFromMemberMarkup", "makeMemberPreviewCardLinkImageBackground", "makeMemberPreviewCardLinkImageBackground", "_rebuildChannelDetails", "formatMessageByType", "makeMemberPreviewCardLinkImage", "updateFileComment", "appendFileComment", "buildComments", "rebuildFilePreview", "getEntityFromMessage", "_rebuildSharedFiles", "_rebuildConversationDetails", "pinnedItemHtml", "buildSHRoomAttachment"];
   var _ensureMember = function(member_or_id) {
     return _.isString(member_or_id) ? TS.members.getKnownMemberById(member_or_id) : member_or_id;
   };
   var _maybeSetMemberKnown = function(member) {
     if (!TS.boot_data.feature_unknown_members) return;
-    var was_unknown = member ? member._is_unknown : false;
+    var was_unknown = member ? member.is_unknown : false;
     if (member && member.is_unknown) member.is_unknown = false;
     if (TS.members.getKnownMemberById(member.name)) {
       member = TS.members.getKnownMemberById(member.name);
@@ -12535,7 +12536,10 @@ TS.registerModule("constants", {
       if (member.is_unknown) member.is_unknown = false;
       TS.members.changed_name_sig.dispatch(member);
     }
-    if (was_unknown) TS.statsd.measure("unknown_member_resolution_timing", "unknown_member_resolution_timing_" + member.id);
+    if (_persistent_unknown_member_timers[member.id]) {
+      clearTimeout(_persistent_unknown_member_timers[member.id]);
+      if (was_unknown) TS.statsd.measure("unknown_member_resolution_timing", "unknown_member_resolution_timing_" + member.id);
+    }
     _.pull(_unknown_member_ids, member.id);
   };
   var _maybeSetMemberColor = function(member) {
@@ -12929,6 +12933,10 @@ TS.registerModule("constants", {
     member.is_unknown = true;
     member.is_non_existent = false;
     _setImagesForUnknownMember(member);
+    _persistent_unknown_member_timers[id] = setTimeout(function() {
+      TS.metrics.count("unknown_member_persistence_timeout");
+      TS.statsd.measure("unknown_member_resolution_timing", "unknown_member_resolution_timing_" + member.id);
+    }, 6e4);
     TS.statsd.mark("unknown_member_resolution_timing_" + id);
     return member;
   };
@@ -13056,19 +13064,19 @@ TS.registerModule("constants", {
   "use strict";
   TS.registerModule("pending_users", {
     sanitizeNameFields: function(invitee) {
-      if (!invitee.invite_prefs || invitee.invite_prefs.full_name) return;
+      if (!invitee.invite_prefs || invitee.invite_prefs.real_name) return;
       var prefs = invitee.invite_prefs;
       if (prefs.first_name && prefs.last_name) {
-        prefs.full_name = [prefs.first_name, prefs.last_name].join(" ").trim();
+        prefs.real_name = [prefs.first_name, prefs.last_name].join(" ").trim();
       } else if (prefs.first_name) {
-        prefs.full_name = prefs.first_name;
+        prefs.real_name = prefs.first_name;
       } else if (prefs.last_name) {
-        prefs.full_name = prefs.last_name;
+        prefs.real_name = prefs.last_name;
       }
     },
     getUserNameForSort: function(invitee) {
-      if (invitee.invite_prefs && invitee.invite_prefs.full_name) {
-        return invitee.invite_prefs.full_name.toLowerCase();
+      if (invitee.invite_prefs && invitee.invite_prefs.real_name) {
+        return invitee.invite_prefs.real_name.toLowerCase();
       }
       return invitee.email;
     },
@@ -13081,7 +13089,7 @@ TS.registerModule("constants", {
       });
     },
     checkUserMatch: function(invitee, regex) {
-      return invitee.invite_prefs && invitee.invite_prefs.full_name && invitee.invite_prefs.full_name.match(regex) || invitee.email.match(regex);
+      return invitee.invite_prefs && invitee.invite_prefs.real_name && invitee.invite_prefs.real_name.match(regex) || invitee.email.match(regex);
     },
     invitePendingUsersToChannel: function(invitees, channel_id) {
       if (!channel_id || !invitees || !invitees.length) return;
@@ -15755,6 +15763,10 @@ TS.registerModule("constants", {
           onEscape: function() {
             TS.utility.contenteditable.blur(TS.search.input);
             TS.search.autocomplete.triggerInputEvent("on-escape");
+          },
+          onTab: function() {
+            TS.search.autocomplete.triggerInputEvent("on-tab");
+            return false;
           }
         });
       }
@@ -25837,6 +25849,12 @@ TS.registerModule("constants", {
         var member = TS.members.getKnownMemberById(id);
         return member ? member.name : id;
       });
+      Handlebars.registerHelper("getMemberNameNoModel", function(profile, username) {
+        if (TS.boot_data.name_tagging_client) {
+          return profile.display_name || profile.real_name || username;
+        }
+        return profile.real_name || username;
+      });
       Handlebars.registerHelper("getMemberDisplayNameById", function(id) {
         return TS.members.getMemberDisplayNameById(id);
       });
@@ -27660,6 +27678,13 @@ TS.registerModule("constants", {
         years: years,
         days: days
       });
+    },
+    addDays: function(ts, days) {
+      if (ts === 0 || !ts) return 0;
+      var date = TS.utility.date.toDateObject(ts);
+      date.setDate(date.getDate() + days);
+      var milliseconds = Math.floor(date.getTime() / 1e3);
+      return milliseconds;
     },
     test: function() {
       return {
@@ -32848,11 +32873,14 @@ TS.registerModule("constants", {
     var display_name = "@" + m.name;
     var target;
     if (TS.boot_data.feature_texty_mentions) {
-      if (tsf_mode === "EDIT") {
-        return "@" + m.name;
-      }
       if (TS.boot_data.feature_name_tagging_client) {
         display_name = TS.members.getMemberDisplayName(m, true, true);
+      }
+      if (tsf_mode === "EDIT") {
+        if (TS.boot_data.feature_name_tagging_client) {
+          return "<@" + m.id + "|" + display_name + ">";
+        }
+        return "@" + m.name;
       }
       if (tsf_mode === "GROWL" || !TS.permissions.members.canUserSeeMember(m)) {
         return display_name;
@@ -32888,6 +32916,9 @@ TS.registerModule("constants", {
     var cmd = cmd_A[0].substr(1);
     if (_.includes(_at_commands, cmd)) {
       if (tsf_mode === "GROWL" || tsf_mode === "EDIT" || no_linking) {
+        if (tsf_mode === "EDIT" && TS.boot_data.feature_name_tagging_client) {
+          return "<@BK" + cmd + "|@" + cmd + ">";
+        }
         return "@" + cmd;
       }
       return '<b class="mention">@' + cmd + "</b>";
@@ -32908,13 +32939,16 @@ TS.registerModule("constants", {
       } else if (cmd === "subteam" && cmd_args.length === 1) {
         var ug = TS.user_groups.getUserGroupsById(cmd_args[0]);
         if (ug && ug.handle) {
-          if (tsf_mode === "GROWL" || tsf_mode === "EDIT") {
-            return "@" + ug.handle;
-          }
           var target = TS.utility.shouldLinksHaveTargets() ? 'target="/usergroups/' + ug.id + '" ' : " ";
           var handle = _.escape(ug.handle);
-          var display_name = no_highlights ? "@" + handle : _doHighlighting("@" + handle);
+          var display_name = no_highlights || tsf_mode === "EDIT" ? "@" + handle : _doHighlighting("@" + handle);
           var classes = ["internal_user_group_link"];
+          if (tsf_mode === "GROWL" || tsf_mode === "EDIT") {
+            if (tsf_mode === "EDIT" && TS.boot_data.feature_name_tagging_client) {
+              return "<@" + ug.id + "|" + display_name + ">";
+            }
+            return "@" + ug.handle;
+          }
           if (no_linking) {
             return display_name;
           }
@@ -33018,55 +33052,86 @@ TS.registerModule("constants", {
         replace_code: true
       });
     }
-    txt = txt.replace(_at_mention_rx, function(match, boundry, at_member_id, member_id, offset) {
-      if (boundry === "/" && _isPartOfUrl(txt, match, offset)) return match;
-      var extra = "";
-      var lc = at_member_id.toLowerCase();
-      var cmd;
-      if (/^@everyone[.|\-|_]*$/.test(lc)) {
-        cmd = "<!everyone>";
-        extra = lc.substr("!everyone".length);
-      } else if (/^@here[.|\-|_]*$/.test(lc)) {
-        cmd = "<!here|@here>";
-        extra = lc.substr("!here".length);
-      } else if (/^@channel[.|\-|_]*$/.test(lc)) {
-        cmd = "<!channel>";
-        extra = lc.substr("!channel".length);
-      } else if (/^@group[.|\-|_]*$/.test(lc)) {
-        cmd = "<!group>";
-        extra = lc.substr("!group".length);
-      }
-      if (cmd) {
-        return boundry + cmd + extra;
-      }
-      var lookupByName = TS.members.getMemberByName;
-      if (TS.boot_data.feature_shared_channels_client) {
-        lookupByName = function(member) {
-          return TS.members.getMemberByNameAndTeamId(member, TS.model.team.id);
-        };
-      }
-      var valid = _validateModelObByIdOrName(TS.members.getKnownMemberById, member_id, lookupByName, at_member_id);
-      if (valid.model_ob) {
-        var member_identifier;
-        if (options.human_readable) {
-          member_identifier = "@" + valid.model_ob.name;
-        } else {
-          member_identifier = "<@" + valid.model_ob.id + ">";
+    if (TS.boot_data.feature_name_tagging_client) {
+      var contents = TS.format.texty.convertContentsStringToContents(txt);
+      txt = _.reduce(contents.contents, function(result, op) {
+        if (op.attributes && op.attributes.slackmention) {
+          var mention_id = op.attributes.slackmention.id;
+          if (mention_id === "BKeveryone") {
+            return result + "<!everyone>";
+          } else if (mention_id === "BKhere") {
+            return result + "<!here>";
+          } else if (mention_id === "BKchannel") {
+            return result + "<!channel>";
+          } else if (mention_id === "BKgroup") {
+            return result + "<!group>";
+          }
+          if (mention_id.charAt(0) === "S") {
+            var user_group = TS.user_groups.getUserGroupsById(mention_id);
+            if (user_group) {
+              return result + "<!subteam^" + user_group.id + "|@" + user_group.handle + ">";
+            }
+            return result + op.attributes.slackmention.label;
+          }
+          var model_ob = TS.members.getKnownMemberById(mention_id);
+          if (model_ob) {
+            return result + "<@" + model_ob.id + ">";
+          }
+          return result + op.attributes.slackmention.label;
         }
-        return boundry + member_identifier + valid.extra;
-      }
-      valid = _validateModelObByIdOrName(TS.user_groups.getUserGroupsById, member_id, TS.user_groups.getUserGroupsByHandle, at_member_id);
-      if (valid.model_ob) {
-        var usergroup_identifier;
-        if (options.human_readable) {
-          usergroup_identifier = "@" + valid.model_ob.handle;
-        } else {
-          usergroup_identifier = "<!subteam^" + valid.model_ob.id + "|@" + valid.model_ob.handle + ">";
+        return result + op.insert;
+      }, "");
+    } else {
+      txt = txt.replace(_at_mention_rx, function(match, boundry, at_member_id, member_id, offset) {
+        if (boundry === "/" && _isPartOfUrl(txt, match, offset)) return match;
+        var extra = "";
+        var lc = at_member_id.toLowerCase();
+        var cmd;
+        if (/^@everyone[.|\-|_]*$/.test(lc)) {
+          cmd = "<!everyone>";
+          extra = lc.substr("!everyone".length);
+        } else if (/^@here[.|\-|_]*$/.test(lc)) {
+          cmd = "<!here|@here>";
+          extra = lc.substr("!here".length);
+        } else if (/^@channel[.|\-|_]*$/.test(lc)) {
+          cmd = "<!channel>";
+          extra = lc.substr("!channel".length);
+        } else if (/^@group[.|\-|_]*$/.test(lc)) {
+          cmd = "<!group>";
+          extra = lc.substr("!group".length);
         }
-        return boundry + usergroup_identifier + valid.extra;
-      }
-      return boundry + at_member_id;
-    });
+        if (cmd) {
+          return boundry + cmd + extra;
+        }
+        var lookupByName = TS.members.getMemberByName;
+        if (TS.boot_data.feature_shared_channels_client) {
+          lookupByName = function(member) {
+            return TS.members.getMemberByNameAndTeamId(member, TS.model.team.id);
+          };
+        }
+        var valid = _validateModelObByIdOrName(TS.members.getKnownMemberById, member_id, lookupByName, at_member_id);
+        if (valid.model_ob) {
+          var member_identifier;
+          if (options.human_readable) {
+            member_identifier = "@" + valid.model_ob.name;
+          } else {
+            member_identifier = "<@" + valid.model_ob.id + ">";
+          }
+          return boundry + member_identifier + valid.extra;
+        }
+        valid = _validateModelObByIdOrName(TS.user_groups.getUserGroupsById, member_id, TS.user_groups.getUserGroupsByHandle, at_member_id);
+        if (valid.model_ob) {
+          var usergroup_identifier;
+          if (options.human_readable) {
+            usergroup_identifier = "@" + valid.model_ob.handle;
+          } else {
+            usergroup_identifier = "<!subteam^" + valid.model_ob.id + "|@" + valid.model_ob.handle + ">";
+          }
+          return boundry + usergroup_identifier + valid.extra;
+        }
+        return boundry + at_member_id;
+      });
+    }
     txt = txt.replace(_channel_name_rx, function(match, boundry, hash_channel_id, channel_id, offset) {
       if (boundry === "/" && _isPartOfUrl(txt, match, offset)) return match;
       var valid = _validateModelObByIdOrName(TS.channels.getChannelById, hash_channel_id.substr(1), TS.channels.getChannelByName, hash_channel_id);
@@ -33088,6 +33153,15 @@ TS.registerModule("constants", {
       txt = TSFEmoji.translateEmojiStringToCanonical(txt, TS.i18n.locale());
     }
     if (TS.boot_data.feature_ignore_code_mentions) {
+      if (TS.boot_data.feature_name_tagging_client) {
+        replace_contents_map = replace_contents_map.map(function(item) {
+          var contents = TS.format.texty.convertContentsStringToContents(item.str);
+          item.str = _.reduce(contents.contents, function(result, op) {
+            return result + op.insert;
+          }, "");
+          return item;
+        });
+      }
       txt = TSF.swapOutPlaceholders(replace_contents_map, txt);
     }
     return txt;
@@ -40872,7 +40946,12 @@ var _on_esc;
       if (!TS.boot_data.feature_texty_takes_over || !TS.utility.contenteditable.supportsTexty()) TSSSB.call("inputFieldCreated", input.get(0));
       form.bind("submit", function(e) {
         e.preventDefault();
-        var edited_text = TS.utility.contenteditable.value(input);
+        var edited_text;
+        if (TS.boot_data.feature_name_tagging_client) {
+          edited_text = TS.utility.contenteditable.getContentsAsString(input);
+        } else {
+          edited_text = TS.utility.contenteditable.value(input);
+        }
         if (edited_text === original_msg_text) {
           TS.msg_edit.onCancelEdit();
           return;
@@ -58031,8 +58110,27 @@ var _getMetaFieldForId = function(id, key) {
         return input.value;
       } else if (_isTextyElement(input)) {
         var texty = _getTextyInstance(input);
-        if (_.isString(value)) texty.setText(value);
+        if (_.isString(value)) {
+          if (TS.boot_data.feature_name_tagging_client) {
+            texty.setContents(TS.format.texty.convertContentsStringToContents(value));
+          } else {
+            texty.setText(value);
+          }
+        } else if (_.isObject(value)) {
+          texty.setContents(value);
+        }
         return texty.getText();
+      }
+      return "";
+    },
+    getContentsAsString: function(input) {
+      input = _normalizeInput(input);
+      if (!input) return "";
+      if (_isFormElement(input)) {
+        return input.value;
+      } else if (_isTextyElement(input)) {
+        var texty = _getTextyInstance(input);
+        return TS.format.texty.convertContentsToString(texty.getContents());
       }
       return "";
     },
@@ -64737,9 +64835,10 @@ var _getMetaFieldForId = function(id, key) {
           t[Fr] = M(e.match(/\d\d?/)[0], 10);
         });
         var Co = W("Date", !0);
-        q("DDD", ["DDDD", 3], "DDDo", "dayOfYear"), I("dayOfYear", "DDD"), N("dayOfYear", 4), X("DDD", /\d{1,3}/), X("DDDD", /\d{3}/), ne(["DDD", "DDDD"], function(e, t, n) {
-          n._dayOfYear = M(e);
-        }), q("m", ["mm", 2], 0, "minute"), I("minute", "m"), N("minute", 14), X("m", /\d\d?/), X("mm", /\d\d?/, /\d\d/), ne(["m", "mm"], Gr);
+        q("DDD", ["DDDD", 3], "DDDo", "dayOfYear"),
+          I("dayOfYear", "DDD"), N("dayOfYear", 4), X("DDD", /\d{1,3}/), X("DDDD", /\d{3}/), ne(["DDD", "DDDD"], function(e, t, n) {
+            n._dayOfYear = M(e);
+          }), q("m", ["mm", 2], 0, "minute"), I("minute", "m"), N("minute", 14), X("m", /\d\d?/), X("mm", /\d\d?/, /\d\d/), ne(["m", "mm"], Gr);
         var Po = W("Minutes", !1);
         q("s", ["ss", 2], 0, "second"), I("second", "s"), N("second", 15), X("s", /\d\d?/), X("ss", /\d\d?/, /\d\d/), ne(["s", "ss"], Br);
         var Eo = W("Seconds", !1);
@@ -64766,8 +64865,7 @@ var _getMetaFieldForId = function(id, key) {
         var Oo = W("Milliseconds", !1);
         q("z", 0, 0, "zoneAbbr"), q("zz", 0, 0, "zoneName");
         var Ro = v.prototype;
-        Ro.add = Yo, Ro.calendar = Jt, Ro.clone = Kt, Ro.diff = nn, Ro.endOf = mn, Ro.format = un, Ro.from = ln, Ro.fromNow = cn, Ro.to = dn, Ro.toNow = fn, Ro.get = G, Ro.invalidAt = Tn, Ro.isAfter = $t, Ro.isBefore = Qt, Ro.isBetween = Xt, Ro.isSame = Zt, Ro.isSameOrAfter = en, Ro.isSameOrBefore = tn, Ro.isValid = kn, Ro.lang = Do, Ro.locale = pn, Ro.localeData = hn, Ro.max = wo, Ro.min = Mo, Ro.parsingFlags = Ln, Ro.set = B, Ro.startOf = _n, Ro.subtract = xo, Ro.toArray = bn, Ro.toObject = Mn, Ro.toDate = gn, Ro.toISOString = an, Ro.inspect = sn, Ro.toJSON = wn, Ro.toString = on, Ro.unix = vn, Ro.valueOf = yn, Ro.creationData = Sn, Ro.year = to, Ro.isLeapYear = ve, Ro.weekYear = xn, Ro.isoWeekYear = Dn, Ro.quarter = Ro.quarters = On, Ro.month = de, Ro.daysInMonth = fe, Ro.week = Ro.weeks = xe, Ro.isoWeek = Ro.isoWeeks = De,
-          Ro.weeksInYear = Pn, Ro.isoWeeksInYear = Cn, Ro.date = Co, Ro.day = Ro.days = Ae, Ro.weekday = He, Ro.isoWeekday = Ne, Ro.dayOfYear = Rn, Ro.hour = Ro.hours = co, Ro.minute = Ro.minutes = Po, Ro.second = Ro.seconds = Eo, Ro.millisecond = Ro.milliseconds = Oo, Ro.utcOffset = Ct, Ro.utc = Et, Ro.local = jt, Ro.parseZone = Ot, Ro.hasAlignedHourOffset = Rt, Ro.isDST = It, Ro.isLocal = Ht, Ro.isUtcOffset = Nt, Ro.isUtc = zt, Ro.isUTC = zt, Ro.zoneAbbr = An, Ro.zoneName = Hn, Ro.dates = L("dates accessor is deprecated. Use date instead.", Co), Ro.months = L("months accessor is deprecated. Use month instead", de), Ro.years = L("years accessor is deprecated. Use year instead", to), Ro.zone = L("moment().zone is deprecated, use moment().utcOffset instead. http://momentjs.com/guides/#/warnings/zone/", Pt), Ro.isDSTShifted = L("isDSTShifted is deprecated. See http://momentjs.com/guides/#/warnings/dst-shifted/ for more information", At);
+        Ro.add = Yo, Ro.calendar = Jt, Ro.clone = Kt, Ro.diff = nn, Ro.endOf = mn, Ro.format = un, Ro.from = ln, Ro.fromNow = cn, Ro.to = dn, Ro.toNow = fn, Ro.get = G, Ro.invalidAt = Tn, Ro.isAfter = $t, Ro.isBefore = Qt, Ro.isBetween = Xt, Ro.isSame = Zt, Ro.isSameOrAfter = en, Ro.isSameOrBefore = tn, Ro.isValid = kn, Ro.lang = Do, Ro.locale = pn, Ro.localeData = hn, Ro.max = wo, Ro.min = Mo, Ro.parsingFlags = Ln, Ro.set = B, Ro.startOf = _n, Ro.subtract = xo, Ro.toArray = bn, Ro.toObject = Mn, Ro.toDate = gn, Ro.toISOString = an, Ro.inspect = sn, Ro.toJSON = wn, Ro.toString = on, Ro.unix = vn, Ro.valueOf = yn, Ro.creationData = Sn, Ro.year = to, Ro.isLeapYear = ve, Ro.weekYear = xn, Ro.isoWeekYear = Dn, Ro.quarter = Ro.quarters = On, Ro.month = de, Ro.daysInMonth = fe, Ro.week = Ro.weeks = xe, Ro.isoWeek = Ro.isoWeeks = De, Ro.weeksInYear = Pn, Ro.isoWeeksInYear = Cn, Ro.date = Co, Ro.day = Ro.days = Ae, Ro.weekday = He, Ro.isoWeekday = Ne, Ro.dayOfYear = Rn, Ro.hour = Ro.hours = co, Ro.minute = Ro.minutes = Po, Ro.second = Ro.seconds = Eo, Ro.millisecond = Ro.milliseconds = Oo, Ro.utcOffset = Ct, Ro.utc = Et, Ro.local = jt, Ro.parseZone = Ot, Ro.hasAlignedHourOffset = Rt, Ro.isDST = It, Ro.isLocal = Ht, Ro.isUtcOffset = Nt, Ro.isUtc = zt, Ro.isUTC = zt, Ro.zoneAbbr = An, Ro.zoneName = Hn, Ro.dates = L("dates accessor is deprecated. Use date instead.", Co), Ro.months = L("months accessor is deprecated. Use month instead", de), Ro.years = L("years accessor is deprecated. Use year instead", to), Ro.zone = L("moment().zone is deprecated, use moment().utcOffset instead. http://momentjs.com/guides/#/warnings/zone/", Pt), Ro.isDSTShifted = L("isDSTShifted is deprecated. See http://momentjs.com/guides/#/warnings/dst-shifted/ for more information", At);
         var Io = D.prototype;
         Io.calendar = C, Io.longDateFormat = P, Io.invalidDate = E, Io.ordinal = j, Io.preparse = Wn, Io.postformat = Wn, Io.relativeTime = O, Io.pastFuture = R, Io.set = Y, Io.months = ae, Io.monthsShort = se, Io.monthsParse = le, Io.monthsRegex = he, Io.monthsShortRegex = pe, Io.week = Te, Io.firstDayOfYear = Ye, Io.firstDayOfWeek = Se, Io.weekdays = Ee, Io.weekdaysMin = Oe, Io.weekdaysShort = je, Io.weekdaysParse = Ie, Io.weekdaysRegex = ze, Io.weekdaysShortRegex = We, Io.weekdaysMinRegex = Fe, Io.isPM = Je, Io.meridiem = Ke, Ze("en", {
           ordinalParse: /\d{1,2}(th|st|nd|rd)/,
@@ -68618,9 +68716,10 @@ var _getMetaFieldForId = function(id, key) {
               return t;
             }(function(e) {
               var t = [];
-              return Yt.test(e) && t.push(""), e.replace(/[^.[\]]+|\[(?:(-?\d+(?:\.\d+)?)|(["'])((?:(?!\2)[^\\]|\\.)*?)\2)\]|(?=(?:\.|\[\])(?:\.|\[\]|$))/g, function(e, n, r, o) {
-                t.push(r ? o.replace(/\\(\\)?/g, "$1") : n || e);
-              }), t;
+              return Yt.test(e) && t.push(""),
+                e.replace(/[^.[\]]+|\[(?:(-?\d+(?:\.\d+)?)|(["'])((?:(?!\2)[^\\]|\\.)*?)\2)\]|(?=(?:\.|\[\])(?:\.|\[\]|$))/g, function(e, n, r, o) {
+                  t.push(r ? o.replace(/\\(\\)?/g, "$1") : n || e);
+                }), t;
             }),
             Yd = Qr(function(e, t) {
               return Fs(e) ? nr(e, sr(t, 1, Fs, !0)) : [];
@@ -82803,8 +82902,7 @@ var _getMetaFieldForId = function(id, key) {
         key: "componentWillMount",
         value: function() {
           var e = this.props.getScrollbarSize;
-          this._scrollbarSize = e(), void 0 === this._scrollbarSize ? (this._scrollbarSizeMeasured = !1, this._scrollbarSize = 0) : this._scrollbarSizeMeasured = !0,
-            this._calculateChildrenToRender();
+          this._scrollbarSize = e(), void 0 === this._scrollbarSize ? (this._scrollbarSizeMeasured = !1, this._scrollbarSize = 0) : this._scrollbarSizeMeasured = !0, this._calculateChildrenToRender();
         }
       }, {
         key: "componentWillUnmount",
@@ -86489,7 +86587,7 @@ var _getMetaFieldForId = function(id, key) {
   function r(e) {
     var t = e.position,
       n = e.isMention,
-      r = u()("p-channel_sidebar__banner", {
+      r = s()("p-channel_sidebar__banner", {
         "p-channel_sidebar__banner--mentions": n,
         "p-channel_sidebar__banner--unreads": !n,
         "p-channel_sidebar__banner--top": "top" === t,
@@ -86497,19 +86595,19 @@ var _getMetaFieldForId = function(id, key) {
       }),
       o = l({}, e);
     delete o.position, delete o.isMention;
-    var s = "top" === t ? "up" : "down",
+    var a = "top" === t ? "up" : "down",
       c = n ? "Unread Mentions" : "More Unreads";
     return i.a.createElement("div", l({
       className: r
-    }, o), c, " ", i.a.createElement(a.a, {
-      type: "arrow_" + s
+    }, o), c, " ", i.a.createElement(u.a, {
+      type: "arrow_" + a
     }));
   }
   var o = n(1),
     i = n.n(o),
-    a = n(27),
-    s = n(9),
-    u = n.n(s);
+    a = n(9),
+    s = n.n(a),
+    u = n(27);
   t.a = r;
   var l = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
@@ -87267,7 +87365,7 @@ var _getMetaFieldForId = function(id, key) {
             a = i ? e.searchQuery : this.state.searchQuery;
           if (i && this.onSearch(a), r || o) {
             var u = n.i(k.a)(e.groups);
-            this.setState(function(r, o) {
+            this.setState(function() {
               return {
                 handyRxns: n.i(w.a)(u, e.handyRxnNames),
                 skinToneChoices: n.i(w.a)(u, e.skinToneChoiceNames),
@@ -87282,16 +87380,6 @@ var _getMetaFieldForId = function(id, key) {
           this.keyCommands.reset();
         }
       }, {
-        key: "setMenuRef",
-        value: function(e) {
-          this.element = e;
-        }
-      }, {
-        key: "setSearchInputRef",
-        value: function(e) {
-          this.searchInput = e;
-        }
-      }, {
         key: "onArrowKey",
         value: function(e, t) {
           var n = this,
@@ -87302,7 +87390,7 @@ var _getMetaFieldForId = function(id, key) {
           t.preventDefault(), this.element.focus();
           var o = this.moveCursor(r),
             i = void 0;
-          i = o[1] < this.state.cursorPosition[1] || 1 === o[1] ? o[1] - 1 : o[1], this.setState(function(e, t) {
+          i = o[1] < this.state.cursorPosition[1] || 1 === o[1] ? o[1] - 1 : o[1], this.setState(function(e) {
             return {
               cursorPosition: o,
               currentSelection: n.getCell(e.screenRows, o),
@@ -87316,7 +87404,7 @@ var _getMetaFieldForId = function(id, key) {
       }, {
         key: "onEmojiMouseEnter",
         value: function(e) {
-          this.state.usingKeyboard || this.setState(function(t, n) {
+          this.state.usingKeyboard || this.setState(function() {
             return {
               currentSelection: e,
               cursorPosition: Y,
@@ -87335,12 +87423,12 @@ var _getMetaFieldForId = function(id, key) {
         value: function(e) {
           if (this.state.usingKeyboard) {
             var t = [e.clientX, e.clientY];
-            if (!this.state.mousePosition) return void this.setState(function(e, n) {
+            if (!this.state.mousePosition) return void this.setState(function() {
               return {
                 mousePosition: t
               };
             });
-            s.a.isEqual(t, this.state.mousePosition) || this.setState(function(e, t) {
+            s.a.isEqual(t, this.state.mousePosition) || this.setState(function() {
               return {
                 mousePosition: null,
                 usingKeyboard: !1,
@@ -87353,7 +87441,7 @@ var _getMetaFieldForId = function(id, key) {
       }, {
         key: "onEmojiPickerClick",
         value: function() {
-          this.setState(function(e, t) {
+          this.setState(function() {
             return {
               isSkinTonePickerOpen: !1
             };
@@ -87362,7 +87450,7 @@ var _getMetaFieldForId = function(id, key) {
       }, {
         key: "onSkinToneChanged",
         value: function(e) {
-          this.props.onSkinToneChanged(e.skin_tone_id), this.setState(function(e, t) {
+          this.props.onSkinToneChanged(e.skin_tone_id), this.setState(function() {
             return {
               isSkinTonePickerOpen: !1
             };
@@ -87371,7 +87459,7 @@ var _getMetaFieldForId = function(id, key) {
       }, {
         key: "onSkinTonePickerOpened",
         value: function() {
-          this.setState(function(e, t) {
+          this.setState(function() {
             return {
               isSkinTonePickerOpen: !0
             };
@@ -87389,17 +87477,17 @@ var _getMetaFieldForId = function(id, key) {
           M.a("react_emoji_menu_search_mark");
           var n = this.getAllRows(this.props.groups, this.props.activeSkinToneId, e),
             r = n.length >= 2 && s.a.get(n, "[1].items.length") >= 1,
-            o = e && r ? x : Y,
-            i = e && r && s.a.get(n, "[1].items[0]") || {},
-            a = !(!e || !r);
+            o = e && r && s.a.get(n, "[1].items[0]") || {},
+            i = !(!e || !r),
+            a = e && r ? x : Y;
           this.setState(function(r, s) {
             return {
               activeGroup: t.getFirstTab(s.groups),
-              cursorPosition: o,
+              cursorPosition: a,
               searchQuery: e,
               screenRows: n,
-              currentSelection: i,
-              isPreviewing: a
+              currentSelection: o,
+              isPreviewing: i
             };
           }, function() {
             return M.b("react_emoji_menu_search", "react_emoji_menu_search_mark");
@@ -87412,7 +87500,7 @@ var _getMetaFieldForId = function(id, key) {
             n = e.stopIndex;
           if (!this.state.searchQuery) {
             var r = this.state.screenRows[t];
-            this.setState(function(e, t) {
+            this.setState(function(e) {
               return {
                 activeGroup: r.group,
                 isScrolledToBottom: n === e.screenRows.length - 1,
@@ -87428,7 +87516,7 @@ var _getMetaFieldForId = function(id, key) {
             n = s.a.findIndex(t, function(t) {
               return "group" === t.type && t.group === e;
             });
-          this.setState(function(r, o) {
+          this.setState(function() {
             return {
               activeGroup: e,
               scrollToIndex: n || 0,
@@ -87437,6 +87525,16 @@ var _getMetaFieldForId = function(id, key) {
               screenRows: t
             };
           });
+        }
+      }, {
+        key: "setMenuRef",
+        value: function(e) {
+          this.element = e;
+        }
+      }, {
+        key: "setSearchInputRef",
+        value: function(e) {
+          this.searchInput = e;
         }
       }, {
         key: "getRow",
@@ -87568,7 +87666,7 @@ var _getMetaFieldForId = function(id, key) {
       }, {
         key: "resetSelection",
         value: function() {
-          this.setState(function(e, t) {
+          this.setState(function() {
             return {
               currentSelection: {},
               isPreviewing: !1,
