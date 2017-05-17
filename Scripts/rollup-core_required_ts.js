@@ -349,7 +349,6 @@
   var _fully_booted_p;
   var _is_user_forced_into_redux_feature;
   var _users_to_force_into_redux_feature = ["W2V82BY0G", "W1W7LCMHU", "W1M2KRM8E"];
-  var _users_to_force_into_unknown_members_feature = ["W1W7LCMHU", "W1FK52ED9", "W1VRQPG9L", "W1W7NQ9AQ", "W1W6AGD6X", "W1M2GKF2R"];
   var _did_call_did_finish_loading = false;
   var FORCE_CALL_DID_FINISH_LOADING_DELAY_MS = 7e4;
   window.TS = {
@@ -1054,7 +1053,6 @@
       TS.ms.reconnect_requested_sig.add(_reconnectRequestedMS);
       TS.ms.disconnected_sig.add(_socketDisconnectedMS);
     }
-    TS.boot_data.feature_unknown_members = typeof TS.qs_args.feature_unknown_members === "undefined" ? _.includes(_users_to_force_into_unknown_members_feature, TS.boot_data.user_id) : TS.qs_args.feature_unknown_members == "1";
     _callOnStarts();
     _dom_is_ready = true;
     if (TS.model.is_our_app) {
@@ -5010,8 +5008,8 @@ var _cyrillicToLatin = function(char) {
       if (!is_at_everyone && !is_at_channel && !is_at_group) return false;
       model_ob = TS.shared.getModelObById(c_id);
       if (!model_ob || model_ob.is_im) return false;
-      if ((is_at_channel || is_at_group) && !TS.permissions.members.canAtChannelOrGroup()) return false;
-      if (model_ob.is_general && is_at_everyone && !TS.permissions.members.canAtMentionEveryone()) return false;
+      if ((is_at_channel || is_at_group) && !TS.permissions.members.canAtChannelOrGroup(model_ob.id)) return false;
+      if (model_ob.is_general && is_at_everyone && !TS.permissions.members.canAtMentionEveryone(model_ob.id)) return false;
       if (TS.model.team.prefs.warn_before_at_channel === "never") return false;
       if (TS.model.team.prefs.warn_before_at_channel === "once" && user_has_seen_it) return false;
       if (TS.model.team.prefs.warn_before_at_channel === "daily" && user_has_seen_it_today) return false;
@@ -5034,9 +5032,9 @@ var _cyrillicToLatin = function(char) {
         only_general = !!channel.is_general;
       }
       if (only_general && has_at_everyone && (!has_at_here && !has_at_channel && !has_at_group)) {
-        if (TS.permissions.members.canAtMentionEveryone()) return false;
+        if (TS.permissions.members.canAtMentionEveryone(share_channel_id)) return false;
       }
-      if (!TS.permissions.members.canAtChannelOrGroup()) {
+      if (!TS.permissions.members.canAtChannelOrGroup(share_channel_id)) {
         if (has_at_here) return "@here";
         if (has_at_channel) return "@channel";
         if (has_at_group) return "@group";
@@ -5049,7 +5047,7 @@ var _cyrillicToLatin = function(char) {
           if (channel && channel.is_general) is_general = true;
         });
       }
-      if (is_general && !TS.permissions.members.canAtMentionEveryone()) {
+      if (is_general && !TS.permissions.members.canAtMentionEveryone(share_channel_id)) {
         if (has_at_everyone || has_at_here || has_at_group || has_at_channel) return "@everyone";
       }
       return false;

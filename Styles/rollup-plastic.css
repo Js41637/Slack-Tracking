@@ -754,6 +754,13 @@
   font-weight: 400
 }
 
+@font-face {
+  font-family: 'Slack v2';
+  src: url(/0d6412/fonts/slack-icons-v2.woff2) format('woff2'), url(/0d6412/fonts/slack-icons-v2.woff) format('woff');
+  font-style: normal;
+  font-weight: 400
+}
+
 .ts_icon:before,
 ts-icon:before {
   font-family: Slack;
@@ -761,6 +768,11 @@ ts-icon:before {
   font-style: normal;
   font-weight: 400;
   display: inline-block
+}
+
+body.feature_icon_font_v2 .ts_icon:before,
+body.feature_icon_font_v2 ts-icon:before {
+  font-family: 'Slack v2'
 }
 
 .ts_icon.ts_icon_inherit:before,
@@ -12414,13 +12426,13 @@ h3 .presence {
   border-bottom-color: transparent
 }
 
-#member_preview_scroller a:not(.member_name):not(.current_status_preset_option):not(.member_details_manage_link),
-.team_list_item a:not(.member_name):not(.current_status_preset_option):not(.member_details_manage_link) {
+#member_preview_scroller a:not(.member_name):not(.current_status_preset_option):not(.member_details_manage_link):not(.current_status_presets_edit_link),
+.team_list_item a:not(.member_name):not(.current_status_preset_option):not(.member_details_manage_link):not(.current_status_presets_edit_link) {
   color: #555459
 }
 
-#member_preview_scroller a:not(.member_name):not(.current_status_preset_option):not(.member_details_manage_link):hover,
-.team_list_item a:not(.member_name):not(.current_status_preset_option):not(.member_details_manage_link):hover {
+#member_preview_scroller a:not(.member_name):not(.current_status_preset_option):not(.member_details_manage_link):not(.current_status_presets_edit_link):hover,
+.team_list_item a:not(.member_name):not(.current_status_preset_option):not(.member_details_manage_link):not(.current_status_presets_edit_link):hover {
   color: #005E99;
   text-decoration: underline
 }
@@ -12548,13 +12560,13 @@ body:not(.unify_user) .team_list_item .member_image {
   margin-bottom: 0
 }
 
-#member_preview_scroller .member_data_table a:not(.current_status_preset_option):not(.member_details_manage_link),
-#team_list .member_data_table a:not(.current_status_preset_option):not(.member_details_manage_link) {
+#member_preview_scroller .member_data_table a:not(.current_status_preset_option):not(.current_status_presets_edit_link):not(.member_details_manage_link),
+#team_list .member_data_table a:not(.current_status_preset_option):not(.current_status_presets_edit_link):not(.member_details_manage_link) {
   color: #555459
 }
 
-#member_preview_scroller .member_data_table a:not(.current_status_preset_option):not(.member_details_manage_link):hover,
-#team_list .member_data_table a:not(.current_status_preset_option):not(.member_details_manage_link):hover {
+#member_preview_scroller .member_data_table a:not(.current_status_preset_option):not(.current_status_presets_edit_link):not(.member_details_manage_link):hover,
+#team_list .member_data_table a:not(.current_status_preset_option):not(.current_status_presets_edit_link):not(.member_details_manage_link):hover {
   color: #005E99
 }
 
@@ -12642,9 +12654,30 @@ only screen and (min-resolution:2dppx) {
 #client-ui #team_list .team_list_item,
 #member_preview_scroller .team_list_item {
   padding: .5rem;
-  cursor: pointer;
+  cursor: pointer
+}
+
+body:not(.unify_user) #client-ui #team_list .team_list_item,
+body:not(.unify_user) #member_preview_scroller .team_list_item {
   border-radius: 5px;
   border: 1px solid transparent
+}
+
+body:not(.unify_user) #client-ui #team_list .team_list_item:hover,
+body:not(.unify_user) #member_preview_scroller .team_list_item:hover {
+  border-color: #E0E0E0
+}
+
+.unify_user #client-ui #team_list .team_list_item,
+.unify_user #member_preview_scroller .team_list_item {
+  border-bottom: 1px solid #E0E0E0;
+  border-top: none;
+  padding-left: 12px
+}
+
+.unify_user #client-ui #team_list .team_list_item:hover,
+.unify_user #member_preview_scroller .team_list_item:hover {
+  background: #F9F9F9
 }
 
 #client-ui #team_list .team_list_item .disclosure_arrow,
@@ -12682,12 +12715,16 @@ only screen and (min-resolution:2dppx) {
 
 #client-ui #team_list .member_details,
 #member_preview_scroller .member_details {
+  padding-right: 32px
+}
+
+body:not(.unify_user) #client-ui #team_list .member_details,
+body:not(.unify_user) #member_preview_scroller .member_details {
   -ms-flex-align: center;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -moz-align-items: center;
-  align-items: center;
-  padding-right: 32px
+  align-items: center
 }
 
 #client-ui #team_list .member_action_button,
@@ -12755,19 +12792,19 @@ only screen and (min-resolution:2dppx) {
 }
 
 #member_preview_scroller .member_data_table .current_status_cell,
-.statuses_container .current_status_cell {
+.statuses_container {
   padding: 0
 }
 
 #member_preview_scroller .member_data_table .current_status_cell .current_status_container,
-.statuses_container .current_status_cell .current_status_container {
+.statuses_container .current_status_container {
   position: relative;
   left: -10px;
   width: calc(100% + 10px)
 }
 
 #member_preview_scroller .member_data_table .current_status_cell .current_status_container .current_status_cover,
-.statuses_container .current_status_cell .current_status_container .current_status_cover {
+.statuses_container .current_status_container .current_status_cover {
   position: relative;
   padding: .45rem .75rem .55rem;
   background-clip: padding-box;
@@ -12780,14 +12817,14 @@ only screen and (min-resolution:2dppx) {
 }
 
 #member_preview_scroller .member_data_table .current_status_cell .current_status_container .current_status_cover .current_status_cover_content,
-.statuses_container .current_status_cell .current_status_container .current_status_cover .current_status_cover_content {
+.statuses_container .current_status_container .current_status_cover .current_status_cover_content {
   padding-right: 15px;
   padding-left: 27px;
   line-height: normal
 }
 
 #member_preview_scroller .member_data_table .current_status_cell .current_status_container .current_status_cover .current_status_clear_icon_cover,
-.statuses_container .current_status_cell .current_status_container .current_status_cover .current_status_clear_icon_cover {
+.statuses_container .current_status_container .current_status_cover .current_status_clear_icon_cover {
   position: absolute;
   right: 7px;
   top: 2.5px;
@@ -12795,17 +12832,17 @@ only screen and (min-resolution:2dppx) {
 }
 
 #member_preview_scroller .member_data_table .current_status_cell .current_status_container .current_status_cover:hover,
-.statuses_container .current_status_cell .current_status_container .current_status_cover:hover {
+.statuses_container .current_status_container .current_status_cover:hover {
   border-color: #C5C5C5
 }
 
 #member_preview_scroller .member_data_table .current_status_cell .current_status_container .current_status_cover:hover .current_status_clear_icon_cover,
-.statuses_container .current_status_cell .current_status_container .current_status_cover:hover .current_status_clear_icon_cover {
+.statuses_container .current_status_container .current_status_cover:hover .current_status_clear_icon_cover {
   opacity: 1
 }
 
 #member_preview_scroller .member_data_table .current_status_cell .current_status_container .current_status_input_container,
-.statuses_container .current_status_cell .current_status_container .current_status_input_container {
+.statuses_container .current_status_container .current_status_input_container {
   opacity: 0;
   display: none;
   -webkit-transition: opacity .15s ease;
@@ -12814,32 +12851,32 @@ only screen and (min-resolution:2dppx) {
 }
 
 #member_preview_scroller .member_data_table .current_status_cell .current_status_container:not(.active) .current_status_cover.without_status_set,
-.statuses_container .current_status_cell .current_status_container:not(.active) .current_status_cover.without_status_set {
+.statuses_container .current_status_container:not(.active) .current_status_cover.without_status_set {
   display: block
 }
 
 #member_preview_scroller .member_data_table .current_status_cell .current_status_container:not(.active) .current_status_cover.without_status_set .current_status_placeholder,
-.statuses_container .current_status_cell .current_status_container:not(.active) .current_status_cover.without_status_set .current_status_placeholder {
+.statuses_container .current_status_container:not(.active) .current_status_cover.without_status_set .current_status_placeholder {
   color: rgba(0, 0, 0, .35)!important
 }
 
 #member_preview_scroller .member_data_table .current_status_cell .current_status_container:not(.active) .current_status_cover.without_status_set .current_status_placeholder .current_status_empty_emoji_cover .ts_icon,
-.statuses_container .current_status_cell .current_status_container:not(.active) .current_status_cover.without_status_set .current_status_placeholder .current_status_empty_emoji_cover .ts_icon {
+.statuses_container .current_status_container:not(.active) .current_status_cover.without_status_set .current_status_placeholder .current_status_empty_emoji_cover .ts_icon {
   top: -2px
 }
 
 #member_preview_scroller .member_data_table .current_status_cell .current_status_container:not(.active) .current_status_cover.with_status_set,
-.statuses_container .current_status_cell .current_status_container:not(.active) .current_status_cover.with_status_set {
+.statuses_container .current_status_container:not(.active) .current_status_cover.with_status_set {
   display: none
 }
 
 #member_preview_scroller .member_data_table .current_status_cell .current_status_container:not(.active).with_status_set .current_status_cover,
-.statuses_container .current_status_cell .current_status_container:not(.active).with_status_set .current_status_cover {
+.statuses_container .current_status_container:not(.active).with_status_set .current_status_cover {
   padding: .35rem .75rem .25rem .55rem
 }
 
 #member_preview_scroller .member_data_table .current_status_cell .current_status_container:not(.active).with_status_set .current_status_cover .current_status_emoji_picker_cover,
-.statuses_container .current_status_cell .current_status_container:not(.active).with_status_set .current_status_cover .current_status_emoji_picker_cover {
+.statuses_container .current_status_container:not(.active).with_status_set .current_status_cover .current_status_emoji_picker_cover {
   position: relative;
   display: inline-block;
   width: auto;
@@ -12850,35 +12887,35 @@ only screen and (min-resolution:2dppx) {
 }
 
 #member_preview_scroller .member_data_table .current_status_cell .current_status_container:not(.active).with_status_set .current_status_cover .current_status_cover_content,
-.statuses_container .current_status_cell .current_status_container:not(.active).with_status_set .current_status_cover .current_status_cover_content {
+.statuses_container .current_status_container:not(.active).with_status_set .current_status_cover .current_status_cover_content {
   padding-left: 0;
   line-height: 1.4
 }
 
 #member_preview_scroller .member_data_table .current_status_cell .current_status_container:not(.active).with_status_set .current_status_cover.without_status_set,
-.statuses_container .current_status_cell .current_status_container:not(.active).with_status_set .current_status_cover.without_status_set {
+.statuses_container .current_status_container:not(.active).with_status_set .current_status_cover.without_status_set {
   display: none
 }
 
 #member_preview_scroller .member_data_table .current_status_cell .current_status_container:not(.active).with_status_set .current_status_cover.with_status_set,
-.statuses_container .current_status_cell .current_status_container:not(.active).with_status_set .current_status_cover.with_status_set {
+.statuses_container .current_status_container:not(.active).with_status_set .current_status_cover.with_status_set {
   display: block
 }
 
 #member_preview_scroller .member_data_table .current_status_cell .current_status_container:not(.active).with_status_set .current_status_cover.not_editable:hover,
-.statuses_container .current_status_cell .current_status_container:not(.active).with_status_set .current_status_cover.not_editable:hover {
+.statuses_container .current_status_container:not(.active).with_status_set .current_status_cover.not_editable:hover {
   cursor: default;
   border-color: transparent
 }
 
 #member_preview_scroller .member_data_table .current_status_cell .current_status_container.active .current_status_input_container,
-.statuses_container .current_status_cell .current_status_container.active .current_status_input_container {
+.statuses_container .current_status_container.active .current_status_input_container {
   display: block;
   opacity: 1
 }
 
 #member_preview_scroller .member_data_table .current_status_cell .current_status_container.active .current_status_cover,
-.statuses_container .current_status_cell .current_status_container.active .current_status_cover {
+.statuses_container .current_status_container.active .current_status_cover {
   display: none
 }
 
@@ -13056,18 +13093,18 @@ only screen and (min-resolution:2dppx) {
   width: 40%
 }
 
-#member_preview_scroller .member_data_table a:not(.current_status_preset_option):not(.member_details_manage_link),
-#member_preview_web_container .member_data_table a:not(.current_status_preset_option):not(.member_details_manage_link),
-#team_list .member_data_table a:not(.current_status_preset_option):not(.member_details_manage_link),
-.menu_member_header .member_data_table a:not(.current_status_preset_option):not(.member_details_manage_link) {
+#member_preview_scroller .member_data_table a:not(.current_status_preset_option):not(.current_status_presets_edit_link):not(.member_details_manage_link),
+#member_preview_web_container .member_data_table a:not(.current_status_preset_option):not(.current_status_presets_edit_link):not(.member_details_manage_link),
+#team_list .member_data_table a:not(.current_status_preset_option):not(.current_status_presets_edit_link):not(.member_details_manage_link),
+.menu_member_header .member_data_table a:not(.current_status_preset_option):not(.current_status_presets_edit_link):not(.member_details_manage_link) {
   color: #2C2D30;
   font-weight: 400!important
 }
 
-#member_preview_scroller .member_data_table a:not(.current_status_preset_option):not(.member_details_manage_link):hover,
-#member_preview_web_container .member_data_table a:not(.current_status_preset_option):not(.member_details_manage_link):hover,
-#team_list .member_data_table a:not(.current_status_preset_option):not(.member_details_manage_link):hover,
-.menu_member_header .member_data_table a:not(.current_status_preset_option):not(.member_details_manage_link):hover {
+#member_preview_scroller .member_data_table a:not(.current_status_preset_option):not(.current_status_presets_edit_link):not(.member_details_manage_link):hover,
+#member_preview_web_container .member_data_table a:not(.current_status_preset_option):not(.current_status_presets_edit_link):not(.member_details_manage_link):hover,
+#team_list .member_data_table a:not(.current_status_preset_option):not(.current_status_presets_edit_link):not(.member_details_manage_link):hover,
+.menu_member_header .member_data_table a:not(.current_status_preset_option):not(.current_status_presets_edit_link):not(.member_details_manage_link):hover {
   color: #005E99
 }
 
@@ -14557,6 +14594,16 @@ body:not(.unify_user) .tab_complete_ui ul.type_members .member_image {
   margin-left: 6px
 }
 
+.tab_complete_ui ul.type_members .app_label {
+  border-radius: .125rem;
+  background-color: #E8E8E8;
+  color: #A0A0A2;
+  font-size: .625rem;
+  line-height: 1;
+  padding: .1rem .2rem;
+  vertical-align: .1rem
+}
+
 .tab_complete_ui ul.type_cmds li.tab_complete_ui_group {
   display: -webkit-box;
   display: -webkit-flex;
@@ -14668,6 +14715,11 @@ body:not(.unify_user) .tab_complete_ui ul.type_members .member_image {
 .tab_complete_ui li.tab_complete_ui_group.active .presence.active,
 .tab_complete_ui li.tab_complete_ui_item.active .presence.active {
   color: #93cc93!important
+}
+
+.tab_complete_ui li.tab_complete_ui_group.active .app_label,
+.tab_complete_ui li.tab_complete_ui_item.active .app_label {
+  background-color: rgba(255, 255, 255, .3)
 }
 
 .tab_complete_ui li.tab_complete_ui_group .emoji-sizer,
@@ -17386,6 +17438,13 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   height: 36px
 }
 
+.c-member__flex-container--medium {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 36px
+}
+
 .c-member__name--medium,
 .c-member__title--medium {
   line-height: 1.1;
@@ -17395,7 +17454,8 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   overflow: hidden;
   white-space: nowrap;
   padding-bottom: 2px;
-  padding-left: 12px
+  padding-left: 12px;
+  flex: 0 0 auto
 }
 
 .c-member__secondary-name--medium {

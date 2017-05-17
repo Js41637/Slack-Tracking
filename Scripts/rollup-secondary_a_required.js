@@ -2482,11 +2482,62 @@
       }
       return true;
     },
-    canAtMentionEveryone: function() {
+    canNonAdminsAtMentionEveryoneBySettings: function() {
       return _checkPrefCascade("who_can_at_everyone", TS.model.user);
     },
-    canAtChannelOrGroup: function() {
+    canAtMentionEveryone: function() {
+      if (!TS.boot_data.feature_stop_large_channel_mentions) return TS.permissions.members.canNonAdminsAtMentionEveryoneBySettings();
+      var general_channel = TS.channels.getGeneralChannel();
+      if (!general_channel) {
+        TS.warn("WTF, could not getGeneralChannel()? Checking only team settings, skipping large channel mentions check.");
+        return TS.permissions.members.canNonAdminsAtMentionEveryoneBySettings();
+      }
+      return TS.permissions.members.canNonAdminsAtMentionEveryoneBySettings() && !TS.permissions.members.shouldStopChannelMentions(general_channel.id, TS.model.user.id);
+    },
+    canNonAdminsAtChannelOrGroupBySettings: function() {
       return _checkPrefCascade("who_can_at_channel", TS.model.user);
+    },
+    canAtChannelOrGroup: function(channel_id) {
+      return TS.permissions.members.canNonAdminsAtChannelOrGroupBySettings(channel_id) && !TS.permissions.members.shouldStopChannelMentions(channel_id, TS.model.user.id);
+    },
+    shouldStopChannelMentions: function(model_ob_id, related_member_id) {
+      if (!TS.boot_data.feature_stop_large_channel_mentions) return false;
+      var model_ob = TS.shared.getModelObById(model_ob_id);
+      if (!model_ob) {
+        TS.warn("shouldStopChannelMentions(): could not find model_ob for id " + model_ob_id);
+        return false;
+      }
+      if (model_ob.is_im && !model_ob.is_mpim) return false;
+      var count_info = TS.membership.getMembershipCounts(model_ob);
+      var member_count = _.get(count_info, "counts.member_count") || 0;
+      var should_stop = member_count >= CHANNEL_AT_MENTION_MEMBER_LIMIT;
+      if (should_stop && related_member_id) {
+        var related_member = TS.members.getKnownMemberById(related_member_id);
+        if (related_member && related_member.is_admin) {
+          should_stop = false;
+        }
+      }
+      return should_stop;
+    },
+    canMsgMentionChannelIfMention: function(msg_text, model_ob_id, related_member_id) {
+      if (!TS.boot_data.feature_stop_large_channel_mentions) return true;
+      if (!msg_text) {
+        TS.warn("canMsgMentionChannel: WTF no msg_text?", arguments);
+        return true;
+      }
+      var ignore_highlight_words = true;
+      var ignore_at_here_mentions = false;
+      var ignore_at_everyone_mentions = false;
+      var ignore_at_channel_mentions = false;
+      var msg = {
+        text: msg_text,
+        subtype: ""
+      };
+      var is_channel_mention = TS.utility.msgs.msgContainsMention(msg, ignore_at_here_mentions, ignore_highlight_words, ignore_at_everyone_mentions, ignore_at_channel_mentions);
+      if (!is_channel_mention) return true;
+      var should_stop_mentions = TS.permissions.members.shouldStopChannelMentions(model_ob_id, related_member_id);
+      if (should_stop_mentions) return false;
+      return true;
     },
     canArchiveChannels: function() {
       if (TS.model.user.is_restricted) return false;
@@ -2584,6 +2635,7 @@
     if (TS.model.team.prefs[pref_name] === "owner") return !!user.is_owner;
     return dflt;
   };
+  var CHANNEL_AT_MENTION_MEMBER_LIMIT = 1e3;
 })();
 (function() {
   "use strict";
@@ -4001,12 +4053,18 @@
       var is_at_channel = TS.model.channel_regex.test(clean_text) && !is_reply || TS.model.group_regex.test(clean_text) && !is_reply || is_at_here;
       var is_at_everyone = TS.model.everyone_regex.test(clean_text) && !is_reply || TS.channels.isChannelRequired(channel) && is_at_channel;
       if (is_at_everyone) {
-        if (!TS.permissions.members.canAtMentionEveryone()) {
-          err_txt = "<p>" + TS.i18n.t("A Team Owner has restricted the use of <b>@everyone</b> messages.", "channels")() + "</p>";
+        if (!TS.permissions.members.canAtMentionEveryone(channel.id)) {
           if (TS.model.user.is_restricted) {
             err_txt = "<p>" + TS.i18n.t("Your account is restricted, and you cannot send <b>@everyone</b> messages.", "channels")() + "</p>";
+            errorOut(err_txt);
+            return false;
           }
-          if (!TS.channels.isChannelRequired(channel) && TS.permissions.members.canAtChannelOrGroup()) {
+          if (!TS.permissions.members.canNonAdminsAtMentionEveryoneBySettings(channel_id)) {
+            err_txt = "<p>" + TS.i18n.t("A Team Owner has restricted the use of <b>@everyone</b> messages.", "channels")() + "</p>";
+          } else {
+            err_txt = "<p>" + TS.i18n.t("Usage of <b>@everyone</b> is restricted to Team Admins in the large general channel.", "channels")() + "</p>";
+          }
+          if (!TS.channels.isChannelRequired(channel) && TS.permissions.members.canAtChannelOrGroup(channel.id)) {
             err_txt += '<p class="no_bottom_margin">' + TS.i18n.t("If you just want to address everyone in this channel, use <b>@channel</b> instead.", "channels")() + "</p>";
           }
           errorOut(err_txt);
@@ -4015,7 +4073,7 @@
         if (!TS.channels.isChannelRequired(channel) && !is_at_here) {
           if (!general || !general.is_member) {
             err_txt = "<p>" + TS.i18n.t("You cannot send <b>@everyone</b> messages.", "channels")() + "</p>";
-            if (TS.permissions.members.canAtChannelOrGroup()) {
+            if (TS.permissions.members.canAtChannelOrGroup(channel_id)) {
               err_txt += '<p class="no_bottom_margin">' + TS.i18n.t("If you just want to address everyone in this channel, use <b>@channel</b> instead.", "channels")() + "</p>";
             }
             errorOut(err_txt);
@@ -4043,11 +4101,17 @@
           return false;
         }
       }
-      if (is_at_channel && !TS.permissions.members.canAtChannelOrGroup()) {
+      if (is_at_channel && !TS.permissions.members.canAtChannelOrGroup(channel_id)) {
         var key_word = is_at_here ? "@here" : "@channel";
-        err_txt = "<p>" + TS.i18n.t("A Team Owner has restricted the use of <b>{key_word}</b> messages.", "channels")({
-          key_word: key_word
-        }) + "</p>";
+        if (!TS.permissions.members.canNonAdminsAtChannelOrGroupBySettings(channel_id)) {
+          err_txt = "<p>" + TS.i18n.t("A Team Owner has restricted the use of <b>{key_word}</b> messages.", "channels")({
+            key_word: key_word
+          }) + "</p>";
+        } else {
+          err_txt = "<p>" + TS.i18n.t("Usage of <b>{key_word}</b> is restricted to Team Admins in this large channel.", "channels")({
+            key_word: key_word
+          }) + "</p>";
+        }
         errorOut(err_txt);
         return false;
       }
@@ -9616,6 +9680,7 @@ TS.registerModule("constants", {
       }
       var model_ob_is_muted = TS.notifs.isCorGMuted(model_ob.id);
       var channel_mentions_can_count = model_ob.is_im || model_ob.is_mpim || TS.notifs.canModelObHaveChannelMentions(model_ob);
+      var ignore_at_here_mentions;
       if (can_have_any_unreads && msgs) {
         for (var i = 0; i < msgs.length; i += 1) {
           msg = msgs[i];
@@ -9631,9 +9696,14 @@ TS.registerModule("constants", {
           }
           if (channel_mentions_can_count) {
             var msg_time_ms = parseFloat(msg.ts) * 1e3;
-            var ignore_at_here_mentions = user_is_away || msg_time_ms < TS.model.user._presence_last_changed;
+            ignore_at_here_mentions = user_is_away || msg_time_ms < TS.model.user._presence_last_changed;
             if (TS.utility.msgs.msgContainsMention(msg, ignore_at_here_mentions)) {
-              model_ob.unread_highlights.push(msg.ts);
+              if (TS.permissions.members.canMsgMentionChannelIfMention(msg.text, model_ob.id, msg.user)) {
+                TS.log(99, "allowing channel mention for msg.ts " + msg.ts + " from member " + msg.user + " in " + model_ob.id);
+                model_ob.unread_highlights.push(msg.ts);
+              } else {
+                TS.log(99, "ignoring large channel mention for msg.ts " + msg.ts + " from member " + msg.user + " in " + model_ob.id + " because member is not an admin.");
+              }
             }
           } else if (TS.utility.msgs.getMsgMentionData(msg).non_channel_mentions) {
             model_ob.unread_highlights.push(msg.ts);
@@ -10039,6 +10109,7 @@ TS.registerModule("constants", {
           var args = arguments;
           _tryFetchingMembersWithUsernames(possible_at_mentions).then(function() {
             TS.shared.sendMsg.apply(this_context, args);
+            return null;
           });
           return true;
         }
@@ -10097,10 +10168,16 @@ TS.registerModule("constants", {
       var err_txt;
       if (TS.model.everyone_regex.test(clean_text) && !is_reply) {
         if (!TS.permissions.members.canAtMentionEveryone()) {
-          err_txt = "<p>" + TS.i18n.t("A Team Owner has restricted the use of <strong>{everyone}</strong> messages.", "shared")({
-            everyone: TS.templates.builders.atLabel("everyone")
-          }) + "</p>";
-          if (TS.permissions.members.canAtChannelOrGroup()) {
+          if (!TS.permissions.members.canNonAdminsAtMentionEveryoneBySettings()) {
+            err_txt = "<p>" + TS.i18n.t("A Team Owner has restricted the use of <strong>{everyone}</strong> messages.", "shared")({
+              everyone: TS.templates.builders.atLabel("everyone")
+            }) + "</p>";
+          } else {
+            err_txt = "<p>" + TS.i18n.t("Usage of <strong>{everyone}</strong> is restricted to Team Admins in the large general channel.", "shared")({
+              everyone: TS.templates.builders.atLabel("everyone")
+            }) + "</p>";
+          }
+          if (TS.permissions.members.canAtChannelOrGroup(model_ob.id)) {
             err_txt += '<p class="no_bottom_margin">' + TS.i18n.t("If you just want to address everyone in this {conversation_or_channel}, use <strong>{at_label}</strong> instead.", "shared")({
               conversation_or_channel: model_label,
               at_label: TS.templates.builders.atLabel(model_label_untranslated)
@@ -13411,7 +13488,7 @@ TS.registerModule("constants", {
     sortNames: function(names) {
       return names.slice().sort(TS.i18n.sorter);
     },
-    constructTemplateArgsForCardAndProfile: function(app, bot_id) {
+    constructTemplateArgsForCardAndProfile: function(app, bot_id, app_team_id) {
       if (!app) return TS.warn("Trying to build app card but it failed.");
       var template_args = {
         name: app.name,
@@ -13425,6 +13502,7 @@ TS.registerModule("constants", {
       };
       var is_bot = _.get(app, "bot_user.id");
       var app_name;
+      var is_foreign_app = app_team_id != TS.model.user.team_id;
       if (app.app_card_color) {
         template_args.color = TS.utility.hex2rgb(app.app_card_color);
         template_args.color.hex = app.app_card_color;
@@ -13457,16 +13535,20 @@ TS.registerModule("constants", {
         template_args.deleted = true;
         template_args.app_id = app.id;
       }
-      if (!app.is_slack_integration && (!app.auth || app.auth.revoked)) {
-        template_args.disabled = true;
+      if (!app.is_slack_integration) {
+        if (TS.boot_data.feature_shared_channels && is_foreign_app) {
+          template_args.disabled = false;
+        } else if (!app.auth || app.auth.revoked) {
+          template_args.disabled = true;
+        }
       } else if (app.is_slack_integration) {
-        if (TS.boot_data.feature_shared_channels && app.is_slack_integration && app.team_id != TS.model.user.team_id) {
+        if (TS.boot_data.feature_shared_channels && app.is_slack_integration && is_foreign_app) {
           template_args.disabled = false;
         } else if (!app.config || (app.config.is_active !== "1" || app.config.date_deleted !== "0")) {
           template_args.disabled = true;
         }
       }
-      if (is_bot || !app.is_slack_integration) {
+      if (!is_foreign_app && (is_bot || !app.is_slack_integration)) {
         template_args.show_settings_section = true;
       }
       if (app.installation_summary) {
@@ -19188,6 +19270,23 @@ TS.registerModule("constants", {
       _fetchSingleFileDefinition(imsg, file_id, ob_with_file);
     }
   };
+  var _maybeEnsureMemberCount = function(imsg) {
+    if (!TS.boot_data.feature_stop_large_channel_mentions) return Promise.resolve();
+    if (!imsg || imsg.type !== "message" || !imsg.text) return Promise.resolve();
+    var is_channel_mention = TS.model.here_regex.test(imsg.text) || TS.model.channel_regex.test(imsg.text) || TS.model.everyone_regex.test(imsg.text) || TS.model.group_regex.test(imsg.text);
+    if (is_channel_mention) {
+      var model_ob = TS.shared.getModelObById(imsg.channel);
+      if (!model_ob) {
+        TS.maybeWarn(794, "_maybeEnsureMemberCount: Could not find model_ob for id " + imsg.channel);
+        return Promise.resolve();
+      }
+      if (model_ob.is_im && !model_ob.is_mpim) return Promise.resolve();
+      if (model_ob.is_mpim && !TS.membership.lazyLoadMpimMembership()) return Promise.resolve();
+      if (model_ob.is_group && !TS.membership.lazyLoadGroupMembership()) return Promise.resolve();
+      return TS.membership.promiseToGetMembershipCounts(model_ob);
+    }
+    return Promise.resolve();
+  };
   var _ensureModelObsAndMembersAndProceed = function(imsg) {
     TS.log(2, imsg.type + " is now being handled");
     var ensure_profiling_callback;
@@ -19209,7 +19308,7 @@ TS.registerModule("constants", {
         if (missing_m_ids.m_ids.length || missing_b_ids.length) {
           return ensureBotsAndMembers();
         }
-        return proceedWithImsg();
+        return _maybeEnsureMemberCount(imsg).then(proceedWithImsg);
       });
     };
     var ensureBotsAndMembers = function() {
@@ -19219,9 +19318,7 @@ TS.registerModule("constants", {
       return ensureMembers();
     };
     var ensureMembers = function() {
-      return TS.members.ensureMembersArePresent(missing_m_ids.m_ids, missing_m_ids.c_ids, missing_m_ids.t_ids).then(function() {
-        return proceedWithImsg();
-      }, function(err) {
+      return TS.members.ensureMembersArePresent(missing_m_ids.m_ids, missing_m_ids.c_ids, missing_m_ids.t_ids).catch(function(err) {
         if (imsg.user && typeof imsg.user === "string" && !TS.members.getKnownMemberById(imsg.user) || imsg.channel && typeof imsg.channel === "object" && imsg.channel.user && typeof imsg.channel.user === "string" && !TS.members.getKnownMemberById(imsg.channel.user)) {
           TS.error(full_type + " could not be handled because imsg.user or imsg.channel.user could not be fetched. full err: " + err.message);
           TS.log(0, "imsg.ts:" + imsg.ts + ", imsg.user:" + imsg.user + ", imsg.channel.user:" + imsg.channel && imsg.channel.user);
@@ -19230,8 +19327,9 @@ TS.registerModule("constants", {
         }
         TS.maybeWarn(794, full_type + " held some references to members we could not fetch, but we have imsg.user and imsg.channel.user (or they did not exist) so we can still proceed");
         TS.log(794, "imsg.ts:" + imsg.ts + ", missing_m_ids:" + JSON.stringify(missing_m_ids));
-        return proceedWithImsg();
-      });
+      }).then(function() {
+        return _maybeEnsureMemberCount(imsg);
+      }).then(proceedWithImsg);
     };
     var proceedWithImsg = function(synchronous) {
       try {
@@ -19245,7 +19343,9 @@ TS.registerModule("constants", {
       return _afterMsgHandled();
     };
     var no_fetch_missing_object_types = ["channel_joined", "dnd_updated", "dnd_updated_user", "manual_presence_change", "member_left_channel", "presence_change", "status_change", "subteam_created", "user_removed_from_team", "user_change"];
-    if (no_fetch_missing_object_types.indexOf(imsg.type) >= 0) return proceedWithImsg(is_sync);
+    if (no_fetch_missing_object_types.indexOf(imsg.type) >= 0) {
+      return proceedWithImsg(is_sync);
+    }
     var full_type = "type:" + imsg.type + (imsg.subtype ? " subtype:" + imsg.subtype : "");
     var c_ids = TS.utility.extractAllModelObIds(imsg, full_type);
     var m_ids = TS.utility.extractAllMemberIds(imsg, full_type);
@@ -19261,7 +19361,7 @@ TS.registerModule("constants", {
     } else if (missing_m_ids.m_ids.length || missing_b_ids.length) {
       ensureBotsAndMembers();
     } else {
-      Promise.resolve().then(function() {
+      return _maybeEnsureMemberCount(imsg).then(function() {
         return proceedWithImsg(is_sync);
       });
     }
@@ -23992,7 +24092,7 @@ TS.registerModule("constants", {
         var highlight = !!args.highlight;
         var no_attachments = !!args.no_attachments;
         var standalone = !!args.standalone;
-        var hide_actions = args.show_actions_in_standalone ? false : !!(standalone || args.hide_actions);
+        var hide_actions = !!(standalone || args.hide_actions);
         var full_date = !!args.full_date;
         if (TS.model.prefs.fuller_timestamps && !full_date) full_date = !TS.utility.date.sameDay(TS.utility.date.toDateObject(msg.ts), new Date);
         var relative_ts = !!args.relative_ts;
@@ -24032,7 +24132,7 @@ TS.registerModule("constants", {
           if (bot_info) {
             app_id = _.get(bot_info, "app_id");
             bot_id = _.get(bot_info, "bot_id");
-            team_id = _.get(bot_info, "team_id");
+            team_id = _.get(bot_info, "team_id") ? bot_info.team_id : _.get(msg, "source_team_id");
           }
           is_app_data_enabled = true;
         }
@@ -26230,8 +26330,8 @@ TS.registerModule("constants", {
         }
         var $container = $("<div>").html(html);
         replace_emoji($container[0]);
-        if (TS.client && TS.client.ui) {
-          TS.client.ui.unfurlPlaceholders($container);
+        if (TS.utility && TS.utility.attachments) {
+          TS.utility.attachments.unfurlPlaceholders($container);
         }
         return new Handlebars.SafeString($container.html());
       });
@@ -28282,7 +28382,7 @@ TS.registerModule("constants", {
       }
       TS.model.highlight_words_regex = new RegExp("(\\b|_|\\s|^)(" + words.join("|") + ")(\\b|_|\\s|$)", "i");
     },
-    msgContainsMention: function(msg, ignore_at_here_mentions, ignore_highlight_words) {
+    msgContainsMention: function(msg, ignore_at_here_mentions, ignore_highlight_words, ignore_at_everyone_mentions, ignore_at_channel_mentions) {
       var highlight_rx = TS.utility.msgs.getHighlightWordsRegex();
       var dont_check_highlight_words = msg.subtype === "bot_message";
       var is_reply = TS.utility.msgs.isMsgReply(msg);
@@ -28290,10 +28390,10 @@ TS.registerModule("constants", {
       function check(txt) {
         if (!txt) return false;
         if (TS.model.you_regex.test(txt)) return true;
-        if (TS.model.here_regex.test(txt) && !ignore_at_here_mentions) return true;
-        if (TS.model.everyone_regex.test(txt) && !is_reply) return true;
-        if (TS.model.channel_regex.test(txt) && !is_reply) return true;
-        if (TS.model.group_regex.test(txt) && !is_reply) return true;
+        if (!ignore_at_here_mentions && TS.model.here_regex.test(txt)) return true;
+        if (!ignore_at_everyone_mentions && !is_reply && TS.model.everyone_regex.test(txt)) return true;
+        if (!ignore_at_channel_mentions && !is_reply && TS.model.channel_regex.test(txt)) return true;
+        if (!is_reply && TS.model.group_regex.test(txt)) return true;
         for (var k in TS.model.your_user_group_regex) {
           if (TS.model.your_user_group_regex[k].test(txt)) {
             return true;
@@ -29871,12 +29971,12 @@ TS.registerModule("constants", {
       var everyone_keywords = [];
       var channel_keywords = [];
       var is_enterprise_required_channel = TS.boot_data.page_needs_enterprise && TS.channels.isChannelRequired(model_ob) && model_ob.is_shared;
-      if (model_ob.is_general && TS.permissions.members.canAtMentionEveryone() && !is_enterprise_required_channel) {
+      if (model_ob.is_general && TS.permissions.members.canAtMentionEveryone(model_ob.id) && !is_enterprise_required_channel) {
         everyone_keywords = _.filter(TS.model.BROADCAST_KEYWORDS, function(bk) {
           return bk.id === "BKeveryone" || bk.id === "BKall";
         });
       }
-      if (TS.permissions.members.canAtChannelOrGroup() && (model_ob.is_channel || model_ob.is_group) && (!model_ob.is_general || TS.permissions.members.canAtMentionEveryone()) && !is_enterprise_required_channel) {
+      if (TS.permissions.members.canAtChannelOrGroup(model_ob.id) && (model_ob.is_channel || model_ob.is_group) && (!model_ob.is_general || TS.permissions.members.canAtMentionEveryone(model_ob.id)) && !is_enterprise_required_channel) {
         channel_keywords = _.filter(TS.model.BROADCAST_KEYWORDS, function(bk) {
           return bk.id === "BKchannel" || bk.id === "BKgroup" || bk.id === "BKhere";
         });
@@ -34076,7 +34176,7 @@ TS.registerModule("constants", {
         case "org_settings":
           break;
         default:
-          e.preventDefault();
+          if (!e || !e.target || e.target.getAttribute("target") !== "_blank") e.preventDefault();
           return;
       }
       if (TS.menu.$submenu && TS.menu.$submenu_parent) TS.menu.$submenu_parent.submenu("destroy");
@@ -35050,7 +35150,7 @@ var _on_esc;
       }
       TS.menu.app.active_app_bot_id = bot_id;
       TS.menu.app.active_app_team_id = team_id;
-      TS.apps.promiseToGetFullAppProfile(bot_id, team_id).then(ensureChannelMembershipInfoKnownForBot).then(showAllAppInformation);
+      TS.apps.promiseToGetFullAppProfile(bot_id, team_id, true).then(ensureChannelMembershipInfoKnownForBot).then(showAllAppInformation);
 
       function ensureChannelMembershipInfoKnownForBot(app) {
         var bot_user_id = _.get(app, "bot_user.id");
@@ -35108,7 +35208,7 @@ var _on_esc;
     }
   });
   var _buildAppMenu = function(e, position_by_click) {
-    var template_args = TS.apps.constructTemplateArgsForCardAndProfile(TS.menu.app.active_app, TS.menu.app.active_app_bot_id);
+    var template_args = TS.apps.constructTemplateArgsForCardAndProfile(TS.menu.app.active_app, TS.menu.app.active_app_bot_id, TS.menu.app.active_app_team_id);
     var is_bot = _.get(TS.menu.app.active_app, "bot_user.id");
     TS.menu.$menu_header.html(TS.templates.menu_app_card_header(template_args));
     TS.menu.$menu_items.html(TS.templates.menu_app_card_items(template_args));
@@ -49729,7 +49829,7 @@ $.fn.togglify = function(settings) {
       if (channel.is_im) {
         TS.ui.growls.growlImMessage(channel, msg);
       } else {
-        TS.ui.growls.growlchannelOrGroupMessage(channel, msg);
+        TS.ui.growls.growlChannelOrGroupMessage(channel, msg);
       }
     },
     debugInfo: function() {
@@ -50524,7 +50624,7 @@ $.fn.togglify = function(settings) {
         if (model_ob.is_im) {
           TS.ui.growls.growlImMessage(model_ob, msg, false, true);
         } else {
-          TS.ui.growls.growlchannelOrGroupMessage(model_ob, msg, false, true);
+          TS.ui.growls.growlChannelOrGroupMessage(model_ob, msg, false, true);
         }
       }
     });
@@ -58536,6 +58636,51 @@ var _getMetaFieldForId = function(id, key) {
         id: args.attachment_id
       });
     },
+    unfurlPlaceholders: function($element) {
+      $element.find(".unfurl-placeholder:not(.unfurled)").each(function(i, elem) {
+        var $elem = $(elem);
+        $elem.addClass("unfurled");
+        var id = _.uniqueId("pending_unfurl_");
+        $elem.attr("id", id);
+        try {
+          var url = $elem.attr("href");
+          TS.api.call("chat.unfurlLink", {
+            url: url
+          }).then(function(resp) {
+            if (resp && resp.data && resp.data.attachments && resp.data.attachments[url]) {
+              var attachment = resp.data.attachments[url];
+              var $el = $("#" + id);
+              if (!$el.length) return;
+              if (TS.model.prefs.a11y_animations === false && attachment.file_type === "gif") {
+                return;
+              }
+              var unfurled_html = TS.inline_attachments.renderStandaloneAttachment(attachment);
+              if (TS.client && TS.client.ui) {
+                var was_at_bottom = TS.client.ui.areMsgsScrolledToBottom();
+                $el.replaceWith(unfurled_html);
+                if (was_at_bottom !== undefined) {
+                  if (TS.pri) TS.log(888, "unfurlPlaceholders: Insta-scrolling back to bottom after unfurl of attachment #" + id);
+                  TS.client.ui.instaScrollMsgsToBottom(false);
+                }
+                _throttledFilePreviewInline();
+              } else {
+                var $parent = $el.closest(".unfurl-container");
+                $el.replaceWith(unfurled_html);
+                $parent.wrap('<div class="unfurl"></div>');
+                $parent.removeClass("unfurl-render-pending");
+              }
+            } else {
+              throw new Error("No unfurl data");
+            }
+          }).catch(function() {
+            $("#" + id).addClass("hidden");
+          });
+        } catch (err) {
+          $elem.addClass("hidden");
+        }
+      });
+      _throttledFilePreviewInline();
+    },
     test: function() {
       return {
         _isSlackMessageUnfurl: _isSlackMessageUnfurl
@@ -58544,6 +58689,9 @@ var _getMetaFieldForId = function(id, key) {
   });
   var _CONTENT_PROPS = ["title", "text", "pretext", "video_html", "audio_html", "audio_url", "other_html", "from_url", "fields", "actions", "image_url", "thumb_url", "author_name", "service_name", "footer", "footer_icon", "ts"];
   var _POSSIBLE_CARET_LOCATIONS = ["ts", "footer", "fields", "text", "title", "_source"];
+  var _throttledFilePreviewInline = _.throttle(function() {
+    if (TS.client && TS.client.ui) TS.client.ui.checkInlineImgsAndIframes("file_preview");
+  }, 150);
   var _getSource = function(attachment) {
     var source = {};
     source.icon = attachment.service_icon || attachment.author_icon;
@@ -63593,7 +63741,8 @@ var _getMetaFieldForId = function(id, key) {
 
         function ge(e, t, n, r, o, i, a) {
           var s = new Date(e, t, n, r, o, i, a);
-          return e < 100 && e >= 0 && isFinite(s.getFullYear()) && s.setFullYear(e), s;
+          return e < 100 && e >= 0 && isFinite(s.getFullYear()) && s.setFullYear(e),
+            s;
         }
 
         function be(e) {
@@ -64835,10 +64984,9 @@ var _getMetaFieldForId = function(id, key) {
           t[Fr] = M(e.match(/\d\d?/)[0], 10);
         });
         var Co = W("Date", !0);
-        q("DDD", ["DDDD", 3], "DDDo", "dayOfYear"),
-          I("dayOfYear", "DDD"), N("dayOfYear", 4), X("DDD", /\d{1,3}/), X("DDDD", /\d{3}/), ne(["DDD", "DDDD"], function(e, t, n) {
-            n._dayOfYear = M(e);
-          }), q("m", ["mm", 2], 0, "minute"), I("minute", "m"), N("minute", 14), X("m", /\d\d?/), X("mm", /\d\d?/, /\d\d/), ne(["m", "mm"], Gr);
+        q("DDD", ["DDDD", 3], "DDDo", "dayOfYear"), I("dayOfYear", "DDD"), N("dayOfYear", 4), X("DDD", /\d{1,3}/), X("DDDD", /\d{3}/), ne(["DDD", "DDDD"], function(e, t, n) {
+          n._dayOfYear = M(e);
+        }), q("m", ["mm", 2], 0, "minute"), I("minute", "m"), N("minute", 14), X("m", /\d\d?/), X("mm", /\d\d?/, /\d\d/), ne(["m", "mm"], Gr);
         var Po = W("Minutes", !1);
         q("s", ["ss", 2], 0, "second"), I("second", "s"), N("second", 15), X("s", /\d\d?/), X("ss", /\d\d?/, /\d\d/), ne(["s", "ss"], Br);
         var Eo = W("Seconds", !1);
@@ -68716,10 +68864,9 @@ var _getMetaFieldForId = function(id, key) {
               return t;
             }(function(e) {
               var t = [];
-              return Yt.test(e) && t.push(""),
-                e.replace(/[^.[\]]+|\[(?:(-?\d+(?:\.\d+)?)|(["'])((?:(?!\2)[^\\]|\\.)*?)\2)\]|(?=(?:\.|\[\])(?:\.|\[\]|$))/g, function(e, n, r, o) {
-                  t.push(r ? o.replace(/\\(\\)?/g, "$1") : n || e);
-                }), t;
+              return Yt.test(e) && t.push(""), e.replace(/[^.[\]]+|\[(?:(-?\d+(?:\.\d+)?)|(["'])((?:(?!\2)[^\\]|\\.)*?)\2)\]|(?=(?:\.|\[\])(?:\.|\[\]|$))/g, function(e, n, r, o) {
+                t.push(r ? o.replace(/\\(\\)?/g, "$1") : n || e);
+              }), t;
             }),
             Yd = Qr(function(e, t) {
               return Fs(e) ? nr(e, sr(t, 1, Fs, !0)) : [];
@@ -82781,7 +82928,8 @@ var _getMetaFieldForId = function(id, key) {
           var e = this.props,
             t = e.columnCount,
             n = e.rowCount;
-          this._columnSizeAndPositionManager.getSizeAndPositionOfCell(t - 1), this._rowSizeAndPositionManager.getSizeAndPositionOfCell(n - 1);
+          this._columnSizeAndPositionManager.getSizeAndPositionOfCell(t - 1),
+            this._rowSizeAndPositionManager.getSizeAndPositionOfCell(n - 1);
         }
       }, {
         key: "recomputeGridSize",
@@ -89038,11 +89186,12 @@ var _getMetaFieldForId = function(id, key) {
           "c-presence--active": t,
           "c-presence--away": !t
         });
-      return "member" === r ? n && (i = t ? "presence_dnd" : "presence_dnd_offline") : "ra" === r ? i = n ? t ? "presence_ra_dnd" : "presence_ra_dnd_offline" : t ? "presence_ra_online" : "presence_ra_offline" : "ura" === r ? i = n ? t ? "presence_ura_dnd" : "presence_ura_dnd_offline" : t ? "presence_ura_online" : "presence_ura_offline" : "external" === r && (i = n ? t ? "presence_external_dnd" : "presence_external_dnd_offline" : t ? "presence_external_online" : "presence_external_offline"), o.a.createElement(s.a, {
-        type: i,
-        className: u,
-        "aria-hidden": !0
-      });
+      return "member" === r ? n && (i = t ? "presence_dnd" : "presence_dnd_offline") : "ra" === r ? i = n ? t ? "presence_ra_dnd" : "presence_ra_dnd_offline" : t ? "presence_ra_online" : "presence_ra_offline" : "ura" === r ? i = n ? t ? "presence_ura_dnd" : "presence_ura_dnd_offline" : t ? "presence_ura_online" : "presence_ura_offline" : "external" === r && (i = n ? t ? "presence_external_dnd" : "presence_external_dnd_offline" : t ? "presence_external_online" : "presence_external_offline"),
+        o.a.createElement(s.a, {
+          type: i,
+          className: u,
+          "aria-hidden": !0
+        });
     });
   l.propTypes = {
     isActive: r.PropTypes.bool,
