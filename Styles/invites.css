@@ -10,6 +10,21 @@
   letter-spacing: -.5px
 }
 
+#admin_invites_alert {
+  font-size: .9rem;
+  margin-bottom: 2.5rem;
+  padding: .75rem .5rem;
+  background: rgba(45, 158, 224, .06);
+  border: 1px solid #2D9EE0;
+  border-radius: 4px;
+  line-height: 1.375em
+}
+
+#admin_invites_alert ts-icon {
+  margin-left: 0;
+  vertical-align: middle
+}
+
 #admin_invites_subheader {
   font-size: 1rem;
   text-align: center

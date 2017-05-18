@@ -34,7 +34,7 @@
       cant_reactivate_as_guest: {
         primary: false,
         label: function(data) {
-          var formatted_member_name = TS.members.getMemberDisplayName(data.member.object, true, true);
+          var formatted_member_name = TS.members.getPrefCompliantMemberName(data.member.object, true, true);
           data = _.assign({}, data, {
             formatted_member_name: formatted_member_name,
             action: "cant_reactivate_as_guest"
@@ -56,7 +56,7 @@
           if (!TS.boot_data.feature_enterprise_guest_conversion) {
             return new Handlebars.SafeString(TS.i18n.t('Can’t remove or convert member <ts-icon class="very_small_left_padding ts_icon_question_circle"></ts-icon>', "member_actions")());
           }
-          var formatted_member_name = TS.members.getMemberDisplayName(data.member.object, true, true);
+          var formatted_member_name = TS.members.getPrefCompliantMemberName(data.member.object, true, true);
           var group_list = _.map(TS.idp_groups.getGroupsForMember(data.member.object.id), "name");
           var formatted_group_label = _getFormattedIdpGroups(group_list);
           var idp_label = TS.utility.enterprise.getProviderLabel(_.get(TS.model, "enterprise"), _.get(TS.model, "enterprise.sso_provider.label", "single sign-on"));
@@ -74,7 +74,7 @@
       cant_convert_or_deactivate: {
         primary: false,
         label: function(data) {
-          var formatted_member_name = TS.members.getMemberDisplayName(data.member.object, true, true);
+          var formatted_member_name = TS.members.getPrefCompliantMemberName(data.member.object, true, true);
           var group_list = _.map(TS.idp_groups.getGroupsForMember(data.member.object.id), "name");
           var formatted_group_label = _getFormattedIdpGroups(group_list);
           var idp_label = TS.utility.enterprise.getProviderLabel(_.get(TS.model, "enterprise"), _.get(TS.model, "enterprise.sso_provider.label", "single sign-on"));
@@ -124,7 +124,7 @@
       cant_convert_member_role: {
         primary: false,
         label: function(data) {
-          var formatted_member_name = TS.members.getMemberDisplayName(data.member.object, true, true);
+          var formatted_member_name = TS.members.getPrefCompliantMemberName(data.member.object, true, true);
           data = _.assign({}, data, {
             formatted_member_name: formatted_member_name,
             action: "cant_convert_member_role"

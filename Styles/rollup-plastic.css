@@ -756,7 +756,7 @@
 
 @font-face {
   font-family: 'Slack v2';
-  src: url(/0d6412/fonts/slack-icons-v2.woff2) format('woff2'), url(/0d6412/fonts/slack-icons-v2.woff) format('woff');
+  src: url(/0583c/fonts/slack-icons-v2.woff2) format('woff2'), url(/0583c/fonts/slack-icons-v2.woff) format('woff');
   font-style: normal;
   font-weight: 400
 }
@@ -12431,8 +12431,8 @@ h3 .presence {
   color: #555459
 }
 
-#member_preview_scroller a:not(.member_name):not(.current_status_preset_option):not(.member_details_manage_link):not(.current_status_presets_edit_link):hover,
-.team_list_item a:not(.member_name):not(.current_status_preset_option):not(.member_details_manage_link):not(.current_status_presets_edit_link):hover {
+body:not(.unify_user) #member_preview_scroller a:not(.member_name):not(.current_status_preset_option):not(.member_details_manage_link):not(.current_status_presets_edit_link):hover,
+body:not(.unify_user) .team_list_item a:not(.member_name):not(.current_status_preset_option):not(.member_details_manage_link):not(.current_status_presets_edit_link):hover {
   color: #005E99;
   text-decoration: underline
 }
@@ -14111,8 +14111,8 @@ body:not(.unify_user) .dm_badge .member_image {
   color: #A0A0A2
 }
 
-.dm_badge a.app_preview_link,
-.dm_badge a.member_preview_link {
+body:not(.unify_user) .dm_badge a.app_preview_link,
+body:not(.unify_user) .dm_badge a.member_preview_link {
   font-weight: 600;
   font-size: 1rem;
   color: #555459
@@ -14122,7 +14122,7 @@ body:not(.unify_user) .dm_badge .member_image {
   color: inherit
 }
 
-.dm_badge a {
+body:not(.unify_user) .dm_badge a {
   color: #9e9ea6;
   -webkit-transition: .1s;
   -moz-transition: .1s;
@@ -15094,7 +15094,7 @@ html:not(.supports_flexbox) .channel_modal_with_list .channel_modal_list {
 }
 
 #channel_browser .channel_browser_type_icon {
-  margin-right: -3px;
+  margin-right: -1px;
   margin-left: -5px
 }
 
@@ -17263,6 +17263,15 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   background-repeat: no-repeat
 }
 
+.c-member__linked {
+  cursor: pointer;
+  text-decoration: none
+}
+
+.c-member__linked:hover {
+  text-decoration: none
+}
+
 .c-member__current-status .emoji-outer.emoji-sizer {
   display: inline-block;
   width: 1rem;
@@ -17517,6 +17526,10 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 .c-member__display-name--large,
 .c-member__title--large {
   color: #2C2D30
+}
+
+.c-member__other-names--large {
+  color: #717274
 }
 
 .c-member__display-name--large {

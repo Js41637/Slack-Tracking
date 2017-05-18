@@ -4940,7 +4940,7 @@ var _cyrillicToLatin = function(char) {
       TS.model.window_unloading = true;
       TS.ui.window_unloaded_sig.dispatch();
       if (TS.useRedux() || TS.useReactDownloads()) {
-        TS.redux.dispatch(window.Redux.Entities.Window.setUnloading(true));
+        TS.redux.dispatch(TS.interop.redux.entities.window.setUnloading(true));
       }
     },
     maybeTickleMS: function() {
@@ -4976,7 +4976,7 @@ var _cyrillicToLatin = function(char) {
       if (TS.view) TS.view.updateTitleBarColor();
       TS.ui.window_focus_changed_sig.dispatch(true);
       if (TS.useRedux() || TS.useReactDownloads()) {
-        TS.redux.dispatch(window.Redux.Entities.Window.updateFocus(true));
+        TS.redux.dispatch(TS.interop.redux.entities.window.updateFocus(true));
       }
     },
     onWindowBlur: function(e) {
@@ -4987,7 +4987,7 @@ var _cyrillicToLatin = function(char) {
       TS.model.ui.is_window_focused = false;
       TS.ui.window_focus_changed_sig.dispatch(false);
       if (TS.useRedux() || TS.useReactDownloads()) {
-        TS.redux.dispatch(window.Redux.Entities.Window.updateFocus(false));
+        TS.redux.dispatch(TS.interop.redux.entities.window.updateFocus(false));
       }
     },
     onWindowVisibilityChange: function(e) {
