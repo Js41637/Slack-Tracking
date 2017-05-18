@@ -12085,8 +12085,8 @@ TS.registerModule("constants", {
         var username_prefix = include_at_sign ? "@" : "";
         if (TS.boot_data.feature_name_tagging_client) {
           var name = TS.members.getMemberRealName(member);
-          if (!TS.members.shouldDisplayRealNames() && TS.members.getMemberPreferredName(member)) {
-            name = TS.members.getMemberPreferredName(member);
+          if (!TS.members.shouldDisplayRealNames() && TS.members.getMemberProfileFieldDisplayName(member)) {
+            name = TS.members.getMemberProfileFieldDisplayName(member);
           }
           return username_prefix + name;
         }
@@ -12118,10 +12118,10 @@ TS.registerModule("constants", {
     getMemberRealNameLowerCase: function(member_or_id) {
       return _getMemberNameHelper(member_or_id, "_real_name_normalized_lc");
     },
-    getMemberPreferredName: function(member_or_id) {
+    getMemberProfileFieldDisplayName: function(member_or_id) {
       return _getMemberNameHelper(member_or_id, "display_name");
     },
-    getMemberPreferredNameLowerCase: function(member_or_id) {
+    getMemberProfileFieldDisplayNameLowerCase: function(member_or_id) {
       return _getMemberNameHelper(member_or_id, "_display_name_normalized_lc");
     },
     getMemberUsernameAndRealNameInCorrectOrder: function(member_or_id) {
@@ -12153,7 +12153,7 @@ TS.registerModule("constants", {
     getMemberSecondaryName: function(member_or_id) {
       var member = _ensureMember(member_or_id);
       if (TS.members.shouldDisplayRealNames()) {
-        return TS.members.getMemberPreferredName(member);
+        return TS.members.getMemberProfileFieldDisplayName(member);
       }
       return TS.members.getMemberRealName(member);
     },
@@ -21227,7 +21227,7 @@ TS.registerModule("constants", {
         var member = TS.members.getMemberById(user_id);
         author = {
           author_name: TS.members.getMemberRealName(member),
-          author_subname: TS.boot_data.feature_name_tagging_client ? TS.members.getMemberPreferredName(member) : member.name,
+          author_subname: TS.boot_data.feature_name_tagging_client ? TS.members.getMemberProfileFieldDisplayName(member) : member.name,
           author_icon: member.profile.image_24,
           author_link: TS.boot_data.feature_name_tagging_client ? "/team/" + user_id : "/team/" + _.escape(member.name)
         };
@@ -26029,8 +26029,8 @@ TS.registerModule("constants", {
         if (TS.utility.shouldLinksHaveTargets()) return new Handlebars.SafeString('target="/team/' + member.name + '"');
         return "";
       });
-      Handlebars.registerHelper("getMemberPreferredName", function(member_or_id) {
-        return TS.members.getMemberPreferredName(member_or_id);
+      Handlebars.registerHelper("getMemberProfileFieldDisplayName", function(member_or_id) {
+        return TS.members.getMemberProfileFieldDisplayName(member_or_id);
       });
       Handlebars.registerHelper("getMemberSecondaryName", function(member) {
         return TS.members.getMemberSecondaryName(member);
@@ -26065,7 +26065,7 @@ TS.registerModule("constants", {
         }).join("");
         return new Handlebars.SafeString(names_in_correct_order_html);
       });
-      Handlebars.registerHelper("getMemberPreferredNameandRealNameInCorrectOrder", function(member) {
+      Handlebars.registerHelper("getMemberProfileFieldDisplayNameandRealNameInCorrectOrder", function(member) {
         var primary_name = _.escape(TS.members.getPrefCompliantMemberName(member));
         var secondary_name;
         if (member.is_self) {
@@ -52390,7 +52390,7 @@ $.fn.togglify = function(settings) {
     if (!searcher.only_channels && !searcher.only_emoji) {
       member_matches = data.members.filter(function(m) {
         if (TS.boot_data.feature_name_tagging_client) {
-          if (options.prefer_exact_match && (TS.members.getMemberPreferredName(m).toLocaleLowerCase() === searcher.query || TS.members.getMemberRealName(m).toLocaleLowerCase() === searcher.query)) {
+          if (options.prefer_exact_match && (TS.members.getMemberProfileFieldDisplayName(m).toLocaleLowerCase() === searcher.query || TS.members.getMemberRealName(m).toLocaleLowerCase() === searcher.query)) {
             _setMetaFieldForId(m.id, "jumper_exact_match", true);
             exact_matches.push(m);
             return false;
