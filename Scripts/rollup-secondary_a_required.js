@@ -15870,7 +15870,7 @@ TS.registerModule("constants", {
           },
           onTab: function() {
             TS.search.autocomplete.triggerInputEvent("on-tab");
-            return false;
+            return TS.boot_data.feature_keyboard_navigation;
           }
         });
       }
@@ -47784,6 +47784,7 @@ $.fn.togglify = function(settings) {
         },
         onTab: function() {
           _$modal_container.find("#invite_members_input").focus();
+          return TS.boot_data.feature_keyboard_navigation;
         },
         onEnter: function() {
           return false;
@@ -52115,14 +52116,23 @@ $.fn.togglify = function(settings) {
     },
     printTest: function(query, options) {
       var all_members = TS.members.getActiveMembersWithSlackbotAndNotSelf();
-      var all_channels = TS.channels.getUnarchivedChannelsForUser();
-      var all_groups = TS.groups.getUnarchivedGroups();
-      var all_mpims = TS.mpims.getVisibleMpims();
+      var all_channels;
+      var all_groups;
+      var all_mpims;
       var all_teams = _.values(TS.boot_data.other_accounts);
       var all_usergroups = TS.user_groups.getActiveUserGroups();
       var all_emoji = TS.model.emoji_map;
       var all_broadcast_keywords = TS.utility.members.getBroadcastKeywordsForUser();
       var all_views = TS.model.NAMED_VIEWS;
+      if (TS.useRedux()) {
+        all_channels = _.reject(TS.redux.channels.dangerouslyGetChannelsForUser(), "is_archived");
+        all_groups = _.reject(TS.redux.channels.dangerouslyGetGroups(), "is_archived");
+        all_mpims = TS.mpims.getVisibleMpims(TS.redux.channels.dangerouslyGetMpims());
+      } else {
+        all_channels = TS.channels.getUnarchivedChannelsForUser();
+        all_groups = TS.groups.getUnarchivedGroups();
+        all_mpims = TS.mpims.getVisibleMpims();
+      }
       var data = {
         members: all_members,
         channels: all_channels,
@@ -59105,7 +59115,7 @@ var _getMetaFieldForId = function(id, key) {
         },
         onTab: function() {
           if (opts.onTab) opts.onTab();
-          return false;
+          return TS.boot_data.feature_keyboard_navigation;
         },
         onTextChange: function() {
           TS.msg_edit.checkLengthAndUpdateMessage($input);
@@ -59713,7 +59723,9 @@ var _getMetaFieldForId = function(id, key) {
           TS.generic_dialog.go();
         }
       } else if (e.which === TS.utility.keymap.tab && $channel_picker.find(".lfs_input_container:visible").length && !e.shiftKey && !$input.tab_complete_ui("isShowing") && !$input.tab_complete_ui("hasMatches")) {
-        e.preventDefault();
+        if (!TS.boot_data.feature_keyboard_navigation) {
+          e.preventDefault();
+        }
         _onTab();
       }
     }).on("textchange", function() {
@@ -59726,6 +59738,7 @@ var _getMetaFieldForId = function(id, key) {
   };
   var _onTab = function() {
     $("#file_sharing_div").find(".lfs_input_container").click();
+    return TS.boot_data.feature_keyboard_navigation;
   };
   var _onEnd = function() {
     if (_options.onEnd) _options.onEnd();
@@ -63251,7 +63264,7 @@ var _getMetaFieldForId = function(id, key) {
   var _getLocalChannels = function(options) {
     options = _mergeDefaults(options, _DEFAULT_CHANNEL_OPTIONS);
     var channels;
-    if (options.optimize_redux_for_performance && TS.useRedux()) {
+    if (TS.useRedux()) {
       channels = TS.redux.channels.dangerouslyGetChannelsForUser();
     } else {
       channels = TS.channels.getChannelsForUser().slice();
@@ -63269,7 +63282,7 @@ var _getMetaFieldForId = function(id, key) {
   };
   var _getLocalGroups = function(options) {
     options = _mergeDefaults(options, _DEFAULT_GROUP_OPTIONS);
-    if (options.optimize_redux_for_performance && TS.useRedux()) {
+    if (TS.useRedux()) {
       var groups = TS.redux.channels.dangerouslyGetGroups();
       if (!options.include_archived) {
         groups = _.reject(groups, "is_archived");
@@ -63281,8 +63294,8 @@ var _getMetaFieldForId = function(id, key) {
     }
     return TS.groups.getUnarchivedGroups();
   };
-  var _getLocalMPIMs = function(options) {
-    if (options.optimize_redux_for_performance && TS.useRedux()) {
+  var _getLocalMPIMs = function() {
+    if (TS.useRedux()) {
       return TS.mpims.getVisibleMpims(TS.redux.channels.dangerouslyGetMpims());
     }
     return TS.mpims.getVisibleMpims().slice();
@@ -63343,7 +63356,8 @@ var _getMetaFieldForId = function(id, key) {
       l: !1,
       exports: {}
     };
-    return e[r].call(o.exports, o, o.exports, t), o.l = !0, o.exports;
+    return e[r].call(o.exports, o, o.exports, t), o.l = !0,
+      o.exports;
   }
   var n = {};
   t.m = e, t.c = n, t.i = function(e) {
@@ -83943,10 +83957,9 @@ var _getMetaFieldForId = function(id, key) {
       c()(this, t);
       var r = h()(this, (t.__proto__ || u()(t)).call(this, e, n));
       return r._invalidateOnUpdateStartIndex = null, r._invalidateOnUpdateStopIndex = null, r._positionCache = new M.a, r._startIndex = null, r._startIndexMemoized = null, r._stopIndex = null, r._stopIndexMemoized = null, r.state = {
-          isScrolling: !1,
-          scrollTop: 0
-        }, r._debounceResetIsScrollingCallback = r._debounceResetIsScrollingCallback.bind(r), r._setScrollingContainerRef = r._setScrollingContainerRef.bind(r), r._onScroll = r._onScroll.bind(r),
-        r;
+        isScrolling: !1,
+        scrollTop: 0
+      }, r._debounceResetIsScrollingCallback = r._debounceResetIsScrollingCallback.bind(r), r._setScrollingContainerRef = r._setScrollingContainerRef.bind(r), r._onScroll = r._onScroll.bind(r), r;
     }
     return m()(t, e), f()(t, [{
       key: "clearCellPositions",
@@ -88724,7 +88737,8 @@ var _getMetaFieldForId = function(id, key) {
 
   function r(e) {
     var t = s.a.omit(e, "type");
-    return t.className = e.type ? l()("ts_icon ts_icon_" + e.type, e.className) : l()("ts_icon", e.className), i.a.createElement("i", t);
+    return t.className = e.type ? l()("ts_icon ts_icon_" + e.type, e.className) : l()("ts_icon", e.className),
+      i.a.createElement("i", t);
   }
   var o = n(1),
     i = n.n(o),
@@ -97833,8 +97847,7 @@ var _getMetaFieldForId = function(id, key) {
   }
 
   function o(e, t) {
-    e.mid = t.mid,
-      e.left = t.left, e.right = t.right, e.leftPoints = t.leftPoints, e.rightPoints = t.rightPoints, e.count = t.count;
+    e.mid = t.mid, e.left = t.left, e.right = t.right, e.leftPoints = t.leftPoints, e.rightPoints = t.rightPoints, e.count = t.count;
   }
 
   function i(e, t) {
