@@ -11723,7 +11723,7 @@ TS.registerModule("constants", {
     },
     getMemberById: function(id, no_unknown) {
       if (TS.boot_data.feature_unknown_members && no_unknown !== true) {
-        var UNKNOWN_MEMBERS_FIX_VERSION = 6;
+        var UNKNOWN_MEMBERS_FIX_VERSION = 7;
         var stack = TS.console.getStackTrace();
         var immediate_caller = _.get(stack.split("\n"), "[1]");
         var immediate_caller_name_match = immediate_caller.match(/at(?:\s|\sObject\.)([_a-zA-Z]+)\s/);
@@ -12653,17 +12653,18 @@ TS.registerModule("constants", {
     if (!TS.boot_data.feature_unknown_members) return;
     var was_unknown = member ? member.is_unknown : false;
     if (member && member.is_unknown) member.is_unknown = false;
+    _.pull(_unknown_member_ids, member.id);
     if (TS.members.getKnownMemberById(member.name)) {
       member = TS.members.getKnownMemberById(member.name);
       was_unknown = member ? member.is_unknown : false;
       if (member.is_unknown) member.is_unknown = false;
+      _.pull(_unknown_member_ids, member.id);
       TS.members.changed_name_sig.dispatch(member);
     }
     if (_persistent_unknown_member_timers[member.id]) {
       clearTimeout(_persistent_unknown_member_timers[member.id]);
       if (was_unknown) TS.statsd.measure("unknown_member_resolution_timing", "unknown_member_resolution_timing_" + member.id);
     }
-    _.pull(_unknown_member_ids, member.id);
   };
   var _maybeSetMemberColor = function(member) {
     if (member.member_color) return;
@@ -32949,7 +32950,7 @@ TS.registerModule("constants", {
     if (TS.boot_data.feature_unknown_members && m && tsf_mode !== "EDIT" && tsf_mode !== "GROWL") {
       if (m.is_unknown) {
         return TS.templates.message_member_unknown();
-      } else if (m.is_non_existent) {
+      } else if (m.is_non_existent && TS.utility.strLooksLikeAMemberId(m.id)) {
         return TS.templates.message_member_non_existent();
       }
     }
@@ -37322,6 +37323,10 @@ var _on_esc;
       return cmds;
     },
     parseArgs: function(txt) {
+      var original_txt = txt;
+      if (TS.boot_data.feature_name_tagging_client) {
+        txt = TS.format.texty.convertContentsStringForSlashCommands(txt);
+      }
       var args = {
         cmd: "",
         rest: "",
@@ -37334,6 +37339,7 @@ var _on_esc;
       args.cmd = args.words[0].toLowerCase();
       args.disp = args.words[0];
       args.rest = txt_trimmed.substring(args.cmd.length).trim();
+      args.original_txt = original_txt;
       return args;
     },
     setUpCmds: function() {
@@ -37465,70 +37471,63 @@ var _on_esc;
         service_name: cmd.service_name || ""
       };
     },
-    addTempEphemeralFeedback: function(text, input_txt, slackbot_feels, c_id, thread_ts) {
-      if (input_txt) {
-        if (TS.boot_data.feature_threads_slash_cmds && c_id && thread_ts) {
-          TS.utility.populateThreadInputs(input_txt, c_id, thread_ts);
-        } else {
-          TS.utility.contenteditable.value(TS.client.ui.$msg_input, input_txt);
-        }
-      }
-      var ephemeral_msg = {
-        text: text,
-        ephemeral_type: "temp_slash_cmd_feedback"
-      };
-      if (slackbot_feels) {
-        ephemeral_msg.slackbot_feels = slackbot_feels;
-      }
-      if (TS.boot_data.feature_threads_slash_cmds && c_id && thread_ts) {
-        ephemeral_msg.channel = c_id;
-        ephemeral_msg.thread_ts = thread_ts;
-        ephemeral_msg.ephemeral_type = "threads_temp_slash_cmd_feedback";
-      }
-      TS.client.ui.addOrFlashEphemeralBotMsg(ephemeral_msg);
-    },
-    addEphemeralFeedback: function(text, input_txt, slackbot_feels, c_id, thread_ts) {
-      if (input_txt) {
-        if (TS.boot_data.feature_threads_slash_cmds && c_id && thread_ts) {
-          TS.utility.populateThreadInputs(input_txt, c_id, thread_ts);
-        } else {
-          TS.utility.contenteditable.value(TS.client.ui.$msg_input, input_txt);
-        }
-      }
-      if (TS.boot_data.feature_threads_slash_cmds && c_id && thread_ts) {
-        TS.utility.msgs.removeAllEphemeralMsgsByType("threads_temp_slash_cmd_feedback", c_id);
-      } else {
-        TS.utility.msgs.removeAllEphemeralMsgsByType("temp_slash_cmd_feedback", TS.model.active_cid);
-      }
+    addEphemeralFeedback: function(text, opts) {
+      _.defaults(opts || {}, {
+        temporary: true
+      });
       var ephemeral_msg = {
         text: text
       };
-      if (slackbot_feels) {
-        ephemeral_msg.slackbot_feels = slackbot_feels;
+      if (opts.input_txt) {
+        if (TS.boot_data.feature_threads_slash_cmds && opts.c_id && opts.thread_ts) {
+          TS.utility.populateThreadInputs(opts.input_txt, opts.c_id, opts.thread_ts);
+        } else {
+          TS.utility.contenteditable.value(TS.client.ui.$msg_input, opts.input_txt);
+        }
       }
-      if (TS.boot_data.feature_threads_slash_cmds && c_id && thread_ts) {
-        ephemeral_msg.channel = c_id;
-        ephemeral_msg.thread_ts = thread_ts;
+      if (!opts.temporary) {
+        if (TS.boot_data.feature_threads_slash_cmds && opts.c_id && opts.thread_ts) {
+          TS.utility.msgs.removeAllEphemeralMsgsByType("threads_temp_slash_cmd_feedback", opts.c_id);
+        } else {
+          TS.utility.msgs.removeAllEphemeralMsgsByType("temp_slash_cmd_feedback", TS.model.active_cid);
+        }
       }
-      TS.client.ui.addEphemeralBotMsg(ephemeral_msg);
+      if (opts.temporary) {
+        ephemeral_msg.ephemeral_type = "temp_slash_cmd_feedback";
+      }
+      if (opts.slackbot_feels) {
+        ephemeral_msg.slackbot_feels = opts.slackbot_feels;
+      }
+      if (TS.boot_data.feature_threads_slash_cmds && opts.c_id && opts.thread_ts) {
+        ephemeral_msg.channel = opts.c_id;
+        ephemeral_msg.thread_ts = opts.thread_ts;
+        if (opts.temporary) {
+          ephemeral_msg.ephemeral_type = "threads_temp_slash_cmd_feedback";
+        }
+      }
+      if (opts.temporary) {
+        TS.client.ui.addOrFlashEphemeralBotMsg(ephemeral_msg);
+      } else {
+        TS.client.ui.addEphemeralBotMsg(ephemeral_msg);
+      }
     },
-    runCommand: function(cmd, rest, words, in_reply_to_msg, model_ob) {
-      if (!TS.cmd_handlers[cmd]) return;
+    runCommand: function(args, in_reply_to_msg, model_ob) {
+      if (!TS.cmd_handlers[args.cmd]) return;
       if (TS.boot_data.feature_threads_slash_cmds && in_reply_to_msg) {
-        if (!TS.cmd_handlers.isCmdSupportedInThreads(cmd)) {
-          TS.cmd_handlers.sendCmdNotSupportedInThreadsMsg(cmd, rest, in_reply_to_msg, model_ob);
+        if (!TS.cmd_handlers.isCmdSupportedInThreads(args.cmd)) {
+          TS.cmd_handlers.sendCmdNotSupportedInThreadsMsg(args.cmd, args.original_txt, in_reply_to_msg, model_ob);
           return;
         }
       }
       if (TS.model.last_active_cid) {
         TS.utility.msgs.removeAllEphemeralMsgsByType("temp_slash_cmd_feedback", TS.model.last_active_cid);
       }
-      TS.cmd_handlers[cmd].func(cmd, rest, words, in_reply_to_msg, model_ob);
+      TS.cmd_handlers[args.cmd].func(args.cmd, args.rest, args.words, args.original_txt, in_reply_to_msg, model_ob);
     },
     isCmdSupportedInThreads: function(cmd) {
       return cmd && _.includes(_SUPPORTED_THREAD_CMDS, cmd);
     },
-    sendCmdNotSupportedInThreadsMsg: function(cmd, rest, in_reply_to_msg, model_ob) {
+    sendCmdNotSupportedInThreadsMsg: function(cmd, input_txt, in_reply_to_msg, model_ob) {
       var error_text;
       if (TS.cmd_handlers[cmd]) {
         error_text = TS.i18n.t("*{cmd}* is not supported in threads. Sorry!", "threads")({
@@ -37539,9 +37538,12 @@ var _on_esc;
           cmd: cmd
         });
       }
-      var input_text = cmd + " " + rest;
-      var slackbot_feels = "sad_surprise";
-      TS.cmd_handlers.addTempEphemeralFeedback(error_text, input_text, slackbot_feels, model_ob.id, in_reply_to_msg.ts);
+      TS.cmd_handlers.addEphemeralFeedback(error_text, {
+        input_txt: input_txt,
+        slackbot_feels: "sad_surprise",
+        c_id: model_ob.id,
+        thread_ts: in_reply_to_msg.ts
+      });
     },
     "/slackdevtools": {
       type: "client",
@@ -37570,16 +37572,22 @@ var _on_esc;
       alias_of: null,
       aliases: null,
       desc: TS.i18n.t('Toggle your "away" status', "cmd_handlers")(),
-      func: function(cmd, rest, words, in_reply_to_msg, model_ob) {
+      func: function(cmd, rest, words, original_txt, in_reply_to_msg, model_ob) {
         TS.members.toggleUserPresence().then(function(res) {
           var presence = res.args.presence || TS.model.user.presence;
           var feedback_text = ":white_check_mark: " + TS.i18n.t("You are now marked as *{presence}*.", "cmd_handlers")({
             presence: presence
           });
           if (TS.boot_data.feature_threads_slash_cmds && model_ob && in_reply_to_msg) {
-            TS.cmd_handlers.addEphemeralFeedback(feedback_text, null, null, model_ob.id, in_reply_to_msg.ts);
+            TS.cmd_handlers.addEphemeralFeedback(feedback_text, {
+              temporary: false,
+              c_id: model_ob.id,
+              thread_ts: in_reply_to_msg.ts
+            });
           } else {
-            TS.cmd_handlers.addEphemeralFeedback(feedback_text);
+            TS.cmd_handlers.addEphemeralFeedback(feedback_text, {
+              temporary: false
+            });
           }
         }).catch(_.noop);
         if (rest) TS.members.setUserStatus(rest);
@@ -37625,7 +37633,7 @@ var _on_esc;
         name: TS.i18n.t("channel", "cmd_handlers")(),
         optional: true
       }],
-      func: function(cmd, rest, words, in_reply_to_msg, model_ob) {
+      func: function(cmd, rest, words, original_txt, in_reply_to_msg, model_ob) {
         if (words.length == 1) {
           TS.ui.channel_browser.start();
         } else {
@@ -37653,9 +37661,17 @@ var _on_esc;
               channel_name: channel_name
             });
             if (TS.boot_data.feature_threads_slash_cmds && model_ob && in_reply_to_msg) {
-              TS.cmd_handlers.addEphemeralFeedback(feedback_text, "", "sad_surprise", model_ob.id, in_reply_to_msg.ts);
+              TS.cmd_handlers.addEphemeralFeedback(feedback_text, {
+                temporary: false,
+                slackbot_feels: "sad_surprise",
+                c_id: model_ob.id,
+                thread_ts: in_reply_to_msg.ts
+              });
             } else {
-              TS.cmd_handlers.addEphemeralFeedback(feedback_text, "", "sad_surprise");
+              TS.cmd_handlers.addEphemeralFeedback(feedback_text, {
+                temporary: false,
+                slackbot_feels: "sad_surprise"
+              });
             }
           }
         }
@@ -37667,8 +37683,8 @@ var _on_esc;
       alias_of: "/open",
       aliases: null,
       desc: "",
-      func: function(cmd, rest, words, in_reply_to_msg, model_ob) {
-        TS.cmd_handlers["/open"].func(cmd, rest, words, in_reply_to_msg, model_ob);
+      func: function(cmd, rest, words, original_txt, in_reply_to_msg, model_ob) {
+        TS.cmd_handlers["/open"].func(cmd, rest, words, original_txt, in_reply_to_msg, model_ob);
       }
     },
     "/msg": {
@@ -37684,24 +37700,11 @@ var _on_esc;
         name: TS.i18n.t("your message", "cmd_handlers")(),
         optional: true
       }],
-      func: function(cmd, rest, words, in_reply_to_msg, model_ob) {
+      func: function(cmd, rest, words, original_txt, in_reply_to_msg, model_ob) {
         var name = words.length > 1 ? words[1] : "";
         var c_or_g;
         var feedback_text;
-        var input_text = cmd + " " + rest;
-        var m;
-        if (TS.boot_data.feature_name_tagging_client) {
-          m = TS.members.getKnownMemberById(name);
-        } else if (TS.boot_data.feature_shared_channels_client) {
-          var username_and_team = name.match(/^@([\w.-]+)\+([\w.-]+)$/);
-          if (username_and_team && username_and_team.length > 1) {
-            m = TS.members.getMemberByNameAndTeamDomain(username_and_team[1], username_and_team[2]);
-          } else {
-            m = TS.members.getMemberByName(name);
-          }
-        } else {
-          m = TS.members.getMemberByName(name);
-        }
+        var m = _getMemberFromArgument(name);
         if (!m) {
           if (name) {
             var c_name = name.replace("#", "");
@@ -37710,9 +37713,17 @@ var _on_esc;
             if (!c_or_g) {
               feedback_text = TS.i18n.t("A valid team member name is required.", "cmd_handlers")();
               if (TS.boot_data.feature_threads_slash_cmds && model_ob && in_reply_to_msg) {
-                TS.cmd_handlers.addTempEphemeralFeedback(feedback_text, input_text, "sad_surprise", model_ob.id, in_reply_to_msg.ts);
+                TS.cmd_handlers.addEphemeralFeedback(feedback_text, {
+                  input_txt: original_txt,
+                  slackbot_feels: "sad_surprise",
+                  c_id: model_ob.id,
+                  thread_ts: in_reply_to_msg.ts
+                });
               } else {
-                TS.cmd_handlers.addTempEphemeralFeedback(feedback_text, input_text, "sad_surprise");
+                TS.cmd_handlers.addEphemeralFeedback(feedback_text, {
+                  input_txt: original_txt,
+                  slackbot_feels: "sad_surprise"
+                });
               }
               return;
             }
@@ -37727,9 +37738,17 @@ var _on_esc;
           if (m.deleted) {
             feedback_text = TS.i18n.t("That user has been deactivated", "cmd_handlers")() + " :disappointed:";
             if (TS.boot_data.feature_threads_slash_cmds && model_ob && in_reply_to_msg) {
-              TS.cmd_handlers.addTempEphemeralFeedback(feedback_text, input_text, "sad_surprise", model_ob.id, in_reply_to_msg.ts);
+              TS.cmd_handlers.addEphemeralFeedback(feedback_text, {
+                input_txt: original_txt,
+                slackbot_feels: "sad_surprise",
+                c_id: model_ob.id,
+                thread_ts: in_reply_to_msg.ts
+              });
             } else {
-              TS.cmd_handlers.addTempEphemeralFeedback(feedback_text, input_text, "sad_surprise");
+              TS.cmd_handlers.addEphemeralFeedback(feedback_text, {
+                input_txt: original_txt,
+                slackbot_feels: "sad_surprise"
+              });
             }
             return;
           }
@@ -37740,9 +37759,17 @@ var _on_esc;
               channel: c_or_g.is_channel ? TS.i18n.t("channel", "cmd_handlers")() : TS.i18n.t("private channel", "cmd_handlers")()
             });
             if (TS.boot_data.feature_threads_slash_cmds && model_ob && in_reply_to_msg) {
-              TS.cmd_handlers.addTempEphemeralFeedback(feedback_text, input_text, "sad_surprise", model_ob.id, in_reply_to_msg.ts);
+              TS.cmd_handlers.addEphemeralFeedback(feedback_text, {
+                input_txt: original_txt,
+                slackbot_feels: "sad_surprise",
+                c_id: model_ob.id,
+                thread_ts: in_reply_to_msg.ts
+              });
             } else {
-              TS.cmd_handlers.addTempEphemeralFeedback(feedback_text, input_text, "sad_surprise");
+              TS.cmd_handlers.addEphemeralFeedback(feedback_text, {
+                input_txt: original_txt,
+                slackbot_feels: "sad_surprise"
+              });
             }
             return;
           }
@@ -37773,101 +37800,114 @@ var _on_esc;
         name: TS.i18n.t("channel", "cmd_handlers")(),
         optional: true
       }],
-      func: function(cmd, rest, words) {
+      func: function(cmd, rest, words, original_txt) {
         var name = words.length > 1 ? words[1] : "";
+        var m = _getMemberFromArgument(name);
         var ug;
-        var m;
-        if (TS.boot_data.feature_name_tagging_client) {
-          m = TS.members.getKnownMemberById(name);
-        } else if (TS.boot_data.feature_shared_channels_client) {
-          var username_and_team = name.match(/^@([\w.-]+)\+([\w.-]+)$/);
-          if (username_and_team && username_and_team.length > 1) {
-            m = TS.members.getMemberByNameAndTeamDomain(username_and_team[1], username_and_team[2]);
-          } else {
-            m = TS.members.getMemberByName(name);
-          }
-        } else {
-          m = TS.members.getMemberByName(name);
-        }
         if (name) {
-          ug = TS.user_groups.getUserGroupsByHandle(name);
+          if (TS.boot_data.feature_name_tagging_client) {
+            ug = TS.user_groups.getUserGroupsById(name.substr(1));
+          } else {
+            ug = TS.user_groups.getUserGroupsByHandle(name);
+          }
         }
         if (!m && !ug && name) {
-          TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("A valid team member name is required.", "cmd_handlers")(), cmd + " " + rest, "sad_surprise");
+          TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("A valid team member name is required.", "cmd_handlers")(), {
+            input_txt: original_txt,
+            slackbot_feels: "sad_surprise"
+          });
           return;
         }
         if (m && m.deleted) {
-          TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("That user has been deactivated.", "cmd_handlers")(), cmd + " " + rest, "sad_surprise");
+          TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("That user has been deactivated.", "cmd_handlers")(), {
+            input_txt: original_txt,
+            slackbot_feels: "sad_surprise"
+          });
           return;
         }
         if (m && m.is_ultra_restricted) {
           if (TS.model.user.is_admin) {
-            TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("{user} is a Single-Channel Guest, and can’t be added to a second channel. To invite {user} to this channel, you’ll need to <{team_url}admin#restricted|upgrade their membership> to a Multi-Channel Guest. ​Note: This will add a billable seat to your team.", "cmd_handlers")({
+            TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("{user} is a Single-Channel Guest, and can’t be added to a second channel. To invite {user} to this channel, you’ll need to <{team_url}admin#restricted|upgrade their membership> to a Multi-Channel Guest. ​Note: This will add a billable seat to your team.", "cmd_handlers")({
               user: _.escape(name),
               team_url: TS.boot_data.team_url
-            }), cmd + " " + rest, "sad_surprise");
+            }), {
+              input_txt: original_txt,
+              slackbot_feels: "sad_surprise"
+            });
           } else {
-            TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("{user} is a Single-Channel Guest, and can’t be added to a second channel. Your Team Admin can upgrade their membership to a Multi-Channel Guest.", "cmd_handlers")({
+            TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("{user} is a Single-Channel Guest, and can’t be added to a second channel. Your Team Admin can upgrade their membership to a Multi-Channel Guest.", "cmd_handlers")({
               user: _.escape(name)
-            }), cmd + " " + rest, "sad_surprise");
+            }), {
+              input_txt: original_txt,
+              slackbot_feels: "sad_surprise"
+            });
           }
           return;
         }
         if (m && m.is_app_user) {
           var invite_chan = _getActiveChannel();
-          _maybeInviteAppUserToChannel(m, invite_chan, cmd + " " + rest);
+          _maybeInviteAppUserToChannel(m, invite_chan, original_txt);
           return;
         }
         var channel_name = words.length > 2 ? words[2] : "";
         if (channel_name) {
           if (!m && !ug) {
-            TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("A valid channel name is required.", "cmd_handlers")(), cmd + " " + rest, "sad_surprise");
+            TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("A valid channel name is required.", "cmd_handlers")(), {
+              input_txt: original_txt,
+              slackbot_feels: "sad_surprise"
+            });
             return;
           }
           var c = TS.channels.getChannelByName(channel_name);
           var g = TS.groups.getGroupByName(channel_name);
           if (c) {
             if (m) {
-              _maybeInviteUserToModelOb(m, c, cmd + " " + rest);
+              _maybeInviteUserToModelOb(m, c, original_txt);
             } else if (ug) {
-              _maybeInviteUserGroupToModelOb(ug, c, cmd + " " + rest);
+              _maybeInviteUserGroupToModelOb(ug, c, original_txt);
             }
           } else if (g) {
             if (m) {
-              _maybeInviteUserToModelOb(m, g, cmd + " " + rest);
+              _maybeInviteUserToModelOb(m, g, original_txt);
             } else if (ug) {
-              _maybeInviteUserGroupToModelOb(ug, g, cmd + " " + rest);
+              _maybeInviteUserGroupToModelOb(ug, g, original_txt);
             }
           } else {
-            TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("A valid channel name is required.", "cmd_handlers")(), cmd + " " + rest, "sad_surprise");
+            TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("A valid channel name is required.", "cmd_handlers")(), {
+              input_txt: original_txt,
+              slackbot_feels: "sad_surprise"
+            });
           }
         } else if (TS.model.active_channel_id) {
           var channel = TS.channels.getChannelById(TS.model.active_channel_id);
           if (m) {
-            _maybeInviteUserToModelOb(m, channel, cmd + " " + rest);
+            _maybeInviteUserToModelOb(m, channel, original_txt);
           } else if (ug) {
-            _maybeInviteUserGroupToModelOb(ug, channel, cmd + " " + rest);
+            _maybeInviteUserGroupToModelOb(ug, channel, original_txt);
           } else {
             TS.ui.channel_invite_modal.startInviteToChannelModal(TS.model.active_channel_id);
           }
         } else if (TS.model.active_group_id) {
           var group = TS.groups.getGroupById(TS.model.active_group_id);
           if (m) {
-            _maybeInviteUserToModelOb(m, group, cmd + " " + rest);
+            _maybeInviteUserToModelOb(m, group, original_txt);
           } else if (ug) {
-            _maybeInviteUserGroupToModelOb(ug, group, cmd + " " + rest);
+            _maybeInviteUserGroupToModelOb(ug, group, original_txt);
           } else {
             TS.ui.channel_invite_modal.startInviteToChannelModal(TS.model.active_group_id);
           }
         } else if (TS.model.active_mpim_id) {
           var mpim = TS.mpims.getMpimById(TS.model.active_mpim_id);
           if (m && mpim) {
-            _maybeInviteUserToModelOb(m, mpim, cmd + " " + rest);
+            _maybeInviteUserToModelOb(m, mpim, original_txt);
           } else {
             TS.ui.im_browser.startWithMpim(mpim);
           }
         } else {
-          TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("A valid channel name is required.", "cmd_handlers")(), cmd + " " + rest, "sad_surprise");
+          TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("A valid channel name is required.", "cmd_handlers")(), {
+            input_txt: original_txt,
+            slackbot_feels: "sad_surprise"
+          });
         }
       }
     },
@@ -37893,7 +37933,9 @@ var _on_esc;
           }
           TS.ui.admin_invites.start();
         } else {
-          TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("You don’t have permission to invite people.", "cmd_handlers")(), "", "sad_surprise");
+          TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("You don’t have permission to invite people.", "cmd_handlers")(), {
+            slackbot_feels: "sad_surprise"
+          });
         }
       }
     },
@@ -37903,8 +37945,8 @@ var _on_esc;
       alias_of: "/msg",
       aliases: null,
       desc: "",
-      func: function(cmd, rest, words, in_reply_to_msg, model_ob) {
-        TS.cmd_handlers["/msg"].func(cmd, rest, words, in_reply_to_msg, model_ob);
+      func: function(cmd, rest, words, original_txt, in_reply_to_msg, model_ob) {
+        TS.cmd_handlers["/msg"].func(cmd, rest, words, original_txt, in_reply_to_msg, model_ob);
       }
     },
     "/archive": {
@@ -37953,14 +37995,18 @@ var _on_esc;
               TS.groups.leave(model_ob.id);
             }
           } else {
-            TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("A valid channel or team member name is required.", "cmd_handlers")(), "", "sad_surprise");
+            TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("A valid channel or team member name is required.", "cmd_handlers")(), {
+              slackbot_feels: "sad_surprise"
+            });
           }
         } else {
           var channel = TS.channels.getChannelByName(rest);
           if (channel) {
             TS.channels.leave(channel.id);
           } else {
-            TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("A valid channel name is required.", "cmd_handlers")(), "", "sad_surprise");
+            TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("A valid channel name is required.", "cmd_handlers")(), {
+              slackbot_feels: "sad_surprise"
+            });
           }
         }
       }
@@ -37970,23 +38016,28 @@ var _on_esc;
       autocomplete: true,
       alias_of: null,
       desc: TS.i18n.t("Stars the current channel or conversation", "cmd_handlers")(),
-      func: function(cmd, rest, words, in_reply_to_msg, model_ob) {
+      func: function(cmd, rest, words, original_txt, in_reply_to_msg, model_ob) {
+        var feedback_text;
         if (TS.boot_data.feature_threads_slash_cmds && model_ob && in_reply_to_msg) {
           TS.stars.toggleStarOnMsg(in_reply_to_msg.ts, model_ob, function() {
-            var feedback = in_reply_to_msg.is_starred ? TS.i18n.t("Ok, I starred this thread", "cmd_handlers")() : TS.i18n.t("Ok, I unstarred this thread", "cmd_handlers")();
-            TS.cmd_handlers.addTempEphemeralFeedback(feedback, null, null, model_ob.id, in_reply_to_msg.ts);
+            feedback_text = in_reply_to_msg.is_starred ? TS.i18n.t("Ok, I starred this thread", "cmd_handlers")() : TS.i18n.t("Ok, I unstarred this thread", "cmd_handlers")();
+            TS.cmd_handlers.addEphemeralFeedback(feedback_text, {
+              c_id: model_ob.id,
+              thread_ts: in_reply_to_msg.ts
+            });
           });
         } else {
           TS.stars.toggleStarOnActiveModelObject(function(model_ob) {
             if (model_ob.is_starred) {
-              TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("Ok, I starred {channel}", "cmd_handlers")({
+              feedback_text = TS.i18n.t("Ok, I starred {channel}", "cmd_handlers")({
                 channel: model_ob.name
-              }));
+              });
             } else {
-              TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("Ok, {channel} is unstarred", "cmd_handlers")({
+              feedback_text = TS.i18n.t("Ok, {channel} is unstarred", "cmd_handlers")({
                 channel: model_ob.name
-              }));
+              });
             }
+            TS.cmd_handlers.addEphemeralFeedback(feedback_text);
           });
         }
       }
@@ -38021,16 +38072,22 @@ var _on_esc;
         name: TS.i18n.t("new topic", "cmd_handlers")(),
         optional: true
       }],
-      func: function(cmd, rest) {
+      func: function(cmd, rest, words, original_txt) {
         var model_ob = TS.shared.getActiveModelOb();
         if (TS.model.user.is_restricted || TS.channels.isChannelRequired(model_ob) && !TS.permissions.members.canPostInChannel(model_ob)) {
-          TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("Setting the topic is a restricted action.", "cmd_handlers")(), cmd + " " + rest, "sad_surprise");
+          TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("Setting the topic is a restricted action.", "cmd_handlers")(), {
+            input_txt: original_txt,
+            slackbot_feels: "sad_surprise"
+          });
           return;
         }
         if (rest.length > TS.model.channel_topic_max_length) {
-          TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("Topics cannot exceed {max_characters} characters.", "cmd_handlers")({
+          TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("Topics cannot exceed {max_characters} characters.", "cmd_handlers")({
             max_characters: TS.model.channel_topic_max_length
-          }), cmd + " " + rest, "sad_surprise");
+          }), {
+            input_txt: original_txt,
+            slackbot_feels: "sad_surprise"
+          });
           return;
         }
         if (TS.model.active_channel_id) {
@@ -38046,7 +38103,9 @@ var _on_esc;
             $("#channel_topic_text").click().focus().select();
           }
         } else {
-          TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("Regrettably, DMs do not have topics", "cmd_handlers")(), "", "sad_surprise");
+          TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("Regrettably, DMs do not have topics", "cmd_handlers")(), {
+            slackbot_feels: "sad_surprise"
+          });
         }
       }
     },
@@ -38104,17 +38163,23 @@ var _on_esc;
       }],
       func: function(cmd, rest) {
         if (TS.model.user.is_restricted) {
-          TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("You don’t have permission to rename.", "cmd_handlers")(), "", "sad_surprise");
+          TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("You don’t have permission to rename.", "cmd_handlers")(), {
+            slackbot_feels: "sad_surprise"
+          });
           return;
         }
         if (!TS.model.active_channel_id && !TS.model.active_group_id) {
-          TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("IM channels cannot be renamed.", "cmd_handlers")(), "", "sad_surprise");
+          TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("IM channels cannot be renamed.", "cmd_handlers")(), {
+            slackbot_feels: "sad_surprise"
+          });
           return;
         }
         var model_ob = TS.shared.getActiveModelOb();
         if (TS.model.active_channel_id || TS.model.active_group_id) {
           if (!TS.model.user.is_admin && model_ob.creator != TS.model.user.id) {
-            TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("Only Team Admins (or the channel creator) are allowed to rename channels.", "cmd_handlers")(), "", "sad_surprise");
+            TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("Only Team Admins (or the channel creator) are allowed to rename channels.", "cmd_handlers")(), {
+              slackbot_feels: "sad_surprise"
+            });
             return;
           }
         }
@@ -38151,7 +38216,7 @@ var _on_esc;
       alias_of: null,
       aliases: ["/colours"],
       desc: TS.i18n.t("View any custom colors you have set for other members", "cmd_handlers")(),
-      func: function(cmd, rest, words, in_reply_to_msg, model_ob) {
+      func: function(cmd, rest, words, original_txt, in_reply_to_msg, model_ob) {
         var members = TS.members.getMembersForUser();
         var member;
         var str = "";
@@ -38163,9 +38228,15 @@ var _on_esc;
         }
         var feedback_text = str ? TS.i18n.t("You have overridden colors as follows:", "cmd_handlers")() + "\n" + str : TS.i18n.t("No user color overrides have been set.", "cmd_handlers")();
         if (TS.boot_data.feature_threads_slash_cmds && model_ob && in_reply_to_msg) {
-          TS.cmd_handlers.addEphemeralFeedback(feedback_text, null, null, model_ob.id, in_reply_to_msg.ts);
+          TS.cmd_handlers.addEphemeralFeedback(feedback_text, {
+            temporary: false,
+            c_id: model_ob.id,
+            thread_ts: in_reply_to_msg.ts
+          });
         } else {
-          TS.cmd_handlers.addEphemeralFeedback(feedback_text);
+          TS.cmd_handlers.addEphemeralFeedback(feedback_text, {
+            temporary: false
+          });
         }
       }
     },
@@ -38175,8 +38246,8 @@ var _on_esc;
       alias_of: "/colors",
       aliases: null,
       desc: "",
-      func: function(cmd, rest, words, in_reply_to_msg, model_ob) {
-        TS.cmd_handlers["/colors"].func(cmd, rest, words, in_reply_to_msg, model_ob);
+      func: function(cmd, rest, words, original_txt, in_reply_to_msg, model_ob) {
+        TS.cmd_handlers["/colors"].func(cmd, rest, words, original_txt, in_reply_to_msg, model_ob);
       }
     },
     "/color": {
@@ -38185,37 +38256,32 @@ var _on_esc;
       alias_of: null,
       aliases: ["/colour"],
       desc: TS.i18n.t("Set a custom color for another member", "cmd_handlers")(),
-      func: function(cmd, rest, words, in_reply_to_msg, model_ob) {
+      func: function(cmd, rest, words, original_txt, in_reply_to_msg, model_ob) {
         var name = words.length > 1 ? words[1] : "";
         var color = words.length > 2 ? words[2].replace(/#/g, "") : "";
         var feedback_text;
-        var input_text = cmd + " " + rest;
-        var m;
-        if (TS.boot_data.feature_name_tagging_client) {
-          m = TS.members.getKnownMemberById(name);
-        } else if (TS.boot_data.feature_shared_channels_client) {
-          var username_and_team = name.match(/^@([\w.-]+)\+([\w.-]+)$/);
-          if (username_and_team && username_and_team.length > 1) {
-            m = TS.members.getMemberByNameAndTeamDomain(username_and_team[1], username_and_team[2]);
-          } else {
-            m = TS.members.getMemberByName(name);
-          }
-        } else {
-          m = TS.members.getMemberByName(name);
-        }
+        var m = _getMemberFromArgument(name);
         if (!m) {
           feedback_text = TS.i18n.t("A valid team member name is required.", "cmd_handlers")();
           if (TS.boot_data.feature_threads_slash_cmds && model_ob && in_reply_to_msg) {
-            TS.cmd_handlers.addTempEphemeralFeedback(feedback_text, input_text, "sad_surprise", model_ob.id, in_reply_to_msg.ts);
+            TS.cmd_handlers.addEphemeralFeedback(feedback_text, {
+              input_txt: original_txt,
+              slackbot_feels: "sad_surprise",
+              c_id: model_ob.id,
+              thread_ts: in_reply_to_msg.ts
+            });
           } else {
-            TS.cmd_handlers.addTempEphemeralFeedback(feedback_text, input_text, "sad_surprise");
+            TS.cmd_handlers.addEphemeralFeedback(feedback_text, {
+              input_txt: original_txt,
+              slackbot_feels: "sad_surprise"
+            });
           }
           return;
         }
         var member_identifier;
         if (m) {
           if (TS.boot_data.feature_name_tagging_client) {
-            member_identifier = "@" + m.id;
+            member_identifier = TS.members.getPrefCompliantMemberName(m, true, true);
           } else {
             member_identifier = "@" + m.name;
           }
@@ -38223,9 +38289,15 @@ var _on_esc;
         if (color && (color.length != 6 || !("#" + color).match(TS.format.hex_rx))) {
           feedback_text = TS.i18n.t("A valid 6 character hex code is required, like `FF0000`.", "cmd_handlers")();
           if (TS.boot_data.feature_threads_slash_cmds && model_ob && in_reply_to_msg) {
-            TS.cmd_handlers.addTempEphemeralFeedback(feedback_text, input_text, null, model_ob.id, in_reply_to_msg.ts);
+            TS.cmd_handlers.addEphemeralFeedback(feedback_text, {
+              input_txt: original_txt,
+              c_id: model_ob.id,
+              thread_ts: in_reply_to_msg.ts
+            });
           } else {
-            TS.cmd_handlers.addTempEphemeralFeedback(feedback_text, input_text);
+            TS.cmd_handlers.addEphemeralFeedback(feedback_text, {
+              input_txt: original_txt
+            });
           }
           return;
         }
@@ -38246,9 +38318,15 @@ var _on_esc;
           });
         }
         if (TS.boot_data.feature_threads_slash_cmds && model_ob && in_reply_to_msg) {
-          TS.cmd_handlers.addTempEphemeralFeedback(feedback_text, input_text, null, model_ob.id, in_reply_to_msg.ts);
+          TS.cmd_handlers.addEphemeralFeedback(feedback_text, {
+            input_txt: original_txt,
+            c_id: model_ob.id,
+            thread_ts: in_reply_to_msg.ts
+          });
         } else {
-          TS.cmd_handlers.addTempEphemeralFeedback(feedback_text, input_text);
+          TS.cmd_handlers.addEphemeralFeedback(feedback_text, {
+            input_txt: original_txt
+          });
         }
       }
     },
@@ -38258,8 +38336,8 @@ var _on_esc;
       alias_of: "/color",
       aliases: null,
       desc: "",
-      func: function(cmd, rest, words, in_reply_to_msg, model_ob) {
-        TS.cmd_handlers["/color"].func(cmd, rest, words, in_reply_to_msg, model_ob);
+      func: function(cmd, rest, words, original_txt, in_reply_to_msg, model_ob) {
+        TS.cmd_handlers["/color"].func(cmd, rest, words, original_txt, in_reply_to_msg, model_ob);
       }
     },
     "/colortest": {
@@ -38274,7 +38352,9 @@ var _on_esc;
           try {
             colors = JSON.parse(rest);
           } catch (ex) {
-            TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("Not a good value for colors: ", "cmd_handlers")() + rest, "", "sad_surprise");
+            TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("Not a good value for colors: ", "cmd_handlers")() + rest, {
+              slackbot_feels: "sad_surprise"
+            });
             return;
           }
         }
@@ -38406,10 +38486,9 @@ var _on_esc;
       alias_of: null,
       aliases: null,
       desc: TS.i18n.t("Edit the last message you posted", "cmd_handlers")(),
-      func: function(cmd, rest, words, in_reply_to_msg, model_ob_arg) {
+      func: function(cmd, rest, words, original_txt, in_reply_to_msg, model_ob_arg) {
         var model_ob = model_ob_arg || TS.shared.getActiveModelOb();
         var feedback_text;
-        var input_text = cmd + " " + rest;
         if (!model_ob) {
           return;
         }
@@ -38417,9 +38496,15 @@ var _on_esc;
         if (!rest) {
           feedback_text = TS.i18n.t("You must enter some text!", "cmd_handlers")();
           if (TS.boot_data.feature_threads_slash_cmds && model_ob && in_reply_to_msg) {
-            TS.cmd_handlers.addTempEphemeralFeedback(feedback_text, input_text, null, model_ob.id, in_reply_to_msg.ts);
+            TS.cmd_handlers.addEphemeralFeedback(feedback_text, {
+              input_txt: original_txt,
+              c_id: model_ob.id,
+              thread_ts: in_reply_to_msg.ts
+            });
           } else {
-            TS.cmd_handlers.addTempEphemeralFeedback(feedback_text, input_text);
+            TS.cmd_handlers.addEphemeralFeedback(feedback_text, {
+              input_txt: original_txt
+            });
           }
           return;
         }
@@ -38433,9 +38518,17 @@ var _on_esc;
         if (!msg) {
           feedback_text = TS.i18n.t("Found no recent messages from you to edit.", "cmd_handlers")();
           if (TS.boot_data.feature_threads_slash_cmds && model_ob && in_reply_to_msg) {
-            TS.cmd_handlers.addTempEphemeralFeedback(feedback_text, input_text, "sad_surprise", model_ob.id, in_reply_to_msg.ts);
+            TS.cmd_handlers.addEphemeralFeedback(feedback_text, {
+              input_txt: original_txt,
+              slackbot_feels: "sad_surprise",
+              c_id: model_ob.id,
+              thread_ts: in_reply_to_msg.ts
+            });
           } else {
-            TS.cmd_handlers.addTempEphemeralFeedback(feedback_text, input_text, "sad_surprise");
+            TS.cmd_handlers.addEphemeralFeedback(feedback_text, {
+              input_txt: original_txt,
+              slackbot_feels: "sad_surprise"
+            });
           }
           return;
         }
@@ -38448,7 +38541,7 @@ var _on_esc;
       alias_of: null,
       aliases: null,
       desc: TS.i18n.t("Delete the last message you posted", "cmd_handlers")(),
-      func: function(cmd, rest, words, in_reply_to_msg, model_ob_arg) {
+      func: function(cmd, rest, words, original_txt, in_reply_to_msg, model_ob_arg) {
         var model_ob = model_ob_arg || TS.shared.getActiveModelOb();
         if (!model_ob) {
           return;
@@ -38463,9 +38556,15 @@ var _on_esc;
         if (!msg) {
           var feedback_text = TS.i18n.t("Found no recent messages from you to delete.", "cmd_handlers")();
           if (TS.boot_data.feature_threads_slash_cmds && model_ob && in_reply_to_msg) {
-            TS.cmd_handlers.addTempEphemeralFeedback(feedback_text, "", "sad_surprise", model_ob.id, in_reply_to_msg.ts);
+            TS.cmd_handlers.addEphemeralFeedback(feedback_text, {
+              slackbot_feels: "sad_surprise",
+              c_id: model_ob.id,
+              thread_ts: in_reply_to_msg.ts
+            });
           } else {
-            TS.cmd_handlers.addTempEphemeralFeedback(feedback_text, "", "sad_surprise");
+            TS.cmd_handlers.addEphemeralFeedback(feedback_text, {
+              slackbot_feels: "sad_surprise"
+            });
           }
           return;
         }
@@ -38487,7 +38586,9 @@ var _on_esc;
         TS.inline_audios.collapseAllInCurrent();
         TS.inline_others.collapseAllInCurrent();
         TS.inline_file_previews.collapseAllInCurrent();
-        TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("I’ve collapsed all files in this channel for you.", "cmd_handlers")());
+        TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("I’ve collapsed all files in this channel for you.", "cmd_handlers")(), {
+          temporary: false
+        });
       }
     },
     "/expand": {
@@ -38505,7 +38606,9 @@ var _on_esc;
         TS.inline_audios.expandAllInCurrent();
         TS.inline_others.expandAllInCurrent();
         TS.inline_file_previews.expandAllInCurrent();
-        TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("I’ve expanded all files in this channel for you.", "cmd_handlers")());
+        TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("I’ve expanded all files in this channel for you.", "cmd_handlers")(), {
+          temporary: false
+        });
       }
     },
     "/attach_align": {
@@ -38539,44 +38642,44 @@ var _on_esc;
         name: "@user",
         optional: false
       }],
-      func: function(cmd, rest) {
+      func: function(cmd, rest, words, original_txt) {
         if (TS.model.active_channel_id && !TS.permissions.members.canKickFromChannels()) {
-          TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("Removing from channels is a restricted action.", "cmd_handlers")(), "", "sad_surprise");
+          TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("Removing from channels is a restricted action.", "cmd_handlers")(), {
+            slackbot_feels: "sad_surprise"
+          });
           return;
         }
         if (TS.model.active_group_id && !TS.permissions.members.canKickFromGroups()) {
-          TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("Removing from private channels is a restricted action.", "cmd_handlers")(), "", "sad_surprise");
+          TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("Removing from private channels is a restricted action.", "cmd_handlers")(), {
+            slackbot_feels: "sad_surprise"
+          });
           return;
         }
         var model_ob = TS.shared.getActiveModelOb();
         if (model_ob.is_archived) {
-          TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("You can’t remove anyone from *{channel}* while it is archived.", "cmd_handlers")({
+          TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("You can’t remove anyone from *{channel}* while it is archived.", "cmd_handlers")({
             channel: (TS.model.active_channel_id ? "#" : "") + model_ob.name
-          }), "", "sad_surprise");
+          }), {
+            slackbot_feels: "sad_surprise"
+          });
           return;
         }
         rest = $.trim(rest);
         if (!rest) {
-          TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("Please specify someone to remove!", "cmd_handlers")(), cmd + " " + rest);
+          TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("Please specify someone to remove!", "cmd_handlers")(), {
+            input_txt: original_txt
+          });
           return;
         }
-        var member;
-        if (TS.boot_data.feature_name_tagging_client) {
-          member = TS.members.getKnownMemberById(rest);
-        } else if (TS.boot_data.feature_shared_channels_client) {
-          var username_and_team = rest.match(/^@([\w.-]+)\+([\w.-]+)$/);
-          if (username_and_team && username_and_team.length > 1) {
-            member = TS.members.getMemberByNameAndTeamDomain(username_and_team[1], username_and_team[2]);
-          } else {
-            member = TS.members.getMemberByName(rest);
-          }
-        } else {
-          member = TS.members.getMemberByName(rest);
-        }
+        var member = _getMemberFromArgument(rest);
         if (!member) {
-          TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("*{input}* is not a recognized member name.", "cmd_handlers")({
-            input: _.escape(rest)
-          }), cmd + " " + rest, "", "sad_surprise");
+          var rest_as_contents = TS.format.texty.convertContentsStringToContents(_.trim(original_txt.substr(cmd.length)));
+          TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("*{input}* is not a recognized member name.", "cmd_handlers")({
+            input: _.escape(TS.format.texty.convertContentsToStringForDisplay(rest_as_contents))
+          }), {
+            input_txt: original_txt,
+            slackbot_feels: "sad_surprise"
+          });
           return;
         }
         if (member.is_app_user) {
@@ -38599,19 +38702,21 @@ var _on_esc;
                 channel: channel.id,
                 app_user: member.id
               }).then(function() {
-                TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("{user} has been removed from the channel.", "cmd_handlers")({
+                TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("{user} has been removed from the channel.", "cmd_handlers")({
                   user: _getUserIdentifier(member)
                 }));
               }).catch(function(error_response) {
                 var error_str = _.get(error_response, "data.error");
                 if (error_str === "no_resource_to_remove") {
-                  TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("{user} is not in this channel.", "cmd_handlers")({
+                  TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("{user} is not in this channel.", "cmd_handlers")({
                     user: _getUserIdentifier(member)
                   }));
                 } else {
-                  TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("Hmm, something went wrong, try again?", "cmd_handlers")({
+                  TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("Hmm, something went wrong, try again?", "cmd_handlers")({
                     user: _getUserIdentifier(member)
-                  }), cmd + " " + rest);
+                  }), {
+                    input_txt: original_txt
+                  });
                 }
               });
             }
@@ -38619,11 +38724,13 @@ var _on_esc;
           return;
         }
         if (TS.model.active_im_id || TS.model.active_mpim_id) {
-          TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("You can’t remove someone from a DM.", "cmd_handlers")(), "", "sad_surprise");
+          TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("You can’t remove someone from a DM.", "cmd_handlers")(), {
+            slackbot_feels: "sad_surprise"
+          });
           return;
         }
         if (TS.channels.isChannelRequired(model_ob) && !member.is_restricted && !member.is_bot) {
-          TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("You can’t remove this member from *{channel}*!", "cmd_handlers")({
+          TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("You can’t remove this member from *{channel}*!", "cmd_handlers")({
             channel: (TS.model.active_channel_id ? "#" : "") + model_ob.name
           }));
           return;
@@ -38631,10 +38738,14 @@ var _on_esc;
         TS.membership.ensureChannelMembershipIsKnownForUsers(model_ob.id, [member.id]).then(function() {
           var membership_status = TS.membership.getUserChannelMembershipStatus(member.id, model_ob);
           if (!membership_status.is_member) {
-            TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("*{user}* is not a member of this {channel}.", "cmd_handlers")({
-              user: _.escape(rest),
+            var rest_as_contents = TS.format.texty.convertContentsStringToContents(_.trim(original_txt.substr(cmd.length)));
+            TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("*{user}* is not a member of this {channel}.", "cmd_handlers")({
+              user: _.escape(TS.format.texty.convertContentsToStringForDisplay(rest_as_contents)),
               channel: model_ob.is_channel ? TS.i18n.t("channel", "cmd_handlers")() : TS.i18n.t("private channel", "cmd_handlers")()
-            }), cmd + " " + rest, "sad_surprise");
+            }), {
+              input_txt: original_txt,
+              slackbot_feels: "sad_surprise"
+            });
             return;
           }
           if (member.is_self) {
@@ -38655,8 +38766,8 @@ var _on_esc;
       alias_of: "/remove",
       aliases: null,
       desc: "",
-      func: function(cmd, rest) {
-        TS.cmd_handlers["/remove"].func(cmd, rest);
+      func: function(cmd, rest, words, original_txt) {
+        TS.cmd_handlers["/remove"].func(cmd, rest, words, original_txt);
       }
     },
     "/feedback": {
@@ -38669,7 +38780,7 @@ var _on_esc;
         name: TS.i18n.t("your message", "cmd_handlers")(),
         optional: true
       }],
-      func: function(cmd, rest, words, in_reply_to_msg, model_ob) {
+      func: function(cmd, rest, words, original_txt, in_reply_to_msg, model_ob) {
         if (!rest) {
           TS.utility.openInNewTab("/help/requests/new", "_blank");
           return;
@@ -38690,16 +38801,19 @@ var _on_esc;
               api_args.channel = model_ob.id;
               api_args.thread_ts = in_reply_to_msg.ts;
             }
+            var input_txt = rest;
+            if (TS.boot_data.feature_name_tagging_client) {
+              input_txt = _.trim(original_txt.substr(cmd.length));
+            }
             TS.api.call("chat.command", api_args, function(ok, data, api_args) {
-              TS.client.ui.onAPICommand(ok, data, api_args, rest);
+              TS.client.ui.onAPICommand(ok, data, api_args, input_txt);
             });
           },
           onCancel: function() {
-            var input_txt = cmd + " " + rest;
             if (TS.boot_data.feature_threads_slash_cmds && model_ob && in_reply_to_msg) {
-              TS.utility.populateThreadInputs(input_txt, model_ob.id, in_reply_to_msg.ts);
+              TS.utility.populateThreadInputs(original_txt, model_ob.id, in_reply_to_msg.ts);
             } else {
-              TS.utility.populateInput(TS.client.ui.$msg_input, input_txt);
+              TS.utility.populateInput(TS.client.ui.$msg_input, original_txt);
             }
           }
         });
@@ -38715,8 +38829,8 @@ var _on_esc;
         name: TS.i18n.t("your message", "cmd_handlers")(),
         optional: true
       }],
-      func: function(cmd, rest, words, in_reply_to_msg, model_ob) {
-        var txt = rest || "";
+      func: function(cmd, rest, words, original_txt, in_reply_to_msg, model_ob) {
+        var txt = _.trim(original_txt.substr(cmd.length));
         if (txt && txt.substr(txt.length - 1) !== " ") {
           txt += " ";
         }
@@ -38808,13 +38922,15 @@ var _on_esc;
         if (TS.boot_data.page_needs_enterprise) {
           var team = TS.model.team;
           if (TS.shared.isModelObShared(model_ob) || member && team && member.team_id !== team.id) {
-            TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("You are not allowed to use this command here.", "cmd_handlers")(), "", "sad_surprise");
+            TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("You are not allowed to use this command here.", "cmd_handlers")(), {
+              slackbot_feels: "sad_surprise"
+            });
             return;
           }
         }
         if (rest.trim() === "help") {
           if (TS.utility.calls.isCurrentContextMultiParty() && !TS.utility.calls.isMultiPartyEnabled()) {
-            TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("To call a teammate, use `/call` from your Direct Message conversation with that person.", "cmd_handlers")());
+            TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("To call a teammate, use `/call` from your Direct Message conversation with that person.", "cmd_handlers")());
             return;
           }
           var help_message;
@@ -38831,7 +38947,7 @@ var _on_esc;
               channel: TS.shared.getDisplayNameForModelOb(model_ob)
             });
           }
-          TS.cmd_handlers.addTempEphemeralFeedback(help_message);
+          TS.cmd_handlers.addEphemeralFeedback(help_message);
           return;
         }
         if (rest.trim().match(/--server=/)) {
@@ -38845,17 +38961,19 @@ var _on_esc;
             TS.utility.calls.startCallInModelOb(model_ob, true);
             return;
           }
-          TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("Group calls aren’t available on the free plan. Try using `/call` in a Direct Message conversation!", "cmd_handlers")());
+          TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("Group calls aren’t available on the free plan. Try using `/call` in a Direct Message conversation!", "cmd_handlers")());
           return;
         } else if (model_ob.is_slackbot_im) {
           var slackbot_responses = [TS.i18n.t("I’m on the other line. Sorry!", "cmd_handlers")(), TS.i18n.t("Thanks for calling me! I’m afraid I only accept calls from my mother, Sundays at 2pm.", "cmd_handlers")(), TS.i18n.t("I’m washing my hair right now…can’t come to the phone!", "cmd_handlers")(), TS.i18n.t("It’s awfully nice of you to try calling me. But — shh! — I’m quite afraid of the phone!", "cmd_handlers")() + " :grimacing:", TS.i18n.t("Thank you so much for calling, but I can’t talk right now, I’m watching my stories.", "cmd_handlers")()];
           var random_slackbot_response = _.shuffle(slackbot_responses)[0];
-          TS.cmd_handlers.addTempEphemeralFeedback(random_slackbot_response);
+          TS.cmd_handlers.addEphemeralFeedback(random_slackbot_response);
           return;
         } else if (member && (member.is_bot || member.id == TS.model.user.id)) {
-          TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("Unfortunately, {user} is busy right now, and can’t answer your call.", "cmd_handlers")({
+          TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("Unfortunately, {user} is busy right now, and can’t answer your call.", "cmd_handlers")({
             user: TS.members.getPrefCompliantMemberName(member, false, true)
-          }), "", "sad_surprise");
+          }), {
+            slackbot_feels: "sad_surprise"
+          });
           return;
         }
         TS.utility.calls.startCallInModelOb(model_ob, true);
@@ -39067,16 +39185,21 @@ var _on_esc;
     TS.membership.ensureChannelMembershipIsKnownForUsers(model_ob.id, [user.id]).then(function() {
       var membership_status = TS.membership.getUserChannelMembershipStatus(user.id, model_ob);
       if (membership_status.is_member) {
-        TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("{user} is already in this channel.", "cmd_handlers")({
+        TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("{user} is already in this channel.", "cmd_handlers")({
           user: _getUserIdentifier(user)
-        }), input_txt);
+        }), {
+          input_txt: input_txt
+        });
         return;
       }
       if (!model_ob.is_mpim && TS.boot_data.page_needs_enterprise && !TS.permissions.channels.canMemberJoinChannel(model_ob, user)) {
-        TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("{user} is not a member of {team_name}.", "cmd_handlers")({
+        TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("{user} is not a member of {team_name}.", "cmd_handlers")({
           user: _getUserIdentifier(user),
           team_name: TS.model.team.name
-        }), input_txt, "sad_surprise");
+        }), {
+          input_txt: input_txt,
+          slackbot_feels: "sad_surprise"
+        });
         return;
       }
       if (model_ob.is_mpim) {
@@ -39106,7 +39229,9 @@ var _on_esc;
       });
       if (!users_to_invite.length) {
         var message = TS.i18n.t("All of the users in that user group are already in this channel.", "cmd_handlers")();
-        TS.cmd_handlers.addTempEphemeralFeedback(message, input_txt);
+        TS.cmd_handlers.addEphemeralFeedback(message, {
+          input_txt: input_txt
+        });
         return;
       }
       if (model_ob.is_private || model_ob.is_group) {
@@ -39130,7 +39255,7 @@ var _on_esc;
     }).then(function(response) {
       return new Promise(function(resolve, reject) {
         if (_.get(response, "data.should_confirm")) {
-          TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("Need to confirm adding {user}.", "cmd_handlers")({
+          TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("Need to confirm adding {user}.", "cmd_handlers")({
             user: _getUserIdentifier(user)
           }));
           var scope_info = _.get(response, "data.scope_info", []);
@@ -39146,9 +39271,11 @@ var _on_esc;
             }),
             onGo: resolve,
             onCancel: function() {
-              TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("{user} not added to this channel.", "cmd_handlers")({
+              TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("{user} not added to this channel.", "cmd_handlers")({
                 user: _getUserIdentifier(user)
-              }), input_txt);
+              }), {
+                input_txt: input_txt
+              });
             },
             onShow: function() {
               $('[data-js="app_user_invite_modal_scope_descriptions"]').on("click", "[data-toggle-visibility]", function() {
@@ -39176,33 +39303,48 @@ var _on_esc;
     }).then(function(response) {
       var scopes = _.get(response, "data.permission.scopes");
       var scope_list = scopes.join(", ");
-      TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("{user} has been added with the following scopes: {scopes}.", "cmd_handlers")({
+      TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("{user} has been added with the following scopes: {scopes}.", "cmd_handlers")({
         user: _getUserIdentifier(user),
         scopes: scope_list
       }));
     }).catch(function(error_response) {
       var error_str = _.get(error_response, "data.error");
+      var feedback_text;
       if (error_str === "already_has_resource") {
-        TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("{user} is already in this channel.", "cmd_handlers")({
+        feedback_text = TS.i18n.t("{user} is already in this channel.", "cmd_handlers")({
           user: _getUserIdentifier(user)
-        }), input_txt);
+        });
       } else if (error_str === "no_scopes_to_add") {
-        TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("{user} can’t join channels of this type.", "cmd_handlers")({
+        feedback_text = TS.i18n.t("{user} can’t join channels of this type.", "cmd_handlers")({
           user: _getUserIdentifier(user)
-        }), input_txt);
+        });
       } else {
-        TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("Hmm, something went wrong, try again?", "cmd_handlers")({
+        feedback_text = TS.i18n.t("Hmm, something went wrong, try again?", "cmd_handlers")({
           user: _getUserIdentifier(user)
-        }), input_txt);
+        });
       }
+      TS.cmd_handlers.addEphemeralFeedback(feedback_text, {
+        input_txt: input_txt
+      });
     });
   };
   var _getUserIdentifier = function(user) {
     if (!_.isObject(user)) throw new Error("Expected user to be an object");
     if (TS.boot_data.feature_name_tagging_client) {
-      return "@" + user.id;
+      return TS.members.getPrefCompliantMemberName(user, false, true);
     }
     return "@" + user.name;
+  };
+  var _getMemberFromArgument = function(identifier) {
+    if (TS.boot_data.feature_name_tagging_client) {
+      return TS.members.getKnownMemberById(identifier);
+    } else if (TS.boot_data.feature_shared_channels_client) {
+      var username_and_team = identifier.match(/^@([\w.-]+)\+([\w.-]+)$/);
+      if (username_and_team && username_and_team.length > 1) {
+        return TS.members.getMemberByNameAndTeamDomain(username_and_team[1], username_and_team[2]);
+      }
+    }
+    return TS.members.getMemberByName(identifier);
   };
   var _getActiveChannel = function() {
     var channel;
@@ -85569,8 +85711,7 @@ var _getMetaFieldForId = function(id, key) {
       },
       onMountComponent: function(e) {
         var t = l(e);
-        t || _("144"), t.isMounted = !0,
-          0 === t.parentID && f(e);
+        t || _("144"), t.isMounted = !0, 0 === t.parentID && f(e);
       },
       onUpdateComponent: function(e) {
         var t = l(e);
@@ -99172,7 +99313,7 @@ var _getMetaFieldForId = function(id, key) {
       var html = "";
       var users_for_cta = _(experts).map(function(expert_group) {
         return _.map(expert_group.users, function(user_data) {
-          return TS.members.getMemberById(user_data.id);
+          return TS.members.getKnownMemberById(user_data.id);
         });
       }).flatten().uniqBy("id").value();
       var user_count = users_for_cta.length;

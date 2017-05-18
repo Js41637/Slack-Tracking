@@ -748,8 +748,8 @@
 
 @font-face {
   font-family: Slack;
-  src: url(/11d67/fonts/slack-icons-Regular.eot);
-  src: url(/11d67/fonts/slack-icons-Regular.eot?#iefix) format('embedded-opentype'), url(/11d67/fonts/slack-icons-Regular.woff) format('woff'), url(/11d67/fonts/slack-icons-Regular.ttf) format('truetype'), url(/11d67/fonts/slack-icons-Regular.svg#Slack) format('svg');
+  src: url(/97710/fonts/slack-icons-Regular.eot);
+  src: url(/97710/fonts/slack-icons-Regular.eot?#iefix) format('embedded-opentype'), url(/97710/fonts/slack-icons-Regular.woff) format('woff'), url(/97710/fonts/slack-icons-Regular.ttf) format('truetype'), url(/97710/fonts/slack-icons-Regular.svg#Slack) format('svg');
   font-style: normal;
   font-weight: 400
 }
@@ -2032,6 +2032,14 @@ svg.ts_icon_spinner svg {
 
 .ts_icon_sparkles_filled:before {
   content: '\E564'
+}
+
+.ts_icon_small_warning_filled:before {
+  content: '\E565'
+}
+
+.ts_icon_deactivated_user:before {
+  content: '\E566'
 }
 
 .ts_icon_arrow_right:before {

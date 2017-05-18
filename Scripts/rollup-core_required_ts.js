@@ -348,7 +348,7 @@
   var _fully_booted_p_resolve;
   var _fully_booted_p;
   var _is_user_forced_into_redux_feature;
-  var _users_to_force_into_redux_feature = ["W2V82BY0G", "W1W7LCMHU", "W1M2KRM8E"];
+  var _users_to_force_into_redux_feature = ["W2V82BY0G", "W1W7LCMHU", "W1M2KRM8E", "W1NTZGLCW", "W1H5Z2EUQ", "W1NUHTDRQ", "W1FLK9CAK", "W28S2MKA5", "W1NU0NFAL", "W31BTQUUF", "W29NEV64V", "W32AJ7MGS", "W32AJ7MGS", "W3P5P6BM5", "W1W832GG1", "W31L0Q8TT", "W1W8S11EY", "W2P52R70Q", "W28RP6R5J"];
   var _did_call_did_finish_loading = false;
   var FORCE_CALL_DID_FINISH_LOADING_DELAY_MS = 7e4;
   window.TS = {

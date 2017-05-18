@@ -799,8 +799,8 @@
       TS.web.admin.tabs_need_rebuild = true;
     },
     selectRow: function(item) {
-      var row = _isApiAdminPage() ? $("#admin_list .tab_pane.selected .long_list").find("#row_" + item.id) : $("#row_" + item.id);
-      return row;
+      if (TS.web.admin.view == "list") return $("#admin_list .tab_pane.selected .long_list").find("#row_" + item.id);
+      return $("#row_" + item.id);
     },
     rowProcessing: function(member) {
       _setMemberRowState(member, {
