@@ -395,7 +395,13 @@
       if (_is_user_forced_into_redux_feature && !TS.boot_data.feature_drew_broke_his_own_app) {
         return true;
       }
-      return TS.boot_data.feature_store_models_in_redux;
+      var disable_redux_by_user_pref = false;
+      if (TS.model.prefs) {
+        disable_redux_by_user_pref = TS.model.prefs.disable_redux;
+      } else {
+        disable_redux_by_user_pref = TS.boot_data.disable_redux;
+      }
+      return TS.boot_data.feature_store_models_in_redux && !disable_redux_by_user_pref;
     },
     useReactDownloads: function() {
       return window.TS && TS.environment.isSSBAndAtLeastVersion("2.7");
@@ -1319,7 +1325,7 @@
           var dispatched = 0;
           var start = Date.now();
           TS.model.online_users = _.filter(TS.model.online_users, function(id) {
-            var member = TS.members.getKnownMemberById(id);
+            var member = TS.members.getMemberById(id);
             if (member) {
               if (member.presence !== "active") {
                 member.presence = "active";
@@ -1442,7 +1448,7 @@
         });
         var unknown_user_ids = [];
         for (var id in ids) {
-          if (!TS.members.getKnownMemberById(id)) unknown_user_ids.push(id);
+          if (!TS.members.getMemberById(id)) unknown_user_ids.push(id);
         }
         if (unknown_user_ids.length) {
           log_data.push("doAllMembersFromChannelsInRawDataExist() found (" + unknown_user_ids.length + ") unknown members: " + unknown_user_ids.join(", "));
@@ -5332,7 +5338,7 @@ var _cyrillicToLatin = function(char) {
         if (!query && !preselected && current_model_ob) {
           var current_channel = TS.shared.getModelObById(current_model_ob);
           if (_.get(current_channel, "is_im")) {
-            var member = TS.members.getKnownMemberById(current_channel.user);
+            var member = TS.members.getMemberById(current_channel.user);
             data.push({
               preselected: true,
               lfs_id: member.id,
