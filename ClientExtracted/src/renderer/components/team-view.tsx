@@ -403,7 +403,7 @@ export class TeamView extends Component<TeamViewProps, Partial<TeamViewState>> {
     // Show the Connecting screen during load, or an error page when something
     // goes wrong.
     let preloadOverlay = null;
-    if (!isWebViewLoaded) {
+    if (!isWebViewLoaded && selectedTeamId === this.props.teamId) {
       preloadOverlay = (
         <LoadingScreen
           className='TeamView-preload'

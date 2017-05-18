@@ -6,6 +6,7 @@
 //patch Observable to import only necessary operators
 
 //static creation methods
+import 'rxjs/add/observable/bindCallback';
 import 'rxjs/add/observable/bindNodeCallback';
 import 'rxjs/add/observable/concat';
 import 'rxjs/add/observable/empty';
@@ -32,6 +33,8 @@ import 'rxjs/add/operator/delay';
 import 'rxjs/add/operator/distinctUntilChanged';
 import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/filter';
+import 'rxjs/add/operator/first';
+import 'rxjs/add/operator/finally';
 import 'rxjs/add/operator/groupBy';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/mapTo';

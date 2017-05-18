@@ -3,7 +3,6 @@
  */ /** for typedoc */
 
 import { app, Menu, MenuItem, Tray } from 'electron';
-import { requireTaskPool } from 'electron-remote';
 import { Observable } from 'rxjs/Observable';
 
 import { appStore } from '../stores/app-store';
@@ -25,7 +24,6 @@ import { Team } from '../actions/team-actions';
 import { unreadsStore } from '../stores/unreads-store';
 import { updateStatusType, StringMap, IS_WINDOWS_STORE } from '../utils/shared-constants';
 
-const { repairTrayRegistryKey } = requireTaskPool(require.resolve('../csx/tray-repair'));
 import { nativeInterop } from '../native-interop';
 
 import { intl as $intl, LOCALE_NAMESPACE } from '../i18n/intl';
@@ -285,14 +283,6 @@ export class TrayHandler extends ReduxComponent<TrayHandlerState> {
     }
 
     this.createTrayMenu();
-
-    setTimeout(async () => {
-      try {
-        await repairTrayRegistryKey();
-      } catch (e) {
-        logger.error(`Tray Handler: Failed to repair tray:`, e);
-      }
-    }, 2 * 1000);
 
     this.disposables.add(Observable.fromEvent(this.tray, 'click')
       .subscribe(() => eventActions.foregroundApp()));

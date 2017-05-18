@@ -2,25 +2,37 @@
  * @module SSBIntegration
  */ /** for typedoc */
 
-import { getContextMenuBuilder } from '../context-menu';
-import { ContextMenuListener, SpellCheckHandler, setGlobalLogger } from 'electron-spellchecker';
+import { ContextMenuBuilder } from '../context-menu';
+import { ContextMenuListener } from '../context-menu-listener';
 import { ipc } from '../ipc-rx';
 import { logger } from '../logger';
 
-setGlobalLogger(logger.info.bind(logger));
 
 export class SpellCheckingHelper {
-  public readonly spellCheckHandler = new SpellCheckHandler();
+  public spellCheckHandler: any;
   private contextMenuListener: any;
 
   constructor() {
-    if (!global.loadSettings.devMode) {
+    this.setupSpellChecker();
+    this.setupInputEventListener();
+  }
+
+  private setupSpellChecker() {
+    try {
+      const { SpellCheckHandler, setGlobalLogger } = require('electron-spellchecker');
+
+      setGlobalLogger(logger.info.bind(logger));
+
+      this.spellCheckHandler = new SpellCheckHandler();
       this.spellCheckHandler.autoUnloadDictionariesOnBlur();
+    } catch (error) {
+      logger.warn(`We tried to setup the spellchecker, but failed`, error);
     }
   }
 
-  public setupInputEventListener(): void {
-    this.spellCheckHandler.attachToInput();
+  private setupInputEventListener(): void {
+    if (this.spellCheckHandler) this.spellCheckHandler.attachToInput();
+
     const contextMenuIpc = ipc.listen('context-menu-ipc').map((x: Array<any>) => x[1]);
 
     if (process.guestInstanceId) {
@@ -28,7 +40,7 @@ export class SpellCheckingHelper {
         ipc.sendToHost('context-menu-show', info);
       }, null, contextMenuIpc);
     } else {
-      const contextMenuBuilder = getContextMenuBuilder(this.spellCheckHandler);
+      const contextMenuBuilder = new ContextMenuBuilder(this.spellCheckHandler);
 
       this.contextMenuListener = new ContextMenuListener(async (info: any) => {
         await contextMenuBuilder.showPopupMenu(info);

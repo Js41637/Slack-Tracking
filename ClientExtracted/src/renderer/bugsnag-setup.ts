@@ -4,8 +4,6 @@
 
 // The API key linked to slack-winssb.
 const apiKey = 'acaff8df67924f677747922423057034';
-
-import * as nslog from 'nslog';
 import * as errorParser from 'error-stack-parser';
 
 import { sanitizeStacks } from '../sanitize-stacks';
@@ -55,6 +53,12 @@ export function setupBugsnag(shouldSuppressErrors: boolean, version: string): vo
 
   window.Bugsnag.beforeNotify = (payload) => {
     if (shouldSuppressErrors) {
+      let nslog;
+      try {
+        nslog = require('nslog');
+      } catch (err) {
+        nslog = console.log.bind(console);
+      }
       nslog('Unhandled Exception: \n');
       nslog(`${payload.stacktrace}\n`);
     }

@@ -2,19 +2,19 @@
  * @module RendererComponents
  */ /** for typedoc */
 
-import { getContextMenuBuilder } from '../../context-menu';
+import { ContextMenuListener } from '../../context-menu-listener';
+import { ContextMenuBuilder } from '../../context-menu';
 import * as classNames from 'classnames';
 import * as ReactDOM from 'react-dom';
 import * as packageJson from '../../../package.json';
 import { clipboard, remote } from 'electron';
-import { ContextMenuListener } from 'electron-spellchecker';
 
 import { intl as $intl, LOCALE_NAMESPACE } from '../../i18n/intl';
 import { Component } from '../../lib/component';
 import { DependenciesView } from './dependencies-view';
 import { settingStore } from '../../stores/setting-store';
 
-import * as React from 'react'; // tslint:disable-line
+import * as React from 'react';
 
 import { IS_STORE_BUILD } from '../../utils/shared-constants';
 
@@ -42,7 +42,7 @@ export interface AboutBoxState {
 }
 
 export class AboutBox extends Component<AboutBoxProps, Partial<AboutBoxState>> {
-  private contextMenuListener: any;
+  private contextMenuListener: ContextMenuListener | null;
   private acknowledgementsElement: HTMLElement;
   private versionElement: HTMLElement;
   private readonly refHandlers = {
@@ -133,14 +133,14 @@ export class AboutBox extends Component<AboutBoxProps, Partial<AboutBoxState>> {
   }
 
   public componentDidMount(): void {
-    const contextMenuBuilder = getContextMenuBuilder();
+    const contextMenuBuilder = new ContextMenuBuilder();
     this.contextMenuListener = new ContextMenuListener((info: any) => contextMenuBuilder.showPopupMenu(info));
   }
 
   public componentWillUnmount(): void {
     super.componentWillUnmount();
     if (this.contextMenuListener) {
-      this.contextMenuListener.dispose();
+      this.contextMenuListener.unsubscribe();
       this.contextMenuListener = null;
     }
   }

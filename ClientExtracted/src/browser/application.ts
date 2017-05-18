@@ -5,7 +5,6 @@
 import * as assignIn from 'lodash.assignin';
 import '../rx-operators';
 import { dialog, shell, session, systemPreferences, powerMonitor } from 'electron';
-import { requireTaskPool } from 'electron-remote';
 import { ipc } from '../ipc-rx';
 import { logger } from '../logger';
 import * as fs from 'graceful-fs';
@@ -52,7 +51,6 @@ import { intl as $intl, LOCALE_NAMESPACE } from '../i18n/intl';
 
 const pmkdirp = promisify(mkdirp);
 const primraf = promisify(rimraf);
-const { repairTrayRegistryKey } = requireTaskPool(require.resolve('../csx/tray-repair'));
 
 export interface ApplicationState {
   appVersion: string;
@@ -145,11 +143,6 @@ export class Application extends ReduxComponent<ApplicationState> {
       this.appMenu = new AppMenu();
       require('electron-text-substitutions/preference-helpers')
         .onPreferenceChanged(eventActions.systemTextSettingsChanged);
-    } else if (process.platform === 'win32') {
-      repairTrayRegistryKey()
-        .catch((e: Error) => {
-          logger.warn(`App: Failed to repair tray registry key.`, e);
-        });
     }
 
     if (options.chromeDriver) {

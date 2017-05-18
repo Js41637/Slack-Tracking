@@ -48,6 +48,7 @@ import { ReduxHelper } from './redux-helper';
 import { TeamIntegration } from './team';
 import { WebappWindowManager } from './webapp-window-manager';
 import { WindowOpener } from './window-opener';
+import { WEBAPP_MESSAGES_URL } from '../utils/shared-constants';
 
 (window as any).globalLogger = logger;
 
@@ -84,7 +85,9 @@ const postDOMSetup = () => {
     }
   }
 
-  window.winssb.spellCheckingHelper.setupInputEventListener();
+  if (document.location.href.match(WEBAPP_MESSAGES_URL)) {
+    window.winssb.spellCheckingHelper = new SpellCheckingHelper();
+  }
 
   if (isDarwin) {
     if (currentWindow) {
@@ -145,15 +148,15 @@ window.winssb = {
 
   browserWindowId,
 
-  spellCheckingHelper: new SpellCheckingHelper(),
-
   store: Store,
 
   deviceStorage: new DeviceStorage(),
 
   reduxHelper: new ReduxHelper(),
 
-  touchbar: new TouchBarIntegration()
+  touchbar: process.platform === 'darwin'
+    ? new TouchBarIntegration()
+    : undefined
 };
 
 // NB: We will be moving to this more generic name for our desktop integration global.

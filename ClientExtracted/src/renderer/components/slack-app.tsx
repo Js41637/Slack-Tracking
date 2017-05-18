@@ -347,12 +347,12 @@ export class SlackApp extends Component<SlackAppProps, Partial<SlackAppState>> {
   }
 
   private setupKeyDownHandlers(): Subscription {
-    const { numTeams, isShowingLoginDialog, isMac } = this.state;
     const keyDown = Observable.fromEvent(document.body, 'keydown', true);
 
     return keyDown.subscribe((e: KeyboardEvent) => {
-      // Check the current state as the number of teams could have changed.
-      if (e.metaKey && this.state.numTeams! > 1) {
+      const { numTeams, isShowingLoginDialog, isMac } = this.state;
+
+      if (e.metaKey && this.state.numTeams! > 0) {
         const isNumberKey = keyCodeInRange(e, KeyCodes.One, KeyCodes.Nine);
         const isNumPadKey = keyCodeInRange(e, KeyCodes.NumOne, KeyCodes.NumNine);
 

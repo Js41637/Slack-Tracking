@@ -112,8 +112,15 @@ export class AppMenu extends ReduxComponent<AppMenuState> {
    * Opens the app menu as a context menu at the given position.
    */
   public popupAppMenuEvent({ invokedViaKeyboard }: { invokedViaKeyboard: boolean }): void {
-    if (invokedViaKeyboard && this.associatedWindow) {
-      this.menu.popup(this.associatedWindow, { x: 20, y: 15, async: true } as any);
+    if (invokedViaKeyboard && this.associatedWindow && !this.associatedWindow.isDestroyed()) {
+      try {
+        this.menu.popup(this.associatedWindow, { x: 20, y: 15, async: true } as any);
+      } catch (error) {
+        logger.warn(`Tried to open app menu, but failed`, error);
+
+        // Try again, but don't try to do it on a specific window
+        this.menu.popup(undefined, { async: true } as any);
+      }
     } else {
       this.menu.popup(undefined, { async: true } as any);
     }

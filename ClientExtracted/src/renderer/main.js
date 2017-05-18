@@ -2,8 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import '../rx-operators';
 import { EventEmitter } from 'events';
-import { Observable } from 'rxjs/Observable';
-import { requestGC } from '../run-gc';
 
 import { initializeEvalHandler } from 'electron-remote';
 
@@ -21,11 +19,6 @@ global.metricsReporter = new Reporter();
 if (!global.loadSettings.devMode) {
   global.metricsReporter.handleBrowserEvents();
 }
-
-// This will after a throttled 10sec delay, run a V8 GC
-Observable.fromEvent(window, 'blur')
-  .throttleTime(10 * 1000)
-  .subscribe(() => requestGC());
 
 // Device Storage is (paradoxically) per-session.
 let toDelete = Object.keys(localStorage).filter((x) => x.match(/^deviceStorage_/)) || [];

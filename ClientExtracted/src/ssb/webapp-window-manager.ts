@@ -53,6 +53,7 @@ export class WebappWindowManager extends ReduxComponent<WebappWindowManagerState
   private willNavigate: boolean = false;
   private closeRequested: boolean = false;
   private closingTimeout: string | NodeJS.Timer;
+  private getActiveProcessName: () => string;
 
   constructor() {
     super();
@@ -439,6 +440,26 @@ export class WebappWindowManager extends ReduxComponent<WebappWindowManagerState
       const [width, height] = wnd.getSize();
       return { x, y, width, height };
     });
+  }
+
+  /**
+   * Is Slack the currently active process? Windows only.
+   *
+   * @return {boolean|null} A boolean if known, null if unknown.
+   */
+  public getIsSlackActiveProcess(): boolean | null {
+    if (process.platform !== 'win32') return null;
+
+    try {
+      this.getActiveProcessName = this.getActiveProcessName || require('windows-active-process').getActiveProcessName;
+      const activeProcess = this.getActiveProcessName();
+
+      return activeProcess ? activeProcess.includes('slack.exe') : null;
+    } catch (error) {
+      logger.warn(`Tried to determine whether or not Slack is the active process, but failed`);
+
+      return null;
+    }
   }
 
   /**

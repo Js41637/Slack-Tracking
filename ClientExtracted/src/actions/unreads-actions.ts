@@ -5,8 +5,6 @@
 import { Store } from '../lib/store';
 import { UNREADS } from './';
 
-import { LogLevels } from '../logger';
-
 export interface UnreadsInfo {
   unreads: number;
   unreadHighlights: number;
@@ -18,8 +16,8 @@ export class UnreadsActions {
   public updateUnreadsInfo(data: UnreadsInfo): void {
     Store.dispatch({
       type: UNREADS.UPDATE_UNREADS,
-      logLevel: LogLevels.DEBUG,
-      data
+      data,
+      omitFromLog: true
     });
   }
 }

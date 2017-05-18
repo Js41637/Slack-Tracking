@@ -1,4 +1,5 @@
 //ambient type declarations for module does not have type definitions
+declare module 'JSONStream';
 declare module 'url';
 declare module 'error-stack-parser';
 declare module 'lodash.clone';

@@ -6,7 +6,6 @@ import { protocol } from 'electron';
 import { logger } from '../logger';
 import * as path from 'path';
 import * as LRU from 'lru-cache';
-import { requestGC } from '../run-gc';
 
 import { ReduxComponent } from '../lib/redux-component';
 import { settingStore } from '../stores/setting-store';
@@ -75,7 +74,6 @@ export class SlackResourcesUrlHandler extends ReduxComponent<SlackResourcesUrlHa
 
         setTimeout(() => {
           resourceCache.prune();
-          requestGC();
         }, timeout + 1000);
       } catch (e) {
         logger.error(`Failed to read file ${absPath}: ${e.message}\n${e.stack}`);

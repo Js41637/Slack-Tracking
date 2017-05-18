@@ -35,7 +35,7 @@ export class Calls {
   private appSleepId: any;
 
   constructor() {
-    WebRTC = WebRTC || require('@paulcbetts/slack-calls');
+    WebRTC = WebRTC || require('@slack/slack-calls');
     const basepath = path.join(__dirname, '..', 'static').replace('app.asar', 'app.asar.unpacked');
     WebRTC.setResourceBasePath(basepath);
   }

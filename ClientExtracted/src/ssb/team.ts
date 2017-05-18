@@ -6,12 +6,12 @@ import { Subscription } from 'rxjs/Subscription';
 import { Observable } from 'rxjs/Observable';
 import { Observer } from 'rxjs/Observer';
 import { logger } from '../logger';
-import { isObject } from '../utils/is-object';
 
 import { appTeamsActions } from '../actions/app-teams-actions';
 import { dialogActions } from '../actions/dialog-actions';
 import { Team, teamActions } from '../actions/team-actions';
 import { teamStore } from '../stores/team-store';
+import { isValidTeam } from '../utils/is-valid-team';
 
 function fetchRecentMessages() {
   const { msgs } = window.TSSSB.recentMessagesFromCurrentChannel();
@@ -52,18 +52,25 @@ export class TeamIntegration {
    */
   public didSignIn(teams: Array<Team> | Team, selectTeam: boolean = true): void {
     if (Array.isArray(teams)) {
-      teamActions.addTeams(teams, selectTeam);
-    } else if (isObject(teams)) {
+      teamActions.addTeams(teams.filter((t) => isValidTeam(t)), selectTeam);
+    } else if (isValidTeam(teams)) {
       teamActions.addTeam(teams, selectTeam);
+    } else {
+      logger.warn(`didSignIn: didSignIn called with invalid team object, do nothing`, teams);
     }
 
     dialogActions.hideLoginDialog();
   }
 
+  /**
+   * Signs given team(s) out.
+   *
+   * @param {(Array<any> | Object)} teamIds
+   */
   public didSignOut(teamIds: Array<any> | Object): void {
     if (Array.isArray(teamIds)) {
-      teamActions.removeTeams(teamIds);
-    } else {
+      teamActions.removeTeams(teamIds.filter((t) => t));
+    } else if (teamIds) {
       teamActions.removeTeam(teamIds as string);
     }
   }
@@ -116,9 +123,12 @@ export class TeamIntegration {
       fetchWithRetry = fetchWithRetry.retry(retries);
     }
 
-    fetchWithRetry.subscribe(
-      (msgs: string) => window.winssb.spellCheckingHelper.spellCheckHandler.provideHintText(msgs),
-      (e: Error) => logger.info(`Couldn't get hint text from messages in channel: ${e.message}`));
+    fetchWithRetry
+      .filter(() => !!window.winssb.spellCheckingHelper)
+      .subscribe(
+        (msgs: string) => window.winssb.spellCheckingHelper!.spellCheckHandler.provideHintText(msgs),
+        (e: Error) => logger.info(`Couldn't get hint text from messages in channel: ${e.message}`)
+      );
   }
 
   public displayChannel(channelId: string): void {

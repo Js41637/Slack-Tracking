@@ -2,11 +2,11 @@
  * @module RendererBehaviors
  */ /** for typedoc */
 
-import { contextMenuStringTable, getContextMenuBuilder } from '../../context-menu';
+import { contextMenuStringTable, ContextMenuBuilder } from '../../context-menu';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
-import { setGlobalLogger } from 'electron-spellchecker';
 import { createProxyForRemote } from 'electron-remote';
+import { setGlobalLogger } from 'electron-spellchecker';
 import { remote } from 'electron';
 
 import { windowFrameStore } from '../../stores/window-frame-store';
@@ -39,10 +39,10 @@ export class ContextMenuBehavior implements WebViewBehavior {
     const showDevMenu = settingStore.getSetting('isDevMode') || // Running from source
       process.env.SLACK_DEVELOPER_MENU;                       // Production build that has previously signed into Slack Corp
 
-    const contextMenuBuilder = getContextMenuBuilder(
+    const contextMenuBuilder = new ContextMenuBuilder(
       remoteSpellcheckHandler,
       webView,
-      showDevMenu,
+      !!showDevMenu,
       this.processMenu
     );
 

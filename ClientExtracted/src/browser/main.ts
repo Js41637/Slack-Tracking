@@ -29,6 +29,7 @@ import { OsInfo, getLinuxDistro } from '../webapp-shared/linux-distro';
 import '../rx-operators';
 import '../custom-operators';
 import { locale } from '../i18n/locale';
+import { traceRecorder } from './trace-recorder';
 
 protocol.registerStandardSchemes(['slack-resources', 'slack-webapp-dev']);
 
@@ -216,6 +217,7 @@ async function waitForAppReady(args: any): Promise<any> {
   global.reporter = new BugsnagReporter(args.resourcePath, args.devMode);
   global.getMemoryUsage = getMemoryUsage;
 
+  traceRecorder.initializeListener();
   await new Promise((res) => app.once('ready', (e: any) => {
     locale.invalidate(); //memoize locale values as soon as application initialized
     res(e);

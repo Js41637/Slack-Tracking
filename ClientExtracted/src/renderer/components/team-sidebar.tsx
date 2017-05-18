@@ -279,7 +279,7 @@ export class TeamSidebar extends Component<TeamSidebarProps, Partial<TeamSidebar
   }
 
   private handleMouseDown(teamId: string, pressY: number, e: MouseEvent): void {
-    if (e.button !== MOUSE_LEFT_BUTTON) return;
+    if (e.button !== MOUSE_LEFT_BUTTON || e.ctrlKey) return;
 
     this.setState({
       topDeltaY: e.clientY - pressY,

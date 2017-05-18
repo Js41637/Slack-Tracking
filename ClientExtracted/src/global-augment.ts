@@ -40,7 +40,7 @@ export interface Desktop {
     fetchContentForChannel(retry: number): void;
   };
   reduxHelper: ReduxHelper;
-  spellCheckingHelper: SpellCheckingHelper;
+  spellCheckingHelper?: SpellCheckingHelper;
   ls?: Storage;
   window: WebappWindowManager;
   guestInstanceId?: string;
@@ -54,7 +54,7 @@ export interface Desktop {
   screenhero: Calls | null;
   store: BaseStore<any>;
   deviceStorage: DeviceStorage;
-  touchbar: TouchBarIntegration;
+  touchbar?: TouchBarIntegration;
 }
 
 /* tslint:disable */

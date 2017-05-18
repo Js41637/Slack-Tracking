@@ -6,6 +6,8 @@ import { logger } from '../logger';
 import { Subscription } from 'rxjs/Subscription';
 import { Observable } from 'rxjs/Observable';
 import { async } from 'rxjs/scheduler/async';
+import { settingStore } from '../stores/setting-store';
+
 import * as assignIn from 'lodash.assignin';
 import * as url from 'url';
 
@@ -98,13 +100,30 @@ export abstract class WindowHelpers {
    * @param  {BrowserWindow} browserWindow The window
    */
   public static bringToForeground(browserWindow: Electron.BrowserWindow) {
-    if (!browserWindow.isVisible())
-      browserWindow.show();
-
-    if (browserWindow.isMinimized())
-      browserWindow.restore();
+    if (!browserWindow.isVisible()) browserWindow.show();
+    if (browserWindow.isMinimized()) browserWindow.restore();
+    if (process.platform === 'win32') this.bringToForegroundWithHack(browserWindow);
 
     browserWindow.focus();
     browserWindow.flashFrame(false);
+  }
+
+  /**
+   * Hack: Workaround for https://github.com/electron/electron/issues/9291
+   * We'll need to focus the window _harder_
+   *
+   * @param {Electron.BrowserWindow} browserWindow
+   */
+  public static bringToForegroundWithHack(browserWindow: Electron.BrowserWindow) {
+    const { major, build } = (settingStore.getSetting('platformVersion') || { major: 0, build: 0 }) as { major: number, build: number };
+
+    if (major >= 10 && build >= 15000) {
+      try {
+        browserWindow.setAlwaysOnTop(true);
+        browserWindow.setAlwaysOnTop(false);
+      } catch (error) {
+        logger.warn('Tried to bring the window to the foreground using setAlwaysOnTop, but failed', error);
+      }
+    }
   }
 }

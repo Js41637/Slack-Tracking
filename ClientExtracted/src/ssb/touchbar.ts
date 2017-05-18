@@ -3,25 +3,23 @@
  */ /** for typedoc */
 
 import { remote } from 'electron';
-import { spawnPromise } from 'spawn-rx';
 import { logger } from '../logger';
 import { ITouchBarButton,
-ITouchBarColorPicker,
-ITouchBarGroup,
-ITouchBarLabel,
-ITouchBarPopover,
-ITouchBarSlider,
-ITouchBarSpacer
+  ITouchBarColorPicker,
+  ITouchBarGroup,
+  ITouchBarLabel,
+  ITouchBarPopover,
+  ITouchBarSlider,
+  ITouchBarSpacer
 } from './touchbar-interfaces';
-
-const { TouchBar } = remote;
-const { TouchBarButton, TouchBarColorPicker, TouchBarGroup, TouchBarLabel, TouchBarPopover, TouchBarSlider, TouchBarSpacer } = TouchBar;
 
 // To be replaced once Electron's typings are up-to-date:
 // Electron.TouchBarButton | Electron.TouchBarColorPicker |
 // Electron.TouchBarGroup | Electron.TouchBarLabel | Electron.TouchBarPopover |
 // Electron.TouchBarSlider | Electron.TouchBarSpacer
 export type TouchBarItem = any;
+
+let TouchBar: any;
 
 /**
  * The TouchBarIntegration exposes a number of simple APIs to allow the webapp
@@ -78,39 +76,26 @@ export type TouchBarItem = any;
  * You can check the currently set TouchBar (represented by an array of items) by calling `get()`.
  * To set a TouchBar - again, represented as an array of items - simply call set with the array
  * as the first parameter. The operation is immediately translated into a native one and is
- * extremely fast and leightweight. We can therefore quickly and easily switch between various
+ * extremely fast and lightweight. We can therefore quickly and easily switch between various
  * TouchBars.
  *
  * @class TouchBarIntegration
  */
 export class TouchBarIntegration {
-  public readonly TouchBarButton: ITouchBarButton = TouchBarButton;
-  public readonly TouchBarColorPicker: ITouchBarColorPicker = TouchBarColorPicker;
-  public readonly TouchBarGroup: ITouchBarGroup = TouchBarGroup;
-  public readonly TouchBarLabel: ITouchBarLabel = TouchBarLabel;
-  public readonly TouchBarPopover: ITouchBarPopover = TouchBarPopover;
-  public readonly TouchBarSlider: ITouchBarSlider = TouchBarSlider;
-  public readonly TouchBarSpacer: ITouchBarSpacer = TouchBarSpacer;
+  public TouchBarButton: ITouchBarButton;
+  public TouchBarColorPicker: ITouchBarColorPicker;
+  public TouchBarGroup: ITouchBarGroup;
+  public TouchBarLabel: ITouchBarLabel;
+  public TouchBarPopover: ITouchBarPopover;
+  public TouchBarSlider: ITouchBarSlider;
+  public TouchBarSpacer: ITouchBarSpacer;
 
   public currentItems: Array<TouchBarItem> = [];
   public isEnabled: boolean = !!(process.platform === 'darwin');
-
-  private readonly browserWindow = remote.getCurrentWindow();
+  private browserWindow: Electron.BrowserWindow;
 
   constructor() {
-    if (process.platform === 'darwin') {
-      // We're optimistic about it (setting a touchbar if there isn't any does no harm),
-      // but let's double check and disable it if we know that there is none.
-      // pgrep returns an exit code 1 if no matching process is found
-      spawnPromise('pgrep', ['TouchBarAgent'])
-        .then((pid: string) => logger.info(`TouchBarAgent running (PID ${pid})`))
-        .catch((error: Object) => {
-          if (error && error.toString && error.toString().includes('exit code: 1')) {
-            logger.info(`Tried to determine TouchBarAgent PID, none running`);
-            this.isEnabled = false;
-          }
-        });
-    }
+    this.initialize();
   }
 
   /**
@@ -119,6 +104,8 @@ export class TouchBarIntegration {
    * @param {Array<TouchBarItem>} items
    */
   public set(items: Array<TouchBarItem>) {
+    if (!this.isEnabled) return;
+
     const touchBar = new TouchBar(items);
 
     if (this.browserWindow && touchBar) {
@@ -134,5 +121,22 @@ export class TouchBarIntegration {
    */
   public get(): Array<TouchBarItem> {
     return this.currentItems || [];
+  }
+
+  /**
+   * Perform one-time initialization of TouchBar classes.
+   */
+  private initialize(): void {
+    logger.info('TouchBarIntegration: Initializing TouchBar classes');
+    this.browserWindow = remote.getCurrentWindow();
+
+    TouchBar = remote.TouchBar;
+    this.TouchBarButton = TouchBar.TouchBarButton;
+    this.TouchBarColorPicker = TouchBar.TouchBarColorPicker;
+    this.TouchBarGroup = TouchBar.TouchBarGroup;
+    this.TouchBarLabel = TouchBar.TouchBarLabel;
+    this.TouchBarPopover = TouchBar.TouchBarPopover;
+    this.TouchBarSlider = TouchBar.TouchBarSlider;
+    this.TouchBarSpacer = TouchBar.TouchBarSpacer;
   }
 }

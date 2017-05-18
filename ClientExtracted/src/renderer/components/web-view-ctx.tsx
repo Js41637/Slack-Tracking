@@ -14,6 +14,7 @@ import { getUserAgent } from '../../ssb-user-agent';
 import { releaseDocumentFocus } from '../../utils/document-focus';
 import { logger, Logger } from '../../logger';
 import { noop } from '../../utils/noop';
+import { WEBAPP_MESSAGES_URL } from '../../utils/shared-constants';
 
 import { Component } from '../../lib/component';
 import { dialogStore } from '../../stores/dialog-store';
@@ -44,12 +45,6 @@ const ERROR_CODES_TO_IGNORE: Array<number> = [
   * this URL. We'll filter these out and reload automatically, like Chrome.
   */
 const CHROMIUM_BLANK_PAGE_URL = 'data:text/html,chromewebdata';
-
-/**
- * Some logic should only be applied to the /messages page of the webapp
- * (e.g., the empty page check), as auth pages can throw this off.
- */
-export const WEBAPP_MESSAGES_URL = /^https:\/\/(\w*\.?)slack\.com\/messages/;
 
 export interface WebViewContextOptions extends Electron.LoadURLOptions {
   src: string;
@@ -359,7 +354,6 @@ export class WebViewContext extends Component<WebViewContextProps, Partial<WebVi
    */
   private shouldSkipLoadCheck(webView: Electron.WebViewElement): boolean {
     if (!webView || !this.isMessagesURL()) {
-      logger.warn('WebView: Skipping empty page check for ', webView ? webView.getURL() : 'empty webview');
       return true;
     }
 
