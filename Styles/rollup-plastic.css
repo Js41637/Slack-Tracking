@@ -748,8 +748,7 @@
 
 @font-face {
   font-family: Slack;
-  src: url(/97710/fonts/slack-icons-Regular.eot);
-  src: url(/97710/fonts/slack-icons-Regular.eot?#iefix) format('embedded-opentype'), url(/97710/fonts/slack-icons-Regular.woff) format('woff'), url(/97710/fonts/slack-icons-Regular.ttf) format('truetype'), url(/97710/fonts/slack-icons-Regular.svg#Slack) format('svg');
+  src: url(/81c44/fonts/slack-icons-Regular.woff2) format('woff2'), url(/81c44/fonts/slack-icons-Regular.woff) format('woff');
   font-style: normal;
   font-weight: 400
 }

@@ -56779,6 +56779,9 @@ var _getMetaFieldForId = function(id, key) {
           if (TS.experiment.getGroup("calls_laser") === "enabled") {
             _utility_call_state.laser_enabled = true;
           }
+          if (TS.experiment.getGroup("calls_no_cursors_window") === "enabled") {
+            _utility_call_state.cursors_window_disabled = true;
+          }
         });
       }
     },
@@ -57540,7 +57543,7 @@ var _getMetaFieldForId = function(id, key) {
     TSSSB.call("hideWindow", _utility_call_state.mini_panel_token);
   };
   var _openCursorsWindow = function() {
-    if (!_utility_call_state.screen_sharing_enabled) return;
+    if (_utility_call_state.cursors_window_disabled || !_utility_call_state.screen_sharing_enabled) return;
     var cursors_js = [];
     if (TS.boot_data.electron_window_injection_urls) {
       var injection_urls = TS.boot_data.electron_window_injection_urls.calls_cursors;
@@ -71386,7 +71389,8 @@ var _getMetaFieldForId = function(id, key) {
     },
     d = function(e) {
       function t() {
-        return r(this, t), o(this, (t.__proto__ || Object.getPrototypeOf(t)).apply(this, arguments));
+        return r(this, t),
+          o(this, (t.__proto__ || Object.getPrototypeOf(t)).apply(this, arguments));
       }
       return i(t, e), u(t, [{
         key: "render",
@@ -71400,8 +71404,7 @@ var _getMetaFieldForId = function(id, key) {
         }
       }]), t;
     }(a.PureComponent);
-  t.a = d,
-    d.propTypes = l, d.defaultProps = c;
+  t.a = d, d.propTypes = l, d.defaultProps = c;
 }, function(e, t, n) {
   "use strict";
   var r = n(17),
@@ -72977,7 +72980,8 @@ var _getMetaFieldForId = function(id, key) {
       var a = document.createElement("div");
       a.setAttribute(n, "return;"), r = "function" == typeof a[n];
     }
-    return !r && o && "wheel" === e && (r = document.implementation.hasFeature("Events.wheel", "3.0")), r;
+    return !r && o && "wheel" === e && (r = document.implementation.hasFeature("Events.wheel", "3.0")),
+      r;
   }
   var o, i = n(16);
   i.canUseDOM && (o = document.implementation && document.implementation.hasFeature && !0 !== document.implementation.hasFeature("", "")), e.exports = r;
@@ -90571,7 +90575,8 @@ var _getMetaFieldForId = function(id, key) {
           var n = this;
           return new Promise(function(n, r) {
             var o = new Image;
-            return o.src = e, t && (o.srcset = t), o.onerror = r, o.onload = n, null;
+            return o.src = e, t && (o.srcset = t),
+              o.onerror = r, o.onload = n, null;
           }).then(function() {
             return n.setState(function() {
               return {
@@ -94704,7 +94709,8 @@ var _getMetaFieldForId = function(id, key) {
     do {
       e.ancestors.push(o), o = o && r(o);
     } while (o);
-    for (var i = 0; i < e.ancestors.length; i++) n = e.ancestors[i], _._handleTopLevel(e.topLevelType, n, e.nativeEvent, p(e.nativeEvent));
+    for (var i = 0; i < e.ancestors.length; i++) n = e.ancestors[i],
+      _._handleTopLevel(e.topLevelType, n, e.nativeEvent, p(e.nativeEvent));
   }
 
   function a(e) {
@@ -98028,7 +98034,8 @@ var _getMetaFieldForId = function(id, key) {
             n = t.firstElementChild,
             r = t.lastElementChild,
             o = n.firstElementChild;
-          r.scrollLeft = r.scrollWidth, r.scrollTop = r.scrollHeight, o.style.width = n.offsetWidth + 1 + "px", o.style.height = n.offsetHeight + 1 + "px", n.scrollLeft = n.scrollWidth, n.scrollTop = n.scrollHeight;
+          r.scrollLeft = r.scrollWidth, r.scrollTop = r.scrollHeight, o.style.width = n.offsetWidth + 1 + "px", o.style.height = n.offsetHeight + 1 + "px", n.scrollLeft = n.scrollWidth,
+            n.scrollTop = n.scrollHeight;
         },
         i = function(e) {
           return e.offsetWidth != e.__resizeLast__.width || e.offsetHeight != e.__resizeLast__.height;
