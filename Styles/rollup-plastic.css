@@ -15025,7 +15025,7 @@ html:not(.supports_flexbox) .channel_modal_with_list .channel_modal_list {
 .supports_custom_scrollbar:not(.slim_scrollbar) .channel_modal_with_list .channel_modal_list::-webkit-scrollbar-track {
   background-clip: padding-box!important;
   border-radius: 3px;
-  color: #fff
+  color: #FFF
 }
 
 .supports_custom_scrollbar:not(.slim_scrollbar) .channel_modal_with_list .channel_modal_list::-webkit-scrollbar-track {
@@ -15040,7 +15040,7 @@ html:not(.supports_flexbox) .channel_modal_with_list .channel_modal_list {
 }
 
 .supports_custom_scrollbar:not(.slim_scrollbar) .channel_modal_with_list .channel_modal_list::-webkit-scrollbar-corner {
-  background: #fff
+  background: #FFF
 }
 
 .supports_custom_scrollbar.slim_scrollbar .channel_modal_with_list .channel_modal_list {
@@ -15195,7 +15195,7 @@ html:not(.supports_flexbox) .channel_modal_with_list .channel_modal_list {
   width: 100%;
   padding-left: 1rem;
   font-weight: 700;
-  background: #fff
+  background: #FFF
 }
 
 #channel_browser #channel_browser_sort {
@@ -15288,15 +15288,36 @@ html:not(.supports_flexbox) #channel_browser .channel_browser_sort_container {
   cursor: pointer;
   border: 1px solid transparent;
   border-top: 1px solid #E8E8E8;
-  padding-left: 62px;
+  padding-left: 10px;
   padding-right: 12px;
   padding-top: 11px
 }
 
-#im_browser .im_browser_row .member_image {
+body:not(.unify_user) #im_browser .im_browser_row {
+  padding-left: 62px
+}
+
+body:not(.unify_user) #im_browser .im_browser_row .member_image {
   position: absolute;
   left: 12px;
   top: 13px
+}
+
+#im_browser .im_browser_row.multiparty {
+  padding-left: 62px;
+  color: #2C2D30
+}
+
+body:not(.unify_user) #im_browser .im_browser_row.multiparty {
+  color: inherit
+}
+
+#im_browser .im_browser_row.multiparty .im_display_name_container {
+  margin-top: 10px
+}
+
+body:not(.unify_user) #im_browser .im_browser_row.multiparty .im_display_name_container {
+  margin-top: 0
 }
 
 #im_browser .im_browser_row.multiparty .member_image {
@@ -15313,7 +15334,7 @@ html:not(.supports_flexbox) #channel_browser .channel_browser_sort_container {
 
 #im_browser .im_browser_row.multiparty .member_image+.member_image:not(.ra):not(.ura) {
   border-radius: 5px;
-  border: 2px solid #fff
+  border: 2px solid #FFF
 }
 
 #im_browser .im_browser_row .im_display_name_container {
@@ -15348,7 +15369,7 @@ html:not(.supports_flexbox) #channel_browser .channel_browser_sort_container {
 }
 
 #im_browser .im_browser_row .im_unread_cnt {
-  color: #fff;
+  color: #FFF;
   background: #FF876D;
   border-radius: 9px;
   font-size: .9rem;
@@ -15632,7 +15653,7 @@ html:not(.supports_flexbox) #channel_invite_tokens {
 #im_browser_tokens .member_token {
   position: relative;
   background: #2D9EE0;
-  color: #fff;
+  color: #FFF;
   border-radius: .2rem;
   font-weight: 700;
   font-size: 15px;
@@ -15725,7 +15746,7 @@ body:not(.unify_user) .channel_invite_pending_user_small .member_image {
   background-color: #2D9EE0;
   padding-top: 12px;
   padding-left: 8px;
-  color: #fff;
+  color: #FFF;
   border-radius: 3px
 }
 
@@ -16152,7 +16173,7 @@ body:not(.unify_user) #channel_invite_container.page_needs_enterprise .channel_i
 .supports_custom_scrollbar:not(.slim_scrollbar) #generic_dialog.modal.all_members_dialog #all_members_container::-webkit-scrollbar-track {
   background-clip: padding-box!important;
   border-radius: 3px;
-  color: #fff
+  color: #FFF
 }
 
 .supports_custom_scrollbar:not(.slim_scrollbar) #generic_dialog.modal.all_members_dialog #all_members_container::-webkit-scrollbar-track {
@@ -16167,7 +16188,7 @@ body:not(.unify_user) #channel_invite_container.page_needs_enterprise .channel_i
 }
 
 .supports_custom_scrollbar:not(.slim_scrollbar) #generic_dialog.modal.all_members_dialog #all_members_container::-webkit-scrollbar-corner {
-  background: #fff
+  background: #FFF
 }
 
 .supports_custom_scrollbar.slim_scrollbar #generic_dialog.modal.all_members_dialog #all_members_container {

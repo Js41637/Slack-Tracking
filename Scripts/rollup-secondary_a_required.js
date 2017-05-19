@@ -33054,6 +33054,17 @@ TS.registerModule("constants", {
           return formatted_date;
         }
         return "<a " + TS.utility.makeRefererSafeLink(cmd_url) + ' target="_blank">' + formatted_date + "</a>";
+      } else if (cmd === "team" && cmd_args.length === 1) {
+        var team_name = cmd_label;
+        var team = TS.teams.getTeamById(cmd_args[0]);
+        if (team) team_name = team.name;
+        if (tsf_mode === "GROWL" || tsf_mode === "EDIT") {
+          return "*" + team_name + "*";
+        }
+        return TS.templates.format_team({
+          team: team,
+          fallback: team_name
+        });
       } else if (cmd === "subteam" && cmd_args.length === 1) {
         var ug = TS.user_groups.getUserGroupsById(cmd_args[0]);
         if (ug && ug.handle) {
@@ -34091,8 +34102,6 @@ TS.registerModule("constants", {
       $menu_content.on("mouseenter.section_header", "> div.section_header", TS.kb_nav.clearHighlightedItem);
       TS.kb_nav.setSubmitItemHandler(TS.menu.onTeamAndUserItemClick);
       if (TS.boot_data.page_needs_enterprise) {
-        TS.menu.has_submenu = true;
-        $menu_content.on("mouseenter", "li:not(.divider)", TS.menu.onTeamAndUserItemMouseenter);
         TS.menu.submenu_template_args.administration = {};
         TS.menu.submenu_template_args.switch_teams = template_args;
       }
@@ -34113,9 +34122,7 @@ TS.registerModule("constants", {
       TS.menu.positionAt($("#team_menu"), 10, menu_offset_y);
       TS.view.members.updateUserDisplayName();
       TS.view.members.updateUserCurrentStatus();
-      if (!TS.boot_data.page_needs_enterprise) {
-        $menu_content.on("highlighted", "li:not(.divider)", TS.menu.onTeamAndUserItemMouseenter);
-      }
+      $menu_content.on("highlighted", "li:not(.divider)", TS.menu.onTeamAndUserItemMouseenter);
       TS.view.setFlexMenuSize();
     },
     onTeamAndUserItemMouseenter: function(e) {
@@ -34966,7 +34973,9 @@ TS.registerModule("constants", {
           onLeftKeyDownIfSubmenuExists: TS.menu.onLeftKeyDownIfSubmenuExists,
           onRightKeyDownIfSubmenuExists: TS.menu.onRightKeyDownIfSubmenuExists
         });
-        if (TS.menu.$submenu_origin.attr("id") !== "member_current_status_item") TS.menu.$submenu_origin.submenu("destroy");
+        if (["member_current_status_item", "switch_teams"].indexOf(TS.menu.$submenu_origin.attr("id")) === -1) {
+          TS.menu.$submenu_origin.submenu("destroy");
+        }
         prevent_kb_default = true;
       }
       return prevent_kb_default;
@@ -34988,7 +34997,7 @@ TS.registerModule("constants", {
         } else {
           TS.menu.$submenu.addClass("kb_active");
           TS.kb_nav.end();
-          TS.kb_nav.highlightItemWithKey(TS.menu.$submenu.find("li").first());
+          TS.kb_nav.highlightItemWithKey(TS.menu.$submenu.find("li:not(.divider)").first());
           TS.kb_nav.start(TS.menu.$submenu.find("ul"), "li:not(.divider)", TS.menu.$submenu, {
             onLeftKeyDownIfSubmenuExists: TS.menu.onLeftKeyDownIfSubmenuExists,
             onRightKeyDownIfSubmenuExists: TS.menu.onRightKeyDownIfSubmenuExists
@@ -69924,7 +69933,7 @@ var _getMetaFieldForId = function(id, key) {
   var c = n(5),
     d = n(6),
     f = n(276),
-    p = n(37),
+    p = n(38),
     h = n(281),
     _ = n(49),
     m = n(75),
@@ -70014,7 +70023,7 @@ var _getMetaFieldForId = function(id, key) {
     return this.isDefaultPrevented = u ? a.thatReturnsTrue : a.thatReturnsFalse, this.isPropagationStopped = a.thatReturnsFalse, this;
   }
   var o = n(6),
-    i = n(37),
+    i = n(38),
     a = n(20),
     s = (n(3), ["dispatchConfig", "_targetInst", "nativeEvent", "isDefaultPrevented", "isPropagationStopped", "_dispatchListeners", "_dispatchInstances"]),
     u = {
@@ -70101,7 +70110,7 @@ var _getMetaFieldForId = function(id, key) {
   var r = n(414);
   t.a = r.a;
 }, function(e, t, n) {
-  e.exports = !n(40)(function() {
+  e.exports = !n(41)(function() {
     return 7 != Object.defineProperty({}, "a", {
       get: function() {
         return 7;
@@ -70112,7 +70121,7 @@ var _getMetaFieldForId = function(id, key) {
   var r = n(29),
     o = n(15),
     i = n(139),
-    a = n(41),
+    a = n(42),
     s = function(e, t, n) {
       var u, l, c, d = e & s.F,
         f = e & s.G,
@@ -70149,7 +70158,7 @@ var _getMetaFieldForId = function(id, key) {
     return n.call(e, t);
   };
 }, function(e, t, n) {
-  var r = n(39),
+  var r = n(40),
     o = n(141),
     i = n(94),
     a = Object.defineProperty;
@@ -70160,6 +70169,166 @@ var _getMetaFieldForId = function(id, key) {
     if ("get" in n || "set" in n) throw TypeError("Accessors not supported!");
     return "value" in n && (e[t] = n.value), e;
   };
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e, t, n) {
+    return t in e ? Object.defineProperty(e, t, {
+      value: n,
+      enumerable: !0,
+      configurable: !0,
+      writable: !0
+    }) : e[t] = n, e;
+  }
+  Object.defineProperty(t, "__esModule", {
+    value: !0
+  });
+  var o = n(4),
+    i = n.n(o),
+    a = n(14),
+    s = (n.n(a), n(70)),
+    u = n(400),
+    l = n(19);
+  n.d(t, "selectItem", function() {
+    return p;
+  }), n.d(t, "openInvitePeopleDialog", function() {
+    return h;
+  }), n.d(t, "openCreateChannelDialog", function() {
+    return _;
+  }), n.d(t, "openDirectMessage", function() {
+    return m;
+  }), n.d(t, "setChannelsOrdered", function() {
+    return y;
+  }), n.d(t, "setImsOrdered", function() {
+    return v;
+  }), n.d(t, "setSidebarSections", function() {
+    return g;
+  }), n.d(t, "maybeCalculateSidebarSections", function() {
+    return M;
+  }), n.d(t, "getSelectedChannelItem", function() {
+    return L;
+  }), n.d(t, "getSidebarSectionsOrdered", function() {
+    return T;
+  }), n.d(t, "getSidebarSections", function() {
+    return S;
+  }), n.d(t, "getLinks", function() {
+    return Y;
+  }), n.d(t, "getLinkById", function() {
+    return x;
+  });
+  var c, d = Object.assign || function(e) {
+      for (var t = 1; t < arguments.length; t++) {
+        var n = arguments[t];
+        for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
+      }
+      return e;
+    },
+    f = l.a.ns("channel_sidebar"),
+    p = n.i(a.createAction)("Select an item"),
+    h = n.i(a.createAction)("Open an invite people dialog"),
+    _ = n.i(a.createAction)("Open a create channel dialog"),
+    m = n.i(a.createAction)("Open a direct message"),
+    y = n.i(a.createAction)("Set the channel ordering"),
+    v = n.i(a.createAction)("Set the channel ordering"),
+    g = n.i(a.createAction)("Set the channel groups"),
+    b = void 0,
+    M = function() {
+      return function(e, t) {
+        b || (b = i.a.defer(function() {
+          var r = n.i(s.b)(),
+            o = t();
+          e(g(n.i(u.a)({
+            shouldHideReadChannels: "hide_read_channels" === r.sidebar_behavior,
+            shouldHideReadChannelsUnlessStarred: "hide_read_channels_unless_starred" === r.sidebar_behavior,
+            shouldSeparatePrivateChannels: r.separate_private_channels,
+            state: o
+          }))), b = null;
+        }));
+      };
+    },
+    w = {
+      hasAllUnreadsLink: !0,
+      hasAllThreadsLink: !0,
+      hasInvitePeopleLink: !0,
+      selectedItemId: void 0,
+      sidebarSectionsOrdered: ["channels", "ims"],
+      sidebarSections: {
+        channels: {
+          displayName: f("Channels"),
+          tooltip: f("Browse all channels"),
+          count: 0,
+          createChannelBtn: !0,
+          channelsOrdered: []
+        },
+        ims: {
+          displayName: f("Direct Messages"),
+          tooltip: f("Open a Direct Message"),
+          createDmBtn: !0,
+          channelsOrdered: []
+        }
+      },
+      links: {
+        Vall_threads: {
+          label: f("All Threads"),
+          labelUnread: f("New Threads"),
+          selectable: !0,
+          hasUnreads: !0
+        },
+        Vall_unreads: {
+          label: f("All Unreads"),
+          selectable: !0,
+          hasUnreads: !1
+        },
+        Vinvites: {
+          label: f("Invite People"),
+          selectable: !1
+        }
+      }
+    },
+    k = n.i(a.createReducer)((c = {}, r(c, p, function(e, t) {
+      return e.selectedItemId === t ? e : d({}, e, {
+        selectedItemId: t
+      });
+    }), r(c, y, function(e, t) {
+      return d({}, e, {
+        sidebarSections: d({}, e.sidebarSections, {
+          channels: d({}, e.sidebarSections.channels, {
+            channelsOrdered: t
+          })
+        })
+      });
+    }), r(c, v, function(e, t) {
+      return d({}, e, {
+        sidebarSections: d({}, e.sidebarSections, {
+          ims: d({}, e.sidebarSections.ims, {
+            channelsOrdered: t
+          })
+        })
+      });
+    }), r(c, g, function(e, t) {
+      var n = t.sidebarSectionsOrdered,
+        r = t.sidebarSections;
+      return d({}, e, {
+        sidebarSections: r,
+        sidebarSectionsOrdered: n
+      });
+    }), c), w);
+  t.default = k;
+  var L = function(e) {
+      return e && e.channelSidebar && e.channelSidebar.selectedItemId;
+    },
+    T = function(e) {
+      return e && e.channelSidebar && e.channelSidebar.sidebarSectionsOrdered;
+    },
+    S = function(e) {
+      return e && e.channelSidebar && e.channelSidebar.sidebarSections;
+    },
+    Y = function(e) {
+      return e && e.channelSidebar && e.channelSidebar.links;
+    },
+    x = function(e, t) {
+      return e && e.channelSidebar && e.channelSidebar.links && e.channelSidebar.links[t];
+    };
 }, , function(e, t, n) {
   "use strict";
   var r = n(5),
@@ -70455,166 +70624,6 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   "use strict";
 
-  function r(e, t, n) {
-    return t in e ? Object.defineProperty(e, t, {
-      value: n,
-      enumerable: !0,
-      configurable: !0,
-      writable: !0
-    }) : e[t] = n, e;
-  }
-  Object.defineProperty(t, "__esModule", {
-    value: !0
-  });
-  var o = n(4),
-    i = n.n(o),
-    a = n(14),
-    s = (n.n(a), n(70)),
-    u = n(400),
-    l = n(19);
-  n.d(t, "selectItem", function() {
-    return p;
-  }), n.d(t, "openInvitePeopleDialog", function() {
-    return h;
-  }), n.d(t, "openCreateChannelDialog", function() {
-    return _;
-  }), n.d(t, "openDirectMessage", function() {
-    return m;
-  }), n.d(t, "setChannelsOrdered", function() {
-    return y;
-  }), n.d(t, "setImsOrdered", function() {
-    return v;
-  }), n.d(t, "setSidebarSections", function() {
-    return g;
-  }), n.d(t, "maybeCalculateSidebarSections", function() {
-    return M;
-  }), n.d(t, "getSelectedChannelItem", function() {
-    return L;
-  }), n.d(t, "getSidebarSectionsOrdered", function() {
-    return T;
-  }), n.d(t, "getSidebarSections", function() {
-    return S;
-  }), n.d(t, "getLinks", function() {
-    return Y;
-  }), n.d(t, "getLinkById", function() {
-    return x;
-  });
-  var c, d = Object.assign || function(e) {
-      for (var t = 1; t < arguments.length; t++) {
-        var n = arguments[t];
-        for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
-      }
-      return e;
-    },
-    f = l.a.ns("channel_sidebar"),
-    p = n.i(a.createAction)("Select an item"),
-    h = n.i(a.createAction)("Open an invite people dialog"),
-    _ = n.i(a.createAction)("Open a create channel dialog"),
-    m = n.i(a.createAction)("Open a direct message"),
-    y = n.i(a.createAction)("Set the channel ordering"),
-    v = n.i(a.createAction)("Set the channel ordering"),
-    g = n.i(a.createAction)("Set the channel groups"),
-    b = void 0,
-    M = function() {
-      return function(e, t) {
-        b || (b = i.a.defer(function() {
-          var r = n.i(s.b)(),
-            o = t();
-          e(g(n.i(u.a)({
-            shouldHideReadChannels: "hide_read_channels" === r.sidebar_behavior,
-            shouldHideReadChannelsUnlessStarred: "hide_read_channels_unless_starred" === r.sidebar_behavior,
-            shouldSeparatePrivateChannels: r.separate_private_channels,
-            state: o
-          }))), b = null;
-        }));
-      };
-    },
-    w = {
-      hasAllUnreadsLink: !0,
-      hasAllThreadsLink: !0,
-      hasInvitePeopleLink: !0,
-      selectedItemId: void 0,
-      sidebarSectionsOrdered: ["channels", "ims"],
-      sidebarSections: {
-        channels: {
-          displayName: f("Channels"),
-          tooltip: f("Browse all channels"),
-          count: 0,
-          createChannelBtn: !0,
-          channelsOrdered: []
-        },
-        ims: {
-          displayName: f("Direct Messages"),
-          tooltip: f("Open a Direct Message"),
-          createDmBtn: !0,
-          channelsOrdered: []
-        }
-      },
-      links: {
-        Vall_threads: {
-          label: f("All Threads"),
-          labelUnread: f("New Threads"),
-          selectable: !0,
-          hasUnreads: !0
-        },
-        Vall_unreads: {
-          label: f("All Unreads"),
-          selectable: !0,
-          hasUnreads: !1
-        },
-        Vinvites: {
-          label: f("Invite People"),
-          selectable: !1
-        }
-      }
-    },
-    k = n.i(a.createReducer)((c = {}, r(c, p, function(e, t) {
-      return d({}, e, {
-        selectedItemId: t
-      });
-    }), r(c, y, function(e, t) {
-      return d({}, e, {
-        sidebarSections: d({}, e.sidebarSections, {
-          channels: d({}, e.sidebarSections.channels, {
-            channelsOrdered: t
-          })
-        })
-      });
-    }), r(c, v, function(e, t) {
-      return d({}, e, {
-        sidebarSections: d({}, e.sidebarSections, {
-          ims: d({}, e.sidebarSections.ims, {
-            channelsOrdered: t
-          })
-        })
-      });
-    }), r(c, g, function(e, t) {
-      var n = t.sidebarSectionsOrdered,
-        r = t.sidebarSections;
-      return d({}, e, {
-        sidebarSections: r,
-        sidebarSectionsOrdered: n
-      });
-    }), c), w);
-  t.default = k;
-  var L = function(e) {
-      return e && e.channelSidebar && e.channelSidebar.selectedItemId;
-    },
-    T = function(e) {
-      return e && e.channelSidebar && e.channelSidebar.sidebarSectionsOrdered;
-    },
-    S = function(e) {
-      return e && e.channelSidebar && e.channelSidebar.sidebarSections;
-    },
-    Y = function(e) {
-      return e && e.channelSidebar && e.channelSidebar.links;
-    },
-    x = function(e, t) {
-      return e && e.channelSidebar && e.channelSidebar.links && e.channelSidebar.links[t];
-    };
-}, function(e, t, n) {
-  "use strict";
-
   function r(e, t) {
     var r = arguments.length > 2 && void 0 !== arguments[2] ? arguments[2] : {},
       i = r.units,
@@ -70625,7 +70634,7 @@ var _getMetaFieldForId = function(id, key) {
       c = n.i(o.a)(t);
     return l.diff(c, a, u);
   }
-  var o = n(38);
+  var o = n(39);
   t.a = r;
 }, function(e, t, n) {
   "use strict";
@@ -70638,7 +70647,7 @@ var _getMetaFieldForId = function(id, key) {
       a = void 0 === i ? "milliseconds" : i;
     return Math.floor(o.a.duration(e, r).as(a));
   }
-  var o = n(38);
+  var o = n(39);
   t.a = r;
 }, function(e, t, n) {
   "use strict";
@@ -71389,8 +71398,7 @@ var _getMetaFieldForId = function(id, key) {
     },
     d = function(e) {
       function t() {
-        return r(this, t),
-          o(this, (t.__proto__ || Object.getPrototypeOf(t)).apply(this, arguments));
+        return r(this, t), o(this, (t.__proto__ || Object.getPrototypeOf(t)).apply(this, arguments));
       }
       return i(t, e), u(t, [{
         key: "render",
@@ -71466,7 +71474,7 @@ var _getMetaFieldForId = function(id, key) {
       c = u ? n.i(o.a)(l, i) : o.a.unix(l);
     return s ? c : c.toDate();
   }
-  var o = n(38);
+  var o = n(39);
   t.a = r;
 }, function(e, t, n) {
   "use strict";
@@ -71818,7 +71826,7 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t) {
   e.exports = !0;
 }, function(e, t, n) {
-  var r = n(39),
+  var r = n(40),
     o = n(372),
     i = n(84),
     a = n(91)("IE_PROTO"),
@@ -71852,7 +71860,7 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   var r = n(33),
     o = n(15),
-    i = n(40);
+    i = n(41);
   e.exports = function(e, t) {
     var n = (o.Object || {})[e] || Object[e],
       a = {};
@@ -71930,7 +71938,7 @@ var _getMetaFieldForId = function(id, key) {
   });
 }, function(e, t, n) {
   n(381);
-  for (var r = n(29), o = n(41), i = n(54), a = n(23)("toStringTag"), s = ["NodeList", "DOMTokenList", "MediaList", "StyleSheetList", "CSSRuleList"], u = 0; u < 5; u++) {
+  for (var r = n(29), o = n(42), i = n(54), a = n(23)("toStringTag"), s = ["NodeList", "DOMTokenList", "MediaList", "StyleSheetList", "CSSRuleList"], u = 0; u < 5; u++) {
     var l = s[u],
       c = r[l],
       d = c && c.prototype;
@@ -72980,8 +72988,7 @@ var _getMetaFieldForId = function(id, key) {
       var a = document.createElement("div");
       a.setAttribute(n, "return;"), r = "function" == typeof a[n];
     }
-    return !r && o && "wheel" === e && (r = document.implementation.hasFeature("Events.wheel", "3.0")),
-      r;
+    return !r && o && "wheel" === e && (r = document.implementation.hasFeature("Events.wheel", "3.0")), r;
   }
   var o, i = n(16);
   i.canUseDOM && (o = document.implementation && document.implementation.hasFeature && !0 !== document.implementation.hasFeature("", "")), e.exports = r;
@@ -73232,7 +73239,7 @@ var _getMetaFieldForId = function(id, key) {
     return i ? o.createElement(e) : {};
   };
 }, function(e, t, n) {
-  e.exports = !n(32) && !n(40)(function() {
+  e.exports = !n(32) && !n(41)(function() {
     return 7 != Object.defineProperty(n(140)("div"), "a", {
       get: function() {
         return 7;
@@ -73249,7 +73256,7 @@ var _getMetaFieldForId = function(id, key) {
   var r = n(85),
     o = n(33),
     i = n(147),
-    a = n(41),
+    a = n(42),
     s = n(34),
     u = n(54),
     l = n(367),
@@ -73323,7 +73330,7 @@ var _getMetaFieldForId = function(id, key) {
     return l;
   };
 }, function(e, t, n) {
-  e.exports = n(41);
+  e.exports = n(42);
 }, function(e, t, n) {
   "use strict";
   var r = n(1),
@@ -73444,7 +73451,7 @@ var _getMetaFieldForId = function(id, key) {
   var o = n(4),
     i = n.n(o),
     a = n(14),
-    s = (n.n(a), n(43));
+    s = (n.n(a), n(44));
   n.d(t, "removeChannelFromNameMap", function() {
     return c;
   }), n.d(t, "addChannelToNameMap", function() {
@@ -81715,7 +81722,7 @@ var _getMetaFieldForId = function(id, key) {
     if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
   }
   var o = n(5),
-    i = n(37),
+    i = n(38),
     a = (n(2), function() {
       function e(t) {
         r(this, e), this._callbacks = null, this._contexts = null, this._arg = t;
@@ -86084,19 +86091,23 @@ var _getMetaFieldForId = function(id, key) {
     u = n(69),
     l = n(150),
     c = n(151),
-    d = n(429),
-    f = n(428),
-    p = n(397),
-    h = function(e) {
-      "V" === e[0] ? n.i(f.a)(e) : n.i(d.a)(e);
+    d = n(36),
+    f = n(429),
+    p = n(428),
+    h = n(397),
+    _ = function(e) {
+      "V" === e[0] ? n.i(p.a)(e) : n.i(f.a)(e);
     };
   n.i(u.a)("ui.react_channel_sidebar", {
+    selectItem: function(e) {
+      n.i(c.a)().dispatch(n.i(d.selectItem)(e));
+    },
     render: function(e) {
       var t = "react_channel_sidebar_render";
       n.i(l.a)(t + "_mark"), a.a.render(o.a.createElement(s.a, {
         store: n.i(c.a)()
-      }, o.a.createElement(p.a, {
-        onItemSelect: h
+      }, o.a.createElement(h.a, {
+        onItemSelect: _
       })), e, function() {
         return n.i(l.b)(t, t + "_mark");
       });
@@ -86129,7 +86140,7 @@ var _getMetaFieldForId = function(id, key) {
     o = n(69),
     i = n(413),
     a = n(433),
-    s = n(43),
+    s = n(44),
     u = n(153),
     l = n(71),
     c = n(154),
@@ -86138,7 +86149,7 @@ var _getMetaFieldForId = function(id, key) {
     p = n(101),
     h = n(158),
     _ = n(102),
-    m = n(44),
+    m = n(36),
     y = n(156),
     v = n(100);
   n.i(o.a)("interop.redux", {
@@ -86348,7 +86359,7 @@ var _getMetaFieldForId = function(id, key) {
     };
   };
 }, function(e, t, n) {
-  var r = n(42),
+  var r = n(43),
     o = n(88),
     i = n(64);
   e.exports = function(e) {
@@ -86371,7 +86382,7 @@ var _getMetaFieldForId = function(id, key) {
     o = n(65),
     i = n(90),
     a = {};
-  n(41)(a, n(23)("iterator"), function() {
+  n(42)(a, n(23)("iterator"), function() {
     return this;
   }), e.exports = function(e, t, n) {
     e.prototype = r(a, {
@@ -86386,7 +86397,7 @@ var _getMetaFieldForId = function(id, key) {
     };
   };
 }, function(e, t, n) {
-  var r = n(42),
+  var r = n(43),
     o = n(30);
   e.exports = function(e, t) {
     for (var n, i = o(e), a = r(i), s = a.length, u = 0; s > u;)
@@ -86401,7 +86412,7 @@ var _getMetaFieldForId = function(id, key) {
     u = Object.isExtensible || function() {
       return !0;
     },
-    l = !n(40)(function() {
+    l = !n(41)(function() {
       return u(Object.preventExtensions({}));
     }),
     c = function(e) {
@@ -86441,13 +86452,13 @@ var _getMetaFieldForId = function(id, key) {
     };
 }, function(e, t, n) {
   "use strict";
-  var r = n(42),
+  var r = n(43),
     o = n(88),
     i = n(64),
     a = n(66),
     s = n(142),
     u = Object.assign;
-  e.exports = !u || n(40)(function() {
+  e.exports = !u || n(41)(function() {
     var e = {},
       t = {},
       n = Symbol(),
@@ -86462,8 +86473,8 @@ var _getMetaFieldForId = function(id, key) {
   } : u;
 }, function(e, t, n) {
   var r = n(35),
-    o = n(39),
-    i = n(42);
+    o = n(40),
+    i = n(43);
   e.exports = n(32) ? Object.defineProperties : function(e, t) {
     o(e);
     for (var n, a = i(t), s = a.length, u = 0; s > u;) r.f(e, n = a[u++], t[n]);
@@ -86486,7 +86497,7 @@ var _getMetaFieldForId = function(id, key) {
   };
 }, function(e, t, n) {
   var r = n(53),
-    o = n(39),
+    o = n(40),
     i = function(e, t) {
       if (o(e), !r(t) && null !== t) throw TypeError(t + ": can't set as prototype!");
     };
@@ -86535,7 +86546,7 @@ var _getMetaFieldForId = function(id, key) {
     if (void 0 != e) return e[o] || e["@@iterator"] || i[r(e)];
   };
 }, function(e, t, n) {
-  var r = n(39),
+  var r = n(40),
     o = n(378);
   e.exports = n(15).getIterator = function(e) {
     var t = o(e);
@@ -86597,7 +86608,7 @@ var _getMetaFieldForId = function(id, key) {
   });
 }, function(e, t, n) {
   var r = n(66),
-    o = n(42);
+    o = n(43);
   n(89)("keys", function() {
     return function(e) {
       return o(r(e));
@@ -86616,7 +86627,7 @@ var _getMetaFieldForId = function(id, key) {
     a = n(33),
     s = n(147),
     u = n(370).KEY,
-    l = n(40),
+    l = n(41),
     c = n(92),
     d = n(90),
     f = n(67),
@@ -86626,7 +86637,7 @@ var _getMetaFieldForId = function(id, key) {
     m = n(369),
     y = n(364),
     v = n(366),
-    g = n(39),
+    g = n(40),
     b = n(30),
     M = n(94),
     w = n(65),
@@ -86634,7 +86645,7 @@ var _getMetaFieldForId = function(id, key) {
     L = n(373),
     T = n(87),
     S = n(35),
-    Y = n(42),
+    Y = n(43),
     x = T.f,
     D = S.f,
     C = L.f,
@@ -86757,7 +86768,7 @@ var _getMetaFieldForId = function(id, key) {
         }), r[1] = t, j.apply(E, r);
       }
     }
-  }), P.prototype[R] || n(41)(P.prototype, R, P.prototype.valueOf), d(P, "Symbol"), d(Math, "Math", !0), d(r.JSON, "JSON", !0);
+  }), P.prototype[R] || n(42)(P.prototype, R, P.prototype.valueOf), d(P, "Symbol"), d(Math, "Math", !0), d(r.JSON, "JSON", !0);
 }, function(e, t, n) {
   n(95)("asyncIterator");
 }, function(e, t, n) {
@@ -87210,8 +87221,8 @@ var _getMetaFieldForId = function(id, key) {
     c = n(26),
     d = n(9),
     f = n.n(d),
-    p = n(44),
-    h = n(43),
+    p = n(36),
+    h = n(44),
     _ = n(71),
     m = n(421),
     y = n(19),
@@ -87249,6 +87260,7 @@ var _getMetaFieldForId = function(id, key) {
       isSelected: a.PropTypes.bool,
       badgeCount: a.PropTypes.number,
       userCount: a.PropTypes.number,
+      userId: a.PropTypes.string,
       statusEmoji: a.PropTypes.string,
       id: a.PropTypes.string.isRequired,
       selectItem: a.PropTypes.func
@@ -87268,6 +87280,7 @@ var _getMetaFieldForId = function(id, key) {
       displayName: "",
       badgeCount: 0,
       userCount: 0,
+      userId: void 0,
       statusEmoji: void 0,
       selectItem: l.a.noop
     },
@@ -87316,7 +87329,7 @@ var _getMetaFieldForId = function(id, key) {
             _ = e.displayName,
             m = e.statusEmoji,
             y = e.isStarred,
-            g = e.id,
+            g = e.userId,
             M = f()("p-channel_sidebar__channel", {
               "p-channel_sidebar__channel--private": "group" === t,
               "p-channel_sidebar__channel--shared": n,
@@ -87373,6 +87386,7 @@ var _getMetaFieldForId = function(id, key) {
       badgeCount: o.badge_count,
       statusEmoji: l.a.get(o, "status.emoji"),
       userCount: i,
+      userId: o.user,
       type: n.i(h.getChannelType)(o),
       id: r
     };
@@ -87384,7 +87398,7 @@ var _getMetaFieldForId = function(id, key) {
     o = n.n(r),
     i = n(26),
     a = n(134),
-    s = (n.n(a), n(44)),
+    s = (n.n(a), n(36)),
     u = n(394),
     l = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
@@ -87474,7 +87488,7 @@ var _getMetaFieldForId = function(id, key) {
     c = n(26),
     d = n(9),
     f = n.n(d),
-    p = n(44),
+    p = n(36),
     h = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
@@ -87602,9 +87616,9 @@ var _getMetaFieldForId = function(id, key) {
   var r = n(4),
     o = n.n(r),
     i = n(19),
-    a = n(44),
+    a = n(36),
     s = n(71),
-    u = n(43);
+    u = n(44);
   n.d(t, "a", function() {
     return g;
   });
@@ -88940,13 +88954,14 @@ var _getMetaFieldForId = function(id, key) {
   function i(e, t) {
     if ("function" != typeof t && null !== t) throw new TypeError("Super expression must either be null or a function, not " + typeof t);
     e.prototype = Object.create(t && t.prototype, {
-      constructor: {
-        value: e,
-        enumerable: !1,
-        writable: !0,
-        configurable: !0
-      }
-    }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
+        constructor: {
+          value: e,
+          enumerable: !1,
+          writable: !0,
+          configurable: !0
+        }
+      }),
+      t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
   }
   var a = n(1),
     s = n.n(a),
@@ -90291,7 +90306,7 @@ var _getMetaFieldForId = function(id, key) {
     o = n.n(r),
     i = n(18),
     a = n.n(i),
-    s = n(38),
+    s = n(39),
     u = n(335),
     l = n(135);
   n(336), n(339), n(338), n(337), window.ReactComponents = {}, window.ReactComponents.EmojiPicker = u.a, window.ReactComponents.Popover = l.a, window.ReactComponents.PopoverTrigger = l.b, window.React = o.a, window.ReactDOM = a.a, window.moment = s.a;
@@ -90390,7 +90405,7 @@ var _getMetaFieldForId = function(id, key) {
     a = n(615),
     s = n.n(a),
     u = n(435),
-    l = n(43);
+    l = n(44);
   t.a = o;
   var c = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
@@ -90439,14 +90454,14 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   "use strict";
   var r = n(80),
-    o = n(44),
+    o = n(36),
     i = n(103),
     a = n(101),
     s = n(158),
     u = n(102),
     l = n(156),
     c = n(157),
-    d = n(43),
+    d = n(44),
     f = n(434),
     p = n(155),
     h = n(99),
@@ -90575,8 +90590,7 @@ var _getMetaFieldForId = function(id, key) {
           var n = this;
           return new Promise(function(n, r) {
             var o = new Image;
-            return o.src = e, t && (o.srcset = t),
-              o.onerror = r, o.onload = n, null;
+            return o.src = e, t && (o.srcset = t), o.onerror = r, o.onload = n, null;
           }).then(function() {
             return n.setState(function() {
               return {
@@ -90681,7 +90695,7 @@ var _getMetaFieldForId = function(id, key) {
   }
   var o = n(72),
     i = n(46),
-    a = n(38);
+    a = n(39);
   t.a = r;
 }, function(e, t, n) {
   "use strict";
@@ -90745,7 +90759,7 @@ var _getMetaFieldForId = function(id, key) {
       u = [];
     return s.w && (1 === s.w && u.push(o.a.localeData().relativeTime(s.w, !1, "w", !1)), s.w > 1 && u.push(o.a.localeData().relativeTime(s.w, !1, "ww", !1))), s.d && (1 === s.d && u.push(o.a.localeData().relativeTime(s.d, !1, "d", !1)), s.d > 1 && u.push(o.a.localeData().relativeTime(s.d, !1, "dd", !1))), s.h && (1 === s.h && u.push(o.a.localeData().relativeTime(s.h, !1, "h", !1)), s.h > 1 && u.push(o.a.localeData().relativeTime(s.h, !1, "hh", !1))), s.m && u.push(o.a.localeData().relativeTime(s.m, !1, "m", !1)), !s.s && u.length || u.push(o.a.localeData().relativeTime(s.s, !1, "s", !1)), u.join(" ");
   }
-  var o = n(38),
+  var o = n(39),
     i = n(160);
   t.a = r;
 }, function(e, t, n) {
@@ -93283,7 +93297,7 @@ var _getMetaFieldForId = function(id, key) {
     this._root = e, this._startText = this.getText(), this._fallbackText = null;
   }
   var o = n(6),
-    i = n(37),
+    i = n(38),
     a = n(290);
   o(r.prototype, {
     destructor: function() {
@@ -94699,7 +94713,8 @@ var _getMetaFieldForId = function(id, key) {
   }
 
   function o(e, t) {
-    this.topLevelType = e, this.nativeEvent = t, this.ancestors = [];
+    this.topLevelType = e, this.nativeEvent = t,
+      this.ancestors = [];
   }
 
   function i(e) {
@@ -94709,8 +94724,7 @@ var _getMetaFieldForId = function(id, key) {
     do {
       e.ancestors.push(o), o = o && r(o);
     } while (o);
-    for (var i = 0; i < e.ancestors.length; i++) n = e.ancestors[i],
-      _._handleTopLevel(e.topLevelType, n, e.nativeEvent, p(e.nativeEvent));
+    for (var i = 0; i < e.ancestors.length; i++) n = e.ancestors[i], _._handleTopLevel(e.topLevelType, n, e.nativeEvent, p(e.nativeEvent));
   }
 
   function a(e) {
@@ -94719,7 +94733,7 @@ var _getMetaFieldForId = function(id, key) {
   var s = n(6),
     u = n(165),
     l = n(16),
-    c = n(37),
+    c = n(38),
     d = n(10),
     f = n(22),
     p = n(125),
@@ -94981,7 +94995,7 @@ var _getMetaFieldForId = function(id, key) {
   }
   var o = n(6),
     i = n(276),
-    a = n(37),
+    a = n(38),
     s = n(73),
     u = n(283),
     l = (n(21), n(75)),
@@ -95066,7 +95080,7 @@ var _getMetaFieldForId = function(id, key) {
     this.reinitializeTransaction(), this.renderToStaticMarkup = e, this.useCreateElement = !1, this.updateQueue = new s(this);
   }
   var o = n(6),
-    i = n(37),
+    i = n(38),
     a = n(75),
     s = (n(21), n(524)),
     u = [],
@@ -98034,8 +98048,7 @@ var _getMetaFieldForId = function(id, key) {
             n = t.firstElementChild,
             r = t.lastElementChild,
             o = n.firstElementChild;
-          r.scrollLeft = r.scrollWidth, r.scrollTop = r.scrollHeight, o.style.width = n.offsetWidth + 1 + "px", o.style.height = n.offsetHeight + 1 + "px", n.scrollLeft = n.scrollWidth,
-            n.scrollTop = n.scrollHeight;
+          r.scrollLeft = r.scrollWidth, r.scrollTop = r.scrollHeight, o.style.width = n.offsetWidth + 1 + "px", o.style.height = n.offsetHeight + 1 + "px", n.scrollLeft = n.scrollWidth, n.scrollTop = n.scrollHeight;
         },
         i = function(e) {
           return e.offsetWidth != e.__resizeLast__.width || e.offsetHeight != e.__resizeLast__.height;
