@@ -21540,7 +21540,7 @@ TS.registerModule("constants", {
           }
           str += ", " + also_str + " " + alsoA.join(", ");
           html = TS.format.formatNoHighlightsNoSpecials(str);
-          if (_jl_rollup_limit_reached) html += TS.i18n.t(' and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "templates_builders")();
+          if (_jl_rollup_limit_reached) html += TS.i18n.t(' and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>', "templates_builders")();
           if (otherA.length) {
             var other_str = TS.i18n.t(". Also, {others}", "templates_builders")({
               others: otherA.join(", ")
@@ -21583,13 +21583,6 @@ TS.registerModule("constants", {
             users: TS.format.formatNoHighlightsNoSpecials(alsoA.join(", ")),
             others: TS.format.formatNoHighlightsNoSpecials(otherA.join(", "))
           });
-          if (html !== new_html) {
-            TS.info("- - -");
-            TS.info("TS only: issue with user leave/join message. Please message @steveb with the following info:");
-            TS.info("old html:", html);
-            TS.info("new html:", new_html);
-            TS.info("- - -");
-          }
           html = new_html;
         }
       } else if (msg.subtype === "channel_join") {
@@ -48360,6 +48353,7 @@ $.fn.togglify = function(settings) {
     _previous_val: "",
     _running_promise: null,
     _scroll_callback_was_called: false,
+    _selected: [],
     _showing_status: false
   };
   $.widget("TS.lazyFilterSelect", {
@@ -48424,6 +48418,12 @@ $.fn.togglify = function(settings) {
       }
       var data_item = _getData(this.instance, $(selected_option));
       _selectDataItem(this.instance, data_item);
+    },
+    forceSelectItem: function(item) {
+      this.instance.$lfs_value.html(_buildItem(this.instance, item, {
+        force_selected: true
+      }));
+      this.instance.$container.addClass("value");
     },
     showList: function() {
       _showList(this.instance);
@@ -48529,13 +48529,14 @@ $.fn.togglify = function(settings) {
     instance.$list_container.on(item_click_event, ".lfs_item", _onItemClick.bind(null, instance));
     instance.onReady();
   };
-  var _buildItem = function(instance, item, token) {
+  var _buildItem = function(instance, item, options) {
     var $item = $(item);
-    var selected = _isAlreadySelected(instance, item);
+    options = options || {};
+    var selected = options.force_selected || _isAlreadySelected(instance, item);
     var disabled = item.disabled || item.lfs_disabled;
     if (instance.restrict_preselected_item_removal && item.preselected) disabled = true;
     var content;
-    if (token && _.isFunction(instance.tokenTemplate)) {
+    if (options.should_tokenize && _.isFunction(instance.tokenTemplate)) {
       content = instance.tokenTemplate(item);
     } else if (instance.single && _.isFunction(instance.tokenTemplateSingle)) {
       content = instance.tokenTemplateSingle(item);
@@ -48546,7 +48547,7 @@ $.fn.togglify = function(settings) {
     var class_map = {
       active: instance._previous_val !== "" && !selected && !disabled,
       disabled: disabled,
-      lfs_token: token,
+      lfs_token: options.should_tokenize,
       selected: selected,
       single: instance.single,
       group_item: $item.hasClass("group_item")
@@ -48865,7 +48866,9 @@ $.fn.togglify = function(settings) {
           if ((subitem.selected || subitem.preselected) && instance.no_default_selection === false) {
             if (instance.single && instance._selected.length > 0 || _isAlreadySelected(instance, subitem)) continue;
             instance._selected.push(subitem);
-            html += _buildItem(instance, subitem, token);
+            html += _buildItem(instance, subitem, {
+              should_tokenize: token
+            });
           }
         }
       } else {
@@ -48876,7 +48879,9 @@ $.fn.togglify = function(settings) {
             continue;
           }
           instance._selected.push(item);
-          html += _buildItem(instance, item, token);
+          html += _buildItem(instance, item, {
+            should_tokenize: token
+          });
         }
       }
       i += 1;
@@ -49037,12 +49042,14 @@ $.fn.togglify = function(settings) {
     }
     instance._selected.push(data_item);
     _updateVal(instance);
-    var $token = $(_buildItem(instance, data_item, !instance.single));
+    var $token = $(_buildItem(instance, data_item, {
+      should_tokenize: !instance.single
+    }));
     if (_.isFunction(instance.tokenClass)) {
       $token.addClass(instance.tokenClass(data_item));
     }
     if (instance.single) {
-      $token.appendTo(instance.$lfs_value);
+      instance.$lfs_value.html($token);
     } else {
       $token.addClass("lfs_token");
       $token.insertBefore(instance.$input);
@@ -60288,9 +60295,8 @@ var _getMetaFieldForId = function(id, key) {
           template: _getItemTemplate(context)
         };
         $el.lazyFilterSelect(lfs_options).addClass("hidden");
-        var lfs_instance = $el.lazyFilterSelect("getInstance");
-        _handlePreselectedOptions(context, lfs_instance);
-        _adjustMenuWidth(context, lfs_instance);
+        _handlePreselectedOptions(context, $el);
+        _adjustMenuWidth(context, $el);
       });
     },
     getActionModel: function(action, is_disabled) {
@@ -60504,7 +60510,7 @@ var _getMetaFieldForId = function(id, key) {
     return _.get(_PLACEHOLDER_TEXT, data_source, _PLACEHOLDER_TEXT.default);
   }
 
-  function _handlePreselectedOptions(context, lfs_instance) {
+  function _handlePreselectedOptions(context, $el) {
     var selected_options = _.get(context, "action.selected_options");
     if (!_.isEmpty(selected_options)) {
       var formatted_text = TS.format.formatWithOptions(selected_options[0].text, {
@@ -60512,11 +60518,15 @@ var _getMetaFieldForId = function(id, key) {
       }, {
         no_linking: true
       });
-      lfs_instance.$input.val(formatted_text);
+      var formatted_option = _.merge({}, selected_options[0], {
+        text: new Handlebars.SafeString(formatted_text)
+      });
+      $el.lazyFilterSelect("forceSelectItem", _createOptionEl(formatted_option));
     }
   }
 
-  function _adjustMenuWidth(context, lfs_instance) {
+  function _adjustMenuWidth(context, $el) {
+    var lfs_instance = $el.lazyFilterSelect("getInstance");
     var placeholder_text = _getPlaceholderText(context);
     var font_descriptor = TS.utility.getFontDescriptorForElement(lfs_instance.$input);
     var text_width = TS.utility.measureTextWidth(placeholder_text, font_descriptor);
@@ -68313,8 +68323,7 @@ var _getMetaFieldForId = function(id, key) {
           }
 
           function nu(e, t, n) {
-            return n = "function" == typeof n ? n : oe,
-              Yr(e, t, gi(t), n);
+            return n = "function" == typeof n ? n : oe, Yr(e, t, gi(t), n);
           }
 
           function ru(e) {
@@ -71391,7 +71400,8 @@ var _getMetaFieldForId = function(id, key) {
         }
       }]), t;
     }(a.PureComponent);
-  t.a = d, d.propTypes = l, d.defaultProps = c;
+  t.a = d,
+    d.propTypes = l, d.defaultProps = c;
 }, function(e, t, n) {
   "use strict";
   var r = n(17),
@@ -85739,8 +85749,7 @@ var _getMetaFieldForId = function(id, key) {
       },
       onMountComponent: function(e) {
         var t = l(e);
-        t || _("144"), t.isMounted = !0,
-          0 === t.parentID && f(e);
+        t || _("144"), t.isMounted = !0, 0 === t.parentID && f(e);
       },
       onUpdateComponent: function(e) {
         var t = l(e);
@@ -87316,14 +87325,14 @@ var _getMetaFieldForId = function(id, key) {
               "p-channel_sidebar__channel--muted": a,
               "p-channel_sidebar__channel--starred": y,
               "p-channel_sidebar__channel--unread": u,
-              "p-channel_sidebar__channel--draft": l,
+              "p-channel_sidebar__channel--draft": l && !p,
               "p-channel_sidebar__channel--archived": c
             }),
             w = d > 0 && this.renderBadge(d),
             k = {
               "data-user-count": h
             },
-            L = "im" === t && !o && !l && !c && this.renderPresence(g),
+            L = "im" === t && !o && !(l && !p) && !c && this.renderPresence(g),
             T = i && s.a.createElement("span", {
               className: "p-channel_sidebar__you_label"
             }, b("(you)")),

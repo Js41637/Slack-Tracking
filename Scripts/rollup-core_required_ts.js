@@ -1723,12 +1723,6 @@
       return TS.api.call("channels.view", channels_view_args).then(function(resp) {
         TS._incremental_boot = true;
         var data = _assembleBootData(incremental_boot_data, resp.data);
-        if (TS.boot_data.feature_tinyspeck && _.get(data, "mpims.length") > 0) {
-          TS.info("Somehow we have mpims during increment boot, this should not happen!");
-          TS.info("channels.view arguments: " + JSON.stringify(channels_view_args));
-          TS.info("channels.view response: " + JSON.stringify(resp));
-          TS.info("data.mpims " + JSON.stringify(data.mpims));
-        }
         return {
           ok: true,
           data: data,

@@ -1985,7 +1985,7 @@
     }
     if (next_item && next_item.length > 0) {
       _highlightItemWithKey(next_item);
-      if (_settings.onMoveHighlight) {
+      if (_settings && _settings.onMoveHighlight) {
         _settings.onMoveHighlight();
       }
     } else if (_$context.children(selector).filter(":not(.disabled):visible").length !== 0) {
@@ -2003,7 +2003,7 @@
     }
     if (next_item && next_item.length > 0) {
       _highlightItemWithKey(next_item);
-      if (_settings.onMoveHighlight) {
+      if (_settings && _settings.onMoveHighlight) {
         _settings.onMoveHighlight();
       }
     } else if (_$context.children(selector).filter(":not(.disabled):visible").length !== 0) {
