@@ -2495,6 +2495,7 @@
     test: {
       setLocale: function(locale) {
         _locale = locale;
+        if (Intl.Collator) _collator = Intl.Collator(_locale);
       }
     }
   });
@@ -4628,7 +4629,7 @@ var _cyrillicToLatin = function(char) {
       _emoji.data = _.cloneDeep(_emoji.unaltered_data);
       _emoji.inits = {};
     }
-    _emoji.init_colons();
+    _emoji.ts_init_colons();
   };
   var _customEmojiDidChange = function() {
     TS.emoji.setEmojiMode();

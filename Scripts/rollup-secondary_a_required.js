@@ -24314,7 +24314,7 @@ TS.registerModule("constants", {
           is_slackbot_response: msg.subtype === "slackbot_response",
           show_channel_highlight: show_channel_highlight,
           is_highlighted_unfurl: is_highlighted_unfurl,
-          show_briefing_feedback: args.briefing
+          show_briefing_feedback: args.briefing || highlight
         };
         if (actions.add_rxn || actions.add_file_rxn || actions.add_file_comment_rxn) {
           template_args.show_rxn_action = true;
@@ -24399,6 +24399,11 @@ TS.registerModule("constants", {
           }
           var is_in_debug_group = TS.recaps_signal.sli_recaps_debug_group === "sli_debug_info";
           template_args.show_recap_debug = msg.recap && is_in_debug_group;
+          if (msg.recap && in_main_message_container) {
+            template_args.highlight_feedback_options = _.get(msg, "recap.data.feedback_options.negative");
+            template_args.highlight_is_leaving_feedback = _.get(msg, "recap.data.is_leaving_feedback");
+            template_args.highlight_has_left_feedback = _.get(msg, "recap.data.has_left_feedback");
+          }
         }
         if (TS.boot_data.feature_sli_highlight_unreads && _.get(TS, "client.ui.sli_highlight_all_unreads")) {
           if (args.from_all_unreads && _.get(TS.recaps_signal, "sli_recaps_debug_group") === "sli_debug_info") {
@@ -24628,6 +24633,9 @@ TS.registerModule("constants", {
     if (template_args.is_pinned) msg_classes.push("is_pinned");
     if (template_args.show_channel_highlight && TS.boot_data.feature_sli_recaps_interface) msg_classes.push("show_recap");
     if (template_args.is_highlighted_unfurl && TS.boot_data.feature_sli_recaps_interface) msg_classes.push("is_recap_unfurl");
+    if (template_args.highlight_feedback_options && TS.boot_data.feature_sli_recaps_interface) msg_classes.push("has_feedback_options");
+    if (template_args.highlight_is_leaving_feedback && TS.boot_data.feature_sli_recaps_interface) msg_classes.push("is_leaving_feedback");
+    if (template_args.highlight_has_left_feedback && TS.boot_data.feature_sli_recaps_interface) msg_classes.push("has_left_feedback");
     if (template_args.standalone) {
       msg_classes.push("standalone");
     } else {
@@ -28814,6 +28822,9 @@ TS.registerModule("constants", {
         type: "message",
         ts: imsg.ts
       };
+      if (TS.boot_data.feature_react_messages) {
+        new_msg.channel = c_id;
+      }
       if (imsg.source_team) {
         new_msg.source_team_id = imsg.source_team;
       }
@@ -37647,7 +37658,13 @@ var _on_esc;
         if (words.length == 1) {
           TS.ui.channel_browser.start();
         } else {
-          var channel_name = TS.utility.cleanChannelName(rest);
+          var channel_name = rest;
+          if (TS.boot_data.feature_name_tagging_client) {
+            var rest_from_original_txt = _.trim(original_txt.substr(cmd.length));
+            var channel_name_as_contents = TS.format.texty.convertContentsStringToContents(rest_from_original_txt);
+            channel_name = TS.format.texty.convertContentsToStringForDisplay(channel_name_as_contents);
+          }
+          channel_name = TS.utility.cleanChannelName(channel_name);
           var channel = TS.channels.getChannelByName(channel_name);
           var group = TS.groups.getGroupByName(channel_name);
           if (channel) {
@@ -38100,15 +38117,19 @@ var _on_esc;
           });
           return;
         }
+        var topic = rest;
+        if (TS.boot_data.feature_name_tagging_client) {
+          topic = TS.format.texty.convertContentsToStringForDisplay(TS.format.texty.convertContentsStringToContents(_.trim(original_txt.substr(cmd.length))));
+        }
         if (TS.model.active_channel_id) {
-          if (rest) {
-            TS.channels.setTopic(TS.model.active_channel_id, rest);
+          if (topic) {
+            TS.channels.setTopic(TS.model.active_channel_id, topic);
           } else {
             $("#channel_topic_text").click().focus().select();
           }
         } else if (TS.model.active_group_id) {
-          if (rest) {
-            TS.groups.setTopic(TS.model.active_group_id, rest);
+          if (topic) {
+            TS.groups.setTopic(TS.model.active_group_id, topic);
           } else {
             $("#channel_topic_text").click().focus().select();
           }
@@ -50719,6 +50740,11 @@ $.fn.togglify = function(settings) {
             TS.highlights_briefing.sendFeedback(e, action, msg_ts, model_ob_id);
           }
           break;
+        case "negative_feedback_in_channel":
+          if (TS.client && TS.recaps_signal) {
+            TS.recaps_signal.sendFeedback(e, action, msg_ts, model_ob_id);
+          }
+          break;
         default:
           TS.error("WTF no action?");
           break;
@@ -51775,31 +51801,16 @@ $.fn.togglify = function(settings) {
       if (!TS.utility.contenteditable.supportsTexty()) $input.trigger("textchange");
     });
     if (TS.boot_data.feature_sli_recaps && TS.boot_data.feature_sli_recaps_interface) {
-      TS.click.addClientHandler(".highlights_feedback_positive", function(e) {
-        var msg_ts = $(e.target).parents("ts-message").data("ts");
-        var model_ob_id = $(e.target).parents("ts-message").data("model-ob-id");
-        $(e.target).parent().html(TS.i18n.t("You marked this message as <strong>helpful</strong>.", "messages")());
-        if (TS.client.ui.unread.isUnreadViewDOMShowing()) {
-          if (TS.boot_data.feature_sli_highlight_unreads) TS.client.ui.sli_highlight_all_unreads.markFeedbackForMessage(model_ob_id, msg_ts, true);
-        } else {
-          TS.recaps_signal.markFeedbackForMessage(msg_ts, true);
-        }
-      });
-      TS.click.addClientHandler(".highlights_feedback_negative", function(e) {
-        var msg_ts = $(e.target).parents("ts-message").data("ts");
-        var model_ob_id = $(e.target).parents("ts-message").data("model-ob-id");
-        $(e.target).parent().html(TS.i18n.t("You marked this message as <strong>not helpful</strong>.", "messages")());
-        if (TS.client.ui.unread.isUnreadViewDOMShowing()) {
-          if (TS.boot_data.feature_sli_highlight_unreads) TS.client.ui.sli_highlight_all_unreads.markFeedbackForMessage(model_ob_id, msg_ts, false);
-        } else {
-          TS.recaps_signal.markFeedbackForMessage(msg_ts, false);
-        }
-      });
       TS.click.addClientHandler("#msgs_scroller_div .recap_highlight_debug", function(e) {
         if (TS.boot_data.feature_tinyspeck && TS.recaps_signal.sli_recaps_debug_group === "sli_debug_info") {
           var debug_info = TS.recaps_signal.getDebugInfoFor($(e.target).parents("ts-message").data("ts"));
           TS.client.ui.debugger_flexpane.printJSON(debug_info);
         }
+      });
+      TS.click.addClientHandler('[data-js="highlights_feedback_dropdown"]', function(e) {
+        var ts = $(e.target).parents("ts-message").data("ts");
+        var model_ob = TS.shared.getActiveModelOb();
+        TS.recaps_signal.handleSecondaryFeedbackClick(e, model_ob, ts);
       });
     }
     if (TS.boot_data.feature_sli_briefing && TS.highlights_briefing) {
@@ -60195,15 +60206,20 @@ var _getMetaFieldForId = function(id, key) {
     }
     var action = _.clone(data.action);
     delete action.options;
+    var payload = {
+      actions: [action],
+      attachment_id: data.attachment.id,
+      callback_id: data.attachment.callback_id,
+      channel_id: data.channel_id,
+      is_ephemeral: data.message.is_ephemeral,
+      message_ts: data.message.ts
+    };
+    if (TS.boot_data.feature_shared_channels) {
+      var team_id = _.get(data.message, "bot_profile.team_id");
+      payload.team_id = team_id;
+    }
     var api_args = {
-      payload: JSON.stringify({
-        actions: [action],
-        attachment_id: data.attachment.id,
-        callback_id: data.attachment.callback_id,
-        channel_id: data.channel_id,
-        is_ephemeral: data.message.is_ephemeral,
-        message_ts: data.message.ts
-      })
+      payload: JSON.stringify(payload)
     };
     if (data.message.bot_id) api_args.service_id = data.message.bot_id;
     if (data.message.user) api_args.bot_user_id = data.message.user;
@@ -64138,7 +64154,7 @@ var _getMetaFieldForId = function(id, key) {
         function Xe(t) {
           var r = null;
           if (!po[t] && void 0 !== e && e && e.exports) try {
-            r = lo._abbr, n(489)("./" + t), Ze(r);
+            r = lo._abbr, n(492)("./" + t), Ze(r);
           } catch (e) {}
           return po[t];
         }
@@ -69424,7 +69440,7 @@ var _getMetaFieldForId = function(id, key) {
         return Fn;
       }.call(t, n, t, r)) !== oe && (r.exports = o);
     }).call(this);
-  }).call(t, n(62), n(82)(e));
+  }).call(t, n(63), n(82)(e));
 }, function(e, t, n) {
   "use strict";
   var r = n(20),
@@ -69622,21 +69638,21 @@ var _getMetaFieldForId = function(id, key) {
       return r(o).default;
     }
   });
-  var i = n(616);
+  var i = n(619);
   Object.defineProperty(t, "createReducer", {
     enumerable: !0,
     get: function() {
       return r(i).default;
     }
   });
-  var a = n(614);
+  var a = n(617);
   Object.defineProperty(t, "assignAll", {
     enumerable: !0,
     get: function() {
       return r(a).default;
     }
   });
-  var s = n(615);
+  var s = n(618);
   Object.defineProperty(t, "bindAll", {
     enumerable: !0,
     get: function() {
@@ -69650,14 +69666,14 @@ var _getMetaFieldForId = function(id, key) {
       return r(u).default;
     }
   });
-  var l = n(617);
+  var l = n(620);
   Object.defineProperty(t, "disbatch", {
     enumerable: !0,
     get: function() {
       return r(l).default;
     }
   });
-  var c = n(618);
+  var c = n(621);
   Object.defineProperty(t, "loggers", {
     enumerable: !0,
     get: function() {
@@ -69691,7 +69707,7 @@ var _getMetaFieldForId = function(id, key) {
     i = r(o),
     a = n(345),
     s = r(a),
-    u = n(140),
+    u = n(141),
     l = r(u);
   t.default = function(e, t) {
     if ("function" != typeof t && null !== t) throw new TypeError("Super expression must either be null or a function, not " + (void 0 === t ? "undefined" : (0, l.default)(t)));
@@ -69707,7 +69723,7 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   "use strict";
   t.__esModule = !0;
-  var r = n(140),
+  var r = n(141),
     o = function(e) {
       return e && e.__esModule ? e : {
         "default": e
@@ -69722,17 +69738,6 @@ var _getMetaFieldForId = function(id, key) {
     version: "2.4.0"
   };
   "number" == typeof __e && (__e = n);
-}, function(e, t, n) {
-  "use strict";
-  var r = !("undefined" == typeof window || !window.document || !window.document.createElement),
-    o = {
-      canUseDOM: r,
-      canUseWorkers: "undefined" != typeof Worker,
-      canUseEventListeners: r && !(!window.addEventListener && !window.attachEvent),
-      canUseViewport: r && !!window.screen,
-      isInWorker: !r
-    };
-  e.exports = o;
 }, function(e, t, n) {
   "use strict";
 
@@ -69794,7 +69799,18 @@ var _getMetaFieldForId = function(id, key) {
     };
 }, function(e, t, n) {
   "use strict";
-  e.exports = n(504);
+  var r = !("undefined" == typeof window || !window.document || !window.document.createElement),
+    o = {
+      canUseDOM: r,
+      canUseWorkers: "undefined" != typeof Worker,
+      canUseEventListeners: r && !(!window.addEventListener && !window.attachEvent),
+      canUseViewport: r && !!window.screen,
+      isInWorker: !r
+    };
+  e.exports = o;
+}, function(e, t, n) {
+  "use strict";
+  e.exports = n(507);
 }, function(e, t, n) {
   "use strict";
 
@@ -69825,9 +69841,9 @@ var _getMetaFieldForId = function(id, key) {
   }
   var s = n(3),
     u = n.n(s),
-    l = n(570),
+    l = n(573),
     c = n.n(l),
-    d = n(436);
+    d = n(437);
   t.b = a;
   var f = function() {
       function e(e, t) {
@@ -69933,7 +69949,7 @@ var _getMetaFieldForId = function(id, key) {
   var c = n(5),
     d = n(6),
     f = n(278),
-    p = n(38),
+    p = n(39),
     h = n(283),
     _ = n(49),
     m = n(76),
@@ -70002,8 +70018,8 @@ var _getMetaFieldForId = function(id, key) {
   e.exports = Y;
 }, function(e, t, n) {
   "use strict";
-  var r = n(561),
-    o = (n(298), n(562));
+  var r = n(564),
+    o = (n(298), n(565));
   n.d(t, "a", function() {
     return r.a;
   }), n.d(t, "b", function() {
@@ -70011,7 +70027,7 @@ var _getMetaFieldForId = function(id, key) {
   });
 }, function(e, t, n) {
   var r = n(93)("wks"),
-    o = n(67),
+    o = n(68),
     i = n(29).Symbol,
     a = "function" == typeof i;
   (e.exports = function(e) {
@@ -70032,7 +70048,7 @@ var _getMetaFieldForId = function(id, key) {
     return this.isDefaultPrevented = u ? a.thatReturnsTrue : a.thatReturnsFalse, this.isPropagationStopped = a.thatReturnsFalse, this;
   }
   var o = n(6),
-    i = n(38),
+    i = n(39),
     a = n(20),
     s = (n(4), ["dispatchConfig", "_targetInst", "nativeEvent", "isDefaultPrevented", "isPropagationStopped", "_dispatchListeners", "_dispatchInstances"]),
     u = {
@@ -70100,7 +70116,7 @@ var _getMetaFieldForId = function(id, key) {
   var n = e.exports = "undefined" != typeof window && window.Math == Math ? window : "undefined" != typeof self && self.Math == Math ? self : Function("return this")();
   "number" == typeof __g && (__g = n);
 }, function(e, t, n) {
-  var r = n(145),
+  var r = n(146),
     o = n(84);
   e.exports = function(e) {
     return r(o(e));
@@ -70110,7 +70126,7 @@ var _getMetaFieldForId = function(id, key) {
   var r = n(416);
   t.a = r.a;
 }, function(e, t, n) {
-  e.exports = !n(41)(function() {
+  e.exports = !n(42)(function() {
     return 7 != Object.defineProperty({}, "a", {
       get: function() {
         return 7;
@@ -70120,8 +70136,8 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   var r = n(29),
     o = n(15),
-    i = n(142),
-    a = n(42),
+    i = n(143),
+    a = n(43),
     s = function(e, t, n) {
       var u, l, c, d = e & s.F,
         f = e & s.G,
@@ -70158,8 +70174,8 @@ var _getMetaFieldForId = function(id, key) {
     return n.call(e, t);
   };
 }, function(e, t, n) {
-  var r = n(40),
-    o = n(144),
+  var r = n(41),
+    o = n(145),
     i = n(95),
     a = Object.defineProperty;
   t.f = n(32) ? Object.defineProperty : function(e, t, n) {
@@ -70185,8 +70201,139 @@ var _getMetaFieldForId = function(id, key) {
   });
   var o = n(3),
     i = n.n(o),
+    a = n(11);
+  n.n(a), n.d(t, "bulkAddChannels", function() {
+    return l;
+  }), n.d(t, "addChannel", function() {
+    return c;
+  }), n.d(t, "removeChannel", function() {
+    return d;
+  }), n.d(t, "updateOneKeyForChannel", function() {
+    return f;
+  }), n.d(t, "forceUpdateOfChannelById", function() {
+    return p;
+  }), n.d(t, "getChannelById", function() {
+    return _;
+  }), n.d(t, "getAllChannels", function() {
+    return m;
+  }), n.d(t, "isGroup", function() {
+    return y;
+  }), n.d(t, "isChannel", function() {
+    return v;
+  }), n.d(t, "isMpim", function() {
+    return g;
+  }), n.d(t, "isIm", function() {
+    return b;
+  }), n.d(t, "isMemberOfChannel", function() {
+    return M;
+  }), n.d(t, "isStarred", function() {
+    return w;
+  }), n.d(t, "isArchived", function() {
+    return k;
+  }), n.d(t, "isRead", function() {
+    return L;
+  }), n.d(t, "isYou", function() {
+    return T;
+  }), n.d(t, "isSlackbot", function() {
+    return S;
+  }), n.d(t, "getChannelType", function() {
+    return Y;
+  });
+  var s, u = Object.assign || function(e) {
+      for (var t = 1; t < arguments.length; t++) {
+        var n = arguments[t];
+        for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
+      }
+      return e;
+    },
+    l = n.i(a.createAction)("Bulk add channels, overwriting anything previously stored with the same id"),
+    c = n.i(a.createAction)("Add a channel, overwriting anything previously stored with the same id"),
+    d = n.i(a.createAction)("Remove a channel"),
+    f = n.i(a.createAction)("Update one key for a channel by id"),
+    p = n.i(a.createAction)("Legacy hack: Force an update of a channel, because it broke immutability and updated in place"),
+    h = n.i(a.createReducer)((s = {}, r(s, l, function(e, t) {
+      if (!t || !t.length || !i.a.isArray(t)) return e;
+      var n = i.a.filter(t, "id");
+      if (!n.length) return e;
+      var r = u({}, e);
+      return n.forEach(function(e) {
+        r[e.id] = e;
+      }), r;
+    }), r(s, f, function(e, t) {
+      if (!t || !t.id || 2 !== Object.keys(t).length) return e;
+      if (!e[t.id]) return e;
+      var n = i.a.omit(t, "id"),
+        o = Object.keys(n)[0];
+      return e[t.id][o] === n[o] ? e : u({}, e, r({}, t.id, u({}, e[t.id], n)));
+    }), r(s, c, function(e, t) {
+      return t && t.id ? u({}, e, r({}, t.id, t)) : e;
+    }), r(s, d, function(e, t) {
+      return t && t.id && e[t.id] ? i.a.omit(e, t.id) : e;
+    }), r(s, p, function(e) {
+      var t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : {},
+        n = t.id;
+      if (!n || !e[n]) return e;
+      var r = u({}, e);
+      return r[n] = u({}, r[n]), r;
+    }), s), {});
+  t.default = h;
+  var _ = function(e, t) {
+      return e && e.channels && e.channels[t];
+    },
+    m = function(e) {
+      return e.channels;
+    },
+    y = function(e) {
+      return e && e.is_group && !e.is_mpim;
+    },
+    v = function(e) {
+      return e && e.is_channel;
+    },
+    g = function(e) {
+      return e && e.is_mpim;
+    },
+    b = function(e) {
+      return e && e.is_im;
+    },
+    M = function(e) {
+      return e && e.is_channel && e.is_member;
+    },
+    w = function(e) {
+      return e && e.is_starred;
+    },
+    k = function(e) {
+      return e && e.is_archived;
+    },
+    L = function(e) {
+      return e && e.unread_cnt < 1;
+    },
+    T = function(e) {
+      return e && e.is_self_im;
+    },
+    S = function(e) {
+      return e && e.is_slackbot_im;
+    },
+    Y = function(e) {
+      return y(e) ? "group" : g(e) ? "mpim" : b(e) ? "im" : "channel";
+    };
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e, t, n) {
+    return t in e ? Object.defineProperty(e, t, {
+      value: n,
+      enumerable: !0,
+      configurable: !0,
+      writable: !0
+    }) : e[t] = n, e;
+  }
+  Object.defineProperty(t, "__esModule", {
+    value: !0
+  });
+  var o = n(3),
+    i = n.n(o),
     a = n(11),
-    s = (n.n(a), n(70)),
+    s = (n.n(a), n(71)),
     u = n(402),
     l = n(19);
   n.d(t, "selectItem", function() {
@@ -70385,10 +70532,10 @@ var _getMetaFieldForId = function(id, key) {
   "use strict";
   var r = n(0),
     o = n.n(r),
-    i = n(114),
-    a = (n.n(i), n(112)),
-    s = (n.n(a), n(115)),
-    u = (n.n(s), n(113)),
+    i = n(115),
+    a = (n.n(i), n(113)),
+    s = (n.n(a), n(116)),
+    u = (n.n(s), n(114)),
     l = (n.n(u), n(19)),
     c = l.a.locale();
   o.a.locale(c), o.a.updateLocale("en", {
@@ -70478,149 +70625,18 @@ var _getMetaFieldForId = function(id, key) {
   };
 }, function(e, t, n) {
   var r = n(35),
-    o = n(65);
+    o = n(66);
   e.exports = n(32) ? function(e, t, n) {
     return r.f(e, t, o(1, n));
   } : function(e, t, n) {
     return e[t] = n, e;
   };
 }, function(e, t, n) {
-  var r = n(149),
+  var r = n(150),
     o = n(85);
   e.exports = Object.keys || function(e) {
     return r(e, o);
   };
-}, function(e, t, n) {
-  "use strict";
-
-  function r(e, t, n) {
-    return t in e ? Object.defineProperty(e, t, {
-      value: n,
-      enumerable: !0,
-      configurable: !0,
-      writable: !0
-    }) : e[t] = n, e;
-  }
-  Object.defineProperty(t, "__esModule", {
-    value: !0
-  });
-  var o = n(3),
-    i = n.n(o),
-    a = n(11);
-  n.n(a), n.d(t, "bulkAddChannels", function() {
-    return l;
-  }), n.d(t, "addChannel", function() {
-    return c;
-  }), n.d(t, "removeChannel", function() {
-    return d;
-  }), n.d(t, "updateOneKeyForChannel", function() {
-    return f;
-  }), n.d(t, "forceUpdateOfChannelById", function() {
-    return p;
-  }), n.d(t, "getChannelById", function() {
-    return _;
-  }), n.d(t, "getAllChannels", function() {
-    return m;
-  }), n.d(t, "isGroup", function() {
-    return y;
-  }), n.d(t, "isChannel", function() {
-    return v;
-  }), n.d(t, "isMpim", function() {
-    return g;
-  }), n.d(t, "isIm", function() {
-    return b;
-  }), n.d(t, "isMemberOfChannel", function() {
-    return M;
-  }), n.d(t, "isStarred", function() {
-    return w;
-  }), n.d(t, "isArchived", function() {
-    return k;
-  }), n.d(t, "isRead", function() {
-    return L;
-  }), n.d(t, "isYou", function() {
-    return T;
-  }), n.d(t, "isSlackbot", function() {
-    return S;
-  }), n.d(t, "getChannelType", function() {
-    return Y;
-  });
-  var s, u = Object.assign || function(e) {
-      for (var t = 1; t < arguments.length; t++) {
-        var n = arguments[t];
-        for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
-      }
-      return e;
-    },
-    l = n.i(a.createAction)("Bulk add channels, overwriting anything previously stored with the same id"),
-    c = n.i(a.createAction)("Add a channel, overwriting anything previously stored with the same id"),
-    d = n.i(a.createAction)("Remove a channel"),
-    f = n.i(a.createAction)("Update one key for a channel by id"),
-    p = n.i(a.createAction)("Legacy hack: Force an update of a channel, because it broke immutability and updated in place"),
-    h = n.i(a.createReducer)((s = {}, r(s, l, function(e, t) {
-      if (!t || !t.length || !i.a.isArray(t)) return e;
-      var n = i.a.filter(t, "id");
-      if (!n.length) return e;
-      var r = u({}, e);
-      return n.forEach(function(e) {
-        r[e.id] = e;
-      }), r;
-    }), r(s, f, function(e, t) {
-      if (!t || !t.id || 2 !== Object.keys(t).length) return e;
-      if (!e[t.id]) return e;
-      var n = i.a.omit(t, "id"),
-        o = Object.keys(n)[0];
-      return e[t.id][o] === n[o] ? e : u({}, e, r({}, t.id, u({}, e[t.id], n)));
-    }), r(s, c, function(e, t) {
-      return t && t.id ? u({}, e, r({}, t.id, t)) : e;
-    }), r(s, d, function(e, t) {
-      return t && t.id && e[t.id] ? i.a.omit(e, t.id) : e;
-    }), r(s, p, function(e) {
-      var t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : {},
-        n = t.id;
-      if (!n || !e[n]) return e;
-      var r = u({}, e);
-      return r[n] = u({}, r[n]), r;
-    }), s), {});
-  t.default = h;
-  var _ = function(e, t) {
-      return e && e.channels && e.channels[t];
-    },
-    m = function(e) {
-      return e.channels;
-    },
-    y = function(e) {
-      return e && e.is_group && !e.is_mpim;
-    },
-    v = function(e) {
-      return e && e.is_channel;
-    },
-    g = function(e) {
-      return e && e.is_mpim;
-    },
-    b = function(e) {
-      return e && e.is_im;
-    },
-    M = function(e) {
-      return e && e.is_channel && e.is_member;
-    },
-    w = function(e) {
-      return e && e.is_starred;
-    },
-    k = function(e) {
-      return e && e.is_archived;
-    },
-    L = function(e) {
-      return e && e.unread_cnt < 1;
-    },
-    T = function(e) {
-      return e && e.is_self_im;
-    },
-    S = function(e) {
-      return e && e.is_slackbot_im;
-    },
-    Y = function(e) {
-      return y(e) ? "group" : g(e) ? "mpim" : b(e) ? "im" : "channel";
-    };
 }, function(e, t, n) {
   "use strict";
 
@@ -70634,7 +70650,7 @@ var _getMetaFieldForId = function(id, key) {
       c = n.i(o.a)(t);
     return l.diff(c, a, u);
   }
-  var o = n(39);
+  var o = n(40);
   t.a = r;
 }, function(e, t, n) {
   "use strict";
@@ -70647,7 +70663,7 @@ var _getMetaFieldForId = function(id, key) {
       a = void 0 === i ? "milliseconds" : i;
     return Math.floor(o.a.duration(e, r).as(a));
   }
-  var o = n(39);
+  var o = n(40);
   t.a = r;
 }, function(e, t, n) {
   "use strict";
@@ -70691,9 +70707,9 @@ var _getMetaFieldForId = function(id, key) {
       toString: u
     };
   }
-  var c = n(117),
+  var c = n(118),
     d = n(78),
-    f = n(125),
+    f = n(126),
     p = n(295),
     h = "undefined" != typeof document && "number" == typeof document.documentMode || "undefined" != typeof navigator && "string" == typeof navigator.userAgent && /\bEdge\/\d/.test(navigator.userAgent),
     _ = f(function(e, t, n) {
@@ -70767,7 +70783,7 @@ var _getMetaFieldForId = function(id, key) {
   function r() {
     o.attachRefs(this, this._currentElement);
   }
-  var o = n(527),
+  var o = n(530),
     i = (n(21), n(4), {
       mountComponent: function(e, t, n, o, i, a) {
         var s = e.mountComponent(t, n, o, i, a);
@@ -70794,15 +70810,15 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   "use strict";
   var r = n(6),
-    o = n(605),
-    i = n(135),
-    a = n(610),
-    s = n(606),
-    u = n(607),
+    o = n(608),
+    i = n(136),
+    a = n(613),
+    s = n(609),
+    u = n(610),
     l = n(51),
-    c = n(608),
-    d = n(611),
-    f = n(612),
+    c = n(611),
+    d = n(614),
+    f = n(615),
     p = (n(4), l.createElement),
     h = l.createFactory,
     _ = l.cloneElement,
@@ -70922,6 +70938,61 @@ var _getMetaFieldForId = function(id, key) {
   };
 }, function(e, t) {
   e.exports = {};
+}, function(e, t, n) {
+  "use strict";
+  Object.defineProperty(t, "__esModule", {
+    value: !0
+  });
+  var r = n(3),
+    o = n.n(r),
+    i = n(11);
+  n.n(i), n.d(t, "addMessages", function() {
+    return s;
+  }), n.d(t, "getMessageByTimestamp", function() {
+    return l;
+  });
+  var a = Object.assign || function(e) {
+      for (var t = 1; t < arguments.length; t++) {
+        var n = arguments[t];
+        for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
+      }
+      return e;
+    },
+    s = n.i(i.createAction)("Add messages to the store"),
+    u = n.i(i.createReducer)(function(e, t, n) {
+      return t in e ? Object.defineProperty(e, t, {
+        value: n,
+        enumerable: !0,
+        configurable: !0,
+        writable: !0
+      }) : e[t] = n, e;
+    }({}, s, function(e, t) {
+      if (!t || !t.length || !o.a.isArray(t)) return e;
+      var n = o.a.groupBy(t, "channel"),
+        r = o.a.mapValues(n, function(e) {
+          return o.a.keyBy(e, "ts");
+        }),
+        i = o.a.mapValues(r, function(t, n) {
+          return a({}, e[n], t);
+        });
+      return a({}, e, i);
+    }), {
+      C024BE7LR: {
+        1: {
+          text: "first message"
+        },
+        2: {
+          text: "second message"
+        },
+        3: {
+          text: "third message"
+        }
+      }
+    });
+  t.default = u;
+  var l = function(e, t, n) {
+    return e && e.messages && e.messages[t] && e.messages[t][n];
+  };
 }, function(e, t) {
   e.exports = function() {
     var e = [];
@@ -70974,9 +71045,9 @@ var _getMetaFieldForId = function(id, key) {
     }
   }
   var i = n(5),
-    a = n(118),
-    s = n(119),
-    u = n(123),
+    a = n(119),
+    s = n(120),
+    u = n(124),
     l = n(289),
     c = n(290),
     d = (n(2), {}),
@@ -71102,8 +71173,8 @@ var _getMetaFieldForId = function(id, key) {
   function f(e) {
     m(e, u);
   }
-  var p = n(57),
-    h = n(119),
+  var p = n(58),
+    h = n(120),
     _ = n(289),
     m = n(290),
     y = (n(4), p.getListener),
@@ -71138,7 +71209,7 @@ var _getMetaFieldForId = function(id, key) {
     return o.call(this, e, t, n, r);
   }
   var o = n(26),
-    i = n(128),
+    i = n(129),
     a = {
       view: function(e) {
         if (e.view) return e.view;
@@ -71415,12 +71486,12 @@ var _getMetaFieldForId = function(id, key) {
   t.a = d, d.propTypes = l, d.defaultProps = c;
 }, function(e, t, n) {
   "use strict";
-  var r = n(17),
+  var r = n(16),
     o = n.i(r.a)("TS.exportToLegacy", function() {});
   o("interop", {}), t.a = o;
 }, function(e, t, n) {
   "use strict";
-  var r = n(17);
+  var r = n(16);
   n.d(t, "a", function() {
     return o;
   }), n.d(t, "c", function() {
@@ -71462,61 +71533,6 @@ var _getMetaFieldForId = function(id, key) {
   };
 }, function(e, t, n) {
   "use strict";
-  Object.defineProperty(t, "__esModule", {
-    value: !0
-  });
-  var r = n(3),
-    o = n.n(r),
-    i = n(11);
-  n.n(i), n.d(t, "addMessages", function() {
-    return s;
-  }), n.d(t, "getMessageByTimestamp", function() {
-    return l;
-  });
-  var a = Object.assign || function(e) {
-      for (var t = 1; t < arguments.length; t++) {
-        var n = arguments[t];
-        for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
-      }
-      return e;
-    },
-    s = n.i(i.createAction)("Add messages to the store"),
-    u = n.i(i.createReducer)(function(e, t, n) {
-      return t in e ? Object.defineProperty(e, t, {
-        value: n,
-        enumerable: !0,
-        configurable: !0,
-        writable: !0
-      }) : e[t] = n, e;
-    }({}, s, function(e, t) {
-      if (!t || !t.length || !o.a.isArray(t)) return e;
-      var n = o.a.groupBy(t, "channel"),
-        r = o.a.mapValues(n, function(e) {
-          return o.a.keyBy(e, "ts");
-        }),
-        i = o.a.mapValues(r, function(t, n) {
-          return a({}, e[n], t);
-        });
-      return a({}, e, i);
-    }), {
-      C024BE7LR: {
-        1: {
-          text: "first message"
-        },
-        2: {
-          text: "second message"
-        },
-        3: {
-          text: "third message"
-        }
-      }
-    });
-  t.default = u;
-  var l = function(e, t, n) {
-    return e && e.messages && e.messages[t] && e.messages[t][n];
-  };
-}, function(e, t, n) {
-  "use strict";
 
   function r(e) {
     var t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : {},
@@ -71529,7 +71545,7 @@ var _getMetaFieldForId = function(id, key) {
       c = u ? n.i(o.a)(l, i) : o.a.unix(l);
     return s ? c : c.toDate();
   }
-  var o = n(39);
+  var o = n(40);
   t.a = r;
 }, function(e, t, n) {
   "use strict";
@@ -71538,11 +71554,11 @@ var _getMetaFieldForId = function(id, key) {
     return Object.prototype.hasOwnProperty.call(e, _) || (e[_] = p++, d[e[_]] = {}), d[e[_]];
   }
   var o, i = n(6),
-    a = n(118),
-    s = n(519),
+    a = n(119),
+    s = n(522),
     u = n(288),
-    l = n(552),
-    c = n(129),
+    l = n(555),
+    c = n(130),
     d = {},
     f = !1,
     p = 0,
@@ -71657,9 +71673,9 @@ var _getMetaFieldForId = function(id, key) {
   function r(e, t, n, r) {
     return o.call(this, e, t, n, r);
   }
-  var o = n(60),
+  var o = n(61),
     i = n(288),
-    a = n(127),
+    a = n(128),
     s = {
       screenX: null,
       screenY: null,
@@ -71786,11 +71802,11 @@ var _getMetaFieldForId = function(id, key) {
   e.exports = o;
 }, function(e, t, n) {
   "use strict";
-  var r, o = n(16),
-    i = n(117),
+  var r, o = n(17),
+    i = n(118),
     a = /^[ \r\n\t\f]/,
     s = /<(!--|link|noscript|meta|script|style)[ \r\n\t\f\/>]/,
-    u = n(125),
+    u = n(126),
     l = u(function(e, t) {
       if (e.namespaceURI !== i.svg || "innerHTML" in e) e.innerHTML = t;
       else {
@@ -71815,7 +71831,7 @@ var _getMetaFieldForId = function(id, key) {
   n.d(t, "a", function() {
     return r.a;
   });
-  var o = n(584);
+  var o = n(587);
   n.d(t, "b", function() {
     return o.a;
   }), n(308), n(309);
@@ -71837,9 +71853,9 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   "use strict";
   var r = n(334),
-    o = n(623),
-    i = n(622),
-    a = n(621),
+    o = n(626),
+    i = n(625),
+    a = n(624),
     s = n(333);
   n(335), n.d(t, "d", function() {
     return r.b;
@@ -71881,13 +71897,13 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t) {
   e.exports = !0;
 }, function(e, t, n) {
-  var r = n(40),
+  var r = n(41),
     o = n(374),
     i = n(85),
     a = n(92)("IE_PROTO"),
     s = function() {},
     u = function() {
-      var e, t = n(143)("iframe"),
+      var e, t = n(144)("iframe"),
         r = i.length;
       for (t.style.display = "none", n(367).appendChild(t), t.src = "javascript:", e = t.contentWindow.document, e.open(), e.write("<script>document.F=Object</script>"), e.close(), u = e.F; r--;) delete u.prototype[i[r]];
       return u();
@@ -71897,12 +71913,12 @@ var _getMetaFieldForId = function(id, key) {
     return null !== e ? (s.prototype = r(e), n = new s, s.prototype = null, n[a] = e) : n = u(), void 0 === t ? n : o(n, t);
   };
 }, function(e, t, n) {
-  var r = n(64),
-    o = n(65),
+  var r = n(65),
+    o = n(66),
     i = n(30),
     a = n(95),
     s = n(34),
-    u = n(144),
+    u = n(145),
     l = Object.getOwnPropertyDescriptor;
   t.f = n(32) ? l : function(e, t) {
     if (e = i(e), t = a(t, !0), u) try {
@@ -71915,7 +71931,7 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   var r = n(33),
     o = n(15),
-    i = n(41);
+    i = n(42);
   e.exports = function(e, t) {
     var n = (o.Object || {})[e] || Object[e],
       a = {};
@@ -71935,7 +71951,7 @@ var _getMetaFieldForId = function(id, key) {
   };
 }, function(e, t, n) {
   var r = n(93)("keys"),
-    o = n(67);
+    o = n(68);
   e.exports = function(e) {
     return r[e] || (r[e] = o(e));
   };
@@ -71978,7 +71994,7 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   "use strict";
   var r = n(377)(!0);
-  n(146)(String, "String", function(e) {
+  n(147)(String, "String", function(e) {
     this._t = String(e), this._i = 0;
   }, function() {
     var e, t = this._t,
@@ -71993,7 +72009,7 @@ var _getMetaFieldForId = function(id, key) {
   });
 }, function(e, t, n) {
   n(383);
-  for (var r = n(29), o = n(42), i = n(54), a = n(24)("toStringTag"), s = ["NodeList", "DOMTokenList", "MediaList", "StyleSheetList", "CSSRuleList"], u = 0; u < 5; u++) {
+  for (var r = n(29), o = n(43), i = n(54), a = n(24)("toStringTag"), s = ["NodeList", "DOMTokenList", "MediaList", "StyleSheetList", "CSSRuleList"], u = 0; u < 5; u++) {
     var l = s[u],
       c = r[l],
       d = c && c.prototype;
@@ -72001,50 +72017,54 @@ var _getMetaFieldForId = function(id, key) {
   }
 }, function(e, t, n) {
   "use strict";
-
-  function r(e) {
-    if (Array.isArray(e)) {
-      for (var t = 0, n = Array(e.length); t < e.length; t++) n[t] = e[t];
-      return n;
-    }
-    return Array.from(e);
-  }
+  var r = n(16);
+  n.d(t, "a", function() {
+    return o;
+  }), n.d(t, "b", function() {
+    return i;
+  });
+  var o = (n.i(r.a)("TS.log", console.log), n.i(r.a)("TS.error", console.error)),
+    i = (n.i(r.a)("TS.warn", console.warn), n.i(r.a)("TS.info", console.info), n.i(r.a)("TS.utility.convertFilesize", function() {
+      return "0 bytes";
+    }));
+}, function(e, t, n) {
+  "use strict";
   Object.defineProperty(t, "__esModule", {
     value: !0
   });
-  var o = n(3),
-    i = n.n(o),
-    a = n(11),
-    s = (n.n(a), n(72));
+  var r = n(3),
+    o = n.n(r),
+    i = n(11),
+    a = (n.n(i), n(55));
   n.d(t, "getTimestampsByChannelId", function() {
-    return c;
+    return l;
   });
-  var u = Object.assign || function(e) {
+  var s = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
         for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
       }
       return e;
     },
-    l = n.i(a.createReducer)(function(e, t, n) {
+    u = n.i(i.createReducer)(function(e, t, n) {
       return t in e ? Object.defineProperty(e, t, {
         value: n,
         enumerable: !0,
         configurable: !0,
         writable: !0
       }) : e[t] = n, e;
-    }({}, s.addMessages, function(e, t) {
-      if (!t || !t.length || !i.a.isArray(t)) return e;
-      var n = i.a.groupBy(t, "channel"),
-        o = i.a.mapValues(n, function(t, n) {
-          return [].concat(r(e[n]), r(t));
+    }({}, a.addMessages, function(e, t) {
+      if (!t || !t.length || !o.a.isArray(t)) return e;
+      var n = o.a.groupBy(t, "channel"),
+        r = o.a.mapValues(n, function(t, n) {
+          var r = e[n] || [],
+            i = r.concat(o.a.map(t, "ts"));
+          return o.a.uniq(i);
         });
-      return u({}, e, o);
-    }), {
-      C024BE7LR: ["1", "2", "3"]
-    });
-  t.default = l;
-  var c = function(e, t) {
+      return s({}, e, r);
+    }), {});
+  t.default = u;
+  var l = function(e, t) {
     return e && e.channelMessages && e.channelMessages[t];
   };
 }, function(e, t, n) {
@@ -72204,7 +72224,7 @@ var _getMetaFieldForId = function(id, key) {
       return n.i(s.b)(e).then(function(e) {
         return t(n.i(l.a)(e));
       }).catch(function() {
-        return n.i(u.b)("Failed to fetch files", e);
+        return n.i(u.a)("Failed to fetch files", e);
       });
     };
   }
@@ -72214,8 +72234,8 @@ var _getMetaFieldForId = function(id, key) {
   var o = n(3),
     i = n.n(o),
     a = n(11),
-    s = (n.n(a), n(152)),
-    u = n(155),
+    s = (n.n(a), n(153)),
+    u = n(100),
     l = n(158);
   n.d(t, "syncDownloads", function() {
     return c;
@@ -72245,37 +72265,55 @@ var _getMetaFieldForId = function(id, key) {
     };
 }, function(e, t, n) {
   "use strict";
-  var r = n(11);
-  n.n(r), n.d(t, "a", function() {
-    return i;
-  }), n.d(t, "b", function() {
-    return u;
+
+  function r(e) {
+    var t = e.channelId,
+      r = e.type;
+    return function(e) {
+      n.i(i.a)({
+        channelId: t,
+        type: r
+      }).then(function(t) {
+        e(n.i(s.addMessages)(t));
+      }).catch(function(e) {
+        return n.i(a.a)("Failed to load history", t, e);
+      });
+    };
+  }
+  var o = n(11),
+    i = (n.n(o), n(457)),
+    a = n(100),
+    s = n(55);
+  n.d(t, "a", function() {
+    return l;
+  }), t.c = r, n.d(t, "b", function() {
+    return f;
   });
-  var o = Object.assign || function(e) {
+  var u = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
         for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
       }
       return e;
     },
-    i = n.i(r.createAction)("Sets the active channel"),
-    a = {
+    l = n.i(o.createAction)("Sets the active channel"),
+    c = {
       channelId: null
     },
-    s = n.i(r.createReducer)(function(e, t, n) {
+    d = n.i(o.createReducer)(function(e, t, n) {
       return t in e ? Object.defineProperty(e, t, {
         value: n,
         enumerable: !0,
         configurable: !0,
         writable: !0
       }) : e[t] = n, e;
-    }({}, i, function(e, t) {
-      return o({}, e, {
+    }({}, l, function(e, t) {
+      return u({}, e, {
         channelId: t
       });
-    }), a);
-  t.c = s;
-  var u = function(e) {
+    }), c);
+  t.d = d;
+  var f = function(e) {
     return e && e.messagePane && e.messagePane.channelId;
   };
 }, function(e, t, n) {
@@ -72367,9 +72405,9 @@ var _getMetaFieldForId = function(id, key) {
     var r = d.call(t, "constructor") && t.constructor;
     return "function" == typeof r && r instanceof r && c.call(r) == f;
   }
-  var o = n(478),
-    i = n(480),
-    a = n(485),
+  var o = n(481),
+    i = n(483),
+    a = n(488),
     s = "[object Object]",
     u = Function.prototype,
     l = Object.prototype,
@@ -72670,8 +72708,8 @@ var _getMetaFieldForId = function(id, key) {
     o === t ? n && _(r, document.createTextNode(n), o) : n ? (h(o, n), u(r, o, t)) : u(r, e, t);
   }
   var c = n(47),
-    d = n(496),
-    f = (n(10), n(21), n(125)),
+    d = n(499),
+    f = (n(10), n(21), n(126)),
     p = n(78),
     h = n(295),
     _ = f(function(e, t, n) {
@@ -72846,7 +72884,7 @@ var _getMetaFieldForId = function(id, key) {
     return !!e._dispatchListeners;
   }
   var f, p, h = n(5),
-    _ = n(123),
+    _ = n(124),
     m = (n(2), n(4), {
       injectComponentTree: function(e) {
         f = e;
@@ -72938,7 +72976,7 @@ var _getMetaFieldForId = function(id, key) {
   }
   var s = n(5),
     u = n(50),
-    l = n(525),
+    l = n(528),
     c = (n(2), n(4), {
       button: !0,
       checkbox: !0,
@@ -72985,8 +73023,7 @@ var _getMetaFieldForId = function(id, key) {
       processChildrenUpdates: null,
       injection: {
         injectEnvironment: function(e) {
-          o && r("104"), i.replaceNodeWithMarkup = e.replaceNodeWithMarkup, i.processChildrenUpdates = e.processChildrenUpdates,
-            o = !0;
+          o && r("104"), i.replaceNodeWithMarkup = e.replaceNodeWithMarkup, i.processChildrenUpdates = e.processChildrenUpdates, o = !0;
         }
       }
     };
@@ -73033,7 +73070,7 @@ var _getMetaFieldForId = function(id, key) {
     return n || null;
   }
   var a = n(5),
-    s = (n(27), n(59)),
+    s = (n(27), n(60)),
     u = (n(21), n(22)),
     l = (n(2), n(4), {
       isMounted: function(e) {
@@ -73129,7 +73166,7 @@ var _getMetaFieldForId = function(id, key) {
     }
     return !r && o && "wheel" === e && (r = document.implementation.hasFeature("Events.wheel", "3.0")), r;
   }
-  var o, i = n(16);
+  var o, i = n(17);
   i.canUseDOM && (o = document.implementation && document.implementation.hasFeature && !0 !== document.implementation.hasFeature("", "")), e.exports = r;
 }, function(e, t, n) {
   "use strict";
@@ -73187,7 +73224,7 @@ var _getMetaFieldForId = function(id, key) {
       t = o, s && u && r(o);
     };
   }
-  var o = n(139),
+  var o = n(140),
     i = n.n(o);
   t.a = r;
 }, function(e, t, n) {
@@ -73197,8 +73234,8 @@ var _getMetaFieldForId = function(id, key) {
     this.props = e, this.context = t, this.refs = a, this.updater = n || i;
   }
   var o = n(52),
-    i = n(136),
-    a = (n(329), n(56));
+    i = n(137),
+    a = (n(329), n(57));
   n(2), n(4), r.prototype.isReactComponent = {}, r.prototype.setState = function(e, t) {
     "object" != typeof e && "function" != typeof e && null != e && o("85"), this.updater.enqueueSetState(this, e), t && this.updater.enqueueCallback(this, t, "setState");
   }, r.prototype.forceUpdate = function(e) {
@@ -73378,8 +73415,8 @@ var _getMetaFieldForId = function(id, key) {
     return i ? o.createElement(e) : {};
   };
 }, function(e, t, n) {
-  e.exports = !n(32) && !n(41)(function() {
-    return 7 != Object.defineProperty(n(143)("div"), "a", {
+  e.exports = !n(32) && !n(42)(function() {
+    return 7 != Object.defineProperty(n(144)("div"), "a", {
       get: function() {
         return 7;
       }
@@ -73394,13 +73431,13 @@ var _getMetaFieldForId = function(id, key) {
   "use strict";
   var r = n(86),
     o = n(33),
-    i = n(150),
-    a = n(42),
+    i = n(151),
+    a = n(43),
     s = n(34),
     u = n(54),
     l = n(369),
     c = n(91),
-    d = n(148),
+    d = n(149),
     f = n(24)("iterator"),
     p = !([].keys && "next" in [].keys()),
     h = function() {
@@ -73442,14 +73479,14 @@ var _getMetaFieldForId = function(id, key) {
     return g;
   };
 }, function(e, t, n) {
-  var r = n(149),
+  var r = n(150),
     o = n(85).concat("length", "prototype");
   t.f = Object.getOwnPropertyNames || function(e) {
     return r(e, o);
   };
 }, function(e, t, n) {
   var r = n(34),
-    o = n(66),
+    o = n(67),
     i = n(92)("IE_PROTO"),
     a = Object.prototype;
   e.exports = Object.getPrototypeOf || function(e) {
@@ -73469,7 +73506,7 @@ var _getMetaFieldForId = function(id, key) {
     return l;
   };
 }, function(e, t, n) {
-  e.exports = n(42);
+  e.exports = n(43);
 }, function(e, t, n) {
   "use strict";
   var r = n(1),
@@ -73500,7 +73537,7 @@ var _getMetaFieldForId = function(id, key) {
   c.propTypes = u, c.defaultProps = l, t.a = c;
 }, function(e, t, n) {
   "use strict";
-  var r = n(17);
+  var r = n(16);
   n.d(t, "a", function() {
     return i;
   }), n.d(t, "b", function() {
@@ -73544,7 +73581,7 @@ var _getMetaFieldForId = function(id, key) {
     }));
 }, function(e, t, n) {
   "use strict";
-  var r = n(17);
+  var r = n(16);
   n.d(t, "a", function() {
     return o;
   }), n.d(t, "b", function() {
@@ -73558,21 +73595,9 @@ var _getMetaFieldForId = function(id, key) {
     });
 }, function(e, t, n) {
   "use strict";
-  var r = n(17),
+  var r = n(16),
     o = n.i(r.a)("TS.redux.getStoreInstance", function() {});
   t.a = o;
-}, function(e, t, n) {
-  "use strict";
-  var r = n(17);
-  n.d(t, "b", function() {
-    return o;
-  }), n.d(t, "a", function() {
-    return i;
-  });
-  var o = (n.i(r.a)("TS.log", console.log), n.i(r.a)("TS.error", console.error)),
-    i = (n.i(r.a)("TS.warn", console.warn), n.i(r.a)("TS.info", console.info), n.i(r.a)("TS.utility.convertFilesize", function() {
-      return "0 bytes";
-    }));
 }, function(e, t, n) {
   "use strict";
 
@@ -73590,7 +73615,7 @@ var _getMetaFieldForId = function(id, key) {
   var o = n(3),
     i = n.n(o),
     a = n(11),
-    s = (n.n(a), n(44));
+    s = (n.n(a), n(36));
   n.d(t, "removeChannelFromNameMap", function() {
     return c;
   }), n.d(t, "addChannelToNameMap", function() {
@@ -73690,7 +73715,7 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   "use strict";
   var r = n(11),
-    o = (n.n(r), n(455));
+    o = (n.n(r), n(458));
   n.d(t, "a", function() {
     return a;
   });
@@ -73963,13 +73988,13 @@ var _getMetaFieldForId = function(id, key) {
     return c ? d.format(c) : f ? a ? u ? d.format("hh:mm:ss A") : d.format("hh:mm A") : u ? d.format("HH:mm:ss") : d.format("HH:mm") : a ? u ? d.format("h:mm:ss A") : d.format("h:mm A") : u ? d.format("h:mm:ss") : d.format("h:mm");
   }
   var o = n(73),
-    i = n(70);
+    i = n(71);
   t.a = r;
 }, function(e, t, n) {
   "use strict";
   var r = n(3),
     o = n.n(r),
-    i = n(17);
+    i = n(16);
   n.d(t, "c", function() {
     return a;
   }), n.d(t, "b", function() {
@@ -74001,7 +74026,7 @@ var _getMetaFieldForId = function(id, key) {
   function r(e, t) {
     if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
   }
-  var o = n(490),
+  var o = n(493),
     i = n.n(o),
     a = n(3),
     s = n.n(a),
@@ -74057,7 +74082,7 @@ var _getMetaFieldForId = function(id, key) {
     }
     return i;
   };
-  var r = n(461),
+  var r = n(464),
     o = function(e) {
       return e && e.__esModule ? e : {
         "default": e
@@ -74115,7 +74140,7 @@ var _getMetaFieldForId = function(id, key) {
   e.exports = r;
 }, function(e, t, n) {
   "use strict";
-  var r = n(484),
+  var r = n(487),
     o = r.a.Symbol;
   t.a = o;
 }, function(e, t) {
@@ -79523,8 +79548,7 @@ var _getMetaFieldForId = function(id, key) {
             yy: "ani"
           },
           o = " ";
-        return (e % 100 >= 20 || e >= 100 && e % 100 == 0) && (o = " de "),
-          e + o + r[n];
+        return (e % 100 >= 20 || e >= 100 && e % 100 == 0) && (o = " de "), e + o + r[n];
       }
       e.defineLocale("ro", {
         months: "ianuarie_februarie_martie_aprilie_mai_iunie_iulie_august_septembrie_octombrie_noiembrie_decembrie".split("_"),
@@ -81832,7 +81856,7 @@ var _getMetaFieldForId = function(id, key) {
     if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
   }
   var o = n(5),
-    i = n(38),
+    i = n(39),
     a = (n(2), function() {
       function e(t) {
         r(this, e), this._callbacks = null, this._contexts = null, this._arg = t;
@@ -81870,7 +81894,7 @@ var _getMetaFieldForId = function(id, key) {
     return null == t || e.hasBooleanValue && !t || e.hasNumericValue && isNaN(t) || e.hasPositiveNumericValue && t < 1 || e.hasOverloadedBooleanValue && !1 === t;
   }
   var i = n(48),
-    a = (n(10), n(21), n(553)),
+    a = (n(10), n(21), n(556)),
     s = (n(4), new RegExp("^[" + i.ATTRIBUTE_NAME_START_CHAR + "][" + i.ATTRIBUTE_NAME_CHAR + "]*$")),
     u = {},
     l = {},
@@ -81973,7 +81997,7 @@ var _getMetaFieldForId = function(id, key) {
     return this._rootNodeID && (this._wrapperState.pendingUpdate = !0), l.asap(r, this), n;
   }
   var a = n(6),
-    s = n(121),
+    s = n(122),
     u = n(10),
     l = n(22),
     c = (n(4), !1),
@@ -82064,8 +82088,8 @@ var _getMetaFieldForId = function(id, key) {
   function r(e) {
     return i(document.documentElement, e);
   }
-  var o = n(512),
-    i = n(466),
+  var o = n(515),
+    i = n(469),
     a = n(168),
     s = n(169),
     u = {
@@ -82180,18 +82204,18 @@ var _getMetaFieldForId = function(id, key) {
     m = n(50),
     y = n(74),
     v = (n(27), n(10)),
-    g = n(506),
-    b = n(508),
+    g = n(509),
+    b = n(511),
     M = n(283),
-    w = n(59),
-    k = (n(21), n(522)),
+    w = n(60),
+    k = (n(21), n(525)),
     L = n(49),
-    T = n(124),
+    T = n(125),
     S = n(22),
-    Y = n(56),
+    Y = n(57),
     x = n(293),
     D = (n(2), n(78)),
-    C = n(130),
+    C = n(131),
     P = (n(4), _.ID_ATTRIBUTE_NAME),
     E = _.ROOT_ATTRIBUTE_NAME,
     j = 1,
@@ -82337,7 +82361,7 @@ var _getMetaFieldForId = function(id, key) {
   function r() {
     return !i && o.canUseDOM && (i = "textContent" in document.documentElement ? "textContent" : "innerText"), i;
   }
-  var o = n(16),
+  var o = n(17),
     i = null;
   e.exports = r;
 }, function(e, t, n) {
@@ -82371,10 +82395,10 @@ var _getMetaFieldForId = function(id, key) {
   }
   var a = n(5),
     s = n(6),
-    u = n(503),
+    u = n(506),
     l = n(282),
     c = n(284),
-    d = (n(550), n(2), n(4), function(e) {
+    d = (n(553), n(2), n(4), function(e) {
       this.construct(e);
     });
   s(d.prototype, u, {
@@ -82407,7 +82431,7 @@ var _getMetaFieldForId = function(id, key) {
   e.exports = r;
 }, function(e, t, n) {
   "use strict";
-  var r = n(16),
+  var r = n(17),
     o = n(77),
     i = n(78),
     a = function(e, t) {
@@ -82458,9 +82482,9 @@ var _getMetaFieldForId = function(id, key) {
     return null == e ? 0 : o(e, "", t, n);
   }
   var a = n(5),
-    s = (n(27), n(518)),
-    u = n(549),
-    l = (n(2), n(120)),
+    s = (n(27), n(521)),
+    u = n(552),
+    l = (n(2), n(121)),
     c = (n(4), "."),
     d = ":";
   e.exports = i;
@@ -82625,12 +82649,12 @@ var _getMetaFieldForId = function(id, key) {
       return f.WrappedComponent = t, f.displayName = l, f.childContextTypes = R, f.contextTypes = O, f.propTypes = O, d()(f, t);
     };
   }
-  var c = n(476),
+  var c = n(479),
     d = n.n(c),
-    f = n(477),
+    f = n(480),
     p = n.n(f),
     h = n(1),
-    _ = (n.n(h), n(568)),
+    _ = (n.n(h), n(571)),
     m = n(300);
   t.a = l;
   var y = Object.assign || function(e) {
@@ -82693,7 +82717,7 @@ var _getMetaFieldForId = function(id, key) {
     });
 }, function(e, t, n) {
   "use strict";
-  n(111), n(132);
+  n(112), n(133);
 }, function(e, t, n) {
   "use strict";
   var r = n(12),
@@ -82826,7 +82850,7 @@ var _getMetaFieldForId = function(id, key) {
     f = n.n(d),
     p = n(1),
     h = n.n(p),
-    _ = n(601),
+    _ = n(604),
     m = function(e) {
       function t(e) {
         a()(this, t);
@@ -83014,7 +83038,7 @@ var _getMetaFieldForId = function(id, key) {
   }
   var o = n(28),
     i = n.n(o),
-    a = n(63),
+    a = n(64),
     s = n.n(a),
     u = n(12),
     l = n.n(u),
@@ -83028,9 +83052,9 @@ var _getMetaFieldForId = function(id, key) {
     y = n.n(m),
     v = n(1),
     g = n.n(v),
-    b = n(578),
-    M = n(582),
-    w = n(599);
+    b = n(581),
+    M = n(585),
+    w = n(602);
   ((function(e) {
     function t(e, n) {
       d()(this, t);
@@ -83239,11 +83263,11 @@ var _getMetaFieldForId = function(id, key) {
     m = n.n(_),
     y = n(9),
     v = n.n(y),
-    g = n(587),
-    b = n(586),
-    M = n(134),
+    g = n(590),
+    b = n(589),
+    M = n(135),
     w = n(309),
-    k = n(588),
+    k = n(591),
     L = n(308),
     T = n(166),
     S = n.n(T),
@@ -84011,7 +84035,7 @@ var _getMetaFieldForId = function(id, key) {
     h = n(13),
     _ = n.n(h),
     m = n(1),
-    y = (n.n(m), n(134));
+    y = (n.n(m), n(135));
   ((function(e) {
     function t(e, r) {
       l()(this, t);
@@ -84094,7 +84118,7 @@ var _getMetaFieldForId = function(id, key) {
   "use strict";
   var r = n(347),
     o = n.n(r),
-    i = n(63),
+    i = n(64),
     a = n.n(i),
     s = n(28),
     u = n.n(s),
@@ -84272,7 +84296,7 @@ var _getMetaFieldForId = function(id, key) {
     v = n.n(y),
     g = n(9),
     b = n.n(g),
-    M = n(591);
+    M = n(594);
   ((function(e) {
     function t(e, n) {
       c()(this, t);
@@ -84504,7 +84528,7 @@ var _getMetaFieldForId = function(id, key) {
   "use strict";
   var r = n(28),
     o = n.n(r),
-    i = n(63),
+    i = n(64),
     a = n.n(i),
     s = n(12),
     u = n.n(s),
@@ -85066,7 +85090,7 @@ var _getMetaFieldForId = function(id, key) {
     i = n.n(o),
     a = n(9),
     s = n.n(a),
-    u = n(133);
+    u = n(134);
   t.a = r;
 }, function(e, t, n) {
   "use strict";
@@ -85090,7 +85114,7 @@ var _getMetaFieldForId = function(id, key) {
     b = (n.n(g), n(79)),
     M = n(322),
     w = n(321),
-    k = n(133);
+    k = n(134);
   ((function(e) {
     function t(e) {
       u()(this, t);
@@ -85595,7 +85619,7 @@ var _getMetaFieldForId = function(id, key) {
     h = (n.n(p), n(18)),
     _ = n.n(h),
     m = n(324),
-    y = n(598);
+    y = n(601);
   ((function(e) {
     function t(e) {
       a()(this, t);
@@ -85732,8 +85756,9 @@ var _getMetaFieldForId = function(id, key) {
 
   function s(e, t) {
     l.some(function(e) {
-      return e.scrollElement === t;
-    }) || t.addEventListener("scroll", a), l.push(e);
+        return e.scrollElement === t;
+      }) || t.addEventListener("scroll", a),
+      l.push(e);
   }
 
   function u(e, t) {
@@ -85748,15 +85773,14 @@ var _getMetaFieldForId = function(id, key) {
     f = 150;
 }, function(e, t, n) {
   "use strict";
-  var r = (n(574), n(575));
+  var r = (n(577), n(578));
   n.d(t, "a", function() {
     return r.a;
   });
-  var o = (n(577),
-    n(581), n(583), n(79), n(589), n(590));
+  var o = (n(580), n(584), n(586), n(79), n(592), n(593));
   n.d(t, "b", function() {
     return o.a;
-  }), n(593), n(594), n(595), n(596), n(597);
+  }), n(596), n(597), n(598), n(599), n(600);
 }, function(e, t, n) {
   "use strict";
 
@@ -86174,8 +86198,8 @@ var _getMetaFieldForId = function(id, key) {
       replaceReducer: f
     }, h[a.a] = p, h;
   }
-  var o = n(111),
-    i = n(628),
+  var o = n(112),
+    i = n(631),
     a = n.n(i);
   n.d(t, "a", function() {
     return s;
@@ -86184,10 +86208,10 @@ var _getMetaFieldForId = function(id, key) {
     INIT: "@@redux/INIT"
   };
 }, function(e, t, n) {}, function(e, t, n) {
-  var r = n(457);
+  var r = n(460);
   "string" == typeof r && (r = [
     [e.i, r, ""]
-  ]), n(61)(r, {}), r.locals && (e.exports = r.locals);
+  ]), n(62)(r, {}), r.locals && (e.exports = r.locals);
 }, function(e, t, n) {
   "use strict";
   var r = n(406);
@@ -86199,12 +86223,12 @@ var _getMetaFieldForId = function(id, key) {
     i = n(18),
     a = n.n(i),
     s = n(23),
-    u = n(69),
-    l = n(153),
-    c = n(154),
-    d = n(36),
-    f = n(434),
-    p = n(433),
+    u = n(70),
+    l = n(154),
+    c = n(155),
+    d = n(37),
+    f = n(435),
+    p = n(434),
     h = n(399),
     _ = function(e) {
       "V" === e[0] ? n.i(p.a)(e) : n.i(f.a)(e);
@@ -86231,10 +86255,10 @@ var _getMetaFieldForId = function(id, key) {
     i = n(18),
     a = n.n(i),
     s = n(23),
-    u = n(154),
-    l = n(69),
+    u = n(155),
+    l = n(70),
     c = n(418),
-    d = n(105);
+    d = n(106);
   n.i(l.a)("ui.react_message_pane", {
     render: function(e) {
       a.a.render(o.a.createElement(s.a, {
@@ -86248,23 +86272,23 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   "use strict";
   var r = n(23),
-    o = n(69),
+    o = n(70),
     i = n(415),
-    a = n(438),
-    s = n(44),
+    a = n(440),
+    s = n(36),
     u = n(156),
-    l = n(71),
+    l = n(72),
     c = n(157),
-    d = n(101),
-    f = n(106),
-    p = n(103),
+    d = n(102),
+    f = n(107),
+    p = n(104),
     h = n(160),
-    _ = n(104),
-    m = n(36),
+    _ = n(105),
+    m = n(37),
     y = n(159),
-    v = n(72),
-    g = n(100),
-    b = n(102);
+    v = n(55),
+    g = n(101),
+    b = n(103);
   n.i(o.a)("interop.redux", {
     configureStore: a.a,
     entities: {
@@ -86292,25 +86316,25 @@ var _getMetaFieldForId = function(id, key) {
   });
 }, function(e, t, n) {
   "use strict";
-  var r = n(69),
+  var r = n(70),
     o = n(73),
-    i = n(450),
+    i = n(452),
     a = n(163),
-    s = n(452),
-    u = n(451),
-    l = n(454),
+    s = n(454),
+    u = n(453),
+    l = n(456),
     c = n(162),
     d = n(46),
-    f = n(453),
+    f = n(455),
     p = n(45),
-    h = n(443),
-    _ = n(444),
-    m = n(445),
-    y = n(446),
-    v = n(447),
-    g = n(107),
-    b = n(448),
-    M = n(449);
+    h = n(445),
+    _ = n(446),
+    m = n(447),
+    y = n(448),
+    v = n(449),
+    g = n(108),
+    b = n(450),
+    M = n(451);
   n.i(r.a)("utility.datetime", {
     toDateObject: o.a,
     toDate: i.a,
@@ -86474,9 +86498,9 @@ var _getMetaFieldForId = function(id, key) {
     };
   };
 }, function(e, t, n) {
-  var r = n(43),
+  var r = n(44),
     o = n(89),
-    i = n(64);
+    i = n(65);
   e.exports = function(e) {
     var t = r(e),
       n = o.f;
@@ -86494,10 +86518,10 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   "use strict";
   var r = n(87),
-    o = n(65),
+    o = n(66),
     i = n(91),
     a = {};
-  n(42)(a, n(24)("iterator"), function() {
+  n(43)(a, n(24)("iterator"), function() {
     return this;
   }), e.exports = function(e, t, n) {
     e.prototype = r(a, {
@@ -86512,14 +86536,14 @@ var _getMetaFieldForId = function(id, key) {
     };
   };
 }, function(e, t, n) {
-  var r = n(43),
+  var r = n(44),
     o = n(30);
   e.exports = function(e, t) {
     for (var n, i = o(e), a = r(i), s = a.length, u = 0; s > u;)
       if (i[n = a[u++]] === t) return n;
   };
 }, function(e, t, n) {
-  var r = n(67)("meta"),
+  var r = n(68)("meta"),
     o = n(53),
     i = n(34),
     a = n(35).f,
@@ -86527,7 +86551,7 @@ var _getMetaFieldForId = function(id, key) {
     u = Object.isExtensible || function() {
       return !0;
     },
-    l = !n(41)(function() {
+    l = !n(42)(function() {
       return u(Object.preventExtensions({}));
     }),
     c = function(e) {
@@ -86567,13 +86591,13 @@ var _getMetaFieldForId = function(id, key) {
     };
 }, function(e, t, n) {
   "use strict";
-  var r = n(43),
+  var r = n(44),
     o = n(89),
-    i = n(64),
-    a = n(66),
-    s = n(145),
+    i = n(65),
+    a = n(67),
+    s = n(146),
     u = Object.assign;
-  e.exports = !u || n(41)(function() {
+  e.exports = !u || n(42)(function() {
     var e = {},
       t = {},
       n = Symbol(),
@@ -86588,8 +86612,8 @@ var _getMetaFieldForId = function(id, key) {
   } : u;
 }, function(e, t, n) {
   var r = n(35),
-    o = n(40),
-    i = n(43);
+    o = n(41),
+    i = n(44);
   e.exports = n(32) ? Object.defineProperties : function(e, t) {
     o(e);
     for (var n, a = i(t), s = a.length, u = 0; s > u;) r.f(e, n = a[u++], t[n]);
@@ -86597,7 +86621,7 @@ var _getMetaFieldForId = function(id, key) {
   };
 }, function(e, t, n) {
   var r = n(30),
-    o = n(147).f,
+    o = n(148).f,
     i = {}.toString,
     a = "object" == typeof window && window && Object.getOwnPropertyNames ? Object.getOwnPropertyNames(window) : [],
     s = function(e) {
@@ -86612,14 +86636,14 @@ var _getMetaFieldForId = function(id, key) {
   };
 }, function(e, t, n) {
   var r = n(53),
-    o = n(40),
+    o = n(41),
     i = function(e, t) {
       if (o(e), !r(t) && null !== t) throw TypeError(t + ": can't set as prototype!");
     };
   e.exports = {
     set: Object.setPrototypeOf || ("__proto__" in {} ? function(e, t, r) {
       try {
-        r = n(142)(Function.call, n(88).f(Object.prototype, "__proto__").set, 2), r(e, []), t = !(e instanceof Array);
+        r = n(143)(Function.call, n(88).f(Object.prototype, "__proto__").set, 2), r(e, []), t = !(e instanceof Array);
       } catch (e) {
         t = !0;
       }
@@ -86654,14 +86678,14 @@ var _getMetaFieldForId = function(id, key) {
     return e > 0 ? o(r(e), 9007199254740991) : 0;
   };
 }, function(e, t, n) {
-  var r = n(141),
+  var r = n(142),
     o = n(24)("iterator"),
     i = n(54);
   e.exports = n(15).getIteratorMethod = function(e) {
     if (void 0 != e) return e[o] || e["@@iterator"] || i[r(e)];
   };
 }, function(e, t, n) {
-  var r = n(40),
+  var r = n(41),
     o = n(380);
   e.exports = n(15).getIterator = function(e) {
     var t = o(e);
@@ -86669,7 +86693,7 @@ var _getMetaFieldForId = function(id, key) {
     return r(t.call(e));
   };
 }, function(e, t, n) {
-  var r = n(141),
+  var r = n(142),
     o = n(24)("iterator"),
     i = n(54);
   e.exports = n(15).isIterable = function(e) {
@@ -86682,7 +86706,7 @@ var _getMetaFieldForId = function(id, key) {
     o = n(370),
     i = n(54),
     a = n(30);
-  e.exports = n(146)(Array, "Array", function(e, t) {
+  e.exports = n(147)(Array, "Array", function(e, t) {
     this._t = a(e), this._i = 0, this._k = t;
   }, function() {
     var e = this._t,
@@ -86714,16 +86738,16 @@ var _getMetaFieldForId = function(id, key) {
     };
   });
 }, function(e, t, n) {
-  var r = n(66),
-    o = n(148);
+  var r = n(67),
+    o = n(149);
   n(90)("getPrototypeOf", function() {
     return function(e) {
       return o(r(e));
     };
   });
 }, function(e, t, n) {
-  var r = n(66),
-    o = n(43);
+  var r = n(67),
+    o = n(44);
   n(90)("keys", function() {
     return function(e) {
       return o(r(e));
@@ -86740,27 +86764,27 @@ var _getMetaFieldForId = function(id, key) {
     o = n(34),
     i = n(32),
     a = n(33),
-    s = n(150),
+    s = n(151),
     u = n(372).KEY,
-    l = n(41),
+    l = n(42),
     c = n(93),
     d = n(91),
-    f = n(67),
+    f = n(68),
     p = n(24),
     h = n(97),
     _ = n(96),
     m = n(371),
     y = n(366),
     v = n(368),
-    g = n(40),
+    g = n(41),
     b = n(30),
     M = n(95),
-    w = n(65),
+    w = n(66),
     k = n(87),
     L = n(375),
     T = n(88),
     S = n(35),
-    Y = n(43),
+    Y = n(44),
     x = T.f,
     D = S.f,
     C = L.f,
@@ -86841,7 +86865,7 @@ var _getMetaFieldForId = function(id, key) {
     }), B(e);
   }, s(P.prototype, "toString", function() {
     return this._k;
-  }), T.f = Q, S.f = q, n(147).f = L.f = X, n(64).f = $, n(89).f = Z, i && !n(86) && s(z, "propertyIsEnumerable", $, !0), h.f = function(e) {
+  }), T.f = Q, S.f = q, n(148).f = L.f = X, n(65).f = $, n(89).f = Z, i && !n(86) && s(z, "propertyIsEnumerable", $, !0), h.f = function(e) {
     return B(p(e));
   }), a(a.G + a.W + a.F * !W, {
     Symbol: P
@@ -86883,7 +86907,7 @@ var _getMetaFieldForId = function(id, key) {
         }), r[1] = t, j.apply(E, r);
       }
     }
-  }), P.prototype[R] || n(42)(P.prototype, R, P.prototype.valueOf), d(P, "Symbol"), d(Math, "Math", !0), d(r.JSON, "JSON", !0);
+  }), P.prototype[R] || n(43)(P.prototype, R, P.prototype.valueOf), d(P, "Symbol"), d(Math, "Math", !0), d(r.JSON, "JSON", !0);
 }, function(e, t, n) {
   n(96)("asyncIterator");
 }, function(e, t, n) {
@@ -87139,10 +87163,10 @@ var _getMetaFieldForId = function(id, key) {
     s = n.n(a),
     u = n(1),
     l = n.n(u),
-    c = n(137),
+    c = n(138),
     d = (n.n(c), n(395)),
     f = n(401),
-    p = n(625),
+    p = n(628),
     h = (n.n(p), Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
@@ -87228,7 +87252,11 @@ var _getMetaFieldForId = function(id, key) {
         type: "spacer"
       }), i.push({
         type: "invitePeopleLink"
-      })), i;
+      })), i.push({
+        type: "spacer"
+      }), i.push({
+        type: "spacer"
+      }), i;
     }),
     b = function(e) {
       function t(e) {
@@ -87336,9 +87364,9 @@ var _getMetaFieldForId = function(id, key) {
     c = n(23),
     d = n(9),
     f = n.n(d),
-    p = n(36),
-    h = n(44),
-    _ = n(71),
+    p = n(37),
+    h = n(36),
+    _ = n(72),
     m = n(426),
     y = n(19),
     v = Object.assign || function(e) {
@@ -87447,8 +87475,8 @@ var _getMetaFieldForId = function(id, key) {
             g = e.userId,
             M = f()("p-channel_sidebar__channel", {
               "p-channel_sidebar__channel--private": "group" === t,
-              "p-channel_sidebar__channel--shared": n,
-              "p-channel_sidebar__channel--org-shared": n && r,
+              "p-channel_sidebar__channel--shared": n && !r,
+              "p-channel_sidebar__channel--org-shared": n && r && !("im" === t || "mpim" === t),
               "p-channel_sidebar__channel--mpim": "mpim" === t,
               "p-channel_sidebar__channel--im": "im" === t,
               "p-channel_sidebar__channel--im-slackbot": o,
@@ -87512,8 +87540,8 @@ var _getMetaFieldForId = function(id, key) {
   var r = n(3),
     o = n.n(r),
     i = n(23),
-    a = n(137),
-    s = (n.n(a), n(36)),
+    a = n(138),
+    s = (n.n(a), n(37)),
     u = n(396),
     l = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
@@ -87603,7 +87631,7 @@ var _getMetaFieldForId = function(id, key) {
     c = n(23),
     d = n(9),
     f = n.n(d),
-    p = n(36),
+    p = n(37),
     h = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
@@ -87731,9 +87759,9 @@ var _getMetaFieldForId = function(id, key) {
   var r = n(3),
     o = n.n(r),
     i = n(19),
-    a = n(36),
-    s = n(71),
-    u = n(44);
+    a = n(37),
+    s = n(72),
+    u = n(36);
   n.d(t, "a", function() {
     return g;
   });
@@ -87941,7 +87969,7 @@ var _getMetaFieldForId = function(id, key) {
   var a = n(1),
     s = n.n(a),
     u = n(19),
-    l = n(68),
+    l = n(69),
     c = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
@@ -88046,7 +88074,7 @@ var _getMetaFieldForId = function(id, key) {
     c = n(1),
     d = n.n(c),
     f = n(325),
-    p = n(68),
+    p = n(69),
     h = n(31),
     _ = n(19),
     m = Object.assign || function(e) {
@@ -88301,7 +88329,7 @@ var _getMetaFieldForId = function(id, key) {
     l = n.n(u),
     c = n(9),
     d = n.n(c),
-    f = n(68),
+    f = n(69),
     p = n(405),
     h = n(403),
     _ = n(407),
@@ -88925,7 +88953,7 @@ var _getMetaFieldForId = function(id, key) {
     l = n.n(u),
     c = n(9),
     d = n.n(c),
-    f = n(68),
+    f = n(69),
     p = n(19),
     h = function() {
       function e(e, t) {
@@ -89123,10 +89151,10 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   "use strict";
   var r = n(23),
-    o = n(137),
+    o = n(138),
     i = (n.n(o), n(413)),
-    a = n(102),
-    s = n(104),
+    a = n(103),
+    s = n(105),
     u = n(414),
     l = function(e) {
       return e.files;
@@ -89184,13 +89212,13 @@ var _getMetaFieldForId = function(id, key) {
     l = n.n(u),
     c = n(0),
     d = n.n(c),
-    f = n(442),
+    f = n(444),
     p = n(19),
     h = n(31),
-    _ = n(70),
-    m = n(155),
+    _ = n(71),
+    m = n(100),
     y = n(164),
-    v = n(626),
+    v = n(629),
     g = (n.n(v), function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
@@ -89343,10 +89371,10 @@ var _getMetaFieldForId = function(id, key) {
             v = "progressing" === o && i ? i * f : void 0,
             g = void 0;
           g = v ? b("{partialSize} of {size} {prettyType}", {
-            partialSize: n.i(m.a)(v, 2),
-            size: n.i(m.a)(f),
+            partialSize: n.i(m.b)(v, 2),
+            size: n.i(m.b)(f),
             prettyType: d
-          }) : n.i(m.a)(f) + " " + d;
+          }) : n.i(m.b)(f) + " " + d;
           var M = t.getEstimatedTimeRemaining(this.props),
             w = l()("p-download_item", "clearfix", o),
             k = l()({
@@ -89417,7 +89445,7 @@ var _getMetaFieldForId = function(id, key) {
       fileSize: r.size
     });
   }
-  var o = n(152);
+  var o = n(153);
   t.a = r;
   var i = Object.assign || function(e) {
     for (var t = 1; t < arguments.length; t++) {
@@ -89463,7 +89491,7 @@ var _getMetaFieldForId = function(id, key) {
     y = n(31),
     v = n(165),
     g = n(164),
-    b = n(627),
+    b = n(630),
     M = (n.n(b), Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
@@ -89665,25 +89693,31 @@ var _getMetaFieldForId = function(id, key) {
   "use strict";
   var r = n(23),
     o = n(419),
-    i = n(105),
-    a = n(100),
-    s = Object.assign || function(e) {
+    i = n(106),
+    a = n(101),
+    s = n(36),
+    u = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
         for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
       }
       return e;
     },
-    u = function(e) {
+    l = function(e) {
       var t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : {},
         r = n.i(i.b)(e),
-        o = n.i(a.getTimestampsByChannelId)(e, r);
-      return s({}, t, {
+        o = n.i(s.getChannelById)(e, r),
+        l = n.i(a.getTimestampsByChannelId)(e, r);
+      return u({}, t, {
         channelId: r,
-        timestamps: o
+        type: n.i(s.getChannelType)(o),
+        timestamps: l
       });
+    },
+    c = {
+      loadInitialHistory: i.c
     };
-  t.a = n.i(r.b)(u)(o.a);
+  t.a = n.i(r.b)(l, c)(o.a);
 }, function(e, t, n) {
   "use strict";
   var r = n(417);
@@ -89691,33 +89725,91 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   "use strict";
 
-  function r(e) {
-    var t = e.channelId,
-      n = e.timestamps,
-      r = void 0 === n ? [] : n,
-      o = r.map(function(e) {
-        return i.a.createElement(a.a, {
-          key: e,
-          ts: e,
-          channelId: t
-        });
-      });
-    return i.a.createElement("div", null, i.a.createElement("span", null, t), o);
+  function r(e, t) {
+    if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
   }
-  var o = n(1),
-    i = n.n(o),
-    a = n(421);
-  t.a = r, r.propTypes = {
-    channelId: i.a.PropTypes.string,
-    timestamps: i.a.PropTypes.arrayOf(i.a.PropTypes.string)
-  }, r.defaultProps = {
+
+  function o(e, t) {
+    if (!e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    return !t || "object" != typeof t && "function" != typeof t ? e : t;
+  }
+
+  function i(e, t) {
+    if ("function" != typeof t && null !== t) throw new TypeError("Super expression must either be null or a function, not " + typeof t);
+    e.prototype = Object.create(t && t.prototype, {
+      constructor: {
+        value: e,
+        enumerable: !1,
+        writable: !0,
+        configurable: !0
+      }
+    }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
+  }
+  var a = n(3),
+    s = n.n(a),
+    u = n(1),
+    l = n.n(u),
+    c = n(421),
+    d = function() {
+      function e(e, t) {
+        for (var n = 0; n < t.length; n++) {
+          var r = t[n];
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
+        }
+      }
+      return function(t, n, r) {
+        return n && e(t.prototype, n), r && e(t, r), t;
+      };
+    }(),
+    f = function(e) {
+      function t() {
+        return r(this, t), o(this, (t.__proto__ || Object.getPrototypeOf(t)).apply(this, arguments));
+      }
+      return i(t, e), d(t, [{
+        key: "componentWillReceiveProps",
+        value: function(e) {
+          var t = this.props.channelId,
+            n = e.channelId;
+          if (t !== n && n) {
+            var r = e.channelId,
+              o = e.type;
+            this.props.loadInitialHistory({
+              channelId: r,
+              type: o
+            });
+          }
+        }
+      }, {
+        key: "render",
+        value: function() {
+          var e = this.props.channelId,
+            t = this.props.timestamps,
+            n = t.map(function(t) {
+              return l.a.createElement(c.a, {
+                key: t,
+                ts: t,
+                channelId: e
+              });
+            });
+          return l.a.createElement("div", null, l.a.createElement("span", null, e), n);
+        }
+      }]), t;
+    }(l.a.PureComponent);
+  t.a = f, f.propTypes = {
+    channelId: l.a.PropTypes.string,
+    type: l.a.PropTypes.oneOf(["channel", "group", "im", "mpim"]),
+    timestamps: l.a.PropTypes.arrayOf(l.a.PropTypes.string),
+    loadInitialHistory: l.a.PropTypes.func
+  }, f.defaultProps = {
     channelId: null,
-    timestamps: []
+    type: "channel",
+    timestamps: [],
+    loadInitialHistory: s.a.noop
   };
 }, function(e, t, n) {
   "use strict";
   var r = n(23),
-    o = n(72),
+    o = n(55),
     i = n(422),
     a = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
@@ -89906,7 +89998,7 @@ var _getMetaFieldForId = function(id, key) {
   var a = n(1),
     s = n.n(a),
     u = n(18),
-    l = (n.n(u), n(560)),
+    l = (n.n(u), n(563)),
     c = n.n(l),
     d = function() {
       function e(e, t) {
@@ -90177,10 +90269,10 @@ var _getMetaFieldForId = function(id, key) {
     u = n(3),
     l = n.n(u),
     c = n(23),
-    d = n(106),
-    f = n(103),
-    p = n(101),
-    h = n(437),
+    d = n(107),
+    f = n(104),
+    p = n(102),
+    h = n(439),
     _ = n(427),
     m = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
@@ -90265,7 +90357,7 @@ var _getMetaFieldForId = function(id, key) {
     i = n(9),
     a = n.n(i),
     s = n(31),
-    u = n(624),
+    u = n(627),
     l = (n.n(u), function(e) {
       var t = e.isActive,
         n = e.isDnd,
@@ -90293,7 +90385,7 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   "use strict";
   var r = n(429);
-  n(151), n.d(t, "a", function() {
+  n(152), n.d(t, "a", function() {
     return r.a;
   }), r.a;
 }, function(e, t, n) {
@@ -90324,8 +90416,8 @@ var _getMetaFieldForId = function(id, key) {
     u = n(1),
     l = n.n(u),
     c = n(18),
-    d = (n.n(c), n(151)),
-    f = n(138),
+    d = (n.n(c), n(152)),
+    f = n(139),
     p = n(161),
     h = n(336),
     _ = (n.n(h), Object.assign || function(e) {
@@ -90492,7 +90584,7 @@ var _getMetaFieldForId = function(id, key) {
   g.propTypes = y, g.defaultProps = v, t.a = g;
 }, function(e, t, n) {
   "use strict";
-  var r = n(435);
+  var r = n(436);
   n.d(t, "a", function() {
     return o;
   }), n.d(t, "b", function() {
@@ -90515,13 +90607,13 @@ var _getMetaFieldForId = function(id, key) {
     o = n.n(r),
     i = n(18),
     a = n.n(i),
-    s = n(39),
+    s = n(40),
     u = n(337),
-    l = n(138);
-  n(338), n(341), n(340), n(339), window.ReactComponents = {}, window.ReactComponents.EmojiPicker = u.a, window.ReactComponents.Popover = l.a, window.ReactComponents.PopoverTrigger = l.b, window.React = o.a, window.ReactDOM = a.a, window.moment = s.a;
+    l = n(139);
+  n(341), n(338), n(340), n(339), window.ReactComponents = {}, window.ReactComponents.EmojiPicker = u.a, window.ReactComponents.Popover = l.a, window.ReactComponents.PopoverTrigger = l.b, window.React = o.a, window.ReactDOM = a.a, window.moment = s.a;
 }, function(e, t, n) {
   "use strict";
-  var r = n(153);
+  var r = n(154);
   n.d(t, "a", function() {
     return o;
   }), n.d(t, "b", function() {
@@ -90531,21 +90623,29 @@ var _getMetaFieldForId = function(id, key) {
     i = r.b;
 }, function(e, t, n) {
   "use strict";
-  var r = n(17);
+  var r = n(16);
+  n.d(t, "a", function() {
+    return o;
+  });
+  var o = n.i(r.a)("TS.api.call");
+  n.i(r.a)("TS.api.callImmediately");
+}, function(e, t, n) {
+  "use strict";
+  var r = n(16);
   n.d(t, "a", function() {
     return o;
   });
   var o = n.i(r.a)("TS.client.ui.showView", function() {});
 }, function(e, t, n) {
   "use strict";
-  var r = n(17);
+  var r = n(16);
   n.d(t, "a", function() {
     return o;
   });
   var o = n.i(r.a)("TS.client.displayModelObById", function() {});
 }, function(e, t, n) {
   "use strict";
-  var r = n(17);
+  var r = n(16);
   n.d(t, "c", function() {
     return o;
   }), n.d(t, "b", function() {
@@ -90571,7 +90671,7 @@ var _getMetaFieldForId = function(id, key) {
   "use strict";
   var r = n(3),
     o = n.n(r),
-    i = n(17);
+    i = n(16);
   n.d(t, "a", function() {
     return a;
   }), n.d(t, "b", function() {
@@ -90591,7 +90691,11 @@ var _getMetaFieldForId = function(id, key) {
     });
 }, function(e, t, n) {
   "use strict";
-  var r = n(17),
+  var r = n(16);
+  t.a = n.i(r.a)("TS.utility.msgs.processImsg");
+}, function(e, t, n) {
+  "use strict";
+  var r = n(16),
     o = n.i(r.a)("TS.presence_manager.createNewPresenceList", function() {});
   t.a = o;
 }, function(e, t, n) {
@@ -90611,10 +90715,10 @@ var _getMetaFieldForId = function(id, key) {
     return n.i(i.d)(u.a, t);
   }
   var i = n(81),
-    a = n(620),
+    a = n(623),
     s = n.n(a),
-    u = n(440),
-    l = n(44);
+    u = n(442),
+    l = n(36);
   t.a = o;
   var c = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
@@ -90652,7 +90756,7 @@ var _getMetaFieldForId = function(id, key) {
   "use strict";
   var r = n(81),
     o = n(156),
-    i = n(71),
+    i = n(72),
     a = n(157),
     s = n.i(r.e)({
       channelNamesToIds: o.default,
@@ -90663,20 +90767,20 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   "use strict";
   var r = n(81),
-    o = n(36),
-    i = n(106),
-    a = n(103),
+    o = n(37),
+    i = n(107),
+    a = n(104),
     s = n(160),
-    u = n(104),
+    u = n(105),
     l = n(159),
-    c = n(105),
-    d = n(44),
-    f = n(439),
+    c = n(106),
+    d = n(36),
+    f = n(441),
     p = n(158),
-    h = n(101),
-    _ = n(72),
-    m = n(100),
-    y = n(102),
+    h = n(102),
+    _ = n(55),
+    m = n(101),
+    y = n(103),
     v = n.i(r.e)({
       channelSidebar: o.default,
       channels: d.default,
@@ -90688,7 +90792,7 @@ var _getMetaFieldForId = function(id, key) {
       bootData: l.default,
       typing: s.default,
       memberTypesById: h.default,
-      messagePane: c.c,
+      messagePane: c.d,
       channelMessages: m.default,
       messages: _.default,
       window: y.default
@@ -90871,7 +90975,7 @@ var _getMetaFieldForId = function(id, key) {
     var t = new Date;
     return n.i(o.a)(e, t);
   }
-  var o = n(107);
+  var o = n(108);
   t.a = r;
 }, function(e, t, n) {
   "use strict";
@@ -90879,7 +90983,7 @@ var _getMetaFieldForId = function(id, key) {
   function r(e) {
     return n.i(o.a)(e, new Date(Date.now() - 864e5));
   }
-  var o = n(107);
+  var o = n(108);
   t.a = r;
 }, function(e, t, n) {
   "use strict";
@@ -90908,7 +91012,7 @@ var _getMetaFieldForId = function(id, key) {
   }
   var o = n(73),
     i = n(46),
-    a = n(39);
+    a = n(40);
   t.a = r;
 }, function(e, t, n) {
   "use strict";
@@ -90929,7 +91033,7 @@ var _getMetaFieldForId = function(id, key) {
   }
   var o = n(73),
     i = n(163),
-    a = n(70);
+    a = n(71);
   t.a = r;
 }, function(e, t, n) {
   "use strict";
@@ -90972,7 +91076,7 @@ var _getMetaFieldForId = function(id, key) {
       u = [];
     return s.w && (1 === s.w && u.push(o.a.localeData().relativeTime(s.w, !1, "w", !1)), s.w > 1 && u.push(o.a.localeData().relativeTime(s.w, !1, "ww", !1))), s.d && (1 === s.d && u.push(o.a.localeData().relativeTime(s.d, !1, "d", !1)), s.d > 1 && u.push(o.a.localeData().relativeTime(s.d, !1, "dd", !1))), s.h && (1 === s.h && u.push(o.a.localeData().relativeTime(s.h, !1, "h", !1)), s.h > 1 && u.push(o.a.localeData().relativeTime(s.h, !1, "hh", !1))), s.m && u.push(o.a.localeData().relativeTime(s.m, !1, "m", !1)), !s.s && u.length || u.push(o.a.localeData().relativeTime(s.s, !1, "s", !1)), u.join(" ");
   }
-  var o = n(39),
+  var o = n(40),
     i = n(162);
   t.a = r;
 }, function(e, t, n) {
@@ -90988,6 +91092,53 @@ var _getMetaFieldForId = function(id, key) {
     });
   }
   var o = n(46);
+  t.a = r;
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e) {
+    var t = e.channelId,
+      r = e.type,
+      o = void 0;
+    switch (r) {
+      case "channel":
+        o = n.i(a.a)("channels.history", {
+          channel: t,
+          count: 42
+        });
+        break;
+      case "mpim":
+        o = n.i(a.a)("mpim.history", {
+          channel: t,
+          count: 42
+        });
+        break;
+      case "group":
+        o = n.i(a.a)("groups.history", {
+          channel: t,
+          count: 42
+        });
+        break;
+      case "im":
+        o = n.i(a.a)("im.history", {
+          channel: t,
+          count: 42
+        });
+        break;
+      default:
+        return Promise.reject(new Error("Unknown channel type"));
+    }
+    return o.then(function(e) {
+      var r = i.a.get(e, "data.messages");
+      return r ? i.a.map(r, function(e) {
+        return n.i(s.a)(e, t);
+      }) : [];
+    });
+  }
+  var o = n(3),
+    i = n.n(o),
+    a = n(433),
+    s = n(438);
   t.a = r;
 }, function(e, t, n) {
   "use strict";
@@ -91036,15 +91187,15 @@ var _getMetaFieldForId = function(id, key) {
     return e;
   };
 }, function(e, t, n) {
-  t = e.exports = n(55)(), t.push([e.i, ".c-presence--active{color:#93cc93}.c-presence--away{color:#717274}", ""]);
+  t = e.exports = n(56)(), t.push([e.i, ".c-presence--active{color:#93cc93}.c-presence--away{color:#717274}", ""]);
 }, function(e, t, n) {
-  t = e.exports = n(55)(), t.push([e.i, '.c-tooltip,.c-tooltip__tip{display:inline-block}.c-tooltip__tip{color:#fff;background-color:#2c2d30;max-width:250px;padding:.5rem;border-radius:4px;position:relative;font-size:.8125rem;font-weight:700;text-align:center}.c-tooltip__tip:after{position:absolute;content:"";width:0;height:0;margin:-5px;border:6px solid transparent}.c-tooltip__tip--left{margin-right:.5rem}.c-tooltip__tip--left:after{border-left-color:#2c2d30;right:-6px;top:50%}.c-tooltip__tip--right{margin-left:.5rem}.c-tooltip__tip--right:after{border-right-color:#2c2d30;left:-6px;top:50%}.c-tooltip__tip--top{margin-bottom:.5rem}.c-tooltip__tip--top:after{border-top-color:#2c2d30;bottom:-6px;left:50%}.c-tooltip__tip--top-left{margin-bottom:.5rem}.c-tooltip__tip--top-left:after{border-top-color:#2c2d30;bottom:-6px;left:50%;left:25%}.c-tooltip__tip--top-right{margin-bottom:.5rem}.c-tooltip__tip--top-right:after{border-top-color:#2c2d30;bottom:-6px;left:50%;left:75%}.c-tooltip__tip--bottom{margin-top:.5rem}.c-tooltip__tip--bottom:after{border-bottom-color:#2c2d30;top:-6px;left:50%}.c-tooltip__tip--bottom-left{margin-top:.5rem}.c-tooltip__tip--bottom-left:after{border-bottom-color:#2c2d30;top:-6px;left:50%;left:25%}.c-tooltip__tip--bottom-right{margin-top:.5rem}.c-tooltip__tip--bottom-right:after{border-bottom-color:#2c2d30;top:-6px;left:50%;left:75%}.c-tooltip__tip--success{background-color:#2ab27b}.c-tooltip__tip--success.c-tooltip__tip--left:after{border-left-color:#2ab27b}.c-tooltip__tip--success.c-tooltip__tip--right:after{border-right-color:#2ab27b}.c-tooltip__tip--success.c-tooltip__tip--top-left:after,.c-tooltip__tip--success.c-tooltip__tip--top-right:after,.c-tooltip__tip--success.c-tooltip__tip--top:after{border-top-color:#2ab27b}.c-tooltip__tip--success.c-tooltip__tip--bottom-left:after,.c-tooltip__tip--success.c-tooltip__tip--bottom-right:after,.c-tooltip__tip--success.c-tooltip__tip--bottom:after{border-bottom-color:#2ab27b}', ""]);
+  t = e.exports = n(56)(), t.push([e.i, '.c-tooltip,.c-tooltip__tip{display:inline-block}.c-tooltip__tip{color:#fff;background-color:#2c2d30;max-width:250px;padding:.5rem;border-radius:4px;position:relative;font-size:.8125rem;font-weight:700;text-align:center}.c-tooltip__tip:after{position:absolute;content:"";width:0;height:0;margin:-5px;border:6px solid transparent}.c-tooltip__tip--left{margin-right:.5rem}.c-tooltip__tip--left:after{border-left-color:#2c2d30;right:-6px;top:50%}.c-tooltip__tip--right{margin-left:.5rem}.c-tooltip__tip--right:after{border-right-color:#2c2d30;left:-6px;top:50%}.c-tooltip__tip--top{margin-bottom:.5rem}.c-tooltip__tip--top:after{border-top-color:#2c2d30;bottom:-6px;left:50%}.c-tooltip__tip--top-left{margin-bottom:.5rem}.c-tooltip__tip--top-left:after{border-top-color:#2c2d30;bottom:-6px;left:50%;left:25%}.c-tooltip__tip--top-right{margin-bottom:.5rem}.c-tooltip__tip--top-right:after{border-top-color:#2c2d30;bottom:-6px;left:50%;left:75%}.c-tooltip__tip--bottom{margin-top:.5rem}.c-tooltip__tip--bottom:after{border-bottom-color:#2c2d30;top:-6px;left:50%}.c-tooltip__tip--bottom-left{margin-top:.5rem}.c-tooltip__tip--bottom-left:after{border-bottom-color:#2c2d30;top:-6px;left:50%;left:25%}.c-tooltip__tip--bottom-right{margin-top:.5rem}.c-tooltip__tip--bottom-right:after{border-bottom-color:#2c2d30;top:-6px;left:50%;left:75%}.c-tooltip__tip--success{background-color:#2ab27b}.c-tooltip__tip--success.c-tooltip__tip--left:after{border-left-color:#2ab27b}.c-tooltip__tip--success.c-tooltip__tip--right:after{border-right-color:#2ab27b}.c-tooltip__tip--success.c-tooltip__tip--top-left:after,.c-tooltip__tip--success.c-tooltip__tip--top-right:after,.c-tooltip__tip--success.c-tooltip__tip--top:after{border-top-color:#2ab27b}.c-tooltip__tip--success.c-tooltip__tip--bottom-left:after,.c-tooltip__tip--success.c-tooltip__tip--bottom-right:after,.c-tooltip__tip--success.c-tooltip__tip--bottom:after{border-bottom-color:#2ab27b}', ""]);
 }, function(e, t, n) {
-  t = e.exports = n(55)(), t.push([e.i, '.p-channel_sidebar{width:220px;height:100vh;position:relative;background:#4d394b;padding:0;color:#fff}.p-channel_sidebar__header{padding:0 1rem;color:hsla(0,0%,100%,.7);margin:0}.p-channel_sidebar__banner{text-align:center;position:absolute;display:block;z-index:2;color:#fff;left:.5rem;right:.5rem;font-weight:700;text-transform:uppercase;font-size:.75rem;line-height:1.5rem}.p-channel_sidebar__banner--top{border-top-right-radius:0;border-bottom-right-radius:.25rem;border-bottom-left-radius:.25rem;border-top-left-radius:0;background-clip:padding-box;top:0}.p-channel_sidebar__banner--bottom{border-top-right-radius:.25rem;border-bottom-right-radius:0;border-bottom-left-radius:0;border-top-left-radius:.25rem;background-clip:padding-box;bottom:0}.p-channel_sidebar__banner--mentions{background:#eb4d5c}.p-channel_sidebar__banner--unreads{background:#2d9ee0}.p-channel_sidebar__channel,.p-channel_sidebar__link{display:block;height:26px;line-height:1.625rem;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;color:#fff;border-top-right-radius:.25rem;border-bottom-right-radius:.25rem;border-bottom-left-radius:0;border-top-left-radius:0;background-clip:padding-box;padding:0 .25rem 0 1rem;margin-right:.5rem}.p-channel_sidebar__channel:after,.p-channel_sidebar__channel:before,.p-channel_sidebar__link:after,.p-channel_sidebar__link:before{font-family:Slack;font-style:normal;font-weight:400;display:inline-block;width:20px;color:hsla(0,0%,100%,.7)}.p-channel_sidebar__channel:before,.p-channel_sidebar__link:before{font-size:1rem;float:left}.p-channel_sidebar__channel:after,.p-channel_sidebar__link:after{float:right;font-size:1.25rem}.p-channel_sidebar__channel:hover,.p-channel_sidebar__link:hover{color:#fff;background:#3e313c;text-decoration:none}.p-channel_sidebar__channel:before{content:"\\E104"}.p-channel_sidebar__channel--private:before{content:"\\E503";margin-top:-2px}.p-channel_sidebar__channel--shared:after{content:"\\E559"}.p-channel_sidebar__channel--org-shared:after{content:"\\E166";margin-top:-4px}.p-channel_sidebar__channel--mpim:before{font-size:1.25rem;margin:-3px 2px 0 -2px}.p-channel_sidebar__channel--mpim[data-user-count="2"]:before{content:"\\E521"}.p-channel_sidebar__channel--mpim[data-user-count="3"]:before{content:"\\E522"}.p-channel_sidebar__channel--mpim[data-user-count="4"]:before{content:"\\E523"}.p-channel_sidebar__channel--mpim[data-user-count="5"]:before{content:"\\E524"}.p-channel_sidebar__channel--mpim[data-user-count="6"]:before{content:"\\E525"}.p-channel_sidebar__channel--mpim[data-user-count="7"]:before{content:"\\E526"}.p-channel_sidebar__channel--mpim[data-user-count="8"]:before{content:"\\E527"}.p-channel_sidebar__channel--mpim[data-user-count="9"]:before{content:"\\E528"}.p-channel_sidebar__channel--im:before{content:""}.p-channel_sidebar__channel--im .c-presence{margin:-4px 1px 0 -1px;float:left}.p-channel_sidebar__channel--im .c-presence--active{color:#38978d}.p-channel_sidebar__channel--im .c-presence--away{color:hsla(0,0%,100%,.7)}.p-channel_sidebar__channel--im.p-channel_sidebar__channel--selected .c-presence--active{color:#fff}.p-channel_sidebar__channel--im-slackbot:before{content:"\\E515";font-size:1.125rem;margin-top:-3px}.p-channel_sidebar__channel--selected,.p-channel_sidebar__channel--selected:hover,.p-channel_sidebar__link--selected,.p-channel_sidebar__link--selected:hover{background:#4c9689}.p-channel_sidebar__channel--selected:after,.p-channel_sidebar__channel--selected:before,.p-channel_sidebar__channel--selected:hover:after,.p-channel_sidebar__channel--selected:hover:before,.p-channel_sidebar__link--selected:after,.p-channel_sidebar__link--selected:before,.p-channel_sidebar__link--selected:hover:after,.p-channel_sidebar__link--selected:hover:before{color:#fff}.p-channel_sidebar__channel--muted:not(.p-channel_sidebar__channel--selected),.p-channel_sidebar__channel--muted:not(.p-channel_sidebar__channel--selected):after,.p-channel_sidebar__channel--muted:not(.p-channel_sidebar__channel--selected):before{color:hsla(0,0%,100%,.25)}.p-channel_sidebar__channel--unread:not(.p-channel_sidebar__channel--muted){font-weight:900}.p-channel_sidebar__channel--draft:before{content:"\\E024";color:#fff;font-size:.875rem;margin:1px -1px 0 1px}.p-channel_sidebar__channel--archived:before{content:"\\E534";margin:-3px 2px 0 -2px;font-size:1.25rem}.p-channel_sidebar__badge{float:right;background:#eb4d5c;padding:.1rem .6rem;border-radius:1rem;line-height:1rem;margin:3px 0;font-size:.75rem;font-weight:700;color:#fff}.p-channel_sidebar__status{margin-left:.5rem}.p-channel_sidebar__you_label{margin-left:.5rem;font-weight:400;color:hsla(0,0%,100%,.7)}.p-channel_sidebar__link--unread{font-weight:900}.p-channel_sidebar__link--all-unreads:before{content:"\\E103"}.p-channel_sidebar__link--all-threads:before{content:"\\E004"}.p-channel_sidebar__link--invites:before{content:"\\E281"}', ""]);
+  t = e.exports = n(56)(), t.push([e.i, '.p-channel_sidebar{width:220px;height:100vh;position:relative;background:#4d394b;padding:0;color:#fff}.p-channel_sidebar__header{padding:0 1rem;color:hsla(0,0%,100%,.7);margin:0}.p-channel_sidebar__banner{text-align:center;position:absolute;display:block;z-index:2;color:#fff;left:.5rem;right:.5rem;font-weight:700;text-transform:uppercase;font-size:.75rem;line-height:1.5rem}.p-channel_sidebar__banner--top{border-top-right-radius:0;border-bottom-right-radius:.25rem;border-bottom-left-radius:.25rem;border-top-left-radius:0;background-clip:padding-box;top:0}.p-channel_sidebar__banner--bottom{border-top-right-radius:.25rem;border-bottom-right-radius:0;border-bottom-left-radius:0;border-top-left-radius:.25rem;background-clip:padding-box;bottom:0}.p-channel_sidebar__banner--mentions{background:#eb4d5c}.p-channel_sidebar__banner--unreads{background:#2d9ee0}.p-channel_sidebar__channel,.p-channel_sidebar__link{display:block;height:26px;line-height:1.625rem;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;color:#fff;border-top-right-radius:.25rem;border-bottom-right-radius:.25rem;border-bottom-left-radius:0;border-top-left-radius:0;background-clip:padding-box;padding:0 .25rem 0 1rem;margin-right:.5rem}.p-channel_sidebar__channel:after,.p-channel_sidebar__channel:before,.p-channel_sidebar__link:after,.p-channel_sidebar__link:before{font-family:Slack;font-style:normal;font-weight:400;display:inline-block;width:20px;color:hsla(0,0%,100%,.7)}.p-channel_sidebar__channel:before,.p-channel_sidebar__link:before{font-size:1rem;float:left}.p-channel_sidebar__channel:after,.p-channel_sidebar__link:after{float:right;font-size:1.25rem}.p-channel_sidebar__channel:hover,.p-channel_sidebar__link:hover{color:#fff;background:#3e313c;text-decoration:none}.p-channel_sidebar__channel:before{content:"\\E104"}.p-channel_sidebar__channel--private:before{content:"\\E503";margin-top:-2px}.p-channel_sidebar__channel--shared:after{content:"\\E559"}.p-channel_sidebar__channel--org-shared:after{content:"\\E166";margin-top:-4px}.p-channel_sidebar__channel--mpim:before{font-size:1.25rem;margin:-3px 2px 0 -2px}.p-channel_sidebar__channel--mpim[data-user-count="2"]:before{content:"\\E521"}.p-channel_sidebar__channel--mpim[data-user-count="3"]:before{content:"\\E522"}.p-channel_sidebar__channel--mpim[data-user-count="4"]:before{content:"\\E523"}.p-channel_sidebar__channel--mpim[data-user-count="5"]:before{content:"\\E524"}.p-channel_sidebar__channel--mpim[data-user-count="6"]:before{content:"\\E525"}.p-channel_sidebar__channel--mpim[data-user-count="7"]:before{content:"\\E526"}.p-channel_sidebar__channel--mpim[data-user-count="8"]:before{content:"\\E527"}.p-channel_sidebar__channel--mpim[data-user-count="9"]:before{content:"\\E528"}.p-channel_sidebar__channel--im:before{content:""}.p-channel_sidebar__channel--im .c-presence{margin:-4px 1px 0 -1px;float:left}.p-channel_sidebar__channel--im .c-presence--active{color:#38978d}.p-channel_sidebar__channel--im .c-presence--away{color:hsla(0,0%,100%,.7)}.p-channel_sidebar__channel--im.p-channel_sidebar__channel--selected .c-presence--active{color:#fff}.p-channel_sidebar__channel--im-slackbot:before{content:"\\E515";font-size:1.125rem;margin-top:-3px}.p-channel_sidebar__channel--selected,.p-channel_sidebar__channel--selected:hover,.p-channel_sidebar__link--selected,.p-channel_sidebar__link--selected:hover{background:#4c9689}.p-channel_sidebar__channel--selected:after,.p-channel_sidebar__channel--selected:before,.p-channel_sidebar__channel--selected:hover:after,.p-channel_sidebar__channel--selected:hover:before,.p-channel_sidebar__link--selected:after,.p-channel_sidebar__link--selected:before,.p-channel_sidebar__link--selected:hover:after,.p-channel_sidebar__link--selected:hover:before{color:#fff}.p-channel_sidebar__channel--muted:not(.p-channel_sidebar__channel--selected),.p-channel_sidebar__channel--muted:not(.p-channel_sidebar__channel--selected):after,.p-channel_sidebar__channel--muted:not(.p-channel_sidebar__channel--selected):before{color:hsla(0,0%,100%,.25)}.p-channel_sidebar__channel--unread:not(.p-channel_sidebar__channel--muted){font-weight:900}.p-channel_sidebar__channel--draft:before{content:"\\E024";color:#fff;font-size:.875rem;margin:1px -1px 0 1px}.p-channel_sidebar__channel--archived:before{content:"\\E534";margin:-3px 2px 0 -2px;font-size:1.25rem}.p-channel_sidebar__badge{float:right;background:#eb4d5c;padding:.1rem .6rem;border-radius:1rem;line-height:1rem;margin:3px 0;font-size:.75rem;font-weight:700;color:#fff}.p-channel_sidebar__status{margin-left:.5rem}.p-channel_sidebar__you_label{margin-left:.5rem;font-weight:400;color:hsla(0,0%,100%,.7)}.p-channel_sidebar__link--unread{font-weight:900}.p-channel_sidebar__link--all-unreads:before{content:"\\E103"}.p-channel_sidebar__link--all-threads:before{content:"\\E004"}.p-channel_sidebar__link--invites:before{content:"\\E281"}', ""]);
 }, function(e, t, n) {
-  t = e.exports = n(55)(), t.push([e.i, '.p-download_item{min-height:68px;padding:.75rem .75rem .25rem;margin:0 1px 0 .25rem;position:relative;font-weight:400;font-size:1rem;border:1px solid transparent;border-radius:4px;opacity:.8;-webkit-transition:opacity border .1s ease-out .1s 1e-7ms;-moz-transition:opacity .1s border .1s ease-out 1e-7ms;transition:opacity border .1s ease-out .1s 1e-7ms}.p-download_item.progressing,.p-download_item:hover{opacity:1}.p-download_item:hover{border-color:#e8e8e8}.p-download_item:hover .p-download_item__name_row{padding-right:2rem}.p-download_item:hover .p-download_item__action_icon,.p-download_item:hover .p-download_item__actions{opacity:1;-webkit-transform:translateZ(0);-moz-transform:translateZ(0);-ms-transform:translateZ(0);transform:translateZ(0)}.p-download_item:hover .p-download_item__link--remove{opacity:1}.p-download_item.not_started .p-download_item__name_row,.p-download_item.progressing .p-download_item__name_row{padding-right:6rem}.p-download_item.not_started .p-download_item__action_icon,.p-download_item.not_started .p-download_item__link--remove,.p-download_item.progressing .p-download_item__action_icon,.p-download_item.progressing .p-download_item__link--remove{display:none}.p-download_item:not(.progressing){cursor:pointer}.p-download_item.hidden_with_fade_out_and_shrink{opacity:0;height:0!important;margin-top:0!important;padding-top:0!important;padding-bottom:0!important;overflow:hidden;-webkit-transition:opacity .3s ease-out 0s,height .3s ease-out .2s,margin-top .3s ease-out .2s,padding-top .3s ease-out .2s,padding-bottom .3s ease-out ease-out .2s .2s 1e-7ms;-moz-transition:opacity .3s ease-out 0s,height .3s ease-out .2s,margin-top .3s ease-out .2s,padding-top .3s ease-out .2s,padding-bottom .3s ease-out .2s .2s ease-out 1e-7ms;transition:opacity .3s ease-out 0s,height .3s ease-out .2s,margin-top .3s ease-out .2s,padding-top .3s ease-out .2s,padding-bottom .3s ease-out ease-out .2s .2s 1e-7ms;-webkit-transition:opacity .3s ease-out 0s,height .3s ease-out .2s,margin-top .3s ease-out .2s,padding-top .3s ease-out .2s,padding-bottom .3s ease-out .2s;-moz-transition:opacity .3s ease-out 0s,height .3s ease-out .2s,margin-top .3s ease-out .2s,padding-top .3s ease-out .2s,padding-bottom .3s ease-out .2s;transition:opacity .3s ease-out 0s,height .3s ease-out .2s,margin-top .3s ease-out .2s,padding-top .3s ease-out .2s,padding-bottom .3s ease-out .2s}.p-download_item__icon_container{float:left;margin:1px 0 .5rem;position:relative}.p-download_item__action_icon{position:absolute;right:-8px;bottom:-2px;width:18px;height:18px;line-height:15px;border-radius:50%;background:#2d9ee0;box-shadow:0 0 0 3px #fff;color:#fff;opacity:0;-webkit-transform:translate3d(0,-6px,0);-moz-transform:translate3d(0,-6px,0);-ms-transform:translate3d(0,-6px,0);transform:translate3d(0,-6px,0);-webkit-transition:-webkit-transform .1s ease-out,opacity .1s ease-out;-moz-transition:-moz-transform .1s ease-out,opacity .1s ease-out;transition:transform .1s ease-out,opacity .1s ease-out}.p-download_item__action_icon--image{bottom:-10px}.p-download_item__action_icon:before{margin-left:-1px}.p-download_item__action_icon.snippet{background:#4d394b}.p-download_item__action_icon.post,.p-download_item__action_icon.space{background:#66c79e}.p-download_item__action_icon.doc,.p-download_item__action_icon.docx{background:#2c4098}.p-download_item__action_icon.xls,.p-download_item__action_icon.xlsm,.p-download_item__action_icon.xlsx,.p-download_item__action_icon.xltx{background:#377437}.p-download_item__action_icon.ppt,.p-download_item__action_icon.pptx{background:#e05a30}.p-download_item__action_icon.ai,.p-download_item__action_icon.sketch{background:#f4993c}.p-download_item__action_icon.psd{background:#56b6de}.p-download_item__action_icon.indd{background:#eb81ab}.p-download_item__action_icon.fla,.p-download_item__action_icon.swf{background:#a72428}.p-download_item__action_icon.ipa{background:#9ea0a7}.p-download_item__action_icon.apk{background:#a4ca3a}.p-download_item__action_icon.dropbox{background:#007ee5}.p-download_item__action_icon.gpres{background:#f4b400}.p-download_item__action_icon.gsheet{background:#0f9d58}.p-download_item__action_icon.gdoc{background:#4285f4}.p-download_item__action_icon.gdraw,.p-download_item__action_icon.gform,.p-download_item__action_icon.pdf{background:#db4437}.p-download_item__image{border:1px solid #a0a0a2;border-radius:.25rem}.p-download_item__container{margin-left:2.75rem;position:relative;z-index:1}.p-download_item__container>div{margin-bottom:.5rem}.p-download_item__container .p-download_item__name_row{line-height:normal;color:#5a5b5d;position:relative;padding-right:0;margin-bottom:0}.p-download_item__name_row:not(:empty){font-weight:700;padding-bottom:.5rem}.p-download_item__container .p-download_item__extra_actions{position:absolute;top:2px;right:0;display:-webkit-box;display:-webkit-flex;display:-moz-flex;display:-ms-flexbox;display:flex;opacity:1;pointer-events:auto}a.p-download_item__link--cancel,a.p-download_item__link--pause,a.p-download_item__link--resume{font-size:.8rem;margin-left:5px;color:#a0a0a2}.p-download_item__link--remove{position:absolute;top:50%;right:10px;z-index:2;opacity:0;-webkit-transform:translateY(-50%);-moz-transform:translateY(-50%);-ms-transform:translateY(-50%);transform:translateY(-50%);-webkit-transition:opacity .1s,color .1s ease-out .2s 1e-7ms;-moz-transition:opacity .1s,color .1s .2s ease-out 1e-7ms;transition:opacity .1s,color .1s ease-out .2s 1e-7ms;-webkit-transition:opacity .1s,color .1s;-moz-transition:opacity .1s,color .1s;transition:opacity .1s,color .1s}.p-download_item__link--remove:hover{color:#eb4d5c}.p-download_item__size_row{color:#a0a0a2;font-size:.8rem;position:relative;display:-webkit-box;display:-webkit-flex;display:-moz-flex;display:-ms-flexbox;display:flex}.p-download_item__size{margin-right:3px}.p-download_item__actions{display:inline-block;position:absolute;left:0;top:0;width:100%;background:#fff;opacity:0;-webkit-transform:translate3d(0,-50%,0);-moz-transform:translate3d(0,-50%,0);-ms-transform:translate3d(0,-50%,0);transform:translate3d(0,-50%,0);-webkit-transition:-webkit-transform .1s ease-out,opacity .1s ease-out;-moz-transition:-moz-transform .1s ease-out,opacity .1s ease-out;transition:transform .1s ease-out,opacity .1s ease-out}a.p-download_item__link--open,a.p-download_item__link--retry,a.p-download_item__link--show{opacity:1;display:none;position:static;font-weight:700;font-size:.9rem;color:#a0a0a2;top:0;left:.5rem;white-space:nowrap;pointer-events:none}.p-download_item__time_remaining{opacity:1;-ms-flex:none;-webkit-flex:none;flex:none;margin-left:auto;white-space:nowrap}.p-download_item__progress_row,.p-download_item__time_remaining{height:6px;border-width:0;border-radius:3px}.p-download_item__progress_row{opacity:1;background-color:#e8e8e8}.p-download_item__progress{background-color:#2d9ee0;width:0}.p-download_item:not(.progressing) .p-download_item__extra_actions,.p-download_item:not(.progressing) .p-download_item__time_remaining{opacity:0;pointer-events:none}.p-download_item:not(.progressing) .p-download_item__progress_row{display:none}.p-download_item.completed .p-download_item__link--show{opacity:1;pointer-events:auto;display:block}.p-download_item.completed .p-download_item__action_icon:before{content:"\\E146"}.p-download_item.cancelled .p-download_item__action_icon:before,.p-download_item.interrupted .p-download_item__action_icon:before{content:"\\E147";margin-top:1px}.p-download_item.cancelled .p-download_item__link--retry,.p-download_item.interrupted .p-download_item__link--retry{opacity:1;pointer-events:auto;display:block}.p-download_item.completed .p-download_item__partial_size{display:none}.p-download_item_highlighter{z-index:2!important;top:0!important;left:0!important;right:0!important;width:auto!important;box-sizing:content-box;padding-bottom:0!important;border-radius:4px}.p-download_item:last-of-type{margin-bottom:100px}.p-downloads_list--shift_down .p-download_item.completed .p-download_item__action_icon{border-radius:3px}.p-downloads_list--shift_down .p-download_item.completed .p-download_item__action_icon:before{content:"\\E311"}.p-downloads_list--shift_down .p-download_item.completed .p-download_item__link--show{display:none}.p-downloads_list--shift_down .p-download_item.completed .p-download_item__link--open{display:block}', ""]);
+  t = e.exports = n(56)(), t.push([e.i, '.p-download_item{min-height:68px;padding:.75rem .75rem .25rem;margin:0 1px 0 .25rem;position:relative;font-weight:400;font-size:1rem;border:1px solid transparent;border-radius:4px;opacity:.8;-webkit-transition:opacity border .1s ease-out .1s 1e-7ms;-moz-transition:opacity .1s border .1s ease-out 1e-7ms;transition:opacity border .1s ease-out .1s 1e-7ms}.p-download_item.progressing,.p-download_item:hover{opacity:1}.p-download_item:hover{border-color:#e8e8e8}.p-download_item:hover .p-download_item__name_row{padding-right:2rem}.p-download_item:hover .p-download_item__action_icon,.p-download_item:hover .p-download_item__actions{opacity:1;-webkit-transform:translateZ(0);-moz-transform:translateZ(0);-ms-transform:translateZ(0);transform:translateZ(0)}.p-download_item:hover .p-download_item__link--remove{opacity:1}.p-download_item.not_started .p-download_item__name_row,.p-download_item.progressing .p-download_item__name_row{padding-right:6rem}.p-download_item.not_started .p-download_item__action_icon,.p-download_item.not_started .p-download_item__link--remove,.p-download_item.progressing .p-download_item__action_icon,.p-download_item.progressing .p-download_item__link--remove{display:none}.p-download_item:not(.progressing){cursor:pointer}.p-download_item.hidden_with_fade_out_and_shrink{opacity:0;height:0!important;margin-top:0!important;padding-top:0!important;padding-bottom:0!important;overflow:hidden;-webkit-transition:opacity .3s ease-out 0s,height .3s ease-out .2s,margin-top .3s ease-out .2s,padding-top .3s ease-out .2s,padding-bottom .3s ease-out ease-out .2s .2s 1e-7ms;-moz-transition:opacity .3s ease-out 0s,height .3s ease-out .2s,margin-top .3s ease-out .2s,padding-top .3s ease-out .2s,padding-bottom .3s ease-out .2s .2s ease-out 1e-7ms;transition:opacity .3s ease-out 0s,height .3s ease-out .2s,margin-top .3s ease-out .2s,padding-top .3s ease-out .2s,padding-bottom .3s ease-out ease-out .2s .2s 1e-7ms;-webkit-transition:opacity .3s ease-out 0s,height .3s ease-out .2s,margin-top .3s ease-out .2s,padding-top .3s ease-out .2s,padding-bottom .3s ease-out .2s;-moz-transition:opacity .3s ease-out 0s,height .3s ease-out .2s,margin-top .3s ease-out .2s,padding-top .3s ease-out .2s,padding-bottom .3s ease-out .2s;transition:opacity .3s ease-out 0s,height .3s ease-out .2s,margin-top .3s ease-out .2s,padding-top .3s ease-out .2s,padding-bottom .3s ease-out .2s}.p-download_item__icon_container{float:left;margin:1px 0 .5rem;position:relative}.p-download_item__action_icon{position:absolute;right:-8px;bottom:-2px;width:18px;height:18px;line-height:15px;border-radius:50%;background:#2d9ee0;box-shadow:0 0 0 3px #fff;color:#fff;opacity:0;-webkit-transform:translate3d(0,-6px,0);-moz-transform:translate3d(0,-6px,0);-ms-transform:translate3d(0,-6px,0);transform:translate3d(0,-6px,0);-webkit-transition:-webkit-transform .1s ease-out,opacity .1s ease-out;-moz-transition:-moz-transform .1s ease-out,opacity .1s ease-out;transition:transform .1s ease-out,opacity .1s ease-out}.p-download_item__action_icon--image{bottom:-10px}.p-download_item__action_icon:before{margin-left:-1px}.p-download_item__action_icon.snippet{background:#4d394b}.p-download_item__action_icon.post,.p-download_item__action_icon.space{background:#66c79e}.p-download_item__action_icon.doc,.p-download_item__action_icon.docx{background:#2c4098}.p-download_item__action_icon.xls,.p-download_item__action_icon.xlsm,.p-download_item__action_icon.xlsx,.p-download_item__action_icon.xltx{background:#377437}.p-download_item__action_icon.ppt,.p-download_item__action_icon.pptx{background:#e05a30}.p-download_item__action_icon.ai,.p-download_item__action_icon.sketch{background:#f4993c}.p-download_item__action_icon.psd{background:#56b6de}.p-download_item__action_icon.indd{background:#eb81ab}.p-download_item__action_icon.fla,.p-download_item__action_icon.swf{background:#a72428}.p-download_item__action_icon.ipa{background:#9ea0a7}.p-download_item__action_icon.apk{background:#a4ca3a}.p-download_item__action_icon.dropbox{background:#007ee5}.p-download_item__action_icon.gpres{background:#f4b400}.p-download_item__action_icon.gsheet{background:#0f9d58}.p-download_item__action_icon.gdoc{background:#4285f4}.p-download_item__action_icon.gdraw,.p-download_item__action_icon.gform,.p-download_item__action_icon.pdf{background:#db4437}.p-download_item__image{border:1px solid #a0a0a2;border-radius:.25rem}.p-download_item__container{margin-left:2.75rem;position:relative;z-index:1}.p-download_item__container>div{margin-bottom:.5rem}.p-download_item__container .p-download_item__name_row{line-height:normal;color:#5a5b5d;position:relative;padding-right:0;margin-bottom:0}.p-download_item__name_row:not(:empty){font-weight:700;padding-bottom:.5rem}.p-download_item__container .p-download_item__extra_actions{position:absolute;top:2px;right:0;display:-webkit-box;display:-webkit-flex;display:-moz-flex;display:-ms-flexbox;display:flex;opacity:1;pointer-events:auto}a.p-download_item__link--cancel,a.p-download_item__link--pause,a.p-download_item__link--resume{font-size:.8rem;margin-left:5px;color:#a0a0a2}.p-download_item__link--remove{position:absolute;top:50%;right:10px;z-index:2;opacity:0;-webkit-transform:translateY(-50%);-moz-transform:translateY(-50%);-ms-transform:translateY(-50%);transform:translateY(-50%);-webkit-transition:opacity .1s,color .1s ease-out .2s 1e-7ms;-moz-transition:opacity .1s,color .1s .2s ease-out 1e-7ms;transition:opacity .1s,color .1s ease-out .2s 1e-7ms;-webkit-transition:opacity .1s,color .1s;-moz-transition:opacity .1s,color .1s;transition:opacity .1s,color .1s}.p-download_item__link--remove:hover{color:#eb4d5c}.p-download_item__size_row{color:#a0a0a2;font-size:.8rem;position:relative;display:-webkit-box;display:-webkit-flex;display:-moz-flex;display:-ms-flexbox;display:flex}.p-download_item__size{margin-right:3px}.p-download_item__actions{display:inline-block;position:absolute;left:0;top:0;width:100%;background:#fff;opacity:0;-webkit-transform:translate3d(0,-50%,0);-moz-transform:translate3d(0,-50%,0);-ms-transform:translate3d(0,-50%,0);transform:translate3d(0,-50%,0);-webkit-transition:-webkit-transform .1s ease-out,opacity .1s ease-out;-moz-transition:-moz-transform .1s ease-out,opacity .1s ease-out;transition:transform .1s ease-out,opacity .1s ease-out}a.p-download_item__link--open,a.p-download_item__link--retry,a.p-download_item__link--show{opacity:1;display:none;position:static;font-weight:700;font-size:.9rem;color:#a0a0a2;top:0;left:.5rem;white-space:nowrap;pointer-events:none}.p-download_item__time_remaining{opacity:1;-ms-flex:none;-webkit-flex:none;flex:none;margin-left:auto;white-space:nowrap}.p-download_item__progress_row,.p-download_item__time_remaining{height:6px;border-width:0;border-radius:3px}.p-download_item__progress_row{opacity:1;background-color:#e8e8e8}.p-download_item__progress{background-color:#2d9ee0;width:0}.p-download_item:not(.progressing) .p-download_item__extra_actions,.p-download_item:not(.progressing) .p-download_item__time_remaining{opacity:0;pointer-events:none}.p-download_item:not(.progressing) .p-download_item__progress_row{display:none}.p-download_item.completed .p-download_item__link--show{opacity:1;pointer-events:auto;display:block}.p-download_item.completed .p-download_item__action_icon:before{content:"\\E146"}.p-download_item.cancelled .p-download_item__action_icon:before,.p-download_item.interrupted .p-download_item__action_icon:before{content:"\\E147";margin-top:1px}.p-download_item.cancelled .p-download_item__link--retry,.p-download_item.interrupted .p-download_item__link--retry{opacity:1;pointer-events:auto;display:block}.p-download_item.completed .p-download_item__partial_size{display:none}.p-download_item_highlighter{z-index:2!important;top:0!important;left:0!important;right:0!important;width:auto!important;box-sizing:content-box;padding-bottom:0!important;border-radius:4px}.p-download_item:last-of-type{margin-bottom:100px}.p-downloads_list--shift_down .p-download_item.completed .p-download_item__action_icon{border-radius:3px}.p-downloads_list--shift_down .p-download_item.completed .p-download_item__action_icon:before{content:"\\E311"}.p-downloads_list--shift_down .p-download_item.completed .p-download_item__link--show{display:none}.p-downloads_list--shift_down .p-download_item.completed .p-download_item__link--open{display:block}', ""]);
 }, function(e, t, n) {
-  t = e.exports = n(55)(), t.push([e.i, ".p-downloads_list{font-family:Slack-Lato,appleLogo,sans-serif;font-weight:400;-webkit-font-smoothing:antialiased;outline:none;position:relative}.p-downloads_list__heading{padding:1rem;margin-bottom:.25rem}.p-downloads_list__heading_row{-ms-flex-align:center;-webkit-align-items:center;-webkit-box-align:center;-moz-align-items:center;align-items:center}.p-downloads_list__clear_all{padding-right:1rem;padding-left:.5rem;margin-right:1rem;font-size:1rem;border-right:1px solid #cfcfcf}.p-downloads_list__flex_close{height:1.5rem;padding-top:.1rem}.p-downloads_list__empty{padding:8rem 4rem;font-size:1rem;line-height:1.5rem;text-align:center}.p-downloads_list__empty_hint_text{max-width:12rem;margin:1rem auto}.p-downloads_list__empty_download_icon{vertical-align:middle;margin:0 .25rem}.p-downloads_list__shift_hint{display:block;position:absolute;height:100px;bottom:0;left:0;right:1rem;text-align:center;line-height:100px;color:#717274;font-size:.9rem;background:linear-gradient(180deg,hsla(0,0%,100%,0),#fff 25%,#fff);z-index:5}.p-downloads_list__keyboard_key{display:inline-block;border:1px solid #e8e8e8;line-height:1rem;padding:.2rem .4rem;margin:0 .2rem;font-weight:700;font-size:.8rem;border-bottom-width:2px;border-radius:4px}", ""]);
+  t = e.exports = n(56)(), t.push([e.i, ".p-downloads_list{font-family:Slack-Lato,appleLogo,sans-serif;font-weight:400;-webkit-font-smoothing:antialiased;outline:none;position:relative}.p-downloads_list__heading{padding:1rem;margin-bottom:.25rem}.p-downloads_list__heading_row{-ms-flex-align:center;-webkit-align-items:center;-webkit-box-align:center;-moz-align-items:center;align-items:center}.p-downloads_list__clear_all{padding-right:1rem;padding-left:.5rem;margin-right:1rem;font-size:1rem;border-right:1px solid #cfcfcf}.p-downloads_list__flex_close{height:1.5rem;padding-top:.1rem}.p-downloads_list__empty{padding:8rem 4rem;font-size:1rem;line-height:1.5rem;text-align:center}.p-downloads_list__empty_hint_text{max-width:12rem;margin:1rem auto}.p-downloads_list__empty_download_icon{vertical-align:middle;margin:0 .25rem}.p-downloads_list__shift_hint{display:block;position:absolute;height:100px;bottom:0;left:0;right:1rem;text-align:center;line-height:100px;color:#717274;font-size:.9rem;background:linear-gradient(180deg,hsla(0,0%,100%,0),#fff 25%,#fff);z-index:5}.p-downloads_list__keyboard_key{display:inline-block;border:1px solid #e8e8e8;line-height:1rem;padding:.2rem .4rem;margin:0 .2rem;font-weight:700;font-size:.8rem;border-bottom-width:2px;border-radius:4px}", ""]);
 }, function(e, t, n) {
   "use strict";
   Object.defineProperty(t, "__esModule", {
@@ -91117,7 +91268,7 @@ var _getMetaFieldForId = function(id, key) {
   function r(e) {
     return o(e.replace(i, "ms-"));
   }
-  var o = n(464),
+  var o = n(467),
     i = /^-ms-/;
   e.exports = r;
 }, function(e, t, n) {
@@ -91126,7 +91277,7 @@ var _getMetaFieldForId = function(id, key) {
   function r(e, t) {
     return !(!e || !t) && (e === t || !o(e) && (o(t) ? r(e, t.parentNode) : "contains" in e ? e.contains(t) : !!e.compareDocumentPosition && !!(16 & e.compareDocumentPosition(t))));
   }
-  var o = n(474);
+  var o = n(477);
   e.exports = r;
 }, function(e, t, n) {
   "use strict";
@@ -91171,9 +91322,9 @@ var _getMetaFieldForId = function(id, key) {
     for (var f = Array.from(n.childNodes); n.lastChild;) n.removeChild(n.lastChild);
     return f;
   }
-  var i = n(16),
-    a = n(467),
-    s = n(469),
+  var i = n(17),
+    a = n(470),
+    s = n(472),
     u = n(2),
     l = i.canUseDOM ? document.createElement("div") : null,
     c = /^\s*<(\w+)/;
@@ -91184,7 +91335,7 @@ var _getMetaFieldForId = function(id, key) {
   function r(e) {
     return a || i(!1), f.hasOwnProperty(e) || (e = "*"), s.hasOwnProperty(e) || (a.innerHTML = "*" === e ? "<link />" : "<" + e + "></" + e + ">", s[e] = !a.firstChild), s[e] ? f[e] : null;
   }
-  var o = n(16),
+  var o = n(17),
     i = n(2),
     a = o.canUseDOM ? document.createElement("div") : null,
     s = {},
@@ -91239,7 +91390,7 @@ var _getMetaFieldForId = function(id, key) {
   function r(e) {
     return o(e).replace(i, "-ms-");
   }
-  var o = n(471),
+  var o = n(474),
     i = /^ms-/;
   e.exports = r;
 }, function(e, t, n) {
@@ -91255,7 +91406,7 @@ var _getMetaFieldForId = function(id, key) {
   function r(e) {
     return o(e) && 3 == e.nodeType;
   }
-  var o = n(473);
+  var o = n(476);
   e.exports = r;
 }, function(e, t, n) {
   "use strict";
@@ -91323,8 +91474,8 @@ var _getMetaFieldForId = function(id, key) {
     return null == e ? void 0 === e ? u : s : l && l in Object(e) ? n.i(i.a)(e) : n.i(a.a)(e);
   }
   var o = n(170),
-    i = n(481),
-    a = n(482),
+    i = n(484),
+    a = n(485),
     s = "[object Null]",
     u = "[object Undefined]",
     l = o.a ? o.a.toStringTag : void 0;
@@ -91334,10 +91485,10 @@ var _getMetaFieldForId = function(id, key) {
   (function(e) {
     var n = "object" == typeof e && e && e.Object === Object && e;
     t.a = n;
-  }).call(t, n(62));
+  }).call(t, n(63));
 }, function(e, t, n) {
   "use strict";
-  var r = n(483),
+  var r = n(486),
     o = n.i(r.a)(Object.getPrototypeOf, Object);
   t.a = o;
 }, function(e, t, n) {
@@ -91378,7 +91529,7 @@ var _getMetaFieldForId = function(id, key) {
   t.a = r;
 }, function(e, t, n) {
   "use strict";
-  var r = n(479),
+  var r = n(482),
     o = "object" == typeof self && self && self.Object === Object && self,
     i = r.a || o || Function("return this")();
   t.a = i;
@@ -91833,7 +91984,7 @@ var _getMetaFieldForId = function(id, key) {
         return null == e ? {} : (t = i(z(t, 1), te), G(e, N(V(e), t)));
       });
     e.exports = Je;
-  }).call(t, n(62));
+  }).call(t, n(63));
 }, function(e, t, n) {
   (function(e, n) {
     function r(e, t, n, r) {
@@ -92566,7 +92717,7 @@ var _getMetaFieldForId = function(id, key) {
         };
       }(gt) : K;
     n.exports = ge;
-  }).call(t, n(62), n(82)(e));
+  }).call(t, n(63), n(82)(e));
 }, function(e, t, n) {
   function r(e) {
     return n(o(e));
@@ -92616,10 +92767,10 @@ var _getMetaFieldForId = function(id, key) {
     "./cy.js": 189,
     "./da": 190,
     "./da.js": 190,
-    "./de": 112,
+    "./de": 113,
     "./de-at": 191,
     "./de-at.js": 191,
-    "./de.js": 112,
+    "./de.js": 113,
     "./dv": 192,
     "./dv.js": 192,
     "./el": 193,
@@ -92636,10 +92787,10 @@ var _getMetaFieldForId = function(id, key) {
     "./en-nz.js": 198,
     "./eo": 199,
     "./eo.js": 199,
-    "./es": 113,
+    "./es": 114,
     "./es-do": 200,
     "./es-do.js": 200,
-    "./es.js": 113,
+    "./es.js": 114,
     "./et": 201,
     "./et.js": 201,
     "./eu": 202,
@@ -92650,12 +92801,12 @@ var _getMetaFieldForId = function(id, key) {
     "./fi.js": 204,
     "./fo": 205,
     "./fo.js": 205,
-    "./fr": 114,
+    "./fr": 115,
     "./fr-ca": 206,
     "./fr-ca.js": 206,
     "./fr-ch": 207,
     "./fr-ch.js": 207,
-    "./fr.js": 114,
+    "./fr.js": 115,
     "./fy": 208,
     "./fy.js": 208,
     "./gd": 209,
@@ -92678,8 +92829,8 @@ var _getMetaFieldForId = function(id, key) {
     "./is.js": 217,
     "./it": 218,
     "./it.js": 218,
-    "./ja": 115,
-    "./ja.js": 115,
+    "./ja": 116,
+    "./ja.js": 116,
     "./jv": 219,
     "./jv.js": 219,
     "./ka": 220,
@@ -92797,7 +92948,7 @@ var _getMetaFieldForId = function(id, key) {
   };
   r.keys = function() {
     return Object.keys(i);
-  }, r.resolve = o, e.exports = r, r.id = 489;
+  }, r.resolve = o, e.exports = r, r.id = 492;
 }, function(e, t, n) {
   var r;
   ! function(o, i, a) {
@@ -93222,11 +93373,11 @@ var _getMetaFieldForId = function(id, key) {
     var i = m.getPooled(T.beforeInput, t, n, r);
     return i.data = o, f.accumulateTwoPhaseDispatches(i), i;
   }
-  var f = n(58),
-    p = n(16),
-    h = n(499),
-    _ = n(536),
-    m = n(539),
+  var f = n(59),
+    p = n(17),
+    h = n(502),
+    _ = n(539),
+    m = n(542),
     y = [9, 13, 27, 32],
     v = 229,
     g = p.canUseDOM && "CompositionEvent" in window,
@@ -93281,10 +93432,10 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   "use strict";
   var r = n(277),
-    o = n(16),
-    i = (n(21), n(465), n(545)),
-    a = n(472),
-    s = n(475),
+    o = n(17),
+    i = (n(21), n(468), n(548)),
+    a = n(475),
+    s = n(478),
     u = (n(4), s(function(e) {
       return a(e);
     })),
@@ -93359,8 +93510,7 @@ var _getMetaFieldForId = function(id, key) {
   }
 
   function c(e, t) {
-    x = e, D = t, C = e.value, P = Object.getOwnPropertyDescriptor(e.constructor.prototype, "value"),
-      Object.defineProperty(x, "value", O), x.attachEvent ? x.attachEvent("onpropertychange", f) : x.addEventListener("propertychange", f, !1);
+    x = e, D = t, C = e.value, P = Object.getOwnPropertyDescriptor(e.constructor.prototype, "value"), Object.defineProperty(x, "value", O), x.attachEvent ? x.attachEvent("onpropertychange", f) : x.addEventListener("propertychange", f, !1);
   }
 
   function d() {
@@ -93393,14 +93543,14 @@ var _getMetaFieldForId = function(id, key) {
   function y(e, t) {
     if ("topClick" === e) return t;
   }
-  var v = n(57),
-    g = n(58),
-    b = n(16),
+  var v = n(58),
+    g = n(59),
+    b = n(17),
     M = n(10),
     w = n(22),
     k = n(26),
-    L = n(128),
-    T = n(129),
+    L = n(129),
+    T = n(130),
     S = n(294),
     Y = {
       change: {
@@ -93446,8 +93596,8 @@ var _getMetaFieldForId = function(id, key) {
   "use strict";
   var r = n(5),
     o = n(47),
-    i = n(16),
-    a = n(468),
+    i = n(17),
+    a = n(471),
     s = n(20),
     u = (n(2), {
       dangerouslyReplaceNodeWithMarkup: function(e, t) {
@@ -93464,7 +93614,7 @@ var _getMetaFieldForId = function(id, key) {
   e.exports = r;
 }, function(e, t, n) {
   "use strict";
-  var r = n(58),
+  var r = n(59),
     o = n(10),
     i = n(75),
     a = {
@@ -93511,7 +93661,7 @@ var _getMetaFieldForId = function(id, key) {
     this._root = e, this._startText = this.getText(), this._fallbackText = null;
   }
   var o = n(6),
-    i = n(38),
+    i = n(39),
     a = n(292);
   o(r.prototype, {
     destructor: function() {
@@ -93708,7 +93858,7 @@ var _getMetaFieldForId = function(id, key) {
     }
     var o = n(49),
       i = n(293),
-      a = (n(120), n(130)),
+      a = (n(121), n(131)),
       s = n(296);
     n(4), void 0 !== t && n.i({
       NODE_ENV: "production"
@@ -93751,8 +93901,8 @@ var _getMetaFieldForId = function(id, key) {
   }).call(t, n(276));
 }, function(e, t, n) {
   "use strict";
-  var r = n(116),
-    o = n(509),
+  var r = n(117),
+    o = n(512),
     i = {
       processChildrenUpdates: o.dangerouslyProcessChildrenUpdates,
       replaceNodeWithMarkup: r.dangerouslyReplaceNodeWithMarkup
@@ -93773,15 +93923,15 @@ var _getMetaFieldForId = function(id, key) {
   var a = n(5),
     s = n(6),
     u = n(50),
-    l = n(122),
+    l = n(123),
     c = n(27),
-    d = n(123),
-    f = n(59),
+    d = n(124),
+    f = n(60),
     p = (n(21), n(287)),
     h = n(49),
-    _ = n(56),
-    m = (n(2), n(108)),
-    y = n(130),
+    _ = n(57),
+    m = (n(2), n(109)),
+    y = n(131),
     v = (n(4), {
       ImpureClass: 0,
       PureClass: 1,
@@ -93964,14 +94114,14 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   "use strict";
   var r = n(10),
-    o = n(517),
+    o = n(520),
     i = n(286),
     a = n(49),
     s = n(22),
-    u = n(530),
-    l = n(546),
+    u = n(533),
+    l = n(549),
     c = n(291),
-    d = n(554);
+    d = n(557);
   n(4), o.inject();
   var f = {
     findDOMNode: l,
@@ -94090,25 +94240,25 @@ var _getMetaFieldForId = function(id, key) {
   }
   var _ = n(5),
     m = n(6),
-    y = n(492),
-    v = n(494),
+    y = n(495),
+    v = n(497),
     g = n(47),
-    b = n(117),
+    b = n(118),
     M = n(48),
     w = n(279),
-    k = n(57),
-    L = n(118),
+    k = n(58),
+    L = n(119),
     T = n(74),
     S = n(280),
     Y = n(10),
-    x = n(510),
-    D = n(511),
+    x = n(513),
+    D = n(514),
     C = n(281),
-    P = n(514),
-    E = (n(21), n(523)),
-    j = n(528),
+    P = n(517),
+    E = (n(21), n(526)),
+    j = n(531),
     O = (n(20), n(77)),
-    R = (n(2), n(129), n(108), n(131), n(4), S),
+    R = (n(2), n(130), n(109), n(132), n(4), S),
     I = k.deleteListener,
     A = Y.getNodeFromInstance,
     H = T.listenTo,
@@ -94395,7 +94545,7 @@ var _getMetaFieldForId = function(id, key) {
       _namespaceURI: t ? t.namespaceURI : null
     };
   }
-  var o = (n(131), 9);
+  var o = (n(132), 9);
   e.exports = r;
 }, function(e, t, n) {
   "use strict";
@@ -94434,7 +94584,7 @@ var _getMetaFieldForId = function(id, key) {
   e.exports = r;
 }, function(e, t, n) {
   "use strict";
-  var r = n(116),
+  var r = n(117),
     o = n(10),
     i = {
       dangerouslyProcessChildrenUpdates: function(e, t) {
@@ -94470,7 +94620,7 @@ var _getMetaFieldForId = function(id, key) {
   var i = n(5),
     a = n(6),
     s = n(279),
-    u = n(121),
+    u = n(122),
     l = n(10),
     c = n(22),
     d = (n(2), n(4), {
@@ -94657,8 +94807,8 @@ var _getMetaFieldForId = function(id, key) {
       }
     }
   }
-  var u = n(16),
-    l = n(551),
+  var u = n(17),
+    l = n(554),
     c = n(292),
     d = u.canUseDOM && "selection" in document && !("getSelection" in window),
     f = {
@@ -94670,11 +94820,11 @@ var _getMetaFieldForId = function(id, key) {
   "use strict";
   var r = n(5),
     o = n(6),
-    i = n(116),
+    i = n(117),
     a = n(47),
     s = n(10),
     u = n(77),
-    l = (n(2), n(131), function(e) {
+    l = (n(2), n(132), function(e) {
       this._currentElement = e, this._stringText = "" + e, this._hostNode = null, this._hostParent = null, this._domID = 0, this._mountIndex = 0, this._closingComment = null, this._commentNodes = null;
     });
   o(l.prototype, {
@@ -94733,7 +94883,7 @@ var _getMetaFieldForId = function(id, key) {
   }
   var i = n(5),
     a = n(6),
-    s = n(121),
+    s = n(122),
     u = n(10),
     l = n(22),
     c = (n(2), n(4), {
@@ -94876,25 +95026,25 @@ var _getMetaFieldForId = function(id, key) {
       return new p(e);
     }), v.Updates.injectReconcileTransaction(g), v.Updates.injectBatchingStrategy(m), v.Component.injectEnvironment(c));
   }
-  var o = n(491),
-    i = n(493),
-    a = n(495),
-    s = n(497),
-    u = n(498),
-    l = n(500),
-    c = n(502),
-    d = n(505),
+  var o = n(494),
+    i = n(496),
+    a = n(498),
+    s = n(500),
+    u = n(501),
+    l = n(503),
+    c = n(505),
+    d = n(508),
     f = n(10),
-    p = n(507),
-    h = n(515),
-    _ = n(513),
-    m = n(516),
-    y = n(520),
-    v = n(521),
-    g = n(526),
-    b = n(531),
-    M = n(532),
-    w = n(533),
+    p = n(510),
+    h = n(518),
+    _ = n(516),
+    m = n(519),
+    y = n(523),
+    v = n(524),
+    g = n(529),
+    b = n(534),
+    M = n(535),
+    w = n(536),
     k = !1;
   e.exports = {
     inject: r
@@ -94909,7 +95059,7 @@ var _getMetaFieldForId = function(id, key) {
   function r(e) {
     o.enqueueEvents(e), o.processEventQueue(!1);
   }
-  var o = n(57),
+  var o = n(58),
     i = {
       handleTopLevel: function(e, t, n, i) {
         r(o.extractEvents(e, t, n, i));
@@ -94945,12 +95095,12 @@ var _getMetaFieldForId = function(id, key) {
   }
   var s = n(6),
     u = n(167),
-    l = n(16),
-    c = n(38),
+    l = n(17),
+    c = n(39),
     d = n(10),
     f = n(22),
-    p = n(128),
-    h = n(470);
+    p = n(129),
+    h = n(473);
   s(o.prototype, {
     destructor: function() {
       this.topLevelType = null, this.nativeEvent = null, this.ancestors.length = 0;
@@ -94994,9 +95144,9 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   "use strict";
   var r = n(48),
-    o = n(57),
-    i = n(119),
-    a = n(122),
+    o = n(58),
+    i = n(120),
+    a = n(123),
     s = n(282),
     u = n(74),
     l = n(284),
@@ -95014,7 +95164,7 @@ var _getMetaFieldForId = function(id, key) {
   e.exports = d;
 }, function(e, t, n) {
   "use strict";
-  var r = n(544),
+  var r = n(547),
     o = /^<\!\-\-/,
     i = {
       CHECKSUM_ATTR_NAME: "data-react-checksum",
@@ -95094,10 +95244,10 @@ var _getMetaFieldForId = function(id, key) {
     d.processChildrenUpdates(e, t);
   }
   var c = n(5),
-    d = n(122),
-    f = (n(59), n(21), n(27), n(49)),
-    p = n(501),
-    h = (n(20), n(547)),
+    d = n(123),
+    f = (n(60), n(21), n(27), n(49)),
+    p = n(504),
+    h = (n(20), n(550)),
     _ = (n(2), {
       Mixin: {
         _reconcilerInstantiateChildren: function(e, t, n) {
@@ -95208,11 +95358,11 @@ var _getMetaFieldForId = function(id, key) {
   }
   var o = n(6),
     i = n(278),
-    a = n(38),
+    a = n(39),
     s = n(74),
     u = n(285),
     l = (n(21), n(76)),
-    c = n(124),
+    c = n(125),
     d = {
       initialize: u.getSelectionInformation,
       close: u.restoreSelection
@@ -95266,7 +95416,7 @@ var _getMetaFieldForId = function(id, key) {
   function o(e, t, n) {
     "function" == typeof e ? e(null) : i.removeComponentAsRefFrom(t, e, n);
   }
-  var i = n(524),
+  var i = n(527),
     a = {};
   a.attachRefs = function(e, t) {
     if (null !== t && "object" == typeof t) {
@@ -95293,9 +95443,9 @@ var _getMetaFieldForId = function(id, key) {
     this.reinitializeTransaction(), this.renderToStaticMarkup = e, this.useCreateElement = !1, this.updateQueue = new s(this);
   }
   var o = n(6),
-    i = n(38),
+    i = n(39),
     a = n(76),
-    s = (n(21), n(529)),
+    s = (n(21), n(532)),
     u = [],
     l = {
       enqueue: function() {}
@@ -95321,7 +95471,7 @@ var _getMetaFieldForId = function(id, key) {
   function r(e, t) {
     if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
   }
-  var o = n(124),
+  var o = n(125),
     i = (n(4), function() {
       function e(t) {
         r(this, e), this.transaction = t;
@@ -95646,14 +95796,14 @@ var _getMetaFieldForId = function(id, key) {
     }
     return null;
   }
-  var i = n(58),
-    a = n(16),
+  var i = n(59),
+    a = n(17),
     s = n(10),
     u = n(285),
     l = n(26),
     c = n(169),
     d = n(294),
-    f = n(108),
+    f = n(109),
     p = a.canUseDOM && "documentMode" in document && document.documentMode <= 11,
     h = {
       select: {
@@ -95712,21 +95862,21 @@ var _getMetaFieldForId = function(id, key) {
   }
   var i = n(5),
     a = n(167),
-    s = n(58),
+    s = n(59),
     u = n(10),
-    l = n(534),
-    c = n(535),
+    l = n(537),
+    c = n(538),
     d = n(26),
-    f = n(538),
-    p = n(540),
+    f = n(541),
+    p = n(543),
     h = n(75),
-    _ = n(537),
-    m = n(541),
-    y = n(542),
-    v = n(60),
-    g = n(543),
+    _ = n(540),
+    m = n(544),
+    y = n(545),
+    v = n(61),
+    g = n(546),
     b = n(20),
-    M = n(126),
+    M = n(127),
     w = (n(2), {}),
     k = {};
   ["abort", "animationEnd", "animationIteration", "animationStart", "blur", "canPlay", "canPlayThrough", "click", "contextMenu", "copy", "cut", "doubleClick", "drag", "dragEnd", "dragEnter", "dragExit", "dragLeave", "dragOver", "dragStart", "drop", "durationChange", "emptied", "encrypted", "ended", "error", "focus", "input", "invalid", "keyDown", "keyPress", "keyUp", "load", "loadedData", "loadedMetadata", "loadStart", "mouseDown", "mouseMove", "mouseOut", "mouseOver", "mouseUp", "paste", "pause", "play", "playing", "progress", "rateChange", "reset", "scroll", "seeked", "seeking", "stalled", "submit", "suspend", "timeUpdate", "touchCancel", "touchEnd", "touchMove", "touchStart", "transitionEnd", "volumeChange", "waiting", "wheel"].forEach(function(e) {
@@ -95909,7 +96059,7 @@ var _getMetaFieldForId = function(id, key) {
   function r(e, t, n, r) {
     return o.call(this, e, t, n, r);
   }
-  var o = n(60),
+  var o = n(61),
     i = {
       relatedTarget: null
     };
@@ -95931,10 +96081,10 @@ var _getMetaFieldForId = function(id, key) {
   function r(e, t, n, r) {
     return o.call(this, e, t, n, r);
   }
-  var o = n(60),
-    i = n(126),
-    a = n(548),
-    s = n(127),
+  var o = n(61),
+    i = n(127),
+    a = n(551),
+    s = n(128),
     u = {
       key: a,
       location: null,
@@ -95962,8 +96112,8 @@ var _getMetaFieldForId = function(id, key) {
   function r(e, t, n, r) {
     return o.call(this, e, t, n, r);
   }
-  var o = n(60),
-    i = n(127),
+  var o = n(61),
+    i = n(128),
     a = {
       touches: null,
       targetTouches: null,
@@ -96040,7 +96190,7 @@ var _getMetaFieldForId = function(id, key) {
   }
   var o = n(5),
     i = (n(27), n(10)),
-    a = n(59),
+    a = n(60),
     s = n(291);
   n(2), n(4), e.exports = r;
 }, function(e, t, n) {
@@ -96058,7 +96208,7 @@ var _getMetaFieldForId = function(id, key) {
       var n = {};
       return i(e, r, n), n;
     }
-    var i = (n(120), n(296));
+    var i = (n(121), n(296));
     n(4), void 0 !== t && n.i({
       NODE_ENV: "production"
     }), e.exports = o;
@@ -96077,7 +96227,7 @@ var _getMetaFieldForId = function(id, key) {
     }
     return "keydown" === e.type || "keyup" === e.type ? a[e.keyCode] || "Unidentified" : "";
   }
-  var o = n(126),
+  var o = n(127),
     i = {
       Esc: "Escape",
       Spacebar: " ",
@@ -96193,7 +96343,7 @@ var _getMetaFieldForId = function(id, key) {
       if (t.hasOwnProperty(n) && n in u) return s[e] = t[n];
     return "";
   }
-  var i = n(16),
+  var i = n(17),
     a = {
       animationend: r("Animation", "AnimationEnd"),
       animationiteration: r("Animation", "AnimationIteration"),
@@ -96221,10 +96371,10 @@ var _getMetaFieldForId = function(id, key) {
   }
   var o = n(1),
     i = n(18),
-    a = n(463),
-    s = o.createFactory(n(556)),
-    u = n(557),
-    l = n(462),
+    a = n(466),
+    s = o.createFactory(n(559)),
+    u = n(560),
+    l = n(465),
     c = n(18).unstable_renderSubtreeIntoContainer,
     d = n(171),
     f = a.canUseDOM ? window.HTMLElement : {},
@@ -96315,8 +96465,8 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   var r = n(1),
     o = r.DOM.div,
-    i = n(558),
-    a = n(559),
+    i = n(561),
+    a = n(562),
     s = n(171),
     u = {
       overlay: {
@@ -96518,7 +96668,7 @@ var _getMetaFieldForId = function(id, key) {
     n[t.shiftKey ? 0 : n.length - 1] !== document.activeElement && e !== document.activeElement || (t.preventDefault(), n[t.shiftKey ? n.length - 1 : 0].focus());
   };
 }, function(e, t, n) {
-  e.exports = n(555);
+  e.exports = n(558);
 }, function(e, t, n) {
   "use strict";
 
@@ -96544,7 +96694,7 @@ var _getMetaFieldForId = function(id, key) {
   }
   var a = n(1),
     s = (n.n(a), n(300));
-  n(132), n.d(t, "a", function() {
+  n(133), n.d(t, "a", function() {
     return u;
   });
   var u = function(e) {
@@ -96592,11 +96742,11 @@ var _getMetaFieldForId = function(id, key) {
     return e === t;
   }
   var a = n(298),
-    s = n(569),
-    u = n(563),
-    l = n(564),
-    c = n(565),
-    d = n(566),
+    s = n(572),
+    u = n(566),
+    l = n(567),
+    c = n(568),
+    d = n(569),
     f = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
@@ -96786,10 +96936,10 @@ var _getMetaFieldForId = function(id, key) {
       d = s(e, u);
     return (u.pure ? i : o)(l, c, d, e, u);
   }
-  n(567), t.a = a;
+  n(570), t.a = a;
 }, function(e, t, n) {
   "use strict";
-  n(132);
+  n(133);
 }, function(e, t, n) {
   "use strict";
 
@@ -96859,7 +97009,7 @@ var _getMetaFieldForId = function(id, key) {
   t.a = o;
   var i = Object.prototype.hasOwnProperty;
 }, function(e, t, n) {
-  var r = n(571);
+  var r = n(574);
   e.exports = r;
 }, function(e, t, n) {
   "use strict";
@@ -96868,10 +97018,10 @@ var _getMetaFieldForId = function(id, key) {
     } : function(e) {
       return e && "function" == typeof Symbol && e.constructor === Symbol ? "symbol" : typeof e;
     },
-    o = n(487),
-    i = n(486),
-    a = n(573),
-    s = n(572),
+    o = n(490),
+    i = n(489),
+    a = n(576),
+    s = n(575),
     u = function(e) {
       return function t(n) {
         var u = arguments.length <= 1 || void 0 === arguments[1] ? e : arguments[1],
@@ -96916,7 +97066,7 @@ var _getMetaFieldForId = function(id, key) {
     }
     return Array.from(e);
   }
-  var o = n(488),
+  var o = n(491),
     i = function(e) {
       return e % 2 == 0;
     };
@@ -97118,7 +97268,7 @@ var _getMetaFieldForId = function(id, key) {
   }();
 }, function(e, t, n) {
   "use strict";
-  n(304), n(576);
+  n(304), n(579);
 }, function(e, t, n) {
   "use strict";
   var r = n(28),
@@ -97137,7 +97287,7 @@ var _getMetaFieldForId = function(id, key) {
     m = n.n(_),
     y = n(9),
     v = n.n(y),
-    g = n(134),
+    g = n(135),
     b = n(166),
     M = n.n(b),
     w = {
@@ -97462,13 +97612,13 @@ var _getMetaFieldForId = function(id, key) {
   t.a = s;
 }, function(e, t, n) {
   "use strict";
-  var r = n(139),
+  var r = n(140),
     o = n.n(r),
     i = n(7),
     a = n.n(i),
     s = n(8),
     u = n.n(s),
-    l = n(579),
+    l = n(582),
     c = 100,
     d = function() {
       function e() {
@@ -97568,7 +97718,7 @@ var _getMetaFieldForId = function(id, key) {
       width: u
     };
   }
-  var o = n(580);
+  var o = n(583);
   t.a = r;
 }, function(e, t, n) {
   "use strict";
@@ -97774,13 +97924,13 @@ var _getMetaFieldForId = function(id, key) {
   t.a = s;
 }, function(e, t, n) {
   "use strict";
-  var r = n(63),
+  var r = n(64),
     o = n.n(r),
     i = n(7),
     a = n.n(i),
     s = n(8),
     u = n.n(s),
-    l = n(585),
+    l = n(588),
     c = 15e5,
     d = function() {
       function e(t) {
@@ -97982,7 +98132,7 @@ var _getMetaFieldForId = function(id, key) {
     a = n.n(i),
     s = n(8),
     u = n.n(s),
-    l = n(602),
+    l = n(605),
     c = function() {
       function e() {
         a()(this, e), this._columnSizeMap = {}, this._intervalTree = n.i(l.a)(), this._leftMap = {};
@@ -98044,7 +98194,7 @@ var _getMetaFieldForId = function(id, key) {
   t.a = c;
 }, function(e, t, n) {}, function(e, t, n) {
   "use strict";
-  n(312), n(592);
+  n(312), n(595);
 }, function(e, t, n) {
   "use strict";
   n(313);
@@ -98053,7 +98203,7 @@ var _getMetaFieldForId = function(id, key) {
   n(314);
 }, function(e, t, n) {
   "use strict";
-  n(317), n(318), n(319), n(321), n(320), n(322), n(315), n(133), n(316);
+  n(317), n(318), n(319), n(321), n(320), n(322), n(315), n(134), n(316);
 }, function(e, t, n) {
   "use strict";
   n(323), n(324);
@@ -98406,7 +98556,7 @@ var _getMetaFieldForId = function(id, key) {
   function m(e) {
     return new _(e && 0 !== e.length ? h(e) : null);
   }
-  var y = n(600);
+  var y = n(603);
   t.a = m;
   var v = 0,
     g = 1,
@@ -98646,10 +98796,10 @@ var _getMetaFieldForId = function(id, key) {
     var t = [];
     return l(e, t, null, m.thatReturnsArgument), t;
   }
-  var h = n(604),
+  var h = n(607),
     _ = n(51),
     m = n(20),
-    y = n(613),
+    y = n(616),
     v = h.twoArgumentPooler,
     g = h.fourArgumentPooler,
     b = /\/+/g;
@@ -98752,10 +98902,10 @@ var _getMetaFieldForId = function(id, key) {
   }
   var f = n(52),
     p = n(6),
-    h = n(135),
+    h = n(136),
     _ = n(51),
-    m = (n(328), n(136)),
-    y = n(56),
+    m = (n(328), n(137)),
+    y = n(57),
     v = (n(2), n(4), "mixins"),
     g = [],
     b = {
@@ -99128,7 +99278,7 @@ var _getMetaFieldForId = function(id, key) {
   }
   var v = n(51),
     g = n(328),
-    b = n(609),
+    b = n(612),
     M = n(20),
     w = n(330),
     k = (n(4), "<<anonymous>>"),
@@ -99176,9 +99326,9 @@ var _getMetaFieldForId = function(id, key) {
 
   function o() {}
   var i = n(6),
-    a = n(135),
-    s = n(136),
-    u = n(56);
+    a = n(136),
+    s = n(137),
+    u = n(57);
   o.prototype = a.prototype, r.prototype = new o, r.prototype.constructor = r, i(r.prototype, a.prototype), r.prototype.isPureReactComponent = !0, e.exports = r;
 }, function(e, t, n) {
   "use strict";
@@ -99231,7 +99381,7 @@ var _getMetaFieldForId = function(id, key) {
   var a = n(52),
     s = (n(27), n(327)),
     u = n(330),
-    l = (n(2), n(603)),
+    l = (n(2), n(606)),
     c = (n(4), "."),
     d = ":";
   e.exports = i;
@@ -99397,7 +99547,7 @@ var _getMetaFieldForId = function(id, key) {
   Object.defineProperty(t, "__esModule", {
     value: !0
   });
-  var r = n(619),
+  var r = n(622),
     o = function(e) {
       if (e && e.__esModule) return e;
       var t = {};
@@ -99554,36 +99704,36 @@ var _getMetaFieldForId = function(id, key) {
     };
   }
   var a = n(334);
-  n(111), n(335), t.a = i;
-}, function(e, t, n) {
-  var r = n(456);
-  "string" == typeof r && (r = [
-    [e.i, r, ""]
-  ]), n(61)(r, {}), r.locals && (e.exports = r.locals);
-}, function(e, t, n) {
-  var r = n(458);
-  "string" == typeof r && (r = [
-    [e.i, r, ""]
-  ]), n(61)(r, {}), r.locals && (e.exports = r.locals);
+  n(112), n(335), t.a = i;
 }, function(e, t, n) {
   var r = n(459);
   "string" == typeof r && (r = [
     [e.i, r, ""]
-  ]), n(61)(r, {}), r.locals && (e.exports = r.locals);
+  ]), n(62)(r, {}), r.locals && (e.exports = r.locals);
 }, function(e, t, n) {
-  var r = n(460);
+  var r = n(461);
   "string" == typeof r && (r = [
     [e.i, r, ""]
-  ]), n(61)(r, {}), r.locals && (e.exports = r.locals);
+  ]), n(62)(r, {}), r.locals && (e.exports = r.locals);
 }, function(e, t, n) {
-  e.exports = n(629);
+  var r = n(462);
+  "string" == typeof r && (r = [
+    [e.i, r, ""]
+  ]), n(62)(r, {}), r.locals && (e.exports = r.locals);
+}, function(e, t, n) {
+  var r = n(463);
+  "string" == typeof r && (r = [
+    [e.i, r, ""]
+  ]), n(62)(r, {}), r.locals && (e.exports = r.locals);
+}, function(e, t, n) {
+  e.exports = n(632);
 }, function(e, t, n) {
   "use strict";
   (function(e, r) {
     Object.defineProperty(t, "__esModule", {
       value: !0
     });
-    var o, i = n(630),
+    var o, i = n(633),
       a = function(e) {
         return e && e.__esModule ? e : {
           "default": e
@@ -99592,7 +99742,7 @@ var _getMetaFieldForId = function(id, key) {
     o = "undefined" != typeof self ? self : "undefined" != typeof window ? window : void 0 !== e ? e : r;
     var s = (0, a.default)(o);
     t.default = s;
-  }).call(t, n(62), n(82)(e));
+  }).call(t, n(63), n(82)(e));
 }, function(e, t, n) {
   "use strict";
 
