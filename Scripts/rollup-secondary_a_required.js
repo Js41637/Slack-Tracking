@@ -7601,7 +7601,7 @@ TS.registerModule("constants", {
           }
         }
         files.push(file);
-        var member = TS.members.getMemberById(file.user);
+        var member = TS.members.getPotentiallyUnknownMemberById(file.user);
         if (member) {
           member.files.push(file);
           TS.files.sortFiles(member.files);
@@ -9730,7 +9730,7 @@ TS.registerModule("constants", {
       if (TS.shared.didDeferMessageHistoryById(model_ob.id)) {
         if (TS.boot_data.feature_disable_history_prefetch && !model_ob.is_im && !model_ob.msgs.length) {
           TS.log(58, "calcUnreadCnts (" + model_ob.id + "): History prefetch disabled. msgs.length: " + (model_ob.msgs && model_ob.msgs.length));
-        } else if (TS.boot_data.feature_delay_channel_history_fetch && !model_ob.is_im && !model_ob.is_mpim) {
+        } else if (!model_ob.is_im && !model_ob.is_mpim) {
           if (!_delayed_fetch_timer_map[model_ob.id]) {
             var min_delay = 2500;
             var max_delay = 1e4;
@@ -9909,7 +9909,7 @@ TS.registerModule("constants", {
       if (is_booting && TS._did_incremental_boot && model_ob.id === TS.model.active_channel_id) {
         return;
       }
-      if (TS.boot_data.feature_delay_channel_history_fetch && _delayed_fetch_timer_map[model_ob.id]) {
+      if (_delayed_fetch_timer_map[model_ob.id]) {
         if (TS.pri) TS.log(58, "checkInitialMsgHistory (" + model_ob.id + "): Clearing _delayed_fetch_timer and fetching immediately");
         window.clearTimeout(_delayed_fetch_timer_map[model_ob.id]);
         delete _delayed_fetch_timer_map[model_ob.id];
@@ -11232,7 +11232,7 @@ TS.registerModule("constants", {
         if (TS.pri) TS.log(58, log_prefix + "queueing " + msgs.length + " msgs to merge on history fetch for " + model_ob.id);
         model_ob._msgs_to_merge_on_history = (model_ob._msgs_to_merge_on_history || []).concat(msgs);
       }
-      if (TS.boot_data.feature_delay_channel_history_fetch && !model_ob.is_im && !model_ob.is_mpim && !model_ob.msgs.length) {
+      if (!model_ob.is_im && !model_ob.is_mpim && !model_ob.msgs.length) {
         if (TS.pri) TS.log(58, log_prefix + "no history in model, no history call yet - waiting for calcUnreadCnts() which will trigger a delayed history fetch.");
       } else if (model_ob.msgs.length) {
         if (model_ob.history_is_being_fetched) {
@@ -13102,6 +13102,11 @@ TS.registerModule("constants", {
     _persistent_unknown_member_timers[id] = setTimeout(function() {
       TS.metrics.count("unknown_member_persistence_timeout");
       TS.statsd.measure("unknown_member_resolution_timing", "unknown_member_resolution_timing_" + member.id);
+      TS.console.logError({
+        id: id,
+        getMemberById: TS.members.getMemberById(id),
+        getMemberByName: TS.members.getMemberByName(id)
+      }, "persistent unknown member", "error", true);
     }, 6e4);
     TS.statsd.mark("unknown_member_resolution_timing_" + id);
     return member;
@@ -51757,12 +51762,14 @@ $.fn.togglify = function(settings) {
     TS.click.addClientHandler(".attachement_actions_interactions .btn", function(e) {
       e.preventDefault();
       var context = TS.attachment_actions.handleActionEventAndGetContext($(e.target));
-      if (context.action.confirm) {
-        TS.attachment_actions.confirmAction(context.action, function() {
+      if (context) {
+        if (context.action.confirm) {
+          TS.attachment_actions.confirmAction(context.action, function() {
+            TS.attachment_actions.action_triggered_sig.dispatch(context);
+          });
+        } else {
           TS.attachment_actions.action_triggered_sig.dispatch(context);
-        });
-      } else {
-        TS.attachment_actions.action_triggered_sig.dispatch(context);
+        }
       }
     });
     TS.click.addClientHandler("#threads_view_banner .clear_unread_messages", function(e) {
@@ -60159,13 +60166,15 @@ var _getMetaFieldForId = function(id, key) {
       if (TS.client.activeChannelIsHidden() || context.channel_id != TS.shared.getActiveModelOb().id) {
         TS.client.ui.tryToJump(context.channel_id, context.message.ts);
       }
-      var slack_action_url = $target.data("slack-action-url");
-      if (slack_action_url) {
-        var actual_url = slack_action_url.match(/<(.*?)\|/)[1];
-        if (actual_url && actual_url.indexOf(TS.utility.msgs.new_api_url_prefix) === 0) {
+      var url = $target.data("url");
+      if (url) {
+        var match = url.match(/<(.*?)\|/);
+        var actual_url = match ? match[1] : url;
+        if (!actual_url) return;
+        if (actual_url.indexOf(TS.utility.msgs.new_api_url_prefix) === 0) {
           TS.utility.msgs.doNewApiUrl(actual_url);
-        } else {
-          TS.error(slack_action_url + " does not contain a valid slack action URL.");
+        } else if (TS.boot_data.feature_link_buttons) {
+          TS.utility.openInNewTab(url, "_blank");
         }
         return;
       }
@@ -68195,8 +68204,7 @@ var _getMetaFieldForId = function(id, key) {
             }
 
             function l() {
-              m !== oe && md(m),
-                v = 0, f = y = p = m = oe;
+              m !== oe && md(m), v = 0, f = y = p = m = oe;
             }
 
             function c() {
@@ -71346,9 +71354,10 @@ var _getMetaFieldForId = function(id, key) {
     if (t.singleton) {
       var u = y++;
       n = m || (m = a(t)), r = l.bind(null, n, u, !1), o = l.bind(null, n, u, !0);
-    } else e.sourceMap && "function" == typeof URL && "function" == typeof URL.createObjectURL && "function" == typeof URL.revokeObjectURL && "function" == typeof Blob && "function" == typeof btoa ? (n = s(t), r = d.bind(null, n), o = function() {
-      i(n), n.href && URL.revokeObjectURL(n.href);
-    }) : (n = a(t), r = c.bind(null, n), o = function() {
+    } else e.sourceMap && "function" == typeof URL && "function" == typeof URL.createObjectURL && "function" == typeof URL.revokeObjectURL && "function" == typeof Blob && "function" == typeof btoa ? (n = s(t),
+      r = d.bind(null, n), o = function() {
+        i(n), n.href && URL.revokeObjectURL(n.href);
+      }) : (n = a(t), r = c.bind(null, n), o = function() {
       i(n);
     });
     return r(e),
@@ -72084,9 +72093,9 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   "use strict";
   var r = n(16);
-  n.d(t, "b", function() {
+  n.d(t, "a", function() {
     return o;
-  }), n.d(t, "a", function() {
+  }), n.d(t, "b", function() {
     return i;
   });
   var o = (n.i(r.a)("TS.log", console.log), n.i(r.a)("TS.error", console.error)),
@@ -72290,7 +72299,7 @@ var _getMetaFieldForId = function(id, key) {
       return n.i(s.b)(e).then(function(e) {
         return t(n.i(l.a)(e));
       }).catch(function() {
-        return n.i(u.b)("Failed to fetch files", e);
+        return n.i(u.a)("Failed to fetch files", e);
       });
     };
   }
@@ -72342,7 +72351,7 @@ var _getMetaFieldForId = function(id, key) {
       }).then(function(t) {
         e(n.i(s.addMessages)(t));
       }).catch(function(e) {
-        return n.i(a.b)("Failed to load history", t, e);
+        return n.i(a.a)("Failed to load history", t, e);
       });
     };
   }
@@ -72350,9 +72359,9 @@ var _getMetaFieldForId = function(id, key) {
     i = (n.n(o), n(458)),
     a = n(101),
     s = n(55);
-  n.d(t, "b", function() {
+  n.d(t, "a", function() {
     return l;
-  }), t.d = r, n.d(t, "c", function() {
+  }), t.c = r, n.d(t, "b", function() {
     return f;
   });
   var u = Object.assign || function(e) {
@@ -72378,7 +72387,7 @@ var _getMetaFieldForId = function(id, key) {
         channelId: t
       });
     }), c);
-  t.a = d;
+  t.d = d;
   var f = function(e) {
     return e && e.messagePane && e.messagePane.channelId;
   };
@@ -85664,31 +85673,32 @@ var _getMetaFieldForId = function(id, key) {
       d = e.rowData,
       f = e.style,
       p = {};
-    return (a || u || l || c) && (p["aria-label"] = "row", p.tabIndex = 0, a && (p.onClick = function(e) {
-      return a({
-        event: e,
-        index: r,
-        rowData: d
-      });
-    }), u && (p.onDoubleClick = function(e) {
-      return u({
-        event: e,
-        index: r,
-        rowData: d
-      });
-    }), c && (p.onMouseOut = function(e) {
-      return c({
-        event: e,
-        index: r,
-        rowData: d
-      });
-    }), l && (p.onMouseOver = function(e) {
-      return l({
-        event: e,
-        index: r,
-        rowData: d
-      });
-    })), s.a.createElement("div", i()({}, p, {
+    return (a || u || l || c) && (p["aria-label"] = "row",
+      p.tabIndex = 0, a && (p.onClick = function(e) {
+        return a({
+          event: e,
+          index: r,
+          rowData: d
+        });
+      }), u && (p.onDoubleClick = function(e) {
+        return u({
+          event: e,
+          index: r,
+          rowData: d
+        });
+      }), c && (p.onMouseOut = function(e) {
+        return c({
+          event: e,
+          index: r,
+          rowData: d
+        });
+      }), l && (p.onMouseOver = function(e) {
+        return l({
+          event: e,
+          index: r,
+          rowData: d
+        });
+      })), s.a.createElement("div", i()({}, p, {
       className: t,
       key: o,
       role: "row",
@@ -86363,7 +86373,7 @@ var _getMetaFieldForId = function(id, key) {
       }, o.a.createElement(c.a, null)), e);
     },
     switchTo: function(e) {
-      n.i(u.a)().dispatch(n.i(d.b)(e));
+      n.i(u.a)().dispatch(n.i(d.a)(e));
     }
   });
 }, function(e, t, n) {
@@ -87421,19 +87431,18 @@ var _getMetaFieldForId = function(id, key) {
           var e = "react_channel_sidebar_get_rows";
           n.i(p.a)(e + "_mark");
           var t = b(this.props);
-          return n.i(p.b)(e, e + "_mark"),
-            l.a.createElement("nav", {
-              className: "p-channel_sidebar"
-            }, this.renderUnreadBannerMaybe("top"), l.a.createElement(d.a, {
-              rows: t,
-              selectedItemId: this.props.selectedItemId,
-              onItemSelect: this.props.onItemSelect,
-              onInviteClick: this.props.onInviteClick,
-              scrollToIndex: this.state.scrollToIndex,
-              scrollToAlignment: this.state.scrollToAlignment,
-              reportOffscreenIds: this.reportOffscreenIds,
-              ref: this.setRef
-            }), this.renderUnreadBannerMaybe("bottom"));
+          return n.i(p.b)(e, e + "_mark"), l.a.createElement("nav", {
+            className: "p-channel_sidebar"
+          }, this.renderUnreadBannerMaybe("top"), l.a.createElement(d.a, {
+            rows: t,
+            selectedItemId: this.props.selectedItemId,
+            onItemSelect: this.props.onItemSelect,
+            onInviteClick: this.props.onInviteClick,
+            scrollToIndex: this.state.scrollToIndex,
+            scrollToAlignment: this.state.scrollToAlignment,
+            reportOffscreenIds: this.reportOffscreenIds,
+            ref: this.setRef
+          }), this.renderUnreadBannerMaybe("bottom"));
         }
       }]), t;
     }(l.a.Component);
@@ -89479,10 +89488,10 @@ var _getMetaFieldForId = function(id, key) {
             v = "progressing" === o && i ? i * f : void 0,
             g = void 0;
           g = v ? b("{partialSize} of {size} {prettyType}", {
-            partialSize: n.i(m.a)(v, 2),
-            size: n.i(m.a)(f),
+            partialSize: n.i(m.b)(v, 2),
+            size: n.i(m.b)(f),
             prettyType: d
-          }) : n.i(m.a)(f) + " " + d;
+          }) : n.i(m.b)(f) + " " + d;
           var M = t.getEstimatedTimeRemaining(this.props),
             w = l()("p-download_item", "clearfix", o),
             k = l()({
@@ -89813,7 +89822,7 @@ var _getMetaFieldForId = function(id, key) {
     },
     l = function(e) {
       var t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : {},
-        r = n.i(i.c)(e),
+        r = n.i(i.b)(e),
         o = n.i(s.getChannelById)(e, r),
         l = n.i(a.getTimestampsByChannelId)(e, r);
       return u({}, t, {
@@ -89823,7 +89832,7 @@ var _getMetaFieldForId = function(id, key) {
       });
     },
     c = {
-      loadInitialHistory: i.d
+      loadInitialHistory: i.c
     };
   t.a = n.i(r.b)(l, c)(o.a);
 }, function(e, t, n) {
@@ -90719,7 +90728,7 @@ var _getMetaFieldForId = function(id, key) {
     s = n(40),
     u = n(338),
     l = n(141);
-  n(342), n(339), n(340), n(341), window.ReactComponents = {}, window.ReactComponents.EmojiPicker = u.a, window.ReactComponents.Popover = l.a, window.ReactComponents.PopoverTrigger = l.b, window.React = o.a, window.ReactDOM = a.a, window.moment = s.a;
+  n(342), n(339), n(341), n(340), window.ReactComponents = {}, window.ReactComponents.EmojiPicker = u.a, window.ReactComponents.Popover = l.a, window.ReactComponents.PopoverTrigger = l.b, window.React = o.a, window.ReactDOM = a.a, window.moment = s.a;
 }, function(e, t, n) {
   "use strict";
   var r = n(99);
@@ -90901,7 +90910,7 @@ var _getMetaFieldForId = function(id, key) {
       downloads: s.default,
       files: _.b,
       memberTypesById: m.default,
-      messagePane: u.a,
+      messagePane: u.d,
       messages: y.default,
       prefs: l.default,
       presence: c.default,

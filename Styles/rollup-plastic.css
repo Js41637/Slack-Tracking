@@ -8952,6 +8952,28 @@ a.btn {
   color: rgba(235, 77, 92, .8)
 }
 
+.btn.btn_attachment.is_link_btn {
+  -ms-flex-align: center;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -moz-align-items: center;
+  align-items: center;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-pack: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -moz-justify-content: center;
+  justify-content: center
+}
+
+.btn.btn_attachment.is_link_btn ts-icon {
+  margin: -.125rem 0 0 .25rem
+}
+
 .btn_ios,
 .btn_ios:focus,
 .btn_ios:hover {
