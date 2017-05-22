@@ -12695,13 +12695,6 @@ TS.registerModule("constants", {
     var was_unknown = member ? member.is_unknown : false;
     if (member && member.is_unknown) member.is_unknown = false;
     _.pull(_unknown_member_ids, member.id);
-    if (TS.members.getMemberById(member.name)) {
-      member = TS.members.getMemberById(member.name);
-      was_unknown = member ? member.is_unknown : false;
-      if (member.is_unknown) member.is_unknown = false;
-      _.pull(_unknown_member_ids, member.id);
-      TS.members.changed_name_sig.dispatch(member);
-    }
     if (_persistent_unknown_member_timers[member.id]) {
       clearTimeout(_persistent_unknown_member_timers[member.id]);
       if (was_unknown) TS.statsd.measure("unknown_member_resolution_timing", "unknown_member_resolution_timing_" + member.id);
@@ -13062,22 +13055,22 @@ TS.registerModule("constants", {
     if (!TS.boot_data.feature_unknown_members) return Promise.resolve();
     if (!_unknown_member_ids.length) return Promise.resolve();
     var _unknown_member_ids_getting_fetched = _.clone(_unknown_member_ids);
-    return TS.flannel.fetchAndUpsertObjectsByIds(_unknown_member_ids_getting_fetched).then(function(members) {
-      var id_map = _.keyBy(members, "id");
+    return TS.flannel.fetchAndUpsertObjectsByIds(_unknown_member_ids_getting_fetched).then(function(fetched_members) {
       _unknown_member_ids_getting_fetched.forEach(function(id) {
-        var member = _id_map[id];
+        var member = TS.members.getMemberById(id);
         if (!member) return;
-        if (id_map && member === id_map[id]) {
-          TS.log(6655, "member id " + id + " is no longer unknown");
-          _maybeSetMemberKnown(member);
-        } else {
-          TS.log(6655, "member id " + id + " is for a non-existent member");
-          member.is_non_existent = true;
-          _maybeSetMemberKnown(TS.members.getMemberById(id));
-        }
+        if (!_.find(fetched_members, {
+            id: id
+          })) member.is_non_existent = true;
+        _maybeSetMemberKnown(member);
       });
       TS.client.ui.rebuildAll();
       return _fetchAndUpsertUnknownMembers();
+    }).catch(function(e) {
+      e.unknown_member_ids = _unknown_member_ids;
+      e.unknown_member_ids_getting_fetched = _unknown_member_ids_getting_fetched;
+      TS.console.logError(e, "unknown_fetch_error", "error", true);
+      throw e;
     });
   };
   var _getUnknownMemberAndFetch = function(id) {
@@ -66136,7 +66129,8 @@ var _getMetaFieldForId = function(id, key) {
 
           function $t(e, t) {
             var n = this.__data__;
-            return this.size += this.has(e) ? 0 : 1, n[e] = Qc && t === oe ? ue : t, this;
+            return this.size += this.has(e) ? 0 : 1,
+              n[e] = Qc && t === oe ? ue : t, this;
           }
 
           function Qt(e) {
@@ -71354,10 +71348,9 @@ var _getMetaFieldForId = function(id, key) {
     if (t.singleton) {
       var u = y++;
       n = m || (m = a(t)), r = l.bind(null, n, u, !1), o = l.bind(null, n, u, !0);
-    } else e.sourceMap && "function" == typeof URL && "function" == typeof URL.createObjectURL && "function" == typeof URL.revokeObjectURL && "function" == typeof Blob && "function" == typeof btoa ? (n = s(t),
-      r = d.bind(null, n), o = function() {
-        i(n), n.href && URL.revokeObjectURL(n.href);
-      }) : (n = a(t), r = c.bind(null, n), o = function() {
+    } else e.sourceMap && "function" == typeof URL && "function" == typeof URL.createObjectURL && "function" == typeof URL.revokeObjectURL && "function" == typeof Blob && "function" == typeof btoa ? (n = s(t), r = d.bind(null, n), o = function() {
+      i(n), n.href && URL.revokeObjectURL(n.href);
+    }) : (n = a(t), r = c.bind(null, n), o = function() {
       i(n);
     });
     return r(e),
@@ -84023,7 +84016,8 @@ var _getMetaFieldForId = function(id, key) {
   "use strict";
 
   function r(e) {
-    for (var t = e.cellCache, n = e.cellRenderer, r = e.columnSizeAndPositionManager, o = e.columnStartIndex, i = e.columnStopIndex, a = e.deferredMeasurementCache, s = e.horizontalOffsetAdjustment, u = e.isScrolling, l = e.parent, c = e.rowSizeAndPositionManager, d = e.rowStartIndex, f = e.rowStopIndex, p = (e.scrollLeft, e.scrollTop, e.styleCache), h = e.verticalOffsetAdjustment, _ = e.visibleColumnIndices, m = e.visibleRowIndices, y = void 0 !== a, v = [], g = r.areOffsetsAdjusted() || c.areOffsetsAdjusted(), b = !u || !g, M = d; M <= f; M++)
+    for (var t = e.cellCache, n = e.cellRenderer, r = e.columnSizeAndPositionManager, o = e.columnStartIndex, i = e.columnStopIndex, a = e.deferredMeasurementCache, s = e.horizontalOffsetAdjustment, u = e.isScrolling, l = e.parent, c = e.rowSizeAndPositionManager, d = e.rowStartIndex, f = e.rowStopIndex, p = (e.scrollLeft,
+        e.scrollTop, e.styleCache), h = e.verticalOffsetAdjustment, _ = e.visibleColumnIndices, m = e.visibleRowIndices, y = void 0 !== a, v = [], g = r.areOffsetsAdjusted() || c.areOffsetsAdjusted(), b = !u || !g, M = d; M <= f; M++)
       for (var w = c.getSizeAndPositionOfCell(M), k = o; k <= i; k++) {
         var L = r.getSizeAndPositionOfCell(k),
           T = k >= _.start && k <= _.stop && M >= m.start && M <= m.stop,
@@ -85673,32 +85667,31 @@ var _getMetaFieldForId = function(id, key) {
       d = e.rowData,
       f = e.style,
       p = {};
-    return (a || u || l || c) && (p["aria-label"] = "row",
-      p.tabIndex = 0, a && (p.onClick = function(e) {
-        return a({
-          event: e,
-          index: r,
-          rowData: d
-        });
-      }), u && (p.onDoubleClick = function(e) {
-        return u({
-          event: e,
-          index: r,
-          rowData: d
-        });
-      }), c && (p.onMouseOut = function(e) {
-        return c({
-          event: e,
-          index: r,
-          rowData: d
-        });
-      }), l && (p.onMouseOver = function(e) {
-        return l({
-          event: e,
-          index: r,
-          rowData: d
-        });
-      })), s.a.createElement("div", i()({}, p, {
+    return (a || u || l || c) && (p["aria-label"] = "row", p.tabIndex = 0, a && (p.onClick = function(e) {
+      return a({
+        event: e,
+        index: r,
+        rowData: d
+      });
+    }), u && (p.onDoubleClick = function(e) {
+      return u({
+        event: e,
+        index: r,
+        rowData: d
+      });
+    }), c && (p.onMouseOut = function(e) {
+      return c({
+        event: e,
+        index: r,
+        rowData: d
+      });
+    }), l && (p.onMouseOver = function(e) {
+      return l({
+        event: e,
+        index: r,
+        rowData: d
+      });
+    })), s.a.createElement("div", i()({}, p, {
       className: t,
       key: o,
       role: "row",
@@ -90484,12 +90477,11 @@ var _getMetaFieldForId = function(id, key) {
           "c-presence--active": t,
           "c-presence--away": !t
         });
-      return "member" === r ? n && (i = t ? "presence_dnd" : "presence_dnd_offline") : "ra" === r ? i = n ? t ? "presence_ra_dnd" : "presence_ra_dnd_offline" : t ? "presence_ra_online" : "presence_ra_offline" : "ura" === r ? i = n ? t ? "presence_ura_dnd" : "presence_ura_dnd_offline" : t ? "presence_ura_online" : "presence_ura_offline" : "external" === r && (i = n ? t ? "presence_external_dnd" : "presence_external_dnd_offline" : t ? "presence_external_online" : "presence_external_offline"),
-        o.a.createElement(s.a, {
-          type: i,
-          className: u,
-          "aria-hidden": !0
-        });
+      return "member" === r ? n && (i = t ? "presence_dnd" : "presence_dnd_offline") : "ra" === r ? i = n ? t ? "presence_ra_dnd" : "presence_ra_dnd_offline" : t ? "presence_ra_online" : "presence_ra_offline" : "ura" === r ? i = n ? t ? "presence_ura_dnd" : "presence_ura_dnd_offline" : t ? "presence_ura_online" : "presence_ura_offline" : "external" === r && (i = n ? t ? "presence_external_dnd" : "presence_external_dnd_offline" : t ? "presence_external_online" : "presence_external_offline"), o.a.createElement(s.a, {
+        type: i,
+        className: u,
+        "aria-hidden": !0
+      });
     });
   l.propTypes = {
     isActive: r.PropTypes.bool,
@@ -93306,8 +93298,7 @@ var _getMetaFieldForId = function(id, key) {
         return n.bind.call(n, e, function() {}, t);
       }, g.prototype.trigger = function(e, t) {
         var n = this;
-        return n._directMap[e + ":" + t] && n._directMap[e + ":" + t]({}, e),
-          n;
+        return n._directMap[e + ":" + t] && n._directMap[e + ":" + t]({}, e), n;
       }, g.prototype.reset = function() {
         var e = this;
         return e._callbacks = {}, e._directMap = {}, e;
@@ -97994,7 +97985,8 @@ var _getMetaFieldForId = function(id, key) {
             o = this._findNearestCell(n),
             i = this.getSizeAndPositionOfCell(o);
           n = i.offset + i.size;
-          for (var a = o; n < r && a < this._cellCount - 1;) a++, n += this.getSizeAndPositionOfCell(a).size;
+          for (var a = o; n < r && a < this._cellCount - 1;) a++,
+            n += this.getSizeAndPositionOfCell(a).size;
           return {
             start: o,
             stop: a
