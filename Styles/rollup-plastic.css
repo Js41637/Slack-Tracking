@@ -8648,7 +8648,8 @@ a.btn {
   line-height: inherit;
   outline: 0;
   color: #007AB8;
-  vertical-align: baseline
+  vertical-align: baseline;
+  cursor: pointer
 }
 
 .btn_link:focus,
@@ -11555,6 +11556,11 @@ body.ReactModal__Body--open {
 
 #chat_input_tab_ui .monkey_scroll_bar.hidden+.monkey_scroll_hider .cmd-right-td {
   padding-right: 0!important
+}
+
+#chat_input_tab_ui~#client-ui #convo_scroller,
+#chat_input_tab_ui~#client-ui #threads_msgs_scroller_div {
+  overflow: hidden
 }
 
 #menu.notifications_menu {
@@ -17464,7 +17470,8 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 }
 
 .c-member__deleted--small {
-  margin: 4px -5px 0 -3px
+  width: 18px;
+  margin: 0 0 3px 2px
 }
 
 .c-member--medium {
