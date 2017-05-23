@@ -51754,7 +51754,7 @@ $.fn.togglify = function(settings) {
       }
       TS.client.msg_pane.rebuildMsgs();
     });
-    TS.click.addClientHandler(".attachement_actions_interactions .btn", function(e) {
+    TS.click.addClientHandler(".attachment_actions_interactions .btn", function(e) {
       e.preventDefault();
       var context = TS.attachment_actions.handleActionEventAndGetContext($(e.target));
       if (context) {
@@ -60207,7 +60207,7 @@ var _getMetaFieldForId = function(id, key) {
       if (!attachment || !message_ts) return;
       var $container = _getAttachmentActionsContainer(attachment, message_ts);
       if (!$container.length) return;
-      if (!only_render_if_pending || $container.find(".attachement_actions_interactions").hasClass("attachment_pending")) {
+      if (!only_render_if_pending || $container.find(".attachment_actions_interactions").hasClass("attachment_pending")) {
         var html = TS.templates.attachment_actions({
           attachment: attachment
         });
@@ -60352,7 +60352,7 @@ var _getMetaFieldForId = function(id, key) {
     onStart: _.noop,
     decorateNewElements: function($container) {
       $container = $container || TS.client.ui.$msgs_div;
-      var $new_els = $container.find(".attachement_actions_interactions select:not(.hidden)");
+      var $new_els = $container.find(".attachment_actions_interactions select:not(.hidden)");
       $new_els.each(function() {
         var $el = $(this);
         var context = TS.attachment_actions.getActionContext($el);
