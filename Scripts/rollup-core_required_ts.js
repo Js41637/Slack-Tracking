@@ -347,8 +347,6 @@
   var _guid = 0;
   var _fully_booted_p_resolve;
   var _fully_booted_p;
-  var _is_user_forced_into_redux_feature;
-  var _users_to_force_into_redux_feature = ["W2V82BY0G", "W1W7LCMHU", "W1M2KRM8E", "W1NTZGLCW", "W1H5Z2EUQ", "W1NUHTDRQ", "W1FLK9CAK", "W28S2MKA5", "W1NU0NFAL", "W31BTQUUF", "W29NEV64V", "W32AJ7MGS", "W32AJ7MGS", "W3P5P6BM5", "W1W832GG1", "W31L0Q8TT", "W1W8S11EY", "W2P52R70Q", "W28RP6R5J", "W1W8VPT1U", "W57MLUPR6"];
   var _did_call_did_finish_loading = false;
   var FORCE_CALL_DID_FINISH_LOADING_DELAY_MS = 7e4;
   window.TS = {
@@ -389,12 +387,6 @@
       if (!TS.client) {
         return false;
       }
-      if (_.isUndefined(_is_user_forced_into_redux_feature)) {
-        _is_user_forced_into_redux_feature = _.includes(_users_to_force_into_redux_feature, TS.boot_data.user_id);
-      }
-      if (_is_user_forced_into_redux_feature && !TS.boot_data.feature_drew_broke_his_own_app) {
-        return true;
-      }
       var disable_redux_by_user_pref = false;
       if (TS.model.prefs) {
         disable_redux_by_user_pref = TS.model.prefs.disable_redux;
@@ -411,6 +403,9 @@
     },
     useSocket: function() {
       return _shouldConnectToMS();
+    },
+    getSocketStartArgs: function() {
+      return _getMSLoginArgs();
     },
     registerModule: function(name, ob, delayed) {
       _extractAndDeleteTestProps(ob);
@@ -808,7 +803,7 @@
           TS.log(1989, "Bad news: we're trying to do an rtm.start from Flannel while we're already connected, and that won't work.");
           return Promise.reject(new Error("rtm.start-over-WebSocket failed"));
         }
-        _ms_rtm_start_p = TS.flannel.connectAndFetchRtmStart(_getMSLoginArgs());
+        _ms_rtm_start_p = TS.flannel.connectAndFetchRtmStart();
       }
       var rtm_start_p = _ms_rtm_start_p;
       _ms_rtm_start_p = undefined;
@@ -1632,7 +1627,7 @@
     TS.ms.onFailure("_onBadUserCache problem: " + problem);
   };
   var _extractAndDeleteTestProps = function(ob) {
-    if (ob.test && _shouldSuppressTestExport()) {
+    if (ob.test && !ob.__esModule && _shouldSuppressTestExport()) {
       delete ob.test;
     } else if (typeof ob.test === "function") {
       var test_getter = ob.test;
@@ -1649,10 +1644,10 @@
     if (!_shouldConnectToMS()) return;
     if (!TS.boot_data.ms_connect_url) return;
     if (TS.lazyLoadMembersAndBots()) {
-      _ms_rtm_start_p = TS.flannel.connectAndFetchRtmStart(_getMSLoginArgs()).catch(function() {
+      _ms_rtm_start_p = TS.flannel.connectAndFetchRtmStart().catch(function() {
         TS.ms.disconnect();
         return TS.api.connection.waitForAPIConnection().then(function() {
-          return TS.flannel.connectAndFetchRtmStart(_getMSLoginArgs());
+          return TS.flannel.connectAndFetchRtmStart();
         });
       });
       return;
