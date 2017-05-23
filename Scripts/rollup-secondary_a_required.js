@@ -4152,6 +4152,7 @@
             err_txt = "<p>" + TS.i18n.t("A Team Owner has restricted the use of <b>@everyone</b> messages.", "channels")() + "</p>";
           } else {
             err_txt = "<p>" + TS.i18n.t("Usage of <b>@everyone</b> is restricted to Team Admins in the large general channel.", "channels")() + "</p>";
+            TS.metrics.count("stopped_loud_channel_mention");
           }
           if (!TS.channels.isChannelRequired(channel) && TS.permissions.members.canAtChannelOrGroup(channel.id)) {
             err_txt += '<p class="no_bottom_margin">' + TS.i18n.t("If you just want to address everyone in this channel, use <b>@channel</b> instead.", "channels")() + "</p>";
@@ -4200,6 +4201,7 @@
           err_txt = "<p>" + TS.i18n.t("Usage of <b>{key_word}</b> is restricted to Team Admins in this large channel.", "channels")({
             key_word: key_word
           }) + "</p>";
+          TS.metrics.count("stopped_loud_channel_mention");
         }
         errorOut(err_txt);
         return false;
@@ -11084,8 +11086,8 @@ TS.registerModule("constants", {
     },
     isRelevantTeam: function() {
       var is_relevant = true;
+      if (!TS.model.is_our_app || !window.winssb) return is_relevant;
       if (!TS.boot_data.page_needs_enterprise || !TS.model.team || !TS.model.team.enterprise_id || !TS.boot_data.other_accounts) return is_relevant;
-      if (!window.winssb) return is_relevant;
       if (TS.pri) TS.log(ncc, "isRelevantTeam()");
       var enterprise_teams = TS.model.enterprise_teams;
       if (enterprise_teams.length === 1) return is_relevant;
@@ -28673,10 +28675,10 @@ TS.registerModule("constants", {
       if (!unread_cnt && !highlight_cnt) return;
       if (!TS.shared.isModelObOrgShared(model_ob)) return;
       if (!TS.shared.isRelevantTeamForSharedModelOb(model_ob)) {
-        if (TS.pri) TS.log(67, "Excluding unread of " + unread_cnt + " and highlight of " + highlight_cnt + " for shared channel " + model_ob.id + " because this is NOT the relevant team.");
+        if (TS.pri && TS.model.is_our_app) TS.log(67, "Excluding unread of " + unread_cnt + " and highlight of " + highlight_cnt + " for shared channel " + model_ob.id + " because this is NOT the relevant team.");
         TS.model.all_unread_cnt_to_exclude += unread_cnt;
         TS.model.all_unread_highlights_cnt_to_exclude += highlight_cnt;
-      } else if (TS.pri) {
+      } else if (TS.pri && TS.model.is_our_app) {
         TS.log(67, "Using unread of " + unread_cnt + " and highlight of " + highlight_cnt + " for shared channel " + model_ob.id + " because this IS the relevant team.");
       }
     },
@@ -33048,21 +33050,25 @@ TS.registerModule("constants", {
       if (username_parts.length > 1 && username_parts[1]) {
         return "@" + username_parts[1];
       }
-      if (!TS.boot_data.feature_shared_channels_client) {
-        var subtype = "member_not_found_in_markup";
-        var silent = true;
-        TS.console.logError({
-          item: item,
-          guts: guts,
-          tsf_mode: tsf_mode,
-          no_highlights: no_highlights,
-          no_linking: no_linking
-        }, "", subtype, silent);
+      if (!TS.boot_data.feature_shared_channels_client && TS.utility.strLooksLikeAMemberId(guts)) {
+        setTimeout(function() {
+          if (!TS.members.getMemberById(guts)) {
+            var subtype = "member_not_found_in_markup";
+            var silent = true;
+            TS.console.logError({
+              item: item,
+              guts: guts,
+              tsf_mode: tsf_mode,
+              no_highlights: no_highlights,
+              no_linking: no_linking
+            }, "", subtype, silent);
+          }
+        }, 3e4);
       }
-      if (!TS.boot_data.feature_unknown_members) {
+      if (!TS.boot_data.feature_unknown_members && TS.utility.strLooksLikeAMemberId(guts)) {
         return TS.templates.message_member_non_existent();
       }
-      return TS.templates.message_member_unknown();
+      return guts;
     }
     var classes = ["internal_member_link"];
     var data_tags_object = {
@@ -47395,7 +47401,6 @@ $.fn.togglify = function(settings) {
     if (rxn_key_parts && rxn_key_parts.c_id) {
       var current_model_ob = TS.shared.getActiveModelOb();
       if (current_model_ob && current_model_ob.id !== rxn_key_parts.c_id) {
-        if (TS.pri) TS.log(888, "rxn c_id of " + rxn_key_parts.c_id + " != current model_ob id of " + current_model_ob.id + " - skipping scroll work.");
         can_ignore_scroll = true;
       }
     }
@@ -49921,9 +49926,72 @@ $.fn.togglify = function(settings) {
     prevWithClass: function($node, class_name) {
       var $prev = $node.prev();
       return $prev.hasClass(class_name) || !$prev.length ? $prev : TS.ui.utility.prevWithClass($prev, class_name);
+    },
+    inTabFlow: function(node) {
+      var node_name = node.nodeName.toLowerCase();
+      var tab_index = node.getAttribute("tabindex");
+      var has_implicit_tabindex = tab_index == null || node.tabIndex >= 0;
+      var has_explicit_tabindex = tab_index !== null && tab_index >= 0;
+      var in_tab_flow = has_implicit_tabindex || has_explicit_tabindex;
+      var is_form_element = _form_element_names_re.test(node_name);
+      var is_anchor = node_name === "a";
+      if (is_form_element && !node.disabled && node.type !== "hidden" && in_tab_flow) {
+        return true;
+      }
+      if (is_anchor && (node.href && in_tab_flow || !node.href && has_explicit_tabindex)) {
+        return true;
+      }
+      if (!(is_form_element || is_anchor) && has_explicit_tabindex) {
+        return true;
+      }
+      return false;
+    },
+    isVisible: function(node) {
+      var $node = $(node);
+      return !!$node.outerHeight() && !!$node.outerWidth() && $node.css("visibility") === "visible" && $node.css("display") !== "none" && $node.css("opacity") === "1";
+    },
+    findNodeInRegion: function(selector, startX, startY, endX, endY) {
+      var i = 5;
+      var x_incr = i;
+      var y_incr = (startY - endY) / (startX - endX / i) + i;
+      var findNodeAt = function(x, y) {
+        var el = document.elementFromPoint(x, y);
+        var $message = $(el).closest(selector);
+        if ($message.length) {
+          return $message;
+        }
+        if (x <= endX) {
+          return;
+        }
+        var next_x = x - x_incr;
+        var next_y = y - y_incr;
+        return findNodeAt(next_x, next_y);
+      };
+      return findNodeAt(startX, startY);
     }
   });
+  var _mkFindFocusableFn = function(reducer_method) {
+    var reducer = function(filterFn, acc, node) {
+      if (acc) {
+        return acc;
+      }
+      return TS.ui.utility.inTabFlow(node) && TS.ui.utility.isVisible(node) && filterFn(node) ? node : null;
+    };
+    var noop = function() {
+      return true;
+    };
+    return function(parent, filterFn) {
+      var fn = filterFn || noop;
+      var reducerFn = reducer.bind(reducer, fn);
+      var results = $(parent).find(_focusable_nodes_selector).toArray();
+      return results[reducer_method](reducerFn, null);
+    };
+  };
+  TS.ui.utility.firstFocusableChild = _mkFindFocusableFn("reduce");
+  TS.ui.utility.lastFocusableChild = _mkFindFocusableFn("reduceRight");
   var _preventing_element_from_scrolling = false;
+  var _form_element_names_re = /^(input|select|textarea|button)$/;
+  var _focusable_nodes_selector = "input,select,textarea,button,a,div[tabindex],span[tabindex]";
 })();
 (function() {
   "use strict";
@@ -66106,8 +66174,7 @@ var _getMetaFieldForId = function(id, key) {
 
           function Y() {
             var e = new b(this.__wrapped__);
-            return e.__actions__ = Ao(this.__actions__),
-              e.__dir__ = this.__dir__, e.__filtered__ = this.__filtered__, e.__iteratees__ = Ao(this.__iteratees__), e.__takeCount__ = this.__takeCount__, e.__views__ = Ao(this.__views__), e;
+            return e.__actions__ = Ao(this.__actions__), e.__dir__ = this.__dir__, e.__filtered__ = this.__filtered__, e.__iteratees__ = Ao(this.__iteratees__), e.__takeCount__ = this.__takeCount__, e.__views__ = Ao(this.__views__), e;
           }
 
           function Q() {
@@ -68205,8 +68272,7 @@ var _getMetaFieldForId = function(id, key) {
             if ("function" != typeof t) throw new cl(se);
             return e = Mu(e),
               function() {
-                return --e > 0 && (n = t.apply(this, arguments)), e <= 1 && (t = oe),
-                  n;
+                return --e > 0 && (n = t.apply(this, arguments)), e <= 1 && (t = oe), n;
               };
           }
 
@@ -82697,8 +82763,7 @@ var _getMetaFieldForId = function(id, key) {
         else
           for (; !(g = b.next()).done;) {
             var w = g.value;
-            w && (p = w[1],
-              h = m + c.escape(w[0]) + d + r(p, 0), _ += o(p, h, n, i));
+            w && (p = w[1], h = m + c.escape(w[0]) + d + r(p, 0), _ += o(p, h, n, i));
           }
       } else if ("object" === f) {
         var k = String(e);
@@ -94922,8 +94987,7 @@ var _getMetaFieldForId = function(id, key) {
           h = e.getUpdateQueue(),
           m = o(p),
           y = this._constructComponent(m, l, d, h);
-        m || null != y && null != y.render ? i(p) ? this._compositeType = v.PureClass : this._compositeType = v.ImpureClass : (c = y, null === y || !1 === y || u.isValidElement(y) || a("105", p.displayName || p.name || "Component"),
-          y = new r(p), this._compositeType = v.StatelessFunctional), y.props = l, y.context = d, y.refs = _, y.updater = h, this._instance = y, f.set(y, this);
+        m || null != y && null != y.render ? i(p) ? this._compositeType = v.PureClass : this._compositeType = v.ImpureClass : (c = y, null === y || !1 === y || u.isValidElement(y) || a("105", p.displayName || p.name || "Component"), y = new r(p), this._compositeType = v.StatelessFunctional), y.props = l, y.context = d, y.refs = _, y.updater = h, this._instance = y, f.set(y, this);
         var b = y.state;
         void 0 === b && (y.state = b = null), ("object" != typeof b || Array.isArray(b)) && a("106", this.getName() || "ReactCompositeComponent"), this._pendingStateQueue = null, this._pendingReplaceState = !1, this._pendingForceUpdate = !1;
         var M;
@@ -97946,8 +98010,7 @@ var _getMetaFieldForId = function(id, key) {
     },
     s = function() {
       function e(t, n, o) {
-        r(this, e), this.store = t, this.parentSub = n, this.onStateChange = o,
-          this.unsubscribe = null, this.listeners = a;
+        r(this, e), this.store = t, this.parentSub = n, this.onStateChange = o, this.unsubscribe = null, this.listeners = a;
       }
       return e.prototype.addNestedSub = function(e) {
         return this.trySubscribe(), this.listeners.subscribe(e);
