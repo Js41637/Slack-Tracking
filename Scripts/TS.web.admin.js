@@ -853,12 +853,7 @@
           startURAWorkflow();
         }
       }
-      $(".cancel_admin_restrict_workflow").bind("click", function() {
-        $("#admin_list").removeClass("hidden");
-        $restrict_account.addClass("hidden");
-        var force_recalc = true;
-        $(".tab_pane.selected .long_list").longListView("resizeImmediately", force_recalc);
-      });
+      $(".cancel_admin_restrict_workflow").bind("click", TS.web.admin.exitRestrictWorkflow);
       $restrict_account.find(".api_set_restricted").bind("click", function() {
         TS.api.call("users.admin.setRestricted", {
           user: member.id
@@ -873,6 +868,11 @@
         }, TS.web.admin.onMemberSetUltraRestricted);
         $(this).addClass("disabled").prop("disabled", true);
       });
+    },
+    exitRestrictWorkflow: function() {
+      $("#admin_list").removeClass("hidden");
+      $("#restrict_account").addClass("hidden");
+      $(".tab_pane.selected .long_list").longListView("resizeImmediately", true);
     },
     startEnableRestrictedWorkflow: function(member, type) {
       $("body").scrollTop(0);
@@ -907,12 +907,7 @@
       }
       $("#restricted_user").bind("click", startRAWorkflow);
       $("#guest_user").bind("click", startURAWorkflow);
-      $(".cancel_admin_restrict_workflow").bind("click", function() {
-        $("#admin_list").removeClass("hidden");
-        $restrict_account.addClass("hidden");
-        var force_recalc = true;
-        $(".tab_pane.selected .long_list").longListView("resizeImmediately", force_recalc);
-      });
+      $(".cancel_admin_restrict_workflow").bind("click", TS.web.admin.exitRestrictWorkflow);
       $restrict_account.find(".api_set_restricted").bind("click", function() {
         var args = {
           user: member.id
@@ -1957,8 +1952,17 @@
       if (!ok) {
         TS.error("failed onMemberSetRestricted");
         if (data.error === "ura_limit_reached") {
-          var error = '<p class="alert alert_info align_left"><i class="ts_icon ts_icon_warning small_right_margin"></i>' + TS.i18n.t("You’ve reached your limit for the number of Single-Channel Guests you can invite. You must invite more paid team members before you can add more Single-Channel Guests.", "web_admin")() + "</p>";
-          $("#step2_guest").find("#convert_to_ura_confirmation").after(error);
+          var member_name = TS.members.getPrefCompliantMemberName(member, true, true);
+          TS.generic_dialog.start({
+            title: TS.i18n.t("Couldn’t convert to Single-Channel Guest", "web_admin")(),
+            body: TS.i18n.t('Unfortunately, {member_name_possessive} account couldn’t be converted because your team has already reached its limit for Single-Channel Guest accounts. Teams can have up to 5 Single-Channel Guest accounts per paid account. <a href="https://get.slack.help/hc/en-us/articles/202518103-Multi-Channel-and-Single-Channel-Guests" target="_blank">Learn more about guests</a>', "web_admin")({
+              member_name_possessive: TS.i18n.fullPossessiveString(member_name)
+            }),
+            show_cancel_button: false,
+            go_button_text: TS.i18n.t("Got it", "web_admin")(),
+            esc_for_ok: true,
+            onGo: TS.web.admin.exitRestrictWorkflow
+          });
         } else if (data.error === "not_permitted_for_user_on_enterprise") {
           var error_message = TS.i18n.t("Oops! You cannot make this user a Single-Channel Guest because they are on multiple teams in this Organization.", "web_admin")();
           var error_alert = '<p class="alert alert_info align_left"><i class="ts_icon ts_icon_warning small_right_margin"></i>' + error_message + "</p>";

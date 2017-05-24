@@ -13105,13 +13105,15 @@ TS.registerModule("constants", {
     member.is_non_existent = false;
     _setImagesForUnknownMember(member);
     _persistent_unknown_member_timers[id] = setTimeout(function() {
-      TS.metrics.count("unknown_member_persistence_timeout");
-      TS.statsd.measure("unknown_member_resolution_timing", "unknown_member_resolution_timing_" + member.id);
-      TS.console.logError({
-        id: id,
-        getMemberById: TS.members.getMemberById(id),
-        getMemberByName: TS.members.getMemberByName(id)
-      }, "persistent unknown member", "error", true);
+      if (!TS.model.ms_connected) {
+        TS.metrics.count("unknown_member_persistence_timeout");
+        TS.statsd.measure("unknown_member_resolution_timing", "unknown_member_resolution_timing_" + member.id);
+        TS.console.logError({
+          id: id,
+          getMemberById: TS.members.getMemberById(id),
+          getMemberByName: TS.members.getMemberByName(id)
+        }, "persistent unknown member", "error", true);
+      }
     }, 6e4);
     TS.statsd.mark("unknown_member_resolution_timing_" + id);
     return member;
