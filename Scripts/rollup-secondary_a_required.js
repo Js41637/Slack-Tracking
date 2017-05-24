@@ -18037,8 +18037,10 @@ TS.registerModule("constants", {
           var member = TS.members.getMemberById(user_id);
           if (!member) {
             TS.error('unknown member: "' + user_id + '"');
+            _log_event_dropped("member_left_channel");
             return;
           }
+          _log_event_handled("member_left_channel");
           TS.info(member.id + " left group " + imsg.channel);
           for (var i = 0; i < channel.members.length; i += 1) {
             if (channel.members[i] == member.id) {
@@ -18260,8 +18262,10 @@ TS.registerModule("constants", {
           var member = TS.members.getMemberById(user_id);
           if (!member) {
             TS.error('unknown member: "' + user_id + '"');
+            _log_event_dropped("member_joined_channel");
             return;
           }
+          _log_event_handled("member_joined_channel");
           if (imsg.is_mpim) return;
           TS.info(member.id + " joined group " + imsg.channel);
           var existing_member_id;
@@ -18306,8 +18310,10 @@ TS.registerModule("constants", {
       var member = TS.members.getMemberById(user_id);
       if (!member) {
         TS.error('unknown member: "' + user_id + '"');
+        _log_event_dropped("subtype__channel_topic");
         return;
       }
+      _log_event_handled("subtype__channel_topic");
       TS.info(member.id + " changed topic for channel " + imsg.channel);
       TS.channels.topicChanged(channel, member.id, imsg.ts, imsg.topic);
     },
@@ -18321,8 +18327,10 @@ TS.registerModule("constants", {
       var member = TS.members.getMemberById(user_id);
       if (!member) {
         TS.error('unknown member: "' + user_id + '"');
+        _log_event_dropped("subtype__channel_purpose");
         return;
       }
+      _log_event_handled("subtype__channel_purpose");
       TS.info(member.id + " changed purpose for channel " + imsg.channel);
       TS.channels.purposeChanged(channel, member.id, imsg.ts, imsg.purpose);
     },
@@ -18354,8 +18362,10 @@ TS.registerModule("constants", {
       var member = TS.members.getMemberById(user_id);
       if (!member) {
         TS.error('unknown member: "' + user_id + '"');
+        _log_event_dropped("subtype__mpim_join");
         return;
       }
+      _log_event_handled("subtype__mpim_join");
       TS.info(member.id + " joined mpim " + imsg.channel);
     },
     mpim_open: function(imsg) {
@@ -18563,8 +18573,10 @@ TS.registerModule("constants", {
       var member = TS.members.getMemberById(user_id);
       if (!member) {
         TS.error('unknown member: "' + user_id + '"');
+        _log_event_dropped("subtype__group_topic");
         return;
       }
+      _log_event_handled("subtype__group_topic");
       TS.info(member.id + " changed topic for group " + imsg.channel + " to " + imsg.topic);
       TS.groups.topicChanged(group, member.id, imsg.ts, imsg.topic);
     },
@@ -18580,8 +18592,10 @@ TS.registerModule("constants", {
       var member = TS.members.getMemberById(user_id);
       if (!member) {
         TS.error('unknown member: "' + user_id + '"');
+        _log_event_dropped("subtype__group_purpose");
         return;
       }
+      _log_event_handled("subtype__group_purpose");
       TS.info(member.id + " changed purpose for group " + imsg.channel + " to " + imsg.purpose);
       TS.groups.purposeChanged(group, member.id, imsg.ts, imsg.purpose);
     },
@@ -18614,8 +18628,10 @@ TS.registerModule("constants", {
       var member = TS.members.getMemberById(imsg.user);
       if (!member) {
         TS.error('unknown member: "' + imsg.user + '"');
+        _log_event_dropped("im_created");
         return;
       }
+      _log_event_handled("im_created");
       TS.members.invalidateMembersUserCanSeeArrayCaches();
       if (im.is_open) {
         if (TS.model.requested_im_opens[member.id]) {
@@ -18636,8 +18652,10 @@ TS.registerModule("constants", {
       var member = TS.members.getMemberById(imsg.user);
       if (!member) {
         TS.error('unknown member: "' + imsg.user + '"');
+        _log_event_dropped("im_open");
         return;
       }
+      _log_event_handled("im_open");
       if (TS.model.requested_im_opens[member.id]) {
         TS.ims.displayIm(im.id, false, TS.model.requested_im_opens[member.id].and_send_txt);
         delete TS.model.requested_im_opens[member.id];
@@ -18706,8 +18724,10 @@ TS.registerModule("constants", {
       var member = TS.members.getMemberById(imsg.user);
       if (!member) {
         TS.error('unknown member: "' + imsg.user + '"');
+        _log_event_dropped("status_change");
         return;
       }
+      _log_event_handled("status_change");
       if (member.status == imsg.status) return;
       member.status = imsg.status;
       TS.members.status_changed_sig.dispatch(member);
@@ -18828,8 +18848,10 @@ TS.registerModule("constants", {
       member = TS.members.getMemberById(member.id);
       if (!member) {
         TS.error("team_join: wtf no member " + member.id + "?");
+        _log_event_dropped("team_join");
         return;
       }
+      _log_event_handled("team_join");
       TS.members.joined_team_sig.dispatch(member);
       if (TS.client) TS.view.showProperTeamPaneFiller();
     },
@@ -18839,10 +18861,12 @@ TS.registerModule("constants", {
       if (!member) {
         if (!is_synthetic_event_from_flannel) {
           TS.log(1989, "Flannel: user_change for member not in model; ignoring");
+          _log_event_dropped("user_change");
           return;
         }
         TS.log(1989, "Flannel: user_change for member not in model; will upsert because this looks like a Flannel hint");
       }
+      _log_event_handled("user_change");
       var may_bulk_upsert_this_event = !member && is_synthetic_event_from_flannel;
       if (may_bulk_upsert_this_event && !_is_batch_upserting_users && !TS.members.is_in_bulk_upsert_mode) {
         _is_batch_upserting_users = true;
@@ -18870,8 +18894,10 @@ TS.registerModule("constants", {
       var member = TS.members.getMemberById(imsg.user);
       if (!member) {
         TS.error('unknown member: "' + imsg.user + '"');
+        _log_event_dropped("star_added");
         return;
       }
+      _log_event_handled("star_added");
       if (!member.is_self) return;
       TS.stars.userStarStatusHasChanged(true, imsg.item, imsg.type);
       TS.stars.maybeUpdateUserStarredList({
@@ -19026,8 +19052,10 @@ TS.registerModule("constants", {
       var member = TS.members.getMemberById(imsg.user);
       if (!member) {
         TS.error("unknown imsg.user:" + imsg.user);
+        _log_event_dropped("user_typing");
         return;
       }
+      _log_event_handled("user_typing");
       var model_ob = TS.shared.getModelObById(imsg.channel);
       if (!model_ob) {
         TS.error("unknown imsg.channel:" + imsg.channel);
@@ -19150,8 +19178,10 @@ TS.registerModule("constants", {
       var member = TS.members.getMemberById(imsg.user);
       if (!member) {
         TS.log(2002, 'unknown member in dnd_updated_user: "' + imsg.user + '"');
+        _log_event_dropped("dnd_updated_user");
         return;
       }
+      _log_event_handled("dnd_updated_user");
       TS.dnd.updateUserPropsAndSignal(member.id, imsg.dnd_status);
     },
     reconnect_url: function(imsg) {
@@ -19583,8 +19613,10 @@ TS.registerModule("constants", {
     }
     var member = TS.members.getMemberById(member_id);
     if (!member) {
+      _log_event_dropped("presence_change");
       return;
     }
+    _log_event_handled("presence_change");
     if (member.presence == presence) return;
     if (_.get(member, "profile.always_active")) presence = "active";
     if (member.is_self) {
@@ -19697,6 +19729,12 @@ TS.registerModule("constants", {
     }
   };
   var _QUEUE_METRICS_ENABLED_FOR = 50;
+  var _log_event_handled = function(name) {
+    TS.statsd.count("ms_event_handled_" + name);
+  };
+  var _log_event_dropped = function(name) {
+    TS.statsd.count("ms_event_dropped_" + name);
+  };
 })();
 (function() {
   "use strict";
