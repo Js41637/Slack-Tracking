@@ -3770,7 +3770,7 @@
     TS.redux.dispatch(TS.interop.redux.entities.channels.updateOneKeyForChannel(update));
   };
   var keys_to_update_in_redux = ["deleted", "has_draft", "is_archived", "is_channel", "is_group", "is_im", "is_mpim", "is_open", "is_org_shared", "is_self_im", "is_shared", "is_slackbot_im", "is_starred", "members", "priority", "unread_cnt", "unread_highlight_cnt"];
-  var model_ob_keys = ["_archive_msgs", "_checking_at_channel_status", "_consistency_has_been_checked", "_consistency_is_being_checked", "_delayed_fetch_timer", "_did_defer_initial_msg_history", "_display_name_lc", "_display_name_truncated", "_display_name", "_has_auto_scrolled", "_history_fetched_since_last_connect", "_i18n_ns_history", "_i18n_ns", "_internal_name", "_jumper_previous_name_match", "_latest_via_users_counts", "_mark_most_recent_read_timer", "_marked_reason", "_members", "_mention_count_display_via_users_counts", "_msgs_to_merge_on_history", "_name_lc", "_needs_unread_recalc", "_prev_last_read", "_score", "_show_in_list_even_though_no_unreads", "_temp_last_read", "_temp_unread_cnt", "_users_counts_info", "active_members", "create_channel", "created", "creator", "date_created", "enterprise_id", "fetched_history_after_scrollback_time", "has_fetched_history_after_scrollback", "has_pins", "history_changed", "history_fetch_failed", "history_fetch_retries", "history_is_being_fetched", "id", "inviter", "is_default", "is_general", "is_global_shared", "is_limited", "is_member", "is_moved", "is_private", "is_read_only", "is_required", "last_made_active", "last_msg_input", "last_read", "latest", "length", "member", "msgs", "name_normalized", "name", "needs_created_message", "needs_invited_message", "needs_joined_message", "never_needs_joined_msg", "note", "num_members", "old_name", "oldest_msg_ts", "opened_this_session", "parent_group", "pinned_items", "presence", "previous_names", "purpose", "scroll_top", "shared_team_ids", "team_url", "tooltip", "topic", "unread_count_display", "unread_count", "unread_highlight_cnt_in_client", "unread_highlights", "unreads", "user", "was_archived_this_session"];
+  var model_ob_keys = ["_archive_msgs", "_checking_at_channel_status", "_consistency_has_been_checked", "_consistency_is_being_checked", "_delayed_fetch_timer", "_did_defer_initial_msg_history", "_display_name_lc", "_display_name_truncated", "_display_name", "_has_auto_scrolled", "_history_fetched_since_last_connect", "_i18n_ns_history", "_i18n_ns", "_internal_name", "_jumper_previous_name_match", "_latest_via_users_counts", "_mark_most_recent_read_timer", "_marked_reason", "_members", "_mention_count_display_via_users_counts", "_msgs_to_merge_on_history", "_name_lc", "_needs_unread_recalc", "_prev_last_read", "_score", "_show_in_list_even_though_no_unreads", "_temp_last_read", "_temp_unread_cnt", "_users_counts_info", "active_members", "create_channel", "created", "creator", "date_created", "enterprise_id", "fetched_history_after_scrollback_time", "has_fetched_history_after_scrollback", "has_pins", "history_changed", "history_fetch_failed", "history_fetch_retries", "history_is_being_fetched", "id", "inviter", "is_default", "is_general", "is_global_shared", "is_limited", "is_member", "is_moved", "is_org_default", "is_org_mandatory", "is_private", "is_read_only", "last_made_active", "last_msg_input", "last_read", "latest", "length", "member", "msgs", "name_normalized", "name", "needs_created_message", "needs_invited_message", "needs_joined_message", "never_needs_joined_msg", "note", "num_members", "old_name", "oldest_msg_ts", "opened_this_session", "parent_group", "pinned_items", "presence", "previous_names", "purpose", "scroll_top", "shared_team_ids", "team_url", "tooltip", "topic", "unread_count_display", "unread_count", "unread_highlight_cnt_in_client", "unread_highlights", "unreads", "user", "was_archived_this_session"];
   var known_harmless_get_keys = ["_get", "_is_interop_channel_object", "_set", "_setWithReduxAction", "attributes", "children", "disabled", "is_broadcast_keyword", "is_divider", "is_emoji", "is_usergroup", "is_view", "nodeType", "old_name", "props_to_define", "selector", "then", "title", "toJSON", "window"];
   var keys_to_update_in_redux_as_map = _.reduce(keys_to_update_in_redux, function(result, key) {
     result[key] = true;
@@ -4583,11 +4583,11 @@
       return _.find(channels, "is_general");
     },
     isChannelRequired: function(model_ob) {
-      return model_ob.is_general || model_ob.is_required;
+      return model_ob.is_general || model_ob.is_org_mandatory;
     },
     isChannelOrgDefault: function(model_ob) {
       if (model_ob.is_shared && TS.channels.isChannelRequired(model_ob)) return true;
-      if (TS.boot_data.feature_default_shared_channels) return model_ob.is_default;
+      if (TS.boot_data.feature_default_shared_channels) return model_ob.is_org_default;
       return false;
     },
     getChannelByName: function(name) {
@@ -4941,8 +4941,8 @@
     channel.is_channel = true;
     channel.is_general = !!channel.is_general;
     if (TS.boot_data.feature_default_shared_channels) {
-      channel.is_required = !!channel.is_required;
-      channel.is_default = !!channel.is_default;
+      channel.is_org_mandatory = !!channel.is_org_mandatory;
+      channel.is_org_default = !!channel.is_org_default;
     }
     channel._name_lc = _.toLower(channel.name);
     channel._show_in_list_even_though_no_unreads = false;
