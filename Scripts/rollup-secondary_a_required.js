@@ -3536,7 +3536,13 @@
         return;
       }
       if (channel._is_interop_channel_object) {
-        throw new Error("Attempting to add a channel interop object, not a channel. Only raw channel objects can be added.");
+        var warning_msg = "Attempting to add a channel interop object, not a channel. Only raw channel objects can be added. Take this to #devel-redux";
+        if (_isDev()) {
+          throw new Error(warning_msg);
+        } else {
+          TS.console.error(warning_msg);
+          return;
+        }
       }
       TS.redux.dispatch(TS.interop.redux.entities.channels.addChannel(channel));
     },
@@ -3545,7 +3551,10 @@
         return;
       }
       if (channel._is_interop_channel_object) {
-        throw new Error("Attempting to remove a channel interop object, not a channel. Only raw channel objects can be used here.");
+        channel = _getChannelById(channel.id);
+        if (!channel) {
+          return;
+        }
       }
       TS.redux.dispatch(TS.interop.redux.entities.channels.removeChannel(channel));
     },
@@ -3566,7 +3575,13 @@
         return;
       }
       if (channel._is_interop_channel_object) {
-        throw new Error("Attempting to replace a channel object with a channel interop object. If you are trying to update a property for this channel you should change the property directly.");
+        var warning_msg = "Attempting to replace a channel object with a channel interop object. If you are trying to update a property for this channel you should change the property directly. Take this to #devel-redux";
+        if (_isDev()) {
+          throw new Error(warning_msg);
+        } else {
+          TS.console.error(warning_msg);
+          return;
+        }
       }
       var previous_channel = _getChannelById(channel.id);
       if (previous_channel) {
@@ -3655,6 +3670,9 @@
     groups: undefined,
     mpims: undefined,
     ims: undefined
+  };
+  var _isDev = function() {
+    return TS.boot_data && (TS.boot_data.version_ts === "dev" || TS.boot_data.version_ts === "local_js");
   };
   var _buildModelArrayKey = function(key) {
     var entities = _getAllChannels();
@@ -3753,7 +3771,7 @@
     });
   };
   var _shouldWrapEntityInProxyObject = function() {
-    var use_a_proxy = window.Proxy && (TS.boot_data && TS.boot_data.version_ts === "dev" || _.get(TS, "qs_args.js_path"));
+    var use_a_proxy = window.Proxy && _isDev();
     if (TS.boot_data.feature_tinyspeck) {
       use_a_proxy = window.Proxy;
     }
@@ -3794,7 +3812,7 @@
         _redux_did_warn_about_key[property] = true;
         _logUnknownModelObKeyAccess(immediate_caller, stack, property);
       }
-      if (_.get(TS, "qs_args.js_path") || TS.boot_data && TS.boot_data.version_ts === "dev") {
+      if (_isDev()) {
         throw new Error("Dev only warning: Trying to get an unsafe field from a model object. If possible, try and store this data outside of the model ob, or add to the model_ob_keys_as_map whitelist in TS.redux.channels.interop.source.js");
       }
       var entity = _getChannelById(target.id);
@@ -3814,7 +3832,7 @@
         _redux_did_warn_about_key[property] = true;
         _logUnknownModelObKeyAccess(immediate_caller, stack, property);
       }
-      if (_.get(TS, "qs_args.js_path") || TS.boot_data && TS.boot_data.version_ts === "dev") {
+      if (_isDev()) {
         throw new Error("Dev only warning: Trying to set an unsafe field on a model object. If possible, try and store this data outside of the model ob, or add to the model_ob_keys_as_map whitelist in TS.redux.channels.interop.source.js");
       }
       var entity = _getChannelById(target.id);
@@ -3876,6 +3894,9 @@
       }
     }
     return true;
+  };
+  var _isDev = function() {
+    return TS.boot_data && (TS.boot_data.version_ts === "dev" || TS.boot_data.version_ts === "local_js");
   };
   var _createWrappedEntityById = function(id) {
     if (!id) {
@@ -4638,7 +4659,9 @@
           TS.client.activeChannelDisplayGoneAway();
         }
       }
-      channel.msgs.length = 0;
+      if (channel.msgs) {
+        channel.msgs.length = 0;
+      }
       if (channel.is_limited) channel.is_limited = false;
       TS.channels.deleted_sig.dispatch(channel);
     },
@@ -6263,7 +6286,9 @@ TS.registerModule("constants", {
           TS.client.activeChannelDisplayGoneAway();
         }
       }
-      group.msgs.length = 0;
+      if (group.msgs) {
+        group.msgs.length = 0;
+      }
       if (group.is_limited) group.is_limited = false;
       TS.groups.deleted_sig.dispatch(group);
     },
@@ -19730,10 +19755,10 @@ TS.registerModule("constants", {
   };
   var _QUEUE_METRICS_ENABLED_FOR = 50;
   var _log_event_handled = function(name) {
-    if (TS.model && TS.model.team) TS.statsd.count("ms_event_handled_" + name + "_" + TS.model.team.id);
+    TS.statsd.count("ms_event_handled_" + name);
   };
   var _log_event_dropped = function(name) {
-    if (TS.model && TS.model.team) TS.statsd.count("ms_event_dropped_" + name + "_" + TS.model.team.id);
+    TS.statsd.count("ms_event_dropped_" + name);
   };
 })();
 (function() {

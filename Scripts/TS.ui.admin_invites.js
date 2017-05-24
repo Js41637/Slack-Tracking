@@ -486,9 +486,10 @@
     _updateSubmitButtonBasedOnCustomMessage();
   };
   var _updateSubmitButtonBasedOnCustomMessage = function() {
-    var custom_message = _$div.find("#admin_invite_custom_message").val().trim();
+    var $custom_message = _$div.find("#admin_invite_custom_message");
+    var custom_message = $custom_message.val().trim();
     var $show_custom_message = _$div.find(".admin_invites_show_custom_message");
-    var disable_submit_btn = !!TS.utility.findUrls(custom_message).length && !$show_custom_message.hasClass("hidden");
+    var disable_submit_btn = !$show_custom_message.hasClass("hidden") && !!$custom_message.data("validation") && $custom_message.data("validation").includes("hasnourl") && !!TS.utility.findUrls(custom_message).length;
     _shouldDisableSubmitButton(disable_submit_btn);
   };
   var _shouldDisableSubmitButton = function(should_disable) {
