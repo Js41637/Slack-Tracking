@@ -3753,7 +3753,7 @@
     });
   };
   var _shouldWrapEntityInProxyObject = function() {
-    var use_a_proxy = window.Proxy && TS.boot_data && TS.boot_data.version_ts === "dev";
+    var use_a_proxy = window.Proxy && (TS.boot_data && TS.boot_data.version_ts === "dev" || _.get(TS, "qs_args.js_path"));
     if (TS.boot_data.feature_tinyspeck) {
       use_a_proxy = window.Proxy;
     }
@@ -3794,7 +3794,7 @@
         _redux_did_warn_about_key[property] = true;
         _logUnknownModelObKeyAccess(immediate_caller, stack, property);
       }
-      if (TS.boot_data && TS.boot_data.version_ts === "dev") {
+      if (_.get(TS, "qs_args.js_path") || TS.boot_data && TS.boot_data.version_ts === "dev") {
         throw new Error("Dev only warning: Trying to get an unsafe field from a model object. If possible, try and store this data outside of the model ob, or add to the model_ob_keys_as_map whitelist in TS.redux.channels.interop.source.js");
       }
       var entity = _getChannelById(target.id);
@@ -3814,7 +3814,7 @@
         _redux_did_warn_about_key[property] = true;
         _logUnknownModelObKeyAccess(immediate_caller, stack, property);
       }
-      if (TS.boot_data && TS.boot_data.version_ts === "dev") {
+      if (_.get(TS, "qs_args.js_path") || TS.boot_data && TS.boot_data.version_ts === "dev") {
         throw new Error("Dev only warning: Trying to set an unsafe field on a model object. If possible, try and store this data outside of the model ob, or add to the model_ob_keys_as_map whitelist in TS.redux.channels.interop.source.js");
       }
       var entity = _getChannelById(target.id);
@@ -17114,9 +17114,9 @@ TS.registerModule("constants", {
   var _should_record_queue_metrics;
   var _setPongTimeoutMs = function(has_focus) {
     if (has_focus) {
-      _pong_timeout_ms = 1e4;
-    } else {
       _pong_timeout_ms = 6e4;
+    } else {
+      _pong_timeout_ms = 12e4;
     }
     _pong_timeout_ms += _send_ping_interv_ms;
     TS.log(2, "MS _pong_timeout_ms set to:" + _pong_timeout_ms + " has_focus:" + has_focus);
@@ -19730,10 +19730,10 @@ TS.registerModule("constants", {
   };
   var _QUEUE_METRICS_ENABLED_FOR = 50;
   var _log_event_handled = function(name) {
-    TS.statsd.count("ms_event_handled_" + name);
+    if (TS.model && TS.model.team) TS.statsd.count("ms_event_handled_" + name + "_" + TS.model.team.id);
   };
   var _log_event_dropped = function(name) {
-    TS.statsd.count("ms_event_dropped_" + name);
+    if (TS.model && TS.model.team) TS.statsd.count("ms_event_dropped_" + name + "_" + TS.model.team.id);
   };
 })();
 (function() {
@@ -64351,7 +64351,7 @@ var _getMetaFieldForId = function(id, key) {
         function Xe(t) {
           var r = null;
           if (!xo[t] && void 0 !== e && e && e.exports) try {
-            r = Lo._abbr, n(513)("./" + t), Ze(r);
+            r = Lo._abbr, n(514)("./" + t), Ze(r);
           } catch (e) {}
           return xo[t];
         }
@@ -65497,25 +65497,6 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   "use strict";
   e.exports = n(51);
-}, function(e, t, n) {
-  "use strict";
-
-  function r(e, t, n, r, i, a, s, u) {
-    if (o(t), !e) {
-      var c;
-      if (void 0 === t) c = new Error("Minified exception occurred; use the non-minified dev environment for the full error message and additional helpful warnings.");
-      else {
-        var l = [n, r, i, a, s, u],
-          d = 0;
-        c = new Error(t.replace(/%s/g, function() {
-          return l[d++];
-        })), c.name = "Invariant Violation";
-      }
-      throw c.framesToPop = 1, c;
-    }
-  }
-  var o = function(e) {};
-  e.exports = r;
 }, function(e, t, n) {
   (function(e, r) {
     var o;
@@ -69719,6 +69700,25 @@ var _getMetaFieldForId = function(id, key) {
   }).call(t, n(64), n(82)(e));
 }, function(e, t, n) {
   "use strict";
+
+  function r(e, t, n, r, i, a, s, u) {
+    if (o(t), !e) {
+      var c;
+      if (void 0 === t) c = new Error("Minified exception occurred; use the non-minified dev environment for the full error message and additional helpful warnings.");
+      else {
+        var l = [n, r, i, a, s, u],
+          d = 0;
+        c = new Error(t.replace(/%s/g, function() {
+          return l[d++];
+        })), c.name = "Invariant Violation";
+      }
+      throw c.framesToPop = 1, c;
+    }
+  }
+  var o = function(e) {};
+  e.exports = r;
+}, function(e, t, n) {
+  "use strict";
   var r = n(20),
     o = r;
   e.exports = o;
@@ -69884,7 +69884,7 @@ var _getMetaFieldForId = function(id, key) {
   var d = n(5),
     f = n(49),
     p = n(284),
-    h = (n(2), f.ID_ATTRIBUTE_NAME),
+    h = (n(3), f.ID_ATTRIBUTE_NAME),
     _ = p,
     m = "__reactInternalInstance$" + Math.random().toString(36).slice(2),
     y = {
@@ -69896,6 +69896,65 @@ var _getMetaFieldForId = function(id, key) {
       uncacheNode: a
     };
   e.exports = y;
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e) {
+    var t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : a.a.noop;
+    return function() {
+      if (!a.a.hasIn(window, e)) return t.apply(void 0, arguments);
+      var n = a.a.get(window, e);
+      return a.a.isFunction(n) ? n.apply(void 0, arguments) : n;
+    };
+  }
+
+  function o(e) {
+    var t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : u,
+      n = arguments.length > 2 && void 0 !== arguments[2] ? arguments[2] : Promise.resolve;
+    return function() {
+      for (var r = arguments.length, o = Array(r), i = 0; i < r; i++) o[i] = arguments[i];
+      if (!a.a.hasIn(window, e)) return n();
+      var s = a.a.get(window, e);
+      if (!a.a.isFunction(s)) throw new Error(e + " is not a function");
+      return new Promise(function(e, n) {
+        s.apply(void 0, o.concat([function() {
+          for (var r = arguments.length, o = Array(r), i = 0; i < r; i++) o[i] = arguments[i];
+          t(e, n, o);
+        }]));
+      });
+    };
+  }
+  t.a = r, t.b = o;
+  var i = n(2),
+    a = n.n(i),
+    s = function() {
+      function e(e, t) {
+        var n = [],
+          r = !0,
+          o = !1,
+          i = void 0;
+        try {
+          for (var a, s = e[Symbol.iterator](); !(r = (a = s.next()).done) && (n.push(a.value), !t || n.length !== t); r = !0);
+        } catch (e) {
+          o = !0, i = e;
+        } finally {
+          try {
+            !r && s.return && s.return();
+          } finally {
+            if (o) throw i;
+          }
+        }
+        return n;
+      }
+      return function(t, n) {
+        if (Array.isArray(t)) return t;
+        if (Symbol.iterator in Object(t)) return e(t, n);
+        throw new TypeError("Invalid attempt to destructure non-iterable instance");
+      };
+    }(),
+    u = function(e, t, n) {
+      return e(s(n, 1)[0]);
+    };
 }, function(e, t, n) {
   "use strict";
 
@@ -69914,21 +69973,21 @@ var _getMetaFieldForId = function(id, key) {
       return r(o).default;
     }
   });
-  var i = n(640);
+  var i = n(641);
   Object.defineProperty(t, "createReducer", {
     enumerable: !0,
     get: function() {
       return r(i).default;
     }
   });
-  var a = n(638);
+  var a = n(639);
   Object.defineProperty(t, "assignAll", {
     enumerable: !0,
     get: function() {
       return r(a).default;
     }
   });
-  var s = n(639);
+  var s = n(640);
   Object.defineProperty(t, "bindAll", {
     enumerable: !0,
     get: function() {
@@ -69942,14 +70001,14 @@ var _getMetaFieldForId = function(id, key) {
       return r(u).default;
     }
   });
-  var c = n(641);
+  var c = n(642);
   Object.defineProperty(t, "disbatch", {
     enumerable: !0,
     get: function() {
       return r(c).default;
     }
   });
-  var l = n(642);
+  var l = n(643);
   Object.defineProperty(t, "loggers", {
     enumerable: !0,
     get: function() {
@@ -70027,66 +70086,7 @@ var _getMetaFieldForId = function(id, key) {
   e.exports = o;
 }, function(e, t, n) {
   "use strict";
-
-  function r(e) {
-    var t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : a.a.noop;
-    return function() {
-      if (!a.a.hasIn(window, e)) return t.apply(void 0, arguments);
-      var n = a.a.get(window, e);
-      return a.a.isFunction(n) ? n.apply(void 0, arguments) : n;
-    };
-  }
-
-  function o(e) {
-    var t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : u,
-      n = arguments.length > 2 && void 0 !== arguments[2] ? arguments[2] : Promise.resolve;
-    return function() {
-      for (var r = arguments.length, o = Array(r), i = 0; i < r; i++) o[i] = arguments[i];
-      if (!a.a.hasIn(window, e)) return n();
-      var s = a.a.get(window, e);
-      if (!a.a.isFunction(s)) throw new Error(e + " is not a function");
-      return new Promise(function(e, n) {
-        s.apply(void 0, o.concat([function() {
-          for (var r = arguments.length, o = Array(r), i = 0; i < r; i++) o[i] = arguments[i];
-          t(e, n, o);
-        }]));
-      });
-    };
-  }
-  t.a = r, t.b = o;
-  var i = n(3),
-    a = n.n(i),
-    s = function() {
-      function e(e, t) {
-        var n = [],
-          r = !0,
-          o = !1,
-          i = void 0;
-        try {
-          for (var a, s = e[Symbol.iterator](); !(r = (a = s.next()).done) && (n.push(a.value), !t || n.length !== t); r = !0);
-        } catch (e) {
-          o = !0, i = e;
-        } finally {
-          try {
-            !r && s.return && s.return();
-          } finally {
-            if (o) throw i;
-          }
-        }
-        return n;
-      }
-      return function(t, n) {
-        if (Array.isArray(t)) return t;
-        if (Symbol.iterator in Object(t)) return e(t, n);
-        throw new TypeError("Invalid attempt to destructure non-iterable instance");
-      };
-    }(),
-    u = function(e, t, n) {
-      return e(s(n, 1)[0]);
-    };
-}, function(e, t, n) {
-  "use strict";
-  e.exports = n(528);
+  e.exports = n(529);
 }, function(e, t, n) {
   "use strict";
 
@@ -70116,9 +70116,9 @@ var _getMetaFieldForId = function(id, key) {
     }))(e);
   }
   t.b = a;
-  var s = n(3),
+  var s = n(2),
     u = n.n(s),
-    c = n(594),
+    c = n(595),
     l = n.n(c),
     d = n(446),
     f = function() {
@@ -70229,7 +70229,7 @@ var _getMetaFieldForId = function(id, key) {
     h = n(287),
     _ = n(50),
     m = n(76),
-    y = (n(2), []),
+    y = (n(3), []),
     v = 0,
     g = f.getPooled(),
     b = !1,
@@ -70294,8 +70294,8 @@ var _getMetaFieldForId = function(id, key) {
   e.exports = E;
 }, function(e, t, n) {
   "use strict";
-  var r = n(585),
-    o = (n(302), n(586));
+  var r = n(586),
+    o = (n(302), n(587));
   n.d(t, "a", function() {
     return r.a;
   }), n.d(t, "b", function() {
@@ -70411,7 +70411,7 @@ var _getMetaFieldForId = function(id, key) {
   });
 }, function(e, t, n) {
   var r = n(29),
-    o = n(15),
+    o = n(16),
     i = n(145),
     a = n(43),
     s = function(e, t, n) {
@@ -70513,9 +70513,9 @@ var _getMetaFieldForId = function(id, key) {
   }), n.d(t, "getChannelType", function() {
     return x;
   });
-  var o, i = n(3),
+  var o, i = n(2),
     a = n.n(i),
-    s = n(11),
+    s = n(12),
     u = (n.n(s), Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
@@ -70636,9 +70636,9 @@ var _getMetaFieldForId = function(id, key) {
   }), n.d(t, "getLinkById", function() {
     return x;
   });
-  var o, i = n(3),
+  var o, i = n(2),
     a = n.n(i),
-    s = n(11),
+    s = n(12),
     u = (n.n(s), n(407)),
     c = n(19),
     l = n(109),
@@ -70759,7 +70759,7 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   "use strict";
   var r = n(5),
-    o = (n(2), function(e) {
+    o = (n(3), function(e) {
       var t = this;
       if (t.instancePool.length) {
         var n = t.instancePool.pop();
@@ -71026,7 +71026,7 @@ var _getMetaFieldForId = function(id, key) {
     return (e & t) === t;
   }
   var o = n(5),
-    i = (n(2), {
+    i = (n(3), {
       MUST_USE_PROPERTY: 1,
       HAS_BOOLEAN_VALUE: 4,
       HAS_NUMERIC_VALUE: 8,
@@ -71086,7 +71086,7 @@ var _getMetaFieldForId = function(id, key) {
   function r() {
     o.attachRefs(this, this._currentElement);
   }
-  var o = n(551),
+  var o = n(552),
     i = (n(21), n(4), {
       mountComponent: function(e, t, n, o, i, a) {
         var s = e.mountComponent(t, n, o, i, a);
@@ -71113,15 +71113,15 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   "use strict";
   var r = n(6),
-    o = n(629),
+    o = n(630),
     i = n(138),
-    a = n(634),
-    s = n(630),
-    u = n(631),
+    a = n(635),
+    s = n(631),
+    u = n(632),
     c = n(52),
-    l = n(632),
-    d = n(635),
-    f = n(636),
+    l = n(633),
+    d = n(636),
+    f = n(637),
     p = (n(4), c.createElement),
     h = c.createFactory,
     _ = c.cloneElement,
@@ -71401,7 +71401,7 @@ var _getMetaFieldForId = function(id, key) {
   e.exports = {};
 }, function(e, t, n) {
   "use strict";
-  var r = n(17),
+  var r = n(11),
     o = n.i(r.a)("TS.exportToLegacy", function() {});
   o("interop", {}), t.a = o;
 }, function(e, t, n) {
@@ -71413,9 +71413,9 @@ var _getMetaFieldForId = function(id, key) {
   }), n.d(t, "getMessageByTimestamp", function() {
     return c;
   });
-  var r = n(3),
+  var r = n(2),
     o = n.n(r),
-    i = n(11),
+    i = n(12),
     a = (n.n(i), Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
@@ -71492,7 +71492,7 @@ var _getMetaFieldForId = function(id, key) {
     u = n(126),
     c = n(293),
     l = n(294),
-    d = (n(2), {}),
+    d = (n(3), {}),
     f = null,
     p = function(e, t) {
       e && (s.executeDispatchesInOrder(e, t), e.isPersistent() || e.constructor.release(e));
@@ -71777,7 +71777,7 @@ var _getMetaFieldForId = function(id, key) {
   }), n.d(t, "isChannelMutedById", function() {
     return s;
   });
-  var r = n(11),
+  var r = n(12),
     o = (n.n(r), n.i(r.createAction)("Rebuild muted channel list")),
     i = {},
     a = n.i(r.createReducer)(function(e, t, n) {
@@ -71818,9 +71818,9 @@ var _getMetaFieldForId = function(id, key) {
   }
   var o, i = n(6),
     a = n(121),
-    s = n(543),
+    s = n(544),
     u = n(292),
-    c = n(576),
+    c = n(577),
     l = n(132),
     d = {},
     f = !1,
@@ -71968,7 +71968,7 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   "use strict";
   var r = n(5),
-    o = (n(2), {}),
+    o = (n(3), {}),
     i = {
       reinitializeTransaction: function() {
         this.transactionWrappers = this.getTransactionWrappers(), this.wrapperInitData ? this.wrapperInitData.length = 0 : this.wrapperInitData = [], this._isInTransaction = !1;
@@ -72065,7 +72065,7 @@ var _getMetaFieldForId = function(id, key) {
   e.exports = o;
 }, function(e, t, n) {
   "use strict";
-  var r, o = n(16),
+  var r, o = n(17),
     i = n(120),
     a = /^[ \r\n\t\f]/,
     s = /<(!--|link|noscript|meta|script|style)[ \r\n\t\f\/>]/,
@@ -72094,7 +72094,7 @@ var _getMetaFieldForId = function(id, key) {
   n.d(t, "a", function() {
     return r.a;
   });
-  var o = n(608);
+  var o = n(609);
   n.d(t, "b", function() {
     return o.a;
   }), n(312), n(313);
@@ -72116,9 +72116,9 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   "use strict";
   var r = n(338),
-    o = n(647),
-    i = n(646),
-    a = n(645),
+    o = n(648),
+    i = n(647),
+    a = n(646),
     s = n(337);
   n(339), n.d(t, "d", function() {
     return r.b;
@@ -72193,7 +72193,7 @@ var _getMetaFieldForId = function(id, key) {
   t.f = Object.getOwnPropertySymbols;
 }, function(e, t, n) {
   var r = n(34),
-    o = n(15),
+    o = n(16),
     i = n(42);
   e.exports = function(e, t) {
     var n = (o.Object || {})[e] || Object[e],
@@ -72242,7 +72242,7 @@ var _getMetaFieldForId = function(id, key) {
   };
 }, function(e, t, n) {
   var r = n(29),
-    o = n(15),
+    o = n(16),
     i = n(86),
     a = n(97),
     s = n(36).f;
@@ -72285,7 +72285,7 @@ var _getMetaFieldForId = function(id, key) {
   }), n.d(t, "b", function() {
     return i;
   });
-  var r = n(17),
+  var r = n(11),
     o = n.i(r.a)("TS.metrics.mark", function() {
       return null;
     }),
@@ -72301,7 +72301,7 @@ var _getMetaFieldForId = function(id, key) {
   }), n.d(t, "c", function() {
     return a;
   });
-  var r = n(17),
+  var r = n(11),
     o = n.i(r.a)("TS.model.isMac", function() {
       return !1;
     }),
@@ -72314,7 +72314,7 @@ var _getMetaFieldForId = function(id, key) {
   }), n.d(t, "b", function() {
     return i;
   });
-  var r = n(17),
+  var r = n(11),
     o = (n.i(r.a)("TS.log", console.log), n.i(r.a)("TS.error", console.error)),
     i = (n.i(r.a)("TS.warn", console.warn), n.i(r.a)("TS.info", console.info), n.i(r.a)("TS.utility.convertFilesize", function() {
       return "0 bytes";
@@ -72326,9 +72326,9 @@ var _getMetaFieldForId = function(id, key) {
   }), n.d(t, "getTimestampsByChannelId", function() {
     return c;
   });
-  var r = n(3),
+  var r = n(2),
     o = n.n(r),
-    i = n(11),
+    i = n(12),
     a = (n.n(i), n(58)),
     s = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
@@ -72378,9 +72378,9 @@ var _getMetaFieldForId = function(id, key) {
   }), n.d(t, "getMemberTypeById", function() {
     return h;
   });
-  var o, i = n(3),
+  var o, i = n(2),
     a = n.n(i),
-    s = n(11),
+    s = n(12),
     u = (n.n(s), Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
@@ -72436,7 +72436,7 @@ var _getMetaFieldForId = function(id, key) {
   }), n.d(t, "getWindowByKey", function() {
     return f;
   });
-  var o, i = n(11),
+  var o, i = n(12),
     a = (n.n(i), Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
@@ -72484,7 +72484,7 @@ var _getMetaFieldForId = function(id, key) {
   }), n.d(t, "getDndByMemberId", function() {
     return c;
   });
-  var o = n(11),
+  var o = n(12),
     i = (n.n(o), Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
@@ -72525,9 +72525,9 @@ var _getMetaFieldForId = function(id, key) {
   }), n.d(t, "getDownloadIds", function() {
     return h;
   });
-  var o = n(3),
+  var o = n(2),
     i = n.n(o),
-    a = n(11),
+    a = n(12),
     s = (n.n(a), n(156)),
     u = n(102),
     c = n(160),
@@ -72572,7 +72572,7 @@ var _getMetaFieldForId = function(id, key) {
   }), t.c = r, n.d(t, "b", function() {
     return f;
   });
-  var o = n(11),
+  var o = n(12),
     i = (n.n(o), n(474)),
     a = n(102),
     s = n(58),
@@ -72623,7 +72623,7 @@ var _getMetaFieldForId = function(id, key) {
   }), n.d(t, "getPref", function() {
     return d;
   });
-  var o, i = n(11),
+  var o, i = n(12),
     a = (n.n(i), Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
@@ -72667,9 +72667,9 @@ var _getMetaFieldForId = function(id, key) {
   }), n.d(t, "getPresenceByMemberId", function() {
     return p;
   });
-  var o, i = n(3),
+  var o, i = n(2),
     a = n.n(i),
-    s = n(11),
+    s = n(12),
     u = (n.n(s), Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
@@ -72735,9 +72735,9 @@ var _getMetaFieldForId = function(id, key) {
     var r = d.call(t, "constructor") && t.constructor;
     return "function" == typeof r && r instanceof r && l.call(r) == f;
   }
-  var o = n(502),
-    i = n(504),
-    a = n(509),
+  var o = n(503),
+    i = n(505),
+    a = n(510),
     s = "[object Object]",
     u = Function.prototype,
     c = Object.prototype,
@@ -73038,7 +73038,7 @@ var _getMetaFieldForId = function(id, key) {
     o === t ? n && _(r, document.createTextNode(n), o) : n ? (h(o, n), u(r, o, t)) : u(r, e, t);
   }
   var l = n(48),
-    d = n(520),
+    d = n(521),
     f = (n(10), n(21), n(128)),
     p = n(78),
     h = n(299),
@@ -73114,7 +73114,7 @@ var _getMetaFieldForId = function(id, key) {
     c.registrationNameModules[e] && a("100", e), c.registrationNameModules[e] = t, c.registrationNameDependencies[e] = t.eventTypes[n].dependencies;
   }
   var a = n(5),
-    s = (n(2), null),
+    s = (n(3), null),
     u = {},
     c = {
       plugins: [],
@@ -73215,7 +73215,7 @@ var _getMetaFieldForId = function(id, key) {
   }
   var f, p, h = n(5),
     _ = n(126),
-    m = (n(2), n(4), {
+    m = (n(3), n(4), {
       injectComponentTree: function(e) {
         f = e;
       },
@@ -73307,8 +73307,8 @@ var _getMetaFieldForId = function(id, key) {
   }
   var s = n(5),
     u = n(51),
-    c = n(549),
-    l = (n(2), n(4), {
+    c = n(550),
+    l = (n(3), n(4), {
       button: !0,
       checkbox: !0,
       image: !0,
@@ -73348,7 +73348,7 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   "use strict";
   var r = n(5),
-    o = (n(2), !1),
+    o = (n(3), !1),
     i = {
       replaceNodeWithMarkup: null,
       processChildrenUpdates: null,
@@ -73403,7 +73403,7 @@ var _getMetaFieldForId = function(id, key) {
   var a = n(5),
     s = (n(27), n(62)),
     u = (n(21), n(23)),
-    c = (n(2), n(4), {
+    c = (n(3), n(4), {
       isMounted: function(e) {
         var t = s.get(e);
         return !!t && !!t._renderedComponent;
@@ -73497,7 +73497,7 @@ var _getMetaFieldForId = function(id, key) {
     }
     return !r && o && "wheel" === e && (r = document.implementation.hasFeature("Events.wheel", "3.0")), r;
   }
-  var o, i = n(16);
+  var o, i = n(17);
   i.canUseDOM && (o = document.implementation && document.implementation.hasFeature && !0 !== document.implementation.hasFeature("", "")), e.exports = r;
 }, function(e, t, n) {
   "use strict";
@@ -73567,7 +73567,7 @@ var _getMetaFieldForId = function(id, key) {
   var o = n(53),
     i = n(139),
     a = (n(333), n(59));
-  n(2), n(4), r.prototype.isReactComponent = {}, r.prototype.setState = function(e, t) {
+  n(3), n(4), r.prototype.isReactComponent = {}, r.prototype.setState = function(e, t) {
     "object" != typeof e && "function" != typeof e && null != e && o("85"), this.updater.enqueueSetState(this, e), t && this.updater.enqueueCallback(this, t, "setState");
   }, r.prototype.forceUpdate = function(e) {
     this.updater.enqueueForceUpdate(this), e && this.updater.enqueueCallback(this, e, "forceUpdate");
@@ -73868,14 +73868,12 @@ var _getMetaFieldForId = function(id, key) {
   l.propTypes = u, l.defaultProps = c, t.a = l;
 }, function(e, t, n) {
   "use strict";
+  var r = n(447);
   n.d(t, "a", function() {
-    return o;
+    return r.a;
   }), n.d(t, "b", function() {
-    return i;
+    return r.b;
   });
-  var r = n(447),
-    o = r.a,
-    i = r.b;
 }, function(e, t, n) {
   "use strict";
   n.d(t, "a", function() {
@@ -73883,7 +73881,7 @@ var _getMetaFieldForId = function(id, key) {
   }), n.d(t, "b", function() {
     return a;
   });
-  var r = n(17),
+  var r = n(11),
     o = function() {
       function e(e, t) {
         var n = [],
@@ -73922,7 +73920,7 @@ var _getMetaFieldForId = function(id, key) {
     }));
 }, function(e, t, n) {
   "use strict";
-  var r = n(17),
+  var r = n(11),
     o = n.i(r.a)("TS.redux.getStoreInstance", function() {});
   t.a = o;
 }, function(e, t, n) {
@@ -73945,9 +73943,9 @@ var _getMetaFieldForId = function(id, key) {
   }), n.d(t, "getChannelIdByName", function() {
     return m;
   });
-  var o, i = n(3),
+  var o, i = n(2),
     a = n.n(i),
-    s = n(11),
+    s = n(12),
     u = (n.n(s), n(37)),
     c = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
@@ -74014,9 +74012,9 @@ var _getMetaFieldForId = function(id, key) {
   }), n.d(t, "getAllIdsNeedingMarking", function() {
     return p;
   });
-  var o, i = n(3),
+  var o, i = n(2),
     a = n.n(i),
-    s = n(11),
+    s = n(12),
     u = (n.n(s), Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
@@ -74042,7 +74040,7 @@ var _getMetaFieldForId = function(id, key) {
   n.d(t, "a", function() {
     return a;
   });
-  var r = n(11),
+  var r = n(12),
     o = (n.n(r), n(475)),
     i = n.i(r.createAction)("Upsert a file"),
     a = n.i(r.createAction)("Upsert multiple files"),
@@ -74065,7 +74063,7 @@ var _getMetaFieldForId = function(id, key) {
   }), n.d(t, "isFeatureEnabled", function() {
     return s;
   });
-  var r = n(11),
+  var r = n(12),
     o = (n.n(r), n.i(r.createAction)("Load boot data into redux")),
     i = {},
     a = n.i(r.createReducer)(function(e, t, n) {
@@ -74119,9 +74117,9 @@ var _getMetaFieldForId = function(id, key) {
   }), n.d(t, "getTyperIdsInChannel", function() {
     return g;
   });
-  var i, a = n(3),
+  var i, a = n(2),
     s = n.n(a),
-    u = n(11),
+    u = n(12),
     c = (n.n(u), Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
@@ -74253,7 +74251,7 @@ var _getMetaFieldForId = function(id, key) {
     m();
   }
   t.a = o;
-  var i = n(3),
+  var i = n(2),
     a = n.n(i),
     s = "easeInOutQuad";
 }, function(e, t, n) {
@@ -74340,9 +74338,9 @@ var _getMetaFieldForId = function(id, key) {
   }), n.d(t, "a", function() {
     return p;
   });
-  var r = n(3),
+  var r = n(2),
     o = n.n(r),
-    i = n(17),
+    i = n(11),
     a = (n.i(i.a)("desktop.downloads.startDownload", o.a.noop), n.i(i.a)("desktop.downloads.showDownload", o.a.noop)),
     s = n.i(i.a)("desktop.downloads.openDownload", o.a.noop),
     u = n.i(i.a)("desktop.downloads.cancelDownload", o.a.noop),
@@ -74357,9 +74355,9 @@ var _getMetaFieldForId = function(id, key) {
   function r(e, t) {
     if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
   }
-  var o = n(514),
+  var o = n(515),
     i = n.n(o),
-    a = n(3),
+    a = n(2),
     s = n.n(a),
     u = function() {
       function e(e, t) {
@@ -74417,7 +74415,7 @@ var _getMetaFieldForId = function(id, key) {
     }
     return i;
   };
-  var r = n(485),
+  var r = n(486),
     o = function(e) {
       return e && e.__esModule ? e : {
         "default": e
@@ -74475,7 +74473,7 @@ var _getMetaFieldForId = function(id, key) {
   e.exports = r;
 }, function(e, t, n) {
   "use strict";
-  var r = n(508),
+  var r = n(509),
     o = r.a.Symbol;
   t.a = o;
 }, function(e, t) {
@@ -82192,7 +82190,7 @@ var _getMetaFieldForId = function(id, key) {
   }
   var o = n(5),
     i = n(39),
-    a = (n(2), function() {
+    a = (n(3), function() {
       function e(t) {
         r(this, e), this._callbacks = null, this._contexts = null, this._arg = t;
       }
@@ -82229,7 +82227,7 @@ var _getMetaFieldForId = function(id, key) {
     return null == t || e.hasBooleanValue && !t || e.hasNumericValue && isNaN(t) || e.hasPositiveNumericValue && t < 1 || e.hasOverloadedBooleanValue && !1 === t;
   }
   var i = n(49),
-    a = (n(10), n(21), n(577)),
+    a = (n(10), n(21), n(578)),
     s = (n(4), new RegExp("^[" + i.ATTRIBUTE_NAME_START_CHAR + "][" + i.ATTRIBUTE_NAME_CHAR + "]*$")),
     u = {},
     c = {},
@@ -82400,7 +82398,7 @@ var _getMetaFieldForId = function(id, key) {
     return e instanceof u;
   }
   var a = n(5),
-    s = (n(2), null),
+    s = (n(3), null),
     u = null,
     c = {
       injectGenericComponentClass: function(e) {
@@ -82423,8 +82421,8 @@ var _getMetaFieldForId = function(id, key) {
   function r(e) {
     return i(document.documentElement, e);
   }
-  var o = n(536),
-    i = n(490),
+  var o = n(537),
+    i = n(491),
     a = n(172),
     s = n(173),
     u = {
@@ -82539,17 +82537,17 @@ var _getMetaFieldForId = function(id, key) {
     m = n(51),
     y = n(74),
     v = (n(27), n(10)),
-    g = n(530),
-    b = n(532),
+    g = n(531),
+    b = n(533),
     M = n(287),
     w = n(62),
-    k = (n(21), n(546)),
+    k = (n(21), n(547)),
     L = n(50),
     T = n(127),
     S = n(23),
     E = n(59),
     x = n(297),
-    Y = (n(2), n(78)),
+    Y = (n(3), n(78)),
     C = n(133),
     D = (n(4), _.ID_ATTRIBUTE_NAME),
     P = _.ROOT_ATTRIBUTE_NAME,
@@ -82646,7 +82644,7 @@ var _getMetaFieldForId = function(id, key) {
   "use strict";
   var r = n(5),
     o = n(51),
-    i = (n(2), {
+    i = (n(3), {
       HOST: 0,
       COMPOSITE: 1,
       EMPTY: 2,
@@ -82672,7 +82670,7 @@ var _getMetaFieldForId = function(id, key) {
     return null == t && o("30"), null == e ? t : Array.isArray(e) ? Array.isArray(t) ? (e.push.apply(e, t), e) : (e.push(t), e) : Array.isArray(t) ? [e].concat(t) : [e, t];
   }
   var o = n(5);
-  n(2), e.exports = r;
+  n(3), e.exports = r;
 }, function(e, t, n) {
   "use strict";
 
@@ -82696,7 +82694,7 @@ var _getMetaFieldForId = function(id, key) {
   function r() {
     return !i && o.canUseDOM && (i = "textContent" in document.documentElement ? "textContent" : "innerText"), i;
   }
-  var o = n(16),
+  var o = n(17),
     i = null;
   e.exports = r;
 }, function(e, t, n) {
@@ -82730,10 +82728,10 @@ var _getMetaFieldForId = function(id, key) {
   }
   var a = n(5),
     s = n(6),
-    u = n(527),
+    u = n(528),
     c = n(286),
     l = n(288),
-    d = (n(574), n(2), n(4), function(e) {
+    d = (n(575), n(3), n(4), function(e) {
       this.construct(e);
     });
   s(d.prototype, u, {
@@ -82766,7 +82764,7 @@ var _getMetaFieldForId = function(id, key) {
   e.exports = r;
 }, function(e, t, n) {
   "use strict";
-  var r = n(16),
+  var r = n(17),
     o = n(77),
     i = n(78),
     a = function(e, t) {
@@ -82817,9 +82815,9 @@ var _getMetaFieldForId = function(id, key) {
     return null == e ? 0 : o(e, "", t, n);
   }
   var a = n(5),
-    s = (n(27), n(542)),
-    u = n(573),
-    c = (n(2), n(123)),
+    s = (n(27), n(543)),
+    u = n(574),
+    c = (n(3), n(123)),
     l = (n(4), "."),
     d = ":";
   e.exports = i;
@@ -82985,12 +82983,12 @@ var _getMetaFieldForId = function(id, key) {
     };
   }
   t.a = c;
-  var l = n(500),
+  var l = n(501),
     d = n.n(l),
-    f = n(501),
+    f = n(502),
     p = n.n(f),
     h = n(1),
-    _ = (n.n(h), n(592)),
+    _ = (n.n(h), n(593)),
     m = n(304),
     y = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
@@ -83055,15 +83053,15 @@ var _getMetaFieldForId = function(id, key) {
   n(114), n(135);
 }, function(e, t, n) {
   "use strict";
-  var r = n(12),
+  var r = n(13),
     o = n.n(r),
     i = n(7),
     a = n.n(i),
     s = n(8),
     u = n.n(s),
-    c = n(14),
+    c = n(15),
     l = n.n(c),
-    d = n(13),
+    d = n(14),
     f = n.n(d),
     p = n(1),
     h = n.n(p);
@@ -83173,19 +83171,19 @@ var _getMetaFieldForId = function(id, key) {
   };
 }, function(e, t, n) {
   "use strict";
-  var r = n(12),
+  var r = n(13),
     o = n.n(r),
     i = n(7),
     a = n.n(i),
     s = n(8),
     u = n.n(s),
-    c = n(14),
+    c = n(15),
     l = n.n(c),
-    d = n(13),
+    d = n(14),
     f = n.n(d),
     p = n(1),
     h = n.n(p),
-    _ = n(625),
+    _ = n(626),
     m = function(e) {
       function t(e) {
         a()(this, t);
@@ -83262,15 +83260,15 @@ var _getMetaFieldForId = function(id, key) {
   }, t.a = m;
 }, function(e, t, n) {
   "use strict";
-  var r = n(12),
+  var r = n(13),
     o = n.n(r),
     i = n(7),
     a = n.n(i),
     s = n(8),
     u = n.n(s),
-    c = n(14),
+    c = n(15),
     l = n.n(c),
-    d = n(13),
+    d = n(14),
     f = n.n(d),
     p = n(1),
     h = (n.n(p), n(18));
@@ -83375,21 +83373,21 @@ var _getMetaFieldForId = function(id, key) {
     i = n.n(o),
     a = n(65),
     s = n.n(a),
-    u = n(12),
+    u = n(13),
     c = n.n(u),
     l = n(7),
     d = n.n(l),
     f = n(8),
     p = n.n(f),
-    h = n(14),
+    h = n(15),
     _ = n.n(h),
-    m = n(13),
+    m = n(14),
     y = n.n(m),
     v = n(1),
     g = n.n(v),
-    b = n(602),
-    M = n(606),
-    w = n(623);
+    b = n(603),
+    M = n(607),
+    w = n(624);
   ((function(e) {
     function t(e, n) {
       d()(this, t);
@@ -83523,15 +83521,15 @@ var _getMetaFieldForId = function(id, key) {
   };
 }, function(e, t, n) {
   "use strict";
-  var r = n(12),
+  var r = n(13),
     o = n.n(r),
     i = n(7),
     a = n.n(i),
     s = n(8),
     u = n.n(s),
-    c = n(14),
+    c = n(15),
     l = n.n(c),
-    d = n(13),
+    d = n(14),
     f = n.n(d),
     p = n(1);
   n.n(p),
@@ -83584,25 +83582,25 @@ var _getMetaFieldForId = function(id, key) {
   "use strict";
   var r = n(28),
     o = n.n(r),
-    i = n(12),
+    i = n(13),
     a = n.n(i),
     s = n(7),
     u = n.n(s),
     c = n(8),
     l = n.n(c),
-    d = n(14),
+    d = n(15),
     f = n.n(d),
-    p = n(13),
+    p = n(14),
     h = n.n(p),
     _ = n(1),
     m = n.n(_),
     y = n(9),
     v = n.n(y),
-    g = n(611),
-    b = n(610),
+    g = n(612),
+    b = n(611),
     M = n(137),
     w = n(313),
-    k = n(612),
+    k = n(613),
     L = n(312),
     T = n(170),
     S = n.n(T),
@@ -84028,10 +84026,11 @@ var _getMetaFieldForId = function(id, key) {
           if ("number" == typeof this._deferredInvalidateColumnIndex) {
             var e = this._deferredInvalidateColumnIndex,
               t = this._deferredInvalidateRowIndex;
-            this._deferredInvalidateColumnIndex = null, this._deferredInvalidateRowIndex = null, this.recomputeGridSize({
-              columnIndex: e,
-              rowIndex: t
-            });
+            this._deferredInvalidateColumnIndex = null,
+              this._deferredInvalidateRowIndex = null, this.recomputeGridSize({
+                columnIndex: e,
+                rowIndex: t
+              });
           }
         }
       }, {
@@ -84359,15 +84358,15 @@ var _getMetaFieldForId = function(id, key) {
       n = "function" == typeof e.recomputeGridSize ? e.recomputeGridSize : e.recomputeRowHeights;
     n ? n.call(e, t) : e.forceUpdate();
   }
-  var a = n(12),
+  var a = n(13),
     s = n.n(a),
     u = n(7),
     c = n.n(u),
     l = n(8),
     d = n.n(l),
-    f = n(14),
+    f = n(15),
     p = n.n(f),
-    h = n(13),
+    h = n(14),
     _ = n.n(h),
     m = n(1),
     y = (n.n(m), n(137));
@@ -84457,15 +84456,15 @@ var _getMetaFieldForId = function(id, key) {
     a = n.n(i),
     s = n(28),
     u = n.n(s),
-    c = n(12),
+    c = n(13),
     l = n.n(c),
     d = n(7),
     f = n.n(d),
     p = n(8),
     h = n.n(p),
-    _ = n(14),
+    _ = n(15),
     m = n.n(_),
-    y = n(13),
+    y = n(14),
     v = n.n(y),
     g = n(79),
     b = n(1),
@@ -84617,21 +84616,21 @@ var _getMetaFieldForId = function(id, key) {
   function o() {}
   var i = n(28),
     a = n.n(i),
-    s = n(12),
+    s = n(13),
     u = n.n(s),
     c = n(7),
     l = n.n(c),
     d = n(8),
     f = n.n(d),
-    p = n(14),
+    p = n(15),
     h = n.n(p),
-    _ = n(13),
+    _ = n(14),
     m = n.n(_),
     y = n(1),
     v = n.n(y),
     g = n(9),
     b = n.n(g),
-    M = n(615);
+    M = n(616);
   ((function(e) {
     function t(e, n) {
       l()(this, t);
@@ -84865,15 +84864,15 @@ var _getMetaFieldForId = function(id, key) {
     o = n.n(r),
     i = n(65),
     a = n.n(i),
-    s = n(12),
+    s = n(13),
     u = n.n(s),
     c = n(7),
     l = n.n(c),
     d = n(8),
     f = n.n(d),
-    p = n(14),
+    p = n(15),
     h = n.n(p),
-    _ = n(13),
+    _ = n(14),
     m = n.n(_),
     y = n(1),
     v = n.n(y),
@@ -85305,15 +85304,15 @@ var _getMetaFieldForId = function(id, key) {
   };
 }, function(e, t, n) {
   "use strict";
-  var r = n(12),
+  var r = n(13),
     o = n.n(r),
     i = n(7),
     a = n.n(i),
     s = n(8),
     u = n.n(s),
-    c = n(14),
+    c = n(15),
     l = n.n(c),
-    d = n(13),
+    d = n(14),
     f = n.n(d),
     p = n(1);
   n.n(p),
@@ -85373,13 +85372,13 @@ var _getMetaFieldForId = function(id, key) {
     }(p.PureComponent);
 }, function(e, t, n) {
   "use strict";
-  var r = n(12),
+  var r = n(13),
     o = n.n(r),
     i = n(7),
     a = n.n(i),
-    s = n(14),
+    s = n(15),
     u = n.n(s),
-    c = n(13),
+    c = n(14),
     l = n.n(c),
     d = n(1),
     f = (n.n(d), n(324)),
@@ -85431,15 +85430,15 @@ var _getMetaFieldForId = function(id, key) {
   "use strict";
   var r = n(28),
     o = n.n(r),
-    i = n(12),
+    i = n(13),
     a = n.n(i),
     s = n(7),
     u = n.n(s),
     c = n(8),
     l = n.n(c),
-    d = n(14),
+    d = n(15),
     f = n.n(d),
-    p = n(13),
+    p = n(14),
     h = n.n(p),
     _ = n(9),
     m = n.n(_),
@@ -85940,21 +85939,21 @@ var _getMetaFieldForId = function(id, key) {
     s = n.n(a);
 }, function(e, t, n) {
   "use strict";
-  var r = n(12),
+  var r = n(13),
     o = n.n(r),
     i = n(7),
     a = n.n(i),
     s = n(8),
     u = n.n(s),
-    c = n(14),
+    c = n(15),
     l = n.n(c),
-    d = n(13),
+    d = n(14),
     f = n.n(d),
     p = n(1),
     h = (n.n(p), n(18)),
     _ = n.n(h),
     m = n(328),
-    y = n(622);
+    y = n(623);
   ((function(e) {
     function t(e) {
       a()(this, t);
@@ -86107,14 +86106,14 @@ var _getMetaFieldForId = function(id, key) {
     f = 150;
 }, function(e, t, n) {
   "use strict";
-  var r = (n(598), n(599));
+  var r = (n(599), n(600));
   n.d(t, "a", function() {
     return r.a;
   });
-  var o = (n(601), n(605), n(607), n(79), n(613), n(614));
+  var o = (n(602), n(606), n(608), n(79), n(614), n(615));
   n.d(t, "b", function() {
     return o.a;
-  }), n(617), n(618), n(619), n(620), n(621);
+  }), n(618), n(619), n(620), n(621), n(622);
 }, function(e, t, n) {
   "use strict";
 
@@ -86154,7 +86153,7 @@ var _getMetaFieldForId = function(id, key) {
   }
   var u, c, l, d, f, p, h, _ = n(53),
     m = n(27);
-  if (n(2), n(4), "function" == typeof Array.from && "function" == typeof Map && r(Map) && null != Map.prototype && "function" == typeof Map.prototype.keys && r(Map.prototype.keys) && "function" == typeof Set && r(Set) && null != Set.prototype && "function" == typeof Set.prototype.keys && r(Set.prototype.keys)) {
+  if (n(3), n(4), "function" == typeof Array.from && "function" == typeof Map && r(Map) && null != Map.prototype && "function" == typeof Map.prototype.keys && r(Map.prototype.keys) && "function" == typeof Set && r(Set) && null != Set.prototype && "function" == typeof Set.prototype.keys && r(Set.prototype.keys)) {
     var y = new Map,
       v = new Set;
     u = function(e, t) {
@@ -86536,7 +86535,7 @@ var _getMetaFieldForId = function(id, key) {
     return s;
   }), t.b = r;
   var o = n(114),
-    i = n(653),
+    i = n(654),
     a = n.n(i),
     s = {
       INIT: "@@redux/INIT"
@@ -86544,7 +86543,7 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   "use strict";
 }, function(e, t, n) {
-  var r = n(481);
+  var r = n(482);
   "string" == typeof r && (r = [
     [e.i, r, ""]
   ]), n(54)(r, {}), r.locals && (e.exports = r.locals);
@@ -86787,33 +86786,33 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   n(99), n(98), e.exports = n(387);
 }, function(e, t, n) {
-  n(389), e.exports = n(15).Object.assign;
+  n(389), e.exports = n(16).Object.assign;
 }, function(e, t, n) {
   n(390);
-  var r = n(15).Object;
+  var r = n(16).Object;
   e.exports = function(e, t) {
     return r.create(e, t);
   };
 }, function(e, t, n) {
   n(391);
-  var r = n(15).Object;
+  var r = n(16).Object;
   e.exports = function(e, t, n) {
     return r.defineProperty(e, t, n);
   };
 }, function(e, t, n) {
   n(392);
-  var r = n(15).Object;
+  var r = n(16).Object;
   e.exports = function(e, t) {
     return r.getOwnPropertyDescriptor(e, t);
   };
 }, function(e, t, n) {
-  n(393), e.exports = n(15).Object.getPrototypeOf;
+  n(393), e.exports = n(16).Object.getPrototypeOf;
 }, function(e, t, n) {
-  n(394), e.exports = n(15).Object.keys;
+  n(394), e.exports = n(16).Object.keys;
 }, function(e, t, n) {
-  n(395), e.exports = n(15).Object.setPrototypeOf;
+  n(395), e.exports = n(16).Object.setPrototypeOf;
 }, function(e, t, n) {
-  n(397), n(396), n(398), n(399), e.exports = n(15).Symbol;
+  n(397), n(396), n(398), n(399), e.exports = n(16).Symbol;
 }, function(e, t, n) {
   n(98), n(99), e.exports = n(97).f("iterator");
 }, function(e, t) {
@@ -87025,13 +87024,13 @@ var _getMetaFieldForId = function(id, key) {
   var r = n(144),
     o = n(25)("iterator"),
     i = n(56);
-  e.exports = n(15).getIteratorMethod = function(e) {
+  e.exports = n(16).getIteratorMethod = function(e) {
     if (void 0 != e) return e[o] || e["@@iterator"] || i[r(e)];
   };
 }, function(e, t, n) {
   var r = n(41),
     o = n(385);
-  e.exports = n(15).getIterator = function(e) {
+  e.exports = n(16).getIterator = function(e) {
     var t = o(e);
     if ("function" != typeof t) throw TypeError(e + " is not iterable!");
     return r(t.call(e));
@@ -87040,7 +87039,7 @@ var _getMetaFieldForId = function(id, key) {
   var r = n(144),
     o = n(25)("iterator"),
     i = n(56);
-  e.exports = n(15).isIterable = function(e) {
+  e.exports = n(16).isIterable = function(e) {
     var t = Object(e);
     return void 0 !== t[o] || "@@iterator" in t || i.hasOwnProperty(r(t));
   };
@@ -87279,7 +87278,7 @@ var _getMetaFieldForId = function(id, key) {
       }
     }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
   }
-  var a = n(3),
+  var a = n(2),
     s = n.n(a),
     u = n(1),
     c = n.n(u),
@@ -87503,7 +87502,7 @@ var _getMetaFieldForId = function(id, key) {
       }
     }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
   }
-  var a = n(3),
+  var a = n(2),
     s = n.n(a),
     u = n(1),
     c = n.n(u),
@@ -87511,7 +87510,7 @@ var _getMetaFieldForId = function(id, key) {
     d = (n.n(l), n(400)),
     f = n(406),
     p = n(100),
-    h = n(650),
+    h = n(651),
     _ = (n.n(h), Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
@@ -87707,7 +87706,7 @@ var _getMetaFieldForId = function(id, key) {
   }
   var a = n(1),
     s = n.n(a),
-    u = n(3),
+    u = n(2),
     c = n.n(u),
     l = n(24),
     d = n(9),
@@ -87889,7 +87888,7 @@ var _getMetaFieldForId = function(id, key) {
   t.a = n.i(l.b)(L)(k);
 }, function(e, t, n) {
   "use strict";
-  var r = n(3),
+  var r = n(2),
     o = n.n(r),
     i = n(24),
     a = n(140),
@@ -87978,7 +87977,7 @@ var _getMetaFieldForId = function(id, key) {
   }
   var a = n(1),
     s = n.n(a),
-    u = n(3),
+    u = n(2),
     c = n.n(u),
     l = n(24),
     d = n(9),
@@ -88112,7 +88111,7 @@ var _getMetaFieldForId = function(id, key) {
   n.d(t, "a", function() {
     return g;
   });
-  var r = n(3),
+  var r = n(2),
     o = n.n(r),
     i = n(19),
     a = n(38),
@@ -88420,7 +88419,7 @@ var _getMetaFieldForId = function(id, key) {
       }
     }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
   }
-  var a = n(3),
+  var a = n(2),
     s = n.n(a),
     u = n(9),
     c = n.n(u),
@@ -88676,7 +88675,7 @@ var _getMetaFieldForId = function(id, key) {
       }
     }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
   }
-  var a = n(3),
+  var a = n(2),
     s = n.n(a),
     u = n(1),
     c = n.n(u),
@@ -89300,7 +89299,7 @@ var _getMetaFieldForId = function(id, key) {
       }
     }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
   }
-  var a = n(3),
+  var a = n(2),
     s = n.n(a),
     u = n(1),
     c = n.n(u),
@@ -89419,7 +89418,7 @@ var _getMetaFieldForId = function(id, key) {
     return t;
   }
   t.a = r;
-  var o = n(3);
+  var o = n(2);
   n.n(o);
 }, function(e, t, n) {
   "use strict";
@@ -89435,7 +89434,7 @@ var _getMetaFieldForId = function(id, key) {
     });
   }
   t.a = r;
-  var o = n(3);
+  var o = n(2);
   n.n(o);
 }, function(e, t, n) {
   "use strict";
@@ -89574,7 +89573,7 @@ var _getMetaFieldForId = function(id, key) {
     _ = n(101),
     m = n(102),
     y = n(167),
-    v = n(651),
+    v = n(652),
     g = (n.n(v), function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
@@ -89833,7 +89832,7 @@ var _getMetaFieldForId = function(id, key) {
       }
     }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
   }
-  var a = n(3),
+  var a = n(2),
     s = n.n(a),
     u = n(1),
     c = n.n(u),
@@ -89847,7 +89846,7 @@ var _getMetaFieldForId = function(id, key) {
     y = n(31),
     v = n(168),
     g = n(167),
-    b = n(652),
+    b = n(653),
     M = (n.n(b), Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
@@ -90045,11 +90044,11 @@ var _getMetaFieldForId = function(id, key) {
   t.a = o;
   var i = n(1),
     a = n.n(i),
-    s = n(3),
+    s = n(2),
     u = n.n(s),
     c = n(9),
     l = n.n(c),
-    d = n(648);
+    d = n(649);
   n.n(d), o.propTypes = {
     type: a.a.PropTypes.string,
     align: a.a.PropTypes.string,
@@ -90115,7 +90114,7 @@ var _getMetaFieldForId = function(id, key) {
       }
     }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
   }
-  var a = n(3),
+  var a = n(2),
     s = n.n(a),
     u = n(1),
     c = n.n(u),
@@ -90136,6 +90135,17 @@ var _getMetaFieldForId = function(id, key) {
         return r(this, t), o(this, (t.__proto__ || Object.getPrototypeOf(t)).apply(this, arguments));
       }
       return i(t, e), d(t, [{
+        key: "componentDidMount",
+        value: function() {
+          var e = this.props,
+            t = e.channelId,
+            n = e.type;
+          t && n && this.props.loadInitialHistory({
+            channelId: t,
+            type: n
+          });
+        }
+      }, {
         key: "componentWillReceiveProps",
         value: function(e) {
           var t = this.props.channelId,
@@ -90368,7 +90378,7 @@ var _getMetaFieldForId = function(id, key) {
   var a = n(1),
     s = n.n(a),
     u = n(18),
-    c = (n.n(u), n(584)),
+    c = (n.n(u), n(585)),
     l = n.n(c),
     d = function() {
       function e(e, t) {
@@ -90636,7 +90646,7 @@ var _getMetaFieldForId = function(id, key) {
   }
   var a = n(1),
     s = n.n(a),
-    u = n(3),
+    u = n(2),
     c = n.n(u),
     l = n(24),
     d = n(110),
@@ -90727,7 +90737,7 @@ var _getMetaFieldForId = function(id, key) {
     i = n(9),
     a = n.n(i),
     s = n(31),
-    u = n(649),
+    u = n(650),
     c = (n.n(u), function(e) {
       var t = e.isActive,
         n = e.isDnd,
@@ -90781,7 +90791,7 @@ var _getMetaFieldForId = function(id, key) {
       }
     }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
   }
-  var a = n(3),
+  var a = n(2),
     s = n.n(a),
     u = n(1),
     c = n.n(u),
@@ -91063,10 +91073,10 @@ var _getMetaFieldForId = function(id, key) {
       e.privateState.socket.send(t);
     }), e.privateState.sendBuffer = void 0;
   }
-  var u = n(3),
+  var u = n(2),
     c = (n.n(u), n(169)),
     l = n(164),
-    d = n(476),
+    d = n(477),
     f = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
@@ -91157,403 +91167,413 @@ var _getMetaFieldForId = function(id, key) {
   }
 
   function o(e) {
-    if (X) throw new Error("We already have a socket");
-    X = new Y.a(e), X.onCloseSig.addOnce(i), X.onConnectSig.addOnce(a);
+    if (ee) throw new Error("We already have a socket");
+    ee = new C.a(e), ee.onCloseSig.addOnce(i), ee.onConnectSig.addOnce(a);
   }
 
   function i() {
     c(), y({
-      state: C.a.ERROR
+      state: D.a.ERROR
     });
   }
 
   function a() {
     y({
-      state: q === C.a.FAST_RECONNECTING ? C.a.CONNECTED : C.a.PROV_CONNECTED,
-      allowableSourceStates: [C.a.FAST_RECONNECTING, C.a.PROV_CONNECTING]
+      state: K === D.a.FAST_RECONNECTING ? D.a.CONNECTED : D.a.PROV_CONNECTED,
+      allowableSourceStates: [D.a.FAST_RECONNECTING, D.a.PROV_CONNECTING]
     });
   }
 
   function s(e) {
-    if ("reconnect_url" === e.type) return $ = e.url, void(Q = Date.now());
-    oe.dispatch(e);
+    if ("reconnect_url" === e.type) return Q = e.url, void(X = Date.now());
+    ae.dispatch(e);
   }
 
   function u(e) {
-    if (!X) throw new Error("Cannot send messages when we do not have a socket");
-    return X.send(e);
+    if (!ee) throw new Error("Cannot send messages when we do not have a socket");
+    return ee.send(e);
   }
 
   function c(e) {
-    X && (X.onConnectSig.remove(a), X.onCloseSig.remove(i), X.readyState !== WebSocket.CLOSED && X.close(e, "Closed by socket manager"), X = void 0);
+    ee && (ee.onConnectSig.remove(a), ee.onCloseSig.remove(i), ee.readyState !== WebSocket.CLOSED && ee.close(e, "Closed by socket manager"), ee = void 0);
   }
 
   function l() {
-    if (!J) return Promise.reject(new Error("Fast reconnects are disabled"));
-    if (!$) return Promise.reject(new Error("No reconnect URL"));
-    if (Date.now() - Q > K) return Promise.reject(new Error("Reconnect URL expired"));
-    var e = $;
-    return $ = void 0, Q = void 0, A("rtm.checkFastReconnect").then(function(t) {
+    if (!$) return Promise.reject(new Error("Fast reconnects are disabled"));
+    if (!Q) return Promise.reject(new Error("No reconnect URL"));
+    if (Date.now() - X > J) return Promise.reject(new Error("Reconnect URL expired"));
+    var e = Q;
+    return Q = void 0, X = void 0, H("rtm.checkFastReconnect").then(function(t) {
       var n = t.data;
-      return N(n) ? new Promise(E.noop) : e;
+      return z(n) ? new Promise(E.noop) : e;
     });
   }
 
   function d() {
-    return 0;
+    return Z.getDelay();
   }
 
   function f(e) {
     switch (e) {
-      case C.a.CONNECTED:
-        re.dispatch();
+      case D.a.CONNECTED:
+        ie.dispatch();
         break;
-      case C.a.WAIT_FOR_CONNECTIVITY:
-        ee && (ee.cancel(), ee = void 0);
+      case D.a.WAIT_FOR_CONNECTIVITY:
+        ne && (ne.cancel(), ne = void 0);
         break;
-      case C.a.WAIT_FOR_RATE_LIMIT:
-        te && (clearTimeout(te), te = void 0);
+      case D.a.WAIT_FOR_RATE_LIMIT:
+        re && (clearTimeout(re), re = void 0);
     }
   }
 
   function p(e) {
     var t;
-    Z && (clearTimeout(Z), Z = void 0);
-    var o = (t = {}, r(t, C.a.CONNECTED, 1 / 0), r(t, C.a.ASLEEP, 1 / 0), r(t, C.a.FAST_RECONNECTING, 2e4), r(t, C.a.PROV_CONNECTING, 2e4), r(t, C.a.PROV_CONNECTED, 3e4), r(t, C.a.CHECKING_FAST_RECONNECT, 6e4), t),
+    te && (clearTimeout(te), te = void 0);
+    var o = (t = {}, r(t, D.a.CONNECTED, 1 / 0), r(t, D.a.ASLEEP, 1 / 0), r(t, D.a.FAST_RECONNECTING, 2e4), r(t, D.a.PROV_CONNECTING, 2e4), r(t, D.a.PROV_CONNECTED, 3e4), r(t, D.a.CHECKING_FAST_RECONNECT, 6e4), t),
       i = o[e] || 1e4;
-    n.i(j.a)(1996, "socket-manager: will stay in this state for up to " + i + " ms"), i !== 1 / 0 && (Z = setTimeout(function() {
-      n.i(j.a)(1996, "socket-manager: Spent " + i + " ms in " + e + " state; giving up"), m(C.a.ERROR);
+    n.i(I.a)(1996, "socket-manager: will stay in this state for up to " + i + " ms"), i !== 1 / 0 && (te = setTimeout(function() {
+      n.i(I.a)(1996, "socket-manager: Spent " + i + " ms in " + e + " state; giving up"), m(D.a.ERROR);
     }, i));
   }
 
   function h(e, t) {
-    if (!n.i(O.a)()) switch (e) {
-      case C.a.NEVER_CONNECTED:
-        if (!z()) return;
-        m(C.a.PROV_CONNECT);
+    if (!n.i(j.a)()) switch (e) {
+      case D.a.NEVER_CONNECTED:
+        if (!W()) return;
+        m(D.a.PROV_CONNECT);
         break;
-      case C.a.CONNECT:
-        m(C.a.CHECKING_FAST_RECONNECT), l().then(function(e) {
-          m(C.a.FAST_RECONNECTING), o(e);
+      case D.a.CONNECT:
+        m(D.a.CHECKING_FAST_RECONNECT), l().then(function(e) {
+          m(D.a.FAST_RECONNECTING), o(e);
         }).catch(function() {
-          c(V), m(C.a.PROV_CONNECT);
+          c(q), m(D.a.PROV_CONNECT);
         });
         break;
-      case C.a.FAST_RECONNECTING:
+      case D.a.FAST_RECONNECTING:
         break;
-      case C.a.CONNECTED:
-        if (t !== C.a.CONNECTED) {
-          var r = t === C.a.FAST_RECONNECTING;
-          ne.dispatch(r);
+      case D.a.CONNECTED:
+        if (t !== D.a.CONNECTED) {
+          var r = t === D.a.FAST_RECONNECTING;
+          oe.dispatch(r);
         }
         break;
-      case C.a.CHECKING_FAST_RECONNECT:
+      case D.a.CHECKING_FAST_RECONNECT:
         break;
-      case C.a.PROV_CONNECT:
-        m(C.a.PROV_CONNECTING), o(H());
+      case D.a.PROV_CONNECT:
+        m(D.a.PROV_CONNECTING), o(N());
         break;
-      case C.a.PROV_CONNECTING:
-      case C.a.PROV_CONNECTED:
+      case D.a.PROV_CONNECTING:
+      case D.a.PROV_CONNECTED:
         break;
-      case C.a.PROV_FINALIZE:
-        m(C.a.PROV_FINALIZING), X.messageDelegate = s, m(C.a.CONNECTED);
+      case D.a.PROV_FINALIZE:
+        m(D.a.PROV_FINALIZING), ee.messageDelegate = s, m(D.a.CONNECTED);
         break;
-      case C.a.PROV_FINALIZING:
+      case D.a.PROV_FINALIZING:
         break;
-      case C.a.DISCONNECT:
-        m(C.a.DISCONNECTING), c(U), m(C.a.DISCONNECTED);
+      case D.a.DISCONNECT:
+        m(D.a.DISCONNECTING), c(G), m(D.a.DISCONNECTED);
         break;
-      case C.a.DISCONNECTING:
+      case D.a.DISCONNECTING:
         break;
-      case C.a.DISCONNECTED:
-        m(C.a.WAIT_FOR_CONNECTIVITY);
+      case D.a.DISCONNECTED:
+        m(D.a.WAIT_FOR_CONNECTIVITY);
         break;
-      case C.a.ERROR:
-        c(G), setTimeout(function() {
-          m(C.a.DISCONNECTED);
+      case D.a.ERROR:
+        c(B), setTimeout(function() {
+          m(D.a.DISCONNECTED);
         }, 0);
         break;
-      case C.a.SLEEP:
-        m(C.a.SLEEPING), c(B), m(C.a.ASLEEP);
+      case D.a.SLEEP:
+        m(D.a.SLEEPING), c(V), m(D.a.ASLEEP);
         break;
-      case C.a.SLEEPING:
-      case C.a.ASLEEP:
+      case D.a.SLEEPING:
+      case D.a.ASLEEP:
         break;
-      case C.a.WAIT_FOR_CONNECTIVITY:
-        ee = new Promise(function(e, t) {
-          W().then(e).catch(t);
-        }), ee.then(function() {
-          q === C.a.WAIT_FOR_CONNECTIVITY && m(C.a.WAIT_FOR_RATE_LIMIT);
+      case D.a.WAIT_FOR_CONNECTIVITY:
+        ne = new Promise(function(e, t) {
+          F().then(e).catch(t);
+        }), ne.then(function() {
+          K === D.a.WAIT_FOR_CONNECTIVITY && m(D.a.WAIT_FOR_RATE_LIMIT);
         }).catch(function() {
-          q === C.a.WAIT_FOR_CONNECTIVITY && (n.i(j.a)(1996, "socket-manager: Waited too long for connectivity to come back"), m(C.a.ERROR));
+          K === D.a.WAIT_FOR_CONNECTIVITY && (n.i(I.a)(1996, "socket-manager: Waited too long for connectivity to come back"), m(D.a.ERROR));
         });
         break;
-      case C.a.WAIT_FOR_RATE_LIMIT:
-        if (t === C.a.WAIT_FOR_RATE_LIMIT) return;
-        var i = d();
-        if (!i) return void m(C.a.CONNECT);
-        te = setTimeout(function() {
-          q === C.a.WAIT_FOR_RATE_LIMIT && m(C.a.CONNECT);
-        }, i);
+      case D.a.WAIT_FOR_RATE_LIMIT:
+        if (!Z.increment()) {
+          var i = Z.getDelay();
+          return void(re = setTimeout(function() {
+            K === D.a.WAIT_FOR_RATE_LIMIT && h(D.a.WAIT_FOR_RATE_LIMIT);
+          }, i));
+        }
+        m(D.a.CONNECT);
     }
   }
 
   function _(e) {
-    J = !!e;
+    $ = !!e;
   }
 
   function m(e) {
-    if (!n.i(C.b)(e)) throw new Error("Invalid state");
-    n.i(j.a)(1996, "socket-manager: Changing from " + q + " to " + e);
-    var t = q;
-    q = e;
+    if (!n.i(D.b)(e)) throw new Error("Invalid state");
+    n.i(I.a)(1996, "socket-manager: Changing from " + K + " to " + e);
+    var t = K;
+    K = e;
     try {
       f(t), p(e), h(e, t);
     } catch (e) {
-      n.i(j.a)(1996, "socket-manager: Caught an error while trying to change states: " + e), q === C.a.ERROR ? n.i(j.a)(1996, "socket-manager: We were already trying to change to an error state; unsure how to proceed") : (n.i(j.a)(1996, "socket-manager: Switching to ERROR just in case"), m(C.a.ERROR));
+      n.i(I.a)(1996, "socket-manager: Caught an error while trying to change states: " + e), K === D.a.ERROR ? n.i(I.a)(1996, "socket-manager: We were already trying to change to an error state; unsure how to proceed") : (n.i(I.a)(1996, "socket-manager: Switching to ERROR just in case"), m(D.a.ERROR));
     }
   }
 
   function y(e) {
-    n.i(C.c)(q, e, m);
+    n.i(D.c)(K, e, m);
   }
 
   function v() {
-    return [C.a.SLEEP, C.a.SLEEPING, C.a.ASLEEP].indexOf(q) >= 0;
+    return [D.a.SLEEP, D.a.SLEEPING, D.a.ASLEEP].indexOf(K) >= 0;
   }
 
   function g() {
-    return q === C.a.CONNECTED;
+    return K === D.a.CONNECTED;
   }
 
   function b() {
-    return [C.a.FAST_CONNECTING, C.a.PROV_CONNECTING, C.a.PROV_CONNECTED, C.a.PROV_FINALIZING, C.a.CHECKING_FAST_RECONNECT].indexOf(q) >= 0;
+    return [D.a.FAST_CONNECTING, D.a.PROV_CONNECTING, D.a.PROV_CONNECTED, D.a.PROV_FINALIZING, D.a.CHECKING_FAST_RECONNECT].indexOf(K) >= 0;
   }
 
   function M() {
-    return q === C.a.WAIT_FOR_CONNECTIVITY;
+    return K === D.a.WAIT_FOR_CONNECTIVITY;
   }
 
   function w() {
-    return q === C.a.WAIT_FOR_CONNECTIVITY ? Promise.reject(new Error("We are offline")) : X ? Promise.reject(new Error("We already have a socket")) : (y({
-      state: C.a.PROV_CONNECT,
-      allowableSourceStates: [C.a.NEVER_CONNECTED, C.a.WAIT_FOR_RATE_LIMIT, C.a.ERROR, C.a.DISCONNECTED],
-      noopStates: [C.a.PROV_CONNECT, C.a.PROV_CONNECTING, C.a.PROV_CONNECTED]
-    }), X ? X.startData : (m(C.a.ERROR), Promise.reject(new Error("Problem getting startData promise from provisional connect"))));
+    return K === D.a.WAIT_FOR_CONNECTIVITY ? Promise.reject(new Error("We are offline")) : ee ? Promise.reject(new Error("We already have a socket")) : (y({
+      state: D.a.PROV_CONNECT,
+      allowableSourceStates: [D.a.NEVER_CONNECTED, D.a.WAIT_FOR_RATE_LIMIT, D.a.ERROR, D.a.DISCONNECTED],
+      noopStates: [D.a.PROV_CONNECT, D.a.PROV_CONNECTING, D.a.PROV_CONNECTED]
+    }), ee ? ee.startData : (m(D.a.ERROR), Promise.reject(new Error("Problem getting startData promise from provisional connect"))));
   }
 
   function k() {
     y({
-      state: C.a.DISCONNECT,
-      noopStates: [C.a.ASLEEP, C.a.DISCONNECTED, C.a.DISCONNECTING]
+      state: D.a.DISCONNECT,
+      noopStates: [D.a.ASLEEP, D.a.DISCONNECTED, D.a.DISCONNECTING]
     });
   }
 
   function L() {
     if (y({
-        state: C.a.PROV_FINALIZE,
-        allowableSourceStates: [C.a.PROV_CONNECTED]
-      }), q !== C.a.CONNECTED) throw new Error("Failed to finalize connection -- expected to be connected but actually " + q);
+        state: D.a.PROV_FINALIZE,
+        allowableSourceStates: [D.a.PROV_CONNECTED]
+      }), K !== D.a.CONNECTED) throw new Error("Failed to finalize connection -- expected to be connected but actually " + K);
   }
 
   function T() {
     y({
-      state: C.a.SLEEP,
-      noopStates: [C.a.ASLEEP, C.a.SLEEPING]
+      state: D.a.SLEEP,
+      noopStates: [D.a.ASLEEP, D.a.SLEEPING]
     });
   }
 
   function S() {
     y({
-      state: C.a.CONNECT,
-      allowableSourceStates: [C.a.ASLEEP]
+      state: D.a.CONNECT,
+      allowableSourceStates: [D.a.ASLEEP]
     });
   }
   Object.defineProperty(t, "__esModule", {
     value: !0
   }), n.d(t, "test", function() {
-    return F;
-  }), n.d(t, "CLOSE_REASON_DISCONNECT_REQUESTED", function() {
     return U;
-  }), n.d(t, "CLOSE_REASON_ERROR", function() {
+  }), n.d(t, "CLOSE_REASON_DISCONNECT_REQUESTED", function() {
     return G;
-  }), n.d(t, "CLOSE_REASON_SLEEPING", function() {
+  }), n.d(t, "CLOSE_REASON_ERROR", function() {
     return B;
-  }), n.d(t, "CLOSE_REASON_FAST_RECONNECT_FAILED", function() {
+  }), n.d(t, "CLOSE_REASON_SLEEPING", function() {
     return V;
+  }), n.d(t, "CLOSE_REASON_FAST_RECONNECT_FAILED", function() {
+    return q;
   }), n.d(t, "connectedSig", function() {
-    return ne;
-  }), n.d(t, "disconnectedSig", function() {
-    return re;
-  }), n.d(t, "socketMessageReceivedSig", function() {
     return oe;
+  }), n.d(t, "disconnectedSig", function() {
+    return ie;
+  }), n.d(t, "socketMessageReceivedSig", function() {
+    return ae;
   }), t.send = u, t.debugSetFastReconnectsEnabled = _, t.isAsleep = v, t.isConnected = g, t.isConnecting = b, t.isWaitingForConnectivity = M, t.connectProvisionallyAndFetchRtmStart = w, t.disconnect = k, t.finalizeProvisionalConnection = L, t.sleep = T, t.wake = S;
-  var E = n(3),
+  var E = n(2),
     x = (n.n(E), n(169)),
-    Y = n(440),
-    C = n(442),
-    D = n(155),
-    P = n(438),
-    O = n(478),
-    j = n(164),
-    I = n(477),
-    R = n(437),
-    A = D.b,
-    H = P.a,
-    N = I.a,
-    z = P.b,
-    W = R.a,
-    F = {};
-  Object.defineProperty(F, "callImmediately", {
-    get: function() {
-      return A;
-    },
-    set: function(e) {
-      A = e;
-    }
-  }), Object.defineProperty(F, "closeSocket", {
-    get: function() {
-      return c;
-    },
-    set: function(e) {
-      c = e;
-    }
-  }), Object.defineProperty(F, "createSlackSocketWithUrl", {
-    get: function() {
-      return o;
-    },
-    set: function(e) {
-      o = e;
-    }
-  }), Object.defineProperty(F, "currentState", {
-    get: function() {
-      return q;
-    },
-    set: function(e) {
-      q = e;
-    }
-  }), Object.defineProperty(F, "ensureWeCanFastReconnect", {
-    get: function() {
-      return l;
-    },
-    set: function(e) {
-      l = e;
-    }
-  }), Object.defineProperty(F, "fastReconnectsEnabled", {
-    get: function() {
-      return J;
-    },
-    set: function(e) {
-      J = e;
-    }
-  }), Object.defineProperty(F, "fastReconnectUrl", {
-    get: function() {
-      return $;
-    },
-    set: function(e) {
-      $ = e;
-    }
-  }), Object.defineProperty(F, "fastReconnectUrlReceivedAtTime", {
-    get: function() {
-      return Q;
-    },
-    set: function(e) {
-      Q = e;
-    }
-  }), Object.defineProperty(F, "getDelayBeforeNextConnectionAttempt", {
-    get: function() {
-      return d;
-    },
-    set: function(e) {
-      d = e;
-    }
-  }), Object.defineProperty(F, "getFlannelConnectionUrl", {
+    Y = n(476),
+    C = n(440),
+    D = n(442),
+    P = n(155),
+    O = n(438),
+    j = n(479),
+    I = n(164),
+    R = n(478),
+    A = n(437),
+    H = P.b,
+    N = O.a,
+    z = R.a,
+    W = O.b,
+    F = A.a,
+    U = {};
+  Object.defineProperty(U, "callImmediately", {
     get: function() {
       return H;
     },
     set: function(e) {
       H = e;
     }
-  }), Object.defineProperty(F, "handleSocketMessage", {
+  }), Object.defineProperty(U, "closeSocket", {
     get: function() {
-      return s;
+      return c;
     },
     set: function(e) {
-      s = e;
+      c = e;
     }
-  }), Object.defineProperty(F, "leaveState", {
+  }), Object.defineProperty(U, "createSlackSocketWithUrl", {
     get: function() {
-      return f;
+      return o;
     },
     set: function(e) {
-      f = e;
+      o = e;
     }
-  }), Object.defineProperty(F, "reloadIfVersionsChanged", {
+  }), Object.defineProperty(U, "currentState", {
     get: function() {
-      return N;
+      return K;
     },
     set: function(e) {
-      N = e;
+      K = e;
     }
-  }), Object.defineProperty(F, "runState", {
+  }), Object.defineProperty(U, "ensureWeCanFastReconnect", {
     get: function() {
-      return h;
+      return l;
     },
     set: function(e) {
-      h = e;
+      l = e;
     }
-  }), Object.defineProperty(F, "setState", {
+  }), Object.defineProperty(U, "fastReconnectsEnabled", {
     get: function() {
-      return m;
+      return $;
     },
     set: function(e) {
-      m = e;
+      $ = e;
     }
-  }), Object.defineProperty(F, "socket", {
+  }), Object.defineProperty(U, "fastReconnectUrl", {
+    get: function() {
+      return Q;
+    },
+    set: function(e) {
+      Q = e;
+    }
+  }), Object.defineProperty(U, "fastReconnectUrlReceivedAtTime", {
     get: function() {
       return X;
     },
     set: function(e) {
       X = e;
     }
-  }), Object.defineProperty(F, "transitionSafely", {
+  }), Object.defineProperty(U, "getDelayBeforeNextConnectionAttempt", {
     get: function() {
-      return y;
+      return d;
     },
     set: function(e) {
-      y = e;
+      d = e;
     }
-  }), Object.defineProperty(F, "useSocket", {
+  }), Object.defineProperty(U, "getFlannelConnectionUrl", {
+    get: function() {
+      return N;
+    },
+    set: function(e) {
+      N = e;
+    }
+  }), Object.defineProperty(U, "handleSocketMessage", {
+    get: function() {
+      return s;
+    },
+    set: function(e) {
+      s = e;
+    }
+  }), Object.defineProperty(U, "leaveState", {
+    get: function() {
+      return f;
+    },
+    set: function(e) {
+      f = e;
+    }
+  }), Object.defineProperty(U, "limiter", {
+    get: function() {
+      return Z;
+    }
+  }), Object.defineProperty(U, "reloadIfVersionsChanged", {
     get: function() {
       return z;
     },
     set: function(e) {
       z = e;
     }
-  }), Object.defineProperty(F, "waitForApiConnectivity", {
+  }), Object.defineProperty(U, "runState", {
+    get: function() {
+      return h;
+    },
+    set: function(e) {
+      h = e;
+    }
+  }), Object.defineProperty(U, "setState", {
+    get: function() {
+      return m;
+    },
+    set: function(e) {
+      m = e;
+    }
+  }), Object.defineProperty(U, "socket", {
+    get: function() {
+      return ee;
+    },
+    set: function(e) {
+      ee = e;
+    }
+  }), Object.defineProperty(U, "transitionSafely", {
+    get: function() {
+      return y;
+    },
+    set: function(e) {
+      y = e;
+    }
+  }), Object.defineProperty(U, "useSocket", {
     get: function() {
       return W;
     },
     set: function(e) {
       W = e;
     }
+  }), Object.defineProperty(U, "waitForApiConnectivity", {
+    get: function() {
+      return F;
+    },
+    set: function(e) {
+      F = e;
+    }
   });
-  var U = 4100,
-    G = 4101,
-    B = 4102,
-    V = 4103,
-    q = C.a.NEVER_CONNECTED,
-    K = 3e5,
-    J = !0,
-    $ = void 0,
+  var G = 4100,
+    B = 4101,
+    V = 4102,
+    q = 4103,
+    K = D.a.NEVER_CONNECTED,
+    J = 3e5,
+    $ = !0,
     Q = void 0,
     X = void 0,
-    Z = void 0,
+    Z = new Y.a({
+      maxPerMinute: 12,
+      maxPerHour: 60
+    }),
     ee = void 0,
     te = void 0,
-    ne = new x.a,
-    re = new x.a,
-    oe = new x.a;
+    ne = void 0,
+    re = void 0,
+    oe = new x.a,
+    ie = new x.a,
+    ae = new x.a;
 }, function(e, t, n) {
   "use strict";
 
@@ -91579,7 +91599,7 @@ var _getMetaFieldForId = function(id, key) {
   n.d(t, "a", function() {
     return s;
   }), t.b = r, t.c = o;
-  var i = n(3),
+  var i = n(2),
     a = n.n(i),
     s = {
       NEVER_CONNECTED: "never_connected",
@@ -91607,14 +91627,14 @@ var _getMetaFieldForId = function(id, key) {
   n.d(t, "a", function() {
     return o;
   });
-  var r = n(17),
+  var r = n(11),
     o = n.i(r.a)("TS.client.ui.showView", function() {});
 }, function(e, t, n) {
   "use strict";
   n.d(t, "a", function() {
     return o;
   });
-  var r = n(17),
+  var r = n(11),
     o = n.i(r.a)("TS.client.displayModelObById", function() {});
 }, function(e, t, n) {
   "use strict";
@@ -91627,7 +91647,7 @@ var _getMetaFieldForId = function(id, key) {
   }), n.d(t, "d", function() {
     return s;
   });
-  var r = n(17),
+  var r = n(11),
     o = n.i(r.a)("TS.emoji.emojiMatchesTerm", function() {
       return !1;
     }),
@@ -91647,9 +91667,9 @@ var _getMetaFieldForId = function(id, key) {
   }), n.d(t, "b", function() {
     return s;
   });
-  var r = n(3),
+  var r = n(2),
     o = n.n(r),
-    i = n(17),
+    i = n(11),
     a = n.i(i.a)("TS.i18n.t", function(e) {
       return function(t) {
         var n = o.a.keys(t);
@@ -91665,75 +91685,99 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   "use strict";
   n.d(t, "a", function() {
-    return r;
+    return a;
   }), n.d(t, "b", function() {
-    return o;
+    return s;
   });
-  var r = (TS.api.call, TS.api.callImmediately, function(e, t) {
-      return TS.api.call(e, t);
+  var r = n(11),
+    o = n.i(r.a)("TS.api.call", function() {
+      return Promise.reject(new Error("TS.api.call not found"));
     }),
-    o = function(e, t) {
-      return TS.api.callImmediately(e, t);
+    i = n.i(r.a)("TS.api.callImmediately", function() {
+      return Promise.reject(new Error("TS.api.callImmediately not found"));
+    }),
+    a = function(e, t) {
+      return o(e, t);
+    },
+    s = function(e, t) {
+      return i(e, t);
     };
 }, function(e, t, n) {
   "use strict";
   n.d(t, "a", function() {
-    return r;
+    return o;
   });
-  var r = TS.api.connection.waitForAPIConnection;
+  var r = n(11),
+    o = n.i(r.a)("TS.api.connection.waitForAPIConnection", function() {
+      return Promise.resolve();
+    });
 }, function(e, t, n) {
   "use strict";
   n.d(t, "a", function() {
-    return r;
-  }), n.d(t, "b", function() {
     return o;
+  }), n.d(t, "b", function() {
+    return i;
   });
-  var r = TS.flannel.getFlannelConnectionUrl,
-    o = TS.useSocket;
+  var r = n(11),
+    o = n.i(r.a)("TS.flannel.getFlannelConnectionUrl", function() {
+      return "";
+    }),
+    i = n.i(r.a)("TS.useSocket", function() {
+      return !0;
+    });
 }, function(e, t, n) {
   "use strict";
-  var r = n(17);
+  var r = n(11);
   t.a = n.i(r.a)("TS.utility.msgs.processImsg");
 }, function(e, t, n) {
   "use strict";
-  var r = n(17),
+  var r = n(11),
     o = n.i(r.a)("TS.presence_manager.createNewPresenceList", function() {});
   t.a = o;
 }, function(e, t, n) {
   "use strict";
   n.d(t, "a", function() {
-    return r;
-  }), n.d(t, "b", function() {
     return o;
+  }), n.d(t, "b", function() {
+    return i;
   });
-  var r = (TS.console.getStackTrace, TS.console.log),
-    o = (TS.console.logError, TS.console.logStackTrace, TS.console.shouldLog, TS.console.warn);
+  var r = n(11),
+    o = (n.i(r.a)("TS.console.getStackTrace", function() {}), n.i(r.a)("TS.console.log", function() {})),
+    i = (n.i(r.a)("TS.console.logError", function() {}), n.i(r.a)("TS.console.logStackTrace", function() {}), n.i(r.a)("TS.console.shouldLog", function() {}), n.i(r.a)("TS.console.warn", function() {}));
 }, function(e, t, n) {
   "use strict";
   t.a = window.signals.Signal;
 }, function(e, t, n) {
   "use strict";
   n.d(t, "a", function() {
-    return r;
+    return o;
   });
-  var r = TS.utility.url.isValidSlackWebSocketUrl;
+  var r = n(11),
+    o = n.i(r.a)("TS.utility.url.isValidSlackWebSocketUrl", function() {
+      return !0;
+    });
 }, function(e, t, n) {
   "use strict";
   n.d(t, "a", function() {
-    return r;
+    return o;
   });
-  var r = TS.reloadIfVersionsChanged;
+  var r = n(11),
+    o = n.i(r.a)("TS.reloadIfVersionsChanged", function() {});
 }, function(e, t, n) {
   "use strict";
 
   function r(e) {
-    TS.ui.window_focus_changed_sig.add(e);
+    s && s.add(e);
   }
 
   function o(e) {
-    TS.ui.window_unloaded_sig.add(e);
+    u && u.add(e);
   }
   t.a = r, t.b = o;
+  var i = n(2),
+    a = n.n(i),
+    s = a.a.get(TS, "ui.window_focus_changed"),
+    u = a.a.get(TS, "ui.window_unloaded_sig");
 }, function(e, t, n) {
   "use strict";
 
@@ -91752,7 +91796,7 @@ var _getMetaFieldForId = function(id, key) {
   }
   t.a = o;
   var i = n(81),
-    a = n(644),
+    a = n(645),
     s = n.n(a),
     u = n(459),
     c = n(37),
@@ -91861,7 +91905,7 @@ var _getMetaFieldForId = function(id, key) {
   }
   var a = n(1),
     s = n.n(a),
-    u = n(3),
+    u = n(2),
     c = n.n(u),
     l = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
@@ -92112,7 +92156,8 @@ var _getMetaFieldForId = function(id, key) {
         units: a
       }),
       u = [];
-    return s.w && (1 === s.w && u.push(o.a.localeData().relativeTime(s.w, !1, "w", !1)), s.w > 1 && u.push(o.a.localeData().relativeTime(s.w, !1, "ww", !1))), s.d && (1 === s.d && u.push(o.a.localeData().relativeTime(s.d, !1, "d", !1)), s.d > 1 && u.push(o.a.localeData().relativeTime(s.d, !1, "dd", !1))), s.h && (1 === s.h && u.push(o.a.localeData().relativeTime(s.h, !1, "h", !1)), s.h > 1 && u.push(o.a.localeData().relativeTime(s.h, !1, "hh", !1))), s.m && u.push(o.a.localeData().relativeTime(s.m, !1, "m", !1)), !s.s && u.length || u.push(o.a.localeData().relativeTime(s.s, !1, "s", !1)), u.join(" ");
+    return s.w && (1 === s.w && u.push(o.a.localeData().relativeTime(s.w, !1, "w", !1)),
+      s.w > 1 && u.push(o.a.localeData().relativeTime(s.w, !1, "ww", !1))), s.d && (1 === s.d && u.push(o.a.localeData().relativeTime(s.d, !1, "d", !1)), s.d > 1 && u.push(o.a.localeData().relativeTime(s.d, !1, "dd", !1))), s.h && (1 === s.h && u.push(o.a.localeData().relativeTime(s.h, !1, "h", !1)), s.h > 1 && u.push(o.a.localeData().relativeTime(s.h, !1, "hh", !1))), s.m && u.push(o.a.localeData().relativeTime(s.m, !1, "m", !1)), !s.s && u.length || u.push(o.a.localeData().relativeTime(s.s, !1, "s", !1)), u.join(" ");
   }
   var o = n(40),
     i = n(165);
@@ -92174,7 +92219,7 @@ var _getMetaFieldForId = function(id, key) {
     });
   }
   t.a = r;
-  var o = n(3),
+  var o = n(2),
     i = n.n(o),
     a = n(155),
     s = n(450);
@@ -92214,9 +92259,9 @@ var _getMetaFieldForId = function(id, key) {
     }), o), _), t);
   }
   t.a = o;
-  var i = n(3),
+  var i = n(2),
     a = n.n(i),
-    s = n(11),
+    s = n(12),
     u = (n.n(s), Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
@@ -92224,6 +92269,127 @@ var _getMetaFieldForId = function(id, key) {
       }
       return e;
     });
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e, t) {
+    if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
+  }
+
+  function o(e, t, n) {
+    var r = Date.now() - 6e4,
+      o = e.filter(function(e) {
+        return e > r;
+      }).length;
+    return e.length < n && o < t;
+  }
+
+  function i(e) {
+    return n.i(a.isNumber)(e) && e > 0;
+  }
+  var a = n(2),
+    s = (n.n(a), function() {
+      function e(e, t) {
+        var n = [],
+          r = !0,
+          o = !1,
+          i = void 0;
+        try {
+          for (var a, s = e[Symbol.iterator](); !(r = (a = s.next()).done) && (n.push(a.value), !t || n.length !== t); r = !0);
+        } catch (e) {
+          o = !0, i = e;
+        } finally {
+          try {
+            !r && s.return && s.return();
+          } finally {
+            if (o) throw i;
+          }
+        }
+        return n;
+      }
+      return function(t, n) {
+        if (Array.isArray(t)) return t;
+        if (Symbol.iterator in Object(t)) return e(t, n);
+        throw new TypeError("Invalid attempt to destructure non-iterable instance");
+      };
+    }()),
+    u = function() {
+      function e(e, t) {
+        for (var n = 0; n < t.length; n++) {
+          var r = t[n];
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
+        }
+      }
+      return function(t, n, r) {
+        return n && e(t.prototype, n), r && e(t, r), t;
+      };
+    }(),
+    c = function() {
+      function e(t) {
+        var n = t.maxPerMinute,
+          o = t.maxPerHour;
+        if (r(this, e), !i(n)) throw new Error("Invalid value for perMinute");
+        if (!i(o)) throw new Error("Invalid value for perHour");
+        this.maxPerMinute = n, this.maxPerHour = o, this.timestamps = [];
+      }
+      return u(e, [{
+        key: "getState",
+        value: function() {
+          var e = Date.now() - 36e5,
+            t = Date.now() - 6e4;
+          this.timestamps = this.timestamps.filter(function(t) {
+            return t > e;
+          });
+          var n = this.timestamps.filter(function(e) {
+            return e > t;
+          }).length;
+          return {
+            callsLastHour: this.timestamps.length,
+            callsLastMinute: n
+          };
+        }
+      }, {
+        key: "isAllowed",
+        value: function() {
+          return o(this.timestamps, this.maxPerMinute, this.maxPerHour);
+        }
+      }, {
+        key: "increment",
+        value: function() {
+          return !!this.isAllowed() && (this.timestamps.push(Date.now()), !0);
+        }
+      }, {
+        key: "getDelay",
+        value: function() {
+          var e = Date.now() - 36e5,
+            t = Date.now() - 6e4;
+          this.timestamps = this.timestamps.filter(function(t) {
+            return t > e;
+          });
+          var r = n.i(a.partition)(this.timestamps, function(e) {
+              return e > t;
+            }),
+            i = s(r, 2),
+            u = i[0],
+            c = i[1],
+            l = 0;
+          if (!o(c.concat(u), 1 / 0, this.maxPerHour))
+            for (;;) {
+              for (var d = c[0]; c[0] === d;) c.shift();
+              var f = d + 36e5;
+              if (l = Math.max(l, f - Date.now()), o(c.concat(u), 1 / 0, this.maxPerHour)) break;
+            }
+          if (!o(c.concat(u), this.maxPerMinute, 1 / 0))
+            for (;;) {
+              for (var p = u[0]; u[0] === p;) u.shift();
+              var h = p + 6e4;
+              if (l = Math.max(l, h - Date.now()), o(c.concat(u), this.maxPerMinute, 1 / 0)) break;
+            }
+          return l;
+        }
+      }]), e;
+    }();
+  t.a = c;
 }, function(e, t, n) {
   "use strict";
   n.d(t, "a", function() {
@@ -92337,7 +92503,7 @@ var _getMetaFieldForId = function(id, key) {
   function r(e) {
     return o(e.replace(i, "ms-"));
   }
-  var o = n(488),
+  var o = n(489),
     i = /^-ms-/;
   e.exports = r;
 }, function(e, t, n) {
@@ -92346,7 +92512,7 @@ var _getMetaFieldForId = function(id, key) {
   function r(e, t) {
     return !(!e || !t) && (e === t || !o(e) && (o(t) ? r(e, t.parentNode) : "contains" in e ? e.contains(t) : !!e.compareDocumentPosition && !!(16 & e.compareDocumentPosition(t))));
   }
-  var o = n(498);
+  var o = n(499);
   e.exports = r;
 }, function(e, t, n) {
   "use strict";
@@ -92367,7 +92533,7 @@ var _getMetaFieldForId = function(id, key) {
   function i(e) {
     return o(e) ? Array.isArray(e) ? e.slice() : r(e) : [e];
   }
-  var a = n(2);
+  var a = n(3);
   e.exports = i;
 }, function(e, t, n) {
   "use strict";
@@ -92391,10 +92557,10 @@ var _getMetaFieldForId = function(id, key) {
     for (var f = Array.from(n.childNodes); n.lastChild;) n.removeChild(n.lastChild);
     return f;
   }
-  var i = n(16),
-    a = n(491),
-    s = n(493),
-    u = n(2),
+  var i = n(17),
+    a = n(492),
+    s = n(494),
+    u = n(3),
     c = i.canUseDOM ? document.createElement("div") : null,
     l = /^\s*<(\w+)/;
   e.exports = o;
@@ -92404,8 +92570,8 @@ var _getMetaFieldForId = function(id, key) {
   function r(e) {
     return a || i(!1), f.hasOwnProperty(e) || (e = "*"), s.hasOwnProperty(e) || (a.innerHTML = "*" === e ? "<link />" : "<" + e + "></" + e + ">", s[e] = !a.firstChild), s[e] ? f[e] : null;
   }
-  var o = n(16),
-    i = n(2),
+  var o = n(17),
+    i = n(3),
     a = o.canUseDOM ? document.createElement("div") : null,
     s = {},
     u = [1, '<select multiple="true">', "</select>"],
@@ -92459,7 +92625,7 @@ var _getMetaFieldForId = function(id, key) {
   function r(e) {
     return o(e).replace(i, "-ms-");
   }
-  var o = n(495),
+  var o = n(496),
     i = /^ms-/;
   e.exports = r;
 }, function(e, t, n) {
@@ -92475,7 +92641,7 @@ var _getMetaFieldForId = function(id, key) {
   function r(e) {
     return o(e) && 3 == e.nodeType;
   }
-  var o = n(497);
+  var o = n(498);
   e.exports = r;
 }, function(e, t, n) {
   "use strict";
@@ -92543,8 +92709,8 @@ var _getMetaFieldForId = function(id, key) {
     return null == e ? void 0 === e ? u : s : c && c in Object(e) ? n.i(i.a)(e) : n.i(a.a)(e);
   }
   var o = n(174),
-    i = n(505),
-    a = n(506),
+    i = n(506),
+    a = n(507),
     s = "[object Null]",
     u = "[object Undefined]",
     c = o.a ? o.a.toStringTag : void 0;
@@ -92557,7 +92723,7 @@ var _getMetaFieldForId = function(id, key) {
   }).call(t, n(64));
 }, function(e, t, n) {
   "use strict";
-  var r = n(507),
+  var r = n(508),
     o = n.i(r.a)(Object.getPrototypeOf, Object);
   t.a = o;
 }, function(e, t, n) {
@@ -92599,7 +92765,7 @@ var _getMetaFieldForId = function(id, key) {
   t.a = r;
 }, function(e, t, n) {
   "use strict";
-  var r = n(503),
+  var r = n(504),
     o = "object" == typeof self && self && self.Object === Object && self,
     i = r.a || o || Function("return this")();
   t.a = i;
@@ -94022,7 +94188,7 @@ var _getMetaFieldForId = function(id, key) {
   };
   r.keys = function() {
     return Object.keys(i);
-  }, r.resolve = o, e.exports = r, r.id = 513;
+  }, r.resolve = o, e.exports = r, r.id = 514;
 }, function(e, t, n) {
   var r;
   ! function(o, i, a) {
@@ -94448,10 +94614,10 @@ var _getMetaFieldForId = function(id, key) {
     return i.data = o, f.accumulateTwoPhaseDispatches(i), i;
   }
   var f = n(61),
-    p = n(16),
-    h = n(523),
-    _ = n(560),
-    m = n(563),
+    p = n(17),
+    h = n(524),
+    _ = n(561),
+    m = n(564),
     y = [9, 13, 27, 32],
     v = 229,
     g = p.canUseDOM && "CompositionEvent" in window,
@@ -94506,10 +94672,10 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   "use strict";
   var r = n(281),
-    o = n(16),
-    i = (n(21), n(489), n(569)),
-    a = n(496),
-    s = n(499),
+    o = n(17),
+    i = (n(21), n(490), n(570)),
+    a = n(497),
+    s = n(500),
     u = (n(4), s(function(e) {
       return a(e);
     })),
@@ -94619,7 +94785,7 @@ var _getMetaFieldForId = function(id, key) {
   }
   var v = n(60),
     g = n(61),
-    b = n(16),
+    b = n(17),
     M = n(10),
     w = n(23),
     k = n(26),
@@ -94670,10 +94836,10 @@ var _getMetaFieldForId = function(id, key) {
   "use strict";
   var r = n(5),
     o = n(48),
-    i = n(16),
-    a = n(492),
+    i = n(17),
+    a = n(493),
     s = n(20),
-    u = (n(2), {
+    u = (n(3), {
       dangerouslyReplaceNodeWithMarkup: function(e, t) {
         if (i.canUseDOM || r("56"), t || r("57"), "HTML" === e.nodeName && r("58"), "string" == typeof t) {
           var n = a(t, s)[0];
@@ -94976,7 +95142,7 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   "use strict";
   var r = n(119),
-    o = n(533),
+    o = n(534),
     i = {
       processChildrenUpdates: o.dangerouslyProcessChildrenUpdates,
       replaceNodeWithMarkup: r.dangerouslyReplaceNodeWithMarkup
@@ -95004,7 +95170,7 @@ var _getMetaFieldForId = function(id, key) {
     p = (n(21), n(291)),
     h = n(50),
     _ = n(59),
-    m = (n(2), n(112)),
+    m = (n(3), n(112)),
     y = n(133),
     v = (n(4), {
       ImpureClass: 0,
@@ -95188,14 +95354,14 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   "use strict";
   var r = n(10),
-    o = n(541),
+    o = n(542),
     i = n(290),
     a = n(50),
     s = n(23),
-    u = n(554),
-    c = n(570),
+    u = n(555),
+    c = n(571),
     l = n(295),
-    d = n(578);
+    d = n(579);
   n(4), o.inject();
   var f = {
     findDOMNode: c,
@@ -95314,8 +95480,8 @@ var _getMetaFieldForId = function(id, key) {
   }
   var _ = n(5),
     m = n(6),
-    y = n(516),
-    v = n(518),
+    y = n(517),
+    v = n(519),
     g = n(48),
     b = n(120),
     M = n(49),
@@ -95325,14 +95491,14 @@ var _getMetaFieldForId = function(id, key) {
     T = n(74),
     S = n(284),
     E = n(10),
-    x = n(534),
-    Y = n(535),
+    x = n(535),
+    Y = n(536),
     C = n(285),
-    D = n(538),
-    P = (n(21), n(547)),
-    O = n(552),
+    D = n(539),
+    P = (n(21), n(548)),
+    O = n(553),
     j = (n(20), n(77)),
-    I = (n(2), n(132), n(112), n(134), n(4), S),
+    I = (n(3), n(132), n(112), n(134), n(4), S),
     R = k.deleteListener,
     A = E.getNodeFromInstance,
     H = T.listenTo,
@@ -95697,7 +95863,7 @@ var _getMetaFieldForId = function(id, key) {
     u = n(124),
     c = n(10),
     l = n(23),
-    d = (n(2), n(4), {
+    d = (n(3), n(4), {
       getHostProps: function(e, t) {
         var n = u.getValue(t),
           r = u.getChecked(t);
@@ -95881,8 +96047,8 @@ var _getMetaFieldForId = function(id, key) {
       }
     }
   }
-  var u = n(16),
-    c = n(575),
+  var u = n(17),
+    c = n(576),
     l = n(296),
     d = u.canUseDOM && "selection" in document && !("getSelection" in window),
     f = {
@@ -95898,7 +96064,7 @@ var _getMetaFieldForId = function(id, key) {
     a = n(48),
     s = n(10),
     u = n(77),
-    c = (n(2), n(134), function(e) {
+    c = (n(3), n(134), function(e) {
       this._currentElement = e, this._stringText = "" + e, this._hostNode = null, this._hostParent = null, this._domID = 0, this._mountIndex = 0, this._closingComment = null, this._commentNodes = null;
     });
   o(c.prototype, {
@@ -95960,7 +96126,7 @@ var _getMetaFieldForId = function(id, key) {
     s = n(124),
     u = n(10),
     c = n(23),
-    l = (n(2), n(4), {
+    l = (n(3), n(4), {
       getHostProps: function(e, t) {
         return null != t.dangerouslySetInnerHTML && i("91"), a({}, t, {
           value: void 0,
@@ -96044,7 +96210,7 @@ var _getMetaFieldForId = function(id, key) {
     for (c = u.length; c-- > 0;) n(u[c], "captured", i);
   }
   var u = n(5);
-  n(2), e.exports = {
+  n(3), e.exports = {
     isAncestor: o,
     getLowestCommonAncestor: r,
     getParentInstance: i,
@@ -96100,25 +96266,25 @@ var _getMetaFieldForId = function(id, key) {
       return new p(e);
     }), v.Updates.injectReconcileTransaction(g), v.Updates.injectBatchingStrategy(m), v.Component.injectEnvironment(l));
   }
-  var o = n(515),
-    i = n(517),
-    a = n(519),
-    s = n(521),
-    u = n(522),
-    c = n(524),
-    l = n(526),
-    d = n(529),
+  var o = n(516),
+    i = n(518),
+    a = n(520),
+    s = n(522),
+    u = n(523),
+    c = n(525),
+    l = n(527),
+    d = n(530),
     f = n(10),
-    p = n(531),
-    h = n(539),
-    _ = n(537),
-    m = n(540),
-    y = n(544),
-    v = n(545),
-    g = n(550),
-    b = n(555),
-    M = n(556),
-    w = n(557),
+    p = n(532),
+    h = n(540),
+    _ = n(538),
+    m = n(541),
+    y = n(545),
+    v = n(546),
+    g = n(551),
+    b = n(556),
+    M = n(557),
+    w = n(558),
     k = !1;
   e.exports = {
     inject: r
@@ -96169,12 +96335,12 @@ var _getMetaFieldForId = function(id, key) {
   }
   var s = n(6),
     u = n(171),
-    c = n(16),
+    c = n(17),
     l = n(39),
     d = n(10),
     f = n(23),
     p = n(131),
-    h = n(494);
+    h = n(495);
   s(o.prototype, {
     destructor: function() {
       this.topLevelType = null, this.nativeEvent = null, this.ancestors.length = 0;
@@ -96238,7 +96404,7 @@ var _getMetaFieldForId = function(id, key) {
   e.exports = d;
 }, function(e, t, n) {
   "use strict";
-  var r = n(568),
+  var r = n(569),
     o = /\/?>/,
     i = /^<\!\-\-/,
     a = {
@@ -96321,9 +96487,9 @@ var _getMetaFieldForId = function(id, key) {
   var l = n(5),
     d = n(125),
     f = (n(62), n(21), n(27), n(50)),
-    p = n(525),
-    h = (n(20), n(571)),
-    _ = (n(2), {
+    p = n(526),
+    h = (n(20), n(572)),
+    _ = (n(3), {
       Mixin: {
         _reconcilerInstantiateChildren: function(e, t, n) {
           return p.instantiateChildren(e, t, n);
@@ -96411,7 +96577,7 @@ var _getMetaFieldForId = function(id, key) {
     return !(!e || "function" != typeof e.attachRef || "function" != typeof e.detachRef);
   }
   var o = n(5),
-    i = (n(2), {
+    i = (n(3), {
       addComponentAsRefTo: function(e, t, n) {
         r(n) || o("119"), n.attachRef(t, e);
       },
@@ -96491,7 +96657,7 @@ var _getMetaFieldForId = function(id, key) {
   function o(e, t, n) {
     "function" == typeof e ? e(null) : i.removeComponentAsRefFrom(t, e, n);
   }
-  var i = n(548),
+  var i = n(549),
     a = {};
   a.attachRefs = function(e, t) {
     if (null !== t && "object" == typeof t) {
@@ -96520,7 +96686,7 @@ var _getMetaFieldForId = function(id, key) {
   var o = n(6),
     i = n(39),
     a = n(76),
-    s = (n(21), n(553)),
+    s = (n(21), n(554)),
     u = [],
     c = {
       enqueue: function() {}
@@ -96872,7 +97038,7 @@ var _getMetaFieldForId = function(id, key) {
     return null;
   }
   var i = n(61),
-    a = n(16),
+    a = n(17),
     s = n(10),
     u = n(289),
     c = n(26),
@@ -96939,20 +97105,20 @@ var _getMetaFieldForId = function(id, key) {
     a = n(171),
     s = n(61),
     u = n(10),
-    c = n(558),
-    l = n(559),
+    c = n(559),
+    l = n(560),
     d = n(26),
-    f = n(562),
-    p = n(564),
+    f = n(563),
+    p = n(565),
     h = n(75),
-    _ = n(561),
-    m = n(565),
-    y = n(566),
+    _ = n(562),
+    m = n(566),
+    y = n(567),
     v = n(63),
-    g = n(567),
+    g = n(568),
     b = n(20),
     M = n(129),
-    w = (n(2), {}),
+    w = (n(3), {}),
     k = {};
   ["abort", "animationEnd", "animationIteration", "animationStart", "blur", "canPlay", "canPlayThrough", "click", "contextMenu", "copy", "cut", "doubleClick", "drag", "dragEnd", "dragEnter", "dragExit", "dragLeave", "dragOver", "dragStart", "drop", "durationChange", "emptied", "encrypted", "ended", "error", "focus", "input", "invalid", "keyDown", "keyPress", "keyUp", "load", "loadedData", "loadedMetadata", "loadStart", "mouseDown", "mouseMove", "mouseOut", "mouseOver", "mouseUp", "paste", "pause", "play", "playing", "progress", "rateChange", "reset", "scroll", "seeked", "seeking", "stalled", "submit", "suspend", "timeUpdate", "touchCancel", "touchEnd", "touchMove", "touchStart", "transitionEnd", "volumeChange", "waiting", "wheel"].forEach(function(e) {
     var t = e[0].toUpperCase() + e.slice(1),
@@ -97158,7 +97324,7 @@ var _getMetaFieldForId = function(id, key) {
   }
   var o = n(63),
     i = n(129),
-    a = n(572),
+    a = n(573),
     s = n(130),
     u = {
       key: a,
@@ -97267,7 +97433,7 @@ var _getMetaFieldForId = function(id, key) {
     i = (n(27), n(10)),
     a = n(62),
     s = n(295);
-  n(2), n(4), e.exports = r;
+  n(3), n(4), e.exports = r;
 }, function(e, t, n) {
   "use strict";
   (function(t) {
@@ -97418,7 +97584,7 @@ var _getMetaFieldForId = function(id, key) {
       if (t.hasOwnProperty(n) && n in u) return s[e] = t[n];
     return "";
   }
-  var i = n(16),
+  var i = n(17),
     a = {
       animationend: r("Animation", "AnimationEnd"),
       animationiteration: r("Animation", "AnimationIteration"),
@@ -97446,10 +97612,10 @@ var _getMetaFieldForId = function(id, key) {
   }
   var o = n(1),
     i = n(18),
-    a = n(487),
-    s = o.createFactory(n(580)),
-    u = n(581),
-    c = n(486),
+    a = n(488),
+    s = o.createFactory(n(581)),
+    u = n(582),
+    c = n(487),
     l = n(18).unstable_renderSubtreeIntoContainer,
     d = n(175),
     f = a.canUseDOM ? window.HTMLElement : {},
@@ -97540,8 +97706,8 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   var r = n(1),
     o = r.DOM.div,
-    i = n(582),
-    a = n(583),
+    i = n(583),
+    a = n(584),
     s = n(175),
     u = {
       overlay: {
@@ -97743,7 +97909,7 @@ var _getMetaFieldForId = function(id, key) {
     n[t.shiftKey ? 0 : n.length - 1] !== document.activeElement && e !== document.activeElement || (t.preventDefault(), n[t.shiftKey ? n.length - 1 : 0].focus());
   };
 }, function(e, t, n) {
-  e.exports = n(579);
+  e.exports = n(580);
 }, function(e, t, n) {
   "use strict";
 
@@ -97817,11 +97983,11 @@ var _getMetaFieldForId = function(id, key) {
     return e === t;
   }
   var a = n(302),
-    s = n(593),
-    u = n(587),
-    c = n(588),
-    l = n(589),
-    d = n(590),
+    s = n(594),
+    u = n(588),
+    c = n(589),
+    l = n(590),
+    d = n(591),
     f = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
@@ -98011,7 +98177,7 @@ var _getMetaFieldForId = function(id, key) {
       d = s(e, u);
     return (u.pure ? i : o)(c, l, d, e, u);
   }
-  t.a = a, n(591);
+  t.a = a, n(592);
 }, function(e, t, n) {
   "use strict";
   n(135);
@@ -98084,7 +98250,7 @@ var _getMetaFieldForId = function(id, key) {
   t.a = o;
   var i = Object.prototype.hasOwnProperty;
 }, function(e, t, n) {
-  var r = n(595);
+  var r = n(596);
   e.exports = r;
 }, function(e, t, n) {
   "use strict";
@@ -98093,10 +98259,10 @@ var _getMetaFieldForId = function(id, key) {
     } : function(e) {
       return e && "function" == typeof Symbol && e.constructor === Symbol ? "symbol" : typeof e;
     },
-    o = n(511),
-    i = n(510),
-    a = n(597),
-    s = n(596),
+    o = n(512),
+    i = n(511),
+    a = n(598),
+    s = n(597),
     u = function(e) {
       return function t(n) {
         var u = arguments.length <= 1 || void 0 === arguments[1] ? e : arguments[1],
@@ -98141,7 +98307,7 @@ var _getMetaFieldForId = function(id, key) {
     }
     return Array.from(e);
   }
-  var o = n(512),
+  var o = n(513),
     i = function(e) {
       return e % 2 == 0;
     };
@@ -98343,20 +98509,20 @@ var _getMetaFieldForId = function(id, key) {
   }();
 }, function(e, t, n) {
   "use strict";
-  n(308), n(600);
+  n(308), n(601);
 }, function(e, t, n) {
   "use strict";
   var r = n(28),
     o = n.n(r),
-    i = n(12),
+    i = n(13),
     a = n.n(i),
     s = n(7),
     u = n.n(s),
     c = n(8),
     l = n.n(c),
-    d = n(14),
+    d = n(15),
     f = n.n(d),
-    p = n(13),
+    p = n(14),
     h = n.n(p),
     _ = n(1),
     m = n.n(_),
@@ -98693,7 +98859,7 @@ var _getMetaFieldForId = function(id, key) {
     a = n.n(i),
     s = n(8),
     u = n.n(s),
-    c = n(603),
+    c = n(604),
     l = 100,
     d = function() {
       function e() {
@@ -98794,7 +98960,7 @@ var _getMetaFieldForId = function(id, key) {
     };
   }
   t.a = r;
-  var o = n(604);
+  var o = n(605);
 }, function(e, t, n) {
   "use strict";
   n(310);
@@ -99005,7 +99171,7 @@ var _getMetaFieldForId = function(id, key) {
     a = n.n(i),
     s = n(8),
     u = n.n(s),
-    c = n(609),
+    c = n(610),
     l = 15e5,
     d = function() {
       function e(t) {
@@ -99207,7 +99373,7 @@ var _getMetaFieldForId = function(id, key) {
     a = n.n(i),
     s = n(8),
     u = n.n(s),
-    c = n(626),
+    c = n(627),
     l = function() {
       function e() {
         a()(this, e), this._columnSizeMap = {}, this._intervalTree = n.i(c.a)(), this._leftMap = {};
@@ -99271,7 +99437,7 @@ var _getMetaFieldForId = function(id, key) {
   "use strict";
 }, function(e, t, n) {
   "use strict";
-  n(316), n(616);
+  n(316), n(617);
 }, function(e, t, n) {
   "use strict";
   n(317);
@@ -99634,7 +99800,7 @@ var _getMetaFieldForId = function(id, key) {
     return new _(e && 0 !== e.length ? h(e) : null);
   }
   t.a = m;
-  var y = n(624),
+  var y = n(625),
     v = 0,
     g = 1,
     b = r.prototype;
@@ -99764,7 +99930,7 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   "use strict";
   var r = n(53),
-    o = (n(2), function(e) {
+    o = (n(3), function(e) {
       var t = this;
       if (t.instancePool.length) {
         var n = t.instancePool.pop();
@@ -99874,10 +100040,10 @@ var _getMetaFieldForId = function(id, key) {
     var t = [];
     return c(e, t, null, m.thatReturnsArgument), t;
   }
-  var h = n(628),
+  var h = n(629),
     _ = n(52),
     m = n(20),
-    y = n(637),
+    y = n(638),
     v = h.twoArgumentPooler,
     g = h.fourArgumentPooler,
     b = /\/+/g;
@@ -99984,7 +100150,7 @@ var _getMetaFieldForId = function(id, key) {
     _ = n(52),
     m = (n(332), n(139)),
     y = n(59),
-    v = (n(2), n(4), "mixins"),
+    v = (n(3), n(4), "mixins"),
     g = [],
     b = {
       mixins: "DEFINE_MANY",
@@ -100356,7 +100522,7 @@ var _getMetaFieldForId = function(id, key) {
   }
   var v = n(52),
     g = n(332),
-    b = n(633),
+    b = n(634),
     M = n(20),
     w = n(334),
     k = (n(4), "<<anonymous>>"),
@@ -100419,7 +100585,7 @@ var _getMetaFieldForId = function(id, key) {
   }
   var o = n(53),
     i = n(52);
-  n(2), e.exports = r;
+  n(3), e.exports = r;
 }, function(e, t, n) {
   "use strict";
 
@@ -100459,7 +100625,7 @@ var _getMetaFieldForId = function(id, key) {
   var a = n(53),
     s = (n(27), n(331)),
     u = n(334),
-    c = (n(2), n(627)),
+    c = (n(3), n(628)),
     l = (n(4), "."),
     d = ":";
   e.exports = i;
@@ -100625,7 +100791,7 @@ var _getMetaFieldForId = function(id, key) {
   Object.defineProperty(t, "__esModule", {
     value: !0
   });
-  var r = n(643),
+  var r = n(644),
     o = function(e) {
       if (e && e.__esModule) return e;
       var t = {};
@@ -100785,17 +100951,12 @@ var _getMetaFieldForId = function(id, key) {
   var a = n(338);
   n(114), n(339);
 }, function(e, t, n) {
-  var r = n(479);
-  "string" == typeof r && (r = [
-    [e.i, r, ""]
-  ]), n(54)(r, {}), r.locals && (e.exports = r.locals);
-}, function(e, t, n) {
   var r = n(480);
   "string" == typeof r && (r = [
     [e.i, r, ""]
   ]), n(54)(r, {}), r.locals && (e.exports = r.locals);
 }, function(e, t, n) {
-  var r = n(482);
+  var r = n(481);
   "string" == typeof r && (r = [
     [e.i, r, ""]
   ]), n(54)(r, {}), r.locals && (e.exports = r.locals);
@@ -100810,14 +100971,19 @@ var _getMetaFieldForId = function(id, key) {
     [e.i, r, ""]
   ]), n(54)(r, {}), r.locals && (e.exports = r.locals);
 }, function(e, t, n) {
-  e.exports = n(654);
+  var r = n(485);
+  "string" == typeof r && (r = [
+    [e.i, r, ""]
+  ]), n(54)(r, {}), r.locals && (e.exports = r.locals);
+}, function(e, t, n) {
+  e.exports = n(655);
 }, function(e, t, n) {
   "use strict";
   (function(e, r) {
     Object.defineProperty(t, "__esModule", {
       value: !0
     });
-    var o, i = n(655),
+    var o, i = n(656),
       a = function(e) {
         return e && e.__esModule ? e : {
           "default": e

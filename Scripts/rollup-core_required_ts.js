@@ -370,6 +370,9 @@
         _fully_booted_p_resolve = resolve;
       });
       TS.boot_data = boot_data;
+      if (TS.qs_args.js_path) {
+        TS.boot_data.version_ts = "local_js";
+      }
       TS.console.onStart();
       if (TS.client) TS.client.setClientLoadWatchdogTimer();
       TS.model.api_url = TS.boot_data.api_url;
