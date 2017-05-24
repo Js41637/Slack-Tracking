@@ -201,9 +201,16 @@
   padding: .3rem
 }
 
+.user_group_settings_form .lazy_filter_select .lfs_list_container .lfs_list .lfs_item {
+  padding: .375rem;
+  font-weight: 400;
+  font-size: 13.5px
+}
+
 .user_group_settings_form .ts_icon_shared_channels {
-  font-size: 14px;
-  bottom: -2px
+  font-size: 13.5px;
+  bottom: -2px;
+  line-height: 12px
 }
 
 .user_group_settings_form .ts_icon_shared_channels:before {
@@ -211,11 +218,13 @@
 }
 
 .user_group_settings_form .ts_icon_shared_channel {
-  font-size: 15px
+  font-size: 15px;
+  line-height: 12px
 }
 
 .user_group_settings_form .ts_icon_lock {
-  margin-left: -3px
+  margin-left: -3px;
+  line-height: 12px
 }
 
 @-webkit-keyframes highlight_fade {
@@ -245,11 +254,25 @@
   }
 }
 
+.user_group_members_form .lazy_filter_select .lfs_list .lfs_item {
+  height: 46px
+}
+
+body:not(.unify_user) .user_group_members_form .lazy_filter_select .lfs_list .lfs_item {
+  height: 50px
+}
+
 .user_group_invite_member_small {
   font-size: 14px;
   position: relative;
-  padding-left: 42px;
+  padding-top: 4px;
+  padding-left: 8px;
   height: 36px
+}
+
+body:not(.unify_user) .user_group_invite_member_small {
+  padding-left: 42px;
+  padding-top: 0
 }
 
 .user_group_invite_member_small .add_icon,
