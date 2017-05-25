@@ -2030,7 +2030,8 @@
       });
     };
     var ensureMembers = function() {
-      if (TS.boot_data.feature_unknown_members && _.includes(_skip_extra_member_fetch_methods, method)) {
+      var group = TS.experiment.getGroup("unknown_members_perf", TS.members.unknown_members_perf_exp_metrics);
+      if (group === "unknown_members" && _.includes(_skip_extra_member_fetch_methods, method)) {
         return Promise.resolve();
       }
       if (method.indexOf("users.") === 0) return Promise.resolve();
@@ -11818,6 +11819,7 @@ TS.registerModule("constants", {
     member_was_upserted_sig: new signals.Signal,
     is_in_bulk_upsert_mode: false,
     members_for_user_changed_sig: new signals.Signal,
+    unknown_members_perf_exp_metrics: ["fps_median", "fps_min", "beachballs", "stutters", "client_total_members_loaded", "client_session_bytes_received", "channel_change", "initial_stutters", "initial_beachballs", "rebuild_all_throttles"],
     onStart: function() {
       _storeMembersThrottled = TS.utility.throttleFunc(_storeMembersThrottled, 20);
       if (TS.client) TS.client.user_added_to_team_sig.add(TS.members.userAddedToTeam);
@@ -11838,7 +11840,8 @@ TS.registerModule("constants", {
     },
     getPotentiallyUnknownMemberById: function(id) {
       if (!id) return null;
-      if (!TS.boot_data.feature_unknown_members) return TS.members.getMemberById(id);
+      var group = TS.experiment.getGroup("unknown_members_perf", TS.members.unknown_members_perf_exp_metrics);
+      if (group !== "unknown_members") return TS.members.getMemberById(id);
       if (!TS.utility.strLooksLikeAMemberId(id)) {
         return TS.members.getMemberByName(id) || {
           id: id,
@@ -12521,7 +12524,8 @@ TS.registerModule("constants", {
       return TS.members.ensureMembersArePresent(m_ids, c_ids);
     },
     ensureMemberIsHydrated: function(id) {
-      if (TS.boot_data.feature_unknown_members) TS.members.getMemberById(id);
+      var group = TS.experiment.getGroup("unknown_members_perf", TS.members.unknown_members_perf_exp_metrics);
+      if (group !== "unknown_members") TS.members.getMemberById(id);
     },
     startBatchUpsert: function() {
       if (TS.members.is_in_bulk_upsert_mode) return false;
@@ -12776,7 +12780,8 @@ TS.registerModule("constants", {
     return _.isString(member_or_id) ? TS.members.getMemberById(member_or_id) : member_or_id;
   };
   var _maybeSetMemberKnown = function(member) {
-    if (!TS.boot_data.feature_unknown_members) return;
+    var group = TS.experiment.getGroup("unknown_members_perf", TS.members.unknown_members_perf_exp_metrics);
+    if (group !== "unknown_members") return;
     var was_unknown = member ? member.is_unknown : false;
     if (member && member.is_unknown) member.is_unknown = false;
     _.pull(_unknown_member_ids, member.id);
@@ -13137,7 +13142,8 @@ TS.registerModule("constants", {
     };
   };
   var _fetchAndUpsertUnknownMembers = function() {
-    if (!TS.boot_data.feature_unknown_members) return Promise.resolve();
+    var group = TS.experiment.getGroup("unknown_members_perf", TS.members.unknown_members_perf_exp_metrics);
+    if (group !== "unknown_members") return Promise.resolve();
     if (!_unknown_member_ids.length) return Promise.resolve();
     var _unknown_member_ids_getting_fetched = _.clone(_unknown_member_ids);
     return TS.flannel.fetchAndUpsertObjectsByIds(_unknown_member_ids_getting_fetched).then(function(fetched_members) {
@@ -13159,7 +13165,8 @@ TS.registerModule("constants", {
     });
   };
   var _getUnknownMemberAndFetch = function(id) {
-    if (!TS.boot_data.feature_unknown_members) return null;
+    var group = TS.experiment.getGroup("unknown_members_perf", TS.members.unknown_members_perf_exp_metrics);
+    if (group !== "unknown_members") return null;
     if (!id || _id_map[id]) return;
     if (!TS.model.ms_logged_in_once) return;
     TS.log(6655, "member id " + id + " not found in members map, added unknown member to map");
@@ -13192,7 +13199,8 @@ TS.registerModule("constants", {
     return member;
   };
   var _setImagesForUnknownMember = function(member) {
-    if (!TS.boot_data.feature_unknown_members) return;
+    var group = TS.experiment.getGroup("unknown_members_perf", TS.members.unknown_members_perf_exp_metrics);
+    if (group !== "unknown_members") return;
     if (!_.isObject(member.profile)) return;
     if (!member.is_unknown && !member.is_non_existent) return;
     _.forEach(["24", "32", "48", "72", "192", "512", "1024"], function(size) {
@@ -19803,10 +19811,12 @@ TS.registerModule("constants", {
   };
   var _QUEUE_METRICS_ENABLED_FOR = 50;
   var _log_event_handled = function(name) {
-    TS.statsd.count("ms_event_handled_" + name);
+    var group = TS.experiment.getGroup("unknown_members_perf", TS.members.unknown_members_perf_exp_metrics);
+    if (group === "control" || group === "unknown_members") TS.statsd.count("ms_event_handled_" + name + "_" + group);
   };
   var _log_event_dropped = function(name) {
-    TS.statsd.count("ms_event_dropped_" + name);
+    var group = TS.experiment.getGroup("unknown_members_perf", TS.members.unknown_members_perf_exp_metrics);
+    if (group === "control" || group === "unknown_members") TS.statsd.count("ms_event_dropped_" + name + "_" + group);
   };
 })();
 (function() {
@@ -20010,7 +20020,8 @@ TS.registerModule("constants", {
     var partitioned_objects = _.partition(objects, function(ob) {
       if (TS.utility.members.isMember(ob)) {
         var member = TS.members.getMemberById(ob.id);
-        return TS.boot_data.feature_unknown_members && member ? !member.is_unknown : member;
+        var group = TS.experiment.getGroup("unknown_members_perf", TS.members.unknown_members_perf_exp_metrics);
+        return group === "unknown_members" && member ? !member.is_unknown : member;
       }
       return TS.shared.getModelObById(ob.id);
     });
@@ -22938,7 +22949,8 @@ TS.registerModule("constants", {
       if (member.is_bot || member.is_service) {
         html += '<span class="bot_label">' + TS.i18n.t("APP", "templates_builders")() + "</span>";
       }
-      if (TS.boot_data.feature_unknown_members && member.is_unknown) {
+      var group = TS.experiment.getGroup("unknown_members_perf", TS.members.unknown_members_perf_exp_metrics);
+      if (group === "unknown_members" && member.is_unknown) {
         html = TS.templates.message_member_unknown();
       }
       return html;
@@ -23446,7 +23458,8 @@ TS.registerModule("constants", {
       var participants = room.date_end ? room.participant_history : room.participants;
       var participants_output = _.compact(participants.map(function(participant) {
         var member = TS.members.getMemberById(participant);
-        if (member && member.is_unknown && TS.boot_data.feature_unknown_members) {
+        var group = TS.experiment.getGroup("unknown_members_perf", TS.members.unknown_members_perf_exp_metrics);
+        if (member && member.is_unknown && group === "unknown_members") {
           return TS.templates.message_member_unknown();
         } else if (member) {
           return _.escape(TS.members.getPrefCompliantMemberName(member));
@@ -23586,7 +23599,8 @@ TS.registerModule("constants", {
       });
     },
     buildRxnTitle: function(args, force) {
-      if (TS.boot_data.feature_unknown_members && !force) return;
+      var group = TS.experiment.getGroup("unknown_members_perf", TS.members.unknown_members_perf_exp_metrics);
+      if (group === "unknown_members" && !force) return;
       var handy_title = TS.rxns.getHandyRxnsTitleForEmojiByRxnKey(args.name, args.rxn_key);
       var emoji_formatted;
       var display_name = ":" + args.name + ":";
@@ -24862,7 +24876,8 @@ TS.registerModule("constants", {
     if (TS.boot_data.feature_new_broadcast) {
       if (template_args.is_broadcast) msg_classes.push("thread_broadcast");
     }
-    if (TS.boot_data.feature_unknown_members && _.get(template_args.member, "is_unknown")) msg_classes.push("member_is_unknown");
+    var group = TS.experiment.getGroup("unknown_members_perf", TS.members.unknown_members_perf_exp_metrics);
+    if (group === "unknown_members" && _.get(template_args.member, "is_unknown")) msg_classes.push("member_is_unknown");
     return msg_classes;
   }
 
@@ -33155,7 +33170,8 @@ TS.registerModule("constants", {
   var _parseMemberToken = function(tsf_mode, item, no_highlights, no_linking) {
     var guts = item.replace(/<|>/g, "");
     var m = TS.utility.msgs.getMemberFromMemberMarkup(guts);
-    if (TS.boot_data.feature_unknown_members && m && tsf_mode !== "EDIT" && tsf_mode !== "GROWL") {
+    var group = TS.experiment.getGroup("unknown_members_perf", TS.members.unknown_members_perf_exp_metrics);
+    if (group === "unknown_members" && m && tsf_mode !== "EDIT" && tsf_mode !== "GROWL") {
       if (m.is_unknown) {
         return TS.templates.message_member_unknown();
       } else if (m.is_non_existent && TS.utility.strLooksLikeAMemberId(m.id)) {
@@ -33183,7 +33199,7 @@ TS.registerModule("constants", {
           }
         }, 3e4);
       }
-      if (!TS.boot_data.feature_unknown_members && TS.utility.strLooksLikeAMemberId(guts)) {
+      if (group !== "unknown_members" && TS.utility.strLooksLikeAMemberId(guts)) {
         return TS.templates.message_member_non_existent();
       }
       return guts;
@@ -64673,8 +64689,7 @@ var _getMetaFieldForId = function(id, key) {
             if ("string" == typeof e) {
               if (null === (e = Et(Kr, e))) return this;
             } else Math.abs(e) < 16 && (e *= 60);
-            return !this._isUTC && n && (r = Ct(this)),
-              this._offset = e, this._isUTC = !0, null != r && this.add(r, "m"), o !== e && (!n || this._changeInProgress ? Vt(this, Wt(e - o, "m"), 1, !1) : this._changeInProgress || (this._changeInProgress = !0, t.updateOffset(this, !0), this._changeInProgress = null)), this;
+            return !this._isUTC && n && (r = Ct(this)), this._offset = e, this._isUTC = !0, null != r && this.add(r, "m"), o !== e && (!n || this._changeInProgress ? Vt(this, Wt(e - o, "m"), 1, !1) : this._changeInProgress || (this._changeInProgress = !0, t.updateOffset(this, !0), this._changeInProgress = null)), this;
           }
           return this._isUTC ? o : Ct(this);
         }
