@@ -2358,6 +2358,16 @@
       _maybeSetup();
       return _locale;
     },
+    localesEnabled: function() {
+      var locales = {};
+      if (TS.boot_data.feature_locale_de_DE) locales["de-DE"] = "Deutsch";
+      locales["en-US"] = "English (US)";
+      if (TS.boot_data.feature_locale_es_ES) locales["es-ES"] = "Español";
+      if (TS.boot_data.feature_locale_fr_FR) locales["fr-FR"] = "Français";
+      if (TS.boot_data.feature_locale_ja_JP) locales["ja-JP"] = "日本語";
+      if (TS.boot_data.feature_pseudo_locale) locales.pseudo = "Þsèúδôtřáñsℓátïôñ";
+      return locales;
+    },
     localeOrPseudo: function() {
       if (_is_pseudo) {
         return "pseudo";
