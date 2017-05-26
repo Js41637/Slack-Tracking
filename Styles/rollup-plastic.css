@@ -7030,6 +7030,10 @@ body.no_header #page_contents {
   width: 100%
 }
 
+body.full_height #page {
+  overflow: auto
+}
+
 body.full_bleed #page_contents {
   width: auto;
   padding: 0
@@ -15277,6 +15281,14 @@ html:not(.supports_flexbox) #channel_browser .channel_browser_sort_container {
   top: 3px
 }
 
+#new_channel_modal #invite_members_container .lazy_filter_select .lfs_list .lfs_item {
+  padding: 0
+}
+
+body:not(.unify_user) #new_channel_modal #invite_members_container .lazy_filter_select .lfs_list .lfs_item {
+  padding: .375rem
+}
+
 .new_channel_modal_footer {
   padding-top: .75rem
 }
@@ -15719,13 +15731,14 @@ html:not(.supports_flexbox) #im_browser_tokens .member_token {
 .channel_invite_pending_user_small {
   font-size: 14px;
   position: relative;
-  height: 36px
+  height: 30px
 }
 
 body:not(.unify_user) .channel_invite_member,
 body:not(.unify_user) .channel_invite_member_small,
 body:not(.unify_user) .channel_invite_pending_user_small {
-  padding-left: 42px
+  padding-left: 42px;
+  height: 36px
 }
 
 .channel_invite_member .add_icon,
@@ -16502,34 +16515,20 @@ body:not(.unify_user) #channel_invite_container.page_needs_enterprise .channel_i
   white-space: nowrap
 }
 
-.unify_user .lazy_filter_select .lfs_list .lfs_item {
-  color: #2C2D30;
-  font-weight: 700;
-  font-size: 15px;
-  padding: 0;
-  margin: 0;
-  height: 32px;
-  width: calc(99%)
-}
-
-.unify_user .lazy_filter_select .lfs_list .lfs_item .c-member--small {
-  margin-right: 6px
-}
-
-.unify_user .lazy_filter_select .lfs_list .lfs_item .ts_icon_channel:before {
-  font-size: 18px;
-  margin-left: 3px;
-  margin-right: 3px
-}
-
-.unify_user .lazy_filter_select .lfs_list .lfs_item .ts_icon:not(.presence_icon) {
-  color: #717274
-}
-
-.lazy_filter_select .lfs_list .lfs_item.selected {
+.lazy_filter_select .lfs_list .lfs_item.selected,
+.lazy_filter_select .lfs_list .lfs_item.selected .c-member__current-status .prevent_copy_paste,
+.lazy_filter_select .lfs_list .lfs_item.selected .c-member__current-status--small:before,
+.lazy_filter_select .lfs_list .lfs_item.selected .c-member__display-name,
+.lazy_filter_select .lfs_list .lfs_item.selected .c-member__name,
+.lazy_filter_select .lfs_list .lfs_item.selected .c-member__secondary-name {
   color: #2780F8
 }
 
+.lazy_filter_select .lfs_list .lfs_item.selected .c-member__current-status .prevent_copy_paste .ts_icon:not(.presence_icon),
+.lazy_filter_select .lfs_list .lfs_item.selected .c-member__current-status--small:before .ts_icon:not(.presence_icon),
+.lazy_filter_select .lfs_list .lfs_item.selected .c-member__display-name .ts_icon:not(.presence_icon),
+.lazy_filter_select .lfs_list .lfs_item.selected .c-member__name .ts_icon:not(.presence_icon),
+.lazy_filter_select .lfs_list .lfs_item.selected .c-member__secondary-name .ts_icon:not(.presence_icon),
 .lazy_filter_select .lfs_list .lfs_item.selected .ts_icon:not(.presence_icon) {
   color: #2780F8
 }
@@ -16691,24 +16690,6 @@ body:not(.unify_user) .lazy_filter_select .lfs_value .ts_icon_shared_channels {
   top: 0
 }
 
-.unify_user .lazy_filter_select .lfs_value {
-  padding: .25rem 2.5rem .15rem 8px
-}
-
-.unify_user .lazy_filter_select .lfs_value .lfs_item.selected {
-  height: initial;
-  color: #2C2D30;
-  font-weight: 700
-}
-
-.unify_user .lazy_filter_select .lfs_value .lfs_item.selected .ts_icon_shared_channels {
-  margin-right: 40px
-}
-
-.unify_user .lazy_filter_select .lfs_value .lfs_item.selected .ts_icon:not(.presence_icon) {
-  color: #717274
-}
-
 .lazy_filter_select .lfs_token .addl_text,
 .lazy_filter_select .lfs_value .addl_text {
   display: none
@@ -16720,6 +16701,58 @@ body:not(.unify_user) .lazy_filter_select .lfs_value .ts_icon_shared_channels {
 
 .lazy_filter_select .addl_icon.ts_icon_shared_channels {
   top: 4px
+}
+
+.lazy_filter_select.channel_browser_sort .lfs_value,
+.lazy_filter_select.show_which_channels_selector .lfs_value {
+  padding: .45rem 2.5rem .55rem 8px
+}
+
+.unify_user #select_share_channels .lazy_filter_select .lfs_value {
+  padding: .25rem 2.5rem .15rem 8px
+}
+
+.unify_user #select_share_channels .lazy_filter_select .lfs_value .lfs_item.selected {
+  height: initial;
+  color: #2C2D30;
+  font-weight: 700
+}
+
+.unify_user #select_share_channels .lazy_filter_select .lfs_value .lfs_item.selected .ts_icon_shared_channels {
+  margin-right: 40px
+}
+
+.unify_user #select_share_channels .lazy_filter_select .lfs_value .lfs_item.selected .ts_icon:not(.presence_icon) {
+  color: #717274
+}
+
+.unify_user #select_share_channels .lazy_filter_select .lfs_item {
+  color: #2C2D30;
+  font-weight: 700;
+  font-size: 15px;
+  padding: 0;
+  margin: 0;
+  height: 32px;
+  width: calc(99%)
+}
+
+.unify_user #select_share_channels .lazy_filter_select .lfs_item .c-member--small {
+  margin-right: 6px
+}
+
+.unify_user #select_share_channels .lazy_filter_select .lfs_item .ts_icon_channel:before {
+  font-size: 18px;
+  margin-left: 3px;
+  margin-right: 3px
+}
+
+.unify_user #select_share_channels .lazy_filter_select .lfs_item .ts_icon:not(.presence_icon) {
+  color: #717274
+}
+
+.unify_user #select_share_channels .lazy_filter_select .lfs_item .ts_icon_lock {
+  padding-right: 3px;
+  padding-left: 1px
 }
 
 .lazy_filter_select.normal_style .lfs_input_container,
@@ -17493,7 +17526,8 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 
 .c-member__deleted--small {
   width: 18px;
-  margin: 0 0 3px 2px
+  margin: 0 0 3px 2px;
+  height: 15px
 }
 
 .c-member--medium {

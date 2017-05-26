@@ -6,8 +6,13 @@
       _has_started = true;
       if (_sub_list.length) _sendSubList();
       if (_query_list.length) _sendQueryList();
-      TS.ms.disconnected_sig.add(_handleDisconnect);
-      TS.ms.connected_sig.add(_handleConnect);
+      if (TS.boot_data.feature_ws_refactor) {
+        TS.interop.SocketManager.disconnectedSig.add(_handleDisconnect);
+        TS.interop.SocketManager.connectedSig.add(_handleConnect);
+      } else {
+        TS.ms.disconnected_sig.add(_handleDisconnect);
+        TS.ms.connected_sig.add(_handleConnect);
+      }
     },
     addPresenceList: function(presence_list) {
       if (_lists.indexOf(presence_list) === -1) {
@@ -141,10 +146,15 @@
         }
         _sub_list = _sub_list.slice(0, _PRESENCE_SUB_LIST_MAX);
       }
-      TS.ms.send({
+      var imsg = {
         type: "presence_sub",
         ids: _sub_list
-      });
+      };
+      if (TS.boot_data.feature_ws_refactor) {
+        TS.interop.SocketManager.send(imsg);
+      } else {
+        TS.ms.send(imsg);
+      }
       TS.presence_manager.sub_list_changed.dispatch();
       return null;
     });
@@ -157,10 +167,15 @@
     _is_query_waiting = true;
     Promise.resolve().then(function() {
       _is_query_waiting = false;
-      TS.ms.send({
+      var imsg = {
         type: "presence_query",
         ids: _query_list
-      });
+      };
+      if (TS.boot_data.feature_ws_refactor) {
+        TS.interop.SocketManager.send(imsg);
+      } else {
+        TS.ms.send(imsg);
+      }
       _query_list = [];
       return null;
     });
@@ -172,11 +187,15 @@
     _sendQueryList();
   };
   var _handleDisconnect = function() {
-    TS.ms.promiseToHaveOpenWebSocket().then(function() {
+    var callback = function() {
       _sendSubList();
       _sendQueryList();
-      return null;
-    });
+    };
+    if (TS.boot_data.feature_ws_refactor) {
+      TS.interop.SocketManager.promiseToHaveOpenWebSocket().then(callback);
+    } else {
+      TS.ms.promiseToHaveOpenWebSocket().then(callback);
+    }
   };
   var _sanityCheckSubscriptionList = function() {
     var id;
@@ -777,7 +796,11 @@
     }
     TS.storage.storeStorageVersion(TS.storage.version);
     TS.storage.storeCacheTSStorageVersion(TS.storage.cache_ts_version);
-    TS.ms.connected_sig.addOnce(_flushAllBufferOnIdleTimer);
+    if (TS.boot_data.feature_ws_refactor) {
+      TS.interop.SocketManager.connectedSig.addOnce(_flushAllBufferOnIdleTimer);
+    } else {
+      TS.ms.connected_sig.addOnce(_flushAllBufferOnIdleTimer);
+    }
   };
   var _removeAllOurKeys = function() {
     _getKeys().forEach(function(key) {
@@ -1591,6 +1614,10 @@
       setTimeout(_nextFromQ, 1);
       return p.promise;
     }
+    if (TS.boot_data.feature_conversations_api) {
+      var aliases = /^(channels|groups|mpim)\./;
+      method = method.replace(aliases, "conversations.");
+    }
     TS.log(2, 'calling method "' + method + '" args._attempts:' + args._attempts);
     _incrementPending(method);
     var is_search = method.indexOf("search.") > -1;
@@ -1614,7 +1641,7 @@
         url += "&" + encodeURIComponent(key) + "=" + encodeURIComponent(value);
       }
     });
-    if ((method === "rtm.start" || method === "rtm.leanStart") && TS.client) {
+    if ((method === "rtm.start" || method === "rtm.leanStart") && TS.client && !TS.boot_data.feature_ws_refactor) {
       url = TS.utility.appendLogToUrlWithLimit(url, TS.ms.getConnectionFlowLog());
     }
     if (TS.boot_data.feature_channel_eventlog_client) {
@@ -1753,7 +1780,7 @@
       _onRequestDone(method);
     };
     var onNon200Response = function() {
-      if ((method === "rtm.start" || method === "rtm.leanStart") && TS.ms) TS.ms.logConnectionFlow("TS.api got a " + req.status + " response for method: " + method);
+      if ((method === "rtm.start" || method === "rtm.leanStart") && TS.ms && !TS.boot_data.feature_ws_refactor) TS.ms.logConnectionFlow("TS.api got a " + req.status + " response for method: " + method);
       var data = {
         ok: false,
         error: "_http_error",
@@ -1822,7 +1849,7 @@
       }
       progress_timer = setTimeout(function() {
         clearTimeout(progress_timer);
-        TS.ms.logConnectionFlow(method + "_timeout");
+        if (!TS.boot_data.feature_ws_refactor) TS.ms.logConnectionFlow(method + "_timeout");
         TS.error(_timeout_ms + "ms passed, no " + method + " progress");
         timeout();
       }, progress_timeout_ms);
@@ -2391,15 +2418,22 @@
           return;
         }
         TS.info("Listening for the MS connected signal");
-        TS.ms.connected_sig.addOnce(function() {
+        var callback = function() {
           _ms_reconnected_p = undefined;
           resolve();
-        });
+        };
+        if (TS.boot_data.feature_ws_refactor) {
+          TS.interop.SocketManager.connectedSig.addOnce(callback);
+        } else {
+          TS.ms.connected_sig.addOnce(callback);
+        }
         if (ms_asleep) {
           TS.info("MS is not connected, but it is asleep so not trying to wake it up");
         } else {
           TS.info("MS is not connected, but it is not asleep, so requesting a reconnect");
-          TS.ms.reconnect_requested_sig.dispatch();
+          if (TS.boot_data.feature_ws_refactor) {} else {
+            TS.ms.reconnect_requested_sig.dispatch();
+          }
         }
       });
       return _ms_reconnected_p;
@@ -2431,21 +2465,24 @@
   TS.registerModule("permissions.channels", {
     canMemberJoinChannel: function(channel_model_ob, member_model_ob) {
       if (!channel_model_ob || !member_model_ob) return false;
-      if (!TS.boot_data.page_needs_enterprise) return true;
       if (channel_model_ob.is_im || channel_model_ob.is_mpim) return true;
-      if (!channel_model_ob.is_shared && !member_model_ob._is_local) return false;
-      var teams = _.get(member_model_ob, "enterprise_user.teams");
-      if (channel_model_ob.is_shared && !member_model_ob._is_local && _.isArray(teams)) {
-        var allowed_teams;
-        if (channel_model_ob.is_global_shared) {
-          allowed_teams = _.map(TS.model.enterprise_teams, "id");
-        } else {
-          allowed_teams = channel_model_ob.shared_team_ids;
+      if (member_model_ob._is_local) return true;
+      if (channel_model_ob.is_shared) {
+        var allowed_teams = channel_model_ob.shared_team_ids;
+        if (TS.shared.isModelObOrgShared(channel_model_ob)) {
+          if (TS.utility.teams.isMemberExternal(member_model_ob)) return false;
+          if (channel_model_ob.is_global_shared) return true;
+          var teams = _.get(member_model_ob, "enterprise_user.teams") || [];
+          var matches = _.intersection(teams, allowed_teams);
+          if (matches.length) return true;
         }
-        var matches = _.intersection(teams, allowed_teams);
-        if (!matches.length) return false;
+        if (TS.shared.isModelObShared(channel_model_ob)) {
+          if (member_model_ob._is_from_org) return false;
+          var member_team_id = member_model_ob.team_id;
+          if (allowed_teams.indexOf(member_team_id) > -1) return true;
+        }
       }
-      return true;
+      return false;
     },
     canMemberLeaveChannel: function(channel_model_ob, member_model_ob) {
       if (!channel_model_ob || !member_model_ob) return false;
@@ -5059,7 +5096,18 @@
         TS.channels.joined_sig.add(_modelObJoined);
         TS.channels.left_sig.add(_modelObLeft);
         TS.groups.left_sig.add(_modelObLeft);
-        TS.ms.connected_sig.add(_maybeInvalidateLocalCache);
+        var onFirstConnect = function() {
+          if (TS.boot_data.feature_ws_refactor) {
+            TS.interop.SocketManager.connectedSig.add(_maybeInvalidateLocalCache);
+          } else {
+            TS.ms.connected_sig.add(_maybeInvalidateLocalCache);
+          }
+        };
+        if (TS.boot_data.feature_ws_refactor) {
+          TS.interop.SocketManager.connectedSig.addOnce(onFirstConnect);
+        } else {
+          TS.ms.connected_sig.addOnce(onFirstConnect);
+        }
         var handler_priority = Infinity;
         TS.members.changed_deleted_sig.add(_markMembershipCountsAsStale, this, handler_priority);
         TS.members.non_loaded_changed_deleted_sig.add(_markMembershipCountsAsStale, this, handler_priority);
@@ -5383,7 +5431,7 @@
     delete _channel_known_member_statuses[model_ob.id];
   };
   var _maybeInvalidateLocalCache = function(last_connect_was_fast) {
-    if (last_connect_was_fast || TS.ms.num_times_connected === 0) return;
+    if (last_connect_was_fast) return;
     var model_ob = TS.shared.getActiveModelOb();
     var current_channel_member_counts;
     if (model_ob && model_ob.id) {
@@ -9363,7 +9411,7 @@ TS.registerModule("constants", {
           var first_name = $.trim(member.profile.first_name);
           var last_name = $.trim(member.profile.last_name);
           var name = first_name;
-          if (first_name_map[first_name] && first_name_map[first_name].length > 1 && last_name || show_last_initial) {
+          if (last_name && (first_name_map[first_name] && first_name_map[first_name].length > 1 || show_last_initial)) {
             name += " " + _getFirstLetter(last_name) + ".";
           }
           if (for_header) {
@@ -9745,14 +9793,23 @@ TS.registerModule("constants", {
     msg_sent_sig: new signals.Signal,
     onStart: function() {
       if (TS.client) {
-        TS.ms.connected_sig.addOnce(_logBootChannelSwitch);
         TS.channels.switched_sig.add(_logChannelSwitch);
         TS.ims.switched_sig.add(_logChannelSwitch);
         TS.groups.switched_sig.add(_logChannelSwitch);
         TS.mpims.switched_sig.add(_logChannelSwitch);
         if (TS.client && TS.client.unread) TS.client.unread.switched_sig.add(_logChannelSwitch);
         if (TS.client && TS.client.threads) TS.client.threads.switched_sig.add(_logChannelSwitch);
-        TS.ms.connected_sig.add(_clearPromises);
+        var onFirstTimeConnected = function() {
+          _has_ever_connected = true;
+          _logBootChannelSwitch();
+        };
+        if (TS.boot_data.feature_ws_refactor) {
+          TS.interop.SocketManager.connectedSig.addOnce(onFirstTimeConnected);
+          TS.interop.SocketManager.connectedSig.add(_clearPromises);
+        } else {
+          TS.ms.connected_sig.addOnce(onFirstTimeConnected);
+          TS.ms.connected_sig.add(_clearPromises);
+        }
       }
     },
     test: function() {
@@ -9977,7 +10034,7 @@ TS.registerModule("constants", {
         TS.warn('checkInitialMsgHistory NOT DOING ANYTHING, because "' + model_ob.id + '" history_is_being_fetched:true');
         return;
       }
-      var is_booting = TS.isPartiallyBooted() || !TS.ms.num_times_connected;
+      var is_booting = TS.isPartiallyBooted() || !_has_ever_connected;
       if (is_booting && TS._did_incremental_boot && model_ob.id === TS.model.active_channel_id) {
         return;
       }
@@ -10082,8 +10139,11 @@ TS.registerModule("constants", {
             controller.fetchHistory(model_ob, api_args);
           }
         };
-        if (TS.model.ms_connected) {
+        var is_connected = TS.boot_data.feature_ws_refactor ? TS.interop.SocketManager.isConnected() : TS.model.ms_connected;
+        if (is_connected) {
           doIt();
+        } else if (TS.boot_data.feature_ws_refactor) {
+          TS.interop.SocketManager.connectedSig.addOnce(doIt);
         } else {
           TS.ms.connected_sig.addOnce(doIt);
         }
@@ -10282,6 +10342,9 @@ TS.registerModule("constants", {
       if (in_reply_to_msg) {
         params.thread_ts = in_reply_to_msg.thread_ts || in_reply_to_msg.ts;
         params.reply_broadcast = should_broadcast_reply;
+      }
+      if (TS.boot_data.feature_ws_refactor) {
+        throw new Error("Not implemented yet");
       }
       var rsp_id = TS.ms.send(params, controller.onSendMsg, temp_ts);
       TS.typing.userEnded(model_ob);
@@ -10527,7 +10590,10 @@ TS.registerModule("constants", {
       }
     },
     maybeDealWithAllSentTempMsgs: function(model_ob, controller) {
-      if (!TS.ms) return;
+      if (!TS.useSocket()) return;
+      if (TS.boot_data.feature_ws_refactor) {
+        return;
+      }
       _.forOwn(TS.ms.sent_map, function(sent_data, k) {
         if (sent_data.msg.channel != model_ob.id) return;
         var temp_ts = sent_data.temp_ts;
@@ -11288,6 +11354,7 @@ TS.registerModule("constants", {
       if (TS.client && TS.client.ui && !TS.model.ms_logged_in_once) TS.client.ui.rebuildAll(make_sure_active_channel_is_in_view, should_throttle_rebuild);
     }
   });
+  var _has_ever_connected = false;
   var _ensure_im_ids_p;
   var _ensure_group_ids_p;
   var _did_defer_initial_msg_history_map = {};
@@ -11541,7 +11608,11 @@ TS.registerModule("constants", {
     changed_icon_sig: new signals.Signal,
     onStart: function() {
       if (TS.boot_data.feature_shared_channels_client) {
-        TS.ms.on_msg_sig.add(TS.teams.ensureTeamsInDataArePresent);
+        if (TS.boot_data.feature_ws_refactor) {
+          TS.interop.SocketManager.socketMessageReceivedSig.add(TS.teams.ensureTeamsInDataArePresent);
+        } else {
+          TS.ms.on_msg_sig.add(TS.teams.ensureTeamsInDataArePresent);
+        }
         TS.teams.changed_icon_sig.add(_handleTeamChange);
         TS.teams.rename_sig.add(_handleTeamChange);
         TS.team.team_name_changed_sig.add(_updateTeamInfoForCurrentView);
@@ -13381,7 +13452,13 @@ TS.registerModule("constants", {
     team_domain_changed_sig: new signals.Signal,
     team_name_changed_sig: new signals.Signal,
     onStart: function() {
-      if (TS.ms) TS.ms.connected_sig.add(_getTeamProfileOnNextRequest, TS.team);
+      if (TS.useSocket()) {
+        if (TS.boot_data.feature_ws_refactor) {
+          TS.interop.SocketManager.connectedSig.add(_getTeamProfileOnNextRequest, TS.team);
+        } else {
+          TS.ms.connected_sig.add(_getTeamProfileOnNextRequest, TS.team);
+        }
+      }
       _maybeSetupTeamModel();
     },
     upsertAndSignal: function(team) {
@@ -16085,10 +16162,15 @@ TS.registerModule("constants", {
       if (TS.isPartiallyBooted()) {
         if (!_pending_dispatch_search_args) {
           var this_context = this;
-          TS.ms.connected_sig.addOnce(function() {
+          var onConnected = function() {
             TS.search.dispatchSearch.apply(this_context, _pending_dispatch_search_args);
             _pending_dispatch_search_args = undefined;
-          });
+          };
+          if (TS.boot_data.feature_ws_refactor) {
+            TS.interop.SocketManager.connectedSig.addOnce(onConnected);
+          } else {
+            TS.ms.connected_sig.addOnce(onConnected);
+          }
         }
         _pending_dispatch_search_args = arguments;
         return;
@@ -16728,7 +16810,6 @@ TS.registerModule("constants", {
     pong_sig: new signals.Signal,
     on_msg_sig: new signals.Signal,
     reconnect_requested_sig: new signals.Signal,
-    num_times_connected: 0,
     errors: {
       BAD_TOKEN: 1,
       CONNECTION_TROUBLE: 1006,
@@ -16817,15 +16898,6 @@ TS.registerModule("constants", {
       }
       _websocket.send(data);
       return msg.id;
-    },
-    sendTyping: function(c_id) {
-      var msg_str = '{"type":"typing", "channel":"' + c_id + '"}';
-      _websocket.send(msg_str);
-    },
-    sendTickle: function() {
-      TS.model.last_net_send = Date.now();
-      var msg_str = '{"type":"tickle"}';
-      _websocket.send(msg_str);
     },
     handleMsg: function(imsg) {
       var is_reconnect_reply = imsg.reply_to && !("ok" in imsg) && imsg.type === "message";
@@ -17151,6 +17223,7 @@ TS.registerModule("constants", {
       });
     }
   });
+  var _num_times_connected = 0;
   var _disconnected_timestamp;
   var _last_disconnect_was_requested_by_server;
   var _did_deprecate_socket_sig = new signals.Signal;
@@ -17543,7 +17616,7 @@ TS.registerModule("constants", {
     TS.model.ms_connecting = false;
     TS.model.ms_connected = true;
     var last_event_ts = _last_event_ts || TS.storage.fetchLastEventTS();
-    var should_consistency_check = !!TS.ms.num_times_connected;
+    var should_consistency_check = !!_num_times_connected;
     if (should_consistency_check) {
       if (last_event_ts && !_last_connect_was_fast) {
         TS.info("calling eventlog.history with start:" + last_event_ts + " (from TS.storage.fetchLastEventTS())");
@@ -17559,7 +17632,7 @@ TS.registerModule("constants", {
       }
     }
     TS.ms.connected_sig.dispatch(_last_connect_was_fast);
-    TS.ms.num_times_connected += 1;
+    _num_times_connected += 1;
     _sendPing();
   };
   var _isReconnectUrlValid = function() {
@@ -17892,7 +17965,11 @@ TS.registerModule("constants", {
           _profiling.disableStatsCollecting();
         });
       }
-      TS.ms.on_msg_sig.add(TS.ms.msg_handlers.msgReceived);
+      if (TS.boot_data.feature_ws_refactor) {
+        TS.interop.SocketManager.socketMessageReceivedSig.add(TS.ms.msg_handlers.msgReceived);
+      } else {
+        TS.ms.on_msg_sig.add(TS.ms.msg_handlers.msgReceived);
+      }
     },
     test: function() {
       var test_ob = {};
@@ -18902,6 +18979,7 @@ TS.registerModule("constants", {
     },
     hello: function() {},
     goodbye: function() {
+      if (!TS.boot_data.feature_ws_refactor) return;
       TS.info("goodbye handler: disconnecting from the MS next time it is convenient");
 
       function deferredGoodbyeHandler() {
@@ -19266,8 +19344,8 @@ TS.registerModule("constants", {
       TS.dnd.updateUserPropsAndSignal(member.id, imsg.dnd_status);
     },
     reconnect_url: function(imsg) {
-      if (!TS.ms.fast_reconnects_enabled) return;
       if (TS.boot_data.feature_ws_refactor) return;
+      if (!TS.ms.fast_reconnects_enabled) return;
       var url = imsg.url;
       TS.ms.setReconnectUrl(url);
     },
@@ -19824,8 +19902,11 @@ TS.registerModule("constants", {
   TS.registerModule("flannel", {
     onStart: function() {
       if (TS.lazyLoadMembersAndBots()) {
-        TS.ms.connected_sig.addOnce(_prefetchFrequentlyUsedMembers);
-        TS.ms.connected_sig.add(_updatePresenceOnSlowReconnect);
+        if (TS.boot_data.feature_ws_refactor) {
+          TS.interop.SocketManager.connectedSig.addOnce(_onFirstConnect);
+        } else {
+          TS.ms.connected_sig.addOnce(_onFirstConnect);
+        }
       }
     },
     test: function() {
@@ -19884,8 +19965,13 @@ TS.registerModule("constants", {
     },
     connectAndFetchRtmStart: function() {
       TS.log(1996, "Opening a tokenless MS connection and fetching rtm.start over it");
-      var flannel_url = TS.flannel.getFlannelConnectionUrl();
-      var rtm_start_p = TS.ms.connectProvisionallyAndFetchRtmStart(flannel_url);
+      var rtm_start_p;
+      if (TS.boot_data.feature_ws_refactor) {
+        rtm_start_p = TS.interop.SocketManager.connectProvisionallyAndFetchRtmStart();
+      } else {
+        var flannel_url = TS.flannel.getFlannelConnectionUrl();
+        rtm_start_p = TS.ms.connectProvisionallyAndFetchRtmStart(flannel_url);
+      }
       if (!rtm_start_p) {
         throw new Error("TS.ms.connect did not return an rtm.start promise");
       }
@@ -20118,14 +20204,13 @@ TS.registerModule("constants", {
   };
   var _updatePresenceOnSlowReconnect = function(last_connect_was_fast) {
     if (!TS.lazyLoadMembersAndBots()) return;
-    if (!!TS.ms.num_times_connected && !last_connect_was_fast) {
-      var member_ids_needing_update = _.map(TS.model.members, "id");
-      var bot_ids_needing_update = _.map(TS.model.bots, "id");
-      TS.flannel.fetchAndUpsertObjectsByIds(member_ids_needing_update.concat(bot_ids_needing_update)).catch(function(err) {
-        TS.err("Updating presence after slow reconnect failed for some users", err);
-        throw err;
-      });
-    }
+    if (last_connect_was_fast) return;
+    var member_ids_needing_update = _.map(TS.model.members, "id");
+    var bot_ids_needing_update = _.map(TS.model.bots, "id");
+    TS.flannel.fetchAndUpsertObjectsByIds(member_ids_needing_update.concat(bot_ids_needing_update)).catch(function(err) {
+      TS.err("Updating presence after slow reconnect failed for some users", err);
+      throw err;
+    });
   };
   var _fetchMembersFromAPI = function(ids) {
     var USERS_INFO_MAX_USER_COUNT = 250;
@@ -20143,6 +20228,14 @@ TS.registerModule("constants", {
         return p.value();
       }).flatten().value();
     });
+  };
+  var _onFirstConnect = function() {
+    _prefetchFrequentlyUsedMembers();
+    if (TS.boot_data.feature_ws_refactor) {
+      TS.interop.SocketManager.connectedSig.add(_updatePresenceOnSlowReconnect);
+    } else {
+      TS.ms.connected_sig.add(_updatePresenceOnSlowReconnect);
+    }
   };
 })();
 (function() {
@@ -20572,7 +20665,9 @@ TS.registerModule("constants", {
     TS.ds.logConnectionFlow("_onConnectTimeout");
     if (_connect_timeout_count == 3) {
       if (TS.model.is_chrome_desktop) {
-        TS.ms.showConnectionTroubleDialog();
+        if (TS.boot_data.feature_ws_refactor) {} else {
+          TS.ms.showConnectionTroubleDialog();
+        }
       } else {
         var body_text;
         if (TS.model.is_our_app) {
@@ -22841,7 +22936,7 @@ TS.registerModule("constants", {
           tooltip_position: tooltip_position
         }));
       }
-      var name_for_url = TS.utility.getChannelName(channel);
+      var name_for_url = TS.utility.getChannelStringIdentifierForUrl(channel);
       var target = TS.utility.shouldLinksHaveTargets() ? 'target="/archives/' + name_for_url + '"' : "";
       var prefix = TS.templates.builders.makeChannelPrefix(channel);
       return '<a href="/archives/' + name_for_url + '" ' + target + ' class="channel_link" data-channel-id="' + channel.id + '">' + (omit_prefix ? "" : prefix) + channel.name + shared_icon + "</a>";
@@ -22852,7 +22947,7 @@ TS.registerModule("constants", {
       return '<a href="' + href + '"' + target + ' data-channel-id="' + result.channel.id + '">#' + result.channel.name + "</a>";
     },
     makeChannelPath: function(channel) {
-      return "/messages/" + TS.utility.getChannelName(channel);
+      return "/messages/" + TS.utility.getChannelStringIdentifierForUrl(channel);
     },
     makeChannelLinkAriaLabelSafe: function(channel) {
       if (!channel) TS.warn("No valid channel to make channel link aria label");
@@ -23068,6 +23163,19 @@ TS.registerModule("constants", {
       if (id_or_member_ob === "USLACKBOT" && slackbot_feels) {
         member = TS.utility.slackbot.getWithFeels(slackbot_feels);
       }
+      var bg_img_style = TS.templates.builders.getImageStyleForMemberPreviewImage(member, size, lazy);
+      var template_data = {
+        omit_link: omit_link,
+        omit_badge: omit_badge,
+        lazy: lazy,
+        member: member,
+        size: size,
+        include_restricted_overlay: !omit_restricted_overlay || true,
+        bg_img_style: bg_img_style
+      };
+      return TS.templates.member_preview_link_image(template_data);
+    },
+    getImageStyleForMemberPreviewImage: function(member, size, lazy) {
       var img_src;
       var bg_img_style;
       var bg_img_urls;
@@ -23148,16 +23256,7 @@ TS.registerModule("constants", {
       } else {
         bg_img_style = bg_img_urls.length ? bg_img_style + bg_img_urls.join(", ") : "";
       }
-      var template_data = {
-        omit_link: omit_link,
-        omit_badge: omit_badge,
-        lazy: lazy,
-        member: member,
-        size: size,
-        include_restricted_overlay: !omit_restricted_overlay || true,
-        bg_img_style: bg_img_style
-      };
-      return TS.templates.member_preview_link_image(template_data);
+      return bg_img_style;
     },
     makeMemberPreviewCardLinkImage: function(id) {
       var member = TS.members.getPotentiallyUnknownMemberById(id);
@@ -30330,7 +30429,13 @@ TS.registerModule("constants", {
   TS.registerModule("utility", {
     onStart: function() {
       TS.utility.makeRefererSafeLink = _.memoize(TS.utility.makeRefererSafeLink);
-      if (TS.ms) TS.ms.connected_sig.add(TS.utility.resetRefererSafeLinkCache);
+      if (TS.useSocket()) {
+        if (TS.boot_data.feature_ws_refactor) {
+          TS.interop.SocketManager.connectedSig.add(TS.utility.resetRefererSafeLinkCache);
+        } else {
+          TS.ms.connected_sig.add(TS.utility.resetRefererSafeLinkCache);
+        }
+      }
       if (TS.prefs && TS.prefs.team_hide_referers_changed_sig) TS.prefs.team_hide_referers_changed_sig.add(TS.utility.resetRefererSafeLinkCache);
       _me_en = TS.i18n.t("me", "utility")();
       _you_en = TS.i18n.t("you", "utility")();
@@ -30445,11 +30550,11 @@ TS.registerModule("constants", {
         number_str: number.toString()
       });
     },
-    getChannelName: function(model_ob) {
+    getChannelStringIdentifierForUrl: function(model_ob) {
       var id = model_ob.id;
       var name = model_ob.name;
       var is_im = model_ob.is_im;
-      if (TS.boot_data.feature_name_tagging_client && (is_im || model_ob.is_mpim)) {
+      if ((TS.boot_data.feature_shared_channels_client || TS.boot_data.feature_name_tagging_client) && (is_im || model_ob.is_mpim)) {
         return id;
       }
       if (TS.boot_data.feature_intl_channel_names && (model_ob.is_channel || model_ob.is_group)) {
@@ -37605,6 +37710,7 @@ var _on_esc;
         _maybeUpdateCallsCommand();
         return Promise.resolve();
       }
+      _mergeLocalizedCmds();
       var ls_cmds = TS.storage.fetchCmds();
       if (ls_cmds && TS.model.commands_cache_ts == ls_cmds.cache_ts) {
         TS.model.did_we_load_with_cmd_cache = true;
@@ -37730,7 +37836,7 @@ var _on_esc;
       };
     },
     addEphemeralFeedback: function(text, opts) {
-      _.defaults(opts || {}, {
+      opts = _.defaults(opts, {
         temporary: true
       });
       var ephemeral_msg = {
@@ -37783,7 +37889,7 @@ var _on_esc;
       TS.cmd_handlers[args.cmd].func(args.cmd, args.rest, args.words, args.original_txt, in_reply_to_msg, model_ob);
     },
     isCmdSupportedInThreads: function(cmd) {
-      return cmd && _.includes(_SUPPORTED_THREAD_CMDS, cmd);
+      return cmd && _.includes(_supported_thread_cmds, cmd);
     },
     sendCmdNotSupportedInThreadsMsg: function(cmd, input_txt, in_reply_to_msg, model_ob) {
       var error_text;
@@ -37804,6 +37910,7 @@ var _on_esc;
       });
     },
     "/slackdevtools": {
+      localized: null,
       type: "client",
       autocomplete: false,
       alias_of: null,
@@ -37815,6 +37922,7 @@ var _on_esc;
       }
     },
     "/slackdebugwidget": {
+      localized: null,
       type: "client",
       autocomplete: false,
       alias_of: null,
@@ -37825,6 +37933,7 @@ var _on_esc;
       }
     },
     "/away": {
+      localized: "/" + TS.i18n.t("away", "cmd_handlers")(),
       type: "client",
       autocomplete: true,
       alias_of: null,
@@ -37852,6 +37961,7 @@ var _on_esc;
       }
     },
     "/prefs": {
+      localized: "/" + TS.i18n.t("prefs", "cmd_handlers")(),
       type: "client",
       autocomplete: true,
       alias_of: null,
@@ -37862,6 +37972,7 @@ var _on_esc;
       }
     },
     "/shortcuts": {
+      localized: "/" + TS.i18n.t("shortcuts", "cmd_handlers")(),
       type: "client",
       autocomplete: true,
       alias_of: null,
@@ -37872,6 +37983,7 @@ var _on_esc;
       }
     },
     "/keys": {
+      localized: null,
       type: "client",
       autocomplete: true,
       alias_of: "/shortcuts",
@@ -37882,6 +37994,7 @@ var _on_esc;
       }
     },
     "/open": {
+      localized: "/" + TS.i18n.t("open", "cmd_handlers")(),
       type: "client",
       autocomplete: true,
       alias_of: null,
@@ -37942,6 +38055,7 @@ var _on_esc;
       }
     },
     "/join": {
+      localized: null,
       type: "client",
       autocomplete: true,
       alias_of: "/open",
@@ -37952,6 +38066,7 @@ var _on_esc;
       }
     },
     "/msg": {
+      localized: "/" + TS.i18n.t("msg", "cmd_handlers")(),
       type: "client",
       autocomplete: true,
       alias_of: null,
@@ -38052,6 +38167,7 @@ var _on_esc;
       }
     },
     "/invite": {
+      localized: "/" + TS.i18n.t("invite", "cmd_handlers")(),
       type: "client",
       autocomplete: true,
       alias_of: null,
@@ -38176,6 +38292,7 @@ var _on_esc;
       }
     },
     "/invite_people": {
+      localized: "/" + TS.i18n.t("invite_people", "cmd_handlers")(),
       type: "client",
       autocomplete: true,
       alias_of: null,
@@ -38204,6 +38321,7 @@ var _on_esc;
       }
     },
     "/dm": {
+      localized: null,
       type: "client",
       autocomplete: true,
       alias_of: "/msg",
@@ -38214,6 +38332,7 @@ var _on_esc;
       }
     },
     "/archive": {
+      localized: "/" + TS.i18n.t("archive", "cmd_handlers")(),
       type: "client",
       autocomplete: true,
       alias_of: null,
@@ -38234,6 +38353,7 @@ var _on_esc;
       }
     },
     "/leave": {
+      localized: "/" + TS.i18n.t("leave", "cmd_handlers")(),
       type: "client",
       autocomplete: true,
       alias_of: null,
@@ -38276,6 +38396,7 @@ var _on_esc;
       }
     },
     "/star": {
+      localized: "/" + TS.i18n.t("star", "cmd_handlers")(),
       type: "client",
       autocomplete: true,
       alias_of: null,
@@ -38307,6 +38428,7 @@ var _on_esc;
       }
     },
     "/close": {
+      localized: null,
       type: "client",
       autocomplete: true,
       alias_of: "/leave",
@@ -38317,6 +38439,7 @@ var _on_esc;
       }
     },
     "/part": {
+      localized: null,
       type: "client",
       autocomplete: true,
       alias_of: "/leave",
@@ -38327,6 +38450,7 @@ var _on_esc;
       }
     },
     "/topic": {
+      localized: "/" + TS.i18n.t("topic", "cmd_handlers")(),
       type: "client",
       autocomplete: true,
       alias_of: null,
@@ -38378,6 +38502,7 @@ var _on_esc;
       }
     },
     "/togglethemes": {
+      localized: "/" + TS.i18n.t("togglethemes", "cmd_handlers")(),
       type: "client",
       autocomplete: false,
       alias_of: null,
@@ -38391,6 +38516,7 @@ var _on_esc;
       }
     },
     "/search": {
+      localized: "/" + TS.i18n.t("search", "cmd_handlers")(),
       type: "client",
       autocomplete: false,
       alias_of: null,
@@ -38410,6 +38536,7 @@ var _on_esc;
       }
     },
     "/s": {
+      localized: null,
       type: "client",
       autocomplete: true,
       alias_of: "/search",
@@ -38420,6 +38547,7 @@ var _on_esc;
       }
     },
     "/rename": {
+      localized: "/" + TS.i18n.t("rename", "cmd_handlers")(),
       type: "client",
       autocomplete: true,
       alias_of: null,
@@ -38458,6 +38586,7 @@ var _on_esc;
       }
     },
     "/beep": {
+      localized: "/" + TS.i18n.t("beep", "cmd_handlers")(),
       type: "client",
       autocomplete: false,
       alias_of: null,
@@ -38468,6 +38597,7 @@ var _on_esc;
       }
     },
     "/upload": {
+      localized: "/" + TS.i18n.t("upload", "cmd_handlers")(),
       type: "client",
       autocomplete: false,
       alias_of: null,
@@ -38479,6 +38609,7 @@ var _on_esc;
       }
     },
     "/colors": {
+      localized: "/" + TS.i18n.t("colors", "cmd_handlers")(),
       type: "client",
       autocomplete: false,
       alias_of: null,
@@ -38509,6 +38640,7 @@ var _on_esc;
       }
     },
     "/colours": {
+      localized: null,
       type: "client",
       autocomplete: true,
       alias_of: "/colors",
@@ -38519,6 +38651,7 @@ var _on_esc;
       }
     },
     "/color": {
+      localized: "/" + TS.i18n.t("color", "cmd_handlers")(),
       type: "client",
       autocomplete: false,
       alias_of: null,
@@ -38599,6 +38732,7 @@ var _on_esc;
       }
     },
     "/colour": {
+      localized: null,
       type: "client",
       autocomplete: true,
       alias_of: "/color",
@@ -38609,6 +38743,7 @@ var _on_esc;
       }
     },
     "/colortest": {
+      localized: "/" + TS.i18n.t("colortest", "cmd_handlers")(),
       type: "client",
       autocomplete: false,
       alias_of: null,
@@ -38640,47 +38775,69 @@ var _on_esc;
       }
     },
     "/discon": {
+      localized: null,
       type: "client",
       autocomplete: false,
       alias_of: null,
       aliases: null,
       desc: "",
       func: function() {
-        TS.ms.disconnect();
+        if (TS.boot_data.feature_ws_refactor) {
+          TS.interop.SocketManager.disconnect();
+        } else {
+          TS.ms.disconnect();
+        }
       }
     },
     "/sleepsleep": {
+      localized: null,
       type: "client",
       autocomplete: false,
       alias_of: null,
       aliases: null,
       desc: "",
       func: function() {
-        TS.ms.sleep();
+        if (TS.boot_data.feature_ws_refactor) {
+          TS.interop.SocketManager.sleep();
+        } else {
+          TS.ms.sleep();
+        }
       }
     },
     "/sleepsleep2": {
+      localized: null,
       type: "client",
       autocomplete: false,
       alias_of: null,
       aliases: null,
       desc: "",
       func: function() {
-        TS.ms.sleep();
-        TS.ms.setReconnectUrl("");
+        if (TS.boot_data.feature_ws_refactor) {
+          TS.interop.SocketManager.clearFastReconnectUrl();
+          TS.interop.SocketManager.sleep();
+        } else {
+          TS.ms.sleep();
+          TS.ms.setReconnectUrl("");
+        }
       }
     },
     "/wakewake": {
+      localized: null,
       type: "client",
       autocomplete: false,
       alias_of: null,
       aliases: null,
       desc: "",
       func: function() {
-        TS.ms.wake();
+        if (TS.boot_data.feature_ws_refactor) {
+          TS.interop.SocketManager.wake();
+        } else {
+          TS.ms.wake();
+        }
       }
     },
     "/discon2": {
+      localized: null,
       type: "client",
       autocomplete: false,
       alias_of: null,
@@ -38688,32 +38845,32 @@ var _on_esc;
       desc: "",
       func: function() {
         TS.model.break_token = true;
-        TS.ms.disconnect();
-      }
-    },
-    "/discon3": {
-      type: "client",
-      autocomplete: false,
-      alias_of: null,
-      aliases: null,
-      desc: "",
-      func: function() {
-        TS.model.break_reconnections = true;
-        TS.ms.disconnect();
+        if (TS.boot_data.feature_ws_refactor) {
+          TS.interop.SocketManager.disconnect();
+        } else {
+          TS.ms.disconnect();
+        }
       }
     },
     "/discon4": {
+      localized: null,
       type: "client",
       autocomplete: false,
       alias_of: null,
       aliases: null,
       desc: "",
       func: function() {
-        TS.ms.setReconnectUrl("");
-        TS.ms.disconnect();
+        if (TS.boot_data.feature_ws_refactor) {
+          TS.interop.SocketManager.debugClearFastReconnectUrl();
+          TS.interop.SocketManager.disconnect();
+        } else {
+          TS.ms.setReconnectUrl("");
+          TS.ms.disconnect();
+        }
       }
     },
     "/emo": {
+      localized: "/" + TS.i18n.t("emoji", "cmd_handlers")(),
       type: "client",
       autocomplete: false,
       alias_of: null,
@@ -38729,6 +38886,7 @@ var _on_esc;
       }
     },
     "/emoji": {
+      localized: null,
       type: "client",
       autocomplete: false,
       alias_of: "/emo",
@@ -38739,6 +38897,7 @@ var _on_esc;
       }
     },
     "/emote": {
+      localized: null,
       type: "client",
       autocomplete: false,
       alias_of: "/emo",
@@ -38749,6 +38908,7 @@ var _on_esc;
       }
     },
     "/editlast": {
+      localized: "/" + TS.i18n.t("editlast", "cmd_handlers")(),
       type: "client",
       autocomplete: false,
       alias_of: null,
@@ -38804,6 +38964,7 @@ var _on_esc;
       }
     },
     "/deletelast": {
+      localized: "/" + TS.i18n.t("deletelast", "cmd_handlers")(),
       type: "client",
       autocomplete: false,
       alias_of: null,
@@ -38840,13 +39001,12 @@ var _on_esc;
       }
     },
     "/collapse": {
+      localized: "/" + TS.i18n.t("collapse", "cmd_handlers")(),
       type: "client",
       autocomplete: true,
       alias_of: null,
       aliases: null,
-      desc: TS.i18n.t("Collapse all files in the current channel (opposite of {slash_expand})", "cmd_handlers")({
-        slash_expand: "/expand"
-      }),
+      desc: TS.i18n.t("Collapse all files in the current channel (opposite of /expand)", "cmd_handlers")(),
       func: function() {
         TS.inline_imgs.collapseAllInCurrent();
         TS.inline_videos.collapseAllInCurrent();
@@ -38860,13 +39020,12 @@ var _on_esc;
       }
     },
     "/expand": {
+      localized: "/" + TS.i18n.t("expand", "cmd_handlers")(),
       type: "client",
       autocomplete: true,
       alias_of: null,
       aliases: null,
-      desc: TS.i18n.t("Expand all files in the current channel (opposite of {collapse_command})", "cmd_handlers")({
-        collapse_command: "/collapse"
-      }),
+      desc: TS.i18n.t("Expand all files in the current channel (opposite of /collapse)", "cmd_handlers")(),
       func: function() {
         TS.inline_imgs.expandAllInCurrent();
         TS.inline_videos.expandAllInCurrent();
@@ -38880,6 +39039,7 @@ var _on_esc;
       }
     },
     "/attach_align": {
+      localized: "/" + TS.i18n.t("attach_align", "cmd_handlers")(),
       type: "client",
       autocomplete: false,
       alias_of: null,
@@ -38890,6 +39050,7 @@ var _on_esc;
       }
     },
     "/attach_thumb_align": {
+      localized: null,
       type: "client",
       autocomplete: false,
       alias_of: null,
@@ -38901,6 +39062,7 @@ var _on_esc;
       }
     },
     "/remove": {
+      localized: "/" + TS.i18n.t("remove", "cmd_handlers")(),
       type: "client",
       autocomplete: true,
       alias_of: null,
@@ -39029,6 +39191,7 @@ var _on_esc;
       }
     },
     "/kick": {
+      localized: null,
       type: "client",
       autocomplete: true,
       alias_of: "/remove",
@@ -39039,6 +39202,7 @@ var _on_esc;
       }
     },
     "/feedback": {
+      localized: "/" + TS.i18n.t("feedback", "cmd_handlers")(),
       type: "client",
       autocomplete: true,
       alias_of: null,
@@ -39088,6 +39252,7 @@ var _on_esc;
       }
     },
     "/shrug": {
+      localized: "/" + TS.i18n.t("shrug", "cmd_handlers")(),
       type: "client",
       autocomplete: true,
       alias_of: null,
@@ -39108,6 +39273,7 @@ var _on_esc;
       }
     },
     "/showfallbacks": {
+      localized: null,
       type: "client",
       autocomplete: false,
       alias_of: null,
@@ -39119,6 +39285,7 @@ var _on_esc;
       }
     },
     "/macgap.app.enabledevelopertools()": {
+      localized: null,
       type: "client",
       autocomplete: false,
       alias_of: null,
@@ -39131,6 +39298,7 @@ var _on_esc;
       }
     },
     "/toggle_debugging_prefs": {
+      localized: null,
       type: "client",
       autocomplete: false,
       alias_of: null,
@@ -39141,6 +39309,7 @@ var _on_esc;
       }
     },
     "/slack_diagnostic_report": {
+      localized: null,
       type: "client",
       autocomplete: false,
       alias_of: null,
@@ -39151,7 +39320,25 @@ var _on_esc;
       }
     }
   });
-  var _SUPPORTED_THREAD_CMDS = ["/shrug", "/prefs", "/shortcuts", "/keys", "/toggle_debugging_prefs", "/away", "/search", "/togglethemes", "/feedback", "/slack_diagnostic_report", "/msg", "/dm", "/s", "/editlast", "/deletelast", "/star", "/beep", "/colors", "/colours", "/color", "/colour", "/active"];
+  var _supported_thread_cmds = ["/shrug", "/prefs", "/shortcuts", "/keys", "/toggle_debugging_prefs", "/away", "/search", "/togglethemes", "/feedback", "/slack_diagnostic_report", "/msg", "/dm", "/s", "/editlast", "/deletelast", "/star", "/beep", "/colors", "/colours", "/color", "/colour", "/active", "/" + TS.i18n.t("/active", "cmd_handlers")()];
+  var _localized_cmds_merged;
+  var _mergeLocalizedCmds = function() {
+    if (_localized_cmds_merged || TS.i18n.locale() === TS.i18n.DEFAULT_LOCALE) return;
+    _localized_cmds_merged = true;
+    var localized;
+    _.forOwn(TS.cmd_handlers, function(ob, name) {
+      if (name.indexOf("/") !== 0) return;
+      localized = TS.cmd_handlers[name].localized;
+      if (localized && localized !== name && !TS.cmd_handlers[localized]) {
+        TS.cmd_handlers[localized] = _.clone(TS.cmd_handlers[name]);
+        TS.cmd_handlers[localized].localized = null;
+        TS.cmd_handlers[name].autocomplete = false;
+        if (_.includes(_supported_thread_cmds, name)) {
+          _supported_thread_cmds.push(localized);
+        }
+      }
+    });
+  };
   var _setCommands = function(commands, cache_ts) {
     TS.model.commands_cache_ts = cache_ts;
     TS.storage.storeCmds({
@@ -42650,6 +42837,9 @@ var _on_esc;
     field.is_hidden = hide;
     if (hide) field.ordering = _makeOrdering();
     _saveProfile("team.profile.set", [field]).then(function() {
+      return TS.api.call("team.profile.get");
+    }).then(function(d) {
+      TS.model.team.profile.fields = _.get(d, "data.profile.fields");
       _switchToList();
       _highlightInList(id);
     }, _.noop);
@@ -45788,9 +45978,14 @@ var _on_esc;
     max_title_chars: 100,
     onStart: function() {
       if (!TS.client) return;
-      TS.ms.connected_sig.addOnce(function() {
+      var callback = function() {
         TS.api.call("help.issues.list", {}, TS.help.onListIssues);
-      });
+      };
+      if (TS.boot_data.feature_ws_refactor) {
+        TS.interop.SocketManager.connectedSig.addOnce(callback);
+      } else {
+        TS.ms.connected_sig.addOnce(callback);
+      }
     },
     getIssueById: function(id) {
       var issue;
@@ -45929,7 +46124,7 @@ var _on_esc;
             state: "open"
           };
           setTimeout(function() {
-            TS.ms.handleMsg({
+            TS.ms.msg_handlers.msgReceived({
               type: "issue_created",
               issue: issue
             });
@@ -45984,7 +46179,7 @@ var _on_esc;
           var clone = _.cloneDeep(issue);
           clone.state = "read";
           setTimeout(function() {
-            TS.ms.handleMsg({
+            TS.ms.msg_handlers.msgReceived({
               type: "issue_change",
               issue: clone
             });
@@ -46015,7 +46210,7 @@ var _on_esc;
           var clone = _.cloneDeep(issue);
           clone.state = "resolved";
           setTimeout(function() {
-            TS.ms.handleMsg({
+            TS.ms.msg_handlers.msgReceived({
               type: "issue_change",
               issue: clone
             });
@@ -46279,7 +46474,11 @@ var _on_esc;
       TS.groups.switched_sig.add(_handleDisplayChannel);
       TS.ims.switched_sig.add(_handleDisplayChannel);
       TS.mpims.switched_sig.add(_handleDisplayChannel);
-      TS.ms.connected_sig.add(__handleSocketConnected);
+      if (TS.boot_data.feature_ws_refactor) {
+        TS.interop.SocketManager.connectedSig.add(_handleSocketConnected);
+      } else {
+        TS.ms.connected_sig.add(_handleSocketConnected);
+      }
       TS.channels.left_sig.add(_handleLeftChannelOrGroup);
       TS.groups.left_sig.add(_handleLeftChannelOrGroup);
     },
@@ -46288,9 +46487,14 @@ var _on_esc;
       _are_pins_currently_being_fetched[model_ob.id] = true;
       if (TS.isPartiallyBooted()) {
         return new Promise(function(resolve) {
-          TS.ms.connected_sig.addOnce(function() {
+          var callback = function() {
             resolve(TS.pins.fetchPins(model_ob));
-          });
+          };
+          if (TS.boot_data.feature_ws_refactor) {
+            TS.interop.SocketManager.connectedSig.addOnce(callback);
+          } else {
+            TS.ms.connected_sig.addOnce(callback);
+          }
         });
       }
       return TS.api.call("pins.list", {
@@ -46745,7 +46949,7 @@ var _on_esc;
     var model_ob = TS.shared.getActiveModelOb();
     if (model_ob && !_have_pins_been_fetched[model_ob.id] && !_are_pins_currently_being_fetched[model_ob.id]) TS.pins.fetchPins(model_ob);
   };
-  var __handleSocketConnected = function() {
+  var _handleSocketConnected = function() {
     if (_previously_connected) {
       _have_pins_been_fetched = {};
       _are_pins_currently_being_fetched = {};
@@ -48054,7 +48258,7 @@ $.fn.togglify = function(settings) {
     var lazy_filter_select_opts = {
       append: true,
       per_page: 50,
-      approx_item_height: 50,
+      approx_item_height: TS.boot_data.feature_shared_chan_unify_user ? 36 : 50,
       placeholder_text: TS.i18n.t("Search by name", "new_channel")(),
       template: function(item) {
         var html;
@@ -50146,8 +50350,13 @@ $.fn.togglify = function(settings) {
       if (TS.useRedux()) {
         delete TS.model.dnd.current_statuses;
       }
-      TS.ms.connected_sig.add(_onConnected);
-      TS.ms.disconnected_sig.add(_onDisconnected);
+      if (TS.boot_data.feature_ws_refactor) {
+        TS.interop.SocketManager.connectedSig.add(_onConnected);
+        TS.interop.SocketManager.disconnectedSig.add(_onDisconnected);
+      } else {
+        TS.ms.connected_sig.add(_onConnected);
+        TS.ms.disconnected_sig.add(_onDisconnected);
+      }
       var team_delay = _.random(_TEAM_INFO_DELAY_MIN, _TEAM_INFO_DELAY_MAX);
       var single_user_delay = Math.round(team_delay * _SINGLE_USER_INFO_DELAY_SCALE);
       TS.dnd.setApiDelays(team_delay, single_user_delay);
@@ -52901,7 +53110,7 @@ $.fn.togglify = function(settings) {
         if (options.prefer_exact_match && c.name === searcher.query) {
           _setMetaFieldForId(c.id, "jumper_exact_match", true);
           exact_matches.push(c);
-          return false;
+          return;
         }
         _setMetaFieldForId(c.id, "jumper_exact_match", false);
         var matched = searcher.matchesChannel(c);
@@ -52920,7 +53129,7 @@ $.fn.togglify = function(settings) {
         if (options.prefer_exact_match && g.name === searcher.query) {
           _setMetaFieldForId(g.id, "jumper_exact_match", true);
           exact_matches.push(g);
-          return false;
+          return;
         }
         _setMetaFieldForId(g.id, "jumper_exact_match", false);
         var matched = searcher.matchesGroup(g);
@@ -55287,7 +55496,7 @@ var _getMetaFieldForId = function(id, key) {
         }
       };
       var opts = {
-        approx_item_height: 50,
+        approx_item_height: TS.boot_data.feature_shared_chan_unify_user ? 36 : 50,
         template: function(item) {
           var html = TS.templates.user_group_invite_member_small(item);
           return new Handlebars.SafeString(html);
@@ -57062,9 +57271,15 @@ var _getMetaFieldForId = function(id, key) {
       _utility_call_state.in_call_window = !!TS.calls;
       _utility_call_state.calls_url_prefix = document.location.origin + "/call/";
       if (_utility_call_state.in_slack_app) {
-        TS.ms.on_msg_sig.add(_sigMsgReceived);
-        TS.ms.connected_sig.add(_sigMSConnected);
-        TS.ms.disconnected_sig.add(_sigMSDisconnected);
+        if (TS.boot_data.feature_ws_refactor) {
+          TS.interop.SocketManager.connectedSig.add(_sigMSConnected);
+          TS.interop.SocketManager.disconnectedSig.add(_sigMSDisconnected);
+          TS.interop.SocketManager.socketMessageReceivedSig.add(_sigMsgReceived);
+        } else {
+          TS.ms.on_msg_sig.add(_sigMsgReceived);
+          TS.ms.connected_sig.add(_sigMSConnected);
+          TS.ms.disconnected_sig.add(_sigMSDisconnected);
+        }
         window.addEventListener("online", _sigReachabilityChanged);
         window.addEventListener("offline", _sigReachabilityChanged);
         window.addEventListener("message", _receivePostedMessageFromChildWindow);
@@ -60458,7 +60673,7 @@ var _getMetaFieldForId = function(id, key) {
           attachment: attachment
         });
         $container.html(html);
-        TS.attachment_actions.select.decorateNewElements();
+        TS.attachment_actions.select.decorateNewElements($container);
       }
     },
     test: function() {
@@ -60572,7 +60787,8 @@ var _getMetaFieldForId = function(id, key) {
 
   function _getAttachmentActionsContainer(attachment, message_ts) {
     var msg_dom_id = TS.templates.makeMsgDomId(message_ts);
-    return $("#" + msg_dom_id).find("[data-attachment-id=" + attachment.id + "] .attachment_actions");
+    var msg_dom_id_selector = "#" + msg_dom_id + ", #" + msg_dom_id + "_conversation";
+    return $(msg_dom_id_selector).find("[data-attachment-id=" + attachment.id + "] .attachment_actions");
   }
 
   function _getActionContextDataFromDOM($target) {
@@ -61668,7 +61884,11 @@ var _getMetaFieldForId = function(id, key) {
       TS.groups.message_changed_sig.add(_messageChanged);
       TS.ims.message_changed_sig.add(_messageChanged);
       TS.mpims.message_changed_sig.add(_messageChanged);
-      TS.ms.connected_sig.add(_socketConnected);
+      if (TS.boot_data.feature_ws_refactor) {
+        TS.interop.SocketManager.connectedSig.add(_socketConnected);
+      } else {
+        TS.ms.connected_sig.add(_socketConnected);
+      }
     },
     canReplyToMsg: function(model_ob, msg, ignore_membership) {
       if (!TS.client) return false;
@@ -63295,6 +63515,12 @@ var _getMetaFieldForId = function(id, key) {
       TS.groups.switched_sig.add(TS.ui.a11y.annouceCurrentChannelOrImOrGroup);
       TS.mpims.switched_sig.add(TS.ui.a11y.annouceCurrentChannelOrImOrGroup);
       TS.prefs.a11y_animations_changed_sig.add(TS.ui.a11y.replaceAnimatedImages);
+      $(document).on("focus", "input[placeholder],textarea[placeholder]", function(e) {
+        _labelWithPlaceholder($(e.target));
+      });
+      $(document).on("blur", "input[placeholder],textarea[placeholder]", function(e) {
+        _labelWithPlaceholder($(e.target));
+      });
     },
     focusOnNextMessage: function() {
       var $currently_focused_element = $(document.activeElement);
@@ -63551,6 +63777,19 @@ var _getMetaFieldForId = function(id, key) {
   }, {});
   var _message_element_selectors = ".message, .day_divider, .unread_divider";
   var _is_space = TS.web && TS.web.space;
+  var _labelWithPlaceholder = function($textbox) {
+    var placeholder = $textbox.attr("placeholder");
+    var aria_label = $textbox.attr("aria-label") || "";
+    var has_aria_label = !!aria_label.length;
+    var has_val = !!$textbox.val().trim().length;
+    if (has_val && !has_aria_label && placeholder.length) {
+      $textbox.attr("aria-label", placeholder);
+      return;
+    }
+    if (!has_val && has_aria_label && aria_label == placeholder) {
+      $textbox.removeAttr("aria-label");
+    }
+  };
   var _createAriaLiveElement = function() {
     TS.ui.a11y.$aria_live_div = $('<div id="aria_live_announcer" role="status"></div>');
     $("body").append(TS.ui.a11y.$aria_live_div);
@@ -63838,7 +64077,7 @@ var _getMetaFieldForId = function(id, key) {
     return t.d(n, "a", n), n;
   }, t.o = function(e, t) {
     return Object.prototype.hasOwnProperty.call(e, t);
-  }, t.p = "/", t(t.s = 446);
+  }, t.p = "/", t(t.s = 449);
 }([function(e, t, n) {
   (function(e) {
     ! function(t, r) {
@@ -64451,7 +64690,7 @@ var _getMetaFieldForId = function(id, key) {
         function Xe(t) {
           var r = null;
           if (!xo[t] && void 0 !== e && e && e.exports) try {
-            r = Lo._abbr, n(528)("./" + t), Ze(r);
+            r = Lo._abbr, n(530)("./" + t), Ze(r);
           } catch (e) {}
           return xo[t];
         }
@@ -65548,7 +65787,8 @@ var _getMetaFieldForId = function(id, key) {
         var Ko = W("Milliseconds", !1);
         q("z", 0, 0, "zoneAbbr"), q("zz", 0, 0, "zoneName");
         var $o = v.prototype;
-        $o.add = Fo, $o.calendar = Jt, $o.clone = Kt, $o.diff = nn, $o.endOf = mn, $o.format = un, $o.from = cn, $o.fromNow = ln, $o.to = dn, $o.toNow = fn, $o.get = G, $o.invalidAt = Tn, $o.isAfter = $t, $o.isBefore = Qt, $o.isBetween = Xt, $o.isSame = Zt, $o.isSameOrAfter = en, $o.isSameOrBefore = tn, $o.isValid = kn, $o.lang = Go, $o.locale = pn, $o.localeData = hn, $o.max = Ao, $o.min = Ro, $o.parsingFlags = Ln, $o.set = B, $o.startOf = _n, $o.subtract = Uo, $o.toArray = bn, $o.toObject = Mn, $o.toDate = gn, $o.toISOString = an, $o.inspect = sn, $o.toJSON = wn, $o.toString = on, $o.unix = vn, $o.valueOf = yn, $o.creationData = Sn, $o.year = mo, $o.isLeapYear = ve, $o.weekYear = xn, $o.isoWeekYear = Cn, $o.quarter = $o.quarters = jn, $o.month = de, $o.daysInMonth = fe, $o.week = $o.weeks = xe, $o.isoWeek = $o.isoWeeks = Ce, $o.weeksInYear = Dn, $o.isoWeeksInYear = Yn, $o.date = Bo, $o.day = $o.days = Ae, $o.weekday = He, $o.isoWeekday = Ne, $o.dayOfYear = In, $o.hour = $o.hours = So, $o.minute = $o.minutes = Vo, $o.second = $o.seconds = qo, $o.millisecond = $o.milliseconds = Ko, $o.utcOffset = Yt, $o.utc = Pt, $o.local = Ot, $o.parseZone = jt, $o.hasAlignedHourOffset = It, $o.isDST = Rt, $o.isLocal = Ht, $o.isUtcOffset = Nt, $o.isUtc = zt, $o.isUTC = zt, $o.zoneAbbr = An, $o.zoneName = Hn, $o.dates = L("dates accessor is deprecated. Use date instead.", Bo), $o.months = L("months accessor is deprecated. Use month instead", de), $o.years = L("years accessor is deprecated. Use year instead", mo), $o.zone = L("moment().zone is deprecated, use moment().utcOffset instead. http://momentjs.com/guides/#/warnings/zone/", Dt), $o.isDSTShifted = L("isDSTShifted is deprecated. See http://momentjs.com/guides/#/warnings/dst-shifted/ for more information", At);
+        $o.add = Fo, $o.calendar = Jt, $o.clone = Kt, $o.diff = nn, $o.endOf = mn, $o.format = un, $o.from = cn, $o.fromNow = ln, $o.to = dn, $o.toNow = fn, $o.get = G, $o.invalidAt = Tn, $o.isAfter = $t, $o.isBefore = Qt, $o.isBetween = Xt, $o.isSame = Zt, $o.isSameOrAfter = en, $o.isSameOrBefore = tn, $o.isValid = kn, $o.lang = Go, $o.locale = pn, $o.localeData = hn, $o.max = Ao, $o.min = Ro, $o.parsingFlags = Ln, $o.set = B, $o.startOf = _n,
+          $o.subtract = Uo, $o.toArray = bn, $o.toObject = Mn, $o.toDate = gn, $o.toISOString = an, $o.inspect = sn, $o.toJSON = wn, $o.toString = on, $o.unix = vn, $o.valueOf = yn, $o.creationData = Sn, $o.year = mo, $o.isLeapYear = ve, $o.weekYear = xn, $o.isoWeekYear = Cn, $o.quarter = $o.quarters = jn, $o.month = de, $o.daysInMonth = fe, $o.week = $o.weeks = xe, $o.isoWeek = $o.isoWeeks = Ce, $o.weeksInYear = Dn, $o.isoWeeksInYear = Yn, $o.date = Bo, $o.day = $o.days = Ae, $o.weekday = He, $o.isoWeekday = Ne, $o.dayOfYear = In, $o.hour = $o.hours = So, $o.minute = $o.minutes = Vo, $o.second = $o.seconds = qo, $o.millisecond = $o.milliseconds = Ko, $o.utcOffset = Yt, $o.utc = Pt, $o.local = Ot, $o.parseZone = jt, $o.hasAlignedHourOffset = It, $o.isDST = Rt, $o.isLocal = Ht, $o.isUtcOffset = Nt, $o.isUtc = zt, $o.isUTC = zt, $o.zoneAbbr = An, $o.zoneName = Hn, $o.dates = L("dates accessor is deprecated. Use date instead.", Bo), $o.months = L("months accessor is deprecated. Use month instead", de), $o.years = L("years accessor is deprecated. Use year instead", mo), $o.zone = L("moment().zone is deprecated, use moment().utcOffset instead. http://momentjs.com/guides/#/warnings/zone/", Dt), $o.isDSTShifted = L("isDSTShifted is deprecated. See http://momentjs.com/guides/#/warnings/dst-shifted/ for more information", At);
         var Qo = C.prototype;
         Qo.calendar = Y, Qo.longDateFormat = D, Qo.invalidDate = P, Qo.ordinal = O, Qo.preparse = Wn, Qo.postformat = Wn, Qo.relativeTime = j, Qo.pastFuture = I, Qo.set = E, Qo.months = ae, Qo.monthsShort = se, Qo.monthsParse = ce, Qo.monthsRegex = he, Qo.monthsShortRegex = pe, Qo.week = Te, Qo.firstDayOfYear = Ee, Qo.firstDayOfWeek = Se, Qo.weekdays = Pe, Qo.weekdaysMin = je, Qo.weekdaysShort = Oe, Qo.weekdaysParse = Re, Qo.weekdaysRegex = ze, Qo.weekdaysShortRegex = We, Qo.weekdaysMinRegex = Fe, Qo.isPM = Je, Qo.meridiem = Ke, Ze("en", {
           ordinalParse: /\d{1,2}(th|st|nd|rd)/,
@@ -67442,7 +67682,8 @@ var _getMetaFieldForId = function(id, key) {
               }
               var k = f ? n : this,
                 L = p ? k[e] : e;
-              return y = v.length, s ? v = Ji(v, s) : _ && y > 1 && v.reverse(), d && u < y && (v.length = u), this && this !== Dn && this instanceof l && (L = m || Jo(L)), L.apply(k, v);
+              return y = v.length,
+                s ? v = Ji(v, s) : _ && y > 1 && v.reverse(), d && u < y && (v.length = u), this && this !== Dn && this instanceof l && (L = m || Jo(L)), L.apply(k, v);
             }
             var d = t & we,
               f = t & _e,
@@ -69447,7 +69688,8 @@ var _getMetaFieldForId = function(id, key) {
             qd = to(function(e) {
               var t = e.length,
                 n = t > 1 ? e[t - 1] : oe;
-              return n = "function" == typeof n ? (e.pop(), n) : oe, Va(e, n);
+              return n = "function" == typeof n ? (e.pop(),
+                n) : oe, Va(e, n);
             }),
             Jd = mi(function(e) {
               var t = e.length,
@@ -69877,7 +70119,7 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   "use strict";
   t.__esModule = !0;
-  var r = n(356),
+  var r = n(357),
     o = function(e) {
       return e && e.__esModule ? e : {
         "default": e
@@ -70042,7 +70284,7 @@ var _getMetaFieldForId = function(id, key) {
   }
   var d = n(5),
     f = n(50),
-    p = n(287),
+    p = n(289),
     h = (n(3), f.ID_ATTRIBUTE_NAME),
     _ = p,
     m = "__reactInternalInstance$" + Math.random().toString(36).slice(2),
@@ -70066,28 +70308,28 @@ var _getMetaFieldForId = function(id, key) {
   Object.defineProperty(t, "__esModule", {
     value: !0
   }), t.types = t.loggers = t.disbatch = t.batch = t.bindAll = t.assignAll = t.createReducer = t.createAction = void 0;
-  var o = n(338);
+  var o = n(339);
   Object.defineProperty(t, "createAction", {
     enumerable: !0,
     get: function() {
       return r(o).default;
     }
   });
-  var i = n(655);
+  var i = n(657);
   Object.defineProperty(t, "createReducer", {
     enumerable: !0,
     get: function() {
       return r(i).default;
     }
   });
-  var a = n(653);
+  var a = n(655);
   Object.defineProperty(t, "assignAll", {
     enumerable: !0,
     get: function() {
       return r(a).default;
     }
   });
-  var s = n(654);
+  var s = n(656);
   Object.defineProperty(t, "bindAll", {
     enumerable: !0,
     get: function() {
@@ -70101,21 +70343,21 @@ var _getMetaFieldForId = function(id, key) {
       return r(u).default;
     }
   });
-  var c = n(656);
+  var c = n(658);
   Object.defineProperty(t, "disbatch", {
     enumerable: !0,
     get: function() {
       return r(c).default;
     }
   });
-  var l = n(657);
+  var l = n(659);
   Object.defineProperty(t, "loggers", {
     enumerable: !0,
     get: function() {
       return r(l).default;
     }
   });
-  var d = n(339),
+  var d = n(340),
     f = function(e) {
       if (e && e.__esModule) return e;
       var t = {};
@@ -70126,7 +70368,7 @@ var _getMetaFieldForId = function(id, key) {
   t.types = f;
 }, function(e, t, n) {
   e.exports = {
-    "default": n(368),
+    "default": n(369),
     __esModule: !0
   };
 }, function(e, t, n) {
@@ -70138,11 +70380,11 @@ var _getMetaFieldForId = function(id, key) {
     };
   }
   t.__esModule = !0;
-  var o = n(358),
+  var o = n(359),
     i = r(o),
-    a = n(355),
+    a = n(356),
     s = r(a),
-    u = n(144),
+    u = n(145),
     c = r(u);
   t.default = function(e, t) {
     if ("function" != typeof t && null !== t) throw new TypeError("Super expression must either be null or a function, not " + (void 0 === t ? "undefined" : (0, c.default)(t)));
@@ -70158,7 +70400,7 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   "use strict";
   t.__esModule = !0;
-  var r = n(144),
+  var r = n(145),
     o = function(e) {
       return e && e.__esModule ? e : {
         "default": e
@@ -70186,8 +70428,8 @@ var _getMetaFieldForId = function(id, key) {
   e.exports = o;
 }, function(e, t, n) {
   "use strict";
-  var r = n(600),
-    o = (n(305), n(601));
+  var r = n(602),
+    o = (n(307), n(603));
   n.d(t, "a", function() {
     return r.a;
   }), n.d(t, "b", function() {
@@ -70195,7 +70437,7 @@ var _getMetaFieldForId = function(id, key) {
   });
 }, function(e, t, n) {
   "use strict";
-  e.exports = n(543);
+  e.exports = n(545);
 }, function(e, t, n) {
   "use strict";
 
@@ -70227,9 +70469,9 @@ var _getMetaFieldForId = function(id, key) {
   t.b = a;
   var s = n(2),
     u = n.n(s),
-    c = n(609),
+    c = n(611),
     l = n.n(c),
-    d = n(456),
+    d = n(459),
     f = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
@@ -70333,9 +70575,9 @@ var _getMetaFieldForId = function(id, key) {
   }
   var l = n(5),
     d = n(6),
-    f = n(285),
+    f = n(287),
     p = n(41),
-    h = n(290),
+    h = n(292),
     _ = n(51),
     m = n(81),
     y = (n(3), []),
@@ -70656,7 +70898,7 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   "use strict";
   t.__esModule = !0;
-  var r = n(354),
+  var r = n(355),
     o = function(e) {
       return e && e.__esModule ? e : {
         "default": e
@@ -70673,75 +70915,15 @@ var _getMetaFieldForId = function(id, key) {
   var n = e.exports = "undefined" != typeof window && window.Math == Math ? window : "undefined" != typeof self && self.Math == Math ? self : Function("return this")();
   "number" == typeof __g && (__g = n);
 }, function(e, t, n) {
-  var r = n(149),
+  var r = n(150),
     o = n(90);
   e.exports = function(e) {
     return r(o(e));
   };
 }, function(e, t, n) {
   "use strict";
-  var r = n(429);
+  var r = n(430);
   t.a = r.a;
-}, function(e, t, n) {
-  e.exports = !n(44)(function() {
-    return 7 != Object.defineProperty({}, "a", {
-      get: function() {
-        return 7;
-      }
-    }).a;
-  });
-}, function(e, t, n) {
-  var r = n(32),
-    o = n(16),
-    i = n(146),
-    a = n(45),
-    s = function(e, t, n) {
-      var u, c, l, d = e & s.F,
-        f = e & s.G,
-        p = e & s.S,
-        h = e & s.P,
-        _ = e & s.B,
-        m = e & s.W,
-        y = f ? o : o[t] || (o[t] = {}),
-        v = y.prototype,
-        g = f ? r : p ? r[t] : (r[t] || {}).prototype;
-      f && (n = t);
-      for (u in n)(c = !d && g && void 0 !== g[u]) && u in y || (l = c ? g[u] : n[u], y[u] = f && "function" != typeof g[u] ? n[u] : _ && c ? i(l, r) : m && g[u] == l ? function(e) {
-        var t = function(t, n, r) {
-          if (this instanceof e) {
-            switch (arguments.length) {
-              case 0:
-                return new e;
-              case 1:
-                return new e(t);
-              case 2:
-                return new e(t, n);
-            }
-            return new e(t, n, r);
-          }
-          return e.apply(this, arguments);
-        };
-        return t.prototype = e.prototype, t;
-      }(l) : h && "function" == typeof l ? i(Function.call, l) : l, h && ((y.virtual || (y.virtual = {}))[u] = l, e & s.R && v && !v[u] && a(v, u, l)));
-    };
-  s.F = 1, s.G = 2, s.S = 4, s.P = 8, s.B = 16, s.W = 32, s.U = 64, s.R = 128, e.exports = s;
-}, function(e, t) {
-  var n = {}.hasOwnProperty;
-  e.exports = function(e, t) {
-    return n.call(e, t);
-  };
-}, function(e, t, n) {
-  var r = n(43),
-    o = n(148),
-    i = n(101),
-    a = Object.defineProperty;
-  t.f = n(35) ? Object.defineProperty : function(e, t, n) {
-    if (r(e), t = i(t, !0), r(n), o) try {
-      return a(e, t, n);
-    } catch (e) {}
-    if ("get" in n || "set" in n) throw TypeError("Accessors not supported!");
-    return "value" in n && (e[t] = n.value), e;
-  };
 }, function(e, t, n) {
   "use strict";
 
@@ -70795,6 +70977,10 @@ var _getMetaFieldForId = function(id, key) {
     return x;
   }), n.d(t, "getBadgeCount", function() {
     return C;
+  }), n.d(t, "getUnreadIds", function() {
+    return Y;
+  }), n.d(t, "getMentionIds", function() {
+    return D;
   });
   var o, i = n(2),
     a = n.n(i),
@@ -70881,7 +71067,81 @@ var _getMetaFieldForId = function(id, key) {
     },
     C = function(e) {
       return e ? b(e) || M(e) ? e.unread_cnt : e.unread_highlight_cnt : 0;
+    },
+    Y = function(e) {
+      return e ? a.a.filter(e, function(e) {
+        return e.unread_cnt > 0;
+      }).map(function(e) {
+        return e.id;
+      }) : [];
+    },
+    D = function(e) {
+      return e ? a.a.filter(e, function(e) {
+        return C(e) > 0;
+      }).map(function(e) {
+        return e.id;
+      }) : [];
     };
+}, function(e, t, n) {
+  e.exports = !n(44)(function() {
+    return 7 != Object.defineProperty({}, "a", {
+      get: function() {
+        return 7;
+      }
+    }).a;
+  });
+}, function(e, t, n) {
+  var r = n(32),
+    o = n(16),
+    i = n(147),
+    a = n(45),
+    s = function(e, t, n) {
+      var u, c, l, d = e & s.F,
+        f = e & s.G,
+        p = e & s.S,
+        h = e & s.P,
+        _ = e & s.B,
+        m = e & s.W,
+        y = f ? o : o[t] || (o[t] = {}),
+        v = y.prototype,
+        g = f ? r : p ? r[t] : (r[t] || {}).prototype;
+      f && (n = t);
+      for (u in n)(c = !d && g && void 0 !== g[u]) && u in y || (l = c ? g[u] : n[u], y[u] = f && "function" != typeof g[u] ? n[u] : _ && c ? i(l, r) : m && g[u] == l ? function(e) {
+        var t = function(t, n, r) {
+          if (this instanceof e) {
+            switch (arguments.length) {
+              case 0:
+                return new e;
+              case 1:
+                return new e(t);
+              case 2:
+                return new e(t, n);
+            }
+            return new e(t, n, r);
+          }
+          return e.apply(this, arguments);
+        };
+        return t.prototype = e.prototype, t;
+      }(l) : h && "function" == typeof l ? i(Function.call, l) : l, h && ((y.virtual || (y.virtual = {}))[u] = l, e & s.R && v && !v[u] && a(v, u, l)));
+    };
+  s.F = 1, s.G = 2, s.S = 4, s.P = 8, s.B = 16, s.W = 32, s.U = 64, s.R = 128, e.exports = s;
+}, function(e, t) {
+  var n = {}.hasOwnProperty;
+  e.exports = function(e, t) {
+    return n.call(e, t);
+  };
+}, function(e, t, n) {
+  var r = n(43),
+    o = n(149),
+    i = n(101),
+    a = Object.defineProperty;
+  t.f = n(36) ? Object.defineProperty : function(e, t, n) {
+    if (r(e), t = i(t, !0), r(n), o) try {
+      return a(e, t, n);
+    } catch (e) {}
+    if ("get" in n || "set" in n) throw TypeError("Accessors not supported!");
+    return "value" in n && (e[t] = n.value), e;
+  };
 }, function(e, t, n) {
   "use strict";
   Object.defineProperty(t, "__esModule", {
@@ -71118,15 +71378,15 @@ var _getMetaFieldForId = function(id, key) {
     }
   };
 }, function(e, t, n) {
-  var r = n(38),
+  var r = n(39),
     o = n(68);
-  e.exports = n(35) ? function(e, t, n) {
+  e.exports = n(36) ? function(e, t, n) {
     return r.f(e, t, o(1, n));
   } : function(e, t, n) {
     return e[t] = n, e;
   };
 }, function(e, t, n) {
-  var r = n(153),
+  var r = n(154),
     o = n(91);
   e.exports = Object.keys || function(e) {
     return r(e, o);
@@ -71204,7 +71464,7 @@ var _getMetaFieldForId = function(id, key) {
   var l = n(122),
     d = n(83),
     f = n(130),
-    p = n(302),
+    p = n(304),
     h = "undefined" != typeof document && "number" == typeof document.documentMode || "undefined" != typeof navigator && "string" == typeof navigator.userAgent && /\bEdge\/\d/.test(navigator.userAgent),
     _ = f(function(e, t, n) {
       11 === t.node.nodeType || 1 === t.node.nodeType && "object" === t.node.nodeName.toLowerCase() && (null == t.node.namespaceURI || t.node.namespaceURI === l.html) ? (r(t), e.insertBefore(t.node, n)) : (e.insertBefore(t.node, n), r(t));
@@ -71277,7 +71537,7 @@ var _getMetaFieldForId = function(id, key) {
   function r() {
     o.attachRefs(this, this._currentElement);
   }
-  var o = n(566),
+  var o = n(568),
     i = (n(23), n(4), {
       mountComponent: function(e, t, n, o, i, a) {
         var s = e.mountComponent(t, n, o, i, a);
@@ -71304,15 +71564,15 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   "use strict";
   var r = n(6),
-    o = n(644),
-    i = n(140),
-    a = n(649),
-    s = n(645),
-    u = n(646),
+    o = n(646),
+    i = n(141),
+    a = n(651),
+    s = n(647),
+    u = n(648),
     c = n(53),
-    l = n(647),
-    d = n(650),
-    f = n(651),
+    l = n(649),
+    d = n(652),
+    f = n(653),
     p = (n(4), c.createElement),
     h = c.createFactory,
     _ = c.cloneElement,
@@ -71353,8 +71613,8 @@ var _getMetaFieldForId = function(id, key) {
   }
   var i = n(6),
     a = n(29),
-    s = (n(4), n(336), Object.prototype.hasOwnProperty),
-    u = n(334),
+    s = (n(4), n(337), Object.prototype.hasOwnProperty),
+    u = n(335),
     c = {
       key: !0,
       ref: !0,
@@ -71474,19 +71734,7 @@ var _getMetaFieldForId = function(id, key) {
           return a({}, e[n], t);
         });
       return a({}, e, i);
-    }), {
-      C024BE7LR: {
-        1: {
-          text: "first message"
-        },
-        2: {
-          text: "second message"
-        },
-        3: {
-          text: "third message"
-        }
-      }
-    });
+    }), {});
   t.default = u;
   var c = function(e, t, n) {
     return e && e.messages && e.messages[t] && e.messages[t][n];
@@ -71523,8 +71771,8 @@ var _getMetaFieldForId = function(id, key) {
     a = n(123),
     s = n(124),
     u = n(128),
-    c = n(296),
-    l = n(297),
+    c = n(298),
+    l = n(299),
     d = (n(3), {}),
     f = null,
     p = function(e, t) {
@@ -71650,8 +71898,8 @@ var _getMetaFieldForId = function(id, key) {
   }
   var p = n(61),
     h = n(124),
-    _ = n(296),
-    m = n(297),
+    _ = n(298),
+    m = n(299),
     y = (n(4), p.getListener),
     v = {
       accumulateTwoPhaseDispatches: c,
@@ -71945,9 +72193,9 @@ var _getMetaFieldForId = function(id, key) {
   }
   var o, i = n(6),
     a = n(123),
-    s = n(558),
-    u = n(295),
-    c = n(591),
+    s = n(560),
+    u = n(297),
+    c = n(593),
     l = n(134),
     d = {},
     f = !1,
@@ -72064,7 +72312,7 @@ var _getMetaFieldForId = function(id, key) {
     return o.call(this, e, t, n, r);
   }
   var o = n(64),
-    i = n(295),
+    i = n(297),
     a = n(132),
     s = {
       screenX: null,
@@ -72217,14 +72465,14 @@ var _getMetaFieldForId = function(id, key) {
   e.exports = c;
 }, function(e, t, n) {
   "use strict";
-  var r = n(314);
+  var r = n(316);
   n.d(t, "a", function() {
     return r.a;
   });
-  var o = n(623);
+  var o = n(625);
   n.d(t, "b", function() {
     return o.a;
-  }), n(315), n(316);
+  }), n(317), n(318);
 }, function(e, t, n) {
   "use strict";
   n.d(t, "a", function() {
@@ -72234,9 +72482,9 @@ var _getMetaFieldForId = function(id, key) {
     o = n.n(r),
     i = n(77),
     a = n.n(i),
-    s = n(176),
-    u = (n.n(s), n(491)),
-    c = (n.n(u), n(345)),
+    s = n(178),
+    u = (n.n(s), n(493)),
+    c = (n.n(u), n(346)),
     l = (n.n(c), "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(e) {
       return typeof e;
     } : function(e) {
@@ -72319,7 +72567,7 @@ var _getMetaFieldForId = function(id, key) {
   Object.defineProperty(t, "__esModule", {
     value: !0
   });
-  var r = n(338),
+  var r = n(339),
     o = function(e) {
       return e && e.__esModule ? e : {
         "default": e
@@ -72331,12 +72579,12 @@ var _getMetaFieldForId = function(id, key) {
   });
 }, function(e, t, n) {
   "use strict";
-  var r = n(341),
-    o = n(662),
-    i = n(661),
-    a = n(660),
-    s = n(340);
-  n(342), n.d(t, "d", function() {
+  var r = n(342),
+    o = n(664),
+    i = n(663),
+    a = n(662),
+    s = n(341);
+  n(343), n.d(t, "d", function() {
     return r.b;
   }), n.d(t, "e", function() {
     return o.a;
@@ -72377,14 +72625,14 @@ var _getMetaFieldForId = function(id, key) {
   e.exports = !0;
 }, function(e, t, n) {
   var r = n(43),
-    o = n(384),
+    o = n(385),
     i = n(91),
     a = n(98)("IE_PROTO"),
     s = function() {},
     u = function() {
-      var e, t = n(147)("iframe"),
+      var e, t = n(148)("iframe"),
         r = i.length;
-      for (t.style.display = "none", n(377).appendChild(t), t.src = "javascript:", e = t.contentWindow.document, e.open(), e.write("<script>document.F=Object</script>"), e.close(), u = e.F; r--;) delete u.prototype[i[r]];
+      for (t.style.display = "none", n(378).appendChild(t), t.src = "javascript:", e = t.contentWindow.document, e.open(), e.write("<script>document.F=Object</script>"), e.close(), u = e.F; r--;) delete u.prototype[i[r]];
       return u();
     };
   e.exports = Object.create || function(e, t) {
@@ -72396,10 +72644,10 @@ var _getMetaFieldForId = function(id, key) {
     o = n(68),
     i = n(33),
     a = n(101),
-    s = n(37),
-    u = n(148),
+    s = n(38),
+    u = n(149),
     c = Object.getOwnPropertyDescriptor;
-  t.f = n(35) ? c : function(e, t) {
+  t.f = n(36) ? c : function(e, t) {
     if (e = i(e), t = a(t, !0), u) try {
       return c(e, t);
     } catch (e) {}
@@ -72408,7 +72656,7 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t) {
   t.f = Object.getOwnPropertySymbols;
 }, function(e, t, n) {
-  var r = n(36),
+  var r = n(37),
     o = n(16),
     i = n(44);
   e.exports = function(e, t) {
@@ -72419,8 +72667,8 @@ var _getMetaFieldForId = function(id, key) {
     }), "Object", a);
   };
 }, function(e, t, n) {
-  var r = n(38).f,
-    o = n(37),
+  var r = n(39).f,
+    o = n(38),
     i = n(25)("toStringTag");
   e.exports = function(e, t, n) {
     e && !o(e = n ? e : e.prototype, i) && r(e, i, {
@@ -72461,7 +72709,7 @@ var _getMetaFieldForId = function(id, key) {
     o = n(16),
     i = n(92),
     a = n(103),
-    s = n(38).f;
+    s = n(39).f;
   e.exports = function(e) {
     var t = o.Symbol || (o.Symbol = i ? {} : r.Symbol || {});
     "_" == e.charAt(0) || e in t || s(t, e, {
@@ -72472,8 +72720,8 @@ var _getMetaFieldForId = function(id, key) {
   t.f = n(25);
 }, function(e, t, n) {
   "use strict";
-  var r = n(387)(!0);
-  n(150)(String, "String", function(e) {
+  var r = n(388)(!0);
+  n(151)(String, "String", function(e) {
     this._t = String(e), this._i = 0;
   }, function() {
     var e, t = this._t,
@@ -72487,7 +72735,7 @@ var _getMetaFieldForId = function(id, key) {
     });
   });
 }, function(e, t, n) {
-  n(393);
+  n(394);
   for (var r = n(32), o = n(45), i = n(56), a = n(25)("toStringTag"), s = ["NodeList", "DOMTokenList", "MediaList", "StyleSheetList", "CSSRuleList"], u = 0; u < 5; u++) {
     var c = s[u],
       l = r[c],
@@ -72775,9 +73023,9 @@ var _getMetaFieldForId = function(id, key) {
   var o = n(2),
     i = n.n(o),
     a = n(12),
-    s = (n.n(a), n(158)),
+    s = (n.n(a), n(159)),
     u = n(73),
-    c = n(162),
+    c = n(164),
     l = n.i(a.createAction)("Sync downloads from desktop"),
     d = {},
     f = n.i(a.createReducer)(function(e, t, n) {
@@ -72802,11 +73050,17 @@ var _getMetaFieldForId = function(id, key) {
 
   function r(e) {
     var t = e.channelId,
-      r = e.type;
+      r = e.type,
+      o = e.oldest,
+      u = void 0 === o ? 0 : o,
+      c = e.latest,
+      l = void 0 === c ? 0 : c;
     return function(e) {
       n.i(i.a)({
         channelId: t,
-        type: r
+        type: r,
+        oldest: u,
+        latest: l
       }).then(function(t) {
         e(n.i(s.addMessages)(t));
       }).catch(function(e) {
@@ -72820,7 +73074,7 @@ var _getMetaFieldForId = function(id, key) {
     return f;
   });
   var o = n(12),
-    i = (n.n(o), n(485)),
+    i = (n.n(o), n(487)),
     a = n(73),
     s = n(58),
     u = Object.assign || function(e) {
@@ -72919,9 +73173,9 @@ var _getMetaFieldForId = function(id, key) {
     var r = d.call(t, "constructor") && t.constructor;
     return "function" == typeof r && r instanceof r && l.call(r) == f;
   }
-  var o = n(517),
-    i = n(519),
-    a = n(524),
+  var o = n(519),
+    i = n(521),
+    a = n(526),
     s = "[object Object]",
     u = Function.prototype,
     c = Object.prototype,
@@ -73222,10 +73476,10 @@ var _getMetaFieldForId = function(id, key) {
     o === t ? n && _(r, document.createTextNode(n), o) : n ? (h(o, n), u(r, o, t)) : u(r, e, t);
   }
   var l = n(49),
-    d = n(535),
+    d = n(537),
     f = (n(11), n(23), n(130)),
     p = n(83),
-    h = n(302),
+    h = n(304),
     _ = f(function(e, t, n) {
       e.insertBefore(t, n);
     }),
@@ -73491,7 +73745,7 @@ var _getMetaFieldForId = function(id, key) {
   }
   var s = n(5),
     u = n(52),
-    c = n(564),
+    c = n(566),
     l = (n(3), n(4), {
       button: !0,
       checkbox: !0,
@@ -73719,6 +73973,16 @@ var _getMetaFieldForId = function(id, key) {
   t.a = r;
 }, function(e, t, n) {
   "use strict";
+  var r = (n(615), n(616));
+  n.d(t, "a", function() {
+    return r.a;
+  });
+  var o = (n(618), n(622), n(624), n(84), n(630), n(631));
+  n.d(t, "b", function() {
+    return o.a;
+  }), n(634), n(635), n(636), n(637), n(638);
+}, function(e, t, n) {
+  "use strict";
 
   function r() {
     var e = !(arguments.length > 0 && void 0 !== arguments[0]) || arguments[0],
@@ -73740,7 +74004,7 @@ var _getMetaFieldForId = function(id, key) {
     };
   }
   t.a = r;
-  var o = n(143),
+  var o = n(144),
     i = n.n(o);
 }, function(e, t, n) {
   "use strict";
@@ -73749,8 +74013,8 @@ var _getMetaFieldForId = function(id, key) {
     this.props = e, this.context = t, this.refs = a, this.updater = n || i;
   }
   var o = n(54),
-    i = n(141),
-    a = (n(336), n(59));
+    i = n(142),
+    a = (n(337), n(59));
   n(3), n(4), r.prototype.isReactComponent = {}, r.prototype.setState = function(e, t) {
     "object" != typeof e && "function" != typeof e && null != e && o("85"), this.updater.enqueueSetState(this, e), t && this.updater.enqueueCallback(this, t, "setState");
   }, r.prototype.forceUpdate = function(e) {
@@ -73770,8 +74034,8 @@ var _getMetaFieldForId = function(id, key) {
   e.exports = r;
 }, function(e, t, n) {
   "use strict";
-  var r = n(437),
-    o = n(436);
+  var r = n(440),
+    o = n(439);
   n.d(t, "a", function() {
     return r.a;
   }), n.d(t, "b", function() {
@@ -73779,7 +74043,7 @@ var _getMetaFieldForId = function(id, key) {
   }), r.a;
 }, function(e, t, n) {
   e.exports = {
-    "default": n(369),
+    "default": n(370),
     __esModule: !0
   };
 }, function(e, t, n) {
@@ -73791,9 +74055,9 @@ var _getMetaFieldForId = function(id, key) {
     };
   }
   t.__esModule = !0;
-  var o = n(360),
+  var o = n(361),
     i = r(o),
-    a = n(359),
+    a = n(360),
     s = r(a),
     u = "function" == typeof s.default && "symbol" == typeof i.default ? function(e) {
       return typeof e;
@@ -73821,7 +74085,7 @@ var _getMetaFieldForId = function(id, key) {
     return void 0 === e ? "Undefined" : null === e ? "Null" : "string" == typeof(n = a(t = Object(e), o)) ? n : i ? r(t) : "Object" == (s = r(t)) && "function" == typeof t.callee ? "Arguments" : s;
   };
 }, function(e, t, n) {
-  var r = n(373);
+  var r = n(374);
   e.exports = function(e, t, n) {
     if (r(e), void 0 === t) return e;
     switch (n) {
@@ -73850,8 +74114,8 @@ var _getMetaFieldForId = function(id, key) {
     return i ? o.createElement(e) : {};
   };
 }, function(e, t, n) {
-  e.exports = !n(35) && !n(44)(function() {
-    return 7 != Object.defineProperty(n(147)("div"), "a", {
+  e.exports = !n(36) && !n(44)(function() {
+    return 7 != Object.defineProperty(n(148)("div"), "a", {
       get: function() {
         return 7;
       }
@@ -73865,14 +74129,14 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   "use strict";
   var r = n(92),
-    o = n(36),
-    i = n(154),
+    o = n(37),
+    i = n(155),
     a = n(45),
-    s = n(37),
+    s = n(38),
     u = n(56),
-    c = n(379),
+    c = n(380),
     l = n(97),
-    d = n(152),
+    d = n(153),
     f = n(25)("iterator"),
     p = !([].keys && "next" in [].keys()),
     h = function() {
@@ -73914,13 +74178,13 @@ var _getMetaFieldForId = function(id, key) {
     return g;
   };
 }, function(e, t, n) {
-  var r = n(153),
+  var r = n(154),
     o = n(91).concat("length", "prototype");
   t.f = Object.getOwnPropertyNames || function(e) {
     return r(e, o);
   };
 }, function(e, t, n) {
-  var r = n(37),
+  var r = n(38),
     o = n(69),
     i = n(98)("IE_PROTO"),
     a = Object.prototype;
@@ -73928,9 +74192,9 @@ var _getMetaFieldForId = function(id, key) {
     return e = o(e), r(e, i) ? e[i] : "function" == typeof e.constructor && e instanceof e.constructor ? e.constructor.prototype : e instanceof Object ? a : null;
   };
 }, function(e, t, n) {
-  var r = n(37),
+  var r = n(38),
     o = n(33),
-    i = n(375)(!1),
+    i = n(376)(!1),
     a = n(98)("IE_PROTO");
   e.exports = function(e, t) {
     var n, s = o(e),
@@ -73944,8 +74208,8 @@ var _getMetaFieldForId = function(id, key) {
   e.exports = n(45);
 }, function(e, t, n) {
   "use strict";
-  var r = n(441);
-  n(156), n.d(t, "a", function() {
+  var r = n(444);
+  n(157), n.d(t, "a", function() {
     return r.a;
   }), r.a;
 }, function(e, t, n) {
@@ -73954,7 +74218,7 @@ var _getMetaFieldForId = function(id, key) {
     o = n.n(r),
     i = n(10),
     a = n.n(i),
-    s = n(344),
+    s = n(345),
     u = (n.n(s), {
       children: r.PropTypes.node.isRequired,
       position: r.PropTypes.string,
@@ -73978,7 +74242,7 @@ var _getMetaFieldForId = function(id, key) {
   l.propTypes = u, l.defaultProps = c, t.a = l;
 }, function(e, t, n) {
   "use strict";
-  var r = n(457);
+  var r = n(460);
   n.d(t, "a", function() {
     return r.a;
   }), n.d(t, "b", function() {
@@ -74036,6 +74300,21 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   "use strict";
 
+  function r(e) {
+    s && s.add(e);
+  }
+
+  function o(e) {
+    u && u.add(e);
+  }
+  t.a = r, t.b = o;
+  var i = n(2),
+    a = n.n(i),
+    s = a.a.get(TS, "ui.window_focus_changed"),
+    u = a.a.get(TS, "ui.window_unloaded_sig");
+}, function(e, t, n) {
+  "use strict";
+
   function r(e, t, n) {
     return t in e ? Object.defineProperty(e, t, {
       value: n,
@@ -74056,7 +74335,7 @@ var _getMetaFieldForId = function(id, key) {
   var o, i = n(2),
     a = n.n(i),
     s = n(12),
-    u = (n.n(s), n(39)),
+    u = (n.n(s), n(35)),
     c = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
@@ -74151,7 +74430,7 @@ var _getMetaFieldForId = function(id, key) {
     return a;
   });
   var r = n(12),
-    o = (n.n(r), n(486)),
+    o = (n.n(r), n(488)),
     i = n.i(r.createAction)("Upsert a file"),
     a = n.i(r.createAction)("Upsert multiple files"),
     s = n.i(r.createAction)("Remove a file by ID"),
@@ -74366,11 +74645,13 @@ var _getMetaFieldForId = function(id, key) {
     s = "easeInOutQuad";
 }, function(e, t, n) {
   "use strict";
-  var r = n(463);
+  var r = n(466);
   n.d(t, "a", function() {
     return r.a;
   }), n.d(t, "b", function() {
     return r.b;
+  }), n.d(t, "c", function() {
+    return r.c;
   });
 }, function(e, t, n) {
   "use strict";
@@ -74465,7 +74746,7 @@ var _getMetaFieldForId = function(id, key) {
   function r(e, t) {
     if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
   }
-  var o = n(529),
+  var o = n(531),
     i = n.n(o),
     a = n(2),
     s = n.n(a),
@@ -74512,7 +74793,7 @@ var _getMetaFieldForId = function(id, key) {
   t.a = c;
 }, function(e, t, n) {
   "use strict";
-  var r = n(464);
+  var r = n(467);
   t.a = r.a;
 }, function(e, t, n) {
   "use strict";
@@ -74525,7 +74806,7 @@ var _getMetaFieldForId = function(id, key) {
     }
     return i;
   };
-  var r = n(501),
+  var r = n(503),
     o = function(e) {
       return e && e.__esModule ? e : {
         "default": e
@@ -74615,7 +74896,7 @@ var _getMetaFieldForId = function(id, key) {
   };
 }, function(e, t, n) {
   "use strict";
-  var r = n(523),
+  var r = n(525),
     o = r.a.Symbol;
   t.a = o;
 }, function(e, t) {
@@ -82369,7 +82650,7 @@ var _getMetaFieldForId = function(id, key) {
     return null == t || e.hasBooleanValue && !t || e.hasNumericValue && isNaN(t) || e.hasPositiveNumericValue && t < 1 || e.hasOverloadedBooleanValue && !1 === t;
   }
   var i = n(50),
-    a = (n(11), n(23), n(592)),
+    a = (n(11), n(23), n(594)),
     s = (n(4), new RegExp("^[" + i.ATTRIBUTE_NAME_START_CHAR + "][" + i.ATTRIBUTE_NAME_CHAR + "]*$")),
     u = {},
     c = {},
@@ -82563,10 +82844,10 @@ var _getMetaFieldForId = function(id, key) {
   function r(e) {
     return i(document.documentElement, e);
   }
-  var o = n(551),
-    i = n(506),
-    a = n(174),
-    s = n(175),
+  var o = n(553),
+    i = n(508),
+    a = n(176),
+    s = n(177),
     u = {
       hasSelectionCapabilities: function(e) {
         var t = e && e.nodeName && e.nodeName.toLowerCase();
@@ -82679,16 +82960,16 @@ var _getMetaFieldForId = function(id, key) {
     m = n(52),
     y = n(79),
     v = (n(29), n(11)),
-    g = n(545),
-    b = n(547),
-    M = n(290),
+    g = n(547),
+    b = n(549),
+    M = n(292),
     w = n(63),
-    k = (n(23), n(561)),
+    k = (n(23), n(563)),
     L = n(51),
     T = n(129),
     S = n(24),
     E = n(59),
-    x = n(300),
+    x = n(302),
     C = (n(3), n(83)),
     Y = n(135),
     D = (n(4), _.ID_ATTRIBUTE_NAME),
@@ -82828,7 +83109,7 @@ var _getMetaFieldForId = function(id, key) {
       (t = e._renderedNodeType) === o.COMPOSITE;) e = e._renderedComponent;
     return t === o.HOST ? e._renderedComponent : t === o.EMPTY ? null : void 0;
   }
-  var o = n(294);
+  var o = n(296);
   e.exports = r;
 }, function(e, t, n) {
   "use strict";
@@ -82870,10 +83151,10 @@ var _getMetaFieldForId = function(id, key) {
   }
   var a = n(5),
     s = n(6),
-    u = n(542),
-    c = n(289),
-    l = n(291),
-    d = (n(589), n(3), n(4), function(e) {
+    u = n(544),
+    c = n(291),
+    l = n(293),
+    d = (n(591), n(3), n(4), function(e) {
       this.construct(e);
     });
   s(d.prototype, u, {
@@ -82957,8 +83238,8 @@ var _getMetaFieldForId = function(id, key) {
     return null == e ? 0 : o(e, "", t, n);
   }
   var a = n(5),
-    s = (n(29), n(557)),
-    u = n(588),
+    s = (n(29), n(559)),
+    u = n(590),
     c = (n(3), n(125)),
     l = (n(4), "."),
     d = ":";
@@ -83125,13 +83406,13 @@ var _getMetaFieldForId = function(id, key) {
     };
   }
   t.a = c;
-  var l = n(176),
+  var l = n(178),
     d = n.n(l),
-    f = n(516),
+    f = n(518),
     p = n.n(f),
     h = n(1),
-    _ = (n.n(h), n(607)),
-    m = n(307),
+    _ = (n.n(h), n(609)),
+    m = n(309),
     y = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
@@ -83170,7 +83451,7 @@ var _getMetaFieldForId = function(id, key) {
       }, r;
     };
   }
-  t.b = r, t.a = i, n(308);
+  t.b = r, t.a = i, n(310);
 }, function(e, t, n) {
   "use strict";
   n.d(t, "b", function() {
@@ -83325,7 +83606,7 @@ var _getMetaFieldForId = function(id, key) {
     f = n.n(d),
     p = n(1),
     h = n.n(p),
-    _ = n(640),
+    _ = n(642),
     m = function(e) {
       function t(e) {
         a()(this, t);
@@ -83527,9 +83808,9 @@ var _getMetaFieldForId = function(id, key) {
     y = n.n(m),
     v = n(1),
     g = n.n(v),
-    b = n(617),
-    M = n(621),
-    w = n(638);
+    b = n(619),
+    M = n(623),
+    w = n(640);
   ((function(e) {
     function t(e, n) {
       d()(this, t);
@@ -83738,13 +84019,13 @@ var _getMetaFieldForId = function(id, key) {
     m = n.n(_),
     y = n(10),
     v = n.n(y),
-    g = n(626),
-    b = n(625),
-    M = n(139),
-    w = n(316),
-    k = n(627),
-    L = n(315),
-    T = n(172),
+    g = n(628),
+    b = n(627),
+    M = n(140),
+    w = n(318),
+    k = n(629),
+    L = n(317),
+    T = n(174),
     S = n.n(T),
     E = {
       OBSERVED: "observed",
@@ -84510,7 +84791,7 @@ var _getMetaFieldForId = function(id, key) {
     h = n(14),
     _ = n.n(h),
     m = n(1),
-    y = (n.n(m), n(139));
+    y = (n.n(m), n(140));
   ((function(e) {
     function t(e, r) {
       c()(this, t);
@@ -84591,7 +84872,7 @@ var _getMetaFieldForId = function(id, key) {
   };
 }, function(e, t, n) {
   "use strict";
-  var r = n(357),
+  var r = n(358),
     o = n.n(r),
     i = n(66),
     a = n.n(i),
@@ -84771,7 +85052,7 @@ var _getMetaFieldForId = function(id, key) {
     v = n.n(y),
     g = n(10),
     b = n.n(g),
-    M = n(630);
+    M = n(632);
   ((function(e) {
     function t(e, n) {
       l()(this, t);
@@ -85522,9 +85803,9 @@ var _getMetaFieldForId = function(id, key) {
     c = n(14),
     l = n.n(c),
     d = n(1),
-    f = (n.n(d), n(327)),
-    p = n(326),
-    h = n(325);
+    f = (n.n(d), n(329)),
+    p = n(328),
+    h = n(327);
   ((function(e) {
     function t() {
       return a()(this, t), u()(this, (t.__proto__ || o()(t)).apply(this, arguments));
@@ -85583,12 +85864,12 @@ var _getMetaFieldForId = function(id, key) {
     h = n.n(p),
     _ = n(10),
     m = n.n(_),
-    y = (n(322), n(1)),
+    y = (n(324), n(1)),
     v = n.n(y),
     g = n(19),
     b = (n.n(g), n(84)),
-    M = n(329),
-    w = n(328),
+    M = n(331),
+    w = n(330),
     k = n(138);
   ((function(e) {
     function t(e) {
@@ -86010,7 +86291,7 @@ var _getMetaFieldForId = function(id, key) {
   t.a = r;
   var o = n(1),
     i = n.n(o),
-    a = n(323);
+    a = n(325);
 }, function(e, t, n) {
   "use strict";
 
@@ -86093,8 +86374,8 @@ var _getMetaFieldForId = function(id, key) {
     p = n(1),
     h = (n.n(p), n(19)),
     _ = n.n(h),
-    m = n(331),
-    y = n(637);
+    m = n(333),
+    y = n(639);
   ((function(e) {
     function t(e) {
       a()(this, t);
@@ -86245,16 +86526,6 @@ var _getMetaFieldForId = function(id, key) {
     l = null,
     d = null,
     f = 150;
-}, function(e, t, n) {
-  "use strict";
-  var r = (n(613), n(614));
-  n.d(t, "a", function() {
-    return r.a;
-  });
-  var o = (n(616), n(620), n(622), n(84), n(628), n(629));
-  n.d(t, "b", function() {
-    return o.a;
-  }), n(632), n(633), n(634), n(635), n(636);
 }, function(e, t, n) {
   "use strict";
 
@@ -86536,7 +86807,7 @@ var _getMetaFieldForId = function(id, key) {
     return e && "function" == typeof Symbol && e.constructor === Symbol ? "symbol" : typeof e;
   };
   t.default = r;
-  var i = n(339),
+  var i = n(340),
     a = 0,
     s = function(e) {
       return e;
@@ -86676,7 +86947,7 @@ var _getMetaFieldForId = function(id, key) {
     return s;
   }), t.b = r;
   var o = n(116),
-    i = n(345),
+    i = n(346),
     a = n.n(i),
     s = {
       INIT: "@@redux/INIT"
@@ -86764,15 +87035,15 @@ var _getMetaFieldForId = function(id, key) {
   t.__esModule = !0, t.defaultMemoize = i, t.createSelectorCreator = s, t.createStructuredSelector = u;
   var c = t.createSelector = s(i);
 }, function(e, t, n) {
-  var r = n(497);
+  var r = n(499);
   "string" == typeof r && (r = [
     [e.i, r, ""]
   ]), n(30)(r, {}), r.locals && (e.exports = r.locals);
 }, function(e, t, n) {
-  e.exports = n(671);
+  e.exports = n(673);
 }, function(e, t, n) {
   "use strict";
-  var r = n(419);
+  var r = n(420);
   t.a = r.a;
 }, function(e, t, n) {
   "use strict";
@@ -86783,11 +87054,11 @@ var _getMetaFieldForId = function(id, key) {
     s = n(18),
     u = n(57),
     c = n(72),
-    l = n(159),
+    l = n(160),
     d = n(40),
-    f = n(454),
-    p = n(453),
-    h = n(409),
+    f = n(457),
+    p = n(456),
+    h = n(410),
     _ = function(e) {
       var t = "react_channel_sidebar_display_item";
       n.i(c.a)(t + "_mark"), "V" === e[0] ? n.i(p.a)(e) : n.i(f.a)(e), n.i(c.b)(t, t + "_mark");
@@ -86809,7 +87080,7 @@ var _getMetaFieldForId = function(id, key) {
   });
 }, function(e, t, n) {
   "use strict";
-  var r = n(451),
+  var r = n(454),
     o = n(57);
   n.i(o.a)("interop.SocketManager", r);
 }, function(e, t, n) {
@@ -86819,9 +87090,9 @@ var _getMetaFieldForId = function(id, key) {
     i = n(19),
     a = n.n(i),
     s = n(18),
-    u = n(159),
+    u = n(160),
     c = n(57),
-    l = n(431),
+    l = n(434),
     d = n(113);
   n.i(c.a)("ui.react_message_pane", {
     render: function(e) {
@@ -86837,24 +87108,24 @@ var _getMetaFieldForId = function(id, key) {
   "use strict";
   var r = n(18),
     o = n(57),
-    i = n(428),
-    a = n(468),
+    i = n(429),
+    a = n(470),
     s = n(107),
-    u = n(160),
-    c = n(39),
+    u = n(162),
+    c = n(35),
     l = n(108),
     d = n(58),
     f = n(74),
-    p = n(161),
+    p = n(163),
     h = n(109),
-    _ = n(163),
+    _ = n(165),
     m = n(40),
     y = n(110),
     v = n(111),
     g = n(112),
     b = n(75),
     M = n(114),
-    w = n(164);
+    w = n(166);
   n.i(o.a)("interop.redux", {
     configureStore: a.a,
     entities: {
@@ -86886,23 +87157,23 @@ var _getMetaFieldForId = function(id, key) {
   "use strict";
   var r = n(57),
     o = n(76),
-    i = n(480),
-    a = n(168),
-    s = n(482),
-    u = n(481),
-    c = n(484),
-    l = n(167),
+    i = n(482),
+    a = n(170),
+    s = n(484),
+    u = n(483),
+    c = n(486),
+    l = n(169),
     d = n(48),
-    f = n(483),
+    f = n(485),
     p = n(47),
-    h = n(473),
-    _ = n(474),
-    m = n(475),
-    y = n(476),
-    v = n(477),
+    h = n(475),
+    _ = n(476),
+    m = n(477),
+    y = n(478),
+    v = n(479),
     g = n(115),
-    b = n(478),
-    M = n(479);
+    b = n(480),
+    M = n(481);
   n.i(r.a)("utility.datetime", {
     toDateObject: o.a,
     toDate: i.a,
@@ -86923,11 +87194,6 @@ var _getMetaFieldForId = function(id, key) {
     sameHour: b.a,
     shouldExcludeYear: M.a
   });
-}, function(e, t, n) {
-  e.exports = {
-    "default": n(362),
-    __esModule: !0
-  };
 }, function(e, t, n) {
   e.exports = {
     "default": n(363),
@@ -86955,7 +87221,7 @@ var _getMetaFieldForId = function(id, key) {
   };
 }, function(e, t, n) {
   e.exports = {
-    "default": n(370),
+    "default": n(368),
     __esModule: !0
   };
 }, function(e, t, n) {
@@ -86969,6 +87235,11 @@ var _getMetaFieldForId = function(id, key) {
     __esModule: !0
   };
 }, function(e, t, n) {
+  e.exports = {
+    "default": n(373),
+    __esModule: !0
+  };
+}, function(e, t, n) {
   "use strict";
 
   function r(e) {
@@ -86977,9 +87248,9 @@ var _getMetaFieldForId = function(id, key) {
     };
   }
   t.__esModule = !0;
-  var o = n(353),
+  var o = n(354),
     i = r(o),
-    a = n(352),
+    a = n(353),
     s = r(a);
   t.default = function() {
     function e(e, t) {
@@ -87007,37 +87278,37 @@ var _getMetaFieldForId = function(id, key) {
     };
   }();
 }, function(e, t, n) {
-  n(105), n(104), e.exports = n(391);
-}, function(e, t, n) {
   n(105), n(104), e.exports = n(392);
 }, function(e, t, n) {
-  n(394), e.exports = n(16).Object.assign;
+  n(105), n(104), e.exports = n(393);
 }, function(e, t, n) {
-  n(395);
+  n(395), e.exports = n(16).Object.assign;
+}, function(e, t, n) {
+  n(396);
   var r = n(16).Object;
   e.exports = function(e, t) {
     return r.create(e, t);
   };
 }, function(e, t, n) {
-  n(396);
+  n(397);
   var r = n(16).Object;
   e.exports = function(e, t, n) {
     return r.defineProperty(e, t, n);
   };
 }, function(e, t, n) {
-  n(397);
+  n(398);
   var r = n(16).Object;
   e.exports = function(e, t) {
     return r.getOwnPropertyDescriptor(e, t);
   };
 }, function(e, t, n) {
-  n(398), e.exports = n(16).Object.getPrototypeOf;
+  n(399), e.exports = n(16).Object.getPrototypeOf;
 }, function(e, t, n) {
-  n(399), e.exports = n(16).Object.keys;
+  n(400), e.exports = n(16).Object.keys;
 }, function(e, t, n) {
-  n(400), e.exports = n(16).Object.setPrototypeOf;
+  n(401), e.exports = n(16).Object.setPrototypeOf;
 }, function(e, t, n) {
-  n(402), n(401), n(403), n(404), e.exports = n(16).Symbol;
+  n(403), n(402), n(404), n(405), e.exports = n(16).Symbol;
 }, function(e, t, n) {
   n(104), n(105), e.exports = n(103).f("iterator");
 }, function(e, t) {
@@ -87049,8 +87320,8 @@ var _getMetaFieldForId = function(id, key) {
   e.exports = function() {};
 }, function(e, t, n) {
   var r = n(33),
-    o = n(389),
-    i = n(388);
+    o = n(390),
+    i = n(389);
   e.exports = function(e) {
     return function(t, n, a) {
       var s, u = r(t),
@@ -87113,8 +87384,8 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   var r = n(70)("meta"),
     o = n(55),
-    i = n(37),
-    a = n(38).f,
+    i = n(38),
+    a = n(39).f,
     s = 0,
     u = Object.isExtensible || function() {
       return !0;
@@ -87163,7 +87434,7 @@ var _getMetaFieldForId = function(id, key) {
     o = n(95),
     i = n(67),
     a = n(69),
-    s = n(149),
+    s = n(150),
     u = Object.assign;
   e.exports = !u || n(44)(function() {
     var e = {},
@@ -87179,17 +87450,17 @@ var _getMetaFieldForId = function(id, key) {
     return n;
   } : u;
 }, function(e, t, n) {
-  var r = n(38),
+  var r = n(39),
     o = n(43),
     i = n(46);
-  e.exports = n(35) ? Object.defineProperties : function(e, t) {
+  e.exports = n(36) ? Object.defineProperties : function(e, t) {
     o(e);
     for (var n, a = i(t), s = a.length, u = 0; s > u;) r.f(e, n = a[u++], t[n]);
     return e;
   };
 }, function(e, t, n) {
   var r = n(33),
-    o = n(151).f,
+    o = n(152).f,
     i = {}.toString,
     a = "object" == typeof window && window && Object.getOwnPropertyNames ? Object.getOwnPropertyNames(window) : [],
     s = function(e) {
@@ -87211,7 +87482,7 @@ var _getMetaFieldForId = function(id, key) {
   e.exports = {
     set: Object.setPrototypeOf || ("__proto__" in {} ? function(e, t, r) {
       try {
-        r = n(146)(Function.call, n(94).f(Object.prototype, "__proto__").set, 2), r(e, []), t = !(e instanceof Array);
+        r = n(147)(Function.call, n(94).f(Object.prototype, "__proto__").set, 2), r(e, []), t = !(e instanceof Array);
       } catch (e) {
         t = !0;
       }
@@ -87246,7 +87517,7 @@ var _getMetaFieldForId = function(id, key) {
     return e > 0 ? o(r(e), 9007199254740991) : 0;
   };
 }, function(e, t, n) {
-  var r = n(145),
+  var r = n(146),
     o = n(25)("iterator"),
     i = n(56);
   e.exports = n(16).getIteratorMethod = function(e) {
@@ -87254,14 +87525,14 @@ var _getMetaFieldForId = function(id, key) {
   };
 }, function(e, t, n) {
   var r = n(43),
-    o = n(390);
+    o = n(391);
   e.exports = n(16).getIterator = function(e) {
     var t = o(e);
     if ("function" != typeof t) throw TypeError(e + " is not iterable!");
     return r(t.call(e));
   };
 }, function(e, t, n) {
-  var r = n(145),
+  var r = n(146),
     o = n(25)("iterator"),
     i = n(56);
   e.exports = n(16).isIterable = function(e) {
@@ -87270,11 +87541,11 @@ var _getMetaFieldForId = function(id, key) {
   };
 }, function(e, t, n) {
   "use strict";
-  var r = n(374),
-    o = n(380),
+  var r = n(375),
+    o = n(381),
     i = n(56),
     a = n(33);
-  e.exports = n(150)(Array, "Array", function(e, t) {
+  e.exports = n(151)(Array, "Array", function(e, t) {
     this._t = a(e), this._i = 0, this._k = t;
   }, function() {
     var e = this._t,
@@ -87283,19 +87554,19 @@ var _getMetaFieldForId = function(id, key) {
     return !e || n >= e.length ? (this._t = void 0, o(1)) : "keys" == t ? o(0, n) : "values" == t ? o(0, e[n]) : o(0, [n, e[n]]);
   }, "values"), i.Arguments = i.Array, r("keys"), r("values"), r("entries");
 }, function(e, t, n) {
-  var r = n(36);
+  var r = n(37);
   r(r.S + r.F, "Object", {
-    assign: n(383)
+    assign: n(384)
   });
 }, function(e, t, n) {
-  var r = n(36);
+  var r = n(37);
   r(r.S, "Object", {
     create: n(93)
   });
 }, function(e, t, n) {
-  var r = n(36);
-  r(r.S + r.F * !n(35), "Object", {
-    defineProperty: n(38).f
+  var r = n(37);
+  r(r.S + r.F * !n(36), "Object", {
+    defineProperty: n(39).f
   });
 }, function(e, t, n) {
   var r = n(33),
@@ -87307,7 +87578,7 @@ var _getMetaFieldForId = function(id, key) {
   });
 }, function(e, t, n) {
   var r = n(69),
-    o = n(152);
+    o = n(153);
   n(96)("getPrototypeOf", function() {
     return function(e) {
       return o(r(e));
@@ -87322,18 +87593,18 @@ var _getMetaFieldForId = function(id, key) {
     };
   });
 }, function(e, t, n) {
-  var r = n(36);
+  var r = n(37);
   r(r.S, "Object", {
-    setPrototypeOf: n(386).set
+    setPrototypeOf: n(387).set
   });
 }, function(e, t) {}, function(e, t, n) {
   "use strict";
   var r = n(32),
-    o = n(37),
-    i = n(35),
-    a = n(36),
-    s = n(154),
-    u = n(382).KEY,
+    o = n(38),
+    i = n(36),
+    a = n(37),
+    s = n(155),
+    u = n(383).KEY,
     c = n(44),
     l = n(99),
     d = n(97),
@@ -87341,17 +87612,17 @@ var _getMetaFieldForId = function(id, key) {
     p = n(25),
     h = n(103),
     _ = n(102),
-    m = n(381),
-    y = n(376),
-    v = n(378),
+    m = n(382),
+    y = n(377),
+    v = n(379),
     g = n(43),
     b = n(33),
     M = n(101),
     w = n(68),
     k = n(93),
-    L = n(385),
+    L = n(386),
     T = n(94),
-    S = n(38),
+    S = n(39),
     E = n(46),
     x = T.f,
     C = S.f,
@@ -87433,7 +87704,7 @@ var _getMetaFieldForId = function(id, key) {
     }), B(e);
   }, s(D.prototype, "toString", function() {
     return this._k;
-  }), T.f = Q, S.f = q, n(151).f = L.f = X, n(67).f = $, n(95).f = Z, i && !n(92) && s(z, "propertyIsEnumerable", $, !0), h.f = function(e) {
+  }), T.f = Q, S.f = q, n(152).f = L.f = X, n(67).f = $, n(95).f = Z, i && !n(92) && s(z, "propertyIsEnumerable", $, !0), h.f = function(e) {
     return B(p(e));
   }), a(a.G + a.W + a.F * !W, {
     Symbol: D
@@ -87507,11 +87778,11 @@ var _getMetaFieldForId = function(id, key) {
     s = n.n(a),
     u = n(1),
     c = n.n(u),
-    l = n(332),
-    d = n(155),
-    f = n(407),
-    p = n(410),
-    h = n(165),
+    l = n(139),
+    d = n(156),
+    f = n(408),
+    p = n(411),
+    h = n(167),
     _ = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
@@ -87544,8 +87815,7 @@ var _getMetaFieldForId = function(id, key) {
       function t(e) {
         r(this, t);
         var n = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
-        return n.setRef = n.setRef.bind(n), n.onScroll = n.onScroll.bind(n), n.onItemClick = n.onItemClick.bind(n),
-          n.onInviteClick = n.onInviteClick.bind(n), n.renderRow = n.renderRow.bind(n), n.onRowsRendered = n.onRowsRendered.bind(n), n.renderChannel = n.renderChannel.bind(n), n.renderLink = n.renderLink.bind(n), n;
+        return n.setRef = n.setRef.bind(n), n.onScroll = n.onScroll.bind(n), n.onItemClick = n.onItemClick.bind(n), n.onInviteClick = n.onInviteClick.bind(n), n.renderRow = n.renderRow.bind(n), n.onRowsRendered = n.onRowsRendered.bind(n), n.renderChannel = n.renderChannel.bind(n), n.renderLink = n.renderLink.bind(n), n;
       }
       return i(t, e), _(t, [{
         key: "onScroll",
@@ -87732,11 +88002,11 @@ var _getMetaFieldForId = function(id, key) {
     s = n.n(a),
     u = n(1),
     c = n.n(u),
-    l = n(343),
-    d = (n.n(l), n(405)),
-    f = n(411),
+    l = n(344),
+    d = (n.n(l), n(406)),
+    f = n(412),
     p = n(72),
-    h = n(668),
+    h = n(670),
     _ = (n.n(h), Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
@@ -87938,10 +88208,10 @@ var _getMetaFieldForId = function(id, key) {
     d = n(10),
     f = n.n(d),
     p = n(40),
-    h = n(39),
+    h = n(35),
     _ = n(74),
-    m = n(439),
-    y = n(415),
+    m = n(442),
+    y = n(416),
     v = n(20),
     g = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
@@ -88072,11 +88342,14 @@ var _getMetaFieldForId = function(id, key) {
             }),
             E = a && s.a.createElement("span", {
               className: "p-channel_sidebar__you_label"
-            }, M("(you)"));
+            }, M("(you)")),
+            x = s.a.createElement("span", {
+              className: "p-channel_sidebar__name"
+            }, S, m, E);
           return s.a.createElement("a", g({
             className: w,
             onClick: this.onClick
-          }, L), T, m, E, S, k);
+          }, L), T, x, k);
         }
       }]), t;
     }(s.a.Component);
@@ -88113,9 +88386,9 @@ var _getMetaFieldForId = function(id, key) {
   "use strict";
   var r = n(18),
     o = n(40),
-    i = n(406),
-    a = n(412),
-    s = n(75),
+    i = n(407),
+    a = n(413),
+    s = n(35),
     u = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
@@ -88126,22 +88399,17 @@ var _getMetaFieldForId = function(id, key) {
     c = function(e) {
       var t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : {},
         r = e.channelSidebar,
-        i = n.i(s.getPref)(e, "sidebar_behavior"),
-        c = n.i(s.getPref)(e, "separate_private_channels"),
-        l = n.i(a.a)({
-          state: e,
-          shouldHideReadChannels: "hide_read_channels" === i,
-          shouldHideReadChannelsUnlessStarred: "hide_read_channels_unless_starred" === i,
-          shouldSeparatePrivateChannels: c
+        i = n.i(a.a)({
+          state: e
         }),
-        d = l.sidebarSections,
-        f = l.sidebarSectionsOrdered;
+        c = i.sidebarSections,
+        l = i.sidebarSectionsOrdered;
       return u({}, t, {
         selectedItemId: n.i(o.getSelectedChannelItem)(e),
-        sidebarSectionsOrdered: f,
-        sidebarSections: d,
-        unreadChannelIds: [],
-        mentionChannelIds: [],
+        sidebarSectionsOrdered: l,
+        sidebarSections: c,
+        unreadChannelIds: n.i(s.getUnreadIds)(n.i(s.getAllChannels)(e)),
+        mentionChannelIds: n.i(s.getMentionIds)(n.i(s.getAllChannels)(e)),
         hasAllUnreadsLink: r.hasAllUnreadsLink,
         hasAllThreadsLink: r.hasAllThreadsLink,
         hasInvitePeopleLink: r.hasInvitePeopleLink,
@@ -88161,7 +88429,7 @@ var _getMetaFieldForId = function(id, key) {
   t.a = n.i(r.b)(c, l)(i.a);
 }, function(e, t, n) {
   "use strict";
-  var r = n(408);
+  var r = n(409);
   t.a = r.a;
 }, function(e, t, n) {
   "use strict";
@@ -88319,7 +88587,7 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   "use strict";
   n.d(t, "a", function() {
-    return k;
+    return L;
   });
   var r = n(2),
     o = n.n(r),
@@ -88328,109 +88596,111 @@ var _getMetaFieldForId = function(id, key) {
     s = n(74),
     u = n(72),
     c = n(73),
-    l = n(39),
-    d = Object.assign || function(e) {
+    l = n(35),
+    d = n(75),
+    f = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
         for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
       }
       return e;
     },
-    f = i.a.ns("channel_sidebar"),
-    p = "react_channel_sidebar_calculate_sidebar_sections",
-    h = n.i(c.c)(5),
-    _ = ["channels", "ims"],
-    m = {
+    p = i.a.ns("channel_sidebar"),
+    h = "react_channel_sidebar_calculate_sidebar_sections",
+    _ = n.i(c.c)(5),
+    m = ["channels", "ims"],
+    y = {
       starred: {
-        displayName: f("Starred"),
+        displayName: p("Starred"),
         channelsOrdered: []
       },
       channels: {
-        displayName: f("Channels"),
-        tooltip: f("Browse all channels"),
+        displayName: p("Channels"),
+        tooltip: p("Browse all channels"),
         count: 0,
         createChannelBtn: !0,
         channelsOrdered: []
       },
       ims: {
-        displayName: f("Direct Messages"),
-        tooltip: f("Open a Direct Message"),
+        displayName: p("Direct Messages"),
+        tooltip: p("Open a Direct Message"),
         createDmBtn: !0,
         channelsOrdered: []
       }
     },
-    y = ["default", "private", "slackbot", "you", "ims", "muted"],
-    v = o.a.invert(y),
-    g = y.map(function() {
+    v = ["default", "private", "slackbot", "you", "ims", "muted"],
+    g = o.a.invert(v),
+    b = v.map(function() {
       return [];
     }),
-    b = function(e) {
+    M = function(e) {
       var t = e.shouldHideReadChannels,
         r = e.shouldHideReadChannelsUnlessStarred,
         o = e.channel;
       return !(e.currentlySelectedId !== o.id && (n.i(l.isArchived)(o) || (!r || !n.i(l.isStarred)(o)) && (n.i(l.isChannel)(o) && !n.i(l.isMemberOfChannel)(o) || !n.i(l.hasDraft)(o) && (r || t) && n.i(l.isRead)(o))));
     },
-    M = function(e) {
+    w = function(e) {
       var t = e.channel;
       return n.i(l.isStarred)(t) ? "starred" : n.i(l.isIm)(t) || n.i(l.isMpim)(t) ? "ims" : "channels";
     },
-    w = function(e) {
+    k = function(e) {
       var t = e.shouldSeparatePrivateChannels,
         r = e.channel,
         o = e.state;
-      return n.i(s.isChannelMutedById)(o, r.id) ? v.muted : n.i(l.isSlackbot)(r) ? v.slackbot : n.i(l.isYou)(r) ? v.you : n.i(l.isIm)(r) || n.i(l.isMpim)(r) ? v.ims : t && n.i(l.isGroup)(r) ? v.private : v.default;
+      return n.i(s.isChannelMutedById)(o, r.id) ? g.muted : n.i(l.isSlackbot)(r) ? g.slackbot : n.i(l.isYou)(r) ? g.you : n.i(l.isIm)(r) || n.i(l.isMpim)(r) ? g.ims : t && n.i(l.isGroup)(r) ? g.private : g.default;
     },
-    k = function(e) {
-      var t = e.shouldHideReadChannels,
-        r = e.shouldHideReadChannelsUnlessStarred,
-        i = e.shouldSeparatePrivateChannels,
-        s = e.sidebarSectionsOrdered,
-        c = void 0 === s ? _.concat() : s,
-        f = e.sortByProperty,
-        y = void 0 === f ? "name" : f,
-        v = e.state;
-      h && n.i(u.a)(p + "_mark");
-      var k = n.i(l.getAllChannels)(v);
-      o.a.some(k, l.isStarred) && c.unshift("starred");
-      var L = {};
-      c.forEach(function(e) {
-        L[e] = d({}, m[e]), L[e].channelsOrdered = o.a.cloneDeep(g);
+    L = function(e) {
+      var t = e.state,
+        r = e.sidebarSectionsOrdered,
+        i = void 0 === r ? m.concat() : r,
+        s = e.sortByProperty,
+        c = void 0 === s ? "name" : s;
+      _ && n.i(u.a)(h + "_mark");
+      var p = n.i(d.getPref)(t, "sidebar_behavior"),
+        v = "hide_read_channels" === p,
+        g = "hide_read_channels_unless_starred" === p,
+        L = n.i(d.getPref)(t, "separate_private_channels"),
+        T = n.i(l.getAllChannels)(t);
+      o.a.some(T, l.isStarred) && i.unshift("starred");
+      var S = {};
+      i.forEach(function(e) {
+        S[e] = f({}, y[e]), S[e].channelsOrdered = o.a.cloneDeep(b);
       });
-      var T = n.i(a.getSelectedChannelItem)(v);
-      o.a.chain(k).filter(function(e) {
-        return b({
-          shouldHideReadChannels: t,
-          shouldHideReadChannelsUnlessStarred: r,
-          currentlySelectedId: T,
+      var E = n.i(a.getSelectedChannelItem)(t);
+      o.a.chain(T).filter(function(e) {
+        return M({
+          shouldHideReadChannels: v,
+          shouldHideReadChannelsUnlessStarred: g,
+          currentlySelectedId: E,
           channel: e,
-          state: v
+          state: t
         });
-      }).sortBy(y).value().forEach(function(e) {
-        var t = M({
+      }).sortBy(c).value().forEach(function(e) {
+        var n = w({
             channel: e
           }),
-          n = w({
-            shouldSeparatePrivateChannels: i,
+          r = k({
+            shouldSeparatePrivateChannels: L,
             channel: e,
-            state: v
+            state: t
           });
-        L[t].channelsOrdered[n].push(e.id);
+        S[n].channelsOrdered[r].push(e.id);
       });
-      var S = o.a.mapValues(L, function(e) {
-        return d({}, e, {
+      var x = o.a.mapValues(S, function(e) {
+        return f({}, e, {
           channelsOrdered: o.a.flatten(e.channelsOrdered)
         });
       });
-      return h && n.i(u.b)(p, p + "_mark"), {
-        sidebarSectionsOrdered: c,
-        sidebarSections: S
+      return _ && n.i(u.b)(h, h + "_mark"), {
+        sidebarSectionsOrdered: i,
+        sidebarSections: x
       };
     };
 }, function(e, t, n) {
   "use strict";
   var r = n(18),
     o = n(110),
-    i = n(414),
+    i = n(415),
     a = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
@@ -88448,9 +88718,9 @@ var _getMetaFieldForId = function(id, key) {
   var r = n(1),
     o = n.n(r),
     i = n(85),
-    a = n(155),
-    s = n(443),
-    u = n(663),
+    a = n(156),
+    s = n(446),
+    u = n(665),
     c = (n.n(u), function(e) {
       if (!e.emoji) return null;
       var t = e.emoji + " " + e.text,
@@ -88491,7 +88761,7 @@ var _getMetaFieldForId = function(id, key) {
   }, t.a = n.i(i.a)(c);
 }, function(e, t, n) {
   "use strict";
-  var r = n(413);
+  var r = n(414);
   t.a = r.a;
 }, function(e, t, n) {
   "use strict";
@@ -88709,7 +88979,7 @@ var _getMetaFieldForId = function(id, key) {
     c = n.n(u),
     l = n(1),
     d = n.n(l),
-    f = n(332),
+    f = n(139),
     p = n(71),
     h = n(34),
     _ = n(20),
@@ -88966,17 +89236,17 @@ var _getMetaFieldForId = function(id, key) {
     l = n(10),
     d = n.n(l),
     f = n(71),
-    p = n(418),
-    h = n(416),
-    _ = n(420),
-    m = n(417),
+    p = n(419),
+    h = n(417),
+    _ = n(421),
+    m = n(418),
     y = n(34),
     v = n(20),
-    g = n(170),
-    b = n(445),
-    M = n(449),
-    w = n(422),
-    k = n(421),
+    g = n(172),
+    b = n(448),
+    M = n(452),
+    w = n(423),
+    k = n(422),
     L = function() {
       function e(e, t) {
         var n = [],
@@ -89790,11 +90060,11 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   "use strict";
   var r = n(18),
-    o = n(343),
-    i = (n.n(o), n(426)),
+    o = n(344),
+    i = (n.n(o), n(427)),
     a = n(109),
     s = n(112),
-    u = n(427),
+    u = n(428),
     c = function(e) {
       return e.files;
     },
@@ -89851,13 +90121,13 @@ var _getMetaFieldForId = function(id, key) {
     c = n.n(u),
     l = n(0),
     d = n.n(l),
-    f = n(472),
+    f = n(474),
     p = n(20),
     h = n(34),
     _ = n(106),
     m = n(73),
-    y = n(169),
-    v = n(669),
+    y = n(171),
+    v = n(671),
     g = (n.n(v), function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
@@ -90085,7 +90355,7 @@ var _getMetaFieldForId = function(id, key) {
     });
   }
   t.a = r;
-  var o = n(158),
+  var o = n(159),
     i = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
@@ -90124,13 +90394,13 @@ var _getMetaFieldForId = function(id, key) {
     d = n.n(l),
     f = n(10),
     p = n.n(f),
-    h = n(423),
-    _ = n(425),
+    h = n(424),
+    _ = n(426),
     m = n(20),
     y = n(34),
-    v = n(170),
-    g = n(169),
-    b = n(670),
+    v = n(172),
+    g = n(171),
+    b = n(672),
     M = (n.n(b), Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
@@ -90306,7 +90576,7 @@ var _getMetaFieldForId = function(id, key) {
   S.propTypes = k, S.defaultProps = L, t.a = S;
 }, function(e, t, n) {
   "use strict";
-  var r = n(424);
+  var r = n(425);
   t.a = r.a;
 }, function(e, t, n) {
   "use strict";
@@ -90332,7 +90602,7 @@ var _getMetaFieldForId = function(id, key) {
     u = n.n(s),
     c = n(10),
     l = n.n(c),
-    d = n(664);
+    d = n(666);
   n.n(d), o.propTypes = {
     type: a.a.PropTypes.string,
     align: a.a.PropTypes.string,
@@ -90344,36 +90614,7 @@ var _getMetaFieldForId = function(id, key) {
   };
 }, function(e, t, n) {
   "use strict";
-  var r = n(18),
-    o = n(432),
-    i = n(113),
-    a = n(107),
-    s = n(39),
-    u = Object.assign || function(e) {
-      for (var t = 1; t < arguments.length; t++) {
-        var n = arguments[t];
-        for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
-      }
-      return e;
-    },
-    c = function(e) {
-      var t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : {},
-        r = n.i(i.b)(e),
-        o = n.i(s.getChannelById)(e, r),
-        c = n.i(a.getTimestampsByChannelId)(e, r);
-      return u({}, t, {
-        channelId: r,
-        type: n.i(s.getChannelType)(o),
-        timestamps: c
-      });
-    },
-    l = {
-      loadInitialHistory: i.c
-    };
-  t.a = n.i(r.b)(c, l)(o.a);
-}, function(e, t, n) {
-  "use strict";
-  var r = n(430);
+  var r = n(432);
   t.a = r.a;
 }, function(e, t, n) {
   "use strict";
@@ -90402,9 +90643,10 @@ var _getMetaFieldForId = function(id, key) {
     s = n.n(a),
     u = n(1),
     c = n.n(u),
-    l = n(434),
-    d = n(666),
-    f = (n.n(d), function() {
+    l = n(139),
+    d = n(437),
+    f = n(668),
+    p = (n.n(f), function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
@@ -90415,85 +90657,94 @@ var _getMetaFieldForId = function(id, key) {
         return n && e(t.prototype, n), r && e(t, r), t;
       };
     }()),
-    p = function(e) {
-      function t() {
-        return r(this, t), o(this, (t.__proto__ || Object.getPrototypeOf(t)).apply(this, arguments));
+    h = function(e) {
+      function t(e) {
+        r(this, t);
+        var n = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
+        return n.onScroll = n.onScroll.bind(n), n.renderRow = n.renderRow.bind(n), n;
       }
-      return i(t, e), f(t, [{
-        key: "componentDidMount",
-        value: function() {
-          var e = this.props,
-            t = e.channelId,
-            n = e.type;
-          t && n && this.props.loadInitialHistory({
-            channelId: t,
-            type: n
+      return i(t, e), p(t, [{
+        key: "onScroll",
+        value: function(e) {
+          0 === e.scrollTop && this.props.timestamps.length && this.props.requestHistory({
+            latest: this.props.timestamps[0]
           });
         }
       }, {
-        key: "componentWillReceiveProps",
+        key: "renderRow",
         value: function(e) {
-          var t = this.props.channelId,
-            n = e.channelId;
-          if (t !== n && n) {
-            var r = e.channelId,
-              o = e.type;
-            this.props.loadInitialHistory({
-              channelId: r,
-              type: o
-            });
-          }
+          var t = e.index,
+            n = e.key,
+            r = e.style,
+            o = this.props.timestamps[t];
+          return o ? c.a.createElement("div", {
+            style: r,
+            key: n
+          }, c.a.createElement(d.a, {
+            ts: o,
+            channelId: this.props.channelId
+          })) : null;
         }
       }, {
         key: "render",
         value: function() {
-          var e = this.props.channelId,
-            t = this.props.timestamps,
-            n = t.map(function(t) {
-              return c.a.createElement(l.a, {
-                key: t,
-                ts: t,
-                channelId: e
-              });
+          var e = this;
+          return c.a.createElement(l.a, {
+            key: this.props.channelId
+          }, function(t) {
+            var n = t.width,
+              r = t.height;
+            return c.a.createElement(l.b, {
+              width: n,
+              height: r,
+              rowCount: e.props.timestamps.length,
+              rowHeight: 48,
+              rowRenderer: e.renderRow,
+              scrollToIndex: e.props.timestamps.length - 1,
+              onScroll: e.onScroll
             });
-          return c.a.createElement("div", {
-            className: "c-message_list"
-          }, n);
+          });
         }
       }]), t;
     }(c.a.PureComponent);
-  t.a = p, p.propTypes = {
+  t.a = h, h.propTypes = {
     channelId: c.a.PropTypes.string,
-    type: c.a.PropTypes.oneOf(["channel", "group", "im", "mpim"]),
     timestamps: c.a.PropTypes.arrayOf(c.a.PropTypes.string),
-    loadInitialHistory: c.a.PropTypes.func
-  }, p.defaultProps = {
+    requestHistory: c.a.PropTypes.func
+  }, h.defaultProps = {
     channelId: null,
-    type: "channel",
     timestamps: [],
-    loadInitialHistory: s.a.noop
+    requestHistory: s.a.noop
   };
 }, function(e, t, n) {
   "use strict";
   var r = n(18),
-    o = n(58),
-    i = n(435),
-    a = Object.assign || function(e) {
+    o = n(435),
+    i = n(113),
+    a = n(107),
+    s = n(35),
+    u = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
         for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
       }
       return e;
     },
-    s = function(e, t) {
-      var r = t.ts,
-        i = t.channelId,
-        s = n.i(o.getMessageByTimestamp)(e, i, r);
-      return s ? a({}, t, {
-        text: s.text
-      }) : t;
+    c = function(e) {
+      var t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : {},
+        r = n.i(i.b)(e),
+        o = n.i(s.getChannelById)(e, r),
+        c = n.i(a.getTimestampsByChannelId)(e, r);
+      return u({}, t, {
+        channelId: r,
+        type: n.i(s.getChannelType)(o),
+        timestamps: c
+      });
+    },
+    l = {
+      loadHistory: i.c
     };
-  t.a = n.i(r.b)(s)(i.a);
+  t.a = n.i(r.b)(c, l)(o.a);
 }, function(e, t, n) {
   "use strict";
   var r = n(433);
@@ -90521,9 +90772,141 @@ var _getMetaFieldForId = function(id, key) {
       }
     }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
   }
+  var a = n(2),
+    s = n.n(a),
+    u = n(1),
+    c = n.n(u),
+    l = n(431),
+    d = function() {
+      function e(e, t) {
+        for (var n = 0; n < t.length; n++) {
+          var r = t[n];
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
+        }
+      }
+      return function(t, n, r) {
+        return n && e(t.prototype, n), r && e(t, r), t;
+      };
+    }(),
+    f = function(e) {
+      function t(e) {
+        r(this, t);
+        var n = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
+        return n.requestHistory = n.requestHistory.bind(n), n;
+      }
+      return i(t, e), d(t, [{
+        key: "componentDidMount",
+        value: function() {
+          var e = this.props,
+            t = e.channelId,
+            n = e.type;
+          t && n && this.props.loadHistory({
+            channelId: t,
+            type: n
+          });
+        }
+      }, {
+        key: "componentWillReceiveProps",
+        value: function(e) {
+          var t = this.props.channelId,
+            n = e.channelId;
+          if (t !== n && n) {
+            var r = e.channelId,
+              o = e.type;
+            this.props.loadHistory({
+              channelId: r,
+              type: o
+            });
+          }
+        }
+      }, {
+        key: "requestHistory",
+        value: function(e) {
+          var t = e.oldest,
+            n = e.latest,
+            r = this.props,
+            o = r.channelId,
+            i = r.type;
+          this.props.loadHistory({
+            channelId: o,
+            type: i,
+            oldest: t,
+            latest: n
+          });
+        }
+      }, {
+        key: "render",
+        value: function() {
+          return c.a.createElement(l.a, {
+            channelId: this.props.channelId,
+            timestamps: this.props.timestamps,
+            requestHistory: this.requestHistory
+          });
+        }
+      }]), t;
+    }(c.a.PureComponent);
+  t.a = f, f.propTypes = {
+    channelId: c.a.PropTypes.string,
+    type: c.a.PropTypes.oneOf(["channel", "group", "im", "mpim"]),
+    timestamps: c.a.PropTypes.arrayOf(c.a.PropTypes.string),
+    loadHistory: c.a.PropTypes.func
+  }, f.defaultProps = {
+    channelId: null,
+    type: "channel",
+    timestamps: [],
+    loadHistory: s.a.noop
+  };
+}, function(e, t, n) {
+  "use strict";
+  var r = n(18),
+    o = n(58),
+    i = n(438),
+    a = Object.assign || function(e) {
+      for (var t = 1; t < arguments.length; t++) {
+        var n = arguments[t];
+        for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
+      }
+      return e;
+    },
+    s = function(e, t) {
+      var r = t.ts,
+        i = t.channelId,
+        s = n.i(o.getMessageByTimestamp)(e, i, r);
+      return s ? a({}, t, {
+        text: s.text
+      }) : t;
+    };
+  t.a = n.i(r.b)(s)(i.a);
+}, function(e, t, n) {
+  "use strict";
+  var r = n(436);
+  t.a = r.a;
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e, t) {
+    if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
+  }
+
+  function o(e, t) {
+    if (!e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    return !t || "object" != typeof t && "function" != typeof t ? e : t;
+  }
+
+  function i(e, t) {
+    if ("function" != typeof t && null !== t) throw new TypeError("Super expression must either be null or a function, not " + typeof t);
+    e.prototype = Object.create(t && t.prototype, {
+      constructor: {
+        value: e,
+        enumerable: !1,
+        writable: !0,
+        configurable: !0
+      }
+    }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
+  }
   var a = n(1),
     s = n.n(a),
-    u = n(665),
+    u = n(667),
     c = (n.n(u), function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
@@ -90668,7 +91051,7 @@ var _getMetaFieldForId = function(id, key) {
   var a = n(1),
     s = n.n(a),
     u = n(19),
-    c = (n.n(u), n(599)),
+    c = (n.n(u), n(601)),
     l = n.n(c),
     d = function() {
       function e(e, t) {
@@ -90942,8 +91325,8 @@ var _getMetaFieldForId = function(id, key) {
     d = n(114),
     f = n(111),
     p = n(108),
-    h = n(461),
-    _ = n(440),
+    h = n(464),
+    _ = n(443),
     m = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
@@ -91018,7 +91401,7 @@ var _getMetaFieldForId = function(id, key) {
   t.a = n.i(l.b)(M)(b);
 }, function(e, t, n) {
   "use strict";
-  var r = n(438);
+  var r = n(441);
   t.a = r.a;
 }, function(e, t, n) {
   "use strict";
@@ -91028,7 +91411,7 @@ var _getMetaFieldForId = function(id, key) {
     a = n.n(i),
     s = n(85),
     u = n(34),
-    c = n(667),
+    c = n(669),
     l = (n.n(c), function(e) {
       var t = e.isActive,
         n = e.isDnd,
@@ -91081,10 +91464,10 @@ var _getMetaFieldForId = function(id, key) {
     u = n(1),
     c = n.n(u),
     l = n(19),
-    d = (n.n(l), n(156)),
-    f = n(142),
-    p = n(165),
-    h = n(344),
+    d = (n.n(l), n(157)),
+    f = n(143),
+    p = n(167),
+    h = n(345),
     _ = (n.n(h), Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
@@ -91250,7 +91633,7 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   "use strict";
   var r = n(18),
-    o = n(444),
+    o = n(447),
     i = n(75),
     a = function(e) {
       return {
@@ -91260,14 +91643,14 @@ var _getMetaFieldForId = function(id, key) {
   t.a = n.i(r.b)(a)(o.a);
 }, function(e, t, n) {
   "use strict";
-  var r = n(442);
+  var r = n(445);
   t.a = r.a;
 }, function(e, t, n) {
   "use strict";
   var r = n(1),
     o = n.n(r),
     i = n(85),
-    a = n(462),
+    a = n(465),
     s = function(e) {
       var t = n.i(a.a)(e.text, null, {
         no_jumbomoji: e.noJumbomoji,
@@ -91323,7 +91706,7 @@ var _getMetaFieldForId = function(id, key) {
   }), n.d(t, "d", function() {
     return s;
   });
-  var r = n(455),
+  var r = n(458),
     o = r.a,
     i = r.b,
     a = r.c,
@@ -91338,15 +91721,15 @@ var _getMetaFieldForId = function(id, key) {
     i = n(19),
     a = n.n(i),
     s = n(42),
-    u = n(346),
-    c = n(142);
-  n(348), n(351), n(347), n(350), n(349), window.ReactComponents = {}, window.ReactComponents.EmojiPicker = u.a, window.ReactComponents.Popover = c.a, window.ReactComponents.PopoverTrigger = c.b, window.React = o.a, window.ReactDOM = a.a, window.moment = s.a;
+    u = n(347),
+    c = n(143);
+  n(349), n(352), n(348), n(351), n(350), window.ReactComponents = {}, window.ReactComponents.EmojiPicker = u.a, window.ReactComponents.Popover = c.a, window.ReactComponents.PopoverTrigger = c.b, window.React = o.a, window.ReactDOM = a.a, window.moment = s.a;
 }, function(e, t, n) {
   "use strict";
   n.d(t, "a", function() {
     return o;
   });
-  var r = n(458),
+  var r = n(461),
     o = r.a;
 }, function(e, t, n) {
   "use strict";
@@ -91355,7 +91738,7 @@ var _getMetaFieldForId = function(id, key) {
   }), n.d(t, "b", function() {
     return i;
   });
-  var r = n(459),
+  var r = n(462),
     o = r.a,
     i = r.b;
 }, function(e, t, n) {
@@ -91376,7 +91759,7 @@ var _getMetaFieldForId = function(id, key) {
   }
 
   function o(e, t) {
-    if (!t) return void n.i(l.b)("Received a reply to a message we have no record of sending (reply_to = " + e.reply_to + ", type = " + e.type + ")");
+    if (!t) return void n.i(l.c)("Received a reply to a message we have no record of sending (reply_to = " + e.reply_to + ", type = " + e.type + ")");
     if (e.SENT_MSG = t.msg, !1 === e.ok) {
       var r = new Error(e.error || "unknown_error");
       r.msg = e, t.reject(r);
@@ -91424,9 +91807,9 @@ var _getMetaFieldForId = function(id, key) {
     }), e.privateState.sendBuffer = void 0;
   }
   var u = n(2),
-    c = (n.n(u), n(171)),
-    l = n(166),
-    d = n(488),
+    c = (n.n(u), n(173)),
+    l = n(168),
+    d = n(490),
     f = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
@@ -91517,413 +91900,466 @@ var _getMetaFieldForId = function(id, key) {
   }
 
   function o(e) {
-    if (ee) throw new Error("We already have a socket");
-    ee = new Y.a(e), ee.onCloseSig.addOnce(i), ee.onConnectSig.addOnce(a);
+    if (se) throw new Error("We already have a socket");
+    se = new j.a(e), se.onCloseSig.addOnce(i), se.onConnectSig.addOnce(a);
   }
 
   function i() {
-    c(), y({
-      state: D.a.ERROR
+    c(), g({
+      state: I.a.ERROR
     });
   }
 
   function a() {
-    y({
-      state: J === D.a.FAST_RECONNECTING ? D.a.CONNECTED : D.a.PROV_CONNECTED,
-      allowableSourceStates: [D.a.FAST_RECONNECTING, D.a.PROV_CONNECTING]
-    });
+    g({
+      state: Z === I.a.FAST_RECONNECTING ? I.a.CONNECTED : I.a.PROV_CONNECTED,
+      allowableSourceStates: [I.a.FAST_RECONNECTING, I.a.PROV_CONNECTING]
+    }), ae && (ie = void 0, ae(), ae = void 0);
   }
 
   function s(e) {
-    if ("reconnect_url" === e.type) return Q = e.url, void(X = Date.now());
-    ae.dispatch(e);
+    switch (e.type) {
+      case "goodbye":
+        return void f();
+      case "reconnect_url":
+        return ne = e.url, void(re = Date.now());
+    }
+    pe.dispatch(e);
   }
 
   function u(e) {
-    if (!ee) throw new Error("Cannot send messages when we do not have a socket");
-    return ee.send(e);
+    if (!se) throw new Error("Cannot send messages when we do not have a socket");
+    return se.send(e);
   }
 
   function c(e) {
-    ee && (ee.onConnectSig.remove(a), ee.onCloseSig.remove(i), ee.readyState !== WebSocket.CLOSED && ee.close(e, "Closed by socket manager"), ee = void 0);
+    se && (se.onConnectSig.remove(a), se.onCloseSig.remove(i), se.readyState !== WebSocket.CLOSED && se.close(e, "Closed by socket manager"), se = void 0);
   }
 
   function l() {
-    if (!$) return Promise.reject(new Error("Fast reconnects are disabled"));
-    if (!Q) return Promise.reject(new Error("No reconnect URL"));
-    if (Date.now() - X > K) return Promise.reject(new Error("Reconnect URL expired"));
-    var e = Q;
-    return Q = void 0, X = void 0, H("rtm.checkFastReconnect").then(function(t) {
+    if (!te) return Promise.reject(new Error("Fast reconnects are disabled"));
+    if (!ne) return Promise.reject(new Error("No reconnect URL"));
+    if (Date.now() - re > ee) return Promise.reject(new Error("Reconnect URL expired"));
+    var e = ne;
+    return ne = void 0, re = void 0, F("rtm.checkFastReconnect").then(function(t) {
       var n = t.data;
-      return z(n) ? new Promise(E.noop) : e;
+      return G(n) ? new Promise(D.noop) : e;
     });
   }
 
   function d() {
-    return Z.getDelay();
+    return oe.getDelay();
   }
 
-  function f(e) {
-    switch (e) {
-      case D.a.CONNECTED:
-        ie.dispatch();
-        break;
-      case D.a.WAIT_FOR_CONNECTIVITY:
-        ne && (ne.cancel(), ne = void 0);
-        break;
-      case D.a.WAIT_FOR_RATE_LIMIT:
-        re && (clearTimeout(re), re = void 0);
+  function f() {
+    function e() {
+      fe.remove(e), H.a.remove(e), w() ? (n.i(N.a)("goodbye: disconnecting now"), c($), S()) : n.i(N.a)("goodbye: got disconnected some other way before we handled the goodbye message");
     }
+    if (n.i(N.a)("goodbye: disconnecting from the MS next time it is convenient"), !n.i(H.b)()) return void e();
+    fe.addOnce(e), H.a.addOnce(e);
   }
 
   function p(e) {
+    switch (e) {
+      case I.a.CONNECTED:
+        fe.dispatch();
+        break;
+      case I.a.WAIT_FOR_CONNECTIVITY:
+        ce && (ce.cancel(), ce = void 0);
+        break;
+      case I.a.WAIT_FOR_RATE_LIMIT:
+        le && (clearTimeout(le), le = void 0);
+    }
+  }
+
+  function h(e) {
     var t;
-    te && (clearTimeout(te), te = void 0);
-    var o = (t = {}, r(t, D.a.CONNECTED, 1 / 0), r(t, D.a.ASLEEP, 1 / 0), r(t, D.a.FAST_RECONNECTING, 2e4), r(t, D.a.PROV_CONNECTING, 2e4), r(t, D.a.PROV_CONNECTED, 3e4), r(t, D.a.CHECKING_FAST_RECONNECT, 6e4), t),
+    ue && (clearTimeout(ue), ue = void 0);
+    var o = (t = {}, r(t, I.a.CONNECTED, 1 / 0), r(t, I.a.ASLEEP, 1 / 0), r(t, I.a.FAST_RECONNECTING, 2e4), r(t, I.a.PROV_CONNECTING, 2e4), r(t, I.a.PROV_CONNECTED, 3e4), r(t, I.a.CHECKING_FAST_RECONNECT, 6e4), t),
       i = o[e] || 1e4;
-    n.i(I.a)(1996, "socket-manager: will stay in this state for up to " + i + " ms"), i !== 1 / 0 && (te = setTimeout(function() {
-      n.i(I.a)(1996, "socket-manager: Spent " + i + " ms in " + e + " state; giving up"), m(D.a.ERROR);
+    n.i(N.b)(1996, "socket-manager: will stay in this state for up to " + i + " ms"), i !== 1 / 0 && (ue = setTimeout(function() {
+      n.i(N.b)(1996, "socket-manager: Spent " + i + " ms in " + e + " state; giving up"), v(I.a.ERROR);
     }, i));
   }
 
-  function h(e, t) {
-    if (!n.i(j.a)()) switch (e) {
-      case D.a.NEVER_CONNECTED:
-        if (!W()) return;
-        m(D.a.PROV_CONNECT);
+  function _(e, t) {
+    if (!n.i(H.c)()) switch (e) {
+      case I.a.NEVER_CONNECTED:
+        if (!B()) return;
+        v(I.a.PROV_CONNECT);
         break;
-      case D.a.CONNECT:
-        m(D.a.CHECKING_FAST_RECONNECT), l().then(function(e) {
-          m(D.a.FAST_RECONNECTING), o(e);
+      case I.a.CONNECT:
+        v(I.a.CHECKING_FAST_RECONNECT), l().then(function(e) {
+          v(I.a.FAST_RECONNECTING), o(e);
         }).catch(function() {
-          c(q), m(D.a.PROV_CONNECT);
+          c(X), v(I.a.PROV_CONNECT);
         });
         break;
-      case D.a.FAST_RECONNECTING:
+      case I.a.FAST_RECONNECTING:
         break;
-      case D.a.CONNECTED:
-        if (t !== D.a.CONNECTED) {
-          var r = t === D.a.FAST_RECONNECTING;
-          oe.dispatch(r);
+      case I.a.CONNECTED:
+        if (t !== I.a.CONNECTED) {
+          var r = t === I.a.FAST_RECONNECTING;
+          de.dispatch(r);
         }
         break;
-      case D.a.CHECKING_FAST_RECONNECT:
+      case I.a.CHECKING_FAST_RECONNECT:
         break;
-      case D.a.PROV_CONNECT:
-        m(D.a.PROV_CONNECTING), o(N());
+      case I.a.PROV_CONNECT:
+        v(I.a.PROV_CONNECTING), o(U());
         break;
-      case D.a.PROV_CONNECTING:
-      case D.a.PROV_CONNECTED:
+      case I.a.PROV_CONNECTING:
+      case I.a.PROV_CONNECTED:
         break;
-      case D.a.PROV_FINALIZE:
-        m(D.a.PROV_FINALIZING), ee.messageDelegate = s, m(D.a.CONNECTED);
+      case I.a.PROV_FINALIZE:
+        v(I.a.PROV_FINALIZING), se.messageDelegate = s, v(I.a.CONNECTED);
         break;
-      case D.a.PROV_FINALIZING:
+      case I.a.PROV_FINALIZING:
         break;
-      case D.a.DISCONNECT:
-        m(D.a.DISCONNECTING), c(G), m(D.a.DISCONNECTED);
+      case I.a.DISCONNECT:
+        v(I.a.DISCONNECTING), c(J), v(I.a.DISCONNECTED);
         break;
-      case D.a.DISCONNECTING:
+      case I.a.DISCONNECTING:
         break;
-      case D.a.DISCONNECTED:
-        m(D.a.WAIT_FOR_CONNECTIVITY);
+      case I.a.DISCONNECTED:
+        v(I.a.WAIT_FOR_CONNECTIVITY);
         break;
-      case D.a.ERROR:
-        c(B), setTimeout(function() {
-          m(D.a.DISCONNECTED);
+      case I.a.ERROR:
+        c(K), setTimeout(function() {
+          v(I.a.DISCONNECTED);
         }, 0);
         break;
-      case D.a.SLEEP:
-        m(D.a.SLEEPING), c(V), m(D.a.ASLEEP);
+      case I.a.SLEEP:
+        v(I.a.SLEEPING), c(Q), v(I.a.ASLEEP);
         break;
-      case D.a.SLEEPING:
-      case D.a.ASLEEP:
+      case I.a.SLEEPING:
+      case I.a.ASLEEP:
         break;
-      case D.a.WAIT_FOR_CONNECTIVITY:
-        ne = new Promise(function(e, t) {
-          F().then(e).catch(t);
-        }), ne.then(function() {
-          J === D.a.WAIT_FOR_CONNECTIVITY && m(D.a.WAIT_FOR_RATE_LIMIT);
+      case I.a.WAIT_FOR_CONNECTIVITY:
+        ce = new Promise(function(e, t) {
+          V().then(e).catch(t);
+        }), ce.then(function() {
+          Z === I.a.WAIT_FOR_CONNECTIVITY && v(I.a.WAIT_FOR_RATE_LIMIT);
         }).catch(function() {
-          J === D.a.WAIT_FOR_CONNECTIVITY && (n.i(I.a)(1996, "socket-manager: Waited too long for connectivity to come back"), m(D.a.ERROR));
+          Z === I.a.WAIT_FOR_CONNECTIVITY && (n.i(N.b)(1996, "socket-manager: Waited too long for connectivity to come back"), v(I.a.ERROR));
         });
         break;
-      case D.a.WAIT_FOR_RATE_LIMIT:
-        if (!Z.increment()) {
-          var i = Z.getDelay();
-          return void(re = setTimeout(function() {
-            J === D.a.WAIT_FOR_RATE_LIMIT && h(D.a.WAIT_FOR_RATE_LIMIT);
+      case I.a.WAIT_FOR_RATE_LIMIT:
+        if (!oe.increment()) {
+          var i = oe.getDelay();
+          return void(le = setTimeout(function() {
+            Z === I.a.WAIT_FOR_RATE_LIMIT && _(I.a.WAIT_FOR_RATE_LIMIT);
           }, i));
         }
-        m(D.a.CONNECT);
+        v(I.a.CONNECT);
     }
-  }
-
-  function _(e) {
-    $ = !!e;
   }
 
   function m(e) {
-    if (!n.i(D.b)(e)) throw new Error("Invalid state");
-    n.i(I.a)(1996, "socket-manager: Changing from " + J + " to " + e);
-    var t = J;
-    J = e;
+    te = !!e;
+  }
+
+  function y() {
+    ne = void 0, re = void 0;
+  }
+
+  function v(e) {
+    if (!n.i(I.b)(e)) throw new Error("Invalid state");
+    n.i(N.b)(1996, "socket-manager: Changing from " + Z + " to " + e);
+    var t = Z;
+    Z = e;
     try {
-      f(t), p(e), h(e, t);
+      p(t), h(e), _(e, t);
     } catch (e) {
-      n.i(I.a)(1996, "socket-manager: Caught an error while trying to change states: " + e), J === D.a.ERROR ? n.i(I.a)(1996, "socket-manager: We were already trying to change to an error state; unsure how to proceed") : (n.i(I.a)(1996, "socket-manager: Switching to ERROR just in case"), m(D.a.ERROR));
+      n.i(N.b)(1996, "socket-manager: Caught an error while trying to change states: " + e), Z === I.a.ERROR ? n.i(N.b)(1996, "socket-manager: We were already trying to change to an error state; unsure how to proceed") : (n.i(N.b)(1996, "socket-manager: Switching to ERROR just in case"), v(I.a.ERROR));
     }
   }
 
-  function y(e) {
-    n.i(D.c)(J, e, m);
-  }
-
-  function v() {
-    return [D.a.SLEEP, D.a.SLEEPING, D.a.ASLEEP].indexOf(J) >= 0;
-  }
-
-  function g() {
-    return J === D.a.CONNECTED;
+  function g(e) {
+    n.i(I.c)(Z, e, v);
   }
 
   function b() {
-    return [D.a.FAST_CONNECTING, D.a.PROV_CONNECTING, D.a.PROV_CONNECTED, D.a.PROV_FINALIZING, D.a.CHECKING_FAST_RECONNECT].indexOf(J) >= 0;
+    return [I.a.PROV_CONNECTED, I.a.PROV_FINALIZING, I.a.CONNECTED].indexOf(Z) >= 0;
   }
 
   function M() {
-    return J === D.a.WAIT_FOR_CONNECTIVITY;
+    return [I.a.SLEEP, I.a.SLEEPING, I.a.ASLEEP].indexOf(Z) >= 0;
   }
 
   function w() {
-    return J === D.a.WAIT_FOR_CONNECTIVITY ? Promise.reject(new Error("We are offline")) : ee ? Promise.reject(new Error("We already have a socket")) : (y({
-      state: D.a.PROV_CONNECT,
-      allowableSourceStates: [D.a.NEVER_CONNECTED, D.a.WAIT_FOR_RATE_LIMIT, D.a.ERROR, D.a.DISCONNECTED],
-      noopStates: [D.a.PROV_CONNECT, D.a.PROV_CONNECTING, D.a.PROV_CONNECTED]
-    }), ee ? ee.startData : (m(D.a.ERROR), Promise.reject(new Error("Problem getting startData promise from provisional connect"))));
+    return Z === I.a.CONNECTED;
   }
 
   function k() {
-    y({
-      state: D.a.DISCONNECT,
-      noopStates: [D.a.ASLEEP, D.a.DISCONNECTED, D.a.DISCONNECTING]
-    });
+    return [I.a.FAST_CONNECTING, I.a.PROV_CONNECTING, I.a.PROV_CONNECTED, I.a.PROV_FINALIZING, I.a.CHECKING_FAST_RECONNECT].indexOf(Z) >= 0;
   }
 
   function L() {
-    if (y({
-        state: D.a.PROV_FINALIZE,
-        allowableSourceStates: [D.a.PROV_CONNECTED]
-      }), J !== D.a.CONNECTED) throw new Error("Failed to finalize connection -- expected to be connected but actually " + J);
+    return Z === I.a.WAIT_FOR_CONNECTIVITY;
   }
 
   function T() {
-    y({
-      state: D.a.SLEEP,
-      noopStates: [D.a.ASLEEP, D.a.SLEEPING]
-    });
+    return Z === I.a.WAIT_FOR_CONNECTIVITY ? Promise.reject(new Error("We are offline")) : se ? Promise.reject(new Error("We already have a socket")) : (g({
+      state: I.a.PROV_CONNECT,
+      allowableSourceStates: [I.a.NEVER_CONNECTED, I.a.WAIT_FOR_RATE_LIMIT, I.a.ERROR, I.a.DISCONNECTED],
+      noopStates: [I.a.PROV_CONNECT, I.a.PROV_CONNECTING, I.a.PROV_CONNECTED]
+    }), se ? se.startData : (v(I.a.ERROR), Promise.reject(new Error("Problem getting startData promise from provisional connect"))));
   }
 
   function S() {
-    y({
-      state: D.a.CONNECT,
-      allowableSourceStates: [D.a.ASLEEP]
+    g({
+      state: I.a.DISCONNECT,
+      noopStates: [I.a.ASLEEP, I.a.DISCONNECTED, I.a.DISCONNECTING]
+    });
+  }
+
+  function E() {
+    if (g({
+        state: I.a.PROV_FINALIZE,
+        allowableSourceStates: [I.a.PROV_CONNECTED]
+      }), Z !== I.a.CONNECTED) throw new Error("Failed to finalize connection -- expected to be connected but actually " + Z);
+  }
+
+  function x() {
+    return se ? Promise.resolve() : (ie || (ie = new Promise(function(e) {
+      ae = e;
+    })), ie);
+  }
+
+  function C() {
+    g({
+      state: I.a.SLEEP,
+      noopStates: [I.a.ASLEEP, I.a.SLEEPING]
+    });
+  }
+
+  function Y() {
+    g({
+      state: I.a.CONNECT,
+      allowableSourceStates: [I.a.ASLEEP]
     });
   }
   Object.defineProperty(t, "__esModule", {
     value: !0
   }), n.d(t, "test", function() {
-    return U;
-  }), n.d(t, "CLOSE_REASON_DISCONNECT_REQUESTED", function() {
-    return G;
-  }), n.d(t, "CLOSE_REASON_ERROR", function() {
-    return B;
-  }), n.d(t, "CLOSE_REASON_SLEEPING", function() {
-    return V;
-  }), n.d(t, "CLOSE_REASON_FAST_RECONNECT_FAILED", function() {
     return q;
+  }), n.d(t, "CLOSE_REASON_DISCONNECT_REQUESTED", function() {
+    return J;
+  }), n.d(t, "CLOSE_REASON_ERROR", function() {
+    return K;
+  }), n.d(t, "CLOSE_REASON_GOODBYE_RECEIVED", function() {
+    return $;
+  }), n.d(t, "CLOSE_REASON_SLEEPING", function() {
+    return Q;
+  }), n.d(t, "CLOSE_REASON_FAST_RECONNECT_FAILED", function() {
+    return X;
   }), n.d(t, "connectedSig", function() {
-    return oe;
+    return de;
   }), n.d(t, "disconnectedSig", function() {
-    return ie;
+    return fe;
   }), n.d(t, "socketMessageReceivedSig", function() {
-    return ae;
-  }), t.send = u, t.debugSetFastReconnectsEnabled = _, t.isAsleep = v, t.isConnected = g, t.isConnecting = b, t.isWaitingForConnectivity = M, t.connectProvisionallyAndFetchRtmStart = w, t.disconnect = k, t.finalizeProvisionalConnection = L, t.sleep = T, t.wake = S;
-  var E = n(2),
-    x = (n.n(E), n(171)),
-    C = n(487),
-    Y = n(450),
-    D = n(452),
-    P = n(157),
-    O = n(448),
-    j = n(490),
-    I = n(166),
-    R = n(489),
-    A = n(447),
-    H = P.b,
-    N = O.a,
-    z = R.a,
-    W = O.b,
-    F = A.a,
-    U = {};
-  Object.defineProperty(U, "callImmediately", {
-    get: function() {
-      return H;
-    },
-    set: function(e) {
-      H = e;
-    }
-  }), Object.defineProperty(U, "closeSocket", {
-    get: function() {
-      return c;
-    },
-    set: function(e) {
-      c = e;
-    }
-  }), Object.defineProperty(U, "createSlackSocketWithUrl", {
-    get: function() {
-      return o;
-    },
-    set: function(e) {
-      o = e;
-    }
-  }), Object.defineProperty(U, "currentState", {
-    get: function() {
-      return J;
-    },
-    set: function(e) {
-      J = e;
-    }
-  }), Object.defineProperty(U, "ensureWeCanFastReconnect", {
-    get: function() {
-      return l;
-    },
-    set: function(e) {
-      l = e;
-    }
-  }), Object.defineProperty(U, "fastReconnectsEnabled", {
-    get: function() {
-      return $;
-    },
-    set: function(e) {
-      $ = e;
-    }
-  }), Object.defineProperty(U, "fastReconnectUrl", {
-    get: function() {
-      return Q;
-    },
-    set: function(e) {
-      Q = e;
-    }
-  }), Object.defineProperty(U, "fastReconnectUrlReceivedAtTime", {
-    get: function() {
-      return X;
-    },
-    set: function(e) {
-      X = e;
-    }
-  }), Object.defineProperty(U, "getDelayBeforeNextConnectionAttempt", {
-    get: function() {
-      return d;
-    },
-    set: function(e) {
-      d = e;
-    }
-  }), Object.defineProperty(U, "getFlannelConnectionUrl", {
-    get: function() {
-      return N;
-    },
-    set: function(e) {
-      N = e;
-    }
-  }), Object.defineProperty(U, "handleSocketMessage", {
-    get: function() {
-      return s;
-    },
-    set: function(e) {
-      s = e;
-    }
-  }), Object.defineProperty(U, "leaveState", {
-    get: function() {
-      return f;
-    },
-    set: function(e) {
-      f = e;
-    }
-  }), Object.defineProperty(U, "limiter", {
-    get: function() {
-      return Z;
-    }
-  }), Object.defineProperty(U, "reloadIfVersionsChanged", {
-    get: function() {
-      return z;
-    },
-    set: function(e) {
-      z = e;
-    }
-  }), Object.defineProperty(U, "runState", {
-    get: function() {
-      return h;
-    },
-    set: function(e) {
-      h = e;
-    }
-  }), Object.defineProperty(U, "setState", {
-    get: function() {
-      return m;
-    },
-    set: function(e) {
-      m = e;
-    }
-  }), Object.defineProperty(U, "socket", {
-    get: function() {
-      return ee;
-    },
-    set: function(e) {
-      ee = e;
-    }
-  }), Object.defineProperty(U, "transitionSafely", {
-    get: function() {
-      return y;
-    },
-    set: function(e) {
-      y = e;
-    }
-  }), Object.defineProperty(U, "useSocket", {
-    get: function() {
-      return W;
-    },
-    set: function(e) {
-      W = e;
-    }
-  }), Object.defineProperty(U, "waitForApiConnectivity", {
+    return pe;
+  }), t.send = u, t.debugSetFastReconnectsEnabled = m, t.clearFastReconnectUrl = y, t.hasOpenWebSocket = b, t.isAsleep = M, t.isConnected = w, t.isConnecting = k, t.isWaitingForConnectivity = L, t.connectProvisionallyAndFetchRtmStart = T, t.disconnect = S, t.finalizeProvisionalConnection = E, t.promiseToHaveOpenWebSocket = x, t.sleep = C, t.wake = Y;
+  var D = n(2),
+    P = (n.n(D), n(173)),
+    O = n(489),
+    j = n(453),
+    I = n(455),
+    R = n(158),
+    A = n(451),
+    H = n(492),
+    N = n(168),
+    z = n(491),
+    W = n(450),
+    F = R.b,
+    U = A.a,
+    G = z.a,
+    B = A.b,
+    V = W.a,
+    q = {};
+  Object.defineProperty(q, "callImmediately", {
     get: function() {
       return F;
     },
     set: function(e) {
       F = e;
     }
+  }), Object.defineProperty(q, "closeSocket", {
+    get: function() {
+      return c;
+    },
+    set: function(e) {
+      c = e;
+    }
+  }), Object.defineProperty(q, "createSlackSocketWithUrl", {
+    get: function() {
+      return o;
+    },
+    set: function(e) {
+      o = e;
+    }
+  }), Object.defineProperty(q, "currentState", {
+    get: function() {
+      return Z;
+    },
+    set: function(e) {
+      Z = e;
+    }
+  }), Object.defineProperty(q, "ensureWeCanFastReconnect", {
+    get: function() {
+      return l;
+    },
+    set: function(e) {
+      l = e;
+    }
+  }), Object.defineProperty(q, "fastReconnectsEnabled", {
+    get: function() {
+      return te;
+    },
+    set: function(e) {
+      te = e;
+    }
+  }), Object.defineProperty(q, "fastReconnectUrl", {
+    get: function() {
+      return ne;
+    },
+    set: function(e) {
+      ne = e;
+    }
+  }), Object.defineProperty(q, "fastReconnectUrlReceivedAtTime", {
+    get: function() {
+      return re;
+    },
+    set: function(e) {
+      re = e;
+    }
+  }), Object.defineProperty(q, "getDelayBeforeNextConnectionAttempt", {
+    get: function() {
+      return d;
+    },
+    set: function(e) {
+      d = e;
+    }
+  }), Object.defineProperty(q, "getFlannelConnectionUrl", {
+    get: function() {
+      return U;
+    },
+    set: function(e) {
+      U = e;
+    }
+  }), Object.defineProperty(q, "handleSocketConnected", {
+    get: function() {
+      return a;
+    },
+    set: function(e) {
+      a = e;
+    }
+  }), Object.defineProperty(q, "handleSocketMessage", {
+    get: function() {
+      return s;
+    },
+    set: function(e) {
+      s = e;
+    }
+  }), Object.defineProperty(q, "leaveState", {
+    get: function() {
+      return p;
+    },
+    set: function(e) {
+      p = e;
+    }
+  }), Object.defineProperty(q, "limiter", {
+    get: function() {
+      return oe;
+    }
+  }), Object.defineProperty(q, "openWebSocketP", {
+    get: function() {
+      return ie;
+    },
+    set: function(e) {
+      ie = e;
+    }
+  }), Object.defineProperty(q, "openWebSocketPResolve", {
+    get: function() {
+      return ae;
+    },
+    set: function(e) {
+      ae = e;
+    }
+  }), Object.defineProperty(q, "reloadIfVersionsChanged", {
+    get: function() {
+      return G;
+    },
+    set: function(e) {
+      G = e;
+    }
+  }), Object.defineProperty(q, "runState", {
+    get: function() {
+      return _;
+    },
+    set: function(e) {
+      _ = e;
+    }
+  }), Object.defineProperty(q, "setState", {
+    get: function() {
+      return v;
+    },
+    set: function(e) {
+      v = e;
+    }
+  }), Object.defineProperty(q, "socket", {
+    get: function() {
+      return se;
+    },
+    set: function(e) {
+      se = e;
+    }
+  }), Object.defineProperty(q, "transitionSafely", {
+    get: function() {
+      return g;
+    },
+    set: function(e) {
+      g = e;
+    }
+  }), Object.defineProperty(q, "useSocket", {
+    get: function() {
+      return B;
+    },
+    set: function(e) {
+      B = e;
+    }
+  }), Object.defineProperty(q, "waitForApiConnectivity", {
+    get: function() {
+      return V;
+    },
+    set: function(e) {
+      V = e;
+    }
   });
-  var G = 4100,
-    B = 4101,
-    V = 4102,
-    q = 4103,
-    J = D.a.NEVER_CONNECTED,
-    K = 3e5,
-    $ = !0,
-    Q = void 0,
-    X = void 0,
-    Z = new C.a({
+  var J = 4100,
+    K = 4101,
+    $ = 4104,
+    Q = 4102,
+    X = 4103,
+    Z = I.a.NEVER_CONNECTED,
+    ee = 3e5,
+    te = !0,
+    ne = void 0,
+    re = void 0,
+    oe = new O.a({
       maxPerMinute: 12,
       maxPerHour: 60
     }),
-    ee = void 0,
-    te = void 0,
-    ne = void 0,
-    re = void 0,
-    oe = new x.a,
-    ie = new x.a,
-    ae = new x.a;
+    ie = void 0,
+    ae = void 0,
+    se = void 0,
+    ue = void 0,
+    ce = void 0,
+    le = void 0,
+    de = new P.a,
+    fe = new P.a,
+    pe = new P.a;
 }, function(e, t, n) {
   "use strict";
 
@@ -92105,10 +92541,13 @@ var _getMetaFieldForId = function(id, key) {
     return o;
   }), n.d(t, "b", function() {
     return i;
+  }), n.d(t, "c", function() {
+    return a;
   });
   var r = n(9),
-    o = (n.i(r.a)("TS.console.getStackTrace", function() {}), n.i(r.a)("TS.console.log", function() {})),
-    i = (n.i(r.a)("TS.console.logError", function() {}), n.i(r.a)("TS.console.logStackTrace", function() {}), n.i(r.a)("TS.console.shouldLog", function() {}), n.i(r.a)("TS.console.warn", function() {}));
+    o = (n.i(r.a)("TS.console.getStackTrace", function() {}), n.i(r.a)("TS.console.info", function() {})),
+    i = n.i(r.a)("TS.console.log", function() {}),
+    a = (n.i(r.a)("TS.console.logError", function() {}), n.i(r.a)("TS.console.logStackTrace", function() {}), n.i(r.a)("TS.console.shouldLog", function() {}), n.i(r.a)("TS.console.warn", function() {}));
 }, function(e, t, n) {
   "use strict";
   t.a = window.signals.Signal;
@@ -92132,21 +92571,6 @@ var _getMetaFieldForId = function(id, key) {
   "use strict";
 
   function r(e) {
-    s && s.add(e);
-  }
-
-  function o(e) {
-    u && u.add(e);
-  }
-  t.a = r, t.b = o;
-  var i = n(2),
-    a = n.n(i),
-    s = a.a.get(TS, "ui.window_focus_changed"),
-    u = a.a.get(TS, "ui.window_unloaded_sig");
-}, function(e, t, n) {
-  "use strict";
-
-  function r(e) {
     if (Array.isArray(e)) {
       for (var t = 0, n = Array(e.length); t < e.length; t++) n[t] = e[t];
       return n;
@@ -92161,10 +92585,10 @@ var _getMetaFieldForId = function(id, key) {
   }
   t.a = o;
   var i = n(87),
-    a = n(659),
+    a = n(661),
     s = n.n(a),
-    u = n(470),
-    c = n(39),
+    u = n(472),
+    c = n(35),
     l = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
@@ -92200,9 +92624,9 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   "use strict";
   var r = n(87),
-    o = n(160),
+    o = n(162),
     i = n(74),
-    a = n(161),
+    a = n(163),
     s = n.i(r.e)({
       channelNamesToIds: o.default,
       mutedChannels: i.default,
@@ -92212,7 +92636,7 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   "use strict";
   var r = n(87),
-    o = n(163),
+    o = n(165),
     i = n(40),
     a = n(110),
     s = n(111),
@@ -92220,11 +92644,11 @@ var _getMetaFieldForId = function(id, key) {
     c = n(113),
     l = n(75),
     d = n(114),
-    f = n(164),
+    f = n(166),
     p = n(107),
-    h = n(39),
-    _ = n(469),
-    m = n(162),
+    h = n(35),
+    _ = n(471),
+    m = n(164),
     y = n(108),
     v = n(58),
     g = n(109),
@@ -92481,7 +92905,7 @@ var _getMetaFieldForId = function(id, key) {
     });
   }
   var o = n(76),
-    i = n(168),
+    i = n(170),
     a = n(106);
   t.a = r;
 }, function(e, t, n) {
@@ -92526,7 +92950,7 @@ var _getMetaFieldForId = function(id, key) {
     return s.w && (1 === s.w && u.push(o.a.localeData().relativeTime(s.w, !1, "w", !1)), s.w > 1 && u.push(o.a.localeData().relativeTime(s.w, !1, "ww", !1))), s.d && (1 === s.d && u.push(o.a.localeData().relativeTime(s.d, !1, "d", !1)), s.d > 1 && u.push(o.a.localeData().relativeTime(s.d, !1, "dd", !1))), s.h && (1 === s.h && u.push(o.a.localeData().relativeTime(s.h, !1, "h", !1)), s.h > 1 && u.push(o.a.localeData().relativeTime(s.h, !1, "hh", !1))), s.m && u.push(o.a.localeData().relativeTime(s.m, !1, "m", !1)), !s.s && u.length || u.push(o.a.localeData().relativeTime(s.s, !1, "s", !1)), u.join(" ");
   }
   var o = n(42),
-    i = n(167);
+    i = n(169);
   t.a = r;
 }, function(e, t, n) {
   "use strict";
@@ -92548,28 +92972,34 @@ var _getMetaFieldForId = function(id, key) {
   function r(e) {
     var t = e.channelId,
       r = e.type,
-      o = void 0;
+      o = e.oldest,
+      u = void 0 === o ? 0 : o,
+      c = e.latest,
+      l = void 0 === c ? 0 : c,
+      d = void 0;
     switch (r) {
       case "channel":
-        o = n.i(a.a)("channels.history", {
+        d = n.i(a.a)("channels.history", {
           channel: t,
-          count: 42
+          count: 42,
+          oldest: u,
+          latest: l
         });
         break;
       case "mpim":
-        o = n.i(a.a)("mpim.history", {
+        d = n.i(a.a)("mpim.history", {
           channel: t,
           count: 42
         });
         break;
       case "group":
-        o = n.i(a.a)("groups.history", {
+        d = n.i(a.a)("groups.history", {
           channel: t,
           count: 42
         });
         break;
       case "im":
-        o = n.i(a.a)("im.history", {
+        d = n.i(a.a)("im.history", {
           channel: t,
           count: 42
         });
@@ -92577,7 +93007,7 @@ var _getMetaFieldForId = function(id, key) {
       default:
         return Promise.reject(new Error("Unknown channel type"));
     }
-    return o.then(function(e) {
+    return d.then(function(e) {
       var r = i.a.get(e, "data.messages");
       return r ? i.a.map(r, function(e) {
         return n.i(s.a)(e, t);
@@ -92587,8 +93017,8 @@ var _getMetaFieldForId = function(id, key) {
   t.a = r;
   var o = n(2),
     i = n.n(o),
-    a = n(157),
-    s = n(460);
+    a = n(158),
+    s = n(463);
 }, function(e, t, n) {
   "use strict";
 
@@ -92761,14 +93191,14 @@ var _getMetaFieldForId = function(id, key) {
   n.d(t, "a", function() {
     return o;
   });
-  var r = n(465),
+  var r = n(468),
     o = r.a;
 }, function(e, t, n) {
   "use strict";
   n.d(t, "a", function() {
     return o;
   });
-  var r = n(466),
+  var r = n(469),
     o = r.a;
 }, function(e, t, n) {
   "use strict";
@@ -92776,14 +93206,21 @@ var _getMetaFieldForId = function(id, key) {
   function r() {
     return a;
   }
-  t.a = r;
-  var o = n(467),
-    i = !1,
-    a = !1;
-  n.i(o.a)(function(e) {
-    i = e;
-  }), n.i(o.b)(function() {
-    a = !0;
+
+  function o() {
+    return s;
+  }
+  t.b = r, t.c = o;
+  var i = n(161);
+  n.d(t, "a", function() {
+    return i.a;
+  });
+  var a = !1,
+    s = !1;
+  n.i(i.a)(function(e) {
+    a = e;
+  }), n.i(i.b)(function() {
+    s = !0;
   });
 }, function(e, t, n) {
   "use strict";
@@ -92829,9 +93266,9 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   t = e.exports = n(26)(), t.push([e.i, ".c-presence--active{color:#93cc93}.c-presence--away{color:#717274}", ""]);
 }, function(e, t, n) {
-  t = e.exports = n(26)(), t.push([e.i, '.c-tooltip,.c-tooltip__tip{display:inline-block}.c-tooltip__tip{color:#fff;background-color:#2c2d30;max-width:250px;padding:.5rem;border-radius:4px;position:relative;font-size:.8125rem;font-weight:700;text-align:center}.c-tooltip__tip:after{position:absolute;content:"";width:0;height:0;margin:-5px;border:6px solid transparent}.c-tooltip__tip--left{margin-right:.5rem}.c-tooltip__tip--left:after{border-left-color:#2c2d30;right:-6px;top:50%}.c-tooltip__tip--right{margin-left:.5rem}.c-tooltip__tip--right:after{border-right-color:#2c2d30;left:-6px;top:50%}.c-tooltip__tip--top{margin-bottom:.5rem}.c-tooltip__tip--top:after{border-top-color:#2c2d30;bottom:-6px;left:50%}.c-tooltip__tip--top-left{margin-bottom:.5rem}.c-tooltip__tip--top-left:after{border-top-color:#2c2d30;bottom:-6px;left:50%;left:25%}.c-tooltip__tip--top-right{margin-bottom:.5rem}.c-tooltip__tip--top-right:after{border-top-color:#2c2d30;bottom:-6px;left:50%;left:75%}.c-tooltip__tip--bottom{margin-top:.5rem}.c-tooltip__tip--bottom:after{border-bottom-color:#2c2d30;top:-6px;left:50%}.c-tooltip__tip--bottom-left{margin-top:.5rem}.c-tooltip__tip--bottom-left:after{border-bottom-color:#2c2d30;top:-6px;left:50%;left:25%}.c-tooltip__tip--bottom-right{margin-top:.5rem}.c-tooltip__tip--bottom-right:after{border-bottom-color:#2c2d30;top:-6px;left:50%;left:75%}.c-tooltip__tip--success{background-color:#2ab27b}.c-tooltip__tip--success.c-tooltip__tip--left:after{border-left-color:#2ab27b}.c-tooltip__tip--success.c-tooltip__tip--right:after{border-right-color:#2ab27b}.c-tooltip__tip--success.c-tooltip__tip--top-left:after,.c-tooltip__tip--success.c-tooltip__tip--top-right:after,.c-tooltip__tip--success.c-tooltip__tip--top:after{border-top-color:#2ab27b}.c-tooltip__tip--success.c-tooltip__tip--bottom-left:after,.c-tooltip__tip--success.c-tooltip__tip--bottom-right:after,.c-tooltip__tip--success.c-tooltip__tip--bottom:after{border-bottom-color:#2ab27b}', ""]);
+  t = e.exports = n(26)(), t.push([e.i, '.c-tooltip,.c-tooltip__tip{display:inline-block}.c-tooltip__tip{color:#fff;background-color:#2c2d30;max-width:250px;padding:.5rem;border-radius:4px;position:relative;font-size:.8125rem;font-weight:700;text-align:center}.c-tooltip__tip:after{position:absolute;content:"";width:0;height:0;margin:-5px;border:6px solid transparent}.c-tooltip__tip--left{margin-right:.5rem}.c-tooltip__tip--left:after{border-left-color:#2c2d30;right:-6px;top:50%}.c-tooltip__tip--right{margin-left:.5rem}.c-tooltip__tip--right:after{border-right-color:#2c2d30;left:-6px;top:50%}.c-tooltip__tip--top{margin-bottom:.5rem}.c-tooltip__tip--top:after{border-top-color:#2c2d30;bottom:-6px;left:50%}.c-tooltip__tip--top-left{margin-bottom:.5rem}.c-tooltip__tip--top-left:after{border-top-color:#2c2d30;bottom:-6px;left:50%;left:25%}.c-tooltip__tip--top-right{margin-bottom:.5rem}.c-tooltip__tip--top-right:after{border-top-color:#2c2d30;bottom:-6px;left:50%;left:75%}.c-tooltip__tip--bottom{margin-top:.5rem}.c-tooltip__tip--bottom:after{border-bottom-color:#2c2d30;top:-6px;left:50%}.c-tooltip__tip--bottom-left{margin-top:.5rem}.c-tooltip__tip--bottom-left:after{border-bottom-color:#2c2d30;top:-6px;left:50%;left:25%}.c-tooltip__tip--bottom-right{margin-top:.5rem}.c-tooltip__tip--bottom-right:after{border-bottom-color:#2c2d30;top:-6px;left:50%;left:75%}.c-tooltip__tip--success{background-color:#29a979}.c-tooltip__tip--success.c-tooltip__tip--left:after{border-left-color:#29a979}.c-tooltip__tip--success.c-tooltip__tip--right:after{border-right-color:#29a979}.c-tooltip__tip--success.c-tooltip__tip--top-left:after,.c-tooltip__tip--success.c-tooltip__tip--top-right:after,.c-tooltip__tip--success.c-tooltip__tip--top:after{border-top-color:#29a979}.c-tooltip__tip--success.c-tooltip__tip--bottom-left:after,.c-tooltip__tip--success.c-tooltip__tip--bottom-right:after,.c-tooltip__tip--success.c-tooltip__tip--bottom:after{border-bottom-color:#29a979}', ""]);
 }, function(e, t, n) {
-  t = e.exports = n(26)(), t.push([e.i, '.p-channel_sidebar{width:220px;height:100vh;position:relative;background:#4d394b;padding:0;color:#fff}.p-channel_sidebar__header{padding:0 1rem;color:hsla(0,0%,100%,.7);margin:0}.p-channel_sidebar__banner{text-align:center;position:absolute;display:block;z-index:2;color:#fff;left:.5rem;right:.5rem;font-weight:700;text-transform:uppercase;font-size:.75rem;line-height:1.5rem}.p-channel_sidebar__banner--top{border-top-right-radius:0;border-bottom-right-radius:.25rem;border-bottom-left-radius:.25rem;border-top-left-radius:0;background-clip:padding-box;top:0}.p-channel_sidebar__banner--bottom{border-top-right-radius:.25rem;border-bottom-right-radius:0;border-bottom-left-radius:0;border-top-left-radius:.25rem;background-clip:padding-box;bottom:0}.p-channel_sidebar__banner--mentions{background:#eb4d5c}.p-channel_sidebar__banner--unreads{background:#2d9ee0}.p-channel_sidebar__channel,.p-channel_sidebar__link{display:block;height:26px;line-height:1.625rem;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;color:#fff;border-top-right-radius:.25rem;border-bottom-right-radius:.25rem;border-bottom-left-radius:0;border-top-left-radius:0;background-clip:padding-box;padding:0 .25rem 0 1rem;margin-right:.5rem}.p-channel_sidebar__channel:after,.p-channel_sidebar__channel:before,.p-channel_sidebar__link:after,.p-channel_sidebar__link:before{font-family:Slack v2;font-size:1.25rem;font-style:normal;font-weight:400;display:inline-block;vertical-align:middle;width:20px;color:hsla(0,0%,100%,.7)}.p-channel_sidebar__channel:before,.p-channel_sidebar__link:before{font-size:1rem;float:left}.p-channel_sidebar__channel:after,.p-channel_sidebar__link:after{float:right;font-size:1.25rem}.p-channel_sidebar__channel:hover,.p-channel_sidebar__link:hover{color:#fff;background:#3e313c;text-decoration:none}.p-channel_sidebar__channel:before{content:"\\E104"}.p-channel_sidebar__channel--private:before{content:"\\E503"}.p-channel_sidebar__channel--shared:after{content:"\\E559"}.p-channel_sidebar__channel--org-shared:after{content:"\\E166"}.p-channel_sidebar__channel--mpim:before{font-size:1.25rem;margin:0 2px 0 -2px}.p-channel_sidebar__channel--mpim[data-user-count="2"]:before{content:"\\E521"}.p-channel_sidebar__channel--mpim[data-user-count="3"]:before{content:"\\E522"}.p-channel_sidebar__channel--mpim[data-user-count="4"]:before{content:"\\E523"}.p-channel_sidebar__channel--mpim[data-user-count="5"]:before{content:"\\E524"}.p-channel_sidebar__channel--mpim[data-user-count="6"]:before{content:"\\E525"}.p-channel_sidebar__channel--mpim[data-user-count="7"]:before{content:"\\E526"}.p-channel_sidebar__channel--mpim[data-user-count="8"]:before{content:"\\E527"}.p-channel_sidebar__channel--mpim[data-user-count="9"]:before{content:"\\E528"}.p-channel_sidebar__channel--im:before{content:""}.p-channel_sidebar__channel--im .c-presence{margin:-1px 2px 0 -2px;float:left}.p-channel_sidebar__channel--im .c-presence--active{color:#38978d}.p-channel_sidebar__channel--im .c-presence--away{color:hsla(0,0%,100%,.7)}.p-channel_sidebar__channel--im.p-channel_sidebar__channel--selected .c-presence--active{color:#fff}.p-channel_sidebar__channel--im-slackbot:before{content:"\\E515";font-size:1.125rem;margin:1px 1px 0 -1px}.p-channel_sidebar__channel--selected,.p-channel_sidebar__channel--selected:hover,.p-channel_sidebar__link--selected,.p-channel_sidebar__link--selected:hover{background:#4c9689}.p-channel_sidebar__channel--selected:after,.p-channel_sidebar__channel--selected:before,.p-channel_sidebar__channel--selected:hover:after,.p-channel_sidebar__channel--selected:hover:before,.p-channel_sidebar__link--selected:after,.p-channel_sidebar__link--selected:before,.p-channel_sidebar__link--selected:hover:after,.p-channel_sidebar__link--selected:hover:before{color:#fff}.p-channel_sidebar__channel--muted:not(.p-channel_sidebar__channel--selected),.p-channel_sidebar__channel--muted:not(.p-channel_sidebar__channel--selected):after,.p-channel_sidebar__channel--muted:not(.p-channel_sidebar__channel--selected):before{color:hsla(0,0%,100%,.25)}.p-channel_sidebar__channel--unread:not(.p-channel_sidebar__channel--muted){font-weight:900}.p-channel_sidebar__channel--draft:before{content:"\\E024";color:#fff;font-size:.875rem;margin:1px -1px 0 1px}.p-channel_sidebar__channel--archived:before{content:"\\E534";margin:0 2px 0 -2px;font-size:1.25rem}.p-channel_sidebar__badge{float:right;background:#eb4d5c;padding:.1rem .6rem;border-radius:1rem;line-height:1rem;margin:3px 0;font-size:.75rem;font-weight:700;color:#fff}.p-channel_sidebar__status{margin-left:.5rem}.p-channel_sidebar__you_label{margin-left:.5rem;font-weight:400;color:hsla(0,0%,100%,.7)}.p-channel_sidebar__link--unread{font-weight:900}.p-channel_sidebar__link--all-unreads:before{content:"\\E103"}.p-channel_sidebar__link--all-threads:before{content:"\\E004"}.p-channel_sidebar__link--invites:before{content:"\\E281"}', ""]);
+  t = e.exports = n(26)(), t.push([e.i, '.p-channel_sidebar{width:220px;height:100vh;position:relative;background:#4d394b;padding:0;color:#fff}.p-channel_sidebar__header{padding:0 1rem;color:hsla(0,0%,100%,.7);margin:0}.p-channel_sidebar__banner{text-align:center;position:absolute;display:block;z-index:2;color:#fff;left:.5rem;right:.5rem;font-weight:700;text-transform:uppercase;font-size:.75rem;line-height:1.5rem}.p-channel_sidebar__banner--top{border-top-right-radius:0;border-bottom-right-radius:.25rem;border-bottom-left-radius:.25rem;border-top-left-radius:0;background-clip:padding-box;top:0}.p-channel_sidebar__banner--bottom{border-top-right-radius:.25rem;border-bottom-right-radius:0;border-bottom-left-radius:0;border-top-left-radius:.25rem;background-clip:padding-box;bottom:0}.p-channel_sidebar__banner--mentions{background:#eb4d5c}.p-channel_sidebar__banner--unreads{background:#2d9ee0}.p-channel_sidebar__channel,.p-channel_sidebar__link{display:flex;height:26px;line-height:1.625rem;color:#fff;border-top-right-radius:.25rem;border-bottom-right-radius:.25rem;border-bottom-left-radius:0;border-top-left-radius:0;background-clip:padding-box;padding:0 .25rem 0 1rem;margin-right:.5rem}.p-channel_sidebar__channel:after,.p-channel_sidebar__channel:before,.p-channel_sidebar__link:after,.p-channel_sidebar__link:before{font-family:Slack v2;font-size:1.25rem;font-style:normal;font-weight:400;display:inline-block;vertical-align:middle;width:20px;color:hsla(0,0%,100%,.7)}.p-channel_sidebar__channel:before,.p-channel_sidebar__link:before{font-size:1rem}.p-channel_sidebar__channel:after,.p-channel_sidebar__link:after{font-size:1.25rem;margin-left:3px}.p-channel_sidebar__channel:hover,.p-channel_sidebar__link:hover{color:#fff;background:#3e313c;text-decoration:none}.p-channel_sidebar__channel:before{content:"\\E104"}.p-channel_sidebar__channel--private:before{content:"\\E503"}.p-channel_sidebar__channel--shared:after{content:"\\E559"}.p-channel_sidebar__channel--org-shared:after{content:"\\E166"}.p-channel_sidebar__channel--mpim:before{font-size:1.25rem;margin:0 2px 0 -2px}.p-channel_sidebar__channel--mpim[data-user-count="2"]:before{content:"\\E521"}.p-channel_sidebar__channel--mpim[data-user-count="3"]:before{content:"\\E522"}.p-channel_sidebar__channel--mpim[data-user-count="4"]:before{content:"\\E523"}.p-channel_sidebar__channel--mpim[data-user-count="5"]:before{content:"\\E524"}.p-channel_sidebar__channel--mpim[data-user-count="6"]:before{content:"\\E525"}.p-channel_sidebar__channel--mpim[data-user-count="7"]:before{content:"\\E526"}.p-channel_sidebar__channel--mpim[data-user-count="8"]:before{content:"\\E527"}.p-channel_sidebar__channel--mpim[data-user-count="9"]:before{content:"\\E528"}.p-channel_sidebar__channel--im:before{content:none}.p-channel_sidebar__channel--im .c-presence{margin:-1px 2px 0 -2px}.p-channel_sidebar__channel--im .c-presence--active{color:#38978d}.p-channel_sidebar__channel--im .c-presence--away{color:hsla(0,0%,100%,.7)}.p-channel_sidebar__channel--im.p-channel_sidebar__channel--selected .c-presence--active{color:#fff}.p-channel_sidebar__channel--im-slackbot:before{content:"\\E515";font-size:1.125rem;margin:1px 1px 0 -1px}.p-channel_sidebar__channel--selected,.p-channel_sidebar__channel--selected:hover,.p-channel_sidebar__link--selected,.p-channel_sidebar__link--selected:hover{background:#4c9689}.p-channel_sidebar__channel--selected:after,.p-channel_sidebar__channel--selected:before,.p-channel_sidebar__channel--selected:hover:after,.p-channel_sidebar__channel--selected:hover:before,.p-channel_sidebar__link--selected:after,.p-channel_sidebar__link--selected:before,.p-channel_sidebar__link--selected:hover:after,.p-channel_sidebar__link--selected:hover:before{color:#fff}.p-channel_sidebar__channel--muted:not(.p-channel_sidebar__channel--selected),.p-channel_sidebar__channel--muted:not(.p-channel_sidebar__channel--selected):after,.p-channel_sidebar__channel--muted:not(.p-channel_sidebar__channel--selected):before{color:hsla(0,0%,100%,.25)}.p-channel_sidebar__channel--unread:not(.p-channel_sidebar__channel--muted){font-weight:900}.p-channel_sidebar__channel--draft:before{content:"\\E024";color:#fff;font-size:.875rem;margin:1px -1px 0 1px}.p-channel_sidebar__channel--archived:before{content:"\\E534";margin:0 2px 0 -2px;font-size:1.25rem}.p-channel_sidebar__name{margin-right:auto;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.p-channel_sidebar__name .c-tooltip{float:right;position:relative;z-index:1}.p-channel_sidebar__badge{order:5;background:#eb4d5c;padding:.1rem .6rem;border-radius:1rem;line-height:1rem;margin:3px 0 3px 3px;font-size:.75rem;font-weight:700;color:#fff}.p-channel_sidebar__status{margin-left:.5rem}.p-channel_sidebar__you_label{margin-left:.5rem;font-weight:400;color:hsla(0,0%,100%,.7)}.p-channel_sidebar__link--unread{font-weight:900}.p-channel_sidebar__link--all-unreads:before{content:"\\E103"}.p-channel_sidebar__link--all-threads:before{content:"\\E004"}.p-channel_sidebar__link--invites:before{content:"\\E281"}', ""]);
 }, function(e, t, n) {
   t = e.exports = n(26)(), t.push([e.i, '.p-download_item{min-height:68px;padding:.75rem .75rem .25rem;margin:0 1px 0 .25rem;position:relative;font-weight:400;font-size:1rem;border:1px solid transparent;border-radius:4px;opacity:.8;-webkit-transition:opacity border .1s ease-out .1s 1e-7ms;-moz-transition:opacity .1s border .1s ease-out 1e-7ms;transition:opacity border .1s ease-out .1s 1e-7ms}.p-download_item.progressing,.p-download_item:hover{opacity:1}.p-download_item:hover{border-color:#e8e8e8}.p-download_item:hover .p-download_item__name_row{padding-right:2rem}.p-download_item:hover .p-download_item__action_icon,.p-download_item:hover .p-download_item__actions{opacity:1;-webkit-transform:translateZ(0);-moz-transform:translateZ(0);-ms-transform:translateZ(0);transform:translateZ(0)}.p-download_item:hover .p-download_item__link--remove{opacity:1}.p-download_item.not_started .p-download_item__name_row,.p-download_item.progressing .p-download_item__name_row{padding-right:6rem}.p-download_item.not_started .p-download_item__action_icon,.p-download_item.not_started .p-download_item__link--remove,.p-download_item.progressing .p-download_item__action_icon,.p-download_item.progressing .p-download_item__link--remove{display:none}.p-download_item:not(.progressing){cursor:pointer}.p-download_item.hidden_with_fade_out_and_shrink{opacity:0;height:0!important;margin-top:0!important;padding-top:0!important;padding-bottom:0!important;overflow:hidden;-webkit-transition:opacity .3s ease-out 0s,height .3s ease-out .2s,margin-top .3s ease-out .2s,padding-top .3s ease-out .2s,padding-bottom .3s ease-out ease-out .2s .2s 1e-7ms;-moz-transition:opacity .3s ease-out 0s,height .3s ease-out .2s,margin-top .3s ease-out .2s,padding-top .3s ease-out .2s,padding-bottom .3s ease-out .2s .2s ease-out 1e-7ms;transition:opacity .3s ease-out 0s,height .3s ease-out .2s,margin-top .3s ease-out .2s,padding-top .3s ease-out .2s,padding-bottom .3s ease-out ease-out .2s .2s 1e-7ms;-webkit-transition:opacity .3s ease-out 0s,height .3s ease-out .2s,margin-top .3s ease-out .2s,padding-top .3s ease-out .2s,padding-bottom .3s ease-out .2s;-moz-transition:opacity .3s ease-out 0s,height .3s ease-out .2s,margin-top .3s ease-out .2s,padding-top .3s ease-out .2s,padding-bottom .3s ease-out .2s;transition:opacity .3s ease-out 0s,height .3s ease-out .2s,margin-top .3s ease-out .2s,padding-top .3s ease-out .2s,padding-bottom .3s ease-out .2s}.p-download_item__icon_container{float:left;margin:1px 0 .5rem;position:relative}.p-download_item__action_icon{position:absolute;right:-8px;bottom:-5px;width:18px;height:18px;line-height:15px;border-radius:50%;background:#2d9ee0;box-shadow:0 0 0 3px #fff;color:#fff;opacity:0;-webkit-transform:translate3d(0,-6px,0);-moz-transform:translate3d(0,-6px,0);-ms-transform:translate3d(0,-6px,0);transform:translate3d(0,-6px,0);-webkit-transition:-webkit-transform .1s ease-out,opacity .1s ease-out;-moz-transition:-moz-transform .1s ease-out,opacity .1s ease-out;transition:transform .1s ease-out,opacity .1s ease-out}.p-download_item__action_icon:before{margin-left:-1px}.p-download_item__action_icon.snippet{background:#4d394b}.p-download_item__action_icon.post,.p-download_item__action_icon.space{background:#66c79e}.p-download_item__action_icon.doc,.p-download_item__action_icon.docx{background:#2c4098}.p-download_item__action_icon.xls,.p-download_item__action_icon.xlsm,.p-download_item__action_icon.xlsx,.p-download_item__action_icon.xltx{background:#377437}.p-download_item__action_icon.ppt,.p-download_item__action_icon.pptx{background:#e05a30}.p-download_item__action_icon.ai,.p-download_item__action_icon.sketch{background:#f4993c}.p-download_item__action_icon.psd{background:#56b6de}.p-download_item__action_icon.indd{background:#eb81ab}.p-download_item__action_icon.fla,.p-download_item__action_icon.swf{background:#a72428}.p-download_item__action_icon.ipa{background:#9ea0a7}.p-download_item__action_icon.apk{background:#a4ca3a}.p-download_item__action_icon.dropbox{background:#007ee5}.p-download_item__action_icon.gpres{background:#f4b400}.p-download_item__action_icon.gsheet{background:#0f9d58}.p-download_item__action_icon.gdoc{background:#4285f4}.p-download_item__action_icon.gdraw,.p-download_item__action_icon.gform,.p-download_item__action_icon.pdf{background:#db4437}.p-download_item__image{border:1px solid #a0a0a2;border-radius:.25rem;margin-bottom:6px}.p-download_item__container{margin-left:2.75rem;position:relative;z-index:1}.p-download_item__container>div{margin-bottom:.5rem}.p-download_item__container .p-download_item__name_row{line-height:normal;color:#5a5b5d;position:relative;padding-right:0;margin-bottom:0}.p-download_item__name_row:not(:empty){font-weight:700;padding-bottom:.5rem}.p-download_item__container .p-download_item__extra_actions{position:absolute;top:2px;right:0;display:-webkit-box;display:-webkit-flex;display:-moz-flex;display:-ms-flexbox;display:flex;opacity:1;pointer-events:auto}a.p-download_item__link--cancel,a.p-download_item__link--pause,a.p-download_item__link--resume{font-size:.8rem;margin-left:5px;color:#a0a0a2}.p-download_item__link--remove{position:absolute;top:50%;right:10px;z-index:2;opacity:0;-webkit-transform:translateY(-50%);-moz-transform:translateY(-50%);-ms-transform:translateY(-50%);transform:translateY(-50%);-webkit-transition:opacity .1s,color .1s ease-out .2s 1e-7ms;-moz-transition:opacity .1s,color .1s .2s ease-out 1e-7ms;transition:opacity .1s,color .1s ease-out .2s 1e-7ms;-webkit-transition:opacity .1s,color .1s;-moz-transition:opacity .1s,color .1s;transition:opacity .1s,color .1s}.p-download_item__link--remove:hover{color:#eb4d5c}.p-download_item__size_row{color:#a0a0a2;font-size:.8rem;position:relative;display:-webkit-box;display:-webkit-flex;display:-moz-flex;display:-ms-flexbox;display:flex}.p-download_item__size{margin-right:3px}.p-download_item__actions{display:inline-block;position:absolute;left:0;top:0;width:100%;background:#fff;opacity:0;-webkit-transform:translate3d(0,-50%,0);-moz-transform:translate3d(0,-50%,0);-ms-transform:translate3d(0,-50%,0);transform:translate3d(0,-50%,0);-webkit-transition:-webkit-transform .1s ease-out,opacity .1s ease-out;-moz-transition:-moz-transform .1s ease-out,opacity .1s ease-out;transition:transform .1s ease-out,opacity .1s ease-out}a.p-download_item__link--open,a.p-download_item__link--retry,a.p-download_item__link--show{opacity:1;display:none;position:static;font-weight:700;font-size:.9rem;color:#a0a0a2;top:0;left:.5rem;white-space:nowrap;pointer-events:none}.p-download_item__time_remaining{opacity:1;-ms-flex:none;-webkit-flex:none;flex:none;margin-left:auto;white-space:nowrap}.p-download_item__progress_row,.p-download_item__time_remaining{height:6px;border-width:0;border-radius:3px}.p-download_item__progress_row{opacity:1;background-color:#e8e8e8}.p-download_item__progress{background-color:#2d9ee0;width:0}.p-download_item:not(.progressing) .p-download_item__extra_actions,.p-download_item:not(.progressing) .p-download_item__time_remaining{opacity:0;pointer-events:none}.p-download_item:not(.progressing) .p-download_item__progress_row{display:none}.p-download_item.completed .p-download_item__link--show{opacity:1;pointer-events:auto;display:block}.p-download_item.completed .p-download_item__action_icon:before{content:"\\E146"}.p-download_item.cancelled .p-download_item__action_icon:before,.p-download_item.interrupted .p-download_item__action_icon:before{content:"\\E147";margin-top:1px}.p-download_item.cancelled .p-download_item__link--retry,.p-download_item.interrupted .p-download_item__link--retry{opacity:1;pointer-events:auto;display:block}.p-download_item.completed .p-download_item__partial_size{display:none}.p-download_item_highlighter{z-index:2!important;top:0!important;left:0!important;right:0!important;width:auto!important;box-sizing:content-box;padding-bottom:0!important;border-radius:4px}.p-download_item:last-of-type{margin-bottom:100px}.p-downloads_list--shift_down .p-download_item.completed .p-download_item__action_icon{border-radius:3px}.p-downloads_list--shift_down .p-download_item.completed .p-download_item__action_icon:before{content:"\\E311"}.p-downloads_list--shift_down .p-download_item.completed .p-download_item__link--show{display:none}.p-downloads_list--shift_down .p-download_item.completed .p-download_item__link--open{display:block}', ""]);
 }, function(e, t, n) {
@@ -92908,7 +93345,7 @@ var _getMetaFieldForId = function(id, key) {
   function r(e) {
     return o(e.replace(i, "ms-"));
   }
-  var o = n(504),
+  var o = n(506),
     i = /^-ms-/;
   e.exports = r;
 }, function(e, t, n) {
@@ -92917,7 +93354,7 @@ var _getMetaFieldForId = function(id, key) {
   function r(e, t) {
     return !(!e || !t) && (e === t || !o(e) && (o(t) ? r(e, t.parentNode) : "contains" in e ? e.contains(t) : !!e.compareDocumentPosition && !!(16 & e.compareDocumentPosition(t))));
   }
-  var o = n(514);
+  var o = n(516);
   e.exports = r;
 }, function(e, t, n) {
   "use strict";
@@ -92963,8 +93400,8 @@ var _getMetaFieldForId = function(id, key) {
     return f;
   }
   var i = n(17),
-    a = n(507),
-    s = n(509),
+    a = n(509),
+    s = n(511),
     u = n(3),
     c = i.canUseDOM ? document.createElement("div") : null,
     l = /^\s*<(\w+)/;
@@ -93030,7 +93467,7 @@ var _getMetaFieldForId = function(id, key) {
   function r(e) {
     return o(e).replace(i, "-ms-");
   }
-  var o = n(511),
+  var o = n(513),
     i = /^ms-/;
   e.exports = r;
 }, function(e, t, n) {
@@ -93046,7 +93483,7 @@ var _getMetaFieldForId = function(id, key) {
   function r(e) {
     return o(e) && 3 == e.nodeType;
   }
-  var o = n(513);
+  var o = n(515);
   e.exports = r;
 }, function(e, t, n) {
   "use strict";
@@ -93081,9 +93518,9 @@ var _getMetaFieldForId = function(id, key) {
   function r(e) {
     return null == e ? void 0 === e ? u : s : c && c in Object(e) ? n.i(i.a)(e) : n.i(a.a)(e);
   }
-  var o = n(177),
-    i = n(520),
-    a = n(521),
+  var o = n(179),
+    i = n(522),
+    a = n(523),
     s = "[object Null]",
     u = "[object Undefined]",
     c = o.a ? o.a.toStringTag : void 0;
@@ -93096,7 +93533,7 @@ var _getMetaFieldForId = function(id, key) {
   }).call(t, n(65));
 }, function(e, t, n) {
   "use strict";
-  var r = n(522),
+  var r = n(524),
     o = n.i(r.a)(Object.getPrototypeOf, Object);
   t.a = o;
 }, function(e, t, n) {
@@ -93112,7 +93549,7 @@ var _getMetaFieldForId = function(id, key) {
     var o = s.call(e);
     return r && (t ? e[u] = n : delete e[u]), o;
   }
-  var o = n(177),
+  var o = n(179),
     i = Object.prototype,
     a = i.hasOwnProperty,
     s = i.toString,
@@ -93138,7 +93575,7 @@ var _getMetaFieldForId = function(id, key) {
   t.a = r;
 }, function(e, t, n) {
   "use strict";
-  var r = n(518),
+  var r = n(520),
     o = "object" == typeof self && self && self.Object === Object && self,
     i = r.a || o || Function("return this")();
   t.a = i;
@@ -94342,226 +94779,226 @@ var _getMetaFieldForId = function(id, key) {
     return t;
   }
   var i = {
-    "./af": 179,
-    "./af.js": 179,
-    "./ar": 185,
-    "./ar-dz": 180,
-    "./ar-dz.js": 180,
-    "./ar-ly": 181,
-    "./ar-ly.js": 181,
-    "./ar-ma": 182,
-    "./ar-ma.js": 182,
-    "./ar-sa": 183,
-    "./ar-sa.js": 183,
-    "./ar-tn": 184,
-    "./ar-tn.js": 184,
-    "./ar.js": 185,
-    "./az": 186,
-    "./az.js": 186,
-    "./be": 187,
-    "./be.js": 187,
-    "./bg": 188,
-    "./bg.js": 188,
-    "./bn": 189,
-    "./bn.js": 189,
-    "./bo": 190,
-    "./bo.js": 190,
-    "./br": 191,
-    "./br.js": 191,
-    "./bs": 192,
-    "./bs.js": 192,
-    "./ca": 193,
-    "./ca.js": 193,
-    "./cs": 194,
-    "./cs.js": 194,
-    "./cv": 195,
-    "./cv.js": 195,
-    "./cy": 196,
-    "./cy.js": 196,
-    "./da": 197,
-    "./da.js": 197,
+    "./af": 181,
+    "./af.js": 181,
+    "./ar": 187,
+    "./ar-dz": 182,
+    "./ar-dz.js": 182,
+    "./ar-ly": 183,
+    "./ar-ly.js": 183,
+    "./ar-ma": 184,
+    "./ar-ma.js": 184,
+    "./ar-sa": 185,
+    "./ar-sa.js": 185,
+    "./ar-tn": 186,
+    "./ar-tn.js": 186,
+    "./ar.js": 187,
+    "./az": 188,
+    "./az.js": 188,
+    "./be": 189,
+    "./be.js": 189,
+    "./bg": 190,
+    "./bg.js": 190,
+    "./bn": 191,
+    "./bn.js": 191,
+    "./bo": 192,
+    "./bo.js": 192,
+    "./br": 193,
+    "./br.js": 193,
+    "./bs": 194,
+    "./bs.js": 194,
+    "./ca": 195,
+    "./ca.js": 195,
+    "./cs": 196,
+    "./cs.js": 196,
+    "./cv": 197,
+    "./cv.js": 197,
+    "./cy": 198,
+    "./cy.js": 198,
+    "./da": 199,
+    "./da.js": 199,
     "./de": 117,
-    "./de-at": 198,
-    "./de-at.js": 198,
+    "./de-at": 200,
+    "./de-at.js": 200,
     "./de.js": 117,
-    "./dv": 199,
-    "./dv.js": 199,
-    "./el": 200,
-    "./el.js": 200,
-    "./en-au": 201,
-    "./en-au.js": 201,
-    "./en-ca": 202,
-    "./en-ca.js": 202,
-    "./en-gb": 203,
-    "./en-gb.js": 203,
-    "./en-ie": 204,
-    "./en-ie.js": 204,
-    "./en-nz": 205,
-    "./en-nz.js": 205,
-    "./eo": 206,
-    "./eo.js": 206,
+    "./dv": 201,
+    "./dv.js": 201,
+    "./el": 202,
+    "./el.js": 202,
+    "./en-au": 203,
+    "./en-au.js": 203,
+    "./en-ca": 204,
+    "./en-ca.js": 204,
+    "./en-gb": 205,
+    "./en-gb.js": 205,
+    "./en-ie": 206,
+    "./en-ie.js": 206,
+    "./en-nz": 207,
+    "./en-nz.js": 207,
+    "./eo": 208,
+    "./eo.js": 208,
     "./es": 118,
-    "./es-do": 207,
-    "./es-do.js": 207,
+    "./es-do": 209,
+    "./es-do.js": 209,
     "./es.js": 118,
-    "./et": 208,
-    "./et.js": 208,
-    "./eu": 209,
-    "./eu.js": 209,
-    "./fa": 210,
-    "./fa.js": 210,
-    "./fi": 211,
-    "./fi.js": 211,
-    "./fo": 212,
-    "./fo.js": 212,
+    "./et": 210,
+    "./et.js": 210,
+    "./eu": 211,
+    "./eu.js": 211,
+    "./fa": 212,
+    "./fa.js": 212,
+    "./fi": 213,
+    "./fi.js": 213,
+    "./fo": 214,
+    "./fo.js": 214,
     "./fr": 119,
-    "./fr-ca": 213,
-    "./fr-ca.js": 213,
-    "./fr-ch": 214,
-    "./fr-ch.js": 214,
+    "./fr-ca": 215,
+    "./fr-ca.js": 215,
+    "./fr-ch": 216,
+    "./fr-ch.js": 216,
     "./fr.js": 119,
-    "./fy": 215,
-    "./fy.js": 215,
-    "./gd": 216,
-    "./gd.js": 216,
-    "./gl": 217,
-    "./gl.js": 217,
-    "./he": 218,
-    "./he.js": 218,
-    "./hi": 219,
-    "./hi.js": 219,
-    "./hr": 220,
-    "./hr.js": 220,
-    "./hu": 221,
-    "./hu.js": 221,
-    "./hy-am": 222,
-    "./hy-am.js": 222,
-    "./id": 223,
-    "./id.js": 223,
-    "./is": 224,
-    "./is.js": 224,
-    "./it": 225,
-    "./it.js": 225,
+    "./fy": 217,
+    "./fy.js": 217,
+    "./gd": 218,
+    "./gd.js": 218,
+    "./gl": 219,
+    "./gl.js": 219,
+    "./he": 220,
+    "./he.js": 220,
+    "./hi": 221,
+    "./hi.js": 221,
+    "./hr": 222,
+    "./hr.js": 222,
+    "./hu": 223,
+    "./hu.js": 223,
+    "./hy-am": 224,
+    "./hy-am.js": 224,
+    "./id": 225,
+    "./id.js": 225,
+    "./is": 226,
+    "./is.js": 226,
+    "./it": 227,
+    "./it.js": 227,
     "./ja": 120,
     "./ja.js": 120,
-    "./jv": 226,
-    "./jv.js": 226,
-    "./ka": 227,
-    "./ka.js": 227,
-    "./kk": 228,
-    "./kk.js": 228,
-    "./km": 229,
-    "./km.js": 229,
-    "./ko": 230,
-    "./ko.js": 230,
-    "./ky": 231,
-    "./ky.js": 231,
-    "./lb": 232,
-    "./lb.js": 232,
-    "./lo": 233,
-    "./lo.js": 233,
-    "./lt": 234,
-    "./lt.js": 234,
-    "./lv": 235,
-    "./lv.js": 235,
-    "./me": 236,
-    "./me.js": 236,
-    "./mi": 237,
-    "./mi.js": 237,
-    "./mk": 238,
-    "./mk.js": 238,
-    "./ml": 239,
-    "./ml.js": 239,
-    "./mr": 240,
-    "./mr.js": 240,
-    "./ms": 242,
-    "./ms-my": 241,
-    "./ms-my.js": 241,
-    "./ms.js": 242,
-    "./my": 243,
-    "./my.js": 243,
-    "./nb": 244,
-    "./nb.js": 244,
-    "./ne": 245,
-    "./ne.js": 245,
-    "./nl": 247,
-    "./nl-be": 246,
-    "./nl-be.js": 246,
-    "./nl.js": 247,
-    "./nn": 248,
-    "./nn.js": 248,
-    "./pa-in": 249,
-    "./pa-in.js": 249,
-    "./pl": 250,
-    "./pl.js": 250,
-    "./pt": 252,
-    "./pt-br": 251,
-    "./pt-br.js": 251,
-    "./pt.js": 252,
-    "./ro": 253,
-    "./ro.js": 253,
-    "./ru": 254,
-    "./ru.js": 254,
-    "./se": 255,
-    "./se.js": 255,
-    "./si": 256,
-    "./si.js": 256,
-    "./sk": 257,
-    "./sk.js": 257,
-    "./sl": 258,
-    "./sl.js": 258,
-    "./sq": 259,
-    "./sq.js": 259,
-    "./sr": 261,
-    "./sr-cyrl": 260,
-    "./sr-cyrl.js": 260,
-    "./sr.js": 261,
-    "./ss": 262,
-    "./ss.js": 262,
-    "./sv": 263,
-    "./sv.js": 263,
-    "./sw": 264,
-    "./sw.js": 264,
-    "./ta": 265,
-    "./ta.js": 265,
-    "./te": 266,
-    "./te.js": 266,
-    "./tet": 267,
-    "./tet.js": 267,
-    "./th": 268,
-    "./th.js": 268,
-    "./tl-ph": 269,
-    "./tl-ph.js": 269,
-    "./tlh": 270,
-    "./tlh.js": 270,
-    "./tr": 271,
-    "./tr.js": 271,
-    "./tzl": 272,
-    "./tzl.js": 272,
-    "./tzm": 274,
-    "./tzm-latn": 273,
-    "./tzm-latn.js": 273,
-    "./tzm.js": 274,
-    "./uk": 275,
-    "./uk.js": 275,
-    "./uz": 276,
-    "./uz.js": 276,
-    "./vi": 277,
-    "./vi.js": 277,
-    "./x-pseudo": 278,
-    "./x-pseudo.js": 278,
-    "./yo": 279,
-    "./yo.js": 279,
-    "./zh-cn": 280,
-    "./zh-cn.js": 280,
-    "./zh-hk": 281,
-    "./zh-hk.js": 281,
-    "./zh-tw": 282,
-    "./zh-tw.js": 282
+    "./jv": 228,
+    "./jv.js": 228,
+    "./ka": 229,
+    "./ka.js": 229,
+    "./kk": 230,
+    "./kk.js": 230,
+    "./km": 231,
+    "./km.js": 231,
+    "./ko": 232,
+    "./ko.js": 232,
+    "./ky": 233,
+    "./ky.js": 233,
+    "./lb": 234,
+    "./lb.js": 234,
+    "./lo": 235,
+    "./lo.js": 235,
+    "./lt": 236,
+    "./lt.js": 236,
+    "./lv": 237,
+    "./lv.js": 237,
+    "./me": 238,
+    "./me.js": 238,
+    "./mi": 239,
+    "./mi.js": 239,
+    "./mk": 240,
+    "./mk.js": 240,
+    "./ml": 241,
+    "./ml.js": 241,
+    "./mr": 242,
+    "./mr.js": 242,
+    "./ms": 244,
+    "./ms-my": 243,
+    "./ms-my.js": 243,
+    "./ms.js": 244,
+    "./my": 245,
+    "./my.js": 245,
+    "./nb": 246,
+    "./nb.js": 246,
+    "./ne": 247,
+    "./ne.js": 247,
+    "./nl": 249,
+    "./nl-be": 248,
+    "./nl-be.js": 248,
+    "./nl.js": 249,
+    "./nn": 250,
+    "./nn.js": 250,
+    "./pa-in": 251,
+    "./pa-in.js": 251,
+    "./pl": 252,
+    "./pl.js": 252,
+    "./pt": 254,
+    "./pt-br": 253,
+    "./pt-br.js": 253,
+    "./pt.js": 254,
+    "./ro": 255,
+    "./ro.js": 255,
+    "./ru": 256,
+    "./ru.js": 256,
+    "./se": 257,
+    "./se.js": 257,
+    "./si": 258,
+    "./si.js": 258,
+    "./sk": 259,
+    "./sk.js": 259,
+    "./sl": 260,
+    "./sl.js": 260,
+    "./sq": 261,
+    "./sq.js": 261,
+    "./sr": 263,
+    "./sr-cyrl": 262,
+    "./sr-cyrl.js": 262,
+    "./sr.js": 263,
+    "./ss": 264,
+    "./ss.js": 264,
+    "./sv": 265,
+    "./sv.js": 265,
+    "./sw": 266,
+    "./sw.js": 266,
+    "./ta": 267,
+    "./ta.js": 267,
+    "./te": 268,
+    "./te.js": 268,
+    "./tet": 269,
+    "./tet.js": 269,
+    "./th": 270,
+    "./th.js": 270,
+    "./tl-ph": 271,
+    "./tl-ph.js": 271,
+    "./tlh": 272,
+    "./tlh.js": 272,
+    "./tr": 273,
+    "./tr.js": 273,
+    "./tzl": 274,
+    "./tzl.js": 274,
+    "./tzm": 276,
+    "./tzm-latn": 275,
+    "./tzm-latn.js": 275,
+    "./tzm.js": 276,
+    "./uk": 277,
+    "./uk.js": 277,
+    "./uz": 278,
+    "./uz.js": 278,
+    "./vi": 279,
+    "./vi.js": 279,
+    "./x-pseudo": 280,
+    "./x-pseudo.js": 280,
+    "./yo": 281,
+    "./yo.js": 281,
+    "./zh-cn": 282,
+    "./zh-cn.js": 282,
+    "./zh-hk": 283,
+    "./zh-hk.js": 283,
+    "./zh-tw": 284,
+    "./zh-tw.js": 284
   };
   r.keys = function() {
     return Object.keys(i);
-  }, r.resolve = o, e.exports = r, r.id = 528;
+  }, r.resolve = o, e.exports = r, r.id = 530;
 }, function(e, t, n) {
   var r;
   ! function(o, i, a) {
@@ -94884,7 +95321,7 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   "use strict";
   var r = n(11),
-    o = n(174),
+    o = n(176),
     i = {
       focusDOMComponent: function() {
         o(r.getNodeFromInstance(this));
@@ -94988,9 +95425,9 @@ var _getMetaFieldForId = function(id, key) {
   }
   var f = n(62),
     p = n(17),
-    h = n(538),
-    _ = n(575),
-    m = n(578),
+    h = n(540),
+    _ = n(577),
+    m = n(580),
     y = [9, 13, 27, 32],
     v = 229,
     g = p.canUseDOM && "CompositionEvent" in window,
@@ -95044,11 +95481,11 @@ var _getMetaFieldForId = function(id, key) {
   e.exports = x;
 }, function(e, t, n) {
   "use strict";
-  var r = n(284),
+  var r = n(286),
     o = n(17),
-    i = (n(23), n(505), n(584)),
-    a = n(512),
-    s = n(515),
+    i = (n(23), n(507), n(586)),
+    a = n(514),
+    s = n(517),
     u = (n(4), s(function(e) {
       return a(e);
     })),
@@ -95164,7 +95601,7 @@ var _getMetaFieldForId = function(id, key) {
     k = n(28),
     L = n(133),
     T = n(134),
-    S = n(301),
+    S = n(303),
     E = {
       change: {
         phasedRegistrationNames: {
@@ -95210,7 +95647,7 @@ var _getMetaFieldForId = function(id, key) {
   var r = n(5),
     o = n(49),
     i = n(17),
-    a = n(508),
+    a = n(510),
     s = n(21),
     u = (n(3), {
       dangerouslyReplaceNodeWithMarkup: function(e, t) {
@@ -95275,7 +95712,7 @@ var _getMetaFieldForId = function(id, key) {
   }
   var o = n(6),
     i = n(41),
-    a = n(299);
+    a = n(301);
   o(r.prototype, {
     destructor: function() {
       this._root = null, this._startText = null, this._fallbackText = null;
@@ -95470,9 +95907,9 @@ var _getMetaFieldForId = function(id, key) {
       null != t && o && (e[n] = i(t, !0));
     }
     var o = n(51),
-      i = n(300),
+      i = n(302),
       a = (n(125), n(135)),
-      s = n(303);
+      s = n(305);
     n(4), void 0 !== t && n.i({
       NODE_ENV: "production"
     });
@@ -95511,11 +95948,11 @@ var _getMetaFieldForId = function(id, key) {
       }
     };
     e.exports = u;
-  }).call(t, n(283));
+  }).call(t, n(285));
 }, function(e, t, n) {
   "use strict";
   var r = n(121),
-    o = n(548),
+    o = n(550),
     i = {
       processChildrenUpdates: o.dangerouslyProcessChildrenUpdates,
       replaceNodeWithMarkup: r.dangerouslyReplaceNodeWithMarkup
@@ -95540,7 +95977,7 @@ var _getMetaFieldForId = function(id, key) {
     l = n(29),
     d = n(128),
     f = n(63),
-    p = (n(23), n(294)),
+    p = (n(23), n(296)),
     h = n(51),
     _ = n(59),
     m = (n(3), n(77)),
@@ -95559,7 +95996,8 @@ var _getMetaFieldForId = function(id, key) {
         this._currentElement = e, this._rootNodeID = 0, this._compositeType = null, this._instance = null, this._hostParent = null, this._hostContainerInfo = null, this._updateBatchNumber = null, this._pendingElement = null, this._pendingStateQueue = null, this._pendingReplaceState = !1, this._pendingForceUpdate = !1, this._renderedNodeType = null, this._renderedComponent = null, this._context = null, this._mountOrder = 0, this._topLevelWrapper = null, this._pendingCallbacks = null, this._calledComponentWillUnmount = !1;
       },
       mountComponent: function(e, t, n, s) {
-        this._context = s, this._mountOrder = g++, this._hostParent = t, this._hostContainerInfo = n;
+        this._context = s,
+          this._mountOrder = g++, this._hostParent = t, this._hostContainerInfo = n;
         var c, l = this._currentElement.props,
           d = this._processContext(s),
           p = this._currentElement.type,
@@ -95727,14 +96165,14 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   "use strict";
   var r = n(11),
-    o = n(556),
-    i = n(293),
+    o = n(558),
+    i = n(295),
     a = n(51),
     s = n(24),
-    u = n(569),
-    c = n(585),
-    l = n(298),
-    d = n(593);
+    u = n(571),
+    c = n(587),
+    l = n(300),
+    d = n(595);
   n(4), o.inject();
   var f = {
     findDOMNode: c,
@@ -95853,23 +96291,23 @@ var _getMetaFieldForId = function(id, key) {
   }
   var _ = n(5),
     m = n(6),
-    y = n(531),
-    v = n(533),
+    y = n(533),
+    v = n(535),
     g = n(49),
     b = n(122),
     M = n(50),
-    w = n(286),
+    w = n(288),
     k = n(61),
     L = n(123),
     T = n(79),
-    S = n(287),
+    S = n(289),
     E = n(11),
-    x = n(549),
-    C = n(550),
-    Y = n(288),
-    D = n(553),
-    P = (n(23), n(562)),
-    O = n(567),
+    x = n(551),
+    C = n(552),
+    Y = n(290),
+    D = n(555),
+    P = (n(23), n(564)),
+    O = n(569),
     j = (n(21), n(82)),
     I = (n(3), n(134), n(77), n(136), n(4), S),
     R = k.deleteListener,
@@ -96232,7 +96670,7 @@ var _getMetaFieldForId = function(id, key) {
   }
   var i = n(5),
     a = n(6),
-    s = n(286),
+    s = n(288),
     u = n(126),
     c = n(11),
     l = n(24),
@@ -96309,7 +96747,7 @@ var _getMetaFieldForId = function(id, key) {
   var o = n(6),
     i = n(52),
     a = n(11),
-    s = n(288),
+    s = n(290),
     u = (n(4), !1),
     c = {
       mountWrapper: function(e, t, n) {
@@ -96421,8 +96859,8 @@ var _getMetaFieldForId = function(id, key) {
     }
   }
   var u = n(17),
-    c = n(590),
-    l = n(299),
+    c = n(592),
+    l = n(301),
     d = u.canUseDOM && "selection" in document && !("getSelection" in window),
     f = {
       getOffsets: d ? o : i,
@@ -96639,25 +97077,25 @@ var _getMetaFieldForId = function(id, key) {
       return new p(e);
     }), v.Updates.injectReconcileTransaction(g), v.Updates.injectBatchingStrategy(m), v.Component.injectEnvironment(l));
   }
-  var o = n(530),
-    i = n(532),
-    a = n(534),
-    s = n(536),
-    u = n(537),
-    c = n(539),
-    l = n(541),
-    d = n(544),
+  var o = n(532),
+    i = n(534),
+    a = n(536),
+    s = n(538),
+    u = n(539),
+    c = n(541),
+    l = n(543),
+    d = n(546),
     f = n(11),
-    p = n(546),
-    h = n(554),
-    _ = n(552),
-    m = n(555),
-    y = n(559),
-    v = n(560),
-    g = n(565),
-    b = n(570),
-    M = n(571),
-    w = n(572),
+    p = n(548),
+    h = n(556),
+    _ = n(554),
+    m = n(557),
+    y = n(561),
+    v = n(562),
+    g = n(567),
+    b = n(572),
+    M = n(573),
+    w = n(574),
     k = !1;
   e.exports = {
     inject: r
@@ -96707,13 +97145,13 @@ var _getMetaFieldForId = function(id, key) {
     e(h(window));
   }
   var s = n(6),
-    u = n(173),
+    u = n(175),
     c = n(17),
     l = n(41),
     d = n(11),
     f = n(24),
     p = n(133),
-    h = n(510);
+    h = n(512);
   s(o.prototype, {
     destructor: function() {
       this.topLevelType = null, this.nativeEvent = null, this.ancestors.length = 0;
@@ -96760,9 +97198,9 @@ var _getMetaFieldForId = function(id, key) {
     o = n(61),
     i = n(124),
     a = n(127),
-    s = n(289),
+    s = n(291),
     u = n(79),
-    c = n(291),
+    c = n(293),
     l = n(24),
     d = {
       Component: a.injection,
@@ -96777,7 +97215,7 @@ var _getMetaFieldForId = function(id, key) {
   e.exports = d;
 }, function(e, t, n) {
   "use strict";
-  var r = n(583),
+  var r = n(585),
     o = /\/?>/,
     i = /^<\!\-\-/,
     a = {
@@ -96860,8 +97298,8 @@ var _getMetaFieldForId = function(id, key) {
   var l = n(5),
     d = n(127),
     f = (n(63), n(23), n(29), n(51)),
-    p = n(540),
-    h = (n(21), n(586)),
+    p = n(542),
+    h = (n(21), n(588)),
     _ = (n(3), {
       Mixin: {
         _reconcilerInstantiateChildren: function(e, t, n) {
@@ -96914,7 +97352,8 @@ var _getMetaFieldForId = function(id, key) {
               if (a.hasOwnProperty(s)) {
                 var m = r && r[s],
                   y = a[s];
-                m === y ? (l = u(l, this.moveChild(m, _, d, p)), p = Math.max(m._mountIndex, p), m._mountIndex = d) : (m && (p = Math.max(m._mountIndex, p)), l = u(l, this._mountChildAtIndex(y, i[h], _, d, t, n)), h++), d++, _ = f.getHostNode(y);
+                m === y ? (l = u(l, this.moveChild(m, _, d, p)), p = Math.max(m._mountIndex, p), m._mountIndex = d) : (m && (p = Math.max(m._mountIndex, p)),
+                  l = u(l, this._mountChildAtIndex(y, i[h], _, d, t, n)), h++), d++, _ = f.getHostNode(y);
               }
             for (s in o) o.hasOwnProperty(s) && (l = u(l, this._unmountChild(r[s], o[s])));
             l && c(this, l), this._renderedChildren = a;
@@ -96971,10 +97410,10 @@ var _getMetaFieldForId = function(id, key) {
     this.reinitializeTransaction(), this.renderToStaticMarkup = !1, this.reactMountReady = i.getPooled(null), this.useCreateElement = e;
   }
   var o = n(6),
-    i = n(285),
+    i = n(287),
     a = n(41),
     s = n(79),
-    u = n(292),
+    u = n(294),
     c = (n(23), n(81)),
     l = n(129),
     d = {
@@ -97030,7 +97469,7 @@ var _getMetaFieldForId = function(id, key) {
   function o(e, t, n) {
     "function" == typeof e ? e(null) : i.removeComponentAsRefFrom(t, e, n);
   }
-  var i = n(563),
+  var i = n(565),
     a = {};
   a.attachRefs = function(e, t) {
     if (null !== t && "object" == typeof t) {
@@ -97059,7 +97498,7 @@ var _getMetaFieldForId = function(id, key) {
   var o = n(6),
     i = n(41),
     a = n(81),
-    s = (n(23), n(568)),
+    s = (n(23), n(570)),
     u = [],
     c = {
       enqueue: function() {}
@@ -97413,10 +97852,10 @@ var _getMetaFieldForId = function(id, key) {
   var i = n(62),
     a = n(17),
     s = n(11),
-    u = n(292),
+    u = n(294),
     c = n(28),
-    l = n(175),
-    d = n(301),
+    l = n(177),
+    d = n(303),
     f = n(77),
     p = a.canUseDOM && "documentMode" in document && document.documentMode <= 11,
     h = {
@@ -97475,20 +97914,20 @@ var _getMetaFieldForId = function(id, key) {
     return "button" === e || "input" === e || "select" === e || "textarea" === e;
   }
   var i = n(5),
-    a = n(173),
+    a = n(175),
     s = n(62),
     u = n(11),
-    c = n(573),
-    l = n(574),
+    c = n(575),
+    l = n(576),
     d = n(28),
-    f = n(577),
-    p = n(579),
+    f = n(579),
+    p = n(581),
     h = n(80),
-    _ = n(576),
-    m = n(580),
-    y = n(581),
+    _ = n(578),
+    m = n(582),
+    y = n(583),
     v = n(64),
-    g = n(582),
+    g = n(584),
     b = n(21),
     M = n(131),
     w = (n(3), {}),
@@ -97697,7 +98136,7 @@ var _getMetaFieldForId = function(id, key) {
   }
   var o = n(64),
     i = n(131),
-    a = n(587),
+    a = n(589),
     s = n(132),
     u = {
       key: a,
@@ -97789,7 +98228,7 @@ var _getMetaFieldForId = function(id, key) {
   function r(e, t, n) {
     return null == t || "boolean" == typeof t || "" === t ? "" : isNaN(t) || 0 === t || i.hasOwnProperty(e) && i[e] ? "" + t : ("string" == typeof t && (t = t.trim()), t + "px");
   }
-  var o = n(284),
+  var o = n(286),
     i = (n(4), o.isUnitlessNumber);
   e.exports = r;
 }, function(e, t, n) {
@@ -97805,7 +98244,7 @@ var _getMetaFieldForId = function(id, key) {
   var o = n(5),
     i = (n(29), n(11)),
     a = n(63),
-    s = n(298);
+    s = n(300);
   n(3), n(4), e.exports = r;
 }, function(e, t, n) {
   "use strict";
@@ -97822,11 +98261,11 @@ var _getMetaFieldForId = function(id, key) {
       var n = {};
       return i(e, r, n), n;
     }
-    var i = (n(125), n(303));
+    var i = (n(125), n(305));
     n(4), void 0 !== t && n.i({
       NODE_ENV: "production"
     }), e.exports = o;
-  }).call(t, n(283));
+  }).call(t, n(285));
 }, function(e, t, n) {
   "use strict";
 
@@ -97977,7 +98416,7 @@ var _getMetaFieldForId = function(id, key) {
   e.exports = r;
 }, function(e, t, n) {
   "use strict";
-  var r = n(293);
+  var r = n(295);
   e.exports = r.renderSubtreeIntoContainer;
 }, function(e, t, n) {
   function r(e) {
@@ -97985,12 +98424,12 @@ var _getMetaFieldForId = function(id, key) {
   }
   var o = n(1),
     i = n(19),
-    a = n(503),
-    s = o.createFactory(n(595)),
-    u = n(596),
-    c = n(502),
+    a = n(505),
+    s = o.createFactory(n(597)),
+    u = n(598),
+    c = n(504),
     l = n(19).unstable_renderSubtreeIntoContainer,
-    d = n(178),
+    d = n(180),
     f = a.canUseDOM ? window.HTMLElement : {},
     p = a.canUseDOM ? document.body : {
       appendChild: function() {}
@@ -98079,9 +98518,9 @@ var _getMetaFieldForId = function(id, key) {
 }, function(e, t, n) {
   var r = n(1),
     o = r.DOM.div,
-    i = n(597),
-    a = n(598),
-    s = n(178),
+    i = n(599),
+    a = n(600),
+    s = n(180),
     u = {
       overlay: {
         base: "ReactModal__Overlay",
@@ -98256,7 +98695,7 @@ var _getMetaFieldForId = function(id, key) {
       }, 0);
     }
   }
-  var i = n(304),
+  var i = n(306),
     a = null,
     s = null,
     u = !1;
@@ -98275,14 +98714,14 @@ var _getMetaFieldForId = function(id, key) {
     a = null, window.addEventListener ? (window.removeEventListener("blur", r), document.removeEventListener("focus", o)) : (window.detachEvent("onBlur", r), document.detachEvent("onFocus", o));
   };
 }, function(e, t, n) {
-  var r = n(304);
+  var r = n(306);
   e.exports = function(e, t) {
     var n = r(e);
     if (!n.length) return void t.preventDefault();
     n[t.shiftKey ? 0 : n.length - 1] !== document.activeElement && e !== document.activeElement || (t.preventDefault(), n[t.shiftKey ? n.length - 1 : 0].focus());
   };
 }, function(e, t, n) {
-  e.exports = n(594);
+  e.exports = n(596);
 }, function(e, t, n) {
   "use strict";
 
@@ -98310,7 +98749,7 @@ var _getMetaFieldForId = function(id, key) {
     return u;
   });
   var a = n(1),
-    s = (n.n(a), n(307)),
+    s = (n.n(a), n(309)),
     u = (n(137), function(e) {
       function t(n, i) {
         r(this, t);
@@ -98355,12 +98794,12 @@ var _getMetaFieldForId = function(id, key) {
   function i(e, t) {
     return e === t;
   }
-  var a = n(305),
-    s = n(608),
-    u = n(602),
-    c = n(603),
-    l = n(604),
-    d = n(605),
+  var a = n(307),
+    s = n(610),
+    u = n(604),
+    c = n(605),
+    l = n(606),
+    d = n(607),
     f = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
@@ -98434,7 +98873,7 @@ var _getMetaFieldForId = function(id, key) {
     }) : void 0;
   }
   var a = n(87),
-    s = n(306);
+    s = n(308);
   t.a = [r, o, i];
 }, function(e, t, n) {
   "use strict";
@@ -98448,7 +98887,7 @@ var _getMetaFieldForId = function(id, key) {
       return {};
     });
   }
-  var i = n(306);
+  var i = n(308);
   t.a = [r, o];
 }, function(e, t, n) {
   "use strict";
@@ -98479,7 +98918,7 @@ var _getMetaFieldForId = function(id, key) {
       return r;
     };
   }
-  var s = (n(308), Object.assign || function(e) {
+  var s = (n(310), Object.assign || function(e) {
     for (var t = 1; t < arguments.length; t++) {
       var n = arguments[t];
       for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
@@ -98550,7 +98989,7 @@ var _getMetaFieldForId = function(id, key) {
       d = s(e, u);
     return (u.pure ? i : o)(c, l, d, e, u);
   }
-  t.a = a, n(606);
+  t.a = a, n(608);
 }, function(e, t, n) {
   "use strict";
   n(137);
@@ -98623,7 +99062,7 @@ var _getMetaFieldForId = function(id, key) {
   t.a = o;
   var i = Object.prototype.hasOwnProperty;
 }, function(e, t, n) {
-  var r = n(610);
+  var r = n(612);
   e.exports = r;
 }, function(e, t, n) {
   "use strict";
@@ -98632,10 +99071,10 @@ var _getMetaFieldForId = function(id, key) {
     } : function(e) {
       return e && "function" == typeof Symbol && e.constructor === Symbol ? "symbol" : typeof e;
     },
-    o = n(526),
-    i = n(525),
-    a = n(612),
-    s = n(611),
+    o = n(528),
+    i = n(527),
+    a = n(614),
+    s = n(613),
     u = function(e) {
       return function t(n) {
         var u = arguments.length <= 1 || void 0 === arguments[1] ? e : arguments[1],
@@ -98680,7 +99119,7 @@ var _getMetaFieldForId = function(id, key) {
     }
     return Array.from(e);
   }
-  var o = n(527),
+  var o = n(529),
     i = function(e) {
       return e % 2 == 0;
     };
@@ -98772,10 +99211,10 @@ var _getMetaFieldForId = function(id, key) {
   e.exports = h;
 }, function(e, t, n) {
   "use strict";
-  n(309);
+  n(311);
 }, function(e, t, n) {
   "use strict";
-  var r = n(310);
+  var r = n(312);
   n.d(t, "a", function() {
     return r.a;
   });
@@ -98882,7 +99321,7 @@ var _getMetaFieldForId = function(id, key) {
   }();
 }, function(e, t, n) {
   "use strict";
-  n(311), n(615);
+  n(313), n(617);
 }, function(e, t, n) {
   "use strict";
   var r = n(31),
@@ -98901,8 +99340,8 @@ var _getMetaFieldForId = function(id, key) {
     m = n.n(_),
     y = n(10),
     v = n.n(y),
-    g = n(139),
-    b = n(172),
+    g = n(140),
+    b = n(174),
     M = n.n(b),
     w = {
       OBSERVED: "observed",
@@ -99226,13 +99665,13 @@ var _getMetaFieldForId = function(id, key) {
   t.a = s;
 }, function(e, t, n) {
   "use strict";
-  var r = n(143),
+  var r = n(144),
     o = n.n(r),
     i = n(7),
     a = n.n(i),
     s = n(8),
     u = n.n(s),
-    c = n(618),
+    c = n(620),
     l = 100,
     d = function() {
       function e() {
@@ -99310,7 +99749,7 @@ var _getMetaFieldForId = function(id, key) {
   t.a = d;
 }, function(e, t, n) {
   "use strict";
-  n(312);
+  n(314);
 }, function(e, t, n) {
   "use strict";
 
@@ -99333,10 +99772,10 @@ var _getMetaFieldForId = function(id, key) {
     };
   }
   t.a = r;
-  var o = n(619);
+  var o = n(621);
 }, function(e, t, n) {
   "use strict";
-  n(313);
+  n(315);
 }, function(e, t, n) {
   "use strict";
 
@@ -99544,7 +99983,7 @@ var _getMetaFieldForId = function(id, key) {
     a = n.n(i),
     s = n(8),
     u = n.n(s),
-    c = n(624),
+    c = n(626),
     l = 15e5,
     d = function() {
       function e(t) {
@@ -99731,22 +100170,22 @@ var _getMetaFieldForId = function(id, key) {
   t.a = r;
 }, function(e, t, n) {
   "use strict";
-  n(317);
+  n(319);
 }, function(e, t, n) {
   "use strict";
-  var r = n(318);
+  var r = n(320);
   n.d(t, "a", function() {
     return r.a;
   });
 }, function(e, t, n) {
   "use strict";
-  var r = n(361),
+  var r = n(362),
     o = n.n(r),
     i = n(7),
     a = n.n(i),
     s = n(8),
     u = n.n(s),
-    c = n(641),
+    c = n(643),
     l = function() {
       function e() {
         a()(this, e), this._columnSizeMap = {}, this._intervalTree = n.i(c.a)(), this._leftMap = {};
@@ -99810,19 +100249,19 @@ var _getMetaFieldForId = function(id, key) {
   "use strict";
 }, function(e, t, n) {
   "use strict";
-  n(319), n(631);
+  n(321), n(633);
 }, function(e, t, n) {
   "use strict";
-  n(320);
+  n(322);
 }, function(e, t, n) {
   "use strict";
-  n(321);
+  n(323);
 }, function(e, t, n) {
   "use strict";
-  n(324), n(325), n(326), n(328), n(327), n(329), n(322), n(138), n(323);
+  n(326), n(327), n(328), n(330), n(329), n(331), n(324), n(138), n(325);
 }, function(e, t, n) {
   "use strict";
-  n(330), n(331);
+  n(332), n(333);
 }, function(e, t, n) {
   "use strict";
 
@@ -100173,7 +100612,7 @@ var _getMetaFieldForId = function(id, key) {
     return new _(e && 0 !== e.length ? h(e) : null);
   }
   t.a = m;
-  var y = n(639),
+  var y = n(641),
     v = 0,
     g = 1,
     b = r.prototype;
@@ -100413,10 +100852,10 @@ var _getMetaFieldForId = function(id, key) {
     var t = [];
     return c(e, t, null, m.thatReturnsArgument), t;
   }
-  var h = n(643),
+  var h = n(645),
     _ = n(53),
     m = n(21),
-    y = n(652),
+    y = n(654),
     v = h.twoArgumentPooler,
     g = h.fourArgumentPooler,
     b = /\/+/g;
@@ -100519,9 +100958,9 @@ var _getMetaFieldForId = function(id, key) {
   }
   var f = n(54),
     p = n(6),
-    h = n(140),
+    h = n(141),
     _ = n(53),
-    m = (n(335), n(141)),
+    m = (n(336), n(142)),
     y = n(59),
     v = (n(3), n(4), "mixins"),
     g = [],
@@ -100894,10 +101333,10 @@ var _getMetaFieldForId = function(id, key) {
     return e.constructor && e.constructor.name ? e.constructor.name : k;
   }
   var v = n(53),
-    g = n(335),
-    b = n(648),
+    g = n(336),
+    b = n(650),
     M = n(21),
-    w = n(337),
+    w = n(338),
     k = (n(4), "<<anonymous>>"),
     L = {
       array: a("array"),
@@ -100943,8 +101382,8 @@ var _getMetaFieldForId = function(id, key) {
 
   function o() {}
   var i = n(6),
-    a = n(140),
-    s = n(141),
+    a = n(141),
+    s = n(142),
     u = n(59);
   o.prototype = a.prototype, r.prototype = new o, r.prototype.constructor = r, i(r.prototype, a.prototype), r.prototype.isPureReactComponent = !0, e.exports = r;
 }, function(e, t, n) {
@@ -100996,9 +101435,9 @@ var _getMetaFieldForId = function(id, key) {
     return null == e ? 0 : o(e, "", t, n);
   }
   var a = n(54),
-    s = (n(29), n(334)),
-    u = n(337),
-    c = (n(3), n(642)),
+    s = (n(29), n(335)),
+    u = n(338),
+    c = (n(3), n(644)),
     l = (n(4), "."),
     d = ":";
   e.exports = i;
@@ -101164,7 +101603,7 @@ var _getMetaFieldForId = function(id, key) {
   Object.defineProperty(t, "__esModule", {
     value: !0
   });
-  var r = n(658),
+  var r = n(660),
     o = function(e) {
       if (e && e.__esModule) return e;
       var t = {};
@@ -101243,7 +101682,7 @@ var _getMetaFieldForId = function(id, key) {
     };
   }
   t.a = r;
-  var o = n(340),
+  var o = n(341),
     i = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
@@ -101321,18 +101760,8 @@ var _getMetaFieldForId = function(id, key) {
     };
   }
   t.a = i;
-  var a = n(341);
-  n(116), n(342);
-}, function(e, t, n) {
-  var r = n(492);
-  "string" == typeof r && (r = [
-    [e.i, r, ""]
-  ]), n(30)(r, {}), r.locals && (e.exports = r.locals);
-}, function(e, t, n) {
-  var r = n(493);
-  "string" == typeof r && (r = [
-    [e.i, r, ""]
-  ]), n(30)(r, {}), r.locals && (e.exports = r.locals);
+  var a = n(342);
+  n(116), n(343);
 }, function(e, t, n) {
   var r = n(494);
   "string" == typeof r && (r = [
@@ -101349,12 +101778,12 @@ var _getMetaFieldForId = function(id, key) {
     [e.i, r, ""]
   ]), n(30)(r, {}), r.locals && (e.exports = r.locals);
 }, function(e, t, n) {
-  var r = n(498);
+  var r = n(497);
   "string" == typeof r && (r = [
     [e.i, r, ""]
   ]), n(30)(r, {}), r.locals && (e.exports = r.locals);
 }, function(e, t, n) {
-  var r = n(499);
+  var r = n(498);
   "string" == typeof r && (r = [
     [e.i, r, ""]
   ]), n(30)(r, {}), r.locals && (e.exports = r.locals);
@@ -101364,12 +101793,22 @@ var _getMetaFieldForId = function(id, key) {
     [e.i, r, ""]
   ]), n(30)(r, {}), r.locals && (e.exports = r.locals);
 }, function(e, t, n) {
+  var r = n(501);
+  "string" == typeof r && (r = [
+    [e.i, r, ""]
+  ]), n(30)(r, {}), r.locals && (e.exports = r.locals);
+}, function(e, t, n) {
+  var r = n(502);
+  "string" == typeof r && (r = [
+    [e.i, r, ""]
+  ]), n(30)(r, {}), r.locals && (e.exports = r.locals);
+}, function(e, t, n) {
   "use strict";
   (function(e, r) {
     Object.defineProperty(t, "__esModule", {
       value: !0
     });
-    var o, i = n(672),
+    var o, i = n(674),
       a = function(e) {
         return e && e.__esModule ? e : {
           "default": e

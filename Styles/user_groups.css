@@ -232,7 +232,7 @@
     background-color: #FFFCE0
   }
   to {
-    background-color: #fff
+    background-color: #FFF
   }
 }
 
@@ -241,7 +241,7 @@
     background-color: #FFFCE0
   }
   to {
-    background-color: #fff
+    background-color: #FFF
   }
 }
 
@@ -250,34 +250,42 @@
     background-color: #FFFCE0
   }
   to {
-    background-color: #fff
+    background-color: #FFF
   }
 }
 
 .user_group_members_form .lazy_filter_select .lfs_list .lfs_item {
-  height: 46px
+  height: 36px;
+  padding: .15rem
 }
 
 body:not(.unify_user) .user_group_members_form .lazy_filter_select .lfs_list .lfs_item {
-  height: 50px
+  height: 50px;
+  padding: .375rem
 }
 
 .user_group_invite_member_small {
   font-size: 14px;
   position: relative;
-  padding-top: 4px;
   padding-left: 8px;
-  height: 36px
+  height: 30px
 }
 
 body:not(.unify_user) .user_group_invite_member_small {
   padding-left: 42px;
-  padding-top: 0
+  padding-top: 0;
+  height: 36px
 }
 
 .user_group_invite_member_small .add_icon,
 .user_group_invite_member_small .enter_icon {
   display: none
+}
+
+.user_group_invite_member_small .ts_icon_deactivated_user {
+  bottom: 13px;
+  position: relative;
+  color: #A0A0A2
 }
 
 .lfs_item.active .user_group_invite_member_small .add_icon,
@@ -289,6 +297,10 @@ body:not(.unify_user) .user_group_invite_member_small {
   margin-top: .7rem;
   font-size: 2rem;
   color: #005E99
+}
+
+.user_group_invite_member_small .enter_icon {
+  padding-left: 10px
 }
 
 .user_group_invite_member_small .invite_member_avatar {
@@ -324,6 +336,10 @@ body:not(.unify_user) .user_group_invite_member_small {
 }
 
 .lfs_item.lfs_token .user_group_invite_member_small {
+  padding: 0
+}
+
+body:not(.unify_user) .lfs_item.lfs_token .user_group_invite_member_small {
   height: 28px;
   padding-left: 36px
 }
@@ -341,6 +357,13 @@ body:not(.unify_user) .user_group_invite_member_small {
   width: 28px;
   margin-right: .3rem;
   border-radius: 0
+}
+
+.lfs_item.lfs_token .user_group_invite_member_small .c-member__current-status .prevent_copy_paste,
+.lfs_item.lfs_token .user_group_invite_member_small .c-member__current-status--small:before,
+.lfs_item.lfs_token .user_group_invite_member_small .c-member__display-name,
+.lfs_item.lfs_token .user_group_invite_member_small .c-member__secondary-name {
+  color: #FFF
 }
 
 .user_groups_img {

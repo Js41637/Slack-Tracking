@@ -662,7 +662,13 @@
     }
     TS.metrics.mark("ms_reconnect_requested");
     if (!TS.api.paused_sig.has(_apiPaused)) TS.api.paused_sig.addOnce(_apiPaused);
-    if (!TS.ms.connected_sig.has(_didGetConnected)) TS.ms.connected_sig.addOnce(_didGetConnected);
+    if (TS.boot_data.feature_ws_refactor) {
+      if (!TS.interop.SocketManager.connectedSig.has(_didGetConnected)) {
+        TS.interop.SocketManager.connectedSig.addOnce(_didGetConnected);
+      }
+    } else if (!TS.ms.connected_sig.has(_didGetConnected)) {
+      TS.ms.connected_sig.addOnce(_didGetConnected);
+    }
     if (TS.isPartiallyBooted()) {
       var rtm_start_p = _callRTMStart();
       _finalizeIncrementalBoot(rtm_start_p);
@@ -672,7 +678,11 @@
   };
   var _apiPaused = function() {
     TS.info("API queue got paused while waiting for MS reconnection");
-    TS.ms.connected_sig.remove(_didGetConnected);
+    if (TS.boot_data.feature_ws_refactor) {
+      TS.interop.SocketManager.remove(_didGetConnected);
+    } else {
+      TS.ms.connected_sig.remove(_didGetConnected);
+    }
     TS.api.unpaused_sig.addOnce(function() {
       if (TS.model.calling_rtm_start) {
         TS.info("API queue got unpaused, but rtm.start calling is pending, so doing nothing");
@@ -796,7 +806,7 @@
       TS.error(error_msg);
       return Promise.reject(new Error(error_msg));
     }
-    TS.ms.logConnectionFlow("login");
+    if (!TS.boot_data.feature_ws_refactor) TS.ms.logConnectionFlow("login");
     TS.model.rtm_start_throttler += 1;
     TS.info("Setting calling_rtm_start to true");
     TS.model.calling_rtm_start = true;
@@ -844,8 +854,8 @@
       TS.reload(null, "TS.storage.flush() and TS.reload() because resp.data.error: " + error);
       return;
     }
-    TS.ms.logConnectionFlow("on_login_failure");
-    TS.ms.onFailure("rtm.start call failed with error: " + (error || "no error on resp.data"));
+    if (!TS.boot_data.feature_ws_refactor) TS.ms.logConnectionFlow("on_login_failure");
+    if (!TS.boot_data.feature_ws_refactor) TS.ms.onFailure("rtm.start call failed with error: " + (error || "no error on resp.data"));
     var RTM_START_ERROR_MIN_DELAY = 5;
     var RTM_START_ERROR_MAX_DELAY = 60;
     var retry_after_secs = parseInt(_.get(resp, "data.retry_after"), 10);
@@ -863,9 +873,14 @@
       _last_rtm_start_event_ts = parseInt(resp.data.latest_event_ts, 10);
     }
     if (!TS.model.ms_logged_in_once && !TS.storage.fetchLastEventTS() && resp.data.latest_event_ts) {
-      TS.ms.connected_sig.addOnce(function() {
+      var callback = function() {
         TS.ms.storeLastEventTS(resp.data.latest_event_ts, "_processStartData");
-      });
+      };
+      if (TS.boot_data.feature_ws_refactor) {
+        TS.interop.SocketManager.connectedSig.addOnce(callback);
+      } else {
+        TS.ms.connected_sig.addOnce(callback);
+      }
     }
     if (TS.client) {
       if (TS.reloadIfVersionsChanged(resp.data)) return;
@@ -878,7 +893,7 @@
       TS.error("No team?");
       return;
     }
-    TS.ms.logConnectionFlow("on_login");
+    if (!TS.boot_data.feature_ws_refactor) TS.ms.logConnectionFlow("on_login");
     if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Setting up model");
     return _setUpModel(resp.data, resp.args).then(function() {
       if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Model did set up; setting up apps");
@@ -1009,7 +1024,7 @@
       return;
     }
     if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS wants to connect to MS");
-    if (TS.ms.hasProvisionalConnection() && TS.ms.finalizeProvisionalConnection()) {
+    if (TS.boot_data.feature_ws_refactor) {} else if (TS.ms.hasProvisionalConnection() && TS.ms.finalizeProvisionalConnection()) {
       if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS finalized MS connection");
       TS.log(1996, "Successfully finalized a provisional MS connection");
     } else {
@@ -1054,8 +1069,10 @@
       TSSSB.call("didStartLoading", 6e4);
     }
     if (_shouldConnectToMS()) {
-      TS.ms.reconnect_requested_sig.add(_reconnectRequestedMS);
-      TS.ms.disconnected_sig.add(_socketDisconnectedMS);
+      if (TS.boot_data.feature_ws_refactor) {} else {
+        TS.ms.reconnect_requested_sig.add(_reconnectRequestedMS);
+        TS.ms.disconnected_sig.add(_socketDisconnectedMS);
+      }
     }
     _callOnStarts();
     _dom_is_ready = true;
@@ -1293,7 +1310,6 @@
       }
       TS.model.team.activity = [];
       if (TS.model.break_token) TS.model.team.url += "f";
-      if (TS.model.break_reconnections) TS.model.team.url = TS.model.team.url.replace("websocket", "BUSTED");
       if (first_time) {
         TS.model.bots = [];
         TS.model.members = [];
@@ -1627,7 +1643,12 @@
     TS.error("_onBadUserCache problem: " + problem);
     TS.storage.cleanOutCacheTsStorage();
     TS.model.had_bad_user_cache = true;
-    TS.ms.onFailure("_onBadUserCache problem: " + problem);
+    if (TS.boot_data.feature_ws_refactor) {
+      TS.error("_onBadUserCache problem: " + problem);
+      TS.interop.SocketManager.disconnect();
+    } else {
+      TS.ms.onFailure("_onBadUserCache problem: " + problem);
+    }
   };
   var _extractAndDeleteTestProps = function(ob) {
     if (ob.test && !ob.__esModule && _shouldSuppressTestExport()) {
@@ -1648,7 +1669,11 @@
     if (!TS.boot_data.ms_connect_url) return;
     if (TS.lazyLoadMembersAndBots()) {
       _ms_rtm_start_p = TS.flannel.connectAndFetchRtmStart().catch(function() {
-        TS.ms.disconnect();
+        if (TS.boot_data.feature_ws_refactor) {
+          TS.interop.SocketManager.disconnect();
+        } else {
+          TS.ms.disconnect();
+        }
         return TS.api.connection.waitForAPIConnection().then(function() {
           return TS.flannel.connectAndFetchRtmStart();
         });
@@ -1656,21 +1681,37 @@
       return;
     }
     TS.log(1996, "Opening a tokenless MS connection");
-    TS.ms.connectProvisionally(TS.boot_data.ms_connect_url);
+    if (TS.boot_data.feature_ws_refactor) {
+      TS.interop.SocketManager.connectProvisionallyAndFetchRtmStart();
+    } else {
+      TS.ms.connectProvisionally(TS.boot_data.ms_connect_url);
+    }
   };
   var _initSleepWake = function() {
     var is_asleep = false;
     var _onSleep = function() {
       TS.info("sleep event!");
       is_asleep = true;
-      if (TS.client) TS.ms.sleep();
+      if (TS.client) {
+        if (TS.boot_data.feature_ws_refactor) {
+          TS.interop.SocketManager.sleep();
+        } else {
+          TS.ms.sleep();
+        }
+      }
       if (TS.web && TS.web.space) TS.ds.sleep();
     };
     var _onWake = function() {
       if (!is_asleep) return;
       is_asleep = false;
       TS.info("wake event! version:" + TS.boot_data.version_ts + " start_ms:" + TS.boot_data.start_ms);
-      if (TS.client) TS.ms.wake();
+      if (TS.client) {
+        if (TS.boot_data.feature_ws_refactor) {
+          TS.interop.SocketManager.wake();
+        } else {
+          TS.ms.wake();
+        }
+      }
       if (TS.web && TS.web.space) TS.ds.wake();
     };
     window.addEventListener("sleep", _onSleep, false);
@@ -1685,7 +1726,11 @@
       TS.ims.switched_sig.add(_storeLastActiveModelOb);
       TS.groups.switched_sig.add(_storeLastActiveModelOb);
       TS.mpims.switched_sig.add(_storeLastActiveModelOb);
-      TS.ms.connected_sig.addOnce(_storeLastActiveModelOb);
+      if (TS.boot_data.feature_ws_refactor) {
+        TS.interop.SocketManager.connectedSig.addOnce(_storeLastActiveModelOb);
+      } else {
+        TS.ms.connected_sig.addOnce(_storeLastActiveModelOb);
+      }
     },
     startIncrementalBoot: function() {
       if (TS._did_incremental_boot) {
@@ -1744,7 +1789,11 @@
       if (TS.client && TS.client.ui && TS.client.ui.$messages_input_container) {
         TS.client.ui.$messages_input_container.one(_message_input_change_events, _removeRecentIncrementalBootState);
       }
-      TS.ms.connected_sig.addOnce(_removeRecentIncrementalBootState);
+      if (TS.boot_data.feature_ws_refactor) {
+        TS.interop.SocketManager.connectedSig.addOnce(_removeRecentIncrementalBootState);
+      } else {
+        TS.ms.connected_sig.addOnce(_removeRecentIncrementalBootState);
+      }
     },
     afterFullBoot: function() {
       if (TS._did_incremental_boot) {
@@ -1836,7 +1885,11 @@
       TS.client.ui.$messages_input_container.off(_message_input_change_events);
       TS.client.ui.$messages_input_container.removeClass("pretend-to-be-online");
     }
-    TS.ms.connected_sig.remove(_removeRecentIncrementalBootState);
+    if (TS.boot_data.feature_ws_refactor) {
+      TS.interop.SocketManager.connectedSig.remove(_removeRecentIncrementalBootState);
+    } else {
+      TS.ms.connected_sig.remove(_removeRecentIncrementalBootState);
+    }
     if (_recent_incremental_boot_timer) {
       clearTimeout(_recent_incremental_boot_timer);
       _recent_incremental_boot_timer = undefined;
@@ -2941,7 +2994,6 @@ var _cyrillicToLatin = function(char) {
     native_media_preload_limit_bytes: 2097152,
     is_msg_rate_limited: false,
     break_token: false,
-    break_reconnections: false,
     ms_reconnect_ms: 0,
     ms_reconnect_time: 0,
     rtm_start_throttler: 0,
