@@ -3266,11 +3266,11 @@ var _cyrillicToLatin = function(char) {
       ob.tries += 1;
       ob.state = 0;
       if (ob.tries > 2) {
-        TS.maybeError(528, 'calling the API for id: "' + id + '", try #' + ob.tries);
+        TS.maybeError(48, 'calling the API for id: "' + id + '", try #' + ob.tries);
       } else if (ob.tries > 1) {
-        TS.maybeWarn(528, 'calling the API for id: "' + id + '", try #' + ob.tries);
+        TS.maybeWarn(48, 'calling the API for id: "' + id + '", try #' + ob.tries);
       } else {
-        TS.log(528, 'calling the API for id: "' + id + '", try #' + ob.tries);
+        TS.log(48, 'calling the API for id: "' + id + '", try #' + ob.tries);
       }
       return ob.tries;
     },
@@ -3279,9 +3279,9 @@ var _cyrillicToLatin = function(char) {
       if (!ob) return;
       ob.state = success ? 1 : -1;
       if (ob.state == 1) {
-        TS.log(528, 'API call for id: "' + id + '" SUCCEEDED, try #' + ob.tries);
+        TS.log(48, 'API call for id: "' + id + '" SUCCEEDED, try #' + ob.tries);
       } else {
-        TS.maybeWarn(528, 'API call for id: "' + id + '" FAILED, try #' + ob.tries);
+        TS.maybeWarn(48, 'API call for id: "' + id + '" FAILED, try #' + ob.tries);
       }
     },
     logUnknownIdsHandled: function(min_tries, state) {
