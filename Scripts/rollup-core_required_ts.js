@@ -1819,7 +1819,7 @@
         delete TS.boot_data.incremental_boot_data;
         return false;
       }
-      if (TS.utility.isAppIndexViewPath(loc.pathname)) {
+      if (TS.utility.isAppSpaceViewPath(loc.pathname)) {
         delete TS.boot_data.incremental_boot_data;
         return false;
       }
@@ -2903,7 +2903,7 @@ var _cyrillicToLatin = function(char) {
     enterprise: null,
     initial_unread_view: false,
     initial_threads_view: false,
-    initial_app_index_view: false,
+    initial_app_space_view: false,
     RESERVED_USERNAMES: ["all", "archive", "archived", "archives", "channel", "channels", "create", "delete", "deleted-channel", "edit", "everyone", "general", "group", "groups", "here", "me", "ms", "slack", "slackbot", "today", "you"],
     RESERVED_KEYWORDS: ["channel", "everyone", "here", "slackbot"],
     BROADCAST_KEYWORDS: [{
@@ -2934,7 +2934,7 @@ var _cyrillicToLatin = function(char) {
       alt_names: [TS.i18n.t("All Threads", "threads")(), TS.i18n.t("New Threads", "threads")()],
       is_view: true
     }, {
-      id: "Vapp_index",
+      id: "Vapp_space",
       name: TS.i18n.t("Apps", "model")(),
       is_view: true
     }],
@@ -3052,7 +3052,7 @@ var _cyrillicToLatin = function(char) {
     overlay_is_showing: false,
     unread_view_is_showing: false,
     threads_view_is_showing: false,
-    app_index_view_is_showing: false,
+    app_space_view_is_showing: false,
     seen_onboarding_this_session: false,
     seen_welcome_2: true,
     showing_welcome_2: false,

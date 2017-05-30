@@ -998,8 +998,7 @@
       });
     },
     submitEditForm: function() {
-      var val = TS.utility.contenteditable.value($("#file_edit_comment"));
-      if (!$.trim(val)) {
+      if (TS.utility.contenteditable.isEmpty($("#file_edit_comment"), true)) {
         if (TS.client) TS.sounds.play("beep");
         return false;
       }

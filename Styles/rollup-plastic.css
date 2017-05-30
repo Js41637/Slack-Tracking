@@ -16353,7 +16353,12 @@ body:not(.unify_user) #channel_invite_container.page_needs_enterprise .channel_i
 }
 
 .lazy_filter_select .lfs_input_container.empty .lfs_input {
-  width: 100%
+  width: 100%;
+  height: 30px
+}
+
+body:not(.unify_user) .lazy_filter_select .lfs_input_container.empty .lfs_input {
+  height: inherit
 }
 
 .lazy_filter_select .lfs_input_container.monkey_scroller {
@@ -16628,7 +16633,7 @@ body:not(.unify_user) #channel_invite_container.page_needs_enterprise .channel_i
   display: block;
   line-height: 1.5rem;
   text-align: left;
-  padding: 0rem .6rem;
+  padding: 0 .6rem;
   margin-bottom: .1875rem
 }
 
@@ -16637,9 +16642,13 @@ body:not(.unify_user) #channel_invite_container.page_needs_enterprise .channel_i
   font-family: Slack;
   position: absolute;
   right: .7rem;
-  top: 4px;
+  top: 3px;
   font-size: 20px;
   pointer-events: none
+}
+
+body:not(.unify_user) .lazy_filter_select.single .lfs_input_container:after {
+  top: 4px
 }
 
 .lazy_filter_select.single .lfs_input_container.active:after,
@@ -16709,11 +16718,11 @@ body:not(.unify_user) .lazy_filter_select .lfs_value .ts_icon_shared_channels {
 }
 
 .unify_user #select_share_channels .lazy_filter_select .lfs_value {
-  padding: .25rem 2.5rem .15rem 8px
+  padding: 0 2.5rem .15rem 8px
 }
 
 .unify_user #select_share_channels .lazy_filter_select .lfs_value .lfs_item.selected {
-  height: initial;
+  height: 25px;
   color: #2C2D30;
   font-weight: 700
 }
@@ -16723,7 +16732,9 @@ body:not(.unify_user) .lazy_filter_select .lfs_value .ts_icon_shared_channels {
 }
 
 .unify_user #select_share_channels .lazy_filter_select .lfs_value .lfs_item.selected .ts_icon:not(.presence_icon) {
-  color: #717274
+  color: #717274;
+  position: relative;
+  top: 1px
 }
 
 .unify_user #select_share_channels .lazy_filter_select .lfs_item {
@@ -16731,7 +16742,7 @@ body:not(.unify_user) .lazy_filter_select .lfs_value .ts_icon_shared_channels {
   font-weight: 700;
   font-size: 15px;
   padding: 0;
-  margin: 0;
+  margin: 0 0 3px;
   height: 32px;
   width: calc(99%)
 }
@@ -16753,6 +16764,11 @@ body:not(.unify_user) .lazy_filter_select .lfs_value .ts_icon_shared_channels {
 .unify_user #select_share_channels .lazy_filter_select .lfs_item .ts_icon_lock {
   padding-right: 3px;
   padding-left: 1px
+}
+
+.unify_user #select_share_channels .lazy_filter_select .lfs_item .ts_icon_channel {
+  position: relative;
+  top: 1px
 }
 
 .lazy_filter_select.normal_style .lfs_input_container,
@@ -16838,8 +16854,7 @@ body:not(.unify_user) .lazy_filter_select .lfs_value .ts_icon_shared_channels {
 }
 
 .lazy_filter_select.single.filter_in_list_style {
-  min-width: 150px;
-  max-width: 250px
+  width: 180px
 }
 
 .lazy_filter_select.single.filter_in_list_style ._input_style {
