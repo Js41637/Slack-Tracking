@@ -10210,7 +10210,7 @@ html.fs_modal_active {
 }
 
 #fs_modal #fs_modal_footer .btn {
-  width: 132px
+  min-width: 132px
 }
 
 #fs_modal.fs_modal_footer .contents_container {
