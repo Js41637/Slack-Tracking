@@ -57,8 +57,7 @@
         change: function() {
           selected_date = $(this).pickmeup("get_date");
           var timestamp = Date.parse(selected_date) * 1e3;
-          var name_for_url = TS.boot_data.feature_intl_channel_names ? model_ob.id : model_ob.name;
-          var path = model_ob.is_mpim ? TS.mpims.getMpimArchivesPath(model_ob) : "/archives/" + name_for_url;
+          var path = model_ob.is_mpim ? TS.mpims.getMpimArchivesPath(model_ob) : "/archives/" + model_ob.id;
           window.location = path + "/s" + timestamp;
         }
       });
