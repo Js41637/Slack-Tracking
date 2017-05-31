@@ -177,7 +177,7 @@
       var A = String(TS.pri).split(",");
       if (A.indexOf("all") !== -1 || A.indexOf("*") !== -1) return true;
       if (A.indexOf(String(pri)) !== -1) return true;
-      return _keys_to_check.indexOf(pri) > -1;
+      return typeof TS.has_pri[pri] !== "undefined";
     },
     table: function() {
       _console("table", null, arguments);
@@ -215,19 +215,21 @@
       };
     }
   };
-  var _keys_to_check = [];
   var _determineKeysToCheck = function() {
     var pris = String(TS.pri).split(",");
-    _keys_to_check = _(Object.keys(TS.boot_data.client_logs || {})).filter(function(key) {
+    TS.has_pri = _(Object.keys(TS.boot_data.client_logs || {})).filter(function(key) {
       var obj = TS.boot_data.client_logs[key];
       return pris.some(function(pri) {
-        if (obj.numbers.indexOf(pri) > -1) return true;
+        if (pri === "*") return true;
+        if (obj.numbers.indexOf(parseInt(pri, 10)) > -1) return true;
         if (obj.name && obj.name.indexOf(pri) > -1) return true;
         if (obj.owner && obj.owner.indexOf(pri) > -1) return true;
         return false;
       });
     }).map(function(key) {
       if (parseInt(key, 10) >= 0) return parseInt(key, 10);
+      return key;
+    }).keyBy(function(key) {
       return key;
     }).value();
   };
@@ -353,6 +355,7 @@
     boot_data: {},
     qs_args: {},
     pri: 0,
+    has_pri: {},
     console: _console_module,
     features: _features_module,
     exportToLegacy: function(name, ob) {
@@ -704,7 +707,7 @@
       no_unreads: true
     };
     if (TS.pri && (!login_args.cache_ts || parseInt(login_args.cache_ts, 10) == 0 || isNaN(login_args.cache_ts))) {
-      TS.log(488, "_getMSLoginArgs(): login_args.cache_ts is 0/undefined?", login_args);
+      if (TS.has_pri[_pri_login]) TS.log(_pri_login, "_getMSLoginArgs(): login_args.cache_ts is 0/undefined?", login_args);
     }
     if (TS.lazyLoadMembersAndBots()) {
       login_args.no_users = true;
@@ -745,12 +748,12 @@
     if (TS.lazyLoadMembersAndBots()) {
       for (var k in TS.qs_args) {
         if (k.indexOf("feature_" === 0)) {
-          TS.log(1989, "Flannel: Appending " + k + " (" + TS.qs_args[k] + ") to login_args");
+          if (TS.has_pri[_pri_flannel]) TS.log(_pri_flannel, "Flannel: Appending " + k + " (" + TS.qs_args[k] + ") to login_args");
           login_args[k] = TS.qs_args[k];
         }
       }
     }
-    if (TS.lazyLoadMembersAndBots()) TS.log(1989, "Flannel: MS login args:", login_args);
+    if (TS.lazyLoadMembersAndBots() && TS.has_pri[_pri_flannel]) TS.log(_pri_flannel, "Flannel: MS login args:", login_args);
     return login_args;
   };
   var _callRTMStart = function() {
@@ -813,7 +816,7 @@
     if (TS.useSocket() && TS.lazyLoadMembersAndBots() && TS.boot_data.should_use_flannel) {
       if (!_ms_rtm_start_p) {
         if (TS.model.ms_connected) {
-          TS.log(1989, "Bad news: we're trying to do an rtm.start from Flannel while we're already connected, and that won't work.");
+          if (TS.has_pri[_pri_flannel]) TS.log(_pri_flannel, "Bad news: we're trying to do an rtm.start from Flannel while we're already connected, and that won't work.");
           return Promise.reject(new Error("rtm.start-over-WebSocket failed"));
         }
         _ms_rtm_start_p = TS.flannel.connectAndFetchRtmStart();
@@ -821,7 +824,7 @@
       var rtm_start_p = _ms_rtm_start_p;
       _ms_rtm_start_p = undefined;
       return rtm_start_p.then(function(rtm_start_data) {
-        TS.log(1989, "Flannel: got rtm.start response 💕");
+        if (TS.has_pri[_pri_flannel]) TS.log(_pri_flannel, "Flannel: got rtm.start response 💕");
         return {
           ok: true,
           args: {},
@@ -1009,10 +1012,10 @@
   var _refetchMembers = function(users_to_refetch) {
     if (!TS.lazyLoadMembersAndBots()) return;
     if (!users_to_refetch.length) {
-      TS.log(1989, "No need to re-fetch any members for presence status");
+      if (TS.has_pri[_pri_flannel]) TS.log(_pri_flannel, "No need to re-fetch any members for presence status");
       return;
     }
-    TS.log(1989, "Re-fetching " + users_to_refetch.length + " members so we have presence status");
+    if (TS.has_pri[_pri_flannel]) TS.log(_pri_flannel, "Re-fetching " + users_to_refetch.length + " members so we have presence status");
     TS.flannel.fetchAndUpsertObjectsByIds(users_to_refetch);
   };
   var _maybeFinalizeOrOpenConnectionToMS = function() {
@@ -1027,10 +1030,10 @@
     if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS wants to connect to MS");
     if (TS.boot_data.feature_ws_refactor) {} else if (TS.ms.hasProvisionalConnection() && TS.ms.finalizeProvisionalConnection()) {
       if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS finalized MS connection");
-      TS.log(1996, "Successfully finalized a provisional MS connection");
+      if (TS.has_pri[_pri_ms]) TS.log(_pri_ms, "Successfully finalized a provisional MS connection");
     } else {
       if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS made a new MS connection");
-      TS.log(1996, "No valid provisional MS connection; making a new connection");
+      if (TS.has_pri[_pri_ms]) TS.log(_pri_ms, "No valid provisional MS connection; making a new connection");
       TS.ms.connectImmediately(TS.model.team.url || TS.boot_data.ms_connect_url);
     }
     if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS did connect to MS");
@@ -1063,6 +1066,9 @@
     return args;
   }();
   TS.pri = TS.qs_args.pri ? TS.qs_args.pri + ",0" : TS.pri;
+  _.each(TS.pri && TS.pri.split(","), function(pri) {
+    if (pri) TS.has_pri[pri] = true;
+  });
   var _dom_is_ready = false;
   var _qs_url_args_cache;
   var _initialDataFetchesComplete = function(rtm_start_resp) {
@@ -1262,7 +1268,7 @@
     });
   };
   var _callOnStarts = function() {
-    TS.log(Date() - TS.boot_data.start_ms + "ms from first html to calling onStarts()");
+    TS.log(Date.now() - TS.boot_data.start_ms + "ms from first html to calling onStarts()");
     if (TS.boot_data.app === "client") {
       TS.client.onStart();
       TS.client.onStart = _.noop;
@@ -1396,7 +1402,7 @@
         if (data.online_users) member.presence = _.includes(data.online_users, member.id) ? "active" : "away";
         if (_.get(member, "profile.always_active")) member.presence = "active";
         upsert = TS.members.upsertAndSignal(member);
-        if (TS.pri) TS.log(481, "upsert from CACHE: " + member.id + " " + upsert.status);
+        if (TS.has_pri[_pri_upsert]) TS.log(_pri_upsert, "upsert from CACHE: " + member.id + " " + upsert.status);
         if (upsert.member.id == data.self.id) setModelUser(upsert.member);
       }
       for (i = 0; i < data_user_list.length; i += 1) {
@@ -1409,7 +1415,7 @@
         }
         if (_.get(member, "profile.always_active")) member.presence = "active";
         upsert = TS.members.upsertAndSignal(member);
-        if (TS.pri) TS.log(481, "upsert from DATA: " + member.id + " " + upsert.status);
+        if (TS.has_pri[_pri_upsert]) TS.log(_pri_upsert, "upsert from DATA: " + member.id + " " + upsert.status);
         if (upsert.member.id == data.self.id) setModelUser(upsert.member);
       }
       var bots_cache = TS.storage.fetchBots();
@@ -1434,8 +1440,10 @@
       data_bot_list_by_id = null;
       data_user_list_by_id = null;
       TS.info(log_data.join("\n"));
-      if (TS.pri) TS.dir(481, users_cache, "users_cache");
-      if (TS.pri) TS.dir(481, bots_cache, "bots_cache");
+      if (TS.has_pri[_pri_upsert]) {
+        TS.dir(_pri_upsert, users_cache, "users_cache");
+        TS.dir(_pri_upsert, bots_cache, "bots_cache");
+      }
       var doAllMembersFromChannelsInRawDataExist = function(with_shared) {
         if (TS._incremental_boot) return true;
         if (TS.lazyLoadMembersAndBots()) return true;
@@ -1681,7 +1689,7 @@
       });
       return;
     }
-    TS.log(1996, "Opening a tokenless MS connection");
+    if (TS.has_pri[_pri_ms]) TS.log(_pri_ms, "Opening a tokenless MS connection");
     if (TS.boot_data.feature_ws_refactor) {
       TS.interop.SocketManager.connectProvisionallyAndFetchRtmStart();
     } else {
@@ -1718,6 +1726,10 @@
     window.addEventListener("sleep", _onSleep, false);
     window.addEventListener("wake", _onWake, false);
   };
+  var _pri_flannel = 1989;
+  var _pri_ms = 1996;
+  var _pri_upsert = 481;
+  var _pri_login = 488;
 })();
 (function() {
   "use strict";
@@ -3569,6 +3581,7 @@ var _cyrillicToLatin = function(char) {
   "use strict";
   TS.registerModule("clog", {
     onStart: function() {
+      _pri = TS.log && TS.has_pri[_pri] ? _pri : null;
       var interval_duration_ms = 30 * 1e3;
       var interval_duration_noise_ms = 5 * 1e3;
       var noise_ms = Math.floor(Math.random() * interval_duration_noise_ms);
@@ -3640,6 +3653,7 @@ var _cyrillicToLatin = function(char) {
   var _CLOG_ENDPOINT_URL;
   var _MAX_URL_LENGTH = 2e3;
   var _LOG_PRI = 1e3;
+  var _pri = _LOG_PRI;
   var _logs = [];
   var _team_id;
   var _enterprise_id;
@@ -3674,7 +3688,7 @@ var _cyrillicToLatin = function(char) {
     _logs.push(payload);
     if (TS.log) {
       if (_is_debug_mode) TS.console.log(_LOG_PRI, payload);
-      TS.log(_LOG_PRI, "Event called:", event, args);
+      if (TS.has_pri[_pri]) TS.log(_pri, "Event called:", event, args);
     } else if (_is_debug_mode) {
       try {
         console.log(payload);
@@ -3683,15 +3697,17 @@ var _cyrillicToLatin = function(char) {
   };
   var _sendDataAndEmptyQueue = function() {
     if (_logs.length === 0) return;
-    if (TS.log) TS.log(_LOG_PRI, "Sending clog data, emptying queue");
-    if (TS.log) TS.log(_LOG_PRI, "Logs: ", _logs);
+    if (TS.has_pri[_pri]) {
+      TS.log(_pri, "Sending clog data, emptying queue");
+      TS.log(_pri, "Logs: ", _logs);
+    }
     var log_urls = _createLogURLs(_logs);
     var log_url;
     for (var i = 0; i < log_urls.length; i += 1) {
       log_url = log_urls[i];
       var log = new Image;
       log.src = log_url;
-      if (TS.log) TS.log(_LOG_PRI, "Logged event: " + log_url);
+      if (TS.has_pri[_pri]) TS.log(_pri, "Logged event: " + log_url);
     }
     _logs = [];
   };
@@ -3715,7 +3731,7 @@ var _cyrillicToLatin = function(char) {
       }
     }
     urls.push(makeUrl(data));
-    if (TS.log) TS.log(_LOG_PRI, "URLs:", urls);
+    if (TS.has_pri[_pri]) TS.log(_pri, "URLs:", urls);
     return urls;
   };
   var _onClick = function() {
@@ -3939,6 +3955,9 @@ var _cyrillicToLatin = function(char) {
       var emoji_display_names = emoji.display_names || emoji.names;
       if (TS.boot_data.feature_localization) {
         emoji_display_names = TS.i18n.deburr(emoji_display_names);
+        if (emoji.display_names && emoji.display_names !== emoji.names) {
+          emoji_display_names += " " + emoji.names;
+        }
       }
       var aliases = emoji_display_names.split(" ");
       for (var i = 0; i < aliases.length; i += 1) {
@@ -4739,7 +4758,7 @@ var _cyrillicToLatin = function(char) {
       }
     },
     openNewFileWindow: function(file, url, qs) {
-      TS.log(438, "TS.ssb.openNewFileWindow url: " + url);
+      if (_pri) TS.log(_pri, "TS.ssb.openNewFileWindow url: " + url);
       if (TS.client) {
         return TS.client.windows.openFileWindow(file.id, qs);
       } else if (window.is_in_ssb) {
@@ -4750,7 +4769,7 @@ var _cyrillicToLatin = function(char) {
           }
           return true;
         } else if (window.winssb && window.opener && window.opener.executeJavaScript) {
-          TS.log(438, "calling _executeInAtomSSBParentWin for TS.client.windows.openFileWindow");
+          if (_pri) TS.log(_pri, "calling _executeInAtomSSBParentWin for TS.client.windows.openFileWindow");
           _executeInAtomSSBParentWin("TS.client.windows.openFileWindow(" + _prepStringForEval(file.id) + ", " + _prepStringForEval(url) + ");");
           return true;
         }
@@ -4773,12 +4792,12 @@ var _cyrillicToLatin = function(char) {
       if (document.ssb_main) {
         if (document.ssb_main.TS) document.ssb_main.TS.files.upsertAndSignal(file);
       } else if (window.winssb && window.opener && window.opener.executeJavaScript) {
-        TS.log(438, "calling _executeInAtomSSBParentWin for TS.files.upsertAndSignal");
+        if (_pri) TS.log(_pri, "calling _executeInAtomSSBParentWin for TS.files.upsertAndSignal");
         _executeInAtomSSBParentWin("TS.files.upsertAndSignal(" + _prepObjectForEval(file) + ");");
       }
     },
     toggleMuteInWin: function(token, video, handler) {
-      TS.log(438, "toggleMuteInWin called with token: " + token);
+      if (_pri) TS.log(_pri, "toggleMuteInWin called with token: " + token);
       if (!TS.client) return;
       var win = TS.client.windows.getWinByToken(token);
       if (!win) {
@@ -4804,7 +4823,7 @@ var _cyrillicToLatin = function(char) {
       TS.ssb.teams_did_load_sig.dispatch();
     },
     distributeMsgToWin: function(token, imsg) {
-      TS.log(438, "distributeMsgToWin called with token: " + token);
+      if (_pri) TS.log(_pri, "distributeMsgToWin called with token: " + token);
       if (!TS.client) return;
       var win = TS.client.windows.getWinByToken(token);
       if (!win) {
@@ -4815,8 +4834,8 @@ var _cyrillicToLatin = function(char) {
         try {
           if (win && win.window && win.window.TS && win.window.TS.ms && win.window.TS.ms.msg_handlers) {
             win.window.TS.ms.msg_handlers.msgReceivedFromParentWindow(imsg);
-          } else {
-            TS.maybeWarn(438, "distributeMsgToWin win.window not ready! token: " + token);
+          } else if (_pri) {
+            TS.maybeWarn(_pri, "distributeMsgToWin win.window not ready! token: " + token);
           }
         } catch (err) {
           TS.error("error calling macgap win.window.TS.ms.msg_handlers.msgReceivedFromParentWindow");
@@ -4861,7 +4880,7 @@ var _cyrillicToLatin = function(char) {
     });
   };
   var _executeInAtomSSBParentWinWorker = function(code, handler) {
-    TS.log(438, 'CALLING _executeInAtomSSBParentWin\n\n"' + code + '"');
+    if (_pri) TS.log(_pri, 'CALLING _executeInAtomSSBParentWin\n\n"' + code + '"');
     var callNext = function() {
       _execute_parent_win_Q.shift();
       if (_execute_parent_win_Q.length) _executeInAtomSSBParentWinWorker.apply(null, _execute_parent_win_Q[0]);
@@ -4895,7 +4914,7 @@ var _cyrillicToLatin = function(char) {
           setTimeout(callNext, 0);
         }
       });
-      TS.log(438, 'CALLED _executeInAtomSSBParentWin\n\n"' + code + '"\n\n ret: ' + ret);
+      if (_pri) TS.log(_pri, 'CALLED _executeInAtomSSBParentWin\n\n"' + code + '"\n\n ret: ' + ret);
       return ret;
     };
     var ret = call();
@@ -4910,7 +4929,7 @@ var _cyrillicToLatin = function(char) {
     });
   };
   var _executeInAtomSSBWinWorker = function(win, code, handler) {
-    TS.log(438, "CALLING _executeInAtomSSBWin token: " + win.token + '\n\n"' + code + '"');
+    if (_pri) TS.log(_pri, "CALLING _executeInAtomSSBWin token: " + win.token + '\n\n"' + code + '"');
     var callNext = function() {
       _execute_win_Q.shift();
       if (_execute_win_Q.length) _executeInAtomSSBWinWorker.apply(null, _execute_win_Q[0]);
@@ -4939,18 +4958,19 @@ var _cyrillicToLatin = function(char) {
           } else {
             var data_log = typeof data === "object" ? JSON.stringify(data, null, 2) : data;
             var pri = attempts == 1 ? 438 : 0;
-            TS.log(pri, "_executeInAtomSSBWin token: " + win.token + '\n\n"' + code + '"\n\nreturned data: ' + data_log);
+            if (_pri) TS.log(pri, "_executeInAtomSSBWin token: " + win.token + '\n\n"' + code + '"\n\nreturned data: ' + data_log);
           }
           if (handler) handler(err, data);
           setTimeout(callNext, 0);
         }
       });
-      TS.log(438, "CALLED _executeInAtomSSBWin token: " + win.token + '\n\n"' + code + '"\n\n ret: ' + ret);
+      if (_pri) TS.log(_pri, "CALLED _executeInAtomSSBWin token: " + win.token + '\n\n"' + code + '"\n\n ret: ' + ret);
       return ret;
     };
     var ret = call();
     return !!ret;
   };
+  var _pri = 438;
 })();
 (function() {
   "use strict";

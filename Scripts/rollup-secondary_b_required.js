@@ -2114,17 +2114,17 @@
       var root_url = TS.boot_data.abs_root_url;
       var all_sounds = [].concat(TS.boot_data.notification_sounds || []).concat(TS.boot_data.alert_sounds || []).concat(TS.boot_data.call_sounds || []);
       var preloadA = [];
-      TS.log(37, "adding all_sounds: " + all_sounds.length);
+      if (TS.has_pri[_pri_sounds]) TS.log(_pri_sounds, "adding all_sounds: " + all_sounds.length);
       all_sounds.forEach(function(sound) {
         if (!sound.url) return;
         if (sound.url.indexOf("http") !== 0) sound.url = root_url + sound.url.replace("/", "");
         if (sound.url_ogg && sound.url_ogg.indexOf("http") !== 0) sound.url_ogg = root_url + sound.url_ogg.replace("/", "");
-        TS.log(37, "adding sound: " + sound.value);
+        if (TS.has_pri[_pri_sounds]) TS.log(_pri_sounds, "adding sound: " + sound.value);
         _sounds[sound.value] = {
           url: sound.url,
           url_ogg: sound.url_ogg
         };
-        TS.log(37, "_sounds[" + sound.value + "] = " + _sounds[sound.value]);
+        if (TS.has_pri[_pri_sounds]) TS.log(_pri_sounds, "_sounds[" + sound.value + "] = " + _sounds[sound.value]);
         preloadA.push(sound.url);
       });
       if (window.Audio) {
@@ -2137,9 +2137,9 @@
       }
       try {
         if (TSSSB.call("preloadSounds", preloadA)) {
-          TS.log(37, "called TSSSB.call('preloadSounds', '" + preloadA + "')");
-        } else {
-          TS.log(37, "NOT CALLED TSSSB.call('preloadSounds', '" + preloadA + "')");
+          if (TS.has_pri[_pri_sounds]) TS.log(_pri_sounds, "called TSSSB.call('preloadSounds', '" + preloadA + "')");
+        } else if (TS.has_pri[_pri_sounds]) {
+          TS.log(_pri_sounds, "NOT CALLED TSSSB.call('preloadSounds', '" + preloadA + "')");
         }
       } catch (err) {
         TS.warn("error calling TSSSB.preloadSounds " + err + " " + preloadA);
@@ -2195,14 +2195,14 @@
           playback_device: options.playback_device
         };
         if (TSSSB.call("playRemoteSound", args)) {
-          TS.log(37, "called TSSSB.call('playRemoteSound', '" + JSON.stringify(args) + "'})");
+          if (TS.has_pri[_pri_sounds]) TS.log(_pri_sounds, "called TSSSB.call('playRemoteSound', '" + JSON.stringify(args) + "'})");
         } else if (_.isFunction(sound.play)) {
-          TS.log(37, "calling sound.play()");
+          if (TS.has_pri[_pri_sounds]) TS.log(_pri_sounds, "calling sound.play()");
           sound.play({
             loops: options.should_loop ? 999999 : 0
           });
-        } else {
-          TS.log(37, "wanted to call sound.play() but it is not a function");
+        } else if (TS.has_pri[_pri_sounds]) {
+          TS.log(_pri_sounds, "wanted to call sound.play() but it is not a function");
         }
       } else if (soundManager) {
         TS.warn("sound is null: " + which + " window.Audio: " + window.Audio + " window.winssb: " + window.winssb + " soundManager.ok(): " + soundManager.ok() + " soundManager.html5Only: " + soundManager.html5Only + " soundManager.canPlayMIME('audio/mp3'): " + soundManager.canPlayMIME("audio/mp3"));
@@ -2214,9 +2214,9 @@
       var sound = TS.sounds.soundForName(which, options);
       if (sound) {
         if (TSSSB.call("stopRemoteSound", sound.url)) {
-          TS.log(37, "called TSSSB.call('stopRemoteSound', '" + sound.url + "')");
+          if (TS.has_pri[_pri_sounds]) TS.log(_pri_sounds, "called TSSSB.call('stopRemoteSound', '" + sound.url + "')");
         } else {
-          TS.log(37, "calling sound.stop()");
+          if (TS.has_pri[_pri_sounds]) TS.log(_pri_sounds, "calling sound.stop()");
           sound.stop();
         }
       } else if (soundManager) {
@@ -2235,6 +2235,7 @@
     }
   });
   var _sounds = {};
+  var _pri_sounds = 37;
 })();
 (function() {
   "use strict";
