@@ -16888,6 +16888,32 @@ body:not(.unify_user) .lazy_filter_select .lfs_value .ts_icon_shared_channels {
   top: 5px
 }
 
+.lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_item,
+.lazy_filter_select.single.filter_in_list_style .lfs_value .lfs_item {
+  color: #2C2D30;
+  font-size: 13px
+}
+
+.lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_item .ts_icon::before,
+.lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_item ts-icon::before,
+.lazy_filter_select.single.filter_in_list_style .lfs_value .lfs_item .ts_icon::before,
+.lazy_filter_select.single.filter_in_list_style .lfs_value .lfs_item ts-icon::before {
+  font-size: 13px;
+  line-height: 1
+}
+
+.lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_item .ts_icon:first-child::before,
+.lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_item ts-icon:first-child::before,
+.lazy_filter_select.single.filter_in_list_style .lfs_value .lfs_item .ts_icon:first-child::before,
+.lazy_filter_select.single.filter_in_list_style .lfs_value .lfs_item ts-icon:first-child::before {
+  margin-right: .25rem
+}
+
+.lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_item .ts_icon_shared_channel::before,
+.lazy_filter_select.single.filter_in_list_style .lfs_value .lfs_item .ts_icon_shared_channel::before {
+  vertical-align: text-top
+}
+
 .lazy_filter_select.single.filter_in_list_style .lfs_list_container {
   max-width: 350px;
   min-width: 250px;
@@ -16905,26 +16931,6 @@ body:not(.unify_user) .lazy_filter_select .lfs_value .ts_icon_shared_channels {
 .lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_group {
   color: #9e9ea6;
   font-size: 14px
-}
-
-.lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_item {
-  color: #2C2D30;
-  font-size: 13px
-}
-
-.lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_item .ts_icon::before,
-.lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_item ts-icon::before {
-  font-size: 13px;
-  line-height: 1
-}
-
-.lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_item .ts_icon:first-child::before,
-.lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_item ts-icon:first-child::before {
-  margin-right: .25rem
-}
-
-.lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_item .ts_icon_shared_channel::before {
-  vertical-align: text-top
 }
 
 .lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_item.group_item {

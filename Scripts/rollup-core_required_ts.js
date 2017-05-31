@@ -393,13 +393,7 @@
       if (!TS.client) {
         return false;
       }
-      var disable_redux_by_user_pref = false;
-      if (TS.model.prefs) {
-        disable_redux_by_user_pref = TS.model.prefs.disable_redux;
-      } else {
-        disable_redux_by_user_pref = TS.boot_data.disable_redux;
-      }
-      return TS.boot_data.feature_store_models_in_redux && !disable_redux_by_user_pref;
+      return TS.boot_data.feature_store_models_in_redux;
     },
     useReactDownloads: function() {
       return window.TS && TS.environment.isSSBAndAtLeastVersion("2.7");
