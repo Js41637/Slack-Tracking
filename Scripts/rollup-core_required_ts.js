@@ -945,6 +945,7 @@
     if (!TS.membership.lazyLoadChannelMembership()) return Promise.resolve();
     return TS.flannel.fetchAccessibleUserIdsForGuests().then(function(accessible_user_ids) {
       TS.model.guest_accessible_user_ids = accessible_user_ids;
+      if (TS.members) TS.members.members_for_user_changed_sig.dispatch();
     });
   };
   var _setUpUserInterface = function() {
