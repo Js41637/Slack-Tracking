@@ -408,7 +408,7 @@ body:not(.unify_user) .lfs_item.lfs_token .user_group_invite_member_small {
 }
 
 #user_group_member_invite_div .lfs_input_container {
-  padding: .4rem .4rem .4rem 2.5rem
+  padding: .4rem
 }
 
 #user_group_preview_container h3 {
