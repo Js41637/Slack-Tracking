@@ -2404,9 +2404,12 @@
         if (_is_pseudo || locale === "pseudo") {
           _translations[key] = new MessageFormat(locale, _getPseudoTranslation(str)).format;
         } else {
+          if (_is_dev && ns && window.sha1 && window.tsTranslations && window.tsTranslations[ns]) {
+            str = window.tsTranslations[ns][window.sha1(str)] || str;
+          }
           _translations[key] = new MessageFormat(locale, str).format;
         }
-        if (_is_dev && (TS.qs_args && TS.qs_args.local_assets || TS.qs_args && TS.qs_args.js_path)) {
+        if (_is_dev && _is_local_js) {
           _translations[key].toString = _devWarningForImproperUse(key, ns);
         }
       }
@@ -2569,6 +2572,7 @@
   });
   var _is_setup;
   var _is_dev;
+  var _is_local_js;
   var _is_pseudo;
   var _locale;
   var _collator;
@@ -2578,6 +2582,7 @@
   var _maybeSetup = function() {
     if (_is_setup) return;
     _is_dev = location.host.match(/^([^.]+\.)?(?:enterprise\.)?(dev[0-9]*)\.slack\.com/);
+    _is_local_js = TS.qs_args && TS.qs_args.local_assets || TS.qs_args && TS.qs_args.js_path;
     var locale = location.search.match(new RegExp("\\?locale=(.*?)($|&)", "i"));
     if (locale) _locale = locale[1];
     if (!_locale) {
