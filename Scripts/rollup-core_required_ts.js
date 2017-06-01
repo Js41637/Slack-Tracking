@@ -4697,7 +4697,7 @@ var _cyrillicToLatin = function(char) {
   };
   var _toggleJumbomoji = function() {
     if (TS.client && TS.model.ms_logged_in_once) {
-      TS.client.msg_pane.rebuildMsgs();
+      TS.client.msg_pane.rebuildMsgsWithReason("_toggleJumbomoji");
       TS.view.rebuildMentions();
       TS.view.rebuildStars();
       if (TS.model.previewed_file_id) TS.client.ui.files.rebuildFilePreview();

@@ -734,7 +734,6 @@
       $row.replaceWith(TS.web.admin.buildMemberHTML(member, true, true));
     },
     buildInviteHTML: function(invite) {
-      var display_invite_name = invite.first_name || invite.last_name || invite.real_name;
       var invite_type_label = "";
       if (invite.type) {
         if (invite.type === "restricted") {
@@ -747,7 +746,6 @@
       var inviter_link = new Handlebars.SafeString(TS.templates.builders.makeMemberPreviewLink(inviter_ob));
       var template_args = {
         invite: invite,
-        display_invite_name: display_invite_name,
         invite_type_label: invite_type_label,
         crumb_key: boot_data.crumb_key,
         inviter_link: inviter_link
