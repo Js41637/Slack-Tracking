@@ -35,7 +35,7 @@
           esc_for_ok: true,
           fullscreen: false,
           go_button_text: go_button_text,
-          onGo: resolve
+          onEnd: resolve
         });
       });
     },

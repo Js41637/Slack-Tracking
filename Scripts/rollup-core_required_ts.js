@@ -854,6 +854,9 @@
       TS.reload(null, "TS.storage.flush() and TS.reload() because resp.data.error: " + error);
       return;
     }
+    if (error === "ratelimited") {
+      _maybeShowRateLimitedDialog();
+    }
     if (!TS.boot_data.feature_ws_refactor) TS.ms.logConnectionFlow("on_login_failure");
     if (!TS.boot_data.feature_ws_refactor) TS.ms.onFailure("rtm.start call failed with error: " + (error || "no error on resp.data"));
     var RTM_START_ERROR_MIN_DELAY = 5;
@@ -1347,13 +1350,15 @@
       if (TS.model.break_token) TS.model.team.url += "f";
       if (first_time) {
         TS.model.bots = [];
-        TS.model.members = [];
         TS.model.rooms = [];
         if (!TS.useRedux()) {
           TS.model.channels = [];
           TS.model.groups = [];
           TS.model.mpims = [];
           TS.model.ims = [];
+        }
+        if (!(TS.useRedux() && TS.boot_data.feature_store_members_in_redux)) {
+          TS.model.members = [];
         }
         TS.model.teams = [];
         TS.model.user_groups = [];
@@ -1758,6 +1763,27 @@
   var _pri_ms = 1996;
   var _pri_upsert = 481;
   var _pri_login = 488;
+  var _did_show_rate_limit_message_since_last_connect;
+  var _maybeShowRateLimitedDialog = function() {
+    if (_did_show_rate_limit_message_since_last_connect) return;
+    _did_show_rate_limit_message_since_last_connect = true;
+    TS.metrics.count("rate_limit_dialog_shown");
+    var title = "Bear with us";
+    var button_label = "Dismiss";
+    var message = "Lots of your teammates are connecting to Slack right now, so it’s taking longer than usual. We’re really sorry about this, and we’ll have you online soon.";
+    var p = TS.generic_dialog.alert(message, title, button_label);
+    var connectedCallback = function() {
+      if (p.isPending()) {
+        TS.generic_dialog.cancel();
+      }
+      _did_show_rate_limit_message_since_last_connect = false;
+    };
+    if (TS.boot_data.feature_ws_refactor) {
+      TS.interop.SocketManager.connectedSig.addOnce(connectedCallback);
+    } else {
+      TS.ms.connected_sig.addOnce(connectedCallback);
+    }
+  };
 })();
 (function() {
   "use strict";
