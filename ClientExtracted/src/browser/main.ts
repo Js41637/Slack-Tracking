@@ -148,14 +148,19 @@ function handleSingleInstance(shouldRun: boolean): any {
     process.exit(0);
   }
 
-  let weAreSecondary = false;
-
   // NB: If we call makeSingleInstance in the App Store Sandbox, we will
   // instacrash
   if (channel !== 'mas') {
-    weAreSecondary = app.makeSingleInstance((cmd) => {
-      global.secondaryParamsHandler(cmd);
+    const weAreSecondary = app.makeSingleInstance((commandLine) => {
+      logger.info(`Main: Received ${commandLine} from another instance`);
+      global.secondaryParamsHandler(commandLine);
     });
+
+    if (weAreSecondary) {
+      logger.info('Main: Another instance is running, exiting');
+      app.quit();
+      process.exit(0);
+    }
   }
 
   app.on('open-url', (e, url) => {
@@ -163,14 +168,8 @@ function handleSingleInstance(shouldRun: boolean): any {
     handleDeepLinkWhenReady(url);
   });
 
-  if (!shouldRun || weAreSecondary) {
-    app.quit();
-    process.exit(0);
-  }
-
   const args = parseCommandLine();
   assignIn(args, parseProtocolUrl(args.protoUrl));
-
 
   return args;
 }

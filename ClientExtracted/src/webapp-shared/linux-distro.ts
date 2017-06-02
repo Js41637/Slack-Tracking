@@ -21,10 +21,18 @@ export async function getLinuxDistro(): Promise<OsInfo> {
 
   try {
     const res: any = await execa('lsb_release', ['-a', '--short']);
-    const [os, name, release, codename] = res.stdout.split('\n')
-      .filter((line: string) => line !== 'No LSB modules are available.');
 
-    if (!os || !release) throw new Error();
+    // The first line of lsb_release output is always a listing of installed
+    // lsb modules
+    const osInfo = res.stdout.split('\n').slice(1);
+
+    if (osInfo.some((metadata: string) => metadata.length > 80)) {
+      throw new Error('lsb_release returned a non-standard format, bailing');
+    }
+
+    const [os, name, release, codename] = osInfo;
+
+    if (!os || !release) throw new Error('lsb_release is missing OS and release info, bailing');
 
     return {
       os,

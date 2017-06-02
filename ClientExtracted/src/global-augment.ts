@@ -160,6 +160,10 @@ declare global {
 
     interface Process {
       guestInstanceId: string;
+      getCPUUsage: () => {
+        idleWakeupsPerSecond: number;
+        percentCPUUsage: number;
+      };
     }
   }
 

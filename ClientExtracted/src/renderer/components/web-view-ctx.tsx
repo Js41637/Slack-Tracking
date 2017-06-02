@@ -11,10 +11,10 @@ import { Subscription } from 'rxjs/Subscription';
 import { executeJavaScriptMethod, setParentInformation } from 'electron-remote';
 
 import { getUserAgent } from '../../ssb-user-agent';
+import { isSlackURL } from '../../utils/url-utils';
 import { releaseDocumentFocus } from '../../utils/document-focus';
 import { logger, Logger } from '../../logger';
 import { noop } from '../../utils/noop';
-import { WEBAPP_MESSAGES_URL } from '../../utils/shared-constants';
 
 import { Component } from '../../lib/component';
 import { dialogStore } from '../../stores/dialog-store';
@@ -205,10 +205,6 @@ export class WebViewContext extends Component<WebViewContextProps, Partial<WebVi
     return this.webViewElement.getURL() || '';
   }
 
-  public isMessagesURL() {
-    return !!this.getURL().match(WEBAPP_MESSAGES_URL);
-  }
-
   public downloadURL(theUrl: string): void {
     this.WebContents.downloadURL(theUrl);
   }
@@ -334,15 +330,17 @@ export class WebViewContext extends Component<WebViewContextProps, Partial<WebVi
    */
   private setupLoadChecks(webView: Electron.WebViewElement): Subscription {
     const checkBlankPage = `document.location.href !== '${CHROMIUM_BLANK_PAGE_URL}'`;
+    const checkForLoadedCSS = `document.styleSheets.length >= [...document.head.children].filter(c => c.type === 'text/css').length`;
+    const fullyLoadedCheck = `${checkBlankPage} && ${checkForLoadedCSS}`;
     const didStopLoading = Observable.fromEvent(webView, 'did-stop-loading');
 
     return Observable.merge(didStopLoading, this.authDialogClosed)
       .debounceTime(1000)
       .filter(() => !this.shouldSkipLoadCheck(webView))
-      .flatMap(() => this.executeJavaScript(checkBlankPage))
+      .flatMap(() => this.executeJavaScript(fullyLoadedCheck).catch())
       .catch(() => Observable.of(null))
       .filter((isFullyLoaded: boolean | null) => isFullyLoaded === false)
-      .do(() => logger.error(`${webView.getURL()} was stuck at ${CHROMIUM_BLANK_PAGE_URL}`))
+      .do(() => logger.error(`${webView.getURL()} failed the load check`))
       .subscribe(() => this.props.onPageEmptyAfterLoad!(webView.getURL()));
   }
 
@@ -353,7 +351,7 @@ export class WebViewContext extends Component<WebViewContextProps, Partial<WebVi
    * @return {Boolean}  True to bypass the empty page check, false otherwise
    */
   private shouldSkipLoadCheck(webView: Electron.WebViewElement): boolean {
-    if (!webView || !this.isMessagesURL()) {
+    if (!webView || !isSlackURL(this.getURL())) {
       return true;
     }
 

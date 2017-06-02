@@ -10,6 +10,7 @@ import * as os from 'os';
 import * as util from 'util';
 import { p } from './get-path';
 import { noop } from './utils/noop';
+import { redactApiTokens } from './utils/redact-utils';
 import { IS_WINDOWS_STORE, UUID_FILENAME } from './utils/shared-constants';
 import { promisify } from './promisify';
 import { LoggerConfiguration } from './logger-configuration';
@@ -70,6 +71,7 @@ export class Logger {
    */
   constructor(options: LoggerOptions = {}) {
     this.logApi = new winston.Logger();
+    this.logApi.filters.push((_level, message) => redactApiTokens(message));
 
     const { identifierOverride, showTimestamp } = options;
     const loggerConfig = this.getLoggerConfiguration();
@@ -357,10 +359,9 @@ export class Logger {
     }
   }
 
-
   /**
-   * Wire console.error messages to logger instance setup, as well as report to bugsnag.
-   *
+   * Wire console.error messages to logger instance setup, as well as report
+   * to bugsnag.
    */
   private hookConsoleError(): void {
     const originalError = console.error;

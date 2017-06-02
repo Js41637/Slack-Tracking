@@ -181,6 +181,12 @@ class TraceRecorder {
     const outputZipFilePath = path.join(this.traceLocation, `${captureAllProcess ? 'full' : 'filtered'}_${uniqueFileName}.zip`);
 
     const filterPredicate = (x: { pid: number }) => x.pid && x.pid === senderId || x.pid === process.pid;
+    const getMetadata = () => Object.assign({
+      token: this.state.token,
+      identifier: this.state.identifier,
+      instanceUuid: getInstanceUuid(),
+      ...this.state.metadata
+    });
 
     const stopRecordingObservable = Observable.bindCallback(contentTracing.stopRecording);
     stopRecordingObservable(fullProcessTraceFilePath)
@@ -201,7 +207,7 @@ class TraceRecorder {
         }))
       .do((traceFilePath) => logger.debug(`stopTrace: trace file generated at ${traceFilePath}`))
       .mergeMap((traceFilePath) => this.generateArchive(traceFilePath!, outputZipFilePath))
-      .mergeMap((archivePath) => this.uploadTraceRecord(archivePath, this.state.endpoint, this.state.metadata))
+      .mergeMap((archivePath) => this.uploadTraceRecord(archivePath, this.state.endpoint, getMetadata()))
       //clear up state once archive - upload chain is completed and responded to webapp its result.
       .finally(() => {
         this.clearState();
@@ -233,7 +239,7 @@ class TraceRecorder {
 
     //set metadata into HTTP headers
     if (!!metadata) {
-      Object.keys(metadata).forEach((key) => request.setHeader(key, metadata[key]));
+      Object.keys(metadata).filter((key) => !!metadata[key]).forEach((key) => request.setHeader(key, metadata[key]));
     }
 
     //observe few events for verbose detailed progress

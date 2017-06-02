@@ -15,6 +15,7 @@ import { executeJavaScriptMethod } from 'electron-remote';
 import * as profiler from '../../utils/profiler';
 import { logger } from '../../logger';
 import { omit } from '../../utils/omit';
+import { isSlackURL } from '../../utils/url-utils';
 import '../../custom-operators';
 
 import { appTeamsActions } from '../../actions/app-teams-actions';
@@ -512,10 +513,10 @@ export class TeamView extends Component<TeamViewProps, Partial<TeamViewState>> {
   private onWebViewError({ errorCode, errorDescription, validatedURL }: {
     errorCode: number, errorDescription: string, validatedURL: string
   }): void {
-    if (validatedURL.startsWith(this.state.team.team_url)) {
+    if (isSlackURL(validatedURL)) {
       this.issueReloadWithReason(`WebView ${validatedURL} failed to load, issuing refresh.`, { errorCode, errorDescription });
     } else {
-      logger.info(`WebView ${validatedURL} encountered error, but not team url - not issuing refresh.`, { errorCode, errorDescription });
+      logger.info(`WebView ${validatedURL} encountered error, but not Slack URL - not issuing refresh.`, { errorCode, errorDescription });
     }
   }
 

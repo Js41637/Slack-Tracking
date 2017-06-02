@@ -146,6 +146,14 @@ export interface TraceRecordOptions {
   endpoint: string;
 
   /**
+   * Authentication token to upload trace results to endpoint.
+   * Auth configuration may vary per endpoint, token should be included if endpoint requires auth.
+   *
+   * When trigger request, this'll be flattened into HTTP header as same as metadata.
+   */
+  token?: string;
+
+  /**
    * Custom category filter to override default category.
    * refer about://tracing for available traces, and defaultTraceCategories(desktop.stats.defaultTraceCategories) for default values.
    * If not specified, will run devtools timeline profiling by default.

@@ -13,7 +13,6 @@ import { dialogActions } from '../../actions/dialog-actions';
 import { settingStore } from '../../stores/setting-store';
 
 export class ExternalLinkBehavior implements WebViewBehavior {
-
   /**
    * Opens external links in the default browser, or performs the OS default
    * action (e.g., open mail or Skype).
@@ -61,24 +60,26 @@ export class ExternalLinkBehavior implements WebViewBehavior {
    *
    * When people complain that their invalid URIs are being encoded (and they
    * will!), you can point them to page 11 of https://tools.ietf.org/html/rfc3986
+   * and the appendix https://tools.ietf.org/html/rfc3986#appendix-A
    *
    * @param  {Url} parsedUrl    The return value of `url.parse`
    * @return {Url}              The same data but with escaped query and hash
    *                            sections
    * @private
    */
-  private escapeUrlWhenNeeded(parsedUrl: url.Url): string {
-    const safeChars = /^[0-9a-zA-Z\$-_\.\+\!'\(\)]*$/;
-    if (!(parsedUrl.hash || ' ').substring(1).match(safeChars)) {
-      logger.info('ExternalLinkBehavior: Reformatting URL hash section.');
+  public escapeUrlWhenNeeded(parsedUrl: url.Url): string {
+    const safeFragmentQuery = /^[a-zA-Z0-9\-_\.!\~\*'\(\);/\?:\@\&=\+$,]*$/;
 
-      // NB: .hash includes the hash itself for whatever reason
-      parsedUrl.hash = `#${encodeURIComponent(parsedUrl.hash!.substring(1))}`;
+    if (!(parsedUrl.hash || ' ').substring(1).match(safeFragmentQuery)) {
+      logger.info('ExternalLinkBehavior: Reformatting URL hash section.');
+      parsedUrl.hash = encodeURI(parsedUrl.hash!);
     }
 
-    if (!(parsedUrl.query || '').match(safeChars)) {
+    // We used to replace the query here - take note, that's not even a
+    // valid operation - url.format() uses the search property to format.
+    if (!(parsedUrl.search || '').match(safeFragmentQuery)) {
       logger.info('ExternalLinkBehavior: Reformatting URL query section.');
-      parsedUrl.query = encodeURIComponent(parsedUrl.query);
+      parsedUrl.search = encodeURI(parsedUrl.search!);
     }
 
     return (parsedUrl as any).format();

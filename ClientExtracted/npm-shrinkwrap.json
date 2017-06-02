@@ -112,9 +112,9 @@
           "version": "6.6.0"
         }
       },
-      "from": "@slack/calls-core@2.2.0",
-      "resolved": "https://registry.npmjs.org/@slack/calls-core/-/calls-core-2.2.0.tgz",
-      "version": "2.2.0"
+      "from": "@slack/calls-core@2.3.1",
+      "resolved": "https://registry.npmjs.org/@slack/calls-core/-/calls-core-2.3.1.tgz",
+      "version": "2.3.1"
     },
     "@paulcbetts/cld": {
       "dependencies": {
@@ -221,9 +221,9 @@
           "version": "1.2.1"
         }
       },
-      "from": "@slack/slack-calls@2.2.0",
-      "resolved": "https://registry.npmjs.org/@slack/slack-calls/-/slack-calls-2.2.0.tgz",
-      "version": "2.2.0"
+      "from": "@slack/slack-calls@2.3.1",
+      "resolved": "https://registry.npmjs.org/@slack/slack-calls/-/slack-calls-2.3.1.tgz",
+      "version": "2.3.1"
     },
     "@paulcbetts/spellchecker": {
       "from": "@paulcbetts/spellchecker@>=4.0.5 <5.0.0",
@@ -2758,9 +2758,9 @@
       "dependencies": {
         "electron": {
           "dev": true,
-          "from": "electron@1.6.8",
-          "resolved": "https://registry.npmjs.org/electron/-/electron-1.6.8.tgz",
-          "version": "1.6.8"
+          "from": "electron@1.6.11",
+          "resolved": "https://registry.npmjs.org/electron/-/electron-1.6.11.tgz",
+          "version": "1.6.11"
         },
         "electron-download": {
           "dev": true,
@@ -2800,9 +2800,9 @@
         }
       },
       "dev": true,
-      "from": "electron-prebuilt-compile@1.6.8",
-      "resolved": "https://registry.npmjs.org/electron-prebuilt-compile/-/electron-prebuilt-compile-1.6.8.tgz",
-      "version": "1.6.8"
+      "from": "electron-prebuilt-compile@1.6.11",
+      "resolved": "https://registry.npmjs.org/electron-prebuilt-compile/-/electron-prebuilt-compile-1.6.11.tgz",
+      "version": "1.6.11"
     },
     "electron-rebuild": {
       "dependencies": {

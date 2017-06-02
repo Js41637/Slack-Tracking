@@ -1,8 +1,8 @@
 {
   "name": "slack",
   "productName": "Slack",
-  "version": "2.6.2-betaa6390ce1",
-  "buildVersion": 4106,
+  "version": "2.6.3-beta2622578f",
+  "buildVersion": 4109,
   "versionName": "XO",
   "description": "Slack Desktop",
   "copyright": "©2017 Slack Technologies Inc.",
@@ -39,7 +39,7 @@
     "toast-activator-clsid": "9a92da87-49f2-51a4-a2b5-718444efc154"
   },
   "dependencies": {
-    "@slack/slack-calls": "2.2.0",
+    "@slack/slack-calls": "2.3.1",
     "@paulcbetts/system-idle-time": "1.0.4",
     "@paulcbetts/v8-profiler": "5.6.6",
     "JSONStream": "1.3.1",
@@ -206,7 +206,7 @@
     "electron-compilers": "5.5.1",
     "electron-mocha": "3.3.0",
     "electron-osx-sign": "0.4.0-beta",
-    "electron-prebuilt-compile": "1.6.8",
+    "electron-prebuilt-compile": "1.6.11",
     "electron-rebuild": "~1.5.7",
     "electron-windows-store": "0.9.3",
     "electron-winstaller": "2.5.1",
@@ -254,7 +254,7 @@
     "typescript": "2.2.1",
     "yargs": "3"
   },
-  "commit": "a6390ce1",
-  "branch": "release-2.6.2",
+  "commit": "2622578f",
+  "branch": "release-2.6.3",
   "channel": "beta"
 }

@@ -46,6 +46,15 @@ export class Stats {
   }
 
   /**
+   * Returns CPU usage and idle wakeup information.
+   *
+   * @returns {CPUUsage} Information about CPU usage
+   */
+  public getCPUUsage() {
+    return process.getCPUUsage();
+  }
+
+  /**
    * Returns memory stats for the current team.
    *
    * @return {CombinedStats}  The stats Object
@@ -174,11 +183,9 @@ export class Stats {
   }
 
   /**
-   * Stops collecting tracing data triggered by startContentTrace, post results to specified path.
-   * If path is not specified, it'll generate trace under tmp location of system instead.
+   * Stops collecting tracing data triggered by startContentTrace, post results to specified endpoint when starts recording.
    *
-   * @return {Promise<StopTraceResponse>} Promise indicates completion of stop record,
-   * returns status of upload request.
+   * @return {Promise<StopTraceResponse>} Promise indicates completion of stop record, returns status of upload request.
    */
   public stopTraceRecord(): Promise<StopTraceResponse> {
     const pid = process.pid;
