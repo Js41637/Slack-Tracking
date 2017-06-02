@@ -3696,7 +3696,7 @@ var _cyrillicToLatin = function(char) {
   };
   var _sendDataAndEmptyQueue = function() {
     if (_logs.length === 0) return;
-    if (TS.has_pri[_pri]) {
+    if (TS.log && TS.has_pri[_pri]) {
       TS.log(_pri, "Sending clog data, emptying queue");
       TS.log(_pri, "Logs: ", _logs);
     }
@@ -3706,7 +3706,7 @@ var _cyrillicToLatin = function(char) {
       log_url = log_urls[i];
       var log = new Image;
       log.src = log_url;
-      if (TS.has_pri[_pri]) TS.log(_pri, "Logged event: " + log_url);
+      if (TS.log && TS.has_pri[_pri]) TS.log(_pri, "Logged event: " + log_url);
     }
     _logs = [];
   };
@@ -3730,7 +3730,7 @@ var _cyrillicToLatin = function(char) {
       }
     }
     urls.push(makeUrl(data));
-    if (TS.has_pri[_pri]) TS.log(_pri, "URLs:", urls);
+    if (TS.log && TS.has_pri[_pri]) TS.log(_pri, "URLs:", urls);
     return urls;
   };
   var _onClick = function() {

@@ -2597,9 +2597,9 @@
       return {
         full_profile_filter: true,
         is_long_list_view: true,
-        include_bots: true,
+        include_bots: 0,
         exclude_slackbot: true,
-        include_deleted: false,
+        include_deleted: 0,
         sort_dir: "asc",
         sort: _getSortByForApi(),
         endpoint: "users.admin.fetchTeamUsers"
