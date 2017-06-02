@@ -595,11 +595,9 @@
       return _fully_booted_p;
     },
     test: function() {
-      return {
+      var test = {
         _registerDelayedComponentsAndModules: _registerDelayedComponentsAndModules,
         _maybeOpenTokenlessConnection: _maybeOpenTokenlessConnection,
-        _shouldConnectToMS: _shouldConnectToMS,
-        _getMSLoginArgs: _getMSLoginArgs,
         _deleteModule: function(name) {
           delete TS[name];
           delete _modules[name];
@@ -609,6 +607,31 @@
           delete _components[name];
         }
       };
+      Object.defineProperty(test, "_getMSLoginArgs", {
+        get: function() {
+          return _getMSLoginArgs;
+        },
+        set: function(f) {
+          _getMSLoginArgs = f;
+        }
+      });
+      Object.defineProperty(test, "_shouldConnectToMS", {
+        get: function() {
+          return _shouldConnectToMS;
+        },
+        set: function(f) {
+          _shouldConnectToMS = f;
+        }
+      });
+      Object.defineProperty(test, "_maybeStartPerfTrace", {
+        get: function() {
+          return _maybeStartPerfTrace;
+        },
+        set: function(f) {
+          _maybeStartPerfTrace = f;
+        }
+      });
+      return test;
     }
   };
   var _registerInNamespace = function(namespace, ob, type) {
@@ -816,7 +839,9 @@
           if (TS.has_pri[_pri_flannel]) TS.log(_pri_flannel, "Bad news: we're trying to do an rtm.start from Flannel while we're already connected, and that won't work.");
           return Promise.reject(new Error("rtm.start-over-WebSocket failed"));
         }
-        _ms_rtm_start_p = TS.flannel.connectAndFetchRtmStart();
+        _ms_rtm_start_p = _maybeStartPerfTrace().then(function() {
+          return TS.flannel.connectAndFetchRtmStart();
+        });
       }
       var rtm_start_p = _ms_rtm_start_p;
       _ms_rtm_start_p = undefined;
@@ -1706,17 +1731,27 @@
   var _shouldConnectToMS = function() {
     return !!(TS.client || TS.web && TS.boot_data.page_has_ms);
   };
+  var _maybeStartPerfTrace = function() {
+    if (!TS.boot_data.feature_automated_perfectrics) return Promise.resolve();
+    return TS.client ? TS.client.traces.maybeTrace(10, {
+      reason: "automated"
+    }) : Promise.resolve();
+  };
   var _maybeOpenTokenlessConnection = function() {
     if (!_shouldConnectToMS()) return;
     if (!TS.boot_data.ms_connect_url) return;
     if (TS.lazyLoadMembersAndBots()) {
-      _ms_rtm_start_p = TS.flannel.connectAndFetchRtmStart().catch(function() {
+      _ms_rtm_start_p = _maybeStartPerfTrace().then(function() {
+        return TS.flannel.connectAndFetchRtmStart();
+      }).catch(function() {
         if (TS.boot_data.feature_ws_refactor) {
           TS.interop.SocketManager.disconnect();
         } else {
           TS.ms.disconnect();
         }
         return TS.api.connection.waitForAPIConnection().then(function() {
+          return _maybeStartPerfTrace();
+        }).then(function() {
           return TS.flannel.connectAndFetchRtmStart();
         });
       });

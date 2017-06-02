@@ -16500,12 +16500,12 @@ body:not(.unify_user) .lazy_filter_select .lfs_input_container.empty .lfs_input 
 .lazy_filter_select .lfs_list .lfs_group,
 .lazy_filter_select .lfs_list .lfs_item {
   padding: .375rem;
-  font-size: .85rem;
-  line-height: 1rem
+  font-size: .85rem
 }
 
 .lazy_filter_select .lfs_list .lfs_group {
   font-weight: 700;
+  line-height: 1.5;
   width: 100%
 }
 
@@ -16513,6 +16513,7 @@ body:not(.unify_user) .lazy_filter_select .lfs_input_container.empty .lfs_input 
   cursor: pointer;
   border: 1px solid transparent;
   border-radius: 2px;
+  line-height: 1rem;
   width: 100%;
   display: block;
   text-overflow: ellipsis;
