@@ -646,8 +646,9 @@
     return !(typeof window.jasmine !== "undefined" || TS.boot_data.version_ts === "dev" && TS.qs_args.export_test);
   };
   var _reconnectRequestedMS = function() {
+    if (TS.boot_data.feature_ws_refactor) return;
     TS.console.logStackTrace("MS reconnection requested");
-    if (TS.model.ms_asleep) {
+    if (TS.ms.isAsleep()) {
       TS.error("NOT reconnecting, we are asleep");
       return;
     } else if (TS.model.ms_connected) {
@@ -674,6 +675,7 @@
     }
   };
   var _apiPaused = function() {
+    if (TS.boot_data.feature_ws_refactor) return;
     TS.info("API queue got paused while waiting for MS reconnection");
     if (TS.boot_data.feature_ws_refactor) {
       TS.interop.SocketManager.remove(_didGetConnected);
@@ -689,6 +691,7 @@
     });
   };
   var _didGetConnected = function() {
+    if (TS.boot_data.feature_ws_refactor) return;
     var reconnect_duration_ms = TS.metrics.measureAndClear("ms_reconnect_delay", "ms_reconnect_requested");
     TS.info("OK, MS is now reconnected -- it took " + _.round(reconnect_duration_ms / 1e3, 2) + " seconds");
     TS.api.paused_sig.remove(_apiPaused);
@@ -1022,7 +1025,25 @@
       return;
     }
     if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS wants to connect to MS");
-    if (TS.boot_data.feature_ws_refactor) {} else if (TS.ms.hasProvisionalConnection() && TS.ms.finalizeProvisionalConnection()) {
+    if (TS.boot_data.feature_ws_refactor) {
+      if (TS.interop.SocketManager.isProvisionallyConnected()) {
+        TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS will finalize SocketManager");
+        try {
+          TS.interop.SocketManager.finalizeProvisionalConnection();
+          TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS did finalize SocketManager");
+        } catch (err) {
+          TS.log("BOOT: _maybeFinalizeOrOpenConnectionToMS failed to finalize SocketManager");
+          TS.error(err);
+          TS.interop.SocketManager.disconnect();
+        }
+      } else {
+        TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS wanted to finalize SocketManager but it had no connection; making a new one");
+        TS.interop.SocketManager.connectProvisionallyAndFetchRtmStart().catch(function(err) {
+          TS.log("BOOT: _maybeFinalizeOrOpenConnectionToMS failed to make a new connection");
+          TS.error(err);
+        });
+      }
+    } else if (TS.ms.hasProvisionalConnection() && TS.ms.finalizeProvisionalConnection()) {
       if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS finalized MS connection");
       if (TS.has_pri[_pri_ms]) TS.log(_pri_ms, "Successfully finalized a provisional MS connection");
     } else {
@@ -1070,7 +1091,20 @@
       TSSSB.call("didStartLoading", 6e4);
     }
     if (_shouldConnectToMS()) {
-      if (TS.boot_data.feature_ws_refactor) {} else {
+      if (TS.boot_data.feature_ws_refactor) {
+        TS.interop.SocketManager.disconnectedSig.add(_socketDisconnectedMS);
+        TS.interop.SocketManager.connectedSig.addOnce(function() {
+          TS.interop.SocketManager.provisionallyConnectedSig.add(function(start_data_p) {
+            start_data_p.then(function(start_data) {
+              _processStartData({
+                ok: true,
+                args: {},
+                data: start_data.rtm_start
+              });
+            });
+          });
+        });
+      } else {
         TS.ms.reconnect_requested_sig.add(_reconnectRequestedMS);
         TS.ms.disconnected_sig.add(_socketDisconnectedMS);
       }
@@ -2956,14 +2990,10 @@ var _cyrillicToLatin = function(char) {
     inline_img_pixel_limit: 7360 * 4912,
     code_wrap_long_lines: true,
     last_reads_set_by_client: {},
-    ms_asleep: false,
     ms_connected: false,
     ms_connecting: false,
     ms_logged_in_once: false,
-    ms_connection_start_ts: null,
     calling_rtm_start: false,
-    calling_test_fast_reconnect: false,
-    attempting_fast_reconnect: false,
     ds_asleep: false,
     ds_connected: false,
     ds_connecting: false,
@@ -3016,8 +3046,6 @@ var _cyrillicToLatin = function(char) {
     native_media_preload_limit_bytes: 2097152,
     is_msg_rate_limited: false,
     break_token: false,
-    ms_reconnect_ms: 0,
-    ms_reconnect_time: 0,
     rtm_start_throttler: 0,
     ds_reconnect_ms: 0,
     ds_reconnect_time: 0,
@@ -3185,6 +3213,19 @@ var _cyrillicToLatin = function(char) {
     pdf_viewer_enabled: true,
     onStart: function(ua) {
       ua = ua || navigator.userAgent;
+      if (TS.boot_data.feature_ws_refactor) {
+        var throwError = function() {
+          throw new Error("This is read-only");
+        };
+        Object.defineProperty(TS.model, "ms_connected", {
+          get: TS.interop.SocketManager.isConnected,
+          set: throwError
+        });
+        Object.defineProperty(TS.model, "ms_connecting", {
+          get: TS.interop.SocketManager.isConnecting,
+          set: throwError
+        });
+      }
       TS.model.files_url = TS.utility.normalizeDevHost("https://" + document.location.hostname + "/files");
       TS.model.archives_url = TS.utility.normalizeDevHost("https://" + document.location.hostname + "/archives");
       TS.model.bots_url = TS.utility.normalizeDevHost("https://" + document.location.hostname + "/services");
