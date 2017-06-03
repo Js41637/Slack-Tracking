@@ -6285,6 +6285,10 @@ span.emoji {
   top: -4px
 }
 
+.ts_tip .ts_tip_inner_current_status {
+  line-height: 1.6
+}
+
 .current_status ts-icon,
 .message_current_status ts-icon {
   color: #717274
