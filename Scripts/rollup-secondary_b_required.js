@@ -663,12 +663,12 @@
       e.preventDefault();
       var query = _getQuery();
       if (query) {
-        TS.utility.openInNewTab(_createSearchUrl(query), "_blank");
+        window.open(query);
         TS.clog.track("HELP_MODAL_SEARCH", {
           search_terms: query
         });
       } else {
-        TS.utility.openInNewTab($(this).attr("href"), "_blank");
+        window.open($(this).attr("href"));
       }
     });
   };
@@ -823,7 +823,7 @@
     var the_url = $row.data("url");
     var the_query = _getQuery();
     if (the_url) {
-      TS.utility.openInNewTab(the_url, "_blank");
+      window.open(the_url);
       if (the_url.indexOf("hc/search?") == -1) {
         TS.clog.track("HELP_MODAL_ZD_HIT", {
           zd_article_url: the_url
