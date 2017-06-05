@@ -14108,23 +14108,28 @@ body:not(.unify_user) #client-ui .searchable_member_list .team_list_item:hover {
 }
 
 #slackbot_meta,
-.dm_badge {
+.dm_badge,
+.mpdm_badge {
   margin: 0
 }
 
-.dm_badge {
+.dm_badge,
+.mpdm_badge {
   margin-bottom: 1.5rem
 }
 
-.dm_badge i {
+.dm_badge i,
+.mpdm_badge i {
   margin-right: .2rem
 }
 
-.dm_badge .member_image {
+.dm_badge .member_image,
+.mpdm_badge .member_image {
   float: left
 }
 
-body:not(.unify_user) .dm_badge .member_image {
+body:not(.unify_user) .dm_badge .member_image,
+body:not(.unify_user) .mpdm_badge .member_image {
   margin: 0 .75rem 0 0;
   -ms-flex: none;
   -webkit-flex: none;
@@ -14135,7 +14140,8 @@ body:not(.unify_user) .dm_badge .member_image {
   align-self: flex-start
 }
 
-.dm_badge .dm_badge_meta {
+.dm_badge .dm_badge_meta,
+.mpdm_badge .dm_badge_meta {
   margin: 0 0 .5rem;
   padding-top: 0;
   font-size: 1rem;
@@ -14145,42 +14151,55 @@ body:not(.unify_user) .dm_badge .member_image {
   margin-bottom: 0!important
 }
 
-.dm_badge .dm_badge_meta .member_team_name {
+.dm_badge .dm_badge_meta .member_team_name,
+.mpdm_badge .dm_badge_meta .member_team_name {
   color: #A0A0A2
 }
 
 body:not(.unify_user) .dm_badge a.app_preview_link,
-body:not(.unify_user) .dm_badge a.member_preview_link {
+body:not(.unify_user) .dm_badge a.member_preview_link,
+body:not(.unify_user) .mpdm_badge a.app_preview_link,
+body:not(.unify_user) .mpdm_badge a.member_preview_link {
   font-weight: 600;
   font-size: 1rem;
   color: #555459
 }
 
-.dm_badge .dm_badge:hover a.member_preview_link {
+.dm_badge .dm_badge:hover a.member_preview_link,
+.mpdm_badge .dm_badge:hover a.member_preview_link {
   color: inherit
 }
 
-body:not(.unify_user) .dm_badge a {
+body:not(.unify_user) .dm_badge a,
+body:not(.unify_user) .mpdm_badge a {
   color: #9e9ea6;
   -webkit-transition: .1s;
   -moz-transition: .1s;
   transition: .1s
 }
 
-.dm_badge .dm_badge:hover a {
+.dm_badge .dm_badge:hover a,
+.mpdm_badge .dm_badge:hover a {
   color: #007AB8
 }
 
-.dm_badge .hint {
+.dm_badge .hint,
+.mpdm_badge .hint {
   color: #9e9ea6
 }
 
-.dm_badge .member_type_and_description {
+.dm_badge .member_type_and_description,
+.mpdm_badge .member_type_and_description {
   font-size: 1rem
 }
 
-.dm_badge .presence {
+.dm_badge .presence,
+.mpdm_badge .presence {
   margin: 0 .25rem
+}
+
+.mpdm_badge .member_image {
+  margin: 0 .75rem 0 0
 }
 
 .member_small .enter_icon {
