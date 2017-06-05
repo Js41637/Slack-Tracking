@@ -3946,6 +3946,9 @@ var _cyrillicToLatin = function(char) {
         return _assignments[name];
       });
     },
+    getAllAssignmentsForDebugging: function() {
+      return _assignments;
+    },
     test: function() {
       var test_ob = {};
       Object.defineProperty(test_ob, "_recordAssignments", {
