@@ -6731,17 +6731,19 @@ code.special_formatting a {
 
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   code {
-    padding-left: 0;
+    padding-left: .25rem;
     padding-right: 0
   }
   code:after,
   code:before {
     letter-spacing: -.25rem;
-    content: "\00a0";
     -webkit-user-select: text;
     -moz-user-select: text;
     -ms-user-select: text;
     user-select: text
+  }
+  code:after {
+    content: "\00a0"
   }
   pre code:after,
   pre code:before {
