@@ -1889,6 +1889,7 @@
     },
     onMemberSetRestricted: function(ok, data, args) {
       var member = TS.members.getMemberById(args.user);
+      var error_message;
       if (!member) {
         TS.error("no member? user:" + args.user);
         return;
@@ -1896,12 +1897,17 @@
       if (!ok) {
         TS.error("failed onMemberSetRestricted");
         if (data.error === "not_permitted_for_user_on_enterprise") {
-          var error_message = TS.i18n.t("Oops! You cannot make this user a Multi-Channel Guest because they are on multiple teams in this Organization.", "web_admin")();
+          error_message = TS.i18n.t("Oops! You cannot make this user a Multi-Channel Guest because they are on multiple teams in this Organization.", "web_admin")();
           var error_alert = '<p class="alert alert_info align_left"><i class="ts_icon ts_icon_warning small_right_margin"></i>' + error_message + "</p>";
           TS.web.admin.rowError(member, error_message);
           $("#step2_restricted").find("#convert_to_ra_confirmation").after(error_alert);
-        } else {
+        } else if ($("#step2_restricted").length) {
           $("#step2_restricted").find(".error_message").removeClass("hidden").end().find(".api_set_restricted").removeClass("disabled").prop("disabled", false).text(TS.i18n.t("Try Again", "web_admin")());
+        } else if (data.error === "must_join_channel") {
+          error_message = TS.i18n.t("Oops! You must add this member to at least one channel before converting them to a Multi-Channel Guest.", "web_admin")();
+          TS.web.admin.rowError(member, error_message);
+        } else {
+          TS.web.admin.rowError(member);
         }
         return;
       }
@@ -1966,8 +1972,10 @@
           var error_alert = '<p class="alert alert_info align_left"><i class="ts_icon ts_icon_warning small_right_margin"></i>' + error_message + "</p>";
           TS.web.admin.rowError(member, error_message);
           $("#step2_guest").find("#convert_to_ura_confirmation").after(error_alert);
-        } else {
+        } else if ($("#step2_guest").length) {
           $("#step2_guest").find(".error_message").removeClass("hidden").end().find(".api_set_ultra_restricted").removeClass("disabled").prop("disabled", false).text(TS.i18n.t("Try Again", "web_admin")());
+        } else {
+          TS.web.admin.rowError(member);
         }
         return;
       }

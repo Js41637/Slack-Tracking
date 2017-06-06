@@ -110,7 +110,6 @@
   var _cancel_google_auth_polling;
   var _event_family_name = "INVITEMODAL";
   var _clog_name = _event_family_name + "_ACTION";
-  var _in_guest_in_modal_alert_exp = false;
   var _NUM_INVITES = 3;
   var _error_map = {
     url_in_message: TS.i18n.t("Sorry, but URLs are not allowed in the custom message. Please remove it and try again!", "invite")(),
@@ -219,20 +218,16 @@
   var _onShow = function() {
     var $admin_invites_alert = $("#admin_invites_alert");
     if (!TS.model.team.plan) {
-      var exp_group = TS.experiment.getGroup("feat_guest_alert_invite_modal");
-      _in_guest_in_modal_alert_exp = exp_group === "see_pricing_plans" || exp_group === "show_alert_in_invite_modal";
-      if (_in_guest_in_modal_alert_exp) {
-        $admin_invites_alert.removeClass("hidden");
-        TS.clog.track("GROWTH_PRICING", {
-          contexts: {
-            ui_context: {
-              step: "admin_invites",
-              action: "impression",
-              ui_element: "invite_modal_guest_alert"
-            }
+      $admin_invites_alert.removeClass("hidden");
+      TS.clog.track("GROWTH_PRICING", {
+        contexts: {
+          ui_context: {
+            step: "admin_invites",
+            action: "impression",
+            ui_element: "invite_modal_guest_alert"
           }
-        });
-      }
+        }
+      });
     } else {
       $admin_invites_alert.addClass("hidden");
     }
@@ -251,7 +246,7 @@
     _$div.find('button[data-action="api_send_invites"]').on("click", function(e) {
       e.preventDefault();
       _send();
-      if (!TS.model.team.plan && _in_guest_in_modal_alert_exp) $admin_invites_alert.css("visibility", "hidden");
+      if (!TS.model.team.plan) $admin_invites_alert.css("visibility", "hidden");
     });
     _$div.find('button[data-action="api_parse_emails"]').on("click", function(e) {
       e.preventDefault();
@@ -959,7 +954,7 @@
     function resetAndSwitchToIndividualForm() {
       _resetIndividualForm();
       $("#admin_invites_workflow, #admin_invites_success").toggleClass("hidden");
-      if (!TS.model.team.plan && _in_guest_in_modal_alert_exp) $("#admin_invites_alert").css("visibility", "visible");
+      if (!TS.model.team.plan) $("#admin_invites_alert").css("visibility", "visible");
       $("#admin_invites_header, #admin_invites_subheader").removeClass("hidden");
       TS.ui.fs_modal.bindBackButton(TS.ui.admin_invites.switchToPicker);
     }
