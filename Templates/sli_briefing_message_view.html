@@ -20,7 +20,7 @@
           </div>
           {{dangerouslyRenderHTML this.message_markup}}
           <ul class="hidden sli_briefing__feedback_leavebehind" data-feedback-for-cache-id="{{this.message.channel_id}}-{{this.message.ts}}">
-            <p class="sli_briefing__feedback_leavebehind_cta">{{#t}}Please help us understand why this was not helpful.{{/t}}</p>
+            <p class="sli_briefing__feedback_leavebehind_cta">{{#t}}<strong>What\u2019s not working about this highlight?</strong> Let us know, and we\u2019ll adjust.{{/t}}</p>
             {{#each this.negative_feedback_options}}
               <li role="menuitem" data-js="sli_briefing_feedback_item" data-index="{{@index}}"><a href="#">{{this.text}}</a></li>
             {{/each}}

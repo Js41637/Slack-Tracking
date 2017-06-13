@@ -3701,7 +3701,7 @@ webpackJsonp([1, 26, 243, 244, 245, 246, 247, 253, 257], {
               TS.client.ui.debugger_flexpane.printJSON(i);
             }
           }), TS.boot_data.feature_sli_briefing && TS.highlights_briefing && TS.click.addClientHandler('[data-js="sli_briefing_back_button"]', function() {
-            TS.highlights_briefing.isEnabled() && TS.client.unread.showUnreadView();
+            TS.highlights_briefing.isEnabled() && (TS.client.unread.showUnreadView(), TS.highlights_briefing.clogBackButton());
           }), TS.click.addClientHandler("[data-js=sli_expert_search_toggle]", function(e) {
             TS.sli_expert_search && TS.sli_expert_search.toggleExpand(e);
           });
@@ -6891,7 +6891,10 @@ webpackJsonp([1, 26, 243, 244, 245, 246, 247, 253, 257], {
           if ("snippet" === e.mode) {
             var d = ["content", "content_highlight_html"];
             _.forEach(d, function(t) {
-              e[t] && e[t].length > 12800 && (e[t] = truncate(e[t], 12800), e.is_truncated = !0);
+              if (e[t] && e[t].length > 12800) {
+                var n = truncate(e[t], 12800);
+                n !== e[t] && (e[t] = n, e.is_truncated = !0);
+              }
             });
           }
           var m, f, p, h, g = TS.model.files,
@@ -7994,16 +7997,16 @@ webpackJsonp([1, 26, 243, 244, 245, 246, 247, 253, 257], {
           });
           var i = !1;
           return -1 != e.indexOf("@") && (i = !0, e = TS.format.swapOutAts(e)), n.forEach(function(n) {
-            i && (n = TS.format.swapOutAts(n)), n = TS.utility.regexpEscape(n), "don" === n && (n += "(?!['’]t)"), n = _.escape(n), t = i ? new RegExp("(\\b(?!.)|_|\\s|^)(" + n + ")\\b((?!.)|_|\\s|$)", "ig") : new RegExp("(\\b|_|\\s|^)(" + n + ")(\\b|_|\\s|$)", "ig");
+            i && (n = TS.format.swapOutAts(n)), n = TS.utility.regexpEscape(n), "don" === n && (n += "(?!['’]t)"), n = _.escape(n), t = i ? new RegExp("(\\b(?!.)|_|\\s|^)(" + n + ")(\\b|,*)((?!.)|_|\\s|$)", "ig") : new RegExp("(\\b|_|\\s|^)(" + n + ")(\\b)(|_|\\s|$)", "ig");
             var r = 0;
-            e = e.replace(t, function(e, t, n, i, a, s) {
-              if ("&" === s.substr(a - 1, 1) && ";" === s.substr(a + e.length, 1)) return e;
-              if (s.substr(0, a).match(/</))
-                for (var o = a; o >= r; o -= 1) {
-                  if ("<" === s.charAt(o)) return t + n + i;
-                  if (">" === s.charAt(o)) break;
+            e = e.replace(t, function(e, t, n, i, a, s, o) {
+              if ("&" === o.substr(s - 1, 1) && ";" === o.substr(s + e.length, 1)) return e;
+              if (o.substr(0, s).match(/</))
+                for (var l = s; l >= r; l -= 1) {
+                  if ("<" === o.charAt(l)) return t + n + i;
+                  if (">" === o.charAt(l)) break;
                 }
-              return r = a + e.length, t + '<span class="mention">' + n + "</span>" + i;
+              return r = s + e.length, t + '<span class="mention">' + n + "</span>" + i + a;
             });
           }), i ? TS.format.swapInAts(e) : e;
         },
@@ -10601,7 +10604,8 @@ webpackJsonp([1, 26, 243, 244, 245, 246, 247, 253, 257], {
               t[e.id] = e;
             }), (e = Object.keys(t).length) !== i.length && TS.warn("member map size and member list length have diverged"));
           }
-          return void 0 !== t[n] ? t[n] : null;
+          var r = t[n];
+          return void 0 !== r ? r.is_unknown ? null : r : null;
         },
         getMemberByName: function(e) {
           if (e = _.toLower(e), !i.hasOwnProperty(e)) {
@@ -10785,7 +10789,7 @@ webpackJsonp([1, 26, 243, 244, 245, 246, 247, 253, 257], {
           return TS.model.team.prefs.display_real_names && -1 != e || 1 == e;
         },
         getPrefCompliantMemberNameById: function(e, t, n) {
-          var i = TS.members.getMemberById(e);
+          var i = TS.members.getPotentiallyUnknownMemberById(e);
           return i ? TS.members.getPrefCompliantMemberName(i, t, n) : e;
         },
         getPrefCompliantMemberName: function(e, t, n) {
@@ -11186,7 +11190,7 @@ webpackJsonp([1, 26, 243, 244, 245, 246, 247, 253, 257], {
         h = 100,
         g = {},
         S = function(e) {
-          return _.isString(e) ? TS.members.getMemberById(e) : e;
+          return _.isString(e) ? TS.members.getPotentiallyUnknownMemberById(e) : e;
         },
         T = function(e) {
           if ("unknown_members" === TS.experiment.getGroup("unknown_members_perf", TS.members.unknown_members_perf_exp_metrics)) {
@@ -11213,7 +11217,7 @@ webpackJsonp([1, 26, 243, 244, 245, 246, 247, 253, 257], {
         },
         w = function(e) {
           if (!e) return void TS.warn("_maybeSetLocality: No member provided?");
-          e._is_local = e.team_id === TS.model.team.id, TS.boot_data.page_needs_enterprise && ("web" !== TS.boot_data.app && (e._is_local = e.enterprise_user && e.enterprise_user.teams && e.enterprise_user.teams.indexOf(TS.model.team.id) > -1), e._is_from_org = !e._is_local && !!e.enterprise_user && TS.model.enterprise && TS.model.enterprise.id === e.enterprise_user.enterprise_id), TS.boot_data.feature_shared_channels_client && (e.is_external = TS.utility.teams.isMemberExternal(e), TS.useRedux() && TS.redux.member_types.updateMemberTypeForMember(e));
+          e._is_local = e.team_id === TS.model.team.id, TS.boot_data.page_needs_enterprise && ("web" !== TS.boot_data.app && (e._is_local = e.enterprise_user && e.enterprise_user.teams && e.enterprise_user.teams.indexOf(TS.model.team.id) > -1), e._is_from_org = !e._is_local && !!e.enterprise_user && TS.model.enterprise && TS.model.enterprise.id === e.enterprise_user.enterprise_id), TS.boot_data.feature_shared_channels_client && (e.is_external = TS.utility.teams.isMemberExternal(e), TS.useRedux() && (TS.members.is_in_bulk_upsert_mode ? TS.redux.member_types.addToBulkUpdatePayload(e) : TS.redux.member_types.updateMemberTypeForMember(e)));
         },
         k = function(e) {
           TS.ims.setNameFromMember(e), TS.mpims.setNamesFromMember(e);
@@ -16614,7 +16618,7 @@ webpackJsonp([1, 26, 243, 244, 245, 246, 247, 253, 257], {
               });
             }
           }), TS.utility.contenteditable.value(S, f)), TS.msg_edit.checkLengthAndUpdateMessage(S), TS.info("message_edit_form added"), TS.msg_edit.editing = !0, TS.msg_edit.edit_started_sig.dispatch(), h.bind("destroyed", function() {
-            TS.info("message_edit_form removed"), TS.msg_edit.editing = !1, TS.msg_edit.editing_in_msg_pane = !1, TS.msg_edit.editing_in_convo_pane = !1, TS.msg_edit.edit_ended_sig.dispatch(), TS.boot_data.feature_texty_takes_over && TS.utility.contenteditable.supportsTexty() || TSSSB.call("inputFieldRemoved", S.get(0)), h = null, S = null, TS.msg_edit.resetEditUI();
+            TS.utility.contenteditable.unload($("#message_edit_form #msg_text")), TS.info("message_edit_form removed"), TS.msg_edit.editing = !1, TS.msg_edit.editing_in_msg_pane = !1, TS.msg_edit.editing_in_convo_pane = !1, TS.msg_edit.edit_ended_sig.dispatch(), TS.boot_data.feature_texty_takes_over && TS.utility.contenteditable.supportsTexty() || TSSSB.call("inputFieldRemoved", S.get(0)), h = null, S = null, TS.msg_edit.resetEditUI();
           }), TS.boot_data.feature_texty_takes_over && TS.utility.contenteditable.supportsTexty() || S.TS_tabComplete({
             complete_cmds: !1,
             complete_channels: !0,
@@ -16719,7 +16723,7 @@ webpackJsonp([1, 26, 243, 244, 245, 246, 247, 253, 257], {
           if (!TS.msg_edit.current_msg) return TS.error("no TS.msg_edit.current_msg?"), null;
           if (!e) return TS.error("no edited_text?"), null;
           var t = TS.msg_edit.editing_in_convo_pane;
-          if (TS.msg_edit.commitEditInternal(e), TS.utility.contenteditable.unload($("#message_edit_form #msg_text")), TS.msg_edit.resetEditUI(), TS.client)
+          if (TS.msg_edit.commitEditInternal(e), TS.msg_edit.resetEditUI(), TS.client)
             if (t) {
               TS.ui.replies.focusReplyInput(!0);
             } else TS.view.focusMessageInput();
@@ -16727,7 +16731,7 @@ webpackJsonp([1, 26, 243, 244, 245, 246, 247, 253, 257], {
         onCancelEdit: function() {
           if (!TS.msg_edit.current_msg) return TS.error("no TS.msg_edit.current_msg?"), null;
           var e = TS.msg_edit.editing_in_convo_pane;
-          if (TS.utility.contenteditable.unload($("#message_edit_form #msg_text")), TS.msg_edit.resetEditUI(), TS.client)
+          if (TS.msg_edit.resetEditUI(), TS.client)
             if (e) {
               TS.ui.replies.focusReplyInput(!0);
             } else TS.view.focusMessageInput();
@@ -19504,8 +19508,8 @@ webpackJsonp([1, 26, 243, 244, 245, 246, 247, 253, 257], {
             var s = TS.shared.getActiveModelOb();
             s && s.id !== a.c_id && (r = !0);
           }
-          var o;
-          r || (o = TS.client && TS.client.ui && TS.client.ui.areMsgsScrolledToBottom()), TS.templates.builders.updateRxnPanels(e, t, n), "file" === i && (TS.log("(Temporary) Rebuilding mentions due to file reaction."), TS.view.rebuildMentions()), TS.client && o && TS.client.ui.instaScrollMsgsToBottom(!0);
+          var o, l = TS.boot_data.feature_initial_scroll_position ? 0 : void 0;
+          r || (o = TS.client && TS.client.ui && TS.client.ui.areMsgsScrolledToBottom(l)), TS.templates.builders.updateRxnPanels(e, t, n), "file" === i && (TS.log("(Temporary) Rebuilding mentions due to file reaction."), TS.view.rebuildMentions()), TS.client && o && TS.client.ui.instaScrollMsgsToBottom(!0);
         },
         o = function(e, t) {
           s(e, void 0, void 0, t);
