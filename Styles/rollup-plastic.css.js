@@ -16050,7 +16050,7 @@ body:not(.unify_user) .channel_invite_member {
   padding-top: 0;
   padding-bottom: 0;
   top: 0;
-  margin: 3px 6px 6px 0
+  margin: 6px 6px 6px 0
 }
 
 #channel_invite_container .lfs_input_container,
@@ -16077,11 +16077,11 @@ body:not(.unify_user) .channel_invite_member {
 
 #invite_members_container .lfs_input_container {
   min-height: 46px;
-  padding: 0 0 0 2.5rem!important
+  padding: 0 0 0 .75rem!important
 }
 
 #invite_members_container .lfs_input {
-  padding: .75rem
+  padding: .75rem .25rem
 }
 
 #invite_members_container .search_icon {

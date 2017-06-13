@@ -4043,13 +4043,30 @@ webpackJsonp([1, 26, 243, 244, 245, 246, 247, 253, 257], {
                 c = TS.groups.getGroupByName(s);
               if (u) u.is_member ? TS.channels.displayChannel({
                 id: u.id
-              }) : TS.model.user.is_restricted || TS.channels.join(u.name);
+              }) : TS.model.user.is_restricted || TS.channels.join(u.name, function(e, t) {
+                if (!e) {
+                  var n = TS.i18n.t("There was a problem joining “{channel_name}”, sorry!", "cmd_handlers")({
+                    channel_name: s
+                  });
+                  "is_archived" == t.error && (n = TS.i18n.t("“{channel_name}” has been archived, so can’t be opened.", "cmd_handlers")({
+                    channel_name: s
+                  })), a && r ? TS.cmd_handlers.addEphemeralFeedback(n, {
+                    temporary: !1,
+                    slackbot_feels: "sad_surprise",
+                    c_id: a.id,
+                    thread_ts: r.ts
+                  }) : TS.cmd_handlers.addEphemeralFeedback(n, {
+                    temporary: !1,
+                    slackbot_feels: "sad_surprise"
+                  });
+                }
+              });
               else if (c) c.is_archived && !c.was_archived_this_session || TS.groups.displayGroup({
                 id: c.id
               });
               else if (TS.permissions.members.canCreateChannels()) TS.ui.new_channel_modal.start(s);
               else {
-                var d = TS.i18n.t('I couldn’t find a channel named "{channel_name}", sorry!', "cmd_handlers")({
+                var d = TS.i18n.t("I couldn’t find a channel named “{channel_name}”, sorry!", "cmd_handlers")({
                   channel_name: s
                 });
                 a && r ? TS.cmd_handlers.addEphemeralFeedback(d, {
@@ -10605,7 +10622,7 @@ webpackJsonp([1, 26, 243, 244, 245, 246, 247, 253, 257], {
             }), (e = Object.keys(t).length) !== i.length && TS.warn("member map size and member list length have diverged"));
           }
           var r = t[n];
-          return void 0 !== r ? r.is_unknown ? null : r : null;
+          return void 0 !== r ? r : null;
         },
         getMemberByName: function(e) {
           if (e = _.toLower(e), !i.hasOwnProperty(e)) {
@@ -10789,7 +10806,7 @@ webpackJsonp([1, 26, 243, 244, 245, 246, 247, 253, 257], {
           return TS.model.team.prefs.display_real_names && -1 != e || 1 == e;
         },
         getPrefCompliantMemberNameById: function(e, t, n) {
-          var i = TS.members.getPotentiallyUnknownMemberById(e);
+          var i = TS.members.getMemberById(e);
           return i ? TS.members.getPrefCompliantMemberName(i, t, n) : e;
         },
         getPrefCompliantMemberName: function(e, t, n) {
@@ -17985,7 +18002,7 @@ webpackJsonp([1, 26, 243, 244, 245, 246, 247, 253, 257], {
           return e && "object" === (void 0 === e ? "undefined" : n(e)) || (e = TS.utility.parseJSONOrElse(e || null) || {}), TS.model.frecency_jumper = e, !0;
         },
         mergeEmojiUse: function(e) {
-          TS.model.emoji_names || TS.emoji.makeMenuLists(), e && "object" === (void 0 === e ? "undefined" : n(e)) || (e = TS.utility.parseJSONOrElse(e || null) || {}, e = _.pickBy(e, function(e, t) {
+          TS.model.emoji_names && TS.model.emoji_names.length || TS.emoji.makeMenuLists(), e && "object" === (void 0 === e ? "undefined" : n(e)) || (e = TS.utility.parseJSONOrElse(e || null) || {}, e = _.pickBy(e, function(e, t) {
             return _.includes(TS.model.emoji_names, t);
           }));
           var t = !1;
