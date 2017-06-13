@@ -136,7 +136,6 @@ function getTerms(scripts) {
             filter: 'ol',
             replacement: (content, node) => {
               var strings = []
-
               for (var i = 0; i < node.childNodes.length; i++) {
                 strings.push(node.childNodes[i]._replacement)
               }
@@ -144,9 +143,19 @@ function getTerms(scripts) {
               // Convert all numbers in the list with 1. as Github automatically counts the number and going over 9. breaks markdown
               strings = strings.map(s => s.replace(/\d\d?\.  /, '1.  '))
               if (/li/i.test(node.parentNode.nodeName)) {
-                return '\n' + strings.join('\n')
+                return `\n${strings.join('\n')}`
               }
-              return '\n\n' + strings.join('\n') + '\n\n'
+              return `\n\n${strings.join('\n')}\n\n`
+            }
+          }, {
+            filter: function (node) {
+              return node.nodeName === 'A' && node.getAttribute('href')
+            },
+            replacement: function (content, node) {
+              const titlePart = node.title ? ` "${node.title}"` : ''
+              const href = node.getAttribute('href')
+              const url = `${href.match(/^(?!http|mailto|#|@)(.*)$/) ? 'https://slack.com' : ''}${href}` + titlePart
+              return `[${content}](${url})`
             }
           }]
         })
