@@ -1,6 +1,6 @@
 const request = require('request')
 const cheerio = require('cheerio')
-const { chain, compact, map, last, random, uniq, truncate, find, sortBy } = require('lodash') // eslint-disable-line
+const { chain, compact, map, last, random, uniq, truncate, find, sortBy, times } = require('lodash') // eslint-disable-line
 const beautify = require('js-beautify')
 const fs = require('fs')
 const { exec } = require('child_process')
@@ -156,6 +156,22 @@ function getTerms(scripts) {
               const href = node.getAttribute('href')
               const url = `${href.match(/^(?!http|mailto|#|@)(.*)$/) ? 'https://slack.com' : ''}${href}` + titlePart
               return `[${content}](${url})`
+            }
+          }, {
+            filter: 'th',
+            replacement: function (content, node) {
+              function cell (content, node) {
+                var index = Array.prototype.indexOf.call(node.parentNode.childNodes, node)
+                var isLast = node.parentNode.childNodes.length - 1 === index
+                var prefix = ' '
+                if (index === 0) prefix = '| '
+                var out = `${prefix}${content}  |`
+                if (isLast) {
+                  return `${out}\n|${times(node.parentNode.childNodes.length).map(a => ` --- |`).join('')}`
+                }
+                return out
+              }
+              return cell(content, node)
             }
           }]
         })

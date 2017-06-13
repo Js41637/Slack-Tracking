@@ -15,7 +15,8 @@ In addition to our belief in the importance of trust and transparency, as outlin
 
 During this period we received a total of eight requests for information from US law enforcement and governmental entities. Of those requests, five were found valid and resulted in the disclosure of Non-content data, two are pending, and one was invalid. We have not received any requests for information from, nor have we provided any information to, non-US law enforcement authorities.
 
-| Type of request | Number of requests received | No information disclosed | Only non-content data disclosed | Content data and non-content data disclosed | Pending |
+| Type of request  | Number of requests received  | No information disclosed  | Only non-content data disclosed  | Content data and non-content data disclosed  | Pending  |
+| --- | --- | --- | --- | --- | --- |
 | Subpoena | 6 | 1 | 5 | 0 | 0 |
 | Search Warrant | 2 | 0 | 0 | 0 | 2 |
 
