@@ -2,7 +2,7 @@
 
 **Last Updated: November 10, 2016**
 
-This Acceptable Use Policy sets out a list of acceptable and unacceptable conduct for our Services. If we believe a violation of the policy is deliberate, repeated or presents a credible risk of harm to other users, our customers, the Services or any third parties, we may suspend or terminate your access. This policy may change as Slack grows and evolves, so please check back regularly for updates and changes. Capitalized terms used below but not defined in this policy have the meaning set forth in the [User Terms of Service](/terms-of-service/user).
+This Acceptable Use Policy sets out a list of acceptable and unacceptable conduct for our Services. If we believe a violation of the policy is deliberate, repeated or presents a credible risk of harm to other users, our customers, the Services or any third parties, we may suspend or terminate your access. This policy may change as Slack grows and evolves, so please check back regularly for updates and changes. Capitalized terms used below but not defined in this policy have the meaning set forth in the [User Terms of Service](https://slack.com/terms-of-service/user).
 
 ## Do:
 

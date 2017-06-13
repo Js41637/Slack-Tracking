@@ -2,7 +2,7 @@
 
 **Last modified: July 11, 2016**
 
-You, on behalf of the individual, company or legal entity that developed the Application for listing on the Slack App Directory, agree to abide by the [Slack API Terms of Service](terms-of-service/api), as updated from time-to-time, and as supplemented by these Slack App Directory Terms (together, the **“Agreement”**). References to “you” or “your” will also be deemed references to that individual, company or legal entity.
+You, on behalf of the individual, company or legal entity that developed the Application for listing on the Slack App Directory, agree to abide by the [Slack API Terms of Service](https://slack.comterms-of-service/api), as updated from time-to-time, and as supplemented by these Slack App Directory Terms (together, the **“Agreement”**). References to “you” or “your” will also be deemed references to that individual, company or legal entity.
 
 #### 1\. License Grants
 
@@ -22,7 +22,7 @@ During the Term, you grant permission to Slack and its designated personnel, to 
 
 #### 5\. Slack Brand Guidelines
 
-You acknowledge and agree that notwithstanding any Security Review conducted by Slack, Slack does not “certify”, warrant or support the Application. You further represent and warrant that you will not make any externally-facing statements to the contrary, including any statements that imply a Slack endorsement, certification, affiliation or partnership and that you will abide by [Slack’s Brand Guidelines](/brand-guidelines), as updated by Slack from time-to-time.
+You acknowledge and agree that notwithstanding any Security Review conducted by Slack, Slack does not “certify”, warrant or support the Application. You further represent and warrant that you will not make any externally-facing statements to the contrary, including any statements that imply a Slack endorsement, certification, affiliation or partnership and that you will abide by [Slack’s Brand Guidelines](https://slack.com/brand-guidelines), as updated by Slack from time-to-time.
 
 #### 6\. Support
 
@@ -42,11 +42,11 @@ Slack does not undertake an obligation to monitor your Application or its conten
 
 #### 10\. Usage Statistics
 
-In order to improve the Slack App Directory, Slack may collect certain usage statistics from the Slack App Directory about your Application, including but not limited to, information on how the Slack App Directory is being used. The data collected is examined in the aggregate to improve the Slack App Directory and is maintained in accordance with [Slack’s Privacy Policy](/privacy-policy).
+In order to improve the Slack App Directory, Slack may collect certain usage statistics from the Slack App Directory about your Application, including but not limited to, information on how the Slack App Directory is being used. The data collected is examined in the aggregate to improve the Slack App Directory and is maintained in accordance with [Slack’s Privacy Policy](https://slack.com/privacy-policy).
 
 #### 11\. Terms
 
-The Agreement commences on the date of acceptance and continues until (a) either party, upon ten (10) days’ prior written notice (via email will suffice), elects in its sole discretion, to discontinue distributing your Application through the Slack App Directory, or (b) the [Slack API Terms of Service](/terms-of-service/api) are terminated (the **“Term”**). Following termination, Slack will remove your Application from the Slack App Directory and will cease its use of Your Names.
+The Agreement commences on the date of acceptance and continues until (a) either party, upon ten (10) days’ prior written notice (via email will suffice), elects in its sole discretion, to discontinue distributing your Application through the Slack App Directory, or (b) the [Slack API Terms of Service](https://slack.com/terms-of-service/api) are terminated (the **“Term”**). Following termination, Slack will remove your Application from the Slack App Directory and will cease its use of Your Names.
 
 #### 12\. Authority
 

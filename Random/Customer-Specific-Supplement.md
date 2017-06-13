@@ -2,7 +2,7 @@
 
 **Effective: November 17, 2016**
 
-The terms of the Customer-Specific Supplement (**“Customer-Specific Supplement”**) below supplement and amend Customer’s Contract (as defined in our [Customer Terms of Service](/terms-of-service)) if Customer falls into the corresponding category of Customer. If there is any conflict between the Customer-Specific Supplement and the Contract, the applicable terms in the Customer-Specific Supplement will prevail. Nothing in this Customer-Specific Supplement makes us a government contractor for any federal, state, local, or foreign government.
+The terms of the Customer-Specific Supplement (**“Customer-Specific Supplement”**) below supplement and amend Customer’s Contract (as defined in our [Customer Terms of Service](https://slack.com/terms-of-service)) if Customer falls into the corresponding category of Customer. If there is any conflict between the Customer-Specific Supplement and the Contract, the applicable terms in the Customer-Specific Supplement will prevail. Nothing in this Customer-Specific Supplement makes us a government contractor for any federal, state, local, or foreign government.
 
 *   **I.** [U.S. Government Customers](#us_govt)
 *   **II.** [State or Local Government Customers](#state_local_govt)
@@ -35,7 +35,7 @@ This Section III applies to any Covered Entity as defined in the Health Insuranc
 
 ### IV. Education Professional Customers
 
-If Customer is a school or educator in the United States and wants its students, who are over the age of 13, to use the Services, Customer is responsible for complying with the U.S. Family Educational Rights and Privacy Act (**“FERPA”**). This means Customer must notify those students’ parents/guardians of the personally identifiable information that it will collect and share with us and obtain parental/guardian consent before its students sign up or use the Services. When obtaining such consent, Customer should provide parents/guardians with a copy of our [Privacy Policy](/privacy-policy). Customer must keep all consents on file and provide them to us if we request them. If Customer is located outside of the United States, we will rely upon Customer to obtain any required consents or approvals from the parent or guardian of any student covered by similar laws and, as a condition to Customer’s and its students’ use of the Services, Customer will comply with such laws.
+If Customer is a school or educator in the United States and wants its students, who are over the age of 13, to use the Services, Customer is responsible for complying with the U.S. Family Educational Rights and Privacy Act (**“FERPA”**). This means Customer must notify those students’ parents/guardians of the personally identifiable information that it will collect and share with us and obtain parental/guardian consent before its students sign up or use the Services. When obtaining such consent, Customer should provide parents/guardians with a copy of our [Privacy Policy](https://slack.com/privacy-policy). Customer must keep all consents on file and provide them to us if we request them. If Customer is located outside of the United States, we will rely upon Customer to obtain any required consents or approvals from the parent or guardian of any student covered by similar laws and, as a condition to Customer’s and its students’ use of the Services, Customer will comply with such laws.
 
 ### Contacting Slack
 

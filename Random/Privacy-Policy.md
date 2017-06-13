@@ -2,7 +2,7 @@
 
 **Effective: November 17, 2016**
 
-You can see past versions of our Privacy Policy in our [Policy Archive](/policy-archives).
+You can see past versions of our Privacy Policy in our [Policy Archive](https://slack.com/policy-archives).
 
 ## Introduction
 
@@ -16,7 +16,7 @@ When we talk about “Slack,” “we,” “our,” or “us” in this policy,
 
 Content and information submitted by users to the Services is referred to in this policy as **“Customer Data.”** As further explained below, Customer Data is controlled by the organization or other third party that created the team (the **“Customer”**). Where Slack collects or processes Customer Data, it does so on behalf of the Customer. Here are some examples of Customer Data (but keep in mind they are only examples and there may be others): messages (including those in channels and direct messages), pictures, videos, edits to messages or deleted messages, and other types of files. A user may also choose to enter information into their profile, such as first and last name, job, a photo and a phone number.
 
-If you join a team and create a user account, you are a “user,” as further described in the [User Terms of Service](/terms-of-service/user). If you are using the Services by invitation of a Customer, whether that Customer is your employer, another organization, or an individual, that Customer determines its own policies regarding storage, access, modification, deletion, sharing, and retention of Customer Data which may apply to your use of the Services. Please check with the Customer about the policies and settings it has in place.
+If you join a team and create a user account, you are a “user,” as further described in the [User Terms of Service](https://slack.com/terms-of-service/user). If you are using the Services by invitation of a Customer, whether that Customer is your employer, another organization, or an individual, that Customer determines its own policies regarding storage, access, modification, deletion, sharing, and retention of Customer Data which may apply to your use of the Services. Please check with the Customer about the policies and settings it has in place.
 
 ### 2\. Other information
 
@@ -49,7 +49,7 @@ We use your information to provide and improve the Services.
 
 ### 1\. Customer Data
 
-Slack may access and use Customer Data as reasonably necessary and in accordance with Customer’s instructions to (a) provide, maintain and improve the Services; (b) to prevent or address service, security, technical issues or at a Customer’s request in connection with customer support matters; (c) as required by law or as permitted by the [Data Request Policy](/user-data-request-policy) and (d) as set forth in our agreement with the Customer or as expressly permitted in writing by the Customer. Additional information about Slack’s confidentiality and security practices with respect to Customer Data is available at our [Security Practices page](/security-practices).
+Slack may access and use Customer Data as reasonably necessary and in accordance with Customer’s instructions to (a) provide, maintain and improve the Services; (b) to prevent or address service, security, technical issues or at a Customer’s request in connection with customer support matters; (c) as required by law or as permitted by the [Data Request Policy](https://slack.com/user-data-request-policy) and (d) as set forth in our agreement with the Customer or as expressly permitted in writing by the Customer. Additional information about Slack’s confidentiality and security practices with respect to Customer Data is available at our [Security Practices page](https://slack.com/security-practices).
 
 ### 2\. Other information
 
@@ -113,7 +113,7 @@ We may disclose or use aggregate or de-identified information for any purpose. F
 
 Slack takes security seriously. We take various steps to protect information you provide to us from loss, misuse, and unauthorized access or disclosure. These steps take into account the sensitivity of the information we collect, process and store, and the current state of technology.
 
-To learn more about current practices and policies regarding security and confidentiality of Customer Data and other information, please see our [Security Practices](/security-practices); we keep that document updated as these practices evolve over time.
+To learn more about current practices and policies regarding security and confidentiality of Customer Data and other information, please see our [Security Practices](https://slack.com/security-practices); we keep that document updated as these practices evolve over time.
 
 ## Children’s information
 
@@ -125,7 +125,7 @@ We may change this policy from time to time, and if we do we will post any chang
 
 ## EU-U.S. Privacy Shield and Swiss-U.S. Privacy Shield
 
-Slack has self-certified to the EU-U.S. and Swiss-U.S. Privacy Shield frameworks set forth by the U.S Department of Commerce with respect to collection, use and retention of Customer Data. For more information, see our [Privacy Shield Notice](/privacy-shield-notice). We may process some personal data from individuals or companies via other compliance mechanisms, including data processing agreements based on the EU Standard Contractual Clauses. To learn more about the Privacy Shield program, refer to [https://www.privacyshield.gov/welcome](https://www.privacyshield.gov/welcome).
+Slack has self-certified to the EU-U.S. and Swiss-U.S. Privacy Shield frameworks set forth by the U.S Department of Commerce with respect to collection, use and retention of Customer Data. For more information, see our [Privacy Shield Notice](https://slack.com/privacy-shield-notice). We may process some personal data from individuals or companies via other compliance mechanisms, including data processing agreements based on the EU Standard Contractual Clauses. To learn more about the Privacy Shield program, refer to [https://www.privacyshield.gov/welcome](https://www.privacyshield.gov/welcome).
 
 ### Contacting Slack
 
