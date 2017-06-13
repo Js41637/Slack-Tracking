@@ -1,0 +1,43 @@
+{
+  "scripts": [{
+    "url": "https://slack.com/templates.php?template_groups=required,admin,apps,autocomplete,files,helpers,jumper,lazy_filter_select,members,menus,modals,prefs,reactions,search,security,sharing,toast,billing,signup&locale=en-US",
+    "type": "js"
+  }],
+  "terms": [{
+    "url": "https://slack.com/terms-of-service",
+    "name": "TOS"
+  }, {
+    "url": "https://slack.com/terms-of-service/user",
+    "name": "User-TOS"
+  }, {
+    "url": "https://slack.com/terms-of-service/supplement",
+    "name": "Customer-Specific-Supplement"
+  }, {
+    "url": "https://slack.com/terms-of-service/api",
+    "name": "API-TOS"
+  }, {
+    "url": "https://slack.com/terms-of-service/app-directory",
+    "name": "App-Direcotry-Agreement"
+  }, {
+    "url": "https://slack.com/privacy-policy",
+    "name": "Privacy-Policy"
+  }, {
+    "url": "https://slack.com/privacy-shield-notice",
+    "name": "Privacy-Shield-Notice"
+  }, {
+    "url": "https://slack.com/acceptable-use-policy",
+    "name": "Acceptable-Use-Policy"
+  }, {
+    "url": "https://slack.com/user-data-request-policy",
+    "name": "Data-Request-Policy"
+  }, {
+    "url": "https://slack.com/transparency-report",
+    "name": "Transparency-Report"
+  }, {
+    "url": "https://slack.com/dmca-policy",
+    "name": "DMCA-Policy"
+  }, {
+    "url": "https://slack.com/security-practices",
+    "name": "Security-Practices"
+  }]
+}

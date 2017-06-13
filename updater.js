@@ -10,6 +10,7 @@ const rf = require('rimraf');
 const toMarkdown = require('to-markdown');
 const emojis = require('./emojis')
 const config = require('./config')
+const URLS = require('./urls')
 const clientUpdater = require('./clientUpdater')
 
 if (!config || !config.teamName || !config.updateInterval || !config.cookies) {
@@ -22,7 +23,7 @@ const URL = `https://${config.teamName}.slack.com`
 const headers = { Cookie: config.cookies.join(';') } // Cookies ;)
 const types = { js: 'Scripts', css: 'Styles', md: 'Random' }
 const beautifyOptions = { indent_size: 2, end_with_newline: true }
-const jsRegex = /(analytics|beacon|required_libs)(.js|.php)/
+const jsRegex = /(analytics)(.js|.php)/
 
 const eslint = new CLIEngine({
   envs: ["browser"],
@@ -50,16 +51,24 @@ function getPageScripts() {
   console.log("Getting page scripts")
   return getPageBodys([`${URL}/admin`, `${URL}/messages`]).then(([ page1, page2 ]) => {
     let $ = cheerio.load(page1 + page2) // lmao
+    const urlCache = {}
     let js = chain($('script')).map(({ attribs: { src: url } }) => {
-      if (url && url.match(/^\/templates.php/)) {
-        const newUrl = url.split('&').length > 2 ? url.split('&').slice(0, -1).join('&') : url
-        return { url: `https://slack.com${newUrl},billing,signup`, type: 'js' }
+      if (url && !url.match(jsRegex) && url.match(/^https?/)) {
+        if (url in urlCache) return
+        urlCache[url] = true
+        return { url, type: 'js' }
       }
-      else if (url && !url.match(jsRegex) && url.match(/^https?/)) return { url, type: 'js' }
-  }).compact().uniq().value()
-    let css = chain($('link[type="text/css"]')).map(({ attribs: { href: url } }) => (url && !url.match(/lato/) && url.match(/^https?/)) ? { url, type: 'css' } : null).compact().uniq().value()
+    }).compact().value()
+    let css = chain($('link[type="text/css"]')).map(({ attribs: { href: url } }) => {
+      if (url && !url.match(/lato/) && url.match(/^https?/)) {
+        if (url in urlCache) return
+        urlCache[url] = true
+        return { url, type: 'css' }
+      }
+    }).compact().value()
+    
     console.log(`Got ${js.length} scripts and ${css.length} styles`)
-    return Promise.resolve([...js, ...css])
+    return Promise.resolve([...js, ...css, ...URLS.scripts])
   }).catch(err => Promise.reject(`Error fetching URLS: ${err}`))
 }
 
@@ -67,10 +76,11 @@ function getPageScripts() {
 function getIndividualScripts(urls) {
   console.log("Getting scripts")
   return Promise.all(urls.map(({ url, type }) => {
+    console.log('Fetching', url)
     return new Promise((resolve, reject) => {
       request({ url }, (err, resp, body) => {
         if (err || !body) return reject(`Error fetching script ${url}, ${err}`)
-        let name = last(url.split('/')).split('?')[0].replace('.php', '.js')
+        let name = `${last(url.split('/')).split('?')[0].replace(/\.\w+\.(min\.)?js$/, '').replace('.php', '')}.js`
         return resolve({ name, body, type })
       })
     })
@@ -82,7 +92,10 @@ function getIndividualScripts(urls) {
 function processTemplates(scripts) {
   return new Promise((resolve, reject) => {
     let temps = find(scripts, { name: 'templates.js' })
-    if (!temps) return resolve(scripts)
+    if (!temps) {
+      console.log('Found no templates?')
+      return resolve(scripts)
+    }
     console.log("Got templates")
     let regex = /TS.raw_templates\['(\w+)'\] ?= ?"(.+)";/g
     let templates = []
@@ -107,18 +120,42 @@ function processTemplates(scripts) {
 
 // Fetches Slacks Terms Of Service and converts it to markdown
 function getTerms(scripts) {
-  return new Promise((resolve, reject) => {
-    console.log("Fetching TOS")
-    request('http://slack.com/terms-of-service', (err, resp, body) => {
-      if (err || !body) return reject(`Error: ${err || 'No body'}`)
-      let $ = cheerio.load(body)
-      let html = $('#page_contents > div')
-      if (!html) return reject("Can't find da terms")
-      html.find('style').remove() // striptags pls
-      let terms = toMarkdown(striptags(html.html(), '<p><b><strong><h1><h2><h3><h4>'))
-      scripts.push({ name: 'TOS.md', body: terms, type: 'md'})
-      return resolve(scripts)
+  console.log("Getting scripts")
+  return Promise.all(URLS.terms.map(({ url, name }) => {
+    return new Promise((resolve, reject) => {
+      request({ url }, (err, resp, body) => {
+        if (err || !body) return reject(`Error fetching page ${url}, ${err}`)
+
+        let $ = cheerio.load(body)
+        let html = $('#page_contents > div')
+        if (!html) return reject("Can't find da terms")
+        html.find('style').remove() // striptags pls
+        let terms = toMarkdown(striptags(html.html(), '<a><p><b><strong><h1><h2><h3><h4><li><ul><br><ol><table><tr><td><tbody><thead><th>'), {
+          gfm: true,
+          converters: [{ // Override the default OL converter
+            filter: 'ol',
+            replacement: (content, node) => {
+              var strings = []
+
+              for (var i = 0; i < node.childNodes.length; i++) {
+                strings.push(node.childNodes[i]._replacement)
+              }
+
+              // Convert all numbers in the list with 1. as Github automatically counts the number and going over 9. breaks markdown
+              strings = strings.map(s => s.replace(/\d\d?\.  /, '1.  '))
+              if (/li/i.test(node.parentNode.nodeName)) {
+                return '\n' + strings.join('\n')
+              }
+              return '\n\n' + strings.join('\n') + '\n\n'
+            }
+          }]
+        })
+        scripts.push({ name: `${name}.md`, body: terms, type: 'md'})
+        return resolve()
+      })
     })
+  })).then(() => {
+    return scripts
   })
 }
 
