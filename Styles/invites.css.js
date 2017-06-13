@@ -303,19 +303,8 @@
 }
 
 .invite_modal_options {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -moz-flex;
-  display: -ms-flexbox;
   display: flex;
-  -ms-flex-align: center;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -moz-align-items: center;
   align-items: center;
-  -ms-flex-direction: row;
-  -moz-flex-direction: row;
-  -webkit-flex-direction: row;
   flex-direction: row;
   -ms-flex-pack: justify;
   -webkit-box-pack: justify;
@@ -326,9 +315,6 @@
 }
 
 .invite_modal_options .invite_modal_options_left {
-  -webkit-flex-shrink: 3;
-  -moz-flex-shrink: 3;
-  -ms-flex-negative: 3;
   flex-shrink: 3
 }
 
@@ -339,9 +325,6 @@
 }
 
 .invite_modal_options .invite_modal_options_right {
-  -webkit-flex-shrink: 1;
-  -moz-flex-shrink: 1;
-  -ms-flex-negative: 1;
   flex-shrink: 1
 }
 
@@ -361,9 +344,6 @@
     -webkit-justify-content: center;
     -moz-justify-content: center;
     justify-content: center;
-    -ms-flex-wrap: wrap;
-    -webkit-flex-wrap: wrap;
-    -moz-flex-wrap: wrap;
     flex-wrap: wrap
   }
   #admin_invites_submit_btn {

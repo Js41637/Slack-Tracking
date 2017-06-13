@@ -388,10 +388,6 @@
 .account_type {
   margin: 0 auto 2rem;
   max-width: 370px;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -moz-flex;
-  display: -ms-flexbox;
   display: flex
 }
 
@@ -401,8 +397,6 @@
   width: 70px;
   height: 70px;
   margin: .15rem 1rem 1rem 0;
-  -ms-flex: none;
-  -webkit-flex: none;
   flex: none
 }
 
@@ -411,8 +405,6 @@
 }
 
 .account_type_copy {
-  -ms-flex: 1;
-  -webkit-flex: 1;
   flex: 1
 }
 
@@ -528,15 +520,7 @@
   padding-left: 2rem;
   padding-right: 2rem;
   clear: both;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -moz-flex;
-  display: -ms-flexbox;
   display: flex;
-  -ms-flex-align: center;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -moz-align-items: center;
   align-items: center;
   -ms-flex-pack: justify;
   -webkit-box-pack: justify;
@@ -562,10 +546,6 @@
 }
 
 .name_fields {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -moz-flex;
-  display: -ms-flexbox;
   display: flex;
   -ms-flex-pack: justify;
   -webkit-box-pack: justify;

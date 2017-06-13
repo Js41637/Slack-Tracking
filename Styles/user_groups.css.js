@@ -314,14 +314,7 @@ body:not(.unify_user) .user_group_invite_member_small {
 }
 
 .user_group_invite_member_small .name_container {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -moz-flex;
-  display: -ms-flexbox;
   display: flex;
-  -ms-flex-direction: column;
-  -moz-flex-direction: column;
-  -webkit-flex-direction: column;
   flex-direction: column;
   -ms-flex-pack: distribute;
   -webkit-box-pack: distribute;

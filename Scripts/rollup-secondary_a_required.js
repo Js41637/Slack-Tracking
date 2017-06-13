@@ -3666,10 +3666,10 @@ webpackJsonp([1, 26, 243, 244, 245, 246, 247, 253, 257], {
               TS.client.ui.sli_highlight_all_unreads.sendFeedback(e, t, r, i, a), TS.highlights_briefing.sendFeedback(e, t, r, i, a);
             } else if (TS.model.unread_view_is_showing && TS.boot_data.feature_sli_highlights_cache) TS.client.highlights.setDefaultFeedbackForHighlight(i, r, {
               feedback: t
-            }, "all-unreads"), TS.highlights_briefing.setFeedbackInCache("negative" === t ? "dismiss" : t, r, i);
-            else if (!TS.model.unread_view_is_showing && (TS.boot_data.feature_sli_highlights_cache ? TS.client.highlights.setDefaultFeedbackForHighlight(i, r, {
+            }, "all-unreads"), $("#ts_tip_float_floater .ts_tip_tip").text(TS.i18n.t("Thank you!", "highlights")()), TS.highlights_briefing.setFeedbackInCache("negative" === t ? "dismiss" : t, r, i);
+            else if (!TS.model.unread_view_is_showing && (TS.boot_data.feature_sli_highlights_cache ? (TS.client.highlights.setDefaultFeedbackForHighlight(i, r, {
                 feedback: t
-              }, "in-channel") : TS.recaps_signal.sendFeedback(e, t, r, i), TS.highlights_briefing.setFeedbackInCache("negative" === t ? "dismiss" : t, r, i), TS.boot_data.feature_sli_highlight_unreads)) {
+              }, "in-channel"), $("#ts_tip_float_floater .ts_tip_tip").text(TS.i18n.t("Thank you!", "highlights")())) : TS.recaps_signal.sendFeedback(e, t, r, i), TS.highlights_briefing.setFeedbackInCache("negative" === t ? "dismiss" : t, r, i), TS.boot_data.feature_sli_highlight_unreads)) {
               var s = TS.shared.getModelObById(i),
                 o = TS.utility.msgs.getMsg(r, s.msgs);
               TS.client.ui.sli_highlight_all_unreads.setRecapCache(i, r, _.assign({}, o.recap && o.recap.data, {
@@ -7505,7 +7505,7 @@ webpackJsonp([1, 26, 243, 244, 245, 246, 247, 253, 257], {
           TS.has_pri[f] && TS.log(f, "Flannel: upserting batch of " + e.length + " objects");
           var u = _.partition(e, function(e) {
               if (TS.utility.members.isMember(e)) {
-                var t = TS.members.getMemberById(e.id);
+                var t = TS.members.getPotentiallyUnknownMemberById(e.id);
                 return "unknown_members" === TS.experiment.getGroup("unknown_members_perf", TS.members.unknown_members_perf_exp_metrics) && t ? !t.is_unknown : t;
               }
               return TS.shared.getModelObById(e.id);
@@ -10601,9 +10601,11 @@ webpackJsonp([1, 26, 243, 244, 245, 246, 247, 253, 257], {
         getPotentiallyUnknownMemberById: function(e) {
           if (!e) return null;
           if ("unknown_members" !== TS.experiment.getGroup("unknown_members_perf", TS.members.unknown_members_perf_exp_metrics)) return TS.members.getMemberById(e);
+          var n = t[e];
+          if (n && n.is_unknown) return n;
           if (!TS.utility.strLooksLikeAMemberId(e)) {
-            var t = TS.members.getMemberByName(e);
-            return t || (te(e), {
+            var i = TS.members.getMemberByName(e);
+            return i || (te(e), {
               id: e,
               name: e,
               is_unknown: !1,
@@ -10622,7 +10624,7 @@ webpackJsonp([1, 26, 243, 244, 245, 246, 247, 253, 257], {
             }), (e = Object.keys(t).length) !== i.length && TS.warn("member map size and member list length have diverged"));
           }
           var r = t[n];
-          return void 0 !== r ? r : null;
+          return void 0 !== r ? r.is_unknown && TS.boot_data.feature_tinyspeck ? null : r : null;
         },
         getMemberByName: function(e) {
           if (e = _.toLower(e), !i.hasOwnProperty(e)) {
@@ -10631,7 +10633,7 @@ webpackJsonp([1, 26, 243, 244, 245, 246, 247, 253, 257], {
               i[e._name_lc] = e.id, i["@" + e._name_lc] = e.id;
             });
           }
-          return i.hasOwnProperty(e) ? TS.members.getMemberById(i[e]) : null;
+          return i.hasOwnProperty(e) ? TS.members.getPotentiallyUnknownMemberById(i[e]) : null;
         },
         getMemberByNameAndTeamDomain: function(e, t) {
           if (!TS.boot_data.feature_shared_channels_client) return TS.members.getMemberByName(e);
@@ -10679,7 +10681,7 @@ webpackJsonp([1, 26, 243, 244, 245, 246, 247, 253, 257], {
           var r = TS.members.getMemberById(n.id),
             a = "NOOP",
             s = [];
-          if (n.is_ultra_restricted && (n.is_restricted = !0), r) {
+          if (r || (r = ie(n.id)), n.is_ultra_restricted && (n.is_restricted = !0), r) {
             TS.useRedux && TS.boot_data.feature_store_members_in_redux && (r = _.assign({}, r)), TS.has_pri[Q] && TS.log(Q, 'updating existing member "' + n.id + '"');
             var o = R(r, n);
             if (a = o.status, s = o.what_changed, TS.useRedux()) {
@@ -10806,7 +10808,7 @@ webpackJsonp([1, 26, 243, 244, 245, 246, 247, 253, 257], {
           return TS.model.team.prefs.display_real_names && -1 != e || 1 == e;
         },
         getPrefCompliantMemberNameById: function(e, t, n) {
-          var i = TS.members.getMemberById(e);
+          var i = TS.members.getPotentiallyUnknownMemberById(e);
           return i ? TS.members.getPrefCompliantMemberName(i, t, n) : e;
         },
         getPrefCompliantMemberName: function(e, t, n) {
@@ -11492,7 +11494,7 @@ webpackJsonp([1, 26, 243, 244, 245, 246, 247, 253, 257], {
           g[e] = setTimeout(function() {
             TS.model.ms_connected && (TS.metrics.count("unknown_member_persistence_timeout"), TS.statsd.measure("unknown_member_resolution_timing", "unknown_member_resolution_timing_" + e), TS.console.logError({
               id: e,
-              getMemberById: TS.members.getMemberById(e),
+              getMemberById: TS.members.getPotentiallyUnknownMemberById(e),
               getMemberByName: TS.members.getMemberByName(e)
             }, "persistent unknown member", "error", !0));
           }, 6e4);
@@ -11511,6 +11513,12 @@ webpackJsonp([1, 26, 243, 244, 245, 246, 247, 253, 257], {
             } - 1 != e.what_changed.indexOf("presence") && TS.members.presence_changed_sig.dispatch(e.member), -1 != e.what_changed.indexOf("is_owner") && TS.members.changed_owner_perms_sig.dispatch(e.member), -1 != e.what_changed.indexOf("is_admin") && TS.members.changed_admin_perms_sig.dispatch(e.member), t.is_self && (TS.members.changed_self_sig.dispatch(e.member), TS.model.makeYouRegex());
           }
           return e;
+        },
+        ie = function(e) {
+          if (e) {
+            var n = t[e];
+            return n && n.is_unknown ? n : null;
+          }
         };
     }();
   },
@@ -25980,7 +25988,7 @@ webpackJsonp([1, 26, 243, 244, 245, 246, 247, 253, 257], {
             return new Handlebars.SafeString(e);
           }), Handlebars.registerHelper("makeMemberPreviewLinkById", function(e, t) {
             !0 !== t && (t = !1);
-            var n = TS.members.getMemberById(e) || TS.bots.getBotById(e);
+            var n = TS.members.getPotentiallyUnknownMemberById(e) || TS.bots.getBotById(e);
             return n ? new Handlebars.SafeString(TS.templates.builders.makeMemberPreviewLink(n, t)) : new Handlebars.SafeString(_.escape(e));
           }), Handlebars.registerHelper("makeMemberPreviewLinkImage", function() {
             return new Handlebars.SafeString(TS.templates.builders.makeMemberPreviewLinkImage.apply(this, arguments));
@@ -26333,7 +26341,7 @@ webpackJsonp([1, 26, 243, 244, 245, 246, 247, 253, 257], {
           }), Handlebars.registerHelper("isSkypeTeamProfileField", function(e, t) {
             return "text" === e.type && "skype" === e.label.toLocaleLowerCase() ? t.fn(this) : t.inverse(this);
           }), Handlebars.registerHelper("getSafeSkypeURLComponent", function(e) {
-            var t = e.match(/^[a-zA-Z][a-zA-Z0-9.,\-_]{5,31}/);
+            var t = e.match(/^[a-zA-Z][a-zA-Z0-9.,\-_@]{5,31}/);
             return t ? t[0] : "";
           }), Handlebars.registerHelper("highlightSearchMatches", function(e) {
             if (e) return e = _.escape(e), TS.utility.msgs.handleSearchHighlights(e);
@@ -36251,14 +36259,10 @@ webpackJsonp([1, 26, 243, 244, 245, 246, 247, 253, 257], {
           return "https://" + e + ".enterprise." + TS.boot_data.abs_root_url.replace(/(http:\/\/|https:\/\/)/, "");
         },
         getSanitizedIdpLabel: function(e) {
-          var t;
-          return "IDP" !== e && (t = _.endsWith(e, "s") ? "’" : "’s"), {
+          return {
             simple: "IDP" !== e && e ? e : "",
             your: "IDP" !== e && e ? e : TS.i18n.t("your IdP", "enterprise_utility")(),
-            possessive: "IDP" !== e && e ? TS.i18n.t("{label}{s}", "enterprise_utility")({
-              label: e,
-              s: t
-            }) : TS.i18n.t("your IdP’s", "enterprise_utility")()
+            possessive: "IDP" !== e && e ? TS.i18n.fullPossessiveString(e) : TS.i18n.t("your IdP’s", "enterprise_utility")()
           };
         },
         formatChannelsData: function(e) {
@@ -36488,7 +36492,7 @@ webpackJsonp([1, 26, 243, 244, 245, 246, 247, 253, 257], {
         getEntityFromFile: function(e) {
           if (!e) return !1;
           var t;
-          return "USLACKBOT" === e.user && e.bot_id ? (t = TS.bots.getBotById(e.bot_id), t || (t = {}), t.is_bot = !0, t.is_service = !0) : t = TS.members.getMemberById(e.user), t;
+          return "USLACKBOT" === e.user && e.bot_id ? (t = TS.bots.getBotById(e.bot_id), t || (t = {}), t.is_bot = !0, t.is_service = !0) : t = TS.members.getPotentiallyUnknownMemberById(e.user), t;
         }
       });
     }();
