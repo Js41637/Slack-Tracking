@@ -1,0 +1,46 @@
+{{i18n_ns "pages_admin"}}
+<span class="ts_tip ts_tip_top ts_tip_float data-tip-toggle-auto ts_tip_multiline inline_flex">
+  {{#if_equal action compare="cant_reactivate_as_guest"}}
+    {{#t}}Can\u2019t reactivate as guest{{/t}}
+    <ts-icon class="very_small_left_padding ts_icon_question_circle"></ts-icon>
+    <span class="ts_tip_multiline_inner ts_tip_tip">
+      {{#t name=formatted_member_name }}
+        {name} is a Full Member on other teams in this organization. Their account type must be the same for every team.
+      {{/t}}
+    </span>
+  {{else if_equal action compare="cant_convert_member_role"}}
+    {{#t}}Can\u2019t change account type{{/t}}
+    <ts-icon class="very_small_left_padding ts_icon_question_circle"></ts-icon>
+    <span class="ts_tip_multiline_inner ts_tip_tip">
+      {{#if member.is_single_channel_guest}}
+        {{#t name=formatted_member_name }}
+          {name} is a Single-Channel Guest on other teams in this organization. Their account type must be the same for every team and can only be changed at the org level.
+        {{/t}}
+      {{else if member.is_multi_channel_guest}}
+        {{#t name=formatted_member_name }}
+          {name} is a Multi-Channel Guest on other teams in this organization. Their account type must be the same for every team and can only be changed at the org level.
+        {{/t}}
+      {{else}}
+        {{#t name=formatted_member_name }}
+          {name} is a Full Member on other teams in this organization. Their account type must be the same for every team and can only be changed at the org level.
+        {{/t}}
+      {{/if}}
+    </span>
+  {{else if_equal action compare="cant_deactivate"}}
+    {{#t}}Can\u2019t remove member{{/t}}
+    <ts-icon class="very_small_left_padding ts_icon_question_circle"></ts-icon>
+    <span class="ts_tip_multiline_inner ts_tip_tip">
+      {{#t note="text explaining that a member can't be removed from a team/workspace because of IDP group membership" name=formatted_member_name num_groups=group_list.length label=formatted_group_label }}
+      {name} is part of {num_groups, plural, =1 {one {idp_label} group} other {# {idp_label} groups}} assigned to this team: ({label}).
+      {{/t}}
+    </span>
+  {{else if_equal action compare="cant_convert_or_deactivate"}}
+    {{#t}}Can\u2019t remove member or change account type{{/t}}
+    <ts-icon class="very_small_left_padding ts_icon_question_circle"></ts-icon>
+    <span class="ts_tip_multiline_inner ts_tip_tip">
+      {{#t note="text explaining that a member can't be removed from a team/workspace because of IDP group membership" name=formatted_member_name num_groups=group_list.length label=formatted_group_label }}
+      {name} can\u2019t be removed, because they\u2019re part of {num_groups, plural, =1 {one {idp_label} group} other {# {idp_label} groups}} assigned to this team: ({label}). They also belong to multiple teams in this organization, so their account type can only be changed at the org level.
+      {{/t}}
+    </span>
+  {{/if_equal}}
+</span>

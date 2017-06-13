@@ -1,0 +1,90 @@
+{{i18n_ns "app_profile"}}
+<div class="app_profile" data-qa="app_profile_container" data-app_id="{{app_id}}" data-bot_id="{{bot_id}}">
+  {{> menu_app_card_header this app_profile=true large=true}}
+  <div class="lato charcoal_grey large_bottom_margin">
+    {{#if custom_integration_type}}
+      <section data-qa="app_profile_about">
+        <div class="app_profile_section_header">
+          {{#if_equal custom_integration_type compare="incoming-webhook"}}
+            {{#t}}About this Incoming Webhook{{/t}}
+          {{else if_equal custom_integration_type compare="outgoing-webhook"}}
+            {{#t}}About this Outgoing Webhook{{/t}}
+          {{else if_equal custom_integration_type compare="bot"}}
+            {{#t}}How to use this Bot{{/t}}
+          {{else if_equal custom_integration_type compare="slash-commands"}}
+            {{#t}}How to use this Slash Command{{/t}}
+          {{/if_equal}}
+        </div>
+        <div class="app_profile_section_text">
+          {{#if_equal custom_integration_type compare="outgoing-webhook"}}
+            {{!-- TODO: Outgoing webhook description. --}}
+          {{else if_equal custom_integration_type compare="bot"}}
+            {{#t}}You can message bots and invite them to channels like other team members.{{/t}}
+          {{else if_equal custom_integration_type compare="slash-commands"}}
+            {{#t}}Slash commands take actions when you post them in a conversation.{{/t}}
+          {{/if_equal}}
+          {{#t date_created=(convertTimestampToMilliseconds date_created)}}Created by {custom_integration_creator} on {date_created, date, long}.{{/t}}
+        </div>
+      </section>
+    {{else}}
+      {{#if long_description}}
+        <section data-qa="app_profile_how_to_use">
+          <div class="app_profile_section_header">{{#t}}How to use this app{{/t}}</div>
+          <div class="app_profile_section_text app_profile_desc app_desc_expand_showing" data-js="app_profile_desc">
+            {{#if hide_expand_button}}
+              <div>{{stripImageTags long_description}}</div>
+            {{else}}
+              <div data-js="app_profile_desc_inner">
+                {{stripImageTags long_description}}
+              </div>
+              <div class="app_profile_desc_fade"></div>
+              <button class="app_desc_btn app_desc_expand_btn" data-js="app_profile_btn" data-action="desc_expand">
+                {{#t}}Expand{{/t}}
+                <ts-icon class="ts_icon_arrow_down_medium"></ts-icon>
+              </button>
+              <button class="app_desc_btn app_desc_collapse_btn" data-js="app_profile_btn" data-action="desc_collapse">
+                {{#t}}Collapse{{/t}}
+                <ts-icon class="ts_icon_arrow_up_medium"></ts-icon>
+              </button>
+            {{/if}}
+          </div>
+        </section>
+      {{/if}}
+    {{/if}}
+    {{#if commands}}
+      <section data-qa="app_profile_commands">
+        <div class="app_profile_section_header">{{#t note="Refers to slash commands the app responds to."}}Responds to&hellip;{{/t}}</div>
+        {{#each commands}}
+          <div class="app_profile_slash_command" data-slash-command-autofill="{{name}}">
+            <div class="app_slash_command_title overflow_ellipsis">
+              <span class="app_slash_command_title_name">{{name}}</span>
+              <span>{{usage}}</span>
+            </div>
+            <div class="app_slash_command_desc overflow_ellipsis">{{desc}}</div>
+          </div>
+        {{/each}}
+      </section>
+    {{/if}}
+    {{#if show_settings_section}}
+      <section data-qa="app_profile_settings">
+        <div class="app_profile_section_header">{{#t}}Settings{{/t}}</div>
+        <div class="app_profile_section_text">
+          <div data-js="app_auth_settings" class="bottom_margin">
+            {{> loading_indicator}}
+          </div>
+          {{#if bot_user_channel_count}}
+            {{#if custom_integration_type}}
+              <div>{{#t}}This bot is in {bot_user_channel_count, plural, =1 {# channel} other {# channels} }.{{/t}}</div>
+            {{else}}
+              <div>{{#t}}This app is in {bot_user_channel_count, plural, =1 {# channel} other {# channels} }.{{/t}}</div>
+            {{/if}}
+          {{/if}}
+        </div>
+      </section>
+    {{/if}}
+    {{#unless is_directory_published}}
+      <section data-qa="app_profile_meta">
+        <p><i class="subtle_silver">{{#t}}This app has not been reviewed by Slack.{{/t}}</i></p>
+      </section>
+    {{/unless}}
+</div>

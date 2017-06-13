@@ -1,0 +1,87 @@
+{{i18n_ns "create"}}
+
+<div id="signup_wrapper" class="fs_split_pane fs_split_pane_full_width domain_claiming">
+
+  {{#if minimal_ui_theme}}
+  {{#unlessOurApp}}<a data-clog-event="WEBSITE_CLICK" data-clog-params="action=nav_logo,trigger=create_team" class="logo_link" href="/">{{/unlessOurApp}}<img id="slack_logo" src="{{versioned_slack_logo_240}}" width="120" height="137" title="Slack">{{#unlessOurApp}}</a>{{/unlessOurApp}}
+  {{/if}}
+
+  <div class="fs_split_flex_wrapper">
+    {{#unless minimal_ui_theme}}
+    {{#unlessOurApp}}<a data-clog-event="WEBSITE_CLICK" data-clog-params="action=nav_logo,trigger=create_team" class="logo_link" href="/">{{/unlessOurApp}}<img id="slack_logo" src="{{versioned_slack_logo_240}}" width="120" height="137" title="Slack">{{#unlessOurApp}}</a>{{/unlessOurApp}}
+    {{/unless}}
+
+    <div class="fs_split_body align_center">
+
+      <div class="bottom_margin">
+        <img class="member_image" src="{{enterprise.icon.image_88}}" srcset="{{enterprise.icon.image_88}} 1x, {{enterprise.icon.image_230}} 2x" />
+      </div>
+
+      {{#if email_has_account}}
+
+        <h3>{{#t}}Only Org Admins can create new {enterprise.name} workspaces.{{/t}}</h3>
+
+        {{#if is_logged_in}}
+
+          <!-- signed-in version -->
+
+          {{#if enterprise.org_contact_email}}
+            <p>{{#t}}If you need help getting access to or creating a workspace, <a href="mailto:{enterprise.org_contact_email}">contact an Org Admin</a>. Or, continue to access your workspaces.{{/t}}</p>
+          {{else}}
+            <p>{{#t}}If you need help getting access to or creating a workspace, contact an Org Admin. Or, continue to access your workspaces.{{/t}}</p>
+          {{/if}}
+
+          <div class="large_top_margin">
+            {{!-- link to myteam.slack.com --}}
+            <a href="{{next_action_href}}" id="next_action" type="button" class="btn_large btn_info btn">{{#t}}Continue to Slack{{/t}}</a>
+          </div>
+
+        {{else}}
+
+          <!-- signed-out version -->
+
+          {{#if enterprise.org_contact_email}}
+            <p>{{#t}}If you need help getting access to or creating a workspace, <a href="mailto:{enterprise.org_contact_email}">contact an Org Admin</a>. Or, sign in to access your workspaces.{{/t}}</p>
+          {{else}}
+            <p>{{#t}}If you need help getting access to or creating a workspace, contact an Org Admin. Or, sign in to access your workspaces.{{/t}}</p>
+          {{/if}}
+
+          <div class="medium_top_margin medium_bottom_margin">
+            {{!-- button will be updated to include "with [okta]" or likewise based on auth.sso response --}}
+            <a href="{{next_action_href}}" id="next_action" type="button" class="btn_large btn_info btn">{{#t}}Sign in{{/t}}</a>
+          </div>
+
+        {{/if}}
+
+      {{else}}
+
+        <!-- user has not yet created an account -->
+
+        <h3>{{#t}}{enterprise.name} is already using Slack{{/t}}</h3>
+
+        <p>
+          {{#t}}Sign in with SSO to create your account.{{/t}}
+        </p>
+
+        <div class="large_top_margin medium_bottom_margin">
+          <a href="{{next_action_href}}" id="next_action" type="button" class="btn_large btn_info btn">{{#t}}Sign in{{/t}}</a>
+        </div>
+
+        <hr />
+
+        <p class="small">
+          {{#if enterprise.org_contact_email}}
+            {{#t}}Your organization has restricted the creation of workspaces by accounts using <strong>@{email_domain}</strong> email addresses. If you need help getting access or creating a workspace, <a href="mailto:{enterprise.org_contact_email}">contact an organization administrator</a>.{{/t}}
+          {{else}}
+            {{#t}}Your organization has restricted the creation of workspaces by accounts using <strong>@{email_domain}</strong> email addresses. If you need help getting access or creating a workspace, contact an organization administrator.{{/t}}
+          {{/if}}
+        </p>
+
+      {{/if}}
+
+    </div>
+    <div class="fs_split_footer"></div>
+  </div>
+
+</div>
+

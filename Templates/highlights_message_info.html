@@ -1,0 +1,15 @@
+{{i18n_ns "messages"}}
+
+<span class="highlights_feedback subtle_silver position_relative {{#if recap.data.is_leaving_feedback}}is_leaving_feedback{{/if}}">
+  {{#if recap.data.is_leaving_feedback}}
+    {{#t}}<strong>What\u2019s not working about this highlight?</strong> Let us know, and we\u2019ll adjust. <a data-js="highlights_feedback_dropdown">Give feedback <ts-icon class="ts_icon_chevron_down highlights_feedback__dropdown_icon"></ts-icon></a>{{/t}}
+  {{else}}
+    <ts-icon class="ts_icon_sparkles_filled ts_icon_inherit ts_icon_align_bottom"></ts-icon>
+    <a class="highlights_feedback_link bold">{{#t}}Highlight{{/t}}</a><span data-js="highlights_feedback" class="highlights_feedback_text subtle_silver">{{#if recap.data.justification}} \u2014 {{dangerouslyRenderHTML recap.data.justification}}{{/if}}</span>
+    <div class="sli_briefing__feedback_controls {{#if recap.data.feedback}}gave_{{recap.data.feedback}}_feedback{{/if}}">
+       \u2014 {{#t}}Is this helpful?{{/t}}
+      <button type="button" data-highlight-feedback="positive" class="sli_briefing__feedback_control sli_briefing__feedback_positive btn_unstyle ts_icon ts_icon_thumbs_up ts_tip ts_tip_top ts_tip_float ts_tip_delay_60" title="{{#t}}This was helpful{{/t}}"></button>
+      <button type="button" data-highlight-feedback="negative" class="sli_briefing__feedback_control sli_briefing__feedback_negative btn_unstyle ts_icon ts_icon_thumbs_down ts_tip ts_tip_top ts_tip_float ts_tip_delay_60" title="{{#t}}This wasn\u2019t helpful{{/t}}"></button>
+    </div>
+  {{/if}}
+</span>

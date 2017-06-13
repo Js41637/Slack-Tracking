@@ -1,0 +1,151 @@
+{{i18n_ns "team_creation"}}
+
+<div id="signup_wrapper" class="fs_split_pane fs_split_pane_full_width">
+
+  {{#unlessOurApp}}<a data-clog-event="WEBSITE_CLICK" data-clog-params="action=nav_logo,trigger=create_team" class="logo_link" href="/">{{/unlessOurApp}}<img id="slack_logo" src="{{versioned_slack_logo_240}}" width="120" height="137" title="Slack">{{#unlessOurApp}}</a>{{/unlessOurApp}}
+
+  <form class="fs_split_flex_wrapper" onsubmit="return false;">
+
+    {{> create_inc_rate_limit}}
+
+    <div id="team_info_form_body" class="fs_split_body">
+
+      <h1>{{#t}}Tell us about your team{{/t}}</h1>
+
+      <div class="team_info_question" data-question="organization_type">
+        <label class="bold select" for="organization_type">
+          <span data-label="organization_type">{{#t}}What will your team use Slack for?{{/t}}</span>
+          <select id="team_info_organization_type_select" class="team_info_select unanswered hidden" name="organization_type" aria-hidden="true">
+            {{#t note="A question about the purpose of the user's Slack team."}}
+            <option value="work">Work</option>
+            <option value="school">School</option>
+            <option value="shared_interest_group">Shared interest group</option>
+            <option value="other">Other</option>
+            {{/t}}
+          </select>
+        </label>
+      </div>
+
+      <div class="team_info_question hidden" data-question="company_industry">
+        <label class="bold select" for="company_industry">
+          <span data-label="company_industry"></span>
+          <select id="team_info_company_industry_select" class="team_info_select unanswered hidden" name="company_industry" aria-hidden="true">
+            {{#t note="A question about the industry of the user's Slack team."}}
+            <option value="consumer_goods">Consumer Goods</option>
+            <option value="financial">Financial Services</option>
+            <option value="government">Government</option>
+            <option value="healthcare">Healthcare/Pharmaceutical</option>
+            <option value="media">Media</option>
+            <option value="nonprofit">Nonprofit</option>
+            <option value="retail">Retail</option>
+            <option value="tech">Technology</option>
+            <option value="other">Other</option>
+            {{/t}}
+          </select>
+        </label>
+      </div>
+
+      <div class="form_text_placeholder" data-form-placeholder-id="2">
+        <div class="form_text_placeholder_title"></div>
+        <div class="form_text_placeholder_body"></div>
+      </div>
+
+      <div class="team_info_question hidden" data-question="other_team_purpose">
+        <label class="bold" for="other_team_purpose" data-label="other_team_purpose"></label>
+        <input type="text" maxlength="600" id="team_info_other_team_purpose_input" placeholder="{{#t}}We'll use Slack for...{{/t}}" name="other_team_purpose">
+      </div>
+
+      <div class="team_info_question hidden" data-question="company_size">
+        <label class="bold select" for="company_size">
+          <span data-label="company_size"></span>
+          <select id="team_info_company_size_select" class="team_info_select unanswered hidden" name="company_size" aria-hidden="true">
+              {{#t note="A question about the size of the user's Slack team."}}
+              <option value="1-10">1-10 people</option>
+              <option value="11-50">11-50 people</option>
+              <option value="51-100">51-100 people</option>
+              <option value="101-250">101-250 people</option>
+              <option value="251-500">251-500 people</option>
+              <option value="501-1000">501-1000 people</option>
+              <option value="1001-4000">1001-4000 people</option>
+              <option value="4000+">4000 or more people</option>
+              {{/t}}
+          </select>
+        </label>
+      </div>
+
+      <div class="form_text_placeholder" data-form-placeholder-id="3">
+        <div class="form_text_placeholder_title"></div>
+        <div class="form_text_placeholder_body"></div>
+      </div>
+
+      <div class="team_info_question hidden" data-question="current_role">
+        <label class="bold select" for="current_role">
+          <span data-label="current_role"></span>
+          <select id="team_info_current_role_select" class="team_info_select unanswered hidden" name="current_role" aria-hidden="true">
+          {{#t note="A question about the user's role in their work company."}}
+          <option class="work_current_role_option" value="administrative_or_facilities">Administrative/Facilities</option>
+          <option class="work_current_role_option" value="accounting_or_finance">Accounting/Finance</option>
+          <option class="work_current_role_option" value="business_development">Business Development</option>
+          <option class="work_current_role_option" value="business_owner">Business Owner</option>
+          <option class="work_current_role_option" value="customer_support">Customer Support</option>
+          <option class="work_current_role_option" value="data_or_analytics_or_business_intelligence">Data/Analytics/Business Intelligence</option>
+          <option class="work_current_role_option" value="design">Design</option>
+          <option class="work_current_role_option" value="engineering">Engineering (Software)</option>
+          <option class="work_current_role_option" value="marketing">Marketing</option>
+          <option class="work_current_role_option" value="media_or_communications">Media/Communications</option>
+          <option class="work_current_role_option" value="operations">Operations</option>
+          <option class="work_current_role_option" value="product_management">Product Management</option>
+          <option class="work_current_role_option" value="program_or_project_management">Program/Project Management</option>
+          <option class="work_current_role_option" value="research">Research</option>
+          <option class="work_current_role_option" value="sales">Sales</option>
+          <option class="work_current_role_option" value="other">Other</option>
+          {{/t}}
+          {{#t note="A question about the user's role in their school."}}
+          <option class="school_current_role_option" value="teacher_or_professor">Teacher/Professor</option>
+          <option class="school_current_role_option" value="administration">Administration</option>
+          <option class="school_current_role_option" value="parent">Parent</option>
+          <option class="school_current_role_option" value="alumni">Alumni</option>
+          <option class="school_current_role_option" value="student">Student</option>
+          <option class="school_current_role_option" value="other">Other</option>
+          {{/t}}
+          </select>
+        </label>
+      </div>
+
+
+      <div class="form_text_placeholder {{#unless ask_current_role}}hidden{{/unless}}" data-form-placeholder-id="4">
+        <div class="form_text_placeholder_title"></div>
+        <div class="form_text_placeholder_body"></div>
+      </div>
+
+      <div class="team_info_question hidden" data-question="other_current_role">
+        <label class="bold" for="other_current_role" data-label="other_current_role"></label>
+        <input type="text" maxlength="140" id="team_info_other_current_role_input" placeholder="{{#t}}We'll use Slack for...{{/t}}" name="other_current_role">
+      </div>
+
+      <div class="form_text_placeholder hidden invisible" data-form-placeholder-id="5">
+        <div class="form_text_placeholder_title"></div>
+        <div class="form_text_placeholder_body"></div>
+      </div>
+
+      <div class="team_info_question hidden" data-question="current_role_is_manager">
+        <label class="bold select" for="current_role_is_manager">
+          <span data-label="current_role_is_manager"></span>
+          <div class="team_info_current_role_is_manager_btns tiny_top_margin bottom_padding"> 
+            <button class="btn btn_outline team_info_manager_btn" value="true">{{#t}}Yes{{/t}}</button>
+            <button class="btn btn_outline team_info_manager_btn" value="false">{{#t}}No{{/t}}</button>
+          </div>
+        </label>
+      </div>
+    </div>
+
+
+    <div id="submit" class="fs_split_footer">
+      <div class="button_container">
+        <button id="submit_btn" class="btn btn_large ladda-button" disabled="true" aria-disabled="true" data-style="expand-right" data-qa="submit_button">
+          <span class="ladda-label"><span data-label="continue_btn">{{continue_btn_copy}}</span>{{> ts_icon class="ts_icon_arrow_right"}}</span>
+        </button>
+      </div>
+    </div>
+  </form>
+</div>

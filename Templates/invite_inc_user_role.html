@@ -1,0 +1,52 @@
+{{i18n_ns 'invite'}}
+
+<div class="user_role_question no_top_padding">
+    <label class="bold select" for="current_role">{{#t}}What type of work do you do?{{/t}}
+        <span data-label="current_role"></span>
+        <select id="current_role_select" class="role_select unanswered hidden" name="current_role" aria-hidden="true">
+            {{#if_equal organization_type compare="work"}}
+            {{#t note="A question about the user's role in their work company."}}
+            <option class="work_current_role_option" value="administrative_or_facilities">Administrative/Facilities</option>
+            <option class="work_current_role_option" value="accounting_or_finance">Accounting/Finance</option>
+            <option class="work_current_role_option" value="business_development">Business Development</option>
+            <option class="work_current_role_option" value="business_owner">Business Owner</option>
+            <option class="work_current_role_option" value="customer_support">Customer Support</option>
+            <option class="work_current_role_option" value="data_or_analytics_or_business_intelligence">Data/Analytics/Business Intelligence</option>
+            <option class="work_current_role_option" value="design">Design</option>
+            <option class="work_current_role_option" value="engineering">Engineering (Software)</option>
+            <option class="work_current_role_option" value="marketing">Marketing</option>
+            <option class="work_current_role_option" value="media_or_communications">Media/Communications</option>
+            <option class="work_current_role_option" value="operations">Operations</option>
+            <option class="work_current_role_option" value="product_management">Product Management</option>
+            <option class="work_current_role_option" value="program_or_project_management">Program/Project Management</option>
+            <option class="work_current_role_option" value="research">Research</option>
+            <option class="work_current_role_option" value="sales">Sales</option>
+            <option class="work_current_role_option" value="other">Other</option>
+            {{/t}}
+            {{else if_equal organization_type compare="school"}}
+            {{#t note="A question about the user's role in their school."}}
+            <option class="school_current_role_option" value="teacher_or_professor">Teacher/Professor</option>
+            <option class="school_current_role_option" value="administration">Administration</option>
+            <option class="school_current_role_option" value="parent">Parent</option>
+            <option class="school_current_role_option" value="alumni">Alumni</option>
+            <option class="school_current_role_option" value="student">Student</option>
+            <option class="school_current_role_option" value="other">Other</option>
+            {{/t}}
+            {{/if_equal}}
+        </select>
+    </label>
+</div>
+
+<div class="user_role_question hidden" data-question="other_current_role">
+    <label class="bold" for="other_current_role" data-label="other_current_role">{{#t}}Could you elaborate? (More info will help us improve Slack!){{/t}}</label>
+    <input type="text" maxlength="140" id="other_current_role_input" placeholder="{{#t}}My job title is...{{/t}}" name="other_current_role">
+</div>
+
+<div class="user_role_question very_large_bottom_margin" data-question="current_role_is_manager">
+    <label class="bold select small_bottom_margin" for="current_role_is_manager">{{#t}}Are you a manager? (Do people report to you?){{/t}}</label>
+        <span data-label="current_role_is_manager"></span>
+        <div class="tiny_top_margin"> 
+            <button class="btn btn_outline user_role_manager_btn" type="button" value="true">{{#t}}Yes{{/t}}</button>
+            <button class="btn btn_outline user_role_manager_btn" type="button" value="false">{{#t}}No{{/t}}</button>
+        </div>
+</div>

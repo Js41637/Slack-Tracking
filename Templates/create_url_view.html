@@ -1,0 +1,55 @@
+{{i18n_ns "team_creation"}}
+
+<div id="signup_wrapper" class="fs_split_pane fs_split_pane_full_width">
+
+  {{#unlessOurApp}}<a data-clog-event="WEBSITE_CLICK" data-clog-params="action=nav_logo,trigger=create_team" class="logo_link" href="/">{{/unlessOurApp}}<img id="slack_logo" src="{{versioned_slack_logo_240}}" width="120" height="137" title="Slack">{{#unlessOurApp}}</a>{{/unlessOurApp}}
+
+  <form class="fs_split_flex_wrapper" onsubmit="return false;">
+
+    {{> create_inc_rate_limit}}
+    {{> create_inc_api_alert}}
+
+    <div id="url_form_body" class="fs_split_body">
+      <h1>{{#t}}What URL do you want for your Slack team?{{/t}}</h1>
+
+      <p class="desc">{{#t}}Choose the address you\u2019ll use to sign in to Slack.{{/t}}<p>
+      <label id="teamurl_label">{{#t}}Your team URL<span class="subtle_silver normal"> (letters, numbers, and dashes only)</span>{{/t}}</label>
+      <div class="input_wrapper url">
+        <p class="hidden input_spinner"></p>
+        <p class="seafoam_green hidden input_checkmark">
+          {{> ts_icon class="ts_icon_check_large neutral_white_bg" aria_label="Slack web address is available"}}
+        </p>
+        <input type="text" id="signup_url" class="url_subdomain" autocomplete="off" data-qa="url_field" value="{{url}}" aria-labelledby="teamurl_label"/>
+        <p class="url_domain_slack_dot_com bold">.slack.com</p>
+      </div>
+      <p class="error_message"></p>
+
+      <div id="url_info" class="small_top_margin">
+        <div id="available_url_message" class="small_top_margin is_faded_out" aria-hidden="true" data-qa="available_url_message">
+          {{#t}}Good news! Your team name is <span class="strong seafoam_green">available</span> as your URL on Slack. We\u2019ve pre-filled it for you, but feel free to change it.{{/t}}
+        </div>
+
+        <div id="unavailable_url_message" class="is_faded_out" aria-hidden="true">
+          <span class="italic">
+            <span class="bold">
+              <span id="unavailable_url"></span>.slack.com
+            </span>
+            {{#t note="This Slack URL is already taken"}}is already taken, how about...{{/t}}
+          </span>
+
+          <div id="url_suggestions"></div>
+        </div>
+      </div>
+
+    </div>
+
+
+    <div id="submit" class="fs_split_footer">
+      <div class="button_container">
+        <button id="submit_btn" class="btn btn_large ladda-button" {{#unless url}}disabled="true" aria-disabled="true"{{/unless}} data-style="expand-right" data-qa="submit_button">
+          <span class="ladda-label">{{continue_btn_copy}}{{> ts_icon class="ts_icon_arrow_right"}}</span>
+        </button>
+      </div>
+    </div>
+  </form>
+</div>

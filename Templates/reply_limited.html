@@ -1,0 +1,14 @@
+{{i18n_ns "threads"}}
+
+<p class="reply_limited">
+  {{#if is_archived}}
+    {{#t note="shown at bottom of a thread if channel is archived"}}
+      You are viewing a thread from an archived channel
+    {{/t}}
+  {{else}}
+    {{#t note="shown at bottom of a thread if user can't post in channel"}}
+      Your Team Owners have limited who can post to <strong>{channel_name}</strong>
+    {{/t}}
+
+  {{/if}}
+</p>

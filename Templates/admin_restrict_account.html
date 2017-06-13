@@ -1,0 +1,171 @@
+{{i18n_ns "restricted_accounts"}}
+
+<div class="col span_3_of_6">
+
+    <h4>{{#t}}About Guests{{/t}}</h4>
+
+    <p class="small_bottom_margin">
+    {{#t}}Guest accounts are perfect for people who only need access to certain channels \u2014 like contractors, interns, or clients. Guests can do most of the same things as full Team Members, with a few restrictions. <a href='https://get.slack.help/hc/articles/202518103-Multi-Channel-and-Single-Channel-Guests'>Learn more about guest accounts</a>.{{/t}}
+    </p>
+
+    <p>{{#t}}There are two types of guest accounts \u2014 Multi-Channel and Single-Channel.{{/t}}</p>
+
+    <p class="small_bottom_margin"><strong>{{#t}}Multi-Channel Guests{{/t}}</strong></p>
+
+    <p>{{#t}}Multi-Channel Guests are billed as regular team members, and can be added to unlimited channels.{{/t}}</p>
+
+    <p class="small_bottom_margin"><strong>{{#t}}Single-Channel Guests{{/t}}</strong></p>
+
+    <p>{{#t}}Single-Channel Guests are free. You can add up to 5 of them per paid member of your team.{{/t}}</p>
+</div>
+
+<div class="col span_3_of_6 invite_form_column">
+
+    <div id="step1" class="align_center">
+
+        {{makeMemberPreviewLinkImage member.id 192}}
+
+        <h3 class="top_margin">
+            {{#if enabling}}
+                {{#if member.profile.real_name}}
+                    {{#t}}Enable {member.profile.real_name} as:{{/t}}
+                {{else}}
+                    {{#t}}Enable {member.name} as:{{/t}}
+                {{/if}}
+            {{else}}
+                {{#if member.profile.real_name}}
+                    {{#t}}Convert {member.profile.real_name} to:{{/t}}
+                {{else}}
+                    {{#t}}Convert {member.name} to:{{/t}}
+                {{/if}}
+            {{/if}}
+        </h3>
+
+        {{#t note="Space before 'Multi-Channel Guest' and 'Single-Channel Guest' should be preserved"}}
+        <a class="restriction_option" id="restricted_user">
+            <i class="ts_icon ts_icon_restricted_user presence active"></i> Multi-Channel Guest <i class="ts_icon ts_icon_arrow_right"></i>
+        </a>
+        <a class="restriction_option" id="guest_user">
+            <i class="ts_icon ts_icon_single_channel_guest presence active"></i> Single-Channel Guest <i class="ts_icon ts_icon_arrow_right"></i>
+        </a>
+
+        <p class="subtle_silver large_top_margin">or <a class="cancel_admin_restrict_workflow subtle_silver">return to Team Administration</a></p>
+        {{/t}}
+    </div>
+
+    <div id="step2_restricted" class="hidden align_center">
+
+        {{makeMemberPreviewLinkImage member.id 192}}
+
+        <h3 class="top_margin">
+            {{#if enabling}}
+                {{#if member.profile.real_name}}
+                    {{#t}}Enable {member.profile.real_name} as a Multi-Channel Guest{{/t}}
+                {{else}}
+                    {{#t}}Enable {member.name} as a Multi-Channel Guest{{/t}}
+                {{/if}}
+            {{else}}
+                {{#if member.profile.real_name}}
+                    {{#t}}Convert {member.profile.real_name} to a Multi-Channel Guest{{/t}}
+                {{else}}
+                    {{#t}}Convert {member.name} to a Multi-Channel Guest{{/t}}
+                {{/if}}
+            {{/if}}
+        </h3>
+
+        <p>
+            {{#if show_ra_channel_picker}}
+                {{#t}}You must pick one channel for this Multi-Channel Guest to join.
+                (You can set additional channels in the next step.){{/t}}
+            {{else}}
+                {{#t}}You can set the channels for this multi-channel guest in the next step.{{/t}}
+            {{/if}}
+            {{#if enabling}}{{else}}<p>{{#t}}This change will take effect immediately.{{/t}}</p>{{/if}}
+        </p>
+
+        {{#if show_ra_channel_picker}}
+            <p>
+                <label class="select small">
+                    <select id="restricted_channel_picker" class="small">
+                        {{#if channels}}
+                            <optgroup label="{{#t}}Channels{{/t}}">
+                                {{#each channels}}
+                                    <option value="{{this.id}}">#{{this.name}}</option>
+                                {{/each}}
+                            </optgroup>
+                        {{/if}}
+                        {{#if groups}}
+                            <optgroup label="{{#t}}Private Channels{{/t}}">
+                                {{#each groups}}
+                                    <option value="{{this.id}}"><i class="ts_icon ts_icon_lock_o"></i> {{this.name}}</option>
+                                {{/each}}
+                            </optgroup>
+                        {{/if}}
+                    </select>
+                </label>
+            </p>
+        {{/if}}
+
+        <p class="error_message moscow_red hidden">{{#t}}Oops! There was an error performing your action.{{/t}}</p>
+        <p id="convert_to_ra_confirmation">
+            <a class="btn api_set_restricted btn_success">{{#t}}Confirm{{/t}}</a>
+            <a class="cancel_admin_restrict_workflow btn btn_outline small_left_margin">{{#t}}Cancel{{/t}}</a>
+        </p>
+
+    </div>
+
+    <div id="step2_guest" class="hidden align_center">
+
+        {{makeMemberPreviewLinkImage member.id 192}}
+
+        <h3 class="top_margin">
+            {{#if enabling}}
+                {{#if member.profile.real_name}}
+                    {{#t}}Enable {member.profile.real_name} as a Single-Channel Guest{{/t}}
+                {{else}}
+                    {{#t}}Enable {member.name} as a Single-Channel Guest{{/t}}
+                {{/if}}
+            {{else}}
+                {{#if member.profile.real_name}}
+                    {{#t}}Convert {member.profile.real_name} to a Single-Channel Guest{{/t}}
+                {{else}}
+                    {{#t}}Convert {member.name} to a Single-Channel Guest{{/t}}
+                {{/if}}
+            {{/if}}
+        </h3>
+
+        <p class="no_bottom_margin">{{#t note="Preceded with '...Single-Channel Guest'"}}With access to this channel:{{/t}}</p>
+
+        <p>
+            <label class="select small">
+                <select id="ultra_restricted_channel_picker" class="small">
+                    {{#if channels}}
+                        <optgroup label="{{#t}}Channels{{/t}}">
+                            {{#each channels}}
+                                <option value="{{this.id}}">#{{this.name}}</option>
+                            {{/each}}
+                        </optgroup>
+                    {{/if}}
+                    {{#if groups}}
+                        <optgroup label="{{#t}}Private Channels{{/t}}">
+                            {{#each groups}}
+                                <option value="{{this.id}}"><i class="ts_icon ts_icon_lock_o"></i> {{this.name}}</option>
+                            {{/each}}
+                        </optgroup>
+                    {{/if}}
+                </select>
+            </label>
+        </p>
+
+        {{#if enabling}}{{else}}<p>{{#t}}This change will take effect immediately.{{/t}}</p>{{/if}}
+
+        <p class="error_message moscow_red hidden">{{#t}}Oops! There was an error performing your action.{{/t}}</p>
+
+        <p id="convert_to_ura_confirmation">
+            <a class="btn api_set_ultra_restricted btn_success">{{#t}}Confirm{{/t}}</a>
+            <a class="cancel_admin_restrict_workflow btn btn_outline small_left_margin">{{#t}}Cancel{{/t}}</a>
+        </p>
+
+    </div>
+
+</div>

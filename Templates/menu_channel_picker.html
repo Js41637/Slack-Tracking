@@ -1,0 +1,11 @@
+{{#each channels}}
+  <li data-user-id="{{../user_id}}" data-channel-id="{{this.id}}" role="menuitem"><a><i class="ts_icon ts_icon_channel"></i>{{this.name}}</a></li>
+{{/each}}
+
+{{#each groups}}
+  <li data-user-id="{{../user_id}}" data-group-id="{{this.id}}" role="menuitem"><a><i class="ts_icon ts_icon_lock"></i>{{this.name}}</a></li>
+{{/each}}
+
+{{#each mpims}}
+  <li data-user-id="{{../user_id}}" data-mpim-id="{{this.id}}" role="menuitem"><a><i class="ts_icon ts_icon_multiparty_dm_{{mpimMemberCount this}}"></i>{{mpimDisplayName this}}</a></li>
+{{/each}}

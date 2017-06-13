@@ -1,0 +1,61 @@
+{{i18n_ns "calls"}}
+<html>
+<head>
+{{#each js_urls}}
+<script src="{{this}}"></{{!}}script>
+{{/each}}
+{{#each css_urls}}
+<link href="{{this}}" rel="stylesheet">
+{{/each}}
+</head>
+<body class="loading minipanel_body {{#if no_border}}no_border{{/if}}">
+  <div id="minipanel_window">
+    <span id="minipanel_magnify_button" class="fade_on_hover">
+      <svg xmlns="http://www.w3.org/2000/svg" width="7" height="7" viewBox="0 0 7 7">
+        <path fill="#FFFFFF" fill-opacity="0.95" d="M7 1c0-0.6-0.4-1-1-1H3C2.4 0 2.3 0.3 2.7 0.7l3.6 3.6C6.7 4.7 7 4.6 7 4V1zM4 7c0.6 0 0.7-0.3 0.3-0.7L0.7 2.7C0.3 2.3 0 2.4 0 3v3c0 0.6 0.4 1 1 1H4z"/>
+      </svg>
+    </span>
+    <div id="big_active_participant_holder">
+      <div id="big_active_participant_content">
+        <canvas></canvas>
+        <img id="big_active_avatar"/>
+      </div>
+    </div>
+
+    <div id="minipanel_body_holder" class="fade_on_hover">
+      <div id="minipanel_body">
+        <span id="minipanel_active_content">
+          <span id="avatar_holder">
+            <img id="active_avatar" src=""/>
+          </span>
+          <span id="minipanel_info">
+            <div id="minipanel_info_name"></div>
+            <div id="minipanel_info_text"></div>
+          </span>
+        </span>
+
+        <span id="minipanel_waiting_text"></span>
+
+        <span id="button_holder">
+          <span id="minipanel_mute_button" class="mute_button ts_icon ts_icon_microphone mute"></span>
+          <span id="minipanel_leave_button" class="ts_icon ts_icon_phone_flat leave"></span>
+        </span>
+      </div>
+    </div>
+    <div id="screenshare_control">
+      <span class="status">
+        <span class="presence"></span>
+        <span class="status_text"><span class="screen_sharer_name"></span></span>
+      </span>
+      <span id="ss_mute_button" class="mute_button ts_icon ts_icon_microphone"></span>
+      <span id="ss_sh_button" class="screenhero_button inactive ts_icon"></span>
+      <span class="stop_button ts_icon ts_icon_stop_screen_sharing_alt"></span>
+      <span class="tooltip tooltip_mute">{{#t}}Mute your microphone{{/t}}</span>
+      <span class="tooltip tooltip_unmute">{{#t}}Unmute your microphone{{/t}}</span>
+      <span class="tooltip tooltip_start_screenhero">{{#t}}Allow others to interact with your screen{{/t}}</span>
+      <span class="tooltip tooltip_stop_screenhero">{{#t}}Stop others from interacting with your screen{{/t}}</span>
+      <span class="tooltip tooltip_screen">{{#t}}Stop sharing your screen{{/t}}</span>
+    </div>
+  </div>
+</body>
+</html>

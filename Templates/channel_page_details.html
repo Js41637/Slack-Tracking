@@ -1,0 +1,82 @@
+{{i18n_ns "channel_pages"}}
+
+{{#if model_ob.is_org_shared}}
+  <div class="channel_shared_teams_section bottom_margin">
+    <div class="bold greigh shared_teams_label mini small_bottom_margin">{{#t}}Teams{{/t}}</div>
+    {{#if is_globally_shared}}
+      <p>
+        <img class="member_image float_left small_right_margin" src="{{enterprise_org_icon.image_68}}" srcset="{{enterprise_org_icon.image_34}} 1x, {{enterprise_org_icon.image_68}} 2x"/>
+        {{#t}}Shared with all teams in the {enterprise_org_name} organization{{/t}}
+      </p>
+    {{else}}
+      <div class="channel_shared_teams">
+        {{#each teams_shared_with}}
+          <div class="shared_team bottom_margin">
+            <img class="member_image float_left" src="{{this.icon.image_68}}" srcset="{{this.icon.image_34}} 1x, {{this.icon.image_68}} 2x"/>
+            <div class="shared_team_name_and_owner">
+              <div class="shared_team_name overflow_ellipsis" title="{{this.name}}">{{this.name}}</div>
+              <div class="shared_team_user old_petunia_grey mini">{{getPrefCompliantMemberNameById user}}</div>
+            </div>
+          </div>
+        {{/each}}
+      </div>
+    {{/if}}
+  </div>
+{{else if model_ob.is_shared}}
+  <div class="channel_shared_teams_section bottom_margin">
+    <div class="bold greigh shared_teams_label mini small_bottom_margin">{{#t}}Teams{{/t}}</div>
+    {{#each shared_teams}}
+      <div class="shared_team_details small_top_margin">
+        {{> team_icon team=this size=36}}
+        <div class="team_name">{{this.name}}</div>
+        <div class="team_member_count mini">
+          {{#if ../is_loading_members}}
+            {{#t note="Placeholder for loading team channel membership"}}\u2013 members{{/t}}
+          {{else}}
+            {{#t count=this.member_count}}{count, plural, =1 {# member} other {# members}}{{/t}}
+          {{/if}}
+        </div>
+      </div>
+    {{/each}}
+  </div>
+{{/if}}
+
+<div class="channel_purpose_section">
+  <div class="bold greigh purpose_label mini">{{#t}}Purpose{{/t}}</div>
+  <div class="bold greigh edit_purpose_label hidden mini tiny_bottom_margin">{{#t}}Set a new purpose{{/t}}</div>
+
+  <div class="channel_purpose_text no_jumbomoji">
+    {{#if model_ob.purpose.value}}
+      {{formatTopicOrPurpose model_ob.purpose.value}}
+      {{#if show_edit_purpose_or_topic}}<button class="edit_purpose btn_link" type="button">{{#t}}edit{{/t}}</button>{{/if}}
+    {{else}}
+      {{#if show_edit_purpose_or_topic}}
+        <button class="edit_purpose btn_link block" type="button">{{#t}}Set a channel purpose{{/t}}</button>
+      {{else}}
+        {{#if model_ob.is_channel}}
+        <span class="italic">{{#t}}A purpose has not been set for #{model_ob.name}.{{/t}}</span>
+        {{else}}
+        <span class="italic">{{#t}}A purpose has not been set for <i class="ts_icon ts_icon_lock"></i>{model_ob.name}.{{/t}}</span>
+        {{/if}}
+      {{/if}}
+    {{/if}}
+  </div>
+
+  {{#supportsTextyMentions}}
+    <div id="channel_purpose_input" class="message_input hidden small" tabindex="1"></div>
+    <div class="candy_red too_long_warning hidden align_right small">{{#t}}text is too long!{{/t}}</div>
+  {{else}}
+    <textarea type="text" id="channel_purpose_input" class="hidden small" maxLength="{{ChannelPurposeMaxLength}}" tabindex="1">{{#if model_ob.purpose.value}}{{unFormatMessage model_ob.purpose.value}}{{else}}{{/if}}</textarea>
+  {{/supportsTextyMentions}}
+
+  <button class="hidden btn btn_outline btn_small purpose_cancel tiny_right_margin" tabindex="3">{{#t}}Cancel{{/t}}</button>
+  <button class="hidden btn btn_small purpose_done" tabindex="2">{{#t}}Done{{/t}}</button>
+</div>
+
+<div class="creator italic greigh top_margin">
+  {{#if is_member_unknown}}
+    <a class="creator_link greigh" href="{{permalink}}"> {{#t}}Created by {unknown_member_token} {days_since_creation, select, 0 {today} 1 {yesterday} other {on {creation_date, date, long}}}{{/t}} </a>
+  {{else}}
+    <a class="creator_link greigh" href="{{permalink}}"> {{#t}}Created by {creator_name} {days_since_creation, select, 0 {today} 1 {yesterday} other {on {creation_date, date, long}}}{{/t}} </a>
+  {{/if}}
+</div>

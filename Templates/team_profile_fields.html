@@ -1,0 +1,28 @@
+{{!-- hbslint-disable syntax --}}
+{{!-- TODO: Enable syntax linter and refactor to use a safeString --}}
+{{#if fields}}
+  {{#each fields}}
+    <tr>
+      <td><span class="small_right_padding old_petunia_grey overflow_ellipsis" title="{{this.label}}">{{this.label}}</span></td>
+      <td>
+        {{#if_equal this.type compare="user"}}
+          {{#if ../will_rebuild_user_fields}}
+            {{> loading_indicator}}
+          {{else}}
+            {{{makeMemberLinksWithDisplayNames this.value}}}
+          {{/if}}
+        {{else}}
+          {{#if_equal this.type compare="link"}}
+            <a target="{{newWindowName}}" href="{{this.value}}" title="{{this.value}}">{{{maybeGetIconForTeamProfileField this.label}}} {{#if this.alt}}{{this.alt}}{{else}}{{this.label}}{{/if}}</a>
+          {{else}}
+            {{#isSkypeTeamProfileField this}}
+              <a {{#isClient}}target="{{newWindowName}}"{{/isClient}} href="skype:{{getSafeSkypeURLComponent this.value}}?call" title="Skype {{this.value}}">{{{maybeGetIconForTeamProfileField this.label}}} {{this.value}}</a>
+            {{else}}
+              <span title="{{this.value}}">{{{maybeGetIconForTeamProfileField this.label}}} {{#if this.alt}}{{this.alt}}{{else}}{{this.value}}{{/if}}</span>
+            {{/isSkypeTeamProfileField}}
+          {{/if_equal}}
+        {{/if_equal}}
+      </td>
+    </tr>
+  {{/each}}
+{{/if}}

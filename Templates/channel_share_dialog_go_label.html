@@ -1,0 +1,14 @@
+{{i18n_ns 'share_channels'}}
+{{#if email}}
+  {{#t note="Button label"}}That is all{{/t}}
+{{else}}
+  {{#if is_interstitial}}
+    {{#t note="Button label"}}Continue{{/t}}
+  {{else}}
+    {{#if can_create_shared_channel}}
+      {{#t note="Button label"}}Share channel{{/t}}
+    {{else}}
+      {{#t note="Button label"}}Send{{/t}}
+    {{/if}}
+  {{/if}}
+{{/if}}

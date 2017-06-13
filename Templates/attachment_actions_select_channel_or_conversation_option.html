@@ -1,0 +1,18 @@
+{{i18n_ns "attachment_actions_select"}}
+
+<div class="attachment_actions_select_channel_or_conversation_option">
+  {{#if is_group}}
+    {{#if is_mpim}}
+      <i class="ts_icon multipary_dm_icon ts_icon_multiparty_dm_{{mpimMemberCount this}}"></i>{{mpimDisplayName this}}
+    {{else}}
+      <i class="ts_icon ts_icon_lock"></i>{{name}} {{#if is_org_shared}}{{> shared_channel_icon}}{{else if is_shared}}{{> shared_channels_icon}}{{/if}}
+    {{/if}}
+  {{else}}
+    {{#if is_channel}}
+      <i class="ts_icon ts_icon_channel"></i>{{name}} {{#if is_org_shared}}{{> shared_channel_icon}}{{else if is_shared}}{{> shared_channels_icon}}{{/if}}
+    {{else}}
+      {{makeMemberPresenceIcon this}}{{#feature flag="feature_name_tagging_client"}}{{getPrefCompliantMemberName this}}{{#if is_self}} {{#t}}(you){{/t}}{{/if}}{{#feature flag="feature_shared_channels_client"}}{{#if is_external}} ({{getTeamNameByMember this}}){{/if}}{{/feature}}
+      {{#memberHasSecondaryName this}}<span class="preferred_name">{{getMemberSecondaryName this}}</span>{{/memberHasSecondaryName}}{{else}}{{getPrefCompliantMemberName this}}{{#if is_self}} {{#t}}(you){{/t}}{{/if}}{{#feature flag="feature_shared_channels_client"}}{{#if is_external}} ({{getTeamNameByMember this}}){{/if}}{{/feature}}{{/feature}}
+    {{/if}}
+  {{/if}}
+</div>

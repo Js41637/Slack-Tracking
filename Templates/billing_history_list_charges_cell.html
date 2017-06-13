@@ -1,0 +1,56 @@
+{{i18n_ns "billing_history_list"}}
+{{!-- billing items --}}
+{{!-- item is a refund --}}
+{{#if_equal charge_type compare="is_refund"}}
+  <span class="inline_positive">{{#t note="label if refund or credits are added to an account"}}Credited <strong>{formatted_charges.refund}{{/t}}</strong></span><br />
+{{/if_equal}}
+{{!-- Item is some kind of card charge --}}
+{{#if_equal charge_type compare="is_failed_charge"}}
+  <span class="inline_negative">{{#t note="label if credit card charge fails"}}Failed to charge <strong>{formatted_charges.card_charge}{{/t}}</strong></span>
+{{/if_equal}}
+{{#if_equal charge_type compare="is_voided_or_refunded"}}
+  <s class="inline_negative">{{#t note="label for credit card charge"}}Charged <strong>{formatted_charges.card_charge}{{/t}}</strong></s>
+{{/if_equal}}
+{{#if_equal charge_type compare="is_charge"}}
+  {{#t note="label for credit card charge"}}Charged <strong>{formatted_charges.card_charge}{{/t}}</strong>
+{{/if_equal}}
+{{!-- Item is an invoice or invoice adjustment--}}
+{{#if_equal charge_type compare="is_paid_invoice"}}
+  {{#if_gt invoice.amount compare=0}}
+    {{#if invoice.amount_adjusted}}
+      {{#t note="label for invoice amount paid"}}Paid:{formatted_invoice.amount_adjusted}{{/t}}
+    {{else}}
+      {{#t note="label for invoice amount paid"}}Paid:{formatted_invoice.amount_net}{{/t}}
+    {{/if}}
+  {{/if_gt}}
+{{/if_equal}}
+{{#if_equal charge_type compare="is_unpaid_invoice"}}
+  {{#if_gt amount compare=0}}
+    <strong>
+    {{#if amount_adjusted}}
+      {{#t note="label for invoice amount unpaid"}}Unpaid: {formatted_invoice.amount_adjusted}{{/t}}
+    {{else}}
+      {{#t note="label for invoice amount unpaid"}}Unpaid: {formatted_invoice.amount_net}{{/t}}
+    {{/if}}
+    </strong>
+  {{/if_gt}}
+{{/if_equal}}
+{{!-- item is free credits from a trial start --}}
+{{#if_equal charge_type compare="is_free_credits_from_trial_start"}}
+  <span class="inline_positive">{{#t note="label for credits from a free trial"}}Credited <strong>{formatted_charges.free_credits}{{/t}}</strong></span>
+{{/if_equal}}
+{{#if_equal charge_type compare="is_user_change_debit"}}
+  {{#t note="label when a users balance is debited"}}Debited balance by <strong>{formatted_charges.total_charge}{{/t}}</strong>
+{{/if_equal}}
+{{!-- credit change events: non-billing events (one-time credit) or purchase/renewal event using only credits --}}
+{{#if_equal charge_type compare="is_credited"}}
+  <span class="inline_positive">{{#t note="label if a user's account is credited"}}Credited <strong>{formatted_charges.delta}{{/t}}</strong></span><br />
+{{/if_equal}}
+{{#if_equal charge_type compare="is_removed_credits"}}
+  {{#if credits_charge}}
+    {{#t note="label if credits are charged due to billing event like purchase or renewal"}}Charged <strong>{formatted_charges.credits_charge}</strong> credits{{/t}}<br />
+  {{else}}
+    {{!-- credit adjustment --}}
+    {{#t note="label if credits are removed, credit adjustment event"}}Removed <strong>{formatted_charges.delta}</strong> credits{{/t}}<br />
+  {{/if}}
+{{/if_equal}}

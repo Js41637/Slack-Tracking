@@ -1,0 +1,24 @@
+{{i18n_ns 'channel_options'}}
+
+<p>
+  <label for="purpose_input" class="inline_block right_padding">
+    {{#t}}Purpose <span class="normal">(optional)</span>{{/t}}
+  </label>
+
+  {{#supportsTextyMentions}}
+    <div id="purpose_input" tabindex="1"></div>
+    <div class="candy_red too_long_warning hidden small small_top_margin">{{#t}}text is too long!{{/t}}</div>
+  {{else}}
+    <textarea id="purpose_input" name="purpose_input" type="text" maxlength="{{ChannelPurposeMaxLength}}" tabindex="1">{{unFormatMessage model_ob.purpose.value}}</textarea>
+  {{/supportsTextyMentions}}
+
+  <span class="modal_input_note">
+    {{#t}}Give your channel a purpose that describes what it will be used for.{{/t}}
+    {{#if model_ob.purpose.creator}}
+      {{#if model_ob.purpose.value}}
+        <br />
+        {{#t creator_name=(makeMemberPreviewLinkById model_ob.purpose.creator) date=(toCalendarDate model_ob.purpose.last_set)}}The purpose was last set by {creator_name} on {date}.{{/t}}
+      {{/if}}
+    {{/if}}
+  </span>
+</p>

@@ -1,0 +1,39 @@
+{{i18n_ns "files"}}
+
+{{!-- hbslint-disable syntax --}}
+{{!-- Todo: enable syntax linter and enable safeString --}}
+
+<div data-file-id="{{file.id}}" class="file_container snippet_container
+  {{#if is_message}}
+    {{#shouldTruncateInlineFilePreview file}}
+      {{#isInlineFilePreviewTruncated msg_dom_id file}}
+        inline_collapsed
+      {{else}}
+        inline_expanded
+      {{/isInlineFilePreviewTruncated}}
+    {{/shouldTruncateInlineFilePreview}}
+  {{else}}
+    {{#if file.is_truncated}}truncated{{/if}}
+  {{/if}}
+">
+
+  <div class="file_body snippet_body">
+    {{#if file.content_highlight_html}}
+      {{{file.content_highlight_html}}}
+    {{else}}
+      {{{file.preview_highlight}}}
+    {{/if}}
+  </div>
+
+  {{#if is_message}}
+    {{> message_file_preview_actions collapse=true download=true}}
+    {{> message_file_preview_footer collapse=true}}
+  {{/if}}
+
+</div>{{!--/file_container--}}
+
+{{#if file.is_truncated}}
+  <p class="file_meta inline_block {{#if is_message}}mini{{/if}}"><i class="ts_icon ts_icon_inherit ts_icon_info_circle"></i> {{#t}}This snippet was truncated for display: <a href="{file.permalink}" target="{file.permalink}">see it in full</a>{{/t}}.</p>
+{{/if}}
+
+

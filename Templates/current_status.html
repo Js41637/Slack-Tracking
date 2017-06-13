@@ -1,0 +1,10 @@
+{{i18n_ns "current_status"}}
+
+<span class="{{#if for_message}}ts_tip_float message_{{/if}}current_status ts_tip ts_tip_{{#if_equal tip_direction compare="bottom"}}bottom{{else}}top{{/if_equal}} ts_tip_multiline ts_tip_delay_150 {{makeMemberColorClass member}}{{#unless member.profile.status_emoji}} hidden ts_tip_hidden{{/unless}}{{#if classes}} {{classes}}{{/if}}">
+  {{getMemberCurrentStatusEmoji member}}
+  <span class="ts_tip_tip ts_tip_inner_current_status">
+    <span class="ts_tip_multiline_inner">
+      {{getMemberCurrentStatusForDisplay member}}
+    </span>
+  </span>
+</span>

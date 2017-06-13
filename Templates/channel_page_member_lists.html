@@ -1,0 +1,25 @@
+{{i18n_ns "channel_pages"}}
+
+<div id="channel_page_all_members">
+  {{#each members}}
+    {{> channel_page_member_row member=this lazy=true}}
+  {{/each}}
+</div>
+
+{{#if show_more_members_link}}
+  <button id="see_all_members" class="btn btn_small btn_outline small_top_margin {{#if show_channel_invite_link}}small_bottom_margin{{/if}}">
+    {{#t}}See all {total_member_count, number} members{{/t}}
+  </button>
+{{/if}}
+
+{{#feature flag="feature_channel_details_invite_link"}}
+  {{#if show_channel_invite_link}}
+    <a class="add_someone small_top_margin block">{{#t}}Invite more people &hellip;{{/t}}</a>
+  {{/if}}
+{{else}}
+  {{#if model_ob.is_mpim}}
+    {{#canCreateMpims}}
+      <a class="add_someone small_top_margin block">{{#t}}Add someone &hellip;{{/t}}</a>
+    {{/canCreateMpims}}
+  {{/if}}
+{{/feature}}

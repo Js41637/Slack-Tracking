@@ -1,0 +1,48 @@
+{{i18n_ns 'team'}}
+
+{{#if member.profile.guest_invited_by}}
+  <tr>
+    <td><span class="small_right_padding old_petunia_grey" title="{{#t note="owner or admin that invited the guest to the team"}}Invited By{{/t}}">{{#t note="owner or admin that invited the guest to the team"}}Invited By{{/t}}</span></td>
+    <td>
+      {{#if lazy_load_profile_fields}}
+        {{> loading_indicator}}
+      {{else}}
+        {{makeMemberPreviewLinkById member.profile.guest_invited_by}}
+      {{/if}}
+    </td>
+  </tr>
+{{/if}}
+{{#if member.profile.guest_expiration_ts}}
+  <tr>
+    <td><span class="small_right_padding old_petunia_grey" title="{{#t note="date the guest account will be deactivated"}}Member Until{{/t}}">{{#t note="date the guest account will be deactivated"}}Member Until{{/t}}</span></td>
+    <td>
+      {{#t
+        note="Account time limit for a guest"
+        date=(toCalendarDate member.profile.guest_expiration_ts)
+        time=(toTime member.profile.guest_expiration_ts)
+      }}
+        {date} at {time}
+      {{/t}}
+    </td>
+  </tr>
+{{/if}}
+{{#if (listItemCount member.profile.guest_channels)}}
+  <tr>
+    <td><span class="small_right_padding old_petunia_grey" title="{{#t note="list of channels the user is invited to" }}{member.is_ultra_restricted, select, true{Channel}other{Channels}}{{/t}}">{{#t note="list of channels the user is invited to" channel_count=(listItemCount member.profile.guest_channels)}}{channel_count, plural, =1{Channel}other{Channels}}{{/t}}</span></td>
+    <td>
+      {{makeLinksFromChannelOrGroupIds member.profile.guest_channels}}
+      {{#currentUserIsAdmin}}
+        <a href="/admin#restricted" class="member_details_manage_link"><ts-icon class="ts_icon_cog_o"></ts-icon>{{#t note="link to manage restricted members"}}Manage{{/t}}</a>
+      {{/currentUserIsAdmin}}
+    </td>
+  </tr>
+{{else}}
+  {{#currentUserIsAdmin}}
+    <tr>
+      <td><span class="small_right_padding old_petunia_grey" title="{{#t note="list of channels the user is invited to"}}Channels{{/t}}">{{#t note="list of channels the user is invited to"}}Channels{{/t}}</span></td>
+      <td>
+        <a href="/admin#restricted" class="member_details_manage_link"><ts-icon class="ts_icon_cog_o"></ts-icon>{{#t note="link to manage restricted members"}}Manage{{/t}}</a>
+      </td>
+    </tr>
+  {{/currentUserIsAdmin}}
+{{/if}}

@@ -1,0 +1,45 @@
+{{i18n_ns 'message'}}
+{{!-- hbslint-disable syntax --}}
+{{!-- Todo: enable syntax linter and enable safeString --}}
+
+<ts-message id="message_edit_container" class="message first highlight">
+  <div class="message_gutter">
+    <div class="message_icon">
+      {{#if msg.user}}
+        {{{makeMemberPreviewLinkImage msg.user 36}}}
+      {{else}}
+        {{{makeUsernameImage msg 36}}}
+      {{/if}}
+    </div>
+    {{!-- <i class="copy_only">[</i> --}}<{{#if permalink}}a href="{{permalink}}" target="{{newWindowName}}"{{else}}span{{/if}} class="timestamp ts_tip ts_tip_top ts_tip_float ts_tip_hidden ts_tip_multiline ts_tip_delay_300{{#if full_date}} no_wrap{{/if}}">
+    {{#if full_date}}
+      {{#if relative_ts}}
+        {{#t date=(toCalendarDateOrNamedDayShort msg.ts) time=(toTimeAgoShort msg.ts)}}{date} at {time}{{/t}}
+      {{else}}
+        {{#t date=(toCalendarDateOrNamedDayShort msg.ts) time=(toTime msg.ts)}}{date} at {time}{{/t}}
+      {{/if}}
+    {{else}}
+      {{#if relative_ts}}
+        <span class="light_only">{{toTimeAgoShort msg.ts false}}</span>
+        <span class="dense_only">{{toTimeAgoShort msg.ts true}}</span>
+      {{else}}
+        {{{toTime msg.ts}}}
+      {{/if}}
+    {{/if}}<span class="ts_tip_tip"><span class="ts_tip_multiline_inner">{{{msgTsTitle msg null permalink}}}</span></span>
+    </{{#if permalink}}a{{else}}span{{/if}}>{{!-- <i class="copy_only">[</i> --}}
+    {{#if show_star}}<span class="message_star_holder">{{star 'message' msg model_ob}}</span>{{/if}}
+  </div>
+  <form id="message_edit_form" data-msg-ts="{{msg.ts}}">
+    {{#if include_emo}}<button class="emo_menu btn_unstyle hidden" aria-label="{{#t}}emoji menu{{/t}}" type="button"><i class="ts_icon ts_icon_circle_fill"></i><i class="ts_icon ts_icon_smile_o"></i><i class="ts_icon ts_icon_happy_smile"></i></button>{{/if}}
+    {{#supportsTextyTakesOver}}
+      <div id="msg_text" class="message_input"></div>
+    {{else}}
+      <textarea id="msg_text" name="msg_text">{{edit_text}}</textarea>
+    {{/supportsTextyTakesOver}}
+    <a id="cancel_edit" role="button" class="btn btn_small btn_outline">{{#t}}Cancel{{/t}}</a>
+    <a id="commit_edit" role="button" class="btn btn_small"><i class="ts_icon ts_icon_enter ts_icon_inherit small_right_margin"></i>{{#t}}Save Changes{{/t}}</a>
+    <span id="message_editing_info" class="mini" style="display: none;">{{#t}}Finish editing this message first! Or press <strong>escape</strong> if you've changed your mind.{{/t}}</span>
+    <span class="mini float_right edit_controls"><span id="edit_countdown"></span>
+    <span class="candy_red hidden edit_warning">{{#t}}text is too long!{{/t}}</span></span>
+  </form>
+</ts-message>

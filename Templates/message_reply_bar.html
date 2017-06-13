@@ -1,0 +1,20 @@
+{{i18n_ns "threads"}}
+
+<div class="reply_bar">
+  {{> reply_faces repliers=first_repliers avatar_size=24 additional_reply_count=additional_reply_count}}
+  <div class="reply_summary">
+    <a href="{{conversation_permalink}}" target="_blank" class="reply_count">
+    {{#if num_replies}}
+      {{#t}}{num_replies, plural, =1 {# reply} other {# replies}}{{/t}}
+    {{else}}
+      {{#t num_replies=msg.reply_count}}{num_replies, plural, =1 {# reply} other {# replies}}{{/t}}
+    {{/if}}
+    </a>
+
+    <div class="meta_hover_placement">
+      <span class="last_reply_at">{{#if last_reply_at}}{{last_reply_at}}{{/if}}</span>
+      <span class="view_conv_hover">{{#t}}View thread{{/t}}</span>
+    </div>
+  </div>
+  <ts-icon class="reply_bar_caret ts_icon_chevron_right"></ts-icon>
+</div>

@@ -1,0 +1,81 @@
+{{i18n_ns 'user_groups'}}
+
+<div class="user_group_item small_padding bottom_border clearfix" data-user-group-id="{{user_group.id}}">
+  {{#if is_flexpane}}
+    <div class="col span_5_of_6 small_padding no_bottom_margin">
+      <a href="/usergroups/{{user_group.id}}" target="/usergroups/{{user_group.id}}" data-user-group-id="{{user_group.id}}" class="internal_user_group_link">
+        <h4>{{user_group.name}}</h4>
+        {{#if user_group.description}}
+          <p class="lato">{{user_group.description}}</p>
+        {{/if}}
+        {{#or user_group.handle user_group.user_count}}
+          <p class="lato subtle_silver tiny_bottom_margin">
+            {{#t user_count=user_group.user_count}}
+              {user_count, plural, =1 {# member} other {# members}}
+            {{/t}}
+            {{#and user_group.handle user_group.user_count}}-{{/and}}
+            {{#if user_group.handle}}@{{/if}}{{user_group.handle}}
+          </p>
+        {{/or}}
+      </a>
+    </div>
+  {{else}}
+    {{#if user_group.date_delete}}
+      <div class="col span_4_of_6 small_padding no_bottom_margin">
+        <p class="no_bottom_margin subtle_silver"><span class="lato_bold">{{user_group.name}}</span> <i>{{#t note="inline indication that group is disabled"}}(Disabled){{/t}}</i></p>
+      </div>
+      <div class="col span_2_of_6 small_padding no_bottom_margin float_right align_right">
+        {{#if show_toggle}}
+          <a data-action="enable_user_group" class="user_group_toggle_btn no_bottom_margin subtle_silver small small_right_padding"><i class="ts_icon ts_icon_power_off ts_tip ts_tip_left"><span class="ts_tip_tip">{{#t note="link to enable a group"}}Enable group{{/t}}</span></i></a>
+          {{#and show_delete user_group.can_delete}}
+            <a data-action="delete_user_group" class="user_group_toggle_btn small_left_padding no_bottom_margin subtle_silver small"><i class="ts_icon ts_icon_times_circle ts_tip ts_tip_left"><span class="ts_tip_tip">{{#t note="link to delete a group"}}Delete group{{/t}}</span></i></a>
+          {{/and}}
+        {{/if}}
+      </div>
+    {{else}}
+      <div class="col span_3_of_4 small_padding no_bottom_margin">
+        <p class="lato_bold no_bottom_margin">{{user_group.name}} {{#if user_group.handle}}<span class="subtle_silver">@{{user_group.handle}}</span>{{/if}}</p>
+        {{#if user_group.description}}
+          <p class="small no_bottom_margin">{{user_group.description}}</p>
+        {{/if}}
+        {{#or user_group.prefs.channels.length user_group.prefs.groups.length}}
+          <p class="small subtle_silver no_bottom_margin">
+            <span class="lato_bold">{{#t note="heading for list of default channels"}}Default channels: {{/t}}</span>
+            {{#each user_group.prefs.channels}}
+              {{getCorGNameWithPrefixById this}}
+            {{/each}}
+            {{#each user_group.prefs.groups}}
+              {{getCorGNameWithPrefixById this}}
+            {{/each}}
+          </p>
+        {{/or}}
+        {{#if user_group.created_by}}
+          <p class="small subtle_silver no_bottom_margin">
+            {{#t note="description of the user group creator and user group creation date" creator=(getPrefCompliantMemberNameById user_group.created_by) creation_date=(convertTimestampToMilliseconds user_group.date_create)}}
+              Created by <strong>{creator}</strong> on {creation_date, date, long}
+            {{/t}}
+          </p>
+        {{/if}}
+      </div>
+      <div class="float_right right_padding">
+        <p class="user_group_count no_bottom_margin float_right small subtle_silver">
+          {{#or user_group.is_external user_group.auto_type}}<i class="ts_icon ts_icon_sync"></i>{{/or}}
+          <i class="ts_icon ts_icon_user"></i>{{user_group.user_count}}
+        </p>
+        <p class="user_group_actions small no_bottom_margin">
+          {{#if show_toggle}}
+            <button class="user_group_toggle_btn btn_icon btn_outline btn ts_icon ts_icon_disable ts_tip ts_tip_bottom" title="{{#t note="title for button to disable a group"}}Disable{{/t}}" data-action="disable_user_group"><span class="ts_tip_tip">{{#t note="button to disable a group"}}Disable group{{/t}}</span></button>
+          {{/if}}
+
+          <button class="btn_icon btn_outline btn ts_icon ts_icon_cog_o ts_tip ts_tip_bottom" title="{{#t note="title for button to edit group information"}}Settings{{/t}}" data-action="open_form"><span class="ts_tip_tip">{{#t note="button to edit group information"}}Edit group info{{/t}}</span></button>
+
+          {{#or user_group.auto_type user_group.is_external}}
+            <button class="btn_icon btn_outline btn ts_icon ts_icon_user ts_tip ts_tip_left" title="{{#t note="title for button to show a list of group members"}}Members{{/t}}" data-action="edit_members"><span class="ts_tip_tip">{{#t note="button to show a list of group members"}}View group members{{/t}}</span></button>
+          {{else}}
+            <button class="btn_icon btn_outline btn ts_icon ts_icon_user ts_tip ts_tip_left" title="{{#t note="title for button to edit group members"}}Members{{/t}}" data-action="edit_members"><span class="ts_tip_tip">{{#t note="button to edit group members"}}Edit group members{{/t}}</span></button>
+          {{/or}}
+        </p>
+      </div>
+    {{/if}}
+  {{/if}}
+</div>

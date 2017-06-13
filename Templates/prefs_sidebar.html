@@ -1,0 +1,13 @@
+{{i18n_ns "prefs"}}
+
+<li><a class="sidebar_menu_list_item" data-section="notifications">{{#t}}Notifications{{/t}}</a></li>
+{{#if show_win_ssb_prefs}}<li><a class="sidebar_menu_list_item" data-section="win_ssb">{{#t}}Windows App{{/t}}</a></li>{{/if}}
+{{#if show_lin_ssb_prefs}}<li><a class="sidebar_menu_list_item" data-section="lin_ssb">{{#t}}Linux App{{/t}}</a></li>{{/if}}
+{{#feature flag="feature_localization"}}<li><a class="sidebar_menu_list_item" data-section="language_region">{{#t}}Language & Region{{/t}}</a></li>{{/feature}}
+<li><a class="sidebar_menu_list_item" data-section="messages_media">{{#t}}Messages & Media{{/t}}</a></li>
+<li><a class="sidebar_menu_list_item" data-section="themes">{{#t}}Sidebar Theme{{/t}}</a></li>
+<li><a class="sidebar_menu_list_item" data-section="search">{{#t}}Search{{/t}}</a></li>
+<li><a class="sidebar_menu_list_item" data-section="read_state_tracking">{{#t}}Mark as Read{{/t}}</a></li>
+<li><a class="sidebar_menu_list_item" data-section="a11y">{{#t}}Accessibility{{/t}}</a></li>
+<li><a class="sidebar_menu_list_item" data-section="advanced">{{#t}}Advanced{{/t}}</a></li>
+{{#if show_labs_prefs}}<li><a class="sidebar_menu_list_item" data-section="labs">{{#t}}Labs (TS Only){{/t}}</a></li>{{/if}}

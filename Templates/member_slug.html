@@ -1,0 +1,2 @@
+{{!-- TODO after feature_name_tagging_client / feature_shared_channels_client, can we remove the member-name attribute? --}}
+<span contenteditable="false" class="plastic_contenteditable_element internal_member_link"{{#if member_id}} data-member-id="{{member_id}}"{{/if}} data-member-name="{{member_username}}" data-stringify-text="@{{member_id}}"{{#feature flag="feature_texty_mentions"}} data-member-label="{{member_name}}"{{/feature}}>@{{member_name}}</span>

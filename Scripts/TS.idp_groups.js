@@ -1,43 +1,38 @@
-(function() {
-  "use strict";
-  TS.registerModule("idp_groups", {
-    loaded_sig: new signals.Signal,
-    onStart: function() {
-      if (TS.idp_groups.shouldLoad()) {
-        TS.api.callImmediately("idpgroups.list", {
-          include_users: 1
-        }, function(ok, data) {
-          if (!ok) {
-            TS.error("Failed to load IDP groups");
-          } else {
-            TS.model.idp_groups = _.toArray(data.idpgroups);
-          }
-          TS.idp_groups.loaded_sig.dispatch();
-        });
-      }
-    },
-    isLoaded: function() {
-      return TS.model.idp_groups !== null;
-    },
-    shouldLoad: function() {
-      return TS.web && TS.boot_data.page_needs_enterprise;
-    },
-    memberBelongsToGroup: function(group, member_id) {
-      if (!group || !group.users) return false;
-      return _.indexOf(group.users, member_id) !== -1;
-    },
-    memberBelongsToAnyGroup: function(member_id) {
-      if (!TS.idp_groups.isLoaded()) return false;
-      var found = _.find(TS.model.idp_groups, function(group) {
-        return TS.idp_groups.memberBelongsToGroup(group, member_id);
+webpackJsonp([251], {
+  2748: function(o, e) {
+    ! function() {
+      "use strict";
+      TS.registerModule("idp_groups", {
+        loaded_sig: new signals.Signal,
+        onStart: function() {
+          TS.idp_groups.shouldLoad() && TS.api.callImmediately("idpgroups.list", {
+            include_users: 1
+          }, function(o, e) {
+            o ? TS.model.idp_groups = _.toArray(e.idpgroups) : TS.error("Failed to load IDP groups"), TS.idp_groups.loaded_sig.dispatch();
+          });
+        },
+        isLoaded: function() {
+          return null !== TS.model.idp_groups;
+        },
+        shouldLoad: function() {
+          return TS.web && TS.boot_data.page_needs_enterprise;
+        },
+        memberBelongsToGroup: function(o, e) {
+          return !(!o || !o.users) && -1 !== _.indexOf(o.users, e);
+        },
+        memberBelongsToAnyGroup: function(o) {
+          if (!TS.idp_groups.isLoaded()) return !1;
+          var e = _.find(TS.model.idp_groups, function(e) {
+            return TS.idp_groups.memberBelongsToGroup(e, o);
+          });
+          return !_.isUndefined(e);
+        },
+        getGroupsForMember: function(o) {
+          return TS.idp_groups.isLoaded() ? _.filter(TS.model.idp_groups, function(e) {
+            return TS.idp_groups.memberBelongsToGroup(e, o);
+          }) : [];
+        }
       });
-      return !_.isUndefined(found);
-    },
-    getGroupsForMember: function(member_id) {
-      if (!TS.idp_groups.isLoaded()) return [];
-      return _.filter(TS.model.idp_groups, function(group) {
-        return TS.idp_groups.memberBelongsToGroup(group, member_id);
-      });
-    }
-  });
-})();
+    }();
+  }
+}, [2748]);

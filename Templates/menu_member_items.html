@@ -1,0 +1,201 @@
+{{i18n_ns "menu"}}
+
+{{#if member.is_self}}
+  {{#if is_im_menu}}
+
+      <li id="member_jump_item" role="menuitem">
+        <a class="date_picker" target="{{newWindowName}}">
+          {{#t note="Jump to date in history in DM with yourself"}}Jump to date &hellip;{{/t}}
+        </a>
+      </li>
+    {{#unless hide_view_profile}}
+      <li id="member_profile_item" role="menuitem"><a href="/account/profile" target="{{newWindowName}}">
+        {{#t}}Edit your profile{{/t}}
+      </a></li>
+    {{/unless}}
+    <li id="member_details_item"><a>
+      {{#t}}View conversation details{{/t}}
+    </a></li>
+    {{#if show_dm_retention}}
+    <li id="member_dm_retention" role="menuitem">
+      <a>{{#t}}Set message retention policy ...{{/t}}</a>
+    </li>
+    {{/if}}
+    {{#if show_export_history}}
+    <li id="member_export_history" role="menuitem">
+      <a>{{#t}}Export message history ...{{/t}}</a>
+    </li>
+    {{/if}}
+    <li class="divider"></li>
+    {{#if show_email_item}}
+      <li id="member_email_item" role="menuitem">
+        <a target="{{newWindowName}}" href="/services/new/email">
+          {{#t}}Send email to this conversation &hellip;{{/t}}
+        </a>
+      </li>
+    {{/if}}
+  {{else}}
+
+
+    <li id="member_prefs_item" role="menuitem"><a>{{#t}}View preferences{{/t}}</a></li>
+    <li id="member_account_item" role="menuitem"><a href="/account/settings" target="{{newWindowName}}">{{#t}}Open account settings{{/t}}</a></li>
+    {{#unless hide_view_profile}}
+      <li id="member_profile_item" role="menuitem"><a href="/account/profile" target="{{newWindowName}}">{{#t}}Edit your profile{{/t}}</a></li>
+    {{/unless}}
+    <li class="divider"></li>
+
+
+    <li id="member_files_item" role="menuitem"><a href="/files/{{member.name}}" target="{{newWindowName}}">{{#t}}View your files{{/t}}</a></li>
+    <li id="member_presence" role="menuitem">
+      <a>
+        <span class="menu_item_label">
+          {{#if_equal member.presence compare="active"}}
+            {{#t}}Set yourself away{{/t}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          {{else}}
+            {{#t}}[Away] Set yourself active{{/t}}
+          {{/if_equal}}
+        </span>
+      </a>
+    </li>
+
+    {{#if hide_view_profile}}
+      <li id="member_open_profile_item" role="menuitem"><a target="{{newWindowName}}" href="/team/{{~#feature flag="feature_name_tagging_client"~}}
+          {{member.id}}
+        {{~else~}}
+          {{~#feature flag="feature_shared_channels_client"~}}
+            {{member.id}}
+          {{~else~}}
+            {{member.name}}
+          {{~/feature~}}
+        {{~/feature~}}">{{#t}}Open profile in new window{{/t}}&nbsp;</a></li>{{!-- Add &nbsp; or w becomes ... on non-retina screen --}}
+    {{/if}}
+
+    <li class="divider"></li>
+
+    {{#if other_accounts}}
+      {{#each other_accounts}}
+        <li class="switch_team" data-team-id="{{this.team_id}}" role="menuitem">
+          <a href="{{this.team_url}}messages">{{#t note="Switch to another team"}}Switch to {this.name} ({this.team_name}){{/t}}</a>
+        </li>
+      {{/each}}
+    {{/if}}
+
+    {{#if logout_url}}
+      <li id="logout" role="menuitem">
+        <a href="{{logout_url}}">{{#t}}Sign Out{{/t}}</a>
+      </li>
+    {{/if}}
+  {{/if}}
+
+{{else}}
+
+  {{#if is_im_menu}}
+
+      <li id="member_jump_item" role="menuitem">
+        <a class="date_picker" target="{{newWindowName}}">
+          {{#t note="Jump to date in history in DM with yourself"}}Jump to date &hellip;{{/t}}
+        </a>
+      </li>
+      <li id="member_profile_item" role="menuitem"><a href="/team/{{~#feature flag="feature_name_tagging_client"~}}
+          {{member.id}}
+        {{~else~}}
+          {{~#feature flag="feature_shared_channels_client"~}}
+            {{member.id}}
+          {{~else~}}
+            {{member.name}}
+          {{~/feature~}}
+        {{~/feature~}}" target="{{newWindowName}}">
+        {{#t name_possessive=(fullPossessiveString (getPrefCompliantMemberName member))}}View {name_possessive} profile{{/t}}
+      </a></li>
+      {{#if show_channel_invite}}
+        <li id="member_invite_channel_item" role="menuitem"><a>
+          {{#t name=(getPrefCompliantMemberName member)}}Invite {name} to a channel &hellip;{{/t}}
+        </a></li>
+      {{/if}}
+      <li id="member_details_item">
+        <a>{{#t}}View conversation details{{/t}}</a>
+      </li>
+      {{#if show_dm_retention}}
+      <li id="member_dm_retention" role="menuitem">
+        <a>{{#t}}Set message retention policy &hellip;{{/t}}</a>
+      </li>
+      {{/if}}
+      {{#if show_export_history}}
+      <li id="member_export_history" role="menuitem">
+        <a>{{#t}}Export message history &hellip;{{/t}}</a>
+      </li>
+      {{/if}}
+      <li class="divider"></li>
+      {{#if show_email_item}}
+        <li id="member_email_item" role="menuitem">
+          <a target="{{newWindowName}}" href="/services/new/email">
+            {{#t}}Send email to this conversation &hellip;{{/t}}
+          </a>
+        </li>
+      {{/if}}
+
+  {{else}}
+
+    {{#unless hide_view_profile}}
+      <li id="member_profile_item" role="menuitem"><a href="/team/{{~#feature flag="feature_name_tagging_client"~}}
+          {{member.id}}
+        {{~else~}}
+          {{~#feature flag="feature_shared_channels_client"~}}
+            {{member.id}}
+          {{~else~}}
+            {{member.name}}
+          {{~/feature~}}
+        {{~/feature~}}" target="{{newWindowName}}">
+        {{#t}}View profile{{/t}}
+      </a></li>
+    {{/unless}}
+
+    {{#if show_dm_item}}
+      {{#feature flag="feature_deleted_dm_archives"}}
+        {{#if member.deleted}}
+          <li id="member_dm_item" role="menuitem"><a href="/messages/@{{member.name}}">{{#t}}Direct Message archives{{/t}}</a></li>
+        {{else}}
+          <li id="member_dm_item" role="menuitem"><a href="/messages/@{{member.name}}">{{#t}}Direct Messages{{/t}}</a></li>
+        {{/if}}
+      {{else}}
+        {{#unless member.deleted}}
+          <li id="member_dm_item" role="menuitem"><a href="/messages/@{{member.name}}">{{#t}}Direct Messages{{/t}}</a></li>
+        {{/unless}}
+      {{/feature}}
+    {{/if}}
+
+    <li id="member_files_item" role="menuitem"><a href="/files/{{member.name}}" target="{{newWindowName}}"> {{#t}}View files{{/t}}</a></li>
+    {{#if show_call_action}}
+      {{#unless member.deleted}}
+        <li id="member_call_item" role="menuitem"><a>{{#t note="Start a call with an individual member"}}Call{{/t}}</a></li>
+      {{/unless}}
+    {{/if}}
+    {{#if channel_kick_name}}<li id="member_kick_channel_item" role="menuitem"{{#if channel_kick_hidden}} class="hidden"{{/if}}><a>
+      {{#t}}Remove from <b>{channel_kick_name}</b>{{/t}}
+    </a></li>{{/if}}
+    {{#if show_channel_invite}}<li id="member_invite_channel_item" role="menuitem"><a>
+      {{#t}}Invite to a channel &hellip;{{/t}}
+    </a></li>{{/if}}
+
+    {{#if show_slackbot_responses_item}}
+      <li id="member_slackbot_responses" role="menuitem"><a href="/customize/slackbot" target="{{newWindowName}}">
+        {{#t}}Create/edit Slackbot responses{{/t}}
+      </a></li>
+    {{/if}}
+
+    {{#if hide_view_profile}}
+      <li id="member_open_profile_item" role="menuitem"><a target="{{newWindowName}}" href="/team/{{~#feature flag="feature_name_tagging_client"~}}
+          {{member.id}}
+        {{~else~}}
+          {{~#feature flag="feature_shared_channels_client"~}}
+            {{member.id}}
+          {{~else~}}
+            {{member.name}}
+          {{~/feature~}}
+        {{~/feature~}}">
+        {{#t}}Open profile in new window{{/t}}&nbsp;
+      </a></li>{{!-- Add &nbsp; or w becomes ... on non-retina screen --}}
+    {{/if}}
+
+  {{/if}}
+{{/if}}

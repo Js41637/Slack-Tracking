@@ -1,0 +1,20 @@
+{{i18n_ns "fs_modal_file_viewer"}}
+{{> fs_modal_file_viewer_header}}
+
+<div class="viewer">
+  {{#if file_is_pdf}}
+    {{> fs_modal_file_viewer_content_pdf}}
+  {{else}}
+    {{> fs_modal_file_viewer_content_image}}
+  {{/if}}
+
+  {{#if control_btns}}
+    <div class="control_btns">
+      <button class="previous_btn" aria-label="{{#t note="Indicates a link that will take the user to the previous page"}}previous{{/t}}"><ts-icon class="ts_icon_arrow_large_left"></ts-icon></button>
+      <button class="next_btn" aria-label="{{#t note="Indicates a link that will take the user to the next page"}}next{{/t}}"><ts-icon class="ts_icon_arrow_large_right"></ts-icon></button>
+    </div>{{!--/control_btns--}}
+  {{/if}}
+
+</div>{{!--/viewer--}}
+
+{{> fs_modal_file_viewer_aside}}

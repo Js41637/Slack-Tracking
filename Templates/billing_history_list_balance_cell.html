@@ -1,0 +1,9 @@
+{{#if_gt credit_balance compare=0}}
+  <span class="inline_positive"><strong>{{formatted_credit_balance}}<strong></span>
+{{/if_gt}}
+{{#if_lt credit_balance compare=0}}
+  <span class="inline_negative"><strong>{{formatted_credit_balance}}<strong></span>
+{{/if_lt}}
+{{#if_equal credit_balance compare=0}}
+  <span><strong>{{formatted_credit_balance}}<strong></span>
+{{/if_equal}}

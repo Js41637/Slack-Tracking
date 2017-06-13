@@ -1,0 +1,12 @@
+<div class="drop_zone_attachment" data-drop-zone-attachment-id="{{attachment_id}}">
+  <a class="drop_zone_remove_attachment" href="#">
+    <ts-icon class="ts_icon_times_circle"></ts-icon>
+  </a>
+  {{#if icon}}
+    <div class="drop_zone_preview large_padding">
+      <ts-icon class="ts_icon_{{icon}}"></ts-icon> {{description}}
+    </div>
+  {{else}}
+    <img class="drop_zone_preview large_padding" src="{{img_src}}">
+  {{/if}}
+</div>

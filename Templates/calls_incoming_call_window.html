@@ -1,0 +1,43 @@
+{{!-- hbslint-disable syntax --}}
+{{!-- Todo: enable syntax linter and refactor with safeString --}}
+<html>
+<head>
+<script>
+_sendMessageToParentWindow = function(args) {
+  args.origin_window_type = 'incoming_call';
+  window.opener.postMessage(args);
+};
+_userClickedAcceptOrReject = function(did_accept, did_choose_video) {
+  _sendMessageToParentWindow({
+    message_type: 'user_clicked_accept_or_reject',
+    user_id: '{{user_id}}',
+    room_id: '{{room_id}}',
+    did_accept: did_accept,
+    did_choose_video: did_choose_video
+  });
+};
+document.addEventListener('DOMContentLoaded', function(event) { 
+  var accept_video_elements = document.getElementsByClassName('accept_video');
+  if (accept_video_elements.length > 0) {
+    accept_video_elements[0].addEventListener('click', function() {
+      _userClickedAcceptOrReject(true, true);
+    });
+  }
+  document.getElementsByClassName('accept_audio')[0].addEventListener('click', function() {
+    _userClickedAcceptOrReject(true);
+  });
+  document.getElementsByClassName('reject')[0].addEventListener('click', function() {
+    _userClickedAcceptOrReject(false);
+  });
+});
+<{{!}}/script>
+{{#each css_urls}}
+<link href="{{this}}" rel="stylesheet">
+{{/each}}
+</head>
+<body class="incoming_call_window_body {{#if no_border}}no_border{{/if}}">
+<div id="incoming_call">
+{{{incoming_call_div}}}
+</div>
+</body>
+</html>

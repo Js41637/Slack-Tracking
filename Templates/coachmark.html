@@ -1,0 +1,25 @@
+{{i18n_ns "coachmarks"}}
+
+<div id="coachmark" class="lato_regular normal hidden">
+  <div id="coachmark_callout"></div>
+  <div id="coachmark_interior" class="lato">
+    {{#if has_close_btn}}
+    <a class="coachmark_close_btn">
+      <i class="ts_icon ts_icon_times"></i>  
+    </a>
+    {{/if}}
+    {{! content divs are dynamically added depending on what type of coachmark is being shown }}
+    <div id="coachmark_footer">
+      <div class="coachmark_footer_text">
+        {{#t}}<span>Done? </span><a class="coachmark_skip_link">Click here to skip</a>{{/t}}
+      </div>
+      <a class="btn coachmark_got_it float_right hidden">{{#t}}Got it!{{/t}}</a>
+
+      <a class="btn coachmark_next_tip float_right">{{#t}}Next Tip{{/t}}</a>
+
+      {{#if can_include_invite_cta}}
+      <a class="btn coachmark_invite_people float_right hidden">{{#t}}Invite People{{/t}}</a>
+      {{/if}}
+    </div>
+  </div>
+</div>

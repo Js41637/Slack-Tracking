@@ -1,0 +1,17 @@
+{{#if is_tombstone}}
+  <div class="message_deleted_icon"><i class="ts_icon ts_icon_trash member_image thumb_36"></i></div>
+{{else}}
+  {{#if member}}
+    {{#if member.is_unknown}}
+      <div class="member_image member_image_unknown thumb_36"></div>
+    {{else}}
+      {{#if is_bot}}
+        {{makeProfileImage member size="36"}}
+      {{else}}
+        {{makeMemberPreviewLinkImage member.id 36 null null null null msg.slackbot_feels}}
+      {{/if}}
+    {{/if}}
+  {{else}}
+    {{makeUsernameImage msg 36}}
+  {{/if}}
+{{/if}}

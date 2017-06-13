@@ -1,0 +1,11 @@
+{{i18n_ns "contextual_dropdown"}}
+
+<div class="contextual_dropdown{{#if show_description}} contextual_dropdown_with_desc{{/if}}">
+  <span class="contextual_dropdown_label plastic_select" tabindex="0" aria-haspopup="true">{{#if start_value}}{{ start_value }}{{else}}{{#t}}Select an option...{{/t}}{{/if}}</span>
+  <div class="contextual_dropdown_container" aria-hidden="true" aria-label="{{#t}}submenu{{/t}}">
+    <ul class="contextual_dropdown_items"></ul>
+    {{#if show_description}}
+    <div class="contextual_dropdown_desc"></div>
+    {{/if}}
+  </div>
+</div>

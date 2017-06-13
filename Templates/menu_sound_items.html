@@ -1,0 +1,6 @@
+{{#foreach notification_sounds}}
+  <li role="menuitem" class="sounds_menu_option">
+    <a class="no_right_padding no_right_margin" data-action="set_sound" data-sound="{{value.value}}">{{value.label}}</a>
+    <button data-action="play_sound" data-sound="{{value.value}}" class="sound_preview_button btn btn_icon btn_outline ts_icon ts_icon_volume_up small_left_margin right_margin"></button>
+  </li>
+{{/foreach}}

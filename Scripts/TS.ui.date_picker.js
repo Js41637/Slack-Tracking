@@ -1,260 +1,194 @@
-(function() {
-  "use strict";
-  TS.registerModule("ui.date_picker", {
-    onStart: function() {},
-    start: function($element, date_picker_args) {
-      $element.pickmeup(date_picker_args);
-    },
-    startJumpToDatePicker: function($element) {
-      var oldest_msg_ts = $("#channel_actions_toggle").attr("data-oldest-ts");
-      if (oldest_msg_ts) {
-        var min_date = TS.utility.date.toDateObject(oldest_msg_ts);
-        _initPickmeUpForJumpToDate($element, min_date);
-      } else {
-        var model_ob = TS.shared.getActiveModelOb();
-        var api_method = TS.shared.getHistoryApiMethodForModelOb(model_ob);
-        TS.api.callImmediately(api_method, {
-          channel: model_ob.id,
-          oldest: 283996800,
-          count: 1,
-          inclusive: 1
-        }).then(function(response) {
-          var min_ts;
-          if (response.data.messages.length < 1) {
-            min_ts = TS.shared.getActiveModelOb().created;
-          }
-          min_ts = response.data.messages[0].ts;
-          var min_date = TS.utility.date.toDateObject(min_ts);
-          _initPickmeUpForJumpToDate($element, min_date);
-          return true;
-        }).catch(function() {
-          _initPickmeUpForJumpToDate($element);
-          return TS.warn("couldn’t find messages in this channel :" + model_ob.id);
-        });
-      }
-    },
-    startArchiveDatePicker: function($element) {
-      var model_ob = TS.shared.getActiveModelOb();
-      var min_date = TS.utility.date.toDateObject(model_ob.created);
-      var today = Date.now();
-      var selected_date = today;
-      if (boot_data.calendar_start) selected_date = TS.utility.date.toDateObject(boot_data.calendar_start);
-      if (boot_data.calendar_oldest) min_date = TS.utility.date.toDateObject(boot_data.calendar_oldest);
-      TS.ui.date_picker.start($element, {
-        first_day: TS.i18n.start_of_the_week[TS.i18n.locale()] || 0,
-        hide_on_select: true,
-        select_year: true,
-        date: selected_date,
-        min: min_date,
-        max: today,
-        locale: {
-          days: TS.utility.date.day_names,
-          daysShort: TS.utility.date.short_day_names,
-          daysMin: TS.utility.date.really_short_day_names,
-          months: TS.utility.date.month_names,
-          monthsShort: TS.utility.date.short_month_names
+webpackJsonp([237], {
+  2339: function(t, e) {
+    ! function() {
+      "use strict";
+      TS.registerModule("ui.date_picker", {
+        onStart: function() {},
+        start: function(t, e) {
+          t.pickmeup(e);
         },
-        change: function() {
-          selected_date = $(this).pickmeup("get_date");
-          var timestamp = Date.parse(selected_date) * 1e3;
-          var path = model_ob.is_mpim ? TS.mpims.getMpimArchivesPath(model_ob) : "/archives/" + model_ob.id;
-          window.location = path + "/s" + timestamp;
-        }
-      });
-    },
-    startExpirationDatePicker: function($element, options) {
-      options = options || {};
-      var today = new Date;
-      var today_ts = today.getTime();
-      var selected_expiration_ts;
-      var selected_expiration_date;
-      if (options.selected_expiration_ts) {
-        selected_expiration_date = new Date(options.selected_expiration_ts * 1e3);
-      } else {
-        selected_expiration_date = new Date;
-        selected_expiration_date.setDate(today.getDate() + _DEFAULT_GUEST_DURATION_DAYS);
-      }
-      selected_expiration_date.setHours(0, 0, 0, 0);
-      selected_expiration_ts = selected_expiration_date.getTime();
-      var date_picker_args = {
-        first_day: TS.i18n.start_of_the_week[TS.i18n.locale()] || 0,
-        select_year: false,
-        min: today_ts,
-        date: selected_expiration_ts,
-        format: "s",
-        position: "top",
-        flat: true,
-        hide_on_select: true,
-        locale: {
-          days: TS.utility.date.day_names,
-          daysShort: TS.utility.date.short_day_names,
-          daysMin: TS.utility.date.really_short_day_names,
-          months: TS.utility.date.month_names,
-          monthsShort: TS.utility.date.short_month_names
-        }
-      };
-      if (options.class_name) date_picker_args.class_name = options.class_name;
-      if (options.onHide) date_picker_args.hide = options.onHide;
-      if (options.onChange) {
-        date_picker_args.change = function(seconds) {
-          var selected_date = new Date(seconds * 1e3);
-          selected_date.setHours(23, 59, 59, 0);
-          var selected_date_unix_ts = Math.floor(selected_date.getTime() / 1e3);
-          options.onChange(selected_date_unix_ts);
-        };
-      }
-      TS.ui.date_picker.start($element, date_picker_args);
-    },
-    getOldestMsgTs: function() {
-      var oldest_msg_ts = $("#channel_actions_toggle").attr("data-oldest-ts");
-      if (oldest_msg_ts) return;
-      var model_ob = TS.shared.getActiveModelOb();
-      var api_method = TS.shared.getHistoryApiMethodForModelOb(model_ob);
-      TS.api.callImmediately(api_method, {
-        channel: model_ob.id,
-        oldest: 283996800,
-        count: 1,
-        inclusive: 1
-      }).then(function(response) {
-        var min_ts;
-        if (response.data.messages.length < 1) {
-          return;
-        }
-        min_ts = response.data.messages[0].ts;
-        $("#channel_actions_toggle").attr("data-oldest-ts", min_ts);
-        return true;
-      }).catch(function() {
-        return TS.warn("couldn’t find messages in this channel :" + model_ob.id);
-      });
-    }
-  });
-  var _jumpToDateJumper = function(selected_date) {
-    var model_ob = TS.shared.getActiveModelOb();
-    if (model_ob.is_channel && !model_ob.is_member) {
-      if (model_ob.id == TS.client.archives.current_model_ob.id) {
-        _jumpIntoArchives(model_ob, selected_date);
-      }
-    } else {
-      if (model_ob.msgs.length < 1) {
-        TS.warn("no messages in this channel: " + model_ob.id);
-        return;
-      }
-      var timestamp = Date.parse(selected_date) / 1e3;
-      var last_visible = model_ob.msgs[model_ob.msgs.length - 1];
-      var last_visible_ts = parseFloat(last_visible.ts);
-      if (last_visible_ts < timestamp) {
-        if (TS.model.archive_view_is_showing) {
-          TS.client.archives.cancel();
-        }
-        var msg = TS.utility.msgs.getDisplayedMsgAfterTS(timestamp, model_ob.msgs);
-        if (msg) {
-          TS.client.ui.scrollMsgsSoMsgIsInView(msg.ts, false, true);
-        } else if (!msg && model_ob.msgs.length > 0) {
-          msg = TS.utility.msgs.getDisplayedMsgBeforeTS(timestamp, model_ob.msgs);
-          TS.client.ui.scrollMsgsSoMsgIsInView(msg.ts, false, true);
-        }
-      } else {
-        _jumpIntoArchives(model_ob, selected_date);
-      }
-    }
-  };
-  var _jumpIntoArchives = function(model_ob, selected_date) {
-    var timestamp = Date.parse(selected_date) / 1e3;
-    timestamp = timestamp.toString() + ".000000";
-    _getVisibleMsgInArchives(model_ob, timestamp).then(function(msg_id) {
-      if (TS.utility.msgs.getMsg(msg_id, model_ob.msgs)) {
-        if (TS.model.archive_view_is_showing) {
-          TS.client.archives.cancel();
-        }
-        TS.client.ui.scrollMsgsSoMsgIsInView(msg_id, false, true);
-      } else {
-        TS.client.archives.start(msg_id);
-      }
-      return true;
-    }).catch(function() {
-      return TS.warn("couldn’t find message for date: " + timestamp + " in channel: " + model_ob.id);
-    });
-  };
-  var _getVisibleMsgInArchives = function(model_ob, timestamp, fetch_count) {
-    fetch_count = fetch_count || 1;
-    if (fetch_count > 100) {
-      if (model_ob._archive_msgs && model_ob._archive_msgs.length > 0) {
-        return model_ob._archive_msgs[0];
-      }
-      throw new Error("no_visible_message_found");
-    }
-    var api_method = TS.shared.getHistoryApiMethodForModelOb(model_ob);
-    return new Promise(function(resolve, reject) {
-      var api_args = {
-        channel: model_ob.id,
-        oldest: timestamp,
-        count: fetch_count,
-        inclusive: 1,
-        ignore_replies: true
-      };
-      TS.api.call(api_method, api_args).then(function(response) {
-        if (!response || !response.data || response.data.messages.length === 0) {
-          if (model_ob._archive_msgs && model_ob._archive_msgs.length > 0) {
-            resolve(model_ob._archive_msgs[0]);
+        startJumpToDatePicker: function(t) {
+          var e = $("#channel_actions_toggle").attr("data-oldest-ts");
+          if (e) {
+            var a = TS.utility.date.toDateObject(e);
+            i(t, a);
           } else {
-            reject(new Error("api_call_failed"));
+            var s = TS.shared.getActiveModelOb(),
+              n = TS.shared.getHistoryApiMethodForModelOb(s);
+            TS.api.callImmediately(n, {
+              channel: s.id,
+              oldest: 283996800,
+              count: 1,
+              inclusive: 1,
+              include_pin_count: !!TS.boot_data.feature_lazy_pins
+            }).then(function(e) {
+              var a;
+              e.data.messages.length < 1 && (a = TS.shared.getActiveModelOb().created), a = e.data.messages[0].ts;
+              var s = TS.utility.date.toDateObject(a);
+              return i(t, s), !0;
+            }).catch(function() {
+              return i(t), TS.warn("couldn’t find messages in this channel :" + s.id);
+            });
           }
-        } else {
-          var msgs = response.data.messages;
-          for (var i = msgs.length - 1; i >= 0; i -= 1) {
-            var msg = msgs[i];
-            if (!TS.utility.msgs.isMsgReply(msg) && !(msg.subtype === "pinned_item")) {
-              resolve(msg.ts);
+        },
+        startArchiveDatePicker: function(t) {
+          var e = TS.shared.getActiveModelOb(),
+            a = TS.utility.date.toDateObject(e.created),
+            i = Date.now(),
+            s = i;
+          boot_data.calendar_start && (s = TS.utility.date.toDateObject(boot_data.calendar_start)), boot_data.calendar_oldest && (a = TS.utility.date.toDateObject(boot_data.calendar_oldest)), TS.ui.date_picker.start(t, {
+            first_day: TS.i18n.start_of_the_week[TS.i18n.locale()] || 0,
+            hide_on_select: !0,
+            select_year: !0,
+            date: s,
+            min: a,
+            max: i,
+            locale: {
+              days: TS.utility.date.day_names,
+              daysShort: TS.utility.date.short_day_names,
+              daysMin: TS.utility.date.really_short_day_names,
+              months: TS.utility.date.month_names,
+              monthsShort: TS.utility.date.short_month_names
+            },
+            change: function() {
+              s = $(this).pickmeup("get_date");
+              var t = 1e3 * Date.parse(s),
+                a = e.is_mpim ? TS.mpims.getMpimArchivesPath(e) : "/archives/" + e.id;
+              window.location = a + "/s" + t;
             }
+          });
+        },
+        startExpirationDatePicker: function(t, e) {
+          e = e || {};
+          var a, i, n = new Date,
+            o = n.getTime();
+          e.selected_expiration_ts ? i = new Date(1e3 * e.selected_expiration_ts) : (i = new Date, i.setDate(n.getDate() + s)), i.setHours(0, 0, 0, 0), a = i.getTime();
+          var r = {
+            first_day: TS.i18n.start_of_the_week[TS.i18n.locale()] || 0,
+            select_year: !1,
+            min: o,
+            date: a,
+            format: "s",
+            position: "top",
+            flat: !0,
+            hide_on_select: !0,
+            locale: {
+              days: TS.utility.date.day_names,
+              daysShort: TS.utility.date.short_day_names,
+              daysMin: TS.utility.date.really_short_day_names,
+              months: TS.utility.date.month_names,
+              monthsShort: TS.utility.date.short_month_names
+            }
+          };
+          e.class_name && (r.class_name = e.class_name), e.onHide && (r.hide = e.onHide), e.onChange && (r.change = function(t) {
+            var a = new Date(1e3 * t);
+            a.setHours(23, 59, 59, 0);
+            var i = Math.floor(a.getTime() / 1e3);
+            e.onChange(i);
+          }), TS.ui.date_picker.start(t, r);
+        },
+        getOldestMsgTs: function() {
+          if (!$("#channel_actions_toggle").attr("data-oldest-ts")) {
+            var t = TS.shared.getActiveModelOb(),
+              e = TS.shared.getHistoryApiMethodForModelOb(t);
+            TS.api.callImmediately(e, {
+              channel: t.id,
+              oldest: 283996800,
+              count: 1,
+              inclusive: 1,
+              include_pin_count: !!TS.boot_data.feature_lazy_pins
+            }).then(function(t) {
+              var e;
+              if (!(t.data.messages.length < 1)) return e = t.data.messages[0].ts, $("#channel_actions_toggle").attr("data-oldest-ts", e), !0;
+            }).catch(function() {
+              return TS.warn("couldn’t find messages in this channel :" + t.id);
+            });
           }
-          reject(new Error("no_visible_message_found"));
         }
       });
-    }).then(function(msg_id) {
-      return msg_id;
-    }, function(err) {
-      if (err.message === "no_visible_message_found") {
-        return _getVisibleMsgInArchives(model_ob, timestamp, fetch_count * 10);
-      }
-      throw err;
-    });
-  };
-  var _initPickmeUpForJumpToDate = function($element, min_date) {
-    if (!min_date) {
-      min_date = TS.utility.date.toDateObject(TS.shared.getActiveModelOb().created);
-    }
-    var today = Date.now();
-    var selected_date = today;
-    TS.ui.date_picker.start($element, {
-      first_day: TS.i18n.start_of_the_week[TS.i18n.locale()] || 0,
-      hide_on_select: true,
-      select_year: false,
-      flat: true,
-      date: selected_date,
-      min: min_date,
-      max: today,
-      locale: {
-        days: TS.utility.date.day_names,
-        daysShort: TS.utility.date.short_day_names,
-        daysMin: TS.utility.date.really_short_day_names,
-        months: TS.utility.date.month_names,
-        monthsShort: TS.utility.date.short_month_names
-      },
-      change: function() {
-        selected_date = $(this).pickmeup("get_date");
-        _jumpToDateJumper(selected_date);
-        TS.menu.$menu.css("opacity", 0);
-        TS.menu.end();
-      },
-      hide: function() {
-        window.setTimeout(function() {
-          if ($(this).pickmeup) {
-            $(this).pickmeup("destroy");
+      var t = function(t) {
+          var a = TS.shared.getActiveModelOb();
+          if (a.is_channel && !a.is_member) a.id == TS.client.archives.current_model_ob.id && e(a, t);
+          else {
+            if (a.msgs.length < 1) return void TS.warn("no messages in this channel: " + a.id);
+            var i = Date.parse(t) / 1e3,
+              s = a.msgs[a.msgs.length - 1];
+            if (parseFloat(s.ts) < i) {
+              TS.model.archive_view_is_showing && TS.client.archives.cancel();
+              var n = TS.utility.msgs.getDisplayedMsgAfterTS(i, a.msgs);
+              n ? TS.client.ui.scrollMsgsSoMsgIsInView(n.ts, !1, !0) : !n && a.msgs.length > 0 && (n = TS.utility.msgs.getDisplayedMsgBeforeTS(i, a.msgs), TS.client.ui.scrollMsgsSoMsgIsInView(n.ts, !1, !0));
+            } else e(a, t);
           }
-        }.bind(this), 0);
-      }
-    });
-    $element.pickmeup("show");
-  };
-  var _DEFAULT_GUEST_DURATION_DAYS = 7;
-})();
+        },
+        e = function(t, e) {
+          var i = Date.parse(e) / 1e3;
+          i = i.toString() + ".000000", a(t, i).then(function(e) {
+            return TS.utility.msgs.getMsg(e, t.msgs) ? (TS.model.archive_view_is_showing && TS.client.archives.cancel(), TS.client.ui.scrollMsgsSoMsgIsInView(e, !1, !0)) : TS.client.archives.start(e), !0;
+          }).catch(function() {
+            return TS.warn("couldn’t find message for date: " + i + " in channel: " + t.id);
+          });
+        },
+        a = function t(e, a, i) {
+          if ((i = i || 1) > 100) {
+            if (e._archive_msgs && e._archive_msgs.length > 0) return e._archive_msgs[0];
+            throw new Error("no_visible_message_found");
+          }
+          var s = TS.shared.getHistoryApiMethodForModelOb(e);
+          return new Promise(function(t, n) {
+            var o = {
+              channel: e.id,
+              oldest: a,
+              count: i,
+              inclusive: 1,
+              ignore_replies: !0,
+              include_pin_count: !!TS.boot_data.feature_lazy_pins
+            };
+            TS.api.call(s, o).then(function(a) {
+              if (a && a.data && 0 !== a.data.messages.length) {
+                for (var i = a.data.messages, s = i.length - 1; s >= 0; s -= 1) {
+                  var o = i[s];
+                  TS.utility.msgs.isMsgReply(o) || "pinned_item" === o.subtype || t(o.ts);
+                }
+                n(new Error("no_visible_message_found"));
+              } else e._archive_msgs && e._archive_msgs.length > 0 ? t(e._archive_msgs[0]) : n(new Error("api_call_failed"));
+            });
+          }).then(function(t) {
+            return t;
+          }, function(s) {
+            if ("no_visible_message_found" === s.message) return t(e, a, 10 * i);
+            throw s;
+          });
+        },
+        i = function(e, a) {
+          a || (a = TS.utility.date.toDateObject(TS.shared.getActiveModelOb().created));
+          var i = Date.now(),
+            s = i;
+          TS.ui.date_picker.start(e, {
+            first_day: TS.i18n.start_of_the_week[TS.i18n.locale()] || 0,
+            hide_on_select: !0,
+            select_year: !1,
+            flat: !0,
+            date: s,
+            min: a,
+            max: i,
+            locale: {
+              days: TS.utility.date.day_names,
+              daysShort: TS.utility.date.short_day_names,
+              daysMin: TS.utility.date.really_short_day_names,
+              months: TS.utility.date.month_names,
+              monthsShort: TS.utility.date.short_month_names
+            },
+            change: function() {
+              s = $(this).pickmeup("get_date"), t(s), TS.menu.$menu.css("opacity", 0), TS.menu.end();
+            },
+            hide: function() {
+              window.setTimeout(function() {
+                $(this).pickmeup && $(this).pickmeup("destroy");
+              }.bind(this), 0);
+            }
+          }), e.pickmeup("show");
+        },
+        s = 7;
+    }();
+  }
+}, [2339]);

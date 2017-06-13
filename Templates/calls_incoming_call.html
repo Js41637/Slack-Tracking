@@ -1,0 +1,19 @@
+{{i18n_ns "calls"}}
+{{!-- hbslint-disable syntax --}}
+{{!-- Todo: enable syntax linter and refactor with safeString --}}
+<div id="incoming_call_window">
+  <div class="avatar_holder">
+    {{> member_preview_link_image (getMemberPreviewLinkImageArgs caller.id 192 false true)}}
+  </div>
+  <div class="name_label_holder"><span class="name">{{name}}</span></div>
+  <div class="type_label_holder">
+    <span class="type_label type_label_0">&nbsp;</span>
+    <span class="type_label type_label_fade">{{#if is_video_call}}{{#t}}Video call{{/t}}{{else}}{{#t}}Voice call{{/t}}{{/if}}</span>
+    <span class="type_label type_label_fade type_label_fade_delay">{{team}}</span>
+  </div>
+  <div class="button_holder">
+    <a class="ts_icon ts_icon_phone_flat reject"></a>
+    <a class="ts_icon ts_icon_phone accept accept_audio"></a>
+    {{#if is_video_call}}<a class="ts_icon ts_icon_video_camera accept accept_video"></a>{{/if}}
+  </div>
+</div>

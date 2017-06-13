@@ -1,0 +1,24 @@
+  {{i18n_ns "pages_admin"}}
+  <div id="add_contact_form" class="top_margin">
+    <div>
+      <div>{{#t}}Add a billing contact from your team:{{/t}}</div>
+      <div class="add_contact_input">
+        <select id="user_contact_select" multiple data-placeholder="{{#t}}Type the new billing contact's name{{/t}}">
+          {{#each members}}
+            <option value="{{id}}">{{#feature flag="feature_name_tagging_client"}}{{getMemberRealName this}} ({{profile.email}}){{else}}{{#if real_name}}{{real_name}} &bull;{{/if}} {{name}}{{/feature}}</option>
+          {{/each}}
+        </select>
+      </div>
+    </div>
+
+    <div class="small_top_margin">
+      <div>{{#t}}Or by email address:{{/t}}</div>
+      <div class="lazy_filter_select default_style">
+        <div class="lfs_input_container empty">
+          <input id="email_contact_input" class="add_contact_input small no_bottom_margin no_border" type="text" placeholder="{{#t note="example email for billing contact"}}name@example.com{{/t}}">
+        </div>
+      </div>
+    </div>
+
+    <button class="btn ladda-button top_margin" data-style="expand-right"><span class="ladda-label">{{#t}}Add billing contact{{/t}}</span></button>
+  </div>

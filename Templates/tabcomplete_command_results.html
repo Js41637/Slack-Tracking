@@ -1,0 +1,32 @@
+<ul class="type_cmds">
+{{#each results as |group|}}
+  <li class="tab_complete_ui_group">
+    <span class="group_name">{{group.name}}</span>
+    <hr class="group_divider">
+  </li>
+  {{#each group.cmds as |cmd|}}
+    <li class="tab_complete_ui_item" data-index="{{cmd.index}}">
+      <div class="cmd-left-td">
+        <span class="cmdname">{{cmd.name}}</span>
+        {{#if cmd.aliases}}
+          (or {{#each cmd.aliases as |alias|}}{{~#if @index}}, {{/if}}{{alias}}{{/each}})
+        {{/if}}
+        {{#if cmd.usage}}
+          {{cmd.usage}}
+        {{else}}
+          {{#each cmd.args as |arg|}}
+            {{#if arg.optional}}
+              <span class="argname argoptional">[{{arg.name}}]</span>
+            {{else}}
+              <span class="argname">{{arg.name}}</span>
+            {{/if}}
+          {{/each}}
+        {{/if}}
+      </div>
+      <div class="cmd-right-td">
+        <span class="cmddesc">{{cmd.desc}}</span>
+      </div>
+    </li>
+  {{/each}}
+{{/each}}
+</ul>

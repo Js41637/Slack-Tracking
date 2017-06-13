@@ -1,0 +1,14 @@
+{{i18n_ns "ims"}}
+
+<div id="im_browser_alert" class="alert alert_warning">
+  <i class="ts_icon ts_icon_warning"></i>
+  {{#if member}}
+    {{#t
+      member_display_name=(getPrefCompliantMemberName member)
+    }}
+      <strong>{member_display_name}</strong> is a guest of your team, so share files and information with care.
+    {{/t}}
+  {{else}}
+    {{#t}}Some participants have guest accounts, so share files and information with care.{{/t}}
+  {{/if}}
+</div>

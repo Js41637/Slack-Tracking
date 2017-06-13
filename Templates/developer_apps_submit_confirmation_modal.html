@@ -1,0 +1,256 @@
+{{i18n_ns "developer_apps"}}
+<table class="full_width small top_margin">
+  <tbody>
+    {{#if has_display_info}}
+      <tr class="no_border">
+        <td colspan="2">
+          <h4 class="no_bottom_margin">{{#t}}Display Information{{/t}}</h4>
+        </td>
+      </tr>
+      {{#or name icon_src}}
+        <tr {{#if icon_src}}class="align_middle"{{/if}}>
+          <td class="submission_modal_row_title">{{#t}}Icon & App Name{{/t}}</td>
+          <td class="submission_modal_cell">
+            {{#if icon_src}}<img src="{{icon_src}}" class="rounded constrain_48 right_margin"/>{{/if}}
+            {{#if name}}{{name}}{{/if}}
+          </td>
+        </tr>
+      {{/or}}
+      {{#if desc}}
+        <tr>
+          <td class="submission_modal_row_title">{{#t}}Short Description{{/t}}</td>
+          <td class="submission_modal_cell">{{desc}}</td>
+        </tr>
+      {{/if}}
+      {{#if long_desc_formatted}}
+        <tr>
+          <td class="submission_modal_row_title">{{#t}}Long Description{{/t}}</td>
+          <td class="submission_modal_cell">{{dangerouslyRenderHTML long_desc_formatted}}</td>
+        </tr>
+      {{/if}}
+            {{#if app_card_color}}
+                <tr>
+                    <td class="submission_modal_row_title">{{#t}}Background Color{{/t}}</td>
+                    <td class="submission_modal_cell">
+                        <div class="app_card_color_bg constrain_24 inline_block rounded align_middle" style="background-color: {{app_card_color}};"></div>
+                        <div class="very_small_left_margin inline_block align_middle">{{app_card_color}}</div>
+                    </td>
+                </tr>
+            {{/if}}
+            {{#if youtube_url}}
+                <tr>
+                    <td class="submission_modal_row_title">{{#t}}YouTube URL{{/t}}</td>
+                    <td class="submission_modal_cell">{{youtube_url}}</td>
+                </tr>
+            {{/if}}
+            {{#if screenshots}}
+                <tr>
+                    <td class="submission_modal_row_title">{{#t}}App Images{{/t}}</td>
+                    <td class="submission_modal_cell submission_modal_cell_screenshots">
+                        {{#each screenshots}}
+                            <img src="{{this.image_440}}" class="submission_screenshot" />
+                        {{/each}}
+                    </td>
+                </tr>
+            {{/if}}
+      {{#if url}}
+        <tr>
+          <td class="submission_modal_row_title">{{#t}}Landing Page{{/t}}</td>
+          <td class="submission_modal_cell">{{url}}</td>
+        </tr>
+      {{/if}}
+      {{#if privacy_link}}
+        <tr>
+          <td class="submission_modal_row_title">{{#t}}Privacy Policy URL{{/t}}</td>
+          <td class="submission_modal_cell">{{privacy_link}}</td>
+        </tr>
+      {{/if}}
+      {{#if support_url}}
+        <tr>
+          <td class="submission_modal_row_title">{{#t}}Support URL{{/t}}</td>
+          <td class="submission_modal_cell">{{support_url}}</td>
+        </tr>
+      {{/if}}
+      {{#if support_email}}
+        <tr>
+          <td class="submission_modal_row_title">{{#t}}Support Email{{/t}}</td>
+          <td class="submission_modal_cell">{{support_email}}</td>
+        </tr>
+      {{/if}}
+    {{/if}}
+
+    {{#if has_oauth_info}}
+      <tr class="no_border">
+        <td colspan="2">
+          <h4 class="very_large_top_margin no_bottom_margin">{{#t}}OAuth & Permissions{{/t}}</h4>
+        </td>
+      </tr>
+      {{#or redirect_uris.length deleted.redirect_uris.length}}
+        <tr>
+          <td class="submission_modal_row_title">{{#t}}Redirect URLs{{/t}}</td>
+          <td class="submission_modal_cell">
+            {{#each redirect_uris}}
+              <div>{{this}}</div>
+            {{/each}}
+            {{#each deleted.redirect_uris}}
+              <div><strike>{{this}}</strike></div>
+            {{/each}}
+          </td>
+        </tr>
+      {{/or}}
+      {{#or has_scopes deleted.scopes.length}}
+        <tr>
+          <td class="submission_modal_row_title">{{#t}}Permission Scopes{{/t}}</td>
+          <td class="submission_modal_cell">
+            {{#each scopes}}
+              <div class="submission_modal_scope">{{@key}}</div>
+              {{this.notes}}
+            {{/each}}
+            {{#each deleted.scopes}}
+              <div class="submission_modal_scope">
+                <strike>{{this}}</strike>
+              </div>
+            {{/each}}
+          </td>
+        </tr>
+      {{/or}}
+    {{/if}}
+
+    {{#or bot_user deleted.bot_user}}
+      <tr class="no_border">
+        <td colspan="2">
+          <h4 class="very_large_top_margin no_bottom_margin">{{#t}}Bot User{{/t}}</h4>
+        </td>
+      </tr>
+      <tr class="{{#if deleted.bot_user}}no_border{{/if}}">
+        {{#if bot_user}}
+          <td class="submission_modal_row_title">{{#t}}Username{{/t}}</td>
+          <td class="submission_modal_cell">{{bot_user}}</td>
+        {{else}}
+          <td class="submission_modal_cell subtle_silver">{{#t}}Removed{{/t}}</td>
+        {{/if}}
+      </tr>
+    {{/or}}
+
+    {{#if has_interactive_messages}}
+      <tr class="no_border">
+        <td colspan="2">
+          <h4 class="very_large_top_margin no_bottom_margin">{{#t}}Interactive Messages{{/t}}</h4>
+        </td>
+      </tr>
+      {{#or interactive_messages.actions_url deleted.interactive_messages.actions_url}}
+        <tr class="{{#if deleted.interactive_messages.actions_url}}no_border{{/if}}">
+          <td class="submission_modal_row_title">{{#t}}Request URL{{/t}}</td>
+          {{#if interactive_messages.actions_url}}
+            <td class="submission_modal_cell">{{interactive_messages.actions_url}}</td>
+          {{else}}
+            <td class="submission_modal_cell subtle_silver">{{#t}}Removed{{/t}}</td>
+          {{/if}}
+        </tr>
+      {{/or}}
+      {{#or interactive_messages.suggestions_url deleted.interactive_messages.suggestions_url}}
+        <tr class="{{#if deleted.interactive_messages.suggestions_url}}no_border{{/if}}">
+          <td class="submission_modal_row_title">{{#t}}Options Load URL{{/t}}</td>
+          {{#if interactive_messages.suggestions_url}}
+            <td class="submission_modal_cell">{{interactive_messages.suggestions_url}}</td>
+          {{else}}
+            <td class="submission_modal_cell subtle_silver">{{#t}}Removed{{/t}}</td>
+          {{/if}}
+        </tr>
+      {{/or}}
+    {{/if}}
+
+    {{#if has_domains}}
+      <tr class="no_border">
+        <td colspan="2">
+          <h4 class="very_large_top_margin no_bottom_margin">{{#t}}Unfurl Domains{{/t}}</h4>
+        </td>
+      </tr>
+      {{#or unfurl_domains.length deleted.unfurl_domains.length}}
+        <tr>
+          <td class="submission_modal_row_title">{{#t}}Domains{{/t}}</td>
+          <td class="submission_modal_cell">
+            {{#each unfurl_domains}}
+              <div>{{this}}</div>
+            {{/each}}
+            {{#each deleted.unfurl_domains}}
+              <div><strike>{{this}}</strike></div>
+            {{/each}}
+          </td>
+        </tr>
+      {{/or}}
+    {{/if}}
+
+    {{#if has_commands}}
+      <tr class="no_border">
+        <td colspan="2">
+          <h4 class="very_large_top_margin no_bottom_margin">{{#t}}Slash Commands{{/t}}</h4>
+        </td>
+      </tr>
+      {{#each commands}}
+        <tr>
+          <td class="submission_modal_row_title">{{name}}</td>
+          <td class="submission_modal_cell">
+            <span class="subtle_silver">{{usage}}</span>
+            <br>
+            {{desc}}
+            <br>
+            {{url}}
+          </td>
+        </tr>
+      {{/each}}
+      {{#each deleted.commands}}
+        <tr>
+          <td class="submission_modal_row_title">
+            <strike>{{name}}</strike>
+          </td>
+          <td class="submission_modal_cell">
+            <span class="subtle_silver">
+              <strike>{{usage}}</strike>
+            </span>
+            <br>
+            <strike>
+              {{desc}}
+              <br>
+              {{url}}
+            </strike>
+          </td>
+        </tr>
+      {{/each}}
+    {{/if}}
+
+    {{#if has_events}}
+      <tr class="no_border">
+        <td colspan="2">
+          <h4 class="very_large_top_margin no_bottom_margin">{{#t}}Event Subscriptions{{/t}}</h4>
+        </td>
+      </tr>
+      {{#or team_events.length deleted.team_events.length}}
+        <tr>
+          <td class="submission_modal_row_title">{{#t}}Team Events{{/t}}</td>
+          <td class="submission_modal_cell">
+            {{#each team_events}}
+              <div>{{this}}</div>
+            {{/each}}
+            {{#each deleted.team_events}}
+              <div><strike>{{this}}</strike></div>
+            {{/each}}
+          </td>
+        </tr>
+      {{/or}}
+      {{#or bot_events.length deleted.bot_events.length}}
+        <tr>
+          <td class="submission_modal_row_title">{{#t}}Bot Events{{/t}}</td>
+          <td class="submission_modal_cell">
+            {{#each bot_events}}
+              <div>{{this}}</div>
+            {{/each}}
+            {{#each deleted.bot_events}}
+              <div><strike>{{this}}</strike></div>
+            {{/each}}
+          </td>
+        </tr>
+      {{/or}}
+    {{/if}}
+  </tbody>
+</table>

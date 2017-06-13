@@ -1,0 +1,3 @@
+<div class="search_message_result top_results_search_message_result{{#if show_top_results_not_triggered}}{{#if message_ids_overlap}}{{#ifInArray this.ts message_ids_overlap}} duplicate{{/ifInArray}}{{/if}}{{/if}}" id="{{makeMSRDomIdWithModule this module_name}}" data-channel="{{this.channel.id}}" data-ts="{{this.ts}}" data-module-order="{{module_order}}" data-index="{{index}}" data-module-name="{{module_name}}" data-iid="{{this.iid}}">
+{{buildMsgHTMLForSearchTopResults this}}
+</div>

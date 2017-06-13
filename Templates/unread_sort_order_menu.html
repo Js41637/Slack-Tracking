@@ -1,0 +1,20 @@
+{{i18n_ns "all_unreads"}}
+
+<div class="section_header"><hr><span class="header_label menu_mini">
+  {{#t note="This this the heading for a sort group of options and will be followed by things like alphabettically and scientifically"}}Sort&hellip;{{/t}}
+<span></div>
+
+<li role="menuitem" class="{{#if_equal sort_order compare='alphabetical'}}selected{{/if_equal}} alphabetical"><a data-sort-order="alphabetical">
+  {{#t note="A sorting option for unread channels"}}Alphabetically{{/t}}
+</a></li>
+{{#if is_paid_team}}
+  <li role="menuitem" class="{{#if_equal sort_order compare='priority'}}selected{{/if_equal}} priority"><a data-sort-order="priority">
+    {{#t note="A sorting option for unread channels"}}Scientifically{{/t}}
+  </a></li>
+{{/if}}
+<li role="menuitem" class="{{#if_equal sort_order compare='newest'}}selected{{/if_equal}} newest"><a data-sort-order="newest">
+  {{#t note="A sorting option for unread channels"}}Newest{{/t}}
+</a></li>
+<li role="menuitem" class="{{#if_equal sort_order compare='oldest'}}selected{{/if_equal}} oldest"><a data-sort-order="oldest">
+  {{#t note="A sorting option for unread channels"}}Oldest{{/t}}
+</a></li>

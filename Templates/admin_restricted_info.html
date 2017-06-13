@@ -1,0 +1,41 @@
+{{i18n_ns "restricted_accounts"}}
+
+<div class="restricted_info">
+
+    <p class="large_bottom_margin emphasized align_center">{{#t}}Give limited access to your Slack instance to contractors, clients, or friends.{{/t}}</p>
+
+    <div class="account_type">
+        <div class="restricted_account_icon"></div>
+        <div class="account_type_copy">
+            <h3 class="no_bottom_margin">{{#t}}Multi-Channel Guests{{/t}}</h3>
+            <p class="no_bottom_margin">{{#t}}An account with access to the channels you specify.{{/t}}</p>
+            {{#if paid_team}}
+                <p>
+                    <a data-action="admin_invites_modal" data-account-type="restricted"><i class="ts_icon ts_icon_share_email"></i> {{#t}}Invite new multi-channel guests{{/t}}</a>
+                </p>
+            {{/if}}
+        </div>
+    </div>
+    <div class="account_type">
+        <div class="guest_account_icon"></div>
+        <div class="account_type_copy">
+            <h3 class="no_bottom_margin">{{#t}}Single-Channel Guests{{/t}}</h3>
+            <p class="no_bottom_margin">{{#t}}A free account with access to just one channel.{{/t}}</p>
+            {{#if paid_team}}
+                <p>
+                    <a data-action="admin_invites_modal" data-account-type="ultra_restricted"><i class="ts_icon ts_icon_share_email"></i> {{#t}}Invite new single-channel guests{{/t}}</a>
+                </p>
+            {{/if}}
+        </div>
+    </div>
+
+    {{#unless paid_team}}
+        {{#t}}
+        <div class="admin_banner">
+            <h3>Both available on our Standard plan.</h3>
+            <p class="no_bottom_margin">Learn more about your <a href="/admin/billing" data-clog-event="GROWTH_PRICING" data-clog-ui-element="billing_link" data-clog-ui-action="click" data-clog-ui-step="admin_restricted">upgrade options</a>.</p>
+        </div>
+        {{/t}}
+    {{/unless}}
+
+</div>

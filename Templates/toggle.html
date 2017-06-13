@@ -1,0 +1,28 @@
+<div
+  class="ts_toggle {{settings.cls}}
+    {{#if settings.initial_state}}
+      checked {{settings.on_class}}
+    {{else}}
+      {{settings.off_class}}
+    {{/if}}
+    {{#if settings.disabled}}
+      disabled
+    {{/if}}
+  "
+>
+  <div class="ts_toggle_button">
+    <div class="ts_toggle_off_text">{{settings.off_text}}</div>
+    <div class="ts_toggle_on_text">{{settings.on_text}}</div>
+    <span class="ts_toggle_handle"></span>
+  </div>
+  {{#or settings.label settings.off_label}}
+    <div class="ts_toggle_secondary_label">
+      {{#if settings.off_label}}
+        <span class="ts_toggle_off_label">{{settings.off_label}}</span>
+        <span class="ts_toggle_on_label">{{settings.label}}</span>
+      {{else}}
+        {{settings.label}}
+      {{/if}}
+    </div>
+  {{/or}}
+</div>

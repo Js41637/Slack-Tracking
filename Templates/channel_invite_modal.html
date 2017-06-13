@@ -1,0 +1,50 @@
+{{i18n_ns 'channel_invite'}}
+
+<div id="channel_invite_modal" class="channel_modal_with_list channel_modal">
+  <h1 class="large_bottom_margin channel_modal_header">
+    {{#if is_private}}
+      {{#t icon="ts_icon_lock"}}Invite others to <i class="ts_icon {icon}"></i>{channel_name}{{/t}} {{#if is_org_shared}}{{> shared_channel_icon org=true}}{{else if is_shared}}{{> shared_channels_icon}}{{/if}}
+    {{else}}
+      {{#t icon="ts_icon_channel"}}Invite others to <i class="ts_icon {icon}"></i>{channel_name}{{/t}} {{#if is_org_shared}}{{> shared_channel_icon org=true}}{{else if is_shared}}{{> shared_channels_icon}}{{/if}}
+    {{/if}}
+  </h1>
+
+  {{#if is_private}}
+    <div id="private_channel_invite_step_one" class="">
+      {{#t}}
+        <p class="bold">Should new members be allowed to see the channel\u2019s message history?</p>
+
+        <p><span class="bold">If Yes</span>, new members will be invited and will have access to this channel\u2019s entire message history.</p>
+
+        <p>
+          <span class="bold">If No</span>,
+          this channel will be renamed and archived. A new channel will be created with all current members plus the new ones you invite.
+          You and other current members will see a link back to the original channel\u2019s archives.
+        </p>
+
+        <div>
+          <button class="btn btn_info right_margin small_bottom_margin no_create_channel">No, start a new channel</button>
+          <button class="btn btn_primary small_bottom_margin yes_show_history">Yes, show channel history</button>
+        </div>
+      {{/t}}
+    </div>
+  {{/if}}
+
+  {{#if async_data}}
+    <div class="channel_invite_filter_container full_width{{#if is_private}} hidden{{/if}}">
+      <div class="float_right left_margin">
+        <button class="btn btn_primary btn_large {{#unless preselected}}disabled{{/unless}} invite_go ladda-button" data-style="zoom-in">
+          <span class="ladda-label">{{#t}}Invite{{/t}}</span>
+        </button>
+        <div class="subtle_silver mini align_right tiny_right_margin return_hint">{{#t}}Return <i class="ts_icon ts_icon_enter ts_icon_inherit"></i>{{/t}}</div>
+      </div>
+      {{> channel_invite_tokens members=preselected async_data=async_data}}
+      {{> channel_kb_nav_label multiple_select=true}}
+    </div>
+    <div id="filter_invite_empty" class="hidden align_center margin_auto display_flex align_items_center justify_content_center">
+      <span class="filter_invite_empty_message"></span>
+    </div>
+  {{/if}}
+
+  <div id="channel_invite_container" class="{{#if async_data}}page_needs_enterprise channel_modal_list {{/if}}{{#if is_private}}hidden{{/if}}"></div>
+</div>

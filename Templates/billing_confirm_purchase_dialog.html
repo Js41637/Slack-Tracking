@@ -1,0 +1,69 @@
+{{i18n_ns "pages_admin"}}
+{{!-- shown before user actually makes the purchase --}}
+<span class="small_bottom_margin display_flex justify_content_start">
+  <ts-icon class="ts_icon_check_circle_o small_right_margin seafoam_green"></ts-icon>
+  <p class="large">
+    {{#if_equal product_is_trial compare=true}}
+      {{#if_not_equal product_level compare='plus'}}
+        {{#t}}You are upgrading to the <strong>Standard plan</strong>{{/t}}
+      {{else}}
+        {{#t}}You are upgrading to the <strong>Plus plan</strong>{{/t}}
+      {{/if_not_equal}}
+    {{else if product_is_upgrade}}
+      {{#if_not_equal product_level compare='plus'}}
+        {{#t}}You are upgrading to the <strong>Standard plan</strong>{{/t}}
+      {{else}}
+        {{#t}}You are upgrading to the <strong>Plus plan</strong>{{/t}}
+      {{/if_not_equal}}
+    {{else}}
+      {{#if_not_equal product_level compare='plus'}}
+        {{#t}}You are buying the <strong>Standard plan</strong>{{/t}}
+      {{else}}
+        {{#t}}You are buying the <strong>Plus plan</strong>{{/t}}
+      {{/if_not_equal}}
+    {{/if_equal}}
+  </p>
+</span>
+<span class="small_bottom_margin display_flex justify_content_start">
+  <ts-icon class="ts_icon_check_circle_o small_right_margin seafoam_green"></ts-icon>
+  <p class="large">
+    {{#if_equal product_term compare="yearly"}}
+      {{#t}}You are paying <strong>Annually</strong>{{/t}}
+    {{else}}
+      {{#t}}You are paying <strong>Monthly</strong>{{/t}}
+    {{/if_equal}}
+  </p>
+</span>
+{{#if team_is_discounted}}
+  {{#if discount_is_simple}}
+    <span class="small_bottom_margin display_flex justify_content_start">
+      <ts-icon class="ts_icon_check_circle_o small_right_margin seafoam_green"></ts-icon>
+      <p class="large"> {{#t}}You have <strong>a discount of {discount_percentage, number}%</strong>{{/t}}</p>
+    </span>
+  {{/if}}
+{{/if}}
+<span class="display_flex justify_content_start">
+  <ts-icon class="ts_icon_check_circle_o small_right_margin seafoam_green"></ts-icon>
+  <p class="large">
+    {{#if use_credit}}
+      {{#if_equal product_is_trial compare=true}}
+        {{#t pay_total=(cash value=pay_total currency_code=currency) pay_total_after_credit=(cash value=pay_total_after_credit currency_code=currency)}}
+          You will pay <strong><s>{pay_total}</s></strong> {pay_total_after_credit} (after credit) when your trial expires
+        {{/t}}
+      {{else}}
+        {{#t pay_total=(cash value=pay_total currency_code=currency) pay_total_after_credit=(cash value=pay_total_after_credit currency_code=currency)}}
+          You will pay <strong><s>{pay_total}</s></strong> {pay_total_after_credit} now (after credit)
+          {{/t}}
+      {{/if_equal}}
+    {{else}}
+      {{#if_equal product_is_trial compare=true}}
+        {{#t pay_total=(cash value=pay_total currency_code=currency)}}You will pay <strong>{pay_total}</strong> when your trial expires{{/t}}
+      {{else}}
+        {{#t pay_total=(cash value=pay_total currency_code=currency)}}You will pay <strong>{pay_total}</strong> now{{/t}}
+      {{/if_equal}}
+    {{/if}}
+  </p>
+</span>
+  {{#if sales_tax_value}}<p class="left_margin small_left_padding"><span class="subtle_silver">
+    {{#t sales_tax=(cash value=sales_tax_value currency_code=currency)}}(Including {sales_tax} sales tax).{{/t}}
+  </span></p>{{/if}}

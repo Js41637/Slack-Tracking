@@ -1,0 +1,26 @@
+{{i18n_ns "channel_header"}}
+{{!--
+  ## Channel header tabs
+  Currently used only when viewing a DM with an App/Bot user
+ --}}
+<div class="channel_header__tabs">
+
+  <button
+    type="button"
+    class="btn_unstyle channel_header__tab --active"
+    data-action="toggleAppSpaceView"
+    data-target="messages"
+  >
+    {{#t}}Messages{{/t}}
+  </button>
+
+  <button
+    type="button"
+    class="btn_unstyle channel_header__tab"
+    data-action="toggleAppSpaceView"
+    data-target="about"
+  >
+    {{#t}}About{{/t}}
+  </button>
+
+</div>

@@ -1,0 +1,10 @@
+{{i18n_ns 'threads'}}
+
+{{#if model_ob.is_mpim}}
+  <{{#if permalink}}a href="{{permalink}}" target="{{newWindowName}}"{{else}}span{{/if}} class="thread_channel_link ts_tip ts_tip_bottom ts_tip_float ts_tip_multiline">
+    {{#t count=(mpimMemberCount model_ob)}}Direct message with {count} others{{/t}}
+    <span class="ts_tip_tip"><span class="ts_tip_multiline_inner">{{mpimDisplayName model_ob}}</span></span>
+  </{{#if permalink}}a{{else}}span{{/if}}>
+{{else}}
+  <{{#if permalink}}a href="{{permalink}}" target="{{newWindowName}}"{{else}}span{{/if}} class="thread_channel_link">{{model_ob_name}}</{{#if permalink}}a{{else}}span{{/if}}>
+{{/if}}

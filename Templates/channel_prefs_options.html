@@ -1,0 +1,92 @@
+{{i18n_ns "prefs"}}
+
+{{#unless embedded}}
+<div class="channel_prefs_modal_header modal-header">
+  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+  <h3>{{#t}}Notification Preferences: {display_name}{{/t}}</h3>
+</div>
+{{/unless}}
+<div class="channel_prefs_body {{#unless embedded}}modal-body{{/unless}} feature_muting">
+  <div id="muting_div" class="channel_prefs_body__muting_section">
+    <p class="channel_prefs_body__section_header_title inline_block" data-muting-options-header>
+      {{#t}}Muting options{{/t}}
+    </p>
+    <div>
+      <label class="channel_prefs__muting_checkbox_label checkbox" id="muting_label">
+        <input id="muting_cb" checked="checked" type="checkbox" class="small_right_margin"/>
+        {{~#if is_mpim~}}
+          {{#t}}Mute entire group DM{{/t}}
+          <div class="channel_prefs_body__mute_help_text">{{#t}}You won't receive notifications for muted group DMs, and they'll appear grayed out in your channel list.{{/t}}</div>
+        {{~else~}}
+          {{#t}}Mute entire channel{{/t}}
+          <div class="channel_prefs_body__mute_help_text">{{#t}}You won't receive notifications for muted channels, and they'll appear grayed out in your channel list.{{/t}}</div>
+        {{/if}}
+      </label>
+    </div>
+
+    <div id="single_suppressed_div">
+      <p>
+        <label class="channel_prefs__muting_checkbox_label checkbox" id="single_suppressed_label">
+          <input id="single_suppressed_cb" checked="checked" type="checkbox" class="small_right_margin" />
+          {{~#isChannelRequired model_ob~}}
+            {{#t at_label=(atLabel 'everyone') at_here=(atLabel 'here')}}Ignore notifications for <strong>{at_label}</strong> and <strong>{at_here}</strong> <span id="single_suppressed_mobile_qualifier">(on mobile)</span><span id="single_suppressed_desktop_qualifier">(on desktop)</span><br><span id="single_suppressed_disabled_explain" class="subtle_silver">Disabled by <strong id="single_suppressed_disabled_explain_tip_link" class="cursor_pointer">admin</strong></span>{{/t}}
+          {{~else~}}
+            {{#t at_label=(atLabel 'channel') at_here=(atLabel 'here')}}Ignore notifications for <strong>{at_label}</strong> and <strong>{at_here}</strong> <span id="single_suppressed_mobile_qualifier">(on mobile)</span><span id="single_suppressed_desktop_qualifier">(on desktop)</span><br><span id="single_suppressed_disabled_explain" class="subtle_silver">Disabled by <strong id="single_suppressed_disabled_explain_tip_link" class="cursor_pointer">admin</strong></span>{{/t}}
+          {{/isChannelRequired}}
+        </label>
+      </p>
+    </div>
+
+  </div>
+
+  <div id="non_muting_prefs" {{#if is_muted}}style="display: none"{{/if}}>
+
+    <div id="notifications_not_working" class="hidden">
+      <p class="channel_prefs_body__section_header">
+        <ts-icon class="notification_prefs_icon ts_icon_laptop ts_icon_inherit"></ts-icon>
+        {{#t}}Desktop notifications{{/t}}
+      </p>
+      <p class="highlight_yellow_bg">
+        <span id="notifications_not_yet_allowed" class="hidden">{{#t}}You have not yet allowed desktop notifications. Open the <a onclick="TS.ui.channel_prefs_dialog.showMainPrefs('notifications')" class="cursor_pointer bold">Preferences Dialog</a> and follow the instructions to set them up.{{/t}}</span>
+        <span id="notifications_not_enabled" class="hidden">{{#t}}You\u2018ve disabled desktop notifications. Open the <a onclick="TS.ui.channel_prefs_dialog.showMainPrefs('notifications')" class="cursor_pointer bold">Preferences Dialog</a> to change that.{{/t}}</span>
+        <span id="notifications_not_allowed" class="hidden">{{#t}}You\u2018ve disallowed notifications in your browser. You\u2018ll need to open your browser preferences to change that.{{/t}}</span>
+        <span id="notifications_impossible" class="hidden">{{#t}}Your browser does not support desktop notifications. <a href="/downloads" target="_blank">Try one of our apps?</a>{{/t}}</span>
+      </p>
+    </div>
+
+    <div id="notifications_working" class="hidden">
+      <table class="channel_prefs_notifications_table">
+        <tr>
+          <th class="channel_prefs_notifications_table__large_cell"><span class="black">{{#t}}Notifications{{/t}}</span><span class="normal" data-notification-table-header></span></th>
+          <th class="channel_prefs_notifications_table__small_cell">{{#t}}All new messages{{/t}}</th>
+          <th class="channel_prefs_notifications_table__small_cell">{{#t}}Just mentions*{{/t}}</th>
+          <th class="channel_prefs_notifications_table__small_cell">{{#t}}Nothing{{/t}}</th>
+        </tr>
+        <tr>
+          <td class="channel_prefs_notifications_table__row_title"><ts-icon class="notification_prefs_icon ts_icon_desktop_notification"></ts-icon>{{#t}}Desktop{{/t}}</td>
+          <td class="channel_prefs_notifications_table__small_cell"><label class="radio"><input type="radio" name="channel_loud_rd" value="everything"></label></td>
+          <td class="channel_prefs_notifications_table__small_cell"><label class="radio"><input type="radio" name="channel_loud_rd" value="mentions"></label></td>
+          <td class="channel_prefs_notifications_table__small_cell"><label class="radio"><input type="radio" name="channel_loud_rd" value="nothing"></label></td>
+        </tr>
+        <tr>
+          <td class="channel_prefs_notifications_table__row_title"><ts-icon class="notification_prefs_icon ts_icon_mobile_notification"></ts-icon>{{#t}}Mobile{{/t}}</td>
+          <td class="channel_prefs_notifications_table__small_cell"><label class="radio"><input type="radio" name="channel_push_loud_rd" value="everything"></label></td>
+          <td class="channel_prefs_notifications_table__small_cell"><label class="radio"><input type="radio" name="channel_push_loud_rd" value="mentions"></label></td>
+          <td class="channel_prefs_notifications_table__small_cell"><label class="radio"><input type="radio" name="channel_push_loud_rd" value="nothing"></label></td>
+        </tr>
+      </table>
+
+      <p class="channel_prefs_help_text">{{#t}}* Includes mentions of your name or any of your keywords{{/t}}</p>
+    </div>
+
+  </div>
+</div>
+
+<div class="channel_prefs_modal_footer {{#unless embedded}}modal-footer{{/unless}}">
+  {{#if embedded}}
+    <p class="channel_prefs_modal_footer__text float_left small_top_margin no_bottom_margin"><button class="btn_link" data-action="reset_channel_to_defaults">{{#t}}Reset to your default notification settings{{/t}}</button></p>
+  {{else}}
+    <p class="channel_prefs_modal_footer__text mini float_left small_top_margin no_bottom_margin">{{#t}}Set your default notifications settings in your <a href="/account/notifications" onclick="TS.ui.channel_prefs_dialog.showMainPrefs('notifications'); return false;" target="_blank" class="bold">Account Preferences</a>{{/t}}</p>
+  {{/if}}
+  <a class="btn {{#unless embedded}}dialog_go{{/unless}}" data-action="done">{{#t}}Done{{/t}}</a>
+</div>

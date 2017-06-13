@@ -1,0 +1,57 @@
+{{i18n_ns "team_profile"}}
+
+<div class="row clearfix">
+  <div class="col profile_field_preview_protector" data-action="edit_team_profile_to_edit" data-type="text">
+    <div class="profile_field_preview">
+      <p class="align_center no_bottom_margin">
+        <span class="bottom_margin">{{#t}}Text{{/t}}</span>
+        {{!-- hbslint-disable unwrapped --}}
+        {{!-- We don't need to wrap this. --}}
+        <input type="text" class="no_bottom_margin ts_icon_placeholder" placeholder="&#xe136;" readonly="true">
+        {{!-- hbslint-enable unwrapped --}}
+      </p>
+    </div>
+  </div>
+  <div class="col profile_field_preview_protector" data-action="edit_team_profile_to_edit" data-type="options_list">
+    <div class="profile_field_preview">
+      <p class="align_center no_bottom_margin">
+        <span class="bottom_margin">{{#t}}List of options{{/t}}</span>
+        <input type="text" class="no_bottom_margin" placeholder="{{#t}}Select &hellip;{{/t}}" readonly="true">
+      </p>
+    </div>
+  </div>
+</div>
+<div class="row clearfix">
+  <div class="col profile_field_preview_protector" data-action="edit_team_profile_to_edit" data-type="date">
+    <div class="profile_field_preview">
+      <p class="align_center no_bottom_margin">
+        <span class="bottom_margin">{{#t}}Date picker{{/t}}</span>
+        {{!-- hbslint-disable unwrapped --}}
+        {{!-- We don't need to wrap this. --}}
+        <input type="text" class="no_bottom_margin ts_icon_placeholder" placeholder="&#xe023;" readonly="true">
+        {{!-- hbslint-enable unwrapped --}}
+      </p>
+    </div>
+  </div>
+  <div class="col profile_field_preview_protector" data-action="edit_team_profile_to_edit" data-type="link">
+    <div class="profile_field_preview">
+      <p class="align_center no_bottom_margin">
+        <span class="bottom_margin">{{#t}}Link{{/t}}</span>
+        {{!-- hbslint-disable unwrapped --}}
+        {{!-- We don't need to wrap this. --}}
+        <input type="text" class="no_bottom_margin" placeholder="https://" readonly="true">
+        {{!-- hbslint-enable unwrapped --}}
+      </p>
+    </div>
+  </div>
+</div>
+<div class="row clearfix">
+  <div class="col profile_field_preview_protector" data-action="edit_team_profile_to_edit" data-type="user">
+    <div class="profile_field_preview">
+      <p class="align_center no_bottom_margin">
+        <span class="bottom_margin">{{#t}}Person picker{{/t}}</span>
+        <span class="edit_team_profile_lazy_filter_select align_left"></span>
+      </p>
+    </div>
+  </div>
+</div>

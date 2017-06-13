@@ -1,0 +1,9 @@
+{{i18n_ns "teams"}}
+
+{{#if team.icon.image_default}}
+  <ts-icon class="team_image icon_{{size}} default" aria-hidden="true">{{initialsSafe team.name}}</ts-icon>
+
+{{else}}
+  <ts-icon class="team_image icon_{{size}} {{classes}}" style="background-image: url('{{getTeamIconOfSize team (getIconSizeToFit (math size '*' 2))}}');"></ts-icon>
+
+{{/if}}

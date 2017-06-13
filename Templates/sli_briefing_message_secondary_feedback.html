@@ -1,0 +1,14 @@
+{{i18n_ns "highlights"}}
+
+<div class="sli_briefing__secondary_feedback lato">
+  {{#if positive}}
+    {{#t}}Thanks for your feedback. Please help us understand why this was helpful. <a href="#" data-js="sli_briefing_secondary_feedback">Select a reason <ts-icon class="ts_icon_chevron_down"><ts-icon></a>{{/t}}
+  {{else}}
+    {{#t}}Thanks for your feedback. Please help us understand why this was not helpful. <a href="#" data-js="sli_briefing_secondary_feedback">Select a reason <ts-icon class="ts_icon_chevron_down"><ts-icon></a>{{/t}}
+  {{/if}}
+  <ul class="hidden sli_briefing__feedback_options">
+    {{#each options}}
+      <li role="menuitem" data-js="sli_briefing_feedback_item"><a href="#">{{this.text}}</a></li>
+    {{/each}}
+  </ul>
+</div>

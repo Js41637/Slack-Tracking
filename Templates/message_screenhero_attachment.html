@@ -1,0 +1,76 @@
+{{!-- hbslint-disable syntax --}}
+{{!-- Todo: enable syntax linter and enable safeString --}}
+{{i18n_ns 'screenhero_attachment'}}
+
+<div class="sh_call_container {{makeSHRoomClass room.id}} {{#unless show_room_link}}sh_call_ended{{/unless}} {{#unless expand_it}}sh_call_collapsed{{/unless}}" data-room-id="{{ room.id }}">
+  <span class="meta">{{title}}<span class="furled_desc">:
+  {{#if show_room_link}}<a class="room_name" href="{{room_url}}" target="screenhero_{{room.id}}">{{emojiGraphicReplace meta_room_name}}</a>{{else}}{{emojiGraphicReplace meta_room_name}}{{/if}}</span>
+  {{{inlineRoomPreviewToggler room.id}}}
+  </span>
+  <div class="screenhero_attachment clearfix">
+    <ts-icon class="{{#if room.date_end}}ts_icon_calls_ended{{else}}ts_icon_calls{{/if}}"></ts-icon>
+    <div>
+      <p class="no_bottom_margin overflow_ellipsis">
+        {{#if room.name}}
+          <span class="room_name">{{emojiGraphicReplace room_name}}</span> <span class="pipe_separator">|</span>
+        {{/if}}
+        {{#if room.date_end}}
+          {{description}}
+        {{else if room.is_dm_call}}
+          {{#if show_room_link}}<a class="screenhero_room_link" target="screenhero_{{room.id}}" href="{{room_url}}">{{/if}}
+            {{description}}
+            {{#if show_description_ellipsis}}
+              {{#repeat 3}}<span class="animated_ellipsis">.</span>{{/repeat}}
+            {{/if}}
+          {{#if show_room_link}}</a>{{/if}}
+        {{else}}
+          {{#if show_room_link}}
+            <a class="screenhero_room_link" target="screenhero_{{room.id}}" href="{{room_url}}">{{description}}</a>
+          {{else}}
+            {{description}}
+          {{/if}}
+        {{/if}}
+      </p>
+      <p class="call_subinfo no_bottom_margin">
+        {{#if room.is_dm_call}}
+          {{#if room.date_end}}
+            {{#if room.was_missed}}
+              {{#t start_time=(toTime room.date_start)}}Started at {start_time}{{/t}}
+            {{else}}
+              {{#t start_time=(toTime room.date_start) duration=(toTimeDuration duration)}}Started at {start_time} and lasted <strong>{duration}</strong>{{/t}}
+            {{/if}}
+          {{else}}
+            {{#t start_time=(toTime room.date_start)}}Started at {start_time}{{/t}}
+          {{/if}}
+        {{else}}
+          {{#if room.date_end}}
+            {{#t duration=(toTimeDuration duration) participants=(makeSHRoomParticipantList room)}}Lasted <strong>{duration}</strong> with <span class="participant_list">{participants}</span>{{/t}}
+          {{else}}
+            {{#t start_time=(toTime room.date_start)}}Started at {start_time}{{/t}}
+            {{#if room.participants.length}}<span class="participant_count"><i class="ts_icon ts_icon_user"></i>{{room.participants.length}}</span>
+              {{#each participants}}
+                {{#feature flag="feature_name_tagging_client"}}
+                  <span class="ts_tip ts_tip_top ts_tip_float ts_tip_multiline participant">
+                    {{makeMemberPreviewLinkImage this.id 24 false false false true}}
+                    <span class="ts_tip_tip">
+                      <span class="ts_tip_multiline_inner">
+                        {{getPrefCompliantMemberName this}}
+                      </span>
+                    </span>
+                  </span>
+                {{else}}
+                  <span class="ts_tip ts_tip_top participant">
+                    {{makeMemberPreviewLinkImage this.id 24 false false false true}}
+                    <span class="ts_tip_tip">
+                      {{getPrefCompliantMemberName this}}
+                    </span>
+                  </span>
+                {{/feature}}
+              {{/each}}
+            {{/if}}
+          {{/if}}
+        {{/if}}
+      </p>
+    </div>
+  </div>
+</div>

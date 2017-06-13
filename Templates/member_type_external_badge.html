@@ -1,0 +1,14 @@
+{{i18n_ns 'member_badges'}}
+{{#feature flag="feature_shared_channels_client"}}
+  {{#if_gt size compare=31}}
+  {{#if team}}
+    {{#if team.icon.image_default}}
+      <ts-icon class="external_team_badge team_badge_{{badge_size}} default" aria-hidden="true">{{initialsSafe team.name}}</ts-icon>
+    {{else}}
+      <ts-icon class="external_team_badge team_badge_{{badge_size}}" style="background-image: url('{{getTeamIconOfSize team (getIconSizeToFit (math badge_size '*' 2))}}');"></ts-icon>
+    {{/if}}
+  {{else}}
+    <ts-icon class="external_team_badge team_badge_{{badge_size}} default" aria-hidden="true"></ts-icon>
+  {{/if}}
+  {{/if_gt}}
+{{/feature}}

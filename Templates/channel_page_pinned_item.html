@@ -1,0 +1,79 @@
+{{i18n_ns 'pinned_item'}}
+
+{{!-- hbslint-disable syntax --}}
+{{!-- Todo: enable syntax linter and refactor with safeString --}}
+
+  <div   class="pinned_item"
+      data-type="{{item.type}}"
+      data-ts="{{item.message.ts}}"
+      {{#if is_message}}
+        data-thread-ts="{{item.message.thread_ts}}"
+        {{#if is_broadcast}}data-is-broadcast="{{is_broadcast}}"{{/if}}
+      {{/if}}
+      data-file-id="{{item.file.id}}"
+      data-comment-id="{{item.comment.id}}"
+      {{#if app_id}}data-app-id="{{app_id}}"{{/if}}
+      {{#if bot_id}}data-bot-id="{{bot_id}}"{{/if}}
+         >
+
+    {{#if can_remove}}<button class="remove_pin ts_icon ts_icon_times_small btn_basic" title="{{#t}}Click to un-pin this item{{/t}}" aria-label="{{#t}}Click to un-pin this item{{/t}}" type="button"></button>{{/if}}
+
+    {{#if is_message}}
+      {{#if is_reply}}
+        <div class="pin_metadata tiny_bottom_margin">{{#t}}from a thread{{/t}}</div>
+      {{/if}}
+      <p class="no_bottom_margin">
+        {{#if member}}
+          <span class="pin_member_name tiny_right_margin">{{makeMemberPreviewLinkById item.message.user}}</span>
+        {{else}}
+          <span class="pin_member_name tiny_right_margin">{{getBotNameWithLink item.message}}</span>
+          {{#if is_bot}}<span class="bot_label">{{#t}}APP{{/t}}</span>{{/if}}
+        {{/if}}
+        {{#if is_reply}}
+          {{#isToday item.message.ts}}
+          <span class="pin_metadata">{{#t time=(toTime item.message.ts)}}Today at {time}{{/t}}</span>
+          {{else}}
+          <span class="pin_metadata">{{toCalendarDateOrNamedDayShort item.message.ts}}</span>
+          {{/isToday}}
+        {{else}}
+          {{#isToday item.message.ts}}
+          <a href="{{permalink}}" target="{{newWindowName}}" class="pin_metadata">{{#t time=(toTime item.message.ts)}}Today at {time}{{/t}}</a>
+          {{else}}
+          <a href="{{permalink}}" target="{{newWindowName}}" class="pin_metadata">{{toCalendarDateOrNamedDayShort item.message.ts}}</a>
+          {{/isToday}}
+        {{/if}}
+      </p>
+      <div class="tiny_top_margin pinned_message_text">
+        {{formatMessageByType item.message true false model_ob}}
+        {{formatAttachments item.message model_ob}}
+        <span class="pin_truncate_fade hidden"></span>
+      </div>
+      {{#if item.message.reply_count}}
+        <div class="tiny_top_margin pin_metadata">
+          {{#t}}{item.message.reply_count, plural, =1 {# reply} other {# replies}}{{/t}}
+        </div>
+      {{/if}}
+    {{/if}}
+
+    {{#if is_file}}
+      <p class="no_wrap overflow_ellipsis no_bottom_margin pin_file_title no_jumbomoji">{{formatFileTitle item.file}}</p>
+      <p class="no_wrap overflow_ellipsis no_bottom_margin pin_metadata tiny_top_margin">
+        {{#if item.file.is_external}}
+          {{makeExternalFiletypeHTML item.file}}
+        {{else}}
+          {{#if_equal item.file.filetype compare="space"}}
+            {{#t}}Post{{/t}}
+          {{else}}
+            {{item.file.pretty_type}}
+          {{/if_equal}}
+        {{/if}}
+      </p>
+    {{/if}}
+
+    {{#if is_comment}}
+      <p class="no_bottom_margin"><span class="pin_member_name tiny_right_margin">{{makeMemberPreviewLinkById item.comment.user}}</span> <span class="pin_metadata">{{toCalendarDateOrNamedDayShort item.comment.timestamp}}{{#isToday item.comment.timestamp}} at {{toTime item.comment.timestamp}}{{/isToday}}</span></p>
+      <p class="no_bottom_margin tiny_top_margin pinned_message_text">{{formatMessage item.comment.comment}}<span class="pin_truncate_fade"></span></p>
+    {{/if}}
+
+  </div>
+

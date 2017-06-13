@@ -1,0 +1,178 @@
+{{i18n_ns "channel_header"}}
+
+{{!-- hbslint-disable syntax --}}
+{{!-- Todo: enable syntax linter and refactor with safeString --}}
+
+<div class="channel_title">
+  {{#if all_unreads.is_showing}}
+    <div id="channel_name_container" class="channel_name_container">
+      <h2 id="channel_name" class="channel_name cursor_default" data-qa="channel_name">{{#t}}All Unreads{{/t}}</h2>
+    </div>
+    <div id="channel_header_info" class="channel_header_info">
+      {{> unread_header_info all_unreads}}
+    </div>
+  {{else if threads.is_showing}}
+    <div id="channel_name_container" class="channel_name_container">
+      <h2 id="channel_name" class="channel_name cursor_default" data-qa="channel_name">{{#t}}All Threads{{/t}}</h2>
+    </div>
+    <div id="channel_header_info" class="channel_header_info threads_channel_header_info"></div>
+  {{else if is_app}}
+    <div id="channel_name_container" class="channel_name_container">
+      <h2 id="channel_name" class="channel_name cursor_default" data-qa="channel_name">{{getPrefCompliantMemberName member}}</h2>
+    </div>
+    <div id="channel_header_info" class="position_relative">
+      {{> app_space_channel_header}}
+    </div>
+  {{else}}
+    <div id="channel_name_container" class="channel_name_container">
+      <span id="channel_name" class="channel_name" data-qa="channel_name">
+      {{#if mpim}}
+        <button type="button" id="dm_title" class="btn_unstyle dm_title">{{mpimDisplayName mpim true}}</button>
+      {{else}}
+        {{#if member}}
+          <button type="button" id="im_title" class="btn_unstyle">{{getPrefCompliantMemberName member}} {{#if member.is_self}}<span class="normal subtle_silver"> {{#t}}(you){{/t}}</span>{{/if}}</button>
+          {{#or member.profile.status_emoji member.profile.status_text}}
+            <div class="channel_header_member_current_status overflow_ellipsis normal subtle_silver">
+              {{getMemberCurrentStatusForDisplayWithoutAnimations member}}
+            </div>
+          {{/or}}
+        {{else}}
+          <button type="button" span id="channel_title" class="btn_unstyle">{{name}}{{#if member.is_self}}<span class="normal subtle_silver"> {{#t}}(you){{/t}}</span>{{/if}}</button>
+        {{/if}}
+      {{/if}}
+      </span>{{#unless is_dm_or_mpdm}}
+      {{#if is_org_shared}}
+        {{> shared_channel_icon tooltip=true tooltip_position='bottom'}}
+      {{else if is_shared}}
+        {{> shared_channels_icon}}
+      {{/if}}{{/unless}}{{!--
+      --}}<div class="channel_actions_container"><div id="mute_container"></div></div>
+    </div>
+
+    {{!-- line of misc meta below channel name (star, members, pins, topic, member name, presence, etc) --}}
+    <div id="channel_header_info" class="channel_header_info">
+
+      {{#unless member.deleted}}
+        <div id="star_container" class="channel_header_info_item"></div>
+      {{/unless}}
+
+      {{~#if member~}}
+
+        {{#unless member.deleted}}
+          <div class="channel_header_info_item channel_header_member_status">
+            {{{makeMemberPresenceIcon member}}}
+            <span id="header_status_message"></span>
+          </div>
+        {{/unless}}
+
+        <div class="channel_header_info_item channel_header_member_alt_name">
+          {{#feature flag="feature_name_tagging_client"}}
+            {{#memberHasSecondaryName member}}
+              {{getMemberSecondaryName member}}
+            {{/memberHasSecondaryName}}
+          {{/feature}}
+        </div>
+        {{#if member.is_external}}
+          <div class="channel_header_info_item channel_header_team_name">
+            {{getTeamNameByMember member}}
+          </div>
+        {{/if}}
+
+      {{~else~}}
+
+        <div class="channel_header_info_item">
+          <button type="button" id="channel_members_toggle_count" class="btn_unstyle hidden blue_on_hover ts_tip ts_tip_bottom ts_tip_multiline">{{!--
+            --}}<ts-icon class="ts_icon_user ts_icon_inherit channel_members_icon"></ts-icon>
+            <span id="channel_members_toggle_count_count"></span>{{!--
+            --}}<span class="ts_tip_tip"><span class="ts_tip_multiline_inner">
+              {{#t}}View member list{{/t}}
+            </span></span>{{!--
+          --}}</button>
+        </div>
+
+      {{~/if~}}
+
+      <div class="channel_header_info_item pin">
+        <button type="button" id="pinned_item_count" class="btn_unstyle blue_on_hover ts_tip ts_tip_bottom ts_tip_multiline">{{!--
+          --}}<ts-icon class="ts_icon_thumb_tack ts_icon_inherit ts_icon_align_bottom pinned_count_icon"></ts-icon>{{!--
+          --}}<span id="pinned_item_count_count"></span>{{!--
+          --}}<span class="ts_tip_tip"><span class="ts_tip_multiline_inner">
+            {{#t}}View Pinned Items{{/t}}<br /><span class="subtle_silver pin_count_new_pin_message"></span>
+          </span></span>{{!--
+        --}}</button>
+      </div>
+
+      {{~#if show_topic~}}
+        {{~#feature flag="feature_name_tagging_client"~}}
+          <div class="channel_header_info_item channel_topic_container">
+            <span id="edit_topic_container" class="channel_topic">{{!--
+              --}}<span id="edit_topic_inner" tabindex="0" data-instructions-text="{{#t}}Enter to submit, Esc to cancel{{/t}}">{{!--
+                --}}<span id="channel_topic_text" class="no_jumbomoji" data-placeholder="{{#currentUserIsRA}}{{else}}{{#t}}Add a topic{{/t}}{{/currentUserIsRA}}"></span>{{!--
+              --}}</span>{{!--
+            --}}</span>
+            <a id="edit_topic_trigger">{{#t}}edit{{/t}}</a>
+          </div>
+        {{~else~}}
+        <div class="channel_header_info_item channel_topic_container">
+          <span id="topic_inline_edit" class="channel_topic inline_edit">{{!--
+            --}}<span tabindex="0" class="inline_edit_inner" data-instructions-text="{{#t}}Enter to submit, Esc to cancel{{/t}}">{{!--
+              --}}<span id="channel_topic_text" class="inline_edit_input no_jumbomoji" data-placeholder="{{#currentUserIsRA}}{{else}}{{#t}}Add a topic{{/t}}{{/currentUserIsRA}}"></span>{{!--
+            --}}</span>{{!--
+          --}}</span>
+        </div>
+        {{~/feature~}}
+      {{~/if~}}
+
+    </div>{{!--/channel_header_info--}}
+  {{/if}}
+</div>{{!--/channel_title--}}
+
+<div class="channel_title_info">
+  {{#if all_unreads.is_showing}}
+    <button type="button" id="channel_header_unread_refresh" class="channel_header_icon channel_actions_toggle btn_unstyle ts_tip ts_tip_bottom {{#unless unread_has_new_messages}}hidden{{/unless}}">
+      <span class="ts_tip_tip small_top_margin">{{#t}}Refresh{{/t}}</span>
+      {{> ts_icon class="ts_icon_sync"}}
+    </button>
+
+  {{else if threads.is_showing}}
+    {{! Nothing yet }}
+  {{else if app_space.is_showing}}
+    {{! Nothing yet }}
+  {{else}}
+    <!-- calls button -->
+    <div id="channel_calls_container" class="hidden channel_calls_container"></div>{{!--
+    <!-- channel actions menu toggle -->
+    --}}<button type="button" id="channel_actions_toggle" class="btn_unstyle blue_on_hover channel_actions_toggle channel_header_icon ts_tip ts_tip_bottom">
+      {{#if member}}
+      <span class="ts_tip_tip">{{#t}}Conversation Settings{{/t}}</span>
+      {{else if mpim}}
+      <span class="ts_tip_tip">{{#t}}Conversation Settings{{/t}}</span>
+      {{else}}
+      <span class="ts_tip_tip">{{#t}}Channel Settings{{/t}}</span>
+      {{/if}}
+      {{> ts_icon class="ts_icon_cog_o"}}
+    </button>{{!--
+
+    <!--channel details icon  -->
+    --}}<button type="button" id="details_toggle" class="channel_header_icon btn_unstyle blue_on_hover channel_details_toggle ts_tip ts_tip_bottom {{#if details_showing}}active{{/if}}">
+      {{#if details_showing}}
+        {{#if member}}
+        <span class="ts_tip_tip">{{#t}}Hide Conversation Details{{/t}}</span>
+        {{else if mpim}}
+        <span class="ts_tip_tip">{{#t}}Hide Conversation Details{{/t}}</span>
+        {{else}}
+        <span class="ts_tip_tip">{{#t}}Hide Channel Details{{/t}}</span>
+        {{/if}}
+      {{else}}
+        {{#if member}}
+        <span class="ts_tip_tip">{{#t}}Show Conversation Details{{/t}}</span>
+        {{else if mpim}}
+        <span class="ts_tip_tip">{{#t}}Show Conversation Details{{/t}}</span>
+        {{else}}
+        <span class="ts_tip_tip">{{#t}}Show Channel Details{{/t}}</span>
+        {{/if}}
+      {{/if}}
+      {{> ts_icon class="ts_icon_side_panel"}}
+    </button>
+  {{/if}}
+</div>

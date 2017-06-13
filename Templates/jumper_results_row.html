@@ -1,0 +1,131 @@
+{{i18n_ns "jumper"}}
+
+{{#feature flag="feature_name_tagging_client"}}
+  <li data-item-id="{{this.model_ob.id}}">
+{{else}}
+  <li aria-label="{{#if this.model_ob.team_url}}{{this.model_ob.team_name}}{{else}}{{this.model_ob.name}}{{/if}}{{#showDraftIcon this.model_ob}}, {{#t}}draft{{/t}}{{/showDraftIcon}}" data-item-id="{{this.model_ob.id}}" {{#if this.model_ob.team_url}}data-item-team-id="{{this.model_ob.team_id}}"{{/if}} class="{{#if this.model_ob.deleted}}deleted{{/if}}">
+{{/feature}}
+  <span class="item_details float_left overflow_ellipsis{{#if this.model_ob.is_shared}} jumper_item_details_shared_channel{{/if}}">
+    {{#showDraftIcon this.model_ob}}
+      {{#if this.model_ob.presence}}
+        {{#unlessUseUnifiedMemberDisplay}}
+          <ts-icon aria-hidden="true" class="ts_icon_pencil"></ts-icon>
+        {{/unlessUseUnifiedMemberDisplay}}
+      {{else}}
+        <ts-icon aria-hidden="true" class="ts_icon_pencil"></ts-icon>
+      {{/if}}
+    {{else}}
+      {{#if this.model_ob.is_group}}
+        {{#if this.model_ob.is_mpim}}
+          <ts-icon class="ts_icon_multiparty_dm_{{mpimMemberCount this.model_ob}}"></ts-icon>
+        {{else}}
+          <ts-icon class="ts_icon_lock"></ts-icon>
+        {{/if}}
+      {{/if}}
+      {{#if this.model_ob.is_channel}}
+        {{#if this.model_ob.is_archived}}
+          <ts-icon aria-hidden="true" class="ts_icon_archived_channel"></ts-icon>
+        {{else}}
+          <ts-icon aria-hidden="true" class="ts_icon_channel_pane_hash"></ts-icon>
+        {{/if}}
+      {{/if}}
+      {{#if this.model_ob.presence}}
+        {{#unlessUseUnifiedMemberDisplay}}
+          {{#if this.model_ob.deleted}}
+            <ts-icon aria-hidden="true" class="ts_icon_archived_channel"></ts-icon>
+          {{else}}
+            {{makeMemberPresenceIcon this.model_ob}}
+          {{/if}}
+        {{/unlessUseUnifiedMemberDisplay}}
+      {{/if}}
+      {{#if this.model_ob.team_url}}{{#if this.model_ob.team_icon}}<img class="jumper_team_icon" aria-hidden="true" src="{{this.model_ob.team_icon.image_44}}">{{else}}<ts-icon class="ts_icon_random"></ts-icon>{{/if}}{{/if}}
+    {{/showDraftIcon}}
+    {{#if this.model_ob.presence}}
+      {{#shouldUseUnifiedMemberDisplay}}
+        {{> c-member member=this.model_ob size="small" context="unread_count" is_jumper=true}}
+      {{else}}
+        {{#feature flag="feature_name_tagging_client"}}
+          {{getMemberProfileFieldDisplayNameandRealNameInCorrectOrder this.model_ob}}
+        {{else}}
+          {{getMemberUsernameAndRealNameInCorrectOrder this.model_ob}}
+        {{/feature}}
+        {{#if this.model_ob.deleted}}<span class="member_deleted">{{#t note='Displayed after deleted user in jumper results'}}(deactivated){{/t}}</span>{{/if}}
+        {{#if this.model_ob.profile}}
+          {{#or this.model_ob.profile.status_emoji this.model_ob.profile.status_text}}
+            <span class="current_status">{{getMemberCurrentStatusForDisplay this.model_ob}}</span>
+          {{/or}}
+        {{/if}}
+      {{/shouldUseUnifiedMemberDisplay}}
+
+    {{else if this.model_ob.is_view}}
+      {{#if_equal this.model_ob.id compare="Vall_unreads"}}
+        <ts-icon class="ts_icon_list"></ts-icon>
+      {{/if_equal}}
+      {{#if_equal this.model_ob.id compare="Vall_threads"}}
+        <ts-icon class="ts_icon_small_reply"></ts-icon>
+      {{/if_equal}}
+      {{#if_equal this.model_ob.id compare="Vapp_space"}}
+        <ts-icon class="ts_icon_bolt"></ts-icon>
+      {{/if_equal}}
+      {{#if_equal this.model_ob.id compare="Vall_threads"}}
+        {{#if jumper.threads_has_unreads}}
+          <span class="view_name">{{#t}}New Threads{{/t}}</span>
+        {{else}}
+          <span class="view_name">{{#t}}All Threads{{/t}}</span>
+        {{/if}}
+      {{else}}
+        <span class="view_name">{{this.model_ob.name}}</span>
+      {{/if_equal}}
+    {{else}}
+      {{#if this.model_ob.is_mpim}}
+        {{! remove disambiguate_mpims after feature_name_tagging_client }}
+        <span class="channel_name">{{#if jumper.disambiguate_mpims}}{{mpimDisplayName this.model_ob false true}}{{else}}{{mpimDisplayName this.model_ob}}{{/if}}</span>
+      {{else}}
+        {{#if this.model_ob.team_url}}
+          <span class="channel_name">{{this.model_ob.team_name}}</span> <span class="team_username">{{#t note='When switching to another team in jumper, Signed in as myusername' username=this.model_ob.name}}Signed in as {username}{{/t}}</span>
+        {{else}}
+          <span class="channel_name">{{this.model_ob.name}}</span>
+        {{/if}}
+      {{/if}}
+      {{#if this.model_ob.is_archived}}
+        <span class="channel_archived">{{#t note='Displayed after archived channel name in jumper results, such as #old-channel (archived)'}}(archived){{/t}}</span>
+      {{else}}
+        {{#if this.model_ob.is_channel}}{{#unless this.model_ob.is_member}}<span class="channel_not_member">{{#t note='Displayed after channels you are not in in jumper results, #some-channel (not a member)'}}(not a member){{/t}}</span>{{/unless}}{{/if}}
+      {{/if}}
+      {{#if this.model_ob._jumper_previous_name_match}}
+        <span class="channel_not_member">{{#t note='Indicates renamed channels, #new-name (formerly #old-name)' previous_name=this.model_ob._jumper_previous_name_match}}(formerly #{previous_name}){{/t}}</span>
+      {{/if}}
+    {{/if}}
+    {{#if jumper.show_scores}}
+      <span class="jumper_score">{{#if this.score}}{{roundToThree this.score}}{{else}}0{{/if}}</span>
+    {{/if}}
+    {{#if this.model_ob.is_mpim}}
+      {{#if this.model_ob.unread_cnt}}
+        <span class="unread_count">{{this.model_ob.unread_cnt}}</span>
+      {{/if}}
+    {{else if this.model_ob.presence}}
+      {{#unlessUseUnifiedMemberDisplay}}
+        {{#memberHasImUnreadCount member=this.model_ob}}
+          <span class="unread_count">{{getUnreadCountForIMByMemberId this.model_ob.id}}</span>
+        {{/memberHasImUnreadCount}}
+      {{/unlessUseUnifiedMemberDisplay}}
+    {{else if this.model_ob.is_view}}
+      {{#if_equal this.model_ob.id compare="Vall_threads"}}
+        {{#if jumper.threads_mention_count}}<span class="unread_count">{{jumper.threads_mention_count}}</span>{{/if}}
+      {{/if_equal}}
+    {{else}}
+      {{#if this.model_ob.unread_highlight_cnt}}
+        <span class="unread_count">{{this.model_ob.unread_highlight_cnt}}</span>
+      {{/if}}
+    {{/if}}
+    {{#if this.model_ob.is_shared}}
+      {{#unless this.model_ob.is_org_shared}}
+        {{> shared_channels_icon}}
+      {{else}}
+        {{#unless this.model_ob.is_mpim}}
+          {{> shared_channel_icon}}
+        {{/unless}}
+      {{/unless}}
+    {{/if}}
+  </span>
+</li>

@@ -1,0 +1,33 @@
+{{i18n_ns "developer_apps"}}
+{{#each groups}}
+  <table class="full_width no_bottom_margin{{#if ../show_reasons}} permission_scopes_group_table{{/if}}">
+    <thead>
+      <tr class="off_white_bg tiny permission_scopes_table_row">
+        <th class="small_left_padding very_small_top_padding very_small_bottom_padding no_border">{{this.group_name}}</th>
+        <th class="very_small_top_padding very_small_bottom_padding no_border">{{#if ../show_reasons}}{{#t note="Heading in table column where user inputs their reason for using a scope"}}REASON FOR USING SCOPE{{/t}}{{/if}}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each this.children}}
+        <tr class="permission_scopes_table_row">
+          <td class="small_left_padding top_padding bottom_padding">
+            <p class="bold no_margin">{{this.description}}</p>
+            <span class="subtle_silver">
+              {{this.name}}
+            </span>
+          </td>
+          <td class="top_padding bottom_padding no_right_padding display_flex align_items_center{{#if ../../show_reasons}}{{else}} justify_content_end{{/if}}">
+            {{#if ../../show_reasons}}<textarea rows="1" data-scope-reason="{{this.name}}" class="no_bottom_margin small_padding permission_scopes_table_reason" placeholder="{{#t note='Placeholder text where user input reason for using scope'}}Reason for using scope...{{/t}}">{{this.reason}}</textarea>{{/if}}
+            <ts-icon{{#unless this.required}} data-remove-scope="{{this.name}}"{{/unless}} class="ts_icon_trash cursor_pointer left_margin{{#if this.required}} subtle_silver ts_tip ts_tip_top ts_tip_multiline ts_tip_float{{/if}}{{#if ../../show_reasons}}{{else}} small_top_margin{{/if}}">
+              {{#if this.required}}
+                <span class="ts_tip_tip">
+                  <span class="ts_tip_multiline_inner">{{#t note="Text in tooltip for a required scope"}}This scope is required by your app\u2019s functionality and can't be removed.{{/t}}</span>
+                </span>
+              {{/if}}
+            </ts-icon>
+          </td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+{{/each}}

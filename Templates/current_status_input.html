@@ -1,0 +1,81 @@
+{{i18n_ns "current_status"}}
+
+<div class="current_status_input_container{{#unless for_edit_profile}} clearfix{{/unless}}{{#if for_team_menu}} current_status_input_for_team_menu{{/if}}{{#if for_edit_profile}} current_status_input_for_edit_profile{{/if}}">
+  <label for="current_status{{#if index}}_{{index}}{{/if}}{{#if for_team_menu}}_for_team_menu{{/if}}{{#if for_edit_profile}}_for_edit_profile{{/if}}"{{#unless for_edit_profile}} class="small"{{/unless}}>
+    <span class="current_status_input_label_content">
+      {{#t}}Status{{/t}}
+      <span class="current_status_inline_saver"></span>
+    </span>
+  </label>
+  <div class="current_status_input_wrap">
+    {{#unless for_team_site}}
+      <div class="status_clear_icon_wrap">
+        <a class="status_clear_icon ts_tip ts_tip_top ts_tip_float" aria-label="{{#t}}Clear status{{/t}}" title="{{#t}}Clear status{{/t}}">
+          <ts-icon class="ts_icon_close_filled" aria-hidden="true"></ts-icon>
+        </a>
+      </div>
+    {{/unless}}
+    {{#feature flag="feature_texty_takes_over"}}
+      <div class="texty_single_line_input current_status_input no_bottom_margin{{#unless for_edit_profile}} small{{/unless}}" id="current_status{{#if index}}_{{index}}{{/if}}{{#if for_team_menu}}_for_team_menu{{/if}}{{#if for_edit_profile}}_for_edit_profile{{/if}}" data-validation="maxlength=100" data-validation-for="current_status{{#if index}}_{{index}}{{/if}}{{#if for_team_menu}}_for_team_menu{{/if}}{{#if for_edit_profile}}_for_edit_profile{{/if}}"></div>
+    {{else}}
+      <input type="text" class="current_status_input no_bottom_margin{{#unless for_edit_profile}} small{{/unless}}" name="status_text" id="current_status{{#if index}}_{{index}}{{/if}}{{#if for_team_menu}}_for_team_menu{{/if}}{{#if for_edit_profile}}_for_edit_profile{{/if}}" value="{{#if member}}{{unFormatMessage member.profile.status_text}}{{else}}{{unFormatMessage status_text}}{{/if}}" placeholder="{{#if for_team_site}}{{#t}}e.g. Gone to lunch{{/t}}{{else}}{{#t}}What\u2019s your status?{{/t}}{{/if}}" data-validation="maxlength=100" data-validation-for="current_status{{#if index}}_{{index}}{{/if}}{{#if for_team_menu}}_for_team_menu{{/if}}{{#if for_edit_profile}}_for_edit_profile{{/if}}" />
+    {{/feature}}
+    <a class="current_status_emoji_picker">
+      <div class="current_status_emoji">
+        {{#if member}}
+          {{#if_equal (emojiModePref) compare="as_text"}}
+            {{getMemberCurrentStatusEmoji member ignore_emoji_mode_pref=true show_icon_for_emoji_in_as_text_mode=false}}
+          {{else}}
+            {{getMemberCurrentStatusEmoji member}}
+          {{/if_equal}}
+        {{else}}
+          {{#if_equal (emojiModePref) compare="as_text"}}
+            {{formatCurrentStatusWithoutAnimations status_emoji ignore_emoji_mode_pref=true show_icon_for_emoji_in_as_text_mode=false
+            transform_missing_emoji=true}}
+          {{else}}
+            {{formatCurrentStatusWithoutAnimations status_emoji transform_missing_emoji=true}}
+          {{/if_equal}}
+        {{/if}}
+      </div>
+      <div class="current_status_empty_emoji{{#if member}}{{#if member.profile.status_emoji}} hidden{{/if}}{{else}}{{#if status_emoji}} hidden{{/if}}{{/if}}">
+        <i class="ts_icon ts_icon_circle_fill"></i>
+        <i class="ts_icon ts_icon_smile_o"></i>
+        <i class="ts_icon ts_icon_happy_smile"></i>
+      </div>
+    </a>
+    <input type="hidden" name="status_emoji" value="{{#if member}}{{member.profile.status_emoji}}{{else}}{{status_emoji}}{{/if}}" />
+  </div>
+  <div class="current_status_action_buttons invisible align_right">
+      <button type="button" class="btn btn_small btn_outline current_status_cancel_button">{{#t}}Cancel{{/t}}</button>
+      <button type="button" class="btn btn_small btn_success current_status_save_button">{{#if for_team_site}}{{#t}}Save Suggestion{{/t}}{{else}}{{#t}}Save{{/t}}{{/if}}</button>
+  </div>
+  {{#unless for_team_site}}
+    <ul class="current_status_presets{{#unless for_team_menu}} hidden{{/unless}}">
+      <div class="current_status_presets_section_header section_header">
+        <span class="header_label">
+          {{#teamUsesCustomizedCustomStatusPresets}}
+            {{#t note="suggested status presets customized by admin"}}Suggested by your team{{/t}}
+          {{else}}
+            {{#t note="suggested status presets"}}Suggested{{/t}}
+          {{/teamUsesCustomizedCustomStatusPresets}}
+          {{#currentUserIsAdmin}}
+            {{#experiment name="edit_team_status_presets"}}
+              (<a class="current_status_presets_edit_link" href="/customize/statuses" target="_blank">{{#t note="edit suggested status presets"}}edit{{/t}}</a>)
+            {{/experiment}}
+          {{/currentUserIsAdmin}}
+        </span>
+      </div>
+      {{#each (getTeamCustomStatusPresets)}}
+        <li>
+          <a class="current_status_preset_option overflow_ellipsis" data-emoji="{{this.emoji}}" data-text="{{this.text}}">
+            {{#if_equal (emojiModePref) compare="as_text"}}
+              {{formatCurrentStatusWithoutAnimations this.emoji ignore_emoji_mode_pref=true transform_missing_emoji=true}}
+            {{else}}
+              {{formatCurrentStatusWithoutAnimations this.emoji transform_missing_emoji=true}}
+            {{/if_equal}}
+          <span class="current_status">{{formatCurrentStatusWithoutAnimations this.text}}</span></a>
+        </li>
+      {{/each}}
+    </ul>
+  {{/unless}}
+</div>

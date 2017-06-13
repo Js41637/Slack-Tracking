@@ -1,0 +1,5 @@
+<div class="{{#unless is_channel_membership}}team_list_item{{/unless}} member_item cursor_pointer active {{#isClient}}{{#unless is_long_list_view}}tiny_top_margin{{/unless}}{{else}}expanded clearfix{{/isClient}}{{#unless is_long_list_view}}{{#if member.deleted}} inactive{{/if}}{{/unless}}" {{#unless is_long_list_view}}data-member-id="{{member.id}}"{{/unless}}>
+  {{#unless is_long_list_view}}
+    {{> team_list_item_member_details}}
+  {{/unless}}
+</div>

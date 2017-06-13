@@ -1,0 +1,202 @@
+{{i18n_ns "menu"}}
+
+{{! INSTANT ACTIONS }}
+{{#if actions.share}}
+  {{! Share isn't an instant action, but it's the most common action so it wins and comes first }}
+  <li id="share_file" data-file-id="{{file.id}}" data-source-model-id="{{source_model_ob_id}}" role="menuitem"><a>{{#t note="Share a file"}}Share{{/t}}</a></li>
+{{/if}}
+
+{{#if actions.share_private_file}}
+  <li id="share_private_file" data-file-id="{{file.id}}" data-source-model-id="{{source_model_ob_id}}" role="menuitem"><a>{{#t note="Share a file"}}Share{{/t}}</a></li>
+{{/if}}
+
+{{#if actions.rxn_file}}
+  <li id="rxn_file" data-file-id="{{file.id}}" data-rxn-key="{{file._rxn_key}}" role="menuitem"><a class="add_rxn_menu_item">{{#t note="Add an emoji reaction to a file"}}Add reaction &hellip;{{/t}}</a></li>
+{{/if}}
+
+{{#if actions.copy_file_link}}
+  <li id="copy_file_link" data-file-id="{{file.id}}" role="menuitem"><a>{{#t note="Copy link to a file"}}Copy link{{/t}}</a></li>
+{{/if}}
+
+{{#if actions.comment}}
+  <li id="comment_file" data-file-id="{{file.id}}" role="menuitem"><a>{{#t note="Comment on a file"}}Comment{{/t}}</a></li>
+{{/if}}
+
+{{#if info_pane_visible}}
+  <li id="star_file" class="star_link star_file {{#if file.is_starred}}starred{{/if}}" data-file-id="{{file.id}}" role="menuitem"><a>
+    {{#if file.is_starred}}
+      {{#t note="Unstar a file"}}Unstar{{/t}}
+    {{else}}
+      {{#t note="Star a file"}}Star{{/t}}
+    {{/if}}
+  </a></li>
+{{/if}}
+
+{{#if actions.pin_file}}
+  <li id="pin_file" data-file-id="{{file.id}}" role="menuitem"><a>
+    {{#t note="Pin file to channel" label=(pinToLabel model_ob)}}Pin to {label} &hellip;{{/t}}
+  </a></li>
+{{/if}}
+
+{{#if actions.unpin_file}}
+  <li id="unpin_file" data-file-id="{{file.id}}" role="menuitem"><a>
+    {{#t note="Un-pin the file from a channel" label=(pinToLabel model_ob)}}Un-pin from {label}{{/t}}
+  </a></li>
+{{/if}}
+
+{{#if actions.open_in_flexpane}}
+  <li id="open_in_flexpane" data-file-id="{{file.id}}" role="menuitem"><a>
+    {{#t note="View details of a file"}}View details{{/t}}
+  </a></li>
+{{/if}}
+{{#if actions.open_file_page}}
+  <li id="open_file_page" data-file-id="{{file.id}}" role="menuitem"><a href="{{file.permalink}}">
+    {{#t}}Open file page{{/t}}
+  </a></li>
+{{/if}}
+
+{{#if actions.open_original}}
+  <li id="open_original_file" data-file-id="{{file.id}}" role="menuitem">
+    <a href="{{file.url_private}}" target="{{file.id}}">
+      {{#if_equal file.mode compare="snippet"}}
+        {{#t note="View raw snippet file"}}View raw{{/t}}
+      {{else}}
+        {{#t note="Open original file"}}Open original{{/t}}
+      {{/if_equal}}
+    </a>
+  </li>
+{{/if}}
+
+{{#if actions.download}}
+  <li id="download_file" data-file-id="{{file.id}}" role="menuitem"><a href="{{file.url_private_download}}" {{#isClient}}target="{{file.id}}"{{/isClient}}>
+    {{#t note="Download a file"}}Download{{/t}}
+  </a></li>
+{{/if}}
+
+{{#if actions.new_window}}
+  <li id="open_new_window" data-file-id="{{file.id}}" role="menuitem">
+    <a href="{{file.permalink}}" {{#isClient}}target="{{file.permalink}}"{{/isClient}}>
+      {{#t note="Open a file in a new window"}}Open in new window{{/t}}
+    </a>
+  </li>
+{{/if}}
+
+{{#if show_workflow_divider}}
+  <li class="divider"></li>
+{{/if}}
+
+{{! WORKFLOW ACTIONS }}
+{{! when updating this section, see show_workflow_divider template_arg }}
+{{#if actions.edit}}
+  {{#if_equal file.mode compare="snippet"}}
+    <li id="edit_file_snippet" data-file-id="{{file.id}}" role="menuitem">
+      <a href="{{file.edit_link}}"{{#if file.is_truncated}} target="{{file.edit_link}}"{{/if}}>
+        {{#t note="Edit a file"}}Edit &hellip;{{/t}}
+      </a>
+    </li>
+  {{/if_equal}}
+  {{#if_equal file.mode compare="post"}}
+    <li id="edit_file_post" data-file-id="{{file.id}}" role="menuitem">
+      <a href="{{file.permalink}}/edit" {{#isClient}}target="{{file.permalink}}/edit"{{/isClient}}>
+        {{#t note="Edit a file"}}Edit &hellip;{{/t}}
+      </a>
+    </li>
+  {{/if_equal}}
+  {{#if_equal file.mode compare="space"}}
+    <li id="edit_file_space" data-file-id="{{file.id}}" role="menuitem">
+      <a href="{{file.permalink}}" {{#isClient}}target="{{file.permalink}}/edit"{{/isClient}}>
+        {{#t note="Edit a file"}}Edit &hellip;{{/t}}
+      </a>
+    </li>
+  {{/if_equal}}
+  {{#if_equal file.mode compare="arugula"}}
+    <li id="edit_file_arugula" data-file-id="{{file.id}}" role="menuitem">
+      <a href="{{file.permalink}}" {{#isClient}}target="{{file.permalink}}/edit"{{/isClient}}>
+        {{#t note="Edit a file"}}Edit &hellip;{{/t}}
+      </a>
+    </li>
+  {{/if_equal}}
+{{/if}}
+
+{{#isClient}}
+  {{#if actions.edit_title}}
+    <li id="edit_file_title" data-file-id="{{file.id}}" role="menuitem">
+      {{#isClient}}
+        <a>{{#t note="Rename a file"}}Rename &hellip;{{/t}}</a>
+      {{else}}
+        <a href="{{file.permalink}}/edit">{{#t note="Rename a file"}}Rename &hellip;{{/t}}</a>
+      {{/isClient}}
+    </li>
+  {{/if}}
+{{/isClient}}
+
+{{#if actions.create_public_link}}
+  {{#feature flag="feature_external_files"}}
+    <li id="create_public_link" data-file-id="{{file.id}}" role="menuitem"><a>
+      {{#t note="Create external link to a file"}}Create external link &hellip;{{/t}}
+    </a></li>
+  {{else}}
+    <li id="create_public_link" data-file-id="{{file.id}}" role="menuitem"><a>
+      {{#t note="Create external link to a file"}}Create external link &hellip;{{/t}}
+    </a></li>
+  {{/feature}}
+
+{{/if}}
+{{#if actions.revoke_public_link}}
+  {{#if actions.view_public_link}}
+    {{#feature flag="feature_external_files"}}
+      <li id="view_public_link" data-file-id="{{file.id}}" role="menuitem"><a>
+        {{#t note="View external link to a file"}}View external link &hellip;{{/t}}
+      </a></li>
+    {{else}}
+      <li id="view_public_link" data-file-id="{{file.id}}" role="menuitem"><a>
+        {{#t note="View external link to a file"}}View external link &hellip;{{/t}}
+      </a></li>
+    {{/feature}}
+  {{else}}
+    {{#feature flag="feature_external_files"}}
+      <li id="revoke_public_link" data-file-id="{{file.id}}" role="menuitem"><a>
+        {{#t note="Revoke external link to a file"}}Revoke external link &hellip;{{/t}}
+      </a></li>
+
+    {{else}}
+      <li id="revoke_public_link" data-file-id="{{file.id}}" role="menuitem"><a>
+        {{#t note="Revoke external link to a file"}}Revoke external link &hellip;{{/t}}
+      </a></li>
+    {{/feature}}
+  {{/if}}
+{{/if}}
+
+{{#if actions.print}}
+  <li id="print_file" data-file-id="{{file.id}}" role="menuitem"><a>
+    {{#t note="Print a file"}}Print &hellip;{{/t}}
+  </a></li>
+{{/if}}
+
+{{#if actions.save_to_dropbox}}
+  <li id="save_to_dropbox" data-file-id="{{file.id}}" role="menuitem"><a>
+    {{#t note="Save a file to dropbox"}}Save to Dropbox &hellip;{{/t}}
+  </a></li>
+{{/if}}
+
+{{#if actions.refresh}}
+  <li id="refresh_file" data-file-id="{{file.id}}" role="menuitem"><a><span class="item_label">
+    {{#if is_refreshing}}
+      {{#t note="Currently refreshing a file"}}Refreshing &hellip;{{/t}}
+    {{else}}
+      {{#t}}Refresh file &hellip;{{/t}}
+    {{/if}}
+  </span></a></li>
+{{/if}}
+
+{{! DESTRUCTIVE ACTIONS }}
+{{#if actions.delete_file}}
+  <li class="divider"></li>
+  <li id="delete_file" data-file-id="{{file.id}}" class="danger" role="menuitem"><a>
+    {{#if file.is_external}}
+      {{#t note="Delete an external file from Slack"}}Delete file from Slack{{/t}}
+    {{else}}
+      {{#t}}Delete file{{/t}}
+    {{/if}}
+  </a></li>
+{{/if}}

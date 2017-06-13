@@ -1,0 +1,38 @@
+{{!-- hbslint-disable syntax --}}
+{{!-- Todo: enable syntax linter and refactor with safeString --}}
+
+<div class="channel_invite_member_small clearfix">
+  <i class="enter_icon ts_icon ts_icon_enter blue_link not_in_token float_right small_top_margin"></i>
+  {{#shouldUseUnifiedMemberDisplay}}
+    {{> c-member member=member size="small" avatar=true}}
+  {{else}}
+    {{{makeMemberPreviewLinkImage member.id 36 false true}}}
+    <div class="name_container overflow_ellipsis">
+      {{#feature flag="feature_name_tagging_client"}}
+        <div class="bold">
+          {{getPrefCompliantMemberName member}}
+          {{#or member.profile.status_emoji member.profile.status_text}}
+            <span class="current_status greigh not_in_token normal">
+              {{getMemberCurrentStatusForDisplay member}}
+            </span>
+          {{/or}}
+        </div>
+        <div class="greigh not_in_token">{{getMemberProfileFieldDisplayName member}}</div>
+      {{else}}
+        {{#if member.profile.real_name}}
+          <div class="bold">
+            {{member.profile.real_name}}
+            {{#or member.profile.status_emoji member.profile.status_text}}
+              <span class="current_status greigh not_in_token normal">
+                {{getMemberCurrentStatusForDisplay member}}
+              </span>
+            {{/or}}
+          </div>
+          <div class="greigh not_in_token">{{member.name}}</div>
+        {{else}}
+          <div class="bold">{{member.name}}</div>
+        {{/if}}
+      {{/feature}}
+    </div>
+  {{/shouldUseUnifiedMemberDisplay}}
+</div>

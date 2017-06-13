@@ -1,0 +1,25 @@
+{{i18n_ns "prefs"}}
+
+<h2>{{#t}}Language & Region{{/t}}</h2>
+
+<label class="select">
+  <h4 class="prefs_lang inline_block">{{#t}}Language{{/t}}</h4>
+  <select name="lang" data-inline-saver='.prefs_lang'>
+    {{#each languages}}
+      <option value={{@key}} {{#if_equal @key compare=../user_locale}}selected="selected" aria-selected="true"{{/if_equal}}>{{this}}</option>
+    {{/each}}
+  </select>
+</label>
+
+<p class="normal greigh large_bottom_margin">{{#t}}Choose what language you would like to view Slack in.{{/t}}</p>
+
+<label class="select">
+  <h4 class="prefs_tz inline_block">{{#t}}Time zone{{/t}}</h4>
+  <select name="tz" data-inline-saver='.prefs_tz'>
+    {{#each timezones}}
+      <option value={{this.[1]}} {{#if_equal this.[1] compare=../user_tz}}selected="selected" aria-selected="true"{{/if_equal}}>{{this.[0]}}</option>
+    {{/each}}
+  </select>
+</label>
+
+<p class="normal greigh">{{#t}}Slack uses your time zone to send summary and notification emails, for times in your activity feeds, and for reminders.{{/t}}</p>

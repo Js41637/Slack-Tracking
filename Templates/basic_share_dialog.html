@@ -1,0 +1,25 @@
+{{i18n_ns "share_dialog"}}
+
+<div id="share_dialog_input_container"></div>
+
+<span id="select_share_at_channel_blocked_note" class="modal_input_note indifferent_grey hidden"></span>
+<span id="select_share_at_channel_note" class="modal_input_note indifferent_grey hidden"></span>
+<span id="select_share_pick_channel_note" class="modal_input_note indifferent_grey hidden"><i class="ts_icon ts_icon_warning ts_icon_inherit yolk_orange"></i> {{#t}}Please select a channel{{/t}}</span>
+
+<div class="share_dialog_attachment_container">
+  {{attachment_html}}
+</div>
+
+<hr class="share_dialog_divider">
+
+<div id="file_sharing_div">
+  <div id="select_share_channels"></div>
+</div>
+
+{{#if warning}}
+  <span id="share_dialog_warning">{{warning}}</span>
+{{/if}}
+
+{{#if show_copy_link}}
+  <button class="hidden btn btn_outline ts_icon ts_icon_link ts_tip ts_tip_top ts_tip_float ts_tip_align_left" title="{{copy_text}}" data-action="copy_link"></button>
+{{/if}}

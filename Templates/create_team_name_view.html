@@ -1,0 +1,37 @@
+{{i18n_ns "team_creation"}}
+
+<div id="signup_wrapper" class="fs_split_pane fs_split_pane_full_width">
+
+  {{#unlessOurApp}}<a data-clog-event="WEBSITE_CLICK" data-clog-params="action=nav_logo,trigger=create_team" class="logo_link" href="/">{{/unlessOurApp}}<img id="slack_logo" src="{{versioned_slack_logo_240}}" width="120" height="137" title="Slack">{{#unlessOurApp}}</a>{{/unlessOurApp}}
+
+  <form class="fs_split_flex_wrapper" onsubmit="return false;">
+
+    <div id="team_name_form_body" class="fs_split_body">
+
+      <h1>{{#if header_copy}} {{preventWidow header_copy}} {{else}} {{#t}}What do you want to call your Slack team?{{/t}} {{/if}}</h1>
+      {{#unless header_copy}}
+      <p class="desc">
+        {{#t}}Name your team after the group that will be using Slack together.{{/t}}
+      </p>
+      <p class="desc">
+        <span class="bold flat_grey">{{#t}}Work at a large company?</span> Try using the name of your division, instead of your company name.{{/t}}
+      </p>
+      {{/unless}}
+      <label id="teamname_label">
+        {{#if input_label}} {{input_label}} {{else}} {{#t}}Slack team name <span class="subtle_silver normal">(you can change this later)</span>{{/t}} {{/if}}
+      </label>
+      <input type="text" placeholder="{{#if placeholder}}{{placeholder}}{{else}}{{#t}}Ex. Acme or Acme Marketing{{/t}}{{/if}}" id="signup_team_name" name="team_name" maxlength="255" autocomplete="off" data-qa="team_name_field" value="{{team_name}}" aria-labelledby="teamname_label" data-validation="team_name"/>
+      <label for="team_name" class="team_name_input_label"></label>
+      {{#if input_label}}<p class="subtle_silver normal">{{#t}}We\u2019ll use this to name your Slack team, which you can always change later.{{/t}}</p>{{/if}}
+    </div>
+
+
+    <div id="submit" class="fs_split_footer">
+      <div class="button_container">
+        <button id="submit_btn" class="btn btn_large ladda-button" {{#unless team_name}}disabled="true" aria-disabled="true"{{/unless}} data-style="expand-right" data-qa="submit_button">
+          <span class="ladda-label">{{continue_btn_copy}}{{> ts_icon class="ts_icon_arrow_right"}}</span>
+        </button>
+      </div>
+    </div>
+  </form>
+</div>

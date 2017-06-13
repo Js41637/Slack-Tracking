@@ -1,0 +1,151 @@
+{{i18n_ns "menu"}}
+
+<div class="menu_member_header">
+  <div class="member_details display_flex flex_direction_column align_items_flex_start cropped_preview">
+    {{makeMemberPreviewCardLinkImage member.id}}
+
+    {{#or member.profile.status_emoji member.profile.status_text}}
+      <p class="member_current_status">
+        <span class="member_current_status_label">{{#t}}Status{{/t}}</span>
+        <span class="current_status">{{getMemberCurrentStatusForDisplay member}}</span>
+      </p>
+      <hr class="member_details_divider">
+    {{/or}}
+
+    {{#unless member.is_stranger}}
+      <p class="member_timezone_value">
+        {{#experiment name="guest_profiles_and_expiration"}}
+          {{#if member.is_bot}}
+            <span class="float_right left_margin">
+          {{/if}}
+        {{else}}
+          {{#or member.is_restricted member.is_bot}}
+            <span class="float_right left_margin">
+          {{/or}}
+        {{/experiment}}
+        {{#if show_admin_info}}
+          <span class="float_right left_margin">
+        {{/if}}
+        <span class="timezone_label" data-member-id="{{member.id}}">{{memberLocalTime member}}</span>
+        {{#if member.is_self}}
+          (<a href='/account/settings' target="{{newWindowName}}" data-action="edit_member_profile_modal">{{#t note="A link to change your own timezone"}}change{{/t}}</a>)
+        {{/if}}
+        {{#experiment name="guest_profiles_and_expiration"}}
+          {{#if member.is_bot}}
+            </span>
+          {{/if}}
+        {{else}}
+          {{#or member.is_restricted member.is_bot}}
+            </span>
+          {{/or}}
+        {{/experiment}}
+        {{#if show_admin_info}}
+          </span>
+        {{/if}}
+        {{#experiment name="guest_profiles_and_expiration"}}
+        {{else}}
+          {{#if member.is_restricted}}
+            <span class="lato">
+              <span class="overflow_ellipsis">
+                {{#if member.is_ultra_restricted}}
+                  {{#t}}Single-Channel Guest{{/t}}
+                {{else}}
+                  {{#t}}Multi-Channel Guest{{/t}}
+                {{/if}}
+              </span>
+            </span>
+          {{/if}}
+        {{/experiment}}
+        {{#if member.is_bot}}
+          <span class="lato">
+            <span class="overflow_ellipsis">{{#t note="Labelling a bot in the member card"}}Non-sentient Bot{{/t}}</span>
+          </span>
+        {{/if}}
+        {{#if show_admin_info}}
+          {{#if member.is_owner}}
+            {{#t}}Team Owner{{/t}}
+          {{else}}
+            {{#t}}Team Admin{{/t}}
+          {{/if}}
+        {{/if}}
+      </p>
+    {{/unless}}
+
+    <div class="member_details_over_image">
+      <div class="member_name_and_presence lato">
+        {{#feature flag="feature_name_tagging_client"}}
+          {{#if member.deleted}}
+            <a href="/team/{{member.id}}" target={{newWindowName}} class="member_name" data-qa="member_name">{{getMemberRealName member}}</a>
+          {{else}}
+            {{#if member.is_self}}
+              <a href="/team/{{member.id}}" target={{newWindowName}} class="member_name" data-qa="member_name">{{getMemberRealName member}}</a>
+            {{else}}
+              <a href="/messages/{{member.id}}" target="/messages/{{member.id}}" data-member-id="{{member.id}}" class="member_name internal_im_link" data-qa="member_name">{{getMemberRealName member}}</a>
+            {{/if}}
+            {{#unless member.is_stranger}}
+              {{#isClient}}
+                {{makeMemberPresenceIcon member}}
+              {{/isClient}}
+            {{/unless}}
+          {{/if}}
+        {{else}}
+          {{#if member.deleted}}
+            <a href="/team/{{#feature flag="feature_shared_channels_client"}}{{member.id}}{{else}}{{member.name}}{{/feature}}" target={{newWindowName}} class="member_name" data-qa="member_name">{{#if member.profile.real_name}}{{member.profile.real_name}}{{else}}@{{member.name}}{{/if}}</a>
+          {{else}}
+            {{#if member.is_self}}
+              <a href="/team/{{#feature flag="feature_shared_channels_client"}}{{member.id}}{{else}}{{member.name}}{{/feature}}" target={{newWindowName}} class="member_name" data-qa="member_name">{{#if member.profile.real_name}}{{member.profile.real_name}}{{else}}@{{member.name}}{{/if}}</a>
+            {{else}}
+              <a href="/messages/{{#feature flag="feature_shared_channels_client"}}{{member.id}}{{else}}@{{member.name}}{{/feature}}" target="/messages/@{{#feature flag="feature_shared_channels_client"}}{{member.id}}{{else}}@{{member.name}}{{/feature}}" data-member-id="{{member.id}}" class="member_name internal_im_link" data-qa="member_name">{{#if member.profile.real_name}}{{member.profile.real_name}}{{else}}@{{member.name}}{{/if}}</a>
+            {{/if}}
+            {{#unless member.is_stranger}}
+              {{#isClient}}
+                {{makeMemberPresenceIcon member}}
+              {{/isClient}}
+            {{/unless}}
+          {{/if}}
+        {{/feature}}
+      </div>
+
+      {{#if member.profile}}
+        {{#if member.profile.title}}
+          <div class="member_title lato">{{member.profile.title}}</div>
+        {{/if}}
+      {{/if}}
+    </div>
+
+    {{#shouldShowMemberRestrictionBanner member}}
+      <div class="member_restriction_over_image{{#if member.is_external}} external{{/if}}">
+        <span class="overflow_ellipsis lato_black">
+          {{#if member.is_external}}
+            {{getTeamNameByMember member}}
+            {{> member_type_external_badge team=(getTeamById member.team_id) size=48 badge_size=16}}
+          {{else if member.is_ultra_restricted}}
+            <i aria-hidden="true" class="ts_icon ts_icon_presence_ura presence_icon"></i>
+            {{#if member.deleted}}{{#t note="Refers to deactivated account"}}Deactivated{{/t}}{{/if}}
+            {{#t}}Single-Channel Guest{{/t}}
+          {{else if member.is_restricted}}
+            <i aria-hidden="true" class="ts_icon ts_icon_presence_ra presence_icon"></i>
+            {{#if member.deleted}}{{#t note="Refers to deactivated account"}}Deactivated{{/t}}{{/if}}
+            {{#t}}Multi-Channel Guest{{/t}}
+          {{/if}}
+        </span>
+      </div>
+    {{/shouldShowMemberRestrictionBanner}}
+
+    {{#feature flag="feature_deleted_dm_archives"}}
+      {{#unless member.is_restricted}}
+      {{#if member.deleted}}
+        <div class="member_restriction_over_image">
+          <span class="overflow_ellipsis lato_black">
+            <i aria-hidden="true" class="ts_icon ts_icon_archived_channel"></i>
+            {{#t note="Refers to deactivated account"}}This account is deactivated{{/t}}
+          </span>
+        </div>
+      {{/if}}
+      {{/unless}}
+    {{/feature}}
+
+  </div>
+
+  <hr class="member_details_divider">
+</div>

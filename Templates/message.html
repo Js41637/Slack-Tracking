@@ -1,0 +1,361 @@
+{{i18n_ns 'message'}}
+{{!-- hbslint-disable syntax --}}
+{{!-- Todo: enable syntax linter and enable safeString --}}
+{{#unless starred_items_actions}}
+  {{#if starred_items_list}}
+    {{>star_with_tip star_components}}
+  {{/if}}
+{{/unless}}
+<ts-message id="{{msg_dom_id}}"
+         data-ts="{{msg.ts}}"
+         data-model-ob-id="{{model_ob.id}}"
+         data-member-id="{{member.id}}"
+         {{#if msg.iid}}data-iid="{{msg.iid}}"{{/if}}
+         {{#if is_app_data_enabled}}
+         {{#if app_id}}data-app-id="{{app_id}}"{{/if}}
+         {{#if bot_id}}data-bot-id="{{bot_id}}"{{/if}}
+         {{#if team_id}}data-team-id="{{team_id}}"{{/if}}
+         {{/if}}
+   class="{{msg_classes}}"
+         data-selectable="{{selectable}}" {{#if msg.thread_ts}}data-thread-ts="{{msg.thread_ts}}" data-parent-user-id="{{msg.parent_user_id}}"{{/if}}
+         >
+
+  <span class="is_pinned_holder">{{pin_html}}</span>
+
+  {{#feature flag="feature_sli_recaps"}}{{#unless is_pinned}}{{#if highlights_html}}<span class="is_highlights_holder">{{highlights_html}}</span>{{/if}}{{/unless}}{{/feature}}
+
+  {{#unless format_for_thread_root}}
+    <div class="message_gutter">
+      <div class="message_icon">
+        {{> message_member_image}}
+      </div>
+      <{{#if permalink}}a href="{{permalink}}" target="{{newWindowName}}"{{else}}span{{/if}} class="timestamp ts_tip ts_tip_top ts_tip_float ts_tip_hidden ts_tip_multiline ts_tip_delay_300{{#if full_date}} no_wrap{{/if}}"><i class="copy_only">[</i>{{#if full_date}}{{#t note="when message was posted" date=(toCalendarDateOrNamedDayShort msg.ts)}}{date} at{{/t}} {{/if}}{{#if show_user}}{{#if relative_ts}}{{toTimeAgoShort msg.ts true}}{{else}}{{{toTime msg.ts}}}{{/if}}{{else}}{{#if comment}}{{#if is_file_convo_continuation}}{{{toTime msg.ts false}}}{{else}}{{{toTime msg.ts}}}{{/if}}{{else}}<span class="light_only">{{#if relative_ts}}{{toTimeAgoShort msg.ts true}}{{else}}{{{toTime msg.ts false}}}{{/if}}</span><span class="dense_only">{{#if relative_ts}}{{toTimeAgoShort msg.ts true}}{{else}}{{{toTime msg.ts}}}{{/if}}</span>{{/if}}{{/if}}<i class="copy_only">]</i><span class="ts_tip_tip"><span class="ts_tip_multiline_inner">{{{msgTsTitle msg msg_dom_id}}}</span></span></{{#if permalink}}a{{else}}span{{/if}}>
+      {{#if show_star}}<span class="message_star_holder">{{>star_with_tip star_components}}</span>{{/if}}
+    </div>
+  {{/unless}}
+
+  <div class="message_content{{#if format_for_thread_root}} format_for_thread_root{{/if}}">
+    <div class="message_content_header">
+      <div class="message_content_header_left">
+        {{#if format_for_thread_root}}
+          {{> message_member_image}}
+        {{/if}}
+        {{#unless is_tombstone}}
+        {{#feature flag="feature_shared_channels_client"}}
+            {{#if member.is_external}}
+              {{> team_icon team=(getTeamById member.team_id) size=16}}
+            {{/if}}
+        {{/feature}}
+          {{#if member}}
+            {{{makeMemberPreviewLink member}}}
+            {{> current_status for_message=true}}
+            {{~#if is_slackbot_response~}}
+            <span class="ts_tip ts_tip_top ts_tip_float ts_tip_hidden ts_tip_delay_300"><span class="bot_label">{{#t note="label that a message is a custom response from a bot"}}Custom Response{{/t}}</span>
+            <span class="ts_tip_tip">{{#t note="tip on a custom response message from a bot"}}Added by your team{{/t}}</span>
+            </span>
+            {{~/if~}}
+          {{else}}
+            <span class="message_sender {{getBotColorClassByUserName msg.username}}"> {{{getBotNameWithLink msg}}} {{#if is_bot}}<span class="bot_label">{{#t note="short tag on a message that indicates the sender is an application"}}APP{{/t}}</span>{{/if}}</span>
+          {{/if}}
+        {{/unless}}
+        {{#if comment}}
+          {{#if is_file_convo_continuation}}
+            <span class="meta message_commented">{{#t note="[sender] commented: [comment]"}}commented:{{/t}}</span>
+          {{/if}}
+        {{/if}}
+        {{#unless for_top_results_search_display}}
+        <{{#if permalink}}a href="{{permalink}}" target="{{newWindowName}}"{{else}}span{{/if}} class="timestamp ts_tip ts_tip_top ts_tip_float ts_tip_hidden ts_tip_multiline ts_tip_delay_300{{#if full_date}} no_wrap{{/if}}"><i class="copy_only">[</i>{{#if full_date}}{{#t note="when message was posted" date=(toCalendarDateOrNamedDayShort msg.ts)}}{date} at{{/t}} {{/if}}{{#if relative_ts}}{{toTimeAgoShort msg.ts}}{{else}}{{{toTime msg.ts}}}{{/if}}<i class="copy_only">]</i><span class="ts_tip_tip"><span class="ts_tip_multiline_inner">{{{msgTsTitle msg msg_dom_id permalink}}}</span></span></{{#if permalink}}a{{else}}span{{/if}}>
+        {{/unless}}
+        {{#unless standalone}}
+          {{#unless show_reply_bar}}{{#unless is_threads_view}}{{> show_conversation_link link_class="light_only"}}{{/unless}}{{/unless}}
+        {{/unless}}
+        {{#if show_user}}{{#if is_ephemeral}}<span class="only_visible_to_user">{{#t note="indication on an ephemeral message that it is not visible to anyone else in the channel"}}Only visible to you{{/t}}</span>{{/if}}{{/if}}
+
+        {{#if is_tombstone}}
+          <div class="deleted_message">{{#t}}This message was deleted.{{/t}}</div>
+        {{else}}
+          {{#feature flag="feature_sli_recaps"}}
+            {{#if show_recap_debug}}
+              <button type="button" class="recap_highlight_debug ts_icon ts_icon_info_circle btn_unstyle very_small_left_padding ts_tip ts_tip_top">
+                <span class="ts_tip_tip">{{#t note="This is a TS-only tool and will not be released to users."}}View in SLI Debugger{{/t}}</span>
+              </button>
+            {{/if}}
+          {{/feature}}
+          {{#if show_star}}<span class="message_star_holder">{{>star_with_tip star_components}}</span>{{/if}}
+          {{#if format_for_thread_root}}{{> thread_channel_link}}{{/if}}
+          {{#if for_top_results_search_display}}
+            {{#if archive_link}}
+              <span><a class="jump" href="{{archive_link}}" target="{{newWindowName}}">
+                {{#t note="link to view this message in its original context"}}View in Archive{{/t}}</a>
+              </span>
+            {{else}}
+              <span><a class="jump" href="{{permalink}}" target="{{newWindowName}}">
+                {{#t note="link to scroll back to this message in its original context"}}Jump{{/t}}</a>
+              </span>
+            {{/if}}
+
+          {{/if}}
+        {{/if}}
+      </div>
+      {{#if is_broadcast}}{{> message_broadcast_meta}}{{/if}}
+      {{#if starred_items_actions}}
+        <div class="actions">
+          {{jump_link}}
+          <div class="file_star btn_icon btn btn_outline">
+            {{>star_with_tip star_components}}
+          </div>
+        </div>
+      {{else}}
+        {{#if jump_link}}{{jump_link}}{{/if}}
+      {{/if}}
+    </div>
+
+    {{#if for_top_results_search_display}}
+    <div class="message_content_header">
+      <div class="message_content_header_left">
+        <span class="timestamp">{{#t note="when and where message originally appeared" date=(toCalendarDateOrNamedDayShort msg.ts) time=(toTime msg.ts)}}{date} at {time} in{{/t}} </span>
+        <span class="channel">
+          {{#if_equal msg.type compare='im'}}
+            {{makeIMLinkById msg.channel.id}}
+          {{else}}
+            {{#if_equal msg.type compare='group'}}
+              {{#if msg.channel.is_mpim}}
+                {{makeMpimLink msg.channel true}}
+              {{else}}
+                {{makeGroupLink msg.channel}}
+              {{/if}}
+            {{else}}
+              {{#if archive_link}}
+                {{makeChannelLinkEnterpriseSearchResult msg}}
+              {{else}}
+                {{makeChannelLink msg.channel}}
+              {{/if}}
+            {{/if_equal}}
+          {{/if_equal}}
+        </span>
+      </div>
+    </div>
+    {{/if}}
+
+    {{#unless is_tombstone}}
+    {{#if file}}
+      {{#if comment}}
+        {{#unless is_file_convo_continuation}}
+          <span class="meta meta_feature_fix_files message_body no_jumbomoji">
+            {{#if uploader}}
+              {{#if_equal file.mode compare="snippet"}}
+                {{#t note="[sender] commented on joe's snippet. Also, the possessive affix is localized, but please move it before or after the variable depending on whether possessives are prefixes or suffixes for your language." uploader_link=(makeMemberPreviewLinkById uploader.id false) uploader_possessive_affix=(possessive (getPrefCompliantMemberNameById uploader.id))}}
+                  commented on {uploader_link}{uploader_possessive_affix} snippet
+                {{/t}}
+              {{else}}
+                {{#t note="[sender] commented on joe's file. Also, the possessive affix is localized, but please move it before or after the variable depending on whether possessives are prefixes or suffixes for your language." uploader_link=(makeMemberPreviewLinkById uploader.id false) uploader_possessive_affix=(possessive (getPrefCompliantMemberNameById uploader.id))}}
+                  commented on {uploader_link}{uploader_possessive_affix} file
+                {{/t}}
+              {{/if_equal}}
+            {{else}}
+              {{#t note="[sender] commented on [file name]"}}commented on{{/t}}
+            {{/if}}
+            <a href="{{file.permalink}}" {{#isClient}}target="{{file.permalink}}"{{/isClient}} data-file-id="{{file.id}}" class="file_preview_link file_force_flexpane file_name">{{#if file.title}}{{{formatFileTitle file}}}{{else}}{{file.name}}{{/if}}</a>
+            {{#if file.is_external}}
+              <a {{makeRefererSafeLink url=file.url_private}} target="{{newWindowName}}" data-toggle="tooltip" title="{{#t note="tip on link to open file"}}Open file in a new tab{{/t}}" aria-label="{{#t note="aria-label on link to open file"}}Open file in a new tab{{/t}}">
+            {{else}}
+              <a href="{{file.permalink}}" target="{{newWindowName}}" data-toggle="tooltip" title="{{#t note="tip on link to open file"}}Open file in a new tab{{/t}}" aria-label="{{#t note="aria-label on link to open file"}}Open file in a new tab{{/t}}" data-file-id="{{file.id}}" class="file_new_window_link">
+            {{/if}}
+            <i class="ts_icon ts_icon_external_link file_inline_icon"></i></a>
+          </span>
+        {{/unless}}
+      {{else}}
+        <span data-file-id="{{file.id}}" class="meta message_body {{#unless standalone}} msg_inline_file_preview_toggler {{#isInlineFilePreviewExpanded container_id=msg_dom_id file_id=file.id}}expanded{{else}}collapsed{{/isInlineFilePreviewExpanded}}{{/unless}}">
+          <a href="{{file.permalink}}" {{#isClient}}target="{{file.permalink}}"{{/isClient}} data-file-id="{{file.id}}">
+            {{#if_equal file.external_type compare="gdrive"}}<i class="ts_icon ts_icon_google_drive"></i>{{/if_equal}}
+            {{#if_equal file.external_type compare="dropbox"}}<i class="ts_icon ts_icon_dropbox"></i>{{/if_equal}}
+            {{#if_equal file.external_type compare="box"}}<i class="ts_icon ts_icon_box_square"></i>{{/if_equal}}
+            {{#if_equal file.external_type compare="onedrive"}}<i class="ts_icon ts_icon_onedrive"></i>{{/if_equal}}
+
+            {{#if file_title_only}}
+              <span class="file_preview_link no_jumbomoji file_force_flexpane bold msg_inline_file_preview_title">{{#if file.title}}{{{formatFileTitle file}}}{{else}}{{file.name}}{{/if}}</span>
+            {{else}}
+              {{file_share_html}}{{#if title_hider}}<span class="msg_inline_file_title_hider">:{{else}}:{{/if}}
+                <span class="file_preview_link no_jumbomoji file_force_flexpane bold msg_inline_file_preview_title">{{#if file.title}}{{{formatFileTitle file}}}{{else}}{{file.name}}{{/if}}</span>
+              {{#if title_hider}}</span>{{/if}}
+
+              {{#unless standalone}}
+                <ts-icon class="msg_inline_media_toggler"></ts-icon>
+              {{/unless}}
+            {{/if}}
+          </a>
+        </span>
+      {{/if}}
+    {{else}}
+      {{!-- whitespace trimmed here to allow .message_body:empty CSS selection for empty message fallback --}}
+      <span class="message_body">{{!
+        }}{{{formatMessageByType msg do_inline_imgs enable_slack_action_links model_ob starred_items_list}}}{{!
+        }}{{#unless no_attachments}}{{{formatAttachments msg model_ob enable_slack_action_links msg_dom_id}}}{{/unless}}{{!
+        }}{{#if msg.edited}}<span class="edited ts_tip ts_tip_top ts_tip_float ts_tip_delay_300" title="{{#t note="when message was last edited" date=(toCalendarDateOrNamedDayShort msg.edited.ts) time=(toTime msg.edited.ts)}}{date} at {time}{{/t}}"> {{#t note="indication a message was edited"}}(edited){{/t}}</span>{{/if}}{{!
+        }}{{#if show_user}}{{#if is_ephemeral}}<span class="only_visible_to_user">{{#t note="indication on an ephemeral message that it is not visible to anyone else in the channel"}}Only visible to you{{/t}}</span>{{/if}}{{/if}}{{!
+      }}<span class="constrain_triple_clicks"></span></span>
+
+      {{#unless standalone}}
+        {{#unless show_reply_bar}}{{#unless is_threads_view}}{{> show_conversation_link link_class="dense_only"}}{{/unless}}{{/unless}}
+      {{/unless}}
+    {{/if}}
+    {{/unless}}
+
+
+    {{#or starred_items_list for_mention_display}}
+      <span class="message_location_label overflow_ellipsis">
+      {{#if msg.parent_user_id}}
+        <a href="{{permalink}}" target="{{newWindowName}}" title="{{#t}}Open thread{{/t}}"><span class="normal">
+        {{#if model_ob.is_im}}
+          {{#t note="description of the message's original context"}}from a thread with</span> @{model_ob.name}{{/t}}
+        {{else if model_ob.is_mpim}}
+          {{#t note="description of the message's original context"}}from a thread in a</span> group message{{/t}}
+        {{else if model_ob.is_channel}}
+          {{#t note="description of the message's original context"}}from a thread in</span> #{model_ob.name}{{/t}}
+        {{else}}
+          {{#t note="description of the message's original context"}}from a thread in</span> <ts_icon class="ts_icon ts_icon_lock ts_icon_inherit"></ts_icon>{model_ob.name}{{/t}}
+        {{/if}}
+        </a>
+      {{else if starred_items_list}}
+        {{#if model_ob.is_im}}
+          <a href="{{permalink}}" target="{{newWindowName}}">{{#t}}Direct Message{{/t}}</a>
+        {{else}}
+          {{#if model_ob.is_mpim}}
+            {{#t note="description of the message's original context in an mpim" mpim_display_name=(mpimDisplayName model_ob)}}
+              Posted in <a href="{permalink}" target="{newWindowName}">{mpim_display_name}</a>
+            {{/t}}
+          {{else}}
+            {{#if model_ob.is_channel}}
+              {{#t note="description of the message's original context in a channel"}}
+                Posted in
+                <a href="{permalink}" target="{newWindowName}">
+                  <span class="normal">#</span>{model_ob.name}
+                </a>
+              {{/t}}
+            {{else}}
+              {{#t note="description of the message's original context"}}
+                Posted in
+                <a href="{permalink}" target="{newWindowName}">
+                  <ts_icon class="ts_icon ts_icon_lock ts_icon_inherit"></ts_icon>
+                  {model_ob.name}
+                </a>
+              {{/t}}
+            {{/if}}
+          {{/if}}
+        {{/if}}
+      {{/if}}
+      </span>
+    {{/or}}
+
+    {{#if standalone}}
+
+      {{#or has_rxns for_mention_display}}
+        {{#unless is_tombstone}}
+          {{rxnPanel msg._rxn_key}}
+        {{/unless}}
+      {{/or}}
+
+      {{#if show_initial_comment}}
+        {{#if file.initial_comment}}
+          <div class="initial_comment">
+            <div class="comment no_bottom_margin">
+              {{{formatMessage file.initial_comment.comment}}}
+            </div>
+            {{rxnPanel file.initial_comment._rxn_key}}
+          </div>
+        {{/if}}
+      {{else}}
+        {{#if comment}}
+          <div class="comment">
+            {{{formatMessage comment.comment}}}
+          </div>
+          {{rxnPanel comment._rxn_key}}
+        {{/if}}
+      {{/if}}
+    {{else}}
+
+      {{#if file}}
+        {{#unless comment}}
+          {{#if file_partial}}
+            {{#if file_partial}}
+              {{#if_equal file_partial compare="snippet"}}{{> file_snippet}}{{/if_equal}}
+              {{#if_equal file_partial compare="email"}}{{> file_email}}{{/if_equal}}
+              {{#if_equal file_partial compare="generic"}}{{> file_generic}}{{/if_equal}}
+              {{#if_equal file_partial compare="image"}}{{> file_image}}{{/if_equal}}
+              {{#if_equal file_partial compare="post"}}{{> file_post}}{{/if_equal}}
+            {{/if}}
+          {{/if}}
+          {{rxnPanel file._rxn_key}}
+        {{/unless}}
+      {{/if}}
+
+      {{#unless is_ephemeral}}
+        {{#unless file}}
+          {{#unless is_tombstone}}
+            {{rxnPanel msg._rxn_key}}
+          {{/unless}}
+            {{#if show_reply_bar}}{{buildReplyBarHTML msg model_ob}}{{/if}}
+
+        {{/unless}}
+      {{/unless}}
+
+      {{!-- TODO: harmonize this comment handling logic --}}
+      {{#if show_initial_comment}}
+        {{#if file.initial_comment}}
+          <div class="initial_comment">
+            <div class="comment no_bottom_margin">
+              {{{formatMessage file.initial_comment.comment}}}
+            </div>
+            {{rxnPanel file.initial_comment._rxn_key}}
+          </div>
+        {{/if}}
+      {{else}}
+        {{#if comment}}
+          <div class="comment">
+            {{{formatMessage comment.comment}}}
+          </div>
+          {{rxnPanel comment._rxn_key}}
+        {{/if}}
+      {{/if}}
+
+      {{#isWeb}}
+        {{!-- multi-delete checkboxes on channel archive page --}}
+        {{#if actions.delete_msg}}<input type="checkbox" class="msg_select_cb">{{/if}}
+      {{/isWeb}}
+
+    {{/if}}
+
+    <i class="copy_only"><br></i>
+    {{#if unprocessed}}
+      <span class="temp_msg_controls {{#unless show_resend_controls}}hidden{{/unless}}">{{#t note="shown on a message when it fails to send"}}(this message send failed, would you like to <nobr><button type="button" class="btn_link resend_temp_msg">resend</button> \u2022 <button type="button" class="btn_link remove_temp_msg">remove</button>?)</nobr>{{/t}}</span>
+    {{/if}}
+
+    {{#if standalone}}
+      {{#unless show_reply_bar}}{{#unless is_threads_view}}{{> show_conversation_link}}{{/unless}}{{/unless}}
+    {{/if}}
+
+    <span id="{{makeMsgLabelDomId msg.ts}}" class="message_aria_label hidden">
+      <strong>{{#if member}}{{getPrefCompliantMemberName member}}{{else}}{{{getBotNameWithLink msg}}}{{/if}}</strong>.
+      {{{formatMessageByType msg false false model_ob}}}.
+      {{#if msg.thread_ts}}
+        {{#if msg.parent_user_id}}
+          {{! TBD - What do we want to put here for screenreaders? The whole snippet? }}
+        {{else}}
+          {{#if msg.reply_count}}
+            {{#t}}{msg.reply_count, plural, =1 {# reply} other {# replies}}{{/t}}
+          {{/if}}
+        {{/if}}
+      {{/if}}
+      {{#if msg.reply_count}}{{#t}}{msg.reply_count, plural, =1 {# reply} other {# replies}}{{/t}}{{/if}}
+      {{toTimeWords msg.ts}}.{{#if msg.edited}} {{#t note="indication a message was edited"}}Edited.{{/t}}{{/if}}{{#if msg.is_starred}} {{#t note="indication a message is starred"}}Starred.{{/t}}{{/if}}{{#if is_ephemeral}} {{#t note="indication on an ephemeral message that it is not visible to anyone else in the channel"}}Only visible to you.{{/t}}{{/if}}
+    </span>
+
+  </div>
+
+  {{#unless hide_actions}}
+    <div class="action_hover_container stretch_btn_heights" data-js="action_hover_container" data-show_rxn_action="{{show_rxn_action}}" data-show_reply_action="{{show_reply_action}}" data-show_comment_action="{{show_comment_action}}" data-abs_permalink="{{abs_permalink}}">
+      {{! to be filled by action_hover_items on hover; the data attributes can be used to rebuild the contents with action_hover_items at anytime}}
+    </div>
+  {{/unless}}
+
+</ts-message>

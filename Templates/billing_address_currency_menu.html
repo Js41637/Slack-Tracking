@@ -1,0 +1,15 @@
+{{i18n_ns "pages_admin"}}
+{{#each select_content}}
+  <label class="billing_settings_currency_label {{#if_equal @key compare=../selected_option}}selected{{/if_equal}}">
+    <input name="currency_group" type="radio" value="{{@key}}" data-qa="currency_{{@key}}" {{#if_equal @key compare=../selected_option}}checked{{/if_equal}} />
+    <div class="billing_settings_currency_label_items small_left_padding">
+      <span class="billing_settings_currency_code block">{{@key}}</span>
+      <span class="billing_settings_currency_description block">
+        {{#t price_per_seat=(cash value=this currency_code=@key)}}
+          You will pay <strong>{price_per_seat}</strong> per active user, per month. (not including credits)
+        {{/t}}
+      </span>
+    </div>
+  </label>
+
+{{/each}}

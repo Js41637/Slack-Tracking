@@ -1,0 +1,50 @@
+{{i18n_ns 'current_status'}}
+
+<div class="current_status_container{{#or status_emoji status_text}} with_status_set{{/or}}">
+  <span class="current_status_cover with_status_set{{#unless editable}} not_editable{{/unless}}">
+    <div class="current_status_cover_content">
+      <span class="current_status_emoji_picker_cover">
+        <div class="current_status_emoji_cover">
+          {{#if_equal (emojiModePref) compare="as_text"}}
+            {{formatCurrentStatusWithoutAnimations status_emoji ignore_emoji_mode_pref=true show_icon_for_emoji_in_as_text_mode=false
+            transform_missing_emoji=true}}
+          {{else}}
+            {{formatCurrentStatusWithoutAnimations status_emoji transform_missing_emoji=true}}
+          {{/if_equal}}
+        </div>
+      </span>
+      <span class="current_status">
+        {{formatCurrentStatus status_text}}
+      </span>
+    </div>
+
+    {{#if editable}}
+      {{#unless for_team_site}}
+        <span class="current_status_clear_icon_cover ts_tip ts_tip_top ts_tip_float" title="{{#t}}Clear status{{/t}}">
+          <ts-icon class="ts_icon_close_filled" aria-hidden="true"></ts-icon>
+        </span>
+      {{/unless}}
+    {{/if}}
+  </span>
+
+  {{#if editable}}
+    {{#unless for_team_site}}
+      <span class="current_status_cover without_status_set">
+        <div class="current_status_cover_content">
+          <span class="current_status_placeholder">
+            {{#t}}What\u2019s your status?{{/t}}
+          </span>
+        </div>
+        <span class="current_status_emoji_picker_cover">
+          <div class="current_status_empty_emoji_cover">
+            <i class="ts_icon ts_icon_circle_fill"></i>
+            <i class="ts_icon ts_icon_smile_o"></i>
+            <i class="ts_icon ts_icon_happy_smile"></i>
+          </div>
+        </span>
+      </span>
+    {{/unless}}
+
+    {{> current_status_input}}
+  {{/if}}
+</div>

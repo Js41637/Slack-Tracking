@@ -1,0 +1,37 @@
+{{i18n_ns "team_creation"}}
+
+<div id="signup_wrapper" class="fs_split_pane fs_split_pane_left">
+  {{> create_inc_find_team_mobile}}
+
+  <form class="fs_split_flex_wrapper" onsubmit="return false;">
+    {{#unlessOurApp}}<a data-clog-event="WEBSITE_CLICK" data-clog-params="action=nav_logo,trigger=create_team" class="logo_link" href="/">{{/unlessOurApp}}<img id="slack_logo" src="{{versioned_slack_logo_240}}" width="120" height="137" title="Slack">{{#unlessOurApp}}</a>{{/unlessOurApp}}
+    
+    {{> create_inc_rate_limit}}
+    {{> create_inc_api_alert}}
+
+    <div id="email_form_body" class="fs_split_body">
+      <h1>{{#t}}Create a new team{{/t}}</h1>
+        <label id="email_label"><span class="normal">{{#t}}Your </span>email address{{/t}}</label>
+        <input type="text" placeholder="{{#t}}you@example.com{{/t}}" id="signup_email" data-qa="email_field" spellcheck="false" {{#if email}} value="{{email}}" {{/if}} aria-labelledby="email_label" data-email-healing="true"/>
+        <p class="error_message"></p>
+        {{#if referral}}
+          <h4>{{#t}}Sign up now and get $100.00 in free credit thanks to the team at {referral}!{{/t}}</h4>
+        {{/if}}
+    </div>
+
+    <div id="submit" class="fs_split_footer">
+      {{> create_inc_email_misc this}}
+
+      <div class="button_container">
+        <button id="submit_btn" class="btn btn_large ladda-button" {{#unless email}}disabled="true" aria-disabled="true"{{/unless}} data-style="expand-right" data-qa="submit_button">
+          <span class="ladda-label">{{#t}}Next{{/t}}{{> ts_icon class="ts_icon_arrow_right"}}</span>
+        </button>
+      </div>
+    </div>
+
+    {{> create_inc_legalese_mobile}}
+
+  </form>
+</div>
+
+{{> create_inc_graphics_pane inc_legalese=1 inc_find_team=1}}

@@ -1,0 +1,31 @@
+  {{i18n_ns "search"}}
+
+  <p class="team_results_heading">{{#t}}We found <strong>{ matches.length, plural, =1 { # team member } other { # team members }}</strong> matching your query:{{/t}}</p>
+  <div id="team_results_container">
+  {{#each matches}}
+    <p class="team_result">
+
+      {{#feature flag="feature_name_tagging_client"}}
+        {{makeMemberPreviewLinkImage this.id 32}}
+        <a href="/team/{{this.id}}" {{#isClient}}target="/team/{{this.id}}"{{/isClient}} class="black member_preview_link member_name" data-member-id="{{this.id}}">{{getPrefCompliantMemberName this}}</a> <span class="{{makeMemberPresenceDomClass this}}">{{makeMemberPresenceIcon this}}</span> {{#memberHasSecondaryName this}}<span class="indifferent_grey bold">{{getMemberSecondaryName this}}</span>{{/memberHasSecondaryName}}<br/>
+
+        {{#if this.profile.title}}<span>{{this.profile.title}}</span> <span class="bullet">\u2022</span>{{/if}}
+        {{#memberIsSelf id=this.id}}
+          <a href="/team/{{this.id}}" {{#isClient}}target="/team/{{this.id}}"{{/isClient}} class="member_preview_link" data-member-id="{{this.id}}">{{#t}}View Profile{{/t}}</a>
+        {{else}}
+          <a href="/messages/{{this.id}}" {{#isClient}}target="/messages/{{this.id}}"{{/isClient}} class="internal_im_link {{#isClient}}team_list_dm_link{{/isClient}}" data-member-id="{{this.id}}">{{#t}}Send direct message{{/t}}</a>
+        {{/memberIsSelf}}
+      {{else}}
+        {{makeMemberPreviewLinkImage this.id 32}}
+        <a href="/team/{{this.name}}" {{#isClient}}target="/team/{{this.name}}"{{/isClient}} class="black member_preview_link member_name" data-member-id="{{this.id}}">{{this.name}}</a> <span class="{{makeMemberPresenceDomClass this}}">{{makeMemberPresenceIcon this}}</span> {{#if this.profile.real_name}}<span class="indifferent_grey bold">{{this.profile.real_name}}</span>{{/if}}<br/>
+
+        {{#if this.profile.title}}<span>{{this.profile.title}}</span> <span class="bullet">\u2022</span>{{/if}}
+        {{#memberIsSelf id=this.id}}
+          <a href="/team/{{this.name}}" {{#isClient}}target="/team/{{this.name}}"{{/isClient}} class="member_preview_link" data-member-id="{{this.id}}">{{#t}}View Profile{{/t}}</a>
+        {{else}}
+          <a href="/messages/@{{this.name}}" {{#isClient}}target="/messages/@{{this.name}}"{{/isClient}} class="internal_im_link {{#isClient}}team_list_dm_link{{/isClient}}" data-member-id="{{this.id}}">{{#t}}Send direct message{{/t}}</a>
+        {{/memberIsSelf}}
+      {{/feature}}
+    </p>
+  {{/each}}
+  </div>

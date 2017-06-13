@@ -1,0 +1,41 @@
+{{i18n_ns 'user_groups'}}
+
+<div id="user_group_alerts"></div>
+
+{{#if_equal action compare="delete_user_group"}}
+  <div class="align_center clearfix very_large_top_margin very_large_left_margin very_large_right_margin">
+    <h1>{{#t note="heading above delete a user group section"}}Delete {user_group.name}?{{/t}}</h1>
+    <p>{{#t note="note explaining consequences of deleting a user group"}}All the information about this User Group will be permanently deleted. This action cannot be undone.{{/t}}</p>
+    <a data-action="cancel" class="btn btn_outline">{{#t}}Cancel{{/t}}</a>
+    <a data-action="deleteUserGroup" class="user_group_toggle_btn btn btn_danger">{{#t}}Delete this group{{/t}}</a>
+  </div>
+{{/if_equal}}
+{{#if_equal action compare="disable_user_group"}}
+  <div class="align_center clearfix very_large_top_margin very_large_left_margin very_large_right_margin">
+    <h1>{{#t note="heading above disable a user group section"}}Disable {user_group.name}?{{/t}}</h1>
+    <p>
+      {{#if user_group.handle}}
+        {{#t}}
+          If you disable this User Group, you will not be able to use @{user_group.handle} or view the list of its members (you can re-enable it later).
+        {{/t}}
+      {{else}}
+        {{#t}}
+          If you disable this User Group, you will not be able to view the list of its members (you can re-enable it later).
+        {{/t}}
+      {{/if}}
+    </p>
+    <a data-action="cancel" class="btn btn_outline bottom_margin">{{#t}}Cancel{{/t}}</a>
+    <a data-action="disableUserGroup" class="user_group_toggle_btn btn bottom_margin">{{#t}}Disable this group{{/t}}</a>
+    {{#if show_delete}}
+      <p>{{#t}}You can also <a data-action="switch_delete_user_group" class="lato_bold">permanently delete this group.</a>{{/t}}</p>
+    {{/if}}
+  </div>
+{{/if_equal}}
+{{#if_equal action compare="enable_user_group"}}
+  <div class="align_center clearfix very_large_top_margin very_large_left_margin very_large_right_margin">
+    <h1>{{#t group_name=user_group.name note="heading above enable a user group section"}}Enable {group_name}?{{/t}}</h1>
+    {{#if user_group.handle}}<p>{{#t note="note explaining that the user group will notify its members if it is enabled"}}If you enable, @{user_group.handle} will notify members of the group.{{/t}}</p>{{/if}}
+    <a data-action="cancel" class="btn btn_outline">{{#t}}Cancel{{/t}}</a>
+    <a data-action="enableUserGroup" class="user_group_toggle_btn btn">{{#t}}Enable this group{{/t}}</a>
+  </div>
+{{/if_equal}}

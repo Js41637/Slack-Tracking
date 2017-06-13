@@ -1,0 +1,107 @@
+{{i18n_ns 'files'}}
+
+<div id="file_sharing_div">
+
+  <div class="small_bottom_margin">
+    <input type="hidden" id="share_model_ob_id" value="{{#if selection}}{{selection}}{{else}}{{#if model_ob.is_im}}{{model_ob.user}}{{else}}{{model_ob.id}}{{/if}}{{/if}}">
+    <label for="share_cb" class="{{#isWeb}}block{{/isWeb}} small_bottom_margin">
+      <input id="share_cb" checked="checked" name="share_cb" type="checkbox" class="no_top_margin small_right_margin {{#if hide_checkbox}}hidden{{/if}}" tabindex="2">
+      {{#if_equal share_context compare="im"}}
+        <span id="share_context_label">{{#t}}Share with{{/t}}</span>
+      {{else}}
+        {{#if_equal share_context compare="mpim"}}
+          <span id="share_context_label">{{#t}}Share with{{/t}}</span>
+        {{else}}
+          <span id="share_context_label">{{#t}}Share in{{/t}}</span>
+        {{/if_equal}}
+      {{/if_equal}}
+    </label>
+
+    <div id="select_share_channels" class="file_share_select inline_block no_margin"></div>
+
+    {{#isWeb}}<br />{{/isWeb}}
+
+    {{#if owner_team}}
+      <div id="select_share_external_member_note" class="modal_alert_sharing">
+        {{#t}}This file was originally uploaded by a member of the <strong>{owner_team}</strong> team. Please make sure you have permission to share it.{{/t}}
+    {{/if}}
+
+    <span id="select_share_channels_note" class="modal_input_note {{#if_not_equal share_context compare="channel"}}hidden{{/if_not_equal}}">
+      {{file_sharing_notice}}
+      <span id="select_share_channels_join_note" class="{{#unless show_channel_join_note}}hidden{{/unless}}"><br>{{#t}}<strong>NOTE:</strong> you will join this channel when you share the file into it.{{/t}}</span>
+    </span>
+
+    <span id="select_share_ims_note" class="modal_input_note {{#if_not_equal share_context compare="im"}}hidden{{/if_not_equal}}">
+      {{#if file.is_public}}
+      {{else}}
+        {{#t}}This file will be private; the person you're sharing with will be able to see it.{{/t}}
+      {{/if}}
+    </span>
+
+    <span id="select_share_mpims_note" class="modal_input_note {{#if_not_equal share_context compare="mpim"}}hidden{{/if_not_equal}}">
+      {{#if file.is_public}}
+      {{else}}
+        {{#t}}This file will be private; the members of the conversation you're sharing with will be able to see it.{{/t}}
+      {{/if}}
+    </span>
+
+    <span id="select_share_groups_note" class="modal_input_note {{#if_not_equal share_context compare="group"}}hidden{{/if_not_equal}}">
+      {{#if file.is_public}}
+      {{else}}
+        {{#t}}This file will be private; the members of the private channel you're sharing in will be able to see it.{{/t}}
+      {{/if}}
+    </span>
+
+    {{#if owner_team}}
+      </div>
+    {{/if}}
+
+    {{#if enable_collab_editing}}
+      <p class="small_top_margin bottom_margin">
+        <label class="checkbox no_margin enable_collab_editing_checkbox">
+          <input id="enable_collab_editing" type="checkbox" class="small_right_margin"> {{#t}}Let others edit this post{{/t}}
+        </label>
+      </p>
+    {{/if}}
+
+  </div>
+
+  {{#if is_owner}}
+    {{#if_equal file.filetype compare="space"}}
+      {{#if_equal file.name compare="-"}}
+        {{#unless has_title}}
+          {{! Untitled space \u2014 prompt for a name }}
+          <p class="small_bottom_margin share_name_field">
+            <label class="inline_block align_top">
+              {{#t}}
+              Name this post
+              <span class="input_note normal">(optional)</span>
+              {{/t}}
+            </label>
+            <input type="text" id="file_name_input" name="name">
+            <input type="hidden" name="requires_title" value="1">
+          </p>
+        {{/unless}}
+      {{/if_equal}}
+    {{/if_equal}}
+  {{/if}}
+
+  <div class="no_bottom_margin">
+    <label class="{{#isClient}}inline_block{{/isClient}} align_top">
+      {{#isClient}}
+        {{#t}}Add Comment <br /><span class="input_note normal">(optional)</span>{{/t}}
+      {{else}}
+        {{#t}}Add Comment <span class="input_note normal">(optional)</span>{{/t}}
+      {{/isClient}}
+
+    </label>
+    {{#supportsTextyTakesOver}}
+      <div id="file_comment_textarea" class="texty_comment_input comment_input no_bottom_margin" name="comment" tabindex="1" wrap="virtual"></div>
+    {{else}}
+      <textarea id="file_comment_textarea" class="comment_input no_bottom_margin" name="comment" tabindex="1" wrap="virtual">{{comment}}</textarea>
+    {{/supportsTextyTakesOver}}
+    <span id="select_share_at_channel_blocked_note" class="modal_input_note indifferent_grey hidden"></span>
+    <span id="select_share_at_channel_note" class="modal_input_note indifferent_grey hidden"></span>
+    <span id="select_share_at_channel_list" class="modal_input_note indifferent_grey">{{makeFileCommentHelpHTML file}}</span>
+  </div>
+</div>

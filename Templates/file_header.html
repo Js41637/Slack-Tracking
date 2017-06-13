@@ -1,0 +1,145 @@
+{{i18n_ns "files"}}
+
+{{!-- hbslint-disable syntax --}}
+{{!-- Todo: enable syntax linter and enable safeString --}}
+
+  <div class="flexpane_file_title"
+    {{#if member.is_bot}}
+      data-app-id="{{member.app_id}}" data-bot-id="{{member.id}}"
+    {{/if}}
+  >
+    {{#if member.is_bot}}
+      {{makeProfileImage member size="36"}}
+    {{else}}
+      {{> member_preview_link_image (getMemberPreviewLinkImageArgs member 36)}}
+    {{/if}}
+
+    <span class="{{getMemberColorClassById member.id}}">{{{makeMemberPreviewLink member}}}</span>
+
+    {{#or member.profile.status_emoji member.profile.status_text}}
+      {{> current_status for_message=true}}
+    {{/or}}
+
+  {{#feature flag="feature_file_threads"}}
+    <span class="date">{{#t date=(toCalendarDateOrNamedDayShort file.timestamp) time=(toTime file.timestamp)}}{date} at {time}{{/t}}</span>
+
+    <span class="no_wrap">
+      {{starWithTip 'file' file null}}
+    </span>
+
+    {{#if model_ob}}
+      <a href="/archives/{{model_ob.id}}" class="thread_channel_link">
+        In
+        {{#if model_ob.is_channel~}}
+          #{{model_ob.name}}
+        {{else if model_ob.is_im~}}
+          Direct Message
+        {{else if model_ob.is_mpim~}}
+          Group Message
+        {{else if model_ob.is_group~}}
+          #{{model_ob.name}}
+        {{~/if~}}
+      </a>
+    {{/if}}
+  {{else}}
+    <span class="title break_word">
+      {{#if is_post}}
+        {{#if preview}}
+          <a href="{{file.permalink}}" {{#isClient}}target="{{file.id}}"{{/isClient}} data-file-id="{{file.id}}" class="file_new_window_link">{{#t privacy_label=(makeFilePrivacyLabel file) note="Can be 'draft', 'shared', or 'private'"}}{privacy_label} post{{/t}}</a>
+        {{else}}
+          <a href="{{file.permalink}}" {{#isClient}}target="{{file.id}}"{{/isClient}} data-file-id="{{file.id}}" class="file_new_window_link">{{{highlightSearchMatchesInFileTitle file.title}}}</a>
+        {{/if}}
+      {{else}}
+        <a href="{{file.permalink}}" {{#isClient}}target="{{file.id}}"{{/isClient}} data-file-id="{{file.id}}" class="{{#unless preview}}file_preview_link {{/unless}}{{#fileIsImage id=file.id}}file_viewer_channel_link file_viewer_link{{/fileIsImage}}">{{{highlightSearchMatchesInFileTitle file.title}}}</a>
+      {{/if}}
+
+      <span class="no_wrap">
+        {{starWithTip 'file' file null}}
+      </span>
+    </span>
+
+    {{#isClient}}
+    <ul class="file_action_list no_bullets no_bottom_margin float_right">
+
+      {{#if download}}
+        <li class="file_action_item inline_block">
+          <a class="ts_tip ts_tip_bottom file_ssb_download_link" data-file-id="{{file.id}}" href="{{file.url_private_download}}" target="{{newWindowName}}">
+            <span class="ts_tip_btn ts_icon ts_icon_cloud_download"></span>
+            <span class="ts_tip_tip">{{#t}}Download{{/t}}</span>
+          </a>
+        </li>
+      {{/if}}
+
+      {{#if edit}}
+        <li class="file_action_item inline_block">
+          <a data-file-id="{{file.id}}" class="ts_tip ts_tip_bottom file file_new_window_link{{#if is_snippet}} snippet_edit_dialog_link{{else}} ts_tip_rightish{{/if}}"
+            {{#if is_snippet}}
+              href="{{file.edit_link}}" target="{{file.edit_link}}"
+            {{else}}
+              href="{{edit_link}}" target="{{edit_link}}"
+            {{/if}}
+          >
+            <span class="ts_tip_btn ts_icon {{#if is_snippet}}ts_icon_pencil{{else}}ts_icon_external_link{{/if}}"></span>
+            <span class="ts_tip_tip">{{#if is_snippet}}{{#t}}Edit{{/t}}{{else}}{{#t}}Edit in new window{{/t}}{{/if}}</span>
+          </a>
+        </li>
+      {{else}}
+
+        <li class="file_action_item inline_block">
+          {{#if file.is_external}}
+            <a class="ts_tip ts_tip_bottom ts_tip_rightish" href="{{file.url_private}}" target="{{newWindowName}}">
+              <span class="ts_tip_btn ts_icon ts_icon_external_link"></span>
+              <span class="ts_tip_tip">
+                {{#if_equal file.external_type compare="gdrive"}}
+                  {{#t}}Open file on Google\u00a0Drive{{/t}}
+                {{/if_equal}}
+                {{#if_equal file.external_type compare="dropbox"}}
+                  {{#t}}Open file on Dropbox{{/t}}
+                {{/if_equal}}
+                {{#if_equal file.external_type compare="box"}}
+                  {{#t}}Open file on Box{{/t}}
+                {{/if_equal}}
+                {{#if_equal file.external_type compare="onedrive"}}
+                  {{#t}}Open file on OneDrive{{/t}}
+                {{/if_equal}}
+                {{#if_equal file.external_type compare="unknown"}}
+                  {{#t}}Open file on a web page{{/t}}
+                {{/if_equal}}
+              </span>
+            </a>
+          {{else}}
+            {{#fileIsImage id=file.id}}
+              <a class="ts_tip ts_tip_bottom ts_tip_rightish" href="{{file.url_private}}" target="{{file.id}}">
+                <span class="ts_tip_btn ts_icon ts_icon_external_link"></span>
+                <span class="ts_tip_tip">{{#t}}Open original{{/t}}</span>
+              </a>
+            {{else}}
+              <a class="ts_tip ts_tip_bottom ts_tip_rightish file_new_window_link" href="{{file.permalink}}" target="{{file.permalink}}" data-file-id="{{file.id}}">
+                <span class="ts_tip_btn ts_icon ts_icon_external_link"></span>
+                <span class="ts_tip_tip">{{#t}}Open in new window{{/t}}</span>
+              </a>
+            {{/fileIsImage}}
+          {{/if}}
+          </a>
+        </li>
+      {{/if}}
+
+      <li class="file_action_item inline_block">
+        <a class="ts_tip ts_tip_bottom ts_tip_right file_actions" data-file-id="{{file.id}}"
+          data-exclude-pin="true"
+          data-exclude-comment="true"
+          data-include-view-public-link="true"
+          {{#if download}}data-exclude-download="true"{{/if}}
+          {{#if_not_equal file.mode compare="email"}}{{#if_not_equal file.mode compare="snippet"}}data-exclude-original="true"{{/if_not_equal}}{{/if_not_equal}}
+          {{#if edit}}data-exclude-edit="true"{{/if}}
+        >
+          <span class="ts_tip_btn ts_icon ts_icon_ellipsis_o"></span>
+          <span class="ts_tip_tip">{{#t}}More actions{{/t}}</span>
+        </a>
+      </li>
+    </ul>
+    {{/isClient}}
+  {{/feature}}
+
+  </div>{{!--/file_header--}}
+

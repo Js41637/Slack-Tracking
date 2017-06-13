@@ -1,0 +1,30 @@
+<div class="lfs_input_container empty" data-qa="{{instance.data_qa}}-value">
+  {{#if instance.single}}<div class="lfs_value"></div>{{/if}}
+  <input
+    type="text"
+    class="lfs_input"
+    size="1"
+    data-qa="{{instance.data_qa}}-input-value"
+    placeholder="{{instance.placeholder_text}}"
+    {{#if instance.disabled}} disabled="true"{{/if}}
+    {{#if aria_labelledby}} aria-labelledby="{{aria_labelledby}}"{{/if}}
+  >
+</div>
+<div class="lfs_list_container" data-qa="{{instance.data_qa}}">
+  {{#if_equal instance.style compare=STYLES.filter_in_list}}
+    <input
+      type="text"
+      class="lfs_filter_input"
+      size="1"
+      data-qa="{{instance.data_qa}}-filter-input-value"
+      placeholder="{{instance.filter_placeholder_text}}"
+    >
+  {{/if_equal}}
+  <div class="lfs_list"></div>
+  <div class="lfs_status">
+    <span class="lfs_status_loading_indicator hidden">
+      {{> loading_indicator}}
+    </span>
+    <span class="lfs_status_content"></span>
+  </div>
+</div>

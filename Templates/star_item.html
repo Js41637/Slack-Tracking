@@ -1,0 +1,38 @@
+{{!-- hbslint-disable syntax --}}
+{{!-- TODO: Enable syntax linter and refactor to use a safeString --}}
+{{i18n_ns 'stars'}}
+
+{{#if_equal star.type compare="channel"}}
+  {{starWithTip 'channel' star.channel null}}
+  <strong>{{{makeChannelLinkById star.channel}}}</strong> <span class="star_meta">{{#t}}(channel){{/t}}</span>
+{{/if_equal}}
+
+{{#if_equal star.type compare="group"}}
+  {{starWithTip 'group' star.channel null}}
+  <strong>{{{makeGroupLinkById star.channel}}}</strong> <span class="star_meta">{{#t}}(private channel){{/t}}</span>
+{{/if_equal}}
+
+{{#if_equal star.type compare="im"}}
+  {{starWithTip 'im' star.channel null}}
+  <strong>{{{makeIMLinkById star.channel}}}</strong> <span class="star_meta">{{#t}}(direct message conversation){{/t}}</span>
+{{/if_equal}}
+
+{{#if_equal star.type compare="file_comment"}}
+  {{#if star.file.is_deleted}}
+  {{else}}
+    {{#if from_starred_item}}
+      <div class="file_comment_item">
+        <div class="actions">
+          <div class="file_star btn_icon btn btn_outline ts_tip_btn ts_tip ts_tip_top">
+            {{starWithTip 'file_comment' star.comment star.file true}}
+          </div>
+        </div>
+        {{{comment_standalone star.comment star.file true}}}
+      </div>
+    {{else}}
+      {{starWithTip 'file_comment' star.comment star.file}}
+      {{{comment_standalone star.comment star.file}}}
+    {{/if}}
+  {{/if}}
+{{/if_equal}}
+

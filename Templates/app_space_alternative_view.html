@@ -1,0 +1,17 @@
+{{i18n_ns "app_space"}}
+<div class="app_space_alternative_view_wrapper">
+  <div class="app_space_alternative_view_content">
+    <span class="app_space_alternative_view_emoji">{{emoji}}</span>
+    {{#if is_error}}
+      <div class="app_space_alternative_view_message align_center">{{#t}}Something\u2019s fishy! Slack can\u2019t seem to load your apps. <br/> You can try again, but if the problem persists, please <a href="https://slack.com/help/contact">drop us a line.</a>{{/t}}</div>
+      <button type="button" class="btn app_space_error_state_refresh_button">{{#t}}Try Again{{/t}}</button>
+    {{else is_empty}}
+      <div class="app_space_alternative_view_message align_center">
+        {{#t}}
+          <p class="app_space_empty_state_message_header">You have no apps installed.</p>
+          <p>Apps installed on your team in will be collected right here. <br/> <a href="" target="_blank">Learn about apps</a></p>
+        {{/t}}
+      </div>
+    {{/if}}
+  </div>
+</div>

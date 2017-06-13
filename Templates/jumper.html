@@ -1,0 +1,13 @@
+{{i18n_ns "jumper"}}
+<ts-jumper>
+  <ts-jumper-container>
+    <ts-jumper-help aria-hidden="true">
+      {{#t}}Jump to a conversation{{/t}}
+      <span class="kb_shortcuts">
+        {{#t note="Describes available keyboard shortcuts: '[tab key] or [up key] [down key] to navigate [return key] to select [escape key] to dismiss'"}}<strong>tab</strong>&nbsp; or &nbsp;<strong>&uarr;</strong> <strong>&darr;</strong>&nbsp; to navigate <strong class="small_left_margin" aria-label="Return">\u21b5</strong>&nbsp; to select <strong class="small_left_margin" aria-label="Escape">esc</strong>&nbsp; to dismiss{{/t}}
+      </span>
+    </ts-jumper-help>
+    <input type="text" aria-label="{{#t}}Jump to a conversation. Up arrow and down arrow navigates results, return selects, escape closes.{{/t}}" spellcheck="false" data-qa="jumper_input">
+    <ts-jumper-results>{{!-- results injected here: see jumper_results.hbs --}}</ts-jumper-results>
+  </ts-jumper-container>
+</ts-jumper>

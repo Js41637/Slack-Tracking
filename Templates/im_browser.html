@@ -1,0 +1,38 @@
+{{i18n_ns "ims"}}
+
+<div id="im_browser" class="channel_modal_with_list channel_modal {{#unless preselected}}showing_recent{{/unless}} {{#if reached_maximum}}reached_maximum{{/if}} {{#if preselected}}showing_alert{{/if}}">
+  {{#if preselected}}
+    <div id="im_browser_alert" class="alert alert_info">
+      <i class="ts_icon ts_icon_info"></i>
+      {{#t}}This will start a new conversation.{{/t}} {{#canUserCreateGroups}}{{#t}}If you need to add a lot more people, you can <a class="create_private_channel">create a private channel</a> instead.{{/t}}{{/canUserCreateGroups}}
+    </div>
+  {{/if}}
+
+  <div class="large_bottom_margin">
+    <h1 class="channel_modal_header no_bottom_margin">{{#t}}Direct Messages{{/t}}</h1>
+  </div>
+  <div class="im_browser_filter_container full_width">
+    <div class="float_right left_margin">
+      <button class="btn btn_primary btn_large {{#unless preselected}}disabled{{/unless}} im_browser_go ladda-button" data-style="zoom-in">
+        <span class="ladda-label">{{#t}}Go{{/t}}</span>
+      </button>
+      <div class="subtle_silver mini align_right tiny_right_margin return_hint">{{#t}}Return{{/t}} <i class="ts_icon ts_icon_enter ts_icon_inherit"></i></div>
+    </div>
+    {{> im_browser_tokens members=preselected}}
+    <div class="remaining_participant_hint greigh">{{#if reached_maximum}}{{#t}}You have reached the maximum number of participants{{/t}}{{/if}}</div>
+    {{> channel_kb_nav_label multiple_select=true}}
+  </div>
+  <div id="im_browser_empty" class="hidden align_center margin_auto display_flex align_items_center justify_content_center">
+    <span class="im_browser_empty_message"></span>
+  </div>
+  {{#canUserCreateGroups}}
+    <div class="create_private_channel_container align_center large_top_margin">
+      <div class="greigh">{{#t}}Need to add more people?{{/t}}</div>
+      <button class="btn btn_outline small_top_margin create_private_channel">{{#t}}Create a private channel instead{{/t}}</button>
+    </div>
+  {{/canUserCreateGroups}}
+  <div class="recent_label greigh mini small_bottom_margin">{{#t}}Recent conversations{{/t}}</div>
+  <div id="im_list_container" class="channel_modal_list"></div>
+</div>
+
+<div id="new_channel_container" class="hidden"></div>

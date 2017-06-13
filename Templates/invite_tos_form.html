@@ -1,0 +1,38 @@
+{{i18n_ns 'invite'}}
+
+<div class="fs_split_header"></div>
+
+<div id="invite_form_body" class="{{#if should_show_single_page}}fs_grey{{else}}fs_split_body{{/if}}">
+
+  {{#if should_show_single_page}}<div id="tos_graphics"></div>{{/if}}
+
+  <h1 class="tos_title_form">{{#t}}Please review the User Terms of Service{{/t}}</h1>
+
+  <div class="tos_contents">
+    {{terms_of_service}}
+
+    <p class="align_center">
+      <img {srcset src="/img/signup/tos_raised_hands.png" sizes="1x, 2x"} alt="{{#t}}User Terms of Service{{/t}}" />
+    </p>
+  </div>
+</div>
+
+
+<div class="tos_i_agree_banner invite_flow {{#or should_show_single_page collect_user_role}}full_width{{/or}}">
+  <div class="tos_full_width col span_4_of_6 margin_auto float_none">
+    <div class="col span_2_of_3">
+      <p class="tos_disclaimer">
+        {{#t}}By choosing <strong>I Agree</strong>, you understand and agree to 
+        these User Terms of Service and our <a href="/privacy-policy" target="_blank">Privacy Policy</a>.{{/t}}
+      </p>
+    </div>
+
+    <div class="col span_1_of_3 justify_content_center">
+      <button id="submit_btn" type="submit" class="btn btn_large ladda-button submit_setting" data-style="expand-right" data-qa="submit_button">
+        <span class="ladda-label">{{#t}}I Agree{{/t}}</span>
+      </button>
+    </div>
+
+    <div class="clear_both"></div>
+  </div>
+</div>

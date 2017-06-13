@@ -1,0 +1,86 @@
+{{i18n_ns "dialogs_prefs_accessibility"}}
+
+<h2>{{#t note="heading for accessibility preferences"}}Accessibility{{/t}}</h2>
+
+{{#if zoom_pref_enabled}}
+  <div class="a11y_pref_zoom">
+    <fieldset class="large_bottom_margin">
+      <legend id="prefs_a11y_font_size">{{#t}}Zoom{{/t}}</legend>
+
+      {{#if zoom_pref_70_supported}}
+        <label class="radio normal">
+          <input name="a11y_font_size_select" type="radio" value="70">
+          {{#t note="setting for text size"}}<strong>70%</strong>{{/t}}
+        </label>
+      {{/if}}
+
+      <label class="radio normal">
+        <input name="a11y_font_size_select" type="radio" value="80">
+        {{#t note="setting for text size"}}<strong>80%</strong>{{/t}}
+      </label>
+
+      <label class="radio normal">
+        <input name="a11y_font_size_select" type="radio" value="90">
+        {{#t note="setting for text size"}}<strong>90%</strong>{{/t}}
+      </label>      
+
+      <label class="radio normal">
+        <input name="a11y_font_size_select" type="radio" value="normal">
+        {{#t note="setting for text size"}}<strong>100%</strong> Default{{/t}}
+      </label>
+
+      <label class="radio normal">
+        <input name="a11y_font_size_select" type="radio" value="110">
+        {{#t note="setting for text size"}}<strong>110%</strong>{{/t}}
+      </label>
+
+      <label class="radio normal">
+        <input name="a11y_font_size_select" type="radio" value="125">
+        {{#t note="setting for text size"}}<strong>125%</strong>{{/t}}
+      </label>
+
+      <label class="radio normal">
+        <input name="a11y_font_size_select" type="radio" value="150">
+        {{#t note="setting for text size"}}<strong>150%</strong>{{/t}}
+      </label>
+
+      <p class="greigh top_margin">
+        {{#isMac}}
+          {{#t}}You can also change the zoom level by pressing Cmd +/-{{/t}}
+        {{else}}
+          {{#t}}You can also change the zoom level by pressing Ctrl +/-{{/t}}
+        {{/isMac}}
+      </p>
+    </fieldset>
+
+    <div class="preview_zoom">
+      <ts-message class="first">
+        <div class="message_gutter">
+          <div class="message_icon">
+            <div class="member_image thumb_36" style="background-image: url(/img/slackbot_72.png)" aria-hidden="true"></div>
+          </div>
+        </div>
+        <div class="message_content">
+          <div class="message_content_header">
+            <div class="message_content_header_left">
+              {{!-- hbslint-disable unwrapped --}}
+              {{!-- Don't need to translate slackbot --}}
+              <span class="message_sender color_USLACKBOT color_757575 member">slackbot</span>
+              {{!-- hbslint-enable unwrapped --}}
+              <span class="timestamp"><i class="copy_only">[</i>2:39 PM<i class="copy_only">]</i></span>
+            </div>
+          </div>
+          <span class="message_body">{{#t}}This is a preview of what a message will look like. Is this a comfortable experience?{{/t}}</span>
+        </div>
+      </ts-message>
+    </div>
+  </div>
+{{/if}}
+
+<fieldset>
+  <legend><span id="prefs_a11y_animations">{{#t}}Animation{{/t}}</span></legend>
+  <label class="checkbox">
+    <input id="a11y_animations" type="checkbox" data-inline-saver="#prefs_a11y_animations">
+    {{#t}}Allow animated images and emoji{{/t}}
+  </label>
+</fieldset>

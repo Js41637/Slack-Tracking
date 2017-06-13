@@ -1,0 +1,9 @@
+{{i18n_ns "team_profile"}}
+
+<div class="clearfix bottom_margin large_top_margin display_flex justify_content_center flex_wrap">
+  <button id="edit_team_profile_cancel_delete_btn" class="col btn btn_large btn_outline" data-action="edit_team_profile_cancel">{{#t}}Cancel{{/t}}</button>
+  <button id="edit_team_profile_confirm_delete_btn" type="submit" class="col btn btn_large btn_danger ladda-button" data-style="expand-right" data-action="edit_team_profile_confirm_delete" data-id="{{id}}">{{#t}}Delete field{{/t}}</button>
+</div>
+{{#unless is_hidden}}
+  <p class="align_center small">{{#t}}You can also just <a id="edit_team_profile_to_hide_link" data-action="edit_team_profile_to_hide" data-id="{id}">hide this field.</a>{{/t}}</p>
+{{/unless}}

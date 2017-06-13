@@ -1,0 +1,30 @@
+{{i18n_ns "comments"}}
+
+{{!-- hbslint-disable syntax --}}
+{{!-- Todo: enable syntax linter and refactor with safeString --}}
+
+<div class="comment" data-timestamp="{{comment.timestamp}}" data-comment-id="{{comment.id}}">
+  <a name="{{comment.id}}"></a>
+  <span class="no_print">{{{makeMemberPreviewLinkImage comment.user 36}}}</span>
+  <p class="comment_meta">
+    <span class="no_print">{{{makeMemberPreviewLinkById comment.user}}}</span>
+    {{#or member.profile.status_emoji member.profile.status_text}}
+      {{> current_status for_message=true}}
+    {{/or}}
+    <span class="print_only_inline"><strong>{{getPrefCompliantMemberNameById comment.user}}</strong> \u2022 </span>
+    <span class="comment_date_star_cog">
+      {{#t
+        note="{date} is either a calendar date e.g. 'Dec 6th' or 'Today'/'Yesterday' depending on when the comment was made"
+        date=(toCalendarDateOrNamedDayShort comment.timestamp)
+        time=(toTime comment.timestamp)}}
+      {date} at {time}
+      {{/t}}
+      {{#unless hide_star}}{{#if file}}<span class="no_print">{{starWithTip 'file_comment' comment file}}</span>{{/if}}{{/unless}}
+      {{#if show_comment_actions}}
+      <a class="comment_actions" {{#if file}}data-file-id="{{file.id}}"{{/if}} data-comment-id="{{comment.id}}"><i class="comment_cog ts_icon ts_icon_cog ts_icon_inherit"></i></a>
+      {{/if}}
+    </span>
+  </p>
+  <div class="comment_body">{{{formatMessage comment.comment}}}</div>
+  {{rxnPanel comment._rxn_key}}
+</div>

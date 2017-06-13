@@ -1,0 +1,29 @@
+{{i18n_ns 'user_groups'}}
+
+<div class="heading" tabindex="-1">
+  <div class="heading_row">
+    <h2 class="heading_text overflow_ellipsis">{{#t}}User Groups{{/t}}</h2>
+    <button class="btn_basic close_flexpane" aria-label="{{#t note="Label for closing flexpane"}}Close Right Sidebar{{/t}}" title="{{#t note="Label for closing flexpane"}}Close Right Sidebar{{/t}}"><i class="ts_icon ts_icon_times"></i></button>
+  </div>
+</div>
+
+<div class="user_groups_tabs_container clearfix no_bottom_border">
+  <div class="flexpane_tab_toolbar">
+    {{#if can_user_create_and_delete_user_groups}}
+      <div id="user_group_edit" class="tab_action bottom_border user_group_edit--flexpane">
+        <a class="tab_action_button lato" data-action="admin_user_groups_modal_new"><i class="ts_icon ts_icon_plus_circle"></i> {{#t}}Create a new group{{/t}}</a><a class="tab_action_button lato" data-action="admin_user_groups_modal"><i class="ts_icon ts_icon_cog_o"></i> {{#t}}Edit user groups{{/t}}</a>
+      </div>
+    {{/if}}
+    <div id="search" class="tab_action bottom_border">
+      <div id="user_group_filter" class="position_relative small_margin" data-list-items-id="#user_group_list_scroller">
+        <i class="icon_search ts_icon ts_icon_search"></i>
+        <a class="ts_icon ts_icon_times_circle icon_close hidden"></a>
+        <input type="text" class="member_filter no_margin small" name="_filter" placeholder="{{#t}}Search user groups{{/t}}">
+      </div>
+    </div>
+  </div>
+</div>
+<div id="user_group_list_scroller" class="flex_content_scroller" >
+  <div id="user_groups_list">
+  </div>
+</div>

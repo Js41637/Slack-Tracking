@@ -1,0 +1,71 @@
+{{i18n_ns "all_unreads"}}
+<div class="align_self_center pre_name_icon">
+  {{#if is_channel}}
+    <ts-icon class="ts_icon_channel_pane_hash"></ts-icon>
+  {{else if is_mpim}}
+    <ts-icon class="mpim_icon ts_icon_multiparty_dm_{{mpimMemberCount model_ob}}"></ts-icon>
+  {{else if is_group}}
+    <ts-icon class="ts_icon_lock"></ts-icon>
+  {{else if is_im}}
+    {{makeMemberPresenceIcon im_user}}
+  {{/if}}
+</div>
+<div class="unread_group_header_name flex_shrink_none">
+  {{#if is_im}}
+    <a href="/messages/@{{im_member.name}}" target="/messages/@{{im_member.name}}" class="internal_im_link" data-member-id="{{im_member.id}}">{{getDisplayNameOfUserForIm model_ob}}</a>
+  {{else}}
+    {{makeChannelOrGroupLinkById model_ob.id true}}
+  {{/if}}
+</div>
+<div class="unread_group_collapse_toggle cursor_pointer">
+  <div class="unread_group_collapse_caret">
+    <ts-icon class="ts_icon_caret_down"></ts-icon>
+    <ts-icon class="ts_icon_caret_right"></ts-icon>
+  </div>
+  <div class="unread_group_nav_help">
+    {{#unless marked_as_read}}
+      {{#unless collapsed}}
+      {{/unless}}
+    {{/unless}}
+  </div>
+</div>
+
+{{#if marked_as_read}}
+  {{#if unread_cnt}}
+    <span class="unread_group_message_count">{{#t}}{unread_cnt, plural, =1 {# new message} other {# new messages}}{{/t}}</span>
+    <button class="btn btn_small btn_outline unread_group_mark {{#if active}}hover{{/if}}" type="button">{{#t}}Mark as Read{{/t}}</button>
+  {{else}}
+    {{#if new_unread_cnt}}
+      <a class="unread_group_new">
+        {{#t}}{new_unread_cnt, plural, =1 {# new message} other {# new messages}}{{/t}} <i class="ts_icon ts_icon_circle_fill small_left_margin"></i>
+      </a>
+    {{else}}
+      <span class="unread_group_marked_as_read_count large_right_margin">
+        {{#t}}{marked_as_read_cnt, plural, =1 {# message} other {# messages}} marked read{{/t}}
+      </span>
+      <span class="unread_group_undo">
+        {{#if active}}
+          <span class="unread_group_undo_help">{{#t note="This is help text for keyboard shortcuts. R refers to the 'r' key on the keyboard."}}Press <span class="unread_keyboard">r</span> to </span> <a>Undo{{/t}}</a>
+        {{else}}
+          <a>{{#t}}Undo{{/t}}</a>
+        {{/if}}
+      </span>
+
+    {{/if}}
+  {{/if}}
+{{else}}
+  {{#if collapsed}}
+    <a class="unread_group_new">
+      {{#t}}{unread_cnt, plural, =1 {# message} other {# messages}}{{/t}} <i class="ts_icon ts_icon_circle_fill small_left_margin"></i>
+    </a>
+  {{else}}
+    <span class="unread_group_message_count">{{#t}}{unread_cnt, plural, =1 {# message} other {# messages}}{{/t}}</span>
+    {{#if active}}
+      <span class="unread_group_keyboard_help">{{#t note="This is help text for keyboard shortcuts. R refers to the 'r' key on the keyboard."}}Press <span class="unread_keyboard">r</span> to</span>
+      <button class="btn btn_small btn_outline unread_group_mark" type="button">Mark as Read</button>{{/t}}
+    {{else}}
+      <button class="btn btn_small btn_outline unread_group_mark" type="button">{{#t}}Mark as Read{{/t}}</button>
+    {{/if}}
+  {{/if}}
+{{/if}}
+<div class="unread_group_header_arrow"><ts-icon class="ts_icon_chevron_medium_left"></ts-icon></div>

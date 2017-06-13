@@ -1,0 +1,8 @@
+<div class="clearfix">
+  {{#if contact.photo}}<span class="member_preview_link member_image thumb_36" data-thumb-size="36" style="background-image: url('{{contact.photo}}')" aria-hidden="true"></span>{{/if}}
+  <div class="overflow_ellipsis">
+    {{!-- This comes from Google contact search, so the `full_name` here is ok. --}}
+    <div class="bold">{{contact.full_name}}</div>
+    <div>{{contact.email}}</div>
+  </div>
+</div>

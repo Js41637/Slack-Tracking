@@ -1,0 +1,24 @@
+{{i18n_ns 'invites'}}
+<div class="shared_invite_modal_link_input_container">
+  <input type="text" id="shared_invite_link_url" class="shared_invite_link_input small" value="{{shared_invite_url}}" data-invite-url="{{shared_invite_url}}" readonly onclick="this.select();">
+  <a id="shared_invite_modal_link_copy_btn" class="shared_invite_link_copy_btn btn ts_tip ts_tip_top hide_copy_btn_ts_tip" role="btn" data-action="copy_shared_link" data-clog-click="true" data-clog-event="INVITE_SHARED_CLICK" data-clog-params="action=copy_shared_invite_link,trigger=click_copy_btn">
+    <span class="ts_tip_btn">{{#t}}Copy{{/t}}</span>
+    <span class="ts_tip_tip">{{#t}}Invite link copied!{{/t}}</span>
+  </a>
+</div>
+
+<div class="shared_invite_modal_expiration small_top_margin small">
+  {{#if time_until_expiration_string}}
+  <a class="link_btn bold no_underline ts_tip ts_tip_top ts_tip_left" role="button" disabled="disabled">
+    <span class="ts_tip_btn">
+      {{#t expiration_string=time_until_expiration_string}}Expires {expiration_string}.{{/t}}
+    </span>
+    <span class="ts_tip_tip ts_tip_multiline">{{#t expiration_date=expiration_date expiration_time=expiration_time}}This link will expire on<br>{expiration_date} at {expiration_time}{{/t}}</span>
+  </a>
+  {{else}}
+    <span class="bold">{{#t}}This link doesn't expire.{{/t}}</span>
+  {{/if}}
+  {{#if is_admin}}
+    {{#t}}Need to change this? Deactivate your link and choose a new duration. <a class="candy_red underline link_btn" role="button" data-action="disable_shared_link"><nobr>Deactivate link</nobr></a>{{/t}}
+  {{/if}}
+</div>

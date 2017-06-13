@@ -1,0 +1,336 @@
+{{i18n_ns "prefs"}}
+
+<div id="global_prefs_container">
+  <div class="notification_prefs_section">
+
+    <div class="growls_stuff" id="growls_permission_div">
+      {{> prefs_about_notifications}}
+      {{#t}}<h4 class="desktop_notifications_title">Desktop Notifications are currently disabled</h4>
+      <p>We strongly recommend enabling notifications so that you'll know when important activity happens on your Slack team.</p>{{/t}}
+      <p><a class="btn btn_success" id="growls_permission_link"><ts-icon class="ts_icon_bell ts_icon_inherit small_right_margin"></ts-icon>{{#t}}Enable desktop notifications{{/t}}</a></p>
+    </div>
+    <div class="growls_stuff" id="growls_instructions_div">
+      {{> prefs_about_notifications}}
+      <h4 class="desktop_notifications_title">{{#t}}Desktop Notifications{{/t}}</h4>
+      <p class="alert alert_info"><i class="ts_icon ts_icon_info_circle"></i>{{#t}}Click <strong>Allow</strong> in your browser's pop-up to enable notifications.{{/t}}</p>
+    </div>
+    <div class="growls_stuff" id="growls_disallowed_div">
+      {{> prefs_about_notifications}}
+      <h4 class="desktop_notifications_title">{{#t}}Desktop Notifications are currently disabled{{/t}}</h4>
+      <p class="alert alert_warning"><i class="ts_icon ts_icon_warning"></i>{{#t}}You've disallowed notifications in your browser. You'll need to open your browser preferences to change that.{{/t}}</p>
+    </div>
+    <div class="growls_stuff" id="growls_impossible_div">
+      {{> prefs_about_notifications}}
+      <h4 class="desktop_notifications_title">{{#t}}Desktop Notifications are currently disabled{{/t}}</h4>
+      <p class="alert alert_warning"><i class="ts_icon ts_icon_warning"></i>{{#t}}Your browser does not support desktop notifications. <a href="/downloads" target="_blank">Try to use our app instead.</a>{{/t}}</p>
+    </div>
+
+    <div id="growls_allowed_div" class="growls_stuff">
+      {{> prefs_about_notifications}}
+      <h4 id="prefs_send_notifications_for" class="inline_block">{{#t}}Notify me about&hellip;{{/t}}</h4>
+      <div class="global_notification_block">
+        <div class="display_flex flex_one">
+          <div class="small_right_margin">
+            <input type="radio" name="notifications_rd" value="all" id="global_everything"  data-inline-saver="#prefs_send_notifications_for">
+          </div>
+          <div class="very_small_top_margin">
+            <label for="global_everything"><strong>{{#t}}All new messages{{/t}}</strong></label>
+            <span>{{#t}}You&rsquo;ll be notified for every new message.{{/t}}</span>
+          </div>
+        </div>
+        <div aria-hidden="true" class="display_flex align_items_start left_margin small_top_margin">{{prefsNotificationExampleAll}}</div>
+      </div>
+      <div class="global_notification_block small_top_margin">
+        <div class="display_flex flex_one">
+          <div class="small_right_margin">
+            <input type="radio" name="notifications_rd" value="mentions" id="global_mentions"  data-inline-saver="#prefs_send_notifications_for">
+          </div>
+          <div class="very_small_top_margin">
+            <label for="global_mentions"><strong>{{#t}}Direct messages, mentions &amp; keywords{{/t}}</strong></label>
+            <span>{{#t}}You&rsquo;ll be notified when a teammate mentions you, sends you a direct message, or uses <button class="btn_link" data-action="your_keywords_jump">one of your keywords</button>.{{/t}}</span>
+          </div>
+        </div>
+        <div aria-hidden="true" class="display_flex align_items_start left_margin small_top_margin">{{prefsNotificationExampleMentions}}</div>
+      </div>
+      <div class="global_notification_block small_top_margin small_bottom_margin">
+        <div class="display_flex">
+          <div class="small_right_margin">
+            <input type="radio" name="notifications_rd" value="never" id="global_nothing"  data-inline-saver="#prefs_send_notifications_for">
+          </div>
+          <div class="very_small_top_margin">
+            <label for="global_nothing"><strong>{{#t}}Nothing{{/t}}</strong></label>
+            <span>{{#t}}You won&rsquo;t receive notifications from Slack. Note: you will still see badges (<span class="badge_example">1</span>) within Slack.{{/t}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="no_notifications_warning"><ts-icon class="ts_icon_info_circle ts_icon_inherit small blue_fill"></ts-icon> {{#t}}With this setting, some of the following options are disabled.{{/t}}</div>
+    <label class="checkbox">
+      <input id="threads_everything_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_send_notifications_for">
+      {{#t}}Notify me about replies to threads I&rsquo;m following{{/t}}
+    </label>
+    <label class="checkbox">
+      <input id="mobile_different_settings_cb" checked="checked" type="checkbox">
+      {{#t}}Use different settings for my mobile devices{{/t}}
+    </label>
+    <label id="mobile_specific_settings" class="select small inline_block">
+      <select class="small auto_width block">
+        <option value="everything">{{#t}}All new messages{{/t}}
+        <option value="mentions">{{#t}}Direct messages, mentions &amp; keywords{{/t}}</option>
+        <option value="nothing">{{#t}}Nothing{{/t}}</option>
+      </select>
+    </label>
+
+    <p id="channel_overrides_callout" class="hidden small_top_margin"></p>
+  </div>
+
+  <h4 id="prefs_highlight_words" class="inline_block">{{#t}}My keywords{{/t}}</h4>
+  <div class="notification_prefs_section">
+    <label class="normal block" for="highlight_words">
+      {{#t}}Show a badge (<span class="badge_example">1</span>) in my channel list when a teammate uses one of my keywords:{{/t}}
+      <input id="highlight_words_input" name="highlight_words" type="text" data-inline-saver="#prefs_highlight_words" data-validation="maxcsv=100" class="small full_width small_top_margin" {{#feature flag="feature_name_tagging_client"}}{{else}}placeholder="{{#t note="example highlight words"}}e.g. sales, leads, lunch{{/t}}"{{/feature}} value="{{highlight_words}}">
+    </label>
+    <div class="mini">{{#t}}Use commas to separate each keyword. Keywords are not case sensitive.{{/t}}</div>
+  </div>
+
+  <h4>{{#t}}Do not disturb{{/t}}</h4>
+  <div id="prefs_dnd" class="notification_prefs_section {{#unless has_tz}}tz_not_set{{/unless}}">
+    <p>{{#t}}When <strong>Do Not Disturb</strong> is turned on, Slack won&rsquo;t send you any notifications. Your teammates can override this if necessary.{{/t}}</p>
+
+    {{#unless has_tz}}
+      <p class="alert alert_warning missing_tz_alert">
+        <i class="ts_icon ts_icon_warning"></i>{{#t}}It looks like we&rsquo;ve never confirmed your time zone before. We need to do that before turning on Do Not Disturb.{{/t}}
+        {{#if tz_guess}}
+          {{#t}}Is this correct?{{/t}}
+          <br><strong>{{tz_guess}}</strong>
+          <br>
+          <button id="confirm_dnd_tz_guess" class="btn btn_small small_right_margin">{{#t}}Yes{{/t}}</button>
+          <a href='/account/settings#timezone' target={{newWindowName}}>{{#t}}Choose a different time zone{{/t}}</a>
+        {{else}}
+          <a href='/account/settings#timezone' target={{newWindowName}}>{{#t}}Set your time zone{{/t}}</a>
+        {{/if}}
+      </p>
+    {{/unless}}
+
+    <label class="checkbox hide_if_no_tz">
+      <input type="checkbox" name="dnd_enabled" value="1" id="dnd_enabled" data-inline-saver="#prefs_dnd_checkbox_label">
+      <span id="prefs_dnd_checkbox_label">{{#t}}Automatically disable notifications from:{{/t}}</span>
+    </label>
+
+    <label class="select small inline_block no_bottom_margin hide_if_no_tz">
+      <select name="dnd_start_hour" id="dnd_start_hour" class="small auto_width" data-inline-saver="#prefs_dnd_checkbox_label">
+        <option value="00:00">{{#if time24}}00:00{{else}}12:00 AM{{/if}}</option>
+        <option value="00:30">{{#if time24}}00:30{{else}}12:30 AM{{/if}}</option>
+        <option value="01:00">{{#if time24}}01:00{{else}}1:00 AM{{/if}}</option>
+        <option value="01:30">{{#if time24}}01:30{{else}}1:30 AM{{/if}}</option>
+        <option value="02:00">{{#if time24}}02:00{{else}}2:00 AM{{/if}}</option>
+        <option value="02:30">{{#if time24}}02:30{{else}}2:30 AM{{/if}}</option>
+        <option value="03:00">{{#if time24}}03:00{{else}}3:00 AM{{/if}}</option>
+        <option value="03:30">{{#if time24}}03:30{{else}}3:30 AM{{/if}}</option>
+        <option value="04:00">{{#if time24}}04:00{{else}}4:00 AM{{/if}}</option>
+        <option value="04:30">{{#if time24}}04:30{{else}}4:30 AM{{/if}}</option>
+        <option value="05:00">{{#if time24}}05:00{{else}}5:00 AM{{/if}}</option>
+        <option value="05:30">{{#if time24}}05:30{{else}}5:30 AM{{/if}}</option>
+        <option value="06:00">{{#if time24}}06:00{{else}}6:00 AM{{/if}}</option>
+        <option value="06:30">{{#if time24}}06:30{{else}}6:30 AM{{/if}}</option>
+        <option value="07:00">{{#if time24}}07:00{{else}}7:00 AM{{/if}}</option>
+        <option value="07:30">{{#if time24}}07:30{{else}}7:30 AM{{/if}}</option>
+        <option value="08:00">{{#if time24}}08:00{{else}}8:00 AM{{/if}}</option>
+        <option value="08:30">{{#if time24}}08:30{{else}}8:30 AM{{/if}}</option>
+        <option value="09:00">{{#if time24}}09:00{{else}}9:00 AM{{/if}}</option>
+        <option value="09:30">{{#if time24}}09:30{{else}}9:30 AM{{/if}}</option>
+        <option value="10:00">{{#if time24}}10:00{{else}}10:00 AM{{/if}}</option>
+        <option value="10:30">{{#if time24}}10:30{{else}}10:30 AM{{/if}}</option>
+        <option value="11:00">{{#if time24}}11:00{{else}}11:00 AM{{/if}}</option>
+        <option value="11:30">{{#if time24}}11:30{{else}}11:30 AM{{/if}}</option>
+        <option value="12:00">{{#if time24}}12:00{{else}}12:00 PM{{/if}}</option>
+        <option value="12:30">{{#if time24}}12:30{{else}}12:30 PM{{/if}}</option>
+        <option value="13:00">{{#if time24}}13:00{{else}}1:00 PM{{/if}}</option>
+        <option value="13:30">{{#if time24}}13:30{{else}}1:30 PM{{/if}}</option>
+        <option value="14:00">{{#if time24}}14:00{{else}}2:00 PM{{/if}}</option>
+        <option value="14:30">{{#if time24}}14:30{{else}}2:30 PM{{/if}}</option>
+        <option value="15:00">{{#if time24}}15:00{{else}}3:00 PM{{/if}}</option>
+        <option value="15:30">{{#if time24}}15:30{{else}}3:30 PM{{/if}}</option>
+        <option value="16:00">{{#if time24}}16:00{{else}}4:00 PM{{/if}}</option>
+        <option value="16:30">{{#if time24}}16:30{{else}}4:30 PM{{/if}}</option>
+        <option value="17:00">{{#if time24}}17:00{{else}}5:00 PM{{/if}}</option>
+        <option value="17:30">{{#if time24}}17:30{{else}}5:30 PM{{/if}}</option>
+        <option value="18:00">{{#if time24}}18:00{{else}}6:00 PM{{/if}}</option>
+        <option value="18:30">{{#if time24}}18:30{{else}}6:30 PM{{/if}}</option>
+        <option value="19:00">{{#if time24}}19:00{{else}}7:00 PM{{/if}}</option>
+        <option value="19:30">{{#if time24}}19:30{{else}}7:30 PM{{/if}}</option>
+        <option value="20:00">{{#if time24}}20:00{{else}}8:00 PM{{/if}}</option>
+        <option value="20:30">{{#if time24}}20:30{{else}}8:30 PM{{/if}}</option>
+        <option value="21:00">{{#if time24}}21:00{{else}}9:00 PM{{/if}}</option>
+        <option value="21:30">{{#if time24}}21:30{{else}}9:30 PM{{/if}}</option>
+        <option value="22:00">{{#if time24}}22:00{{else}}10:00 PM{{/if}}</option>
+        <option value="22:30">{{#if time24}}22:30{{else}}10:30 PM{{/if}}</option>
+        <option value="23:00">{{#if time24}}23:00{{else}}11:00 PM{{/if}}</option>
+        <option value="23:30">{{#if time24}}23:30{{else}}11:30 PM{{/if}}</option>
+      </select>
+    </label>
+    <span class="small_left_margin small_right_margin hide_if_no_tz">{{#t note="This is between two timetamps, i.e. 10:00pm to 11:00pm"}}to{{/t}}</span>
+    <label class="select small inline_block no_bottom_margin hide_if_no_tz">
+      <select name="dnd_end_hour" id="dnd_end_hour" class="small auto_width" data-inline-saver="#prefs_dnd_checkbox_label">
+        <option value="00:00">{{#if time24}}00:00{{else}}12:00 AM{{/if}}</option>
+        <option value="00:30">{{#if time24}}00:30{{else}}12:30 AM{{/if}}</option>
+        <option value="01:00">{{#if time24}}01:00{{else}}1:00 AM{{/if}}</option>
+        <option value="01:30">{{#if time24}}01:30{{else}}1:30 AM{{/if}}</option>
+        <option value="02:00">{{#if time24}}02:00{{else}}2:00 AM{{/if}}</option>
+        <option value="02:30">{{#if time24}}02:30{{else}}2:30 AM{{/if}}</option>
+        <option value="03:00">{{#if time24}}03:00{{else}}3:00 AM{{/if}}</option>
+        <option value="03:30">{{#if time24}}03:30{{else}}3:30 AM{{/if}}</option>
+        <option value="04:00">{{#if time24}}04:00{{else}}4:00 AM{{/if}}</option>
+        <option value="04:30">{{#if time24}}04:30{{else}}4:30 AM{{/if}}</option>
+        <option value="05:00">{{#if time24}}05:00{{else}}5:00 AM{{/if}}</option>
+        <option value="05:30">{{#if time24}}05:30{{else}}5:30 AM{{/if}}</option>
+        <option value="06:00">{{#if time24}}06:00{{else}}6:00 AM{{/if}}</option>
+        <option value="06:30">{{#if time24}}06:30{{else}}6:30 AM{{/if}}</option>
+        <option value="07:00">{{#if time24}}07:00{{else}}7:00 AM{{/if}}</option>
+        <option value="07:30">{{#if time24}}07:30{{else}}7:30 AM{{/if}}</option>
+        <option value="08:00">{{#if time24}}08:00{{else}}8:00 AM{{/if}}</option>
+        <option value="08:30">{{#if time24}}08:30{{else}}8:30 AM{{/if}}</option>
+        <option value="09:00">{{#if time24}}09:00{{else}}9:00 AM{{/if}}</option>
+        <option value="09:30">{{#if time24}}09:30{{else}}9:30 AM{{/if}}</option>
+        <option value="10:00">{{#if time24}}10:00{{else}}10:00 AM{{/if}}</option>
+        <option value="10:30">{{#if time24}}10:30{{else}}10:30 AM{{/if}}</option>
+        <option value="11:00">{{#if time24}}11:00{{else}}11:00 AM{{/if}}</option>
+        <option value="11:30">{{#if time24}}11:30{{else}}11:30 AM{{/if}}</option>
+        <option value="12:00">{{#if time24}}12:00{{else}}12:00 PM{{/if}}</option>
+        <option value="12:30">{{#if time24}}12:30{{else}}12:30 PM{{/if}}</option>
+        <option value="13:00">{{#if time24}}13:00{{else}}1:00 PM{{/if}}</option>
+        <option value="13:30">{{#if time24}}13:30{{else}}1:30 PM{{/if}}</option>
+        <option value="14:00">{{#if time24}}14:00{{else}}2:00 PM{{/if}}</option>
+        <option value="14:30">{{#if time24}}14:30{{else}}2:30 PM{{/if}}</option>
+        <option value="15:00">{{#if time24}}15:00{{else}}3:00 PM{{/if}}</option>
+        <option value="15:30">{{#if time24}}15:30{{else}}3:30 PM{{/if}}</option>
+        <option value="16:00">{{#if time24}}16:00{{else}}4:00 PM{{/if}}</option>
+        <option value="16:30">{{#if time24}}16:30{{else}}4:30 PM{{/if}}</option>
+        <option value="17:00">{{#if time24}}17:00{{else}}5:00 PM{{/if}}</option>
+        <option value="17:30">{{#if time24}}17:30{{else}}5:30 PM{{/if}}</option>
+        <option value="18:00">{{#if time24}}18:00{{else}}6:00 PM{{/if}}</option>
+        <option value="18:30">{{#if time24}}18:30{{else}}6:30 PM{{/if}}</option>
+        <option value="19:00">{{#if time24}}19:00{{else}}7:00 PM{{/if}}</option>
+        <option value="19:30">{{#if time24}}19:30{{else}}7:30 PM{{/if}}</option>
+        <option value="20:00">{{#if time24}}20:00{{else}}8:00 PM{{/if}}</option>
+        <option value="20:30">{{#if time24}}20:30{{else}}8:30 PM{{/if}}</option>
+        <option value="21:00">{{#if time24}}21:00{{else}}9:00 PM{{/if}}</option>
+        <option value="21:30">{{#if time24}}21:30{{else}}9:30 PM{{/if}}</option>
+        <option value="22:00">{{#if time24}}22:00{{else}}10:00 PM{{/if}}</option>
+        <option value="22:30">{{#if time24}}22:30{{else}}10:30 PM{{/if}}</option>
+        <option value="23:00">{{#if time24}}23:00{{else}}11:00 PM{{/if}}</option>
+        <option value="23:30">{{#if time24}}23:30{{else}}11:30 PM{{/if}}</option>
+      </select>
+    </label>
+    <span class="small_left_margin small_right_margin hide_if_no_tz"><span class="dnd_tz_label">{{member.tz_label}}</span> {{#t new_win_name=(newWindowName)}}(<a data-action="show_time_zone" href='/account/settings#timezone' target={new_win_name}>change time zone</a>){{/t}}</span>
+  </div>
+
+  <h4 id="prefs_sounds_and_appearance" class="inline_block">{{#t}}Sound &amp; appearance{{/t}}</h4>
+  <div class="notification_prefs_section">
+    <p>{{#t}}Choose how notifications look, sound, and behave. <button id="growls_test" class="btn_link">Show me an example notification.</button>{{/t}}</p>
+    <div>
+      <label class="checkbox inline">
+        <input id="no_text_in_notifications_cb" type="checkbox" checked="checked" data-inline-saver="#prefs_sounds_and_appearance">
+        {{#t}}Include a preview of the message in each notification{{/t}}
+      </label>
+      <span class="small_left_margin greigh normal align_middle">{{#t}}Disable this for extra privacy{{/t}}</span>
+    </div>
+    <div id="new_msg_snd_settings">
+      <label class="checkbox inline">
+        <input id="new_msg_snd_none_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_sounds_and_appearance">
+        {{#t}}Play a sound when receiving a message notification{{/t}}
+      </label>
+      <span id="select_new_msg_snd" class="small_left_margin greigh normal align_middle"><span id="selected_new_msg_snd">{{new_msg_snd_label}}</span> (<button id="change_notification_sound" class="btn_link">{{#t}}change{{/t}}</button>)</span>
+    </div>
+    <div>
+      <label class="checkbox inline">
+        <input id="mute_sounds_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_sounds_and_appearance">
+        {{#t}}Mute all sounds from Slack{{/t}}
+      </label>
+    </div>
+
+    {{#if show_mac_ssb_prefs}}
+    <div>
+      <label class="checkbox inline">
+        <input id="mac_ssb_bullet_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_sounds_and_appearance">
+        {{#t mac_dock_badge=(versioned_mac_dock_badge)}}Show a badge <img src="{mac_dock_badge}" class="prefs_mac_dock_badge"> on Slack&rsquo;s icon to indicate new activity{{/t}}
+      </label>
+    </div>
+    <div>
+      <label class="checkbox inline">
+        <input id="mac_ssb_bounce_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_sounds_and_appearance">
+        {{#t}}Bounce Slack&rsquo;s icon when receiving a notification{{/t}}
+      </label>
+      <label class="checkbox inline">
+        <input id="mac_ssb_bounce_short_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_sounds_and_appearance">
+        <span class="greigh normal">{{#t}}Only bounce it once{{/t}}</span>
+      </label>
+    </div>
+    {{/if}}
+
+    {{#if show_win_ssb_prefs}}
+    <div id="winssb_flash_window_choices">
+      <label class="checkbox inline">
+        <input id="winssb_flash_window_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_sounds_and_appearance">
+        {{#t}}Flash window when receiving a message notification{{/t}}
+      </label>
+      <label class="checkbox inline">
+        <input id="winssb_flash_window_only_inactive_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_sounds_and_appearance">
+        <span class="greigh normal">{{#t}}Only when inactive{{/t}}</span>
+      </label>
+    </div>
+    <div id="winssb_notify_position" class="top_margin">
+      {{#t}}<label class="select small inline_block">
+        Notification position
+        <select id="winssb_notify_corner" class="small" data-inline-saver="#prefs_sounds_and_appearance">
+          <option value="bottom_right">bottom-right</option>
+          <option value="top_right">top-right</option>
+          <option value="top_left">top-left</option>
+          <option value="bottom_left">bottom-left</option>
+        </select>
+      </label>
+      <label class="select small inline_block">
+        Display
+        <select id="winssb_notify_display" class="small" data-inline-saver="#prefs_sounds_and_appearance">
+          <option value="same_as_app">same display as app</option>
+          <option value="primary">primary display</option>
+        </select>
+      </label>{{/t}}
+    </div>
+    {{/if}}
+  </div>
+
+  <h4 id="prefs_notifs_delay" class="inline_block">{{#t}}When I&rsquo;m not active on desktop&hellip;{{/t}}</h4>
+  <div class="notification_prefs_section">
+    <label class="select small inline_block">
+      {{#t}}Send notifications to my mobile devices:{{/t}}
+      <select id="push_idle_wait_select" class="small auto_width block">
+        <option value="0">{{#t}}as soon as I'm inactive{{/t}}</option>
+        <option value="1">{{#t}}after I've been inactive for 1 minute{{/t}}</option>
+        <option value="2">{{#t}}after I've been inactive for 2 minutes{{/t}}</option>
+        <option value="5">{{#t}}after I've been inactive for 5 minutes{{/t}}</option>
+        <option value="10">{{#t}}after I've been inactive for 10 minutes{{/t}}</option>
+        <option value="15">{{#t}}after I've been inactive for 15 minutes{{/t}}</option>
+        <option value="20">{{#t}}after I've been inactive for 20 minutes{{/t}}</option>
+        <option value="30">{{#t}}after I've been inactive for 30 minutes{{/t}}</option>
+      </select>
+    </label>
+    <div>
+      <label class="checkbox inline">
+        <input id="email_alerts_cb" type="checkbox" checked="checked" data-inline-saver="#prefs_notifs_delay">
+        {{#t}}Send me email notifications{{/t}}
+      </label>
+      <span id="select_email_alerts" class="small_left_margin greigh normal align_middle"><span id="email_alerts_current"></span> (<button id="change_email_alerts" class="btn_link">{{#t}}change{{/t}}</button>)</span>
+    </div>
+  </div>
+
+  <h4 id="prefs_channel_overrides">{{#t}}Channel-Specific Notifications{{/t}}</h4>
+  <div class="notification_prefs_section">
+    <p>{{#t}}Set specific notification rules for a channel or conversation.{{/t}}</p>
+    <button type="button" class="btn btn_outline" data-action="add_channel_override">{{#t}}Add a Channel{{/t}}</button>
+    <div id="channel_specific_overrides" class="top_margin"></div>
+  </div>
+</div>
+
+<div id="channel_prefs_container" class="hidden"></div>

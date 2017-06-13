@@ -1,0 +1,20 @@
+{{i18n_ns 'channel_invite_user_group'}}
+
+<div class="channel_invite_member">
+  <i class="add_icon ts_icon ts_icon_plus_circle ts_icon_inherit float_right not_in_token"></i>
+  <div src="" class="invite_user_group_avatar"><i class="ts_icon ts_icon_mentions"></i></div>
+  <div class="name_container overflow_ellipsis">
+    <div class="bold">
+      {{user_group.name}} <span class="subtle_silver lato">{{#t}}{user_group.user_count, plural, =1 {# member} other {# members}}{{/t}}</span>
+    </div>
+    <div class="subtle_silver not_in_token">
+      {{#if user_group.handle}}
+        @{{user_group.handle}} 
+        {{#if user_group.description}}- {{/if}}
+      {{/if}}
+      {{#if user_group.description}}
+        {{user_group.description}}
+      {{/if}}
+    </div>
+  </div>
+</div>

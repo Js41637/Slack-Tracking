@@ -1,0 +1,13 @@
+  {{#each user_groups}}
+    {{> user_group_list_item user_group=this show_delete=../show_delete show_toggle=../show_toggle is_flexpane=../is_flexpane}}
+  {{/each}}
+
+  {{#unless is_flexpane}}
+    {{#each disabled_user_groups}}
+      {{> user_group_list_item user_group=this show_delete=../show_delete show_toggle=../show_toggle  is_flexpane=../is_flexpane}}
+    {{/each}}
+  {{/unless}}
+
+  {{#if show_user_groups_help}}
+    {{> user_group_tip is_flexpane=../is_flexpane}}
+  {{/if}}

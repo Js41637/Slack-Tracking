@@ -1,0 +1,37 @@
+{{i18n_ns 'invite'}}
+<hr id="admin_invites_header_divider" class="hide_on_mobile" />
+<div class="admin_invites_account_type_option {{#if hide_full_member_option}}disabled{{/if}} {{#if team_in_org}}no_hover{{/if}}" data-action="switch_type" data-account-type="full">
+  <{{#isClient}}h2{{else}}h3{{/isClient}} class="normal small_bottom_margin">{{#t note="type of invitee who can access any public channel"}}Team Members{{/t}}</{{#isClient}}h2{{else}}h3{{/isClient}}>
+  <p>
+    {{#t}}Team Members can access messages and files in any public channel and access the full directory.{{/t}}
+  </p>
+  {{#unless hide_full_member_option}}
+    <i class="option_arrow ts_icon ts_icon_arrow_right ts_icon_inherit"></i>
+  {{else}}
+    {{#unless team_in_org}}
+    <div class="account_type_disabled_hover">
+      <p class="bottom_margin">{{#t}}Team members can sign up at <strong>{team_signup_url}</strong>{{/t}}</p>
+      <a href="/admin/auth/saml" {{#isClient}}target="auth"{{/isClient}} class="btn btn_outline">{{#t}}Change SSO Settings{{/t}}</a>
+    </div>
+    {{/unless}}
+  {{/unless}}
+</div>
+<div class="admin_invites_account_type_option" data-action="switch_type" data-account-type="restricted">
+  <{{#isClient}}h2{{else}}h3{{/isClient}} class="normal small_bottom_margin">{{#t}}Multi-Channel Guests{{/t}}</{{#isClient}}h2{{else}}h3{{/isClient}}>
+  <p>{{#t}}Multi-Channel Guests see a partial directory and can only access messages and files from selected channels.{{/t}}</p>
+  <i class="option_arrow ts_icon ts_icon_arrow_right ts_icon_inherit"></i>
+</div>
+<div class="admin_invites_account_type_option {{#unless can_add_ura}}disabled{{/unless}}" data-action="switch_type" data-account-type="ultra_restricted">
+  <{{#isClient}}h2{{else}}h3{{/isClient}} class="normal small_bottom_margin">{{#t note="guests who will only be able to access one channel"}}Single-Channel Guests{{/t}}</{{#isClient}}h2{{else}}h3{{/isClient}}>
+  <p>{{#t}}Single-Channel Guests can only access messages and files in a single channel. This account type is free.{{/t}} <a href="https://slack.zendesk.com/hc/en-us/articles/202518103-Restricted-account-and-single-channel-guest-FAQ" target="zendesk" class="subtle_silver underline">{{#t}}Learn more{{/t}}</a></p>
+  <div class="account_type_disabled_hover hidden">
+    <p class="bottom_margin">{{#t}}You've reached your team limit for <strong>Single-Channel Guests</strong>.{{/t}}</p>
+    <a href="https://slack.zendesk.com/hc/en-us/articles/202518103-Restricted-account-and-single-channel-guest-FAQ" target="zendesk" class="btn btn_outline">{{#t}}Learn More{{/t}}</a>
+  </div>
+  <i class="option_arrow ts_icon ts_icon_arrow_right ts_icon_inherit"></i>
+</div>
+{{#currentUserIsAdmin}}
+  <p class="align_center large_top_margin">
+    <a href="/admin/invites" target="{{newWindowName}}">{{#t}}See pending and accepted invites for your team{{/t}}</a>
+  </p>
+{{/currentUserIsAdmin}}

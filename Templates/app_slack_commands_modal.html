@@ -1,0 +1,117 @@
+{{i18n_ns "developer_apps"}}
+<form class="app_slack_commands_form margin_auto" action="/api/app.commands.{{api_function}}">
+  <input type="hidden" name="app" value="{{app_id}}">
+  <input type="hidden" name="token" value="{{token}}">
+  {{#if command}}
+    <input type="hidden" name="command" value="{{command}}">
+  {{/if}}
+
+  <div id="app_slack_commands_error_alert" class="alert alert_error hidden"><i class="ts_icon ts_icon_warning"></i> <span id="app_slack_commands_error_message">{{#t note="warning modal telling the developer that a slash command already exists"}}Command already exists.{{/t}}</span></div>
+
+  <div class="app_slack_commands_form_section display_flex justify_content_between align_items_baseline top_border top_padding bottom_padding position_relative">
+    <label for="name" class="no_bottom_margin no_wrap right_margin">{{#t note="label for the name of a new slash command"}}Command{{/t}}</label>
+
+    <div class="app_slack_commands_form_input_label_container">
+      <input type="text" name="name" placeholder="{{#t note="placeholder for a slash command."}}/command{{/t}}" class="small no_bottom_margin overflow_ellipsis" value="{{name}}" autocomplete="off" data-validation="required reservedwords={{reserved_commands}}" data-validation-for="name_validation_label" data-validation-success="{{#t note="successful data validation message"}}Looks good.{{/t}}">
+      <label for="name_validation_label" class="app_slack_commands_form_validation_label plastic_grey no_bottom_margin"></label>
+    </div>
+
+    <i class="ts_icon ts_icon_info_circle subtle_silver help_icon"></i>
+    <div class="app_slack_commands_info_tooltip small position_absolute neutral_white_bg normal_padding">
+      <p class="no_bottom_margin">{{#t note="instructions on how Slack slash commands work"}}Slack Commands must start with a slash, be all lowercase, and contain no spaces. Examples: /deploy, /ack, /weather{{/t}}</p>
+    </div>
+  </div>
+
+  <div class="app_slack_commands_form_section display_flex justify_content_between align_items_baseline top_border top_padding bottom_padding position_relative">
+    <label for="url" class="no_bottom_margin no_wrap right_margin">{{#t note="URL to send slash commands to"}}Request URL{{/t}}</label>
+
+    <div class="app_slack_commands_form_input_label_container">
+      <input type="url" name="url" placeholder="{{#t note="fake example URL used as a placeholder. translate example and command."}}https://example.com/slack/command{{/t}}" class="small no_bottom_margin overflow_ellipsis" value="{{url}}" data-validation="required isurl{{#if https_only}}=https{{else}}=http{{/if}}" data-validation-for="url_validation_label" data-validation-success="{{#t note="successful data validation message"}}Looks good.{{/t}}">
+      <label for="url_validation_label" class="app_slack_commands_form_validation_label plastic_grey no_bottom_margin"></label>
+    </div>
+
+    <i class="ts_icon ts_icon_info_circle subtle_silver help_icon"></i>
+    <div class="app_slack_commands_info_tooltip small position_absolute neutral_white_bg normal_padding">
+      <p class="no_bottom_margin">{{#t}}We\u2019ll send an HTTP POST request with information you might need to this URL when the command is run.{{/t}}</p>
+
+      <br>
+      {{#if https_only}}
+        <p class="no_bottom_margin">{{#t note="The URL described here is a url provided by the developer and it must be https"}}This URL must use the "https" protocol.{{/t}}</p>
+      {{/if}}
+    </div>
+  </div>
+
+  <div class="app_slack_commands_form_section display_flex justify_content_between align_items_baseline top_border top_padding bottom_padding">
+    <label for="desc" class="no_bottom_margin no_wrap right_margin">{{#t note="label for a short description of a slash command"}}Short Description{{/t}}</label>
+
+    <div class="app_slack_commands_form_input_label_container">
+      <input type="text" name="desc" placeholder="{{#t note="Placeholder text. Example of a description of a slash command"}}Launches the Rocket!{{/t}}" class="small no_bottom_margin overflow_ellipsis" value="{{desc}}" data-validation="required" data-validation-for="desc_validation_label" data-validation-success="{{#t note="successful data validation message"}}Looks good.{{/t}}">
+      <label for="desc_validation_label" class="app_slack_commands_form_validation_label plastic_grey no_bottom_margin"></label>
+    </div>
+  </div>
+
+  <div class="app_slack_commands_form_section display_flex justify_content_between align_items_baseline top_border top_padding bottom_padding">
+    <label for="usage" class="no_bottom_margin no_wrap right_margin">{{#t note="a hint on how a slash command could be used. shows up in the message bar of the slack client"}}Usage Hint{{/t}}</label>
+
+    <div class="app_slack_commands_form_input_label_container">
+      <input type="text" name="usage" placeholder="[{{#t note="an example of a slash command's arguments. It is wrapped in [] brackets and will show up in the message bar of the slack client"}}which rocket to launch{{/t}}]" class="small no_bottom_margin overflow_ellipsis" value="{{usage}}">
+
+      <p class="no_bottom_margin small_top_margin plastic_grey">{{#t note="Description of a form input field where a developer can list parameters for their new slash command"}}Optionally list any parameters that can be passed.{{/t}}</p>
+    </div>
+  </div>
+
+  <div class="app_slack_commands_form_section display_flex justify_content_between align_items_baseline top_border top_padding bottom_padding">
+    <div class="app_slack_commands_form_input_label_container">
+      <label for="parse_full" class="no_bottom_margin no_wrap right_margin">{{#t note="Whether to parse and mark up user, channel, and link references"}}Escape channels, users, and links sent to your app{{/t}}</label>
+
+      <p id="unescaped_parse_hint" class="no_bottom_margin small_top_margin plastic_grey no_wrap {{#if parse_full}}hidden{{/if}}">
+        {{#t note="Example of unescaped text"}}<b>Unescaped:</b> @user #general{{/t}}
+      </p>
+      <p id="escaped_parse_hint" class="no_bottom_margin small_top_margin plastic_grey no_wrap {{#unless parse_full}}hidden{{/unless}}">
+        {{#t note="Example of escaped text"}}<b>Escaped:</b> <@U1234|user> <#C1234|general>{{/t}}
+      </p>
+    </div>
+
+    <div>
+      <input type="checkbox" name="parse_full" data-style="toggle"
+        {{#if parse_full}}checked{{/if}}
+      >
+    </div>
+
+  </div>
+
+  <div class="app_slack_commands_form_section top_border top_padding bottom_padding">
+    <p class="small bold">{{#t note="This is a title of a screenshot for how the slash command will look in the message bar of the slack client. The autocomplete entry refers to a box that shows up as they type in the slash command"}}Preview of Autocomplete Entry{{/t}}</p>
+    <div class="preview_container small_padding bordered">
+      <div class="preview_popup rounded neutral_white_bg bordered position_relative">
+        <div class="preview_popup_title off_white_bg subtle_silver small_padding left_padding small">
+          {{#t note="this is a preview of what the autocomplete form looks like for a new slash command"}}Commands matching{{/t}} "<span class="preview_popup_command_text bold"></span>"
+        </div>
+        <div class="app_label normal_margin small_bottom_margin display_flex subtle_silver">
+          <span class="neutral_white_bg small_right_padding bold tiny">{{app_name}}</span>
+          <hr class="no_margin flex_one top_margin">
+        </div>
+        <div class="normal_margin small display_flex small_top_margin">
+          <div class="preview_popup_command_container overflow_ellipsis subtle_silver flex_one">
+            <span class="bold indifferent_grey">
+              /<span class="preview_popup_command_text"></span>
+            </span>
+            <span class="preview_popup_usage_text"></span>
+          </div>
+          <div class="preview_popup_desc_container left_padding float_right align_right">
+            <span class="preview_popup_desc_text overflow_ellipsis subtle_silver"></span>
+          </div>
+        </div>
+        <i class="arrow_box neutral_white_bg position_absolute"></i>
+      </div>
+      <div class="messages_input_container bordered neutral_white_bg top_margin rounded clearfix">
+        <div class="file_upload_button float_left right_border align_center">
+          <i class="ts_icon ts_icon_plus_thick cloud_silver bold"></i>
+        </div>
+        <div class="text_input float_left small left_padding">
+          /<span class="preview_popup_command_text"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>

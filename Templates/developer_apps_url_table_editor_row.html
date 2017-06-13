@@ -1,0 +1,28 @@
+<div data-row="{{ index }}" class="clearfix very_small_bottom_padding small_top_padding c-url_table_editor__container">
+  <div class="float_left c-url_table_editor__fields">
+    {{#if is_delete_mode}}
+      <input type="url" name="urls[{{ index }}]" class="c-url_table_editor__deleted_state small no_margin c-url_table_editor__input" data-url-table-editor-row value="{{ url }} was deleted" disabled>
+    {{else}}
+      <input type="url" name="urls[{{ index }}]" class="small no_margin c-url_table_editor__input" value="{{ url }}" {{#if is_read_mode}}disabled{{/if}} data-url-table-editor-input data-validation="{{ validation }}">
+      <label for="urls[{{ index }}]" class="no_margin"></label>
+      <span class="validation_message"></span>
+    {{/if}}
+  </div>
+  <div class="float_left c-url_table_editor__actions">
+    {{#if is_create_mode}}
+      {{> developer_apps_url_table_editor_button action="cancel-create" button_class="btn btn_outline" button_text=cancel_button_text }}
+      {{> developer_apps_url_table_editor_button action="save-create" button_class="btn" button_text=save_button_text }}
+    {{/if}}
+    {{#if is_read_mode}}
+      {{> developer_apps_url_table_editor_button action="edit" button_class="btn_icon btn_outline btn c-url_table_editor__buttons ts_icon ts_icon_pencil" }}
+      {{> developer_apps_url_table_editor_button action="delete" button_class="btn_icon btn_outline btn c-url_table_editor__buttons ts_icon ts_icon_trash" }}
+    {{/if}}
+    {{#if is_edit_mode}}
+      {{> developer_apps_url_table_editor_button action="cancel-update" button_class="btn btn_outline" button_text=cancel_button_text }}
+      {{> developer_apps_url_table_editor_button action="save-update" button_class="btn" button_text=edit_button_text }}
+    {{/if}}
+    {{#if is_delete_mode}}
+      {{> developer_apps_url_table_editor_button action="restore" button_class="btn_icon c-url_table_editor__buttons btn_outline btn ts_icon ts_icon_undo"}}
+    {{/if}}
+  </div>
+</div>

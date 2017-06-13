@@ -1,0 +1,17 @@
+{{i18n_ns "transfer_ownership"}}
+
+{{#if member_not_found}}
+  <p>{{#t}}Rats! We couldn\u2019t find <strong>{name}</strong> in your Slack team. Give that dropdown another go.{{/t}}</p>
+{{else}}
+  {{#t}}
+  <p>Are you sure you want to make <strong>{name}</strong> the new team owner? This cannot be undone.</p> 
+  <p><strong>Transfer ownership to:</strong></p>
+  {{/t}}
+  <div class="member_card">
+    <div class="member_image thumb_72 medium_right_margin" style="background-image: url('{{profile_image}}');"></div>
+    <div class="member_card_details">
+      <div class="member_card_name"><strong>{{real_name}}</strong></div>
+      <div class="member_card_email">{{email}}</div>
+    </div>
+  </div>
+{{/if}}

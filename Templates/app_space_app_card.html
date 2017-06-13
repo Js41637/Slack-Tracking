@@ -1,0 +1,13 @@
+<div class="app_card flex_third display_flex align_items_center height_60 featured_category_app" data-app-id="{{app_id}}">
+  <img class="app_card_icon rounded"
+    {{#if icons}}
+      src="{{icons.image_64}}"
+    {{else}}
+      src="{{versioned_default_application_icon}}"
+    {{/if}}
+  >
+  <div class="small_padding indifferent_grey inline_block overflow_ellipsis">
+    <div class="app_name small overflow_ellipsis">{{name}}</div>
+    <div class="app_category light overflow_ellipsis">{{category}}</div>
+  </div>
+</div>
