@@ -7481,48 +7481,27 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         i = function(e) {
           function t(e) {
             var t = a(e);
-            t && h.push(t);
+            t && u.push(t);
           }
 
           function n(e) {
             var t = r(e);
-            return t && h.push(t.member || t.bot), t;
-          }
-
-          function i() {
-            m && TS.bots.startBatchUpsert(), f && TS.members.startBatchUpsert();
-          }
-
-          function o(e) {
-            m && TS.bots.finishBatchUpsert(e), f && TS.members.finishBatchUpsert(e);
-          }
-
-          function l(e, t, n, i) {
-            return new Promise(function(r) {
-              t();
-              var a = e.map(n);
-              i(a), r();
-            });
+            return t && u.push(t.member || t.bot), t;
           }
           TS.has_pri[p] && TS.log(p, "Flannel: upserting batch of " + e.length + " objects");
-          var d = _.partition(e, function(e) {
+          var i = _.partition(e, function(e) {
               if (TS.utility.members.isMember(e)) {
                 var t = TS.members.getPotentiallyUnknownMemberByIdWithoutFetching(e.id);
                 return "unknown_members" === TS.experiment.getGroup("unknown_members_perf", TS.members.unknown_members_perf_exp_metrics) && t ? !t.is_unknown : t;
               }
               return TS.shared.getModelObById(e.id);
             }),
-            c = d[0],
-            u = d[1],
-            m = _.some(u, s),
-            f = _.some(u, TS.utility.members.isMember),
-            h = [],
-            g = TS.boot_data.feature_process_aggressively ? l : TS.utility.process_nicely.process,
-            S = performance.now();
-          return Promise.join(g(c, _.noop, t, _.noop), g(u, i, n, o)).then(function() {
-            var t = performance.now() - S;
-            return TS.has_pri[p] && TS.log(p, "Flannel: upserting " + e.length + " objects took a total of " + Math.ceil(t) + " ms (async)"), h;
-          });
+            o = i[0],
+            l = i[1],
+            d = _.some(l, s),
+            c = _.some(l, TS.utility.members.isMember),
+            u = [];
+          return o.forEach(t), d && TS.bots.startBatchUpsert(), c && TS.members.startBatchUpsert(), l.forEach(n), d && TS.bots.finishBatchUpsert(), c && TS.members.finishBatchUpsert(), Promise.resolve(u);
         },
         r = function(e) {
           return s(e) ? (TS.has_pri[p] && TS.log(p, "Flannel: upserting bot " + e.id + " from query results"), TS.bots.upsertBot(e)) : TS.utility.members.isMember(e) ? (TS.has_pri[p] && TS.log(p, "Flannel: upserting user " + e.id + " from query results"), TS.members.upsertMember(e)) : void 0;
@@ -10603,6 +10582,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         getPotentiallyUnknownMemberById: function(e) {
           if (!e) return null;
           if ("unknown_members" !== TS.experiment.getGroup("unknown_members_perf", TS.members.unknown_members_perf_exp_metrics)) return TS.members.getMemberById(e);
+          re(e);
           var n = t[e];
           if (n && n.is_unknown) return n;
           if (!TS.utility.strLooksLikeAMemberId(e)) {
@@ -10616,17 +10596,12 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }
           return TS.members.getMemberById(e) || H(e);
         },
-        getMemberById: function(n) {
-          if (!_.isString(n)) return null;
-          if (n && "@" === n.charAt(0) && (n = n.substring(1)), TS.useRedux() && TS.boot_data.feature_store_members_in_redux) return TS.redux.members.getMemberById(n);
-          if (void 0 === t[n]) {
-            var i = TS.model.members;
-            e < i.length && (i.forEach(function(e) {
-              t[e.id] = e;
-            }), (e = Object.keys(t).length) !== i.length && TS.warn("member map size and member list length have diverged"));
-          }
-          var r = t[n];
-          return void 0 !== r ? r.is_unknown && TS.boot_data.feature_tinyspeck ? null : r : null;
+        getMemberById: function(e) {
+          if (!_.isString(e)) return null;
+          if (e && "@" === e.charAt(0) && (e = e.substring(1)), TS.useRedux() && TS.boot_data.feature_store_members_in_redux) return TS.redux.members.getMemberById(e);
+          re(e);
+          var n = t[e];
+          return void 0 !== n ? n.is_unknown && TS.boot_data.feature_tinyspeck ? null : n : null;
         },
         getPotentiallyUnknownMemberByIdWithoutFetching: function(e) {
           var t = TS.members.getMemberById(e);
@@ -11497,11 +11472,12 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }
         },
         ee = function(e) {
+          var t = TS.console.getStackTrace();
           g[e] = setTimeout(function() {
             TS.model.ms_connected && (TS.metrics.count("unknown_member_persistence_timeout"), TS.statsd.measure("unknown_member_resolution_timing", "unknown_member_resolution_timing_" + e), TS.console.logError({
               id: e,
-              getMemberById: TS.members.getPotentiallyUnknownMemberById(e),
-              getMemberByName: TS.members.getMemberByName(e)
+              getMemberById: TS.members.getPotentiallyUnknownMemberByIdWithoutFetching(e),
+              start_stack: t
             }, "persistent unknown member", "error", !0));
           }, 6e4);
         },
@@ -11522,8 +11498,17 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         ie = function(e) {
           if (e) {
+            re(e);
             var n = t[e];
             return n && n.is_unknown ? n : null;
+          }
+        },
+        re = function(n) {
+          if (void 0 === t[n]) {
+            var i = TS.model.members;
+            e < i.length && (i.forEach(function(e) {
+              t[e.id] = e;
+            }), (e = Object.keys(t).length) !== i.length && TS.warn("member map size and member list length have diverged"));
           }
         };
     }();
