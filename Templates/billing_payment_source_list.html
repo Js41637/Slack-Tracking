@@ -1,0 +1,40 @@
+{{i18n_ns "pages_checkout"}}
+<p class="emphasized small_bottom_margin large_top_margin">
+  <strong>{{#t}}Option A:</strong> Use an existing payment method.{{/t}}
+  <span class="highlight_yellow_bg">{{#t}}The method you select will be charged <strong>{product_pay_total}</strong>{{/t}}</span>
+  {{#if has_sales_tax}}
+    <span class="greigh" data-sales-tax-label>{{#t}}(Including {sales_tax} sales tax).{{/t}}</span>
+  {{/if}}
+</p>
+<p>{{#t}}We will automatically update your account balance when active members are added to or removed from your team.{{/t}} <a href="https://get.slack.help/hc/articles/201723133#adding-new-team-members" target="new">{{#t}}See details{{/t}}</a></p>
+{{#each sources_payable}}
+  <div class="billing_payment_source__item">
+    <div class="{{this.type_simple}} card_icon"></div>
+    <div class="billing_payment_source__item--description">
+      <span>{{this.name}}</span> <br/>
+      <span class="mini">
+        {{#t note="example string: Visa ending in 4242 \u2022 01/2018"}}
+          {type} ending in {last4} \u2022 {exp_date}
+        {{/t}}
+      </span>
+    </div>
+      <form data-payment-source-form action="/checkout" method="post" class="no_bottom_margin confirm_submit">
+      {{../crumb}}
+      <input type="hidden" name="old_pay_prod_cur_id" value="{{../pay_prod_cur}}" />
+      <input type="hidden" name="old_pay_prod_next_id" value="{{../pay_prod_next}}" />
+      <input type="hidden" name="buy" value="1" />
+      <input type="hidden" name="token" value="{{this.id}}" />
+      <input data-selected-product-id type="hidden" name="product" value="{{../product_id}}" />
+      <input data-currency-input type="hidden" name="selected_product_currency" value="{{../currency}}" />
+      <button type="submit" class="checkout_button ladda-button btn btn_small btn_primary" data-style="expand-right" data-qa="pay_with_btn" data-clog-event="WEBSITE_CLICK" data-clog-params="action=click,click_target=use_existing_payment_method,trigger=checkout_step_2,pay_prod_cur={{../pay_prod_cur}},has_plan=true,pay_prod_selected={{../product_id}}"><span class="ladda-label">
+      {{#t}}Pay with this Card{{/t}}
+      </span></button>
+    </form>
+  </div>
+{{/each}}
+
+<hr />
+<p class="emphasized large_top_margin large_bottom_margin">
+  {{#t}}<strong>Option B:</strong> Add a new card.{{/t}}
+  <span class="highlight_yellow_bg">{{#t}}The card you add will be used for this purchase.{{/t}}</span>
+</p>
