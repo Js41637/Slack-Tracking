@@ -21756,7 +21756,7 @@ webpackJsonp([332], [, function(e, t, n) {
 }, function(e, t, n) {
   t = e.exports = n(189)(), t.push([e.i, ".c-tooltip__tip {\n  display: inline-block;\n  color: #FFFFFF;\n  background-color: #2C2D30;\n  max-width: 250px;\n  padding: 0.5rem;\n  border-radius: 4px;\n  position: relative;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 0.8125rem;\n  font-weight: 700;\n  text-align: center;\n}\n.c-tooltip__tip:after {\n  position: absolute;\n  content: '';\n  width: 0;\n  height: 0;\n  margin: -5px;\n  border: 6px solid transparent;\n}\n.c-tooltip__tip--left {\n  margin-right: 0.5rem;\n}\n.c-tooltip__tip--left:after {\n  border-left-color: #2C2D30;\n  right: -6px;\n  top: 50%;\n}\n.c-tooltip__tip--right {\n  margin-left: 0.5rem;\n}\n.c-tooltip__tip--right:after {\n  border-right-color: #2C2D30;\n  left: -6px;\n  top: 50%;\n}\n.c-tooltip__tip--top {\n  margin-bottom: 0.5rem;\n}\n.c-tooltip__tip--top:after {\n  border-top-color: #2C2D30;\n  bottom: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--top-left {\n  margin-bottom: 0.5rem;\n}\n.c-tooltip__tip--top-left:after {\n  border-top-color: #2C2D30;\n  bottom: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--top-left:after {\n  left: 25%;\n}\n.c-tooltip__tip--top-right {\n  margin-bottom: 0.5rem;\n}\n.c-tooltip__tip--top-right:after {\n  border-top-color: #2C2D30;\n  bottom: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--top-right:after {\n  left: 75%;\n}\n.c-tooltip__tip--bottom {\n  margin-top: 0.5rem;\n}\n.c-tooltip__tip--bottom:after {\n  border-bottom-color: #2C2D30;\n  top: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--bottom-left {\n  margin-top: 0.5rem;\n}\n.c-tooltip__tip--bottom-left:after {\n  border-bottom-color: #2C2D30;\n  top: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--bottom-left:after {\n  left: 25%;\n}\n.c-tooltip__tip--bottom-right {\n  margin-top: 0.5rem;\n}\n.c-tooltip__tip--bottom-right:after {\n  border-bottom-color: #2C2D30;\n  top: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--bottom-right:after {\n  left: 75%;\n}\n.c-tooltip__tip--success {\n  background-color: #29A979;\n}\n.c-tooltip__tip--success.c-tooltip__tip--left:after {\n  border-left-color: #29A979;\n}\n.c-tooltip__tip--success.c-tooltip__tip--right:after {\n  border-right-color: #29A979;\n}\n.c-tooltip__tip--success.c-tooltip__tip--top:after,\n.c-tooltip__tip--success.c-tooltip__tip--top-left:after,\n.c-tooltip__tip--success.c-tooltip__tip--top-right:after {\n  border-top-color: #29A979;\n}\n.c-tooltip__tip--success.c-tooltip__tip--bottom:after,\n.c-tooltip__tip--success.c-tooltip__tip--bottom-left:after,\n.c-tooltip__tip--success.c-tooltip__tip--bottom-right:after {\n  border-bottom-color: #29A979;\n}\n", ""]);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".p-channel_sidebar {\n  width: 220px;\n  height: 100vh;\n  position: relative;\n  padding: 0;\n}\n.p-channel_sidebar__virtualized {\n  outline: none;\n  -ms-overflow-style: none;\n}\n.p-channel_sidebar__virtualized::-webkit-scrollbar {\n  display: none;\n}\n.p-channel_sidebar__section_heading {\n  padding: 0 0.75rem 0 15px;\n  margin: 0;\n  width: 100%;\n  height: 26px;\n  display: flex;\n  align-items: center;\n}\n.p-channel_sidebar__section_heading_label {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  font-size: 1rem;\n  line-height: 1;\n  display: block;\n  opacity: 0.7;\n  text-align: left;\n  width: 100%;\n}\n.p-channel_sidebar__section_heading_label:hover,\n.p-channel_sidebar__section_heading_label:focus,\n.p-channel_sidebar__section_heading_label:active {\n  outline: none;\n}\n.p-channel_sidebar__section_heading_label .c-icon:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  width: 20px;\n  opacity: 0.7;\n  margin: 0 1px 0 -4px;\n  vertical-align: baseline;\n}\n.p-channel_sidebar__section_heading_right {\n  margin-left: auto;\n}\n.p-channel_sidebar__section_heading_plus {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  line-height: 100%;\n}\n.p-channel_sidebar__section_heading_plus:hover,\n.p-channel_sidebar__section_heading_plus:focus,\n.p-channel_sidebar__section_heading_plus:active {\n  outline: none;\n}\n.p-channel_sidebar__section_heading_plus:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  width: 20px;\n  opacity: 0.7;\n  line-height: 100%;\n  content: '\\E228';\n}\n.p-channel_sidebar__banner {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  width: calc(100% - 1rem);\n  text-align: center;\n  position: absolute;\n  display: block;\n  z-index: 2;\n  color: #FFFFFF;\n  left: 0.5rem;\n  right: 0.5rem;\n  font-weight: 700;\n  font-size: 0.875rem;\n  line-height: 1.625rem;\n  cursor: pointer;\n}\n.p-channel_sidebar__banner:hover,\n.p-channel_sidebar__banner:focus,\n.p-channel_sidebar__banner:active {\n  outline: none;\n}\n.p-channel_sidebar__banner--top {\n  border-top-right-radius: 0;\n  border-bottom-right-radius: 6px;\n  border-bottom-left-radius: 6px;\n  border-top-left-radius: 0;\n  background-clip: padding-box;\n  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.1) inset;\n  top: 0;\n}\n.p-channel_sidebar__banner--bottom {\n  border-top-right-radius: 6px;\n  border-bottom-right-radius: 0;\n  border-bottom-left-radius: 0;\n  border-top-left-radius: 6px;\n  background-clip: padding-box;\n  box-shadow: 0 -1px 6px rgba(0, 0, 0, 0.1), 0 -1px 3px rgba(0, 0, 0, 0.1) inset;\n  bottom: 0;\n}\n.p-channel_sidebar__banner--mentions {\n  background: #EB4D5C;\n}\n.p-channel_sidebar__banner--unreads {\n  background: #2D9EE0;\n}\n.p-channel_sidebar__link {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n}\n.p-channel_sidebar__link:hover,\n.p-channel_sidebar__link:focus,\n.p-channel_sidebar__link:active {\n  outline: none;\n}\n.p-channel_sidebar__channel,\n.p-channel_sidebar__link {\n  display: flex;\n  align-items: center;\n  height: 26px;\n  line-height: 1.625rem;\n  padding: 0 0.75rem 0 15px;\n  width: 100%;\n}\n.p-channel_sidebar__channel:before,\n.p-channel_sidebar__link:before,\n.p-channel_sidebar__channel:after,\n.p-channel_sidebar__link:after {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  width: 20px;\n  opacity: 0.7;\n}\n.p-channel_sidebar__channel:before,\n.p-channel_sidebar__link:before {\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel:after,\n.p-channel_sidebar__link:after {\n  font-size: 1.25rem;\n  margin-left: 0.25rem;\n}\n.p-channel_sidebar__channel:hover,\n.p-channel_sidebar__link:hover {\n  text-decoration: none;\n}\n.p-channel_sidebar__channel:before {\n  content: '\\E125';\n}\n.p-channel_sidebar__channel--private:before {\n  content: '\\E567';\n}\n.p-channel_sidebar__channel--shared:after {\n  content: '\\E559';\n}\n.p-channel_sidebar__channel--org-shared:after {\n  content: '\\E166';\n}\n.p-channel_sidebar__channel--mpim:before {\n  font-size: 1.25rem;\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel--mpim[data-user-count='2']:before {\n  content: '\\E521';\n}\n.p-channel_sidebar__channel--mpim[data-user-count='3']:before {\n  content: '\\E522';\n}\n.p-channel_sidebar__channel--mpim[data-user-count='4']:before {\n  content: '\\E523';\n}\n.p-channel_sidebar__channel--mpim[data-user-count='5']:before {\n  content: '\\E524';\n}\n.p-channel_sidebar__channel--mpim[data-user-count='6']:before {\n  content: '\\E525';\n}\n.p-channel_sidebar__channel--mpim[data-user-count='7']:before {\n  content: '\\E526';\n}\n.p-channel_sidebar__channel--mpim[data-user-count='8']:before {\n  content: '\\E527';\n}\n.p-channel_sidebar__channel--mpim[data-user-count='9']:before {\n  content: '\\E528';\n}\n.p-channel_sidebar__channel--im:before {\n  content: none;\n}\n.p-channel_sidebar__channel--im .c-presence {\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel--im .c-presence--away {\n  opacity: 0.7;\n}\n.p-channel_sidebar__channel--im-slackbot:before {\n  content: '\\E515';\n  opacity: 1;\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel--im-slackbot.p-channel_sidebar__channel--draft:before {\n  color: inherit;\n}\n.p-channel_sidebar__channel--muted:not(.p-channel_sidebar__channel--selected) {\n  opacity: 0.4;\n}\n.p-channel_sidebar__channel--unread:not(.p-channel_sidebar__channel--muted) .p-channel_sidebar__name {\n  font-weight: 900;\n  opacity: 1;\n}\n.p-channel_sidebar__channel--selected .p-channel_sidebar__name {\n  opacity: 1;\n}\n.p-channel_sidebar__channel--draft:before {\n  content: '\\E024';\n  font-size: 0.875rem;\n  margin: 1px -2px 0 -1px;\n  flex-basis: 20px;\n  flex-shrink: 0;\n}\n.p-channel_sidebar__channel--archived:before {\n  content: '\\E534';\n}\n@keyframes typing {\n  100% {\n    background-position: -240px;\n  }\n}\n.p-channel_sidebar__channel--typing:before {\n  display: block;\n  content: '';\n  width: 11px;\n  height: 3px;\n  background-image: url(/img/typing-sprite.png);\n  background-repeat: no-repeat;\n  animation: 1s steps(15) 0s infinite normal none typing-sprite;\n  margin: 0 5px 0 1px;\n  opacity: 1;\n}\n@media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {\n  .p-channel_sidebar__channel--typing:before {\n    background-size: cover;\n    background-image: url(/img/typing-sprite@2x.png);\n  }\n}\n.p-channel_sidebar__name {\n  margin-right: auto;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  opacity: 0.7;\n}\n.p-channel_sidebar__name .c-custom_status {\n  float: right;\n  position: relative;\n  z-index: 1;\n}\n.p-channel_sidebar__name.p-channel_sidebar__name--away {\n  font-style: italic;\n}\n.p-channel_sidebar__badge {\n  order: 5;\n  padding: 1px 0.6rem;\n  margin-left: 0.25rem;\n  border-radius: 1rem;\n  line-height: 1rem;\n  font-size: 0.75rem;\n  font-weight: 700;\n  color: #FFFFFF;\n}\n.p-channel_sidebar__status {\n  margin-left: 0.5rem;\n}\n.p-channel_sidebar__you_label {\n  margin-left: 0.5rem;\n  font-weight: normal;\n  opacity: 0.7;\n}\n.p-channel_sidebar__close {\n  margin-left: 0.25rem;\n  display: none;\n}\n.p-channel_sidebar__close,\n.p-channel_sidebar__close:before {\n  line-height: 100%;\n}\n.p-channel_sidebar__channel:hover .p-channel_sidebar__close {\n  display: block;\n}\n.p-channel_sidebar__link--unread .p-channel_sidebar__name {\n  font-weight: 900;\n  opacity: 1;\n}\n.p-channel_sidebar__link--selected .p-channel_sidebar__name {\n  opacity: 1;\n}\n.p-channel_sidebar__link--all-unreads:before {\n  content: '\\E103';\n  margin: 0 4px 0 -4px;\n}\n.p-channel_sidebar__link--all-threads:before {\n  content: '\\E171';\n  margin: 0 4px 0 -4px;\n}\n.p-channel_sidebar__link--all-threads.p-channel_sidebar__link--unread:before {\n  content: '\\E554';\n}\n.p-channel_sidebar__link--invites:before {\n  content: '\\E281';\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".p-channel_sidebar {\n  width: 220px;\n  height: 100vh;\n  position: relative;\n  padding: 0;\n}\n.p-channel_sidebar__virtualized {\n  outline: none;\n  -ms-overflow-style: none;\n}\n.p-channel_sidebar__virtualized::-webkit-scrollbar {\n  display: none;\n}\n.p-channel_sidebar__section_heading {\n  padding: 0 0.75rem 0 15px;\n  margin: 0;\n  width: 100%;\n  height: 26px;\n  display: flex;\n  align-items: center;\n}\n.p-channel_sidebar__section_heading_label {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  font-size: 1rem;\n  line-height: 1;\n  display: block;\n  opacity: 0.7;\n  text-align: left;\n  width: 100%;\n}\n.p-channel_sidebar__section_heading_label:hover,\n.p-channel_sidebar__section_heading_label:focus,\n.p-channel_sidebar__section_heading_label:active {\n  outline: none;\n}\n.p-channel_sidebar__section_heading_label .c-icon:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  width: 20px;\n  opacity: 0.7;\n  margin: 0 1px 0 -4px;\n  vertical-align: baseline;\n}\n.p-channel_sidebar__section_heading_right {\n  margin-left: auto;\n}\n.p-channel_sidebar__section_heading_plus {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  line-height: 100%;\n}\n.p-channel_sidebar__section_heading_plus:hover,\n.p-channel_sidebar__section_heading_plus:focus,\n.p-channel_sidebar__section_heading_plus:active {\n  outline: none;\n}\n.p-channel_sidebar__section_heading_plus:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  width: 20px;\n  opacity: 0.7;\n  line-height: 100%;\n  content: '\\E228';\n}\n.p-channel_sidebar__banner {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  width: calc(100% - 1rem);\n  text-align: center;\n  position: absolute;\n  display: block;\n  z-index: 2;\n  color: #FFFFFF;\n  left: 0.5rem;\n  right: 0.5rem;\n  font-weight: 700;\n  font-size: 0.875rem;\n  line-height: 1.625rem;\n  cursor: pointer;\n}\n.p-channel_sidebar__banner:hover,\n.p-channel_sidebar__banner:focus,\n.p-channel_sidebar__banner:active {\n  outline: none;\n}\n.p-channel_sidebar__banner--top {\n  border-top-right-radius: 0;\n  border-bottom-right-radius: 6px;\n  border-bottom-left-radius: 6px;\n  border-top-left-radius: 0;\n  background-clip: padding-box;\n  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.1) inset;\n  top: 0;\n}\n.p-channel_sidebar__banner--bottom {\n  border-top-right-radius: 6px;\n  border-bottom-right-radius: 0;\n  border-bottom-left-radius: 0;\n  border-top-left-radius: 6px;\n  background-clip: padding-box;\n  box-shadow: 0 -1px 6px rgba(0, 0, 0, 0.1), 0 -1px 3px rgba(0, 0, 0, 0.1) inset;\n  bottom: 0;\n}\n.p-channel_sidebar__banner--mentions {\n  background: #EB4D5C;\n}\n.p-channel_sidebar__banner--unreads {\n  background: #2D9EE0;\n}\n.p-channel_sidebar__link {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n}\n.p-channel_sidebar__link:hover,\n.p-channel_sidebar__link:focus,\n.p-channel_sidebar__link:active {\n  outline: none;\n}\n.p-channel_sidebar__channel,\n.p-channel_sidebar__link {\n  display: flex;\n  align-items: center;\n  height: 26px;\n  line-height: 1.625rem;\n  padding: 0 0.75rem 0 15px;\n  width: 100%;\n}\n.p-channel_sidebar__channel:before,\n.p-channel_sidebar__link:before,\n.p-channel_sidebar__channel:after,\n.p-channel_sidebar__link:after {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  width: 20px;\n  opacity: 0.7;\n}\n.p-channel_sidebar__channel:before,\n.p-channel_sidebar__link:before {\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel:after,\n.p-channel_sidebar__link:after {\n  font-size: 1.25rem;\n  margin-left: 0.25rem;\n}\n.p-channel_sidebar__channel:hover,\n.p-channel_sidebar__link:hover {\n  text-decoration: none;\n}\n.p-channel_sidebar__channel:before {\n  content: '\\E125';\n}\n.p-channel_sidebar__channel--private:before {\n  content: '\\E567';\n}\n.p-channel_sidebar__channel--shared:after {\n  content: '\\E559';\n}\n.p-channel_sidebar__channel--org-shared:after {\n  content: '\\E166';\n}\n.p-channel_sidebar__channel--mpim:before {\n  font-size: 1.25rem;\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel--mpim[data-user-count='2']:before {\n  content: '\\E521';\n}\n.p-channel_sidebar__channel--mpim[data-user-count='3']:before {\n  content: '\\E522';\n}\n.p-channel_sidebar__channel--mpim[data-user-count='4']:before {\n  content: '\\E523';\n}\n.p-channel_sidebar__channel--mpim[data-user-count='5']:before {\n  content: '\\E524';\n}\n.p-channel_sidebar__channel--mpim[data-user-count='6']:before {\n  content: '\\E525';\n}\n.p-channel_sidebar__channel--mpim[data-user-count='7']:before {\n  content: '\\E526';\n}\n.p-channel_sidebar__channel--mpim[data-user-count='8']:before {\n  content: '\\E527';\n}\n.p-channel_sidebar__channel--mpim[data-user-count='9']:before {\n  content: '\\E528';\n}\n.p-channel_sidebar__channel--im:before {\n  content: none;\n}\n.p-channel_sidebar__channel--im .c-presence {\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel--im .c-presence--away {\n  opacity: 0.7;\n}\n.p-channel_sidebar__channel--im-slackbot:before {\n  content: '\\E515';\n  opacity: 1;\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel--im-slackbot.p-channel_sidebar__channel--draft:before {\n  color: inherit;\n}\n.p-channel_sidebar__channel--muted:not(.p-channel_sidebar__channel--selected) {\n  opacity: 0.4;\n}\n.p-channel_sidebar__channel--unread:not(.p-channel_sidebar__channel--muted) .p-channel_sidebar__name {\n  font-weight: 900;\n  opacity: 1;\n}\n.p-channel_sidebar__channel--selected .p-channel_sidebar__name {\n  opacity: 1;\n}\n.p-channel_sidebar__channel--draft:before {\n  content: '\\E024';\n  font-size: 0.875rem;\n  margin: 1px -2px 0 -1px;\n  flex-basis: 20px;\n  flex-shrink: 0;\n}\n.p-channel_sidebar__channel--archived:before {\n  content: '\\E534';\n}\n@keyframes typing {\n  100% {\n    background-position: -240px;\n  }\n}\n.p-channel_sidebar__channel--typing:before {\n  display: block;\n  content: '';\n  width: 11px;\n  height: 3px;\n  background-image: url(/img/typing-sprite.png);\n  background-repeat: no-repeat;\n  animation: 1s steps(15) 0s infinite normal none typing-sprite;\n  margin: 0 5px 0 1px;\n  opacity: 1;\n}\n@media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {\n  .p-channel_sidebar__channel--typing:before {\n    background-size: cover;\n    background-image: url(/img/typing-sprite@2x.png);\n  }\n}\n.p-channel_sidebar__name {\n  margin-right: auto;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  opacity: 0.7;\n}\n.p-channel_sidebar__name .c-custom_status {\n  float: right;\n  position: relative;\n  z-index: 1;\n}\n.p-channel_sidebar__name.p-channel_sidebar__name--away {\n  font-style: italic;\n}\n.p-channel_sidebar__badge {\n  order: 5;\n  padding: 1px 0.6rem;\n  margin-left: 0.25rem;\n  border-radius: 1rem;\n  line-height: 1rem;\n  font-size: 0.75rem;\n  font-weight: 700;\n  color: #FFFFFF;\n}\n.p-channel_sidebar__status {\n  margin-left: 0.5rem;\n}\n.p-channel_sidebar__you_label {\n  margin-left: 0.5rem;\n  font-weight: normal;\n  opacity: 0.7;\n}\n.p-channel_sidebar__close {\n  margin-left: 0.25rem;\n  display: none;\n}\n.p-channel_sidebar__close,\n.p-channel_sidebar__close:before {\n  line-height: 100%;\n}\n.p-channel_sidebar__channel:hover .p-channel_sidebar__close {\n  display: block;\n}\n.p-channel_sidebar__link--unread .p-channel_sidebar__name {\n  font-weight: 900;\n  opacity: 1;\n}\n.p-channel_sidebar__link--selected .p-channel_sidebar__name {\n  opacity: 1;\n}\n.p-channel_sidebar__link--all-unreads:before {\n  content: '\\E103';\n  margin: 0 4px 0 -4px;\n}\n.p-channel_sidebar__link--all-threads:before {\n  content: '\\E171';\n  margin: 0 4px 0 -4px;\n}\n.p-channel_sidebar__link--all-threads.p-channel_sidebar__link--unread:before {\n  content: '\\E554';\n}\n.p-channel_sidebar__link--invites:before {\n  content: '\\E281';\n}\n.p-channel_sidebar__link--invites:not(.p-channel_sidebar__link--dim) .p-channel_sidebar__name {\n  font-weight: 900;\n  opacity: 1;\n}\n", ""]);
 }, function(e, t, n) {
   "use strict";
   Object.defineProperty(t, "__esModule", {
@@ -31524,12 +31524,13 @@ webpackJsonp([332], [, function(e, t, n) {
     h = n(3209),
     _ = n(3234),
     m = n(3233),
-    y = n(2881),
-    v = function(e) {
+    y = n(3437),
+    v = n(2881),
+    g = function(e) {
       var t = "react_channel_sidebar_display_item";
       n.i(l.a)(t + "_mark"), "V" === e[0] ? n.i(p.a)(e) : n.i(f.a)(e), n.i(l.b)(t, t + "_mark");
     },
-    g = function(e, t) {
+    b = function(e, t) {
       t && ("im" === e ? n.i(m.b)(t) : "mpim" === e && n.i(_.b)(t));
     };
   n.i(u.a)("ui.react_channel_sidebar", {
@@ -31540,12 +31541,13 @@ webpackJsonp([332], [, function(e, t, n) {
       var t = "react_channel_sidebar_render";
       n.i(l.a)(t + "_mark"), a.a.render(o.a.createElement(s.a, {
         store: n.i(c.a)()
-      }, o.a.createElement(y.a, {
-        onItemSelect: v,
-        onCloseIM: g,
+      }, o.a.createElement(v.a, {
+        onItemSelect: g,
+        onCloseIM: b,
         onBrowseChannelsClick: h.a,
         onCreateChannelClick: h.b,
-        onOpenDMClick: h.c
+        onOpenDMClick: h.c,
+        onInviteClick: y.a
       })), e, function() {
         return n.i(l.b)(t, t + "_mark");
       });
@@ -31639,15 +31641,14 @@ webpackJsonp([332], [, function(e, t, n) {
     l = n.n(u),
     c = n(400),
     d = n(2879),
-    f = n(2882),
-    p = n(3167),
-    h = n(3166),
+    f = n(3167),
+    p = n(3166),
+    h = n(3436),
     _ = n(3196),
     m = n(3194),
     y = n(3195),
-    v = n(2288),
-    g = n(2355),
-    b = function() {
+    v = n(2355),
+    g = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
@@ -31658,8 +31659,7 @@ webpackJsonp([332], [, function(e, t, n) {
         return n && e(t.prototype, n), r && e(t, r), t;
       };
     }(),
-    w = v.a.ns("channel_sidebar"),
-    k = {
+    b = {
       rows: u.PropTypes.arrayOf(u.PropTypes.shape({
         type: u.PropTypes.string
       })).isRequired,
@@ -31671,7 +31671,7 @@ webpackJsonp([332], [, function(e, t, n) {
       onOpenDMClick: u.PropTypes.func,
       reportRenderedRowIndexes: u.PropTypes.func
     },
-    M = {
+    w = {
       rows: [],
       selectedItemId: "",
       onItemClick: s.a.noop,
@@ -31682,13 +31682,13 @@ webpackJsonp([332], [, function(e, t, n) {
       onOpenDMClick: s.a.noop,
       reportRenderedRowIndexes: s.a.noop
     },
-    T = function(e) {
+    k = function(e) {
       function t(e) {
         r(this, t);
         var n = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
         return n.setRef = n.setRef.bind(n), n.onScroll = n.onScroll.bind(n), n.onItemClick = n.onItemClick.bind(n), n.onInviteClick = n.onInviteClick.bind(n), n.getRowHeight = n.getRowHeight.bind(n), n.renderRow = n.renderRow.bind(n), n.onRowsRendered = n.onRowsRendered.bind(n), n;
       }
-      return i(t, e), b(t, [{
+      return i(t, e), g(t, [{
         key: "componentDidUpdate",
         value: function(e) {
           this.List && e.rows !== this.props.rows && this.List.recomputeRowHeights();
@@ -31716,8 +31716,8 @@ webpackJsonp([332], [, function(e, t, n) {
         }
       }, {
         key: "onInviteClick",
-        value: function(e) {
-          e.preventDefault(), this.props.onInviteClick();
+        value: function() {
+          this.props.onInviteClick();
         }
       }, {
         key: "setRef",
@@ -31754,7 +31754,7 @@ webpackJsonp([332], [, function(e, t, n) {
               index: l,
               alignment: c
             });
-          n.i(g.a)({
+          n.i(v.a)({
             fromValue: this.currentScrollTop,
             toValue: d,
             duration: 500,
@@ -31782,12 +31782,12 @@ webpackJsonp([332], [, function(e, t, n) {
             u = void 0;
           switch (s.type) {
             case "allUnreadsLink":
-              u = l.a.createElement(p.a, {
+              u = l.a.createElement(f.a, {
                 selectItem: a
               });
               break;
             case "allThreadsLink":
-              u = l.a.createElement(h.a, {
+              u = l.a.createElement(p.a, {
                 selectItem: a
               });
               break;
@@ -31798,7 +31798,10 @@ webpackJsonp([332], [, function(e, t, n) {
               u = this.renderChannel(s.id);
               break;
             case "invitePeopleLink":
-              u = this.renderInvitePeopleLink("Vinvites");
+              u = l.a.createElement(h.a, {
+                selectItem: this.onInviteClick,
+                dim: s.dim
+              });
               break;
             case "spacer":
             case "topPadding":
@@ -31847,16 +31850,6 @@ webpackJsonp([332], [, function(e, t, n) {
           });
         }
       }, {
-        key: "renderInvitePeopleLink",
-        value: function(e) {
-          return l.a.createElement(f.a, {
-            key: e,
-            id: "Vinvites",
-            label: w("Invite People"),
-            selectItem: this.props.onItemSelect
-          });
-        }
-      }, {
         key: "render",
         value: function() {
           var e = this;
@@ -31877,7 +31870,7 @@ webpackJsonp([332], [, function(e, t, n) {
         }
       }]), t;
     }(l.a.PureComponent);
-  T.propTypes = k, T.defaultProps = M, t.a = T;
+  k.propTypes = b, k.defaultProps = w, t.a = k;
 }, function(e, t, n) {
   "use strict";
 
@@ -32340,52 +32333,66 @@ webpackJsonp([332], [, function(e, t, n) {
 }, function(e, t, n) {
   "use strict";
   var r = n(43),
-    o = n(2296),
-    i = n(2878),
-    a = n(2991),
-    s = n(3164),
-    u = n(3045),
-    l = n(2295),
-    c = n(2354),
-    d = n(2914),
-    f = n.i(d.c)(5),
-    p = function(e) {
-      return f && n.i(c.a)(e + "_mark");
+    o = n(6),
+    i = n.n(o),
+    a = n(2296),
+    s = n(2878),
+    u = n(2991),
+    l = n(3164),
+    c = n(3438),
+    d = n(3045),
+    f = n(2295),
+    p = n(3141),
+    h = n(3028),
+    _ = n(2354),
+    m = n(2914),
+    y = n.i(m.c)(5),
+    v = function(e) {
+      return y && n.i(_.a)(e + "_mark");
     },
-    h = function(e) {
-      return f && n.i(c.b)(e, e + "_mark");
+    g = function(e) {
+      return y && n.i(_.b)(e, e + "_mark");
     },
-    _ = function(e) {
-      var t = n.i(u.getUserPref)(e, "enable_unread_view");
-      p("react_channel_sidebar_calculate_sidebar_sections");
-      var r = n.i(a.a)({
+    b = function(e) {
+      if (!n.i(h.isFeatureEnabled)(e, "feature_store_members_in_redux")) return !1;
+      if (!n.i(c.a)(e)) return !1;
+      var t = i()(n.i(p.getAllMembers)(e)).filter(function(e) {
+        return !e.is_slackbot;
+      }).size();
+      return !(t > 25) && (!(t >= 2) || "dim");
+    },
+    w = function(e) {
+      var t = n.i(d.getUserPref)(e, "enable_unread_view"),
+        r = b(e);
+      v("react_channel_sidebar_calculate_sidebar_sections");
+      var o = n.i(u.a)({
           state: e
         }),
-        i = r.sidebarSections,
-        c = r.sidebarSectionsOrdered;
-      h("react_channel_sidebar_calculate_sidebar_sections"), p("react_channel_sidebar_get_rows");
-      var d = n.i(s.a)({
+        i = o.sidebarSections,
+        s = o.sidebarSectionsOrdered;
+      g("react_channel_sidebar_calculate_sidebar_sections"), v("react_channel_sidebar_get_rows");
+      var c = n.i(l.a)({
         hasAllUnreadsLink: t,
-        hasInvitePeopleLink: !1,
-        sidebarSectionsOrdered: c,
+        hasInvitePeopleLink: r,
+        sidebarSectionsOrdered: s,
         sidebarSections: i
       });
-      h("react_channel_sidebar_get_rows");
-      var f = n.i(l.getAllChannels)(e);
+      g("react_channel_sidebar_get_rows");
+      var p = n.i(f.getAllChannels)(e);
       return {
-        selectedItemId: n.i(o.getSelectedChannelItem)(e),
-        unreadIds: n.i(l.getUnreadIds)(f),
-        rows: d
+        selectedItemId: n.i(a.getSelectedChannelItem)(e),
+        unreadIds: n.i(f.getUnreadIds)(p),
+        rows: c
       };
     },
-    m = function(e, t) {
+    k = function(e, t) {
       return {
         onItemSelect: function(r) {
-          e(n.i(o.selectItem)(r)), t.onItemSelect && t.onItemSelect(r);
+          e(n.i(a.selectItem)(r)), t.onItemSelect && t.onItemSelect(r);
         }
       };
     };
-  t.a = n.i(r.b)(_, m)(i.a);
+  t.a = n.i(r.b)(w, k)(s.a);
 }, function(e, t, n) {
   "use strict";
   var r = n(2880);
@@ -32438,7 +32445,8 @@ webpackJsonp([332], [, function(e, t, n) {
       hasUnreads: a.PropTypes.bool,
       badgeCount: a.PropTypes.number,
       isSelected: a.PropTypes.bool,
-      selectItem: a.PropTypes.func
+      selectItem: a.PropTypes.func,
+      isDim: a.PropTypes.bool
     },
     _ = {
       isSelected: !1,
@@ -32447,7 +32455,8 @@ webpackJsonp([332], [, function(e, t, n) {
       labelUnread: "",
       hasUnreads: !1,
       badgeCount: 0,
-      selectItem: l.a.noop
+      selectItem: l.a.noop,
+      isDim: !1
     },
     m = function(e) {
       function t(e) {
@@ -32470,24 +32479,26 @@ webpackJsonp([332], [, function(e, t, n) {
             o = e.hasUnreads,
             i = e.badgeCount,
             a = e.isSelected,
-            u = d()("p-channel_sidebar__link", {
+            u = e.isDim,
+            l = d()("p-channel_sidebar__link", {
               "p-channel_sidebar__link--all-unreads": "Vall_unreads" === t,
               "p-channel_sidebar__link--all-threads": "Vall_threads" === t,
               "p-channel_sidebar__link--invites": "Vinvites" === t,
               "p-channel_sidebar__link--selected": a,
-              "p-channel_sidebar__link--unread": o
+              "p-channel_sidebar__link--unread": o,
+              "p-channel_sidebar__link--dim": u
             }),
-            l = o && r ? r : n,
-            c = s.a.createElement("span", {
+            c = o && r ? r : n,
+            p = s.a.createElement("span", {
               className: "p-channel_sidebar__name"
-            }, l),
-            p = s.a.createElement(f.a, {
+            }, c),
+            h = s.a.createElement(f.a, {
               count: i
             });
           return s.a.createElement("button", {
-            className: u,
+            className: l,
             onClick: this.onClick
-          }, c, p);
+          }, p, h);
         }
       }]), t;
     }(a.PureComponent);
@@ -35866,7 +35877,7 @@ webpackJsonp([332], [, function(e, t, n) {
         o = e.channel,
         a = e.currentlySelectedId,
         u = e.state;
-      return a === o.id || !n.i(s.isArchived)(o) && (!(n.i(s.isChannel)(o) && !n.i(s.isMemberOfChannel)(o)) && (!((n.i(s.isIm)(o) || n.i(s.isMpim)(o)) && !n.i(s.isOpen)(o)) && (!(!r || !n.i(s.isStarred)(o)) || (!!n.i(s.hasDraft)(o) || (!(!n.i(i.isChannelMutedById)(u, o.id) || !n.i(s.shouldShowWithoutUnreads)(o)) || (!r && !t || !n.i(s.isRead)(o)))))));
+      return a === o.id || !n.i(s.isArchived)(o) && (!(n.i(s.isChannel)(o) && !n.i(s.isMemberOfChannel)(o)) && (!((n.i(s.isIm)(o) || n.i(s.isMpim)(o)) && !n.i(s.isOpen)(o) && n.i(s.isRead)(o)) && (!(!r || !n.i(s.isStarred)(o)) || (!!n.i(s.hasDraft)(o) || (!(!n.i(i.isChannelMutedById)(u, o.id) || !n.i(s.shouldShowWithoutUnreads)(o)) || (!r && !t || !n.i(s.isRead)(o)))))));
     },
     y = function(e) {
       var t = e.channel;
@@ -38055,7 +38066,7 @@ webpackJsonp([332], [, function(e, t, n) {
     };
   };
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".c-message {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  display: flex;\n  padding-right: 40px;\n}\n.c-message:hover {\n  background-color: #F9F9F9;\n}\n.c-message.c-message--light {\n  padding-top: 5px;\n  padding-bottom: 3px;\n}\n.c-message.c-message--dense {\n  padding-top: 3px;\n  padding-bottom: 2px;\n}\n.c-message.c-message--light.c-message--adjacent {\n  padding-top: 2px;\n}\n.c-message__gutter {\n  text-align: right;\n  flex-shrink: 0;\n}\n.c-message--adjacent .c-message__gutter {\n  visibility: hidden;\n}\n.c-message--adjacent:hover .c-message__gutter {\n  visibility: visible;\n}\n.c-message--light .c-message__gutter {\n  width: 72px;\n  padding-right: 10px;\n}\n.c-message--dense .c-message__gutter {\n  width: 58px;\n  margin-right: 22px;\n}\n.c-message--dense .c-timestamp__label {\n  color: #717274;\n}\n.c-message__content {\n  flex: 0 1 100%;\n}\n.c-message--dense .c-message__content {\n  padding-left: 8px;\n}\n.c-message__sender {\n  font-weight: 900;\n}\n.c-message--light .c-message__sender {\n  margin-right: 6px;\n  color: #2C2D30;\n}\n.c-message--dense .c-message__sender {\n  margin-left: -8px;\n}\n.c-message__sender--unknown {\n  display: inline-block;\n  width: 80px;\n  height: .9rem;\n  border-radius: .9rem;\n  vertical-align: bottom;\n  background: #E8E8E8;\n}\n.c-message--dense .c-message__content_header {\n  display: inline;\n  margin-right: 4px;\n}\n.c-message--light .c-message__content_header {\n  line-height: 1;\n  margin-bottom: 3px;\n}\n.c-message__body {\n  line-height: 1.4;\n  color: #2C2D30;\n}\n.c-message__reply_bar {\n  display: flex;\n  align-items: center;\n  max-width: 600px;\n  margin-top: 5px;\n  padding: 3px;\n  font-size: 12px;\n  border: 1px solid transparent;\n  border-radius: 6px;\n  cursor: pointer;\n}\n.c-message__reply_bar:hover {\n  background-color: #FFF;\n  border-color: rgba(0, 0, 0, 0.15);\n}\n.c-message__reply_bar:hover .c-message__reply_bar_arrow {\n  color: #A0A0A2;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_last_reply {\n  opacity: 0;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_view_thread {\n  opacity: 1;\n}\n.c-message__reply_bar .c-avatar {\n  margin-right: 4px;\n}\n.c-message__reply_count {\n  margin-left: 3px;\n  font-weight: bold;\n}\n.c-message__reply_bar_description {\n  position: relative;\n  margin-left: 8px;\n  color: #A0A0A2;\n}\n.c-message__reply_bar_arrow {\n  margin-left: auto;\n  color: transparent;\n}\n.c-message__reply_bar_arrow::before {\n  vertical-align: top;\n}\n.c-message__reply_bar_last_reply {\n  opacity: 1;\n  transition: opacity 0.2s;\n}\n.c-message__reply_bar_view_thread {\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  opacity: 0;\n  transition: opacity 0.2s;\n}\n.c-message__attachment {\n  display: flex;\n  align-items: stretch;\n  margin-top: 2px;\n}\n.c-message__attachment_column {\n  width: 4px;\n  background-color: #E8E8E8;\n  border-radius: 8px;\n}\n.c-message__attachment_body {\n  padding-left: 12px;\n  padding-right: 12px;\n}\n.c-message__bot-label {\n  color: #A0A0A2;\n  font-weight: 500;\n  font-size: 12px;\n  margin: 0 0.15rem;\n  padding: 0 0.1rem;\n  vertical-align: middle;\n  background: #f2f2f5;\n}\n.c-message__image_wrapper {\n  display: block;\n  position: relative;\n  overflow: hidden;\n  border-radius: 3px;\n}\n.c-message__image_description {\n  margin-bottom: 8px;\n  color: #A0A0A2;\n}\n.c-message__image_caret {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n}\n.c-message__image_caret:hover,\n.c-message__image_caret:focus,\n.c-message__image_caret:active {\n  outline: none;\n}\n.c-message__image_description .c-message__image_link {\n  font-weight: 700;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".c-message {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  display: flex;\n  padding-right: 40px;\n}\n.c-message:hover {\n  background-color: #F9F9F9;\n}\n.c-message.c-message--light {\n  padding-top: 5px;\n  padding-bottom: 3px;\n}\n.c-message.c-message--dense {\n  padding-top: 3px;\n  padding-bottom: 2px;\n}\n.c-message.c-message--light.c-message--adjacent {\n  padding-top: 2px;\n}\n.c-message__gutter {\n  text-align: right;\n  flex-shrink: 0;\n}\n.c-message--adjacent .c-message__gutter {\n  visibility: hidden;\n}\n.c-message--adjacent:hover .c-message__gutter {\n  visibility: visible;\n}\n.c-message--light .c-message__gutter {\n  width: 72px;\n  padding-right: 10px;\n}\n.c-message--dense .c-message__gutter {\n  width: 58px;\n  margin-right: 22px;\n}\n.c-message--dense .c-timestamp__label {\n  color: #717274;\n}\n.c-message__content {\n  flex: 0 1 100%;\n}\n.c-message--dense .c-message__content {\n  padding-left: 8px;\n}\n.c-message__sender {\n  font-weight: 900;\n}\n.c-message--light .c-message__sender {\n  margin-right: 6px;\n  color: #2C2D30;\n}\n.c-message--dense .c-message__sender {\n  margin-left: -8px;\n}\n.c-message__sender--unknown {\n  display: inline-block;\n  width: 80px;\n  height: .9rem;\n  border-radius: .9rem;\n  vertical-align: bottom;\n  background: #E8E8E8;\n}\n.c-message--dense .c-message__content_header {\n  display: inline;\n  margin-right: 4px;\n}\n.c-message--light .c-message__content_header {\n  line-height: 1;\n  margin-bottom: 3px;\n}\n.c-message__body {\n  line-height: 1.4;\n  color: #2C2D30;\n}\n.c-message__mention {\n  background: #FFF4BF;\n  border-radius: 3px;\n  padding: 0 2px 1px 2px;\n}\n.c-message__reply_bar {\n  display: flex;\n  align-items: center;\n  max-width: 600px;\n  margin-top: 5px;\n  padding: 3px;\n  font-size: 12px;\n  border: 1px solid transparent;\n  border-radius: 6px;\n  cursor: pointer;\n}\n.c-message__reply_bar:hover {\n  background-color: #FFF;\n  border-color: rgba(0, 0, 0, 0.15);\n}\n.c-message__reply_bar:hover .c-message__reply_bar_arrow {\n  color: #A0A0A2;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_last_reply {\n  opacity: 0;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_view_thread {\n  opacity: 1;\n}\n.c-message__reply_bar .c-avatar {\n  margin-right: 4px;\n}\n.c-message__reply_count {\n  margin-left: 3px;\n  font-weight: bold;\n}\n.c-message__reply_bar_description {\n  position: relative;\n  margin-left: 8px;\n  color: #A0A0A2;\n}\n.c-message__reply_bar_arrow {\n  margin-left: auto;\n  color: transparent;\n}\n.c-message__reply_bar_arrow::before {\n  vertical-align: top;\n}\n.c-message__reply_bar_last_reply {\n  opacity: 1;\n  transition: opacity 0.2s;\n}\n.c-message__reply_bar_view_thread {\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  opacity: 0;\n  transition: opacity 0.2s;\n}\n.c-message__attachment {\n  display: flex;\n  align-items: stretch;\n  margin-top: 2px;\n}\n.c-message__attachment_column {\n  width: 4px;\n  background-color: #E8E8E8;\n  border-radius: 8px;\n}\n.c-message__attachment_body {\n  padding-left: 12px;\n  padding-right: 12px;\n}\n.c-message__bot-label {\n  color: #A0A0A2;\n  font-weight: 500;\n  font-size: 12px;\n  margin: 0 0.15rem;\n  padding: 0 0.1rem;\n  vertical-align: middle;\n  background: #f2f2f5;\n}\n.c-message__image_wrapper {\n  display: block;\n  position: relative;\n  overflow: hidden;\n  border-radius: 3px;\n}\n.c-message__image_description {\n  margin-bottom: 8px;\n  color: #A0A0A2;\n}\n.c-message__image_caret {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n}\n.c-message__image_caret:hover,\n.c-message__image_caret:focus,\n.c-message__image_caret:active {\n  outline: none;\n}\n.c-message__image_description .c-message__image_link {\n  font-weight: 700;\n}\n", ""]);
 }, function(e, t, n) {
   t = e.exports = n(189)(), t.push([e.i, ".c-message_list {\n  border-right: 0.25rem solid transparent;\n  overflow-y: scroll;\n  overflow-x: hidden;\n  height: 100%;\n}\n.c-message_list::-webkit-scrollbar {\n  position: absolute;\n  -webkit-appearance: none;\n  width: 8px;\n}\n.c-message_list::-webkit-scrollbar-track,\n.c-message_list::-webkit-scrollbar-thumb {\n  background-clip: padding-box !important;\n  border-radius: 3px;\n  color: #FFFFFF;\n}\n.c-message_list::-webkit-scrollbar-track {\n  background: #F5F5F5;\n  box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0;\n}\n.c-message_list::-webkit-scrollbar-thumb {\n  background: #D9D9DE;\n  box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;\n  min-height: 36px;\n}\n.c-message_list::-webkit-scrollbar-corner {\n  background: #FFFFFF;\n}\n", ""]);
 }, function(e, t, n) {
@@ -39096,7 +39107,8 @@ webpackJsonp([332], [, function(e, t, n) {
     }), n && (i.push({
       type: "spacer"
     }), i.push({
-      type: "invitePeopleLink"
+      type: "invitePeopleLink",
+      dim: "dim" === n
     })), i.push({
       type: "spacer"
     }), i.push({
@@ -39752,6 +39764,7 @@ webpackJsonp([332], [, function(e, t, n) {
     s = function(e) {
       return {
         emojiMode: n.i(i.getUserPref)(e, "emoji_mode"),
+        highlights: n.i(i.getUserPref)(e, "highlight_words"),
         featureReactMessages: n.i(a.isFeatureEnabled)(e, "feature_react_messages")
       };
     };
@@ -39782,10 +39795,11 @@ webpackJsonp([332], [, function(e, t, n) {
   var a = n(2),
     s = n.n(a),
     u = n(3434),
-    l = n(3087),
-    c = n(3190),
-    d = n(3283),
-    f = function() {
+    l = n(3435),
+    c = n(3087),
+    d = n(3190),
+    f = n(3283),
+    p = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
@@ -39796,10 +39810,11 @@ webpackJsonp([332], [, function(e, t, n) {
         return n && e(t.prototype, n), r && e(t, r), t;
       };
     }(),
-    p = {
+    h = {
       text: a.PropTypes.string,
       tsfMode: a.PropTypes.string,
       className: a.PropTypes.string,
+      highlights: a.PropTypes.string,
       emojiMode: a.PropTypes.string,
       noJumbomoji: a.PropTypes.bool,
       noLinking: a.PropTypes.bool,
@@ -39813,10 +39828,11 @@ webpackJsonp([332], [, function(e, t, n) {
       stopAnimations: a.PropTypes.bool,
       featureReactMessages: a.PropTypes.bool
     },
-    h = {
+    _ = {
       text: "",
       tsfMode: "NORMAL",
       className: "",
+      highlights: "",
       emojiMode: "default",
       noJumbomoji: !1,
       noLinking: !1,
@@ -39830,13 +39846,13 @@ webpackJsonp([332], [, function(e, t, n) {
       stopAnimations: !1,
       featureReactMessages: !1
     },
-    _ = function(e) {
+    m = function(e) {
       function t(e) {
         r(this, t);
         var n = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
         return n.renderBold = n.renderBold.bind(n), n.renderItalic = n.renderItalic.bind(n), n.renderCode = n.renderCode.bind(n), n.renderPre = n.renderPre.bind(n), n.renderStrike = n.renderStrike.bind(n), n.renderHex = n.renderHex.bind(n), n.renderChannel = n.renderChannel.bind(n), n.renderQuote = n.renderQuote.bind(n), n;
       }
-      return i(t, e), f(t, null, [{
+      return i(t, e), p(t, null, [{
         key: "renderQuotePrefix",
         value: function() {
           return s.a.createElement("span", {
@@ -39900,7 +39916,7 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "renderEmoji",
         value: function(e) {
           var t = e.name;
-          return s.a.createElement(c.a, {
+          return s.a.createElement(d.a, {
             text: t
           });
         }
@@ -39908,12 +39924,19 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "renderJumbomoji",
         value: function(e) {
           var t = e.name;
-          return s.a.createElement(c.a, {
+          return s.a.createElement(d.a, {
             text: t,
             isJumbomoji: !0
           });
         }
-      }]), f(t, [{
+      }, {
+        key: "renderHighlight",
+        value: function(e) {
+          return s.a.createElement("span", {
+            className: "c-message__mention"
+          }, e);
+        }
+      }]), p(t, [{
         key: "renderBold",
         value: function(e) {
           var t = e.contents;
@@ -39980,30 +40003,46 @@ webpackJsonp([332], [, function(e, t, n) {
           }, this.renderMrkdwnFormatting(t)));
         }
       }, {
+        key: "renderHighlights",
+        value: function(e) {
+          var r = this.props.highlights;
+          if (!e || !r) return e;
+          var o = r.split(/\s*,\s*/),
+            i = n.i(l.a)(e, o),
+            a = [],
+            s = 0;
+          return i.forEach(function(n) {
+            var r = n.highlight,
+              o = n.index;
+            a.push(e.slice(s, o)), a.push(t.renderHighlight(r)), s = o + r.length;
+          }), s !== e.length && a.push(e.slice(s)), a;
+        }
+      }, {
         key: "renderMrkdwnFormatting",
         value: function(e) {
-          var n = {
-            bold: this.renderBold,
-            italic: this.renderItalic,
-            strike: this.renderStrike,
-            code: this.renderCode,
-            pre: this.renderPre,
-            quote: this.renderQuote,
-            quote_prefix: t.renderQuotePrefix,
-            long_quote_prefix: t.renderLongQuotePrefix,
-            line_break: t.renderLineBreak,
-            paragraph_break: t.renderParagraphBreak,
-            space_hard: t.renderHardSpace,
-            link: t.renderLink,
-            command: t.renderCommand,
-            member: t.renderMember,
-            channel: this.renderChannel,
-            emoji: t.renderEmoji,
-            jumbomoji: t.renderJumbomoji,
-            hex: this.renderHex
-          };
+          var n = this,
+            r = {
+              bold: this.renderBold,
+              italic: this.renderItalic,
+              strike: this.renderStrike,
+              code: this.renderCode,
+              pre: this.renderPre,
+              quote: this.renderQuote,
+              quote_prefix: t.renderQuotePrefix,
+              long_quote_prefix: t.renderLongQuotePrefix,
+              line_break: t.renderLineBreak,
+              paragraph_break: t.renderParagraphBreak,
+              space_hard: t.renderHardSpace,
+              link: t.renderLink,
+              command: t.renderCommand,
+              member: t.renderMember,
+              channel: this.renderChannel,
+              emoji: t.renderEmoji,
+              jumbomoji: t.renderJumbomoji,
+              hex: this.renderHex
+            };
           return e.map(function(e) {
-            return n[e.type] ? n[e.type](e) : e.text;
+            return r[e.type] ? r[e.type](e) : n.renderHighlights(e.text);
           });
         }
       }, {
@@ -40025,7 +40064,7 @@ webpackJsonp([332], [, function(e, t, n) {
             r = this.props,
             o = r.tsfMode,
             i = r.noLinking;
-          return s.a.createElement(d.a, {
+          return s.a.createElement(f.a, {
             id: t,
             fallbackName: n,
             tsfMode: o,
@@ -40041,7 +40080,7 @@ webpackJsonp([332], [, function(e, t, n) {
             o = e.className,
             i = e.emojiMode,
             a = e.noJumbomoji,
-            c = e.noLinking,
+            l = e.noLinking,
             d = e.noSpecials,
             f = e.noHighlights,
             p = e.noEmojiText,
@@ -40051,9 +40090,9 @@ webpackJsonp([332], [, function(e, t, n) {
             y = e.showIconForEmojiInAsTextMode,
             v = e.stopAnimations;
           if (!e.featureReactMessages) {
-            var g = n.i(l.a)(t, null, {
+            var g = n.i(c.a)(t, null, {
               no_jumbomoji: a,
-              no_linking: c,
+              no_linking: l,
               no_specials: d,
               no_highlights: f,
               no_emoji_text: p,
@@ -40080,7 +40119,7 @@ webpackJsonp([332], [, function(e, t, n) {
         }
       }]), t;
     }(a.PureComponent);
-  t.a = _, _.propTypes = p, _.defaultProps = h;
+  t.a = m, m.propTypes = h, m.defaultProps = _;
 }, , function(e, t, n) {
   "use strict";
   var r = n(2),
@@ -51650,5 +51689,123 @@ webpackJsonp([332], [, function(e, t, n) {
       "<SPACE:HARD>": {
         type: "space_hard"
       }
+    };
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e) {
+    return !f.test(e);
+  }
+
+  function o(e, t) {
+    return !f.test(e) && ("." !== e || "@" !== t.charAt(0));
+  }
+
+  function i(e, t) {
+    var n = e.slice(0, t);
+    return p.test(n);
+  }
+
+  function a(e, t, n) {
+    var r = e.slice(0, t);
+    if (!h.test(r)) return !1;
+    var o = e.slice(t + n.length);
+    return !!_.test(o);
+  }
+
+  function s(e, t, n, s) {
+    if (s[n]) return !1;
+    if (i(e, n)) return !1;
+    if (a(e, n, t)) return !1;
+    var u = e.charAt(n - 1),
+      l = e.charAt(n + t.length);
+    return ("&" !== u || ";" !== l) && (!!r(u) && !!o(l, t));
+  }
+
+  function u(e) {
+    return e.sort(function(e, t) {
+      return t.length - e.length;
+    });
+  }
+
+  function l(e) {
+    return e.sort(function(e, t) {
+      return e.index - t.index;
+    });
+  }
+
+  function c(e, t) {
+    if (!e || !t || !t.length) return [];
+    var r = e.toLowerCase(),
+      o = {};
+    return l(u(t).reduce(function(e, t) {
+      if (m.test(t)) return e;
+      for (var i = n.i(d.escape)(t.toLowerCase()), a = r.indexOf(i); - 1 !== a;) {
+        if (s(r, i, a, o)) {
+          for (var u = 0; u < t.length; u++) o[a + u] = !0;
+          e.push({
+            highlight: t,
+            index: a
+          });
+        }
+        a = r.indexOf(i, a + 1);
+      }
+      return e;
+    }, []));
+  }
+  t.a = c;
+  var d = n(6),
+    f = (n.n(d), /[a-z0-9]/),
+    p = /@[^\s]*$/,
+    h = /<[^>]*$/,
+    _ = /^[^<]*>/,
+    m = /^\s*$/;
+}, function(e, t, n) {
+  "use strict";
+  var r = n(2),
+    o = n.n(r),
+    i = n(3115),
+    a = n(6),
+    s = n.n(a),
+    u = n(2882),
+    l = n(2288),
+    c = l.a.ns("channel_sidebar"),
+    d = function(e) {
+      var t = e.selectItem,
+        n = e.dim;
+      return o.a.createElement(u.a, {
+        key: "Vinvites",
+        id: "Vinvites",
+        label: c("Invite People"),
+        selectItem: t,
+        isDim: n
+      });
+    };
+  d.propTypes = {
+    selectItem: r.PropTypes.func,
+    dim: r.PropTypes.bool
+  }, d.defaultProps = {
+    selectItem: s.a.noop,
+    dim: !0
+  }, t.a = n.i(i.a)(d);
+}, function(e, t, n) {
+  "use strict";
+  n.d(t, "a", function() {
+    return o;
+  });
+  var r = n(2277),
+    o = n.i(r.a)("TS.ui.admin_invites.start", function() {
+      return null;
+    });
+}, function(e, t, n) {
+  "use strict";
+  n.d(t, "a", function() {
+    return i;
+  });
+  var r = n(3141),
+    o = n(3045),
+    i = function(e) {
+      var t = n.i(r.getCurrentMember)(e);
+      return !!t && (t.is_admin || !n.i(o.getTeamPref)(e, "invites_only_admins") && !t.is_restricted);
     };
 }], [2905]);

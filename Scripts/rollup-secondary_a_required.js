@@ -11195,7 +11195,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         T = function(e) {
           if ("unknown_members" === TS.experiment.getGroup("unknown_members_perf", TS.members.unknown_members_perf_exp_metrics)) {
             var t = !!e && e.is_unknown;
-            return e && e.is_unknown && (e.is_unknown = !1), _.pull(p, e.id), g[e.id] && (te(e.id), t && TS.statsd.measure("unknown_member_resolution_timing", "unknown_member_resolution_timing_" + e.id)), t;
+            return e && e.is_unknown && (e.is_unknown = !1), _.pull(p, e.id), g[e.id] ? (te(e.id), t && TS.statsd.measure("unknown_member_resolution_timing", "unknown_member_resolution_timing_" + e.id)) : TS.console.logError({
+              id: e.id
+            }, "unknown_member_timer_missing", "error", !0), t;
           }
         },
         b = function(e) {
@@ -17762,21 +17764,33 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }), TS.boot_data.feature_lazy_pins && !TS.pins.havePinsBeenFetched(i) ? (i.hasOwnProperty("pinned_items_count") && (e && (i.pinned_items_count += 1), e || (i.pinned_items_count -= 1)), r = !0) : e || -1 === a ? e && -1 === a && (i.pinned_items.unshift(t), i.pinned_items_count = i.pinned_items.length, r = !0) : (i.pinned_items.splice(a, 1), i.pinned_items_count = i.pinned_items.length, r = !0), i.has_pins = !!i.pinned_items_count, r;
         },
         l = function(e, t, n) {
-          var i = TS.i18n.t("Are you sure you want to pin this {type} to {pin_to_label}?", "pins")({
-              type: e,
-              pin_to_label: Handlebars.helpers.pinToLabel(t)
-            }),
-            r = "<p>" + i + "</p>" + TS.client.channel_page.pinnedItemHtml(n, t),
-            a = TS.i18n.t("Pin {type}", "pins")({
-              type: e
-            }),
-            s = TS.i18n.t("Yes, pin this {type}", "pins")({
-              type: e
-            });
+          var i = "",
+            r = "",
+            a = "";
+          switch (e) {
+            case "file":
+              i = TS.i18n.t("Are you sure you want to pin this file to {pin_to_label}?", "pins")({
+                type: e,
+                pin_to_label: Handlebars.helpers.pinToLabel(t)
+              }), r = TS.i18n.t("Pin file", "pins")(), a = TS.i18n.t("Yes, pin this file", "pins")();
+              break;
+            case "comment":
+              i = TS.i18n.t("Are you sure you want to pin this comment to {pin_to_label}?", "pins")({
+                type: e,
+                pin_to_label: Handlebars.helpers.pinToLabel(t)
+              }), r = TS.i18n.t("Pin comment", "pins")(), a = TS.i18n.t("Yes, pin this comment", "pins")();
+              break;
+            case "message":
+              i = TS.i18n.t("Are you sure you want to pin this message to {pin_to_label}?", "pins")({
+                type: e,
+                pin_to_label: Handlebars.helpers.pinToLabel(t)
+              }), r = TS.i18n.t("Pin message", "pins")(), a = TS.i18n.t("Yes, pin this message", "pins")();
+          }
+          var s = "<p>" + i + "</p>" + TS.client.channel_page.pinnedItemHtml(n, t);
           TS.generic_dialog.start({
-            title: a,
-            body: r,
-            go_button_text: s,
+            title: r,
+            body: s,
+            go_button_text: a,
             onGo: function() {
               d(t, n);
             }

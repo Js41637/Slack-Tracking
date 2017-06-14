@@ -5086,12 +5086,16 @@ html.no_touch .alert_page a:hover {
   align-items: flex-end
 }
 
+.align_self_center {
+  align-self: center
+}
+
 .align_self_start {
-  align-self: flex-start
+  align-self: start
 }
 
 .align_self_end {
-  align-self: flex-end
+  align-self: end
 }
 
 .align_self_stretch {
@@ -14088,7 +14092,7 @@ body:not(.unify_user) .dm_badge .member_image,
 body:not(.unify_user) .mpdm_badge .member_image {
   margin: 0 .75rem 0 0;
   flex: none;
-  align-self: flex-start
+  align-self: start
 }
 
 .dm_badge .dm_badge_meta,
