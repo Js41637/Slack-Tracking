@@ -35208,8 +35208,7 @@ webpackJsonp([332], [, function(e, t, n) {
           return c.a.cloneElement(t, {
             onMouseEnter: this.onMouseEnter,
             onMouseLeave: this.onMouseLeave,
-            ref: this.setRef,
-            title: o
+            ref: this.setRef
           }, [].concat(r(c.a.Children.toArray(t.props.children)), [c.a.createElement(p.a, {
             isOpen: l,
             position: n,
@@ -49624,8 +49623,9 @@ webpackJsonp([332], [, function(e, t, n) {
   var a = n(3302),
     s = n.n(a),
     u = n(3301),
-    l = (n.n(u), n(3312)),
-    c = function() {
+    l = n.n(u),
+    c = n(3312),
+    d = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
@@ -49636,7 +49636,7 @@ webpackJsonp([332], [, function(e, t, n) {
         return n && e(t.prototype, n), r && e(t, r), t;
       };
     }(),
-    d = function e(t, n, r) {
+    f = function e(t, n, r) {
       null === t && (t = Function.prototype);
       var o = Object.getOwnPropertyDescriptor(t, n);
       if (void 0 === o) {
@@ -49647,32 +49647,44 @@ webpackJsonp([332], [, function(e, t, n) {
       var a = o.get;
       if (void 0 !== a) return a.call(r);
     },
-    f = s.a.import("modules/clipboard"),
-    p = {
-      onPaste: l.g,
-      onPasted: l.g
+    p = s.a.import("modules/clipboard"),
+    h = {
+      onPaste: c.g,
+      onPasted: c.g
     },
-    h = function(e) {
+    _ = function(e) {
       function t(e, i) {
         r(this, t);
         var a = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e, i));
-        return a.options = n.i(l.a)({}, p, i), a;
+        return a.options = n.i(c.a)({}, h, i), a;
       }
-      return i(t, e), c(t, [{
+      return i(t, e), d(t, [{
         key: "onPaste",
         value: function(e) {
           var n = this;
           if (!e.defaultPrevented && this.quill.isEnabled()) {
-            if (this.quill.getSelection()) return e && e.clipboardData && e.clipboardData.getData("slack/html") ? (d(t.prototype.__proto__ || Object.getPrototypeOf(t.prototype), "onPaste", this).call(this, e), void setTimeout(function() {
+            if (this.quill.getSelection()) return e && e.clipboardData && e.clipboardData.getData("slack/html") ? (quillOnPaste(e), void setTimeout(function() {
               n.options.onPasted();
-            }, 0)) : void(this.options.onPaste(e) || (d(t.prototype.__proto__ || Object.getPrototypeOf(t.prototype), "onPaste", this).call(this, e), setTimeout(function() {
+            }, 0)) : void(this.options.onPaste(e) || (f(t.prototype.__proto__ || Object.getPrototypeOf(t.prototype), "onPaste", this).call(this, e), setTimeout(function() {
               n.options.onPasted();
             }, 0)));
           }
         }
+      }, {
+        key: "quillOnPaste",
+        value: function(e) {
+          var t = this;
+          if (!e.defaultPrevented && this.quill.isEnabled()) {
+            var n = this.quill.getSelection(),
+              r = (new l.a).retain(n.index);
+            this.container.focus(), setTimeout(function() {
+              t.quill.selection.update(s.a.sources.SILENT), r = r.concat(t.convert()).delete(n.length), t.quill.updateContents(r, s.a.sources.USER), t.quill.setSelection(r.length() - n.length, s.a.sources.SILENT);
+            }, 1);
+          }
+        }
       }]), t;
-    }(f);
-  t.a = h;
+    }(p);
+  t.a = _;
 }, function(e, t, n) {
   "use strict";
 

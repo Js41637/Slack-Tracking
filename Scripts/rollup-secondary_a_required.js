@@ -1524,7 +1524,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               app_user: t(e)
             }) : TS.i18n.t("{app_user} is already in this channel.", "apps")({
               app_user: t(e)
-            }) : "no_scopes_to_add" === r ? TS.i18n.t("{app_user} can’t be added here, because it doesn’t have permission to access this type of converstaion. Sorry about that!", "apps")({
+            }) : "no_scopes_to_add" === r ? TS.i18n.t("{app_user} can’t be added here, because it doesn’t have permission to access this type of conversation. Sorry about that!", "apps")({
               app_user: t(e)
             }) : TS.i18n.t("Hmm, something went wrong, try again?", "apps")(), TS.cmd_handlers.addEphemeralFeedback(i, {
               input_txt: a,
@@ -11383,7 +11383,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return TS.flannel.fetchAndUpsertObjectsByIds(t).then(function(n) {
             t.forEach(function(e) {
               var t = TS.members.getMemberById(e);
-              t && (_.find(n, {
+              t || (t = TS.members.getPotentiallyUnknownMemberByIdWithoutFetching(e)), t && (_.find(n, {
                 id: e
               }) || (t.is_non_existent = !0), T(t));
             });
@@ -13391,7 +13391,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             else if ("member_email_item" === t);
             else if ("member_skype_item" === t);
             else if ("member_account_item" === t);
-            else if ("member_prefs_item" === t) e.preventDefault(), TS.ui.prefs_dialog.start();
+            else if ("member_prefs_item" === t) e.preventDefault(), TS.generic_dialog.cancel(), TS.ui.prefs_dialog.start();
             else if ("member_files_item" === t) e.preventDefault(), TS.view.files.clearFilter(), TS.client.ui.files.filterFileList(TS.menu.member.member.id);
             else if ("member_im_files_item" === t) {
               TS.client.ui.flex.openFlexTab("search"), TS.search.setFilter("files"), TS.view.resizeManually("TS.key_triggers");
@@ -13400,7 +13400,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             } else if ("member_dm_item" === t) e.preventDefault(), TS.ims.startImByMemberId(TS.menu.member.member.id);
             else if ("member_invite_channel_item" === t) e.preventDefault(), TS.ui.invite.showInviteMemberToChannelDialog(TS.menu.member.member.id);
             else if ("member_create_group_item" === t) e.preventDefault(), TS.ui.new_channel_modal.start("", !1, [TS.menu.member.member.id]);
-            else if ("member_profile_item" === t) e.preventDefault(), TS.menu.member.member.is_self ? TS.ui.edit_member_profile.start() : TS.client.ui.previewMember(TS.menu.member.member.id);
+            else if ("member_profile_item" === t) e.preventDefault(), TS.menu.member.member.is_self ? (TS.generic_dialog.cancel(), TS.ui.edit_member_profile.start()) : TS.client.ui.previewMember(TS.menu.member.member.id);
             else {
               if ("member_presence" === t) return e.preventDefault(), TS.members.toggleUserPresence(), void(TS.menu.end_time = setTimeout(function() {
                 TS.menu.member.end(), TS.menu.member.member_item_click_sig.dispatch(t);
@@ -39851,7 +39851,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               TS.log(1990, "Got membership for " + b.length + " users in " + d.id + "; any fetches required? " + e), e && u(function() {
                 r(null, T);
               });
-            }), TS.boot_data.feature_app_permissions_backend && TS.apps.permissions.ensureAppResourceMembershipIsKnown(d.id).then(function(e) {
+            }), TS.boot_data.feature_app_permissions_api_site && TS.apps.permissions.ensureAppResourceMembershipIsKnown(d.id).then(function(e) {
               e && u(function() {
                 r(null, T);
               });
@@ -40001,7 +40001,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             a = [];
           TS.boot_data.feature_name_tagging_client ? (r.push("display_name"), a.push("secondary_name"), n = TS.members.getPrefCompliantMemberName(t, !1, !1), TS.members.getMemberProfileFieldDisplayName(t) ? (r.push("display_name"), a.push("real_name"), i = TS.members.getMemberRealName(t)) : (r.push("real_name"), a.push("display_name"), i = TS.members.getMemberProfileFieldDisplayName(t))) : (r.push("username"), a.push("realname"), n = t.name, i = TS.members.getMemberRealName(t));
           var s, o, l, d = e && !e.is_im;
-          TS.boot_data.feature_app_permissions_backend && t.is_app_user ? (l = TS.apps.permissions.getAppUserResourceMembershipStatus(t.id, e.id), o = l.is_known, s = !l.is_member) : d && (l = TS.membership.getUserChannelMembershipStatus(t.id, e), (o = l.is_known) && (s = !l.is_member));
+          TS.boot_data.feature_app_permissions_api_site && t.is_app_user ? (l = TS.apps.permissions.getAppUserResourceMembershipStatus(t.id, e.id), o = l.is_known, s = !l.is_member) : d && (l = TS.membership.getUserChannelMembershipStatus(t.id, e), (o = l.is_known) && (s = !l.is_member));
           var c;
           if (TS.boot_data.feature_shared_channels_client && TS.utility.teams.isMemberExternal(t)) {
             var _ = TS.teams.getTeamById(t.team_id);

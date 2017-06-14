@@ -1,0 +1,33 @@
+{{i18n_ns "app_space"}}
+<div class="p-app_space_settings" data-app_id="{{app_id}}" data-bot_id="{{bot_id}}">
+
+  {{#if show_settings_section}}
+    <section>
+      <h3 class="p-app_space__header">{{#t}}Settings{{/t}}</h3>
+      <div>
+        <div data-js="app_auth_settings">
+          {{> loading_indicator}}
+        </div>
+        {{#if bot_user_channel_count}}
+          {{#if custom_integration_type}}
+            <div>
+              {{#t}}This bot is in {bot_user_channel_count, plural, =1 {# channel} other {# channels} }.{{/t}}
+            </div>
+          {{else}}
+            <div>
+              {{#t}}This app is in {bot_user_channel_count, plural, =1 {# channel} other {# channels} }.{{/t}}
+            </div>
+          {{/if}}
+        {{/if}}
+      </div>
+    </section>
+  {{/if}}
+  {{#unless is_directory_published}}
+    <section>
+      <p>
+        <i>{{#t}}This app has not been reviewed by Slack.{{/t}}</i>
+      </p>
+    </section>
+  {{/unless}}
+
+</div>

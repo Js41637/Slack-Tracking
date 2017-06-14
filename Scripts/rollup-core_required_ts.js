@@ -2461,7 +2461,7 @@ webpackJsonp([12, 328, 337, 329], {
               TS.reload();
             }
           });
-          TS.info("TS.reload() called: " + (n || "no reason specified")), TS.console && TS.console.logStackTrace(), window.location.reload(t);
+          n && (n = JSON.stringify(n)), TS.info("TS.reload() called: " + (n || "no reason specified")), TS.console && TS.console.logStackTrace(), window.location.reload(t);
         },
         reloadIfVersionsChanged: function(e) {
           return TS.model.ms_logged_in_once && e.min_version_ts && "dev" !== TS.boot_data.version_ts && parseInt(TS.boot_data.version_ts, 10) < parseInt(e.min_version_ts, 10) ? (TS.reload(null, "parseInt(TS.boot_data.version_ts) < parseInt(data.min_version_ts)"), !0) : TS.model.ms_logged_in_once && e.cache_version && e.cache_version != TS.storage.msgs_version ? (TS.reload(null, "data.cache_version " + e.cache_version + " != TS.storage.msgs_version " + TS.storage.msgs_version), !0) : !(!TS.model.ms_logged_in_once || !e.cache_ts_version || e.cache_ts_version == TS.storage.cache_ts_version) && (TS.reload(null, "data.cache_ts_version " + e.cache_ts_version + " != TS.storage.cache_ts_version " + TS.storage.cache_ts_version), !0);

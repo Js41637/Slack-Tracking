@@ -1,7 +1,12 @@
 {{i18n_ns 'apps'}}
 {{!-- Abbreviated app description, rendered by TS.web.app_detail.source.js --}}
-
-<div class="app_profile_section_text app_profile_desc {{#if_not_equal hide_expand_button compare=1}}app_desc_expand_showing{{/if_not_equal}}" data-js="app_profile_desc">
+<div class="
+  p-app_space_profile__description
+  {{!-- TODO: Clean these classes up once everything moved to App Space (garrett) --}}
+  app_profile_section_text app_profile_desc
+  {{#if_not_equal hide_expand_button compare=1}}app_desc_expand_showing{{/if_not_equal}}"
+  data-js="app_profile_desc"
+>
   {{#if hide_expand_button}}
     <div>{{long_description}}</div>
   {{else}}

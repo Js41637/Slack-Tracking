@@ -5086,11 +5086,6 @@ html.no_touch .alert_page a:hover {
   align-items: flex-end
 }
 
-.align_self_center {
-  -ms-flex-item-align: center;
-  align-self: center
-}
-
 .align_self_start {
   align-self: flex-start
 }
