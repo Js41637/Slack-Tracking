@@ -1,7 +1,7 @@
 {{i18n_ns "highlights"}}
 
 <div class="sli_briefing" id="sli_briefing">
-  <div class="sli_briefing_preview_container sli_briefing_preview--loading" data-js="sli_briefing_preview_container">
+  <div class="sli_briefing_preview_container sli_briefing_preview--loading {{#if show_onboarding}}sli_briefing_preview--onboarding{{/if}}" data-js="sli_briefing_preview_container">
     <div class="sli_briefing_preview" data-js="sli_briefing_preview">
       <div class="sli_briefing_preview__inner display_flex align_items_center">
         <div class="sli_briefing_preview__logo" data-js="sli_briefing_preview_icon">
@@ -11,7 +11,7 @@
         <div class="sli_briefing_preview__overview">
           <h3 class="sli_briefing_preview__title">
             <ts-icon class="ts_icon_sparkles_filled sli_briefing_preview__title_sparkles"></ts-icon>
-            <span data-js="sli_briefing_preview_title"></span>
+            <span class="sli_briefing_preview__title_content" data-js="sli_briefing_preview_title"></span>
           </h3>
           <div class="sli_briefing_preview__description display_flex align_items_center">
             <div class="sli_briefing_preview__facepile hidden" data-js="sli_briefing_preview_facepile"></div>
