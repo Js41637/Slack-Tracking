@@ -42,7 +42,7 @@
     {{/showDraftIcon}}
     {{#if this.model_ob.presence}}
       {{#shouldUseUnifiedMemberDisplay}}
-        {{> c-member member=this.model_ob size="small" context="unread_count" is_jumper=true}}
+        {{> c-member member=this.model_ob size="small" context="unread_count" is_jumper=true show_scores=jumper.show_scores frecency_score=this.score}}
       {{else}}
         {{#feature flag="feature_name_tagging_client"}}
           {{getMemberProfileFieldDisplayNameandRealNameInCorrectOrder this.model_ob}}
@@ -97,7 +97,13 @@
       {{/if}}
     {{/if}}
     {{#if jumper.show_scores}}
-      <span class="jumper_score">{{#if this.score}}{{roundToThree this.score}}{{else}}0{{/if}}</span>
+      {{#if this.model_ob.presence}}
+        {{#unlessUseUnifiedMemberDisplay}}
+          <span class="frecency_score">{{#if this.score}}{{roundToThree this.score}}{{else}}0{{/if}}</span>
+        {{/unlessUseUnifiedMemberDisplay}}
+      {{else}}
+        <span class="frecency_score">{{#if this.score}}{{roundToThree this.score}}{{else}}0{{/if}}</span>
+      {{/if}}
     {{/if}}
     {{#if this.model_ob.is_mpim}}
       {{#if this.model_ob.unread_cnt}}

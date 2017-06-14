@@ -14619,7 +14619,8 @@ body:not(.unify_user) .tab_complete_ui ul.type_members .member_image {
   font-size: .625rem;
   line-height: 1;
   padding: .1rem .2rem;
-  vertical-align: .1rem
+  vertical-align: .1rem;
+  margin-right: .4rem
 }
 
 .tab_complete_ui ul.type_cmds li.tab_complete_ui_group {
@@ -17413,6 +17414,24 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   width: 18px;
   margin: 0 0 3px 2px;
   height: 15px
+}
+
+.c-member__unread-context--small {
+  flex: 0 0 20px;
+  height: 15px
+}
+
+.c-member__unread-context--small .unread_count {
+  right: 0;
+  top: 0
+}
+
+.c-member__frecency-score--small.frecency_score {
+  position: relative;
+  flex: 0 0 10px;
+  right: 0;
+  order: 3;
+  margin-left: 3px
 }
 
 .c-member--medium {

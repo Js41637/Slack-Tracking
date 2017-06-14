@@ -18697,9 +18697,6 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         onStart: function() {
           TS.useRedux() && (e = TS.redux.bindSingleArgSelectorToStore(TS.interop.redux.features.dnd.getDndByMemberId));
         },
-        updateMemberTypeForMember: function(e) {
-          e && e.id && TS.redux.dispatch(TS.interop.redux.entities.memberTypesById.updateMemberType(e));
-        },
         isMemberInDndById: function(t) {
           return e(t);
         },
@@ -39854,6 +39851,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               TS.log(1990, "Got membership for " + b.length + " users in " + d.id + "; any fetches required? " + e), e && u(function() {
                 r(null, T);
               });
+            }), TS.boot_data.feature_app_permissions_backend && TS.apps.permissions.ensureAppResourceMembershipIsKnown(d.id).then(function(e) {
+              e && u(function() {
+                r(null, T);
+              });
             });
           }
           if (o(n, g, i)) {
@@ -39999,11 +40000,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           var n, i, r = [],
             a = [];
           TS.boot_data.feature_name_tagging_client ? (r.push("display_name"), a.push("secondary_name"), n = TS.members.getPrefCompliantMemberName(t, !1, !1), TS.members.getMemberProfileFieldDisplayName(t) ? (r.push("display_name"), a.push("real_name"), i = TS.members.getMemberRealName(t)) : (r.push("real_name"), a.push("display_name"), i = TS.members.getMemberProfileFieldDisplayName(t))) : (r.push("username"), a.push("realname"), n = t.name, i = TS.members.getMemberRealName(t));
-          var s, o, l = e && !e.is_im;
-          if (l) {
-            var d = TS.membership.getUserChannelMembershipStatus(t.id, e);
-            o = d.is_known, o && (s = !d.is_member);
-          }
+          var s, o, l, d = e && !e.is_im;
+          TS.boot_data.feature_app_permissions_backend && t.is_app_user ? (l = TS.apps.permissions.getAppUserResourceMembershipStatus(t.id, e.id), o = l.is_known, s = !l.is_member) : d && (l = TS.membership.getUserChannelMembershipStatus(t.id, e), (o = l.is_known) && (s = !l.is_member));
           var c;
           if (TS.boot_data.feature_shared_channels_client && TS.utility.teams.isMemberExternal(t)) {
             var _ = TS.teams.getTeamById(t.team_id);
@@ -40014,7 +40012,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             member: t,
             primary_name_classes: r.join(" "),
             secondary_name_classes: a.join(" "),
-            show_channel_membership: l,
+            show_channel_membership: d,
             member_does_not_belong_to_channel: s,
             secondary_name: i,
             primary_name: n,
@@ -40432,7 +40430,43 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
       });
     }();
   },
-  3425: function(e, t, n) {
-    n(2499), n(2362), n(2423), n(2526), n(2366), n(2365), n(2496), n(2493), n(2494), n(2495), n(2533), n(2491), n(2505), n(3180), n(2501), n(2992), n(2504), n(3079), n(2502), n(3142), n(2503), n(3046), n(3184), n(2389), n(2473), n(2387), n(2388), n(2391), n(2663), n(2425), n(2456), n(2449), n(2507), n(2459), n(2485), n(2516), n(2528), n(2676), n(2471), n(2492), n(2527), n(2367), n(2371), n(2472), n(2498), n(2511), n(2488), n(2487), n(2450), n(2486), n(2429), n(2532), n(2530), n(2529), n(2531), n(2665), n(2670), n(2668), n(2675), n(2331), n(2672), n(2667), n(2451), n(2514), n(2482), n(2475), n(2476), n(2477), n(2624), n(2478), n(2479), n(2480), n(2481), n(2426), n(2422), n(2524), n(2474), n(2468), n(2462), n(2466), n(2489), n(2613), n(2538), n(2550), n(2655), n(2651), n(2446), n(2656), n(2457), n(2640), n(2497), n(2650), n(2464), n(2508), n(2631), n(2649), n(2623), n(2633), n(2654), n(2427), n(2620), n(2627), n(2393), n(2452), n(2612), n(2520), n(2453), n(2642), n(2647), n(2657), n(2539), n(2335), n(2518), n(2455), n(2330), n(2309), n(2673), n(2661), n(2662), n(2660), n(2664), n(2658), n(2460), n(2467), n(2619), n(2616), n(2543), n(2641), n(2369), n(2368), n(2535), n(2674), n(2677), n(2666), n(2652), n(2634), n(2363), n(2506), n(2648), n(2669), n(2637), n(2537), n(2513), n(2519), n(2671), n(2746), n(2754), n(2753), n(2750), n(2751), e.exports = n(2752);
+  3426: function(e, t) {
+    ! function() {
+      "use strict";
+      TS.registerModule("apps.permissions", {
+        ensureAppResourceMembershipIsKnown: function(n) {
+          return !t.hasOwnProperty(n) || t[n].ts && t[n].ts < Date.now() - e ? (t = {}, t[n] = {
+            ts: null,
+            apps: []
+          }, TS.api.call("apps.permissions.listForResource", {
+            channel: n
+          }).then(function(e) {
+            return t[n].ts = Date.now(), t[n].apps = _.get(e, "data.apps", []), !0;
+          })) : Promise.resolve(!1);
+        },
+        promiseToGetAppsForResource: function(e) {
+          return TS.apps.permissions.ensureAppResourceMembershipIsKnown(e).then(function() {
+            return t[e].apps;
+          });
+        },
+        getAppUserResourceMembershipStatus: function(e, n) {
+          var i = t[n];
+          return i ? {
+            is_known: !!i.ts,
+            is_member: _.findIndex(i.apps, function(t) {
+              return t.app_user_id === e;
+            }) > -1
+          } : {
+            is_known: !1,
+            is_member: !1
+          };
+        }
+      });
+      var e = 12e4,
+        t = {};
+    }();
+  },
+  3427: function(e, t, n) {
+    n(2499), n(2362), n(2423), n(2526), n(2366), n(2365), n(2496), n(2493), n(2494), n(2495), n(2533), n(2491), n(2505), n(3180), n(2501), n(2992), n(2504), n(3079), n(2502), n(3142), n(2503), n(3046), n(3184), n(2389), n(2473), n(2387), n(2388), n(2391), n(2663), n(2425), n(2456), n(2449), n(2507), n(2459), n(2485), n(2516), n(2528), n(2676), n(2471), n(2492), n(2527), n(2367), n(3426), n(2371), n(2472), n(2498), n(2511), n(2488), n(2487), n(2450), n(2486), n(2429), n(2532), n(2530), n(2529), n(2531), n(2665), n(2670), n(2668), n(2675), n(2331), n(2672), n(2667), n(2451), n(2514), n(2482), n(2475), n(2476), n(2477), n(2624), n(2478), n(2479), n(2480), n(2481), n(2426), n(2422), n(2524), n(2474), n(2468), n(2462), n(2466), n(2489), n(2613), n(2538), n(2550), n(2655), n(2651), n(2446), n(2656), n(2457), n(2640), n(2497), n(2650), n(2464), n(2508), n(2631), n(2649), n(2623), n(2633), n(2654), n(2427), n(2620), n(2627), n(2393), n(2452), n(2612), n(2520), n(2453), n(2642), n(2647), n(2657), n(2539), n(2335), n(2518), n(2455), n(2330), n(2309), n(2673), n(2661), n(2662), n(2660), n(2664), n(2658), n(2460), n(2467), n(2619), n(2616), n(2543), n(2641), n(2369), n(2368), n(2535), n(2674), n(2677), n(2666), n(2652), n(2634), n(2363), n(2506), n(2648), n(2669), n(2637), n(2537), n(2513), n(2519), n(2671), n(2746), n(2754), n(2753), n(2750), n(2751), e.exports = n(2752);
   }
-}, [3425]);
+}, [3427]);

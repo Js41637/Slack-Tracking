@@ -31500,58 +31500,7 @@ webpackJsonp([332], [, function(e, t, n) {
     d = n.i(i.a)("desktop.downloads.pauseDownload", o.a.noop),
     f = n.i(i.a)("desktop.downloads.resumeDownload", o.a.noop),
     p = n.i(i.a)("desktop.downloads.clearDownloads", o.a.noop);
-}, function(e, t, n) {
-  "use strict";
-
-  function r(e, t) {
-    if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
-  }
-  var o = n(977),
-    i = n.n(o),
-    a = n(6),
-    s = n.n(a),
-    u = function() {
-      function e(e, t) {
-        for (var n = 0; n < t.length; n++) {
-          var r = t[n];
-          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
-        }
-      }
-      return function(t, n, r) {
-        return n && e(t.prototype, n), r && e(t, r), t;
-      };
-    }(),
-    l = function() {
-      function e(t) {
-        r(this, e), i.a.prototype.stopCallback = e.stopCallback, this.mousetrap = new i.a(t);
-      }
-      return u(e, [{
-        key: "bindAll",
-        value: function(e) {
-          var t = this;
-          e.forEach(function(e) {
-            t.mousetrap.bind(e.keys, e.handler, e.action);
-          });
-        }
-      }, {
-        key: "reset",
-        value: function() {
-          this.mousetrap.reset();
-        }
-      }, {
-        key: "unbindAll",
-        value: function(e) {
-          this.mousetrap.unbind(s.a.flatMap(e, "keys"));
-        }
-      }], [{
-        key: "stopCallback",
-        value: function(e, t) {
-          return t.hasAttribute("data-no-key-commands");
-        }
-      }]), e;
-    }();
-  t.a = l;
-}, , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , function(e, t, n) {
+}, , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , function(e, t, n) {
   "use strict";
   var r = n(2887);
   t.a = r.a;
@@ -31959,7 +31908,7 @@ webpackJsonp([332], [, function(e, t, n) {
     c = n(2877),
     d = n(2883),
     f = n(3139),
-    p = n(2361),
+    p = n(3428),
     h = n(1458),
     _ = (n.n(h), Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
@@ -33146,8 +33095,8 @@ webpackJsonp([332], [, function(e, t, n) {
     m = n(2885),
     y = n(2287),
     v = n(2288),
-    g = n(2361),
-    b = n(2904),
+    g = n(3428),
+    b = n(3432),
     w = n(2906),
     k = n(2890),
     M = n(2889),
@@ -34018,7 +33967,7 @@ webpackJsonp([332], [, function(e, t, n) {
     l = n.n(u),
     c = n(1),
     d = n.n(c),
-    f = n(2919),
+    f = n(3430),
     p = n(2288),
     h = n(2287),
     _ = n(2347),
@@ -34295,7 +34244,7 @@ webpackJsonp([332], [, function(e, t, n) {
     _ = n(2893),
     m = n(2288),
     y = n(2287),
-    v = n(2361),
+    v = n(3428),
     g = n(2360),
     b = n(1493),
     w = (n.n(b), Object.assign || function(e) {
@@ -35282,23 +35231,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }]), t;
     }(l.Component);
   b.propTypes = v, b.defaultProps = g, t.a = b;
-}, function(e, t, n) {
-  "use strict";
-  n.d(t, "a", function() {
-    return o;
-  }), n.d(t, "b", function() {
-    return i;
-  }), n.d(t, "c", function() {
-    return a;
-  }), n.d(t, "d", function() {
-    return s;
-  });
-  var r = n(2909),
-    o = r.a,
-    i = r.b,
-    a = r.c,
-    s = r.d;
-}, function(e, t, n) {
+}, , function(e, t, n) {
   "use strict";
   Object.defineProperty(t, "__esModule", {
     value: !0
@@ -35420,6 +35353,8 @@ webpackJsonp([332], [, function(e, t, n) {
     return a;
   }), n.d(t, "b", function() {
     return s;
+  }), n.d(t, "c", function() {
+    return u;
   });
   var r = n(6),
     o = n.n(r),
@@ -35435,6 +35370,9 @@ webpackJsonp([332], [, function(e, t, n) {
     }),
     s = n.i(i.a)("TS.i18n.locale", function() {
       return "en-US";
+    }),
+    u = n.i(i.a)("TS.i18n.sorter", function(e, t) {
+      return e > t ? 1 : e < t ? -1 : 0;
     });
 }, function(e, t, n) {
   "use strict";
@@ -35486,7 +35424,7 @@ webpackJsonp([332], [, function(e, t, n) {
     return a;
   });
   var r = n(17),
-    o = (n.n(r), n(2922)),
+    o = (n.n(r), n(3433)),
     i = n.i(r.createAction)("Upsert a file"),
     a = n.i(r.createAction)("Upsert multiple files"),
     s = n.i(r.createAction)("Remove a file by ID"),
@@ -35543,146 +35481,7 @@ webpackJsonp([332], [, function(e, t, n) {
       window: k.default
     });
   t.a = M;
-}, , function(e, t, n) {
-  "use strict";
-
-  function r(e, t) {
-    if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
-  }
-
-  function o(e, t) {
-    if (!e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-    return !t || "object" != typeof t && "function" != typeof t ? e : t;
-  }
-
-  function i(e, t) {
-    if ("function" != typeof t && null !== t) throw new TypeError("Super expression must either be null or a function, not " + typeof t);
-    e.prototype = Object.create(t && t.prototype, {
-      constructor: {
-        value: e,
-        enumerable: !1,
-        writable: !0,
-        configurable: !0
-      }
-    }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
-  }
-  var a = n(2),
-    s = n.n(a),
-    u = n(6),
-    l = n.n(u),
-    c = Object.assign || function(e) {
-      for (var t = 1; t < arguments.length; t++) {
-        var n = arguments[t];
-        for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
-      }
-      return e;
-    },
-    d = function() {
-      function e(e, t) {
-        for (var n = 0; n < t.length; n++) {
-          var r = t[n];
-          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
-        }
-      }
-      return function(t, n, r) {
-        return n && e(t.prototype, n), r && e(t, r), t;
-      };
-    }(),
-    f = {
-      PENDING: "pending",
-      LOADED: "loaded",
-      LOADING: "loading",
-      ERROR: "error"
-    },
-    p = {
-      onError: s.a.PropTypes.func,
-      onLoad: s.a.PropTypes.func,
-      renderPending: s.a.PropTypes.func,
-      srcSet: s.a.PropTypes.string,
-      src: s.a.PropTypes.string
-    },
-    h = {
-      onError: null,
-      onLoad: null,
-      renderPending: null,
-      srcSet: "",
-      src: ""
-    },
-    _ = function(e) {
-      function t() {
-        r(this, t);
-        var e = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this));
-        return e.state = {
-          status: f.PENDING
-        }, e;
-      }
-      return i(t, e), d(t, [{
-        key: "componentDidMount",
-        value: function() {
-          var e = this.props,
-            t = e.srcSet,
-            n = e.src;
-          this.fetchImage(n, t);
-        }
-      }, {
-        key: "componentWillReceiveProps",
-        value: function(e) {
-          e.src === this.props.src && e.srcSet === this.props.srcSet || this.setState(function() {
-            return {
-              status: f.LOADING
-            };
-          });
-        }
-      }, {
-        key: "shouldComponentUpdate",
-        value: function(e, t) {
-          return this.props !== e && t.status !== f.LOADING || this.state !== t;
-        }
-      }, {
-        key: "componentDidUpdate",
-        value: function(e) {
-          var t = this.props,
-            n = t.srcSet,
-            r = t.src;
-          e.src === r && e.srcSet === n || this.fetchImage(r, n);
-        }
-      }, {
-        key: "fetchImage",
-        value: function(e, t) {
-          var n = this;
-          return new Promise(function(n, r) {
-            var o = new Image;
-            return o.src = e, t && (o.srcset = t), o.onerror = r, o.onload = n, null;
-          }).then(function() {
-            return n.setState(function() {
-              return {
-                status: f.LOADED
-              };
-            }), n.props.onLoad && n.props.onLoad(), status;
-          }).catch(function() {
-            n.setState(function() {
-              return {
-                status: f.ERROR
-              };
-            }), n.props.onError && n.props.onError();
-          });
-        }
-      }, {
-        key: "render",
-        value: function() {
-          var e = this.state.status;
-          if (e === f.LOADED || e === f.LOADING) {
-            var t = l.a.omit(this.props, "renderPending");
-            return s.a.createElement("img", c({
-              alt: ""
-            }, t));
-          }
-          return this.props.renderPending();
-        }
-      }]), t;
-    }(s.a.Component);
-  _.propTypes = p, _.defaultProps = h, t.a = _;
-}, function(e, t, n) {
+}, , , function(e, t, n) {
   "use strict";
 
   function r(e) {
@@ -35739,53 +35538,7 @@ webpackJsonp([332], [, function(e, t, n) {
   }
   var o = n(2356);
   t.a = r;
-}, function(e, t, n) {
-  "use strict";
-
-  function r(e, t, n) {
-    return t in e ? Object.defineProperty(e, t, {
-      value: n,
-      enumerable: !0,
-      configurable: !0,
-      writable: !0
-    }) : e[t] = n, e;
-  }
-
-  function o(e, t) {
-    var o, i = ["upsert", "bulkUpsert", "remove", "bulkRemove", "clear"],
-      l = a.a.pick(e, i),
-      c = l.upsert,
-      d = l.bulkUpsert,
-      f = l.remove,
-      p = l.bulkRemove,
-      h = l.clear,
-      _ = a.a.omit(e, i);
-    return n.i(s.createReducer)(u((o = {}, r(o, c, function(e, t) {
-      return t && t.id ? u({}, e, r({}, t.id, t)) : e;
-    }), r(o, d, function(e, t) {
-      return t && t.length && a.a.isArray(t) ? a.a.reduce(t, function(e, t) {
-        return t && t.id && (e[t.id] = t), e;
-      }, u({}, e)) : e;
-    }), r(o, f, function(e, t) {
-      return a.a.omit(e, t);
-    }), r(o, p, function(e, t) {
-      return a.a.omit(e, t);
-    }), r(o, h, function() {
-      return {};
-    }), o), _), t);
-  }
-  t.a = o;
-  var i = n(6),
-    a = n.n(i),
-    s = n(17),
-    u = (n.n(s), Object.assign || function(e) {
-      for (var t = 1; t < arguments.length; t++) {
-        var n = arguments[t];
-        for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
-      }
-      return e;
-    });
-}, , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , function(e, t, n) {
+}, , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , function(e, t, n) {
   "use strict";
   var r = n(1),
     o = n.n(r),
@@ -36072,7 +35825,7 @@ webpackJsonp([332], [, function(e, t, n) {
 }, function(e, t, n) {
   "use strict";
   n.d(t, "a", function() {
-    return v;
+    return g;
   });
   var r = n(6),
     o = n.n(r),
@@ -36080,15 +35833,16 @@ webpackJsonp([332], [, function(e, t, n) {
     a = n(3045),
     s = n(2295),
     u = n(2296),
-    l = Object.assign || function(e) {
+    l = n(2911),
+    c = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
         for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
       }
       return e;
     },
-    c = ["starred", "channels", "ims"],
-    d = {
+    d = ["starred", "channels", "ims"],
+    f = {
       starred: {
         channelsOrdered: [],
         hasHeading: !0
@@ -36102,12 +35856,12 @@ webpackJsonp([332], [, function(e, t, n) {
         hasHeading: !0
       }
     },
-    f = ["default", "private", "slackbot", "you", "ims", "muted"],
-    p = o.a.invert(f),
-    h = f.map(function() {
+    p = ["default", "private", "slackbot", "you", "ims", "muted"],
+    h = o.a.invert(p),
+    _ = p.map(function() {
       return [];
     }),
-    _ = function(e) {
+    m = function(e) {
       var t = e.shouldHideReadChannels,
         r = e.shouldHideReadChannelsUnlessStarred,
         o = e.channel,
@@ -36115,59 +35869,61 @@ webpackJsonp([332], [, function(e, t, n) {
         u = e.state;
       return a === o.id || !n.i(s.isArchived)(o) && (!(n.i(s.isChannel)(o) && !n.i(s.isMemberOfChannel)(o)) && (!((n.i(s.isIm)(o) || n.i(s.isMpim)(o)) && !n.i(s.isOpen)(o)) && (!(!r || !n.i(s.isStarred)(o)) || (!!n.i(s.hasDraft)(o) || (!(!n.i(i.isChannelMutedById)(u, o.id) || !n.i(s.shouldShowWithoutUnreads)(o)) || (!r && !t || !n.i(s.isRead)(o)))))));
     },
-    m = function(e) {
+    y = function(e) {
       var t = e.channel;
       return n.i(s.isStarred)(t) ? "starred" : n.i(s.isIm)(t) || n.i(s.isMpim)(t) ? "ims" : "channels";
     },
-    y = function(e) {
+    v = function(e) {
       var t = e.shouldSeparatePrivateChannels,
         r = e.channel,
         o = e.state;
-      return n.i(i.isChannelMutedById)(o, r.id) ? p.muted : n.i(s.isSlackbot)(r) ? p.slackbot : n.i(s.isYou)(r) ? p.you : n.i(s.isIm)(r) || n.i(s.isMpim)(r) ? p.ims : t && n.i(s.isGroup)(r) ? p.private : p.default;
+      return n.i(i.isChannelMutedById)(o, r.id) ? h.muted : n.i(s.isSlackbot)(r) ? h.slackbot : n.i(s.isYou)(r) ? h.you : n.i(s.isIm)(r) || n.i(s.isMpim)(r) ? h.ims : t && n.i(s.isGroup)(r) ? h.private : h.default;
     },
-    v = function(e) {
+    g = function(e) {
       var t = e.state,
         r = e.sidebarSectionsOrdered,
-        i = void 0 === r ? c.concat() : r,
-        f = n.i(a.getUserPref)(t, "sidebar_behavior"),
-        p = "hide_read_channels" === f,
-        v = "hide_read_channels_unless_starred" === f,
-        g = n.i(a.getUserPref)(t, "separate_private_channels"),
-        b = n.i(s.getAllChannels)(t),
-        w = {};
+        i = void 0 === r ? d.concat() : r,
+        p = n.i(a.getUserPref)(t, "sidebar_behavior"),
+        h = "hide_read_channels" === p,
+        g = "hide_read_channels_unless_starred" === p,
+        b = n.i(a.getUserPref)(t, "separate_private_channels"),
+        w = n.i(s.getAllChannels)(t),
+        k = {};
       i.forEach(function(e) {
-        w[e] = l({}, d[e]), w[e].channelsOrdered = o.a.cloneDeep(h);
+        k[e] = c({}, f[e]), k[e].channelsOrdered = o.a.cloneDeep(_);
       });
-      var k = n.i(u.getSelectedChannelItem)(t);
-      o.a.chain(b).filter(function(e) {
-        return _({
-          shouldHideReadChannels: p,
-          shouldHideReadChannelsUnlessStarred: v,
-          currentlySelectedId: k,
+      var M = n.i(u.getSelectedChannelItem)(t);
+      o.a.filter(w, function(e) {
+        return m({
+          shouldHideReadChannels: h,
+          shouldHideReadChannelsUnlessStarred: g,
+          currentlySelectedId: M,
           channel: e,
           state: t
         });
-      }).sortBy(s.getDisplayName).value().forEach(function(e) {
-        var n = m({
+      }).sort(function(e, t) {
+        return n.i(l.c)(n.i(s.getDisplayName)(e), n.i(s.getDisplayName)(t));
+      }).forEach(function(e) {
+        var n = y({
             channel: e
           }),
-          r = y({
-            shouldSeparatePrivateChannels: g,
+          r = v({
+            shouldSeparatePrivateChannels: b,
             channel: e,
             state: t
           });
-        w[n].channelsOrdered[r].push(e.id);
+        k[n].channelsOrdered[r].push(e.id);
       });
-      var M = o.a.mapValues(w, function(e) {
-        return l({}, e, {
+      var T = o.a.mapValues(k, function(e) {
+        return c({}, e, {
           channelsOrdered: o.a.flatten(e.channelsOrdered)
         });
       });
-      return M.starred.channelsOrdered.length < 1 && (delete M.starred, o.a.remove(i, function(e) {
+      return T.starred.channelsOrdered.length < 1 && (delete T.starred, o.a.remove(i, function(e) {
         return "starred" === e;
       })), {
         sidebarSectionsOrdered: i,
-        sidebarSections: M
+        sidebarSections: T
       };
     };
 }, , , function(e, t, n) {
@@ -36315,47 +36071,66 @@ webpackJsonp([332], [, function(e, t, n) {
       writable: !0
     }) : e[t] = n, e;
   }
+
+  function o() {
+    return m;
+  }
+
+  function i() {
+    return y;
+  }
   Object.defineProperty(t, "__esModule", {
     value: !0
   }), n.d(t, "updateFocus", function() {
-    return s;
+    return c;
   }), n.d(t, "setUnloading", function() {
-    return u;
-  }), n.d(t, "getWindow", function() {
     return d;
+  }), n.d(t, "getWindow", function() {
+    return h;
   }), n.d(t, "getWindowByKey", function() {
-    return f;
+    return _;
+  }), t.isWindowFocused = o, t.isWindowUnloading = i;
+  var a = n(17),
+    s = (n.n(a), n(3064));
+  n.d(t, "onFocusChanged", function() {
+    return s.a;
   });
-  var o, i = n(17),
-    a = (n.n(i), Object.assign || function(e) {
+  var u, l = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
         for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
       }
       return e;
-    }),
-    s = n.i(i.createAction)("Set the window focus state"),
-    u = n.i(i.createAction)("Mark the window as unloading"),
-    l = {
+    },
+    c = n.i(a.createAction)("Set the window focus state"),
+    d = n.i(a.createAction)("Mark the window as unloading"),
+    f = {
       isFocused: !1,
       isUnloading: !1
     },
-    c = n.i(i.createReducer)((o = {}, r(o, s, function(e, t) {
-      return a({}, e, {
+    p = n.i(a.createReducer)((u = {}, r(u, c, function(e, t) {
+      return l({}, e, {
         isFocused: t
       });
-    }), r(o, u, function(e, t) {
-      return a({}, e, {
+    }), r(u, d, function(e, t) {
+      return l({}, e, {
         isUnloading: t
       });
-    }), o), l);
-  t.default = c;
-  var d = function(e) {
+    }), u), f);
+  t.default = p;
+  var h = function(e) {
       return e.window;
     },
-    f = function(e, t) {
+    _ = function(e, t) {
       return e.window[t];
-    };
+    },
+    m = !1,
+    y = !1;
+  n.i(s.a)(function(e) {
+    m = e;
+  }), n.i(s.b)(function() {
+    y = !0;
+  });
 }, , , , , , , , , function(e, t, n) {
   "use strict";
   var r = n(43),
@@ -36460,7 +36235,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }).then(function(t) {
         e(n.i(u.addMessages)(t));
       }).catch(function(e) {
-        return n.i(s.a)("Failed to load history", t, e);
+        return n.i(s.a)("Failed to fetch history", t, e);
       });
     };
   }
@@ -36472,7 +36247,7 @@ webpackJsonp([332], [, function(e, t, n) {
     return c;
   }), t.c = r, t.b = o;
   var i = n(17),
-    a = (n.n(i), n(3041)),
+    a = (n.n(i), n(3431)),
     s = n(2914),
     u = n(3034),
     l = (n(3035), Object.assign || function(e) {
@@ -37025,60 +36800,7 @@ webpackJsonp([332], [, function(e, t, n) {
     u = n.i(r.a)("TS.utility.msgs.isFileSubtype", function() {
       return !1;
     });
-}, function(e, t, n) {
-  "use strict";
-
-  function r(e) {
-    var t = e.channelId,
-      r = e.type,
-      o = e.oldest,
-      u = void 0 === o ? 0 : o,
-      l = e.latest,
-      c = void 0 === l ? 0 : l,
-      d = void 0;
-    switch (r) {
-      case "channel":
-        d = n.i(a.a)("channels.history", {
-          channel: t,
-          count: 42,
-          oldest: u,
-          latest: c
-        });
-        break;
-      case "mpim":
-        d = n.i(a.a)("mpim.history", {
-          channel: t,
-          count: 42
-        });
-        break;
-      case "group":
-        d = n.i(a.a)("groups.history", {
-          channel: t,
-          count: 42
-        });
-        break;
-      case "im":
-        d = n.i(a.a)("im.history", {
-          channel: t,
-          count: 42
-        });
-        break;
-      default:
-        return Promise.reject(new Error("Unknown channel type"));
-    }
-    return d.then(function(e) {
-      var r = i.a.get(e, "data.messages");
-      return r ? i.a.map(r, function(e) {
-        return n.i(s.a)(e, t);
-      }) : [];
-    });
-  }
-  t.a = r;
-  var o = n(6),
-    i = n.n(o),
-    a = n(3048),
-    s = n(3040);
-}, , , , function(e, t, n) {
+}, , , , , function(e, t, n) {
   "use strict";
 
   function r(e, t, n) {
@@ -37391,10 +37113,10 @@ webpackJsonp([332], [, function(e, t, n) {
 
   function f() {
     function e() {
-      me.remove(e), z.a.remove(e), k() ? (n.i(q.b)("goodbye: disconnecting now"), l(X), L()) : n.i(q.b)("goodbye: got disconnected some other way before we handled the goodbye message");
+      me.remove(e), z.onFocusChanged.remove(e), k() ? (n.i(q.b)("goodbye: disconnecting now"), l(X), L()) : n.i(q.b)("goodbye: got disconnected some other way before we handled the goodbye message");
     }
-    if (n.i(q.b)("goodbye: disconnecting from the MS next time it is convenient"), !n.i(z.b)()) return void e();
-    me.addOnce(e), z.a.addOnce(e);
+    if (n.i(q.b)("goodbye: disconnecting from the MS next time it is convenient"), !n.i(z.isWindowFocused)()) return void e();
+    me.addOnce(e), z.onFocusChanged.addOnce(e);
   }
 
   function p(e, t) {
@@ -37426,7 +37148,7 @@ webpackJsonp([332], [, function(e, t, n) {
   }
 
   function _(e, t) {
-    if (!n.i(z.c)()) switch (e) {
+    if (!n.i(z.isWindowUnloading)()) switch (e) {
       case N.a.NEVER_CONNECTED:
         if (!K()) return;
         v(N.a.PROV_CONNECT);
@@ -37634,7 +37356,7 @@ webpackJsonp([332], [, function(e, t, n) {
     N = n(3056),
     H = n(3048),
     F = n(3053),
-    z = n(3067),
+    z = n(3014),
     q = n(3049),
     W = n(3066),
     U = n(3052),
@@ -37982,29 +37704,7 @@ webpackJsonp([332], [, function(e, t, n) {
   });
   var r = n(3063),
     o = r.a;
-}, function(e, t, n) {
-  "use strict";
-
-  function r() {
-    return a;
-  }
-
-  function o() {
-    return s;
-  }
-  t.b = r, t.c = o;
-  var i = n(3064);
-  n.d(t, "a", function() {
-    return i.a;
-  });
-  var a = !1,
-    s = !1;
-  n.i(i.a)(function(e) {
-    a = e;
-  }), n.i(i.b)(function() {
-    s = !0;
-  });
-}, , function(e, t, n) {
+}, , , function(e, t, n) {
   t = e.exports = n(189)(), t.push([e.i, "@font-face {\n  font-family: 'Slack v2';\n  src: url('https://cdx.slack-edge.com/7c81/fonts/slack-icons-v2.woff2') format('woff2'), url('https://cdx.slack-edge.com/7c81/fonts/slack-icons-v2.woff') format('woff');\n  font-style: normal;\n  font-weight: 400;\n}\n.c-icon:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n}\n.c-icon--inherit:before {\n  font-size: inherit;\n}\n.c-icon--align-bottom:before {\n  vertical-align: bottom;\n}\n.c-icon--align-top:before {\n  vertical-align: top;\n}\n.c-icon--align-baseline:before {\n  vertical-align: baseline;\n}\n.c-icon--star-o:before {\n  content: '\\E001';\n}\n.c-icon--unstar-o:before {\n  content: '\\E002';\n}\n.c-icon--user:before {\n  content: '\\E003';\n}\n.c-icon--comment-alt:before {\n  content: '\\E004';\n}\n.c-icon--comment-o:before {\n  content: '\\E005';\n}\n.c-icon--home:before {\n  content: '\\E006';\n}\n.c-icon--info:before {\n  content: '\\E007';\n}\n.c-icon--channel-info:before,\n.c-icon--info-circle:before {\n  content: '\\E008';\n}\n.c-icon--mentions:before {\n  content: '\\E009';\n}\n.c-icon--search:before {\n  content: '\\E010';\n}\n.c-icon--bolt:before {\n  content: '\\E011';\n}\n.c-icon--mobile:before {\n  content: '\\E012';\n}\n.c-icon--tablet:before {\n  content: '\\E013';\n}\n.c-icon--laptop:before {\n  content: '\\E014';\n}\n.c-icon--bell-o:before {\n  content: '\\E015';\n}\n.c-icon--bell-slash:before {\n  content: '\\E016';\n}\n.c-icon--team-directory:before {\n  content: '\\E017';\n}\n.c-icon--cloud-upload:before {\n  content: '\\E018';\n}\n.c-icon--cloud-download:before {\n  content: '\\E019';\n}\n.c-icon--cog-o:before {\n  content: '\\E020';\n}\n.c-icon--cogs:before {\n  content: '\\E021';\n}\n.c-icon--key:before {\n  content: '\\E022';\n}\n.c-icon--calendar:before {\n  content: '\\E023';\n}\n.c-icon--pencil:before {\n  content: '\\E024';\n}\n.c-icon--lightbulb-o:before {\n  content: '\\E025';\n}\n.c-icon--magic:before {\n  content: '\\E026';\n}\n.c-icon--external-link:before {\n  content: '\\E027';\n}\n.c-icon--external-link-square:before {\n  content: '\\E028';\n}\n.c-icon--lock-o:before {\n  content: '\\E029';\n}\n.c-icon--unlock:before {\n  content: '\\E030';\n}\n.c-icon--folder:before {\n  content: '\\E031';\n}\n.c-icon--folder-open:before {\n  content: '\\E032';\n}\n.c-icon--archive:before {\n  content: '\\E033';\n}\n.c-icon--inbox:before {\n  content: '\\E034';\n}\n.c-icon--sitemap:before {\n  content: '\\E035';\n}\n.c-icon--book:before {\n  content: '\\E036';\n}\n.c-icon--envelope-o:before {\n  content: '\\E037';\n}\n.c-icon--image:before {\n  content: '\\E038';\n}\n.c-icon--building:before {\n  content: '\\E039';\n}\n.c-icon--plug:before {\n  content: '\\E040';\n}\n.c-icon--paper-plane:before {\n  content: '\\E041';\n}\n.c-icon--credit-card:before {\n  content: '\\E042';\n}\n.c-icon--life-ring:before {\n  content: '\\E043';\n}\n.c-icon--thumb-tack:before {\n  content: '\\E044';\n}\n.c-icon--thumb-tack-filled:before {\n  content: '\\E547';\n}\n.c-icon--trash:before {\n  content: '\\E045';\n}\n.c-icon--print:before {\n  content: '\\E046';\n}\n.c-icon--quote-o:before {\n  content: '\\E047';\n}\n.c-icon--th-large:before {\n  content: '\\E048';\n}\n.c-icon--eye:before {\n  content: '\\E049';\n}\n.c-icon--eye-closed:before {\n  content: '\\E050';\n}\n.c-icon--volume-off:before {\n  content: '\\E051';\n}\n.c-icon--volume-down:before {\n  content: '\\E052';\n}\n.c-icon--volume-medium:before {\n  content: '\\E053';\n}\n.c-icon--volume-up:before {\n  content: '\\E054';\n}\n.c-icon--volume-off-alt:before {\n  content: '\\E055';\n}\n.c-icon--heart-o:before {\n  content: '\\E056';\n}\n.c-icon--wrench:before {\n  content: '\\E057';\n}\n.c-icon--file:before {\n  content: '\\E058';\n}\n.c-icon--all-files:before {\n  content: '\\E059';\n}\n.c-icon--your-files:before {\n  content: '\\E060';\n}\n.c-icon--align-left:before {\n  content: '\\E061';\n}\n.c-icon--align-center:before {\n  content: '\\E062';\n}\n.c-icon--align-right:before {\n  content: '\\E063';\n}\n.c-icon--align-justify:before {\n  content: '\\E064';\n}\n.c-icon--paragraph:before {\n  content: '\\E065';\n}\n.c-icon--code:before {\n  content: '\\E066';\n}\n.c-icon--ellipsis:before {\n  content: '\\E067';\n}\n.c-icon--ellipsis-baseline:before {\n  content: '\\E068';\n}\n.c-icon--spinner:before {\n  content: '\\E069';\n}\n.c-icon--spiral:before {\n  content: '\\E070';\n}\n.c-icon--random:before {\n  content: '\\E071';\n}\n.c-icon--repeat:before {\n  content: '\\E072';\n}\n.c-icon--share-square-o:before {\n  content: '\\E073';\n}\n.c-icon--link:before {\n  content: '\\E074';\n}\n.c-icon--undo:before {\n  content: '\\E075';\n}\n.c-icon--history:before {\n  content: '\\E076';\n}\n.c-icon--hourglass-empty:before {\n  content: '\\E077';\n}\n.c-icon--hourglass:before {\n  content: '\\E078';\n}\n.c-icon--clock-o:before {\n  content: '\\E079';\n}\n.c-icon--dashboard:before {\n  content: '\\E080';\n}\n.c-icon--power-off:before {\n  content: '\\E081';\n}\n.c-icon--sign-in:before {\n  content: '\\E082';\n}\n.c-icon--sign-out:before {\n  content: '\\E083';\n}\n.c-icon--jump:before {\n  content: '\\E084';\n}\n.c-icon--globe:before {\n  content: '\\E085';\n}\n.c-icon--filter:before {\n  content: '\\E086';\n}\n.c-icon--microphone:before {\n  content: '\\E087';\n}\n.c-icon--microphone-slash:before {\n  content: '\\E088';\n}\n.c-icon--paperclip:before {\n  content: '\\E089';\n}\n.c-icon--video-camera:before {\n  content: '\\E090';\n}\n.c-icon--stop-video:before {\n  content: '\\E091';\n}\n.c-icon--phone:before {\n  content: '\\E092';\n}\n.c-icon--end-call:before {\n  content: '\\E093';\n}\n.c-icon--smile-o:before {\n  content: '\\E094';\n}\n.c-icon--share-screen:before {\n  content: '\\E095';\n}\n.c-icon--stop-screen-sharing:before {\n  content: '\\E096';\n}\n.c-icon--stop-screen-sharing-alt:before {\n  content: '\\E097';\n}\n.c-icon--feedback:before {\n  content: '\\E098';\n}\n.c-icon--paper-plane-alt:before {\n  content: '\\E099';\n}\n.c-icon--share:before {\n  content: '\\E100';\n}\n.c-icon--save:before {\n  content: '\\E101';\n}\n.c-icon--message-notification:before {\n  content: '\\E102';\n}\n.c-icon--list:before {\n  content: '\\E103';\n}\n.c-icon--channel:before {\n  content: '\\E104';\n}\n.c-icon--share-other-alt:before {\n  content: '\\E105';\n}\n.c-icon--broadcast:before {\n  content: '\\E106';\n}\n.c-icon--all-files-alt:before {\n  content: '\\E107';\n}\n.c-icon--search-files:before {\n  content: '\\E108';\n}\n.c-icon--add-user:before {\n  content: '\\E109';\n}\n.c-icon--switch-team:before {\n  content: '\\E110';\n}\n.c-icon--create-snippet:before {\n  content: '\\E111';\n}\n.c-icon--create-post:before {\n  content: '\\E112';\n}\n.c-icon--upload:before {\n  content: '\\E113';\n}\n.c-icon--download:before {\n  content: '\\E114';\n}\n.c-icon--share-email:before {\n  content: '\\E115';\n}\n.c-icon--import-email:before {\n  content: '\\E116';\n}\n.c-icon--ellipsis-o:before {\n  content: '\\E117';\n}\n.c-icon--add-reaction:before {\n  content: '\\E118';\n}\n.c-icon--happy-smile:before {\n  content: '\\E119';\n}\n.c-icon--mark-unread:before {\n  content: '\\E120';\n}\n.c-icon--camera:before {\n  content: '\\E121';\n}\n.c-icon--phone-flat:before {\n  content: '\\E122';\n}\n.c-icon--sparkles:before {\n  content: '\\E123';\n}\n.c-icon--location-pin:before {\n  content: '\\E124';\n}\n.c-icon--channel-pane-hash:before {\n  content: '\\E125';\n}\n.c-icon--emoji-nature:before {\n  content: '\\E126';\n}\n.c-icon--emoji-food:before {\n  content: '\\E127';\n}\n.c-icon--emoji-celebration:before {\n  content: '\\E128';\n}\n.c-icon--emoji-activities:before {\n  content: '\\E129';\n}\n.c-icon--emoji-travel:before {\n  content: '\\E130';\n}\n.c-icon--emoji-objects:before {\n  content: '\\E131';\n}\n.c-icon--file-gdrive:before {\n  content: '\\E133';\n}\n.c-icon--play:before {\n  content: '\\E134';\n}\n.c-icon--stream:before {\n  content: '\\E135';\n}\n.c-icon--field-text:before {\n  content: '\\E136';\n}\n.c-icon--poo:before {\n  content: '\\E137';\n}\n.c-icon--channel-list:before {\n  content: '\\E138';\n}\n.c-icon--share-android:before {\n  content: '\\E139';\n}\n.c-icon--highlight:before {\n  content: '\\E140';\n}\n.c-icon--flag:before {\n  content: '\\E141';\n}\n.c-icon--grabby-patty:before {\n  content: '\\E142';\n}\n.c-icon--backspace:before {\n  content: '\\E143';\n}\n.c-icon--android-keyboard:before {\n  content: '\\E144';\n}\n.c-icon--side-panel:before {\n  content: '\\E145';\n}\n.c-icon--search-small:before {\n  content: '\\E146';\n}\n.c-icon--reload-small:before {\n  content: '\\E147';\n}\n.c-icon--vertical-ellipsis:before {\n  content: '\\E148';\n}\n.c-icon--disable:before {\n  content: '\\E149';\n}\n.c-icon--bold-hash-small:before {\n  content: '\\E150';\n}\n.c-icon--cart:before {\n  content: '\\E151';\n}\n.c-icon--snooze-outline:before {\n  content: '\\E152';\n}\n.c-icon--new-window:before {\n  content: '\\E153';\n}\n.c-icon--h1:before {\n  content: '\\E154';\n}\n.c-icon--h2:before {\n  content: '\\E155';\n}\n.c-icon--h3:before {\n  content: '\\E156';\n}\n.c-icon--bullet-list:before {\n  content: '\\E157';\n}\n.c-icon--numbered-list:before {\n  content: '\\E158';\n}\n.c-icon--text-format-menu:before {\n  content: '\\E159';\n}\n.c-icon--bold:before {\n  content: '\\E160';\n}\n.c-icon--italic:before {\n  content: '\\E161';\n}\n.c-icon--underline:before {\n  content: '\\E162';\n}\n.c-icon--strikethrough:before {\n  content: '\\E163';\n}\n.c-icon--tag:before {\n  content: '\\E164';\n}\n.c-icon--org-shared-channel:before {\n  content: '\\E165';\n}\n.c-icon--shared-channel:before {\n  content: '\\E166';\n}\n.c-icon--external-channel:before {\n  content: '\\E167';\n}\n.c-icon--small-reaction:before {\n  content: '\\E170';\n}\n.c-icon--small-reply:before {\n  content: '\\E171';\n}\n.c-icon--small-ellipsis:before {\n  content: '\\E172';\n}\n.c-icon--small-star:before {\n  content: '\\E173';\n}\n.c-icon--small-quote:before {\n  content: '\\E174';\n}\n.c-icon--keyboard:before {\n  content: '\\E175';\n}\n.c-icon--share-action:before {\n  content: '\\E176';\n}\n.c-icon--handset:before {\n  content: '\\E177';\n}\n.c-icon--bluetooth-sound:before {\n  content: '\\E178';\n}\n.c-icon--bluetooth:before {\n  content: '\\E179';\n}\n.c-icon--bot:before {\n  content: '\\E180';\n}\n.c-icon--globe-plus:before {\n  content: '\\E181';\n}\n.c-icon--user-groups:before {\n  content: '\\E182';\n}\n.c-icon--frowning-face:before {\n  content: '\\E183';\n}\n.c-icon--mobile-notification:before {\n  content: '\\E184';\n}\n.c-icon--desktop-notification:before {\n  content: '\\E185';\n}\n.c-icon--collab-screenshare-on:before {\n  content: '\\E186';\n}\n.c-icon--collab-screenshare-off:before {\n  content: '\\E187';\n}\n.c-icon--thumbs-up:before {\n  content: '\\E188';\n}\n.c-icon--thumbs-down:before {\n  content: '\\E189';\n}\n.c-icon--expand:before {\n  content: '\\E200';\n}\n.c-icon--reduce:before {\n  content: '\\E201';\n}\n.c-icon--arrows-alt:before {\n  content: '\\E202';\n}\n.c-icon--reduce-alt:before {\n  content: '\\E203';\n}\n.c-icon--check-square-o:before {\n  content: '\\E204';\n}\n.c-icon--check-circle-o:before {\n  content: '\\E205';\n}\n.c-icon--check-circle-o-large:before {\n  content: '\\E206';\n}\n.c-icon--question:before {\n  content: '\\E207';\n}\n.c-icon--exclamation:before {\n  content: '\\E208';\n}\n.c-icon--warning:before {\n  content: '\\E209';\n}\n.c-icon--exclamation-circle:before {\n  content: '\\E210';\n}\n.c-icon--question-circle:before {\n  content: '\\E211';\n}\n.c-icon--plus-circle:before {\n  content: '\\E212';\n}\n.c-icon--minus-circle:before {\n  content: '\\E213';\n}\n.c-icon--times-circle:before {\n  content: '\\E214';\n}\n.c-icon--square-warning:before {\n  content: '\\E230';\n}\n.c-icon--square-question:before {\n  content: '\\E231';\n}\n.c-icon--plus-square-o:before {\n  content: '\\E232';\n}\n.c-icon--minus-square-o:before {\n  content: '\\E233';\n}\n.c-icon--square-times:before {\n  content: '\\E234';\n}\n.c-icon--times:before {\n  content: '\\E278';\n}\n.c-icon--plus:before {\n  content: '\\E279';\n}\n.c-icon--minus:before {\n  content: '\\E280';\n}\n.c-icon--plus-small:before {\n  content: '\\E281';\n}\n.c-icon--minus-small:before {\n  content: '\\E282';\n}\n.c-icon--exclamation-small:before {\n  content: '\\E283';\n}\n.c-icon--question-small:before {\n  content: '\\E284';\n}\n.c-icon--check-small:before {\n  content: '\\E285';\n}\n.c-icon--times-small:before {\n  content: '\\E294';\n}\n.c-icon--sync:before {\n  content: '\\E295';\n}\n.c-icon--replies:before {\n  content: '\\E296';\n}\n.c-icon--check-small-bold:before {\n  content: '\\E301';\n}\n.c-icon--enter:before {\n  content: '\\E302';\n}\n.c-icon--expand-vertical:before {\n  content: '\\E303';\n}\n.c-icon--collapse-vertical:before {\n  content: '\\E304';\n}\n.c-icon--android-upload:before {\n  content: '\\E305';\n}\n.c-icon--plus-thick:before {\n  content: '\\E306';\n}\n.c-icon--check-large-bold:before {\n  content: '\\E319';\n}\n.c-icon--check-large:before {\n  content: '\\E320';\n}\n.c-icon--calls:before {\n  content: '\\E478';\n}\n.c-icon--calls-small:before {\n  content: '\\E479';\n}\n.c-icon--calls-ended:before {\n  content: '\\E480';\n}\n.c-icon--calls-ended-small:before {\n  content: '\\E481';\n}\n.c-icon--star:before {\n  content: '\\E500';\n}\n.c-icon--unstar:before {\n  content: '\\E501';\n}\n.c-icon--bell:before {\n  content: '\\E502';\n}\n.c-icon--lock:before {\n  content: '\\E503';\n}\n.c-icon--external-link-small:before {\n  content: '\\E504';\n}\n.c-icon--external-link-large:before {\n  content: '\\E505';\n}\n.c-icon--presence-online:before {\n  content: '\\E506';\n}\n.c-icon--presence-offline:before {\n  content: '\\E507';\n}\n.c-icon--presence-dnd:before {\n  content: '\\E508';\n}\n.c-icon--presence-ra-online:before,\n.c-icon--presence-external-online:before {\n  content: '\\E509';\n}\n.c-icon--restricted-user:before {\n  content: '\\E509';\n}\n.c-icon--presence-ra-offline:before,\n.c-icon--presence-external-offline:before {\n  content: '\\E510';\n}\n.c-icon--presence-ra-dnd:before,\n.c-icon--presence-external-dnd:before {\n  content: '\\E511';\n}\n.c-icon--presence-ura-online:before {\n  content: '\\E512';\n}\n.c-icon--single-channel-guest:before {\n  content: '\\E512';\n}\n.c-icon--presence-ura-offline:before {\n  content: '\\E513';\n}\n.c-icon--presence-ura-dnd:before {\n  content: '\\E514';\n}\n.c-icon--heart:before {\n  content: '\\E515';\n}\n.c-icon--quote:before {\n  content: '\\E516';\n}\n.c-icon--cog:before {\n  content: '\\E517';\n}\n.c-icon--comment:before {\n  content: '\\E518';\n}\n.c-icon--minus-circle-small:before {\n  content: '\\E519';\n}\n.c-icon--times-circle-small:before {\n  content: '\\E520';\n}\n.c-icon--multiparty-dm-2:before {\n  content: '\\E521';\n}\n.c-icon--multiparty-dm-3:before {\n  content: '\\E522';\n}\n.c-icon--multiparty-dm-4:before {\n  content: '\\E523';\n}\n.c-icon--multiparty-dm-5:before {\n  content: '\\E524';\n}\n.c-icon--multiparty-dm-6:before {\n  content: '\\E525';\n}\n.c-icon--multiparty-dm-7:before {\n  content: '\\E526';\n}\n.c-icon--multiparty-dm-8:before {\n  content: '\\E527';\n}\n.c-icon--multiparty-dm-9:before {\n  content: '\\E528';\n}\n.c-icon--poo-filled:before {\n  content: '\\E529';\n}\n.c-icon--circle-fill:before {\n  content: '\\E530';\n}\n.c-icon--flag-filled:before {\n  content: '\\E531';\n}\n.c-icon--refresh-small:before {\n  content: '\\E532';\n}\n.c-icon--snooze-filled:before {\n  content: '\\E533';\n}\n.c-icon--archived-channel:before {\n  content: '\\E534';\n}\n.c-icon--presence-dnd-offline:before {\n  content: '\\E535';\n}\n.c-icon--presence-ra-dnd-offline:before,\n.c-icon--presence-external-dnd-offline:before {\n  content: '\\E536';\n}\n.c-icon--presence-ura-dnd-offline:before {\n  content: '\\E537';\n}\n.c-icon--presence-mobile-dnd:before {\n  content: '\\E538';\n}\n.c-icon--play-filled:before {\n  content: '\\E539';\n}\n.c-icon--broadcast-filled:before {\n  content: '\\E540';\n}\n.c-icon--small-star-filled:before {\n  content: '\\E541';\n}\n.c-icon--small-comment-filled:before {\n  content: '\\E542';\n}\n.c-icon--paperplane-filled:before {\n  content: '\\E543';\n}\n.c-icon--filebg-large-filled:before {\n  content: '\\E544';\n}\n.c-icon--filebg-small-filled:before {\n  content: '\\E545';\n}\n.c-icon--highlight-filled:before {\n  content: '\\E546';\n}\n.c-icon--pin-filled:before {\n  content: '\\E547';\n}\n.c-icon--close-filled:before {\n  content: '\\E548';\n}\n.c-icon--share-filled:before {\n  content: '\\E549';\n}\n.c-icon--pencil-filled:before {\n  content: '\\E550';\n}\n.c-icon--side-panel-filled:before {\n  content: '\\E551';\n}\n.c-icon--add-reaction-filled:before {\n  content: '\\E552';\n}\n.c-icon--mentions-filled:before {\n  content: '\\E553';\n}\n.c-icon--small-reply-filled:before {\n  content: '\\E554';\n}\n.c-icon--user-filled:before {\n  content: '\\E555';\n}\n.c-icon--microphone-on:before {\n  content: '\\E556';\n}\n.c-icon--camera-on:before {\n  content: '\\E557';\n}\n.c-icon--screenshare-on:before {\n  content: '\\E558';\n}\n.c-icon--shared-channels:before {\n  content: '\\E559';\n}\n.c-icon--heart-large-filled:before {\n  content: '\\E560';\n}\n.c-icon--thumbs-up-filled:before {\n  content: '\\E561';\n}\n.c-icon--thumbs-down-filled:before {\n  content: '\\E562';\n}\n.c-icon--slow-network:before {\n  content: '\\E563';\n}\n.c-icon--sparkles-filled:before {\n  content: '\\E564';\n}\n.c-icon--small-warning-filled:before {\n  content: '\\E565';\n}\n.c-icon--deactivated-user:before {\n  content: '\\E566';\n}\n.c-icon--arrow-right:before {\n  content: '\\E286';\n}\n.c-icon--arrow-left:before {\n  content: '\\E287';\n}\n.c-icon--arrow-up:before {\n  content: '\\E288';\n}\n.c-icon--arrow-down:before {\n  content: '\\E289';\n}\n.c-icon--arrow-right-medium:before {\n  content: '\\E290';\n}\n.c-icon--arrow-left-medium:before {\n  content: '\\E291';\n}\n.c-icon--arrow-up-medium:before {\n  content: '\\E292';\n}\n.c-icon--arrow-down-medium:before {\n  content: '\\E293';\n}\n.c-icon--angle-arrow-down-right-alt:before {\n  content: '\\E297';\n}\n.c-icon--angle-arrow-up-right-alt:before {\n  content: '\\E298';\n}\n.c-icon--angle-arrow-up-left-alt:before {\n  content: '\\E299';\n}\n.c-icon--angle-arrow-down-left-alt:before {\n  content: '\\E300';\n}\n.c-icon--arrow-circle-o-up:before {\n  content: '\\E215';\n}\n.c-icon--arrow-circle-o-down:before {\n  content: '\\E216';\n}\n.c-icon--arrow-circle-o-right:before {\n  content: '\\E217';\n}\n.c-icon--arrow-circle-o-left:before {\n  content: '\\E218';\n}\n.c-icon--chevron-circle-left:before {\n  content: '\\E219';\n}\n.c-icon--chevron-circle-right:before {\n  content: '\\E220';\n}\n.c-icon--chevron-circle-down:before {\n  content: '\\E221';\n}\n.c-icon--chevron-circle-up:before {\n  content: '\\E222';\n}\n.c-icon--plus-circle-small:before {\n  content: '\\E223';\n}\n.c-icon--circle-small:before {\n  content: '\\E224';\n}\n.c-icon--circle-large:before {\n  content: '\\E225';\n}\n.c-icon--plus-circle-medium:before {\n  content: '\\E228';\n}\n.c-icon--times-circle-medium:before {\n  content: '\\E229';\n}\n.c-icon--square-arrow-up:before {\n  content: '\\E235';\n}\n.c-icon--square-arrow-down:before {\n  content: '\\E236';\n}\n.c-icon--square-arrow-right:before {\n  content: '\\E237';\n}\n.c-icon--square-arrow-left:before {\n  content: '\\E238';\n}\n.c-icon--square-chevron-left:before {\n  content: '\\E239';\n}\n.c-icon--square-chevron-right:before {\n  content: '\\E240';\n}\n.c-icon--square-chevron-down:before {\n  content: '\\E241';\n}\n.c-icon--square-chevron-up:before {\n  content: '\\E242';\n}\n.c-icon--chevron-right:before {\n  content: '\\E250';\n}\n.c-icon--chevron-left:before {\n  content: '\\E251';\n}\n.c-icon--chevron-down:before {\n  content: '\\E252';\n}\n.c-icon--chevron-up:before {\n  content: '\\E253';\n}\n.c-icon--chevron-medium-right:before {\n  content: '\\E254';\n}\n.c-icon--chevron-medium-left:before {\n  content: '\\E255';\n}\n.c-icon--chevron-medium-down:before {\n  content: '\\E256';\n}\n.c-icon--chevron-medium-up:before {\n  content: '\\E257';\n}\n.c-icon--chevron-large-right:before {\n  content: '\\E258';\n}\n.c-icon--chevron-large-left:before {\n  content: '\\E259';\n}\n.c-icon--chevron-large-up:before {\n  content: '\\E260';\n}\n.c-icon--chevron-large-down:before {\n  content: '\\E261';\n}\n.c-icon--arrow-large-right:before {\n  content: '\\E262';\n}\n.c-icon--arrow-large-left:before {\n  content: '\\E263';\n}\n.c-icon--arrow-large-up:before {\n  content: '\\E264';\n}\n.c-icon--arrow-large-down:before {\n  content: '\\E265';\n}\n.c-icon--caret-outline-left:before {\n  content: '\\E266';\n}\n.c-icon--caret-outline-right:before {\n  content: '\\E267';\n}\n.c-icon--caret-outline-up:before {\n  content: '\\E268';\n}\n.c-icon--caret-outline-down:before {\n  content: '\\E269';\n}\n.c-icon--caret-up:before {\n  content: '\\E270';\n}\n.c-icon--caret-down:before {\n  content: '\\E271';\n}\n.c-icon--caret-right:before {\n  content: '\\E272';\n}\n.c-icon--caret-left:before {\n  content: '\\E273';\n}\n.c-icon--angle-arrow-down-left:before {\n  content: '\\E274';\n}\n.c-icon--angle-arrow-down-right:before {\n  content: '\\E275';\n}\n.c-icon--angle-arrow-up-right:before {\n  content: '\\E276';\n}\n.c-icon--angle-arrow-up-left:before {\n  content: '\\E277';\n}\n.c-icon--arrow-ne-large:before {\n  content: '\\E307';\n}\n.c-icon--arrow-nw-large:before {\n  content: '\\E308';\n}\n.c-icon--arrow-sw-large:before {\n  content: '\\E309';\n}\n.c-icon--arrow-se-large:before {\n  content: '\\E310';\n}\n.c-icon--arrow-ne-medium:before {\n  content: '\\E311';\n}\n.c-icon--arrow-nw-medium:before {\n  content: '\\E312';\n}\n.c-icon--arrow-sw-medium:before {\n  content: '\\E313';\n}\n.c-icon--arrow-se-medium:before {\n  content: '\\E314';\n}\n.c-icon--arrow-ne-small:before {\n  content: '\\E315';\n}\n.c-icon--arrow-nw-small:before {\n  content: '\\E316';\n}\n.c-icon--arrow-sw-small:before {\n  content: '\\E317';\n}\n.c-icon--arrow-se-small:before {\n  content: '\\E318';\n}\n.c-icon--slack:before {\n  content: '\\E800';\n}\n.c-icon--slack-pillow:before {\n  content: '\\E801';\n}\n.c-icon--apple:before {\n  content: '\\E802';\n}\n.c-icon--android:before {\n  content: '\\E803';\n}\n.c-icon--twitter:before {\n  content: '\\E804';\n}\n.c-icon--github:before {\n  content: '\\E805';\n}\n.c-icon--dropbox:before {\n  content: '\\E806';\n}\n.c-icon--google:before {\n  content: '\\E807';\n}\n.c-icon--windows:before {\n  content: '\\E808';\n}\n.c-icon--youtube:before {\n  content: '\\E809';\n}\n.c-icon--google-drive:before {\n  content: '\\E810';\n}\n.c-icon--skype:before {\n  content: '\\E811';\n}\n.c-icon--rss:before {\n  content: '\\E812';\n}\n.c-icon--facebook:before {\n  content: '\\E813';\n}\n.c-icon--asana:before {\n  content: '\\E814';\n}\n.c-icon--linkedin:before {\n  content: '\\E815';\n}\n.c-icon--tumblr:before {\n  content: '\\E816';\n}\n.c-icon--instagram:before {\n  content: '\\E817';\n}\n.c-icon--google-plus:before {\n  content: '\\E818';\n}\n.c-icon--soundcloud:before {\n  content: '\\E819';\n}\n.c-icon--flickr:before {\n  content: '\\E820';\n}\n.c-icon--pinterest:before {\n  content: '\\E821';\n}\n.c-icon--tripit:before {\n  content: '\\E822';\n}\n.c-icon--hangouts:before {\n  content: '\\E823';\n}\n.c-icon--viber:before {\n  content: '\\E824';\n}\n.c-icon--line:before {\n  content: '\\E825';\n}\n.c-icon--facebook-messenger:before {\n  content: '\\E826';\n}\n.c-icon--1password:before {\n  content: '\\E827';\n}\n.c-icon--box:before {\n  content: '\\E828';\n}\n.c-icon--box-square:before {\n  content: '\\E829';\n}\n.c-icon--google-play:before {\n  content: '\\E830';\n}\n.c-icon--spotify:before {\n  content: '\\E831';\n}\n.c-icon--siriusxm:before {\n  content: '\\E832';\n}\n.c-icon--stitcher:before {\n  content: '\\E833';\n}\n.c-icon--pocket-casts:before {\n  content: '\\E834';\n}\n.c-icon--onedrive:before {\n  content: '\\E835';\n}\n", ""]);
 }, function(e, t, n) {
   var r = n(3069);
@@ -38409,7 +38109,7 @@ webpackJsonp([332], [, function(e, t, n) {
       });
     },
     m = {
-      loadHistory: u.c
+      fetchHistory: u.c
     };
   t.a = n.i(i.b)(_, m)(s.a);
 }, function(e, t, n) {
@@ -38467,7 +38167,7 @@ webpackJsonp([332], [, function(e, t, n) {
           var e = this.props,
             t = e.channelId,
             n = e.type;
-          t && n && this.props.loadHistory({
+          t && n && this.props.fetchHistory({
             channelId: t,
             type: n
           });
@@ -38480,7 +38180,7 @@ webpackJsonp([332], [, function(e, t, n) {
           if (t !== n && n) {
             var r = e.channelId,
               o = e.type;
-            this.props.loadHistory({
+            this.props.fetchHistory({
               channelId: r,
               type: o
             });
@@ -38494,7 +38194,7 @@ webpackJsonp([332], [, function(e, t, n) {
             r = this.props,
             o = r.channelId,
             i = r.type;
-          this.props.loadHistory({
+          this.props.fetchHistory({
             channelId: o,
             type: i,
             oldest: t,
@@ -38516,12 +38216,12 @@ webpackJsonp([332], [, function(e, t, n) {
     channelId: l.a.PropTypes.string,
     type: l.a.PropTypes.oneOf(["channel", "group", "im", "mpim"]),
     timestamps: l.a.PropTypes.arrayOf(l.a.PropTypes.string),
-    loadHistory: l.a.PropTypes.func
+    fetchHistory: l.a.PropTypes.func
   }, f.defaultProps = {
     channelId: null,
     type: "channel",
     timestamps: [],
-    loadHistory: s.a.noop
+    fetchHistory: s.a.noop
   };
 }, , , , function(e, t, n) {
   "use strict";
@@ -40082,7 +39782,7 @@ webpackJsonp([332], [, function(e, t, n) {
   }
   var a = n(2),
     s = n.n(a),
-    u = n(3193),
+    u = n(3434),
     l = n(3087),
     c = n(3190),
     d = n(3283),
@@ -40382,156 +40082,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }]), t;
     }(a.PureComponent);
   t.a = _, _.propTypes = p, _.defaultProps = h;
-}, function(e, t, n) {
-  "use strict";
-
-  function r(e) {
-    return e.reduce(function(e, t) {
-      return t.contents && (e += r(t.contents) + 1), e + 1;
-    }, 0);
-  }
-
-  function o(e, t) {
-    for (var i = [], l = 0; l < e.length; l += 1) {
-      var c = e[l];
-      if (c === t) break;
-      if (u[c]) {
-        var d = u[c],
-          f = d.type,
-          p = d.endToken,
-          h = {
-            type: f
-          };
-        p && (h.contents = o(e.slice(l + 1), p), l += r(h.contents) + 1), i.push(h);
-      } else if (0 === c.indexOf("<"))
-        if (0 === c.indexOf("<LINK:START")) {
-          var _ = {
-            type: "link",
-            contents: o(e.slice(l + 1), "<LINK:END>"),
-            url: c.slice(12, -1)
-          };
-          i.push(_), l += r(_.contents) + 1;
-        } else if (0 === c.indexOf("<!")) {
-        var m = c.slice(2, -1).split("|"),
-          y = s(m, 2),
-          v = y[0],
-          g = y[1];
-        i.push({
-          type: "command",
-          id: v,
-          name: g
-        });
-      } else if (0 === c.indexOf("<@")) {
-        var b = c.slice(1, -1).split("|"),
-          w = s(b, 2),
-          k = w[0],
-          M = w[1];
-        i.push({
-          type: "member",
-          id: k,
-          name: M
-        });
-      } else if (0 === c.indexOf("<#")) {
-        var T = c.slice(2, -1).split("|"),
-          x = s(T, 2),
-          S = x[0],
-          E = x[1];
-        i.push({
-          type: "channel",
-          id: S,
-          name: E
-        });
-      } else 0 === c.indexOf("<EMOJI:COLONS") ? i.push({
-        type: "emoji",
-        name: c.slice(14, -1)
-      }) : 0 === c.indexOf("<JUMBOMOJI:COLONS") ? i.push({
-        type: "jumbomoji",
-        name: c.slice(18, -1)
-      }) : 0 === c.indexOf("<HEX:BLOCK") ? i.push({
-        type: "hex",
-        color: c.slice(11, -1)
-      }) : n.i(a.a)("mrkdwnToJson: Failed to handle token", c);
-      else i.push({
-        text: c
-      });
-    }
-    return i;
-  }
-
-  function i(e, t, n) {
-    return e ? o(window.TSF.getTokensArray(e, t, {
-      jumbomoji: !(n && n.noJumbomoji)
-    })) : [];
-  }
-  t.a = i;
-  var a = n(3049),
-    s = function() {
-      function e(e, t) {
-        var n = [],
-          r = !0,
-          o = !1,
-          i = void 0;
-        try {
-          for (var a, s = e[Symbol.iterator](); !(r = (a = s.next()).done) && (n.push(a.value), !t || n.length !== t); r = !0);
-        } catch (e) {
-          o = !0, i = e;
-        } finally {
-          try {
-            !r && s.return && s.return();
-          } finally {
-            if (o) throw i;
-          }
-        }
-        return n;
-      }
-      return function(t, n) {
-        if (Array.isArray(t)) return t;
-        if (Symbol.iterator in Object(t)) return e(t, n);
-        throw new TypeError("Invalid attempt to destructure non-iterable instance");
-      };
-    }(),
-    u = {
-      "<B:START>": {
-        type: "bold",
-        endToken: "<B:END>"
-      },
-      "<I:START>": {
-        type: "italic",
-        endToken: "<I:END>"
-      },
-      "<STRIKE:START>": {
-        type: "strike",
-        endToken: "<STRIKE:END>"
-      },
-      "<CODE:START>": {
-        type: "code",
-        endToken: "<CODE:END>"
-      },
-      "<QUOTE:START>": {
-        type: "quote",
-        endToken: "<QUOTE:END>"
-      },
-      "<PRE:START>": {
-        type: "pre",
-        endToken: "<PRE:END>"
-      },
-      "<QUOTE:PREFIX>": {
-        type: "quote_prefix"
-      },
-      "<LONGQUOTE:PREFIX>": {
-        type: "long_quote_prefix"
-      },
-      "<LINE:BREAK>": {
-        type: "line_break"
-      },
-      "<PARA:BREAK>": {
-        type: "paragraph_break"
-      },
-      "<SPACE:HARD>": {
-        type: "space_hard"
-      }
-    };
-}, function(e, t, n) {
+}, , function(e, t, n) {
   "use strict";
   var r = n(2),
     o = n.n(r),
@@ -51634,4 +51185,458 @@ webpackJsonp([332], [, function(e, t, n) {
     }, e;
   }();
   t.default = r;
+}, , , , function(e, t, n) {
+  "use strict";
+
+  function r(e, t) {
+    if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
+  }
+  var o = n(977),
+    i = n.n(o),
+    a = n(6),
+    s = n.n(a),
+    u = function() {
+      function e(e, t) {
+        for (var n = 0; n < t.length; n++) {
+          var r = t[n];
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
+        }
+      }
+      return function(t, n, r) {
+        return n && e(t.prototype, n), r && e(t, r), t;
+      };
+    }(),
+    l = function() {
+      function e(t) {
+        r(this, e), i.a.prototype.stopCallback = e.stopCallback, this.mousetrap = new i.a(t);
+      }
+      return u(e, [{
+        key: "bindAll",
+        value: function(e) {
+          var t = this;
+          e.forEach(function(e) {
+            t.mousetrap.bind(e.keys, e.handler, e.action);
+          });
+        }
+      }, {
+        key: "reset",
+        value: function() {
+          this.mousetrap.reset();
+        }
+      }, {
+        key: "unbindAll",
+        value: function(e) {
+          this.mousetrap.unbind(s.a.flatMap(e, "keys"));
+        }
+      }], [{
+        key: "stopCallback",
+        value: function(e, t) {
+          return t.hasAttribute("data-no-key-commands");
+        }
+      }]), e;
+    }();
+  t.a = l;
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e, t) {
+    if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
+  }
+
+  function o(e, t) {
+    if (!e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    return !t || "object" != typeof t && "function" != typeof t ? e : t;
+  }
+
+  function i(e, t) {
+    if ("function" != typeof t && null !== t) throw new TypeError("Super expression must either be null or a function, not " + typeof t);
+    e.prototype = Object.create(t && t.prototype, {
+      constructor: {
+        value: e,
+        enumerable: !1,
+        writable: !0,
+        configurable: !0
+      }
+    }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
+  }
+  var a = n(2),
+    s = n.n(a),
+    u = n(6),
+    l = n.n(u),
+    c = Object.assign || function(e) {
+      for (var t = 1; t < arguments.length; t++) {
+        var n = arguments[t];
+        for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
+      }
+      return e;
+    },
+    d = function() {
+      function e(e, t) {
+        for (var n = 0; n < t.length; n++) {
+          var r = t[n];
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
+        }
+      }
+      return function(t, n, r) {
+        return n && e(t.prototype, n), r && e(t, r), t;
+      };
+    }(),
+    f = {
+      PENDING: "pending",
+      LOADED: "loaded",
+      LOADING: "loading",
+      ERROR: "error"
+    },
+    p = {
+      onError: s.a.PropTypes.func,
+      onLoad: s.a.PropTypes.func,
+      renderPending: s.a.PropTypes.func,
+      srcSet: s.a.PropTypes.string,
+      src: s.a.PropTypes.string
+    },
+    h = {
+      onError: null,
+      onLoad: null,
+      renderPending: null,
+      srcSet: "",
+      src: ""
+    },
+    _ = function(e) {
+      function t() {
+        r(this, t);
+        var e = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this));
+        return e.state = {
+          status: f.PENDING
+        }, e;
+      }
+      return i(t, e), d(t, [{
+        key: "componentDidMount",
+        value: function() {
+          var e = this.props,
+            t = e.srcSet,
+            n = e.src;
+          this.fetchImage(n, t);
+        }
+      }, {
+        key: "componentWillReceiveProps",
+        value: function(e) {
+          e.src === this.props.src && e.srcSet === this.props.srcSet || this.setState(function() {
+            return {
+              status: f.LOADING
+            };
+          });
+        }
+      }, {
+        key: "shouldComponentUpdate",
+        value: function(e, t) {
+          return this.props !== e && t.status !== f.LOADING || this.state !== t;
+        }
+      }, {
+        key: "componentDidUpdate",
+        value: function(e) {
+          var t = this.props,
+            n = t.srcSet,
+            r = t.src;
+          e.src === r && e.srcSet === n || this.fetchImage(r, n);
+        }
+      }, {
+        key: "fetchImage",
+        value: function(e, t) {
+          var n = this;
+          return new Promise(function(n, r) {
+            var o = new Image;
+            return o.src = e, t && (o.srcset = t), o.onerror = r, o.onload = n, null;
+          }).then(function() {
+            return n.setState(function() {
+              return {
+                status: f.LOADED
+              };
+            }), n.props.onLoad && n.props.onLoad(), status;
+          }).catch(function() {
+            n.setState(function() {
+              return {
+                status: f.ERROR
+              };
+            }), n.props.onError && n.props.onError();
+          });
+        }
+      }, {
+        key: "render",
+        value: function() {
+          var e = this.state.status;
+          if (e === f.LOADED || e === f.LOADING) {
+            var t = l.a.omit(this.props, "renderPending");
+            return s.a.createElement("img", c({
+              alt: ""
+            }, t));
+          }
+          return this.props.renderPending();
+        }
+      }]), t;
+    }(s.a.Component);
+  _.propTypes = p, _.defaultProps = h, t.a = _;
+}, function(e, t, n) {
+  "use strict";
+  var r = n(3429);
+  t.a = r.a;
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e) {
+    var t = e.channelId,
+      r = e.type,
+      o = e.oldest,
+      u = void 0 === o ? 0 : o,
+      l = e.latest,
+      c = void 0 === l ? 0 : l,
+      d = void 0;
+    switch (r) {
+      case "channel":
+        d = n.i(a.a)("channels.history", {
+          channel: t,
+          count: 42,
+          oldest: u,
+          latest: c
+        });
+        break;
+      case "mpim":
+        d = n.i(a.a)("mpim.history", {
+          channel: t,
+          count: 42
+        });
+        break;
+      case "group":
+        d = n.i(a.a)("groups.history", {
+          channel: t,
+          count: 42
+        });
+        break;
+      case "im":
+        d = n.i(a.a)("im.history", {
+          channel: t,
+          count: 42
+        });
+        break;
+      default:
+        return Promise.reject(new Error("Unknown channel type"));
+    }
+    return d.then(function(e) {
+      var r = i.a.get(e, "data.messages");
+      return r ? i.a.map(r, function(e) {
+        return n.i(s.a)(e, t);
+      }) : [];
+    });
+  }
+  t.a = r;
+  var o = n(6),
+    i = n.n(o),
+    a = n(3048),
+    s = n(3040);
+}, function(e, t, n) {
+  "use strict";
+  var r = n(2909);
+  n.d(t, "a", function() {
+    return r.a;
+  }), n.d(t, "b", function() {
+    return r.b;
+  }), n.d(t, "c", function() {
+    return r.c;
+  }), n.d(t, "d", function() {
+    return r.d;
+  });
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e, t, n) {
+    return t in e ? Object.defineProperty(e, t, {
+      value: n,
+      enumerable: !0,
+      configurable: !0,
+      writable: !0
+    }) : e[t] = n, e;
+  }
+
+  function o(e, t) {
+    var o, i = ["upsert", "bulkUpsert", "remove", "bulkRemove", "clear"],
+      l = a.a.pick(e, i),
+      c = l.upsert,
+      d = l.bulkUpsert,
+      f = l.remove,
+      p = l.bulkRemove,
+      h = l.clear,
+      _ = a.a.omit(e, i);
+    return n.i(s.createReducer)(u((o = {}, r(o, c, function(e, t) {
+      return t && t.id ? u({}, e, r({}, t.id, t)) : e;
+    }), r(o, d, function(e, t) {
+      return t && t.length && a.a.isArray(t) ? a.a.reduce(t, function(e, t) {
+        return t && t.id && (e[t.id] = t), e;
+      }, u({}, e)) : e;
+    }), r(o, f, function(e, t) {
+      return a.a.omit(e, t);
+    }), r(o, p, function(e, t) {
+      return a.a.omit(e, t);
+    }), r(o, h, function() {
+      return {};
+    }), o), _), t);
+  }
+  t.a = o;
+  var i = n(6),
+    a = n.n(i),
+    s = n(17),
+    u = (n.n(s), Object.assign || function(e) {
+      for (var t = 1; t < arguments.length; t++) {
+        var n = arguments[t];
+        for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
+      }
+      return e;
+    });
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e) {
+    return e.reduce(function(e, t) {
+      return t.contents && (e += r(t.contents) + 1), e + 1;
+    }, 0);
+  }
+
+  function o(e, t) {
+    for (var i = [], l = 0; l < e.length; l += 1) {
+      var c = e[l];
+      if (c === t) break;
+      if (u[c]) {
+        var d = u[c],
+          f = d.type,
+          p = d.endToken,
+          h = {
+            type: f
+          };
+        p && (h.contents = o(e.slice(l + 1), p), l += r(h.contents) + 1), i.push(h);
+      } else if (0 === c.indexOf("<"))
+        if (0 === c.indexOf("<LINK:START")) {
+          var _ = {
+            type: "link",
+            contents: o(e.slice(l + 1), "<LINK:END>"),
+            url: c.slice(12, -1)
+          };
+          i.push(_), l += r(_.contents) + 1;
+        } else if (0 === c.indexOf("<!")) {
+        var m = c.slice(2, -1).split("|"),
+          y = s(m, 2),
+          v = y[0],
+          g = y[1];
+        i.push({
+          type: "command",
+          id: v,
+          name: g
+        });
+      } else if (0 === c.indexOf("<@")) {
+        var b = c.slice(1, -1).split("|"),
+          w = s(b, 2),
+          k = w[0],
+          M = w[1];
+        i.push({
+          type: "member",
+          id: k,
+          name: M
+        });
+      } else if (0 === c.indexOf("<#")) {
+        var T = c.slice(2, -1).split("|"),
+          x = s(T, 2),
+          S = x[0],
+          E = x[1];
+        i.push({
+          type: "channel",
+          id: S,
+          name: E
+        });
+      } else 0 === c.indexOf("<EMOJI:COLONS") ? i.push({
+        type: "emoji",
+        name: c.slice(14, -1)
+      }) : 0 === c.indexOf("<JUMBOMOJI:COLONS") ? i.push({
+        type: "jumbomoji",
+        name: c.slice(18, -1)
+      }) : 0 === c.indexOf("<HEX:BLOCK") ? i.push({
+        type: "hex",
+        color: c.slice(11, -1)
+      }) : n.i(a.a)("mrkdwnToJson: Failed to handle token", c);
+      else i.push({
+        text: c
+      });
+    }
+    return i;
+  }
+
+  function i(e, t, n) {
+    return e ? o(window.TSF.getTokensArray(e, t, {
+      jumbomoji: !(n && n.noJumbomoji)
+    })) : [];
+  }
+  t.a = i;
+  var a = n(3049),
+    s = function() {
+      function e(e, t) {
+        var n = [],
+          r = !0,
+          o = !1,
+          i = void 0;
+        try {
+          for (var a, s = e[Symbol.iterator](); !(r = (a = s.next()).done) && (n.push(a.value), !t || n.length !== t); r = !0);
+        } catch (e) {
+          o = !0, i = e;
+        } finally {
+          try {
+            !r && s.return && s.return();
+          } finally {
+            if (o) throw i;
+          }
+        }
+        return n;
+      }
+      return function(t, n) {
+        if (Array.isArray(t)) return t;
+        if (Symbol.iterator in Object(t)) return e(t, n);
+        throw new TypeError("Invalid attempt to destructure non-iterable instance");
+      };
+    }(),
+    u = {
+      "<B:START>": {
+        type: "bold",
+        endToken: "<B:END>"
+      },
+      "<I:START>": {
+        type: "italic",
+        endToken: "<I:END>"
+      },
+      "<STRIKE:START>": {
+        type: "strike",
+        endToken: "<STRIKE:END>"
+      },
+      "<CODE:START>": {
+        type: "code",
+        endToken: "<CODE:END>"
+      },
+      "<QUOTE:START>": {
+        type: "quote",
+        endToken: "<QUOTE:END>"
+      },
+      "<PRE:START>": {
+        type: "pre",
+        endToken: "<PRE:END>"
+      },
+      "<QUOTE:PREFIX>": {
+        type: "quote_prefix"
+      },
+      "<LONGQUOTE:PREFIX>": {
+        type: "long_quote_prefix"
+      },
+      "<LINE:BREAK>": {
+        type: "line_break"
+      },
+      "<PARA:BREAK>": {
+        type: "paragraph_break"
+      },
+      "<SPACE:HARD>": {
+        type: "space_hard"
+      }
+    };
 }], [2905]);

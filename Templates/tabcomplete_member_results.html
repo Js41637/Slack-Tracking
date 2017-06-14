@@ -36,6 +36,9 @@
 
       {{~#if result.member.is_app_user~}}
         <span class="app_label">{{#t note="label for app users in tabcomplete list"}}APP{{/t}}</span>
+        {{~#and membership_status_is_known member_does_not_belong_to_channel~}}
+          <span class="not_in_channel">{{#t}}(not in channel){{/t}}</span>
+        {{/and}}
       {{~else~}}
         {{#or member.profile.status_emoji member.profile.status_text}}
           <span class="current_status greigh">
