@@ -3063,7 +3063,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
       });
       var e = [],
         t = function() {
-          TS.click.addClientHandler("#archive_msg_lim_btn, #msg_lim_header_link, #msg_lim_header_btn", function(e, t) {
+          TS.click.addClientHandler("#archive_msg_lim_btn, #archive_msg_lim_btn_treatment, #msg_lim_header_btn, #msg_lim_header_btn_treatment", function(e, t) {
             TS.clog.track("GROWTH_PRICING", {
               contexts: {
                 ui_context: {
@@ -11479,7 +11479,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         ee = function(e) {
           var t = TS.console.getStackTrace();
           g[e] = setTimeout(function() {
-            TS.model.ms_connected && (TS.flannel.fetchAndUpsertObjectsByIds([e], function() {
+            TS.model.ms_connected && (TS.flannel.fetchAndUpsertObjectsByIds([e]).then(function() {
               var t = TS.members.getPotentiallyUnknownMemberByIdWithoutFetching(e),
                 n = t.is_unknown ? "failure" : "success";
               TS.metrics.count("unknown_member_timeout_retry_" + n);
@@ -13681,7 +13681,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                 bot_id: g.data("bot-id")
               };
             TS.clog.track("MSG_LINK_COPY", S);
-          } else "open_original_link" === i || ("share_message_link" === i ? TS.ui.share_message_dialog.start(r, o) : "remove_broadcast_link" === i && TS.msg_edit.startRemoveBroadcast(r, o));
+          } else if ("open_original_link" === i);
+          else if ("share_message_link" === i) TS.ui.share_message_dialog.start(r, o);
+          else if ("remove_broadcast_link" === i) TS.msg_edit.startRemoveBroadcast(r, o);
+          else if ("remind_me" === i) return;
           TS.menu.end();
         },
         onMessageRemindClick: function(e, t, n, i) {
@@ -26444,6 +26447,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             return cdn_url + "/883cf/img/focus-rocks-0.png";
           }), Handlebars.registerHelper("versioned_ill_team", function(e) {
             return "1x" === e ? cdn_url + "/9288/img/quick_promo/ill_team.png" : "2x" === e ? cdn_url + "/9288/img/quick_promo/ill_team@2x.png" : void 0;
+          }), Handlebars.registerHelper("versioned_basic_analytics_upsell_banner_image", function() {
+            return cdn_url + "/e5a05/img/enterprise/ent_basic_analytics_upsell_banner_image.gif";
           }), Handlebars.registerHelper("pinToLabel", function(e) {
             var t = "";
             return e.is_channel && (t += "#"), e.is_im || e.is_mpim ? t += TS.i18n.t("this conversation", "pins")() : t += _.escape(e.name), new Handlebars.SafeString(t);

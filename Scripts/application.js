@@ -21754,9 +21754,9 @@ webpackJsonp([332], [, function(e, t, n) {
 }, function(e, t, n) {
   t = e.exports = n(189)(), t.push([e.i, ".c-presence--active {\n  color: #93cc93;\n}\n.c-presence--away {\n  color: #717274;\n}\n", ""]);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".c-tooltip__tip {\n  display: inline-block;\n  color: #FFFFFF;\n  background-color: #2C2D30;\n  max-width: 250px;\n  padding: 0.5rem;\n  border-radius: 4px;\n  position: relative;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 0.8125rem;\n  font-weight: 700;\n  text-align: center;\n}\n.c-tooltip__tip:after {\n  position: absolute;\n  content: '';\n  width: 0;\n  height: 0;\n  margin: -5px;\n  border: 6px solid transparent;\n}\n.c-tooltip__tip--left {\n  margin-right: 0.5rem;\n}\n.c-tooltip__tip--left:after {\n  border-left-color: #2C2D30;\n  right: -6px;\n  top: 50%;\n}\n.c-tooltip__tip--right {\n  margin-left: 0.5rem;\n}\n.c-tooltip__tip--right:after {\n  border-right-color: #2C2D30;\n  left: -6px;\n  top: 50%;\n}\n.c-tooltip__tip--top {\n  margin-bottom: 0.5rem;\n}\n.c-tooltip__tip--top:after {\n  border-top-color: #2C2D30;\n  bottom: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--top-left {\n  margin-bottom: 0.5rem;\n}\n.c-tooltip__tip--top-left:after {\n  border-top-color: #2C2D30;\n  bottom: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--top-left:after {\n  left: 25%;\n}\n.c-tooltip__tip--top-right {\n  margin-bottom: 0.5rem;\n}\n.c-tooltip__tip--top-right:after {\n  border-top-color: #2C2D30;\n  bottom: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--top-right:after {\n  left: 75%;\n}\n.c-tooltip__tip--bottom {\n  margin-top: 0.5rem;\n}\n.c-tooltip__tip--bottom:after {\n  border-bottom-color: #2C2D30;\n  top: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--bottom-left {\n  margin-top: 0.5rem;\n}\n.c-tooltip__tip--bottom-left:after {\n  border-bottom-color: #2C2D30;\n  top: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--bottom-left:after {\n  left: 25%;\n}\n.c-tooltip__tip--bottom-right {\n  margin-top: 0.5rem;\n}\n.c-tooltip__tip--bottom-right:after {\n  border-bottom-color: #2C2D30;\n  top: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--bottom-right:after {\n  left: 75%;\n}\n.c-tooltip__tip--success {\n  background-color: #29A979;\n}\n.c-tooltip__tip--success.c-tooltip__tip--left:after {\n  border-left-color: #29A979;\n}\n.c-tooltip__tip--success.c-tooltip__tip--right:after {\n  border-right-color: #29A979;\n}\n.c-tooltip__tip--success.c-tooltip__tip--top:after,\n.c-tooltip__tip--success.c-tooltip__tip--top-left:after,\n.c-tooltip__tip--success.c-tooltip__tip--top-right:after {\n  border-top-color: #29A979;\n}\n.c-tooltip__tip--success.c-tooltip__tip--bottom:after,\n.c-tooltip__tip--success.c-tooltip__tip--bottom-left:after,\n.c-tooltip__tip--success.c-tooltip__tip--bottom-right:after {\n  border-bottom-color: #29A979;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".c-tooltip__tip {\n  display: inline-block;\n  color: #FFFFFF;\n  background-color: #000;\n  max-width: 250px;\n  padding: 0.5rem;\n  border-radius: 4px;\n  position: relative;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 0.8125rem;\n  font-weight: 700;\n  text-align: center;\n}\n.c-tooltip__tip:after {\n  position: absolute;\n  content: '';\n  width: 0;\n  height: 0;\n  margin: -5px;\n  border: 6px solid transparent;\n}\n.c-tooltip__tip--left {\n  margin-right: 0.5rem;\n}\n.c-tooltip__tip--left:after {\n  border-left-color: #000;\n  right: -6px;\n  top: 50%;\n}\n.c-tooltip__tip--right {\n  margin-left: 0.5rem;\n}\n.c-tooltip__tip--right:after {\n  border-right-color: #000;\n  left: -6px;\n  top: 50%;\n}\n.c-tooltip__tip--top {\n  margin-bottom: 0.5rem;\n}\n.c-tooltip__tip--top:after {\n  border-top-color: #000;\n  bottom: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--top-left {\n  margin-bottom: 0.5rem;\n}\n.c-tooltip__tip--top-left:after {\n  border-top-color: #000;\n  bottom: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--top-left:after {\n  left: 25%;\n}\n.c-tooltip__tip--top-right {\n  margin-bottom: 0.5rem;\n}\n.c-tooltip__tip--top-right:after {\n  border-top-color: #000;\n  bottom: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--top-right:after {\n  left: 75%;\n}\n.c-tooltip__tip--bottom {\n  margin-top: 0.5rem;\n}\n.c-tooltip__tip--bottom:after {\n  border-bottom-color: #000;\n  top: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--bottom-left {\n  margin-top: 0.5rem;\n}\n.c-tooltip__tip--bottom-left:after {\n  border-bottom-color: #000;\n  top: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--bottom-left:after {\n  left: 25%;\n}\n.c-tooltip__tip--bottom-right {\n  margin-top: 0.5rem;\n}\n.c-tooltip__tip--bottom-right:after {\n  border-bottom-color: #000;\n  top: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--bottom-right:after {\n  left: 75%;\n}\n.c-tooltip__tip--success {\n  background-color: #29A979;\n}\n.c-tooltip__tip--success.c-tooltip__tip--left:after {\n  border-left-color: #29A979;\n}\n.c-tooltip__tip--success.c-tooltip__tip--right:after {\n  border-right-color: #29A979;\n}\n.c-tooltip__tip--success.c-tooltip__tip--top:after,\n.c-tooltip__tip--success.c-tooltip__tip--top-left:after,\n.c-tooltip__tip--success.c-tooltip__tip--top-right:after {\n  border-top-color: #29A979;\n}\n.c-tooltip__tip--success.c-tooltip__tip--bottom:after,\n.c-tooltip__tip--success.c-tooltip__tip--bottom-left:after,\n.c-tooltip__tip--success.c-tooltip__tip--bottom-right:after {\n  border-bottom-color: #29A979;\n}\n", ""]);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".p-channel_sidebar {\n  width: 220px;\n  height: 100vh;\n  position: relative;\n  padding: 0;\n}\n.p-channel_sidebar__virtualized {\n  outline: none;\n  -ms-overflow-style: none;\n}\n.p-channel_sidebar__virtualized::-webkit-scrollbar {\n  display: none;\n}\n.p-channel_sidebar__section_heading {\n  padding: 0 0.75rem 0 15px;\n  margin: 0;\n  width: 100%;\n  height: 26px;\n  display: flex;\n  align-items: center;\n}\n.p-channel_sidebar__section_heading_label {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  font-size: 1rem;\n  line-height: 1;\n  display: block;\n  opacity: 0.7;\n  text-align: left;\n  width: 100%;\n}\n.p-channel_sidebar__section_heading_label:hover,\n.p-channel_sidebar__section_heading_label:focus,\n.p-channel_sidebar__section_heading_label:active {\n  outline: none;\n}\n.p-channel_sidebar__section_heading_label .c-icon:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  width: 20px;\n  opacity: 0.7;\n  margin: 0 1px 0 -4px;\n  vertical-align: baseline;\n}\n.p-channel_sidebar__section_heading_right {\n  margin-left: auto;\n}\n.p-channel_sidebar__section_heading_plus {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  line-height: 100%;\n}\n.p-channel_sidebar__section_heading_plus:hover,\n.p-channel_sidebar__section_heading_plus:focus,\n.p-channel_sidebar__section_heading_plus:active {\n  outline: none;\n}\n.p-channel_sidebar__section_heading_plus:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  width: 20px;\n  opacity: 0.7;\n  line-height: 100%;\n  content: '\\E228';\n}\n.p-channel_sidebar__banner {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  width: calc(100% - 1rem);\n  text-align: center;\n  position: absolute;\n  display: block;\n  z-index: 2;\n  color: #FFFFFF;\n  left: 0.5rem;\n  right: 0.5rem;\n  font-weight: 700;\n  font-size: 0.875rem;\n  line-height: 1.625rem;\n  cursor: pointer;\n}\n.p-channel_sidebar__banner:hover,\n.p-channel_sidebar__banner:focus,\n.p-channel_sidebar__banner:active {\n  outline: none;\n}\n.p-channel_sidebar__banner--top {\n  border-top-right-radius: 0;\n  border-bottom-right-radius: 6px;\n  border-bottom-left-radius: 6px;\n  border-top-left-radius: 0;\n  background-clip: padding-box;\n  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.1) inset;\n  top: 0;\n}\n.p-channel_sidebar__banner--bottom {\n  border-top-right-radius: 6px;\n  border-bottom-right-radius: 0;\n  border-bottom-left-radius: 0;\n  border-top-left-radius: 6px;\n  background-clip: padding-box;\n  box-shadow: 0 -1px 6px rgba(0, 0, 0, 0.1), 0 -1px 3px rgba(0, 0, 0, 0.1) inset;\n  bottom: 0;\n}\n.p-channel_sidebar__banner--mentions {\n  background: #EB4D5C;\n}\n.p-channel_sidebar__banner--unreads {\n  background: #2D9EE0;\n}\n.p-channel_sidebar__link {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n}\n.p-channel_sidebar__link:hover,\n.p-channel_sidebar__link:focus,\n.p-channel_sidebar__link:active {\n  outline: none;\n}\n.p-channel_sidebar__channel,\n.p-channel_sidebar__link {\n  display: flex;\n  align-items: center;\n  height: 26px;\n  line-height: 1.625rem;\n  padding: 0 0.75rem 0 15px;\n  width: 100%;\n}\n.p-channel_sidebar__channel:before,\n.p-channel_sidebar__link:before,\n.p-channel_sidebar__channel:after,\n.p-channel_sidebar__link:after {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  width: 20px;\n  opacity: 0.7;\n}\n.p-channel_sidebar__channel:before,\n.p-channel_sidebar__link:before {\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel:after,\n.p-channel_sidebar__link:after {\n  font-size: 1.25rem;\n  margin-left: 0.25rem;\n}\n.p-channel_sidebar__channel:hover,\n.p-channel_sidebar__link:hover {\n  text-decoration: none;\n}\n.p-channel_sidebar__channel:before {\n  content: '\\E125';\n}\n.p-channel_sidebar__channel--private:before {\n  content: '\\E567';\n}\n.p-channel_sidebar__channel--shared:after {\n  content: '\\E559';\n}\n.p-channel_sidebar__channel--org-shared:after {\n  content: '\\E166';\n}\n.p-channel_sidebar__channel--mpim:before {\n  font-size: 1.25rem;\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel--mpim[data-user-count='2']:before {\n  content: '\\E521';\n}\n.p-channel_sidebar__channel--mpim[data-user-count='3']:before {\n  content: '\\E522';\n}\n.p-channel_sidebar__channel--mpim[data-user-count='4']:before {\n  content: '\\E523';\n}\n.p-channel_sidebar__channel--mpim[data-user-count='5']:before {\n  content: '\\E524';\n}\n.p-channel_sidebar__channel--mpim[data-user-count='6']:before {\n  content: '\\E525';\n}\n.p-channel_sidebar__channel--mpim[data-user-count='7']:before {\n  content: '\\E526';\n}\n.p-channel_sidebar__channel--mpim[data-user-count='8']:before {\n  content: '\\E527';\n}\n.p-channel_sidebar__channel--mpim[data-user-count='9']:before {\n  content: '\\E528';\n}\n.p-channel_sidebar__channel--im:before {\n  content: none;\n}\n.p-channel_sidebar__channel--im .c-presence {\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel--im .c-presence--away {\n  opacity: 0.7;\n}\n.p-channel_sidebar__channel--im-slackbot:before {\n  content: '\\E515';\n  opacity: 1;\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel--im-slackbot.p-channel_sidebar__channel--draft:before {\n  color: inherit;\n}\n.p-channel_sidebar__channel--muted:not(.p-channel_sidebar__channel--selected) {\n  opacity: 0.4;\n}\n.p-channel_sidebar__channel--unread:not(.p-channel_sidebar__channel--muted) .p-channel_sidebar__name {\n  font-weight: 900;\n  opacity: 1;\n}\n.p-channel_sidebar__channel--selected .p-channel_sidebar__name {\n  opacity: 1;\n}\n.p-channel_sidebar__channel--draft:before {\n  content: '\\E024';\n  font-size: 0.875rem;\n  margin: 1px -2px 0 -1px;\n  flex-basis: 20px;\n  flex-shrink: 0;\n}\n.p-channel_sidebar__channel--archived:before {\n  content: '\\E534';\n}\n@keyframes typing {\n  100% {\n    background-position: -240px;\n  }\n}\n.p-channel_sidebar__channel--typing:before {\n  display: block;\n  content: '';\n  width: 11px;\n  height: 3px;\n  background-image: url(/img/typing-sprite.png);\n  background-repeat: no-repeat;\n  animation: 1s steps(15) 0s infinite normal none typing-sprite;\n  margin: 0 5px 0 1px;\n  opacity: 1;\n}\n@media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {\n  .p-channel_sidebar__channel--typing:before {\n    background-size: cover;\n    background-image: url(/img/typing-sprite@2x.png);\n  }\n}\n.p-channel_sidebar__name {\n  margin-right: auto;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  opacity: 0.7;\n}\n.p-channel_sidebar__name .c-custom_status {\n  float: right;\n  position: relative;\n  z-index: 1;\n}\n.p-channel_sidebar__name.p-channel_sidebar__name--away {\n  font-style: italic;\n}\n.p-channel_sidebar__badge {\n  order: 5;\n  padding: 1px 0.6rem;\n  margin-left: 0.25rem;\n  border-radius: 1rem;\n  line-height: 1rem;\n  font-size: 0.75rem;\n  font-weight: 700;\n  color: #FFFFFF;\n}\n.p-channel_sidebar__status {\n  margin-left: 0.5rem;\n}\n.p-channel_sidebar__you_label {\n  margin-left: 0.5rem;\n  font-weight: normal;\n  opacity: 0.7;\n}\n.p-channel_sidebar__close {\n  margin-left: 0.25rem;\n  display: none;\n}\n.p-channel_sidebar__close,\n.p-channel_sidebar__close:before {\n  line-height: 100%;\n}\n.p-channel_sidebar__channel:hover .p-channel_sidebar__close {\n  display: block;\n}\n.p-channel_sidebar__link--unread .p-channel_sidebar__name {\n  font-weight: 900;\n  opacity: 1;\n}\n.p-channel_sidebar__link--selected .p-channel_sidebar__name {\n  opacity: 1;\n}\n.p-channel_sidebar__link--all-unreads:before {\n  content: '\\E103';\n  margin: 0 4px 0 -4px;\n}\n.p-channel_sidebar__link--all-threads:before {\n  content: '\\E171';\n  margin: 0 4px 0 -4px;\n}\n.p-channel_sidebar__link--all-threads.p-channel_sidebar__link--unread:before {\n  content: '\\E554';\n}\n.p-channel_sidebar__link--invites:before {\n  content: '\\E281';\n}\n.p-channel_sidebar__link--invites:not(.p-channel_sidebar__link--dim) .p-channel_sidebar__name {\n  font-weight: 900;\n  opacity: 1;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".p-channel_sidebar {\n  width: 220px;\n  height: 100vh;\n  position: relative;\n  padding: 0;\n}\n.p-channel_sidebar__virtualized {\n  outline: none;\n  -ms-overflow-style: none;\n}\n.p-channel_sidebar__virtualized::-webkit-scrollbar {\n  display: none;\n}\n.p-channel_sidebar__section_heading {\n  padding: 0 0.75rem 0 15px;\n  margin: 0;\n  width: 100%;\n  height: 26px;\n  display: flex;\n  align-items: center;\n}\n.p-channel_sidebar__section_heading_label {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  font-size: 1rem;\n  line-height: 1;\n  display: block;\n  opacity: 0.7;\n  text-align: left;\n  width: 100%;\n  transition: opacity 0.1s ease-out;\n}\n.p-channel_sidebar__section_heading_label:hover,\n.p-channel_sidebar__section_heading_label:focus,\n.p-channel_sidebar__section_heading_label:active {\n  outline: none;\n}\n.p-channel_sidebar__section_heading_label .c-icon:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  width: 20px;\n  opacity: 0.7;\n  margin: 0 1px 0 -4px;\n  vertical-align: baseline;\n}\n.p-channel_sidebar__section_heading_label--clickable:hover {\n  opacity: 1;\n}\n.p-channel_sidebar__section_heading_right {\n  margin-left: auto;\n}\n.p-channel_sidebar__section_heading_plus {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  line-height: 100%;\n}\n.p-channel_sidebar__section_heading_plus:hover,\n.p-channel_sidebar__section_heading_plus:focus,\n.p-channel_sidebar__section_heading_plus:active {\n  outline: none;\n}\n.p-channel_sidebar__section_heading_plus:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  width: 20px;\n  opacity: 0.7;\n  line-height: 100%;\n  content: '\\E228';\n  transition: opacity 0.1s ease-out;\n}\n.p-channel_sidebar__section_heading_plus:hover:before {\n  opacity: 1;\n}\n.p-channel_sidebar__banner {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  width: calc(100% - 1rem);\n  text-align: center;\n  position: absolute;\n  display: block;\n  z-index: 2;\n  color: #FFFFFF;\n  left: 0.5rem;\n  right: 0.5rem;\n  font-weight: 700;\n  font-size: 0.875rem;\n  line-height: 1.625rem;\n  cursor: pointer;\n}\n.p-channel_sidebar__banner:hover,\n.p-channel_sidebar__banner:focus,\n.p-channel_sidebar__banner:active {\n  outline: none;\n}\n.p-channel_sidebar__banner--top {\n  border-top-right-radius: 0;\n  border-bottom-right-radius: 6px;\n  border-bottom-left-radius: 6px;\n  border-top-left-radius: 0;\n  background-clip: padding-box;\n  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.1) inset;\n  top: 0;\n}\n.p-channel_sidebar__banner--bottom {\n  border-top-right-radius: 6px;\n  border-bottom-right-radius: 0;\n  border-bottom-left-radius: 0;\n  border-top-left-radius: 6px;\n  background-clip: padding-box;\n  box-shadow: 0 -1px 6px rgba(0, 0, 0, 0.1), 0 -1px 3px rgba(0, 0, 0, 0.1) inset;\n  bottom: 0;\n}\n.p-channel_sidebar__banner--mentions {\n  background: #EB4D5C;\n}\n.p-channel_sidebar__banner--unreads {\n  background: #2D9EE0;\n}\n.p-channel_sidebar__link {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n}\n.p-channel_sidebar__link:hover,\n.p-channel_sidebar__link:focus,\n.p-channel_sidebar__link:active {\n  outline: none;\n}\n.p-channel_sidebar__channel,\n.p-channel_sidebar__link {\n  display: flex;\n  align-items: center;\n  height: 26px;\n  line-height: 1.625rem;\n  padding: 0 0.75rem 0 15px;\n  width: 100%;\n}\n.p-channel_sidebar__channel:before,\n.p-channel_sidebar__link:before,\n.p-channel_sidebar__channel:after,\n.p-channel_sidebar__link:after {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  width: 20px;\n  opacity: 0.7;\n}\n.p-channel_sidebar__channel:before,\n.p-channel_sidebar__link:before {\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel:after,\n.p-channel_sidebar__link:after {\n  font-size: 1.25rem;\n  margin-left: 0.25rem;\n}\n.p-channel_sidebar__channel:hover,\n.p-channel_sidebar__link:hover {\n  text-decoration: none;\n}\n.p-channel_sidebar__channel:before {\n  content: '\\E125';\n}\n.p-channel_sidebar__channel--private:before {\n  content: '\\E567';\n}\n.p-channel_sidebar__channel--shared:after {\n  content: '\\E559';\n}\n.p-channel_sidebar__channel--org-shared:after {\n  content: '\\E166';\n}\n.p-channel_sidebar__channel--mpim:before {\n  font-size: 1.25rem;\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel--mpim[data-user-count='2']:before {\n  content: '\\E521';\n}\n.p-channel_sidebar__channel--mpim[data-user-count='3']:before {\n  content: '\\E522';\n}\n.p-channel_sidebar__channel--mpim[data-user-count='4']:before {\n  content: '\\E523';\n}\n.p-channel_sidebar__channel--mpim[data-user-count='5']:before {\n  content: '\\E524';\n}\n.p-channel_sidebar__channel--mpim[data-user-count='6']:before {\n  content: '\\E525';\n}\n.p-channel_sidebar__channel--mpim[data-user-count='7']:before {\n  content: '\\E526';\n}\n.p-channel_sidebar__channel--mpim[data-user-count='8']:before {\n  content: '\\E527';\n}\n.p-channel_sidebar__channel--mpim[data-user-count='9']:before {\n  content: '\\E528';\n}\n.p-channel_sidebar__channel--im:before {\n  content: none;\n}\n.p-channel_sidebar__channel--im .c-presence {\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel--im .c-presence--away {\n  opacity: 0.7;\n}\n.p-channel_sidebar__channel--im-slackbot:before {\n  content: '\\E515';\n  opacity: 1;\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel--im-slackbot.p-channel_sidebar__channel--draft:before {\n  color: inherit;\n}\n.p-channel_sidebar__channel--muted:not(.p-channel_sidebar__channel--selected) {\n  opacity: 0.4;\n}\n.p-channel_sidebar__channel--unread:not(.p-channel_sidebar__channel--muted) .p-channel_sidebar__name {\n  font-weight: 900;\n  opacity: 1;\n}\n.p-channel_sidebar__channel--selected .p-channel_sidebar__name {\n  opacity: 1;\n}\n.p-channel_sidebar__channel--draft:before {\n  content: '\\E024';\n  font-size: 0.875rem;\n  margin: 1px -2px 0 -1px;\n  flex-basis: 20px;\n  flex-shrink: 0;\n}\n.p-channel_sidebar__channel--archived:before {\n  content: '\\E534';\n}\n@keyframes typing {\n  100% {\n    background-position: -240px;\n  }\n}\n.p-channel_sidebar__channel--typing:before {\n  display: block;\n  content: '';\n  width: 11px;\n  height: 3px;\n  background-image: url(/img/typing-sprite.png);\n  background-repeat: no-repeat;\n  animation: 1s steps(15) 0s infinite normal none typing-sprite;\n  margin: 0 5px 0 1px;\n  opacity: 1;\n}\n@media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {\n  .p-channel_sidebar__channel--typing:before {\n    background-size: cover;\n    background-image: url(/img/typing-sprite@2x.png);\n  }\n}\n.p-channel_sidebar__name {\n  margin-right: auto;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  opacity: 0.7;\n}\n.p-channel_sidebar__name .c-custom_status {\n  float: right;\n  position: relative;\n  z-index: 1;\n}\n.p-channel_sidebar__name.p-channel_sidebar__name--away {\n  font-style: italic;\n}\n.p-channel_sidebar__badge {\n  order: 5;\n  padding: 1px 0.6rem;\n  margin-left: 0.25rem;\n  border-radius: 1rem;\n  line-height: 1rem;\n  font-size: 0.75rem;\n  font-weight: 700;\n  color: #FFFFFF;\n}\n.p-channel_sidebar__status {\n  margin-left: 0.5rem;\n}\n.p-channel_sidebar__you_label {\n  margin-left: 0.5rem;\n  font-weight: normal;\n  opacity: 0.7;\n}\n.p-channel_sidebar__close {\n  margin-left: 0.25rem;\n  display: none;\n}\n.p-channel_sidebar__close,\n.p-channel_sidebar__close:before {\n  line-height: 100%;\n}\n.p-channel_sidebar__channel:hover .p-channel_sidebar__close {\n  display: block;\n}\n.p-channel_sidebar__link--unread .p-channel_sidebar__name {\n  font-weight: 900;\n  opacity: 1;\n}\n.p-channel_sidebar__link--selected .p-channel_sidebar__name {\n  opacity: 1;\n}\n.p-channel_sidebar__link--all-unreads:before {\n  content: '\\E103';\n  margin: 0 4px 0 -4px;\n}\n.p-channel_sidebar__link--all-threads:before {\n  content: '\\E171';\n  margin: 0 4px 0 -4px;\n}\n.p-channel_sidebar__link--all-threads.p-channel_sidebar__link--unread:before {\n  content: '\\E554';\n}\n.p-channel_sidebar__link--invites:before {\n  content: '\\E281';\n}\n.p-channel_sidebar__link--invites:not(.p-channel_sidebar__link--dim) .p-channel_sidebar__name {\n  font-weight: 900;\n  opacity: 1;\n}\n", ""]);
 }, function(e, t, n) {
   "use strict";
   Object.defineProperty(t, "__esModule", {
@@ -38906,9 +38906,11 @@ webpackJsonp([332], [, function(e, t, n) {
     s = n.n(a),
     u = n(6),
     l = n.n(u),
-    c = n(2902),
-    d = n(2287),
-    f = function() {
+    c = n(9),
+    d = n.n(c),
+    f = n(2902),
+    p = n(2287),
+    h = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
@@ -38919,7 +38921,7 @@ webpackJsonp([332], [, function(e, t, n) {
         return n && e(t.prototype, n), r && e(t, r), t;
       };
     }(),
-    p = {
+    _ = {
       label: a.PropTypes.string.isRequired,
       iconClass: a.PropTypes.string,
       tooltip: a.PropTypes.string,
@@ -38928,7 +38930,7 @@ webpackJsonp([332], [, function(e, t, n) {
       plusTooltip: a.PropTypes.string,
       onPlusClick: a.PropTypes.func
     },
-    h = {
+    m = {
       label: "",
       iconClass: null,
       tooltip: "",
@@ -38937,13 +38939,13 @@ webpackJsonp([332], [, function(e, t, n) {
       plusTooltip: "",
       onPlusClick: l.a.noop
     },
-    _ = function(e) {
+    y = function(e) {
       function t(e) {
         r(this, t);
         var n = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
         return n.onLabelClick = n.onLabelClick.bind(n), n.onPlusClick = n.onPlusClick.bind(n), n.setTooltipRef = n.setTooltipRef.bind(n), n.setPlusTooltipRef = n.setPlusTooltipRef.bind(n), n;
       }
-      return i(t, e), f(t, [{
+      return i(t, e), h(t, [{
         key: "onLabelClick",
         value: function(e) {
           e.preventDefault(), this.tooltip && this.tooltip.hideTip(), this.props.onLabelClick();
@@ -38967,7 +38969,7 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "renderIconMaybe",
         value: function() {
           var e = this.props.iconClass;
-          return e ? s.a.createElement(d.a, {
+          return e ? s.a.createElement(p.a, {
             type: e
           }) : null;
         }
@@ -38982,10 +38984,11 @@ webpackJsonp([332], [, function(e, t, n) {
               className: "p-channel_sidebar__section_heading_plus",
               onClick: this.onPlusClick
             }),
-            o = n ? s.a.createElement(c.a, {
+            o = n ? s.a.createElement(f.a, {
               tip: n,
               position: "top",
-              ref: this.setPlusTooltipRef
+              ref: this.setPlusTooltipRef,
+              delay: 400
             }, r) : r;
           return s.a.createElement("div", {
             className: "p-channel_sidebar__section_heading_right"
@@ -39000,15 +39003,16 @@ webpackJsonp([332], [, function(e, t, n) {
             r = e.onLabelClick,
             o = void 0;
           o = r !== l.a.noop ? s.a.createElement("button", {
-            className: "p-channel_sidebar__section_heading_label",
+            className: d()("p-channel_sidebar__section_heading_label", "p-channel_sidebar__section_heading_label--clickable"),
             onClick: this.onLabelClick
           }, this.renderIconMaybe(), " ", t) : s.a.createElement("span", {
             className: "p-channel_sidebar__section_heading_label"
           }, this.renderIconMaybe(), " ", t);
-          var i = n ? s.a.createElement(c.a, {
+          var i = n ? s.a.createElement(f.a, {
             tip: n,
             position: "top-left",
-            ref: this.setTooltipRef
+            ref: this.setTooltipRef,
+            delay: 400
           }, o) : o;
           return s.a.createElement("div", {
             className: "p-channel_sidebar__section_heading"
@@ -39016,7 +39020,7 @@ webpackJsonp([332], [, function(e, t, n) {
         }
       }]), t;
     }(s.a.PureComponent);
-  _.propTypes = p, _.defaultProps = h, t.a = _;
+  y.propTypes = _, y.defaultProps = m, t.a = y;
 }, , , , , , , , , function(e, t, n) {
   "use strict";
 
@@ -52122,7 +52126,7 @@ webpackJsonp([332], [, function(e, t, n) {
       retention_duration: 0
     });
   }
-  t.b = r, t.c = o, t.d = i, t.e = s, t.a = u;
+  t.b = r, t.d = o, t.e = i, t.c = s, t.a = u;
   var l = n(6),
     c = n.n(l),
     d = n(2288),
@@ -52257,7 +52261,7 @@ webpackJsonp([332], [, function(e, t, n) {
     }
   });
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".c-modal {\n  position: fixed;\n  top: 100%;\n  left: 0;\n  bottom: 0;\n  right: 0;\n  z-index: 1000;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n}\n.c-modal--active {\n  top: 0;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms;\n}\n.c-modal__background {\n  height: 100vh;\n  width: 100vw;\n  background-color: #FFFFFF;\n  position: absolute;\n  top: 0;\n  left: 0;\n  pointer-events: none;\n}\n.c-modal__contents {\n  height: 100vh;\n  top: 100%;\n  opacity: 0;\n  -webkit-transform: translateY(5px);\n  -moz-transform: translateY(5px);\n  -ms-transform: translateY(5px);\n  transform: translateY(5px);\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, -webkit-transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n}\n.c-modal__contents--active {\n  top: 0;\n  opacity: 1;\n  -webkit-transform: translateY(0);\n  -moz-transform: translateY(0);\n  -ms-transform: translateY(0);\n  transform: translateY(0);\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, -webkit-transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n}\n.c-modal__header {\n  position: fixed;\n  left: 0;\n  right: 0;\n  display: flex;\n  align-items: center;\n  -ms-flex-pack: distribute;\n  -webkit-box-pack: distribute;\n  -webkit-justify-content: space-around;\n  -moz-justify-content: space-around;\n  justify-content: space-around;\n  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);\n  height: 3.75rem;\n  background-color: #FFFFFF;\n  top: 0;\n  z-index: 10;\n}\n.c-modal__close {\n  position: absolute;\n  top: 20px;\n  right: 20px;\n  z-index: 100;\n  cursor: pointer;\n}\n.c-modal__close:before {\n  font-size: 30px;\n  color: #717274;\n}\n.c-modal__body {\n  padding-top: 3.75rem;\n  margin-bottom: 4.5rem;\n}\n.p-org_retention_request {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-weight: 400;\n  -webkit-font-smoothing: antialiased;\n  font-size: 15px;\n}\n.p-org_retention_request--font_bump {\n  font-size: 16px;\n  line-height: 1.5;\n}\n.p-org_retention_request__modal_content {\n  max-width: 640px;\n  margin: 0 auto;\n  padding-top: 7.5rem;\n}\n.p-org_retention_request__modal_section {\n  border-bottom: 1px solid #E8E8E8;\n  margin-bottom: 1rem;\n  padding: 0 1rem 1rem;\n  font-size: 15px;\n  line-height: 1.5;\n}\n.p-org_retention_request__modal_section--lead {\n  padding-left: 0;\n  padding-right: 0;\n}\n.p-org_retention_request__section_header {\n  font-weight: 900;\n  font-size: 22px;\n  margin-bottom: 1.875rem;\n  color: #2C2D30;\n}\n.p-org_retention_request__policy_select_group {\n  display: flex;\n}\n.p-org_retention_request__select_wrapper {\n  position: relative;\n  width: calc(100% - 200px);\n}\n.p-org_retention_request__select_wrapper:after {\n  font-family: 'Slack';\n  content: '\\E271';\n  position: absolute;\n  right: 10px;\n  top: 15px;\n  width: 20px;\n  height: 20px;\n  display: block;\n}\n.p-org_retention_request__select {\n  display: block;\n}\n.p-org_retention_request__duration_group {\n  position: relative;\n  max-width: 105px;\n  display: flex;\n  align-items: baseline;\n}\n.p-org_retention_request__duration_label {\n  position: absolute;\n  left: 0;\n  top: -1.5rem;\n}\n.p-org_retention_request__duration_label--secondary {\n  display: block;\n}\n.p-org_retention_request__requester_input {\n  width: calc(100% - 200px);\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".c-modal {\n  position: fixed;\n  top: 100%;\n  left: 0;\n  bottom: 0;\n  right: 0;\n  z-index: 1000;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n}\n.c-modal--active {\n  top: 0;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms;\n}\n.c-modal__background {\n  height: 100vh;\n  width: 100vw;\n  background-color: #FFFFFF;\n  position: absolute;\n  top: 0;\n  left: 0;\n  pointer-events: none;\n}\n.c-modal__contents {\n  height: 100vh;\n  top: 100%;\n  opacity: 0;\n  -webkit-transform: translateY(5px);\n  -moz-transform: translateY(5px);\n  -ms-transform: translateY(5px);\n  transform: translateY(5px);\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, -webkit-transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n}\n.c-modal__contents--active {\n  top: 0;\n  opacity: 1;\n  -webkit-transform: translateY(0);\n  -moz-transform: translateY(0);\n  -ms-transform: translateY(0);\n  transform: translateY(0);\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, -webkit-transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n}\n.c-modal__header {\n  position: fixed;\n  left: 0;\n  right: 0;\n  display: flex;\n  align-items: center;\n  -ms-flex-pack: distribute;\n  -webkit-box-pack: distribute;\n  -webkit-justify-content: space-around;\n  -moz-justify-content: space-around;\n  justify-content: space-around;\n  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);\n  height: 3.75rem;\n  background-color: #FFFFFF;\n  top: 0;\n  z-index: 10;\n}\n.c-modal__close {\n  position: absolute;\n  top: 20px;\n  right: 20px;\n  z-index: 100;\n  cursor: pointer;\n}\n.c-modal__close:before {\n  font-size: 30px;\n  color: #717274;\n}\n.c-modal__body {\n  padding-top: 3.75rem;\n  margin-bottom: 4.5rem;\n}\n.p-org_retention_request {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-weight: 400;\n  -webkit-font-smoothing: antialiased;\n  font-size: 15px;\n}\n.p-org_retention_request--font_bump {\n  font-size: 16px;\n  line-height: 1.5;\n}\n.p-org_retention_request__modal_content {\n  max-width: 640px;\n  margin: 0 auto;\n  padding-top: 7.5rem;\n}\n.p-org_retention_request__modal_section {\n  border-bottom: 1px solid #E8E8E8;\n  margin-bottom: 1rem;\n  padding: 0 1rem 1rem;\n  font-size: 15px;\n  line-height: 1.5;\n}\n.p-org_retention_request__modal_section--lead {\n  padding-left: 0;\n  padding-right: 0;\n}\n.p-org_retention_request__section_header {\n  font-weight: 900;\n  font-size: 22px;\n  margin-bottom: 1.875rem;\n  color: #2C2D30;\n}\n.p-org_retention_request__policy_select_group {\n  display: flex;\n}\n.p-org_retention_request__select_wrapper {\n  position: relative;\n  width: calc(100% - 200px);\n}\n.p-org_retention_request__select_wrapper:after {\n  font-family: 'Slack';\n  content: '\\E271';\n  position: absolute;\n  right: 10px;\n  top: 15px;\n  width: 20px;\n  height: 20px;\n  display: block;\n}\n.p-org_retention_request__select {\n  display: block;\n  cursor: pointer;\n}\n.p-org_retention_request__duration_group {\n  position: relative;\n  max-width: 105px;\n  display: flex;\n  align-items: baseline;\n}\n.p-org_retention_request__duration_label {\n  position: absolute;\n  left: 0;\n  top: -1.5rem;\n}\n.p-org_retention_request__duration_label--secondary {\n  display: block;\n}\n.p-org_retention_request__requester_input {\n  width: calc(100% - 200px);\n}\n", ""]);
 }, function(e, t, n) {
   "use strict";
   var r = n(3615);
@@ -52436,44 +52440,35 @@ webpackJsonp([332], [, function(e, t, n) {
       return a(t, e), b(t, [{
         key: "onUpdatePolicySelect",
         value: function(e) {
-          var t = this,
-            n = e.policyType,
-            o = e.data,
-            i = this.state.requestedSettings,
-            a = i[n] || {},
-            s = this.props.currentSettings[n],
-            u = g({}, s, a, o),
-            l = g({}, this.state.requestedSettings, r({}, n, u));
+          var t = e.policyType,
+            n = e.data,
+            o = this.state.requestedSettings,
+            i = o[t] || {},
+            a = this.props.currentSettings[t],
+            s = g({}, a, i, n),
+            u = g({}, this.state.requestedSettings, r({}, t, s));
           this.setState(function() {
             return {
-              requestedSettings: l
+              requestedSettings: u
             };
-          }, function() {
-            t.validateFormIsSubmittable();
           });
         }
       }, {
         key: "onUpdateRequesterSelect",
         value: function(e) {
-          var t = this;
           this.setState(function() {
             return {
               requester: e
             };
-          }, function() {
-            t.validateFormIsSubmittable();
           });
         }
       }, {
         key: "onMcUserInput",
         value: function(e) {
-          var t = this;
           this.setState(function() {
             return {
               mcUser: e
             };
-          }, function() {
-            t.validateFormIsSubmittable();
           });
         }
       }, {
@@ -52483,7 +52478,8 @@ webpackJsonp([332], [, function(e, t, n) {
             t = this.formatSettings();
           this.setState(function() {
             return {
-              modalOpen: !1
+              modalOpen: !1,
+              requestedSettings: {}
             };
           }, function() {
             e.props.submitRequest("newRequest", t);
@@ -52498,7 +52494,8 @@ webpackJsonp([332], [, function(e, t, n) {
             };
           this.setState(function() {
             return {
-              modalOpen: !1
+              modalOpen: !1,
+              requestedSettings: {}
             };
           }, function() {
             e.props.submitRequest("cancelRequest", t);
@@ -52540,14 +52537,13 @@ webpackJsonp([332], [, function(e, t, n) {
           };
         }
       }, {
-        key: "validateFormIsSubmittable",
+        key: "isFormSubmittable",
         value: function() {
-          var e = !(c.a.isEmpty(this.state.requestedSettings) || c.a.isUndefined(this.state.mcUser) || c.a.isEmpty(this.state.mcUser) || c.a.isUndefined(this.state.requester) || c.a.isEmpty(this.state.requester));
-          this.setState(function() {
-            return {
-              isSubmittable: e
-            };
-          });
+          var e = this.state,
+            t = e.requestedSettings,
+            n = e.mcUser,
+            r = e.requester;
+          return !(c.a.isEmpty(t) || c.a.isUndefined(n) || c.a.isEmpty(n) || c.a.isUndefined(r) || c.a.isEmpty(r));
         }
       }, {
         key: "maybeRenderPendingAlert",
@@ -52593,7 +52589,8 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "renderPolicyItem",
         value: function(e, t, r) {
           return u.a.createElement(m.a, {
-            currentSettings: c.a.get(this.state.requestedSettings, e) || c.a.get(this.props.currentSettings, e),
+            displaySettings: c.a.get(this.state.requestedSettings, e) || c.a.get(this.props.currentSettings, e),
+            currentSettings: r ? c.a.get(this.props.currentSettings, e) : {},
             pendingSettings: c.a.get(t, e),
             onUpdatePolicy: this.onUpdatePolicySelect,
             policyType: e,
@@ -52604,7 +52601,8 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "renderButtons",
         value: function() {
-          var e = !c.a.isEmpty(this.props.pendingData);
+          var e = !c.a.isEmpty(this.props.pendingData),
+            t = this.isFormSubmittable();
           return e ? u.a.createElement("div", null, u.a.createElement("button", {
             type: "button",
             className: "btn btn_outline disabled margin_right_75",
@@ -52612,7 +52610,7 @@ webpackJsonp([332], [, function(e, t, n) {
           }, w("Request Submitted")), u.a.createElement("button", {
             className: "btn btn_outline",
             onClick: this.onOpenModal
-          }, w("Cancel"))) : this.state.isSubmittable ? u.a.createElement("div", null, u.a.createElement("button", {
+          }, w("Cancel"))) : t ? u.a.createElement("div", null, u.a.createElement("button", {
             className: "btn",
             onClick: this.onOpenModal
           }, w("Continue"))) : u.a.createElement("div", null, u.a.createElement("button", {
@@ -52727,13 +52725,18 @@ webpackJsonp([332], [, function(e, t, n) {
     }(),
     h = c.a.ns("policy-retention"),
     _ = {
-      currentSettings: a.PropTypes.shape({
+      displaySettings: a.PropTypes.shape({
         is_locked: a.PropTypes.bool,
         retention_duration: a.PropTypes.number,
         retention_type: a.PropTypes.number
       }).isRequired,
       policyType: a.PropTypes.oneOf(["channels", "private_channels", "dms", "allow_override", "files"]).isRequired,
       policyLabel: a.PropTypes.string.isRequired,
+      currentSettings: a.PropTypes.shape({
+        is_locked: a.PropTypes.bool,
+        retention_duration: a.PropTypes.number,
+        retention_type: a.PropTypes.number
+      }),
       onUpdatePolicy: a.PropTypes.func,
       pendingSettings: a.PropTypes.shape({
         is_locked: a.PropTypes.bool,
@@ -52744,6 +52747,7 @@ webpackJsonp([332], [, function(e, t, n) {
     },
     m = {
       pendingSettings: {},
+      currentSettings: {},
       onUpdatePolicy: l.a.noop,
       isFormPending: !1
     },
@@ -52765,25 +52769,26 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "maybeRenderCurrentPolicyText",
         value: function() {
           if (!l.a.isEmpty(this.props.pendingSettings)) {
-            var e = this.props.currentSettings.retention_type,
-              t = n.i(f.c)(this.props.policyType),
-              r = t[e].label,
-              o = h("Current:");
-            return s.a.createElement("p", null, o, " ", r);
+            var e = this.props.currentSettings,
+              t = e.retention_type,
+              r = e.retention_duration,
+              o = n.i(f.c)(this.props.policyType, t, r),
+              i = h("Current:");
+            return s.a.createElement("p", null, i, " ", o);
           }
           return null;
         }
       }, {
         key: "renderPolicyItem",
         value: function() {
-          var e = n.i(f.c)(this.props.policyType),
+          var e = n.i(f.d)(this.props.policyType),
             t = this.props.isFormPending,
-            r = this.props.currentSettings;
+            r = this.props.displaySettings;
           !l.a.isEmpty(this.props.pendingSettings) && t && (r = this.props.pendingSettings);
           var o = r,
             i = o.is_locked,
             a = o.retention_duration,
-            u = 0 === r.retention_type && !i && n.i(f.d)(this.props.policyType) ? 4 : r.retention_type;
+            u = 0 === r.retention_type && !i && n.i(f.e)(this.props.policyType) ? 4 : r.retention_type;
           return s.a.createElement(d.a, {
             id: "policy_select_" + this.props.policyType,
             options: e,
@@ -52799,7 +52804,8 @@ webpackJsonp([332], [, function(e, t, n) {
           return s.a.createElement("div", {
             className: "p-org_retention_request__policy_item margin_bottom_200"
           }, s.a.createElement("label", {
-            htmlFor: "policy_select_" + this.props.policyType
+            htmlFor: "policy_select_" + this.props.policyType,
+            className: "inline_block"
           }, this.props.policyLabel), this.renderPolicyItem(), this.maybeRenderCurrentPolicyText());
         }
       }]), t;
@@ -52932,7 +52938,7 @@ webpackJsonp([332], [, function(e, t, n) {
               className: "bold margin_bottom_50 p-org_retention_request--font_bump"
             }, n.i(_.b)(r)), s.a.createElement("div", null, s.a.createElement("div", {
               className: "bold"
-            }, y("New:"), " ", n.i(_.e)(r, u, i)), s.a.createElement("div", null, y("Old:"), " ", n.i(_.e)(r, h, f))));
+            }, y("New:"), " ", n.i(_.c)(r, u, i)), s.a.createElement("div", null, y("Old:"), " ", n.i(_.c)(r, h, f))));
           });
         }
       }, {
