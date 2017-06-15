@@ -4450,6 +4450,10 @@ html.no_touch .alert_page a:hover {
   text-transform: none
 }
 
+.text_transform_reset {
+  text-transform: none
+}
+
 .overflow_ellipsis {
   display: block;
   text-overflow: ellipsis;

@@ -31317,21 +31317,7 @@ webpackJsonp([332], [, function(e, t, n) {
   var r = n(2277),
     o = n.i(r.a)("TS.exportToLegacy", function() {});
   o("interop", {}), t.a = o;
-}, function(e, t, n) {
-  "use strict";
-  n.d(t, "a", function() {
-    return o;
-  }), n.d(t, "b", function() {
-    return i;
-  });
-  var r = n(2277),
-    o = n.i(r.a)("TS.metrics.mark", function() {
-      return null;
-    }),
-    i = n.i(r.a)("TS.metrics.measureAndClear", function() {
-      return null;
-    });
-}, function(e, t, n) {
+}, , function(e, t, n) {
   "use strict";
 
   function r(e) {
@@ -31516,7 +31502,7 @@ webpackJsonp([332], [, function(e, t, n) {
     a = n.n(i),
     s = n(43),
     u = n(2353),
-    l = n(2354),
+    l = n(2906),
     c = n(2913),
     d = n(2296),
     f = n(2908),
@@ -32344,7 +32330,7 @@ webpackJsonp([332], [, function(e, t, n) {
     f = n(2295),
     p = n(3141),
     h = n(3028),
-    _ = n(2354),
+    _ = n(2906),
     m = n(2914),
     y = n.i(m.c)(5),
     v = function(e) {
@@ -35253,18 +35239,18 @@ webpackJsonp([332], [, function(e, t, n) {
     s = n(2989),
     u = n(2694),
     l = n(2348);
-  n(3347), n(3051), n(3023), n(2697), n(2696), n(3030), n(3240);
+  n(3347), n(3605), n(3051), n(3023), n(2697), n(2696), n(3030), n(3240);
   window.ReactComponents = {}, window.ReactComponents.EmojiPicker = u.a, window.ReactComponents.Popover = l.a, window.ReactComponents.PopoverTrigger = l.b, window.React = o.a, window.ReactDOM = a.a, window.moment = s.a;
 }, function(e, t, n) {
   "use strict";
+  var r = n(3607);
   n.d(t, "a", function() {
-    return o;
+    return r.a;
   }), n.d(t, "b", function() {
-    return i;
+    return r.b;
+  }), n.d(t, "c", function() {
+    return r.c;
   });
-  var r = n(2354),
-    o = r.a,
-    i = r.b;
 }, function(e, t, n) {
   "use strict";
   n.d(t, "a", function() {
@@ -37070,21 +37056,21 @@ webpackJsonp([332], [, function(e, t, n) {
   }
 
   function o(e) {
-    if (de) throw new Error("We already have a socket");
-    de = new I.a(e), de.onCloseSig.addOnce(i), de.onConnectSig.addOnce(a);
+    if (fe) throw new Error("We already have a socket");
+    fe = new N.a(e), fe.onCloseSig.addOnce(i), fe.onConnectSig.addOnce(a);
   }
 
   function i() {
-    l(), g({
-      state: N.a.ERROR
+    n.i(R.c)("sm_flow_unexpected_close"), l(), g({
+      state: H.a.ERROR
     });
   }
 
   function a() {
     g({
-      state: re === N.a.FAST_RECONNECTING ? N.a.CONNECTED : N.a.PROV_CONNECTED,
-      allowableSourceStates: [N.a.FAST_RECONNECTING, N.a.PROV_CONNECTING]
-    }), ce && (le = void 0, ce(), ce = void 0);
+      state: oe === H.a.FAST_RECONNECTING ? H.a.CONNECTED : H.a.PROV_CONNECTED,
+      allowableSourceStates: [H.a.FAST_RECONNECTING, H.a.PROV_CONNECTING]
+    }), de && (ce = void 0, de(), de = void 0);
   }
 
   function s(e) {
@@ -37092,476 +37078,477 @@ webpackJsonp([332], [, function(e, t, n) {
       case "goodbye":
         return void f();
       case "reconnect_url":
-        return ae = e.url, void(se = Date.now());
+        return se = e.url, void(ue = Date.now());
     }
-    ge.dispatch(e);
+    be.dispatch(e);
   }
 
   function u(e) {
-    if (!de) throw new Error("Cannot send messages when we do not have a socket");
-    return de.send(e);
+    if (!fe) throw new Error("Cannot send messages when we do not have a socket");
+    return fe.send(e);
   }
 
   function l(e) {
-    de && (de.onConnectSig.remove(a), de.onCloseSig.remove(i), de.readyState !== WebSocket.CLOSED && de.close(e, "Closed by socket manager"), de = void 0);
+    fe && (fe.onConnectSig.remove(a), fe.onCloseSig.remove(i), fe.readyState !== WebSocket.CLOSED && fe.close(e, "Closed by socket manager"), fe = void 0);
   }
 
   function c() {
-    if (!ie) return Promise.reject(new Error("Fast reconnects are disabled"));
-    if (!ae) return Promise.reject(new Error("No reconnect URL"));
-    if (Date.now() - se > oe) return Promise.reject(new Error("Reconnect URL expired"));
-    var e = ae;
-    return ae = void 0, se = void 0, B("rtm.checkFastReconnect").then(function(t) {
+    if (!ae) return Promise.reject(new Error("Fast reconnects are disabled"));
+    if (!se) return Promise.reject(new Error("No reconnect URL"));
+    if (Date.now() - ue > ie) return Promise.reject(new Error("Reconnect URL expired"));
+    var e = se;
+    return se = void 0, ue = void 0, G("rtm.checkFastReconnect").then(function(t) {
       var n = t.data;
-      return V(n) ? new Promise(Y.noop) : e;
+      return K(n) ? new Promise(Y.noop) : e;
     });
   }
 
   function d() {
-    return ue.getDelay();
+    return le.getDelay();
   }
 
   function f() {
     function e() {
-      me.remove(e), z.onFocusChanged.remove(e), k() ? (n.i(q.b)("goodbye: disconnecting now"), l(X), L()) : n.i(q.b)("goodbye: got disconnected some other way before we handled the goodbye message");
+      ye.remove(e), q.onFocusChanged.remove(e), k() ? (n.i(W.b)("goodbye: disconnecting now"), l(ee), L()) : n.i(W.b)("goodbye: got disconnected some other way before we handled the goodbye message");
     }
-    if (n.i(q.b)("goodbye: disconnecting from the MS next time it is convenient"), !n.i(z.isWindowFocused)()) return void e();
-    me.addOnce(e), z.onFocusChanged.addOnce(e);
+    if (n.i(W.b)("goodbye: disconnecting from the MS next time it is convenient"), !n.i(q.isWindowFocused)()) return void e();
+    ye.addOnce(e), q.onFocusChanged.addOnce(e);
   }
 
   function p(e, t) {
     switch (e) {
-      case N.a.CONNECTING:
-      case N.a.FAST_RECONNECTING:
-      case N.a.PROV_CONNECTING:
-        t === N.a.ERROR && 3 === (ne += 1) && be.dispatch();
+      case H.a.CONNECTING:
+      case H.a.FAST_RECONNECTING:
+      case H.a.PROV_CONNECTING:
+        t === H.a.ERROR && 3 === (re += 1) && (n.i(R.c)("sm_flow_trouble_connecting"), we.dispatch());
         break;
-      case N.a.CONNECTED:
-        me.dispatch();
+      case H.a.CONNECTED:
+        ye.dispatch();
         break;
-      case N.a.WAIT_FOR_CONNECTIVITY:
-        pe && (pe.cancel(), pe = void 0);
+      case H.a.WAIT_FOR_CONNECTIVITY:
+        he && (he.cancel(), he = void 0);
         break;
-      case N.a.WAIT_FOR_RATE_LIMIT:
-        he && (clearTimeout(he), he = void 0);
+      case H.a.WAIT_FOR_RATE_LIMIT:
+        _e && (clearTimeout(_e), _e = void 0);
     }
   }
 
   function h(e) {
     var t;
-    fe && (clearTimeout(fe), fe = void 0);
-    var o = (t = {}, r(t, N.a.CONNECTED, 1 / 0), r(t, N.a.ASLEEP, 1 / 0), r(t, N.a.FAST_RECONNECTING, 2e4), r(t, N.a.PROV_CONNECTING, 2e4), r(t, N.a.PROV_CONNECTED, 3e4), r(t, N.a.CHECKING_FAST_RECONNECT, 6e4), r(t, N.a.WAIT_FOR_CONNECTIVITY, 3e5), r(t, N.a.WAIT_FOR_RATE_LIMIT, 12e4), t),
+    pe && (clearTimeout(pe), pe = void 0);
+    var o = (t = {}, r(t, H.a.CONNECTED, 1 / 0), r(t, H.a.ASLEEP, 1 / 0), r(t, H.a.FAST_RECONNECTING, 2e4), r(t, H.a.PROV_CONNECTING, 2e4), r(t, H.a.PROV_CONNECTED, 3e4), r(t, H.a.CHECKING_FAST_RECONNECT, 6e4), r(t, H.a.WAIT_FOR_CONNECTIVITY, 3e5), r(t, H.a.WAIT_FOR_RATE_LIMIT, 12e4), t),
       i = o[e] || 1e4;
-    n.i(q.c)(1996, "socket-manager: will stay in this state for up to " + i + " ms"), i !== 1 / 0 && (fe = setTimeout(function() {
-      n.i(q.c)(1996, "socket-manager: Spent " + i + " ms in " + e + " state; giving up"), v(N.a.ERROR);
+    n.i(W.c)(1996, "socket-manager: will stay in this state for up to " + i + " ms"), i !== 1 / 0 && (pe = setTimeout(function() {
+      n.i(W.c)(1996, "socket-manager: Spent " + i + " ms in " + e + " state; giving up"), e === H.a.PROV_CONNECTED && n.i(R.c)("sm_flow_prov_timeout"), v(H.a.ERROR);
     }, i));
   }
 
   function _(e, t) {
-    if (!n.i(z.isWindowUnloading)()) switch (e) {
-      case N.a.NEVER_CONNECTED:
-        if (!K()) return;
-        v(N.a.PROV_CONNECT);
+    if (!n.i(q.isWindowUnloading)()) switch (e) {
+      case H.a.NEVER_CONNECTED:
+        if (!J()) return;
+        v(H.a.PROV_CONNECT);
         break;
-      case N.a.CONNECT:
-        v(N.a.CHECKING_FAST_RECONNECT), ve.dispatch(), c().then(function(e) {
-          v(N.a.FAST_RECONNECTING), o(e), de.messageDelegate = s;
+      case H.a.CONNECT:
+        v(H.a.CHECKING_FAST_RECONNECT), ge.dispatch(), c().then(function(e) {
+          n.i(R.c)("sm_flow_fast_reconnect"), v(H.a.FAST_RECONNECTING), o(e), fe.messageDelegate = s;
         }).catch(function() {
-          l(te), v(N.a.PROV_CONNECT);
+          l(ne), v(H.a.PROV_CONNECT);
         });
         break;
-      case N.a.FAST_RECONNECTING:
+      case H.a.FAST_RECONNECTING:
         break;
-      case N.a.CONNECTED:
-        if (ne = 0, t !== N.a.CONNECTED) {
-          var r = t === N.a.FAST_RECONNECTING;
-          _e.dispatch(r);
+      case H.a.CONNECTED:
+        if (re = 0, t !== H.a.CONNECTED) {
+          var r = t === H.a.FAST_RECONNECTING;
+          me.dispatch(r);
         }
         break;
-      case N.a.CHECKING_FAST_RECONNECT:
+      case H.a.CHECKING_FAST_RECONNECT:
         break;
-      case N.a.PROV_CONNECT:
-        v(N.a.PROV_CONNECTING), o(G());
+      case H.a.PROV_CONNECT:
+        v(H.a.PROV_CONNECTING), o(V());
         break;
-      case N.a.PROV_CONNECTING:
+      case H.a.PROV_CONNECTING:
         break;
-      case N.a.PROV_CONNECTED:
-        ye.dispatch(de.startData);
+      case H.a.PROV_CONNECTED:
+        ve.dispatch(fe.startData);
         break;
-      case N.a.PROV_FINALIZE:
-        v(N.a.PROV_FINALIZING), de.messageDelegate = s, v(N.a.CONNECTED);
+      case H.a.PROV_FINALIZE:
+        v(H.a.PROV_FINALIZING), fe.messageDelegate = s, v(H.a.CONNECTED);
         break;
-      case N.a.PROV_FINALIZING:
+      case H.a.PROV_FINALIZING:
         break;
-      case N.a.DISCONNECT:
-        v(N.a.DISCONNECTING), l(Z), v(N.a.DISCONNECTED);
+      case H.a.DISCONNECT:
+        v(H.a.DISCONNECTING), l(Q), v(H.a.DISCONNECTED);
         break;
-      case N.a.DISCONNECTING:
+      case H.a.DISCONNECTING:
         break;
-      case N.a.DISCONNECTED:
-        v(N.a.WAIT_FOR_CONNECTIVITY);
+      case H.a.DISCONNECTED:
+        v(H.a.WAIT_FOR_CONNECTIVITY);
         break;
-      case N.a.ERROR:
-        l(Q), setTimeout(function() {
-          v(N.a.DISCONNECTED);
+      case H.a.ERROR:
+        l(X), setTimeout(function() {
+          v(H.a.DISCONNECTED);
         }, 0);
         break;
-      case N.a.SLEEP:
-        v(N.a.SLEEPING), l(ee), v(N.a.ASLEEP);
+      case H.a.SLEEP:
+        v(H.a.SLEEPING), l(te), v(H.a.ASLEEP);
         break;
-      case N.a.SLEEPING:
-      case N.a.ASLEEP:
+      case H.a.SLEEPING:
+      case H.a.ASLEEP:
         break;
-      case N.a.WAIT_FOR_CONNECTIVITY:
-        pe = new Promise(function(e, t) {
-          J().then(e).catch(t);
-        }), pe.then(function() {
-          re === N.a.WAIT_FOR_CONNECTIVITY && v(N.a.WAIT_FOR_RATE_LIMIT);
+      case H.a.WAIT_FOR_CONNECTIVITY:
+        he = new Promise(function(e, t) {
+          $().then(e).catch(t);
+        }), he.then(function() {
+          oe === H.a.WAIT_FOR_CONNECTIVITY && v(H.a.WAIT_FOR_RATE_LIMIT);
         }).catch(function() {
-          re === N.a.WAIT_FOR_CONNECTIVITY && (n.i(q.c)(1996, "socket-manager: Waited too long for connectivity to come back"), v(N.a.ERROR));
+          oe === H.a.WAIT_FOR_CONNECTIVITY && (n.i(W.c)(1996, "socket-manager: Waited too long for connectivity to come back"), v(H.a.ERROR));
         });
         break;
-      case N.a.WAIT_FOR_RATE_LIMIT:
-        if (!ue.increment()) {
-          var i = ue.getDelay();
-          return n.i(q.c)(1996, "socket-manager: will wait for " + i + " ms"), void(he = setTimeout(function() {
-            re === N.a.WAIT_FOR_RATE_LIMIT && _(N.a.WAIT_FOR_RATE_LIMIT);
+      case H.a.WAIT_FOR_RATE_LIMIT:
+        if (!le.increment()) {
+          var i = le.getDelay();
+          return n.i(W.c)(1996, "socket-manager: will wait for " + i + " ms"), void(_e = setTimeout(function() {
+            oe === H.a.WAIT_FOR_RATE_LIMIT && _(H.a.WAIT_FOR_RATE_LIMIT);
           }, i));
         }
-        v(N.a.CONNECT);
+        v(H.a.CONNECT);
     }
   }
 
   function m(e) {
-    ie = !!e;
+    ae = !!e;
   }
 
   function y() {
-    ae = void 0, se = void 0;
+    se = void 0, ue = void 0;
   }
 
   function v(e) {
-    if (!n.i(N.b)(e)) throw new Error("Invalid state");
-    n.i(q.c)(1996, "socket-manager: Changing from " + re + " to " + e);
-    var t = re;
-    re = e;
+    if (!n.i(H.b)(e)) throw new Error("Invalid state");
+    n.i(W.c)(1996, "socket-manager: Changing from " + oe + " to " + e);
+    var t = oe;
+    oe = e;
     try {
       p(t, e), h(e), _(e, t);
     } catch (e) {
-      n.i(q.c)(1996, "socket-manager: Caught an error while trying to change states: " + e), re === N.a.ERROR ? n.i(q.c)(1996, "socket-manager: We were already trying to change to an error state; unsure how to proceed") : (n.i(q.c)(1996, "socket-manager: Switching to ERROR just in case"), v(N.a.ERROR));
+      n.i(W.c)(1996, "socket-manager: Caught an error while trying to change states: " + e), oe === H.a.ERROR ? n.i(W.c)(1996, "socket-manager: We were already trying to change to an error state; unsure how to proceed") : (n.i(W.c)(1996, "socket-manager: Switching to ERROR just in case"), v(H.a.ERROR));
     }
   }
 
   function g(e) {
-    n.i(N.c)(re, e, v);
+    n.i(H.c)(oe, e, v);
   }
 
   function b() {
-    return [N.a.PROV_CONNECTED, N.a.PROV_FINALIZING, N.a.CONNECTED].indexOf(re) >= 0;
+    return [H.a.PROV_CONNECTED, H.a.PROV_FINALIZING, H.a.CONNECTED].indexOf(oe) >= 0;
   }
 
   function w() {
-    return [N.a.SLEEP, N.a.SLEEPING, N.a.ASLEEP].indexOf(re) >= 0;
+    return [H.a.SLEEP, H.a.SLEEPING, H.a.ASLEEP].indexOf(oe) >= 0;
   }
 
   function k() {
-    return re === N.a.CONNECTED;
+    return oe === H.a.CONNECTED;
   }
 
   function M() {
-    return [N.a.FAST_CONNECTING, N.a.PROV_CONNECTING, N.a.PROV_CONNECTED, N.a.PROV_FINALIZING, N.a.CHECKING_FAST_RECONNECT].indexOf(re) >= 0;
+    return [H.a.FAST_CONNECTING, H.a.PROV_CONNECTING, H.a.PROV_CONNECTED, H.a.PROV_FINALIZING, H.a.CHECKING_FAST_RECONNECT].indexOf(oe) >= 0;
   }
 
   function T() {
-    return re === N.a.PROV_CONNECTED;
+    return oe === H.a.PROV_CONNECTED;
   }
 
   function x() {
-    return re === N.a.WAIT_FOR_CONNECTIVITY;
+    return oe === H.a.WAIT_FOR_CONNECTIVITY;
   }
 
   function S() {
-    return re === N.a.WAIT_FOR_RATE_LIMIT;
+    return oe === H.a.WAIT_FOR_RATE_LIMIT;
   }
 
   function E() {
-    return re === N.a.WAIT_FOR_CONNECTIVITY ? Promise.reject(new Error("We are offline")) : de ? Promise.reject(new Error("We already have a socket")) : (g({
-      state: N.a.PROV_CONNECT,
-      allowableSourceStates: [N.a.NEVER_CONNECTED, N.a.WAIT_FOR_RATE_LIMIT, N.a.ERROR, N.a.DISCONNECTED],
-      noopStates: [N.a.PROV_CONNECT, N.a.PROV_CONNECTING, N.a.PROV_CONNECTED]
-    }), de ? de.startData : (v(N.a.ERROR), Promise.reject(new Error("Problem getting startData promise from provisional connect"))));
+    return oe === H.a.WAIT_FOR_CONNECTIVITY ? Promise.reject(new Error("We are offline")) : fe ? Promise.reject(new Error("We already have a socket")) : (g({
+      state: H.a.PROV_CONNECT,
+      allowableSourceStates: [H.a.NEVER_CONNECTED, H.a.WAIT_FOR_RATE_LIMIT, H.a.ERROR, H.a.DISCONNECTED],
+      noopStates: [H.a.PROV_CONNECT, H.a.PROV_CONNECTING, H.a.PROV_CONNECTED]
+    }), fe ? (n.i(R.c)("sm_flow_connect_prov"), fe.startData) : (v(H.a.ERROR), Promise.reject(new Error("Problem getting startData promise from provisional connect"))));
   }
 
   function L() {
     g({
-      state: N.a.DISCONNECT,
-      noopStates: [N.a.ASLEEP, N.a.DISCONNECTED, N.a.DISCONNECTING]
+      state: H.a.DISCONNECT,
+      noopStates: [H.a.ASLEEP, H.a.DISCONNECTED, H.a.DISCONNECTING]
     });
   }
 
   function O() {
-    if (g({
-        state: N.a.PROV_FINALIZE,
-        allowableSourceStates: [N.a.PROV_CONNECTED]
-      }), re !== N.a.CONNECTED) throw new Error("Failed to finalize connection -- expected to be connected but actually " + re);
+    if (n.i(R.c)("sm_flow_finalize_prov"), g({
+        state: H.a.PROV_FINALIZE,
+        allowableSourceStates: [H.a.PROV_CONNECTED]
+      }), oe !== H.a.CONNECTED) throw new Error("Failed to finalize connection -- expected to be connected but actually " + oe);
   }
 
   function C() {
-    return de ? Promise.resolve() : (le || (le = new Promise(function(e) {
-      ce = e;
-    })), le);
+    return fe ? Promise.resolve() : (ce || (ce = new Promise(function(e) {
+      de = e;
+    })), ce);
   }
 
   function P() {
     g({
-      state: N.a.CONNECT,
-      noopStates: [N.a.CONNECT, N.a.CONNECTING, N.a.CONNECTED, N.a.CHECKING_FAST_RECONNECT, N.a.FAST_RECONNECTING, N.a.PROV_CONNECT, N.a.PROV_CONNECTED, N.a.PROV_CONNECTING, N.a.PROV_FINALIZE, N.a.PROV_FINALIZING]
+      state: H.a.CONNECT,
+      noopStates: [H.a.CONNECT, H.a.CONNECTING, H.a.CONNECTED, H.a.CHECKING_FAST_RECONNECT, H.a.FAST_RECONNECTING, H.a.PROV_CONNECT, H.a.PROV_CONNECTED, H.a.PROV_CONNECTING, H.a.PROV_FINALIZE, H.a.PROV_FINALIZING]
     });
   }
 
   function j() {
     g({
-      state: N.a.SLEEP,
-      noopStates: [N.a.ASLEEP, N.a.SLEEPING]
+      state: H.a.SLEEP,
+      noopStates: [H.a.ASLEEP, H.a.SLEEPING]
     });
   }
 
   function D() {
     g({
-      state: N.a.CONNECT,
-      allowableSourceStates: [N.a.ASLEEP]
+      state: H.a.CONNECT,
+      allowableSourceStates: [H.a.ASLEEP]
     });
   }
   Object.defineProperty(t, "__esModule", {
     value: !0
   }), n.d(t, "test", function() {
-    return $;
-  }), n.d(t, "CLOSE_REASON_DISCONNECT_REQUESTED", function() {
     return Z;
-  }), n.d(t, "CLOSE_REASON_ERROR", function() {
+  }), n.d(t, "CLOSE_REASON_DISCONNECT_REQUESTED", function() {
     return Q;
-  }), n.d(t, "CLOSE_REASON_GOODBYE_RECEIVED", function() {
+  }), n.d(t, "CLOSE_REASON_ERROR", function() {
     return X;
-  }), n.d(t, "CLOSE_REASON_SLEEPING", function() {
+  }), n.d(t, "CLOSE_REASON_GOODBYE_RECEIVED", function() {
     return ee;
-  }), n.d(t, "CLOSE_REASON_FAST_RECONNECT_FAILED", function() {
+  }), n.d(t, "CLOSE_REASON_SLEEPING", function() {
     return te;
+  }), n.d(t, "CLOSE_REASON_FAST_RECONNECT_FAILED", function() {
+    return ne;
   }), n.d(t, "connectedSig", function() {
-    return _e;
-  }), n.d(t, "disconnectedSig", function() {
     return me;
-  }), n.d(t, "provisionallyConnectedSig", function() {
+  }), n.d(t, "disconnectedSig", function() {
     return ye;
-  }), n.d(t, "reconnectingSig", function() {
+  }), n.d(t, "provisionallyConnectedSig", function() {
     return ve;
-  }), n.d(t, "socketMessageReceivedSig", function() {
+  }), n.d(t, "reconnectingSig", function() {
     return ge;
-  }), n.d(t, "troubleConnectingSig", function() {
+  }), n.d(t, "socketMessageReceivedSig", function() {
     return be;
+  }), n.d(t, "troubleConnectingSig", function() {
+    return we;
   }), t.send = u, t.debugSetFastReconnectsEnabled = m, t.clearFastReconnectUrl = y, t.hasOpenWebSocket = b, t.isAsleep = w, t.isConnected = k, t.isConnecting = M, t.isProvisionallyConnected = T, t.isWaitingForConnectivity = x, t.isWaitingForRateLimit = S, t.connectProvisionallyAndFetchRtmStart = E, t.disconnect = L, t.finalizeProvisionalConnection = O, t.promiseToHaveOpenWebSocket = C, t.reconnectImmediately = P, t.sleep = j, t.wake = D;
   var Y = n(6),
     A = (n.n(Y), n(3050)),
-    R = n(3077),
-    I = n(3054),
-    N = n(3056),
-    H = n(3048),
-    F = n(3053),
-    z = n(3014),
-    q = n(3049),
-    W = n(3066),
-    U = n(3052),
-    B = H.b,
-    G = F.a,
-    V = W.a,
-    K = F.b,
-    J = U.a,
-    $ = {};
-  Object.defineProperty($, "callImmediately", {
-    get: function() {
-      return B;
-    },
-    set: function(e) {
-      B = e;
-    }
-  }), Object.defineProperty($, "closeSocket", {
-    get: function() {
-      return l;
-    },
-    set: function(e) {
-      l = e;
-    }
-  }), Object.defineProperty($, "createSlackSocketWithUrl", {
-    get: function() {
-      return o;
-    },
-    set: function(e) {
-      o = e;
-    }
-  }), Object.defineProperty($, "currentState", {
-    get: function() {
-      return re;
-    },
-    set: function(e) {
-      re = e;
-    }
-  }), Object.defineProperty($, "ensureWeCanFastReconnect", {
-    get: function() {
-      return c;
-    },
-    set: function(e) {
-      c = e;
-    }
-  }), Object.defineProperty($, "fastReconnectsEnabled", {
-    get: function() {
-      return ie;
-    },
-    set: function(e) {
-      ie = e;
-    }
-  }), Object.defineProperty($, "fastReconnectUrl", {
-    get: function() {
-      return ae;
-    },
-    set: function(e) {
-      ae = e;
-    }
-  }), Object.defineProperty($, "fastReconnectUrlReceivedAtTime", {
-    get: function() {
-      return se;
-    },
-    set: function(e) {
-      se = e;
-    }
-  }), Object.defineProperty($, "getDelayBeforeNextConnectionAttempt", {
-    get: function() {
-      return d;
-    },
-    set: function(e) {
-      d = e;
-    }
-  }), Object.defineProperty($, "getFlannelConnectionUrl", {
+    R = n(2906),
+    I = n(3077),
+    N = n(3054),
+    H = n(3056),
+    F = n(3048),
+    z = n(3053),
+    q = n(3014),
+    W = n(3049),
+    U = n(3604),
+    B = n(3052),
+    G = F.b,
+    V = z.a,
+    K = U.a,
+    J = z.b,
+    $ = B.a,
+    Z = {};
+  Object.defineProperty(Z, "callImmediately", {
     get: function() {
       return G;
     },
     set: function(e) {
       G = e;
     }
-  }), Object.defineProperty($, "handleSocketConnected", {
+  }), Object.defineProperty(Z, "closeSocket", {
     get: function() {
-      return a;
+      return l;
     },
     set: function(e) {
-      a = e;
+      l = e;
     }
-  }), Object.defineProperty($, "handleSocketMessage", {
+  }), Object.defineProperty(Z, "createSlackSocketWithUrl", {
     get: function() {
-      return s;
+      return o;
     },
     set: function(e) {
-      s = e;
+      o = e;
     }
-  }), Object.defineProperty($, "leaveState", {
+  }), Object.defineProperty(Z, "currentState", {
     get: function() {
-      return p;
+      return oe;
     },
     set: function(e) {
-      p = e;
+      oe = e;
     }
-  }), Object.defineProperty($, "limiter", {
+  }), Object.defineProperty(Z, "ensureWeCanFastReconnect", {
+    get: function() {
+      return c;
+    },
+    set: function(e) {
+      c = e;
+    }
+  }), Object.defineProperty(Z, "fastReconnectsEnabled", {
+    get: function() {
+      return ae;
+    },
+    set: function(e) {
+      ae = e;
+    }
+  }), Object.defineProperty(Z, "fastReconnectUrl", {
+    get: function() {
+      return se;
+    },
+    set: function(e) {
+      se = e;
+    }
+  }), Object.defineProperty(Z, "fastReconnectUrlReceivedAtTime", {
     get: function() {
       return ue;
-    }
-  }), Object.defineProperty($, "openWebSocketP", {
-    get: function() {
-      return le;
     },
     set: function(e) {
-      le = e;
+      ue = e;
     }
-  }), Object.defineProperty($, "openWebSocketPResolve", {
+  }), Object.defineProperty(Z, "getDelayBeforeNextConnectionAttempt", {
     get: function() {
-      return ce;
+      return d;
     },
     set: function(e) {
-      ce = e;
+      d = e;
     }
-  }), Object.defineProperty($, "reloadIfVersionsChanged", {
+  }), Object.defineProperty(Z, "getFlannelConnectionUrl", {
     get: function() {
       return V;
     },
     set: function(e) {
       V = e;
     }
-  }), Object.defineProperty($, "runState", {
+  }), Object.defineProperty(Z, "handleSocketConnected", {
     get: function() {
-      return _;
+      return a;
     },
     set: function(e) {
-      _ = e;
+      a = e;
     }
-  }), Object.defineProperty($, "setState", {
+  }), Object.defineProperty(Z, "handleSocketMessage", {
     get: function() {
-      return v;
+      return s;
     },
     set: function(e) {
-      v = e;
+      s = e;
     }
-  }), Object.defineProperty($, "socket", {
+  }), Object.defineProperty(Z, "leaveState", {
+    get: function() {
+      return p;
+    },
+    set: function(e) {
+      p = e;
+    }
+  }), Object.defineProperty(Z, "limiter", {
+    get: function() {
+      return le;
+    }
+  }), Object.defineProperty(Z, "openWebSocketP", {
+    get: function() {
+      return ce;
+    },
+    set: function(e) {
+      ce = e;
+    }
+  }), Object.defineProperty(Z, "openWebSocketPResolve", {
     get: function() {
       return de;
     },
     set: function(e) {
       de = e;
     }
-  }), Object.defineProperty($, "transitionSafely", {
-    get: function() {
-      return g;
-    },
-    set: function(e) {
-      g = e;
-    }
-  }), Object.defineProperty($, "useSocket", {
+  }), Object.defineProperty(Z, "reloadIfVersionsChanged", {
     get: function() {
       return K;
     },
     set: function(e) {
       K = e;
     }
-  }), Object.defineProperty($, "waitForApiConnectivity", {
+  }), Object.defineProperty(Z, "runState", {
+    get: function() {
+      return _;
+    },
+    set: function(e) {
+      _ = e;
+    }
+  }), Object.defineProperty(Z, "setState", {
+    get: function() {
+      return v;
+    },
+    set: function(e) {
+      v = e;
+    }
+  }), Object.defineProperty(Z, "socket", {
+    get: function() {
+      return fe;
+    },
+    set: function(e) {
+      fe = e;
+    }
+  }), Object.defineProperty(Z, "transitionSafely", {
+    get: function() {
+      return g;
+    },
+    set: function(e) {
+      g = e;
+    }
+  }), Object.defineProperty(Z, "useSocket", {
     get: function() {
       return J;
     },
     set: function(e) {
       J = e;
     }
+  }), Object.defineProperty(Z, "waitForApiConnectivity", {
+    get: function() {
+      return $;
+    },
+    set: function(e) {
+      $ = e;
+    }
   });
-  var Z = 4100,
-    Q = 4101,
-    X = 4104,
-    ee = 4102,
-    te = 4103,
-    ne = 0,
-    re = N.a.NEVER_CONNECTED,
-    oe = 3e5,
-    ie = !0,
-    ae = void 0,
+  var Q = 4100,
+    X = 4101,
+    ee = 4104,
+    te = 4102,
+    ne = 4103,
+    re = 0,
+    oe = H.a.NEVER_CONNECTED,
+    ie = 3e5,
+    ae = !0,
     se = void 0,
-    ue = new R.a({
+    ue = void 0,
+    le = new I.a({
       maxPerHour: 66,
       burstCount: 6
     }),
-    le = void 0,
     ce = void 0,
     de = void 0,
     fe = void 0,
     pe = void 0,
     he = void 0,
-    _e = new A.a,
+    _e = void 0,
     me = new A.a,
     ye = new A.a,
     ve = new A.a,
     ge = new A.a,
-    be = new A.a;
+    be = new A.a,
+    we = new A.a;
 }, function(e, t, n) {
   "use strict";
 
@@ -37678,14 +37665,7 @@ webpackJsonp([332], [, function(e, t, n) {
     o = n.i(r.a)("TS.utility.url.isValidSlackWebSocketUrl", function() {
       return !0;
     });
-}, function(e, t, n) {
-  "use strict";
-  n.d(t, "a", function() {
-    return o;
-  });
-  var r = n(2277),
-    o = n.i(r.a)("TS.reloadIfVersionsChanged", function() {});
-}, function(e, t, n) {
+}, , function(e, t, n) {
   "use strict";
 
   function r(e) {
@@ -37707,14 +37687,7 @@ webpackJsonp([332], [, function(e, t, n) {
   });
   var r = n(3062),
     o = r.a;
-}, function(e, t, n) {
-  "use strict";
-  n.d(t, "a", function() {
-    return o;
-  });
-  var r = n(3063),
-    o = r.a;
-}, , , function(e, t, n) {
+}, , , , function(e, t, n) {
   t = e.exports = n(189)(), t.push([e.i, "@font-face {\n  font-family: 'Slack v2';\n  src: url('https://cdx.slack-edge.com/7c81/fonts/slack-icons-v2.woff2') format('woff2'), url('https://cdx.slack-edge.com/7c81/fonts/slack-icons-v2.woff') format('woff');\n  font-style: normal;\n  font-weight: 400;\n}\n.c-icon:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n}\n.c-icon--inherit:before {\n  font-size: inherit;\n}\n.c-icon--align-bottom:before {\n  vertical-align: bottom;\n}\n.c-icon--align-top:before {\n  vertical-align: top;\n}\n.c-icon--align-baseline:before {\n  vertical-align: baseline;\n}\n.c-icon--star-o:before {\n  content: '\\E001';\n}\n.c-icon--unstar-o:before {\n  content: '\\E002';\n}\n.c-icon--user:before {\n  content: '\\E003';\n}\n.c-icon--comment-alt:before {\n  content: '\\E004';\n}\n.c-icon--comment-o:before {\n  content: '\\E005';\n}\n.c-icon--home:before {\n  content: '\\E006';\n}\n.c-icon--info:before {\n  content: '\\E007';\n}\n.c-icon--channel-info:before,\n.c-icon--info-circle:before {\n  content: '\\E008';\n}\n.c-icon--mentions:before {\n  content: '\\E009';\n}\n.c-icon--search:before {\n  content: '\\E010';\n}\n.c-icon--bolt:before {\n  content: '\\E011';\n}\n.c-icon--mobile:before {\n  content: '\\E012';\n}\n.c-icon--tablet:before {\n  content: '\\E013';\n}\n.c-icon--laptop:before {\n  content: '\\E014';\n}\n.c-icon--bell-o:before {\n  content: '\\E015';\n}\n.c-icon--bell-slash:before {\n  content: '\\E016';\n}\n.c-icon--team-directory:before {\n  content: '\\E017';\n}\n.c-icon--cloud-upload:before {\n  content: '\\E018';\n}\n.c-icon--cloud-download:before {\n  content: '\\E019';\n}\n.c-icon--cog-o:before {\n  content: '\\E020';\n}\n.c-icon--cogs:before {\n  content: '\\E021';\n}\n.c-icon--key:before {\n  content: '\\E022';\n}\n.c-icon--calendar:before {\n  content: '\\E023';\n}\n.c-icon--pencil:before {\n  content: '\\E024';\n}\n.c-icon--lightbulb-o:before {\n  content: '\\E025';\n}\n.c-icon--magic:before {\n  content: '\\E026';\n}\n.c-icon--external-link:before {\n  content: '\\E027';\n}\n.c-icon--external-link-square:before {\n  content: '\\E028';\n}\n.c-icon--lock-o:before {\n  content: '\\E029';\n}\n.c-icon--unlock:before {\n  content: '\\E030';\n}\n.c-icon--folder:before {\n  content: '\\E031';\n}\n.c-icon--folder-open:before {\n  content: '\\E032';\n}\n.c-icon--archive:before {\n  content: '\\E033';\n}\n.c-icon--inbox:before {\n  content: '\\E034';\n}\n.c-icon--sitemap:before {\n  content: '\\E035';\n}\n.c-icon--book:before {\n  content: '\\E036';\n}\n.c-icon--envelope-o:before {\n  content: '\\E037';\n}\n.c-icon--image:before {\n  content: '\\E038';\n}\n.c-icon--building:before {\n  content: '\\E039';\n}\n.c-icon--plug:before {\n  content: '\\E040';\n}\n.c-icon--paper-plane:before {\n  content: '\\E041';\n}\n.c-icon--credit-card:before {\n  content: '\\E042';\n}\n.c-icon--life-ring:before {\n  content: '\\E043';\n}\n.c-icon--thumb-tack:before {\n  content: '\\E044';\n}\n.c-icon--thumb-tack-filled:before {\n  content: '\\E547';\n}\n.c-icon--trash:before {\n  content: '\\E045';\n}\n.c-icon--print:before {\n  content: '\\E046';\n}\n.c-icon--quote-o:before {\n  content: '\\E047';\n}\n.c-icon--th-large:before {\n  content: '\\E048';\n}\n.c-icon--eye:before {\n  content: '\\E049';\n}\n.c-icon--eye-closed:before {\n  content: '\\E050';\n}\n.c-icon--volume-off:before {\n  content: '\\E051';\n}\n.c-icon--volume-down:before {\n  content: '\\E052';\n}\n.c-icon--volume-medium:before {\n  content: '\\E053';\n}\n.c-icon--volume-up:before {\n  content: '\\E054';\n}\n.c-icon--volume-off-alt:before {\n  content: '\\E055';\n}\n.c-icon--heart-o:before {\n  content: '\\E056';\n}\n.c-icon--wrench:before {\n  content: '\\E057';\n}\n.c-icon--file:before {\n  content: '\\E058';\n}\n.c-icon--all-files:before {\n  content: '\\E059';\n}\n.c-icon--your-files:before {\n  content: '\\E060';\n}\n.c-icon--align-left:before {\n  content: '\\E061';\n}\n.c-icon--align-center:before {\n  content: '\\E062';\n}\n.c-icon--align-right:before {\n  content: '\\E063';\n}\n.c-icon--align-justify:before {\n  content: '\\E064';\n}\n.c-icon--paragraph:before {\n  content: '\\E065';\n}\n.c-icon--code:before {\n  content: '\\E066';\n}\n.c-icon--ellipsis:before {\n  content: '\\E067';\n}\n.c-icon--ellipsis-baseline:before {\n  content: '\\E068';\n}\n.c-icon--spinner:before {\n  content: '\\E069';\n}\n.c-icon--spiral:before {\n  content: '\\E070';\n}\n.c-icon--random:before {\n  content: '\\E071';\n}\n.c-icon--repeat:before {\n  content: '\\E072';\n}\n.c-icon--share-square-o:before {\n  content: '\\E073';\n}\n.c-icon--link:before {\n  content: '\\E074';\n}\n.c-icon--undo:before {\n  content: '\\E075';\n}\n.c-icon--history:before {\n  content: '\\E076';\n}\n.c-icon--hourglass-empty:before {\n  content: '\\E077';\n}\n.c-icon--hourglass:before {\n  content: '\\E078';\n}\n.c-icon--clock-o:before {\n  content: '\\E079';\n}\n.c-icon--dashboard:before {\n  content: '\\E080';\n}\n.c-icon--power-off:before {\n  content: '\\E081';\n}\n.c-icon--sign-in:before {\n  content: '\\E082';\n}\n.c-icon--sign-out:before {\n  content: '\\E083';\n}\n.c-icon--jump:before {\n  content: '\\E084';\n}\n.c-icon--globe:before {\n  content: '\\E085';\n}\n.c-icon--filter:before {\n  content: '\\E086';\n}\n.c-icon--microphone:before {\n  content: '\\E087';\n}\n.c-icon--microphone-slash:before {\n  content: '\\E088';\n}\n.c-icon--paperclip:before {\n  content: '\\E089';\n}\n.c-icon--video-camera:before {\n  content: '\\E090';\n}\n.c-icon--stop-video:before {\n  content: '\\E091';\n}\n.c-icon--phone:before {\n  content: '\\E092';\n}\n.c-icon--end-call:before {\n  content: '\\E093';\n}\n.c-icon--smile-o:before {\n  content: '\\E094';\n}\n.c-icon--share-screen:before {\n  content: '\\E095';\n}\n.c-icon--stop-screen-sharing:before {\n  content: '\\E096';\n}\n.c-icon--stop-screen-sharing-alt:before {\n  content: '\\E097';\n}\n.c-icon--feedback:before {\n  content: '\\E098';\n}\n.c-icon--paper-plane-alt:before {\n  content: '\\E099';\n}\n.c-icon--share:before {\n  content: '\\E100';\n}\n.c-icon--save:before {\n  content: '\\E101';\n}\n.c-icon--message-notification:before {\n  content: '\\E102';\n}\n.c-icon--list:before {\n  content: '\\E103';\n}\n.c-icon--channel:before {\n  content: '\\E104';\n}\n.c-icon--share-other-alt:before {\n  content: '\\E105';\n}\n.c-icon--broadcast:before {\n  content: '\\E106';\n}\n.c-icon--all-files-alt:before {\n  content: '\\E107';\n}\n.c-icon--search-files:before {\n  content: '\\E108';\n}\n.c-icon--add-user:before {\n  content: '\\E109';\n}\n.c-icon--switch-team:before {\n  content: '\\E110';\n}\n.c-icon--create-snippet:before {\n  content: '\\E111';\n}\n.c-icon--create-post:before {\n  content: '\\E112';\n}\n.c-icon--upload:before {\n  content: '\\E113';\n}\n.c-icon--download:before {\n  content: '\\E114';\n}\n.c-icon--share-email:before {\n  content: '\\E115';\n}\n.c-icon--import-email:before {\n  content: '\\E116';\n}\n.c-icon--ellipsis-o:before {\n  content: '\\E117';\n}\n.c-icon--add-reaction:before {\n  content: '\\E118';\n}\n.c-icon--happy-smile:before {\n  content: '\\E119';\n}\n.c-icon--mark-unread:before {\n  content: '\\E120';\n}\n.c-icon--camera:before {\n  content: '\\E121';\n}\n.c-icon--phone-flat:before {\n  content: '\\E122';\n}\n.c-icon--sparkles:before {\n  content: '\\E123';\n}\n.c-icon--location-pin:before {\n  content: '\\E124';\n}\n.c-icon--channel-pane-hash:before {\n  content: '\\E125';\n}\n.c-icon--emoji-nature:before {\n  content: '\\E126';\n}\n.c-icon--emoji-food:before {\n  content: '\\E127';\n}\n.c-icon--emoji-celebration:before {\n  content: '\\E128';\n}\n.c-icon--emoji-activities:before {\n  content: '\\E129';\n}\n.c-icon--emoji-travel:before {\n  content: '\\E130';\n}\n.c-icon--emoji-objects:before {\n  content: '\\E131';\n}\n.c-icon--file-gdrive:before {\n  content: '\\E133';\n}\n.c-icon--play:before {\n  content: '\\E134';\n}\n.c-icon--stream:before {\n  content: '\\E135';\n}\n.c-icon--field-text:before {\n  content: '\\E136';\n}\n.c-icon--poo:before {\n  content: '\\E137';\n}\n.c-icon--channel-list:before {\n  content: '\\E138';\n}\n.c-icon--share-android:before {\n  content: '\\E139';\n}\n.c-icon--highlight:before {\n  content: '\\E140';\n}\n.c-icon--flag:before {\n  content: '\\E141';\n}\n.c-icon--grabby-patty:before {\n  content: '\\E142';\n}\n.c-icon--backspace:before {\n  content: '\\E143';\n}\n.c-icon--android-keyboard:before {\n  content: '\\E144';\n}\n.c-icon--side-panel:before {\n  content: '\\E145';\n}\n.c-icon--search-small:before {\n  content: '\\E146';\n}\n.c-icon--reload-small:before {\n  content: '\\E147';\n}\n.c-icon--vertical-ellipsis:before {\n  content: '\\E148';\n}\n.c-icon--disable:before {\n  content: '\\E149';\n}\n.c-icon--bold-hash-small:before {\n  content: '\\E150';\n}\n.c-icon--cart:before {\n  content: '\\E151';\n}\n.c-icon--snooze-outline:before {\n  content: '\\E152';\n}\n.c-icon--new-window:before {\n  content: '\\E153';\n}\n.c-icon--h1:before {\n  content: '\\E154';\n}\n.c-icon--h2:before {\n  content: '\\E155';\n}\n.c-icon--h3:before {\n  content: '\\E156';\n}\n.c-icon--bullet-list:before {\n  content: '\\E157';\n}\n.c-icon--numbered-list:before {\n  content: '\\E158';\n}\n.c-icon--text-format-menu:before {\n  content: '\\E159';\n}\n.c-icon--bold:before {\n  content: '\\E160';\n}\n.c-icon--italic:before {\n  content: '\\E161';\n}\n.c-icon--underline:before {\n  content: '\\E162';\n}\n.c-icon--strikethrough:before {\n  content: '\\E163';\n}\n.c-icon--tag:before {\n  content: '\\E164';\n}\n.c-icon--org-shared-channel:before {\n  content: '\\E165';\n}\n.c-icon--shared-channel:before {\n  content: '\\E166';\n}\n.c-icon--external-channel:before {\n  content: '\\E167';\n}\n.c-icon--small-reaction:before {\n  content: '\\E170';\n}\n.c-icon--small-reply:before {\n  content: '\\E171';\n}\n.c-icon--small-ellipsis:before {\n  content: '\\E172';\n}\n.c-icon--small-star:before {\n  content: '\\E173';\n}\n.c-icon--small-quote:before {\n  content: '\\E174';\n}\n.c-icon--keyboard:before {\n  content: '\\E175';\n}\n.c-icon--share-action:before {\n  content: '\\E176';\n}\n.c-icon--handset:before {\n  content: '\\E177';\n}\n.c-icon--bluetooth-sound:before {\n  content: '\\E178';\n}\n.c-icon--bluetooth:before {\n  content: '\\E179';\n}\n.c-icon--bot:before {\n  content: '\\E180';\n}\n.c-icon--globe-plus:before {\n  content: '\\E181';\n}\n.c-icon--user-groups:before {\n  content: '\\E182';\n}\n.c-icon--frowning-face:before {\n  content: '\\E183';\n}\n.c-icon--mobile-notification:before {\n  content: '\\E184';\n}\n.c-icon--desktop-notification:before {\n  content: '\\E185';\n}\n.c-icon--collab-screenshare-on:before {\n  content: '\\E186';\n}\n.c-icon--collab-screenshare-off:before {\n  content: '\\E187';\n}\n.c-icon--thumbs-up:before {\n  content: '\\E188';\n}\n.c-icon--thumbs-down:before {\n  content: '\\E189';\n}\n.c-icon--expand:before {\n  content: '\\E200';\n}\n.c-icon--reduce:before {\n  content: '\\E201';\n}\n.c-icon--arrows-alt:before {\n  content: '\\E202';\n}\n.c-icon--reduce-alt:before {\n  content: '\\E203';\n}\n.c-icon--check-square-o:before {\n  content: '\\E204';\n}\n.c-icon--check-circle-o:before {\n  content: '\\E205';\n}\n.c-icon--check-circle-o-large:before {\n  content: '\\E206';\n}\n.c-icon--question:before {\n  content: '\\E207';\n}\n.c-icon--exclamation:before {\n  content: '\\E208';\n}\n.c-icon--warning:before {\n  content: '\\E209';\n}\n.c-icon--exclamation-circle:before {\n  content: '\\E210';\n}\n.c-icon--question-circle:before {\n  content: '\\E211';\n}\n.c-icon--plus-circle:before {\n  content: '\\E212';\n}\n.c-icon--minus-circle:before {\n  content: '\\E213';\n}\n.c-icon--times-circle:before {\n  content: '\\E214';\n}\n.c-icon--square-warning:before {\n  content: '\\E230';\n}\n.c-icon--square-question:before {\n  content: '\\E231';\n}\n.c-icon--plus-square-o:before {\n  content: '\\E232';\n}\n.c-icon--minus-square-o:before {\n  content: '\\E233';\n}\n.c-icon--square-times:before {\n  content: '\\E234';\n}\n.c-icon--times:before {\n  content: '\\E278';\n}\n.c-icon--plus:before {\n  content: '\\E279';\n}\n.c-icon--minus:before {\n  content: '\\E280';\n}\n.c-icon--plus-small:before {\n  content: '\\E281';\n}\n.c-icon--minus-small:before {\n  content: '\\E282';\n}\n.c-icon--exclamation-small:before {\n  content: '\\E283';\n}\n.c-icon--question-small:before {\n  content: '\\E284';\n}\n.c-icon--check-small:before {\n  content: '\\E285';\n}\n.c-icon--times-small:before {\n  content: '\\E294';\n}\n.c-icon--sync:before {\n  content: '\\E295';\n}\n.c-icon--replies:before {\n  content: '\\E296';\n}\n.c-icon--check-small-bold:before {\n  content: '\\E301';\n}\n.c-icon--enter:before {\n  content: '\\E302';\n}\n.c-icon--expand-vertical:before {\n  content: '\\E303';\n}\n.c-icon--collapse-vertical:before {\n  content: '\\E304';\n}\n.c-icon--android-upload:before {\n  content: '\\E305';\n}\n.c-icon--plus-thick:before {\n  content: '\\E306';\n}\n.c-icon--check-large-bold:before {\n  content: '\\E319';\n}\n.c-icon--check-large:before {\n  content: '\\E320';\n}\n.c-icon--calls:before {\n  content: '\\E478';\n}\n.c-icon--calls-small:before {\n  content: '\\E479';\n}\n.c-icon--calls-ended:before {\n  content: '\\E480';\n}\n.c-icon--calls-ended-small:before {\n  content: '\\E481';\n}\n.c-icon--star:before {\n  content: '\\E500';\n}\n.c-icon--unstar:before {\n  content: '\\E501';\n}\n.c-icon--bell:before {\n  content: '\\E502';\n}\n.c-icon--lock:before {\n  content: '\\E503';\n}\n.c-icon--external-link-small:before {\n  content: '\\E504';\n}\n.c-icon--external-link-large:before {\n  content: '\\E505';\n}\n.c-icon--presence-online:before {\n  content: '\\E506';\n}\n.c-icon--presence-offline:before {\n  content: '\\E507';\n}\n.c-icon--presence-dnd:before {\n  content: '\\E508';\n}\n.c-icon--presence-ra-online:before,\n.c-icon--presence-external-online:before {\n  content: '\\E509';\n}\n.c-icon--restricted-user:before {\n  content: '\\E509';\n}\n.c-icon--presence-ra-offline:before,\n.c-icon--presence-external-offline:before {\n  content: '\\E510';\n}\n.c-icon--presence-ra-dnd:before,\n.c-icon--presence-external-dnd:before {\n  content: '\\E511';\n}\n.c-icon--presence-ura-online:before {\n  content: '\\E512';\n}\n.c-icon--single-channel-guest:before {\n  content: '\\E512';\n}\n.c-icon--presence-ura-offline:before {\n  content: '\\E513';\n}\n.c-icon--presence-ura-dnd:before {\n  content: '\\E514';\n}\n.c-icon--heart:before {\n  content: '\\E515';\n}\n.c-icon--quote:before {\n  content: '\\E516';\n}\n.c-icon--cog:before {\n  content: '\\E517';\n}\n.c-icon--comment:before {\n  content: '\\E518';\n}\n.c-icon--minus-circle-small:before {\n  content: '\\E519';\n}\n.c-icon--times-circle-small:before {\n  content: '\\E520';\n}\n.c-icon--multiparty-dm-2:before {\n  content: '\\E521';\n}\n.c-icon--multiparty-dm-3:before {\n  content: '\\E522';\n}\n.c-icon--multiparty-dm-4:before {\n  content: '\\E523';\n}\n.c-icon--multiparty-dm-5:before {\n  content: '\\E524';\n}\n.c-icon--multiparty-dm-6:before {\n  content: '\\E525';\n}\n.c-icon--multiparty-dm-7:before {\n  content: '\\E526';\n}\n.c-icon--multiparty-dm-8:before {\n  content: '\\E527';\n}\n.c-icon--multiparty-dm-9:before {\n  content: '\\E528';\n}\n.c-icon--poo-filled:before {\n  content: '\\E529';\n}\n.c-icon--circle-fill:before {\n  content: '\\E530';\n}\n.c-icon--flag-filled:before {\n  content: '\\E531';\n}\n.c-icon--refresh-small:before {\n  content: '\\E532';\n}\n.c-icon--snooze-filled:before {\n  content: '\\E533';\n}\n.c-icon--archived-channel:before {\n  content: '\\E534';\n}\n.c-icon--presence-dnd-offline:before {\n  content: '\\E535';\n}\n.c-icon--presence-ra-dnd-offline:before,\n.c-icon--presence-external-dnd-offline:before {\n  content: '\\E536';\n}\n.c-icon--presence-ura-dnd-offline:before {\n  content: '\\E537';\n}\n.c-icon--presence-mobile-dnd:before {\n  content: '\\E538';\n}\n.c-icon--play-filled:before {\n  content: '\\E539';\n}\n.c-icon--broadcast-filled:before {\n  content: '\\E540';\n}\n.c-icon--small-star-filled:before {\n  content: '\\E541';\n}\n.c-icon--small-comment-filled:before {\n  content: '\\E542';\n}\n.c-icon--paperplane-filled:before {\n  content: '\\E543';\n}\n.c-icon--filebg-large-filled:before {\n  content: '\\E544';\n}\n.c-icon--filebg-small-filled:before {\n  content: '\\E545';\n}\n.c-icon--highlight-filled:before {\n  content: '\\E546';\n}\n.c-icon--pin-filled:before {\n  content: '\\E547';\n}\n.c-icon--close-filled:before {\n  content: '\\E548';\n}\n.c-icon--share-filled:before {\n  content: '\\E549';\n}\n.c-icon--pencil-filled:before {\n  content: '\\E550';\n}\n.c-icon--side-panel-filled:before {\n  content: '\\E551';\n}\n.c-icon--add-reaction-filled:before {\n  content: '\\E552';\n}\n.c-icon--mentions-filled:before {\n  content: '\\E553';\n}\n.c-icon--small-reply-filled:before {\n  content: '\\E554';\n}\n.c-icon--user-filled:before {\n  content: '\\E555';\n}\n.c-icon--microphone-on:before {\n  content: '\\E556';\n}\n.c-icon--camera-on:before {\n  content: '\\E557';\n}\n.c-icon--screenshare-on:before {\n  content: '\\E558';\n}\n.c-icon--shared-channels:before {\n  content: '\\E559';\n}\n.c-icon--heart-large-filled:before {\n  content: '\\E560';\n}\n.c-icon--thumbs-up-filled:before {\n  content: '\\E561';\n}\n.c-icon--thumbs-down-filled:before {\n  content: '\\E562';\n}\n.c-icon--slow-network:before {\n  content: '\\E563';\n}\n.c-icon--sparkles-filled:before {\n  content: '\\E564';\n}\n.c-icon--small-warning-filled:before {\n  content: '\\E565';\n}\n.c-icon--deactivated-user:before {\n  content: '\\E566';\n}\n.c-icon--arrow-right:before {\n  content: '\\E286';\n}\n.c-icon--arrow-left:before {\n  content: '\\E287';\n}\n.c-icon--arrow-up:before {\n  content: '\\E288';\n}\n.c-icon--arrow-down:before {\n  content: '\\E289';\n}\n.c-icon--arrow-right-medium:before {\n  content: '\\E290';\n}\n.c-icon--arrow-left-medium:before {\n  content: '\\E291';\n}\n.c-icon--arrow-up-medium:before {\n  content: '\\E292';\n}\n.c-icon--arrow-down-medium:before {\n  content: '\\E293';\n}\n.c-icon--angle-arrow-down-right-alt:before {\n  content: '\\E297';\n}\n.c-icon--angle-arrow-up-right-alt:before {\n  content: '\\E298';\n}\n.c-icon--angle-arrow-up-left-alt:before {\n  content: '\\E299';\n}\n.c-icon--angle-arrow-down-left-alt:before {\n  content: '\\E300';\n}\n.c-icon--arrow-circle-o-up:before {\n  content: '\\E215';\n}\n.c-icon--arrow-circle-o-down:before {\n  content: '\\E216';\n}\n.c-icon--arrow-circle-o-right:before {\n  content: '\\E217';\n}\n.c-icon--arrow-circle-o-left:before {\n  content: '\\E218';\n}\n.c-icon--chevron-circle-left:before {\n  content: '\\E219';\n}\n.c-icon--chevron-circle-right:before {\n  content: '\\E220';\n}\n.c-icon--chevron-circle-down:before {\n  content: '\\E221';\n}\n.c-icon--chevron-circle-up:before {\n  content: '\\E222';\n}\n.c-icon--plus-circle-small:before {\n  content: '\\E223';\n}\n.c-icon--circle-small:before {\n  content: '\\E224';\n}\n.c-icon--circle-large:before {\n  content: '\\E225';\n}\n.c-icon--plus-circle-medium:before {\n  content: '\\E228';\n}\n.c-icon--times-circle-medium:before {\n  content: '\\E229';\n}\n.c-icon--square-arrow-up:before {\n  content: '\\E235';\n}\n.c-icon--square-arrow-down:before {\n  content: '\\E236';\n}\n.c-icon--square-arrow-right:before {\n  content: '\\E237';\n}\n.c-icon--square-arrow-left:before {\n  content: '\\E238';\n}\n.c-icon--square-chevron-left:before {\n  content: '\\E239';\n}\n.c-icon--square-chevron-right:before {\n  content: '\\E240';\n}\n.c-icon--square-chevron-down:before {\n  content: '\\E241';\n}\n.c-icon--square-chevron-up:before {\n  content: '\\E242';\n}\n.c-icon--chevron-right:before {\n  content: '\\E250';\n}\n.c-icon--chevron-left:before {\n  content: '\\E251';\n}\n.c-icon--chevron-down:before {\n  content: '\\E252';\n}\n.c-icon--chevron-up:before {\n  content: '\\E253';\n}\n.c-icon--chevron-medium-right:before {\n  content: '\\E254';\n}\n.c-icon--chevron-medium-left:before {\n  content: '\\E255';\n}\n.c-icon--chevron-medium-down:before {\n  content: '\\E256';\n}\n.c-icon--chevron-medium-up:before {\n  content: '\\E257';\n}\n.c-icon--chevron-large-right:before {\n  content: '\\E258';\n}\n.c-icon--chevron-large-left:before {\n  content: '\\E259';\n}\n.c-icon--chevron-large-up:before {\n  content: '\\E260';\n}\n.c-icon--chevron-large-down:before {\n  content: '\\E261';\n}\n.c-icon--arrow-large-right:before {\n  content: '\\E262';\n}\n.c-icon--arrow-large-left:before {\n  content: '\\E263';\n}\n.c-icon--arrow-large-up:before {\n  content: '\\E264';\n}\n.c-icon--arrow-large-down:before {\n  content: '\\E265';\n}\n.c-icon--caret-outline-left:before {\n  content: '\\E266';\n}\n.c-icon--caret-outline-right:before {\n  content: '\\E267';\n}\n.c-icon--caret-outline-up:before {\n  content: '\\E268';\n}\n.c-icon--caret-outline-down:before {\n  content: '\\E269';\n}\n.c-icon--caret-up:before {\n  content: '\\E270';\n}\n.c-icon--caret-down:before {\n  content: '\\E271';\n}\n.c-icon--caret-right:before {\n  content: '\\E272';\n}\n.c-icon--caret-left:before {\n  content: '\\E273';\n}\n.c-icon--angle-arrow-down-left:before {\n  content: '\\E274';\n}\n.c-icon--angle-arrow-down-right:before {\n  content: '\\E275';\n}\n.c-icon--angle-arrow-up-right:before {\n  content: '\\E276';\n}\n.c-icon--angle-arrow-up-left:before {\n  content: '\\E277';\n}\n.c-icon--arrow-ne-large:before {\n  content: '\\E307';\n}\n.c-icon--arrow-nw-large:before {\n  content: '\\E308';\n}\n.c-icon--arrow-sw-large:before {\n  content: '\\E309';\n}\n.c-icon--arrow-se-large:before {\n  content: '\\E310';\n}\n.c-icon--arrow-ne-medium:before {\n  content: '\\E311';\n}\n.c-icon--arrow-nw-medium:before {\n  content: '\\E312';\n}\n.c-icon--arrow-sw-medium:before {\n  content: '\\E313';\n}\n.c-icon--arrow-se-medium:before {\n  content: '\\E314';\n}\n.c-icon--arrow-ne-small:before {\n  content: '\\E315';\n}\n.c-icon--arrow-nw-small:before {\n  content: '\\E316';\n}\n.c-icon--arrow-sw-small:before {\n  content: '\\E317';\n}\n.c-icon--arrow-se-small:before {\n  content: '\\E318';\n}\n.c-icon--slack:before {\n  content: '\\E800';\n}\n.c-icon--slack-pillow:before {\n  content: '\\E801';\n}\n.c-icon--apple:before {\n  content: '\\E802';\n}\n.c-icon--android:before {\n  content: '\\E803';\n}\n.c-icon--twitter:before {\n  content: '\\E804';\n}\n.c-icon--github:before {\n  content: '\\E805';\n}\n.c-icon--dropbox:before {\n  content: '\\E806';\n}\n.c-icon--google:before {\n  content: '\\E807';\n}\n.c-icon--windows:before {\n  content: '\\E808';\n}\n.c-icon--youtube:before {\n  content: '\\E809';\n}\n.c-icon--google-drive:before {\n  content: '\\E810';\n}\n.c-icon--skype:before {\n  content: '\\E811';\n}\n.c-icon--rss:before {\n  content: '\\E812';\n}\n.c-icon--facebook:before {\n  content: '\\E813';\n}\n.c-icon--asana:before {\n  content: '\\E814';\n}\n.c-icon--linkedin:before {\n  content: '\\E815';\n}\n.c-icon--tumblr:before {\n  content: '\\E816';\n}\n.c-icon--instagram:before {\n  content: '\\E817';\n}\n.c-icon--google-plus:before {\n  content: '\\E818';\n}\n.c-icon--soundcloud:before {\n  content: '\\E819';\n}\n.c-icon--flickr:before {\n  content: '\\E820';\n}\n.c-icon--pinterest:before {\n  content: '\\E821';\n}\n.c-icon--tripit:before {\n  content: '\\E822';\n}\n.c-icon--hangouts:before {\n  content: '\\E823';\n}\n.c-icon--viber:before {\n  content: '\\E824';\n}\n.c-icon--line:before {\n  content: '\\E825';\n}\n.c-icon--facebook-messenger:before {\n  content: '\\E826';\n}\n.c-icon--1password:before {\n  content: '\\E827';\n}\n.c-icon--box:before {\n  content: '\\E828';\n}\n.c-icon--box-square:before {\n  content: '\\E829';\n}\n.c-icon--google-play:before {\n  content: '\\E830';\n}\n.c-icon--spotify:before {\n  content: '\\E831';\n}\n.c-icon--siriusxm:before {\n  content: '\\E832';\n}\n.c-icon--stitcher:before {\n  content: '\\E833';\n}\n.c-icon--pocket-casts:before {\n  content: '\\E834';\n}\n.c-icon--onedrive:before {\n  content: '\\E835';\n}\n", ""]);
 }, function(e, t, n) {
   var r = n(3069);
@@ -51808,4 +51781,244 @@ webpackJsonp([332], [, function(e, t, n) {
       var t = n.i(r.getCurrentMember)(e);
       return !!t && (t.is_admin || !n.i(o.getTeamPref)(e, "invites_only_admins") && !t.is_restricted);
     };
+}, , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , function(e, t, n) {
+  "use strict";
+  var r = n(3608);
+  n.d(t, "a", function() {
+    return r.a;
+  }), n.d(t, "b", function() {
+    return r.b;
+  });
+}, function(e, t, n) {
+  "use strict";
+  var r = n(3606),
+    o = n(2353);
+  n.i(o.a)("interop.Eventlog", r);
+}, function(e, t, n) {
+  "use strict";
+
+  function r() {
+    h.connectedSig.has(l) || (h.connectedSig.add(l), h.disconnectedSig.add(c), h.socketMessageReceivedSig.add(d));
+  }
+
+  function o(e) {
+    switch (e.type) {
+      case "file_change":
+        if (e.file && e.file.id) return e.type + "_" + e.file.id;
+        break;
+      case "user_change":
+        if (e.user && e.user.id) return e.type + "_" + e.user.id;
+        break;
+      case "emoji_changed":
+        if ("add" === e.subtype && n.i(f.isString)(e.name) && n.i(f.isString)(e.value)) {
+          var t = {
+            name: e.name,
+            value: e.value
+          };
+          return "emoji_changed_add_" + JSON.stringify(t);
+        }
+        return "remove" === e.subtype && n.i(f.isArray)(e.names) ? "emoji_changed_remove_" + JSON.stringify(e.names) : e.type;
+      case "channel_history_changed":
+      case "group_history_changed":
+      case "im_history_changed":
+        if (n.i(f.isString)(e.channel)) return e.type + "_" + e.channel;
+    }
+  }
+
+  function i(e, t) {
+    return n.i(f.reduceRight)(e, function(e, n) {
+      return t(n) && e.unshift(n), e;
+    }, []);
+  }
+
+  function a(e) {
+    var t = {},
+      n = void 0,
+      r = i(e, function(e) {
+        if ("slack_broadcast" === e.type) return (!n || !n.force_reload && e.force_reload) && (n = e), !1;
+        var r = o(e);
+        return !r || !t[r] && (t[r] = !0, !0);
+      });
+    return n ? [n].concat(r) : r;
+  }
+
+  function s(e) {
+    var t = e.data;
+    "timestamp_too_old" === (t ? t.error : null) && b({
+      reason: "eventlog.history timestamp_too_old"
+    });
+  }
+
+  function u(e) {
+    var t = e.data;
+    if (!t.events) return void w("eventlog: history call did not include events");
+    if (!t.events.length) return void g("eventlog: nothing to process");
+    var n = a(t.events);
+    if (g("eventlog: processing " + n.length + " events out of a total set of " + t.events.length), n.forEach(function(e) {
+        S.dispatch(e);
+      }), n.length > 0) {
+      var r = n[n.length - 1].event_ts;
+      r && r > (k || 0) && (k = r);
+    }
+  }
+
+  function l(e) {
+    if (!e && M) {
+      g("eventlog: fetching events since " + M + " (" + (Math.ceil(Date.now() / 1e3) - M) + " seconds ago)");
+      var t = v("eventlog.history", {
+        start: M,
+        count: 2e3,
+        no_payload_if_has_more: !0,
+        batch_deleted_files: !0
+      }).then(u).catch(s).finally(function() {
+        T = void 0, t.isCancelled() || (x.dispatch(), M = void 0);
+      });
+      T = t;
+    }
+  }
+
+  function c() {
+    M = M || k, T && (T.cancel(), T = void 0);
+  }
+
+  function d(e) {
+    k = e.event_ts || k;
+  }
+  Object.defineProperty(t, "__esModule", {
+    value: !0
+  }), n.d(t, "didProcessEventLogSig", function() {
+    return x;
+  }), n.d(t, "messageReceivedSig", function() {
+    return S;
+  }), t.initialize = r, t.makeUniqueIdForEvent = o, t.filterEvents = a, n.d(t, "test", function() {
+    return E;
+  });
+  var f = n(6),
+    p = (n.n(f), n(3048)),
+    h = n(3055),
+    _ = n(3604),
+    m = n(3049),
+    y = n(3050),
+    v = p.b,
+    g = m.b,
+    b = _.b,
+    w = m.a,
+    k = void 0,
+    M = void 0,
+    T = void 0,
+    x = new y.a,
+    S = new y.a,
+    E = {
+      eventlogErrorHandler: s,
+      eventlogOKHandler: u
+    };
+  Object.defineProperty(E, "callImmediately", {
+    get: function() {
+      return v;
+    },
+    set: function(e) {
+      v = e;
+    }
+  }), Object.defineProperty(E, "eventlogHistoryP", {
+    get: function() {
+      return T;
+    },
+    set: function(e) {
+      T = e;
+    }
+  }), Object.defineProperty(E, "info", {
+    get: function() {
+      return g;
+    },
+    set: function(e) {
+      g = e;
+    }
+  }), Object.defineProperty(E, "lastEventTimestamp", {
+    get: function() {
+      return k;
+    },
+    set: function(e) {
+      k = e;
+    }
+  }), Object.defineProperty(E, "lastEventTimestampBeforeDisconnection", {
+    get: function() {
+      return M;
+    },
+    set: function(e) {
+      M = e;
+    }
+  }), Object.defineProperty(E, "onSocketConnected", {
+    get: function() {
+      return l;
+    },
+    set: function(e) {
+      l = e;
+    }
+  }), Object.defineProperty(E, "onSocketDisconnected", {
+    get: function() {
+      return c;
+    },
+    set: function(e) {
+      c = e;
+    }
+  }), Object.defineProperty(E, "onSocketMessage", {
+    get: function() {
+      return d;
+    },
+    set: function(e) {
+      d = e;
+    }
+  }), Object.defineProperty(E, "reload", {
+    get: function() {
+      return b;
+    },
+    set: function(e) {
+      b = e;
+    }
+  }), Object.defineProperty(E, "warn", {
+    get: function() {
+      return w;
+    },
+    set: function(e) {
+      w = e;
+    }
+  });
+}, function(e, t, n) {
+  "use strict";
+  n.d(t, "c", function() {
+    return o;
+  }), n.d(t, "a", function() {
+    return i;
+  }), n.d(t, "b", function() {
+    return a;
+  });
+  var r = n(2277),
+    o = n.i(r.a)("TS.metrics.count", function() {
+      return null;
+    }),
+    i = n.i(r.a)("TS.metrics.mark", function() {
+      return null;
+    }),
+    a = n.i(r.a)("TS.metrics.measureAndClear", function() {
+      return null;
+    });
+  n.i(r.a)("TS.metrics.store", function() {
+    return null;
+  });
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e) {
+    var t = e.msg,
+      n = e.reason;
+    i(t, n);
+  }
+  t.b = r, n.d(t, "a", function() {
+    return a;
+  });
+  var o = n(2277),
+    i = n.i(o.a)("TS.reloadIfVersionsChanged", function() {
+      return window.location.reload();
+    }),
+    a = n.i(o.a)("TS.reloadIfVersionsChanged", r);
 }], [2905]);
