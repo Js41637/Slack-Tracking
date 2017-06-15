@@ -29,52 +29,54 @@
     </div>
   </div>
 
-  <div class="thread_messages {{#if new_replies}}show_new_reply_indicator{{/if}}">
+  <div class="thread_body_container">
+    <div class="thread_messages {{#if new_replies}}show_new_reply_indicator{{/if}}">
 
-    {{buildMsgHTMLForThreadsView root_msg model_ob thread options}}
+      {{buildMsgHTMLForThreadsView root_msg model_ob thread options}}
 
-    <div class="thread_replies_container">
-      {{#if options.inline}}
-        <div class="collapse_inline_thread_container">
-          <a class="collapse_inline_thread" data-model-ob-id="{{model_ob.id}}" data-thread-ts="{{root_msg.thread_ts}}" href="{{conversation_permalink}}" target="_blank">{{#t}}Collapse thread{{/t}}</a>
-        </div>
-      {{/if}}
-      {{#unless options.inline}}
-        {{#if view_previous_count}}
-          <div class="view_all_replies_container">
-            <span class="view_all_error_msg hidden">{{#t}}Couldn\u2019t load replies.{{/t}}</span>
-            <a class="view_all_replies" data-model-ob-id="{{model_ob.id}}" data-thread-ts="{{root_msg.thread_ts}}" href="{{conversation_permalink}}" target="_blank">{{#t}}View {view_previous_count, plural, =1 {# previous reply} other {# previous replies}}{{/t}}</a><span class="view_all_loading_container"></span>
-            {{#if visible_reply_count}}
-              <span class="visible_reply_count float_right">{{#t note="thread visible reply count (ex. 12 of 102)"}}{visible_reply_count} of {total_reply_count}{{/t}}</span>
-            {{/if}}
+      <div class="thread_replies_container">
+        {{#if options.inline}}
+          <div class="collapse_inline_thread_container">
+            <a class="collapse_inline_thread" data-model-ob-id="{{model_ob.id}}" data-thread-ts="{{root_msg.thread_ts}}" href="{{conversation_permalink}}" target="_blank">{{#t}}Collapse thread{{/t}}</a>
           </div>
         {{/if}}
-      {{/unless}}
-      {{#if replies}}
-        {{#each replies}}
-          {{buildMsgHTMLForThreadsView this ../model_ob ../thread ../options}}
-        {{/each}}
+        {{#unless options.inline}}
+          {{#if view_previous_count}}
+            <div class="view_all_replies_container">
+              <span class="view_all_error_msg hidden">{{#t}}Couldn\u2019t load replies.{{/t}}</span>
+              <a class="view_all_replies" data-model-ob-id="{{model_ob.id}}" data-thread-ts="{{root_msg.thread_ts}}" href="{{conversation_permalink}}" target="_blank">{{#t}}View {view_previous_count, plural, =1 {# previous reply} other {# previous replies}}{{/t}}</a><span class="view_all_loading_container"></span>
+              {{#if visible_reply_count}}
+                <span class="visible_reply_count float_right">{{#t note="thread visible reply count (ex. 12 of 102)"}}{visible_reply_count} of {total_reply_count}{{/t}}</span>
+              {{/if}}
+            </div>
+          {{/if}}
+        {{/unless}}
+        {{#if replies}}
+          {{#each replies}}
+            {{buildMsgHTMLForThreadsView this ../model_ob ../thread ../options}}
+          {{/each}}
+        {{/if}}
+      </div>
+
+      <div class="new_replies_container">
+        {{#if new_replies}}
+          {{#each new_replies}}
+            {{buildMsgHTMLForThreadsView this ../model_ob ../thread ../options}}
+          {{/each}}
+        {{/if}}
+      </div>
+
+      <div class="new_reply_indicator">
+        <span class="blue_dot">&bull;</span>
+        <a class="reveal_new_replies">{{new_replies_count}}</a>
+      </div>
+
+    </div>
+
+    <div class="reply_input_container">
+      {{#if options.inline}}
+        {{> thread_inline_input_placeholder}}
       {{/if}}
     </div>
-
-    <div class="new_replies_container">
-      {{#if new_replies}}
-        {{#each new_replies}}
-          {{buildMsgHTMLForThreadsView this ../model_ob ../thread ../options}}
-        {{/each}}
-      {{/if}}
-    </div>
-
-    <div class="new_reply_indicator">
-      <span class="blue_dot">&bull;</span>
-      <a class="reveal_new_replies">{{new_replies_count}}</a>
-    </div>
-
-  </div>
-
-  <div class="reply_input_container">
-    {{#if options.inline}}
-      {{> thread_inline_input_placeholder}}
-    {{/if}}
   </div>
 </ts-thread>

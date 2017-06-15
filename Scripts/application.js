@@ -31887,16 +31887,17 @@ webpackJsonp([332], [, function(e, t, n) {
     c = n(2877),
     d = n(2883),
     f = n(3139),
-    p = n(3428),
-    h = n(1458),
-    _ = (n.n(h), Object.assign || function(e) {
+    p = n(3609),
+    h = n(3428),
+    _ = n(1458),
+    m = (n.n(_), Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
         for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
       }
       return e;
     }),
-    m = function() {
+    y = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
@@ -31907,7 +31908,7 @@ webpackJsonp([332], [, function(e, t, n) {
         return n && e(t.prototype, n), r && e(t, r), t;
       };
     }(),
-    y = {
+    v = {
       selectedItemId: u.PropTypes.string,
       unreadIds: u.PropTypes.arrayOf(l.a.PropTypes.string),
       rows: u.PropTypes.arrayOf(l.a.PropTypes.object).isRequired,
@@ -31918,7 +31919,7 @@ webpackJsonp([332], [, function(e, t, n) {
       onCreateChannelClick: u.PropTypes.func,
       onOpenDMClick: u.PropTypes.func
     },
-    v = {
+    g = {
       selectedItemId: null,
       unreadIds: [],
       rows: [],
@@ -31929,14 +31930,14 @@ webpackJsonp([332], [, function(e, t, n) {
       onCreateChannelClick: s.a.noop,
       onOpenDMClick: s.a.noop
     },
-    g = function(e) {
+    b = function(e) {
       function t(e) {
         r(this, t);
         var n = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
         return n.setRef = n.setRef.bind(n), n.reportRenderedRowIndexes = n.reportRenderedRowIndexes.bind(n), n.ensureRowInView = n.ensureRowInView.bind(n), n.state = {
-          idsAboveViewport: [],
-          idsBelowViewport: []
-        }, n.prevStartIndex = null, n.prevStopIndex = null, n.commands = [{
+          startIndex: 0,
+          stopIndex: 0
+        }, n.commands = [{
           keys: ["option+up"],
           handler: n.gotoNext.bind(n, "up", !1)
         }, {
@@ -31950,10 +31951,10 @@ webpackJsonp([332], [, function(e, t, n) {
           handler: n.gotoNext.bind(n, "down", !0)
         }], n;
       }
-      return i(t, e), m(t, [{
+      return i(t, e), y(t, [{
         key: "componentDidMount",
         value: function() {
-          this.keyCommands = new p.a, this.keyCommands.bindAll(this.commands);
+          this.keyCommands = new h.a, this.keyCommands.bindAll(this.commands);
         }
       }, {
         key: "componentDidUpdate",
@@ -31975,12 +31976,13 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "ensureRowInView",
         value: function(e) {
           if (this.ChannelList && e) {
-            var t = this.state,
-              n = t.idsAboveViewport,
-              r = t.idsBelowViewport; - 1 !== n.indexOf(e) ? this.ChannelList.scrollToRow({
+            var t = this.props.rows,
+              r = this.state,
+              o = r.startIndex,
+              i = r.stopIndex; - 1 !== n.i(p.a)(t, o).indexOf(e) ? this.ChannelList.scrollToRow({
               id: e,
               position: "top"
-            }) : -1 !== r.indexOf(e) && this.ChannelList.scrollToRow({
+            }) : -1 !== n.i(p.b)(t, i).indexOf(e) && this.ChannelList.scrollToRow({
               id: e,
               position: "bottom"
             });
@@ -31990,21 +31992,11 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "reportRenderedRowIndexes",
         value: function(e) {
           var t = e.startIndex,
-            n = e.stopIndex,
-            r = this.props.rows,
-            o = this.state,
-            i = o.idsAboveViewport,
-            a = o.idsBelowViewport,
-            u = s.a.chain(r).slice(0, t).filter("id").map("id").value();
-          s.a.isEqual(u, i) || this.setState(function() {
+            n = e.stopIndex;
+          t === this.state.startIndex && n === this.state.stopIndex || this.setState(function() {
             return {
-              idsAboveViewport: u
-            };
-          });
-          var l = s.a.chain(r).slice(n).filter("id").map("id").value();
-          s.a.isEqual(l, a) || this.setState(function() {
-            return {
-              idsBelowViewport: l
+              startIndex: t,
+              stopIndex: n
             };
           });
         }
@@ -32019,7 +32011,7 @@ webpackJsonp([332], [, function(e, t, n) {
               return i === e.id;
             }) || 0,
             u = s()(o).map(function(e, t) {
-              return _({}, e, {
+              return m({}, e, {
                 index: t
               });
             }).filter(function(e) {
@@ -32046,13 +32038,17 @@ webpackJsonp([332], [, function(e, t, n) {
             o = e.onInviteClick,
             i = e.onBrowseChannelsClick,
             a = e.onCreateChannelClick,
-            s = e.onOpenDMClick;
+            s = e.onOpenDMClick,
+            u = this.state,
+            p = u.startIndex,
+            h = u.stopIndex;
           return l.a.createElement("nav", {
             className: "p-channel_sidebar"
           }, l.a.createElement(f.a, null), l.a.createElement(d.a, {
             position: "top",
-            ensureRowInView: this.ensureRowInView,
-            offscreenIds: this.state.idsAboveViewport
+            startIndex: p,
+            rows: t,
+            ensureRowInView: this.ensureRowInView
           }), l.a.createElement(c.a, {
             rows: t,
             onItemSelect: n,
@@ -32065,13 +32061,14 @@ webpackJsonp([332], [, function(e, t, n) {
             ref: this.setRef
           }), l.a.createElement(d.a, {
             position: "bottom",
-            ensureRowInView: this.ensureRowInView,
-            offscreenIds: this.state.idsBelowViewport
+            stopIndex: h,
+            rows: t,
+            ensureRowInView: this.ensureRowInView
           }));
         }
       }]), t;
     }(l.a.Component);
-  g.propTypes = y, g.defaultProps = v, t.a = g;
+  b.propTypes = v, b.defaultProps = g, t.a = b;
 }, function(e, t, n) {
   "use strict";
 
@@ -32519,10 +32516,11 @@ webpackJsonp([332], [, function(e, t, n) {
     c = n(43),
     d = n(6),
     f = n.n(d),
-    p = n(2295),
-    h = n(3178),
-    _ = n(2287),
-    m = function() {
+    p = n(3609),
+    h = n(2295),
+    _ = n(3178),
+    m = n(2287),
+    y = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
@@ -32533,29 +32531,33 @@ webpackJsonp([332], [, function(e, t, n) {
         return n && e(t.prototype, n), r && e(t, r), t;
       };
     }(),
-    y = {
+    v = {
       isShowing: a.PropTypes.bool.isRequired,
       linkedRow: a.PropTypes.string,
       isMention: a.PropTypes.bool,
       position: a.PropTypes.oneOf(["top", "bottom"]),
-      offscreenIds: a.PropTypes.arrayOf(a.PropTypes.string),
-      ensureRowInView: a.PropTypes.func
+      ensureRowInView: a.PropTypes.func,
+      rows: a.PropTypes.arrayOf(s.a.PropTypes.object),
+      startIndex: a.PropTypes.number,
+      stopIndex: a.PropTypes.number
     },
-    v = {
+    g = {
       isShowing: !1,
       linkedRow: null,
       isMention: !1,
       position: "top",
-      offscreenIds: [],
-      ensureRowInView: f.a.noop
+      ensureRowInView: f.a.noop,
+      rows: [],
+      startIndex: 0,
+      stopIndex: 0
     },
-    g = function(e) {
+    b = function(e) {
       function t() {
         r(this, t);
         var e = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this));
         return e.onClick = e.onClick.bind(e), e;
       }
-      return i(t, e), m(t, [{
+      return i(t, e), y(t, [{
         key: "onClick",
         value: function(e) {
           var t = this.props,
@@ -32582,38 +32584,41 @@ webpackJsonp([332], [, function(e, t, n) {
           return s.a.createElement("button", {
             className: o,
             onClick: this.onClick
-          }, a, " ", s.a.createElement(_.a, {
+          }, a, " ", s.a.createElement(m.a, {
             type: "arrow_" + i,
             align: "top"
           }));
         }
       }]), t;
     }(s.a.PureComponent);
-  g.propTypes = y, g.defaultProps = v;
-  var b = function(e, t) {
-    var r = t.offscreenIds,
+  b.propTypes = v, b.defaultProps = g;
+  var w = function(e, t) {
+    var r = t.rows,
       o = t.position,
-      i = n.i(p.getAllChannels)(e),
-      a = "top" === o ? f.a.first : f.a.last,
-      s = n.i(p.getMentionIds)(i);
-    n.i(h.getThreadsMentionCount)(e) && s.push("Vall_threads");
-    var u = a(f.a.intersection(r, s));
-    if (u) return {
+      i = t.startIndex,
+      a = t.stopIndex,
+      s = n.i(h.getAllChannels)(e),
+      u = "top" === o ? f.a.first : f.a.last,
+      l = "top" === o ? n.i(p.a)(r, i) : n.i(p.b)(r, a),
+      c = n.i(h.getMentionIds)(s);
+    n.i(_.getThreadsMentionCount)(e) && c.push("Vall_threads");
+    var d = u(f.a.intersection(l, c));
+    if (d) return {
       isShowing: !0,
-      linkedRow: u,
+      linkedRow: d,
       isMention: !0
     };
-    var l = n.i(p.getUnreadIds)(i);
-    n.i(h.hasUnreadThreads)(e) && l.push("Vall_threads");
-    var c = a(f.a.intersection(r, l));
-    return c ? {
+    var m = n.i(h.getUnreadIds)(s);
+    n.i(_.hasUnreadThreads)(e) && m.push("Vall_threads");
+    var y = u(f.a.intersection(l, m));
+    return y ? {
       isShowing: !0,
-      linkedRow: c
+      linkedRow: y
     } : {
       isShowing: !1
     };
   };
-  t.a = n.i(c.b)(b)(g);
+  t.a = n.i(c.b)(w)(b);
 }, function(e, t, n) {
   "use strict";
 
@@ -52021,4 +52026,19 @@ webpackJsonp([332], [, function(e, t, n) {
       return window.location.reload();
     }),
     a = n.i(o.a)("TS.reloadIfVersionsChanged", r);
+}, function(e, t, n) {
+  "use strict";
+  n.d(t, "a", function() {
+    return i;
+  }), n.d(t, "b", function() {
+    return a;
+  });
+  var r = n(6),
+    o = n.n(r),
+    i = function(e, t) {
+      return o.a.chain(e).slice(0, t).filter("id").map("id").value() || [];
+    },
+    a = function(e, t) {
+      return o.a.chain(e).slice(t).filter("id").map("id").value() || [];
+    };
 }], [2905]);

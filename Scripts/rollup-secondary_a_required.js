@@ -23741,28 +23741,23 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             s = TS.i18n.t("Shared a call", "calls")();
           e.channels && e.channels[0] === TS.model.active_cid && (s = TS.i18n.t("Started a call", "calls")());
           var o = "";
-          if (e.date_end)
-            if (e.is_dm_call && e.was_missed) {
-              var l = n ? r : "You";
-              o = e.was_rejected ? TS.i18n.t("{name} declined the call", "calls")({
-                name: l
-              }) : TS.i18n.t("{name} missed the call", "calls")({
-                name: l
-              });
-            } else o = TS.i18n.t("This call has ended", "calls")();
-          else o = e.is_dm_call ? 2 === e.participants.length ? TS.i18n.t("On a call with {name}", "calls")({
+          o = e.date_end ? e.is_dm_call && e.was_missed ? e.was_rejected ? n ? TS.i18n.t("{name} declined the call", "calls")({
+            name: r
+          }) : TS.i18n.t("You declined the call", "calls")() : n ? TS.i18n.t("{name} missed the call", "calls")({
+            name: r
+          }) : TS.i18n.t("You missed the call", "calls")() : TS.i18n.t("This call has ended", "calls")() : e.is_dm_call ? 2 === e.participants.length ? TS.i18n.t("On a call with {name}", "calls")({
             name: r
           }) : (n ? TS.i18n.t("Calling {name}", "calls") : TS.i18n.t("{name} is calling you", "calls"))({
             name: r
           }) : -1 != e.participants.indexOf(TS.model.user.id) ? TS.i18n.t("You are on this call", "calls")() : TS.i18n.t("Join this call", "calls")();
-          var d;
-          return d = e.name ? TS.i18n.t("{room_name} call", "calls")({
+          var l;
+          return l = e.name ? TS.i18n.t("{room_name} call", "calls")({
             room_name: e.name
           }) : TS.i18n.t("Untitled", "calls")(), TS.templates.message_screenhero_attachment({
             room: e,
             participants: t,
             room_url: TS.utility.calls.getUrlForRoom(e),
-            meta_room_name: _.escape(d),
+            meta_room_name: _.escape(l),
             room_name: _.escape(e.name),
             title: s,
             description: o,
