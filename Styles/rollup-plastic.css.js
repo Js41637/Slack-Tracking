@@ -15360,7 +15360,13 @@ body:not(.unify_user) #im_browser .im_browser_row.multiparty .im_display_name_co
   border-radius: 9px;
   font-size: .9rem;
   line-height: .9rem;
+  bottom: 13px;
+  position: relative;
   padding: 2px 8px
+}
+
+body:not(.unify_user) #im_browser .im_browser_row .im_unread_cnt {
+  bottom: 0
 }
 
 #im_browser .im_browser_row .enter_icon {

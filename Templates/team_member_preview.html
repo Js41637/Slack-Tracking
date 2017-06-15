@@ -381,7 +381,7 @@
       <p>{{#t}}Slackbot is our friendly, in-house bot, here to help you use Slack. Slackbot will occasionally send you notifications or reminders.{{/t}} </p>
     {{#isClient}}
       <i class="ts_icon ts_icon_question_circle member_help_center callout"></i>
-      <p>{{#t new_win_name=(newWindowName)}}In your direct messages with Slackbot, you can ask simple, Slack-related questions (or just type a few keywords). Slackbot will try to answer or will search the <a href="https://get.slack.help/hc/en-us" target="{new_win_name}">Help Center</a> for you. You can also type <strong>/feedback</strong> followed by your message to send a note or question to the humans at Slack.{{/t}}</p>
+      <p>{{#t new_win_name=(newWindowName) locale=(zdLocale)}}In your direct messages with Slackbot, you can ask simple, Slack-related questions (or just type a few keywords). Slackbot will try to answer or will search the <a href="https://get.slack.help/hc/{locale}" target="{new_win_name}">Help Center</a> for you. You can also type <strong>/feedback</strong> followed by your message to send a note or question to the humans at Slack.{{/t}}</p>
     {{/isClient}}
   </div>
 

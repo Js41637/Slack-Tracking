@@ -122,9 +122,9 @@
 
         {{#if is_paid_team}}
           <div class="invite_modal_footer greigh align_center large_top_padding large_top_margin">
-            {{#t}}
+            {{#t locale=(zdLocale)}}
               <p id="admin_invites_billing_notice" class="no_bottom_margin">You'll be charged a prorated amount for each new member.</p>
-              <p id="admin_guide_to_billing_at_slack" class="no_bottom_margin">See our <a href="https://slack.zendesk.com/hc/en-us/articles/201723133-Billing-FAQ"  class="greigh underline" target="new">Guide to billing at Slack</a>.{{/t}}</p>
+              <p id="admin_guide_to_billing_at_slack" class="no_bottom_margin">See our <a href="https://get.slack.help/hc/{locale}/articles/201723133-Billing-FAQ"  class="greigh underline" target="new">Guide to billing at Slack</a>.{{/t}}</p>
               <p id="ura_warning" class="no_bottom_margin">{{#t}}Note that guest accounts can access your directory via the <a href="https://api.slack.com/methods/users.list" target="new" class="greigh underline">Slack API</a>.</p>
             {{/t}}
             {{#currentUserIsAdmin}}<a href="/admin/invites" class="greigh underline pending_updates" target="{{newWindowName}}" data-clog-click="true" data-clog-event="INVITEMODAL_ACTION" data-clog-params="action=view_pending_and_accepted,trigger=click_cta_pending_and_accepted">{{#t}}See pending and accepted invites{{/t}}</a>{{/currentUserIsAdmin}}
@@ -144,7 +144,7 @@
         <textarea wrap="virtual" name="emails" id="bulk_emails" class="no_bottom_margin full_width"></textarea>
       </label>
       {{#if invites_limit}}
-      <p class="input_note">{{#t}}Please separate multiple addresses with commas. <strong>Keep in mind that Slack may limit the number of invitations you can send if your team currently has a low acceptance rate.</strong> Our Help Center has <a href='https://get.slack.help/hc/en-us/articles/201330256#invitation_limits'> more details on invitation limits</a>.{{/t}}</p>
+      <p class="input_note">{{#t locale=(zdLocale)}}Please separate multiple addresses with commas. <strong>Keep in mind that Slack may limit the number of invitations you can send if your team currently has a low acceptance rate.</strong> Our Help Center has <a href='https://get.slack.help/hc/{locale}/articles/201330256#invitation_limits'> more details on invitation limits</a>.{{/t}}</p>
       {{else}}
       <p class="input_note">{{#t}}<strong>Tip:</strong> Copy and paste a list of contacts from your email. Please separate multiple addresses with\u00a0commas!{{/t}}</p>
       {{/if}}

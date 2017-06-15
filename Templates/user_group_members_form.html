@@ -24,7 +24,7 @@
   <p id="user_group_member_invite_div">
     <label for="members">{{#t note="label for text input for members to optionally send invitations to this user group"}}Send invites to: <span class="subtle_silver normal">(optional)</span>{{/t}}</label>
     <select class="hidden" multiple="true" id="user_group_members_select" name="members[]"></select>
-    {{#unless is_locked}}<span class="input_note">{{#t note="note on alternative way to add members to user group"}}You can also <a href="https://slack.zendesk.com/hc/en-us/articles/212572638" target="_blank">import members from Active Directory using provisioning</a>.</span>{{/t}}{{/unless}}
+    {{#unless is_locked}}<span class="input_note">{{#t note="note on alternative way to add members to user group" locale=(zdLocale)}}You can also <a href="https://get.slack.help/hc/{locale}/articles/212572638" target="_blank">import members from Active Directory using provisioning</a>.</span>{{/t}}{{/unless}}
   </p>
 
   {{#if is_locked}}

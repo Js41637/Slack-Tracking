@@ -2156,11 +2156,13 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         changed_name_sig: new signals.Signal,
         changed_deleted_sig: new signals.Signal,
         changed_icons_sig: new signals.Signal,
+        batch_upserted_sig: new signals.Signal,
         is_in_bulk_upsert_mode: !1,
         onStart: function() {
           i = TS.utility.throttleFunc(i, 20);
         },
         getBotById: function(t) {
+          if (TS.useRedux() && TS.boot_data.feature_store_members_in_redux) return TS.redux.bots.getBotById(t);
           if (e[t]) return e[t];
           for (var n, i = TS.model.bots, r = 0; r < i.length; r += 1)
             if (n = i[r], n.id == t) return TS.warn(t + " not in _id_map"), e[t] = n, n;
@@ -2210,19 +2212,18 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return r(t);
         },
         upsertBot: function(t) {
-          var i = TS.model.bots,
-            r = TS.bots.getBotById(t.id),
-            s = "NOOP",
-            o = [];
-          if (r) {
-            TS.has_pri[a] && TS.log(a, 'updating existing bot "' + t.id + '"');
-            for (var l in t) "icons" === l ? t[l] && !TS.utility.areSimpleObjectsEqual(t[l], r[l], "bot:" + t.id + " " + t.name) && (r.icons = t.icons, s = "CHANGED", o.push(l)) : r[l] != t[l] && (t[l] && !TS.utility.isScalar(t[l]) ? (r[l] = t[l], TS.warn(l + " is not scalar! it needs to be handled by upsertBot specifically to test if it has changed! " + n(t[l]))) : "boolean" == typeof t[l] && !t[l] == !r[l] || (o.push(l), r[l] = t[l], s = "CHANGED"));
-            t = r;
-          } else s = "ADDED", TS.has_pri[a] && TS.log(a, 'adding bot "' + t.id + '"'), TS.bots.processNewBotForUpserting(t), i.push(t), e[t.id] = t;
-          return "ADDED" !== s && "CHANGED" !== s || TS.bots.maybeStoreBots(), {
-            status: s,
+          var i = TS.bots.getBotById(t.id),
+            r = "NOOP",
+            s = [];
+          if (i) {
+            TS.has_pri[a] && TS.log(a, 'updating existing bot "' + t.id + '"'), TS.useRedux() && TS.boot_data.feature_store_members_in_redux && (i = _.assign({}, i));
+            for (var o in t) "icons" === o ? t[o] && !TS.utility.areSimpleObjectsEqual(t[o], i[o], "bot:" + t.id + " " + t.name) && (i.icons = t.icons, r = "CHANGED", s.push(o)) : i[o] != t[o] && (t[o] && !TS.utility.isScalar(t[o]) ? (i[o] = t[o], TS.warn(o + " is not scalar! it needs to be handled by upsertBot specifically to test if it has changed! " + n(t[o]))) : "boolean" == typeof t[o] && !t[o] == !i[o] || (s.push(o), i[o] = t[o], r = "CHANGED"));
+            t = i;
+          } else r = "ADDED", TS.has_pri[a] && TS.log(a, 'adding bot "' + t.id + '"'), TS.bots.processNewBotForUpserting(t), e[t.id] = t, TS.useRedux() && TS.boot_data.feature_store_members_in_redux || TS.model.bots.push(t);
+          return "ADDED" !== r && "CHANGED" !== r || (TS.bots.maybeStoreBots(), TS.useRedux() && TS.boot_data.feature_store_members_in_redux && (TS.bots.is_in_bulk_upsert_mode ? TS.redux.bots.addToBulkUpsertPayload(t) : TS.redux.bots.addBot(t))), {
+            status: r,
             bot: t,
-            what_changed: o
+            what_changed: s
           };
         },
         processNewBotForUpserting: function() {},
@@ -2242,7 +2243,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return !TS.bots.is_in_bulk_upsert_mode && (TS.bots.is_in_bulk_upsert_mode = !0, !0);
         },
         finishBatchUpsert: function() {
-          return !!TS.bots.is_in_bulk_upsert_mode && (TS.bots.is_in_bulk_upsert_mode = !1, TS.bots.maybeStoreBots(), !0);
+          return !!TS.bots.is_in_bulk_upsert_mode && (TS.bots.is_in_bulk_upsert_mode = !1, TS.bots.maybeStoreBots(), TS.bots.batch_upserted_sig.dispatch(), !0);
         },
         ensureBotsInDataArePresent: function(e) {
           var t = TS.utility.extractAllBotIds(e);
@@ -3663,28 +3664,17 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               n = $(e.target).closest("ts-message"),
               i = n.data("model-ob-id"),
               r = n.data("ts");
-            if (TS.model.unread_view_is_showing && TS.boot_data.feature_sli_highlight_unreads) {
-              var a = !!$(e.target).closest("#sli_briefing").length;
-              TS.client.ui.sli_highlight_all_unreads.sendFeedback(e, t, r, i, a), TS.highlights_briefing.sendFeedback(e, t, r, i, a);
-            } else if (TS.model.unread_view_is_showing && TS.boot_data.feature_sli_highlights_cache) TS.client.highlights.setDefaultFeedbackForHighlight(i, r, {
+            TS.model.unread_view_is_showing && TS.boot_data.feature_sli_highlights_cache ? (TS.client.highlights.setDefaultFeedbackForHighlight(i, r, {
               feedback: t
-            }, "all-unreads"), $("#ts_tip_float_floater .ts_tip_tip").text(TS.i18n.t("Thank you!", "highlights")()), TS.highlights_briefing.setFeedbackInCache("negative" === t ? "dismiss" : t, r, i);
-            else if (!TS.model.unread_view_is_showing && (TS.boot_data.feature_sli_highlights_cache ? (TS.client.highlights.setDefaultFeedbackForHighlight(i, r, {
-                feedback: t
-              }, "in-channel"), $("#ts_tip_float_floater .ts_tip_tip").text(TS.i18n.t("Thank you!", "highlights")())) : TS.recaps_signal.sendFeedback(e, t, r, i), TS.highlights_briefing.setFeedbackInCache("negative" === t ? "dismiss" : t, r, i), TS.boot_data.feature_sli_highlight_unreads)) {
-              var s = TS.shared.getModelObById(i),
-                o = TS.utility.msgs.getMsg(r, s.msgs);
-              TS.client.ui.sli_highlight_all_unreads.setRecapCache(i, r, _.assign({}, o.recap && o.recap.data, {
-                from_briefing: !0
-              }));
-            }
+            }, "all-unreads"), $("#ts_tip_float_floater .ts_tip_tip").text(TS.i18n.t("Thank you!", "highlights")()), TS.highlights_briefing.setFeedbackInCache("negative" === t ? "dismiss" : t, r, i)) : TS.model.unread_view_is_showing || (TS.boot_data.feature_sli_highlights_cache ? (TS.client.highlights.setDefaultFeedbackForHighlight(i, r, {
+              feedback: t
+            }, "in-channel"), $("#ts_tip_float_floater .ts_tip_tip").text(TS.i18n.t("Thank you!", "highlights")())) : TS.recaps_signal.sendFeedback(e, t, r, i), TS.highlights_briefing.setFeedbackInCache("negative" === t ? "dismiss" : t, r, i));
           }), TS.click.addClientHandler('[data-js="highlights_feedback_dropdown"]', function(e) {
             var t = $(e.target).closest("ts-message"),
               n = t.data("model-ob-id"),
               i = t.data("ts"),
               r = TS.shared.getModelObById(n);
-            if (TS.model.unread_view_is_showing && TS.boot_data.feature_sli_highlight_unreads) TS.client.ui.sli_highlight_all_unreads.handleSecondaryFeedbackClick(e, r, i);
-            else if (TS.boot_data.feature_sli_highlights_cache) {
+            if (TS.boot_data.feature_sli_highlights_cache) {
               var a = TS.model.unread_view_is_showing ? "all-unreads" : "in-channel";
               TS.client.ui.highlights.openNegativeFeedbackMenu(e, n, i, a);
             } else TS.model.unread_view_is_showing || TS.recaps_signal.handleSecondaryFeedbackClick(e, r, i);
@@ -3693,13 +3683,6 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               var t = $(e.target).parents("ts-message").data("ts"),
                 n = $(e.target).parents("ts-message").data("model-ob-id"),
                 i = TS.highlights_briefing.getDebugInfoFor(t, n);
-              TS.client.ui.debugger_flexpane.printJSON(i);
-            }
-          }), TS.boot_data.feature_sli_highlight_unreads && _.get(TS, "client.ui.sli_highlight_all_unreads") && TS.click.addClientHandler("#unread_msgs_div .recap_highlight_debug", function(e) {
-            if (TS.boot_data.feature_tinyspeck && "sli_debug_info" === TS.recaps_signal.sli_recaps_debug_group) {
-              var t = $(e.target).parents("ts-message").data("ts"),
-                n = $(e.target).parents("ts-message").data("model-ob-id"),
-                i = TS.client.ui.sli_highlight_all_unreads.getDebugInfoFor(t, n);
               TS.client.ui.debugger_flexpane.printJSON(i);
             }
           }), TS.boot_data.feature_sli_briefing && TS.highlights_briefing && TS.click.addClientHandler('[data-js="sli_briefing_back_button"]', function() {
@@ -7738,7 +7721,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         cleanCommandText: function(e) {
           return TS.boot_data.feature_name_tagging_client || TS.boot_data.feature_localization ? r(e, {
-            do_specials: !0,
+            do_specials: !1,
             human_readable: !0
           }) : e;
         },
@@ -9932,16 +9915,18 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             }),
             s = TS.i18n.t("Just the link {url}", "inline_attachments")({
               url: e
-            }),
-            o = TS.i18n.t("All links under {host_path}", "inline_attachments")({
-              host_path: d
             });
           if (t += '<label class="select small full_width">\r', t += '<select id="attachment_blacklist_select" disabled="disabled" class="small" style="margin-bottom: 4px;">\r', t += '<option value="all" data-url="' + i + '">' + a + "</option>\r", t += '<option value="just" data-url="' + e + '">' + s + "</option>\r", r != i) {
             TS.info(r);
-            var l = n.concat();
-            l.length -= 1;
-            var d = l.join("/");
-            d != i && (d += "/", t += '<option value="under" data-url="' + d + '">' + o + "</option>\r");
+            var o = n.concat();
+            o.length -= 1;
+            var l = o.join("/");
+            if (l != i) {
+              l += "/";
+              t += '<option value="under" data-url="' + l + '">' + TS.i18n.t("All links under {host_path}", "inline_attachments")({
+                host_path: l
+              }) + "</option>\r";
+            }
           }
           return t += "</select>\r", t += "</label>\r";
         },
@@ -11468,26 +11453,24 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         Q = 6655,
         X = 1975,
         Z = function() {
-          if (0 !== _.keys(g).length) {
-            var e = _.keys(g);
-            _.each(e, te);
-            (TS.useSocketManager() ? TS.interop.SocketManager.promiseToHaveOpenWebSocket() : TS.ms.promiseToHaveOpenWebSocket()).then(function() {
-              _.each(e, ee), e = [];
-            });
-          }
+          0 !== _.keys(g).length && _.each(g, te);
         },
         ee = function(e) {
           var t = TS.console.getStackTrace();
           g[e] = setTimeout(function() {
-            TS.model.ms_connected && (TS.flannel.fetchAndUpsertObjectsByIds([e]).then(function() {
-              var t = TS.members.getPotentiallyUnknownMemberByIdWithoutFetching(e),
-                n = t.is_unknown ? "failure" : "success";
-              TS.metrics.count("unknown_member_timeout_retry_" + n);
-            }), TS.metrics.count("unknown_member_persistence_timeout"), TS.statsd.measure("unknown_member_resolution_timing", "unknown_member_resolution_timing_" + e), TS.console.logError({
-              id: e,
-              getMemberById: TS.members.getPotentiallyUnknownMemberByIdWithoutFetching(e),
-              start_stack: t
-            }, "persistent unknown member", "error", !0));
+            if (TS.model.ms_connected) {
+              var n = TS.members.getPotentiallyUnknownMemberByIdWithoutFetching(e);
+              if (!n.is_unknown) return;
+              TS.flannel.fetchAndUpsertObjectsByIds([e]).then(function() {
+                var t = TS.members.getPotentiallyUnknownMemberByIdWithoutFetching(e),
+                  n = t.is_unknown ? "failure" : "success";
+                TS.metrics.count("unknown_member_timeout_retry_" + n);
+              }), TS.metrics.count("unknown_member_persistence_timeout"), TS.statsd.measure("unknown_member_resolution_timing", "unknown_member_resolution_timing_" + e), TS.console.logError({
+                id: e,
+                getMemberById: n,
+                start_stack: t
+              }, "persistent unknown member", "error", !0);
+            }
           }, 6e4);
         },
         te = function(e) {
@@ -23248,7 +23231,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               var ce = "sli_debug_info" === TS.recaps_signal.sli_recaps_debug_group;
               ne.show_recap_debug = a.recap && ce, a.recap && ee && (ne.highlight_feedback_options = _.get(a, "recap.data.feedback_options.negative"), ne.highlight_is_leaving_feedback = _.get(a, "recap.data.is_leaving_feedback"), ne.highlight_has_left_feedback = _.get(a, "recap.data.has_left_feedback"));
             }
-            if (TS.boot_data.feature_sli_highlight_unreads && _.get(TS, "client.ui.sli_highlight_all_unreads") && i.from_all_unreads && "sli_debug_info" === _.get(TS.recaps_signal, "sli_recaps_debug_group") && (ne.show_recap_debug = !0), TS.boot_data.feature_sli_briefing && TS.highlights_briefing && i.briefing && (ne.show_recap_debug = "sli_debug_info" === TS.highlights_briefing.sli_recaps_debug_group), !a.subtype && (i.for_search_display || i.for_top_results_search_display) && a.file && (a.comment ? ne.star_components = TS.templates.builders.buildStarComponents("file_comment", a.comment, a.file) : ne.star_components = TS.templates.builders.buildStarComponents("file", a.file, null)), TS.utility.msgs.isTempMsg(a) || a.is_ephemeral || (i.for_search_display && TS.boot_data.page_needs_enterprise && a.team && TS.model.team_id != a.team && a.channel && !a.channel.is_shared && a.permalink ? ne.permalink = a.permalink : ne.permalink = TS.utility.msgs.constructMsgPermalink(s, a.ts, a.thread_ts), ne.abs_permalink = TS.utility.msgs.constructAbsoluteMsgPermalink(s, a.ts, a.thread_ts)), i.for_top_results_search_display && TS.boot_data.page_needs_enterprise && a.team && TS.model.team.id != a.team && !a.channel.is_shared && (ne.abs_permalink = a.permalink, ne.archive_link = a.permalink, ne.permalink = a.permalink), "file_share" === a.subtype || "file_mention" === a.subtype || "file_reaction" === a.subtype) {
+            if (TS.boot_data.feature_sli_briefing && TS.highlights_briefing && i.briefing && (ne.show_recap_debug = "sli_debug_info" === TS.highlights_briefing.sli_recaps_debug_group), !a.subtype && (i.for_search_display || i.for_top_results_search_display) && a.file && (a.comment ? ne.star_components = TS.templates.builders.buildStarComponents("file_comment", a.comment, a.file) : ne.star_components = TS.templates.builders.buildStarComponents("file", a.file, null)), TS.utility.msgs.isTempMsg(a) || a.is_ephemeral || (i.for_search_display && TS.boot_data.page_needs_enterprise && a.team && TS.model.team_id != a.team && a.channel && !a.channel.is_shared && a.permalink ? ne.permalink = a.permalink : ne.permalink = TS.utility.msgs.constructMsgPermalink(s, a.ts, a.thread_ts), ne.abs_permalink = TS.utility.msgs.constructAbsoluteMsgPermalink(s, a.ts, a.thread_ts)), i.for_top_results_search_display && TS.boot_data.page_needs_enterprise && a.team && TS.model.team.id != a.team && !a.channel.is_shared && (ne.abs_permalink = a.permalink, ne.archive_link = a.permalink, ne.permalink = a.permalink), "file_share" === a.subtype || "file_mention" === a.subtype || "file_reaction" === a.subtype) {
               if (a.file) {
                 var _e, ue, me = !0;
                 if (ne.file = a.file, ne.edit = TS.files.getFileActions(a.file).edit, ne.download = !("snippet" === a.file.mode || "post" === a.file.mode || "space" === a.file.mode || a.file.is_external), ne.new_window = !ne.edit && !ne.download, ne.abs_permalink = a.file.permalink, g || (ne.star_components = TS.templates.builders.buildStarComponents("file", a.file, null)), ne.lightbox = !1, 360 != a.file.thumb_360_w && 360 != a.file.thumb_360_h || (ne.lightbox = !0), $.extend(ne, TS.files.getFileTemplateArguments(a.file, 360)), ne.is_message = !0, ne.image_lazyload = !!TS.client && !TS.boot_data.feature_no_placeholders_in_messages, ne.lightbox = !0, "file_share" === a.subtype && a.upload ? ("email" === a.file.mode && (ne.is_added = !0), ne.icon_class = TS.utility.getImageIconClass(a.file, "thumb_80")) : a.file.user != a.user && (ne.uploader = TS.utility.members.getEntityFromFile(a.file), me = !t(a)), ue = n.test(a.file.mode) ? TS.i18n.t("{file_pretty_name} snippet", "message")({
@@ -26448,7 +26431,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }), Handlebars.registerHelper("versioned_ill_team", function(e) {
             return "1x" === e ? cdn_url + "/9288/img/quick_promo/ill_team.png" : "2x" === e ? cdn_url + "/9288/img/quick_promo/ill_team@2x.png" : void 0;
           }), Handlebars.registerHelper("versioned_basic_analytics_upsell_banner_image", function() {
-            return cdn_url + "/e5a05/img/enterprise/ent_basic_analytics_upsell_banner_image.gif";
+            return cdn_url + "/2ced2/img/enterprise/ent_basic_analytics_upsell_banner_image.gif";
           }), Handlebars.registerHelper("pinToLabel", function(e) {
             var t = "";
             return e.is_channel && (t += "#"), e.is_im || e.is_mpim ? t += TS.i18n.t("this conversation", "pins")() : t += _.escape(e.name), new Handlebars.SafeString(t);
@@ -40503,7 +40486,55 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         t = {};
     }();
   },
-  3427: function(e, t, n) {
-    n(2499), n(2362), n(2423), n(2526), n(2366), n(2365), n(2496), n(2493), n(2494), n(2495), n(2533), n(2491), n(2505), n(3180), n(2501), n(2992), n(2504), n(3079), n(2502), n(3142), n(2503), n(3046), n(3184), n(2389), n(2473), n(2387), n(2388), n(2391), n(2663), n(2425), n(2456), n(2449), n(2507), n(2459), n(2485), n(2516), n(2528), n(2676), n(2471), n(2492), n(2527), n(2367), n(3426), n(2371), n(2472), n(2498), n(2511), n(2488), n(2487), n(2450), n(2486), n(2429), n(2532), n(2530), n(2529), n(2531), n(2665), n(2670), n(2668), n(2675), n(2331), n(2672), n(2667), n(2451), n(2514), n(2482), n(2475), n(2476), n(2477), n(2624), n(2478), n(2479), n(2480), n(2481), n(2426), n(2422), n(2524), n(2474), n(2468), n(2462), n(2466), n(2489), n(2613), n(2538), n(2550), n(2655), n(2651), n(2446), n(2656), n(2457), n(2640), n(2497), n(2650), n(2464), n(2508), n(2631), n(2649), n(2623), n(2633), n(2654), n(2427), n(2620), n(2627), n(2393), n(2452), n(2612), n(2520), n(2453), n(2642), n(2647), n(2657), n(2539), n(2335), n(2518), n(2455), n(2330), n(2309), n(2673), n(2661), n(2662), n(2660), n(2664), n(2658), n(2460), n(2467), n(2619), n(2616), n(2543), n(2641), n(2369), n(2368), n(2535), n(2674), n(2677), n(2666), n(2652), n(2634), n(2363), n(2506), n(2648), n(2669), n(2637), n(2537), n(2513), n(2519), n(2671), n(2746), n(2754), n(2753), n(2750), n(2751), e.exports = n(2752);
+  3627: function(e, t) {
+    ! function() {
+      "use strict";
+      TS.registerModule("redux.bots", {
+        onStart: function() {
+          TS.useRedux() && TS.boot_data.feature_store_members_in_redux && (r(), e = TS.redux.bindSingleArgSelectorToStore(TS.interop.redux.entities.bots.getAllBots), t = TS.redux.bindSingleArgSelectorToStore(TS.interop.redux.entities.bots.getBotById), Object.defineProperty(TS.model, "bots", {
+            get: function() {
+              return TS.redux.bots.getAllBots();
+            },
+            set: function() {
+              return TS.error("TS.redux.bots: trying to set TS.model.bots???"), !1;
+            }
+          }));
+        },
+        getBotById: function(e) {
+          var n = t(e);
+          return n && n.id === e ? n : null;
+        },
+        getAllBots: function() {
+          return _.values(e());
+        },
+        addBot: function(e) {
+          e && TS.redux.dispatch(TS.interop.redux.entities.bots.addBot(e));
+        },
+        addToBulkUpsertPayload: function(e) {
+          n.push(e);
+        },
+        test: function() {
+          var e = {};
+          return Object.defineProperty(e, "_bulk_upsert_payload", {
+            get: function() {
+              return n;
+            },
+            set: function(e) {
+              n = e;
+            }
+          }), e;
+        }
+      });
+      var e, t, n = [],
+        i = function() {
+          n.length && (TS.redux.dispatch(TS.interop.redux.entities.bots.bulkAddBots(n)), n = []);
+        },
+        r = function() {
+          TS.bots.batch_upserted_sig.add(i);
+        };
+    }();
+  },
+  3628: function(e, t, n) {
+    n(2499), n(2362), n(2423), n(2526), n(2366), n(2365), n(2496), n(2493), n(2494), n(2495), n(2533), n(2491), n(2505), n(3180), n(2501), n(2992), n(2504), n(3079), n(2502), n(3142), n(3627), n(2503), n(3046), n(3184), n(2389), n(2473), n(2387), n(2388), n(2391), n(2663), n(2425), n(2456), n(2449), n(2507), n(2459), n(2485), n(2516), n(2528), n(2676), n(2471), n(2492), n(2527), n(2367), n(3426), n(2371), n(2472), n(2498), n(2511), n(2488), n(2487), n(2450), n(2486), n(2429), n(2532), n(2530), n(2529), n(2531), n(2665), n(2670), n(2668), n(2675), n(2331), n(2672), n(2667), n(2451), n(2514), n(2482), n(2475), n(2476), n(2477), n(2624), n(2478), n(2479), n(2480), n(2481), n(2426), n(2422), n(2524), n(2474), n(2468), n(2462), n(2466), n(2489), n(2613), n(2538), n(2550), n(2655), n(2651), n(2446), n(2656), n(2457), n(2640), n(2497), n(2650), n(2464), n(2508), n(2631), n(2649), n(2623), n(2633), n(2654), n(2427), n(2620), n(2627), n(2393), n(2452), n(2612), n(2520), n(2453), n(2642), n(2647), n(2657), n(2539), n(2335), n(2518), n(2455), n(2330), n(2309), n(2673), n(2661), n(2662), n(2660), n(2664), n(2658), n(2460), n(2467), n(2619), n(2616), n(2543), n(2641), n(2369), n(2368), n(2535), n(2674), n(2677), n(2666), n(2652), n(2634), n(2363), n(2506), n(2648), n(2669), n(2637), n(2537), n(2513), n(2519), n(2671), n(2746), n(2754), n(2753), n(2750), n(2751), e.exports = n(2752);
   }
-}, [3427]);
+}, [3628]);

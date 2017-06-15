@@ -31503,7 +31503,7 @@ webpackJsonp([332], [, function(e, t, n) {
     s = n(43),
     u = n(2353),
     l = n(2906),
-    c = n(2913),
+    c = n(3629),
     d = n(2296),
     f = n(2908),
     p = n(2907),
@@ -31914,6 +31914,7 @@ webpackJsonp([332], [, function(e, t, n) {
       selectedItemId: u.PropTypes.string,
       unreadIds: u.PropTypes.arrayOf(l.a.PropTypes.string),
       rows: u.PropTypes.arrayOf(l.a.PropTypes.object).isRequired,
+      rowIds: u.PropTypes.arrayOf(l.a.PropTypes.string).isRequired,
       onItemSelect: u.PropTypes.func,
       onCloseIM: u.PropTypes.func,
       onInviteClick: u.PropTypes.func,
@@ -31925,6 +31926,7 @@ webpackJsonp([332], [, function(e, t, n) {
       selectedItemId: null,
       unreadIds: [],
       rows: [],
+      rowIds: [],
       onItemSelect: s.a.noop,
       onCloseIM: s.a.noop,
       onInviteClick: s.a.noop,
@@ -31978,7 +31980,7 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "ensureRowInView",
         value: function(e) {
           if (this.ChannelList && e) {
-            var t = this.props.rows,
+            var t = this.props.rowIds,
               r = this.state,
               o = r.startIndex,
               i = r.stopIndex; - 1 !== n.i(p.a)(t, o).indexOf(e) ? this.ChannelList.scrollToRow({
@@ -32035,36 +32037,37 @@ webpackJsonp([332], [, function(e, t, n) {
         value: function() {
           var e = this.props,
             t = e.rows,
-            n = e.onItemSelect,
-            r = e.onCloseIM,
-            o = e.onInviteClick,
-            i = e.onBrowseChannelsClick,
-            a = e.onCreateChannelClick,
-            s = e.onOpenDMClick,
-            u = this.state,
-            p = u.startIndex,
-            h = u.stopIndex;
+            n = e.rowIds,
+            r = e.onItemSelect,
+            o = e.onCloseIM,
+            i = e.onInviteClick,
+            a = e.onBrowseChannelsClick,
+            s = e.onCreateChannelClick,
+            u = e.onOpenDMClick,
+            p = this.state,
+            h = p.startIndex,
+            _ = p.stopIndex;
           return l.a.createElement("nav", {
             className: "p-channel_sidebar"
           }, l.a.createElement(f.a, null), l.a.createElement(d.a, {
             position: "top",
-            startIndex: p,
-            rows: t,
+            startIndex: h,
+            rowIds: n,
             ensureRowInView: this.ensureRowInView
           }), l.a.createElement(c.a, {
             rows: t,
-            onItemSelect: n,
-            onCloseIM: r,
-            onInviteClick: o,
-            onBrowseChannelsClick: i,
-            onCreateChannelClick: a,
-            onOpenDMClick: s,
+            onItemSelect: r,
+            onCloseIM: o,
+            onInviteClick: i,
+            onBrowseChannelsClick: a,
+            onCreateChannelClick: s,
+            onOpenDMClick: u,
             reportRenderedRowIndexes: this.reportRenderedRowIndexes,
             ref: this.setRef
           }), l.a.createElement(d.a, {
             position: "bottom",
-            stopIndex: h,
-            rows: t,
+            stopIndex: _,
+            rowIds: n,
             ensureRowInView: this.ensureRowInView
           }));
         }
@@ -32353,21 +32356,22 @@ webpackJsonp([332], [, function(e, t, n) {
       var o = n.i(u.a)({
           state: e
         }),
-        i = o.sidebarSections,
-        s = o.sidebarSectionsOrdered;
+        s = o.sidebarSections,
+        c = o.sidebarSectionsOrdered;
       g("react_channel_sidebar_calculate_sidebar_sections"), v("react_channel_sidebar_get_rows");
-      var c = n.i(l.a)({
+      var p = n.i(l.a)({
         hasAllUnreadsLink: t,
         hasInvitePeopleLink: r,
-        sidebarSectionsOrdered: s,
-        sidebarSections: i
+        sidebarSectionsOrdered: c,
+        sidebarSections: s
       });
       g("react_channel_sidebar_get_rows");
-      var p = n.i(f.getAllChannels)(e);
+      var h = n.i(f.getAllChannels)(e);
       return {
         selectedItemId: n.i(a.getSelectedChannelItem)(e),
-        unreadIds: n.i(f.getUnreadIds)(p),
-        rows: c
+        unreadIds: n.i(f.getUnreadIds)(h),
+        rows: p,
+        rowIds: i.a.map(p, "id")
       };
     },
     k = function(e, t) {
@@ -32539,7 +32543,7 @@ webpackJsonp([332], [, function(e, t, n) {
       isMention: a.PropTypes.bool,
       position: a.PropTypes.oneOf(["top", "bottom"]),
       ensureRowInView: a.PropTypes.func,
-      rows: a.PropTypes.arrayOf(s.a.PropTypes.object),
+      rowsIds: a.PropTypes.arrayOf(s.a.PropTypes.string),
       startIndex: a.PropTypes.number,
       stopIndex: a.PropTypes.number
     },
@@ -32549,7 +32553,7 @@ webpackJsonp([332], [, function(e, t, n) {
       isMention: !1,
       position: "top",
       ensureRowInView: f.a.noop,
-      rows: [],
+      rowsIds: [],
       startIndex: 0,
       stopIndex: 0
     },
@@ -32595,7 +32599,7 @@ webpackJsonp([332], [, function(e, t, n) {
     }(s.a.PureComponent);
   b.propTypes = v, b.defaultProps = g;
   var w = function(e, t) {
-    var r = t.rows,
+    var r = t.rowIds,
       o = t.position,
       i = t.startIndex,
       a = t.stopIndex,
@@ -35221,7 +35225,8 @@ webpackJsonp([332], [, function(e, t, n) {
             offsetX: a,
             offsetY: s,
             allowanceX: 0,
-            allowanceY: 0
+            allowanceY: 0,
+            key: "tooltip-popover"
           }, c.a.createElement("div", {
             style: {
               opacity: d
@@ -35382,12 +35387,7 @@ webpackJsonp([332], [, function(e, t, n) {
   var r = n(2277),
     o = n.i(r.a)("TS.presence_manager.createNewPresenceList", function() {});
   t.a = o;
-}, function(e, t, n) {
-  "use strict";
-  var r = n(2277),
-    o = n.i(r.a)("TS.redux.getStoreInstance", function() {});
-  t.a = o;
-}, function(e, t, n) {
+}, , function(e, t, n) {
   "use strict";
   n.d(t, "a", function() {
     return o;
@@ -35460,9 +35460,10 @@ webpackJsonp([332], [, function(e, t, n) {
     v = n(3141),
     g = n(2343),
     b = n(3034),
-    w = n(3183),
-    k = n(3014),
-    M = n.i(r.e)({
+    w = n(3626),
+    k = n(3183),
+    M = n(3014),
+    T = n.i(r.e)({
       allUnreads: o.default,
       bootData: i.default,
       channelMessages: h.default,
@@ -35474,16 +35475,17 @@ webpackJsonp([332], [, function(e, t, n) {
       downloads: l.default,
       files: y.b,
       members: v.default,
+      bots: w.default,
       memberTypesById: g.default,
       messagePane: c.d,
       messages: b.default,
       prefs: d.default,
       presence: f.default,
-      reactions: w.default,
+      reactions: k.default,
       typing: p.default,
-      window: k.default
+      window: M.default
     });
-  t.a = M;
+  t.a = T;
 }, , , function(e, t, n) {
   "use strict";
 
@@ -36075,65 +36077,63 @@ webpackJsonp([332], [, function(e, t, n) {
     }) : e[t] = n, e;
   }
 
-  function o() {
-    return m;
+  function o(e) {
+    if (e) return e;
+    var t = n.i(l.a)();
+    return t && t.getState ? t.getState() : void 0;
   }
 
-  function i() {
-    return y;
+  function i(e) {
+    var t = o(e);
+    return !!t && (t && t.window && t.window.isFocused);
+  }
+
+  function a(e) {
+    var t = o(e);
+    return !!t && (t && t.window && t.window.isUnloading);
   }
   Object.defineProperty(t, "__esModule", {
     value: !0
   }), n.d(t, "updateFocus", function() {
-    return c;
-  }), n.d(t, "setUnloading", function() {
     return d;
+  }), n.d(t, "setUnloading", function() {
+    return f;
   }), n.d(t, "getWindow", function() {
-    return h;
-  }), n.d(t, "getWindowByKey", function() {
     return _;
-  }), t.isWindowFocused = o, t.isWindowUnloading = i;
-  var a = n(17),
-    s = (n.n(a), n(3064));
-  n.d(t, "onFocusChanged", function() {
-    return s.a;
-  });
-  var u, l = Object.assign || function(e) {
+  }), n.d(t, "getWindowByKey", function() {
+    return m;
+  }), t.isWindowFocused = i, t.isWindowUnloading = a;
+  var s, u = n(17),
+    l = (n.n(u), n(3629)),
+    c = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
         for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
       }
       return e;
     },
-    c = n.i(a.createAction)("Set the window focus state"),
-    d = n.i(a.createAction)("Mark the window as unloading"),
-    f = {
+    d = n.i(u.createAction)("Set the window focus state"),
+    f = n.i(u.createAction)("Mark the window as unloading"),
+    p = {
       isFocused: !1,
       isUnloading: !1
     },
-    p = n.i(a.createReducer)((u = {}, r(u, c, function(e, t) {
-      return l({}, e, {
+    h = n.i(u.createReducer)((s = {}, r(s, d, function(e, t) {
+      return c({}, e, {
         isFocused: t
       });
-    }), r(u, d, function(e, t) {
-      return l({}, e, {
+    }), r(s, f, function(e, t) {
+      return c({}, e, {
         isUnloading: t
       });
-    }), u), f);
-  t.default = p;
-  var h = function(e) {
+    }), s), p);
+  t.default = h;
+  var _ = function(e) {
       return e.window;
     },
-    _ = function(e, t) {
+    m = function(e, t) {
       return e.window[t];
-    },
-    m = !1,
-    y = !1;
-  n.i(s.a)(function(e) {
-    m = e;
-  }), n.i(s.b)(function() {
-    y = !0;
-  });
+    };
 }, , , , , , , , , function(e, t, n) {
   "use strict";
   var r = n(43),
@@ -36144,21 +36144,22 @@ webpackJsonp([332], [, function(e, t, n) {
     u = n(2349),
     l = n(2295),
     c = n(3141),
-    d = n(2343),
-    f = n(3034),
-    p = n(2298),
-    h = n(2350),
-    _ = n(3183),
-    m = n(3014),
-    y = n(3178),
-    v = n(3028),
-    g = n(2296),
-    b = n(3078),
-    w = n(2344),
-    k = n(2345),
-    M = n(3045),
-    T = n(2346),
-    x = n(2351);
+    d = n(3626),
+    f = n(2343),
+    p = n(3034),
+    h = n(2298),
+    _ = n(2350),
+    m = n(3183),
+    y = n(3014),
+    v = n(3178),
+    g = n(3028),
+    b = n(2296),
+    w = n(3078),
+    k = n(2344),
+    M = n(2345),
+    T = n(3045),
+    x = n(2346),
+    S = n(2351);
   n.i(o.a)("interop.redux", {
     configureStore: a.a,
     entities: {
@@ -36166,25 +36167,26 @@ webpackJsonp([332], [, function(e, t, n) {
       channels: l,
       channelsMeta: {
         channelNamesToIds: u,
-        mutedChannels: p,
-        needsApiMarking: h
+        mutedChannels: h,
+        needsApiMarking: _
       },
       members: c,
-      memberTypesById: d,
-      messages: f,
-      reactions: _,
-      window: m
+      bots: d,
+      memberTypesById: f,
+      messages: p,
+      reactions: m,
+      window: y
     },
     features: {
-      allUnreads: y,
-      bootData: v,
-      channelSidebar: g,
-      customStatus: b,
-      dnd: w,
-      downloads: k,
-      prefs: M,
-      presence: T,
-      typing: x
+      allUnreads: v,
+      bootData: g,
+      channelSidebar: b,
+      customStatus: w,
+      dnd: k,
+      downloads: M,
+      prefs: T,
+      presence: x,
+      typing: S
     },
     downloadsView: i.a,
     provider: r.a
@@ -36284,7 +36286,7 @@ webpackJsonp([332], [, function(e, t, n) {
     i = n(20),
     a = n.n(i),
     s = n(43),
-    u = n(2913),
+    u = n(3629),
     l = n(2353),
     c = n(3122),
     d = n(3029);
@@ -36653,6 +36655,7 @@ webpackJsonp([332], [, function(e, t, n) {
             className: "c-message__gutter"
           }, u.a.createElement(_.a, {
             userId: this.props.userId,
+            botId: this.props.botId,
             size: 36
           })) : u.a.createElement("div", {
             className: "c-message__gutter"
@@ -37104,7 +37107,7 @@ webpackJsonp([332], [, function(e, t, n) {
       case "reconnect_url":
         return se = e.url, void(ue = Date.now());
     }
-    be.dispatch(e);
+    we.dispatch(e);
   }
 
   function u(e) {
@@ -37133,10 +37136,10 @@ webpackJsonp([332], [, function(e, t, n) {
 
   function f() {
     function e() {
-      ye.remove(e), q.onFocusChanged.remove(e), k() ? (n.i(U.b)("goodbye: disconnecting now"), l(ee), L()) : n.i(U.b)("goodbye: got disconnected some other way before we handled the goodbye message");
+      ye.remove(e), ve.remove(e), k() ? (n.i(U.b)("goodbye: disconnecting now"), l(ee), L()) : n.i(U.b)("goodbye: got disconnected some other way before we handled the goodbye message");
     }
     if (n.i(U.b)("goodbye: disconnecting from the MS next time it is convenient"), !n.i(q.isWindowFocused)()) return void e();
-    ye.addOnce(e), q.onFocusChanged.addOnce(e);
+    ye.addOnce(e), ve.addOnce(e);
   }
 
   function p(e, t) {
@@ -37144,7 +37147,7 @@ webpackJsonp([332], [, function(e, t, n) {
       case H.a.CONNECTING:
       case H.a.FAST_RECONNECTING:
       case H.a.PROV_CONNECTING:
-        t === H.a.ERROR && 3 === (re += 1) && (n.i(R.c)("sm_flow_trouble_connecting"), we.dispatch());
+        t === H.a.ERROR && 3 === (re += 1) && (n.i(R.c)("sm_flow_trouble_connecting"), ke.dispatch());
         break;
       case H.a.CONNECTED:
         ye.dispatch();
@@ -37174,7 +37177,7 @@ webpackJsonp([332], [, function(e, t, n) {
         v(H.a.PROV_CONNECT);
         break;
       case H.a.CONNECT:
-        v(H.a.CHECKING_FAST_RECONNECT), ge.dispatch(), c().then(function(e) {
+        v(H.a.CHECKING_FAST_RECONNECT), be.dispatch(), c().then(function(e) {
           n.i(R.c)("sm_flow_fast_reconnect"), v(H.a.FAST_RECONNECTING), o(e), fe.messageDelegate = s;
         }).catch(function() {
           l(ne), v(H.a.PROV_CONNECT);
@@ -37196,7 +37199,7 @@ webpackJsonp([332], [, function(e, t, n) {
       case H.a.PROV_CONNECTING:
         break;
       case H.a.PROV_CONNECTED:
-        ve.dispatch(fe.startData);
+        ge.dispatch(fe.startData);
         break;
       case H.a.PROV_FINALIZE:
         v(H.a.PROV_FINALIZING), fe.messageDelegate = s, v(H.a.CONNECTED);
@@ -37360,14 +37363,16 @@ webpackJsonp([332], [, function(e, t, n) {
     return me;
   }), n.d(t, "disconnectedSig", function() {
     return ye;
-  }), n.d(t, "provisionallyConnectedSig", function() {
+  }), n.d(t, "onFocusChanged", function() {
     return ve;
-  }), n.d(t, "reconnectingSig", function() {
+  }), n.d(t, "provisionallyConnectedSig", function() {
     return ge;
-  }), n.d(t, "socketMessageReceivedSig", function() {
+  }), n.d(t, "reconnectingSig", function() {
     return be;
-  }), n.d(t, "troubleConnectingSig", function() {
+  }), n.d(t, "socketMessageReceivedSig", function() {
     return we;
+  }), n.d(t, "troubleConnectingSig", function() {
+    return ke;
   }), t.send = u, t.debugSetFastReconnectsEnabled = m, t.clearFastReconnectUrl = y, t.hasOpenWebSocket = b, t.isAsleep = w, t.isConnected = k, t.isConnecting = M, t.isProvisionallyConnected = T, t.isWaitingForConnectivity = x, t.isWaitingForRateLimit = S, t.connectProvisionallyAndFetchRtmStart = E, t.disconnect = L, t.finalizeProvisionalConnection = O, t.promiseToHaveOpenWebSocket = C, t.reconnectImmediately = P, t.sleep = j, t.wake = D;
   var Y = n(6),
     A = (n.n(Y), n(3050)),
@@ -37572,7 +37577,8 @@ webpackJsonp([332], [, function(e, t, n) {
     ve = new A.a,
     ge = new A.a,
     be = new A.a,
-    we = new A.a;
+    we = new A.a,
+    ke = new A.a;
 }, function(e, t, n) {
   "use strict";
 
@@ -37689,22 +37695,7 @@ webpackJsonp([332], [, function(e, t, n) {
     o = n.i(r.a)("TS.utility.url.isValidSlackWebSocketUrl", function() {
       return !0;
     });
-}, , function(e, t, n) {
-  "use strict";
-
-  function r(e) {
-    s && s.add(e);
-  }
-
-  function o(e) {
-    u && u.add(e);
-  }
-  t.a = r, t.b = o;
-  var i = n(6),
-    a = n.n(i),
-    s = a.a.get(TS, "ui.window_focus_changed"),
-    u = a.a.get(TS, "ui.window_unloaded_sig");
-}, function(e, t, n) {
+}, , , function(e, t, n) {
   "use strict";
   n.d(t, "a", function() {
     return o;
@@ -38514,13 +38505,13 @@ webpackJsonp([332], [, function(e, t, n) {
               height: this.props.height,
               width: this.props.width,
               overflow: "auto",
-              position: "relative"
+              position: "relative",
+              willChange: "transform"
             }),
             onScroll: this.onScroll
           }, u.a.createElement("div", {
             style: {
-              height: this.state.totalHeight,
-              willChange: "transform"
+              height: this.state.totalHeight
             }
           }, i));
         }
@@ -38763,29 +38754,34 @@ webpackJsonp([332], [, function(e, t, n) {
   var r = n(43),
     o = n(3153),
     i = n(3141),
-    a = n(3045),
-    s = function(e, t) {
+    a = n(3626),
+    s = n(3045),
+    u = function(e, t) {
       var r = t.userId,
         o = t.botId,
-        s = t.username,
-        u = void 0,
+        u = t.username,
         l = void 0,
-        c = n.i(a.getUserPref)(e, "theme"),
-        d = n.i(a.getUserPref)(e, "display_display_names");
+        c = void 0,
+        d = n.i(s.getUserPref)(e, "theme"),
+        f = n.i(s.getUserPref)(e, "display_display_names");
       if (r) {
-        var f = n.i(i.getMemberById)(e, r);
-        f && (u = d ? f.name : f.profile.real_name, l = f.color);
-      } else s ? u = s : o && (u = "A Bot");
+        var p = n.i(i.getMemberById)(e, r);
+        p && (l = f ? p.name : p.profile.real_name, c = p.color);
+      } else if (u) l = u;
+      else if (o) {
+        var h = n.i(a.getBotById)(e, o);
+        h && (l = h.name);
+      }
       return {
-        theme: c,
-        name: u,
+        theme: d,
+        name: l,
         userId: r,
-        color: l,
+        color: c,
         botId: o,
         isSlackbotResponse: void 0
       };
     };
-  t.a = n.i(r.b)(s)(o.a);
+  t.a = n.i(r.b)(u)(o.a);
 }, function(e, t, n) {
   "use strict";
 
@@ -39034,8 +39030,9 @@ webpackJsonp([332], [, function(e, t, n) {
 
   function o() {
     var e = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : [s.a, c.a],
-      t = _(i.c.apply(void 0, r(e)));
-    return n.i(i.d)(u.a, t);
+      t = m(i.c.apply(void 0, r(e))),
+      o = n.i(i.d)(u.a, t);
+    return n.i(d.b)(o), o;
   }
   t.a = o;
   var i = n(134),
@@ -39044,38 +39041,39 @@ webpackJsonp([332], [, function(e, t, n) {
     u = n(2917),
     l = n(2295),
     c = n(3268),
-    d = Object.assign || function(e) {
+    d = n(3629),
+    f = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
         for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
       }
       return e;
     },
-    f = function(e) {
+    p = function(e) {
       switch (e.type) {
         case l.bulkAddChannels.getType():
-          return d({}, e, {
+          return f({}, e, {
             payload: "Channel bulk add payload is too big to output to redux devtools"
           });
         default:
           return e;
       }
     },
-    p = function(e) {
-      return d({}, e, {
+    h = function(e) {
+      return f({}, e, {
         channels: "Too Big To Output to redux devtools, use TS.redux.getState() to output state to the console"
       });
     },
-    h = {
+    _ = {
       autoPause: !0,
-      actionSanitizer: f,
-      stateSanitizer: p,
+      actionSanitizer: p,
+      stateSanitizer: h,
       maxAge: 1e3,
       features: {
         pause: !0
       }
     },
-    _ = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__(h) : i.b;
+    m = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__(_) : i.b;
 }, function(e, t, n) {
   "use strict";
   var r = function(e) {
@@ -40252,7 +40250,7 @@ webpackJsonp([332], [, function(e, t, n) {
   var o = n(2356);
   t.a = r;
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".c-day_divider {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 0.9rem;\n  width: 100%;\n  color: #2C2D30;\n  font-weight: bold;\n  text-align: center;\n  position: relative;\n}\n.c-day_divider__label {\n  display: inline-block;\n  background: #FFF;\n  padding: 0.25rem 0.75rem;\n}\n.c-day_divider__line {\n  position: absolute;\n  top: 50%;\n  left: 0;\n  right: 0;\n  border-top: 1px solid #E8E8E8;\n  border-bottom: 0;\n  z-index: -1;\n  margin: 0;\n}\n.c-day_divider__copy_only {\n  display: -moz-inline-box;\n  -moz-box-orient: vertical;\n  display: inline-block;\n  vertical-align: baseline;\n  *vertical-align: auto;\n  *zoom: 0;\n  *display: inline;\n  width: 1px;\n  height: 0;\n  background-size: 0;\n  background-repeat: no-repeat;\n  font-size: 0;\n  color: transparent;\n  float: left;\n  text-rendering: auto;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n  opacity: 0;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".c-day_divider {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 0.9rem;\n  width: 100%;\n  color: #2C2D30;\n  font-weight: bold;\n  text-align: center;\n  position: relative;\n  padding: 1rem 0;\n}\n.c-day_divider__label {\n  display: inline-block;\n  background: #FFF;\n  padding: 0.25rem 0.75rem;\n}\n.c-day_divider__line {\n  position: absolute;\n  top: 50%;\n  left: 0;\n  right: 0;\n  border-top: 1px solid #E8E8E8;\n  border-bottom: 0;\n  z-index: -1;\n  margin: 0;\n}\n.c-day_divider__copy_only {\n  display: -moz-inline-box;\n  -moz-box-orient: vertical;\n  display: inline-block;\n  vertical-align: baseline;\n  *vertical-align: auto;\n  *zoom: 0;\n  *display: inline;\n  width: 1px;\n  height: 0;\n  background-size: 0;\n  background-repeat: no-repeat;\n  font-size: 0;\n  color: transparent;\n  float: left;\n  text-rendering: auto;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n  opacity: 0;\n}\n", ""]);
 }, function(e, t, n) {
   "use strict";
 
@@ -40374,7 +40372,7 @@ webpackJsonp([332], [, function(e, t, n) {
   n(219)(r, {});
   r.locals && (e.exports = r.locals);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, '.c-reaction {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  line-height: inherit;\n  padding: 2px 3px;\n  display: flex;\n  align-items: center;\n  border: 1px solid #E8E8E8;\n  border-radius: 5px;\n  margin-right: 5px;\n  margin-bottom: 5px;\n}\n.c-reaction:hover,\n.c-reaction:focus,\n.c-reaction:active {\n  outline: none;\n}\n.c-reaction .emoji-sizer {\n  font-size: 16px;\n}\n.c-reaction:hover {\n  border-color: #2D9EE0;\n  cursor: pointer;\n}\n.c-reaction__count {\n  font-size: 0.6875rem;\n  color: #717274;\n  font-family: "Helvetica Neue", Helvetica, "Segoe UI", Tahoma, Arial, sans-serif;\n  padding: 0 1px 0 3px;\n}\n.c-reaction_bar {\n  margin-top: 5px;\n}\n.c-reaction_add {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  line-height: inherit;\n  padding: 2px 3px;\n  display: flex;\n  align-items: center;\n  border: 1px solid #E8E8E8;\n  border-radius: 5px;\n  margin-right: 5px;\n  margin-bottom: 5px;\n  display: inline-block;\n  position: relative;\n  padding: 3px 4px 1px 2px;\n  margin-left: 9px;\n  opacity: 0;\n  transition: opacity 0.2s;\n}\n.c-reaction_add:hover,\n.c-reaction_add:focus,\n.c-reaction_add:active {\n  outline: none;\n}\n.c-reaction_add .emoji-sizer {\n  font-size: 16px;\n}\n.c-reaction_add:hover {\n  border-color: #2D9EE0;\n}\n.c-reaction_add__background {\n  position: absolute;\n  width: 1rem;\n  height: 1rem;\n  top: 1px;\n  left: 3px;\n  color: #FFF;\n}\n.c-reaction_add__icon {\n  position: relative;\n  display: block;\n  width: 1rem;\n  height: 1rem;\n  z-index: 1;\n  color: #A0A0A2;\n}\n.c-reaction_add__icon::before {\n  font-size: 17px;\n  vertical-align: text-top;\n}\n.c-reaction_add__background::before {\n  font-size: 16px;\n}\n.c-reaction_bar:hover .c-reaction_add {\n  opacity: 1;\n}\n.c-reaction_add:hover .c-reaction_add__icon {\n  color: #C39A48;\n}\n.c-reaction_add:hover .c-reaction_add__background {\n  color: #FFD06D;\n}\n', ""]);
+  t = e.exports = n(189)(), t.push([e.i, '.c-reaction {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  line-height: inherit;\n  padding: 2px 3px;\n  display: inline-flex;\n  align-items: center;\n  border: 1px solid #E8E8E8;\n  border-radius: 5px;\n  margin-right: 5px;\n  margin-bottom: 5px;\n}\n.c-reaction:hover,\n.c-reaction:focus,\n.c-reaction:active {\n  outline: none;\n}\n.c-reaction .emoji-sizer {\n  font-size: 16px;\n}\n.c-reaction:hover {\n  border-color: #2D9EE0;\n  cursor: pointer;\n}\n.c-reaction__count {\n  font-size: 0.6875rem;\n  color: #717274;\n  font-family: "Helvetica Neue", Helvetica, "Segoe UI", Tahoma, Arial, sans-serif;\n  padding: 0 1px 0 3px;\n}\n.c-reaction_bar {\n  margin-top: 5px;\n}\n.c-reaction_add {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  line-height: inherit;\n  padding: 2px 3px;\n  display: inline-flex;\n  align-items: center;\n  border: 1px solid #E8E8E8;\n  border-radius: 5px;\n  margin-right: 5px;\n  margin-bottom: 5px;\n  display: inline-block;\n  position: relative;\n  padding: 3px 4px 1px 2px;\n  margin-left: 9px;\n  opacity: 0;\n  transition: opacity 0.2s;\n}\n.c-reaction_add:hover,\n.c-reaction_add:focus,\n.c-reaction_add:active {\n  outline: none;\n}\n.c-reaction_add .emoji-sizer {\n  font-size: 16px;\n}\n.c-reaction_add:hover {\n  border-color: #2D9EE0;\n}\n.c-reaction_add__background {\n  position: absolute;\n  width: 1rem;\n  height: 1rem;\n  top: 1px;\n  left: 3px;\n  color: #FFF;\n}\n.c-reaction_add__icon {\n  position: relative;\n  display: block;\n  width: 1rem;\n  height: 1rem;\n  z-index: 1;\n  color: #A0A0A2;\n}\n.c-reaction_add__icon::before {\n  font-size: 17px;\n  vertical-align: text-top;\n}\n.c-reaction_add__background::before {\n  font-size: 16px;\n}\n.c-reaction_bar:hover .c-reaction_add {\n  opacity: 1;\n}\n.c-reaction_add:hover .c-reaction_add__icon {\n  color: #C39A48;\n}\n.c-reaction_add:hover .c-reaction_add__background {\n  color: #FFD06D;\n}\n', ""]);
 }, function(e, t, n) {
   "use strict";
   var r = n(3216);
@@ -40686,7 +40684,7 @@ webpackJsonp([332], [, function(e, t, n) {
     a = {};
 }, function(e, t, n) {
   "use strict";
-  n(3267);
+  n(3267), n(3630);
 }, function(e, t, n) {
   "use strict";
 
@@ -40782,8 +40780,9 @@ webpackJsonp([332], [, function(e, t, n) {
     l = n(9),
     c = n.n(l),
     d = n(3141),
-    f = n(3280),
-    p = (n.n(f), function() {
+    f = n(3626),
+    p = n(3280),
+    h = (n.n(p), function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
@@ -40794,26 +40793,27 @@ webpackJsonp([332], [, function(e, t, n) {
         return n && e(t.prototype, n), r && e(t, r), t;
       };
     }()),
-    h = {
-      userId: a.PropTypes.string.isRequired,
+    _ = {
+      userId: a.PropTypes.string,
       size: a.PropTypes.number.isRequired,
       imageUrl: a.PropTypes.string,
       imageUrl2x: a.PropTypes.string,
       username: a.PropTypes.string,
       additionalOverlay: a.PropTypes.number
     },
-    _ = {
+    m = {
+      userId: null,
       size: 36,
       imageUrl: "",
       imageUrl2x: "",
       username: "",
       additionalOverlay: 0
     },
-    m = function(e) {
+    y = function(e) {
       function t() {
         return r(this, t), o(this, (t.__proto__ || Object.getPrototypeOf(t)).apply(this, arguments));
       }
-      return i(t, e), p(t, [{
+      return i(t, e), h(t, [{
         key: "getSrcSetAttribute",
         value: function() {
           return this.props.imageUrl2x ? this.props.imageUrl2x + " 2x" : "";
@@ -40839,9 +40839,10 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "render",
         value: function() {
           var e = c()("c-avatar", "c-avatar--" + this.props.size, {
-            "c-avatar--no_image": !this.props.imageUrl,
-            "c-avatar--has_overlay": !!this.props.additionalOverlay
-          }, "member_preview_link");
+            "c-avatar--no_image": !(this.props.imageUrl || this.props.imageUrl2x),
+            "c-avatar--has_overlay": !!this.props.additionalOverlay,
+            member_preview_link: this.props.userId
+          });
           return s.a.createElement("div", {
             className: e,
             "data-member-id": this.props.userId
@@ -40849,20 +40850,30 @@ webpackJsonp([332], [, function(e, t, n) {
         }
       }]), t;
     }(a.PureComponent);
-  m.propTypes = h, m.defaultProps = _;
-  var y = function(e, t) {
+  y.propTypes = _, y.defaultProps = m;
+  var v = function(e, t) {
     var r = t.userId,
-      o = t.size,
-      i = n.i(d.getMemberById)(e, r);
+      o = t.botId,
+      i = t.size,
+      a = "",
+      s = "",
+      u = "";
+    if (r) {
+      var l = n.i(d.getMemberById)(e, r);
+      l && (a = l.profile["image_" + i], s = l.profile["image_" + 2 * i], u = l.profile.real_name);
+    } else if (o) {
+      var c = n.i(f.getBotById)(e, o);
+      c && (a = c.icons["image_" + i], s = c.icons["image_" + 2 * i], u = c.name);
+    }
     return {
       userId: r,
-      size: o,
-      imageUrl: i ? i.profile["image_" + o] : "",
-      imageUrl2x: i ? i.profile["image_" + 2 * o] : "",
-      username: i ? i.profile.real_name : ""
+      size: i,
+      imageUrl: a,
+      imageUrl2x: s,
+      username: u
     };
   };
-  t.a = n.i(u.b)(y)(m);
+  t.a = n.i(u.b)(v)(y);
 }, function(e, t, n) {
   var r = n(3278);
   "string" == typeof r && (r = [
@@ -51588,7 +51599,7 @@ webpackJsonp([332], [, function(e, t, n) {
         i.push({
           type: "member",
           id: k,
-          name: M
+          name: M || k
         });
       } else if (0 === c.indexOf("<#")) {
         var T = c.slice(2, -1).split("|"),
@@ -52051,17 +52062,16 @@ webpackJsonp([332], [, function(e, t, n) {
 }, function(e, t, n) {
   "use strict";
   n.d(t, "a", function() {
-    return i;
+    return o;
   }), n.d(t, "b", function() {
-    return a;
+    return i;
   });
   var r = n(6),
-    o = n.n(r),
+    o = (n.n(r), function(e, t) {
+      return n.i(r.slice)(e, 0, t) || [];
+    }),
     i = function(e, t) {
-      return o.a.chain(e).slice(0, t).filter("id").map("id").value() || [];
-    },
-    a = function(e, t) {
-      return o.a.chain(e).slice(t).filter("id").map("id").value() || [];
+      return n.i(r.slice)(e, t) || [];
     };
 }, function(e, t, n) {
   "use strict";
@@ -53313,4 +53323,79 @@ webpackJsonp([332], [, function(e, t, n) {
   }, r.defaultProps = {
     rootText: null
   }, t.a = n.i(a.a)(r);
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e, t, n) {
+    return t in e ? Object.defineProperty(e, t, {
+      value: n,
+      enumerable: !0,
+      configurable: !0,
+      writable: !0
+    }) : e[t] = n, e;
+  }
+
+  function o(e, t) {
+    return e && e.bots && e.bots[t];
+  }
+
+  function i(e) {
+    return e && e.bots;
+  }
+  Object.defineProperty(t, "__esModule", {
+    value: !0
+  }), n.d(t, "addBot", function() {
+    return d;
+  }), n.d(t, "bulkAddBots", function() {
+    return f;
+  }), t.getBotById = o, t.getAllBots = i;
+  var a, s = n(6),
+    u = n.n(s),
+    l = n(17),
+    c = (n.n(l), Object.assign || function(e) {
+      for (var t = 1; t < arguments.length; t++) {
+        var n = arguments[t];
+        for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
+      }
+      return e;
+    }),
+    d = n.i(l.createAction)("add a bot to the store"),
+    f = n.i(l.createAction)("bulk add bots to the store"),
+    p = n.i(l.createReducer)((a = {}, r(a, d, function(e, t) {
+      return t && t.id ? c({}, e, r({}, t.id, t)) : e;
+    }), r(a, f, function(e, t) {
+      if (!t || !t.length || !u.a.isArray(t)) return e;
+      var n = u.a.filter(t, "id");
+      if (!n.length) return e;
+      var r = c({}, e);
+      return u.a.forEach(n, function(e) {
+        r[e.id] = e;
+      }), r;
+    }), a), {});
+  t.default = p;
+}, , , function(e, t, n) {
+  "use strict";
+
+  function r() {
+    return i;
+  }
+
+  function o(e) {
+    i = e;
+  }
+  t.a = r, t.b = o;
+  var i = void 0;
+}, function(e, t, n) {
+  "use strict";
+
+  function r() {
+    a.onFocusChanged.dispatch();
+  }
+  var o = n(3265),
+    i = n(3014),
+    a = n(3055);
+  n.i(o.b)({
+    actions: [i.updateFocus],
+    sideEffect: r
+  });
 }], [2905]);

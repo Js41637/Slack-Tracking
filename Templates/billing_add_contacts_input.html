@@ -1,0 +1,13 @@
+{{i18n_ns "pages_admin"}}
+<div id="billing_contact__form" class="top_margin">
+  <div>
+    <div>{{#t}}Add a billing contact from your team:{{/t}}</div>
+    <div class="billing_contact__input">
+      <select id="billing_contact__input--select" multiple data-placeholder="{{#t}}Type the new billing contact's name, separate by commas{{/t}}">
+        {{#each members}}
+          <option data-email={{profile.email}} value="{{id}}">{{getPrefCompliantMemberName this true true}}</option>
+        {{/each}}
+      </select>
+    </div>
+  </div>
+</div>
