@@ -3703,7 +3703,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               TS.client.ui.debugger_flexpane.printJSON(i);
             }
           }), TS.boot_data.feature_sli_briefing && TS.highlights_briefing && TS.click.addClientHandler('[data-js="sli_briefing_back_button"]', function() {
-            TS.highlights_briefing.isEnabled() && (TS.client.unread.showUnreadView(), TS.highlights_briefing.clogBackButton());
+            TS.client.unread.showUnreadView(), TS.highlights_briefing.clogBackButton();
           }), TS.click.addClientHandler("[data-js=sli_expert_search_toggle]", function(e) {
             TS.sli_expert_search && TS.sli_expert_search.toggleExpand(e);
           });
@@ -25643,7 +25643,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }), Handlebars.registerHelper("toCalendarDateShort", function(e) {
             return TS.utility.date.toCalendarDate(e, !0);
           }), Handlebars.registerHelper("toCalendarDateOrNamedDay", function(e) {
-            return TS.utility.date.toCalendarDateOrNamedDay(e);
+            return TS.utility.datetime.toCalendarDateOrNamedDay(e);
           }), Handlebars.registerHelper("toCalendarDateOrNamedDayWords", function(e) {
             return TS.utility.date.toCalendarDateOrNamedDayWords(e);
           }), Handlebars.registerHelper("toCalendarDateIfYesterdayOrToday", function(e) {
@@ -30439,7 +30439,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               }, s))) {
               var c = TS.client.unread.getGroup(r);
               if (c) a = c.model_ob;
-              else if (TS.highlights_briefing && TS.highlights_briefing.isEnabled()) {
+              else if (TS.highlights_briefing) {
                 var _ = TS.highlights_briefing.getMessageFromCache(r, s);
                 _ && (a = TS.shared.getModelObById(_.channel_id));
               }
