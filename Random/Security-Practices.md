@@ -37,7 +37,7 @@ Team Administrators and owners of paid teams can review consolidated access logs
 
 ### Team-Wide Two-Factor Authentication
 
-Team Administrators can require all users to set up two-factor authentication on their accounts. Instructions for doing this are available [on our Help Center](https://slack.zendesk.com/hc/en-us/articles/212221668-Team-wide-two-factor-authentication).
+Team Administrators can require all users to set up two-factor authentication on their accounts. Instructions for doing this are available [on our Help Center](https://slack.zendesk.com/hc/en-us/articles/212221668-team-wide-two-factor-authentication).
 
 ### Single Sign On
 
@@ -45,7 +45,7 @@ Administrators of paid teams can integrate their Slack services instance with a 
 
 ### Data Retention
 
-Owners of paid Slack teams can configure [custom message retention policies](https://get.slack.help/hc/en-us/articles/203457187-Setting-up-custom-message-and-file-retention) on a team-wide and per-channel basis. Setting a custom duration for retention means that messages or files older than the duration you set will be deleted on a nightly basis.
+Owners of paid Slack teams can configure [custom message retention policies](https://get.slack.help/hc/en-us/articles/203457187-setting-up-custom-message-and-file-retention) on a team-wide and per-channel basis. Setting a custom duration for retention means that messages or files older than the duration you set will be deleted on a nightly basis.
 
 ### Deletion of Customer Data
 
@@ -53,7 +53,7 @@ Slack provides the option for Team Owners to delete Customer Data at any time du
 
 ### Return of Customer Data
 
-Information about the export capabilities of the Slack services can be found [at our Help Center](https://get.slack.help/hc/en-us/articles/204897248-Guide-to-Slack-data-exports).
+Information about the export capabilities of the Slack services can be found [at our Help Center](https://get.slack.help/hc/en-us/articles/204897248-guide-to-slack-data-exports).
 
 ## Data Encryption In Transit and At Rest
 

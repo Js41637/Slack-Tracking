@@ -7486,7 +7486,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
 
           function n(e) {
             var t = r(e);
-            return t && u.push(t.member || t.bot), t;
+            return t && u.push(t), t;
           }
           TS.has_pri[p] && TS.log(p, "Flannel: upserting batch of " + e.length + " objects");
           var i = _.partition(e, function(e) {
@@ -7501,7 +7501,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             d = _.some(l, s),
             c = _.some(l, TS.utility.members.isMember),
             u = [];
-          return o.forEach(t), d && TS.bots.startBatchUpsert(), c && TS.members.startBatchUpsert(), l.forEach(n), d && TS.bots.finishBatchUpsert(), c && TS.members.finishBatchUpsert(), Promise.resolve(u);
+          return o.forEach(t), d && TS.bots.startBatchUpsert(), c && TS.members.startBatchUpsert(), l.forEach(n), d && TS.bots.finishBatchUpsert(), c && TS.members.finishBatchUpsert(u), Promise.resolve(_.map(u, function(e) {
+            return e.member || e.bot || e;
+          }));
         },
         r = function(e) {
           return s(e) ? (TS.has_pri[p] && TS.log(p, "Flannel: upserting bot " + e.id + " from query results"), TS.bots.upsertBot(e)) : TS.utility.members.isMember(e) ? (TS.has_pri[p] && TS.log(p, "Flannel: upserting user " + e.id + " from query results"), TS.members.upsertMember(e)) : void 0;
@@ -11477,7 +11479,11 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         ee = function(e) {
           var t = TS.console.getStackTrace();
           g[e] = setTimeout(function() {
-            TS.model.ms_connected && (TS.metrics.count("unknown_member_persistence_timeout"), TS.statsd.measure("unknown_member_resolution_timing", "unknown_member_resolution_timing_" + e), TS.console.logError({
+            TS.model.ms_connected && (TS.flannel.fetchAndUpsertObjectsByIds([e], function() {
+              var t = TS.members.getPotentiallyUnknownMemberByIdWithoutFetching(e),
+                n = t.is_unknown ? "failure" : "success";
+              TS.metrics.count("unknown_member_timeout_retry_" + n);
+            }), TS.metrics.count("unknown_member_persistence_timeout"), TS.statsd.measure("unknown_member_resolution_timing", "unknown_member_resolution_timing_" + e), TS.console.logError({
               id: e,
               getMemberById: TS.members.getPotentiallyUnknownMemberByIdWithoutFetching(e),
               start_stack: t
@@ -13394,7 +13400,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             else if ("member_email_item" === t);
             else if ("member_skype_item" === t);
             else if ("member_account_item" === t);
-            else if ("member_prefs_item" === t) e.preventDefault(), TS.generic_dialog.cancel(), TS.ui.prefs_dialog.start();
+            else if ("member_prefs_item" === t) e.preventDefault(), TS.generic_dialog.is_showing && TS.generic_dialog.cancel(), TS.ui.prefs_dialog.start();
             else if ("member_files_item" === t) e.preventDefault(), TS.view.files.clearFilter(), TS.client.ui.files.filterFileList(TS.menu.member.member.id);
             else if ("member_im_files_item" === t) {
               TS.client.ui.flex.openFlexTab("search"), TS.search.setFilter("files"), TS.view.resizeManually("TS.key_triggers");
@@ -13403,7 +13409,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             } else if ("member_dm_item" === t) e.preventDefault(), TS.ims.startImByMemberId(TS.menu.member.member.id);
             else if ("member_invite_channel_item" === t) e.preventDefault(), TS.ui.invite.showInviteMemberToChannelDialog(TS.menu.member.member.id);
             else if ("member_create_group_item" === t) e.preventDefault(), TS.ui.new_channel_modal.start("", !1, [TS.menu.member.member.id]);
-            else if ("member_profile_item" === t) e.preventDefault(), TS.menu.member.member.is_self ? (TS.generic_dialog.cancel(), TS.ui.edit_member_profile.start()) : TS.client.ui.previewMember(TS.menu.member.member.id);
+            else if ("member_profile_item" === t) e.preventDefault(), TS.menu.member.member.is_self ? (TS.generic_dialog.is_showing && TS.generic_dialog.cancel(), TS.ui.edit_member_profile.start()) : TS.client.ui.previewMember(TS.menu.member.member.id);
             else {
               if ("member_presence" === t) return e.preventDefault(), TS.members.toggleUserPresence(), void(TS.menu.end_time = setTimeout(function() {
                 TS.menu.member.end(), TS.menu.member.member_item_click_sig.dispatch(t);
@@ -35603,18 +35609,13 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                   prefer_exact_match: !0
                 };
               r.contents.forEach(function(e) {
-                e.attributes || e.insert.replace(t, function(e, t, n) {
-                  if (n += e.length - t.length, !(i.start > n + o && i.start <= n + o + t.length)) {
-                    var r = TS.sorter.search(t, l, d);
-                    r.length > 0 ? a.push({
-                      label: t,
-                      index: n + o,
-                      length: t.length,
-                      results: r
-                    }) : s.push(t);
+                e.attributes || e.insert.replace(t, function(t, n, r) {
+                  if (r += t.length - n.length, !(i.start > r + o && i.start <= r + o + n.length)) {
+                    var c = TS.sorter.search(n, l, d);
+                    1 === c.length ? a.push(f(e.insert, n, r + o, c)) : c.length > 0 ? a.push(f(e.insert, n, r + o, c)) : s.push(n);
                   }
                 }), o += e.insert.length;
-              }), f(e, a), p(e, _.uniq(s));
+              }), h(e, a), p(e, _.uniq(s));
             }
           }
         },
@@ -35637,49 +35638,64 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                     o = TS.utility.contenteditable.value(e),
                     l = TS.utility.contenteditable.cursorPosition(e);
                   TS.format.texty.convertContentsStringToContents(o).contents.forEach(function(e) {
-                    e.attributes || e.insert.replace(t, function(e, t, i) {
-                      t === n && (i += e.length - t.length, l.start > i + a && l.start <= i + a + t.length || s.push({
-                        label: t,
-                        index: i + a,
-                        length: t.length,
-                        results: r.items
-                      }));
+                    e.attributes || e.insert.replace(t, function(t, i, o) {
+                      i === n && (o += t.length - i.length, l.start > o + a && l.start <= o + a + i.length || (r.items.length, s.push(f(e.insert, i, o + a, r.items))));
                     }), a += e.insert.length;
-                  }), f(e, s), _.pull(i, n);
+                  }), h(e, s), _.pull(i, n);
                 }
               });
             }
           });
         },
-        f = function(e, t) {
-          var n = {
-              contents: []
-            },
-            i = 0;
-          t.length && (t.forEach(function(e) {
-            var t = e.index - i;
-            t > 0 && n.contents.push({
-              retain: t
-            }), n.contents.push({
-              delete: e.length
-            });
-            var r = e.label,
-              a = {
-                id: "UNVERIFIED",
-                label: r,
+        f = function(e, t, n, i) {
+          var r = 1 === i.length && i[0],
+            a = {
+              id: "UNVERIFIED",
+              label: t,
+              index: n,
+              length: t.length
+            };
+          if (r) {
+            var s = TS.tabcomplete.members.getDisplayTextForResult(r, !0);
+            a = {
+              id: r.id,
+              label: s,
+              index: n,
+              length: s.length
+            }, e.substr(n, s.length) === s && (a.length = s.length);
+          }
+          return a;
+        },
+        h = function(e, t) {
+          if (t.length) {
+            var n = {
+                contents: []
+              },
+              i = 0;
+            t.forEach(function(e) {
+              var t = e.index - i;
+              t > 0 && n.contents.push({
+                retain: t
+              }), n.contents.push({
+                delete: e.length
+              });
+              var r = {};
+              r = "UNVERIFIED" === e.id ? {
+                id: e.id,
+                label: e.label,
                 unverified: !0
-              };
-            1 === e.results.length && (r = e.label, r = e.results[0].is_usergroup ? "@" + e.results[0].handle : "@" + e.results[0].profile.display_name || e.results[0].profile.real_name, a = {
-              id: e.results[0].id,
-              label: r,
-              unverified: !1
-            }), n.contents.push({
-              insert: r,
-              attributes: {
-                slackmention: a
-              }
-            }), i = e.index + e.length;
-          }), TS.utility.contenteditable.updateContents(e, n));
+              } : {
+                id: e.id,
+                label: e.label,
+                unverified: !1
+              }, n.contents.push({
+                insert: e.label,
+                attributes: {
+                  slackmention: r
+                }
+              }), i = e.index + e.length;
+            }), TS.utility.contenteditable.updateContents(e, n);
+          }
         };
     }();
   },
@@ -37129,7 +37145,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             type: "message",
             ts: e.ts
           };
-          if (TS.boot_data.feature_react_messages && (i.channel = t), e.source_team && (i.source_team_id = e.source_team), "USLACKBOT" === e.user && e.slackbot_feels && (i.slackbot_feels = e.slackbot_feels), e.thread_ts && (i.thread_ts = e.thread_ts, e.parent_ts && (i.parent_ts = e.parent_ts), e.parent_user_id && (i.parent_user_id = e.parent_user_id), e.hasOwnProperty("reply_count") && (i.reply_count = parseInt(e.reply_count, 10)), TS.boot_data.feature_new_broadcast ? (e.thread_ts !== e.ts && "thread_broadcast" !== e.subtype && (i._hidden_reply = !0), "thread_broadcast" === e.subtype && e.root && (i.root = e.root)) : e.thread_ts !== e.ts && (i._hidden_reply = !0)), "reply_broadcast" === e.subtype && (e.broadcast_thread_ts && (i.broadcast_thread_ts = e.broadcast_thread_ts), e.channel && (i.channel_id = e.channel), TS.boot_data.feature_new_broadcast && e.new_broadcast && (i.no_display = !0)), e.replies && (i.replies = e.replies), e.hasOwnProperty("subscribed") && (i._subscribed = e.subscribed), e.hasOwnProperty("unread_count") && (i._unread_count = e.unread_count), e.last_read && (i._last_read = e.last_read), "tombstone" === e.subtype && e.hidden && e.replies && e.replies.length > 0 && delete e.hidden, "channel_topic" !== e.type && "channel_purpose" !== e.type && "channel_join" !== e.type && "channel_leave" !== e.type || (e.subtype = e.type), TS.utility.msgs.shouldHideChannelJoinOrLeaveMsg(e, t) && (i.no_display = !0), "group_join" === e.subtype || "group_purpose" === e.subtype || "group_topic" === e.subtype) {
+          if (TS.boot_data.feature_react_messages && (i.channel = t), e.source_team && (i.source_team_id = e.source_team), "USLACKBOT" === e.user && e.slackbot_feels && (i.slackbot_feels = e.slackbot_feels), e.thread_ts && (i.thread_ts = e.thread_ts, e.parent_ts && (i.parent_ts = e.parent_ts), e.parent_user_id && (i.parent_user_id = e.parent_user_id), e.hasOwnProperty("reply_count") && (i.reply_count = parseInt(e.reply_count, 10)), TS.boot_data.feature_new_broadcast ? (e.thread_ts !== e.ts && "thread_broadcast" !== e.subtype && (i._hidden_reply = !0), "thread_broadcast" === e.subtype && e.root && (i.root = e.root, TS.boot_data.feature_react_messages && (i.root.channel = t))) : e.thread_ts !== e.ts && (i._hidden_reply = !0)), "reply_broadcast" === e.subtype && (e.broadcast_thread_ts && (i.broadcast_thread_ts = e.broadcast_thread_ts), e.channel && (i.channel_id = e.channel), TS.boot_data.feature_new_broadcast && e.new_broadcast && (i.no_display = !0)), e.replies && (i.replies = e.replies), e.hasOwnProperty("subscribed") && (i._subscribed = e.subscribed), e.hasOwnProperty("unread_count") && (i._unread_count = e.unread_count), e.last_read && (i._last_read = e.last_read), "tombstone" === e.subtype && e.hidden && e.replies && e.replies.length > 0 && delete e.hidden, "channel_topic" !== e.type && "channel_purpose" !== e.type && "channel_join" !== e.type && "channel_leave" !== e.type || (e.subtype = e.type), TS.utility.msgs.shouldHideChannelJoinOrLeaveMsg(e, t) && (i.no_display = !0), "group_join" === e.subtype || "group_purpose" === e.subtype || "group_topic" === e.subtype) {
             var r = TS.shared.getModelObById(t);
             r && r.is_mpim && (i.no_display = !0);
           }
@@ -37242,7 +37258,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         constructMsgPermalink: function(e, t, n) {
           if (!e) return "";
           var i;
-          return i = e.is_im || e.is_mpim ? "/archives/" + e.id + "/p" + t.replace(".", "") : e.is_channel || e.is_group ? "/archives/" + e.id + "/p" + t.replace(".", "") : "/archives/" + e.name + "/p" + t.replace(".", ""), n && n !== t && (i += "?thread_ts=" + n + "&cid=" + e.id), i;
+          i = _.isString(e) ? e : e.id;
+          var r = "/archives/" + i + "/p" + t.replace(".", "");
+          return n && n !== t && (r += "?thread_ts=" + n + "&cid=" + e.id), r;
         },
         constructAbsoluteMsgPermalink: function(e, t, n) {
           return TS.boot_data.team_url.slice(0, -1) + TS.utility.msgs.constructMsgPermalink(e, t, n);
@@ -39811,28 +39829,32 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                 }
               }
             });
-            var n;
-            if (n = e.is_broadcast_keyword ? "@" + e.name : e.is_usergroup ? "@" + e.handle : f(e, t), TS.client && TS.client.msg_input && TS.utility.contenteditable.hasFocus(TS.client.msg_input.$input) && -1 === ["@everyone", "@channel", "@here"].indexOf(n)) {
-              var i = TS.shared.getActiveModelOb();
-              TS.client.msg_input.tabcomplete_completions[i.id] || (TS.client.msg_input.tabcomplete_completions[i.id] = []), -1 === TS.client.msg_input.tabcomplete_completions[i.id].indexOf(n) && TS.client.msg_input.tabcomplete_completions[i.id].push(n.substring(1));
+            var n = t && t.length && 0 === t.indexOf("@"),
+              i = TS.tabcomplete.members.getDisplayTextForResult(e, n);
+            if (TS.client && TS.client.msg_input && TS.utility.contenteditable.hasFocus(TS.client.msg_input.$input) && -1 === ["@everyone", "@channel", "@here"].indexOf(i)) {
+              var r = TS.shared.getActiveModelOb();
+              TS.client.msg_input.tabcomplete_completions[r.id] || (TS.client.msg_input.tabcomplete_completions[r.id] = []), -1 === TS.client.msg_input.tabcomplete_completions[r.id].indexOf(i) && TS.client.msg_input.tabcomplete_completions[r.id].push(i.substring(1));
             }
             if (TS.boot_data.feature_texty_mentions) {
-              var r = e.id === TS.model.user.id || e.is_subteam && -1 !== TS.model.highlight_words.indexOf("@" + e.handle);
+              var a = e.id === TS.model.user.id || e.is_subteam && -1 !== TS.model.highlight_words.indexOf("@" + e.handle);
               return {
-                text: n,
+                text: i,
                 format: {
                   slackmention: {
                     id: e.id,
-                    label: n,
-                    mention: r
+                    label: i,
+                    mention: a
                   }
                 }
               };
             }
             return {
-              text: n
+              text: i
             };
           }
+        },
+        getDisplayTextForResult: function(e, t) {
+          return e.is_broadcast_keyword ? "@" + e.name : e.is_usergroup ? "@" + e.handle : f(e, t);
         },
         search: function(n, i, r) {
           var d, c = p(n, i.isUserSolicited),
@@ -40055,7 +40077,6 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return 0 === e.indexOf("@") ? 0 : t ? 0 : r;
         },
         f = function(e, t) {
-          t || (t = "");
           var n = e.name;
           if (TS.boot_data.feature_name_tagging_client && (n = e.profile.display_name || e.profile.real_name), TS.boot_data.feature_shared_channels_client && TS.utility.teams.isMemberExternal(e)) {
             var i = TS.teams.getTeamById(e.team_id),
@@ -40063,7 +40084,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             i && i.domain && (r = i.domain), n += "+" + r, i || TS.console.warn("team " + e.team_id + " not in local model so not avail for tabcomplete");
           }
           var a = TS.model.team.prefs.require_at_for_mention || TS.model.prefs.require_at;
-          return (0 === t.indexOf("@") || a) && (n = "@" + n), n;
+          return (t || a) && (n = "@" + n), n;
         },
         h = function(e, t) {
           return !t && !e || !(!t || !e) && (e.length === t.length && _.isEqualWith(e, t, function(e, t) {
