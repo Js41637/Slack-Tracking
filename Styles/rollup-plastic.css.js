@@ -10265,7 +10265,36 @@ html.fs_modal_active {
   align-items: stretch!important
 }
 
-.p-apps_browser_modal .contents_container .contents,
+.p-apps_browser_modal .contents_container .contents {
+  display: flex
+}
+
+.p-apps_browser_modal .contents_container .contents .links_container {
+  display: flex;
+  position: absolute;
+  left: 3%;
+  top: 2rem;
+  font-size: 15px;
+  color: #717274
+}
+
+.p-apps_browser_modal .contents_container .contents .links_container a:active,
+.p-apps_browser_modal .contents_container .contents .links_container a:hover,
+.p-apps_browser_modal .contents_container .contents .links_container a:visited {
+  color: #717274;
+  cursor: pointer
+}
+
+.p-apps_browser_modal .contents_container .contents .links_container .view_tutorial_link {
+  margin-left: 25px
+}
+
+.p-apps_browser_modal .contents_container .contents .links_container ts-icon {
+  position: relative;
+  top: 4px;
+  margin-right: .5rem
+}
+
 .p-apps_browser_modal .contents_container .contents #apps_browser_container {
   display: flex
 }

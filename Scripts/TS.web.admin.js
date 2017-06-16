@@ -981,8 +981,9 @@ webpackJsonp([225], {
             var r = TS.members.getPrefCompliantMemberName(t, !0, !0);
             TS.generic_dialog.start({
               title: TS.i18n.t("Couldn’t convert to Single-Channel Guest", "web_admin")(),
-              body: TS.i18n.t('Unfortunately, {member_name_possessive} account couldn’t be converted because your team has already reached its limit for Single-Channel Guest accounts. Teams can have up to 5 Single-Channel Guest accounts per paid account. <a href="https://get.slack.help/hc/en-us/articles/202518103-Multi-Channel-and-Single-Channel-Guests" target="_blank">Learn more about guests</a>', "web_admin")({
-                member_name_possessive: TS.i18n.fullPossessiveString(r)
+              body: TS.i18n.t('Unfortunately, {member_name_possessive} account couldn’t be converted because your team has already reached its limit for Single-Channel Guest accounts. Teams can have up to 5 Single-Channel Guest accounts per paid account. <a href="https://get.slack.help/hc/{locale}/articles/202518103-Multi-Channel-and-Single-Channel-Guests" target="_blank">Learn more about guests</a>', "web_admin")({
+                member_name_possessive: TS.i18n.fullPossessiveString(r),
+                locale: TS.i18n.zdLocale()
               }),
               show_cancel_button: !1,
               go_button_text: TS.i18n.t("Got it", "web_admin")(),
@@ -1360,7 +1361,7 @@ webpackJsonp([225], {
         D = function() {
           return _.toString($("input.member_filter").val()).trim();
         },
-        j = function(e) {
+        z = function(e) {
           if (Q()) return W(e, []), [];
           if (!TS.web.admin.restricted_members.length && !TS.web.admin.ultra_restricted_members.length) return e.html(N()), [];
           var i = [];
@@ -1384,7 +1385,7 @@ webpackJsonp([225], {
             html: d
           })), W(e, i), i;
         },
-        z = function(e, i) {
+        j = function(e, i) {
           if (Q()) return W(e, []), [];
           var n = _.partition(i, function(e) {
               return e.is_bot || e.is_slackbot;
@@ -1398,7 +1399,7 @@ webpackJsonp([225], {
           }), s = s.concat(r)), W(e, s), s;
         },
         H = function(e, i, n) {
-          p = z(e, TS.web.admin.active_members), g = z(n, TS.web.admin.disabled_members), h = j(i), TS.web.admin.delegateBindActions();
+          p = j(e, TS.web.admin.active_members), g = j(n, TS.web.admin.disabled_members), h = z(i), TS.web.admin.delegateBindActions();
         },
         N = function() {
           var e = !!TS.boot_data.pay_prod_cur;

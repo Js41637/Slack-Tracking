@@ -82,7 +82,7 @@
         <span class="channel_name">{{#if jumper.disambiguate_mpims}}{{mpimDisplayName this.model_ob false true}}{{else}}{{mpimDisplayName this.model_ob}}{{/if}}</span>
       {{else}}
         {{#if this.model_ob.team_url}}
-          <span class="channel_name">{{this.model_ob.team_name}}</span> <span class="team_username">{{#t note='When switching to another team in jumper, Signed in as myusername' username=this.model_ob.name}}Signed in as {username}{{/t}}</span>
+          <span class="channel_name">{{this.model_ob.team_name}}</span>
         {{else}}
           <span class="channel_name">{{this.model_ob.name}}</span>
         {{/if}}

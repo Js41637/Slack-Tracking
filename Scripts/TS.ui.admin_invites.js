@@ -92,7 +92,9 @@ webpackJsonp([241], {
           not_allowed: TS.i18n.t("You can’t invite this type of account based on your current SSO settings.", "invite")(),
           custom_message_not_allowed: TS.i18n.t("Sorry, you can’t add a custom message to this invite. Please remove it and try again!", "invite")(),
           domain_mismatch: TS.i18n.t("Your SSO settings prevent you from inviting people from this email domain.", "invite")(),
-          invite_limit_reached: TS.i18n.t("Your team has exceeded the limit on invitations. After more people have accepted the ones your team has sent, you can send more. Revoking invitations will not lift the limit. Our Help Center has <a href='https://get.slack.help/hc/articles/201330256#invitation_limits'>more details on invitation limits</a>.", "invite")(),
+          invite_limit_reached: TS.i18n.t("Your team has exceeded the limit on invitations. After more people have accepted the ones your team has sent, you can send more. Revoking invitations will not lift the limit. Our Help Center has <a href='https://get.slack.help/hc/{locale}/articles/201330256#invitation_limits'>more details on invitation limits</a>.", "invite")({
+            locale: TS.i18n.zdLocale()
+          }),
           too_long: TS.i18n.t("This person’s name exceeds the 35-character limit.", "invite")(),
           org_user_is_disabled: TS.i18n.t("This person has a deactivated account for your organization.", "invite")(),
           org_user_is_disabled_but_present: TS.i18n.t("This person is already on your team, but they have been deactivated by your organization. Contact an organization administrator to re-enable their account", "invite")(),
@@ -309,7 +311,7 @@ webpackJsonp([241], {
           }));
           var a = e.find("#invite_" + r);
           a.find('[data-action="admin_invites_delete_row"]').on("click", function() {
-            D(a);
+            z(a);
           }).hover(function() {
             a.addClass("delete_highlight");
           }, function() {
@@ -335,14 +337,14 @@ webpackJsonp([241], {
         F = function(i) {
           e.find("#admin_invites_submit_btn").toggleClass("disabled", i);
         },
-        D = function(i) {
+        z = function(i) {
           i && i.length && i.slideToggle(100, function() {
             i.remove();
             var t = $(".admin_invite_row").length;
             0 === t ? B() : 1 === t && e.find(".admin_invite_row").first().find(".delete_row").addClass("hidden");
           });
         },
-        z = function() {
+        D = function() {
           var i, t = $("#account_type").val();
           "full" === t ? i = TS.i18n.t("Send Invitations", "invite")() : "treatment" === TS.experiment.getGroup("guest_profiles_and_expiration") ? i = TS.i18n.t("Invite Guests", "invite")() : "restricted" === t ? i = TS.i18n.t("Invite Multi-Channel Guests", "invite")() : "ultra_restricted" === t && (i = TS.i18n.t("Invite Single-Channel Guests", "invite")()), e.find('button[data-action="api_send_invites"]').find(".ladda-label").text(i);
         },
@@ -393,7 +395,7 @@ webpackJsonp([241], {
         },
         U = function() {
           setTimeout(function() {
-            Ladda.stopAll(), e.find(".admin_invite_row").remove(), l = [], m = [], t = null, z(), _.times(3, B);
+            Ladda.stopAll(), e.find(".admin_invite_row").remove(), l = [], m = [], t = null, D(), _.times(3, B);
           }, 0);
         },
         q = function() {
@@ -446,10 +448,10 @@ webpackJsonp([241], {
             e.find(".admin_invites_guest_expiration_date_container").toggleClass("hidden", "full" === t), e.find("#admin_invites_show_date_picker").on("click", K), "restricted" === t ? m = TS.i18n.t("These guests will only have access to messages and files in specified channels.", "invite")() : "ultra_restricted" === t && (m = TS.i18n.t("These guests will only have access to messages and files in a single channel.", "invite")()), e.find("#admin_invites_subheader").text(m).toggleClass("hidden", "full" === t);
           }
           e.find("#ultra_restricted_channel_picker").on("change", function() {
-            z(), N();
+            D(), N();
           }), e.find(".email_field").first().focus();
           var c = e.find('button[data-action="api_send_invites"]');
-          c.hasClass("ladda") || (Ladda.bind('button[data-action="api_send_invites"]'), c.addClass("ladda")), z(), j(), e.find("#defaultchannelsmulti, #ultra_restricted_channel_picker").lazyFilterSelect({
+          c.hasClass("ladda") || (Ladda.bind('button[data-action="api_send_invites"]'), c.addClass("ladda")), D(), j(), e.find("#defaultchannelsmulti, #ultra_restricted_channel_picker").lazyFilterSelect({
             onItemRemoved: function(e) {
               e.value == i && N();
             }
@@ -482,7 +484,7 @@ webpackJsonp([241], {
             if (i) {
               var s = {};
               s.email = i, TS.boot_data.feature_name_tagging_client && e && (s.real_name = e), n && (s.first_name = n), a && (s.last_name = a), t.push(s);
-            } else $(".admin_invite_row").length > 1 && D($(this));
+            } else $(".admin_invite_row").length > 1 && z($(this));
           }), c = t, TS.storage.storeInvitesState(c), t;
         },
         Z = function() {
@@ -491,7 +493,7 @@ webpackJsonp([241], {
               var e = $.trim($(this).find('[name="email_address"]').val());
               e ? TS.utility.email_regex.test(e) ? R($(this)) : (Y($(this), {
                 error: "invalid_email"
-              }), i = !0) : $(".admin_invite_row").length > 1 && D($(this));
+              }), i = !0) : $(".admin_invite_row").length > 1 && z($(this));
             }), i) return void setTimeout(Ladda.stopAll, 0);
           var n = X();
           if (n.length) {
@@ -527,7 +529,7 @@ webpackJsonp([241], {
               last_name: n.last_name
             });
             var a = W(n.email);
-            D(a);
+            z(a);
           } else {
             var s;
             if ("requires_channel" === t.error) {
@@ -642,7 +644,7 @@ webpackJsonp([241], {
             });
           }
           O("alert_info", t), e.find(".admin_invite_row").each(function() {
-            $.trim($(this).find('[name="email_address"]').val()) || D($(this));
+            $.trim($(this).find('[name="email_address"]').val()) || z($(this));
           }), $.each(i, function(e, i) {
             B(i);
           }), c = i, TS.storage.storeInvitesState(c);

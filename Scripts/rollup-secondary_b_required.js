@@ -649,7 +649,7 @@ webpackJsonp([13], {
           }));
         },
         L = function(e) {
-          return "https://get.slack.help/hc/search?utf8=✓&commit=Search&query=" + e;
+          return "https://get.slack.help/hc/" + TS.i18n.zdLocale() + "/search?utf8=✓&commit=Search&query=" + e;
         };
     }();
   },

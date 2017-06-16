@@ -40471,9 +40471,9 @@ webpackJsonp([332], [, function(e, t, n) {
       a.a.render(o.a.createElement(u.a, null), e);
     }
   });
-}, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".c-apps_browser {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-weight: 400;\n  -webkit-font-smoothing: antialiased;\n  margin: 6rem auto 1rem auto;\n  width: 650px;\n  display: flex;\n  flex-direction: column;\n}\n.c-apps_browser__search_box {\n  margin-bottom: 10px;\n}\n.c-apps_browser__search_box h2 {\n  font-weight: 900;\n}\n.c-apps_browser__apps_list {\n  overflow: auto;\n}\n.c-apps_browser__category_header {\n  top: 0;\n  position: sticky;\n  background: #FFF;\n}\n.c-apps_browser__app {\n  color: #2D9EE0;\n  padding: 15px;\n  border: 1px solid transparent;\n  border-top-color: #A0A0A2;\n  display: flex;\n  align-items: center;\n}\n.c-apps_browser__app:first-of-type {\n  border-top-color: transparent;\n}\n.c-apps_browser__app:hover {\n  background: #F0F7FB;\n  border: 1px solid #3AA3E3;\n  border-radius: 5px;\n}\n.c-apps_browser__app:hover + .c-apps_browser__app {\n  border-top-color: transparent;\n}\n.c-apps_browser__app:hover .c-apps_browser__app_action {\n  display: block;\n}\n.c-apps_browser__app_icon {\n  width: 48px;\n  height: 48px;\n  margin-right: 10px;\n}\n.c-apps_browser__app_info {\n  width: 475px;\n}\n.c-apps_browser__app_action {\n  display: none;\n  text-align: right;\n}\n.c-apps_browser__app_name {\n  color: #2C2D30;\n}\n.c-apps_browser__app_description {\n  color: #A0A0A2;\n  font-size: 16px;\n}\n", ""]);
-}, , , , , , , , , function(e, t, n) {
+}, , function(e, t, n) {
+  t = e.exports = n(189)(), t.push([e.i, ".c-button,\na.c-button,\na.c-button:link,\na.c-button:visited {\n  border-radius: 0.25rem;\n  box-shadow: none;\n  background: #29A979;\n  color: #FFFFFF;\n  font-size: 1rem;\n  line-height: 1.2;\n  font-weight: 900;\n  text-decoration: none;\n  text-shadow: 0 1px 1px rgba(44, 45, 48, 0.1);\n  -webkit-font-smoothing: antialiased;\n  border: none;\n  display: flex;\n  align-items: center;\n  position: relative;\n  white-space: nowrap;\n  margin: 0;\n  padding: 0.5rem 1rem;\n}\n.c-button:after,\na.c-button:after,\na.c-button:link:after,\na.c-button:visited:after {\n  position: absolute;\n  content: '';\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  border-radius: 0.25rem;\n}\n.c-button:hover,\na.c-button:hover,\na.c-button:link:hover,\na.c-button:visited:hover {\n  color: #FFFFFF;\n  text-decoration: none;\n}\n.c-button:hover:after,\na.c-button:hover:after,\na.c-button:link:hover:after,\na.c-button:visited:hover:after {\n  box-shadow: inset 0 -2px rgba(0, 0, 0, 0.25);\n}\n", ""]);
+}, , , , , , , , function(e, t, n) {
   "use strict";
 
   function r(e, t) {
@@ -40498,14 +40498,18 @@ webpackJsonp([332], [, function(e, t, n) {
   }
   var a = n(2),
     s = n.n(a),
-    u = n(6),
+    u = n(9),
     l = n.n(u),
-    c = n(2288),
-    d = n(3048),
-    f = n(3296),
-    p = n(2287),
-    h = n(3254),
-    _ = (n.n(h), function() {
+    c = n(6),
+    d = n.n(c),
+    f = n(2288),
+    p = n(3048),
+    h = n(3296),
+    _ = n(2287),
+    m = n(3253),
+    y = n(3638),
+    v = n(3640),
+    g = (n.n(v), function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
@@ -40516,54 +40520,65 @@ webpackJsonp([332], [, function(e, t, n) {
         return n && e(t.prototype, n), r && e(t, r), t;
       };
     }()),
-    m = c.a.ns("apps_browser"),
-    y = {},
-    v = {},
-    g = function(e) {
+    b = f.a.ns("apps_browser"),
+    w = {},
+    k = {},
+    M = function(e) {
       function t() {
         r(this, t);
         var e = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this));
         return e.lastRequestId = 0, e.currentDisplayedId = 0, e.state = {
           clickCount: 0,
           searchTerm: "",
-          appCategories: []
-        }, e.handleSearchInputChange = e.handleSearchInputChange.bind(e), e.handleAppClick = e.handleAppClick.bind(e), e.searchApps = e.searchApps.bind(e), e.doRequest = e.doRequest.bind(e), e.throttledSearchApps = l.a.throttle(e.searchApps, 500, {
+          appCategories: [],
+          isLoading: !0
+        }, e.handleSearchInputChange = e.handleSearchInputChange.bind(e), e.handleAppClick = e.handleAppClick.bind(e), e.searchApps = e.searchApps.bind(e), e.doRequest = e.doRequest.bind(e), e.throttledSearchApps = d.a.throttle(e.searchApps, 500, {
           leading: !1,
           trailing: !0
         }), e;
       }
-      return i(t, e), _(t, [{
+      return i(t, e), g(t, [{
         key: "componentDidMount",
         value: function() {
           var e = this;
-          this.doRequest(n.i(d.a)("apps.index.default").then(function(t) {
+          this.doRequest(n.i(p.a)("apps.index.list").then(function(t) {
             return e.defaultAppCategories = t.data.categories, t;
           }));
+        }
+      }, {
+        key: "getAppIcon",
+        value: function(e) {
+          var t = cdn_url + "/bfaba/img/apps/default_new_app_icon.png",
+            n = e.icons,
+            r = void 0;
+          return n && (r = n.image_96 || n.image_128 || n.image_192 || n.image_512 || n.image_1024 || n.image_72 || n.image_64 || n.image_48 || n.image_36 || n.image_32 || n.image_24), r || t;
         }
       }, {
         key: "handleAppClick",
         value: function(e) {
           var t = e.currentTarget.dataset;
-          "true" === t.is_installed ? n.i(f.a)(t) : window.open(window.location.origin + "/apps/" + t.app_id);
+          "true" === t.is_installed ? n.i(h.a)(t) : window.open(window.location.origin + "/apps/" + t.app_id);
         }
       }, {
         key: "handleSearchInputChange",
         value: function(e) {
-          var t = e.target.value;
-          this.setState(function() {
-            return {
-              searchTerm: t
-            };
-          }), this.throttledSearchApps(t);
+          this.throttledSearchApps(e.target.value);
         }
       }, {
         key: "searchApps",
         value: function(e) {
           var t = this;
-          e ? this.doRequest(n.i(d.a)("apps.index.search", {
+          e ? this.doRequest(n.i(p.a)("apps.index.search", {
             query: e
+          }).then(function(n) {
+            return t.setState(function() {
+              return {
+                searchTerm: e
+              };
+            }), n;
           })) : this.setState(function() {
             return {
+              isLoading: !1,
               appCategories: t.defaultAppCategories
             };
           });
@@ -40577,6 +40592,7 @@ webpackJsonp([332], [, function(e, t, n) {
           e.then(function(e) {
             n > t.currentDisplayedId && (t.currentDisplayedId = n, t.setState(function() {
               return {
+                isLoading: !1,
                 appCategories: e.data.categories
               };
             }));
@@ -40588,30 +40604,30 @@ webpackJsonp([332], [, function(e, t, n) {
           var t = this;
           return e.map(function(e) {
             var n = e.app_id ? "app-" + e.app_id : "app-" + e.bot_id,
-              r = cdn_url + "/bfaba/img/apps/default_new_app_icon.png",
-              o = m("Install"),
+              r = t.getAppIcon(e),
+              o = b("Install"),
               i = "plus_circle";
-            return e.icons && e.icons.image_64 && (r = e.icons.image_64), e.is_installed && (o = m("Open"), i = "enter"), s.a.createElement("div", {
+            return e.is_installed && (o = b("Open"), i = "enter"), s.a.createElement("div", {
               key: n,
-              className: "c-apps_browser__app",
+              className: "p-apps_browser__app",
               onClick: t.handleAppClick,
               "data-is_installed": e.is_installed,
               "data-app_id": e.app_id,
               "data-bot_id": e.bot_id,
               "data-bot_user_id": e.bot_user_id
             }, s.a.createElement("img", {
-              className: "c-apps_browser__app_icon",
+              className: "p-apps_browser__app_icon",
               src: r,
               alt: "App icon"
             }), s.a.createElement("div", {
-              className: "c-apps_browser__app_info"
+              className: "p-apps_browser__app_info"
             }, s.a.createElement("div", {
-              className: "c-apps_browser__app_name"
+              className: "p-apps_browser__app_name"
             }, s.a.createElement("strong", null, e.name)), s.a.createElement("div", {
-              className: "c-apps_browser__app_description"
+              className: "p-apps_browser__app_description"
             }, e.short_description)), s.a.createElement("div", {
-              className: "c-apps_browser__app_action"
-            }, o, s.a.createElement(p.a, {
+              className: "p-apps_browser__app_action"
+            }, o, s.a.createElement(_.a, {
               type: i
             })));
           });
@@ -40623,45 +40639,123 @@ webpackJsonp([332], [, function(e, t, n) {
           return this.state.appCategories.map(function(t) {
             var n = "category-" + t.id;
             return s.a.createElement("section", {
-              key: n
+              key: n,
+              className: "p-apps_browser__category_section"
             }, s.a.createElement("div", {
-              className: "c-apps_browser__category_header"
+              className: "p-apps_browser__category_header"
             }, t.name), e.createAppCategoryAppsMarkup(t.apps));
           }, this);
         }
       }, {
         key: "render",
         value: function() {
-          var e = void 0;
-          return e = !this.state.appCategories.length && this.state.searchTerm ? s.a.createElement("div", {
-            key: "no-results"
-          }, m("There are no apps matching"), " ", s.a.createElement("strong", null, this.state.searchTerm)) : this.createAppCategoriesMarkup(), s.a.createElement("div", {
-            className: "c-apps_browser"
+          var e = void 0,
+            t = l()("p-apps_browser__apps_list", {
+              "p-apps_browser__apps_list--loading": this.state.isLoading
+            });
+          return e = !this.state.appCategories.length && this.state.searchTerm ? s.a.createElement("section", {
+            key: "no-results",
+            className: "p-apps_browser__no_results"
+          }, b("There are no apps matching"), " ", s.a.createElement("strong", null, this.state.searchTerm)) : this.createAppCategoriesMarkup(), s.a.createElement("div", {
+            className: "p-apps_browser"
           }, s.a.createElement("div", {
-            className: "c-apps_browser__search_box"
-          }, s.a.createElement("h2", null, m("Browse apps")), s.a.createElement("div", null, s.a.createElement("input", {
-            type: "text",
-            placeholder: m("Search apps"),
+            className: "p-apps_browser__filter_container"
+          }, s.a.createElement("div", {
+            className: "p-apps_browser__filter_header"
+          }, s.a.createElement("h2", null, b("Apps")), s.a.createElement(m.a, {
+            target: "_blank",
+            link: "https://slack.com/apps"
+          }, b("Browse App Directory"))), s.a.createElement("div", null, s.a.createElement(y.a, {
+            placeholder: b("Search apps"),
             onChange: this.handleSearchInputChange
           }))), s.a.createElement("div", {
-            className: "c-apps_browser__apps_list"
+            className: t
           }, e));
         }
       }]), t;
     }(a.Component);
-  g.propTypes = y, g.defaultProps = v, t.a = g;
+  M.propTypes = w, M.defaultProps = k, t.a = M;
 }, function(e, t, n) {
   "use strict";
   var r = n(3250);
   t.a = r.a;
-}, , , function(e, t, n) {
-  var r = n(3241);
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e, t) {
+    if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
+  }
+
+  function o(e, t) {
+    if (!e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    return !t || "object" != typeof t && "function" != typeof t ? e : t;
+  }
+
+  function i(e, t) {
+    if ("function" != typeof t && null !== t) throw new TypeError("Super expression must either be null or a function, not " + typeof t);
+    e.prototype = Object.create(t && t.prototype, {
+      constructor: {
+        value: e,
+        enumerable: !1,
+        writable: !0,
+        configurable: !0
+      }
+    }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
+  }
+  var a = n(2),
+    s = n.n(a),
+    u = n(3255),
+    l = (n.n(u), function() {
+      function e(e, t) {
+        for (var n = 0; n < t.length; n++) {
+          var r = t[n];
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
+        }
+      }
+      return function(t, n, r) {
+        return n && e(t.prototype, n), r && e(t, r), t;
+      };
+    }()),
+    c = {
+      link: a.PropTypes.string.isRequired,
+      target: a.PropTypes.string.isRequired,
+      children: a.PropTypes.node.isRequired
+    },
+    d = {},
+    f = function(e) {
+      function t() {
+        r(this, t);
+        var e = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this));
+        return e.onClick = e.onClick.bind(e), e;
+      }
+      return i(t, e), l(t, [{
+        key: "onClick",
+        value: function(e) {}
+      }, {
+        key: "render",
+        value: function() {
+          return s.a.createElement("a", {
+            className: "c-button",
+            onClick: this.onClick,
+            href: this.props.link,
+            target: this.props.target
+          }, this.props.children);
+        }
+      }]), t;
+    }(a.Component);
+  f.propTypes = c, f.defaultProps = d, t.a = f;
+}, function(e, t, n) {
+  "use strict";
+  var r = n(3252);
+  t.a = r.a;
+}, , function(e, t, n) {
+  var r = n(3242);
   "string" == typeof r && (r = [
     [e.i, r, ""]
   ]);
   n(219)(r, {});
   r.locals && (e.exports = r.locals);
-}, , , , , , , , , , , function(e, t, n) {
+}, , , , , , , , , , function(e, t, n) {
   "use strict";
 
   function r() {
@@ -45754,10 +45848,10 @@ webpackJsonp([332], [, function(e, t, n) {
           var t = !(arguments.length > 1 && void 0 !== arguments[1]) || arguments[1],
             n = new s.a(e.contents),
             r = (new s.a).retain(this._lastSelection.index).delete(this._lastSelection.length).concat(n);
-          this._quill.updateContents(r), this._setLastSelection({
+          this._setLastSelection({
             index: this._lastSelection.index + n.length(),
             length: 0
-          }), this.hasFocus() ? this._quill.setSelection(this._lastSelection.index, 0) : t && this._quill.setSelection(this._lastSelection, "silent");
+          }), this._quill.updateContents(r), this.hasFocus() ? this._quill.setSelection(this._lastSelection) : t && this._quill.setSelection(this._lastSelection, "silent");
         }
       }, {
         key: "updateContents",
@@ -49719,7 +49813,7 @@ webpackJsonp([332], [, function(e, t, n) {
         value: function(e) {
           var n = this;
           if (!e.defaultPrevented && this.quill.isEnabled()) {
-            if (this.quill.getSelection()) return e && e.clipboardData && e.clipboardData.getData("slack/html") ? (quillOnPaste(e), void setTimeout(function() {
+            if (this.quill.getSelection()) return e && e.clipboardData && e.clipboardData.getData("slack/html") ? (this.quillOnPaste(e), void setTimeout(function() {
               n.options.onPasted();
             }, 0)) : void(this.options.onPaste(e) || (f(t.prototype.__proto__ || Object.getPrototypeOf(t.prototype), "onPaste", this).call(this, e), setTimeout(function() {
               n.options.onPasted();
@@ -53398,4 +53492,168 @@ webpackJsonp([332], [, function(e, t, n) {
     actions: [i.updateFocus],
     sideEffect: r
   });
+}, , , , , function(e, t, n) {
+  t = e.exports = n(189)(), t.push([e.i, ".c-enhanced_text_input {\n  border-radius: 0.25rem;\n  display: flex;\n  align-items: center;\n  -webkit-transition: box-shadow 70ms ease-out, border-color 70ms ease-out 0.2s ease-out 0.0000001ms;\n  -moz-transition: box-shadow 70ms ease-out, border-color 70ms ease-out 0.2s ease-out 0.0000001ms;\n  transition: box-shadow 70ms ease-out, border-color 70ms ease-out 0.2s ease-out 0.0000001ms;\n  -webkit-transition: box-shadow 70ms ease-out, border-color 70ms ease-out;\n  -moz-transition: box-shadow 70ms ease-out, border-color 70ms ease-out;\n  transition: box-shadow 70ms ease-out, border-color 70ms ease-out;\n  border: 1px solid #E8E8E8;\n  padding: 0.25rem 0.5rem;\n  color: #A0A0A2;\n  font-size: 1rem;\n}\n.c-enhanced_text_input:hover {\n  border-color: #3AA3E3;\n}\n.c-enhanced_text_input--active {\n  border-color: #3AA3E3;\n  box-shadow: 0 0 7px rgba(58, 163, 227, 0.15);\n}\n.c-enhanced_text_input .c-icon:before {\n  font-size: 1rem;\n}\n.c-enhanced_text_input__input[type=text] {\n  flex-grow: 1;\n  margin: 0;\n  padding: 0 0.5rem;\n  border: 0 none;\n  font-size: 1rem;\n}\n.c-enhanced_text_input__input[type=text]:active,\n.c-enhanced_text_input__input[type=text]:focus {\n  box-shadow: none;\n}\n.c-enhanced_text_input__reset_button {\n  display: none;\n  cursor: pointer;\n}\n.c-enhanced_text_input__reset_button--visible {\n  display: block;\n}\n", ""]);
+}, function(e, t, n) {
+  t = e.exports = n(189)(), t.push([e.i, ".p-apps_browser {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-weight: 400;\n  -webkit-font-smoothing: antialiased;\n  display: flex;\n  flex-direction: column;\n  margin: 9.5rem auto 1rem auto;\n  width: 650px;\n}\n.p-apps_browser__filter_container {\n  margin-bottom: 25px;\n}\n.p-apps_browser__filter_header {\n  display: flex;\n  margin-bottom: 25px;\n}\n.p-apps_browser__filter_header h2 {\n  font-weight: 900;\n  font-size: 2rem;\n  flex-grow: 1;\n  margin: 0;\n}\n.p-apps_browser__search_box {\n  display: flex;\n}\n.p-apps_browser__apps_list {\n  overflow: auto;\n  min-height: 200px;\n  position: relative;\n}\n.p-apps_browser__apps_list--loading::before {\n  background-image: url('/img/loading_hash_animation_@2x.gif');\n  background-position: center;\n  background-repeat: no-repeat;\n  position: absolute;\n  content: '';\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n}\n.p-apps_browser__apps_list--loading > section {\n  display: none !important;\n}\n.p-apps_browser__category_section {\n  margin-bottom: 20px;\n}\n.p-apps_browser__category_header {\n  top: -1px;\n  position: sticky;\n  font-size: 13px;\n  background: #FFF;\n  color: #717274;\n  margin-bottom: 5px;\n}\n.p-apps_browser__app {\n  color: #2D9EE0;\n  padding: 10px;\n  border: 1px solid transparent;\n  border-top-color: #E8E8E8;\n  display: flex;\n  align-items: center;\n}\n.p-apps_browser__app:first-of-type {\n  border-top-color: transparent;\n}\n.p-apps_browser__app:hover {\n  border-radius: 5px;\n  background: #F0F7FB;\n  border: 1px solid #3AA3E3;\n}\n.p-apps_browser__app:hover + .p-apps_browser__app {\n  border-top-color: transparent;\n}\n.p-apps_browser__app:hover .p-apps_browser__app_action {\n  display: block;\n}\n.p-apps_browser__app_icon {\n  width: 36px;\n  height: 36px;\n  margin-right: 10px;\n}\n.p-apps_browser__app_info {\n  width: 510px;\n  font-size: 15px;\n  color: #2C2D30;\n}\n.p-apps_browser__app_action {\n  flex-grow: 1;\n  display: none;\n  text-align: right;\n  font-size: 15px;\n}\n.p-apps_browser__app_action .c-icon {\n  margin-left: .5rem;\n  position: relative;\n  top: -2px;\n}\n.p-apps_browser__app_name {\n  font-weight: bold;\n}\n.p-apps_browser__app_description {\n  color: #717274;\n}\n.p-apps_browser__no_results {\n  display: flex;\n  -ms-flex-pack: center;\n  -webkit-box-pack: center;\n  -webkit-justify-content: center;\n  -moz-justify-content: center;\n  justify-content: center;\n  align-items: center;\n  height: 100px;\n}\n", ""]);
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e, t) {
+    if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
+  }
+
+  function o(e, t) {
+    if (!e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    return !t || "object" != typeof t && "function" != typeof t ? e : t;
+  }
+
+  function i(e, t) {
+    if ("function" != typeof t && null !== t) throw new TypeError("Super expression must either be null or a function, not " + typeof t);
+    e.prototype = Object.create(t && t.prototype, {
+      constructor: {
+        value: e,
+        enumerable: !1,
+        writable: !0,
+        configurable: !0
+      }
+    }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
+  }
+  var a = n(2),
+    s = n.n(a),
+    u = n(9),
+    l = n.n(u),
+    c = n(2288),
+    d = n(2287),
+    f = n(3639),
+    p = (n.n(f), function() {
+      function e(e, t) {
+        for (var n = 0; n < t.length; n++) {
+          var r = t[n];
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
+        }
+      }
+      return function(t, n, r) {
+        return n && e(t.prototype, n), r && e(t, r), t;
+      };
+    }()),
+    h = c.a.ns("enhanced_text_input"),
+    _ = {
+      placeholder: a.PropTypes.string,
+      icon: a.PropTypes.string,
+      onChange: a.PropTypes.func
+    },
+    m = {
+      placeholder: h("Search"),
+      icon: "search",
+      onChange: null
+    },
+    y = function(e) {
+      function t(e) {
+        r(this, t);
+        var n = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
+        return n.state = {
+          focused: !1,
+          query: ""
+        }, n.handleClick = n.handleClick.bind(n), n.handleInputBlur = n.handleInputBlur.bind(n), n.handleInputFocus = n.handleInputFocus.bind(n), n.handleInputChange = n.handleInputChange.bind(n), n.handleResetButtonClick = n.handleResetButtonClick.bind(n), n;
+      }
+      return i(t, e), p(t, [{
+        key: "handleClick",
+        value: function() {
+          this.state.focused || (this.setState(function() {
+            return {
+              focused: !0
+            };
+          }), this.input.focus());
+        }
+      }, {
+        key: "handleInputBlur",
+        value: function() {
+          this.setState(function() {
+            return {
+              focused: !1
+            };
+          });
+        }
+      }, {
+        key: "handleInputFocus",
+        value: function() {
+          this.state.focused || this.setState(function() {
+            return {
+              focused: !0
+            };
+          });
+        }
+      }, {
+        key: "handleInputChange",
+        value: function(e) {
+          var t = e.target.value;
+          this.setState(function() {
+            return {
+              query: t
+            };
+          }), this.props.onChange && this.props.onChange(e);
+        }
+      }, {
+        key: "handleResetButtonClick",
+        value: function(e) {
+          this.setState(function() {
+            return {
+              query: ""
+            };
+          }), this.input.value = "", this.props.onChange && this.props.onChange(e);
+        }
+      }, {
+        key: "render",
+        value: function() {
+          var e = this,
+            t = l()("c-enhanced_text_input", {
+              "c-enhanced_text_input--active": this.state.focused
+            }),
+            n = l()("c-enhanced_text_input__reset_button", {
+              "c-enhanced_text_input__reset_button--visible": !!this.state.query
+            });
+          return s.a.createElement("div", {
+            className: t,
+            onClick: this.handleClick
+          }, s.a.createElement(d.a, {
+            type: this.props.icon
+          }), s.a.createElement("input", {
+            className: "c-enhanced_text_input__input",
+            ref: function(t) {
+              e.input = t;
+            },
+            onBlur: this.handleInputBlur,
+            onFocus: this.handleInputFocus,
+            onChange: this.handleInputChange,
+            type: "text",
+            placeholder: this.props.placeholder,
+            value: this.state.previousVal
+          }), s.a.createElement(d.a, {
+            className: n,
+            type: "times_circle",
+            onClick: this.handleResetButtonClick
+          }));
+        }
+      }]), t;
+    }(a.Component);
+  y.propTypes = _, y.defaultProps = m, t.a = y;
+}, function(e, t, n) {
+  "use strict";
+  var r = n(3637);
+  t.a = r.a;
+}, function(e, t, n) {
+  var r = n(3635);
+  "string" == typeof r && (r = [
+    [e.i, r, ""]
+  ]);
+  n(219)(r, {});
+  r.locals && (e.exports = r.locals);
+}, function(e, t, n) {
+  var r = n(3636);
+  "string" == typeof r && (r = [
+    [e.i, r, ""]
+  ]);
+  n(219)(r, {});
+  r.locals && (e.exports = r.locals);
 }], [2905]);

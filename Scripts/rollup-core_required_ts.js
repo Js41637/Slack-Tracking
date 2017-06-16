@@ -1937,6 +1937,7 @@ webpackJsonp([12, 328, 337, 329], {
         requested_mpim_opens: {},
         requested_channel_joins: {},
         created_channels: {},
+        created_channel_ids: {},
         created_groups: {},
         archives_and_recreated_groups: {},
         last_team_name: "",
@@ -2353,7 +2354,7 @@ webpackJsonp([12, 328, 337, 329], {
           }), TS.boot_data = t, TS.qs_args.js_path && (TS.boot_data.version_ts = "local_js"), TS.console.onStart(), TS.client && TS.client.setClientLoadWatchdogTimer(), TS.model.api_url = TS.boot_data.api_url, TS.model.async_api_url = TS.boot_data.async_api_url, TS.model.api_token = TS.boot_data.api_token, TS.model.webhook_url = TS.boot_data.webhook_url, TS.boot_data.page_needs_enterprise && (TS.model.enterprise_api_token = TS.boot_data.enterprise_api_token), TS.info("booted! pri:" + TS.pri + " version:" + TS.boot_data.version_ts + " start_ms:" + TS.boot_data.start_ms + " (" + (Date.now() - TS.boot_data.start_ms) + "ms ago)"), TS.web && TS.web.space && TS.web.space.showFastPreview(), $(document).ready(z);
         },
         useRedux: function() {
-          return !!TS.client;
+          return !!TS.boot_data.feature_enable_redux_for_non_client || !!TS.client;
         },
         useReactDownloads: function() {
           return window.TS && TS.environment.isSSBAndAtLeastVersion("2.7");
