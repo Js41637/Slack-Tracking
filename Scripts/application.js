@@ -31570,7 +31570,7 @@ webpackJsonp([332], [, function(e, t, n) {
     O = n(3177),
     C = n(3182),
     P = n(3202);
-  n.i(r.a)("utility.datetime", {
+  n.i(r.a)("interop.datetime", {
     toDateObject: o.a,
     toDate: i.a,
     toTime: a.a,
@@ -35251,7 +35251,7 @@ webpackJsonp([332], [, function(e, t, n) {
     s = n(2989),
     u = n(2694),
     l = n(2348);
-  n(3347), n(3605), n(3051), n(3023), n(2697), n(2696), n(3030), n(3240), n(3611);
+  n(3347), n(3605), n(3051), n(3023), n(2697), n(3641), n(2696), n(3030), n(3240), n(3611);
   window.ReactComponents = {}, window.ReactComponents.EmojiPicker = u.a, window.ReactComponents.Popover = l.a, window.ReactComponents.PopoverTrigger = l.b, window.React = o.a, window.ReactDOM = a.a, window.moment = s.a;
 }, function(e, t, n) {
   "use strict";
@@ -36421,87 +36421,104 @@ webpackJsonp([332], [, function(e, t, n) {
   "use strict";
 
   function r(e, t, n) {
+    return t in e ? Object.defineProperty(e, t, {
+      value: n,
+      enumerable: !0,
+      configurable: !0,
+      writable: !0
+    }) : e[t] = n, e;
+  }
+
+  function o(e, t, n) {
     return e && e.messages && e.messages[t] && e.messages[t][n];
   }
 
-  function o(e, t) {
+  function i(e, t) {
     return e && e.messages && e.messages[t];
   }
   Object.defineProperty(t, "__esModule", {
     value: !0
   }), n.d(t, "addMessages", function() {
-    return l;
-  }), t.getMessageByTimestamp = r, t.getMessagesByChannelId = o;
-  var i = n(6),
-    a = n.n(i),
-    s = n(17),
-    u = (n.n(s), Object.assign || function(e) {
+    return d;
+  }), n.d(t, "removeMessage", function() {
+    return f;
+  }), t.getMessageByTimestamp = o, t.getMessagesByChannelId = i;
+  var a, s = n(6),
+    u = n.n(s),
+    l = n(17),
+    c = (n.n(l), Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
         for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
       }
       return e;
     }),
-    l = n.i(s.createAction)("Add messages to the store"),
-    c = n.i(s.createReducer)(function(e, t, n) {
-      return t in e ? Object.defineProperty(e, t, {
-        value: n,
-        enumerable: !0,
-        configurable: !0,
-        writable: !0
-      }) : e[t] = n, e;
-    }({}, l, function(e, t) {
-      if (!t || !t.length || !a.a.isArray(t)) return e;
-      var n = a()(t).map("root").compact().value(),
+    d = n.i(l.createAction)("Add messages"),
+    f = n.i(l.createAction)("Remove a message"),
+    p = n.i(l.createReducer)((a = {}, r(a, d, function(e, t) {
+      if (!t || !t.length || !u.a.isArray(t)) return e;
+      var n = u()(t).map("root").compact().value(),
         r = t.concat(n),
-        o = a.a.groupBy(r, "channel"),
-        i = a.a.mapValues(o, function(e) {
-          return a.a.keyBy(e, "ts");
+        o = u.a.groupBy(r, "channel"),
+        i = u.a.mapValues(o, function(e) {
+          return u.a.keyBy(e, "ts");
         }),
-        s = a.a.mapValues(i, function(t, n) {
-          return u({}, e[n], t);
+        a = u.a.mapValues(i, function(t, n) {
+          return c({}, e[n], t);
         });
-      return u({}, e, s);
-    }), {});
-  t.default = c;
+      return c({}, e, a);
+    }), r(a, f, function(e, t) {
+      if (!t || !t.channel || !t.ts) return e;
+      var n = u.a.omit(e[t.channel], t.ts);
+      return c({}, e, r({}, t.channel, n));
+    }), a), {});
+  t.default = p;
 }, function(e, t, n) {
   "use strict";
+
+  function r(e, t, n) {
+    return t in e ? Object.defineProperty(e, t, {
+      value: n,
+      enumerable: !0,
+      configurable: !0,
+      writable: !0
+    }) : e[t] = n, e;
+  }
   Object.defineProperty(t, "__esModule", {
     value: !0
   }), n.d(t, "getTimestampsByChannelId", function() {
-    return l;
+    return d;
   });
-  var r = n(6),
-    o = n.n(r),
-    i = n(17),
-    a = (n.n(i), n(3034)),
-    s = Object.assign || function(e) {
+  var o, i = n(6),
+    a = n.n(i),
+    s = n(17),
+    u = (n.n(s), n(3034)),
+    l = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
         for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
       }
       return e;
     },
-    u = n.i(i.createReducer)(function(e, t, n) {
-      return t in e ? Object.defineProperty(e, t, {
-        value: n,
-        enumerable: !0,
-        configurable: !0,
-        writable: !0
-      }) : e[t] = n, e;
-    }({}, a.addMessages, function(e, t) {
-      if (!t || !t.length || !o.a.isArray(t)) return e;
-      var n = o.a.groupBy(t, "channel"),
-        r = o.a.mapValues(n, function(t, n) {
+    c = n.i(s.createReducer)((o = {}, r(o, u.addMessages, function(e, t) {
+      if (!t || !t.length || !a.a.isArray(t)) return e;
+      var n = a.a.groupBy(t, "channel"),
+        r = a.a.mapValues(n, function(t, n) {
           var r = e[n] || [],
-            i = r.concat(o.a.map(t, "ts")),
-            a = i.sort();
-          return o.a.sortedUniq(a);
+            o = r.concat(a.a.map(t, "ts")),
+            i = o.sort();
+          return a.a.sortedUniq(i);
         });
-      return s({}, e, r);
-    }), {});
-  t.default = u;
-  var l = function(e, t) {
+      return l({}, e, r);
+    }), r(o, u.removeMessage, function(e, t) {
+      if (!t || !t.channel || !t.ts) return e;
+      var n = a.a.filter(e[t.channel], function(e) {
+        return e !== t.ts;
+      });
+      return l({}, e, r({}, t.channel, n));
+    }), o), {});
+  t.default = c;
+  var d = function(e, t) {
     return e && e.channelMessages && e.channelMessages[t];
   };
 }, function(e, t, n) {
@@ -51835,15 +51852,11 @@ webpackJsonp([332], [, function(e, t, n) {
   }
 
   function u(e) {
-    return e.sort(function(e, t) {
-      return t.length - e.length;
-    });
+    return n.i(d.orderBy)(e, "length", "desc");
   }
 
   function l(e) {
-    return e.sort(function(e, t) {
-      return e.index - t.index;
-    });
+    return n.i(d.orderBy)(e, "index");
   }
 
   function c(e, t) {
@@ -51854,7 +51867,7 @@ webpackJsonp([332], [, function(e, t, n) {
       if (m.test(t)) return e;
       for (var i = n.i(d.escape)(t.toLowerCase()), a = r.indexOf(i); - 1 !== a;) {
         if (s(r, i, a, o)) {
-          for (var u = 0; u < t.length; u++) o[a + u] = !0;
+          for (var u = 0; u < i.length; u++) o[a + u] = !0;
           e.push({
             highlight: t,
             index: a
@@ -53663,4 +53676,11 @@ webpackJsonp([332], [, function(e, t, n) {
   ]);
   n(219)(r, {});
   r.locals && (e.exports = r.locals);
+}, function(e, t, n) {
+  "use strict";
+  var r = n(2353),
+    o = n(3435);
+  n.i(r.a)("interop.format", {
+    locateHighlightWords: o.a
+  });
 }], [2905]);

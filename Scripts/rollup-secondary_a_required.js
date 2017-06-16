@@ -7745,7 +7745,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           });
         },
         cleanCommandText: function(e) {
-          return TS.boot_data.feature_name_tagging_client || TS.boot_data.feature_localization ? r(e, {
+          return TS.boot_data.feature_localization && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE && (e = TSFEmoji.translateEmojiStringToCanonical(e, TS.i18n.locale())), TS.boot_data.feature_name_tagging_client ? r(e, {
             do_specials: !1,
             human_readable: !0
           }) : e;
@@ -7999,22 +7999,35 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return t + TS.format.tokenizeStr(v, n);
         },
         I = function(e) {
-          var t, n = TS.model.highlight_words.concat();
+          if (TS.boot_data.feature_tinyspeck) {
+            var t = TS.interop.format.locateHighlightWords(e, TS.model.highlight_words);
+            return _.forEachRight(t, function(t) {
+              var n = _.escape(t.highlight),
+                i = t.index,
+                r = i + n.length,
+                a = e.slice(0, i),
+                s = '<span class="mention">' + n + "</span>",
+                o = e.slice(r);
+              e = a + s + o;
+            }), e;
+          }
+          var n = TS.model.highlight_words.concat();
           n.sort(function(e, t) {
             return t.length - e.length;
           });
-          var i = !1;
-          return -1 != e.indexOf("@") && (i = !0, e = TS.format.swapOutAts(e)), n.forEach(function(n) {
-            i && (n = TS.format.swapOutAts(n)), n = TS.utility.regexpEscape(n), "don" === n && (n += "(?!['’]t)"), n = _.escape(n), t = i ? new RegExp("(\\b(?!.)|_|\\s|^)(" + n + ")(\\b|,*)((?!.)|_|\\s|$)", "ig") : new RegExp("(\\b|_|\\s|^)(" + n + ")(\\b)(|_|\\s|$)", "ig");
-            var r = 0;
-            e = e.replace(t, function(e, t, n, i, a, s, o) {
+          var i = !1; - 1 != e.indexOf("@") && (i = !0, e = TS.format.swapOutAts(e));
+          var r;
+          return n.forEach(function(t) {
+            i && (t = TS.format.swapOutAts(t)), t = TS.utility.regexpEscape(t), "don" === t && (t += "(?!['’]t)"), t = _.escape(t), r = i ? new RegExp("(\\b(?!.)|_|\\s|^)(" + t + ")(\\b|,*)((?!.)|_|\\s|$)", "ig") : new RegExp("(\\b|_|\\s|^)(" + t + ")(\\b)(|_|\\s|$)", "ig");
+            var n = 0;
+            e = e.replace(r, function(e, t, i, r, a, s, o) {
               if ("&" === o.substr(s - 1, 1) && ";" === o.substr(s + e.length, 1)) return e;
               if (o.substr(0, s).match(/</))
-                for (var l = s; l >= r; l -= 1) {
-                  if ("<" === o.charAt(l)) return t + n + i;
+                for (var l = s; l >= n; l -= 1) {
+                  if ("<" === o.charAt(l)) return t + i + r;
                   if (">" === o.charAt(l)) break;
                 }
-              return r = s + e.length, t + '<span class="mention">' + n + "</span>" + i + a;
+              return n = s + e.length, t + '<span class="mention">' + i + "</span>" + r + a;
             });
           }), i ? TS.format.swapInAts(e) : e;
         },
@@ -25673,7 +25686,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }), Handlebars.registerHelper("toCalendarDateShort", function(e) {
             return TS.utility.date.toCalendarDate(e, !0);
           }), Handlebars.registerHelper("toCalendarDateOrNamedDay", function(e) {
-            return TS.utility.datetime.toCalendarDateOrNamedDay(e);
+            return TS.interop.datetime.toCalendarDateOrNamedDay(e);
           }), Handlebars.registerHelper("toCalendarDateOrNamedDayWords", function(e) {
             return TS.utility.date.toCalendarDateOrNamedDayWords(e);
           }), Handlebars.registerHelper("toCalendarDateIfYesterdayOrToday", function(e) {
@@ -38519,7 +38532,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                 return e;
               }
           if (0 === e.indexOf("/img/")) return e;
-          n = TS.utility.url.setUrlQueryStringValue(n, "c", "1");
+          TS.boot_data.feature_imgproxy_multicloud && (n += "/mc"), n = TS.utility.url.setUrlQueryStringValue(n, "c", "1");
           var d = [],
             c = parseInt(t.width, 10),
             _ = parseInt(t.height, 10);
@@ -40587,12 +40600,22 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         onStart: function() {
           TS.useRedux() && TS.boot_data.feature_react_messages && e();
         },
-        addMessage: function(e, t) {
-          t && t.channel && t.ts && TS.redux.dispatch(TS.interop.redux.entities.messages.addMessages([t]));
+        addMessage: function(e) {
+          e && e.channel && e.ts && TS.redux.dispatch(TS.interop.redux.entities.messages.addMessages([e]));
+        },
+        removeMessage: function(e) {
+          e && e.channel && e.ts && TS.redux.dispatch(TS.interop.redux.entities.messages.removeMessage(e));
         }
       });
       var e = function() {
-        TS.ims.message_received_sig.add(TS.redux.messages.addMessage), TS.mpims.message_received_sig.add(TS.redux.messages.addMessage), TS.groups.message_received_sig.add(TS.redux.messages.addMessage), TS.channels.message_received_sig.add(TS.redux.messages.addMessage);
+        function e(e, t) {
+          TS.redux.messages.addMessage(t);
+        }
+
+        function t(e, t) {
+          TS.redux.messages.removeMessage(t);
+        }
+        TS.ims.message_received_sig.add(e), TS.mpims.message_received_sig.add(e), TS.groups.message_received_sig.add(e), TS.channels.message_received_sig.add(e), TS.ims.message_changed_sig.add(e), TS.mpims.message_changed_sig.add(e), TS.groups.message_changed_sig.add(e), TS.channels.message_changed_sig.add(e), TS.ims.message_removed_sig.add(t), TS.mpims.message_removed_sig.add(t), TS.groups.message_removed_sig.add(t), TS.channels.message_removed_sig.add(t);
       };
     }();
   },

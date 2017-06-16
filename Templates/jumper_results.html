@@ -23,13 +23,11 @@
   <ol class="no_pointer_events">
     {{> jumper_org_search_row}}
   </ol>
-{{else}}
-  {{#if query}}
-    <p>
-      <span class="block">{{#t}}No matches found. Did you spell it correctly?{{/t}}</span>
-      {{#if show_new_channel_link}}
-        <a data-action="new_channel" class="btn btn_outline" data-qa="jumper_new_channel_button">{{#t}}Create a channel named #{clean_name}{{/t}}</a>
-      {{/if}}
-    </p>
-  {{/if}}
+{{else if query}}
+  <p>
+    <span class="block">{{#t}}No matches found. Did you spell it correctly?{{/t}}</span>
+    {{#if show_new_channel_link}}
+      <a data-action="new_channel" class="btn btn_outline" data-qa="jumper_new_channel_button">{{#t}}Create a channel named #{clean_name}{{/t}}</a>
+    {{/if}}
+  </p>
 {{/if}}
