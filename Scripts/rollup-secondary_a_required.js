@@ -3663,7 +3663,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             var n = TS.client.msg_input.$input,
               i = TS.utility.contenteditable.value(n),
               r = t.data("slash-command-autofill");
-            i || (TS.utility.contenteditable.clear(n), TS.utility.contenteditable.insertTextAtCursor(n, r), TS.utility.contenteditable.supportsTexty() || n.TS_tabComplete("promiseToChoose", void 0, !0)), TS.utility.contenteditable.value(n, r + " " + i), TS.utility.contenteditable.cursorPosition(n, r.length + 1, i.length), TS.utility.contenteditable.focus(n), TS.utility.contenteditable.supportsTexty() || n.trigger("textchange");
+            TS.apps.isAppSpaceEnabled() && "messages" !== TS.client.ui.app_space.active_view && TS.client.ui.app_space.toggleView("messages"), i || (TS.utility.contenteditable.clear(n), TS.utility.contenteditable.insertTextAtCursor(n, r), TS.utility.contenteditable.supportsTexty() || n.TS_tabComplete("promiseToChoose", void 0, !0)), TS.utility.contenteditable.value(n, r + " " + i), TS.utility.contenteditable.cursorPosition(n, r.length + 1, i.length), TS.utility.contenteditable.focus(n), TS.utility.contenteditable.supportsTexty() || n.trigger("textchange");
           }), TS.boot_data.feature_sli_recaps && TS.boot_data.feature_sli_recaps_interface && (TS.click.addClientHandler(".recap_highlight_debug", function(e) {
             if (TS.boot_data.feature_tinyspeck && "sli_debug_info" === TS.recaps_signal.sli_recaps_debug_group)
               if (TS.boot_data.feature_sli_highlights_cache) {

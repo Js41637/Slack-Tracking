@@ -18,7 +18,11 @@
     <div id="channel_header_info" class="channel_header_info threads_channel_header_info"></div>
   {{else if is_app}}
     <div id="channel_name_container" class="channel_name_container">
-      <h2 id="channel_name" class="channel_name cursor_default" data-qa="channel_name">{{getPrefCompliantMemberName member}}</h2>
+      {{!-- For App Space, we put the star next to the Channel/App name --}}
+      <h2 class="channel_name cursor_default" data-qa="channel_name">
+        <div id="star_container" class="channel_header_info_item"></div>
+        <span>{{getPrefCompliantMemberName member}}</span>
+      </h2>
     </div>
     <div id="channel_header_info" class="position_relative">
       {{> app_space_channel_header}}

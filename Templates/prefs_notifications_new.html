@@ -239,7 +239,7 @@
     <div id="new_msg_snd_settings">
       <label class="checkbox inline">
         <input id="new_msg_snd_none_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_sounds_and_appearance">
-        {{#t}}Play a sound when receiving a message notification{{/t}}
+        {{#t}}Play a sound when receiving a notification{{/t}}
       </label>
       <span id="select_new_msg_snd" class="small_left_margin greigh normal align_middle"><span id="selected_new_msg_snd">{{new_msg_snd_label}}</span> (<button id="change_notification_sound" class="btn_link">{{#t}}change{{/t}}</button>)</span>
     </div>
@@ -323,6 +323,7 @@
       </label>
       <span id="select_email_alerts" class="small_left_margin greigh normal align_middle"><span id="email_alerts_current"></span> (<button id="change_email_alerts" class="btn_link">{{#t}}change{{/t}}</button>)</span>
     </div>
+    <div id="email_alerts_info" class="hidden"><ts-icon class="ts_icon_info_circle ts_icon_inherit small blue_fill"></ts-icon> {{#t}}You&rsquo;ll only receive emails when you&rsquo;re mentioned or sent a direct message{{/t}}</div>
   </div>
 
   <h4 id="prefs_channel_overrides">{{#t}}Channel-Specific Notifications{{/t}}</h4>

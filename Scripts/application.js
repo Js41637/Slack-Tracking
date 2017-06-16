@@ -31510,7 +31510,7 @@ webpackJsonp([332], [, function(e, t, n) {
     h = n(3209),
     _ = n(3234),
     m = n(3233),
-    y = n(3437),
+    y = n(3643),
     v = n(2881),
     g = function(e) {
       var t = "react_channel_sidebar_display_item";
@@ -31569,7 +31569,9 @@ webpackJsonp([332], [, function(e, t, n) {
     L = n(3176),
     O = n(3177),
     C = n(3182),
-    P = n(3202);
+    P = n(3202),
+    j = n(3645),
+    D = n(3172);
   n.i(r.a)("interop.datetime", {
     toDateObject: o.a,
     toDate: i.a,
@@ -31598,7 +31600,9 @@ webpackJsonp([332], [, function(e, t, n) {
     toHumanReadableDateAndTime: L.a,
     convertISOtoUTCReadableDate: O.a,
     toTimeAgo: C.a,
-    addDays: P.a
+    addDays: P.a,
+    daysToYearsPretty: j.a,
+    maybeGetRelativeDay: D.a
   });
 }, , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , function(e, t, n) {
   "use strict";
@@ -40347,47 +40351,65 @@ webpackJsonp([332], [, function(e, t, n) {
 }, , , function(e, t, n) {
   "use strict";
   n.d(t, "a", function() {
-    return f;
+    return _;
   });
   var r = n(2),
     o = n.n(r),
     i = n(43),
-    a = n(6),
+    a = n(9),
     s = n.n(a),
-    u = n(3190),
-    l = n(2902),
-    c = n(3141),
-    d = n(3213),
-    f = (n.n(d), {
+    u = n(6),
+    l = n.n(u),
+    c = n(3190),
+    d = n(2902),
+    f = n(3141),
+    p = n(3028),
+    h = n(3213),
+    _ = (n.n(h), {
       count: r.PropTypes.number.isRequired,
       name: r.PropTypes.string.isRequired,
-      users: r.PropTypes.arrayOf(r.PropTypes.string).isRequired
+      users: r.PropTypes.arrayOf(r.PropTypes.string).isRequired,
+      reacted: r.PropTypes.bool,
+      onClick: r.PropTypes.func
     }),
-    p = function(e) {
+    m = {
+      reacted: !1,
+      onClick: l.a.noop
+    },
+    y = function(e) {
       var t = e.count,
         n = e.name,
-        r = e.users;
-      return o.a.createElement(l.a, {
+        r = e.users,
+        i = e.reacted,
+        a = e.onClick;
+      return o.a.createElement(d.a, {
         tip: r.join(", "),
         delay: 300
       }, o.a.createElement("button", {
-        className: "c-reaction"
-      }, o.a.createElement(u.a, {
+        className: s()("c-reaction", {
+          "c-reaction--reacted": i
+        }),
+        onClick: function(e) {
+          e.preventDefault(), a(n, i);
+        }
+      }, o.a.createElement(c.a, {
         text: ":" + n + ":"
       }), o.a.createElement("span", {
         className: "c-reaction__count"
       }, t)));
     };
-  p.propTypes = f;
-  var h = function(e, t) {
+  y.propTypes = _, y.defaultProps = m;
+  var v = function(e, t) {
+    var r = t.users;
     return {
-      users: t.users && s.a.map(t.users, function(t) {
-        var r = n.i(c.getMemberById)(e, t);
+      users: r && l.a.map(r, function(t) {
+        var r = n.i(f.getMemberById)(e, t);
         return r && r.name ? r.name : "unknown";
-      })
+      }),
+      reacted: r && l.a.includes(r, n.i(p.getCurrentUserId)(e))
     };
   };
-  t.b = n.i(i.b)(h)(p);
+  t.b = n.i(i.b)(v)(y);
 }, function(e, t, n) {
   var r = n(3214);
   "string" == typeof r && (r = [
@@ -40396,7 +40418,7 @@ webpackJsonp([332], [, function(e, t, n) {
   n(219)(r, {});
   r.locals && (e.exports = r.locals);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, '.c-reaction {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  line-height: inherit;\n  padding: 2px 3px;\n  display: inline-flex;\n  align-items: center;\n  border: 1px solid #E8E8E8;\n  border-radius: 5px;\n  margin-right: 5px;\n  margin-bottom: 5px;\n}\n.c-reaction:hover,\n.c-reaction:focus,\n.c-reaction:active {\n  outline: none;\n}\n.c-reaction .emoji-sizer {\n  font-size: 16px;\n}\n.c-reaction:hover {\n  border-color: #2D9EE0;\n  cursor: pointer;\n}\n.c-reaction__count {\n  font-size: 0.6875rem;\n  color: #717274;\n  font-family: "Helvetica Neue", Helvetica, "Segoe UI", Tahoma, Arial, sans-serif;\n  padding: 0 1px 0 3px;\n}\n.c-reaction_bar {\n  margin-top: 5px;\n}\n.c-reaction_add {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  line-height: inherit;\n  padding: 2px 3px;\n  display: inline-flex;\n  align-items: center;\n  border: 1px solid #E8E8E8;\n  border-radius: 5px;\n  margin-right: 5px;\n  margin-bottom: 5px;\n  display: inline-block;\n  position: relative;\n  padding: 3px 4px 1px 2px;\n  margin-left: 9px;\n  opacity: 0;\n  transition: opacity 0.2s;\n}\n.c-reaction_add:hover,\n.c-reaction_add:focus,\n.c-reaction_add:active {\n  outline: none;\n}\n.c-reaction_add .emoji-sizer {\n  font-size: 16px;\n}\n.c-reaction_add:hover {\n  border-color: #2D9EE0;\n}\n.c-reaction_add__background {\n  position: absolute;\n  width: 1rem;\n  height: 1rem;\n  top: 1px;\n  left: 3px;\n  color: #FFF;\n}\n.c-reaction_add__icon {\n  position: relative;\n  display: block;\n  width: 1rem;\n  height: 1rem;\n  z-index: 1;\n  color: #A0A0A2;\n}\n.c-reaction_add__icon::before {\n  font-size: 17px;\n  vertical-align: text-top;\n}\n.c-reaction_add__background::before {\n  font-size: 16px;\n}\n.c-reaction_bar:hover .c-reaction_add {\n  opacity: 1;\n}\n.c-reaction_add:hover .c-reaction_add__icon {\n  color: #C39A48;\n}\n.c-reaction_add:hover .c-reaction_add__background {\n  color: #FFD06D;\n}\n', ""]);
+  t = e.exports = n(189)(), t.push([e.i, '.c-reaction {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  line-height: inherit;\n  padding: 2px 3px;\n  display: inline-flex;\n  align-items: center;\n  border: 1px solid #E8E8E8;\n  border-radius: 5px;\n  margin-right: 5px;\n  margin-bottom: 5px;\n}\n.c-reaction:hover,\n.c-reaction:focus,\n.c-reaction:active {\n  outline: none;\n}\n.c-reaction .emoji-sizer {\n  font-size: 16px;\n}\n.c-reaction:hover {\n  border-color: #2D9EE0;\n  cursor: pointer;\n}\n.c-reaction--reacted {\n  background-color: rgba(0, 122, 184, 0.05);\n  border-color: rgba(0, 122, 184, 0.3);\n}\n.c-reaction__count {\n  font-size: 0.6875rem;\n  color: #717274;\n  font-family: "Helvetica Neue", Helvetica, "Segoe UI", Tahoma, Arial, sans-serif;\n  padding: 0 1px 0 3px;\n}\n.c-reaction--reacted .c-reaction__count {\n  color: #007AB8;\n  font-weight: 700;\n}\n.c-reaction_bar {\n  margin-top: 5px;\n}\n.c-reaction_add {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  line-height: inherit;\n  padding: 2px 3px;\n  display: inline-flex;\n  align-items: center;\n  border: 1px solid #E8E8E8;\n  border-radius: 5px;\n  margin-right: 5px;\n  margin-bottom: 5px;\n  display: inline-block;\n  position: relative;\n  padding: 3px 4px 1px 2px;\n  margin-left: 9px;\n  opacity: 0;\n  transition: opacity 0.2s;\n}\n.c-reaction_add:hover,\n.c-reaction_add:focus,\n.c-reaction_add:active {\n  outline: none;\n}\n.c-reaction_add .emoji-sizer {\n  font-size: 16px;\n}\n.c-reaction_add:hover {\n  border-color: #2D9EE0;\n}\n.c-reaction_add__background {\n  position: absolute;\n  width: 1rem;\n  height: 1rem;\n  top: 1px;\n  left: 3px;\n  color: #FFF;\n}\n.c-reaction_add__icon {\n  position: relative;\n  display: block;\n  width: 1rem;\n  height: 1rem;\n  z-index: 1;\n  color: #A0A0A2;\n}\n.c-reaction_add__icon::before {\n  font-size: 17px;\n  vertical-align: text-top;\n}\n.c-reaction_add__background::before {\n  font-size: 16px;\n}\n.c-reaction_bar:hover .c-reaction_add {\n  opacity: 1;\n}\n.c-reaction_add:hover .c-reaction_add__icon {\n  color: #C39A48;\n}\n.c-reaction_add:hover .c-reaction_add__background {\n  color: #FFD06D;\n}\n', ""]);
 }, function(e, t, n) {
   "use strict";
   var r = n(3216);
@@ -40405,50 +40427,110 @@ webpackJsonp([332], [, function(e, t, n) {
 }, function(e, t, n) {
   "use strict";
 
-  function r() {
-    console.log("Gonna add a reaction");
+  function r(e, t) {
+    if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
   }
-  var o = n(2),
-    i = n.n(o),
-    a = n(43),
-    s = n(3212),
-    u = n(3273),
-    l = n(3183),
-    c = n(3213),
-    d = (n.n(c), {
-      reactions: o.PropTypes.arrayOf(o.PropTypes.shape(s.a))
-    }),
-    f = {
-      reactions: null
+
+  function o(e, t) {
+    if (!e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    return !t || "object" != typeof t && "function" != typeof t ? e : t;
+  }
+
+  function i(e, t) {
+    if ("function" != typeof t && null !== t) throw new TypeError("Super expression must either be null or a function, not " + typeof t);
+    e.prototype = Object.create(t && t.prototype, {
+      constructor: {
+        value: e,
+        enumerable: !1,
+        writable: !0,
+        configurable: !0
+      }
+    }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
+  }
+  var a = n(2),
+    s = n.n(a),
+    u = n(43),
+    l = n(3212),
+    c = n(3273),
+    d = n(3183),
+    f = n(3644),
+    p = n(3642),
+    h = n(3213),
+    _ = (n.n(h), function() {
+      function e(e, t) {
+        for (var n = 0; n < t.length; n++) {
+          var r = t[n];
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
+        }
+      }
+      return function(t, n, r) {
+        return n && e(t.prototype, n), r && e(t, r), t;
+      };
+    }()),
+    m = {
+      reactions: a.PropTypes.arrayOf(a.PropTypes.shape(l.a)),
+      reactionKey: a.PropTypes.string
     },
-    p = function(e) {
-      var t = e.reactions;
-      if (!t || 0 === t.length) return null;
-      var n = t.map(function(e) {
-        var t = e.count,
-          n = e.name,
-          r = e.users;
-        return i.a.createElement(s.b, {
-          name: n,
-          count: t,
-          users: r,
-          key: n
-        });
-      }).concat(i.a.createElement(u.a, {
-        onClick: r,
-        key: "reaction-add-button"
-      }));
-      return i.a.createElement("div", {
-        className: "c-reaction_bar"
-      }, n);
-    };
-  p.propTypes = d, p.defaultProps = f;
-  var h = function(e, t) {
+    y = {
+      reactions: null,
+      reactionKey: null
+    },
+    v = function(e) {
+      function t() {
+        r(this, t);
+        var e = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this));
+        return e.onAddReaction = e.onAddReaction.bind(e), e.onReactionClick = e.onReactionClick.bind(e), e;
+      }
+      return i(t, e), _(t, [{
+        key: "onAddReaction",
+        value: function(e) {
+          n.i(f.a)({
+            e: e,
+            rxn_key: this.props.reactionKey
+          });
+        }
+      }, {
+        key: "onReactionClick",
+        value: function(e, t) {
+          n.i(p.a)(this.props.reactionKey, e, !t);
+        }
+      }, {
+        key: "render",
+        value: function() {
+          var e = this,
+            t = this.props,
+            n = t.reactions,
+            r = t.reactionKey;
+          if (!n || 0 === n.length) return null;
+          var o = n.map(function(t) {
+            var n = t.count,
+              o = t.name,
+              i = t.users;
+            return s.a.createElement(l.b, {
+              name: o,
+              count: n,
+              users: i,
+              key: o,
+              reactionKey: r,
+              onClick: e.onReactionClick
+            });
+          }).concat(s.a.createElement(c.a, {
+            onClick: this.onAddReaction,
+            key: "reaction-add-button"
+          }));
+          return s.a.createElement("div", {
+            className: "c-reaction_bar"
+          }, o);
+        }
+      }]), t;
+    }(s.a.PureComponent);
+  v.propTypes = m, v.defaultProps = y;
+  var g = function(e, t) {
     return {
-      reactions: n.i(l.getReactionsForKey)(e, t.reactionKey)
+      reactions: n.i(d.getReactionsForKey)(e, t.reactionKey)
     };
   };
-  t.a = n.i(a.b)(h)(p);
+  t.a = n.i(u.b)(g)(v);
 }, , , , , , , , , , , , , , , , , function(e, t, n) {
   "use strict";
   n.d(t, "a", function() {
@@ -51913,16 +51995,7 @@ webpackJsonp([332], [, function(e, t, n) {
     selectItem: s.a.noop,
     dim: !0
   }, t.a = n.i(i.a)(d);
-}, function(e, t, n) {
-  "use strict";
-  n.d(t, "a", function() {
-    return o;
-  });
-  var r = n(2277),
-    o = n.i(r.a)("TS.ui.admin_invites.start", function() {
-      return null;
-    });
-}, function(e, t, n) {
+}, , function(e, t, n) {
   "use strict";
   n.d(t, "a", function() {
     return i;
@@ -53683,4 +53756,46 @@ webpackJsonp([332], [, function(e, t, n) {
   n.i(r.a)("interop.format", {
     locateHighlightWords: o.a
   });
+}, function(e, t, n) {
+  "use strict";
+  n.d(t, "a", function() {
+    return o;
+  });
+  var r = n(2277),
+    o = n.i(r.a)("TS.rxns.changeRxnsFromUserAction", function() {
+      return null;
+    });
+}, function(e, t, n) {
+  "use strict";
+  n.d(t, "a", function() {
+    return o;
+  });
+  var r = n(2277),
+    o = n.i(r.a)("TS.ui.admin_invites.start", function() {
+      return null;
+    });
+}, function(e, t, n) {
+  "use strict";
+  n.d(t, "a", function() {
+    return o;
+  });
+  var r = n(2277),
+    o = n.i(r.a)("TS.ui.react_emoji_menu.start", function() {
+      return null;
+    });
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e) {
+    var t = o.a.localeData(o.a.locale()),
+      n = 0,
+      r = parseInt(e, 10),
+      i = "y",
+      a = "d",
+      s = "",
+      u = "";
+    return r % 365 == 0 ? (n = r / 365, r = 0) : (n = Math.floor(r / 365), r %= 365), i = 0 === n || n > 1 ? "yy" : "y", a = 0 === r || r > 1 ? "dd" : "d", s = t.relativeTime(n, !0, i, !1), u = t.relativeTime(r, !0, a, !1), n >= 1 && r >= 1 ? s + ", " + u : n >= 1 ? s : u;
+  }
+  var o = n(2989);
+  t.a = r;
 }], [2905]);
