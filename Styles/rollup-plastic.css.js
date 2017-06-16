@@ -10274,7 +10274,10 @@ html.fs_modal_active {
   position: absolute;
   left: 3%;
   top: 2rem;
-  font-size: 15px;
+  font-size: 15px
+}
+
+.p-apps_browser_modal .contents_container .contents .links_container a {
   color: #717274
 }
 
