@@ -37685,7 +37685,14 @@ webpackJsonp([332], [, function(e, t, n) {
     a = (n.i(r.a)("TS.console.logError", function() {}), n.i(r.a)("TS.console.logStackTrace", function() {}), n.i(r.a)("TS.console.shouldLog", function() {}), n.i(r.a)("TS.console.warn", function() {}));
 }, function(e, t, n) {
   "use strict";
-  t.a = window.signals.Signal;
+
+  function r() {
+    this.add = i.a.noop, this.addOnce = i.a.noop, this.dispatch = i.a.noop, this.remove = i.a.noop, this.removeAll = i.a.noop;
+  }
+  var o = n(6),
+    i = n.n(o),
+    a = i.a.get(window, "signals.Signal", r);
+  t.a = a;
 }, function(e, t, n) {
   "use strict";
   n.d(t, "a", function() {

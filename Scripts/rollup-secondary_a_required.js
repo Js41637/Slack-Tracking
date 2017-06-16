@@ -209,7 +209,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
       "use strict";
       TS.registerModule("utility.url", {
         isValidSlackWebSocketUrl: function(e) {
-          return /\.slack-msgs.com$/.test(TS.utility.url.getHostName(e));
+          var t = TS.utility.url.getHostName(e);
+          return "dev" === TS.boot_data.version_ts && "localhost" === t || /\.slack-msgs.com$/.test(t);
         },
         getHostName: function(e) {
           if (!e) return "";
@@ -7622,14 +7623,25 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
 
       function r(t, n) {
         if (!t) return "";
-        n || (n = {}), TS.utility.contenteditable.supportsTexty() && (t = TS.format.replaceUnicodeDoppelgangers(t)), n.do_specials && (t = TSF.getTokensString(t, "CLEAN", {
-          jumbomoji: TS.model.prefs.jumbomoji
-        }));
+        n || (n = {}), TS.utility.contenteditable.supportsTexty() && (t = TS.format.replaceUnicodeDoppelgangers(t));
         var i = [];
-        return TS.boot_data.feature_ignore_code_mentions && (t = TSF.replaceFormatContents(i, t, {
+        if (TS.boot_data.feature_name_tagging_client) {
+          TS.boot_data.feature_ignore_code_mentions && (t = TSF.replaceFormatContents(i, t, {
+            replace_pre: !0,
+            replace_code: !0
+          }));
+          var r = [];
+          t = TS.format.texty.replaceFormatMentions(r, t, n.do_specials), n.do_specials && (t = TSF.getTokensString(t, "CLEAN", {
+            jumbomoji: TS.model.prefs.jumbomoji
+          })), r.forEach(function(e) {
+            t = t.replace(e.placeholder, e.mention);
+          });
+        } else n.do_specials && (t = TSF.getTokensString(t, "CLEAN", {
+          jumbomoji: TS.model.prefs.jumbomoji
+        })), TS.boot_data.feature_ignore_code_mentions && (t = TSF.replaceFormatContents(i, t, {
           replace_pre: !0,
           replace_code: !0
-        })), t = TS.boot_data.feature_name_tagging_client ? TS.format.texty.cleanMentions(t) : t.replace(u, function(i, r, a, o, d) {
+        })), t = t.replace(u, function(i, r, a, o, d) {
           if ("/" === r && e(t, i, d)) return i;
           for (var c, _ = "", u = a.toLowerCase(), m = 0; m < l.length; m++) l[m].regex.test(u) && (c = l[m].cmd, _ = u.substr(l[m].name.length), m = l.length);
           if (c) return r + c + _;
@@ -7647,7 +7659,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             return g = n.human_readable ? "@" + f.model_ob.handle : "<!subteam^" + f.model_ob.id + "|@" + f.model_ob.handle + ">", r + g + f.extra;
           }
           return r + a;
-        }), t = t.replace(p, function(i, r, a, o, l) {
+        });
+        return t = t.replace(p, function(i, r, a, o, l) {
           if ("/" === r && e(t, i, l)) return i;
           var d = s(TS.channels.getChannelById, a.substr(1), TS.channels.getChannelByName, a);
           if (d.model_ob) {
@@ -7659,7 +7672,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           var t = TS.format.texty.convertContentsStringToContents(e.str);
           return e.str = _.reduce(t.contents, function(e, t) {
             return e + t.insert;
-          }, ""), e;
+          }, ""), n.do_specials && (e.str = _.escape(e.str)), e;
         })), t = TSF.swapOutPlaceholders(i, t)), t;
       }
 
@@ -24825,7 +24838,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             i = TS.i18n.t("Unshare from {channel}", "templates_builders")({
               channel: n
             });
-          return '<a class="unshare_link ts_tip ts_tip_top ts_tip_float ts_tip_unshare_link" onclick="TS.files.promptForFileUnshare(\'' + t.id + "', '" + e.id + '\')"><span class="ts_tip_tip">' + i + '</span><i class="ts_icon ts_icon_minus_circle_small"></i></a>';
+          return '<a class="unshare_link ts_tip ts_tip_top ts_tip_float ts_tip_unshare_link ts_tip_multiline" onclick="TS.files.promptForFileUnshare(\'' + t.id + "', '" + e.id + '\')"><span class="ts_tip_tip"><span class="ts_tip_multiline_inner">' + i + '</span></span><i class="ts_icon ts_icon_minus_circle_small"></i></a>';
         },
         updateFileShareLabels: function(e) {
           $('.file_share_label[data-file-id="' + e.id + '"]').each(function() {
@@ -34540,7 +34553,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                 show: !0,
                 no_spinner: !0,
                 hides_on_close: !1
-              }, TS.model.is_our_app && TS.model.is_mac && (t.titleBarStyle = "hidden"), window.winssb) {
+              }, window.winssb) {
               var r = TSSSB.call("getAppDisplay");
               t.x = r.bounds.x + (r.bounds.width - n.call_window_dims.width) / 2, t.y = r.bounds.y + (r.bounds.height - n.call_window_dims.height) / 2;
             }
@@ -36859,20 +36872,25 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             else r ? n.delete_msg = !1 : TS.model.user.is_admin ? TS.model.active_im_id && (i || "USLACKBOT" === e.user || "bot_message" === e.subtype || (n.delete_msg = !1)) : n.delete_msg = !1;
             if (TS.boot_data.feature_new_broadcast && "thread_broadcast" === e.subtype && (n.remove_broadcast = n.delete_msg), e.is_ephemeral) n.delete_msg = !0;
             else {
-              if (TS.client && "pinned_item" !== e.subtype && "unpinned_item" !== e.subtype && "sh_room_created" !== e.subtype && "sh_room_shared" !== e.subtype && (TS.pins.canUserPinHere(t) && (TS.pins.isMessagePinned(e, t) ? n.unpin_msg = !0 : n.pin_msg = !0), "tombstone" === e.subtype && (n.unpin_msg = !1, n.pin_msg = !1)), "file_comment" === e.subtype) n.add_file_comment_rxn = !0;
+              if (TS.client && "pinned_item" !== e.subtype && "unpinned_item" !== e.subtype && "sh_room_created" !== e.subtype && "sh_room_shared" !== e.subtype) {
+                TS.pins.canUserPinHere(t) && (TS.pins.isMessagePinned(e, t) ? n.unpin_msg = !0 : n.pin_msg = !0), "tombstone" === e.subtype && (n.unpin_msg = !1, n.pin_msg = !1);
+                var s = ["channel_join", "channel_leave", "group_join", "group_leave"];
+                _.includes(s, e.subtype) && (n.pin_msg = !1);
+              }
+              if ("file_comment" === e.subtype) n.add_file_comment_rxn = !0;
               else if (TS.utility.msgs.isFileMsg(e)) n.add_file_rxn = !0;
               else if ("tombstone" === e.subtype) n.add_rxn = !1;
               else {
-                var s = TS.rxns.getHandyRxnsDisplayDataByRxnKey(e._rxn_key);
-                n.add_rxn = !s.restrict;
+                var o = TS.rxns.getHandyRxnsDisplayDataByRxnKey(e._rxn_key);
+                n.add_rxn = !o.restrict;
               }
               TS.clipboard.canWriteText() && (n.copy_link = !0, "tombstone" === e.subtype && (n.copy_link = !1));
             }
             TS.client && (n.mark_unread = !0);
-            var o = !e.thread_ts || e.thread_ts == e.ts;
-            n.jump_to_original = !0, TS.replies.canReplyToMsg(t, e) && (n.reply = !0), n.jump_to_original = o, n.mark_unread && !o && (n.mark_unread = !1);
-            var l = ["bot_message", "file_share", "file_mention", "file_comment", "me_message", "reply_broadcast", "thread_broadcast"];
-            return e.is_ephemeral || e.subtype && -1 === l.indexOf(e.subtype) || (n.remind_me = !0), (n.jump_to_original || n.copy_link || n.mark_unread || n.remind_me) && (n.has_private_actions = !0), (n.copy_link || n.add_rxn || n.add_file_rxn || n.add_file_comment_rxn || n.pin_msg || n.unpin_msg) && (n.has_public_actions = !0), e.is_ephemeral || TS.utility.msgs.isTempMsg(e) || ("file_share" === e.subtype || "file_mention" === e.subtype ? n.share_file = !0 : "tombstone" === e.subtype ? n.share_message = !1 : n.share_message = !TS.ims.isImWithDeletedMember(t) && (!t.is_archived || t.is_channel)), n;
+            var l = !e.thread_ts || e.thread_ts == e.ts;
+            n.jump_to_original = !0, TS.replies.canReplyToMsg(t, e) && (n.reply = !0), n.jump_to_original = l, n.mark_unread && !l && (n.mark_unread = !1);
+            var d = ["bot_message", "file_share", "file_mention", "file_comment", "me_message", "reply_broadcast", "thread_broadcast"];
+            return e.is_ephemeral || e.subtype && -1 === d.indexOf(e.subtype) || (n.remind_me = !0), (n.jump_to_original || n.copy_link || n.mark_unread || n.remind_me) && (n.has_private_actions = !0), (n.copy_link || n.add_rxn || n.add_file_rxn || n.add_file_comment_rxn || n.pin_msg || n.unpin_msg) && (n.has_public_actions = !0), e.is_ephemeral || TS.utility.msgs.isTempMsg(e) || ("file_share" === e.subtype || "file_mention" === e.subtype ? n.share_file = !0 : "tombstone" === e.subtype ? n.share_message = !1 : n.share_message = !TS.ims.isImWithDeletedMember(t) && (!t.is_archived || t.is_channel)), n;
           }
         },
         validateMsg: function(e, t, n) {
@@ -39225,7 +39243,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         convertContentsToString: function(e) {
           return e.contents ? (e = _.reduce(e.contents, function(e, t) {
-            return t.attributes && t.attributes.slackmention ? e + "<@" + t.attributes.slackmention.id + "|" + t.attributes.slackmention.label + ">" : e + t.insert;
+            return t.attributes && t.attributes.slackmention ? e + "<@" + t.attributes.slackmention.id + "|" + _.escape(t.attributes.slackmention.label) + ">" : e + t.insert;
           }, ""), e.replace(/\n$/, "")) : "";
         },
         convertContentsToStringForDisplay: function(e) {
@@ -39242,7 +39260,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             e.replace(p, function(e, t, i, r) {
               n.push({
                 id: t,
-                label: i,
+                label: _.unescape(i),
                 index: r,
                 length: e.length
               });
@@ -39299,25 +39317,28 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             return new Texty.Delta(o);
           }
         },
-        cleanMentions: function(e) {
-          var t = TS.format.texty.convertContentsStringToContents(e);
-          return _.reduce(t.contents, function(e, t) {
-            if (t.attributes && t.attributes.slackmention) {
-              var n = t.attributes.slackmention.id;
-              if ("BKeveryone" === n) return e + "<!everyone>";
-              if ("BKhere" === n) return e + "<!here>";
-              if ("BKchannel" === n) return e + "<!channel>";
-              if ("BKgroup" === n) return e + "<!group>";
-              if ("UNVERIFIED" === n) return e + t.attributes.slackmention.label;
-              if ("S" === n.charAt(0)) {
-                var i = TS.user_groups.getUserGroupsById(n);
-                return i ? e + "<!subteam^" + i.id + "|@" + i.handle + ">" : e + t.attributes.slackmention.label;
-              }
-              var r = TS.members.getMemberById(n);
-              return r ? e + "<@" + r.id + ">" : e + t.attributes.slackmention.label;
+        replaceFormatMentions: function(e, t, n) {
+          var i = 0;
+          return t = t.replace(p, function(t, r, a) {
+            i += 1;
+            var s = "mention-placeholder-" + Date.now() + "-" + i,
+              o = n ? _.escape(a) : a;
+            if ("BKeveryone" === r) o = "<!everyone>";
+            else if ("BKhere" === r) o = "<!here>";
+            else if ("BKchannel" === r) o = "<!channel>";
+            else if ("BKgroup" === r) o = "<!group>";
+            else if ("S" === r.charAt(0)) {
+              var l = TS.user_groups.getUserGroupsById(r);
+              l && (o = "<!subteam^" + l.id + "|@" + l.handle + ">");
+            } else {
+              var d = TS.members.getMemberById(r);
+              d && (o = "<@" + d.id + ">");
             }
-            return e + t.insert;
-          }, "");
+            return e.push({
+              mention: o,
+              placeholder: s
+            }), s;
+          });
         },
         buildSmartQuotesDelta: function(e) {
           var t = new Texty.Delta,
@@ -39380,7 +39401,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         c = ["code", "code-block"],
         u = ["monospace", "menlo", "consolas", "inconsolata", "courier", "monaco", "anonymous pro", "terminus", "source code pro"],
         m = ["'", '"', "“", "”", "‘", "’"],
-        p = /(?:<|&lt;)@((?:(?:U|W|S)[A-Z0-9]{8})|BKeveryone|BKhere|BKchannel|BKgroup|UNVERIFIED)\|(@.+?)(?:>|&gt;)/g;
+        p = /(?:<)@((?:(?:U|W|S)[A-Z0-9]{8})|BKeveryone|BKhere|BKchannel|BKgroup|UNVERIFIED)\|(@.+?)(?:>)/g;
     }();
   },
   2750: function(e, t) {

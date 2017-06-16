@@ -21,9 +21,11 @@
 
 {{#feature flag="feature_focus_mode"}}
   <li>
-    <a class="overflow_ellipsis" data-dnd-menu-action="enter_focus_mode">
-      {{#t}}Turn on Focus Mode{{/t}}
-      <span class="float_right tiny">{{cmd_key}}+{{meta_key}}+f</span>
+    <a data-dnd-menu-action="enter_focus_mode">
+      <div class="display_flex justify_content_between">
+        <span>{{#t}}Turn on Focus Mode{{/t}}</span>
+        <span class="tiny">{{cmd_key}}+{{meta_key}}+f</span>
+      </div>
     </a>
   </li>
   <li class="divider"></li>

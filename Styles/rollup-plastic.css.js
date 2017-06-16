@@ -11626,12 +11626,24 @@ body.ReactModal__Body--open {
 }
 
 #menu.notifications_menu .dnd_banner {
-  padding: 45px .9375rem .9375rem;
-  background: url(/29ab/img/notifications_menu/dnd_menu_header_bg@2x.png) #202C3A;
-  background-size: cover;
+  padding: 60px .9375rem .9375rem;
+  background-color: #202C3A;
+  background-image: linear-gradient(#202731, #202C3A 100%);
   line-height: 25px;
   color: #fff;
   position: relative
+}
+
+#menu.notifications_menu .dnd_banner:before {
+  content: '';
+  position: absolute;
+  top: 15px;
+  right: -15px;
+  width: 200px;
+  height: 200px;
+  background-image: url(/ad071/img/notifications_menu/dnd_menu_header_bg.svg);
+  background-size: 190px;
+  background-repeat: no-repeat
 }
 
 #menu.notifications_menu .dnd_banner .dnd_on_label {
