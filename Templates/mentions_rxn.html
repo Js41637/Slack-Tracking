@@ -8,11 +8,7 @@
   </div>
   <div class="mention_rxn_summary">
     <div class="mention_rxn_summary_left">
-      {{#if is_file_reaction}}
-        {{#t}}<span class="mention_rxn_summary_members">{rxn_members}</span> reacted to your file.{{/t}}
-      {{else}}
-        {{#t}}<span class="mention_rxn_summary_members">{rxn_members}</span> reacted to your message.{{/t}}
-      {{/if}}
+      {{rxn_members}}
     </div>
     {{#unless is_file_reaction}}{{jump_link_html}}{{/unless}}
   </div>

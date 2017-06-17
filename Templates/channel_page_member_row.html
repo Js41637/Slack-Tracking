@@ -2,7 +2,7 @@
 
   <div id="channel_page_member_{{member.id}}" class="channel_page_member_row overflow_ellipsis {{#unless suppress_presence}}{{member.presence}}{{/unless}}">
     {{#shouldUseUnifiedMemberDisplay}}
-      {{> c-member member=member size="small" avatar=true linked=true}}
+      {{> c-member member=member size="small" short=true avatar=true linked=true}}
     {{else}}
       {{makeMemberPreviewLinkImage member.id 20 lazy false true}}
       {{#unless suppress_presence}}{{makeMemberPresenceIcon member}}{{/unless}}

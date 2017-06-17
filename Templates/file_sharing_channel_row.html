@@ -18,7 +18,7 @@
   {{else}}
 
     {{#shouldUseUnifiedMemberDisplay}}
-      {{> c-member member=item size="small" avatar=false show_share_prefix=show_share_prefix}}
+      {{> c-member member=item size="small" avatar=false short=true no_tip=true show_share_prefix=show_share_prefix}}
     {{else}}
       {{#if show_share_prefix}}<span class="share_prefix">{{#t}}Share with:{{/t}} </span>{{/if}}{{makeMemberPresenceIcon item}}{{#feature flag="feature_name_tagging_client"}}{{getPrefCompliantMemberName item}}{{#if item.is_self}} {{#t}}(you){{/t}}{{/if}}{{#feature flag="feature_shared_channels_client"}}{{#if item.is_external}} ({{getTeamNameByMember item}}){{/if}}{{/feature}}
 

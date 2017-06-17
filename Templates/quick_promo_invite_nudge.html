@@ -4,8 +4,22 @@
   <img class="c-modal_graphic--quick_promo" src="{{versioned_ill_team '2x'}}" srcset="{{versioned_ill_team '1x'}} 1x, {{versioned_ill_team '2x'}} 2x" alt="{{#t}}An illustration of a friendly bunch of coworkers.{{/t}}"/>
 </div>
 <h3 class="c-modal_copy_header--quick_promo">
-  {{#t}}See what Slack can do \u2014 invite your teammates!{{/t}}
+  {{#if copy_is_contextual_with_invites}}
+    {{#t}}See what Slack can do \u2014 invite more teammates!{{/t}}
+  {{else}}
+    {{#t}}See what Slack can do \u2014 invite your teammates!{{/t}}
+  {{/if}}
 </h3>
 <p class="c-modal_copy--quick_promo">
-  {{#t}}Bring your teammates into Slack, so you can cut down on reply-all emails and start working together more efficiently.{{/t}}
+  {{#if copy_is_non_contextual}}
+    {{#t}}Bring your teammates into Slack, so you can cut down on reply-all emails and start working together more efficiently.{{/t}}
+  {{else if copy_is_contextual_with_invites}}
+    {{#t}}
+      So far, you\u2019ve invited {invite_count, plural, =1{# person}other{# people}} to this team. Bring more of your teammates into Slack, so you can cut down on reply-all emails and start working together more efficiently.
+    {{/t}}
+  {{else}}
+    {{#t invite_count=invite_count}}
+      So far, you haven\u2019t invited anyone to this team. Bring your teammates into Slack, so you can cut down on reply-all emails and start working together more efficiently.
+    {{/t}}
+  {{/if}}
 </p>

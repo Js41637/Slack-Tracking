@@ -1512,6 +1512,9 @@ webpackJsonp([12, 328, 337, 329], {
             };
           return n.length > 2 && (t.minor = parseFloat(n.pop())), t.major = parseFloat(n.join(".")), TS.model.mac_ssb_version ? (o.major = TS.model.mac_ssb_version, o.minor = TS.model.mac_ssb_version_minor) : TS.model.win_ssb_version ? (o.major = TS.model.win_ssb_version, o.minor = TS.model.win_ssb_version_minor) : TS.model.lin_ssb_version && (o.major = TS.model.lin_ssb_version, o.minor = TS.model.lin_ssb_version_minor), TS.utility.compareVersions(o, t) >= 0;
         },
+        doesSupportStickyPosition: function() {
+          return TS.environment.supports_sticky_position;
+        },
         test: function() {
           var e = {
             _decoratePageWithSupport: n,

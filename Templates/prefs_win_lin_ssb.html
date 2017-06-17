@@ -1,7 +1,7 @@
 {{i18n_ns 'win_prefs'}}
 
 <h2 id="prefs_app_settings" class="inline_block">{{#t}}App Settings{{/t}}</h2>
-<p>
+<div>
   {{#unless is_app_store_build}}
     <label class="checkbox">
       <input id="winssb_launch_on_start_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_app_settings">
@@ -12,9 +12,14 @@
     <input id="winssb_run_from_tray_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_app_settings">
     {{#t}}Leave app running in notification area when the window is closed{{/t}}
   </label>
+  <div id="winssb_flash_warning" class="alert alert_warning">
+    <ts-icon class="ts_icon_warning"></ts-icon> 
+    <p>{{#t}}Because of your notification settings, Slack will remain in your taskbar even when closed.{{/t}}</p>
+    <p class="no_bottom_margin">{{#t}}To change this, go to <strong>Notifications &rarr; Sound &amp; appearance</strong> and uncheck the setting to flash the Slack window when receiving an notification.{{/t}}</p>
+  </div>
   <label class="checkbox" id="winssb_disable_hw_acceleration_pref">
     <input id="winssb_disable_hw_acceleration_cb" checked="unchecked" type="checkbox" data-inline-saver="#prefs_app_settings">
     {{#t}}Disable hardware acceleration{{/t}}<br>
     <span id="winssb_disable_hw_acceleration_note" class="normal">{{#unless show_lin_ssb_prefs}}{{#t}}If you use a Windows Classic theme, this can resolve rendering issues. {{/t}}{{/unless}}{{#t}}Restart Slack for this preference to take effect.{{/t}}</span>
   </label>
-</p>
+</div>
