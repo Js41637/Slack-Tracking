@@ -31512,7 +31512,7 @@ webpackJsonp([332], [, function(e, t, n) {
     m = n(2999),
     y = n(3e3),
     v = n(3001),
-    g = n(2996),
+    g = n(3654),
     b = n(3002),
     w = n(3003),
     k = n(3140),
@@ -31545,7 +31545,7 @@ webpackJsonp([332], [, function(e, t, n) {
     distanceInSeconds: m.a,
     isToday: y.a,
     isYesterday: v.a,
-    sameDay: g.a,
+    isSameDay: g.a,
     sameHour: b.a,
     shouldExcludeYear: w.a,
     toDayOfTheWeek: k.a,
@@ -35928,22 +35928,7 @@ webpackJsonp([332], [, function(e, t, n) {
   }
   var o = n(2989);
   t.a = r;
-}, function(e, t, n) {
-  "use strict";
-
-  function r(e, t) {
-    var r = n.i(i.a)(e, {
-        returnMoment: !0
-      }),
-      a = n.i(i.a)(t, {
-        returnMoment: !0
-      });
-    return n.i(o.a)(r).isSame(a, "day");
-  }
-  var o = n(2989),
-    i = n(2356);
-  t.a = r;
-}, function(e, t, n) {
+}, , function(e, t, n) {
   "use strict";
 
   function r(e, t) {
@@ -35981,7 +35966,7 @@ webpackJsonp([332], [, function(e, t, n) {
     var t = new Date;
     return n.i(o.a)(e, t);
   }
-  var o = n(2996);
+  var o = n(3654);
   t.a = r;
 }, function(e, t, n) {
   "use strict";
@@ -35995,7 +35980,7 @@ webpackJsonp([332], [, function(e, t, n) {
   }
   var o = n(2989),
     i = n(2356),
-    a = n(2996);
+    a = n(3654);
   t.a = r;
 }, function(e, t, n) {
   "use strict";
@@ -36522,7 +36507,7 @@ webpackJsonp([332], [, function(e, t, n) {
     c = n(3045),
     d = n(2356),
     f = n(2998),
-    p = n(2996),
+    p = n(3654),
     h = n(3040),
     _ = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
@@ -39387,7 +39372,7 @@ webpackJsonp([332], [, function(e, t, n) {
   }
   var o = n(2356),
     i = n(2989),
-    a = n(2996);
+    a = n(3654);
   t.a = r;
 }, function(e, t, n) {
   "use strict";
@@ -40281,7 +40266,7 @@ webpackJsonp([332], [, function(e, t, n) {
     i = n.n(o),
     a = n(3115),
     s = n(2288),
-    u = n(2996),
+    u = n(3654),
     l = n(2997),
     c = n(2994),
     d = n(3206),
@@ -53930,5 +53915,20 @@ webpackJsonp([332], [, function(e, t, n) {
   }
   var o = n(2356),
     i = n(3172);
+  t.a = r;
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e, t) {
+    var r = n.i(i.a)(e, {
+        returnMoment: !0
+      }),
+      a = n.i(i.a)(t, {
+        returnMoment: !0
+      });
+    return n.i(o.a)(r).isSame(a, "day");
+  }
+  var o = n(2989),
+    i = n(2356);
   t.a = r;
 }], [2905]);

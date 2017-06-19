@@ -8,15 +8,7 @@
       {{#each this.messages}}
         <div class="sli_briefing__message {{#if this.message.file}}sli_briefing__has_file{{/if}} {{this.feedback_class}}" data-cache-id="{{this.message.channel_id}}-{{this.message.ts}}">
           <div class="sli_briefing__justification {{#if this.justification}}has_justification{{/if}}" data-ts="{{this.message.ts}}" data-model-ob-id="{{this.message.channel_id}}">
-            {{#feature flag="feature_sli_highlights_cache"}}
-              {{dangerouslyRenderHTML this.justification}}
-            {{else}}
-              {{#if this.justification}}
-                {{this.justification}}
-              {{else}}
-                {{#t}}This message has no justification yet{{/t}}
-              {{/if}}
-            {{/feature}}
+            {{dangerouslyRenderHTML this.justification}}
           </div>
           {{dangerouslyRenderHTML this.message_markup}}
           <ul class="hidden sli_briefing__feedback_leavebehind" data-feedback-for-cache-id="{{this.message.channel_id}}-{{this.message.ts}}">
