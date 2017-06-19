@@ -2508,7 +2508,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           if (TS.has_pri[a] && TS.log(a, "displayChannel: " + l.id), TS.shared.didDeferMessageHistoryById(l.id) && TS.shared.checkInitialMsgHistory(l, TS.channels), !l.is_member) {
             if (r) return TS.model.requested_channel_joins[n] = {
               and_send_txt: r
-            }, void TS.channels.join(l.name);
+            }, void TS.channels.joinById(n);
             var d = TS.shared.getActiveModelOb();
             d.is_channel && !d.is_member || (TS.client.archives.previous_model_ob = d);
           }
@@ -4041,7 +4041,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                 c = TS.groups.getGroupByName(s);
               if (d) d.is_member ? TS.channels.displayChannel({
                 id: d.id
-              }) : TS.model.user.is_restricted || TS.channels.join(d.name, function(e, t) {
+              }) : TS.model.user.is_restricted || TS.channels.joinById(d.id, function(e, t) {
                 if (!e) {
                   var n = TS.i18n.t("There was a problem joining “{channel_name}”, sorry!", "cmd_handlers")({
                     channel_name: s
@@ -12575,7 +12575,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         onChannelItemClick: function(e) {
           var t = $(this).attr("id");
           if ($(this).hasClass("disabled")) return void TS.menu.channel.end();
-          if ("channel_join_item" === t) e.preventDefault(), TS.model.archive_view_is_showing && TS.client.archives.current_model_ob.id == TS.menu.channel.channel.id ? TS.channels.join(TS.client.archives.getCurrentModelOb().name) : TS.channels.displayChannel({
+          if ("channel_join_item" === t) e.preventDefault(), TS.model.archive_view_is_showing && TS.client.archives.current_model_ob.id == TS.menu.channel.channel.id ? TS.channels.joinById(TS.menu.channel.channel.id) : TS.channels.displayChannel({
             id: TS.menu.channel.channel.id
           });
           else if ("channel_details_item" === t) e.preventDefault(), TS.model.ui_state.flex_visible && "details" === TS.model.ui_state.flex_name ? $("#details_tab").highlight(null, "channel_page_details_highlighter") : TS.client.ui.flex.openFlexTab("details");
@@ -15194,7 +15194,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           if (!t) return void TS.error('unknown channel: "' + e.channel);
           if (t.is_archived) {
             if (TS.info("unarchived channel " + e.channel), t.was_archived_this_session) {
-              TS.channels.join(t.name, null, {
+              TS.channels.joinById(t.id, null, {
                 in_background: !0
               });
             }
@@ -20858,7 +20858,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             reason: "TS.shared.getShareModelObId"
           }, function(i, r, a) {
             i ? (TS.ims.onOpened(i, r, a), n = TS.ims.getImByMemberId(e), n ? t(n.id) : TS.web ? t(r.channel.id) : TS.error("getShareModelObId opened an IM, but it is not in the model? data.channel.id: " + r.channel.id)) : TS.error("getShareModelObId try to open an IM, but failed data: " + JSON.stringify(r || null));
-          })) : e && "C" === e.charAt(0) ? (i = TS.channels.getChannelById(e), i.is_member || i.is_archived ? (r(e), t(e)) : TS.channels.join(i.name, function(n) {
+          })) : e && "C" === e.charAt(0) ? (i = TS.channels.getChannelById(e), i.is_member || i.is_archived ? (r(e), t(e)) : TS.channels.joinById(i.id, function(n) {
             t(n ? e : e);
           })) : (r(e), t(e));
         },
@@ -20870,7 +20870,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             reason: "TS.shared.getModelObIdForSendingMsg"
           }, function(i, r, a) {
             i ? (TS.ims.onOpened(i, r, a), n = TS.ims.getImByMemberId(e), n ? t(n.id) : TS.web ? t(r.channel.id) : TS.error("getModelObIdForSendingMsg opened an IM, but it is not in the model? data.channel.id: " + r.channel.id)) : TS.error("getModelObIdForSendingMsg try to open an IM, but failed data: " + JSON.stringify(r || null));
-          })) : e && "C" === e.charAt(0) ? (i = TS.channels.getChannelById(e), i.is_member || i.is_archived ? t(e) : TS.channels.join(i.name, function(n) {
+          })) : e && "C" === e.charAt(0) ? (i = TS.channels.getChannelById(e), i.is_member || i.is_archived ? t(e) : TS.channels.joinById(i.id, function(n) {
             t(n ? e : e);
           })) : t(e);
         },
@@ -31462,7 +31462,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }), !1;
           n = !0, r || (r = i);
           var c;
-          c = r && r.is_channel && !r.is_member ? TS.channels.join(r.name) : Promise.resolve(), c.then(function() {
+          c = r && r.is_channel && !r.is_member ? TS.channels.joinById(r.id) : Promise.resolve(), c.then(function() {
             return TS.api.call("chat.shareMessage", d).then(function() {
               if (TS.client) {
                 var e = TS.shared.getActiveModelOb();
@@ -32407,7 +32407,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           if (n.length) {
             var i = n.data("model-ob-id"),
               r = TS.shared.getModelObById(i);
-            r && (TS.channels.join(r.name, null, {
+            r && (TS.channels.joinById(r.id, null, {
               in_background: !0
             }), n.find(".join_channel_from_thread").addClass("disabled"));
           }

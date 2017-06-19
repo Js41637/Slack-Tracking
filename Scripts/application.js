@@ -31571,7 +31571,8 @@ webpackJsonp([332], [, function(e, t, n) {
     C = n(3182),
     P = n(3202),
     j = n(3645),
-    D = n(3172);
+    D = n(3172),
+    Y = n(3647);
   n.i(r.a)("interop.datetime", {
     toDateObject: o.a,
     toDate: i.a,
@@ -31602,7 +31603,8 @@ webpackJsonp([332], [, function(e, t, n) {
     toTimeAgo: C.a,
     addDays: P.a,
     daysToYearsPretty: j.a,
-    maybeGetRelativeDay: D.a
+    maybeGetRelativeDay: D.a,
+    millisecondsToPrettifiedTime: Y.a
   });
 }, , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , function(e, t, n) {
   "use strict";
@@ -39414,7 +39416,7 @@ webpackJsonp([332], [, function(e, t, n) {
         returnMoment: !0
       }),
       c = n.i(i.a)(),
-      d = n.i(i.a)().subtract(1, "days"),
+      d = n.i(i.a)(c).subtract(1, "days"),
       f = "";
     return n.i(a.a)(l) ? f = c.calendar(null, {
       today: "[Today]"
@@ -39927,11 +39929,11 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "renderCommand",
         value: function(e) {
-          var t = e.id,
-            n = e.name;
+          var t = e.data,
+            n = t.type;
           return s.a.createElement("a", {
-            href: "/id=" + t
-          }, n);
+            href: "not-a-url"
+          }, "@", n);
         }
       }, {
         key: "renderMember",
@@ -51771,67 +51773,64 @@ webpackJsonp([332], [, function(e, t, n) {
   }
 
   function o(e, t) {
-    for (var i = [], l = 0; l < e.length; l += 1) {
-      var c = e[l];
-      if (c === t) break;
-      if (u[c]) {
-        var d = u[c],
-          f = d.type,
-          p = d.endToken,
-          h = {
-            type: f
+    for (var i = [], c = 0; c < e.length; c += 1) {
+      var d = e[c];
+      if (d === t) break;
+      if (l[d]) {
+        var f = l[d],
+          p = f.type,
+          h = f.endToken,
+          _ = {
+            type: p
           };
-        p && (h.contents = o(e.slice(l + 1), p), l += r(h.contents) + 1), i.push(h);
-      } else if (0 === c.indexOf("<"))
-        if (0 === c.indexOf("<LINK:START")) {
-          var _ = {
+        h && (_.contents = o(e.slice(c + 1), h), c += r(_.contents) + 1), i.push(_);
+      } else if (0 === d.indexOf("<"))
+        if (0 === d.indexOf("<LINK:START")) {
+          var m = {
             type: "link",
-            contents: o(e.slice(l + 1), "<LINK:END>"),
-            url: c.slice(12, -1)
+            contents: o(e.slice(c + 1), "<LINK:END>"),
+            url: d.slice(12, -1)
           };
-          i.push(_), l += r(_.contents) + 1;
-        } else if (0 === c.indexOf("<!")) {
-        var m = c.slice(2, -1).split("|"),
-          y = s(m, 2),
-          v = y[0],
-          g = y[1];
+          i.push(m), c += r(m.contents) + 1;
+        } else if (0 === d.indexOf("<!")) {
+        var y = n.i(s.a)(d);
         i.push({
           type: "command",
-          id: v,
-          name: g
+          data: y,
+          token: d
         });
-      } else if (0 === c.indexOf("<@")) {
-        var b = c.slice(1, -1).split("|"),
-          w = s(b, 2),
-          k = w[0],
-          M = w[1];
+      } else if (0 === d.indexOf("<@")) {
+        var v = d.slice(1, -1).split("|"),
+          g = u(v, 2),
+          b = g[0],
+          w = g[1];
         i.push({
           type: "member",
-          id: k,
-          name: M || k
+          id: b,
+          name: w || b
         });
-      } else if (0 === c.indexOf("<#")) {
-        var T = c.slice(2, -1).split("|"),
-          x = s(T, 2),
-          S = x[0],
-          E = x[1];
+      } else if (0 === d.indexOf("<#")) {
+        var k = d.slice(2, -1).split("|"),
+          M = u(k, 2),
+          T = M[0],
+          x = M[1];
         i.push({
           type: "channel",
-          id: S,
-          name: E
+          id: T,
+          name: x
         });
-      } else 0 === c.indexOf("<EMOJI:COLONS") ? i.push({
+      } else 0 === d.indexOf("<EMOJI:COLONS") ? i.push({
         type: "emoji",
-        name: c.slice(14, -1)
-      }) : 0 === c.indexOf("<JUMBOMOJI:COLONS") ? i.push({
+        name: d.slice(14, -1)
+      }) : 0 === d.indexOf("<JUMBOMOJI:COLONS") ? i.push({
         type: "jumbomoji",
-        name: c.slice(18, -1)
-      }) : 0 === c.indexOf("<HEX:BLOCK") ? i.push({
+        name: d.slice(18, -1)
+      }) : 0 === d.indexOf("<HEX:BLOCK") ? i.push({
         type: "hex",
-        color: c.slice(11, -1)
-      }) : n.i(a.a)("mrkdwnToJson: Failed to handle token", c);
+        color: d.slice(11, -1)
+      }) : n.i(a.a)("mrkdwnToJson: Failed to handle token", d);
       else i.push({
-        text: c
+        text: d
       });
     }
     return i;
@@ -51844,7 +51843,8 @@ webpackJsonp([332], [, function(e, t, n) {
   }
   t.a = i;
   var a = n(3049),
-    s = function() {
+    s = n(3648),
+    u = function() {
       function e(e, t) {
         var n = [],
           r = !0,
@@ -51869,7 +51869,7 @@ webpackJsonp([332], [, function(e, t, n) {
         throw new TypeError("Invalid attempt to destructure non-iterable instance");
       };
     }(),
-    u = {
+    l = {
       "<B:START>": {
         type: "bold",
         endToken: "<B:END>"
@@ -53802,4 +53802,92 @@ webpackJsonp([332], [, function(e, t, n) {
     o = n.i(r.a)("TS.environment.doesSupportStickyPosition", function() {
       return !0;
     });
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e) {
+    var t = Math.floor(e / 1e3),
+      n = Math.floor(t / 3600),
+      r = Math.floor((t - 3600 * n) / 60),
+      o = t - 3600 * n - 60 * r;
+    return r = r < 10 ? "0" + r : r.toString(), o = o < 10 ? "0" + o : o.toString(), 0 !== n ? n + ":" + r + ":" + o : r + ":" + o;
+  }
+  t.a = r;
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e) {
+    return Array.isArray(e) ? e : Array.from(e);
+  }
+
+  function o(e) {
+    var t = e.slice(2, -1),
+      n = t.split("|"),
+      o = s(n, 2),
+      i = o[0],
+      a = o[1],
+      u = i.split("^"),
+      l = r(u);
+    return {
+      type: l[0],
+      label: a,
+      args: l.slice(1)
+    };
+  }
+
+  function i(e) {
+    if (n.i(a.startsWith)(e, "<!")) {
+      var t = o(e),
+        r = t.type,
+        i = t.label,
+        u = t.args;
+      if ("here" === r || "channel" === r || "everyone" === r || "group" === r) return {
+        type: r
+      };
+      if ("team" === r || "subteam" === r) {
+        return {
+          type: r,
+          label: i,
+          id: s(u, 1)[0]
+        };
+      }
+      if ("date" === r) {
+        var l = s(u, 3);
+        return {
+          type: r,
+          label: i,
+          ts: l[0],
+          format: l[1],
+          link: l[2]
+        };
+      }
+    }
+  }
+  t.a = i;
+  var a = n(6),
+    s = (n.n(a), function() {
+      function e(e, t) {
+        var n = [],
+          r = !0,
+          o = !1,
+          i = void 0;
+        try {
+          for (var a, s = e[Symbol.iterator](); !(r = (a = s.next()).done) && (n.push(a.value), !t || n.length !== t); r = !0);
+        } catch (e) {
+          o = !0, i = e;
+        } finally {
+          try {
+            !r && s.return && s.return();
+          } finally {
+            if (o) throw i;
+          }
+        }
+        return n;
+      }
+      return function(t, n) {
+        if (Array.isArray(t)) return t;
+        if (Symbol.iterator in Object(t)) return e(t, n);
+        throw new TypeError("Invalid attempt to destructure non-iterable instance");
+      };
+    }());
 }], [2905]);
