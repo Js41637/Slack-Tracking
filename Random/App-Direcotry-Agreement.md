@@ -2,7 +2,7 @@
 
 **Last modified: July 11, 2016**
 
-You, on behalf of the individual, company or legal entity that developed the Application for listing on the Slack App Directory, agree to abide by the [Slack API Terms of Service](https://slack.comterms-of-service/api), as updated from time-to-time, and as supplemented by these Slack App Directory Terms (together, the **“Agreement”**). References to “you” or “your” will also be deemed references to that individual, company or legal entity.
+You, on behalf of the individual, company or legal entity that developed the Application for listing on the Slack App Directory, agree to abide by the [Slack API Terms of Service](https://slack.com/terms-of-service/api), as updated from time-to-time, and as supplemented by these Slack App Directory Terms (together, the **“Agreement”**). References to “you” or “your” will also be deemed references to that individual, company or legal entity.
 
 #### 1\. License Grants
 

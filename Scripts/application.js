@@ -31528,7 +31528,8 @@ webpackJsonp([332], [, function(e, t, n) {
     j = n(3645),
     D = n(3172),
     Y = n(3647),
-    A = n(3653);
+    A = n(3653),
+    R = n(3885);
   n.i(r.a)("interop.datetime", {
     toDateObject: o.a,
     toDate: i.a,
@@ -31561,7 +31562,8 @@ webpackJsonp([332], [, function(e, t, n) {
     daysToYearsPretty: j.a,
     maybeGetRelativeDay: D.a,
     millisecondsToPrettifiedTime: Y.a,
-    prettifyDateString: A.a
+    prettifyDateString: A.a,
+    makeTsStamp: R.a
   });
 }, , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , function(e, t, n) {
   "use strict";
@@ -35211,7 +35213,7 @@ webpackJsonp([332], [, function(e, t, n) {
     s = n(2989),
     u = n(2694),
     l = n(2348);
-  n(3347), n(3605), n(3051), n(3023), n(2697), n(3641), n(3651), n(3030), n(3240), n(3611);
+  n(3347), n(3605), n(3051), n(3023), n(2697), n(3641), n(3651), n(3661), n(3886), n(3611);
   window.ReactComponents = {}, window.ReactComponents.EmojiPicker = u.a, window.ReactComponents.Popover = l.a, window.ReactComponents.PopoverTrigger = l.b, window.React = o.a, window.ReactDOM = a.a, window.moment = s.a;
 }, function(e, t, n) {
   "use strict";
@@ -35437,7 +35439,7 @@ webpackJsonp([332], [, function(e, t, n) {
       members: v.default,
       bots: w.default,
       memberTypesById: g.default,
-      messagePane: c.d,
+      messagePane: c.default,
       messages: b.default,
       prefs: d.default,
       presence: f.default,
@@ -36103,9 +36105,10 @@ webpackJsonp([332], [, function(e, t, n) {
     w = n(3078),
     k = n(2344),
     M = n(2345),
-    T = n(3045),
-    x = n(2346),
-    S = n(2351);
+    T = n(3029),
+    x = n(3045),
+    S = n(2346),
+    E = n(2351);
   n.i(o.a)("interop.redux", {
     configureStore: a.a,
     entities: {
@@ -36130,9 +36133,10 @@ webpackJsonp([332], [, function(e, t, n) {
       customStatus: w,
       dnd: k,
       downloads: M,
-      prefs: T,
-      presence: x,
-      typing: S
+      messagePane: T,
+      prefs: x,
+      presence: S,
+      typing: E
     },
     downloadsView: i.a,
     provider: r.a
@@ -36181,18 +36185,18 @@ webpackJsonp([332], [, function(e, t, n) {
       r = e.type,
       o = e.oldest,
       i = void 0 === o ? 0 : o,
-      l = e.latest,
-      c = void 0 === l ? 0 : l;
+      a = e.latest,
+      c = void 0 === a ? 0 : a;
     return function(e) {
-      n.i(a.a)({
+      n.i(s.a)({
         channelId: t,
         type: r,
         oldest: i,
         latest: c
       }).then(function(t) {
-        e(n.i(u.addMessages)(t));
+        e(n.i(l.addMessages)(t));
       }).catch(function(e) {
-        return n.i(s.a)("Failed to fetch history", t, e);
+        return n.i(u.a)("Failed to fetch history", t, e);
       });
     };
   }
@@ -36200,59 +36204,46 @@ webpackJsonp([332], [, function(e, t, n) {
   function o(e) {
     return e && e.messagePane && e.messagePane.channelId;
   }
-  n.d(t, "a", function() {
-    return c;
-  }), t.c = r, t.b = o;
-  var i = n(17),
-    a = (n.n(i), n(3431)),
-    s = n(2914),
-    u = n(3034),
-    l = (n(3035), Object.assign || function(e) {
+
+  function i(e) {
+    var t = o(e);
+    return n.i(c.getTimestampsByChannelId)(e, t);
+  }
+  Object.defineProperty(t, "__esModule", {
+    value: !0
+  }), n.d(t, "switchToChannel", function() {
+    return f;
+  }), t.fetchHistory = r, t.getMessagePaneChannelId = o, t.getTimestampsForMessagePane = i;
+  var a = n(17),
+    s = (n.n(a), n(3431)),
+    u = n(2914),
+    l = n(3034),
+    c = n(3035),
+    d = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
         for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
       }
       return e;
-    }),
-    c = n.i(i.createAction)("Sets the active channel"),
-    d = {
+    },
+    f = n.i(a.createAction)("Sets the active channel"),
+    p = {
       channelId: null
     },
-    f = n.i(i.createReducer)(function(e, t, n) {
+    h = n.i(a.createReducer)(function(e, t, n) {
       return t in e ? Object.defineProperty(e, t, {
         value: n,
         enumerable: !0,
         configurable: !0,
         writable: !0
       }) : e[t] = n, e;
-    }({}, c, function(e, t) {
-      return l({}, e, {
+    }({}, f, function(e, t) {
+      return d({}, e, {
         channelId: t
       });
-    }), d);
-  t.d = f;
-}, function(e, t, n) {
-  "use strict";
-  var r = n(2),
-    o = n.n(r),
-    i = n(20),
-    a = n.n(i),
-    s = n(43),
-    u = n(3629),
-    l = n(2353),
-    c = n(3122),
-    d = n(3029);
-  n.i(l.a)("ui.react_message_pane", {
-    render: function(e) {
-      a.a.render(o.a.createElement(s.a, {
-        store: n.i(u.a)()
-      }, o.a.createElement(c.a, null)), e);
-    },
-    switchTo: function(e) {
-      n.i(u.a)().dispatch(n.i(d.a)(e));
-    }
-  });
-}, , function(e, t, n) {
+    }), p);
+  t.default = h;
+}, , , function(e, t, n) {
   "use strict";
   var r = n(3033);
   t.a = r.a;
@@ -36486,8 +36477,8 @@ webpackJsonp([332], [, function(e, t, n) {
 
   function o(e, t) {
     if (!t) return !0;
+    if (n.i(h.b)(e.subtype)) return !0;
     if (n.i(h.c)(e.subtype)) return !0;
-    if (n.i(h.d)(e.subtype)) return !0;
     if ("thread_broadcast" === e.subtype) return !0;
     if (t.replyCount) return !0;
     var o = n.i(d.a)(e.ts),
@@ -36762,17 +36753,17 @@ webpackJsonp([332], [, function(e, t, n) {
   };
 }, , function(e, t, n) {
   "use strict";
-  n.d(t, "a", function() {
+  n.d(t, "f", function() {
     return o;
-  }), n.d(t, "b", function() {
+  }), n.d(t, "a", function() {
     return i;
-  }), n.d(t, "f", function() {
-    return a;
   }), n.d(t, "e", function() {
-    return s;
-  }), n.d(t, "c", function() {
-    return u;
+    return a;
   }), n.d(t, "d", function() {
+    return s;
+  }), n.d(t, "b", function() {
+    return u;
+  }), n.d(t, "c", function() {
     return l;
   });
   var r = n(2277),
@@ -38069,11 +38060,11 @@ webpackJsonp([332], [, function(e, t, n) {
     h = n.i(a.createSelector)([l.getTimestampsByChannelId, d.getMessagesByChannelId], function(e, t) {
       return o()(e).map(function(e) {
         return t[e];
-      }).reject(f.b).map("ts").value();
+      }).reject(f.a).map("ts").value();
     }),
     _ = function(e) {
       var t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : {},
-        r = n.i(u.b)(e),
+        r = n.i(u.getMessagePaneChannelId)(e),
         o = n.i(c.getChannelById)(e, r),
         i = h(e, r);
       return p({}, t, {
@@ -38083,7 +38074,7 @@ webpackJsonp([332], [, function(e, t, n) {
       });
     },
     m = {
-      fetchHistory: u.c
+      fetchHistory: u.fetchHistory
     };
   t.a = n.i(i.b)(_, m)(s.a);
 }, function(e, t, n) {
@@ -39214,7 +39205,7 @@ webpackJsonp([332], [, function(e, t, n) {
           var e = m("{replyCount, plural, =1 {# reply} other {# replies}}", {
               replyCount: this.props.replyCount
             }),
-            t = n.i(d.e)(this.props.channelId, this.props.threadTs);
+            t = n.i(d.d)(this.props.channelId, this.props.threadTs);
           return s.a.createElement("div", {
             className: "c-message__reply_bar"
           }, this.renderFaces(), s.a.createElement("a", {
@@ -40516,20 +40507,7 @@ webpackJsonp([332], [, function(e, t, n) {
   ]);
   n(219)(r, {});
   r.locals && (e.exports = r.locals);
-}, function(e, t, n) {
-  "use strict";
-  var r = n(2),
-    o = n.n(r),
-    i = n(20),
-    a = n.n(i),
-    s = n(2353),
-    u = n(3251);
-  n.i(s.a)("ui.react_apps_browser", {
-    render: function(e) {
-      a.a.render(o.a.createElement(u.a, null), e);
-    }
-  });
-}, , function(e, t, n) {
+}, , , function(e, t, n) {
   t = e.exports = n(189)(), t.push([e.i, ".c-button,\na.c-button,\na.c-button:link,\na.c-button:visited {\n  border-radius: 0.25rem;\n  box-shadow: none;\n  background: #29A979;\n  color: #FFFFFF;\n  font-size: 1rem;\n  line-height: 1.2;\n  font-weight: 900;\n  text-decoration: none;\n  text-shadow: 0 1px 1px rgba(44, 45, 48, 0.1);\n  -webkit-font-smoothing: antialiased;\n  border: none;\n  display: flex;\n  align-items: center;\n  position: relative;\n  white-space: nowrap;\n  margin: 0;\n  padding: 0.5rem 1rem;\n}\n.c-button:after,\na.c-button:after,\na.c-button:link:after,\na.c-button:visited:after {\n  position: absolute;\n  content: '';\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  border-radius: 0.25rem;\n}\n.c-button:hover,\na.c-button:hover,\na.c-button:link:hover,\na.c-button:visited:hover {\n  color: #FFFFFF;\n  text-decoration: none;\n}\n.c-button:hover:after,\na.c-button:hover:after,\na.c-button:link:hover:after,\na.c-button:visited:hover:after {\n  box-shadow: inset 0 -2px rgba(0, 0, 0, 0.25);\n}\n", ""]);
 }, , , , , , , , function(e, t, n) {
   "use strict";
@@ -40909,8 +40887,16 @@ webpackJsonp([332], [, function(e, t, n) {
   r.propTypes = c;
 }, , , , function(e, t, n) {
   "use strict";
-  var r = n(2277);
-  t.a = n.i(r.a)("TS.members.ensureMembersArePresent", function() {});
+  n.d(t, "a", function() {
+    return o;
+  });
+  var r = n(2277),
+    o = n.i(r.a)("TS.members.ensureMembersArePresent", function() {});
+  n.i(r.a)("TS.members.getPrefCompliantMemberName", function() {
+    return "";
+  }), n.i(r.a)("TS.members.getPrefCompliantMemberNameById", function() {
+    return "";
+  });
 }, function(e, t, n) {
   t = e.exports = n(189)(), t.push([e.i, ".c-avatar {\n  position: relative;\n  display: inline-block;\n  border-radius: 3px;\n  overflow: hidden;\n  cursor: pointer;\n}\n.c-avatar--no_image {\n  background-color: #E8E8E8;\n  cursor: default;\n}\n.c-avatar__additional_overlay {\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  color: #FFF;\n  font-weight: bold;\n  font-size: 15px;\n  text-align: center;\n  background-color: rgba(0, 0, 0, 0.5);\n  border-radius: 3px;\n}\n.c-avatar--24,\n.c-avatar--24 .c-avatar__image {\n  width: 24px;\n  height: 24px;\n}\n.c-avatar--24 .c-avatar__additional_overlay {\n  line-height: 24px;\n}\n.c-avatar--36,\n.c-avatar--36 .c-avatar__image {\n  width: 36px;\n  height: 36px;\n}\n.c-avatar--36 .c-avatar__additional_overlay {\n  line-height: 36px;\n}\n.c-avatar--48,\n.c-avatar--48 .c-avatar__image {\n  width: 48px;\n  height: 48px;\n}\n.c-avatar--48 .c-avatar__additional_overlay {\n  line-height: 48px;\n}\n.c-avatar--72,\n.c-avatar--72 .c-avatar__image {\n  width: 72px;\n  height: 72px;\n}\n.c-avatar--72 .c-avatar__additional_overlay {\n  line-height: 72px;\n}\n.c-avatar--192 .c-avatar--192 .c-avatar__image {\n  width: 192px;\n  height: 192px;\n}\n.c-avatar--192 .c-avatar__additional_overlay {\n  line-height: 192px;\n}\n.c-avatar--512,\n.c-avatar--512 .c-avatar__image {\n  width: 512px;\n  height: 512px;\n}\n.c-avatar--512 .c-avatar__additional_overlay {\n  line-height: 512px;\n}\n", ""]);
 }, function(e, t, n) {
@@ -51647,7 +51633,7 @@ webpackJsonp([332], [, function(e, t, n) {
     return f.then(function(e) {
       var r = i.a.get(e, "data.messages");
       return r ? i.a.map(r, function(e) {
-        return n.i(s.a)(e, t);
+        return n.i(s.f)(e, t);
       }) : [];
     });
   }
@@ -53414,7 +53400,7 @@ webpackJsonp([332], [, function(e, t, n) {
   "use strict";
 
   function r(e) {
-    var t = n.i(u.f)(e.channelId, e.ts, e.threadTs),
+    var t = n.i(u.e)(e.channelId, e.ts, e.threadTs),
       r = void 0;
     if (e.rootText) r = i.a.createElement("div", {
       className: "c-message__broadcast_preamble"
@@ -53931,4 +53917,62 @@ webpackJsonp([332], [, function(e, t, n) {
   var o = n(2989),
     i = n(2356);
   t.a = r;
+}, , , , , , , function(e, t, n) {
+  "use strict";
+  var r = n(3662),
+    o = n(2353);
+  n.i(o.a)("interop.mountMessagePane", r.a);
+}, function(e, t, n) {
+  "use strict";
+  var r = n(2),
+    o = n.n(r),
+    i = n(20),
+    a = n.n(i),
+    s = n(43),
+    u = n(3629),
+    l = n(3122),
+    c = function(e) {
+      a.a.render(o.a.createElement(s.a, {
+        store: n.i(u.a)()
+      }, o.a.createElement(l.a, null)), e);
+    };
+  t.a = c;
+}, , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , function(e, t, n) {
+  "use strict";
+
+  function r() {
+    return s += 1, s >= 1e5 && (s = 1), s;
+  }
+
+  function o(e) {
+    var t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : {},
+      o = t.padder,
+      s = void 0 === o ? null : o,
+      u = t.uniqueNum,
+      l = void 0 === u ? null : u,
+      c = e || Date.now(),
+      d = s || "x",
+      f = void 0 === l || null === l ? r() : l;
+    return n.i(a.a)(c).unix() + "." + n.i(i.padStart)(f, 6, d);
+  }
+  var i = n(6),
+    a = (n.n(i), n(2989)),
+    s = 1;
+  t.a = o;
+}, function(e, t, n) {
+  "use strict";
+  var r = n(3887),
+    o = n(2353);
+  n.i(o.a)("interop.mountAppsBrowser", r.a);
+}, function(e, t, n) {
+  "use strict";
+  var r = n(2),
+    o = n.n(r),
+    i = n(20),
+    a = n.n(i),
+    s = n(3251),
+    u = function(e) {
+      a.a.render(o.a.createElement(s.a, null), e);
+    };
+  t.a = u;
 }], [2905]);

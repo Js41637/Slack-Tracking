@@ -1601,7 +1601,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257, 66, 44], {
           TS.apps.setUp();
         },
         t = function(e) {
-          return TS.members.getPrefCompliantMemberName(e, !1, !0);
+          return "@" + _.escape(e.name);
         },
         i = function(e, t, n, i, r, a) {
           var s = _.partition(t, function(e) {
@@ -10862,7 +10862,11 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257, 66, 44], {
         },
         getMemberSecondaryName: function(e) {
           var t = T(e);
-          return TS.members.shouldDisplayRealNames() ? TS.members.getMemberProfileFieldDisplayName(t) : TS.members.getMemberRealName(t);
+          if (TS.members.shouldDisplayRealNames()) {
+            if (TS.boot_data.feature_name_tagging_client) return TS.members.getMemberProfileFieldDisplayName(t);
+            if (t.profile && t.profile.real_name && t.profile.real_name.length) return t.name;
+          }
+          return TS.members.getMemberRealName(t);
         },
         getMemberCurrentStatus: function(e) {
           var t = T(e);
@@ -23534,7 +23538,15 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257, 66, 44], {
               message_unfurl: n._unfurl_type_message,
               reply_broadcast: p,
               is_pinned: T
-            }), TS.templates.message_attachment(k);
+            }), k.has_footer && k.attachment.is_msg_unfurl && k.attachment.channel_name && ("Direct Message" === k.attachment.channel_name ? k.attachment.footer = TS.i18n.t("Direct Message", "chat_messages")() : "External Message" === k.attachment.channel_name ? k.attachment.footer = TS.i18n.t("From {team_name}", "chat_messages")({
+              team_name: k.attachment.team_name
+            }) : k.attachment.is_thread_root_unfurl ? k.attachment.footer = TS.i18n.t("Thread in #{channel_name}", "chat_messages")({
+              channel_name: k.attachment.channel_name
+            }) : k.attachment.is_reply_unfurl ? k.attachment.footer = TS.i18n.t("From a thread in #{channel_name}", "chat_messages")({
+              channel_name: k.attachment.channel_name
+            }) : k.attachment.footer = TS.i18n.t("Posted in #{channel_name}", "chat_messages")({
+              channel_name: k.attachment.channel_name
+            })), TS.templates.message_attachment(k);
           }
           var C = !0,
             I = "";
@@ -34058,7 +34070,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257, 66, 44], {
         },
         onStart: function() {
           i.in_slack_app = !!TS.client, i.in_call_window = !!TS.calls, i.calls_url_prefix = document.location.origin + "/call/", i.in_slack_app && (TS.useSocketManager() ? (TS.interop.SocketManager.connectedSig.add(s), TS.interop.SocketManager.disconnectedSig.add(o), TS.interop.SocketManager.socketMessageReceivedSig.add(a)) : (TS.ms.on_msg_sig.add(a), TS.ms.connected_sig.add(s), TS.ms.disconnected_sig.add(o)), window.addEventListener("online", l), window.addEventListener("offline", l), window.addEventListener("message", J), TS.model.is_our_app && (window.macgap && TS.ssb.teams_did_load_sig.add(d), TS.client.login_sig.add(c)), TS.client.windows && (TS.client.windows.win_finished_loading_sig.add(u), TS.client.windows.win_will_close_sig.add(m), TS.client.windows.win_crashed_sig.add(p), TS.client.windows.win_became_key_sig.add(f), TS.client.windows.win_resigned_key_sig.add(h)), TS.ui && TS.ui.window_unloaded_sig.add(g), TS.model.is_our_app ? i.call_window_loaded = !1 : i.call_window_loaded = !0, i.is_ms_connected = !1, i.is_reachability_online = !0, TS.experiment.loadUserAssignments().then(function() {
-            "enabled" === TS.experiment.getGroup("calls_ss") && (i.screen_sharing_enabled = TS.model.supports_screen_sharing), "enabled" === TS.experiment.getGroup("calls_better_regions") && (i.calls_better_regions_expt = !0), "enabled" === TS.experiment.getGroup("calls_laser") && (i.laser_enabled = !0), "enabled" === TS.experiment.getGroup("calls_no_cursors_window") && (i.cursors_window_disabled = !0);
+            "enabled" === TS.experiment.getGroup("calls_ss") && (i.screen_sharing_enabled = TS.model.supports_screen_sharing), "enabled" === TS.experiment.getGroup("calls_better_regions") && (i.calls_better_regions_expt = !0), "enabled" === TS.experiment.getGroup("calls_laser") && (i.laser_enabled = !0), "enabled" === TS.experiment.getGroup("calls_no_cursors_window") && (i.cursors_window_disabled = !0), "enabled" === TS.experiment.getGroup("calls_electron_webrtc") && (i.electron_webrtc = !0);
           }));
         },
         startCallInModelOb: function(e, t, n) {
@@ -34823,7 +34835,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257, 66, 44], {
           return TS.model.is_our_app && TSSSB.call("supportsCallWindowStatus") ? TSSSB.call("isCallWindowBusy") : Promise.resolve(!!i.is_call_window_busy);
         },
         j = function(e, t, n) {
-          n = n || {}, e += "?_fast_members=1&_end_call_sound=1" + (n.start_with_video ? "&_start_with_video=1" : ""), TS.pri && (e += "&pri=" + TS.pri), TS.qs_args._calls_halt_at_loading_screen && (e += "&_calls_halt_at_loading_screen=1"), TS.qs_args.locale && (e += "&locale=" + TS.qs_args.locale), TS.qs_args.js_path && (e += "&js_path=" + encodeURIComponent(TS.qs_args.js_path)), TS.utility.calls.promiseToGetRegions().then(function(e) {
+          n = n || {}, e += "?_fast_members=1&_end_call_sound=1" + (n.start_with_video ? "&_start_with_video=1" : ""), TS.pri && (e += "&pri=" + TS.pri), i.electron_webrtc && (e += "&_electron_webrtc=1"), TS.qs_args._calls_halt_at_loading_screen && (e += "&_calls_halt_at_loading_screen=1"), TS.qs_args.locale && (e += "&locale=" + TS.qs_args.locale), TS.qs_args.js_path && (e += "&js_path=" + encodeURIComponent(TS.qs_args.js_path)), TS.utility.calls.promiseToGetRegions().then(function(e) {
             TS.utility.calls.promiseToGetServer(e, t).catch(_.noop);
           }), TS.model.is_our_app ? b(e) : i.window_handle = window.open(e, t), i.call_channel = t;
         },
@@ -35219,7 +35231,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257, 66, 44], {
         },
         r = function() {
           for (var e = [], t = 0; t < arguments.length; t += 1) arguments[t] && ("object" === n(arguments[t]) ? e.push(JSON.stringify(arguments[t])) : e.push(arguments[t].toString()));
-          return e.join("");
+          return e.join(" ");
         },
         a = function(e, t, n) {
           var a = r(e.value),
@@ -38042,6 +38054,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257, 66, 44], {
             i = TS.utility.makeComparableVersion(t);
           return n === i ? 0 : n > i ? 1 : -1;
         },
+        isAppVersionBefore: function(e) {
+          return -1 === TS.utility.compareSemanticVersions(TS.model.desktop_app_version.major + "." + TS.model.desktop_app_version.minor + "." + TS.model.desktop_app_version.patch, e);
+        },
         doRectsOverlap: function(e, t) {
           return !(t.left > e.right || t.right < e.left || t.top > e.bottom || t.bottom < e.top);
         },
@@ -40799,7 +40814,49 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257, 66, 44], {
       };
     }();
   },
-  3660: function(e, t, n) {
-    n(2499), n(2362), n(2423), n(2526), n(2366), n(2365), n(2496), n(2493), n(2494), n(2495), n(2533), n(2491), n(2505), n(3180), n(2501), n(2992), n(2504), n(3079), n(2502), n(3142), n(3627), n(2503), n(3046), n(3184), n(3633), n(2389), n(2473), n(2387), n(2388), n(2391), n(2663), n(2425), n(2456), n(2449), n(2507), n(2459), n(2485), n(2516), n(2528), n(2676), n(2471), n(2492), n(2527), n(2367), n(3426), n(2371), n(2472), n(2498), n(2511), n(2488), n(2487), n(2450), n(2486), n(2429), n(2532), n(2530), n(2529), n(2531), n(2665), n(2670), n(2668), n(2675), n(2331), n(2672), n(2667), n(2451), n(2514), n(2482), n(2475), n(2476), n(2477), n(2624), n(2478), n(2479), n(2480), n(2481), n(2426), n(2422), n(2524), n(2474), n(2468), n(2462), n(2466), n(2489), n(2613), n(2538), n(2550), n(2655), n(2651), n(2446), n(2656), n(2457), n(2640), n(2497), n(2650), n(2464), n(2508), n(2631), n(2649), n(2623), n(2633), n(2654), n(2427), n(2620), n(2627), n(2393), n(2452), n(2612), n(2520), n(2453), n(2642), n(2647), n(2657), n(2539), n(2335), n(2518), n(2455), n(2330), n(2309), n(2673), n(2661), n(2662), n(2660), n(2664), n(2658), n(2460), n(2467), n(2619), n(2616), n(2543), n(2641), n(2369), n(2368), n(2535), n(2674), n(2677), n(2666), n(2652), n(2634), n(2363), n(2506), n(2648), n(2669), n(2637), n(2537), n(2513), n(2519), n(2671), n(2746), n(2754), n(2753), n(2750), n(2751), n(2752), n(3170), e.exports = n(3174);
+  3890: function(e, t) {
+    ! function() {
+      "use strict";
+      TS.registerModule("utility.ui", {
+        onStart: function() {},
+        isElementVisible: function(r, a, s) {
+          var o = window.getComputedStyle(r);
+          return !!n(a, s).all && (!!i(a) && (!!t(o) && !!e(r)));
+        }
+      });
+      var e = function(e) {
+          for (; e.parentNode && "HTML" !== e.tagName;) {
+            var n = window.getComputedStyle(e);
+            if (!t(n)) return !1;
+            e = e.parentNode;
+          }
+          return !0;
+        },
+        t = function(e) {
+          return "none" !== e.display && "hidden" !== e.visibility && 0 != e.opacity && 0 != e.maxHeight && 0 != e.maxWidth;
+        },
+        n = function(e, t) {
+          t = t || 0;
+          var n = (window.innerHeight || document.documentElement.clientHeight) + t,
+            i = (window.innerWidth || document.documentElement.clientWidth) + t,
+            r = e.top > -t,
+            a = e.left > -t,
+            s = e.right <= i,
+            o = e.bottom <= n;
+          return {
+            all: r && s && o && a,
+            top: r,
+            right: s,
+            bottom: o,
+            left: a
+          };
+        },
+        i = function(e) {
+          return e.height > 0 && e.width > 0;
+        };
+    }();
+  },
+  3891: function(e, t, n) {
+    n(2499), n(2362), n(2423), n(2526), n(2366), n(2365), n(2496), n(2493), n(2494), n(2495), n(2533), n(2491), n(2505), n(3180), n(2501), n(2992), n(2504), n(3079), n(2502), n(3142), n(3627), n(2503), n(3046), n(3184), n(3633), n(2389), n(2473), n(2387), n(2388), n(2391), n(2663), n(2425), n(2456), n(2449), n(2507), n(2459), n(2485), n(2516), n(2528), n(2676), n(2471), n(2492), n(2527), n(2367), n(3426), n(2371), n(2472), n(2498), n(2511), n(2488), n(2487), n(2450), n(2486), n(2429), n(2532), n(2530), n(2529), n(2531), n(2665), n(2670), n(2668), n(2675), n(2331), n(2672), n(2667), n(3890), n(2451), n(2514), n(2482), n(2475), n(2476), n(2477), n(2624), n(2478), n(2479), n(2480), n(2481), n(2426), n(2422), n(2524), n(2474), n(2468), n(2462), n(2466), n(2489), n(2613), n(2538), n(2550), n(2655), n(2651), n(2446), n(2656), n(2457), n(2640), n(2497), n(2650), n(2464), n(2508), n(2631), n(2649), n(2623), n(2633), n(2654), n(2427), n(2620), n(2627), n(2393), n(2452), n(2612), n(2520), n(2453), n(2642), n(2647), n(2657), n(2539), n(2335), n(2518), n(2455), n(2330), n(2309), n(2673), n(2661), n(2662), n(2660), n(2664), n(2658), n(2460), n(2467), n(2619), n(2616), n(2543), n(2641), n(2369), n(2368), n(2535), n(2674), n(2677), n(2666), n(2652), n(2634), n(2363), n(2506), n(2648), n(2669), n(2637), n(2537), n(2513), n(2519), n(2671), n(2746), n(2754), n(2753), n(2750), n(2751), n(2752), n(3170), e.exports = n(3174);
   }
-}, [3660]);
+}, [3891]);
