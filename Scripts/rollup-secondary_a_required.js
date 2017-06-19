@@ -1401,7 +1401,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         startFlexPaneByAppId: function(e, t, n) {
           return TS.apps.promiseToGetFullAppProfile(null, e, t, n).then(function(t) {
-            TS.client.ui.app_profile.openWithApp(t, null, e), TS.client.flexDisplaySwitched("apps", t.id, !0, !0);
+            TS.client.ui.app_profile.openWithApp(t, null, e, n), TS.client.flexDisplaySwitched("apps", t.id, !0, !0);
           }).catch(function() {
             TS.client.ui.flex.hideFlex();
           });
@@ -1429,9 +1429,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         sortNames: function(e) {
           return e.slice().sort(TS.i18n.sorter);
         },
-        constructTemplateArgsForCardAndProfile: function(e, t, n) {
+        constructTemplateArgsForCardAndProfile: function(e, t, n, i) {
           if (!e) return TS.warn("Trying to build app card but it failed.");
-          var i, r = {
+          void 0 == i && (i = !0);
+          var r, a = {
               name: e.name,
               desc: e.desc,
               app_icons: e.icons,
@@ -1441,44 +1442,44 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               is_directory_published: e.is_directory_published,
               commands: _.toArray(e.commands)
             },
-            a = _.get(e, "bot_user.id"),
-            s = n != TS.model.user.team_id;
-          if (e.app_card_color && (r.color = TS.utility.hex2rgb(e.app_card_color), r.color.hex = e.app_card_color), e.config && e.config.is_custom_integration) {
+            s = _.get(e, "bot_user.id"),
+            o = n != TS.model.user.team_id;
+          if (e.app_card_color && (a.color = TS.utility.hex2rgb(e.app_card_color), a.color.hex = e.app_card_color), e.config && e.config.is_custom_integration) {
             if (e.config.icons)
               if (e.config.icons.emoji) {
-                var o = TS.emoji.graphicReplace(_.escape(e.config.icons.emoji), {
+                var l = TS.emoji.graphicReplace(_.escape(e.config.icons.emoji), {
                   force_img: !0
                 });
-                r.emoji_img_tag = new Handlebars.SafeString(o);
-              } else r.bot_icons = e.config.icons;
-            i = e.bot_user ? e.config.real_name ? e.config.real_name : e.bot_user.username : e.config.username, r.name = i, r.desc = e.config.descriptive_label, r.username = e.config.username, r.custom_integration_type = e.config.custom_integration_type, r.date_created = e.config.date_created;
-            var l = '<a class="bold member charcoal_grey" data-member-id=' + e.config.created_by + ">" + TS.members.getPrefCompliantMemberNameById(e.config.created_by, !0, !0) + "</a>";
-            r.custom_integration_creator = new Handlebars.SafeString(l);
+                a.emoji_img_tag = new Handlebars.SafeString(l);
+              } else a.bot_icons = e.config.icons;
+            r = e.bot_user ? e.config.real_name ? e.config.real_name : e.bot_user.username : e.config.username, a.name = r, a.desc = e.config.descriptive_label, a.username = e.config.username, a.custom_integration_type = e.config.custom_integration_type, a.date_created = e.config.date_created;
+            var d = '<a class="bold member charcoal_grey" data-member-id=' + e.config.created_by + ">" + TS.members.getPrefCompliantMemberNameById(e.config.created_by, !0, !0) + "</a>";
+            a.custom_integration_creator = new Handlebars.SafeString(d);
           }
-          if ((_.get(e.config, "date_deleted") > 0 || !0 === _.get(e.auth, "revoked")) && (r.deleted = !0, r.app_id = e.id), e.is_slack_integration ? e.is_slack_integration && (TS.boot_data.feature_shared_channels && e.is_slack_integration && s ? r.disabled = !1 : e.config && "1" === e.config.is_active && "0" === e.config.date_deleted || (r.disabled = !0)) : TS.boot_data.feature_shared_channels && s ? r.disabled = !1 : e.auth && !e.auth.revoked || (r.disabled = !0), s || !a && e.is_slack_integration || (r.show_settings_section = !0), e.installation_summary && !e.is_xoxa_app) {
-            var d = e.installation_summary.replace(/<@([A-Z0-9]+)>/g, function(e, t) {
+          if ((_.get(e.config, "date_deleted") > 0 || !0 === _.get(e.auth, "revoked")) && (a.deleted = !0, a.app_id = e.id), e.is_slack_integration ? e.is_slack_integration && (TS.boot_data.feature_shared_channels && e.is_slack_integration && o ? a.disabled = !1 : e.config && "1" === e.config.is_active && "0" === e.config.date_deleted || (a.disabled = !0)) : TS.boot_data.feature_shared_channels && o ? a.disabled = !1 : e.auth && !e.auth.revoked || (a.disabled = !0), !i || o || !s && e.is_slack_integration || (a.show_settings_section = !0), e.installation_summary && !e.is_xoxa_app) {
+            var c = e.installation_summary.replace(/<@([A-Z0-9]+)>/g, function(e, t) {
               return TS.members.getMemberById(t) ? '<span class="app_card_member_link" data-member-profile-link=' + t + ">" + TS.members.getPrefCompliantMemberNameById(t, !0, !0) + "</span>" : '<span class="app_card_member_link" data-member-profile-link=' + t + ">A user</span>";
             });
-            d = d.replace(/#([a-z0-9-]+)/g, function(e, t) {
+            c = c.replace(/#([a-z0-9-]+)/g, function(e, t) {
               var n = TS.channels.getChannelByName(t);
               if (n) {
                 var i = TS.templates.builders.makeChannelPrefix(n);
                 return '<span class="app_card_channel_link internal_channel_link" data-channel-id="' + n.id + '">' + i + t + "</span>";
               }
               return t;
-            }), r.installation_summary = new Handlebars.SafeString(d);
+            }), a.installation_summary = new Handlebars.SafeString(c);
           }
-          if (a) {
-            r.bot_user = e.bot_user.id, r.username = e.bot_user.username, r.bot_user_channel_count = e.bot_user.memberships_count, e.bot_user.memberships_count < 1 && e.is_slack_integration && (r.show_settings_section = !1);
-            var c = TS.shared.getActiveModelOb();
+          if (s) {
+            a.bot_user = e.bot_user.id, a.username = e.bot_user.username, a.bot_user_channel_count = e.bot_user.memberships_count, e.bot_user.memberships_count < 1 && e.is_slack_integration && (a.show_settings_section = !1);
+            var u = TS.shared.getActiveModelOb();
             if (TS.model.active_channel_id || TS.model.active_group_id) {
-              var u = TS.membership.getUserChannelMembershipStatus(e.bot_user.id, c),
-                m = u.is_known && u.is_member;
-              u.is_known || TS.warn("Not sure whether bot user " + e.bot_user.id + " is a member of " + c.id + "; assuming not just to be sure"), m && (c.is_group && TS.permissions.members.canKickFromGroups() || c.is_channel && TS.permissions.members.canKickFromChannels()) && (r.channel_kick_name = (TS.model.active_channel_id ? "#" : "") + c.name);
+              var m = TS.membership.getUserChannelMembershipStatus(e.bot_user.id, u),
+                p = m.is_known && m.is_member;
+              m.is_known || TS.warn("Not sure whether bot user " + e.bot_user.id + " is a member of " + u.id + "; assuming not just to be sure"), p && (u.is_group && TS.permissions.members.canKickFromGroups() || u.is_channel && TS.permissions.members.canKickFromChannels()) && (a.channel_kick_name = (TS.model.active_channel_id ? "#" : "") + u.name);
             }
-            r.disabled || TS.model.user.is_ultra_restricted || (r.show_channel_invite = !0), !0 === r.deleted && (r.hide_link_to_app_profile = !0);
+            a.disabled || TS.model.user.is_ultra_restricted || (a.show_channel_invite = !0), !0 === a.deleted && (a.hide_link_to_app_profile = !0);
           }
-          return e.long_desc_formatted && (r.long_description = new Handlebars.SafeString(e.long_desc_formatted)), e.support_url && (r.support_url = e.support_url), e.user_can_manage && (r.user_can_manage = e.user_can_manage), e.is_slack_integration && _.isEmpty(_.get(e, "commands")) && (r.hide_expand_button = !0), r;
+          return e.long_desc_formatted && (a.long_description = new Handlebars.SafeString(e.long_desc_formatted)), e.support_url && (a.support_url = e.support_url), e.user_can_manage && (a.user_can_manage = e.user_can_manage), e.is_slack_integration && _.isEmpty(_.get(e, "commands")) && (a.hide_expand_button = !0), a;
         },
         maybeInviteAppUserToChannel: function(e, n, a) {
           var s;

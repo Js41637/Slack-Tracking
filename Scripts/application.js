@@ -21756,7 +21756,7 @@ webpackJsonp([332], [, function(e, t, n) {
 }, function(e, t, n) {
   t = e.exports = n(189)(), t.push([e.i, ".c-tooltip__tip {\n  display: inline-block;\n  color: #FFFFFF;\n  background-color: #000;\n  max-width: 250px;\n  padding: 0.5rem;\n  border-radius: 4px;\n  position: relative;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 0.8125rem;\n  font-weight: 700;\n  text-align: center;\n}\n.c-tooltip__tip:after {\n  position: absolute;\n  content: '';\n  width: 0;\n  height: 0;\n  margin: -5px;\n  border: 6px solid transparent;\n}\n.c-tooltip__tip--left {\n  margin-right: 0.5rem;\n}\n.c-tooltip__tip--left:after {\n  border-left-color: #000;\n  right: -6px;\n  top: 50%;\n}\n.c-tooltip__tip--right {\n  margin-left: 0.5rem;\n}\n.c-tooltip__tip--right:after {\n  border-right-color: #000;\n  left: -6px;\n  top: 50%;\n}\n.c-tooltip__tip--top {\n  margin-bottom: 0.5rem;\n}\n.c-tooltip__tip--top:after {\n  border-top-color: #000;\n  bottom: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--top-left {\n  margin-bottom: 0.5rem;\n}\n.c-tooltip__tip--top-left:after {\n  border-top-color: #000;\n  bottom: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--top-left:after {\n  left: 25%;\n}\n.c-tooltip__tip--top-right {\n  margin-bottom: 0.5rem;\n}\n.c-tooltip__tip--top-right:after {\n  border-top-color: #000;\n  bottom: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--top-right:after {\n  left: 75%;\n}\n.c-tooltip__tip--bottom {\n  margin-top: 0.5rem;\n}\n.c-tooltip__tip--bottom:after {\n  border-bottom-color: #000;\n  top: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--bottom-left {\n  margin-top: 0.5rem;\n}\n.c-tooltip__tip--bottom-left:after {\n  border-bottom-color: #000;\n  top: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--bottom-left:after {\n  left: 25%;\n}\n.c-tooltip__tip--bottom-right {\n  margin-top: 0.5rem;\n}\n.c-tooltip__tip--bottom-right:after {\n  border-bottom-color: #000;\n  top: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--bottom-right:after {\n  left: 75%;\n}\n.c-tooltip__tip--success {\n  background-color: #29A979;\n}\n.c-tooltip__tip--success.c-tooltip__tip--left:after {\n  border-left-color: #29A979;\n}\n.c-tooltip__tip--success.c-tooltip__tip--right:after {\n  border-right-color: #29A979;\n}\n.c-tooltip__tip--success.c-tooltip__tip--top:after,\n.c-tooltip__tip--success.c-tooltip__tip--top-left:after,\n.c-tooltip__tip--success.c-tooltip__tip--top-right:after {\n  border-top-color: #29A979;\n}\n.c-tooltip__tip--success.c-tooltip__tip--bottom:after,\n.c-tooltip__tip--success.c-tooltip__tip--bottom-left:after,\n.c-tooltip__tip--success.c-tooltip__tip--bottom-right:after {\n  border-bottom-color: #29A979;\n}\n", ""]);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".p-channel_sidebar {\n  width: 220px;\n  height: 100vh;\n  position: relative;\n  padding: 0;\n}\n.p-channel_sidebar__virtualized {\n  outline: none;\n  -ms-overflow-style: none;\n}\n.p-channel_sidebar__virtualized::-webkit-scrollbar {\n  display: none;\n}\n.p-channel_sidebar__section_heading {\n  padding: 0 0.75rem 0 15px;\n  margin: 0;\n  width: 100%;\n  height: 26px;\n  display: flex;\n  align-items: center;\n}\n.p-channel_sidebar__section_heading_label {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  font-size: 1rem;\n  line-height: 1;\n  display: block;\n  opacity: 0.7;\n  text-align: left;\n  width: 100%;\n  transition: opacity 0.1s ease-out;\n}\n.p-channel_sidebar__section_heading_label:hover,\n.p-channel_sidebar__section_heading_label:focus,\n.p-channel_sidebar__section_heading_label:active {\n  outline: none;\n}\n.p-channel_sidebar__section_heading_label .c-icon:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  width: 20px;\n  opacity: 0.7;\n  margin: 0 1px 0 -4px;\n  vertical-align: baseline;\n}\n.p-channel_sidebar__section_heading_label--clickable:hover {\n  opacity: 1;\n}\n.p-channel_sidebar__section_heading_right {\n  margin-left: auto;\n}\n.p-channel_sidebar__section_heading_plus {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  line-height: 100%;\n}\n.p-channel_sidebar__section_heading_plus:hover,\n.p-channel_sidebar__section_heading_plus:focus,\n.p-channel_sidebar__section_heading_plus:active {\n  outline: none;\n}\n.p-channel_sidebar__section_heading_plus:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  width: 20px;\n  opacity: 0.7;\n  line-height: 100%;\n  content: '\\E228';\n  transition: opacity 0.1s ease-out;\n}\n.p-channel_sidebar__section_heading_plus:hover:before {\n  opacity: 1;\n}\n.p-channel_sidebar__banner {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  width: calc(100% - 1rem);\n  text-align: center;\n  position: absolute;\n  display: block;\n  z-index: 2;\n  color: #FFFFFF;\n  left: 0.5rem;\n  right: 0.5rem;\n  font-weight: 700;\n  font-size: 0.875rem;\n  line-height: 1.625rem;\n  cursor: pointer;\n}\n.p-channel_sidebar__banner:hover,\n.p-channel_sidebar__banner:focus,\n.p-channel_sidebar__banner:active {\n  outline: none;\n}\n.p-channel_sidebar__banner--top {\n  border-top-right-radius: 0;\n  border-bottom-right-radius: 6px;\n  border-bottom-left-radius: 6px;\n  border-top-left-radius: 0;\n  background-clip: padding-box;\n  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.1) inset;\n  top: 0;\n}\n.p-channel_sidebar__banner--bottom {\n  border-top-right-radius: 6px;\n  border-bottom-right-radius: 0;\n  border-bottom-left-radius: 0;\n  border-top-left-radius: 6px;\n  background-clip: padding-box;\n  box-shadow: 0 -1px 6px rgba(0, 0, 0, 0.1), 0 -1px 3px rgba(0, 0, 0, 0.1) inset;\n  bottom: 0;\n}\n.p-channel_sidebar__banner--mentions {\n  background: #EB4D5C;\n}\n.p-channel_sidebar__banner--unreads {\n  background: #2D9EE0;\n}\n.p-channel_sidebar__link {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n}\n.p-channel_sidebar__link:hover,\n.p-channel_sidebar__link:focus,\n.p-channel_sidebar__link:active {\n  outline: none;\n}\n.p-channel_sidebar__channel,\n.p-channel_sidebar__link {\n  display: flex;\n  align-items: center;\n  height: 26px;\n  line-height: 1.625rem;\n  padding: 0 0.75rem 0 15px;\n  width: 100%;\n}\n.p-channel_sidebar__channel:before,\n.p-channel_sidebar__link:before,\n.p-channel_sidebar__channel:after,\n.p-channel_sidebar__link:after {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  width: 20px;\n  opacity: 0.7;\n}\n.p-channel_sidebar__channel:before,\n.p-channel_sidebar__link:before {\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel:after,\n.p-channel_sidebar__link:after {\n  font-size: 1.25rem;\n  margin-left: 0.25rem;\n}\n.p-channel_sidebar__channel:hover,\n.p-channel_sidebar__link:hover,\n.p-channel_sidebar__channel:active,\n.p-channel_sidebar__link:active,\n.p-channel_sidebar__channel:focus,\n.p-channel_sidebar__link:focus,\n.p-channel_sidebar__channel:link,\n.p-channel_sidebar__link:link,\n.p-channel_sidebar__channel:visited,\n.p-channel_sidebar__link:visited {\n  text-decoration: none;\n}\n.p-channel_sidebar__channel:before {\n  content: '\\E125';\n}\n.p-channel_sidebar__channel--private:before {\n  content: '\\E567';\n}\n.p-channel_sidebar__channel--shared:after {\n  content: '\\E559';\n}\n.p-channel_sidebar__channel--org-shared:after {\n  content: '\\E166';\n}\n.p-channel_sidebar__channel--mpim:before {\n  font-size: 1.25rem;\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel--mpim[data-user-count='2']:before {\n  content: '\\E521';\n}\n.p-channel_sidebar__channel--mpim[data-user-count='3']:before {\n  content: '\\E522';\n}\n.p-channel_sidebar__channel--mpim[data-user-count='4']:before {\n  content: '\\E523';\n}\n.p-channel_sidebar__channel--mpim[data-user-count='5']:before {\n  content: '\\E524';\n}\n.p-channel_sidebar__channel--mpim[data-user-count='6']:before {\n  content: '\\E525';\n}\n.p-channel_sidebar__channel--mpim[data-user-count='7']:before {\n  content: '\\E526';\n}\n.p-channel_sidebar__channel--mpim[data-user-count='8']:before {\n  content: '\\E527';\n}\n.p-channel_sidebar__channel--mpim[data-user-count='9']:before {\n  content: '\\E528';\n}\n.p-channel_sidebar__channel--im:before {\n  content: none;\n}\n.p-channel_sidebar__channel--im .c-presence {\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel--im .c-presence--away {\n  opacity: 0.7;\n}\n.p-channel_sidebar__channel--im-slackbot:before {\n  content: '\\E515';\n  opacity: 1;\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel--im-slackbot.p-channel_sidebar__channel--draft:before {\n  color: inherit;\n}\n.p-channel_sidebar__channel--muted:not(.p-channel_sidebar__channel--selected) {\n  opacity: 0.4;\n}\n.p-channel_sidebar__channel--unread:not(.p-channel_sidebar__channel--muted) .p-channel_sidebar__name {\n  font-weight: 900;\n  opacity: 1;\n}\n.p-channel_sidebar__channel--selected .p-channel_sidebar__name {\n  opacity: 1;\n}\n.p-channel_sidebar__channel--draft:before {\n  content: '\\E024';\n  font-size: 0.875rem;\n  margin: 1px -2px 0 -1px;\n  flex-basis: 20px;\n  flex-shrink: 0;\n}\n.p-channel_sidebar__channel--archived:before {\n  content: '\\E534';\n}\n@keyframes typing {\n  100% {\n    background-position: -240px;\n  }\n}\n.p-channel_sidebar__channel--typing:before {\n  display: block;\n  content: '';\n  width: 11px;\n  height: 3px;\n  background-image: url(/img/typing-sprite.png);\n  background-repeat: no-repeat;\n  animation: 1s steps(15) 0s infinite normal none typing-sprite;\n  margin: 0 5px 0 1px;\n  opacity: 1;\n}\n@media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {\n  .p-channel_sidebar__channel--typing:before {\n    background-size: cover;\n    background-image: url(/img/typing-sprite@2x.png);\n  }\n}\n.p-channel_sidebar__name {\n  margin-right: auto;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  opacity: 0.7;\n}\n.p-channel_sidebar__name .c-custom_status {\n  float: right;\n  position: relative;\n  z-index: 1;\n}\n.p-channel_sidebar__name.p-channel_sidebar__name--away {\n  font-style: italic;\n}\n.p-channel_sidebar__badge {\n  order: 5;\n  padding: 1px 0.6rem;\n  margin-left: 0.25rem;\n  border-radius: 1rem;\n  line-height: 1rem;\n  font-size: 0.75rem;\n  font-weight: 700;\n  color: #FFFFFF;\n}\n.p-channel_sidebar__status {\n  margin-left: 0.5rem;\n}\n.p-channel_sidebar__you_label {\n  margin-left: 0.5rem;\n  font-weight: normal;\n  opacity: 0.7;\n}\n.p-channel_sidebar__close {\n  margin-left: 0.25rem;\n  display: none;\n}\n.p-channel_sidebar__close,\n.p-channel_sidebar__close:before {\n  line-height: 100%;\n}\n.p-channel_sidebar__channel:hover .p-channel_sidebar__close {\n  display: block;\n}\n.p-channel_sidebar__link--unread .p-channel_sidebar__name {\n  font-weight: 900;\n  opacity: 1;\n}\n.p-channel_sidebar__link--selected .p-channel_sidebar__name {\n  opacity: 1;\n}\n.p-channel_sidebar__link--all-unreads:before {\n  content: '\\E103';\n  margin: 0 4px 0 -4px;\n}\n.p-channel_sidebar__link--all-threads:before {\n  content: '\\E171';\n  margin: 0 4px 0 -4px;\n}\n.p-channel_sidebar__link--all-threads.p-channel_sidebar__link--unread:before {\n  content: '\\E554';\n}\n.p-channel_sidebar__link--invites:before {\n  content: '\\E281';\n}\n.p-channel_sidebar__link--invites:not(.p-channel_sidebar__link--dim) .p-channel_sidebar__name {\n  font-weight: 900;\n  opacity: 1;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".p-channel_sidebar {\n  width: 220px;\n  height: 100vh;\n  position: relative;\n  padding: 0;\n}\n.p-channel_sidebar__virtualized {\n  outline: none;\n  -ms-overflow-style: none;\n}\n.p-channel_sidebar__virtualized::-webkit-scrollbar {\n  display: none;\n}\n.p-channel_sidebar__section_heading {\n  padding: 0 0.75rem 0 15px;\n  margin: 0;\n  width: 100%;\n  height: 26px;\n  display: flex;\n  align-items: center;\n}\n.p-channel_sidebar__section_heading_label {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  font-size: 1rem;\n  line-height: 1;\n  display: block;\n  opacity: 0.7;\n  text-align: left;\n  width: 100%;\n  transition: opacity 0.1s ease-out;\n}\n.p-channel_sidebar__section_heading_label:hover,\n.p-channel_sidebar__section_heading_label:focus,\n.p-channel_sidebar__section_heading_label:active {\n  outline: none;\n}\n.p-channel_sidebar__section_heading_label .c-icon:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  width: 20px;\n  opacity: 0.7;\n  margin: 0 1px 0 -4px;\n  vertical-align: baseline;\n}\n.p-channel_sidebar__section_heading_label--clickable:hover {\n  opacity: 1;\n}\n.p-channel_sidebar__section_heading_right {\n  margin-left: auto;\n}\n.p-channel_sidebar__section_heading_plus {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  line-height: 100%;\n}\n.p-channel_sidebar__section_heading_plus:hover,\n.p-channel_sidebar__section_heading_plus:focus,\n.p-channel_sidebar__section_heading_plus:active {\n  outline: none;\n}\n.p-channel_sidebar__section_heading_plus:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  width: 20px;\n  opacity: 0.7;\n  line-height: 100%;\n  content: '\\E228';\n  transition: opacity 0.1s ease-out;\n}\n.p-channel_sidebar__section_heading_plus:hover:before {\n  opacity: 1;\n}\n.p-channel_sidebar__banner {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  width: calc(100% - 1rem);\n  text-align: center;\n  position: absolute;\n  display: block;\n  z-index: 2;\n  color: #FFFFFF;\n  left: 0.5rem;\n  right: 0.5rem;\n  font-weight: 700;\n  font-size: 0.875rem;\n  line-height: 1.625rem;\n  cursor: pointer;\n}\n.p-channel_sidebar__banner:hover,\n.p-channel_sidebar__banner:focus,\n.p-channel_sidebar__banner:active {\n  outline: none;\n}\n.p-channel_sidebar__banner--top {\n  border-top-right-radius: 0;\n  border-bottom-right-radius: 6px;\n  border-bottom-left-radius: 6px;\n  border-top-left-radius: 0;\n  background-clip: padding-box;\n  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.1) inset;\n  top: 0;\n}\n.p-channel_sidebar__banner--bottom {\n  border-top-right-radius: 6px;\n  border-bottom-right-radius: 0;\n  border-bottom-left-radius: 0;\n  border-top-left-radius: 6px;\n  background-clip: padding-box;\n  box-shadow: 0 -1px 6px rgba(0, 0, 0, 0.1), 0 -1px 3px rgba(0, 0, 0, 0.1) inset;\n  bottom: 0;\n}\n.p-channel_sidebar__banner--mentions {\n  background: #EB4D5C;\n}\n.p-channel_sidebar__banner--unreads {\n  background: #2D9EE0;\n}\n.p-channel_sidebar__link {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n}\n.p-channel_sidebar__link:hover,\n.p-channel_sidebar__link:focus,\n.p-channel_sidebar__link:active {\n  outline: none;\n}\n.p-channel_sidebar__channel,\n.p-channel_sidebar__link {\n  display: flex;\n  align-items: center;\n  height: 26px;\n  line-height: 1.625rem;\n  padding: 0 0.75rem 0 15px;\n  width: 100%;\n}\n.p-channel_sidebar__channel:before,\n.p-channel_sidebar__link:before,\n.p-channel_sidebar__channel:after,\n.p-channel_sidebar__link:after {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  width: 20px;\n  opacity: 0.7;\n}\n.p-channel_sidebar__channel:before,\n.p-channel_sidebar__link:before {\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel:after,\n.p-channel_sidebar__link:after {\n  font-size: 1.25rem;\n  margin-left: 0.25rem;\n}\n.p-channel_sidebar__channel:hover,\n.p-channel_sidebar__link:hover,\n.p-channel_sidebar__channel:active,\n.p-channel_sidebar__link:active,\n.p-channel_sidebar__channel:focus,\n.p-channel_sidebar__link:focus,\n.p-channel_sidebar__channel:link,\n.p-channel_sidebar__link:link,\n.p-channel_sidebar__channel:visited,\n.p-channel_sidebar__link:visited {\n  text-decoration: none;\n}\n.p-channel_sidebar__channel:before {\n  content: '\\E125';\n}\n.p-channel_sidebar__channel--private:before {\n  content: '\\E567';\n}\n.p-channel_sidebar__channel--shared:after {\n  content: '\\E559';\n}\n.p-channel_sidebar__channel--org-shared:after {\n  content: '\\E166';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft):before {\n  font-size: 1.25rem;\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='2']:before {\n  content: '\\E521';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='3']:before {\n  content: '\\E522';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='4']:before {\n  content: '\\E523';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='5']:before {\n  content: '\\E524';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='6']:before {\n  content: '\\E525';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='7']:before {\n  content: '\\E526';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='8']:before {\n  content: '\\E527';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='9']:before {\n  content: '\\E528';\n}\n.p-channel_sidebar__channel--im:before {\n  content: none;\n}\n.p-channel_sidebar__channel--im .c-presence {\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel--im .c-presence--away {\n  opacity: 0.7;\n}\n.p-channel_sidebar__channel--im-slackbot:before {\n  content: '\\E515';\n  opacity: 1;\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel--im-slackbot.p-channel_sidebar__channel--draft:before {\n  color: inherit;\n}\n.p-channel_sidebar__channel--muted:not(.p-channel_sidebar__channel--selected) {\n  opacity: 0.4;\n}\n.p-channel_sidebar__channel--unread:not(.p-channel_sidebar__channel--muted) .p-channel_sidebar__name {\n  font-weight: 900;\n  opacity: 1;\n}\n.p-channel_sidebar__channel--selected .p-channel_sidebar__name {\n  opacity: 1;\n}\n.p-channel_sidebar__channel--draft:before {\n  content: '\\E024';\n  font-size: 0.875rem;\n  margin: 1px -2px 0 -1px;\n  flex-basis: 20px;\n  flex-shrink: 0;\n}\n.p-channel_sidebar__channel--archived:before {\n  content: '\\E534';\n}\n@keyframes typing {\n  100% {\n    background-position: -240px;\n  }\n}\n.p-channel_sidebar__channel--typing:before {\n  display: block;\n  content: '';\n  width: 11px;\n  height: 3px;\n  background-image: url(/img/typing-sprite.png);\n  background-repeat: no-repeat;\n  animation: 1s steps(15) 0s infinite normal none typing-sprite;\n  margin: 0 5px 0 1px;\n  opacity: 1;\n}\n@media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {\n  .p-channel_sidebar__channel--typing:before {\n    background-size: cover;\n    background-image: url(/img/typing-sprite@2x.png);\n  }\n}\n.p-channel_sidebar__name {\n  margin-right: auto;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  opacity: 0.7;\n}\n.p-channel_sidebar__name .c-custom_status {\n  float: right;\n  position: relative;\n  z-index: 1;\n}\n.p-channel_sidebar__name.p-channel_sidebar__name--away {\n  font-style: italic;\n}\n.p-channel_sidebar__badge {\n  order: 5;\n  padding: 1px 0.6rem;\n  margin-left: 0.25rem;\n  border-radius: 1rem;\n  line-height: 1rem;\n  font-size: 0.75rem;\n  font-weight: 700;\n  color: #FFFFFF;\n}\n.p-channel_sidebar__status {\n  margin-left: 0.5rem;\n}\n.p-channel_sidebar__you_label {\n  margin-left: 0.5rem;\n  font-weight: normal;\n  opacity: 0.7;\n}\n.p-channel_sidebar__close {\n  margin-left: 0.25rem;\n  display: none;\n}\n.p-channel_sidebar__close,\n.p-channel_sidebar__close:before {\n  line-height: 100%;\n}\n.p-channel_sidebar__channel:hover .p-channel_sidebar__close {\n  display: block;\n}\n.p-channel_sidebar__link--unread .p-channel_sidebar__name {\n  font-weight: 900;\n  opacity: 1;\n}\n.p-channel_sidebar__link--selected .p-channel_sidebar__name {\n  opacity: 1;\n}\n.p-channel_sidebar__link--all-unreads:before {\n  content: '\\E103';\n  margin: 0 4px 0 -4px;\n}\n.p-channel_sidebar__link--all-threads:before {\n  content: '\\E171';\n  margin: 0 4px 0 -4px;\n}\n.p-channel_sidebar__link--all-threads.p-channel_sidebar__link--unread:before {\n  content: '\\E554';\n}\n.p-channel_sidebar__link--invites:before {\n  content: '\\E281';\n}\n.p-channel_sidebar__link--invites:not(.p-channel_sidebar__link--dim) .p-channel_sidebar__name {\n  font-weight: 900;\n  opacity: 1;\n}\n", ""]);
 }, function(e, t, n) {
   "use strict";
   Object.defineProperty(t, "__esModule", {
@@ -31494,52 +31494,7 @@ webpackJsonp([332], [, function(e, t, n) {
   "use strict";
   var r = n(2892);
   t.a = r.a;
-}, function(e, t, n) {
-  "use strict";
-  var r = n(2),
-    o = n.n(r),
-    i = n(20),
-    a = n.n(i),
-    s = n(43),
-    u = n(2353),
-    l = n(2906),
-    c = n(3629),
-    d = n(2296),
-    f = n(2908),
-    p = n(2907),
-    h = n(3209),
-    _ = n(3234),
-    m = n(3233),
-    y = n(3643),
-    v = n(2881),
-    g = function(e) {
-      var t = "react_channel_sidebar_display_item";
-      n.i(l.a)(t + "_mark"), "V" === e[0] ? n.i(p.a)(e) : n.i(f.a)(e), n.i(l.b)(t, t + "_mark");
-    },
-    b = function(e, t) {
-      t && ("im" === e ? n.i(m.b)(t) : "mpim" === e && n.i(_.b)(t));
-    };
-  n.i(u.a)("ui.react_channel_sidebar", {
-    selectItem: function(e) {
-      n.i(c.a)().dispatch(n.i(d.selectItem)(e));
-    },
-    render: function(e) {
-      var t = "react_channel_sidebar_render";
-      n.i(l.a)(t + "_mark"), a.a.render(o.a.createElement(s.a, {
-        store: n.i(c.a)()
-      }, o.a.createElement(v.a, {
-        onItemSelect: g,
-        onCloseIM: b,
-        onBrowseChannelsClick: h.a,
-        onCreateChannelClick: h.b,
-        onOpenDMClick: h.c,
-        onInviteClick: y.a
-      })), e, function() {
-        return n.i(l.b)(t, t + "_mark");
-      });
-    }
-  });
-}, function(e, t, n) {
+}, , function(e, t, n) {
   "use strict";
   var r = n(2353),
     o = n(2356),
@@ -31572,7 +31527,8 @@ webpackJsonp([332], [, function(e, t, n) {
     P = n(3202),
     j = n(3645),
     D = n(3172),
-    Y = n(3647);
+    Y = n(3647),
+    A = n(3653);
   n.i(r.a)("interop.datetime", {
     toDateObject: o.a,
     toDate: i.a,
@@ -31604,7 +31560,8 @@ webpackJsonp([332], [, function(e, t, n) {
     addDays: P.a,
     daysToYearsPretty: j.a,
     maybeGetRelativeDay: D.a,
-    millisecondsToPrettifiedTime: Y.a
+    millisecondsToPrettifiedTime: Y.a,
+    prettifyDateString: A.a
   });
 }, , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , function(e, t, n) {
   "use strict";
@@ -35254,7 +35211,7 @@ webpackJsonp([332], [, function(e, t, n) {
     s = n(2989),
     u = n(2694),
     l = n(2348);
-  n(3347), n(3605), n(3051), n(3023), n(2697), n(3641), n(2696), n(3030), n(3240), n(3611);
+  n(3347), n(3605), n(3051), n(3023), n(2697), n(3641), n(3651), n(3030), n(3240), n(3611);
   window.ReactComponents = {}, window.ReactComponents.EmojiPicker = u.a, window.ReactComponents.Popover = l.a, window.ReactComponents.PopoverTrigger = l.b, window.React = o.a, window.ReactDOM = a.a, window.moment = s.a;
 }, function(e, t, n) {
   "use strict";
@@ -35975,15 +35932,16 @@ webpackJsonp([332], [, function(e, t, n) {
   "use strict";
 
   function r(e, t) {
-    var r = n.i(o.a)(e, {
+    var r = n.i(i.a)(e, {
         returnMoment: !0
       }),
-      i = n.i(o.a)(t, {
+      a = n.i(i.a)(t, {
         returnMoment: !0
       });
-    return r.isSame(i, "day");
+    return n.i(o.a)(r).isSame(a, "day");
   }
-  var o = n(2356);
+  var o = n(2989),
+    i = n(2356);
   t.a = r;
 }, function(e, t, n) {
   "use strict";
@@ -39411,23 +39369,25 @@ webpackJsonp([332], [, function(e, t, n) {
   function r(e) {
     var t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : {},
       r = t.uncapitalized,
-      u = void 0 !== r && r,
-      l = n.i(o.a)(e, {
+      s = void 0 !== r && r,
+      u = n.i(o.a)(e, {
         returnMoment: !0
       }),
-      c = n.i(i.a)(),
-      d = n.i(i.a)(c).subtract(1, "days"),
+      l = n.i(i.a)(),
+      c = n.i(i.a)(l).subtract(1, "days"),
+      d = n.i(i.a)(l).add(1, "days"),
       f = "";
-    return n.i(a.a)(l) ? f = c.calendar(null, {
+    return n.i(a.a)(l, u) && (f = n.i(i.a)(l).calendar(null, {
       today: "[Today]"
-    }).split(" ")[0] : n.i(s.a)(l) && (f = d.calendar(null, {
+    }).split(" ")[0]), n.i(a.a)(c, u) && (f = n.i(i.a)(c).calendar(null, {
       yesterday: "[Yesterday]"
-    }).split(" ")[0]), f = u ? f.toLocaleLowerCase() : f.charAt(0).toLocaleUpperCase() + f.slice(1), "" !== f ? f : void 0;
+    }).split(" ")[0]), n.i(a.a)(d, u) && (f = n.i(i.a)(d).calendar(null, {
+      tomorrow: "[Tomorrow]"
+    }).split(" ")[0]), f = s ? f.toLocaleLowerCase() : f.charAt(0).toLocaleUpperCase() + f.slice(1), "" !== f ? f : void 0;
   }
   var o = n(2356),
     i = n(2989),
-    a = n(3e3),
-    s = n(3001);
+    a = n(2996);
   t.a = r;
 }, function(e, t, n) {
   "use strict";
@@ -40646,7 +40606,7 @@ webpackJsonp([332], [, function(e, t, n) {
           searchTerm: "",
           appCategories: [],
           isLoading: !0
-        }, e.handleSearchInputChange = e.handleSearchInputChange.bind(e), e.handleAppClick = e.handleAppClick.bind(e), e.searchApps = e.searchApps.bind(e), e.doRequest = e.doRequest.bind(e), e.throttledSearchApps = d.a.throttle(e.searchApps, 500, {
+        }, e.handleSearchInputChange = e.handleSearchInputChange.bind(e), e.handleAppClick = e.handleAppClick.bind(e), e.searchApps = e.searchApps.bind(e), e.doRequest = e.doRequest.bind(e), e.setSearchInputRef = e.setSearchInputRef.bind(e), e.throttledSearchApps = d.a.throttle(e.searchApps, 500, {
           leading: !1,
           trailing: !0
         }), e;
@@ -40657,7 +40617,12 @@ webpackJsonp([332], [, function(e, t, n) {
           var e = this;
           this.doRequest(n.i(p.a)("apps.index.list").then(function(t) {
             return e.defaultAppCategories = t.data.categories, t;
-          }));
+          })), this.searchInput.focus();
+        }
+      }, {
+        key: "setSearchInputRef",
+        value: function(e) {
+          this.searchInput = e;
         }
       }, {
         key: "getAppIcon",
@@ -40783,6 +40748,7 @@ webpackJsonp([332], [, function(e, t, n) {
             target: "_blank",
             link: "https://slack.com/apps"
           }, w("Browse App Directory"))), s.a.createElement("div", null, s.a.createElement(v.a, {
+            ref: this.setSearchInputRef,
             placeholder: w("Search apps"),
             onChange: this.handleSearchInputChange
           }))), s.a.createElement("div", {
@@ -50844,7 +50810,7 @@ webpackJsonp([332], [, function(e, t, n) {
             s = this.quill.getText(a, 1),
             u = " " !== s && !t,
             d = new l.a;
-          d.retain(this.state.prevMatch.index), this.options.useNameTagging && r !== o && this.quill.getText(this.state.prevMatch.index, r.length) === r ? d.delete(r.length) : d.delete(o.length), d.insert(r, e.format), u && d.insert(" ", !1), this.state.isMakingSelection = !0, this.quill.updateContents(d), this.quill.setSelection(this.state.prevMatch.index + r.length + 1, 0), this.state.isMakingSelection = !1, this.state.searchInFlight = null, this.state.prevInsertText = r;
+          d.retain(this.state.prevMatch.index), this.options.useNameTagging && r !== o && this.quill.getText(this.state.prevMatch.index, r.length) === r ? d.delete(Math.max(r.length, o.length)) : d.delete(o.length), d.insert(r, e.format), u && d.insert(" ", !1), this.state.isMakingSelection = !0, this.quill.updateContents(d), this.quill.setSelection(this.state.prevMatch.index + r.length + 1, 0), this.state.isMakingSelection = !1, this.state.searchInFlight = null, this.state.prevInsertText = r;
         }
       }, {
         key: "textBetweenLastTokenAndIndex",
@@ -53643,9 +53609,14 @@ webpackJsonp([332], [, function(e, t, n) {
         return n.state = {
           focused: !1,
           query: ""
-        }, n.handleClick = n.handleClick.bind(n), n.handleInputBlur = n.handleInputBlur.bind(n), n.handleInputFocus = n.handleInputFocus.bind(n), n.handleInputChange = n.handleInputChange.bind(n), n.handleResetButtonClick = n.handleResetButtonClick.bind(n), n;
+        }, n.handleClick = n.handleClick.bind(n), n.handleInputBlur = n.handleInputBlur.bind(n), n.handleInputFocus = n.handleInputFocus.bind(n), n.handleInputChange = n.handleInputChange.bind(n), n.handleResetButtonClick = n.handleResetButtonClick.bind(n), n.setRef = n.setRef.bind(n), n;
       }
       return i(t, e), p(t, [{
+        key: "setRef",
+        value: function(e) {
+          this.input = e;
+        }
+      }, {
         key: "handleClick",
         value: function() {
           this.state.focused || (this.setState(function() {
@@ -53692,25 +53663,31 @@ webpackJsonp([332], [, function(e, t, n) {
           }), this.input.value = "", this.props.onChange && this.props.onChange(e);
         }
       }, {
+        key: "focus",
+        value: function() {
+          this.state.focused || (this.setState(function() {
+            return {
+              focused: !0
+            };
+          }), this.input.focus());
+        }
+      }, {
         key: "render",
         value: function() {
-          var e = this,
-            t = l()("c-enhanced_text_input", {
+          var e = l()("c-enhanced_text_input", {
               "c-enhanced_text_input--active": this.state.focused
             }),
-            n = l()("c-enhanced_text_input__reset_button", {
+            t = l()("c-enhanced_text_input__reset_button", {
               "c-enhanced_text_input__reset_button--visible": !!this.state.query
             });
           return s.a.createElement("div", {
-            className: t,
+            className: e,
             onClick: this.handleClick
           }, s.a.createElement(d.a, {
             type: this.props.icon
           }), s.a.createElement("input", {
             className: "c-enhanced_text_input__input",
-            ref: function(t) {
-              e.input = t;
-            },
+            ref: this.setRef,
             onBlur: this.handleInputBlur,
             onFocus: this.handleInputFocus,
             onChange: this.handleInputChange,
@@ -53718,7 +53695,7 @@ webpackJsonp([332], [, function(e, t, n) {
             placeholder: this.props.placeholder,
             value: this.state.previousVal
           }), s.a.createElement(d.a, {
-            className: n,
+            className: t,
             type: "times_circle",
             onClick: this.handleResetButtonClick
           }));
@@ -53890,4 +53867,68 @@ webpackJsonp([332], [, function(e, t, n) {
         throw new TypeError("Invalid attempt to destructure non-iterable instance");
       };
     }());
+}, , , function(e, t, n) {
+  "use strict";
+  var r = n(3652),
+    o = n(2353);
+  n.i(o.a)("interop.mountChannelSidebar", r.a);
+}, function(e, t, n) {
+  "use strict";
+  var r = n(2),
+    o = n.n(r),
+    i = n(20),
+    a = n.n(i),
+    s = n(43),
+    u = n(2906),
+    l = n(3629),
+    c = n(2908),
+    d = n(2907),
+    f = n(3209),
+    p = n(3234),
+    h = n(3233),
+    _ = n(3643),
+    m = n(2881),
+    y = function(e) {
+      var t = "react_channel_sidebar_display_item";
+      n.i(u.a)(t + "_mark"), "V" === e[0] ? n.i(d.a)(e) : n.i(c.a)(e), n.i(u.b)(t, t + "_mark");
+    },
+    v = function(e, t) {
+      t && ("im" === e ? n.i(h.b)(t) : "mpim" === e && n.i(p.b)(t));
+    },
+    g = function(e) {
+      var t = "react_channel_sidebar_render";
+      n.i(u.a)(t + "_mark"), a.a.render(o.a.createElement(s.a, {
+        store: n.i(l.a)()
+      }, o.a.createElement(m.a, {
+        onItemSelect: y,
+        onCloseIM: v,
+        onBrowseChannelsClick: f.a,
+        onCreateChannelClick: f.b,
+        onOpenDMClick: f.c,
+        onInviteClick: _.a
+      })), e, function() {
+        return n.i(u.b)(t, t + "_mark");
+      });
+    };
+  t.a = g;
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e) {
+    var t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : {},
+      r = t.fallbackString,
+      a = void 0 === r ? void 0 : r,
+      s = t.uncapitalized,
+      u = void 0 !== s && s,
+      l = n.i(o.a)(e, {
+        returnMoment: !0
+      }),
+      c = n.i(i.a)(l, {
+        uncapitalized: u
+      });
+    return c || a;
+  }
+  var o = n(2356),
+    i = n(3172);
+  t.a = r;
 }], [2905]);

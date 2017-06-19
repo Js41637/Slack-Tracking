@@ -10632,13 +10632,9 @@ html.fs_modal_active {
 }
 
 .menu #menu_items_scroller {
-  max-height: 454px;
+  max-height: calc(100vh - 99px);
   overflow-y: auto;
   overflow-x: hidden
-}
-
-.client_resize_optimizations .menu #menu_items_scroller {
-  max-height: calc(100vh - 99px)
 }
 
 .supports_custom_scrollbar:not(.slim_scrollbar) .menu #menu_items_scroller {
@@ -11638,9 +11634,9 @@ body.ReactModal__Body--open {
   content: '';
   position: absolute;
   top: 15px;
-  right: -15px;
-  width: 200px;
-  height: 200px;
+  right: 5px;
+  width: 180px;
+  height: 80px;
   background-image: url(/ad071/img/notifications_menu/dnd_menu_header_bg.svg);
   background-size: 190px;
   background-repeat: no-repeat

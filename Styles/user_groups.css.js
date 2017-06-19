@@ -440,6 +440,6 @@ body:not(.unify_user) .lfs_item.lfs_token .user_group_invite_member_small {
   line-height: 1.25rem
 }
 
-.client_resize_optimizations #groups_tab #user_groups_container:not(.hidden)+#user_group_preview_container {
+#groups_tab #user_groups_container:not(.hidden)+#user_group_preview_container {
   display: none
 }

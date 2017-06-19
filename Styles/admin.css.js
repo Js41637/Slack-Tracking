@@ -194,38 +194,6 @@
   line-height: 1
 }
 
-.admin_list_item.invite_item {
-  min-height: 3.25rem
-}
-
-.admin_invite_sent_date {
-  position: absolute;
-  right: .5rem;
-  top: .4rem;
-  font-size: 15px;
-  text-align: right
-}
-
-.admin_list_item.invite_item.pending {
-  padding-left: .5rem
-}
-
-.admin_list_item.invite_item.pending .admin_member_caret {
-  top: .45rem
-}
-
-.admin_list_item.invite_item.pending .admin_invite_sent_date {
-  right: 2.25rem
-}
-
-.admin_list_item.invite_item.bouncing {
-  background: #FFFCE0
-}
-
-.admin_list_item.invite_item.bouncing .email {
-  color: #CB5234
-}
-
 .restricted_header {
   margin: 1rem 0 .5rem .75rem
 }
@@ -502,14 +470,6 @@
     line-height: 1.5rem;
     font-size: 1rem
   }
-  .admin_list_item.invite_item .admin_invite_sent_date,
-  .admin_list_item.invite_item.pending .admin_invite_sent_date {
-    position: relative;
-    display: block;
-    text-align: left;
-    top: auto;
-    right: auto
-  }
   .admin_list_item .mini {
     display: none
   }
@@ -574,6 +534,73 @@
   }
   .admin_list_item.expanded .sub_actions {
     float: left
+  }
+}
+
+.admin_list_item.invite_item {
+  display: flex;
+  flex-direction: column;
+  min-height: 3.25rem;
+  position: relative
+}
+
+.admin_list_item_invite_info {
+  display: flex;
+  flex-grow: 1
+}
+
+.admin_list_item_name_email {
+  flex-grow: 1;
+  max-width: 600px
+}
+
+.admin_invite_sent_date {
+  position: relative;
+  right: auto;
+  top: auto;
+  flex-grow: 2;
+  min-width: 200px;
+  max-width: 400px;
+  padding-left: 2rem;
+  font-size: 15px;
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis
+}
+
+.admin_list_item.invite_item.bouncing {
+  background: #FFFCE0
+}
+
+.admin_list_item.invite_item.bouncing .email {
+  color: #CB5234
+}
+
+.admin_list_item.invite_item.pending {
+  padding-left: .5rem;
+  padding-right: .5rem
+}
+
+.admin_list_item.invite_item.pending .admin_member_caret {
+  top: .45rem
+}
+
+.admin_list_item.invite_item.pending .admin_invite_sent_date {
+  padding-right: 1.75rem
+}
+
+@media only screen and (max-width:767px) {
+  .admin_list_item.invite_item,
+  .admin_list_item_invite_info {
+    display: block
+  }
+  .admin_invite_sent_date {
+    padding: 0;
+    min-width: auto;
+    max-width: 100%;
+    text-align: left;
+    white-space: initial
   }
 }
 
