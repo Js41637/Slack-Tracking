@@ -2348,6 +2348,7 @@ webpackJsonp([12, 328, 337, 329], {
         features: a,
         exportToLegacy: function(e, n) {
           if (_.has(TS, e)) throw new Error("exportToLegacy: there is already something at " + e + "; we cannot overwrite it");
+          if (!e || 0 !== e.indexOf("interop")) throw new Error("exportToLegacy: Name " + e + ' must start with "interop".');
           if (n.onStart) throw new Error("exportToLegacy: may not export objects with onStart methods");
           B ? _.set(TS, e, n) : TS.registerModule(e, n);
         },

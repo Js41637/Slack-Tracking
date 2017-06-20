@@ -52371,10 +52371,10 @@ webpackJsonp([332], [, function(e, t, n) {
       name: "",
       root: null
     };
-  n.i(s.a)("ui.react_org_retention_request", {
+  n.i(s.a)("interop.react_org_retention_request", {
     submitRequest: function(e, t) {
       n.i(c.a)(e, t).then(function() {
-        TS.ui.react_org_retention_request.renderComponent(d.root, d.id, d.name);
+        TS.interop.react_org_retention_request.renderComponent(d.root, d.id, d.name);
       }).catch(function(e) {
         return n.i(u.a)("Failed to submit retention request:", e);
       });
@@ -52387,7 +52387,7 @@ webpackJsonp([332], [, function(e, t, n) {
           u = t.current_settings,
           c = t.pending;
         a.a.render(o.a.createElement(l.a, {
-          submitRequest: TS.ui.react_org_retention_request.submitRequest,
+          submitRequest: TS.interop.react_org_retention_request.submitRequest,
           orgId: n,
           orgName: r,
           hasPermission: i,

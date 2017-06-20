@@ -15,11 +15,11 @@
 }
 
 #admin_list [data-admin-csv-download]:disabled {
-  color: #fff!important
+  color: #FFF!important
 }
 
 .admin_action_bar {
-  border-bottom: 1px solid #DDD;
+  border-bottom: 1px solid #ddd;
   padding: 1rem .5rem;
   font-weight: 700;
   font-size: .9rem
@@ -39,7 +39,7 @@
 }
 
 .admin_list_item {
-  border-bottom: 1px solid #EEE;
+  border-bottom: 1px solid #eee;
   color: #717274;
   line-height: 1.25rem;
   position: relative;
@@ -300,7 +300,7 @@
   border-radius: .25rem;
   padding: .25rem .25rem .25rem .5rem;
   margin: .5rem 0 0 -2.75rem;
-  color: #fff;
+  color: #FFF;
   font-size: .9rem;
   text-shadow: 0 1px 1px rgba(0, 0, 0, .2);
   display: none
@@ -675,7 +675,7 @@ label[for=enable_calls_checkbox] input[type=checkbox] {
   margin-bottom: .5rem;
   margin-right: 5rem;
   font-size: 15px;
-  color: #9e9ea6
+  color: #717274
 }
 
 .admin_pref .accordion_expand {
