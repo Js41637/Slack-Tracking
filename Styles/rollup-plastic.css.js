@@ -9080,6 +9080,18 @@ textarea::-ms-clear {
   display: none
 }
 
+.feature_keyboard_navigation .plastic_select,
+.feature_keyboard_navigation input[type=url],
+.feature_keyboard_navigation input[type=text],
+.feature_keyboard_navigation input[type=tel],
+.feature_keyboard_navigation input[type=number],
+.feature_keyboard_navigation input[type=email],
+.feature_keyboard_navigation input[type=password],
+.feature_keyboard_navigation select,
+.feature_keyboard_navigation textarea {
+  border: 1px solid #A0A0A2
+}
+
 input[type=file] {
   font-size: 12px;
   line-height: 12px;
@@ -9093,6 +9105,13 @@ input[type=file] {
 .no_touch select:hover,
 .no_touch textarea:hover {
   border-color: #2780F8
+}
+
+.no_touch .feature_keyboard_navigation .plastic_select:hover,
+.no_touch .feature_keyboard_navigation input:hover,
+.no_touch .feature_keyboard_navigation select:hover,
+.no_touch .feature_keyboard_navigation textarea:hover {
+  border-color: #717274
 }
 
 .focus,
@@ -9116,6 +9135,20 @@ textarea:focus {
   box-shadow: 0 0 7px rgba(39, 128, 248, .15);
   outline-offset: 0;
   outline: 0
+}
+
+.feature_keyboard_navigation .focus,
+.feature_keyboard_navigation .plastic_select:focus,
+.feature_keyboard_navigation .plastic_select:hover,
+.feature_keyboard_navigation input[type=url]:focus,
+.feature_keyboard_navigation input[type=text]:focus,
+.feature_keyboard_navigation input[type=number]:focus,
+.feature_keyboard_navigation input[type=email]:focus,
+.feature_keyboard_navigation input[type=password]:focus,
+.feature_keyboard_navigation select:focus,
+.feature_keyboard_navigation textarea:focus {
+  border-color: #717274;
+  box-shadow: none
 }
 
 input.borderless,
@@ -9360,6 +9393,14 @@ label.select.small:after {
 
 .no_touch label.select:not(.disabled):hover:after {
   color: #2780F8
+}
+
+.no_touch .feature_keyboard_navigation label.select:hover select {
+  border-color: #717274
+}
+
+.no_touch .feature_keyboard_navigation label.select:not(.disabled):hover:after {
+  color: #717274
 }
 
 .input_note {
@@ -15600,6 +15641,15 @@ html:not(.supports_flexbox) #im_browser_tokens {
   line-height: 26px
 }
 
+.feature_keyboard_navigation #im_browser_tokens {
+  border-color: #A0A0A2
+}
+
+.feature_keyboard_navigation #im_browser_tokens.active {
+  border-color: #717274;
+  box-shadow: none
+}
+
 #channel_invite_spinner,
 #im_browser_spinner {
   width: 20px;
@@ -16638,6 +16688,21 @@ body:not(.unify_user) .lazy_filter_select .lfs_value .ts_icon_shared_channels {
 
 .lazy_filter_select .addl_icon.ts_icon_shared_channels {
   top: 4px
+}
+
+.feature_keyboard_navigation .lazy_filter_select .lfs_input_container {
+  border: 1px solid #A0A0A2;
+  box-shadow: none
+}
+
+.feature_keyboard_navigation .lazy_filter_select .lfs_input_container.active,
+.feature_keyboard_navigation .lazy_filter_select .lfs_input_container:hover {
+  border-color: #717274
+}
+
+.feature_keyboard_navigation .lazy_filter_select.single .lfs_input_container.active:after,
+.feature_keyboard_navigation .lazy_filter_select.single .lfs_input_container:hover:after {
+  color: #717274
 }
 
 .lazy_filter_select.channel_browser_sort .lfs_value,

@@ -35277,7 +35277,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           TS.utility.contenteditable.refreshTextPreferences();
         },
         create: function(e, t) {
-          if (t || (t = {}), (e = r(e)) && !a(e) && !o(e)) {
+          if (t || (t = {}), (e = a(e)) && !s(e) && !l(e)) {
             var n = {
               modules: {
                 tabcomplete: {
@@ -35324,110 +35324,111 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             };
             if (TS.boot_data.feature_texty_mentions && (TS.boot_data.feature_name_tagging_client ? n.modules.slackmention = {
                 processPotentialMentions: _.debounce(function() {
-                  m(e);
+                  p(e);
                 }, 100)
               } : n.modules.slackmention = {}), TS.boot_data.feature_name_tagging_client && (n.useNameTagging = !0), _.defaultsDeep(t, n), t.modules && t.modules.tabcomplete && (t.modules.tabcomplete.completers || (t.modules.tabcomplete.completers = [TS.tabcomplete.channels, TS.tabcomplete.commands, TS.tabcomplete.emoji, TS.tabcomplete.members]), !TS.boot_data.feature_keyboard_navigation && _.includes(t.modules.tabcomplete.completers, TS.tabcomplete.commands))) {
               var i = t.onTab || _.noop;
               t.onTab = function() {
-                if (!TS.utility.contenteditable.isEmpty(e) || !c(e)) return i();
+                if (!TS.utility.contenteditable.isEmpty(e) || !u(e)) return i();
               };
             }
-            var s = t.onEnter;
+            var r = t.onEnter;
             t.onEnter = function(n) {
-              return !(t.singleLineInput || !d(n, e)) || !!_.isFunction(s) && s(n);
+              return !(t.singleLineInput || !c(n, e)) || !!_.isFunction(r) && r(n);
             };
-            var u = new Texty(e, t);
-            l(e, u);
+            var o = new Texty(e, t);
+            d(e, o);
           }
         },
         unload: function(e) {
-          if ((e = r(e)) && s(e)) {
-            var t = o(e);
+          if ((e = a(e)) && o(e)) {
+            var t = l(e);
             t && t.unload();
           }
         },
         isActiveElement: function(e) {
-          if (!(e = r(e))) return !1;
-          if (a(e)) return document.activeElement === e;
-          if (s(e)) {
-            return !!o(e).hasFocus() || document.activeElement && -1 != document.activeElement.className.indexOf("ql-clipboard") && document.activeElement.parentNode === e;
+          if (!(e = a(e))) return !1;
+          if (s(e)) return document.activeElement === e;
+          if (o(e)) {
+            return !!l(e).hasFocus() || document.activeElement && -1 != document.activeElement.className.indexOf("ql-clipboard") && document.activeElement.parentNode === e;
           }
           return !1;
         },
         focus: function(e) {
-          if (e = r(e))
-            if (a(e)) e.focus();
-            else if (s(e)) {
-            var t = o(e);
+          if (e = a(e))
+            if (s(e)) e.focus();
+            else if (o(e)) {
+            var t = l(e);
             t.focus();
           }
         },
         hasFocus: function(e) {
-          if (e = r(e)) {
-            if (a(e)) return $(e).is(":focus");
-            if (s(e)) {
-              return o(e).hasFocus();
+          if (e = a(e)) {
+            if (s(e)) return $(e).is(":focus");
+            if (o(e)) {
+              return l(e).hasFocus();
             }
           }
         },
         blur: function(e) {
-          if (e = r(e))
-            if (a(e)) e.blur();
-            else if (s(e)) {
-            var t = o(e);
+          if (e = a(e))
+            if (s(e)) e.blur();
+            else if (o(e)) {
+            var t = l(e);
             t.blur();
           }
         },
         isContenteditable: function(e) {
-          return !((e = r(e)) && TS.ui && TS.ui.paste && TS.ui.paste.catcher_div && TS.ui.paste.catcher_div === e) && (!!e.isContentEditable || !!s(e));
+          return !((e = a(e)) && TS.ui && TS.ui.paste && TS.ui.paste.catcher_div && TS.ui.paste.catcher_div === e) && (!!e.isContentEditable || !!o(e));
         },
         disable: function(e) {
-          if (e = r(e))
-            if (a(e)) e.disabled = !0;
-            else if (s(e)) {
-            var t = o(e);
+          if (e = a(e))
+            if (s(e)) e.disabled = !0;
+            else if (o(e)) {
+            var t = l(e);
             t.disable();
           }
         },
         isDisabled: function(e) {
-          if (e = r(e)) {
-            if (a(e)) return !0 === e.disabled;
-            if (s(e)) {
-              return !o(e).isEnabled();
+          if (e = a(e)) {
+            if (s(e)) return !0 === e.disabled;
+            if (o(e)) {
+              return !l(e).isEnabled();
             }
             return !1;
           }
         },
         enable: function(e) {
-          if (e = r(e))
-            if (a(e)) e.disabled = !1;
-            else if (s(e)) {
-            var t = o(e);
+          if (e = a(e))
+            if (s(e)) e.disabled = !1;
+            else if (o(e)) {
+            var t = l(e);
             t.enable();
           }
         },
         isEnabled: function(e) {
-          if (!(e = r(e))) return !1;
-          if (a(e)) return !0 !== e.disabled;
-          if (s(e)) {
-            return o(e).isEnabled();
+          if (!(e = a(e))) return !1;
+          if (s(e)) return !0 !== e.disabled;
+          if (o(e)) {
+            return l(e).isEnabled();
           }
           return !1;
         },
         value: function(e, t) {
-          if (!(e = r(e))) return "";
-          if (a(e)) return _.isString(t) && (e.value = t), e.value;
-          if (s(e)) {
-            var n = o(e);
+          if (!(e = a(e))) return "";
+          if (s(e)) return _.isString(t) && (e.value = t), e.value;
+          if (o(e)) {
+            TS.boot_data.feature_name_tagging_client && S();
+            var n = l(e);
             return _.isString(t) ? TS.boot_data.feature_name_tagging_client ? n.setContents(TS.format.texty.convertContentsStringToContents(t)) : n.setText(t) : _.isObject(t) && n.setContents(t), TS.boot_data.feature_name_tagging_client ? TS.format.texty.convertContentsToString(n.getContents()) : n.getText();
           }
           return "";
         },
         displayValue: function(e) {
-          if (!(e = r(e))) return "";
-          if (a(e)) return e.value;
-          if (s(e)) {
-            return o(e).getText();
+          if (!(e = a(e))) return "";
+          if (s(e)) return e.value;
+          if (o(e)) {
+            return l(e).getText();
           }
           return "";
         },
@@ -35435,60 +35436,60 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return TS.utility.contenteditable.displayValue(e).length;
         },
         getTextForRange: function(e, t, n) {
-          if (!(e = r(e))) return "";
-          if (a(e)) {
+          if (!(e = a(e))) return "";
+          if (s(e)) {
             return TS.utility.contenteditable.value(e).substr(t, n);
           }
-          if (s(e)) {
-            return o(e).getTextForRange(t, n);
+          if (o(e)) {
+            return l(e).getTextForRange(t, n);
           }
           return "";
         },
         insertTextAtCursor: function(e, t, n) {
-          if (e = r(e)) {
+          if (e = a(e)) {
             var i;
-            if (a(e)) {
+            if (s(e)) {
               if (!_.isString(t)) return e.value;
               i = TS.utility.contenteditable.cursorPosition(e);
-              var l = TS.utility.contenteditable.value(e),
-                d = l.substr(0, i.start) + t + l.substr(i.start);
+              var r = TS.utility.contenteditable.value(e),
+                d = r.substr(0, i.start) + t + r.substr(i.start);
               e.value = d, n && (TS.utility.contenteditable.focus(e), TS.utility.contenteditable.cursorPosition(e, i.start + t.length, 0));
-            } else if (s(e)) {
-              var c = o(e);
+            } else if (o(e)) {
+              var c = l(e);
               _.isString(t) && c.insertTextAtCursor(t, n);
             }
           }
         },
         insertContentsAtCursor: function(e, t, n) {
-          if (e = r(e))
-            if (a(e)) TS.utility.contenteditable.insertTextAtCursor(e, TS.format.texty.convertContentsToString(t), n);
-            else if (s(e)) {
-            var i = o(e);
+          if (e = a(e))
+            if (s(e)) TS.utility.contenteditable.insertTextAtCursor(e, TS.format.texty.convertContentsToString(t), n);
+            else if (o(e)) {
+            var i = l(e);
             i.insertContentsAtCursor(t, n);
           }
         },
         updateContents: function(e, t) {
-          if (e = r(e))
-            if (a(e)) TS.warn("updateContents called on form element");
-            else if (s(e)) {
-            var n = o(e);
+          if (e = a(e))
+            if (s(e)) TS.warn("updateContents called on form element");
+            else if (o(e)) {
+            var n = l(e);
             n.updateContents(t);
           }
         },
         paste: function(e, t) {
-          if (!(e = r(e))) return !1;
-          if (a(e)) return !1;
-          if (s(e)) {
+          if (!(e = a(e))) return !1;
+          if (s(e)) return !1;
+          if (o(e)) {
             var n, i;
-            if (t && t.clipboardData && t.clipboardData.getData("slack/plain")) return t.preventDefault(), n = u(e, t.clipboardData.getData("slack/plain")), i = TS.format.texty.convertContentsStringToContents(n), i = TS.format.texty.removeInvalidMentions(i), TS.utility.contenteditable.insertContentsAtCursor(e, i, !0), !0;
-            if (n = TS.ui.paste.getPlainTextFromClipboard(t), !_.isEmpty(n)) return t.preventDefault(), n = u(e, n), TS.utility.contenteditable.insertTextAtCursor(e, n, !0), !0;
+            if (t && t.clipboardData && t.clipboardData.getData("slack/plain")) return t.preventDefault(), n = m(e, t.clipboardData.getData("slack/plain")), i = TS.format.texty.convertContentsStringToContents(n), i = TS.format.texty.removeInvalidMentions(i), TS.utility.contenteditable.insertContentsAtCursor(e, i, !0), !0;
+            if (n = TS.ui.paste.getPlainTextFromClipboard(t), !_.isEmpty(n)) return t.preventDefault(), n = m(e, n), TS.utility.contenteditable.insertTextAtCursor(e, n, !0), !0;
           }
           return !1;
         },
         getFormats: function(e, t) {
-          if (!(e = r(e))) return {};
-          if (s(e)) {
-            return o(e).getFormats(t);
+          if (!(e = a(e))) return {};
+          if (o(e)) {
+            return l(e).getFormats(t);
           }
           return {};
         },
@@ -35497,63 +35498,64 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return n && t && (n = n.trim()), 0 === n.length;
         },
         clear: function(e, t) {
-          if (e = r(e))
-            if (a(e)) e.value = "";
-            else if (s(e)) {
-            var n = o(e);
+          if (e = a(e))
+            if (s(e)) e.value = "";
+            else if (o(e)) {
+            TS.boot_data.feature_name_tagging_client && S();
+            var n = l(e);
             n.clear({
               is_silent: !!t
             });
           }
         },
         placeholder: function(e, t) {
-          if (!(e = r(e))) return "";
+          if (!(e = a(e))) return "";
           var n;
-          if (a(e)) _.isString(t) && ("" === t ? e.removeAttribute("placeholder") : e.setAttribute("placeholder", t)), n = e.getAttribute("placeholder");
-          else if (s(e)) {
-            var i = o(e);
+          if (s(e)) _.isString(t) && ("" === t ? e.removeAttribute("placeholder") : e.setAttribute("placeholder", t)), n = e.getAttribute("placeholder");
+          else if (o(e)) {
+            var i = l(e);
             i.setPlaceholder(t), n = i.getPlaceholder();
           }
           return n || "";
         },
         cursorPosition: function(e, t, n) {
-          var i, l = {
+          var i, r = {
             start: 0,
             end: 0,
             length: 0
           };
-          if (!(e = r(e))) return l;
-          if (_.isNumber(t)) n || (n = 0), l.start = t, l.end = t + n, l.length = n, a(e) ? TS.selection.selectCharacters(e, l.start, l.end) : s(e) && (i = o(e), i.setSelection(l.start, l.length));
+          if (!(e = a(e))) return r;
+          if (_.isNumber(t)) n || (n = 0), r.start = t, r.end = t + n, r.length = n, s(e) ? TS.selection.selectCharacters(e, r.start, r.end) : o(e) && (i = l(e), i.setSelection(r.start, r.length));
           else {
             if (!TS.utility.contenteditable.isActiveElement(e)) {
               var d = $(e).data("utility-contenteditable-cursor-position");
               if (_.isObject(d)) return d;
             }
-            if (a(e)) e.focus(), l.start = e.selectionStart, l.end = e.selectionEnd, l.length = Math.abs(e.selectionEnd - e.selectionStart);
-            else if (s(e)) {
-              i = o(e);
+            if (s(e)) e.focus(), r.start = e.selectionStart, r.end = e.selectionEnd, r.length = Math.abs(e.selectionEnd - e.selectionStart);
+            else if (o(e)) {
+              i = l(e);
               var c = i.getSelection();
-              c && (l.start = c.index, l.length = c.length, l.end = l.start + l.length);
+              c && (r.start = c.index, r.length = c.length, r.end = r.start + r.length);
             }
           }
-          return l;
+          return r;
         },
         setCursorAtEnd: function(e) {
           var t = TS.utility.contenteditable.displayValue(e);
           TS.utility.contenteditable.cursorPosition(e, t.length);
         },
         isTextSelected: function(e) {
-          if (e = r(e)) {
-            if (a(e)) return !(!window.getSelection || !window.getSelection().toString());
-            if (s(e)) {
-              return o(e).getSelection().length > 0;
+          if (e = a(e)) {
+            if (s(e)) return !(!window.getSelection || !window.getSelection().toString());
+            if (o(e)) {
+              return l(e).getSelection().length > 0;
             }
           }
         },
         deserialize: function(e, t) {
-          if (t && (e = r(e)))
-            if (a(e)) e.value = t;
-            else if (s(e)) {
+          if (t && (e = a(e)))
+            if (s(e)) e.value = t;
+            else if (o(e)) {
             if ("object" === (void 0 === t ? "undefined" : n(t)) && t.hasOwnProperty("contents")) return void TS.utility.contenteditable.value(e, t);
             if ("string" != typeof t) return;
             try {
@@ -35564,16 +35566,16 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }
         },
         isCursorInPreBlock: function(e) {
-          if (!(e = r(e))) return !1;
-          if (s(e)) {
-            return o(e).isCursorInPreBlock();
+          if (!(e = a(e))) return !1;
+          if (o(e)) {
+            return l(e).isCursorInPreBlock();
           }
           return !1;
         },
         deleteSelection: function(e) {
-          if (!(e = r(e))) return !1;
-          if (s(e)) {
-            return o(e).deleteSelection();
+          if (!(e = a(e))) return !1;
+          if (o(e)) {
+            return l(e).deleteSelection();
           }
           window.getSelection().deleteFromDocument();
         },
@@ -35592,8 +35594,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }!e.substitutions["--"] && e.useSmartQuotes && (e.substitutions["--"] = "—");
         },
         clearHistory: function(e) {
-          if (!(e = r(e))) return !1;
-          var t = o(e);
+          if (!(e = a(e))) return !1;
+          var t = l(e);
           t && t.clearHistory();
         },
         supportsTexty: function() {
@@ -35601,42 +35603,43 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         test: function() {
           return {
-            _normalizeInput: r,
-            _isFormElement: a
+            _normalizeInput: a,
+            _isFormElement: s
           };
         }
       });
       var e = !1,
         t = /(?:^|\s|\{|\[|\(|<|>|\*|_|\/|"|“|‘|'|:)(@[\w|.|-]+)/g,
         i = [],
-        r = function(e) {
+        r = [],
+        a = function(e) {
           return !!e && (e instanceof jQuery && e[0] && (e = e[0]), e.nodeType === Node.ELEMENT_NODE && (TS.utility.contenteditable.supportsTexty() ? "textarea" === e.tagName.toLowerCase() ? e : "input" === e.tagName.toLowerCase() ? e : $(e).hasClass("ql-editor") ? e.parentNode : e.hasAttribute("contenteditable") ? e : !(!TS.utility.contenteditable.supportsTexty() || "DIV" !== e.tagName) && e : e));
         },
-        a = function(e) {
+        s = function(e) {
           return !!e && (!TS.utility.contenteditable.supportsTexty() || ("textarea" === e.tagName.toLowerCase() || "input" === e.tagName.toLowerCase()));
         },
-        s = function(e) {
-          return !!e && (!!TS.utility.contenteditable.supportsTexty() && !!o(e));
-        },
         o = function(e) {
+          return !!e && (!!TS.utility.contenteditable.supportsTexty() && !!l(e));
+        },
+        l = function(e) {
           return $(e).data("__ts_quill");
         },
-        l = function(e, t) {
+        d = function(e, t) {
           $(e).data("__ts_quill", t);
         },
-        d = function(e, t) {
+        c = function(e, t) {
           return !e.metaKey && (t && TS.utility.contenteditable.isCursorInPreBlock(t) && TS.model.prefs.enter_is_special_in_tbt ? !e.shiftKey : !(!e.shiftKey || e.ctrlKey || e.altKey) || !(e.shiftKey || !e.ctrlKey && !e.altKey));
         },
-        c = function(e) {
+        u = function(e) {
           var t = TS.chat_history.getCommands();
           if (!t.length) return !1;
           var n = t[0];
           return TS.utility.contenteditable.value(e, n), TS.utility.contenteditable.cursorPosition(e, n.length, 0), !0;
         },
-        u = function(e, t) {
+        m = function(e, t) {
           return $(e).hasClass("texty_single_line_input") && (t = t.replace(/\n/g, " ")), t.replace(/^[\u200b\uFEFF]+|[\u200b\uFEFF]+$/gm, "");
         },
-        m = function(e) {
+        p = function(e) {
           if (!$("#chat_input_tab_ui").length) {
             var n = TS.utility.contenteditable.value(e),
               i = TS.utility.contenteditable.cursorPosition(e);
@@ -35659,42 +35662,39 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                 e.attributes || e.insert.replace(t, function(t, n, r) {
                   if (r += t.length - n.length, !(i.start > r + o && i.start <= r + o + n.length)) {
                     var c = TS.sorter.search(n, l, d);
-                    1 === c.length ? a.push(f(e.insert, n, r + o, c)) : c.length > 0 ? a.push(f(e.insert, n, r + o, c)) : s.push(n);
+                    1 === c.length ? a.push(h(e.insert, n, r + o, c)) : c.length > 0 ? a.push(h(e.insert, n, r + o, c)) : s.push(n);
                   }
                 }), o += e.insert.length;
-              }), h(e, a), p(e, _.uniq(s));
+              }), g(e, a), f(e, _.uniq(s));
             }
           }
         },
-        p = function(e, n) {
-          n.length && n.forEach(function(n) {
-            if (-1 === i.indexOf(n)) {
-              i.push(n);
-              var r = {
-                query: n.replace(/^@/, ""),
-                max_api_results: 2,
-                include_org: !0,
-                include_slackbot: !0,
-                include_self: !0,
-                full_profile_filter: !1
-              };
-              TS.members.promiseToSearchMembers(r).then(function(r) {
-                if (r && r.items && r.items.length) {
-                  var a = 0,
-                    s = [],
-                    o = TS.utility.contenteditable.value(e),
-                    l = TS.utility.contenteditable.cursorPosition(e);
-                  TS.format.texty.convertContentsStringToContents(o).contents.forEach(function(e) {
-                    e.attributes || e.insert.replace(t, function(t, i, o) {
-                      i === n && (o += t.length - i.length, l.start > o + a && l.start <= o + a + i.length || (r.items.length, s.push(f(e.insert, i, o + a, r.items))));
-                    }), a += e.insert.length;
-                  }), h(e, s), _.pull(i, n);
-                }
-              });
-            }
+        f = function(e, n) {
+          _.pullAll(n, i), _.pullAll(n, r), n.length && n.forEach(function(n) {
+            r.push(n);
+            var a = {
+              query: n.replace(/^@/, ""),
+              max_api_results: 2,
+              include_org: !0,
+              include_slackbot: !0,
+              include_self: !0,
+              full_profile_filter: !1
+            };
+            TS.members.promiseToSearchMembers(a).then(function(a) {
+              if (!a || !a.items || !a.items.length) return void i.push(n);
+              var s = 0,
+                o = [],
+                l = TS.utility.contenteditable.value(e),
+                d = TS.utility.contenteditable.cursorPosition(e);
+              TS.format.texty.convertContentsStringToContents(l).contents.forEach(function(e) {
+                e.attributes || e.insert.replace(t, function(t, i, r) {
+                  i === n && (r += t.length - i.length, d.start > r + s && d.start <= r + s + i.length || (a.items.length, o.push(h(e.insert, i, r + s, a.items))));
+                }), s += e.insert.length;
+              }), g(e, o), _.pull(r, n);
+            });
           });
         },
-        f = function(e, t, n, i) {
+        h = function(e, t, n, i) {
           var r = 1 === i.length && i[0],
             a = {
               id: "UNVERIFIED",
@@ -35713,7 +35713,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }
           return a;
         },
-        h = function(e, t) {
+        g = function(e, t) {
           if (t.length) {
             var n = {
                 contents: []
@@ -35743,6 +35743,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               }), i = e.index + e.length;
             }), TS.utility.contenteditable.updateContents(e, n);
           }
+        },
+        S = function() {
+          i = [], r = [];
         };
     }();
   },
@@ -39878,11 +39881,11 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         type: "members",
         getMatch: function(e, t, n, i) {
           var r, a, s = /(^|\n|.)?(@[^\s\n@]*)$/i;
-          if (TS.boot_data.feature_name_tagging_client && (s = /(^|\n|.)?(@[^\n@]*)$/i), e.replace(s, function(e, t, n, s) {
+          if (TS.boot_data.feature_name_tagging_client && (s = /(^|\n|.)?((?:@|\uFF20)[^\n@\uFF20]*)$/i), e.replace(s, function(e, t, n, s) {
               (TS.tabcomplete.isAllowedSurroundingCharacter(t) || i && i.allowed_preceding_symbols && -1 !== i.allowed_preceding_symbols.indexOf(t)) && (t && (s += t.length), r = n, a = s);
             }), !r && (!TS.model.prefs.require_at || t)) {
-            var o = _.last(/(^|\s)([^\s\n@]+)$/.exec(e));
-            o = TS.tabcomplete.trimSurroundingSymbols(o), u(o, t) && (r = o, a = e.length - o.length);
+            var o;
+            o = TS.boot_data.feature_name_tagging_client ? _.last(/(^|\s)([^\s\n@\uFF20]+)$/.exec(e)) : _.last(/(^|\s)([^\s\n@]+)$/.exec(e)), o = TS.tabcomplete.trimSurroundingSymbols(o), u(o, t) && (r = o, a = e.length - o.length);
           }
           if (r) return {
             match: r,
@@ -39905,8 +39908,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                 }
               }
             });
-            var n = t && t.length && 0 === t.indexOf("@"),
-              i = TS.tabcomplete.members.getDisplayTextForResult(e, n);
+            var n = t && t.length && 0 === t.indexOf("@");
+            TS.boot_data.feature_name_tagging_client && (n = t && t.length && (0 === t.indexOf("@") || 0 === t.indexOf("＠")));
+            var i = TS.tabcomplete.members.getDisplayTextForResult(e, n);
             if (TS.client && TS.client.msg_input && TS.utility.contenteditable.hasFocus(TS.client.msg_input.$input) && -1 === ["@everyone", "@channel", "@here"].indexOf(i)) {
               var r = TS.shared.getActiveModelOb();
               TS.client.msg_input.tabcomplete_completions[r.id] || (TS.client.msg_input.tabcomplete_completions[r.id] = []), -1 === TS.client.msg_input.tabcomplete_completions[r.id].indexOf(i) && TS.client.msg_input.tabcomplete_completions[r.id].push(i.substring(1));

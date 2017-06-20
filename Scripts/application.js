@@ -36244,17 +36244,17 @@ webpackJsonp([332], [, function(e, t, n) {
       o = e.oldest,
       i = void 0 === o ? 0 : o,
       a = e.latest,
-      c = void 0 === a ? 0 : a;
+      s = void 0 === a ? 0 : a;
     return function(e) {
-      n.i(s.a)({
+      n.i(u.a)({
         channelId: t,
         type: r,
         oldest: i,
-        latest: c
+        latest: s
       }).then(function(t) {
-        e(n.i(l.addMessages)(t));
+        e(n.i(c.addMessages)(t));
       }).catch(function(e) {
-        return n.i(u.a)("Failed to fetch history", t, e);
+        return n.i(l.a)("Failed to fetch history", t, e);
       });
     };
   }
@@ -36265,42 +36265,48 @@ webpackJsonp([332], [, function(e, t, n) {
 
   function i(e) {
     var t = o(e);
-    return n.i(c.getTimestampsByChannelId)(e, t);
+    return n.i(d.getTimestampsByChannelId)(e, t);
+  }
+
+  function a(e) {
+    return e && e.messagePane && e.messagePane.startTs;
   }
   Object.defineProperty(t, "__esModule", {
     value: !0
   }), n.d(t, "switchToChannel", function() {
-    return f;
-  }), t.fetchHistory = r, t.getMessagePaneChannelId = o, t.getTimestampsForMessagePane = i;
-  var a = n(17),
-    s = (n.n(a), n(3431)),
-    u = n(2914),
-    l = n(3034),
-    c = n(3035),
-    d = Object.assign || function(e) {
+    return p;
+  }), t.fetchHistory = r, t.getMessagePaneChannelId = o, t.getTimestampsForMessagePane = i, t.getMessagePaneStartTs = a;
+  var s = n(17),
+    u = (n.n(s), n(3431)),
+    l = n(2914),
+    c = n(3034),
+    d = n(3035),
+    f = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
         for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
       }
       return e;
     },
-    f = n.i(a.createAction)("Sets the active channel"),
-    p = {
-      channelId: null
+    p = n.i(s.createAction)("Sets the active channel"),
+    h = {
+      channelId: null,
+      startTs: null
     },
-    h = n.i(a.createReducer)(function(e, t, n) {
+    _ = n.i(s.createReducer)(function(e, t, n) {
       return t in e ? Object.defineProperty(e, t, {
         value: n,
         enumerable: !0,
         configurable: !0,
         writable: !0
       }) : e[t] = n, e;
-    }({}, f, function(e, t) {
-      return d({}, e, {
-        channelId: t
+    }({}, p, function(e, t, n) {
+      return f({}, e, {
+        channelId: t,
+        startTs: n
       });
-    }), p);
-  t.default = h;
+    }), h);
+  t.default = _;
 }, , , function(e, t, n) {
   "use strict";
   var r = n(3033);
@@ -38107,34 +38113,38 @@ webpackJsonp([332], [, function(e, t, n) {
     l = n(3035),
     c = n(2295),
     d = n(3034),
-    f = n(3040),
-    p = Object.assign || function(e) {
+    f = n(3045),
+    p = n(3040),
+    h = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
         for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
       }
       return e;
     },
-    h = n.i(a.createSelector)([l.getTimestampsByChannelId, d.getMessagesByChannelId], function(e, t) {
+    _ = n.i(a.createSelector)([l.getTimestampsByChannelId, d.getMessagesByChannelId], function(e, t) {
       return o()(e).map(function(e) {
         return t[e];
-      }).reject(f.a).map("ts").value();
+      }).reject(p.a).map("ts").value();
     }),
-    _ = function(e) {
+    m = function(e) {
       var t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : {},
         r = n.i(u.getMessagePaneChannelId)(e),
         o = n.i(c.getChannelById)(e, r),
-        i = h(e, r);
-      return p({}, t, {
+        i = n.i(f.getUserPref)(e, "start_scroll_at_oldest"),
+        a = n.i(u.getMessagePaneStartTs)(e);
+      !a && i && (a = o.last_read);
+      var s = _(e, r);
+      return h({}, t, {
         channelId: r,
         type: n.i(c.getChannelType)(o),
-        timestamps: i
+        timestamps: s
       });
     },
-    m = {
+    y = {
       fetchHistory: u.fetchHistory
     };
-  t.a = n.i(i.b)(_, m)(s.a);
+  t.a = n.i(i.b)(m, y)(s.a);
 }, function(e, t, n) {
   "use strict";
   var r = n(3121);
@@ -40756,7 +40766,7 @@ webpackJsonp([332], [, function(e, t, n) {
               className: "p-apps_browser__category_section"
             }, s.a.createElement("div", {
               className: o
-            }, t.name), e.createAppCategoryAppsMarkup(t.apps));
+            }, t.display_name), e.createAppCategoryAppsMarkup(t.apps));
           }, this);
         }
       }, {
@@ -50692,7 +50702,7 @@ webpackJsonp([332], [, function(e, t, n) {
         value: function() {
           var e = this;
           this.state.isInComposition = !1, setTimeout(function() {
-            return e.maybeCompleteAtCursor("user");
+            e.isShowing() || e.maybeCompleteAtCursor("user");
           }, 0);
         }
       }, {
