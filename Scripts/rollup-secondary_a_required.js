@@ -11222,9 +11222,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         b = function(e) {
           if ("unknown_members" === TS.experiment.getGroup("unknown_members_perf", TS.members.unknown_members_perf_exp_metrics)) {
             var t = !!e && e.is_unknown;
-            return !!t && (e && e.is_unknown && (e.is_unknown = !1), _.pull(p, e.id), g[e.id] ? (ne(e.id), t && TS.statsd.measure("unknown_member_resolution_timing", "unknown_member_resolution_timing_" + e.id)) : TS.console.logError({
-              id: e.id
-            }, "unknown_member_timer_missing", "error", !0), t);
+            return !!t && (e && e.is_unknown && (e.is_unknown = !1), _.pull(p, e.id), g[e.id] && (ne(e.id), t && TS.statsd.measure("unknown_member_resolution_timing", "unknown_member_resolution_timing_" + e.id)), t);
           }
         },
         v = function(e) {
@@ -11425,7 +11423,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             });
             return TS.client && TS.client.ui && TS.client.ui.rebuildAll(!1, !0), e();
           }).catch(function(e) {
-            throw e.unknown_member_ids = p, e.unknown_member_ids_getting_fetched = i, TS.console.logError(e, "unknown_fetch_error", "error", !0), e;
+            throw e.unknown_member_ids = p, e.unknown_member_ids_getting_fetched = i, TS.console.logError(e, "unknown_fetch_error", "unknown_member_error", !0), e;
           });
         },
         P = function(e) {
@@ -11514,9 +11512,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                 TS.metrics.count("unknown_member_timeout_retry_" + n);
               }), TS.metrics.count("unknown_member_persistence_timeout"), TS.statsd.measure("unknown_member_resolution_timing", "unknown_member_resolution_timing_" + e), TS.console.logError({
                 id: e,
-                getMemberById: n,
+                is_unknown: n.is_unknown,
+                is_non_existent: n.is_non_existent,
                 start_stack: t
-              }, "persistent unknown member", "error", !0);
+              }, "persistent unknown member", "unknown_member_error", !0);
             }
           }, 6e4);
         },
@@ -16554,9 +16553,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           i && (i(), n = void 0, i = void 0);
         },
         Ie = function() {
-          Ae(), g = setTimeout(function() {
+          Ae(), TS.qs_args.no_prov_timeout || (g = setTimeout(function() {
             f ? (TS.boot_data.ws_refactor_bucket && TS.metrics.count("ms_flow_prov_timeout"), TS.warn("Giving up on provisional connection because no one ever finalized it"), ne(4002, "Deprecating socket because the provisional connection was never finalized")) : TS.warn("Provisional connection timed out, but it does not look like we have a provisional connection");
-          }, 3e4);
+          }, 3e4));
         },
         Ae = function() {
           g && (clearTimeout(g), g = void 0);
