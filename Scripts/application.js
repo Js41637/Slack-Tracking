@@ -32961,7 +32961,8 @@ webpackJsonp([332], [, function(e, t, n) {
             }),
             "data-color-index": t % this.props.numBackgroundColors,
             "data-name": e.name,
-            "data-names": e.names
+            "data-names": e.names,
+            "data-qa": "emoji_list_item"
           }, d.a.createElement(p.a, {
             emoji: e
           }));
@@ -33207,6 +33208,16 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "emojiMatchesSkinTone",
         value: function(e, t) {
           return !e.is_skin || e.skin_tone_id === (t || "1");
+        }
+      }, {
+        key: "getEmojiPreviewData",
+        value: function(e) {
+          var t = b.a(e.display_name || e.name),
+            n = e.display_names || e.names || "";
+          return n = b.d(n), {
+            name: t,
+            aliases: n
+          };
         }
       }]), S(t, [{
         key: "componentWillMount",
@@ -33460,16 +33471,6 @@ webpackJsonp([332], [, function(e, t, n) {
           }] : [];
         }
       }, {
-        key: "getEmojiPreviewData",
-        value: function(e) {
-          var t = b.a(e.display_name || e.name),
-            n = e.display_names || e.names || "";
-          return n = b.d(n), {
-            name: t,
-            aliases: n
-          };
-        }
-      }, {
         key: "triggerSelect",
         value: function(e, t) {
           this.props.onSelected(e, t, this.state.searchQuery), e.shiftKey || this.triggerClose(e);
@@ -33564,26 +33565,30 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "renderEmojiPreview",
         value: function() {
           var e = 0 === this.state.screenRows.length,
-            t = this.state.currentSelection,
-            r = this.getEmojiPreviewData(t);
+            r = this.state.currentSelection,
+            o = t.getEmojiPreviewData(r);
           if (e) {
-            var o = n.i(M.a)(this.props.groups);
-            t = n.i(k.a)(o, ":cry:")[0], r = this.getEmojiPreviewData(t);
+            var i = n.i(M.a)(this.props.groups);
+            r = n.i(k.a)(i, ":cry:")[0], o = t.getEmojiPreviewData(r);
           }
-          var i = d()("p-emoji_picker__preview_text", {
+          var a = d()("p-emoji_picker__preview_text", {
             "p-emoji_picker__preview_text--shortened": !this.props.activeSkinToneId
           });
           return l.a.createElement("div", {
             className: "p-emoji_picker__preview"
           }, l.a.createElement("span", {
-            className: "p-emoji_picker__preview_img"
+            className: "p-emoji_picker__preview_img",
+            "data-qa": "emoji_preview_img"
           }, l.a.createElement(f.a, {
-            emoji: t
+            emoji: r
           })), l.a.createElement("div", {
-            className: i
-          }, l.a.createElement("span", null, e ? E("Oh no!") : r.name), l.a.createElement("br", null), l.a.createElement("span", {
-            className: "p-emoji_picker__preview_aliases"
-          }, e ? E("We couldn't find that emoji") : r.aliases)));
+            className: a
+          }, l.a.createElement("span", {
+            "data-qa": "emoji_preview_name"
+          }, e ? E("Oh no!") : o.name), l.a.createElement("br", null), l.a.createElement("span", {
+            className: "p-emoji_picker__preview_aliases",
+            "data-qa": "emoji_preview_aliases"
+          }, e ? E("We couldn't find that emoji") : o.aliases)));
         }
       }, {
         key: "renderStickyHeader",
@@ -33718,6 +33723,14 @@ webpackJsonp([332], [, function(e, t, n) {
         return r(this, t), o(this, (t.__proto__ || Object.getPrototypeOf(t)).apply(this, arguments));
       }
       return i(t, e), h(t, [{
+        key: "maybeRenderSkinToneLabel",
+        value: function() {
+          return this.props.activeSkinToneId ? null : l.a.createElement("span", {
+            className: "p-emoji_picker__skintone_label",
+            "data-qa": "emoji_skintone_label"
+          }, _("Skin Tone"));
+        }
+      }, {
         key: "renderToneChoices",
         value: function(e) {
           var t = this;
@@ -33726,7 +33739,8 @@ webpackJsonp([332], [, function(e, t, n) {
               key: e.skin_tone_id,
               onClick: function() {
                 return t.props.onSkinToneChanged(e);
-              }
+              },
+              "data-qa": "emoji_skintone_option_" + e.skin_tone_id
             }, l.a.createElement(f.a, {
               emoji: e
             }));
@@ -33746,13 +33760,10 @@ webpackJsonp([332], [, function(e, t, n) {
           var r = d()("p-emoji_picker__skintone_btn_container", {
               hidden: this.props.isOpen
             }),
-            o = d()("p-emoji_picker__skintone_label", {
-              hidden: this.props.activeSkinToneId
-            }),
-            i = d()("p-emoji_picker__skintone_tip", {
+            o = d()("p-emoji_picker__skintone_tip", {
               "p-emoji_picker__skintone_tip--visible": this.props.isOpen
             }),
-            a = d()("p-emoji_picker__skintone_options", {
+            i = d()("p-emoji_picker__skintone_options", {
               "p-emoji_picker__skintone_options--visible": this.props.isOpen
             });
           return l.a.createElement("div", {
@@ -33761,15 +33772,15 @@ webpackJsonp([332], [, function(e, t, n) {
             }
           }, l.a.createElement("div", {
             onClick: this.props.onOpen,
-            className: r
+            className: r,
+            "data-qa": "emoji_selected_skintone"
           }, l.a.createElement("div", null, l.a.createElement(f.a, {
             emoji: t
-          })), l.a.createElement("span", {
+          })), this.maybeRenderSkinToneLabel()), l.a.createElement("div", {
             className: o
-          }, _("Skin Tone"))), l.a.createElement("div", {
-            className: i
           }, _("Choose your default skin tone")), l.a.createElement("div", {
-            className: a
+            className: i,
+            "data-qa": "emoji_skintone_options"
           }, this.renderToneChoices(n)));
         }
       }]), t;
@@ -49867,7 +49878,7 @@ webpackJsonp([332], [, function(e, t, n) {
         value: function(e) {
           var n = this;
           if (!e.defaultPrevented && this.quill.isEnabled()) {
-            if (this.quill.getSelection()) return e && e.clipboardData && e.clipboardData.getData("slack/html") ? (this.quillOnPaste(e), void setTimeout(function() {
+            if (this.quill.getSelection()) return this.options.hasTeamClipboardData && this.options.hasTeamClipboardData(e) ? (this.quillOnPaste(e), void setTimeout(function() {
               n.options.onPasted();
             }, 0)) : void(this.options.onPaste(e) || (f(t.prototype.__proto__ || Object.getPrototypeOf(t.prototype), "onPaste", this).call(this, e), setTimeout(function() {
               n.options.onPasted();

@@ -1,4 +1,4 @@
-webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257, 66, 44], {
+webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
   2309: function(e, t) {
     ! function() {
       "use strict";
@@ -15664,11 +15664,11 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257, 66, 44], {
         },
         pin_added: function(e) {
           var t = TS.shared.getModelObById(e.channel_id);
-          t && (TS.pins.pinStatusHasChanged(!0, e.item, e.item.type, t), t.has_pins = !0);
+          t && (TS.pins.pinStatusHasChanged(!0, e.item, e.item.type, t, e.pin_count), t.has_pins = !0);
         },
         pin_removed: function(e) {
           var t = TS.shared.getModelObById(e.channel_id);
-          t && (TS.pins.pinStatusHasChanged(!1, e.item, e.item.type, t), !1 === e.has_pins && (t.has_pins = !1));
+          t && (TS.pins.pinStatusHasChanged(!1, e.item, e.item.type, t, e.pin_count), !1 === e.has_pins && (t.has_pins = !1));
         },
         sh_room_join: function(e) {
           TS.dir(441, e), TS.rooms.upsertAndSignal(e.room);
@@ -16889,11 +16889,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257, 66, 44], {
             var l;
             a.file && (l = "file", "snippet" === a.file.mode ? l = "snippet" : "post" === a.file.mode && (l = "post"));
             var d = "";
-            "file_upload" === a.subtype ? d = TS.i18n.t("Note that deleting this message will not delete the {file_label} that was uploaded.", "msg_edit")({
-              file_label: l
-            }) : "file_share" === a.subtype ? d = TS.i18n.t("Note that deleting this message will not unshare the {file_label}.", "msg_edit")({
-              file_label: l
-            }) : "file_comment" === a.subtype && (d = TS.i18n.t("Note that deleting this message will not delete the comment.", "msg_edit")()), d && (o += "<p>" + d + "</p>");
+            "file_upload" === a.subtype ? "file" === l ? d = TS.i18n.t("Note that deleting this message will not delete the file that was uploaded.", "msg_edit")() : "snippet" === l ? d = TS.i18n.t("Note that deleting this message will not delete the snippet that was uploaded.", "msg_edit")() : "post" === l && (d = TS.i18n.t("Note that deleting this message will not delete the post that was uploaded.", "msg_edit")()) : "file_share" === a.subtype ? "file" === l ? d = TS.i18n.t("Note that deleting this message will not unshare the file.", "msg_edit")() : "snippet" === l ? d = TS.i18n.t("Note that deleting this message will not unshare the snippet.", "msg_edit")() : "post" === l && (d = TS.i18n.t("Note that deleting this message will not unshare the post.", "msg_edit")()) : "file_comment" === a.subtype && (d = TS.i18n.t("Note that deleting this message will not delete the comment.", "msg_edit")()), d && (o += "<p>" + d + "</p>");
           }
           s.addClass("delete_mode"), TS.generic_dialog.start({
             title: TS.i18n.t("Delete message", "msg_edit")(),
@@ -17692,9 +17688,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257, 66, 44], {
         isMessagePinned: function(e, t) {
           return "file_comment" === e.subtype ? !!e.comment && !!r(e.comment.id, e.file.id, t) : e.file ? !!i(e.file.id, t) : !!a(e.ts, t);
         },
-        pinStatusHasChanged: function(e, t, n, i) {
-          var r, a, l, d, c, _;
-          "message" === n && i ? (r = TS.utility.msgs.findMsg(t.message.ts, i.id)) && (t.message = r, d = s(e, r, i)) : "file_comment" === n ? (_ = TS.files.upsertFile(t.file), a = TS.files.getFileById(t.file.id), t.file = a, l = TS.files.getFileCommentById(a, t.comment.id), l ? (t.comment = l, d = s(e, l, i)) : (l = TS.files.addCommentToFile(t.comment, a), t.comment = l), d = d || "CHANGED" === _.status) : "file" === n && (_ = TS.files.upsertFile(t.file), a = TS.files.getFileById(t.file.id), t.file = a, d = s(e, a, i), d = d || "CHANGED" === _.status), c = o(e, t, n, i), (d || c) && TS.pins.pinned_status_changed_sig.dispatch(i, t, e);
+        pinStatusHasChanged: function(e, t, n, i, r) {
+          var a, l, d, c, _, u;
+          "message" === n && i ? (a = TS.utility.msgs.findMsg(t.message.ts, i.id)) && (t.message = a, c = s(e, a, i)) : "file_comment" === n ? (u = TS.files.upsertFile(t.file), l = TS.files.getFileById(t.file.id), t.file = l, d = TS.files.getFileCommentById(l, t.comment.id), d ? (t.comment = d, c = s(e, d, i)) : (d = TS.files.addCommentToFile(t.comment, l), t.comment = d), c = c || "CHANGED" === u.status) : "file" === n && (u = TS.files.upsertFile(t.file), l = TS.files.getFileById(t.file.id), t.file = l, c = s(e, l, i), c = c || "CHANGED" === u.status), _ = o(e, t, n, i, r), (c || _) && TS.pins.pinned_status_changed_sig.dispatch(i, t, e);
         },
         upsertPinnedItems: function(e) {
           e.forEach(function(e) {
@@ -17801,14 +17797,19 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257, 66, 44], {
           }
           return i;
         },
-        o = function(e, t, n, i) {
-          var r = !1;
+        o = function(e, t, n, i, r) {
+          var a = !1;
           i.pinned_items || (i.pinned_items = []);
-          var a = -1;
-          return i.pinned_items.some(function(e, i) {
-            var r = !1;
-            return "message" === n && "message" === e.type ? e.message.ts === t.message.ts && (r = !0) : "file" === n && "file" === e.type ? e.file.id === t.file.id && (r = !0) : "file_comment" === n && "file_comment" === e.type && e.comment.id === t.comment.id && (r = !0), r && (a = i), r;
-          }), TS.boot_data.feature_lazy_pins && !TS.pins.havePinsBeenFetched(i) ? (i.hasOwnProperty("pinned_items_count") && (e && (i.pinned_items_count += 1), e || (i.pinned_items_count -= 1)), r = !0) : e || -1 === a ? e && -1 === a && (i.pinned_items.unshift(t), i.pinned_items_count = i.pinned_items.length, r = !0) : (i.pinned_items.splice(a, 1), i.pinned_items_count = i.pinned_items.length, r = !0), i.has_pins = !!i.pinned_items_count, r;
+          var s = -1;
+          if (i.pinned_items.some(function(e, i) {
+              var r = !1;
+              return "message" === n && "message" === e.type ? e.message.ts === t.message.ts && (r = !0) : "file" === n && "file" === e.type ? e.file.id === t.file.id && (r = !0) : "file_comment" === n && "file_comment" === e.type && e.comment.id === t.comment.id && (r = !0), r && (s = i), r;
+            }), TS.boot_data.feature_lazy_pins && !TS.pins.havePinsBeenFetched(i)) {
+            i.pinned_items_count = i.pinned_items_count || 0;
+            var o = _.parseInt(r, 10);
+            _.isNaN(o) ? e ? i.pinned_items_count += 1 : e || (i.pinned_items_count = Math.max(i.pinned_items_count - 1, 0)) : i.pinned_items_count = o, a = !0;
+          } else e || -1 === s ? e && -1 === s && (i.pinned_items.unshift(t), i.pinned_items_count = i.pinned_items.length, a = !0) : (i.pinned_items.splice(s, 1), i.pinned_items_count = i.pinned_items.length, a = !0);
+          return i.has_pins = !!i.pinned_items_count, a;
         },
         l = function(e, t, n) {
           var i = "",
@@ -35297,6 +35298,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257, 66, 44], {
                   buildSmartQuotesDelta: TS.format.texty.buildSmartQuotesDelta
                 },
                 clipboard: {
+                  hasTeamClipboardData: function(e) {
+                    return e && e.clipboardData && e.clipboardData.getData("slack/" + TS.model.team.id);
+                  },
                   onPaste: function(t) {
                     return TS.utility.contenteditable.paste(e, t);
                   }
@@ -35480,7 +35484,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257, 66, 44], {
           if (a(e)) return !1;
           if (s(e)) {
             var n, i;
-            if (t && t.clipboardData && t.clipboardData.getData("slack/plain")) return t.preventDefault(), n = u(e, t.clipboardData.getData("slack/plain")), i = TS.format.texty.convertContentsStringToContents(n), TS.utility.contenteditable.insertContentsAtCursor(e, i, !0), !0;
+            if (t && t.clipboardData && t.clipboardData.getData("slack/plain")) return t.preventDefault(), n = u(e, t.clipboardData.getData("slack/plain")), i = TS.format.texty.convertContentsStringToContents(n), i = TS.format.texty.removeInvalidMentions(i), TS.utility.contenteditable.insertContentsAtCursor(e, i, !0), !0;
             if (n = TS.ui.paste.getPlainTextFromClipboard(t), !_.isEmpty(n)) return t.preventDefault(), n = u(e, n), TS.utility.contenteditable.insertTextAtCursor(e, n, !0), !0;
           }
           return !1;
@@ -39400,6 +39404,13 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257, 66, 44], {
           var n = [];
           return e = s(e, n), e = e.replace(/([^A-Za-z0-9]|^)"(\S)/g, "$1“$2").replace(/(\u201c[^"]*)"([^"]*$|[^\u201c"]*\u201c)/g, "$1”$2").replace(/([^0-9])"/g, "$1”").replace(/([^A-Za-z0-9]|^)'(\S)/g, "$1‘$2").replace(/([a-z])'([a-z])/gi, "$1’$2").replace(/((\u2018[^']*)|[a-z])'([^0-9]|$)/gi, "$1’$3").replace(/(\u2018)([0-9]{2}[^\u2019]*)(\u2018([^0-9]|$)|$|\u2019[a-z])/gi, "’$2$3").replace(/(\B|^)\u2018(?=([^\u2019]*\u2019\b)*([^\u2019\u2018]*\W[\u2019\u2018]\b|[^\u2019\u2018]*$))/gi, "$1‘").replace(/'/g, "′"), e = o(e, n), e = TSF.swapOutPlaceholders(t, e);
         },
+        removeInvalidMentions: function(e) {
+          return e.contents = e.contents.map(function(e) {
+            return e.attributes && e.attributes.slackmention && !TS.members.getMemberById(e.attributes.slackmention.id) ? {
+              insert: e.insert
+            } : e;
+          }), e;
+        },
         test: function() {
           var e = {};
           return Object.defineProperty(e, "IGNORED_FORMATS", {
@@ -40491,179 +40502,6 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257, 66, 44], {
         };
     }();
   },
-  3170: function(e, t) {
-    ! function() {
-      "use strict";
-      TS.registerModule("client.highlights", {
-        updated_sig: new signals.Signal,
-        feedback_submitted_sig: new signals.Signal,
-        last_request_id: null,
-        sli_recaps_debug_group: null,
-        onStart: function() {
-          TS.client && TS.boot_data.feature_sli_recaps && (TS.client.login_sig.addOnce(function() {
-            n = _.get(TS.shared.getActiveModelOb(), "id");
-          }), TS.channels.pre_switched_sig.add(o), TS.client.unread.marked_group_as_read_sig.add(l), TS.experiment.loadUserAssignments().then(r));
-        },
-        msgIsHighlight: function(t, n) {
-          return !!(e[t] && e[t][n] && e[t][n].show_recap);
-        },
-        msgIsHighlightUnfurl: function(t, n) {
-          return !!(e[t] && e[t][n] && e[t][n].is_unfurl);
-        },
-        msgIsLeavingFeedback: function(t, n) {
-          return !!(e[t] && e[t][n] && e[t][n].is_leaving_feedback);
-        },
-        canShowRecapDebug: function(t, n) {
-          return "sli_debug_info" === TS.client.highlights.sli_recaps_debug_group && e[t] && e[t][n];
-        },
-        shouldRenderHighlightsUI: function(e, t) {
-          return TS.boot_data.feature_sli_recaps_interface && (TS.client.highlights.msgIsHighlight(e, t) || TS.client.highlights.msgIsLeavingFeedback(e, t));
-        },
-        isMsgBeingRequested: function(e, n) {
-          return t[e] && t[e][n];
-        },
-        getHighlight: function(t, n) {
-          return e[t] && e[t][n];
-        },
-        getHighlightsForChannel: function(t) {
-          return e[t];
-        },
-        addHighlights: function(t) {
-          var n = {};
-          e = _.reduce(t, function(e, t, i) {
-            return e[i] = e[i] || {}, _.each(t, function(t, r) {
-              e[i][r] && (e[i][r].show_recap || e[i][r].is_leaving_feedback || e[i][r].left_feedback) ? (e[i][r].request_id = t.request_id, e[i][r].cached_request_id = t.cached_request_id) : (e[i][r] = t, e[i][r].justification = TS.format.formatWithOptions(t.justification || "", void 0, {
-                no_linking: !0
-              }), n[i] = n[i] || {}, n[i][r] = e[i][r]);
-            }), e;
-          }, e), _.isEmpty(n) || TS.client.highlights.updated_sig.dispatch(n);
-        },
-        setDefaultFeedbackForHighlight: function(t, n, r, a) {
-          if (e[t] && e[t][n]) {
-            e[t][n] = _.assign({}, e[t][n], r), "negative" === r.feedback && (e[t][n].show_recap = !1, e[t][n].is_leaving_feedback = !0);
-            var s = {};
-            s[t] = {}, s[t][n] = e[t][n], TS.client.highlights.feedback_submitted_sig.dispatch(s);
-            var o;
-            o = "dismiss" === r.feedback ? "dismiss" : "default_" + r.feedback, i(e[t][n], _.get(e[t][n], ["feedback_options", o, "args"]), a);
-          }
-        },
-        setNegativeFeedbackForHighlight: function(t, n, r, a) {
-          if (e[t] && e[t][n]) {
-            e[t][n].is_leaving_feedback = !1, e[t][n].left_feedback = !0;
-            var s = {};
-            s[t] = {}, s[t][n] = e[t][n], TS.client.highlights.feedback_submitted_sig.dispatch(s), i(e[t][n], _.get(e[t][n], ["feedback_options", "negative", r, "args"]), a);
-          }
-        },
-        getHighlightsForMessages: function(e) {
-          if (e.timestamps.length) {
-            var t = _.map(e.timestamps, function(e) {
-              return {
-                ts: e,
-                is_unread: !0
-              };
-            });
-            return a(e.channel.id, e.timestamps), TS.api.call("highlights.list", {
-              channel: e.channel.id,
-              messages: JSON.stringify(t),
-              channel_open_ts: e.channel_open_ts || TS.utility.date.makeTsStamp(e.channel.last_made_active, "0"),
-              channel_open_last_read_ts: e.channel.last_read
-            }).then(function(e) {
-              TS.client.highlights.last_request_id = e.request_id, TS.client.highlights.addHighlights(e.data.messages);
-            }).catch(function(e) {
-              TS.error(e);
-            }).finally(function() {
-              s(e.channel.id, e.timestamps);
-            });
-          }
-        },
-        test: function() {
-          var t = {};
-          return Object.defineProperty(t, "_cache", {
-            get: function() {
-              return e;
-            },
-            set: function(t) {
-              e = t;
-            }
-          }), t;
-        }
-      });
-      var e = {},
-        t = {},
-        n = null,
-        i = function(e, t, n) {
-          if (t) {
-            var i = _.assign({}, t, {
-              request_id: e.request_id || TS.client.highlights.last_request_id,
-              source: n
-            });
-            e.cached_request_id && (i.cached_request_id = e.cached_request_id), TS.api.call("highlights.feedback", i).catch(function(e) {
-              TS.error(e);
-            });
-          }
-        },
-        r = function() {
-          TS.client.highlights.sli_recaps_debug_group = TS.experiment.getGroup("sli_recaps_debug");
-        },
-        a = function(e, n) {
-          t[e] = t[e] || {}, _.each(n, function(n) {
-            t[e][n] = !0;
-          });
-        },
-        s = function(e, n) {
-          _.each(n, function(n) {
-            t[e] && t[e][n] && delete t[e][n];
-          }), !_.isUndefined(t[e]) && _.isEmpty(t[e]) && delete t[e];
-        },
-        o = function() {
-          var e = TS.shared.getModelObById(n);
-          e && d(e), n = _.get(TS.shared.getActiveModelOb(), "id");
-        },
-        l = function(e) {
-          d(e.model_ob);
-        },
-        d = function(t) {
-          if (e[t.id]) {
-            var n = parseFloat(t.last_read);
-            _.each(e[t.id], function(e, i) {
-              parseFloat(i) <= n && c(t.id, i);
-            }), _.isEmpty(e[t.id]) && delete e[t.id];
-          }
-        },
-        c = function(t, n) {
-          e[t] && e[t][n] && delete e[t][n];
-        };
-    }();
-  },
-  3174: function(e, t) {
-    ! function() {
-      "use strict";
-      TS.registerModule("client.ui.highlights", {
-        openNegativeFeedbackMenu: function(n, i, r, a) {
-          var s = TS.client.highlights.getHighlight(i, r);
-          if (s) {
-            var o = $("<ul></ul>");
-            _.each(s.feedback_options.negative, function(e) {
-              o.append('<li role="menuitem" data-js="highlights_feedback_item"><a href="#">' + TS.format.formatWithOptions(e.text, "", {
-                no_linking: !0
-              }) + "</a></li>");
-            }), TS.menu.startWithList(n, o, {
-              close_on_click: !0,
-              menu_class: "sli_briefing__menu",
-              position_by_click: !0,
-              onClick: function(e) {
-                e.preventDefault();
-                var t = $(e.target).parents("li[data-js=highlights_feedback_item]").index();
-                TS.client.highlights.setNegativeFeedbackForHighlight(i, r, t, a);
-              }
-            }), TS.menu.positionAt($(n.target), e, t);
-          }
-        }
-      });
-      var e = 0,
-        t = 18;
-    }();
-  },
   3180: function(e, t) {
     ! function() {
       "use strict";
@@ -40856,7 +40694,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257, 66, 44], {
         };
     }();
   },
-  3891: function(e, t, n) {
-    n(2499), n(2362), n(2423), n(2526), n(2366), n(2365), n(2496), n(2493), n(2494), n(2495), n(2533), n(2491), n(2505), n(3180), n(2501), n(2992), n(2504), n(3079), n(2502), n(3142), n(3627), n(2503), n(3046), n(3184), n(3633), n(2389), n(2473), n(2387), n(2388), n(2391), n(2663), n(2425), n(2456), n(2449), n(2507), n(2459), n(2485), n(2516), n(2528), n(2676), n(2471), n(2492), n(2527), n(2367), n(3426), n(2371), n(2472), n(2498), n(2511), n(2488), n(2487), n(2450), n(2486), n(2429), n(2532), n(2530), n(2529), n(2531), n(2665), n(2670), n(2668), n(2675), n(2331), n(2672), n(2667), n(3890), n(2451), n(2514), n(2482), n(2475), n(2476), n(2477), n(2624), n(2478), n(2479), n(2480), n(2481), n(2426), n(2422), n(2524), n(2474), n(2468), n(2462), n(2466), n(2489), n(2613), n(2538), n(2550), n(2655), n(2651), n(2446), n(2656), n(2457), n(2640), n(2497), n(2650), n(2464), n(2508), n(2631), n(2649), n(2623), n(2633), n(2654), n(2427), n(2620), n(2627), n(2393), n(2452), n(2612), n(2520), n(2453), n(2642), n(2647), n(2657), n(2539), n(2335), n(2518), n(2455), n(2330), n(2309), n(2673), n(2661), n(2662), n(2660), n(2664), n(2658), n(2460), n(2467), n(2619), n(2616), n(2543), n(2641), n(2369), n(2368), n(2535), n(2674), n(2677), n(2666), n(2652), n(2634), n(2363), n(2506), n(2648), n(2669), n(2637), n(2537), n(2513), n(2519), n(2671), n(2746), n(2754), n(2753), n(2750), n(2751), n(2752), n(3170), e.exports = n(3174);
+  3893: function(e, t, n) {
+    n(2499), n(2362), n(2423), n(2526), n(2366), n(2365), n(2496), n(2493), n(2494), n(2495), n(2533), n(2491), n(2505), n(3180), n(2501), n(2992), n(2504), n(3079), n(2502), n(3142), n(3627), n(2503), n(3046), n(3184), n(3633), n(2389), n(2473), n(2387), n(2388), n(2391), n(2663), n(2425), n(2456), n(2449), n(2507), n(2459), n(2485), n(2516), n(2528), n(2676), n(2471), n(2492), n(2527), n(2367), n(3426), n(2371), n(2472), n(2498), n(2511), n(2488), n(2487), n(2450), n(2486), n(2429), n(2532), n(2530), n(2529), n(2531), n(2665), n(2670), n(2668), n(2675), n(2331), n(2672), n(2667), n(3890), n(2451), n(2514), n(2482), n(2475), n(2476), n(2477), n(2624), n(2478), n(2479), n(2480), n(2481), n(2426), n(2422), n(2524), n(2474), n(2468), n(2462), n(2466), n(2489), n(2613), n(2538), n(2550), n(2655), n(2651), n(2446), n(2656), n(2457), n(2640), n(2497), n(2650), n(2464), n(2508), n(2631), n(2649), n(2623), n(2633), n(2654), n(2427), n(2620), n(2627), n(2393), n(2452), n(2612), n(2520), n(2453), n(2642), n(2647), n(2657), n(2539), n(2335), n(2518), n(2455), n(2330), n(2309), n(2673), n(2661), n(2662), n(2660), n(2664), n(2658), n(2460), n(2467), n(2619), n(2616), n(2543), n(2641), n(2369), n(2368), n(2535), n(2674), n(2677), n(2666), n(2652), n(2634), n(2363), n(2506), n(2648), n(2669), n(2637), n(2537), n(2513), n(2519), n(2671), n(2746), n(2754), n(2753), n(2750), n(2751), e.exports = n(2752);
   }
-}, [3891]);
+}, [3893]);

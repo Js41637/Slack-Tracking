@@ -2882,6 +2882,7 @@ webpackJsonp([12, 328, 337, 329], {
             var k = function(n) {
               if (TS._incremental_boot) return !0;
               if (TS.lazyLoadMembersAndBots()) return !0;
+              if (TS.boot_data.page_needs_just_me) return !0;
               if (TS.calls) return !0;
               if (TS.boot_data.page_needs_enterprise && TS.boot_data.exclude_org_members) return !0;
               var t = {},
