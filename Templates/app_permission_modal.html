@@ -3,37 +3,39 @@
 <div class="align_center"><img class="rounded" src="{{app_image}}" height="48" width="48" alt="{{#t}}{app_name}{{/t}}" /></div>
 <h3 class="normal bottom_margin top_margin align_center">
   {{#if channel_name}}
-    {{#t}}<strong>{app_name}</strong> would like to do the following in <strong class="no_wrap">{channel_name}:</strong>{{/t}}
+    {{#t}}{app_name} would like to do the following in <strong class="no_wrap">{channel_name}:</strong>{{/t}}
   {{else}}
-    {{#t}}<strong>{app_name}</strong> would like to do the following in <strong>all channels it\u2019s a member of:</strong>{{/t}}
+    {{#t}}{app_name} would like to do the following in <strong>all channels it\u2019s a member of:</strong>{{/t}}
   {{/if}}
 </h3>
-<div {{#unless dangerous_scope_info.length}}class="bottom_border"{{/unless}} data-js="app_permission_modal_scope_descriptions">
-  {{#each safe_scope_info}}
-    <div class="top_border normal_padding">
-      <div class="display_flex">
-        <p class="no_bottom_margin right_margin flex_one">{{this.short_description}}</p>
-        <ts-icon class="cursor_pointer toggle_info ts_icon_info_circle ts_tip ts_tip_top p-app_permission_modal__info_icon" data-toggle-visibility="scope_description_safe_{{@index}}">
-          <span class="ts_tip_tip" data-toggled-text="{{#t}}Show less{{/t}}">{{#t}}Show more{{/t}}</span>
-        </ts-icon>
+<div data-js="app_permission_modal_scope_descriptions">
+  <div class="c-oauth_scope_info__safe_scopes{{#if dangerous_scope_info.length}} no_border{{/if}}">
+    {{#each safe_scope_info}}
+      <div class="c-oauth_scope_info__safe_scope">
+        <div class="display_flex">
+          <span class="c-oauth_scope_info__scope_description flex_one large_right_margin"><strong>{{this.short_description}}</strong></span>
+          <ts-icon class="c-oauth_scope_info__info_icon float_right cursor_pointer toggle_info ts_icon_info_circle ts_tip ts_tip_top" data-toggle-visibility="scope_description_safe_{{@index}}">
+            <span class="ts_tip_tip" data-toggled-text="{{#t}}Show less{{/t}}">{{#t}}Show more{{/t}}</span>
+          </ts-icon>
+        </div>
+        <p class="c-oauth_scope_info__scope_description no_bottom_margin small_top_margin hidden" data-toggle-visibility-id="scope_description_safe_{{@index}}">
+          {{#t app_name=../app_name description=this.long_description}}{app_name} will be able to {description}.{{/t}}
+        </p>
       </div>
-      <p class="no_bottom_margin top_margin hidden" data-toggle-visibility-id="scope_description_safe_{{@index}}">
-        {{#t app_name=../app_name description=this.long_description}}{app_name} will be able to {description}.{{/t}}
-      </p>
-    </div>
-  {{/each}}
+    {{/each}}
+  </div>
   {{#if dangerous_scope_info.length}}
-    <div class="alert alert_warning no_padding no_margin">
+    <div class="c-oauth_scope_info__dangerous_scopes rounded">
       {{#each dangerous_scope_info}}
-        <div class="{{#unless @first}}top_border {{/unless}}normal_padding">
+        <div class="c-oauth_scope_info__dangerous_scope no_margin">
           <div class="display_flex">
-            <ts-icon class="ts_icon_warning yolk_orange right_margin"></ts-icon>
-            <p class="no_bottom_margin right_margin flex_one">{{this.short_description}}</p>
-            <ts-icon class="cursor_pointer toggle_info ts_icon_info_circle ts_tip ts_tip_top p-app_permission_modal__info_icon" data-toggle-visibility="scope_description_dangerous_{{@index}}">
+            <ts-icon class="ts_icon_warning yolk_orange c-oauth_scope_info__spacer_icon c-oauth_scope_info__info_icon"></ts-icon>
+            <span class="c-oauth_scope_info__dangerous_scope_description flex_one"><strong class="right_margin">{{this.short_description}}</strong></span>
+            <ts-icon class="c-oauth_scope_info__info_icon float_right cursor_pointer toggle_info ts_icon_info_circle ts_tip ts_tip_top" data-toggle-visibility="scope_description_dangerous_{{@index}}">
               <span class="ts_tip_tip" data-toggled-text="{{#t}}Show less{{/t}}">{{#t}}Show more{{/t}}</span>
             </ts-icon>
           </div>
-          <p class="no_bottom_margin top_margin hidden large_left_margin" data-toggle-visibility-id="scope_description_dangerous_{{@index}}">
+          <p class="c-oauth_scope_info__dangerous_scope_description no_bottom_margin small_top_margin hidden" data-toggle-visibility-id="scope_description_dangerous_{{@index}}">
             {{#t app_name=../app_name description=this.long_description}}{app_name} will be able to {description}.{{/t}}
           </p>
         </div>
@@ -41,4 +43,3 @@
     </div>
   {{/if}}
 </div>
-{{#if resource_membership_string}}<p class="subtle_silver top_margin no_bottom_margin">{{resource_membership_string}}</p>{{/if}}

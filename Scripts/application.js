@@ -30527,9 +30527,14 @@ webpackJsonp([332], [, function(e, t, n) {
         value: function() {
           return n.i(d.b)();
         }
+      }, {
+        key: "listify",
+        value: function(e, t) {
+          return n.i(d.c)(e, t);
+        }
       }]), e;
     }();
-  t.a = p;
+  t.a = p, p.DEFAULT_LOCALE = n.i(d.d)();
 }, , , , , , , function(e, t, n) {
   "use strict";
 
@@ -31600,8 +31605,9 @@ webpackJsonp([332], [, function(e, t, n) {
     _ = n(3196),
     m = n(3194),
     y = n(3195),
-    v = n(2355),
-    g = function() {
+    v = n(3899),
+    g = n(2355),
+    b = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
@@ -31612,7 +31618,7 @@ webpackJsonp([332], [, function(e, t, n) {
         return n && e(t.prototype, n), r && e(t, r), t;
       };
     }(),
-    b = {
+    w = {
       rows: u.PropTypes.arrayOf(u.PropTypes.shape({
         type: u.PropTypes.string
       })).isRequired,
@@ -31622,9 +31628,10 @@ webpackJsonp([332], [, function(e, t, n) {
       onBrowseChannelsClick: u.PropTypes.func,
       onCreateChannelClick: u.PropTypes.func,
       onOpenDMClick: u.PropTypes.func,
+      onBrowseAppsClick: u.PropTypes.func,
       reportRenderedRowIndexes: u.PropTypes.func
     },
-    w = {
+    k = {
       rows: [],
       selectedItemId: "",
       onItemClick: s.a.noop,
@@ -31633,15 +31640,16 @@ webpackJsonp([332], [, function(e, t, n) {
       onBrowseChannelsClick: s.a.noop,
       onCreateChannelClick: s.a.noop,
       onOpenDMClick: s.a.noop,
+      onBrowseAppsClick: s.a.noop,
       reportRenderedRowIndexes: s.a.noop
     },
-    k = function(e) {
+    M = function(e) {
       function t(e) {
         r(this, t);
         var n = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
         return n.setRef = n.setRef.bind(n), n.onScroll = n.onScroll.bind(n), n.onItemClick = n.onItemClick.bind(n), n.onInviteClick = n.onInviteClick.bind(n), n.getRowHeight = n.getRowHeight.bind(n), n.renderRow = n.renderRow.bind(n), n.onRowsRendered = n.onRowsRendered.bind(n), n;
       }
-      return i(t, e), g(t, [{
+      return i(t, e), b(t, [{
         key: "componentDidUpdate",
         value: function(e) {
           this.List && e.rows !== this.props.rows && this.List.recomputeRowHeights();
@@ -31707,7 +31715,7 @@ webpackJsonp([332], [, function(e, t, n) {
               index: l,
               alignment: c
             });
-          n.i(v.a)({
+          n.i(g.a)({
             fromValue: this.currentScrollTop,
             toValue: d,
             duration: 500,
@@ -31774,7 +31782,8 @@ webpackJsonp([332], [, function(e, t, n) {
           var t = this.props,
             n = t.onBrowseChannelsClick,
             r = t.onCreateChannelClick,
-            o = t.onOpenDMClick;
+            o = t.onOpenDMClick,
+            i = t.onBrowseAppsClick;
           switch (e) {
             case "starred":
               return l.a.createElement(_.a, null);
@@ -31787,6 +31796,11 @@ webpackJsonp([332], [, function(e, t, n) {
               return l.a.createElement(y.a, {
                 onLabelClick: o,
                 onPlusClick: o
+              });
+            case "apps":
+              return l.a.createElement(v.a, {
+                onLabelClick: i,
+                onPlusClick: i
               });
             default:
               return null;
@@ -31823,7 +31837,7 @@ webpackJsonp([332], [, function(e, t, n) {
         }
       }]), t;
     }(l.a.PureComponent);
-  k.propTypes = b, k.defaultProps = w, t.a = k;
+  M.propTypes = w, M.defaultProps = k, t.a = M;
 }, function(e, t, n) {
   "use strict";
 
@@ -31884,7 +31898,8 @@ webpackJsonp([332], [, function(e, t, n) {
       onInviteClick: u.PropTypes.func,
       onBrowseChannelsClick: u.PropTypes.func,
       onCreateChannelClick: u.PropTypes.func,
-      onOpenDMClick: u.PropTypes.func
+      onOpenDMClick: u.PropTypes.func,
+      onBrowseAppsClick: u.PropTypes.func
     },
     v = {
       selectedItemId: null,
@@ -31896,7 +31911,8 @@ webpackJsonp([332], [, function(e, t, n) {
       onInviteClick: s.a.noop,
       onBrowseChannelsClick: s.a.noop,
       onCreateChannelClick: s.a.noop,
-      onOpenDMClick: s.a.noop
+      onOpenDMClick: s.a.noop,
+      onBrowseAppsClick: s.a.noop
     },
     g = function(e) {
       function t(e) {
@@ -32008,14 +32024,15 @@ webpackJsonp([332], [, function(e, t, n) {
             a = e.onBrowseChannelsClick,
             s = e.onCreateChannelClick,
             u = e.onOpenDMClick,
-            p = this.state,
-            h = p.startIndex,
-            _ = p.stopIndex;
+            p = e.onBrowseAppsClick,
+            h = this.state,
+            _ = h.startIndex,
+            m = h.stopIndex;
           return l.a.createElement("nav", {
             className: "p-channel_sidebar"
           }, l.a.createElement(f.a, null), l.a.createElement(d.a, {
             position: "top",
-            startIndex: h,
+            startIndex: _,
             rowIds: n,
             ensureRowInView: this.ensureRowInView
           }), l.a.createElement(c.a, {
@@ -32026,11 +32043,12 @@ webpackJsonp([332], [, function(e, t, n) {
             onBrowseChannelsClick: a,
             onCreateChannelClick: s,
             onOpenDMClick: u,
+            onBrowseAppsClick: p,
             reportRenderedRowIndexes: this.reportRenderedRowIndexes,
             ref: this.setRef
           }), l.a.createElement(d.a, {
             position: "bottom",
-            stopIndex: _,
+            stopIndex: m,
             rowIds: n,
             ensureRowInView: this.ensureRowInView
           }));
@@ -35253,32 +35271,37 @@ webpackJsonp([332], [, function(e, t, n) {
 }, function(e, t, n) {
   "use strict";
   n.d(t, "c", function() {
-    return o;
-  }), n.d(t, "b", function() {
-    return i;
-  }), n.d(t, "a", function() {
     return a;
-  }), n.d(t, "d", function() {
+  }), n.d(t, "b", function() {
     return s;
-  }), n.d(t, "e", function() {
+  }), n.d(t, "a", function() {
     return u;
+  }), n.d(t, "d", function() {
+    return l;
+  }), n.d(t, "e", function() {
+    return c;
+  }), n.d(t, "f", function() {
+    return d;
   });
-  var r = n(2277),
-    o = n.i(r.a)("TS.emoji.emojiMatchesTerm", function() {
+  var r = n(6),
+    o = n.n(r),
+    i = n(2277),
+    a = n.i(i.a)("TS.emoji.emojiMatchesTerm", function() {
       return !1;
     }),
-    i = n.i(r.a)("TS.emoji.findByKeyword", function() {
+    s = n.i(i.a)("TS.emoji.findByKeyword", function() {
       return [];
     }),
-    a = n.i(r.a)("TS.emoji.nameToBaseName", function() {
+    u = n.i(i.a)("TS.emoji.nameToBaseName", function() {
       return "";
     }),
-    s = n.i(r.a)("TS.emoji.stripLocalizedSkinTone", function() {
+    l = n.i(i.a)("TS.emoji.stripLocalizedSkinTone", function() {
       return "";
     }),
-    u = n.i(r.a)("TS.emoji.graphicReplace", function() {
+    c = n.i(i.a)("TS.emoji.graphicReplace", function() {
       return "";
-    });
+    }),
+    d = n.i(i.a)("TSFEmoji.translateEmojiStringToLocal", o.a.identity);
 }, function(e, t, n) {
   "use strict";
   n.d(t, "b", function() {
@@ -35334,8 +35357,12 @@ webpackJsonp([332], [, function(e, t, n) {
     return a;
   }), n.d(t, "b", function() {
     return s;
-  }), n.d(t, "c", function() {
+  }), n.d(t, "e", function() {
     return u;
+  }), n.d(t, "c", function() {
+    return l;
+  }), n.d(t, "d", function() {
+    return c;
   });
   var r = n(6),
     o = n.n(r),
@@ -35354,6 +35381,12 @@ webpackJsonp([332], [, function(e, t, n) {
     }),
     u = n.i(i.a)("TS.i18n.sorter", function(e, t) {
       return e > t ? 1 : e < t ? -1 : 0;
+    }),
+    l = n.i(i.a)("TS.i18n.listify", function() {
+      return [];
+    }),
+    c = n.i(i.a)("TS.i18n.getDefaultLocale", function() {
+      return "en-US";
     });
 }, function(e, t, n) {
   "use strict";
@@ -35803,24 +35836,26 @@ webpackJsonp([332], [, function(e, t, n) {
 }, function(e, t, n) {
   "use strict";
   n.d(t, "a", function() {
-    return g;
+    return w;
   });
   var r = n(6),
     o = n.n(r),
     i = n(2298),
-    a = n(3045),
-    s = n(2295),
-    u = n(2296),
-    l = n(2911),
-    c = Object.assign || function(e) {
+    a = n(3141),
+    s = n(3045),
+    u = n(2295),
+    l = n(2296),
+    c = n(3028),
+    d = n(2911),
+    f = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
         for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
       }
       return e;
     },
-    d = ["starred", "channels", "ims"],
-    f = {
+    p = ["starred", "channels", "ims", "apps"],
+    h = {
       starred: {
         channelsOrdered: [],
         hasHeading: !0
@@ -35832,76 +35867,84 @@ webpackJsonp([332], [, function(e, t, n) {
       ims: {
         channelsOrdered: [],
         hasHeading: !0
+      },
+      apps: {
+        channelsOrdered: [],
+        hasHeading: !0
       }
     },
-    p = ["default", "private", "slackbot", "you", "ims", "muted"],
-    h = o.a.invert(p),
-    _ = p.map(function() {
+    _ = ["default", "private", "slackbot", "you", "ims", "muted"],
+    m = o.a.invert(_),
+    y = _.map(function() {
       return [];
     }),
-    m = function(e) {
+    v = function(e) {
       var t = e.shouldHideReadChannels,
         r = e.shouldHideReadChannelsUnlessStarred,
         o = e.channel,
         a = e.currentlySelectedId,
-        u = e.state;
-      return a === o.id || !n.i(s.isArchived)(o) && (!(n.i(s.isChannel)(o) && !n.i(s.isMemberOfChannel)(o)) && (!((n.i(s.isIm)(o) || n.i(s.isMpim)(o)) && !n.i(s.isOpen)(o) && n.i(s.isRead)(o)) && (!(!r || !n.i(s.isStarred)(o)) || (!!n.i(s.hasDraft)(o) || (!(!n.i(i.isChannelMutedById)(u, o.id) || !n.i(s.shouldShowWithoutUnreads)(o)) || (!r && !t || !n.i(s.isRead)(o)))))));
-    },
-    y = function(e) {
-      var t = e.channel;
-      return n.i(s.isStarred)(t) ? "starred" : n.i(s.isIm)(t) || n.i(s.isMpim)(t) ? "ims" : "channels";
-    },
-    v = function(e) {
-      var t = e.shouldSeparatePrivateChannels,
-        r = e.channel,
-        o = e.state;
-      return n.i(i.isChannelMutedById)(o, r.id) ? h.muted : n.i(s.isSlackbot)(r) ? h.slackbot : n.i(s.isYou)(r) ? h.you : n.i(s.isIm)(r) || n.i(s.isMpim)(r) ? h.ims : t && n.i(s.isGroup)(r) ? h.private : h.default;
+        s = e.state;
+      return a === o.id || !n.i(u.isArchived)(o) && (!(n.i(u.isChannel)(o) && !n.i(u.isMemberOfChannel)(o)) && (!((n.i(u.isIm)(o) || n.i(u.isMpim)(o)) && !n.i(u.isOpen)(o) && n.i(u.isRead)(o)) && (!(!r || !n.i(u.isStarred)(o)) || (!!n.i(u.hasDraft)(o) || (!(!n.i(i.isChannelMutedById)(s, o.id) || !n.i(u.shouldShowWithoutUnreads)(o)) || (!r && !t || !n.i(u.isRead)(o)))))));
     },
     g = function(e) {
       var t = e.state,
+        r = e.channel;
+      return n.i(u.isStarred)(r) ? "starred" : n.i(c.isAppSpaceEnabled)(t) && n.i(u.isIm)(r) && n.i(a.isApp)(t, r.user) ? "apps" : n.i(u.isIm)(r) || n.i(u.isMpim)(r) ? "ims" : "channels";
+    },
+    b = function(e) {
+      var t = e.shouldSeparatePrivateChannels,
+        r = e.channel,
+        o = e.state;
+      return n.i(i.isChannelMutedById)(o, r.id) ? m.muted : n.i(u.isSlackbot)(r) ? m.slackbot : n.i(u.isYou)(r) ? m.you : n.i(u.isIm)(r) || n.i(u.isMpim)(r) ? m.ims : t && n.i(u.isGroup)(r) ? m.private : m.default;
+    },
+    w = function(e) {
+      var t = e.state,
         r = e.sidebarSectionsOrdered,
-        i = void 0 === r ? d.concat() : r,
-        p = n.i(a.getUserPref)(t, "sidebar_behavior"),
-        h = "hide_read_channels" === p,
-        g = "hide_read_channels_unless_starred" === p,
-        b = n.i(a.getUserPref)(t, "separate_private_channels"),
-        w = n.i(s.getAllChannels)(t),
-        k = {};
+        i = void 0 === r ? p.concat() : r,
+        a = n.i(s.getUserPref)(t, "sidebar_behavior"),
+        _ = "hide_read_channels" === a,
+        m = "hide_read_channels_unless_starred" === a,
+        w = n.i(s.getUserPref)(t, "separate_private_channels"),
+        k = n.i(u.getAllChannels)(t),
+        M = {};
       i.forEach(function(e) {
-        k[e] = c({}, f[e]), k[e].channelsOrdered = o.a.cloneDeep(_);
+        M[e] = f({}, h[e]), M[e].channelsOrdered = o.a.cloneDeep(y);
       });
-      var M = n.i(u.getSelectedChannelItem)(t);
-      o.a.filter(w, function(e) {
-        return m({
-          shouldHideReadChannels: h,
-          shouldHideReadChannelsUnlessStarred: g,
-          currentlySelectedId: M,
+      var T = n.i(l.getSelectedChannelItem)(t);
+      o.a.filter(k, function(e) {
+        return v({
+          shouldHideReadChannels: _,
+          shouldHideReadChannelsUnlessStarred: m,
+          currentlySelectedId: T,
           channel: e,
           state: t
         });
       }).sort(function(e, t) {
-        return n.i(l.c)(n.i(s.getDisplayName)(e), n.i(s.getDisplayName)(t));
+        return n.i(d.e)(n.i(u.getDisplayName)(e), n.i(u.getDisplayName)(t));
       }).forEach(function(e) {
-        var n = y({
+        var n = g({
+            state: t,
             channel: e
           }),
-          r = v({
-            shouldSeparatePrivateChannels: b,
+          r = b({
+            shouldSeparatePrivateChannels: w,
             channel: e,
             state: t
           });
-        k[n].channelsOrdered[r].push(e.id);
+        M[n].channelsOrdered[r].push(e.id);
       });
-      var T = o.a.mapValues(k, function(e) {
-        return c({}, e, {
+      var x = o.a.mapValues(M, function(e) {
+        return f({}, e, {
           channelsOrdered: o.a.flatten(e.channelsOrdered)
         });
       });
-      return T.starred.channelsOrdered.length < 1 && (delete T.starred, o.a.remove(i, function(e) {
+      return x.starred.channelsOrdered.length < 1 && (delete x.starred, o.a.remove(i, function(e) {
         return "starred" === e;
+      })), n.i(c.isAppSpaceEnabled)(t) || (delete x.apps, o.a.remove(i, function(e) {
+        return "apps" === e;
       })), {
         sidebarSectionsOrdered: i,
-        sidebarSections: T
+        sidebarSections: x
       };
     };
 }, , , function(e, t, n) {
@@ -36159,7 +36202,7 @@ webpackJsonp([332], [, function(e, t, n) {
     if (0 !== t.indexOf("feature_")) throw new Error("isFeatureEnabled must be passed a feature flag starting with feature_");
     var r = e;
     if (!r) {
-      var o = n.i(a.a)();
+      var o = n.i(s.a)();
       if (o && o.getState && (r = o.getState()), !r) return window.TS && TS.boot_data && TS.boot_data[t];
     }
     return r && r.bootData && r.bootData[t];
@@ -36168,26 +36211,30 @@ webpackJsonp([332], [, function(e, t, n) {
   function o(e) {
     return e && e.bootData && e.bootData.user_id;
   }
+
+  function i(e) {
+    return r(e, "feature_app_space") && r(e, "feature_store_members_in_redux");
+  }
   Object.defineProperty(t, "__esModule", {
     value: !0
   }), n.d(t, "setBootData", function() {
-    return s;
-  }), t.isFeatureEnabled = r, t.getCurrentUserId = o;
-  var i = n(17),
-    a = (n.n(i), n(3629)),
-    s = n.i(i.createAction)("Load boot data into redux"),
-    u = {},
-    l = n.i(i.createReducer)(function(e, t, n) {
+    return u;
+  }), t.isFeatureEnabled = r, t.getCurrentUserId = o, t.isAppSpaceEnabled = i;
+  var a = n(17),
+    s = (n.n(a), n(3629)),
+    u = n.i(a.createAction)("Load boot data into redux"),
+    l = {},
+    c = n.i(a.createReducer)(function(e, t, n) {
       return t in e ? Object.defineProperty(e, t, {
         value: n,
         enumerable: !0,
         configurable: !0,
         writable: !0
       }) : e[t] = n, e;
-    }({}, s, function(e, t) {
+    }({}, u, function(e, t) {
       return t;
-    }), u);
-  t.default = l;
+    }), l);
+  t.default = c;
 }, function(e, t, n) {
   "use strict";
 
@@ -38643,54 +38690,59 @@ webpackJsonp([332], [, function(e, t, n) {
 
   function o(e, t) {
     var n = e && e.members && e.members[t];
-    return n || (y[t] = !0, v()), n;
+    return n || (v[t] = !0, g()), n;
   }
 
   function i(e) {
-    var t = n.i(d.getCurrentUserId)(e);
+    var t = n.i(f.getCurrentUserId)(e);
     return t ? o(e, t) : null;
   }
 
   function a(e) {
     return e && e.members;
   }
+
+  function s(e, t) {
+    var n = o(e, t);
+    return n && (n.is_app_user || n.is_bot);
+  }
   Object.defineProperty(t, "__esModule", {
     value: !0
   }), n.d(t, "addMember", function() {
-    return h;
-  }), n.d(t, "bulkAddMembers", function() {
     return _;
-  }), t.getMemberById = o, t.getCurrentMember = i, t.getAllMembers = a;
-  var s, u = n(6),
-    l = n.n(u),
-    c = n(17),
-    d = (n.n(c), n(3028)),
-    f = n(3277),
-    p = Object.assign || function(e) {
+  }), n.d(t, "bulkAddMembers", function() {
+    return m;
+  }), t.getMemberById = o, t.getCurrentMember = i, t.getAllMembers = a, t.isApp = s;
+  var u, l = n(6),
+    c = n.n(l),
+    d = n(17),
+    f = (n.n(d), n(3028)),
+    p = n(3277),
+    h = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
         for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
       }
       return e;
     },
-    h = n.i(c.createAction)("add a member to the store"),
-    _ = n.i(c.createAction)("bulk add members to the store"),
-    m = n.i(c.createReducer)((s = {}, r(s, h, function(e, t) {
-      return t && t.id ? p({}, e, r({}, t.id, t)) : e;
-    }), r(s, _, function(e, t) {
-      if (!t || !t.length || !l.a.isArray(t)) return e;
-      var n = l.a.filter(t, "id");
+    _ = n.i(d.createAction)("add a member to the store"),
+    m = n.i(d.createAction)("bulk add members to the store"),
+    y = n.i(d.createReducer)((u = {}, r(u, _, function(e, t) {
+      return t && t.id ? h({}, e, r({}, t.id, t)) : e;
+    }), r(u, m, function(e, t) {
+      if (!t || !t.length || !c.a.isArray(t)) return e;
+      var n = c.a.filter(t, "id");
       if (!n.length) return e;
-      var r = p({}, e);
-      return l.a.forEach(n, function(e) {
+      var r = h({}, e);
+      return c.a.forEach(n, function(e) {
         r[e.id] = e;
       }), r;
-    }), s), {}),
-    y = {},
-    v = l.a.debounce(function() {
-      n.i(f.a)(l.a.keys(y)), y = {};
+    }), u), {}),
+    v = {},
+    g = c.a.debounce(function() {
+      n.i(p.b)(c.a.keys(v)), v = {};
     }, 1e3);
-  t.default = m;
+  t.default = y;
 }, , , , , , , , , function(e, t, n) {
   "use strict";
 
@@ -40297,11 +40349,14 @@ webpackJsonp([332], [, function(e, t, n) {
     return i;
   }), n.d(t, "c", function() {
     return a;
+  }), n.d(t, "d", function() {
+    return s;
   });
   var r = n(2277),
     o = n.i(r.a)("TS.client.channel_pane.openChannelBrowser", function() {}),
     i = n.i(r.a)("TS.client.channel_pane.openCreateChannelDialog", function() {}),
-    a = n.i(r.a)("TS.client.channel_pane.openDMBrowser", function() {});
+    a = n.i(r.a)("TS.client.channel_pane.openDMBrowser", function() {}),
+    s = n.i(r.a)("TS.client.channel_pane.openAppsBrowser", function() {});
 }, , , function(e, t, n) {
   "use strict";
   n.d(t, "a", function() {
@@ -40314,9 +40369,9 @@ webpackJsonp([332], [, function(e, t, n) {
     s = n.n(a),
     u = n(6),
     l = n.n(u),
-    c = n(3190),
-    d = n(2902),
-    f = n(3141),
+    c = n(3898),
+    d = n(3190),
+    f = n(2902),
     p = n(3028),
     h = n(3213),
     _ = (n.n(h), {
@@ -40335,9 +40390,15 @@ webpackJsonp([332], [, function(e, t, n) {
         n = e.name,
         r = e.users,
         i = e.reacted,
-        a = e.onClick;
-      return o.a.createElement(d.a, {
-        tip: r.join(", "),
+        a = e.onClick,
+        u = o.a.createElement(c.a, {
+          users: r,
+          count: t,
+          emoji: n,
+          reacted: i
+        });
+      return o.a.createElement(f.a, {
+        tip: u,
         delay: 300
       }, o.a.createElement("button", {
         className: s()("c-reaction", {
@@ -40346,7 +40407,7 @@ webpackJsonp([332], [, function(e, t, n) {
         onClick: function(e) {
           e.preventDefault(), a(n, i);
         }
-      }, o.a.createElement(c.a, {
+      }, o.a.createElement(d.a, {
         text: ":" + n + ":"
       }), o.a.createElement("span", {
         className: "c-reaction__count"
@@ -40356,10 +40417,6 @@ webpackJsonp([332], [, function(e, t, n) {
   var v = function(e, t) {
     var r = t.users;
     return {
-      users: r && l.a.map(r, function(t) {
-        var r = n.i(f.getMemberById)(e, t);
-        return r && r.name ? r.name : "unknown";
-      }),
       reacted: r && l.a.includes(r, n.i(p.getCurrentUserId)(e))
     };
   };
@@ -40372,7 +40429,7 @@ webpackJsonp([332], [, function(e, t, n) {
   n(219)(r, {});
   r.locals && (e.exports = r.locals);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, '.c-reaction {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  line-height: inherit;\n  padding: 2px 3px;\n  display: inline-flex;\n  align-items: center;\n  border: 1px solid #E8E8E8;\n  border-radius: 5px;\n  margin-right: 5px;\n  margin-bottom: 5px;\n}\n.c-reaction:hover,\n.c-reaction:focus,\n.c-reaction:active {\n  outline: none;\n}\n.c-reaction .emoji-sizer {\n  font-size: 16px;\n}\n.c-reaction:hover {\n  border-color: #2D9EE0;\n  cursor: pointer;\n}\n.c-reaction--reacted {\n  background-color: rgba(0, 122, 184, 0.05);\n  border-color: rgba(0, 122, 184, 0.3);\n}\n.c-reaction__count {\n  font-size: 0.6875rem;\n  color: #717274;\n  font-family: "Helvetica Neue", Helvetica, "Segoe UI", Tahoma, Arial, sans-serif;\n  padding: 0 1px 0 3px;\n}\n.c-reaction--reacted .c-reaction__count {\n  color: #007AB8;\n  font-weight: 700;\n}\n.c-reaction_bar {\n  margin-top: 5px;\n}\n.c-reaction_add {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  line-height: inherit;\n  padding: 2px 3px;\n  display: inline-flex;\n  align-items: center;\n  border: 1px solid #E8E8E8;\n  border-radius: 5px;\n  margin-right: 5px;\n  margin-bottom: 5px;\n  display: inline-block;\n  position: relative;\n  padding: 3px 4px 1px 2px;\n  margin-left: 9px;\n  opacity: 0;\n  transition: opacity 0.2s;\n}\n.c-reaction_add:hover,\n.c-reaction_add:focus,\n.c-reaction_add:active {\n  outline: none;\n}\n.c-reaction_add .emoji-sizer {\n  font-size: 16px;\n}\n.c-reaction_add:hover {\n  border-color: #2D9EE0;\n}\n.c-reaction_add__background {\n  position: absolute;\n  width: 1rem;\n  height: 1rem;\n  top: 1px;\n  left: 3px;\n  color: #FFF;\n}\n.c-reaction_add__icon {\n  position: relative;\n  display: block;\n  width: 1rem;\n  height: 1rem;\n  z-index: 1;\n  color: #A0A0A2;\n}\n.c-reaction_add__icon::before {\n  font-size: 17px;\n  vertical-align: text-top;\n}\n.c-reaction_add__background::before {\n  font-size: 16px;\n}\n.c-reaction_bar:hover .c-reaction_add {\n  opacity: 1;\n}\n.c-reaction_add:hover .c-reaction_add__icon {\n  color: #C39A48;\n}\n.c-reaction_add:hover .c-reaction_add__background {\n  color: #FFD06D;\n}\n', ""]);
+  t = e.exports = n(189)(), t.push([e.i, '.c-reaction {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  line-height: inherit;\n  padding: 2px 3px;\n  display: inline-flex;\n  align-items: center;\n  border: 1px solid #E8E8E8;\n  border-radius: 5px;\n  margin-right: 5px;\n  margin-bottom: 5px;\n}\n.c-reaction:hover,\n.c-reaction:focus,\n.c-reaction:active {\n  outline: none;\n}\n.c-reaction .emoji-sizer {\n  font-size: 16px;\n}\n.c-reaction:hover {\n  border-color: #2D9EE0;\n  cursor: pointer;\n}\n.c-reaction--reacted {\n  background-color: rgba(0, 122, 184, 0.05);\n  border-color: rgba(0, 122, 184, 0.3);\n}\n.c-reaction__count {\n  font-size: 0.6875rem;\n  color: #717274;\n  font-family: "Helvetica Neue", Helvetica, "Segoe UI", Tahoma, Arial, sans-serif;\n  padding: 0 1px 0 3px;\n}\n.c-reaction--reacted .c-reaction__count {\n  color: #007AB8;\n  font-weight: 700;\n}\n.c-reaction_bar {\n  margin-top: 5px;\n}\n.c-reaction_add {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  line-height: inherit;\n  padding: 2px 3px;\n  display: inline-flex;\n  align-items: center;\n  border: 1px solid #E8E8E8;\n  border-radius: 5px;\n  margin-right: 5px;\n  margin-bottom: 5px;\n  display: inline-block;\n  position: relative;\n  padding: 3px 4px 1px 2px;\n  margin-left: 9px;\n  opacity: 0;\n  transition: opacity 0.2s;\n}\n.c-reaction_add:hover,\n.c-reaction_add:focus,\n.c-reaction_add:active {\n  outline: none;\n}\n.c-reaction_add .emoji-sizer {\n  font-size: 16px;\n}\n.c-reaction_add:hover {\n  border-color: #2D9EE0;\n}\n.c-reaction_add__background {\n  position: absolute;\n  width: 1rem;\n  height: 1rem;\n  top: 1px;\n  left: 3px;\n  color: #FFF;\n}\n.c-reaction_add__icon {\n  position: relative;\n  display: block;\n  width: 1rem;\n  height: 1rem;\n  z-index: 1;\n  color: #A0A0A2;\n}\n.c-reaction_add__icon::before {\n  font-size: 17px;\n  vertical-align: text-top;\n}\n.c-reaction_add__background::before {\n  font-size: 16px;\n}\n.c-reaction_bar:hover .c-reaction_add {\n  opacity: 1;\n}\n.c-reaction_add:hover .c-reaction_add__icon {\n  color: #C39A48;\n}\n.c-reaction_add:hover .c-reaction_add__background {\n  color: #FFD06D;\n}\n.c-reaction__tip_subtitle {\n  color: #A0A0A2;\n}\n', ""]);
 }, function(e, t, n) {
   "use strict";
   var r = n(3216);
@@ -40898,16 +40955,18 @@ webpackJsonp([332], [, function(e, t, n) {
   r.propTypes = c;
 }, , , , function(e, t, n) {
   "use strict";
-  n.d(t, "a", function() {
+  n.d(t, "b", function() {
     return o;
+  }), n.d(t, "a", function() {
+    return i;
   });
   var r = n(2277),
-    o = n.i(r.a)("TS.members.ensureMembersArePresent", function() {});
-  n.i(r.a)("TS.members.getPrefCompliantMemberName", function() {
-    return "";
-  }), n.i(r.a)("TS.members.getPrefCompliantMemberNameById", function() {
-    return "";
-  });
+    o = n.i(r.a)("TS.members.ensureMembersArePresent", function() {}),
+    i = (n.i(r.a)("TS.members.getPrefCompliantMemberName", function() {
+      return "";
+    }), n.i(r.a)("TS.members.getPrefCompliantMemberNameById", function() {
+      return "";
+    }));
 }, function(e, t, n) {
   t = e.exports = n(189)(), t.push([e.i, ".c-avatar {\n  position: relative;\n  display: inline-block;\n  border-radius: 3px;\n  overflow: hidden;\n  cursor: pointer;\n}\n.c-avatar--no_image {\n  background-color: #E8E8E8;\n  cursor: default;\n}\n.c-avatar__additional_overlay {\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  color: #FFF;\n  font-weight: bold;\n  font-size: 15px;\n  text-align: center;\n  background-color: rgba(0, 0, 0, 0.5);\n  border-radius: 3px;\n}\n.c-avatar--24,\n.c-avatar--24 .c-avatar__image {\n  width: 24px;\n  height: 24px;\n}\n.c-avatar--24 .c-avatar__additional_overlay {\n  line-height: 24px;\n}\n.c-avatar--36,\n.c-avatar--36 .c-avatar__image {\n  width: 36px;\n  height: 36px;\n}\n.c-avatar--36 .c-avatar__additional_overlay {\n  line-height: 36px;\n}\n.c-avatar--48,\n.c-avatar--48 .c-avatar__image {\n  width: 48px;\n  height: 48px;\n}\n.c-avatar--48 .c-avatar__additional_overlay {\n  line-height: 48px;\n}\n.c-avatar--72,\n.c-avatar--72 .c-avatar__image {\n  width: 72px;\n  height: 72px;\n}\n.c-avatar--72 .c-avatar__additional_overlay {\n  line-height: 72px;\n}\n.c-avatar--192 .c-avatar--192 .c-avatar__image {\n  width: 192px;\n  height: 192px;\n}\n.c-avatar--192 .c-avatar__additional_overlay {\n  line-height: 192px;\n}\n.c-avatar--512,\n.c-avatar--512 .c-avatar__image {\n  width: 512px;\n  height: 512px;\n}\n.c-avatar--512 .c-avatar__additional_overlay {\n  line-height: 512px;\n}\n", ""]);
 }, function(e, t, n) {
@@ -49788,23 +49847,23 @@ webpackJsonp([332], [, function(e, t, n) {
         var i = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e, n));
         return n.onLeftWhenEmpty && e.keyboard.addBinding({
           key: u.f.LEFT,
-          handler: function(t, r) {
+          handler: function() {
             return 1 === e.getLength() && n.onLeftWhenEmpty(), !0;
           }
         }), n.onUpArrow && e.keyboard.addBinding({
           key: u.f.UP,
-          handler: function(e, t) {
+          handler: function() {
             return n.onUpArrow(), !0;
           }
         }), n.onUpArrowCmd && e.keyboard.addBinding({
           key: u.f.UP,
           shortKey: !0,
-          handler: function(e, t) {
+          handler: function() {
             return n.onUpArrowCmd(), !0;
           }
         }), n.onDownArrow && e.keyboard.addBinding({
           key: u.f.DOWN,
-          handler: function(e, t) {
+          handler: function() {
             return n.onDownArrow(), !0;
           }
         }), i;
@@ -50282,19 +50341,18 @@ webpackJsonp([332], [, function(e, t, n) {
   }
   var a = n(3302),
     s = n.n(a),
-    u = n(3301),
-    l = (n.n(u), n(3312)),
-    c = s.a.import("core/module"),
-    d = {},
-    f = function(e) {
+    u = n(3312),
+    l = s.a.import("core/module"),
+    c = {},
+    d = function(e) {
       function t(e, i) {
         r(this, t);
         var a = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e, i));
-        return a.options = n.i(l.a)({}, d, i), a;
+        return a.options = n.i(u.a)({}, c, i), a;
       }
       return i(t, e), t;
-    }(c);
-  t.a = f;
+    }(l);
+  t.a = d;
 }, function(e, t, n) {
   "use strict";
 
@@ -51025,13 +51083,13 @@ webpackJsonp([332], [, function(e, t, n) {
         }
       }, {
         key: "onTextChange",
-        value: function(e, t, n) {
-          var r = this;
-          if (!this.isInComposition() && this.quill.getLength() > 1 && this.options.getTextPreferences && this.options.getTextPreferences().useSmartQuotes) {
-            var o = this.options.buildSmartQuotesDelta(this.quill.getContents());
-            o.length() > 0 && setTimeout(function() {
-              var e = r.quill.getSelection();
-              r.quill.updateContents(o, "silent"), e && r.quill.setSelection(e.index, 0);
+        value: function() {
+          var e = this;
+          if (this.shouldBuildSmartQuotes()) {
+            var t = this.options.buildSmartQuotesDelta(this.quill.getContents());
+            t.length() > 0 && setTimeout(function() {
+              var n = e.quill.getSelection();
+              e.quill.updateContents(t, "silent"), n && e.quill.setSelection(n.index, 0);
             }, 0);
           }
         }
@@ -51043,7 +51101,7 @@ webpackJsonp([332], [, function(e, t, n) {
           if (!this.options.getTextPreferences || !this.options.getTextPreferences()) return !0;
           var n = this.options.getTextPreferences(),
             r = t.prefix.substring(t.prefix.lastIndexOf(" ") + 1);
-          if (this.lastSubstitutionMade !== r && n.substitutions.hasOwnProperty(r) && n.substitutions[r]) {
+          if (this.shouldStartSubstitution(r, n)) {
             var o = e.index - r.length,
               i = this.quill.history.options.delay;
             return this.quill.history.options.delay = 0, this.quill.updateContents((new l.a).retain(o).delete(r.length).insert(n.substitutions[r] + " ")), this.quill.history.options.delay = i, this.lastSubstitutionMade = r, !1;
@@ -51052,13 +51110,13 @@ webpackJsonp([332], [, function(e, t, n) {
         }
       }, {
         key: "onEllipsis",
-        value: function(e, t) {
+        value: function(e) {
           if (this.isInComposition()) return !0;
           if (!this.options.shouldDoSubstitutions(e)) return !0;
           if (!this.options.getTextPreferences || !this.options.getTextPreferences()) return !0;
           if (!this.options.getTextPreferences().useSmartDashes) return !0;
-          var n = e.index - 2;
-          return this.quill.updateContents((new l.a).retain(n).delete(2).insert("…")), !1;
+          var t = e.index - 2;
+          return this.quill.updateContents((new l.a).retain(t).delete(2).insert("…")), !1;
         }
       }, {
         key: "startComposition",
@@ -51074,6 +51132,16 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "isInComposition",
         value: function() {
           return !!this.isInsideComposition;
+        }
+      }, {
+        key: "shouldBuildSmartQuotes",
+        value: function() {
+          return !this.isInComposition && (!(this.quill.getLength() <= 1) && (!!this.options.getTextPreferences && !!this.options.getTextPreferences().useSmartQuotes));
+        }
+      }, {
+        key: "shouldStartSubstitution",
+        value: function(e, t) {
+          return this.lastSubstitutionMade !== e && (!!Object.prototype.hasOwnProperty.call(t.substitutions, e) && !!t.substitutions[e]);
         }
       }]), t;
     }(d);
@@ -53887,6 +53955,7 @@ webpackJsonp([332], [, function(e, t, n) {
         onBrowseChannelsClick: f.a,
         onCreateChannelClick: f.b,
         onOpenDMClick: f.c,
+        onBrowseAppsClick: f.d,
         onInviteClick: _.a
       })), e, function() {
         return n.i(u.b)(t, t + "_mark");
@@ -53986,4 +54055,84 @@ webpackJsonp([332], [, function(e, t, n) {
       a.a.render(o.a.createElement(s.a, null), e);
     };
   t.a = u;
+}, , , , , , , , , , , function(e, t, n) {
+  "use strict";
+  var r = n(2),
+    o = n.n(r),
+    i = n(43),
+    a = n(6),
+    s = n.n(a),
+    u = n(2288),
+    l = n(3028),
+    c = n(2909),
+    d = n(3277),
+    f = u.a.ns("reactions"),
+    p = {
+      users: r.PropTypes.arrayOf(r.PropTypes.string),
+      emoji: r.PropTypes.string.isRequired,
+      count: r.PropTypes.number.isRequired,
+      reacted: r.PropTypes.bool
+    },
+    h = {
+      users: [],
+      reacted: !1
+    },
+    _ = function(e) {
+      var t = e.users,
+        r = e.emoji,
+        i = e.count,
+        a = e.reacted,
+        s = ":" + r + ":";
+      u.a.locale() !== u.a.DEFAULT_LOCALE && (s = n.i(c.f)(s, u.a.locale()));
+      var l = o.a.createElement("span", {
+        className: "c-reaction__tip_subtitle"
+      }, f("{count, plural, other{reacted with {emoji}}}", {
+        emoji: s,
+        count: i
+      }));
+      if (1 === i) return o.a.createElement("span", {
+        className: "c-reaction__tip"
+      }, a ? f("You (click to remove)") : t[0], " ", l);
+      i !== t.length && t.push(f("others"));
+      var d = u.a.listify(t, {
+        no_escape: !0
+      }).join("");
+      return o.a.createElement("span", {
+        className: "c-reaction__tip"
+      }, d, " ", l);
+    };
+  _.propTypes = p, _.defaultProps = h;
+  var m = function(e, t) {
+    var r = n.i(l.getCurrentUserId)(e);
+    return {
+      users: s.a.map(t.users, function(e, t) {
+        return e === r ? f(0 === t ? "You" : "you") : n.i(d.a)(e, !1, !0);
+      })
+    };
+  };
+  t.a = n.i(i.b)(m)(_);
+}, function(e, t, n) {
+  "use strict";
+  var r = n(2),
+    o = n.n(r),
+    i = n(3115),
+    a = n(3154),
+    s = n(2288),
+    u = Object.assign || function(e) {
+      for (var t = 1; t < arguments.length; t++) {
+        var n = arguments[t];
+        for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
+      }
+      return e;
+    },
+    l = s.a.ns("channel_sidebar"),
+    c = function(e) {
+      return o.a.createElement(a.a, u({}, e, {
+        label: l("Apps"),
+        tooltip: l("Browse apps"),
+        showPlus: !0,
+        plusTooltip: l("Browse apps")
+      }));
+    };
+  t.a = n.i(i.a)(c);
 }], [2905]);

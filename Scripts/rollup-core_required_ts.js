@@ -148,6 +148,9 @@ webpackJsonp([12, 328, 337, 329], {
         locale: function() {
           return m(), r;
         },
+        getDefaultLocale: function() {
+          return TS.i18n.DEFAULT_LOCALE;
+        },
         localesEnabled: function() {
           var e = {};
           return TS.boot_data.feature_locale_de_DE && (e["de-DE"] = "Deutsch"), e["en-US"] = "English (US)", TS.boot_data.feature_locale_es_ES && (e["es-ES"] = "Español"), TS.boot_data.feature_locale_fr_FR && (e["fr-FR"] = "Français"), TS.boot_data.feature_locale_ja_JP && (e["ja-JP"] = "日本語"), TS.boot_data.feature_pseudo_locale && (e.pseudo = "Þsèúδôtřáñsℓátïôñ"), e;
@@ -2383,23 +2386,23 @@ webpackJsonp([12, 328, 337, 329], {
         },
         registerComponent: function(e, n) {
           if (B) return TS.error('component "' + e + '" must be registered on before dom ready');
-          if (R[e]) return TS.error('component "' + e + '" already exists');
+          if (D[e]) return TS.error('component "' + e + '" already exists');
           if ("function" == typeof n && (n = n()), "function" != typeof n.destroy) return TS.error('component "' + e + '" cannot be registered as it does not have a destroy method');
           var t = function n() {
             this._constructor && this._constructor.apply(this, arguments), this.id || (this.id = e + "_auto_guid_" + i, i += 1), this.test && u() ? this.test = void 0 : "function" == typeof this.test && (this.test = this.test()), n._add(this.id, this);
           };
-          if (void 0 === s(e, t, "component")) return void(D[e] = n);
+          if (void 0 === s(e, t, "component")) return void(R[e] = n);
           var o = n.destroy;
           n.destroy = function() {
             t._remove(this.id), o.call(this);
-          }, t.prototype = Object.create(n), t.instances = {}, t._name = e, R[e] = t, t._add = function(n, t) {
-            R[e].instances[n] && TS.warn("A " + e + " component with the instance id " + n + "already exists"), R[e].instances[n] = t;
+          }, t.prototype = Object.create(n), t.instances = {}, t._name = e, D[e] = t, t._add = function(n, t) {
+            D[e].instances[n] && TS.warn("A " + e + " component with the instance id " + n + "already exists"), D[e].instances[n] = t;
           }, t._remove = function(n) {
-            R[e].instances[n] = null;
+            D[e].instances[n] = null;
           }, t.get = function(n) {
-            return R[e].instances[n];
+            return D[e].instances[n];
           }, t.getAll = function() {
-            return R[e].instances;
+            return D[e].instances;
           };
         },
         makeLogDate: function() {
@@ -2488,7 +2491,7 @@ webpackJsonp([12, 328, 337, 329], {
               delete TS[e], delete P[e];
             },
             _deleteComponent: function(e) {
-              delete TS[e], delete R[e];
+              delete TS[e], delete D[e];
             }
           };
           return Object.defineProperty(e, "_getMSLoginArgs", {
@@ -2765,8 +2768,8 @@ webpackJsonp([12, 328, 337, 329], {
         },
         P = {},
         U = {},
-        R = {},
         D = {},
+        R = {},
         z = function() {
           if (TS.info("_onDOMReady"), setTimeout(function() {
               TS.model.is_our_app && (TS.environment.isSSBAndAtLeastVersion("2.6") || r || (TSSSB.call("didFinishLoading"), r = !0, TS.metrics.count("fake_call_did_finish_loading_for_older_SSBs")));
@@ -2809,8 +2812,8 @@ webpackJsonp([12, 328, 337, 329], {
         N = function() {
           _.sortBy(Object.keys(U), "length").forEach(function(e) {
             TS.registerModule(e, U[e], !0);
-          }), _.sortBy(Object.keys(D), "length").forEach(function(e) {
-            TS.registerComponent(e, D[e], !0);
+          }), _.sortBy(Object.keys(R), "length").forEach(function(e) {
+            TS.registerComponent(e, R[e], !0);
           });
         },
         q = function() {

@@ -1491,7 +1491,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             app_user: e.id
           }).then(function(l) {
             return new Promise(function(d, c) {
-              _.get(l, "data.should_confirm") ? (s = _.get(l, "data.scope_info", []), i(e, s, new Handlebars.SafeString(r(n)), null, d, function() {
+              _.get(l, "data.should_confirm") ? (s = _.get(l, "data.scope_info", []), i(e, s, new Handlebars.SafeString(r(n)), d, function() {
                 var n = o ? TS.i18n.t("{app_user} wasn’t added to this direct message.", "apps")({
                   app_user: t(e)
                 }) : TS.i18n.t("{app_user} wasn’t added to this channel.", "apps")({
@@ -1540,6 +1540,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           var a = _.escape(e.real_name),
             s = r(n);
           TS.generic_dialog.start({
+            dialog_class: "p-app_permission_remove_modal",
             title: new Handlebars.SafeString(TS.i18n.t("Remove {app_name} from {channel_name}?", "apps")({
               app_name: a,
               channel_name: s
@@ -1574,15 +1575,15 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             }
           });
         },
-        requestPermissions: function(e, t, n, r) {
-          var a = _.flatten(t.map(function(e) {
+        requestPermissions: function(e, t, n) {
+          var r = _.flatten(t.map(function(e) {
               return e.scopes;
             })).join(","),
-            s = TS.members.getMemberById(e),
-            o = function(e) {
+            a = TS.members.getMemberById(e),
+            s = function(e) {
               TS.api.call("apps.permissions.addScope", {
-                trigger_id: r,
-                scopes: a,
+                trigger_id: n,
+                scopes: r,
                 did_confirm: e
               }).catch(function() {
                 TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("Hmm, something went wrong, try again?", "apps")(), {
@@ -1590,10 +1591,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                 });
               });
             };
-          i(s, t, null, n, function() {
-            o(!0);
+          i(a, t, null, function() {
+            s(!0);
           }, function() {
-            o(!1);
+            s(!1);
           });
         }
       });
@@ -1603,12 +1604,12 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         t = function(e) {
           return "@" + _.escape(e.name);
         },
-        i = function(e, t, n, i, r, a) {
-          var s = _.partition(t, function(e) {
+        i = function(e, t, n, i, r) {
+          var a = _.partition(t, function(e) {
               return !e.is_dangerous;
             }),
-            o = s[0],
-            l = s[1];
+            s = a[0],
+            o = a[1];
           TS.generic_dialog.start({
             dialog_class: "p-app_permission_modal",
             go_button_text: TS.i18n.t("Authorize", "apps")(),
@@ -1623,12 +1624,11 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               app_name: e.real_name,
               app_image: e.profile.image_48,
               channel_name: n,
-              safe_scope_info: o,
-              dangerous_scope_info: l,
-              resource_membership_string: i
+              safe_scope_info: s,
+              dangerous_scope_info: o
             }),
-            onGo: r,
-            onSecondaryGo: a,
+            onGo: i,
+            onSecondaryGo: r,
             onShow: function() {
               setTimeout(function() {
                 $(".p-app_permission_modal .dialog_go").toggleClass("disabled", !1);
@@ -3499,9 +3499,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             if (r) {
               var a = i.attr("data-model-ob-id"),
                 s = TS.shared.getModelObById(a);
-              s && TS.ui.utility.preventElementFromScrolling(i, function() {
-                TS.ui.replies.openConversation(s, r, null, n);
-              });
+              s && TS.ui.replies.openConversationFromMessagePane(i, s, r, null, n);
             }
           }), TS.click.addWebHandler(".reply_bar", function(e, t) {
             if (!$(e.target).is("a")) {
@@ -15763,7 +15761,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           TS.client && TS.ui.shared_invites_modal.updateCode();
         },
         permission_request: function(e) {
-          TS.apps.requestPermissions(e.app_user, e.scope_info, e.resource_membership_string, e.trigger_id);
+          TS.apps.requestPermissions(e.app_user, e.scope_info, e.trigger_id);
         }
       });
       var e, t, i = 0,
@@ -30540,9 +30538,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                 TS.info("_msgActionHandler: setting unread point on " + a.id + ", ts = " + s + " (mark_unread)"), TS.client.msg_pane.setUnreadPoint(s);
                 break;
               case "reply":
-                i.length && (TS.model.unread_view_is_showing && TS.client.unread.shouldRecordMetrics() && TS.metrics.count("unread_view_reply"), u = o.thread_ts || o.ts, TS.boot_data.feature_message_replies_inline ? TS.ui.thread.startInlineThread(a, o, i) : TS.ui.utility.preventElementFromScrolling(i, function() {
-                  TS.ui.replies.openConversation(a, u);
-                })), TS.clog.track("PFP_ACTION", {
+                i.length && (TS.model.unread_view_is_showing && TS.client.unread.shouldRecordMetrics() && TS.metrics.count("unread_view_reply"), u = o.thread_ts || o.ts, TS.boot_data.feature_message_replies_inline ? TS.ui.thread.startInlineThread(a, o, i) : TS.ui.replies.openConversationFromMessagePane(i, a, u)), TS.clog.track("PFP_ACTION", {
                   contexts: {
                     growth: {
                       action: "click",

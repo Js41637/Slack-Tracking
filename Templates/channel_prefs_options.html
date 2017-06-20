@@ -3,7 +3,7 @@
 {{#unless embedded}}
 <div class="channel_prefs_modal_header modal-header">
   <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-  <h3>{{#t}}Notification Preferences: {display_name}{{/t}}</h3>
+  <h3>{{#t}}Notification Preferences: {display_name}{{/t}} <span class="normal" data-notification-table-header></span></h3>
 </div>
 {{/unless}}
 <div class="channel_prefs_body {{#unless embedded}}modal-body{{/unless}} feature_muting">
@@ -57,7 +57,7 @@
     <div id="notifications_working" class="hidden">
       <table class="channel_prefs_notifications_table">
         <tr>
-          <th class="channel_prefs_notifications_table__large_cell"><span class="black">{{#t}}Notifications{{/t}}</span><span class="normal" data-notification-table-header></span></th>
+          <th class="channel_prefs_notifications_table__large_cell"><span class="black">{{#t}}Notifications{{/t}}</span></th>
           <th class="channel_prefs_notifications_table__small_cell">{{#t}}All new messages{{/t}}</th>
           <th class="channel_prefs_notifications_table__small_cell">{{#t}}Just mentions*{{/t}}</th>
           <th class="channel_prefs_notifications_table__small_cell">{{#t}}Nothing{{/t}}</th>
@@ -84,9 +84,9 @@
 
 <div class="channel_prefs_modal_footer {{#unless embedded}}modal-footer{{/unless}}">
   {{#if embedded}}
-    <p class="channel_prefs_modal_footer__text float_left small_top_margin no_bottom_margin"><button class="btn_link" data-action="reset_channel_to_defaults">{{#t}}Reset to your default notification settings{{/t}}</button></p>
+    <p class="channel_prefs_modal_footer__text small_top_margin no_bottom_margin"><button class="btn_link" data-action="reset_channel_to_defaults">{{#t}}Reset to your default notification settings{{/t}}</button></p>
   {{else}}
-    <p class="channel_prefs_modal_footer__text mini float_left small_top_margin no_bottom_margin">{{#t}}Set your default notifications settings in your <a href="/account/notifications" onclick="TS.ui.channel_prefs_dialog.showMainPrefs('notifications'); return false;" target="_blank" class="bold">Account Preferences</a>{{/t}}</p>
+    <p class="channel_prefs_modal_footer__text mini small_top_margin no_bottom_margin">{{#t}}Set your default notifications settings in your <a href="/account/notifications" onclick="TS.ui.channel_prefs_dialog.showMainPrefs('notifications'); return false;" target="_blank" class="bold">Account Preferences</a>{{/t}}</p>
   {{/if}}
-  <a class="btn {{#unless embedded}}dialog_go{{/unless}}" data-action="done">{{#t}}Done{{/t}}</a>
+  <a class="btn {{#unless embedded}}dialog_go{{/unless}} channel_prefs_modal_footer__btn" data-action="done">{{#t}}Done{{/t}}</a>
 </div>
