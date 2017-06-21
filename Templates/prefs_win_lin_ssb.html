@@ -15,7 +15,13 @@
   <div id="winssb_flash_warning" class="alert alert_warning">
     <ts-icon class="ts_icon_warning"></ts-icon> 
     <p>{{#t}}Because of your notification settings, Slack will remain in your taskbar even when closed.{{/t}}</p>
-    <p class="no_bottom_margin">{{#t}}To change this, go to <strong>Notifications &rarr; Sound &amp; appearance</strong> and uncheck the setting to flash the Slack window when receiving an notification.{{/t}}</p>
+    <p class="no_bottom_margin">
+      {{#t}}To change this, go to <strong>Notifications &rarr; Sound &amp; appearance</strong>. Once there, you can either&hellip;
+      <ul>
+        <li>Turn off the setting to flash the Slack window when receiving a notification.</li>
+        <li>Or leave the setting on, but check the option to only flash the window when you&rsquo;re not using your computer.</li>
+      </ul>{{/t}}
+    </p>
   </div>
   <label class="checkbox" id="winssb_disable_hw_acceleration_pref">
     <input id="winssb_disable_hw_acceleration_cb" checked="unchecked" type="checkbox" data-inline-saver="#prefs_app_settings">
