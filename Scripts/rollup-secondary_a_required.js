@@ -8152,26 +8152,31 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                   return t.substr(0, t.length - 1);
                 }(W),
                 ne = TS.utility.getBotIDFromURL(te),
-                ie = "";
-              if (ne && (ee = TS.bots.getBotById(ne)), ne && ee) X = !0, z = TS.utility.shouldLinksHaveTargets() ? 'target="' + te + '" ' : "", Q = a ? ee.name : I(ee.name), U[q + 1] && U[q + 1] == te && (Q = te), Q = Q.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"), ee.app_id && (ie = ee.app_id), V += '<a href="' + te + '" ' + z + 'data-bot-id="' + ne + '" data-app-id="' + ie + '" class="internal_bot_link app_preview_link">' + Q;
+                ie = "",
+                re = "";
+              if (ne && ((ee = TS.bots.getBotById(ne)) || (TS.warn("No bot found for " + ne), n.source_team_id && (ee = {
+                  id: ne,
+                  name: TS.bots.getBotNameByBotLink(n.text),
+                  source_team_id: n.source_team_id
+                }))), ne && ee) X = !0, z = TS.utility.shouldLinksHaveTargets() ? 'target="' + te + '" ' : "", Q = a ? ee.name : I(ee.name), U[q + 1] && U[q + 1] == te && (Q = te), Q = Q.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"), ee.app_id && (ie = ee.app_id), ee.source_team_id && (re = "data-team-id=" + ee.source_team_id + " "), V += '<a href="' + te + '" ' + z + 'data-bot-id="' + ne + '" data-app-id="' + ie + '" ' + re + 'class="internal_bot_link app_preview_link">' + Q;
               else if (0 === te.indexOf(TS.utility.msgs.api_url_prefix + "chat.help")) d ? (J = _.escape(JSON.stringify("" + te)), V += '<a onclick="TS.utility.msgs.doApiUrl(' + J + ')" class="api_url">') : V += '<a class="api_url muted">(Disabled) ';
               else if (0 === te.indexOf(TS.utility.msgs.new_api_url_prefix)) d ? (J = _.escape(JSON.stringify("" + te)), V += '<a onclick="TS.utility.msgs.doNewApiUrl(' + J + ')" class="api_url">') : V += '<a class="api_url muted">(Disabled) ';
               else if (0 === te.indexOf("javascript:")) V += '<a onclick="TS.client.msg_pane.maybeClick(this)" data-maybe-click="' + te.replace("javascript:", "") + '">';
               else if (TS.client && TS.client.core_url && 0 === te.indexOf(TS.client.core_url)) V += '<a target="_self" href="' + te + '">';
               else {
-                var re = TS.utility.getFileIDFromURL(te),
-                  ae = !1;
-                if (re && TS.model && TS.model.user && TS.model.user.is_primary_owner) {
-                  var se = !!TS.files && TS.files.getFileById(re);
-                  se && TS.utility.welcome_post && se.name == TS.utility.welcome_post.WELCOME_POST_NAME && (ae = !0);
+                var ae = TS.utility.getFileIDFromURL(te),
+                  se = !1;
+                if (ae && TS.model && TS.model.user && TS.model.user.is_primary_owner) {
+                  var oe = !!TS.files && TS.files.getFileById(ae);
+                  oe && TS.utility.welcome_post && oe.name == TS.utility.welcome_post.WELCOME_POST_NAME && (se = !0);
                 }
-                var oe = ae ? "file_new_window_link welcome_post_slackbot_message" : "file_preview_link",
-                  le = re ? ' class="no_jumbomoji ' + oe + '"' : "",
-                  de = re ? ' data-file-id="' + re + '"' : "";
-                V += "<a " + TS.utility.makeRefererSafeLink(te) + ' target="_blank"' + le + de + ">", Z && TS.error("WTF we should have no attach_html"), Z = "";
-                var ce;
-                n && n.ts && l && (ce = TS.inline_attachments.getAttachmentByFromUrl(n.attachments, te)) && (TS.boot_data.feature_attachments_inline || TS.templates.builders.shouldDoSimpleAttachment(ce, n)) && (Z = TS.templates.builders.buildAttachmentHTML({
-                  attachment: ce,
+                var le = se ? "file_new_window_link welcome_post_slackbot_message" : "file_preview_link",
+                  de = ae ? ' class="no_jumbomoji ' + le + '"' : "",
+                  ce = ae ? ' data-file-id="' + ae + '"' : "";
+                V += "<a " + TS.utility.makeRefererSafeLink(te) + ' target="_blank"' + de + ce + ">", Z && TS.error("WTF we should have no attach_html"), Z = "";
+                var _e;
+                n && n.ts && l && (_e = TS.inline_attachments.getAttachmentByFromUrl(n.attachments, te)) && (TS.boot_data.feature_attachments_inline || TS.templates.builders.shouldDoSimpleAttachment(_e, n)) && (Z = TS.templates.builders.buildAttachmentHTML({
+                  attachment: _e,
                   url: te,
                   msg: n,
                   show_initial_caret: !0
@@ -8203,26 +8208,31 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             }).join("")), V += W) : TS.error("token has a < in it but it is not the first character!\n" + W);
           }
           if (n && ("sh_room_created" === n.subtype || "sh_room_shared" === n.subtype)) {
-            var _e = TS.ui.growls.extractFromNameFromCorGMessage(n);
-            _e && (("GROWL" !== r || TS.utility.platformSupportsHtmlNotifications()) && (_e = _.escape(_e)), _e += ": "), V = "sh_room_created" === n.subtype ? TS.i18n.t("{from_name} Started a call", "string_format")({
-              from_name: _e
+            var ue = TS.ui.growls.extractFromNameFromCorGMessage(n);
+            ue && (("GROWL" !== r || TS.utility.platformSupportsHtmlNotifications()) && (ue = _.escape(ue)), ue += ": "), V = "sh_room_created" === n.subtype ? TS.i18n.t("{from_name} Started a call", "string_format")({
+              from_name: ue
             }) : TS.i18n.t("{from_name} Shared a call", "string_format")({
-              from_name: _e
+              from_name: ue
             });
           }
           return V = TS.format.deTokenizeStr(A, V);
         },
         D = function(e, t, n) {
-          var i = t.replace(/<|>|#/g, ""),
-            r = i.split("|"),
-            a = r[0],
-            s = TS.channels.getChannelById(a);
-          if (s) {
-            if ("GROWL" === e || "EDIT" === e || n) return "#" + s.name;
-            var o = TS.utility.shouldLinksHaveTargets() ? 'target="/archives/' + s.id + '"' : "";
-            return '<a href="/archives/' + s.id + '" ' + o + ' data-channel-name="' + s.name + '" data-channel-id="' + s.id + '" class="internal_channel_link">#' + s.name + "</a>";
+          var i, r = t.replace(/<|>|#/g, ""),
+            a = r.split("|"),
+            s = a[0],
+            o = TS.channels.getChannelById(s);
+          if (TS.boot_data.feature_tinyspeck) {
+            var l = a[1],
+              d = o ? o.name : "",
+              c = TS.interop.format.formatChannelName({
+                fallbackName: l,
+                isUserRestricted: TS.model.user.is_restricted,
+                channelName: d
+              });
+            return !o || "GROWL" === e || "EDIT" === e || n ? c : (i = TS.utility.shouldLinksHaveTargets() ? 'target="/archives/' + o.id + '"' : "", '<a href="/archives/' + o.id + '" ' + i + ' data-channel-name="' + o.name + '" data-channel-id="' + o.id + '" class="internal_channel_link">' + c + "</a>");
           }
-          return r.length > 1 && r[1] ? "#" + r[1] : TS.model.user.is_restricted ? "#unknown-channel" : "#deleted-channel";
+          return o ? "GROWL" === e || "EDIT" === e || n ? "#" + o.name : (i = TS.utility.shouldLinksHaveTargets() ? 'target="/archives/' + o.id + '"' : "", '<a href="/archives/' + o.id + '" ' + i + ' data-channel-name="' + o.name + '" data-channel-id="' + o.id + '" class="internal_channel_link">#' + o.name + "</a>") : a.length > 1 && a[1] ? "#" + a[1] : TS.model.user.is_restricted ? "#unknown-channel" : "#deleted-channel";
         },
         B = function(e, t) {
           t = t || {};

@@ -35235,7 +35235,7 @@ webpackJsonp([332], [, function(e, t, n) {
           }, o)))]));
         }
       }]), t;
-    }(l.Component);
+    }(l.PureComponent);
   b.propTypes = v, b.defaultProps = g, t.a = b;
 }, , function(e, t, n) {
   "use strict";
@@ -39964,7 +39964,7 @@ webpackJsonp([332], [, function(e, t, n) {
       function t(e) {
         r(this, t);
         var n = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
-        return n.renderBold = n.renderBold.bind(n), n.renderItalic = n.renderItalic.bind(n), n.renderCode = n.renderCode.bind(n), n.renderPre = n.renderPre.bind(n), n.renderStrike = n.renderStrike.bind(n), n.renderHex = n.renderHex.bind(n), n.renderChannel = n.renderChannel.bind(n), n.renderQuote = n.renderQuote.bind(n), n.renderCommand = n.renderCommand.bind(n), n;
+        return n.renderBold = n.renderBold.bind(n), n.renderItalic = n.renderItalic.bind(n), n.renderCode = n.renderCode.bind(n), n.renderPre = n.renderPre.bind(n), n.renderStrike = n.renderStrike.bind(n), n.renderHex = n.renderHex.bind(n), n.renderQuote = n.renderQuote.bind(n), n.renderCommand = n.renderCommand.bind(n), n;
       }
       return i(t, e), h(t, null, [{
         key: "renderQuotePrefix",
@@ -40040,6 +40040,16 @@ webpackJsonp([332], [, function(e, t, n) {
           return s.a.createElement("span", {
             className: "c-message__mention"
           }, e);
+        }
+      }, {
+        key: "renderChannel",
+        value: function(e) {
+          var t = e.id,
+            n = e.name;
+          return s.a.createElement(f.a, {
+            id: t,
+            fallbackName: n
+          });
         }
       }]), h(t, [{
         key: "renderBold",
@@ -40162,7 +40172,7 @@ webpackJsonp([332], [, function(e, t, n) {
               link: t.renderLink,
               command: this.renderCommand,
               member: t.renderMember,
-              channel: this.renderChannel,
+              channel: t.renderChannel,
               emoji: t.renderEmoji,
               jumbomoji: t.renderJumbomoji,
               hex: this.renderHex
@@ -40180,21 +40190,6 @@ webpackJsonp([332], [, function(e, t, n) {
             style: {
               background: t
             }
-          });
-        }
-      }, {
-        key: "renderChannel",
-        value: function(e) {
-          var t = e.id,
-            n = e.name,
-            r = this.props,
-            o = r.tsfMode,
-            i = r.noLinking;
-          return s.a.createElement(f.a, {
-            id: t,
-            fallbackName: n,
-            tsfMode: o,
-            noLinking: i
           });
         }
       }, {
@@ -41218,7 +41213,8 @@ webpackJsonp([332], [, function(e, t, n) {
   var a = n(2),
     s = n.n(a),
     u = n(2914),
-    l = function() {
+    l = n(3911),
+    c = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
@@ -41229,61 +41225,45 @@ webpackJsonp([332], [, function(e, t, n) {
         return n && e(t.prototype, n), r && e(t, r), t;
       };
     }(),
-    c = {
+    d = {
       id: a.PropTypes.string.isRequired,
-      name: a.PropTypes.string,
+      channelName: a.PropTypes.string,
       fallbackName: a.PropTypes.string,
-      tsfMode: a.PropTypes.string,
-      noLinking: a.PropTypes.bool,
       isUserRestricted: a.PropTypes.bool
     },
-    d = {
-      name: null,
+    f = {
+      channelName: null,
       fallbackName: null,
-      tsfMode: "NORMAL",
-      noLinking: !1,
       isUserRestricted: !1
     },
-    f = function(e) {
+    p = function(e) {
       function t() {
         return r(this, t), o(this, (t.__proto__ || Object.getPrototypeOf(t)).apply(this, arguments));
       }
-      return i(t, e), l(t, [{
-        key: "unknownLabel",
-        value: function() {
-          var e = this.props,
-            t = e.fallbackName,
-            n = e.isUserRestricted;
-          return t ? "#" + t : n ? "#unknown-channel" : "#deleted-channel";
-        }
-      }, {
-        key: "isTextOnly",
-        value: function() {
-          var e = this.props,
-            t = e.tsfMode;
-          return e.noLinking || "GROWL" === t || "EDIT" === t;
-        }
-      }, {
+      return i(t, e), c(t, [{
         key: "render",
         value: function() {
           var e = this.props,
             t = e.id,
-            r = e.name;
-          if (!r) {
-            var o = this.unknownLabel();
-            return s.a.createElement("span", null, o);
-          }
-          return this.isTextOnly() ? s.a.createElement("span", null, "#" + r) : s.a.createElement("a", {
+            r = e.channelName,
+            o = e.fallbackName,
+            i = e.isUserRestricted,
+            a = n.i(l.a)({
+              fallbackName: o,
+              isUserRestricted: i,
+              channelName: r
+            });
+          return s.a.createElement("a", {
             className: "internal_channel_link",
             href: "/archives/" + t,
             target: n.i(u.b)() ? "/archives/" + t : "",
-            "data-channel-name": r,
+            "data-channel-name": a,
             "data-channel-id": t
-          }, "#" + r);
+          }, a);
         }
       }]), t;
     }(a.PureComponent);
-  t.a = f, f.propTypes = c, f.defaultProps = d;
+  t.a = p, p.propTypes = d, p.defaultProps = f;
 }, function(e, t, n) {
   "use strict";
 
@@ -41295,7 +41275,7 @@ webpackJsonp([332], [, function(e, t, n) {
         fallbackName: o
       },
       u = n.i(i.getChannelById)(e, r);
-    u && (s.name = u.name);
+    u && (s.channelName = u.name);
     var l = n.i(a.getCurrentMember)(e);
     return l && (s.isUserRestricted = l.is_restricted), s;
   }
@@ -53841,8 +53821,10 @@ webpackJsonp([332], [, function(e, t, n) {
 }, function(e, t, n) {
   "use strict";
   var r = n(2353),
-    o = n(3435);
+    o = n(3435),
+    i = n(3911);
   n.i(r.a)("interop.format", {
+    formatChannelName: i.a,
     locateHighlightWords: o.a
   });
 }, function(e, t, n) {
@@ -54423,5 +54405,15 @@ webpackJsonp([332], [, function(e, t, n) {
     c = n(3653),
     d = n(2921),
     f = n(3182);
+  t.a = r;
+}, , , , function(e, t, n) {
+  "use strict";
+
+  function r(e) {
+    var t = e.fallbackName,
+      n = e.isUserRestricted,
+      r = e.channelName;
+    return r ? "#" + r : t ? "#" + t : n ? "#unknown-channel" : "#deleted-channel";
+  }
   t.a = r;
 }], [2905]);
