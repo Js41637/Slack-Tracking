@@ -1,0 +1,38 @@
+{{i18n_ns "fs_modal"}}
+{{!--
+  Simple Gallery Template for FS Modal
+  ---
+  Modeled after the file viewer modal, but less specific to file-viewer needs
+
+  - To use:
+    - Include this as `body_template_html` template when instantiating fs_modal
+    - Requires: list of {items} - precompiled Handelbars templates for elements to cycle through
+    - Optional: {modal_gallery_index} - where to begin the slideshow
+ --}}
+<div class="c-modal_gallery__container" data-current-index="{{modal_gallery_index}}">
+
+  <button
+    class="c-modal_gallery__nav"
+    data-modal-gallery-direction="-1"
+    aria-label="{{#t note="Indicates a link that will take the user to the previous modal view"}}previous{{/t}}"
+  >
+    <ts-icon class="ts_icon_arrow_large_left"></ts-icon>
+  </button>
+
+  <div class="c-modal_gallery__items" data-modal-items>
+    {{#each items}}
+      <div class="c-modal_gallery__item hidden" data-modal-gallery-index="{{@index}}">
+        {{dangerouslyRenderHTML this}}
+      </div>
+    {{/each}}
+  </div>
+
+  <button
+    class="c-modal_gallery__nav"
+    data-modal-gallery-direction="1"
+    aria-label="{{#t note="Indicates a link that will take the user to the next modal view"}}next{{/t}}"
+  >
+    <ts-icon class="ts_icon_arrow_large_right"></ts-icon>
+  </button>
+
+</div>

@@ -17500,6 +17500,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   line-height: 1.6;
   flex: 0 0 16px;
   order: 3;
+  border: 1px solid #FFF;
   border-radius: 3px;
   background-size: 100%;
   background-repeat: no-repeat;
@@ -17511,7 +17512,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   background-color: #717274;
   font-weight: 800;
   line-height: 1.6;
-  font-size: 10px;
+  font-size: 9.5px;
   color: #FFF;
   font-style: normal;
   letter-spacing: 0;
@@ -17538,6 +17539,10 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 .c-member__unread-context--small .unread_count {
   right: 0;
   top: 0
+}
+
+.c-member__context.c-member__not-in-channel-context--small {
+  line-height: 0
 }
 
 .c-member__frecency-score--small.frecency_score {

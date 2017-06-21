@@ -36357,11 +36357,12 @@ webpackJsonp([332], [, function(e, t, n) {
     l = n.n(u),
     c = n(400),
     d = n(3037),
-    f = n(3127),
-    p = n(3205),
-    h = n(2356),
-    _ = n(3120),
-    m = (n.n(_), function() {
+    f = n(3912),
+    p = n(3127),
+    h = n(3205),
+    _ = n(2356),
+    m = n(3120),
+    y = (n.n(m), function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
@@ -36372,15 +36373,38 @@ webpackJsonp([332], [, function(e, t, n) {
         return n && e(t.prototype, n), r && e(t, r), t;
       };
     }()),
-    y = !1,
-    v = function(e) {
-      function t() {
-        return r(this, t), o(this, (t.__proto__ || Object.getPrototypeOf(t)).apply(this, arguments));
+    v = {
+      channelId: l.a.PropTypes.string,
+      timestamps: l.a.PropTypes.arrayOf(l.a.PropTypes.string),
+      requestHistory: l.a.PropTypes.func,
+      lastReadTs: l.a.PropTypes.string
+    },
+    g = {
+      channelId: null,
+      timestamps: [],
+      requestHistory: s.a.noop,
+      lastReadTs: null
+    },
+    b = function(e) {
+      function t(e) {
+        r(this, t);
+        var n = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
+        return n.isLoading = !1, n.requestHistory = n.requestHistory.bind(n), n;
       }
-      return i(t, e), m(t, [{
+      return i(t, e), y(t, [{
+        key: "getLastVisibleReadTs",
+        value: function() {
+          var e = this.props,
+            t = e.lastReadTs,
+            n = e.timestamps;
+          return s.a.findLast(n, function(e) {
+            return e <= t;
+          });
+        }
+      }, {
         key: "requestHistory",
         value: function() {
-          y || (y = !0, this.props.timestamps.length && this.props.requestHistory({
+          this.isLoading || (this.isLoading = !0, this.props.timestamps.length && this.props.requestHistory({
             latest: this.props.timestamps[0]
           }));
         }
@@ -36388,19 +36412,20 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "render",
         value: function() {
           var e = this;
-          y = !1;
+          this.isLoading = !1;
           var t = s.a.groupBy(this.props.timestamps, function(e) {
-              var t = n.i(h.a)(e);
+              var t = n.i(_.a)(e);
               return new Date(t.getFullYear(), t.getMonth(), t.getDate()).getTime();
             }),
             r = s.a.keys(t).sort(),
             o = new Date,
             i = new Date(o.getFullYear(), o.getMonth(), o.getDate()),
             a = [],
-            u = [];
+            u = [],
+            m = this.getLastVisibleReadTs();
           return s.a.forEach(r, function(n) {
             var r = parseInt(n, 10);
-            a.push(l.a.createElement(p.a, {
+            a.push(l.a.createElement(h.a, {
               key: r,
               date: r,
               today: i.getTime()
@@ -36413,18 +36438,16 @@ webpackJsonp([332], [, function(e, t, n) {
                 key: t,
                 channelId: e.props.channelId,
                 previousMessageTs: c
-              })), u.push(t), c = t;
+              })), t === m && a.push(l.a.createElement(f.a, null)), u.push(t), c = t;
             });
           }), l.a.createElement(c.a, {
             key: this.props.channelId
           }, function(t) {
             var n = t.width,
               r = t.height;
-            return l.a.createElement(f.a, {
+            return l.a.createElement(p.a, {
               keys: u,
-              loadPre: function() {
-                return e.requestHistory();
-              },
+              loadPre: e.requestHistory,
               height: r,
               width: n
             }, a);
@@ -36432,15 +36455,7 @@ webpackJsonp([332], [, function(e, t, n) {
         }
       }]), t;
     }(l.a.PureComponent);
-  t.a = v, v.propTypes = {
-    channelId: l.a.PropTypes.string,
-    timestamps: l.a.PropTypes.arrayOf(l.a.PropTypes.string),
-    requestHistory: l.a.PropTypes.func
-  }, v.defaultProps = {
-    channelId: null,
-    timestamps: [],
-    requestHistory: s.a.noop
-  };
+  t.a = b, b.propTypes = v, b.defaultProps = g;
 }, function(e, t, n) {
   "use strict";
 
@@ -37073,7 +37088,7 @@ webpackJsonp([332], [, function(e, t, n) {
         type: "ping"
       }).then(function() {
         t = Date.now();
-      });
+      }).catch(l.noop);
     }, _), e.privateState.sendBuffer.length && e.privateState.sendBuffer.forEach(function(t) {
       e.privateState.socket.send(t);
     }), e.privateState.sendBuffer = void 0;
@@ -37173,21 +37188,21 @@ webpackJsonp([332], [, function(e, t, n) {
   }
 
   function o(e) {
-    if (fe) throw new Error("We already have a socket");
-    fe = new N.a(e), fe.onCloseSig.addOnce(i), fe.onConnectSig.addOnce(a);
+    if (ye) throw new Error("We already have a socket");
+    ye = new q.a(e), ye.onCloseSig.addOnce(i), ye.onConnectSig.addOnce(a), le && Math.random() <= le && (n.i(V.b)("Intentionally closing socket to simulate flakiness"), ye.close());
   }
 
   function i() {
-    n.i(R.c)("sm_flow_unexpected_close"), l(), g({
-      state: F.a.ERROR
+    n.i(H.c)("sm_flow_unexpected_close"), l(), k({
+      state: U.a.ERROR
     });
   }
 
   function a() {
-    g({
-      state: oe === F.a.FAST_RECONNECTING ? F.a.CONNECTED : F.a.PROV_CONNECTED,
-      allowableSourceStates: [F.a.FAST_RECONNECTING, F.a.PROV_CONNECTING]
-    }), de && (ce = void 0, de(), de = void 0);
+    k({
+      state: ue === U.a.FAST_RECONNECTING ? U.a.CONNECTED : U.a.PROV_CONNECTED,
+      allowableSourceStates: [U.a.FAST_RECONNECTING, U.a.PROV_CONNECTING]
+    }), me && (_e = void 0, me(), me = void 0);
   }
 
   function s(e) {
@@ -37195,480 +37210,506 @@ webpackJsonp([332], [, function(e, t, n) {
       case "goodbye":
         return void f();
       case "reconnect_url":
-        return se = e.url, void(ue = Date.now());
+        return fe = e.url, void(pe = Date.now());
     }
-    we.dispatch(e);
+    Se.dispatch(e);
   }
 
   function u(e) {
-    if (!fe) throw new Error("Cannot send messages when we do not have a socket");
-    return fe.send(e);
+    if (!ye) throw new Error("Cannot send messages when we do not have a socket");
+    return ye.send(e);
   }
 
   function l(e) {
-    fe && (fe.onConnectSig.remove(a), fe.onCloseSig.remove(i), fe.readyState !== WebSocket.CLOSED && fe.close(e, "Closed by socket manager"), fe = void 0);
+    ye && (ye.onConnectSig.remove(a), ye.onCloseSig.remove(i), ye.readyState !== WebSocket.CLOSED && ye.close(e, "Closed by socket manager"), ye = void 0);
   }
 
   function c() {
-    if (!ae) return Promise.reject(new Error("Fast reconnects are disabled"));
-    if (!se) return Promise.reject(new Error("No reconnect URL"));
-    if (Date.now() - ue > ie) return Promise.reject(new Error("Reconnect URL expired"));
-    var e = se;
-    return se = void 0, ue = void 0, G("rtm.checkFastReconnect").then(function(t) {
+    if (!de) return Promise.reject(new Error("Fast reconnects are disabled"));
+    if (!fe) return Promise.reject(new Error("No reconnect URL"));
+    if (Date.now() - pe > ce) return Promise.reject(new Error("Reconnect URL expired"));
+    var e = fe;
+    return fe = void 0, pe = void 0, $("rtm.checkFastReconnect").then(function(t) {
       var n = t.data;
-      return K(n) ? new Promise(Y.noop) : e;
+      return Q(n) ? new Promise(N.noop) : e;
     });
   }
 
   function d() {
-    return le.getDelay();
+    return he.getDelay();
   }
 
   function f() {
     function e() {
-      ye.remove(e), ve.remove(e), k() ? (n.i(U.b)("goodbye: disconnecting now"), l(ee), L()) : n.i(U.b)("goodbye: got disconnected some other way before we handled the goodbye message");
+      ke.remove(e), Me.remove(e), S() ? (n.i(V.b)("goodbye: disconnecting now"), l(oe), j()) : n.i(V.b)("goodbye: got disconnected some other way before we handled the goodbye message");
     }
-    if (n.i(U.b)("goodbye: disconnecting from the MS next time it is convenient"), !n.i(q.isWindowFocused)()) return void e();
-    ye.addOnce(e), ve.addOnce(e);
+    if (n.i(V.b)("goodbye: disconnecting from the MS next time it is convenient"), !n.i(G.isWindowFocused)()) return void e();
+    ke.addOnce(e), Me.addOnce(e);
   }
 
   function p(e, t) {
     switch (e) {
-      case F.a.CONNECTING:
-      case F.a.FAST_RECONNECTING:
-      case F.a.PROV_CONNECTING:
-        t === F.a.ERROR && 3 === (re += 1) && (n.i(R.c)("sm_flow_trouble_connecting"), ke.dispatch());
+      case U.a.CONNECTING:
+      case U.a.FAST_RECONNECTING:
+      case U.a.PROV_CONNECTING:
+        t === U.a.ERROR && 3 === (se += 1) && (n.i(H.c)("sm_flow_trouble_connecting"), Ee.dispatch());
         break;
-      case F.a.CONNECTED:
-        ye.dispatch();
+      case U.a.CONNECTED:
+        ke.dispatch();
         break;
-      case F.a.WAIT_FOR_CONNECTIVITY:
-        he && (he.cancel(), he = void 0);
+      case U.a.WAIT_FOR_CONNECTIVITY:
+        ge && (ge.cancel(), ge = void 0);
         break;
-      case F.a.WAIT_FOR_RATE_LIMIT:
-        _e && (clearTimeout(_e), _e = void 0);
+      case U.a.WAIT_FOR_RATE_LIMIT:
+        be && (clearTimeout(be), be = void 0);
     }
   }
 
   function h(e) {
     var t;
-    pe && (clearTimeout(pe), pe = void 0);
-    var o = (t = {}, r(t, F.a.CONNECTED, 1 / 0), r(t, F.a.ASLEEP, 1 / 0), r(t, F.a.FAST_RECONNECTING, 2e4), r(t, F.a.PROV_CONNECTING, 2e4), r(t, F.a.PROV_CONNECTED, 3e4), r(t, F.a.CHECKING_FAST_RECONNECT, 6e4), r(t, F.a.WAIT_FOR_CONNECTIVITY, 3e5), r(t, F.a.WAIT_FOR_RATE_LIMIT, 12e4), t),
+    ve && (clearTimeout(ve), ve = void 0);
+    var o = (t = {}, r(t, U.a.CONNECTED, 1 / 0), r(t, U.a.ASLEEP, 1 / 0), r(t, U.a.FAST_RECONNECTING, 2e4), r(t, U.a.PROV_CONNECTING, 2e4), r(t, U.a.PROV_CONNECTED, 3e4), r(t, U.a.CHECKING_FAST_RECONNECT, 6e4), r(t, U.a.WAIT_FOR_CONNECTIVITY, 3e5), r(t, U.a.WAIT_FOR_RATE_LIMIT, 12e4), t),
       i = o[e] || 1e4;
-    n.i(U.c)(1996, "socket-manager: will stay in this state for up to " + i + " ms"), i !== 1 / 0 && (pe = setTimeout(function() {
-      n.i(U.c)(1996, "socket-manager: Spent " + i + " ms in " + e + " state; giving up"), e === F.a.PROV_CONNECTED && n.i(R.c)("sm_flow_prov_timeout"), v(F.a.ERROR);
+    n.i(V.c)(1996, "socket-manager: will stay in this state for up to " + i + " ms"), i !== 1 / 0 && (ve = setTimeout(function() {
+      n.i(V.c)(1996, "socket-manager: Spent " + i + " ms in " + e + " state; giving up"), e === U.a.PROV_CONNECTED && n.i(H.c)("sm_flow_prov_timeout"), w(U.a.ERROR);
     }, i));
   }
 
   function _(e, t) {
-    if (!n.i(q.isWindowUnloading)()) switch (e) {
-      case F.a.NEVER_CONNECTED:
-        if (!J()) return;
-        v(F.a.PROV_CONNECT);
+    if (!n.i(G.isWindowUnloading)()) switch (e) {
+      case U.a.NEVER_CONNECTED:
+        if (!X()) return;
+        w(U.a.PROV_CONNECT);
         break;
-      case F.a.CONNECT:
-        v(F.a.CHECKING_FAST_RECONNECT), be.dispatch(), c().then(function(e) {
-          n.i(R.c)("sm_flow_fast_reconnect"), v(F.a.FAST_RECONNECTING), o(e), fe.messageDelegate = s;
+      case U.a.CONNECT:
+        w(U.a.CHECKING_FAST_RECONNECT), c().then(function(e) {
+          n.i(H.c)("sm_flow_fast_reconnect"), w(U.a.FAST_RECONNECTING), o(e), ye.messageDelegate = s;
         }).catch(function() {
-          l(ne), v(F.a.PROV_CONNECT);
+          l(ae), w(U.a.PROV_CONNECT);
         });
         break;
-      case F.a.FAST_RECONNECTING:
+      case U.a.FAST_RECONNECTING:
         break;
-      case F.a.CONNECTED:
-        if (re = 0, t !== F.a.CONNECTED) {
-          var r = t === F.a.FAST_RECONNECTING;
-          me.dispatch(r);
+      case U.a.CONNECTED:
+        if (se = 0, t !== U.a.CONNECTED) {
+          var r = t === U.a.FAST_RECONNECTING;
+          we.dispatch(r);
         }
         break;
-      case F.a.CHECKING_FAST_RECONNECT:
+      case U.a.CHECKING_FAST_RECONNECT:
         break;
-      case F.a.PROV_CONNECT:
-        v(F.a.PROV_CONNECTING), o(V());
+      case U.a.PROV_CONNECT:
+        w(U.a.PROV_CONNECTING), o(Z());
         break;
-      case F.a.PROV_CONNECTING:
+      case U.a.PROV_CONNECTING:
         break;
-      case F.a.PROV_CONNECTED:
-        ge.dispatch(fe.startData);
+      case U.a.PROV_CONNECTED:
+        Te.dispatch(ye.startData);
         break;
-      case F.a.PROV_FINALIZE:
-        v(F.a.PROV_FINALIZING), fe.messageDelegate = s, v(F.a.CONNECTED);
+      case U.a.PROV_FINALIZE:
+        w(U.a.PROV_FINALIZING), ye.messageDelegate = s, w(U.a.CONNECTED);
         break;
-      case F.a.PROV_FINALIZING:
+      case U.a.PROV_FINALIZING:
         break;
-      case F.a.DISCONNECT:
-        v(F.a.DISCONNECTING), l(Q), v(F.a.DISCONNECTED);
+      case U.a.DISCONNECT:
+        w(U.a.DISCONNECTING), l(ne), w(U.a.DISCONNECTED);
         break;
-      case F.a.DISCONNECTING:
+      case U.a.DISCONNECTING:
         break;
-      case F.a.DISCONNECTED:
-        v(F.a.WAIT_FOR_CONNECTIVITY);
+      case U.a.DISCONNECTED:
+        w(U.a.WAIT_FOR_CONNECTIVITY);
         break;
-      case F.a.ERROR:
-        l(X), setTimeout(function() {
-          v(F.a.DISCONNECTED);
+      case U.a.ERROR:
+        l(re), setTimeout(function() {
+          w(U.a.DISCONNECTED);
         }, 0);
         break;
-      case F.a.SLEEP:
-        v(F.a.SLEEPING), l(te), v(F.a.ASLEEP);
+      case U.a.SLEEP:
+        w(U.a.SLEEPING), l(ie), w(U.a.ASLEEP);
         break;
-      case F.a.SLEEPING:
-      case F.a.ASLEEP:
+      case U.a.SLEEPING:
+      case U.a.ASLEEP:
         break;
-      case F.a.WAIT_FOR_CONNECTIVITY:
-        he = new Promise(function(e, t) {
-          $().then(e).catch(t);
-        }), he.then(function() {
-          oe === F.a.WAIT_FOR_CONNECTIVITY && v(F.a.WAIT_FOR_RATE_LIMIT);
+      case U.a.WAIT_FOR_CONNECTIVITY:
+        ge = new Promise(function(e, t) {
+          ee().then(e).catch(t);
+        }), ge.then(function() {
+          ue === U.a.WAIT_FOR_CONNECTIVITY && w(U.a.WAIT_FOR_RATE_LIMIT);
         }).catch(function() {
-          oe === F.a.WAIT_FOR_CONNECTIVITY && (n.i(U.c)(1996, "socket-manager: Waited too long for connectivity to come back"), v(F.a.ERROR));
+          ue === U.a.WAIT_FOR_CONNECTIVITY && (n.i(V.c)(1996, "socket-manager: Waited too long for connectivity to come back"), w(U.a.ERROR));
         });
         break;
-      case F.a.WAIT_FOR_RATE_LIMIT:
-        if (!le.increment()) {
-          var i = le.getDelay();
-          return n.i(U.c)(1996, "socket-manager: will wait for " + i + " ms"), void(_e = setTimeout(function() {
-            oe === F.a.WAIT_FOR_RATE_LIMIT && _(F.a.WAIT_FOR_RATE_LIMIT);
+      case U.a.WAIT_FOR_RATE_LIMIT:
+        if (!he.increment()) {
+          var i = he.getDelay();
+          n.i(V.c)(1996, "socket-manager: will wait for " + i + " ms");
+          var a = setInterval(function() {
+            var e = Math.ceil(he.getDelay() / 1e3);
+            xe.dispatch(e);
+          }, 1e3);
+          return void(be = setTimeout(function() {
+            clearInterval(a), ue === U.a.WAIT_FOR_RATE_LIMIT && _(U.a.WAIT_FOR_RATE_LIMIT);
           }, i));
         }
-        v(F.a.CONNECT);
+        xe.dispatch(0), w(U.a.CONNECT);
     }
   }
 
-  function m(e) {
-    ae = !!e;
+  function m() {
+    return ue;
   }
 
   function y() {
-    se = void 0, ue = void 0;
+    he.reset();
   }
 
   function v(e) {
-    if (!n.i(F.b)(e)) throw new Error("Invalid state");
-    n.i(U.c)(1996, "socket-manager: Changing from " + oe + " to " + e);
-    var t = oe;
-    oe = e;
-    try {
-      p(t, e), h(e), _(e, t);
-    } catch (e) {
-      n.i(U.c)(1996, "socket-manager: Caught an error while trying to change states: " + e), oe === F.a.ERROR ? n.i(U.c)(1996, "socket-manager: We were already trying to change to an error state; unsure how to proceed") : (n.i(U.c)(1996, "socket-manager: Switching to ERROR just in case"), v(F.a.ERROR));
-    }
+    de = !!e;
   }
 
   function g(e) {
-    n.i(F.c)(oe, e, v);
+    if (e < 0 || e > 1) throw new Error("Flakiness must be a number between 0 and 1");
+    le = e;
   }
 
   function b() {
-    return [F.a.PROV_CONNECTED, F.a.PROV_FINALIZING, F.a.CONNECTED].indexOf(oe) >= 0;
+    fe = void 0, pe = void 0;
   }
 
-  function w() {
-    return [F.a.SLEEP, F.a.SLEEPING, F.a.ASLEEP].indexOf(oe) >= 0;
+  function w(e) {
+    if (!n.i(U.b)(e)) throw new Error("Invalid state");
+    n.i(V.c)(1996, "socket-manager: Changing from " + ue + " to " + e);
+    var t = ue;
+    ue = e;
+    try {
+      p(t, e), h(e), _(e, t);
+    } catch (e) {
+      n.i(V.c)(1996, "socket-manager: Caught an error while trying to change states: " + e), ue === U.a.ERROR ? n.i(V.c)(1996, "socket-manager: We were already trying to change to an error state; unsure how to proceed") : (n.i(V.c)(1996, "socket-manager: Switching to ERROR just in case"), w(U.a.ERROR));
+    }
   }
 
-  function k() {
-    return oe === F.a.CONNECTED;
+  function k(e) {
+    n.i(U.c)(ue, e, w);
   }
 
   function M() {
-    return [F.a.FAST_CONNECTING, F.a.PROV_CONNECTING, F.a.PROV_CONNECTED, F.a.PROV_FINALIZING, F.a.CHECKING_FAST_RECONNECT].indexOf(oe) >= 0;
+    return ue === U.a.NEVER_CONNECTED;
   }
 
   function T() {
-    return oe === F.a.PROV_CONNECTED;
+    return [U.a.PROV_CONNECTED, U.a.PROV_FINALIZING, U.a.CONNECTED].indexOf(ue) >= 0;
   }
 
   function x() {
-    return oe === F.a.WAIT_FOR_CONNECTIVITY;
+    return [U.a.SLEEP, U.a.SLEEPING, U.a.ASLEEP].indexOf(ue) >= 0;
   }
 
   function S() {
-    return oe === F.a.WAIT_FOR_RATE_LIMIT;
+    return ue === U.a.CONNECTED;
   }
 
   function E() {
-    return oe === F.a.WAIT_FOR_CONNECTIVITY ? Promise.reject(new Error("We are offline")) : fe ? Promise.reject(new Error("We already have a socket")) : (g({
-      state: F.a.PROV_CONNECT,
-      allowableSourceStates: [F.a.NEVER_CONNECTED, F.a.WAIT_FOR_RATE_LIMIT, F.a.ERROR, F.a.DISCONNECTED],
-      noopStates: [F.a.PROV_CONNECT, F.a.PROV_CONNECTING, F.a.PROV_CONNECTED]
-    }), fe ? (n.i(R.c)("sm_flow_connect_prov"), fe.startData) : (v(F.a.ERROR), Promise.reject(new Error("Problem getting startData promise from provisional connect"))));
+    return [U.a.FAST_CONNECTING, U.a.PROV_CONNECTING, U.a.PROV_CONNECTED, U.a.PROV_FINALIZING, U.a.CHECKING_FAST_RECONNECT].indexOf(ue) >= 0;
   }
 
   function L() {
-    g({
-      state: F.a.DISCONNECT,
-      noopStates: [F.a.ASLEEP, F.a.DISCONNECTED, F.a.DISCONNECTING]
-    });
+    return ue === U.a.PROV_CONNECTED;
   }
 
   function O() {
-    if (n.i(R.c)("sm_flow_finalize_prov"), g({
-        state: F.a.PROV_FINALIZE,
-        allowableSourceStates: [F.a.PROV_CONNECTED]
-      }), oe !== F.a.CONNECTED) throw new Error("Failed to finalize connection -- expected to be connected but actually " + oe);
+    return ue === U.a.WAIT_FOR_CONNECTIVITY;
   }
 
   function C() {
-    return fe ? Promise.resolve() : (ce || (ce = new Promise(function(e) {
-      de = e;
-    })), ce);
+    return ue === U.a.WAIT_FOR_RATE_LIMIT;
   }
 
   function P() {
-    g({
-      state: F.a.CONNECT,
-      noopStates: [F.a.CONNECT, F.a.CONNECTING, F.a.CONNECTED, F.a.CHECKING_FAST_RECONNECT, F.a.FAST_RECONNECTING, F.a.PROV_CONNECT, F.a.PROV_CONNECTED, F.a.PROV_CONNECTING, F.a.PROV_FINALIZE, F.a.PROV_FINALIZING]
-    });
+    if (ue === U.a.WAIT_FOR_CONNECTIVITY) throw new Error("We are offline");
+    if (ye) throw new Error("We already have a socket");
+    if (k({
+        state: U.a.PROV_CONNECT,
+        allowableSourceStates: [U.a.NEVER_CONNECTED, U.a.WAIT_FOR_RATE_LIMIT, U.a.ERROR, U.a.DISCONNECTED],
+        noopStates: [U.a.PROV_CONNECT, U.a.PROV_CONNECTING, U.a.PROV_CONNECTED]
+      }), !ye) throw w(U.a.ERROR), new Error("Problem opening socket");
+    n.i(H.c)("sm_flow_connect_prov");
   }
 
   function j() {
-    g({
-      state: F.a.SLEEP,
-      noopStates: [F.a.ASLEEP, F.a.SLEEPING]
+    k({
+      state: U.a.DISCONNECT,
+      noopStates: [U.a.ASLEEP, U.a.DISCONNECTED, U.a.DISCONNECTING, U.a.WAIT_FOR_CONNECTIVITY, U.a.WAIT_FOR_RATE_LIMIT]
     });
   }
 
   function D() {
-    g({
-      state: F.a.CONNECT,
-      allowableSourceStates: [F.a.ASLEEP]
+    if (n.i(H.c)("sm_flow_finalize_prov"), k({
+        state: U.a.PROV_FINALIZE,
+        allowableSourceStates: [U.a.PROV_CONNECTED]
+      }), ue !== U.a.CONNECTED) throw w(U.a.ERROR), new Error("Failed to finalize connection -- expected to be connected but actually " + ue);
+  }
+
+  function Y() {
+    return ye ? Promise.resolve() : (_e || (_e = new Promise(function(e) {
+      me = e;
+    })), _e);
+  }
+
+  function A() {
+    k({
+      state: U.a.CONNECT,
+      noopStates: [U.a.CONNECT, U.a.CONNECTING, U.a.CONNECTED, U.a.CHECKING_FAST_RECONNECT, U.a.FAST_RECONNECTING, U.a.PROV_CONNECT, U.a.PROV_CONNECTED, U.a.PROV_CONNECTING, U.a.PROV_FINALIZE, U.a.PROV_FINALIZING]
+    });
+  }
+
+  function R() {
+    k({
+      state: U.a.SLEEP,
+      noopStates: [U.a.ASLEEP, U.a.SLEEPING]
+    });
+  }
+
+  function I() {
+    k({
+      state: U.a.CONNECT,
+      allowableSourceStates: [U.a.ASLEEP]
     });
   }
   Object.defineProperty(t, "__esModule", {
     value: !0
   }), n.d(t, "test", function() {
-    return Z;
-  }), n.d(t, "CLOSE_REASON_DISCONNECT_REQUESTED", function() {
-    return Q;
-  }), n.d(t, "CLOSE_REASON_ERROR", function() {
-    return X;
-  }), n.d(t, "CLOSE_REASON_GOODBYE_RECEIVED", function() {
-    return ee;
-  }), n.d(t, "CLOSE_REASON_SLEEPING", function() {
     return te;
-  }), n.d(t, "CLOSE_REASON_FAST_RECONNECT_FAILED", function() {
+  }), n.d(t, "CLOSE_REASON_DISCONNECT_REQUESTED", function() {
     return ne;
+  }), n.d(t, "CLOSE_REASON_ERROR", function() {
+    return re;
+  }), n.d(t, "CLOSE_REASON_GOODBYE_RECEIVED", function() {
+    return oe;
+  }), n.d(t, "CLOSE_REASON_SLEEPING", function() {
+    return ie;
+  }), n.d(t, "CLOSE_REASON_FAST_RECONNECT_FAILED", function() {
+    return ae;
   }), n.d(t, "connectedSig", function() {
-    return me;
-  }), n.d(t, "disconnectedSig", function() {
-    return ye;
-  }), n.d(t, "onFocusChanged", function() {
-    return ve;
-  }), n.d(t, "provisionallyConnectedSig", function() {
-    return ge;
-  }), n.d(t, "reconnectingSig", function() {
-    return be;
-  }), n.d(t, "socketMessageReceivedSig", function() {
     return we;
-  }), n.d(t, "troubleConnectingSig", function() {
+  }), n.d(t, "disconnectedSig", function() {
     return ke;
-  }), t.send = u, t.debugSetFastReconnectsEnabled = m, t.clearFastReconnectUrl = y, t.hasOpenWebSocket = b, t.isAsleep = w, t.isConnected = k, t.isConnecting = M, t.isProvisionallyConnected = T, t.isWaitingForConnectivity = x, t.isWaitingForRateLimit = S, t.connectProvisionallyAndFetchRtmStart = E, t.disconnect = L, t.finalizeProvisionalConnection = O, t.promiseToHaveOpenWebSocket = C, t.reconnectImmediately = P, t.sleep = j, t.wake = D;
-  var Y = n(6),
-    A = (n.n(Y), n(3050)),
-    R = n(2906),
-    I = n(3077),
-    N = n(3054),
-    F = n(3056),
-    H = n(3048),
-    z = n(3053),
-    q = n(3014),
-    U = n(3049),
-    W = n(3604),
-    B = n(3052),
-    G = H.b,
-    V = z.a,
-    K = W.a,
-    J = z.b,
-    $ = B.a,
-    Z = {};
-  Object.defineProperty(Z, "callImmediately", {
-    get: function() {
-      return G;
-    },
-    set: function(e) {
-      G = e;
-    }
-  }), Object.defineProperty(Z, "closeSocket", {
-    get: function() {
-      return l;
-    },
-    set: function(e) {
-      l = e;
-    }
-  }), Object.defineProperty(Z, "createSlackSocketWithUrl", {
-    get: function() {
-      return o;
-    },
-    set: function(e) {
-      o = e;
-    }
-  }), Object.defineProperty(Z, "currentState", {
-    get: function() {
-      return oe;
-    },
-    set: function(e) {
-      oe = e;
-    }
-  }), Object.defineProperty(Z, "ensureWeCanFastReconnect", {
-    get: function() {
-      return c;
-    },
-    set: function(e) {
-      c = e;
-    }
-  }), Object.defineProperty(Z, "fastReconnectsEnabled", {
-    get: function() {
-      return ae;
-    },
-    set: function(e) {
-      ae = e;
-    }
-  }), Object.defineProperty(Z, "fastReconnectUrl", {
-    get: function() {
-      return se;
-    },
-    set: function(e) {
-      se = e;
-    }
-  }), Object.defineProperty(Z, "fastReconnectUrlReceivedAtTime", {
-    get: function() {
-      return ue;
-    },
-    set: function(e) {
-      ue = e;
-    }
-  }), Object.defineProperty(Z, "getDelayBeforeNextConnectionAttempt", {
-    get: function() {
-      return d;
-    },
-    set: function(e) {
-      d = e;
-    }
-  }), Object.defineProperty(Z, "getFlannelConnectionUrl", {
-    get: function() {
-      return V;
-    },
-    set: function(e) {
-      V = e;
-    }
-  }), Object.defineProperty(Z, "handleSocketConnected", {
-    get: function() {
-      return a;
-    },
-    set: function(e) {
-      a = e;
-    }
-  }), Object.defineProperty(Z, "handleSocketMessage", {
-    get: function() {
-      return s;
-    },
-    set: function(e) {
-      s = e;
-    }
-  }), Object.defineProperty(Z, "leaveState", {
-    get: function() {
-      return p;
-    },
-    set: function(e) {
-      p = e;
-    }
-  }), Object.defineProperty(Z, "limiter", {
-    get: function() {
-      return le;
-    }
-  }), Object.defineProperty(Z, "openWebSocketP", {
-    get: function() {
-      return ce;
-    },
-    set: function(e) {
-      ce = e;
-    }
-  }), Object.defineProperty(Z, "openWebSocketPResolve", {
-    get: function() {
-      return de;
-    },
-    set: function(e) {
-      de = e;
-    }
-  }), Object.defineProperty(Z, "reloadIfVersionsChanged", {
-    get: function() {
-      return K;
-    },
-    set: function(e) {
-      K = e;
-    }
-  }), Object.defineProperty(Z, "runState", {
-    get: function() {
-      return _;
-    },
-    set: function(e) {
-      _ = e;
-    }
-  }), Object.defineProperty(Z, "setState", {
-    get: function() {
-      return v;
-    },
-    set: function(e) {
-      v = e;
-    }
-  }), Object.defineProperty(Z, "socket", {
-    get: function() {
-      return fe;
-    },
-    set: function(e) {
-      fe = e;
-    }
-  }), Object.defineProperty(Z, "transitionSafely", {
-    get: function() {
-      return g;
-    },
-    set: function(e) {
-      g = e;
-    }
-  }), Object.defineProperty(Z, "useSocket", {
-    get: function() {
-      return J;
-    },
-    set: function(e) {
-      J = e;
-    }
-  }), Object.defineProperty(Z, "waitForApiConnectivity", {
+  }), n.d(t, "onFocusChanged", function() {
+    return Me;
+  }), n.d(t, "provisionallyConnectedSig", function() {
+    return Te;
+  }), n.d(t, "waitingForRateLimitSig", function() {
+    return xe;
+  }), n.d(t, "socketMessageReceivedSig", function() {
+    return Se;
+  }), n.d(t, "troubleConnectingSig", function() {
+    return Ee;
+  }), t.send = u, t.debugGetState = m, t.debugResetRateLimit = y, t.debugSetFastReconnectsEnabled = v, t.debugSetSocketConnectFlakiness = g, t.clearFastReconnectUrl = b, t.hasNeverConnected = M, t.hasOpenWebSocket = T, t.isAsleep = x, t.isConnected = S, t.isConnecting = E, t.isProvisionallyConnected = L, t.isWaitingForConnectivity = O, t.isWaitingForRateLimit = C, t.connectProvisionallyAndFetchRtmStart = P, t.disconnect = j, t.finalizeProvisionalConnection = D, t.promiseToHaveOpenWebSocket = Y, t.reconnectImmediately = A, t.sleep = R, t.wake = I;
+  var N = n(6),
+    F = (n.n(N), n(3050)),
+    H = n(2906),
+    z = n(3077),
+    q = n(3054),
+    U = n(3056),
+    W = n(3048),
+    B = n(3053),
+    G = n(3014),
+    V = n(3049),
+    K = n(3604),
+    J = n(3052),
+    $ = W.b,
+    Z = B.a,
+    Q = K.a,
+    X = B.b,
+    ee = J.a,
+    te = {};
+  Object.defineProperty(te, "callImmediately", {
     get: function() {
       return $;
     },
     set: function(e) {
       $ = e;
     }
+  }), Object.defineProperty(te, "closeSocket", {
+    get: function() {
+      return l;
+    },
+    set: function(e) {
+      l = e;
+    }
+  }), Object.defineProperty(te, "createSlackSocketWithUrl", {
+    get: function() {
+      return o;
+    },
+    set: function(e) {
+      o = e;
+    }
+  }), Object.defineProperty(te, "currentState", {
+    get: function() {
+      return ue;
+    },
+    set: function(e) {
+      ue = e;
+    }
+  }), Object.defineProperty(te, "ensureWeCanFastReconnect", {
+    get: function() {
+      return c;
+    },
+    set: function(e) {
+      c = e;
+    }
+  }), Object.defineProperty(te, "fastReconnectsEnabled", {
+    get: function() {
+      return de;
+    },
+    set: function(e) {
+      de = e;
+    }
+  }), Object.defineProperty(te, "fastReconnectUrl", {
+    get: function() {
+      return fe;
+    },
+    set: function(e) {
+      fe = e;
+    }
+  }), Object.defineProperty(te, "fastReconnectUrlReceivedAtTime", {
+    get: function() {
+      return pe;
+    },
+    set: function(e) {
+      pe = e;
+    }
+  }), Object.defineProperty(te, "getDelayBeforeNextConnectionAttempt", {
+    get: function() {
+      return d;
+    },
+    set: function(e) {
+      d = e;
+    }
+  }), Object.defineProperty(te, "getFlannelConnectionUrl", {
+    get: function() {
+      return Z;
+    },
+    set: function(e) {
+      Z = e;
+    }
+  }), Object.defineProperty(te, "handleSocketConnected", {
+    get: function() {
+      return a;
+    },
+    set: function(e) {
+      a = e;
+    }
+  }), Object.defineProperty(te, "handleSocketMessage", {
+    get: function() {
+      return s;
+    },
+    set: function(e) {
+      s = e;
+    }
+  }), Object.defineProperty(te, "leaveState", {
+    get: function() {
+      return p;
+    },
+    set: function(e) {
+      p = e;
+    }
+  }), Object.defineProperty(te, "limiter", {
+    get: function() {
+      return he;
+    }
+  }), Object.defineProperty(te, "openWebSocketP", {
+    get: function() {
+      return _e;
+    },
+    set: function(e) {
+      _e = e;
+    }
+  }), Object.defineProperty(te, "openWebSocketPResolve", {
+    get: function() {
+      return me;
+    },
+    set: function(e) {
+      me = e;
+    }
+  }), Object.defineProperty(te, "reloadIfVersionsChanged", {
+    get: function() {
+      return Q;
+    },
+    set: function(e) {
+      Q = e;
+    }
+  }), Object.defineProperty(te, "runState", {
+    get: function() {
+      return _;
+    },
+    set: function(e) {
+      _ = e;
+    }
+  }), Object.defineProperty(te, "setState", {
+    get: function() {
+      return w;
+    },
+    set: function(e) {
+      w = e;
+    }
+  }), Object.defineProperty(te, "socket", {
+    get: function() {
+      return ye;
+    },
+    set: function(e) {
+      ye = e;
+    }
+  }), Object.defineProperty(te, "transitionSafely", {
+    get: function() {
+      return k;
+    },
+    set: function(e) {
+      k = e;
+    }
+  }), Object.defineProperty(te, "useSocket", {
+    get: function() {
+      return X;
+    },
+    set: function(e) {
+      X = e;
+    }
+  }), Object.defineProperty(te, "waitForApiConnectivity", {
+    get: function() {
+      return ee;
+    },
+    set: function(e) {
+      ee = e;
+    }
   });
-  var Q = 4100,
-    X = 4101,
-    ee = 4104,
-    te = 4102,
-    ne = 4103,
-    re = 0,
-    oe = F.a.NEVER_CONNECTED,
-    ie = 3e5,
-    ae = !0,
-    se = void 0,
-    ue = void 0,
-    le = new I.a({
+  var ne = 4100,
+    re = 4101,
+    oe = 4104,
+    ie = 4102,
+    ae = 4103,
+    se = 0,
+    ue = U.a.NEVER_CONNECTED,
+    le = 0,
+    ce = 3e5,
+    de = !0,
+    fe = void 0,
+    pe = void 0,
+    he = new z.a({
       maxPerHour: 66,
       burstCount: 6
     }),
-    ce = void 0,
-    de = void 0,
-    fe = void 0,
-    pe = void 0,
-    he = void 0,
     _e = void 0,
-    me = new A.a,
-    ye = new A.a,
-    ve = new A.a,
-    ge = new A.a,
-    be = new A.a,
-    we = new A.a,
-    ke = new A.a;
+    me = void 0,
+    ye = void 0,
+    ve = void 0,
+    ge = void 0,
+    be = void 0,
+    we = new F.a,
+    ke = new F.a,
+    Me = new F.a,
+    Te = new F.a,
+    xe = new F.a,
+    Se = new F.a,
+    Ee = new F.a;
 }, function(e, t, n) {
   "use strict";
 
@@ -37859,9 +37900,14 @@ webpackJsonp([332], [, function(e, t, n) {
             r = this.timestamps[this.timestamps.length - 1],
             o = n + 36e5,
             i = this.maxPerHour - this.timestamps.length,
-            a = (o - r) / i,
+            a = Math.ceil((o - r) / i),
             s = r + a;
           return Math.max(0, s - e);
+        }
+      }, {
+        key: "reset",
+        value: function() {
+          this.timestamps = [];
         }
       }]), e;
     }();
@@ -38153,7 +38199,7 @@ webpackJsonp([332], [, function(e, t, n) {
 }, function(e, t, n) {
   t = e.exports = n(189)(), t.push([e.i, ".c-message {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  display: flex;\n  padding-right: 40px;\n  min-width: 1px;\n}\n.c-message:hover {\n  background-color: #F9F9F9;\n}\n.c-message.c-message--light {\n  padding-top: 5px;\n  padding-bottom: 3px;\n}\n.c-message.c-message--dense {\n  padding-top: 3px;\n  padding-bottom: 2px;\n}\n.c-message.c-message--light.c-message--adjacent {\n  padding-top: 2px;\n}\n.c-message__gutter {\n  text-align: right;\n  flex-shrink: 0;\n}\n.c-message--adjacent .c-message__gutter {\n  visibility: hidden;\n}\n.c-message--adjacent:hover .c-message__gutter {\n  visibility: visible;\n}\n.c-message--light .c-message__gutter {\n  width: 72px;\n  padding-right: 10px;\n}\n.c-message--dense .c-message__gutter {\n  width: 58px;\n  margin-right: 22px;\n}\n.c-message--dense .c-timestamp__label {\n  color: #717274;\n}\n.c-message__content {\n  flex: 0 1 100%;\n  min-width: 1px;\n}\n.c-message--dense .c-message__content {\n  padding-left: 8px;\n}\n.c-message__sender {\n  font-weight: 900;\n}\n.c-message--light .c-message__sender {\n  margin-right: 6px;\n  color: #2C2D30;\n}\n.c-message--dense .c-message__sender {\n  margin-left: -8px;\n  margin-right: 4px;\n}\n.c-message__sender--unknown {\n  display: inline-block;\n  width: 80px;\n  height: .9rem;\n  border-radius: .9rem;\n  vertical-align: bottom;\n  background: #E8E8E8;\n}\n.c-message--dense .c-message__content_header {\n  display: inline;\n  margin-bottom: 3px;\n}\n.c-message--dense.c-message--thread-broadcast .c-message__content_header {\n  display: flex;\n}\n.c-message--light .c-message__content_header {\n  line-height: 1;\n  margin-bottom: 3px;\n}\n.c-message__body {\n  line-height: 1.4;\n  color: #2C2D30;\n}\n.c-message__mention {\n  background: #FFF4BF;\n  border-radius: 3px;\n  padding: 0 2px 1px 2px;\n}\n.c-message__reply_bar {\n  display: flex;\n  align-items: center;\n  max-width: 600px;\n  margin-top: 5px;\n  padding: 3px;\n  font-size: 12px;\n  border: 1px solid transparent;\n  border-radius: 6px;\n  cursor: pointer;\n}\n.c-message__reply_bar:hover {\n  background-color: #FFF;\n  border-color: rgba(0, 0, 0, 0.15);\n}\n.c-message__reply_bar:hover .c-message__reply_bar_arrow {\n  color: #A0A0A2;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_last_reply {\n  opacity: 0;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_view_thread {\n  opacity: 1;\n}\n.c-message__reply_bar .c-avatar {\n  margin-right: 4px;\n}\n.c-message__reply_count {\n  margin-left: 3px;\n  font-weight: bold;\n}\n.c-message__reply_bar_description {\n  position: relative;\n  margin-left: 8px;\n  color: #A0A0A2;\n}\n.c-message__reply_bar_arrow {\n  margin-left: auto;\n  color: transparent;\n}\n.c-message__reply_bar_arrow::before {\n  vertical-align: top;\n}\n.c-message__reply_bar_last_reply {\n  opacity: 1;\n  transition: opacity 0.2s;\n}\n.c-message__broadcast_preamble {\n  color: #A0A0A2;\n  display: flex;\n  overflow: hidden;\n  max-width: 100%;\n}\n.c-message--light .c-message__broadcast_preamble {\n  margin-bottom: 3px;\n}\n.c-message__broadcast_preamble_meta {\n  flex-shrink: 0;\n}\n.c-message__broadcast_preamble_link {\n  font-weight: bold;\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  margin-left: 4px;\n}\n.c-message__reply_bar_view_thread {\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  opacity: 0;\n  transition: opacity 0.2s;\n}\n.c-message__attachment {\n  display: flex;\n  align-items: stretch;\n  margin-top: 2px;\n}\n.c-message__attachment_column {\n  width: 4px;\n  background-color: #E8E8E8;\n  border-radius: 8px;\n}\n.c-message__attachment_body {\n  padding-left: 12px;\n  padding-right: 12px;\n}\n.c-message__bot-label {\n  color: #A0A0A2;\n  font-weight: 500;\n  font-size: 12px;\n  margin: 0 0.15rem;\n  padding: 0 0.1rem;\n  vertical-align: middle;\n  background: #f2f2f5;\n}\n.c-message__image_wrapper {\n  display: block;\n  position: relative;\n  overflow: hidden;\n  border-radius: 3px;\n}\n.c-message__image_description {\n  margin-bottom: 8px;\n  color: #A0A0A2;\n}\n.c-message:hover .c-message__image_description {\n  color: #717274;\n}\n.c-message__image_caret {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n}\n.c-message__image_caret:hover,\n.c-message__image_caret:focus,\n.c-message__image_caret:active {\n  outline: none;\n}\n.c-message__file_link {\n  font-weight: 700;\n}\n.c-message__file_meta {\n  line-height: 1.4;\n  color: #A0A0A2;\n}\n.c-message:hover .c-message__file_meta {\n  color: #717274;\n}\n.c-message__body--comment {\n  position: relative;\n}\n.c-message__body--comment:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  content: '\\E516';\n  position: absolute;\n  left: -28px;\n  top: -4px;\n  color: #E8E8E8;\n}\n", ""]);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".c-message_list {\n  border-right: 0.25rem solid transparent;\n  overflow-y: scroll;\n  overflow-x: hidden;\n  height: 100%;\n}\n.c-message_list::-webkit-scrollbar {\n  position: absolute;\n  -webkit-appearance: none;\n  width: 8px;\n}\n.c-message_list::-webkit-scrollbar-track,\n.c-message_list::-webkit-scrollbar-thumb {\n  background-clip: padding-box !important;\n  border-radius: 3px;\n  color: #FFFFFF;\n}\n.c-message_list::-webkit-scrollbar-track {\n  background: #F5F5F5;\n  box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0;\n}\n.c-message_list::-webkit-scrollbar-thumb {\n  background: #D9D9DE;\n  box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;\n  min-height: 36px;\n}\n.c-message_list::-webkit-scrollbar-corner {\n  background: #FFFFFF;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".c-message_list {\n  border-right: 0.25rem solid transparent;\n  overflow-y: scroll;\n  overflow-x: hidden;\n  height: 100%;\n}\n.c-message_list::-webkit-scrollbar {\n  position: absolute;\n  -webkit-appearance: none;\n  width: 8px;\n}\n.c-message_list::-webkit-scrollbar-track,\n.c-message_list::-webkit-scrollbar-thumb {\n  background-clip: padding-box !important;\n  border-radius: 3px;\n  color: #FFFFFF;\n}\n.c-message_list::-webkit-scrollbar-track {\n  background: #F5F5F5;\n  box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0;\n}\n.c-message_list::-webkit-scrollbar-thumb {\n  background: #D9D9DE;\n  box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;\n  min-height: 36px;\n}\n.c-message_list::-webkit-scrollbar-corner {\n  background: #FFFFFF;\n}\n.c-message_list__unread_divider {\n  position: relative;\n  z-index: 97;\n}\n.c-message_list__unread_divider__separator {\n  border-bottom: none;\n  border-color: rgba(255, 135, 109, 0.5);\n  margin: 0 18px -1px 0;\n  -webkit-transition: border 150ms ease-out 0;\n  -moz-transition: border 150ms ease-out 0;\n  transition: border 150ms ease-out 0;\n}\n.c-message_list__unread_divider__label {\n  background: #FFF;\n  border-radius: 7px;\n  color: rgba(255, 135, 109, 0.5);\n  cursor: default;\n  float: right;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 13px;\n  font-weight: bold;\n  line-height: 8px;\n  margin: -5px 11px -5px 0;\n  padding: 0 5px 3px 5px;\n  text-transform: lowercase;\n  -webkit-transition: color 150ms ease-out 0;\n  -moz-transition: color 150ms ease-out 0;\n  transition: color 150ms ease-out 0;\n}\n", ""]);
 }, function(e, t, n) {
   var r = n(3117);
   "string" == typeof r && (r = [
@@ -38204,7 +38250,8 @@ webpackJsonp([332], [, function(e, t, n) {
       return h({}, t, {
         channelId: r,
         type: n.i(c.getChannelType)(o),
-        timestamps: s
+        timestamps: s,
+        lastReadTs: a
       });
     },
     y = {
@@ -38306,7 +38353,8 @@ webpackJsonp([332], [, function(e, t, n) {
           return l.a.createElement(c.a, {
             channelId: this.props.channelId,
             timestamps: this.props.timestamps,
-            requestHistory: this.requestHistory
+            requestHistory: this.requestHistory,
+            lastReadTs: this.props.lastReadTs
           });
         }
       }]), t;
@@ -38315,12 +38363,14 @@ webpackJsonp([332], [, function(e, t, n) {
     channelId: l.a.PropTypes.string,
     type: l.a.PropTypes.oneOf(["channel", "group", "im", "mpim"]),
     timestamps: l.a.PropTypes.arrayOf(l.a.PropTypes.string),
-    fetchHistory: l.a.PropTypes.func
+    fetchHistory: l.a.PropTypes.func,
+    lastReadTs: l.a.PropTypes.string
   }, f.defaultProps = {
     channelId: null,
     type: "channel",
     timestamps: [],
-    fetchHistory: s.a.noop
+    fetchHistory: s.a.noop,
+    lastReadTs: null
   };
 }, , , , function(e, t, n) {
   "use strict";
@@ -38591,8 +38641,7 @@ webpackJsonp([332], [, function(e, t, n) {
                 style: {
                   top: l,
                   position: "absolute",
-                  width: e.props.width,
-                  overflow: "hidden"
+                  width: e.props.width
                 },
                 key: s,
                 onHeightChange: function(t) {
@@ -54416,4 +54465,24 @@ webpackJsonp([332], [, function(e, t, n) {
     return r ? "#" + r : t ? "#" + t : n ? "#unknown-channel" : "#deleted-channel";
   }
   t.a = r;
+}, function(e, t, n) {
+  "use strict";
+
+  function r() {
+    return i.a.createElement("div", {
+      className: "c-message_list__unread_divider"
+    }, i.a.createElement("hr", {
+      className: "c-message_list__unread_divider__separator",
+      role: "separator",
+      "aria-hidden": "true"
+    }), i.a.createElement("span", {
+      className: "c-message_list__unread_divider__label"
+    }, u("NEW MESSAGES")));
+  }
+  var o = n(2),
+    i = n.n(o),
+    a = n(3115),
+    s = n(2288),
+    u = s.a.ns("messages");
+  t.a = n.i(a.a)(r);
 }], [2905]);

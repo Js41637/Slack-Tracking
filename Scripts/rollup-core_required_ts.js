@@ -2361,9 +2361,9 @@ webpackJsonp([12, 328, 337, 329], {
           B ? _.set(TS, e, n) : TS.registerModule(e, n);
         },
         boot: function(t) {
-          I(t), n = new Promise(function(n) {
+          D(t), n = new Promise(function(n) {
             e = n;
-          }), TS.boot_data = t, TS.qs_args.js_path && (TS.boot_data.version_ts = "local_js"), TS.console.onStart(), TS.client && TS.client.setClientLoadWatchdogTimer(), TS.model.api_url = TS.boot_data.api_url, TS.model.async_api_url = TS.boot_data.async_api_url, TS.model.api_token = TS.boot_data.api_token, TS.model.webhook_url = TS.boot_data.webhook_url, TS.boot_data.page_needs_enterprise && (TS.model.enterprise_api_token = TS.boot_data.enterprise_api_token), TS.info("booted! pri:" + TS.pri + " version:" + TS.boot_data.version_ts + " start_ms:" + TS.boot_data.start_ms + " (" + (Date.now() - TS.boot_data.start_ms) + "ms ago)"), TS.web && TS.web.space && TS.web.space.showFastPreview(), $(document).ready(z);
+          }), TS.boot_data = t, TS.qs_args.js_path && (TS.boot_data.version_ts = "local_js"), TS.console.onStart(), TS.client && TS.client.setClientLoadWatchdogTimer(), TS.model.api_url = TS.boot_data.api_url, TS.model.async_api_url = TS.boot_data.async_api_url, TS.model.api_token = TS.boot_data.api_token, TS.model.webhook_url = TS.boot_data.webhook_url, TS.boot_data.page_needs_enterprise && (TS.model.enterprise_api_token = TS.boot_data.enterprise_api_token), TS.info("booted! pri:" + TS.pri + " version:" + TS.boot_data.version_ts + " start_ms:" + TS.boot_data.start_ms + " (" + (Date.now() - TS.boot_data.start_ms) + "ms ago)"), TS.web && TS.web.space && TS.web.space.showFastPreview(), $(document).ready(q);
         },
         useRedux: function() {
           return !!TS.boot_data.feature_enable_redux_for_non_client || !!TS.client;
@@ -2378,36 +2378,36 @@ webpackJsonp([12, 328, 337, 329], {
           return !(!TS.boot_data.should_use_flannel && !TS.boot_data.feature_lazy_load_members_and_bots_everywhere);
         },
         useSocket: function() {
-          return J();
+          return Y();
         },
         useSocketManager: function() {
-          return "experiment" === TS.boot_data.ws_refactor_bucket;
+          return !!TS.useSocket() && (!!TS.lazyLoadMembersAndBots() && "experiment" === TS.boot_data.ws_refactor_bucket);
         },
         getSocketStartArgs: function() {
           return p();
         },
         registerModule: function(e, n, t) {
-          return V(n), B ? TS.error('module "' + e + '" must be registered on before dom ready') : P[e] ? TS.error('module "' + e + '" already exists') : void 0 === s(e, n, "module") ? void(t ? TS.error('module "' + e + '" cannot be registered after delay; "' + e.split(".").slice(0, -1).join(".") + '" is not registered') : U[e] = n) : (n._name = e, void(P[e] = n));
+          return K(n), B ? TS.error('module "' + e + '" must be registered on before dom ready') : R[e] ? TS.error('module "' + e + '" already exists') : void 0 === s(e, n, "module") ? void(t ? TS.error('module "' + e + '" cannot be registered after delay; "' + e.split(".").slice(0, -1).join(".") + '" is not registered') : z[e] = n) : (n._name = e, void(R[e] = n));
         },
         registerComponent: function(e, n) {
           if (B) return TS.error('component "' + e + '" must be registered on before dom ready');
-          if (D[e]) return TS.error('component "' + e + '" already exists');
+          if (W[e]) return TS.error('component "' + e + '" already exists');
           if ("function" == typeof n && (n = n()), "function" != typeof n.destroy) return TS.error('component "' + e + '" cannot be registered as it does not have a destroy method');
           var t = function n() {
             this._constructor && this._constructor.apply(this, arguments), this.id || (this.id = e + "_auto_guid_" + i, i += 1), this.test && u() ? this.test = void 0 : "function" == typeof this.test && (this.test = this.test()), n._add(this.id, this);
           };
-          if (void 0 === s(e, t, "component")) return void(R[e] = n);
+          if (void 0 === s(e, t, "component")) return void(N[e] = n);
           var o = n.destroy;
           n.destroy = function() {
             t._remove(this.id), o.call(this);
-          }, t.prototype = Object.create(n), t.instances = {}, t._name = e, D[e] = t, t._add = function(n, t) {
-            D[e].instances[n] && TS.warn("A " + e + " component with the instance id " + n + "already exists"), D[e].instances[n] = t;
+          }, t.prototype = Object.create(n), t.instances = {}, t._name = e, W[e] = t, t._add = function(n, t) {
+            W[e].instances[n] && TS.warn("A " + e + " component with the instance id " + n + "already exists"), W[e].instances[n] = t;
           }, t._remove = function(n) {
-            D[e].instances[n] = null;
+            W[e].instances[n] = null;
           }, t.get = function(n) {
-            return D[e].instances[n];
+            return W[e].instances[n];
           }, t.getAll = function() {
-            return D[e].instances;
+            return W[e].instances;
           };
         },
         makeLogDate: function() {
@@ -2490,13 +2490,13 @@ webpackJsonp([12, 328, 337, 329], {
         },
         test: function() {
           var e = {
-            _registerDelayedComponentsAndModules: N,
-            _maybeOpenTokenlessConnection: Q,
+            _registerDelayedComponentsAndModules: Z,
+            _maybeOpenTokenlessConnection: ee,
             _deleteModule: function(e) {
-              delete TS[e], delete P[e];
+              delete TS[e], delete R[e];
             },
             _deleteComponent: function(e) {
-              delete TS[e], delete D[e];
+              delete TS[e], delete W[e];
             }
           };
           return Object.defineProperty(e, "_getMSLoginArgs", {
@@ -2508,17 +2508,17 @@ webpackJsonp([12, 328, 337, 329], {
             }
           }), Object.defineProperty(e, "_shouldConnectToMS", {
             get: function() {
-              return J;
+              return Y;
             },
             set: function(e) {
-              J = e;
+              Y = e;
             }
           }), Object.defineProperty(e, "_maybeStartPerfTrace", {
             get: function() {
-              return K;
+              return X;
             },
             set: function(e) {
-              K = e;
+              X = e;
             }
           }), e;
         }
@@ -2570,9 +2570,9 @@ webpackJsonp([12, 328, 337, 329], {
             simple_latest: !0,
             no_unreads: !0
           };
-          if (!TS.pri || e.cache_ts && 0 != parseInt(e.cache_ts, 10) && !isNaN(e.cache_ts) || TS.has_pri[te] && TS.log(te, "_getMSLoginArgs(): login_args.cache_ts is 0/undefined?", e), TS.lazyLoadMembersAndBots() ? (e.no_users = !0, e.no_bots = !0, e.cache_ts = 0, TS.membership && TS.membership.lazyLoadChannelMembership() && (e.no_members = 1)) : TS.boot_data.page_needs_just_me ? (TS.storage.disableMemberBotCache(), e.just_me = !0, e.no_members = !0) : e.cache_ts = c || TS.storage.fetchLastCacheTS(), TS.web && (TS.boot_data.page_needs_state || TS.boot_data.page_has_ms || TS.lazyLoadMembersAndBots() ? e.no_presence = !0 : e.no_state = !0), TS.calls && (e.no_bots = !0, e.no_subteams = !0), e.presence_sub = !0, e.mpim_aware = !0, TS.boot_data.page_needs_all_ims || (e.only_relevant_ims = !0), TS.boot_data.feature_name_tagging_client && (e.name_tagging = !0), e.canonical_avatars = !0, e.eac_cache_ts = !0, TS.boot_data.feature_ms_latest && (e.ms_latest = !0), TS.lazyLoadMembersAndBots())
-            for (var n in TS.qs_args) n.indexOf(!1) && (TS.has_pri[X] && TS.log(X, "Flannel: Appending " + n + " (" + TS.qs_args[n] + ") to login_args"), e[n] = TS.qs_args[n]);
-          return TS.lazyLoadMembersAndBots() && TS.has_pri[X] && TS.log(X, "Flannel: MS login args:", e), e;
+          if (!TS.pri || e.cache_ts && 0 != parseInt(e.cache_ts, 10) && !isNaN(e.cache_ts) || TS.has_pri[ie] && TS.log(ie, "_getMSLoginArgs(): login_args.cache_ts is 0/undefined?", e), TS.lazyLoadMembersAndBots() ? (e.no_users = !0, e.no_bots = !0, e.cache_ts = 0, TS.membership && TS.membership.lazyLoadChannelMembership() && (e.no_members = 1)) : TS.boot_data.page_needs_just_me ? (TS.storage.disableMemberBotCache(), e.just_me = !0, e.no_members = !0) : e.cache_ts = c || TS.storage.fetchLastCacheTS(), TS.web && (TS.boot_data.page_needs_state || TS.boot_data.page_has_ms || TS.lazyLoadMembersAndBots() ? e.no_presence = !0 : e.no_state = !0), TS.calls && (e.no_bots = !0, e.no_subteams = !0), e.presence_sub = !0, e.mpim_aware = !0, TS.boot_data.page_needs_all_ims || (e.only_relevant_ims = !0), TS.boot_data.feature_name_tagging_client && (e.name_tagging = !0), e.canonical_avatars = !0, e.eac_cache_ts = !0, TS.boot_data.feature_ms_latest && (e.ms_latest = !0), TS.lazyLoadMembersAndBots())
+            for (var n in TS.qs_args) n.indexOf(!1) && (TS.has_pri[te] && TS.log(te, "Flannel: Appending " + n + " (" + TS.qs_args[n] + ") to login_args"), e[n] = TS.qs_args[n]);
+          return TS.lazyLoadMembersAndBots() && TS.has_pri[te] && TS.log(te, "Flannel: MS login args:", e), e;
         },
         T = function() {
           var e = TS.incremental_boot && TS.incremental_boot.shouldIncrementalBoot(),
@@ -2587,6 +2587,10 @@ webpackJsonp([12, 328, 337, 329], {
           });
         },
         b = function e() {
+          if (TS.useSocketManager() && !TS.interop.SocketManager.hasNeverConnected()) {
+            var n = new Error("_promiseToCallRTMStart can only be called if Socket Manager has never connected");
+            return TS.console.logError(n, "_promiseToCallRTMStart called too many times"), Promise.reject(n);
+          }
           if (TS.qs_args.no_rtm_start) return new Promise(function(n, t) {
             TS.resumeRTMStart = function() {
               delete TS.resumeRTMStart, delete TS.qs_args.no_rtm_start, e().then(function(e) {
@@ -2594,29 +2598,34 @@ webpackJsonp([12, 328, 337, 329], {
               }).catch(t);
             };
           });
-          if (l) return TS.info("Want to call rtm.start, but will wait " + l + " ms first"), new Promise(function(n) {
+          if (!TS.useSocketManager() && l) return TS.info("Want to call rtm.start, but will wait " + l + " ms first"), new Promise(function(n) {
             setTimeout(function() {
               TS.info("OK, now calling rtm.start, having waited for delay"), l = void 0, n(e());
             }, l);
           });
           if (TS.boot_data.rtm_start_response) {
-            var n = TS.boot_data.rtm_start_response;
-            return delete TS.boot_data.rtm_start_response, Promise.resolve(n);
+            var t = TS.boot_data.rtm_start_response;
+            return delete TS.boot_data.rtm_start_response, Promise.resolve(t);
           }
-          if (TS.model.calling_rtm_start) {
-            var t = "_promiseToCallRTMStart was called but TS.model.calling_rtm_start=true";
-            return TS.error(t), Promise.reject(new Error(t));
-          }
-          if (TS.useSocketManager() || TS.ms.logConnectionFlow("login"), TS.model.rtm_start_throttler += 1, TS.info("Setting calling_rtm_start to true"), TS.model.calling_rtm_start = !0, TS.useSocket() && TS.lazyLoadMembersAndBots() && TS.boot_data.should_use_flannel) {
-            if (!d) {
-              if (TS.model.ms_connected) return TS.has_pri[X] && TS.log(X, "Bad news: we're trying to do an rtm.start from Flannel while we're already connected, and that won't work."), Promise.reject(new Error("rtm.start-over-WebSocket failed"));
-              d = K().then(function() {
-                return TS.flannel.connectAndFetchRtmStart();
-              });
+          if (!TS.useSocketManager()) {
+            if (TS.model.calling_rtm_start) {
+              var o = "_promiseToCallRTMStart was called but TS.model.calling_rtm_start=true";
+              return TS.error(o), Promise.reject(new Error(o));
             }
-            var o = d;
-            return d = void 0, o.then(function(e) {
-              return TS.has_pri[X] && TS.log(X, "Flannel: got rtm.start response 💕"), {
+            TS.ms.logConnectionFlow("login"), TS.model.rtm_start_throttler += 1, TS.info("Setting calling_rtm_start to true"), TS.model.calling_rtm_start = !0;
+          }
+          if (TS.useSocket() && TS.lazyLoadMembersAndBots() && TS.boot_data.should_use_flannel) {
+            var a;
+            if (TS.useSocketManager()) a = L();
+            else {
+              if (!d && !TS.useSocketManager()) {
+                if (TS.model.ms_connected) return TS.has_pri[te] && TS.log(te, "Bad news: we're trying to do an rtm.start from Flannel while we're already connected, and that won't work."), Promise.reject(new Error("rtm.start-over-WebSocket failed"));
+                d = X().then(I);
+              }
+              a = d, d = void 0;
+            }
+            return a.then(function(e) {
+              return TS.has_pri[te] && TS.log(te, "Flannel: got rtm.start response 💕"), {
                 ok: !0,
                 args: {},
                 data: e
@@ -2635,7 +2644,7 @@ webpackJsonp([12, 328, 337, 329], {
           if ("clear_cache" === n || "org_login_required" === n || "team_added_to_org" === n) {
             return TS.storage.flush(!0), void TS.reload(null, "TS.storage.flush() and TS.reload() because resp.data.error: " + n);
           }
-          "ratelimited" === n && oe(), TS.useSocketManager() || TS.ms.logConnectionFlow("on_login_failure"), TS.useSocketManager() || TS.ms.onFailure("rtm.start call failed with error: " + (n || "no error on resp.data"));
+          "ratelimited" === n && re(), TS.useSocketManager() || TS.ms.logConnectionFlow("on_login_failure"), TS.useSocketManager() || TS.ms.onFailure("rtm.start call failed with error: " + (n || "no error on resp.data"));
           var t = parseInt(_.get(e, "data.retry_after"), 10);
           return TS.info("rtm.start failed; retry_after = " + t), l = 1e3 * _.clamp(t, 5, 60), null;
         },
@@ -2646,7 +2655,7 @@ webpackJsonp([12, 328, 337, 329], {
             };
             TS.useSocketManager() ? TS.interop.SocketManager.connectedSig.addOnce(t) : TS.ms.connected_sig.addOnce(t);
           }
-          if (!TS.client || !TS.reloadIfVersionsChanged(n.data)) return n.data.self ? n.data.team ? (TS.useSocketManager() || TS.ms.logConnectionFlow("on_login"), TS.boot_data.feature_tinyspeck && TS.info("BOOT: Setting up model"), Z(n.data, n.args).then(function() {
+          if (!TS.client || !TS.reloadIfVersionsChanged(n.data)) return n.data.self ? n.data.team ? (TS.useSocketManager() || TS.ms.logConnectionFlow("on_login"), TS.boot_data.feature_tinyspeck && TS.info("BOOT: Setting up model"), H(n.data, n.args).then(function() {
             return TS.boot_data.feature_tinyspeck && TS.info("BOOT: Model did set up; setting up apps"), TS.apps.setUp(), TS.boot_data.feature_tinyspeck && TS.info("BOOT: Setting up commands"), TS.cmd_handlers.setUpCmds(), TS.boot_data.feature_tinyspeck && TS.info("BOOT: Setting up UI"), k(), TS.boot_data.feature_tinyspeck && TS.info("BOOT: Finding initial channel"), A(), TS.boot_data.feature_tinyspeck && TS.info("BOOT: Setting up emoji and shared channels"), Promise.join(TS.emoji.setUpEmoji().catch(function() {
               TS.boot_data.feature_tinyspeck && TS.info("BOOT: Setting up emoji failed, trying to move forward anyway...");
             }), y());
@@ -2695,13 +2704,13 @@ webpackJsonp([12, 328, 337, 329], {
         },
         M = function(e) {
           if (TS.lazyLoadMembersAndBots()) {
-            if (!e.length) return void(TS.has_pri[X] && TS.log(X, "No need to re-fetch any members for presence status"));
-            TS.has_pri[X] && TS.log(X, "Re-fetching " + e.length + " members so we have presence status"), TS.flannel.fetchAndUpsertObjectsByIds(e);
+            if (!e.length) return void(TS.has_pri[te] && TS.log(te, "No need to re-fetch any members for presence status"));
+            TS.has_pri[te] && TS.log(te, "Re-fetching " + e.length + " members so we have presence status"), TS.flannel.fetchAndUpsertObjectsByIds(e);
           }
         },
         x = function() {
           if (TS.isPartiallyBooted()) return void(TS.boot_data.feature_tinyspeck && TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS not connecting to MS until we complete incremental boot"));
-          if (!J()) return void(TS.boot_data.feature_tinyspeck && TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS will not connect to MS"));
+          if (!Y()) return void(TS.boot_data.feature_tinyspeck && TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS will not connect to MS"));
           if (TS.boot_data.feature_tinyspeck && TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS wants to connect to MS"), TS.useSocketManager())
             if (TS.interop.SocketManager.isProvisionallyConnected()) {
               TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS will finalize SocketManager");
@@ -2713,7 +2722,7 @@ webpackJsonp([12, 328, 337, 329], {
             } else TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS wanted to finalize SocketManager but it had no connection; making a new one"), TS.interop.SocketManager.connectProvisionallyAndFetchRtmStart().catch(function(e) {
               TS.log("BOOT: _maybeFinalizeOrOpenConnectionToMS failed to make a new connection"), TS.error(e);
             });
-          else TS.ms.hasProvisionalConnection() && TS.ms.finalizeProvisionalConnection() ? (TS.boot_data.feature_tinyspeck && TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS finalized MS connection"), TS.has_pri[ee] && TS.log(ee, "Successfully finalized a provisional MS connection")) : (TS.boot_data.feature_tinyspeck && TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS made a new MS connection"), TS.has_pri[ee] && TS.log(ee, "No valid provisional MS connection; making a new connection"), TS.ms.connectImmediately(TS.model.team.url || TS.boot_data.ms_connect_url));
+          else TS.ms.hasProvisionalConnection() && TS.ms.finalizeProvisionalConnection() ? (TS.boot_data.feature_tinyspeck && TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS finalized MS connection"), TS.has_pri[oe] && TS.log(oe, "Successfully finalized a provisional MS connection")) : (TS.boot_data.feature_tinyspeck && TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS made a new MS connection"), TS.has_pri[oe] && TS.log(oe, "No valid provisional MS connection; making a new connection"), TS.ms.connectImmediately(TS.model.team.url || TS.boot_data.ms_connect_url));
           TS.boot_data.feature_tinyspeck && TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS did connect to MS");
         },
         C = function() {
@@ -2738,20 +2747,55 @@ webpackJsonp([12, 328, 337, 329], {
         e && (TS.has_pri[e] = !0);
       });
       var O, B = !1,
-        F = function(e) {
-          TS.client && TSSSB.call("didStartLoading", 6e4), J() && (TS.useSocketManager() ? (TS.interop.SocketManager.disconnectedSig.add(C), TS.interop.SocketManager.connectedSig.addOnce(function() {
+        F = function() {
+          TS.interop.SocketManager.disconnectedSig.add(C), TS.interop.SocketManager.connectedSig.addOnce(function() {
             TS.interop.SocketManager.provisionallyConnectedSig.add(function(e) {
               e.then(function(e) {
-                v({
-                  ok: !0,
-                  args: {},
-                  data: e.rtm_start
+                TS.info("Got start data from Socket Manager; hydrating it");
+                var n = e.rtm_start;
+                TS.flannel.hydrateStartData(n).then(function(e) {
+                  TS.info("Successfully hydrated start data from Socket Manager; processing it"), v({
+                    ok: !0,
+                    args: {},
+                    data: e
+                  });
+                }).catch(function(e) {
+                  TS.warn("Error while hydrating start data from Socket Manager; passing non-hydrated version on since it is better than nothing"), TS.logError(e), v({
+                    ok: !0,
+                    args: {},
+                    data: n
+                  });
                 });
               });
             });
-          })) : (TS.ms.reconnect_requested_sig.add(g), TS.ms.disconnected_sig.add(C))), q(), B = !0, TS.model.is_our_app && Y(), TS.ui.setUpWindowUnloadHandlers(), "client" === TS.boot_data.app ? TS.client.gogogo() : "web" !== TS.boot_data.app && "space" !== TS.boot_data.app && "calls" !== TS.boot_data.app || TS.web.gogogo(), TS.boot_data.no_login ? (TS.info("running without a user"), TS.web && TS.web.no_login_complete_sig.dispatch()) : e ? v(e) : TS.error("_initialDataFetchesComplete expected to receive rtm.start data; we cannot continue.");
+          });
         },
         L = function() {
+          if (!TS.useSocketManager()) throw new Error("_connectAndFetchStartDataWithSocketManager can only be used when TS.useSocketManager is true");
+          var e = new Promise(function(e) {
+            TS.interop.SocketManager.provisionallyConnectedSig.addOnce(function(n) {
+              n.then(function(n) {
+                var t = n.rtm_start;
+                TS.flannel.hydrateStartData(t).then(e);
+              });
+            });
+          });
+          return TS.interop.SocketManager.connectProvisionallyAndFetchRtmStart(), e;
+        },
+        I = function() {
+          if (TS.useSocketManager()) throw new Error("_connectAndFetchStartDataWithoutSocketManager can only be used when TS.useSocketManager is false");
+          TS.log(1996, "Opening a tokenless MS connection and fetching rtm.start over it");
+          var e = TS.flannel.getFlannelConnectionUrl(),
+            n = TS.ms.connectProvisionallyAndFetchRtmStart(e);
+          if (!n) throw new Error("TS.ms.connect did not return an rtm.start promise");
+          return n.then(function(e) {
+            return TS.flannel.hydrateStartData(e.rtm_start);
+          });
+        },
+        P = function(e) {
+          TS.client && TSSSB.call("didStartLoading", 6e4), Y() && (TS.useSocketManager() ? F() : (TS.ms.reconnect_requested_sig.add(g), TS.ms.disconnected_sig.add(C))), V(), B = !0, TS.model.is_our_app && ne(), TS.ui.setUpWindowUnloadHandlers(), "client" === TS.boot_data.app ? TS.client.gogogo() : "web" !== TS.boot_data.app && "space" !== TS.boot_data.app && "calls" !== TS.boot_data.app || TS.web.gogogo(), TS.boot_data.no_login ? (TS.info("running without a user"), TS.web && TS.web.no_login_complete_sig.dispatch()) : e ? v(e) : TS.error("_initialDataFetchesComplete expected to receive rtm.start data; we cannot continue.");
+        },
+        U = function() {
           if (window.sessionStorage) try {
             var e = TS.client ? "session_load_count_client" : "session_load_count_web",
               n = parseInt(sessionStorage.getItem(e) || 0, 10) + 1;
@@ -2762,7 +2806,7 @@ webpackJsonp([12, 328, 337, 329], {
             TS.warn("could not log session load count: " + e);
           }
         },
-        I = function(e) {
+        D = function(e) {
           Promise.config({
             longStackTraces: "dev" === e.version_ts || TS.qs_args.js_path,
             warnings: {
@@ -2771,14 +2815,18 @@ webpackJsonp([12, 328, 337, 329], {
             cancellation: !0
           });
         },
-        P = {},
-        U = {},
-        D = {},
         R = {},
-        z = function() {
+        z = {},
+        W = {},
+        N = {},
+        q = function() {
           if (TS.info("_onDOMReady"), setTimeout(function() {
               TS.model.is_our_app && (TS.environment.isSSBAndAtLeastVersion("2.6") || r || (TSSSB.call("didFinishLoading"), r = !0, TS.metrics.count("fake_call_did_finish_loading_for_older_SSBs")));
-            }, 7e4), L(), Q(), (TS.model.is_chrome_desktop || TS.model.is_FF || TS.model.is_safari_desktop) && TS.storage.do_compression ? TS.model.supports_user_bot_caching = !0 : TS.model.win_ssb_version || TS.model.lin_ssb_version ? TS.model.supports_user_bot_caching = !0 : TS.model.mac_ssb_version && (1.1 == TS.model.mac_ssb_version && TS.model.mac_ssb_version_minor >= 4 ? TS.model.supports_user_bot_caching = !0 : TS.model.mac_ssb_version >= 2 && (TS.model.mac_ssb_version_minor > 0 || TS.model.mac_ssb_build >= 7398) ? TS.model.supports_user_bot_caching = !0 : TS.model.is_electron && (TS.model.supports_user_bot_caching = !0)), TS.model.supports_user_bot_caching && TS.boot_data.feature_name_tagging_client && TS.storage.disableMemberBotCache(), TS.model.supports_user_bot_caching && TS.boot_data.feature_omit_localstorage_users_bots && (TS.warn("Calling TS.storage.disableMemberBotCache() because feature_omit_localstorage_users_bots"), TS.storage.disableMemberBotCache()), (window.macgap && macgap.downloads || window.winssb && winssb.downloads) && (TS.model.supports_downloads = !0, TS.model.flex_names.push("downloads")), TS.client && window.WEB_SOCKET_USING_FLASH_BUT_NO_FLASH) return TS.info("WEB_SOCKET_USING_FLASH_BUT_NO_FLASH"), $("#loading_animation").addClass("hidden"), void $("#no_ws_and_bad_flash").css("display", "inline");
+            }, 7e4), U(), TS.qs_args.ws_flakiness) try {
+            var e = parseFloat(TS.qs_args.ws_flakiness);
+            TS.interop.SocketManager.debugSetSocketConnectFlakiness(e);
+          } catch (e) {}
+          if (ee(), (TS.model.is_chrome_desktop || TS.model.is_FF || TS.model.is_safari_desktop) && TS.storage.do_compression ? TS.model.supports_user_bot_caching = !0 : TS.model.win_ssb_version || TS.model.lin_ssb_version ? TS.model.supports_user_bot_caching = !0 : TS.model.mac_ssb_version && (1.1 == TS.model.mac_ssb_version && TS.model.mac_ssb_version_minor >= 4 ? TS.model.supports_user_bot_caching = !0 : TS.model.mac_ssb_version >= 2 && (TS.model.mac_ssb_version_minor > 0 || TS.model.mac_ssb_build >= 7398) ? TS.model.supports_user_bot_caching = !0 : TS.model.is_electron && (TS.model.supports_user_bot_caching = !0)), TS.model.supports_user_bot_caching && TS.boot_data.feature_name_tagging_client && TS.storage.disableMemberBotCache(), TS.model.supports_user_bot_caching && TS.boot_data.feature_omit_localstorage_users_bots && (TS.warn("Calling TS.storage.disableMemberBotCache() because feature_omit_localstorage_users_bots"), TS.storage.disableMemberBotCache()), (window.macgap && macgap.downloads || window.winssb && winssb.downloads) && (TS.model.supports_downloads = !0, TS.model.flex_names.push("downloads")), TS.client && window.WEB_SOCKET_USING_FLASH_BUT_NO_FLASH) return TS.info("WEB_SOCKET_USING_FLASH_BUT_NO_FLASH"), $("#loading_animation").addClass("hidden"), void $("#no_ws_and_bad_flash").css("display", "inline");
           TS.client ? TSSSB.call("didStartLoading", 3e4) : TS.info("no TS.client on page:" + document.location.href), TS.api.paused_sig.add(function(e) {
             TS.boot_data.feature_tinyspeck && TS.api.debugShowQueue(), TS.client ? TS.client.apiPaused(e) : TS.web.apiPaused(e);
           }), TS.api.unpaused_sig.add(function() {
@@ -2786,14 +2834,14 @@ webpackJsonp([12, 328, 337, 329], {
           }), soundManager.ignoreFlash = !0, soundManager.setup({
             url: "/img/sm/",
             debugMode: !1
-          }), TS.storage.onStart(), N();
-          var e = TS.boot_data.no_login ? Promise.resolve() : T(),
-            n = [W(), e];
-          TS.boot_data.page_needs_enterprise && !TS.boot_data.no_login && n.push(TS.enterprise.promiseToEnsureEnterprise()), TS.web && TS.boot_data.page_needs_team_profile_fields && n.push(TS.team.ensureTeamProfileFields()), Promise.all(n).then(function() {
-            return e.then(F), null;
+          }), TS.storage.onStart(), Z();
+          var n = TS.boot_data.no_login ? Promise.resolve() : T(),
+            t = [G(), n];
+          TS.boot_data.page_needs_enterprise && !TS.boot_data.no_login && t.push(TS.enterprise.promiseToEnsureEnterprise()), TS.web && TS.boot_data.page_needs_team_profile_fields && t.push(TS.team.ensureTeamProfileFields()), Promise.all(t).then(function() {
+            return n.then(P), null;
           });
         },
-        W = function() {
+        G = function() {
           function e() {
             return o += 1, new Promise(function(n) {
               if (window.TS && TS.raw_templates && Object.keys(TS.raw_templates).length > 0) return void n();
@@ -2814,14 +2862,14 @@ webpackJsonp([12, 328, 337, 329], {
           var o = 0;
           return e();
         },
-        N = function() {
-          _.sortBy(Object.keys(U), "length").forEach(function(e) {
-            TS.registerModule(e, U[e], !0);
-          }), _.sortBy(Object.keys(R), "length").forEach(function(e) {
-            TS.registerComponent(e, R[e], !0);
+        Z = function() {
+          _.sortBy(Object.keys(z), "length").forEach(function(e) {
+            TS.registerModule(e, z[e], !0);
+          }), _.sortBy(Object.keys(N), "length").forEach(function(e) {
+            TS.registerComponent(e, N[e], !0);
           });
         },
-        q = function() {
+        V = function() {
           if (TS.log(Date.now() - TS.boot_data.start_ms + "ms from first html to calling onStarts()"), "client" === TS.boot_data.app) TS.client.onStart(), TS.client.onStart = _.noop;
           else if ("web" === TS.boot_data.app || "space" === TS.boot_data.app || "calls" === TS.boot_data.app) TS.web.onStart(), TS.web.onStart = _.noop;
           else {
@@ -2830,15 +2878,15 @@ webpackJsonp([12, 328, 337, 329], {
           }
           var e, n = !TS.qs_args.keep_onstart;
           try {
-            _.forOwn(P, function(t) {
+            _.forOwn(R, function(t) {
               t.onStart && (e = t._name, t.onStart(), n && (t.onStart = _.noop));
             });
           } catch (n) {
             throw TS.error("TS." + e + ".onStart encountered an error:"), TS.logError(n), window.TSBeacon && window.TSBeacon("call_onstarts_error", 1), n;
           }
-          n && (q = _.noop);
+          n && (V = _.noop);
         },
-        Z = function(e, n) {
+        H = function(e, n) {
           return TS.lazyLoadMembersAndBots() && (e.bots = e.bots || []), new Promise(function(t, o) {
             var a = !TS.model.ms_logged_in_once;
             if (TS.team.upsertTeam(e.team), TS.model.team.url = e.url, TS.boot_data.page_needs_enterprise && void 0 !== e.can_manage_shared_channels && (TS.model.team.prefs.can_user_manage_shared_channels = e.can_manage_shared_channels), TS.model.last_team_name || (TS.model.last_team_name = TS.model.team.name, TS.model.last_team_domain = TS.model.team.domain), TS.model.team.activity = [], TS.model.break_token && (TS.model.team.url += "f"), a) TS.model.rooms = [], TS.useRedux() || (TS.model.channels = [], TS.model.groups = [], TS.model.mpims = [], TS.model.ims = []), TS.useRedux() && TS.boot_data.feature_store_members_in_redux || (TS.model.members = [], TS.model.bots = []), TS.model.teams = [], TS.model.user_groups = [], TS.model.read_only_channels = [], TS.boot_data.feature_default_shared_channels && (TS.model.threadable_channels = []), TS.model.online_users = [];
@@ -2880,14 +2928,14 @@ webpackJsonp([12, 328, 337, 329], {
               for (c = 0; c < p.length; c += 1) b[p[c].id] = !0;
             else;
             var w = TS.boot_data.page_needs_enterprise && TS.boot_data.exclude_org_members;
-            for (c = 0; c < h.length; c += 1) u = h[c], w && !TS.members.isLocalTeamMember(u) || b[u.id] || (e.online_users && (u.presence = _.includes(e.online_users, u.id) ? "active" : "away"), _.get(u, "profile.always_active") && (u.presence = "active"), d = TS.members.upsertAndSignal(u), TS.has_pri[ne] && TS.log(ne, "upsert from CACHE: " + u.id + " " + d.status), d.member.id == e.self.id && g(d.member));
-            for (c = 0; c < p.length; c += 1) u = p[c], w && !TS.members.isLocalTeamMember(u) || (TS.lazyLoadMembersAndBots() ? u.presence = _.has(u, "presence") && "active" === u.presence ? "active" : "away" : e.online_users && (u.presence = _.includes(e.online_users, u.id) ? "active" : "away"), _.get(u, "profile.always_active") && (u.presence = "active"), d = TS.members.upsertAndSignal(u), TS.has_pri[ne] && TS.log(ne, "upsert from DATA: " + u.id + " " + d.status), d.member.id == e.self.id && g(d.member));
+            for (c = 0; c < h.length; c += 1) u = h[c], w && !TS.members.isLocalTeamMember(u) || b[u.id] || (e.online_users && (u.presence = _.includes(e.online_users, u.id) ? "active" : "away"), _.get(u, "profile.always_active") && (u.presence = "active"), d = TS.members.upsertAndSignal(u), TS.has_pri[ae] && TS.log(ae, "upsert from CACHE: " + u.id + " " + d.status), d.member.id == e.self.id && g(d.member));
+            for (c = 0; c < p.length; c += 1) u = p[c], w && !TS.members.isLocalTeamMember(u) || (TS.lazyLoadMembersAndBots() ? u.presence = _.has(u, "presence") && "active" === u.presence ? "active" : "away" : e.online_users && (u.presence = _.includes(e.online_users, u.id) ? "active" : "away"), _.get(u, "profile.always_active") && (u.presence = "active"), d = TS.members.upsertAndSignal(u), TS.has_pri[ae] && TS.log(ae, "upsert from DATA: " + u.id + " " + d.status), d.member.id == e.self.id && g(d.member));
             var v = TS.storage.fetchBots(),
               y = {};
             for (c = 0; c < T.length; c += 1) y[T[c].id] = !0;
             for (c = 0; c < v.length; c += 1) m = v[c], y[m.id] || (d = TS.bots.upsertAndSignal(m));
             for (c = 0; c < T.length; c += 1) TS.bots.upsertAndSignal(T[c]);
-            f.push("members from LS:" + h.length + ", from updated_users in rtm.start:" + p.length + " (slackbot will always be here)"), f.push("bots from LS:" + v.length + ", from updated_bots in rtm.start:" + T.length), p.length < TS.model.members.length / 20 && (TS.model.did_we_load_with_user_cache = !0), y = null, b = null, TS.info(f.join("\n")), TS.has_pri[ne] && (TS.dir(ne, h, "users_cache"), TS.dir(ne, v, "bots_cache"));
+            f.push("members from LS:" + h.length + ", from updated_users in rtm.start:" + p.length + " (slackbot will always be here)"), f.push("bots from LS:" + v.length + ", from updated_bots in rtm.start:" + T.length), p.length < TS.model.members.length / 20 && (TS.model.did_we_load_with_user_cache = !0), y = null, b = null, TS.info(f.join("\n")), TS.has_pri[ae] && (TS.dir(ae, h, "users_cache"), TS.dir(ae, v, "bots_cache"));
             var k = function(n) {
               if (TS._incremental_boot) return !0;
               if (TS.lazyLoadMembersAndBots()) return !0;
@@ -2909,9 +2957,9 @@ webpackJsonp([12, 328, 337, 329], {
               for (var i in t) TS.members.getMemberById(i) || a.push(i);
               return a.length ? (f.push("doAllMembersFromChannelsInRawDataExist() found (" + a.length + ") unknown members: " + a.join(", ")), !!TS.boot_data.page_needs_enterprise) : (f.push("doAllMembersFromChannelsInRawDataExist() confirmed all members"), !0);
             };
-            if (!TS.model.user) return G("no TS.model.user", f.join("\n")), void o(Error("called _onBadUserCache"));
+            if (!TS.model.user) return J("no TS.model.user", f.join("\n")), void o(Error("called _onBadUserCache"));
             if (!k()) {
-              if (parseInt(n.cache_ts, 10)) return G("!doAllMembersFromChannelsInRawDataExist()", f.join("\n")), void o(Error("called _onBadUserCache"));
+              if (parseInt(n.cache_ts, 10)) return J("!doAllMembersFromChannelsInRawDataExist()", f.join("\n")), void o(Error("called _onBadUserCache"));
               TS.logError({
                 message: f.join("\n")
               }, "doAllMembersFromChannelsInRawDataExist() failed");
@@ -2982,7 +3030,7 @@ webpackJsonp([12, 328, 337, 329], {
               var O = e.ims.concat(e.mpims || [], e.groups || []);
               return TS.members.ensureMembersArePresentInSharedModelObs(O).then(function() {
                 if (!k(!0)) {
-                  if (parseInt(n.cache_ts, 10)) return G("!doAllMembersFromChannelsInRawDataExist(with_shared=true)", f.join("\n")), void o(Error("called _onBadUserCache"));
+                  if (parseInt(n.cache_ts, 10)) return J("!doAllMembersFromChannelsInRawDataExist(with_shared=true)", f.join("\n")), void o(Error("called _onBadUserCache"));
                   TS.logError({
                     message: f.join("\n")
                   }, "doAllMembersFromChannelsInRawDataExist(with_shared=true) failed");
@@ -2995,10 +3043,10 @@ webpackJsonp([12, 328, 337, 329], {
             C(), t();
           });
         },
-        G = function(e) {
+        J = function(e) {
           TS.error("_onBadUserCache problem: " + e), TS.storage.cleanOutCacheTsStorage(), TS.model.had_bad_user_cache = !0, TS.useSocketManager() ? (TS.error("_onBadUserCache problem: " + e), TS.interop.SocketManager.disconnect()) : TS.ms.onFailure("_onBadUserCache problem: " + e);
         },
-        V = function(e) {
+        K = function(e) {
           if (e.test && !e.__esModule && u()) delete e.test;
           else if ("function" == typeof e.test) {
             var n = e.test;
@@ -3007,30 +3055,30 @@ webpackJsonp([12, 328, 337, 329], {
             });
           }
         };
-      V(TS);
-      var H, J = function() {
+      K(TS);
+      var Q, Y = function() {
           return !!(TS.client || TS.web && TS.boot_data.page_has_ms);
         },
-        K = function() {
+        X = function() {
           return TS.boot_data.feature_automated_perfectrics && TS.client ? TS.client.traces.maybeTrace(10, {
             reason: "automated"
           }) : Promise.resolve();
         },
-        Q = function() {
-          if (J() && TS.boot_data.ms_connect_url) {
-            if (TS.lazyLoadMembersAndBots()) return void(d = K().then(function() {
-              return TS.flannel.connectAndFetchRtmStart();
+        ee = function() {
+          if (Y() && !TS.useSocketManager() && TS.boot_data.ms_connect_url) {
+            if (TS.lazyLoadMembersAndBots()) return void(d = X().then(function() {
+              return I();
             }).catch(function() {
-              return TS.useSocketManager() ? TS.interop.SocketManager.disconnect() : TS.ms.disconnect(), TS.api.connection.waitForAPIConnection().then(function() {
-                return K();
+              return TS.ms.disconnect(), TS.api.connection.waitForAPIConnection().then(function() {
+                return X();
               }).then(function() {
-                return TS.flannel.connectAndFetchRtmStart();
+                return I();
               });
             }));
-            TS.has_pri[ee] && TS.log(ee, "Opening a tokenless MS connection"), TS.useSocketManager() ? TS.interop.SocketManager.connectProvisionallyAndFetchRtmStart() : TS.ms.connectProvisionally(TS.boot_data.ms_connect_url);
+            TS.has_pri[oe] && TS.log(oe, "Opening a tokenless MS connection"), TS.ms.connectProvisionally(TS.boot_data.ms_connect_url);
           }
         },
-        Y = function() {
+        ne = function() {
           var e = !1,
             n = function() {
               TS.info("sleep event!"), e = !0, TS.client && (TS.useSocketManager() ? TS.interop.SocketManager.sleep() : TS.ms.sleep()), TS.web && TS.web.space && TS.ds.sleep();
@@ -3040,16 +3088,16 @@ webpackJsonp([12, 328, 337, 329], {
             };
           window.addEventListener("sleep", n, !1), window.addEventListener("wake", t, !1);
         },
-        X = 1989,
-        ee = 1996,
-        ne = 481,
-        te = 488,
-        oe = function() {
-          if (!H) {
-            H = !0, TS.metrics.count("rate_limit_dialog_shown");
+        te = 1989,
+        oe = 1996,
+        ae = 481,
+        ie = 488,
+        re = function() {
+          if (!Q) {
+            Q = !0, TS.metrics.count("rate_limit_dialog_shown");
             var e = TS.generic_dialog.alert("Lots of your teammates are connecting to Slack right now, so it’s taking longer than usual. We’re really sorry about this, and we’ll have you online soon.", "Bear with us", "Dismiss"),
               n = function() {
-                e.isPending() && TS.generic_dialog.cancel(), H = !1;
+                e.isPending() && TS.generic_dialog.cancel(), Q = !1;
               };
             TS.useSocketManager() ? TS.interop.SocketManager.connectedSig.addOnce(n) : TS.ms.connected_sig.addOnce(n);
           }

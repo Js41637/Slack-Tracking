@@ -5,66 +5,114 @@
   data-bot_id="{{bot_id}}"
   data-js="app_space_profile"
 >
-
-  <div class="p-app_space_profile__avatar">
-
-    <img class="rounded"
-      {{#if bot_icons}}
-        {{#if bot_icons.image_72}}
-          src="{{bot_icons.image_72}}"
-        {{else}}
-          {{!-- Fallback for older integrations. --}}
-          src="{{bot_icons.image_48}}"
-        {{/if}}
-      {{else if app_icons}}
-        {{#if is_slack_integration}}
-          {{!-- Slack owned apps have icons with transparent backgrounds (and position) below 192px. --}}
-          src="{{app_icons.image_192}}"
-        {{else}}
-          src="{{app_icons.image_96}}" srcset="{{app_icons.image_96}} 1x, {{app_icons.image_192}} 2x"
-        {{/if}}
-      {{else}}
-        src="{{versioned_default_application_icon}}"
-      {{/if}}
-    >
-
-  </div>
+  {{!-- //////////////////////////////////////////////////
+  AVATAR & DESCRIPTION
+  /////////////////////////////////////////////////// --}}
 
   <div class="p-app_space_profile__info">
 
-    {{!-- DESCRIPTION --}}
-    {{#if long_description}}
+    <div class="p-app_space_profile__avatar">
+
+      <img class="rounded"
+        {{#if avatar}}
+          src="{{avatar}}"
+        {{else}}
+          src="{{versioned_default_application_icon}}"
+        {{/if}}
+      >
+
+    </div>
+
+    <div class="p-app_space_profile__description">
+
+      {{!-- DESCRIPTION --}}
+      {{#if long_description}}
+        <section>
+          <h2 class="p-app_space__name">
+            {{name}}
+          </h2>
+
+          {{> app_profile_description}}
+
+        </section>
+      {{/if}}
+
+    </div>
+
+  </div>
+
+
+  {{!-- //////////////////////////////////////////////////
+  SCREENSHOTS
+  /////////////////////////////////////////////////// --}}
+
+  {{#if has_screenshots}}
+
+    <h3 class="p-app_space__header">
+      {{#t note="Application screenshots"}}Screenshots{{/t}}
+    </h3>
+
+    <div class="p-app_space_profile__screenshots">
+
+      {{#if youtube_id}}
+        <div
+          class="p-app_space_profile__youtube_thumbnail"
+          style="background-image: url(https://slack-imgs.com/?url=https://i.ytimg.com/vi/{{youtube_id}}/hqdefault.jpg);"
+          data-app-space-screenshot="youtube"
+        >
+          <div class="p-app_space_profile__youtube_play_button">
+            <ts-icon class="ts_icon_play ts_icon_inherit"></ts-icon>
+          </div>
+        </div>
+      {{/if}}
+
+      {{#each screenshots}}
+          <img
+            src="{{image_440}}"
+            class="p-app_space_profile__screenshot"
+            data-app-space-screenshot="{{@index}}"
+          />
+      {{/each}}
+
+    </div>
+
+  {{/if}}
+
+  {{!-- //////////////////////////////////////////////////
+  SLASH COMMANDS
+  /////////////////////////////////////////////////// --}}
+
+  {{#if commands}}
+
+    <h3 class="p-app_space__header">
+      <span>{{#t note="Slash commands the app responds to"}}Commands{{/t}}</span>
+      <span class="p-app_space__header__helper">
+        {{#t note="How to use slash commands helper text"}}
+          Use / to start commands in any conversation
+        {{/t}}
+      </span>
+    </h3>
+
+    <div class="p-app_space_profile__slash_commands">
       <section>
-        <h3 class="p-app_space__header">
-          {{#t}}How to use this app{{/t}}
-        </h3>
-
-        {{> app_profile_description}}
-
-      </section>
-    {{/if}}
-
-    {{!-- SLASH COMMANDS --}}
-    {{#if commands}}
-      <section>
-        <h3 class="p-app_space__header">
-          {{#t note="Refers to slash commands the app responds to."}}Responds to&hellip;{{/t}}
-        </h3>
         {{#each commands}}
-          <div class="app_profile_slash_command" data-slash-command-autofill="{{name}}">
-            <div class="app_slash_command_title overflow_ellipsis">
-              <span class="app_slash_command_title_name">{{name}}</span>
-              <span>{{usage}}</span>
+          <div class="p-app_space_profile__slash_command">
+            <div>
+              <div>
+                <strong>{{name}}</strong><span>{{usage}}</span>
+              </div>
+              <div class="p-app_space_profile__slash_command_desc">{{desc}}</div>
             </div>
-            <div class="app_slash_command_desc overflow_ellipsis">{{desc}}</div>
+            <div>
+              <button type="button" class="btn_outline btn" data-slash-command-autofill="{{name}}">
+                {{#t note="Start a slash command button"}}Start command{{/t}}
+              </button>
+            </div>
           </div>
         {{/each}}
       </section>
-    {{/if}}
+    </div>
 
-    {{!-- SCREENSHOTS --}}
-
-
-  </div>
+  {{/if}}
 
 </div>
