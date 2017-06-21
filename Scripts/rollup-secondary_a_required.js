@@ -15762,7 +15762,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         shared_invite_code_disabled: function() {
           TS.client && TS.ui.shared_invites_modal.updateCode();
         },
-        permission_request: function(e) {
+        app_permission_request: function(e) {
           TS.apps.requestPermissions(e.app_user, e.scope_info, e.trigger_id);
         }
       });
@@ -16683,7 +16683,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               });
             }
           }), TS.utility.contenteditable.value(S, p)), TS.msg_edit.checkLengthAndUpdateMessage(S), TS.info("message_edit_form added"), TS.msg_edit.editing = !0, TS.msg_edit.edit_started_sig.dispatch(), h.bind("destroyed", function() {
-            TS.log(3, "destroyed"), TS.utility.contenteditable.unload($("#message_edit_form #msg_text")), TS.info("message_edit_form removed"), TS.msg_edit.editing = !1, TS.msg_edit.editing_in_msg_pane = !1, TS.msg_edit.editing_in_convo_pane = !1, TS.msg_edit.edit_ended_sig.dispatch(), TS.boot_data.feature_texty_takes_over && TS.utility.contenteditable.supportsTexty() || TSSSB.call("inputFieldRemoved", S.get(0)), h = null, S = null, TS.msg_edit.resetEditUI();
+            TS.log(3, "destroyed"), TS.boot_data.feature_texty_edit_debug || TS.utility.contenteditable.unload($("#message_edit_form #msg_text")), TS.info("message_edit_form removed"), TS.msg_edit.editing = !1, TS.msg_edit.editing_in_msg_pane = !1, TS.msg_edit.editing_in_convo_pane = !1, TS.msg_edit.edit_ended_sig.dispatch(), TS.boot_data.feature_texty_takes_over && TS.utility.contenteditable.supportsTexty() || TSSSB.call("inputFieldRemoved", S.get(0)), h = null, S = null, TS.msg_edit.resetEditUI();
           }), TS.boot_data.feature_texty_takes_over && TS.utility.contenteditable.supportsTexty() || S.TS_tabComplete({
             complete_cmds: !1,
             complete_channels: !0,
@@ -16788,7 +16788,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           if (!TS.msg_edit.current_msg) return TS.error("no TS.msg_edit.current_msg?"), null;
           if (!e) return TS.error("no edited_text?"), null;
           var t = TS.msg_edit.editing_in_convo_pane;
-          if (TS.msg_edit.commitEditInternal(e), TS.msg_edit.resetEditUI(), TS.client)
+          if (TS.msg_edit.commitEditInternal(e), TS.boot_data.feature_texty_edit_debug && TS.utility.contenteditable.unload($("#message_edit_form #msg_text")), TS.msg_edit.resetEditUI(), TS.client)
             if (t) {
               TS.ui.replies.focusReplyInput(!0);
             } else TS.view.focusMessageInput();
@@ -16796,7 +16796,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         onCancelEdit: function() {
           if (TS.log(3, "onCancelEdit"), !TS.msg_edit.current_msg) return TS.error("no TS.msg_edit.current_msg?"), null;
           var e = TS.msg_edit.editing_in_convo_pane;
-          if (TS.log(3, "editing in replies:"), TS.log(3, TS.msg_edit.editing_in_convo_pane), TS.log(3, "editing in msg_pane"), TS.log(3, TS.msg_edit.editing_in_msg_pane), TS.msg_edit.resetEditUI(), TS.client)
+          if (TS.log(3, "editing in replies:"), TS.log(3, TS.msg_edit.editing_in_convo_pane), TS.log(3, "editing in msg_pane"), TS.log(3, TS.msg_edit.editing_in_msg_pane), TS.boot_data.feature_texty_edit_debug && TS.utility.contenteditable.unload($("#message_edit_form #msg_text")), TS.msg_edit.resetEditUI(), TS.client)
             if (e) {
               TS.ui.replies.focusReplyInput(!0);
             } else TS.view.focusMessageInput();

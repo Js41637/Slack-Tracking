@@ -35541,20 +35541,24 @@ webpackJsonp([332], [, function(e, t, n) {
 
   function r(e) {
     var t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : {},
-      r = t.includeMeridiem,
-      i = void 0 !== r && r,
-      a = t.includeSeconds,
-      s = void 0 !== a && a,
-      u = t.do24hrTime,
-      l = void 0 !== u && u,
-      c = t.timeFormat,
-      d = void 0 === c ? void 0 : c,
-      f = n.i(o.a)(e, {
+      r = t.do24hrTime,
+      a = void 0 === r ? "en" !== o.a.locale() : r,
+      s = t.includeMeridiem,
+      u = void 0 === s ? !a : s,
+      l = t.includeSeconds,
+      c = void 0 !== l && l,
+      d = t.timeFormat,
+      f = void 0 === d ? void 0 : d,
+      p = n.i(i.a)(e, {
         returnMoment: !0
-      });
-    return d ? f.format(d) : l ? i ? s ? f.format("hh:mm:ss A") : f.format("hh:mm A") : s ? f.format("HH:mm:ss") : f.format("HH:mm") : i ? s ? f.format("h:mm:ss A") : f.format("h:mm A") : s ? f.format("h:mm:ss") : f.format("h:mm");
+      }),
+      h = p.minute(),
+      _ = p.hour(),
+      m = o.a.locale();
+    return f ? p.format(f) : a ? "fr" === m ? 0 === h ? p.format("H") + " h" : _ > 9 ? c ? p.format("H") + " h " + p.format("mm") + " min " + p.format("ss") + " s" : p.format("H") + " h " + p.format("mm") + " min" : c ? p.format("H") + " h " + p.format("m") + " min " + p.format("ss") + " s" : p.format("H") + " h " + p.format("m") + " min" : "de" === m ? c ? p.format("HH:mm:ss") + " Uhr" : p.format("HH:mm") + " Uhr" : c ? p.format("HH:mm:ss") : p.format("HH:mm") : u ? c ? p.format("h:mm:ss A") : p.format("h:mm A") : c ? p.format("h:mm:ss") : p.format("h:mm");
   }
-  var o = n(2356);
+  var o = n(2989),
+    i = n(2356);
   t.a = r;
 }, , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , function(e, t, n) {
   "use strict";
