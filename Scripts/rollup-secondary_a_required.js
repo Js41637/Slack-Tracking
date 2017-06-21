@@ -35707,7 +35707,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               id: r.id,
               label: s,
               index: n,
-              length: s.length
+              length: t.length
             }, e.substr(n, s.length) === s && (a.length = s.length);
           }
           return a;
@@ -40631,6 +40631,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
       TS.registerModule("redux.messages", {
         onStart: function() {
           TS.useRedux() && TS.boot_data.feature_react_messages && e();
+        },
+        addMessages: function(e) {
+          TS.redux.dispatch(TS.interop.redux.entities.messages.addMessages(e));
         },
         addMessage: function(e) {
           e && e.channel && e.ts && TS.redux.dispatch(TS.interop.redux.entities.messages.addMessages([e]));

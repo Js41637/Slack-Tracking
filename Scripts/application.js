@@ -31534,7 +31534,8 @@ webpackJsonp([332], [, function(e, t, n) {
     D = n(3172),
     Y = n(3647),
     A = n(3653),
-    R = n(3885);
+    R = n(3885),
+    I = n(3907);
   n.i(r.a)("interop.datetime", {
     toDateObject: o.a,
     toDate: i.a,
@@ -31568,7 +31569,8 @@ webpackJsonp([332], [, function(e, t, n) {
     maybeGetRelativeDay: D.a,
     millisecondsToPrettifiedTime: Y.a,
     prettifyDateString: A.a,
-    makeTsStamp: R.a
+    makeTsStamp: R.a,
+    formatDate: I.a
   });
 }, , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , function(e, t, n) {
   "use strict";
@@ -35601,6 +35603,8 @@ webpackJsonp([332], [, function(e, t, n) {
           hrs24: "in %d hours",
           days1: "in 1 day",
           days7: "in %d days",
+          month: "in %d month",
+          months: "in %d months",
           years1: "in 1 year",
           years: "in %d years"
         },
@@ -35638,37 +35642,39 @@ webpackJsonp([332], [, function(e, t, n) {
     timeAgo: function() {
       return {
         past: {
-          sec45: "< vor eine Minute",
-          sec90: "vor eine Minute",
+          sec45: "vor < 1 Minute",
+          sec90: "vor 1 Minute",
           min45: "vor %d Minuten",
-          min90: "vor eine Stunde",
+          min90: "vor 1 Stunde",
           hrs24: "vor %d Stunden",
-          days1: "vor eine Tag",
-          days7: "vor %d Tage",
-          years1: "vor eine Jahr",
-          years: "vor %d Jahre"
+          days1: "vor 1 Tag",
+          days7: "vor %d Tagen",
+          years1: "vor 1 Jahr",
+          years: "vor %d Jahren"
         },
         future: {
-          sec45: "< in eine Minute",
-          sec90: "in eine Minute",
+          sec45: "in < 1 Minute",
+          sec90: "in 1 Minute",
           min45: "in %d Minuten",
-          min90: "in eine Stunde",
+          min90: "in 1 Stunde",
           hrs24: "in %d Stunden",
-          days1: "in eine Tag",
-          days7: "in %d Tage",
-          years1: "in eine Jahr",
-          years: "in %d Jahre"
+          days1: "in 1 Tag",
+          days7: "in %d Tagen",
+          month: "in %d Monat",
+          months: "in %d Monaten",
+          years1: "in 1 Jahr",
+          years: "in %d Jahren"
         },
         compact: {
-          sec45: "<1m",
-          sec90: "1m",
-          min45: "%dm",
-          min90: "1s",
-          hrs24: "%ds",
-          days1: "1t",
-          days7: "%dt",
-          years1: "1j",
-          years: "%dj"
+          sec45: "< 1 Min.",
+          sec90: "1 Min.",
+          min45: "%d Min.",
+          min90: "1 Std.",
+          hrs24: "%d Std.",
+          days1: "1 Tag",
+          days7: "%d Tage",
+          years1: "1 J.",
+          years: "%d J."
         }
       };
     }
@@ -35711,19 +35717,21 @@ webpackJsonp([332], [, function(e, t, n) {
           hrs24: "dans %d heures",
           days1: "dans un jour",
           days7: "dans %d jours",
+          month: "dans un mois",
+          months: "dans %d mois",
           years1: "dans un an",
           years: "dans %d ans"
         },
         compact: {
-          sec45: "<1m",
-          sec90: "1m",
-          min45: "%dm",
-          min90: "1h",
-          hrs24: "%dh",
-          days1: "1j",
-          days7: "%dj",
-          years1: "1a",
-          years: "%da"
+          sec45: "< 1 min",
+          sec90: "1 min",
+          min45: "%d min",
+          min90: "1 h",
+          hrs24: "%d h",
+          days1: "1 j",
+          days7: "%d j",
+          years1: "1 an",
+          years: "%d ans"
         }
       };
     }
@@ -35748,37 +35756,39 @@ webpackJsonp([332], [, function(e, t, n) {
     timeAgo: function() {
       return {
         past: {
-          sec45: "< hace un minuto",
-          sec90: "hace un minuto",
+          sec45: "hace < 1 minuto",
+          sec90: "hace 1 minuto",
           min45: "hace %d minutos",
-          min90: "hace una hora",
+          min90: "hace 1 hora",
           hrs24: "hace %d horas",
-          days1: "hace un día",
+          days1: "hace 1 día",
           days7: "hace %d días",
-          years1: "hace un año",
+          years1: "hace 1 año",
           years: "hace %d años"
         },
         future: {
-          sec45: "< en un minuto",
-          sec90: "en un minuto",
+          sec45: "en < 1 minuto",
+          sec90: "en 1 minuto",
           min45: "en %d minutos",
-          min90: "en una hora",
+          min90: "en 1 hora",
           hrs24: "en %d horas",
-          days1: "en un día",
+          days1: "en 1 día",
           days7: "en %d días",
-          years1: "en un año",
+          month: "en 1 mes",
+          months: "en %d meses",
+          years1: "en 1 año",
           years: "en %d años"
         },
         compact: {
-          sec45: "<1m",
-          sec90: "1m",
-          min45: "%dm",
-          min90: "1h",
-          hrs24: "%dh",
-          days1: "1d",
-          days7: "%dd",
-          years1: "1a",
-          years: "%da"
+          sec45: "<1 m",
+          sec90: "1 m",
+          min45: "%d m",
+          min90: "1 h",
+          hrs24: "%d h",
+          days1: "1 d",
+          days7: "%d d",
+          years1: "1 a",
+          years: "%d a"
         }
       };
     }
@@ -35804,6 +35814,8 @@ webpackJsonp([332], [, function(e, t, n) {
           hrs24: "%d時間後",
           days1: "1日後",
           days7: "%d日後",
+          month: "1ヶ月",
+          months: "%dヶ月",
           years1: "1年後",
           years: "%d年後"
         },
@@ -36066,7 +36078,7 @@ webpackJsonp([332], [, function(e, t, n) {
         unitsOut: "seconds"
       }),
       u = n.i(a.a)(r).subtract(t.unix(), "seconds").unix();
-    return t.year() === r.year() || u <= s;
+    return !(t.year() > r.year()) && (r.year() === t.year() || u <= s);
   }
   var o = n(2356),
     i = n(2334),
@@ -36538,7 +36550,7 @@ webpackJsonp([332], [, function(e, t, n) {
 
   function r(e) {
     return {
-      userId: e.user || a.a.get(e, "comment.user"),
+      userId: e.user || u.a.get(e, "comment.user"),
       botId: e.bot_id,
       username: e.username
     };
@@ -36546,61 +36558,73 @@ webpackJsonp([332], [, function(e, t, n) {
 
   function o(e, t) {
     if (!t) return !0;
-    if (n.i(h.b)(e.subtype)) return !0;
-    if (n.i(h.c)(e.subtype)) return !0;
+    if (n.i(m.b)(e.subtype) || n.i(m.b)(t.subtype)) return !0;
+    if (n.i(m.c)(e.subtype) || n.i(m.c)(t.subtype)) return !0;
     if ("thread_broadcast" === e.subtype) return !0;
     if (t.replyCount) return !0;
-    var o = n.i(d.a)(e.ts),
-      i = n.i(d.a)(t.ts),
-      a = n.i(f.a)(o, i),
-      s = n.i(p.a)(o, i);
+    var o = n.i(p.a)(e.ts),
+      i = n.i(p.a)(t.ts),
+      a = n.i(h.a)(o, i),
+      s = n.i(_.a)(o, i);
     if (a > 5 || !s) return !0;
     var u = r(e),
       l = r(t);
     return (!u.userId || u.userId !== l.userId) && ((!u.botId || u.botId !== l.botId) && (!u.username || u.username !== l.username));
   }
-  var i = n(6),
-    a = n.n(i),
-    s = n(43),
-    u = n(3038),
-    l = n(3034),
-    c = n(3045),
-    d = n(2356),
-    f = n(2998),
-    p = n(3654),
-    h = n(3040),
-    _ = Object.assign || function(e) {
+
+  function i(e, t) {
+    return !(!t || !e) && !!(n.i(m.c)(t.subtype) && n.i(m.c)(e.subtype) && t.file && e.file && t.file.id === e.file.id);
+  }
+
+  function a(e) {
+    return n.i(m.c)(e.subtype) ? "file_comment" === e.subtype ? e.comment && e.comment._rxn_key : e.file && e.file._rxn_key : e._rxn_key;
+  }
+  var s = n(6),
+    u = n.n(s),
+    l = n(43),
+    c = n(3038),
+    d = n(3034),
+    f = n(3045),
+    p = n(2356),
+    h = n(2998),
+    _ = n(3654),
+    m = n(3040),
+    y = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
         for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
       }
       return e;
     },
-    m = function(e, t) {
-      var i = t.ts,
-        a = t.channelId,
-        s = t.previousMessageTs,
-        u = n.i(l.getMessageByTimestamp)(e, a, i),
-        d = n.i(c.getUserPref)(e, "theme");
-      if (!u) return t;
-      var f = n.i(l.getMessageByTimestamp)(e, a, s),
-        p = o(u, f),
-        h = r(u);
-      return _({}, t, {
-        subtype: u.subtype,
-        text: u.text,
-        theme: d
-      }, h, {
-        replies: u.replies,
-        replyCount: u.reply_count,
-        threadTs: u.thread_ts,
-        attachments: u.attachments,
-        file: u.file,
-        reactionKey: u._rxn_key,
-        showUser: p
+    v = function(e, t) {
+      var s = t.ts,
+        u = t.channelId,
+        l = t.previousMessageTs,
+        c = n.i(d.getMessageByTimestamp)(e, u, s),
+        p = n.i(f.getUserPref)(e, "theme");
+      if (!c) return t;
+      var h = n.i(d.getMessageByTimestamp)(e, u, l),
+        _ = o(c, h),
+        m = i(c, h),
+        v = a(c),
+        g = r(c);
+      return y({}, t, {
+        subtype: c.subtype,
+        text: c.text,
+        theme: p
+      }, g, {
+        replies: c.replies,
+        replyCount: c.reply_count,
+        threadTs: c.thread_ts,
+        attachments: c.attachments,
+        file: c.file,
+        comment: c.comment,
+        reactionKey: v,
+        showUser: _,
+        isFileFollowup: m
       });
     };
-  t.a = n.i(s.b)(m)(u.a);
+  t.a = n.i(l.b)(v)(c.a);
 }, function(e, t, n) {
   "use strict";
   var r = n(3036);
@@ -36652,8 +36676,9 @@ webpackJsonp([332], [, function(e, t, n) {
     g = n(3198),
     b = n(3188),
     w = n(3624),
-    k = n(3119),
-    M = (n.n(k), function() {
+    k = n(2288),
+    M = n(3119),
+    T = (n.n(M), function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
@@ -36664,11 +36689,12 @@ webpackJsonp([332], [, function(e, t, n) {
         return n && e(t.prototype, n), r && e(t, r), t;
       };
     }()),
-    T = function(e) {
+    x = k.a.ns("message"),
+    S = function(e) {
       function t() {
         return o(this, t), i(this, (t.__proto__ || Object.getPrototypeOf(t)).apply(this, arguments));
       }
-      return a(t, e), M(t, [{
+      return a(t, e), T(t, [{
         key: "renderTimestamp",
         value: function() {
           return u.a.createElement(g.a, {
@@ -36680,13 +36706,19 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "renderGutter",
         value: function() {
-          return "light" === this.props.theme && this.props.showUser ? u.a.createElement("div", {
-            className: "c-message__gutter"
-          }, u.a.createElement(_.a, {
-            userId: this.props.userId,
-            botId: this.props.botId,
-            size: 36
-          })) : u.a.createElement("div", {
+          if ("light" === this.props.theme) {
+            if (this.props.isFileFollowup) return u.a.createElement("div", {
+              className: "c-message__gutter"
+            });
+            if (this.props.showUser) return u.a.createElement("div", {
+              className: "c-message__gutter"
+            }, u.a.createElement(_.a, {
+              userId: this.props.userId,
+              botId: this.props.botId,
+              size: 36
+            }));
+          }
+          return u.a.createElement("div", {
             className: "c-message__gutter"
           }, this.renderTimestamp());
         }
@@ -36720,7 +36752,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "renderBody",
         value: function() {
-          return this.props.file && "file_comment" !== this.props.subtype ? this.renderInlineFile() : u.a.createElement(b.a, {
+          return this.props.file && "file_comment" !== this.props.subtype ? this.renderInlineFile() : this.props.file && this.props.comment && "file_comment" === this.props.subtype ? this.renderFileComment() : u.a.createElement(b.a, {
             text: this.props.text,
             className: "c-message__body"
           });
@@ -36770,6 +36802,27 @@ webpackJsonp([332], [, function(e, t, n) {
           });
         }
       }, {
+        key: "renderFileComment",
+        value: function() {
+          var e = this.props.file,
+            t = this.props.comment;
+          return [!this.props.isFileFollowup && u.a.createElement("div", {
+            className: "c-message__file_meta"
+          }, n.i(k.b)(x("commented on <a>{file_name}</a>", {
+            file_name: e.name
+          }), /<a>(.*)<\/a>/g, function(t, n, r) {
+            return u.a.createElement("a", {
+              className: "c-message__file_link file_preview_link",
+              href: e.permalink,
+              "data-file-id": e.id,
+              key: r
+            }, t);
+          })), u.a.createElement(b.a, {
+            text: t.comment,
+            className: c()("c-message__body", "c-message__body--comment")
+          })];
+        }
+      }, {
         key: "render",
         value: function() {
           var e, t = c()("c-message", (e = {}, r(e, "c-message--" + this.props.theme, this.props.theme), r(e, "c-message--adjacent", !this.props.showUser), r(e, "c-message--thread-broadcast", "thread_broadcast" === this.props.subtype), e));
@@ -36779,7 +36832,7 @@ webpackJsonp([332], [, function(e, t, n) {
         }
       }]), t;
     }(s.PureComponent);
-  t.a = T, T.propTypes = {
+  t.a = S, S.propTypes = {
     channelId: u.a.PropTypes.string.isRequired,
     ts: u.a.PropTypes.string.isRequired,
     subtype: u.a.PropTypes.string,
@@ -36804,8 +36857,14 @@ webpackJsonp([332], [, function(e, t, n) {
       name: u.a.PropTypes.string,
       permalink: u.a.PropTypes.string
     }),
-    showUser: u.a.PropTypes.bool
-  }, T.defaultProps = {
+    comment: u.a.PropTypes.shape({
+      id: u.a.PropTypes.string,
+      user: u.a.PropTypes.string,
+      comment: u.a.PropTypes.string
+    }),
+    showUser: u.a.PropTypes.bool,
+    isFileFollowup: u.a.PropTypes.bool
+  }, S.defaultProps = {
     text: null,
     subtype: null,
     theme: "light",
@@ -36818,7 +36877,9 @@ webpackJsonp([332], [, function(e, t, n) {
     threadTs: null,
     attachments: [],
     file: null,
-    showUser: !0
+    comment: null,
+    showUser: !0,
+    isFileFollowup: !0
   };
 }, , function(e, t, n) {
   "use strict";
@@ -38090,7 +38151,7 @@ webpackJsonp([332], [, function(e, t, n) {
     };
   };
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".c-message {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  display: flex;\n  padding-right: 40px;\n  min-width: 1px;\n}\n.c-message:hover {\n  background-color: #F9F9F9;\n}\n.c-message.c-message--light {\n  padding-top: 5px;\n  padding-bottom: 3px;\n}\n.c-message.c-message--dense {\n  padding-top: 3px;\n  padding-bottom: 2px;\n}\n.c-message.c-message--light.c-message--adjacent {\n  padding-top: 2px;\n}\n.c-message__gutter {\n  text-align: right;\n  flex-shrink: 0;\n}\n.c-message--adjacent .c-message__gutter {\n  visibility: hidden;\n}\n.c-message--adjacent:hover .c-message__gutter {\n  visibility: visible;\n}\n.c-message--light .c-message__gutter {\n  width: 72px;\n  padding-right: 10px;\n}\n.c-message--dense .c-message__gutter {\n  width: 58px;\n  margin-right: 22px;\n}\n.c-message--dense .c-timestamp__label {\n  color: #717274;\n}\n.c-message__content {\n  flex: 0 1 100%;\n  min-width: 1px;\n}\n.c-message--dense .c-message__content {\n  padding-left: 8px;\n}\n.c-message__sender {\n  font-weight: 900;\n}\n.c-message--light .c-message__sender {\n  margin-right: 6px;\n  color: #2C2D30;\n}\n.c-message--dense .c-message__sender {\n  margin-left: -8px;\n  margin-right: 4px;\n}\n.c-message__sender--unknown {\n  display: inline-block;\n  width: 80px;\n  height: .9rem;\n  border-radius: .9rem;\n  vertical-align: bottom;\n  background: #E8E8E8;\n}\n.c-message--dense .c-message__content_header {\n  display: inline;\n  margin-bottom: 3px;\n}\n.c-message--dense.c-message--thread-broadcast .c-message__content_header {\n  display: flex;\n}\n.c-message--light .c-message__content_header {\n  line-height: 1;\n  margin-bottom: 3px;\n}\n.c-message__body {\n  line-height: 1.4;\n  color: #2C2D30;\n}\n.c-message__mention {\n  background: #FFF4BF;\n  border-radius: 3px;\n  padding: 0 2px 1px 2px;\n}\n.c-message__reply_bar {\n  display: flex;\n  align-items: center;\n  max-width: 600px;\n  margin-top: 5px;\n  padding: 3px;\n  font-size: 12px;\n  border: 1px solid transparent;\n  border-radius: 6px;\n  cursor: pointer;\n}\n.c-message__reply_bar:hover {\n  background-color: #FFF;\n  border-color: rgba(0, 0, 0, 0.15);\n}\n.c-message__reply_bar:hover .c-message__reply_bar_arrow {\n  color: #A0A0A2;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_last_reply {\n  opacity: 0;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_view_thread {\n  opacity: 1;\n}\n.c-message__reply_bar .c-avatar {\n  margin-right: 4px;\n}\n.c-message__reply_count {\n  margin-left: 3px;\n  font-weight: bold;\n}\n.c-message__reply_bar_description {\n  position: relative;\n  margin-left: 8px;\n  color: #A0A0A2;\n}\n.c-message__reply_bar_arrow {\n  margin-left: auto;\n  color: transparent;\n}\n.c-message__reply_bar_arrow::before {\n  vertical-align: top;\n}\n.c-message__reply_bar_last_reply {\n  opacity: 1;\n  transition: opacity 0.2s;\n}\n.c-message__broadcast_preamble {\n  color: #A0A0A2;\n  display: flex;\n  overflow: hidden;\n  max-width: 100%;\n}\n.c-message--light .c-message__broadcast_preamble {\n  margin-bottom: 3px;\n}\n.c-message__broadcast_preamble_meta {\n  flex-shrink: 0;\n}\n.c-message__broadcast_preamble_link {\n  font-weight: bold;\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  margin-left: 4px;\n}\n.c-message__reply_bar_view_thread {\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  opacity: 0;\n  transition: opacity 0.2s;\n}\n.c-message__attachment {\n  display: flex;\n  align-items: stretch;\n  margin-top: 2px;\n}\n.c-message__attachment_column {\n  width: 4px;\n  background-color: #E8E8E8;\n  border-radius: 8px;\n}\n.c-message__attachment_body {\n  padding-left: 12px;\n  padding-right: 12px;\n}\n.c-message__bot-label {\n  color: #A0A0A2;\n  font-weight: 500;\n  font-size: 12px;\n  margin: 0 0.15rem;\n  padding: 0 0.1rem;\n  vertical-align: middle;\n  background: #f2f2f5;\n}\n.c-message__image_wrapper {\n  display: block;\n  position: relative;\n  overflow: hidden;\n  border-radius: 3px;\n}\n.c-message__image_description {\n  margin-bottom: 8px;\n  color: #A0A0A2;\n}\n.c-message__image_caret {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n}\n.c-message__image_caret:hover,\n.c-message__image_caret:focus,\n.c-message__image_caret:active {\n  outline: none;\n}\n.c-message__image_description .c-message__image_link {\n  font-weight: 700;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".c-message {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  display: flex;\n  padding-right: 40px;\n  min-width: 1px;\n}\n.c-message:hover {\n  background-color: #F9F9F9;\n}\n.c-message.c-message--light {\n  padding-top: 5px;\n  padding-bottom: 3px;\n}\n.c-message.c-message--dense {\n  padding-top: 3px;\n  padding-bottom: 2px;\n}\n.c-message.c-message--light.c-message--adjacent {\n  padding-top: 2px;\n}\n.c-message__gutter {\n  text-align: right;\n  flex-shrink: 0;\n}\n.c-message--adjacent .c-message__gutter {\n  visibility: hidden;\n}\n.c-message--adjacent:hover .c-message__gutter {\n  visibility: visible;\n}\n.c-message--light .c-message__gutter {\n  width: 72px;\n  padding-right: 10px;\n}\n.c-message--dense .c-message__gutter {\n  width: 58px;\n  margin-right: 22px;\n}\n.c-message--dense .c-timestamp__label {\n  color: #717274;\n}\n.c-message__content {\n  flex: 0 1 100%;\n  min-width: 1px;\n}\n.c-message--dense .c-message__content {\n  padding-left: 8px;\n}\n.c-message__sender {\n  font-weight: 900;\n}\n.c-message--light .c-message__sender {\n  margin-right: 6px;\n  color: #2C2D30;\n}\n.c-message--dense .c-message__sender {\n  margin-left: -8px;\n  margin-right: 4px;\n}\n.c-message__sender--unknown {\n  display: inline-block;\n  width: 80px;\n  height: .9rem;\n  border-radius: .9rem;\n  vertical-align: bottom;\n  background: #E8E8E8;\n}\n.c-message--dense .c-message__content_header {\n  display: inline;\n  margin-bottom: 3px;\n}\n.c-message--dense.c-message--thread-broadcast .c-message__content_header {\n  display: flex;\n}\n.c-message--light .c-message__content_header {\n  line-height: 1;\n  margin-bottom: 3px;\n}\n.c-message__body {\n  line-height: 1.4;\n  color: #2C2D30;\n}\n.c-message__mention {\n  background: #FFF4BF;\n  border-radius: 3px;\n  padding: 0 2px 1px 2px;\n}\n.c-message__reply_bar {\n  display: flex;\n  align-items: center;\n  max-width: 600px;\n  margin-top: 5px;\n  padding: 3px;\n  font-size: 12px;\n  border: 1px solid transparent;\n  border-radius: 6px;\n  cursor: pointer;\n}\n.c-message__reply_bar:hover {\n  background-color: #FFF;\n  border-color: rgba(0, 0, 0, 0.15);\n}\n.c-message__reply_bar:hover .c-message__reply_bar_arrow {\n  color: #A0A0A2;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_last_reply {\n  opacity: 0;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_view_thread {\n  opacity: 1;\n}\n.c-message__reply_bar .c-avatar {\n  margin-right: 4px;\n}\n.c-message__reply_count {\n  margin-left: 3px;\n  font-weight: bold;\n}\n.c-message__reply_bar_description {\n  position: relative;\n  margin-left: 8px;\n  color: #A0A0A2;\n}\n.c-message__reply_bar_arrow {\n  margin-left: auto;\n  color: transparent;\n}\n.c-message__reply_bar_arrow::before {\n  vertical-align: top;\n}\n.c-message__reply_bar_last_reply {\n  opacity: 1;\n  transition: opacity 0.2s;\n}\n.c-message__broadcast_preamble {\n  color: #A0A0A2;\n  display: flex;\n  overflow: hidden;\n  max-width: 100%;\n}\n.c-message--light .c-message__broadcast_preamble {\n  margin-bottom: 3px;\n}\n.c-message__broadcast_preamble_meta {\n  flex-shrink: 0;\n}\n.c-message__broadcast_preamble_link {\n  font-weight: bold;\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  margin-left: 4px;\n}\n.c-message__reply_bar_view_thread {\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  opacity: 0;\n  transition: opacity 0.2s;\n}\n.c-message__attachment {\n  display: flex;\n  align-items: stretch;\n  margin-top: 2px;\n}\n.c-message__attachment_column {\n  width: 4px;\n  background-color: #E8E8E8;\n  border-radius: 8px;\n}\n.c-message__attachment_body {\n  padding-left: 12px;\n  padding-right: 12px;\n}\n.c-message__bot-label {\n  color: #A0A0A2;\n  font-weight: 500;\n  font-size: 12px;\n  margin: 0 0.15rem;\n  padding: 0 0.1rem;\n  vertical-align: middle;\n  background: #f2f2f5;\n}\n.c-message__image_wrapper {\n  display: block;\n  position: relative;\n  overflow: hidden;\n  border-radius: 3px;\n}\n.c-message__image_description {\n  margin-bottom: 8px;\n  color: #A0A0A2;\n}\n.c-message:hover .c-message__image_description {\n  color: #717274;\n}\n.c-message__image_caret {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n}\n.c-message__image_caret:hover,\n.c-message__image_caret:focus,\n.c-message__image_caret:active {\n  outline: none;\n}\n.c-message__file_link {\n  font-weight: 700;\n}\n.c-message__file_meta {\n  line-height: 1.4;\n  color: #A0A0A2;\n}\n.c-message:hover .c-message__file_meta {\n  color: #717274;\n}\n.c-message__body--comment {\n  position: relative;\n}\n.c-message__body--comment:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  content: '\\E516';\n  position: absolute;\n  left: -28px;\n  top: -4px;\n  color: #E8E8E8;\n}\n", ""]);
 }, function(e, t, n) {
   t = e.exports = n(189)(), t.push([e.i, ".c-message_list {\n  border-right: 0.25rem solid transparent;\n  overflow-y: scroll;\n  overflow-x: hidden;\n  height: 100%;\n}\n.c-message_list::-webkit-scrollbar {\n  position: absolute;\n  -webkit-appearance: none;\n  width: 8px;\n}\n.c-message_list::-webkit-scrollbar-track,\n.c-message_list::-webkit-scrollbar-thumb {\n  background-clip: padding-box !important;\n  border-radius: 3px;\n  color: #FFFFFF;\n}\n.c-message_list::-webkit-scrollbar-track {\n  background: #F5F5F5;\n  box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0;\n}\n.c-message_list::-webkit-scrollbar-thumb {\n  background: #D9D9DE;\n  box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;\n  min-height: 36px;\n}\n.c-message_list::-webkit-scrollbar-corner {\n  background: #FFFFFF;\n}\n", ""]);
 }, function(e, t, n) {
@@ -39332,6 +39393,7 @@ webpackJsonp([332], [, function(e, t, n) {
           MMMD: "Do MMM",
           MMMDo: "Do MMM",
           MMMMDo: "Do MMMM",
+          MMMDYYYY: "Do MMM YYYY",
           MMMYYYY: "MMM YYYY",
           MMMMYYYY: "MMMM YYYY",
           MMMDoYYYY: "Do MMM YYYY",
@@ -39343,6 +39405,7 @@ webpackJsonp([332], [, function(e, t, n) {
           MMMD: "D MMM",
           MMMDo: "D MMM",
           MMMMDo: "D [de] MMMM",
+          MMMDYYYY: "D MMM YYYY",
           MMMYYYY: "MMM YYYY",
           MMMMYYYY: "MMMM [de] YYYY",
           MMMDoYYYY: "D MMM YYYY",
@@ -39354,6 +39417,7 @@ webpackJsonp([332], [, function(e, t, n) {
           MMMD: "D MMM",
           MMMDo: "Do MMM",
           MMMMDo: "Do MMMM",
+          MMMDYYYY: "D MMM YYYY",
           MMMYYYY: "MMM YYYY",
           MMMMYYYY: "MMMM YYYY",
           MMMDoYYYY: "Do MMM YYYY",
@@ -39365,6 +39429,7 @@ webpackJsonp([332], [, function(e, t, n) {
           MMMD: "MMMD[日]",
           MMMDo: "MMMDo",
           MMMMDo: "MMMMDo",
+          MMMDYYYY: "YYYY[年]MMMDo",
           MMMYYYY: "YYYY[年]MMM",
           MMMMYYYY: "YYYY[年]MMMM",
           MMMDoYYYY: "YYYY[年]MMMMDo",
@@ -39376,13 +39441,14 @@ webpackJsonp([332], [, function(e, t, n) {
           MMMD: "MMM D",
           MMMDo: "MMM Do",
           MMMMDo: "MMMM Do",
+          MMMDYYYY: "MMM D, YYYY",
           MMMYYYY: "MMM YYYY",
           MMMMYYYY: "MMMM YYYY",
           MMMDoYYYY: "MMM Do, YYYY",
           MMMMDoYYYY: "MMMM Do, YYYY"
         };
     }
-    return a && u && c ? p.format(h.MMMD) : a && c ? p.format(h.MMMDo) : a && f ? p.format(h.MMMYYYY) : a ? p.format(h.MMMDoYYYY) : c ? p.format(h.MMMMDo) : f ? p.format(h.MMMMYYYY) : p.format(h.MMMMDoYYYY);
+    return a && u && c ? p.format(h.MMMD) : a && u && !c ? p.format(h.MMMDYYYY) : a && c ? p.format(h.MMMDo) : a && f ? p.format(h.MMMYYYY) : a ? p.format(h.MMMDoYYYY) : c ? p.format(h.MMMMDo) : f ? p.format(h.MMMMYYYY) : p.format(h.MMMMDoYYYY);
   }
   var o = n(2989),
     i = n(2356);
@@ -39535,7 +39601,7 @@ webpackJsonp([332], [, function(e, t, n) {
             className: "c-message__image_description"
           }, this.getDescriptionForSubtype(), " ", s.a.createElement("a", {
             "data-file-id": this.props.id,
-            className: "c-message__image_link file_preview_link",
+            className: "c-message__file_link file_preview_link",
             href: e.permalink
           }, e.title)), s.a.createElement(l.a, {
             file: this.props.file
@@ -39719,14 +39785,15 @@ webpackJsonp([332], [, function(e, t, n) {
       h = p / 60,
       _ = h / 60,
       m = _ / 24,
-      y = m / 365,
-      v = f ? "future" : "past",
-      g = o.a.localeData(o.a.locale()).timeAgo();
-    return p < 45 ? u ? g.compact.sec45 : g[v].sec45 : p < 90 ? u ? g.compact.sec90 : g[v].sec90 : h < 45 ? u ? g.compact.min45.replace(/%d/, Math.round(h)) : g[v].min45.replace(/%d/, Math.round(h)) : h < 90 ? u ? g.compact.min90 : g[v].min90 : _ < 24 ? u ? g.compact.hrs24.replace(/%d/, Math.round(_)) : g[v].hrs24.replace(/%d/, Math.round(_)) : m < 2 ? u ? g.compact.days1 : g[v].days1 : m < 7 ? u ? g.compact.days7.replace(/%d/, Math.round(m)) : g[v].days7.replace(/%d/, Math.round(m)) : m < 365 ? n.i(s.a)(e, {
+      y = m / (365 / 12),
+      v = m / 365,
+      g = f ? "future" : "past",
+      b = o.a.localeData(o.a.locale()).timeAgo();
+    return p < 45 ? u ? b.compact.sec45 : b[g].sec45 : p < 90 ? u ? b.compact.sec90 : b[g].sec90 : h < 45 ? u ? b.compact.min45.replace(/%d/, Math.round(h)) : b[g].min45.replace(/%d/, Math.round(h)) : h < 90 ? u ? b.compact.min90 : b[g].min90 : _ < 24 ? u ? b.compact.hrs24.replace(/%d/, Math.round(_)) : b[g].hrs24.replace(/%d/, Math.round(_)) : m < 2 ? u ? b.compact.days1 : b[g].days1 : m < 7 ? u ? b.compact.days7.replace(/%d/, Math.round(m)) : b[g].days7.replace(/%d/, Math.round(m)) : m < 365 && !f ? n.i(s.a)(e, {
       shortenDay: !0,
       shortenMonth: !0,
       excludeYear: !0
-    }) : y < 1.5 ? u ? g.compact.years1 : g[v].years1 : u ? g.compact.years.replace(/%d/, Math.round(y)) : g[v].years.replace(/%d/, Math.round(y));
+    }) : m < 365 && f ? y < 2 ? b.future.month.replace(/%d/, Math.round(y)) : b.future.months.replace(/%d/, Math.round(y)) : v < 1.5 ? u ? b.compact.years1 : b[g].years1 : u ? b.compact.years.replace(/%d/, Math.round(v)) : b[g].years.replace(/%d/, Math.round(v));
   }
   var o = n(2989),
     i = n(2356),
@@ -39845,7 +39912,8 @@ webpackJsonp([332], [, function(e, t, n) {
     c = n(3087),
     d = n(3190),
     f = n(3283),
-    p = function() {
+    p = n(3906),
+    h = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
@@ -39856,7 +39924,7 @@ webpackJsonp([332], [, function(e, t, n) {
         return n && e(t.prototype, n), r && e(t, r), t;
       };
     }(),
-    h = {
+    _ = {
       text: a.PropTypes.string,
       tsfMode: a.PropTypes.string,
       className: a.PropTypes.string,
@@ -39874,7 +39942,7 @@ webpackJsonp([332], [, function(e, t, n) {
       stopAnimations: a.PropTypes.bool,
       featureReactMessages: a.PropTypes.bool
     },
-    _ = {
+    m = {
       text: "",
       tsfMode: "NORMAL",
       className: "",
@@ -39892,13 +39960,13 @@ webpackJsonp([332], [, function(e, t, n) {
       stopAnimations: !1,
       featureReactMessages: !1
     },
-    m = function(e) {
+    y = function(e) {
       function t(e) {
         r(this, t);
         var n = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
-        return n.renderBold = n.renderBold.bind(n), n.renderItalic = n.renderItalic.bind(n), n.renderCode = n.renderCode.bind(n), n.renderPre = n.renderPre.bind(n), n.renderStrike = n.renderStrike.bind(n), n.renderHex = n.renderHex.bind(n), n.renderChannel = n.renderChannel.bind(n), n.renderQuote = n.renderQuote.bind(n), n;
+        return n.renderBold = n.renderBold.bind(n), n.renderItalic = n.renderItalic.bind(n), n.renderCode = n.renderCode.bind(n), n.renderPre = n.renderPre.bind(n), n.renderStrike = n.renderStrike.bind(n), n.renderHex = n.renderHex.bind(n), n.renderChannel = n.renderChannel.bind(n), n.renderQuote = n.renderQuote.bind(n), n.renderCommand = n.renderCommand.bind(n), n;
       }
-      return i(t, e), p(t, null, [{
+      return i(t, e), h(t, null, [{
         key: "renderQuotePrefix",
         value: function() {
           return s.a.createElement("span", {
@@ -39941,15 +40009,6 @@ webpackJsonp([332], [, function(e, t, n) {
           }, n);
         }
       }, {
-        key: "renderCommand",
-        value: function(e) {
-          var t = e.data,
-            n = t.type;
-          return s.a.createElement("a", {
-            href: "not-a-url"
-          }, "@", n);
-        }
-      }, {
         key: "renderMember",
         value: function(e) {
           var t = e.id,
@@ -39982,7 +40041,7 @@ webpackJsonp([332], [, function(e, t, n) {
             className: "c-message__mention"
           }, e);
         }
-      }]), p(t, [{
+      }]), h(t, [{
         key: "renderBold",
         value: function(e) {
           var t = e.contents;
@@ -40066,6 +40125,25 @@ webpackJsonp([332], [, function(e, t, n) {
           }), s !== e.length && a.push(e.slice(s)), a;
         }
       }, {
+        key: "renderCommand",
+        value: function(e) {
+          var t = e.data,
+            n = this.props,
+            r = n.noLinking,
+            o = n.tsfMode,
+            i = t.type,
+            a = t.label;
+          if ("here" === i || "channel" === i || "everyone" === i || "group" === i) return s.a.createElement(p.a, {
+            type: i,
+            tsfMode: o,
+            noLinking: r
+          });
+          var u = "@" === a[0] ? a : "@" + a;
+          return r || "GROWL" === o || "EDIT" === o ? "" + u : s.a.createElement("b", {
+            className: "c-message__mention"
+          }, u);
+        }
+      }, {
         key: "renderMrkdwnFormatting",
         value: function(e) {
           var n = this,
@@ -40082,7 +40160,7 @@ webpackJsonp([332], [, function(e, t, n) {
               paragraph_break: t.renderParagraphBreak,
               space_hard: t.renderHardSpace,
               link: t.renderLink,
-              command: t.renderCommand,
+              command: this.renderCommand,
               member: t.renderMember,
               channel: this.renderChannel,
               emoji: t.renderEmoji,
@@ -40167,7 +40245,7 @@ webpackJsonp([332], [, function(e, t, n) {
         }
       }]), t;
     }(a.PureComponent);
-  t.a = m, m.propTypes = h, m.defaultProps = _;
+  t.a = y, y.propTypes = _, y.defaultProps = m;
 }, , function(e, t, n) {
   "use strict";
   var r = n(2),
@@ -42634,10 +42712,11 @@ webpackJsonp([332], [, function(e, t, n) {
 
   function r(e) {
     if (!e) throw new TypeError("Cannot convert undefined or null to object");
-    for (var t = Object(e), n = 1; n < arguments.length; n++) {
-      var r = arguments[n];
-      if (null != r)
-        for (var o in r) Object.prototype.hasOwnProperty.call(r, o) && (t[o] = r[o]);
+    for (var t = Object(e), n = arguments.length, r = Array(n > 1 ? n - 1 : 0), o = 1; o < n; o++) r[o - 1] = arguments[o];
+    for (var i = 0; i < r.length; i++) {
+      var a = r[i];
+      if (null != a)
+        for (var s = void 0, u = Object.keys(a), l = 0; l < u.length; l++) s = u[l], t[s] = a[s];
     }
     return t;
   }
@@ -42650,7 +42729,7 @@ webpackJsonp([332], [, function(e, t, n) {
   }), n.d(t, "l", function() {
     return u;
   }), n.d(t, "m", function() {
-    return l;
+    return c;
   }), t.a = r, n.d(t, "d", function() {
     return d;
   }), n.d(t, "i", function() {
@@ -42697,12 +42776,6 @@ webpackJsonp([332], [, function(e, t, n) {
       }, "");
     },
     l = function(e, t) {
-      for (var n = e; n && n !== document.body;) {
-        if (c(n, t)) return n;
-        n = n.parentNode;
-      }
-    },
-    c = function(e, t) {
       var n = Element.prototype,
         r = n.matches,
         o = n.webkitMatchesSelector,
@@ -42713,6 +42786,12 @@ webpackJsonp([332], [, function(e, t, n) {
         return -1 !== Array.indexOf.call(t, this);
       }).call(e, t);
     },
+    c = function(e, t) {
+      for (var n = e; n && n !== document.body;) {
+        if (l(n, t)) return n;
+        n = n.parentNode;
+      }
+    },
     d = function(e) {
       return "number" == typeof e;
     },
@@ -42721,7 +42800,7 @@ webpackJsonp([332], [, function(e, t, n) {
     },
     p = function(e, t) {
       if (e && !f(t))
-        for (var n in t) e.setAttribute(n, t[n]);
+        for (var n = void 0, r = Object.keys(t), o = 0; o < r.length; o++) n = r[o], e.setAttribute(n, t[n]);
     },
     h = function(e, t, n) {
       return e < t ? t : e > n ? n : e;
@@ -52356,7 +52435,7 @@ webpackJsonp([332], [, function(e, t, n) {
       retention_duration: 0
     });
   }
-  t.b = r, t.d = o, t.e = i, t.c = s, t.a = u;
+  t.c = r, t.e = o, t.f = i, t.b = a, t.d = s, t.a = u;
   var l = n(6),
     c = n.n(l),
     d = n(2288),
@@ -52723,13 +52802,23 @@ webpackJsonp([332], [, function(e, t, n) {
           };
         }
       }, {
+        key: "isFormDataValid",
+        value: function() {
+          var e = this.state.requestedSettings;
+          return c.a.every(e, function(e, t) {
+            var r = e.retention_duration,
+              o = e.retention_type;
+            return !(n.i(y.b)(t, o) && (0 === r || "" === r));
+          });
+        }
+      }, {
         key: "isFormSubmittable",
         value: function() {
           var e = this.state,
             t = e.requestedSettings,
             n = e.mcUser,
             r = e.requester;
-          return !(c.a.isEmpty(t) || c.a.isUndefined(n) || c.a.isEmpty(n) || c.a.isUndefined(r) || c.a.isEmpty(r));
+          return this.isFormDataValid() && !c.a.isEmpty(t) && !c.a.isUndefined(n) && !c.a.isEmpty(n) && !c.a.isUndefined(r) && !c.a.isEmpty(r);
         }
       }, {
         key: "maybeRenderPendingAlert",
@@ -52780,7 +52869,7 @@ webpackJsonp([332], [, function(e, t, n) {
             pendingSettings: c.a.get(t, e),
             onUpdatePolicy: this.onUpdatePolicySelect,
             policyType: e,
-            policyLabel: n.i(y.b)(e),
+            policyLabel: n.i(y.c)(e),
             isFormPending: r
           });
         }
@@ -52913,7 +53002,7 @@ webpackJsonp([332], [, function(e, t, n) {
     _ = {
       displaySettings: a.PropTypes.shape({
         is_locked: a.PropTypes.bool,
-        retention_duration: a.PropTypes.number,
+        retention_duration: a.PropTypes.oneOfType([a.PropTypes.string, a.PropTypes.number]),
         retention_type: a.PropTypes.number
       }).isRequired,
       policyType: a.PropTypes.oneOf(["channels", "private_channels", "dms", "allow_override", "files"]).isRequired,
@@ -52958,7 +53047,7 @@ webpackJsonp([332], [, function(e, t, n) {
             var e = this.props.currentSettings,
               t = e.retention_type,
               r = e.retention_duration,
-              o = n.i(f.c)(this.props.policyType, t, r),
+              o = n.i(f.d)(this.props.policyType, t, r),
               i = h("Current:");
             return s.a.createElement("p", null, i, " ", o);
           }
@@ -52967,14 +53056,14 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "renderPolicyItem",
         value: function() {
-          var e = n.i(f.d)(this.props.policyType),
+          var e = n.i(f.e)(this.props.policyType),
             t = this.props.isFormPending,
             r = this.props.displaySettings;
           !l.a.isEmpty(this.props.pendingSettings) && t && (r = this.props.pendingSettings);
           var o = r,
             i = o.is_locked,
             a = o.retention_duration,
-            u = 0 === r.retention_type && !i && n.i(f.e)(this.props.policyType) ? 4 : r.retention_type;
+            u = 0 === r.retention_type && !i && n.i(f.f)(this.props.policyType) ? 4 : r.retention_type;
           return s.a.createElement(d.a, {
             id: "policy_select_" + this.props.policyType,
             options: e,
@@ -53118,13 +53207,13 @@ webpackJsonp([332], [, function(e, t, n) {
               className: "p-org_retention_request__modal_section"
             }, s.a.createElement("div", {
               className: "bold margin_bottom_50 p-org_retention_request--font_bump"
-            }, n.i(_.b)(r)), s.a.createElement("div", null, s.a.createElement("div", {
+            }, n.i(_.c)(r)), s.a.createElement("div", null, s.a.createElement("div", {
               className: "bold"
             }, "👉🏾 ", s.a.createElement("span", {
               className: "margin_left_50"
-            }, y("New:"), " ", n.i(_.c)(r, u, i))), s.a.createElement("div", null, "👴🏻 ", s.a.createElement("span", {
+            }, y("New:"), " ", n.i(_.d)(r, u, i))), s.a.createElement("div", null, "👴🏻 ", s.a.createElement("span", {
               className: "margin_left_50"
-            }, y("Old:"), " ", n.i(_.c)(r, h, f)))));
+            }, y("Old:"), " ", n.i(_.d)(r, h, f)))));
           });
         }
       }, {
@@ -53211,7 +53300,7 @@ webpackJsonp([332], [, function(e, t, n) {
       options: a.PropTypes.array.isRequired,
       onUpdatePolicySelection: a.PropTypes.func,
       currentSelectionValue: a.PropTypes.number,
-      currentDurationValue: a.PropTypes.number,
+      currentDurationValue: a.PropTypes.oneOfType([a.PropTypes.string, a.PropTypes.number]),
       isDeactivated: a.PropTypes.bool
     },
     h = {
@@ -53239,7 +53328,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "onTextInput",
         value: function(e) {
-          var t = l.a.parseInt(e.target.value) || 0;
+          var t = l.a.parseInt(e.target.value) || "";
           this.props.onUpdatePolicySelection({
             retention_duration: t
           });
@@ -54155,4 +54244,184 @@ webpackJsonp([332], [, function(e, t, n) {
       });
     };
   t.a = c;
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e, t) {
+    if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
+  }
+
+  function o(e, t) {
+    if (!e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    return !t || "object" != typeof t && "function" != typeof t ? e : t;
+  }
+
+  function i(e, t) {
+    if ("function" != typeof t && null !== t) throw new TypeError("Super expression must either be null or a function, not " + typeof t);
+    e.prototype = Object.create(t && t.prototype, {
+      constructor: {
+        value: e,
+        enumerable: !1,
+        writable: !0,
+        configurable: !0
+      }
+    }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
+  }
+  var a = n(2),
+    s = n.n(a),
+    u = function() {
+      function e(e, t) {
+        for (var n = 0; n < t.length; n++) {
+          var r = t[n];
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
+        }
+      }
+      return function(t, n, r) {
+        return n && e(t.prototype, n), r && e(t, r), t;
+      };
+    }(),
+    l = {
+      type: a.PropTypes.string.isRequired,
+      tsfMode: a.PropTypes.string,
+      featureLocalization: a.PropTypes.bool,
+      featureNameTaggingClient: a.PropTypes.bool,
+      noLinking: a.PropTypes.bool
+    },
+    c = {
+      tsfMode: "NORMAL",
+      featureLocalization: !1,
+      featureNameTaggingClient: !1,
+      noLinking: !1
+    },
+    d = function(e) {
+      function t() {
+        return r(this, t), o(this, (t.__proto__ || Object.getPrototypeOf(t)).apply(this, arguments));
+      }
+      return i(t, e), u(t, [{
+        key: "render",
+        value: function() {
+          var e = this.props,
+            t = e.type,
+            n = (e.featureLocalization, e.featureNameTaggingClient),
+            r = e.noLinking,
+            o = e.tsfMode,
+            i = t;
+          return "GROWL" === o || "EDIT" === o || r ? "EDIT" === o && n ? s.a.createElement("span", null, "<@BK" + t + "|@" + i + ">") : s.a.createElement("span", null, "@", i) : s.a.createElement("b", {
+            className: "c-message__mention"
+          }, "@", i);
+        }
+      }]), t;
+    }(a.PureComponent);
+  t.a = d, d.propTypes = l, d.defaultProps = c;
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e) {
+    return {
+      featureLocalization: n.i(i.isFeatureEnabled)(e, "feature_localization"),
+      featureNameTaggingClient: n.i(i.isFeatureEnabled)(e, "feature_name_tagging_client")
+    };
+  }
+  var o = n(43),
+    i = n(3028),
+    a = n(3904);
+  t.a = n.i(o.b)(r)(a.a);
+}, function(e, t, n) {
+  "use strict";
+  var r = n(3905);
+  t.a = r.a;
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e, t) {
+    var r = arguments.length > 2 && void 0 !== arguments[2] ? arguments[2] : {},
+      p = r.fallbackString,
+      h = void 0 === p ? null : p,
+      _ = n.i(a.a)(e, {
+        returnMoment: !0
+      }),
+      m = n.i(l.a)(_),
+      y = !1,
+      v = void 0;
+    if (h || (v = t), !n.i(o.a)(_).isValid) return v;
+    var g = t.replace(/{(.*?)}/g, function(e, r, a) {
+      var l = "en" !== o.a.locale(),
+        p = void 0,
+        h = void 0;
+      switch (r) {
+        case "date_num":
+          return n.i(i.a)(_, {
+            omitTime: !0
+          });
+        case "date_long":
+          return n.i(u.a)(_) + ", " + n.i(s.a)(_, {
+            shortenMonth: !1,
+            excludeYear: m
+          });
+        case "date_long_pretty":
+          return p = !(0 === t.indexOf("{date_long_pretty}") && 0 === a), h = n.i(u.a)(_) + ", " + n.i(s.a)(_, {
+            shortenMonth: !1,
+            excludeYear: m
+          }), n.i(c.a)(_, {
+            fallbackString: h,
+            uncapitalized: p
+          });
+        case "date":
+          return n.i(s.a)(_, {
+            shortenMonth: !1,
+            excludeYear: m
+          });
+        case "date_pretty":
+          return p = !(0 === t.indexOf("{date_pretty}") && 0 === a), h = n.i(s.a)(_, {
+            shortenMonth: !1,
+            excludeYear: m
+          }), n.i(c.a)(_, {
+            fallbackString: h,
+            uncapitalized: p
+          });
+        case "date_short":
+          return n.i(s.a)(_, {
+            shortenMonth: !0,
+            shortenDay: !0,
+            excludeYear: m
+          });
+        case "date_short_pretty":
+          return p = !(0 === t.indexOf("{date_short_pretty}") && 0 === a), h = n.i(s.a)(_, {
+            shortenDay: !0,
+            shortenMonth: !0,
+            excludeYear: m
+          }), n.i(c.a)(_, {
+            fallbackString: h,
+            uncapitalized: p
+          });
+        case "time":
+          return n.i(d.a)(_, {
+            includeSeconds: !1,
+            includeMeridiem: !l,
+            do24hrTime: l
+          });
+        case "time_secs":
+          return n.i(d.a)(_, {
+            includeSeconds: !0,
+            includeMeridiem: !l,
+            do24hrTime: l
+          });
+        case "ago":
+          return p = !(0 === t.indexOf("{ago}") && 0 === a), h = n.i(f.a)(_), p ? h : h.charAt(0).toLocaleUpperCase() + h.slice(1);
+        default:
+          return y = !0, "";
+      }
+    });
+    return y ? v : g;
+  }
+  var o = n(2989),
+    i = n(2994),
+    a = n(2356),
+    s = n(3169),
+    u = n(3140),
+    l = n(3003),
+    c = n(3653),
+    d = n(2921),
+    f = n(3182);
+  t.a = r;
 }], [2905]);
