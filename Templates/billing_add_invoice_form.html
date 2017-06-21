@@ -1,49 +1,46 @@
 {{i18n_ns "pages_admin"}}
 <form action="" id="add_invoice_form" class="display_flex flex_direction_column large_top_margin">
-  <p class="small_bottom_margin">
-    <label for="add_invoice__number_of_seats">{{#t}}Number of Seats{{/t}}</label>
-    <input type="text" id="add_invoice__number_of_seats" class="small" name="add_invoice__number_of_seats" data-qa="invoice_seats" />
-    <span class="input_note inline">{{#t}}13+ seats required.{{/t}}</span>
-  </p>
 
-  <p class="small_bottom_margin">
+  {{!-- Number of Seats Input --}}
+  <div class="bottom_margin">
+    <label for="add_invoice__number_of_seats">{{#t}}Number of Seats{{/t}}</label>
+    <input type="text" id="add_invoice__number_of_seats" class="small no_margin" name="add_invoice__number_of_seats" data-qa="invoice_seats" />
+    <span id="add_invoice__seat_error" class="input_note inline no_margin">{{default_seat_text}}</span>
+  </div>
+
+  {{!-- Billing Emails Input --}}
+  <div class="bottom_margin">
     <label for="add_invoice__billing_emails">{{#t}}Additional Billing Emails{{/t}}</label>
-    <div class="add_invoice__billing_emails">
+    <div class="add_invoice__billing_emails no_margin">
       <input class="add_invoice__new_billing_email small" type="text" name="add_invoice__billing_emails" data-qa="invoice_additional_billing_emails">
     </div>
-    <a href="#" role="button" id="add_invoice__billing_email_add_button">
-      <span class="input_note inline underline">{{#t}}Add Email{{/t}}</span>
-    </a>
-  </p>
+  </div>
 
-  <p class="small_bottom_margin">
-    <label for="add_invoice__requires_purchase_order">{{#t}}Does your company require a purchase order?{{/t}}</label>
+  {{!-- Purchase Order Radios --}}
+  <div class="bottom_margin">
+    <label for="add_invoice__requires_purchase_order">{{#t}}Need a purchase order?{{/t}}</label>
     <div class="display_flex">
       <label class="radio right_margin">
-        <input type="radio" name="add_invoice__requires_purchase_order" checked="checked" value="no" aria-checked="{{#t}}true{{/t}}" /> {{#t}}No{{/t}}
+        <input type="radio" name="add_invoice__requires_purchase_order" value="no" /> {{#t}}No{{/t}}
       </label>
       <label class="radio right_margin">
         <input type="radio" name="add_invoice__requires_purchase_order" value="yes" /> {{#t}}Yes{{/t}}
       </label>
     </div>
-  </p>
-
-  <div id="add_invoice__purchase_order_container" class="hidden">
-    <p class="small_bottom_margin">
-      <label for="add_invoice__purchase_order_number">{{#t}}Purchase Order #{{/t}}</label>
-      <input type="text" id="add_invoice__purchase_order_number" class="small" name="add_invoice__purchase_order_number" data-qa="invoice_purchase_order" />
-    </p>
-
-    <p class="small_bottom_margin">
-      <label for="add_invoice__purchase_order_amount" class="disabled">{{#t}}Purchase Order Amount{{/t}}</label>
-      <input type="text" id="add_invoice__purchase_order_amount" class="small disabled" disabled="" aria-disabled="true" name="add_invoice__purchase_order_amount" data-qa="invoice_purchase_order_amount" />
-      <span class="normal small greigh">{{#t}}This is the value of your inputted seats.{{/t}}</span>
-    </p>
   </div>
 
+  {{!-- Purchase Order Input --}}
+  <div id="add_invoice__purchase_order_container" class="hidden">
+    <div class="bottom_margin">
+      <label for="add_invoice__purchase_order_number">{{#t}}Purchase Order #{{/t}}</label>
+      <input type="text" id="add_invoice__purchase_order_number" class="small no_margin" name="add_invoice__purchase_order_number" data-qa="invoice_purchase_order" />
+    </div>
+  </div>
+
+  {{!-- Review Order button --}}
   <p class="top_margin">
     <button type="submit" data-qa="checkout_btn" class="checkout_button ladda-button btn btn_large full_width">
-      <span class="ladda-label">{{#t}}Complete your purchase{{/t}}</span>
+      <span class="ladda-label">{{#t}}Review Order{{/t}}</span>
       <span class="ladda-spinner"></span>
     </button>
   </p>

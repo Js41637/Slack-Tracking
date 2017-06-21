@@ -882,11 +882,13 @@ webpackJsonp([12, 328, 337, 329], {
       "use strict";
       TS.registerModule("emoji", {
         onStart: function() {
-          TS.web && TS.web.login_sig.add(TS.emoji.onLogin), TS.client && TS.client.login_sig.add(TS.emoji.onLogin), TS.prefs.jumbomoji_changed_sig.add(u);
-          m = TS.utility.throttleFunc(m, 3e3, !0);
+          TS.web && TS.web.login_sig.add(TS.emoji.onLogin), TS.client && TS.client.login_sig.add(TS.emoji.onLogin), TS.prefs.jumbomoji_changed_sig.add(g), TS.boot_data.feature_update_emoji_to_v4 && m.forEach(function(e) {
+            TS.emoji.spliceSkinToneVariationsIntoAnArrayOfEmojiNames(e.emoji_names);
+          });
+          u = TS.utility.throttleFunc(u, 3e3, !0);
         },
         onLogin: function() {
-          u();
+          g();
         },
         isValidName: function(e) {
           return !!e && (e = TS.emoji.stripWrappingColons(e).toLowerCase(), void 0 !== o[e] && e);
@@ -944,46 +946,46 @@ webpackJsonp([12, 328, 337, 329], {
           return (r()[e] || e) + n;
         },
         addCustomEmoji: function(e, n, t) {
-          S(e, n, t);
+          p(e, n, t);
         },
         removeCustomEmoji: function(e, n) {
-          S(e, void 0, n);
+          p(e, void 0, n);
         },
         ingestCustoms: function(e) {
           function o(e) {
-            return l.map.colons.hasOwnProperty(e) || r.indexOf(e) >= 0;
+            return c.map.colons.hasOwnProperty(e) || r.indexOf(e) >= 0;
           }
           TS.model.all_custom_emoji.length = 0, TS.model.emoji_complex_customs = {};
           var a, i, r = [];
-          _.forOwn(l.data, function(e) {
+          _.forOwn(c.data, function(e) {
             r.push.apply(r, e[3]);
           }), _.forOwn(e, function(e, n) {
-            if ("object" === (void 0 === e ? "undefined" : t(e))) TS.model.emoji_complex_customs[n] = e, l.data[n] = [
+            if ("object" === (void 0 === e ? "undefined" : t(e))) TS.model.emoji_complex_customs[n] = e, c.data[n] = [
               [], null, null, [n], null, null, null, e.apple
-            ], l.map.colons[n] = n, TS.model.all_custom_emoji.push(n);
+            ], c.map.colons[n] = n, TS.model.all_custom_emoji.push(n);
             else {
               if (0 === e.indexOf("alias:")) return;
               if (o(n)) return void TS.error("can't ingest custom emoji :" + n + ": because that already exists");
-              l.data[n] = [
+              c.data[n] = [
                 [], null, null, [n], null, null, null, e
-              ], l.map.colons[n] = n, TS.model.all_custom_emoji.push(n);
+              ], c.map.colons[n] = n, TS.model.all_custom_emoji.push(n);
             }
           }), _.forOwn(e, function(e, n) {
             if ("object" !== (void 0 === e ? "undefined" : t(e)) && 0 === e.indexOf("alias:")) {
               if (o(n)) return void TS.error("can't ingest custom emoji :" + n + ": because that already exists");
-              if (a = e.replace("alias:", ""), i = l.data.hasOwnProperty(a) && l.data[a]) return i[3].push(n), void(l.map.colons[n] = a);
-              if (a = l.map.colons.hasOwnProperty(a) && l.map.colons[a], i = l.data.hasOwnProperty(a) && l.data[a]) return i[3].push(n), void(l.map.colons[n] = a);
+              if (a = e.replace("alias:", ""), i = c.data.hasOwnProperty(a) && c.data[a]) return i[3].push(n), void(c.map.colons[n] = a);
+              if (a = c.map.colons.hasOwnProperty(a) && c.map.colons[a], i = c.data.hasOwnProperty(a) && c.data[a]) return i[3].push(n), void(c.map.colons[n] = a);
               TS.boot_data && TS.boot_data.feature_tinyspeck && TS.warn('alias for "' + n + '":"' + e + '" not recognized');
             }
-          }), TS.model.all_custom_emoji = TS.model.all_custom_emoji.sort(), l && l.inits && (delete l.inits.emoticons, l.init_emoticons()), n = s();
+          }), TS.model.all_custom_emoji = TS.model.all_custom_emoji.sort(), c && c.inits && (delete c.inits.emoticons, c.init_emoticons()), n = s();
         },
         setUpEmoji: function() {
           return new Promise(function(e) {
-            if (!l) return TS.boot_data.feature_tinyspeck && TS.info("BOOT: Done setting up emoji, there was nothing to do"), e();
+            if (!c) return TS.boot_data.feature_tinyspeck && TS.info("BOOT: Done setting up emoji, there was nothing to do"), e();
             var n = function() {
-              l.buildKeywordIndex(), f(), TS.boot_data.feature_tinyspeck && TS.info("BOOT: Done setting up emoji"), e();
+              c.buildKeywordIndex(), S(), TS.boot_data.feature_tinyspeck && TS.info("BOOT: Done setting up emoji"), e();
             };
-            if (g(), !TS.boot_data.page_needs_custom_emoji) return n();
+            if (f(), !TS.boot_data.page_needs_custom_emoji) return n();
             if (!TS.boot_data.page_needs_custom_emoji_fresh) {
               var t = TS.storage.fetchCustomEmoji();
               if (t && TS.model.emoji_cache_ts == t.cache_ts) return TS.model.did_we_load_with_emoji_cache = !0, TS.emoji.ingestCustoms(t.data), n();
@@ -1000,7 +1002,7 @@ webpackJsonp([12, 328, 337, 329], {
           });
         },
         resetUpEmoji: function() {
-          TS.storage.storeCustomEmoji(""), m();
+          TS.storage.storeCustomEmoji(""), u();
         },
         maybeRemakeMenuListsIfFrequentsChanged: function() {
           var n = a();
@@ -1008,7 +1010,7 @@ webpackJsonp([12, 328, 337, 329], {
         },
         makeMenuLists: function() {
           TS.model.emoji_groups.length = 0, TS.model.emoji_names.length = 0, o = {};
-          var n = _.cloneDeep(d);
+          var n = _.cloneDeep(m);
           TS.model.all_custom_emoji && TS.model.all_custom_emoji.length && n.push({
             display_name: TS.i18n.t("Custom", "emoji")(),
             tab_icon_html: '<span class="emoji-sizer"><i class="ts_icon ts_icon_slack"></i></span>',
@@ -1027,20 +1029,20 @@ webpackJsonp([12, 328, 337, 329], {
           var t, i, r = [];
           for (t = 0; t < n.length; t += 1) r = r.concat(n[t].emoji_names);
           var s = {};
-          for (Object.keys(l.data).forEach(function(e) {
-              var n = l.data[e][3],
+          for (Object.keys(c.data).forEach(function(e) {
+              var n = c.data[e][3],
                 t = TS.emoji.isIdxSkinToneModifiable(e);
               n.forEach(function(n, a, i) {
                 var r = n,
-                  c = i;
-                TS.model.emoji_names.push(n), o[n] = !0, TS.boot_data.feature_localization && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE && (r = TSFEmoji.getLocalEmojiString(n, TS.i18n.locale()), c = i.map(function(e) {
+                  _ = i;
+                TS.model.emoji_names.push(n), o[n] = !0, TS.boot_data.feature_localization && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE && (r = TSFEmoji.getLocalEmojiString(n, TS.i18n.locale()), _ = i.map(function(e) {
                   return TSFEmoji.getLocalEmojiString(e, TS.i18n.locale());
                 })), s[n] = {
                   html: TS.emoji.graphicReplace(":" + n + ":"),
                   name: ":" + n + ":",
                   names: ":" + i.join(": :") + ":",
                   display_name: ":" + r + ":",
-                  display_names: ":" + c.join(": :") + ":"
+                  display_names: ":" + _.join(": :") + ":"
                 }, TS.model.emoji_map.push({
                   id: "E" + e + (a > 0 ? "_alias_" + a : ""),
                   name: n,
@@ -1048,63 +1050,63 @@ webpackJsonp([12, 328, 337, 329], {
                   display_name: r,
                   is_skin: t,
                   is_emoji: !0
-                }), t && (s[n].is_skin = !0, s[n].skin_tone_id = "1", l.skin_tones.forEach(function(t) {
-                  if (l.variations_data[e + "-" + t]) {
-                    var a = l.data[t],
-                      _ = a[3][0],
-                      d = n + "::" + _;
-                    TS.model.emoji_names.push(d), o[d] = !0;
-                    var m = ":" + d + ":",
-                      u = i.map(function(e) {
-                        return e + "::" + _;
+                }), t && (s[n].is_skin = !0, s[n].skin_tone_id = "1", c.skin_tones.forEach(function(t) {
+                  if (l(e, t)) {
+                    var a = c.data[t],
+                      d = a[3][0],
+                      m = n + "::" + d;
+                    TS.model.emoji_names.push(m), o[m] = !0;
+                    var u = ":" + m + ":",
+                      g = i.map(function(e) {
+                        return e + "::" + d;
                       }),
-                      g = m,
-                      f = u;
+                      f = u,
+                      S = g;
                     if (TS.boot_data.feature_localization && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE) {
-                      var S = TSFEmoji.getLocalEmojiString(_, TS.i18n.locale());
-                      g = ":" + r + "::" + S + ":", f = c.map(function(e) {
-                        return e + "::" + S;
+                      var p = TSFEmoji.getLocalEmojiString(d, TS.i18n.locale());
+                      f = ":" + r + "::" + p + ":", S = _.map(function(e) {
+                        return e + "::" + p;
                       });
                     }
-                    s[d] = {
+                    s[m] = {
                       is_skin: !0,
-                      skin_tone_id: _.substr(-1, 1),
-                      html: TS.emoji.graphicReplace(m),
-                      name: m,
-                      names: ":" + u.join(": :") + ":",
-                      display_name: g,
-                      display_names: ":" + f.join(": :") + ":"
+                      skin_tone_id: d.substr(-1, 1),
+                      html: TS.emoji.graphicReplace(u),
+                      name: u,
+                      names: ":" + g.join(": :") + ":",
+                      display_name: f,
+                      display_names: ":" + S.join(": :") + ":"
                     };
                   }
                 }));
               });
-            }), c = s, TS.model.emoji_map = _.uniqBy(TS.model.emoji_map, "id"), t = 0; t < r.length; t += 1) {
-            var m = r[t];
-            s[m] || TS.info(m + " not in cat_map?");
+            }), d = s, TS.model.emoji_map = _.uniqBy(TS.model.emoji_map, "id"), t = 0; t < r.length; t += 1) {
+            var u = r[t];
+            s[u] || TS.info(u + " not in cat_map?");
           }
-          var u, g, f, S;
+          var g, f, S, p;
           for (t = 0; t < n.length; t += 1) {
-            for (u = n[t], g = [], f = null, S = "", u.tab_icon_html && (S = u.tab_icon_html), i = 0; i < u.emoji_names.length; i += 1) f = s[u.emoji_names[i]], g.push(f), S || u.emoji_names[i] == u.name && (S = f.html);
-            f = g[0], TS.model.emoji_groups.push({
-              name: u.name,
-              display_name: u.display_name,
-              tab_html: S || f.html,
-              tab_icon: u.tab_icon,
-              tab_icon_name: u.tab_icon_name,
-              items: g
+            for (g = n[t], f = [], S = null, p = "", g.tab_icon_html && (p = g.tab_icon_html), i = 0; i < g.emoji_names.length; i += 1) S = s[g.emoji_names[i]], f.push(S), p || g.emoji_names[i] == g.name && (p = S.html);
+            S = f[0], TS.model.emoji_groups.push({
+              name: g.name,
+              display_name: g.display_name,
+              tab_html: p || S.html,
+              tab_icon: g.tab_icon,
+              tab_icon_name: g.tab_icon_name,
+              items: f
             });
           }
-          var p = TS.emoji.getCurrentSheetUrl();
-          if (_.get(TS, "model.prefs.ss_emojis") && p) {
-            var T = new Image;
-            T.onload = function() {
-              T.onload = null, T.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==", T = null;
-            }, T.src = p;
+          var T = TS.emoji.getCurrentSheetUrl();
+          if (_.get(TS, "model.prefs.ss_emojis") && T) {
+            var h = new Image;
+            h.onload = function() {
+              h.onload = null, h.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==", h = null;
+            }, h.src = T;
           }
           TS.model.emoji_names.sort(), TS.emoji.friendlyReorder();
-          var h = TS.model.emoji_names.indexOf("ok"),
-            b = TS.model.emoji_names.indexOf("ok_hand");
-          TS.model.emoji_names[h] = "ok_hand", TS.model.emoji_names[b] = "ok";
+          var b = TS.model.emoji_names.indexOf("ok"),
+            w = TS.model.emoji_names.indexOf("ok_hand");
+          TS.model.emoji_names[b] = "ok_hand", TS.model.emoji_names[w] = "ok";
           "dev" === TS.boot_data.version_ts && function(e) {
             var n = TS.model.emoji_names.concat();
             ["skin-tone-2", "skin-tone-3", "skin-tone-4", "skin-tone-5", "skin-tone-6"].forEach(function(e) {
@@ -1112,8 +1114,8 @@ webpackJsonp([12, 328, 337, 329], {
             }), e.forEach(function(e) {
               e.emoji_names.forEach(function(e) {
                 _.pull(n, e);
-                var t = l.map.colons[e],
-                  o = l.data[t];
+                var t = c.map.colons[e],
+                  o = c.data[t];
                 o && o[3].forEach(function(e) {
                   [e, e + "::skin-tone-2", e + "::skin-tone-3", e + "::skin-tone-4", e + "::skin-tone-5", e + "::skin-tone-6"].forEach(function(e) {
                     _.pull(n, e);
@@ -1156,39 +1158,39 @@ webpackJsonp([12, 328, 337, 329], {
           });
         },
         isIdxSkinToneModifiable: function(e) {
-          return !!l.variations_data[e + "-" + l.skin_tones[0]];
+          return l(e, c.skin_tones[0]);
         },
         isNameSkinToneModifiable: function(e) {
           e = TS.emoji.stripWrappingColons(e), e = String(e).toLowerCase();
-          var n = l.map.colons[e];
+          var n = c.map.colons[e];
           return TS.emoji.isIdxSkinToneModifiable(n);
         },
         graphicReplace: function(e, n) {
           if (!e) return "";
           if (n = n || {}, n.show_icon_for_emoji_in_as_text_mode && TS.emoji.isValidName(e)) return '<ts-icon class="emoji-sizer ts_icon_info_circle ts_icon_inherit" title="' + e.replace(/:/g, "") + '"></ts-icon>';
-          l.init_env();
-          var t = l.text_mode,
-            o = l.include_title,
-            a = l.include_text,
-            i = l.supports_css,
-            r = l.allow_skin_tone_squares;
-          n.force_img && n.obey_emoji_mode_pref && (n.obey_emoji_mode_pref = !1, TS.error("obey_emoji_mode_pref now set to FALSE because options.force_img is TRUE")), n.force_style && n.obey_emoji_mode_pref && (n.obey_emoji_mode_pref = !1, TS.error("obey_emoji_mode_pref now set to FALSE because options.force_style is " + n.force_style)), l.text_mode = n.obey_emoji_mode_pref && "as_text" === _.get(TS, "model.prefs.emoji_mode"), n.force_style && (TS.emoji.setEmojiMode(n.force_style), l.use_sheet = !1), l.include_title = !!n.include_title, l.include_text = !!n.include_text, l.supports_css = !n.force_img, l.allow_skin_tone_squares = !n.no_skin_tone_squares;
-          var s = l.replace_colons(e, {
+          c.init_env();
+          var t = c.text_mode,
+            o = c.include_title,
+            a = c.include_text,
+            i = c.supports_css,
+            r = c.allow_skin_tone_squares;
+          n.force_img && n.obey_emoji_mode_pref && (n.obey_emoji_mode_pref = !1, TS.error("obey_emoji_mode_pref now set to FALSE because options.force_img is TRUE")), n.force_style && n.obey_emoji_mode_pref && (n.obey_emoji_mode_pref = !1, TS.error("obey_emoji_mode_pref now set to FALSE because options.force_style is " + n.force_style)), c.text_mode = n.obey_emoji_mode_pref && "as_text" === _.get(TS, "model.prefs.emoji_mode"), n.force_style && (TS.emoji.setEmojiMode(n.force_style), c.use_sheet = !1), c.include_title = !!n.include_title, c.include_text = !!n.include_text, c.supports_css = !n.force_img, c.allow_skin_tone_squares = !n.no_skin_tone_squares;
+          var s = c.replace_colons(e, {
             stop_animations: n.stop_animations
           });
-          return n.jumbomoji && (s = s.replace("emoji-sizer", "emoji-sizer emoji-only")), n.force_style && TS.emoji.setEmojiMode(), l.text_mode = t, l.include_title = o, l.include_text = a, l.supports_css = i, l.allow_skin_tone_squares = r, s;
+          return n.jumbomoji && (s = s.replace("emoji-sizer", "emoji-sizer emoji-only")), n.force_style && TS.emoji.setEmojiMode(), c.text_mode = t, c.include_title = o, c.include_text = a, c.supports_css = i, c.allow_skin_tone_squares = r, s;
         },
         replaceColons: function(e) {
-          return e.indexOf(":") < 0 ? e : l.replace_colons(e);
+          return e.indexOf(":") < 0 ? e : c.replace_colons(e);
         },
         maybeUnifiedReplace: function(e) {
-          return "unified" !== l.replace_mode ? e : l.replace_colons_with_unified(e);
+          return "unified" !== c.replace_mode ? e : c.replace_colons_with_unified(e);
         },
         replaceEmoticons: function(e) {
-          return l.replace_emoticons_with_colons(e);
+          return c.replace_emoticons_with_colons(e);
         },
         eachEmoticon: function(e, n) {
-          e.replace(l.rx_emoticons, n);
+          e.replace(c.rx_emoticons, n);
         },
         getLocalSkinToneName: function() {
           var e = "skin-tone";
@@ -1204,13 +1206,13 @@ webpackJsonp([12, 328, 337, 329], {
         },
         setEmojiMode: function(e) {
           var n = ["google", "emojione", "twitter", "apple"];
-          if (e = e || _.get(TS, "model.prefs.emoji_mode"), l.text_mode = "as_text" === e, l.do_emoticons = !!_.get(TS, "model.prefs.graphic_emoticons"), l.allow_native = !1, l.use_sheet = function() {
+          if (e = e || _.get(TS, "model.prefs.emoji_mode"), c.text_mode = "as_text" === e, c.do_emoticons = !!_.get(TS, "model.prefs.graphic_emoticons"), c.allow_native = !1, c.use_sheet = function() {
               return !!_.get(TS, "model.prefs.ss_emojis") && !!TS.boot_data.page_needs_custom_emoji;
-            }(), l.img_set = _.includes(n, e) ? e : "apple", TS.model.emoji_complex_customs)
-            for (var t in TS.model.emoji_complex_customs) l.data[t] && (l.data[t][7] = TS.model.emoji_complex_customs[t][l.img_set]);
+            }(), c.img_set = _.includes(n, e) ? e : "apple", TS.model.emoji_complex_customs)
+            for (var t in TS.model.emoji_complex_customs) c.data[t] && (c.data[t][7] = TS.model.emoji_complex_customs[t][c.img_set]);
         },
         getColonsRx: function() {
-          return l.rx_colons;
+          return c.rx_colons;
         },
         getEmojiByName: function(e) {
           if (e) return _.find(TS.model.emoji_map, {
@@ -1225,21 +1227,21 @@ webpackJsonp([12, 328, 337, 329], {
         },
         getEmojiForSpaces: function() {
           var e = {
-            emoticonEmojiNames: l.emoticons_data,
+            emoticonEmojiNames: c.emoticons_data,
             emoji: {},
-            sheetSize: l.sheet_size,
+            sheetSize: c.sheet_size,
             sheetPath: TS.emoji.getCurrentSheetUrl(),
             replace: function() {
-              var e = l.colons_mode;
-              l.colons_mode = !0;
-              var n = l.replace_unified.apply(l, arguments);
-              return TS.boot_data.feature_localization && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE && (n = TSFEmoji.translateEmojiStringToCanonical(n, TS.i18n.locale())), l.colons_mode = e, n;
+              var e = c.colons_mode;
+              c.colons_mode = !0;
+              var n = c.replace_unified.apply(c, arguments);
+              return TS.boot_data.feature_localization && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE && (n = TSFEmoji.translateEmojiStringToCanonical(n, TS.i18n.locale())), c.colons_mode = e, n;
             }
           };
           return TS.boot_data.feature_localization && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE && (e.getLocalEmojiString = function(e) {
             return TSFEmoji.getLocalEmojiString(e, TS.i18n.locale()) || e;
-          }), Object.keys(l.data).forEach(function(n) {
-            var t, o = l.data[n],
+          }), Object.keys(c.data).forEach(function(n) {
+            var t, o = c.data[n],
               a = o[3],
               i = o[4],
               r = o[5],
@@ -1257,36 +1259,36 @@ webpackJsonp([12, 328, 337, 329], {
           }), e;
         },
         getCurrentSheetUrl: function() {
-          return l.img_sets[l.img_set].sheet;
+          return c.img_sets[c.img_set].sheet;
         },
         getCurrentImagePath: function() {
-          return l.img_sets[l.img_set].path;
+          return c.img_sets[c.img_set].path;
         },
         test: function() {
           return {
-            emoji: l
+            emoji: c
           };
         },
         spliceSkinToneVariationsIntoAnArrayOfEmojiNames: function(e) {
           var n = 0;
           e.concat().forEach(function(t, o) {
-            var a = l.map.colons[t];
-            l.data.hasOwnProperty(a) && l.data[a] && l.skin_tones.forEach(function(i) {
-              if (l.variations_data[a + "-" + i]) {
-                var r = l.data[i],
+            var a = c.map.colons[t];
+            c.data.hasOwnProperty(a) && c.data[a] && c.skin_tones.forEach(function(i) {
+              if (l(a, i)) {
+                var r = c.data[i],
                   s = r[3][0],
-                  c = t + "::" + s;
-                if (-1 === e.indexOf(c)) {
+                  _ = t + "::" + s;
+                if (-1 === e.indexOf(_)) {
                   n += 1;
-                  var _ = n + o;
-                  e.splice(_, 0, c);
+                  var d = n + o;
+                  e.splice(d, 0, _);
                 }
               }
             });
           });
         },
         findByKeyword: function(e) {
-          return l.findByKeyword(e);
+          return c.findByKeyword(e);
         },
         maybeGetCanonicalEmojiString: function(e) {
           return TS.boot_data.feature_localization && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE ? TSFEmoji.translateEmojiStringToCanonical(e, TS.i18n.locale()) : e;
@@ -1323,7 +1325,7 @@ webpackJsonp([12, 328, 337, 329], {
           t || TS.emoji.makeMenuLists();
           var o = [];
           e.forEach(function(e) {
-            var n = c[e];
+            var n = d[e];
             n && o.push(n);
           }), t.items = o;
         },
@@ -1332,15 +1334,18 @@ webpackJsonp([12, 328, 337, 329], {
         },
         s = function() {
           var e, n = {};
-          return Object.keys(l.data).forEach(function(t) {
-            e = l.data[t], n[e[3][0]] = null, e[3].forEach(function(t) {
+          return Object.keys(c.data).forEach(function(t) {
+            e = c.data[t], n[e[3][0]] = null, e[3].forEach(function(t) {
               n.hasOwnProperty(t) || (n[t] = e[3][0]);
             });
           }), n;
         },
-        l = emoji,
-        c = {},
-        d = [{
+        l = function(e, n) {
+          return TS.boot_data.feature_update_emoji_to_v4 ? !(!c.variations_data[e] || !c.variations_data[e][n]) : !!c.variations_data[e + "-" + n];
+        },
+        c = emoji,
+        d = {},
+        m = [{
           name: "people",
           display_name: TS.i18n.t("People", "emoji")(),
           tab_icon_html: '<span class="emoji-sizer"><i class="ts_icon ts_icon_happy_smile"></i></span>',
@@ -1397,25 +1402,25 @@ webpackJsonp([12, 328, 337, 329], {
           tab_icon_name: "flag",
           emoji_names: ["flag-ac", "flag-ad", "flag-ae", "flag-af", "flag-ag", "flag-ai", "flag-al", "flag-am", "flag-ao", "flag-aq", "flag-ar", "flag-as", "flag-at", "flag-au", "flag-aw", "flag-ax", "flag-az", "flag-ba", "flag-bb", "flag-bd", "flag-be", "flag-bf", "flag-bg", "flag-bh", "flag-bi", "flag-bj", "flag-bl", "flag-bm", "flag-bn", "flag-bo", "flag-bq", "flag-br", "flag-bs", "flag-bt", "flag-bv", "flag-bw", "flag-by", "flag-bz", "flag-ca", "flag-cc", "flag-cd", "flag-cf", "flag-cg", "flag-ch", "flag-ci", "flag-ck", "flag-cl", "flag-cm", "flag-cn", "flag-co", "flag-cp", "flag-cr", "flag-cu", "flag-cv", "flag-cw", "flag-cx", "flag-cy", "flag-cz", "flag-de", "flag-dg", "flag-dj", "flag-dk", "flag-dm", "flag-do", "flag-dz", "flag-ea", "flag-ec", "flag-ee", "flag-eg", "flag-eh", "flag-er", "flag-es", "flag-et", "flag-eu", "flag-fi", "flag-fj", "flag-fk", "flag-fm", "flag-fo", "flag-fr", "flag-ga", "flag-gb", "flag-gd", "flag-ge", "flag-gf", "flag-gg", "flag-gh", "flag-gi", "flag-gl", "flag-gm", "flag-gn", "flag-gp", "flag-gq", "flag-gr", "flag-gs", "flag-gt", "flag-gu", "flag-gw", "flag-gy", "flag-hk", "flag-hm", "flag-hn", "flag-hr", "flag-ht", "flag-hu", "flag-ic", "flag-id", "flag-ie", "flag-il", "flag-im", "flag-in", "flag-io", "flag-iq", "flag-ir", "flag-is", "flag-it", "flag-je", "flag-jm", "flag-jo", "flag-jp", "flag-ke", "flag-kg", "flag-kh", "flag-ki", "flag-km", "flag-kn", "flag-kp", "flag-kr", "flag-kw", "flag-ky", "flag-kz", "flag-la", "flag-lb", "flag-lc", "flag-li", "flag-lk", "flag-lr", "flag-ls", "flag-lt", "flag-lu", "flag-lv", "flag-ly", "flag-ma", "flag-mc", "flag-md", "flag-me", "flag-mf", "flag-mg", "flag-mh", "flag-mk", "flag-ml", "flag-mm", "flag-mn", "flag-mo", "flag-mp", "flag-mq", "flag-mr", "flag-ms", "flag-mt", "flag-mu", "flag-mv", "flag-mw", "flag-mx", "flag-my", "flag-mz", "flag-na", "flag-nc", "flag-ne", "flag-nf", "flag-ng", "flag-ni", "flag-nl", "flag-no", "flag-np", "flag-nr", "flag-nu", "flag-nz", "flag-om", "flag-pa", "flag-pe", "flag-pf", "flag-pg", "flag-ph", "flag-pk", "flag-pl", "flag-pm", "flag-pn", "flag-pr", "flag-ps", "flag-pt", "flag-pw", "flag-py", "flag-qa", "flag-re", "flag-ro", "flag-rs", "flag-ru", "flag-rw", "flag-sa", "flag-sb", "flag-sc", "flag-sd", "flag-se", "flag-sg", "flag-sh", "flag-si", "flag-sj", "flag-sk", "flag-sl", "flag-sm", "flag-sn", "flag-so", "flag-sr", "flag-ss", "flag-st", "flag-sv", "flag-sx", "flag-sy", "flag-sz", "flag-ta", "flag-tc", "flag-td", "flag-tf", "flag-tg", "flag-th", "flag-tj", "flag-tk", "flag-tl", "flag-tm", "flag-tn", "flag-to", "flag-tr", "flag-tt", "flag-tv", "flag-tw", "flag-tz", "flag-ua", "flag-ug", "flag-um", "flag-us", "flag-uy", "flag-uz", "flag-va", "flag-vc", "flag-ve", "flag-vg", "flag-vi", "flag-vn", "flag-vu", "flag-wf", "flag-ws", "flag-xk", "flag-ye", "flag-yt", "flag-za", "flag-zm", "flag-zw"]
         }];
-      d.forEach(function(e) {
+      TS.boot_data.feature_update_emoji_to_v4 || m.forEach(function(e) {
         TS.emoji.spliceSkinToneVariationsIntoAnArrayOfEmojiNames(e.emoji_names);
       });
-      var m = function() {
+      var u = function() {
           TS.emoji.setUpEmoji();
         },
-        u = function() {
+        g = function() {
           TS.client && TS.model.ms_logged_in_once && (TS.client.msg_pane.rebuildMsgsWithReason("_toggleJumbomoji"), TS.view.rebuildMentions(), TS.view.rebuildStars(), TS.model.previewed_file_id && TS.client.ui.files.rebuildFilePreview());
         },
-        g = function() {
-          l.unaltered_data && (l.data = _.cloneDeep(l.unaltered_data), l.inits = {}), l.ts_init_colons();
-        },
         f = function() {
+          c.unaltered_data && (c.data = _.cloneDeep(c.unaltered_data), c.inits = {}), c.ts_init_colons();
+        },
+        S = function() {
           TS.emoji.setEmojiMode(), TS.emoji.makeMenuLists();
           var e = !!TS.model.ms_logged_in_once;
           TS.client && e && TS.client.ui.rebuildAll(!1, !0);
         },
-        S = function(e, n, t) {
-          if (l) {
+        p = function(e, n, t) {
+          if (c) {
             var o = TS.storage.fetchCustomEmoji();
             if (!o) return void TS.emoji.resetUpEmoji();
             if (void 0 === n) {
@@ -1427,7 +1432,7 @@ webpackJsonp([12, 328, 337, 329], {
             TS.model.emoji_cache_ts = t, TS.storage.storeCustomEmoji({
               data: o.data,
               cache_ts: TS.model.emoji_cache_ts
-            }), g(), TS.emoji.ingestCustoms(o.data), f();
+            }), f(), TS.emoji.ingestCustoms(o.data), S();
           }
         };
     }();

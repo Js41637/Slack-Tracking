@@ -6259,7 +6259,7 @@ span.emoji {
 }
 
 span.emoji-outer {
-  background-size: 4100%!important;
+  background-size: 4100%;
   display: inline-block;
   height: 1em;
   overflow: hidden;
