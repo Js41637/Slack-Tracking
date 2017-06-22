@@ -8298,35 +8298,45 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           var a = t.replace(/<|>/g, ""),
             s = a.split("|"),
             l = s[0].substr(1);
-          if (_.includes(o, l)) return "GROWL" === e || "EDIT" === e || i ? "EDIT" === e && TS.boot_data.feature_name_tagging_client ? "<@BK" + l + "|@" + l + ">" : "@" + l : (TS.boot_data.feature_localization && (l = d[l] || l), '<b class="mention">@' + l + "</b>");
-          var c = s[1] ? s[1] : l;
-          if (-1 === l.indexOf("^")) return "GROWL" === e || "EDIT" === e ? "<" + c + ">" : "&lt;" + c + "&gt;";
-          var u = l.split("^");
-          if ("date" === (l = u.shift()) && u.length >= 2) {
-            var m = u[0],
-              p = u[1],
-              f = TS.utility.date.formatDate(p, m, c),
-              h = u.length > 2 ? u[2] : "";
-            return "GROWL" === e || "EDIT" === e || !h || i ? f : "<a " + TS.utility.makeRefererSafeLink(h) + ' target="_blank">' + f + "</a>";
+          if (_.includes(o, l)) {
+            if (TS.boot_data.feature_tinyspeck) {
+              var c = TS.interop.format.formatBroadcastCommand({
+                type: l,
+                featureLocalization: TS.boot_data.feature_localization,
+                featureNameTaggingClient: TS.boot_data.feature_name_tagging_client
+              });
+              return "GROWL" === e || "EDIT" === e || i ? c : '<b class="mention">' + c + "</b>";
+            }
+            return "GROWL" === e || "EDIT" === e || i ? "EDIT" === e && TS.boot_data.feature_name_tagging_client ? "<@BK" + l + "|@" + l + ">" : "@" + l : (TS.boot_data.feature_localization && (l = d[l] || l), '<b class="mention">@' + l + "</b>");
           }
-          if ("team" === l && 1 === u.length) {
-            var g = c,
-              S = TS.teams.getTeamById(u[0]);
-            return S && (g = S.name), "GROWL" === e || "EDIT" === e ? "*" + g + "*" : TS.templates.format_team({
-              team: S,
-              fallback: g
+          var u = s[1] ? s[1] : l;
+          if (-1 === l.indexOf("^")) return "GROWL" === e || "EDIT" === e ? "<" + u + ">" : "&lt;" + u + "&gt;";
+          var m = l.split("^");
+          if ("date" === (l = m.shift()) && m.length >= 2) {
+            var p = m[0],
+              f = m[1],
+              h = TS.utility.date.formatDate(f, p, u),
+              g = m.length > 2 ? m[2] : "";
+            return "GROWL" === e || "EDIT" === e || !g || i ? h : "<a " + TS.utility.makeRefererSafeLink(g) + ' target="_blank">' + h + "</a>";
+          }
+          if ("team" === l && 1 === m.length) {
+            var S = u,
+              T = TS.teams.getTeamById(m[0]);
+            return T && (S = T.name), "GROWL" === e || "EDIT" === e ? "*" + S + "*" : TS.templates.format_team({
+              team: T,
+              fallback: S
             });
           }
-          if ("subteam" !== l || 1 !== u.length) return "GROWL" === e || "EDIT" === e ? "<" + c + ">" : "&lt;" + c + "&gt;";
-          var T = TS.user_groups.getUserGroupsById(u[0]);
-          if (T && T.handle) {
-            var b = TS.utility.shouldLinksHaveTargets() ? 'target="/usergroups/' + T.id + '" ' : " ",
-              v = _.escape(T.handle),
-              y = n || "EDIT" === e ? "@" + v : I("@" + v),
-              w = ["internal_user_group_link"];
-            return "GROWL" === e || "EDIT" === e ? "EDIT" === e && TS.boot_data.feature_name_tagging_client ? "<@" + T.id + "|" + y + ">" : "@" + T.handle : i ? y : (TS.boot_data.feature_texty_mentions && (y = "@" + v, n || -1 === TS.model.highlight_words.indexOf("@" + v) || w.push("mention")), '<a href="/usergroups/' + T.id + '" ' + b + 'data-user-group-id="' + T.id + '" class="' + w.join(" ") + '">' + y + "</a>");
+          if ("subteam" !== l || 1 !== m.length) return "GROWL" === e || "EDIT" === e ? "<" + u + ">" : "&lt;" + u + "&gt;";
+          var b = TS.user_groups.getUserGroupsById(m[0]);
+          if (b && b.handle) {
+            var v = TS.utility.shouldLinksHaveTargets() ? 'target="/usergroups/' + b.id + '" ' : " ",
+              y = _.escape(b.handle),
+              w = n || "EDIT" === e ? "@" + y : I("@" + y),
+              k = ["internal_user_group_link"];
+            return "GROWL" === e || "EDIT" === e ? "EDIT" === e && TS.boot_data.feature_name_tagging_client ? "<@" + b.id + "|" + w + ">" : "@" + b.handle : i ? w : (TS.boot_data.feature_texty_mentions && (w = "@" + y, n || -1 === TS.model.highlight_words.indexOf("@" + y) || k.push("mention")), '<a href="/usergroups/' + b.id + '" ' + v + 'data-user-group-id="' + b.id + '" class="' + k.join(" ") + '">' + w + "</a>");
           }
-          return "GROWL" !== e && "EDIT" !== e ? c : "";
+          return "GROWL" !== e && "EDIT" !== e ? u : "";
         },
         P = function(e, t, n) {
           var i = t.split(" ")[1].replace(">", "");
@@ -16084,7 +16094,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             TS.model.ms_connected && (TS.model.rtm_start_throttler < 1 || (TS.model.rtm_start_throttler -= 1));
           }, 6e4);
           a = TS.boot_data.feature_tinyspeck || TS.utility.enableFeatureForUser(10), s = Date.now(), TS.boot_data.feature_tinyspeck || (he = _.noop, ge = _.noop, fe = _.noop), TS.client && TS.client.stats && (TS.client.stats.start_collecting_sig.add(function() {
-            d = TS.boot_data.feature_queue_metrics && TS.utility.enableFeatureForUser(Oe);
+            d = TS.boot_data.feature_queue_metrics && TS.utility.enableFeatureForUser(Ee);
           }), TS.client.stats.stop_collecting_sig.add(function() {
             d = !1;
           }));
@@ -16113,7 +16123,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               handler: t,
               ts: Date.now(),
               temp_ts: n
-            }, "ping" === e.type || "pong" === e.type ? TS.has_pri[Fe] && (TS.log(Fe, "MS sending " + e.type), TS.dir(Fe, e)) : (TS.model.last_net_send = Date.now(), TS.has_pri[Fe] && (TS.log(Fe, "sending " + e.type), TS.dir(Fe, e))), !$) {
+            }, "ping" === e.type || "pong" === e.type ? TS.has_pri[Oe] && (TS.log(Oe, "MS sending " + e.type), TS.dir(Oe, e)) : (TS.model.last_net_send = Date.now(), TS.has_pri[Oe] && (TS.log(Oe, "sending " + e.type), TS.dir(Oe, e))), !$) {
             var s = new Error("TS.ms.send called when we have no _websocket! This is a programming error.");
             throw TS.error(s), TS.info("Some context for debugging:"), TS.info("TS.model.calling_rtm_start=" + TS.model.calling_rtm_start), TS.info("TS.model.ms_connected=" + TS.model.ms_connected), TS.info("TS.model.ms_connecting=" + TS.model.ms_connecting), TS.console.logStackTrace("TS.ms.sendMsg(...)"), s;
           }
@@ -16121,19 +16131,19 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         handleMsg: function(e) {
           var t, n = e.reply_to && !("ok" in e) && "message" === e.type;
-          e.reply_to ? e.reply_to.toString() in TS.ms.sent_map ? t = we(e) : n || TS.error('received msg "' + e.reply_to + '" with type "' + e.type + '" but we have no record of it in sent_map') : (e.event_ts && !e._from_evt_log && TS.ms.storeLastEventTS(e.event_ts, "handleMsg"), TS.storage.isUsingMemberBotCache() && e.cache_ts && TS.storage.rememberLastCacheTS(e.cache_ts));
+          e.reply_to ? e.reply_to.toString() in TS.ms.sent_map ? t = ye(e) : n || TS.error('received msg "' + e.reply_to + '" with type "' + e.type + '" but we have no record of it in sent_map') : (e.event_ts && !e._from_evt_log && TS.ms.storeLastEventTS(e.event_ts, "handleMsg"), TS.storage.isUsingMemberBotCache() && e.cache_ts && TS.storage.rememberLastCacheTS(e.cache_ts));
           var i = function() {
             r && (r = !1, TS.info("Got pong from MS")), TS.ms.last_pong_time = Date.now(), j = !1, he();
           };
-          if ("ping" === e.type || "pong" === e.type) TS.has_pri[Fe] && (t && t.ts ? TS.log(Fe, "MS msg " + e.type + " time: " + (Date.now() - t.ts) + " ms") : TS.log(Fe, "MS msg " + e.type + " time: " + Date.now() + " ms (no sent.ts)")), a && (Date.now() - s > x ? (TS.metrics.measureAndClear("ms_ping_pong_latency", "ms_ping_sent"), s = Date.now()) : TS.metrics.clearMarks("ms_ping_sent")), i(), TS.has_pri[Fe] && TS.dir(Fe, e);
+          if ("ping" === e.type || "pong" === e.type) TS.has_pri[Oe] && (t && t.ts ? TS.log(Oe, "MS msg " + e.type + " time: " + (Date.now() - t.ts) + " ms") : TS.log(Oe, "MS msg " + e.type + " time: " + Date.now() + " ms (no sent.ts)")), a && (Date.now() - s > x ? (TS.metrics.measureAndClear("ms_ping_pong_latency", "ms_ping_sent"), s = Date.now()) : TS.metrics.clearMarks("ms_ping_sent")), i(), TS.has_pri[Oe] && TS.dir(Oe, e);
           else {
             var o = Date.now() - TS.ms.last_pong_time;
-            if (j && o > I && (TS.has_pri[Fe] && TS.log(Fe, "MS msg being used as an implicit pong due to excessive delay (" + o + "ms)"), i(), a && TS.metrics.clearMarks("ms_ping_sent")), ge(e), TS.has_pri[Fe]) {
+            if (j && o > I && (TS.has_pri[Oe] && TS.log(Oe, "MS msg being used as an implicit pong due to excessive delay (" + o + "ms)"), i(), a && TS.metrics.clearMarks("ms_ping_sent")), ge(e), TS.has_pri[Oe]) {
               if (t) {
                 var l = e.type || e.SENT_MSG.type || "";
-                TS.log(Fe, "msg " + (l ? '"' + l + '" ' : "") + "rsp time " + (Date.now() - t.ts) + "ms");
-              } else TS.log(Fe, 'msg "' + e.type + '"');
-              TS.dir(Fe, e);
+                TS.log(Oe, "msg " + (l ? '"' + l + '" ' : "") + "rsp time " + (Date.now() - t.ts) + "ms");
+              } else TS.log(Oe, 'msg "' + e.type + '"');
+              TS.dir(Oe, e);
             }
           }
           "error" === e.type ? oe(e) : "hello" === e.type ? le(e) : e.reply_to || (d && TS.metrics.mark("ms_queue_processing_start"), TS.ms.on_msg_sig.dispatch(e), d && TS.metrics.measureAndClear("ms_queue_starvation_time", "ms_queue_processing_start")), t && (e.ok || "flannel" !== e.type || (e.ok = !0), e.ok || (e.error = e.error || {
@@ -16188,21 +16198,18 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             name: e,
             time: n,
             delta: t.length ? n - t[t.length - 1].time : 0
-          }), TS.has_pri[Fe] && TS.log(Fe, "logConnectionFlow " + e + " " + t[t.length - 1].delta);
+          }), TS.has_pri[Oe] && TS.log(Oe, "logConnectionFlow " + e + " " + t[t.length - 1].delta);
         },
         getConnectionFlowLog: function() {
           for (var e = TS.model.ms_conn_log, t = [], n = 0; n < e.length; n += 1) t.push(encodeURIComponent(e[n].name + "-" + (e[n].delta ? Math.round(e[n].delta / 1e3) : 0) + "-" + Math.round(e[n].time / 1e3)));
-          return TS.has_pri[Fe] && TS.dir(Fe, TS.model.ms_conn_log), "_x_connection_log=" + t.join(",");
+          return TS.has_pri[Oe] && TS.dir(Oe, TS.model.ms_conn_log), "_x_connection_log=" + t.join(",");
         },
         connectImmediately: function(e) {
           if (e || (e = TS.model.team.url), !e) throw new Error("No WebSocket URL for us to connect to! 😱");
-          e = me(e), Me(e), ye();
-        },
-        connectProvisionally: function(e) {
-          Me(e), be();
+          e = me(e), xe(e), ve();
         },
         connectProvisionallyAndFetchRtmStart: function(e) {
-          return e || (e = TS.model.team.url), e = me(e), Me(e), TS.boot_data.ws_refactor_bucket && TS.metrics.count("ms_flow_connect_prov"), ve();
+          return e || (e = TS.model.team.url), e = me(e), xe(e), TS.boot_data.ws_refactor_bucket && TS.metrics.count("ms_flow_connect_prov"), be();
         },
         hasProvisionalConnection: function() {
           return !!f;
@@ -16216,7 +16223,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           })), n);
         },
         finalizeProvisionalConnection: function() {
-          return TS.boot_data.ws_refactor_bucket && TS.metrics.count("ms_flow_finalize_prov"), xe();
+          return TS.boot_data.ws_refactor_bucket && TS.metrics.count("ms_flow_finalize_prov"), ke();
         },
         fastReconnect: function() {
           TS.info("Trying fast reconnect"), TS.ms.calling_test_fast_reconnect = !0, TS.api.callImmediately("rtm.checkFastReconnect").then(function(e) {
@@ -16275,7 +16282,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         W = null,
         q = !1,
         z = function(e) {
-          L = e ? 6e4 : 12e4, L += 1e4, TS.has_pri[Fe] && TS.log(Fe, "MS _pong_timeout_ms set to:" + L + " has_focus:" + e);
+          L = e ? 6e4 : 12e4, L += 1e4, TS.has_pri[Oe] && TS.log(Oe, "MS _pong_timeout_ms set to:" + L + " has_focus:" + e);
         },
         K = function(e) {
           var t = e.data;
@@ -16288,11 +16295,11 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           TS.ms.handleMsg(i);
         },
         V = function() {
-          clearTimeout(A), U = 0, Ee(), v ? (ce(), TS.metrics.measureAndClear("ms_fast_reconnect", "ms_websocket_create"), q = !0) : (TS.metrics.measureAndClear("ms_connect", "ms_websocket_create"), q = !1), h && TS.ms.send({
+          clearTimeout(A), U = 0, Ae(), v ? (ce(), TS.metrics.measureAndClear("ms_fast_reconnect", "ms_websocket_create"), q = !0) : (TS.metrics.measureAndClear("ms_connect", "ms_websocket_create"), q = !1), h && TS.ms.send({
             type: "mp_command",
             subtype: "login",
             url: me(TS.model.team.url)
-          }), Ce(), $.onmessage = K, TS.model.ms_conn_log.length = 0, TS.info("MS WS connected!"), TS.ms.logConnectionFlow("on_connect"), clearTimeout(F), F = setTimeout(re, 3e4);
+          }), Me(), $.onmessage = K, TS.model.ms_conn_log.length = 0, TS.info("MS WS connected!"), TS.ms.logConnectionFlow("on_connect"), clearTimeout(F), F = setTimeout(re, 3e4);
         },
         Y = function() {
           TS.client && TS.shared.maybeFetchHistoryAndThenCheckConsistency(TS.shared.getActiveModelOb());
@@ -16346,7 +16353,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         X = function() {
           if (j) {
             var e = Date.now() - TS.ms.last_pong_time;
-            if (TS.has_pri[Fe] && TS.log(Fe, "MS since_last_pong_ms:" + e + " pong_timeout_ms:" + L), !(e < L || TS.boot_data.feature_no_pong_timeout)) {
+            if (TS.has_pri[Oe] && TS.log(Oe, "MS since_last_pong_ms:" + e + " pong_timeout_ms:" + L), !(e < L || TS.boot_data.feature_no_pong_timeout)) {
               TS.metrics.count("ms_pong_timeout"), TS.metrics.store("ms_time_since_pong", e), TS.warn("since_last_pong_ms too long! " + e + " > " + L), fe(), he(), TS.warn("calling disconnect(), expect to get an onDisconnect() callback"), TS.ms.logConnectionFlow("on_ping_timeout"), TS.boot_data.ws_refactor_bucket && TS.metrics.count("ms_flow_trouble_connecting"), TS.ms.trouble_sig.dispatch(), j = !1, te("You are on team Tiny Speck, so here are some pong details:\n>>>since_last_pong_ms too long! " + e + " > " + L + " ... calling disconnect(), expect to get an onDisconnect() callback");
               try {
                 TS.ms.disconnect(!1, "Disconnecting because of pong timeout"), clearTimeout(D), D = setTimeout(function() {
@@ -16364,7 +16371,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }), j && k && (TS.info("Sent another ping to MS; prior ping was never replied to"), r = !0), a && TS.metrics.mark("ms_ping_sent"), j = !0, k = !0;
         },
         ee = function(n, i) {
-          S || (e = e || performance.now()), !i && t && (i = "disconnected after a goodbye message"), i = i || "_onDisconnect called with event:" + n, TS.info("MS WS disconnected"), TS.ms.logConnectionFlow("on_disconnect"), clearTimeout(D), clearTimeout(F), clearTimeout(A), h = !1, f = !1, Ae(), n ? (TS.info("_onDisconnect event.code:" + n.code), n.code == TS.ms.errors.CONNECTION_TROUBLE && (TS.info("TS.ms: This was an unexpected WebSocket disconnection"), TS.boot_data.ws_refactor_bucket && TS.metrics.count("ms_flow_unexpected_close"), T && (TS.info("TS.ms: resetting ms_reconnect delay"), T = 0), TS.model.rtm_start_throttler && (TS.info("TS.ms: resetting rtm.start throttler"), TS.model.rtm_start_throttler = 0))) : TS.info("no event"), de() && (v = !0), TS.ms.onFailure(i);
+          S || (e = e || performance.now()), !i && t && (i = "disconnected after a goodbye message"), i = i || "_onDisconnect called with event:" + n, TS.info("MS WS disconnected"), TS.ms.logConnectionFlow("on_disconnect"), clearTimeout(D), clearTimeout(F), clearTimeout(A), h = !1, f = !1, Ie(), n ? (TS.info("_onDisconnect event.code:" + n.code), n.code == TS.ms.errors.CONNECTION_TROUBLE && (TS.info("TS.ms: This was an unexpected WebSocket disconnection"), TS.boot_data.ws_refactor_bucket && TS.metrics.count("ms_flow_unexpected_close"), T && (TS.info("TS.ms: resetting ms_reconnect delay"), T = 0), TS.model.rtm_start_throttler && (TS.info("TS.ms: resetting rtm.start throttler"), TS.model.rtm_start_throttler = 0))) : TS.info("no event"), de() && (v = !0), TS.ms.onFailure(i);
         },
         te = function(e) {},
         ne = function(e, t) {
@@ -16378,7 +16385,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             var n = $;
             $ = void 0, w.dispatch(n);
           }
-          f = !1, Ae();
+          f = !1, Ie();
         },
         ie = function() {
           var e = b - Date.now(),
@@ -16465,7 +16472,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         Te = function(e) {
           if (!TS.utility.url.isValidSlackWebSocketUrl(e)) return TS.error("Tried to connect to a WebSocket URL that doesn’t look right; aborting"), TS.ms.onFailure("Invalid WebSocket URL"), !1;
-          TS.lazyLoadMembersAndBots() && (e = TS.utility.url.setUrlQueryStringValue(e, "flannel", 1), e = TS.utility.url.setUrlQueryStringValue(e, "token", TS.boot_data.api_token), e = TS.utility.url.setUrlQueryStringValue(e, "no_annotations", 1), "dev" === TS.boot_data.version_ts && TS.boot_data.should_use_flannel && (e = TS.utility.url.setUrlQueryStringValue(e, "api_url", TS.boot_data.flannel_api_url)), ke() && (e = TS.utility.url.setUrlQueryStringValue(e, "canary", 1)), TS.has_pri[De] && TS.log(De, "Connecting to Flannel..." + e)), TS.ms.logConnectionFlow("connect");
+          TS.lazyLoadMembersAndBots() && (e = TS.utility.url.setUrlQueryStringValue(e, "flannel", 1), e = TS.utility.url.setUrlQueryStringValue(e, "token", TS.boot_data.api_token), e = TS.utility.url.setUrlQueryStringValue(e, "no_annotations", 1), "dev" === TS.boot_data.version_ts && TS.boot_data.should_use_flannel && (e = TS.utility.url.setUrlQueryStringValue(e, "api_url", TS.boot_data.flannel_api_url)), we() && (e = TS.utility.url.setUrlQueryStringValue(e, "canary", 1)), TS.has_pri[Fe] && TS.log(Fe, "Connecting to Flannel..." + e)), TS.ms.logConnectionFlow("connect");
           var t = e.replace(TS.boot_data.api_token, "REDACTED");
           TS.info("Connecting to: " + t), clearTimeout(A), TS.ms.last_url = e, TS.ms.last_start_ms = Date.now(), TS.metrics.mark("ms_websocket_create");
           try {
@@ -16476,9 +16483,6 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return !0;
         },
         be = function() {
-          TS.info("Initializing provisional MS connection"), f = !0, h = !0, Ie(), c = _e(), u = _e(), m = _e(), p = _e(), $.onclose = u, $.onerror = m, $.onmessage = p, $.onopen = c;
-        },
-        ve = function() {
           TS.info("Initializing provisional MS connection and fetching rtm.start over the socket"), f = !0;
           var e = $;
           return new Promise(function(t, n) {
@@ -16488,11 +16492,11 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               r = function(t) {
                 t !== e && (TS.warn("Received a call to abort RTM start attempt for a websocket that is not the current websocket, this should not be happening!"), TS.info("current_websocket defined?", !!e, "recently_deprecated_socket defined?", !!t)), i(new Error("Socket was deprecated"));
               };
-            w.addOnce(r), Ie();
+            w.addOnce(r), Ce();
             var a = setTimeout(function() {
               TS.warn("Provisional WebSocket timed out"), i(new Error("Waited 90000 ms for rtm.start response but didn’t get one"));
             }, 9e4);
-            c = _e(Ce), u = _e(function() {
+            c = _e(Me), u = _e(function() {
               TS.warn("Provisional WebSocket got disconnected"), i(new Error("WebSocket got disconnected"));
             }), m = _e(function(e) {
               TS.warn("Provisional WebSocket encountered an error");
@@ -16503,7 +16507,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               if ("flannel" === n.type && "user_query_response" === n.subtype) {
                 if (!n.reply_to) return void TS.error("Received a pre-connection Flannel query response without a reply_to field: " + e.data);
                 if (!TS.ms.sent_map[n.reply_to.toString()]) return void TS.error("Received a pre-connection Flannel query response for a query we did not send: " + e.data);
-                var s = we(n);
+                var s = ye(n);
                 return s && _.isFunction(s.handler) && s.handler(n.ok, n), !1;
               }
               if (TS.info("Provisional WebSocket received a message of type " + n.type), "hello" === n.type)
@@ -16526,16 +16530,16 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             throw TS.logError(e, "rtm-start-over-MS error", "error on rtm start"), e;
           });
         },
-        ye = function() {
+        ve = function() {
           $.onopen = V, $.onclose = ee, $.onerror = se, ue();
         },
-        we = function(e) {
+        ye = function(e) {
           if (e.reply_to) {
             var t = TS.ms.sent_map[e.reply_to];
             if (t) return TS.client && TS.client.stats.isEnabled() && t.msg && "message" === t.msg.type && TS.metrics.measureAndClear("message_server_reply", "user_send_message_" + e.reply_to), e.SENT_MSG = t.msg, delete TS.ms.sent_map[e.reply_to], t;
           }
         },
-        ke = function() {
+        we = function() {
           var e = _.get(TS, "model.prefs.flannel_server_pool", TS.boot_data.flannel_server_pool);
           switch (TS.boot_data.feature_tinyspeck || TS.boot_data.feature_flannel_use_canary_sometimes || (e = "production"), e) {
             case "canary":
@@ -16547,26 +16551,26 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               return !1;
           }
         },
-        xe = function() {
-          return Ae(), f && !$ ? (f = !1, TS.warn("Tried to finalize provisional connection while _did_make_provisional_connection flag is true, but there is no _websocket. This is a programming error."), !1) : f ? (f = !1, Se(), !0) : (TS.warn("Tried to finalize provisional connection while _did_make_provisional_connection flag is false. This is a programming error."), !1);
+        ke = function() {
+          return Ie(), f && !$ ? (f = !1, TS.warn("Tried to finalize provisional connection while _did_make_provisional_connection flag is true, but there is no _websocket. This is a programming error."), !1) : f ? (f = !1, Se(), !0) : (TS.warn("Tried to finalize provisional connection while _did_make_provisional_connection flag is false. This is a programming error."), !1);
         },
-        Me = function(e) {
+        xe = function(e) {
           if ($ && $.readyState == WebSocket.OPEN) throw TS.warn("TS.ms has an open WebSocket but we are trying to connect; TS.model.ms_connected = " + TS.model.ms_connected + "; TS.model.ms_connecting = " + TS.model.ms_connecting), new Error("TS.ms.connect called but we are already connected. This is a programming error.");
           if (!Te(e)) throw new Error("Error creating WebSocket for URL " + e);
           TS.model.ms_connecting = !0;
         },
-        Ce = function() {
+        Me = function() {
           i && (i(), n = void 0, i = void 0);
         },
-        Ie = function() {
-          Ae(), TS.qs_args.no_prov_timeout || (g = setTimeout(function() {
+        Ce = function() {
+          Ie(), TS.qs_args.no_prov_timeout || (g = setTimeout(function() {
             f ? (TS.boot_data.ws_refactor_bucket && TS.metrics.count("ms_flow_prov_timeout"), TS.warn("Giving up on provisional connection because no one ever finalized it"), ne(4002, "Deprecating socket because the provisional connection was never finalized")) : TS.warn("Provisional connection timed out, but it does not look like we have a provisional connection");
           }, 3e4));
         },
-        Ae = function() {
+        Ie = function() {
           g && (clearTimeout(g), g = void 0);
         },
-        Ee = function() {
+        Ae = function() {
           if (e) {
             var n = performance.now(),
               i = n - e,
@@ -16575,9 +16579,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }
           e = void 0, t = void 0;
         },
-        Oe = 50,
-        Fe = 2,
-        De = 1989;
+        Ee = 50,
+        Oe = 2,
+        Fe = 1989;
     }();
   },
   2489: function(e, t) {

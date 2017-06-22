@@ -40030,7 +40030,7 @@ webpackJsonp([332], [, function(e, t, n) {
       function t(e) {
         r(this, t);
         var n = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
-        return n.renderBold = n.renderBold.bind(n), n.renderItalic = n.renderItalic.bind(n), n.renderCode = n.renderCode.bind(n), n.renderPre = n.renderPre.bind(n), n.renderStrike = n.renderStrike.bind(n), n.renderHex = n.renderHex.bind(n), n.renderQuote = n.renderQuote.bind(n), n.renderCommand = n.renderCommand.bind(n), n;
+        return n.renderBold = n.renderBold.bind(n), n.renderItalic = n.renderItalic.bind(n), n.renderCode = n.renderCode.bind(n), n.renderPre = n.renderPre.bind(n), n.renderStrike = n.renderStrike.bind(n), n.renderHex = n.renderHex.bind(n), n.renderQuote = n.renderQuote.bind(n), n;
       }
       return i(t, e), h(t, null, [{
         key: "renderQuotePrefix",
@@ -40117,6 +40117,20 @@ webpackJsonp([332], [, function(e, t, n) {
             fallbackName: n
           });
         }
+      }, {
+        key: "renderCommand",
+        value: function(e) {
+          var t = e.data,
+            n = t.type,
+            r = t.label;
+          if ("here" === n || "channel" === n || "everyone" === n || "group" === n) return s.a.createElement(p.a, {
+            type: n
+          });
+          var o = "@" === r[0] ? r : "@" + r;
+          return s.a.createElement("b", {
+            className: "c-message__mention"
+          }, o);
+        }
       }]), h(t, [{
         key: "renderBold",
         value: function(e) {
@@ -40201,25 +40215,6 @@ webpackJsonp([332], [, function(e, t, n) {
           }), s !== e.length && a.push(e.slice(s)), a;
         }
       }, {
-        key: "renderCommand",
-        value: function(e) {
-          var t = e.data,
-            n = this.props,
-            r = n.noLinking,
-            o = n.tsfMode,
-            i = t.type,
-            a = t.label;
-          if ("here" === i || "channel" === i || "everyone" === i || "group" === i) return s.a.createElement(p.a, {
-            type: i,
-            tsfMode: o,
-            noLinking: r
-          });
-          var u = "@" === a[0] ? a : "@" + a;
-          return r || "GROWL" === o || "EDIT" === o ? "" + u : s.a.createElement("b", {
-            className: "c-message__mention"
-          }, u);
-        }
-      }, {
         key: "renderMrkdwnFormatting",
         value: function(e) {
           var n = this,
@@ -40236,7 +40231,7 @@ webpackJsonp([332], [, function(e, t, n) {
               paragraph_break: t.renderParagraphBreak,
               space_hard: t.renderHardSpace,
               link: t.renderLink,
-              command: this.renderCommand,
+              command: t.renderCommand,
               member: t.renderMember,
               channel: t.renderChannel,
               emoji: t.renderEmoji,
@@ -52634,7 +52629,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }]
     };
 }, , function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".c-modal {\n  position: fixed;\n  top: 100%;\n  left: 0;\n  bottom: 0;\n  right: 0;\n  z-index: 1000;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n}\n.c-modal--active {\n  top: 0;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms;\n}\n.c-modal__background {\n  height: 100vh;\n  width: 100vw;\n  background-color: #FFFFFF;\n  position: absolute;\n  top: 0;\n  left: 0;\n  pointer-events: none;\n}\n.c-modal__contents {\n  height: 100vh;\n  top: 100%;\n  opacity: 0;\n  -webkit-transform: translateY(5px);\n  -moz-transform: translateY(5px);\n  -ms-transform: translateY(5px);\n  transform: translateY(5px);\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, -webkit-transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n}\n.c-modal__contents--active {\n  top: 0;\n  opacity: 1;\n  -webkit-transform: translateY(0);\n  -moz-transform: translateY(0);\n  -ms-transform: translateY(0);\n  transform: translateY(0);\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, -webkit-transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n}\n.c-modal__header {\n  position: fixed;\n  left: 0;\n  right: 0;\n  display: flex;\n  align-items: center;\n  -ms-flex-pack: distribute;\n  -webkit-box-pack: distribute;\n  -webkit-justify-content: space-around;\n  -moz-justify-content: space-around;\n  justify-content: space-around;\n  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);\n  height: 3.75rem;\n  background-color: #FFFFFF;\n  top: 0;\n  z-index: 10;\n}\n.c-modal__close {\n  position: absolute;\n  top: 20px;\n  right: 20px;\n  z-index: 100;\n  cursor: pointer;\n}\n.c-modal__close:before {\n  font-size: 30px;\n  color: #717274;\n}\n.c-modal__body {\n  padding-top: 3.75rem;\n  margin-bottom: 4.5rem;\n}\n.p-org_retention_request {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-weight: 400;\n  -webkit-font-smoothing: antialiased;\n  font-size: 15px;\n}\n.p-org_retention_request--font_bump {\n  font-size: 16px;\n  line-height: 1.5;\n}\n.p-org_retention_request__modal_content {\n  max-width: 640px;\n  margin: 0 auto;\n  padding-top: 7.5rem;\n}\n.p-org_retention_request__modal_section {\n  border-bottom: 1px solid #E8E8E8;\n  margin-bottom: 1rem;\n  padding: 0 1rem 1rem;\n  font-size: 15px;\n  line-height: 1.5;\n}\n.p-org_retention_request__modal_section--lead {\n  padding-left: 0;\n  padding-right: 0;\n}\n.p-org_retention_request__section_header {\n  font-weight: 900;\n  font-size: 22px;\n  margin-bottom: 1.875rem;\n  color: #2C2D30;\n}\n.p-org_retention_request__policy_select_group {\n  display: flex;\n}\n.p-org_retention_request__select_wrapper {\n  position: relative;\n  width: calc(100% - 200px);\n}\n.p-org_retention_request__select_wrapper:after {\n  font-family: 'Slack';\n  content: '\\E271';\n  position: absolute;\n  right: 10px;\n  top: 15px;\n  width: 20px;\n  height: 20px;\n  display: block;\n  pointer-events: none;\n}\n.p-org_retention_request__select {\n  display: block;\n  cursor: pointer;\n}\n.p-org_retention_request__duration_group {\n  position: relative;\n  max-width: 105px;\n  display: flex;\n  align-items: baseline;\n}\n.p-org_retention_request__duration_label {\n  position: absolute;\n  left: 0;\n  top: -1.5rem;\n}\n.p-org_retention_request__duration_label--secondary {\n  display: block;\n}\n.p-org_retention_request__requester_input {\n  width: calc(100% - 200px);\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".c-modal {\n  position: fixed;\n  top: 100%;\n  left: 0;\n  bottom: 0;\n  right: 0;\n  z-index: 1000;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n}\n.c-modal--active {\n  top: 0;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms;\n}\n.c-modal__background {\n  height: 100vh;\n  width: 100vw;\n  background-color: #FFFFFF;\n  position: absolute;\n  top: 0;\n  left: 0;\n  pointer-events: none;\n}\n.c-modal__contents {\n  height: 100vh;\n  top: 100%;\n  opacity: 0;\n  -webkit-transform: translateY(5px);\n  -moz-transform: translateY(5px);\n  -ms-transform: translateY(5px);\n  transform: translateY(5px);\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, -webkit-transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n}\n.c-modal__contents--active {\n  top: 0;\n  opacity: 1;\n  -webkit-transform: translateY(0);\n  -moz-transform: translateY(0);\n  -ms-transform: translateY(0);\n  transform: translateY(0);\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, -webkit-transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n}\n.c-modal__header {\n  position: fixed;\n  left: 0;\n  right: 0;\n  display: flex;\n  align-items: center;\n  -ms-flex-pack: distribute;\n  -webkit-box-pack: distribute;\n  -webkit-justify-content: space-around;\n  -moz-justify-content: space-around;\n  justify-content: space-around;\n  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);\n  height: 3.75rem;\n  background-color: #FFFFFF;\n  top: 0;\n  z-index: 10;\n}\n.c-modal__close {\n  position: absolute;\n  top: 20px;\n  right: 20px;\n  z-index: 100;\n  cursor: pointer;\n}\n.c-modal__close:before {\n  font-size: 30px;\n  color: #717274;\n}\n.c-modal__body {\n  padding-top: 3.75rem;\n  margin-bottom: 4.5rem;\n}\n.p-org_retention_request {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-weight: 400;\n  -webkit-font-smoothing: antialiased;\n  font-size: 15px;\n}\n.p-org_retention_request--font_bump {\n  font-size: 16px;\n  line-height: 1.5;\n}\n.p-org_retention_request__modal {\n  overflow-y: auto;\n}\n.p-org_retention_request__modal_content {\n  max-width: 640px;\n  margin: 0 auto;\n  padding-top: 7.5rem;\n}\n.p-org_retention_request__modal_section {\n  border-bottom: 1px solid #E8E8E8;\n  margin-bottom: 1rem;\n  padding: 0 1rem 1rem;\n  font-size: 15px;\n  line-height: 1.5;\n}\n.p-org_retention_request__modal_section--lead {\n  padding-left: 0;\n  padding-right: 0;\n}\n.p-org_retention_request__section_header {\n  font-weight: 900;\n  font-size: 22px;\n  margin-bottom: 1.875rem;\n  color: #2C2D30;\n}\n.p-org_retention_request__policy_select_group {\n  display: flex;\n}\n.p-org_retention_request__select_wrapper {\n  position: relative;\n  width: calc(100% - 200px);\n}\n.p-org_retention_request__select_wrapper:after {\n  font-family: 'Slack';\n  content: '\\E271';\n  position: absolute;\n  right: 10px;\n  top: 15px;\n  width: 20px;\n  height: 20px;\n  display: block;\n  pointer-events: none;\n}\n.p-org_retention_request__select {\n  display: block;\n  cursor: pointer;\n}\n.p-org_retention_request__duration_group {\n  position: relative;\n  max-width: 105px;\n  display: flex;\n  align-items: baseline;\n}\n.p-org_retention_request__duration_label {\n  position: absolute;\n  left: 0;\n  top: -1.5rem;\n}\n.p-org_retention_request__duration_label--secondary {\n  display: block;\n}\n.p-org_retention_request__requester_input {\n  width: calc(100% - 200px);\n}\n", ""]);
 }, function(e, t, n) {
   "use strict";
   var r = n(3615);
@@ -53340,7 +53335,7 @@ webpackJsonp([332], [, function(e, t, n) {
           }, s.a.createElement("div", {
             className: "c-modal__background"
           }), s.a.createElement("div", {
-            className: "c-modal__contents c-modal__contents--active"
+            className: "c-modal__contents c-modal__contents--active p-org_retention_request__modal"
           }, s.a.createElement(f.a, {
             type: "times",
             onClick: this.onClickCloseOrCancelButton,
@@ -53351,7 +53346,9 @@ webpackJsonp([332], [, function(e, t, n) {
             className: "margin_bottom_0"
           }, e)), s.a.createElement("div", {
             className: "c-modal__body p-org_retention_request__modal_content"
-          }, t, s.a.createElement("div", null, s.a.createElement("button", {
+          }, t, s.a.createElement("div", {
+            className: "margin_bottom_400"
+          }, s.a.createElement("button", {
             type: "button",
             className: "btn btn_outline margin_right_75",
             onClick: this.onClickCloseOrCancelButton
@@ -53427,7 +53424,7 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "onOptionSelection",
         value: function(e) {
           var t = e.target.value,
-            n = 0 === l.a.parseInt(t);
+            n = 4 !== l.a.parseInt(t);
           this.props.onUpdatePolicySelection({
             retention_type: l.a.parseInt(t),
             is_locked: n
@@ -53949,11 +53946,13 @@ webpackJsonp([332], [, function(e, t, n) {
 }, function(e, t, n) {
   "use strict";
   var r = n(2353),
-    o = n(3435),
-    i = n(3911);
+    o = n(3917),
+    i = n(3911),
+    a = n(3435);
   n.i(r.a)("interop.format", {
+    formatBroadcastCommand: o.a,
     formatChannelName: i.a,
-    locateHighlightWords: o.a
+    locateHighlightWords: a.a
   });
 }, function(e, t, n) {
   "use strict";
@@ -54379,7 +54378,8 @@ webpackJsonp([332], [, function(e, t, n) {
   }
   var a = n(2),
     s = n.n(a),
-    u = function() {
+    u = n(3917),
+    l = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
@@ -54390,39 +54390,39 @@ webpackJsonp([332], [, function(e, t, n) {
         return n && e(t.prototype, n), r && e(t, r), t;
       };
     }(),
-    l = {
-      type: a.PropTypes.string.isRequired,
-      tsfMode: a.PropTypes.string,
-      featureLocalization: a.PropTypes.bool,
-      featureNameTaggingClient: a.PropTypes.bool,
-      noLinking: a.PropTypes.bool
-    },
     c = {
-      tsfMode: "NORMAL",
-      featureLocalization: !1,
-      featureNameTaggingClient: !1,
-      noLinking: !1
+      type: a.PropTypes.string.isRequired,
+      featureLocalization: a.PropTypes.bool,
+      featureNameTaggingClient: a.PropTypes.bool
     },
-    d = function(e) {
+    d = {
+      featureLocalization: !1,
+      featureNameTaggingClient: !1
+    },
+    f = function(e) {
       function t() {
         return r(this, t), o(this, (t.__proto__ || Object.getPrototypeOf(t)).apply(this, arguments));
       }
-      return i(t, e), u(t, [{
+      return i(t, e), l(t, [{
         key: "render",
         value: function() {
           var e = this.props,
             t = e.type,
-            n = (e.featureLocalization, e.featureNameTaggingClient),
-            r = e.noLinking,
-            o = e.tsfMode,
-            i = t;
-          return "GROWL" === o || "EDIT" === o || r ? "EDIT" === o && n ? s.a.createElement("span", null, "<@BK" + t + "|@" + i + ">") : s.a.createElement("span", null, "@", i) : s.a.createElement("b", {
+            r = e.featureLocalization,
+            o = e.featureNameTaggingClient,
+            i = n.i(u.a)({
+              type: t,
+              featureLocalization: r,
+              featureNameTaggingClient: o,
+              tsfMode: "NORMAL"
+            });
+          return s.a.createElement("b", {
             className: "c-message__mention"
-          }, "@", i);
+          }, i);
         }
       }]), t;
     }(a.PureComponent);
-  t.a = d, d.propTypes = l, d.defaultProps = c;
+  t.a = f, f.propTypes = c, f.defaultProps = d;
 }, function(e, t, n) {
   "use strict";
 
@@ -54732,4 +54732,27 @@ webpackJsonp([332], [, function(e, t, n) {
     };
   };
   t.a = n.i(i.b)(_)(h);
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e) {
+    var t = e.type,
+      n = e.tsfMode,
+      r = void 0 === n ? "NORMAL" : n,
+      o = e.translations,
+      i = void 0 === o ? a : o,
+      s = e.featureLocalization,
+      u = e.featureNameTaggingClient;
+    if (!t) return null;
+    var l = t;
+    return s && i[t] && (l = i[t]), "EDIT" === r && u ? "<@BK" + t + "|@" + l + ">" : "@" + l;
+  }
+  t.a = r;
+  var o = n(2288),
+    i = o.a.ns("broadcast_keywords"),
+    a = {
+      channel: i("channel"),
+      everyone: i("everyone"),
+      here: i("here")
+    };
 }], [2905]);
