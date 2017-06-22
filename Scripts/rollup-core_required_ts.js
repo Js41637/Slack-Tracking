@@ -1489,7 +1489,7 @@ webpackJsonp([12, 328, 337, 329], {
       }
 
       function t() {
-        TS.environment.supports_sticky_position = o("position", "sticky"), "Chrome" === window.bowser.name && parseInt(window.bowser.version, 10) < 57 && e() && (TS.environment.supports_sticky_position = !1);
+        TS.environment.supports_sticky_position = o("position", "sticky"), "Chrome" === window.bowser.name && parseInt(window.bowser.version, 10) < 57 && e() && (TS.environment.supports_sticky_position = !1), TS.useRedux() && TS.redux.dispatch(TS.interop.redux.entities.environment.setSupportsStickyPosition(TS.environment.supports_sticky_position));
       }
 
       function i() {
@@ -1648,12 +1648,12 @@ webpackJsonp([12, 328, 337, 329], {
               id: a.self.id
             }) || a.users.push(a.self), a.users.forEach(function(e) {
               "USLACKBOT" !== e.id && e.id != TS.boot_data.user_id || (e.presence = "active"), delete e.updated;
-            }), o.is_channel) i(o, a.channels);
-          else if (o.is_mpim) i(o, a.mpims);
+            }), o.is_mpim) i(o, a.mpims);
           else if (o.is_group) i(o, a.groups);
+          else if (o.is_im) i(o, a.ims);
           else {
-            if (!o.is_im) throw new Error("Unexpected model object type from channels.view");
-            i(o, a.ims);
+            if (!o.is_channel) throw new Error("Unexpected model object type from channels.view");
+            i(o, a.channels);
           }
           return a.emoji_cache_ts = _.get(TS.storage.fetchCustomEmoji(), "cache_ts"), a.apps_cache_ts = _.get(TS.storage.fetchApps(), "cache_ts"), a.commands_cache_ts = _.get(TS.storage.fetchCmds(), "cache_ts"), a;
         },
@@ -2273,7 +2273,7 @@ webpackJsonp([12, 328, 337, 329], {
               },
               enumerable: !0,
               configurable: !0
-            }), TS.model.supports_voice_calls = !1, window.winssb ? (TS.model.supports_voice_calls = !(!winssb.screenhero && !winssb.calls), TS.model.win_ssb_version && TS.model.win_ssb_version < 2 && (TS.model.supports_voice_calls = !1)) : window.macgap ? (TS.model.supports_voice_calls = !(!macgap.screenhero && !macgap.calls), TS.model.mac_ssb_version < 2 && (TS.model.supports_voice_calls = !1)) : TS.model.is_chrome_desktop && (TS.model.supports_voice_calls = !0), TS.model.supports_video_calls = !1, TS.model.supports_screen_sharing = !1, TS.model.supports_screenhero = !1, TS.model.supports_mmap_minipanel_calls = !1, window.winssb && !TS.model.is_lin) {
+            }), TS.model.supports_voice_calls = !1, window.winssb ? (TS.model.supports_voice_calls = !(!winssb.screenhero && !winssb.calls), TS.model.win_ssb_version && TS.model.win_ssb_version < 2 && (TS.model.supports_voice_calls = !1)) : window.macgap ? (TS.model.supports_voice_calls = !(!macgap.screenhero && !macgap.calls), TS.model.mac_ssb_version < 2 && (TS.model.supports_voice_calls = !1)) : TS.model.is_chrome_desktop && (TS.model.supports_voice_calls = !0), TS.model.supports_video_calls = !1, TS.model.supports_screen_sharing = !1, TS.model.supports_screenhero = !1, TS.model.supports_mmap_minipanel_calls = !1, window.winssb) {
             if (winssb.calls && winssb.calls.requestCapabilities) {
               var l = winssb.calls.requestCapabilities();
               l && (l.supports_video && (TS.model.supports_video_calls = !0), l.supports_screen_sharing && winssb.stats && winssb.stats.getDisplayInformation && (TS.model.supports_screen_sharing = !0), !l.supports_screenhero || l.is_mas || l.is_ws || (TS.model.supports_screenhero = !0), l.supports_mmap_minipanel && (TS.model.supports_mmap_minipanel_calls = !0), TS.model.is_mas_or_ws = l.is_mas || l.is_ws);

@@ -13654,7 +13654,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                 actions: s,
                 model_ob: i,
                 is_all_unreads_showing: TS.model.unread_view_is_showing,
-                is_channel_or_group: i.is_channel || i.is_group && !i.is_mpim
+                is_channel_or_group: i.is_channel && !i.is_mpim || i.is_group && !i.is_mpim
               },
               c = $(e.target);
             d.abs_permalink = TS.utility.msgs.constructAbsoluteMsgPermalink(i, r.ts, r.thread_ts), "file_share" !== r.subtype && "file_mention" !== r.subtype || r.file && (d.abs_permalink = r.file.permalink), TS.replies.canReplyToMsg(i, r) && (d.can_subscribe = !0, d.subscription = TS.replies.getSubscriptionState(i.id, r.ts), d.context = TS.ui.thread.getContextForEl(c), d.subscription || TS.replies.promiseToGetSubscriptionState(i.id, r.ts).then(function(e) {
@@ -20429,7 +20429,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           e && (o[e] = t);
         },
         calcUnreadCnts: function(e, t, n) {
-          if (!TS._incremental_boot) {
+          if (!TS.boot_data.feature_react_messages && !TS._incremental_boot) {
             if (TS.shared.didDeferMessageHistoryById(e.id))
               if (!TS.boot_data.feature_disable_history_prefetch || e.is_im || e.msgs.length) {
                 if (e.is_im || e.is_mpim) return void TS.shared.checkInitialMsgHistory(e, t);
@@ -20505,39 +20505,42 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           TS.shared.checkInitialMsgHistory(e, i), TS.client && TS.client.msg_pane && TS.client.msg_pane.maybeClearNewMsgsTimer(e);
         },
         checkInitialMsgHistory: function(e, t, n) {
-          if (e.history_is_being_fetched) return void TS.warn('checkInitialMsgHistory NOT DOING ANYTHING, because "' + e.id + '" history_is_being_fetched:true');
-          if (!TS.isPartiallyBooted() && i || !TS._did_incremental_boot || e.id !== TS.model.active_channel_id) {
-            a[e.id] && (TS.has_pri[k] && TS.log(k, "checkInitialMsgHistory (" + e.id + "): Clearing _delayed_fetch_timer and fetching immediately"), window.clearTimeout(a[e.id]), delete a[e.id]), TS.shared.setDeferMessageHistoryForId(e.id, !1), n ? e._needs_unread_recalc = !0 : TS.utility.msgs.maybeFetchUserDataFromLS(e);
-            var r = TS.model.initial_msgs_cnt,
-              s = TS.shared.getLatestMsgTs(e),
-              o = TS.utility.msgs.getMsg(s, e.msgs);
-            o && !e._history_fetched_since_last_connect && (TS.has_pri[k] && TS.log(k, 'We have all recent "' + e.id + '" messages, but have not fetched history since last connect. Will fetch, omitting "latest".'), o = null, s = null);
-            var l;
-            if (o) {
-              TS.has_pri[k] && TS.log(k, 'we have all recent "' + e.id + '" msgs unread_count:' + e.unread_count + " unread_cnt:" + e.unread_cnt + " initial_count:" + r), TS.shared.maybeDealWithAllSentTempMsgs(e, t);
-              var d = TS.utility.msgs.getOlderMsgsStatus(e);
-              if (e.msgs.length < TS.model.initial_msgs_cnt && d.more) return TS.isPartiallyBooted() || (TS.error("calling loadHistory because status.more=true && model_ob.msgs.length < TS.model.initial_msgs_cnt: " + e.msgs.length + " < " + TS.model.initial_msgs_cnt), TS.dir(0, d, e.id), TS.shared.loadHistory(e, t, r)), !0;
-            } else if (n) TS.shared.setDeferMessageHistoryForId(e.id, !0);
-            else {
-              if (TS.boot_data && TS.boot_data.feature_disable_history_prefetch)
-                if (TS.shared.getActiveModelOb().id === e.id) TS.has_pri[k] && TS.log(k, "checkInitialMsgHistory: Allowing fetch for active of " + e.id);
-                else if (e.is_im) TS.has_pri[k] && TS.log(k, "checkInitialMsgHistory: Allowing fetch for IM of " + e.id);
+          if (!TS.boot_data.feature_react_messages) {
+            if (e.history_is_being_fetched) return void TS.warn('checkInitialMsgHistory NOT DOING ANYTHING, because "' + e.id + '" history_is_being_fetched:true');
+            if (!(TS.isPartiallyBooted() || !i) || !TS._did_incremental_boot || e.id !== TS.model.active_channel_id) {
+              a[e.id] && (TS.has_pri[k] && TS.log(k, "checkInitialMsgHistory (" + e.id + "): Clearing _delayed_fetch_timer and fetching immediately"), window.clearTimeout(a[e.id]), delete a[e.id]), TS.shared.setDeferMessageHistoryForId(e.id, !1), n ? e._needs_unread_recalc = !0 : TS.utility.msgs.maybeFetchUserDataFromLS(e);
+              var r = TS.model.initial_msgs_cnt,
+                s = TS.shared.getLatestMsgTs(e),
+                o = TS.utility.msgs.getMsg(s, e.msgs);
+              o && !e._history_fetched_since_last_connect && (TS.has_pri[k] && TS.log(k, 'We have all recent "' + e.id + '" messages, but have not fetched history since last connect. Will fetch, omitting "latest".'), o = null, s = null);
+              var l;
+              if (o) {
+                TS.has_pri[k] && TS.log(k, 'we have all recent "' + e.id + '" msgs unread_count:' + e.unread_count + " unread_cnt:" + e.unread_cnt + " initial_count:" + r), TS.shared.maybeDealWithAllSentTempMsgs(e, t);
+                var d = TS.utility.msgs.getOlderMsgsStatus(e);
+                if (e.msgs.length < TS.model.initial_msgs_cnt && d.more) return TS.isPartiallyBooted() || (TS.error("calling loadHistory because status.more=true && model_ob.msgs.length < TS.model.initial_msgs_cnt: " + e.msgs.length + " < " + TS.model.initial_msgs_cnt), TS.dir(0, d, e.id), TS.shared.loadHistory(e, t, r)), !0;
+              } else if (n) TS.shared.setDeferMessageHistoryForId(e.id, !0);
               else {
-                if (!e.msgs.length) return void(TS.has_pri[k] && TS.log(k, "checkInitialMsgHistory: NOT fetching for " + e.id + " until view because !msgs.length"));
-                TS.notifs.isCorGMuted(e.id) && TS.has_pri[k] && TS.log(k, "checkInitialMsgHistory: NOT fetching for " + e.id + " until view because muted");
+                if (TS.boot_data && TS.boot_data.feature_disable_history_prefetch)
+                  if (TS.shared.getActiveModelOb().id === e.id) TS.has_pri[k] && TS.log(k, "checkInitialMsgHistory: Allowing fetch for active of " + e.id);
+                  else if (e.is_im) TS.has_pri[k] && TS.log(k, "checkInitialMsgHistory: Allowing fetch for IM of " + e.id);
+                else {
+                  if (!e.msgs.length) return void(TS.has_pri[k] && TS.log(k, "checkInitialMsgHistory: NOT fetching for " + e.id + " until view because !msgs.length"));
+                  TS.notifs.isCorGMuted(e.id) && TS.has_pri[k] && TS.log(k, "checkInitialMsgHistory: NOT fetching for " + e.id + " until view because muted");
+                }
+                TS.has_pri[k] && TS.log(k, 'WE DO NOT HAVE ALL RECENT MESSAGES for "' + e.id + '" unread_count:' + e.unread_count + " unread_cnt:" + e.unread_cnt + " initial_count:" + r);
+                e.msgs.length, l = {
+                  channel: e.id,
+                  count: r,
+                  inclusive: "string" == typeof e.latest,
+                  ignore_replies: !0,
+                  include_pin_count: !!TS.boot_data.feature_lazy_pins
+                }, s && (l.latest = s), e.msgs.length && !TS.utility.msgs.isTempMsg(e.msgs[0]) ? (TS.has_pri[k] && TS.log(k, 'we have some but not all recent "' + e.id + '" msgs'), l.oldest = e.msgs[0].ts) : TS.has_pri[k] && TS.log(k, 'we have no "' + e.id + '" msgs'), e._history_fetched_since_last_connect || (e.msgs.length ? 1 !== e.msgs.length || TS.utility.msgs.isTempMsg(e.msgs[0]) ? (TS.has_pri[k] && TS.log(k, "we have some (" + e.msgs.length + ') but not all recent msgs for "' + e.id + '", and have not fetched history since last connection'), l.latest && (TS.has_pri[k] && TS.log(k, 'first history fetch since connect for "' + e.id + '" - deleting api_args.latest of ' + l.latest), delete l.latest), l.oldest && l.count && TS.has_pri[k] && TS.log(k, "We have api_args.oldest, fetching oldest + " + l.count + ' messages on "' + e.id + '" to get client up-to-date.')) : (TS.has_pri[k] && TS.log(k, 'first new message on "' + e.id + ", fetching history without any latest/oldest"), delete l.latest, delete l.oldest) : (TS.has_pri[k] && TS.log(k, 'we have no msgs for "' + e.id + '", and have not fetched history since last connection'), l.latest && (TS.has_pri[k] && TS.log(k, "no msgs.length. dropping api_args.latest of " + l.latest + ' for "' + e.id + '"'), delete l.latest), l.oldest && (TS.has_pri[k] && TS.log(k, "no msgs.length. dropping api_args.oldest of " + l.oldest + ' for "' + e.id + '"'), delete l.oldest)));
+                var c = function() {
+                    e.history_is_being_fetched ? TS.has_pri[k] && TS.log(k, 'NOT fetching history on "' + e.id + '", history already being fetched') : (TS.has_pri[k] && TS.log(k, 'fetching history for "' + e.id + '" with api_args', l), t.fetchHistory(e, l));
+                  },
+                  _ = TS.useSocketManager() ? TS.interop.SocketManager.isConnected() : TS.model.ms_connected;
+                _ ? c() : TS.useSocketManager() ? TS.interop.SocketManager.connectedSig.addOnce(c) : TS.ms.connected_sig.addOnce(c);
               }
-              TS.has_pri[k] && TS.log(k, 'WE DO NOT HAVE ALL RECENT MESSAGES for "' + e.id + '" unread_count:' + e.unread_count + " unread_cnt:" + e.unread_cnt + " initial_count:" + r), e.msgs.length, l = {
-                channel: e.id,
-                count: r,
-                inclusive: "string" == typeof e.latest,
-                ignore_replies: !0,
-                include_pin_count: !!TS.boot_data.feature_lazy_pins
-              }, s && (l.latest = s), e.msgs.length && !TS.utility.msgs.isTempMsg(e.msgs[0]) ? (TS.has_pri[k] && TS.log(k, 'we have some but not all recent "' + e.id + '" msgs'), l.oldest = e.msgs[0].ts) : TS.has_pri[k] && TS.log(k, 'we have no "' + e.id + '" msgs'), e._history_fetched_since_last_connect || (e.msgs.length ? 1 !== e.msgs.length || TS.utility.msgs.isTempMsg(e.msgs[0]) ? (TS.has_pri[k] && TS.log(k, "we have some (" + e.msgs.length + ') but not all recent msgs for "' + e.id + '", and have not fetched history since last connection'), l.latest && (TS.has_pri[k] && TS.log(k, 'first history fetch since connect for "' + e.id + '" - deleting api_args.latest of ' + l.latest), delete l.latest), l.oldest && l.count && TS.has_pri[k] && TS.log(k, "We have api_args.oldest, fetching oldest + " + l.count + ' messages on "' + e.id + '" to get client up-to-date.')) : (TS.has_pri[k] && TS.log(k, 'first new message on "' + e.id + ", fetching history without any latest/oldest"), delete l.latest, delete l.oldest) : (TS.has_pri[k] && TS.log(k, 'we have no msgs for "' + e.id + '", and have not fetched history since last connection'), l.latest && (TS.has_pri[k] && TS.log(k, "no msgs.length. dropping api_args.latest of " + l.latest + ' for "' + e.id + '"'), delete l.latest), l.oldest && (TS.has_pri[k] && TS.log(k, "no msgs.length. dropping api_args.oldest of " + l.oldest + ' for "' + e.id + '"'), delete l.oldest)));
-              var c = function() {
-                  e.history_is_being_fetched ? TS.has_pri[k] && TS.log(k, 'NOT fetching history on "' + e.id + '", history already being fetched') : (TS.has_pri[k] && TS.log(k, 'fetching history for "' + e.id + '" with api_args', l), t.fetchHistory(e, l));
-                },
-                _ = TS.useSocketManager() ? TS.interop.SocketManager.isConnected() : TS.model.ms_connected;
-              _ ? c() : TS.useSocketManager() ? TS.interop.SocketManager.connectedSig.addOnce(c) : TS.ms.connected_sig.addOnce(c);
             }
           }
         },
@@ -23943,7 +23946,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           })) : l = TS.i18n.t("cleared the channel purpose", "templates_builders")();
           else if ("group_archive" === e.subtype)
             if (d = a, f = d ? TS.model.group_prefix + d.name : TS.i18n.t("the private channel", "templates_builders")(), S = _.get(TS.model.enterprise, "name", ""), b = TS.i18n.t("your team admin", "templates_builders")(), e.user && (T = TS.members.getMemberById(e.user), b = TS.format.formatNoHighlightsNoSpecials("<@" + T.id + "|" + T.name + ">")), TS.client && d && d.is_archived)
-              if (TS.model.archive_view_is_showing) l = 1 == d.is_moved ? TS.i18n.t("moved {group_name} to another {enterprise_name} team. The contents up until this point are still browsable and available in search. \t\t\t\t\t\t\tIf you need access to this channel going forward, please contact {mover_name}.", "templates_builders")({
+              if (TS.model.archive_view_is_showing) l = 1 == d.is_moved ? TS.i18n.t("moved {group_name} to another {enterprise_name} team. The contents up until this point are still browsable and available in search.", "templates_builders")({
                 group_name: f,
                 enterprise_name: S,
                 mover_name: b,
@@ -23954,7 +23957,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               });
               else {
                 var B = "'" + d.id + "'";
-                l = 1 == d.is_moved ? TS.i18n.t("moved {group_name} to another {enterprise_name} team. The contents up until this point are still browsable and available in search. \t\t\t\t\t\t\tIf you need access to this channel going forward, please contact {mover_name}.", "templates_builders")({
+                l = 1 == d.is_moved ? TS.i18n.t("moved {group_name} to another {enterprise_name} team. The contents up until this point are still browsable and available in search.", "templates_builders")({
                   group_name: f,
                   enterprise_name: S,
                   mover_name: b,
@@ -23977,12 +23980,12 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           });
           else if ("channel_archive" === e.subtype) {
             var R = "'" + a.id + "'";
-            m = a.is_private ? TS.model.group_prefix + a.name : a ? "#" + a.name : TS.i18n.t("the channel", "templates_builders")(), S = _.get(TS.model.enterprise, "name", ""), TS.client && 1 == a.is_moved ? (e.user && (T = TS.members.getMemberById(e.user), b = TS.format.formatNoHighlightsNoSpecials("<@" + T.id + "|" + T.name + ">")), l = TS.model.archive_view_is_showing ? TS.i18n.t("moved {channel_name} to another {enterprise_name} team. The contents up until this point are still browsable and available in search. \t\t\t\t\t\tIf you need access to this channel going forward, please contact {mover_name}.", "templates_builders")({
+            m = a.is_private ? TS.model.group_prefix + a.name : a ? "#" + a.name : TS.i18n.t("the channel", "templates_builders")(), S = _.get(TS.model.enterprise, "name", ""), TS.client && 1 == a.is_moved ? (e.user && (T = TS.members.getMemberById(e.user), b = TS.format.formatNoHighlightsNoSpecials("<@" + T.id + "|" + T.name + ">")), l = TS.model.archive_view_is_showing ? TS.i18n.t("moved {channel_name} to another {enterprise_name} team. The contents up until this point are still browsable and available in search.", "templates_builders")({
               channel_name: m,
               enterprise_name: S,
               mover_name: b,
               name_for_url: a.id
-            }) : TS.i18n.t('moved {channel_name} to another {enterprise_name} team. The contents up until this point are still browsable and available in search. \t\t\t\t\t\tIf you need access to this channel going forward, please contact {mover_name}. To close it now, <a onclick="TS.channels.closeArchivedChannel({channel_id})">click here</a>.', "templates_builders")({
+            }) : TS.i18n.t('moved {channel_name} to another {enterprise_name} team. The contents up until this point are still browsable and available in search. \t\t\t\t\t\tTo close it now, <a onclick="TS.channels.closeArchivedChannel({channel_id})">click here</a>.', "templates_builders")({
               channel_name: m,
               enterprise_name: S,
               mover_name: b,
@@ -34085,7 +34088,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         onStart: function() {
           i.in_slack_app = !!TS.client, i.in_call_window = !!TS.calls, i.calls_url_prefix = document.location.origin + "/call/", i.in_slack_app && (TS.useSocketManager() ? (TS.interop.SocketManager.connectedSig.add(s), TS.interop.SocketManager.disconnectedSig.add(o), TS.interop.SocketManager.socketMessageReceivedSig.add(a)) : (TS.ms.on_msg_sig.add(a), TS.ms.connected_sig.add(s), TS.ms.disconnected_sig.add(o)), window.addEventListener("online", l), window.addEventListener("offline", l), window.addEventListener("message", J), TS.model.is_our_app && (window.macgap && TS.ssb.teams_did_load_sig.add(d), TS.client.login_sig.add(c)), TS.client.windows && (TS.client.windows.win_finished_loading_sig.add(u), TS.client.windows.win_will_close_sig.add(m), TS.client.windows.win_crashed_sig.add(p), TS.client.windows.win_became_key_sig.add(f), TS.client.windows.win_resigned_key_sig.add(h)), TS.ui && TS.ui.window_unloaded_sig.add(g), TS.model.is_our_app ? i.call_window_loaded = !1 : i.call_window_loaded = !0, i.is_ms_connected = !1, i.is_reachability_online = !0, TS.experiment.loadUserAssignments().then(function() {
-            "enabled" === TS.experiment.getGroup("calls_ss") && (i.screen_sharing_enabled = TS.model.supports_screen_sharing), "enabled" === TS.experiment.getGroup("calls_better_regions") && (i.calls_better_regions_expt = !0), "enabled" === TS.experiment.getGroup("calls_laser") && (i.laser_enabled = !0), "enabled" === TS.experiment.getGroup("calls_no_cursors_window") && (i.cursors_window_disabled = !0), "enabled" === TS.experiment.getGroup("calls_electron_webrtc") && (i.electron_webrtc = !0);
+            "enabled" === TS.experiment.getGroup("calls_ss") && (i.screen_sharing_enabled = TS.model.supports_screen_sharing), "enabled" === TS.experiment.getGroup("calls_better_regions") && (i.calls_better_regions_expt = !0), "enabled" === TS.experiment.getGroup("calls_laser") && (i.laser_enabled = !0), "enabled" === TS.experiment.getGroup("calls_no_cursors_window") && (i.cursors_window_disabled = !0), TS.model.is_lin && "enabled" === TS.experiment.getGroup("calls_electron_webrtc_linux") && (i.electron_webrtc = !0), "enabled" === TS.experiment.getGroup("calls_electron_webrtc") && (i.electron_webrtc = !0), "enabled" === TS.experiment.getGroup("calls_webgl_recovery") && (i.webgl_recovery = !0);
           }));
         },
         startCallInModelOb: function(e, t, n) {
@@ -34850,7 +34853,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return TS.model.is_our_app && TSSSB.call("supportsCallWindowStatus") ? TSSSB.call("isCallWindowBusy") : Promise.resolve(!!i.is_call_window_busy);
         },
         j = function(e, t, n) {
-          n = n || {}, e += "?_fast_members=1&_end_call_sound=1" + (n.start_with_video ? "&_start_with_video=1" : ""), TS.pri && (e += "&pri=" + TS.pri), i.electron_webrtc && (e += "&_electron_webrtc=1"), TS.qs_args._calls_halt_at_loading_screen && (e += "&_calls_halt_at_loading_screen=1"), TS.qs_args.locale && (e += "&locale=" + TS.qs_args.locale), TS.qs_args.js_path && (e += "&js_path=" + encodeURIComponent(TS.qs_args.js_path)), TS.utility.calls.promiseToGetRegions().then(function(e) {
+          n = n || {}, e += "?_fast_members=1&_end_call_sound=1" + (n.start_with_video ? "&_start_with_video=1" : ""), TS.pri && (e += "&pri=" + TS.pri), i.electron_webrtc && (e += "&_electron_webrtc=1"), i.webgl_recovery && (e += "&_webgl_recovery=1"), TS.qs_args._calls_halt_at_loading_screen && (e += "&_calls_halt_at_loading_screen=1"), TS.qs_args.locale && (e += "&locale=" + TS.qs_args.locale), TS.qs_args.js_path && (e += "&js_path=" + encodeURIComponent(TS.qs_args.js_path)), TS.utility.calls.promiseToGetRegions().then(function(e) {
             TS.utility.calls.promiseToGetServer(e, t).catch(_.noop);
           }), TS.model.is_our_app ? b(e) : i.window_handle = window.open(e, t), i.call_channel = t;
         },
@@ -36976,9 +36979,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               delete r[e];
             }), _.forOwn(t, function(e, t) {
               r[t] = e;
-            }), e.is_channel ? TS.channels.message_changed_sig.dispatch(e, r, o) : e.is_im ? TS.ims.message_changed_sig.dispatch(e, r, o) : e.is_group && e.is_mpim ? TS.mpims.message_changed_sig.dispatch(e, r, o) : e.is_group && !e.is_mpim && TS.groups.message_changed_sig.dispatch(e, r, o), TS.boot_data.feature_new_broadcast && _.includes(o, "_hidden_reply")) {
+            }), e.is_im ? TS.ims.message_changed_sig.dispatch(e, r, o) : e.is_group && e.is_mpim ? TS.mpims.message_changed_sig.dispatch(e, r, o) : e.is_group && !e.is_mpim ? TS.groups.message_changed_sig.dispatch(e, r, o) : e.is_channel && e.is_mpim ? TS.mpims.message_changed_sig.dispatch(e, r, o) : e.is_channel && TS.channels.message_changed_sig.dispatch(e, r, o), TS.boot_data.feature_new_broadcast && _.includes(o, "_hidden_reply")) {
             var l = !TS.utility.msgs.isTempMsg(r);
-            e.is_channel ? TS.channels.calcUnreadCnts(e, l) : e.is_im ? TS.ims.calcUnreadCnts(e, l) : e.is_group && e.is_mpim ? TS.mpims.calcUnreadCnts(e, l) : e.is_group && !e.is_mpim && TS.groups.calcUnreadCnts(e, l);
+            e.is_im ? TS.ims.calcUnreadCnts(e, l) : e.is_group && e.is_mpim ? TS.mpims.calcUnreadCnts(e, l) : e.is_group && !e.is_mpim ? TS.groups.calcUnreadCnts(e, l) : e.is_channel && e.is_mpim ? TS.mpims.calcUnreadCnts(e, l) : e.is_channel && TS.channels.calcUnreadCnts(e, l);
           }
           TS.boot_data.feature_new_broadcast && TS.utility.msgs.msgHasReplies(r) && TS.replies.updateThreadBroadcastRoots(e, r);
         },
@@ -37361,11 +37364,11 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         removeFileSharesAndMentions: function(e, t) {
           if (TS.client)
-            for (var n, i = e.msgs, r = i.length - 1; r > -1; r -= 1) n = i[r], "file_share" !== n.subtype && "file_mention" !== n.subtype || !n.file || n.file.id != t.id || (e.is_channel ? TS.channels.removeMsg(e.id, n) : e.is_mpim ? TS.mpims.removeMsg(e.id, n) : e.is_group ? TS.groups.removeMsg(e.id, n) : TS.ims.removeMsg(e.id, n));
+            for (var n, i = e.msgs, r = i.length - 1; r > -1; r -= 1) n = i[r], "file_share" !== n.subtype && "file_mention" !== n.subtype || !n.file || n.file.id != t.id || (e.is_mpim ? TS.mpims.removeMsg(e.id, n) : e.is_group ? TS.groups.removeMsg(e.id, n) : e.is_channel ? TS.channels.removeMsg(e.id, n) : TS.ims.removeMsg(e.id, n));
         },
         removeFileComments: function(e, t) {
           if (TS.client)
-            for (var n, i = e.msgs, r = i.length - 1; r > -1; r -= 1) n = i[r], "file_comment" === n.subtype && n.file && n.file.id == t.id && (e.is_channel ? TS.channels.removeMsg(e.id, n) : e.is_mpim ? TS.mpims.removeMsg(e.id, n) : e.is_group ? TS.groups.removeMsg(e.id, n) : TS.ims.removeMsg(e.id, n));
+            for (var n, i = e.msgs, r = i.length - 1; r > -1; r -= 1) n = i[r], "file_comment" === n.subtype && n.file && n.file.id == t.id && (e.is_mpim ? TS.mpims.removeMsg(e.id, n) : e.is_group ? TS.groups.removeMsg(e.id, n) : e.is_channel ? TS.channels.removeMsg(e.id, n) : TS.ims.removeMsg(e.id, n));
         },
         removeFileReferences: function(e, t) {
           if (TS.client)
@@ -37495,7 +37498,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               if (n && n != a.thread_ts) return;
               if (!(i = TS.shared.getModelObById(a.c_id))) return;
               if (!(r = TS.utility.msgs.getMsg(s, i.msgs))) return;
-              i.is_im ? TS.ims.removeMsg(i.id, r) : i.is_channel ? TS.channels.removeMsg(i.id, r) : i.is_mpim ? TS.mpims.removeMsg(i.id, r) : i.is_group && TS.groups.removeMsg(i.id, r), delete TS.utility.msgs.ephemeral_msgs_map[s];
+              i.is_im ? TS.ims.removeMsg(i.id, r) : i.is_mpim ? TS.mpims.removeMsg(i.id, r) : i.is_channel ? TS.channels.removeMsg(i.id, r) : i.is_group && TS.groups.removeMsg(i.id, r), delete TS.utility.msgs.ephemeral_msgs_map[s];
             }
           });
         },
@@ -37535,7 +37538,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           var i = TS.utility.msgs.getMsg(e, t.msgs);
           if (i) {
             var r, a;
-            n && i.thread_ts && (r = TS.utility.msgs.findMsg(i.thread_ts, t.id), a = i._was_reply_broadcast), t.is_channel ? (TS.channels.removeMsg(t.id, i), n && TS.channels.sendMsg(t.id, TS.format.unFormatMsg(i.text, i), r, a)) : t.is_mpim ? (TS.mpims.removeMsg(t.id, i), n && TS.mpims.sendMsg(t.id, TS.format.unFormatMsg(i.text, i), r, a)) : t.is_group ? (TS.groups.removeMsg(t.id, i), n && TS.groups.sendMsg(t.id, TS.format.unFormatMsg(i.text, i), r, a)) : (TS.ims.removeMsg(t.id, i), n && TS.ims.sendMsg(t.id, TS.format.unFormatMsg(i.text, i), r, a)), delete TS.model.unsent_msgs[i.ts], delete TS.model.display_unsent_msgs[i.ts];
+            n && i.thread_ts && (r = TS.utility.msgs.findMsg(i.thread_ts, t.id), a = i._was_reply_broadcast), t.is_mpim ? (TS.mpims.removeMsg(t.id, i), n && TS.mpims.sendMsg(t.id, TS.format.unFormatMsg(i.text, i), r, a)) : t.is_channel ? (TS.channels.removeMsg(t.id, i), n && TS.channels.sendMsg(t.id, TS.format.unFormatMsg(i.text, i), r, a)) : t.is_group ? (TS.groups.removeMsg(t.id, i), n && TS.groups.sendMsg(t.id, TS.format.unFormatMsg(i.text, i), r, a)) : (TS.ims.removeMsg(t.id, i), n && TS.ims.sendMsg(t.id, TS.format.unFormatMsg(i.text, i), r, a)), delete TS.model.unsent_msgs[i.ts], delete TS.model.display_unsent_msgs[i.ts];
           } else TS.error("no msg?: " + e);
         },
         msgMightBeRolledUp: function(e) {
@@ -37598,7 +37601,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               r = "checkConsistency for: " + e;
             return TS.has_pri[d] && TS.log(d, r + " from_msgs.length:" + t.length + " model_ob.msgs.length:" + n.msgs.length), (t.forEach(function(t, a) {
               TS.utility.msgs.getMsg(t.ts, n.msgs) || (t = TS.utility.msgs.processImsg(t, e), i.push(t), TS.error(r + " found and fixed an inconsistency at i:" + a + ", ts=" + t.ts));
-            }), i.length) ? (1 == i.length ? n.is_channel ? TS.channels.addMsg(e, i[0]) : n.is_mpim ? TS.mpims.addMsg(e, i[0]) : n.is_group ? TS.groups.addMsg(e, i[0]) : n.is_im && TS.ims.addMsg(e, i[0]) : TS.shared.addMsgs(n, i), !0) : !1;
+            }), i.length) ? (1 == i.length ? n.is_mpim ? TS.mpims.addMsg(e, i[0]) : n.is_group ? TS.groups.addMsg(e, i[0]) : n.is_im ? TS.ims.addMsg(e, i[0]) : n.is_channel && TS.channels.addMsg(e, i[0]) : TS.shared.addMsgs(n, i), !0) : !1;
           }
         },
         filterHTMLForEmbeds: function(e) {
