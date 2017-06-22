@@ -629,8 +629,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             _getMaxAttempts: v,
             _incrementPending: w,
             _decrementPending: k,
-            _getDefaultArgsByMethodName: C,
-            _kickOffACallOrEnqueue: M,
+            _getDefaultArgsByMethodName: M,
+            _kickOffACallOrEnqueue: C,
             _callOutsideHandler: $,
             _nextFromQ: E,
             _reQueue: P,
@@ -773,10 +773,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             }
           }), Object.defineProperty(e, "_kickOffACallOrEnqueue", {
             get: function() {
-              return M;
+              return C;
             },
             set: function(e) {
-              M = e;
+              C = e;
             }
           }), Object.defineProperty(e, "_last_connectivity_warning_time", {
             get: function() {
@@ -816,11 +816,11 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }), e;
         },
         call: function(e, t, n, i, r) {
-          return M(e, t, n, i, r);
+          return C(e, t, n, i, r);
         },
         callImmediately: function(e, t, n, i, r) {
-          if (-1 != l.indexOf(e) && p) return TS.warn(e + " cannot be called with TS.api.callImmediately because a one-at-a-time call is already pending, so sending to _kickOffACallOrEnqueue for enqueuing"), M(e, t, n, i, r, !0);
-          if (h) return TS.warn(e + " cannot be called with TS.api.callImmediately because we are waiting due to a non-200 response, so sending to _kickOffACallOrEnqueue for enqueuing"), M(e, t, n, i, r, !0);
+          if (-1 != l.indexOf(e) && p) return TS.warn(e + " cannot be called with TS.api.callImmediately because a one-at-a-time call is already pending, so sending to _kickOffACallOrEnqueue for enqueuing"), C(e, t, n, i, r, !0);
+          if (h) return TS.warn(e + " cannot be called with TS.api.callImmediately because we are waiting due to a non-200 response, so sending to _kickOffACallOrEnqueue for enqueuing"), C(e, t, n, i, r, !0);
           t = t || {};
           var a = N(e, n);
           return I(e, t, a, i, r);
@@ -929,12 +929,12 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         x = function(e) {
           k(e), h || E();
         },
-        C = function(e) {
+        M = function(e) {
           return _.assign({}, n, i[e]);
         },
-        M = function(e, t, n, i, r, a) {
+        C = function(e, t, n, i, r, a) {
           if (_.isUndefined(e)) throw TS.error("Tried to make API call, but API method name was not specified"), new Error("Invalid API call");
-          t = _.defaults(t || {}, C(e));
+          t = _.defaults(t || {}, M(e));
           var s, o = N(e, n);
           if (-1 != l.indexOf(e)) {
             if (!h && !p) return I(e, t, o, i, r);
@@ -1693,7 +1693,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
 
       function r(e) {
         var t = _.get(e, "action.data_source"),
-          n = C(e);
+          n = M(e);
         return function() {
           x(t, n);
         };
@@ -1786,7 +1786,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               message_ts: e.message.ts
             };
             TS.api.call("chat.attachmentSuggestion", {
-              service_id: C(e),
+              service_id: M(e),
               payload: JSON.stringify(r)
             }).then(function(e) {
               n({
@@ -1819,7 +1819,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
       }
 
       function g(e) {
-        return _.get(M, o(e), M.default);
+        return _.get(C, o(e), C.default);
       }
 
       function S(e, t) {
@@ -1897,7 +1897,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         });
       }
 
-      function C(e) {
+      function M(e) {
         return _.get(e, "attachment.is_app_unfurl") ? e.attachment.bot_id : _.get(e, "message.bot_id");
       }
       TS.registerModule("attachment_actions.select", {
@@ -1940,7 +1940,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           });
         }
       });
-      var M = {
+      var C = {
           channels: TS.i18n.t("Choose a channel…", "attachment_actions")(),
           conversations: TS.i18n.t("Choose a conversation…", "attachment_actions")(),
           default: TS.i18n.t("Choose an option…", "attachment_actions")(),
@@ -5478,7 +5478,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           });
         },
         calculateMemberDndFromTimestamp: function(e, t) {
-          t || (t = M());
+          t || (t = C());
           var n = k(e),
             i = x(e);
           return !!(e.is_self && TS.model.dnd.snooze_enabled && i && i > t) || null != n && null != i && (i > t && (n <= t || n > i));
@@ -5490,7 +5490,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           if (TS.model.ms_connected) {
             d && TS.metrics.mark("dnd_check_for_changes");
             var e = !1,
-              t = M();
+              t = C();
             TS.model.dnd.snooze_enabled && t >= TS.model.dnd.snooze_endtime && (TS.model.dnd.snooze_enabled = !1, e = !0), _.size(TS.model.dnd.team) > a && (TS.has_pri[D] && O("checkForChanges over limit, purging non-relevant dnd data"), g());
             var n = [],
               i = [],
@@ -5515,7 +5515,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         debouncedCheckForChanges: function() {},
         kickOffNextEventTimer: function() {
           clearTimeout(e);
-          var n = M(),
+          var n = C(),
             i = S(n);
           TS.has_pri[D] && O("next DND tick scheduled for " + F(i));
           var r = 1e3 * (i - n);
@@ -5551,7 +5551,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         debugMember: function(e) {
           var t = ["DND member debugging:"];
-          t.push("is in DND: " + !!TS.dnd.isMemberInDnd(e) + " (" + TS.dnd.calculateMemberDndFromTimestamp(e) + ")"), t.push("start: " + F(k(e), !0)), t.push("end  : " + F(x(e), !0)), t.push("next : " + F(C(e), !0)), t.push("stale? " + A(e));
+          t.push("is in DND: " + !!TS.dnd.isMemberInDnd(e) + " (" + TS.dnd.calculateMemberDndFromTimestamp(e) + ")"), t.push("start: " + F(k(e), !0)), t.push("end  : " + F(x(e), !0)), t.push("next : " + F(M(e), !0)), t.push("stale? " + A(e));
           var n = x(e);
           n && E(n) ? t.push("Probably a snooze") : n && t.push("Probably a scheduled DND");
           var i = "\n" + t.join("\n");
@@ -5660,12 +5660,12 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         S = function(e) {
           var t;
-          e || (e = M());
-          var n = C(TS.model.user, e);
+          e || (e = C());
+          var n = M(TS.model.user, e);
           n && (t = n);
           var i = function(n) {
             if (n.id != TS.model.user.id) {
-              var i = C(n, e);
+              var i = M(n, e);
               i && (!t || i < t) && (t = i);
             }
           };
@@ -5733,8 +5733,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           var t = TS.model.dnd.team[e.id];
           return t ? t.next_dnd_end_ts : null;
         },
-        C = function(e, t) {
-          t || (t = M());
+        M = function(e, t) {
+          t || (t = C());
           var n = k(e),
             i = x(e);
           if (n && i && n > t && n < i) return n;
@@ -5745,11 +5745,11 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }
           return null;
         },
-        M = function() {
+        C = function() {
           return Math.floor(Date.now() / 1e3);
         },
         I = function(e) {
-          var t = e - M();
+          var t = e - C();
           if (t < 0) return TS.i18n.t("0s", "dnd")();
           var n, i;
           return (n = t / 3600) >= 1 ? (n = Math.floor(n), i = (t - 3600 * n) / 60, i = Math.round(i), 60 === i ? (n += 1, TS.i18n.t("{dnd_hours}h", "dnd")({
@@ -5766,7 +5766,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }));
         },
         A = function(e, t) {
-          t || (t = M());
+          t || (t = C());
           var n = x(e);
           if (!n || n > t) return !1;
           var i = t - n;
@@ -5879,7 +5879,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             try {
               TS.ds.logConnectionFlow("connect"), e = TS.web.space.login_data.ws;
               var t = 1 == TS.qs_args.simulate_old_token ? "&TRIGGER_OLD_TOKEN=1" : "";
-              e += "?version_uid=" + TS.boot_data.version_uid + t, e = TS.utility.appendLogToUrlWithLimit(e, TS.ds.getConnectionFlowLog()), TS.info("Connecting to: " + e), 1 != TS.qs_args.simulate_first_connect_failure || window.already_simulated_first_connect_failure || (e = e.replace("e", "w"), TS.info("simulate_first_connect_failure url:" + e), window.already_simulated_first_connect_failure = !0), i = window.WEB_SOCKET_USING_FLASH ? a : r, clearTimeout(n), n = setTimeout(M, i), TS.ds.last_url = e, TS.ds.last_start_ms = Date.now(), k(), u = new WebSocket(e);
+              e += "?version_uid=" + TS.boot_data.version_uid + t, e = TS.utility.appendLogToUrlWithLimit(e, TS.ds.getConnectionFlowLog()), TS.info("Connecting to: " + e), 1 != TS.qs_args.simulate_first_connect_failure || window.already_simulated_first_connect_failure || (e = e.replace("e", "w"), TS.info("simulate_first_connect_failure url:" + e), window.already_simulated_first_connect_failure = !0), i = window.WEB_SOCKET_USING_FLASH ? a : r, clearTimeout(n), n = setTimeout(C, i), TS.ds.last_url = e, TS.ds.last_start_ms = Date.now(), k(), u = new WebSocket(e);
             } catch (e) {
               return TS.warn("failed to create new WebSocket"), TS.error(e), void TS.ds.onFailure("failed to create new WebSocket");
             }
@@ -5917,7 +5917,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           TS.ds.handleMsg(t);
         },
         T = function() {
-          clearTimeout(n), h = 0, 1 != TS.qs_args.simulate_hello_timeout || window.already_simulated_hello_timeout ? u.onmessage = S : (TS.info("simulate_hello_timeout"), window.already_simulated_hello_timeout = !0), TS.model.ds_conn_log.length = 0, TS.info("DS WS connected!"), TS.ds.logConnectionFlow("on_connect"), clearTimeout(s), s = setTimeout(C, 3e4);
+          clearTimeout(n), h = 0, 1 != TS.qs_args.simulate_hello_timeout || window.already_simulated_hello_timeout ? u.onmessage = S : (TS.info("simulate_hello_timeout"), window.already_simulated_hello_timeout = !0), TS.model.ds_conn_log.length = 0, TS.info("DS WS connected!"), TS.ds.logConnectionFlow("on_connect"), clearTimeout(s), s = setTimeout(M, 3e4);
         },
         b = function() {
           if (p) {
@@ -5958,11 +5958,11 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             t = Math.round(e / 1e3);
           t >= 0 && TS.ds.reconnecting_sig.dispatch(t), TS.model.window_unloading && clearInterval(l);
         },
-        C = function() {
+        M = function() {
           var e = "socket received no hello msg 30000ms after connection";
           TS.warn(e), TS.ds.logConnectionFlow("_onHelloTimeout"), TS.ds.onFailure(e);
         },
-        M = function() {
+        C = function() {
           h += 1;
           var e = "socket not connected " + i + "ms after creation. _connect_timeout_count:" + h;
           if (TS.warn(e), TS.ds.logConnectionFlow("_onConnectTimeout"), 3 == h) return void TS.client.showConnectionTroubleDialog();
@@ -6940,8 +6940,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               e.initial_comment && (e.initial_comment._rxn_key = TS.rxns.getRxnKey("file_comment", e.initial_comment.id), TS.rxns.upsertRxnsFromDataAndUpdateUI(e.initial_comment._rxn_key, e.initial_comment.reactions), delete e.initial_comment.reactions);
             }
             g.push(e);
-            var C = TS.members.getPotentiallyUnknownMemberById(e.user);
-            C ? (C.files.push(e), TS.files.sortFiles(C.files)) : TS.error("hmmm, file " + e.id + " does not have a known user " + e.user), r(e), S = e;
+            var M = TS.members.getPotentiallyUnknownMemberById(e.user);
+            M ? (M.files.push(e), TS.files.sortFiles(M.files)) : TS.error("hmmm, file " + e.id + " does not have a known user " + e.user), r(e), S = e;
           }
           return "CHANGED" === T && (r(e), _.includes(b, "comments") && TS.utility.msgs.updateCommentReferences(S)), S.comments ? S.comments_count = Math.max(S.comments_count, S.comments.length) : S.comments = [], S.channels || (S.channels = []), S.ims || (S.ims = []), S.groups || (S.groups = []), S.is_shared = S.groups.length > 0 || S.channels.length > 0, TS.files.sortFiles(TS.model.files), {
             status: T,
@@ -7746,7 +7746,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }) : e;
         },
         doEmoticonConversion: function(e) {
-          return v.length = 0, e = e.replace(f, M), e = e.replace(h, M), e = e.replace(g, M), e = TS.emoji.replaceEmoticons(e), e = TS.format.deTokenizeStr(v, e);
+          return v.length = 0, e = e.replace(f, C), e = e.replace(h, C), e = e.replace(g, C), e = TS.emoji.replaceEmoticons(e), e = TS.format.deTokenizeStr(v, e);
         },
         tokenizeStr: function(e, t, n) {
           if (!t) return "";
@@ -7904,10 +7904,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }), t;
         },
         swapInAts: function(e) {
-          return e ? e.replace(new RegExp(k, "g"), "@").replace(new RegExp(x, "g"), "-").replace(new RegExp(C, "g"), "_") : e;
+          return e ? e.replace(new RegExp(k, "g"), "@").replace(new RegExp(x, "g"), "-").replace(new RegExp(M, "g"), "_") : e;
         },
         swapOutAts: function(e) {
-          return e ? e.replace(/@/g, k).replace(/-/g, x).replace(/_/g, C) : e;
+          return e ? e.replace(/@/g, k).replace(/-/g, x).replace(/_/g, M) : e;
         },
         test: function() {
           var e = {
@@ -7986,10 +7986,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         x = "thisreplacementtokenallowsustotreatdashesasiftheywerewordcharactersinregex".split("").sort(function() {
           return .5 - Math.random();
         }).join(""),
-        C = "thisreplacementtokenallowsustotreatdashesasiftheywerewordcharactersinregex".split("").sort(function() {
+        M = "thisreplacementtokenallowsustotreatdashesasiftheywerewordcharactersinregex".split("").sort(function() {
           return .5 - Math.random();
         }).join(""),
-        M = function(e, t) {
+        C = function(e, t) {
           var n = e.slice(t.length);
           return t + TS.format.tokenizeStr(v, n);
         },
@@ -8100,10 +8100,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             w = i.no_linking,
             k = i.token_overrides,
             x = i.emoji_mode,
-            C = b;
+            M = b;
           if (f || k) {
-            var M = k || {};
-            f && (M["<LINE:BREAK>"] = f), C = _.extend({}, C, M);
+            var C = k || {};
+            f && (C["<LINE:BREAK>"] = f), M = _.extend({}, M, C);
           }
           var A = [];
           if (u) {
@@ -8125,7 +8125,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           var W, q, z, K, V = "";
           if ("GROWL" === r || "EDIT" === r)
             for (q = 0; q < U.length; q += 1)
-              if (W = U[q], 0 === W.indexOf("<")) C[W] ? TS.error('unexpected: mode == "GROWL" || "EDIT", and yet we got something in the formatting map? ' + W) : 0 === W.indexOf("<!") ? V += H(r, W) : 0 === W.indexOf("<@") ? (K = R(r, W), V += K) : 0 === W.indexOf("<#") ? V += D(r, W) : TS.error('unexpected: mode == "GROWL" || "EDIT", and yet we got ' + W);
+              if (W = U[q], 0 === W.indexOf("<")) M[W] ? TS.error('unexpected: mode == "GROWL" || "EDIT", and yet we got something in the formatting map? ' + W) : 0 === W.indexOf("<!") ? V += H(r, W) : 0 === W.indexOf("<@") ? (K = R(r, W), V += K) : 0 === W.indexOf("<#") ? V += D(r, W) : TS.error('unexpected: mode == "GROWL" || "EDIT", and yet we got ' + W);
               else if (-1 == W.indexOf("<"))
             if ("EDIT" === r) TS.boot_data.feature_localization && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE && (W = TSFEmoji.translateEmojiStringToLocal(W, TS.i18n.locale())), V += _.unescape(W);
             else if (TS.utility.platformSupportsHtmlNotifications()) TS.utility.platformSupportsImgEmojiInHtmlNotifications() && (V += TS.emoji.graphicReplace(W, {
@@ -8140,7 +8140,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             var J, Q, X, Z = "";
             for (q = 0; q < U.length; q += 1)
               if (W = U[q], 0 === W.indexOf("<"))
-                if (C[W]) V += C[W], W == TSF.LINK_END && (V += Z, Z = "");
+                if (M[W]) V += M[W], W == TSF.LINK_END && (V += Z, Z = "");
                 else if (0 === W.indexOf("<!")) V += H(r, W, a, w);
             else if (0 === W.indexOf("<@")) K = R(r, W, a, w), V += K;
             else if (0 === W.indexOf("<#")) V += D(r, W, w);
@@ -8150,31 +8150,26 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                   return t.substr(0, t.length - 1);
                 }(W),
                 ne = TS.utility.getBotIDFromURL(te),
-                ie = "",
-                re = "";
-              if (ne && ((ee = TS.bots.getBotById(ne)) || (TS.warn("No bot found for " + ne), n.source_team_id && (ee = {
-                  id: ne,
-                  name: TS.bots.getBotNameByBotLink(n.text),
-                  source_team_id: n.source_team_id
-                }))), ne && ee) X = !0, z = TS.utility.shouldLinksHaveTargets() ? 'target="' + te + '" ' : "", Q = a ? ee.name : I(ee.name), U[q + 1] && U[q + 1] == te && (Q = te), Q = Q.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"), ee.app_id && (ie = ee.app_id), ee.source_team_id && (re = "data-team-id=" + ee.source_team_id + " "), V += '<a href="' + te + '" ' + z + 'data-bot-id="' + ne + '" data-app-id="' + ie + '" ' + re + 'class="internal_bot_link app_preview_link">' + Q;
+                ie = "";
+              if (ne && (ee = TS.bots.getBotById(ne)), ne && ee) X = !0, z = TS.utility.shouldLinksHaveTargets() ? 'target="' + te + '" ' : "", Q = a ? ee.name : I(ee.name), U[q + 1] && U[q + 1] == te && (Q = te), Q = Q.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"), ee.app_id && (ie = ee.app_id), V += '<a href="' + te + '" ' + z + 'data-bot-id="' + ne + '" data-app-id="' + ie + '" class="internal_bot_link app_preview_link">' + Q;
               else if (0 === te.indexOf(TS.utility.msgs.api_url_prefix + "chat.help")) d ? (J = _.escape(JSON.stringify("" + te)), V += '<a onclick="TS.utility.msgs.doApiUrl(' + J + ')" class="api_url">') : V += '<a class="api_url muted">(Disabled) ';
               else if (0 === te.indexOf(TS.utility.msgs.new_api_url_prefix)) d ? (J = _.escape(JSON.stringify("" + te)), V += '<a onclick="TS.utility.msgs.doNewApiUrl(' + J + ')" class="api_url">') : V += '<a class="api_url muted">(Disabled) ';
               else if (0 === te.indexOf("javascript:")) V += '<a onclick="TS.client.msg_pane.maybeClick(this)" data-maybe-click="' + te.replace("javascript:", "") + '">';
               else if (TS.client && TS.client.core_url && 0 === te.indexOf(TS.client.core_url)) V += '<a target="_self" href="' + te + '">';
               else {
-                var ae = TS.utility.getFileIDFromURL(te),
-                  se = !1;
-                if (ae && TS.model && TS.model.user && TS.model.user.is_primary_owner) {
-                  var oe = !!TS.files && TS.files.getFileById(ae);
-                  oe && TS.utility.welcome_post && oe.name == TS.utility.welcome_post.WELCOME_POST_NAME && (se = !0);
+                var re = TS.utility.getFileIDFromURL(te),
+                  ae = !1;
+                if (re && TS.model && TS.model.user && TS.model.user.is_primary_owner) {
+                  var se = !!TS.files && TS.files.getFileById(re);
+                  se && TS.utility.welcome_post && se.name == TS.utility.welcome_post.WELCOME_POST_NAME && (ae = !0);
                 }
-                var le = se ? "file_new_window_link welcome_post_slackbot_message" : "file_preview_link",
-                  de = ae ? ' class="no_jumbomoji ' + le + '"' : "",
-                  ce = ae ? ' data-file-id="' + ae + '"' : "";
-                V += "<a " + TS.utility.makeRefererSafeLink(te) + ' target="_blank"' + de + ce + ">", Z && TS.error("WTF we should have no attach_html"), Z = "";
-                var _e;
-                n && n.ts && l && (_e = TS.inline_attachments.getAttachmentByFromUrl(n.attachments, te)) && (TS.boot_data.feature_attachments_inline || TS.templates.builders.shouldDoSimpleAttachment(_e, n)) && (Z = TS.templates.builders.buildAttachmentHTML({
-                  attachment: _e,
+                var oe = ae ? "file_new_window_link welcome_post_slackbot_message" : "file_preview_link",
+                  le = re ? ' class="no_jumbomoji ' + oe + '"' : "",
+                  de = re ? ' data-file-id="' + re + '"' : "";
+                V += "<a " + TS.utility.makeRefererSafeLink(te) + ' target="_blank"' + le + de + ">", Z && TS.error("WTF we should have no attach_html"), Z = "";
+                var ce;
+                n && n.ts && l && (ce = TS.inline_attachments.getAttachmentByFromUrl(n.attachments, te)) && (TS.boot_data.feature_attachments_inline || TS.templates.builders.shouldDoSimpleAttachment(ce, n)) && (Z = TS.templates.builders.buildAttachmentHTML({
+                  attachment: ce,
                   url: te,
                   msg: n,
                   show_initial_caret: !0
@@ -8206,11 +8201,11 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             }).join("")), V += W) : TS.error("token has a < in it but it is not the first character!\n" + W);
           }
           if (n && ("sh_room_created" === n.subtype || "sh_room_shared" === n.subtype)) {
-            var ue = TS.ui.growls.extractFromNameFromCorGMessage(n);
-            ue && (("GROWL" !== r || TS.utility.platformSupportsHtmlNotifications()) && (ue = _.escape(ue)), ue += ": "), V = "sh_room_created" === n.subtype ? TS.i18n.t("{from_name} Started a call", "string_format")({
-              from_name: ue
+            var _e = TS.ui.growls.extractFromNameFromCorGMessage(n);
+            _e && (("GROWL" !== r || TS.utility.platformSupportsHtmlNotifications()) && (_e = _.escape(_e)), _e += ": "), V = "sh_room_created" === n.subtype ? TS.i18n.t("{from_name} Started a call", "string_format")({
+              from_name: _e
             }) : TS.i18n.t("{from_name} Shared a call", "string_format")({
-              from_name: ue
+              from_name: _e
             });
           }
           return V = TS.format.deTokenizeStr(A, V);
@@ -10848,16 +10843,16 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return e ? TS.model.team && TS.members.shouldDisplayRealNames() && e.profile && e.profile.real_name ? t ? _.escape(e._real_name_lc) : e._real_name_lc : e._name_lc : "NO MEMBER??";
         },
         getMemberRealName: function(e) {
-          return M(e, "real_name");
+          return C(e, "real_name");
         },
         getMemberRealNameLowerCase: function(e) {
-          return M(e, "_real_name_normalized_lc");
+          return C(e, "_real_name_normalized_lc");
         },
         getMemberProfileFieldDisplayName: function(e) {
-          return M(e, "display_name");
+          return C(e, "display_name");
         },
         getMemberProfileFieldDisplayNameLowerCase: function(e) {
-          return M(e, "_display_name_normalized_lc");
+          return C(e, "_display_name_normalized_lc");
         },
         getMemberUsernameAndRealNameInCorrectOrder: function(e) {
           var t = T(e),
@@ -11001,7 +10996,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             n = _.difference(e, t),
             i = TS.useSocket() && TS.boot_data.should_use_flannel ? h : f,
             r = _(n).chunk(i).map(function(e) {
-              return C(e).reflect();
+              return M(e).reflect();
             }).value();
           return Promise.all(r).then(function(e) {
             var t = e.filter(function(e) {
@@ -11267,7 +11262,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         x = function(e) {
           TS.ims.setNameFromMember(e), TS.mpims.setNamesFromMember(e);
         },
-        C = function e(t, n) {
+        M = function e(t, n) {
           if (_.isEmpty(t)) return Promise.resolve();
           if (!Array.isArray(t)) return Promise.reject(new Error("m_ids is not an array"));
           t = _.uniq(t);
@@ -11296,7 +11291,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             return e.length !== t.length && TS.warn("_fetchAndUpsertMembersWithIds requested " + t.length + " members but received " + e.length + ". Missing members: " + n.join(", ")), e;
           });
         },
-        M = function(e, t) {
+        C = function(e, t) {
           var n = T(e);
           return n ? n.profile ? n.profile[t] ? n.profile[t] : n[t] ? n[t] : n.profile[t + "_normalized"] ? n.profile[t + "_normalized"] : "" : n.is_bot && n.name ? n.name : "NO MEMBER??" : "NO MEMBER??";
         },
@@ -11654,7 +11649,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return O(e, t, n);
         },
         getHeaderLabelForMatchKey: function(e) {
-          return C(e);
+          return M(e);
         }
       });
       var e, t, n, i, r = "",
@@ -11956,14 +11951,14 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           } else {
             var w, k = [],
               x = [],
-              C = [];
+              M = [];
             w = i ? e.length ? TS.members.getMembersForUser() : TS.web.admin.getMembersForUser() : TS.members.getMembersForUser(), $(".restricted_header, .bot_header, .ra_invite_prompt, .restricted_info").toggleClass("hidden", !!r), $.each(u, function(e, t) {
               var n;
               t = $(t), n = t.data("member-id"), g[n] = t;
             }), b = O(w, r, s.full_profile_filter);
-            var M = Object.keys(b);
-            if (M.length > 0) {
-              if (A(b, M, g, C, x, k, h ? n : ""), n) {
+            var C = Object.keys(b);
+            if (C.length > 0) {
+              if (A(b, C, g, M, x, k, h ? n : ""), n) {
                 var I = $(n);
                 I.trigger("resize"), TS.ui.utility.updateClosestMonkeyScroller(I);
               }
@@ -11979,7 +11974,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             }, {
               name: "disabled",
               label: TS.i18n.t("deactivated accounts", "members_view")(),
-              matches: C
+              matches: M
             }], T.forEach(function(e) {
               var i = $("#" + e.name + "_no_results");
               if (e.matches.length > 0) return void i.addClass("hidden").empty();
@@ -11991,22 +11986,22 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                     show_active_matches: "active" !== e.name && k.length > 0,
                     restricted_matches: x,
                     show_restricted_matches: "restricted" !== e.name && x.length > 0,
-                    disabled_matches: C,
-                    show_disabled_matches: TS.web && "disabled" !== e.name && C.length > 0
+                    disabled_matches: M,
+                    show_disabled_matches: TS.web && "disabled" !== e.name && M.length > 0
                   },
                   a = TS.templates.team_list_no_results(r);
                 i.removeClass("hidden").html(a), i.find(".clear_members_filter").on("click", function() {
                   TS.members.view.clearFilter(t, n);
                 });
               }();
-            })), d = k.concat(x, C);
+            })), d = k.concat(x, M);
           }
           S && S.length && S.removeClass("hidden"), TS.ui.utility.updateClosestMonkeyScroller($(n)), TS.members.view.team_filter_changed_sig.dispatch(l, d.length);
         },
-        C = function(e) {
+        M = function(e) {
           return s[e] || e;
         },
-        M = function(e, t) {
+        C = function(e, t) {
           var n = document.createElement("div"),
             i = document.createElement("strong");
           return n.classList.add("filter_header"), i.appendChild(document.createTextNode(e)), t.length && i.appendChild(document.createTextNode(": ")), n.appendChild(i), t.forEach(function(e, i) {
@@ -12041,7 +12036,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                 var p, f = e.member,
                   h = !1;
                 f && f.id && (p = n[f.id], !p && g && (p = $(TS.web.admin.buildMemberHTML(f, !1, !1)), h = !0), p && ("name" !== t || h ? f.deleted ? (c || (c = p.parent()), e.value && !T[e.value] && (T[e.value] = d.push(I(e.value, e.match))), i.appendChild(p.clone().addClass("active clone").get(0))) : f.is_restricted ? (_ || (_ = p.parent()), e.value && !b[e.value] && (b[e.value] = m.push(I(e.value, e.match))), a.appendChild(p.clone().addClass("active clone").get(0))) : (u || (u = p.parent()), e.value && !v[e.value] && (v[e.value] = S.push(I(e.value, e.match))), s.appendChild(p.clone().addClass("active clone").get(0))) : p.addClass("active")), f.deleted ? r.push(f) : f.is_restricted ? o.push(f) : l.push(f));
-              }), i.childNodes && i.childNodes.length && (p.appendChild(M(C(t), d)), p.appendChild(i)), a.childNodes && a.childNodes.length && (f.appendChild(M(C(t), m)), f.appendChild(a)), s.childNodes && s.childNodes.length && (h.appendChild(M(C(t), S)), h.appendChild(s)), i = null, a = null, s = null, d = null, m = null, S = null, T = null, b = null, v = null;
+              }), i.childNodes && i.childNodes.length && (p.appendChild(C(M(t), d)), p.appendChild(i)), a.childNodes && a.childNodes.length && (f.appendChild(C(M(t), m)), f.appendChild(a)), s.childNodes && s.childNodes.length && (h.appendChild(C(M(t), S)), h.appendChild(s)), i = null, a = null, s = null, d = null, m = null, S = null, T = null, b = null, v = null;
             }), c && c.append(p), _ && _.append(f), u && u.append(h), m.length) {
             var S = m.find(".member_item.clone");
             a[d] = S.find(".lazy").lazyload({
@@ -14010,7 +14005,6 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             case "team_settings":
             case "manage_team":
             case "team_billing":
-            case "team_pricing":
             case "team_services":
             case "team_customize":
             case "team_statistics":
@@ -15033,7 +15027,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
       "use strict";
       TS.registerModule("ms.msg_handlers", {
         onStart: function() {
-          C = window.performance && TS.boot_data && TS.boot_data.feature_ms_msg_handlers_profiling, TS.client && TS.client.stats && (TS.client.stats.start_collecting_sig.add(function() {
+          M = window.performance && TS.boot_data && TS.boot_data.feature_ms_msg_handlers_profiling, TS.client && TS.client.stats && (TS.client.stats.start_collecting_sig.add(function() {
             t = TS.boot_data.feature_queue_metrics && TS.utility.enableFeatureForUser(B), D.enableStatsCollecting();
           }), TS.client.stats.stop_collecting_sig.add(function() {
             t = !1, D.disableStatsCollecting();
@@ -15054,7 +15048,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           TS.ms.msg_handlers.msgReceived(e);
         },
         msgReceived: function(e) {
-          C && (O += 1, F || (F = Date.now())), e.reply_to || TS.ms.msg_handlers[e.type] && c(e);
+          M && (O += 1, F || (F = Date.now())), e.reply_to || TS.ms.msg_handlers[e.type] && c(e);
         },
         message: function(e) {
           if (TS.client) {
@@ -15062,12 +15056,12 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             var t, n = "subtype__" + e.subtype;
             if (n in TS.ms.msg_handlers) {
               if (TS.boot_data.feature_channel_eventlog_client) {
-                if ("message_changed" === e.subtype || "message_deleted" === e.subtype || "channel_history_changed" === e.subtype || "group_history_changed" === e.subtype || "im_history_changed" === e.subtype || "mpim_history_changed" === e.subtype || "message_replied" === e.subtype) return e.type = e.subtype, delete e.subtype, C && (t = D.start(e.type)), TS.ms.msg_handlers[e.type](e), void(t && t());
+                if ("message_changed" === e.subtype || "message_deleted" === e.subtype || "channel_history_changed" === e.subtype || "group_history_changed" === e.subtype || "im_history_changed" === e.subtype || "mpim_history_changed" === e.subtype || "message_replied" === e.subtype) return e.type = e.subtype, delete e.subtype, M && (t = D.start(e.type)), TS.ms.msg_handlers[e.type](e), void(t && t());
                 e.hidden && (TS.console.error(2, "WE SHOULD NOT BE GETTING ANY HIDDEN MESSAGES ANYMORE"), TS.console.dir(2, 0, e));
               }
-              C && (t = D.start(n)), TS.ms.msg_handlers[n](e), t && t();
+              M && (t = D.start(n)), TS.ms.msg_handlers[n](e), t && t();
             }
-            C && (t = D.start(e.type));
+            M && (t = D.start(e.type));
             var i = TS.utility.msgs.processImsg(e, e.channel);
             TS.ims.getImById(e.channel) ? ("start_profile_AAAAAA" === e.text ? TS.model.profiling_keys = !0 : "end_profile_AAAAAA" === e.text && (TS.model.profiling_keys = !1, TS.model.profiling_key_times && (TS.files.upload({
               text: JSON.stringify(TS.model.profiling_key_times, null, "\t"),
@@ -15886,7 +15880,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         g = function(t) {
           TS.has_pri[R] && TS.log(R, t.type + " is now being handled");
           var i;
-          C && (i = D.start(t.type));
+          M && (i = D.start(t.type));
           var r = function() {
               return p.length ? TS.bots.ensureBotsArePresent(p).then(a) : a();
             },
@@ -15996,8 +15990,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             }, r);
           }
         },
-        C = !1,
         M = !1,
+        C = !1,
         I = null,
         A = {},
         E = {},
@@ -16005,7 +15999,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         F = 0,
         D = {
           start: function(e, t) {
-            if (M) {
+            if (C) {
               t = t && parseInt(t, 10) || 1e3;
               var n = {
                 start: performance.now(),
@@ -16049,10 +16043,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             I || (I = window.setTimeout(D.report, 6e4));
           },
           enableStatsCollecting: function() {
-            TS.has_pri[L] && TS.log(L, "🏔️ MS message handler stat collecting enabled"), M = !0;
+            TS.has_pri[L] && TS.log(L, "🏔️ MS message handler stat collecting enabled"), C = !0;
           },
           disableStatsCollecting: function() {
-            TS.has_pri[L] && TS.log(L, "🏔️ MS message handler stat collecting disabled"), M = !1;
+            TS.has_pri[L] && TS.log(L, "🏔️ MS message handler stat collecting disabled"), C = !1;
           }
         },
         B = 50,
@@ -16160,7 +16154,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }
         },
         onFailure: function(e) {
-          if (TS.warn("TS.ms.onFailure reason_str:" + e), e && te("You got disconnected, so here are some details:\n>>>" + e), j = !1, clearInterval(C), clearInterval(M), k = !1, TS.info("Deprecating current socket in onFailure with reason: " + e), ne(4003, "Disconnecting due to failure. Reason: " + e), t) TS.ms.logConnectionFlow("on_goodbye_failure"), T = 0;
+          if (TS.warn("TS.ms.onFailure reason_str:" + e), e && te("You got disconnected, so here are some details:\n>>>" + e), j = !1, clearInterval(M), clearInterval(C), k = !1, TS.info("Deprecating current socket in onFailure with reason: " + e), ne(4003, "Disconnecting due to failure. Reason: " + e), t) TS.ms.logConnectionFlow("on_goodbye_failure"), T = 0;
           else if (TS.model.ms_connected) TS.info("Disconnected from MS, TS.model.rtm_start_throttler:" + TS.model.rtm_start_throttler), TS.ms.logConnectionFlow("on_connected_failure"), T = 100;
           else {
             TS.ms.logConnectionFlow("on_notconnected_failure"), T = 2 * (T + 1e3);
@@ -16263,8 +16257,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         w = new signals.Signal,
         k = !1,
         x = 3e5,
-        C = 0,
         M = 0,
+        C = 0,
         I = 7e3,
         A = 0,
         E = 0,
@@ -16301,7 +16295,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             type: "mp_command",
             subtype: "login",
             url: me(TS.model.team.url)
-          }), Ce(), $.onmessage = K, TS.model.ms_conn_log.length = 0, TS.info("MS WS connected!"), TS.ms.logConnectionFlow("on_connect"), clearTimeout(F), F = setTimeout(re, 3e4);
+          }), Me(), $.onmessage = K, TS.model.ms_conn_log.length = 0, TS.info("MS WS connected!"), TS.ms.logConnectionFlow("on_connect"), clearTimeout(F), F = setTimeout(re, 3e4);
         },
         Y = function() {
           TS.client && TS.shared.maybeFetchHistoryAndThenCheckConsistency(TS.shared.getActiveModelOb());
@@ -16419,7 +16413,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         le = function(e) {
           clearTimeout(F);
           var t = Date.now() - TS.ms.last_pong_time;
-          TS.info("Hello msg recvd, since_last_pong_ms:" + t), e && TS.info("host_id: " + _.get(e, "host_id") + ", server_version: " + _.get(e, "server_version")), TS.ms.logConnectionFlow("on_hello"), TS.client && t > 3e5 && !q && TS.client.ui.maybePromptForSetActive(), T = 0, clearInterval(B), j = !0, TS.ms.last_pong_time = Date.now(), clearInterval(C), C = setInterval(X, 3e3), clearInterval(M), M = setInterval(Z, 1e4), TS.model.ms_connecting = !1, TS.model.ms_connected = !0;
+          TS.info("Hello msg recvd, since_last_pong_ms:" + t), e && TS.info("host_id: " + _.get(e, "host_id") + ", server_version: " + _.get(e, "server_version")), TS.ms.logConnectionFlow("on_hello"), TS.client && t > 3e5 && !q && TS.client.ui.maybePromptForSetActive(), T = 0, clearInterval(B), j = !0, TS.ms.last_pong_time = Date.now(), clearInterval(M), M = setInterval(X, 3e3), clearInterval(C), C = setInterval(Z, 1e4), TS.model.ms_connecting = !1, TS.model.ms_connected = !0;
           var n = l || TS.storage.fetchLastEventTS();
           !!y && (n && !q ? (TS.info("calling eventlog.history with start:" + n + " (from TS.storage.fetchLastEventTS())"), o && TS.info("last_event_ts is from " + o), TS.api.callImmediately("eventlog.history", {
             start: n,
@@ -16494,11 +16488,11 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               r = function(t) {
                 t !== e && (TS.warn("Received a call to abort RTM start attempt for a websocket that is not the current websocket, this should not be happening!"), TS.info("current_websocket defined?", !!e, "recently_deprecated_socket defined?", !!t)), i(new Error("Socket was deprecated"));
               };
-            w.addOnce(r), Me();
+            w.addOnce(r), Ce();
             var a = setTimeout(function() {
               TS.warn("Provisional WebSocket timed out"), i(new Error("Waited 90000 ms for rtm.start response but didn’t get one"));
             }, 9e4);
-            c = _e(Ce), u = _e(function() {
+            c = _e(Me), u = _e(function() {
               TS.warn("Provisional WebSocket got disconnected"), i(new Error("WebSocket got disconnected"));
             }), m = _e(function(e) {
               TS.warn("Provisional WebSocket encountered an error");
@@ -16561,10 +16555,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           if (!Te(e)) throw new Error("Error creating WebSocket for URL " + e);
           TS.model.ms_connecting = !0;
         },
-        Ce = function() {
+        Me = function() {
           i && (i(), n = void 0, i = void 0);
         },
-        Me = function() {
+        Ce = function() {
           Ie(), TS.qs_args.no_prov_timeout || (g = setTimeout(function() {
             f ? (TS.boot_data.ws_refactor_bucket && TS.metrics.count("ms_flow_prov_timeout"), TS.warn("Giving up on provisional connection because no one ever finalized it"), ne(4002, "Deprecating socket because the provisional connection was never finalized")) : TS.warn("Provisional connection timed out, but it does not look like we have a provisional connection");
           }, 3e4));
@@ -19297,7 +19291,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         need_alerts: {},
         onStart: function() {
           if (TS.client) {
-            TS.prefs.team_handy_rxns_changed_sig.add(M), TS.prefs.channel_handy_rxns_changed_sig.add(M), TS.prefs.preferred_skin_tone_changed_sig.add(M), TS.prefs.emoji_mode_changed_sig.add(M), k = function() {};
+            TS.prefs.team_handy_rxns_changed_sig.add(C), TS.prefs.channel_handy_rxns_changed_sig.add(C), TS.prefs.preferred_skin_tone_changed_sig.add(C), TS.prefs.emoji_mode_changed_sig.add(C), k = function() {};
             var e = function() {};
             TS.client.login_sig.add(function() {
               k = TS.utility.throttleFunc(w, 100), e = TS.utility.throttleFunc(s, 1e3);
@@ -19418,8 +19412,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           if (n) {
             var m = TS.rxns.countAllEmoji(u),
               S = TS.rxns.countAllUsersRxns(u, TS.model.user.id);
-            if (m >= 50 && !TS.rxns.doesRxnsHaveRxn(u, t)) return void C(A);
-            if (S >= 23) return void C(I);
+            if (m >= 50 && !TS.rxns.doesRxnsHaveRxn(u, t)) return void M(A);
+            if (S >= 23) return void M(I);
           }
           var T = l(n, _.cloneDeep(u), t);
           TS.has_pri[F] && (TS.dir(F, u, "existing_rxns"), TS.dir(F, T, "new_rxns"));
@@ -19433,10 +19427,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             w = $('[data-rxn-key="' + e + '"]'),
             k = {},
             x = w.closest("ts-message"),
-            M = x.data("ts") + "",
+            C = x.data("ts") + "",
             D = x.data("model-ob-id");
           k = {
-            message_timestamp: M,
+            message_timestamp: C,
             channel_id: D,
             channel_type: D ? D.charAt(0) : "",
             member_id: x.data("member-id"),
@@ -19450,7 +19444,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             if (i);
             else if (!n && o.error && "no_reaction" === o.error);
             else {
-              o.error == A || o.error == I ? C(o.error) : o.error == E && TS.warn("Attempted to add/remove invalid emoji and the API complained: " + d.name);
+              o.error == A || o.error == I ? M(o.error) : o.error == E && TS.warn("Attempted to add/remove invalid emoji and the API complained: " + d.name);
               var m = TS.rxns.getExistingRxnsByKey(e) || [],
                 p = l(!n, _.cloneDeep(m), t),
                 h = c(e, p);
@@ -19504,7 +19498,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             incrementPendingCnt: p,
             decrementPendingCnt: f,
             fetchAndUpdateRxns: g,
-            displayTooManyError: C,
+            displayTooManyError: M,
             TOO_MANY_REACTIONS: I,
             TOO_MANY_EMOJI: A
           };
@@ -19725,13 +19719,13 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             s = S(a, e, r);
           s && a && (_.pull(a.emoji[e], s), a.emoji[e].length || delete a.emoji[e], Object.keys(a.emoji).length || (delete n[i], _.pull(t, a))), TS.rxns.rxn_records_changed_sig.dispatch();
         },
-        C = function(e) {
+        M = function(e) {
           var t = TS.i18n.t("Reaction Limit Reached", "rxns")(),
             n = TS.i18n.t("A message can contain up to 23 different emojis from a single person. Sorry, you can’t add any more than this!", "rxns")(),
             i = TS.i18n.t("A message can contain up to 50 different emojis in its reactions. Sorry, you can’t add any more than this!", "rxns")();
           e == I ? TS.generic_dialog.alert(n, t) : e == A && TS.generic_dialog.alert(i, t);
         },
-        M = function() {
+        C = function() {
           $(".msgs_holder").find("ts-message").each(function() {
             var e = $(this),
               t = e.find(".rxn_panel").data("rxn-key") || "";
@@ -20473,9 +20467,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               var y = TS.shared.getActiveModelOb();
               if (y && y.id === e.id) return void(TS.has_pri[x] && TS.log(x, "TS.shared.calcUnreadCnts: " + e.id + ": ignoring possible users.counts has_unreads discrepancy due to active channel."));
               var w = TS.utility.msgs.getMostRecentValidTs(e),
-                C = TS.model.marked_reasons.none_qualify;
-              if (TS.warn('Found users.counts discrepancy: has_unreads = true for "' + e.id + '", but client calculated 0 unreads after fetching history (' + e.msgs.length + ' msgs). Marking now with reason="' + C + '" to correct discrepancy, assuming last_read (' + e.last_read + ") < latest (" + w + ")."), parseFloat(e.last_read) >= parseFloat(w)) return void TS.warn('Error last >= latest for "' + e.id + '"? Bailing, not attempting to mark.');
-              t.markMostRecentReadMsg(e, C);
+                M = TS.model.marked_reasons.none_qualify;
+              if (TS.warn('Found users.counts discrepancy: has_unreads = true for "' + e.id + '", but client calculated 0 unreads after fetching history (' + e.msgs.length + ' msgs). Marking now with reason="' + M + '" to correct discrepancy, assuming last_read (' + e.last_read + ") < latest (" + w + ")."), parseFloat(e.last_read) >= parseFloat(w)) return void TS.warn('Error last >= latest for "' + e.id + '"? Bailing, not attempting to mark.');
+              t.markMostRecentReadMsg(e, M);
             }
           }
         },
@@ -20787,7 +20781,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             for (var m = 0; m < t.messages.length; m += 1) TS.utility.msgs.getMsg(t.messages[m].ts, a) || (r = t.messages[m], c.push(TS.utility.msgs.processImsgFromHistory(r, e.id)), u.push(r.ts));
             TS.has_pri[k] && TS.log(k, 'got history for "' + e.id + '", added ' + c.length + " new messages out of " + t.messages.length + " total.");
           }
-          if (c.length && !TS.utility.msgs.getDisplayedMsgs(c).length && TS.warn("no displayed msgs in this page for " + e.id + " ! We expect TS.client.ui.afterHistoryFetch to detect this and load another page"), a = c.concat(a), a = TS.utility.msgs.setMsgs(e, a), TS.has_pri[M] && TS.log(M, e.id + " msgs has more history now"), e.latest && e.latest.ts && !TS.utility.msgs.getMsg(e.latest.ts, a) && (TS.has_pri[M] && TS.log(M, "tacking on latest msg " + e.latest.ts), r = e.latest, TS.utility.msgs.appendMsg(a, TS.utility.msgs.processImsgFromHistory(r, e.id)), TS.utility.msgs.sortMsgs(a)), n.oldest || t.has_more || t.is_limited || TS.utility.msgs.setOldestMsgsTs(e), TS.shared.maybeDealWithAllSentTempMsgs(e, i), s) {
+          if (c.length && !TS.utility.msgs.getDisplayedMsgs(c).length && TS.warn("no displayed msgs in this page for " + e.id + " ! We expect TS.client.ui.afterHistoryFetch to detect this and load another page"), a = c.concat(a), a = TS.utility.msgs.setMsgs(e, a), TS.has_pri[C] && TS.log(C, e.id + " msgs has more history now"), e.latest && e.latest.ts && !TS.utility.msgs.getMsg(e.latest.ts, a) && (TS.has_pri[C] && TS.log(C, "tacking on latest msg " + e.latest.ts), r = e.latest, TS.utility.msgs.appendMsg(a, TS.utility.msgs.processImsgFromHistory(r, e.id)), TS.utility.msgs.sortMsgs(a)), n.oldest || t.has_more || t.is_limited || TS.utility.msgs.setOldestMsgsTs(e), TS.shared.maybeDealWithAllSentTempMsgs(e, i), s) {
             TS.has_pri[k] && TS.log(k, "onHistory: post-message merge, doing recalc of unread counts for " + e.id);
             i.calcUnreadCnts(e, !1);
           }
@@ -21117,14 +21111,14 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           if (!TS.model.is_our_app || !window.winssb) return e;
           if (!(TS.boot_data.page_needs_enterprise && TS.model.team && TS.model.team.enterprise_id && TS.boot_data.other_accounts)) return e;
           if (!window.winssb) return e;
-          TS.has_pri[C] && TS.log(C, "isRelevantTeam()");
+          TS.has_pri[M] && TS.log(M, "isRelevantTeam()");
           var t = TS.model.enterprise_teams;
           if (1 === t.length) return e;
           var n, i = _.map(t, function(e) {
               return e.id;
             }),
             r = TSSSB.call("getLastActiveTeamIdForTeamIds", i);
-          return TS.has_pri[C] && TS.log(C, "isRelevantTeam(): Got relevant team IDs from SSB", r), r instanceof Array && r.length ? (n = r[0], TS.has_pri[C] && TS.log(C, "isRelevantTeam(): Array case - taking the first relevant team id", n, r)) : TS.has_pri[C] && (TS.log(C, "isRelevantTeam(): relevant_team_ids is not an array, OR, is empty?", r), TS.log(C, "isRelevantTeam(): Electron did not provide any matches for the given team_ids", i)), n ? (TS.has_pri[C] && TS.log(C, "comparing most_relevant_team_id ( " + n + ") -> TS.model.team_id (" + TS.model.team.id + ")"), n === TS.model.team.id ? TS.has_pri[C] && TS.log(C, "isRelevantTeam(): " + TS.model.team.id + " is relevant. Including.") : (TS.has_pri[C] && TS.log(C, "isRelevantTeam(): " + TS.model.team.id + " is NOT relevant. Excluding."), e = !1), e) : (TS.has_pri[C] && TS.log(C, "Invalid response from SSB lastActiveTeamIdForTeamIds() call? Exiting."), e);
+          return TS.has_pri[M] && TS.log(M, "isRelevantTeam(): Got relevant team IDs from SSB", r), r instanceof Array && r.length ? (n = r[0], TS.has_pri[M] && TS.log(M, "isRelevantTeam(): Array case - taking the first relevant team id", n, r)) : TS.has_pri[M] && (TS.log(M, "isRelevantTeam(): relevant_team_ids is not an array, OR, is empty?", r), TS.log(M, "isRelevantTeam(): Electron did not provide any matches for the given team_ids", i)), n ? (TS.has_pri[M] && TS.log(M, "comparing most_relevant_team_id ( " + n + ") -> TS.model.team_id (" + TS.model.team.id + ")"), n === TS.model.team.id ? TS.has_pri[M] && TS.log(M, "isRelevantTeam(): " + TS.model.team.id + " is relevant. Including.") : (TS.has_pri[M] && TS.log(M, "isRelevantTeam(): " + TS.model.team.id + " is NOT relevant. Excluding."), e = !1), e) : (TS.has_pri[M] && TS.log(M, "Invalid response from SSB lastActiveTeamIdForTeamIds() call? Exiting."), e);
         },
         isRelevantTeamForSharedModelOb: function(e) {
           var t = !0;
@@ -21133,9 +21127,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           if (!(TS.boot_data.page_needs_enterprise && TS.model.team && TS.model.team.enterprise_id && TS.boot_data.other_accounts)) return t;
           if (!e.is_org_shared && !e.is_shared) return t;
           var n;
-          if (TS.has_pri[C] && TS.log(C, "isRelevantTeamForSharedModelOb(): " + e.id), !(n = e.is_im || e.is_global_shared ? _.map(TS.model.enterprise_teams, "id") : e.shared_team_ids)) return TS.has_pri[C] && TS.log(C, "Could not find shared team IDs for " + e.id + "? Exiting."), t;
+          if (TS.has_pri[M] && TS.log(M, "isRelevantTeamForSharedModelOb(): " + e.id), !(n = e.is_im || e.is_global_shared ? _.map(TS.model.enterprise_teams, "id") : e.shared_team_ids)) return TS.has_pri[M] && TS.log(M, "Could not find shared team IDs for " + e.id + "? Exiting."), t;
           var i, r = TSSSB.call("getLastActiveTeamIdForTeamIds", n);
-          return TS.has_pri[C] && TS.log(C, "Got relevant team IDs from SSB", r), r instanceof Array && r.length ? (i = r[0], TS.has_pri[C] && TS.log(C, "Array case - taking the first relevant team id", i, r)) : (TS.has_pri[C] && TS.log(C, "relevant_team_ids is not an array, OR, is empty?", r), n && n.length ? (TS.has_pri[C] && TS.log(C, "we have enterprise_team_ids, looking there and taking the first item.", n), i = n[0]) : TS.has_pri[C] && TS.log(C, "WTF no enterprise_team_ids, either?")), i ? (TS.has_pri[C] && TS.log(C, "comparing most_relevant_team_id ( " + i + ") -> TS.model.team_id (" + TS.model.team.id + ")"), i === TS.model.team.id ? TS.has_pri[C] && TS.log(C, "Shared channel " + e.id + " is relevant for this team (" + TS.model.team.id + "). Including.") : (TS.has_pri[C] && TS.log(C, "Shared channel " + e.id + " is NOT relevant for this team (" + TS.model.team.id + "). Excluding."), t = !1), t) : (TS.has_pri[C] && TS.log(C, "Invalid response from SSB lastActiveTeamIdForTeamIds() call on " + e.id + "? Exiting."), t);
+          return TS.has_pri[M] && TS.log(M, "Got relevant team IDs from SSB", r), r instanceof Array && r.length ? (i = r[0], TS.has_pri[M] && TS.log(M, "Array case - taking the first relevant team id", i, r)) : (TS.has_pri[M] && TS.log(M, "relevant_team_ids is not an array, OR, is empty?", r), n && n.length ? (TS.has_pri[M] && TS.log(M, "we have enterprise_team_ids, looking there and taking the first item.", n), i = n[0]) : TS.has_pri[M] && TS.log(M, "WTF no enterprise_team_ids, either?")), i ? (TS.has_pri[M] && TS.log(M, "comparing most_relevant_team_id ( " + i + ") -> TS.model.team_id (" + TS.model.team.id + ")"), i === TS.model.team.id ? TS.has_pri[M] && TS.log(M, "Shared channel " + e.id + " is relevant for this team (" + TS.model.team.id + "). Including.") : (TS.has_pri[M] && TS.log(M, "Shared channel " + e.id + " is NOT relevant for this team (" + TS.model.team.id + "). Excluding."), t = !1), t) : (TS.has_pri[M] && TS.log(M, "Invalid response from SSB lastActiveTeamIdForTeamIds() call on " + e.id + "? Exiting."), t);
         },
         checkDisplayEmailAddressPref: function() {
           if (TS.client && TS.model.team && TS.model.team.prefs) {
@@ -21300,8 +21294,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         k = 58,
         x = 99,
-        C = 1701,
-        M = 4,
+        M = 1701,
+        C = 4,
         I = 529;
     }();
   },
@@ -21995,10 +21989,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           })), TS.client && n.views && (s.only_channels || s.only_members || (w = n.views.filter(function(e) {
             return a.prefer_exact_match && e.name === s.query ? (o.push(e), !1) : s.matchesView(e);
           })));
-          var k, x, C;
-          k = l.concat(c, h, S, v, b, y, w), k.sort(_.partial(u, !0)), x = p.concat(T), x.sort(_.partial(u, !0)), C = g.concat(f), C.sort(_.partial(u, !0));
-          var M = k.concat(x, C),
-            I = M;
+          var k, x, M;
+          k = l.concat(c, h, S, v, b, y, w), k.sort(_.partial(u, !0)), x = p.concat(T), x.sort(_.partial(u, !0)), M = g.concat(f), M.sort(_.partial(u, !0));
+          var C = k.concat(x, M),
+            I = C;
           if (a.prefer_exact_match && o.length > 0)
             for (var A = 0; A < o.length; A += 1) I.unshift(o[A]);
           if (a.frecency && (a.normalize = !0, I = TS.ui.frecency.query(I, t, m, a)), a.limit && (I = _.take(I, a.limit)), a.frecency && (I = d(I)), a.print) {
@@ -22390,19 +22384,19 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           TS.has_pri[P] && TS.log(P, "TS.storage.clearBufferAndCache()"), o = {}, l = {}, s = null, TS.compresion && TS.compression.terminate();
         },
         fetchLastActiveModelObId: function() {
-          return C("last_active_model_ob_id", void 0);
+          return M("last_active_model_ob_id", void 0);
         },
         storeLastActiveModelObId: function(e) {
           I("last_active_model_ob_id", e || void 0, !0);
         },
         fetchStorageVersion: function() {
-          return C("storage_version");
+          return M("storage_version");
         },
         storeStorageVersion: function(e) {
           I("storage_version", e, !0);
         },
         fetchCacheTSStorageVersion: function() {
-          return C("storage_cache_ts_version");
+          return M("storage_cache_ts_version");
         },
         storeCacheTSStorageVersion: function(e) {
           I("storage_cache_ts_version", e, !0);
@@ -22411,7 +22405,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return "msg_input_" + e;
         },
         fetchLastMsgInput: function(e) {
-          return C(TS.storage._makeMsgInputId(e), null);
+          return M(TS.storage._makeMsgInputId(e), null);
         },
         storeLastMsgInput: function(e, t) {
           I(TS.storage._makeMsgInputId(e), t);
@@ -22420,50 +22414,50 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return "comment_input_" + e;
         },
         fetchLastCommentInput: function(e) {
-          return C(TS.storage._makeCommentInputId(e), null);
+          return M(TS.storage._makeCommentInputId(e), null);
         },
         storeLastCommentInput: function(e, t) {
           I(TS.storage._makeCommentInputId(e), t);
         },
         fetchOldestTs: function(e) {
-          return C(i(e), null);
+          return M(i(e), null);
         },
         storeOldestTs: function(e, t) {
           I(i(e), t);
         },
         fetchActiveHistory: function() {
-          return C("active_history", []) || [];
+          return M("active_history", []) || [];
         },
         storeActiveHistory: function(e) {
           I("active_history", e, !0);
         },
         fetchLastEventTS: function(e) {
-          return C("last_event_ts", "", e) || "";
+          return M("last_event_ts", "", e) || "";
         },
         storeLastEventTS: function(e, t, n) {
           I("last_event_ts", e, t, n);
         },
         fetchUIState: function() {
-          return C("ui_state", {}) || {};
+          return M("ui_state", {}) || {};
         },
         storeUIState: function(e) {
           I("ui_state", e);
         },
         fetchExpandableState: function() {
-          var e = C("expandable_state", {});
+          var e = M("expandable_state", {});
           return e && "object" === (void 0 === e ? "undefined" : n(e)) ? e : {};
         },
         storeExpandableState: function(e) {
           I("expandable_state", e);
         },
         fetchClientWindows: function() {
-          return C("client_windows", {}) || {};
+          return M("client_windows", {}) || {};
         },
         storeClientWindows: function(e) {
           I("client_windows", e);
         },
         fetchInputHistory: function() {
-          var e = C("input_history", []) || [];
+          var e = M("input_history", []) || [];
           "string" == typeof e && (e = [e]);
           return e.length > 300 && (e.length = 300), e;
         },
@@ -22471,49 +22465,49 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           I("input_history", e);
         },
         fetchCustomEmoji: function() {
-          return C("custom_emoji", null) || null;
+          return M("custom_emoji", null) || null;
         },
         storeCustomEmoji: function(e) {
           I("custom_emoji", e);
         },
         fetchApps: function() {
-          return C("apps", null) || null;
+          return M("apps", null) || null;
         },
         storeApps: function(e) {
           I("apps", e);
         },
         fetchAppsSearchResults: function() {
-          return C("apps_search", null) || null;
+          return M("apps_search", null) || null;
         },
         storeAppsSearchResults: function(e) {
           I("apps_search", e);
         },
         fetchCmds: function() {
-          return C("cmds", null) || null;
+          return M("cmds", null) || null;
         },
         storeCmds: function(e) {
           I("cmds", e);
         },
         fetchChannelPageState: function() {
-          return C("channel_page_state", {}) || {};
+          return M("channel_page_state", {}) || {};
         },
         storeChannelPageState: function(e) {
           I("channel_page_state", e);
         },
         fetchInvitesState: function() {
-          return C("invites_state", []) || [];
+          return M("invites_state", []) || [];
         },
         storeInvitesState: function(e) {
           I("invites_state", e);
         },
         fetchBriefingOpensCount: function() {
-          return Number(C("briefing_opens_count", 0)) || 0;
+          return Number(M("briefing_opens_count", 0)) || 0;
         },
         storeBriefingOpensCount: function(e) {
           I("briefing_opens_count", e);
         },
         fetchReplyInput: function(e, t) {
-          var n = C("reply_inputs") || [],
+          var n = M("reply_inputs") || [],
             i = _.find(n, {
               model_ob_id: e,
               thread_ts: t
@@ -22521,7 +22515,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return i ? i.text : "";
         },
         storeReplyInput: function(e, t, n) {
-          var i = C("reply_inputs") || [];
+          var i = M("reply_inputs") || [];
           i = _.reject(i, {
             model_ob_id: e,
             thread_ts: t
@@ -22532,20 +22526,20 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }), I("reply_inputs", i);
         },
         fetchFilterState: function() {
-          return C("team_filter_state", "") || "";
+          return M("team_filter_state", "") || "";
         },
         storeFilterState: function(e) {
           I("team_filter_state", e);
         },
         fetchCallsState: function() {
-          return C("calls_state", {}) || {};
+          return M("calls_state", {}) || {};
         },
         storeCallsState: function(e) {
           I("calls_state", e);
         },
         fetchMembers: function() {
           if (!TS.storage.isUsingMemberBotCache()) return [];
-          var e = C("members_data");
+          var e = M("members_data");
           return e ? e.members || [] : [];
         },
         storeMembers: function(e) {
@@ -22556,7 +22550,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         fetchBots: function() {
           if (!TS.storage.isUsingMemberBotCache()) return [];
-          var e = C("bots_data");
+          var e = M("bots_data");
           return e ? e.bots || [] : [];
         },
         storeBots: function(e) {
@@ -22575,12 +22569,12 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         fetchLastCacheTS: function() {
           var e = parseInt(s, 10) || 0;
           if (!TS.storage.isUsingMemberBotCache()) return e ? (TS.warn("fetchLastCacheTS: isUsingMemberBotCache() = false, but returning last_possible of " + e + " instead of 0."), e) : (TS.has_pri[P] && TS.log(P, "fetchLastCacheTS: returning 0 because isUsingMemberBotCache() returned false, and no last_possible from _last_cache_ts_possible.", e, s), 0);
-          var t = parseInt(C("last_cache_ts"), 10) || 0,
+          var t = parseInt(M("last_cache_ts"), 10) || 0,
             n = t || e;
           return TS.has_pri[P] && TS.log(P, 'fetchLastCacheTS: _get returned "' + t + '", last_possible = "' + e + '" - returning "' + n + '"'), n;
         },
         fetchFrecency: function(e) {
-          return C("frecency_" + e);
+          return M("frecency_" + e);
         },
         storeFrecency: function(e, t) {
           I("frecency_" + e, t);
@@ -22589,13 +22583,13 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           I("frecency_" + e, "");
         },
         fetchEnterpriseState: function() {
-          return C("enterprise_state", {}) || {};
+          return M("enterprise_state", {}) || {};
         },
         storeEnterpriseState: function(e) {
           I("enterprise_state", e);
         },
         fetchLastTraceTS: function() {
-          return C("last_trace_ts", "") || "";
+          return M("last_trace_ts", "") || "";
         },
         storeLastTraceTS: function() {
           I("last_trace_ts", Date.now());
@@ -22630,15 +22624,15 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               r = -1 != i.indexOf("-compressed") || "yes" === F.getItem("is_compressed");
             TS.storage.do_compression && !r ? (TS.warn("migrating to compressed format"), n = f(), n.forEach(function(e) {
               var n = e.replace(t, ""),
-                i = M(e, F.getItem(e)),
+                i = C(e, F.getItem(e)),
                 r = "converting: " + e + " -> " + n + " val.length: " + (void 0 === i || null === i ? -1 : String(i).length);
-              I(n, null), I(n, i), C(n) == i ? TS.has_pri[P] && TS.log(P, r + " SUCCESS _get(name) has a value:" + !!C(n) + ", and it it the same as val") : TS.error(r + " FAILURE _get(name) !== val");
+              I(n, null), I(n, i), M(n) == i ? TS.has_pri[P] && TS.log(P, r + " SUCCESS _get(name) has a value:" + !!M(n) + ", and it it the same as val") : TS.error(r + " FAILURE _get(name) !== val");
             }), TS.warn("migration to compressed format complete, " + n.length + " migrated"), TS.storage.storeStorageVersion(TS.storage.version)) : TS.has_pri[P] && TS.log(P, "no migration needed"), F.setItem("is_compressed", TS.storage.do_compression ? "yes" : "no");
           }
           var a = TS.storage.fetchCacheTSStorageVersion();
           TS.has_pri[P] && (TS.log(P, "TS.storage.cache_ts_version:" + TS.storage.cache_ts_version), TS.log(P, "storage_cache_ts_version:" + a));
           var s = TS.storage.fetchStorageVersion() || "";
-          TS.has_pri[P] && (TS.log(P, "TS.storage.version:" + TS.storage.version), TS.log(P, "storage_version:" + s), TS.log(P, "TS.storage last_unload_flushing: " + C("last_unload_flushing")), TS.log(P, "TS.storage.storageAvailable(): " + TS.storage.storageAvailable())), n = f(), TS.has_pri[P] && TS.dir(P, n, "_getKeys()"), TS.storage.storageAvailable() ? s != TS.storage.version ? (TS.warn("storage_version:" + s + " does not match TS.storage.version:" + TS.storage.version + " so flushing all our keys: " + n.join(", ")), g()) : TS.storage.fetchLastEventTS() ? a != TS.storage.cache_ts_version && (TS.warn("storage_cache_ts_version:" + a + " does not match TS.storage.cache_ts_version:" + TS.storage.cache_ts_version + " so flushing user/bot data"), TS.storage.cleanOutCacheTsStorage()) : (TS.warn("TS.storage.fetchLastEventTS() is empty so flushing channel data"), S()) : (TS.warn("TS.storage.storageAvailable() = false so flushing all our keys"), g()), TS.storage.storeStorageVersion(TS.storage.version), TS.storage.storeCacheTSStorageVersion(TS.storage.cache_ts_version), TS.useSocketManager() ? TS.interop.SocketManager.connectedSig.addOnce(v) : TS.ms.connected_sig.addOnce(v);
+          TS.has_pri[P] && (TS.log(P, "TS.storage.version:" + TS.storage.version), TS.log(P, "storage_version:" + s), TS.log(P, "TS.storage last_unload_flushing: " + M("last_unload_flushing")), TS.log(P, "TS.storage.storageAvailable(): " + TS.storage.storageAvailable())), n = f(), TS.has_pri[P] && TS.dir(P, n, "_getKeys()"), TS.storage.storageAvailable() ? s != TS.storage.version ? (TS.warn("storage_version:" + s + " does not match TS.storage.version:" + TS.storage.version + " so flushing all our keys: " + n.join(", ")), g()) : TS.storage.fetchLastEventTS() ? a != TS.storage.cache_ts_version && (TS.warn("storage_cache_ts_version:" + a + " does not match TS.storage.cache_ts_version:" + TS.storage.cache_ts_version + " so flushing user/bot data"), TS.storage.cleanOutCacheTsStorage()) : (TS.warn("TS.storage.fetchLastEventTS() is empty so flushing channel data"), S()) : (TS.warn("TS.storage.storageAvailable() = false so flushing all our keys"), g()), TS.storage.storeStorageVersion(TS.storage.version), TS.storage.storeCacheTSStorageVersion(TS.storage.cache_ts_version), TS.useSocketManager() ? TS.interop.SocketManager.connectedSig.addOnce(v) : TS.ms.connected_sig.addOnce(v);
         },
         g = function() {
           f().forEach(function(e) {
@@ -22716,15 +22710,15 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             TS.has_pri[P] && (0 === h ? TS.log(P, "_flushBuffer: Nothing to save.") : TS.log(P, "_flushBuffer: Saved " + h + (1 === h ? " item" : " items") + " why: " + n));
           }
         },
-        C = function(n, i, r) {
+        M = function(n, i, r) {
           var a = t + n;
           if (r && TS.info("_get name:" + n + " k:" + a + " disabled:" + e + ' _buffer["' + a + '"].val:' + (o[a] && o[a].val)), e) return o[a] && o[a].val || i;
           if (a in o) return o[a] && o[a].val || i;
           if (l.hasOwnProperty(a)) return l[a];
-          var s = M(a, $(a, F.getItem(a)), i, r);
+          var s = C(a, $(a, F.getItem(a)), i, r);
           return l[a] = s, s;
         },
-        M = function(e, t, i, r) {
+        C = function(e, t, i, r) {
           var a = new Date,
             s = k(t);
           r && TS.info("_get _correctBadValsFromStorage(_ls.getItem(k)) k:" + e + " typeof result:" + (void 0 === s ? "undefined" : n(s)) + " /^[{[]/.test(result):" + /^[{[]/.test(s));
@@ -23144,8 +23138,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               w = TS.utility.members.getEntityFromMessage(a),
               k = !0,
               x = TS.utility.date.toDateObject(a.ts),
-              C = !1,
               M = !1,
+              C = !1,
               I = !!a.is_pending,
               A = a.user,
               E = a.is_ephemeral,
@@ -23175,7 +23169,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                     }!TS.utility.msgs.isTempMsg(a) || "bot_message" !== a.type && "USLACKBOT" !== a.user || (k = !0);
                   }
                 if (!I && !TS.utility.date.sameDay(x, N) && !j) {
-                  C = !0;
+                  M = !0;
                   var z = $(T + " div.day_divider");
                   if (z.length > 0) {
                     var K, V = $(z[z.length - 1]);
@@ -23205,9 +23199,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                       }
                     }
                   }
-                }!I && TS.utility.date.distanceInMinutes(x, N) > TS.model.msg_activity_interval && (M = !0);
-              } else j || (M = !0);
-            M && (k = !0), "message" !== a.type && (k = !0), ("me_message" === a.subtype || o && "me_message" === o.subtype) && (k = !0);
+                }!I && TS.utility.date.distanceInMinutes(x, N) > TS.model.msg_activity_interval && (C = !0);
+              } else j || (C = !0);
+            C && (k = !0), "message" !== a.type && (k = !0), ("me_message" === a.subtype || o && "me_message" === o.subtype) && (k = !0);
             var J = !0;
             c && (J = !1);
             var Q = !1;
@@ -23310,7 +23304,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                 });
               }
               te.file_share_html = new Handlebars.SafeString(te.file_share_html);
-            } else "file_comment" === a.subtype && (o && !o.no_display && o.file && a.file && a.file.id == o.file.id && (C || (te.is_file_convo_continuation = !0)), te.show_comment_quote_icon = !0, o && !o.no_display && o.file && a.file && a.file.id == o.file.id && ("file_share" === o.subtype && o.upload && o.file.initial_comment && (C || (te.show_comment_quote_icon = !1)), "file_comment" === o.subtype && (C || (te.show_comment_quote_icon = !1))), te.file = a.file, te.icon_class = TS.utility.getImageIconClass(a.file, "thumb_40"), te.comment = a.comment, te.member = TS.utility.members.getEntityFromMessage(a), a.file && a.file.user != a.comment.user && (te.uploader = TS.utility.members.getEntityFromFile(a.file)), g || (te.star_components = TS.templates.builders.buildStarComponents("file_comment", a.comment, a.file)));
+            } else "file_comment" === a.subtype && (o && !o.no_display && o.file && a.file && a.file.id == o.file.id && (M || (te.is_file_convo_continuation = !0)), te.show_comment_quote_icon = !0, o && !o.no_display && o.file && a.file && a.file.id == o.file.id && ("file_share" === o.subtype && o.upload && o.file.initial_comment && (M || (te.show_comment_quote_icon = !1)), "file_comment" === o.subtype && (M || (te.show_comment_quote_icon = !1))), te.file = a.file, te.icon_class = TS.utility.getImageIconClass(a.file, "thumb_40"), te.comment = a.comment, te.member = TS.utility.members.getEntityFromMessage(a), a.file && a.file.user != a.comment.user && (te.uploader = TS.utility.members.getEntityFromFile(a.file)), g || (te.star_components = TS.templates.builders.buildStarComponents("file_comment", a.comment, a.file)));
             var Se = e(a, te);
             return te.msg_classes = Se.join(" "), y += TS.templates.message(te), y = TS.format.replaceHighlightMarkers(y);
           } catch (e) {
@@ -23519,8 +23513,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             enable_slack_action_links: !0 === e.enable_slack_action_links
           };
           if (!e.from_post) {
-            var x, C = "web" === TS.boot_data.app || !0 !== e.enable_slack_action_links;
-            return C && (x = "web" === TS.boot_data.app ? "ARCHIVES" : TS.shared.getActiveModelOb().is_channel && !TS.shared.getActiveModelOb().is_member ? "CHANNEL_PREVIEW" : "OTHER"), k = _.assign(k, {
+            var x, M = "web" === TS.boot_data.app || !0 !== e.enable_slack_action_links;
+            return M && (x = "web" === TS.boot_data.app ? "ARCHIVES" : TS.shared.getActiveModelOb().is_channel && !TS.shared.getActiveModelOb().is_member ? "CHANNEL_PREVIEW" : "OTHER"), k = _.assign(k, {
               attachment: n,
               has_actions: !(_.isEmpty(n.actions) && _.isEmpty(n.legacy_actions)),
               has_source: _.some(n._source),
@@ -23531,7 +23525,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               has_text_content: !(!n.text && !n.title),
               has_thumb: !!g,
               has_footer: !!(n.footer || n.footer_icon || n.ts || n._attribution) && !p,
-              disable_actions: C,
+              disable_actions: M,
               disable_actions_reason: x,
               border_color: n.color && "#" + n.color || null,
               break_border: e.break_border,
@@ -23555,41 +23549,41 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               channel_name: k.attachment.channel_name
             })), TS.templates.message_attachment(k);
           }
-          var M = !0,
+          var C = !0,
             I = "";
           if (e.show_initial_caret || e.show_media_caret) {
             switch (TS.utility.attachments.getMediaType(n)) {
               case "video":
                 var A = TS.model.inline_videos[n.from_url || n.thumb_url];
                 if (A) {
-                  I = TS.templates.builders.buildInlineVideoToggler(n.from_url || n.thumb_url, t, !0), M = TS.inline_videos.shouldExpand(t, A);
+                  I = TS.templates.builders.buildInlineVideoToggler(n.from_url || n.thumb_url, t, !0), C = TS.inline_videos.shouldExpand(t, A);
                 }
                 break;
               case "audio":
                 var E = TS.model.inline_audios[n.audio_html || n.audio_url];
-                E && (I = TS.templates.builders.buildInlineAudioToggler(n.audio_html || n.audio_url, t), M = TS.inline_audios.shouldExpand(t, E));
+                E && (I = TS.templates.builders.buildInlineAudioToggler(n.audio_html || n.audio_url, t), C = TS.inline_audios.shouldExpand(t, E));
                 break;
               case "other":
                 var O = TS.model.inline_others[n.other_html];
-                O && (I = TS.templates.builders.buildInlineOtherToggler(n.other_html, t), M = TS.inline_others.shouldExpand(t, O));
+                O && (I = TS.templates.builders.buildInlineOtherToggler(n.other_html, t), C = TS.inline_others.shouldExpand(t, O));
                 break;
               case "image":
                 var F = TS.model.inline_imgs[n.from_url || n.image_url];
                 if (F) {
                   var D = !e.show_media_caret;
-                  I = TS.templates.builders.buildInlineImgToggler(n.from_url || n.image_url, t, D), M = TS.inline_imgs.shouldExpand(t, F);
+                  I = TS.templates.builders.buildInlineImgToggler(n.from_url || n.image_url, t, D), C = TS.inline_imgs.shouldExpand(t, F);
                 }
                 break;
               default:
                 var B = TS.model.inline_attachments[n.from_url];
-                B ? (I = TS.templates.builders.buildInlineAttachmentToggler(n.from_url, t), M = TS.inline_attachments.shouldExpand(t, B)) : TS.warn("no inline_attachment for " + n.from_url);
+                B ? (I = TS.templates.builders.buildInlineAttachmentToggler(n.from_url, t), C = TS.inline_attachments.shouldExpand(t, B)) : TS.warn("no inline_attachment for " + n.from_url);
             }
           }
           return _.assign(k, {
             initial_caret_html: e.show_initial_caret ? new Handlebars.SafeString(I) : "",
             media_caret_html: e.show_media_caret ? new Handlebars.SafeString(I) : "",
-            expand_media: !e.show_media_caret || M,
-            expand_it: !e.show_initial_caret || M,
+            expand_media: !e.show_media_caret || C,
+            expand_it: !e.show_initial_caret || C,
             bg_color: n.color || "e3e4e6",
             thumb_at_top: !window.attach_thumb_align_title,
             ts_link: m,
@@ -23680,23 +23674,23 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               for (var v, y = ["button", "select"], w = [], k = [], x = 0; x < T.actions.length; x += 1) v = T.actions[x], _.includes(y, v.type) ? k.push(v) : w.push(v);
               w.length && (T.legacy_actions = w), k.length && (T.actions = k);
             }
-            var C = TS.utility.attachments.hasContent(T, ["pretext"]);
-            if (C) {
-              var M = e[b + 1];
+            var M = TS.utility.attachments.hasContent(T, ["pretext"]);
+            if (M) {
+              var C = e[b + 1];
               a += TS.templates.builders.buildAttachmentHTML({
                 model_ob: r,
                 attachment: T,
                 has_border: d,
                 has_indent: u,
                 has_container: s,
-                break_border: d && M && T.color != M.color,
+                break_border: d && C && T.color != C.color,
                 url: null,
                 msg: t,
                 msg_dom_id: i,
                 show_initial_caret: TS.templates.builders.shouldDoSimpleAttachment(T, t),
                 show_media_caret: T.video_html || T.image_url || T.audio_html || T.audio_url || T.other_html,
                 enable_slack_action_links: n,
-                has_content: C
+                has_content: M
               });
             }
             o && 0 === b && (a += TS.templates.reply_broadcast_count(T));
@@ -23867,8 +23861,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               inviter: "<@" + c.id + "|" + c.name + ">"
             }));
             var k, x = [],
-              C = [],
-              M = TS.i18n.t("along with", "templates_builders")();
+              M = [],
+              C = TS.i18n.t("along with", "templates_builders")();
             y.is_in && c && (k = "<@" + c.id + "|" + c.name + ">");
             var I, A, E, O = 0;
             for (var F in e._jl_rollup_hash.users)
@@ -23877,17 +23871,17 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                   r = !0;
                   break;
                 }
-                E = e._jl_rollup_hash.users[F], E.is_in === y.is_in ? E.is_in ? (E.inviter == e.user && (M = TS.i18n.t("and invited", "templates_builders")(), I = !0), !E.inviter || E.inviter != y.inviter && E.inviter != e.user ? C.push("<@" + F + "> " + TS.templates.builders.buildJoinLeaveRollUpStr(E)) : x.push("<@" + F + ">")) : x.push("<@" + F + ">") : C.push("<@" + F + "> " + TS.templates.builders.buildJoinLeaveRollUpStr(E)), O += 1;
+                E = e._jl_rollup_hash.users[F], E.is_in === y.is_in ? E.is_in ? (E.inviter == e.user && (C = TS.i18n.t("and invited", "templates_builders")(), I = !0), !E.inviter || E.inviter != y.inviter && E.inviter != e.user ? M.push("<@" + F + "> " + TS.templates.builders.buildJoinLeaveRollUpStr(E)) : x.push("<@" + F + ">")) : x.push("<@" + F + ">") : M.push("<@" + F + "> " + TS.templates.builders.buildJoinLeaveRollUpStr(E)), O += 1;
               }
             if (x.length) {
-              if (A = I ? C.length ? r ? k ? TS.i18n.t('{joined_or_left} {channel_name} by invitation from {inviter}, and invited {users} and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>. Also, {others} along with <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "templates_builders") : TS.i18n.t('{joined_or_left} {channel_name}, and invited {users} and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>. Also, {others} along with <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "templates_builders") : k ? TS.i18n.t("{joined_or_left} {channel_name} by invitation from {inviter}, and invited {users}. Also, {others}.", "templates_builders") : TS.i18n.t("{joined_or_left} {channel_name}, and invited {users}. Also, {others}.", "templates_builders") : r ? k ? TS.i18n.t('{joined_or_left} {channel_name} by invitation from {inviter}, and invited {users} and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "templates_builders") : TS.i18n.t('{joined_or_left} {channel_name}, and invited {users} and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "templates_builders") : k ? TS.i18n.t("{joined_or_left} {channel_name} by invitation from {inviter}, and invited {users}", "templates_builders") : TS.i18n.t("{joined_or_left} {channel_name}, and invited {users}", "templates_builders") : C.length ? r ? k ? TS.i18n.t('{joined_or_left} {channel_name} by invitation from {inviter}, along with {users} and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>. Also, {others} along with <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "templates_builders") : TS.i18n.t('{joined_or_left} {channel_name}, along with {users} and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>. Also, {others} along with <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "templates_builders") : k ? TS.i18n.t("{joined_or_left} {channel_name} by invitation from {inviter}, along with {users}. Also, {others}.", "templates_builders") : TS.i18n.t("{joined_or_left} {channel_name}, along with {users}. Also, {others}.", "templates_builders") : r ? k ? TS.i18n.t('{joined_or_left} {channel_name} by invitation from {inviter}, along with {users} and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "templates_builders") : TS.i18n.t('{joined_or_left} {channel_name}, along with {users} and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "templates_builders") : k ? TS.i18n.t("{joined_or_left} {channel_name} by invitation from {inviter}, along with {users}", "templates_builders") : TS.i18n.t("{joined_or_left} {channel_name}, along with {users}", "templates_builders"), w += ", " + M + " " + x.join(", "), l = TS.format.formatNoHighlightsNoSpecials(w), r && (l += TS.i18n.t(' and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>', "templates_builders")()), C.length) {
+              if (A = I ? M.length ? r ? k ? TS.i18n.t('{joined_or_left} {channel_name} by invitation from {inviter}, and invited {users} and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>. Also, {others} along with <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "templates_builders") : TS.i18n.t('{joined_or_left} {channel_name}, and invited {users} and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>. Also, {others} along with <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "templates_builders") : k ? TS.i18n.t("{joined_or_left} {channel_name} by invitation from {inviter}, and invited {users}. Also, {others}.", "templates_builders") : TS.i18n.t("{joined_or_left} {channel_name}, and invited {users}. Also, {others}.", "templates_builders") : r ? k ? TS.i18n.t('{joined_or_left} {channel_name} by invitation from {inviter}, and invited {users} and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "templates_builders") : TS.i18n.t('{joined_or_left} {channel_name}, and invited {users} and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "templates_builders") : k ? TS.i18n.t("{joined_or_left} {channel_name} by invitation from {inviter}, and invited {users}", "templates_builders") : TS.i18n.t("{joined_or_left} {channel_name}, and invited {users}", "templates_builders") : M.length ? r ? k ? TS.i18n.t('{joined_or_left} {channel_name} by invitation from {inviter}, along with {users} and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>. Also, {others} along with <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "templates_builders") : TS.i18n.t('{joined_or_left} {channel_name}, along with {users} and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>. Also, {others} along with <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "templates_builders") : k ? TS.i18n.t("{joined_or_left} {channel_name} by invitation from {inviter}, along with {users}. Also, {others}.", "templates_builders") : TS.i18n.t("{joined_or_left} {channel_name}, along with {users}. Also, {others}.", "templates_builders") : r ? k ? TS.i18n.t('{joined_or_left} {channel_name} by invitation from {inviter}, along with {users} and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "templates_builders") : TS.i18n.t('{joined_or_left} {channel_name}, along with {users} and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "templates_builders") : k ? TS.i18n.t("{joined_or_left} {channel_name} by invitation from {inviter}, along with {users}", "templates_builders") : TS.i18n.t("{joined_or_left} {channel_name}, along with {users}", "templates_builders"), w += ", " + C + " " + x.join(", "), l = TS.format.formatNoHighlightsNoSpecials(w), r && (l += TS.i18n.t(' and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>', "templates_builders")()), M.length) {
                 var D = TS.i18n.t(". Also, {others}", "templates_builders")({
-                  others: C.join(", ")
+                  others: M.join(", ")
                 });
                 l += TS.format.formatNoHighlightsNoSpecials(D), r && (l += TS.i18n.t(' along with <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>', "templates_builders")()), l += ".";
               }
-            } else C.length ? (A = r ? k ? TS.i18n.t('{joined_or_left} {channel_name} by invitation from {inviter}. Also, {others} along with <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "templates_builders") : TS.i18n.t('{joined_or_left} {channel_name}. Also, {others} along with <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "templates_builders") : k ? TS.i18n.t("{joined_or_left} {channel_name} by invitation from {inviter}. Also, {others}.", "templates_builders") : TS.i18n.t("{joined_or_left} {channel_name}. Also, {others}.", "templates_builders"), w += TS.i18n.t(". Also, {others}", "templates_builders")({
-              others: C.join(", ")
+            } else M.length ? (A = r ? k ? TS.i18n.t('{joined_or_left} {channel_name} by invitation from {inviter}. Also, {others} along with <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "templates_builders") : TS.i18n.t('{joined_or_left} {channel_name}. Also, {others} along with <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "templates_builders") : k ? TS.i18n.t("{joined_or_left} {channel_name} by invitation from {inviter}. Also, {others}.", "templates_builders") : TS.i18n.t("{joined_or_left} {channel_name}. Also, {others}.", "templates_builders"), w += TS.i18n.t(". Also, {others}", "templates_builders")({
+              others: M.join(", ")
             }), l = TS.format.formatNoHighlightsNoSpecials(w), r && (l += TS.i18n.t(' along with <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>', "templates_builders")()), l += ".") : (l = TS.format.formatNoHighlightsNoSpecials(w), A = k ? TS.i18n.t("{joined_or_left} {channel_name} by invitation from {inviter}", "templates_builders") : TS.i18n.t("{joined_or_left} {channel_name}", "templates_builders"));
             if (TS.boot_data.feature_tinyspeck) {
               l = A({
@@ -23895,7 +23889,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                 channel_name: m,
                 inviter: c ? TS.format.formatNoHighlightsNoSpecials("<@" + c.id + "|" + c.name + ">") : "",
                 users: TS.format.formatNoHighlightsNoSpecials(x.join(", ")),
-                others: TS.format.formatNoHighlightsNoSpecials(C.join(", "))
+                others: TS.format.formatNoHighlightsNoSpecials(M.join(", "))
               });
             }
           } else if ("channel_join" === e.subtype) c = TS.members.getMemberById(e.inviter), m = a.is_private ? TS.model.group_prefix + a.name : a ? "#" + a.name : TS.i18n.t("the channel", "templates_builders")(), c ? (p = "<@" + c.id + "|" + c.name + ">", o = TS.i18n.t("joined {channel_name} from an invitation by {inviter}", "templates_builders")({
@@ -24304,9 +24298,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             }
           else {
             var w, k, x = i.display_w || i.width,
-              C = i.display_h || i.height,
-              M = x / C;
-            x <= 574 && C <= 300 ? (w = x, k = C) : 574 / 300 > M ? (w = 300 * x / C, k = 300) : (w = 574, k = 574 * C / x), d += 'style="width: ' + Math.round(w) + "px; height: " + Math.round(k) + 'px;"';
+              M = i.display_h || i.height,
+              C = x / M;
+            x <= 574 && M <= 300 ? (w = x, k = M) : 574 / 300 > C ? (w = 300 * x / M, k = 300) : (w = 574, k = 574 * M / x), d += 'style="width: ' + Math.round(w) + "px; height: " + Math.round(k) + 'px;"';
           }
           d += ">", i.proxied_src = TS.utility.getImgProxyURLWithOptions(i.src, {});
           var I = _.escape(i.proxied_src || i.src),
@@ -27292,7 +27286,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           e = $("#edit_team_profile_container"), t = $("body"), e.on("click", '[data-action="edit_team_profile_to_custom"]', T), e.on("click", '[data-action="edit_team_profile_to_add"]', S), e.on("click", '[data-action="edit_team_profile_to_edit"]', b), e.on("click", '[data-action="edit_team_profile_to_hide"]', v), e.on("click", '[data-action="edit_team_profile_to_delete"]', y), e.on("click", '[data-action="edit_team_profile_cancel"]', g), e.on("click", '[data-action="edit_team_profile_confirm_edit"]', f), e.on("click", '[data-action="edit_team_profile_confirm_hide"]', u), e.on("click", '[data-action="edit_team_profile_confirm_delete"]', c), e.on("click", '[data-action="edit_team_profile_remove_option"]', A), e.on("click", '[data-action="edit_team_profile_add_option"]', E), e.on("focusin", '[data-action="edit_team_profile_update_preview_label"], [data-action="edit_team_profile_update_preview_hint"], .option_header_row + .option_row [data-action="edit_team_profile_update_preview_option"]', D), e.on("focusout", '[data-action="edit_team_profile_update_preview_label"], [data-action="edit_team_profile_update_preview_hint"], .option_header_row + .option_row [data-action="edit_team_profile_update_preview_option"]', B), e.on("input", '[data-action="edit_team_profile_update_preview_label"], [data-action="edit_team_profile_update_preview_hint"], .option_header_row + .option_row [data-action="edit_team_profile_update_preview_option"]', F), e.on("click", '[data-action="edit_team_profile_list_menu"]', j), e.on("input", "input", K), t.on("keydown.admin_submit", o), l().then(g).catch(TS.error);
         },
         s = function() {
-          C(!0), e = null, i = [], n = null, t.off("keydown.admin_submit"), t = null, TS.web && TS.web.account_profile && TS.web.account_profile.render(), TS.web && TS.web.members && TS.web.members.render();
+          M(!0), e = null, i = [], n = null, t.off("keydown.admin_submit"), t = null, TS.web && TS.web.account_profile && TS.web.account_profile.render(), TS.web && TS.web.members && TS.web.members.render();
         },
         o = function(e) {
           if (e.which == TS.utility.keymap.enter) return $(n).find('button[type="submit"]').trigger("click"), !1;
@@ -27385,7 +27379,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           var r = TS.templates.admin_edit_team_profile_list(n);
           e.find("#edit_team_profile_header").text(TS.i18n.t("Customize profile", "team_profile")()).removeClass("hidden center_and_narrow");
           var a;
-          a = TS.model.team.profile && TS.model.team.profile.fields.length >= 50 ? '<div class="alert alert_info"><i class="ts_icon ts_icon_info_circle"></i>' + TS.i18n.t("You have reached the maximum number of fields that can be added to profiles.", "team_profile")() + "</div>" : TS.i18n.t("Expand your team’s profiles by adding additional fields below", "team_profile")(), e.find("#edit_team_profile_value_note").html(a).removeClass("hidden center_and_narrow"), e.find("#edit_team_profile_list").html(r), U("#edit_team_profile_list"), H(), k(), C(!0);
+          a = TS.model.team.profile && TS.model.team.profile.fields.length >= 50 ? '<div class="alert alert_info"><i class="ts_icon ts_icon_info_circle"></i>' + TS.i18n.t("You have reached the maximum number of fields that can be added to profiles.", "team_profile")() + "</div>" : TS.i18n.t("Expand your team’s profiles by adding additional fields below", "team_profile")(), e.find("#edit_team_profile_value_note").html(a).removeClass("hidden center_and_narrow"), e.find("#edit_team_profile_list").html(r), U("#edit_team_profile_list"), H(), k(), M(!0);
         },
         S = function t() {
           i.push({
@@ -27394,14 +27388,14 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           var n = {};
           n.default_team_profile_fields = q();
           var r = TS.templates.admin_edit_team_profile_add(n);
-          e.find("#edit_team_profile_header").text(TS.i18n.t("Select a field type", "team_profile")()).removeClass("center_and_narrow"), e.find("#edit_team_profile_value_note").addClass("hidden"), e.find("#edit_team_profile_add").html(r), U("#edit_team_profile_add"), k(), C();
+          e.find("#edit_team_profile_header").text(TS.i18n.t("Select a field type", "team_profile")()).removeClass("center_and_narrow"), e.find("#edit_team_profile_value_note").addClass("hidden"), e.find("#edit_team_profile_add").html(r), U("#edit_team_profile_add"), k(), M();
         },
         T = function t() {
           i.push({
             back: t
           });
           var n = TS.templates.admin_edit_team_profile_custom();
-          e.find("#edit_team_profile_header").text(TS.i18n.t("Create a new field", "team_profile")()).removeClass("center_and_narrow"), e.find("#edit_team_profile_value_note").text(TS.i18n.t("Which type of field would you like to create?", "team_profile")()).removeClass("hidden center_and_narrow"), e.find("#edit_team_profile_custom").html(n), U("#edit_team_profile_custom"), k(), C(), R();
+          e.find("#edit_team_profile_header").text(TS.i18n.t("Create a new field", "team_profile")()).removeClass("center_and_narrow"), e.find("#edit_team_profile_value_note").text(TS.i18n.t("Which type of field would you like to create?", "team_profile")()).removeClass("hidden center_and_narrow"), e.find("#edit_team_profile_custom").html(n), U("#edit_team_profile_custom"), k(), M(), R();
         },
         b = function t(n) {
           var r = $(n.target);
@@ -27418,7 +27412,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             event: n
           });
           var l = TS.templates.admin_edit_team_profile_edit(o);
-          e.find("#edit_team_profile_header").text(s).removeClass("center_and_narrow"), e.find("#edit_team_profile_value_note").addClass("hidden"), e.find("#edit_team_profile_edit").html(l), U("#edit_team_profile_edit"), M(), I(), R(), Ladda.bind("#edit_team_profile_confirm_edit_btn"), k(), C(), K();
+          e.find("#edit_team_profile_header").text(s).removeClass("center_and_narrow"), e.find("#edit_team_profile_value_note").addClass("hidden"), e.find("#edit_team_profile_edit").html(l), U("#edit_team_profile_edit"), C(), I(), R(), Ladda.bind("#edit_team_profile_confirm_edit_btn"), k(), M(), K();
         },
         v = function t(n) {
           var r = $(n.target),
@@ -27439,7 +27433,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                 });
               e.find("#edit_team_profile_header").text(l).addClass("center_and_narrow");
               var d = TS.i18n.t("All data entered for this field will no longer be visible on your team’s profiles. You can un-hide it later.", "team_profile")();
-              e.find("#edit_team_profile_value_note").text(d).addClass("center_and_narrow").removeClass("hidden"), e.find("#edit_team_profile_hide").html(o), U("#edit_team_profile_hide"), Ladda.bind("#edit_team_profile_confirm_hide_btn"), w(), C();
+              e.find("#edit_team_profile_value_note").text(d).addClass("center_and_narrow").removeClass("hidden"), e.find("#edit_team_profile_hide").html(o), U("#edit_team_profile_hide"), Ladda.bind("#edit_team_profile_confirm_hide_btn"), w(), M();
             }
           }
         },
@@ -27459,7 +27453,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                 });
               e.find("#edit_team_profile_header").text(l).addClass("center_and_narrow");
               var d = TS.i18n.t("<strong>Are you sure?</strong> All data associated with this field will be permanently deleted. This <strong>cannot be undone</strong>.", "team_profile")();
-              e.find("#edit_team_profile_value_note").html(d).addClass("center_and_narrow").removeClass("hidden"), e.find("#edit_team_profile_delete").html(o), U("#edit_team_profile_delete"), Ladda.bind("#edit_team_profile_confirm_delete_btn"), w(), C();
+              e.find("#edit_team_profile_value_note").html(d).addClass("center_and_narrow").removeClass("hidden"), e.find("#edit_team_profile_delete").html(o), U("#edit_team_profile_delete"), Ladda.bind("#edit_team_profile_confirm_delete_btn"), w(), M();
             }
           }
         },
@@ -27482,14 +27476,14 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           var e = TS.model.user;
           return !!e && ("admin" === TS.model.team.prefs.who_can_change_team_profile ? e.is_admin : "owner" !== TS.model.team.prefs.who_can_change_team_profile || e.is_owner);
         },
-        C = function(e) {
+        M = function(e) {
           e ? (TS.ui.fs_modal.unbindBackButton(), TS.ui.fs_modal.hideBackButton()) : (TS.ui.fs_modal.bindBackButton(function() {
             i.pop();
             var e = i.pop();
             e.back(e.event);
           }), TS.ui.fs_modal.showBackButton());
         },
-        M = function() {
+        C = function() {
           var t = e.find(".option_row");
           t.length >= 3 ? t.addClass("show_remove_action") : t.removeClass("show_remove_action");
         },
@@ -27499,13 +27493,13 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           });
         },
         A = function(e) {
-          $(e.target).closest(".row.option_row").remove(), K(), M(), I(), O();
+          $(e.target).closest(".row.option_row").remove(), K(), C(), I(), O();
         },
         E = function() {
           var t = TS.templates.admin_edit_team_profile_option_row({
             index: e.find(".row.option_row").length
           });
-          e.find("#option_rows").append(t).find(".row.option_row").last().find("input").focus(), K(), M(), O();
+          e.find("#option_rows").append(t).find(".row.option_row").last().find("input").focus(), K(), C(), O();
         },
         O = function() {
           50 === e.find(".row.option_row").length ? e.find('[data-action="edit_team_profile_add_option"]').addClass("hidden").next().removeClass("hidden") : e.find('[data-action="edit_team_profile_add_option"]').removeClass("hidden").next().addClass("hidden");
@@ -27688,7 +27682,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           c(), d = !0, k(e);
         },
         editMembers: function(e) {
-          c(), d = !0, C(e, !1);
+          c(), d = !0, M(e, !1);
         },
         disable: function(e) {
           c(), d = !0, y(e, "disable_user_group");
@@ -27814,7 +27808,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             var t = $(e.target),
               n = t.closest(".user_group_item").data("user-group-id"),
               i = B(n);
-            C(i);
+            M(i);
           }), t.on("click", '[data-action="hide_info_pane"]', function(t) {
             t.preventDefault(), TS.prefs.setPrefByAPI({
               hide_user_group_info_pane: !0
@@ -27950,14 +27944,14 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               channels: o
             };
             a && (l.subteam = a), i(l, function(e, t) {
-              S(e, t) || (w(t.subteam), r ? C(t.subteam, r) : f());
+              S(e, t) || (w(t.subteam), r ? M(t.subteam, r) : f());
             });
           }), n.find(".user_group_settings_form").on("reset", p);
           var s = $("#save_user_group"),
             o = $("#user_group_name_input");
           s.length && o.length && (o.on("change", t), o.on("keyup", t), t());
         },
-        C = function(e, i) {
+        M = function(e, i) {
           var r, a = !!e.is_external || !!e.auto_type;
           TS.lazyLoadMembersAndBots() || (r = TS.members.getMembersForUser().filter(D).map(function(e) {
             return {
@@ -27999,7 +27993,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                   },
                   disabled: !!e.is_external || !!e.auto_type
                 };
-              TS.lazyLoadMembersAndBots() ? l.data_promise = M(e) : l.data = r, $("#user_group_members_select").lazyFilterSelect(l), A(e), t.addClass("hidden"), n.removeClass("hidden"), o();
+              TS.lazyLoadMembersAndBots() ? l.data_promise = C(e) : l.data = r, $("#user_group_members_select").lazyFilterSelect(l), A(e), t.addClass("hidden"), n.removeClass("hidden"), o();
             };
           if (i) s(), TS.ui.fs_modal.hideBackButton(), o();
           else {
@@ -28018,7 +28012,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             });
           }
         },
-        M = function(e) {
+        C = function(e) {
           var t = !0;
           return function(n, i) {
             "@" === n.charAt(0) && (n = n.substring(1));
@@ -28326,14 +28320,14 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return TS.generic_dialog.alert(TS.i18n.t("Sorry! Your camera could not be found!", "edit_profile")()).then(W);
         },
         x = function() {
-          TS.boot_data.feature_take_profile_photo && l.is_enabled && C().then(I).then(A).then(E).then(H).then(P).then(j).then(L).catch(U);
+          TS.boot_data.feature_take_profile_photo && l.is_enabled && M().then(I).then(A).then(E).then(H).then(P).then(j).then(L).catch(U);
         },
-        C = function() {
+        M = function() {
           if (TS.boot_data.feature_take_profile_photo) return new Promise(function(e, t) {
-            l.is_enabled || (TS.warn("Camera not enabled"), t()), TS.ui.fs_modal.setHeaderTitle(TS.i18n.t("Smile for the camera!", "edit_profile")()), $("#edit_member_profile_photo_capture_button").addClass("hidden"), $("#edit_member_profile_photo_capture_countdown").removeClass("hidden"), M(3, !1, e, t);
+            l.is_enabled || (TS.warn("Camera not enabled"), t()), TS.ui.fs_modal.setHeaderTitle(TS.i18n.t("Smile for the camera!", "edit_profile")()), $("#edit_member_profile_photo_capture_button").addClass("hidden"), $("#edit_member_profile_photo_capture_countdown").removeClass("hidden"), C(3, !1, e, t);
           });
         },
-        M = function e(t, n, i, r) {
+        C = function e(t, n, i, r) {
           if (TS.boot_data.feature_take_profile_photo) {
             if (o = function() {
                 n = !0;
@@ -29063,7 +29057,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
       "use strict";
       TS.registerModule("ui.handy_rxns", {
         onStart: function() {
-          TS.web && TS.web.login_sig.add(p), TS.client && TS.client.login_sig.add(u), TS.prefs.preferred_skin_tone_changed_sig.add(C);
+          TS.web && TS.web.login_sig.add(p), TS.client && TS.client.login_sig.add(u), TS.prefs.preferred_skin_tone_changed_sig.add(M);
         },
         decorateMsg: function(e, t) {
           if (!TS.boot_data.feature_thanks) return e;
@@ -29091,7 +29085,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               $body: e,
               go_button_text: u,
               onGo: function() {
-                if (!M()) return !1;
+                if (!C()) return !1;
                 var e = n.val(),
                   t = S(),
                   i = e + TS.ui.handy_rxns.msgifyPollData(t);
@@ -29264,14 +29258,14 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         x = function() {
           e.find("#handy_rxns_controller_empty").toggleClass("hidden", !!v().length);
         },
-        C = function() {
+        M = function() {
           d && $.each(d, function(e, t) {
             var n = $(t),
               i = n.find("a.btn").data("rxn");
             TS.emoji.isNameSkinToneModifiable(i) && w(n, i);
           });
         },
-        M = function() {
+        C = function() {
           return !!n.val() && !(S().list.length < 1);
         },
         I = function(e) {
@@ -29283,7 +29277,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               $("#handy_rxns_subsection").find(".submit_setting").toggleClass("disabled", !l), TS.ui.resetButtonSpinner($("#handy_rxns_subsection").find(".submit_setting"));
             }, 2e3) : $("#handy_rxns_subsection").find(".submit_setting").toggleClass("disabled", !l);
           } else if (TS.client)
-            if (s) $("#generic_dialog").find(".btn.dialog_go").toggleClass("disabled", !l || !M());
+            if (s) $("#generic_dialog").find(".btn.dialog_go").toggleClass("disabled", !l || !C());
             else {
               if (l == t) return;
               $("#generic_dialog").find(".btn.dialog_go").toggleClass("disabled", !l);
@@ -29677,7 +29671,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               var e = this.instance.$input_container.find(".lfs_item");
               I(this.instance, e);
             }
-          } else C(this.instance);
+          } else M(this.instance);
         },
         container: function() {
           return this.instance.$container;
@@ -29711,7 +29705,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           var n = this.element[0].options[this.element[0].selectedIndex];
           if (this.instance.single) {
             if (this.element[0].selectedIndex == t) return;
-          } else C(this.instance);
+          } else M(this.instance);
           var i = f(this.instance, $(n));
           H(this.instance, i);
         },
@@ -29767,7 +29761,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           var t;
           t = _.isUndefined(e.input_debounce_wait_time) ? _e : _.debounce(_e, e.input_debounce_wait_time), e.$filter_input.on("input", t.bind(null, e)), e.$filter_input.on("keydown", ue.bind(null, e)), e.$filter_input.on("blur", me.bind(null, e)), e.$lfs_value.on("click", Se.bind(null, e)), e.$lfs_value.on("mousedown", Te.bind(null, e)), e.$input_container.on("click", ".lfs_token", be.bind(null, e)), e.$input_container.on("mousedown", ".lfs_token", ve.bind(null, e)), e.$list_container.on("mousedown", ye.bind(null, e)), e.$list_container.on("mouseup", we.bind(null, e)), e.$list_container.on("mousemove", ".lfs_item", ke.bind(null, e)), e.$list_container.on("mouseleave", ".lfs_item.active", xe.bind(null, e));
           var n = null === _.get(TSSSB, "env.desktop_app_version") ? "click" : "mousedown";
-          e.$list_container.on(n, ".lfs_item", Ce.bind(null, e)), e.onReady();
+          e.$list_container.on(n, ".lfs_item", Me.bind(null, e)), e.onReady();
         },
         a = function(e, t, n) {
           var i = $(t);
@@ -29988,10 +29982,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             n.length > 0 && (e.$container.addClass("value"), e.single ? e.$lfs_value.html(n) : ($(n).insertBefore(e.$input), e.$input_container.removeClass("empty"), e.$input_container.removeClass("error"), Q(e)));
           }
         },
-        C = function(e) {
-          for (; e.$input_container.find(".lfs_token").length > 0;) M(e);
-        },
         M = function(e) {
+          for (; e.$input_container.find(".lfs_token").length > 0;) C(e);
+        },
+        C = function(e) {
           var t = e.$input_container.find(".lfs_token").last();
           t.length && I(e, t);
         },
@@ -30300,7 +30294,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           if ("" === e.$filter_input.val()) {
             W(t);
             var n = e.$input_container.find(".lfs_token").last();
-            S(e) && b(n) ? z(e, n) : M(e);
+            S(e) && b(n) ? z(e, n) : C(e);
           }
         },
         he = function(e, n) {
@@ -30336,7 +30330,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         xe = function(e, t) {
           $(t.currentTarget).removeClass("active"), e._$active = null;
         },
-        Ce = function(e, t) {
+        Me = function(e, t) {
           if (!e.disabled) {
             t.preventDefault();
             var n = $(t.currentTarget);
@@ -31561,7 +31555,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             g && X($(this), e);
           }), i.find(".list_items").on("click", ".channel_browser_row", function(e) {
             X($(this), e);
-          }), t.on("click", '[data-action="sci_to_create"]', we), t.on("click", '[data-action="sci_channels_create"]', C), t.on("click", '[data-action="sci_cancel"]', ke), t.on("change", '[type="radio"][name="share_with"]', Ee), t.on("click", '[data-action="sci_show_action"]', he);
+          }), t.on("click", '[data-action="sci_to_create"]', we), t.on("click", '[data-action="sci_channels_create"]', M), t.on("click", '[data-action="sci_cancel"]', ke), t.on("change", '[type="radio"][name="share_with"]', Ee), t.on("click", '[data-action="sci_show_action"]', he);
           var r = _.debounce(function(e) {
             if (l && l.isPending()) return s && (clearTimeout(s), s = null), void(s = setTimeout(function(e) {
               r(e);
@@ -31571,15 +31565,15 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               n = !0,
               i = !1,
               a = $('#sci_channels_create [data-action="sci_channels_create"]');
-            if (T(), Ce(null, a, !1, t), TS.ui.validation.validate(e)) {
+            if (T(), Me(null, a, !1, t), TS.ui.validation.validate(e)) {
               var o = e.val().trim();
               l = TS.api.callImmediately("enterprise.nameTaken", {
                 name: o,
                 ignore_local_team: !1
               }, function(r, s) {
                 if (r) {
-                  if (s.name_taken) return n = !0, i = !1, T(n, i), t = !0, Ce(null, a, !1, t), void TS.ui.validation.showWarning(e, '"' + _.escape(o) + '" is already taken by a channel, username, or user group.', {});
-                  n = !0, i = !0, T(n, i), t = !1, Ce(null, a, !1, t);
+                  if (s.name_taken) return n = !0, i = !1, T(n, i), t = !0, Me(null, a, !1, t), void TS.ui.validation.showWarning(e, '"' + _.escape(o) + '" is already taken by a channel, username, or user group.', {});
+                  n = !0, i = !0, T(n, i), t = !1, Me(null, a, !1, t);
                 } else n = !0, i = !1, T(n, i), TS.generic_dialog.alert("Something failed! " + s.error);
                 return null;
               }).catch(function() {
@@ -31594,21 +31588,21 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             e.preventDefault(), e.stopPropagation(), r($(this));
           }), t.on("input", '#sci_channels_create [data-validation]:not([name="channel_name"])', function() {
             var e = t.find("#sci_channels_create");
-            Ce(e.find(A()), e.find('[data-action="sci_channels_create"]'), !0);
+            Me(e.find(A()), e.find('[data-action="sci_channels_create"]'), !0);
           }), n.on("textchange", function() {
-            c && M();
+            c && C();
           }).on("keydown", function(e) {
             e.which === TS.utility.keymap.esc && TS.ui.fs_modal.close();
           }), a.on("change", function() {
             if (c) {
               var e = $(this).val();
-              TS.model.ui_state && (TS.model.ui_state.sort_shared_channel_browser_by = e, TS.storage.storeUIState(TS.model.ui_state)), Te(e), M();
+              TS.model.ui_state && (TS.model.ui_state.sort_shared_channel_browser_by = e, TS.storage.storeUIState(TS.model.ui_state)), Te(e), C();
             }
           }), t.on("click", ".clear_filter_icon", function() {
             n.val("").trigger("textchange").focus();
-          }), e.on("keyup.sci", J), t.on("click", '[data-action="sci_toggle_contents"]', Me), t.on("click", '[data-action="sci_toggle_send_email"]', Ae), t.on("click", '[data-action="sci_toggle_copy_link"]', Ie), t.on("click", '[data-action="sci_send"]', _e), t.on("click", '[data-action="sci_copy"]', q), t.on("click", '[data-action="sci_revoke"]', ce), t.on("input", "input[data-invite-id]", function(e) {
+          }), e.on("keyup.sci", J), t.on("click", '[data-action="sci_toggle_contents"]', Ce), t.on("click", '[data-action="sci_toggle_send_email"]', Ae), t.on("click", '[data-action="sci_toggle_copy_link"]', Ie), t.on("click", '[data-action="sci_send"]', _e), t.on("click", '[data-action="sci_copy"]', q), t.on("click", '[data-action="sci_revoke"]', ce), t.on("input", "input[data-invite-id]", function(e) {
             var t = $(e.target).parent();
-            Ce(t, t.find('[data-action="sci_send"]'), !0);
+            Me(t, t.find('[data-action="sci_send"]'), !0);
           });
         },
         y = function() {
@@ -31630,7 +31624,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             name: TS.i18n.t("Channels you belong to", "shared")()
           }), n = n.concat(t)), n;
         },
-        C = function() {
+        M = function() {
           var e = t.find("#sci_channels_create"),
             n = e.find(A());
           if (!TS.ui.validation.validate(n, {
@@ -31666,7 +31660,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             })), TS.ui.fs_modal.close();
           }).catch(P).finally(Ladda.stopAll);
         },
-        M = function() {
+        C = function() {
           var e = $.trim(n.val());
           "" !== e && -1 !== e.indexOf("#") && (e = e.replace("#", "", "g"), e = $.trim(e)), e ? (n.closest(".channel_browser_filter_container").addClass("active"), d = O(e)) : (n.closest(".channel_browser_filter_container").removeClass("active"), d = O()), 0 === d.length ? (Fe(e), L("#sci_no_shared_channels")) : L("#sci_channels_container"), i.longListView("scrollToTop", !0), i.longListView("setItems", d), TS.utility.rAF(function() {
             TS.ui.utility.updateClosestMonkeyScroller(i), i.longListView("resizeImmediately");
@@ -31817,7 +31811,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                 return e.team.domain;
               }).join(",");
               i.val(t);
-              Ce(e.find(A()), e.find('[data-action="sci_channels_create"]'), !0);
+              Me(e.find(A()), e.find('[data-action="sci_channels_create"]'), !0);
             });
           });
         },
@@ -31845,7 +31839,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         J = function(e) {
           if (e.which === TS.utility.keymap.enter) {
             var t = $(e.target);
-            t.is("input[data-invite-id]") ? _e(e) : t.is('input[name="domain"], input[name="channel_name"]') && (TS.ui.startButtonSpinner($('#sci_channels_create [data-action="sci_channels_create"]').get(0)), C(e));
+            t.is("input[data-invite-id]") ? _e(e) : t.is('input[name="domain"], input[name="channel_name"]') && (TS.ui.startButtonSpinner($('#sci_channels_create [data-action="sci_channels_create"]').get(0)), M(e));
           }
         },
         Q = function() {
@@ -32102,13 +32096,13 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           var n = TS.templates.shared_channels_invites_send(e);
           t.find("#sci_send").html(n), L("#sci_send"), U(), Oe();
         },
-        Ce = function(e, t, n, i) {
+        Me = function(e, t, n, i) {
           n && (i = !TS.ui.validation.validate(e, {
             quiet: !0,
             fast: !0
           })), t.toggleClass("disabled", i);
         },
-        Me = function(e) {
+        Ce = function(e) {
           if (!$(e.target).is("a, input, .btn")) {
             var t = $(e.currentTarget),
               n = t.hasClass("showing_contents");
@@ -32130,7 +32124,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             a = "specific" === r,
             s = "external" === r;
           $("#sci_specific_team").toggleClass("hidden", !a), $("#sci_external_team").toggleClass("hidden", !s), i.find('[for="share_with_specific"]').toggleClass("hidden", !a), i.find('[for="share_with_external"]').toggleClass("hidden", !s), "specific" === r && i.find('[name="team_list"]').focus(), "external" === r && i.find('[name="domain"]').focus();
-          Ce(i.find(A()), i.find('[data-action="sci_channels_create"]'), !0), De();
+          Me(i.find(A()), i.find('[data-action="sci_channels_create"]'), !0), De();
         },
         Oe = function(e) {
           e ? (TS.ui.fs_modal.unbindBackButton(), TS.ui.fs_modal.hideBackButton()) : (TS.ui.fs_modal.bindBackButton(ke), TS.ui.fs_modal.showBackButton());
@@ -33080,7 +33074,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         if (N(e)) {
           var i = G(e);
           if (!i) return !0;
-          var r = i.match(C);
+          var r = i.match(M);
           if (r && 1 === r.length && r[0] === i) return !0;
           TS.ui.validation.showWarning(e, n, t);
         } else TS.error("Error: cannot validate");
@@ -33215,7 +33209,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         var i = $.extend({}, n, {
           quiet: !0
         });
-        return e(t, i) ? h(t, i) ? k(t, i, /^[-|_]+$/) ? (TS.ui.validation.showWarning(t, M.punctuation(), n), !0) : void 0 : (TS.ui.validation.showWarning(t, M.specials(), n), !0) : (TS.ui.validation.showWarning(t, M.required(), n), !0);
+        return e(t, i) ? h(t, i) ? k(t, i, /^[-|_]+$/) ? (TS.ui.validation.showWarning(t, C.punctuation(), n), !0) : void 0 : (TS.ui.validation.showWarning(t, C.specials(), n), !0) : (TS.ui.validation.showWarning(t, C.required(), n), !0);
       }
 
       function b(e, t, n) {
@@ -33313,17 +33307,17 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         getErrorMessage: function(e, t) {
           switch (e) {
             case "invalid_name_required":
-              return M.required();
+              return C.required();
             case "invalid_name_punctuation":
-              return M.punctuation();
+              return C.punctuation();
             case "invalid_name_maxlength":
-              return M.maxlength({
+              return C.maxlength({
                 maxlength: t.maxlength
               });
             case "invalid_name_specials":
-              return M.specials();
+              return C.specials();
             case "name_taken":
-              return M.name_taken({
+              return C.name_taken({
                 name: t.name
               });
             case "restricted_action":
@@ -33348,8 +33342,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         }
       });
       var x = new RegExp("^(?:(?:https?|ftp)://)?(?:\\S+(?::\\S*)?@)?(?:(?!(?:10|127)(?:\\.\\d{1,3}){3})(?!(?:169\\.254|192\\.168)(?:\\.\\d{1,3}){2})(?!172\\.(?:1[6-9]|2\\d|3[0-1])(?:\\.\\d{1,3}){2})(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}(?:\\.(?:[1-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))|(?:localhost)|(?:(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)(?:\\.(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)*(?:\\.(?:[a-z\\u00a1-\\uffff]{2,}))\\.?)(?::\\d{2,5})?(?:[/?#]\\S*)?$", "i"),
-        C = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=+$,\w]+@)?[A-Za-z0-9.-]+|(?:www\.|[-;:&=+$,\w]+@)[A-Za-z0-9.-]+)((?:\/[+~%\/.\w-]*)?\??(?:[-+=&;%@.\w]*)#?(?:[.!\/\\\w]*))?)/gi,
-        M = {
+        M = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=+$,\w]+@)?[A-Za-z0-9.-]+|(?:www\.|[-;:&=+$,\w]+@)[A-Za-z0-9.-]+)((?:\/[+~%\/.\w-]*)?\??(?:[-+=&;%@.\w]*)#?(?:[.!\/\\\w]*))?)/gi,
+        C = {
           name_taken: TS.i18n.t("{name} is already taken by a channel, username, or user group.", "ui_validation"),
           lowercase: TS.i18n.t("Channel names must be all lowercase. Try again?", "ui_validation"),
           maxlength: TS.i18n.t("Blerg, that’s a bit too long! Channel names must be fewer than {maxlength} characters.", "ui_validation"),
@@ -34540,7 +34534,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               mp_token: i.mini_panel_token,
               ic_token: i.incoming_call_token
             }
-          }), e !== i.last_call_window_token && e !== i.call_window_token || (M(), z(), delete i.call_window_token, TS.utility.calls_log.logEvent({
+          }), e !== i.last_call_window_token && e !== i.call_window_token || (C(), z(), delete i.call_window_token, TS.utility.calls_log.logEvent({
             event: n.log_events.previous_crash
           }), k(), x());
         },
@@ -34553,7 +34547,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           });
         },
         g = function() {
-          TS.utility.calls_log.logInfo("client window unloaded!"), C();
+          TS.utility.calls_log.logInfo("client window unloaded!"), M();
         },
         S = function() {
           TS.generic_dialog.start({
@@ -34601,7 +34595,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         v = function() {
           if (i.call_window_token) {
-            M();
+            C();
             var e = i.call_window_token;
             delete i.call_window_token, TSSSB.call("closeWindow", e);
           }
@@ -34678,12 +34672,12 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             delete i.cursors_window_token, TSSSB.call("closeWindow", e);
           }
         },
-        C = function() {
+        M = function() {
           i.mini_panel_token && (TSSSB.call("closeWindow", i.mini_panel_token), delete i.mini_panel_token), i.call_window_token && (F({
             message_type: TS.utility.calls.messages_to_call_window_types.did_close_window
-          }), M(), TSSSB.call("closeWindow", i.call_window_token), z(), delete i.call_window_token), i.window_handle && (i.window_handle.close(), delete i.window_handle);
+          }), C(), TSSSB.call("closeWindow", i.call_window_token), z(), delete i.call_window_token), i.window_handle && (i.window_handle.close(), delete i.window_handle);
         },
-        M = function() {
+        C = function() {
           R(!1), H(!1);
         },
         I = function(e, t, r) {
@@ -40654,12 +40648,13 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         onStart: function() {
           TS.useRedux() && TS.boot_data.feature_react_messages && e();
         },
-        addMessages: function(e, t) {
+        addMessages: function(e, t, n) {
           if (TS.redux.dispatch(TS.interop.redux.entities.messages.addMessages(e)), t) {
-            var n = e && e[0] && e[0].channel;
+            var i = e && e[0] && e[0].channel;
             TS.redux.dispatch(TS.interop.redux.entities.channelHistory.addTimestamps({
-              channelId: n,
-              timestamps: _.map(e, "ts")
+              channelId: i,
+              timestamps: _.map(e, "ts"),
+              reachedEnd: n
             }));
           }
         },
@@ -40670,8 +40665,14 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             append: !0
           })));
         },
+        replaceMessage: function(e) {
+          e && e.channel && e.ts && TS.redux.dispatch(TS.interop.redux.entities.messages.addMessages([e]));
+        },
         removeMessage: function(e) {
-          e && e.channel && e.ts && TS.redux.dispatch(TS.interop.redux.entities.messages.removeMessage(e));
+          e && e.channel && e.ts && (TS.redux.dispatch(TS.interop.redux.entities.channelHistory.removeTimestamp({
+            channelId: e.channel,
+            timestamp: e.ts
+          })), TS.redux.dispatch(TS.interop.redux.entities.messages.removeMessage(e)));
         }
       });
       var e = function() {
@@ -40680,9 +40681,13 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         }
 
         function t(e, t) {
+          TS.redux.messages.replaceMessage(t);
+        }
+
+        function n(e, t) {
           TS.redux.messages.removeMessage(t);
         }
-        TS.ims.message_received_sig.add(e), TS.mpims.message_received_sig.add(e), TS.groups.message_received_sig.add(e), TS.channels.message_received_sig.add(e), TS.ims.message_changed_sig.add(e), TS.mpims.message_changed_sig.add(e), TS.groups.message_changed_sig.add(e), TS.channels.message_changed_sig.add(e), TS.ims.message_removed_sig.add(t), TS.mpims.message_removed_sig.add(t), TS.groups.message_removed_sig.add(t), TS.channels.message_removed_sig.add(t);
+        TS.ims.message_received_sig.add(e), TS.mpims.message_received_sig.add(e), TS.groups.message_received_sig.add(e), TS.channels.message_received_sig.add(e), TS.ims.message_changed_sig.add(t), TS.mpims.message_changed_sig.add(t), TS.groups.message_changed_sig.add(t), TS.channels.message_changed_sig.add(t), TS.ims.message_removed_sig.add(n), TS.mpims.message_removed_sig.add(n), TS.groups.message_removed_sig.add(n), TS.channels.message_removed_sig.add(n);
       };
     }();
   },
