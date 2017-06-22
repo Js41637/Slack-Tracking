@@ -30532,9 +30532,14 @@ webpackJsonp([332], [, function(e, t, n) {
         value: function(e, t) {
           return n.i(d.c)(e, t);
         }
+      }, {
+        key: "possessive",
+        value: function(e) {
+          return n.i(d.d)(e);
+        }
       }]), e;
     }();
-  t.a = p, p.DEFAULT_LOCALE = n.i(d.d)();
+  t.a = p, p.DEFAULT_LOCALE = n.i(d.e)();
 }, , , , , , , function(e, t, n) {
   "use strict";
 
@@ -35364,12 +35369,14 @@ webpackJsonp([332], [, function(e, t, n) {
     return a;
   }), n.d(t, "b", function() {
     return s;
-  }), n.d(t, "e", function() {
+  }), n.d(t, "f", function() {
     return u;
   }), n.d(t, "c", function() {
     return l;
   }), n.d(t, "d", function() {
     return c;
+  }), n.d(t, "e", function() {
+    return d;
   });
   var r = n(6),
     o = n.n(r),
@@ -35392,7 +35399,10 @@ webpackJsonp([332], [, function(e, t, n) {
     l = n.i(i.a)("TS.i18n.listify", function() {
       return [];
     }),
-    c = n.i(i.a)("TS.i18n.getDefaultLocale", function() {
+    c = n.i(i.a)("TS.i18n.possessive", function() {
+      return "";
+    }),
+    d = n.i(i.a)("TS.i18n.getDefaultLocale", function() {
       return "en-US";
     });
 }, function(e, t, n) {
@@ -35926,7 +35936,7 @@ webpackJsonp([332], [, function(e, t, n) {
       return "priority" === t && r ? function(e, t) {
         return t.priority - e.priority;
       } : function(e, t) {
-        return n.i(d.e)(n.i(u.getDisplayName)(e), n.i(u.getDisplayName)(t));
+        return n.i(d.f)(n.i(u.getDisplayName)(e), n.i(u.getDisplayName)(t));
       };
     },
     k = function(e) {
@@ -36704,9 +36714,9 @@ webpackJsonp([332], [, function(e, t, n) {
     y = n(3168),
     v = n(3175),
     g = n(3198),
-    b = n(3188),
-    w = n(3624),
-    k = n(2288),
+    b = n(3916),
+    w = n(3188),
+    k = n(3624),
     M = n(3119),
     T = (n.n(M), function() {
       function e(e, t) {
@@ -36719,8 +36729,7 @@ webpackJsonp([332], [, function(e, t, n) {
         return n && e(t.prototype, n), r && e(t, r), t;
       };
     }()),
-    x = k.a.ns("message"),
-    S = function(e) {
+    x = function(e) {
       function t() {
         return o(this, t), i(this, (t.__proto__ || Object.getPrototypeOf(t)).apply(this, arguments));
       }
@@ -36773,7 +36782,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "renderThreadBroadcastPreamble",
         value: function() {
-          return "thread_broadcast" !== this.props.subtype ? null : u.a.createElement(w.a, {
+          return "thread_broadcast" !== this.props.subtype ? null : u.a.createElement(k.a, {
             ts: this.props.ts,
             threadTs: this.props.threadTs,
             channelId: this.props.channelId
@@ -36782,7 +36791,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "renderBody",
         value: function() {
-          return this.props.file && "file_comment" !== this.props.subtype ? this.renderInlineFile() : this.props.file && this.props.comment && "file_comment" === this.props.subtype ? this.renderFileComment() : u.a.createElement(b.a, {
+          return this.props.file && "file_comment" !== this.props.subtype ? this.renderInlineFile() : this.props.file && this.props.comment && "file_comment" === this.props.subtype ? this.renderFileComment() : u.a.createElement(w.a, {
             text: this.props.text,
             className: "c-message__body"
           });
@@ -36836,20 +36845,15 @@ webpackJsonp([332], [, function(e, t, n) {
         value: function() {
           var e = this.props.file,
             t = this.props.comment;
-          return [!this.props.isFileFollowup && u.a.createElement("div", {
-            className: "c-message__file_meta"
-          }, n.i(k.b)(x("commented on <a>{file_name}</a>", {
-            file_name: e.name
-          }), /<a>(.*)<\/a>/g, function(t, n, r) {
-            return u.a.createElement("a", {
-              className: "c-message__file_link file_preview_link",
-              href: e.permalink,
-              "data-file-id": e.id,
-              key: r
-            }, t);
-          })), u.a.createElement(b.a, {
+          return [(!this.props.isFileFollowup || "dense" === this.props.theme) && u.a.createElement(b.a, {
+            file: e,
+            comment: t,
+            followup: this.props.isFileFollowup,
+            key: t.id + "-meta"
+          }) || null, u.a.createElement(w.a, {
             text: t.comment,
-            className: c()("c-message__body", "c-message__body--comment")
+            className: c()("c-message__body", "c-message__body--comment"),
+            key: t.id + "-body"
           })];
         }
       }, {
@@ -36862,7 +36866,7 @@ webpackJsonp([332], [, function(e, t, n) {
         }
       }]), t;
     }(s.PureComponent);
-  t.a = S, S.propTypes = {
+  t.a = x, x.propTypes = {
     channelId: u.a.PropTypes.string.isRequired,
     ts: u.a.PropTypes.string.isRequired,
     subtype: u.a.PropTypes.string,
@@ -36894,7 +36898,7 @@ webpackJsonp([332], [, function(e, t, n) {
     }),
     showUser: u.a.PropTypes.bool,
     isFileFollowup: u.a.PropTypes.bool
-  }, S.defaultProps = {
+  }, x.defaultProps = {
     text: null,
     subtype: null,
     theme: "light",
@@ -38210,7 +38214,7 @@ webpackJsonp([332], [, function(e, t, n) {
     };
   };
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".c-message {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  display: flex;\n  padding-right: 40px;\n  min-width: 1px;\n}\n.c-message:hover {\n  background-color: #F9F9F9;\n}\n.c-message.c-message--light {\n  padding-top: 5px;\n  padding-bottom: 3px;\n}\n.c-message.c-message--dense {\n  padding-top: 3px;\n  padding-bottom: 2px;\n}\n.c-message.c-message--light.c-message--adjacent {\n  padding-top: 2px;\n}\n.c-message__gutter {\n  text-align: right;\n  flex-shrink: 0;\n}\n.c-message--adjacent .c-message__gutter {\n  visibility: hidden;\n}\n.c-message--adjacent:hover .c-message__gutter {\n  visibility: visible;\n}\n.c-message--light .c-message__gutter {\n  width: 72px;\n  padding-right: 10px;\n}\n.c-message--dense .c-message__gutter {\n  width: 58px;\n  margin-right: 22px;\n}\n.c-message--dense .c-timestamp__label {\n  color: #717274;\n}\n.c-message__content {\n  flex: 0 1 100%;\n  min-width: 1px;\n}\n.c-message--dense .c-message__content {\n  padding-left: 8px;\n}\n.c-message__sender {\n  font-weight: 900;\n}\n.c-message--light .c-message__sender {\n  margin-right: 6px;\n  color: #2C2D30;\n}\n.c-message--dense .c-message__sender {\n  margin-left: -8px;\n  margin-right: 4px;\n}\n.c-message__sender--unknown {\n  display: inline-block;\n  width: 80px;\n  height: 0.9rem;\n  border-radius: 0.9rem;\n  vertical-align: bottom;\n  background: #E8E8E8;\n}\n.c-message--dense .c-message__content_header {\n  display: inline;\n  margin-bottom: 3px;\n}\n.c-message--dense.c-message--thread-broadcast .c-message__content_header {\n  display: flex;\n}\n.c-message--light .c-message__content_header {\n  line-height: 1;\n  margin-bottom: 3px;\n}\n.c-message__body {\n  line-height: 1.4;\n  color: #2C2D30;\n}\n.c-message__mention {\n  background: #FFF4BF;\n  border-radius: 3px;\n  padding: 0 2px 1px 2px;\n}\n.c-message__reply_bar {\n  display: flex;\n  align-items: center;\n  max-width: 600px;\n  margin-top: 5px;\n  padding: 3px;\n  font-size: 12px;\n  border: 1px solid transparent;\n  border-radius: 6px;\n  cursor: pointer;\n}\n.c-message__reply_bar:hover {\n  background-color: #FFF;\n  border-color: rgba(0, 0, 0, 0.15);\n}\n.c-message__reply_bar:hover .c-message__reply_bar_arrow {\n  color: #A0A0A2;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_last_reply {\n  opacity: 0;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_view_thread {\n  opacity: 1;\n}\n.c-message__reply_bar .c-avatar {\n  margin-right: 4px;\n}\n.c-message__reply_count {\n  margin-left: 3px;\n  font-weight: bold;\n}\n.c-message__reply_bar_description {\n  position: relative;\n  margin-left: 8px;\n  color: #A0A0A2;\n}\n.c-message__reply_bar_arrow {\n  margin-left: auto;\n  color: transparent;\n}\n.c-message__reply_bar_arrow::before {\n  vertical-align: top;\n}\n.c-message__reply_bar_last_reply {\n  opacity: 1;\n  transition: opacity 0.2s;\n}\n.c-message__broadcast_preamble {\n  color: #A0A0A2;\n  display: flex;\n  overflow: hidden;\n  max-width: 100%;\n}\n.c-message--light .c-message__broadcast_preamble {\n  margin-bottom: 3px;\n}\n.c-message__broadcast_preamble_meta {\n  flex-shrink: 0;\n}\n.c-message__broadcast_preamble_link {\n  font-weight: bold;\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  margin-left: 4px;\n}\n.c-message__reply_bar_view_thread {\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  opacity: 0;\n  transition: opacity 0.2s;\n}\n.c-message__attachment {\n  display: flex;\n  align-items: stretch;\n  margin-top: 2px;\n}\n.c-message__attachment_column {\n  width: 4px;\n  background-color: #E8E8E8;\n  border-radius: 8px;\n}\n.c-message__attachment_body {\n  padding-left: 12px;\n  padding-right: 12px;\n}\n.c-message__bot-label {\n  color: #A0A0A2;\n  font-weight: 500;\n  font-size: 12px;\n  margin: 0 0.15rem;\n  padding: 0 0.1rem;\n  vertical-align: middle;\n  background: #f2f2f5;\n}\n.c-message__image_wrapper {\n  display: block;\n  position: relative;\n  overflow: hidden;\n  border-radius: 3px;\n}\n.c-message__image_description {\n  margin-bottom: 8px;\n  color: #A0A0A2;\n}\n.c-message:hover .c-message__image_description {\n  color: #717274;\n}\n.c-message__image_caret {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n}\n.c-message__image_caret:hover,\n.c-message__image_caret:focus,\n.c-message__image_caret:active {\n  outline: none;\n}\n.c-message__file_link {\n  font-weight: 700;\n}\n.c-message__file_meta {\n  line-height: 1.4;\n  color: #A0A0A2;\n}\n.c-message:hover .c-message__file_meta {\n  color: #717274;\n}\n.c-message__body--comment {\n  position: relative;\n}\n.c-message__body--comment:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  content: '\\E516';\n  position: absolute;\n  left: -28px;\n  top: -4px;\n  color: #E8E8E8;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".c-message {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  display: flex;\n  padding-right: 40px;\n  min-width: 1px;\n}\n.c-message:hover {\n  background-color: #F9F9F9;\n}\n.c-message.c-message--light {\n  padding-top: 5px;\n  padding-bottom: 3px;\n}\n.c-message.c-message--dense {\n  padding-top: 3px;\n  padding-bottom: 2px;\n}\n.c-message.c-message--light.c-message--adjacent {\n  padding-top: 2px;\n}\n.c-message__gutter {\n  text-align: right;\n  flex-shrink: 0;\n}\n.c-message--adjacent .c-message__gutter {\n  visibility: hidden;\n}\n.c-message--adjacent:hover .c-message__gutter {\n  visibility: visible;\n}\n.c-message--light .c-message__gutter {\n  width: 72px;\n  padding-right: 10px;\n}\n.c-message--dense .c-message__gutter {\n  width: 58px;\n  margin-right: 22px;\n}\n.c-message--dense .c-timestamp__label {\n  color: #717274;\n}\n.c-message__content {\n  flex: 0 1 100%;\n  min-width: 1px;\n}\n.c-message--dense .c-message__content {\n  padding-left: 8px;\n}\n.c-message__sender {\n  font-weight: 900;\n}\n.c-message--light .c-message__sender {\n  margin-right: 6px;\n  color: #2C2D30;\n}\n.c-message--dense .c-message__sender {\n  margin-left: -8px;\n  margin-right: 4px;\n}\n.c-message__sender--unknown {\n  display: inline-block;\n  width: 80px;\n  height: 0.9rem;\n  border-radius: 0.9rem;\n  vertical-align: bottom;\n  background: #E8E8E8;\n}\n.c-message--dense .c-message__content_header {\n  display: inline;\n  margin-bottom: 3px;\n}\n.c-message--dense.c-message--thread-broadcast .c-message__content_header {\n  display: flex;\n}\n.c-message--light .c-message__content_header {\n  line-height: 1;\n  margin-bottom: 3px;\n}\n.c-message__body {\n  line-height: 1.4;\n  color: #2C2D30;\n}\n.c-message__mention {\n  background: #FFF4BF;\n  border-radius: 3px;\n  padding: 0 2px 1px 2px;\n}\n.c-message__reply_bar {\n  display: flex;\n  align-items: center;\n  max-width: 600px;\n  margin-top: 5px;\n  padding: 3px;\n  font-size: 12px;\n  border: 1px solid transparent;\n  border-radius: 6px;\n  cursor: pointer;\n}\n.c-message__reply_bar:hover {\n  background-color: #FFF;\n  border-color: rgba(0, 0, 0, 0.15);\n}\n.c-message__reply_bar:hover .c-message__reply_bar_arrow {\n  color: #A0A0A2;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_last_reply {\n  opacity: 0;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_view_thread {\n  opacity: 1;\n}\n.c-message__reply_bar .c-avatar {\n  margin-right: 4px;\n}\n.c-message__reply_count {\n  margin-left: 3px;\n  font-weight: bold;\n}\n.c-message__reply_bar_description {\n  position: relative;\n  margin-left: 8px;\n  color: #A0A0A2;\n}\n.c-message__reply_bar_arrow {\n  margin-left: auto;\n  color: transparent;\n}\n.c-message__reply_bar_arrow::before {\n  vertical-align: top;\n}\n.c-message__reply_bar_last_reply {\n  opacity: 1;\n  transition: opacity 0.2s;\n}\n.c-message__broadcast_preamble {\n  color: #A0A0A2;\n  display: flex;\n  overflow: hidden;\n  max-width: 100%;\n}\n.c-message--light .c-message__broadcast_preamble {\n  margin-bottom: 3px;\n}\n.c-message__broadcast_preamble_meta {\n  flex-shrink: 0;\n}\n.c-message__broadcast_preamble_link {\n  font-weight: bold;\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  margin-left: 4px;\n}\n.c-message__reply_bar_view_thread {\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  opacity: 0;\n  transition: opacity 0.2s;\n}\n.c-message__attachment {\n  display: flex;\n  align-items: stretch;\n  margin-top: 2px;\n}\n.c-message__attachment_column {\n  width: 4px;\n  background-color: #E8E8E8;\n  border-radius: 8px;\n}\n.c-message__attachment_body {\n  padding-left: 12px;\n  padding-right: 12px;\n}\n.c-message__bot-label {\n  color: #A0A0A2;\n  font-weight: 500;\n  font-size: 12px;\n  margin: 0 0.15rem;\n  padding: 0 0.1rem;\n  vertical-align: middle;\n  background: #f2f2f5;\n}\n.c-message__image_wrapper {\n  display: block;\n  position: relative;\n  overflow: hidden;\n  border-radius: 3px;\n}\n.c-message__image_description {\n  margin-bottom: 8px;\n  color: #A0A0A2;\n}\n.c-message:hover .c-message__image_description {\n  color: #717274;\n}\n.c-message__image_caret {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n}\n.c-message__image_caret:hover,\n.c-message__image_caret:focus,\n.c-message__image_caret:active {\n  outline: none;\n}\n.c-message__file_link {\n  font-weight: 700;\n}\n.c-message__file_meta {\n  line-height: 1.4;\n  color: #A0A0A2;\n}\n.c-message:hover .c-message__file_meta {\n  color: #717274;\n}\n.c-message__body--comment {\n  position: relative;\n  display: block;\n}\n.c-message__body--comment:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  content: '\\E516';\n  position: absolute;\n  left: -28px;\n  top: -4px;\n  color: #E8E8E8;\n}\n.c-message--dense .c-message__body--comment:before {\n  display: none;\n}\n.c-message__file_comment_user,\n.c-message__file_comment_user:link,\n.c-message__file_comment_user:visited {\n  color: inherit;\n}\n", ""]);
 }, function(e, t, n) {
   t = e.exports = n(189)(), t.push([e.i, ".c-message_list {\n  border-right: 0.25rem solid transparent;\n  overflow-y: scroll;\n  overflow-x: hidden;\n  height: 100%;\n}\n.c-message_list::-webkit-scrollbar {\n  position: absolute;\n  -webkit-appearance: none;\n  width: 8px;\n}\n.c-message_list::-webkit-scrollbar-track,\n.c-message_list::-webkit-scrollbar-thumb {\n  background-clip: padding-box !important;\n  border-radius: 3px;\n  color: #FFFFFF;\n}\n.c-message_list::-webkit-scrollbar-track {\n  background: #F5F5F5;\n  box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0;\n}\n.c-message_list::-webkit-scrollbar-thumb {\n  background: #D9D9DE;\n  box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;\n  min-height: 36px;\n}\n.c-message_list::-webkit-scrollbar-corner {\n  background: #FFFFFF;\n}\n.c-message_list__unread_divider {\n  position: relative;\n  z-index: 97;\n}\n.c-message_list__unread_divider__separator {\n  border-bottom: none;\n  border-color: rgba(255, 135, 109, 0.5);\n  margin: 0 18px -1px 0;\n  -webkit-transition: border 150ms ease-out 0;\n  -moz-transition: border 150ms ease-out 0;\n  transition: border 150ms ease-out 0;\n}\n.c-message_list__unread_divider__label {\n  background: #FFF;\n  border-radius: 7px;\n  color: rgba(255, 135, 109, 0.5);\n  cursor: default;\n  float: right;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 13px;\n  font-weight: bold;\n  line-height: 8px;\n  margin: -5px 11px -5px 0;\n  padding: 0 5px 3px 5px;\n  text-transform: lowercase;\n  -webkit-transition: color 150ms ease-out 0;\n  -moz-transition: color 150ms ease-out 0;\n  transition: color 150ms ease-out 0;\n}\n", ""]);
 }, function(e, t, n) {
@@ -41168,14 +41172,17 @@ webpackJsonp([332], [, function(e, t, n) {
     return o;
   }), n.d(t, "a", function() {
     return i;
+  }), n.d(t, "c", function() {
+    return a;
   });
   var r = n(2277),
     o = n.i(r.a)("TS.members.ensureMembersArePresent", function() {}),
-    i = (n.i(r.a)("TS.members.getPrefCompliantMemberName", function() {
+    i = n.i(r.a)("TS.members.getPrefCompliantMemberName", function() {
       return "";
-    }), n.i(r.a)("TS.members.getPrefCompliantMemberNameById", function() {
+    }),
+    a = n.i(r.a)("TS.members.getPrefCompliantMemberNameById", function() {
       return "";
-    }));
+    });
 }, function(e, t, n) {
   t = e.exports = n(189)(), t.push([e.i, ".c-avatar {\n  position: relative;\n  display: inline-block;\n  border-radius: 3px;\n  overflow: hidden;\n  cursor: pointer;\n}\n.c-avatar--no_image {\n  background-color: #E8E8E8;\n  cursor: default;\n}\n.c-avatar__additional_overlay {\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  color: #FFF;\n  font-weight: bold;\n  font-size: 15px;\n  text-align: center;\n  background-color: rgba(0, 0, 0, 0.5);\n  border-radius: 3px;\n}\n.c-avatar--24,\n.c-avatar--24 .c-avatar__image {\n  width: 24px;\n  height: 24px;\n}\n.c-avatar--24 .c-avatar__additional_overlay {\n  line-height: 24px;\n}\n.c-avatar--36,\n.c-avatar--36 .c-avatar__image {\n  width: 36px;\n  height: 36px;\n}\n.c-avatar--36 .c-avatar__additional_overlay {\n  line-height: 36px;\n}\n.c-avatar--48,\n.c-avatar--48 .c-avatar__image {\n  width: 48px;\n  height: 48px;\n}\n.c-avatar--48 .c-avatar__additional_overlay {\n  line-height: 48px;\n}\n.c-avatar--72,\n.c-avatar--72 .c-avatar__image {\n  width: 72px;\n  height: 72px;\n}\n.c-avatar--72 .c-avatar__additional_overlay {\n  line-height: 72px;\n}\n.c-avatar--192 .c-avatar--192 .c-avatar__image {\n  width: 192px;\n  height: 192px;\n}\n.c-avatar--192 .c-avatar__additional_overlay {\n  line-height: 192px;\n}\n.c-avatar--512,\n.c-avatar--512 .c-avatar__image {\n  width: 512px;\n  height: 512px;\n}\n.c-avatar--512 .c-avatar__additional_overlay {\n  line-height: 512px;\n}\n", ""]);
 }, function(e, t, n) {
@@ -54276,7 +54283,7 @@ webpackJsonp([332], [, function(e, t, n) {
     var r = n.i(l.getCurrentUserId)(e);
     return {
       users: s.a.map(t.users, function(e, t) {
-        return e === r ? f(0 === t ? "You" : "you") : n.i(d.a)(e, !1, !0);
+        return e === r ? f(0 === t ? "You" : "you") : n.i(d.c)(e, !1, !0);
       })
     };
   };
@@ -54636,4 +54643,93 @@ webpackJsonp([332], [, function(e, t, n) {
       });
     }), u), _);
   t.default = m;
+}, , , function(e, t, n) {
+  "use strict";
+  var r = n(2),
+    o = n.n(r),
+    i = n(43),
+    a = n(1102),
+    s = n.n(a),
+    u = n(3141),
+    l = n(3277),
+    c = n(2288),
+    d = c.a.ns("message"),
+    f = {
+      file: r.PropTypes.shape({
+        name: r.PropTypes.string,
+        mode: r.PropTypes.string,
+        permalink: r.PropTypes.string,
+        id: r.PropTypes.string
+      }).isRequired,
+      followup: r.PropTypes.bool,
+      userId: r.PropTypes.string,
+      userName: r.PropTypes.string
+    },
+    p = {
+      followup: !1,
+      userId: null,
+      userName: null
+    },
+    h = function(e) {
+      var t = e.file,
+        n = e.followup,
+        r = e.userId,
+        i = e.userName,
+        a = void 0;
+      a = n ? d("commented:", {
+        note: "[sender] commented:"
+      }) : r ? "snippet" === t.mode ? d("commented on <a data-user>{user_name}</a>{possessive} snippet <a data-file>{file_name}</a>", {
+        file_name: t.name,
+        user_name: i,
+        possessive: c.a.possessive(i),
+        note: "[sender] commented on joe's snippet. Also, the possessive affix is localized, but please move it before or after the user name depending on whether possessives are prefixes or suffixes for your language."
+      }) : d("commented on <a data-user>{user_name}</a>{possessive} file <a data-file>{file_name}</a>", {
+        file_name: t.name,
+        user_name: i,
+        possessive: c.a.possessive(i),
+        note: "[sender] commented on joe's file. Also, the possessive affix is localized, but please move it before or after the user name depending on whether possessives are prefixes or suffixes for your language."
+      }) : d("commented on <a data-file>{file_name}</a>", {
+        file_name: t.name,
+        note: "[sender] commented on Kittens.gif"
+      });
+      var u = s()({
+        file: {
+          pattern: /<a data-file>(.*)<\/a>/g,
+          matcherFn: function(e, n, r) {
+            return o.a.createElement("a", {
+              className: "c-message__file_link file_preview_link",
+              href: t.permalink,
+              "data-file-id": t.id,
+              key: r
+            }, e);
+          }
+        },
+        user: {
+          pattern: /<a data-user>(.*)<\/a>/g,
+          matcherFn: function(e, t, n) {
+            return o.a.createElement("a", {
+              className: "c-message__file_comment_user member",
+              href: "/team/" + r,
+              "data-member-id": r,
+              key: n
+            }, e);
+          }
+        }
+      })(a);
+      return o.a.createElement("span", {
+        className: "c-message__file_meta"
+      }, u);
+    };
+  h.propTypes = f, h.defaultProps = p;
+  var _ = function(e, t) {
+    if (!t.file || !t.comment) return {};
+    if (t.file.user === t.comment.user) return {};
+    var r = t.file.user,
+      o = n.i(u.getMemberById)(e, r);
+    return {
+      userId: r,
+      userName: n.i(l.a)(o)
+    };
+  };
+  t.a = n.i(i.b)(_)(h);
 }], [2905]);
