@@ -14,48 +14,20 @@
 
     {{#unless member.is_stranger}}
       <p class="member_timezone_value">
-        {{#experiment name="guest_profiles_and_expiration"}}
-          {{#if member.is_bot}}
-            <span class="float_right left_margin">
-          {{/if}}
-        {{else}}
-          {{#or member.is_restricted member.is_bot}}
-            <span class="float_right left_margin">
-          {{/or}}
-        {{/experiment}}
-        {{#if show_admin_info}}
+
+        {{#or member.is_bot show_admin_info}}
           <span class="float_right left_margin">
-        {{/if}}
+        {{/or}}
+
         <span class="timezone_label" data-member-id="{{member.id}}">{{memberLocalTime member}}</span>
         {{#if member.is_self}}
           (<a href='/account/settings' target="{{newWindowName}}" data-action="edit_member_profile_modal">{{#t note="A link to change your own timezone"}}change{{/t}}</a>)
         {{/if}}
-        {{#experiment name="guest_profiles_and_expiration"}}
-          {{#if member.is_bot}}
-            </span>
-          {{/if}}
-        {{else}}
-          {{#or member.is_restricted member.is_bot}}
-            </span>
-          {{/or}}
-        {{/experiment}}
-        {{#if show_admin_info}}
+
+        {{#or member.is_bot show_admin_info}}
           </span>
-        {{/if}}
-        {{#experiment name="guest_profiles_and_expiration"}}
-        {{else}}
-          {{#if member.is_restricted}}
-            <span class="lato">
-              <span class="overflow_ellipsis">
-                {{#if member.is_ultra_restricted}}
-                  {{#t}}Single-Channel Guest{{/t}}
-                {{else}}
-                  {{#t}}Multi-Channel Guest{{/t}}
-                {{/if}}
-              </span>
-            </span>
-          {{/if}}
-        {{/experiment}}
+        {{/or}}
+
         {{#if member.is_bot}}
           <span class="lato">
             <span class="overflow_ellipsis">{{#t note="Labelling a bot in the member card"}}Non-sentient Bot{{/t}}</span>

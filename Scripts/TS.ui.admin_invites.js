@@ -37,7 +37,7 @@ webpackJsonp([241], {
             i.forEach(function(e) {
               t[e.email] || (t[e.email] = !0, c.push(e));
             }), TS.storage.storeInvitesState(c), c.length && TS.ui.fs_modal.is_showing && (e.find(".admin_invite_row").remove(), c.forEach(function(e) {
-              B(e);
+              O(e);
             }));
           }
         },
@@ -66,8 +66,8 @@ webpackJsonp([241], {
           }), e;
         }
       });
-      var e, i, t, n, a, s, o, r = 0,
-        d = 0,
+      var e, i, t, n, a, s, o, d = 0,
+        r = 0,
         l = [],
         m = [],
         c = [],
@@ -158,7 +158,7 @@ webpackJsonp([241], {
         },
         S = function() {
           var i = $("#admin_invites_alert");
-          TS.model.team.plan ? i.addClass("hidden") : (i.removeClass("hidden"), TS.clog.track("GROWTH_PRICING", {
+          !TS.model.team.plan && TS.model.user.is_admin ? (i.removeClass("hidden"), TS.clog.track("GROWTH_PRICING", {
             contexts: {
               ui_context: {
                 step: "admin_invites",
@@ -166,34 +166,34 @@ webpackJsonp([241], {
                 ui_element: "invite_modal_guest_alert"
               }
             }
-          }));
+          })) : i.addClass("hidden");
           var t;
           e = $("#admin_invites_container"), e.find("#admin_invites_switcher").on("click", '[data-action="switch_type"]', function(e) {
             var i = $(e.target);
             i.is("a") || i.closest(".admin_invites_account_type_option").hasClass("disabled") || J($(this).data("account-type"));
-          }), e.find('[data-action="admin_invites_add_row"]').on("click", B), e.find('a[data-action="admin_invites_switch_view"]').on("click", function() {
+          }), e.find('[data-action="admin_invites_add_row"]').on("click", O), e.find('a[data-action="admin_invites_switch_view"]').on("click", function() {
             V($(this).data("view"));
           }), e.find('button[data-action="api_send_invites"]').on("click", function(e) {
-            e.preventDefault(), Z(), TS.model.team.plan || i.css("visibility", "hidden");
+            e.preventDefault(), Z(), !TS.model.team.plan && TS.model.user.is_admin && i.css("visibility", "hidden");
           }), e.find('button[data-action="api_parse_emails"]').on("click", function(e) {
             e.preventDefault(), ne(), $(this).find(".ladda-label").text(TS.i18n.t("Processing email addresses ...", "invite")());
           }), t = e.find(".admin_invites_custom_message_container"), k(), y(), e.find('a[data-action="admin_invites_show_custom_message"]').on("click", function() {
-            P();
+            G();
           }), e.find('[data-action="admin_invites_hide_custom_message"]').on("click", function() {
             M();
           }).hover(function() {
             t.addClass("delete_highlight");
           }, function() {
             t.removeClass("delete_highlight");
-          }), e.find("#admin_invite_custom_message").on("input", E), e.find("#bulk_emails").css("overflow", "hidden").autogrow(), c = TS.storage.fetchInvitesState(), c.length ? TS.ui.admin_invites.populateInvites(c) : B();
+          }), e.find("#admin_invite_custom_message").on("input", E), e.find("#bulk_emails").css("overflow", "hidden").autogrow(), c = TS.storage.fetchInvitesState(), c.length ? TS.ui.admin_invites.populateInvites(c) : O();
           var n = e.find(".admin_invite_row").length;
           if (n < 3) {
             var a = 3 - n;
-            _.times(a, B);
+            _.times(a, O);
           }
         },
         T = function() {
-          r = 0, d = 0, c = m.length ? [] : X(), l = [], m = [], N(), o && o(), TS.storage.storeInvitesState(c), TS.client && TS.ui.a11y.restorePreviousFocus();
+          d = 0, r = 0, c = m.length ? [] : X(), l = [], m = [], N(), o && o(), TS.storage.storeInvitesState(c), TS.client && TS.ui.a11y.restorePreviousFocus();
         },
         b = function() {
           v = u;
@@ -244,7 +244,7 @@ webpackJsonp([241], {
           TS.google_auth.getContactList(s, e).then(function(e) {
             0 === $("input.email_field").filter(function() {
               return !this.value;
-            }).length && B(), L(e);
+            }).length && O(), L(e);
           });
         },
         L = function(e) {
@@ -254,7 +254,7 @@ webpackJsonp([241], {
               single: !0,
               placeholder_text: TS.i18n.t("name@example.com", "invite")(),
               onReady: function() {
-                G(this);
+                B(this);
               },
               filter: function(e, i) {
                 if (i = i.toLowerCase(), e.full_name) var t = e.full_name.toLowerCase();
@@ -267,7 +267,7 @@ webpackJsonp([241], {
                 });
               },
               onItemAdded: function(e) {
-                G(this, e), TS.clog.track("INVITEMODAL_ACTION", {
+                B(this, e), TS.clog.track("INVITEMODAL_ACTION", {
                   action: "add_google_email",
                   trigger: "select_google_contact_from_dropdown"
                 });
@@ -276,7 +276,7 @@ webpackJsonp([241], {
                 $(".ts_tip_tip").remove(), $(".lazy_filter_select").removeClass("ts_tip ts_tip_top ts_tip_float ts_tip_multiline ts_tip_delay_1000");
               },
               onInputBlur: function() {
-                G(this);
+                B(this);
               },
               template: function(e) {
                 var i = TS.templates.admin_invite_filter_select_contact({
@@ -292,7 +292,7 @@ webpackJsonp([241], {
             }).first().lazyFilterSelect("container").addClass("ts_tip ts_tip_top ts_tip_float ts_tip_multiline ts_tip_delay_1000").append(t);
           }
         },
-        G = function(e, i) {
+        B = function(e, i) {
           var t = e.$container[0],
             n = $(t).parents(".admin_invite_row");
           if (i) TS.boot_data.feature_name_tagging_client ? $(n).find("input[name*=real_name]").val(i.full_name) : ($(n).find("input[name*=first_name]").val(i.given_name), $(n).find("input[name*=last_name]").val(i.family_name)), $(n).find("input[name*=email_address]").val(i.email);
@@ -302,26 +302,26 @@ webpackJsonp([241], {
             a ? ($(n).find("input.email_field").lazyFilterSelect("clearValue"), $(n).find("input[name*=email_address]").val(a)) : s && $(n).find("input.lfs_input").val(s);
           }
         },
-        B = function(i) {
+        O = function(i) {
           var t = !0;
           0 === e.find(".admin_invite_row").length ? t = !1 : e.find(".admin_invite_row").first().find(".delete_row").removeClass("hidden"), e.find("#invite_rows").append(TS.templates.admin_invite_row({
-            index: r,
+            index: d,
             show_delete_btn: t,
             placeholder_email_address: v
           }));
-          var a = e.find("#invite_" + r);
+          var a = e.find("#invite_" + d);
           a.find('[data-action="admin_invites_delete_row"]').on("click", function() {
             z(a);
           }).hover(function() {
             a.addClass("delete_highlight");
           }, function() {
             a.removeClass("delete_highlight");
-          }), a.find('[name="email_address"]').focus(), i && (a.find('[name="email_address"]').val(i.email), a.find(".lfs_input_container input.lfs_input").val(i.email), TS.boot_data.feature_name_tagging_client ? a.find('[name="real_name"]').val(i.real_name) : (a.find('[name="first_name"]').val(i.first_name), a.find('[name="last_name"]').val(i.last_name))), TS.google_auth.isAuthed(s) && n && L(n), r += 1;
+          }), a.find('[name="email_address"]').focus(), i && (a.find('[name="email_address"]').val(i.email), a.find(".lfs_input_container input.lfs_input").val(i.email), TS.boot_data.feature_name_tagging_client ? a.find('[name="real_name"]').val(i.real_name) : (a.find('[name="first_name"]').val(i.first_name), a.find('[name="last_name"]').val(i.last_name))), TS.google_auth.isAuthed(s) && n && L(n), d += 1;
         },
-        O = function(i, t) {
+        P = function(i, t) {
           e.find("#invite_notice").toggleClass("alert_warning", "alert_warning" === i).toggleClass("alert_info", "alert_info" === i).toggleClass("alert_error", "alert_error" === i).html(t).slideDown(100);
         },
-        P = function() {
+        G = function() {
           e.find(".admin_invites_hide_custom_message").addClass("hidden"), e.find(".admin_invites_show_custom_message").removeClass("hidden"), E();
         },
         M = function() {
@@ -341,12 +341,12 @@ webpackJsonp([241], {
           i && i.length && i.slideToggle(100, function() {
             i.remove();
             var t = $(".admin_invite_row").length;
-            0 === t ? B() : 1 === t && e.find(".admin_invite_row").first().find(".delete_row").addClass("hidden");
+            0 === t ? O() : 1 === t && e.find(".admin_invite_row").first().find(".delete_row").addClass("hidden");
           });
         },
         D = function() {
           var i, t = $("#account_type").val();
-          "full" === t ? i = TS.i18n.t("Send Invitations", "invite")() : "treatment" === TS.experiment.getGroup("guest_profiles_and_expiration") ? i = TS.i18n.t("Invite Guests", "invite")() : "restricted" === t ? i = TS.i18n.t("Invite Multi-Channel Guests", "invite")() : "ultra_restricted" === t && (i = TS.i18n.t("Invite Single-Channel Guests", "invite")()), e.find('button[data-action="api_send_invites"]').find(".ladda-label").text(i);
+          i = "full" === t ? TS.i18n.t("Send Invitations", "invite")() : TS.i18n.t("Invite Guests", "invite")(), e.find('button[data-action="api_send_invites"]').find(".ladda-label").text(i);
         },
         N = function() {
           i = void 0;
@@ -360,20 +360,20 @@ webpackJsonp([241], {
             o = "";
           if (s && "full" === i || n && 0 === TS.model.team.prefs.sso_auth_restrictions) {
             a = !0;
-            var r = TS.utility.enterprise.getProviderLabel(TS.model.enterprise, _.get(TS.model, "enterprise.sso_provider.label", "single sign-on"));
+            var d = TS.utility.enterprise.getProviderLabel(TS.model.enterprise, _.get(TS.model, "enterprise.sso_provider.label", "single sign-on"));
             o = TS.i18n.t("Only people with {account_type} accounts will be able to accept invitations.", "invite")({
-              account_type: r
+              account_type: d
             });
           }
           if ("google" === TS.model.team.prefs.auth_mode) "full" !== i || 0 !== TS.model.team.prefs.sso_auth_restrictions && 1 !== TS.model.team.prefs.sso_auth_restrictions ? "restricted" !== i && "ultra_restricted" !== i || 0 !== TS.model.team.prefs.sso_auth_restrictions || (t = !0) : t = !0;
           else if ("saml" === TS.model.team.prefs.auth_mode && (0 === TS.model.team.prefs.sso_auth_restrictions || 1 === TS.model.team.prefs.sso_auth_restrictions) && "full" === i && !s) {
-            var d = TS.templates.admin_invite_switcher({
+            var r = TS.templates.admin_invite_switcher({
               can_add_ura: TS.model.can_add_ura,
               hide_full_member_option: TS.utility.invites.hideFullMemberInviteOption(),
               team_signup_url: "https://" + TS.model.team.domain + ".slack.com/signup",
               team_in_org: TS.model.team.enterprise_id
             });
-            $("#admin_invites_switcher").html(d), H();
+            $("#admin_invites_switcher").html(r), H();
           }
           $("#google_auth_email_domain_notice").toggleClass("hidden", !t), $("#sso_signup_notice").html(o).toggleClass("hidden", !a);
         },
@@ -395,7 +395,7 @@ webpackJsonp([241], {
         },
         U = function() {
           setTimeout(function() {
-            Ladda.stopAll(), e.find(".admin_invite_row").remove(), l = [], m = [], t = null, D(), _.times(3, B);
+            Ladda.stopAll(), e.find(".admin_invite_row").remove(), l = [], m = [], t = null, D(), _.times(3, O);
           }, 0);
         },
         q = function() {
@@ -431,7 +431,7 @@ webpackJsonp([241], {
           var s = TS.channels.getGeneralChannel(),
             o = "";
           s && (o = s.name, n.length || n.push(s));
-          var r = {
+          var d = {
               invite_type: t,
               channels: a,
               default_channels: n,
@@ -441,13 +441,11 @@ webpackJsonp([241], {
               is_admin: TS.model.user.is_admin,
               initial_channel_id: i
             },
-            d = TS.templates.admin_invite_channel_picker(r),
+            r = TS.templates.admin_invite_channel_picker(d),
             l = TS.i18n.t("Team Members", "invite")();
-          if ("restricted" === t ? l = TS.i18n.t("Multi-Channel Guests", "invite")() : "ultra_restricted" === t && (l = TS.i18n.t("Single-Channel Guests", "invite")()), e.find("#admin_invites_header").find(".admin_invites_header_type").addClass("normal").text(l).end().find(".admin_invites_header_team_name").addClass("hidden"), e.find("#admin_invites_channel_picker_container").html(d), e.find("#account_type").val(t), e.find("#admin_invites_switcher, #admin_invites_workflow").toggleClass("hidden"), e.find("#admin_invites_billing_notice", "#admin_guide_to_billing_at_slack").toggleClass("hidden", !("" !== TS.model.team.plan && "ultra_restricted" !== t)), e.find("#ura_warning").toggleClass("hidden", "restricted" !== t && "ultra_restricted" !== t), e.find("#invite_notice").hide(), "treatment" === TS.experiment.getGroup("guest_profiles_and_expiration")) {
-            var m = "";
-            e.find(".admin_invites_guest_expiration_date_container").toggleClass("hidden", "full" === t), e.find("#admin_invites_show_date_picker").on("click", K), "restricted" === t ? m = TS.i18n.t("These guests will only have access to messages and files in specified channels.", "invite")() : "ultra_restricted" === t && (m = TS.i18n.t("These guests will only have access to messages and files in a single channel.", "invite")()), e.find("#admin_invites_subheader").text(m).toggleClass("hidden", "full" === t);
-          }
-          e.find("#ultra_restricted_channel_picker").on("change", function() {
+          "restricted" === t ? l = TS.i18n.t("Multi-Channel Guests", "invite")() : "ultra_restricted" === t && (l = TS.i18n.t("Single-Channel Guests", "invite")()), e.find("#admin_invites_header").find(".admin_invites_header_type").addClass("normal").text(l).end().find(".admin_invites_header_team_name").addClass("hidden"), e.find("#admin_invites_channel_picker_container").html(r), e.find("#account_type").val(t), e.find("#admin_invites_switcher, #admin_invites_workflow").toggleClass("hidden"), e.find("#admin_invites_billing_notice", "#admin_guide_to_billing_at_slack").toggleClass("hidden", !("" !== TS.model.team.plan && "ultra_restricted" !== t)), e.find("#ura_warning").toggleClass("hidden", "restricted" !== t && "ultra_restricted" !== t), e.find("#invite_notice").hide(), e.find(".admin_invites_guest_expiration_date_container").toggleClass("hidden", "full" === t), e.find("#admin_invites_show_date_picker").on("click", K);
+          var m = "";
+          "restricted" === t ? m = TS.i18n.t("These guests will only have access to messages and files in specified channels.", "invite")() : "ultra_restricted" === t && (m = TS.i18n.t("These guests will only have access to messages and files in a single channel.", "invite")()), e.find("#admin_invites_subheader").text(m).toggleClass("hidden", "full" === t), e.find("#ultra_restricted_channel_picker").on("change", function() {
             D(), N();
           }), e.find(".email_field").first().focus();
           var c = e.find('button[data-action="api_send_invites"]');
@@ -499,14 +497,14 @@ webpackJsonp([241], {
           if (n.length) {
             if (n) {
               var a, o = e.find("#account_type").val(),
-                r = e.find(".admin_invites_show_custom_message"),
+                d = e.find(".admin_invites_show_custom_message"),
                 l = e.find("#admin_invite_custom_message"),
                 _ = TS.google_auth.isAuthed(s) ? "contact" : "manual";
               if ("full" === o || "restricted" === o) {
                 var m = e.find("#defaultchannelsmulti").val();
                 m && (a = m.join(","));
               } else "ultra_restricted" === o && (a = e.find("#ultra_restricted_channel_picker").val());
-              h = r.hasClass("hidden") ? "" : l.val(), d = n.length, $.each(n, function(e, i) {
+              h = d.hasClass("hidden") ? "" : l.val(), r = n.length, $.each(n, function(e, i) {
                 var n = {
                   email: i.email,
                   source: "invite_modal",
@@ -517,7 +515,7 @@ webpackJsonp([241], {
             }
           } else {
             var c = '<i class="ts_icon ts_icon_info_circle"></i> ' + TS.i18n.t("Add at least one email address before sending invitations.", "invite")();
-            O("alert_info", c), setTimeout(Ladda.stopAll, 0);
+            P("alert_info", c), setTimeout(Ladda.stopAll, 0);
           }
         },
         ee = function(i, t, n) {
@@ -534,11 +532,11 @@ webpackJsonp([241], {
             var s;
             if ("requires_channel" === t.error) {
               setTimeout(Ladda.stopAll, 0), e.find("#ra_channel_picker_header").highlightText();
-              return s = '<i class="ts_icon ts_icon_info_circle"></i> ' + TS.i18n.t("Pick at least one channel before inviting Multi-Channel Guests.", "invite")(), void O("alert_warning", s);
+              return s = '<i class="ts_icon ts_icon_info_circle"></i> ' + TS.i18n.t("Pick at least one channel before inviting Multi-Channel Guests.", "invite")(), void P("alert_warning", s);
             }
             if ("requires_one_channel" === t.error) {
               setTimeout(Ladda.stopAll, 0), e.find("#ura_channel_picker_header").highlightText();
-              return s = '<i class="ts_icon ts_icon_info_circle"></i> ' + TS.i18n.t("Pick a channel before inviting Single-Channel Guests.", "invite")(), void O("alert_warning", s);
+              return s = '<i class="ts_icon ts_icon_info_circle"></i> ' + TS.i18n.t("Pick a channel before inviting Single-Channel Guests.", "invite")(), void P("alert_warning", s);
             }
             var o = t.error;
             if (TS.boot_data.page_needs_enterprise) {
@@ -555,12 +553,12 @@ webpackJsonp([241], {
           ie();
         },
         ie = function() {
-          if (0 === (d -= 1)) {
+          if (0 === (r -= 1)) {
             c = [], TS.storage.storeInvitesState(c);
             var e = function() {
               setTimeout(Ladda.stopAll, 0), TS.ui.admin_invites.invites_sent_sig.dispatch();
             };
-            f = re(l), f ? TS.api.call("team.checkEmailDomains", {
+            f = de(l), f ? TS.api.call("team.checkEmailDomains", {
               email_domains: f
             }).then(function(e) {
               f = e.data.ok ? e.data.email_domains : "";
@@ -571,7 +569,7 @@ webpackJsonp([241], {
         },
         te = function() {
           function i() {
-            U(), $("#admin_invites_workflow, #admin_invites_success").toggleClass("hidden"), TS.model.team.plan || $("#admin_invites_alert").css("visibility", "visible"), $("#admin_invites_header, #admin_invites_subheader").removeClass("hidden"), TS.ui.fs_modal.bindBackButton(TS.ui.admin_invites.switchToPicker);
+            U(), $("#admin_invites_workflow, #admin_invites_success").toggleClass("hidden"), !TS.model.team.plan && TS.model.user.is_admin && $("#admin_invites_alert").css("visibility", "visible"), $("#admin_invites_header, #admin_invites_subheader").removeClass("hidden"), TS.ui.fs_modal.bindBackButton(TS.ui.admin_invites.switchToPicker);
           }
           var n, a, s = $("#account_type").val();
           if ("full" === s) {
@@ -584,16 +582,16 @@ webpackJsonp([241], {
             });
             n = "<strong>" + o + "</strong>";
           } else if ("ultra_restricted" === s) {
-            var r = TS.i18n.t("{invites_length,plural,=1{{invites_length} Single-Channel Guest}other{{invites_length} Single-Channel Guests}}", "invite")({
+            var d = TS.i18n.t("{invites_length,plural,=1{{invites_length} Single-Channel Guest}other{{invites_length} Single-Channel Guests}}", "invite")({
               invites_length: l.length
             });
-            n = "<strong>" + r + "</strong>";
-          }!t || "restricted" !== s && "ultra_restricted" !== s || "treatment" !== TS.experiment.getGroup("guest_profiles_and_expiration") || (a = TS.i18n.t("{invites_length,plural,=1{This account}other{These accounts}} will be deactivated on {date} at {time}.", "invite")({
+            n = "<strong>" + d + "</strong>";
+          }!t || "restricted" !== s && "ultra_restricted" !== s || (a = TS.i18n.t("{invites_length,plural,=1{This account}other{These accounts}} will be deactivated on {date} at {time}.", "invite")({
             invites_length: l.length,
             date: TS.utility.date.formatDate("{date}", t),
             time: TS.utility.date.formatDate("{time}", t)
           }));
-          var d = {
+          var r = {
             success_invites_html: n,
             success_invites: l,
             error_invites: m,
@@ -603,8 +601,8 @@ webpackJsonp([241], {
             is_admin: TS.model.user.is_admin,
             expiration_msg: a
           };
-          TS.model.team.plan && (d.custom_message = h);
-          var _ = TS.templates.admin_invite_summary(d);
+          TS.model.team.plan && (r.custom_message = h);
+          var _ = TS.templates.admin_invite_summary(r);
           if (e.find("#invite_notice").slideUp(100), e.find("#admin_invites_workflow, #admin_invites_header, #admin_invites_subheader").addClass("hidden"), e.find("#admin_invites_success").html(_).removeClass("hidden"), e.find('button[data-action="admin_invites_reset"]').on("click", i), TS.ui.fs_modal.bindBackButton(i), e.find('button[data-action="admin_invites_try_again"]').on("click", function() {
               $.each(m, function(e, i) {
                 var t = W(i.email);
@@ -643,16 +641,16 @@ webpackJsonp([241], {
               emails_length: i.length
             });
           }
-          O("alert_info", t), e.find(".admin_invite_row").each(function() {
+          P("alert_info", t), e.find(".admin_invite_row").each(function() {
             $.trim($(this).find('[name="email_address"]').val()) || z($(this));
           }), $.each(i, function(e, i) {
-            B(i);
+            O(i);
           }), c = i, TS.storage.storeInvitesState(c);
         },
         oe = function() {
           return "full" === $("#account_type").val() && TS.model.user.is_owner && "normal" === TS.model.team.prefs.auth_mode;
         },
-        re = function(e) {
+        de = function(e) {
           if (!oe()) return "";
           var i = e.map(function(e) {
             return e.email.split("@")[1];
@@ -667,7 +665,7 @@ webpackJsonp([241], {
           }
           return i.join(", ");
         },
-        de = function(e) {
+        re = function(e) {
           if (!e) return e;
           var i = e.split(",").reduce(function(e, i) {
             return e[i] = !0, e;
@@ -677,7 +675,7 @@ webpackJsonp([241], {
         le = function() {
           TS.ui.startButtonSpinner(e.find('button[data-action="add_signup_domains"]').get(0));
           var i = e.find("#invite_signup_domains").val();
-          TS.model.team.email_domain && (i = [TS.model.team.email_domain, i].join(",")), i = de(i);
+          TS.model.team.email_domain && (i = [TS.model.team.email_domain, i].join(",")), i = re(i);
           var t = {
             prefs: JSON.stringify({
               signup_mode: "email",

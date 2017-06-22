@@ -103,23 +103,7 @@
   {{/if}}
 
   {{#pageNeedsEnterprise}}
-    {{#if member.is_restricted}}
-      {{#experiment name="guest_profiles_and_expiration"}}
-      {{else}}
-      <div class="member_type_and_description old_petunia_grey lato">
-        <span class="overflow_ellipsis">
-          {{#if member.deleted}}
-            {{#t note="Refers to deactivated account"}}Deactivated{{/t}}
-          {{/if}}
-          {{#if member.is_ultra_restricted}}
-            {{#t}}Single-Channel Guest{{/t}}
-          {{else}}
-            {{#t}}Multi-Channel Guest{{/t}}
-          {{/if}}
-        </span>
-      </div>
-      {{/experiment}}
-    {{else if member.is_bot}}
+    {{#if member.is_bot}}
       <div class="member_type_and_description old_petunia_grey lato">
         <span class="overflow_ellipsis">{{#t note="Description for bot"}}Non-sentient Bot{{/t}}</span>
       </div>
@@ -134,37 +118,13 @@
       {{/if}}
     {{/if}}
   {{else}}
-    {{#if member.is_restricted}}
-      {{#experiment name="guest_profiles_and_expiration"}}
+    {{#if member.deleted}}
+      {{#feature flag="feature_deleted_dm_archives"}}
       {{else}}
-      <div class="member_restriction lato overflow_ellipsis">
-        {{#if member.deleted}}
-          {{#feature flag="feature_deleted_dm_archives"}}
-          {{else}}
-          {{#t}}Deactivated{{/t}}
-          {{/feature}}
-        {{/if}}
-        {{#if member.is_ultra_restricted}}
-          {{#t}}Single-Channel Guest{{/t}}
-        {{else}}
-          {{#t}}Multi-Channel Guest{{/t}}
-        {{/if}}
-        <i class="ts_icon ts_icon_question_circle ts_tip ts_tip_top ts_tip_multiline ts_tip_float">
-          <span class="ts_tip_tip">
-            <span class="ts_tip_multiline_inner">{{#if member.is_ultra_restricted}}{{#t}}Single-Channel Guests see a partial directory and can only access messages and files from selected channels.{{/t}}{{else}}{{#t}}Multi-Channel Guests see a partial directory and can only access messages and files from selected channels.{{/t}}{{/if}}</span>
-          </span>
-        </i>
+      <div class="member_type_and_description old_petunia_grey lato">
+        {{#t}}Deactivated account{{/t}}
       </div>
-      {{/experiment}}
-    {{else}}
-      {{#if member.deleted}}
-        {{#feature flag="feature_deleted_dm_archives"}}
-        {{else}}
-        <div class="member_type_and_description old_petunia_grey lato">
-          {{#t}}Deactivated account{{/t}}
-        </div>
-        {{/feature}}
-      {{/if}}
+      {{/feature}}
     {{/if}}
 
     {{#if member.is_bot}}
@@ -329,17 +289,13 @@
     </table>
   {{/if}}
 
-  {{#experiment name="guest_profiles_and_expiration"}}
-    {{#if member.is_restricted}}
-      {{#or (or member.profile.guest_invited_by member.profile.guest_expiration_ts) member.profile.guest_channels}}
-        <hr class="member_details_divider">
+  {{#if member.is_restricted}}
+    <hr class="member_details_divider">
 
-        <table id="member_data_table_guest_fields" class="member_data_table lato{{#pageNeedsEnterprise}}{{#if teams}} no_bottom_margin{{/if}}{{/pageNeedsEnterprise}}">
-          {{> guest_profile_fields member=member lazy_load_profile_fields=lazy_load_profile_fields }}
-        </table>
-      {{/or}}
-    {{/if}}
-  {{/experiment}}
+    <table id="member_data_table_guest_fields" class="member_data_table lato{{#pageNeedsEnterprise}}{{#if teams}} no_bottom_margin{{/if}}{{/pageNeedsEnterprise}}">
+      {{> guest_profile_fields member=member lazy_load_profile_fields=lazy_load_profile_fields }}
+    </table>
+  {{/if}}
 
   {{#pageNeedsEnterprise}}
     {{#if teams}}

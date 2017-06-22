@@ -1,0 +1,37 @@
+{{i18n_ns 'invite'}}
+
+<div class="fs_split_header"></div>
+
+<div id="ratelimit_alert" class="header_error_message hidden bottom_margin">
+    <h3>{{#t note="This refers to a rate limit we have for filling out this form"}}Whoa, you're going too fast!{{/t}}</h3>
+    <p class="no_margin">{{#t}}Slow down a bit. You might have better luck if you try again in a minute.{{/t}}</p>
+</div>
+
+<div id="invite_failed_alert" class="header_error_message hidden no_bottom_margin">
+  <h3>{{#t}}Sorry, but something went wrong!{{/t}}</h3>
+  {{#t}}Some of your invites didn\u2019t go through. You\u2019ll be able to try again later.{{/t}}
+</div>
+
+<div id="invite_form_body" class="fs_split_body">
+  <div>
+    <h1 class="small_bottom_margin">{{#t}}Invite your teammates{{/t}}</h1>
+    <p class="desc">
+      {{#t users=(listify current_users map='name_options.name' )}}All set! You're joining {users}. Anybody else you'd like to invite?{{/t}}
+    </p>
+    <label class="inline_block">{{#t}}Email address{{/t}}</label>
+    <a data-action= "signup_add_invite"class="inline_block float_right bold">+ {{#t}}Add another invitation{{/t}}</a>
+  </div>
+  <div id="invite_rows"></div>
+</div>
+
+<div id="submit" class="fs_split_footer">
+  <div class="send_invitations_button_container">
+    <a id="secondary_btn" class="btn btn_outline btn_large ladda-button" data-style="expand-right" data-qa="secondary_button" data-clog-click="true" data-clog-event="GROWTH_CREATE_TEAM" data-clog-params="action=skip_invites,trigger=create_team,step=invites" >
+      <span class="ladda-label">{{#t}}Skip For Now{{/t}}</span>
+    </a>
+
+    <button id="submit_btn" type="submit" class="btn btn_large ladda-button" data-style="expand-right" data-qa="submit_button" data-clog-click="true" data-clog-event="GROWTH_CREATE_TEAM" data-clog-params="action=send_invites,trigger=create_team,step=invites" >
+      <span class="ladda-label">{{#t}}Send Invitations{{/t}}</span>
+    </button>
+  </div>
+</div>

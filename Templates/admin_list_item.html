@@ -105,14 +105,12 @@
                 <span{{#if show_email_edit}} class="inline_email" title="{{#t}}Click to edit email{{/t}}"{{/if}}>{{member.profile.email}}</span>
             {{/unless}}
 
-            {{#experiment name="guest_profiles_and_expiration"}}
-                {{#or member.is_restricted member.is_ultra_restricted}}
-                    {{#if guest_expiration_str}}
-                        <br/>
-                        <span class="no_wrap" title="{{#t}}Time limit{{/t}}">{{guest_expiration_str}}</span>
-                    {{/if}}
-                {{/or}}
-            {{/experiment}}
+            {{#or member.is_restricted member.is_ultra_restricted}}
+                {{#if guest_expiration_str}}
+                    <br/>
+                    <span class="no_wrap" title="{{#t}}Time limit{{/t}}">{{guest_expiration_str}}</span>
+                {{/if}}
+            {{/or}}
         {{/feature}}
 
     </span>

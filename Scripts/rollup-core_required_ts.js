@@ -2617,28 +2617,24 @@ webpackJsonp([12, 328, 337, 329], {
               TS.info("OK, now calling rtm.start, having waited for delay"), l = void 0, n(e());
             }, l);
           });
-          if (TS.boot_data.rtm_start_response) {
-            var n = TS.boot_data.rtm_start_response;
-            return delete TS.boot_data.rtm_start_response, Promise.resolve(n);
-          }
           if (!TS.useSocketManager()) {
             if (TS.model.calling_rtm_start) {
-              var a = "_promiseToCallRTMStart was called but TS.model.calling_rtm_start=true";
-              return TS.error(a), Promise.reject(new Error(a));
+              var n = "_promiseToCallRTMStart was called but TS.model.calling_rtm_start=true";
+              return TS.error(n), Promise.reject(new Error(n));
             }
             TS.ms.logConnectionFlow("login"), TS.model.rtm_start_throttler += 1, TS.info("Setting calling_rtm_start to true"), TS.model.calling_rtm_start = !0;
           }
           if (TS.useSocket() && TS.lazyLoadMembersAndBots() && TS.boot_data.should_use_flannel) {
-            var o;
-            if (TS.useSocketManager()) o = L();
+            var a;
+            if (TS.useSocketManager()) a = L();
             else {
               if (!d && !TS.useSocketManager()) {
                 if (TS.model.ms_connected) return TS.has_pri[ne] && TS.log(ne, "Bad news: we're trying to do an rtm.start from Flannel while we're already connected, and that won't work."), Promise.reject(new Error("rtm.start-over-WebSocket failed"));
                 d = X().then(I);
               }
-              o = d, d = void 0;
+              a = d, d = void 0;
             }
-            return o.then(function(e) {
+            return a.then(function(e) {
               return TS.has_pri[ne] && TS.log(ne, "Flannel: got rtm.start response 💕"), {
                 ok: !0,
                 args: {},
@@ -3075,7 +3071,7 @@ webpackJsonp([12, 328, 337, 329], {
         };
       K(TS);
       var Q, Y = function() {
-          return !!(TS.client || TS.web && TS.boot_data.page_has_ms);
+          return !(!TS.boot_data.feature_lazy_load_members_and_bots_everywhere || TS.boot_data.no_login) || !!(TS.client || TS.web && TS.boot_data.page_has_ms);
         },
         X = function() {
           return TS.boot_data.feature_automated_perfectrics && TS.client ? TS.client.traces.maybeTrace(10, {

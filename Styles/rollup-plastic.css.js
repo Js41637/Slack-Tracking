@@ -14673,7 +14673,7 @@ body:not(.unify_user) .tab_complete_ui ul.type_members .member_image {
   margin-right: 2px
 }
 
-.tab_complete_ui ul.type_members .display_name {
+.tab_complete_ui ul.type_members .primary_name {
   font-weight: 900;
   margin-right: .4rem
 }

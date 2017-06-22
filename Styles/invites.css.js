@@ -126,13 +126,9 @@
 }
 
 #admin_invites_channel_picker_container {
-  border-bottom: 1px solid #E8E8E8;
+  border-bottom: none;
   margin: 1rem auto 1.5rem;
   padding-bottom: 2rem
-}
-
-.experiment_guest_profiles_and_expiration #admin_invites_channel_picker_container {
-  border-bottom: none
 }
 
 #admin_invites_channel_picker_container #restricted_channel_picker_container {
@@ -146,19 +142,8 @@
 }
 
 #admin_invites_add_row {
+  margin: 6px 0 32px;
   font-size: 1rem
-}
-
-.admin_invites_container:not(.experiment_guest_profiles_and_expiration) #admin_invites_add_row {
-  border: 1px solid #EEE;
-  background: #F9F9F9;
-  padding: .6rem 1rem;
-  border-radius: 6px;
-  margin: 1.3rem auto 2.5rem
-}
-
-.admin_invites_container.experiment_guest_profiles_and_expiration #admin_invites_add_row {
-  margin: 6px 0 32px
 }
 
 .admin_invite_row,
@@ -261,10 +246,7 @@
 }
 
 #admin_invites_workflow {
-  font-size: 1rem
-}
-
-.experiment_guest_profiles_and_expiration #admin_invites_workflow {
+  font-size: 1rem;
   margin-top: 48px
 }
 

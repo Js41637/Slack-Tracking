@@ -35477,7 +35477,7 @@ webpackJsonp([332], [, function(e, t, n) {
     f = n(2346),
     p = n(3913),
     h = n(2351),
-    _ = n(3035),
+    _ = n(3918),
     m = n(2295),
     y = n(2915),
     v = n(2916),
@@ -35490,7 +35490,7 @@ webpackJsonp([332], [, function(e, t, n) {
     x = n.i(r.e)({
       allUnreads: o.default,
       bootData: i.default,
-      channelMessages: _.default,
+      channelHistory: _.default,
       channels: m.default,
       channelSidebar: a.default,
       channelsMeta: y.a,
@@ -36182,7 +36182,7 @@ webpackJsonp([332], [, function(e, t, n) {
     o = n(2353),
     i = n(2695),
     a = n(3163),
-    s = n(3035),
+    s = n(3918),
     u = n(2349),
     l = n(2295),
     c = n(3141),
@@ -36207,7 +36207,7 @@ webpackJsonp([332], [, function(e, t, n) {
   n.i(o.a)("interop.redux", {
     configureStore: a.a,
     entities: {
-      channelMessages: s,
+      channelHistory: s,
       channels: l,
       channelsMeta: {
         channelNamesToIds: u,
@@ -36288,15 +36288,22 @@ webpackJsonp([332], [, function(e, t, n) {
       a = e.latest,
       s = void 0 === a ? 0 : a;
     return function(e) {
-      n.i(u.a)({
+      t && r && n.i(c.a)({
         channelId: t,
         type: r,
         oldest: i,
         latest: s
-      }).then(function(t) {
-        e(n.i(c.addMessages)(t));
+      }).then(function(r) {
+        var o = r.msgs,
+          a = r.hasMore;
+        e(n.i(f.addMessages)(o)), e(n.i(p.addTimestamps)({
+          channelId: t,
+          timestamps: u.a.map(o, "ts"),
+          reachedStart: 0 !== s && !a || null,
+          reachedEnd: 0 !== i && !a || null
+        }));
       }).catch(function(e) {
-        return n.i(l.a)("Failed to fetch history", t, e);
+        return n.i(d.a)("Failed to fetch history", t, e);
       });
     };
   }
@@ -36307,7 +36314,7 @@ webpackJsonp([332], [, function(e, t, n) {
 
   function i(e) {
     var t = o(e);
-    return n.i(d.getTimestampsByChannelId)(e, t);
+    return n.i(p.getTimestampsByChannelId)(e, t);
   }
 
   function a(e) {
@@ -36316,39 +36323,41 @@ webpackJsonp([332], [, function(e, t, n) {
   Object.defineProperty(t, "__esModule", {
     value: !0
   }), n.d(t, "switchToChannel", function() {
-    return p;
+    return _;
   }), t.fetchHistory = r, t.getMessagePaneChannelId = o, t.getTimestampsForMessagePane = i, t.getMessagePaneStartTs = a;
-  var s = n(17),
-    u = (n.n(s), n(3431)),
-    l = n(2914),
-    c = n(3034),
-    d = n(3035),
-    f = Object.assign || function(e) {
+  var s = n(6),
+    u = n.n(s),
+    l = n(17),
+    c = (n.n(l), n(3431)),
+    d = n(2914),
+    f = n(3034),
+    p = n(3918),
+    h = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
         for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
       }
       return e;
     },
-    p = n.i(s.createAction)("Sets the active channel"),
-    h = {
+    _ = n.i(l.createAction)("Sets the active channel"),
+    m = {
       channelId: null,
       startTs: null
     },
-    _ = n.i(s.createReducer)(function(e, t, n) {
+    y = n.i(l.createReducer)(function(e, t, n) {
       return t in e ? Object.defineProperty(e, t, {
         value: n,
         enumerable: !0,
         configurable: !0,
         writable: !0
       }) : e[t] = n, e;
-    }({}, p, function(e, t, n) {
-      return f({}, e, {
+    }({}, _, function(e, t, n) {
+      return h({}, e, {
         channelId: t,
         startTs: n
       });
-    }), h);
-  t.default = _;
+    }), m);
+  t.default = y;
 }, , , function(e, t, n) {
   "use strict";
   var r = n(3033);
@@ -36402,19 +36411,21 @@ webpackJsonp([332], [, function(e, t, n) {
       channelId: l.a.PropTypes.string,
       timestamps: l.a.PropTypes.arrayOf(l.a.PropTypes.string),
       requestHistory: l.a.PropTypes.func,
-      lastReadTs: l.a.PropTypes.string
+      lastReadTs: l.a.PropTypes.string,
+      startTs: l.a.PropTypes.string
     },
     g = {
       channelId: null,
       timestamps: [],
       requestHistory: s.a.noop,
-      lastReadTs: null
+      lastReadTs: null,
+      startTs: null
     },
     b = function(e) {
       function t(e) {
         r(this, t);
         var n = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
-        return n.isLoading = !1, n.requestHistory = n.requestHistory.bind(n), n;
+        return n.isLoading = !1, n.requestOlder = n.requestOlder.bind(n), n.requestNewer = n.requestNewer.bind(n), n;
       }
       return i(t, e), y(t, [{
         key: "getLastVisibleReadTs",
@@ -36427,11 +36438,32 @@ webpackJsonp([332], [, function(e, t, n) {
           });
         }
       }, {
-        key: "requestHistory",
+        key: "requestOlder",
         value: function() {
-          this.isLoading || (this.isLoading = !0, this.props.timestamps.length && this.props.requestHistory({
-            latest: this.props.timestamps[0]
-          }));
+          if (!this.isLoading) {
+            this.isLoading = !0;
+            var e = this.props,
+              t = e.timestamps,
+              n = e.startTs,
+              r = t && t[0] || n;
+            this.props.requestHistory({
+              latest: r
+            }) || (this.isLoading = !1);
+          }
+        }
+      }, {
+        key: "requestNewer",
+        value: function() {
+          if (!this.isLoading) {
+            this.isLoading = !0;
+            var e = this.props,
+              t = e.timestamps,
+              n = e.startTs,
+              r = t && t[t.length - 1] || n;
+            this.props.requestHistory({
+              oldest: r
+            }) || (this.isLoading = !1);
+          }
         }
       }, {
         key: "render",
@@ -36463,7 +36495,7 @@ webpackJsonp([332], [, function(e, t, n) {
                 key: t,
                 channelId: e.props.channelId,
                 previousMessageTs: c
-              })), t === m && a.push(l.a.createElement(f.a, null)), u.push(t), c = t;
+              })), t === m && (u.push(t + ".unread"), a.push(l.a.createElement(f.a, null))), u.push(t), c = t;
             });
           }), l.a.createElement(c.a, {
             key: this.props.channelId
@@ -36472,7 +36504,8 @@ webpackJsonp([332], [, function(e, t, n) {
               r = t.height;
             return l.a.createElement(p.a, {
               keys: u,
-              loadPre: e.requestHistory,
+              loadPre: e.requestOlder,
+              loadPost: e.requestNewer,
               height: r,
               width: n
             }, a);
@@ -36537,55 +36570,7 @@ webpackJsonp([332], [, function(e, t, n) {
       return c({}, e, r({}, t.channel, n));
     }), a), {});
   t.default = p;
-}, function(e, t, n) {
-  "use strict";
-
-  function r(e, t, n) {
-    return t in e ? Object.defineProperty(e, t, {
-      value: n,
-      enumerable: !0,
-      configurable: !0,
-      writable: !0
-    }) : e[t] = n, e;
-  }
-  Object.defineProperty(t, "__esModule", {
-    value: !0
-  }), n.d(t, "getTimestampsByChannelId", function() {
-    return d;
-  });
-  var o, i = n(6),
-    a = n.n(i),
-    s = n(17),
-    u = (n.n(s), n(3034)),
-    l = Object.assign || function(e) {
-      for (var t = 1; t < arguments.length; t++) {
-        var n = arguments[t];
-        for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
-      }
-      return e;
-    },
-    c = n.i(s.createReducer)((o = {}, r(o, u.addMessages, function(e, t) {
-      if (!t || !t.length || !a.a.isArray(t)) return e;
-      var n = a.a.groupBy(t, "channel"),
-        r = a.a.mapValues(n, function(t, n) {
-          var r = e[n] || [],
-            o = r.concat(a.a.map(t, "ts")),
-            i = o.sort();
-          return a.a.sortedUniq(i);
-        });
-      return l({}, e, r);
-    }), r(o, u.removeMessage, function(e, t) {
-      if (!t || !t.channel || !t.ts) return e;
-      var n = a.a.filter(e[t.channel], function(e) {
-        return e !== t.ts;
-      });
-      return l({}, e, r({}, t.channel, n));
-    }), o), {});
-  t.default = c;
-  var d = function(e, t) {
-    return e && e.channelMessages && e.channelMessages[t];
-  };
-}, function(e, t, n) {
+}, , function(e, t, n) {
   "use strict";
 
   function r(e) {
@@ -38239,7 +38224,7 @@ webpackJsonp([332], [, function(e, t, n) {
     a = n(218),
     s = (n.n(a), n(3123)),
     u = n(3029),
-    l = n(3035),
+    l = n(3918),
     c = n(2295),
     d = n(3034),
     f = n(3045),
@@ -38252,9 +38237,16 @@ webpackJsonp([332], [, function(e, t, n) {
       return e;
     },
     _ = n.i(a.createSelector)([l.getTimestampsByChannelId, d.getMessagesByChannelId], function(e, t) {
-      return o()(e).map(function(e) {
-        return t[e];
-      }).reject(p.a).map("ts").value();
+      var n = e.timestamps,
+        r = e.reachedStart,
+        i = e.reachedEnd;
+      return {
+        timestamps: o()(n).map(function(e) {
+          return t[e];
+        }).reject(p.a).map("ts").value(),
+        reachedStart: r,
+        reachedEnd: i
+      };
     }),
     m = function(e) {
       var t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : {},
@@ -38263,12 +38255,18 @@ webpackJsonp([332], [, function(e, t, n) {
         i = n.i(f.getUserPref)(e, "start_scroll_at_oldest"),
         a = n.i(u.getMessagePaneStartTs)(e);
       !a && i && o && (a = o.last_read);
-      var s = _(e, r);
+      var s = _(e, r, a),
+        l = s.timestamps,
+        d = s.reachedStart,
+        p = s.reachedEnd;
       return h({}, t, {
         channelId: r,
         type: n.i(c.getChannelType)(o),
-        timestamps: s,
-        lastReadTs: a
+        timestamps: l,
+        reachedStart: d,
+        reachedEnd: p,
+        lastReadTs: a,
+        startTs: a
       });
     },
     y = {
@@ -38325,44 +38323,21 @@ webpackJsonp([332], [, function(e, t, n) {
         return n.requestHistory = n.requestHistory.bind(n), n;
       }
       return i(t, e), d(t, [{
-        key: "componentDidMount",
-        value: function() {
-          var e = this.props,
-            t = e.channelId,
-            n = e.type;
-          t && n && this.props.fetchHistory({
-            channelId: t,
-            type: n
-          });
-        }
-      }, {
-        key: "componentWillReceiveProps",
-        value: function(e) {
-          var t = this.props.channelId,
-            n = e.channelId;
-          if (t !== n && n) {
-            var r = e.channelId,
-              o = e.type;
-            this.props.fetchHistory({
-              channelId: r,
-              type: o
-            });
-          }
-        }
-      }, {
         key: "requestHistory",
         value: function(e) {
           var t = e.oldest,
-            n = e.latest,
-            r = this.props,
+            n = e.latest;
+          if (n && this.props.reachedStart) return !1;
+          if (t && this.props.reachedEnd) return !1;
+          var r = this.props,
             o = r.channelId,
             i = r.type;
-          this.props.fetchHistory({
+          return this.props.fetchHistory({
             channelId: o,
             type: i,
             oldest: t,
             latest: n
-          });
+          }), !0;
         }
       }, {
         key: "render",
@@ -38370,6 +38345,7 @@ webpackJsonp([332], [, function(e, t, n) {
           return l.a.createElement(c.a, {
             channelId: this.props.channelId,
             timestamps: this.props.timestamps,
+            startTs: this.props.startTs,
             requestHistory: this.requestHistory,
             lastReadTs: this.props.lastReadTs
           });
@@ -38380,14 +38356,20 @@ webpackJsonp([332], [, function(e, t, n) {
     channelId: l.a.PropTypes.string,
     type: l.a.PropTypes.oneOf(["channel", "group", "im", "mpim"]),
     timestamps: l.a.PropTypes.arrayOf(l.a.PropTypes.string),
+    reachedStart: l.a.PropTypes.bool,
+    reachedEnd: l.a.PropTypes.bool,
     fetchHistory: l.a.PropTypes.func,
-    lastReadTs: l.a.PropTypes.string
+    lastReadTs: l.a.PropTypes.string,
+    startTs: l.a.PropTypes.string
   }, f.defaultProps = {
     channelId: null,
     type: "channel",
     timestamps: [],
+    reachedStart: !1,
+    reachedEnd: !1,
     fetchHistory: s.a.noop,
-    lastReadTs: null
+    lastReadTs: null,
+    startTs: null
   };
 }, , , , function(e, t, n) {
   "use strict";
@@ -38618,7 +38600,7 @@ webpackJsonp([332], [, function(e, t, n) {
             o = {};
           return d.a.forEach(e.keys, function(e) {
             o[e] = r, r += n[e] || 0;
-          }), {
+          }), r <= this.props.height && (this.props.loadPre(), this.props.loadPost()), {
             totalHeight: r,
             tops: o
           };
@@ -51894,7 +51876,8 @@ webpackJsonp([332], [, function(e, t, n) {
         oldest: u,
         latest: c,
         ignore_replies: !0,
-        include_pin_count: !0
+        include_pin_count: !0,
+        inclusive: !0
       },
       f = void 0;
     switch (r) {
@@ -51915,9 +51898,12 @@ webpackJsonp([332], [, function(e, t, n) {
     }
     return f.then(function(e) {
       var r = i.a.get(e, "data.messages");
-      return r ? i.a.map(r, function(e) {
-        return n.i(s.f)(e, t);
-      }) : [];
+      return r ? {
+        msgs: i.a.map(r, function(e) {
+          return n.i(s.f)(e, t);
+        }),
+        hasMore: i.a.get(e, "data.has_more")
+      } : [];
     });
   }
   t.a = r;
@@ -54755,4 +54741,144 @@ webpackJsonp([332], [, function(e, t, n) {
       everyone: i("everyone"),
       here: i("here")
     };
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e) {
+    if (Array.isArray(e)) {
+      for (var t = 0, n = Array(e.length); t < e.length; t++) n[t] = e[t];
+      return n;
+    }
+    return Array.from(e);
+  }
+
+  function o(e, t, n) {
+    return t in e ? Object.defineProperty(e, t, {
+      value: n,
+      enumerable: !0,
+      configurable: !0,
+      writable: !0
+    }) : e[t] = n, e;
+  }
+
+  function i(e) {
+    return f.a.first(e);
+  }
+
+  function a(e) {
+    return f.a.last(e);
+  }
+
+  function s(e, t) {
+    var n = i(e),
+      r = a(e),
+      o = i(t),
+      s = a(t);
+    return n >= o && n <= s || r >= o && r <= s || n <= o && r >= s || n >= o && r <= s;
+  }
+
+  function u(e, t) {
+    for (var n = [], r = 0, o = 0; r + o < e.length + t.length;) r === e.length || t[o] < e[r] ? (t[o] !== f.a.last(n) && n.push(t[o]), o += 1) : (e[r] !== f.a.last(n) && n.push(e[r]), r += 1);
+    return n;
+  }
+
+  function l(e, t, n) {
+    if (!e || !t) return {};
+    if (!e.channelHistory || !e.channelHistory[t]) return {};
+    var r = e.channelHistory[t];
+    if (!r) return {
+      timestamps: []
+    };
+    var o = r.slices;
+    if (!o) return {
+      timestamps: []
+    };
+    if (!n) return {
+      timestamps: o[o.length - 1]
+    };
+    for (var i = 0; i < o.length; i++) {
+      var a = o[i];
+      if (s(a, [n])) return {
+        timestamps: a,
+        reachedStart: 0 === i && r.reachedStart,
+        reachedEnd: i === o.length - 1 && r.reachedEnd
+      };
+    }
+    return {
+      timestamps: []
+    };
+  }
+  Object.defineProperty(t, "__esModule", {
+    value: !0
+  }), n.d(t, "addTimestamps", function() {
+    return _;
+  }), n.d(t, "removeTimestamp", function() {
+    return m;
+  }), t.getTimestampsByChannelId = l;
+  var c, d = n(6),
+    f = n.n(d),
+    p = n(17),
+    h = (n.n(p), Object.assign || function(e) {
+      for (var t = 1; t < arguments.length; t++) {
+        var n = arguments[t];
+        for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
+      }
+      return e;
+    }),
+    _ = n.i(p.createAction)("Add timestamps to channel history"),
+    m = n.i(p.createAction)("Remove timestamps from channel history"),
+    y = n.i(p.createReducer)((c = {}, o(c, _, function(e) {
+      var t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : {},
+        n = t.channelId,
+        a = t.timestamps,
+        l = t.append,
+        c = t.reachedStart,
+        d = t.reachedEnd;
+      if (!(n && a && f.a.isArray(a) && a.length)) return e;
+      var p = a.sort(),
+        _ = e[n] || {},
+        m = _.slices || [];
+      if (l) {
+        if (!m.length) return h({}, e, o({}, n, h({}, _, {
+          slices: [p],
+          reachedEnd: !0
+        })));
+        if (!_.reachedEnd) return h({}, e, o({}, n, h({}, _, {
+          slices: [].concat(r(m), [p]),
+          reachedEnd: !0
+        })));
+        var y = [].concat(r(m[m.length - 1]), r(p)),
+          v = [].concat(r(m.slice(0, m.length - 1)), [y]);
+        return h({}, e, o({}, n, h({}, _, {
+          slices: v,
+          reachedEnd: !0
+        })));
+      }
+      var g = [],
+        b = !1;
+      m && m.length || (g.push(p), b = !0);
+      for (var w = void 0, k = 0; k < m.length; k++) {
+        var M = m[k];
+        !b && i(M) > i(p) && (s(w, p) ? w = u(w, p) : (w && g.push(w), w = p), b = !0), s(w, M) ? w = u(w, M) : (w && g.push(w), w = M);
+      }
+      b || (w && s(w, p) ? w = u(w, p) : (w && g.push(w), w = p)), w && g.push(w);
+      var T = {};
+      return f.a.isBoolean(c) && (T.reachedStart = c), f.a.isBoolean(d) && (T.reachedEnd = d), h({}, e, o({}, n, h({}, _, T, {
+        slices: g
+      })));
+    }), o(c, m, function(e) {
+      var t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : {},
+        n = t.channelId,
+        r = t.timestamp;
+      if (!n || !r || !e[n]) return e;
+      var i = f.a.map(e[n].slices, function(e) {
+        return f.a.filter(e, function(e) {
+          return e !== r;
+        });
+      });
+      return h({}, e, o({}, n, h({}, e[n], {
+        slices: i
+      })));
+    }), c), {});
+  t.default = y;
 }], [2905]);
