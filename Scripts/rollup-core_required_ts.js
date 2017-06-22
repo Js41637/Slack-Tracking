@@ -2387,7 +2387,7 @@ webpackJsonp([12, 328, 337, 329], {
           return p();
         },
         registerModule: function(e, n, t) {
-          return K(n), B ? TS.error('module "' + e + '" must be registered on before dom ready') : R[e] ? TS.error('module "' + e + '" already exists') : void 0 === s(e, n, "module") ? void(t ? TS.error('module "' + e + '" cannot be registered after delay; "' + e.split(".").slice(0, -1).join(".") + '" is not registered') : z[e] = n) : (n._name = e, void(R[e] = n));
+          return K(n), B ? TS.error('module "' + e + '" must be registered on before dom ready') : z[e] ? TS.error('module "' + e + '" already exists') : void 0 === s(e, n, "module") ? void(t ? TS.error('module "' + e + '" cannot be registered after delay; "' + e.split(".").slice(0, -1).join(".") + '" is not registered') : R[e] = n) : (n._name = e, void(z[e] = n));
         },
         registerComponent: function(e, n) {
           if (B) return TS.error('component "' + e + '" must be registered on before dom ready');
@@ -2493,7 +2493,7 @@ webpackJsonp([12, 328, 337, 329], {
             _registerDelayedComponentsAndModules: Z,
             _maybeOpenTokenlessConnection: ee,
             _deleteModule: function(e) {
-              delete TS[e], delete R[e];
+              delete TS[e], delete z[e];
             },
             _deleteComponent: function(e) {
               delete TS[e], delete W[e];
@@ -2587,10 +2587,6 @@ webpackJsonp([12, 328, 337, 329], {
           });
         },
         b = function e() {
-          if (TS.useSocketManager() && !TS.interop.SocketManager.hasNeverConnected()) {
-            var n = new Error("_promiseToCallRTMStart can only be called if Socket Manager has never connected");
-            return TS.console.logError(n, "_promiseToCallRTMStart called too many times"), Promise.reject(n);
-          }
           if (TS.qs_args.no_rtm_start) return new Promise(function(n, t) {
             TS.resumeRTMStart = function() {
               delete TS.resumeRTMStart, delete TS.qs_args.no_rtm_start, e().then(function(e) {
@@ -2604,34 +2600,34 @@ webpackJsonp([12, 328, 337, 329], {
             }, l);
           });
           if (TS.boot_data.rtm_start_response) {
-            var t = TS.boot_data.rtm_start_response;
-            return delete TS.boot_data.rtm_start_response, Promise.resolve(t);
+            var n = TS.boot_data.rtm_start_response;
+            return delete TS.boot_data.rtm_start_response, Promise.resolve(n);
           }
           if (!TS.useSocketManager()) {
             if (TS.model.calling_rtm_start) {
-              var o = "_promiseToCallRTMStart was called but TS.model.calling_rtm_start=true";
-              return TS.error(o), Promise.reject(new Error(o));
+              var t = "_promiseToCallRTMStart was called but TS.model.calling_rtm_start=true";
+              return TS.error(t), Promise.reject(new Error(t));
             }
             TS.ms.logConnectionFlow("login"), TS.model.rtm_start_throttler += 1, TS.info("Setting calling_rtm_start to true"), TS.model.calling_rtm_start = !0;
           }
           if (TS.useSocket() && TS.lazyLoadMembersAndBots() && TS.boot_data.should_use_flannel) {
-            var a;
-            if (TS.useSocketManager()) a = L();
+            var o;
+            if (TS.useSocketManager()) o = L();
             else {
               if (!d && !TS.useSocketManager()) {
                 if (TS.model.ms_connected) return TS.has_pri[te] && TS.log(te, "Bad news: we're trying to do an rtm.start from Flannel while we're already connected, and that won't work."), Promise.reject(new Error("rtm.start-over-WebSocket failed"));
                 d = X().then(I);
               }
-              a = d, d = void 0;
+              o = d, d = void 0;
             }
-            return a.then(function(e) {
+            return o.then(function(e) {
               return TS.has_pri[te] && TS.log(te, "Flannel: got rtm.start response 💕"), {
                 ok: !0,
                 args: {},
                 data: e
               };
             }).finally(function() {
-              TS.model.calling_rtm_start = !1, TS.info("Setting calling_rtm_start to false (after rtm.start from Flannel)");
+              TS.useSocketManager() || (TS.model.calling_rtm_start = !1, TS.info("Setting calling_rtm_start to false (after rtm.start from Flannel)"));
             });
           }
           return TS.api.callImmediately("rtm.start", p()).finally(function() {
@@ -2771,8 +2767,12 @@ webpackJsonp([12, 328, 337, 329], {
           });
         },
         L = function() {
-          if (!TS.useSocketManager()) throw new Error("_connectAndFetchStartDataWithSocketManager can only be used when TS.useSocketManager is true");
-          var e = new Promise(function(e) {
+          if (!TS.useSocketManager()) return Promise.reject(new Error("_connectAndFetchStartDataWithSocketManager can only be used when TS.useSocketManager is true"));
+          if (!TS.interop.SocketManager.hasNeverConnected()) {
+            var e = new Error("_connectAndFetchStartDataWithSocketManager can only be called if Socket Manager has never connected");
+            return TS.console.logError(e, "_connectAndFetchStartDataWithSocketManager called too many times"), Promise.reject(e);
+          }
+          var n = new Promise(function(e) {
             TS.interop.SocketManager.provisionallyConnectedSig.addOnce(function(n) {
               n.then(function(n) {
                 var t = n.rtm_start;
@@ -2780,10 +2780,10 @@ webpackJsonp([12, 328, 337, 329], {
               });
             });
           });
-          return TS.interop.SocketManager.connectProvisionallyAndFetchRtmStart(), e;
+          return TS.interop.SocketManager.start(), n;
         },
         I = function() {
-          if (TS.useSocketManager()) throw new Error("_connectAndFetchStartDataWithoutSocketManager can only be used when TS.useSocketManager is false");
+          if (TS.useSocketManager()) return Promise.reject(new Error("_connectAndFetchStartDataWithoutSocketManager can only be used when TS.useSocketManager is false"));
           TS.log(1996, "Opening a tokenless MS connection and fetching rtm.start over it");
           var e = TS.flannel.getFlannelConnectionUrl(),
             n = TS.ms.connectProvisionallyAndFetchRtmStart(e);
@@ -2815,8 +2815,8 @@ webpackJsonp([12, 328, 337, 329], {
             cancellation: !0
           });
         },
-        R = {},
         z = {},
+        R = {},
         W = {},
         N = {},
         q = function() {
@@ -2863,8 +2863,8 @@ webpackJsonp([12, 328, 337, 329], {
           return e();
         },
         Z = function() {
-          _.sortBy(Object.keys(z), "length").forEach(function(e) {
-            TS.registerModule(e, z[e], !0);
+          _.sortBy(Object.keys(R), "length").forEach(function(e) {
+            TS.registerModule(e, R[e], !0);
           }), _.sortBy(Object.keys(N), "length").forEach(function(e) {
             TS.registerComponent(e, N[e], !0);
           });
@@ -2878,7 +2878,7 @@ webpackJsonp([12, 328, 337, 329], {
           }
           var e, n = !TS.qs_args.keep_onstart;
           try {
-            _.forOwn(R, function(t) {
+            _.forOwn(z, function(t) {
               t.onStart && (e = t._name, t.onStart(), n && (t.onStart = _.noop));
             });
           } catch (n) {

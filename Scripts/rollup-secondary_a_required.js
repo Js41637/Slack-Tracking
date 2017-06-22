@@ -1360,13 +1360,13 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
       "use strict";
       TS.registerModule("apps", {
         onStart: function() {
-          e = TS.utility.throttleFunc(e, 3e3, !0);
+          t = TS.utility.throttleFunc(t, 3e3, !0);
         },
         isAppSpaceEnabled: function() {
           return "app_space_enabled" === TS.experiment.getGroup("feat_app_space") || TS.boot_data.feature_app_space;
         },
         resetUpApps: function() {
-          TS.storage.storeApps(""), e();
+          TS.storage.storeApps(""), t();
         },
         setUp: function() {
           return TS.apps.fetchApps();
@@ -1485,94 +1485,94 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }
           return e.long_desc_formatted && (a.long_description = new Handlebars.SafeString(e.long_desc_formatted)), e.support_url && (a.support_url = e.support_url), e.user_can_manage && (a.user_can_manage = e.user_can_manage), e.is_slack_integration && _.isEmpty(_.get(e, "commands")) && (a.hide_expand_button = !0), a;
         },
-        maybeInviteAppUserToChannel: function(e, n, a) {
+        maybeInviteAppUserToChannel: function(e, t, n) {
           var s;
           if (!_.isObject(e)) throw new Error("Expected app user to be an object");
-          if (!_.isObject(n)) throw new Error("Expected channel to be an object");
-          var o = n.is_im || n.is_mpim;
+          if (!_.isObject(t)) throw new Error("Expected channel to be an object");
+          var o = t.is_im || t.is_mpim;
           TS.api.call("apps.permissions.add", {
-            channel: n.id,
+            channel: t.id,
             app_user: e.id
           }).then(function(l) {
             return new Promise(function(d, c) {
-              _.get(l, "data.should_confirm") ? (s = _.get(l, "data.scope_info", []), i(e, s, new Handlebars.SafeString(r(n)), d, function() {
-                var n = o ? TS.i18n.t("{app_user} wasn’t added to this direct message.", "apps")({
-                  app_user: t(e)
+              _.get(l, "data.should_confirm") ? (s = _.get(l, "data.scope_info", []), r(e, s, new Handlebars.SafeString(a(t)), d, function() {
+                var t = o ? TS.i18n.t("{app_user} wasn’t added to this direct message.", "apps")({
+                  app_user: i(e)
                 }) : TS.i18n.t("{app_user} wasn’t added to this channel.", "apps")({
-                  app_user: t(e)
+                  app_user: i(e)
                 });
-                TS.cmd_handlers.addEphemeralFeedback(n, {
-                  input_txt: a
+                TS.cmd_handlers.addEphemeralFeedback(t, {
+                  input_txt: n
                 });
               })) : c();
             });
           }).then(function() {
             return TS.api.call("apps.permissions.add", {
-              channel: n.id,
+              channel: t.id,
               app_user: e.id,
               did_confirm: !0
             });
           }).then(function() {
-            var n = s.map(function(e) {
+            var t = s.map(function(e) {
                 return "> • " + e.short_description;
               }).join("\n"),
-              i = o ? TS.i18n.t("{app_user} has been added to this conversation.\n> *{app_user} can do the following in this direct message:*\n{scope_descriptions}", "apps")({
-                app_user: t(e),
-                scope_descriptions: n
+              n = o ? TS.i18n.t("{app_user} has been added to this conversation.\n> *{app_user} can do the following in this direct message:*\n{scope_descriptions}", "apps")({
+                app_user: i(e),
+                scope_descriptions: t
               }) : TS.i18n.t("{app_user} has been added to this conversation.\n> *{app_user} can do the following in this channel:*\n{scope_descriptions}", "apps")({
-                app_user: t(e),
-                scope_descriptions: n
+                app_user: i(e),
+                scope_descriptions: t
               });
-            TS.cmd_handlers.addEphemeralFeedback(i);
-          }).catch(function(n) {
-            var i, r = _.get(n, "data.error");
-            i = "already_has_resource" === r ? o ? TS.i18n.t("{app_user} is already in this direct message.", "apps")({
-              app_user: t(e)
+            TS.cmd_handlers.addEphemeralFeedback(n);
+          }).catch(function(t) {
+            var r, a = _.get(t, "data.error");
+            r = "already_has_resource" === a ? o ? TS.i18n.t("{app_user} is already in this direct message.", "apps")({
+              app_user: i(e)
             }) : TS.i18n.t("{app_user} is already in this channel.", "apps")({
-              app_user: t(e)
-            }) : "no_scopes_to_add" === r ? TS.i18n.t("{app_user} can’t be added here, because it doesn’t have permission to access this type of conversation. Sorry about that!", "apps")({
-              app_user: t(e)
-            }) : TS.i18n.t("Hmm, something went wrong, try again?", "apps")(), TS.cmd_handlers.addEphemeralFeedback(i, {
-              input_txt: a,
+              app_user: i(e)
+            }) : "no_scopes_to_add" === a ? TS.i18n.t("{app_user} can’t be added here, because it doesn’t have permission to access this type of conversation. Sorry about that!", "apps")({
+              app_user: i(e)
+            }) : TS.i18n.t("Hmm, something went wrong, try again?", "apps")(), TS.cmd_handlers.addEphemeralFeedback(r, {
+              input_txt: n,
               slackbot_feels: "sad_surprise"
             });
           });
         },
-        maybeKickAppUserFromChannel: function(e, n, i) {
+        maybeKickAppUserFromChannel: function(e, t, n) {
           if (!_.isObject(e)) throw new Error("Expected app user to be an object");
-          if (!_.isObject(n)) throw new Error("Expected channel to be an object");
-          var a = _.escape(e.real_name),
-            s = r(n);
+          if (!_.isObject(t)) throw new Error("Expected channel to be an object");
+          var r = _.escape(e.real_name),
+            s = a(t);
           TS.generic_dialog.start({
             dialog_class: "p-app_permission_remove_modal",
             title: new Handlebars.SafeString(TS.i18n.t("Remove {app_name} from {channel_name}?", "apps")({
-              app_name: a,
+              app_name: r,
               channel_name: s
             })),
             body: new Handlebars.SafeString(TS.i18n.t("{app_name} will no longer be able to access or post to {channel_name}, unless you invite it again.", "apps")({
-              app_name: a,
+              app_name: r,
               channel_name: s
             })),
             go_button_text: TS.i18n.t("Remove", "apps")(),
             go_button_class: "btn_danger",
             onGo: function() {
               TS.api.call("apps.permissions.remove", {
-                channel: n.id,
+                channel: t.id,
                 app_user: e.id
               }).then(function() {
                 TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("{app_user} has been removed from the channel.", "apps")({
-                  app_user: t(e)
+                  app_user: i(e)
                 }));
-              }).catch(function(n) {
-                "no_resource_to_remove" === _.get(n, "data.error") ? TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("{app_user} is not in this channel.", "apps")({
-                  app_user: t(e)
+              }).catch(function(t) {
+                "no_resource_to_remove" === _.get(t, "data.error") ? TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("{app_user} is not in this channel.", "apps")({
+                  app_user: i(e)
                 }), {
-                  input_txt: i,
+                  input_txt: n,
                   slackbot_feels: "sad_surprise"
                 }) : TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("Hmm, something went wrong, try again?", "apps")({
-                  app_user: t(e)
+                  app_user: i(e)
                 }), {
-                  input_txt: i,
+                  input_txt: n,
                   slackbot_feels: "sad_surprise"
                 });
               });
@@ -1580,14 +1580,14 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           });
         },
         requestPermissions: function(e, t, n) {
-          var r = _.flatten(t.map(function(e) {
+          var i = _.flatten(t.map(function(e) {
               return e.scopes;
             })).join(","),
             a = TS.members.getMemberById(e),
             s = function(e) {
               TS.api.call("apps.permissions.addScope", {
                 trigger_id: n,
-                scopes: r,
+                scopes: i,
                 did_confirm: e
               }).catch(function() {
                 TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("Hmm, something went wrong, try again?", "apps")(), {
@@ -1595,25 +1595,26 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                 });
               });
             };
-          i(a, t, null, function() {
+          r(a, t, null, function() {
             s(!0);
           }, function() {
             s(!1);
           });
         }
       });
-      var e = function() {
+      var e = TS.environment.is_dev ? 0 : 3e3,
+        t = function() {
           TS.apps.setUp();
         },
-        t = function(e) {
+        i = function(e) {
           return "@" + _.escape(e.name);
         },
-        i = function(e, t, n, i, r) {
-          var a = _.partition(t, function(e) {
+        r = function(t, n, i, r, a) {
+          var s = _.partition(n, function(e) {
               return !e.is_dangerous;
             }),
-            s = a[0],
-            o = a[1];
+            o = s[0],
+            l = s[1];
           TS.generic_dialog.start({
             dialog_class: "p-app_permission_modal",
             go_button_text: TS.i18n.t("Authorize", "apps")(),
@@ -1625,18 +1626,18 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             title: "&nbsp;",
             show_secondary_go_button: !0,
             body: TS.templates.app_permission_modal({
-              app_name: e.real_name,
-              app_image: e.profile.image_48,
-              channel_name: n,
-              safe_scope_info: s,
-              dangerous_scope_info: o
+              app_name: t.real_name,
+              app_image: t.profile.image_48,
+              channel_name: i,
+              safe_scope_info: o,
+              dangerous_scope_info: l
             }),
-            onGo: i,
-            onSecondaryGo: r,
+            onGo: r,
+            onSecondaryGo: a,
             onShow: function() {
               setTimeout(function() {
                 $(".p-app_permission_modal .dialog_go").toggleClass("disabled", !1);
-              }, 3e3), $('[data-js="app_permission_modal_scope_descriptions"]').on("click", "[data-toggle-visibility]", function() {
+              }, e), $('[data-js="app_permission_modal_scope_descriptions"]').on("click", "[data-toggle-visibility]", function() {
                 var e = $(this),
                   t = e.data("toggle-visibility");
                 $("[data-toggle-visibility-id=" + t + "]").toggleClass("hidden");
@@ -1648,7 +1649,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             }
           });
         },
-        r = function(e) {
+        a = function(e) {
           return (e.is_channel ? "#" : e.is_im ? "@" : e.is_mpim ? '<i class="ts_icon ts_icon_multiparty_dm_' + TS.mpims.getMemberCount(e) + '"></i>' : '<i class="ts_icon ts_icon_lock"></i>') + _.escape(TS.shared.getDisplayNameForModelObNoSigns(e));
         };
     }();
@@ -7381,7 +7382,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             var n = _.map(TS.boot_data.file.comments || [], "user");
             t = t.concat(n);
           }
-          var i = _([e.mpims, e.ims]).flatten().map(function(e) {
+          var i = _([e.mpims, e.ims, e.channels]).flatten().filter(function(e) {
+            return !0 === e.is_mpim || !0 === e.is_im;
+          }).map(function(e) {
             return e.members || [e.user];
           }).flatten().concat(_.get(e, "self.id")).concat(t).uniq().compact().value();
           if (TS.model.ms_logged_in_once && !TS.isPartiallyBooted()) {
@@ -16581,8 +16584,6 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
     ! function() {
       "use strict";
       TS.registerModule("msg_edit", {
-        edit_started_sig: new signals.Signal,
-        edit_ended_sig: new signals.Signal,
         editing: !1,
         editing_in_msg_pane: !1,
         editing_in_convo_pane: !1,
@@ -16591,11 +16592,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         current_model_ob: null,
         mousedown_active: !1,
         edit_interv: 0,
-        onStart: function() {
-          $(document).click(function() {
-            TS.log(3, "click");
-          });
-        },
+        onStart: function() {},
         onCountDownInterval: function() {
           if (TS.msg_edit.current_msg) {
             if (-1 == TS.model.team.prefs.msg_edit_window_mins || _.get(TS.msg_edit.current_model_ob, "is_self_im")) return void $("#edit_countdown").empty();
@@ -16607,9 +16604,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }
         },
         cancelEditingINothingHasChanged: function() {
-          if (TS.log(3, "cancelEditingIfNothingHasChanged"), !TS.msg_edit.editing) return !0;
+          if (!TS.msg_edit.editing) return !0;
           var e = TS.format.unFormatMsg(TS.msg_edit.current_msg.text);
-          return TS.utility.contenteditable.value($("#message_edit_form").find("#msg_text")) === e && (TS.log(3, "canceling because not changed"), TS.msg_edit.onCancelEdit(), !0);
+          return TS.utility.contenteditable.value($("#message_edit_form").find("#msg_text")) === e && (TS.msg_edit.onCancelEdit(), !0);
         },
         editExpiration: function(e) {
           if (e > 0) {
@@ -16623,7 +16620,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return TS.model.user.is_admin ? '<p class="no_bottom_margin">' + TS.i18n.t('On this team, you can’t edit messages after the fact. Admins can adjust this in <a href="/admin/settings#message_editing" target="_new">Team&nbsp;Settings</a>.', "msg_edit")() + "</p>" : '<p class="no_bottom_margin">' + TS.i18n.t("On this team, you can’t edit messages after the fact. Admins can adjust this in Team&nbsp;Settings.", "msg_edit")() + "</p>";
         },
         startEdit: function(t, n, i) {
-          if (TS.log(3, "startEdit"), $("#message_edit_form").length && !TS.msg_edit.cancelEditingINothingHasChanged()) return TS.log(3, "should be promptEdit()-ing because existing input"), void TS.msg_edit.promptEdit();
+          if ($("#message_edit_form").length && !TS.msg_edit.cancelEditingINothingHasChanged()) return void TS.msg_edit.promptEdit();
           if (!t) return TS.error("no msg_ts?"), null;
           if (!n) return TS.error("no model_ob?"), null;
           if (!n.msgs) return TS.error("no model_ob.msgs?"), null;
@@ -16682,8 +16679,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                 px_offset: -50
               });
             }
-          }), TS.utility.contenteditable.value(S, p)), TS.msg_edit.checkLengthAndUpdateMessage(S), TS.info("message_edit_form added"), TS.msg_edit.editing = !0, TS.msg_edit.edit_started_sig.dispatch(), h.bind("destroyed", function() {
-            TS.log(3, "destroyed"), TS.boot_data.feature_texty_edit_debug || TS.utility.contenteditable.unload($("#message_edit_form #msg_text")), TS.info("message_edit_form removed"), TS.msg_edit.editing = !1, TS.msg_edit.editing_in_msg_pane = !1, TS.msg_edit.editing_in_convo_pane = !1, TS.msg_edit.edit_ended_sig.dispatch(), TS.boot_data.feature_texty_takes_over && TS.utility.contenteditable.supportsTexty() || TSSSB.call("inputFieldRemoved", S.get(0)), h = null, S = null, TS.msg_edit.resetEditUI();
+          }), TS.utility.contenteditable.value(S, p)), TS.msg_edit.checkLengthAndUpdateMessage(S), TS.info("message_edit_form added"), TS.msg_edit.editing = !0, h.bind("destroyed", function() {
+            TS.utility.contenteditable.unload($("#message_edit_form #msg_text")), TS.info("message_edit_form removed"), TS.msg_edit.editing = !1, TS.msg_edit.editing_in_msg_pane = !1, TS.msg_edit.editing_in_convo_pane = !1, TS.boot_data.feature_texty_takes_over && TS.utility.contenteditable.supportsTexty() || TSSSB.call("inputFieldRemoved", S.get(0)), h = null, S = null, TS.msg_edit.resetEditUI();
           }), TS.boot_data.feature_texty_takes_over && TS.utility.contenteditable.supportsTexty() || S.TS_tabComplete({
             complete_cmds: !1,
             complete_channels: !0,
@@ -16704,7 +16701,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             model_ob: n
           };
           S.closest("#col_flex").length > 0 && (T.min_width = 300, T.narrow = !!TS.client), S.tab_complete_ui(T), TS.boot_data.feature_texty_takes_over && TS.utility.contenteditable.supportsTexty() || TSSSB.call("inputFieldCreated", S.get(0)), h.bind("submit", function(e) {
-            TS.log(3, "bound submit"), e.preventDefault();
+            e.preventDefault();
             var i = TS.utility.contenteditable.value(S);
             if (i === a) return void TS.msg_edit.onCancelEdit();
             if (!i) {
@@ -16744,9 +16741,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }), h.find("#cancel_edit").bind("click", function() {
             TS.msg_edit.onCancelEdit();
           }), h.bind("mousedown", function() {
-            TS.log(3, "mousedown"), TS.msg_edit.mousedown_active = !0;
+            TS.msg_edit.mousedown_active = !0;
           }), h.bind("mouseup", function() {
-            TS.log(3, "mouseup"), TS.msg_edit.mousedown_active = !1;
+            TS.msg_edit.mousedown_active = !1;
           });
           var b = h.find(".emo_menu");
           b.removeClass("hidden"), b.bind("click.open_dialog", function(e) {
@@ -16788,22 +16785,22 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           if (!TS.msg_edit.current_msg) return TS.error("no TS.msg_edit.current_msg?"), null;
           if (!e) return TS.error("no edited_text?"), null;
           var t = TS.msg_edit.editing_in_convo_pane;
-          if (TS.msg_edit.commitEditInternal(e), TS.boot_data.feature_texty_edit_debug && TS.utility.contenteditable.unload($("#message_edit_form #msg_text")), TS.msg_edit.resetEditUI(), TS.client)
+          if (TS.msg_edit.commitEditInternal(e), TS.msg_edit.resetEditUI(), TS.client)
             if (t) {
               TS.ui.replies.focusReplyInput(!0);
             } else TS.view.focusMessageInput();
         },
         onCancelEdit: function() {
-          if (TS.log(3, "onCancelEdit"), !TS.msg_edit.current_msg) return TS.error("no TS.msg_edit.current_msg?"), null;
+          if (!TS.msg_edit.current_msg) return TS.error("no TS.msg_edit.current_msg?"), null;
           var e = TS.msg_edit.editing_in_convo_pane;
-          if (TS.log(3, "editing in replies:"), TS.log(3, TS.msg_edit.editing_in_convo_pane), TS.log(3, "editing in msg_pane"), TS.log(3, TS.msg_edit.editing_in_msg_pane), TS.boot_data.feature_texty_edit_debug && TS.utility.contenteditable.unload($("#message_edit_form #msg_text")), TS.msg_edit.resetEditUI(), TS.client)
+          if (TS.msg_edit.resetEditUI(), TS.client)
             if (e) {
               TS.ui.replies.focusReplyInput(!0);
             } else TS.view.focusMessageInput();
         },
         resetEditUI: function() {
-          if (TS.log(3, "resetEditUI"), clearInterval(TS.msg_edit.edit_interv), !TS.msg_edit.current_msg) return TS.error("no TS.msg_edit.current_msg?"), null;
-          TS.log(3, "showing div being edited"), TS.msg_edit.getDivBeingEdited().removeClass("hidden"), $("#message_edit_container").remove(), TS.boot_data.feature_texty_takes_over && TS.utility.contenteditable.supportsTexty() || $("body").unbind("keydown.close_message_edit_form");
+          if (clearInterval(TS.msg_edit.edit_interv), !TS.msg_edit.current_msg) return TS.error("no TS.msg_edit.current_msg?"), null;
+          TS.msg_edit.getDivBeingEdited().removeClass("hidden"), $("#message_edit_container").remove(), TS.boot_data.feature_texty_takes_over && TS.utility.contenteditable.supportsTexty() || $("body").unbind("keydown.close_message_edit_form");
         },
         getDivBeingEdited: function() {
           return TS.msg_edit.editing_in_msg_pane ? TS.msg_edit.getDivForMsgInMsgPane(TS.msg_edit.current_msg.ts) : TS.msg_edit.editing_in_convo_pane ? TS.msg_edit.getDivForMsgInConvoPane(TS.msg_edit.current_msg.ts) : $();
@@ -16862,7 +16859,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           })) : (TS.error("no model_ob?"), null) : (TS.error("no msg?"), null);
         },
         promptEdit: function() {
-          if (TS.log(3, "promptEdit"), "none" !== $("#message_editing_info").css("display")) return void $("#message_edit_container").scrollintoview({
+          if ("none" !== $("#message_editing_info").css("display")) return void $("#message_edit_container").scrollintoview({
             duration: 300,
             px_offset: 0
           });
@@ -40176,7 +40173,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         f = function(e, t) {
           var n = e.name;
-          if (TS.boot_data.feature_name_tagging_client && (n = e.profile.display_name || e.profile.real_name), TS.boot_data.feature_shared_channels_client && TS.utility.teams.isMemberExternal(e)) {
+          if (TS.boot_data.feature_name_tagging_client && (n = TS.members.getPrefCompliantMemberName(e)), TS.boot_data.feature_shared_channels_client && TS.utility.teams.isMemberExternal(e)) {
             var i = TS.teams.getTeamById(e.team_id),
               r = e.team_id;
             i && i.domain && (r = i.domain), n += "+" + r, i || TS.console.warn("team " + e.team_id + " not in local model so not avail for tabcomplete");

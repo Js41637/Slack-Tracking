@@ -27,7 +27,15 @@
         {{#if query}}
           {{#t note="In response to a search" query=query}}No guests found matching <span class="query bold">{query}</span>.{{/t}}
         {{else}}
-          {{#t note="In response to a search"}}No guests found.{{/t}}
+          {{#if free_team}}
+            {{#if user_is_admin}}
+              {{#t note="In response to a search"}}Paid teams can invite guests, like contractors, vendors, or clients. <a href="/pricing?paid_feature=guest_account&ui_step=86&ui_element=5" class="no_underline" target="_blank" data-clog-event="GROWTH_PRICING" data-clog-ui-element="pricing_link" data-clog-ui-action="click" data-clog-ui-step="team_directory">See pricing plans</a>{{/t}}
+            {{else}}
+              {{#t note="In response to a search"}}No guests found.{{/t}}
+            {{/if}}
+          {{else}}
+            {{#t note="In response to a search"}}No guests found.{{/t}}
+          {{/if}}
         {{/if}}
       {{/if}}
       {{#if deactivated_filter_selected}}

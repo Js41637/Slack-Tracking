@@ -13,7 +13,7 @@
     {{#each safe_scope_info}}
       <div class="c-oauth_scope_info__safe_scope">
         <div class="display_flex">
-          <span class="c-oauth_scope_info__scope_description flex_one large_right_margin"><strong>{{this.short_description}}</strong></span>
+          <span class="c-oauth_scope_info__scope_description flex_one large_right_margin">{{this.short_description}}</span>
           <ts-icon class="c-oauth_scope_info__info_icon float_right cursor_pointer toggle_info ts_icon_info_circle ts_tip ts_tip_top" data-toggle-visibility="scope_description_safe_{{@index}}">
             <span class="ts_tip_tip" data-toggled-text="{{#t}}Show less{{/t}}">{{#t}}Show more{{/t}}</span>
           </ts-icon>
@@ -30,7 +30,7 @@
         <div class="c-oauth_scope_info__dangerous_scope no_margin">
           <div class="display_flex">
             <ts-icon class="ts_icon_warning yolk_orange c-oauth_scope_info__spacer_icon c-oauth_scope_info__info_icon"></ts-icon>
-            <span class="c-oauth_scope_info__dangerous_scope_description flex_one"><strong class="right_margin">{{this.short_description}}</strong></span>
+            <span class="c-oauth_scope_info__dangerous_scope_description flex_one right_margin">{{this.short_description}}</span>
             <ts-icon class="c-oauth_scope_info__info_icon float_right cursor_pointer toggle_info ts_icon_info_circle ts_tip ts_tip_top" data-toggle-visibility="scope_description_dangerous_{{@index}}">
               <span class="ts_tip_tip" data-toggled-text="{{#t}}Show less{{/t}}">{{#t}}Show more{{/t}}</span>
             </ts-icon>
