@@ -2794,7 +2794,7 @@ webpackJsonp([12, 328, 337, 329], {
               });
             });
           });
-          return TS.interop.SocketManager.start(), n;
+          return TS.boot_data.ws_refactor_bucket && (TS.has_pri[1996] = !0), TS.interop.SocketManager.start(), n;
         },
         I = function() {
           if (TS.useSocketManager()) return Promise.reject(new Error("_connectAndFetchStartDataWithoutSocketManager can only be used when TS.useSocketManager is false"));
