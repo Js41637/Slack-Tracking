@@ -28,7 +28,11 @@
   </label>
   <label class="checkbox">
     <input id="display_real_names_override_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_display_options">
-    {{#t note="(team_default) appears twice here, but one of them will be removed via JavaScript, so don't worry about redundancy"}}Display real names <span id="display_real_names_default">(team default)</span> instead of usernames <span id="display_usernames_default">(team default)</span>{{/t}}
+    {{#feature flag="feature_name_tagging_client"}}
+      {{#t note="(team_default) appears twice here, but one of them will be removed via JavaScript, so don't worry about redundancy"}}Display full names <span id="display_real_names_default">(team default)</span> instead of display names <span id="display_usernames_default"> (team default)</span>{{/t}}
+    {{else}}
+      {{#t note="(team_default) appears twice here, but one of them will be removed via JavaScript, so don't worry about redundancy"}}Display real names <span id="display_real_names_default">(team default)</span> instead of usernames <span id="display_usernames_default"> (team default)</span>{{/t}}
+    {{/feature}}
   </label>
   {{#if show_time24_pref}}
     <label class="checkbox">
