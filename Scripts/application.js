@@ -52600,7 +52600,10 @@ webpackJsonp([332], [, function(e, t, n) {
 
   function u(e, t) {
     var n = t.retention_type;
-    if (4 === n) return {
+    if (4 === n) return "allow_override" === e ? {
+      retention_type: 1,
+      is_locked: !1
+    } : {
       retention_type: 0,
       retention_duration: 0,
       is_locked: !1
@@ -53224,9 +53227,11 @@ webpackJsonp([332], [, function(e, t, n) {
             var e = this.props.currentSettings,
               t = e.retention_type,
               r = e.retention_duration,
-              o = n.i(f.d)(this.props.policyType, t, r),
-              i = h("Current:");
-            return s.a.createElement("p", null, i, " ", o);
+              o = e.is_locked,
+              i = 0 !== t && "allow_override" !== this.props.policyType || o ? t : 4,
+              a = n.i(f.d)(this.props.policyType, i, r),
+              u = h("Current:");
+            return s.a.createElement("p", null, u, " ", a);
           }
           return null;
         }
@@ -53234,19 +53239,22 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "renderPolicyItem",
         value: function() {
           var e = n.i(f.e)(this.props.policyType),
-            t = this.props.isFormPending,
-            r = this.props.displaySettings;
-          !l.a.isEmpty(this.props.pendingSettings) && t && (r = this.props.pendingSettings);
-          var o = r,
-            i = o.is_locked,
-            a = o.retention_duration,
-            u = 0 === r.retention_type && !i && n.i(f.f)(this.props.policyType) ? 4 : r.retention_type;
+            t = this.props,
+            r = t.isFormPending,
+            o = t.policyType,
+            i = this.props.displaySettings;
+          !l.a.isEmpty(this.props.pendingSettings) && r && (i = this.props.pendingSettings);
+          var a = i,
+            u = a.is_locked,
+            c = a.retention_duration,
+            p = a.retention_type,
+            h = "allow_override" === o && !u || 0 === p && !u && n.i(f.f)(o) ? 4 : p;
           return s.a.createElement(d.a, {
             id: "policy_select_" + this.props.policyType,
             options: e,
-            currentSelectionValue: u,
-            currentDurationValue: a,
-            isDeactivated: t,
+            currentSelectionValue: h,
+            currentDurationValue: c,
+            isDeactivated: r,
             onUpdatePolicySelection: this.onUpdatePolicy
           });
         }
@@ -53373,12 +53381,12 @@ webpackJsonp([332], [, function(e, t, n) {
             var o = t.retention_type,
               i = t.retention_duration,
               a = t.is_locked,
-              u = 0 !== o || a ? o : 4,
+              u = 0 !== o && "allow_override" !== r || a ? o : 4,
               c = l.a.get(e.props.currentPolicies, r),
               d = c.retention_type,
               f = c.retention_duration,
               p = c.is_locked,
-              h = 0 !== d || p ? d : 4;
+              h = 0 !== d && "allow_override" !== r || p ? d : 4;
             return s.a.createElement("div", {
               key: r,
               className: "p-org_retention_request__modal_section"
