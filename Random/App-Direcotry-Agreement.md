@@ -36,7 +36,7 @@ The Slack App Directory may allow users to rate and review your Application. Tho
 
 You agree to indemnify, defend and hold harmless Slack and its representatives, agents and employees from any and all claims, demands, actions, damages (including attorneys’ fees) and obligations of any kind that any third party may have relating to your violation of this Agreement, any dispute between you and a user of your app, or for Slack’s performance of a Security Review.
 
-#### 9 .Removals
+#### 9\. Removals
 
 Slack does not undertake an obligation to monitor your Application or its content, however, Slack may immediately remove your Application from the Slack App Directory if Slack is notified by you or otherwise becomes aware and determines in its sole discretion that any portion of your Application or Your Name (a) violates the intellectual property rights or any other rights of any third party; (b) violates any applicable law or is subject to an injunction; or (c) violates the terms of this Agreement, including [Slack’s Developer Policy](https://api.slack.com/developer-policy). Slack reserves the right to suspend and/or bar any developer from the Slack App Directory at its sole discretion, without prior notice.
 

@@ -1512,46 +1512,24 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               app_user: e.id,
               did_confirm: !0
             });
-          }).then(function() {
-            var t = s.map(function(e) {
-                return "> • " + e.short_description;
-              }).join("\n"),
-              n = o ? TS.i18n.t("{app_user} has been added to this conversation.\n> *{app_user} can do the following in this direct message:*\n{scope_descriptions}", "apps")({
-                app_user: i(e),
-                scope_descriptions: t
-              }) : TS.i18n.t("{app_user} has been added to this conversation.\n> *{app_user} can do the following in this channel:*\n{scope_descriptions}", "apps")({
-                app_user: i(e),
-                scope_descriptions: t
-              });
-            TS.cmd_handlers.addEphemeralFeedback(n);
-          }).catch(function(t) {
-            var r, a = _.get(t, "data.error");
-            r = "already_has_resource" === a ? o ? TS.i18n.t("{app_user} is already in this direct message.", "apps")({
-              app_user: i(e)
-            }) : TS.i18n.t("{app_user} is already in this channel.", "apps")({
-              app_user: i(e)
-            }) : "no_scopes_to_add" === a ? TS.i18n.t("{app_user} can’t be added here, because it doesn’t have permission to access this type of conversation. Sorry about that!", "apps")({
-              app_user: i(e)
-            }) : TS.i18n.t("Hmm, something went wrong, try again?", "apps")(), TS.cmd_handlers.addEphemeralFeedback(r, {
-              input_txt: n,
-              slackbot_feels: "sad_surprise"
-            });
+          }).catch(function() {
+            TS.utility.contenteditable.value(TS.client.ui.$msg_input, n);
           });
         },
         maybeKickAppUserFromChannel: function(e, t, n) {
           if (!_.isObject(e)) throw new Error("Expected app user to be an object");
           if (!_.isObject(t)) throw new Error("Expected channel to be an object");
-          var r = _.escape(e.real_name),
-            s = a(t);
+          var i = _.escape(e.real_name),
+            r = a(t);
           TS.generic_dialog.start({
             dialog_class: "p-app_permission_remove_modal",
             title: new Handlebars.SafeString(TS.i18n.t("Remove {app_name} from {channel_name}?", "apps")({
-              app_name: r,
-              channel_name: s
+              app_name: i,
+              channel_name: r
             })),
             body: new Handlebars.SafeString(TS.i18n.t("{app_name} will no longer be able to access or post to {channel_name}, unless you invite it again.", "apps")({
-              app_name: r,
-              channel_name: s
+              app_name: i,
+              channel_name: r
             })),
             go_button_text: TS.i18n.t("Remove", "apps")(),
             go_button_class: "btn_danger",
@@ -1559,22 +1537,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               TS.api.call("apps.permissions.remove", {
                 channel: t.id,
                 app_user: e.id
-              }).then(function() {
-                TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("{app_user} has been removed from the channel.", "apps")({
-                  app_user: i(e)
-                }));
-              }).catch(function(t) {
-                "no_resource_to_remove" === _.get(t, "data.error") ? TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("{app_user} is not in this channel.", "apps")({
-                  app_user: i(e)
-                }), {
-                  input_txt: n,
-                  slackbot_feels: "sad_surprise"
-                }) : TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("Hmm, something went wrong, try again?", "apps")({
-                  app_user: i(e)
-                }), {
-                  input_txt: n,
-                  slackbot_feels: "sad_surprise"
-                });
+              }).then(function() {}).catch(function() {
+                TS.utility.contenteditable.value(TS.client.ui.$msg_input, n);
               });
             }
           });
@@ -3706,9 +3670,11 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             TS.client.unread.showUnreadView(), TS.highlights_briefing.clogBackButton();
           }), TS.click.addClientHandler("[data-js=sli_expert_search_toggle]", function(e) {
             TS.sli_expert_search && TS.sli_expert_search.toggleExpand(e);
-          }), TS.boot_data.feature_sli_channel_insights && TS.click.addClientHandler('[data-js="sli_channel_insights_cta"]', function() {
+          }), TS.boot_data.feature_sli_channel_insights && (TS.click.addClientHandler('[data-js="sli_channel_insights_cta"]', function() {
             TS.client.ui.channel_insights.open();
-          });
+          }), TS.click.addClientHandler("[data-js=sli_channel_insights_back]", function() {
+            TS.client.ui.flex.openFlexTab("details");
+          }));
         },
         n = function() {
           var t = {};
@@ -14014,6 +13980,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             case "team_settings":
             case "manage_team":
             case "team_billing":
+            case "team_pricing":
             case "team_services":
             case "team_customize":
             case "team_statistics":
@@ -39149,18 +39116,11 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             error_key: "",
             error_message: ""
           };
-          if (!t || "" === t) return n.is_valid = !1, n.error_key = "empty", n.message = e[n.error_key], n;
-          var i = t.indexOf("."),
-            r = i > -1 && i != t.length - 1,
-            a = t.indexOf("/") > -1;
-          return r && a ? (n.is_valid = !1, n.error_key = "periods_and_forward_slashes", n.error_message = e[n.error_key]) : a ? (n.is_valid = !1, n.error_key = "forward_slashes", n.error_message = e[n.error_key]) : r ? (n.is_valid = !1, n.error_key = "periods", n.error_message = e[n.error_key]) : t.length > 255 && (n.is_valid = !1, n.error_key = "maxlength", n.error_message = e[n.error_key]), n;
+          return t && "" !== t ? (t.length > 255 && (n.is_valid = !1, n.error_key = "maxlength", n.error_message = e[n.error_key]), n) : (n.is_valid = !1, n.error_key = "empty", n.message = e[n.error_key], n);
         }
       });
       var e = {
         empty: TS.i18n.t("Please fill in your team name.", "ui_validation")(),
-        periods_and_forward_slashes: TS.i18n.t("Sorry, your team name can’t contain periods or forward slashes!", "ui_validation")(),
-        forward_slashes: TS.i18n.t("Sorry, your team name can’t contain forward slashes!", "ui_validation")(),
-        periods: TS.i18n.t("Sorry, your team name can’t contain periods!", "ui_validation")(),
         maxlength: TS.i18n.t("Sorry, your team name must be 255 characters or fewer!", "ui_validation")()
       };
     }();

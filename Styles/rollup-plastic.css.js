@@ -9947,6 +9947,11 @@ only screen and (min-resolution:2dppx) {
   background-clip: padding-box
 }
 
+.c-modal_graphic--quick_promo {
+  height: 150px;
+  width: 377px
+}
+
 .c-modal_copy_header--quick_promo {
   margin: 0 30px 9px;
   font-weight: 900;

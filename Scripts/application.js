@@ -35268,11 +35268,14 @@ webpackJsonp([332], [, function(e, t, n) {
   });
 }, function(e, t, n) {
   "use strict";
-  n.d(t, "a", function() {
+  n.d(t, "b", function() {
     return o;
+  }), n.d(t, "a", function() {
+    return i;
   });
   var r = n(2277),
-    o = n.i(r.a)("TS.client.ui.showView", function() {});
+    o = n.i(r.a)("TS.client.ui.showView", function() {}),
+    i = n.i(r.a)("TS.client.ui.files.previewFile", function() {});
 }, function(e, t, n) {
   "use strict";
   n.d(t, "a", function() {
@@ -36483,27 +36486,31 @@ webpackJsonp([332], [, function(e, t, n) {
             i = new Date(o.getFullYear(), o.getMonth(), o.getDate()),
             a = [],
             u = [],
-            m = this.getLastVisibleReadTs();
+            m = this.getLastVisibleReadTs(),
+            y = void 0;
           s.a.forEach(r, function(n) {
             var r = parseInt(n, 10),
-              o = t[n];
+              o = t[n],
+              c = o[0] === m || s.a.last(y) === m;
             a.push(l.a.createElement(h.a, {
               key: r,
               date: r,
               today: i.getTime(),
-              isUnread: o[0] === m
+              isUnread: c
             })), u.push(n);
-            var c = void 0;
+            var p = void 0;
             s.a.forEach(o, function(t, n) {
               a.push(l.a.createElement(d.a, {
                 ts: t,
                 key: t,
                 channelId: e.props.channelId,
-                previousMessageTs: c
-              })), n > 0 && t === m && (u.push(t + ".unread"), a.push(l.a.createElement(f.a, null))), u.push(t), c = t;
-            });
+                previousMessageTs: p
+              })), n > 0 && n !== o.length - 1 && t === m && (u.push(t + ".unread"), a.push(l.a.createElement(f.a, {
+                key: "unread"
+              }))), u.push(t), p = t;
+            }), y = o;
           });
-          var y = this.props.startTs;
+          var v = this.props.startTs;
           return l.a.createElement(c.a, {
             key: this.props.channelId
           }, function(t) {
@@ -36511,7 +36518,7 @@ webpackJsonp([332], [, function(e, t, n) {
               r = t.height;
             return l.a.createElement(p.a, {
               keys: u,
-              anchor: y,
+              anchor: v,
               loadPre: e.requestOlder,
               loadPost: e.requestNewer,
               height: r,
@@ -36591,14 +36598,14 @@ webpackJsonp([332], [, function(e, t, n) {
 
   function o(e, t) {
     if (!t) return !0;
-    if (n.i(m.b)(e.subtype) || n.i(m.b)(t.subtype)) return !0;
-    if (n.i(m.c)(e.subtype) || n.i(m.c)(t.subtype)) return !0;
+    if (n.i(y.b)(e.subtype) || n.i(y.b)(t.subtype)) return !0;
+    if (n.i(y.c)(e.subtype) || n.i(y.c)(t.subtype)) return !0;
     if ("thread_broadcast" === e.subtype) return !0;
     if (t.replyCount) return !0;
-    var o = n.i(p.a)(e.ts),
-      i = n.i(p.a)(t.ts),
-      a = n.i(h.a)(o, i),
-      s = n.i(_.a)(o, i);
+    var o = n.i(h.a)(e.ts),
+      i = n.i(h.a)(t.ts),
+      a = n.i(_.a)(o, i),
+      s = n.i(m.a)(o, i);
     if (a > 5 || !s) return !0;
     var u = r(e),
       l = r(t);
@@ -36606,58 +36613,61 @@ webpackJsonp([332], [, function(e, t, n) {
   }
 
   function i(e, t) {
-    return !(!t || !e) && !!(n.i(m.c)(t.subtype) && n.i(m.c)(e.subtype) && t.file && e.file && t.file.id === e.file.id);
+    return !(!t || !e) && !!(n.i(y.c)(t.subtype) && n.i(y.c)(e.subtype) && t.file && e.file && t.file.id === e.file.id);
   }
 
   function a(e) {
-    return n.i(m.c)(e.subtype) ? "file_comment" === e.subtype ? e.comment && e.comment._rxn_key : e.file && e.file._rxn_key : e._rxn_key;
+    return n.i(y.c)(e.subtype) ? "file_comment" === e.subtype ? e.comment && e.comment._rxn_key : e.file && e.file._rxn_key : e._rxn_key;
   }
   var s = n(6),
     u = n.n(s),
     l = n(43),
     c = n(3038),
     d = n(3034),
-    f = n(3045),
-    p = n(2356),
-    h = n(2998),
-    _ = n(3654),
-    m = n(3040),
-    y = Object.assign || function(e) {
+    f = n(2295),
+    p = n(3045),
+    h = n(2356),
+    _ = n(2998),
+    m = n(3654),
+    y = n(3040),
+    v = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
         for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
       }
       return e;
     },
-    v = function(e, t) {
+    g = function(e, t) {
       var s = t.ts,
         u = t.channelId,
         l = t.previousMessageTs,
         c = n.i(d.getMessageByTimestamp)(e, u, s),
-        p = n.i(f.getUserPref)(e, "theme");
+        h = n.i(p.getUserPref)(e, "theme");
       if (!c) return t;
-      var h = n.i(d.getMessageByTimestamp)(e, u, l),
-        _ = o(c, h),
-        m = i(c, h),
-        v = a(c),
-        g = r(c);
-      return y({}, t, {
+      var _ = n.i(d.getMessageByTimestamp)(e, u, l),
+        m = o(c, _),
+        y = i(c, _),
+        g = a(c),
+        b = r(c),
+        w = n.i(f.getChannelById)(e, u);
+      return v({
+        channel: w,
         subtype: c.subtype,
         text: c.text,
-        theme: p
-      }, g, {
+        theme: h
+      }, b, {
         replies: c.replies,
         replyCount: c.reply_count,
         threadTs: c.thread_ts,
         attachments: c.attachments,
         file: c.file,
         comment: c.comment,
-        reactionKey: v,
-        showUser: _,
-        isFileFollowup: m
+        reactionKey: g,
+        showUser: m,
+        isFileFollowup: y
       });
     };
-  t.a = n.i(l.b)(v)(c.a);
+  t.a = n.i(l.b)(g)(c.a);
 }, function(e, t, n) {
   "use strict";
   var r = n(3036);
@@ -36861,7 +36871,12 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "renderActions",
         value: function() {
           return u.a.createElement(M.a, {
-            reactionKey: this.props.reactionKey
+            reactionKey: this.props.reactionKey,
+            file: this.props.file && this.props.file.id,
+            replyCount: this.props.replyCount,
+            ts: this.props.ts,
+            threadTs: this.props.threadTs,
+            channel: this.props.channel
           });
         }
       }, {
@@ -36876,6 +36891,9 @@ webpackJsonp([332], [, function(e, t, n) {
     }(s.PureComponent);
   t.a = E, E.propTypes = {
     channelId: u.a.PropTypes.string.isRequired,
+    channel: u.a.PropTypes.shape({
+      id: u.a.PropTypes.string
+    }),
     ts: u.a.PropTypes.string.isRequired,
     subtype: u.a.PropTypes.string,
     text: u.a.PropTypes.string,
@@ -36907,6 +36925,7 @@ webpackJsonp([332], [, function(e, t, n) {
     showUser: u.a.PropTypes.bool,
     isFileFollowup: u.a.PropTypes.bool
   }, E.defaultProps = {
+    channel: null,
     text: null,
     subtype: null,
     theme: "light",
@@ -37082,7 +37101,9 @@ webpackJsonp([332], [, function(e, t, n) {
   }
 
   function a(e) {
-    clearInterval(e.privateState.pingTimer), i(), g = v, v = {}, e.startData.isPending() && e.privateState.rejectStartDataPromise(new Error("Socket was closed before receiving a hello message")), e.onCloseSig.dispatch();
+    clearInterval(e.privateState.pingTimer);
+    var t = v;
+    i(), g = t, v = {}, e.startData.isPending() && e.privateState.rejectStartDataPromise(new Error("Socket was closed before receiving a hello message")), e.onCloseSig.dispatch();
   }
 
   function s(e, t) {
@@ -40533,7 +40554,7 @@ webpackJsonp([332], [, function(e, t, n) {
   function r(e, t) {
     return 0 !== e && e ? n.i(o.a)(e, {
       returnMoment: !0
-    }).add(t, "days").valueOf() : 0;
+    }).add(t, "days").valueOf() / 1e3 : 0;
   }
   var o = n(2356);
   t.a = r;
@@ -54200,7 +54221,7 @@ webpackJsonp([332], [, function(e, t, n) {
     m = n(2881),
     y = function(e) {
       var t = "react_channel_sidebar_display_item";
-      n.i(u.a)(t + "_mark"), document && document.activeElement && document.activeElement.blur(), "V" === e[0] ? n.i(d.a)(e) : n.i(c.a)(e), n.i(u.b)(t, t + "_mark");
+      n.i(u.a)(t + "_mark"), document && document.activeElement && document.activeElement.blur(), "V" === e[0] ? n.i(d.b)(e) : n.i(c.a)(e), n.i(u.b)(t, t + "_mark");
     },
     v = function(e, t) {
       t && ("im" === e ? n.i(h.b)(t) : "mpim" === e && n.i(p.b)(t));
@@ -55329,7 +55350,9 @@ webpackJsonp([332], [, function(e, t, n) {
     l = n(3933),
     c = n(2288),
     d = n(3644),
-    f = function() {
+    f = n(2907),
+    p = n(3948),
+    h = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
@@ -55340,20 +55363,30 @@ webpackJsonp([332], [, function(e, t, n) {
         return n && e(t.prototype, n), r && e(t, r), t;
       };
     }(),
-    p = c.a.ns("message"),
-    h = {
-      reactionKey: a.PropTypes.string
+    _ = c.a.ns("message"),
+    m = {
+      reactionKey: a.PropTypes.string,
+      file: a.PropTypes.string,
+      replyCount: a.PropTypes.number,
+      ts: a.PropTypes.string,
+      threadTs: a.PropTypes.string,
+      channel: a.PropTypes.object
     },
-    _ = {
-      reactionKey: null
+    y = {
+      reactionKey: null,
+      file: null,
+      replyCount: 0,
+      ts: null,
+      threadTs: null,
+      channel: null
     },
-    m = function(e) {
+    v = function(e) {
       function t(e) {
         r(this, t);
         var n = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
-        return n.onAddReaction = n.onAddReaction.bind(n), n;
+        return n.onAddReaction = n.onAddReaction.bind(n), n.onComment = n.onComment.bind(n), n;
       }
-      return i(t, e), f(t, [{
+      return i(t, e), h(t, [{
         key: "onAddReaction",
         value: function(e) {
           this.props.reactionKey && n.i(d.a)({
@@ -55362,32 +55395,62 @@ webpackJsonp([332], [, function(e, t, n) {
           });
         }
       }, {
+        key: "onComment",
+        value: function() {
+          if (this.props.file) n.i(f.a)(this.props.file, "", !1, !0, null);
+          else {
+            var e = this.props.threadTs || this.props.ts;
+            n.i(p.a)([], this.props.channel, e);
+          }
+        }
+      }, {
+        key: "renderReaction",
+        value: function() {
+          return s.a.createElement(l.a, {
+            iconType: "add-reaction",
+            tooltipText: _("Add reaction…"),
+            onClick: this.onAddReaction
+          });
+        }
+      }, {
+        key: "renderComment",
+        value: function() {
+          var e = void 0;
+          return e = _(this.props.file ? "Add comment…" : this.props.replyCount ? "Reply to thread" : "Start a thread"), s.a.createElement(l.a, {
+            iconType: "comment-alt",
+            tooltipText: e,
+            onClick: this.onComment
+          });
+        }
+      }, {
+        key: "renderShare",
+        value: function() {
+          return s.a.createElement(l.a, {
+            iconType: "share-action",
+            tooltipText: _("Share message…"),
+            onClick: function() {}
+          });
+        }
+      }, {
+        key: "renderEllipsis",
+        value: function() {
+          return s.a.createElement(l.a, {
+            iconType: "ellipsis",
+            tooltipText: _("Show message actions"),
+            tooltipPosition: "top-right",
+            onClick: function() {}
+          });
+        }
+      }, {
         key: "render",
         value: function() {
           return s.a.createElement(u.a, {
             className: "c-message__actions"
-          }, s.a.createElement(l.a, {
-            iconType: "add-reaction",
-            tooltipText: p("Add reaction…"),
-            onClick: this.onAddReaction
-          }), s.a.createElement(l.a, {
-            iconType: "comment-alt",
-            tooltipText: p("Start a thread"),
-            onClick: function() {}
-          }), s.a.createElement(l.a, {
-            iconType: "share-action",
-            tooltipText: p("Share message…"),
-            onClick: function() {}
-          }), s.a.createElement(l.a, {
-            iconType: "ellipsis",
-            tooltipText: p("Show message actions"),
-            tooltipPosition: "top-right",
-            onClick: function() {}
-          }));
+          }, this.renderReaction(), this.renderComment(), this.renderShare(), this.renderEllipsis());
         }
       }]), t;
     }(a.PureComponent);
-  m.propTypes = h, m.defaultProps = _, t.a = m;
+  v.propTypes = m, v.defaultProps = y, t.a = v;
 }, function(e, t, n) {
   "use strict";
   var r = n(2353),
@@ -55406,4 +55469,13 @@ webpackJsonp([332], [, function(e, t, n) {
   t.a = r;
   var o = n(6);
   n.n(o);
+}, , , , , , , , , function(e, t, n) {
+  "use strict";
+  n.d(t, "a", function() {
+    return o;
+  });
+  var r = n(2277),
+    o = n.i(r.a)("TS.ui.replies.openConversationFromMessagePane", function() {
+      return null;
+    });
 }], [2905]);
