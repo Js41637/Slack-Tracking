@@ -441,15 +441,16 @@ webpackJsonp([241], {
               is_admin: TS.model.user.is_admin,
               initial_channel_id: i
             },
-            r = TS.templates.admin_invite_channel_picker(d),
-            l = TS.i18n.t("Team Members", "invite")();
-          "restricted" === t ? l = TS.i18n.t("Multi-Channel Guests", "invite")() : "ultra_restricted" === t && (l = TS.i18n.t("Single-Channel Guests", "invite")()), e.find("#admin_invites_header").find(".admin_invites_header_type").addClass("normal").text(l).end().find(".admin_invites_header_team_name").addClass("hidden"), e.find("#admin_invites_channel_picker_container").html(r), e.find("#account_type").val(t), e.find("#admin_invites_switcher, #admin_invites_workflow").toggleClass("hidden"), e.find("#admin_invites_billing_notice", "#admin_guide_to_billing_at_slack").toggleClass("hidden", !("" !== TS.model.team.plan && "ultra_restricted" !== t)), e.find("#ura_warning").toggleClass("hidden", "restricted" !== t && "ultra_restricted" !== t), e.find("#invite_notice").hide(), e.find(".admin_invites_guest_expiration_date_container").toggleClass("hidden", "full" === t), e.find("#admin_invites_show_date_picker").on("click", K);
-          var m = "";
-          "restricted" === t ? m = TS.i18n.t("These guests will only have access to messages and files in specified channels.", "invite")() : "ultra_restricted" === t && (m = TS.i18n.t("These guests will only have access to messages and files in a single channel.", "invite")()), e.find("#admin_invites_subheader").text(m).toggleClass("hidden", "full" === t), e.find("#ultra_restricted_channel_picker").on("change", function() {
+            r = "enterprise" !== TS.model.team.plan,
+            l = TS.templates.admin_invite_channel_picker(d),
+            m = TS.i18n.t("Team Members", "invite")();
+          "restricted" === t ? m = TS.i18n.t("Multi-Channel Guests", "invite")() : "ultra_restricted" === t && (m = TS.i18n.t("Single-Channel Guests", "invite")()), e.find("#admin_invites_header").find(".admin_invites_header_type").addClass("normal").text(m).end().find(".admin_invites_header_team_name").addClass("hidden"), e.find("#admin_invites_channel_picker_container").html(l), e.find("#account_type").val(t), e.find("#admin_invites_switcher, #admin_invites_workflow").toggleClass("hidden"), e.find("#admin_invites_billing_notice").toggleClass("hidden", !(r && "ultra_restricted" !== t)), e.find("#admin_guide_to_billing_at_slack").toggleClass("hidden", !(r && "ultra_restricted" !== t)), e.find("#ura_warning").toggleClass("hidden", "restricted" !== t && "ultra_restricted" !== t), e.find("#invite_notice").hide(), e.find(".admin_invites_guest_expiration_date_container").toggleClass("hidden", "full" === t), e.find("#admin_invites_show_date_picker").on("click", K);
+          var c = "";
+          "restricted" === t ? c = TS.i18n.t("These guests will only have access to messages and files in specified channels.", "invite")() : "ultra_restricted" === t && (c = TS.i18n.t("These guests will only have access to messages and files in a single channel.", "invite")()), e.find("#admin_invites_subheader").text(c).toggleClass("hidden", "full" === t), e.find("#ultra_restricted_channel_picker").on("change", function() {
             D(), N();
           }), e.find(".email_field").first().focus();
-          var c = e.find('button[data-action="api_send_invites"]');
-          c.hasClass("ladda") || (Ladda.bind('button[data-action="api_send_invites"]'), c.addClass("ladda")), D(), j(), e.find("#defaultchannelsmulti, #ultra_restricted_channel_picker").lazyFilterSelect({
+          var u = e.find('button[data-action="api_send_invites"]');
+          u.hasClass("ladda") || (Ladda.bind('button[data-action="api_send_invites"]'), u.addClass("ladda")), D(), j(), e.find("#defaultchannelsmulti, #ultra_restricted_channel_picker").lazyFilterSelect({
             onItemRemoved: function(e) {
               e.value == i && N();
             }

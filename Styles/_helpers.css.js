@@ -63,6 +63,28 @@
   white-space: normal
 }
 
+.copy_only {
+  -moz-box-orient: vertical;
+  display: inline-block;
+  vertical-align: baseline;
+  *vertical-align: auto;
+  *zoom: 0;
+  *display: inline;
+  width: 1px;
+  height: 0;
+  background-size: 0;
+  background-repeat: no-repeat;
+  font-size: 0;
+  color: transparent;
+  float: left;
+  text-rendering: auto;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  opacity: 0
+}
+
 .float_left {
   float: left
 }

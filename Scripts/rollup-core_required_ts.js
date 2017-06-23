@@ -298,7 +298,7 @@ webpackJsonp([12, 328, 337, 329], {
         },
         test: {
           setLocale: function(e) {
-            r = e, Intl.Collator && (s = Intl.Collator(r));
+            r = e, Intl.Collator && (s = Intl.Collator(r)), window.moment && window.moment.locale(r);
           }
         }
       });

@@ -45,15 +45,15 @@ webpackJsonp([225], {
           TS.team.ensureTeamProfileFields(), t = '<h5 class="bot_header large_top_margin no_bottom_margin subtle_silver"><i class="ts_icon ts_icon_bolt small_right_margin"></i> ' + TS.i18n.t("Bots", "web_admin")() + "</h5>", a = TS.i18n.t('<p class="ra_invite_prompt subtle_silver top_margin align_center">There are no Multi-Channel Guests in this range. <a data-action="admin_invites_modal" data-account-type="restricted">Invite a new Multi-Channel Guest</a></p>', "web_admin")(), r = TS.i18n.t('<p class="ra_invite_prompt subtle_silver top_margin align_center">Your team does not have any Multi-Channel Guests. <a data-action="admin_invites_modal" data-account-type="restricted">Invite a new Multi-Channel Guest</a></p>', "web_admin")(), s = TS.i18n.t('<p class="ra_invite_prompt subtle_silver top_margin align_center">Your team does not have any Single-Channel Guests. <a data-action="admin_invites_modal" data-account-type="ultra_restricted">Invite a new Single-Channel Guest</a></p>', "web_admin")(), d = TS.i18n.t('<p class="ra_invite_prompt subtle_silver top_margin align_center">There are no Single-Channel Guests in this range. <a data-action="admin_invites_modal" data-account-type="ultra_restricted">Invite a new Single-Channel Guest</a></p>', "web_admin")(), m = '<h5 class="restricted_header small_bottom_margin"><i class="ts_icon ts_icon_restricted_user ts_icon_guest_large soft_grey small_right_margin"></i> ' + TS.i18n.t("Multi-Channel Guests", "web_admin")() + "</h5>", o = '<h5 class="restricted_header small_bottom_margin large_top_margin"><i class="ts_icon ts_icon_single_channel_guest ts_icon_guest_large soft_grey small_right_margin"></i> ' + TS.i18n.t("Single-Channel Guests", "web_admin")() + "</h5>", TS.web.login_sig.add(TS.web.admin.onLogin, TS.web.admin), TS.web.admin.member_profile_set_sig.add(TS.web.admin.memberProfileSet, TS.web.admin), TS.web.admin.member_profile_set_email_sig.add(TS.web.admin.memberProfileSetEmail, TS.web.admin), TS.web.admin.member_profile_set_username_sig.add(TS.web.admin.memberProfileSetUsername, TS.web.admin), TS.web.admin.member_admin_set_sig.add(TS.web.admin.memberAdminSet, TS.web.admin), TS.web.admin.member_admin_removed_sig.add(TS.web.admin.memberAdminRemoved, TS.web.admin), TS.web.admin.member_owner_set_sig.add(TS.web.admin.memberOwnerSet, TS.web.admin), TS.web.admin.member_owner_removed_sig.add(TS.web.admin.memberOwnerRemoved, TS.web.admin), TS.web.admin.member_enabled_sig.add(TS.web.admin.memberEnabled, TS.web.admin), TS.web.admin.restricted_member_enabled_sig.add(TS.web.admin.restrictedMemberEnabled, TS.web.admin), TS.web.admin.ultra_restricted_member_enabled_sig.add(TS.web.admin.ultraRestrictedMemberEnabled, TS.web.admin), TS.web.admin.member_disabled_sig.add(TS.web.admin.memberDisabled, TS.web.admin), TS.web.admin.member_rebind_sig.add(TS.web.admin.memberRebound, TS.web.admin), TS.web.admin.member_restricted_sig.add(TS.web.admin.memberRestricted, TS.web.admin), TS.web.admin.member_ultra_restricted_sig.add(TS.web.admin.memberUltraRestricted, TS.web.admin), TS.web.admin.member_unrestricted_sig.add(TS.web.admin.memberUnrestricted, TS.web.admin), TS.web.admin.member_invited_channel_sig.add(TS.web.admin.rerenderMemberAndHighlight, TS.web.admin), TS.web.admin.member_invited_group_sig.add(TS.web.admin.rerenderMemberAndHighlight, TS.web.admin), TS.web.admin.member_kicked_channel_sig.add(TS.web.admin.rerenderMemberAndHighlight, TS.web.admin), TS.web.admin.member_kicked_group_sig.add(TS.web.admin.rerenderMemberAndHighlight, TS.web.admin), TS.web.admin.member_ura_changed_sig.add(TS.web.admin.rerenderMember, TS.web.admin), TS.ui.admin_user_groups.user_groups_fetched.add(TS.web.admin.onUserGroupsFetched), TS.idp_groups && TS.idp_groups.loaded_sig.add(TS.web.admin.onIdpGroupsLoaded, TS.web.admin);
         },
         onIdpGroupsLoaded: function() {
-          u = !0, c && TS.web.admin.startup();
+          w = !0, S && TS.web.admin.startup();
         },
         onLogin: function() {
-          c = !0, TS.idp_groups && TS.idp_groups.shouldLoad() && !u || TS.web.admin.startup();
+          S = !0, TS.idp_groups && TS.idp_groups.shouldLoad() && !w || TS.web.admin.startup();
         },
         startup: function() {
           var e = !1;
           if (boot_data.admin_view && (TS.web.admin.view = boot_data.admin_view), TS.members.startBatchUpsert(), "list" === TS.web.admin.view) {
-            if (TS.boot_data.feature_name_tagging_client ? TS.web.admin.sort_order = $("#admin_sort").val() || "real_name" : TS.web.admin.sort_order = $("#admin_sort").val() || "screen_name", TS.web.admin.active_tab = $(".tab_pane.selected").data("tab"), Q() && O(), !Q()) {
+            if (TS.boot_data.feature_name_tagging_client ? TS.web.admin.sort_order = $("#admin_sort").val() || "real_name" : TS.web.admin.sort_order = $("#admin_sort").val() || "screen_name", TS.web.admin.active_tab = $(".tab_pane.selected").data("tab"), Z() && O(), !Z()) {
               var t = {};
               TS.model.members.forEach(function(e) {
                 t[e.id] = e;
@@ -70,7 +70,7 @@ webpackJsonp([225], {
                 void 0 !== r.two_factor_auth_enabled && (i.two_factor_auth_enabled = r.two_factor_auth_enabled, void 0 !== r.two_factor_type && (i.two_factor_type = r.two_factor_type)), "normal" !== boot_data.auth_mode && void 0 !== r.has_sso_token && (i.has_sso_token = r.has_sso_token), i.created = r.created, TS.boot_data.all_emails && TS.boot_data.all_emails[e] && (i.profile.email = TS.boot_data.all_emails[e]), TS.members.upsertMember(i);
               }), t = void 0;
             }
-            Q() ? F() : G();
+            Z() ? D() : N();
           } else "invites" === TS.web.admin.view && (TS.web.admin.sort_order = "invite_date", TS.web.admin.active_tab = "pending", $.each(boot_data.pending_invites, function(i, n) {
             n.invite_prefs && (n.type = n.invite_prefs.type, n.first_name = n.invite_prefs.first_name, n.last_name = n.invite_prefs.last_name, n.is_pending = !0, n.first_name && n.last_name && (n._real_name_lc = _.toLower(n.first_name + " " + n.last_name))), n.bouncing && !e && (e = !0);
           }), 0 === boot_data.pending_invites.length && (TS.web.admin.active_tab = "accepted"), $.each(boot_data.accepted_invites, function(e, i) {
@@ -78,7 +78,10 @@ webpackJsonp([225], {
             n && (n.date_create = parseInt(i.date_create, 10), n.date_resent = parseInt(i.date_resent, 10), n.email = i.email, n.is_pending = !1, n.inviter = i.inviter, TS.members.upsertMember(n), boot_data.accepted_invites[e] = n);
           }), TS.members.view.bindTeamFilter("#team_filter", "#invite_list"));
           if (e && $("#invite_bounce_warning").slideToggle(150), $("#admin_sort").bind("change", function() {
-              $(this).val() != TS.web.admin.sort_order && (TS.web.admin.sort_order = $(this).val(), Q() ? L() : (TS.web.admin.sortList(), TS.web.admin.rebuildList()));
+              var e = $(this).val();
+              e != TS.web.admin.sort_order && (TS.web.admin.sort_order = e, Z() ? G() : (TS.web.admin.sortList(), TS.web.admin.rebuildList())), se("ADMIN_SORT_BY", {
+                sort_by: e
+              });
             }), TS.web.admin.rebuildList(), TS.web.admin.isSubsetCase() && boot_data.member_list_subset.length) {
             var a = window.location.toString(),
               s = a.indexOf("?"),
@@ -92,7 +95,7 @@ webpackJsonp([225], {
                 for (e = e.toUpperCase(), t = 0, r = i.length; t < r; t += 1)
                   if (-1 !== i[t].range.indexOf(e) && n !== e) return i[t];
                 return null;
-              }, b = 0, c = m.length; b < c; b += 1) o = $(m[b]), i.push({
+              }, b = 0, S = m.length; b < S; b += 1) o = $(m[b]), i.push({
               range: o.data("range").toUpperCase(),
               range_label: o.find(".range_link").text(),
               link: o.find(".range_link").prop("href")
@@ -105,65 +108,72 @@ webpackJsonp([225], {
             }), $("#team_filter input.member_filter").on("keyup", function(e) {
               var i, n = $(e.target),
                 t = n.val();
-              t.length > 0 && (t = t.charAt(0), i = l(t)), i && i.link || (i = null), S = i;
+              t.length > 0 && (t = t.charAt(0), i = l(t)), i && i.link || (i = null), p = i;
             });
           }
-          Q() ? te() : A(), TS.web.admin.lazyload || (TS.web.admin.lazyload = $("#admin_list").find(".lazy").lazyload()), $("#admin_list").trigger("resize-immediate"), Y(), TS.members.finishBatchUpsert(), "list" === TS.web.admin.view ? TS.metrics.measure("admin_list_load", "start_nav") : "invites" === TS.web.admin.view && TS.metrics.measure("admin_invites_load", "start_nav"), TS.shouldLog(1e3) && (TS.log(1e3, TS.boot_data.accepted_invites.length + " accepted invites:"), TS.boot_data.accepted_invites.forEach(function(e) {
+          Z() ? ae() : E(), TS.web.admin.lazyload || (TS.web.admin.lazyload = $("#admin_list").find(".lazy").lazyload()), $("#admin_list").trigger("resize-immediate"), q(), TS.members.finishBatchUpsert();
+          var w;
+          "list" === TS.web.admin.view ? (w = TS.metrics.measure("admin_list_load", "start_nav"), TS.clog.track(c, {
+            elapsed_time: w,
+            is_api_page: Z()
+          })) : "invites" === TS.web.admin.view && (w = TS.metrics.measure("admin_invites_load", "start_nav"), TS.clog.track(u, {
+            elapsed_time: w
+          })), TS.shouldLog(1e3) && (TS.log(1e3, TS.boot_data.accepted_invites.length + " accepted invites:"), TS.boot_data.accepted_invites.forEach(function(e) {
             TS.log(1e3, e.id + " (invited by " + _.get(e, "inviter.id") + ")");
           }), TS.log(1e3, TS.boot_data.pending_invites.length + " pending invites:"), TS.boot_data.pending_invites.forEach(function(e) {
             TS.log(1e3, e.id + " (invited by " + _.get(e, "inviter.id") + ")");
           }));
         },
         setLongListAdminListItems: function(e, i) {
-          A();
+          E();
           var n = e.items.members,
             c = e.items.disabled_members,
             u = e.items.deleted_bots,
-            w = e.items.bots,
-            S = e.items.restricted_members,
+            S = e.items.bots,
+            w = e.items.restricted_members,
             T = e.items.ultra_restricted_members,
-            f = n.slice(0);
-          w.length && (e.no_dividers || f.push({
+            p = n.slice(0);
+          S.length && (e.no_dividers || p.push({
             is_divider: !0,
             html: t
-          }), f.push.apply(f, w));
-          var v = [];
-          (S.length || TS.boot_data.can_invite_ras) && (e.no_dividers || v.push({
+          }), p.push.apply(p, S));
+          var g = [];
+          (w.length || TS.boot_data.can_invite_ras) && (e.no_dividers || g.push({
             is_divider: !0,
             html: m
-          })), S.length ? v.push.apply(v, S) : TS.boot_data.can_invite_ras && !TS.web.admin.subset_data.restricted_members_count ? e.no_dividers || v.push({
+          })), w.length ? g.push.apply(g, w) : TS.boot_data.can_invite_ras && !TS.web.admin.subset_data.restricted_members_count ? e.no_dividers || g.push({
             is_divider: !0,
             html: r
-          }) : TS.boot_data.can_invite_ras && (e.no_dividers || v.push({
+          }) : TS.boot_data.can_invite_ras && (e.no_dividers || g.push({
             is_divider: !0,
             html: a
-          })), (T.length || TS.boot_data.can_invite_ras) && (e.no_dividers || v.push({
+          })), (T.length || TS.boot_data.can_invite_ras) && (e.no_dividers || g.push({
             is_divider: !0,
             html: o
-          })), T.length ? v.push.apply(v, T) : TS.boot_data.can_invite_ras && !TS.web.admin.subset_data.ultra_restricted_members_count ? e.no_dividers || v.push({
+          })), T.length ? g.push.apply(g, T) : TS.boot_data.can_invite_ras && !TS.web.admin.subset_data.ultra_restricted_members_count ? e.no_dividers || g.push({
             is_divider: !0,
             html: s
-          }) : TS.boot_data.can_invite_ras && (e.no_dividers || v.push({
+          }) : TS.boot_data.can_invite_ras && (e.no_dividers || g.push({
             is_divider: !0,
             html: d
-          })), v.length || e.num_found.restricted || e.query || v.push({
+          })), g.length || e.num_found.restricted || e.query || g.push({
             is_divider: !0,
-            html: N()
+            html: Y()
           });
           var y = c.slice(0);
           u.length && (e.no_dividers || y.push({
             is_divider: !0,
             html: t
-          }), y.push.apply(y, u)), p = f, h = v, g = y, _.each([n, c, u, w, S, T], function(e) {
-            _.each(e.slice(-b), J);
-          }), V(e), I(e.query), $("#admin_list").trigger("resize-immediate"), e.new_query && Y(), $(window).off("scroll.filter").on("scroll.filter", _.throttle(function() {
+          }), y.push.apply(y, u)), h = p, v = g, f = y, _.each([n, c, u, S, w, T], function(e) {
+            _.each(e.slice(-b), X);
+          }), J(e), L(e.query), $("#admin_list").trigger("resize-immediate"), e.new_query && q(), $(window).off("scroll.filter").on("scroll.filter", _.throttle(function() {
             var n = 0,
               t = 0;
-            "active" === TS.web.admin.active_tab && (n = _.reject(p, {
+            "active" === TS.web.admin.active_tab && (n = _.reject(h, {
               is_divider: !0
-            }).length, t = e.remaining.members || 0), "restricted" === TS.web.admin.active_tab && (n = _.reject(h, {
+            }).length, t = e.remaining.members || 0), "restricted" === TS.web.admin.active_tab && (n = _.reject(v, {
               is_divider: !0
-            }).length, t = e.remaining.restricted || 0), "disabled" === TS.web.admin.active_tab && (n = _.reject(g, {
+            }).length, t = e.remaining.restricted || 0), "disabled" === TS.web.admin.active_tab && (n = _.reject(f, {
               is_divider: !0
             }).length, t = e.remaining.disabled || 0);
             var r = .9 * Math.min(n, b),
@@ -227,14 +237,14 @@ webpackJsonp([225], {
           var e = $("#active_members"),
             i = $("#restricted_members"),
             n = $("#disabled_members");
-          TS.web.admin.lazyload && TS.web.admin.lazyload.detachEvents && (TS.web.admin.lazyload.detachEvents(), TS.web.admin.lazyload = null), Q() ? L(!0) : TS.web.admin.buildArrays();
+          TS.web.admin.lazyload && TS.web.admin.lazyload.detachEvents && (TS.web.admin.lazyload.detachEvents(), TS.web.admin.lazyload = null), Z() ? G(!0) : TS.web.admin.buildArrays();
           var t;
-          if (Q() || ($(e).find(".long_list").remove(), $(n).find(".long_list").remove(), $(i).find(".long_list").remove(), $(i).find(".restricted_info").remove(), $(i).find(".restricted_info_sso").remove()), "list" === TS.web.admin.view) {
-            if (Q() || $(i).find(".ra_invite_prompt").parent().remove(), !$(e).find(".long_list").length) {
+          if (Z() || ($(e).find(".long_list").remove(), $(n).find(".long_list").remove(), $(i).find(".long_list").remove(), $(i).find(".restricted_info").remove(), $(i).find(".restricted_info_sso").remove()), "list" === TS.web.admin.view) {
+            if (Z() || $(i).find(".ra_invite_prompt").parent().remove(), !$(e).find(".long_list").length) {
               var r = $("<div>").appendTo(e),
                 a = $("<div>").appendTo(i),
                 s = $("<div>").appendTo(n);
-              H(r, a, s);
+              W(r, a, s);
             }
           } else if ("invites" === TS.web.admin.view) {
             t = "#invite_list";
@@ -250,7 +260,7 @@ webpackJsonp([225], {
             });
           }
           $(".admin_tabs").find("a").bind("click.switch_tabs", function() {
-            TS.web.admin.active_tab = $(this).data("tab"), Q() && O(), TS.web.admin.tabs_need_rebuild ? (TS.web.admin.rebuildList(), TS.web.admin.tabs_need_rebuild = !1) : $("#team_filter").find(".member_filter").trigger("keyup"), "user_groups" === TS.web.admin.active_tab ? $(".tab_actions").addClass("hidden") : $(".tab_actions").removeClass("hidden"), $(t).trigger("resize-immediate"), $(".tab_pane .long_list").each(function(e, i) {
+            TS.web.admin.active_tab = $(this).data("tab"), Z() && O(), TS.web.admin.tabs_need_rebuild ? (TS.web.admin.rebuildList(), TS.web.admin.tabs_need_rebuild = !1) : $("#team_filter").find(".member_filter").trigger("keyup"), "user_groups" === TS.web.admin.active_tab ? $(".tab_actions").addClass("hidden") : $(".tab_actions").removeClass("hidden"), $(t).trigger("resize-immediate"), $(".tab_pane .long_list").each(function(e, i) {
               var n = $(i),
                 t = n.closest(".tab_pane").hasClass("selected");
               n.longListView("setHidden", !t);
@@ -286,7 +296,7 @@ webpackJsonp([225], {
             date: TS.utility.date.formatDate("{date}", e.profile.guest_expiration_ts),
             time: TS.utility.date.formatDate("{time}", e.profile.guest_expiration_ts)
           }));
-          var w = {
+          var S = {
             member: e,
             member_type: TS.web.admin.getType(e),
             member_status: TS.web.admin.getStatus(e),
@@ -303,9 +313,9 @@ webpackJsonp([225], {
             can_convert_between_member_and_guest: c,
             guest_expiration_str: u
           };
-          e.is_restricted && (w.channels_count = 0, e.channels && (w.channels_count = Object.keys(e.channels).length), w.group_count = 0, e.groups && (w.group_count = Object.keys(e.groups).length), e.more_groups && (w.group_count += e.more_groups), w.total_memberships = w.channels_count + w.group_count);
-          var S = TS.templates.admin_list_item(w);
-          return TS.web.admin.html_cache[e.id] = S, TS.web.admin.html_cache[e.id];
+          e.is_restricted && (S.channels_count = 0, e.channels && (S.channels_count = Object.keys(e.channels).length), S.group_count = 0, e.groups && (S.group_count = Object.keys(e.groups).length), e.more_groups && (S.group_count += e.more_groups), S.total_memberships = S.channels_count + S.group_count);
+          var w = TS.templates.admin_list_item(S);
+          return TS.web.admin.html_cache[e.id] = w, TS.web.admin.html_cache[e.id];
         },
         rebuildMember: function(e) {
           TS.web.admin.selectRow(e).replaceWith(TS.web.admin.buildMemberHTML(e, !0, !0));
@@ -327,7 +337,7 @@ webpackJsonp([225], {
           TS.web.admin.updateTabCounts(), TS.web.admin.rebuildList();
         },
         updateTabCounts: function() {
-          if (!Q()) {
+          if (!Z()) {
             var e, i, n, t = $("#active_members_tab").find(".count"),
               r = $("#restricted_members_tab"),
               a = $("#disabled_members_tab");
@@ -353,7 +363,7 @@ webpackJsonp([225], {
           return "list" == TS.web.admin.view ? $("#admin_list .tab_pane.selected .long_list").find("#row_" + e.id) : $("#row_" + e.id);
         },
         rowProcessing: function(e) {
-          q(e, {
+          K(e, {
             error: !1,
             error_detail: void 0,
             processing: !0,
@@ -361,7 +371,7 @@ webpackJsonp([225], {
           });
         },
         rowError: function(e, i) {
-          q(e, {
+          K(e, {
             error: !0,
             error_detail: i,
             processing: !1
@@ -369,7 +379,7 @@ webpackJsonp([225], {
         },
         rowFadeSuccess: function(e, i) {
           setTimeout(function() {
-            q(e, {
+            K(e, {
               success: !1
             }), i && i();
           }, 4e3);
@@ -444,13 +454,13 @@ webpackJsonp([225], {
           return !e.deleted && e.is_inactive && (e.is_bot || (i = TS.i18n.t("(Inactive)", "web_admin")())), i;
         },
         delegateBindActions: function() {
-          w || ($("#admin_list").on("mouseover", function(e) {
+          T || ($("#admin_list").on("mouseover", function(e) {
             var i, n = $(e.target);
             n && (i = n.hasClass("admin_list_item") ? n : n.parent("div.admin_list_item"), i.length && !i.data("events-assigned") && (TS.web.admin.bindActions(TS.members.getMemberById(i.attr("id").substr(4))), i.data("events-assigned", !0)), n = null);
           }), "ontouchstart" in document.documentElement && $("#admin_list").on("touchstart", ".admin_list_item", function() {
             var e = $(this);
             e.data("events-assigned") || (TS.web.admin.bindActions(TS.members.getMemberById(e.attr("id").substr(4))), e.data("events-assigned", !0));
-          }), w = !0);
+          }), T = !0);
         },
         bindActions: function(e) {
           var i = TS.web.admin.selectRow(e);
@@ -466,13 +476,13 @@ webpackJsonp([225], {
                     var n = $(i),
                       t = n.data("member-id"),
                       r = TS.members.getMemberById(t);
-                    q(r, {
+                    K(r, {
                       expanded: !1
                     });
                   }
                 });
               } else $(".admin_list_item").removeClass("expanded");
-              n.hasClass("success") ? n.removeClass("success") : n.hasClass("error") ? n.removeClass("error").addClass("expanded") : t ? n.removeClass("expanded") : n.addClass("expanded"), r && q(e, {
+              n.hasClass("success") ? n.removeClass("success") : n.hasClass("error") ? n.removeClass("error").addClass("expanded") : t ? n.removeClass("expanded") : n.addClass("expanded"), r && K(e, {
                 error: n.hasClass("error"),
                 expanded: n.hasClass("expanded"),
                 success: n.hasClass("success")
@@ -792,7 +802,7 @@ webpackJsonp([225], {
           }, (t = TS.members.getMemberById(n.user)) ? e ? (TS.members.upsertMember({
             id: t.id,
             profile: i.profile
-          }), TS.web.admin.member_profile_set_sig.dispatch(t), void q(t, {
+          }), TS.web.admin.member_profile_set_sig.dispatch(t), void K(t, {
             processing: !1
           })) : (TS.error("failed onMemberProfileSet"), void(i.error && r[i.error] ? TS.web.admin.rowError(t, r[i.error]) : TS.web.admin.rowError(t))) : void TS.error("no member? user:" + n.user);
         },
@@ -915,7 +925,7 @@ webpackJsonp([225], {
           if (TS.web.member_actions.canPerformAction(r, e)) {
             i += ' <a class="api_disable_account undo_link" data-member-id="' + e.id + '">' + TS.i18n.t("Undo", "web_admin")() + "</a>";
           }
-          TS.web.admin.showSuccessMessageOnRow(t, i, !0), TS.web.admin.bindActions(e), K(e, TS.web.admin.active_members), TS.web.admin.rowFadeSuccess(e, TS.web.admin.updateRowLocations);
+          TS.web.admin.showSuccessMessageOnRow(t, i, !0), TS.web.admin.bindActions(e), Q(e, TS.web.admin.active_members), TS.web.admin.rowFadeSuccess(e, TS.web.admin.updateRowLocations);
         },
         onMemberDisable: function(e, i, n) {
           var t = TS.members.getMemberById(n.user);
@@ -929,7 +939,7 @@ webpackJsonp([225], {
           var r = "api_enable_account";
           e.is_restricted && (r = "api_enable_ra");
           var a = i + ' <a class="' + r + ' undo_link" data-member-id="' + e.id + '">' + TS.i18n.t("Undo", "web_admin")() + "</a>";
-          TS.web.admin.showSuccessMessageOnRow(n, a, !0), t && n.find(".admin_member_type").text(TS.i18n.t("Removed", "web_admin")()), TS.web.admin.bindActions(e), K(e, TS.web.admin.disabled_members), TS.web.admin.rowFadeSuccess(e, TS.web.admin.updateRowLocations);
+          TS.web.admin.showSuccessMessageOnRow(n, a, !0), t && n.find(".admin_member_type").text(TS.i18n.t("Removed", "web_admin")()), TS.web.admin.bindActions(e), Q(e, TS.web.admin.disabled_members), TS.web.admin.rowFadeSuccess(e, TS.web.admin.updateRowLocations);
         },
         onBotEnable: function(e, i, n) {
           var t = TS.members.getMemberById(n.user);
@@ -958,7 +968,7 @@ webpackJsonp([225], {
           } else $("#step2_restricted").length ? $("#step2_restricted").find(".error_message").removeClass("hidden").end().find(".api_set_restricted").removeClass("disabled").prop("disabled", !1).text(TS.i18n.t("Try Again", "web_admin")()) : "must_join_channel" === i.error ? (t = TS.i18n.t("Oops! You must add this member to at least one channel before converting them to a Multi-Channel Guest.", "web_admin")(), TS.web.admin.rowError(r, t)) : TS.web.admin.rowError(r);
         },
         memberRestricted: function(e) {
-          var i = K(e, TS.web.admin.restricted_members);
+          var i = Q(e, TS.web.admin.restricted_members);
           TS.web.admin.rebuildMember(e);
           var n = TS.i18n.t("<strong>{member_name}</strong> is now a Multi-Channel Guest.", "web_admin")({
             member_name: _.escape(e.name)
@@ -967,7 +977,7 @@ webpackJsonp([225], {
             var t = '<a class="api_unrestrict_account undo_link" data-member-id="' + e.id + '">' + TS.i18n.t("Undo", "web_admin")() + "</a>";
             n += t;
           }
-          var r = Q() ? 1500 : 0;
+          var r = Z() ? 1500 : 0;
           setTimeout(function() {
             var i = TS.web.admin.selectRow(e);
             TS.web.admin.showSuccessMessageOnRow(i, n, !0), TS.web.admin.rowFadeSuccess(e, TS.web.admin.updateRowLocations), $("#restrict_account").addClass("hidden"), $("#admin_list").removeClass("hidden"), TS.web.admin.showRestrictedMembersTab();
@@ -997,12 +1007,12 @@ webpackJsonp([225], {
           } else $("#step2_guest").length ? $("#step2_guest").find(".error_message").removeClass("hidden").end().find(".api_set_ultra_restricted").removeClass("disabled").prop("disabled", !1).text(TS.i18n.t("Try Again", "web_admin")()) : TS.web.admin.rowError(t);
         },
         memberUltraRestricted: function(e) {
-          K(e, TS.web.admin.ultra_restricted_members), TS.web.admin.rebuildMember(e);
+          Q(e, TS.web.admin.ultra_restricted_members), TS.web.admin.rebuildMember(e);
           var i = TS.i18n.t('<strong>{member_name}</strong> is now a Single-Channel Guest. <a class="api_unrestrict_account undo_link" data-member-id="{member_id}">Undo</a>', "web_admin")({
               member_name: _.escape(e.name),
               member_id: e.id
             }),
-            n = Q() ? 1500 : 0;
+            n = Z() ? 1500 : 0;
           setTimeout(function() {
             var n = TS.web.admin.selectRow(e);
             TS.web.admin.showSuccessMessageOnRow(n, i, !0), TS.web.admin.bindActions(e), TS.web.admin.rowFadeSuccess(e, TS.web.admin.updateRowLocations), $("#restrict_account").addClass("hidden"), $("#admin_list").removeClass("hidden"), TS.web.admin.showRestrictedMembersTab();
@@ -1024,7 +1034,7 @@ webpackJsonp([225], {
           });
           setTimeout(function() {
             var n = TS.web.admin.selectRow(e);
-            TS.web.admin.showSuccessMessageOnRow(n, i, !0), TS.web.admin.bindActions(e), TS.web.admin.rowFadeSuccess(e, TS.web.admin.updateRowLocations), K(e, TS.web.admin.active_members);
+            TS.web.admin.showSuccessMessageOnRow(n, i, !0), TS.web.admin.bindActions(e), TS.web.admin.rowFadeSuccess(e, TS.web.admin.updateRowLocations), Q(e, TS.web.admin.active_members);
           }, 0);
         },
         onMemberInviteChannel: function(e, i, n) {
@@ -1067,7 +1077,7 @@ webpackJsonp([225], {
           }) : TS.i18n.t('<strong>{member_name}</strong> is now enabled as a Multi-Channel Guest. <a class="api_disable_account undo_link" data-member-id="{member_id}">Undo</a>', "web_admin")({
             member_name: _.escape(e.name),
             member_id: e.id
-          }), i = TS.web.admin.selectRow(e), TS.web.admin.showSuccessMessageOnRow(i, n), TS.web.admin.bindActions(e), TS.web.admin.rowFadeSuccess(e, TS.web.admin.updateRowLocations), K(e, TS.web.admin.restricted_members), TS.web.admin.isAdminListHidden() && ($("#restrict_account").addClass("hidden"), $("#admin_list").removeClass("hidden"), TS.web.admin.showRestrictedMembersTab());
+          }), i = TS.web.admin.selectRow(e), TS.web.admin.showSuccessMessageOnRow(i, n), TS.web.admin.bindActions(e), TS.web.admin.rowFadeSuccess(e, TS.web.admin.updateRowLocations), Q(e, TS.web.admin.restricted_members), TS.web.admin.isAdminListHidden() && ($("#restrict_account").addClass("hidden"), $("#admin_list").removeClass("hidden"), TS.web.admin.showRestrictedMembersTab());
         },
         onEnableUltraRestrictedMember: function(e, i, n) {
           var t = TS.members.getMemberById(n.user);
@@ -1109,7 +1119,7 @@ webpackJsonp([225], {
               member_name: _.escape(e.name),
               member_id: e.id
             });
-          TS.web.admin.showSuccessMessageOnRow(i, n), TS.web.admin.bindActions(e), TS.web.admin.rowFadeSuccess(e, TS.web.admin.updateRowLocations), K(e, TS.web.admin.ultra_restricted_members);
+          TS.web.admin.showSuccessMessageOnRow(i, n), TS.web.admin.bindActions(e), TS.web.admin.rowFadeSuccess(e, TS.web.admin.updateRowLocations), Q(e, TS.web.admin.ultra_restricted_members);
         },
         showRestrictedMembersTab: function() {
           $("#restricted_members_tab").click();
@@ -1118,7 +1128,7 @@ webpackJsonp([225], {
           e && $("#user_groups_tab .count").text(e.length);
         },
         getLastSearchRange: function() {
-          return S;
+          return p;
         },
         buildRangeURL: function(e) {
           var t, r, a, s;
@@ -1129,7 +1139,7 @@ webpackJsonp([225], {
           return null;
         },
         isSubsetCase: function() {
-          return !Q() && boot_data.member_list_subset;
+          return !Z() && boot_data.member_list_subset;
         },
         getMembersForUser: function() {
           return e;
@@ -1138,7 +1148,7 @@ webpackJsonp([225], {
           return n;
         },
         showSuccessMessageForMember: function(e, i, n) {
-          q(e, {
+          K(e, {
             success: !0,
             success_message: i,
             success_highlight_member_type: n,
@@ -1159,41 +1169,43 @@ webpackJsonp([225], {
           var e = {};
           return Object.defineProperty(e, "_row_states", {
             get: function() {
-              return T;
+              return g;
             },
             set: function(e) {
-              T = e;
+              g = e;
             }
           }), Object.defineProperty(e, "_moveMemberTo", {
             get: function() {
-              return K;
+              return Q;
             },
             set: function(e) {
-              K = e;
+              Q = e;
             }
           }), e;
         }
       });
       var e, i, n, t, r, a, s, d, m, o, l = 57,
         b = 100,
-        c = !1,
-        u = !1,
+        c = "PERF_ADMIN_SITE_LIST_SHOW",
+        u = "PERF_ADMIN_SITE_INVITES_SHOW",
+        S = !1,
         w = !1,
-        S = null,
-        T = {},
-        p = [],
-        g = [],
+        T = !1,
+        p = null,
+        g = {},
         h = [],
         f = [],
         v = [],
         y = [],
-        M = "",
-        k = !1,
-        C = 0,
-        R = 0,
+        M = [],
+        k = [],
+        C = "",
+        R = !1,
+        A = 0,
+        I = 0,
         x = 0,
-        A = function() {
-          k || ($("#admin_list .tab_panels .loading_hash_animation").remove(), k = !0);
+        E = function() {
+          R || ($("#admin_list .tab_panels .loading_hash_animation").remove(), R = !0);
         },
         O = function() {
           TS.model.ui_state || (TS.model.ui_state = {}), TS.model.ui_state.tab_name = TS.web.admin.active_tab + "_members";
@@ -1205,13 +1217,13 @@ webpackJsonp([225], {
               return e.is_divider || !_.includes(n, e.id);
             }));
           }
-          if (Q()) return M = e, {
-            active: p,
-            disabled: g,
-            restricted: h
+          if (Z()) return C = e, {
+            active: h,
+            disabled: f,
+            restricted: v
           };
           var n = B(e),
-            t = E(e, n);
+            t = P(e, n);
           return {
             active: i(n.active, t.active),
             disabled: i(n.disabled, t.disabled),
@@ -1219,24 +1231,24 @@ webpackJsonp([225], {
           };
         },
         B = function(e) {
-          var i = M && e && _.includes(e, M);
-          M = e;
-          var n = i ? f : p,
-            t = i ? v : g,
-            r = i ? y : h;
+          var i = C && e && _.includes(e, C);
+          C = e;
+          var n = i ? y : h,
+            t = i ? M : f,
+            r = i ? k : v;
           return n = _.reject(n, {
             is_divider: !0
           }), t = _.reject(t, {
             is_divider: !0
           }), r = _.reject(r, {
             is_divider: !0
-          }), f = TS.utility.members.filterMembersByQuery(n, e), v = TS.utility.members.filterMembersByQuery(t, e), y = TS.utility.members.filterMembersByQuery(r, e), {
-            active: f,
-            disabled: v,
-            restricted: y
+          }), y = TS.utility.members.filterMembersByQuery(n, e), M = TS.utility.members.filterMembersByQuery(t, e), k = TS.utility.members.filterMembersByQuery(r, e), {
+            active: y,
+            disabled: M,
+            restricted: k
           };
         },
-        E = function(e, i) {
+        P = function(e, i) {
           var n = function(e, i, n) {
               var t = _.map(n, "id");
               i = _.filter(i, function(e) {
@@ -1259,7 +1271,7 @@ webpackJsonp([225], {
             restricted: n(e, r, i.restricted)
           };
         },
-        I = function(e) {
+        L = function(e) {
           var i = U(e),
             n = _.reject(i.active, {
               is_divider: !0
@@ -1301,12 +1313,12 @@ webpackJsonp([225], {
                 show_disabled_matches: "disabled" !== i.name && s,
                 show_restricted_matches: "restricted" !== i.name && d
               };
-              Q() && (m.active_matches = {
-                length: C
+              Z() && (m.active_matches = {
+                length: A
               }, m.disabled_matches = {
                 length: x
               }, m.restricted_matches = {
-                length: R
+                length: I
               });
               var o = TS.templates.team_list_no_results(m);
               i.list_items.push({
@@ -1316,7 +1328,7 @@ webpackJsonp([225], {
             }
           }), $("#active_members .long_list").longListView("setItems", i.active, !0), $("#disabled_members .long_list").longListView("setItems", i.disabled, !0), $("#restricted_members .long_list").longListView("setItems", i.restricted, !0);
         },
-        P = function() {
+        F = function() {
           switch (TS.web.admin.sort_order) {
             case "screen_name":
               return "name";
@@ -1328,10 +1340,10 @@ webpackJsonp([225], {
               return "";
           }
         },
-        L = function(e) {
-          e && TS.members.view.clearFilter("#team_filter", "#team_list_scroller"), TS.members.view.filterTeam(M, "#team_filter", "#team_list_scroller");
+        G = function(e) {
+          e && TS.members.view.clearFilter("#team_filter", "#team_list_scroller"), TS.members.view.filterTeam(C, "#team_filter", "#team_list_scroller");
         },
-        F = function() {
+        D = function() {
           $(".tab_panels").on("click.filter", ".clear_members_filter", function() {
             TS.members.view.clearFilter("#team_filter", "#team_list_scroller");
           });
@@ -1343,27 +1355,27 @@ webpackJsonp([225], {
               exclude_slackbot: !0,
               include_deleted: 0,
               sort_dir: "asc",
-              sort: P(),
+              sort: F(),
               endpoint: "users.admin.fetchTeamUsers"
             };
           };
           TS.members.view.bindTeamFilter("#team_filter", "#team_list_scroller", e);
         },
-        G = function() {
+        N = function() {
           var e = $("input.member_filter");
           $(".tab_panels").on("click", ".clear_members_filter", function() {
             e.val("").focus().trigger("change");
           }), e.on("change keyup cut paste", function() {
-            var e = D();
-            e != M && I(e);
+            var e = z();
+            e != C && L(e);
           });
         },
-        D = function() {
+        z = function() {
           return _.toString($("input.member_filter").val()).trim();
         },
-        z = function(e) {
-          if (Q()) return W(e, []), [];
-          if (!TS.web.admin.restricted_members.length && !TS.web.admin.ultra_restricted_members.length) return e.html(N()), [];
+        j = function(e) {
+          if (Z()) return V(e, []), [];
+          if (!TS.web.admin.restricted_members.length && !TS.web.admin.ultra_restricted_members.length) return e.html(Y()), [];
           var i = [];
           return (TS.web.admin.restricted_members.length || TS.boot_data.can_invite_ras) && (i.push({
             is_divider: !0,
@@ -1383,10 +1395,10 @@ webpackJsonp([225], {
           }) : TS.boot_data.can_invite_ras && i.push({
             is_divider: !0,
             html: d
-          })), W(e, i), i;
+          })), V(e, i), i;
         },
-        j = function(e, i) {
-          if (Q()) return W(e, []), [];
+        H = function(e, i) {
+          if (Z()) return V(e, []), [];
           var n = _.partition(i, function(e) {
               return e.is_bot || e.is_slackbot;
             }),
@@ -1396,18 +1408,18 @@ webpackJsonp([225], {
           return r.length && (s.push({
             is_divider: !0,
             html: t
-          }), s = s.concat(r)), W(e, s), s;
+          }), s = s.concat(r)), V(e, s), s;
         },
-        H = function(e, i, n) {
-          p = j(e, TS.web.admin.active_members), g = j(n, TS.web.admin.disabled_members), h = z(i), TS.web.admin.delegateBindActions();
+        W = function(e, i, n) {
+          h = H(e, TS.web.admin.active_members), f = H(n, TS.web.admin.disabled_members), v = j(i), TS.web.admin.delegateBindActions();
         },
-        N = function() {
+        Y = function() {
           var e = !!TS.boot_data.pay_prod_cur;
           return TS.boot_data.sso_required ? TS.templates.admin_restricted_info_sso(TS.model.team) : TS.templates.admin_restricted_info({
             paid_team: e
           });
         },
-        W = function(e, i) {
+        V = function(e, i) {
           e.addClass("long_list").longListView({
             items: i,
             preserve_dom_order: !0,
@@ -1432,7 +1444,7 @@ webpackJsonp([225], {
             renderItem: function(e, i) {
               var n = TS.web.admin.buildMemberHTML(i, !0, !0);
               e.html(n), i == this.items[this.items.length - 1] && e.addClass("is_last_item");
-              var t = T[i.id];
+              var t = g[i.id];
               if (t) {
                 var r = e.find(".admin_list_item");
                 r.toggleClass("error", !!t.error), r.toggleClass("expanded", !!t.expanded), r.toggleClass("processing", !!t.processing), r.toggleClass("success", !!t.success), r.toggleClass("has_error_detail", !!t.error_detail), t.error && r.find(".error_detail").html(t.error_detail), t.success && (r.find(".success_message").html(t.success_message || ""), t.success_highlight_member_type && r.find(".admin_member_type").highlightText());
@@ -1440,25 +1452,25 @@ webpackJsonp([225], {
             }
           });
         },
-        Y = function() {
+        q = function() {
           var e = $("#admin_list .tab_pane.selected .long_list");
           e.longListView("recalculateScrollableOffset"), e.longListView("scrollToPosition", document.body.scrollTop, !0);
         },
-        q = function(e, i) {
-          var n = TS.web.admin.selectRow(e);
-          T[e.id] = _.merge(T[e.id], i), n.closest(".long_list").longListView("itemUpdated", e);
-        },
-        V = function(e) {
-          R = e.num_found.restricted || 0, x = e.num_found.disabled || 0;
-          var i = e.num_found.members || 0;
-          C = Math.max(0, i - R);
-          var n = $("#restricted_members_tab");
-          0 === R ? e.query || n.addClass("hidden") : n.removeClass("hidden");
-          var t = $("#disabled_members_tab");
-          0 === x ? e.query || t.addClass("hidden") : t.removeClass("hidden"), t.find(".count").text(x), n.find(".count").text(R), $("#active_members_tab").find(".count").text(C);
-        },
         K = function(e, i) {
-          if (!Q()) {
+          var n = TS.web.admin.selectRow(e);
+          g[e.id] = _.merge(g[e.id], i), n.closest(".long_list").longListView("itemUpdated", e);
+        },
+        J = function(e) {
+          I = e.num_found.restricted || 0, x = e.num_found.disabled || 0;
+          var i = e.num_found.members || 0;
+          A = Math.max(0, i - I);
+          var n = $("#restricted_members_tab");
+          0 === I ? e.query || n.addClass("hidden") : n.removeClass("hidden");
+          var t = $("#disabled_members_tab");
+          0 === x ? e.query || t.addClass("hidden") : t.removeClass("hidden"), t.find(".count").text(x), n.find(".count").text(I), $("#active_members_tab").find(".count").text(A);
+        },
+        Q = function(e, i) {
+          if (!Z()) {
             var n, t, r = [TS.web.admin.active_members, TS.web.admin.restricted_members, TS.web.admin.ultra_restricted_members, TS.web.admin.disabled_members],
               a = ["active_members_count", "restricted_members_count", "ultra_restricted_members_count", "disabled_members_count"];
             return _.each(r, function(r, s) {
@@ -1470,7 +1482,7 @@ webpackJsonp([225], {
             }), r[n];
           }
         },
-        J = function(e) {
+        X = function(e) {
           var i = !1;
           if (e.is_restricted || e.is_ultra_restricted) {
             var n = _.get(TS.boot_data.channel_membership, e.id);
@@ -1480,13 +1492,13 @@ webpackJsonp([225], {
           var t = _.get(TS.boot_data.all_emails, e.id);
           t && (e.profile.email = t, delete TS.boot_data.all_emails[e.id], i = !0), i && TS.members.upsertMember(e);
         },
-        Q = function() {
+        Z = function() {
           return (TS.boot_data.page_needs_enterprise || TS.boot_data.feature_api_admin_page_not_ent) && TS.boot_data.feature_api_admin_page && "list" === TS.web.admin.view;
         },
-        X = function(e, i) {
+        ee = function(e, i) {
           window.navigator.msSaveBlob(e, i);
         },
-        Z = function(e, i, n) {
+        ie = function(e, i, n) {
           var t = new Blob([e], {
               type: "text/csv"
             }),
@@ -1494,7 +1506,7 @@ webpackJsonp([225], {
             a = r.createObjectURL(t);
           n && (n.href = a, n.download = i, n.click()), r.revokeObjectURL(a), Ladda.stopAll();
         },
-        ee = function(e) {
+        ne = function(e) {
           var i = new Blob([e], {
               type: "text/csv"
             }),
@@ -1511,7 +1523,7 @@ webpackJsonp([225], {
             Ladda.stopAll();
           }
         },
-        ie = function(e) {
+        te = function(e) {
           var i = new Blob([e], {
               type: "application/octet-stream"
             }),
@@ -1519,24 +1531,38 @@ webpackJsonp([225], {
             t = n.createObjectURL(i);
           window.location.href = t, Ladda.stopAll();
         },
-        ne = function() {
+        re = function() {
           if (200 === this.status) {
             var e = "slack-" + TS.model.team.domain + "-members.csv",
               i = $("#admin_list").find("[data-admin-csv-download-link]").get(0);
-            if (window.navigator.msSaveBlob) return X(this.response, e);
-            if ("download" in i) return Z(this.response, e, i);
-            if (window.FileReader && !window.safari) return ee(this.response);
-            if (window.safari) return ie(this.response);
+            if (window.navigator.msSaveBlob) return ee(this.response, e);
+            if ("download" in i) return ie(this.response, e, i);
+            if (window.FileReader && !window.safari) return ne(this.response);
+            if (window.safari) return te(this.response);
           }
         },
-        te = function() {
+        ae = function() {
           Ladda.bind("#admin_list .ladda-button"), $("#admin_list").on("click", "[data-admin-csv-download]", function(e) {
             e.preventDefault();
             var i = new XMLHttpRequest;
-            i.open("POST", TS.model.api_url + "users.admin.fetchTeamUsersCsv", !0), i.responseType = "blob", i.onload = ne;
+            i.open("POST", TS.model.api_url + "users.admin.fetchTeamUsersCsv", !0), i.responseType = "blob", i.onload = re;
             var n = new FormData;
             n.append("token", TS.model.api_token), i.send(n);
           });
+        },
+        se = function(e, i) {
+          var n = "invites" === TS.web.admin.view ? "ADMIN_SITE_INVITES_ACTION" : "ADMIN_SITE_LIST_ACTION",
+            t = "invites" === TS.web.admin.view ? "ADMIN_INVITES" : "ADMIN_HOME",
+            r = {
+              contexts: {
+                ui_context: {
+                  step: t,
+                  action: "click",
+                  ui_element: e
+                }
+              }
+            };
+          i && _.assign(r, i), TS.clog.track(n, r);
         };
     }();
   }
