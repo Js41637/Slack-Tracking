@@ -6,6 +6,19 @@
 
       <div class="conversation_details"></div>
 
+      {{#feature flag="feature_sli_channel_insights"}}
+        <div class="c-channel_insights hidden">
+          <div class="c-channel_insights__cta" data-js="sli_channel_insights_cta">
+            <h3 class="c-channel_insights__title">
+              <ts-icon class="ts_icon_sparkles_filled"></ts-icon> {{#t note="This is part of a TS-only prototype. Not visible to the public."}}Insights{{/t}}</h3>
+            </h3>
+            <p class="c-channel_insights__description">
+              {{#t note="This is part of a TS-only prototype. Not visible to the public."}}View information about the most active contributors to this channel, the most popular messages, and more.{{/t}}
+            </p>
+          </div>
+        </div>
+      {{/feature}}
+
       <div class="channel_page_about channel_page_section {{#if state.expanded_sections.about}}expanded{{/if}}" data-section-name="about">
 
         <button class="section_header no_bottom_margin btn_unstyle" title="{{#t}}Click to expand or collapse{{/t}}" type="button">
@@ -21,7 +34,6 @@
         </button>
 
         <div class="section_content channel_purpose"></div>
-
       </div>
 
       <div class="channel_page_pinned_items channel_page_section {{#if state.expanded_sections.pinned_items}}expanded{{/if}}" data-section-name="pinned_items">
