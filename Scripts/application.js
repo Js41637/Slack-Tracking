@@ -36860,7 +36860,9 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "renderActions",
         value: function() {
-          return u.a.createElement(M.a, null);
+          return u.a.createElement(M.a, {
+            reactionKey: this.props.reactionKey
+          });
         }
       }, {
         key: "render",
@@ -55300,36 +55302,92 @@ webpackJsonp([332], [, function(e, t, n) {
   d.propTypes = l, d.defaultProps = c, t.a = n.i(i.a)(d);
 }, function(e, t, n) {
   "use strict";
-  var r = n(2),
-    o = n.n(r),
-    i = n(3115),
-    a = n(3935),
-    s = n(3933),
-    u = n(2288),
-    l = u.a.ns("message"),
-    c = function() {
-      return o.a.createElement(a.a, {
-        className: "c-message__actions"
-      }, o.a.createElement(s.a, {
-        iconType: "add-reaction",
-        tooltipText: l("Add reaction…"),
-        onClick: function() {}
-      }), o.a.createElement(s.a, {
-        iconType: "comment-alt",
-        tooltipText: l("Start a thread"),
-        onClick: function() {}
-      }), o.a.createElement(s.a, {
-        iconType: "share-action",
-        tooltipText: l("Share message…"),
-        onClick: function() {}
-      }), o.a.createElement(s.a, {
-        iconType: "ellipsis",
-        tooltipText: l("Show message actions"),
-        tooltipPosition: "top-right",
-        onClick: function() {}
-      }));
-    };
-  t.a = n.i(i.a)(c);
+
+  function r(e, t) {
+    if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
+  }
+
+  function o(e, t) {
+    if (!e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    return !t || "object" != typeof t && "function" != typeof t ? e : t;
+  }
+
+  function i(e, t) {
+    if ("function" != typeof t && null !== t) throw new TypeError("Super expression must either be null or a function, not " + typeof t);
+    e.prototype = Object.create(t && t.prototype, {
+      constructor: {
+        value: e,
+        enumerable: !1,
+        writable: !0,
+        configurable: !0
+      }
+    }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
+  }
+  var a = n(2),
+    s = n.n(a),
+    u = n(3935),
+    l = n(3933),
+    c = n(2288),
+    d = n(3644),
+    f = function() {
+      function e(e, t) {
+        for (var n = 0; n < t.length; n++) {
+          var r = t[n];
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
+        }
+      }
+      return function(t, n, r) {
+        return n && e(t.prototype, n), r && e(t, r), t;
+      };
+    }(),
+    p = c.a.ns("message"),
+    h = {
+      reactionKey: a.PropTypes.string
+    },
+    _ = {
+      reactionKey: null
+    },
+    m = function(e) {
+      function t(e) {
+        r(this, t);
+        var n = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
+        return n.onAddReaction = n.onAddReaction.bind(n), n;
+      }
+      return i(t, e), f(t, [{
+        key: "onAddReaction",
+        value: function(e) {
+          this.props.reactionKey && n.i(d.a)({
+            e: e,
+            rxn_key: this.props.reactionKey
+          });
+        }
+      }, {
+        key: "render",
+        value: function() {
+          return s.a.createElement(u.a, {
+            className: "c-message__actions"
+          }, s.a.createElement(l.a, {
+            iconType: "add-reaction",
+            tooltipText: p("Add reaction…"),
+            onClick: this.onAddReaction
+          }), s.a.createElement(l.a, {
+            iconType: "comment-alt",
+            tooltipText: p("Start a thread"),
+            onClick: function() {}
+          }), s.a.createElement(l.a, {
+            iconType: "share-action",
+            tooltipText: p("Share message…"),
+            onClick: function() {}
+          }), s.a.createElement(l.a, {
+            iconType: "ellipsis",
+            tooltipText: p("Show message actions"),
+            tooltipPosition: "top-right",
+            onClick: function() {}
+          }));
+        }
+      }]), t;
+    }(a.PureComponent);
+  m.propTypes = h, m.defaultProps = _, t.a = m;
 }, function(e, t, n) {
   "use strict";
   var r = n(2353),

@@ -11262,11 +11262,11 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           } else e.deleted = !1;
         },
         w = function(e) {
-          if (!e.team_id) return e.enterprise_user && e.id === e.enterprise_user.id ? void(e.team_id = e.enterprise_user.teams[0]) : void(e.team_id = TS.model.team.id);
+          if (!e.team_id) return e.enterprise_user && e.id === e.enterprise_user.id ? void(e.team_id = e.enterprise_user.enterprise_id) : void(e.team_id = TS.model.team.id);
         },
         k = function(e) {
           if (!e) return void TS.warn("_maybeSetLocality: No member provided?");
-          e._is_local = e.team_id === TS.model.team.id, TS.boot_data.page_needs_enterprise && ("web" !== TS.boot_data.app && (e._is_local = e.enterprise_user && e.enterprise_user.teams && e.enterprise_user.teams.indexOf(TS.model.team.id) > -1), e._is_from_org = !e._is_local && !!e.enterprise_user && TS.model.enterprise && TS.model.enterprise.id === e.enterprise_user.enterprise_id), TS.boot_data.feature_shared_channels_client && (e.is_external = TS.utility.teams.isMemberExternal(e), TS.useRedux() && (TS.members.is_in_bulk_upsert_mode ? TS.redux.member_types.addToBulkUpdatePayload(e) : TS.redux.member_types.updateMemberTypeForMember(e)));
+          e._is_local = e.team_id === TS.model.team.id, TS.boot_data.page_needs_enterprise && ("web" !== TS.boot_data.app && (e._is_local = _.includes(_.get(e, "enterprise_user.teams", []), TS.model.team.id)), e._is_from_org = !e._is_local && (e.team_id === TS.model.enterprise.id || _.get(e, "enterprise_user.enterprise_id") === TS.model.enterprise.id)), TS.boot_data.feature_shared_channels_client && (e.is_external = TS.utility.teams.isMemberExternal(e), TS.useRedux() && (TS.members.is_in_bulk_upsert_mode ? TS.redux.member_types.addToBulkUpdatePayload(e) : TS.redux.member_types.updateMemberTypeForMember(e)));
         },
         x = function(e) {
           TS.ims.setNameFromMember(e), TS.mpims.setNamesFromMember(e);
@@ -12941,7 +12941,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                 trigger: "plus_menu_subitem_cloud_gdrive"
               }
             }
-          })) : "gdrive_create_submenu" === i ? e.preventDefault() : "onedrive_import" === i ? (e.preventDefault(), TS.log(9999, "boop"), TS.clog.track("PFP_ACTION", {
+          })) : "gdrive_create_submenu" === i ? e.preventDefault() : "onedrive_import" === i ? (e.preventDefault(), TS.files.onedrive.openPickerWindow(), TS.clog.track("PFP_ACTION", {
             contexts: {
               growth: {
                 action: "click",
@@ -14915,7 +14915,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             a.length > 0 ? TS.warn("Some members (" + a.join(",") + ") were still unavailable when we tried again; unable to recover") : (TS.info("All members were available when we tried again; recovering"), e._members = void 0, t = TS.mpims.getMembersInDisplayOrder()), n || (n = !0, TS.console.logStackTrace("We are somehow trying to generate a name for an mpim without having all members locally. Here's a stack trace"), TS.boot_data.feature_tinyspeck ? TS.metrics.count("mpim_missing_members_bug_ts_only") : TS.metrics.count("mpim_missing_members_bug"));
           }
           return "@" + _(t).compact().map(function(e) {
-            return e._is_local ? e.name : e.name + "_" + e.team_id;
+            return TS.utility.teams.isMemberExternal(e) ? e.name + "_" + e.team_id : e.name;
           }).value().join(",");
         },
         r = function(e) {
