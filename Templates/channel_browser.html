@@ -10,69 +10,42 @@
       <button class="new_channel btn btn_primary auto_left_margin">{{#t}}New channel{{/t}}</button>
     {{/if}}
   </div>
-  {{#if show_filter_options}}
-    <div class="small_bottom_margin display_flex align_items_center">
-      <div class="channel_browser_filter_container channel_modal_filter_container flex_one">
-        <i class="ts_icon ts_icon_search cloud_silver search_icon"></i>
-        <i class="ts_icon ts_icon_times_circle cloud_silver clear_filter_icon"></i>
-        <input type="text" id="channel_browser_filter" class="small" placeholder="{{#t}}Search channels{{/t}}" title="Search channels">
-      </div>
+  <div class="small_bottom_margin display_flex align_items_center">
+    <div class="channel_browser_filter_container channel_modal_filter_container flex_one">
+      <i class="ts_icon ts_icon_search cloud_silver search_icon"></i>
+      <i class="ts_icon ts_icon_times_circle cloud_silver clear_filter_icon"></i>
+      <input type="text" id="channel_browser_filter" class="small" placeholder="{{#t}}Search channels{{/t}}" title="Search channels">
     </div>
-    <div class="small_bottom_margin display_flex align_items_center">
-      <div class="show_which_channels_container flex_one right_margin">
-        <select id="show_which_channels" class="small">
-          <option value="all">{{#t}}All channels{{/t}}</option>
-          {{#feature flag="feature_channel_browser_archived"}}
-            <option value="private">{{#t}}Private channels{{/t}}</option>
-          {{/feature}}
-          {{#feature flag="feature_shared_channels_client"}}
-            <option value="ext_shared">{{#t}}Shared channels (beta){{/t}}</option>
-          {{/feature}}
-          {{#pageNeedsEnterprise}}
-            <option value="org_shared">{{#t}}Shared channels{{/t}}</option>
-          {{/pageNeedsEnterprise}}
-          {{#sharedChannelsEnabled}}
-            <option value="local">{{#t team_name=(currentTeamName)}}{team_name} channels{{/t}}</option>
-          {{/sharedChannelsEnabled}}
-          {{#feature flag="feature_channel_browser_archived"}}
-            <option value="archived">{{#t}}Archived channels{{/t}}</option>
-          {{/feature}}
-        </select>
-      </div>
-      <div class="channel_browser_sort_container flex_one">
-        <select id="channel_browser_sort" class="small">
-          <option value="name">
-          {{#feature flag="feature_channel_browser_archived"}}
-            {{#t}}Channel Name{{/t}}
-          {{else}}
-            {{#t}}Channel Name &amp; Membership{{/t}}
-          {{/feature}}
-          </option>
-          <option value="creator">{{#t}}Name of Creator{{/t}}</option>
-          <option value="created">{{#t}}Creation Date (newest first){{/t}}</option>
-          <option value="members_high">{{#t}}Members (most to fewest){{/t}}</option>
-          <option value="members_low">{{#t}}Members (fewest to most){{/t}}</option>
-        </select>
-      </div>
+  </div>
+  <div class="small_bottom_margin display_flex align_items_center">
+    <div class="show_which_channels_container flex_one right_margin">
+      <select id="show_which_channels" class="small">
+        <option value="all">{{#t}}All channels{{/t}}</option>
+        <option value="private">{{#t}}Private channels{{/t}}</option>
+        {{#feature flag="feature_shared_channels_client"}}
+          <option value="ext_shared">{{#t}}Shared channels (beta){{/t}}</option>
+        {{/feature}}
+        {{#pageNeedsEnterprise}}
+          <option value="org_shared">{{#t}}Shared channels{{/t}}</option>
+        {{/pageNeedsEnterprise}}
+        {{#sharedChannelsEnabled}}
+          <option value="local">{{#t team_name=(currentTeamName)}}{team_name} channels{{/t}}</option>
+        {{/sharedChannelsEnabled}}
+        <option value="archived">{{#t}}Archived channels{{/t}}</option>
+      </select>
     </div>
-  {{else}}
-    <div class="small_bottom_margin display_flex align_items_center">
-      <div class="channel_browser_filter_container channel_modal_filter_container right_margin flex_one">
-        <i class="ts_icon ts_icon_search cloud_silver search_icon"></i>
-        <i class="ts_icon ts_icon_times_circle cloud_silver clear_filter_icon"></i>
-        <input type="text" id="channel_browser_filter" class="small no_margin" placeholder="{{#t}}Search channels{{/t}}" title="Search channels">
-      </div>
-      <div class="channel_browser_sort_container flex_one" data-prefix-text="{{#t note="A prefix to the select dropdown. Reads like 'Sort by Channel Name & Membership'"}}Sort by{{/t}}">
-        <select id="channel_browser_sort" class="small">
-          <option value="name">{{#t}}Channel Name &amp; Membership{{/t}}</option>
-          <option value="creator">{{#t}}Name of Creator{{/t}}</option>
-          <option value="created">{{#t}}Creation Date (newest first){{/t}}</option>
-          <option value="members_high">{{#t}}Members (most to fewest){{/t}}</option>
-          <option value="members_low">{{#t}}Members (fewest to most){{/t}}</option>
-        </select>
-      </div>
+    <div class="channel_browser_sort_container flex_one">
+      <select id="channel_browser_sort" class="small">
+        <option value="name">
+        {{#t}}Channel Name{{/t}}
+        </option>
+        <option value="creator">{{#t}}Name of Creator{{/t}}</option>
+        <option value="created">{{#t}}Creation Date (newest first){{/t}}</option>
+        <option value="members_high">{{#t}}Members (most to fewest){{/t}}</option>
+        <option value="members_low">{{#t}}Members (fewest to most){{/t}}</option>
+      </select>
     </div>
-  {{/if}}
+  </div>
   <div id="channel_browser_empty" class="hidden align_center margin_auto display_flex align_items_center justify_content_center">
     <span class="channel_browser_empty_message"></span>
   </div>

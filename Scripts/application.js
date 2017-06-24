@@ -34528,11 +34528,15 @@ webpackJsonp([332], [, function(e, t, n) {
         bottom: a.PropTypes.number,
         height: a.PropTypes.number,
         width: a.PropTypes.number
-      })
+      }),
+      className: a.PropTypes.string,
+      onClose: a.PropTypes.func
     },
     m = {
       startsOpen: !1,
-      targetBounds: void 0
+      targetBounds: void 0,
+      className: "",
+      onClose: d.noop
     },
     y = function(e) {
       function t(e) {
@@ -34559,7 +34563,7 @@ webpackJsonp([332], [, function(e, t, n) {
               isOpen: !e.state.isOpen
             };
           }, function() {
-            e.state.isOpen ? window.addEventListener("resize", e.onResize) : (e.onResize.cancel(), window.removeEventListener("resize", e.onResize));
+            e.state.isOpen ? window.addEventListener("resize", e.onResize) : (e.props.onClose(), e.onResize.cancel(), window.removeEventListener("resize", e.onResize));
           });
         }
       }, {
@@ -34581,12 +34585,12 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "closePopover",
         value: function() {
           var e = this;
-          this.setState(function() {
+          this.state.isOpen && this.setState(function() {
             return {
               isOpen: !1
             };
           }, function() {
-            e.onResize.cancel(), window.removeEventListener("resize", e.onResize);
+            e.props.onClose(), e.onResize.cancel(), window.removeEventListener("resize", e.onResize);
           });
         }
       }, {
@@ -34608,7 +34612,9 @@ webpackJsonp([332], [, function(e, t, n) {
               onClose: this.closePopover,
               targetBounds: this.state.targetBounds
             }));
-          return s.a.createElement("div", null, n, r);
+          return s.a.createElement("div", {
+            className: this.props.className
+          }, n, r);
         }
       }]), t;
     }(a.Component);
@@ -36517,6 +36523,7 @@ webpackJsonp([332], [, function(e, t, n) {
             var n = t.width,
               r = t.height;
             return l.a.createElement(p.a, {
+              className: "c-message_list",
               keys: u,
               anchor: v,
               loadPre: e.requestOlder,
@@ -38243,9 +38250,9 @@ webpackJsonp([332], [, function(e, t, n) {
     };
   };
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".c-message {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  display: flex;\n  padding-right: 40px;\n  min-width: 1px;\n  position: relative;\n}\n.c-message:hover {\n  background-color: #F9F9F9;\n}\n.c-message.c-message--light {\n  padding-top: 5px;\n  padding-bottom: 3px;\n}\n.c-message.c-message--dense {\n  padding-top: 3px;\n  padding-bottom: 2px;\n}\n.c-message.c-message--light.c-message--adjacent {\n  padding-top: 2px;\n}\n.c-message__gutter {\n  text-align: right;\n  flex-shrink: 0;\n}\n.c-message--adjacent .c-message__gutter {\n  visibility: hidden;\n}\n.c-message--adjacent:hover .c-message__gutter {\n  visibility: visible;\n}\n.c-message--light .c-message__gutter {\n  width: 72px;\n  padding-right: 10px;\n}\n.c-message--dense .c-message__gutter {\n  width: 58px;\n  margin-right: 22px;\n}\n.c-message--dense .c-timestamp__label {\n  color: #717274;\n}\n.c-message__content {\n  flex: 0 1 100%;\n  min-width: 1px;\n}\n.c-message--dense .c-message__content {\n  padding-left: 8px;\n}\n.c-message__sender {\n  font-weight: 900;\n}\n.c-message--light .c-message__sender {\n  margin-right: 6px;\n  color: #2C2D30;\n}\n.c-message--dense .c-message__sender {\n  margin-left: -8px;\n  margin-right: 4px;\n}\n.c-message__sender--unknown {\n  display: inline-block;\n  width: 80px;\n  height: 0.9rem;\n  border-radius: 0.9rem;\n  vertical-align: bottom;\n  background: #E8E8E8;\n}\n.c-message--dense .c-message__content_header {\n  display: inline;\n  margin-bottom: 3px;\n}\n.c-message--dense.c-message--thread-broadcast .c-message__content_header {\n  display: flex;\n}\n.c-message--light .c-message__content_header {\n  line-height: 1;\n  margin-bottom: 3px;\n}\n.c-message__body {\n  line-height: 1.4;\n  color: #2C2D30;\n}\n.c-message__mention {\n  background: #FFF4BF;\n  border-radius: 3px;\n  padding: 0 2px 1px 2px;\n}\n.c-message__reply_bar {\n  display: flex;\n  align-items: center;\n  max-width: 600px;\n  margin-top: 5px;\n  padding: 3px;\n  font-size: 12px;\n  border: 1px solid transparent;\n  border-radius: 6px;\n  cursor: pointer;\n}\n.c-message__reply_bar:hover {\n  background-color: #FFF;\n  border-color: rgba(0, 0, 0, 0.15);\n}\n.c-message__reply_bar:hover .c-message__reply_bar_arrow {\n  color: #A0A0A2;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_last_reply {\n  opacity: 0;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_view_thread {\n  opacity: 1;\n}\n.c-message__reply_bar .c-avatar {\n  margin-right: 4px;\n}\n.c-message__reply_count {\n  margin-left: 3px;\n  font-weight: bold;\n}\n.c-message__reply_bar_description {\n  position: relative;\n  margin-left: 8px;\n  color: #A0A0A2;\n}\n.c-message__reply_bar_arrow {\n  margin-left: auto;\n  color: transparent;\n}\n.c-message__reply_bar_arrow::before {\n  vertical-align: top;\n}\n.c-message__reply_bar_last_reply {\n  opacity: 1;\n  transition: opacity 0.2s;\n}\n.c-message__broadcast_preamble {\n  color: #A0A0A2;\n  display: flex;\n  overflow: hidden;\n  max-width: 100%;\n}\n.c-message--light .c-message__broadcast_preamble {\n  margin-bottom: 3px;\n}\n.c-message__broadcast_preamble_meta {\n  flex-shrink: 0;\n}\n.c-message__broadcast_preamble_link {\n  font-weight: bold;\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  margin-left: 4px;\n}\n.c-message__reply_bar_view_thread {\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  opacity: 0;\n  transition: opacity 0.2s;\n}\n.c-message__attachment {\n  display: flex;\n  align-items: stretch;\n  margin-top: 2px;\n}\n.c-message__attachment_column {\n  width: 4px;\n  background-color: #E8E8E8;\n  border-radius: 8px;\n}\n.c-message__attachment_body {\n  padding-left: 12px;\n  padding-right: 12px;\n}\n.c-message__bot-label {\n  color: #A0A0A2;\n  font-weight: 500;\n  font-size: 12px;\n  margin: 0 0.15rem;\n  padding: 0 0.1rem;\n  vertical-align: middle;\n  background: #f2f2f5;\n}\n.c-message__image_wrapper {\n  display: block;\n  position: relative;\n  overflow: hidden;\n  border-radius: 3px;\n}\n.c-message__image_description {\n  margin-bottom: 8px;\n  color: #A0A0A2;\n}\n.c-message:hover .c-message__image_description {\n  color: #717274;\n}\n.c-message__image_caret {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n}\n.c-message__image_caret:hover,\n.c-message__image_caret:focus,\n.c-message__image_caret:active {\n  outline: none;\n}\n.c-message__file_link {\n  font-weight: 700;\n}\n.c-message__file_meta {\n  line-height: 1.4;\n  color: #A0A0A2;\n}\n.c-message:hover .c-message__file_meta {\n  color: #717274;\n}\n.c-message__body--comment {\n  position: relative;\n  display: block;\n}\n.c-message__body--comment:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  content: '\\E516';\n  position: absolute;\n  left: -28px;\n  top: -4px;\n  color: #E8E8E8;\n}\n.c-message--dense .c-message__body--comment:before {\n  display: none;\n}\n.c-message__file_comment_user,\n.c-message__file_comment_user:link,\n.c-message__file_comment_user:visited {\n  color: inherit;\n}\n.c-message__actions {\n  position: absolute;\n  top: -14px;\n  right: 5px;\n  display: none;\n}\n.c-message:hover .c-message__actions {\n  display: block;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".c-message {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  display: flex;\n  padding-right: 40px;\n  min-width: 1px;\n  position: relative;\n}\n.c-message:hover {\n  background-color: #F9F9F9;\n}\n.c-message.c-message--light {\n  padding-top: 5px;\n  padding-bottom: 3px;\n}\n.c-message.c-message--dense {\n  padding-top: 3px;\n  padding-bottom: 2px;\n}\n.c-message.c-message--light.c-message--adjacent {\n  padding-top: 2px;\n}\n.c-message__gutter {\n  text-align: right;\n  flex-shrink: 0;\n}\n.c-message--adjacent .c-message__gutter {\n  visibility: hidden;\n}\n.c-message--adjacent:hover .c-message__gutter {\n  visibility: visible;\n}\n.c-message--light .c-message__gutter {\n  width: 72px;\n  padding-right: 10px;\n}\n.c-message--dense .c-message__gutter {\n  width: 58px;\n  margin-right: 22px;\n}\n.c-message--dense .c-timestamp__label {\n  color: #717274;\n}\n.c-message__content {\n  flex: 0 1 100%;\n  min-width: 1px;\n}\n.c-message--dense .c-message__content {\n  padding-left: 8px;\n}\n.c-message__sender {\n  font-weight: 900;\n}\n.c-message--light .c-message__sender {\n  margin-right: 6px;\n  color: #2C2D30;\n}\n.c-message--dense .c-message__sender {\n  margin-left: -8px;\n  margin-right: 4px;\n}\n.c-message__sender--unknown {\n  display: inline-block;\n  width: 80px;\n  height: 0.9rem;\n  border-radius: 0.9rem;\n  vertical-align: bottom;\n  background: #E8E8E8;\n}\n.c-message--dense .c-message__content_header {\n  display: inline;\n  margin-bottom: 3px;\n}\n.c-message--dense.c-message--thread-broadcast .c-message__content_header {\n  display: flex;\n}\n.c-message--light .c-message__content_header {\n  line-height: 1;\n  margin-bottom: 3px;\n}\n.c-message__body {\n  line-height: 1.4;\n  color: #2C2D30;\n}\n.c-message__mention {\n  background: #FFF4BF;\n  border-radius: 3px;\n  padding: 0 2px 1px 2px;\n}\n.c-message__reply_bar {\n  display: flex;\n  align-items: center;\n  max-width: 600px;\n  margin-top: 5px;\n  padding: 3px;\n  font-size: 12px;\n  border: 1px solid transparent;\n  border-radius: 6px;\n  cursor: pointer;\n}\n.c-message__reply_bar:hover {\n  background-color: #FFF;\n  border-color: rgba(0, 0, 0, 0.15);\n}\n.c-message__reply_bar:hover .c-message__reply_bar_arrow {\n  color: #A0A0A2;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_last_reply {\n  opacity: 0;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_view_thread {\n  opacity: 1;\n}\n.c-message__reply_bar .c-avatar {\n  margin-right: 4px;\n}\n.c-message__reply_count {\n  margin-left: 3px;\n  font-weight: bold;\n}\n.c-message__reply_bar_description {\n  position: relative;\n  margin-left: 8px;\n  color: #A0A0A2;\n}\n.c-message__reply_bar_arrow {\n  margin-left: auto;\n  color: transparent;\n}\n.c-message__reply_bar_arrow::before {\n  vertical-align: top;\n}\n.c-message__reply_bar_last_reply {\n  opacity: 1;\n  transition: opacity 0.2s;\n}\n.c-message__broadcast_preamble {\n  color: #A0A0A2;\n  display: flex;\n  overflow: hidden;\n  max-width: 100%;\n}\n.c-message--light .c-message__broadcast_preamble {\n  margin-bottom: 3px;\n}\n.c-message__broadcast_preamble_meta {\n  flex-shrink: 0;\n}\n.c-message__broadcast_preamble_link {\n  font-weight: bold;\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  margin-left: 4px;\n}\n.c-message__reply_bar_view_thread {\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  opacity: 0;\n  transition: opacity 0.2s;\n}\n.c-message__attachment {\n  display: flex;\n  align-items: stretch;\n  margin-top: 2px;\n}\n.c-message__attachment_column {\n  width: 4px;\n  background-color: #E8E8E8;\n  border-radius: 8px;\n}\n.c-message__attachment_body {\n  padding-left: 12px;\n  padding-right: 12px;\n}\n.c-message__bot-label {\n  color: #A0A0A2;\n  font-weight: 500;\n  font-size: 12px;\n  margin: 0 0.15rem;\n  padding: 0 0.1rem;\n  vertical-align: middle;\n  background: #f2f2f5;\n}\n.c-message__image_wrapper {\n  display: block;\n  position: relative;\n  overflow: hidden;\n  border-radius: 3px;\n}\n.c-message__image_description {\n  margin-bottom: 8px;\n  color: #A0A0A2;\n}\n.c-message:hover .c-message__image_description {\n  color: #717274;\n}\n.c-message__image_caret {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n}\n.c-message__image_caret:hover,\n.c-message__image_caret:focus,\n.c-message__image_caret:active {\n  outline: none;\n}\n.c-message__file_link {\n  font-weight: 700;\n}\n.c-message__file_meta {\n  line-height: 1.4;\n  color: #A0A0A2;\n}\n.c-message:hover .c-message__file_meta {\n  color: #717274;\n}\n.c-message__body--comment {\n  position: relative;\n  display: block;\n}\n.c-message__body--comment:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  content: '\\E516';\n  position: absolute;\n  left: -28px;\n  top: -4px;\n  color: #E8E8E8;\n}\n.c-message--dense .c-message__body--comment:before {\n  display: none;\n}\n.c-message__file_comment_user,\n.c-message__file_comment_user:link,\n.c-message__file_comment_user:visited {\n  color: inherit;\n}\n.c-message__actions {\n  position: absolute;\n  top: -14px;\n  right: 5px;\n  display: none;\n}\n.c-message:hover .c-message__actions,\n.c-message__actions.c-message__actions--menu-showing {\n  display: block;\n}\n", ""]);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".c-message_list {\n  border-right: 0.25rem solid transparent;\n  overflow-y: scroll;\n  overflow-x: hidden;\n  height: 100%;\n}\n.c-message_list::-webkit-scrollbar {\n  position: absolute;\n  -webkit-appearance: none;\n  width: 8px;\n}\n.c-message_list::-webkit-scrollbar-track,\n.c-message_list::-webkit-scrollbar-thumb {\n  background-clip: padding-box !important;\n  border-radius: 3px;\n  color: #FFFFFF;\n}\n.c-message_list::-webkit-scrollbar-track {\n  background: #F5F5F5;\n  box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0;\n}\n.c-message_list::-webkit-scrollbar-thumb {\n  background: #D9D9DE;\n  box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;\n  min-height: 36px;\n}\n.c-message_list::-webkit-scrollbar-corner {\n  background: #FFFFFF;\n}\n.c-message_list__day_divider {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 0.9rem;\n  width: 100%;\n  color: #2C2D30;\n  font-weight: bold;\n  text-align: center;\n  position: relative;\n  padding: 1rem 0;\n}\n.c-message_list__day_divider .c-message_list__unread_divider {\n  top: 12px;\n}\n.c-message_list__day_divider .c-message_list__unread_divider__separator {\n  margin-right: 0;\n}\n.c-message_list__day_divider__label {\n  cursor: default;\n  display: inline-block;\n  background: #FFF;\n  padding: 0.25rem 0.75rem;\n  position: relative;\n  z-index: 1;\n}\n.c-message_list__day_divider__line {\n  position: absolute;\n  top: 50%;\n  left: 0;\n  right: 0;\n  border-top: 1px solid #E8E8E8;\n  border-bottom: 0;\n  z-index: -1;\n  margin: 0;\n}\n.c-message_list__unread_divider {\n  position: relative;\n  top: -1px;\n  z-index: 1;\n}\n.c-message_list__unread_divider__separator {\n  border-bottom: none;\n  border-color: rgba(255, 135, 109, 0.5);\n  margin: 0 18px -1px 0;\n  -webkit-transition: border 150ms ease-out 0;\n  -moz-transition: border 150ms ease-out 0;\n  transition: border 150ms ease-out 0;\n}\n.c-message_list__unread_divider__label {\n  background: #FFF;\n  border-radius: 7px;\n  color: rgba(255, 135, 109, 0.5);\n  cursor: default;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 13px;\n  font-weight: bold;\n  line-height: 8px;\n  margin: -5px 11px -5px 0;\n  padding: 0 5px 3px 5px;\n  position: absolute;\n  right: 0;\n  text-transform: lowercase;\n  -webkit-transition: color 150ms ease-out 0;\n  -moz-transition: color 150ms ease-out 0;\n  transition: color 150ms ease-out 0;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".c-message_list {\n  border-right: 0.25rem solid transparent;\n}\n.c-message_list::-webkit-scrollbar {\n  position: absolute;\n  -webkit-appearance: none;\n  width: 8px;\n}\n.c-message_list::-webkit-scrollbar-track,\n.c-message_list::-webkit-scrollbar-thumb {\n  background-clip: padding-box !important;\n  border-radius: 3px;\n  color: #FFFFFF;\n}\n.c-message_list::-webkit-scrollbar-track {\n  background: #F5F5F5;\n  box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0;\n}\n.c-message_list::-webkit-scrollbar-thumb {\n  background: #D9D9DE;\n  box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;\n  min-height: 36px;\n}\n.c-message_list::-webkit-scrollbar-corner {\n  background: #FFFFFF;\n}\n.c-message_list__day_divider {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 0.9rem;\n  width: 100%;\n  color: #2C2D30;\n  font-weight: bold;\n  text-align: center;\n  position: relative;\n  padding: 1rem 0;\n}\n.c-message_list__day_divider .c-message_list__unread_divider {\n  top: 12px;\n}\n.c-message_list__day_divider .c-message_list__unread_divider__separator {\n  margin-right: 0;\n}\n.c-message_list__day_divider__label {\n  cursor: default;\n  display: inline-block;\n  background: #FFF;\n  padding: 0.25rem 0.75rem;\n  position: relative;\n  z-index: 1;\n}\n.c-message_list__day_divider__line {\n  position: absolute;\n  top: 50%;\n  left: 0;\n  right: 0;\n  border-top: 1px solid #E8E8E8;\n  border-bottom: 0;\n  z-index: -1;\n  margin: 0;\n}\n.c-message_list__unread_divider {\n  position: relative;\n  top: -1px;\n  z-index: 1;\n}\n.c-message_list__unread_divider__separator {\n  border-bottom: none;\n  border-color: rgba(255, 135, 109, 0.5);\n  margin: 0 18px -1px 0;\n  -webkit-transition: border 150ms ease-out 0;\n  -moz-transition: border 150ms ease-out 0;\n  transition: border 150ms ease-out 0;\n}\n.c-message_list__unread_divider__label {\n  background: #FFF;\n  border-radius: 7px;\n  color: rgba(255, 135, 109, 0.5);\n  cursor: default;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 13px;\n  font-weight: bold;\n  line-height: 8px;\n  margin: -5px 11px -5px 0;\n  padding: 0 5px 3px 5px;\n  position: absolute;\n  right: 0;\n  text-transform: lowercase;\n  -webkit-transition: color 150ms ease-out 0;\n  -moz-transition: color 150ms ease-out 0;\n  transition: color 150ms ease-out 0;\n}\n", ""]);
 }, function(e, t, n) {
   var r = n(3117);
   "string" == typeof r && (r = [
@@ -38572,6 +38579,7 @@ webpackJsonp([332], [, function(e, t, n) {
       };
     }(),
     _ = {
+      className: s.PropTypes.string,
       keys: s.PropTypes.arrayOf(s.PropTypes.string),
       children: s.PropTypes.arrayOf(s.PropTypes.node),
       loadPre: s.PropTypes.func,
@@ -38583,6 +38591,7 @@ webpackJsonp([332], [, function(e, t, n) {
       onClickItem: s.PropTypes.func
     },
     m = {
+      className: "",
       keys: [],
       children: [],
       loadPre: d.a.noop,
@@ -38696,7 +38705,7 @@ webpackJsonp([332], [, function(e, t, n) {
                 style: {
                   top: l,
                   position: "absolute",
-                  width: e.props.width
+                  width: "100%"
                 },
                 key: s,
                 onHeightChange: function(t) {
@@ -38706,10 +38715,12 @@ webpackJsonp([332], [, function(e, t, n) {
               }, i);
             });
           return u.a.createElement("div", {
+            className: this.props.className,
             style: p({}, this.props.style, {
               height: this.props.height,
               width: this.props.width,
-              overflow: "auto",
+              overflowY: "scroll",
+              overflowX: "hidden",
               position: "relative",
               willChange: "transform"
             }),
@@ -40880,23 +40891,28 @@ webpackJsonp([332], [, function(e, t, n) {
       function t() {
         o(this, t);
         var e = i(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this));
-        return e.lastRequestId = 0, e.currentDisplayedId = 0, e.state = {
+        return e.lastRequestId = 0, e.currentDisplayedId = 0, e.isMouseMoveEnabled = !0, e.state = {
           clickCount: 0,
           searchTerm: "",
           appCategories: [],
-          isLoading: !0
-        }, e.handleSearchInputChange = e.handleSearchInputChange.bind(e), e.handleAppClick = e.handleAppClick.bind(e), e.searchApps = e.searchApps.bind(e), e.doRequest = e.doRequest.bind(e), e.setSearchInputRef = e.setSearchInputRef.bind(e), e.throttledSearchApps = f.a.throttle(e.searchApps, 500, {
-          leading: !1,
-          trailing: !0
-        }), e;
+          isLoading: !0,
+          selectedAppIndex: null
+        }, e.handleKeydown = e.handleKeydown.bind(e), e.handleMouseMove = e.handleMouseMove.bind(e), e.handleSearchInputChange = e.handleSearchInputChange.bind(e), e.handleAppClick = e.handleAppClick.bind(e), e.searchApps = e.searchApps.bind(e), e.doRequest = e.doRequest.bind(e), e.enableMouseMove = e.enableMouseMove.bind(e), e.setSearchInputRef = e.setSearchInputRef.bind(e), e.throttledSearchApps = f.a.throttle(e.searchApps, 500, {
+          leading: !1
+        }), e.debouncedEnableMouseMove = f.a.debounce(e.enableMouseMove, 200), e;
       }
       return a(t, e), T(t, [{
         key: "componentDidMount",
         value: function() {
           var e = this;
-          this.doRequest(n.i(y.a)(L.listEnpoint).then(function(t) {
+          document.body.addEventListener("keydown", this.handleKeydown), document.body.addEventListener("mousemove", this.handleMouseMove), this.doRequest(n.i(y.a)(L.listEnpoint).then(function(t) {
             return e.defaultAppCategories = t.data.categories, t;
           }), L.listEnpoint), this.searchInput.focus();
+        }
+      }, {
+        key: "componentWillUnmount",
+        value: function() {
+          document.body.removeEventListener("keydown", this.handleKeydown), document.body.removeEventListener("mousemove", this.handleMouseMove);
         }
       }, {
         key: "setSearchInputRef",
@@ -40910,6 +40926,11 @@ webpackJsonp([332], [, function(e, t, n) {
             n = e.icons,
             r = void 0;
           return n && (r = n.image_96 || n.image_128 || n.image_192 || n.image_512 || n.image_1024 || n.image_72 || n.image_64 || n.image_48 || n.image_36 || n.image_32 || n.image_24), r || t;
+        }
+      }, {
+        key: "getSelectedApp",
+        value: function() {
+          return document.querySelector("[data-app_index='" + this.state.selectedAppIndex + "']");
         }
       }, {
         key: "paginateCategories",
@@ -40954,10 +40975,71 @@ webpackJsonp([332], [, function(e, t, n) {
           }
         }
       }, {
+        key: "enableMouseMove",
+        value: function() {
+          this.isMouseMoveEnabled = !0;
+        }
+      }, {
+        key: "handleKeydown",
+        value: function(e) {
+          for (var t = this, n = this.getSelectedApp(), r = 0, o = 0; o < this.state.appCategories.length; o++) r += this.state.appCategories[o].apps.length;
+          if (0 !== r) switch (e.which) {
+            case 40:
+              this.isMouseMoveEnabled = !1, this.setState(function(e) {
+                var t = void 0;
+                return t = null === e.selectedAppIndex ? 0 : e.selectedAppIndex === r - 1 ? e.selectedAppIndex : e.selectedAppIndex + 1, {
+                  selectedAppIndex: t
+                };
+              }, function() {
+                t.scrollSelectedAppIntoView(!1), t.debouncedEnableMouseMove();
+              });
+              break;
+            case 38:
+              this.isMouseMoveEnabled = !1, this.setState(function(t) {
+                var n = void 0;
+                return n = null === t.selectedAppIndex ? 0 : 0 === t.selectedAppIndex ? 0 : e.getModifierState("Shift") ? 0 : t.selectedAppIndex - 1, {
+                  selectedAppIndex: n
+                };
+              }, function() {
+                t.scrollSelectedAppIntoView(!1), t.debouncedEnableMouseMove();
+              });
+              break;
+            case 13:
+              n && this.selectApp(n.dataset);
+          }
+        }
+      }, {
+        key: "scrollSelectedAppIntoView",
+        value: function() {
+          var e = this.getSelectedApp();
+          if (e) {
+            var t = document.querySelector("[data-apps_list]"),
+              n = document.querySelector("[data-category_header]"),
+              r = n ? n.offsetHeight : 0;
+            e.offsetTop < t.scrollTop ? t.scrollTop = e.offsetTop - r : e.offsetTop + e.offsetHeight > t.scrollTop + t.offsetHeight && (t.scrollTop = e.offsetTop + e.offsetHeight - t.offsetHeight);
+          }
+        }
+      }, {
         key: "handleAppClick",
         value: function(e) {
-          var t = e.currentTarget.dataset;
-          "true" === t.is_installed ? n.i(v.a)(t) : window.open(window.location.origin + "/apps/" + t.app_id);
+          this.selectApp(e.currentTarget.dataset);
+        }
+      }, {
+        key: "selectApp",
+        value: function(e) {
+          "true" === e.is_installed ? n.i(v.a)(e) : window.open(window.location.origin + "/apps/" + e.app_id);
+        }
+      }, {
+        key: "handleMouseMove",
+        value: function(e) {
+          if (this.isMouseMoveEnabled) {
+            var t = e.target.closest("[data-app]");
+            t && this.setState(function() {
+              return {
+                selectedAppIndex: parseInt(t.dataset.app_index, 10)
+              };
+            });
+          }
         }
       }, {
         key: "handleSearchInputChange",
@@ -40993,30 +41075,37 @@ webpackJsonp([332], [, function(e, t, n) {
             r > n.currentDisplayedId && (n.currentDisplayedId = r, n.setState(function() {
               return {
                 isLoading: !1,
-                appCategories: e.data.categories
+                appCategories: e.data.categories,
+                selectedAppIndex: f.a.get(e, "response.data.categories[0].apps", []).length && t === L.searchEndpoint ? 0 : null
               };
             }), n.paginateCategories(t, r));
           });
         }
       }, {
-        key: "createAppCategoryAppsMarkup",
-        value: function(e) {
-          var t = this;
-          return e.map(function(e) {
-            var n = "app-" + e.app_id,
-              r = t.getAppIcon(e),
-              o = x("Install");
-            return e.is_installed && (o = x("View")), u.a.createElement("div", {
-              key: n,
-              className: "p-apps_browser__app",
-              onClick: t.handleAppClick,
+        key: "createAppCategoryMarkup",
+        value: function(e, t) {
+          var n = this;
+          return e.apps.map(function(e, r) {
+            var o = t + r,
+              i = c()("p-apps_browser__app", {
+                "p-apps_browser__app--selected": o === n.state.selectedAppIndex
+              }),
+              a = "app-" + e.app_id + "-" + e.bot_id,
+              s = n.getAppIcon(e),
+              l = x("Install");
+            return e.is_installed && (l = x("View")), u.a.createElement("div", {
+              key: a,
+              className: i,
+              onClick: n.handleAppClick,
+              "data-app": o,
+              "data-app_index": o,
               "data-is_installed": e.is_installed,
               "data-app_id": e.app_id,
               "data-bot_id": e.bot_id,
               "data-bot_user_id": e.bot_user_id
             }, u.a.createElement("img", {
               className: "p-apps_browser__app_icon",
-              src: r,
+              src: s,
               alt: "App icon"
             }), u.a.createElement("div", {
               className: "p-apps_browser__app_info"
@@ -41026,24 +41115,27 @@ webpackJsonp([332], [, function(e, t, n) {
               className: "p-apps_browser__app_description"
             }, e.short_description)), u.a.createElement("button", {
               className: "p-apps_browser__app_action"
-            }, o));
+            }, l));
           });
         }
       }, {
         key: "createAppCategoriesMarkup",
         value: function() {
-          var e = this;
-          return this.state.appCategories.map(function(t) {
-            var n = "category-" + t.id,
-              r = c()("p-apps_browser__category_header", {
+          var e = this,
+            t = 0;
+          return this.state.appCategories.map(function(n) {
+            var r = "category-" + n.id,
+              o = c()("p-apps_browser__category_header", {
                 "p-apps_browser__category_header--sticky": e.props.doesSupportStickyPosition
-              });
-            return u.a.createElement("section", {
-              key: n,
+              }),
+              i = e.createAppCategoryMarkup(n, t);
+            return t += n.apps.length, u.a.createElement("section", {
+              key: r,
               className: "p-apps_browser__category_section"
             }, u.a.createElement("div", {
-              className: r
-            }, t.display_name), e.createAppCategoryAppsMarkup(t.apps));
+              className: o,
+              "data-category_header": !0
+            }, n.display_name), i);
           }, this);
         }
       }, {
@@ -41070,7 +41162,8 @@ webpackJsonp([332], [, function(e, t, n) {
             placeholder: x("Search apps"),
             onChange: this.handleSearchInputChange
           }))), u.a.createElement("div", {
-            className: t
+            className: t,
+            "data-apps_list": !0
           }, e));
         }
       }]), t;
@@ -53885,7 +53978,7 @@ webpackJsonp([332], [, function(e, t, n) {
 }, , , , , function(e, t, n) {
   t = e.exports = n(189)(), t.push([e.i, ".c-enhanced_text_input {\n  border-radius: 0.25rem;\n  display: flex;\n  align-items: center;\n  -webkit-transition: box-shadow 70ms ease-out, border-color 70ms ease-out 0.2s ease-out 0.0000001ms;\n  -moz-transition: box-shadow 70ms ease-out, border-color 70ms ease-out 0.2s ease-out 0.0000001ms;\n  transition: box-shadow 70ms ease-out, border-color 70ms ease-out 0.2s ease-out 0.0000001ms;\n  -webkit-transition: box-shadow 70ms ease-out, border-color 70ms ease-out;\n  -moz-transition: box-shadow 70ms ease-out, border-color 70ms ease-out;\n  transition: box-shadow 70ms ease-out, border-color 70ms ease-out;\n  border: 1px solid #A0A0A2;\n  padding: 0.25rem 0.5rem;\n  color: #A0A0A2;\n  font-size: 1rem;\n}\n.c-enhanced_text_input:hover {\n  border-color: #3AA3E3;\n}\n.c-enhanced_text_input--active {\n  border-color: #3AA3E3;\n  box-shadow: 0 0 7px rgba(58, 163, 227, 0.15);\n}\n.c-enhanced_text_input .c-icon:before {\n  font-size: 1rem;\n}\n.c-enhanced_text_input__input[type=text] {\n  flex-grow: 1;\n  margin: 0;\n  padding: 0 0.5rem;\n  border: 0 none !important;\n  font-size: 1rem;\n}\n.c-enhanced_text_input__input[type=text]:active,\n.c-enhanced_text_input__input[type=text]:focus {\n  box-shadow: none;\n}\n.c-enhanced_text_input__reset_button {\n  display: none;\n  cursor: pointer;\n}\n.c-enhanced_text_input__reset_button--visible {\n  display: block;\n}\n.feature_keyboard_navigation .c-enhanced_text_input:hover,\n.feature_keyboard_navigation .c-enhanced_text_input.c-enhanced_text_input--active {\n  border-color: #717274;\n}\n", ""]);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".p-apps_browser {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-weight: 400;\n  -webkit-font-smoothing: antialiased;\n  display: flex;\n  flex-direction: column;\n  margin: 9.5rem auto 1rem auto;\n  width: 650px;\n}\n.p-apps_browser__filter_container {\n  margin-bottom: 25px;\n}\n.p-apps_browser__filter_header {\n  display: flex;\n  margin-bottom: 25px;\n}\n.p-apps_browser__filter_header h2 {\n  font-weight: 900;\n  font-size: 2rem;\n  flex-grow: 1;\n  margin: 0;\n}\n.p-apps_browser__search_box {\n  display: flex;\n}\n.p-apps_browser__apps_list {\n  overflow: auto;\n  min-height: 200px;\n  position: relative;\n  cursor: pointer;\n}\n.p-apps_browser__apps_list--loading::before {\n  background-image: url('/img/loading_hash_animation_@2x.gif');\n  background-color: #FFF;\n  background-position: center;\n  background-repeat: no-repeat;\n  position: absolute;\n  content: '';\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n}\n.p-apps_browser__category_section {\n  margin-bottom: 20px;\n}\n.p-apps_browser__category_header {\n  font-size: 13px;\n  background: #FFF;\n  color: #717274;\n  margin-bottom: 5px;\n}\n.p-apps_browser__category_header--sticky {\n  top: 0;\n  position: sticky;\n}\n.p-apps_browser__app {\n  padding: 10px;\n  border: 1px solid transparent;\n  border-top-color: #E8E8E8;\n  display: flex;\n  align-items: center;\n}\n.p-apps_browser__app:first-of-type {\n  border-top-color: transparent;\n}\n.p-apps_browser__app:hover {\n  border-radius: 5px;\n  background: #F9F9F9;\n  border: 1px solid #E8E8E8;\n}\n.p-apps_browser__app:hover + .p-apps_browser__app {\n  border-top-color: transparent;\n}\n.p-apps_browser__app_icon {\n  width: 36px;\n  height: 36px;\n  margin-right: 10px;\n}\n.p-apps_browser__app_info {\n  width: 510px;\n  font-size: 15px;\n  color: #2C2D30;\n}\n.p-apps_browser__app_action {\n  border-radius: 4px;\n  font-size: 0.875rem;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-weight: 700;\n  background-color: #F9F9F9;\n  border: 1px solid #A0A0A2;\n  color: #717274;\n  padding: 0 10px;\n}\n.p-apps_browser__app_action:hover {\n  color: #007AB8;\n}\n.p-apps_browser__app_name {\n  font-weight: bold;\n}\n.p-apps_browser__app_description {\n  color: #717274;\n}\n.p-apps_browser__no_results {\n  display: flex;\n  -ms-flex-pack: center;\n  -webkit-box-pack: center;\n  -webkit-justify-content: center;\n  -moz-justify-content: center;\n  justify-content: center;\n  align-items: center;\n  height: 100px;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".p-apps_browser {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-weight: 400;\n  -webkit-font-smoothing: antialiased;\n  display: flex;\n  flex-direction: column;\n  margin: 9.5rem auto 1rem auto;\n  width: 650px;\n}\n.p-apps_browser__filter_container {\n  margin-bottom: 25px;\n}\n.p-apps_browser__filter_header {\n  display: flex;\n  margin-bottom: 25px;\n}\n.p-apps_browser__filter_header h2 {\n  font-weight: 900;\n  font-size: 2rem;\n  flex-grow: 1;\n  margin: 0;\n}\n.p-apps_browser__search_box {\n  display: flex;\n}\n.p-apps_browser__apps_list {\n  overflow: auto;\n  min-height: 200px;\n  position: relative;\n  cursor: pointer;\n}\n.p-apps_browser__apps_list--loading::before {\n  background-image: url('/img/loading_hash_animation_@2x.gif');\n  background-color: #FFF;\n  background-position: center;\n  background-repeat: no-repeat;\n  position: absolute;\n  content: '';\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n}\n.p-apps_browser__category_section {\n  margin-bottom: 20px;\n}\n.p-apps_browser__category_header {\n  font-size: 13px;\n  background: #FFF;\n  color: #717274;\n  margin-bottom: 5px;\n}\n.p-apps_browser__category_header--sticky {\n  top: 0;\n  position: sticky;\n}\n.p-apps_browser__app {\n  padding: 10px;\n  border: 1px solid transparent;\n  border-top-color: #E8E8E8;\n  display: flex;\n  align-items: center;\n}\n.p-apps_browser__app:first-of-type {\n  border-top-color: transparent;\n}\n.p-apps_browser__app--selected {\n  border-radius: 5px;\n  background: #F9F9F9;\n  border: 1px solid #E8E8E8;\n}\n.p-apps_browser__app--selected + .p-apps_browser__app {\n  border-top-color: transparent;\n}\n.p-apps_browser__app_icon {\n  width: 36px;\n  height: 36px;\n  margin-right: 10px;\n}\n.p-apps_browser__app_info {\n  width: 510px;\n  font-size: 15px;\n  color: #2C2D30;\n}\n.p-apps_browser__app_action {\n  border-radius: 4px;\n  font-size: 0.875rem;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-weight: 700;\n  background-color: #F9F9F9;\n  border: 1px solid #A0A0A2;\n  color: #717274;\n  padding: 0 10px;\n}\n.p-apps_browser__app_action:hover {\n  color: #007AB8;\n}\n.p-apps_browser__app_name {\n  font-weight: bold;\n}\n.p-apps_browser__app_description {\n  color: #717274;\n}\n.p-apps_browser__no_results {\n  display: flex;\n  -ms-flex-pack: center;\n  -webkit-box-pack: center;\n  -webkit-justify-content: center;\n  -moz-justify-content: center;\n  justify-content: center;\n  align-items: center;\n  height: 100px;\n}\n", ""]);
 }, function(e, t, n) {
   "use strict";
 
@@ -55253,7 +55346,7 @@ webpackJsonp([332], [, function(e, t, n) {
   n(219)(r, {});
   r.locals && (e.exports = r.locals);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".c-message_actions__container {\n  background: #FFF;\n  border: 0.0625rem solid rgba(0, 0, 0, 0.15);\n  border-radius: 0.375rem;\n  overflow: hidden;\n  transition: all 50ms ease-in;\n  transition-property: border, box-shadow;\n}\n.c-message_actions__container:hover {\n  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);\n  border-color: rgba(0, 0, 0, 0.3);\n}\n.c-message_actions__container > .c-message_actions__button:last-of-type {\n  border-right: none;\n}\n.c-message_actions__button {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  padding: 4px 8px;\n  color: #717274;\n  border: none;\n  border-right: 1px solid rgba(0, 0, 0, 0.15);\n  transition: all 50ms ease-in;\n  transition-property: background, border, opacity;\n}\n.c-message_actions__button:hover,\n.c-message_actions__button:focus,\n.c-message_actions__button:active {\n  outline: none;\n}\n.c-message_actions__button .c-icon::before {\n  font-size: 1.1rem;\n}\n.c-message_actions__button:hover {\n  color: #007AB8;\n}\n.c-message_actions__button:active {\n  background: #F9F9F9;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".c-message_actions__container {\n  background: #FFF;\n  border: 0.0625rem solid rgba(0, 0, 0, 0.15);\n  border-radius: 0.375rem;\n  overflow: hidden;\n  transition: all 50ms ease-in;\n  transition-property: border, box-shadow;\n}\n.c-message_actions__container:hover {\n  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);\n  border-color: rgba(0, 0, 0, 0.3);\n}\n.c-message_actions__container .c-message_actions__button:last-child {\n  border-right: none;\n}\n.c-message_actions__button {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  padding: 4px 8px;\n  color: #717274;\n  border: none;\n  border-right: 1px solid rgba(0, 0, 0, 0.15);\n  transition: all 50ms ease-in;\n  transition-property: background, border, opacity;\n}\n.c-message_actions__button:hover,\n.c-message_actions__button:focus,\n.c-message_actions__button:active {\n  outline: none;\n}\n.c-message_actions__button .c-icon::before {\n  font-size: 1.1rem;\n}\n.c-message_actions__button:hover {\n  color: #007AB8;\n}\n.c-message_actions__button:active {\n  background: #F9F9F9;\n}\n", ""]);
 }, function(e, t, n) {
   "use strict";
   var r = n(3934);
@@ -55346,13 +55439,18 @@ webpackJsonp([332], [, function(e, t, n) {
   }
   var a = n(2),
     s = n.n(a),
-    u = n(3935),
-    l = n(3933),
-    c = n(2288),
-    d = n(3644),
-    f = n(2907),
-    p = n(3948),
-    h = function() {
+    u = n(9),
+    l = n.n(u),
+    c = n(3935),
+    d = n(3933),
+    f = n(3956),
+    p = n(3952),
+    h = n(3954),
+    _ = n(2288),
+    m = n(3644),
+    y = n(2907),
+    v = n(3948),
+    g = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
@@ -55363,8 +55461,8 @@ webpackJsonp([332], [, function(e, t, n) {
         return n && e(t.prototype, n), r && e(t, r), t;
       };
     }(),
-    _ = c.a.ns("message"),
-    m = {
+    b = _.a.ns("message"),
+    w = {
       reactionKey: a.PropTypes.string,
       file: a.PropTypes.string,
       replyCount: a.PropTypes.number,
@@ -55372,7 +55470,7 @@ webpackJsonp([332], [, function(e, t, n) {
       threadTs: a.PropTypes.string,
       channel: a.PropTypes.object
     },
-    y = {
+    k = {
       reactionKey: null,
       file: null,
       replyCount: 0,
@@ -55380,16 +55478,22 @@ webpackJsonp([332], [, function(e, t, n) {
       threadTs: null,
       channel: null
     },
-    v = function(e) {
+    M = {
+      x: 12,
+      y: -80
+    },
+    T = function(e) {
       function t(e) {
         r(this, t);
         var n = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
-        return n.onAddReaction = n.onAddReaction.bind(n), n.onComment = n.onComment.bind(n), n;
+        return n.state = {
+          moreActionsMenuOpen: !1
+        }, n.onAddReaction = n.onAddReaction.bind(n), n.onComment = n.onComment.bind(n), n.onMoreActionsMenuOpen = n.onMoreActionsMenuOpen.bind(n), n.onMoreActionsMenuClose = n.onMoreActionsMenuClose.bind(n), n.renderMoreActionsMenu = n.renderMoreActionsMenu.bind(n), n;
       }
-      return i(t, e), h(t, [{
+      return i(t, e), g(t, [{
         key: "onAddReaction",
         value: function(e) {
-          this.props.reactionKey && n.i(d.a)({
+          this.props.reactionKey && n.i(m.a)({
             e: e,
             rxn_key: this.props.reactionKey
           });
@@ -55397,18 +55501,36 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "onComment",
         value: function() {
-          if (this.props.file) n.i(f.a)(this.props.file, "", !1, !0, null);
+          if (this.props.file) n.i(y.a)(this.props.file, "", !1, !0, null);
           else {
             var e = this.props.threadTs || this.props.ts;
-            n.i(p.a)([], this.props.channel, e);
+            n.i(v.a)([], this.props.channel, e);
           }
+        }
+      }, {
+        key: "onMoreActionsMenuOpen",
+        value: function() {
+          this.setState(function() {
+            return {
+              moreActionsMenuOpen: !0
+            };
+          });
+        }
+      }, {
+        key: "onMoreActionsMenuClose",
+        value: function() {
+          this.setState(function() {
+            return {
+              moreActionsMenuOpen: !1
+            };
+          });
         }
       }, {
         key: "renderReaction",
         value: function() {
-          return s.a.createElement(l.a, {
+          return s.a.createElement(d.a, {
             iconType: "add-reaction",
-            tooltipText: _("Add reaction…"),
+            tooltipText: b("Add reaction…"),
             onClick: this.onAddReaction
           });
         }
@@ -55416,7 +55538,7 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "renderComment",
         value: function() {
           var e = void 0;
-          return e = _(this.props.file ? "Add comment…" : this.props.replyCount ? "Reply to thread" : "Start a thread"), s.a.createElement(l.a, {
+          return e = b(this.props.file ? "Add comment…" : this.props.replyCount ? "Reply to thread" : "Start a thread"), s.a.createElement(d.a, {
             iconType: "comment-alt",
             tooltipText: e,
             onClick: this.onComment
@@ -55425,32 +55547,73 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "renderShare",
         value: function() {
-          return s.a.createElement(l.a, {
+          return s.a.createElement(d.a, {
             iconType: "share-action",
-            tooltipText: _("Share message…"),
+            tooltipText: b("Share message…"),
             onClick: function() {}
           });
         }
       }, {
         key: "renderEllipsis",
         value: function() {
-          return s.a.createElement(l.a, {
+          return s.a.createElement(f.a, {
+            renderMenu: this.renderMoreActionsMenu,
+            position: "right",
+            className: "inline_block",
+            offsetX: M.x,
+            offsetY: M.y,
+            onOpen: this.onMoreActionsMenuOpen,
+            onClose: this.onMoreActionsMenuClose
+          }, s.a.createElement(d.a, {
             iconType: "ellipsis",
-            tooltipText: _("Show message actions"),
-            tooltipPosition: "top-right",
-            onClick: function() {}
-          });
+            tooltipText: b("Show message actions"),
+            tooltipPosition: "top-right"
+          }));
+        }
+      }, {
+        key: "renderMoreActionsMenu",
+        value: function(e) {
+          return s.a.createElement(f.b, e, s.a.createElement(p.a, {
+            label: b("Unfollow thread"),
+            description: b("This will be removed from All Threads"),
+            onSelected: function() {}
+          }), s.a.createElement(h.a, null), s.a.createElement(p.a, {
+            label: b("Share message"),
+            onSelected: function() {}
+          }), s.a.createElement(p.a, {
+            label: b("Copy link"),
+            onSelected: function() {}
+          }), s.a.createElement(p.a, {
+            label: b("Mark unread"),
+            onSelected: function() {}
+          }), s.a.createElement(h.a, null), s.a.createElement(p.a, {
+            label: b("Add reaction …"),
+            onSelected: this.onAddReaction
+          }), s.a.createElement(p.a, {
+            label: b("Pin to #general …"),
+            onSelected: function() {}
+          }), s.a.createElement(h.a, null), s.a.createElement(p.a, {
+            label: b("Edit message"),
+            onSelected: function() {}
+          }), s.a.createElement(p.a, {
+            label: b("Delete message"),
+            onSelected: function() {},
+            danger: !0
+          }));
         }
       }, {
         key: "render",
         value: function() {
-          return s.a.createElement(u.a, {
-            className: "c-message__actions"
+          var e = l()("c-message__actions", {
+            "c-message__actions--menu-showing": this.state.moreActionsMenuOpen
+          });
+          return s.a.createElement(c.a, {
+            className: e
           }, this.renderReaction(), this.renderComment(), this.renderShare(), this.renderEllipsis());
         }
       }]), t;
     }(a.PureComponent);
-  v.propTypes = m, v.defaultProps = y, t.a = v;
+  T.propTypes = w, T.defaultProps = k, t.a = T;
 }, function(e, t, n) {
   "use strict";
   var r = n(2353),
@@ -55478,4 +55641,453 @@ webpackJsonp([332], [, function(e, t, n) {
     o = n.i(r.a)("TS.ui.replies.openConversationFromMessagePane", function() {
       return null;
     });
+}, function(e, t, n) {
+  t = e.exports = n(189)(), t.push([e.i, ".c-menu {\n  background-color: #FFF;\n  border: 1px solid rgba(0, 0, 0, 0.15);\n  border-radius: 6px;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  user-select: none;\n  width: 300px;\n  z-index: 1053;\n}\n.c-menu__items {\n  margin: 0.75rem 0;\n  padding: 0;\n}\n", ""]);
+}, function(e, t, n) {
+  t = e.exports = n(189)(), t.push([e.i, ".c-menu_item__li {\n  line-height: 1.5rem;\n  list-style-type: none;\n  padding: 0 0.9375rem;\n  margin: 0;\n}\n.c-menu_item__button {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  background: transparent;\n  border-radius: 0.25rem;\n  color: #2C2D30;\n  cursor: pointer;\n  display: block;\n  font-size: 15px;\n  line-height: 1.5625;\n  overflow-x: hidden;\n  padding: 0 1rem 0 0.5rem;\n  text-align: left;\n  text-decoration: none;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  width: 100%;\n}\n.c-menu_item__button:hover,\n.c-menu_item__button:focus,\n.c-menu_item__button:active {\n  outline: none;\n}\n.c-menu_item__description {\n  font-size: 12px;\n  line-height: 0.9375;\n  color: #717274;\n  padding-bottom: 0.25rem;\n  overflow-x: hidden;\n  text-overflow: ellipsis;\n}\n.c-menu_item__button--highlighted {\n  background-color: #2D9EE0;\n  color: #FFFFFF;\n}\n.c-menu_item__button--highlighted .c-menu_item__description {\n  color: #FFFFFF;\n}\n.c-menu_item__button--danger {\n  color: #EB4D5C;\n}\n.c-menu_item__button--danger .c-menu_item__description {\n  color: #EB4D5C;\n}\n.c-menu_item__button--danger.c-menu_item__button--highlighted {\n  color: #FFFFFF;\n  background-color: #EB4D5C;\n}\n.c-menu_item__button--danger.c-menu_item__button--highlighted .c-menu_item__description {\n  color: #FFFFFF;\n}\n", ""]);
+}, function(e, t, n) {
+  t = e.exports = n(189)(), t.push([e.i, ".c-menu_separator__li {\n  line-height: 1.5rem;\n  list-style-type: none;\n  padding: 15px 0;\n  margin: 0;\n}\n.c-menu_separator__separator {\n  margin: 0;\n  border-top: 1px solid rgba(0, 0, 0, 0.15);\n  border-bottom: 1px solid #FFF;\n}\n", ""]);
+}, function(e, t, n) {
+  "use strict";
+  var r = n(3953);
+  t.a = r.a;
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e, t) {
+    if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
+  }
+
+  function o(e, t) {
+    if (!e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    return !t || "object" != typeof t && "function" != typeof t ? e : t;
+  }
+
+  function i(e, t) {
+    if ("function" != typeof t && null !== t) throw new TypeError("Super expression must either be null or a function, not " + typeof t);
+    e.prototype = Object.create(t && t.prototype, {
+      constructor: {
+        value: e,
+        enumerable: !1,
+        writable: !0,
+        configurable: !0
+      }
+    }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
+  }
+  var a = n(2),
+    s = n.n(a),
+    u = n(9),
+    l = n.n(u),
+    c = n(6),
+    d = (n.n(c), n(3428)),
+    f = n(3960),
+    p = (n.n(f), function() {
+      function e(e, t) {
+        for (var n = 0; n < t.length; n++) {
+          var r = t[n];
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
+        }
+      }
+      return function(t, n, r) {
+        return n && e(t.prototype, n), r && e(t, r), t;
+      };
+    }()),
+    h = {
+      highlighted: a.PropTypes.bool,
+      onMouseEnter: a.PropTypes.func,
+      onSelected: a.PropTypes.func,
+      className: a.PropTypes.string,
+      label: a.PropTypes.string,
+      description: a.PropTypes.string,
+      children: a.PropTypes.element,
+      danger: a.PropTypes.bool
+    },
+    _ = {
+      children: void 0,
+      highlighted: !1,
+      onMouseEnter: c.noop,
+      onSelected: c.noop,
+      className: "",
+      label: "",
+      description: "",
+      danger: !1
+    },
+    m = function(e) {
+      function t() {
+        return r(this, t), o(this, (t.__proto__ || Object.getPrototypeOf(t)).apply(this, arguments));
+      }
+      return i(t, e), p(t, [{
+        key: "componentDidMount",
+        value: function() {
+          this.bindKeyCommands();
+        }
+      }, {
+        key: "componentWillUnmount",
+        value: function() {
+          this.keyCommands && this.keyCommands.reset();
+        }
+      }, {
+        key: "onReturnKey",
+        value: function(e) {
+          this.props.highlighted && (e.preventDefault(), this.props.onSelected(e));
+        }
+      }, {
+        key: "bindKeyCommands",
+        value: function() {
+          var e = [{
+            keys: ["return"],
+            handler: this.onReturnKey.bind(this)
+          }];
+          this.keyCommands = new d.a, this.keyCommands.bindAll(e);
+        }
+      }, {
+        key: "render",
+        value: function() {
+          var e = this.props,
+            t = e.children,
+            n = e.className,
+            r = e.danger,
+            o = e.highlighted,
+            i = e.label,
+            a = e.onMouseEnter,
+            u = e.onSelected,
+            c = l()(n, "c-menu_item__button", {
+              "c-menu_item__button--highlighted": o,
+              "c-menu_item__button--danger": r
+            }),
+            d = this.props.description ? s.a.createElement("div", {
+              className: "c-menu_item__description"
+            }, this.props.description) : "";
+          return s.a.createElement("li", {
+            className: "c-menu_item__li",
+            onMouseEnter: a
+          }, s.a.createElement("button", {
+            type: "button",
+            className: c,
+            onClick: u
+          }, i, t, d));
+        }
+      }]), t;
+    }(a.PureComponent);
+  m.propTypes = h, m.defaultProps = _, m.displayName = "MenuItem", t.a = m;
+}, function(e, t, n) {
+  "use strict";
+  var r = n(3955);
+  t.a = r.a;
+}, function(e, t, n) {
+  "use strict";
+  var r = n(2),
+    o = n.n(r),
+    i = n(6),
+    a = (n.n(i), n(3115)),
+    s = n(3961),
+    u = (n.n(s), {
+      onMouseEnter: r.PropTypes.func
+    }),
+    l = {
+      onMouseEnter: i.noop
+    },
+    c = function(e) {
+      return o.a.createElement("li", {
+        className: "c-menu_separator__li",
+        onMouseEnter: e.onMouseEnter
+      }, o.a.createElement("hr", {
+        className: "c-menu_separator__separator"
+      }));
+    };
+  c.propTypes = u, c.defaultProps = l, t.a = n.i(a.a)(c);
+}, function(e, t, n) {
+  "use strict";
+  var r = n(3958),
+    o = n(3957);
+  n.d(t, "b", function() {
+    return r.a;
+  }), n.d(t, "a", function() {
+    return o.a;
+  });
+  r.a;
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e, t) {
+    if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
+  }
+
+  function o(e, t) {
+    if (!e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    return !t || "object" != typeof t && "function" != typeof t ? e : t;
+  }
+
+  function i(e, t) {
+    if ("function" != typeof t && null !== t) throw new TypeError("Super expression must either be null or a function, not " + typeof t);
+    e.prototype = Object.create(t && t.prototype, {
+      constructor: {
+        value: e,
+        enumerable: !1,
+        writable: !0,
+        configurable: !0
+      }
+    }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
+  }
+  var a = n(2),
+    s = n.n(a),
+    u = n(2348),
+    l = Object.assign || function(e) {
+      for (var t = 1; t < arguments.length; t++) {
+        var n = arguments[t];
+        for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
+      }
+      return e;
+    },
+    c = function() {
+      function e(e, t) {
+        for (var n = 0; n < t.length; n++) {
+          var r = t[n];
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
+        }
+      }
+      return function(t, n, r) {
+        return n && e(t.prototype, n), r && e(t, r), t;
+      };
+    }(),
+    d = {
+      renderMenu: a.PropTypes.func.isRequired,
+      children: a.PropTypes.node.isRequired
+    },
+    f = function(e) {
+      function t(e) {
+        r(this, t);
+        var n = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
+        return n.renderMenu = n.renderMenu.bind(n), n;
+      }
+      return i(t, e), c(t, [{
+        key: "renderMenu",
+        value: function(e) {
+          return this.props.renderMenu(l({}, e, {
+            onTriggerClose: e.onClose,
+            onMenuItemSelected: e.onClose
+          }));
+        }
+      }, {
+        key: "render",
+        value: function() {
+          return s.a.createElement(u.b, l({}, this.props, {
+            renderPopover: this.renderMenu
+          }), this.props.children);
+        }
+      }]), t;
+    }(a.PureComponent);
+  t.a = f, f.propTypes = d;
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e, t) {
+    var n = {};
+    for (var r in e) t.indexOf(r) >= 0 || Object.prototype.hasOwnProperty.call(e, r) && (n[r] = e[r]);
+    return n;
+  }
+
+  function o(e, t) {
+    if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
+  }
+
+  function i(e, t) {
+    if (!e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    return !t || "object" != typeof t && "function" != typeof t ? e : t;
+  }
+
+  function a(e, t) {
+    if ("function" != typeof t && null !== t) throw new TypeError("Super expression must either be null or a function, not " + typeof t);
+    e.prototype = Object.create(t && t.prototype, {
+      constructor: {
+        value: e,
+        enumerable: !1,
+        writable: !0,
+        configurable: !0
+      }
+    }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
+  }
+
+  function s(e) {
+    return e.type.displayName === m;
+  }
+  var u = n(2),
+    l = n.n(u),
+    c = n(6),
+    d = (n.n(c), n(2348)),
+    f = n(3428),
+    p = n(3959),
+    h = (n.n(p), Object.assign || function(e) {
+      for (var t = 1; t < arguments.length; t++) {
+        var n = arguments[t];
+        for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
+      }
+      return e;
+    }),
+    _ = function() {
+      function e(e, t) {
+        for (var n = 0; n < t.length; n++) {
+          var r = t[n];
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
+        }
+      }
+      return function(t, n, r) {
+        return n && e(t.prototype, n), r && e(t, r), t;
+      };
+    }(),
+    m = "MenuItem",
+    y = {
+      children: u.PropTypes.arrayOf(u.PropTypes.element).isRequired,
+      onMenuItemSelected: u.PropTypes.func,
+      onTriggerClose: u.PropTypes.func
+    },
+    v = {
+      onMenuItemSelected: c.noop,
+      onTriggerClose: c.noop
+    },
+    g = function(e) {
+      function t(e) {
+        o(this, t);
+        var n = i(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
+        return n.state = {
+          highlightedMenuItemIndex: -1
+        }, n.onMouseLeaveMenu = n.onMouseLeaveMenu.bind(n), n;
+      }
+      return a(t, e), _(t, [{
+        key: "componentDidMount",
+        value: function() {
+          this.bindKeyCommands();
+        }
+      }, {
+        key: "componentWillUnmount",
+        value: function() {
+          this.keyCommands && this.keyCommands.reset();
+        }
+      }, {
+        key: "onArrowKey",
+        value: function(e, t) {
+          t.preventDefault();
+          var n = this.getIndexOfNextMenuItemInDirection(e);
+          this.setState(function(e) {
+            return h({}, e, {
+              highlightedMenuItemIndex: n
+            });
+          });
+        }
+      }, {
+        key: "onMenuItemSelected",
+        value: function(e, t) {
+          this.props.onMenuItemSelected(e, t);
+        }
+      }, {
+        key: "onMouseLeaveMenu",
+        value: function() {
+          this.setState(function(e) {
+            return h({}, e, {
+              highlightedMenuItemIndex: -1
+            });
+          });
+        }
+      }, {
+        key: "onMouseEnterMenuItem",
+        value: function(e) {
+          this.setState(function(t) {
+            return h({}, t, {
+              highlightedMenuItemIndex: e
+            });
+          });
+        }
+      }, {
+        key: "getAllMenuItemIndices",
+        value: function() {
+          var e = [];
+          return this.props.children.forEach(function(t, n) {
+            s(t) && e.push(n);
+          }), e;
+        }
+      }, {
+        key: "getIndexOfNextMenuItemInDirection",
+        value: function(e) {
+          var t = this.getAllMenuItemIndices(),
+            n = t.indexOf(this.state.highlightedMenuItemIndex),
+            r = t.length - 1;
+          if ("down" === e) {
+            return t[n < r ? n + 1 : 0];
+          }
+          return t[n - 1 >= 0 ? n - 1 : r];
+        }
+      }, {
+        key: "bindKeyCommands",
+        value: function() {
+          var e = [{
+            keys: ["up", "shift+up", "shift+tab"],
+            handler: this.onArrowKey.bind(this, "up")
+          }, {
+            keys: ["down", "shift+down", "tab"],
+            handler: this.onArrowKey.bind(this, "down")
+          }, {
+            keys: ["esc"],
+            handler: this.props.onTriggerClose
+          }];
+          this.keyCommands = new f.a, this.keyCommands.bindAll(e);
+        }
+      }, {
+        key: "renderMenuItem",
+        value: function(e, t) {
+          var n = this,
+            r = this.onMouseEnterMenuItem.bind(this, t),
+            o = function(r) {
+              e.props.onSelected && e.props.onSelected(r), s(e) && n.onMenuItemSelected(t, r);
+            },
+            i = this.state.highlightedMenuItemIndex;
+          return l.a.cloneElement(e, h({}, e.props, {
+            highlighted: i === t,
+            onMouseEnter: r,
+            onSelected: o,
+            key: t
+          }));
+        }
+      }, {
+        key: "renderMenuItems",
+        value: function() {
+          return this.props.children.map(this.renderMenuItem, this);
+        }
+      }, {
+        key: "render",
+        value: function() {
+          var e = this.props,
+            t = (e.children, r(e, ["children"]));
+          return l.a.createElement(d.a, t, l.a.createElement("div", {
+            className: "c-menu"
+          }, l.a.createElement("div", {
+            className: "c-menu__items_scroller"
+          }, l.a.createElement("ul", {
+            className: "c-menu__items",
+            onMouseLeave: this.onMouseLeaveMenu
+          }, this.renderMenuItems()))));
+        }
+      }]), t;
+    }(u.PureComponent);
+  g.propTypes = y, g.defaultProps = v, t.a = g;
+}, function(e, t, n) {
+  var r = n(3949);
+  "string" == typeof r && (r = [
+    [e.i, r, ""]
+  ]);
+  n(219)(r, {});
+  r.locals && (e.exports = r.locals);
+}, function(e, t, n) {
+  var r = n(3950);
+  "string" == typeof r && (r = [
+    [e.i, r, ""]
+  ]);
+  n(219)(r, {});
+  r.locals && (e.exports = r.locals);
+}, function(e, t, n) {
+  var r = n(3951);
+  "string" == typeof r && (r = [
+    [e.i, r, ""]
+  ]);
+  n(219)(r, {});
+  r.locals && (e.exports = r.locals);
 }], [2905]);

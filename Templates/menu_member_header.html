@@ -52,7 +52,7 @@
             {{#if member.is_self}}
               <a href="/team/{{member.id}}" target={{newWindowName}} class="member_name" data-qa="member_name">{{getMemberRealName member}}</a>
             {{else}}
-              <a href="/messages/{{member.id}}" target="/messages/{{member.id}}" data-member-id="{{member.id}}" class="member_name internal_im_link" data-qa="member_name">{{getMemberRealName member}}</a>
+              <a href="/messages/@{{member.id}}" target="/messages/{{member.id}}" data-member-id="{{member.id}}" class="member_name internal_im_link" data-qa="member_name">{{getMemberRealName member}}</a>
             {{/if}}
             {{#unless member.is_stranger}}
               {{#isClient}}

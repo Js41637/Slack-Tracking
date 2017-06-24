@@ -58,7 +58,7 @@
             <span class="member_name">{{getMemberRealName member}}</span>
           {{/isClient}}
         {{else}}
-          <a href="/messages/{{member.id}}" target="/messages/{{member.id}}" data-member-id="{{member.id}}" class="member_name internal_im_link">{{getMemberRealName member}}</a>
+          <a href="/messages/@{{member.id}}" target="/messages/{{member.id}}" data-member-id="{{member.id}}" class="member_name internal_im_link">{{getMemberRealName member}}</a>
         {{/if}}
         {{#unless member.is_stranger}}
           {{#isClient}}
@@ -156,9 +156,17 @@
           {{/if}}
           {{#isClient}}
             {{#if show_call_action}}<a class="btn btn_outline internal_im_call_link" data-member-name="{{member.name}}">{{#t}}Call{{/t}}</a>{{/if}}
-            <a href="/messages/@{{member.name}}" target="/messages/@{{member.name}}" data-member-id="{{member.id}}" class="btn btn_outline internal_im_link">{{#t}}Message{{/t}}</a>
+            {{#feature flag="feature_name_tagging_client"}}
+              <a href="/messages/@{{member.id}}" target="/messages/@{{member.id}}" data-member-id="{{member.id}}" class="btn btn_outline internal_im_link">{{#t}}Message{{/t}}</a>
+            {{else}}
+              <a href="/messages/@{{member.name}}" target="/messages/@{{member.name}}" data-member-id="{{member.id}}" class="btn btn_outline internal_im_link">{{#t}}Message{{/t}}</a>
+            {{/feature}}
           {{else}}
-            <a href="/messages/@{{member.name}}" target="new" class="btn btn_outline">{{#t}}Message{{/t}}</a>
+            {{#feature flag="feature_name_tagging_client"}}
+              <a href="/messages/@{{member.id}}" target="new" class="btn btn_outline">{{#t}}Message{{/t}}</a>
+            {{else}}
+              <a href="/messages/@{{member.name}}" target="new" class="btn btn_outline">{{#t}}Message{{/t}}</a>
+            {{/feature}}
             {{#memberHasIm member=member}}
               <a href="/archives/{{member.name}}" class="btn btn_outline">{{#t}}View Archives{{/t}}</a>
             {{/memberHasIm}}
@@ -213,9 +221,9 @@
                 <td><span title="{{getMemberProfileFieldDisplayName member}}">{{getMemberProfileFieldDisplayName member}}</span></td>
               {{else}}
                 {{#isClient}}
-                  <td><a href="/messages/{{member.id}}" target="/messages/{{member.id}}" data-member-id="{{member.id}}" title="{{getMemberProfileFieldDisplayName member}}" class="internal_im_link">{{getMemberProfileFieldDisplayName member}}</a></td>
+                  <td><a href="/messages/@{{member.id}}" target="/messages/@{{member.id}}" data-member-id="{{member.id}}" title="{{getMemberProfileFieldDisplayName member}}" class="internal_im_link">{{getMemberProfileFieldDisplayName member}}</a></td>
                 {{else}}
-                  <td><a href="/messages/{{member.id}}" target="new" title="{{getMemberProfileFieldDisplayName member}}">{{getMemberProfileFieldDisplayName member}}</a></td>
+                  <td><a href="/messages/@{{member.id}}" target="new" title="{{getMemberProfileFieldDisplayName member}}">{{getMemberProfileFieldDisplayName member}}</a></td>
                 {{/isClient}}
               {{/if}}
             {{/if}}

@@ -25431,13 +25431,13 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               n = {
                 im_exists: !TS.ims.isImWithDeletedMember(e),
                 im_member_id: t.id,
-                im_name: e.name,
+                im_name: TS.ims.getDisplayNameOfUserForIm(e),
                 im_id: e.id,
                 member_color: "color_" + (t ? t.id + " color_" + t.color : "unknown")
               };
             if (TS.utility.shouldLinksHaveTargets()) {
-              var i = TS.ims.isImWithDeletedMember(e) ? TS.templates.builders.newWindowName() : "/messages/@" + e.name;
-              n.target = i;
+              var i = "/messages/@" + t.id;
+              TS.boot_data.feature_name_tagging_client && (i = "/messages/" + e.id), TS.ims.isImWithDeletedMember(e) && (i = TS.templates.builders.newWindowName()), n.target = i;
             }
             return TS.templates.search_im_link(n);
           }
@@ -29351,7 +29351,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               },
               tabcomplete: {
                 searchOptions: {
-                  complete_member_specials: !0,
+                  complete_member_specials: n.complete_member_specials,
                   model_ob: n.model_ob,
                   in_thread: !!n.in_thread
                 },
@@ -32329,7 +32329,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           if (!TS.replies.canReplyToMsg(n, t.root_msg)) return void(n.is_channel && !n.is_member ? m(n, r) : e.addClass("no_reply_container"));
           TS.ui.inline_msg_input.make(r, {
             placeholder: TS.i18n.t("Reply...", "threads")(),
-            complete_member_specials: !1,
+            complete_member_specials: !!TS.boot_data.feature_name_tagging_client && ["BKhere"],
             complete_cmds: !0,
             in_thread: !0,
             model_ob: n,
@@ -32597,7 +32597,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         d = function(e, t, n) {
           var i = e.find(".message_input");
-          TS.utility.populateInput(i, "", 0), TS.storage.storeReplyInput(t.id, n, ""), e.find(".reply_broadcast_toggle").attr("checked", !1);
+          TS.utility.populateInput(i, "", 0), TS.utility.contenteditable.clearHistory($("#reply_container .message_input")), TS.storage.storeReplyInput(t.id, n, ""), e.find(".reply_broadcast_toggle").attr("checked", !1);
         },
         c = function(e, t, n) {
           if (e && t && n && 0 !== n.length && TS.permissions.members.canPostInChannel(e)) {
@@ -33412,7 +33412,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             $(r).attr("data-countdown", a).addClass("countdown");
             var s = window.getComputedStyle(r, ":after"),
               o = parseFloat(s.width) || 9 * a.length;
-            e.data("countdown-padding-right") || e.data("countdown-padding-right", parseFloat(e.css("padding-right"))), e.css("padding-right", o + parseFloat(s.right) + e.data("countdown-padding-right"));
+            e.hasClass("no_validation_padding") || (e.data("countdown-padding-right") || e.data("countdown-padding-right", parseFloat(e.css("padding-right"))), e.css("padding-right", o + parseFloat(s.right) + e.data("countdown-padding-right")));
           }
         },
         U = function(e, t) {
@@ -39923,7 +39923,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           i.no_model_ob || (d = i.model_ob || TS.shared.getActiveModelOb());
           var f, g = l(d, i.no_model_ob),
             S = TS.user_groups.getActiveUserGroups();
-          i.complete_member_specials && (f = TS.utility.members.getBroadcastKeywordsForUser());
+          i.complete_member_specials && (f = TS.utility.members.getBroadcastKeywordsForUser(), _.isArray(i.complete_member_specials) && (f = f.filter(function(e) {
+            return -1 !== i.complete_member_specials.indexOf(e.id);
+          })));
           var T = a(d, n, {
             members: g,
             usergroups: S,

@@ -152,14 +152,18 @@
 
     {{#if show_dm_item}}
       {{#feature flag="feature_deleted_dm_archives"}}
-        {{#if member.deleted}}
-          <li id="member_dm_item" role="menuitem"><a href="/messages/@{{member.name}}">{{#t}}Direct Message archives{{/t}}</a></li>
+        {{#feature flag="feature_name_tagging_client"}}
+          <li id="member_dm_item" role="menuitem"><a href="/messages/@{{member.id}}">{{#if member.deleted}}Direct Message archives{{else}}{{#t}}Direct Messages{{/t}}{{/if}}</a></li>
         {{else}}
-          <li id="member_dm_item" role="menuitem"><a href="/messages/@{{member.name}}">{{#t}}Direct Messages{{/t}}</a></li>
-        {{/if}}
+          <li id="member_dm_item" role="menuitem"><a href="/messages/@{{member.name}}">{{#if member.deleted}}Direct Message archives{{else}}{{#t}}Direct Messages{{/t}}{{/if}}</a></li>
+        {{/feature}}
       {{else}}
         {{#unless member.deleted}}
-          <li id="member_dm_item" role="menuitem"><a href="/messages/@{{member.name}}">{{#t}}Direct Messages{{/t}}</a></li>
+          {{#feature flag="feature_name_tagging_client"}}
+            <li id="member_dm_item" role="menuitem"><a href="/messages/@{{member.id}}">{{#t}}Direct Messages{{/t}}</a></li>
+          {{else}}
+            <li id="member_dm_item" role="menuitem"><a href="/messages/@{{member.name}}">{{#t}}Direct Messages{{/t}}</a></li>
+          {{/feature}}
         {{/unless}}
       {{/feature}}
     {{/if}}
