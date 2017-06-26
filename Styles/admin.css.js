@@ -537,7 +537,7 @@
   }
 }
 
-.admin_list_item.invite_item {
+.admin_list_item.invite_item.active {
   display: flex;
   flex-direction: column;
   min-height: 3.25rem;

@@ -347,7 +347,7 @@
         {{/if}}
       {{/if}}
       {{#if msg.reply_count}}{{#t}}{msg.reply_count, plural, =1 {# reply} other {# replies}}{{/t}}{{/if}}
-      {{toTimeWords msg.ts}}.{{#if msg.edited}} {{#t note="indication a message was edited"}}Edited.{{/t}}{{/if}}{{#if msg.is_starred}} {{#t note="indication a message is starred"}}Starred.{{/t}}{{/if}}{{#if is_ephemeral}} {{#t note="indication on an ephemeral message that it is not visible to anyone else in the channel"}}Only visible to you.{{/t}}{{/if}}
+      {{toTime msg.ts}}{{#if msg.edited}} {{#t note="indication a message was edited"}}Edited.{{/t}}{{/if}}{{#if msg.is_starred}} {{#t note="indication a message is starred"}}Starred.{{/t}}{{/if}}{{#if is_ephemeral}} {{#t note="indication on an ephemeral message that it is not visible to anyone else in the channel"}}Only visible to you.{{/t}}{{/if}}
     </span>
 
   </div>

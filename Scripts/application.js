@@ -32108,19 +32108,21 @@ webpackJsonp([332], [, function(e, t, n) {
     m = n(2298),
     _ = n(2351),
     y = n(2346),
-    v = n(3179),
-    g = n(2287),
-    b = n(2900),
-    w = n(3083),
-    k = n(2288),
-    M = Object.assign || function(e) {
+    v = n(3028),
+    g = n(3179),
+    b = n(2287),
+    w = n(2900),
+    k = n(3083),
+    M = n(3962),
+    T = n(2288),
+    x = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
         for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
       }
       return e;
     },
-    T = function() {
+    S = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
@@ -32131,8 +32133,8 @@ webpackJsonp([332], [, function(e, t, n) {
         return n && e(t.prototype, n), r && e(t, r), t;
       };
     }(),
-    x = k.a.ns("channel_sidebar"),
-    S = {
+    E = T.a.ns("channel_sidebar"),
+    L = {
       isShared: a.PropTypes.bool,
       isOrgShared: a.PropTypes.bool,
       type: a.PropTypes.oneOf(["channel", "group", "im", "mpim"]),
@@ -32152,9 +32154,11 @@ webpackJsonp([332], [, function(e, t, n) {
       id: a.PropTypes.string.isRequired,
       selectItem: a.PropTypes.func,
       closeIM: a.PropTypes.func,
-      isTyping: a.PropTypes.bool
+      isTyping: a.PropTypes.bool,
+      members: a.PropTypes.arrayOf(a.PropTypes.string),
+      memberPresences: a.PropTypes.arrayOf(a.PropTypes.strig)
     },
-    E = {
+    C = {
       isSelected: !1,
       isShared: !1,
       isOrgShared: !1,
@@ -32173,15 +32177,17 @@ webpackJsonp([332], [, function(e, t, n) {
       userActive: !0,
       selectItem: l.a.noop,
       closeIM: l.a.noop,
-      isTyping: !1
+      isTyping: !1,
+      members: null,
+      memberPresences: null
     },
-    L = function(e) {
+    O = function(e) {
       function t(e) {
         r(this, t);
         var n = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
         return n.onClick = n.onClick.bind(n), n.closeIM = n.closeIM.bind(n), n.state = {}, n;
       }
-      return i(t, e), T(t, [{
+      return i(t, e), S(t, [{
         key: "onClick",
         value: function(e) {
           e.preventDefault(), this.props.selectItem(this.props.id);
@@ -32212,9 +32218,25 @@ webpackJsonp([332], [, function(e, t, n) {
           return ("im" === t || "mpim" === t) && !n;
         }
       }, {
+        key: "buildMpimName",
+        value: function() {
+          var e = this.props,
+            t = e.type,
+            n = e.members,
+            r = e.memberPresences;
+          return "mpim" === t && n && r ? l.a.flatMap(n, function(e, t) {
+            return [s.a.createElement(M.a, {
+              id: e,
+              className: f()({
+                italic: "away" === r[t]
+              })
+            }), t < n.length - 1 ? ", " : null];
+          }) : null;
+        }
+      }, {
         key: "renderPresence",
         value: function(e) {
-          return s.a.createElement(b.a, {
+          return s.a.createElement(w.a, {
             memberId: e
           });
         }
@@ -32237,10 +32259,10 @@ webpackJsonp([332], [, function(e, t, n) {
             m = e.isSelected,
             _ = e.userCount,
             y = e.displayName,
-            b = e.userId,
-            k = e.userActive,
-            T = e.isTyping,
-            S = f()("p-channel_sidebar__channel", {
+            v = e.userId,
+            w = e.userActive,
+            M = e.isTyping,
+            T = f()("p-channel_sidebar__channel", {
               "p-channel_sidebar__channel--private": "group" === n || "channel" === n && r,
               "p-channel_sidebar__channel--shared": o && !i,
               "p-channel_sidebar__channel--org-shared": o && i && !("im" === n || "mpim" === n),
@@ -32253,12 +32275,12 @@ webpackJsonp([332], [, function(e, t, n) {
               "p-channel_sidebar__channel--unread": c,
               "p-channel_sidebar__channel--draft": d && !m,
               "p-channel_sidebar__channel--archived": p,
-              "p-channel_sidebar__channel--typing": T && !m
+              "p-channel_sidebar__channel--typing": M && !m
             }),
-            E = s.a.createElement(v.a, {
+            S = s.a.createElement(g.a, {
               count: h
             }),
-            L = this.shouldShowClose() && s.a.createElement(g.a, {
+            L = this.shouldShowClose() && s.a.createElement(b.a, {
               type: "times-circle-medium",
               onClick: this.closeIM,
               className: "p-channel_sidebar__close"
@@ -32266,28 +32288,28 @@ webpackJsonp([332], [, function(e, t, n) {
             C = {
               "data-user-count": _
             },
-            O = this.shouldShowPresence() && this.renderPresence(b),
-            P = "im" === n && s.a.createElement(w.a, {
-              memberId: b
+            O = this.shouldShowPresence() && this.renderPresence(v),
+            P = "im" === n && s.a.createElement(k.a, {
+              memberId: v
             }),
             j = u && s.a.createElement("span", {
               className: "p-channel_sidebar__you_label"
-            }, x("(you)")),
+            }, E("(you)")),
             D = s.a.createElement("span", {
               className: f()("p-channel_sidebar__name", {
-                "p-channel_sidebar__name--away": !k
+                "p-channel_sidebar__name--away": !w
               })
-            }, P, y, j);
-          return s.a.createElement("a", M({
+            }, P, "mpim" === n ? this.buildMpimName() : y, j);
+          return s.a.createElement("a", x({
             href: "/messages/" + t,
-            className: S,
+            className: T,
             onClick: this.onClick
-          }, C), O, D, E, L);
+          }, C), O, D, S, L);
         }
       }]), t;
     }(s.a.Component);
-  L.propTypes = S, L.defaultProps = E;
-  var C = function(e, t) {
+  O.propTypes = L, O.defaultProps = C;
+  var P = function(e, t) {
     var r = t.id,
       o = n.i(h.getChannelById)(e, r);
     if (!o) return {
@@ -32296,7 +32318,14 @@ webpackJsonp([332], [, function(e, t, n) {
     var i = n.i(h.isMpim)(o) ? Math.min(Math.max(l.a.get(o, "members.length", 1) - 1, 2), 9) : 0,
       a = n.i(h.getChannelType)(o),
       s = "im" === a && n.i(_.getTyperIdsInChannel)(e, r).length > 0,
-      u = "im" !== a || "active" === n.i(y.getPresenceByMemberId)(e, o.user);
+      u = "im" !== a || "active" === n.i(y.getPresenceByMemberId)(e, o.user),
+      c = n.i(v.getCurrentUserId)(e),
+      d = "mpim" === a && o.members && l.a.filter(o.members, function(e) {
+        return e !== c;
+      }),
+      f = "mpim" === a && d && l.a.map(d, function(t) {
+        return n.i(y.getPresenceByMemberId)(e, t);
+      });
     return {
       isSelected: n.i(p.getSelectedChannelItem)(e) === r,
       isShared: o.is_shared,
@@ -32315,10 +32344,12 @@ webpackJsonp([332], [, function(e, t, n) {
       type: a,
       isPrivate: o.is_private,
       id: r,
-      isTyping: s
+      isTyping: s,
+      members: d,
+      memberPresences: f
     };
   };
-  t.a = n.i(c.b)(C)(L);
+  t.a = n.i(c.b)(P)(O);
 }, function(e, t, n) {
   "use strict";
   var r = n(43),
@@ -52903,9 +52934,7 @@ webpackJsonp([332], [, function(e, t, n) {
         showDuration: !0
       }]
     };
-}, , function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".c-modal {\n  position: fixed;\n  top: 100%;\n  left: 0;\n  bottom: 0;\n  right: 0;\n  z-index: 1000;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n}\n.c-modal--active {\n  top: 0;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms;\n}\n.c-modal__background {\n  height: 100vh;\n  width: 100vw;\n  background-color: #FFFFFF;\n  position: absolute;\n  top: 0;\n  left: 0;\n  pointer-events: none;\n}\n.c-modal__contents {\n  height: 100vh;\n  top: 100%;\n  opacity: 0;\n  -webkit-transform: translateY(5px);\n  -moz-transform: translateY(5px);\n  -ms-transform: translateY(5px);\n  transform: translateY(5px);\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, -webkit-transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n}\n.c-modal__contents--active {\n  top: 0;\n  opacity: 1;\n  -webkit-transform: translateY(0);\n  -moz-transform: translateY(0);\n  -ms-transform: translateY(0);\n  transform: translateY(0);\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, -webkit-transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n}\n.c-modal__header {\n  position: fixed;\n  left: 0;\n  right: 0;\n  display: flex;\n  align-items: center;\n  -ms-flex-pack: distribute;\n  -webkit-box-pack: distribute;\n  -webkit-justify-content: space-around;\n  -moz-justify-content: space-around;\n  justify-content: space-around;\n  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);\n  height: 3.75rem;\n  background-color: #FFFFFF;\n  top: 0;\n  z-index: 10;\n}\n.c-modal__close {\n  position: absolute;\n  top: 20px;\n  right: 20px;\n  z-index: 100;\n  cursor: pointer;\n}\n.c-modal__close:before {\n  font-size: 30px;\n  color: #717274;\n}\n.c-modal__body {\n  padding-top: 3.75rem;\n  margin-bottom: 4.5rem;\n}\n.p-org_retention_request {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-weight: 400;\n  -webkit-font-smoothing: antialiased;\n  font-size: 15px;\n}\n.p-org_retention_request--font_bump {\n  font-size: 16px;\n  line-height: 1.5;\n}\n.p-org_retention_request__modal {\n  overflow-y: auto;\n}\n.p-org_retention_request__modal_content {\n  max-width: 640px;\n  margin: 0 auto;\n  padding-top: 7.5rem;\n}\n.p-org_retention_request__modal_section {\n  border-bottom: 1px solid #E8E8E8;\n  margin-bottom: 1rem;\n  padding: 0 1rem 1rem;\n  font-size: 15px;\n  line-height: 1.5;\n}\n.p-org_retention_request__modal_section--lead {\n  padding-left: 0;\n  padding-right: 0;\n}\n.p-org_retention_request__section_header {\n  font-weight: 900;\n  font-size: 22px;\n  margin-bottom: 1.875rem;\n  color: #2C2D30;\n}\n.p-org_retention_request__policy_select_group {\n  display: flex;\n}\n.p-org_retention_request__select_wrapper {\n  position: relative;\n  width: calc(100% - 200px);\n}\n.p-org_retention_request__select_wrapper:after {\n  font-family: 'Slack';\n  content: '\\E271';\n  position: absolute;\n  right: 10px;\n  top: 15px;\n  width: 20px;\n  height: 20px;\n  display: block;\n  pointer-events: none;\n}\n.p-org_retention_request__select {\n  display: block;\n  cursor: pointer;\n}\n.p-org_retention_request__duration_group {\n  position: relative;\n  max-width: 105px;\n  display: flex;\n  align-items: baseline;\n}\n.p-org_retention_request__duration_label {\n  position: absolute;\n  left: 0;\n  top: -1.5rem;\n}\n.p-org_retention_request__duration_label--secondary {\n  display: block;\n}\n.p-org_retention_request__requester_input {\n  width: calc(100% - 200px);\n}\n", ""]);
-}, function(e, t, n) {
+}, , , function(e, t, n) {
   "use strict";
   var r = n(3615);
   t.a = r.a;
@@ -53036,7 +53065,7 @@ webpackJsonp([332], [, function(e, t, n) {
     m = n(3614),
     _ = n(3617),
     y = n(3610),
-    v = n(3621),
+    v = n(3964),
     g = (n.n(v), Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
@@ -53866,14 +53895,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }]), t;
     }(s.a.Component);
   m.propTypes = p, m.defaultProps = h, t.a = m;
-}, function(e, t, n) {
-  var r = n(3612);
-  "string" == typeof r && (r = [
-    [e.i, r, ""]
-  ]);
-  n(219)(r, {});
-  r.locals && (e.exports = r.locals);
-}, function(e, t, n) {
+}, , function(e, t, n) {
   "use strict";
 
   function r(e) {
@@ -56159,6 +56181,37 @@ webpackJsonp([332], [, function(e, t, n) {
   r.locals && (e.exports = r.locals);
 }, function(e, t, n) {
   var r = n(3951);
+  "string" == typeof r && (r = [
+    [e.i, r, ""]
+  ]);
+  n(219)(r, {});
+  r.locals && (e.exports = r.locals);
+}, function(e, t, n) {
+  "use strict";
+  var r = n(2),
+    o = n.n(r),
+    i = n(43),
+    a = n(6),
+    s = n.n(a),
+    u = n(3277),
+    l = {
+      name: r.PropTypes.string.isRequired
+    },
+    c = function(e) {
+      var t = s.a.omit(e, ["id", "name"]);
+      return o.a.createElement("span", t, e.name);
+    };
+  c.propTypes = l;
+  var d = function(e, t) {
+    return {
+      name: n.i(u.c)(t.id)
+    };
+  };
+  t.a = n.i(i.b)(d)(c);
+}, function(e, t, n) {
+  t = e.exports = n(189)(), t.push([e.i, ".c-modal {\n  position: fixed;\n  top: 100%;\n  left: 0;\n  bottom: 0;\n  right: 0;\n  z-index: 1000;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n}\n.c-modal--active {\n  top: 0;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms;\n}\n.c-modal__background {\n  height: 100vh;\n  width: 100vw;\n  background-color: #FFFFFF;\n  position: absolute;\n  top: 0;\n  left: 0;\n  pointer-events: none;\n}\n.c-modal__contents {\n  height: 100vh;\n  top: 100%;\n  opacity: 0;\n  -webkit-transform: translateY(5px);\n  -moz-transform: translateY(5px);\n  -ms-transform: translateY(5px);\n  transform: translateY(5px);\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, -webkit-transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n}\n.c-modal__contents--active {\n  top: 0;\n  opacity: 1;\n  -webkit-transform: translateY(0);\n  -moz-transform: translateY(0);\n  -ms-transform: translateY(0);\n  transform: translateY(0);\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, -webkit-transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n}\n.c-modal__header {\n  position: fixed;\n  left: 0;\n  right: 0;\n  display: flex;\n  align-items: center;\n  -ms-flex-pack: distribute;\n  -webkit-box-pack: distribute;\n  -webkit-justify-content: space-around;\n  -moz-justify-content: space-around;\n  justify-content: space-around;\n  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);\n  height: 3.75rem;\n  background-color: #FFFFFF;\n  top: 0;\n  z-index: 10;\n}\n.c-modal__close {\n  position: absolute;\n  top: 20px;\n  right: 20px;\n  z-index: 100;\n  cursor: pointer;\n}\n.c-modal__close:before {\n  font-size: 30px;\n  color: #717274;\n}\n.c-modal__body {\n  padding-top: 3.75rem;\n  margin-bottom: 4.5rem;\n}\n.p-org_retention_request {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-weight: 400;\n  -webkit-font-smoothing: antialiased;\n  font-size: 15px;\n}\n.p-org_retention_request--font_bump {\n  font-size: 16px;\n  line-height: 1.5;\n}\n.p-org_retention_request__modal {\n  overflow-y: auto;\n}\n.p-org_retention_request__modal_content {\n  max-width: 640px;\n  margin: 0 auto;\n  padding-top: 7.5rem;\n}\n.p-org_retention_request__modal_section {\n  border-bottom: 1px solid #E8E8E8;\n  margin-bottom: 1rem;\n  padding: 0 1rem 1rem;\n  font-size: 15px;\n  line-height: 1.5;\n}\n.p-org_retention_request__modal_section--lead {\n  padding-left: 0;\n  padding-right: 0;\n}\n.p-org_retention_request__section_header {\n  font-weight: 900;\n  font-size: 22px;\n  margin-bottom: 1.875rem;\n  color: #2C2D30;\n}\n.p-org_retention_request__policy_select_group {\n  display: flex;\n}\n.p-org_retention_request__select_wrapper {\n  position: relative;\n  width: calc(100% - 200px);\n}\n.p-org_retention_request__select_wrapper:after {\n  font-family: 'Slack';\n  content: '\\E271';\n  position: absolute;\n  right: 10px;\n  top: 15px;\n  width: 20px;\n  height: 20px;\n  display: block;\n  pointer-events: none;\n}\n.p-org_retention_request__select {\n  display: block;\n  cursor: pointer;\n}\n.p-org_retention_request__duration_group {\n  position: relative;\n  max-width: 105px;\n  display: flex;\n  align-items: baseline;\n}\n.p-org_retention_request__duration_label {\n  position: absolute;\n  left: 0;\n  top: -1.5rem;\n}\n.p-org_retention_request__duration_label--secondary {\n  display: block;\n}\n.p-org_retention_request__requester_input {\n  width: calc(100% - 200px);\n}\n", ""]);
+}, function(e, t, n) {
+  var r = n(3963);
   "string" == typeof r && (r = [
     [e.i, r, ""]
   ]);

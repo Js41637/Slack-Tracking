@@ -2,4 +2,9 @@
 <ts-icon
   data-media-type="{{media_type}}"
   data-real-src="{{src}}"
+  {{#if is_keyboard_navigable}}
+  tabindex=0
+  role="button"
+  aria-expanded="{{#if is_expanded}}true{{else}}false{{/if}}"
+  {{/if}}
   class="msg_inline_media_toggler{{#if is_expanded}} expanded{{/if}}"></ts-icon>

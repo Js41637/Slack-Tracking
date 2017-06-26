@@ -1,12 +1,12 @@
 webpackJsonp([198], {
-  2794: function(e, t) {
+  2794: function(e, i) {
     ! function() {
       "use strict";
       TS.registerModule("web.member_actions", {
         onStart: function() {
-          _.map(TS.web.member_actions.actions, function(e, t) {
-            TS.web.member_actions.actions[t] = _.assign(e, {
-              name: t
+          _.map(TS.web.member_actions.actions, function(e, i) {
+            TS.web.member_actions.actions[i] = _.assign(e, {
+              name: i
             });
           });
         },
@@ -21,17 +21,17 @@ webpackJsonp([198], {
           activate_as_guest: {
             primary: !1,
             label: function(e) {
-              var t = "";
-              return t = e.member.is_single_channel_guest ? TS.i18n.t("Enable Single-Channel Guest", "member_actions")() : e.member.is_guest ? TS.i18n.t("Enable Multi-Channel Guest", "member_actions")() : TS.i18n.t("Enable Guest", "member_actions")(), t;
+              var i = "";
+              return i = e.member.is_single_channel_guest ? TS.i18n.t("Enable Single-Channel Guest", "member_actions")() : e.member.is_guest ? TS.i18n.t("Enable Multi-Channel Guest", "member_actions")() : TS.i18n.t("Enable Guest", "member_actions")(), i;
             },
             cls: "api_enable_ra"
           },
           cant_reactivate_as_guest: {
             primary: !1,
             label: function(e) {
-              var t = TS.members.getPrefCompliantMemberName(e.member.object, !0, !0);
+              var i = TS.members.getPrefCompliantMemberName(e.member.object, !0, !0);
               return e = _.assign({}, e, {
-                formatted_member_name: t,
+                formatted_member_name: i,
                 action: "cant_reactivate_as_guest"
               }), new Handlebars.SafeString(TS.templates.admin_cant_reactivate_or_convert_list_item_label(e));
             },
@@ -47,30 +47,29 @@ webpackJsonp([198], {
           cant_deactivate: {
             primary: !1,
             label: function(e) {
-              if (!TS.boot_data.feature_enterprise_guest_conversion) return new Handlebars.SafeString(TS.i18n.t('Can’t remove or convert member <ts-icon class="very_small_left_padding ts_icon_question_circle"></ts-icon>', "member_actions")());
-              var t = TS.members.getPrefCompliantMemberName(e.member.object, !0, !0),
+              var i = TS.members.getPrefCompliantMemberName(e.member.object, !0, !0),
                 r = _.map(TS.idp_groups.getGroupsForMember(e.member.object.id), "name"),
-                n = i(r),
+                n = t(r),
                 a = TS.utility.enterprise.getProviderLabel(_.get(TS.model, "enterprise"), _.get(TS.model, "enterprise.sso_provider.label", "single sign-on"));
               return e = _.assign({}, e, {
-                formatted_member_name: t,
+                formatted_member_name: i,
                 action: "cant_deactivate",
                 group_list: r,
                 idp_label: a,
                 formatted_group_label: n
               }), new Handlebars.SafeString(TS.templates.admin_cant_reactivate_or_convert_list_item_label(e));
             },
-            cls: TS.boot_data.feature_enterprise_guest_conversion ? "inline_flex no_underline" : "inline_flex no_underline api_cant_deactivate"
+            cls: "inline_flex no_underline"
           },
           cant_convert_or_deactivate: {
             primary: !1,
             label: function(e) {
-              var t = TS.members.getPrefCompliantMemberName(e.member.object, !0, !0),
+              var i = TS.members.getPrefCompliantMemberName(e.member.object, !0, !0),
                 r = _.map(TS.idp_groups.getGroupsForMember(e.member.object.id), "name"),
-                n = i(r),
+                n = t(r),
                 a = TS.utility.enterprise.getProviderLabel(_.get(TS.model, "enterprise"), _.get(TS.model, "enterprise.sso_provider.label", "single sign-on"));
               return e = _.assign({}, e, {
-                formatted_member_name: t,
+                formatted_member_name: i,
                 action: "cant_convert_or_deactivate",
                 group_list: r,
                 idp_label: a,
@@ -114,9 +113,9 @@ webpackJsonp([198], {
           cant_convert_member_role: {
             primary: !1,
             label: function(e) {
-              var t = TS.members.getPrefCompliantMemberName(e.member.object, !0, !0);
+              var i = TS.members.getPrefCompliantMemberName(e.member.object, !0, !0);
               return e = _.assign({}, e, {
-                formatted_member_name: t,
+                formatted_member_name: i,
                 action: "cant_convert_member_role"
               }), new Handlebars.SafeString(TS.templates.admin_cant_reactivate_or_convert_list_item_label(e));
             },
@@ -174,60 +173,60 @@ webpackJsonp([198], {
             title: TS.i18n.t("Adjust time limit for this guest", "member_actions")()
           }
         },
-        getActionsForMember: function(i) {
-          var n = t(i),
+        getActionsForMember: function(t) {
+          var n = i(t),
             a = [];
-          return _.each(TS.web.member_actions.actions, function(t) {
-            r(t, n) && a.push(e(t, n));
+          return _.each(TS.web.member_actions.actions, function(i) {
+            r(i, n) && a.push(e(i, n));
           }), _.sortBy(a, ["primary"]);
         },
-        canPerformAction: function(e, i) {
-          var n = t(i);
+        canPerformAction: function(e, t) {
+          var n = i(t);
           return r(e, n);
         },
         test: function() {
-          var i = {
+          var t = {
             _canPerform: r,
             _getAction: e,
-            _getData: t
+            _getData: i
           };
-          return Object.defineProperty(i, "_canPerform", {
+          return Object.defineProperty(t, "_canPerform", {
             get: function() {
               return r;
             },
             set: function(e) {
               r = e;
             }
-          }), Object.defineProperty(i, "_getAction", {
+          }), Object.defineProperty(t, "_getAction", {
             get: function() {
               return e;
             },
-            set: function(t) {
-              e = t;
+            set: function(i) {
+              e = i;
             }
-          }), Object.defineProperty(i, "_getData", {
+          }), Object.defineProperty(t, "_getData", {
             get: function() {
-              return t;
+              return i;
             },
             set: function(e) {
-              t = e;
+              i = e;
             }
-          }), i;
+          }), t;
         }
       });
-      var e = function(e, t) {
-          var i = {};
+      var e = function(e, i) {
+          var t = {};
           return _.each(e, function(e, r) {
-            i[r] = _.isFunction(e) ? e(t) : e;
-          }), i;
+            t[r] = _.isFunction(e) ? e(i) : e;
+          }), t;
         },
-        t = function(e) {
+        i = function(e) {
           if (!e) return {
             team: {},
             actor: {},
             member: {}
           };
-          var t = TS.model.user;
+          var i = TS.model.user;
           return {
             team: {
               is_enterprise: TS.boot_data.page_needs_enterprise,
@@ -237,9 +236,9 @@ webpackJsonp([198], {
               has_other_members: TS.web.admin.active_members.length > 1
             },
             actor: {
-              is_admin: t.is_admin,
-              is_owner: t.is_owner,
-              is_primary_owner: t.is_primary_owner
+              is_admin: i.is_admin,
+              is_owner: i.is_owner,
+              is_primary_owner: i.is_primary_owner
             },
             member: {
               object: e,
@@ -260,49 +259,49 @@ webpackJsonp([198], {
             }
           };
         },
-        i = function(e) {
+        t = function(e) {
           return _.isEmpty(e) ? void TS.warn("trying to format idp_groups with empty list") : 1 == e.length ? _.head(e) : TS.i18n.t("{group_name} and {num_remaining_groups} more", "web_admin")({
             num_remaining_groups: e.length - 1,
             group_name: _.head(e)
           });
         },
-        r = function(e, t) {
-          var i = t.team,
-            r = t.actor,
-            n = t.member;
+        r = function(e, i) {
+          var t = i.team,
+            r = i.actor,
+            n = i.member;
           switch (e.name) {
             case "activate":
-              return n.is_human && n.is_deleted && r.is_admin && (!i.is_paid || i.is_paid && !n.is_guest) && (!i.is_enterprise || i.is_enterprise && !n.is_guest);
+              return n.is_human && n.is_deleted && r.is_admin && (!t.is_paid || t.is_paid && !n.is_guest) && (!t.is_enterprise || t.is_enterprise && !n.is_guest);
             case "activate_as_guest":
-              return n.is_human && n.is_deleted && !n.is_primary_owner && i.is_paid && (!i.is_enterprise || i.is_enterprise && n.is_guest || TS.boot_data.feature_enterprise_guest_conversion && i.is_enterprise && n.enabled_on_zero_teams);
+              return n.is_human && n.is_deleted && !n.is_primary_owner && t.is_paid && (!t.is_enterprise || t.is_enterprise && n.is_guest || t.is_enterprise && n.enabled_on_zero_teams);
             case "cant_reactivate_as_guest":
-              return TS.boot_data.feature_enterprise_guest_conversion && n.is_human && n.is_deleted && !n.is_primary_owner && !n.is_guest && i.is_paid && i.is_enterprise && !n.enabled_on_zero_teams;
+              return n.is_human && n.is_deleted && !n.is_primary_owner && !n.is_guest && t.is_paid && t.is_enterprise && !n.enabled_on_zero_teams;
             case "deactivate":
               return n.is_human && !n.is_deleted && !n.is_primary_owner && !n.has_removal_restriction && (r.is_primary_owner || r.is_owner && !n.is_owner || r.is_admin && !n.is_admin);
             case "cant_deactivate":
-              return n.has_removal_restriction && i.is_enterprise && n.is_human && !n.is_deleted && !n.is_primary_owner && n.only_belongs_to_this_team && (r.is_primary_owner || r.is_owner && !n.is_owner || r.is_admin && !n.is_admin);
+              return n.has_removal_restriction && t.is_enterprise && n.is_human && !n.is_deleted && !n.is_primary_owner && n.only_belongs_to_this_team && (r.is_primary_owner || r.is_owner && !n.is_owner || r.is_admin && !n.is_admin);
             case "cant_convert_or_deactivate":
-              return TS.boot_data.feature_enterprise_guest_conversion && n.has_removal_restriction && i.is_enterprise && n.is_human && !n.is_deleted && !n.is_primary_owner && !n.only_belongs_to_this_team && (r.is_primary_owner || r.is_owner && !n.is_owner || r.is_admin && !n.is_admin);
+              return n.has_removal_restriction && t.is_enterprise && n.is_human && !n.is_deleted && !n.is_primary_owner && !n.only_belongs_to_this_team && (r.is_primary_owner || r.is_owner && !n.is_owner || r.is_admin && !n.is_admin);
             case "demote_admin":
               return n.is_human && n.is_admin && !n.is_owner && !n.is_deleted && r.is_owner;
             case "demote_owner":
               return n.is_human && n.is_owner && !n.is_deleted && !n.is_primary_owner && r.is_primary_owner;
             case "promote_to_member":
-              return n.is_human && n.is_guest && !n.is_deleted && (!i.is_enterprise || i.is_enterprise && n.only_belongs_to_this_team);
+              return n.is_human && n.is_guest && !n.is_deleted && (!t.is_enterprise || t.is_enterprise && n.only_belongs_to_this_team);
             case "promote_to_admin":
               return n.is_human && !n.is_deleted && !n.is_admin && !n.is_guest;
             case "promote_to_owner":
               return n.is_human && !n.is_deleted && !n.is_owner && !n.is_guest && r.is_owner;
             case "convert_to_guest":
-              return n.is_human && !n.is_deleted && !n.is_guest && !n.is_admin && (!i.is_enterprise || i.is_enterprise && n.only_belongs_to_this_team);
+              return n.is_human && !n.is_deleted && !n.is_guest && !n.is_admin && (!t.is_enterprise || t.is_enterprise && n.only_belongs_to_this_team);
             case "cant_convert_member_role":
-              return TS.boot_data.feature_enterprise_guest_conversion && n.is_human && !n.has_removal_restriction && !n.is_deleted && i.is_paid && i.is_enterprise && !n.only_belongs_to_this_team;
+              return n.is_human && !n.has_removal_restriction && !n.is_deleted && t.is_paid && t.is_enterprise && !n.only_belongs_to_this_team;
             case "promote_to_mc_guest":
-              return n.is_human && !n.is_deleted && n.is_single_channel_guest && i.is_paid && (!i.is_enterprise || i.is_enterprise && n.only_belongs_to_this_team);
+              return n.is_human && !n.is_deleted && n.is_single_channel_guest && t.is_paid && (!t.is_enterprise || t.is_enterprise && n.only_belongs_to_this_team);
             case "demote_to_sc_guest":
-              return n.is_human && !n.is_deleted && !n.is_single_channel_guest && n.is_multi_channel_guest && i.is_paid && (!i.is_enterprise || i.is_enterprise && n.only_belongs_to_this_team);
+              return n.is_human && !n.is_deleted && !n.is_single_channel_guest && n.is_multi_channel_guest && t.is_paid && (!t.is_enterprise || t.is_enterprise && n.only_belongs_to_this_team);
             case "transfer_ownership":
-              return r.is_primary_owner && n.is_primary_owner && i.has_other_members;
+              return r.is_primary_owner && n.is_primary_owner && t.has_other_members;
             case "activate_bot":
               return !n.is_human && n.is_deleted;
             case "configure_bot":
@@ -310,7 +309,7 @@ webpackJsonp([198], {
             case "disable_2fa":
               return n.is_human && n.is_2fa && !n.is_deleted && !n.is_primary_owner && (r.is_primary_owner || r.is_owner && !n.is_owner || r.is_admin && !n.is_admin);
             case "send_sso":
-              return i.is_sso_enabled && !i.is_enterprise && n.is_human && !n.is_deleted && !n.is_primary_owner && (r.is_primary_owner || r.is_owner && !n.is_owner || r.is_admin && !n.is_admin);
+              return t.is_sso_enabled && !t.is_enterprise && n.is_human && !n.is_deleted && !n.is_primary_owner && (r.is_primary_owner || r.is_owner && !n.is_owner || r.is_admin && !n.is_admin);
             case "update_expiration_ts":
               return n.is_guest && n.is_human && !n.is_deleted;
             default:
