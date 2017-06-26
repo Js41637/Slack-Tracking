@@ -1588,7 +1588,7 @@ webpackJsonp([12, 328, 337, 329], {
       "use strict";
       TS.registerModule("incremental_boot", {
         onStart: function() {
-          TS.channels.switched_sig.add(r), TS.ims.switched_sig.add(r), TS.groups.switched_sig.add(r), TS.mpims.switched_sig.add(r), TS.useSocketManager() ? TS.interop.SocketManager.connectedSig.addOnce(r) : TS.ms.connected_sig.addOnce(r);
+          TS.channels.switched_sig.add(r), TS.ims.switched_sig.add(r), TS.groups.switched_sig.add(r), TS.mpims.switched_sig.add(r), TS.isSocketManagerEnabled() ? TS.interop.SocketManager.connectedSig.addOnce(r) : TS.ms.connected_sig.addOnce(r);
         },
         startIncrementalBoot: function() {
           if (TS._did_incremental_boot) return Promise.reject(new Error("_startIncrementalBoot called more than once; this is a programming error."));
@@ -1620,7 +1620,7 @@ webpackJsonp([12, 328, 337, 329], {
           });
         },
         beforeFullBoot: function() {
-          TS._incremental_boot && TS._did_incremental_boot && (TS._did_full_boot || (TS._incremental_boot = !1, e = setTimeout(o, 1e4), TS.client && TS.client.ui && TS.client.ui.$messages_input_container && TS.client.ui.$messages_input_container.one(a, o), TS.useSocketManager() ? TS.interop.SocketManager.connectedSig.addOnce(o) : TS.ms.connected_sig.addOnce(o)));
+          TS._incremental_boot && TS._did_incremental_boot && (TS._did_full_boot || (TS._incremental_boot = !1, e = setTimeout(o, 1e4), TS.client && TS.client.ui && TS.client.ui.$messages_input_container && TS.client.ui.$messages_input_container.one(a, o), TS.isSocketManagerEnabled() ? TS.interop.SocketManager.connectedSig.addOnce(o) : TS.ms.connected_sig.addOnce(o)));
         },
         afterFullBoot: function() {
           TS._did_incremental_boot && (TS._did_full_boot = !0, TS.model.change_channels_when_offline = !0), t(!1);
@@ -1659,7 +1659,7 @@ webpackJsonp([12, 328, 337, 329], {
         },
         a = "change.incremental_boot keydown.incremental_boot paste.incremental_boot",
         o = function n() {
-          TS.client && TS.client.ui && TS.client.ui.$messages_input_container && (TS.client.ui.$messages_input_container.off(a), TS.client.ui.$messages_input_container.removeClass("pretend-to-be-online")), TS.useSocketManager() ? TS.interop.SocketManager.connectedSig.remove(n) : TS.ms.connected_sig.remove(n), e && (clearTimeout(e), e = void 0);
+          TS.client && TS.client.ui && TS.client.ui.$messages_input_container && (TS.client.ui.$messages_input_container.off(a), TS.client.ui.$messages_input_container.removeClass("pretend-to-be-online")), TS.isSocketManagerEnabled() ? TS.interop.SocketManager.connectedSig.remove(n) : TS.ms.connected_sig.remove(n), e && (clearTimeout(e), e = void 0);
         },
         t = function(e) {
           $("#col_channels, #team_menu").toggleClass("placeholder", e), $(document.body).toggleClass("incremental_boot", e);
@@ -2244,7 +2244,7 @@ webpackJsonp([12, 328, 337, 329], {
         typing_msg: TS.i18n.t("several people are typing", "model")(),
         pdf_viewer_enabled: !0,
         onStart: function(e) {
-          if (e = e || navigator.userAgent, TS.useSocketManager()) {
+          if (e = e || navigator.userAgent, TS.isSocketManagerEnabled()) {
             var a = function() {
               throw new Error("This is read-only");
             };
@@ -2377,12 +2377,12 @@ webpackJsonp([12, 328, 337, 329], {
           if (_.has(TS, e)) throw new Error("exportToLegacy: there is already something at " + e + "; we cannot overwrite it");
           if (!e || 0 !== e.indexOf("interop")) throw new Error("exportToLegacy: Name " + e + ' must start with "interop".');
           if (n.onStart) throw new Error("exportToLegacy: may not export objects with onStart methods");
-          B ? _.set(TS, e, n) : TS.registerModule(e, n);
+          M ? _.set(TS, e, n) : TS.registerModule(e, n);
         },
         boot: function(a) {
-          U(a), n = new Promise(function(n) {
+          I(a), n = new Promise(function(n) {
             e = n;
-          }), TS.boot_data = a, TS.qs_args.js_path && (TS.boot_data.version_ts = "local_js"), TS.console.onStart(), TS.client && TS.client.setClientLoadWatchdogTimer(), TS.model.api_url = TS.boot_data.api_url, TS.model.async_api_url = TS.boot_data.async_api_url, TS.model.api_token = TS.boot_data.api_token, TS.model.webhook_url = TS.boot_data.webhook_url, TS.boot_data.page_needs_enterprise && (TS.model.enterprise_api_token = TS.boot_data.enterprise_api_token), TS.info("booted! pri:" + TS.pri + " version:" + TS.boot_data.version_ts + " start_ms:" + TS.boot_data.start_ms + " (" + (Date.now() - TS.boot_data.start_ms) + "ms ago)"), TS.web && TS.web.space && TS.web.space.showFastPreview(), $(document).ready(N);
+          }), TS.boot_data = a, TS.qs_args.js_path && (TS.boot_data.version_ts = "local_js"), TS.console.onStart(), TS.client && TS.client.setClientLoadWatchdogTimer(), TS.model.api_url = TS.boot_data.api_url, TS.model.async_api_url = TS.boot_data.async_api_url, TS.model.api_token = TS.boot_data.api_token, TS.model.webhook_url = TS.boot_data.webhook_url, TS.boot_data.page_needs_enterprise && (TS.model.enterprise_api_token = TS.boot_data.enterprise_api_token), TS.info("booted! pri:" + TS.pri + " version:" + TS.boot_data.version_ts + " start_ms:" + TS.boot_data.start_ms + " (" + (Date.now() - TS.boot_data.start_ms) + "ms ago)"), TS.web && TS.web.space && TS.web.space.showFastPreview(), $(document).ready(R);
         },
         useRedux: function() {
           return !!TS.boot_data.feature_enable_redux_for_non_client || !!TS.client;
@@ -2394,39 +2394,39 @@ webpackJsonp([12, 328, 337, 329], {
           return !(!TS.useRedux() || !TS.boot_data.feature_react_sidebar) && (TS.model.prefs ? TS.model.prefs.use_react_sidebar : TS.boot_data.use_react_sidebar);
         },
         lazyLoadMembersAndBots: function() {
-          return !(!TS.boot_data.should_use_flannel && !TS.boot_data.feature_lazy_load_members_and_bots_everywhere);
+          return TS.useSocket();
         },
         useSocket: function() {
-          return Y();
+          return J();
         },
-        useSocketManager: function() {
+        isSocketManagerEnabled: function() {
           return !!TS.useSocket() && (!!TS.lazyLoadMembersAndBots() && "experiment" === TS.boot_data.ws_refactor_bucket);
         },
         getSocketStartArgs: function() {
           return h();
         },
         registerModule: function(e, n, a) {
-          return K(n), B ? TS.error('module "' + e + '" must be registered on before dom ready') : D[e] ? TS.error('module "' + e + '" already exists') : void 0 === s(e, n, "module") ? void(a ? TS.error('module "' + e + '" cannot be registered after delay; "' + e.split(".").slice(0, -1).join(".") + '" is not registered') : R[e] = n) : (n._name = e, void(D[e] = n));
+          return V(n), M ? TS.error('module "' + e + '" must be registered on before dom ready') : P[e] ? TS.error('module "' + e + '" already exists') : void 0 === s(e, n, "module") ? void(a ? TS.error('module "' + e + '" cannot be registered after delay; "' + e.split(".").slice(0, -1).join(".") + '" is not registered') : U[e] = n) : (n._name = e, void(P[e] = n));
         },
         registerComponent: function(e, n) {
-          if (B) return TS.error('component "' + e + '" must be registered on before dom ready');
-          if (q[e]) return TS.error('component "' + e + '" already exists');
+          if (M) return TS.error('component "' + e + '" must be registered on before dom ready');
+          if (z[e]) return TS.error('component "' + e + '" already exists');
           if ("function" == typeof n && (n = n()), "function" != typeof n.destroy) return TS.error('component "' + e + '" cannot be registered as it does not have a destroy method');
           var a = function n() {
             this._constructor && this._constructor.apply(this, arguments), this.id || (this.id = e + "_auto_guid_" + i, i += 1), this.test && u() ? this.test = void 0 : "function" == typeof this.test && (this.test = this.test()), n._add(this.id, this);
           };
-          if (void 0 === s(e, a, "component")) return void(W[e] = n);
+          if (void 0 === s(e, a, "component")) return void(D[e] = n);
           var o = n.destroy;
           n.destroy = function() {
             a._remove(this.id), o.call(this);
-          }, a.prototype = Object.create(n), a.instances = {}, a._name = e, q[e] = a, a._add = function(n, a) {
-            q[e].instances[n] && TS.warn("A " + e + " component with the instance id " + n + "already exists"), q[e].instances[n] = a;
+          }, a.prototype = Object.create(n), a.instances = {}, a._name = e, z[e] = a, a._add = function(n, a) {
+            z[e].instances[n] && TS.warn("A " + e + " component with the instance id " + n + "already exists"), z[e].instances[n] = a;
           }, a._remove = function(n) {
-            q[e].instances[n] = null;
+            z[e].instances[n] = null;
           }, a.get = function(n) {
-            return q[e].instances[n];
+            return z[e].instances[n];
           }, a.getAll = function() {
-            return q[e].instances;
+            return z[e].instances;
           };
         },
         makeLogDate: function() {
@@ -2463,10 +2463,10 @@ webpackJsonp([12, 328, 337, 329], {
           TS.console.logError.apply(this, [].slice.call(arguments, 0));
         },
         getQsArgsForUrl: function(e) {
-          if (!e && O) return O;
-          O = "";
-          for (var n in TS.qs_args) "export_test" !== n && (O += "&" + n + "=" + TS.qs_args[n]);
-          return O;
+          if (!e && x) return x;
+          x = "";
+          for (var n in TS.qs_args) "export_test" !== n && (x += "&" + n + "=" + TS.qs_args[n]);
+          return x;
         },
         getOtherAccountsCount: function() {
           var e = 0;
@@ -2509,12 +2509,12 @@ webpackJsonp([12, 328, 337, 329], {
         },
         test: function() {
           var e = {
-            _registerDelayedComponentsAndModules: Z,
+            _registerDelayedComponentsAndModules: W,
             _deleteModule: function(e) {
-              delete TS[e], delete D[e];
+              delete TS[e], delete P[e];
             },
             _deleteComponent: function(e) {
-              delete TS[e], delete q[e];
+              delete TS[e], delete z[e];
             }
           };
           return Object.defineProperty(e, "_getMSLoginArgs", {
@@ -2526,17 +2526,17 @@ webpackJsonp([12, 328, 337, 329], {
             }
           }), Object.defineProperty(e, "_shouldConnectToMS", {
             get: function() {
-              return Y;
+              return J;
             },
             set: function(e) {
-              Y = e;
+              J = e;
             }
           }), Object.defineProperty(e, "_maybeStartPerfTrace", {
             get: function() {
-              return X;
+              return K;
             },
             set: function(e) {
-              X = e;
+              K = e;
             }
           }), e;
         }
@@ -2560,24 +2560,24 @@ webpackJsonp([12, 328, 337, 329], {
           return !(void 0 !== window.jasmine || "dev" === TS.boot_data.version_ts && TS.qs_args.export_test);
         },
         g = function() {
-          if (!TS.useSocketManager()) {
+          if (!TS.isSocketManagerEnabled()) {
             if (TS.console.logStackTrace("MS reconnection requested"), TS.ms.isAsleep()) return void TS.error("NOT reconnecting, we are asleep");
             if (TS.model.ms_connected) return void TS.warn("Reconnect requested, but we are already connected; doing nothing.");
             if (TS.model.ms_connecting) return void TS.warn("Reconnect requested, but we are already connecting; doing nothing.");
-            if (TS.metrics.mark("ms_reconnect_requested"), TS.api.paused_sig.has(f) || TS.api.paused_sig.addOnce(f), TS.useSocketManager() ? TS.interop.SocketManager.connectedSig.has(p) || TS.interop.SocketManager.connectedSig.addOnce(p) : TS.ms.connected_sig.has(p) || TS.ms.connected_sig.addOnce(p), TS.isPartiallyBooted()) {
+            if (TS.metrics.mark("ms_reconnect_requested"), TS.api.paused_sig.has(f) || TS.api.paused_sig.addOnce(f), TS.isSocketManagerEnabled() ? TS.interop.SocketManager.connectedSig.has(p) || TS.interop.SocketManager.connectedSig.addOnce(p) : TS.ms.connected_sig.has(p) || TS.ms.connected_sig.addOnce(p), TS.isPartiallyBooted()) {
               var e = S();
-              E(e);
+              A(e);
             } else S().then(v);
           }
         },
         f = function() {
-          TS.useSocketManager() || (TS.info("API queue got paused while waiting for MS reconnection"), TS.useSocketManager() ? TS.interop.SocketManager.remove(p) : TS.ms.connected_sig.remove(p), TS.api.unpaused_sig.addOnce(function() {
+          TS.isSocketManagerEnabled() || (TS.info("API queue got paused while waiting for MS reconnection"), TS.isSocketManagerEnabled() ? TS.interop.SocketManager.remove(p) : TS.ms.connected_sig.remove(p), TS.api.unpaused_sig.addOnce(function() {
             if (TS.model.calling_rtm_start) return void TS.info("API queue got unpaused, but rtm.start calling is pending, so doing nothing");
             g();
           }));
         },
         p = function() {
-          if (!TS.useSocketManager()) {
+          if (!TS.isSocketManagerEnabled()) {
             var e = TS.metrics.measureAndClear("ms_reconnect_delay", "ms_reconnect_requested");
             TS.info("OK, MS is now reconnected -- it took " + _.round(e / 1e3, 2) + " seconds"), TS.api.paused_sig.remove(f), TS.api.unpaused_sig.remove(g);
           }
@@ -2586,11 +2586,17 @@ webpackJsonp([12, 328, 337, 329], {
           var e = {
             agent: "webapp_" + TS.boot_data.version_uid,
             simple_latest: !0,
-            no_unreads: !0
+            no_unreads: !0,
+            presence_sub: !0,
+            mpim_aware: !0,
+            canonical_avatars: !0,
+            eac_cache_ts: !0
           };
-          if (!TS.pri || e.cache_ts && 0 != parseInt(e.cache_ts, 10) && !isNaN(e.cache_ts) || TS.has_pri[te] && TS.log(te, "_getMSLoginArgs(): login_args.cache_ts is 0/undefined?", e), TS.lazyLoadMembersAndBots() ? (e.no_users = !0, e.no_bots = !0, e.cache_ts = 0, TS.membership && TS.membership.lazyLoadChannelMembership() && (e.no_members = 1)) : TS.boot_data.page_needs_just_me ? (TS.storage.disableMemberBotCache(), e.just_me = !0, e.no_members = !0) : e.cache_ts = c || TS.storage.fetchLastCacheTS(), TS.web && (TS.boot_data.page_needs_state || TS.boot_data.page_has_ms || TS.lazyLoadMembersAndBots() ? e.no_presence = !0 : e.no_state = !0), TS.calls && (e.no_bots = !0, e.no_subteams = !0), e.presence_sub = !0, e.mpim_aware = !0, TS.boot_data.page_needs_all_ims || (e.only_relevant_ims = !0), TS.boot_data.feature_name_tagging_client && (e.name_tagging = !0), e.canonical_avatars = !0, e.eac_cache_ts = !0, TS.boot_data.feature_ms_latest && (e.ms_latest = !0), TS.lazyLoadMembersAndBots())
-            for (var n in TS.qs_args) n.indexOf(!1) && (TS.has_pri[ne] && TS.log(ne, "Flannel: Appending " + n + " (" + TS.qs_args[n] + ") to login_args"), e[n] = TS.qs_args[n]);
-          return TS.lazyLoadMembersAndBots() && TS.has_pri[ne] && TS.log(ne, "Flannel: MS login args:", e), e;
+          return TS.lazyLoadMembersAndBots() ? (e.no_users = !0, e.no_bots = !0, e.no_members = !0, e.cache_ts = 0, Object.keys(TS.qs_args).filter(function(e) {
+            return 0 === e.indexOf("feature_");
+          }).forEach(function(n) {
+            TS.has_pri[Y] && TS.log(Y, "Flannel: Appending " + n + " (" + TS.qs_args[n] + ") to login_args"), e[n] = TS.qs_args[n];
+          })) : TS.boot_data.page_needs_just_me ? (TS.storage.disableMemberBotCache(), e.just_me = !0, e.no_members = !0) : e.cache_ts = c || TS.storage.fetchLastCacheTS(), TS.web && (TS.boot_data.page_needs_state || TS.boot_data.page_has_ms || TS.lazyLoadMembersAndBots() ? e.no_presence = !0 : e.no_state = !0), TS.calls && (e.no_subteams = !0), TS.boot_data.page_needs_all_ims || (e.only_relevant_ims = !0), TS.boot_data.feature_name_tagging_client && (e.name_tagging = !0), TS.boot_data.feature_ms_latest && (e.ms_latest = !0), TS.lazyLoadMembersAndBots() && TS.has_pri[Y] && TS.log(Y, "Flannel: MS login args:", e), e;
         },
         S = function() {
           var e = TS.incremental_boot && TS.incremental_boot.shouldIncrementalBoot(),
@@ -2612,40 +2618,38 @@ webpackJsonp([12, 328, 337, 329], {
               }).catch(a);
             };
           });
-          if (!TS.useSocketManager() && l) return TS.info("Want to call rtm.start, but will wait " + l + " ms first"), new Promise(function(n) {
+          if (!TS.isSocketManagerEnabled() && l) return TS.info("Want to call rtm.start, but will wait " + l + " ms first"), new Promise(function(n) {
             setTimeout(function() {
               TS.info("OK, now calling rtm.start, having waited for delay"), l = void 0, n(e());
             }, l);
           });
-          if (!TS.useSocketManager()) {
+          if (!TS.isSocketManagerEnabled()) {
             if (TS.model.calling_rtm_start) {
               var n = "_promiseToCallRTMStart was called but TS.model.calling_rtm_start=true";
               return TS.error(n), Promise.reject(new Error(n));
             }
             TS.ms.logConnectionFlow("login"), TS.model.rtm_start_throttler += 1, TS.info("Setting calling_rtm_start to true"), TS.model.calling_rtm_start = !0;
           }
-          if (TS.useSocket() && TS.lazyLoadMembersAndBots() && TS.boot_data.should_use_flannel) {
-            var a;
-            if (TS.useSocketManager()) a = L();
-            else {
-              if (!d && !TS.useSocketManager()) {
-                if (TS.model.ms_connected) return TS.has_pri[ne] && TS.log(ne, "Bad news: we're trying to do an rtm.start from Flannel while we're already connected, and that won't work."), Promise.reject(new Error("rtm.start-over-WebSocket failed"));
-                d = X().then(I);
-              }
-              a = d, d = void 0;
-            }
-            return a.then(function(e) {
-              return TS.has_pri[ne] && TS.log(ne, "Flannel: got rtm.start response 💕"), {
-                ok: !0,
-                args: {},
-                data: e
-              };
-            }).finally(function() {
-              TS.useSocketManager() || (TS.model.calling_rtm_start = !1, TS.info("Setting calling_rtm_start to false (after rtm.start from Flannel)"));
-            });
-          }
-          return TS.api.callImmediately("rtm.start", h()).finally(function() {
+          if (!TS.useSocket()) return TS.api.callImmediately("rtm.start", h()).finally(function() {
             TS.model.calling_rtm_start = !1, TS.info("Setting calling_rtm_start to false (after rtm.start from API)");
+          });
+          var a;
+          if (TS.isSocketManagerEnabled()) a = O();
+          else {
+            if (!d) {
+              if (TS.model.ms_connected) return TS.has_pri[Y] && TS.log(Y, "Bad news: we're trying to do an rtm.start from Flannel while we're already connected, and that won't work."), Promise.reject(new Error("rtm.start-over-WebSocket failed"));
+              d = K().then(B);
+            }
+            a = d, d = void 0;
+          }
+          return a.then(function(e) {
+            return TS.has_pri[Y] && TS.log(Y, "Flannel: got rtm.start response 💕"), {
+              ok: !0,
+              args: {},
+              data: e
+            };
+          }).finally(function() {
+            TS.isSocketManagerEnabled() || (TS.model.calling_rtm_start = !1, TS.info("Setting calling_rtm_start to false (after rtm.start from Flannel)"));
           });
         },
         w = function(e) {
@@ -2654,7 +2658,7 @@ webpackJsonp([12, 328, 337, 329], {
           if ("clear_cache" === n || "org_login_required" === n || "team_added_to_org" === n) {
             return TS.storage.flush(!0), void TS.reload(null, "TS.storage.flush() and TS.reload() because resp.data.error: " + n);
           }
-          "ratelimited" === n && ie(), TS.useSocketManager() || TS.ms.logConnectionFlow("on_login_failure"), TS.useSocketManager() || TS.ms.onFailure("rtm.start call failed with error: " + (n || "no error on resp.data"));
+          "ratelimited" === n && ne(), TS.isSocketManagerEnabled() || TS.ms.logConnectionFlow("on_login_failure"), TS.isSocketManagerEnabled() || TS.ms.onFailure("rtm.start call failed with error: " + (n || "no error on resp.data"));
           var a = parseInt(_.get(e, "data.retry_after"), 10);
           return TS.info("rtm.start failed; retry_after = " + a), l = 1e3 * _.clamp(a, 5, 60), null;
         },
@@ -2663,14 +2667,14 @@ webpackJsonp([12, 328, 337, 329], {
             var a = function() {
               TS.ms.storeLastEventTS(n.data.latest_event_ts, "_processStartData");
             };
-            TS.useSocketManager() ? TS.interop.SocketManager.connectedSig.addOnce(a) : TS.ms.connected_sig.addOnce(a);
+            TS.isSocketManagerEnabled() ? TS.interop.SocketManager.connectedSig.addOnce(a) : TS.ms.connected_sig.addOnce(a);
           }
-          if (!TS.client || !TS.reloadIfVersionsChanged(n.data)) return n.data.self ? n.data.team ? (TS.useSocketManager() || TS.ms.logConnectionFlow("on_login"), TS.boot_data.feature_tinyspeck && TS.info("BOOT: Setting up model"), H(n.data, n.args).then(function() {
-            return TS.boot_data.feature_tinyspeck && TS.info("BOOT: Model did set up; setting up apps"), TS.apps.setUp(), TS.boot_data.feature_tinyspeck && TS.info("BOOT: Setting up commands"), TS.cmd_handlers.setUpCmds(), TS.boot_data.feature_tinyspeck && TS.info("BOOT: Setting up UI"), k(), TS.boot_data.feature_tinyspeck && TS.info("BOOT: Finding initial channel"), A(), TS.boot_data.feature_tinyspeck && TS.info("BOOT: Setting up emoji and shared channels"), Promise.join(TS.emoji.setUpEmoji().catch(function() {
+          if (!TS.client || !TS.reloadIfVersionsChanged(n.data)) return n.data.self ? n.data.team ? (TS.isSocketManagerEnabled() || TS.ms.logConnectionFlow("on_login"), TS.boot_data.feature_tinyspeck && TS.info("BOOT: Setting up model"), Z(n.data, n.args).then(function() {
+            return TS.boot_data.feature_tinyspeck && TS.info("BOOT: Model did set up; setting up apps"), TS.apps.setUp(), TS.boot_data.feature_tinyspeck && TS.info("BOOT: Setting up commands"), TS.cmd_handlers.setUpCmds(), TS.boot_data.feature_tinyspeck && TS.info("BOOT: Setting up UI"), y(), TS.boot_data.feature_tinyspeck && TS.info("BOOT: Finding initial channel"), TS.client && TS.client.calculateInitialCid(), TS.boot_data.feature_tinyspeck && TS.info("BOOT: Setting up emoji and shared channels"), Promise.join(TS.emoji.setUpEmoji().catch(function() {
               TS.boot_data.feature_tinyspeck && TS.info("BOOT: Setting up emoji failed, trying to move forward anyway...");
-            }), y());
+            }), TS.members ? TS.members.maybeFetchAccessibleUserIds() : Promise.resolve());
           }).then(function() {
-            TS.boot_data.feature_tinyspeck && TS.info("BOOT: Nearly there! Finalizing..."), TS.model.ms_logged_in_once || j(n.data), TS.client && TS.client.onEveryLoginMS(n.data), TS.web && TS.web.onEveryLoginMS(n.data), M();
+            TS.boot_data.feature_tinyspeck && TS.info("BOOT: Nearly there! Finalizing..."), TS.model.ms_logged_in_once || k(n.data), TS.client && TS.client.onEveryLoginMS(n.data), TS.web && TS.web.onEveryLoginMS(n.data), j();
             var a;
             a = TS._did_incremental_boot ? TS.model.ms_logged_in_once : !TS.model.ms_logged_in_once, a && e && (TS.boot_data.feature_tinyspeck && TS.info("BOOT: Divine clementine, we are finalizing a full boot!"), e(), e = null, TSSSB.call("didFinishLoading"), r = !0), TS.model.ms_logged_in_once = !0, TS.boot_data.feature_tinyspeck && TS.info("BOOT: Holy guacamole, we're all done!"), TS.info("User id: " + _.get(TS.boot_data, "user_id") + ", team id: " + _.get(TS.model, "team.id"));
           }).catch(function(e) {
@@ -2678,50 +2682,23 @@ webpackJsonp([12, 328, 337, 329], {
           })) : void TS.error("No team?") : void TS.error("No self?");
         },
         y = function() {
-          if (!TS.isPartiallyBooted() || TS._did_full_boot) return TS.model.user.is_restricted && TS.membership.lazyLoadChannelMembership() ? TS.flannel.fetchAccessibleUserIdsForGuests().then(function(e) {
-            TS.model.guest_accessible_user_ids = e, TS.members && TS.members.members_for_user_changed_sig.dispatch();
-          }) : Promise.resolve();
-        },
-        k = function() {
           TS.ui.setThemeClasses(), TS.client && (TSSSB.call("setCurrentTeam", TS.model.team.domain), TS.client.updateTeamIcon());
         },
-        A = function() {
-          if (TS.client) {
-            if (TS.model.initial_cid) return void(TS.boot_data.feature_archive_deeplink && TS.client.calculateInitialMessage());
-            if (TS.client.calculateInitialCid(), TS.boot_data.feature_archive_deeplink && TS.client.calculateInitialMessage(), !TS.model.initial_cid) {
-              var e = "TS.client.calculateInitialCid() failed to find a channel";
-              throw TS.error(e), new Error(e);
-            }
-          }
-        },
-        j = function(e) {
+        k = function(e) {
           if (TS.boot_data.feature_tinyspeck && TS.info("BOOT: _finalizeFirstBoot"), TS.model.ms_logged_in_once) return void TS.warn("_finalizeFirstBoot called, but we have already done this before. This is a progamming error.");
-          TS.client && (TS.client.onFirstLoginMS(e), TS.isPartiallyBooted() ? (E(m), m = void 0) : TS.incremental_boot.afterFullBoot(), TS.useSocketManager() && TS.interop.Eventlog.initialize()), TS.web && TS.web.onFirstLoginMS(e);
+          TS.client && (TS.client.onFirstLoginMS(e), TS.isPartiallyBooted() ? (A(m), m = void 0) : TS.incremental_boot.afterFullBoot(), TS.isSocketManagerEnabled() && TS.interop.Eventlog.initialize()), TS.web && TS.web.onFirstLoginMS(e);
         },
-        E = function(e) {
-          TS.info("Finalizing incremental boot"), TS.incremental_boot.beforeFullBoot();
-          var n = TS.lazyLoadMembersAndBots() ? _.map(TS.model.members, "id") : null;
-          T(e).then(function(e) {
-            if (v(e), TS.lazyLoadMembersAndBots()) {
-              var a = _.map(e.data.users, "id"),
-                o = _.difference(n, a);
-              x(o);
-            }
-            TS.incremental_boot.afterFullBoot(), TS.info("Completed incremental boot");
+        A = function(e) {
+          TS.info("Finalizing incremental boot"), TS.incremental_boot.beforeFullBoot(), T(e).then(function(e) {
+            v(e), TS.incremental_boot.afterFullBoot(), TS.info("Completed incremental boot");
           }).catch(function(e) {
             throw TS.error("Tried to finalize incremental boot, but rtm.start failed. Will recover when we reconnect."), e;
           });
         },
-        x = function(e) {
-          if (TS.lazyLoadMembersAndBots()) {
-            if (!e.length) return void(TS.has_pri[ne] && TS.log(ne, "No need to re-fetch any members for presence status"));
-            TS.has_pri[ne] && TS.log(ne, "Re-fetching " + e.length + " members so we have presence status"), TS.flannel.fetchAndUpsertObjectsByIds(e);
-          }
-        },
-        M = function() {
+        j = function() {
           if (TS.isPartiallyBooted()) return void(TS.boot_data.feature_tinyspeck && TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS not connecting to MS until we complete incremental boot"));
-          if (!Y()) return void(TS.boot_data.feature_tinyspeck && TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS will not connect to MS"));
-          if (TS.boot_data.feature_tinyspeck && TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS wants to connect to MS"), TS.useSocketManager())
+          if (!J()) return void(TS.boot_data.feature_tinyspeck && TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS will not connect to MS"));
+          if (TS.boot_data.feature_tinyspeck && TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS wants to connect to MS"), TS.isSocketManagerEnabled())
             if (TS.interop.SocketManager.isProvisionallyConnected()) {
               TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS will finalize SocketManager");
               try {
@@ -2732,10 +2709,10 @@ webpackJsonp([12, 328, 337, 329], {
             } else TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS wanted to finalize SocketManager but it had no connection; making a new one"), TS.interop.SocketManager.connectProvisionallyAndFetchRtmStart().catch(function(e) {
               TS.log("BOOT: _maybeFinalizeOrOpenConnectionToMS failed to make a new connection"), TS.error(e);
             });
-          else TS.ms.hasProvisionalConnection() && TS.ms.finalizeProvisionalConnection() ? (TS.boot_data.feature_tinyspeck && TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS finalized MS connection"), TS.has_pri[ae] && TS.log(ae, "Successfully finalized a provisional MS connection")) : (TS.boot_data.feature_tinyspeck && TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS made a new MS connection"), TS.has_pri[ae] && TS.log(ae, "No valid provisional MS connection; making a new connection"), TS.ms.connectImmediately(TS.model.team.url || TS.boot_data.ms_connect_url));
+          else TS.ms.hasProvisionalConnection() && TS.ms.finalizeProvisionalConnection() ? (TS.boot_data.feature_tinyspeck && TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS finalized MS connection"), TS.has_pri[X] && TS.log(X, "Successfully finalized a provisional MS connection")) : (TS.boot_data.feature_tinyspeck && TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS made a new MS connection"), TS.has_pri[X] && TS.log(X, "No valid provisional MS connection; making a new connection"), TS.ms.connectImmediately(TS.model.team.url || TS.boot_data.ms_connect_url));
           TS.boot_data.feature_tinyspeck && TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS did connect to MS");
         },
-        C = function() {
+        E = function() {
           TS.shared.getAllModelObsForUser().forEach(function(e) {
             e._consistency_has_been_checked && (e._consistency_has_been_checked = !1), e._consistency_is_being_checked && (e._consistency_is_being_checked = !1);
           });
@@ -2756,9 +2733,9 @@ webpackJsonp([12, 328, 337, 329], {
       }(), TS.pri = TS.qs_args.pri ? TS.qs_args.pri + ",0" : TS.pri, _.each(TS.pri && TS.pri.split(","), function(e) {
         e && (TS.has_pri[e] = !0);
       });
-      var O, B = !1,
-        F = function() {
-          TS.interop.SocketManager.disconnectedSig.add(C), TS.interop.SocketManager.connectedSig.addOnce(function() {
+      var x, M = !1,
+        C = function() {
+          TS.interop.SocketManager.disconnectedSig.add(E), TS.interop.SocketManager.connectedSig.addOnce(function() {
             TS.interop.SocketManager.provisionallyConnectedSig.add(function(e) {
               e.then(function(e) {
                 TS.info("Got start data from Socket Manager; hydrating it");
@@ -2780,8 +2757,8 @@ webpackJsonp([12, 328, 337, 329], {
             });
           });
         },
-        L = function() {
-          if (!TS.useSocketManager()) return Promise.reject(new Error("_connectAndFetchStartDataWithSocketManager can only be used when TS.useSocketManager is true"));
+        O = function() {
+          if (!TS.isSocketManagerEnabled()) return Promise.reject(new Error("_connectAndFetchStartDataWithSocketManager can only be used when TS.isSocketManagerEnabled is true"));
           if (!TS.interop.SocketManager.hasNeverConnected()) {
             var e = new Error("_connectAndFetchStartDataWithSocketManager can only be called if Socket Manager has never connected");
             return TS.console.logError(e, "_connectAndFetchStartDataWithSocketManager called too many times"), Promise.reject(e);
@@ -2796,8 +2773,8 @@ webpackJsonp([12, 328, 337, 329], {
           });
           return TS.boot_data.ws_refactor_bucket && (TS.has_pri[1996] = !0), TS.interop.SocketManager.start(), n;
         },
-        I = function() {
-          if (TS.useSocketManager()) return Promise.reject(new Error("_connectAndFetchStartDataWithoutSocketManager can only be used when TS.useSocketManager is false"));
+        B = function() {
+          if (TS.isSocketManagerEnabled()) return Promise.reject(new Error("_connectAndFetchStartDataWithoutSocketManager can only be used when TS.isSocketManagerEnabled is false"));
           TS.log(1996, "Opening a tokenless MS connection and fetching rtm.start over it");
           var e = TS.flannel.getFlannelConnectionUrl(),
             n = TS.ms.connectProvisionallyAndFetchRtmStart(e);
@@ -2806,10 +2783,10 @@ webpackJsonp([12, 328, 337, 329], {
             return TS.flannel.hydrateStartData(e.rtm_start);
           });
         },
-        P = function(e) {
-          TS.client && TSSSB.call("didStartLoading", 6e4), Y() && (TS.useSocketManager() ? F() : (TS.ms.reconnect_requested_sig.add(g), TS.ms.disconnected_sig.add(C))), V(), B = !0, TS.model.is_our_app && ee(), TS.ui.setUpWindowUnloadHandlers(), "client" === TS.boot_data.app ? TS.client.gogogo() : "web" !== TS.boot_data.app && "space" !== TS.boot_data.app && "calls" !== TS.boot_data.app || TS.web.gogogo(), TS.boot_data.no_login ? (TS.info("running without a user"), TS.web && TS.web.no_login_complete_sig.dispatch()) : e ? v(e) : TS.error("_initialDataFetchesComplete expected to receive rtm.start data; we cannot continue.");
+        F = function(e) {
+          TS.client && TSSSB.call("didStartLoading", 6e4), J() && (TS.isSocketManagerEnabled() ? C() : (TS.ms.reconnect_requested_sig.add(g), TS.ms.disconnected_sig.add(E))), N(), M = !0, TS.model.is_our_app && Q(), TS.ui.setUpWindowUnloadHandlers(), "client" === TS.boot_data.app ? TS.client.gogogo() : "web" !== TS.boot_data.app && "space" !== TS.boot_data.app && "calls" !== TS.boot_data.app || TS.web.gogogo(), TS.boot_data.no_login ? (TS.info("running without a user"), TS.web && TS.web.no_login_complete_sig.dispatch()) : e ? v(e) : TS.error("_initialDataFetchesComplete expected to receive rtm.start data; we cannot continue.");
         },
-        z = function() {
+        L = function() {
           if (window.sessionStorage) try {
             var e = TS.client ? "session_load_count_client" : "session_load_count_web",
               n = parseInt(sessionStorage.getItem(e) || 0, 10) + 1;
@@ -2820,7 +2797,7 @@ webpackJsonp([12, 328, 337, 329], {
             TS.warn("could not log session load count: " + e);
           }
         },
-        U = function(e) {
+        I = function(e) {
           Promise.config({
             longStackTraces: "dev" === e.version_ts || TS.qs_args.js_path,
             warnings: {
@@ -2829,14 +2806,14 @@ webpackJsonp([12, 328, 337, 329], {
             cancellation: !0
           });
         },
+        P = {},
+        U = {},
+        z = {},
         D = {},
-        R = {},
-        q = {},
-        W = {},
-        N = function() {
+        R = function() {
           if (TS.info("_onDOMReady"), setTimeout(function() {
               TS.model.is_our_app && (TS.environment.isSSBAndAtLeastVersion("2.6") || r || (TSSSB.call("didFinishLoading"), r = !0, TS.metrics.count("fake_call_did_finish_loading_for_older_SSBs")));
-            }, 7e4), z(), TS.qs_args.ws_flakiness) try {
+            }, 7e4), L(), TS.qs_args.ws_flakiness) try {
             var e = parseFloat(TS.qs_args.ws_flakiness);
             TS.interop.SocketManager.debugSetSocketConnectFlakiness(e);
           } catch (e) {}
@@ -2848,14 +2825,14 @@ webpackJsonp([12, 328, 337, 329], {
           }), soundManager.ignoreFlash = !0, soundManager.setup({
             url: "/img/sm/",
             debugMode: !1
-          }), TS.storage.onStart(), Z();
+          }), TS.storage.onStart(), W();
           var n = TS.boot_data.no_login ? Promise.resolve() : S(),
-            a = [G(), n];
+            a = [q(), n];
           TS.boot_data.page_needs_enterprise && !TS.boot_data.no_login && a.push(TS.enterprise.promiseToEnsureEnterprise()), TS.web && TS.boot_data.page_needs_team_profile_fields && a.push(TS.team.ensureTeamProfileFields()), Promise.all(a).then(function() {
-            return n.then(P), null;
+            return n.then(F), null;
           });
         },
-        G = function() {
+        q = function() {
           function e() {
             return o += 1, new Promise(function(n) {
               if (window.TS && TS.raw_templates && Object.keys(TS.raw_templates).length > 0) return void n();
@@ -2876,14 +2853,14 @@ webpackJsonp([12, 328, 337, 329], {
           var o = 0;
           return e();
         },
-        Z = function() {
-          _.sortBy(Object.keys(R), "length").forEach(function(e) {
-            TS.registerModule(e, R[e], !0);
-          }), _.sortBy(Object.keys(W), "length").forEach(function(e) {
-            TS.registerComponent(e, W[e], !0);
+        W = function() {
+          _.sortBy(Object.keys(U), "length").forEach(function(e) {
+            TS.registerModule(e, U[e], !0);
+          }), _.sortBy(Object.keys(D), "length").forEach(function(e) {
+            TS.registerComponent(e, D[e], !0);
           });
         },
-        V = function() {
+        N = function() {
           if (TS.log(Date.now() - TS.boot_data.start_ms + "ms from first html to calling onStarts()"), "client" === TS.boot_data.app) TS.client.onStart(), TS.client.onStart = _.noop;
           else if ("web" === TS.boot_data.app || "space" === TS.boot_data.app || "calls" === TS.boot_data.app) TS.web.onStart(), TS.web.onStart = _.noop;
           else {
@@ -2892,15 +2869,15 @@ webpackJsonp([12, 328, 337, 329], {
           }
           var e, n = !TS.qs_args.keep_onstart;
           try {
-            _.forOwn(D, function(a) {
+            _.forOwn(P, function(a) {
               a.onStart && (e = a._name, a.onStart(), n && (a.onStart = _.noop));
             });
           } catch (n) {
             throw TS.error("TS." + e + ".onStart encountered an error:"), TS.logError(n), window.TSBeacon && window.TSBeacon("call_onstarts_error", 1), n;
           }
-          n && (V = _.noop);
+          n && (N = _.noop);
         },
-        H = function(e, n) {
+        Z = function(e, n) {
           return TS.lazyLoadMembersAndBots() && (e.bots = e.bots || []), new Promise(function(a, o) {
             var t = !TS.model.ms_logged_in_once;
             if (TS.team.upsertTeam(e.team), TS.model.team.url = e.url, TS.boot_data.page_needs_enterprise && void 0 !== e.can_manage_shared_channels && (TS.model.team.prefs.can_user_manage_shared_channels = e.can_manage_shared_channels), TS.model.last_team_name || (TS.model.last_team_name = TS.model.team.name, TS.model.last_team_domain = TS.model.team.domain), TS.model.team.activity = [], TS.model.break_token && (TS.model.team.url += "f"), t) TS.model.rooms = [], TS.useRedux() || (TS.model.channels = [], TS.model.groups = [], TS.model.mpims = [], TS.model.ims = []), TS.useRedux() && TS.boot_data.feature_store_members_in_redux || (TS.model.members = [], TS.model.bots = []), TS.model.teams = [], TS.model.user_groups = [], TS.model.read_only_channels = [], TS.boot_data.feature_default_shared_channels && (TS.model.threadable_channels = []), TS.model.online_users = [];
@@ -2942,14 +2919,14 @@ webpackJsonp([12, 328, 337, 329], {
               for (c = 0; c < h.length; c += 1) b[h[c].id] = !0;
             else;
             var w = TS.boot_data.page_needs_enterprise && TS.boot_data.exclude_org_members;
-            for (c = 0; c < T.length; c += 1) u = T[c], w && !TS.members.isLocalTeamMember(u) || b[u.id] || (e.online_users && (u.presence = _.includes(e.online_users, u.id) ? "active" : "away"), _.get(u, "profile.always_active") && (u.presence = "active"), d = TS.members.upsertAndSignal(u), TS.has_pri[oe] && TS.log(oe, "upsert from CACHE: " + u.id + " " + d.status), d.member.id == e.self.id && g(d.member));
-            for (c = 0; c < h.length; c += 1) u = h[c], w && !TS.members.isLocalTeamMember(u) || (TS.lazyLoadMembersAndBots() ? u.presence = _.has(u, "presence") && "active" === u.presence ? "active" : "away" : e.online_users && (u.presence = _.includes(e.online_users, u.id) ? "active" : "away"), _.get(u, "profile.always_active") && (u.presence = "active"), d = TS.members.upsertAndSignal(u), TS.has_pri[oe] && TS.log(oe, "upsert from DATA: " + u.id + " " + d.status), d.member.id == e.self.id && g(d.member));
+            for (c = 0; c < T.length; c += 1) u = T[c], w && !TS.members.isLocalTeamMember(u) || b[u.id] || (e.online_users && (u.presence = _.includes(e.online_users, u.id) ? "active" : "away"), _.get(u, "profile.always_active") && (u.presence = "active"), d = TS.members.upsertAndSignal(u), TS.has_pri[ee] && TS.log(ee, "upsert from CACHE: " + u.id + " " + d.status), d.member.id == e.self.id && g(d.member));
+            for (c = 0; c < h.length; c += 1) u = h[c], w && !TS.members.isLocalTeamMember(u) || (TS.lazyLoadMembersAndBots() ? u.presence = _.has(u, "presence") && "active" === u.presence ? "active" : "away" : e.online_users && (u.presence = _.includes(e.online_users, u.id) ? "active" : "away"), _.get(u, "profile.always_active") && (u.presence = "active"), d = TS.members.upsertAndSignal(u), TS.has_pri[ee] && TS.log(ee, "upsert from DATA: " + u.id + " " + d.status), d.member.id == e.self.id && g(d.member));
             var v = TS.storage.fetchBots(),
               y = {};
             for (c = 0; c < S.length; c += 1) y[S[c].id] = !0;
             for (c = 0; c < v.length; c += 1) m = v[c], y[m.id] || (d = TS.bots.upsertAndSignal(m));
             for (c = 0; c < S.length; c += 1) TS.bots.upsertAndSignal(S[c]);
-            f.push("members from LS:" + T.length + ", from updated_users in rtm.start:" + h.length + " (slackbot will always be here)"), f.push("bots from LS:" + v.length + ", from updated_bots in rtm.start:" + S.length), h.length < TS.model.members.length / 20 && (TS.model.did_we_load_with_user_cache = !0), y = null, b = null, TS.info(f.join("\n")), TS.has_pri[oe] && (TS.dir(oe, T, "users_cache"), TS.dir(oe, v, "bots_cache"));
+            f.push("members from LS:" + T.length + ", from updated_users in rtm.start:" + h.length + " (slackbot will always be here)"), f.push("bots from LS:" + v.length + ", from updated_bots in rtm.start:" + S.length), h.length < TS.model.members.length / 20 && (TS.model.did_we_load_with_user_cache = !0), y = null, b = null, TS.info(f.join("\n")), TS.has_pri[ee] && (TS.dir(ee, T, "users_cache"), TS.dir(ee, v, "bots_cache"));
             var k = function(n) {
               if (TS._incremental_boot) return !0;
               if (TS.lazyLoadMembersAndBots()) return !0;
@@ -2971,9 +2948,9 @@ webpackJsonp([12, 328, 337, 329], {
               for (var i in a) TS.members.getMemberById(i) || t.push(i);
               return t.length ? (f.push("doAllMembersFromChannelsInRawDataExist() found (" + t.length + ") unknown members: " + t.join(", ")), !!TS.boot_data.page_needs_enterprise) : (f.push("doAllMembersFromChannelsInRawDataExist() confirmed all members"), !0);
             };
-            if (!TS.model.user) return J("no TS.model.user", f.join("\n")), void o(Error("called _onBadUserCache"));
+            if (!TS.model.user) return G("no TS.model.user", f.join("\n")), void o(Error("called _onBadUserCache"));
             if (!k()) {
-              if (parseInt(n.cache_ts, 10)) return J("!doAllMembersFromChannelsInRawDataExist()", f.join("\n")), void o(Error("called _onBadUserCache"));
+              if (parseInt(n.cache_ts, 10)) return G("!doAllMembersFromChannelsInRawDataExist()", f.join("\n")), void o(Error("called _onBadUserCache"));
               TS.logError({
                 message: f.join("\n")
               }, "doAllMembersFromChannelsInRawDataExist() failed");
@@ -3044,7 +3021,7 @@ webpackJsonp([12, 328, 337, 329], {
               var O = e.ims.concat(e.mpims || [], e.groups || []);
               return TS.members.ensureMembersArePresentInSharedModelObs(O).then(function() {
                 if (!k(!0)) {
-                  if (parseInt(n.cache_ts, 10)) return J("!doAllMembersFromChannelsInRawDataExist(with_shared=true)", f.join("\n")), void o(Error("called _onBadUserCache"));
+                  if (parseInt(n.cache_ts, 10)) return G("!doAllMembersFromChannelsInRawDataExist(with_shared=true)", f.join("\n")), void o(Error("called _onBadUserCache"));
                   TS.logError({
                     message: f.join("\n")
                   }, "doAllMembersFromChannelsInRawDataExist(with_shared=true) failed");
@@ -3057,10 +3034,10 @@ webpackJsonp([12, 328, 337, 329], {
             C(), a();
           });
         },
-        J = function(e) {
-          TS.error("_onBadUserCache problem: " + e), TS.storage.cleanOutCacheTsStorage(), TS.model.had_bad_user_cache = !0, TS.useSocketManager() ? (TS.error("_onBadUserCache problem: " + e), TS.interop.SocketManager.disconnect()) : TS.ms.onFailure("_onBadUserCache problem: " + e);
+        G = function(e) {
+          TS.error("_onBadUserCache problem: " + e), TS.storage.cleanOutCacheTsStorage(), TS.model.had_bad_user_cache = !0, TS.isSocketManagerEnabled() ? (TS.error("_onBadUserCache problem: " + e), TS.interop.SocketManager.disconnect()) : TS.ms.onFailure("_onBadUserCache problem: " + e);
         },
-        K = function(e) {
+        V = function(e) {
           if (e.test && !e.__esModule && u()) delete e.test;
           else if ("function" == typeof e.test) {
             var n = e.test;
@@ -3069,37 +3046,36 @@ webpackJsonp([12, 328, 337, 329], {
             });
           }
         };
-      K(TS);
-      var Q, Y = function() {
+      V(TS);
+      var H, J = function() {
           return !(!TS.boot_data.feature_lazy_load_members_and_bots_everywhere || TS.boot_data.no_login) || !!(TS.client || TS.web && TS.boot_data.page_has_ms);
         },
-        X = function() {
+        K = function() {
           return TS.boot_data.feature_automated_perfectrics && TS.client ? TS.client.traces.maybeTrace(10, {
             reason: "automated"
           }) : Promise.resolve();
         },
-        ee = function() {
+        Q = function() {
           var e = !1,
             n = function() {
-              TS.info("sleep event!"), e = !0, TS.client && (TS.useSocketManager() ? TS.interop.SocketManager.sleep() : TS.ms.sleep()), TS.web && TS.web.space && TS.ds.sleep();
+              TS.info("sleep event!"), e = !0, TS.client && (TS.isSocketManagerEnabled() ? TS.interop.SocketManager.sleep() : TS.ms.sleep()), TS.web && TS.web.space && TS.ds.sleep();
             },
             a = function() {
-              e && (e = !1, TS.info("wake event! version:" + TS.boot_data.version_ts + " start_ms:" + TS.boot_data.start_ms), TS.client && (TS.useSocketManager() ? TS.interop.SocketManager.wake() : TS.ms.wake()), TS.web && TS.web.space && TS.ds.wake());
+              e && (e = !1, TS.info("wake event! version:" + TS.boot_data.version_ts + " start_ms:" + TS.boot_data.start_ms), TS.client && (TS.isSocketManagerEnabled() ? TS.interop.SocketManager.wake() : TS.ms.wake()), TS.web && TS.web.space && TS.ds.wake());
             };
           window.addEventListener("sleep", n, !1), window.addEventListener("wake", a, !1);
         },
-        ne = 1989,
-        ae = 1996,
-        oe = 481,
-        te = 488,
-        ie = function() {
-          if (!Q) {
-            Q = !0, TS.metrics.count("rate_limit_dialog_shown");
+        Y = 1989,
+        X = 1996,
+        ee = 481,
+        ne = function() {
+          if (!H) {
+            H = !0, TS.metrics.count("rate_limit_dialog_shown");
             var e = TS.generic_dialog.alert("Lots of your teammates are connecting to Slack right now, so it’s taking longer than usual. We’re really sorry about this, and we’ll have you online soon.", "Bear with us", "Dismiss"),
               n = function() {
-                e.isPending() && TS.generic_dialog.cancel(), Q = !1;
+                e.isPending() && TS.generic_dialog.cancel(), H = !1;
               };
-            TS.useSocketManager() ? TS.interop.SocketManager.connectedSig.addOnce(n) : TS.ms.connected_sig.addOnce(n);
+            TS.isSocketManagerEnabled() ? TS.interop.SocketManager.connectedSig.addOnce(n) : TS.ms.connected_sig.addOnce(n);
           }
         };
     }();

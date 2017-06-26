@@ -36022,52 +36022,52 @@ webpackJsonp([332], [, function(e, t, n) {
     L = function(e) {
       return n.i(u.getUserPref)(e, "separate_private_channels");
     },
-    C = n.i(i.createSelector)([d.isAppSpaceEnabled, x, S, E, L, l.getAllChannels, a.getMutedChannels, s.getAllMembers, c.getSelectedChannelItem], function(e, t, r, i, a, u, c, f, _) {
-      var y = "hide_read_channels" === r,
-        k = "hide_read_channels_unless_starred" === r,
-        M = {},
-        x = h.concat();
-      x.forEach(function(e) {
-        M[e] = p({}, m[e]), M[e].channelsOrdered = o.a.cloneDeep(v);
+    C = n.i(i.createSelector)([d.isAppSpaceEnabled, x, S, E, L, l.getAllChannels, a.getMutedChannels, s.getAllMembers, c.getSelectedChannelItem], function(e, t, r, i, a, u, c, d, f) {
+      var _ = "hide_read_channels" === r,
+        y = "hide_read_channels_unless_starred" === r,
+        k = {},
+        M = h.concat();
+      M.forEach(function(e) {
+        k[e] = p({}, m[e]), k[e].channelsOrdered = o.a.cloneDeep(v);
       });
-      var S = o.a.filter(u, function(e) {
+      var x = o.a.filter(u, function(e) {
           return g({
             channel: e,
-            isCurrentlySelected: _ === e.id,
+            isCurrentlySelected: f === e.id,
             isMuted: !!c[e.id],
-            shouldHideReadChannels: y,
-            shouldHideReadChannelsUnlessStarred: k
+            shouldHideReadChannels: _,
+            shouldHideReadChannelsUnlessStarred: y
           });
         }),
-        E = T({
+        S = T({
           sortPref: i,
           prioritySortEnabled: t
         });
-      S.sort(E).forEach(function(t) {
+      x.sort(S).forEach(function(t) {
         var r = n.i(l.getMemberIdFromIm)(t),
           o = b({
             channel: t,
-            isApp: e && n.i(s.isAppOrBot)(f && f[r])
+            isApp: e && n.i(s.isAppOrBot)(d && d[r])
           }),
           i = w({
             channel: t,
             isMuted: !!c[t.id],
             shouldSeparatePrivateChannels: a
           });
-        M[o].channelsOrdered[i].push(t.id);
+        k[o].channelsOrdered[i].push(t.id);
       });
-      var L = o.a.mapValues(M, function(e) {
+      var E = o.a.mapValues(k, function(e) {
         return p({}, e, {
           channelsOrdered: o.a.flatten(e.channelsOrdered)
         });
       });
-      return L.starred.channelsOrdered.length < 1 && (delete L.starred, o.a.remove(x, function(e) {
+      return E.starred.channelsOrdered.length < 1 && (delete E.starred, o.a.remove(M, function(e) {
         return "starred" === e;
-      })), d.isAppSpaceEnabled || (delete L.apps, o.a.remove(x, function(e) {
+      })), e || (delete E.apps, o.a.remove(M, function(e) {
         return "apps" === e;
       })), {
-        sidebarSectionsOrdered: x,
-        sidebarSections: L
+        sidebarSectionsOrdered: M,
+        sidebarSections: E
       };
     });
 }, , , function(e, t, n) {
@@ -36365,7 +36365,16 @@ webpackJsonp([332], [, function(e, t, n) {
 }, function(e, t, n) {
   "use strict";
 
-  function r(e) {
+  function r(e, t, n) {
+    return t in e ? Object.defineProperty(e, t, {
+      value: n,
+      enumerable: !0,
+      configurable: !0,
+      writable: !0
+    }) : e[t] = n, e;
+  }
+
+  function o(e) {
     var t = e.channelId,
       r = e.type,
       o = e.oldest,
@@ -36373,7 +36382,7 @@ webpackJsonp([332], [, function(e, t, n) {
       a = e.latest,
       s = void 0 === a ? 0 : a;
     return function(e) {
-      t && r && n.i(c.a)({
+      t && r && n.i(p.a)({
         channelId: t,
         type: r,
         oldest: i,
@@ -36381,68 +36390,80 @@ webpackJsonp([332], [, function(e, t, n) {
       }).then(function(r) {
         var o = r.msgs,
           a = r.hasMore;
-        e(n.i(f.addMessages)(o)), e(n.i(p.addTimestamps)({
+        e(n.i(m.addMessages)(o)), e(n.i(_.addTimestamps)({
           channelId: t,
-          timestamps: u.a.map(o, "ts"),
+          timestamps: d.a.map(o, "ts"),
           reachedStart: 0 !== s && !a || null,
           reachedEnd: 0 !== i && !a || null
         }));
       }).catch(function(e) {
-        return n.i(d.a)("Failed to fetch history", t, e);
+        return n.i(h.a)("Failed to fetch history", t, e);
       });
     };
   }
 
-  function o(e) {
+  function i(e) {
     return e && e.messagePane && e.messagePane.channelId;
   }
 
-  function i(e) {
-    var t = o(e);
-    return n.i(p.getTimestampsByChannelId)(e, t);
+  function a(e) {
+    var t = i(e);
+    return n.i(_.getTimestampsByChannelId)(e, t);
   }
 
-  function a(e) {
+  function s(e) {
     return e && e.messagePane && e.messagePane.startTs;
+  }
+
+  function u(e) {
+    return e && e.messagePane && e.messagePane.editTs;
   }
   Object.defineProperty(t, "__esModule", {
     value: !0
   }), n.d(t, "switchToChannel", function() {
-    return m;
-  }), t.fetchHistory = r, t.getMessagePaneChannelId = o, t.getTimestampsForMessagePane = i, t.getMessagePaneStartTs = a;
-  var s = n(6),
-    u = n.n(s),
-    l = n(17),
-    c = (n.n(l), n(3431)),
-    d = n(2914),
-    f = n(3034),
-    p = n(3918),
-    h = Object.assign || function(e) {
+    return v;
+  }), n.d(t, "startEditingMessage", function() {
+    return g;
+  }), n.d(t, "stopEditingMessage", function() {
+    return b;
+  }), t.fetchHistory = o, t.getMessagePaneChannelId = i, t.getTimestampsForMessagePane = a, t.getMessagePaneStartTs = s, t.getMessagePaneEditTs = u;
+  var l, c = n(6),
+    d = n.n(c),
+    f = n(17),
+    p = (n.n(f), n(3431)),
+    h = n(2914),
+    m = n(3034),
+    _ = n(3918),
+    y = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
         for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
       }
       return e;
     },
-    m = n.i(l.createAction)("Sets the active channel"),
-    _ = {
+    v = n.i(f.createAction)("Sets the active channel"),
+    g = n.i(f.createAction)("Start editing a message"),
+    b = n.i(f.createAction)("Stop editing current message"),
+    w = {
       channelId: null,
-      startTs: null
+      startTs: null,
+      editTs: null
     },
-    y = n.i(l.createReducer)(function(e, t, n) {
-      return t in e ? Object.defineProperty(e, t, {
-        value: n,
-        enumerable: !0,
-        configurable: !0,
-        writable: !0
-      }) : e[t] = n, e;
-    }({}, m, function(e, t, n) {
-      return h({}, e, {
+    k = n.i(f.createReducer)((l = {}, r(l, v, function(e, t, n) {
+      return y({}, e, {
         channelId: t,
         startTs: n
       });
-    }), _);
-  t.default = y;
+    }), r(l, g, function(e, t) {
+      return y({}, e, {
+        editTs: t
+      });
+    }), r(l, b, function(e) {
+      return y({}, e, {
+        editTs: null
+      });
+    }), l), w);
+  t.default = k;
 }, , , function(e, t, n) {
   "use strict";
   var r = n(3033);
@@ -36497,14 +36518,18 @@ webpackJsonp([332], [, function(e, t, n) {
       timestamps: l.a.PropTypes.arrayOf(l.a.PropTypes.string),
       requestHistory: l.a.PropTypes.func,
       lastReadTs: l.a.PropTypes.string,
-      startTs: l.a.PropTypes.string
+      startTs: l.a.PropTypes.string,
+      editTs: l.a.PropTypes.string,
+      stopEditingMessage: l.a.PropTypes.func
     },
     g = {
       channelId: null,
       timestamps: [],
       requestHistory: s.a.noop,
       lastReadTs: null,
-      startTs: null
+      startTs: null,
+      editTs: null,
+      stopEditingMessage: s.a.noop
     },
     b = function(e) {
       function t(e) {
@@ -36582,7 +36607,9 @@ webpackJsonp([332], [, function(e, t, n) {
                 ts: t,
                 key: t,
                 channelId: e.props.channelId,
-                previousMessageTs: p
+                previousMessageTs: p,
+                isEditing: t === e.props.editTs,
+                stopEditing: e.props.stopEditingMessage
               })), n > 0 && n !== o.length - 1 && t === _ && (u.push(t + ".unread"), a.push(l.a.createElement(f.a, {
                 key: "unread"
               }))), u.push(t), p = t;
@@ -36788,21 +36815,22 @@ webpackJsonp([332], [, function(e, t, n) {
     l = n(9),
     c = n.n(l),
     d = n(6),
-    f = n.n(d),
-    p = n(3171),
-    h = n(3152),
-    m = n(3279),
-    _ = n(3215),
-    y = n(3168),
-    v = n(3175),
-    g = n(3198),
-    b = n(3916),
-    w = n(3188),
+    f = (n.n(d), n(3171)),
+    p = n(3152),
+    h = n(3279),
+    m = n(3215),
+    _ = n(3168),
+    y = n(3175),
+    v = n(3198),
+    g = n(3916),
+    b = n(3188),
+    w = n(3253),
     k = n(3624),
     M = n(3937),
     T = n(3040),
-    x = n(3119),
-    S = (n.n(x), function() {
+    x = n(2288),
+    S = n(3119),
+    E = (n.n(S), function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
@@ -36813,11 +36841,12 @@ webpackJsonp([332], [, function(e, t, n) {
         return n && e(t.prototype, n), r && e(t, r), t;
       };
     }()),
-    E = function(e) {
+    L = x.a.ns("message"),
+    C = function(e) {
       function t() {
         return o(this, t), i(this, (t.__proto__ || Object.getPrototypeOf(t)).apply(this, arguments));
       }
-      return a(t, e), S(t, [{
+      return a(t, e), E(t, [{
         key: "renderTimestamp",
         value: function() {
           var e = this.props,
@@ -36825,7 +36854,7 @@ webpackJsonp([332], [, function(e, t, n) {
             r = e.ts,
             o = e.threadTs,
             i = n.i(T.d)(t, r, o);
-          return u.a.createElement(g.a, {
+          return u.a.createElement(v.a, {
             timestamp: r,
             relative: !1,
             full: !1,
@@ -36839,9 +36868,9 @@ webpackJsonp([332], [, function(e, t, n) {
             if (this.props.isFileFollowup) return u.a.createElement("div", {
               className: "c-message__gutter"
             });
-            if (this.props.showUser) return u.a.createElement("div", {
+            if (this.props.isEditing || this.props.showUser) return u.a.createElement("div", {
               className: "c-message__gutter"
-            }, u.a.createElement(m.a, {
+            }, u.a.createElement(h.a, {
               userId: this.props.userId,
               botId: this.props.botId,
               size: 36
@@ -36863,7 +36892,7 @@ webpackJsonp([332], [, function(e, t, n) {
         value: function() {
           return u.a.createElement("div", {
             className: "c-message__content_header"
-          }, u.a.createElement(h.a, {
+          }, u.a.createElement(p.a, {
             userId: this.props.userId,
             botId: this.props.botId,
             username: this.props.username
@@ -36881,7 +36910,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "renderBody",
         value: function() {
-          return this.props.file && "file_comment" !== this.props.subtype ? this.renderInlineFile() : this.props.file && this.props.comment && "file_comment" === this.props.subtype ? this.renderFileComment() : u.a.createElement(w.a, {
+          return this.props.file && "file_comment" !== this.props.subtype ? this.renderInlineFile() : this.props.file && this.props.comment && "file_comment" === this.props.subtype ? this.renderFileComment() : u.a.createElement(b.a, {
             text: this.props.text,
             className: "c-message__body"
           });
@@ -36889,7 +36918,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "renderReplyBar",
         value: function() {
-          return this.props.replyCount ? u.a.createElement(y.a, {
+          return this.props.replyCount ? u.a.createElement(_.a, {
             replies: this.props.replies,
             replyCount: this.props.replyCount,
             channelId: this.props.channelId,
@@ -36899,7 +36928,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "renderReactions",
         value: function() {
-          return this.props.reactionKey ? u.a.createElement(_.a, {
+          return this.props.reactionKey ? u.a.createElement(m.a, {
             reactionKey: this.props.reactionKey
           }) : null;
         }
@@ -36907,9 +36936,9 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "renderAttachments",
         value: function() {
           if (!this.props.attachments || !this.props.attachments.length) return null;
-          var e = f.a.map(this.props.attachments, function(e, t) {
+          var e = n.i(d.map)(this.props.attachments, function(e, t) {
             var n = e.id || t;
-            return u.a.createElement(p.a, {
+            return u.a.createElement(f.a, {
               key: n,
               color: e.color,
               fallback: e.fallback
@@ -36923,7 +36952,7 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "renderInlineFile",
         value: function() {
           var e = this.props.file;
-          return u.a.createElement(v.a, {
+          return u.a.createElement(y.a, {
             name: e.name,
             permalink: e.permalink,
             id: e.id,
@@ -36935,12 +36964,12 @@ webpackJsonp([332], [, function(e, t, n) {
         value: function() {
           var e = this.props.file,
             t = this.props.comment;
-          return [(!this.props.isFileFollowup || "dense" === this.props.theme) && u.a.createElement(b.a, {
+          return [(!this.props.isFileFollowup || "dense" === this.props.theme) && u.a.createElement(g.a, {
             file: e,
             comment: t,
             followup: this.props.isFileFollowup,
             key: t.id + "-meta"
-          }) || null, u.a.createElement(w.a, {
+          }) || null, u.a.createElement(b.a, {
             text: t.comment,
             className: c()("c-message__body", "c-message__body--comment"),
             key: t.id + "-body"
@@ -36959,16 +36988,44 @@ webpackJsonp([332], [, function(e, t, n) {
           });
         }
       }, {
+        key: "renderEdit",
+        value: function() {
+          var e = this.props.stopEditing;
+          return u.a.createElement("div", {
+            style: {
+              marginBottom: 3,
+              width: "100%"
+            }
+          }, u.a.createElement("textarea", {
+            style: {
+              height: 42,
+              marginBottom: 10
+            }
+          }), u.a.createElement(w.a, {
+            style: {
+              display: "inline-block",
+              marginRight: 10
+            },
+            onClick: e
+          }, L("Cancel")), u.a.createElement(w.a, {
+            style: {
+              display: "inline-block"
+            }
+          }, u.a.createElement("i", {
+            className: "ts_icon ts_icon_enter ts_icon_inherit small_right_margin"
+          }), L("Save Changes")));
+        }
+      }, {
         key: "render",
         value: function() {
-          var e, t = c()("c-message", (e = {}, r(e, "c-message--" + this.props.theme, this.props.theme), r(e, "c-message--adjacent", !this.props.showUser), r(e, "c-message--thread-broadcast", "thread_broadcast" === this.props.subtype), e));
+          var e, t = c()("c-message", (e = {}, r(e, "c-message--" + this.props.theme, this.props.theme), r(e, "c-message--adjacent", !this.props.isEditing && !this.props.showUser), r(e, "c-message--thread-broadcast", "thread_broadcast" === this.props.subtype), r(e, "c-message--highlight", this.props.isEditing), e));
           return u.a.createElement("div", {
             className: t
-          }, this.renderGutter(), this.renderContent(), this.renderActions());
+          }, this.renderGutter(), this.props.isEditing && this.renderEdit(), !this.props.isEditing && this.renderContent(), !this.props.isEditing && this.renderActions());
         }
       }]), t;
     }(s.PureComponent);
-  t.a = E, E.propTypes = {
+  t.a = C, C.propTypes = {
     channelId: u.a.PropTypes.string.isRequired,
     channel: u.a.PropTypes.shape({
       id: u.a.PropTypes.string
@@ -37002,8 +37059,10 @@ webpackJsonp([332], [, function(e, t, n) {
       comment: u.a.PropTypes.string
     }),
     showUser: u.a.PropTypes.bool,
-    isFileFollowup: u.a.PropTypes.bool
-  }, E.defaultProps = {
+    isFileFollowup: u.a.PropTypes.bool,
+    isEditing: u.a.PropTypes.bool,
+    stopEditing: u.a.PropTypes.func
+  }, C.defaultProps = {
     channel: null,
     text: null,
     subtype: null,
@@ -37019,7 +37078,9 @@ webpackJsonp([332], [, function(e, t, n) {
     file: null,
     comment: null,
     showUser: !0,
-    isFileFollowup: !0
+    isFileFollowup: !0,
+    isEditing: !1,
+    stopEditing: d.noop
   };
 }, , function(e, t, n) {
   "use strict";
@@ -38322,7 +38383,7 @@ webpackJsonp([332], [, function(e, t, n) {
     };
   };
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".c-message {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  display: flex;\n  padding-right: 40px;\n  min-width: 1px;\n  position: relative;\n}\n.c-message:hover {\n  background-color: #F9F9F9;\n}\n.c-message.c-message--light {\n  padding-top: 5px;\n  padding-bottom: 3px;\n}\n.c-message.c-message--dense {\n  padding-top: 3px;\n  padding-bottom: 2px;\n}\n.c-message.c-message--light.c-message--adjacent {\n  padding-top: 2px;\n}\n.c-message__gutter {\n  text-align: right;\n  flex-shrink: 0;\n}\n.c-message--adjacent .c-message__gutter {\n  visibility: hidden;\n}\n.c-message--adjacent:hover .c-message__gutter {\n  visibility: visible;\n}\n.c-message--light .c-message__gutter {\n  width: 72px;\n  padding-right: 10px;\n}\n.c-message--dense .c-message__gutter {\n  width: 58px;\n  margin-right: 22px;\n}\n.c-message--dense .c-timestamp__label {\n  color: #717274;\n}\n.c-message__content {\n  flex: 0 1 100%;\n  min-width: 1px;\n}\n.c-message--dense .c-message__content {\n  padding-left: 8px;\n}\n.c-message__sender {\n  font-weight: 900;\n}\n.c-message--light .c-message__sender {\n  margin-right: 6px;\n  color: #2C2D30;\n}\n.c-message--dense .c-message__sender {\n  margin-left: -8px;\n  margin-right: 4px;\n}\n.c-message__sender--unknown {\n  display: inline-block;\n  width: 80px;\n  height: 0.9rem;\n  border-radius: 0.9rem;\n  vertical-align: bottom;\n  background: #E8E8E8;\n}\n.c-message--dense .c-message__content_header {\n  display: inline;\n  margin-bottom: 3px;\n}\n.c-message--dense.c-message--thread-broadcast .c-message__content_header {\n  display: flex;\n}\n.c-message--light .c-message__content_header {\n  line-height: 1;\n  margin-bottom: 3px;\n}\n.c-message__body {\n  line-height: 1.4;\n  color: #2C2D30;\n}\n.c-message__mention {\n  background: #FFF4BF;\n  border-radius: 3px;\n  padding: 0 2px 1px 2px;\n}\n.c-message__reply_bar {\n  display: flex;\n  align-items: center;\n  max-width: 600px;\n  margin-top: 5px;\n  padding: 3px;\n  font-size: 12px;\n  border: 1px solid transparent;\n  border-radius: 6px;\n  cursor: pointer;\n}\n.c-message__reply_bar:hover {\n  background-color: #FFF;\n  border-color: rgba(0, 0, 0, 0.15);\n}\n.c-message__reply_bar:hover .c-message__reply_bar_arrow {\n  color: #A0A0A2;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_last_reply {\n  opacity: 0;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_view_thread {\n  opacity: 1;\n}\n.c-message__reply_bar .c-avatar {\n  margin-right: 4px;\n}\n.c-message__reply_count {\n  margin-left: 3px;\n  font-weight: bold;\n}\n.c-message__reply_bar_description {\n  position: relative;\n  margin-left: 8px;\n  color: #A0A0A2;\n}\n.c-message__reply_bar_arrow {\n  margin-left: auto;\n  color: transparent;\n}\n.c-message__reply_bar_arrow::before {\n  vertical-align: top;\n}\n.c-message__reply_bar_last_reply {\n  opacity: 1;\n  transition: opacity 0.2s;\n}\n.c-message__broadcast_preamble {\n  color: #A0A0A2;\n  display: flex;\n  overflow: hidden;\n  max-width: 100%;\n}\n.c-message--light .c-message__broadcast_preamble {\n  margin-bottom: 3px;\n}\n.c-message__broadcast_preamble_meta {\n  flex-shrink: 0;\n}\n.c-message__broadcast_preamble_link {\n  font-weight: bold;\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  margin-left: 4px;\n}\n.c-message__reply_bar_view_thread {\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  opacity: 0;\n  transition: opacity 0.2s;\n}\n.c-message__attachment {\n  display: flex;\n  align-items: stretch;\n  margin-top: 2px;\n}\n.c-message__attachment_column {\n  width: 4px;\n  background-color: #E8E8E8;\n  border-radius: 8px;\n}\n.c-message__attachment_body {\n  padding-left: 12px;\n  padding-right: 12px;\n}\n.c-message__bot-label {\n  color: #A0A0A2;\n  font-weight: 500;\n  font-size: 12px;\n  margin: 0 0.15rem;\n  padding: 0 0.1rem;\n  vertical-align: middle;\n  background: #f2f2f5;\n}\n.c-message__image_wrapper {\n  display: block;\n  position: relative;\n  overflow: hidden;\n  border-radius: 3px;\n}\n.c-message__image_description {\n  margin-bottom: 8px;\n  color: #A0A0A2;\n}\n.c-message:hover .c-message__image_description {\n  color: #717274;\n}\n.c-message__image_caret {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n}\n.c-message__image_caret:hover,\n.c-message__image_caret:focus,\n.c-message__image_caret:active {\n  outline: none;\n}\n.c-message__file_link {\n  font-weight: 700;\n}\n.c-message__file_meta {\n  line-height: 1.4;\n  color: #A0A0A2;\n}\n.c-message:hover .c-message__file_meta {\n  color: #717274;\n}\n.c-message__body--comment {\n  position: relative;\n  display: block;\n}\n.c-message__body--comment:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  content: '\\E516';\n  position: absolute;\n  left: -28px;\n  top: -4px;\n  color: #E8E8E8;\n}\n.c-message--dense .c-message__body--comment:before {\n  display: none;\n}\n.c-message__file_comment_user,\n.c-message__file_comment_user:link,\n.c-message__file_comment_user:visited {\n  color: inherit;\n}\n.c-message__actions {\n  position: absolute;\n  top: -14px;\n  right: 5px;\n  display: none;\n}\n.c-message:hover .c-message__actions,\n.c-message__actions.c-message__actions--menu-showing {\n  display: block;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".c-message {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  display: flex;\n  padding-right: 40px;\n  min-width: 1px;\n  position: relative;\n}\n.c-message:hover:not(.c-message--highlight) {\n  background-color: #F9F9F9;\n}\n.c-message--highlight {\n  background: #FFFCE0;\n}\n.c-message.c-message--light {\n  padding-top: 5px;\n  padding-bottom: 3px;\n}\n.c-message.c-message--dense {\n  padding-top: 3px;\n  padding-bottom: 2px;\n}\n.c-message.c-message--light.c-message--adjacent {\n  padding-top: 2px;\n}\n.c-message__gutter {\n  text-align: right;\n  flex-shrink: 0;\n}\n.c-message--adjacent .c-message__gutter {\n  visibility: hidden;\n}\n.c-message--adjacent:hover .c-message__gutter {\n  visibility: visible;\n}\n.c-message--light .c-message__gutter {\n  width: 72px;\n  padding-right: 10px;\n}\n.c-message--dense .c-message__gutter {\n  width: 58px;\n  margin-right: 22px;\n}\n.c-message--dense .c-timestamp__label {\n  color: #717274;\n}\n.c-message__content {\n  flex: 0 1 100%;\n  min-width: 1px;\n}\n.c-message--dense .c-message__content {\n  padding-left: 8px;\n}\n.c-message__sender {\n  font-weight: 900;\n}\n.c-message--light .c-message__sender {\n  margin-right: 6px;\n  color: #2C2D30;\n}\n.c-message--dense .c-message__sender {\n  margin-left: -8px;\n  margin-right: 4px;\n}\n.c-message__sender--unknown {\n  display: inline-block;\n  width: 80px;\n  height: 0.9rem;\n  border-radius: 0.9rem;\n  vertical-align: bottom;\n  background: #E8E8E8;\n}\n.c-message--dense .c-message__content_header {\n  display: inline;\n  margin-bottom: 3px;\n}\n.c-message--dense.c-message--thread-broadcast .c-message__content_header {\n  display: flex;\n}\n.c-message--light .c-message__content_header {\n  line-height: 1;\n  margin-bottom: 3px;\n}\n.c-message__body {\n  line-height: 1.4;\n  color: #2C2D30;\n}\n.c-message__mention {\n  background: #FFF4BF;\n  border-radius: 3px;\n  padding: 0 2px 1px 2px;\n}\n.c-message__reply_bar {\n  display: flex;\n  align-items: center;\n  max-width: 600px;\n  margin-top: 5px;\n  padding: 3px;\n  font-size: 12px;\n  border: 1px solid transparent;\n  border-radius: 6px;\n  cursor: pointer;\n}\n.c-message__reply_bar:hover {\n  background-color: #FFF;\n  border-color: rgba(0, 0, 0, 0.15);\n}\n.c-message__reply_bar:hover .c-message__reply_bar_arrow {\n  color: #A0A0A2;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_last_reply {\n  opacity: 0;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_view_thread {\n  opacity: 1;\n}\n.c-message__reply_bar .c-avatar {\n  margin-right: 4px;\n}\n.c-message__reply_count {\n  margin-left: 3px;\n  font-weight: bold;\n}\n.c-message__reply_bar_description {\n  position: relative;\n  margin-left: 8px;\n  color: #A0A0A2;\n}\n.c-message__reply_bar_arrow {\n  margin-left: auto;\n  color: transparent;\n}\n.c-message__reply_bar_arrow::before {\n  vertical-align: top;\n}\n.c-message__reply_bar_last_reply {\n  opacity: 1;\n  transition: opacity 0.2s;\n}\n.c-message__broadcast_preamble {\n  color: #A0A0A2;\n  display: flex;\n  overflow: hidden;\n  max-width: 100%;\n}\n.c-message--light .c-message__broadcast_preamble {\n  margin-bottom: 3px;\n}\n.c-message__broadcast_preamble_meta {\n  flex-shrink: 0;\n}\n.c-message__broadcast_preamble_link {\n  font-weight: bold;\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  margin-left: 4px;\n}\n.c-message__reply_bar_view_thread {\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  opacity: 0;\n  transition: opacity 0.2s;\n}\n.c-message__attachment {\n  display: flex;\n  align-items: stretch;\n  margin-top: 2px;\n}\n.c-message__attachment_column {\n  width: 4px;\n  background-color: #E8E8E8;\n  border-radius: 8px;\n}\n.c-message__attachment_body {\n  padding-left: 12px;\n  padding-right: 12px;\n}\n.c-message__bot-label {\n  color: #A0A0A2;\n  font-weight: 500;\n  font-size: 12px;\n  margin: 0 0.15rem;\n  padding: 0 0.1rem;\n  vertical-align: middle;\n  background: #f2f2f5;\n}\n.c-message__image_wrapper {\n  display: block;\n  position: relative;\n  overflow: hidden;\n  border-radius: 3px;\n}\n.c-message__image_description {\n  margin-bottom: 8px;\n  color: #A0A0A2;\n}\n.c-message:hover .c-message__image_description {\n  color: #717274;\n}\n.c-message__image_caret {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n}\n.c-message__image_caret:hover,\n.c-message__image_caret:focus,\n.c-message__image_caret:active {\n  outline: none;\n}\n.c-message__file_link {\n  font-weight: 700;\n}\n.c-message__file_meta {\n  line-height: 1.4;\n  color: #A0A0A2;\n}\n.c-message:hover .c-message__file_meta {\n  color: #717274;\n}\n.c-message__body--comment {\n  position: relative;\n  display: block;\n}\n.c-message__body--comment:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  content: '\\E516';\n  position: absolute;\n  left: -28px;\n  top: -4px;\n  color: #E8E8E8;\n}\n.c-message--dense .c-message__body--comment:before {\n  display: none;\n}\n.c-message__file_comment_user,\n.c-message__file_comment_user:link,\n.c-message__file_comment_user:visited {\n  color: inherit;\n}\n.c-message__actions {\n  position: absolute;\n  top: -14px;\n  right: 5px;\n  display: none;\n}\n.c-message:hover .c-message__actions,\n.c-message__actions.c-message__actions--menu-showing {\n  display: block;\n}\n", ""]);
 }, function(e, t, n) {
   t = e.exports = n(189)(), t.push([e.i, ".c-message_list {\n  border-right: 0.25rem solid transparent;\n}\n.c-message_list::-webkit-scrollbar {\n  position: absolute;\n  -webkit-appearance: none;\n  width: 8px;\n}\n.c-message_list::-webkit-scrollbar-track,\n.c-message_list::-webkit-scrollbar-thumb {\n  background-clip: padding-box !important;\n  border-radius: 3px;\n  color: #FFFFFF;\n}\n.c-message_list::-webkit-scrollbar-track {\n  background: #F5F5F5;\n  box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0;\n}\n.c-message_list::-webkit-scrollbar-thumb {\n  background: #D9D9DE;\n  box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;\n  min-height: 36px;\n}\n.c-message_list::-webkit-scrollbar-corner {\n  background: #FFFFFF;\n}\n.c-message_list__day_divider {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 0.9rem;\n  width: 100%;\n  color: #2C2D30;\n  font-weight: bold;\n  text-align: center;\n  position: relative;\n  padding: 1rem 0;\n}\n.c-message_list__day_divider .c-message_list__unread_divider {\n  top: 12px;\n}\n.c-message_list__day_divider .c-message_list__unread_divider__separator {\n  margin-right: 0;\n}\n.c-message_list__day_divider__label {\n  cursor: default;\n  display: inline-block;\n  background: #FFF;\n  padding: 0.25rem 0.75rem;\n  position: relative;\n  z-index: 1;\n}\n.c-message_list__day_divider__line {\n  position: absolute;\n  top: 50%;\n  left: 0;\n  right: 0;\n  border-top: 1px solid #E8E8E8;\n  border-bottom: 0;\n  z-index: -1;\n  margin: 0;\n}\n.c-message_list__unread_divider {\n  position: relative;\n  top: -1px;\n  z-index: 1;\n}\n.c-message_list__unread_divider__separator {\n  border-bottom: none;\n  border-color: rgba(255, 135, 109, 0.5);\n  margin: 0 18px -1px 0;\n  -webkit-transition: border 150ms ease-out 0;\n  -moz-transition: border 150ms ease-out 0;\n  transition: border 150ms ease-out 0;\n}\n.c-message_list__unread_divider__label {\n  background: #FFF;\n  border-radius: 7px;\n  color: rgba(255, 135, 109, 0.5);\n  cursor: default;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 13px;\n  font-weight: bold;\n  line-height: 8px;\n  margin: -5px 11px -5px 0;\n  padding: 0 5px 3px 5px;\n  position: absolute;\n  right: 0;\n  text-transform: lowercase;\n  -webkit-transition: color 150ms ease-out 0;\n  -moz-transition: color 150ms ease-out 0;\n  transition: color 150ms ease-out 0;\n}\n", ""]);
 }, function(e, t, n) {
@@ -38378,22 +38439,25 @@ webpackJsonp([332], [, function(e, t, n) {
         i = n.i(f.getUserPref)(e, "start_scroll_at_oldest"),
         a = n.i(u.getMessagePaneStartTs)(e);
       !a && i && o && (a = o.last_read);
-      var s = m(e, r, a),
-        l = s.timestamps,
-        d = s.reachedStart,
-        p = s.reachedEnd;
+      var s = n.i(u.getMessagePaneEditTs)(e),
+        l = m(e, r, a),
+        d = l.timestamps,
+        p = l.reachedStart,
+        _ = l.reachedEnd;
       return h({}, t, {
         channelId: r,
         type: n.i(c.getChannelType)(o),
-        timestamps: l,
-        reachedStart: d,
-        reachedEnd: p,
+        timestamps: d,
+        reachedStart: p,
+        reachedEnd: _,
         lastReadTs: a,
-        startTs: a
+        startTs: a,
+        editTs: s
       });
     },
     y = {
-      fetchHistory: u.fetchHistory
+      fetchHistory: u.fetchHistory,
+      stopEditingMessage: u.stopEditingMessage
     };
   t.a = n.i(i.b)(_, y)(s.a);
 }, function(e, t, n) {
@@ -38470,7 +38534,9 @@ webpackJsonp([332], [, function(e, t, n) {
             timestamps: this.props.timestamps,
             startTs: this.props.startTs,
             requestHistory: this.requestHistory,
-            lastReadTs: this.props.lastReadTs
+            lastReadTs: this.props.lastReadTs,
+            editTs: this.props.editTs,
+            stopEditingMessage: this.props.stopEditingMessage
           });
         }
       }]), t;
@@ -38483,7 +38549,9 @@ webpackJsonp([332], [, function(e, t, n) {
     reachedEnd: l.a.PropTypes.bool,
     fetchHistory: l.a.PropTypes.func,
     lastReadTs: l.a.PropTypes.string,
-    startTs: l.a.PropTypes.string
+    startTs: l.a.PropTypes.string,
+    editTs: l.a.PropTypes.string,
+    stopEditingMessage: l.a.PropTypes.func
   }, f.defaultProps = {
     channelId: null,
     type: "channel",
@@ -38492,7 +38560,9 @@ webpackJsonp([332], [, function(e, t, n) {
     reachedEnd: !1,
     fetchHistory: s.a.noop,
     lastReadTs: null,
-    startTs: null
+    startTs: null,
+    editTs: null,
+    stopEditingMessage: s.a.noop
   };
 }, , , , function(e, t, n) {
   "use strict";
@@ -41297,14 +41367,16 @@ webpackJsonp([332], [, function(e, t, n) {
       href: a.PropTypes.string,
       onClick: a.PropTypes.func,
       target: a.PropTypes.string,
-      type: a.PropTypes.string
+      type: a.PropTypes.string,
+      style: a.PropTypes.object
     },
     h = {
       className: null,
       href: null,
       onClick: c.noop,
       target: null,
-      type: "button"
+      type: "button",
+      style: null
     },
     m = function(e) {
       function t() {
@@ -41317,12 +41389,14 @@ webpackJsonp([332], [, function(e, t, n) {
             t = e.className,
             n = e.children,
             r = e.onClick,
-            o = e.type,
-            i = l()("c-button", t);
+            o = e.style,
+            i = e.type,
+            a = l()("c-button", t);
           return s.a.createElement("button", {
-            className: i,
+            className: a,
             onClick: r,
-            type: o
+            type: i,
+            style: o
           }, n);
         }
       }, {
@@ -41333,13 +41407,15 @@ webpackJsonp([332], [, function(e, t, n) {
             n = e.children,
             r = e.onClick,
             o = e.href,
-            i = e.target,
-            a = l()("c-button", t);
+            i = e.style,
+            a = e.target,
+            u = l()("c-button", t);
           return s.a.createElement("a", {
             href: o,
-            className: a,
+            className: u,
             onClick: r,
-            target: i
+            target: a,
+            style: i
           }, n);
         }
       }, {
