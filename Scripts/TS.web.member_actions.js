@@ -136,7 +136,8 @@ webpackJsonp([198], {
           transfer_ownership: {
             primary: !0,
             label: TS.i18n.t("Transfer team ownership", "member_actions")(),
-            href: "/admin/transfer"
+            href: "/admin/transfer",
+            cls: "admin_transfer_ownership_btn"
           },
           activate_bot: {
             primary: !0,

@@ -14967,9 +14967,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           if (!TS.useSocket()) return Promise.reject(new Error("Flannel queries are not available on this page"));
           if (!(TS.isSocketManagerEnabled() ? TS.interop.SocketManager.hasOpenWebSocket() : TS.ms.hasOpenWebSocket())) {
             TS.log(1989, "Flannel: received a " + t + " call while we are not connected; deferring");
-            var a = arguments,
-              s = TS.isSocketManagerEnabled() ? TS.interop.SocketManager.promiseToHaveOpenWebSocket() : TS.ms.promiseToHaveOpenWebSocket();
-            return Promise.join(s, TS.api.connection.waitForAPIConnection()).then(function() {
+            var a = arguments;
+            return (TS.isSocketManagerEnabled() ? TS.interop.SocketManager.promiseToHaveOpenWebSocket() : TS.ms.promiseToHaveOpenWebSocket()).then(function() {
               return TS.log(1989, "Flannel: connected! Continuing deferred " + t + " call"), TS.ms.flannel.call.apply(this, a);
             }.bind(this));
           }
@@ -17532,7 +17531,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return !!TS.boot_data.feature_shared_channels_client && !(!TS.model.user.is_owner && !TS.model.user.is_admin);
         },
         canRequestSharedChannel: function() {
-          return !!TS.boot_data.feature_shared_channels_client;
+          return !!TS.boot_data.feature_shared_channels_invite && !!TS.boot_data.feature_shared_channels_client;
         },
         canExportMessageHistory: function(e) {
           return !!(TS.boot_data.feature_channel_exports && TS.boot_data.feature_archive_deeplink && (TS.model.user.is_admin || e.is_im || e.is_group));
@@ -23112,7 +23111,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               c = !!i.standalone,
               u = !(!c && !i.hide_actions),
               m = !!i.full_date;
-            TS.model.prefs.fuller_timestamps && !m && (m = !TS.utility.date.sameDay(TS.interop.datetime.toDateObject(a.ts), new Date));
+            TS.model.prefs.fuller_timestamps && !m && (m = !TS.interop.datetime.isSameDay(TS.interop.datetime.toDateObject(a.ts), new Date));
             var p, f = !!i.relative_ts,
               h = i.jump_link ? new Handlebars.SafeString(i.jump_link) : "",
               g = !!i.starred_items_list,
@@ -23154,7 +23153,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                       (W || q) && (k = !1);
                     }!TS.utility.msgs.isTempMsg(a) || "bot_message" !== a.type && "USLACKBOT" !== a.user || (k = !0);
                   }
-                if (!I && !TS.utility.date.sameDay(x, N) && !j) {
+                if (!I && !TS.interop.datetime.isSameDay(x, N) && !j) {
                   M = !0;
                   var z = $(T + " div.day_divider");
                   if (z.length > 0) {
@@ -23419,7 +23418,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             n.first_repliers = _.take(r, 5), n.additional_reply_count = r.length - n.first_repliers.length;
             var a = _.last(i).ts,
               s = TS.interop.datetime.toDateObject(a);
-            TS.utility.date.sameDay(s, new Date) ? 1 === n.num_replies ? n.last_reply_at = TS.i18n.t("Today at {time}", "threads")({
+            TS.interop.datetime.isSameDay(s, new Date) ? 1 === n.num_replies ? n.last_reply_at = TS.i18n.t("Today at {time}", "threads")({
               time: TS.interop.datetime.toTime(a, {
                 includeMeridiem: !0
               })
@@ -25690,7 +25689,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }), Handlebars.registerHelper("toCalendarDateIfYesterdayOrToday", function(e) {
             return TS.utility.date.toCalendarDateIfYesterdayOrToday(e);
           }), Handlebars.registerHelper("toCalendarDateOrNamedDayShort", function(e) {
-            return TS.utility.date.toCalendarDateOrNamedDayShort(e);
+            return TS.interop.datetime.toCalendarDateOrNamedDay(e, {
+              shortenMonth: !0
+            });
           }), Handlebars.registerHelper("toTime", function(e, t, n) {
             return TS.interop.datetime.toTime(e, {
               includeMeridiem: !1 !== t,
@@ -25704,7 +25705,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               i = '<span class="relative_ts" data-ts="' + _.escape(e) + '" data-really-short="' + !!t + '">' + _.escape(n) + "</span>";
             return new Handlebars.SafeString(i);
           }), Handlebars.registerHelper("toTimeDuration", function(e) {
-            return TS.utility.date.toTimeDuration(e);
+            return TS.interop.datetime.toTimeDuration(e);
           }), Handlebars.registerHelper("msgTsTitle", function(e, t, n) {
             var i, r, a = e.is_ephemeral || TS.utility.msgs.isTempMsg(e),
               s = TS.model.unread_view_is_showing && _.isString(t) && t === TS.templates.makeMsgDomIdInUnreadView(e.ts),
@@ -25712,7 +25713,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               l = TS.client && TS.ui.replies.activeConvoThreadTs() === e.thread_ts && _.isString(t) && TS.templates.makeMsgDomIdInConversation(e.ts) === t;
             s ? r = TS.i18n.t("Jump to conversation", "templates_helpers")() : o ? r = e.ts === e.thread_ts ? TS.i18n.t("Open in channel", "templates_helpers")() : TS.i18n.t("Open in sidebar", "templates_helpers")() : l ? e.ts === e.thread_ts && (r = TS.i18n.t("Open in channel", "templates_helpers")()) : TS.client && !a && n && (TS.boot_data.feature_archive_deeplink || (r = TS.i18n.t("Open in archives", "templates_helpers")()));
             var d = TS.i18n.t("{date} at {time}", "templates_helpers")({
-              date: TS.utility.date.toCalendarDateOrNamedDayShort(e.ts),
+              date: TS.interop.datetime.toCalendarDateOrNamedDay(e.ts, {
+                shortenMonth: !0
+              }),
               time: TS.interop.datetime.toTime(e.ts, {
                 includeMeridiem: !0,
                 includeSeconds: !0
@@ -36300,8 +36303,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         splitQueryIntoTerms: function(e, t, n) {
           var i, r = t;
-          return e = e.trim(), e.length >= 2 && (i = e.split(" "), r = r || [], _.each(i, function(e) {
-            e.length >= 2 && r.push({
+          return e = e.trim(), e.length >= 2 && (r = _.isArray(t) ? _.slice(t) : [], i = e.split(/\s+/), _.each(i, function(e) {
+            r.push({
               type: n || "fuzzy_with_email",
               value: e
             });
@@ -37603,7 +37606,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         areMsgsSameDay: function(e, t) {
           var n = TS.interop.datetime.toDateObject(e.ts),
             i = TS.interop.datetime.toDateObject(t.ts);
-          return TS.utility.date.sameDay(n, i);
+          return TS.interop.datetime.isSameDay(n, i);
         },
         maybeCalcUnreadCnts: function(e) {
           if (TS.client && TS.client._should_defer_initial_msg_history) {

@@ -591,7 +591,7 @@
 }
 
 @media only screen and (max-width:767px) {
-  .admin_list_item.invite_item,
+  .admin_list_item.invite_item.active,
   .admin_list_item_invite_info {
     display: block
   }

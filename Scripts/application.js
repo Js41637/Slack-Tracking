@@ -32156,7 +32156,7 @@ webpackJsonp([332], [, function(e, t, n) {
       closeIM: a.PropTypes.func,
       isTyping: a.PropTypes.bool,
       members: a.PropTypes.arrayOf(a.PropTypes.string),
-      memberPresences: a.PropTypes.arrayOf(a.PropTypes.strig)
+      memberPresences: a.PropTypes.arrayOf(a.PropTypes.string)
     },
     C = {
       isSelected: !1,
@@ -32227,6 +32227,7 @@ webpackJsonp([332], [, function(e, t, n) {
           return "mpim" === t && n && r ? l.a.flatMap(n, function(e, t) {
             return [s.a.createElement(M.a, {
               id: e,
+              key: e,
               className: f()({
                 italic: "away" === r[t]
               })
@@ -32345,8 +32346,8 @@ webpackJsonp([332], [, function(e, t, n) {
       isPrivate: o.is_private,
       id: r,
       isTyping: s,
-      members: d,
-      memberPresences: f
+      members: d || null,
+      memberPresences: f || null
     };
   };
   t.a = n.i(c.b)(P)(O);
@@ -37231,40 +37232,36 @@ webpackJsonp([332], [, function(e, t, n) {
   }
 
   function i() {
-    g && (Object.keys(g).forEach(function(e) {
+    g && Object.keys(g).forEach(function(e) {
       o({
         ok: !1,
         error: "socket_closed",
         reply_to: e
       }, g[e]);
-    }), v = {}, g = void 0);
+    }), g = v, v = {};
   }
 
   function a(e) {
-    clearInterval(e.privateState.pingTimer);
-    var t = v;
-    i(), g = t, v = {}, e.startData.isPending() && e.privateState.rejectStartDataPromise(new Error("Socket was closed before receiving a hello message")), e.onCloseSig.dispatch();
+    clearInterval(e.privateState.pingTimer), i(), e.startData.isPending() && e.privateState.rejectStartDataPromise(new Error("Socket was closed before receiving a hello message")), e.onCloseSig.dispatch();
   }
 
   function s(e, t) {
     var r = t.data,
-      a = JSON.parse(r);
-    if (a.reply_to) {
-      if (v[a.reply_to]) {
-        var s = v[a.reply_to];
-        delete v[a.reply_to], o(a, s);
-      } else if (g && g[a.reply_to]) {
-        var u = g[a.reply_to];
-        delete g[a.reply_to], o(a, u);
-      } else n.i(d.a)("Received a reply to a message we have no record of sending (reply_to = " + a.reply_to + ", type = " + a.type + ")");
-      return void i();
-    }
-    if ("hello" !== a.type) {
-      if (e.privateState.delegate) return void e.privateState.delegate(a);
-      e.privateState.receiveBuffer.push(a);
-    } else if (e.onConnectSig.dispatch(), a.start) {
-      var l = a.start;
-      e.privateState.resolveStartDataPromise(l);
+      i = JSON.parse(r);
+    if (i.reply_to)
+      if (v[i.reply_to]) {
+        var a = v[i.reply_to];
+        delete v[i.reply_to], o(i, a);
+      } else if (g && g[i.reply_to]) {
+      var s = g[i.reply_to];
+      delete g[i.reply_to], o(i, s);
+    } else n.i(d.a)("Received a reply to a message we have no record of sending (reply_to = " + i.reply_to + ", type = " + i.type + ")");
+    else if ("hello" !== i.type) {
+      if (e.privateState.delegate) return void e.privateState.delegate(i);
+      e.privateState.receiveBuffer.push(i);
+    } else if (e.onConnectSig.dispatch(), i.start) {
+      var u = i.start;
+      e.privateState.resolveStartDataPromise(u);
     } else e.startData.cancel();
   }
 
@@ -37349,6 +37346,11 @@ webpackJsonp([332], [, function(e, t, n) {
           return i.suppressUnhandledRejections(), i;
         }
       }, {
+        key: "isConnected",
+        get: function() {
+          return this.privateState.socket && this.privateState.socket.readyState === WebSocket.OPEN;
+        }
+      }, {
         key: "messageDelegate",
         get: function() {
           return this.privateState.delegate;
@@ -37363,6 +37365,22 @@ webpackJsonp([332], [, function(e, t, n) {
       }]), e;
     }();
   t.a = b;
+  var w = {};
+  Object.defineProperty(w, "previouslyPendingMessages", {
+    get: function() {
+      return g;
+    },
+    set: function(e) {
+      g = e;
+    }
+  }), Object.defineProperty(w, "pendingMessages", {
+    get: function() {
+      return v;
+    },
+    set: function(e) {
+      v = e;
+    }
+  });
 }, function(e, t, n) {
   "use strict";
 
@@ -37506,11 +37524,11 @@ webpackJsonp([332], [, function(e, t, n) {
       case U.a.DISCONNECTING:
         break;
       case U.a.DISCONNECTED:
-        w(U.a.WAIT_FOR_CONNECTIVITY);
+        w(U.a.WAIT_FOR_RATE_LIMIT);
         break;
       case U.a.ERROR:
         l(re), setTimeout(function() {
-          w(U.a.DISCONNECTED);
+          w(U.a.WAIT_FOR_CONNECTIVITY);
         }, 0);
         break;
       case U.a.SLEEP:
@@ -37586,7 +37604,7 @@ webpackJsonp([332], [, function(e, t, n) {
   }
 
   function T() {
-    return [U.a.PROV_CONNECTED, U.a.PROV_FINALIZING, U.a.CONNECTED].indexOf(ue) >= 0;
+    return !(!ye || !ye.isConnected);
   }
 
   function x() {
@@ -37636,7 +37654,7 @@ webpackJsonp([332], [, function(e, t, n) {
   }
 
   function Y() {
-    return ye ? Promise.resolve() : (me || (me = new Promise(function(e) {
+    return T() ? Promise.resolve() : (me || (me = new Promise(function(e) {
       _e = e;
     })), me);
   }
@@ -40657,6 +40675,9 @@ webpackJsonp([332], [, function(e, t, n) {
       time24: !1
     },
     _ = function(e) {
+      e.preventDefault();
+    },
+    y = function(e) {
       var t = e.timestamp,
         r = e.link,
         i = e.time24,
@@ -40675,7 +40696,8 @@ webpackJsonp([332], [, function(e, t, n) {
         tip: l
       }, o.a.createElement(c, {
         className: "c-timestamp",
-        href: r || null
+        href: r || null,
+        onClick: _
       }, o.a.createElement("span", {
         className: "copy_only"
       }, "["), o.a.createElement("span", {
@@ -40686,13 +40708,13 @@ webpackJsonp([332], [, function(e, t, n) {
         className: "copy_only"
       }, "]")));
     };
-  _.propTypes = h, _.defaultProps = m;
-  var y = function(e, t) {
+  y.propTypes = h, y.defaultProps = m;
+  var v = function(e, t) {
     return f({}, t, {
       time24: n.i(c.getUserPref)(e, "time24")
     });
   };
-  t.a = n.i(i.b)(y)(_);
+  t.a = n.i(i.b)(v)(y);
 }, function(e, t, n) {
   var r = n(3197);
   "string" == typeof r && (r = [
@@ -41219,7 +41241,7 @@ webpackJsonp([332], [, function(e, t, n) {
                 appCategories: e.data.categories,
                 selectedAppIndex: f.a.get(e, "response.data.categories[0].apps", []).length && t === L.searchEndpoint ? 0 : null
               };
-            }), n.paginateCategories(t, r));
+            }), t === L.listEnpoint && 1 === e.data.categories.length && n.paginateCategories(t, r));
           });
         }
       }, {
@@ -56274,7 +56296,7 @@ webpackJsonp([332], [, function(e, t, n) {
       name: r.PropTypes.string.isRequired
     },
     c = function(e) {
-      var t = s.a.omit(e, ["id", "name"]);
+      var t = s.a.omit(e, ["id", "name", "dispatch"]);
       return o.a.createElement("span", t, e.name);
     };
   c.propTypes = l;

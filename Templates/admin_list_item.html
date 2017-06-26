@@ -190,7 +190,7 @@
             {{/each}}
         {{else}}
             {{#if show_transfer_btn}}
-                <a href="/admin/transfer" class="btn btn_outline btn_small btn_outline btn_small">{{#t}}Transfer team ownership{{/t}}</a>
+                <a href="/admin/transfer" class="btn btn_outline btn_small btn_outline btn_small admin_transfer_ownership_btn">{{#t}}Transfer team ownership{{/t}}</a>
 
                 {{#memberIsSelf id=member.id}}
                     {{#t}}To make edits, see your <a href="/account/settings">account settings</a>.{{/t}}
@@ -270,13 +270,13 @@
     <div class="notice_processing progress_bar_progress_animated">{{#t}}Updating ...{{/t}}</div>
     <div class="notice_success">
         <span class="success_message"></span>
-        <a class="notice_dismiss neutral_white">{{#t}}OK{{/t}}</a>
+        <a class="notice_dismiss neutral_white" data-action="success_ok">{{#t}}OK{{/t}}</a>
     </div>
     <div class="notice_error">
         <span class="error_message">
             <span class="error_generic">{{#t}}Oops! There was an error performing your action.{{/t}}</span> <span class="error_detail"></span>
         </span>
-        <span class="notice_dismiss neutral_white">{{#t}}Try again{{/t}}</span>
+        <span class="notice_dismiss neutral_white" data-action="error_try_again">{{#t}}Try again{{/t}}</span>
     </div>
 
 </div>

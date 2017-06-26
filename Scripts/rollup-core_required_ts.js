@@ -3596,8 +3596,9 @@ webpackJsonp([12, 328, 337, 329], {
             i = TS.model.channel_regex.test(o),
             r = TS.model.group_regex.test(o),
             s = !!TS.model.prefs.last_seen_at_channel_warning,
-            l = s && TS.utility.date.sameDay(new Date(TS.model.prefs.last_seen_at_channel_warning), new Date);
-          return !!(t || i || r) && (!(!(a = TS.shared.getModelObById(e)) || a.is_im) && (!((i || r) && !TS.permissions.members.canAtChannelOrGroup(a.id)) && (!(a.is_general && t && !TS.permissions.members.canAtMentionEveryone(a.id)) && ("never" !== TS.model.team.prefs.warn_before_at_channel && (("once" !== TS.model.team.prefs.warn_before_at_channel || !s) && ("daily" !== TS.model.team.prefs.warn_before_at_channel || !l))))));
+            l = new Date(TS.model.prefs.last_seen_at_channel_warning),
+            c = s && TS.interop.datetime.isSameDay(l, new Date);
+          return !!(t || i || r) && (!(!(a = TS.shared.getModelObById(e)) || a.is_im) && (!((i || r) && !TS.permissions.members.canAtChannelOrGroup(a.id)) && (!(a.is_general && t && !TS.permissions.members.canAtMentionEveryone(a.id)) && ("never" !== TS.model.team.prefs.warn_before_at_channel && (("once" !== TS.model.team.prefs.warn_before_at_channel || !s) && ("daily" !== TS.model.team.prefs.warn_before_at_channel || !c))))));
         },
         needToBlockAtChannelKeyword: function(e, n, a) {
           var o = TS.format.cleanMsg(e),
