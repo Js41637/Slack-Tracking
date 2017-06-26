@@ -25672,8 +25672,6 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             return TS.utility.date.toCalendarDate(e, !0);
           }), Handlebars.registerHelper("toCalendarDateOrNamedDay", function(e) {
             return TS.interop.datetime.toCalendarDateOrNamedDay(e);
-          }), Handlebars.registerHelper("toCalendarDateOrNamedDayWords", function(e) {
-            return TS.utility.date.toCalendarDateOrNamedDayWords(e);
           }), Handlebars.registerHelper("toCalendarDateIfYesterdayOrToday", function(e) {
             return TS.utility.date.toCalendarDateIfYesterdayOrToday(e);
           }), Handlebars.registerHelper("toCalendarDateOrNamedDayShort", function(e) {
@@ -26153,10 +26151,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             return TS.members.getPrefCompliantMemberName(e, !0 === t, !0 === n);
           }), Handlebars.registerHelper("shouldShowMemberRestrictionBanner", function(t, n) {
             return n = e(n), _.isString(t) && (t = TS.members.getMemberById(t)), t && (t.is_restricted || t.is_external && TS.boot_data.feature_shared_channels_client) ? n.fn(this) : n.inverse(this);
-          });
-          Handlebars.registerHelper("shouldUseUnifiedMemberDisplay", function(t) {
+          }), Handlebars.registerHelper("shouldUseUnifiedMemberDisplay", function(t) {
             return t = e(t), TS.boot_data.feature_shared_channels_client ? t.fn(this) : t.inverse(this);
-          }), Handlebars.registerHelper("unlessUseUnifiedMemberDisplay", function(e) {
+          });
+          Handlebars.registerHelper("unlessUseUnifiedMemberDisplay", function(e) {
             return Handlebars.helpers.shouldUseUnifiedMemberDisplay.call(this, {
               fn: e.inverse,
               inverse: e.fn,
