@@ -26,7 +26,7 @@ webpackJsonp([241], {
           if (TS.client) {
             var e = !1,
               i = !1;
-            me() && TS.members.getActiveMembersWithSelfAndNotSlackbot().length < 26 && (e = !0), me() && TS.members.getActiveMembersWithSelfAndNotSlackbot().length >= 2 && (i = !0), $("#channel_list_invites_link").toggleClass("hidden", !e).toggleClass("dim", i);
+            me() && TS.members.getActiveMembersWithSelfAndNotSlackbot().length < 26 && (e = !0), me() && TS.members.getActiveMembersWithSelfAndNotSlackbot().length >= 2 && (i = !0), $("#channel_list_invites_link").toggleClass("hidden", !e).toggleClass("dim", i), TS.client.channel_pane.updateFooterButtons();
           }
         },
         populateInvites: function(i) {

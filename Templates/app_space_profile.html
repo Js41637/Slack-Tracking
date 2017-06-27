@@ -23,19 +23,34 @@
 
     </div>
 
-    <div class="p-app_space_profile__description">
+    <div class="p-app_space_profile__about">
+
+      {{#if name}}
+        <h2 class="p-app_space__header">
+          <strong>{{name}}</strong>
+        </h2>
+      {{/if}}
 
       {{!-- DESCRIPTION --}}
       {{#if long_description}}
         <section>
-          <h2 class="p-app_space__name">
-            {{name}}
-          </h2>
-
           {{> app_profile_description}}
-
         </section>
       {{/if}}
+
+      {{!-- NON-SLACK APP --}}
+      {{#unless is_directory_published}}
+        <section>
+          <p class="small_bottom_margin">
+            <i>{{#t}}This app has not been reviewed by Slack and is not listed in the app directory.{{/t}}</i>
+          </p>
+          <p>
+            <a href="/apps/{{app_id}}" target="_blank">
+              {{#t note="3rd party App URL link text"}}Visit app site{{/t}}
+            </a>
+          </p>
+        </section>
+      {{/unless}}
 
     </div>
 
@@ -48,7 +63,7 @@
 
   {{#if has_screenshots}}
 
-    <h3 class="p-app_space__header">
+    <h3 class="p-app_space__subheader">
       {{#t note="Application screenshots"}}Screenshots{{/t}}
     </h3>
 
@@ -84,9 +99,9 @@
 
   {{#if commands}}
 
-    <h3 class="p-app_space__header">
+    <h3 class="p-app_space__subheader">
       <span>{{#t note="Slash commands the app responds to"}}Commands{{/t}}</span>
-      <span class="p-app_space__header__helper">
+      <span class="p-app_space__subheader__helper">
         {{#t note="How to use slash commands helper text"}}
           Use / to start commands in any conversation
         {{/t}}

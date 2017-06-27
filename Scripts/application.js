@@ -41033,22 +41033,23 @@ webpackJsonp([332], [, function(e, t, n) {
     _ = n(2288),
     y = n(3048),
     v = n(3296),
-    g = n(3253),
-    b = n(3638),
-    w = n(3640),
-    k = (n.n(w), "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(e) {
+    g = n(3969),
+    b = n(3253),
+    w = n(3638),
+    k = n(3640),
+    M = (n.n(k), "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(e) {
       return typeof e;
     } : function(e) {
       return e && "function" == typeof Symbol && e.constructor === Symbol && e !== Symbol.prototype ? "symbol" : typeof e;
     }),
-    M = Object.assign || function(e) {
+    T = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
         for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
       }
       return e;
     },
-    T = function() {
+    x = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
@@ -41059,20 +41060,20 @@ webpackJsonp([332], [, function(e, t, n) {
         return n && e(t.prototype, n), r && e(t, r), t;
       };
     }(),
-    x = _.a.ns("apps_browser"),
-    S = {
+    S = _.a.ns("apps_browser"),
+    E = {
       hasSeenAppSpaceCoachmark: u.a.PropTypes.bool,
       doesSupportStickyPosition: u.a.PropTypes.bool
     },
-    E = {
+    L = {
       hasSeenAppSpaceCoachmark: !1,
       doesSupportStickyPosition: !0
     },
-    L = {
+    C = {
       listEnpoint: "apps.index.list",
       searchEndpoint: "apps.index.search"
     },
-    C = function(e) {
+    O = function(e) {
       function t() {
         o(this, t);
         var e = i(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this));
@@ -41086,13 +41087,13 @@ webpackJsonp([332], [, function(e, t, n) {
           leading: !1
         }), e.debouncedEnableMouseMove = f.a.debounce(e.enableMouseMove, 200), e;
       }
-      return a(t, e), T(t, [{
+      return a(t, e), x(t, [{
         key: "componentDidMount",
         value: function() {
           var e = this;
-          document.body.addEventListener("keydown", this.handleKeydown), document.body.addEventListener("mousemove", this.handleMouseMove), this.doRequest(n.i(y.a)(L.listEnpoint).then(function(t) {
+          document.body.addEventListener("keydown", this.handleKeydown), document.body.addEventListener("mousemove", this.handleMouseMove), this.doRequest(n.i(y.a)(C.listEnpoint).then(function(t) {
             return e.defaultAppCategories = t.data.categories, t;
-          }), L.listEnpoint), this.searchInput.focus();
+          }), C.listEnpoint), this.searchInput.focus();
         }
       }, {
         key: "componentWillUnmount",
@@ -41131,7 +41132,7 @@ webpackJsonp([332], [, function(e, t, n) {
               category: e.id,
               cursor: e.next_cursor
             };
-            t === L.searchEndpoint && (a.query = this.state.searchTerm), n.i(y.a)(t, a).then(function(n) {
+            t === C.searchEndpoint && (a.query = this.state.searchTerm), n.i(y.a)(t, a).then(function(n) {
               if (!(o < i.lastRequestId)) {
                 var a = n.data.categories[0];
                 a && i.setState(function(n) {
@@ -41140,18 +41141,18 @@ webpackJsonp([332], [, function(e, t, n) {
                     if (n.appCategories[s].id === e.id) {
                       var u = function() {
                         var e = [].concat(r(n.appCategories[s].apps), r(a.apps)),
-                          u = M({}, n.appCategories[s]);
+                          u = T({}, n.appCategories[s]);
                         u.apps = e, u.next_cursor = a.next_cursor;
                         var l = [].concat(r(n.appCategories));
                         return l[s] = u, u.next_cursor && setTimeout(function() {
                           i.paginateCategory(u, t, o);
-                        }, 0), t === L.listEnpoint && (i.defaultAppCategories = l), {
+                        }, 0), t === C.listEnpoint && (i.defaultAppCategories = l), {
                           v: {
                             appCategories: l
                           }
                         };
                       }();
-                      if ("object" === (void 0 === u ? "undefined" : k(u))) return u.v;
+                      if ("object" === (void 0 === u ? "undefined" : M(u))) return u.v;
                     }
                   return {};
                 });
@@ -41235,7 +41236,7 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "searchApps",
         value: function(e) {
           var t = this;
-          e ? this.doRequest(n.i(y.a)(L.searchEndpoint, {
+          e ? this.doRequest(n.i(y.a)(C.searchEndpoint, {
             query: e
           }).then(function(n) {
             return t.setState(function() {
@@ -41243,7 +41244,7 @@ webpackJsonp([332], [, function(e, t, n) {
                 searchTerm: e
               };
             }), n;
-          }), L.searchEndpoint) : this.setState(function() {
+          }), C.searchEndpoint) : this.setState(function() {
             return {
               isLoading: !1,
               appCategories: t.defaultAppCategories
@@ -41261,46 +41262,48 @@ webpackJsonp([332], [, function(e, t, n) {
               return {
                 isLoading: !1,
                 appCategories: e.data.categories,
-                selectedAppIndex: f.a.get(e, "response.data.categories[0].apps", []).length && t === L.searchEndpoint ? 0 : null
+                selectedAppIndex: f.a.get(e, "response.data.categories[0].apps", []).length && t === C.searchEndpoint ? 0 : null
               };
-            }), t === L.listEnpoint && 1 === e.data.categories.length && n.paginateCategories(t, r));
+            }), t === C.listEnpoint && 1 === e.data.categories.length && n.paginateCategories(t, r));
           });
         }
       }, {
         key: "createAppCategoryMarkup",
         value: function(e, t) {
-          var n = this;
-          return e.apps.map(function(e, r) {
-            var o = t + r,
-              i = c()("p-apps_browser__app", {
-                "p-apps_browser__app--selected": o === n.state.selectedAppIndex
+          var r = this;
+          return e.apps.map(function(e, o) {
+            var i = t + o,
+              a = c()("p-apps_browser__app", {
+                "p-apps_browser__app--selected": i === r.state.selectedAppIndex
               }),
-              a = "app-" + e.app_id + "-" + e.bot_id,
-              s = n.getAppIcon(e),
-              l = x("Install");
-            return e.is_installed && (l = x("View")), u.a.createElement("div", {
-              key: a,
-              className: i,
-              onClick: n.handleAppClick,
-              "data-app": o,
-              "data-app_index": o,
+              s = "app-" + e.app_id + "-" + e.bot_id,
+              l = r.getAppIcon(e),
+              d = S("Install");
+            return e.is_installed && (d = S("View")), u.a.createElement("div", {
+              key: s,
+              className: a,
+              onClick: r.handleAppClick,
+              "data-app": i,
+              "data-app_index": i,
               "data-is_installed": e.is_installed,
               "data-app_id": e.app_id,
               "data-bot_id": e.bot_id,
               "data-bot_user_id": e.bot_user_id
             }, u.a.createElement("img", {
               className: "p-apps_browser__app_icon",
-              src: s,
+              src: l,
               alt: "App icon"
             }), u.a.createElement("div", {
               className: "p-apps_browser__app_info"
             }, u.a.createElement("div", {
               className: "p-apps_browser__app_name"
-            }, u.a.createElement("strong", null, e.name)), u.a.createElement("div", {
-              className: "p-apps_browser__app_description"
-            }, e.short_description)), u.a.createElement("button", {
+            }, u.a.createElement("strong", null, e.name)), n.i(g.a)(e.short_description, function(e, t) {
+              return u.a.createElement("strong", {
+                key: t
+              }, e);
+            })), u.a.createElement("button", {
               className: "p-apps_browser__app_action"
-            }, l));
+            }, d));
           });
         }
       }, {
@@ -41333,18 +41336,18 @@ webpackJsonp([332], [, function(e, t, n) {
           return e = !this.state.appCategories.length && this.state.searchTerm ? u.a.createElement("section", {
             key: "no-results",
             className: "p-apps_browser__no_results"
-          }, x("There are no apps matching"), " ", u.a.createElement("strong", null, this.state.searchTerm)) : this.createAppCategoriesMarkup(), u.a.createElement("div", {
+          }, S("There are no apps matching"), " ", u.a.createElement("strong", null, this.state.searchTerm)) : this.createAppCategoriesMarkup(), u.a.createElement("div", {
             className: "p-apps_browser"
           }, u.a.createElement("div", {
             className: "p-apps_browser__filter_container"
           }, u.a.createElement("div", {
             className: "p-apps_browser__filter_header"
-          }, u.a.createElement("h2", null, x("Apps")), u.a.createElement(g.a, {
+          }, u.a.createElement("h2", null, S("Apps")), u.a.createElement(b.a, {
             target: "_blank",
             href: "https://slack.com/apps"
-          }, x("Browse App Directory"))), u.a.createElement("div", null, u.a.createElement(b.a, {
+          }, S("Browse App Directory"))), u.a.createElement("div", null, u.a.createElement(w.a, {
             ref: this.setSearchInputRef,
-            placeholder: x("Search apps"),
+            placeholder: S("Search apps"),
             onChange: this.handleSearchInputChange
           }))), u.a.createElement("div", {
             className: t,
@@ -41353,14 +41356,14 @@ webpackJsonp([332], [, function(e, t, n) {
         }
       }]), t;
     }(s.Component);
-  C.propTypes = S, C.defaultProps = E;
-  var O = function(e) {
+  O.propTypes = E, O.defaultProps = L;
+  var P = function(e) {
     return {
       hasSeenAppSpaceCoachmark: n.i(h.getUserPref)(e, "seen_app_space_coachmark"),
       doesSupportStickyPosition: n.i(m.getSupportStickyPosition)(e)
     };
   };
-  t.a = n.i(p.b)(O)(C);
+  t.a = n.i(p.b)(P)(O);
 }, function(e, t, n) {
   "use strict";
   var r = n(3250);
@@ -56393,4 +56396,43 @@ webpackJsonp([332], [, function(e, t, n) {
       }]), e;
     }();
   t.a = E;
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e, t) {
+    return i()(e.split(/(\ue000[^\ue001]+\ue001)/g)).chunk(2).map(function(e, n) {
+      var r = a(e, 2),
+        o = r[0],
+        i = r[1];
+      return [o, i ? t(i.replace(/\ue000/g, "").replace(/\ue001/g, ""), n) : ""];
+    }).flatten().value();
+  }
+  t.a = r;
+  var o = n(6),
+    i = n.n(o),
+    a = function() {
+      function e(e, t) {
+        var n = [],
+          r = !0,
+          o = !1,
+          i = void 0;
+        try {
+          for (var a, s = e[Symbol.iterator](); !(r = (a = s.next()).done) && (n.push(a.value), !t || n.length !== t); r = !0);
+        } catch (e) {
+          o = !0, i = e;
+        } finally {
+          try {
+            !r && s.return && s.return();
+          } finally {
+            if (o) throw i;
+          }
+        }
+        return n;
+      }
+      return function(t, n) {
+        if (Array.isArray(t)) return t;
+        if (Symbol.iterator in Object(t)) return e(t, n);
+        throw new TypeError("Invalid attempt to destructure non-iterable instance");
+      };
+    }();
 }], [2905]);

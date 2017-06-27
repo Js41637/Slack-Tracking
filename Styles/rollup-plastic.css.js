@@ -12339,6 +12339,11 @@ a.plastic_typeahead_item:hover {
   height: 24px
 }
 
+.member_image.thumb_28 {
+  width: 28px;
+  height: 28px
+}
+
 .member_image.thumb_32 {
   width: 32px;
   height: 32px

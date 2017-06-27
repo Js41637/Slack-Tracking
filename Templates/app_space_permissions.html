@@ -1,0 +1,80 @@
+{{i18n_ns "app_space"}}
+{{!-- Formerly known as "App Settings" --}}
+
+<div class="p-app_space_permissions" data-app_id="{{app_id}}" data-bot_id="{{bot_id}}">
+
+  {{!-- //////////////////////////////////////////////////
+  MEMBERS WHO INSTALLED APP
+  /////////////////////////////////////////////////// --}}
+
+  {{#if permissions.grantors}}
+
+    <div class="p-app_space_permissions__users">
+      <div>
+        <h3 class="p-app_space__header">
+          {{#t}}<strong>{name} permissions</strong> have been granted by {permissions.grantors.length, plural, =1 {# member} other {# members}}{{/t}}
+        </h3>
+        <div class="display_flex small_top_padding">
+          {{#each permissions.grantors}}
+            {{#if this}}
+
+              {{#if_lt @index compare=7}}
+                <div class="ts_icon ts_tip ts_tip_top ts_tip_float small_right_margin">
+                  {{> member_preview_link_image (getMemberPreviewLinkImageArgs this.id 28)}}
+                  <span class="ts_tip_tip">
+                    {{this.name}}
+                  </span>
+                </div>
+              {{/if_lt}}
+
+            {{/if}}
+          {{/each}}
+          {{#if_gt permissions.grantors.length compare=6 }}
+            <div class="p-app_space_permissions__users_overflow_count">
+              +{{math permissions.grantors.length '-' 6}}
+            </div>
+          {{/if_gt}}
+        </div>
+      </div>
+      <div>
+        <a href="/apps/{{app_id}}" target="_blank" class="btn_outline btn">
+          {{#t note="Manage permissions"}}Manage{{/t}}
+        </a>
+      </div>
+    </div>
+
+  {{/if}}
+
+  {{!-- //////////////////////////////////////////////////
+  AUTH SUMMARY LIST
+  /////////////////////////////////////////////////// --}}
+
+  {{#if permissions.scopes}}
+
+    <h3 class="p-app_space__subheader">
+      <span>{{#t note="What an app has permission to do header text"}}{name} has permission to&hellip;{{/t}}</span>
+      <a
+        href="https://get.slack.help/hc/en-us/articles/222386767-Manage-apps-for-your-team"
+        class="p-app_space__subheader__helper"
+        target="_blank"
+      >
+        {{#t}}
+          Learn more about managing apps
+        {{/t}}
+      </a>
+    </h3>
+
+    <ul class="p-app_space_permissions__summary_list">
+      {{#each permissions.scopes}}
+        <li>
+          {{#if this.is_dangerous}}
+            <ts-icon class="ts_icon_warning yolk_orange small_right_margin"></ts-icon>
+          {{/if}}
+          {{this.action}}
+        </li>
+      {{/each}}
+    </ul>
+
+  {{/if}}
+
+</div>
