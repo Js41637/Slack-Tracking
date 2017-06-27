@@ -11413,7 +11413,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             return Promise.resolve();
           }
           var i = _.clone(p);
-          return TS.flannel.fetchAndUpsertObjectsByIds(i).then(function(t) {
+          return M(i).then(function(t) {
             i.forEach(function(e) {
               var n = TS.members.getPotentiallyUnknownMemberByIdWithoutFetching(e);
               n && (_.find(t, {
@@ -18383,22 +18383,25 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           };
           return (TS.model.window_unloading ? TS.api.callSynchronously : TS.api.callImmediately)("users.prefs.set", e, n);
         },
-        setTeamPrefByAPI: function(e, t) {
-          var n = TS.model.window_unloading ? TS.api.callSynchronously : TS.api.callImmediately,
-            i = $.Deferred();
-          return n("team.prefs.set", {
+        setTeamPrefByAPI: function(e, t, n) {
+          var i = TS.model.window_unloading ? TS.api.callSynchronously : TS.api.callImmediately,
+            r = $.Deferred();
+          return i("team.prefs.set", {
             prefs: JSON.stringify(e)
-          }, function(n, r) {
-            var a;
-            if (n) {
-              if (TS.web)
-                for (a in e) e.hasOwnProperty(a) && r.prefs.hasOwnProperty(a) && TS.prefs.onTeamPrefChanged({
-                  name: a,
-                  value: r.prefs[a]
+          }, function(i, a) {
+            if (i) {
+              if (TS.web) {
+                n = n || [];
+                Object.keys(e).concat(n).forEach(function(t) {
+                  a.prefs.hasOwnProperty(t) && (e.hasOwnProperty(t) || TS.model.team.prefs[t] !== a.prefs[t]) && TS.prefs.onTeamPrefChanged({
+                    name: t,
+                    value: a.prefs[t]
+                  });
                 });
-              i.resolve(r.prefs);
-            } else i.reject(r), t && t(r);
-          }), i;
+              }
+              r.resolve(a.prefs);
+            } else r.reject(a), t && t(a);
+          }), r;
         },
         saveHighlightWords: function(e, n, i) {
           var r = t(e);
