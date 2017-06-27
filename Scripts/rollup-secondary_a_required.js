@@ -5421,7 +5421,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             n = t && TS.model.dnd.snooze_enabled,
             i = x(TS.model.user);
           return i && n ? e = I(i) : i && (e = TS.interop.datetime.toTime(i, {
-            includeMeridiem: !0
+            do24hrTime: TS.utility.date.do24hrTime()
           }), TS.utility.date.do24hrTime() || (e = e.split(":00").join(""))), {
             in_dnd: t,
             snoozed: n,
@@ -23423,11 +23423,11 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               s = TS.interop.datetime.toDateObject(a);
             TS.interop.datetime.isSameDay(s, new Date) ? 1 === n.num_replies ? n.last_reply_at = TS.i18n.t("Today at {time}", "threads")({
               time: TS.interop.datetime.toTime(a, {
-                includeMeridiem: !0
+                do24hrTime: TS.utility.date.do24hrTime()
               })
             }) : n.last_reply_at = TS.i18n.t("Last reply today at {time}", "threads")({
               time: TS.interop.datetime.toTime(a, {
-                includeMeridiem: !0
+                do24hrTime: TS.utility.date.do24hrTime()
               })
             }) : 1 === n.num_replies ? n.last_reply_at = TS.utility.date.toTimeAgo(a) : n.last_reply_at = TS.i18n.t("Last reply {time_ago}", "threads")({
               time_ago: TS.utility.date.toTimeAgo(a)
@@ -23481,9 +23481,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }
           var y = !1;
           p && (y = n.ts ? TS.interop.datetime.toTime(n.ts, {
-            includeMeridiem: !0
+            do24hrTime: TS.utility.date.do24hrTime()
           }) : TS.interop.datetime.toTime(e.msg.ts, {
-            includeMeridiem: !0
+            do24hrTime: TS.utility.date.do24hrTime()
           }));
           var w = n.from_url && e.has_container;
           p && (w = !0);
@@ -25697,7 +25697,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             });
           }), Handlebars.registerHelper("toTime", function(e, t, n) {
             return TS.interop.datetime.toTime(e, {
-              includeMeridiem: !1 !== t,
+              do24hrTime: !1 !== t && TS.utility.date.do24hrTime(),
               includeSeconds: !0 === n
             });
           }), Handlebars.registerHelper("toTimeAgo", function(e) {
@@ -25720,7 +25720,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                 shortenMonth: !0
               }),
               time: TS.interop.datetime.toTime(e.ts, {
-                includeMeridiem: !0,
+                do24hrTime: TS.utility.date.do24hrTime(),
                 includeSeconds: !0
               })
             }).replace(/\s/g, "&nbsp;");
