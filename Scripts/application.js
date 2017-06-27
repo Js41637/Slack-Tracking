@@ -35643,7 +35643,7 @@ webpackJsonp([332], [, function(e, t, n) {
       h = p.minute(),
       m = p.hour(),
       _ = o.a.locale();
-    return f ? p.format(f) : a ? "fr" === _ ? 0 === h ? p.format("H") + " h" : m > 9 ? c ? p.format("H") + " h " + p.format("mm") + " min " + p.format("ss") + " s" : p.format("H") + " h " + p.format("mm") + " min" : c ? p.format("H") + " h " + p.format("m") + " min " + p.format("ss") + " s" : p.format("H") + " h " + p.format("m") + " min" : "de" === _ ? c ? p.format("HH:mm:ss") + " Uhr" : p.format("HH:mm") + " Uhr" : c ? p.format("HH:mm:ss") : p.format("HH:mm") : u ? c ? p.format("h:mm:ss A") : p.format("h:mm A") : c ? p.format("h:mm:ss") : p.format("h:mm");
+    return f ? p.format(f) : a ? "fr" === _ ? 0 === h ? p.format("H") + " h" : m > 9 ? c ? p.format("H") + " h " + p.format("mm") + " min " + p.format("ss") + " s" : p.format("H") + " h " + p.format("mm") : c ? p.format("H") + " h " + p.format("m") + " min " + p.format("ss") + " s" : p.format("H") + " h " + p.format("m") : "de" === _ ? c ? p.format("HH:mm:ss") + " Uhr" : p.format("HH:mm") + " Uhr" : c ? p.format("HH:mm:ss") : p.format("HH:mm") : u ? c ? p.format("h:mm:ss A") : p.format("h:mm A") : c ? p.format("h:mm:ss") : p.format("h:mm");
   }
   var o = n(2989),
     i = n(2356);
@@ -36617,7 +36617,7 @@ webpackJsonp([332], [, function(e, t, n) {
                 channelId: e.props.channelId,
                 previousMessageTs: p,
                 isEditing: t === e.props.editTs,
-                stopEditing: e.props.stopEditingMessage
+                cancelEdit: e.props.stopEditingMessage
               })), n > 0 && n !== o.length - 1 && t === _ && (u.push(t + ".unread"), a.push(l.a.createElement(f.a, {
                 key: "unread"
               }))), u.push(t), p = t;
@@ -36832,13 +36832,12 @@ webpackJsonp([332], [, function(e, t, n) {
     v = n(3198),
     g = n(3916),
     b = n(3188),
-    w = n(3253),
-    k = n(3624),
-    M = n(3937),
+    w = n(3624),
+    k = n(3937),
+    M = n(3970),
     T = n(3040),
-    x = n(2288),
-    S = n(3119),
-    E = (n.n(S), function() {
+    x = n(3119),
+    S = (n.n(x), function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
@@ -36849,12 +36848,11 @@ webpackJsonp([332], [, function(e, t, n) {
         return n && e(t.prototype, n), r && e(t, r), t;
       };
     }()),
-    L = x.a.ns("message"),
-    C = function(e) {
+    E = function(e) {
       function t() {
         return o(this, t), i(this, (t.__proto__ || Object.getPrototypeOf(t)).apply(this, arguments));
       }
-      return a(t, e), E(t, [{
+      return a(t, e), S(t, [{
         key: "renderTimestamp",
         value: function() {
           var e = this.props,
@@ -36909,7 +36907,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "renderThreadBroadcastPreamble",
         value: function() {
-          return "thread_broadcast" !== this.props.subtype ? null : u.a.createElement(k.a, {
+          return "thread_broadcast" !== this.props.subtype ? null : u.a.createElement(w.a, {
             ts: this.props.ts,
             threadTs: this.props.threadTs,
             channelId: this.props.channelId
@@ -36986,7 +36984,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "renderActions",
         value: function() {
-          return u.a.createElement(M.a, {
+          return u.a.createElement(k.a, {
             reactionKey: this.props.reactionKey,
             file: this.props.file && this.props.file.id,
             replyCount: this.props.replyCount,
@@ -36999,30 +36997,13 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "renderEdit",
         value: function() {
-          var e = this.props.stopEditing;
-          return u.a.createElement("div", {
-            style: {
-              marginBottom: 3,
-              width: "100%"
-            }
-          }, u.a.createElement("textarea", {
-            style: {
-              height: 42,
-              marginBottom: 10
-            }
-          }), u.a.createElement(w.a, {
-            style: {
-              display: "inline-block",
-              marginRight: 10
-            },
-            onClick: e
-          }, L("Cancel")), u.a.createElement(w.a, {
-            style: {
-              display: "inline-block"
-            }
-          }, u.a.createElement("i", {
-            className: "ts_icon ts_icon_enter ts_icon_inherit small_right_margin"
-          }), L("Save Changes")));
+          var e = this.props,
+            t = e.cancelEdit,
+            n = e.text;
+          return u.a.createElement(M.a, {
+            contents: n,
+            cancelEdit: t
+          });
         }
       }, {
         key: "render",
@@ -37034,7 +37015,7 @@ webpackJsonp([332], [, function(e, t, n) {
         }
       }]), t;
     }(s.PureComponent);
-  t.a = C, C.propTypes = {
+  t.a = E, E.propTypes = {
     channelId: u.a.PropTypes.string.isRequired,
     channel: u.a.PropTypes.shape({
       id: u.a.PropTypes.string
@@ -37070,8 +37051,8 @@ webpackJsonp([332], [, function(e, t, n) {
     showUser: u.a.PropTypes.bool,
     isFileFollowup: u.a.PropTypes.bool,
     isEditing: u.a.PropTypes.bool,
-    stopEditing: u.a.PropTypes.func
-  }, C.defaultProps = {
+    cancelEdit: u.a.PropTypes.func
+  }, E.defaultProps = {
     channel: null,
     text: null,
     subtype: null,
@@ -37089,7 +37070,7 @@ webpackJsonp([332], [, function(e, t, n) {
     showUser: !0,
     isFileFollowup: !0,
     isEditing: !1,
-    stopEditing: d.noop
+    cancelEdit: d.noop
   };
 }, , function(e, t, n) {
   "use strict";
@@ -38414,7 +38395,7 @@ webpackJsonp([332], [, function(e, t, n) {
     };
   };
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".c-message {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  display: flex;\n  padding-right: 40px;\n  min-width: 1px;\n  position: relative;\n}\n.c-message:hover:not(.c-message--highlight) {\n  background-color: #F9F9F9;\n}\n.c-message--highlight {\n  background: #FFFCE0;\n}\n.c-message.c-message--light {\n  padding-top: 5px;\n  padding-bottom: 3px;\n}\n.c-message.c-message--dense {\n  padding-top: 3px;\n  padding-bottom: 2px;\n}\n.c-message.c-message--light.c-message--adjacent {\n  padding-top: 2px;\n}\n.c-message__gutter {\n  text-align: right;\n  flex-shrink: 0;\n}\n.c-message--adjacent .c-message__gutter {\n  visibility: hidden;\n}\n.c-message--adjacent:hover .c-message__gutter {\n  visibility: visible;\n}\n.c-message--light .c-message__gutter {\n  width: 72px;\n  padding-right: 10px;\n}\n.c-message--dense .c-message__gutter {\n  width: 58px;\n  margin-right: 22px;\n}\n.c-message--dense .c-timestamp__label {\n  color: #717274;\n}\n.c-message__content {\n  flex: 0 1 100%;\n  min-width: 1px;\n}\n.c-message--dense .c-message__content {\n  padding-left: 8px;\n}\n.c-message__sender {\n  font-weight: 900;\n}\n.c-message--light .c-message__sender {\n  margin-right: 6px;\n  color: #2C2D30;\n}\n.c-message--dense .c-message__sender {\n  margin-left: -8px;\n  margin-right: 4px;\n}\n.c-message__sender--unknown {\n  display: inline-block;\n  width: 80px;\n  height: 0.9rem;\n  border-radius: 0.9rem;\n  vertical-align: bottom;\n  background: #E8E8E8;\n}\n.c-message--dense .c-message__content_header {\n  display: inline;\n  margin-bottom: 3px;\n}\n.c-message--dense.c-message--thread-broadcast .c-message__content_header {\n  display: flex;\n}\n.c-message--light .c-message__content_header {\n  line-height: 1;\n  margin-bottom: 3px;\n}\n.c-message__body {\n  line-height: 1.4;\n  color: #2C2D30;\n}\n.c-message__mention {\n  background: #FFF4BF;\n  border-radius: 3px;\n  padding: 0 2px 1px 2px;\n}\n.c-message__reply_bar {\n  display: flex;\n  align-items: center;\n  max-width: 600px;\n  margin-top: 5px;\n  padding: 3px;\n  font-size: 12px;\n  border: 1px solid transparent;\n  border-radius: 6px;\n  cursor: pointer;\n}\n.c-message__reply_bar:hover {\n  background-color: #FFF;\n  border-color: rgba(0, 0, 0, 0.15);\n}\n.c-message__reply_bar:hover .c-message__reply_bar_arrow {\n  color: #A0A0A2;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_last_reply {\n  opacity: 0;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_view_thread {\n  opacity: 1;\n}\n.c-message__reply_bar .c-avatar {\n  margin-right: 4px;\n}\n.c-message__reply_count {\n  margin-left: 3px;\n  font-weight: bold;\n}\n.c-message__reply_bar_description {\n  position: relative;\n  margin-left: 8px;\n  color: #A0A0A2;\n}\n.c-message__reply_bar_arrow {\n  margin-left: auto;\n  color: transparent;\n}\n.c-message__reply_bar_arrow::before {\n  vertical-align: top;\n}\n.c-message__reply_bar_last_reply {\n  opacity: 1;\n  transition: opacity 0.2s;\n}\n.c-message__broadcast_preamble {\n  color: #A0A0A2;\n  display: flex;\n  overflow: hidden;\n  max-width: 100%;\n}\n.c-message--light .c-message__broadcast_preamble {\n  margin-bottom: 3px;\n}\n.c-message__broadcast_preamble_meta {\n  flex-shrink: 0;\n}\n.c-message__broadcast_preamble_link {\n  font-weight: bold;\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  margin-left: 4px;\n}\n.c-message__reply_bar_view_thread {\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  opacity: 0;\n  transition: opacity 0.2s;\n}\n.c-message__attachment {\n  display: flex;\n  align-items: stretch;\n  margin-top: 2px;\n}\n.c-message__attachment_column {\n  width: 4px;\n  background-color: #E8E8E8;\n  border-radius: 8px;\n}\n.c-message__attachment_body {\n  padding-left: 12px;\n  padding-right: 12px;\n}\n.c-message__bot-label {\n  color: #A0A0A2;\n  font-weight: 500;\n  font-size: 12px;\n  margin: 0 0.15rem;\n  padding: 0 0.1rem;\n  vertical-align: middle;\n  background: #f2f2f5;\n}\n.c-message__image_wrapper {\n  display: block;\n  position: relative;\n  overflow: hidden;\n  border-radius: 3px;\n}\n.c-message__image_description {\n  margin-bottom: 8px;\n  color: #A0A0A2;\n}\n.c-message:hover .c-message__image_description {\n  color: #717274;\n}\n.c-message__image_caret {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n}\n.c-message__image_caret:hover,\n.c-message__image_caret:focus,\n.c-message__image_caret:active {\n  outline: none;\n}\n.c-message__file_link {\n  font-weight: 700;\n}\n.c-message__file_meta {\n  line-height: 1.4;\n  color: #A0A0A2;\n}\n.c-message:hover .c-message__file_meta {\n  color: #717274;\n}\n.c-message__body--comment {\n  position: relative;\n  display: block;\n}\n.c-message__body--comment:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  content: '\\E516';\n  position: absolute;\n  left: -28px;\n  top: -4px;\n  color: #E8E8E8;\n}\n.c-message--dense .c-message__body--comment:before {\n  display: none;\n}\n.c-message__file_comment_user,\n.c-message__file_comment_user:link,\n.c-message__file_comment_user:visited {\n  color: inherit;\n}\n.c-message__actions {\n  position: absolute;\n  top: -14px;\n  right: 5px;\n  display: none;\n}\n.c-message:hover .c-message__actions,\n.c-message__actions.c-message__actions--menu-showing {\n  display: block;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".c-message {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  display: flex;\n  padding-right: 26px;\n  min-width: 1px;\n  position: relative;\n}\n.c-message:hover:not(.c-message--highlight) {\n  background-color: #F9F9F9;\n}\n.c-message--highlight {\n  background: #FFFCE0;\n}\n.c-message.c-message--light {\n  padding-top: 5px;\n  padding-bottom: 3px;\n}\n.c-message.c-message--dense {\n  padding-top: 3px;\n  padding-bottom: 2px;\n}\n.c-message.c-message--light.c-message--adjacent {\n  padding-top: 2px;\n}\n.c-message__gutter {\n  text-align: right;\n  flex-shrink: 0;\n}\n.c-message--adjacent .c-message__gutter {\n  visibility: hidden;\n}\n.c-message--adjacent:hover .c-message__gutter {\n  visibility: visible;\n}\n.c-message--light .c-message__gutter {\n  width: 72px;\n  padding-right: 10px;\n}\n.c-message--dense .c-message__gutter {\n  width: 58px;\n  margin-right: 22px;\n}\n.c-message--dense .c-timestamp__label {\n  color: #717274;\n}\n.c-message__content {\n  flex: 0 1 100%;\n  margin-right: 14px;\n  min-width: 1px;\n}\n.c-message--dense .c-message__content {\n  padding-left: 8px;\n}\n.c-message__sender {\n  font-weight: 900;\n}\n.c-message--light .c-message__sender {\n  margin-right: 6px;\n  color: #2C2D30;\n}\n.c-message--dense .c-message__sender {\n  margin-left: -8px;\n  margin-right: 4px;\n}\n.c-message__sender--unknown {\n  display: inline-block;\n  width: 80px;\n  height: 0.9rem;\n  border-radius: 0.9rem;\n  vertical-align: bottom;\n  background: #E8E8E8;\n}\n.c-message--dense .c-message__content_header {\n  display: inline;\n  margin-bottom: 3px;\n}\n.c-message--dense.c-message--thread-broadcast .c-message__content_header {\n  display: flex;\n}\n.c-message--light .c-message__content_header {\n  line-height: 1;\n  margin-bottom: 3px;\n}\n.c-message__body {\n  line-height: 1.4;\n  color: #2C2D30;\n}\n.c-message__mention {\n  background: #FFF4BF;\n  border-radius: 3px;\n  padding: 0 2px 1px 2px;\n}\n.c-message__editor {\n  flex: 0 1 100%;\n  min-height: 0;\n}\n.c-message__editor .ql-editor,\n.c-message__editor .ql-placeholder {\n  padding-bottom: 9px;\n  padding-top: 9px;\n}\n.feature_texty_mentions .c-message__editor .ql-editor,\n.feature_texty_mentions .c-message__editor .ql-placeholder {\n  line-height: 1.46667;\n}\n.c-message__editor__input {\n  background: #FFF;\n  border: 1px solid #C5C5C5;\n  border-radius: 0.25rem;\n  color: #3D3C40;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  height: auto;\n  line-height: 1.2;\n  margin: 0 0 0.5rem;\n  min-height: 40px;\n  overflow: auto;\n  box-shadow: none;\n  -webkit-user-select: auto;\n  -moz-user-select: auto;\n  -ms-user-select: auto;\n  user-select: auto;\n}\n.c-message__editor__input.focus {\n  border-color: #2780F8;\n  outline: none;\n  outline-offset: 0;\n  box-shadow: 0 0 7px rgba(39, 128, 248, 0.15);\n}\n.c-message__editor__warning {\n  color: #EB4D5C;\n  float: right;\n  font-size: 0.8rem;\n}\n.c-message__editor__save {\n  margin-left: 10px !important;\n}\n.c-message__editor button {\n  display: inline-block;\n}\n.c-message__reply_bar {\n  display: flex;\n  align-items: center;\n  max-width: 600px;\n  margin-top: 5px;\n  padding: 3px;\n  font-size: 12px;\n  border: 1px solid transparent;\n  border-radius: 6px;\n  cursor: pointer;\n}\n.c-message__reply_bar:hover {\n  background-color: #FFF;\n  border-color: rgba(0, 0, 0, 0.15);\n}\n.c-message__reply_bar:hover .c-message__reply_bar_arrow {\n  color: #A0A0A2;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_last_reply {\n  opacity: 0;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_view_thread {\n  opacity: 1;\n}\n.c-message__reply_bar .c-avatar {\n  margin-right: 4px;\n}\n.c-message__reply_count {\n  margin-left: 3px;\n  font-weight: bold;\n}\n.c-message__reply_bar_description {\n  position: relative;\n  margin-left: 8px;\n  color: #A0A0A2;\n}\n.c-message__reply_bar_arrow {\n  margin-left: auto;\n  color: transparent;\n}\n.c-message__reply_bar_arrow::before {\n  vertical-align: top;\n}\n.c-message__reply_bar_last_reply {\n  opacity: 1;\n  transition: opacity 0.2s;\n}\n.c-message__broadcast_preamble {\n  color: #A0A0A2;\n  display: flex;\n  overflow: hidden;\n  max-width: 100%;\n}\n.c-message--light .c-message__broadcast_preamble {\n  margin-bottom: 3px;\n}\n.c-message__broadcast_preamble_meta {\n  flex-shrink: 0;\n}\n.c-message__broadcast_preamble_link {\n  font-weight: bold;\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  margin-left: 4px;\n}\n.c-message__reply_bar_view_thread {\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  opacity: 0;\n  transition: opacity 0.2s;\n}\n.c-message__attachment {\n  display: flex;\n  align-items: stretch;\n  margin-top: 2px;\n}\n.c-message__attachment_column {\n  width: 4px;\n  background-color: #E8E8E8;\n  border-radius: 8px;\n}\n.c-message__attachment_body {\n  padding-left: 12px;\n  padding-right: 12px;\n}\n.c-message__bot-label {\n  color: #A0A0A2;\n  font-weight: 500;\n  font-size: 12px;\n  margin: 0 0.15rem;\n  padding: 0 0.1rem;\n  vertical-align: middle;\n  background: #f2f2f5;\n}\n.c-message__image_wrapper {\n  display: block;\n  position: relative;\n  overflow: hidden;\n  border-radius: 3px;\n}\n.c-message__image_description {\n  margin-bottom: 8px;\n  color: #A0A0A2;\n}\n.c-message:hover .c-message__image_description {\n  color: #717274;\n}\n.c-message__image_caret {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n}\n.c-message__image_caret:hover,\n.c-message__image_caret:focus,\n.c-message__image_caret:active {\n  outline: none;\n}\n.c-message__file_link {\n  font-weight: 700;\n}\n.c-message__file_meta {\n  line-height: 1.4;\n  color: #A0A0A2;\n}\n.c-message:hover .c-message__file_meta {\n  color: #717274;\n}\n.c-message__body--comment {\n  position: relative;\n  display: block;\n}\n.c-message__body--comment:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  content: '\\E516';\n  position: absolute;\n  left: -28px;\n  top: -4px;\n  color: #E8E8E8;\n}\n.c-message--dense .c-message__body--comment:before {\n  display: none;\n}\n.c-message__file_comment_user,\n.c-message__file_comment_user:link,\n.c-message__file_comment_user:visited {\n  color: inherit;\n}\n.c-message__actions {\n  position: absolute;\n  top: -14px;\n  right: 5px;\n  display: none;\n}\n.c-message:hover .c-message__actions,\n.c-message__actions.c-message__actions--menu-showing {\n  display: block;\n}\n", ""]);
 }, function(e, t, n) {
   t = e.exports = n(189)(), t.push([e.i, ".c-message_list {\n  border-right: 0.25rem solid transparent;\n}\n.c-message_list::-webkit-scrollbar {\n  position: absolute;\n  -webkit-appearance: none;\n  width: 8px;\n}\n.c-message_list::-webkit-scrollbar-track,\n.c-message_list::-webkit-scrollbar-thumb {\n  background-clip: padding-box !important;\n  border-radius: 3px;\n  color: #FFFFFF;\n}\n.c-message_list::-webkit-scrollbar-track {\n  background: #F5F5F5;\n  box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0;\n}\n.c-message_list::-webkit-scrollbar-thumb {\n  background: #D9D9DE;\n  box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;\n  min-height: 36px;\n}\n.c-message_list::-webkit-scrollbar-corner {\n  background: #FFFFFF;\n}\n.c-message_list__day_divider {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 0.9rem;\n  width: 100%;\n  color: #2C2D30;\n  font-weight: bold;\n  text-align: center;\n  position: relative;\n  padding: 1rem 0;\n}\n.c-message_list__day_divider .c-message_list__unread_divider {\n  top: 12px;\n}\n.c-message_list__day_divider .c-message_list__unread_divider__separator {\n  margin-right: 0;\n}\n.c-message_list__day_divider__label {\n  cursor: default;\n  display: inline-block;\n  background: #FFF;\n  padding: 0.25rem 0.75rem;\n  position: relative;\n  z-index: 1;\n}\n.c-message_list__day_divider__line {\n  position: absolute;\n  top: 50%;\n  left: 0;\n  right: 0;\n  border-top: 1px solid #E8E8E8;\n  border-bottom: 0;\n  z-index: -1;\n  margin: 0;\n}\n.c-message_list__unread_divider {\n  position: relative;\n  top: -1px;\n  z-index: 1;\n}\n.c-message_list__unread_divider__separator {\n  border-bottom: none;\n  border-color: rgba(255, 135, 109, 0.5);\n  margin: 0 18px -1px 0;\n  -webkit-transition: border 150ms ease-out 0;\n  -moz-transition: border 150ms ease-out 0;\n  transition: border 150ms ease-out 0;\n}\n.c-message_list__unread_divider__label {\n  background: #FFF;\n  border-radius: 7px;\n  color: rgba(255, 135, 109, 0.5);\n  cursor: default;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 13px;\n  font-weight: bold;\n  line-height: 8px;\n  margin: -5px 11px -5px 0;\n  padding: 0 5px 3px 5px;\n  position: absolute;\n  right: 0;\n  text-transform: lowercase;\n  -webkit-transition: color 150ms ease-out 0;\n  -moz-transition: color 150ms ease-out 0;\n  transition: color 150ms ease-out 0;\n}\n", ""]);
 }, function(e, t, n) {
@@ -43241,27 +43222,27 @@ webpackJsonp([332], [, function(e, t, n) {
   }
   n.d(t, "f", function() {
     return i;
-  }), n.d(t, "m", function() {
+  }), n.d(t, "g", function() {
     return a;
-  }), n.d(t, "j", function() {
-    return s;
   }), n.d(t, "k", function() {
-    return u;
+    return s;
   }), n.d(t, "l", function() {
+    return u;
+  }), n.d(t, "m", function() {
     return c;
   }), t.a = r, n.d(t, "d", function() {
     return d;
-  }), n.d(t, "h", function() {
+  }), n.d(t, "i", function() {
     return f;
   }), n.d(t, "b", function() {
     return p;
   }), n.d(t, "e", function() {
     return h;
-  }), n.d(t, "i", function() {
+  }), n.d(t, "j", function() {
     return m;
   }), n.d(t, "c", function() {
     return _;
-  }), n.d(t, "g", function() {
+  }), n.d(t, "h", function() {
     return y;
   });
   var o = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(e) {
@@ -50174,8 +50155,8 @@ webpackJsonp([332], [, function(e, t, n) {
     },
     p = s.a.import("modules/clipboard"),
     h = {
-      onPaste: c.m,
-      onPasted: c.m
+      onPaste: c.g,
+      onPasted: c.g
     },
     m = function(e) {
       function t(e, i) {
@@ -50253,9 +50234,9 @@ webpackJsonp([332], [, function(e, t, n) {
     m = u.a.import("modules/keyboard"),
     _ = {
       bindings: {},
-      onEnter: l.m,
-      onEscape: l.m,
-      onTab: l.m
+      onEnter: l.g,
+      onEscape: l.g,
+      onTab: l.g
     },
     y = function() {
       return {
@@ -50290,7 +50271,7 @@ webpackJsonp([332], [, function(e, t, n) {
     v = function(e) {
       var t = e.onEnter,
         r = e.onTab,
-        o = n.i(l.g)(navigator) ? "metaKey" : "ctrlKey",
+        o = n.i(l.h)(navigator) ? "metaKey" : "ctrlKey",
         i = {
           enter: {
             key: c,
@@ -50366,7 +50347,7 @@ webpackJsonp([332], [, function(e, t, n) {
             }
           }
         };
-      return n.i(l.g)(navigator) ? n.i(l.a)(i, y()) : i;
+      return n.i(l.h)(navigator) ? n.i(l.a)(i, y()) : i;
     },
     g = function(e) {
       var t = e.onEscape;
@@ -50847,7 +50828,7 @@ webpackJsonp([332], [, function(e, t, n) {
                 });
               }
             });
-          }), n.i(c.g)(navigator) && [y, p].forEach(function(t) {
+          }), n.i(c.h)(navigator) && [y, p].forEach(function(t) {
             e.quill.keyboard.addBinding({
               key: t,
               shortKey: !0,
@@ -51055,7 +51036,7 @@ webpackJsonp([332], [, function(e, t, n) {
             o = arguments.length > 3 && void 0 !== arguments[3] && arguments[3];
           if (this.state.prevMatch) {
             if (e) return this.options.logError('TabComplete: search error "' + e + '"'), void this.hideMenu();
-            if (n.i(c.h)(t)) return this.options.log('TabComplete: no results for "' + this.state.prevMatch.text + '"'), void this.hideMenu();
+            if (n.i(c.i)(t)) return this.options.log('TabComplete: no results for "' + this.state.prevMatch.text + '"'), void this.hideMenu();
             if (this.options.log("TabComplete: found " + t.length + ' results for "' + this.state.prevMatch.text + '"'), r) {
               var i = this.getResultAtIndex(0),
                 a = this.getInsertDataFromResult(i);
@@ -51105,7 +51086,7 @@ webpackJsonp([332], [, function(e, t, n) {
           var r = e.text,
             o = this.state.searchInFlight || this.state.prevInsertText || this.state.prevMatch.text,
             i = T(this.state.prevMatch.text, r);
-          n.i(c.i)(e.text, this.state.prevMatch.text) || (r += i);
+          n.i(c.j)(e.text, this.state.prevMatch.text) || (r += i);
           var a = this.state.prevMatch.index + o.length,
             s = this.quill.getText(a, 1),
             u = " " !== s && !t,
@@ -51118,14 +51099,14 @@ webpackJsonp([332], [, function(e, t, n) {
           var t = void 0,
             r = this.quill.getContents(0, e),
             o = r.ops;
-          t = this.options.useMentions && this.quill.getFormat(e).slackmention ? o.slice(-1) : n.i(c.j)(o, function(e) {
+          t = this.options.useMentions && this.quill.getFormat(e).slackmention ? o.slice(-1) : n.i(c.k)(o, function(e) {
             return !e.attributes;
           });
-          var i = n.i(c.k)(t, "insert"),
+          var i = n.i(c.l)(t, "insert"),
             a = o.slice(0, o.length - t.length);
           return {
             searchText: i,
-            ignoredText: n.i(c.k)(a, "insert")
+            ignoredText: n.i(c.l)(a, "insert")
           };
         }
       }, {
@@ -51187,12 +51168,12 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "onMouseDown",
         value: function(e) {
-          n.i(c.l)(e.target, ".tab_complete_ui_item") && (e.preventDefault(), e.stopPropagation());
+          n.i(c.m)(e.target, ".tab_complete_ui_item") && (e.preventDefault(), e.stopPropagation());
         }
       }, {
         key: "onMenuClick",
         value: function(e) {
-          var t = n.i(c.l)(e.target, ".tab_complete_ui_item"),
+          var t = n.i(c.m)(e.target, ".tab_complete_ui_item"),
             r = this.getResultElementIndex(t),
             o = this.getResultAtIndex(r),
             i = this.getInsertDataFromResult(o);
@@ -51201,7 +51182,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "onMenuMouseOver",
         value: function(e) {
-          var t = n.i(c.l)(e.target, ".tab_complete_ui_item"),
+          var t = n.i(c.m)(e.target, ".tab_complete_ui_item"),
             r = this.getResultElementIndex(t);
           this.setSelectedIndex(r, !1);
         }
@@ -52365,6 +52346,9 @@ webpackJsonp([332], [, function(e, t, n) {
 
   function u(e) {
     var t = e.data;
+    if (t.has_more) return void b({
+      reason: "eventlog.history has_more"
+    });
     if (!t.events) return void w("eventlog: history call did not include events");
     if (!t.events.length) return void g("eventlog: nothing to process");
     var n = a(t.events);
@@ -56000,12 +55984,12 @@ webpackJsonp([332], [, function(e, t, n) {
   var r = n(2353),
     o = n(3967);
   n.i(r.a)("interop.texty", {
-    Delta: o.a,
-    PlainClipboardModule: o.b,
-    Quill: o.c,
-    SlackKeyboardModule: o.d,
-    TabCompleteModule: o.e,
-    TextyClass: o.f
+    Delta: o.b,
+    PlainClipboardModule: o.c,
+    Quill: o.d,
+    SlackKeyboardModule: o.e,
+    TabCompleteModule: o.f,
+    TextyClass: o.g
   });
 }, function(e, t, n) {
   "use strict";
@@ -56013,23 +55997,24 @@ webpackJsonp([332], [, function(e, t, n) {
     o = n.n(r),
     i = n(3301),
     a = n.n(i),
-    s = n(3417),
-    u = n(3410),
-    l = n(3411),
-    c = n(3968);
-  n.d(t, "a", function() {
+    s = n(3971),
+    u = n(3417),
+    l = n(3410),
+    c = n(3411),
+    d = n(3968);
+  n.d(t, "b", function() {
     return a.a;
-  }), n.d(t, "c", function() {
-    return o.a;
-  }), n.d(t, "b", function() {
-    return u.a;
   }), n.d(t, "d", function() {
+    return o.a;
+  }), n.d(t, "c", function() {
     return l.a;
   }), n.d(t, "e", function() {
-    return s.a;
-  }), n.d(t, "f", function() {
     return c.a;
-  });
+  }), n.d(t, "f", function() {
+    return u.a;
+  }), n.d(t, "g", function() {
+    return d.a;
+  }), t.a = s.a;
 }, function(e, t, n) {
   "use strict";
 
@@ -56435,4 +56420,294 @@ webpackJsonp([332], [, function(e, t, n) {
         throw new TypeError("Invalid attempt to destructure non-iterable instance");
       };
     }();
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e, t) {
+    if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
+  }
+
+  function o(e, t) {
+    if (!e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    return !t || "object" != typeof t && "function" != typeof t ? e : t;
+  }
+
+  function i(e, t) {
+    if ("function" != typeof t && null !== t) throw new TypeError("Super expression must either be null or a function, not " + typeof t);
+    e.prototype = Object.create(t && t.prototype, {
+      constructor: {
+        value: e,
+        enumerable: !1,
+        writable: !0,
+        configurable: !0
+      }
+    }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
+  }
+  var a = n(2),
+    s = n.n(a),
+    u = n(6),
+    l = (n.n(u), n(3253)),
+    c = n(3967),
+    d = n(2288),
+    f = n(3972),
+    p = n(3973),
+    h = function() {
+      function e(e, t) {
+        for (var n = 0; n < t.length; n++) {
+          var r = t[n];
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
+        }
+      }
+      return function(t, n, r) {
+        return n && e(t.prototype, n), r && e(t, r), t;
+      };
+    }(),
+    m = d.a.ns("message"),
+    _ = {
+      cancelEdit: a.PropTypes.func,
+      contents: a.PropTypes.oneOfType([a.PropTypes.string, a.PropTypes.arrayOf(a.PropTypes.shape({
+        insert: a.PropTypes.string
+      }))]),
+      featureMessageInputByteLimit: a.PropTypes.bool,
+      saveEdit: a.PropTypes.func
+    },
+    y = {
+      cancelEdit: u.noop,
+      contents: null,
+      featureMessageInputByteLimit: !1,
+      saveEdit: u.noop
+    },
+    v = function(e) {
+      function t(e) {
+        r(this, t);
+        var i = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
+        return i.texty = null, i.textyOptions = {
+          modules: {
+            tabcomplete: {
+              positionMenu: function(e) {
+                e.style.width = i.texty.container.offsetWidth + "px", n.i(p.a)(e, i.texty.container);
+              }
+            }
+          },
+          onEnter: function() {
+            return i.maybeSave(), !1;
+          },
+          onEscape: function() {
+            i.maybeCancel();
+          },
+          onTextChange: function() {
+            i.numCharsOverLimit() > 0 && i.setState(function() {
+              return {
+                isTooLong: !0
+              };
+            });
+          }
+        }, i.state = {
+          isTooLong: !1
+        }, i.setTextyRef = i.setTextyRef.bind(i), i.maybeCancel = i.maybeCancel.bind(i), i.maybeSave = i.maybeSave.bind(i), i;
+      }
+      return i(t, e), h(t, [{
+        key: "componentDidMount",
+        value: function() {
+          var e = this.props.contents;
+          this.texty.focus(), this.texty.value(e);
+        }
+      }, {
+        key: "setTextyRef",
+        value: function(e) {
+          this.texty = e;
+        }
+      }, {
+        key: "numCharsOverLimit",
+        value: function() {
+          if (!this.texty) return 0;
+          var e = n.i(f.a)(this.texty.container);
+          return e > 0 ? e : 0;
+        }
+      }, {
+        key: "maybeSave",
+        value: function() {
+          var e = this.props.saveEdit;
+          return !this.state.isTooLong && (e(), !0);
+        }
+      }, {
+        key: "maybeCancel",
+        value: function() {
+          (0, this.props.cancelEdit)();
+        }
+      }, {
+        key: "renderLengthWarning",
+        value: function() {
+          var e = this.props.featureMessageInputByteLimit,
+            t = void 0;
+          return t = e ? m("Your message is {diffCount, plural, =1{# character}other{# characters}} too long.", {
+            diffCount: this.numCharsOverLimit()
+          }) : m("text is too long!"), s.a.createElement("span", {
+            className: "c-message__editor__warning"
+          }, t);
+        }
+      }, {
+        key: "render",
+        value: function() {
+          var e = this.state.isTooLong;
+          return s.a.createElement("div", {
+            className: "c-message__editor"
+          }, s.a.createElement(c.a, {
+            ref: this.setTextyRef,
+            className: "c-message__editor__input",
+            options: this.textyOptions
+          }), s.a.createElement(l.a, {
+            onClick: this.maybeCancel
+          }, m("Cancel")), s.a.createElement(l.a, {
+            className: "c-message__editor__save",
+            onClick: this.maybeSave
+          }, s.a.createElement("i", {
+            className: "ts_icon ts_icon_enter ts_icon_inherit small_right_margin"
+          }), m("Save Changes")), e && this.renderLengthWarning());
+        }
+      }]), t;
+    }(a.PureComponent);
+  t.a = v, v.propTypes = _, v.defaultProps = y;
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e, t) {
+    if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
+  }
+
+  function o(e, t) {
+    if (!e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    return !t || "object" != typeof t && "function" != typeof t ? e : t;
+  }
+
+  function i(e, t) {
+    if ("function" != typeof t && null !== t) throw new TypeError("Super expression must either be null or a function, not " + typeof t);
+    e.prototype = Object.create(t && t.prototype, {
+      constructor: {
+        value: e,
+        enumerable: !1,
+        writable: !0,
+        configurable: !0
+      }
+    }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
+  }
+  var a = n(2),
+    s = n.n(a),
+    u = n(9),
+    l = n.n(u),
+    c = n(3974),
+    d = function() {
+      function e(e, t) {
+        for (var n = 0; n < t.length; n++) {
+          var r = t[n];
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
+        }
+      }
+      return function(t, n, r) {
+        return n && e(t.prototype, n), r && e(t, r), t;
+      };
+    }(),
+    f = {
+      className: a.PropTypes.string,
+      contents: a.PropTypes.oneOfType([a.PropTypes.string, a.PropTypes.arrayOf(a.PropTypes.shape({
+        insert: a.PropTypes.string
+      }))]),
+      options: a.PropTypes.object
+    },
+    p = {
+      className: null,
+      contents: null,
+      options: null
+    },
+    h = function(e) {
+      function t(e) {
+        r(this, t);
+        var n = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
+        return n.container = null, n.setContainerRef = n.setContainerRef.bind(n), n;
+      }
+      return i(t, e), d(t, [{
+        key: "componentDidMount",
+        value: function() {
+          var e = this.props,
+            t = e.contents,
+            r = e.options;
+          n.i(c.a)(this.container, r), t && (n.i(c.b)(this.container, t), n.i(c.c)(this.container));
+        }
+      }, {
+        key: "shouldComponentUpdate",
+        value: function(e) {
+          return e.contents !== this.props.contents;
+        }
+      }, {
+        key: "componentWillUnmount",
+        value: function() {
+          this.instance && n.i(c.d)(this.container);
+        }
+      }, {
+        key: "setContainerRef",
+        value: function(e) {
+          this.container = e;
+        }
+      }, {
+        key: "focus",
+        value: function() {
+          n.i(c.e)(this.container);
+        }
+      }, {
+        key: "value",
+        value: function(e) {
+          n.i(c.b)(this.container, e);
+        }
+      }, {
+        key: "render",
+        value: function() {
+          var e = this.props.className,
+            t = l()("ql-container", e);
+          return s.a.createElement("div", {
+            className: t,
+            ref: this.setContainerRef
+          });
+        }
+      }]), t;
+    }(a.PureComponent);
+  t.a = h, h.propTypes = f, h.defaultProps = p;
+}, function(e, t, n) {
+  "use strict";
+  n.d(t, "a", function() {
+    return o;
+  });
+  var r = n(2277),
+    o = n.i(r.a)("TS.msg_edit.isMessageTooLong", function() {
+      return 0;
+    });
+}, function(e, t, n) {
+  "use strict";
+  n.d(t, "a", function() {
+    return i;
+  });
+  var r = n(6),
+    o = (n.n(r), n(2277)),
+    i = n.i(o.a)("TS.tabcomplete.positionUIRelativeToInput", r.noop);
+}, function(e, t, n) {
+  "use strict";
+  n.d(t, "a", function() {
+    return i;
+  }), n.d(t, "d", function() {
+    return a;
+  }), n.d(t, "e", function() {
+    return s;
+  }), n.d(t, "b", function() {
+    return u;
+  }), n.d(t, "c", function() {
+    return l;
+  });
+  var r = n(6),
+    o = (n.n(r), n(2277)),
+    i = n.i(o.a)("TS.utility.contenteditable.create", r.noop),
+    a = n.i(o.a)("TS.utility.contenteditable.unload", r.noop),
+    s = n.i(o.a)("TS.utility.contenteditable.focus", r.noop),
+    u = n.i(o.a)("TS.utility.contenteditable.value", function() {
+      return "";
+    }),
+    l = n.i(o.a)("TS.utility.contenteditable.setCursorAtEnd", r.noop);
 }], [2905]);

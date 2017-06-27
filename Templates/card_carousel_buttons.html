@@ -1,0 +1,25 @@
+{{i18n_ns "card_carousel_buttons"}}
+
+  <div class="c-card_carousel__btn_container"><p class="c-card_carousel__page_count">{{#t}}{display_card_index} of {number_of_cards}{{/t}}</p></div>
+
+  {{#unless first_card}}
+    <div class="c-card_carousel__btn_container">
+      <a class="c-card_carousel__btn c-card_carousel__btn--left">
+        <i class="ts_icon ts_icon_arrow_large_left"></i>
+      </a>
+    </div>
+  {{/unless}}
+
+  <div class="c-card_carousel__btn_container">
+    <a class="c-card_carousel__btn c-card_carousel__btn--right">
+      <i class="ts_icon ts_icon_arrow_large_right"></i>
+    </a>
+  </div>
+
+  {{#if last_card }}
+    <div class="c-card_carousel__btn_container">
+      <a class="c-card_carousel__btn c-card_carousel__btn--close">
+        <i class="ts_icon ts_icon_times"></i>
+      </a>
+    </div>
+  {{/if}}

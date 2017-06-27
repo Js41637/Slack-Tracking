@@ -1,0 +1,17 @@
+{{i18n_ns "card_carousel"}}
+
+  <div id="" class="c-card_carousel__image_section">
+    <div>
+      {{#if allow_animations}}
+      <img src="{{#t}}{card.animation}{{/t}}"></img>
+      {{else}}
+      <img src="{{#t}}{card.image}{{/t}}"></img>
+      {{/if}}
+    </div>
+  </div>
+  <div id="" class="c-card_carousel__text_section">
+    <div>
+      <p class="bold">{{#t}}{card.title}{{/t}}</p>
+      <p>{{#t}}{card.text}{{/t}}</p>
+    </div>
+  </div>
