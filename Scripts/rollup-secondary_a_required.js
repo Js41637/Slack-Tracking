@@ -5191,7 +5191,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               input_txt: n
             }) : t.is_mpim || !TS.boot_data.page_needs_enterprise || TS.permissions.channels.canMemberJoinChannel(t, e) ? void(t.is_mpim ? TS.ui.im_browser.startWithMpim(t, [e.id]) : t.is_private || t.is_group ? TS.ui.invite.showInviteMembersPreSelected(t.id, [e.id]) : TS.api.call("channels.invite", {
               channel: t.id,
-              user: e.id
+              users: e.id
             })) : void TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("{user} is not a member of {team_name}.", "cmd_handlers")({
               user: p(e),
               team_name: TS.model.team.name
@@ -5222,7 +5222,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             t.is_private || t.is_group ? TS.ui.invite.showInviteMembersPreSelected(t.id, i) : i.forEach(function(e) {
               TS.api.call("channels.invite", {
                 channel: t.id,
-                user: e
+                users: e
               });
             });
           });
@@ -8268,13 +8268,13 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             s = a.split("|"),
             l = s[0].substr(1);
           if (_.includes(o, l)) {
-            if (TS.boot_data.feature_tinyspeck) {
+            if (TS.boot_data.feature_tinyspeck || TS.boot_data.feature_texty_mentions) {
               var c = TS.interop.format.formatBroadcastCommand({
                 type: l,
                 featureLocalization: TS.boot_data.feature_localization,
                 featureNameTaggingClient: TS.boot_data.feature_name_tagging_client
               });
-              return "GROWL" === e || "EDIT" === e || i ? c : '<b class="mention">' + c + "</b>";
+              return "GROWL" === e || "EDIT" === e || i ? c : '<b class="mention" data-broadcast-id="BK' + l + '" data-stringify-text="' + c + '">' + c + "</b>";
             }
             return "GROWL" === e || "EDIT" === e || i ? "EDIT" === e && TS.boot_data.feature_name_tagging_client ? "<@BK" + l + "|@" + l + ">" : "@" + l : (TS.boot_data.feature_localization && (l = d[l] || l), '<b class="mention">@' + l + "</b>");
           }
@@ -8303,7 +8303,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               y = _.escape(b.handle),
               w = n || "EDIT" === e ? "@" + y : I("@" + y),
               k = ["internal_user_group_link"];
-            return "GROWL" === e || "EDIT" === e ? "EDIT" === e && TS.boot_data.feature_name_tagging_client ? "<@" + b.id + "|" + w + ">" : "@" + b.handle : i ? w : (TS.boot_data.feature_texty_mentions && (w = "@" + y, n || -1 === TS.model.highlight_words.indexOf("@" + y) || k.push("mention")), '<a href="/usergroups/' + b.id + '" ' + v + 'data-user-group-id="' + b.id + '" class="' + k.join(" ") + '">' + w + "</a>");
+            return "GROWL" === e || "EDIT" === e ? "EDIT" === e && TS.boot_data.feature_name_tagging_client ? "<@" + b.id + "|" + w + ">" : "@" + b.handle : i ? w : (TS.boot_data.feature_texty_mentions && (w = "@" + y, n || -1 === TS.model.highlight_words.indexOf("@" + y) || k.push("mention")), '<a href="/usergroups/' + b.id + '" ' + v + 'data-user-group-id="' + b.id + '" class="' + k.join(" ") + '" data-stringify-text="@' + y + '">' + w + "</a>");
           }
           return "GROWL" !== e && "EDIT" !== e ? u : "";
         },
@@ -8907,12 +8907,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           if (t.group && (i = TS.groups.upsertGroup(t.group), r = t.group.id), !r) return void TS.error("no group_id?!!");
           if (!i) return void TS.error("no group?!!");
           var a = n._and_invite_members_ids ? n._and_invite_members_ids.split(",") : null;
-          if (a)
-            for (var s = 0; s < a.length; s += 1) TS.api.call("groups.invite", {
-              channel: r,
-              user: a[s]
-            });
-          TS.client && TS.groups.displayGroup({
+          a && TS.api.call("groups.invite", {
+            channel: r,
+            users: a.join(",")
+          }), TS.client && TS.groups.displayGroup({
             id: r
           });
         },
@@ -12672,10 +12670,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             t = $(this).data("channel-id"),
             n = $(this).data("group-id");
           t ? TS.api.call("channels.invite", {
-            user: e,
+            users: e,
             channel: t
           }, TS.web.admin.onMemberInviteChannel) : n && TS.api.call("groups.invite", {
-            user: e,
+            users: e,
             channel: n
           }, TS.web.admin.onMemberInviteGroup), TS.menu.channel.end();
         },
@@ -14285,13 +14283,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }
         },
         startWithSharedInvitesMenu: function(e) {
-          if (!TS.menu.isRedundantClick(e) && !TS.menu.menu_is_showing) {
-            TS.menu.buildIfNeeded();
-            var t = $(e.target);
-            TS.menu.clean(), TS.menu.$menu_items.html(TS.templates.shared_invites_modal()), TS.menu.start(e), t.hasClass("channel_list_add_link_feat_link_in_sidebar") && TS.menu.positionAt(t, 0, -TS.menu.$menu.height() - 16), TS.menu.$menu_items.on("click", '[data-action="admin_invites_modal"]', function() {
-              TS.menu.end();
-            }), TS.menu.keepInBounds();
-          }
+          TS.menu.isRedundantClick(e) || TS.menu.menu_is_showing || (TS.menu.buildIfNeeded(), TS.menu.clean(), TS.menu.$menu_items.html(TS.templates.shared_invites_modal()), TS.menu.start(e), TS.menu.$menu_items.on("click", '[data-action="admin_invites_modal"]', function() {
+            TS.menu.end();
+          }), TS.menu.keepInBounds());
         },
         startWithSoundsMenu: function(e, t) {
           if (!TS.menu.isRedundantClick(e) && !TS.menu.menu_is_showing) {
@@ -25260,11 +25254,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         filePreviewBackIcon: function() {
           return '<i class="ts_icon ts_icon_chevron_medium_left back_icon"></i>';
         },
-        buildQuickSwitcherBtnHtml: function(e) {
-          var t, n = TS.i18n.t("Quick Switcher", "templates_builders")();
-          if (e) t = ['<i class="ts_icon ts_icon_filter"><span class="ts_tip_tip">' + n + ' <span class="subtle_silver">', TS.model.is_mac ? "&#8984K" : "Ctrl+K", "</span></span></i>"].join("");
-          else if (t = TS.model.is_mac || !TS.model.is_our_app && !TS.model.prefs.k_key_omnibox ? '<i class="ts_icon ts_icon_filter"></i><span id="quick_switcher_label">' + n + "</span>" : '<i class="ts_icon ts_icon_filter"></i><span id="quick_switcher_label" class="quick_switcher_label_windows_alignment">' + n + "</span>", TS.model.is_our_app || TS.model.prefs.k_key_omnibox) return [t, '<span id="quick_switcher_shortcut">', TS.model.is_mac ? "&#8984K" : "Ctrl+K", "</span>"].join("");
-          return t;
+        buildQuickSwitcherBtnHtml: function() {
+          var e, t = TS.i18n.t("Quick Switcher", "templates_builders")();
+          return e = TS.model.is_mac || !TS.model.is_our_app && !TS.model.prefs.k_key_omnibox ? '<i class="ts_icon ts_icon_filter"></i><span id="quick_switcher_label">' + t + "</span>" : '<i class="ts_icon ts_icon_filter"></i><span id="quick_switcher_label" class="quick_switcher_label_windows_alignment">' + t + "</span>", TS.model.is_our_app || TS.model.prefs.k_key_omnibox ? [e, '<span id="quick_switcher_shortcut">', TS.model.is_mac ? "&#8984K" : "Ctrl+K", "</span>"].join("") : e;
         },
         atLabel: function(e) {
           var t = e;
@@ -30894,7 +30886,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             if (i && TS.channels.setPurpose(t.channel.id, i), r)
               for (var n = 0; n < r.length; n += 1) TS.api.call("channels.invite", {
                 channel: t.channel.id,
-                user: r[n]
+                users: r[n].join(",")
               });
             a && a.length && TS.pending_users.invitePendingUsersToChannel(a, t.channel.id), TS.ui.fs_modal.close();
           }).catch(function(i) {
@@ -34116,7 +34108,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         onStart: function() {
           i.in_slack_app = !!TS.client, i.in_call_window = !!TS.calls, i.calls_url_prefix = document.location.origin + "/call/", i.in_slack_app && (TS.isSocketManagerEnabled() ? (TS.interop.SocketManager.connectedSig.add(s), TS.interop.SocketManager.disconnectedSig.add(o), TS.interop.SocketManager.socketMessageReceivedSig.add(a)) : (TS.ms.on_msg_sig.add(a), TS.ms.connected_sig.add(s), TS.ms.disconnected_sig.add(o)), window.addEventListener("online", l), window.addEventListener("offline", l), window.addEventListener("message", J), TS.model.is_our_app && (window.macgap && TS.ssb.teams_did_load_sig.add(d), TS.client.login_sig.add(c)), TS.client.windows && (TS.client.windows.win_finished_loading_sig.add(u), TS.client.windows.win_will_close_sig.add(m), TS.client.windows.win_crashed_sig.add(p), TS.client.windows.win_became_key_sig.add(f), TS.client.windows.win_resigned_key_sig.add(h)), TS.ui && TS.ui.window_unloaded_sig.add(g), TS.model.is_our_app ? i.call_window_loaded = !1 : i.call_window_loaded = !0, i.is_ms_connected = !1, i.is_reachability_online = !0, TS.experiment.loadUserAssignments().then(function() {
-            "enabled" === TS.experiment.getGroup("calls_ss") && (i.screen_sharing_enabled = TS.model.supports_screen_sharing), "enabled" === TS.experiment.getGroup("calls_better_regions") && (i.calls_better_regions_expt = !0), "enabled" === TS.experiment.getGroup("calls_laser") && (i.laser_enabled = !0), "enabled" === TS.experiment.getGroup("calls_no_cursors_window") && (i.cursors_window_disabled = !0), TS.model.is_lin && "enabled" === TS.experiment.getGroup("calls_electron_webrtc_linux") && (i.electron_webrtc = !0), "enabled" === TS.experiment.getGroup("calls_electron_webrtc") && (i.electron_webrtc = !0), "enabled" === TS.experiment.getGroup("calls_webgl_recovery") && (i.webgl_recovery = !0);
+            "enabled" === TS.experiment.getGroup("calls_ss") && (i.screen_sharing_enabled = TS.model.supports_screen_sharing), "enabled" === TS.experiment.getGroup("calls_better_regions") && (i.calls_better_regions_expt = !0), "enabled" === TS.experiment.getGroup("calls_laser") && (i.laser_enabled = !0), "enabled" === TS.experiment.getGroup("calls_no_cursors_window") && (i.cursors_window_disabled = !0), TS.utility.isAppVersionBefore("2.5.2") || (TS.model.is_lin && "enabled" === TS.experiment.getGroup("calls_electron_webrtc_linux") && (i.electron_webrtc = !0), "enabled" === TS.experiment.getGroup("calls_electron_webrtc") && (i.electron_webrtc = !0), "enabled" === TS.experiment.getGroup("calls_webgl_recovery") && (i.webgl_recovery = !0));
           }));
         },
         startCallInModelOb: function(e, t, n) {
@@ -35371,22 +35363,27 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               log: _.partial(TS.log, 116),
               logError: TS.error
             };
-            if (TS.boot_data.feature_texty_mentions && (TS.boot_data.feature_name_tagging_client ? n.modules.slackmention = {
-                processPotentialMentions: _.debounce(function() {
-                  p(e);
-                }, 100)
-              } : n.modules.slackmention = {}), TS.boot_data.feature_name_tagging_client && (n.useNameTagging = !0), _.defaultsDeep(t, n), t.modules && t.modules.tabcomplete && (t.modules.tabcomplete.completers || (t.modules.tabcomplete.completers = [TS.tabcomplete.channels, TS.tabcomplete.commands, TS.tabcomplete.emoji, TS.tabcomplete.members]), !TS.boot_data.feature_keyboard_navigation && _.includes(t.modules.tabcomplete.completers, TS.tabcomplete.commands))) {
-              var i = t.onTab || _.noop;
+            if (TS.boot_data.feature_texty_mentions)
+              if (TS.boot_data.feature_name_tagging_client) {
+                var i = n.modules.tabcomplete.searchOptions.complete_member_specials;
+                _.get(t, "modules.tabcomplete.searchOptions") && t.modules.tabcomplete.searchOptions.hasOwnProperty("complete_member_specials") && (i = t.modules.tabcomplete.searchOptions.complete_member_specials), n.modules.slackmention = {
+                  processPotentialMentions: _.debounce(function() {
+                    p(e, i || _.get(t, "modules.tabcomplete.searchOptions"));
+                  }, 100)
+                };
+              } else n.modules.slackmention = {};
+            if (TS.boot_data.feature_name_tagging_client && (n.useNameTagging = !0), _.defaultsDeep(t, n), t.modules && t.modules.tabcomplete && (t.modules.tabcomplete.completers || (t.modules.tabcomplete.completers = [TS.tabcomplete.channels, TS.tabcomplete.commands, TS.tabcomplete.emoji, TS.tabcomplete.members]), !TS.boot_data.feature_keyboard_navigation && _.includes(t.modules.tabcomplete.completers, TS.tabcomplete.commands))) {
+              var r = t.onTab || _.noop;
               t.onTab = function() {
-                if (!TS.utility.contenteditable.isEmpty(e) || !u(e)) return i();
+                if (!TS.utility.contenteditable.isEmpty(e) || !u(e)) return r();
               };
             }
-            var r = t.onEnter;
+            var o = t.onEnter;
             t.onEnter = function(n) {
-              return !(t.singleLineInput || !c(n, e)) || !!_.isFunction(r) && r(n);
+              return !(t.singleLineInput || !c(n, e)) || !!_.isFunction(o) && o(n);
             };
-            var o = new Texty(e, t);
-            d(e, o);
+            var m = new TS.interop.texty.TextyClass(e, t);
+            d(e, m);
           }
         },
         unload: function(e) {
@@ -35688,33 +35685,35 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         m = function(e, t) {
           return $(e).hasClass("texty_single_line_input") && (t = t.replace(/\n/g, " ")), t.replace(/^[\u200b\uFEFF]+|[\u200b\uFEFF]+$/gm, "");
         },
-        p = function(e) {
+        p = function(e, n) {
           if (!$("#chat_input_tab_ui").length) {
-            var n = TS.utility.contenteditable.value(e),
-              i = TS.utility.contenteditable.cursorPosition(e);
-            if (n.length) {
-              var r = TS.format.texty.convertContentsStringToContents(n),
-                a = [],
-                s = [],
-                o = 0,
-                l = {
+            var i = TS.utility.contenteditable.value(e),
+              r = TS.utility.contenteditable.cursorPosition(e);
+            if (i.length) {
+              var a, s = TS.format.texty.convertContentsStringToContents(i),
+                o = [],
+                l = [],
+                d = 0;
+              n && (a = TS.tabcomplete.members.getBroadcastKeywords(n));
+              var c = {
                   members: TS.members.getActiveMembersWithSelfAndSlackbot(),
-                  usergroups: TS.user_groups.getActiveUserGroups()
+                  usergroups: TS.user_groups.getActiveUserGroups(),
+                  broadcast_keywords: a
                 },
-                d = {
+                u = {
                   allow_empty_query: !1,
                   frecency: !1,
                   limit: 2,
                   prefer_exact_match: !0
                 };
-              r.contents.forEach(function(e) {
-                e.attributes || e.insert.replace(t, function(t, n, r) {
-                  if (r += t.length - n.length, !(i.start > r + o && i.start <= r + o + n.length)) {
-                    var c = TS.sorter.search(n, l, d);
-                    1 === c.length ? a.push(h(e.insert, n, r + o, c)) : c.length > 0 ? a.push(h(e.insert, n, r + o, c)) : s.push(n);
+              s.contents.forEach(function(e) {
+                e.attributes || e.insert.replace(t, function(t, n, i) {
+                  if (i += t.length - n.length, !(r.start > i + d && r.start <= i + d + n.length)) {
+                    var a = TS.sorter.search(n, c, u);
+                    1 === a.length ? o.push(h(e.insert, n, i + d, a)) : a.length > 0 ? o.push(h(e.insert, n, i + d, a)) : l.push(n);
                   }
-                }), o += e.insert.length;
-              }), g(e, a), f(e, _.uniq(s));
+                }), d += e.insert.length;
+              }), g(e, o), f(e, _.uniq(l));
             }
           }
         },
@@ -35784,7 +35783,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                 id: e.id,
                 label: e.label,
                 unverified: !1
-              }, n.contents.push({
+              }, r.mention = TS.format.texty.shouldHighlightMention(r.id, r.label), n.contents.push({
                 insert: e.label,
                 attributes: {
                   slackmention: r
@@ -38107,7 +38106,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return n === i ? 0 : n > i ? 1 : -1;
         },
         isAppVersionBefore: function(e) {
-          return -1 === TS.utility.compareSemanticVersions(TS.model.desktop_app_version.major + "." + TS.model.desktop_app_version.minor + "." + TS.model.desktop_app_version.patch, e);
+          return !!TS.model.is_our_app && -1 === TS.utility.compareSemanticVersions(TS.model.desktop_app_version.major + "." + TS.model.desktop_app_version.minor + "." + TS.model.desktop_app_version.patch, e);
         },
         doRectsOverlap: function(e, t) {
           return !(t.left > e.right || t.right < e.left || t.top > e.bottom || t.bottom < e.top);
@@ -39348,9 +39347,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               r.length && t.contents.push({
                 insert: r
               });
-              var a = !1,
-                s = !1;
-              "UNVERIFIED" === n.id && (s = !0), TS.model.user.id === n.id ? a = !0 : TS.user_groups.getUserGroupsById(n.id) && -1 !== TS.model.highlight_words.indexOf(n.label) && (a = !0), t.contents.push({
+              var a = TS.format.texty.shouldHighlightMention(n.id, n.label),
+                s = "UNVERIFIED" === n.id;
+              t.contents.push({
                 insert: n.label,
                 attributes: {
                   slackmention: {
@@ -39391,7 +39390,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               s = _.last(a);
             s.insert = s.insert.replace(/\n$/, "");
             var o = a.map(n);
-            return new Texty.Delta(o);
+            return new TS.interop.texty.Delta(o);
           }
         },
         replaceFormatMentions: function(e, t, n) {
@@ -39418,7 +39417,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           });
         },
         buildSmartQuotesDelta: function(e) {
-          var t = new Texty.Delta,
+          var t = new TS.interop.texty.Delta,
             n = 0,
             i = e.reduce(function(e, t) {
               if (t.attributes && t.attributes.slackmention) {
@@ -39444,10 +39443,13 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         removeInvalidMentions: function(e) {
           return e.contents = e.contents.map(function(e) {
-            return e.attributes && e.attributes.slackmention && !TS.members.getMemberById(e.attributes.slackmention.id) ? {
+            return e.attributes && e.attributes.slackmention && !TS.members.getMemberById(e.attributes.slackmention.id) && !TS.user_groups.getUserGroupsById(e.attributes.slackmention.id) && -1 === ["BKeveryone", "BKhere", "BKchannel", "BKgroup"].indexOf(e.attributes.slackmention.id) ? {
               insert: e.insert
             } : e;
           }), e;
+        },
+        shouldHighlightMention: function(e, t) {
+          return TS.model.user.id === e || (!(!TS.user_groups.getUserGroupsById(e) || -1 === TS.model.highlight_words.indexOf(t)) || -1 !== ["BKeveryone", "BKhere", "BKchannel", "BKgroup"].indexOf(e));
         },
         test: function() {
           var e = {};
@@ -39955,7 +39957,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               TS.client.msg_input.tabcomplete_completions[r.id] || (TS.client.msg_input.tabcomplete_completions[r.id] = []), -1 === TS.client.msg_input.tabcomplete_completions[r.id].indexOf(i) && TS.client.msg_input.tabcomplete_completions[r.id].push(i.substring(1));
             }
             if (TS.boot_data.feature_texty_mentions) {
-              var a = e.id === TS.model.user.id || e.is_subteam && -1 !== TS.model.highlight_words.indexOf("@" + e.handle);
+              var a = TS.format.texty.shouldHighlightMention(e.id, i);
               return {
                 text: i,
                 format: {
@@ -39981,9 +39983,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           i.no_model_ob || (d = i.model_ob || TS.shared.getActiveModelOb());
           var f, g = l(d, i.no_model_ob),
             S = TS.user_groups.getActiveUserGroups();
-          i.complete_member_specials && (f = TS.utility.members.getBroadcastKeywordsForUser(), _.isArray(i.complete_member_specials) && (f = f.filter(function(e) {
-            return -1 !== i.complete_member_specials.indexOf(e.id);
-          })));
+          i.complete_member_specials && (f = TS.tabcomplete.members.getBroadcastKeywords(i.complete_member_specials));
           var T = a(d, n, {
             members: g,
             usergroups: S,
@@ -40057,6 +40057,12 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         onSelectedIndexChange: function(e) {
           TS.tabcomplete.onSelectedIndexChange(e);
+        },
+        getBroadcastKeywords: function(e) {
+          var t = TS.utility.members.getBroadcastKeywordsForUser();
+          return _.isArray(e) && (t = t.filter(function(t) {
+            return -1 !== e.indexOf(t.id);
+          })), t;
         },
         test: function() {
           var e = {

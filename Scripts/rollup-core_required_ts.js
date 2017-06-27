@@ -192,6 +192,7 @@ webpackJsonp([12, 328, 337, 329], {
         possessive: function(e) {
           switch (m(), TS.i18n.locale()) {
             case "fr-FR":
+              return _.deburr(e).match(/^[aeiouy]/i) ? "d’" : "de ";
             case "es-ES":
               return "de ";
             case "de-DE":

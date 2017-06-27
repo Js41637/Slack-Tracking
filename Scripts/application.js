@@ -31684,7 +31684,8 @@ webpackJsonp([332], [, function(e, t, n) {
             n = e.stopIndex;
           (0, this.props.reportRenderedRowIndexes)({
             startIndex: t,
-            stopIndex: n
+            stopIndex: n,
+            buffer: 2
           });
         }
       }, {
@@ -31981,10 +31982,11 @@ webpackJsonp([332], [, function(e, t, n) {
               n = this.state,
               r = n.startIndex,
               o = n.stopIndex,
-              i = t.indexOf(e); - 1 !== i && (i < r ? this.ChannelList.scrollToRow({
+              i = n.buffer,
+              a = t.indexOf(e); - 1 !== a && (a - i < r ? this.ChannelList.scrollToRow({
               id: e,
               position: "top"
-            }) : i > o && this.ChannelList.scrollToRow({
+            }) : a + i > o && this.ChannelList.scrollToRow({
               id: e,
               position: "bottom"
             }));
@@ -31994,11 +31996,13 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "reportRenderedRowIndexes",
         value: function(e) {
           var t = e.startIndex,
-            n = e.stopIndex;
+            n = e.stopIndex,
+            r = e.buffer;
           t === this.state.startIndex && n === this.state.stopIndex || this.setState(function() {
             return {
               startIndex: t,
-              stopIndex: n
+              stopIndex: n,
+              buffer: r
             };
           });
         }
@@ -32387,22 +32391,22 @@ webpackJsonp([332], [, function(e, t, n) {
         r = b(e);
       v("react_channel_sidebar_calculate_sidebar_sections");
       var o = n.i(u.a)(e),
-        s = o.sidebarSections,
-        c = o.sidebarSectionsOrdered;
+        i = o.sidebarSections,
+        s = o.sidebarSectionsOrdered;
       g("react_channel_sidebar_calculate_sidebar_sections"), v("react_channel_sidebar_get_rows");
-      var p = n.i(l.a)({
-        hasAllUnreadsLink: t,
-        hasInvitePeopleLink: r,
-        sidebarSectionsOrdered: c,
-        sidebarSections: s
-      });
-      g("react_channel_sidebar_get_rows");
-      var h = n.i(f.getAllChannels)(e);
-      return {
+      var c = n.i(l.a)({
+          hasAllUnreadsLink: t,
+          hasInvitePeopleLink: r,
+          sidebarSectionsOrdered: s,
+          sidebarSections: i
+        }),
+        p = c.rows,
+        h = c.rowIds;
+      return g("react_channel_sidebar_get_rows"), {
         selectedItemId: n.i(a.getSelectedChannelItem)(e),
-        unreadIds: n.i(f.getUnreadIds)(h),
+        unreadIds: n.i(f.getUnreadIds)(n.i(f.getAllChannels)(e)),
         rows: p,
-        rowIds: i.a.map(p, "id")
+        rowIds: h
       };
     },
     k = function(e, t) {
@@ -35318,7 +35322,7 @@ webpackJsonp([332], [, function(e, t, n) {
     s = n(2989),
     u = n(2694),
     l = n(2348);
-  n(3347), n(3605), n(3051), n(3023), n(2697), n(3641), n(3938), n(3651), n(3661), n(3886), n(3902);
+  n(3605), n(3051), n(3023), n(2697), n(3641), n(3966), n(3938), n(3651), n(3661), n(3886), n(3902);
   window.ReactComponents = {}, window.ReactComponents.EmojiPicker = u.a, window.ReactComponents.Popover = l.a, window.ReactComponents.PopoverTrigger = l.b, window.React = o.a, window.ReactDOM = a.a, window.moment = s.a;
 }, function(e, t, n) {
   "use strict";
@@ -39465,45 +39469,54 @@ webpackJsonp([332], [, function(e, t, n) {
     _ = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__(m) : i.b;
 }, function(e, t, n) {
   "use strict";
-  var r = function(e) {
-    var t = e.hasAllUnreadsLink,
-      n = e.hasInvitePeopleLink,
-      r = e.sidebarSectionsOrdered,
-      o = e.sidebarSections,
-      i = [];
-    return i.push({
-      type: "topPadding"
-    }), t && i.push({
-      type: "allUnreadsLink",
-      id: "Vall_unreads"
-    }), i.push({
-      type: "allThreadsLink",
-      id: "Vall_threads"
-    }), r.forEach(function(e) {
-      var t = o[e] || {};
-      i.length > 0 && i.push({
-        type: "spacer"
-      }), t.hasHeading && i.push({
-        type: "sectionHeading",
-        name: e
-      }), t.channelsOrdered.forEach(function(e) {
-        i.push({
-          type: "channel",
-          id: e
+  var r = n(218),
+    o = (n.n(r), n(6)),
+    i = (n.n(o), n.i(r.createSelector)([function(e) {
+      return e.hasAllUnreadsLink;
+    }, function(e) {
+      return e.hasInvitePeopleLink;
+    }, function(e) {
+      return e.sidebarSectionsOrdered;
+    }, function(e) {
+      return e.sidebarSections;
+    }], function(e, t, r, i) {
+      var a = [];
+      return a.push({
+        type: "topPadding"
+      }), e && a.push({
+        type: "allUnreadsLink",
+        id: "Vall_unreads"
+      }), a.push({
+        type: "allThreadsLink",
+        id: "Vall_threads"
+      }), r.forEach(function(e) {
+        var t = i[e] || {};
+        a.length > 0 && a.push({
+          type: "spacer"
+        }), t.hasHeading && a.push({
+          type: "sectionHeading",
+          name: e
+        }), t.channelsOrdered.forEach(function(e) {
+          a.push({
+            type: "channel",
+            id: e
+          });
         });
-      });
-    }), n && (i.push({
-      type: "spacer"
-    }), i.push({
-      type: "invitePeopleLink",
-      dim: "dim" === n
-    })), i.push({
-      type: "spacer"
-    }), i.push({
-      type: "spacer"
-    }), i;
-  };
-  t.a = r;
+      }), t && (a.push({
+        type: "spacer"
+      }), a.push({
+        type: "invitePeopleLink",
+        dim: "dim" === t
+      })), a.push({
+        type: "spacer"
+      }), a.push({
+        type: "spacer"
+      }), {
+        rows: a,
+        rowIds: n.i(o.map)(a, "id")
+      };
+    }));
+  t.a = i;
 }, , function(e, t, n) {
   "use strict";
   var r = n(43),
@@ -43225,27 +43238,27 @@ webpackJsonp([332], [, function(e, t, n) {
   }
   n.d(t, "f", function() {
     return i;
-  }), n.d(t, "g", function() {
-    return a;
-  }), n.d(t, "k", function() {
-    return s;
-  }), n.d(t, "l", function() {
-    return u;
   }), n.d(t, "m", function() {
+    return a;
+  }), n.d(t, "j", function() {
+    return s;
+  }), n.d(t, "k", function() {
+    return u;
+  }), n.d(t, "l", function() {
     return c;
   }), t.a = r, n.d(t, "d", function() {
     return d;
-  }), n.d(t, "i", function() {
+  }), n.d(t, "h", function() {
     return f;
   }), n.d(t, "b", function() {
     return p;
   }), n.d(t, "e", function() {
     return h;
-  }), n.d(t, "j", function() {
+  }), n.d(t, "i", function() {
     return m;
   }), n.d(t, "c", function() {
     return _;
-  }), n.d(t, "h", function() {
+  }), n.d(t, "g", function() {
     return y;
   });
   var o = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(e) {
@@ -46356,373 +46369,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }, e;
     }();
   o.blotName = "abstract", t.default = o;
-}, function(e, t, n) {
-  "use strict";
-
-  function r(e, t) {
-    if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
-  }
-  var o = n(3302),
-    i = n.n(o),
-    a = n(3301),
-    s = n.n(a),
-    u = n(3417),
-    l = n(3410),
-    c = n(3411),
-    d = n(3418),
-    f = n(3409),
-    p = n(3414),
-    h = n(3415),
-    m = n(3416),
-    _ = n(3413),
-    y = n(3412),
-    v = n(3312),
-    g = function() {
-      function e(e, t) {
-        for (var n = 0; n < t.length; n++) {
-          var r = t[n];
-          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
-        }
-      }
-      return function(t, n, r) {
-        return n && e(t.prototype, n), r && e(t, r), t;
-      };
-    }();
-  i.a.register({
-    "modules/tabcomplete": u.a,
-    "modules/textsubstitutions": d.a,
-    "modules/msginput": f.a,
-    "modules/clipboard": l.a,
-    "modules/keyboard": c.a,
-    "modules/slacksearch": p.a,
-    "modules/slackmention": _.a,
-    "formats/slacksearchtokenmodifier": h.a,
-    "formats/slacksearchtokenvalue": m.a,
-    "formats/slackmention": y.a
-  }, !0);
-  var b = {
-      attributes: {},
-      log: console.log,
-      logError: console.error,
-      modules: {}
-    },
-    w = function(e, t, n) {
-      e._element.addEventListener("click", e.onInputClick), t.root.addEventListener("focus", e.onRootFocus), t.root.addEventListener("blur", e.onRootBlur), t.on("selection-change", function(t) {
-        t && e._setLastSelection(t), e.hasFocus() ? e.onFocus() : e.onBlur();
-      }), t.on("text-change", function(t, r, o) {
-        if (e._setLastSelection(), t.length() > 1 && r.length() <= 1 && e._enforceEmptyStateConsistency(), n.onTextChange) {
-          var i = e._nextTextChangeCallbackSource || o;
-          e._nextTextChangeCallbackSource = null, n.onTextChange(i);
-        }
-      });
-    },
-    k = function(e, t) {
-      return !!(t && t.modules && t.modules.clipboard) && n.i(v.a)({
-        onPasted: e._setLastSelection.bind(e)
-      }, t.modules.clipboard);
-    },
-    M = function(e) {
-      return !!(e && e.modules && e.modules.tabcomplete) && n.i(v.a)({
-        log: e.log,
-        logError: e.logError,
-        no_model_ob: e.no_model_ob,
-        useMentions: !!e.modules.slackmention,
-        useNameTagging: e.useNameTagging
-      }, e.modules.tabcomplete);
-    },
-    T = function(e) {
-      if (!e) return !1;
-      var t = e.match(/```/g);
-      return !!t && !!(t.length % 2);
-    },
-    x = function(e) {
-      var t = e;
-      if (!t) return !1;
-      if (T(t)) return !0;
-      t = t.replace(/`{3}([\s\S]*?)`{3}?/g, "");
-      var n = t.match(/`/g);
-      return !!n && !!(n.length % 2);
-    },
-    S = function(e, t) {
-      return !!(t && t.modules && t.modules.textsubstitutions) && {
-        getTextPreferences: t.modules.textsubstitutions.getTextPreferences,
-        buildSmartQuotesDelta: t.modules.textsubstitutions.buildSmartQuotesDelta,
-        shouldDoSubstitutions: function(t) {
-          if (!t) return !1;
-          var n = e._quill.getText(0, t.index + t.length);
-          return !x(n);
-        }
-      };
-    },
-    E = function() {
-      function e(t, o) {
-        if (r(this, e), !t || "DIV" !== t.tagName) throw new Error('Texty: param "element" must be <div> element');
-        this.options = n.i(v.a)({}, b, o), this.onEnter = this.onEnter.bind(this), this.onEscape = this.onEscape.bind(this), this.onTab = this.onTab.bind(this), this.onInputClick = this.onInputClick.bind(this), this.onRootFocus = this.onRootFocus.bind(this), this.onRootBlur = this.onRootBlur.bind(this), this._element = t, this._placeholder = null, this._setLastSelection({
-          index: 0,
-          length: 0
-        }), this._nextTextChangeCallbackSource = null, this.options.singleLineInput && t.classList.add("texty_single_line_input");
-        var a = [];
-        this.options.modules.slacksearch && (a.push("slacksearchtokenmodifier"), a.push("slacksearchtokenvalue")), this.options.modules.slackmention && a.push("slackmention"), this._quill = new i.a(t, {
-          formats: a,
-          theme: null,
-          modules: {
-            clipboard: k(this, this.options),
-            keyboard: {
-              onEnter: this.onEnter,
-              onEscape: this.onEscape,
-              onTab: this.onTab
-            },
-            tabcomplete: M(this.options),
-            textsubstitutions: S(this, this.options),
-            msginput: this.options.modules.msginput,
-            slacksearch: this.options.modules.slacksearch,
-            slackmention: this.options.modules.slackmention
-          }
-        }), w(this, this._quill, this.options), n.i(v.b)(this._quill.root, this.options.attributes), this.options.placeholder && this.setPlaceholder(this.options.placeholder), n.i(v.c)(this._quill.clipboard.container);
-      }
-      return g(e, [{
-        key: "unload",
-        value: function() {
-          this._getModules().forEach(function(e) {
-            e.unload && e.unload();
-          }), this._element.removeEventListener("click", this.onInputClick), this._quill.root.removeEventListener("focus", this.onRootFocus), this._quill.root.removeEventListener("blur", this.onRootBlur), this._quill = null;
-        }
-      }, {
-        key: "onInputClick",
-        value: function() {
-          this._quill.hasFocus() || this._quill.focus();
-        }
-      }, {
-        key: "onRootFocus",
-        value: function() {
-          this.onFocus();
-        }
-      }, {
-        key: "onRootBlur",
-        value: function() {
-          this._quill.hasFocus() || this._quill.setSelection(null);
-        }
-      }, {
-        key: "onFocus",
-        value: function() {
-          this._element.classList.contains("focus") || (this._element.classList.add("focus"), this.options.onFocus && this.options.onFocus());
-        }
-      }, {
-        key: "onBlur",
-        value: function() {
-          this._element.classList.contains("focus") && (this._element.classList.remove("focus"), this.options.onBlur && this.options.onBlur());
-        }
-      }, {
-        key: "onEnter",
-        value: function() {
-          var e = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : {};
-          return !this._getModules().some(function(t) {
-            return !!t.onEnter && t.onEnter(e);
-          }) && (this.options.onEnter(e) && !this.options.singleLineInput && (this.insertTextAtCursor("\n"), this._quill.selection.scrollIntoView()), !1);
-        }
-      }, {
-        key: "onEscape",
-        value: function() {
-          return !(this._getModules().some(function(e) {
-            return !!e.onEscape && e.onEscape();
-          }) || this.options.onEscape && this.options.onEscape());
-        }
-      }, {
-        key: "onTab",
-        value: function() {
-          var e = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : {};
-          return !this._getModules().some(function(t) {
-            return !!t.onTab && t.onTab(e);
-          }) && (!this.options.onTab || this.options.onTab());
-        }
-      }, {
-        key: "enable",
-        value: function() {
-          this._quill.enable();
-        }
-      }, {
-        key: "disable",
-        value: function() {
-          this._quill.disable();
-        }
-      }, {
-        key: "isEnabled",
-        value: function() {
-          return this._quill.isEnabled();
-        }
-      }, {
-        key: "focus",
-        value: function() {
-          this._quill.focus();
-        }
-      }, {
-        key: "blur",
-        value: function() {
-          this._quill.blur();
-        }
-      }, {
-        key: "hasFocus",
-        value: function() {
-          return this._quill && this._quill.hasFocus();
-        }
-      }, {
-        key: "getContents",
-        value: function() {
-          return {
-            contents: this._quill.getContents().ops
-          };
-        }
-      }, {
-        key: "setContents",
-        value: function(e) {
-          this._nextTextChangeCallbackSource = "api", this._quill.setContents(e.contents), this.hasFocus() && this._quill.setSelection(this._quill.getLength(), 0);
-        }
-      }, {
-        key: "getTextForRange",
-        value: function(e, t) {
-          return this._quill.getText(e, t);
-        }
-      }, {
-        key: "getText",
-        value: function() {
-          return this._quill.getText().replace(/\n$/, "");
-        }
-      }, {
-        key: "setText",
-        value: function(e) {
-          if (!e) return void this.clear();
-          this._nextTextChangeCallbackSource = "api", this._quill.setText(e), this.hasFocus() && this._quill.setSelection(this._quill.getLength(), 0);
-        }
-      }, {
-        key: "insertText",
-        value: function(e, t) {
-          var r = !(arguments.length > 2 && void 0 !== arguments[2]) || arguments[2],
-            o = e;
-          if (!n.i(v.d)(o)) return void this.options.log("Texty: no specified index");
-          var i = this._quill.getLength() - 1;
-          o = n.i(v.e)(o, 0, i), t && this._quill.insertText(o, t, "user"), this._setLastSelection({
-            index: o + t.length,
-            length: 0
-          }), this.hasFocus() ? this._quill.setSelection(this._lastSelection) : r && this._quill.setSelection(this._lastSelection, "silent");
-        }
-      }, {
-        key: "insertTextAtCursor",
-        value: function(e) {
-          var t = !(arguments.length > 1 && void 0 !== arguments[1]) || arguments[1];
-          this._lastSelection.length && this._quill.deleteText(this._lastSelection), this.insertText(this._lastSelection.index, e, t);
-        }
-      }, {
-        key: "insertContentsAtCursor",
-        value: function(e) {
-          var t = !(arguments.length > 1 && void 0 !== arguments[1]) || arguments[1],
-            n = new s.a(e.contents),
-            r = (new s.a).retain(this._lastSelection.index).delete(this._lastSelection.length).concat(n);
-          this._setLastSelection({
-            index: this._lastSelection.index + n.length(),
-            length: 0
-          }), this._quill.updateContents(r), this.hasFocus() ? this._quill.setSelection(this._lastSelection) : t && this._quill.setSelection(this._lastSelection, "silent");
-        }
-      }, {
-        key: "updateContents",
-        value: function(e) {
-          var t = new s.a(e.contents);
-          this._quill.updateContents(t, "api");
-        }
-      }, {
-        key: "getFormats",
-        value: function(e) {
-          var t = e;
-          return n.i(v.d)(t) || (t = this._lastSelection.index), this._quill.getFormat(t, 0);
-        }
-      }, {
-        key: "clear",
-        value: function() {
-          var e = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : {};
-          this._setLastSelection({
-            index: 0,
-            length: 0
-          }), this.isEmpty() || (this._nextTextChangeCallbackSource = e.is_silent ? "silent" : "api", this._quill.deleteText(0, this._quill.getLength()));
-        }
-      }, {
-        key: "getPlaceholder",
-        value: function() {
-          return this._placeholder ? this._placeholder.innerHTML : "";
-        }
-      }, {
-        key: "setPlaceholder",
-        value: function(e) {
-          if (this._placeholder || (this._placeholder = this._quill.addContainer("ql-placeholder"), n.i(v.c)(this._placeholder)), e) {
-            this._placeholder.innerHTML = e;
-            var t = this._placeholder.textContent.replace(/\s+/, " ");
-            this._quill.root.setAttribute("aria-label", t);
-          } else this._placeholder.innerHTML = "", this._quill.root.removeAttribute("aria-label");
-        }
-      }, {
-        key: "getSelection",
-        value: function() {
-          return !this.hasFocus() && this._lastSelection ? this._lastSelection : this._quill.getSelection();
-        }
-      }, {
-        key: "setSelection",
-        value: function(e, t) {
-          var r = e,
-            o = t;
-          if (n.i(v.d)(r) || n.i(v.d)(o)) {
-            var i = this._quill.getLength() - 1;
-            r = n.i(v.e)(r, 0, i), o = n.i(v.e)(o, 0, i - r), this._quill.setSelection(r, o);
-          }
-        }
-      }, {
-        key: "isEmpty",
-        value: function() {
-          return this._quill.getLength() <= 1;
-        }
-      }, {
-        key: "isCursorInPreBlock",
-        value: function() {
-          var e = this._quill.getSelection();
-          if (!e) return !1;
-          var t = this._quill.getText(0, e.index + e.length);
-          return T(t);
-        }
-      }, {
-        key: "deleteSelection",
-        value: function() {
-          var e = this._quill.getSelection();
-          e && e.length && (this._quill.deleteText(e.index, e.length), this._quill.setSelection(e.index));
-        }
-      }, {
-        key: "clearHistory",
-        value: function() {
-          this._quill.history.clear();
-        }
-      }, {
-        key: "_setLastSelection",
-        value: function(e) {
-          e ? this._lastSelection = e : this.isEmpty() ? this._lastSelection = {
-            index: 0,
-            length: 0
-          } : this._lastSelection = this._quill.getSelection() || this._lastSelection;
-        }
-      }, {
-        key: "_getModules",
-        value: function() {
-          var e = this,
-            t = [];
-          return Object.keys(this._quill.options.modules).forEach(function(n) {
-            var r = e._quill.getModule(n);
-            r && t.push(r);
-          }), t;
-        }
-      }, {
-        key: "_enforceEmptyStateConsistency",
-        value: function() {
-          this._placeholder && (this._placeholder.offsetHeight, this._placeholder.style.transform = "translateZ(0)", this._placeholder.style.transform = "");
-        }
-      }]), e;
-    }();
-  window.Texty = E, window.Texty.Delta = s.a, window.Texty.Quill = i.a, window.Texty.PlainClipboardModule = l.a, window.Texty.SlackKeyboardModule = c.a, window.Texty.TabCompleteModule = u.a;
-}, function(e, t, n) {
+}, , function(e, t, n) {
   "use strict";
 
   function r(e) {
@@ -50524,8 +50171,8 @@ webpackJsonp([332], [, function(e, t, n) {
     },
     p = s.a.import("modules/clipboard"),
     h = {
-      onPaste: c.g,
-      onPasted: c.g
+      onPaste: c.m,
+      onPasted: c.m
     },
     m = function(e) {
       function t(e, i) {
@@ -50603,9 +50250,9 @@ webpackJsonp([332], [, function(e, t, n) {
     m = u.a.import("modules/keyboard"),
     _ = {
       bindings: {},
-      onEnter: l.g,
-      onEscape: l.g,
-      onTab: l.g
+      onEnter: l.m,
+      onEscape: l.m,
+      onTab: l.m
     },
     y = function() {
       return {
@@ -50640,7 +50287,7 @@ webpackJsonp([332], [, function(e, t, n) {
     v = function(e) {
       var t = e.onEnter,
         r = e.onTab,
-        o = n.i(l.h)(navigator) ? "metaKey" : "ctrlKey",
+        o = n.i(l.g)(navigator) ? "metaKey" : "ctrlKey",
         i = {
           enter: {
             key: c,
@@ -50716,7 +50363,7 @@ webpackJsonp([332], [, function(e, t, n) {
             }
           }
         };
-      return n.i(l.h)(navigator) ? n.i(l.a)(i, y()) : i;
+      return n.i(l.g)(navigator) ? n.i(l.a)(i, y()) : i;
     },
     g = function(e) {
       var t = e.onEscape;
@@ -51197,7 +50844,7 @@ webpackJsonp([332], [, function(e, t, n) {
                 });
               }
             });
-          }), n.i(c.h)(navigator) && [y, p].forEach(function(t) {
+          }), n.i(c.g)(navigator) && [y, p].forEach(function(t) {
             e.quill.keyboard.addBinding({
               key: t,
               shortKey: !0,
@@ -51405,7 +51052,7 @@ webpackJsonp([332], [, function(e, t, n) {
             o = arguments.length > 3 && void 0 !== arguments[3] && arguments[3];
           if (this.state.prevMatch) {
             if (e) return this.options.logError('TabComplete: search error "' + e + '"'), void this.hideMenu();
-            if (n.i(c.i)(t)) return this.options.log('TabComplete: no results for "' + this.state.prevMatch.text + '"'), void this.hideMenu();
+            if (n.i(c.h)(t)) return this.options.log('TabComplete: no results for "' + this.state.prevMatch.text + '"'), void this.hideMenu();
             if (this.options.log("TabComplete: found " + t.length + ' results for "' + this.state.prevMatch.text + '"'), r) {
               var i = this.getResultAtIndex(0),
                 a = this.getInsertDataFromResult(i);
@@ -51455,7 +51102,7 @@ webpackJsonp([332], [, function(e, t, n) {
           var r = e.text,
             o = this.state.searchInFlight || this.state.prevInsertText || this.state.prevMatch.text,
             i = T(this.state.prevMatch.text, r);
-          n.i(c.j)(e.text, this.state.prevMatch.text) || (r += i);
+          n.i(c.i)(e.text, this.state.prevMatch.text) || (r += i);
           var a = this.state.prevMatch.index + o.length,
             s = this.quill.getText(a, 1),
             u = " " !== s && !t,
@@ -51468,14 +51115,14 @@ webpackJsonp([332], [, function(e, t, n) {
           var t = void 0,
             r = this.quill.getContents(0, e),
             o = r.ops;
-          t = this.options.useMentions && this.quill.getFormat(e).slackmention ? o.slice(-1) : n.i(c.k)(o, function(e) {
+          t = this.options.useMentions && this.quill.getFormat(e).slackmention ? o.slice(-1) : n.i(c.j)(o, function(e) {
             return !e.attributes;
           });
-          var i = n.i(c.l)(t, "insert"),
+          var i = n.i(c.k)(t, "insert"),
             a = o.slice(0, o.length - t.length);
           return {
             searchText: i,
-            ignoredText: n.i(c.l)(a, "insert")
+            ignoredText: n.i(c.k)(a, "insert")
           };
         }
       }, {
@@ -51537,12 +51184,12 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "onMouseDown",
         value: function(e) {
-          n.i(c.m)(e.target, ".tab_complete_ui_item") && (e.preventDefault(), e.stopPropagation());
+          n.i(c.l)(e.target, ".tab_complete_ui_item") && (e.preventDefault(), e.stopPropagation());
         }
       }, {
         key: "onMenuClick",
         value: function(e) {
-          var t = n.i(c.m)(e.target, ".tab_complete_ui_item"),
+          var t = n.i(c.l)(e.target, ".tab_complete_ui_item"),
             r = this.getResultElementIndex(t),
             o = this.getResultAtIndex(r),
             i = this.getInsertDataFromResult(o);
@@ -51551,7 +51198,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "onMenuMouseOver",
         value: function(e) {
-          var t = n.i(c.m)(e.target, ".tab_complete_ui_item"),
+          var t = n.i(c.l)(e.target, ".tab_complete_ui_item"),
             r = this.getResultElementIndex(t);
           this.setSelectedIndex(r, !1);
         }
@@ -55838,9 +55485,11 @@ webpackJsonp([332], [, function(e, t, n) {
   "use strict";
 
   function r(e) {
-    if (!n.i(o.isString)(e) || e.length < 9) return !1;
-    var t = e.charAt(0);
-    return "U" === t || "W" === t;
+    if (!n.i(o.isString)(e)) return !1;
+    var t = e.replace(/^@/, "");
+    if (t.length < 9) return !1;
+    var r = t.charAt(0);
+    return "U" === r || "W" === r;
   }
   t.a = r;
   var o = n(6);
@@ -56343,4 +55992,405 @@ webpackJsonp([332], [, function(e, t, n) {
     o = n.i(r.a)("TS.ui.share_message_dialog.start", function() {
       return null;
     });
+}, function(e, t, n) {
+  "use strict";
+  var r = n(2353),
+    o = n(3967);
+  n.i(r.a)("interop.texty", {
+    Delta: o.a,
+    PlainClipboardModule: o.b,
+    Quill: o.c,
+    SlackKeyboardModule: o.d,
+    TabCompleteModule: o.e,
+    TextyClass: o.f
+  });
+}, function(e, t, n) {
+  "use strict";
+  var r = n(3302),
+    o = n.n(r),
+    i = n(3301),
+    a = n.n(i),
+    s = n(3417),
+    u = n(3410),
+    l = n(3411),
+    c = n(3968);
+  n.d(t, "a", function() {
+    return a.a;
+  }), n.d(t, "c", function() {
+    return o.a;
+  }), n.d(t, "b", function() {
+    return u.a;
+  }), n.d(t, "d", function() {
+    return l.a;
+  }), n.d(t, "e", function() {
+    return s.a;
+  }), n.d(t, "f", function() {
+    return c.a;
+  });
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e, t) {
+    if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
+  }
+  var o = n(3302),
+    i = n.n(o),
+    a = n(3301),
+    s = n.n(a),
+    u = n(3417),
+    l = n(3410),
+    c = n(3411),
+    d = n(3418),
+    f = n(3409),
+    p = n(3414),
+    h = n(3415),
+    m = n(3416),
+    _ = n(3413),
+    y = n(3412),
+    v = n(3312),
+    g = function() {
+      function e(e, t) {
+        for (var n = 0; n < t.length; n++) {
+          var r = t[n];
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
+        }
+      }
+      return function(t, n, r) {
+        return n && e(t.prototype, n), r && e(t, r), t;
+      };
+    }();
+  i.a.register({
+    "modules/tabcomplete": u.a,
+    "modules/textsubstitutions": d.a,
+    "modules/msginput": f.a,
+    "modules/clipboard": l.a,
+    "modules/keyboard": c.a,
+    "modules/slacksearch": p.a,
+    "modules/slackmention": _.a,
+    "formats/slacksearchtokenmodifier": h.a,
+    "formats/slacksearchtokenvalue": m.a,
+    "formats/slackmention": y.a
+  }, !0);
+  var b = {
+      attributes: {},
+      log: console.log,
+      logError: console.error,
+      modules: {}
+    },
+    w = function(e, t, n) {
+      e._element.addEventListener("click", e.onInputClick), t.root.addEventListener("focus", e.onRootFocus), t.root.addEventListener("blur", e.onRootBlur), t.on("selection-change", function(t) {
+        t && e._setLastSelection(t), e.hasFocus() ? e.onFocus() : e.onBlur();
+      }), t.on("text-change", function(t, r, o) {
+        if (e._setLastSelection(), t.length() > 1 && r.length() <= 1 && e._enforceEmptyStateConsistency(), n.onTextChange) {
+          var i = e._nextTextChangeCallbackSource || o;
+          e._nextTextChangeCallbackSource = null, n.onTextChange(i);
+        }
+      });
+    },
+    k = function(e, t) {
+      return !!(t && t.modules && t.modules.clipboard) && n.i(v.a)({
+        onPasted: e._setLastSelection.bind(e)
+      }, t.modules.clipboard);
+    },
+    M = function(e) {
+      return !!(e && e.modules && e.modules.tabcomplete) && n.i(v.a)({
+        log: e.log,
+        logError: e.logError,
+        no_model_ob: e.no_model_ob,
+        useMentions: !!e.modules.slackmention,
+        useNameTagging: e.useNameTagging
+      }, e.modules.tabcomplete);
+    },
+    T = function(e) {
+      if (!e) return !1;
+      var t = e.match(/```/g);
+      return !!t && !!(t.length % 2);
+    },
+    x = function(e) {
+      var t = e;
+      if (!t) return !1;
+      if (T(t)) return !0;
+      t = t.replace(/`{3}([\s\S]*?)`{3}?/g, "");
+      var n = t.match(/`/g);
+      return !!n && !!(n.length % 2);
+    },
+    S = function(e, t) {
+      return !!(t && t.modules && t.modules.textsubstitutions) && {
+        getTextPreferences: t.modules.textsubstitutions.getTextPreferences,
+        buildSmartQuotesDelta: t.modules.textsubstitutions.buildSmartQuotesDelta,
+        shouldDoSubstitutions: function(t) {
+          if (!t) return !1;
+          var n = e._quill.getText(0, t.index + t.length);
+          return !x(n);
+        }
+      };
+    },
+    E = function() {
+      function e(t, o) {
+        if (r(this, e), !t || "DIV" !== t.tagName) throw new Error('Texty: param "element" must be <div> element');
+        this.options = n.i(v.a)({}, b, o), this.onEnter = this.onEnter.bind(this), this.onEscape = this.onEscape.bind(this), this.onTab = this.onTab.bind(this), this.onInputClick = this.onInputClick.bind(this), this.onRootFocus = this.onRootFocus.bind(this), this.onRootBlur = this.onRootBlur.bind(this), this._element = t, this._placeholder = null, this._setLastSelection({
+          index: 0,
+          length: 0
+        }), this._nextTextChangeCallbackSource = null, this.options.singleLineInput && t.classList.add("texty_single_line_input");
+        var a = [];
+        this.options.modules.slacksearch && (a.push("slacksearchtokenmodifier"), a.push("slacksearchtokenvalue")), this.options.modules.slackmention && a.push("slackmention"), this._quill = new i.a(t, {
+          formats: a,
+          theme: null,
+          modules: {
+            clipboard: k(this, this.options),
+            keyboard: {
+              onEnter: this.onEnter,
+              onEscape: this.onEscape,
+              onTab: this.onTab
+            },
+            tabcomplete: M(this.options),
+            textsubstitutions: S(this, this.options),
+            msginput: this.options.modules.msginput,
+            slacksearch: this.options.modules.slacksearch,
+            slackmention: this.options.modules.slackmention
+          }
+        }), w(this, this._quill, this.options), n.i(v.b)(this._quill.root, this.options.attributes), this.options.placeholder && this.setPlaceholder(this.options.placeholder), n.i(v.c)(this._quill.clipboard.container);
+      }
+      return g(e, [{
+        key: "unload",
+        value: function() {
+          this._getModules().forEach(function(e) {
+            e.unload && e.unload();
+          }), this._element.removeEventListener("click", this.onInputClick), this._quill.root.removeEventListener("focus", this.onRootFocus), this._quill.root.removeEventListener("blur", this.onRootBlur), this._quill = null;
+        }
+      }, {
+        key: "onInputClick",
+        value: function() {
+          this._quill.hasFocus() || this._quill.focus();
+        }
+      }, {
+        key: "onRootFocus",
+        value: function() {
+          this.onFocus();
+        }
+      }, {
+        key: "onRootBlur",
+        value: function() {
+          this._quill.hasFocus() || this._quill.setSelection(null);
+        }
+      }, {
+        key: "onFocus",
+        value: function() {
+          this._element.classList.contains("focus") || (this._element.classList.add("focus"), this.options.onFocus && this.options.onFocus());
+        }
+      }, {
+        key: "onBlur",
+        value: function() {
+          this._element.classList.contains("focus") && (this._element.classList.remove("focus"), this.options.onBlur && this.options.onBlur());
+        }
+      }, {
+        key: "onEnter",
+        value: function() {
+          var e = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : {};
+          return !this._getModules().some(function(t) {
+            return !!t.onEnter && t.onEnter(e);
+          }) && (this.options.onEnter(e) && !this.options.singleLineInput && (this.insertTextAtCursor("\n"), this._quill.selection.scrollIntoView()), !1);
+        }
+      }, {
+        key: "onEscape",
+        value: function() {
+          return !(this._getModules().some(function(e) {
+            return !!e.onEscape && e.onEscape();
+          }) || this.options.onEscape && this.options.onEscape());
+        }
+      }, {
+        key: "onTab",
+        value: function() {
+          var e = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : {};
+          return !this._getModules().some(function(t) {
+            return !!t.onTab && t.onTab(e);
+          }) && (!this.options.onTab || this.options.onTab());
+        }
+      }, {
+        key: "enable",
+        value: function() {
+          this._quill.enable();
+        }
+      }, {
+        key: "disable",
+        value: function() {
+          this._quill.disable();
+        }
+      }, {
+        key: "isEnabled",
+        value: function() {
+          return this._quill.isEnabled();
+        }
+      }, {
+        key: "focus",
+        value: function() {
+          this._quill.focus();
+        }
+      }, {
+        key: "blur",
+        value: function() {
+          this._quill.blur();
+        }
+      }, {
+        key: "hasFocus",
+        value: function() {
+          return this._quill && this._quill.hasFocus();
+        }
+      }, {
+        key: "getContents",
+        value: function() {
+          return {
+            contents: this._quill.getContents().ops
+          };
+        }
+      }, {
+        key: "setContents",
+        value: function(e) {
+          this._nextTextChangeCallbackSource = "api", this._quill.setContents(e.contents), this.hasFocus() && this._quill.setSelection(this._quill.getLength(), 0);
+        }
+      }, {
+        key: "getTextForRange",
+        value: function(e, t) {
+          return this._quill.getText(e, t);
+        }
+      }, {
+        key: "getText",
+        value: function() {
+          return this._quill.getText().replace(/\n$/, "");
+        }
+      }, {
+        key: "setText",
+        value: function(e) {
+          if (!e) return void this.clear();
+          this._nextTextChangeCallbackSource = "api", this._quill.setText(e), this.hasFocus() && this._quill.setSelection(this._quill.getLength(), 0);
+        }
+      }, {
+        key: "insertText",
+        value: function(e, t) {
+          var r = !(arguments.length > 2 && void 0 !== arguments[2]) || arguments[2],
+            o = e;
+          if (!n.i(v.d)(o)) return void this.options.log("Texty: no specified index");
+          var i = this._quill.getLength() - 1;
+          o = n.i(v.e)(o, 0, i), t && this._quill.insertText(o, t, "user"), this._setLastSelection({
+            index: o + t.length,
+            length: 0
+          }), this.hasFocus() ? this._quill.setSelection(this._lastSelection) : r && this._quill.setSelection(this._lastSelection, "silent");
+        }
+      }, {
+        key: "insertTextAtCursor",
+        value: function(e) {
+          var t = !(arguments.length > 1 && void 0 !== arguments[1]) || arguments[1];
+          this._lastSelection.length && this._quill.deleteText(this._lastSelection), this.insertText(this._lastSelection.index, e, t);
+        }
+      }, {
+        key: "insertContentsAtCursor",
+        value: function(e) {
+          var t = !(arguments.length > 1 && void 0 !== arguments[1]) || arguments[1],
+            n = new s.a(e.contents),
+            r = (new s.a).retain(this._lastSelection.index).delete(this._lastSelection.length).concat(n);
+          this._setLastSelection({
+            index: this._lastSelection.index + n.length(),
+            length: 0
+          }), this._quill.updateContents(r), this.hasFocus() ? this._quill.setSelection(this._lastSelection) : t && this._quill.setSelection(this._lastSelection, "silent");
+        }
+      }, {
+        key: "updateContents",
+        value: function(e) {
+          var t = new s.a(e.contents);
+          this._quill.updateContents(t, "api");
+        }
+      }, {
+        key: "getFormats",
+        value: function(e) {
+          var t = e;
+          return n.i(v.d)(t) || (t = this._lastSelection.index), this._quill.getFormat(t, 0);
+        }
+      }, {
+        key: "clear",
+        value: function() {
+          var e = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : {};
+          this._setLastSelection({
+            index: 0,
+            length: 0
+          }), this.isEmpty() || (this._nextTextChangeCallbackSource = e.is_silent ? "silent" : "api", this._quill.deleteText(0, this._quill.getLength()));
+        }
+      }, {
+        key: "getPlaceholder",
+        value: function() {
+          return this._placeholder ? this._placeholder.innerHTML : "";
+        }
+      }, {
+        key: "setPlaceholder",
+        value: function(e) {
+          if (this._placeholder || (this._placeholder = this._quill.addContainer("ql-placeholder"), n.i(v.c)(this._placeholder)), e) {
+            this._placeholder.innerHTML = e;
+            var t = this._placeholder.textContent.replace(/\s+/, " ");
+            this._quill.root.setAttribute("aria-label", t);
+          } else this._placeholder.innerHTML = "", this._quill.root.removeAttribute("aria-label");
+        }
+      }, {
+        key: "getSelection",
+        value: function() {
+          return !this.hasFocus() && this._lastSelection ? this._lastSelection : this._quill.getSelection();
+        }
+      }, {
+        key: "setSelection",
+        value: function(e, t) {
+          var r = e,
+            o = t;
+          if (n.i(v.d)(r) || n.i(v.d)(o)) {
+            var i = this._quill.getLength() - 1;
+            r = n.i(v.e)(r, 0, i), o = n.i(v.e)(o, 0, i - r), this._quill.setSelection(r, o);
+          }
+        }
+      }, {
+        key: "isEmpty",
+        value: function() {
+          return this._quill.getLength() <= 1;
+        }
+      }, {
+        key: "isCursorInPreBlock",
+        value: function() {
+          var e = this._quill.getSelection();
+          if (!e) return !1;
+          var t = this._quill.getText(0, e.index + e.length);
+          return T(t);
+        }
+      }, {
+        key: "deleteSelection",
+        value: function() {
+          var e = this._quill.getSelection();
+          e && e.length && (this._quill.deleteText(e.index, e.length), this._quill.setSelection(e.index));
+        }
+      }, {
+        key: "clearHistory",
+        value: function() {
+          this._quill.history.clear();
+        }
+      }, {
+        key: "_setLastSelection",
+        value: function(e) {
+          e ? this._lastSelection = e : this.isEmpty() ? this._lastSelection = {
+            index: 0,
+            length: 0
+          } : this._lastSelection = this._quill.getSelection() || this._lastSelection;
+        }
+      }, {
+        key: "_getModules",
+        value: function() {
+          var e = this,
+            t = [];
+          return Object.keys(this._quill.options.modules).forEach(function(n) {
+            var r = e._quill.getModule(n);
+            r && t.push(r);
+          }), t;
+        }
+      }, {
+        key: "_enforceEmptyStateConsistency",
+        value: function() {
+          this._placeholder && (this._placeholder.offsetHeight, this._placeholder.style.transform = "translateZ(0)", this._placeholder.style.transform = "");
+        }
+      }]), e;
+    }();
+  t.a = E;
 }], [2905]);
