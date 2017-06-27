@@ -30976,7 +30976,7 @@ webpackJsonp([332], [, function(e, t, n) {
 
   function r(e) {
     return function(t) {
-      return n.i(s.c)(e).then(function(e) {
+      return n.i(s.d)(e).then(function(e) {
         return t(n.i(l.a)(e));
       }).catch(function() {
         return n.i(u.a)("Failed to fetch files", e);
@@ -34245,7 +34245,7 @@ webpackJsonp([332], [, function(e, t, n) {
   "use strict";
 
   function r(e, t) {
-    var r = t || n.i(o.b)(e.id) || {};
+    var r = t || n.i(o.c)(e.id) || {};
     return i({}, e, {
       fileName: r.name,
       imageSource: r.thumb_160 || r.thumb_80,
@@ -35383,12 +35383,14 @@ webpackJsonp([332], [, function(e, t, n) {
     d = n.i(i.a)("TSFEmoji.translateEmojiStringToLocal", o.a.identity);
 }, function(e, t, n) {
   "use strict";
-  n.d(t, "b", function() {
+  n.d(t, "c", function() {
     return i;
-  }), n.d(t, "c", function() {
+  }), n.d(t, "d", function() {
     return a;
-  }), n.d(t, "a", function() {
+  }), n.d(t, "b", function() {
     return s;
+  }), n.d(t, "a", function() {
+    return u;
   });
   var r = n(2277),
     o = function() {
@@ -35429,7 +35431,8 @@ webpackJsonp([332], [, function(e, t, n) {
     })),
     s = n.i(r.a)("TS.files.fileIsImage", function() {
       return !0;
-    });
+    }),
+    u = n.i(r.a)("TS.files.shareOrReshareFile", function() {});
 }, function(e, t, n) {
   "use strict";
   n.d(t, "a", function() {
@@ -36985,7 +36988,8 @@ webpackJsonp([332], [, function(e, t, n) {
             replyCount: this.props.replyCount,
             ts: this.props.ts,
             threadTs: this.props.threadTs,
-            channel: this.props.channel
+            channel: this.props.channel,
+            subtype: this.props.subtype
           });
         }
       }, {
@@ -39886,7 +39890,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "render",
         value: function() {
-          return this.props.file && n.i(d.a)(this.props.file) && ("file_share" === this.props.subtype || "file_mention" === this.props.subtype) ? this.renderImage() : s.a.createElement("div", null, s.a.createElement("span", null, "File: "), s.a.createElement("a", {
+          return this.props.file && n.i(d.b)(this.props.file) && ("file_share" === this.props.subtype || "file_mention" === this.props.subtype) ? this.renderImage() : s.a.createElement("div", null, s.a.createElement("span", null, "File: "), s.a.createElement("a", {
             className: "file_preview_link",
             "data-file-id": this.props.id,
             href: this.props.permalink,
@@ -39918,7 +39922,7 @@ webpackJsonp([332], [, function(e, t, n) {
     file: null
   };
   var y = function(e, t) {
-    var r = n.i(d.b)(t.id);
+    var r = n.i(d.c)(t.id);
     return p({}, t, {
       file: r
     });
@@ -55642,9 +55646,11 @@ webpackJsonp([332], [, function(e, t, n) {
     h = n(3954),
     m = n(2288),
     _ = n(3644),
-    y = n(2907),
-    v = n(3948),
-    g = function() {
+    y = n(3965),
+    v = n(2907),
+    g = n(3948),
+    b = n(2910),
+    w = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
@@ -55655,36 +55661,38 @@ webpackJsonp([332], [, function(e, t, n) {
         return n && e(t.prototype, n), r && e(t, r), t;
       };
     }(),
-    b = m.a.ns("message"),
-    w = {
+    k = m.a.ns("message"),
+    M = {
       reactionKey: a.PropTypes.string,
       file: a.PropTypes.string,
       replyCount: a.PropTypes.number,
       ts: a.PropTypes.string,
       threadTs: a.PropTypes.string,
-      channel: a.PropTypes.object
+      channel: a.PropTypes.object,
+      subtype: a.PropTypes.string
     },
-    k = {
+    T = {
       reactionKey: null,
       file: null,
       replyCount: 0,
       ts: null,
       threadTs: null,
-      channel: null
+      channel: null,
+      subtype: null
     },
-    M = {
+    x = {
       x: 12,
       y: -80
     },
-    T = function(e) {
+    S = function(e) {
       function t(e) {
         r(this, t);
         var n = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
         return n.state = {
           moreActionsMenuOpen: !1
-        }, n.onAddReaction = n.onAddReaction.bind(n), n.onComment = n.onComment.bind(n), n.onMoreActionsMenuOpen = n.onMoreActionsMenuOpen.bind(n), n.onMoreActionsMenuClose = n.onMoreActionsMenuClose.bind(n), n.renderMoreActionsMenu = n.renderMoreActionsMenu.bind(n), n;
+        }, n.onAddReaction = n.onAddReaction.bind(n), n.onComment = n.onComment.bind(n), n.onShare = n.onShare.bind(n), n.onMoreActionsMenuOpen = n.onMoreActionsMenuOpen.bind(n), n.onMoreActionsMenuClose = n.onMoreActionsMenuClose.bind(n), n.renderMoreActionsMenu = n.renderMoreActionsMenu.bind(n), n;
       }
-      return i(t, e), g(t, [{
+      return i(t, e), w(t, [{
         key: "onAddReaction",
         value: function(e) {
           this.props.reactionKey && n.i(_.a)({
@@ -55695,11 +55703,16 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "onComment",
         value: function() {
-          if (this.props.file) n.i(y.a)(this.props.file, "", !1, !0, null);
+          if (this.props.file) n.i(v.a)(this.props.file, "", !1, !0, null);
           else {
             var e = this.props.threadTs || this.props.ts;
-            n.i(v.a)([], this.props.channel, e);
+            n.i(g.a)([], this.props.channel, e);
           }
+        }
+      }, {
+        key: "onShare",
+        value: function() {
+          this.props.file && "file_comment" !== this.props.subtype ? n.i(b.a)(this.props.file, !1, !1, this.props.channel, !0) : n.i(y.a)(this.props.ts, this.props.channel);
         }
       }, {
         key: "onMoreActionsMenuOpen",
@@ -55724,7 +55737,7 @@ webpackJsonp([332], [, function(e, t, n) {
         value: function() {
           return s.a.createElement(d.a, {
             iconType: "add-reaction",
-            tooltipText: b("Add reaction…"),
+            tooltipText: k("Add reaction…"),
             onClick: this.onAddReaction
           });
         }
@@ -55732,7 +55745,7 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "renderComment",
         value: function() {
           var e = void 0;
-          return e = b(this.props.file ? "Add comment…" : this.props.replyCount ? "Reply to thread" : "Start a thread"), s.a.createElement(d.a, {
+          return e = k(this.props.file ? "Add comment…" : this.props.replyCount ? "Reply to thread" : "Start a thread"), s.a.createElement(d.a, {
             iconType: "comment-alt",
             tooltipText: e,
             onClick: this.onComment
@@ -55741,10 +55754,11 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "renderShare",
         value: function() {
-          return s.a.createElement(d.a, {
+          var e = void 0;
+          return e = k(this.props.file && "file_comment" !== this.props.subtype ? "Share file…" : "Share message…"), s.a.createElement(d.a, {
             iconType: "share-action",
-            tooltipText: b("Share message…"),
-            onClick: function() {}
+            tooltipText: e,
+            onClick: this.onShare
           });
         }
       }, {
@@ -55754,13 +55768,13 @@ webpackJsonp([332], [, function(e, t, n) {
             renderMenu: this.renderMoreActionsMenu,
             position: "right",
             className: "inline_block",
-            offsetX: M.x,
-            offsetY: M.y,
+            offsetX: x.x,
+            offsetY: x.y,
             onOpen: this.onMoreActionsMenuOpen,
             onClose: this.onMoreActionsMenuClose
           }, s.a.createElement(d.a, {
             iconType: "ellipsis",
-            tooltipText: b("Show message actions"),
+            tooltipText: k("Show message actions"),
             tooltipPosition: "top-right"
           }));
         }
@@ -55768,29 +55782,29 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "renderMoreActionsMenu",
         value: function(e) {
           return s.a.createElement(f.b, e, s.a.createElement(p.a, {
-            label: b("Unfollow thread"),
-            description: b("This will be removed from All Threads"),
+            label: k("Unfollow thread"),
+            description: k("This will be removed from All Threads"),
             onSelected: function() {}
           }), s.a.createElement(h.a, null), s.a.createElement(p.a, {
-            label: b("Share message"),
+            label: k("Share message"),
             onSelected: function() {}
           }), s.a.createElement(p.a, {
-            label: b("Copy link"),
+            label: k("Copy link"),
             onSelected: function() {}
           }), s.a.createElement(p.a, {
-            label: b("Mark unread"),
+            label: k("Mark unread"),
             onSelected: function() {}
           }), s.a.createElement(h.a, null), s.a.createElement(p.a, {
-            label: b("Add reaction …"),
+            label: k("Add reaction …"),
             onSelected: this.onAddReaction
           }), s.a.createElement(p.a, {
-            label: b("Pin to #general …"),
+            label: k("Pin to #general …"),
             onSelected: function() {}
           }), s.a.createElement(h.a, null), s.a.createElement(p.a, {
-            label: b("Edit message"),
+            label: k("Edit message"),
             onSelected: function() {}
           }), s.a.createElement(p.a, {
-            label: b("Delete message"),
+            label: k("Delete message"),
             onSelected: function() {},
             danger: !0
           }));
@@ -55807,7 +55821,7 @@ webpackJsonp([332], [, function(e, t, n) {
         }
       }]), t;
     }(a.PureComponent);
-  T.propTypes = w, T.defaultProps = k, t.a = T;
+  S.propTypes = M, S.defaultProps = T, t.a = S;
 }, function(e, t, n) {
   "use strict";
   var r = n(2353),
@@ -56315,4 +56329,13 @@ webpackJsonp([332], [, function(e, t, n) {
   ]);
   n(219)(r, {});
   r.locals && (e.exports = r.locals);
+}, function(e, t, n) {
+  "use strict";
+  n.d(t, "a", function() {
+    return o;
+  });
+  var r = n(2277),
+    o = n.i(r.a)("TS.ui.share_message_dialog.start", function() {
+      return null;
+    });
 }], [2905]);

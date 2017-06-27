@@ -7418,8 +7418,7 @@ header .header_btns .btn_basic img,
 header .header_btns a img {
   margin: -4px .5rem 2px;
   width: 30px;
-  height: 30px;
-  float: left
+  height: 30px
 }
 
 header #header_team_nav {
