@@ -37193,6 +37193,8 @@ webpackJsonp([332], [, function(e, t, n) {
     return r.b;
   }), n.d(t, "c", function() {
     return r.c;
+  }), n.d(t, "d", function() {
+    return r.d;
   });
 }, function(e, t, n) {
   "use strict";
@@ -37595,7 +37597,7 @@ webpackJsonp([332], [, function(e, t, n) {
     try {
       p(t, e), h(e), m(e, t);
     } catch (e) {
-      n.i(V.c)(1996, "socket-manager: Caught an error while trying to change states: " + e), ue === U.a.ERROR ? n.i(V.c)(1996, "socket-manager: We were already trying to change to an error state; unsure how to proceed") : (n.i(V.c)(1996, "socket-manager: Switching to ERROR just in case"), w(U.a.ERROR));
+      n.i(V.c)(1996, "socket-manager: Caught an error while trying to change states: " + e), n.i(V.d)(e), ue === U.a.ERROR ? n.i(V.c)(1996, "socket-manager: We were already trying to change to an error state; unsure how to proceed") : (n.i(V.c)(1996, "socket-manager: Switching to ERROR just in case"), w(U.a.ERROR));
     }
   }
 
@@ -38015,13 +38017,16 @@ webpackJsonp([332], [, function(e, t, n) {
     return o;
   }), n.d(t, "c", function() {
     return i;
-  }), n.d(t, "a", function() {
+  }), n.d(t, "d", function() {
     return a;
+  }), n.d(t, "a", function() {
+    return s;
   });
   var r = n(2277),
     o = (n.i(r.a)("TS.console.getStackTrace", function() {}), n.i(r.a)("TS.console.info", function() {})),
     i = n.i(r.a)("TS.console.log", function() {}),
-    a = (n.i(r.a)("TS.console.logError", function() {}), n.i(r.a)("TS.console.logStackTrace", function() {}), n.i(r.a)("TS.console.shouldLog", function() {}), n.i(r.a)("TS.console.warn", function() {}));
+    a = n.i(r.a)("TS.console.logError", function() {}),
+    s = (n.i(r.a)("TS.console.logStackTrace", function() {}), n.i(r.a)("TS.console.shouldLog", function() {}), n.i(r.a)("TS.console.warn", function() {}));
 }, function(e, t, n) {
   "use strict";
 

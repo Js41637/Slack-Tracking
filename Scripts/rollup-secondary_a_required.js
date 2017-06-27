@@ -3674,6 +3674,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             TS.client.ui.channel_insights.open();
           }), TS.click.addClientHandler("[data-js=sli_channel_insights_back]", function() {
             TS.client.ui.flex.openFlexTab("details");
+          }), TS.click.addClientHandler("[data-js=sli_channel_insights_week]", function(e) {
+            TS.client.ui.channel_insights.jumpToWeek($(e.target).data("ts"));
           }));
         },
         n = function() {
@@ -7300,12 +7302,11 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
       "use strict";
       TS.registerModule("flannel", {
         onStart: function() {
-          TS.lazyLoadMembersAndBots() && (TS.isSocketManagerEnabled() ? TS.interop.SocketManager.connectedSig.addOnce(f) : TS.ms.connected_sig.addOnce(f));
+          TS.lazyLoadMembersAndBots() && (TS.isSocketManagerEnabled() ? TS.interop.SocketManager.connectedSig.addOnce(p) : TS.ms.connected_sig.addOnce(p));
         },
         test: function() {
           var e = {
-            _batchUpsertObjects: i,
-            _updatePresenceOnSlowReconnect: u
+            _batchUpsertObjects: i
           };
           return Object.defineProperty(e, "_batchUpsertObjects", {
             get: function() {
@@ -7334,7 +7335,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             i = TS.model.team.id,
             r = e.members;
           return t[e.id] = TS.members.ensureMembersArePresent(r, n, i).then(function() {
-            if (!TS.members.haveAllMembersForModelOb(e)) throw TS.has_pri[p] && TS.log(p, "Flannel: error fetching missing members for channel " + e.id), new Error("Tried to fetch members for channel but failed to get some");
+            if (!TS.members.haveAllMembersForModelOb(e)) throw TS.has_pri[m] && TS.log(m, "Flannel: error fetching missing members for channel " + e.id), new Error("Tried to fetch members for channel but failed to get some");
           }).catch(function() {
             delete t[e.id];
           }), t[e.id];
@@ -7365,10 +7366,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             var r = _.map(TS.model.members, "id");
             i = _.difference(i, r);
           }
-          return i.length ? (TS.info("Got rtm.start data but need to fetch " + i.length + " members"), TS.has_pri[p] && TS.log(p, i.join(", ")), l(i).then(function(t) {
+          return i.length ? (TS.info("Got rtm.start data but need to fetch " + i.length + " members"), TS.has_pri[m] && TS.log(m, i.join(", ")), l(i).then(function(t) {
             if (TS.info("Got " + t.length + " members for rtm.start :tada:"), i.length !== t.length) {
               var n = _.difference(i, _.map(t, "id"));
-              return m(n).then(function(i) {
+              return u(n).then(function(i) {
                 if (i.length == n.length) TS.warn("hydrateStartData tried to fetch users from Flannel but had to fall back to the API for some users (everything worked out, though). Users: " + n.join(",")), TS.metrics.count("rtm_start_from_flannel_fallback_to_api_success");
                 else {
                   var r = _.difference(n, _.map(i, "id"));
@@ -7435,10 +7436,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             return _.get(r, "results.length") && (n = n.concat(r.results), i && (n.length >= i || !r.next_marker)) ? {
               objects: n.slice(0, i),
               next_marker: n.length > i ? n[i].id : r.next_marker
-            } : !r.next_marker || n.length >= t.count && !i ? (TS.has_pri[p] && TS.log(p, "Flannel: finished fetching results for query", t), {
+            } : !r.next_marker || n.length >= t.count && !i ? (TS.has_pri[m] && TS.log(m, "Flannel: finished fetching results for query", t), {
               objects: n.slice(0, t.count),
               next_marker: n.length > t.count ? n[t.count].id : r.next_marker
-            }) : (t.marker = r.next_marker, TS.has_pri[p] && TS.log(p, "Flannel: fetching next page for query", t), e(t, n, i));
+            }) : (t.marker = r.next_marker, TS.has_pri[m] && TS.log(m, "Flannel: fetching next page for query", t), e(t, n, i));
           });
         },
         i = function(e) {
@@ -7451,7 +7452,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             var t = r(e);
             return t && u.push(t), t;
           }
-          TS.has_pri[p] && TS.log(p, "Flannel: upserting batch of " + e.length + " objects");
+          TS.has_pri[m] && TS.log(m, "Flannel: upserting batch of " + e.length + " objects");
           var i = _.partition(e, function(e) {
               if (TS.utility.members.isMember(e)) {
                 var t = TS.members.getPotentiallyUnknownMemberByIdWithoutFetching(e.id);
@@ -7469,10 +7470,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }));
         },
         r = function(e) {
-          return s(e) ? (TS.has_pri[p] && TS.log(p, "Flannel: upserting bot " + e.id + " from query results"), TS.bots.upsertBot(e)) : TS.utility.members.isMember(e) ? (TS.has_pri[p] && TS.log(p, "Flannel: upserting user " + e.id + " from query results"), TS.members.upsertMember(e)) : void 0;
+          return s(e) ? (TS.has_pri[m] && TS.log(m, "Flannel: upserting bot " + e.id + " from query results"), TS.bots.upsertBot(e)) : TS.utility.members.isMember(e) ? (TS.has_pri[m] && TS.log(m, "Flannel: upserting user " + e.id + " from query results"), TS.members.upsertMember(e)) : void 0;
         },
         a = function(e) {
-          return s(e) ? (TS.has_pri[p] && TS.log(p, "Flannel: upserting and signalling bot " + e.id + " from query results"), TS.bots.upsertAndSignal(e).bot) : TS.utility.members.isMember(e) ? (TS.has_pri[p] && TS.log(p, "Flannel: upserting and signalling user " + e.id + " from query results"), TS.members.upsertAndSignal(e).member) : void 0;
+          return s(e) ? (TS.has_pri[m] && TS.log(m, "Flannel: upserting and signalling bot " + e.id + " from query results"), TS.bots.upsertAndSignal(e).bot) : TS.utility.members.isMember(e) ? (TS.has_pri[m] && TS.log(m, "Flannel: upserting and signalling user " + e.id + " from query results"), TS.members.upsertAndSignal(e).member) : void 0;
         },
         s = function(e) {
           return "B" === _.get(e, "id[0]");
@@ -7481,16 +7482,19 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           var e = TS.boot_data.page_needs_enterprise ? "W" : "U",
             t = _.map(TS.model.members, "id"),
             n = _(TS.ui.frecency.getMostCommonWithPrefix(e, 100)).map("id").difference(t).value();
-          n.length && (TS.has_pri[p] && TS.log(p, "Flannel: pre-fetching " + n.length + " most frequently accessed members..."), TS.flannel.fetchAndUpsertObjectsByIds(n).then(function(e) {
-            TS.has_pri[p] && TS.log(p, "Flannel: pre-fetched " + e.length + " most frequently accessed members 👍");
+          n.length && (TS.has_pri[m] && TS.log(m, "Flannel: pre-fetching " + n.length + " most frequently accessed members..."), TS.flannel.fetchAndUpsertObjectsByIds(n).then(function(e) {
+            TS.has_pri[m] && TS.log(m, "Flannel: pre-fetched " + e.length + " most frequently accessed members 👍");
           }).catch(_.noop));
         },
         l = function(t) {
           var n = _.chunk(t, e);
           return Promise.map(n, function(e) {
-            return d({
+            var t = d({
               ids: e
-            }).reflect();
+            });
+            return t.catch(function(t) {
+              TS.warn("Flannel chunk fetch failed: ", e), TS.logError(t);
+            }), t.reflect();
           }, {
             concurrency: 2
           }).then(function(e) {
@@ -7518,15 +7522,6 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return TS.utility.url.setUrlQueryStringValue(TS.boot_data.ms_connect_url, "start_args", TS.utility.url.queryStringEncode(e));
         },
         u = function(e) {
-          if (TS.lazyLoadMembersAndBots() && !e) {
-            var t = _.map(TS.model.members, "id"),
-              n = _.map(TS.model.bots, "id");
-            TS.flannel.fetchAndUpsertObjectsByIds(t.concat(n)).catch(function(e) {
-              throw TS.err("Updating presence after slow reconnect failed for some users", e), e;
-            });
-          }
-        },
-        m = function(e) {
           var t = _.chunk(e, 250).map(function(e) {
             return TS.api.call("users.info", {
               users: e.join(",")
@@ -7542,9 +7537,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             }).flatten().value();
           });
         },
-        p = 1989,
-        f = function() {
-          o(), TS.isSocketManagerEnabled() ? TS.interop.SocketManager.connectedSig.add(u) : TS.ms.connected_sig.add(u);
+        m = 1989,
+        p = function() {
+          o();
         };
     }();
   },
@@ -17108,18 +17103,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return TS.model.archive_view_is_showing && e._archive_msgs ? e._archive_msgs : e.msgs;
         },
         t = function(e) {
-          if (1 == e) return TS.i18n.t("a minute", "msg_edit")() + " ";
-          var t = TS.utility.date.toTimeAmount(e),
-            n = "";
-          return t.w >= 1 && (n += TS.i18n.t("{week_count, plural, =1 {a week} other {# weeks}}", "msg_edit")({
-            week_count: t.w
-          })), t.d >= 1 && (n += TS.i18n.t("{day_count, plural, =1 {a day} other {# days}}", "msg_edit")({
-            day_count: t.d
-          })), t.h >= 1 && (n += TS.i18n.t("{hour_count, plural, =1 {an hour} other {# hours}}", "msg_edit")({
-            hour_count: t.h
-          })), t.mi >= 1 && (n += TS.i18n.t("{minute_count, plural, =1 {a minute} other {# minutes}}", "msg_edit")({
-            minute_count: t.mi
-          })), n;
+          return TS.interop.datetime.toTimeDuration(e, {
+            units: "minutes"
+          });
         };
     }();
   },
@@ -18436,13 +18422,13 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
       TS.registerModule("presence_manager", {
         sub_list_changed: new signals.Signal,
         onStart: function() {
-          t = !0, r.length && f(), a.length && h(), TS.isSocketManagerEnabled() ? (TS.interop.SocketManager.disconnectedSig.add(S), TS.interop.SocketManager.connectedSig.add(g)) : (TS.ms.disconnected_sig.add(S), TS.ms.connected_sig.add(g));
+          t = !0, c = TS.utility.enableFeatureForUser(1), r.length && g(), a.length && S(), TS.isSocketManagerEnabled() ? (TS.interop.SocketManager.disconnectedSig.add(b), TS.interop.SocketManager.connectedSig.add(T)) : (TS.ms.disconnected_sig.add(b), TS.ms.connected_sig.add(T));
         },
         addPresenceList: function(e) {
-          -1 === n.indexOf(e) && (n.push(e), e.added_sig.add(c), e.removed_sig.add(u));
+          -1 === n.indexOf(e) && (n.push(e), e.added_sig.add(m), e.removed_sig.add(p));
         },
         removePresenceList: function(e) {
-          n.indexOf(e) > -1 && (n.splice(n.indexOf(e), 1), e.added_sig.remove(c), e.removed_sig.remove(u));
+          n.indexOf(e) > -1 && (n.splice(n.indexOf(e), 1), e.added_sig.remove(m), e.removed_sig.remove(p));
         },
         createNewPresenceList: function(e) {
           return new TS.PresenceList(e);
@@ -18452,11 +18438,11 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         queryMemberPresence: function(e) {
           _.isArray(e) ? e.forEach(function(e) {
-            d(e);
-          }) : d(e), h();
+            u(e);
+          }) : u(e), S();
         },
         periodicallyCheckPresenceConsistency: function(t) {
-          _.isUndefined(t) && (t = 1e3), e && (clearInterval(e), e = null), e = setInterval(T, t);
+          _.isUndefined(t) && (t = 1e3), e && (clearInterval(e), e = null), e = setInterval(v, t);
         },
         stopCheckingPresenceConsistency: function() {
           e && clearInterval(e), e = null;
@@ -18464,15 +18450,53 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         getSubList: function() {
           return r.slice();
         },
-        test: {
-          getSubObject: function() {
-            var e, t = {};
-            for (e in i) i[e] && (t[e + " " + TS.members.getMemberById(e).name] = i[e]);
-            return t;
-          },
-          getSubList: function() {
-            return r;
-          }
+        test: function() {
+          var e = {
+            getSubObject: function() {
+              var e, t = {};
+              for (e in i) i[e] && (t[e + " " + TS.members.getMemberById(e).name] = i[e]);
+              return t;
+            },
+            getSubList: function() {
+              return r;
+            }
+          };
+          return Object.defineProperty(e, "_is_first_connection", {
+            get: function() {
+              return d;
+            },
+            set: function(e) {
+              d = e;
+            }
+          }), Object.defineProperty(e, "_handleConnect", {
+            get: function() {
+              return T;
+            },
+            set: function(e) {
+              T = e;
+            }
+          }), Object.defineProperty(e, "_addMemberToQueryList", {
+            get: function() {
+              return u;
+            },
+            set: function(e) {
+              u = e;
+            }
+          }), Object.defineProperty(e, "_sendSubList", {
+            get: function() {
+              return g;
+            },
+            set: function(e) {
+              g = e;
+            }
+          }), Object.defineProperty(e, "_sendQueryList", {
+            get: function() {
+              return S;
+            },
+            set: function(e) {
+              S = e;
+            }
+          }), e;
         }
       });
       var e, t = !1,
@@ -18483,33 +18507,35 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         s = !1,
         o = !1,
         l = !1,
-        d = function(e) {
+        d = !0,
+        c = !1,
+        u = function(e) {
           r.indexOf(e) > -1 || a.indexOf(e) > -1 || a.push(e);
         },
-        c = function(e) {
-          _.isArray(e) || (e = [e]), e.forEach(function(e) {
-            m(e);
-          });
-        },
-        u = function(e) {
-          _.isArray(e) || (e = [e]), e.forEach(function(e) {
-            p(e);
-          });
-        },
         m = function(e) {
-          if ("USLACKBOT" !== e) return i[e] ? i[e] += 1 : (i[e] = 1, r.push(e), f()), null;
+          _.isArray(e) || (e = [e]), e.forEach(function(e) {
+            f(e);
+          });
         },
         p = function(e) {
+          _.isArray(e) || (e = [e]), e.forEach(function(e) {
+            h(e);
+          });
+        },
+        f = function(e) {
+          if ("USLACKBOT" !== e) return i[e] ? i[e] += 1 : (i[e] = 1, r.push(e), g()), null;
+        },
+        h = function(e) {
           if (i[e] && (i[e] -= 1, !i[e])) {
             var t = r.indexOf(e);
-            r.splice(t, 1), f();
+            r.splice(t, 1), g();
           }
           return null;
         },
-        f = function() {
+        g = function() {
           if (!t || 0 === r.length || s) return null;
-          _.get(TS, "model.ms_connected") && (s = !0, Promise.resolve().then(function() {
-            s = !1, TS.metrics.count("presence_manager", r.length), r && r.length > 1300 && (l || (TS.console.logError({}, "presence_sub_list_too_long", "List length is " + r.length), l = !0), r = r.slice(0, 1300));
+          (TS.isSocketManagerEnabled() ? TS.interop.SocketManager.isConnected() : TS.model.ms_connected) && (s = !0, Promise.resolve().then(function() {
+            s = !1, c && TS.metrics.count("presence_manager", r.length), r && r.length > 1300 && (l || (TS.console.logError({}, "presence_sub_list_too_long", "List length is " + r.length), l = !0), r = r.slice(0, 1300));
             var e = {
               type: "presence_sub",
               ids: r
@@ -18517,9 +18543,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             return TS.isSocketManagerEnabled() ? TS.interop.SocketManager.send(e) : TS.ms.send(e), TS.presence_manager.sub_list_changed.dispatch(), null;
           }));
         },
-        h = function() {
+        S = function() {
           if (!t || 0 === a.length || o) return null;
-          _.get(TS, "model.ms_connected") && (o = !0, Promise.resolve().then(function() {
+          (TS.isSocketManagerEnabled() ? TS.interop.SocketManager.isConnected() : TS.model.ms_connected) && (o = !0, Promise.resolve().then(function() {
             o = !1;
             var e = {
               type: "presence_query",
@@ -18528,17 +18554,24 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             return TS.isSocketManagerEnabled() ? TS.interop.SocketManager.send(e) : TS.ms.send(e), a = [], null;
           }));
         };
-      f = _.throttle(f, 1e3), h = _.throttle(h, 1e3);
-      var g = function() {
-          f(), h();
+      g = _.throttle(g, 1e3), S = _.throttle(S, 1e3);
+      var T = function(e) {
+          if (TS.client && !d && !e) {
+            var t = _.map(TS.model.members, "id"),
+              n = _.map(TS.model.bots, "id");
+            t.concat(n).forEach(function(e) {
+              u(e);
+            });
+          }
+          d = !1, g(), S();
         },
-        S = function() {
+        b = function() {
           var e = function() {
-            f(), h();
+            g(), S();
           };
           TS.isSocketManagerEnabled() ? TS.interop.SocketManager.promiseToHaveOpenWebSocket().then(e) : TS.ms.promiseToHaveOpenWebSocket().then(e);
         },
-        T = function() {
+        v = function() {
           var e, t = [],
             n = [],
             i = [];

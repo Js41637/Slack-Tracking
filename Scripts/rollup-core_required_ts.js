@@ -1781,7 +1781,7 @@ webpackJsonp([12, 328, 337, 329], {
         },
         s = function() {
           if (0 !== Object.keys(o).length) {
-            if (window.performance && performance.memory && performance.memory.usedJSHeapSize && (o.used_js_heap_size = [TS.utility.roundToThree(TS.utility.convertBytesToMegabytes(performance.memory.usedJSHeapSize))]), a) {
+            if (TS.utility.enableFeatureForUser(1) && window.performance && performance.memory && performance.memory.usedJSHeapSize && (o.used_js_heap_size = [TS.utility.roundToThree(TS.utility.convertBytesToMegabytes(performance.memory.usedJSHeapSize))]), a) {
               var e = document.getElementsByTagName("*").length;
               TS.metrics.store("dom_node_count", e, {
                 is_count: !0
@@ -2764,12 +2764,17 @@ webpackJsonp([12, 328, 337, 329], {
             return TS.console.logError(e, "_connectAndFetchStartDataWithSocketManager called too many times"), Promise.reject(e);
           }
           var n = new Promise(function(e) {
-            TS.interop.SocketManager.provisionallyConnectedSig.addOnce(function(n) {
-              n.then(function(n) {
-                var a = n.rtm_start;
-                TS.flannel.hydrateStartData(a).then(e);
+            function n(a) {
+              a.then(function(a) {
+                var o = a.rtm_start;
+                TS.flannel.hydrateStartData(o).then(function(a) {
+                  TS.interop.SocketManager.provisionallyConnectedSig.remove(n), e(a);
+                });
+              }).catch(function(e) {
+                TS.warn("Unable to get start data from socket"), TS.logError(e);
               });
-            });
+            }
+            TS.interop.SocketManager.provisionallyConnectedSig.add(n);
           });
           return TS.boot_data.ws_refactor_bucket && (TS.has_pri[1996] = !0), TS.interop.SocketManager.start(), n;
         },
