@@ -1467,7 +1467,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             var c = TS.utility.getYoutubeIdFromURL(e.youtube_url);
             a.youtube_url = e.youtube_url, a.youtube_id = c;
           }
-          if ((e.screenshots || e.youtube_url) && (a.has_screenshots = !0), (_.get(e.config, "date_deleted") > 0 || !0 === _.get(e.auth, "revoked")) && (a.deleted = !0, a.app_id = e.id), e.is_slack_integration ? e.is_slack_integration && (TS.boot_data.feature_shared_channels && e.is_slack_integration && o ? a.disabled = !1 : e.config && "1" === e.config.is_active && "0" === e.config.date_deleted || (a.disabled = !0)) : TS.boot_data.feature_shared_channels && o ? a.disabled = !1 : e.auth && !e.auth.revoked || (a.disabled = !0), !i || o || !s && e.is_slack_integration || (a.show_settings_section = !0), e.installation_summary && !e.is_xoxa_app) {
+          if ((e.screenshots || e.youtube_url) && (a.has_screenshots = !0), (_.get(e.config, "date_deleted") > 0 || !0 === _.get(e.auth, "revoked")) && (a.deleted = !0, a.app_id = e.id), e.is_slack_integration ? e.is_slack_integration && (TS.boot_data.feature_shared_channels_client && e.is_slack_integration && o ? a.disabled = !1 : e.config && "1" === e.config.is_active && "0" === e.config.date_deleted || (a.disabled = !0)) : TS.boot_data.feature_shared_channels_client && o ? a.disabled = !1 : e.auth && !e.auth.revoked || (a.disabled = !0), !i || o || !s && e.is_slack_integration || (a.show_settings_section = !0), e.installation_summary && !e.is_xoxa_app) {
             var u = e.installation_summary.replace(/<@([A-Z0-9]+)>/g, function(e, t) {
               return TS.members.getMemberById(t) ? '<span class="app_card_member_link" data-member-profile-link=' + t + ">" + TS.members.getPrefCompliantMemberNameById(t, !0, !0) + "</span>" : '<span class="app_card_member_link" data-member-profile-link=' + t + ">A user</span>";
             });
@@ -1978,7 +1978,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           is_ephemeral: t.message.is_ephemeral,
           message_ts: t.message.ts
         };
-        if (TS.boot_data.feature_shared_channels) {
+        if (TS.boot_data.feature_shared_channels_client) {
           var a = _.get(t.message, "bot_profile.team_id");
           r.team_id = a;
         }
@@ -2182,7 +2182,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             r = _.get(n, "team_id");
           i && !n && TS.lazyLoadMembersAndBots() && TS.info(1989, "Flannel: failed to find a bot (" + i + ") whilst lazy loading bots");
           var a = _.get(t, "profile.api_app_id") || _.get(n, "app_id");
-          return a || i ? TS.boot_data.feature_shared_channels && r ? {
+          return a || i ? TS.boot_data.feature_shared_channels_client && r ? {
             bot_id: i,
             app_id: a,
             team_id: r
@@ -3659,12 +3659,12 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                   app_id: c,
                   bot_id: a
                 };
-              TS.clog.track("USERNAME_CLICK", _), a ? r ? TS.boot_data.feature_shared_channels && s ? TS.menu.app.startWithApp(e, a, s, null, !0) : TS.menu.app.startWithApp(e, a, null, null, !0) : TS.boot_data.feature_shared_channels && s ? TS.menu.app.startWithApp(e, a, s) : TS.menu.app.startWithApp(e, a, null, !0) : TS.warn("hmm, no data-bot-id?");
+              TS.clog.track("USERNAME_CLICK", _), a ? r ? TS.boot_data.feature_shared_channels_client && s ? TS.menu.app.startWithApp(e, a, s, null, !0) : TS.menu.app.startWithApp(e, a, null, null, !0) : TS.boot_data.feature_shared_channels_client && s ? TS.menu.app.startWithApp(e, a, s) : TS.menu.app.startWithApp(e, a, null, !0) : TS.warn("hmm, no data-bot-id?");
             }
           }), TS.click.addClientHandler(".attachment_attribution a", function(e, t) {
             var n = t.data("attribution-bot-id"),
               i = t.data("attribution-team-id");
-            n ? (e.preventDefault(), TS.boot_data.feature_shared_channels && i ? TS.menu.app.startWithApp(e, n, i) : TS.menu.app.startWithApp(e, n)) : TS.warn("hmm, no data-bot-id?");
+            n ? (e.preventDefault(), TS.boot_data.feature_shared_channels_client && i ? TS.menu.app.startWithApp(e, n, i) : TS.menu.app.startWithApp(e, n)) : TS.warn("hmm, no data-bot-id?");
           }), TS.click.addHandler("[data-slash-command-autofill]", function(e, t) {
             var n = TS.client.msg_input.$input,
               i = TS.utility.contenteditable.value(n),
@@ -7199,7 +7199,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         makeFileTitleFromFile: function(e) {
           return e.name || TS.i18n.t("Pasted image at {date}", "files")({
-            date: TS.utility.date.toDate(Date.now() / 1e3)
+            date: TS.interop.datetime.toDate(Date.now() / 1e3)
           });
         },
         justUploadTheseFileNow: function(e) {
@@ -10262,7 +10262,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               var e = $(this).data("file-id"),
                 n = TS.files.getFileById(e);
               if (!n) return void t.push($(this).text());
-              t.push(TS.utility.date.toTimeAgo(n.updated)), n = null;
+              t.push(TS.interop.datetime.toTimeAgo(n.updated)), n = null;
             }), e.each(function(e, n) {
               $(n).text(t[e]), n = null;
             }), e = null;
@@ -12518,7 +12518,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }
 
           function o(n) {
-            TS.menu.app.active_app = n, a ? TS.boot_data.feature_shared_channels && TS.menu.app_team_id ? TS.client.ui.app_profile.openWithApp(TS.menu.app.active_app, TS.menu.app.active_app_bot_id, TS.menu.app.active_app_team_id) : TS.client.ui.app_profile.openWithApp(TS.menu.app.active_app, TS.menu.app.active_app_bot_id) : e(t, r);
+            TS.menu.app.active_app = n, a ? TS.boot_data.feature_shared_channels_client && TS.menu.app_team_id ? TS.client.ui.app_profile.openWithApp(TS.menu.app.active_app, TS.menu.app.active_app_bot_id, TS.menu.app.active_app_team_id) : TS.client.ui.app_profile.openWithApp(TS.menu.app.active_app, TS.menu.app.active_app_bot_id) : e(t, r);
           }
           TS.menu.isRedundantClick(t) || TS.client.ui.checkForEditing(t) || (a || (TS.menu.buildIfNeeded(), TS.menu.clean()), i || (i = TS.model.user.team_id), TS.menu.app.active_app_bot_id = n, TS.menu.app.active_app_team_id = i, TS.apps.promiseToGetFullAppProfile(n, i, null, !0).then(s).then(o));
         },
@@ -16578,7 +16578,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         Ce = function() {
           Ie(), TS.qs_args.no_prov_timeout || (g = setTimeout(function() {
             f ? (TS.boot_data.ws_refactor_bucket && TS.metrics.count("ms_flow_prov_timeout"), TS.warn("Giving up on provisional connection because no one ever finalized it"), ne(4002, "Deprecating socket because the provisional connection was never finalized")) : TS.warn("Provisional connection timed out, but it does not look like we have a provisional connection");
-          }, 3e4));
+          }, 6e4));
         },
         Ie = function() {
           g && (clearTimeout(g), g = void 0);
@@ -23504,8 +23504,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               time: TS.interop.datetime.toTime(a, {
                 do24hrTime: TS.utility.date.do24hrTime()
               })
-            }) : 1 === n.num_replies ? n.last_reply_at = TS.utility.date.toTimeAgo(a) : n.last_reply_at = TS.i18n.t("Last reply {time_ago}", "threads")({
-              time_ago: TS.utility.date.toTimeAgo(a)
+            }) : 1 === n.num_replies ? n.last_reply_at = TS.interop.datetime.toTimeAgo(a) : n.last_reply_at = TS.i18n.t("Last reply {time_ago}", "threads")({
+              time_ago: TS.interop.datetime.toTimeAgo(a)
             });
           }
           return TS.templates.message_reply_bar(n);
@@ -25757,7 +25757,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }), Handlebars.registerHelper("roundToThree", function(e) {
             return TS.utility.roundToThree(e);
           }), Handlebars.registerHelper("toDate", function(e) {
-            return TS.utility.date.toDate(e);
+            return TS.interop.datetime.toDate(e);
           }), Handlebars.registerHelper("toCalendarDate", function(e) {
             return TS.interop.datetime.toCalendarDate(e);
           }), Handlebars.registerHelper("toCalendarDateShort", function(e) {
@@ -25768,7 +25768,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }), Handlebars.registerHelper("toCalendarDateOrNamedDay", function(e) {
             return TS.interop.datetime.toCalendarDateOrNamedDay(e);
           }), Handlebars.registerHelper("toCalendarDateIfYesterdayOrToday", function(e) {
-            return TS.utility.date.toCalendarDateIfYesterdayOrToday(e);
+            return TS.interop.datetime.toCalendarDateIfYesterdayOrToday(e);
           }), Handlebars.registerHelper("toCalendarDateOrNamedDayShort", function(e) {
             return TS.interop.datetime.toCalendarDateOrNamedDay(e, {
               shortenMonth: !0
@@ -25780,7 +25780,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               includeSeconds: !0 === n
             });
           }), Handlebars.registerHelper("toTimeAgo", function(e) {
-            return TS.utility.date.toTimeAgo(e);
+            return TS.interop.datetime.toTimeAgo(e);
           }), Handlebars.registerHelper("toTimeAgoShort", function(e, t) {
             t = !!_.isBoolean(t) && t;
             var n = TS.interop.datetime.toTimeAgo(e, {
@@ -36587,7 +36587,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }
         },
         maybeGetUpdatedAtTime: function(e) {
-          return e ? TS.utility.date.toTimeAgo(e) : null;
+          return e ? TS.interop.datetime.toTimeAgo(e) : null;
         },
         getObjectsForIds: function(e, t) {
           return _.isEmpty(e) || _.isEmpty(t) ? [] : _.intersectionWith(e, t, function(e, t) {
@@ -36943,7 +36943,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return !!e._jl_rolled_up_in && e._jl_rolled_up_in !== e.ts;
         },
         isMsgHidden: function(e) {
-          return !!e.no_display || !!e._hidden_reply;
+          return !e || (!!e.no_display || !!e._hidden_reply);
         },
         getPrevDisplayedMsg: function(e, t) {
           for (var n, i = !1, r = 0; r < t.length; r += 1)
@@ -38446,6 +38446,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             no_preformatted: !!t
           }), e = e.replace(/(<br[^>]*>)/, '<span class="hidden br_ellipsis">…</span>$1'));
         },
+        removeLinksFromTabFlow: function(e) {
+          return e.replace(T, '$1 tabindex="-1"$2');
+        },
         populateInput: function(e, t, n) {
           t || (t = "");
           var i = $(e);
@@ -38498,11 +38501,11 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               });
               e.replaceWith(i), n[n.length - 1] += "\n->\n" + i;
             }
-          }), TS.model && TS.model.team && TS.has_pri[T] && TS.boot_data.feature_tinyspeck && (n.length ? (TS.log(T, "#" + e.attr("id") + " had " + n.length + " LINKS WITH EXT HREFS BUT NOT data-referer-safe! to fix it took " + (Date.now() - t) + "ms"), TS.dir(T, n)) : TS.log(T, "#" + e.attr("id") + " had " + n.length + " LINKS WITH EXT HREFS BUT NOT data-referer-safe! to check it took " + (Date.now() - t) + "ms"))) : (e.find("a[href]:not([rel])").each(function() {
+          }), TS.model && TS.model.team && TS.has_pri[b] && TS.boot_data.feature_tinyspeck && (n.length ? (TS.log(b, "#" + e.attr("id") + " had " + n.length + " LINKS WITH EXT HREFS BUT NOT data-referer-safe! to fix it took " + (Date.now() - t) + "ms"), TS.dir(b, n)) : TS.log(b, "#" + e.attr("id") + " had " + n.length + " LINKS WITH EXT HREFS BUT NOT data-referer-safe! to check it took " + (Date.now() - t) + "ms"))) : (e.find("a[href]:not([rel])").each(function() {
             var e = $(this),
               t = e.attr("href");
             0 !== t.indexOf("mailto") && 0 !== t.indexOf("skype") && (t && "#" !== t ? TS.utility.urlNeedsRefererHiding(t) && (n.push(this.outerHTML), e.attr("rel", "noreferrer"), n[n.length - 1] += "\n->\n" + this.outerHTML) : e.removeAttr("href"));
-          }), TS.model && TS.model.team && TS.has_pri[T] && TS.boot_data.feature_tinyspeck && (n.length ? (TS.log(T, "#" + e.attr("id") + " had " + n.length + ' LINKS WITH EXT HREFS BUT WITHOUT rel="noreferrer"! to add rel it took ' + (Date.now() - t) + "ms"), TS.dir(T, n)) : TS.log(T, "#" + e.attr("id") + " had " + n.length + ' LINKS WITH EXT HREFS BUT WITHOUT rel="noreferrer"! to check it took ' + (Date.now() - t) + "ms")));
+          }), TS.model && TS.model.team && TS.has_pri[b] && TS.boot_data.feature_tinyspeck && (n.length ? (TS.log(b, "#" + e.attr("id") + " had " + n.length + ' LINKS WITH EXT HREFS BUT WITHOUT rel="noreferrer"! to add rel it took ' + (Date.now() - t) + "ms"), TS.dir(b, n)) : TS.log(b, "#" + e.attr("id") + " had " + n.length + ' LINKS WITH EXT HREFS BUT WITHOUT rel="noreferrer"! to check it took ' + (Date.now() - t) + "ms")));
         },
         makeSureAllLinksHaveTargets: function(e) {
           var t = Date.now(),
@@ -38511,7 +38514,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             var e = $(this),
               t = e.attr("href");
             0 !== t.indexOf("mailto") && 0 !== t.indexOf("skype") && (t && "#" !== t ? (n.push(this.outerHTML), e.attr("target", t), n[n.length - 1] += "\n->\n" + this.outerHTML) : e.removeAttr("href"));
-          }), TS.model && TS.model.team && TS.has_pri[T] && TS.boot_data.feature_tinyspeck && (n.length ? (TS.log(T, "#" + e.attr("id") + " had " + n.length + " LINKS WITH HREFS BUT WITHOUT TARGETS! to add targets it took " + (Date.now() - t) + "ms"), TS.dir(T, n)) : TS.log(T, "#" + e.attr("id") + " had " + n.length + " LINKS WITH HREFS BUT WITHOUT TARGETS! to check it took " + (Date.now() - t) + "ms")), TS.utility.makeSureAllExternalLinksAreRefererSafe(e);
+          }), TS.model && TS.model.team && TS.has_pri[b] && TS.boot_data.feature_tinyspeck && (n.length ? (TS.log(b, "#" + e.attr("id") + " had " + n.length + " LINKS WITH HREFS BUT WITHOUT TARGETS! to add targets it took " + (Date.now() - t) + "ms"), TS.dir(b, n)) : TS.log(b, "#" + e.attr("id") + " had " + n.length + " LINKS WITH HREFS BUT WITHOUT TARGETS! to check it took " + (Date.now() - t) + "ms")), TS.utility.makeSureAllExternalLinksAreRefererSafe(e);
         },
         sortTable: function(e, t, n, i, r) {
           function a(e, t) {
@@ -39214,7 +39217,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           };
         }(),
         S = /\.slack\.com\/((?:messages|archives|unreads|threads)\/)/,
-        T = 365;
+        T = /(<a\b[^>]*)(>)/gi,
+        b = 365;
     }();
   },
   2676: function(e, t) {
@@ -39392,9 +39396,18 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }
         },
         convertContentsToString: function(e) {
-          return e.contents ? (e = _.reduce(e.contents, function(e, t) {
-            return t.attributes && t.attributes.slackmention ? e + "<@" + t.attributes.slackmention.id + "|" + _.escape(t.attributes.slackmention.label) + ">" : e + t.insert;
-          }, ""), e.replace(/\n$/, "")) : "";
+          return e.contents ? _.reduce(e.contents, function(e, t) {
+            if (t.attributes && t.attributes.slackmention) {
+              if (t.insert.length > t.attributes.slackmention.label.length) {
+                var n = t.insert.split(t.attributes.slackmention.label);
+                if (n.length > 1) return n.shift(), n = n.map(function() {
+                  return "<@" + t.attributes.slackmention.id + "|" + _.escape(t.attributes.slackmention.label) + ">";
+                }), e + n.join("");
+              }
+              return e + "<@" + t.attributes.slackmention.id + "|" + _.escape(t.attributes.slackmention.label) + ">";
+            }
+            return e + t.insert;
+          }, "").replace(/\n$/, "") : "";
         },
         convertContentsToStringForDisplay: function(e) {
           return e.contents ? (e = _.reduce(e.contents, function(e, t) {
