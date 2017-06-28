@@ -753,13 +753,6 @@
   font-weight: 400
 }
 
-@font-face {
-  font-family: 'Slack v2';
-  src: url(/7c81/fonts/slack-icons-v2.woff2) format('woff2'), url(/7c81/fonts/slack-icons-v2.woff) format('woff');
-  font-style: normal;
-  font-weight: 400
-}
-
 .ts_icon:before,
 ts-icon:before {
   font-family: Slack;
@@ -767,11 +760,6 @@ ts-icon:before {
   font-style: normal;
   font-weight: 400;
   display: inline-block
-}
-
-body.feature_icon_font_v2 .ts_icon:before,
-body.feature_icon_font_v2 ts-icon:before {
-  font-family: 'Slack v2'
 }
 
 .ts_icon.ts_icon_inherit:before,

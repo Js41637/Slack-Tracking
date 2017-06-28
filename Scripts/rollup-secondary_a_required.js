@@ -898,7 +898,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         s = ["rtm.start", "rtm.leanStart", "files.list"],
         o = ["rtm.start", "rtm.leanStart", "activity.mentions", "stars.list", "files.list", "files.info", "apps.list", "commands.list", "channels.list", "emoji.list", "help.issues.list", "subteams.list", "subteams.users.list", "rtm.checkFastReconnect"],
         l = ["users.prefs.set", "rtm.start", "rtm.leanStart", "rtm.checkFastReconnect", "enterprise.setPhoto", "signup.createTeam"],
-        d = ["channels.view", "dnd.teamInfo", "screenhero.rooms.create", "screenhero.rooms.join", "screenhero.rooms.refreshToken", "screenhero.rooms.invite"],
+        d = ["channels.view", "dnd.teamInfo", "screenhero.rooms.create", "screenhero.rooms.join", "screenhero.rooms.refreshToken", "screenhero.rooms.invite", "highlights.list"],
         c = ["api.test", "auth.emailToken", "auth.findTeam", "auth.findUser", "auth.loginMagic", "auth.signin", "enterprise.signup.complete", "enterprise.signup.checkDomain", "enterprise.signup.checkPassword", "helpdesk.get", "search.appDirectory", "signup.addLead", "team.checkEmailDomains", "test.versionInfo", "oauth.access"],
         u = 0,
         m = [],
@@ -1363,7 +1363,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           t = TS.utility.throttleFunc(t, 3e3, !0);
         },
         isAppSpaceEnabled: function() {
-          return "app_space_enabled" === TS.experiment.getGroup("feat_app_space") || TS.boot_data.feature_app_space;
+          return !(!TS.model.user || TS.model.user.is_restricted) && ("app_space_enabled" === TS.experiment.getGroup("feat_app_space") || TS.boot_data.feature_app_space);
         },
         resetUpApps: function() {
           TS.storage.storeApps(""), t();
@@ -11498,8 +11498,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             if (z) return void(K = !0);
             z = !0;
             var e, t = Date.now() - V;
-            return e = t < 1e4 ? new Promise(function(e) {
-              setTimeout(e, 1e4 - t);
+            return e = t < 12e4 ? new Promise(function(e) {
+              setTimeout(e, 12e4 - t);
             }) : Promise.resolve(), e.then(function() {
               return K = !1, TS.members.maybeFetchAccessibleUserIds();
             }).finally(function() {
@@ -15042,7 +15042,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }), TS.client.stats.stop_collecting_sig.add(function() {
             t = !1, B.disableStatsCollecting();
           })), TS.isSocketManagerEnabled() ? (TS.interop.SocketManager.socketMessageReceivedSig.add(TS.ms.msg_handlers.msgReceived), TS.interop.Eventlog.messageReceivedSig.add(TS.ms.msg_handlers.msgReceived), TS.interop.SocketManager.connectedSig.add(function() {
-            TS.boot_data.feature_tinyspeck && o.length > 50 && (TS.warn("Looks like our msg_handlers queue might be wedged (it has " + o.length + " items in it). Kicking it and prompting user to send logs."), u(), TS.generic_dialog.alert("Hello! It looks like you may have run into a bug that @shinypb is tracking. Would you mind saving your console logs and then DMing them to him?"));
+            TS.boot_data.feature_tinyspeck && setTimeout(function() {
+              o.length > 50 && (TS.warn("Looks like our msg_handlers queue might be wedged (it has " + o.length + " items in it). Kicking it and prompting user to send logs."), u(), TS.generic_dialog.alert("Hello! It looks like you may have run into a bug that @shinypb is tracking. Would you mind saving your console logs and then DMing them to him?"));
+            }, 3e4);
           })) : TS.ms.on_msg_sig.add(TS.ms.msg_handlers.msgReceived);
         },
         debugGetQueueSize: function() {
@@ -25757,9 +25759,12 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }), Handlebars.registerHelper("toDate", function(e) {
             return TS.utility.date.toDate(e);
           }), Handlebars.registerHelper("toCalendarDate", function(e) {
-            return TS.utility.date.toCalendarDate(e);
+            return TS.interop.datetime.toCalendarDate(e);
           }), Handlebars.registerHelper("toCalendarDateShort", function(e) {
-            return TS.utility.date.toCalendarDate(e, !0);
+            var t = {
+              shortenMonth: !0
+            };
+            return TS.interop.datetime.toCalendarDate(e, t);
           }), Handlebars.registerHelper("toCalendarDateOrNamedDay", function(e) {
             return TS.interop.datetime.toCalendarDateOrNamedDay(e);
           }), Handlebars.registerHelper("toCalendarDateIfYesterdayOrToday", function(e) {
@@ -25778,7 +25783,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             return TS.utility.date.toTimeAgo(e);
           }), Handlebars.registerHelper("toTimeAgoShort", function(e, t) {
             t = !!_.isBoolean(t) && t;
-            var n = TS.utility.date.toTimeAgoShort(e, t),
+            var n = TS.interop.datetime.toTimeAgo(e, {
+                compact: t
+              }),
               i = '<span class="relative_ts" data-ts="' + _.escape(e) + '" data-really-short="' + !!t + '">' + _.escape(n) + "</span>";
             return new Handlebars.SafeString(i);
           }), Handlebars.registerHelper("toTimeDuration", function(e) {
@@ -32111,7 +32118,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               renderItem: function(e, t, n) {
                 TS.shared.isModelObOrgShared(t) ? n.$shared_channel_icon.removeClass("hidden") : n.$shared_channel_icon.addClass("hidden"), t.is_channel ? n.$icon.removeClass("ts_icon_lock").addClass("ts_icon_channel_pane_hash") : n.$icon.removeClass("ts_icon_channel_pane_hash").addClass("ts_icon_lock"), n.$name.text(t.name ? t.name : "");
                 var i = TS.members.getMemberById(t.creator);
-                i ? (n.$creator.removeClass("hidden"), n.$creator.find(".channel_browser_creator_name").text(TS.members.getPrefCompliantMemberName(i))) : n.$creator.addClass("hidden"), n.$date.text(TS.utility.date.toCalendarDate(t.created));
+                i ? (n.$creator.removeClass("hidden"), n.$creator.find(".channel_browser_creator_name").text(TS.members.getPrefCompliantMemberName(i))) : n.$creator.addClass("hidden"), n.$date.text(TS.interop.datetime.toCalendarDate(t.created));
                 var r = V(t);
                 if (n.$member_count.text(r), t.purpose && t.purpose.value) {
                   var a = TS.utility.formatTopicOrPurpose(t.purpose.value);
@@ -37816,8 +37823,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           if (!e || !e.unread_cnt) return [];
           var t = parseFloat(e.last_read);
           return _.reduce(e.msgs, function(n, i) {
-            return parseFloat(i.ts) > t && !TS.client.highlights.msgIsHighlight(e.id, i.ts) && !TS.client.highlights.isMsgBeingRequested(e.id, i.ts) && n.push(i.ts), n;
-          }, []);
+            return parseFloat(i.ts) > t && !TS.client.highlights.msgIsHighlight(e.id, i.ts) && !TS.client.highlights.isMsgBeingRequested(e.id, i.ts) && (n[i.ts] = !0), n;
+          }, {});
         }
       });
       var e = !1,
@@ -37839,7 +37846,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               $(e).find(".relative_ts").each(function() {
                 var e = $(this).attr("data-ts"),
                   t = $(this).data("really-short"),
-                  n = TS.utility.date.toTimeAgoShort(e, t);
+                  n = TS.interop.datetime.toTimeAgo(e, {
+                    compact: t
+                  });
                 n !== $(this).text() && $(this).text(n);
               });
             });

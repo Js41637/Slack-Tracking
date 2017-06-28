@@ -35587,10 +35587,11 @@ webpackJsonp([332], [, function(e, t, n) {
     b = n(2343),
     w = n(3034),
     k = n(3626),
-    M = n(3183),
-    T = n(3014),
-    x = n(3922),
-    S = n.i(r.e)({
+    M = n(3978),
+    T = n(3183),
+    x = n(3014),
+    S = n(3922),
+    E = n.i(r.e)({
       allUnreads: o.default,
       bootData: i.default,
       channelHistory: m.default,
@@ -35603,18 +35604,19 @@ webpackJsonp([332], [, function(e, t, n) {
       files: v.b,
       members: g.default,
       bots: k.default,
+      apps: M.b,
       memberTypesById: b.default,
       messagePane: c.default,
       messages: w.default,
       prefs: d.default,
       presence: f.default,
       socket: p.default,
-      reactions: M.default,
+      reactions: T.default,
       typing: h.default,
-      window: T.default,
-      environment: x.default
+      window: x.default,
+      environment: S.default
     });
-  t.a = S;
+  t.a = E;
 }, , , function(e, t, n) {
   "use strict";
 
@@ -35973,27 +35975,28 @@ webpackJsonp([332], [, function(e, t, n) {
 }, function(e, t, n) {
   "use strict";
   n.d(t, "a", function() {
-    return C;
+    return O;
   });
   var r = n(6),
     o = n.n(r),
     i = n(218),
     a = (n.n(i), n(2298)),
     s = n(3141),
-    u = n(3045),
-    l = n(2295),
-    c = n(2296),
-    d = n(3028),
-    f = n(2911),
-    p = Object.assign || function(e) {
+    u = n(3978),
+    l = n(3045),
+    c = n(2295),
+    d = n(2296),
+    f = n(3028),
+    p = n(2911),
+    h = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
         for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
       }
       return e;
     },
-    h = ["starred", "channels", "ims", "apps"],
-    m = {
+    m = ["starred", "channels", "ims", "apps"],
+    _ = {
       starred: {
         channelsOrdered: [],
         hasHeading: !0
@@ -36011,89 +36014,89 @@ webpackJsonp([332], [, function(e, t, n) {
         hasHeading: !0
       }
     },
-    _ = ["default", "private", "slackbot", "you", "ims", "muted"],
-    y = o.a.invert(_),
-    v = _.map(function() {
+    y = ["default", "private", "slackbot", "you", "ims", "muted"],
+    v = o.a.invert(y),
+    g = y.map(function() {
       return [];
     }),
-    g = function(e) {
+    b = function(e) {
       var t = e.channel,
         r = e.isCurrentlySelected,
         o = e.isMuted,
         i = e.shouldHideReadChannels,
         a = e.shouldHideReadChannelsUnlessStarred;
-      return !!r || !n.i(l.isArchived)(t) && (!(n.i(l.isChannel)(t) && !n.i(l.isMemberOfChannel)(t)) && (!((n.i(l.isIm)(t) || n.i(l.isMpim)(t)) && !n.i(l.isOpen)(t) && n.i(l.isRead)(t)) && (!(!a || !n.i(l.isStarred)(t)) || (!!n.i(l.hasDraft)(t) || (!(!o || !n.i(l.shouldShowWithoutUnreads)(t)) || (!a && !i || !n.i(l.isRead)(t)))))));
-    },
-    b = function(e) {
-      var t = e.channel,
-        r = e.isApp;
-      return n.i(l.isStarred)(t) ? "starred" : r ? "apps" : n.i(l.isIm)(t) || n.i(l.isMpim)(t) ? "ims" : "channels";
+      return !!r || !n.i(c.isArchived)(t) && (!(n.i(c.isChannel)(t) && !n.i(c.isMemberOfChannel)(t)) && (!((n.i(c.isIm)(t) || n.i(c.isMpim)(t)) && !n.i(c.isOpen)(t) && n.i(c.isRead)(t)) && (!(!a || !n.i(c.isStarred)(t)) || (!!n.i(c.hasDraft)(t) || (!(!o || !n.i(c.shouldShowWithoutUnreads)(t)) || (!a && !i || !n.i(c.isRead)(t)))))));
     },
     w = function(e) {
       var t = e.channel,
+        r = e.isApp;
+      return n.i(c.isStarred)(t) ? "starred" : r ? "apps" : n.i(c.isIm)(t) || n.i(c.isMpim)(t) ? "ims" : "channels";
+    },
+    k = function(e) {
+      var t = e.channel,
         r = e.isMuted,
         o = e.shouldSeparatePrivateChannels;
-      return r ? y.muted : n.i(l.isSlackbot)(t) ? y.slackbot : n.i(l.isYou)(t) ? y.you : n.i(l.isIm)(t) || n.i(l.isMpim)(t) ? y.ims : o && n.i(l.isGroup)(t) ? y.private : y.default;
-    },
-    k = function(e, t) {
-      return n.i(f.f)(n.i(l.getDisplayName)(e), n.i(l.getDisplayName)(t));
+      return r ? v.muted : n.i(c.isSlackbot)(t) ? v.slackbot : n.i(c.isYou)(t) ? v.you : n.i(c.isIm)(t) || n.i(c.isMpim)(t) ? v.ims : o && n.i(c.isGroup)(t) ? v.private : v.default;
     },
     M = function(e, t) {
+      return n.i(p.f)(n.i(c.getDisplayName)(e), n.i(c.getDisplayName)(t));
+    },
+    T = function(e, t) {
       return t.priority - e.priority;
     },
-    T = function(e) {
+    x = function(e) {
       var t = e.sortPref,
         n = e.prioritySortEnabled;
-      return "priority" === t && n ? M : k;
-    },
-    x = function(e) {
-      return n.i(d.isFeatureEnabled)(e, "feature_sli_channel_priority");
+      return "priority" === t && n ? T : M;
     },
     S = function(e) {
-      return n.i(u.getUserPref)(e, "sidebar_behavior");
+      return n.i(f.isFeatureEnabled)(e, "feature_sli_channel_priority");
     },
     E = function(e) {
-      return n.i(u.getUserPref)(e, "channel_sort");
+      return n.i(l.getUserPref)(e, "sidebar_behavior");
     },
     L = function(e) {
-      return n.i(u.getUserPref)(e, "separate_private_channels");
+      return n.i(l.getUserPref)(e, "channel_sort");
     },
-    C = n.i(i.createSelector)([d.isAppSpaceEnabled, x, S, E, L, l.getAllChannels, a.getMutedChannels, s.getAllMembers, c.getSelectedChannelItem], function(e, t, r, i, a, u, c, d, f) {
-      var _ = "hide_read_channels" === r,
+    C = function(e) {
+      return n.i(l.getUserPref)(e, "separate_private_channels");
+    },
+    O = n.i(i.createSelector)([u.a, S, E, L, C, c.getAllChannels, a.getMutedChannels, s.getAllMembers, d.getSelectedChannelItem], function(e, t, r, i, a, u, l, d, f) {
+      var p = "hide_read_channels" === r,
         y = "hide_read_channels_unless_starred" === r,
-        k = {},
-        M = h.concat();
+        v = {},
+        M = m.concat();
       M.forEach(function(e) {
-        k[e] = p({}, m[e]), k[e].channelsOrdered = o.a.cloneDeep(v);
+        v[e] = h({}, _[e]), v[e].channelsOrdered = o.a.cloneDeep(g);
       });
-      var x = o.a.filter(u, function(e) {
-          return g({
+      var T = o.a.filter(u, function(e) {
+          return b({
             channel: e,
             isCurrentlySelected: f === e.id,
-            isMuted: !!c[e.id],
-            shouldHideReadChannels: _,
+            isMuted: !!l[e.id],
+            shouldHideReadChannels: p,
             shouldHideReadChannelsUnlessStarred: y
           });
         }),
-        S = T({
+        S = x({
           sortPref: i,
           prioritySortEnabled: t
         });
-      x.sort(S).forEach(function(t) {
-        var r = n.i(l.getMemberIdFromIm)(t),
-          o = b({
+      T.sort(S).forEach(function(t) {
+        var r = n.i(c.getMemberIdFromIm)(t),
+          o = w({
             channel: t,
             isApp: e && n.i(s.isAppOrBot)(d && d[r])
           }),
-          i = w({
+          i = k({
             channel: t,
-            isMuted: !!c[t.id],
+            isMuted: !!l[t.id],
             shouldSeparatePrivateChannels: a
           });
-        k[o].channelsOrdered[i].push(t.id);
+        v[o].channelsOrdered[i].push(t.id);
       });
-      var E = o.a.mapValues(k, function(e) {
-        return p({}, e, {
+      var E = o.a.mapValues(v, function(e) {
+        return h({}, e, {
           channelsOrdered: o.a.flatten(e.channelsOrdered)
         });
       });
@@ -36365,7 +36368,7 @@ webpackJsonp([332], [, function(e, t, n) {
     if (0 !== t.indexOf("feature_")) throw new Error("isFeatureEnabled must be passed a feature flag starting with feature_");
     var r = e;
     if (!r) {
-      var o = n.i(s.a)();
+      var o = n.i(a.a)();
       if (o && o.getState && (r = o.getState()), !r) return window.TS && TS.boot_data && TS.boot_data[t];
     }
     return r && r.bootData && r.bootData[t];
@@ -36374,30 +36377,26 @@ webpackJsonp([332], [, function(e, t, n) {
   function o(e) {
     return e && e.bootData && e.bootData.user_id;
   }
-
-  function i(e) {
-    return r(e, "feature_app_space") && r(e, "feature_store_members_in_redux");
-  }
   Object.defineProperty(t, "__esModule", {
     value: !0
   }), n.d(t, "setBootData", function() {
-    return u;
-  }), t.isFeatureEnabled = r, t.getCurrentUserId = o, t.isAppSpaceEnabled = i;
-  var a = n(17),
-    s = (n.n(a), n(3629)),
-    u = n.i(a.createAction)("Load boot data into redux"),
-    l = {},
-    c = n.i(a.createReducer)(function(e, t, n) {
+    return s;
+  }), t.isFeatureEnabled = r, t.getCurrentUserId = o;
+  var i = n(17),
+    a = (n.n(i), n(3629)),
+    s = n.i(i.createAction)("Load boot data into redux"),
+    u = {},
+    l = n.i(i.createReducer)(function(e, t, n) {
       return t in e ? Object.defineProperty(e, t, {
         value: n,
         enumerable: !0,
         configurable: !0,
         writable: !0
       }) : e[t] = n, e;
-    }({}, u, function(e, t) {
+    }({}, s, function(e, t) {
       return t;
-    }), l);
-  t.default = c;
+    }), u);
+  t.default = l;
 }, function(e, t, n) {
   "use strict";
 
@@ -36864,8 +36863,10 @@ webpackJsonp([332], [, function(e, t, n) {
     k = n(3937),
     M = n(3970),
     T = n(3040),
-    x = n(3119),
-    S = (n.n(x), function() {
+    x = n(3981),
+    S = n(3956),
+    E = n(3119),
+    L = (n.n(E), function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
@@ -36876,18 +36877,29 @@ webpackJsonp([332], [, function(e, t, n) {
         return n && e(t.prototype, n), r && e(t, r), t;
       };
     }()),
-    E = function(e) {
+    C = function(e) {
       function t() {
-        return o(this, t), i(this, (t.__proto__ || Object.getPrototypeOf(t)).apply(this, arguments));
+        o(this, t);
+        var e = i(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this));
+        return e.renderProfilePreview = e.renderProfilePreview.bind(e), e;
       }
-      return a(t, e), S(t, [{
+      return a(t, e), L(t, [{
+        key: "renderProfilePreview",
+        value: function(e) {
+          return u.a.createElement(x.a, {
+            userId: this.props.userId,
+            menuProps: e,
+            timestamp: this.props.ts
+          });
+        }
+      }, {
         key: "renderTimestamp",
         value: function() {
           var e = this.props,
-            t = e.channelId,
+            t = e.channel,
             r = e.ts,
             o = e.threadTs,
-            i = n.i(T.d)(t, r, o);
+            i = n.i(T.d)(t.id, r, o);
           return u.a.createElement(v.a, {
             timestamp: r,
             relative: !1,
@@ -36904,11 +36916,17 @@ webpackJsonp([332], [, function(e, t, n) {
             });
             if (this.props.isEditing || this.props.showUser) return u.a.createElement("div", {
               className: "c-message__gutter"
+            }, u.a.createElement(S.a, {
+              renderMenu: this.renderProfilePreview,
+              position: "right",
+              offsetX: 16,
+              offsetY: -60
             }, u.a.createElement(h.a, {
               userId: this.props.userId,
               botId: this.props.botId,
-              size: 36
-            }));
+              size: 36,
+              onClick: this.toggleProfilePreview
+            })));
           }
           return u.a.createElement("div", {
             className: "c-message__gutter"
@@ -36929,7 +36947,8 @@ webpackJsonp([332], [, function(e, t, n) {
           }, u.a.createElement(p.a, {
             userId: this.props.userId,
             botId: this.props.botId,
-            username: this.props.username
+            username: this.props.username,
+            channelName: this.props.channel.name
           }), "light" === this.props.theme && this.renderTimestamp(), "dense" === this.props.theme && this.renderThreadBroadcastPreamble());
         }
       }, {
@@ -36938,7 +36957,7 @@ webpackJsonp([332], [, function(e, t, n) {
           return "thread_broadcast" !== this.props.subtype ? null : u.a.createElement(w.a, {
             ts: this.props.ts,
             threadTs: this.props.threadTs,
-            channelId: this.props.channelId
+            channelId: this.props.channel.id
           });
         }
       }, {
@@ -36955,7 +36974,7 @@ webpackJsonp([332], [, function(e, t, n) {
           return this.props.replyCount ? u.a.createElement(_.a, {
             replies: this.props.replies,
             replyCount: this.props.replyCount,
-            channelId: this.props.channelId,
+            channelId: this.props.channel.id,
             threadTs: this.props.threadTs
           }) : null;
         }
@@ -37043,11 +37062,11 @@ webpackJsonp([332], [, function(e, t, n) {
         }
       }]), t;
     }(s.PureComponent);
-  t.a = E, E.propTypes = {
-    channelId: u.a.PropTypes.string.isRequired,
+  t.a = C, C.propTypes = {
     channel: u.a.PropTypes.shape({
-      id: u.a.PropTypes.string
-    }),
+      id: u.a.PropTypes.string.isRequired,
+      name: u.a.PropTypes.string
+    }).isRequired,
     ts: u.a.PropTypes.string.isRequired,
     subtype: u.a.PropTypes.string,
     text: u.a.PropTypes.string,
@@ -37080,8 +37099,7 @@ webpackJsonp([332], [, function(e, t, n) {
     isFileFollowup: u.a.PropTypes.bool,
     isEditing: u.a.PropTypes.bool,
     cancelEdit: u.a.PropTypes.func
-  }, E.defaultProps = {
-    channel: null,
+  }, C.defaultProps = {
     text: null,
     subtype: null,
     theme: "light",
@@ -37251,13 +37269,23 @@ webpackJsonp([332], [, function(e, t, n) {
   }
 
   function i() {
-    g && Object.keys(g).forEach(function(e) {
+    var e = n.i(l.partition)(g, {
+        msg: {
+          type: "flannel"
+        }
+      }),
+      t = h(e, 2),
+      r = t[0],
+      i = t[1];
+    ((b ? Object.values(b) : []).length ? r.concat(Object.values(b)) : r).forEach(function(e) {
       o({
         ok: !1,
         error: "socket_closed",
-        reply_to: e
-      }, g[e]);
-    }), g = v, v = {};
+        reply_to: e.msg.id
+      }, e);
+    }), g = {}, b = {}, i.forEach(function(e) {
+      b[e.msg.id] = e;
+    });
   }
 
   function a(e) {
@@ -37268,12 +37296,12 @@ webpackJsonp([332], [, function(e, t, n) {
     var r = t.data,
       i = JSON.parse(r);
     if (i.reply_to)
-      if (v[i.reply_to]) {
-        var a = v[i.reply_to];
-        delete v[i.reply_to], o(i, a);
-      } else if (g && g[i.reply_to]) {
-      var s = g[i.reply_to];
-      delete g[i.reply_to], o(i, s);
+      if (g[i.reply_to]) {
+        var a = g[i.reply_to];
+        delete g[i.reply_to], o(i, a);
+      } else if (b && b[i.reply_to]) {
+      var s = b[i.reply_to];
+      delete b[i.reply_to], o(i, s);
     } else n.i(d.a)("Received a reply to a message we have no record of sending (reply_to = " + i.reply_to + ", type = " + i.type + ")");
     else if ("hello" !== i.type) {
       if (e.privateState.delegate) return void e.privateState.delegate(i);
@@ -37287,13 +37315,13 @@ webpackJsonp([332], [, function(e, t, n) {
   function u(e) {
     var t = Date.now();
     e.privateState.pingTimer = setInterval(function() {
-      if (Date.now() - t > _) return e.close(h, "Too long since we received a pong"), void clearInterval(e.privateState.pingTimer);
+      if (Date.now() - t > y) return e.close(m, "Too long since we received a pong"), void clearInterval(e.privateState.pingTimer);
       e.send({
         type: "ping"
       }).then(function() {
         t = Date.now();
       }).catch(l.noop);
-    }, m), e.privateState.sendBuffer.length && e.privateState.sendBuffer.forEach(function(t) {
+    }, _), e.privateState.sendBuffer.length && e.privateState.sendBuffer.forEach(function(t) {
       e.privateState.socket.send(t);
     }), e.privateState.sendBuffer = void 0;
   }
@@ -37312,13 +37340,38 @@ webpackJsonp([332], [, function(e, t, n) {
         return n && e(t.prototype, n), r && e(t, r), t;
       };
     }(),
-    h = 4100,
-    m = 1e4,
-    _ = 3e4,
-    y = 16384,
-    v = {},
-    g = void 0,
-    b = function() {
+    h = function() {
+      function e(e, t) {
+        var n = [],
+          r = !0,
+          o = !1,
+          i = void 0;
+        try {
+          for (var a, s = e[Symbol.iterator](); !(r = (a = s.next()).done) && (n.push(a.value), !t || n.length !== t); r = !0);
+        } catch (e) {
+          o = !0, i = e;
+        } finally {
+          try {
+            !r && s.return && s.return();
+          } finally {
+            if (o) throw i;
+          }
+        }
+        return n;
+      }
+      return function(t, n) {
+        if (Array.isArray(t)) return t;
+        if (Symbol.iterator in Object(t)) return e(t, n);
+        throw new TypeError("Invalid attempt to destructure non-iterable instance");
+      };
+    }(),
+    m = 4100,
+    _ = 1e4,
+    y = 3e4,
+    v = 16384,
+    g = {},
+    b = void 0,
+    w = function() {
       function e(t) {
         var o = this;
         if (r(this, e), !n.i(f.a)(t)) throw new Error("Invalid WebSocket URL");
@@ -37351,11 +37404,11 @@ webpackJsonp([332], [, function(e, t, n) {
             n = this.privateState.socket.readyState === WebSocket.CONNECTING,
             r = this.privateState.socket.readyState === WebSocket.OPEN;
           if (!n && !r) return Promise.reject(new Error("Cannot send message; this socket has been closed"));
-          y += 1, e.id = y;
+          v += 1, e.id = v;
           var o = JSON.stringify(e);
           if (o.length > 32768) return Promise.reject(new Error("Message is too big to send over socket"));
           var i = new Promise(function(n, r) {
-            if (v[e.id] = {
+            if (g[e.id] = {
                 msg: e,
                 resolve: n,
                 reject: r
@@ -37383,21 +37436,21 @@ webpackJsonp([332], [, function(e, t, n) {
         }
       }]), e;
     }();
-  t.a = b;
-  var w = {};
-  Object.defineProperty(w, "previouslyPendingMessages", {
+  t.a = w;
+  var k = {};
+  Object.defineProperty(k, "previouslyPendingMessages", {
+    get: function() {
+      return b;
+    },
+    set: function(e) {
+      b = e;
+    }
+  }), Object.defineProperty(k, "pendingMessages", {
     get: function() {
       return g;
     },
     set: function(e) {
       g = e;
-    }
-  }), Object.defineProperty(w, "pendingMessages", {
-    get: function() {
-      return v;
-    },
-    set: function(e) {
-      v = e;
     }
   });
 }, function(e, t, n) {
@@ -41637,12 +41690,13 @@ webpackJsonp([332], [, function(e, t, n) {
   var a = n(2),
     s = n.n(a),
     u = n(43),
-    l = n(9),
-    c = n.n(l),
-    d = n(3141),
-    f = n(3626),
-    p = n(3280),
-    h = (n.n(p), function() {
+    l = n(6),
+    c = (n.n(l), n(9)),
+    d = n.n(c),
+    f = n(3141),
+    p = n(3626),
+    h = n(3280),
+    m = (n.n(h), function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
@@ -41653,27 +41707,29 @@ webpackJsonp([332], [, function(e, t, n) {
         return n && e(t.prototype, n), r && e(t, r), t;
       };
     }()),
-    m = {
+    _ = {
       userId: a.PropTypes.string,
       size: a.PropTypes.number.isRequired,
       imageUrl: a.PropTypes.string,
       imageUrl2x: a.PropTypes.string,
       username: a.PropTypes.string,
-      additionalOverlay: a.PropTypes.number
+      additionalOverlay: a.PropTypes.number,
+      onClick: a.PropTypes.func
     },
-    _ = {
+    y = {
       userId: null,
       size: 36,
       imageUrl: "",
       imageUrl2x: "",
       username: "",
-      additionalOverlay: 0
+      additionalOverlay: 0,
+      onClick: l.noop
     },
-    y = function(e) {
+    v = function(e) {
       function t() {
         return r(this, t), o(this, (t.__proto__ || Object.getPrototypeOf(t)).apply(this, arguments));
       }
-      return i(t, e), h(t, [{
+      return i(t, e), m(t, [{
         key: "getSrcSetAttribute",
         value: function() {
           return this.props.imageUrl2x ? this.props.imageUrl2x + " 2x" : "";
@@ -41698,20 +41754,21 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "render",
         value: function() {
-          var e = c()("c-avatar", "c-avatar--" + this.props.size, {
+          var e = d()("c-avatar", "c-avatar--" + this.props.size, {
             "c-avatar--no_image": !(this.props.imageUrl || this.props.imageUrl2x),
             "c-avatar--has_overlay": !!this.props.additionalOverlay,
             member_preview_link: this.props.userId
           });
           return s.a.createElement("div", {
             className: e,
-            "data-member-id": this.props.userId
+            "data-member-id": this.props.userId,
+            onClick: this.props.onClick
           }, this.renderImageTag(), this.renderAdditionalOverlay());
         }
       }]), t;
     }(a.PureComponent);
-  y.propTypes = m, y.defaultProps = _;
-  var v = function(e, t) {
+  v.propTypes = _, v.defaultProps = y;
+  var g = function(e, t) {
     var r = t.userId,
       o = t.botId,
       i = t.size,
@@ -41719,10 +41776,10 @@ webpackJsonp([332], [, function(e, t, n) {
       s = "",
       u = "";
     if (r) {
-      var l = n.i(d.getMemberById)(e, r);
+      var l = n.i(f.getMemberById)(e, r);
       l && (a = l.profile["image_" + i], s = l.profile["image_" + 2 * i], u = l.profile.real_name);
     } else if (o) {
-      var c = n.i(f.getBotById)(e, o);
+      var c = n.i(p.getBotById)(e, o);
       c && (a = c.icons["image_" + i], s = c.icons["image_" + 2 * i], u = c.name);
     }
     return {
@@ -41733,7 +41790,7 @@ webpackJsonp([332], [, function(e, t, n) {
       username: u
     };
   };
-  t.a = n.i(u.b)(v)(y);
+  t.a = n.i(u.b)(g)(v);
 }, function(e, t, n) {
   var r = n(3278);
   "string" == typeof r && (r = [
@@ -55528,11 +55585,11 @@ webpackJsonp([332], [, function(e, t, n) {
       return null;
     });
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".c-menu {\n  background-color: #FFF;\n  border: 1px solid rgba(0, 0, 0, 0.15);\n  border-radius: 6px;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  user-select: none;\n  width: 300px;\n  z-index: 1053;\n}\n.c-menu__items {\n  margin: 0.75rem 0;\n  padding: 0;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".c-menu {\n  background-color: #FFF;\n  border: 1px solid rgba(0, 0, 0, 0.15);\n  border-radius: 6px;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  user-select: none;\n  width: 300px;\n  z-index: 1053;\n}\n.c-menu__items {\n  margin: 0.75rem 0;\n  padding: 0;\n}\n.c-menu__items.c-menu__items--no_margin {\n  margin: 0;\n}\n", ""]);
 }, function(e, t, n) {
   t = e.exports = n(189)(), t.push([e.i, ".c-menu_item__li {\n  line-height: 1.5rem;\n  list-style-type: none;\n  padding: 0 0.9375rem;\n  margin: 0;\n}\n.c-menu_item__button {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  background: transparent;\n  border-radius: 0.25rem;\n  color: #2C2D30;\n  cursor: pointer;\n  display: block;\n  font-size: 15px;\n  line-height: 1.5625;\n  overflow-x: hidden;\n  padding: 0 1rem 0 0.5rem;\n  text-align: left;\n  text-decoration: none;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  width: 100%;\n}\n.c-menu_item__button:hover,\n.c-menu_item__button:focus,\n.c-menu_item__button:active {\n  outline: none;\n}\n.c-menu_item__description {\n  font-size: 12px;\n  line-height: 0.9375;\n  color: #717274;\n  padding-bottom: 0.25rem;\n  overflow-x: hidden;\n  text-overflow: ellipsis;\n}\n.c-menu_item__button--highlighted {\n  background-color: #2D9EE0;\n  color: #FFFFFF;\n}\n.c-menu_item__button--highlighted .c-menu_item__description {\n  color: #FFFFFF;\n}\n.c-menu_item__button--danger {\n  color: #EB4D5C;\n}\n.c-menu_item__button--danger .c-menu_item__description {\n  color: #EB4D5C;\n}\n.c-menu_item__button--danger.c-menu_item__button--highlighted {\n  color: #FFFFFF;\n  background-color: #EB4D5C;\n}\n.c-menu_item__button--danger.c-menu_item__button--highlighted .c-menu_item__description {\n  color: #FFFFFF;\n}\n", ""]);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".c-menu_separator__li {\n  line-height: 1.5rem;\n  list-style-type: none;\n  padding: 15px 0;\n  margin: 0;\n}\n.c-menu_separator__separator {\n  margin: 0;\n  border-top: 1px solid rgba(0, 0, 0, 0.15);\n  border-bottom: 1px solid #FFF;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".c-menu_separator__li {\n  line-height: 1.5rem;\n  list-style-type: none;\n  padding: 15px 0;\n  margin: 0;\n}\n.c-menu_separator__li.c-menu_separator__li--no_padding {\n  padding: 0;\n}\n.c-menu_separator__li.c-menu_separator__li--no_top_padding {\n  padding-top: 0;\n}\n.c-menu_separator__separator {\n  margin: 0;\n  border-top: 1px solid rgba(0, 0, 0, 0.15);\n  border-bottom: 1px solid #FFF;\n}\n", ""]);
 }, function(e, t, n) {
   "use strict";
   var r = n(3953);
@@ -55586,7 +55643,8 @@ webpackJsonp([332], [, function(e, t, n) {
       label: a.PropTypes.string,
       description: a.PropTypes.string,
       children: a.PropTypes.element,
-      danger: a.PropTypes.bool
+      danger: a.PropTypes.bool,
+      href: a.PropTypes.string
     },
     m = {
       children: void 0,
@@ -55596,7 +55654,8 @@ webpackJsonp([332], [, function(e, t, n) {
       className: "",
       label: "",
       description: "",
-      danger: !1
+      danger: !1,
+      href: ""
     },
     _ = function(e) {
       function t() {
@@ -55637,11 +55696,12 @@ webpackJsonp([332], [, function(e, t, n) {
             i = e.label,
             a = e.onMouseEnter,
             u = e.onSelected,
-            c = l()(n, "c-menu_item__button", {
+            c = e.href,
+            d = l()(n, "c-menu_item__button", {
               "c-menu_item__button--highlighted": o,
               "c-menu_item__button--danger": r
             }),
-            d = this.props.description ? s.a.createElement("div", {
+            f = this.props.description ? s.a.createElement("div", {
               className: "c-menu_item__description"
             }, this.props.description) : "";
           return s.a.createElement("li", {
@@ -55649,9 +55709,10 @@ webpackJsonp([332], [, function(e, t, n) {
             onMouseEnter: a
           }, s.a.createElement("button", {
             type: "button",
-            className: c,
-            onClick: u
-          }, i, t, d));
+            className: d,
+            onClick: u,
+            href: c
+          }, i, t, f));
         }
       }]), t;
     }(a.PureComponent);
@@ -55666,22 +55727,32 @@ webpackJsonp([332], [, function(e, t, n) {
     o = n.n(r),
     i = n(6),
     a = (n.n(i), n(3115)),
-    s = n(3961),
-    u = (n.n(s), {
-      onMouseEnter: r.PropTypes.func
+    s = n(9),
+    u = n.n(s),
+    l = n(3961),
+    c = (n.n(l), {
+      onMouseEnter: r.PropTypes.func,
+      noPadding: r.PropTypes.bool,
+      noPaddingAbove: r.PropTypes.bool
     }),
-    l = {
-      onMouseEnter: i.noop
+    d = {
+      onMouseEnter: i.noop,
+      noPadding: !1,
+      noPaddingAbove: !1
     },
-    c = function(e) {
+    f = function(e) {
+      var t = u()("c-menu_separator__li", {
+        "c-menu_separator__li--no_padding": e.noPadding,
+        "c-menu_separator__li--no_top_padding": e.noPaddingAbove
+      });
       return o.a.createElement("li", {
-        className: "c-menu_separator__li",
+        className: t,
         onMouseEnter: e.onMouseEnter
       }, o.a.createElement("hr", {
         className: "c-menu_separator__separator"
       }));
     };
-  c.propTypes = u, c.defaultProps = l, t.a = n.i(a.a)(c);
+  f.propTypes = c, f.defaultProps = d, t.a = n.i(a.a)(f);
 }, function(e, t, n) {
   "use strict";
   var r = n(3958),
@@ -55795,22 +55866,25 @@ webpackJsonp([332], [, function(e, t, n) {
   }
 
   function s(e) {
-    return e.type.displayName === _;
+    return e.type.displayName === g;
   }
   var u = n(2),
     l = n.n(u),
     c = n(6),
-    d = (n.n(c), n(2348)),
-    f = n(3428),
-    p = n(3959),
-    h = (n.n(p), Object.assign || function(e) {
+    d = (n.n(c), n(9)),
+    f = n.n(d),
+    p = n(2348),
+    h = n(3952),
+    m = n(3428),
+    _ = n(3959),
+    y = (n.n(_), Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
         for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
       }
       return e;
     }),
-    m = function() {
+    v = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
@@ -55821,17 +55895,21 @@ webpackJsonp([332], [, function(e, t, n) {
         return n && e(t.prototype, n), r && e(t, r), t;
       };
     }(),
-    _ = "MenuItem",
-    y = {
-      children: u.PropTypes.arrayOf(u.PropTypes.element).isRequired,
+    g = "MenuItem",
+    b = {
+      children: u.PropTypes.arrayOf(u.PropTypes.node).isRequired,
       onMenuItemSelected: u.PropTypes.func,
-      onTriggerClose: u.PropTypes.func
+      onTriggerClose: u.PropTypes.func,
+      noMargin: u.PropTypes.bool,
+      width: u.PropTypes.number
     },
-    v = {
+    w = {
       onMenuItemSelected: c.noop,
-      onTriggerClose: c.noop
+      onTriggerClose: c.noop,
+      width: 300,
+      noMargin: !1
     },
-    g = function(e) {
+    k = function(e) {
       function t(e) {
         o(this, t);
         var n = i(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
@@ -55839,7 +55917,7 @@ webpackJsonp([332], [, function(e, t, n) {
           highlightedMenuItemIndex: -1
         }, n.onMouseLeaveMenu = n.onMouseLeaveMenu.bind(n), n;
       }
-      return a(t, e), m(t, [{
+      return a(t, e), v(t, [{
         key: "componentDidMount",
         value: function() {
           this.bindKeyCommands();
@@ -55855,7 +55933,7 @@ webpackJsonp([332], [, function(e, t, n) {
           t.preventDefault();
           var n = this.getIndexOfNextMenuItemInDirection(e);
           this.setState(function(e) {
-            return h({}, e, {
+            return y({}, e, {
               highlightedMenuItemIndex: n
             });
           });
@@ -55869,7 +55947,7 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "onMouseLeaveMenu",
         value: function() {
           this.setState(function(e) {
-            return h({}, e, {
+            return y({}, e, {
               highlightedMenuItemIndex: -1
             });
           });
@@ -55878,7 +55956,7 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "onMouseEnterMenuItem",
         value: function(e) {
           this.setState(function(t) {
-            return h({}, t, {
+            return y({}, t, {
               highlightedMenuItemIndex: e
             });
           });
@@ -55915,7 +55993,7 @@ webpackJsonp([332], [, function(e, t, n) {
             keys: ["esc"],
             handler: this.props.onTriggerClose
           }];
-          this.keyCommands = new f.a, this.keyCommands.bindAll(e);
+          this.keyCommands = new m.a, this.keyCommands.bindAll(e);
         }
       }, {
         key: "renderMenuItem",
@@ -55925,36 +56003,45 @@ webpackJsonp([332], [, function(e, t, n) {
             o = function(r) {
               e.props.onSelected && e.props.onSelected(r), s(e) && n.onMenuItemSelected(t, r);
             },
-            i = this.state.highlightedMenuItemIndex;
-          return l.a.cloneElement(e, h({}, e.props, {
+            i = this.state.highlightedMenuItemIndex,
+            a = y({}, e.props, {
+              onMouseEnter: r,
+              key: t
+            });
+          return e.type === h.a && (a = y(a, {
             highlighted: i === t,
-            onMouseEnter: r,
-            onSelected: o,
-            key: t
-          }));
+            onSelected: o
+          })), l.a.cloneElement(e, a);
         }
       }, {
         key: "renderMenuItems",
         value: function() {
-          return this.props.children.map(this.renderMenuItem, this);
+          return l.a.Children.toArray(this.props.children).map(this.renderMenuItem, this);
         }
       }, {
         key: "render",
         value: function() {
           var e = this.props,
-            t = (e.children, r(e, ["children"]));
-          return l.a.createElement(d.a, t, l.a.createElement("div", {
-            className: "c-menu"
+            t = (e.children, e.noMargin),
+            n = r(e, ["children", "noMargin"]),
+            o = f()("c-menu__items", {
+              "c-menu__items--no_margin": t
+            });
+          return l.a.createElement(p.a, n, l.a.createElement("div", {
+            className: "c-menu",
+            style: {
+              width: this.props.width
+            }
           }, l.a.createElement("div", {
             className: "c-menu__items_scroller"
           }, l.a.createElement("ul", {
-            className: "c-menu__items",
+            className: o,
             onMouseLeave: this.onMouseLeaveMenu
           }, this.renderMenuItems()))));
         }
       }]), t;
     }(u.PureComponent);
-  g.propTypes = y, g.defaultProps = v, t.a = g;
+  k.propTypes = b, k.defaultProps = w, t.a = k;
 }, function(e, t, n) {
   var r = n(3949);
   "string" == typeof r && (r = [
@@ -56103,18 +56190,18 @@ webpackJsonp([332], [, function(e, t, n) {
       modules: {}
     },
     w = function(e, t, n) {
-      e._element.addEventListener("click", e.onInputClick), t.root.addEventListener("focus", e.onRootFocus), t.root.addEventListener("blur", e.onRootBlur), t.on("selection-change", function(t) {
-        t && e._setLastSelection(t), e.hasFocus() ? e.onFocus() : e.onBlur();
+      e.element.addEventListener("click", e.onInputClick), t.root.addEventListener("focus", e.onRootFocus), t.root.addEventListener("blur", e.onRootBlur), t.on("selection-change", function(t) {
+        t && e.setLastSelection(t), e.hasFocus() ? e.onFocus() : e.onBlur();
       }), t.on("text-change", function(t, r, o) {
-        if (e._setLastSelection(), t.length() > 1 && r.length() <= 1 && e._enforceEmptyStateConsistency(), n.onTextChange) {
-          var i = e._nextTextChangeCallbackSource || o;
-          e._nextTextChangeCallbackSource = null, n.onTextChange(i);
+        if (e.setLastSelection(), t.length() > 1 && r.length() <= 1 && e.enforceEmptyStateConsistency(), n.onTextChange) {
+          var i = e.nextTextChangeCallbackSource || o;
+          e.nextTextChangeCallbackSource = null, n.onTextChange(i);
         }
       });
     },
     k = function(e, t) {
       return !!(t && t.modules && t.modules.clipboard) && n.i(v.a)({
-        onPasted: e._setLastSelection.bind(e)
+        onPasted: e.setLastSelection.bind(e)
       }, t.modules.clipboard);
     },
     M = function(e) {
@@ -56145,7 +56232,7 @@ webpackJsonp([332], [, function(e, t, n) {
         buildSmartQuotesDelta: t.modules.textsubstitutions.buildSmartQuotesDelta,
         shouldDoSubstitutions: function(t) {
           if (!t) return !1;
-          var n = e._quill.getText(0, t.index + t.length);
+          var n = e.quill.getText(0, t.index + t.length);
           return !x(n);
         }
       };
@@ -56153,12 +56240,12 @@ webpackJsonp([332], [, function(e, t, n) {
     E = function() {
       function e(t, o) {
         if (r(this, e), !t || "DIV" !== t.tagName) throw new Error('Texty: param "element" must be <div> element');
-        this.options = n.i(v.a)({}, b, o), this.onEnter = this.onEnter.bind(this), this.onEscape = this.onEscape.bind(this), this.onTab = this.onTab.bind(this), this.onInputClick = this.onInputClick.bind(this), this.onRootFocus = this.onRootFocus.bind(this), this.onRootBlur = this.onRootBlur.bind(this), this._element = t, this._placeholder = null, this._setLastSelection({
+        this.options = n.i(v.a)({}, b, o), this.onEnter = this.onEnter.bind(this), this.onEscape = this.onEscape.bind(this), this.onTab = this.onTab.bind(this), this.onInputClick = this.onInputClick.bind(this), this.onRootFocus = this.onRootFocus.bind(this), this.onRootBlur = this.onRootBlur.bind(this), this.element = t, this.placeholder = null, this.setLastSelection({
           index: 0,
           length: 0
-        }), this._nextTextChangeCallbackSource = null, this.options.singleLineInput && t.classList.add("texty_single_line_input");
+        }), this.nextTextChangeCallbackSource = null, this.options.singleLineInput && t.classList.add("texty_single_line_input");
         var a = [];
-        this.options.modules.slacksearch && (a.push("slacksearchtokenmodifier"), a.push("slacksearchtokenvalue")), this.options.modules.slackmention && a.push("slackmention"), this._quill = new i.a(t, {
+        this.options.modules.slacksearch && (a.push("slacksearchtokenmodifier"), a.push("slacksearchtokenvalue")), this.options.modules.slackmention && a.push("slackmention"), this.quill = new i.a(t, {
           formats: a,
           theme: null,
           modules: {
@@ -56174,19 +56261,19 @@ webpackJsonp([332], [, function(e, t, n) {
             slacksearch: this.options.modules.slacksearch,
             slackmention: this.options.modules.slackmention
           }
-        }), w(this, this._quill, this.options), n.i(v.b)(this._quill.root, this.options.attributes), this.options.placeholder && this.setPlaceholder(this.options.placeholder), n.i(v.c)(this._quill.clipboard.container);
+        }), w(this, this.quill, this.options), n.i(v.b)(this.quill.root, this.options.attributes), this.options.placeholder && this.setPlaceholder(this.options.placeholder), n.i(v.c)(this.quill.clipboard.container);
       }
       return g(e, [{
         key: "unload",
         value: function() {
-          this._getModules().forEach(function(e) {
+          this.getModules().forEach(function(e) {
             e.unload && e.unload();
-          }), this._element.removeEventListener("click", this.onInputClick), this._quill.root.removeEventListener("focus", this.onRootFocus), this._quill.root.removeEventListener("blur", this.onRootBlur), this._quill = null;
+          }), this.element.removeEventListener("click", this.onInputClick), this.quill.root.removeEventListener("focus", this.onRootFocus), this.quill.root.removeEventListener("blur", this.onRootBlur), this.quill = null;
         }
       }, {
         key: "onInputClick",
         value: function() {
-          this._quill.hasFocus() || this._quill.focus();
+          this.quill.hasFocus() || this.quill.focus();
         }
       }, {
         key: "onRootFocus",
@@ -56196,30 +56283,30 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "onRootBlur",
         value: function() {
-          this._quill.hasFocus() || this._quill.setSelection(null);
+          this.quill.hasFocus() || this.quill.setSelection(null);
         }
       }, {
         key: "onFocus",
         value: function() {
-          this._element.classList.contains("focus") || (this._element.classList.add("focus"), this.options.onFocus && this.options.onFocus());
+          this.element.classList.contains("focus") || (this.element.classList.add("focus"), this.options.onFocus && this.options.onFocus());
         }
       }, {
         key: "onBlur",
         value: function() {
-          this._element.classList.contains("focus") && (this._element.classList.remove("focus"), this.options.onBlur && this.options.onBlur());
+          this.element.classList.contains("focus") && (this.element.classList.remove("focus"), this.options.onBlur && this.options.onBlur());
         }
       }, {
         key: "onEnter",
         value: function() {
           var e = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : {};
-          return !this._getModules().some(function(t) {
+          return !this.getModules().some(function(t) {
             return !!t.onEnter && t.onEnter(e);
-          }) && (this.options.onEnter(e) && !this.options.singleLineInput && (this.insertTextAtCursor("\n"), this._quill.selection.scrollIntoView()), !1);
+          }) && (this.options.onEnter(e) && !this.options.singleLineInput && (this.insertTextAtCursor("\n"), this.quill.selection.scrollIntoView()), !1);
         }
       }, {
         key: "onEscape",
         value: function() {
-          return !(this._getModules().some(function(e) {
+          return !(this.getModules().some(function(e) {
             return !!e.onEscape && e.onEscape();
           }) || this.options.onEscape && this.options.onEscape());
         }
@@ -56227,67 +56314,67 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "onTab",
         value: function() {
           var e = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : {};
-          return !this._getModules().some(function(t) {
+          return !this.getModules().some(function(t) {
             return !!t.onTab && t.onTab(e);
           }) && (!this.options.onTab || this.options.onTab());
         }
       }, {
         key: "enable",
         value: function() {
-          this._quill.enable();
+          this.quill.enable();
         }
       }, {
         key: "disable",
         value: function() {
-          this._quill.disable();
+          this.quill.disable();
         }
       }, {
         key: "isEnabled",
         value: function() {
-          return this._quill.isEnabled();
+          return this.quill.isEnabled();
         }
       }, {
         key: "focus",
         value: function() {
-          this._quill.focus();
+          this.quill.focus();
         }
       }, {
         key: "blur",
         value: function() {
-          this._quill.blur();
+          this.quill.blur();
         }
       }, {
         key: "hasFocus",
         value: function() {
-          return this._quill && this._quill.hasFocus();
+          return this.quill && this.quill.hasFocus();
         }
       }, {
         key: "getContents",
         value: function() {
           return {
-            contents: this._quill.getContents().ops
+            contents: this.quill.getContents().ops
           };
         }
       }, {
         key: "setContents",
         value: function(e) {
-          this._nextTextChangeCallbackSource = "api", this._quill.setContents(e.contents), this.hasFocus() && this._quill.setSelection(this._quill.getLength(), 0);
+          this.nextTextChangeCallbackSource = "api", this.quill.setContents(e.contents), this.hasFocus() && this.quill.setSelection(this.quill.getLength(), 0);
         }
       }, {
         key: "getTextForRange",
         value: function(e, t) {
-          return this._quill.getText(e, t);
+          return this.quill.getText(e, t);
         }
       }, {
         key: "getText",
         value: function() {
-          return this._quill.getText().replace(/\n$/, "");
+          return this.quill.getText().replace(/\n$/, "");
         }
       }, {
         key: "setText",
         value: function(e) {
           if (!e) return void this.clear();
-          this._nextTextChangeCallbackSource = "api", this._quill.setText(e), this.hasFocus() && this._quill.setSelection(this._quill.getLength(), 0);
+          this.nextTextChangeCallbackSource = "api", this.quill.setText(e), this.hasFocus() && this.quill.setSelection(this.quill.getLength(), 0);
         }
       }, {
         key: "insertText",
@@ -56295,68 +56382,68 @@ webpackJsonp([332], [, function(e, t, n) {
           var r = !(arguments.length > 2 && void 0 !== arguments[2]) || arguments[2],
             o = e;
           if (!n.i(v.d)(o)) return void this.options.log("Texty: no specified index");
-          var i = this._quill.getLength() - 1;
-          o = n.i(v.e)(o, 0, i), t && this._quill.insertText(o, t, "user"), this._setLastSelection({
+          var i = this.quill.getLength() - 1;
+          o = n.i(v.e)(o, 0, i), t && this.quill.insertText(o, t, "user"), this.setLastSelection({
             index: o + t.length,
             length: 0
-          }), this.hasFocus() ? this._quill.setSelection(this._lastSelection) : r && this._quill.setSelection(this._lastSelection, "silent");
+          }), this.hasFocus() ? this.quill.setSelection(this.lastSelection) : r && this.quill.setSelection(this.lastSelection, "silent");
         }
       }, {
         key: "insertTextAtCursor",
         value: function(e) {
           var t = !(arguments.length > 1 && void 0 !== arguments[1]) || arguments[1];
-          this._lastSelection.length && this._quill.deleteText(this._lastSelection), this.insertText(this._lastSelection.index, e, t);
+          this.lastSelection.length && this.quill.deleteText(this.lastSelection), this.insertText(this.lastSelection.index, e, t);
         }
       }, {
         key: "insertContentsAtCursor",
         value: function(e) {
           var t = !(arguments.length > 1 && void 0 !== arguments[1]) || arguments[1],
             n = new s.a(e.contents),
-            r = (new s.a).retain(this._lastSelection.index).delete(this._lastSelection.length).concat(n);
-          this._setLastSelection({
-            index: this._lastSelection.index + n.length(),
+            r = (new s.a).retain(this.lastSelection.index).delete(this.lastSelection.length).concat(n);
+          this.setLastSelection({
+            index: this.lastSelection.index + n.length(),
             length: 0
-          }), this._quill.updateContents(r), this.hasFocus() ? this._quill.setSelection(this._lastSelection) : t && this._quill.setSelection(this._lastSelection, "silent");
+          }), this.quill.updateContents(r), this.hasFocus() ? this.quill.setSelection(this.lastSelection) : t && this.quill.setSelection(this.lastSelection, "silent");
         }
       }, {
         key: "updateContents",
         value: function(e) {
           var t = new s.a(e.contents);
-          this._quill.updateContents(t, "api");
+          this.quill.updateContents(t, "api");
         }
       }, {
         key: "getFormats",
         value: function(e) {
           var t = e;
-          return n.i(v.d)(t) || (t = this._lastSelection.index), this._quill.getFormat(t, 0);
+          return n.i(v.d)(t) || (t = this.lastSelection.index), this.quill.getFormat(t, 0);
         }
       }, {
         key: "clear",
         value: function() {
           var e = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : {};
-          this._setLastSelection({
+          this.setLastSelection({
             index: 0,
             length: 0
-          }), this.isEmpty() || (this._nextTextChangeCallbackSource = e.is_silent ? "silent" : "api", this._quill.deleteText(0, this._quill.getLength()));
+          }), this.isEmpty() || (this.nextTextChangeCallbackSource = e.is_silent ? "silent" : "api", this.quill.deleteText(0, this.quill.getLength()));
         }
       }, {
         key: "getPlaceholder",
         value: function() {
-          return this._placeholder ? this._placeholder.innerHTML : "";
+          return this.placeholder ? this.placeholder.innerHTML : "";
         }
       }, {
         key: "setPlaceholder",
         value: function(e) {
-          if (this._placeholder || (this._placeholder = this._quill.addContainer("ql-placeholder"), n.i(v.c)(this._placeholder)), e) {
-            this._placeholder.innerHTML = e;
-            var t = this._placeholder.textContent.replace(/\s+/, " ");
-            this._quill.root.setAttribute("aria-label", t);
-          } else this._placeholder.innerHTML = "", this._quill.root.removeAttribute("aria-label");
+          if (this.placeholder || (this.placeholder = this.quill.addContainer("ql-placeholder"), n.i(v.c)(this.placeholder)), e) {
+            this.placeholder.innerHTML = e;
+            var t = this.placeholder.textContent.replace(/\s+/, " ");
+            this.quill.root.setAttribute("aria-label", t);
+          } else this.placeholder.innerHTML = "", this.quill.root.removeAttribute("aria-label");
         }
       }, {
         key: "getSelection",
         value: function() {
-          return !this.hasFocus() && this._lastSelection ? this._lastSelection : this._quill.getSelection();
+          return !this.hasFocus() && this.lastSelection ? this.lastSelection : this.quill.getSelection();
         }
       }, {
         key: "setSelection",
@@ -56364,56 +56451,56 @@ webpackJsonp([332], [, function(e, t, n) {
           var r = e,
             o = t;
           if (n.i(v.d)(r) || n.i(v.d)(o)) {
-            var i = this._quill.getLength() - 1;
-            r = n.i(v.e)(r, 0, i), o = n.i(v.e)(o, 0, i - r), this._quill.setSelection(r, o);
+            var i = this.quill.getLength() - 1;
+            r = n.i(v.e)(r, 0, i), o = n.i(v.e)(o, 0, i - r), this.quill.setSelection(r, o);
           }
         }
       }, {
         key: "isEmpty",
         value: function() {
-          return this._quill.getLength() <= 1;
+          return this.quill.getLength() <= 1;
         }
       }, {
         key: "isCursorInPreBlock",
         value: function() {
-          var e = this._quill.getSelection();
+          var e = this.quill.getSelection();
           if (!e) return !1;
-          var t = this._quill.getText(0, e.index + e.length);
+          var t = this.quill.getText(0, e.index + e.length);
           return T(t);
         }
       }, {
         key: "deleteSelection",
         value: function() {
-          var e = this._quill.getSelection();
-          e && e.length && (this._quill.deleteText(e.index, e.length), this._quill.setSelection(e.index));
+          var e = this.quill.getSelection();
+          e && e.length && (this.quill.deleteText(e.index, e.length), this.quill.setSelection(e.index));
         }
       }, {
         key: "clearHistory",
         value: function() {
-          this._quill.history.clear();
+          this.quill.history.clear();
         }
       }, {
-        key: "_setLastSelection",
+        key: "setLastSelection",
         value: function(e) {
-          e ? this._lastSelection = e : this.isEmpty() ? this._lastSelection = {
+          e ? this.lastSelection = e : this.isEmpty() ? this.lastSelection = {
             index: 0,
             length: 0
-          } : this._lastSelection = this._quill.getSelection() || this._lastSelection;
+          } : this.lastSelection = this.quill.getSelection() || this.lastSelection;
         }
       }, {
-        key: "_getModules",
+        key: "getModules",
         value: function() {
           var e = this,
             t = [];
-          return Object.keys(this._quill.options.modules).forEach(function(n) {
-            var r = e._quill.getModule(n);
+          return Object.keys(this.quill.options.modules).forEach(function(n) {
+            var r = e.quill.getModule(n);
             r && t.push(r);
           }), t;
         }
       }, {
-        key: "_enforceEmptyStateConsistency",
+        key: "enforceEmptyStateConsistency",
         value: function() {
-          this._placeholder && (this._placeholder.offsetHeight, this._placeholder.style.transform = "translateZ(0)", this._placeholder.style.transform = "");
+          this.placeholder && (this.placeholder.offsetHeight, this.placeholder.style.transform = "translateZ(0)", this.placeholder.style.transform = "");
         }
       }]), e;
     }();
@@ -56761,4 +56848,308 @@ webpackJsonp([332], [, function(e, t, n) {
   }
   var o = n(2356);
   t.a = r;
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e) {
+    var t = n.i(i.isFeatureEnabled)(e, "feature_app_space") && n.i(i.isFeatureEnabled)(e, "feature_store_members_in_redux"),
+      r = n.i(a.getCurrentMember)(e);
+    return !(!t || !r || r.is_restricted);
+  }
+  t.a = r;
+  var o = n(17),
+    i = (n.n(o), n(3028)),
+    a = n(3141),
+    s = n.i(o.createReducer)({}, {});
+  t.b = s;
+}, function(e, t, n) {
+  t = e.exports = n(189)(), t.push([e.i, ".c-member_profile_card_header {\n  position: relative;\n  cursor: pointer;\n}\n.c-member_profile_card_header:hover .c-member_profile_card__details {\n  opacity: 0;\n}\n.c-member_profile_card__details {\n  opacity: 1;\n  pointer-events: none;\n  position: absolute;\n  left: 1rem;\n  right: 1rem;\n  bottom: 1.625rem;\n  color: #FFF;\n  -webkit-transition: opacity 150ms ease 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 150ms ease 0.2s ease-out 0.0000001ms;\n  transition: opacity 150ms ease 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 150ms ease;\n  -moz-transition: opacity 150ms ease;\n  transition: opacity 150ms ease;\n}\n.c-member_profile_card_header__image {\n  background-repeat: no-repeat;\n  display: inline-block;\n  position: relative;\n  cursor: pointer;\n  border-top-right-radius: 0.25rem;\n  border-bottom-right-radius: 0;\n  border-bottom-left-radius: 0;\n  border-top-left-radius: 0.25rem;\n  background-clip: padding-box;\n  margin: 0;\n  width: 320px;\n  height: 224px;\n  background-position: 0 -448px, 0 -48px, 0 -48px;\n  background-size: 100% 300%,100%,100%,100%;\n  -webkit-transition: background-position 150ms ease 0.2s ease-out 0.0000001ms;\n  -moz-transition: background-position 150ms ease 0.2s ease-out 0.0000001ms;\n  transition: background-position 150ms ease 0.2s ease-out 0.0000001ms;\n  -webkit-transition: background-position 150ms ease;\n  -moz-transition: background-position 150ms ease;\n  transition: background-position 150ms ease;\n}\n.c-member_profile_card_header__image:hover {\n  background-position: 0 0, 0 -48px, 0 -48px;\n}\n.c-member_profile_card__name {\n  color: #FFF !important;\n  font-size: 1.125rem;\n  line-height: 1.5625rem;\n  font-weight: 900;\n  overflow: hidden;\n  text-overflow: ellipsis;\n}\n.c-member_profile_card__title {\n  color: #FFF;\n  font-size: .9375rem;\n  line-height: 1.375rem;\n  margin: 0;\n}\n.c-member_profile_card__footer {\n  max-width: 320px;\n  padding: 0.75rem;\n  border-top: 1px solid #f2f2f5;\n  border-radius: 0 0 6px 6px;\n  background: #F9F9F9;\n  margin-top: 1rem;\n}\n.c-enhanced_text_input {\n  background-color: #FFF;\n}\n.c-member_profile_card__timezone-row,\n.c-member_profile_card__status-row {\n  line-height: 1.875rem;\n  font-size: 0.75rem;\n  margin: 0 1.5rem;\n  display: flex;\n}\n.c-member_profile_card__owner {\n  flex: 1;\n}\n.c-member_profile_card__status--grey {\n  color: #A0A0A2;\n}\n.c-member_profile_card__items {\n  margin-top: 0.75rem;\n}\n.c-member_profile_card__items .c-menu_item__button {\n  margin: 0.2rem 0;\n}\n", ""]);
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e) {
+    var t = e.isBot,
+      n = e.username,
+      r = e.botID,
+      o = e.isSelf,
+      a = e.userId;
+    return [{
+      id: "profile",
+      text: i("View Profile"),
+      show: !t && !o
+    }, {
+      id: "dm",
+      text: i("Direct Messages"),
+      show: !t && !o,
+      url: "/messages/@" + a
+    }, {
+      id: "files",
+      text: i("View files"),
+      show: !t && !o,
+      url: "/files/" + n
+    }, {
+      id: "call",
+      text: i("Call"),
+      show: !t && !o,
+      url: "/team/" + n
+    }, {
+      id: "invite",
+      text: i("Invite to a channel ..."),
+      show: !t && !o,
+      callback: function() {}
+    }, {
+      id: "details",
+      text: i("View details"),
+      show: t && !o,
+      callback: function() {}
+    }, {
+      id: "settings",
+      text: i("View settings"),
+      show: t && !o,
+      url: "/services/" + r
+    }, {
+      id: "yourFiles",
+      text: i("View your files"),
+      show: o,
+      url: "/files/" + n
+    }, {
+      id: "yourAway",
+      text: i("Set yourself away"),
+      show: o,
+      callback: function() {}
+    }, {
+      id: "yourPreferences",
+      text: i("View preferences"),
+      show: o,
+      callback: function() {}
+    }, {
+      id: "yourSettings",
+      text: i("Open account settings"),
+      show: o,
+      url: "/account/settings"
+    }, {
+      id: "yourProfile",
+      text: i("Edit your profile"),
+      show: o,
+      url: "/account/profile"
+    }].filter(function(e) {
+      return e.show;
+    });
+  }
+  var o = n(2288),
+    i = o.a.ns("member_profile_card");
+  t.a = r;
+}, function(e, t, n) {
+  "use strict";
+  var r = n(3984);
+  t.a = r.a;
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e) {
+    var t = e.imageUrl,
+      n = e.imageUrlSmall,
+      r = e.userId,
+      o = e.username,
+      a = e.title,
+      u = e.isError,
+      l = "linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0) 34%, rgba(0,0,0,0.2) 66%, rgba(0,0,0,0.2) 83%, rgba(0,0,0,0.6)), url('" + t + "'), url('" + n + "')";
+    return u ? null : i.a.createElement("div", {
+      className: "c-member_profile_card_header"
+    }, i.a.createElement("a", {
+      className: "c-member_profile_card_header__image",
+      style: {
+        backgroundImage: l
+      }
+    }), i.a.createElement("div", {
+      className: "c-member_profile_card__details"
+    }, i.a.createElement("div", {
+      className: "c-member_profile_card__name"
+    }, i.a.createElement("a", {
+      href: "/messages/" + r,
+      className: "lato c-member_profile_card__name"
+    }, o), i.a.createElement(s.a, {
+      isActive: !0
+    })), i.a.createElement("div", {
+      className: "c-member_profile_card__title"
+    }, a)));
+  }
+  var o = n(2),
+    i = n.n(o),
+    a = n(3115),
+    s = n(2901),
+    u = {
+      imageUrl: o.PropTypes.string.isRequired,
+      imageUrlSmall: o.PropTypes.string.isRequired,
+      userId: o.PropTypes.string.isRequired,
+      username: o.PropTypes.string.isRequired,
+      title: o.PropTypes.string.isRequired,
+      isError: o.PropTypes.bool.isRequired
+    };
+  r.propTypes = u, t.a = n.i(a.a)(r);
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e) {
+    var t = e.isOwner,
+      n = e.status,
+      r = e.timestamp,
+      o = n && "" !== n;
+    return i.a.createElement("div", null, i.a.createElement("p", {
+      className: "c-member_profile_card__status-row"
+    }, t && i.a.createElement("span", {
+      className: "c-member_profile_card__owner"
+    }, c("Team Owner")), o && i.a.createElement("span", null, i.a.createElement("span", {
+      className: "c-member_profile_card__status--grey"
+    }, c("Status"), " "), i.a.createElement("span", null, n))), t || o ? i.a.createElement(u.a, {
+      noPadding: !0
+    }) : null, i.a.createElement("p", {
+      className: "c-member_profile_card__timezone-row"
+    }, i.a.createElement(l.a, {
+      timestamp: r,
+      relative: !1,
+      full: !1
+    }), c("local time")));
+  }
+  var o = n(2),
+    i = n.n(o),
+    a = n(3115),
+    s = n(2288),
+    u = n(3954),
+    l = n(3198),
+    c = s.a.ns("member_profile_card"),
+    d = {
+      isOwner: o.PropTypes.bool.isRequired,
+      timestamp: o.PropTypes.string.isRequired,
+      status: o.PropTypes.string.isRequired
+    };
+  r.propTypes = d, t.a = n.i(a.a)(r);
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e) {
+    var t = e.userId,
+      r = e.menuProps,
+      o = e.timestamp,
+      a = e.isBot,
+      h = e.username,
+      m = e.botID,
+      y = e.isSelf,
+      v = e.imageUrl,
+      g = e.imageUrlSmall,
+      b = e.title,
+      w = e.isError,
+      k = e.isOwner,
+      M = e.status,
+      T = n.i(p.a)({
+        isBot: a,
+        username: h,
+        botID: m,
+        isSelf: y,
+        userId: t
+      }),
+      x = T.map(function(e) {
+        return i.a.createElement(c.a, {
+          key: e.id,
+          label: e.text,
+          onSelected: e.callback,
+          href: e.url
+        });
+      });
+    return i.a.createElement(l.b, _({}, r, {
+      width: 320,
+      noMargin: !0
+    }), i.a.createElement(u.a, {
+      imageUrl: v,
+      imageUrlSmall: g,
+      userId: t,
+      username: h,
+      title: b,
+      isError: w
+    }), i.a.createElement(s.a, {
+      isOwner: k,
+      status: M,
+      timestamp: o
+    }), i.a.createElement(f.a, {
+      noPaddingAbove: !0
+    }), x, i.a.createElement("div", {
+      className: "c-member_profile_card__footer"
+    }, i.a.createElement(d.a, {
+      placeholder: "Message " + h,
+      icon: ""
+    })));
+  }
+  var o = n(2),
+    i = n.n(o),
+    a = n(43),
+    s = n(3983),
+    u = n(3982),
+    l = n(3956),
+    c = n(3952),
+    d = n(3638),
+    f = n(3954),
+    p = n(3980),
+    h = n(3141),
+    m = n(3985),
+    _ = (n.n(m), Object.assign || function(e) {
+      for (var t = 1; t < arguments.length; t++) {
+        var n = arguments[t];
+        for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
+      }
+      return e;
+    }),
+    y = {
+      userId: o.PropTypes.string.isRequired,
+      status: o.PropTypes.oneOfType([i.a.PropTypes.node, o.PropTypes.string]),
+      title: o.PropTypes.string,
+      username: o.PropTypes.string,
+      isBot: o.PropTypes.bool,
+      botID: o.PropTypes.string,
+      timestamp: o.PropTypes.string,
+      imageUrl: o.PropTypes.string,
+      imageUrlSmall: o.PropTypes.string,
+      menuProps: o.PropTypes.object,
+      isSelf: o.PropTypes.bool,
+      isOwner: o.PropTypes.bool,
+      isError: o.PropTypes.bool
+    },
+    v = {
+      status: "",
+      title: "",
+      username: "",
+      isBot: !1,
+      botID: "",
+      timestamp: "",
+      imageUrl: "",
+      imageUrlSmall: "",
+      profileImage: "",
+      menuProps: {},
+      isSelf: !1,
+      isOwner: !1,
+      isError: !1
+    };
+  r.propTypes = y, r.defaultProps = v;
+  var g = function(e, t) {
+    var r = t.userId,
+      o = "",
+      i = "",
+      a = "",
+      s = !1,
+      u = n.i(h.getMemberById)(e, r);
+    return u ? (o = u.profile.image_512, i = u.profile.image_48, a = u.profile.real_name || u.profile.display_name || u.name) : s = !0, {
+      userId: r,
+      imageUrl: o,
+      imageUrlSmall: i,
+      username: a,
+      isError: s
+    };
+  };
+  t.a = n.i(a.b)(g)(r);
+}, function(e, t, n) {
+  var r = n(3979);
+  "string" == typeof r && (r = [
+    [e.i, r, ""]
+  ]);
+  n(219)(r, {});
+  r.locals && (e.exports = r.locals);
 }], [2905]);
