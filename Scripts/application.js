@@ -6539,11 +6539,14 @@ webpackJsonp([332], [, function(e, t, n) {
 }, , , , function(e, t, n) {
   "use strict";
   var r = n(1093),
-    o = (n(373), n(1094));
+    o = n(373),
+    i = n(1094);
   n.d(t, "a", function() {
     return r.a;
-  }), n.d(t, "b", function() {
+  }), n.d(t, "c", function() {
     return o.a;
+  }), n.d(t, "b", function() {
+    return i.a;
   });
 }, , , , , , , , , , , function(e, t, n) {
   e.exports = !n(62)(function() {
@@ -32075,7 +32078,7 @@ webpackJsonp([332], [, function(e, t, n) {
           }));
         }
       }]), t;
-    }(l.a.Component);
+    }(u.PureComponent);
   g.propTypes = y, g.defaultProps = v, t.a = g;
 }, function(e, t, n) {
   "use strict";
@@ -32358,65 +32361,88 @@ webpackJsonp([332], [, function(e, t, n) {
 }, function(e, t, n) {
   "use strict";
   var r = n(43),
-    o = n(6),
-    i = n.n(o),
-    a = n(2296),
-    s = n(2878),
-    u = n(2991),
-    l = n(3164),
-    c = n(3438),
-    d = n(3045),
-    f = n(2295),
-    p = n(3141),
-    h = n(3028),
-    m = n(2906),
-    _ = n(2914),
-    y = n.i(_.c)(5),
-    v = function(e) {
-      return y && n.i(m.a)(e + "_mark");
+    o = n(3115),
+    i = n(6),
+    a = n.n(i),
+    s = n(2296),
+    u = n(2878),
+    l = n(2991),
+    c = n(3164),
+    d = n(3438),
+    f = n(3045),
+    p = n(2295),
+    h = n(3141),
+    m = n(3028),
+    _ = n(2906),
+    y = n(2914),
+    v = Object.assign || function(e) {
+      for (var t = 1; t < arguments.length; t++) {
+        var n = arguments[t];
+        for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
+      }
+      return e;
     },
-    g = function(e) {
-      return y && n.i(m.b)(e, e + "_mark");
-    },
+    g = n.i(y.c)(5),
     b = function(e) {
-      if (!n.i(h.isFeatureEnabled)(e, "feature_store_members_in_redux")) return !1;
-      if (!n.i(c.a)(e)) return !1;
-      var t = i()(n.i(p.getAllMembers)(e)).filter(function(e) {
+      return g && n.i(_.a)(e + "_mark");
+    },
+    w = function(e) {
+      return g && n.i(_.b)(e, e + "_mark");
+    },
+    k = function(e) {
+      if (!n.i(m.isFeatureEnabled)(e, "feature_store_members_in_redux")) return !1;
+      if (!n.i(d.a)(e)) return !1;
+      var t = a()(n.i(h.getAllMembers)(e)).filter(function(e) {
         return !e.is_slackbot;
       }).size();
       return !(t > 25) && (!(t >= 2) || "dim");
     },
-    w = function(e) {
-      var t = n.i(d.getUserPref)(e, "enable_unread_view"),
-        r = b(e);
-      v("react_channel_sidebar_calculate_sidebar_sections");
-      var o = n.i(u.a)(e),
-        i = o.sidebarSections,
-        s = o.sidebarSectionsOrdered;
-      g("react_channel_sidebar_calculate_sidebar_sections"), v("react_channel_sidebar_get_rows");
-      var c = n.i(l.a)({
-          hasAllUnreadsLink: t,
-          hasInvitePeopleLink: r,
-          sidebarSectionsOrdered: s,
-          sidebarSections: i
+    M = function(e) {
+      b("react_channel_sidebar_calculate_sidebar_sections");
+      var t = n.i(l.a)(e),
+        r = t.sidebarSections,
+        o = t.sidebarSectionsOrdered;
+      w("react_channel_sidebar_calculate_sidebar_sections"), b("react_channel_sidebar_get_rows");
+      var i = n.i(c.a)({
+          hasAllUnreadsLink: n.i(f.getUserPref)(e, "enable_unread_view"),
+          hasInvitePeopleLink: k(e),
+          sidebarSectionsOrdered: o,
+          sidebarSections: r
         }),
-        p = c.rows,
-        h = c.rowIds;
-      return g("react_channel_sidebar_get_rows"), {
-        selectedItemId: n.i(a.getSelectedChannelItem)(e),
-        unreadIds: n.i(f.getUnreadIds)(n.i(f.getAllChannels)(e)),
-        rows: p,
-        rowIds: h
+        a = i.rows,
+        s = i.rowIds;
+      return w("react_channel_sidebar_get_rows"), {
+        rows: a,
+        rowIds: s
       };
     },
-    k = function(e, t) {
-      return {
-        onItemSelect: function(r) {
-          e(n.i(a.selectItem)(r)), t.onItemSelect && t.onItemSelect(r);
-        }
+    T = function(e) {
+      var t = void 0,
+        r = void 0,
+        i = void 0,
+        a = void 0,
+        u = void 0;
+      return function(l, c) {
+        var d = n.i(s.getSelectedChannelItem)(l),
+          f = n.i(p.getUnreadIds)(n.i(p.getAllChannels)(l)),
+          h = M(l),
+          m = h.rows,
+          _ = h.rowIds,
+          y = c.onItemSelect;
+        if (d === r && n.i(o.b)(f, i) && n.i(o.b)(_, a) && n.i(o.b)(c, u)) return t;
+        var g = v({}, c, {
+          rows: m,
+          rowIds: _,
+          selectedItemId: d,
+          unreadIds: f,
+          onItemSelect: function(t) {
+            t !== d && (e(n.i(s.selectItem)(t)), y && y(t));
+          }
+        });
+        return t = g, r = d, i = f, a = _, u = c, g;
       };
     };
-  t.a = n.i(r.b)(w, k)(s.a);
+  t.a = n.i(r.c)(T)(u.a);
 }, function(e, t, n) {
   "use strict";
   var r = n(2880);
@@ -38267,8 +38293,11 @@ webpackJsonp([332], [, function(e, t, n) {
     s = n(961),
     u = (n.n(s), n(3116)),
     l = (n.n(u), n(1459)),
-    c = n.n(l),
-    d = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(e) {
+    c = n.n(l);
+  n.d(t, "b", function() {
+    return a.a;
+  });
+  var d = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(e) {
       return typeof e;
     } : function(e) {
       return e && "function" == typeof Symbol && e.constructor === Symbol && e !== Symbol.prototype ? "symbol" : typeof e;
@@ -41072,7 +41101,9 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "componentDidMount",
         value: function() {
           var e = this;
-          document.body.addEventListener("keydown", this.handleKeydown), document.body.addEventListener("mousemove", this.handleMouseMove), this.doRequest(n.i(y.a)(C.listEnpoint).then(function(t) {
+          document.body.addEventListener("keydown", this.handleKeydown), document.body.addEventListener("mousemove", this.handleMouseMove), this.doRequest(n.i(y.a)(C.listEnpoint, {
+            limit: 20
+          }).then(function(t) {
             return e.defaultAppCategories = t.data.categories, t;
           }), C.listEnpoint), this.searchInput.focus();
         }

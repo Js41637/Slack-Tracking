@@ -3622,9 +3622,16 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }), TS.click.addClientHandler(".attachment_actions_interactions .btn", function(e) {
             e.preventDefault();
             var t = TS.attachment_actions.handleActionEventAndGetContext($(e.target));
-            t && (t.action.confirm ? TS.attachment_actions.confirmAction(t.action, function() {
-              TS.attachment_actions.action_triggered_sig.dispatch(t);
-            }) : TS.attachment_actions.action_triggered_sig.dispatch(t));
+            if (t) {
+              t.action.confirm ? TS.attachment_actions.confirmAction(t.action, function() {
+                TS.attachment_actions.action_triggered_sig.dispatch(t);
+              }) : TS.attachment_actions.action_triggered_sig.dispatch(t);
+              var n = ["Create a channel", "Edit messages", "Upload files"];
+              _.includes(n, t.action.name) && TS.clog.track("GROWTH_HELP_SLACKBOT_V2", {
+                action: "click",
+                click_target: t.action.name
+              });
+            }
           }), TS.click.addClientHandler("#threads_view_banner .clear_unread_messages", function(e) {
             e.preventDefault(), TS.client.threads.markAllNewThreads();
           }), TS.click.addClientHandler("#threads_view_banner", function(e) {
@@ -11515,25 +11522,30 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           0 !== _.keys(g).length && _.each(g, ne);
         },
         te = function(e) {
-          var t = TS.console.getStackTrace();
-          g[e] = setTimeout(function() {
-            TS.model.ms_connected && (TS.flannel.fetchAndUpsertObjectsByIds([e]).then(function() {
-              var t = TS.members.getPotentiallyUnknownMemberByIdWithoutFetching(e),
-                n = t.is_unknown ? "failure" : "success";
-              TS.metrics.count("unknown_member_timeout_retry_" + n);
-            }), g[e] = setTimeout(function() {
+          if (!g[e]) {
+            var t = TS.console.getStackTrace();
+            g[e] = setTimeout(function() {
               if (TS.model.ms_connected) {
-                var n = TS.members.getPotentiallyUnknownMemberByIdWithoutFetching(e);
-                if (!n.is_unknown) return;
-                TS.metrics.count("unknown_member_persistence_timeout"), TS.statsd.measure("unknown_member_resolution_timing", "unknown_member_resolution_timing_" + e), TS.console.logError({
-                  id: e,
-                  is_unknown: n.is_unknown,
-                  is_non_existent: n.is_non_existent,
-                  start_stack: t
-                }, "persistent unknown member", "unknown_member_error", !0);
+                if (TS.flannel.fetchAndUpsertObjectsByIds([e]).then(function() {
+                    var t = TS.members.getPotentiallyUnknownMemberByIdWithoutFetching(e),
+                      n = t.is_unknown ? "failure" : "success";
+                    "success" === n && ne(t.id), TS.metrics.count("unknown_member_timeout_retry_" + n);
+                  }), g[e]) return;
+                g[e] = setTimeout(function() {
+                  if (TS.model.ms_connected) {
+                    var n = TS.members.getPotentiallyUnknownMemberByIdWithoutFetching(e);
+                    if (!n.is_unknown) return;
+                    TS.metrics.count("unknown_member_persistence_timeout"), TS.statsd.measure("unknown_member_resolution_timing", "unknown_member_resolution_timing_" + e), TS.console.logError({
+                      id: e,
+                      is_unknown: n.is_unknown,
+                      is_non_existent: n.is_non_existent,
+                      start_stack: t
+                    }, "persistent unknown member", "unknown_member_error", !0);
+                  }
+                }, 6e4);
               }
-            }, 6e4));
-          }, 2e4);
+            }, 2e4);
+          }
         },
         ne = function(e) {
           clearTimeout(g[e]), delete g[e];
@@ -15034,7 +15046,12 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             t = TS.boot_data.feature_queue_metrics && TS.utility.enableFeatureForUser(D), B.enableStatsCollecting();
           }), TS.client.stats.stop_collecting_sig.add(function() {
             t = !1, B.disableStatsCollecting();
-          })), TS.isSocketManagerEnabled() ? (TS.interop.SocketManager.socketMessageReceivedSig.add(TS.ms.msg_handlers.msgReceived), TS.interop.Eventlog.messageReceivedSig.add(TS.ms.msg_handlers.msgReceived)) : TS.ms.on_msg_sig.add(TS.ms.msg_handlers.msgReceived);
+          })), TS.isSocketManagerEnabled() ? (TS.interop.SocketManager.socketMessageReceivedSig.add(TS.ms.msg_handlers.msgReceived), TS.interop.Eventlog.messageReceivedSig.add(TS.ms.msg_handlers.msgReceived), TS.interop.SocketManager.connectedSig.add(function() {
+            TS.boot_data.feature_tinyspeck && o.length > 50 && (TS.warn("Looks like our msg_handlers queue might be wedged (it has " + o.length + " items in it). Kicking it and prompting user to send logs."), u(), TS.generic_dialog.alert("Hello! It looks like you may have run into a bug that @shinypb is tracking. Would you mind saving your console logs and then DMing them to him?"));
+          })) : TS.ms.on_msg_sig.add(TS.ms.msg_handlers.msgReceived);
+        },
+        debugGetQueueSize: function() {
+          return o.length;
         },
         test: function() {
           var e = {};
@@ -15876,7 +15893,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           if (!e || "message" !== e.type || !e.text) return Promise.resolve();
           if (TS.model.here_regex.test(e.text) || TS.model.channel_regex.test(e.text) || TS.model.everyone_regex.test(e.text) || TS.model.group_regex.test(e.text)) {
             var t = TS.shared.getModelObById(e.channel);
-            return t ? t.is_im && !t.is_mpim ? Promise.resolve() : t.is_mpim && !TS.membership.lazyLoadMpimMembership() ? Promise.resolve() : t.is_group && !TS.membership.lazyLoadGroupMembership() ? Promise.resolve() : TS.membership.promiseToGetMembershipCounts(t) : (TS.maybeWarn(794, "_maybeEnsureMemberCount: Could not find model_ob for id " + e.channel), Promise.resolve());
+            return t ? t.is_im && !t.is_mpim ? Promise.resolve() : t.is_mpim && !TS.membership.lazyLoadMpimMembership() ? Promise.resolve() : t.is_group && !TS.membership.lazyLoadGroupMembership() ? Promise.resolve() : TS.membership.promiseToGetMembershipCounts(t).catch(_.noop) : (TS.maybeWarn(794, "_maybeEnsureMemberCount: Could not find model_ob for id " + e.channel), Promise.resolve());
           }
           return Promise.resolve();
         },
@@ -15885,7 +15902,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           var i;
           M && (i = B.start(t.type));
           var r = function() {
-              return p.length ? TS.bots.ensureBotsArePresent(p).then(a) : a();
+              return p.length ? TS.bots.ensureBotsArePresent(p).catch(_.noop).then(a) : a();
             },
             a = function() {
               return TS.members.ensureMembersArePresent(m.m_ids, m.c_ids, m.t_ids).catch(function(e) {
@@ -15920,7 +15937,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             });
           }();
           else {
-            if (!m.m_ids.length && !p.length) return h(t).then(function() {
+            if (!m.m_ids.length && !p.length) return h(t).finally(function() {
               return s(!0);
             });
             r();
@@ -30920,12 +30937,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             validate_name: !0
           }).then(function(e) {
             var t = e.data;
-            if (i && TS.channels.setPurpose(t.channel.id, i), r)
-              for (var n = 0; n < r.length; n += 1) TS.api.call("channels.invite", {
-                channel: t.channel.id,
-                users: r[n].join(",")
-              });
-            a && a.length && TS.pending_users.invitePendingUsersToChannel(a, t.channel.id), TS.ui.fs_modal.close();
+            i && TS.channels.setPurpose(t.channel.id, i), r && r.length && TS.api.call("channels.invite", {
+              channel: t.channel.id,
+              users: r.join(",")
+            }), a && a.length && TS.pending_users.invitePendingUsersToChannel(a, t.channel.id), TS.ui.fs_modal.close();
           }).catch(function(i) {
             i = i || {};
             var r = i.data ? i.data.error : i.message;
@@ -36381,6 +36396,20 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               value: e
             });
           })), r;
+        },
+        doFormatSearchQuery: function(e, t) {
+          if (!e) return "";
+          var n = [];
+          switch (t) {
+            case "members":
+              n.push({
+                type: "is",
+                value: "user"
+              });
+          }
+          return {
+            query: TS.utility.enterprise.splitQueryIntoTerms(e, n)
+          };
         },
         getSSOProviderLabel: function(e, t) {
           if (!e) return t;
