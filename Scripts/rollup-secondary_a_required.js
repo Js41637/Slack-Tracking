@@ -1464,7 +1464,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             a.custom_integration_creator = new Handlebars.SafeString(d);
           }
           if (_.get(e.config, "icons") ? e.config.icons.image_72 ? a.avatar = e.config.icons.image_72 : a.avatar = e.config.icons.image_48 : e.icons && (e.is_slack_integration ? a.avatar = e.icons.image_192 : a.avatar = e.icons.image_96), e.screenshots && (a.screenshots = e.screenshots), e.youtube_url) {
-            var c = e.youtube_url.split("v=")[1];
+            var c = TS.utility.getYoutubeIdFromURL(e.youtube_url);
             a.youtube_url = e.youtube_url, a.youtube_id = c;
           }
           if ((e.screenshots || e.youtube_url) && (a.has_screenshots = !0), (_.get(e.config, "date_deleted") > 0 || !0 === _.get(e.auth, "revoked")) && (a.deleted = !0, a.app_id = e.id), e.is_slack_integration ? e.is_slack_integration && (TS.boot_data.feature_shared_channels && e.is_slack_integration && o ? a.disabled = !1 : e.config && "1" === e.config.is_active && "0" === e.config.date_deleted || (a.disabled = !0)) : TS.boot_data.feature_shared_channels && o ? a.disabled = !1 : e.auth && !e.auth.revoked || (a.disabled = !0), !i || o || !s && e.is_slack_integration || (a.show_settings_section = !0), e.installation_summary && !e.is_xoxa_app) {
@@ -38717,6 +38717,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           e = e || document;
           var t = e.location.hash;
           return t && t.length ? t.substr(1) : t;
+        },
+        getYoutubeIdFromURL: function(e) {
+          var t = "";
+          return e = e.replace(/(>|<)/gi, "").split(/(vi\/|v=|\/v\/|youtu\.be\/|\/embed\/)/), void 0 !== e[2] ? (t = e[2].split(/[^0-9a-z_-]/i), t = t[0]) : t = e, t;
         },
         loadUrlInWindowIfOnline: function(e, t) {
           t = t || document, TS.api.call("api.test", {}, function(n) {

@@ -141,6 +141,10 @@
   margin: 0 auto
 }
 
+#admin_invites_channel_picker_container .lazy_filter_select.single .lfs_value {
+  padding: .45rem 2.5rem .55rem 8px
+}
+
 #admin_invites_add_row {
   margin: 6px 0 32px;
   font-size: 1rem
