@@ -87,7 +87,7 @@
   {{/if}}
 
     {{#if file_is_video}}
-      <video class="inline_video" controls preload="{{video_preload}}" style="height:{{video_height}}px" src="{{best_source}}" {{#if video_onplay}} onplay="{{video_onplay}}"{{/if}}>
+      <video class="inline_video" controls preload="none" style="height:{{video_height}}px;background:#000;" src="{{best_source}}" poster="{{poster}}">
         {{#t}}Your browser does not support HTML5 Video. Try <a href="http://browsehappy.com/">a modern browser</a>.{{/t}}
       </video>
     {{/if}}

@@ -4,7 +4,10 @@
   {{!-- Number of Seats Input --}}
   <div class="bottom_margin">
     <label for="add_invoice__number_of_seats">{{#t}}Number of Seats{{/t}}</label>
-    <input type="text" id="add_invoice__number_of_seats" class="small no_margin" name="add_invoice__number_of_seats" data-qa="invoice_seats" />
+    <div id="add_invoice__super_input" class="display_flex">
+      <input type="text" id="add_invoice__number_of_seats" class="small no_margin" name="add_invoice__number_of_seats" data-qa="invoice_seats" />
+      <input type="text" id="add_invoice__price_preview" class="small no_margin disabled hidden" name="add_invoice__price_preview" disabled="" aria-disabled="true" data-qa="invoice_price_preview" />
+    </div>
     <span id="add_invoice__seat_error" class="input_note inline no_margin">{{default_seat_text}}</span>
   </div>
 
@@ -12,8 +15,9 @@
   <div class="bottom_margin">
     <label for="add_invoice__billing_emails">{{#t}}Additional Billing Emails{{/t}}</label>
     <div class="add_invoice__billing_emails no_margin">
-      <input class="add_invoice__new_billing_email small" type="text" name="add_invoice__billing_emails" data-qa="invoice_additional_billing_emails">
+      <input class="add_invoice__new_billing_email small no_margin" type="text" name="add_invoice__billing_emails" placeholder="{{#t}}e.g. @sara or accounting@acme.corp{{/t}}" data-qa="invoice_additional_billing_emails">
     </div>
+    <span class="input_note inline no_margin">{{#t}}Add contacts by email or Slack @username{{/t}}</span>
   </div>
 
   {{!-- Purchase Order Radios --}}

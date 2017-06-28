@@ -6785,12 +6785,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                   var a = e.video.outputs[r];
                   a.source && ((!i.width || a.width > i.width) && (i = a));
                 }
-              if (n.video_height = TS.model.native_video_embed_height, n.video_preload = "metadata", i.size <= TS.model.native_media_preload_limit_bytes && (n.video_preload = "auto"), TS.boot_data.feature_no_preload_video && i.size >= 52428800) {
-                n.video_preload = "none";
-                var s = n.video_height;
-                n.video_height = 30, n.video_onplay = 'event.target.style.height="' + s + 'px";';
-              }
-              n.best_source = i.source;
+              n.video_height = TS.model.native_video_embed_height, e.thumb_video && (n.poster = e.thumb_video), n.best_source = i.source;
             }
             TS.files.fileIsSupportedAudio(e) && (n.file_is_audio = !0, n.audio_preload = "metadata", e.size <= TS.model.native_media_preload_limit_bytes && (n.audio_preload = "auto"));
           }
