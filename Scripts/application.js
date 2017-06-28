@@ -31544,16 +31544,17 @@ webpackJsonp([332], [, function(e, t, n) {
     x = n(3169),
     S = n(3173),
     E = n(3622),
-    L = n(3176),
-    C = n(3177),
-    O = n(3182),
-    P = n(3202),
-    j = n(3645),
-    D = n(3172),
-    Y = n(3647),
-    A = n(3653),
-    R = n(3885),
-    I = n(3907);
+    L = n(3977),
+    C = n(3176),
+    O = n(3177),
+    P = n(3182),
+    j = n(3202),
+    D = n(3645),
+    Y = n(3172),
+    A = n(3647),
+    R = n(3653),
+    I = n(3885),
+    N = n(3907);
   n.i(r.a)("interop.datetime", {
     toDateObject: o.a,
     toDate: i.a,
@@ -31579,16 +31580,17 @@ webpackJsonp([332], [, function(e, t, n) {
     toCalendarDate: x.a,
     toCalendarDateOrNamedDay: S.a,
     toCalendarDateIfYesterdayOrToday: E.a,
-    toHumanReadableDateAndTime: L.a,
-    convertISOtoUTCReadableDate: C.a,
-    toTimeAgo: O.a,
-    addDays: P.a,
-    daysToYearsPretty: j.a,
-    maybeGetRelativeDay: D.a,
-    millisecondsToPrettifiedTime: Y.a,
-    prettifyDateString: A.a,
-    makeTsStamp: R.a,
-    formatDate: I.a
+    toFilenameFriendlyDate: L.a,
+    toHumanReadableDateAndTime: C.a,
+    convertISOtoUTCReadableDate: O.a,
+    toTimeAgo: P.a,
+    addDays: j.a,
+    daysToYearsPretty: D.a,
+    maybeGetRelativeDay: Y.a,
+    millisecondsToPrettifiedTime: A.a,
+    prettifyDateString: R.a,
+    makeTsStamp: I.a,
+    formatDate: N.a
   });
 }, , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , function(e, t, n) {
   "use strict";
@@ -36628,7 +36630,7 @@ webpackJsonp([332], [, function(e, t, n) {
           s.a.forEach(r, function(n) {
             var r = parseInt(n, 10),
               o = t[n],
-              c = o[0] === _ || s.a.last(y) === _;
+              c = o[0] === _ && o[0] !== s.a.last(o) || s.a.last(y) === _;
             a.push(l.a.createElement(h.a, {
               key: r,
               date: r,
@@ -39641,6 +39643,7 @@ webpackJsonp([332], [, function(e, t, n) {
             additionalOverlay: e.length - 5
           })) : l.a.map(e, function(e) {
             return s.a.createElement(f.a, {
+              key: e,
               userId: e,
               size: 24
             });
@@ -50803,7 +50806,7 @@ webpackJsonp([332], [, function(e, t, n) {
     }(),
     f = s.a.import("core/module"),
     p = c.f.DOWN,
-    h = (c.f.ESCAPE, c.f.LEFT),
+    h = c.f.LEFT,
     m = c.f.RIGHT,
     _ = c.f.TAB,
     y = c.f.UP,
@@ -50822,11 +50825,17 @@ webpackJsonp([332], [, function(e, t, n) {
       searchOptions: {},
       matchOptions: {}
     },
-    M = function(e) {
+    M = function(e, t) {
+      if (-1 !== t.indexOf(e)) return "";
+      var n = w.exec(e);
+      return n ? n[0] : "";
+    },
+    T = function(e) {
       function t(e, i) {
-        r(this, t), i = n.i(c.a)({}, k, i);
-        var a = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e, i));
-        return a.onEscape = a.onEscape.bind(a), a.onCompositionStart = a.onCompositionStart.bind(a), a.onCompositionEnd = a.onCompositionEnd.bind(a), a.onTextChange = a.onTextChange.bind(a), a.onMenuClick = a.onMenuClick.bind(a), a.onSelectionChange = a.onSelectionChange.bind(a), a.onWindowResize = a.onWindowResize.bind(a), a.onMenuMouseOver = a.onMenuMouseOver.bind(a), a.onMenuMouseMove = a.onMenuMouseMove.bind(a), a.onMouseDown = a.onMouseDown.bind(a), a.onTab = a.onTab.bind(a), a.maybeCompleteAtCursor = a.maybeCompleteAtCursor.bind(a), a.state = {
+        r(this, t);
+        var a = n.i(c.a)({}, k, i),
+          s = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e, a));
+        return s.onEscape = s.onEscape.bind(s), s.onCompositionStart = s.onCompositionStart.bind(s), s.onCompositionEnd = s.onCompositionEnd.bind(s), s.onTextChange = s.onTextChange.bind(s), s.onMenuClick = s.onMenuClick.bind(s), s.onSelectionChange = s.onSelectionChange.bind(s), s.onWindowResize = s.onWindowResize.bind(s), s.onMenuMouseOver = s.onMenuMouseOver.bind(s), s.onMenuMouseMove = s.onMenuMouseMove.bind(s), s.onMouseDown = s.onMouseDown.bind(s), s.onTab = s.onTab.bind(s), s.maybeCompleteAtCursor = s.maybeCompleteAtCursor.bind(s), s.state = {
           selectedIndex: 0,
           prevMousePosition: null,
           isInKeyboardMode: !1,
@@ -50836,7 +50845,7 @@ webpackJsonp([332], [, function(e, t, n) {
           searchInFlight: null,
           isInComposition: !1,
           isMakingSelection: !1
-        }, a.listen(), a;
+        }, s.listen(), s;
       }
       return i(t, e), d(t, [{
         key: "unload",
@@ -50949,7 +50958,7 @@ webpackJsonp([332], [, function(e, t, n) {
           if (this.state.searchInFlight = null, 1 === this.quill.getLength()) return !1;
           var r = this.getCurrentMatchAtCursor(!0),
             o = this.state.prevMatch && this.state.prevMatch.text;
-          return (!r || o != r.text) && (this.completeAtCursor({
+          return (!r || o !== r.text) && (this.completeAtCursor({
             isUserSolicited: !0,
             insertFirstResult: !0
           }, r), !!r);
@@ -51010,8 +51019,8 @@ webpackJsonp([332], [, function(e, t, n) {
           if (t) {
             var n = t.index + t.length;
             if (0 === t.length && this.options.useMentions && this.quill.getFormat(t).slackmention) {
-              for (var r = this.quill.getFormat(t).slackmention.label; this.quill.getFormat(n).slackmention && this.quill.getFormat(n).slackmention.label === r;) n++;
-              n--;
+              for (var r = this.quill.getFormat(t).slackmention.label; this.quill.getFormat(n).slackmention && this.quill.getFormat(n).slackmention.label === r;) n += 1;
+              n -= 1;
             }
             var o = this.textBetweenLastTokenAndIndex(n),
               i = o.searchText,
@@ -51073,22 +51082,24 @@ webpackJsonp([332], [, function(e, t, n) {
                 a = this.getInsertDataFromResult(i);
               this.onSelect(a);
             }
-            if (this.state.prevMatch.completer.shouldDisplayResults && !this.state.prevMatch.completer.shouldDisplayResults(this.state.prevMatch.text, t, o)) return this.options.log("TabComplete: completer decided to hide " + t.length + " results"), void this.hideMenu();
+            if (this.state.prevMatch.completer.shouldDisplayResults) {
+              if (!this.state.prevMatch.completer.shouldDisplayResults(this.state.prevMatch.text, t, o)) return this.options.log("TabComplete: completer decided to hide " + t.length + " results"), void this.hideMenu();
+            }
             this.showResults(this.state.prevMatch.completer, t, this.state.prevMatch.text);
           }
         }
       }, {
         key: "setSelectedIndex",
         value: function(e) {
-          !(arguments.length > 1 && void 0 !== arguments[1]) || arguments[1];
-          if (!n.i(c.d)(e)) return void this.options.log("TabComplete: can't set selected index to \"" + e + '"');
+          var t = e;
+          if (!n.i(c.d)(t)) return void this.options.log("TabComplete: can't set selected index to \"" + t + '"');
           if (this.isShowing()) {
-            var t = this.getResultElements();
-            if ((e = this.constrainIndexToResults(e, t.length)) === this.state.selectedIndex) return !0;
-            this.state.prevMatch.completer.onSelectedIndexChange && this.state.prevMatch.completer.onSelectedIndexChange(e), this.state.selectedIndex = e;
-            var r = this.getResultAtIndex(e),
-              o = this.getInsertDataFromResult(r);
-            return this.onSelect(o), !0;
+            var r = this.getResultElements();
+            if ((t = this.constrainIndexToResults(t, r.length)) === this.state.selectedIndex) return !0;
+            this.state.prevMatch.completer.onSelectedIndexChange && this.state.prevMatch.completer.onSelectedIndexChange(t), this.state.selectedIndex = t;
+            var o = this.getResultAtIndex(t),
+              i = this.getInsertDataFromResult(o);
+            return this.onSelect(i), !0;
           }
         }
       }, {
@@ -51116,7 +51127,7 @@ webpackJsonp([332], [, function(e, t, n) {
           if (!this.state.prevMatch) return void this.options.logError("TabComplete: onSelect missing previous match");
           var r = e.text,
             o = this.state.searchInFlight || this.state.prevInsertText || this.state.prevMatch.text,
-            i = T(this.state.prevMatch.text, r);
+            i = M(this.state.prevMatch.text, r);
           n.i(c.j)(e.text, this.state.prevMatch.text) || (r += i);
           var a = this.state.prevMatch.index + o.length,
             s = this.quill.getText(a, 1),
@@ -51193,7 +51204,7 @@ webpackJsonp([332], [, function(e, t, n) {
         }
       }, {
         key: "onWindowResize",
-        value: function(e) {
+        value: function() {
           this.hideMenu(), window.removeEventListener("resize", this.onWindowResize);
         }
       }, {
@@ -51215,7 +51226,7 @@ webpackJsonp([332], [, function(e, t, n) {
         value: function(e) {
           var t = n.i(c.m)(e.target, ".tab_complete_ui_item"),
             r = this.getResultElementIndex(t);
-          this.setSelectedIndex(r, !1);
+          this.setSelectedIndex(r);
         }
       }, {
         key: "onMenuMouseMove",
@@ -51253,7 +51264,7 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "getResultElementIndex",
         value: function(e) {
           if (e) {
-            var t = parseInt(e.getAttribute("data-index"));
+            var t = parseInt(e.getAttribute("data-index"), 10);
             return n.i(c.d)(t) ? t : void this.options.log('TabComplete: element missing "data-index" attribute');
           }
         }
@@ -51269,12 +51280,7 @@ webpackJsonp([332], [, function(e, t, n) {
         }
       }]), t;
     }(f);
-  t.a = M;
-  var T = function(e, t) {
-    if (-1 !== t.indexOf(e)) return "";
-    var n = w.exec(e);
-    return n ? n[0] : "";
-  };
+  t.a = T;
 }, function(e, t, n) {
   "use strict";
 
@@ -54523,7 +54529,7 @@ webpackJsonp([332], [, function(e, t, n) {
       _ = n.i(l.a)(m),
       y = !1,
       v = void 0;
-    if (h || (v = t), !n.i(o.a)(m).isValid) return v;
+    if (v = h || t, !n.i(o.a)(m).isValid) return v;
     var g = t.replace(/{(.*?)}/g, function(e, r, a) {
       var l = "en" !== o.a.locale(),
         p = void 0,
@@ -56741,4 +56747,18 @@ webpackJsonp([332], [, function(e, t, n) {
       return "";
     }),
     l = n.i(o.a)("TS.utility.contenteditable.setCursorAtEnd", r.noop);
+}, , , function(e, t, n) {
+  "use strict";
+
+  function r(e) {
+    var t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : {},
+      r = t.do24hrTime,
+      i = void 0 !== r && r,
+      a = n.i(o.a)(e, {
+        returnMoment: !0
+      });
+    return i ? a.format("YYYY_MM_DD HH_mm") : a.format("YYYY_MM_DD hh_mm A");
+  }
+  var o = n(2356);
+  t.a = r;
 }], [2905]);

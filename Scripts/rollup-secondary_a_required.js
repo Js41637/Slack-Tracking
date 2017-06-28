@@ -7194,7 +7194,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         makeFileNameFromFile: function(e) {
           return e.name || TS.i18n.t("Pasted image at {date}", "files")({
-            date: TS.utility.date.toFilenameFriendlyDate(Date.now() / 1e3)
+            date: TS.interop.datetime.toFilenameFriendlyDate(Date.now() / 1e3)
           }) + ".png";
         },
         makeFileTitleFromFile: function(e) {
@@ -23260,7 +23260,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                       }
                     }
                   }
-                }!I && TS.utility.date.distanceInMinutes(x, N) > TS.model.msg_activity_interval && (C = !0);
+                }!I && TS.interop.datetime.distanceInMinutes(x, N) > TS.model.msg_activity_interval && (C = !0);
               } else j || (C = !0);
             C && (k = !0), "message" !== a.type && (k = !0), ("me_message" === a.subtype || o && "me_message" === o.subtype) && (k = !0);
             var J = !0;
