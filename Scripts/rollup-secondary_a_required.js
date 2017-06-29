@@ -38701,7 +38701,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           var d = [],
             c = parseInt(t.width, 10),
             _ = parseInt(t.height, 10);
-          return c && _ && (d.push("wi" + c), d.push("he" + _), t.resize && TS.boot_data.feature_use_imgproxy_resizing && d.push("si")), t.rotate && d.push("ro"), t.render_svg && d.push("sv2"), t.convert_ico && d.push("ip"), (t.stop_animations || 0 == TS.model.prefs.a11y_animations) && d.push("gu"), d.length > 0 && (n = TS.utility.url.setUrlQueryStringValue(n, "o1", d.join("."))), TS.utility.url.setUrlQueryStringValue(n, "url", e);
+          return c && _ && (d.push("wi" + c), d.push("he" + _), TS.boot_data.feature_use_imgproxy_resizing && d.push("si")), t.rotate && d.push("ro"), t.render_svg && d.push("sv2"), t.convert_ico && d.push("ip"), (t.stop_animations || 0 == TS.model.prefs.a11y_animations) && d.push("gu"), d.length > 0 && (n = TS.utility.url.setUrlQueryStringValue(n, "o1", d.join("."))), TS.utility.url.setUrlQueryStringValue(n, "url", e);
         },
         rAF: function() {
           var e, t = ["ms", "moz", "webkit", "o"],
