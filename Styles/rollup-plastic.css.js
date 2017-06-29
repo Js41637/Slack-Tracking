@@ -3904,7 +3904,11 @@ html.no_touch .alert_page a:hover {
   margin-right: auto
 }
 
-.ts_tip.success .ts_tip_tip {
+.ts_tip.success:not(.ts_tip_multiline) .ts_tip_tip {
+  background: #2ab27b
+}
+
+.ts_tip.success.ts_tip_multiline .ts_tip_multiline_inner {
   background: #2ab27b
 }
 

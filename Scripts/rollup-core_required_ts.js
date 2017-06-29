@@ -2394,6 +2394,9 @@ webpackJsonp([12, 328, 337, 329], {
         useReactSidebar: function() {
           return !(!TS.useRedux() || !TS.boot_data.feature_react_sidebar) && (TS.model.prefs ? TS.model.prefs.use_react_sidebar : TS.boot_data.use_react_sidebar);
         },
+        useReactMessages: function() {
+          return TS.client && TS.useRedux() && TS.boot_data.feature_react_messages;
+        },
         lazyLoadMembersAndBots: function() {
           return TS.useSocket();
         },

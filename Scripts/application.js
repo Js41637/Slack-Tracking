@@ -36046,14 +36046,14 @@ webpackJsonp([332], [, function(e, t, n) {
     },
     S = function(e) {
       var t = e.sortPref,
-        n = e.prioritySortEnabled;
+        n = e.featurePrioritySortEnabled;
       return "priority" === t && n ? x : T;
     },
     E = function(e) {
       var t = e.channel,
         r = e.members,
-        o = e.membersInRedux;
-      if (!e.appSpaceEnabled) return !1;
+        o = e.featureStoreMembersInRedux;
+      if (!e.featureAppSpaceEnabled) return !1;
       var i = n.i(c.getMemberIdFromIm)(t),
         a = o && r ? r[i] : n.i(h.d)(i);
       return n.i(s.isAppOrBot)(a);
@@ -36092,7 +36092,7 @@ webpackJsonp([332], [, function(e, t, n) {
         }),
         g = S({
           sortPref: i,
-          prioritySortEnabled: t
+          featurePrioritySortEnabled: t
         });
       v.sort(g).forEach(function(t) {
         var r = k({
@@ -36100,8 +36100,8 @@ webpackJsonp([332], [, function(e, t, n) {
             isApp: E({
               channel: t,
               members: l,
-              membersInRedux: n,
-              appSpaceEnabled: e
+              featureStoreMembersInRedux: n,
+              featureAppSpaceEnabled: e
             })
           }),
           o = M({
@@ -36476,7 +36476,13 @@ webpackJsonp([332], [, function(e, t, n) {
   }
 
   function u(e) {
-    return e && e.messagePane && e.messagePane.editTs;
+    return e && e.messagePane ? {
+      editTs: e.messagePane.editTs,
+      editText: e.messagePane.editText
+    } : {
+      editTs: null,
+      editText: null
+    };
   }
   Object.defineProperty(t, "__esModule", {
     value: !0
@@ -36486,7 +36492,9 @@ webpackJsonp([332], [, function(e, t, n) {
     return g;
   }), n.d(t, "stopEditingMessage", function() {
     return b;
-  }), t.fetchHistory = o, t.getMessagePaneChannelId = i, t.getTimestampsForMessagePane = a, t.getMessagePaneStartTs = s, t.getMessagePaneEditTs = u;
+  }), n.d(t, "updateEditText", function() {
+    return w;
+  }), t.fetchHistory = o, t.getMessagePaneChannelId = i, t.getTimestampsForMessagePane = a, t.getMessagePaneStartTs = s, t.getMessagePaneEditState = u;
   var l, c = n(6),
     d = n.n(c),
     f = n(17),
@@ -36504,26 +36512,34 @@ webpackJsonp([332], [, function(e, t, n) {
     v = n.i(f.createAction)("Sets the active channel"),
     g = n.i(f.createAction)("Start editing a message"),
     b = n.i(f.createAction)("Stop editing current message"),
-    w = {
+    w = n.i(f.createAction)("Set the current edit text"),
+    k = {
       channelId: null,
       startTs: null,
-      editTs: null
+      editTs: null,
+      editText: null
     },
-    k = n.i(f.createReducer)((l = {}, r(l, v, function(e, t, n) {
+    M = n.i(f.createReducer)((l = {}, r(l, v, function(e, t, n) {
       return y({}, e, {
         channelId: t,
         startTs: n
       });
     }), r(l, g, function(e, t) {
       return y({}, e, {
-        editTs: t
+        editTs: t,
+        editText: null
       });
     }), r(l, b, function(e) {
       return y({}, e, {
-        editTs: null
+        editTs: null,
+        editText: null
       });
-    }), l), w);
-  t.default = k;
+    }), r(l, w, function(e, t) {
+      return y({}, e, {
+        editText: t
+      });
+    }), l), k);
+  t.default = M;
 }, , , function(e, t, n) {
   "use strict";
   var r = n(3033);
@@ -36580,7 +36596,9 @@ webpackJsonp([332], [, function(e, t, n) {
       lastReadTs: l.a.PropTypes.string,
       startTs: l.a.PropTypes.string,
       editTs: l.a.PropTypes.string,
-      stopEditingMessage: l.a.PropTypes.func
+      stopEditingMessage: l.a.PropTypes.func,
+      updateEditText: l.a.PropTypes.func,
+      editText: l.a.PropTypes.string
     },
     g = {
       channelId: null,
@@ -36589,7 +36607,9 @@ webpackJsonp([332], [, function(e, t, n) {
       lastReadTs: null,
       startTs: null,
       editTs: null,
-      stopEditingMessage: s.a.noop
+      stopEditingMessage: s.a.noop,
+      updateEditText: s.a.noop,
+      editText: null
     },
     b = function(e) {
       function t(e) {
@@ -36671,6 +36691,8 @@ webpackJsonp([332], [, function(e, t, n) {
                 previousMessageTs: p,
                 isEditing: n === e.props.editTs,
                 cancelEdit: e.props.stopEditingMessage,
+                updateEditText: e.props.updateEditText,
+                editText: e.props.editText,
                 isLast: n === t
               })), r > 0 && r !== i.length - 1 && n === y && (_.push(n + ".unread"), u.push(l.a.createElement(f.a, {
                 key: "unread"
@@ -37096,11 +37118,15 @@ webpackJsonp([332], [, function(e, t, n) {
           var e = this.props,
             t = e.cancelEdit,
             n = e.channel,
-            r = e.ts;
+            r = e.editText,
+            o = e.updateEditText,
+            i = e.ts;
           return u.a.createElement(M.a, {
             cancelEdit: t,
             channelId: n.id,
-            ts: r
+            editText: r,
+            updateEditText: o,
+            ts: i
           });
         }
       }, {
@@ -37151,6 +37177,8 @@ webpackJsonp([332], [, function(e, t, n) {
     isFileFollowup: u.a.PropTypes.bool,
     isEditing: u.a.PropTypes.bool,
     cancelEdit: u.a.PropTypes.func,
+    updateEditText: u.a.PropTypes.func,
+    editText: u.a.PropTypes.string,
     isLast: u.a.PropTypes.bool
   }, C.defaultProps = {
     text: null,
@@ -37171,6 +37199,8 @@ webpackJsonp([332], [, function(e, t, n) {
     isFileFollowup: !0,
     isEditing: !1,
     cancelEdit: d.noop,
+    updateEditText: d.noop,
+    editText: null,
     isLast: !1
   };
 }, , function(e, t, n) {
@@ -37337,7 +37367,7 @@ webpackJsonp([332], [, function(e, t, n) {
       t = h(e, 2),
       r = t[0],
       i = t[1];
-    ((b ? Object.values(b) : []).length ? r.concat(Object.values(b)) : r).forEach(function(e) {
+    ((b ? n.i(l.values)(b) : []).length ? r.concat(n.i(l.values)(b)) : r).forEach(function(e) {
       o({
         ok: !1,
         error: "socket_closed",
@@ -38593,27 +38623,31 @@ webpackJsonp([332], [, function(e, t, n) {
         r = n.i(u.getMessagePaneChannelId)(e),
         o = n.i(c.getChannelById)(e, r),
         i = n.i(f.getUserPref)(e, "start_scroll_at_oldest"),
-        a = n.i(u.getMessagePaneStartTs)(e);
-      !a && i && o && (a = o.last_read);
-      var s = n.i(u.getMessagePaneEditTs)(e),
-        l = m(e, r, a),
-        d = l.timestamps,
-        p = l.reachedStart,
-        _ = l.reachedEnd;
+        a = n.i(u.getMessagePaneEditState)(e),
+        s = a.editTs,
+        l = a.editText,
+        d = n.i(u.getMessagePaneStartTs)(e);
+      !d && i && o && (d = o.last_read);
+      var p = m(e, r, d),
+        _ = p.timestamps,
+        y = p.reachedStart,
+        v = p.reachedEnd;
       return h({}, t, {
         channelId: r,
         type: n.i(c.getChannelType)(o),
-        timestamps: d,
-        reachedStart: p,
-        reachedEnd: _,
-        lastReadTs: a,
-        startTs: a,
-        editTs: s
+        timestamps: _,
+        reachedStart: y,
+        reachedEnd: v,
+        lastReadTs: d,
+        startTs: d,
+        editTs: s,
+        editText: l
       });
     },
     y = {
       fetchHistory: u.fetchHistory,
-      stopEditingMessage: u.stopEditingMessage
+      stopEditingMessage: u.stopEditingMessage,
+      updateEditText: u.updateEditText
     };
   t.a = n.i(i.b)(_, y)(s.a);
 }, function(e, t, n) {
@@ -38692,7 +38726,9 @@ webpackJsonp([332], [, function(e, t, n) {
             requestHistory: this.requestHistory,
             lastReadTs: this.props.lastReadTs,
             editTs: this.props.editTs,
-            stopEditingMessage: this.props.stopEditingMessage
+            stopEditingMessage: this.props.stopEditingMessage,
+            updateEditText: this.props.updateEditText,
+            editText: this.props.editText
           });
         }
       }]), t;
@@ -38707,7 +38743,9 @@ webpackJsonp([332], [, function(e, t, n) {
     lastReadTs: l.a.PropTypes.string,
     startTs: l.a.PropTypes.string,
     editTs: l.a.PropTypes.string,
-    stopEditingMessage: l.a.PropTypes.func
+    stopEditingMessage: l.a.PropTypes.func,
+    updateEditText: l.a.PropTypes.func,
+    editText: l.a.PropTypes.string
   }, f.defaultProps = {
     channelId: null,
     type: "channel",
@@ -38718,7 +38756,9 @@ webpackJsonp([332], [, function(e, t, n) {
     lastReadTs: null,
     startTs: null,
     editTs: null,
-    stopEditingMessage: s.a.noop
+    stopEditingMessage: s.a.noop,
+    updateEditText: s.a.noop,
+    editText: null
   };
 }, , , , function(e, t, n) {
   "use strict";
@@ -56748,14 +56788,12 @@ webpackJsonp([332], [, function(e, t, n) {
     }(),
     f = {
       className: a.PropTypes.string,
-      contents: a.PropTypes.oneOfType([a.PropTypes.string, a.PropTypes.arrayOf(a.PropTypes.shape({
-        insert: a.PropTypes.string
-      }))]),
+      text: a.PropTypes.string,
       options: a.PropTypes.object
     },
     p = {
       className: null,
-      contents: null,
+      text: null,
       options: null
     },
     h = function(e) {
@@ -56768,19 +56806,19 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "componentDidMount",
         value: function() {
           var e = this.props,
-            t = e.contents,
+            t = e.text,
             r = e.options;
           n.i(c.a)(this.container, r), t && (n.i(c.b)(this.container, t), n.i(c.c)(this.container));
         }
       }, {
         key: "shouldComponentUpdate",
         value: function(e) {
-          return e.contents !== this.props.contents;
+          return e.text !== this.props.text;
         }
       }, {
         key: "componentWillUnmount",
         value: function() {
-          this.instance && n.i(c.d)(this.container);
+          n.i(c.d)(this.container);
         }
       }, {
         key: "setContainerRef",
@@ -57283,6 +57321,7 @@ webpackJsonp([332], [, function(e, t, n) {
       featureNewBroadcast: a.PropTypes.bool,
       mergeMessage: a.PropTypes.func,
       removeMessage: a.PropTypes.func,
+      updateEditText: a.PropTypes.func,
       ts: a.PropTypes.string,
       subtype: a.PropTypes.string,
       threadTs: a.PropTypes.string,
@@ -57292,7 +57331,8 @@ webpackJsonp([332], [, function(e, t, n) {
         permalink: a.PropTypes.string
       }),
       isEphemeral: a.PropTypes.bool,
-      userId: a.PropTypes.string
+      userId: a.PropTypes.string,
+      editText: a.PropTypes.string
     },
     b = {
       cancelEdit: u.noop,
@@ -57302,12 +57342,14 @@ webpackJsonp([332], [, function(e, t, n) {
       featureNewBroadcast: !1,
       mergeMessage: u.noop,
       removeMessage: u.noop,
+      updateEditText: u.noop,
       ts: null,
       subtype: null,
       threadTs: null,
       file: null,
       isEphemeral: !1,
-      userId: null
+      userId: null,
+      editText: null
     },
     w = function(e) {
       function t(e) {
@@ -57328,21 +57370,31 @@ webpackJsonp([332], [, function(e, t, n) {
             i.maybeCancel();
           },
           onTextChange: function() {
-            i.numCharsOverLimit() > 0 && i.setState(function() {
+            var e = i.countCharsOverLimit();
+            e > 0 && i.setState(function() {
               return {
-                isTooLong: !0
+                numCharsOverLimit: e
               };
             });
           }
         }, i.state = {
-          isTooLong: !1
+          numCharsOverLimit: 0
         }, i.setTextyRef = i.setTextyRef.bind(i), i.maybeCancel = i.maybeCancel.bind(i), i.maybeSave = i.maybeSave.bind(i), i;
       }
       return i(t, e), y(t, [{
         key: "componentDidMount",
         value: function() {
-          var e = this.props.text;
-          this.texty.focus(), this.texty.value(e);
+          this.texty.focus();
+          var e = this.props,
+            t = e.editText,
+            r = e.text,
+            o = n.i(u.isString)(t) ? t : r;
+          this.texty.value(o);
+        }
+      }, {
+        key: "componentWillUnmount",
+        value: function() {
+          (0, this.props.updateEditText)(this.texty.value());
         }
       }, {
         key: "setTextyRef",
@@ -57350,7 +57402,7 @@ webpackJsonp([332], [, function(e, t, n) {
           this.texty = e;
         }
       }, {
-        key: "numCharsOverLimit",
+        key: "countCharsOverLimit",
         value: function() {
           if (!this.texty) return 0;
           var e = n.i(f.a)(this.texty.container);
@@ -57430,7 +57482,7 @@ webpackJsonp([332], [, function(e, t, n) {
             o = e.text,
             i = e.mergeMessage,
             a = e.ts;
-          if (this.state.isTooLong) return !1;
+          if (this.state.numCharsOverLimit > 0) return !1;
           var s = this.texty.value();
           if (this.texty.isEmpty({
               doIgnoreWhitespace: !0
@@ -57460,17 +57512,19 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "renderLengthWarning",
         value: function() {
           var e = this.props.featureMessageInputByteLimit,
-            t = void 0;
-          return t = e ? v("Your message is {diffCount, plural, =1{# character}other{# characters}} too long.", {
-            diffCount: this.numCharsOverLimit()
+            t = this.state.numCharsOverLimit,
+            n = void 0;
+          return n = e ? v("Your message is {diffCount, plural, =1{# character}other{# characters}} too long.", {
+            diffCount: t
           }) : v("text is too long!"), s.a.createElement("span", {
             className: "c-message__editor__warning"
-          }, t);
+          }, n);
         }
       }, {
         key: "render",
         value: function() {
-          var e = this.state.isTooLong;
+          var e = this.state.numCharsOverLimit,
+            t = e > 0;
           return s.a.createElement("div", {
             className: "c-message__editor"
           }, s.a.createElement(c.a, {
@@ -57484,7 +57538,7 @@ webpackJsonp([332], [, function(e, t, n) {
             onClick: this.maybeSave
           }, s.a.createElement("i", {
             className: "ts_icon ts_icon_enter ts_icon_inherit small_right_margin"
-          }), v("Save Changes")), e && this.renderLengthWarning());
+          }), v("Save Changes")), t && this.renderLengthWarning());
         }
       }]), t;
     }(a.PureComponent);

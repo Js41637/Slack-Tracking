@@ -2388,7 +2388,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         addMsg: function(e, t) {
           var n = TS.channels.getChannelById(e);
           if (!n) return void TS.error('unknown channel "' + e + '"');
-          if (TS.boot_data.feature_react_messages && TS.useRedux()) return void TS.redux.messages.addMessage(t);
+          if (TS.useReactMessages()) return void TS.redux.messages.addMessage(t);
           if (TS.shared.addMsg(n, t)) {
             var i = !TS.utility.msgs.isTempMsg(t);
             TS.channels.calcUnreadCnts(n, i), TS.utility.msgs.maybeTruncateMsgs(n), TS.channels.message_received_sig.dispatch(n, t);
@@ -6011,15 +6011,17 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           } else o += "teams_on" === n ? TS.templates.not_on_any_workspaces() : TS.templates.no_workspaces_to_join(), s.attr("data-has-more", "").addClass("hidden");
           return e.html(o).attr("data-list", n), t(e, n, i), Promise.resolve(!!a.length);
         },
-        getList: function(e, t, n) {
-          t || (t = "teams_not_on" === e ? "members" : "join"), n || (n = ""), n = n.toLowerCase();
-          var i = {
+        getList: function(e, t, n, i) {
+          t || (t = "teams_not_on" === e ? "members" : "join"), n || (n = ""), n = n.toLowerCase(), void 0 === i && (i = !1);
+          var r = [];
+          i && (r = TS.model.is_our_app ? _.difference(TS.model.user.enterprise_user.teams, TSSSB.call("getSignedInTeamIds")) : _.difference(TS.model.user.enterprise_user.teams, [TS.model.team.id]));
+          var a = {
             teams_on: [],
             teams_not_on: []
           };
           return TS.model.enterprise_teams.forEach(function(e) {
-            TS.model.user.enterprise_user.teams.indexOf(e.id) > -1 ? i.teams_on.push(e) : (e.is_open || e.is_closed || e.is_assigned) && i.teams_not_on.push(e);
-          }), i[e].filter(function(e) {
+            TS.model.user.enterprise_user.teams.indexOf(e.id) > -1 ? r.indexOf(e.id) > -1 ? a.teams_not_on.push(e) : a.teams_on.push(e) : (e.is_open || e.is_closed || e.is_assigned) && a.teams_not_on.push(e);
+          }), a[e].filter(function(e) {
             return e.name.toLowerCase().indexOf(n) > -1 || e.description && e.description.toLowerCase().indexOf(n) > -1;
           }).sort(function(e, n) {
             if ("name" === t) {
@@ -8797,7 +8799,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         addMsg: function(e, t) {
           var n = TS.groups.getGroupById(e);
           if (!n) return void TS.error('unknown group "' + e + '"');
-          if (TS.boot_data.feature_react_messages && TS.useRedux()) return void TS.redux.messages.addMessage(t);
+          if (TS.useReactMessages()) return void TS.redux.messages.addMessage(t);
           if (TS.shared.addMsg(n, t)) {
             var i = !TS.utility.msgs.isTempMsg(t);
             TS.groups.calcUnreadCnts(n, i), TS.utility.msgs.maybeTruncateMsgs(n), TS.groups.message_received_sig.dispatch(n, t), n.is_open || TS.api.call("groups.open", {
@@ -9423,7 +9425,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         addMsg: function(e, t) {
           var n = TS.ims.getImById(e);
           if (!n) return void TS.error('unknown im "' + e + '"');
-          if (TS.boot_data.feature_react_messages && TS.useRedux()) return void TS.redux.messages.addMessage(t);
+          if (TS.useReactMessages()) return void TS.redux.messages.addMessage(t);
           if (TS.shared.addMsg(n, t)) {
             var i = !TS.utility.msgs.isTempMsg(t);
             TS.ims.calcUnreadCnts(n, i), TS.utility.msgs.maybeTruncateMsgs(n), TS.ims.message_received_sig.dispatch(n, t), n.is_open || TS.api.call("im.open", {
@@ -14594,7 +14596,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         addMsg: function(e, t) {
           var n = TS.mpims.getMpimById(e);
           if (!n) return void TS.error('unknown mpim "' + e + '"');
-          if (TS.boot_data.feature_react_messages && TS.useRedux()) return void TS.redux.messages.addMessage(t);
+          if (TS.useReactMessages()) return void TS.redux.messages.addMessage(t);
           if (TS.shared.addMsg(n, t)) {
             var i = !TS.utility.msgs.isTempMsg(t);
             if (TS.mpims.calcUnreadCnts(n, i), TS.utility.msgs.maybeTruncateMsgs(n), TS.mpims.message_received_sig.dispatch(n, t), !n.is_open && TS.utility.msgs.msgCanCountAsUnread(t))
@@ -15131,7 +15133,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           var a = t || r || i || n;
           TS.pins && TS.pins.removeMsg(e.deleted_ts, a);
           var s = TS.utility.msgs.getMsg(e.deleted_ts, a.msgs);
-          !s && a._archive_msgs && (s = TS.utility.msgs.getMsg(e.deleted_ts, a._archive_msgs)), s || (s = TS.client.unread.getMessage(a, e.deleted_ts)), s || (s = TS.ui.replies.getActiveMessage(a, e.deleted_ts)), s || (s = TS.client.threads.getMessage(a, e.deleted_ts)), TS.boot_data.feature_react_messages && TS.useRedux() && TS.redux.messages.removeMessage({
+          !s && a._archive_msgs && (s = TS.utility.msgs.getMsg(e.deleted_ts, a._archive_msgs)), s || (s = TS.client.unread.getMessage(a, e.deleted_ts)), s || (s = TS.ui.replies.getActiveMessage(a, e.deleted_ts)), s || (s = TS.client.threads.getMessage(a, e.deleted_ts)), TS.useReactMessages() && TS.redux.messages.removeMessage({
             channel: e.channel,
             ts: e.deleted_ts
           }), s && (t ? TS.ims.removeMsg(a.id, s) : r ? TS.channels.removeMsg(a.id, s) : i ? TS.mpims.removeMsg(a.id, s) : n && TS.groups.removeMsg(a.id, s));
@@ -16655,7 +16657,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           var r = TS.utility.msgs.getMsg(t, e(n));
           if (r || (r = TS.ui.replies.getActiveMessage(n, t)), TS.model.threads_view_is_showing && !r && (r = TS.client.threads.getMessage(n, t)), !r) return TS.error("no msg in msgs?"), null;
           if (TS.boot_data.feature_thanks && r._handy_rxns_poll_data) return TS.ui.handy_rxns.startPollDialog(n.id, t);
-          if (TS.boot_data.feature_react_messages) return void TS.redux.dispatch(TS.interop.redux.features.messagePane.startEditingMessage(t));
+          if (TS.useReactMessages()) return void TS.redux.dispatch(TS.interop.redux.features.messagePane.startEditingMessage(t));
           var a = TS.format.unFormatMsg(r.text);
           if (!i || !i.force_reopen) {
             var s = Date.now(),
@@ -19688,7 +19690,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           };
           if (!n && r[e]) return a[e] = _.cloneDeep(t), TS.has_pri[F] && TS.log(F, "_upsertRxns call ignored because !force && _pending_counts[" + e + "]:" + r[e]), s;
           var o = TS.rxns.getExistingRxnsByKey(e);
-          return t ? o ? TS.utility.areSimpleObjectsEqual(o, t, "rxn_key:" + e) || (s.status = "CHANGED", i[e] = t) : (s.status = "ADDED", i[e] = t) : o && (s.status = "CHANGED", delete i[e]), s.rxns = i[e] || null, TS.useRedux() && TS.boot_data.feature_react_messages && TS.redux.reactions.updateReaction(e, t), TS.has_pri[F] && TS.dir(F, s, e), s;
+          return t ? o ? TS.utility.areSimpleObjectsEqual(o, t, "rxn_key:" + e) || (s.status = "CHANGED", i[e] = t) : (s.status = "ADDED", i[e] = t) : o && (s.status = "CHANGED", delete i[e]), s.rxns = i[e] || null, TS.useReactMessages() && TS.redux.reactions.updateReaction(e, t), TS.has_pri[F] && TS.dir(F, s, e), s;
         },
         p = function(e) {
           e && (r[e] = r[e] || 0, r[e] += 1, TS.has_pri[F] && TS.log(F, "_incrementPendingCnt " + e + ": " + r[e]));
@@ -20494,7 +20496,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           e && (o[e] = t);
         },
         calcUnreadCnts: function(e, t, n) {
-          if (!TS.boot_data.feature_react_messages && !TS._incremental_boot) {
+          if (!TS.useReactMessages() && !TS._incremental_boot) {
             if (TS.shared.didDeferMessageHistoryById(e.id))
               if (!TS.boot_data.feature_disable_history_prefetch || e.is_im || e.msgs.length) {
                 if (e.is_im || e.is_mpim) return void TS.shared.checkInitialMsgHistory(e, t);
@@ -20570,7 +20572,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           TS.shared.checkInitialMsgHistory(e, i), TS.client && TS.client.msg_pane && TS.client.msg_pane.maybeClearNewMsgsTimer(e);
         },
         checkInitialMsgHistory: function(e, t, n) {
-          if (!TS.boot_data.feature_react_messages) {
+          if (!TS.useReactMessages()) {
             if (e.history_is_being_fetched) return void TS.warn('checkInitialMsgHistory NOT DOING ANYTHING, because "' + e.id + '" history_is_being_fetched:true');
             if (!(TS.isPartiallyBooted() || !i) || !TS._did_incremental_boot || e.id !== TS.model.active_channel_id) {
               a[e.id] && (TS.has_pri[k] && TS.log(k, "checkInitialMsgHistory (" + e.id + "): Clearing _delayed_fetch_timer and fetching immediately"), window.clearTimeout(a[e.id]), delete a[e.id]), TS.shared.setDeferMessageHistoryForId(e.id, !1), n ? e._needs_unread_recalc = !0 : TS.utility.msgs.maybeFetchUserDataFromLS(e);
@@ -33558,69 +33560,75 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
       TS.registerModule("ui.workspaces", {
         start: function() {
           if (TS.boot_data.page_needs_enterprise && !TS.model.user.is_restricted) return TS.enterprise.promiseToGetTeams().then(function() {
-            var n = TS.enterprise.workspaces.getList("teams_not_on"),
-              i = {
-                teams: n,
-                user: TS.model.user
-              };
-            TS.boot_data.feature_workspace_request && (i.org_prefs_ws_request_admin_enabled = _.get(TS.boot_data, "enterprise_prefs.org_prefs.enterprise_team_creation_request.is_enabled") && !TS.model.user.is_restricted);
-            var r = {
+            var i = TS.enterprise.workspaces.getList("teams_not_on", "members", "", e),
+              r = TS.boot_data.logout_url;
+            i = i.map(function(e) {
+              var t = TS.enterprise.workspaces.createURL(e, r);
+              return e.launch_url = t + "messages", e.site_url = t + "home", e.signout_url = TS.enterprise.workspaces.createLogoutURL(e.id, r), e;
+            });
+            var a = {
+              teams: i,
+              user: TS.model.user
+            };
+            TS.boot_data.feature_workspace_request && (a.org_prefs_ws_request_admin_enabled = _.get(TS.boot_data, "enterprise_prefs.org_prefs.enterprise_team_creation_request.is_enabled") && !TS.model.user.is_restricted);
+            var s = {
               title: TS.i18n.t("Join {enterprise_name} Teams", "enterprise_workspaces")({
                 enterprise_name: TS.model.enterprise.name
               }),
-              body_template_html: TS.templates.workspaces_dialog(i),
-              onShow: e,
-              onCancel: t,
+              body_template_html: TS.templates.workspaces_dialog(a),
+              onShow: t,
+              onCancel: n,
               modal_class: "fs_modal_header workspaces_modal"
             };
-            TS.ui.fs_modal.start(r);
+            TS.ui.fs_modal.start(s);
           });
         }
       });
-      var e = function() {
-          n();
+      var e = !0,
+        t = function() {
+          i();
         },
-        t = function() {},
-        n = function e() {
-          var t = $(".workspaces_modal"),
-            n = t.find(".workspaces"),
-            i = t.find(".workspace_info"),
-            r = t.find(".title_bar"),
-            a = t.find(".sort_by_container select"),
-            s = t.find('[data-qa="teams_search"]'),
-            o = TS.boot_data.logout_url;
-          t.off(), s.off(), a.off(), i.off();
-          var l = function(e) {
-            return TS.enterprise.workspaces.joinTeam(e).then(function(n) {
-              if (n) {
+        n = function() {},
+        i = function t() {
+          var n = $(".workspaces_modal"),
+            i = n.find(".workspaces"),
+            r = n.find(".workspace_info"),
+            a = n.find(".title_bar"),
+            s = n.find(".sort_by_container select"),
+            o = n.find('[data-qa="teams_search"]'),
+            l = TS.boot_data.logout_url;
+          n.off(), o.off(), s.off(), r.off();
+          var d = function(e) {
+            return TS.enterprise.workspaces.joinTeam(e).then(function(t) {
+              if (t) {
                 var i = _.merge({}, TS.model.user);
                 i.enterprise_user.teams = _.uniq(i.enterprise_user.teams.concat(e)), TS.members.upsertMember(i);
                 var r = TS.enterprise.getTeamById(e);
-                t.find('[data-id="' + e + '"]').html(TS.enterprise.workspaces.getTeamCardHTML(r, o));
+                n.find('[data-id="' + e + '"]').html(TS.enterprise.workspaces.getTeamCardHTML(r, l));
                 TS.enterprise.workspaces.recordTeamJoin(r.id, "find_workspaces", "workspace_detail");
               }
-              return n;
+              return t;
             });
           };
-          s.on("input", function() {
-            var t = $(this).val(),
-              i = a.val(),
-              r = TS.enterprise.workspaces.getList("teams_not_on", i, t),
+          o.on("input", function() {
+            var n = $(this).val(),
+              r = s.val(),
+              a = TS.enterprise.workspaces.getList("teams_not_on", r, n, e),
+              o = "";
+            a.length ? a.forEach(function(e) {
+              o += TS.enterprise.workspaces.getTeamCardHTML(e, l, !0);
+            }) : o += TS.templates.no_workspace_results(), i.html(o), t();
+          }), s.on("change", function() {
+            var n = $(this).val(),
+              r = o.val(),
+              a = TS.enterprise.workspaces.getList("teams_not_on", n, r, e),
               s = "";
-            r.length ? r.forEach(function(e) {
-              s += TS.enterprise.workspaces.getTeamCardHTML(e, o, !0);
-            }) : s += TS.templates.no_workspace_results(), n.html(s), e();
-          }), a.on("change", function() {
-            var t = $(this).val(),
-              i = s.val(),
-              r = TS.enterprise.workspaces.getList("teams_not_on", t, i),
-              a = "";
-            r.forEach(function(e) {
-              a += TS.enterprise.workspaces.getTeamCardHTML(e, o, !0);
-            }), n.html(a), e();
-          }), t.on("click", ".enterprise_team_card", function() {
+            a.forEach(function(e) {
+              s += TS.enterprise.workspaces.getTeamCardHTML(e, l, !0);
+            }), i.html(s), t();
+          }), n.on("click", ".enterprise_team_card", function() {
             var e = $(this).data("id");
-            n.addClass("hidden"), r.addClass("hidden"), s.addClass("hidden").attr("disabled", "disabled"), i.html(TS.templates.team_info({
+            i.addClass("hidden"), a.addClass("hidden"), o.addClass("hidden").attr("disabled", "disabled"), r.html(TS.templates.team_info({
               list: "teams_not_on"
             })).removeClass("hidden");
             var t = {
@@ -33629,8 +33637,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             };
             return TS.enterprise.ensureTeamInModel(e, t).then(function(e) {
               if (e) {
-                var t = TS.enterprise.workspaces.createURL(e, o);
-                e.launch_url = t + "messages", e.site_url = t + "home", i.html(TS.templates.team_info({
+                var t = TS.enterprise.workspaces.createURL(e, l);
+                e.launch_url = t + "messages", e.site_url = t + "home", r.html(TS.templates.team_info({
                   list: "teams_not_on",
                   team: e,
                   user: TS.model.user
@@ -33638,17 +33646,17 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                 TS.enterprise.workspaces.recordTeamView(e.id, "find_workspaces", "workspaces_you_can_join_list");
               }
             });
-          }), i.on("click", ".back_to_teams", function(e) {
-            e.preventDefault(), n.removeClass("hidden"), r.removeClass("hidden"), s.removeClass("hidden").removeAttr("disabled"), i.addClass("hidden");
-          }), i.on("click", 'button[data-qa="join-btn"]', function() {
+          }), r.on("click", ".back_to_teams", function(e) {
+            e.preventDefault(), i.removeClass("hidden"), a.removeClass("hidden"), o.removeClass("hidden").removeAttr("disabled"), r.addClass("hidden");
+          }), r.on("click", 'button[data-qa="join-btn"]', function() {
             var e = Ladda.create(this);
             e.start();
             var t = $(this).data("id"),
               n = TS.enterprise.getTeamById(t);
-            l(t).then(function(t) {
+            d(t).then(function(t) {
               if (e.stop(), t) {
-                var r = TS.enterprise.workspaces.createURL(n, o);
-                n.launch_url = r + "messages", n.site_url = r + "home", i.html(TS.templates.team_info({
+                var i = TS.enterprise.workspaces.createURL(n, l);
+                n.launch_url = i + "messages", n.site_url = i + "home", r.html(TS.templates.team_info({
                   list: "teams_not_on",
                   team: n,
                   user: TS.model.user
@@ -33657,29 +33665,29 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               }
               return t;
             });
-          }), i.on("click", '[data-qa="leave-btn"]', function(e) {
+          }), r.on("click", '[data-qa="leave-btn"]', function(e) {
             e.preventDefault();
             var t = $(this).data("id");
             TS.ui.leave_team_dialog.start(t);
-          }), i.on("click", 'button[data-qa="request-to-join-btn"]', function(e) {
+          }), r.on("click", 'button[data-qa="request-to-join-btn"]', function(e) {
             e.preventDefault();
-            var n = Ladda.create(this);
-            n.start();
-            var r = $(this).data("id");
-            TS.enterprise.workspaces.requestToJoinTeam(r).then(function() {
-              var e = TS.enterprise.getTeamById(r);
-              t.find('[data-id="' + r + '"]').html(TS.enterprise.workspaces.getTeamCardHTML(e, o)), n.stop();
-              var a = TS.enterprise.workspaces.createURL(e, o);
-              e.launch_url = a + "messages", e.site_url = a + "home", i.html(TS.templates.team_info({
+            var t = Ladda.create(this);
+            t.start();
+            var i = $(this).data("id");
+            TS.enterprise.workspaces.requestToJoinTeam(i).then(function() {
+              var e = TS.enterprise.getTeamById(i);
+              n.find('[data-id="' + i + '"]').html(TS.enterprise.workspaces.getTeamCardHTML(e, l)), t.stop();
+              var a = TS.enterprise.workspaces.createURL(e, l);
+              e.launch_url = a + "messages", e.site_url = a + "home", r.html(TS.templates.team_info({
                 list: "teams_not_on",
                 team: e,
                 user: TS.model.user
               }));
               TS.enterprise.workspaces.recordTeamRequestToJoin(e.id, "find_workspaces", "workspace_detail");
             }).catch(function() {
-              n.stop();
+              t.stop();
             });
-          }), t.on("click", ".enterprise_team_menu", function(e) {
+          }), n.on("click", ".enterprise_team_menu", function(e) {
             e.stopPropagation();
             var t = $(this).val(),
               n = $(this).data("id");
@@ -33689,25 +33697,41 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               team_site_url: t,
               should_show_leave_team: !1
             });
-          }), t.on("click", ".enterprise_team_join", function(e) {
+          }), n.on("click", ".enterprise_team_join", function(e) {
             e.stopPropagation();
             var t = Ladda.create(this);
             t.start();
             var n = $(this).data("id");
-            l(n).then(t.stop);
-          }), t.on("click", ".enterprise_team_request", function(e) {
+            d(n).then(t.stop);
+          }), n.on("click", ".enterprise_team_request", function(e) {
             e.stopPropagation();
-            var n = Ladda.create(this);
-            n.start();
+            var t = Ladda.create(this);
+            t.start();
             var i = $(this).data("id");
             TS.enterprise.workspaces.requestToJoinTeam(i).then(function() {
               var e = TS.enterprise.getTeamById(i);
-              n.stop(), t.find('[data-id="' + i + '"]').html(TS.enterprise.workspaces.getTeamCardHTML(e, o));
+              t.stop(), n.find('[data-id="' + i + '"]').html(TS.enterprise.workspaces.getTeamCardHTML(e, l));
               TS.enterprise.workspaces.recordTeamJoin(i, "find_workspaces", "workspaces_you_can_join_list");
             }).catch(function() {
-              n.stop();
+              t.stop();
             });
-          }), t.on("click", '[data-qa="ws-request-new-team"]', function(e) {
+          });
+          var c = function(e) {
+            if (e.stopPropagation(), TS.model.is_our_app) {
+              e.preventDefault();
+              var t = $(this).data("id"),
+                n = TS.enterprise.getTeamById(t),
+                i = {
+                  name: TS.model.user.name,
+                  id: TS.model.user.id,
+                  team_id: t,
+                  team_name: n.name,
+                  team_url: TS.utility.enterprise.buildTeamUrl(n.domain)
+                };
+              TSSSB.call("didSignIn", [i], !0);
+            }
+          };
+          n.on("click", ".enterprise_team_card [data-name=launch_team_button]", c), r.on("click", "[data-name=launch_team_button]", c), n.on("click", '[data-qa="ws-request-new-team"]', function(e) {
             e.stopPropagation();
             var t;
             TS.boot_data.feature_workspace_request && (t = _.get(TS.boot_data, "enterprise_prefs.org_prefs.enterprise_team_creation_request.is_enabled") && !TS.model.user.is_restricted), t && TS.enterprise.workspaces.showRequestDialog();
@@ -37079,7 +37103,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         replaceMsg: function(e, t, n, i) {
           var r = TS.utility.msgs.getMsg(t.ts, e.msgs);
-          if (!r && e._archive_msgs && (r = TS.utility.msgs.getMsg(t.ts, e._archive_msgs)), !r && TS.ui.replies && (r = TS.ui.replies.getActiveMessage(e, t.ts)), !r && TS.client && (r = TS.client.threads.getMessage(e, t.ts)), !r && TS.client && (r = TS.client.unread.getMessage(e, t.ts)), TS.boot_data.feature_react_messages && TS.useRedux() && TS.redux.messages.replaceMessage(TS.utility.msgs.processImsg(t, e.id)), !r) return void(n || TS.error("unknown msg:" + t.ts + " in " + e.id));
+          if (!r && e._archive_msgs && (r = TS.utility.msgs.getMsg(t.ts, e._archive_msgs)), !r && TS.ui.replies && (r = TS.ui.replies.getActiveMessage(e, t.ts)), !r && TS.client && (r = TS.client.threads.getMessage(e, t.ts)), !r && TS.client && (r = TS.client.unread.getMessage(e, t.ts)), TS.useReactMessages() && TS.redux.messages.replaceMessage(TS.utility.msgs.processImsg(t, e.id)), !r) return void(n || TS.error("unknown msg:" + t.ts + " in " + e.id));
           t._rxn_key = r._rxn_key, t.pinned_to || (t.pinned_to = r.pinned_to), "is_starred" in t || (t.is_starred = r.is_starred), TS.boot_data.feature_sli_recaps && !t.recap && r.recap && (t.recap = r.recap);
           var a = null;
           if (t.comment && t.file) {
@@ -37099,7 +37123,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             var l = !TS.utility.msgs.isTempMsg(r);
             e.is_im ? TS.ims.calcUnreadCnts(e, l) : e.is_group && e.is_mpim ? TS.mpims.calcUnreadCnts(e, l) : e.is_group && !e.is_mpim ? TS.groups.calcUnreadCnts(e, l) : e.is_channel && e.is_mpim ? TS.mpims.calcUnreadCnts(e, l) : e.is_channel && TS.channels.calcUnreadCnts(e, l);
           }
-          TS.boot_data.feature_new_broadcast && TS.utility.msgs.msgHasReplies(r) && !TS.boot_data.feature_react_messages && TS.replies.updateThreadBroadcastRoots(e, r);
+          TS.boot_data.feature_new_broadcast && TS.utility.msgs.msgHasReplies(r) && !TS.useReactMessages() && TS.replies.updateThreadBroadcastRoots(e, r);
         },
         removeEphemeralMsg: function(e, t) {
           var n = TS.groups.getGroupById(e) || TS.channels.getChannelById(e);
@@ -37344,7 +37368,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             type: "message",
             ts: e.ts
           };
-          if (TS.boot_data.feature_react_messages && (i.channel = t), e.source_team && (i.source_team_id = e.source_team), "USLACKBOT" === e.user && e.slackbot_feels && (i.slackbot_feels = e.slackbot_feels), e.thread_ts && (i.thread_ts = e.thread_ts, e.parent_ts && (i.parent_ts = e.parent_ts), e.parent_user_id && (i.parent_user_id = e.parent_user_id), e.hasOwnProperty("reply_count") && (i.reply_count = parseInt(e.reply_count, 10)), TS.boot_data.feature_new_broadcast ? (e.thread_ts !== e.ts && "thread_broadcast" !== e.subtype && (i._hidden_reply = !0), "thread_broadcast" === e.subtype && e.root && (i.root = e.root, TS.boot_data.feature_react_messages && (i.root.channel = t))) : e.thread_ts !== e.ts && (i._hidden_reply = !0)), "reply_broadcast" === e.subtype && (e.broadcast_thread_ts && (i.broadcast_thread_ts = e.broadcast_thread_ts), e.channel && (i.channel_id = e.channel), TS.boot_data.feature_new_broadcast && e.new_broadcast && (i.no_display = !0)), e.replies && (i.replies = e.replies), e.hasOwnProperty("subscribed") && (i._subscribed = e.subscribed), e.hasOwnProperty("unread_count") && (i._unread_count = e.unread_count), e.last_read && (i._last_read = e.last_read), "tombstone" === e.subtype && e.hidden && e.replies && e.replies.length > 0 && delete e.hidden, "channel_topic" !== e.type && "channel_purpose" !== e.type && "channel_join" !== e.type && "channel_leave" !== e.type || (e.subtype = e.type), TS.utility.msgs.shouldHideChannelJoinOrLeaveMsg(e, t) && (i.no_display = !0), "group_join" === e.subtype || "group_purpose" === e.subtype || "group_topic" === e.subtype) {
+          if (TS.useReactMessages() && (i.channel = t), e.source_team && (i.source_team_id = e.source_team), "USLACKBOT" === e.user && e.slackbot_feels && (i.slackbot_feels = e.slackbot_feels), e.thread_ts && (i.thread_ts = e.thread_ts, e.parent_ts && (i.parent_ts = e.parent_ts), e.parent_user_id && (i.parent_user_id = e.parent_user_id), e.hasOwnProperty("reply_count") && (i.reply_count = parseInt(e.reply_count, 10)), TS.boot_data.feature_new_broadcast ? (e.thread_ts !== e.ts && "thread_broadcast" !== e.subtype && (i._hidden_reply = !0), "thread_broadcast" === e.subtype && e.root && (i.root = e.root, TS.useReactMessages() && (i.root.channel = t))) : e.thread_ts !== e.ts && (i._hidden_reply = !0)), "reply_broadcast" === e.subtype && (e.broadcast_thread_ts && (i.broadcast_thread_ts = e.broadcast_thread_ts), e.channel && (i.channel_id = e.channel), TS.boot_data.feature_new_broadcast && e.new_broadcast && (i.no_display = !0)), e.replies && (i.replies = e.replies), e.hasOwnProperty("subscribed") && (i._subscribed = e.subscribed), e.hasOwnProperty("unread_count") && (i._unread_count = e.unread_count), e.last_read && (i._last_read = e.last_read), "tombstone" === e.subtype && e.hidden && e.replies && e.replies.length > 0 && delete e.hidden, "channel_topic" !== e.type && "channel_purpose" !== e.type && "channel_join" !== e.type && "channel_leave" !== e.type || (e.subtype = e.type), TS.utility.msgs.shouldHideChannelJoinOrLeaveMsg(e, t) && (i.no_display = !0), "group_join" === e.subtype || "group_purpose" === e.subtype || "group_topic" === e.subtype) {
             var r = TS.shared.getModelObById(t);
             r && r.is_mpim && (i.no_display = !0);
           }
@@ -40862,7 +40886,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
       "use strict";
       TS.registerModule("redux.socket", {
         onStart: function() {
-          TS.useRedux() && TS.boot_data.feature_react_messages && (TS.isSocketManagerEnabled() ? (TS.interop.SocketManager.connectedSig.add(e), TS.interop.SocketManager.disconnectedSig.add(t), TS.interop.SocketManager.troubleConnectingSig.add(n), TS.interop.SocketManager.reconnectingSig.add(i)) : (TS.ms.connected_sig.add(e), TS.ms.trouble_sig.add(n), TS.ms.disconnected_sig.add(t), TS.ms.reconnecting_sig.add(i)));
+          TS.useReactMessages() && (TS.isSocketManagerEnabled() ? (TS.interop.SocketManager.connectedSig.add(e), TS.interop.SocketManager.disconnectedSig.add(t), TS.interop.SocketManager.troubleConnectingSig.add(n), TS.interop.SocketManager.reconnectingSig.add(i)) : (TS.ms.connected_sig.add(e), TS.ms.trouble_sig.add(n), TS.ms.disconnected_sig.add(t), TS.ms.reconnecting_sig.add(i)));
         },
         test: function() {
           return {
