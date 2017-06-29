@@ -7492,7 +7492,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             d = _.some(l, s),
             c = _.some(l, TS.utility.members.isMember),
             u = [];
-          return o.forEach(t), d && TS.bots.startBatchUpsert(), c && TS.members.startBatchUpsert(), l.forEach(n), d && TS.bots.finishBatchUpsert(), c && TS.members.finishBatchUpsert(u), Promise.resolve(_.map(u, function(e) {
+          return o.forEach(t), d && TS.bots.startBatchUpsert(), c && TS.members.startBatchUpsert(), l.forEach(n), d && TS.bots.finishBatchUpsert(), c && TS.members.finishBatchUpsert(), Promise.resolve(_.map(u, function(e) {
             return e.member || e.bot || e;
           }));
         },
@@ -10613,42 +10613,42 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         members_for_user_changed_sig: new signals.Signal,
         unknown_members_perf_exp_metrics: ["fps_median", "fps_min", "beachballs", "stutters", "client_total_members_loaded", "client_session_bytes_received", "channel_change", "initial_stutters", "initial_beachballs", "rebuild_all_throttles"],
         onStart: function() {
-          I = TS.utility.throttleFunc(I, 20), TS.client && TS.client.user_added_to_team_sig.add(TS.members.userAddedToTeam), TS.client && TS.client.user_removed_from_team_sig.add(TS.members.userRemovedFromTeam), TS.channels.member_joined_sig.add(J), TS.channels.member_left_sig.add(J), TS.boot_data.feature_shared_channels_client && TS.members.lazily_added_sig.add(TS.teams.ensureTeamsInDataArePresent), TS.client && TS.client.login_sig.addOnce(function() {
-            TS.membership.lazyLoadChannelMembership() && (TS.members.non_loaded_changed_deleted_sig.add(J), TS.members.changed_deleted_sig.add(J));
-          }), "unknown_members" === TS.experiment.getGroup("unknown_members_perf", TS.members.unknown_members_perf_exp_metrics) && TS.ms.disconnected_sig.add(ee), TS.channels.switched_sig.add(se);
+          A = TS.utility.throttleFunc(A, 20), TS.client && TS.client.user_added_to_team_sig.add(TS.members.userAddedToTeam), TS.client && TS.client.user_removed_from_team_sig.add(TS.members.userRemovedFromTeam), TS.channels.member_joined_sig.add(Q), TS.channels.member_left_sig.add(Q), TS.boot_data.feature_shared_channels_client && TS.members.lazily_added_sig.add(TS.teams.ensureTeamsInDataArePresent), TS.client && TS.client.login_sig.addOnce(function() {
+            TS.membership.lazyLoadChannelMembership() && (TS.members.non_loaded_changed_deleted_sig.add(Q), TS.members.changed_deleted_sig.add(Q));
+          }), "unknown_members" === TS.experiment.getGroup("unknown_members_perf", TS.members.unknown_members_perf_exp_metrics) && TS.ms.disconnected_sig.add(te), TS.channels.switched_sig.add(oe);
         },
         maybeFetchAccessibleUserIds: function() {
           return TS.isPartiallyBooted() && !TS._did_full_boot ? Promise.resolve() : TS.model.user.is_restricted && TS.membership.lazyLoadChannelMembership() ? (TS.model.guest_accessible_user_ids = TS.model.guest_accessible_user_ids || [], TS.flannel.fetchAccessibleUserIdsForGuests().then(function(e) {
-            _.isEqual(_.sortBy(e), _.sortBy(TS.model.guest_accessible_user_ids)) || (m.length = 0, TS.model.guest_accessible_user_ids = e, TS.members.members_for_user_changed_sig.dispatch()), V = Date.now();
+            _.isEqual(_.sortBy(e), _.sortBy(TS.model.guest_accessible_user_ids)) || (p.length = 0, TS.model.guest_accessible_user_ids = e, TS.members.members_for_user_changed_sig.dispatch()), Y = Date.now();
           })) : Promise.resolve();
         },
         getPotentiallyUnknownMemberById: function(e) {
           if (!e) return null;
           if ("unknown_members" !== TS.experiment.getGroup("unknown_members_perf", TS.members.unknown_members_perf_exp_metrics)) return TS.members.getMemberById(e);
-          ae(e);
+          se(e);
           var n = t[e];
           if (n && n.is_unknown) return n;
           if (!TS.interop.utility.looksLikeMemberId(e)) {
             var i = TS.members.getMemberByName(e);
-            return i || (ne(e), {
+            return i || (ie(e), {
               id: e,
               name: e,
               is_unknown: !1,
               is_non_existent: !0
             });
           }
-          return TS.members.getMemberById(e) || P(e);
+          return TS.members.getMemberById(e) || j(e);
         },
         getMemberById: function(e) {
           if (!_.isString(e)) return null;
           if (e && "@" === e.charAt(0) && (e = e.substring(1)), TS.useRedux() && TS.boot_data.feature_store_members_in_redux) return TS.redux.members.getMemberById(e);
-          ae(e);
+          se(e);
           var n = t[e];
           return void 0 !== n ? n.is_unknown && TS.boot_data.feature_tinyspeck ? null : n : null;
         },
         getPotentiallyUnknownMemberByIdWithoutFetching: function(e) {
           var t = TS.members.getMemberById(e);
-          return t || (t = re(e)), t;
+          return t || (t = ae(e)), t;
         },
         getMemberByName: function(e) {
           if (e = _.toLower(e), !i.hasOwnProperty(e)) {
@@ -10699,35 +10699,38 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         upsertAndSignal: function(e) {
           var t = TS.members.upsertMember(e);
-          return ie(t, e);
+          return re(t, e);
         },
         upsertMember: function(n) {
-          var r = TS.members.getMemberById(n.id),
-            a = "NOOP",
-            s = [];
-          if (r || (r = re(n.id)), n.is_ultra_restricted && (n.is_restricted = !0), r) {
-            TS.useRedux && TS.boot_data.feature_store_members_in_redux && (r = _.assign({}, r)), TS.has_pri[Q] && TS.log(Q, 'updating existing member "' + n.id + '"');
-            var o = R(r, n);
-            if (a = o.status, s = o.what_changed, TS.useRedux()) {
-              if (_.includes(s, "presence") && (TS.members.is_in_bulk_upsert_mode ? TS.redux.presence.addToBulkUpsertPayload(r) : TS.redux.presence.updatePresenceForMember(r)), (_.includes(s, "is_restricted") || _.includes(s, "is_ultra_restricted")) && (TS.members.is_in_bulk_upsert_mode ? TS.redux.member_types.addToBulkUpdatePayload(r) : TS.redux.member_types.updateMemberTypeForMember(r)), _.includes(s, "deleted")) {
-                var l = TS.ims.getImByMemberId(r.id);
-                l && (l.is_archived = r.deleted);
+          var a = TS.members.getMemberById(n.id),
+            s = "NOOP",
+            o = [];
+          if (a || (a = ae(n.id)), n.is_ultra_restricted && (n.is_restricted = !0), a) {
+            TS.useRedux && TS.boot_data.feature_store_members_in_redux && (a = _.assign({}, a)), TS.has_pri[X] && TS.log(X, 'updating existing member "' + n.id + '"');
+            var l = H(a, n);
+            if (s = l.status, o = l.what_changed, TS.useRedux()) {
+              if (_.includes(o, "presence") && (TS.members.is_in_bulk_upsert_mode ? TS.redux.presence.addToBulkUpsertPayload(a) : TS.redux.presence.updatePresenceForMember(a)), (_.includes(o, "is_restricted") || _.includes(o, "is_ultra_restricted")) && (TS.members.is_in_bulk_upsert_mode ? TS.redux.member_types.addToBulkUpdatePayload(a) : TS.redux.member_types.updateMemberTypeForMember(a)), _.includes(o, "deleted")) {
+                var d = TS.ims.getImByMemberId(a.id);
+                d && (d.is_archived = a.deleted);
               }
-              _.includes(s, "current_status") && (TS.members.is_in_bulk_upsert_mode ? TS.redux.custom_status.addToBulkUpsertPayload(r) : TS.redux.custom_status.updateStatusForMember(r));
+              _.includes(o, "current_status") && (TS.members.is_in_bulk_upsert_mode ? TS.redux.custom_status.addToBulkUpsertPayload(a) : TS.redux.custom_status.updateStatusForMember(a));
             }
-            void 0 !== r.is_non_existent && delete r.is_non_existent, n = r;
-          } else n.id ? (a = "ADDED", U(n), TS.has_pri[Q] && TS.log(Q, 'adding member "' + n.id + '" color:' + n.color + " member_color:" + n.member_color), n.presence && TS.useRedux() && (TS.members.is_in_bulk_upsert_mode ? TS.redux.presence.addToBulkUpsertPayload(n) : TS.redux.presence.updatePresenceForMember(n)), n.profile && n.profile.status_emoji && TS.useRedux() && (TS.members.is_in_bulk_upsert_mode ? TS.redux.custom_status.addToBulkUpsertPayload(n) : TS.redux.custom_status.updateStatusForMember(n)), TS.useRedux() && (TS.members.is_in_bulk_upsert_mode ? TS.redux.member_types.addToBulkUpdatePayload(n) : TS.redux.member_types.updateMemberTypeForMember(n)), e += 1, t[n.id] = n, i[n._name_lc] = n.id, i["@" + n._name_lc] = n.id, TS.useRedux() && TS.boot_data.feature_store_members_in_redux || TS.model.members.push(n)) : TS.error("bad error, no member.id");
-          return n.is_self && n.deleted ? void TS.reload(null, "member.is_self && member.deleted") : (TS.members.is_in_bulk_upsert_mode || (TS.members.invalidateMembersUserCanSeeArrayCaches(), TS.members.invalidateActiveMembersArrayCaches()), "ADDED" !== a && "CHANGED" !== a || TS.members.maybeStoreMembers(), TS.members.member_was_upserted_sig.dispatch(), TS.useRedux() && TS.boot_data.feature_store_members_in_redux && "NOOP" !== a && (n.profile = _.assign({}, n.profile), TS.members.is_in_bulk_upsert_mode ? TS.redux.members.addToBulkUpsertPayload(n) : TS.redux.members.addMember(n)), {
-            status: a,
+            void 0 !== a.is_non_existent && delete a.is_non_existent, n = a;
+          } else n.id ? (s = "ADDED", N(n), TS.has_pri[X] && TS.log(X, 'adding member "' + n.id + '" color:' + n.color + " member_color:" + n.member_color), n.presence && TS.useRedux() && (TS.members.is_in_bulk_upsert_mode ? TS.redux.presence.addToBulkUpsertPayload(n) : TS.redux.presence.updatePresenceForMember(n)), n.profile && n.profile.status_emoji && TS.useRedux() && (TS.members.is_in_bulk_upsert_mode ? TS.redux.custom_status.addToBulkUpsertPayload(n) : TS.redux.custom_status.updateStatusForMember(n)), TS.useRedux() && (TS.members.is_in_bulk_upsert_mode ? TS.redux.member_types.addToBulkUpdatePayload(n) : TS.redux.member_types.updateMemberTypeForMember(n)), e += 1, t[n.id] = n, i[n._name_lc] = n.id, i["@" + n._name_lc] = n.id, TS.useRedux() && TS.boot_data.feature_store_members_in_redux || TS.model.members.push(n)) : TS.error("bad error, no member.id");
+          if (n.is_self && n.deleted) return void TS.reload(null, "member.is_self && member.deleted");
+          TS.members.is_in_bulk_upsert_mode || (TS.members.invalidateMembersUserCanSeeArrayCaches(), TS.members.invalidateActiveMembersArrayCaches()), "ADDED" !== s && "CHANGED" !== s || TS.members.maybeStoreMembers(), TS.members.member_was_upserted_sig.dispatch(), TS.useRedux() && TS.boot_data.feature_store_members_in_redux && "NOOP" !== s && (n.profile = _.assign({}, n.profile), TS.members.is_in_bulk_upsert_mode ? TS.redux.members.addToBulkUpsertPayload(n) : TS.redux.members.addMember(n));
+          var c = {
+            status: s,
             member: n,
-            what_changed: s
-          });
+            what_changed: o
+          };
+          return TS.members.is_in_bulk_upsert_mode && r.push(c), c;
         },
         processExistingMemberForUpserting: function(e, t) {
-          return R(e, t);
+          return H(e, t);
         },
         processNewMemberForUpserting: function(e) {
-          U(e);
+          N(e);
         },
         setMemberUserColor: function(e, t) {
           t = _.escape(t), e.member_color = t || e.color, t && t != e.color ? TS.model.user_colors[e.id] = t : delete TS.model.user_colors[e.id], TS.members.user_color_changed_sig.dispatch(e);
@@ -10740,49 +10743,49 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return TS.api.call("presence.set", t);
         },
         usernameChanged: function(e, t) {
-          delete i[t], delete i["@" + t], e._name_lc = _.toLower(e.name), i[e._name_lc] = e.id, i["@" + e._name_lc] = e.id, x(e);
+          delete i[t], delete i["@" + t], e._name_lc = _.toLower(e.name), i[e._name_lc] = e.id, i["@" + e._name_lc] = e.id, M(e);
         },
         getActiveMembersWithSelfAndNotSlackbot: function() {
-          return r.length || (r = TS.members.fillMembersWithOptions(r, {
-            include_self: !0,
-            include_slackbot: !1,
-            include_bots: !0
-          })), r;
-        },
-        getActiveMembersWithSelfAndNotBots: function() {
           return a.length || (a = TS.members.fillMembersWithOptions(a, {
             include_self: !0,
             include_slackbot: !1,
-            include_bots: !1
+            include_bots: !0
           })), a;
         },
-        getActiveMembersExceptSelfAndSlackbot: function() {
+        getActiveMembersWithSelfAndNotBots: function() {
           return s.length || (s = TS.members.fillMembersWithOptions(s, {
-            include_self: !1,
+            include_self: !0,
             include_slackbot: !1,
-            include_bots: !0
+            include_bots: !1
           })), s;
         },
-        getActiveMembersExceptSelfAndBots: function() {
+        getActiveMembersExceptSelfAndSlackbot: function() {
           return o.length || (o = TS.members.fillMembersWithOptions(o, {
             include_self: !1,
             include_slackbot: !1,
-            include_bots: !1
+            include_bots: !0
           })), o;
         },
-        getActiveMembersWithSelfAndSlackbot: function() {
+        getActiveMembersExceptSelfAndBots: function() {
           return l.length || (l = TS.members.fillMembersWithOptions(l, {
+            include_self: !1,
+            include_slackbot: !1,
+            include_bots: !1
+          })), l;
+        },
+        getActiveMembersWithSelfAndSlackbot: function() {
+          return d.length || (d = TS.members.fillMembersWithOptions(d, {
             include_self: !0,
             include_slackbot: !0,
             include_bots: !0
-          })), l;
+          })), d;
         },
         getActiveMembersWithSlackbotAndNotSelf: function() {
-          return d.length || (d = TS.members.fillMembersWithOptions(d, {
+          return c.length || (c = TS.members.fillMembersWithOptions(c, {
             include_self: !1,
             include_slackbot: !0,
             include_bots: !0
-          })), d;
+          })), c;
         },
         getMembersWithOptions: function(e) {
           var t = TS.members.getMembersForUser();
@@ -10800,8 +10803,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         getMembersForUser: function() {
           if (!TS.model.user.is_restricted && !TS.boot_data.feature_shared_channels_client) return TS.model.members;
-          if (m.length) return m;
-          if (!TS.model.user.is_restricted) return m = _.filter(TS.model.members, function(e) {
+          if (p.length) return p;
+          if (!TS.model.user.is_restricted) return p = _.filter(TS.model.members, function(e) {
             return !0 !== e.is_stranger;
           });
           var e = {};
@@ -10815,7 +10818,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             }) : t.is_im && (e[t.user] = !0);
           });
           var t = TS.isPartiallyBooted();
-          return m = Object.keys(e).map(function(e) {
+          return p = Object.keys(e).map(function(e) {
             return {
               id: e,
               user: TS.members.getMemberById(e)
@@ -10851,19 +10854,19 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return e ? TS.model.team && TS.members.shouldDisplayRealNames() && e.profile && e.profile.real_name ? t ? _.escape(e._real_name_lc) : e._real_name_lc : e._name_lc : "NO MEMBER??";
         },
         getMemberRealName: function(e) {
-          return C(e, "real_name");
+          return I(e, "real_name");
         },
         getMemberRealNameLowerCase: function(e) {
-          return C(e, "_real_name_normalized_lc");
+          return I(e, "_real_name_normalized_lc");
         },
         getMemberProfileFieldDisplayName: function(e) {
-          return C(e, "display_name");
+          return I(e, "display_name");
         },
         getMemberProfileFieldDisplayNameLowerCase: function(e) {
-          return C(e, "_display_name_normalized_lc");
+          return I(e, "_display_name_normalized_lc");
         },
         getMemberUsernameAndRealNameInCorrectOrder: function(e) {
-          var t = T(e),
+          var t = b(e),
             n = TS.members.getPrefCompliantMemberName(t),
             i = {
               names_in_order: [],
@@ -10880,7 +10883,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return i;
         },
         getMemberSecondaryName: function(e) {
-          var t = T(e);
+          var t = b(e);
           if (TS.members.shouldDisplayRealNames()) {
             if (TS.boot_data.feature_name_tagging_client) return TS.members.getMemberProfileFieldDisplayName(t);
             if (t.profile && t.profile.real_name && t.profile.real_name.length) return t.name;
@@ -10888,7 +10891,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return TS.members.getMemberRealName(t);
         },
         getMemberCurrentStatus: function(e) {
-          var t = T(e);
+          var t = b(e);
           return t && t.profile ? {
             emoji: t.profile.status_emoji || "",
             text: t.profile.status_text || ""
@@ -10906,14 +10909,14 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         invalidateMembersUserCanSeeArrayCaches: function(e) {
           if (TS.model.user && (TS.boot_data.feature_shared_channels_client || TS.model.user.is_restricted)) {
-            var t = m.length;
-            if (t && (m.length = 0, TS.members.invalidateActiveMembersArrayCaches(), !e)) {
+            var t = p.length;
+            if (t && (p.length = 0, TS.members.invalidateActiveMembersArrayCaches(), !e)) {
               TS.members.getMembersForUser().length !== t && TS.members.members_for_user_changed_sig.dispatch();
             }
           }
         },
         invalidateActiveMembersArrayCaches: function() {
-          r.length = 0, a.length = 0, s.length = 0, o.length = 0, l.length = 0, d.length = 0, c.length = 0, u.length = 0;
+          a.length = 0, s.length = 0, o.length = 0, l.length = 0, d.length = 0, c.length = 0, u.length = 0, m.length = 0;
         },
         canUserPostInGeneral: function() {
           return TS.permissions.members.canPostInGeneral(TS.model.user);
@@ -10957,13 +10960,13 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               if (t._is_local) {
                 e = {}, r.push(e);
                 for (n in t) "files" !== n && "activity" !== n && "stars" !== n && "mentions" !== n && 0 !== n.indexOf("_") && (e[n] = t[n]);
-                e.profile = D(e.profile);
+                e.profile = R(e.profile);
               }
             } else TS.warn("prepareMembersForLS: no member at offset " + i + "??");
           return r;
         },
         maybeStoreMembers: function(e) {
-          TS.storage.isUsingMemberBotCache() && (TS.members.is_in_bulk_upsert_mode || I(e || !1));
+          TS.storage.isUsingMemberBotCache() && (TS.members.is_in_bulk_upsert_mode || A(e || !1));
         },
         ensureMembersInDataArePresent: function(e, t, n) {
           var i = TS.utility.extractAllMemberIds(e, t, n);
@@ -11002,9 +11005,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           if (!e || !e.length) return Promise.resolve();
           var t = _(e).uniq().filter(TS.members.getMemberById).value(),
             n = _.difference(e, t),
-            i = TS.useSocket() ? h : f,
+            i = TS.useSocket() ? g : h,
             r = _(n).chunk(i).map(function(e) {
-              return M(e).reflect();
+              return C(e).reflect();
             }).value();
           return Promise.all(r).then(function(e) {
             var t = e.filter(function(e) {
@@ -11037,10 +11040,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         startBatchUpsert: function() {
           return !TS.members.is_in_bulk_upsert_mode && (TS.members.is_in_bulk_upsert_mode = !0, !0);
         },
-        finishBatchUpsert: function(e) {
-          return !!TS.members.is_in_bulk_upsert_mode && (TS.members.is_in_bulk_upsert_mode = !1, TS.members.invalidateMembersUserCanSeeArrayCaches(), TS.members.invalidateActiveMembersArrayCaches(), TS.members.maybeStoreMembers(), _.partition(e, function(e) {
+        finishBatchUpsert: function() {
+          return !!TS.members.is_in_bulk_upsert_mode && (TS.members.is_in_bulk_upsert_mode = !1, TS.members.invalidateMembersUserCanSeeArrayCaches(), TS.members.invalidateActiveMembersArrayCaches(), TS.members.maybeStoreMembers(), _.partition(r, function(e) {
             return _.includes(e.what_changed, "is_unknown");
-          })[0].length > 0 && TS.members.changed_is_unknown_sig.dispatch({}), TS.members.batch_upserted_sig.dispatch(e), !0);
+          })[0].length > 0 && TS.members.changed_is_unknown_sig.dispatch({}), TS.members.batch_upserted_sig.dispatch(r), r = [], !0);
         },
         allocateTeamListMembers: function(e) {
           var t, n = [],
@@ -11066,20 +11069,20 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         promiseToSearchMembers: function(e) {
           return TS.boot_data.page_needs_enterprise || TS.boot_data.feature_shared_channels_client || TS.lazyLoadMembersAndBots() ? Promise.resolve(e).then(function(e) {
-            return e ? (e.query = e.query && e.query.trim() || "", e.include_org = !!TS.boot_data.page_needs_enterprise && !!e.include_org, e.org_team_ids = e.include_org && Array.isArray(e.org_team_ids) ? e.org_team_ids : [], e = E(e, A(e)), e._is_new || e.num_remaining > 0 ? O(e) : Promise.resolve(e)) : Promise.reject(new Error("No search parameters provided"));
+            return e ? (e.query = e.query && e.query.trim() || "", e.include_org = !!TS.boot_data.page_needs_enterprise && !!e.include_org, e.org_team_ids = e.include_org && Array.isArray(e.org_team_ids) ? e.org_team_ids : [], e = O(e, E(e)), e._is_new || e.num_remaining > 0 ? F(e) : Promise.resolve(e)) : Promise.reject(new Error("No search parameters provided"));
           }) : Promise.reject(new Error("API search not yet enabled"));
         },
         isLocalTeamMember: function(e) {
           return e ? e._is_local ? e._is_local : e.team_id === TS.model.team.id : void TS.warn("isLocalTeamMember: No member provided?");
         },
         isNewMemberSearch: function(e) {
-          return A(e);
+          return E(e);
         },
         readyMemberSearcher: function(e, t) {
-          return E(e, t);
+          return O(e, t);
         },
         buildPromiseToSearchMembersArguments: function(e) {
-          return F(e);
+          return B(e);
         },
         haveAllMembersForModelOb: function(e) {
           if (!TS.lazyLoadMembersAndBots()) return !0;
@@ -11113,7 +11116,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           e = 0, t = {}, i = {};
         },
         maybeUpdateMembersUserCanSee: function() {
-          return J();
+          return Q();
         },
         getMembersForTeam: function(e) {
           var t = TS.members.getMembersWithOptions({
@@ -11149,73 +11152,73 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             }
           }), Object.defineProperty(n, "_maybeRefetchAccessibleUserIds", {
             get: function() {
-              return Y;
+              return J;
             },
             set: function(e) {
-              Y = e;
+              J = e;
             }
           }), Object.defineProperty(n, "_is_refetching_accessible_user_ids", {
-            get: function() {
-              return z;
-            },
-            set: function(e) {
-              z = e;
-            }
-          }), Object.defineProperty(n, "_did_receive_multiple_calls_to_refetch_accessible_user_ids", {
             get: function() {
               return K;
             },
             set: function(e) {
               K = e;
             }
-          }), Object.defineProperty(n, "_accessible_user_ids_last_fetched_ts", {
+          }), Object.defineProperty(n, "_did_receive_multiple_calls_to_refetch_accessible_user_ids", {
             get: function() {
               return V;
             },
             set: function(e) {
               V = e;
             }
-          }), Object.defineProperty(n, "_maybeSetDeletedStatus", {
+          }), Object.defineProperty(n, "_accessible_user_ids_last_fetched_ts", {
             get: function() {
-              return y;
+              return Y;
             },
             set: function(e) {
-              y = e;
+              Y = e;
             }
-          }), Object.defineProperty(n, "_maybeSetTeamId", {
+          }), Object.defineProperty(n, "_maybeSetDeletedStatus", {
             get: function() {
               return w;
             },
             set: function(e) {
               w = e;
             }
-          }), Object.defineProperty(n, "_maybeSetLocality", {
+          }), Object.defineProperty(n, "_maybeSetTeamId", {
             get: function() {
               return k;
             },
             set: function(e) {
               k = e;
             }
-          }), Object.defineProperty(n, "_setImAndMpimNames", {
+          }), Object.defineProperty(n, "_maybeSetLocality", {
             get: function() {
               return x;
             },
             set: function(e) {
               x = e;
             }
-          }), Object.defineProperty(n, "_setLowerCaseNamesForMember", {
+          }), Object.defineProperty(n, "_setImAndMpimNames", {
             get: function() {
-              return N;
+              return M;
             },
             set: function(e) {
-              N = e;
+              M = e;
             }
-          }), Object.defineProperty(n, "_setImagesForMember", {
+          }), Object.defineProperty(n, "_setLowerCaseNamesForMember", {
             get: function() {
               return G;
             },
             set: function(e) {
               G = e;
+            }
+          }), Object.defineProperty(n, "_setImagesForMember", {
+            get: function() {
+              return W;
+            },
+            set: function(e) {
+              W = e;
             }
           }), n;
         }
@@ -11233,23 +11236,24 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         u = [],
         m = [],
         p = [],
-        f = 250,
-        h = 100,
-        g = {},
+        f = [],
+        h = 250,
+        g = 100,
         S = {},
-        T = function(e) {
+        T = {},
+        b = function(e) {
           return _.isString(e) ? TS.members.getPotentiallyUnknownMemberById(e) : e;
         },
-        b = function(e) {
+        v = function(e) {
           if ("unknown_members" === TS.experiment.getGroup("unknown_members_perf", TS.members.unknown_members_perf_exp_metrics)) {
             var t = !!e && e.is_unknown;
-            return !!t && (e && e.is_unknown && (e.is_unknown = !1), _.pull(p, e.id), g[e.id] && (ne(e.id), t && TS.statsd.measure("unknown_member_resolution_timing", "unknown_member_resolution_timing_" + e.id)), t);
+            return !!t && (e && e.is_unknown && (e.is_unknown = !1), _.pull(f, e.id), S[e.id] && (ie(e.id), t && TS.statsd.measure("unknown_member_resolution_timing", "unknown_member_resolution_timing_" + e.id)), t);
           }
         },
-        v = function(e) {
+        y = function(e) {
           e.member_color || (e.member_color = e.color, TS.model.user_colors[e.id] && TS.members.setMemberUserColor(e, TS.model.user_colors[e.id]));
         },
-        y = function(e, t) {
+        w = function(e, t) {
           if (TS.boot_data.page_needs_enterprise && e.enterprise_user && e.enterprise_user.teams && e.enterprise_user.teams.length > 0)
             if ("web" === TS.boot_data.app) e.enterprise_user.teams.indexOf(TS.model.team.id) > -1 && (e.deleted = !1);
             else if (t && t.length && t.indexOf("deleted") >= 0) {
@@ -11260,17 +11264,17 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             }
           } else e.deleted = !1;
         },
-        w = function(e) {
+        k = function(e) {
           if (!e.team_id) return e.enterprise_user && e.id === e.enterprise_user.id ? void(e.team_id = e.enterprise_user.enterprise_id) : void(e.team_id = TS.model.team.id);
         },
-        k = function(e) {
+        x = function(e) {
           if (!e) return void TS.warn("_maybeSetLocality: No member provided?");
           e._is_local = e.team_id === TS.model.team.id, TS.boot_data.page_needs_enterprise && ("web" !== TS.boot_data.app && (e._is_local = _.includes(_.get(e, "enterprise_user.teams", []), TS.model.team.id)), e._is_from_org = !e._is_local && (e.team_id === TS.model.enterprise.id || _.get(e, "enterprise_user.enterprise_id") === TS.model.enterprise.id)), TS.boot_data.feature_shared_channels_client && (e.is_external = TS.utility.teams.isMemberExternal(e), TS.useRedux() && (TS.members.is_in_bulk_upsert_mode ? TS.redux.member_types.addToBulkUpdatePayload(e) : TS.redux.member_types.updateMemberTypeForMember(e)));
         },
-        x = function(e) {
+        M = function(e) {
           TS.ims.setNameFromMember(e), TS.mpims.setNamesFromMember(e);
         },
-        M = function e(t, n) {
+        C = function e(t, n) {
           if (_.isEmpty(t)) return Promise.resolve();
           if (!Array.isArray(t)) return Promise.reject(new Error("m_ids is not an array"));
           t = _.uniq(t);
@@ -11299,28 +11303,28 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             return e.length !== t.length && TS.warn("_fetchAndUpsertMembersWithIds requested " + t.length + " members but received " + e.length + ". Missing members: " + n.join(", ")), e;
           });
         },
-        C = function(e, t) {
-          var n = T(e);
+        I = function(e, t) {
+          var n = b(e);
           return n ? n.profile ? n.profile[t] ? n.profile[t] : n[t] ? n[t] : n.profile[t + "_normalized"] ? n.profile[t + "_normalized"] : "" : n.is_bot && n.name ? n.name : "NO MEMBER??" : "NO MEMBER??";
         },
-        I = function(e) {
+        A = function(e) {
           var t = TS.members.prepareMembersForLS(),
             n = !e && TS.storage.fetchMembers();
           !e && n && TS.utility.areSimpleObjectsEqual(n, t) || TS.storage.storeMembers(t);
         },
-        A = function(e) {
+        E = function(e) {
           return e._last_query !== e.query || e._last_include_org !== e.include_org || _.xor(e._last_org_team_ids, e.org_team_ids).length;
         },
-        E = function(e, t) {
+        O = function(e, t) {
           return e = e || {}, e.hasOwnProperty("_searcher_p") && t && e._searcher_p.cancel(), e.hasOwnProperty("_cursor_mark") && !t || (e._cursor_mark = ""), e.hasOwnProperty("full_profile_filter") || (e.full_profile_filter = !0), e.hasOwnProperty("include_bots") || (e.include_bots = !0), e.hasOwnProperty("include_deleted") || (e.include_deleted = !1), e.hasOwnProperty("include_self") || (e.include_self = !1), e.hasOwnProperty("include_slackbot") || (e.include_slackbot = !0), e.hasOwnProperty("items") && !t || (e.items = []), e.hasOwnProperty("not_member_of") || (e.not_member_of = []), e.hasOwnProperty("member_of") || (e.member_of = []), e.hasOwnProperty("num_found") && !t || (e.num_found = 0), e.hasOwnProperty("num_remaining") && !t || (e.num_remaining = 0), e.hasOwnProperty("num_new") && !t || (e.num_new = 0), e.hasOwnProperty("max_api_results") || (e.max_api_results = 100), t && (e._last_query = e.query, e._last_include_org = e.include_org, e._last_org_team_ids = e.org_team_ids), e._is_new = !!t, e;
         },
-        O = function(e) {
+        F = function(e) {
           var t = function() {
-            return B(e);
+            return D(e);
           };
           return e._is_new ? e._searcher_p = t() : e._searcher_p = e._searcher_p.then(t), e._searcher_p;
         },
-        F = function(e) {
+        B = function(e) {
           var t = [TS.utility.search.makeClause("is", "user")];
           if (e._last_query) {
             var n = e._last_query.split(/\s*,\s*|\s+/).map(function(e) {
@@ -11360,8 +11364,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             };
           return e._last_include_org && (o.all_of_org = e._last_include_org), e._cursor_mark && (o.cursor_mark = e._cursor_mark), e.determine_membership_for_channel && (o.determine_membership_for_channel = e.determine_membership_for_channel), o;
         },
-        B = function(e) {
-          var t = F(e);
+        D = function(e) {
+          var t = B(e);
           return e.num_new = 0, TS.utility.search.promiseToSearch(t).then(function(t) {
             if (!t.data.items.length) return Promise.resolve(e);
             e.num_remaining || (e.num_remaining = t.data.num_found, e.num_found = t.data.num_found), e.num_remaining -= t.data.items.length, e._cursor_mark = t.data.next_cursor_mark;
@@ -11374,18 +11378,18 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             return e.num_new = n.length, e.items.push.apply(e.items, n), Promise.resolve(e);
           });
         },
-        D = function(e) {
+        R = function(e) {
           return _.isObject(e) ? _.omitBy(e, function(e, t) {
             return 0 === t.indexOf("image_");
           }) : e;
         },
-        R = function(e, t) {
+        H = function(e, t) {
           var i = "NOOP",
             r = [];
-          return W(e, t), Object.keys(t).forEach(function(a) {
+          return q(e, t), Object.keys(t).forEach(function(a) {
             if ("profile" === a) {
-              var s = D(e.profile),
-                o = D(t.profile);
+              var s = R(e.profile),
+                o = R(t.profile);
               if (_.isObject(o)) {
                 s.status_text === o.status_text && s.status_emoji === o.status_emoji || (i = "CHANGED", r.push("current_status"), e.profile.status_text = o.status_text, e.profile.status_emoji = o.status_emoji);
                 var l = Object.keys(s).filter(function(e) {
@@ -11395,8 +11399,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                   var d = _.some(["real_name", "full_name", "display_name"], function(e) {
                     return o[e] != s[e];
                   });
-                  !_.isUndefined(s.fields) && _.isUndefined(o.fields) && (TS.calls || TS.warn("So uh, yeah, we just tried to overwrite the `fields` value. Keeping what we have instead. User: " + t.id), o.fields = s.fields), e.profile = _.assign(e.profile, o), d && N(e);
-                  s.avatar_hash != o.avatar_hash && G(e), i = "CHANGED", r.push(a);
+                  !_.isUndefined(s.fields) && _.isUndefined(o.fields) && (TS.calls || TS.warn("So uh, yeah, we just tried to overwrite the `fields` value. Keeping what we have instead. User: " + t.id), o.fields = s.fields), e.profile = _.assign(e.profile, o), d && G(e);
+                  s.avatar_hash != o.avatar_hash && W(e), i = "CHANGED", r.push(a);
                 }
               }
             } else if ("enterprise_user" === a)
@@ -11412,124 +11416,124 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               }
             } else if ("teams" === a) e[a] = t[a], i = "CHANGED", r.push(a);
             else if (e[a] != t[a])
-              if ("is_admin" === a && TS.has_pri[Z] && (TS.console.warn(Z, a + "is changing from `" + e[a] + "` to `" + t[a] + "`"), TS.console.trace(Z)), t[a] && !TS.utility.isScalar(t[a])) e[a] = t[a], TS.warn(a + " is not scalar! it needs to be handled by upsertMember specifically to test if it has changed! " + n(t[a]));
+              if ("is_admin" === a && TS.has_pri[ee] && (TS.console.warn(ee, a + "is changing from `" + e[a] + "` to `" + t[a] + "`"), TS.console.trace(ee)), t[a] && !TS.utility.isScalar(t[a])) e[a] = t[a], TS.warn(a + " is not scalar! it needs to be handled by upsertMember specifically to test if it has changed! " + n(t[a]));
               else if ("boolean" != typeof t[a] || !t[a] != !e[a]) {
               r.push(a), i = "CHANGED";
               var f = e[a],
                 h = t[a];
               e[a] = h, "name" === a ? TS.members.usernameChanged(e, f) : "real_name" === a && (e._real_name_lc = _.toLower(e.profile.real_name));
             }
-          }), b(e) && r.push("is_unknown"), v(e), y(e, r), w(e), k(e), {
+          }), v(e) && r.push("is_unknown"), y(e), w(e, r), k(e), x(e), {
             status: i,
             what_changed: r
           };
         },
-        H = function e() {
+        P = function e() {
           if ("unknown_members" !== TS.experiment.getGroup("unknown_members_perf", TS.members.unknown_members_perf_exp_metrics)) return Promise.resolve();
-          if (!p.length) {
+          if (!f.length) {
             var t = TS.shared.getActiveModelOb();
-            if (t && S[t.id]) {
-              var n = performance.now() - S[t.id];
-              TS.metrics.store("channel_switched_to_unknown_resolution", n), delete S[t.id];
+            if (t && T[t.id]) {
+              var n = performance.now() - T[t.id];
+              TS.metrics.store("channel_switched_to_unknown_resolution", n), delete T[t.id];
             }
             return Promise.resolve();
           }
-          var i = _.clone(p);
-          return M(i).then(function(t) {
+          var i = _.clone(f);
+          return C(i).then(function(t) {
             i.forEach(function(e) {
               var n = TS.members.getPotentiallyUnknownMemberByIdWithoutFetching(e);
               n && (_.find(t, {
                 id: e
-              }) || (n.is_non_existent = !0, b(n)));
+              }) || (n.is_non_existent = !0, v(n)));
             });
             return TS.client && TS.client.ui && TS.client.ui.rebuildAll(!1, !0), e();
           }).catch(function(e) {
-            throw e.unknown_member_ids = p, e.unknown_member_ids_getting_fetched = i, TS.console.logError(e, "unknown_fetch_error", "unknown_member_error", !0), e;
+            throw e.unknown_member_ids = f, e.unknown_member_ids_getting_fetched = i, TS.console.logError(e, "unknown_fetch_error", "unknown_member_error", !0), e;
           });
         },
-        P = function(e) {
+        j = function(e) {
           if ("unknown_members" !== TS.experiment.getGroup("unknown_members_perf", TS.members.unknown_members_perf_exp_metrics)) return null;
           if (!e) return null;
           if (TS.model.ms_logged_in_once) {
-            TS.has_pri[X] && TS.log(X, "member id " + e + " not found in members map, added unknown member to map");
-            var t = j(e);
-            return p.push(e), 1 === p.length && _.defer(H), t;
+            TS.has_pri[Z] && TS.log(Z, "member id " + e + " not found in members map, added unknown member to map");
+            var t = L(e);
+            return f.push(e), 1 === f.length && _.defer(P), t;
           }
         },
-        j = function(e) {
+        L = function(e) {
           var t = {
             id: e,
             name: e
           };
-          return t = TS.members.upsertMember(t).member, t.is_unknown = !0, t.is_non_existent = !1, L(t), te(e), TS.statsd.mark("unknown_member_resolution_timing_" + e), t;
+          return t = TS.members.upsertMember(t).member, t.is_unknown = !0, t.is_non_existent = !1, U(t), ne(e), TS.statsd.mark("unknown_member_resolution_timing_" + e), t;
         },
-        L = function(e) {
+        U = function(e) {
           "unknown_members" === TS.experiment.getGroup("unknown_members_perf", TS.members.unknown_members_perf_exp_metrics) && _.isObject(e.profile) && (e.is_unknown || e.is_non_existent) && _.forEach(["24", "32", "48", "72", "192", "512", "1024"], function(t) {
             e.profile["image_" + t] = cdn_url + "/1e11/img/unknown_avatar.png";
           });
         },
-        U = function(e) {
-          e.profile && "object" === n(e.profile) || (e.profile = {}), "USLACKBOT" === e.id && (e.is_slackbot = !0), b(e), v(e), y(e), w(e), k(e), e._first_name_lc = "", e._last_name_lc = "", e._real_name_lc = "", e._real_name_normalized_lc = "", TS.boot_data.feature_name_tagging_client && (e._display_name_lc = "", e._display_name_normalized_lc = ""), N(e), G(e), e.files = [], e.activity = [], e.stars = [], e.mentions = [], q(e), x(e);
-        },
         N = function(e) {
-          "name" in e && (e._name_lc = _.toLower(e.name)), _.isObject(e.profile) && ("first_name" in e.profile && (e._first_name_lc = _.toLower(e.profile.first_name)), "last_name" in e.profile && (e._last_name_lc = _.toLower(e.profile.last_name)), "real_name" in e.profile && (e._real_name_lc = _.toLower(e.profile.real_name)), "real_name_normalized" in e.profile && (e._real_name_normalized_lc = _.toLower(e.profile.real_name_normalized)), TS.boot_data.feature_name_tagging_client && ("display_name" in e.profile && (e._display_name_lc = _.toLower(e.profile.display_name)), "display_name_normalized" in e.profile && (e._display_name_normalized_lc = _.toLower(e.profile.display_name_normalized))));
+          e.profile && "object" === n(e.profile) || (e.profile = {}), "USLACKBOT" === e.id && (e.is_slackbot = !0), v(e), y(e), w(e), k(e), x(e), e._first_name_lc = "", e._last_name_lc = "", e._real_name_lc = "", e._real_name_normalized_lc = "", TS.boot_data.feature_name_tagging_client && (e._display_name_lc = "", e._display_name_normalized_lc = ""), G(e), W(e), e.files = [], e.activity = [], e.stars = [], e.mentions = [], z(e), M(e);
         },
         G = function(e) {
+          "name" in e && (e._name_lc = _.toLower(e.name)), _.isObject(e.profile) && ("first_name" in e.profile && (e._first_name_lc = _.toLower(e.profile.first_name)), "last_name" in e.profile && (e._last_name_lc = _.toLower(e.profile.last_name)), "real_name" in e.profile && (e._real_name_lc = _.toLower(e.profile.real_name)), "real_name_normalized" in e.profile && (e._real_name_normalized_lc = _.toLower(e.profile.real_name_normalized)), TS.boot_data.feature_name_tagging_client && ("display_name" in e.profile && (e._display_name_lc = _.toLower(e.profile.display_name)), "display_name_normalized" in e.profile && (e._display_name_normalized_lc = _.toLower(e.profile.display_name_normalized))));
+        },
+        W = function(e) {
           if (_.isObject(e.profile)) {
-            w(e);
+            k(e);
             var t = TS.model.team.avatar_base_url + e.team_id + "-" + e.id + "-" + e.profile.avatar_hash + "-";
             _.forEach(["24", "32", "48", "72", "192", "512", "1024"], function(n) {
               e.profile["image_" + n] = t + n;
             }), delete e.profile.image_original;
           }
         },
-        W = function(e, t) {
+        q = function(e, t) {
           _.get(e, "profile.always_active") !== _.get(t, "profile.always_active") && (t.presence = _.get(t, "profile.always_active") ? "active" : "away");
         },
-        q = function(e) {
+        z = function(e) {
           if (!e.presence && !_.isEmpty(TS.model.online_users)) {
             var t = TS.model.online_users.indexOf(e.id);
             t > -1 && (e.presence = "active", TS.model.online_users.splice(t, 1));
           }
           e.presence = "active" === e.presence ? "active" : "away", _.get(e, "profile.always_active") && (e.presence = "active");
         },
-        z = !1,
         K = !1,
-        V = 0,
-        Y = function() {
+        V = !1,
+        Y = 0,
+        J = function() {
           if (TS.model.user.is_restricted && TS.membership.lazyLoadChannelMembership()) {
-            if (z) return void(K = !0);
-            z = !0;
-            var e, t = Date.now() - V;
+            if (K) return void(V = !0);
+            K = !0;
+            var e, t = Date.now() - Y;
             return e = t < 12e4 ? new Promise(function(e) {
               setTimeout(e, 12e4 - t);
             }) : Promise.resolve(), e.then(function() {
-              return K = !1, TS.members.maybeFetchAccessibleUserIds();
+              return V = !1, TS.members.maybeFetchAccessibleUserIds();
             }).finally(function() {
-              z = !1, K && (K = !1, Y());
+              K = !1, V && (V = !1, J());
             }), e;
           }
         },
-        J = function() {
-          return TS.members.invalidateMembersUserCanSeeArrayCaches(), Y();
+        Q = function() {
+          return TS.members.invalidateMembersUserCanSeeArrayCaches(), J();
         },
-        Q = 4,
-        X = 6655,
-        Z = 1975,
-        ee = function() {
-          0 !== _.keys(g).length && _.each(g, ne);
+        X = 4,
+        Z = 6655,
+        ee = 1975,
+        te = function() {
+          0 !== _.keys(S).length && _.each(S, ie);
         },
-        te = function(e) {
-          if (!g[e]) {
+        ne = function(e) {
+          if (!S[e]) {
             var t = TS.console.getStackTrace();
-            g[e] = setTimeout(function() {
+            S[e] = setTimeout(function() {
               if (TS.model.ms_connected) {
                 if (TS.flannel.fetchAndUpsertObjectsByIds([e]).then(function() {
                     var t = TS.members.getPotentiallyUnknownMemberByIdWithoutFetching(e),
                       n = t.is_unknown ? "failure" : "success";
-                    "success" === n && ne(t.id), TS.metrics.count("unknown_member_timeout_retry_" + n);
-                  }), g[e]) return;
-                g[e] = setTimeout(function() {
+                    "success" === n && ie(t.id), TS.metrics.count("unknown_member_timeout_retry_" + n);
+                  }), S[e]) return;
+                S[e] = setTimeout(function() {
                   if (TS.model.ms_connected) {
                     var n = TS.members.getPotentiallyUnknownMemberByIdWithoutFetching(e);
                     if (!n.is_unknown) return;
@@ -11545,10 +11549,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             }, 2e4);
           }
         },
-        ne = function(e) {
-          clearTimeout(g[e]), delete g[e];
+        ie = function(e) {
+          clearTimeout(S[e]), delete S[e];
         },
-        ie = function(e, t) {
+        re = function(e, t) {
           if ("ADDED" === e.status && TS.lazyLoadMembersAndBots()) TS.members.lazily_added_sig.dispatch(e.member);
           else if ("CHANGED" === e.status) {
             if (-1 != e.what_changed.indexOf("is_unknown") && "unknown_members" === TS.experiment.getGroup("unknown_members_perf")) return TS.members.changed_is_unknown_sig.dispatch(e.member), e;
@@ -11560,14 +11564,14 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }
           return e;
         },
-        re = function(e) {
+        ae = function(e) {
           if (e) {
-            ae(e);
+            se(e);
             var n = t[e];
             return n && n.is_unknown ? n : null;
           }
         },
-        ae = function(n) {
+        se = function(n) {
           if (void 0 === t[n]) {
             var i = TS.model.members;
             e < i.length && (i.forEach(function(e) {
@@ -11575,9 +11579,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             }), (e = Object.keys(t).length) !== i.length && TS.warn("member map size and member list length have diverged"));
           }
         },
-        se = function() {
+        oe = function() {
           var e = TS.shared.getActiveModelOb();
-          p.length > 0 && e && (S[e.id] = performance.now());
+          f.length > 0 && e && (T[e.id] = performance.now());
         };
     }();
   },
@@ -28042,7 +28046,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         M = function(e, i) {
           var r, a = !!e.is_external || !!e.auto_type;
-          TS.lazyLoadMembersAndBots() || (r = TS.members.getMembersForUser().filter(B).map(function(e) {
+          TS.lazyLoadMembersAndBots() || TS.boot_data.page_needs_enterprise || (r = TS.members.getMembersForUser().filter(B).map(function(e) {
             return {
               member: e
             };
@@ -28082,12 +28086,12 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                   },
                   disabled: !!e.is_external || !!e.auto_type
                 };
-              TS.lazyLoadMembersAndBots() ? l.data_promise = C(e) : l.data = r, $("#user_group_members_select").lazyFilterSelect(l), A(e), t.addClass("hidden"), n.removeClass("hidden"), o();
+              TS.lazyLoadMembersAndBots() || TS.boot_data.page_needs_enterprise ? l.data_promise = C(e) : l.data = r, $("#user_group_members_select").lazyFilterSelect(l), A(e), t.addClass("hidden"), n.removeClass("hidden"), o();
             };
           if (i) s(), TS.ui.fs_modal.hideBackButton(), o();
           else {
             var l, d = function() {
-              TS.lazyLoadMembersAndBots() || (l = e.users, l.forEach(function(e) {
+              TS.lazyLoadMembersAndBots() || TS.boot_data.page_needs_enterprise || (l = e.users, l.forEach(function(e) {
                 for (var t = 0; t < r.length; t += 1)
                   if (e == r[t].member.id) {
                     r[t].selected = !0;
@@ -28132,9 +28136,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return Promise.resolve().then(function() {
             return TS.members.promiseToSearchMembers(e).then(function(e) {
               var t = [];
-              return t = "" === e.query ? TS.members.getMembersForTeam(TS.model.team.id) : e.items, e.items = t.filter(function(e) {
-                return !e.is_restricted;
-              }).map(function(e) {
+              return t = "" === e.query ? TS.members.getMembersForTeam(TS.model.team.id) : e.items, e.items = t.filter(B).map(function(e) {
                 return {
                   member: e,
                   lfs_id: String(e.id)
