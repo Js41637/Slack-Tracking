@@ -21,6 +21,15 @@
 
   </div>
   <div class="modal-footer">
+    {{#if show_copy_link}}
+      <button class="btn btn_outline inline_flex ts_icon ts_icon_link ts_tip ts_tip_top ts_tip_float ts_tip_align_left ts_tip_multiline" data-action="copy_link" data-link="{{item.permalink}}"
+      {{#if item.is_public}}
+        title="{{#t}}Copy a link to this file.<br>To share, paste it anywhere.{{/t}}"
+      {{else}}
+        title="{{#t}}Copy a link to this file.<br>It\u2019s private, so sharing is limited.{{/t}}"
+      {{/if}}
+      ></button>
+    {{/if}}
     <button type="button" class="btn btn_outline dialog_cancel" tabindex="3">{{#t}}Cancel{{/t}}</button>
     <button type="button" class="btn dialog_go" tabindex="2">{{#t}}Share{{/t}}</button>
   </div>

@@ -1609,8 +1609,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             show_close_button: !0,
             secondary_go_button_text: TS.i18n.t("Don’t Allow", "apps")(),
             secondary_go_button_class: "btn_outline",
-            title: "&nbsp;",
             show_secondary_go_button: !0,
+            force_small: !0,
             body: TS.templates.app_permission_modal({
               app_name: t.real_name,
               app_image: t.profile.image_48,
@@ -3387,6 +3387,12 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               if (TS.client.windows.openFileWindow(r, o)) return;
             }
             TS.client.ui.files.previewFile(r, n || "file_list", !1, s, i);
+          }), TS.click.addClientHandler('#share_dialog [data-action="copy_link"]', function(e, t) {
+            var n = t.data("link");
+            n && TS.clipboard.canWriteText() && (TS.tips.updateFloater({
+              title: TS.i18n.t("Copied!", "share_dialog")(),
+              classes_to_add: ["success"]
+            }), TS.clipboard.writeText(n));
           }), TS.click.addClientHandler(".msg_actions", function(e, t) {
             var n = t.data("msg-ts");
             if (t.is(t) || t.closest(".msg_cog").length)
@@ -3586,8 +3592,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             var n = t.closest("ts-thread");
             n.length && TS.ui.thread.collapseInlineThread(n);
           }), TS.click.addClientHandler("a[href]", function(e, t, n) {
-            var i, r, a = t.attr("href").toLowerCase();
-            a.indexOf("?") > -1 && (i = a.indexOf("?"), r = a.slice(0, i));
+            var i, r, a = t.attr("href");
+            TS.utility.isSlackUrl(a) && (a = a.toLowerCase()), a.indexOf("?") > -1 && (i = a.indexOf("?"), r = a.slice(0, i));
             var s = {
               "/account/settings": !0,
               "/admin": !0,
@@ -9694,7 +9700,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }), TS.utility.msgs.setMsgs(e, e.msgs)) : TS.utility.msgs.setMsgs(e, []) : TS.boot_data.msgs && TS.utility.msgs.ingestMessagesFromBootData(e), e.oldest_msg_ts = TS.storage.fetchOldestTs(e.id) || null, e.last_msg_input = TS.storage.fetchLastMsgInput(e.id) || null, e.has_draft = !!e.last_msg_input, TS.useRedux() && t && (e.is_archived = t.deleted);
         },
         r = function(e) {
-          return e._display_name ? e._display_name : (e._display_name = TS.members.getPrefCompliantMemberName(TS.members.getMemberById(e.user)), e._display_name);
+          if (e._display_name) return e._display_name;
+          var t = TS.members.getMemberById(e.user);
+          return t ? (e._display_name = TS.members.getPrefCompliantMemberName(t), e._display_name) : e.name;
         },
         a = function(e) {
           var t = _.find(TS.model.ims, {
@@ -14325,13 +14333,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }
         },
         startWithSharedInvitesMenu: function(e) {
-          if (!TS.menu.isRedundantClick(e) && !TS.menu.menu_is_showing) {
-            TS.menu.buildIfNeeded();
-            var t = $(e.target);
-            TS.menu.clean(), TS.menu.$menu_items.html(TS.templates.shared_invites_modal()), TS.menu.start(e), t.hasClass("channel_list_add_link_feat_link_in_sidebar") && TS.menu.positionAt(t, 0, -TS.menu.$menu.height() - 16), TS.menu.$menu_items.on("click", '[data-action="admin_invites_modal"]', function() {
-              TS.menu.end();
-            }), TS.menu.keepInBounds();
-          }
+          TS.menu.isRedundantClick(e) || TS.menu.menu_is_showing || (TS.menu.buildIfNeeded(), TS.menu.clean(), TS.menu.$menu_items.html(TS.templates.shared_invites_modal()), TS.menu.start(e), TS.menu.$menu_items.on("click", '[data-action="admin_invites_modal"]', function() {
+            TS.menu.end();
+          }), TS.menu.keepInBounds());
         },
         startWithSoundsMenu: function(e, t) {
           if (!TS.menu.isRedundantClick(e) && !TS.menu.menu_is_showing) {
@@ -15013,16 +15017,15 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               if (i < e) return TS.log(1989, "Flannel: retrying " + t + " call; attempt #" + i + " of " + e), TS.ms.flannel.call(t, n, i + 1).then(a).catch(s);
               TS.log(1989, "Flannel: giving up on " + t + " call"), s(new Error("Lost Flannel connection"));
             };
-            TS.isSocketManagerEnabled() ? (TS.interop.SocketManager.disconnectedSig.addOnce(o), TS.interop.SocketManager.send(r).then(function(e) {
+            TS.isSocketManagerEnabled() ? TS.interop.SocketManager.send(r).then(function(e) {
               Promise.delay(0).then(function() {
                 a(e);
               });
-            }).catch(function() {
-              var e = new Error("Flannel call failed");
-              e.imsg = r, s(e);
-            }).finally(function() {
-              TS.interop.SocketManager.disconnectedSig.remove(o);
-            })) : (TS.ms.disconnected_sig.addOnce(o), TS.ms.send(r, function(e, t) {
+            }).catch(function(e) {
+              if (e && "socket_closed" === e.message) return void o();
+              var t = new Error("Flannel call failed");
+              t.imsg = r, s(t);
+            }) : (TS.ms.disconnected_sig.addOnce(o), TS.ms.send(r, function(e, t) {
               if (TS.ms.disconnected_sig.remove(o), e) Promise.delay(0).then(function() {
                 a(t);
               });
@@ -25315,11 +25318,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         filePreviewBackIcon: function() {
           return '<i class="ts_icon ts_icon_chevron_medium_left back_icon"></i>';
         },
-        buildQuickSwitcherBtnHtml: function(e) {
-          var t, n = TS.i18n.t("Quick Switcher", "templates_builders")();
-          if (e) t = ['<i class="ts_icon ts_icon_filter"><span class="ts_tip_tip">' + n + ' <span class="subtle_silver">', TS.model.is_mac ? "&#8984K" : "Ctrl+K", "</span></span></i>"].join("");
-          else if (t = TS.model.is_mac || !TS.model.is_our_app && !TS.model.prefs.k_key_omnibox ? '<i class="ts_icon ts_icon_filter"></i><span id="quick_switcher_label">' + n + "</span>" : '<i class="ts_icon ts_icon_filter"></i><span id="quick_switcher_label" class="quick_switcher_label_windows_alignment">' + n + "</span>", TS.model.is_our_app || TS.model.prefs.k_key_omnibox) return [t, '<span id="quick_switcher_shortcut">', TS.model.is_mac ? "&#8984K" : "Ctrl+K", "</span>"].join("");
-          return t;
+        buildQuickSwitcherBtnHtml: function() {
+          var e, t = TS.i18n.t("Quick Switcher", "templates_builders")();
+          return e = TS.model.is_mac || !TS.model.is_our_app && !TS.model.prefs.k_key_omnibox ? '<i class="ts_icon ts_icon_filter"></i><span id="quick_switcher_label">' + t + "</span>" : '<i class="ts_icon ts_icon_filter"></i><span id="quick_switcher_label" class="quick_switcher_label_windows_alignment">' + t + "</span>", TS.model.is_our_app || TS.model.prefs.k_key_omnibox ? [e, '<span id="quick_switcher_shortcut">', TS.model.is_mac ? "&#8984K" : "Ctrl+K", "</span>"].join("") : e;
         },
         atLabel: function(e) {
           var t = e;
@@ -26677,7 +26678,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             for (var n = _.first(t), i = 0; i < t.length; i += 1) t[i] >= e && (n = t[i]);
             return n;
           }), Handlebars.registerHelper("prefsNotificationExampleAll", function() {
-            var e = _.escape(TS.model.team.name);
+            var e = TS.model.team.name;
             TS.model.is_mac || (e = TS.i18n.t("from {team_name}", "prefs")({
               team_name: e
             }));
@@ -26687,7 +26688,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             });
             return new Handlebars.SafeString(t);
           }), Handlebars.registerHelper("prefsNotificationExampleMentions", function() {
-            var e = _.escape(TS.model.team.name);
+            var e = TS.model.team.name;
             TS.model.is_mac || (e = TS.i18n.t("from {team_name}", "prefs")({
               team_name: e
             }));
@@ -31399,7 +31400,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                 item: l,
                 item_owner: TS.members.getMemberById(l.user),
                 sharing_html: new Handlebars.SafeString(c),
-                file_html: new Handlebars.SafeString(_)
+                file_html: new Handlebars.SafeString(_),
+                show_copy_link: l.permalink && TS.clipboard.canWriteText()
               };
             u.icon_class = TS.utility.getImageIconClass(l, "thumb_80"), TS.ui.share_dialog.div || TS.ui.share_dialog.build();
             var m = TS.templates.share_dialog(u);
@@ -38221,7 +38223,11 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return n === i ? 0 : n > i ? 1 : -1;
         },
         isAppVersionBefore: function(e) {
-          return !!TS.model.is_our_app && -1 === TS.utility.compareSemanticVersions(TS.model.desktop_app_version.major + "." + TS.model.desktop_app_version.minor + "." + TS.model.desktop_app_version.patch, e);
+          if (!TS.model.is_our_app) {
+            if ("dev" === TS.boot_data.version_ts) throw new Error("Cannot check app version because we are not in the app, silly goose.");
+            return !1;
+          }
+          return -1 === TS.utility.compareSemanticVersions(TS.model.desktop_app_version.major + "." + TS.model.desktop_app_version.minor + "." + TS.model.desktop_app_version.patch, e);
         },
         doRectsOverlap: function(e, t) {
           return !(t.left > e.right || t.right < e.left || t.top > e.bottom || t.bottom < e.top);
@@ -38299,6 +38305,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         isAppSpaceViewPath: function(e) {
           return 0 === e.indexOf("/app-space");
+        },
+        isSlackUrl: function(e) {
+          return S.test(e);
         },
         getPathFromSlackUrl: function(e) {
           var t = e.match(S),
