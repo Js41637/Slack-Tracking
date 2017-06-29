@@ -1683,7 +1683,7 @@ webpackJsonp([12, 328, 337, 329], {
       TS.registerModule("metrics", {
         special_start_mark_labels: ["navigationStart", "unloadEventStart", "unloadEventEnd", "redirectStart", "redirectEnd", "fetchStart", "domainLookupStart", "domainLookupEnd", "connectStart", "connectEnd", "secureConnectionStart", "requestStart", "responseStart", "responseEnd", "domLoading", "domComplete", "domContentLoadedEventStart", "domContentLoadedEventEnd", "domInteractive"],
         onStart: function() {
-          TS.web && TS.web.login_sig.add(TS.metrics.onLogin), TS.client && TS.client.login_sig.add(TS.metrics.onLogin), a = TS.utility.enableFeatureForUser(10);
+          TS.web && TS.web.login_sig.add(TS.metrics.onLogin), TS.client && TS.client.login_sig.add(TS.metrics.onLogin), a = TS.utility.enableFeatureForUser(1);
         },
         onLogin: function() {
           var a = Math.floor(Math.random() * n);

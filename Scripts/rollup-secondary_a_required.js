@@ -7490,8 +7490,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           TS.has_pri[m] && TS.log(m, "Flannel: upserting batch of " + e.length + " objects");
           var i = _.partition(e, function(e) {
               if (TS.utility.members.isMember(e)) {
-                var t = TS.members.getPotentiallyUnknownMemberByIdWithoutFetching(e.id);
-                return "unknown_members" === TS.experiment.getGroup("unknown_members_perf", TS.members.unknown_members_perf_exp_metrics) && t ? !t.is_unknown : t;
+                var t = TS.members.getMemberById(e.id);
+                t || (t = TS.members.getUnknownMemberById(e.id));
+                return "unknown_members" === TS.experiment.getGroup("unknown_members_perf", TS.members.unknown_members_perf_exp_metrics) && t ? t.is_unknown : t;
               }
               return TS.shared.getModelObById(e.id);
             }),
@@ -8319,7 +8320,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           if ("date" === (l = m.shift()) && m.length >= 2) {
             var p = m[0],
               f = m[1],
-              h = TS.utility.date.formatDate(f, p, u),
+              h = TS.interop.datetime.formatDate(p, f, {
+                fallbackString: u
+              }),
               g = m.length > 2 ? m[2] : "";
             return "GROWL" === e || "EDIT" === e || !g || i ? h : "<a " + TS.utility.makeRefererSafeLink(g) + ' target="_blank">' + h + "</a>";
           }
@@ -10625,7 +10628,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         onStart: function() {
           A = TS.utility.throttleFunc(A, 20), TS.client && TS.client.user_added_to_team_sig.add(TS.members.userAddedToTeam), TS.client && TS.client.user_removed_from_team_sig.add(TS.members.userRemovedFromTeam), TS.channels.member_joined_sig.add(Q), TS.channels.member_left_sig.add(Q), TS.boot_data.feature_shared_channels_client && TS.members.lazily_added_sig.add(TS.teams.ensureTeamsInDataArePresent), TS.client && TS.client.login_sig.addOnce(function() {
             TS.membership.lazyLoadChannelMembership() && (TS.members.non_loaded_changed_deleted_sig.add(Q), TS.members.changed_deleted_sig.add(Q));
-          }), "unknown_members" === TS.experiment.getGroup("unknown_members_perf", TS.members.unknown_members_perf_exp_metrics) && TS.ms.disconnected_sig.add(te), TS.channels.switched_sig.add(oe);
+          }), "unknown_members" === TS.experiment.getGroup("unknown_members_perf", TS.members.unknown_members_perf_exp_metrics) && TS.ms.disconnected_sig.add(te), TS.channels.switched_sig.add(se);
         },
         maybeFetchAccessibleUserIds: function() {
           return TS.isPartiallyBooted() && !TS._did_full_boot ? Promise.resolve() : TS.model.user.is_restricted && TS.membership.lazyLoadChannelMembership() ? (TS.model.guest_accessible_user_ids = TS.model.guest_accessible_user_ids || [], TS.flannel.fetchAccessibleUserIdsForGuests().then(function(e) {
@@ -10635,7 +10638,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         getPotentiallyUnknownMemberById: function(e) {
           if (!e) return null;
           if ("unknown_members" !== TS.experiment.getGroup("unknown_members_perf", TS.members.unknown_members_perf_exp_metrics)) return TS.members.getMemberById(e);
-          se(e);
+          ae(e);
           var n = t[e];
           if (n && n.is_unknown) return n;
           if (!TS.interop.utility.looksLikeMemberId(e)) {
@@ -10652,13 +10655,16 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         getMemberById: function(e) {
           if (!_.isString(e)) return null;
           if (e && "@" === e.charAt(0) && (e = e.substring(1)), TS.useRedux() && TS.boot_data.feature_store_members_in_redux) return TS.redux.members.getMemberById(e);
-          se(e);
+          ae(e);
           var n = t[e];
-          return void 0 !== n ? n.is_unknown && TS.boot_data.feature_tinyspeck ? null : n : null;
+          return void 0 !== n ? n.is_unknown ? null : n : null;
         },
-        getPotentiallyUnknownMemberByIdWithoutFetching: function(e) {
-          var t = TS.members.getMemberById(e);
-          return t || (t = ae(e)), t;
+        getUnknownMemberById: function(e) {
+          if (e) {
+            ae(e);
+            var n = t[e];
+            return n && n.is_unknown ? n : null;
+          }
         },
         getMemberByName: function(e) {
           if (e = _.toLower(e), !i.hasOwnProperty(e)) {
@@ -10715,7 +10721,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           var a = TS.members.getMemberById(n.id),
             s = "NOOP",
             o = [];
-          if (a || (a = ae(n.id)), n.is_ultra_restricted && (n.is_restricted = !0), a) {
+          if (a || (a = TS.members.getUnknownMemberById(n.id)), n.is_ultra_restricted && (n.is_restricted = !0), a) {
             TS.useRedux && TS.boot_data.feature_store_members_in_redux && (a = _.assign({}, a)), TS.has_pri[X] && TS.log(X, 'updating existing member "' + n.id + '"');
             var l = H(a, n);
             if (s = l.status, o = l.what_changed, TS.useRedux()) {
@@ -11451,10 +11457,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           var i = _.clone(f);
           return C(i).then(function(t) {
             i.forEach(function(e) {
-              var n = TS.members.getPotentiallyUnknownMemberByIdWithoutFetching(e);
-              n && (_.find(t, {
+              var n = TS.members.getUnknownMemberById(e);
+              _.find(t, {
                 id: e
-              }) || (n.is_non_existent = !0, v(n)));
+              }) || (n.is_non_existent = !0, v(n));
             });
             return TS.client && TS.client.ui && TS.client.ui.rebuildAll(!1, !0), e();
           }).catch(function(e) {
@@ -11539,14 +11545,14 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             S[e] = setTimeout(function() {
               if (TS.model.ms_connected) {
                 if (TS.flannel.fetchAndUpsertObjectsByIds([e]).then(function() {
-                    var t = TS.members.getPotentiallyUnknownMemberByIdWithoutFetching(e),
-                      n = t.is_unknown ? "failure" : "success";
-                    "success" === n && ie(t.id), TS.metrics.count("unknown_member_timeout_retry_" + n);
+                    var t = TS.members.getUnknownMemberById(e),
+                      n = t ? "failure" : "success";
+                    "success" === n && ie(e), TS.metrics.count("unknown_member_timeout_retry_" + n);
                   }), S[e]) return;
                 S[e] = setTimeout(function() {
                   if (TS.model.ms_connected) {
-                    var n = TS.members.getPotentiallyUnknownMemberByIdWithoutFetching(e);
-                    if (!n.is_unknown) return;
+                    var n = TS.members.getUnknownMemberById(e);
+                    if (n) return;
                     TS.metrics.count("unknown_member_persistence_timeout"), TS.statsd.measure("unknown_member_resolution_timing", "unknown_member_resolution_timing_" + e), TS.console.logError({
                       id: e,
                       is_unknown: n.is_unknown,
@@ -11574,14 +11580,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }
           return e;
         },
-        ae = function(e) {
-          if (e) {
-            se(e);
-            var n = t[e];
-            return n && n.is_unknown ? n : null;
-          }
-        },
-        se = function(n) {
+        ae = function(n) {
           if (void 0 === t[n]) {
             var i = TS.model.members;
             e < i.length && (i.forEach(function(e) {
@@ -11589,7 +11588,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             }), (e = Object.keys(t).length) !== i.length && TS.warn("member map size and member list length have diverged"));
           }
         },
-        oe = function() {
+        se = function() {
           var e = TS.shared.getActiveModelOb();
           f.length > 0 && e && (T[e.id] = performance.now());
         };
@@ -16122,7 +16121,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           z(TS.model.ui.is_window_focused || !1), TS.ui.window_focus_changed_sig.add(z), setInterval(function() {
             TS.model.ms_connected && (TS.model.rtm_start_throttler < 1 || (TS.model.rtm_start_throttler -= 1));
           }, 6e4);
-          a = TS.boot_data.feature_tinyspeck || TS.utility.enableFeatureForUser(10), s = Date.now(), TS.boot_data.feature_tinyspeck || (he = _.noop, ge = _.noop, fe = _.noop), TS.client && TS.client.stats && (TS.client.stats.start_collecting_sig.add(function() {
+          a = TS.boot_data.feature_tinyspeck || TS.utility.enableFeatureForUser(1), s = Date.now(), TS.boot_data.feature_tinyspeck || (he = _.noop, ge = _.noop, fe = _.noop), TS.client && TS.client.stats && (TS.client.stats.start_collecting_sig.add(function() {
             d = TS.boot_data.feature_queue_metrics && TS.utility.enableFeatureForUser(Ee);
           }), TS.client.stats.stop_collecting_sig.add(function() {
             d = !1;
@@ -23194,212 +23193,225 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         return e.file.name === TS.utility.welcome_post.WELCOME_POST_NAME && "USLACKBOT" === e.user && e.file.user === TS.model.user.id;
       }
       TS.registerModule("templates.builders.msgs", {
-        buildHTML: function(i, r) {
-          r && TS.dir(0, i);
+        buildHTML: function(t, n) {
+          n && TS.dir(0, t);
           try {
-            var a = i.msg,
-              s = i.model_ob,
-              o = i.prev_msg,
-              l = !!i.highlight,
-              d = !!i.no_attachments,
-              c = !!i.standalone,
-              u = !(!c && !i.hide_actions),
-              m = !!i.full_date;
-            TS.model.prefs.fuller_timestamps && !m && (m = !TS.interop.datetime.isSameDay(TS.interop.datetime.toDateObject(a.ts), new Date));
-            var p, f = !!i.relative_ts,
-              h = i.jump_link ? new Handlebars.SafeString(i.jump_link) : "",
-              g = !!i.starred_items_list,
-              S = i.starred_items_actions,
-              T = i.container_id ? "#" + i.container_id : "",
-              b = !!i.enable_slack_action_links,
-              v = !(!i || !i.highlight_as_new),
-              y = "",
-              w = TS.utility.members.getEntityFromMessage(a),
-              k = !0,
-              x = TS.interop.datetime.toDateObject(a.ts),
-              M = !1,
-              C = !1,
-              I = !!a.is_pending,
-              A = a.user,
-              E = a.is_ephemeral,
-              O = TS.templates.makeMsgDomId(a.ts),
-              F = TS.utility.msgs.getMsgActions(a, s);
-            A || (A = TS.templates.builders.getBotIdentifier(a));
-            var B, D, R, H, P = TS.utility.msgs.shouldHaveBotLabel(a, w);
-            O = i.msg_dom_id || O;
-            var j = !!i.is_in_conversation,
-              L = !!i.is_threads_view;
-            if (P) {
-              var U = TS.bots.getBotInfoByMsg(a);
-              U && (B = _.get(U, "app_id"), D = _.get(U, "bot_id"), R = _.get(U, "team_id") ? U.team_id : _.get(a, "source_team_id")), H = !0;
+            var i = t.msg,
+              r = t.model_ob,
+              a = t.prev_msg,
+              s = !!t.highlight,
+              o = !!t.no_attachments,
+              l = !!t.standalone,
+              d = !(!l && !t.hide_actions),
+              c = !!t.full_date;
+            TS.model.prefs.fuller_timestamps && !c && (c = !TS.interop.datetime.isSameDay(TS.interop.datetime.toDateObject(i.ts), new Date));
+            var u, m = !!t.relative_ts,
+              p = t.jump_link ? new Handlebars.SafeString(t.jump_link) : "",
+              f = !!t.starred_items_list,
+              h = t.starred_items_actions,
+              g = t.container_id ? "#" + t.container_id : "",
+              S = !!t.enable_slack_action_links,
+              T = !(!t || !t.highlight_as_new),
+              b = "",
+              v = TS.utility.members.getEntityFromMessage(i),
+              y = !0,
+              w = TS.interop.datetime.toDateObject(i.ts),
+              k = !1,
+              x = !1,
+              M = !!i.is_pending,
+              C = i.user,
+              I = i.is_ephemeral,
+              A = TS.templates.makeMsgDomId(i.ts),
+              E = TS.utility.msgs.getMsgActions(i, r);
+            C || (C = TS.templates.builders.getBotIdentifier(i));
+            var O, F, B, D, R = TS.utility.msgs.shouldHaveBotLabel(i, v);
+            A = t.msg_dom_id || A;
+            var H = !!t.is_in_conversation,
+              P = !!t.is_threads_view;
+            if (R) {
+              var j = TS.bots.getBotInfoByMsg(i);
+              j && (O = _.get(j, "app_id"), F = _.get(j, "bot_id"), B = _.get(j, "team_id") ? j.team_id : _.get(i, "source_team_id")), D = !0;
             }
-            if (o && ((p = "file_comment" === o.subtype && o.comment ? o.comment.user : o.user) || (p = TS.templates.builders.getBotIdentifier(o))), !a.no_display && !c)
-              if (o) {
-                var N = TS.interop.datetime.toDateObject(o.ts);
-                if (a.subtype && "file_comment" === a.subtype && a.comment && (A = a.comment.user), -1 != TS.utility.msgs.automated_subtypes.indexOf(a.subtype) || "thread_broadcast" === a.subtype) k = !0;
-                else if (p == A && -1 === TS.utility.msgs.automated_subtypes.indexOf(o.subtype))
-                  if (!a.subtype && o.subtype && "file_comment" === o.subtype) k = !0;
+            if (a && ((u = "file_comment" === a.subtype && a.comment ? a.comment.user : a.user) || (u = TS.templates.builders.getBotIdentifier(a))), !i.no_display && !l)
+              if (a) {
+                var L = TS.interop.datetime.toDateObject(a.ts);
+                if (i.subtype && "file_comment" === i.subtype && i.comment && (C = i.comment.user), -1 != TS.utility.msgs.automated_subtypes.indexOf(i.subtype) || "thread_broadcast" === i.subtype) y = !0;
+                else if (u == C && -1 === TS.utility.msgs.automated_subtypes.indexOf(a.subtype))
+                  if (!i.subtype && a.subtype && "file_comment" === a.subtype) y = !0;
                   else {
-                    if (!o.subtype || TS.templates.builders.getBotIdentifier(o)) {
-                      var G = o.thread_ts || o.ts,
-                        W = a.thread_ts == G,
-                        q = !a.thread_ts && !o.thread_ts;
-                      (W || q) && (k = !1);
-                    }!TS.utility.msgs.isTempMsg(a) || "bot_message" !== a.type && "USLACKBOT" !== a.user || (k = !0);
+                    if (!a.subtype || TS.templates.builders.getBotIdentifier(a)) {
+                      var U = a.thread_ts || a.ts,
+                        N = i.thread_ts == U,
+                        G = !i.thread_ts && !a.thread_ts;
+                      (N || G) && (y = !1);
+                    }!TS.utility.msgs.isTempMsg(i) || "bot_message" !== i.type && "USLACKBOT" !== i.user || (y = !0);
                   }
-                if (!I && !TS.interop.datetime.isSameDay(x, N) && !j) {
-                  M = !0;
-                  var z = $(T + " div.day_divider");
-                  if (z.length > 0) {
-                    var K, V = $(z[z.length - 1]);
-                    if (V.length) {
-                      K = "";
+                if (!M && !TS.interop.datetime.isSameDay(w, L) && !H) {
+                  k = !0;
+                  var W = $(g + " div.day_divider");
+                  if (W.length > 0) {
+                    var q, z = $(W[W.length - 1]);
+                    if (z.length) {
+                      q = "";
                       try {
-                        K = TS.templates.messages_day_divider({
-                          ts: V.data("ts")
+                        q = TS.templates.messages_day_divider({
+                          ts: z.data("ts")
                         });
                       } catch (e) {
-                        e.message || (e.message = ""), e.message += " $last_divider.data('ts'):" + V.data("ts"), TS.info("Problem with TS.templates.messages_day_divider 2.1: " + JSON.stringify(e));
+                        e.message || (e.message = ""), e.message += " $last_divider.data('ts'):" + z.data("ts"), TS.info("Problem with TS.templates.messages_day_divider 2.1: " + JSON.stringify(e));
                       }
-                      V.replaceWith(K);
+                      z.replaceWith(q);
                     }
-                    if (z.length > 1) {
-                      var Y = $(z[z.length - 2]);
-                      if (Y.length) {
-                        K = "";
+                    if (W.length > 1) {
+                      var K = $(W[W.length - 2]);
+                      if (K.length) {
+                        q = "";
                         try {
-                          K = TS.templates.messages_day_divider({
-                            ts: Y.data("ts")
+                          q = TS.templates.messages_day_divider({
+                            ts: K.data("ts")
                           });
                         } catch (e) {
-                          e.message || (e.message = ""), e.message += " $second_last_divider.data('ts'):" + Y.data("ts"), TS.info("Problem with TS.templates.messages_day_divider 3.1: " + JSON.stringify(e));
+                          e.message || (e.message = ""), e.message += " $second_last_divider.data('ts'):" + K.data("ts"), TS.info("Problem with TS.templates.messages_day_divider 3.1: " + JSON.stringify(e));
                         }
-                        Y.replaceWith(K);
+                        K.replaceWith(q);
                       }
                     }
                   }
-                }!I && TS.interop.datetime.distanceInMinutes(x, N) > TS.model.msg_activity_interval && (C = !0);
-              } else j || (C = !0);
-            C && (k = !0), "message" !== a.type && (k = !0), ("me_message" === a.subtype || o && "me_message" === o.subtype) && (k = !0);
-            var J = !0;
-            c && (J = !1);
-            var Q = !1;
-            TS.rxns.getExistingRxnsByKey(a._rxn_key) && (Q = !0), i.for_mention_rxn_display && (k = !1);
-            var X, Z, ee = "#msgs_div" === T || "#unread_msgs_div" === T;
-            TS.client && TS.client.highlights && !c && (X = ee && TS.client.highlights.msgIsHighlight(s.id, a.ts), Z = ee && TS.client.highlights.msgIsHighlightUnfurl(s.id, a.ts)), u = !(!u && !I);
-            var te = {
-              msg: a,
-              model_ob: s,
-              member: w,
-              actions: F,
-              show_user: k,
-              unprocessed: I,
-              highlight: l,
-              do_inline_imgs: J,
-              msg_dom_id: O,
-              standalone: c,
-              hide_actions: u,
-              full_date: m,
-              relative_ts: f,
-              jump_link: h,
-              show_resend_controls: a.ts in TS.model.display_unsent_msgs,
-              starred_items_list: g,
-              starred_items_actions: S,
-              no_attachments: d,
-              is_ephemeral: E,
-              enable_slack_action_links: b,
-              is_bot: P,
-              bot_id: D,
-              app_id: B,
-              team_id: R,
-              is_app_data_enabled: H,
-              highlight_as_new: v,
-              show_star: !g && !E,
-              has_rxns: Q,
-              for_mention_display: i.for_mention_display,
-              for_mention_rxn_display: i.for_mention_rxn_display,
-              for_search_display: i.for_search_display,
-              for_top_results_search_display: i.for_top_results_search_display,
+                }!M && TS.interop.datetime.distanceInMinutes(w, L) > TS.model.msg_activity_interval && (x = !0);
+              } else H || (x = !0);
+            x && (y = !0), "message" !== i.type && (y = !0), ("me_message" === i.subtype || a && "me_message" === a.subtype) && (y = !0);
+            var V = !0;
+            l && (V = !1);
+            var Y = !1;
+            TS.rxns.getExistingRxnsByKey(i._rxn_key) && (Y = !0), t.for_mention_rxn_display && (y = !1);
+            var J, Q, X = "#msgs_div" === g || "#unread_msgs_div" === g;
+            TS.client && TS.client.highlights && !l && (J = X && TS.client.highlights.msgIsHighlight(r.id, i.ts), Q = X && TS.client.highlights.msgIsHighlightUnfurl(r.id, i.ts)), d = !(!d && !M);
+            var Z = {
+              msg: i,
+              model_ob: r,
+              member: v,
+              actions: E,
+              show_user: y,
+              unprocessed: M,
+              highlight: s,
+              do_inline_imgs: V,
+              msg_dom_id: A,
+              standalone: l,
+              hide_actions: d,
+              full_date: c,
+              relative_ts: m,
+              jump_link: p,
+              show_resend_controls: i.ts in TS.model.display_unsent_msgs,
+              starred_items_list: f,
+              starred_items_actions: h,
+              no_attachments: o,
+              is_ephemeral: I,
+              enable_slack_action_links: S,
+              is_bot: R,
+              bot_id: F,
+              app_id: O,
+              team_id: B,
+              is_app_data_enabled: D,
+              highlight_as_new: T,
+              show_star: !f && !I,
+              has_rxns: Y,
+              for_mention_display: t.for_mention_display,
+              for_mention_rxn_display: t.for_mention_rxn_display,
+              for_search_display: t.for_search_display,
+              for_top_results_search_display: t.for_top_results_search_display,
               ts_tip_delay_class: "ts_tip_delay_600",
-              is_root_msg: i.is_root_msg,
-              is_in_conversation: j,
-              is_threads_view: L,
-              file_title_only: "file_reaction" === a.subtype,
-              is_slackbot_response: "slackbot_response" === a.subtype,
-              show_channel_highlight: X,
-              is_highlighted_unfurl: Z,
-              show_briefing_feedback: i.briefing || l
+              is_root_msg: t.is_root_msg,
+              is_in_conversation: H,
+              is_threads_view: P,
+              file_title_only: "file_reaction" === i.subtype,
+              is_slackbot_response: "slackbot_response" === i.subtype,
+              show_channel_highlight: J,
+              is_highlighted_unfurl: Q,
+              show_briefing_feedback: t.briefing || s
             };
-            (F.add_rxn || F.add_file_rxn || F.add_file_comment_rxn) && (te.show_rxn_action = !0), te.star_components = TS.templates.builders.buildStarComponents("message", a, s);
-            var ne = !0;
-            if (c && (ne = !1), TS.utility.msgs.isFileMsg(a) && (ne = !1), te.selectable = ne, j && (te.msg_dom_id = TS.templates.makeMsgDomIdInConversation(a.ts)), TS.utility.msgs.isMsgReply(a)) te.show_reply_action = !1;
+            (E.add_rxn || E.add_file_rxn || E.add_file_comment_rxn) && (Z.show_rxn_action = !0), Z.star_components = TS.templates.builders.buildStarComponents("message", i, r);
+            var ee = !0;
+            if (l && (ee = !1), TS.utility.msgs.isFileMsg(i) && (ee = !1), Z.selectable = ee, H && (Z.msg_dom_id = TS.templates.makeMsgDomIdInConversation(i.ts)), TS.utility.msgs.isMsgReply(i)) Z.show_reply_action = !1;
             else {
-              te.show_reply_action = TS.replies.canReplyToMsg(s, a, !0) && !i.is_root_msg, !te.show_reply_action && TS.utility.msgs.isFileMsg(a) && a.file && (te.show_comment_action = !0);
+              Z.show_reply_action = TS.replies.canReplyToMsg(r, i, !0) && !t.is_root_msg, !Z.show_reply_action && TS.utility.msgs.isFileMsg(i) && i.file && (Z.show_comment_action = !0);
             }
-            var ie = a.ts == a.thread_ts;
-            if ((ie || !a.thread_ts) && j && TS.client && (te.format_for_thread_root = !0, s.is_im || s.is_mpim ? te.model_ob_name = TS.i18n.t("Direct message", "messages")() : te.model_ob_name = TS.i18n.t("in {channel_display_name}", "messages")({
-                channel_display_name: TS.shared.getDisplayNameForModelOb(s)
-              })), !ie || !a.reply_count || j || c || i.for_search_display || i.for_top_results_search_display || i.is_threads_view || (te.show_reply_bar = !0), te.is_tombstone = "tombstone" === a.subtype, te.is_new_reply = !!i.is_new_reply, !TS.boot_data.feature_new_broadcast || !TS.utility.msgs.isMsgReply(a) || "thread_broadcast" !== a.subtype || j || c || i.is_threads_view || (te.is_broadcast = !0, te.show_reply_action = !0), te.is_broadcast && a.root && (te.root_repliers_summary = new Handlebars.SafeString(TS.templates.builders.buildBroadcastRepliersSummaryHTML(a.root)), "tombstone" !== a.root.subtype)) {
-              var re = a.root.text,
-                ae = _.first(a.root.attachments);
-              if (_.get(ae, "is_msg_unfurl")) {
-                var se = ae.from_url && a.root.text === "<" + ae.from_url + ">";
-                re && !se || (re = ae.text);
+            var te = i.ts == i.thread_ts;
+            if ((te || !i.thread_ts) && H && TS.client && (Z.format_for_thread_root = !0, r.is_im || r.is_mpim ? Z.model_ob_name = TS.i18n.t("Direct message", "messages")() : Z.model_ob_name = TS.i18n.t("in {channel_display_name}", "messages")({
+                channel_display_name: TS.shared.getDisplayNameForModelOb(r)
+              })), !te || !i.reply_count || H || l || t.for_search_display || t.for_top_results_search_display || t.is_threads_view || (Z.show_reply_bar = !0), Z.is_tombstone = "tombstone" === i.subtype, Z.is_new_reply = !!t.is_new_reply, !TS.boot_data.feature_new_broadcast || !TS.utility.msgs.isMsgReply(i) || "thread_broadcast" !== i.subtype || H || l || t.is_threads_view || (Z.is_broadcast = !0, Z.show_reply_action = !0), Z.is_broadcast && i.root && (Z.root_repliers_summary = new Handlebars.SafeString(TS.templates.builders.buildBroadcastRepliersSummaryHTML(i.root)), "tombstone" !== i.root.subtype)) {
+              var ne = i.root.text,
+                ie = _.first(i.root.attachments);
+              if (_.get(ie, "is_msg_unfurl")) {
+                var re = ie.from_url && i.root.text === "<" + ie.from_url + ">";
+                ne && !re || (ne = ie.text);
               }
-              if (re) {
-                var oe = TS.format.formatBroadcastExcerpt(re, a.root);
-                oe.length > 150 && (oe = TS.utility.truncateHTML(oe, 150)), te.root_excerpt = new Handlebars.SafeString(oe);
+              if (ne) {
+                var ae = TS.format.formatBroadcastExcerpt(ne, i.root);
+                ae.length > 150 && (ae = TS.utility.truncateHTML(ae, 150)), Z.root_excerpt = new Handlebars.SafeString(ae);
               }
             }
-            var le;
-            if (le = "file_share" === a.subtype || "file_mention" === a.subtype ? a.file : "file_comment" === a.subtype ? a.comment : a, le && le.pinned_to && le.pinned_to.length > 0 ? te.is_pinned = _.some(le.pinned_to, function(e) {
-                return e === s.id;
-              }) : te.is_pinned = !1, te.is_pinned ? te.pin_html = TS.templates.builders.buildPinInfoHtml(a) : te.pin_html = "", TS.client && TS.client.highlights && !c && (te.is_recap = X, TS.client.highlights.shouldRenderHighlightsUI(s.id, a.ts) && (te.highlights_html = TS.templates.builders.buildHighlightsInfoHtml({
+            var se;
+            if (se = "file_share" === i.subtype || "file_mention" === i.subtype ? i.file : "file_comment" === i.subtype ? i.comment : i, se && se.pinned_to && se.pinned_to.length > 0 ? Z.is_pinned = _.some(se.pinned_to, function(e) {
+                return e === r.id;
+              }) : Z.is_pinned = !1, Z.is_pinned ? Z.pin_html = TS.templates.builders.buildPinInfoHtml(i) : Z.pin_html = "", TS.client && TS.client.highlights && !l && (Z.is_recap = J, TS.client.highlights.shouldRenderHighlightsUI(r.id, i.ts) && (Z.highlights_html = TS.templates.builders.buildHighlightsInfoHtml({
                 recap: {
-                  data: TS.client.highlights.getHighlight(s.id, a.ts)
+                  data: TS.client.highlights.getHighlight(r.id, i.ts)
                 }
-              })), te.show_recap_debug = TS.client.highlights.canShowRecapDebug(s.id, a.ts), te.highlight_is_leaving_feedback = TS.client.highlights.msgIsLeavingFeedback(s.id, a.ts)), TS.boot_data.feature_sli_briefing && TS.highlights_briefing && i.briefing && (te.show_recap_debug = "sli_debug_info" === TS.highlights_briefing.sli_recaps_debug_group), !a.subtype && (i.for_search_display || i.for_top_results_search_display) && a.file && (a.comment ? te.star_components = TS.templates.builders.buildStarComponents("file_comment", a.comment, a.file) : te.star_components = TS.templates.builders.buildStarComponents("file", a.file, null)), TS.utility.msgs.isTempMsg(a) || a.is_ephemeral || (i.for_search_display && TS.boot_data.page_needs_enterprise && a.team && TS.model.team_id != a.team && a.channel && !a.channel.is_shared && a.permalink ? te.permalink = a.permalink : te.permalink = TS.utility.msgs.constructMsgPermalink(s, a.ts, a.thread_ts), te.abs_permalink = TS.utility.msgs.constructAbsoluteMsgPermalink(s, a.ts, a.thread_ts)), i.for_top_results_search_display && TS.boot_data.page_needs_enterprise && a.team && TS.model.team.id != a.team && !a.channel.is_shared && (te.abs_permalink = a.permalink, te.archive_link = a.permalink, te.permalink = a.permalink), "file_share" === a.subtype || "file_mention" === a.subtype || "file_reaction" === a.subtype) {
-              if (a.file) {
-                var de, ce, _e = !0;
-                if (te.file = a.file, te.edit = TS.files.getFileActions(a.file).edit, te.download = !("snippet" === a.file.mode || "post" === a.file.mode || "space" === a.file.mode || a.file.is_external), te.new_window = !te.edit && !te.download, te.abs_permalink = a.file.permalink, g || (te.star_components = TS.templates.builders.buildStarComponents("file", a.file, null)), te.lightbox = !1, 360 != a.file.thumb_360_w && 360 != a.file.thumb_360_h || (te.lightbox = !0), $.extend(te, TS.files.getFileTemplateArguments(a.file, 360)), te.is_message = !0, te.image_lazyload = !!TS.client && !TS.boot_data.feature_no_placeholders_in_messages, te.lightbox = !0, "file_share" === a.subtype && a.upload ? ("email" === a.file.mode && (te.is_added = !0), te.icon_class = TS.utility.getImageIconClass(a.file, "thumb_80")) : a.file.user != a.user && (te.uploader = TS.utility.members.getEntityFromFile(a.file), _e = !t(a)), ce = n.test(a.file.mode) ? TS.i18n.t("{file_pretty_name} snippet", "message")({
-                    file_pretty_name: a.file.pretty_type
-                  }) : /(email)/.test(a.file.mode) ? TS.i18n.t("email", "message")() : /(post|space)/.test(a.file.mode) ? TS.i18n.t("post", "message")() : (a.file.thumb_360 || a.file.thumb_360_gif) && -1 !== a.file.mimetype.indexOf("image/") ? TS.i18n.t("image", "message")() : TS.i18n.t("file", "message")(), te.uploader && _e) {
-                  "file_share" === a.subtype && a.upload ? a.file.initial_comment ? (te.show_initial_comment = !0, de = n.test(a.file.mode) ? TS.i18n.t("added and commented on {uploader_name_possessive_html} {file_display_name}", "message") : TS.i18n.t("uploaded and commented on {uploader_name_possessive_html} {file_display_name}", "message")) : de = n.test(a.file.mode) ? TS.i18n.t("added {uploader_name_possessive_html} {file_display_name}", "message") : TS.i18n.t("uploaded {uploader_name_possessive_html} {file_display_name}", "message") : de = "file_mention" === a.subtype ? TS.i18n.t("mentioned {uploader_name_possessive_html} {file_display_name}", "message") : TS.i18n.t("shared {uploader_name_possessive_html} {file_display_name}", "message");
-                  var ue = TS.templates.builders.makeMemberPreviewLink(te.uploader, !1),
-                    me = TS.i18n.possessive(TS.members.getPrefCompliantMemberName(te.uploader)),
-                    pe = "client" === TS.boot_data.app ? 'target="' + a.file.permalink + '" ' : "",
-                    fe = '<a href="' + a.file.permalink + '" ' + pe + 'data-file-id="' + a.file.id + '">',
-                    he = TS.i18n.t("{uploader_name}{uploader_name_affix}", "message")({
-                      uploader_name: ue,
-                      uploader_name_affix: me
-                    }),
-                    ge = "</a> " + he + fe;
-                  te.file_share_html = de({
-                    file_display_name: ce,
-                    uploader_name_possessive_html: ge
-                  });
-                } else "file_share" === a.subtype && a.upload ? a.file.initial_comment ? (te.show_initial_comment = !0, de = n.test(a.file.mode) ? TS.i18n.t("added and commented on this {file_display_name}", "message") : TS.i18n.t("uploaded and commented on this {file_display_name}", "message")) : de = n.test(a.file.mode) ? TS.i18n.t("added this {file_display_name}", "message") : TS.i18n.t("uploaded this {file_display_name}", "message") : de = "file_mention" === a.subtype ? TS.i18n.t("mentioned this {file_display_name}", "message") : TS.i18n.t("shared this {file_display_name}", "message"), te.file_share_html = de({
-                  file_display_name: ce
-                });
-              }
-              te.file_share_html = new Handlebars.SafeString(te.file_share_html);
-            } else "file_comment" === a.subtype && (o && !o.no_display && o.file && a.file && a.file.id == o.file.id && (M || (te.is_file_convo_continuation = !0)), te.show_comment_quote_icon = !0, o && !o.no_display && o.file && a.file && a.file.id == o.file.id && ("file_share" === o.subtype && o.upload && o.file.initial_comment && (M || (te.show_comment_quote_icon = !1)), "file_comment" === o.subtype && (M || (te.show_comment_quote_icon = !1))), te.file = a.file, te.icon_class = TS.utility.getImageIconClass(a.file, "thumb_40"), te.comment = a.comment, te.member = TS.utility.members.getEntityFromMessage(a), a.file && a.file.user != a.comment.user && (te.uploader = TS.utility.members.getEntityFromFile(a.file)), g || (te.star_components = TS.templates.builders.buildStarComponents("file_comment", a.comment, a.file)));
-            var Se = e(a, te);
-            return te.msg_classes = Se.join(" "), y += TS.templates.message(te), y = TS.format.replaceHighlightMarkers(y);
+              })), Z.show_recap_debug = TS.client.highlights.canShowRecapDebug(r.id, i.ts), Z.highlight_is_leaving_feedback = TS.client.highlights.msgIsLeavingFeedback(r.id, i.ts)), TS.boot_data.feature_sli_briefing && TS.highlights_briefing && t.briefing && (Z.show_recap_debug = "sli_debug_info" === TS.highlights_briefing.sli_recaps_debug_group), !i.subtype && (t.for_search_display || t.for_top_results_search_display) && i.file && (i.comment ? Z.star_components = TS.templates.builders.buildStarComponents("file_comment", i.comment, i.file) : Z.star_components = TS.templates.builders.buildStarComponents("file", i.file, null)), TS.utility.msgs.isTempMsg(i) || i.is_ephemeral || (t.for_search_display && TS.boot_data.page_needs_enterprise && i.team && TS.model.team_id != i.team && i.channel && !i.channel.is_shared && i.permalink ? Z.permalink = i.permalink : Z.permalink = TS.utility.msgs.constructMsgPermalink(r, i.ts, i.thread_ts), Z.abs_permalink = TS.utility.msgs.constructAbsoluteMsgPermalink(r, i.ts, i.thread_ts)), t.for_top_results_search_display && TS.boot_data.page_needs_enterprise && i.team && TS.model.team.id != i.team && !i.channel.is_shared && (Z.abs_permalink = i.permalink, Z.archive_link = i.permalink, Z.permalink = i.permalink), "file_share" === i.subtype || "file_mention" === i.subtype || "file_reaction" === i.subtype) {
+              i.file && (Z.file = i.file, Z.edit = TS.files.getFileActions(i.file).edit, Z.download = !("snippet" === i.file.mode || "post" === i.file.mode || "space" === i.file.mode || i.file.is_external), Z.new_window = !Z.edit && !Z.download, Z.abs_permalink = i.file.permalink, f || (Z.star_components = TS.templates.builders.buildStarComponents("file", i.file, null)), Z.lightbox = !1, 360 != i.file.thumb_360_w && 360 != i.file.thumb_360_h || (Z.lightbox = !0), $.extend(Z, TS.files.getFileTemplateArguments(i.file, 360)), Z.is_message = !0, Z.image_lazyload = !!TS.client && !TS.boot_data.feature_no_placeholders_in_messages, Z.lightbox = !0, "file_share" === i.subtype && i.upload ? ("email" === i.file.mode && (Z.is_added = !0), Z.icon_class = TS.utility.getImageIconClass(i.file, "thumb_80")) : i.file.user != i.user && (Z.uploader = TS.utility.members.getEntityFromFile(i.file)), "file_share" === i.subtype && i.upload && i.file.initial_comment && (Z.show_initial_comment = !0));
+              var oe = TS.templates.builders.msgs.buildFileShareMetaText(i);
+              Z.file_share_html = new Handlebars.SafeString(oe);
+            } else "file_comment" === i.subtype && (a && !a.no_display && a.file && i.file && i.file.id == a.file.id && (k || (Z.is_file_convo_continuation = !0)), Z.show_comment_quote_icon = !0, a && !a.no_display && a.file && i.file && i.file.id == a.file.id && ("file_share" === a.subtype && a.upload && a.file.initial_comment && (k || (Z.show_comment_quote_icon = !1)), "file_comment" === a.subtype && (k || (Z.show_comment_quote_icon = !1))), Z.file = i.file, Z.icon_class = TS.utility.getImageIconClass(i.file, "thumb_40"), Z.comment = i.comment, Z.member = TS.utility.members.getEntityFromMessage(i), i.file && i.file.user != i.comment.user && (Z.uploader = TS.utility.members.getEntityFromFile(i.file)), f || (Z.star_components = TS.templates.builders.buildStarComponents("file_comment", i.comment, i.file)));
+            var le = e(i, Z);
+            return Z.msg_classes = le.join(" "), b += TS.templates.message(Z), b = TS.format.replaceHighlightMarkers(b);
           } catch (e) {
-            var Te = "";
-            if (a) {
-              Te = "msg.ts:" + a.ts, delete i.model_ob;
+            var de = "";
+            if (i) {
+              de = "msg.ts:" + i.ts, delete t.model_ob;
               try {
-                i.msg = _.cloneDeep(a), i.msg.text = "REDACTED", Te += " " + JSON.stringify(i, null, "  ");
+                t.msg = _.cloneDeep(i), t.msg.text = "REDACTED", de += " " + JSON.stringify(t, null, "  ");
               } catch (e) {}
             }
-            return e.message || (e.message = ""), e.message += " " + Te, TS.warn("Problem in TS.templates.builders.msgs.buildHTML with args: " + JSON.stringify(e.message)), TS.boot_data.feature_tinyspeck ? TS.templates.message_failed({
-              subtype: a && a.subtype ? a.subtype : "",
-              msg_ts: a ? a.ts : "",
-              model_ob_id: s ? s.id : ""
+            return e.message || (e.message = ""), e.message += " " + de, TS.warn("Problem in TS.templates.builders.msgs.buildHTML with args: " + JSON.stringify(e.message)), TS.boot_data.feature_tinyspeck ? TS.templates.message_failed({
+              subtype: i && i.subtype ? i.subtype : "",
+              msg_ts: i ? i.ts : "",
+              model_ob_id: r ? r.id : ""
             }) : "";
           }
+        },
+        buildFileShareMetaText: function(e, i) {
+          if (!e || !e.file) return "";
+          var r, a = "file_share" === e.subtype && e.upload,
+            s = e.file.user != e.user && !a,
+            o = !t(e);
+          if (s && o)
+            if ("file_share" === e.subtype && e.upload)
+              if (e.file.initial_comment) r = n.test(e.file.mode) ? TS.i18n.t("added and commented on {uploader_name_possessive_html} {file_display_name}", "message") : TS.i18n.t("uploaded and commented on {uploader_name_possessive_html} {file_display_name}", "message");
+              else {
+                if (!n.test(e.file.mode)) return TS.i18n.t("uploaded {uploader_name_possessive_html} {file_display_name}", "message");
+                r = TS.i18n.t("added {uploader_name_possessive_html} {file_display_name}", "message");
+              }
+          else r = "file_mention" === e.subtype ? TS.i18n.t("mentioned {uploader_name_possessive_html} {file_display_name}", "message") : TS.i18n.t("shared {uploader_name_possessive_html} {file_display_name}", "message");
+          else r = "file_share" === e.subtype && e.upload ? e.file.initial_comment ? n.test(e.file.mode) ? TS.i18n.t("added and commented on this {file_display_name}", "message") : TS.i18n.t("uploaded and commented on this {file_display_name}", "message") : n.test(e.file.mode) ? TS.i18n.t("added this {file_display_name}", "message") : TS.i18n.t("uploaded this {file_display_name}", "message") : "file_mention" === e.subtype ? TS.i18n.t("mentioned this {file_display_name}", "message") : TS.i18n.t("shared this {file_display_name}", "message");
+          var l, d = TS.templates.builders.getFileDisplayName(e.file),
+            c = TS.utility.members.getEntityFromFile(e.file);
+          if (i) {
+            var _ = TS.members.getPrefCompliantMemberName(c);
+            l = TS.i18n.fullPossessiveString(_);
+          } else {
+            var u = TS.templates.builders.makeMemberPreviewLink(c, !1),
+              m = TS.i18n.possessive(TS.members.getPrefCompliantMemberName(c)),
+              p = "client" === TS.boot_data.app ? 'target="' + e.file.permalink + '" ' : "",
+              f = '<a href="' + e.file.permalink + '" ' + p + 'data-file-id="' + e.file.id + '">';
+            l = "</a> " + TS.i18n.t("{uploader_name}{uploader_name_affix}", "message")({
+              uploader_name: u,
+              uploader_name_affix: m
+            }) + f;
+          }
+          return r({
+            uploader_name_possessive_html: l,
+            file_display_name: d
+          });
         }
       });
       var n = /(snippet)/;
@@ -25503,6 +25515,13 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             });
           }
           return "";
+        },
+        getFileDisplayName: function(e) {
+          if (e) {
+            return /(snippet)/.test(e.mode) ? TS.i18n.t("{file_pretty_name} snippet", "message")({
+              file_pretty_name: e.pretty_type
+            }) : /(email)/.test(e.mode) ? TS.i18n.t("email", "message")() : /(post|space)/.test(e.mode) ? TS.i18n.t("post", "message")() : (e.thumb_360 || e.thumb_360_gif) && -1 !== e.mimetype.indexOf("image/") ? TS.i18n.t("image", "message")() : TS.i18n.t("file", "message")();
+          }
         },
         test: function() {
           var e = {};
