@@ -7579,6 +7579,12 @@ only screen and (min-resolution:2dppx) {
   color: #555459
 }
 
+@media only screen and (min-width:1024px) {
+  .card.card--thick_sides {
+    padding: 2rem 2.6rem
+  }
+}
+
 .member_card {
   display: flex;
   padding: .75rem;

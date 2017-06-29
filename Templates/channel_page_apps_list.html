@@ -1,0 +1,19 @@
+{{i18n_ns 'channel_pages'}}
+
+<div>
+  {{#each apps}}
+    <div class="p-channel_page_apps__list__row cursor_pointer display_flex align_items_center" data-app-user-id="{{this.app_user_id}}">
+      <div class="p-channel_page_apps__list__row__wrapper right_margin display_flex align_items_center flex_one full_height">
+        <img src="{{#if icons}}{{icons.image_32}}{{else}}{{versioned_default_application_icon}}{{/if}}" width="20" height="20" class="p-channel_page_apps__list__row__image very_small_left_margin" />
+        <span class="small_left_margin app_name">{{this.name}}</span>
+      </div>
+      <ts-icon class="ts_icon_times p-channel_page_apps__list__row__remove ts_tip ts_tip_top ts_tip_float" data-action="remove_app">
+        <span class="ts_tip_tip">{{#t}}Remove{{/t}}</span>
+      </ts-icon>
+    </div>
+  {{/each}}
+  <div class="p-channel_page_apps_list__row blue_link cursor_pointer display_flex align_items_center">
+    <ts-icon class="ts_icon_plus very_small_top_margin very_small_left_margin"></ts-icon>
+    <span class="small_left_margin">{{#t}}Add app{{/t}}</span>
+  </div>
+</div>
