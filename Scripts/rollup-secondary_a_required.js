@@ -894,7 +894,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }
         },
         r = ["activity.mentions", "stars.list", "files.list", "files.info", "search.messages", "search.files", "channels.history", "groups.history", "im.history", "mpim.history", "channels.listShared", "groups.listShared", "unread.history", "pins.list", "subteams.users.list", "subteams.list", "channels.replies", "groups.replies", "im.replies", "subscriptions.thread.getView", "chat.command"],
-        a = ["channels.history"],
+        a = ["channels.history", "pins.list"],
         s = ["rtm.start", "rtm.leanStart", "files.list"],
         o = ["rtm.start", "rtm.leanStart", "activity.mentions", "stars.list", "files.list", "files.info", "apps.list", "commands.list", "channels.list", "emoji.list", "help.issues.list", "subteams.list", "subteams.users.list", "rtm.checkFastReconnect"],
         l = ["users.prefs.set", "rtm.start", "rtm.leanStart", "rtm.checkFastReconnect", "enterprise.setPhoto", "signup.createTeam"],
@@ -8255,7 +8255,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             a = TS.utility.msgs.getMemberFromMemberMarkup(r),
             s = TS.experiment.getGroup("unknown_members_perf", TS.members.unknown_members_perf_exp_metrics);
           if ("unknown_members" === s && a && "EDIT" !== e && "GROWL" !== e) {
-            if (a.is_unknown) return TS.templates.message_member_unknown();
+            if (a.is_unknown) return TS.templates.unknown_member();
             if (a.is_non_existent && TS.interop.utility.looksLikeMemberId(a.id)) return TS.templates.message_member_non_existent();
           }
           if (!a) {
@@ -8811,9 +8811,11 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           if (TS.useReactMessages()) return void TS.redux.messages.addMessage(t);
           if (TS.shared.addMsg(n, t)) {
             var i = !TS.utility.msgs.isTempMsg(t);
-            TS.groups.calcUnreadCnts(n, i), TS.utility.msgs.maybeTruncateMsgs(n), TS.groups.message_received_sig.dispatch(n, t), n.is_open || TS.api.call("groups.open", {
+            TS.groups.calcUnreadCnts(n, i), TS.utility.msgs.maybeTruncateMsgs(n), TS.groups.message_received_sig.dispatch(n, t), n.is_open || (TS.boot_data.feature_shared_channels_beta ? TS.api.call("conversations.open", {
               channel: n.id
-            }, TS.groups.onOpened);
+            }, TS.groups.onOpened) : TS.api.call("groups.open", {
+              channel: n.id
+            }, TS.groups.onOpened));
           }
         },
         calcUnreadCnts: function(e, t) {
@@ -8872,7 +8874,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             }) && (TS.groups.pre_switched_sig.dispatch(), TS.groups.switched_sig.dispatch()), l.is_open) return void(r && TS.groups.sendMsg(n, $.trim(r)));
           TS.model.requested_group_opens[n] = {
             and_send_txt: r
-          }, TS.api.call("groups.open", {
+          }, TS.boot_data.feature_shared_channels_beta ? TS.api.call("conversations.open", {
+            channel: l.id
+          }, TS.groups.onOpened) : TS.api.call("groups.open", {
             channel: l.id
           }, TS.groups.onOpened);
         },
@@ -9437,11 +9441,15 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           if (TS.useReactMessages()) return void TS.redux.messages.addMessage(t);
           if (TS.shared.addMsg(n, t)) {
             var i = !TS.utility.msgs.isTempMsg(t);
-            TS.ims.calcUnreadCnts(n, i), TS.utility.msgs.maybeTruncateMsgs(n), TS.ims.message_received_sig.dispatch(n, t), n.is_open || TS.api.call("im.open", {
+            TS.ims.calcUnreadCnts(n, i), TS.utility.msgs.maybeTruncateMsgs(n), TS.ims.message_received_sig.dispatch(n, t), n.is_open || (TS.boot_data.feature_shared_channels_beta ? TS.api.call("conversations.open", {
               user: n.user,
               return_im: !0,
               reason: "TS.ims.addMsg"
-            }, TS.ims.onOpened);
+            }, TS.ims.onOpened) : TS.api.call("im.open", {
+              user: n.user,
+              return_im: !0,
+              reason: "TS.ims.addMsg"
+            }, TS.ims.onOpened));
           }
         },
         calcUnreadCnts: function(e, t) {
@@ -9475,7 +9483,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               no_op: !n
             }, {
               channel: e
-            }), TS.api.call("im.close", {
+            });
+            var i = "im.close";
+            TS.boot_data.feature_shared_channels_beta && (i = "conversations.close"), TS.api.call(i, {
               channel: e
             }).catch(function() {
               t.is_open = !0, TS.ims.onClosed(!0, {
@@ -9504,13 +9514,16 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         startImByMemberId: function(e, t, n) {
           var i = TS.ims.getImByMemberId(e);
-          return i && (TS.console.log(6532, "im_debug: found im"), TS.ims.isImWithDeletedMember(i) && (TS.client.archives.previous_model_ob = TS.shared.getActiveModelOb()), TS.ims.displayIm(i.id, t), i.is_open) ? (TS.console.log(6532, "im_debug: im is open"), n && TS.ims.sendMsg(i.id, $.trim(n)), Promise.resolve()) : (TS.model.requested_im_opens[e] = {
+          if (i && (TS.console.log(6532, "im_debug: found im"), TS.ims.isImWithDeletedMember(i) && (TS.client.archives.previous_model_ob = TS.shared.getActiveModelOb()), TS.ims.displayIm(i.id, t), i.is_open)) return TS.console.log(6532, "im_debug: im is open"), n && TS.ims.sendMsg(i.id, $.trim(n)), Promise.resolve();
+          TS.model.requested_im_opens[e] = {
             and_send_txt: n
-          }, TS.api.call("im.open", {
+          };
+          var r = "im.open";
+          return TS.boot_data.feature_shared_channels_beta && (r = "conversations.open"), TS.api.call(r, {
             user: e,
             return_im: !0,
             reason: "TS.ims.startImByMemberId"
-          }, TS.ims.onOpened));
+          }, TS.ims.onOpened);
         },
         promiseToStartImByMemberId: function(e, t, n, i) {
           var r = TS.ims.startImByMemberId(e, t, n, i),
@@ -10093,34 +10106,34 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         expand_sig: new signals.Signal,
         collapse_sig: new signals.Signal,
         onStart: function() {
-          l();
+          u(), this.collapse_sig.add(s), this.expand_sig.add(o), $("#messages_container").on("keydown", ".preview_show_more .preview_show_btn", a), $("#messages_container").on("keydown", ".preview_show_less .preview_show_btn", a);
         },
         checkForInlineFilePreviewClick: function(e) {
           var t, n = $(e.target),
-            s = n.closest(".message");
-          if (0 !== s.length && !(n.hasClass("service_link") || n.closest(".service_link") > 0)) {
-            var l = s.attr("id"),
-              d = n.closest(".msg_inline_file_preview_toggler");
-            if (d.length > 0) return e.preventDefault(), t = d.data("file-id"), d.hasClass("collapsed") ? i(l, t) : r(l, t), !0;
-            var c = n.closest(".inline_file_preview_container, .file_container");
-            if (0 !== c.length) {
-              var _ = n.closest("ts-message"),
-                u = _.data("ts") + "",
-                m = _.data("model-ob-id"),
+            i = n.closest(".message");
+          if (0 !== i.length && !(n.hasClass("service_link") || n.closest(".service_link") > 0)) {
+            var a = i.attr("id"),
+              s = n.closest(".msg_inline_file_preview_toggler");
+            if (s.length > 0) return e.preventDefault(), t = s.data("file-id"), s.hasClass("collapsed") ? r(a, t) : l(a, t), !0;
+            var o = n.closest(".inline_file_preview_container, .file_container");
+            if (0 !== o.length) {
+              var c = n.closest("ts-message"),
+                u = c.data("ts") + "",
+                m = c.data("model-ob-id"),
                 p = {
                   message_timestamp: u,
                   channel_id: m,
                   channel_type: m ? m.charAt(0) : "",
-                  member_id: _.data("member-id"),
-                  app_id: _.data("app-id"),
-                  bot_id: _.data("bot-id")
+                  member_id: c.data("member-id"),
+                  app_id: c.data("app-id"),
+                  bot_id: c.data("bot-id")
                 };
-              if (n.closest(".preview_show.preview_show_more").length > 0) return e.preventDefault(), a(e, s, c), TS.clog.track("PREVIEW_EXPAND", p), !0;
-              if (n.closest(".preview_show.preview_show_less .preview_show_btn, .preview_show_less_header").length > 0) return e.preventDefault(), o(e, s, c), TS.clog.track("PREVIEW_COLLAPSE", p), !0;
+              if (n.closest(".preview_show.preview_show_more").length > 0) return e.preventDefault(), d(e, i, o), TS.clog.track("PREVIEW_EXPAND", p), !0;
+              if (n.closest(".preview_show.preview_show_less .preview_show_btn, .preview_show_less_header").length > 0) return e.preventDefault(), _(e, i, o), TS.clog.track("PREVIEW_COLLAPSE", p), !0;
               if (n.closest("a").length) return !1;
-              t = c.data("file-id");
+              t = o.data("file-id");
               var f = TS.files.getFileById(t);
-              return !!f && (!("space" !== f.mode && "post" !== f.mode && "arugula" !== f.mode && "email" !== f.mode && "snippet" !== f.mode || !c.hasClass("inline_collapsed")) && (e.preventDefault(), a(e, s, c), !0));
+              return !!f && (!("space" !== f.mode && "post" !== f.mode && "arugula" !== f.mode && "email" !== f.mode && "snippet" !== f.mode || !o.hasClass("inline_collapsed")) && (e.preventDefault(), d(e, i, o), !0));
             }
           }
         },
@@ -10153,28 +10166,29 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         expandAllInCurrent: function() {
           n = !0, $(".msg_inline_file_preview_toggler").each(function(e, t) {
             var n = $(t),
-              r = n.data("file-id"),
+              i = n.data("file-id"),
               a = n.closest(".message").attr("id");
-            i(a, r);
+            r(a, i);
           }), n = !1, TS.client && TS.client.ui.instaScrollMsgsToBottom(!1);
         },
         collapseAllInCurrent: function() {
           $(".msg_inline_file_preview_toggler").each(function(e, t) {
             var n = $(t),
               i = n.data("file-id"),
-              a = n.closest(".message").attr("id");
-            r(a, i);
+              r = n.closest(".message").attr("id");
+            l(r, i);
           });
         },
         test: function() {
           return {
-            actuallyExpandContent: s
+            actuallyExpandContent: c
           };
         }
       });
       var e, t = {},
         n = !1,
-        i = function(e, t) {
+        i = !1,
+        r = function(e, t) {
           TS.model.expandable_state["inline_file_" + e + t] = !0, TS.storage.storeExpandableState(TS.model.expandable_state);
           var i = "#" + TS.utility.makeSafeForDomId(e),
             r = $(i);
@@ -10199,7 +10213,16 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             })), TS.inline_file_previews.expand_sig.dispatch(e), TS.client && TS.ui.utility.updateClosestMonkeyScroller(r);
           }
         },
-        r = function(e, t) {
+        a = function(e) {
+          13 != e.which && 32 != e.which || (i = !0);
+        },
+        s = function() {
+          i && $(".preview_show_more .preview_show_btn").focus().addClass("focus-ring"), i = !1;
+        },
+        o = function() {
+          i && $(".preview_show_less .preview_show_btn").focus().addClass("focus-ring"), i = !1;
+        },
+        l = function(e, t) {
           TS.model.expandable_state["inline_file_" + e + t] = !1, TS.storage.storeExpandableState(TS.model.expandable_state);
           var n = "#" + TS.utility.makeSafeForDomId(e),
             i = $(n);
@@ -10213,14 +10236,14 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             }, 0);
           }
         },
-        a = function(e, t, n) {
+        d = function(e, t, n) {
           var i = n.data("file-id"),
             r = TS.files.getFileById(i);
           if (r)
             if ("post" === r.mode || "space" === r.mode || "snippet" === r.mode) {
               var a = n.find(".preview_show_more .preview_show_btn");
               a.data("stashed_text", a.html()).empty();
-              var o = new Spinner({
+              var s = new Spinner({
                 lines: 9,
                 length: 0,
                 width: 4,
@@ -10239,27 +10262,27 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                 left: "-4px",
                 opacity: .1
               });
-              o.spin(a.get(0)), n.addClass("loading"), TS.files.fetchFileInfo(i, function(e, i) {
-                o.stop(), a.html(a.data("stashed_text")), n.removeClass("loading"), (i.content_html || i.content_highlight_html) && s(t, i), TS.utility.welcome_post.clogWelcomePostExpand(i);
+              s.spin(a.get(0)), n.addClass("loading"), TS.files.fetchFileInfo(i, function(e, i) {
+                s.stop(), a.html(a.data("stashed_text")), n.removeClass("loading"), (i.content_html || i.content_highlight_html) && c(t, i), TS.utility.welcome_post.clogWelcomePostExpand(i);
               });
             } else if ("email" === r.mode)
-            if (r.simplified_html) s(t, r);
+            if (r.simplified_html) c(t, r);
             else {
               t.find(".email_content").addClass("loading");
-              var l = setTimeout(function() {
+              var o = setTimeout(function() {
                 t.find(".inline_file_preview_container, .file_container").addClass("expanded");
               }, 1e3);
               TS.files.fetchFileInfo(i, function(e, n) {
-                clearTimeout(l), s(t, n), t.find(".email_content").removeClass("loading");
+                clearTimeout(o), c(t, n), t.find(".email_content").removeClass("loading");
               });
             }
         },
-        s = function(e, n) {
+        c = function(e, n) {
           var i = e.attr("id"),
             r = i + "_" + n.id;
           t[r] = !0, e.find(".inline_file_preview_container, .file_container").removeClass("inline_collapsed").addClass("inline_expanded"), TS.inline_file_previews.expand_sig.dispatch(e), TS.client && TS.ui.utility.updateClosestMonkeyScroller(e);
         },
-        o = function(e, i, r) {
+        _ = function(e, i, r) {
           var a = i.attr("id"),
             s = r.data("file-id");
           TS.files.getFileById(s) && (delete t[a + "_" + s], i.find(".inline_file_preview_container, .file_container").removeClass("inline_expanded").addClass("inline_collapsed"), n || i[0].getBoundingClientRect().top < 0 && i.scrollintoview({
@@ -10269,7 +10292,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             direction: "y"
           }), TS.inline_file_previews.collapse_sig.dispatch(i), TS.client && TS.ui.utility.updateClosestMonkeyScroller(i));
         },
-        l = function() {
+        u = function() {
           e && clearInterval(e);
           var t = function() {
             var e = $("#msgs_div .file_time_ago"),
@@ -14605,14 +14628,20 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             if (TS.mpims.calcUnreadCnts(n, i), TS.utility.msgs.maybeTruncateMsgs(n), TS.mpims.message_received_sig.dispatch(n, t), !n.is_open && TS.utility.msgs.msgCanCountAsUnread(t))
               if (1 == n.members.length) {
                 var r = n.members[0];
-                TS.api.call("im.open", {
+                TS.boot_data.feature_shared_channels_beta ? TS.api.call("conversations.open", {
+                  user: r,
+                  return_im: !0,
+                  reason: "TS.mpims.addMsg"
+                }, TS.ims.onOpened) : TS.api.call("im.open", {
                   user: r,
                   return_im: !0,
                   reason: "TS.mpims.addMsg"
                 }, TS.ims.onOpened);
               } else if (n.members.length > 1) {
               var a = n.members.join(",");
-              TS.api.call("mpim.open", {
+              TS.boot_data.feature_shared_channels_beta ? TS.api.call("conversations.open", {
+                users: a
+              }, TS.mpims.onOpened) : TS.api.call("mpim.open", {
                 users: a
               }, TS.mpims.onOpened);
             }
@@ -14637,9 +14666,11 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           TS.shared.onSendMsg(e, t, n, TS.mpims);
         },
         closeMpim: function(e) {
-          TS.mpims.getMpimById(e) && TS.api.call("mpim.close", {
+          TS.mpims.getMpimById(e) && (TS.boot_data.feature_shared_channels_beta ? TS.api.call("conversations.close", {
             channel: e
-          }, TS.mpims.onClosed);
+          }, TS.mpims.onClosed) : TS.api.call("mpim.close", {
+            channel: e
+          }, TS.mpims.onClosed));
         },
         onClosed: function(e, t, n) {
           if (e && t.no_op) {
@@ -14651,7 +14682,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           var n = e.map(function(e) {
             return e.id;
           });
-          n = n.join(","), TS.api.call("mpim.open", {
+          n = n.join(",");
+          var i = "mpim.open";
+          TS.boot_data.feature_shared_channels_beta && (i = "conversations.open"), TS.api.call(i, {
             users: n
           }, function(e, n, i) {
             if (n.group) {
@@ -14694,7 +14727,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           var c = o.members.filter(function(e) {
             return TS.model.user.id !== e;
           });
-          TS.api.call("mpim.open", {
+          TS.boot_data.feature_shared_channels_beta ? TS.api.call("conversations.open", {
+            users: c.join(",")
+          }, TS.mpims.onOpened) : TS.api.call("mpim.open", {
             users: c.join(",")
           }, TS.mpims.onOpened);
         },
@@ -19861,11 +19896,13 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         keyword_modifier_extract_regex: null,
         search_query_max_length: 250,
         onStart: function() {
-          TS.search.keyword_modifier_pair_regex = new RegExp("^(" + TS.search.keyword_modifiers.join("|") + "):S+$"), TS.search.keyword_modifier_extract_regex = new RegExp("^(" + TS.search.keyword_modifiers.join("|") + "):w*"), TS.search.per_page = parseInt(TS.qs_args.search_count, 10) || 20, TS.client && (TS.search.delay = 10), TS.client ? TS.client.login_sig.add(TS.search.loggedIn, TS.search) : TS.web && TS.web.login_sig.add(TS.search.loggedIn, TS.search), TS.search.search_channel_set_sig.add(TS.search.searchAll, TS.search), TS.search.search_group_set_sig.add(TS.search.searchAll, TS.search), TS.search.search_member_set_sig.add(TS.search.searchAll, TS.search), TS.prefs.search_only_my_channels_changed_sig.add(TS.search.searchAll, TS.search), TS.prefs.search_only_current_team_changed_sig.add(TS.search.searchAll, TS.search), TS.prefs.search_exclude_bots_changed_sig.add(TS.search.searchAll, TS.search), TS.files.team_file_changed_sig.add(d), TS.qs_args.delay && (TS.search.delay = TS.qs_args.delay), TS.search.input = $("#search_terms"), TS.boot_data.feature_texty_search || TSSSB.call("inputFieldCreated", TS.search.input.get(0)), TS.boot_data.feature_texty_search && TS.utility.contenteditable.create(TS.search.input, {
+          TS.search.keyword_modifier_pair_regex = new RegExp("^(" + TS.search.keyword_modifiers.join("|") + "):S+$"), TS.search.keyword_modifier_extract_regex = new RegExp("^(" + TS.search.keyword_modifiers.join("|") + "):w*"), TS.search.per_page = parseInt(TS.qs_args.search_count, 10) || 20, TS.client && (TS.search.delay = 10), TS.client ? TS.client.login_sig.add(TS.search.loggedIn, TS.search) : TS.web && TS.web.login_sig.add(TS.search.loggedIn, TS.search), TS.search.search_channel_set_sig.add(TS.search.searchAll, TS.search), TS.search.search_group_set_sig.add(TS.search.searchAll, TS.search), TS.search.search_member_set_sig.add(TS.search.searchAll, TS.search), TS.prefs.search_only_my_channels_changed_sig.add(TS.search.searchAll, TS.search), TS.prefs.search_only_current_team_changed_sig.add(TS.search.searchAll, TS.search), TS.prefs.search_exclude_bots_changed_sig.add(TS.search.searchAll, TS.search), TS.files.team_file_changed_sig.add(d), TS.qs_args.delay && (TS.search.delay = TS.qs_args.delay), TS.search.input = $("#search_terms"), TS.boot_data.feature_texty_search || TSSSB.call("inputFieldCreated", TS.search.input.get(0));
+          var e = [];
+          TS.boot_data.feature_more_texty_search && (e = [TS.tabcomplete.members]), TS.boot_data.feature_texty_search && TS.utility.contenteditable.create(TS.search.input, {
             modules: {
               slacksearch: !0,
               tabcomplete: {
-                completers: [TS.tabcomplete.members],
+                completers: e,
                 matchOptions: {
                   allowed_preceding_symbols: [":"]
                 },
@@ -19881,6 +19918,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               }
             },
             singleLineInput: !0,
+            avoidSlugging: !TS.boot_data.feature_more_texty_search,
             placeholder: TS.i18n.t("Search", "page_client")(),
             onFocus: function() {
               $("#client-ui").addClass("search_focused"), TS.utility.contenteditable.setCursorAtEnd(TS.search.input), TS.search.autocomplete.setUpMenu(), TS.search.autocomplete.onInputFocus(), TS.search.autocomplete.triggerInputEvent("focus");
@@ -20924,25 +20962,37 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           var n, i, r = function(e) {
             TS.model.archive_view_is_showing && TS.client.archives.current_model_ob.id == e && TS.client.archives.cancel();
           };
-          e && TS.interop.utility.looksLikeMemberId(e) ? (n = TS.ims.getImByMemberId(e), n ? (e = n.id, r(e), t(e)) : TS.api.call("im.open", {
-            user: e,
-            return_im: !0,
-            reason: "TS.shared.getShareModelObId"
-          }, function(i, r, a) {
-            i ? (TS.ims.onOpened(i, r, a), n = TS.ims.getImByMemberId(e), n ? t(n.id) : TS.web ? t(r.channel.id) : TS.error("getShareModelObId opened an IM, but it is not in the model? data.channel.id: " + r.channel.id)) : TS.error("getShareModelObId try to open an IM, but failed data: " + JSON.stringify(r || null));
-          })) : e && "C" === e.charAt(0) ? (i = TS.channels.getChannelById(e), i.is_member || i.is_archived ? (r(e), t(e)) : TS.channels.joinById(i.id, function(n) {
+          if (e && TS.interop.utility.looksLikeMemberId(e))
+            if (n = TS.ims.getImByMemberId(e)) e = n.id, r(e), t(e);
+            else {
+              var a = "im.open";
+              TS.boot_data.feature_shared_channels_beta && (a = "conversations.open"), TS.api.call(a, {
+                user: e,
+                return_im: !0,
+                reason: "TS.shared.getShareModelObId"
+              }, function(i, r, a) {
+                i ? (TS.ims.onOpened(i, r, a), n = TS.ims.getImByMemberId(e), n ? t(n.id) : TS.web ? t(r.channel.id) : TS.error("getShareModelObId opened an IM, but it is not in the model? data.channel.id: " + r.channel.id)) : TS.error("getShareModelObId try to open an IM, but failed data: " + JSON.stringify(r || null));
+              });
+            }
+          else e && "C" === e.charAt(0) ? (i = TS.channels.getChannelById(e), i.is_member || i.is_archived ? (r(e), t(e)) : TS.channels.joinById(i.id, function(n) {
             t(n ? e : e);
           })) : (r(e), t(e));
         },
         getModelObIdForSendingMsg: function(e, t) {
           var n, i;
-          e && TS.interop.utility.looksLikeMemberId(e) ? (n = TS.ims.getImByMemberId(e), n ? (e = n.id, t(e)) : TS.api.call("im.open", {
-            user: e,
-            return_im: !0,
-            reason: "TS.shared.getModelObIdForSendingMsg"
-          }, function(i, r, a) {
-            i ? (TS.ims.onOpened(i, r, a), n = TS.ims.getImByMemberId(e), n ? t(n.id) : TS.web ? t(r.channel.id) : TS.error("getModelObIdForSendingMsg opened an IM, but it is not in the model? data.channel.id: " + r.channel.id)) : TS.error("getModelObIdForSendingMsg try to open an IM, but failed data: " + JSON.stringify(r || null));
-          })) : e && "C" === e.charAt(0) ? (i = TS.channels.getChannelById(e), i.is_member || i.is_archived ? t(e) : TS.channels.joinById(i.id, function(n) {
+          if (e && TS.interop.utility.looksLikeMemberId(e))
+            if (n = TS.ims.getImByMemberId(e)) e = n.id, t(e);
+            else {
+              var r = "im.open";
+              TS.boot_data.feature_shared_channels_beta && (r = "conversations.open"), TS.api.call(r, {
+                user: e,
+                return_im: !0,
+                reason: "TS.shared.getModelObIdForSendingMsg"
+              }, function(i, r, a) {
+                i ? (TS.ims.onOpened(i, r, a), n = TS.ims.getImByMemberId(e), n ? t(n.id) : TS.web ? t(r.channel.id) : TS.error("getModelObIdForSendingMsg opened an IM, but it is not in the model? data.channel.id: " + r.channel.id)) : TS.error("getModelObIdForSendingMsg try to open an IM, but failed data: " + JSON.stringify(r || null));
+              });
+            }
+          else e && "C" === e.charAt(0) ? (i = TS.channels.getChannelById(e), i.is_member || i.is_archived ? t(e) : TS.channels.joinById(i.id, function(n) {
             t(n ? e : e);
           })) : t(e);
         },
@@ -24298,9 +24348,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           var t = {},
             n = TS.pins.getPinData(e);
           if (n && n.created_by && n.created) {
-            var i = TS.members.getMemberById(n.created_by);
+            var i = TS.members.getPotentiallyUnknownMemberById(n.created_by);
             t.user = i, t.ts = n.created, t.complete_data = t.user && t.ts;
           } else t.complete_data = !1;
+          t.unknown_member_token = new Handlebars.SafeString(TS.templates.unknown_member());
           var r = TS.templates.pinned_message_info(t);
           return new Handlebars.SafeString(r);
         },
@@ -24718,7 +24769,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           !0 !== t && (t = !1);
           var n, i, r = TS.boot_data.feature_name_tagging_client || TS.boot_data.feature_shared_channels_client ? e.id : _.escape(e.name),
             a = TS.templates.builders.makeMemberColorClass(e);
-          return e.is_service ? (i = TS.utility.shouldLinksHaveTargets() ? 'target="/services/' + e.id + '"' : "", a += " app_preview_link", n = '<a href="/services/' + e.id + '" ' + i + ' class="message_sender service_link ' + a + '">') : (i = TS.utility.shouldLinksHaveTargets() ? 'target="/team/' + r + '"' : "", a += e.is_bot ? " app_preview_link" : " member member_preview_link", a += " " + TS.templates.builders.makeMemberTypeBadgeClass(e), n = '<a href="/team/' + r + '" ' + i + ' class="message_sender ' + a + '" data-member-id="' + e.id + '">'), t && e.id == TS.model.user.id ? n += TS.i18n.t("You", "templates_builders")() : n += TS.members.getPrefCompliantMemberName(e, !0), n += TS.templates.builders.makeMemberTypeBadgeCompact(e, !1), n += "</a>", (e.is_bot || e.is_service) && (n += '<span class="bot_label">' + TS.i18n.t("APP", "templates_builders")() + "</span>"), "unknown_members" === TS.experiment.getGroup("unknown_members_perf", TS.members.unknown_members_perf_exp_metrics) && e.is_unknown && (n = TS.templates.message_member_unknown()), n;
+          return e.is_service ? (i = TS.utility.shouldLinksHaveTargets() ? 'target="/services/' + e.id + '"' : "", a += " app_preview_link", n = '<a href="/services/' + e.id + '" ' + i + ' class="message_sender service_link ' + a + '">') : (i = TS.utility.shouldLinksHaveTargets() ? 'target="/team/' + r + '"' : "", a += e.is_bot ? " app_preview_link" : " member member_preview_link", a += " " + TS.templates.builders.makeMemberTypeBadgeClass(e), n = '<a href="/team/' + r + '" ' + i + ' class="message_sender ' + a + '" data-member-id="' + e.id + '">'), t && e.id == TS.model.user.id ? n += TS.i18n.t("You", "templates_builders")() : n += TS.members.getPrefCompliantMemberName(e, !0), n += TS.templates.builders.makeMemberTypeBadgeCompact(e, !1), n += "</a>", (e.is_bot || e.is_service) && (n += '<span class="bot_label">' + TS.i18n.t("APP", "templates_builders")() + "</span>"), "unknown_members" === TS.experiment.getGroup("unknown_members_perf", TS.members.unknown_members_perf_exp_metrics) && e.is_unknown && (n = TS.templates.unknown_member()), n;
         },
         showDraftIcon: function(e) {
           if (!_.isObject(e)) return !1;
@@ -25032,7 +25083,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             n = _.compact(t.map(function(e) {
               var t = TS.members.getMemberById(e),
                 n = TS.experiment.getGroup("unknown_members_perf", TS.members.unknown_members_perf_exp_metrics);
-              return t && t.is_unknown && "unknown_members" === n ? TS.templates.message_member_unknown() : t ? _.escape(TS.members.getPrefCompliantMemberName(t)) : void 0;
+              return t && t.is_unknown && "unknown_members" === n ? TS.templates.unknown_member() : t ? _.escape(TS.members.getPrefCompliantMemberName(t)) : void 0;
             })).join(", ");
           return new Handlebars.SafeString(n);
         },
@@ -35471,7 +35522,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               log: _.partial(TS.log, 116),
               logError: TS.error
             };
-            if (TS.boot_data.feature_texty_mentions)
+            if (TS.boot_data.feature_texty_mentions && !t.avoidSlugging)
               if (TS.boot_data.feature_name_tagging_client) {
                 var i = n.modules.tabcomplete.searchOptions.complete_member_specials;
                 _.get(t, "modules.tabcomplete.searchOptions") && t.modules.tabcomplete.searchOptions.hasOwnProperty("complete_member_specials") && (i = t.modules.tabcomplete.searchOptions.complete_member_specials), n.modules.slackmention = {

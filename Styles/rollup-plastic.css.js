@@ -14261,7 +14261,7 @@ body:not(.unify_user) .mpdm_badge a {
   pointer-events: none
 }
 
-.member_unknown {
+.unknown_member {
   display: none;
   background: #E8E8E8;
   width: 80px;

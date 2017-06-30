@@ -9,10 +9,24 @@
 >
   {{#if hide_expand_button}}
     <div>{{long_description}}</div>
+    {{#if show_support_email}}
+      <br/>
+      <p>
+        {{#t}}Contact developers at {{/t}}
+        <a title="{{support_email}}" href="mailto:{{support_email}}">{{support_email}}</a>
+      </p>
+    {{/if}}
   {{else}}
     <div data-js="app_profile_desc_inner">
       {{long_description}}
     </div>
+    {{#if show_support_email}}
+      <br/>
+      <p>
+        {{#t}}Contact developers at {{/t}}
+        <a title="{{support_email}}" href="mailto:{{support_email}}">{{support_email}}</a>
+      </p>
+    {{/if}}
     <div class="app_profile_desc_fade"></div>
     <button class="app_desc_btn app_desc_expand_btn" data-js="app_profile_btn" data-action="desc_expand">
       {{#t}}Expand{{/t}}
