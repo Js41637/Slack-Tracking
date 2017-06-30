@@ -15090,7 +15090,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             t = !1, B.disableStatsCollecting();
           })), TS.isSocketManagerEnabled() ? (TS.interop.SocketManager.socketMessageReceivedSig.add(TS.ms.msg_handlers.msgReceived), TS.interop.Eventlog.messageReceivedSig.add(TS.ms.msg_handlers.msgReceived), TS.interop.SocketManager.connectedSig.add(function() {
             TS.boot_data.feature_tinyspeck && setTimeout(function() {
-              o.length > 50 && (TS.warn("Looks like our msg_handlers queue might be wedged (it has " + o.length + " items in it). Kicking it and prompting user to send logs."), u(), TS.generic_dialog.alert("Hello! It looks like you may have run into a bug that @shinypb is tracking. Would you mind saving your console logs and then DMing them to him?"));
+              o.length > 50 && TS.warn("Looks like our msg_handlers queue might be wedged (it has " + o.length + " items in it). Kicking it.");
             }, 3e4);
           })) : TS.ms.on_msg_sig.add(TS.ms.msg_handlers.msgReceived);
         },

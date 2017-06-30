@@ -36708,7 +36708,7 @@ webpackJsonp([332], [, function(e, t, n) {
     h = n(3127),
     m = n(3925),
     _ = n(2356),
-    y = n(3989),
+    y = n(4143),
     v = n(3120),
     g = (n.n(v), function() {
       function e(e, t) {
@@ -36750,11 +36750,6 @@ webpackJsonp([332], [, function(e, t, n) {
         return n.heightCache = {}, n.rows = [], n.isLoading = !1, n.getRowHeight = n.getRowHeight.bind(n), n.setRowHeight = n.setRowHeight.bind(n), n.requestOlder = n.requestOlder.bind(n), n.requestNewer = n.requestNewer.bind(n), n.renderRow = n.renderRow.bind(n), n;
       }
       return i(t, e), g(t, [{
-        key: "shouldComponentUpdate",
-        value: function(e, t) {
-          return !n.i(y.a)(e, this.props, ["timestamps"]) || !n.i(y.a)(t, this.state) || !n.i(y.a)(e.timestamps, this.props.timestamps);
-        }
-      }, {
         key: "getLastVisibleReadTs",
         value: function() {
           var e = this.props,
@@ -36901,7 +36896,7 @@ webpackJsonp([332], [, function(e, t, n) {
           });
         }
       }]), t;
-    }(c.a.PureComponent);
+    }(y.a);
   t.a = k, k.propTypes = b, k.defaultProps = w;
 }, function(e, t, n) {
   "use strict";
@@ -38655,11 +38650,8 @@ webpackJsonp([332], [, function(e, t, n) {
     s = n(961),
     u = (n.n(s), n(3116)),
     l = (n.n(u), n(1459)),
-    c = n.n(l);
-  n.d(t, "b", function() {
-    return a.a;
-  });
-  var d = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(e) {
+    c = n.n(l),
+    d = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(e) {
       return typeof e;
     } : function(e) {
       return e && "function" == typeof Symbol && e.constructor === Symbol && e !== Symbol.prototype ? "symbol" : typeof e;
@@ -57322,17 +57314,39 @@ webpackJsonp([332], [, function(e, t, n) {
 }, , function(e, t, n) {
   "use strict";
 
-  function r(e, t, r) {
-    if (!(e instanceof Array && t instanceof Array)) return r instanceof Array ? n.i(i.b)(n.i(o.omit)(e, r), n.i(o.omit)(t, r)) : n.i(i.b)(e, t);
-    if (e === t) return !0;
+  function r(e, t) {
     if (e.length !== t.length) return !1;
-    for (var a = e.length, s = 0; s < a; s += 1)
-      if (e[s] !== t[s]) return !1;
+    for (var n = e.length, r = 0; r < n; r += 1)
+      if (e[r] !== t[r]) return !1;
     return !0;
   }
-  t.a = r;
-  var o = n(6),
-    i = (n.n(o), n(3115));
+
+  function o(e, t, n) {
+    var r = Object.keys(e),
+      o = Object.keys(t);
+    if (r.length !== o.length) return !1;
+    for (var a = r.length, s = 0; s < a; s += 1) {
+      var u = r[s],
+        l = e[u],
+        c = t[u];
+      if (n > 1) {
+        if (!i(l, c, n - 1)) return !1;
+      } else if (l !== c) return !1;
+    }
+    return !0;
+  }
+
+  function i(e, t) {
+    var i = arguments.length > 2 && void 0 !== arguments[2] ? arguments[2] : 1;
+    return e === t || (void 0 === e ? "undefined" : s(e)) === (void 0 === t ? "undefined" : s(t)) && (n.i(a.isArray)(e) ? r(e, t) : n.i(a.isObject)(e) ? o(e, t, i) : e === t);
+  }
+  t.a = i;
+  var a = n(6),
+    s = (n.n(a), "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(e) {
+      return typeof e;
+    } : function(e) {
+      return e && "function" == typeof Symbol && e.constructor === Symbol && e !== Symbol.prototype ? "symbol" : typeof e;
+    });
 }, function(e, t, n) {
   "use strict";
   n.d(t, "a", function() {
@@ -59290,4 +59304,52 @@ webpackJsonp([332], [, function(e, t, n) {
       }]), e;
     }());
   t.a = s;
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e, t) {
+    if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
+  }
+
+  function o(e, t) {
+    if (!e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    return !t || "object" != typeof t && "function" != typeof t ? e : t;
+  }
+
+  function i(e, t) {
+    if ("function" != typeof t && null !== t) throw new TypeError("Super expression must either be null or a function, not " + typeof t);
+    e.prototype = Object.create(t && t.prototype, {
+      constructor: {
+        value: e,
+        enumerable: !1,
+        writable: !0,
+        configurable: !0
+      }
+    }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
+  }
+  var a = n(2),
+    s = (n.n(a), n(3989)),
+    u = function() {
+      function e(e, t) {
+        for (var n = 0; n < t.length; n++) {
+          var r = t[n];
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
+        }
+      }
+      return function(t, n, r) {
+        return n && e(t.prototype, n), r && e(t, r), t;
+      };
+    }(),
+    l = function(e) {
+      function t() {
+        return r(this, t), o(this, (t.__proto__ || Object.getPrototypeOf(t)).apply(this, arguments));
+      }
+      return i(t, e), u(t, [{
+        key: "shouldComponentUpdate",
+        value: function(e, t) {
+          return !n.i(s.a)(e, this.props, 2) || !n.i(s.a)(t, this.state, 2);
+        }
+      }]), t;
+    }(a.Component);
+  t.a = l;
 }], [2905]);
