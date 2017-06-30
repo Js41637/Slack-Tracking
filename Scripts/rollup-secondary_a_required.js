@@ -10649,9 +10649,16 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         members_for_user_changed_sig: new signals.Signal,
         unknown_members_perf_exp_metrics: ["fps_median", "fps_min", "beachballs", "stutters", "client_total_members_loaded", "client_session_bytes_received", "channel_change", "initial_stutters", "initial_beachballs", "rebuild_all_throttles"],
         onStart: function() {
-          A = TS.utility.throttleFunc(A, 20), TS.client && TS.client.user_added_to_team_sig.add(TS.members.userAddedToTeam), TS.client && TS.client.user_removed_from_team_sig.add(TS.members.userRemovedFromTeam), TS.channels.member_joined_sig.add(Q), TS.channels.member_left_sig.add(Q), TS.boot_data.feature_shared_channels_client && TS.members.lazily_added_sig.add(TS.teams.ensureTeamsInDataArePresent), TS.client && TS.client.login_sig.addOnce(function() {
-            TS.membership.lazyLoadChannelMembership() && (TS.members.non_loaded_changed_deleted_sig.add(Q), TS.members.changed_deleted_sig.add(Q));
-          }), "unknown_members" === TS.experiment.getGroup("unknown_members_perf", TS.members.unknown_members_perf_exp_metrics) && TS.ms.disconnected_sig.add(te), TS.channels.switched_sig.add(se);
+          A = TS.utility.throttleFunc(A, 20), TS.client && TS.client.user_added_to_team_sig.add(TS.members.userAddedToTeam), TS.client && TS.client.user_removed_from_team_sig.add(TS.members.userRemovedFromTeam), TS.boot_data.feature_less_accessible_id_fetching && TS.ms && TS.ms.disconnected_sig.add(X), TS.boot_data.feature_less_accessible_id_fetching ? (TS.channels.member_joined_sig.add(function(e, t) {
+            ee(t, !0);
+          }, TS.members, -1), TS.channels.member_left_sig.add(function(e, t) {
+            te(t);
+          }, TS.members, -1)) : (TS.channels.member_joined_sig.add(Q), TS.channels.member_left_sig.add(Q)), TS.boot_data.feature_shared_channels_client && TS.members.lazily_added_sig.add(TS.teams.ensureTeamsInDataArePresent), TS.client && TS.client.login_sig.addOnce(function() {
+            TS.membership.lazyLoadChannelMembership() && (TS.members.non_loaded_changed_deleted_sig.add(Q), TS.boot_data.feature_less_accessible_id_fetching ? TS.members.changed_deleted_sig.add(function(e) {
+              var t = !e.deleted;
+              ee(e, t);
+            }, TS.members, -1) : TS.members.changed_deleted_sig.add(Q));
+          }), "unknown_members" === TS.experiment.getGroup("unknown_members_perf", TS.members.unknown_members_perf_exp_metrics) && TS.ms.disconnected_sig.add(oe), TS.channels.switched_sig.add(ue);
         },
         maybeFetchAccessibleUserIds: function() {
           return TS.isPartiallyBooted() && !TS._did_full_boot ? Promise.resolve() : TS.model.user.is_restricted && TS.membership.lazyLoadChannelMembership() ? (TS.model.guest_accessible_user_ids = TS.model.guest_accessible_user_ids || [], TS.flannel.fetchAccessibleUserIdsForGuests().then(function(e) {
@@ -10661,12 +10668,12 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         getPotentiallyUnknownMemberById: function(e) {
           if (!e) return null;
           if ("unknown_members" !== TS.experiment.getGroup("unknown_members_perf", TS.members.unknown_members_perf_exp_metrics)) return TS.members.getMemberById(e);
-          ae(e);
+          _e(e);
           var n = t[e];
           if (n && n.is_unknown) return n;
           if (!TS.interop.utility.looksLikeMemberId(e)) {
             var i = TS.members.getMemberByName(e);
-            return i || (ie(e), {
+            return i || (de(e), {
               id: e,
               name: e,
               is_unknown: !1,
@@ -10678,13 +10685,13 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         getMemberById: function(e) {
           if (!_.isString(e)) return null;
           if (e && "@" === e.charAt(0) && (e = e.substring(1)), TS.useRedux() && TS.boot_data.feature_store_members_in_redux) return TS.redux.members.getMemberById(e);
-          ae(e);
+          _e(e);
           var n = t[e];
           return void 0 !== n ? n.is_unknown ? null : n : null;
         },
         getUnknownMemberById: function(e) {
           if (e) {
-            ae(e);
+            _e(e);
             var n = t[e];
             return n && n.is_unknown ? n : null;
           }
@@ -10738,14 +10745,14 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         upsertAndSignal: function(e) {
           var t = TS.members.upsertMember(e);
-          return re(t, e);
+          return ce(t, e);
         },
         upsertMember: function(n) {
           var a = TS.members.getMemberById(n.id),
             s = "NOOP",
             o = [];
           if (a || (a = TS.members.getUnknownMemberById(n.id)), n.is_ultra_restricted && (n.is_restricted = !0), a) {
-            TS.useRedux && TS.boot_data.feature_store_members_in_redux && (a = _.assign({}, a)), TS.has_pri[X] && TS.log(X, 'updating existing member "' + n.id + '"');
+            TS.useRedux && TS.boot_data.feature_store_members_in_redux && (a = _.assign({}, a)), TS.has_pri[re] && TS.log(re, 'updating existing member "' + n.id + '"');
             var l = H(a, n);
             if (s = l.status, o = l.what_changed, TS.useRedux()) {
               if (_.includes(o, "presence") && (TS.members.is_in_bulk_upsert_mode ? TS.redux.presence.addToBulkUpsertPayload(a) : TS.redux.presence.updatePresenceForMember(a)), (_.includes(o, "is_restricted") || _.includes(o, "is_ultra_restricted")) && (TS.members.is_in_bulk_upsert_mode ? TS.redux.member_types.addToBulkUpdatePayload(a) : TS.redux.member_types.updateMemberTypeForMember(a)), _.includes(o, "deleted")) {
@@ -10755,7 +10762,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               _.includes(o, "current_status") && (TS.members.is_in_bulk_upsert_mode ? TS.redux.custom_status.addToBulkUpsertPayload(a) : TS.redux.custom_status.updateStatusForMember(a));
             }
             void 0 !== a.is_non_existent && delete a.is_non_existent, n = a;
-          } else n.id ? (s = "ADDED", N(n), TS.has_pri[X] && TS.log(X, 'adding member "' + n.id + '" color:' + n.color + " member_color:" + n.member_color), n.presence && TS.useRedux() && (TS.members.is_in_bulk_upsert_mode ? TS.redux.presence.addToBulkUpsertPayload(n) : TS.redux.presence.updatePresenceForMember(n)), n.profile && n.profile.status_emoji && TS.useRedux() && (TS.members.is_in_bulk_upsert_mode ? TS.redux.custom_status.addToBulkUpsertPayload(n) : TS.redux.custom_status.updateStatusForMember(n)), TS.useRedux() && (TS.members.is_in_bulk_upsert_mode ? TS.redux.member_types.addToBulkUpdatePayload(n) : TS.redux.member_types.updateMemberTypeForMember(n)), e += 1, t[n.id] = n, i[n._name_lc] = n.id, i["@" + n._name_lc] = n.id, TS.useRedux() && TS.boot_data.feature_store_members_in_redux || TS.model.members.push(n)) : TS.error("bad error, no member.id");
+          } else n.id ? (s = "ADDED", N(n), TS.has_pri[re] && TS.log(re, 'adding member "' + n.id + '" color:' + n.color + " member_color:" + n.member_color), n.presence && TS.useRedux() && (TS.members.is_in_bulk_upsert_mode ? TS.redux.presence.addToBulkUpsertPayload(n) : TS.redux.presence.updatePresenceForMember(n)), n.profile && n.profile.status_emoji && TS.useRedux() && (TS.members.is_in_bulk_upsert_mode ? TS.redux.custom_status.addToBulkUpsertPayload(n) : TS.redux.custom_status.updateStatusForMember(n)), TS.useRedux() && (TS.members.is_in_bulk_upsert_mode ? TS.redux.member_types.addToBulkUpdatePayload(n) : TS.redux.member_types.updateMemberTypeForMember(n)), e += 1, t[n.id] = n, i[n._name_lc] = n.id, i["@" + n._name_lc] = n.id, TS.useRedux() && TS.boot_data.feature_store_members_in_redux || TS.model.members.push(n)) : TS.error("bad error, no member.id");
           if (n.is_self && n.deleted) return void TS.reload(null, "member.is_self && member.deleted");
           TS.members.is_in_bulk_upsert_mode || (TS.members.invalidateMembersUserCanSeeArrayCaches(), TS.members.invalidateActiveMembersArrayCaches()), "ADDED" !== s && "CHANGED" !== s || TS.members.maybeStoreMembers(), TS.members.member_was_upserted_sig.dispatch(), TS.useRedux() && TS.boot_data.feature_store_members_in_redux && "NOOP" !== s && (n.profile = _.assign({}, n.profile), TS.members.is_in_bulk_upsert_mode ? TS.redux.members.addToBulkUpsertPayload(n) : TS.redux.members.addMember(n));
           var c = {
@@ -10873,9 +10880,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           var e = TS.model.prefs.display_real_names_override;
           return TS.model.team.prefs.display_real_names && -1 != e || 1 == e;
         },
-        getPrefCompliantMemberNameById: function(e, t, n) {
-          var i = TS.members.getPotentiallyUnknownMemberById(e);
-          return i ? TS.members.getPrefCompliantMemberName(i, t, n) : e;
+        getPrefCompliantMemberNameById: function(e, t, n, i) {
+          var r = i ? TS.members.getMemberById(e) : TS.members.getPotentiallyUnknownMemberById(e);
+          return r ? TS.members.getPrefCompliantMemberName(r, t, n) : e;
         },
         getPrefCompliantMemberName: function(e, t, n) {
           if (!e) return "NO MEMBER??";
@@ -11154,8 +11161,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         ditchMap: function() {
           e = 0, t = {}, i = {};
         },
-        maybeUpdateMembersUserCanSee: function() {
-          return Q();
+        maybeUpdateMembersUserCanSee: function(e) {
+          return TS.boot_data.feature_less_accessible_id_fetching && e ? TS.members.ensureMembersArePresent([e]).then(function() {
+            return ee(TS.members.getMemberById(e), !0);
+          }) : Q();
         },
         getMembersForTeam: function(e) {
           var t = TS.members.getMembersWithOptions({
@@ -11286,7 +11295,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         v = function(e) {
           if ("unknown_members" === TS.experiment.getGroup("unknown_members_perf", TS.members.unknown_members_perf_exp_metrics)) {
             var t = !!e && e.is_unknown;
-            return !!t && (e && e.is_unknown && (e.is_unknown = !1), _.pull(f, e.id), S[e.id] && (ie(e.id), t && TS.statsd.measure("unknown_member_resolution_timing", "unknown_member_resolution_timing_" + e.id)), t);
+            return !!t && (e && e.is_unknown && (e.is_unknown = !1), _.pull(f, e.id), S[e.id] && (de(e.id), t && TS.statsd.measure("unknown_member_resolution_timing", "unknown_member_resolution_timing_" + e.id)), t);
           }
         },
         y = function(e) {
@@ -11455,7 +11464,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               }
             } else if ("teams" === a) e[a] = t[a], i = "CHANGED", r.push(a);
             else if (e[a] != t[a])
-              if ("is_admin" === a && TS.has_pri[ee] && (TS.console.warn(ee, a + "is changing from `" + e[a] + "` to `" + t[a] + "`"), TS.console.trace(ee)), t[a] && !TS.utility.isScalar(t[a])) e[a] = t[a], TS.warn(a + " is not scalar! it needs to be handled by upsertMember specifically to test if it has changed! " + n(t[a]));
+              if ("is_admin" === a && TS.has_pri[se] && (TS.console.warn(se, a + "is changing from `" + e[a] + "` to `" + t[a] + "`"), TS.console.trace(se)), t[a] && !TS.utility.isScalar(t[a])) e[a] = t[a], TS.warn(a + " is not scalar! it needs to be handled by upsertMember specifically to test if it has changed! " + n(t[a]));
               else if ("boolean" != typeof t[a] || !t[a] != !e[a]) {
               r.push(a), i = "CHANGED";
               var f = e[a],
@@ -11494,7 +11503,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           if ("unknown_members" !== TS.experiment.getGroup("unknown_members_perf", TS.members.unknown_members_perf_exp_metrics)) return null;
           if (!e) return null;
           if (TS.model.ms_logged_in_once) {
-            TS.has_pri[Z] && TS.log(Z, "member id " + e + " not found in members map, added unknown member to map");
+            TS.has_pri[ae] && TS.log(ae, "member id " + e + " not found in members map, added unknown member to map");
             var t = L(e);
             return f.push(e), 1 === f.length && _.defer(P), t;
           }
@@ -11504,7 +11513,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             id: e,
             name: e
           };
-          return t = TS.members.upsertMember(t).member, t.is_unknown = !0, t.is_non_existent = !1, U(t), ne(e), TS.statsd.mark("unknown_member_resolution_timing_" + e), t;
+          return t = TS.members.upsertMember(t).member, t.is_unknown = !0, t.is_non_existent = !1, U(t), le(e), TS.statsd.mark("unknown_member_resolution_timing_" + e), t;
         },
         U = function(e) {
           "unknown_members" === TS.experiment.getGroup("unknown_members_perf", TS.members.unknown_members_perf_exp_metrics) && _.isObject(e.profile) && (e.is_unknown || e.is_non_existent) && _.forEach(["24", "32", "48", "72", "192", "512", "1024"], function(t) {
@@ -11556,13 +11565,53 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         Q = function() {
           return TS.members.invalidateMembersUserCanSeeArrayCaches(), J();
         },
-        X = 4,
-        Z = 6655,
-        ee = 1975,
-        te = function() {
-          0 !== _.keys(S).length && _.each(S, ie);
+        X = function() {
+          TS.model.guest_accessible_user_ids && (TS.model.guest_accessible_user_ids.length = 0);
+        },
+        Z = function(e) {
+          return !TS.boot_data.feature_less_accessible_id_fetching || !e || !TS.model.user || !TS.model.user.is_restricted || !TS.model.guest_accessible_user_ids || !TS.model.guest_accessible_user_ids.length || !TS.membership.lazyLoadChannelMembership() || K;
+        },
+        ee = function(e, t) {
+          if (Z(e)) return Q();
+          if (t) {
+            if (_.includes(TS.model.guest_accessible_user_ids, e.id)) return Promise.resolve();
+            TS.model.guest_accessible_user_ids.push(e.id);
+          } else {
+            if (!_.includes(TS.model.guest_accessible_user_ids, e.id)) return Promise.resolve();
+            _.pull(TS.model.guest_accessible_user_ids, e.id);
+          }
+          return TS.members.invalidateMembersUserCanSeeArrayCaches(), Promise.resolve();
+        },
+        te = function e(t) {
+          if (Z(t)) return Q();
+          if (!_.includes(TS.model.guest_accessible_user_ids, t.id)) return Promise.resolve();
+          var n = _.concat(_.flatMap(TS.model.mpims, "members"), _.map(TS.model.ims, "user"));
+          if (_.includes(n, t.id)) return Promise.resolve();
+          var i = ne(t),
+            r = i[0],
+            a = i[1];
+          return a.length > ie ? Q() : a.length ? Promise.map(a, function(e) {
+            return TS.membership.ensureChannelMembershipIsKnownForUsers(e.model_ob.id, [t.id]);
+          }).then(function() {
+            return e(t);
+          }) : _.some(r, "membership.is_member") ? Promise.resolve() : (_.pull(TS.model.guest_accessible_user_ids, t.id), TS.members.invalidateMembersUserCanSeeArrayCaches(), Promise.resolve());
         },
         ne = function(e) {
+          return _(_.concat(TS.channels.getChannelsForUser(), TS.model.groups)).map(function(t) {
+            return {
+              model_ob: t,
+              membership: TS.membership.getUserChannelMembershipStatus(e.id, t)
+            };
+          }).partition("membership.is_known").value();
+        },
+        ie = 10,
+        re = 4,
+        ae = 6655,
+        se = 1975,
+        oe = function() {
+          0 !== _.keys(S).length && _.each(S, de);
+        },
+        le = function(e) {
           if (!S[e]) {
             var t = TS.console.getStackTrace();
             S[e] = setTimeout(function() {
@@ -11570,7 +11619,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                 if (TS.flannel.fetchAndUpsertObjectsByIds([e]).then(function() {
                     var t = TS.members.getUnknownMemberById(e),
                       n = t ? "failure" : "success";
-                    "success" === n && ie(e), TS.metrics.count("unknown_member_timeout_retry_" + n);
+                    "success" === n && de(e), TS.metrics.count("unknown_member_timeout_retry_" + n);
                   }), S[e]) return;
                 S[e] = setTimeout(function() {
                   if (TS.model.ms_connected) {
@@ -11588,10 +11637,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             }, 2e4);
           }
         },
-        ie = function(e) {
+        de = function(e) {
           clearTimeout(S[e]), delete S[e];
         },
-        re = function(e, t) {
+        ce = function(e, t) {
           if ("ADDED" === e.status && TS.lazyLoadMembersAndBots()) TS.members.lazily_added_sig.dispatch(e.member);
           else if ("CHANGED" === e.status) {
             if (-1 != e.what_changed.indexOf("is_unknown") && "unknown_members" === TS.experiment.getGroup("unknown_members_perf")) return TS.members.changed_is_unknown_sig.dispatch(e.member), e;
@@ -11603,7 +11652,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }
           return e;
         },
-        ae = function(n) {
+        _e = function(n) {
           if (void 0 === t[n]) {
             var i = TS.model.members;
             e < i.length && (i.forEach(function(e) {
@@ -11611,7 +11660,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             }), (e = Object.keys(t).length) !== i.length && TS.warn("member map size and member list length have diverged"));
           }
         },
-        se = function() {
+        ue = function() {
           var e = TS.shared.getActiveModelOb();
           f.length > 0 && e && (T[e.id] = performance.now());
         };
@@ -14911,7 +14960,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           TS.mpims.calcUnreadCnts(i, s), TS.view && !a && i.unread_cnt && TS.client.channel_pane.rebuild("ims");
         },
         fetchHistory: function(e, t, n) {
-          return e ? (TS.boot_data.feature_initial_scroll_position || TS.shared.maybeClearHasAutoScrolled(e), e.history_is_being_fetched = !0, e.history_fetch_failed = !1, TS.mpims.history_being_fetched_sig.dispatch(e), e.history_fetch_retries > 5 ? (e.history_fetch_retries = 0, e.history_is_being_fetched = !1, e.history_fetch_failed = !0, void(TS.client && TS.client.msg_pane.updateEndMarker())) : void TS.api.call("mpim.history", t, n || TS.mpims.onHistory)) : void TS.error('error no mpim "' + e + '"');
+          return e ? (TS.boot_data.feature_initial_scroll_position || TS.shared.maybeClearHasAutoScrolled(e), e.history_is_being_fetched = !0, e.history_fetch_failed = !1, TS.mpims.history_being_fetched_sig.dispatch(e), e.history_fetch_retries > 5 ? (e.history_fetch_retries = 0, e.history_is_being_fetched = !1, e.history_fetch_failed = !0, void(TS.client && TS.client.msg_pane.updateEndMarker())) : void(TS.boot_data.feature_shared_channels_beta ? TS.api.call("conversations.history", t, n || TS.mpims.onHistory) : TS.api.call("mpim.history", t, n || TS.mpims.onHistory))) : void TS.error('error no mpim "' + e + '"');
         },
         setNamesFromMember: function(e) {
           TS.model.mpims.forEach(function(t) {
@@ -15013,7 +15062,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }).join("");
         },
         u = function(e) {
-          e._internal_name = e.name, TS.useRedux() || (t[e._internal_name] = e), r(e), TS.shared.setPriorityForDev(e), e.is_mpim = !0, e.opened_this_session = !1, e.scroll_top = -1, e.history_is_being_fetched = !1, TS.useRedux() || (e.needs_api_marking = !1), e.unread_highlight_cnt = 0, e.unread_highlights = [], e.unread_cnt = 0, e.unreads = [], TS.shared.setOldestUnreadTsForId(e.id, null), e.has_fetched_history_after_scrollback = !1, TS.client ? (TS.shared.maybeResetHistoryFetched(e), TS._incremental_boot && e.msgs && e.msgs.length > 0 ? (e.msgs = e.msgs.map(function(t) {
+          e._internal_name = e.name, TS.useRedux() || (t[e._internal_name] = e), r(e), TS.shared.setPriorityForDev(e), e.is_mpim = !0, e.is_group = !0, e.opened_this_session = !1, e.scroll_top = -1, e.history_is_being_fetched = !1, TS.useRedux() || (e.needs_api_marking = !1), e.unread_highlight_cnt = 0, e.unread_highlights = [], e.unread_cnt = 0, e.unreads = [], TS.shared.setOldestUnreadTsForId(e.id, null), e.has_fetched_history_after_scrollback = !1, TS.client ? (TS.shared.maybeResetHistoryFetched(e), TS._incremental_boot && e.msgs && e.msgs.length > 0 ? (e.msgs = e.msgs.map(function(t) {
             return TS.utility.msgs.processImsg(t, e.id);
           }), TS.utility.msgs.setMsgs(e, e.msgs)) : TS.utility.msgs.setMsgs(e, [])) : TS.boot_data.msgs && TS.utility.msgs.ingestMessagesFromBootData(e), e.oldest_msg_ts = TS.storage.fetchOldestTs(e.id), e.last_msg_input = TS.storage.fetchLastMsgInput(e.id), e.has_draft = !!e.last_msg_input;
         },
@@ -15084,27 +15133,32 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
       "use strict";
       TS.registerModule("ms.msg_handlers", {
         onStart: function() {
-          M = window.performance && TS.boot_data && TS.boot_data.feature_ms_msg_handlers_profiling, TS.client && TS.client.stats && (TS.client.stats.start_collecting_sig.add(function() {
-            t = TS.boot_data.feature_queue_metrics && TS.utility.enableFeatureForUser(D), B.enableStatsCollecting();
+          C = window.performance && TS.boot_data && TS.boot_data.feature_ms_msg_handlers_profiling, TS.client && TS.client.stats && (TS.client.stats.start_collecting_sig.add(function() {
+            t = TS.boot_data.feature_queue_metrics && TS.utility.enableFeatureForUser(R), D.enableStatsCollecting();
           }), TS.client.stats.stop_collecting_sig.add(function() {
-            t = !1, B.disableStatsCollecting();
+            t = !1, D.disableStatsCollecting();
           })), TS.isSocketManagerEnabled() ? (TS.interop.SocketManager.socketMessageReceivedSig.add(TS.ms.msg_handlers.msgReceived), TS.interop.Eventlog.messageReceivedSig.add(TS.ms.msg_handlers.msgReceived), TS.interop.SocketManager.connectedSig.add(function() {
-            TS.boot_data.feature_tinyspeck && setTimeout(function() {
-              o.length > 50 && TS.warn("Looks like our msg_handlers queue might be wedged (it has " + o.length + " items in it). Kicking it.");
-            }, 3e4);
+            TS.boot_data.feature_tinyspeck && (i && clearTimeout(i), i = setTimeout(function() {
+              if (l.length > 50 && !d) {
+                var e = _.compact([l[0].type, l[0].subtype]).join(".");
+                TS.warn("Looks like our msg_handlers queue might be wedged (it has " + l.length + " items in it, first one of type " + e + "). Kicking it.");
+                var t = new Error("msg_handlers_queue_stuck_v1");
+                TS.console.logError(t, "size = " + l.length + ", first item = " + e);
+              }
+            }, 3e4));
           })) : TS.ms.on_msg_sig.add(TS.ms.msg_handlers.msgReceived);
         },
         debugGetQueueSize: function() {
-          return o.length;
+          return l.length;
         },
         test: function() {
           var e = {};
           return Object.defineProperty(e, "_is_batch_upserting_users", {
             get: function() {
-              return r;
+              return a;
             },
             set: function(e) {
-              r = e;
+              a = e;
             }
           }), e;
         },
@@ -15112,20 +15166,20 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           TS.ms.msg_handlers.msgReceived(e);
         },
         msgReceived: function(e) {
-          M && (O += 1, F || (F = Date.now())), e.reply_to || TS.ms.msg_handlers[e.type] && c(e);
+          C && (F += 1, B || (B = Date.now())), e.reply_to || TS.ms.msg_handlers[e.type] && u(e);
         },
         message: function(e) {
           if (TS.client) {
-            TS.has_pri[R] && TS.log(R, "recved message type " + e.type), e.is_ephemeral && !e.ts && (e.ts = TS.interop.datetime.makeTsStamp());
+            TS.has_pri[H] && TS.log(H, "recved message type " + e.type), e.is_ephemeral && !e.ts && (e.ts = TS.interop.datetime.makeTsStamp());
             var t, n = "subtype__" + e.subtype;
             if (n in TS.ms.msg_handlers) {
               if (TS.boot_data.feature_channel_eventlog_client) {
-                if ("message_changed" === e.subtype || "message_deleted" === e.subtype || "channel_history_changed" === e.subtype || "group_history_changed" === e.subtype || "im_history_changed" === e.subtype || "mpim_history_changed" === e.subtype || "message_replied" === e.subtype) return e.type = e.subtype, delete e.subtype, M && (t = B.start(e.type)), TS.ms.msg_handlers[e.type](e), void(t && t());
+                if ("message_changed" === e.subtype || "message_deleted" === e.subtype || "channel_history_changed" === e.subtype || "group_history_changed" === e.subtype || "im_history_changed" === e.subtype || "mpim_history_changed" === e.subtype || "message_replied" === e.subtype) return e.type = e.subtype, delete e.subtype, C && (t = D.start(e.type)), TS.ms.msg_handlers[e.type](e), void(t && t());
                 e.hidden && (TS.console.error(2, "WE SHOULD NOT BE GETTING ANY HIDDEN MESSAGES ANYMORE"), TS.console.dir(2, 0, e));
               }
-              M && (t = B.start(n)), TS.ms.msg_handlers[n](e), t && t();
+              C && (t = D.start(n)), TS.ms.msg_handlers[n](e), t && t();
             }
-            M && (t = B.start(e.type));
+            C && (t = D.start(e.type));
             var i = TS.utility.msgs.processImsg(e, e.channel);
             TS.ims.getImById(e.channel) ? ("start_profile_AAAAAA" === e.text ? TS.model.profiling_keys = !0 : "end_profile_AAAAAA" === e.text && (TS.model.profiling_keys = !1, TS.model.profiling_key_times && (TS.files.upload({
               text: JSON.stringify(TS.model.profiling_key_times, null, "\t"),
@@ -15143,10 +15197,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           e.file && e.file.id == TS.files.polling_file_id && TS.files.uploadProcessingOver(!0, e.file.id);
         },
         message_changed: function(e) {
-          TS.has_pri[R] && TS.log(R, "recved message type " + e.type), TS.ms.msg_handlers.message_changed_worker(e);
+          TS.has_pri[H] && TS.log(H, "recved message type " + e.type), TS.ms.msg_handlers.message_changed_worker(e);
         },
         subtype__message_changed: function(e) {
-          TS.has_pri[R] && TS.log(R, "recved subtype " + e.subtype), TS.boot_data.feature_channel_eventlog_client && TS.warn("feature_channel_eventlog_client=1 so we should never be getting subtype " + e.subtype), TS.ms.msg_handlers.message_changed_worker(e);
+          TS.has_pri[H] && TS.log(H, "recved subtype " + e.subtype), TS.boot_data.feature_channel_eventlog_client && TS.warn("feature_channel_eventlog_client=1 so we should never be getting subtype " + e.subtype), TS.ms.msg_handlers.message_changed_worker(e);
         },
         message_changed_worker: function(e) {
           if (!e.message) return void TS.error("no message?");
@@ -15157,10 +15211,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           TS.utility.msgs.replaceMsg(t, e.message, !0);
         },
         message_deleted: function(e) {
-          TS.has_pri[R] && TS.log(R, "recved message type " + e.type), TS.ms.msg_handlers.message_deleted_worker(e);
+          TS.has_pri[H] && TS.log(H, "recved message type " + e.type), TS.ms.msg_handlers.message_deleted_worker(e);
         },
         subtype__message_deleted: function(e) {
-          TS.has_pri[R] && TS.log(R, "recved subtype " + e.subtype), TS.boot_data.feature_channel_eventlog_client && TS.warn("feature_channel_eventlog_client=1 so we should never be getting subtype " + e.subtype), TS.ms.msg_handlers.message_deleted_worker(e);
+          TS.has_pri[H] && TS.log(H, "recved subtype " + e.subtype), TS.boot_data.feature_channel_eventlog_client && TS.warn("feature_channel_eventlog_client=1 so we should never be getting subtype " + e.subtype), TS.ms.msg_handlers.message_deleted_worker(e);
         },
         message_deleted_worker: function(e) {
           if (!e.deleted_ts) return void TS.error("no deleted_ts?");
@@ -15199,8 +15253,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             }
           } else if ("G" === e.channel_type && (t = TS.groups.getGroupById(e.channel))) {
             var a = TS.members.getMemberById(n);
-            if (!a) return TS.error('unknown member: "' + n + '"'), void G("member_left_channel");
-            N("member_left_channel"), TS.info(a.id + " left group " + e.channel);
+            if (!a) return TS.error('unknown member: "' + n + '"'), void W("member_left_channel");
+            G("member_left_channel"), TS.info(a.id + " left group " + e.channel);
             for (var s = 0; s < t.members.length; s += 1)
               if (t.members[s] == a.id) {
                 t.members.splice(s, 1), TS.groups.calcActiveMembersForGroup(t);
@@ -15289,8 +15343,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             }
           } else if ("G" === e.channel_type && (t = TS.groups.getGroupById(e.channel))) {
             var a = TS.members.getMemberById(n);
-            if (!a) return TS.error('unknown member: "' + n + '"'), void G("member_joined_channel");
-            if (N("member_joined_channel"), e.is_mpim) return;
+            if (!a) return TS.error('unknown member: "' + n + '"'), void W("member_joined_channel");
+            if (G("member_joined_channel"), e.is_mpim) return;
             TS.info(a.id + " joined group " + e.channel);
             for (var s, o = 0; o < t.members.length; o += 1)
               if (t.members[o] == a.id) {
@@ -15303,7 +15357,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           if (TS.client) {
             var t = TS.channels.getChannelById(e.channel);
             if (!t) return void TS.error('unknown channel: "' + e.channel + '"');
-            t.needs_invited_message = !1, delete TS.model.last_reads_set_by_client[t.id + "_" + e.ts], TS.has_pri[H] && t.last_read !== e.ts && TS.log(H, "channel_marked for " + t.id + ", " + t.last_read + " -> " + e.ts), TS.channels.setLastRead(t, e.ts);
+            t.needs_invited_message = !1, delete TS.model.last_reads_set_by_client[t.id + "_" + e.ts], TS.has_pri[P] && t.last_read !== e.ts && TS.log(P, "channel_marked for " + t.id + ", " + t.last_read + " -> " + e.ts), TS.channels.setLastRead(t, e.ts);
           }
         },
         subtype__channel_topic: function(e) {
@@ -15311,16 +15365,16 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           if (!t) return void TS.error('unknown channel: "' + e.channel + '"');
           var n = e.user,
             i = TS.members.getMemberById(n);
-          if (!i) return TS.error('unknown member: "' + n + '"'), void G("subtype__channel_topic");
-          N("subtype__channel_topic"), TS.info(i.id + " changed topic for channel " + e.channel), TS.channels.topicChanged(t, i.id, e.ts, e.topic);
+          if (!i) return TS.error('unknown member: "' + n + '"'), void W("subtype__channel_topic");
+          G("subtype__channel_topic"), TS.info(i.id + " changed topic for channel " + e.channel), TS.channels.topicChanged(t, i.id, e.ts, e.topic);
         },
         subtype__channel_purpose: function(e) {
           var t = TS.channels.getChannelById(e.channel);
           if (!t) return void TS.error('unknown channel: "' + e.channel + '"');
           var n = e.user,
             i = TS.members.getMemberById(n);
-          if (!i) return TS.error('unknown member: "' + n + '"'), void G("subtype__channel_purpose");
-          N("subtype__channel_purpose"), TS.info(i.id + " changed purpose for channel " + e.channel), TS.channels.purposeChanged(t, i.id, e.ts, e.purpose);
+          if (!i) return TS.error('unknown member: "' + n + '"'), void W("subtype__channel_purpose");
+          G("subtype__channel_purpose"), TS.info(i.id + " changed purpose for channel " + e.channel), TS.channels.purposeChanged(t, i.id, e.ts, e.purpose);
         },
         channel_history_changed: function(e) {
           TS.ms.msg_handlers.channel_history_changed_worker(e);
@@ -15329,7 +15383,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           TS.boot_data.feature_channel_eventlog_client && TS.warn("feature_channel_eventlog_client=1 so we should never be getting subtype " + e.subtype), TS.ms.msg_handlers.channel_history_changed_worker(e);
         },
         channel_history_changed_worker: function(e) {
-          return TS.info("channel_history_changed for " + e.channel), y(e, TS.channels);
+          return TS.info("channel_history_changed for " + e.channel), w(e, TS.channels);
         },
         mpim_joined: function(e) {
           if (!TS.mpims.getMpimById(e.channel.id)) {
@@ -15340,8 +15394,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         subtype__mpim_join: function(e) {
           var t = e.user,
             n = TS.members.getMemberById(t);
-          if (!n) return TS.error('unknown member: "' + t + '"'), void G("subtype__mpim_join");
-          N("subtype__mpim_join"), TS.info(n.id + " joined mpim " + e.channel);
+          if (!n) return TS.error('unknown member: "' + t + '"'), void W("subtype__mpim_join");
+          G("subtype__mpim_join"), TS.info(n.id + " joined mpim " + e.channel);
         },
         mpim_open: function(e) {
           var t = TS.mpims.getMpimById(e.channel);
@@ -15364,7 +15418,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           if (TS.client) {
             var t = TS.mpims.getMpimById(e.channel);
             if (!t) return void TS.error('unknown mpim: "' + e.channel + '"');
-            t.needs_invited_message = !1, TS.has_pri[H] && t.last_read !== e.ts && TS.log(H, "mpim_marked for " + t.id + ", " + t.last_read + " -> " + e.ts), delete TS.model.last_reads_set_by_client[t.id + "_" + e.ts], TS.mpims.setLastRead(t, e.ts);
+            t.needs_invited_message = !1, TS.has_pri[P] && t.last_read !== e.ts && TS.log(P, "mpim_marked for " + t.id + ", " + t.last_read + " -> " + e.ts), delete TS.model.last_reads_set_by_client[t.id + "_" + e.ts], TS.mpims.setLastRead(t, e.ts);
           }
         },
         mpim_history_changed: function(e) {
@@ -15374,7 +15428,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           TS.boot_data.feature_channel_eventlog_client && TS.warn("feature_channel_eventlog_client=1 so we should never be getting subtype " + e.subtype), TS.ms.msg_handlers.mpim_history_changed_worker(e);
         },
         mpim_history_changed_worker: function(e) {
-          return TS.info("mpim_history_changed for " + e.channel), y(e, TS.mpims);
+          return TS.info("mpim_history_changed for " + e.channel), w(e, TS.mpims);
         },
         group_left: function(e) {
           TS.info("You left group " + e.channel);
@@ -15422,7 +15476,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             if (TS.mpims.getMpimById(e.channel)) return TS.ms.msg_handlers.mpim_marked(e);
             var t = TS.groups.getGroupById(e.channel);
             if (!t) return void TS.error('unknown group: "' + e.channel + '"');
-            t.needs_invited_message = !1, TS.has_pri[H] && t.last_read !== e.ts && TS.log(H, "group_marked for " + t.id + ", " + t.last_read + " -> " + e.ts), delete TS.model.last_reads_set_by_client[t.id + "_" + e.ts], TS.groups.setLastRead(t, e.ts);
+            t.needs_invited_message = !1, TS.has_pri[P] && t.last_read !== e.ts && TS.log(P, "group_marked for " + t.id + ", " + t.last_read + " -> " + e.ts), delete TS.model.last_reads_set_by_client[t.id + "_" + e.ts], TS.groups.setLastRead(t, e.ts);
           }
         },
         group_close: function(e) {
@@ -15438,8 +15492,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             if (!t) return void TS.error('unknown group: "' + e.channel + '"');
             var n = e.user,
               i = TS.members.getMemberById(n);
-            if (!i) return TS.error('unknown member: "' + n + '"'), void G("subtype__group_topic");
-            N("subtype__group_topic"), TS.info(i.id + " changed topic for group " + e.channel + " to " + e.topic), TS.groups.topicChanged(t, i.id, e.ts, e.topic);
+            if (!i) return TS.error('unknown member: "' + n + '"'), void W("subtype__group_topic");
+            G("subtype__group_topic"), TS.info(i.id + " changed topic for group " + e.channel + " to " + e.topic), TS.groups.topicChanged(t, i.id, e.ts, e.topic);
           }
         },
         subtype__group_purpose: function(e) {
@@ -15448,8 +15502,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             if (!t) return void TS.error('unknown group: "' + e.channel + '"');
             var n = e.user,
               i = TS.members.getMemberById(n);
-            if (!i) return TS.error('unknown member: "' + n + '"'), void G("subtype__group_purpose");
-            N("subtype__group_purpose"), TS.info(i.id + " changed purpose for group " + e.channel + " to " + e.purpose), TS.groups.purposeChanged(t, i.id, e.ts, e.purpose);
+            if (!i) return TS.error('unknown member: "' + n + '"'), void W("subtype__group_purpose");
+            G("subtype__group_purpose"), TS.info(i.id + " changed purpose for group " + e.channel + " to " + e.purpose), TS.groups.purposeChanged(t, i.id, e.ts, e.purpose);
           }
         },
         group_history_changed: function(e) {
@@ -15459,29 +15513,29 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           TS.boot_data.feature_channel_eventlog_client && TS.warn("feature_channel_eventlog_client=1 so we should never be getting subtype " + e.subtype), TS.ms.msg_handlers.group_history_changed_worker(e);
         },
         group_history_changed_worker: function(e) {
-          if (!e.is_mpim) return TS.info("group_history_changed for " + e.channel), y(e, TS.groups);
+          if (!e.is_mpim) return TS.info("group_history_changed for " + e.channel), w(e, TS.groups);
         },
         im_created: function(e) {
           var t = TS.ims.getImById(e.channel.id);
           if (t) return void TS.warn("we already have an im for this user: " + e.user);
           if (TS.ims.upsertIm(e.channel), !(t = TS.ims.getImById(e.channel.id))) return void TS.error("error why can we not find this im: " + e.channel.id);
           var n = TS.members.getMemberById(e.user);
-          if (!n) return TS.error('unknown member: "' + e.user + '"'), void G("im_created");
-          N("im_created"), TS.members.invalidateMembersUserCanSeeArrayCaches(), t.is_open && (TS.model.requested_im_opens[n.id] && (TS.ims.displayIm(t.id, !1, TS.model.requested_im_opens[n.id].and_send_txt), delete TS.model.requested_im_opens[n.id]), TS.ims.opened_sig.dispatch(t)), t.opened_this_session = !0;
+          if (!n) return TS.error('unknown member: "' + e.user + '"'), void W("im_created");
+          G("im_created"), TS.members.invalidateMembersUserCanSeeArrayCaches(), t.is_open && (TS.model.requested_im_opens[n.id] && (TS.ims.displayIm(t.id, !1, TS.model.requested_im_opens[n.id].and_send_txt), delete TS.model.requested_im_opens[n.id]), TS.ims.opened_sig.dispatch(t)), t.opened_this_session = !0;
         },
         im_open: function(e) {
           var t = TS.ims.getImById(e.channel);
           if (!t) return void TS.error("unknown im! " + e.channel);
           t.is_open = !0;
           var n = TS.members.getMemberById(e.user);
-          if (!n) return TS.error('unknown member: "' + e.user + '"'), void G("im_open");
-          N("im_open"), TS.model.requested_im_opens[n.id] && (TS.ims.displayIm(t.id, !1, TS.model.requested_im_opens[n.id].and_send_txt), delete TS.model.requested_im_opens[n.id]), t.opened_this_session = !0, TS.ims.opened_sig.dispatch(t), TS.client && TS.shared.checkInitialMsgHistory(t, TS.ims);
+          if (!n) return TS.error('unknown member: "' + e.user + '"'), void W("im_open");
+          G("im_open"), TS.model.requested_im_opens[n.id] && (TS.ims.displayIm(t.id, !1, TS.model.requested_im_opens[n.id].and_send_txt), delete TS.model.requested_im_opens[n.id]), t.opened_this_session = !0, TS.ims.opened_sig.dispatch(t), TS.client && TS.shared.checkInitialMsgHistory(t, TS.ims);
         },
         im_marked: function(e) {
           if (TS.client) {
             var t = TS.ims.getImById(e.channel);
             if (!t) return void TS.error('unknown im: "' + e.channel + '"');
-            TS.has_pri[H] && t.last_read !== e.ts && TS.log(H, "im_marked for " + t.id + ", " + t.last_read + " -> " + e.ts), delete TS.model.last_reads_set_by_client[t.id + "_" + e.ts], TS.ims.setLastRead(t, e.ts);
+            TS.has_pri[P] && t.last_read !== e.ts && TS.log(P, "im_marked for " + t.id + ", " + t.last_read + " -> " + e.ts), delete TS.model.last_reads_set_by_client[t.id + "_" + e.ts], TS.ims.setLastRead(t, e.ts);
           }
         },
         im_close: function(e) {
@@ -15496,7 +15550,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           TS.boot_data.feature_channel_eventlog_client && TS.warn("feature_channel_eventlog_client=1 so we should never be getting subtype " + e.subtype), TS.ms.msg_handlers.im_history_changed_worker(e);
         },
         im_history_changed_worker: function(e) {
-          return TS.info("im_history_changed for " + e.channel), y(e, TS.ims);
+          return TS.info("im_history_changed for " + e.channel), w(e, TS.ims);
         },
         manual_presence_change: function(e) {
           var t = TS.model.user;
@@ -15505,13 +15559,13 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         presence_change: function(e) {
           e.team = e.team || TS.model.team.id, e.hasOwnProperty("users") && _.isArray(e.users) ? e.users.forEach(function(t) {
-            w(t, e.presence);
-          }) : w(e.user, e.presence);
+            k(t, e.presence);
+          }) : k(e.user, e.presence);
         },
         status_change: function(e) {
           var t = TS.members.getMemberById(e.user);
-          if (!t) return TS.error('unknown member: "' + e.user + '"'), void G("status_change");
-          N("status_change"), t.status != e.status && (t.status = e.status, TS.members.status_changed_sig.dispatch(t));
+          if (!t) return TS.error('unknown member: "' + e.user + '"'), void W("status_change");
+          G("status_change"), t.status != e.status && (t.status = e.status, TS.members.status_changed_sig.dispatch(t));
         },
         user_can_manage_shared_channels: function(e) {
           TS.prefs.updateTeamPrefCanUserManageSharedChannels(e);
@@ -15593,29 +15647,29 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         team_join: function(e) {
           var t = e.user;
-          if (TS.info(t.id + " joined the team"), TS.members.upsertMember(t), !(t = TS.members.getMemberById(t.id))) return TS.error("team_join: wtf no member " + t.id + "?"), void G("team_join");
-          N("team_join"), TS.members.joined_team_sig.dispatch(t), TS.client && TS.view.showProperTeamPaneFiller();
+          if (TS.info(t.id + " joined the team"), TS.members.upsertMember(t), !(t = TS.members.getMemberById(t.id))) return TS.error("team_join: wtf no member " + t.id + "?"), void W("team_join");
+          G("team_join"), TS.members.joined_team_sig.dispatch(t), TS.client && TS.view.showProperTeamPaneFiller();
         },
         user_change: function(e) {
           var t = TS.members.getMemberById(e.user.id),
             n = e.from_flannel;
           if (!t) {
-            if (!n) return TS.has_pri[j] && TS.log(j, "Flannel: user_change for member not in model; ignoring"), void G("user_change");
-            TS.has_pri[j] && TS.log(j, "Flannel: user_change for member not in model; will upsert because this looks like a Flannel hint");
+            if (!n) return TS.has_pri[L] && TS.log(L, "Flannel: user_change for member not in model; ignoring"), void W("user_change");
+            TS.has_pri[L] && TS.log(L, "Flannel: user_change for member not in model; will upsert because this looks like a Flannel hint");
           }
-          N("user_change");
+          G("user_change");
           var i = !t && n;
-          if (!i || r || TS.members.is_in_bulk_upsert_mode ? r && !i && (TS.members.finishBatchUpsert(), r = !1) : (r = !0, TS.members.startBatchUpsert()), e.user && e.user.id === TS.model.user.id && TS.model.team && TS.model.team.prefs && !TS.model.team.prefs.display_email_addresses && e.user.profile && !e.user.profile.email) {
-            var a = t.profile && t.profile.email;
-            a && (TS.info("user_change: email hidden via team pref. appending email from model for local user, so it is not lost in upsert."), e.user.profile.email = a);
+          if (!i || a || TS.members.is_in_bulk_upsert_mode ? a && !i && (TS.members.finishBatchUpsert(), a = !1) : (a = !0, TS.members.startBatchUpsert()), e.user && e.user.id === TS.model.user.id && TS.model.team && TS.model.team.prefs && !TS.model.team.prefs.display_email_addresses && e.user.profile && !e.user.profile.email) {
+            var r = t.profile && t.profile.email;
+            r && (TS.info("user_change: email hidden via team pref. appending email from model for local user, so it is not lost in upsert."), e.user.profile.email = r);
           }
           TS.members.upsertAndSignal(e.user);
         },
         star_added: function(e) {
           if (!e.item) return void TS.error(e.type + " has no item");
           var t = TS.members.getMemberById(e.user);
-          if (!t) return TS.error('unknown member: "' + e.user + '"'), void G("star_added");
-          N("star_added"), t.is_self && (TS.stars.userStarStatusHasChanged(!0, e.item, e.type), TS.stars.maybeUpdateUserStarredList({
+          if (!t) return TS.error('unknown member: "' + e.user + '"'), void W("star_added");
+          G("star_added"), t.is_self && (TS.stars.userStarStatusHasChanged(!0, e.item, e.type), TS.stars.maybeUpdateUserStarredList({
             delta: 1
           }));
         },
@@ -15687,18 +15741,18 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           TS.bots.added_sig.dispatch(t);
         },
         bot_changed: function(e) {
-          !TS.bots.getBotById(e.bot.id) && TS.has_pri[j] && TS.log(j, "Flannel: bot_changed for member not in model; upserting"), TS.bots.upsertAndSignal(e.bot);
+          !TS.bots.getBotById(e.bot.id) && TS.has_pri[L] && TS.log(L, "Flannel: bot_changed for member not in model; upserting"), TS.bots.upsertAndSignal(e.bot);
         },
         bot_removed: function(e) {
-          if (!TS.bots.getBotById(e.bot.id)) return void(TS.has_pri[j] && TS.log(j, "Flannel: bot_removed for bot not in model; ignoring"));
+          if (!TS.bots.getBotById(e.bot.id)) return void(TS.has_pri[L] && TS.log(L, "Flannel: bot_removed for bot not in model; ignoring"));
           TS.bots.upsertAndSignal(e.bot);
         },
         error: function() {},
         user_typing: function(e) {
           if (TS.typing) {
             var t = TS.members.getMemberById(e.user);
-            if (!t) return TS.error("unknown imsg.user:" + e.user), void G("user_typing");
-            N("user_typing");
+            if (!t) return TS.error("unknown imsg.user:" + e.user), void W("user_typing");
+            G("user_typing");
             var n = TS.shared.getModelObById(e.channel);
             if (!n) return void TS.error("unknown imsg.channel:" + e.channel);
             TS.typing.memberStarted(n, t);
@@ -15720,13 +15774,13 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               });
               break;
             default:
-              x("emoji_changed", e.event_ts, function(e) {
+              M("emoji_changed", e.event_ts, function(e) {
                 e && (TS.model.emoji_cache_ts = e), TS.emoji.resetUpEmoji();
               });
           }
         },
         commands_changed: function(e) {
-          if (!e.commands_removed && !e.commands_updated) return void x("commands_changed", e.event_ts, function(e) {
+          if (!e.commands_removed && !e.commands_updated) return void M("commands_changed", e.event_ts, function(e) {
             e && (TS.model.commands_cache_ts = e), TS.cmd_handlers.resetUpCmds();
           });
           _.isArray(e.commands_removed) && e.commands_removed.forEach(function(t) {
@@ -15786,8 +15840,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         dnd_updated_user: function(e) {
           var t = TS.members.getMemberById(e.user);
-          if (!t) return TS.log(2002, 'unknown member in dnd_updated_user: "' + e.user + '"'), void G("dnd_updated_user");
-          N("dnd_updated_user"), TS.dnd.updateUserPropsAndSignal(t.id, e.dnd_status);
+          if (!t) return TS.log(2002, 'unknown member in dnd_updated_user: "' + e.user + '"'), void W("dnd_updated_user");
+          G("dnd_updated_user"), TS.dnd.updateUserPropsAndSignal(t.id, e.dnd_status);
         },
         reconnect_url: function(e) {
           if (!TS.isSocketManagerEnabled() && TS.ms.fast_reconnects_enabled) {
@@ -15809,7 +15863,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           TS.ms.msg_handlers.message_changed_worker(e);
         },
         subtype__message_replied: function(e) {
-          TS.has_pri[R] && TS.log(R, "recved subtype " + e.subtype), TS.boot_data.feature_channel_eventlog_client && TS.warn("feature_channel_eventlog_client=1 so we should never be getting subtype " + e.subtype), TS.ms.msg_handlers.message_changed_worker(e);
+          TS.has_pri[H] && TS.log(H, "recved subtype " + e.subtype), TS.boot_data.feature_channel_eventlog_client && TS.warn("feature_channel_eventlog_client=1 so we should never be getting subtype " + e.subtype), TS.ms.msg_handlers.message_changed_worker(e);
         },
         thread_subscribed: function(e) {
           var t = e.subscription;
@@ -15842,12 +15896,12 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           TS.apps.requestPermissions(e.app_user, e.scope_info, e.trigger_id);
         }
       });
-      var e, t, i = 0,
-        r = !1,
-        a = function(e, t) {
+      var e, t, i, r = 0,
+        a = !1,
+        s = function(e, t) {
           return !!t && (!(TS.web && TS.web.space && !TS.web.space.isFileRelevant(t)) && ("file_created" === e.type && e.user_id == TS.model.user.id || !!TS.files.getFileById(t)));
         },
-        s = function(e) {
+        o = function(e) {
           var t = ["message", "file_deleted", "file_private"];
           if (_.includes(t, e.type)) return !1;
           if (e._file_attached) return !1;
@@ -15858,84 +15912,84 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             file_id: i
           };
         },
-        o = [],
-        l = !1,
-        d = function() {
+        l = [],
+        d = !1,
+        c = function() {
           var e = {
             trailing: !0
           };
           return _.debounce(function(e, t) {
-            TS.has_pri[R] && TS.log(R, "TS.metrics: " + e + ", Q length = " + t), TS.metrics.store(e, t, {
+            TS.has_pri[H] && TS.log(H, "TS.metrics: " + e + ", Q length = " + t), TS.metrics.store(e, t, {
               is_count: !0
             });
           }, 500, e);
         }(),
-        c = function(e) {
-          if (e._from_evt_log && (l = !0), e._enqueued_at = performance.now(), o.push(e), t && (i += 1, e._id = i, TS.metrics.mark("ms_event_queue_add_" + i)), 1 == o.length) u();
+        u = function(e) {
+          if (e._from_evt_log && (d = !0), e._enqueued_at = performance.now(), l.push(e), t && (r += 1, e._id = r, TS.metrics.mark("ms_event_queue_add_" + r)), 1 == l.length) m();
           else {
-            if (TS.has_pri[R] && TS.log(R, e.type + " is Qed and not being handled immediately _Q.length:" + o.length), !TS.client || !TS.client.stats.isEnabled()) return;
-            l ? o.length > 100 && d("ms_event_from_log_q", o.length) : o.length > 10 && d("ms_event_q", o.length);
+            if (TS.has_pri[H] && TS.log(H, e.type + " is Qed and not being handled immediately _Q.length:" + l.length), !TS.client || !TS.client.stats.isEnabled()) return;
+            d ? l.length > 100 && c("ms_event_from_log_q", l.length) : l.length > 10 && c("ms_event_q", l.length);
           }
         },
-        u = function() {
-          if (o.length) {
+        m = function() {
+          if (i && (clearTimeout(i), i = void 0), l.length) {
             TS.boot_data.feature_async_queue && !e && (e = performance.now()), t && TS.metrics.mark("ms_event_processing");
-            var n = o[0];
+            var n = l[0];
             if (n._enqueued_at && TS.client && TS.client.stats.isEnabled()) {
-              var i = performance.now() - n._enqueued_at;
-              TS.metrics.store("ms_time_in_queue", i, {
+              var r = performance.now() - n._enqueued_at;
+              TS.metrics.store("ms_time_in_queue", r, {
                 allow_zero: !0
               }), delete n._enqueued_at;
             }
-            m(n);
+            p(n);
           }
         },
-        m = function(e) {
-          var t = s(e);
-          if (!t) return g(e);
+        p = function(e) {
+          var t = o(e);
+          if (!t) return S(e);
           var n = t.ob_with_file,
             i = t.file_id;
-          return a(e, i) ? (TS.has_pri[P] && TS.dir(P, e, e.type + " -> _ensureFileObjectsOnMsgAndProceed()"), i ? (TS.has_pri[P] && TS.log(P, e.type + " referenced a relevant file and we have to look it up via the API: " + i), void(o.length > 1 ? f(e, i, n) : p(e, i, n))) : (TS.has_pri[P] && TS.maybeWarn(P, e.type + " referenced a relevant file but there is no file_id"), g(e))) : (TS.has_pri[P] && TS.warn(P, e.type + " referenced an irrelevant file: " + i), Promise.resolve().then(function() {
-            return T();
+          return s(e, i) ? (TS.has_pri[j] && TS.dir(j, e, e.type + " -> _ensureFileObjectsOnMsgAndProceed()"), i ? (TS.has_pri[j] && TS.log(j, e.type + " referenced a relevant file and we have to look it up via the API: " + i), void(l.length > 1 ? h(e, i, n) : f(e, i, n))) : (TS.has_pri[j] && TS.maybeWarn(j, e.type + " referenced a relevant file but there is no file_id"), S(e))) : (TS.has_pri[j] && TS.warn(j, e.type + " referenced an irrelevant file: " + i), Promise.resolve().then(function() {
+            return b();
           }));
         },
-        p = function(e, t, n) {
+        f = function(e, t, n) {
           TS.files.fetchFileInfoRaw(t, function(i, r) {
-            if (!r) return TS.has_pri[P] && TS.warn(P, e.type + " file fetch failed (or the file has been deleted)"), Promise.resolve().then(function() {
-              return T();
+            if (!r) return TS.has_pri[j] && TS.warn(j, e.type + " file fetch failed (or the file has been deleted)"), Promise.resolve().then(function() {
+              return b();
             });
-            n.file = r, TS.has_pri[P] && TS.log(P, e.type + " now has a file definition"), e._file_attached = !0, _.forEach(o, function(n) {
-              var i = s(n);
-              i && i.file_id === t && (i.ob_with_file.file = r, n._file_attached = !0, TS.has_pri[P] && TS.log(P, e.type + " now has a file definition (courtesy of a previously queued imsg for " + t + ")"));
-            }), g(e);
+            n.file = r, TS.has_pri[j] && TS.log(j, e.type + " now has a file definition"), e._file_attached = !0, _.forEach(l, function(n) {
+              var i = o(n);
+              i && i.file_id === t && (i.ob_with_file.file = r, n._file_attached = !0, TS.has_pri[j] && TS.log(j, e.type + " now has a file definition (courtesy of a previously queued imsg for " + t + ")"));
+            }), S(e);
           });
         },
-        f = function(e, t, n) {
+        h = function(e, t, n) {
           var i = [t];
-          if (_.forEach(o, function(e) {
+          if (_.forEach(l, function(e) {
               if (i.length >= 20) return !1;
-              var t = s(e);
-              t && !_.includes(i, t.file_id) && a(e, t.file_id) && i.push(t.file_id);
+              var t = o(e);
+              t && !_.includes(i, t.file_id) && s(e, t.file_id) && i.push(t.file_id);
             }), i.length > 1) {
             TS.files.fetchMultipleFiles(i, function(i, r) {
               var a = r && r.files;
-              if (!i || !_.isArray(a)) return TS.has_pri[P] && TS.maybeWarn(P, e.type + " multi-file fetch failed"), Promise.resolve().then(function() {
-                return T();
+              if (!i || !_.isArray(a)) return TS.has_pri[j] && TS.maybeWarn(j, e.type + " multi-file fetch failed"), Promise.resolve().then(function() {
+                return b();
               });
-              var l = {};
+              var s = {};
               _.forEach(a, function(e) {
-                l[e.id] = e;
-              }), _.forEach(o, function(t) {
-                var n = s(t);
+                s[e.id] = e;
+              }), _.forEach(l, function(t) {
+                var n = o(t);
                 if (n) {
-                  var i = l[n.file_id];
-                  i && (n.ob_with_file.file = i, t._file_attached = !0, TS.has_pri[P] && TS.log(P, e.type + " now has a file definition (" + n.file_id + ")"));
+                  var i = s[n.file_id];
+                  i && (n.ob_with_file.file = i, t._file_attached = !0, TS.has_pri[j] && TS.log(j, e.type + " now has a file definition (" + n.file_id + ")"));
                 }
-              }), l[t] ? g(e) : p(e, t, n);
+              }), s[t] ? S(e) : f(e, t, n);
             }, !0);
-          } else p(e, t, n);
+          } else f(e, t, n);
         },
-        h = function(e) {
+        g = function(e) {
           if (!TS.boot_data.feature_stop_loud_channel_mentions) return Promise.resolve();
           if (!e || "message" !== e.type || !e.text) return Promise.resolve();
           if (TS.model.here_regex.test(e.text) || TS.model.channel_regex.test(e.text) || TS.model.everyone_regex.test(e.text) || TS.model.group_regex.test(e.text)) {
@@ -15944,28 +15998,28 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }
           return Promise.resolve();
         },
-        g = function(t) {
-          TS.has_pri[R] && TS.log(R, t.type + " is now being handled");
+        S = function(t) {
+          TS.has_pri[H] && TS.log(H, t.type + " is now being handled");
           var i;
-          M && (i = B.start(t.type));
+          C && (i = D.start(t.type));
           var r = function() {
               return p.length ? TS.bots.ensureBotsArePresent(p).catch(_.noop).then(a) : a();
             },
             a = function() {
               return TS.members.ensureMembersArePresent(m.m_ids, m.c_ids, m.t_ids).catch(function(e) {
-                if (t.user && "string" == typeof t.user && !TS.members.getMemberById(t.user) || t.channel && "object" === n(t.channel) && t.channel.user && "string" == typeof t.channel.user && !TS.members.getMemberById(t.channel.user)) return TS.error(o + " could not be handled because imsg.user or imsg.channel.user could not be fetched. full err: " + e.message), TS.warn("imsg.ts:" + t.ts + ", imsg.user:" + t.user + ", imsg.channel.user:" + t.channel && t.channel.user), i && i(!0), T();
-                TS.has_pri[U] && (TS.maybeWarn(U, o + " held some references to members we could not fetch, but we have imsg.user and imsg.channel.user (or they did not exist) so we can still proceed"), TS.log(U, "imsg.ts:" + t.ts + ", missing_m_ids:" + JSON.stringify(m)));
+                if (t.user && "string" == typeof t.user && !TS.members.getMemberById(t.user) || t.channel && "object" === n(t.channel) && t.channel.user && "string" == typeof t.channel.user && !TS.members.getMemberById(t.channel.user)) return TS.error(o + " could not be handled because imsg.user or imsg.channel.user could not be fetched. full err: " + e.message), TS.warn("imsg.ts:" + t.ts + ", imsg.user:" + t.user + ", imsg.channel.user:" + t.channel && t.channel.user), i && i(!0), b();
+                TS.has_pri[N] && (TS.maybeWarn(N, o + " held some references to members we could not fetch, but we have imsg.user and imsg.channel.user (or they did not exist) so we can still proceed"), TS.log(N, "imsg.ts:" + t.ts + ", missing_m_ids:" + JSON.stringify(m)));
               }).then(function() {
-                return h(t);
+                return g(t);
               }).then(s);
             },
             s = function(n) {
               try {
-                v(t);
+                y(t);
               } catch (e) {
                 TS.error(o + " errored out when being handled, with err: " + e.message, e), TS.console.logStackTrace();
               }
-              return TS.boot_data.feature_async_queue && !n && (e = null), i && i(!0), T();
+              return TS.boot_data.feature_async_queue && !n && (e = null), i && i(!0), b();
             };
           if (["channel_joined", "dnd_updated", "dnd_updated_user", "manual_presence_change", "member_left_channel", "presence_change", "status_change", "subteam_created", "user_removed_from_team", "user_change"].indexOf(t.type) >= 0) return s(!0);
           var o = "type:" + t.type + (t.subtype ? " subtype:" + t.subtype : ""),
@@ -15975,47 +16029,47 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             u = TS.shared.getModelObIdsNotPresent(l),
             m = TS.members.getMemberIdsNotPresent(d.m_ids, d.c_ids, d.t_ids),
             p = _.reject(c, TS.bots.getBotById);
-          if ((u.length || m.m_ids.length || p.length) && "user_typing" === t.type && S(t.channel)) return T();
+          if ((u.length || m.m_ids.length || p.length) && "user_typing" === t.type && T(t.channel)) return b();
           if (u.length) ! function() {
             TS.shared.ensureModelObsArePresent(u).then(function() {
               return r();
             }, function(e) {
-              return t.channel && "string" == typeof t.channel && !TS.shared.getModelObById(t.channel) ? (TS.error(o + " could not be handled because imsg.channel could not be fetched. full err: " + e.message), TS.warn("imsg.ts:" + t.ts + ", imsg.channel:" + t.channel), i && i(!0), T()) : (TS.has_pri[U] && (TS.warn(U, o + " held some references to model_obs we could not fetch, but we have imsg.channel (or there was no imsg.channel) so we can still proceed"), TS.log(U, "imsg.ts:" + t.ts + ", missing c ids:" + JSON.stringify(u))), m.m_ids.length || p.length ? r() : h(t).then(s));
+              return t.channel && "string" == typeof t.channel && !TS.shared.getModelObById(t.channel) ? (TS.error(o + " could not be handled because imsg.channel could not be fetched. full err: " + e.message), TS.warn("imsg.ts:" + t.ts + ", imsg.channel:" + t.channel), i && i(!0), b()) : (TS.has_pri[N] && (TS.warn(N, o + " held some references to model_obs we could not fetch, but we have imsg.channel (or there was no imsg.channel) so we can still proceed"), TS.log(N, "imsg.ts:" + t.ts + ", missing c ids:" + JSON.stringify(u))), m.m_ids.length || p.length ? r() : g(t).then(s));
             });
           }();
           else {
-            if (!m.m_ids.length && !p.length) return h(t).finally(function() {
+            if (!m.m_ids.length && !p.length) return g(t).finally(function() {
               return s(!0);
             });
             r();
           }
         },
-        S = function(e) {
+        T = function(e) {
           if (e === TS.model.active_cid) return !1;
           var t = TS.shared.getModelObById(e);
           return !t || !t.is_im && !t.is_mpim;
         },
-        T = function() {
-          if (!o.length) return Promise.resolve();
+        b = function() {
+          if (!l.length) return Promise.resolve();
           if (t) {
-            var n = o.shift();
-            TS.metrics.store("ms_event_q_length", o.length, {
+            var n = l.shift();
+            TS.metrics.store("ms_event_q_length", l.length, {
               is_count: !0
             }), TS.metrics.measureAndClear("ms_event_duration", "ms_event_processing"), TS.metrics.measureAndClear("ms_event_and_queue_duration", "ms_event_queue_add_" + n._id);
-          } else o.shift();
-          return o.length || (l = !1), b() ? new Promise(function(t) {
+          } else l.shift();
+          return l.length || (d = !1), v() ? new Promise(function(t) {
             setTimeout(function() {
-              return TS.has_pri[U] && TS.log(U, "too much work per frame; need to take a break"), e = null, u(), t();
+              return TS.has_pri[N] && TS.log(N, "too much work per frame; need to take a break"), e = null, m(), t();
             }, 0);
-          }) : (u(), Promise.resolve());
+          }) : (m(), Promise.resolve());
         },
-        b = function() {
-          return !!TS.boot_data.feature_async_queue && (e && o.length && performance.now() - e > 10);
+        v = function() {
+          return !!TS.boot_data.feature_async_queue && (e && l.length && performance.now() - e > 10);
         },
-        v = function(e) {
-          r && "user_change" !== e.type && (TS.members.finishBatchUpsert(), r = !1), TS.ms.msg_handlers[e.type](e), TS.client && TS.model.is_our_app && (TS.dir(236, e, "calling TS.client.windows.distributeMsgToWins"), TS.client.windows.distributeMsgToWins(e));
+        y = function(e) {
+          a && "user_change" !== e.type && (TS.members.finishBatchUpsert(), a = !1), TS.ms.msg_handlers[e.type](e), TS.client && TS.model.is_our_app && (TS.dir(236, e, "calling TS.client.windows.distributeMsgToWins"), TS.client.windows.distributeMsgToWins(e));
         },
-        y = function(e, t) {
+        w = function(e, t) {
           var n = TS.shared.getModelObById(e.channel);
           if (!n) return void TS.error('unknown model_ob: "' + e.channel + '"');
           n.history_changed = !0, t.fetchHistory(n, {
@@ -16040,33 +16094,33 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             n.history_changed = !1;
           });
         },
-        w = function(e, t) {
+        k = function(e, t) {
           if ("away" !== t && "active" !== t) return void TS.error('unknown presence: "' + t + '"');
           var n = TS.members.getMemberById(e);
-          if (!n) return void G("presence_change");
-          N("presence_change"), n.presence != t && (_.get(n, "profile.always_active") && (t = "active"), n.is_self && (n._presence_last_changed = new Date), n.presence = t, TS.members.presence_changed_sig.dispatch(n));
+          if (!n) return void W("presence_change");
+          G("presence_change"), n.presence != t && (_.get(n, "profile.always_active") && (t = "active"), n.is_self && (n._presence_last_changed = new Date), n.presence = t, TS.members.presence_changed_sig.dispatch(n));
         },
-        k = {},
-        x = function(e, t, n) {
-          k[e] = k[e] || {};
-          var i = k[e];
+        x = {},
+        M = function(e, t, n) {
+          x[e] = x[e] || {};
+          var i = x[e];
           if (t && (i.cache_ts = t), !i.timer) {
             var r = _.random(0, 5e3);
             TS.info("Waiting " + r + " ms before handling " + e + " event"), i.timer = setTimeout(function() {
-              delete k[e], n(i.cache_ts);
+              delete x[e], n(i.cache_ts);
             }, r);
           }
         },
-        M = !1,
         C = !1,
-        I = null,
-        A = {},
+        I = !1,
+        A = null,
         E = {},
-        O = 0,
+        O = {},
         F = 0,
-        B = {
+        B = 0,
+        D = {
           start: function(e, t) {
-            if (C) {
+            if (I) {
               t = t && parseInt(t, 10) || 1e3;
               var n = {
                 start: performance.now(),
@@ -16075,58 +16129,58 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               return function(i) {
                 i = !!i, n.end = performance.now();
                 var r = n.end - n.start;
-                r > t && TS.warn("'" + e + "' msg_handler took " + _.round(r, 2) + "ms" + (1e3 !== t ? " (threshold = " + t + ")" : "")), B.count(e, r, i);
+                r > t && TS.warn("'" + e + "' msg_handler took " + _.round(r, 2) + "ms" + (1e3 !== t ? " (threshold = " + t + ")" : "")), D.count(e, r, i);
               };
             }
           },
           count: function(e, t, n) {
-            E.start_time || (E.start_time = performance.now()), A[e] || (A[e] = {
+            O.start_time || (O.start_time = performance.now()), E[e] || (E[e] = {
               call_count: 0,
               elapsed_time: 0,
               async: !!n
-            }), n && (A[e].async = n), A[e].call_count += 1, A[e].elapsed_time += t, B.maybeReport();
+            }), n && (E[e].async = n), E[e].call_count += 1, E[e].elapsed_time += t, D.maybeReport();
           },
           report: function() {
-            if (B.finish(), _.size(A)) {
-              var e = _.sum(_.map(A, "call_count"));
-              TS.has_pri[L] && TS.log(L, "🏔️ MS message stats: " + e + " handler calls in " + parseInt(E.elapsed_time / 1e3, 10) + "s window, " + O + " imsgs since " + new Date(F), A), B.beacon();
+            if (D.finish(), _.size(E)) {
+              var e = _.sum(_.map(E, "call_count"));
+              TS.has_pri[U] && TS.log(U, "🏔️ MS message stats: " + e + " handler calls in " + parseInt(O.elapsed_time / 1e3, 10) + "s window, " + F + " imsgs since " + new Date(B), E), D.beacon();
             }
-            B.reset();
+            D.reset();
           },
           beacon: function() {
-            _.each(A, function(e, t) {
+            _.each(E, function(e, t) {
               t = e.async ? "ms_handler_async_" + t : "ms_handler_" + t, TS.metrics.count(t + "_count", e.call_count), TS.metrics.store(t + "_time", e.elapsed_time);
-            }), TS.metrics.store("ms_handler_imsgs_received_total", O, {
+            }), TS.metrics.store("ms_handler_imsgs_received_total", F, {
               is_count: !0
             });
           },
           finish: function() {
-            E.end_time = performance.now(), E.elapsed_time = E.end_time - E.start_time;
+            O.end_time = performance.now(), O.elapsed_time = O.end_time - O.start_time;
           },
           reset: function() {
-            A = {}, E = {}, I = null;
+            E = {}, O = {}, A = null;
           },
           maybeReport: function() {
-            I || (I = window.setTimeout(B.report, 6e4));
+            A || (A = window.setTimeout(D.report, 6e4));
           },
           enableStatsCollecting: function() {
-            TS.has_pri[L] && TS.log(L, "🏔️ MS message handler stat collecting enabled"), C = !0;
+            TS.has_pri[U] && TS.log(U, "🏔️ MS message handler stat collecting enabled"), I = !0;
           },
           disableStatsCollecting: function() {
-            TS.has_pri[L] && TS.log(L, "🏔️ MS message handler stat collecting disabled"), C = !1;
+            TS.has_pri[U] && TS.log(U, "🏔️ MS message handler stat collecting disabled"), I = !1;
           }
         },
-        D = 50,
-        R = 2,
-        H = 141,
-        P = 552,
-        j = 1989,
-        L = 808,
-        U = 794,
-        N = function(e) {
+        R = 50,
+        H = 2,
+        P = 141,
+        j = 552,
+        L = 1989,
+        U = 808,
+        N = 794,
+        G = function(e) {
           TS.utility.enableFeatureForUser(1) && TS.metrics.count("ms_event_handled_" + e);
         },
-        G = function(e) {
+        W = function(e) {
           TS.utility.enableFeatureForUser(1) && TS.metrics.count("ms_event_dropped_" + e);
         };
     }();
@@ -18686,21 +18740,21 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
       "use strict";
       TS.registerModule("redux.channels", {
         onStart: function() {
-          TS.useRedux() && (e = TS.interop.redux.entities.channels.isGroup, t = TS.interop.redux.entities.channels.isChannel, n = TS.interop.redux.entities.channels.isMpim, i = TS.interop.redux.entities.channels.isIm, r = TS.redux.bindSingleArgSelectorToStore(TS.interop.redux.entities.channels.getAllChannels), a = TS.redux.bindSingleArgSelectorToStore(TS.interop.redux.entities.channels.getChannelById), s = TS.redux.bindSingleArgSelectorToStore(TS.interop.redux.entities.channelsMeta.channelNamesToIds.getChannelIdByName), o = TS.redux.bindSingleArgSelectorToStore(TS.interop.redux.entities.channelsMeta.needsApiMarking.getAllIdsNeedingMarking), Object.defineProperty(TS.model, "channels", {
+          TS.useRedux() && (e = TS.interop.redux.entities.channels.isIm, t = TS.redux.bindSingleArgSelectorToStore(TS.interop.redux.entities.channels.getAllChannels), n = TS.redux.bindSingleArgSelectorToStore(TS.interop.redux.entities.channels.getChannelById), i = TS.redux.bindSingleArgSelectorToStore(TS.interop.redux.entities.channelsMeta.channelNamesToIds.getChannelIdByName), r = TS.redux.bindSingleArgSelectorToStore(TS.interop.redux.entities.channelsMeta.needsApiMarking.getAllIdsNeedingMarking), Object.defineProperty(TS.model, "channels", {
             get: function() {
-              return m("channels");
+              return d("channels");
             }
           }), Object.defineProperty(TS.model, "groups", {
             get: function() {
-              return m("groups");
+              return d("groups");
             }
           }), Object.defineProperty(TS.model, "mpims", {
             get: function() {
-              return m("mpims");
+              return d("mpims");
             }
           }), Object.defineProperty(TS.model, "ims", {
             get: function() {
-              return m("ims");
+              return d("ims");
             }
           }));
         },
@@ -18711,26 +18765,32 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           TS.redux.dispatch(TS.interop.redux.entities.channels.clearAllShowInListEvenThoughUnreadsFlags());
         },
         dangerouslyGetChannelsForUser: function() {
-          var e = _.filter(r(), t);
+          var e = _.filter(t(), function(e) {
+            return e.is_channel;
+          });
           return TS.model.user.is_restricted ? _.filter(e, "is_member") : e;
         },
         dangerouslyGetGroups: function() {
-          return _.filter(r(), e);
+          return _.filter(t(), function(e) {
+            return e.is_group && !e.is_mpim;
+          });
         },
         dangerouslyGetMpims: function() {
-          return _.filter(r(), n);
+          return _.filter(t(), function(e) {
+            return e.is_group && e.is_mpim;
+          });
         },
         isChannel: function(e) {
-          return t(e);
+          return !!e && e.is_channel;
         },
         isMpim: function(e) {
-          return n(e);
+          return !!e && (e.is_group && e.is_mpim);
         },
-        isGroup: function(t) {
+        isGroup: function(e) {
+          return !!e && (e.is_group && !e.is_mpim);
+        },
+        isIm: function(t) {
           return e(t);
-        },
-        isIm: function(e) {
-          return i(e);
         },
         setMarkingState: function(e, t) {
           TS.redux.dispatch(TS.interop.redux.entities.channelsMeta.needsApiMarking.setMarkingState({
@@ -18742,7 +18802,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           TS.redux.dispatch(TS.interop.redux.entities.channelsMeta.needsApiMarking.clearAllMarkingFlags());
         },
         getAllIdsNeedingMarking: function() {
-          return o();
+          return r();
         },
         bulkAddEntities: function(e) {
           TS.redux.dispatch(TS.interop.redux.entities.channels.bulkAddChannels(e));
@@ -18751,14 +18811,14 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           if (e) {
             if (e._is_interop_channel_object) {
               var t = "Attempting to add a channel interop object, not a channel. Only raw channel objects can be added. Take this to #devel-redux";
-              if (u()) throw new Error(t);
+              if (l()) throw new Error(t);
               return void TS.console.error(t);
             }
             TS.redux.dispatch(TS.interop.redux.entities.channels.addChannel(e));
           }
         },
         removeEntity: function(e) {
-          e && (e._is_interop_channel_object && !(e = a(e.id)) || TS.redux.dispatch(TS.interop.redux.entities.channels.removeChannel(e)));
+          e && (e._is_interop_channel_object && !(e = n(e.id)) || TS.redux.dispatch(TS.interop.redux.entities.channels.removeChannel(e)));
         },
         removeEntityFromNameMap: function(e) {
           TS.redux.dispatch(TS.interop.redux.entities.channelsMeta.channelNamesToIds.removeChannelFromNameMap({
@@ -18767,7 +18827,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         addEntityToNameMap: function(e) {
           if (e && e.id) {
-            var t = e._is_interop_channel_object ? a(e.id) : e;
+            var t = e._is_interop_channel_object ? n(e.id) : e;
             TS.redux.dispatch(TS.interop.redux.entities.channelsMeta.channelNamesToIds.addChannelToNameMap(t));
           }
         },
@@ -18775,11 +18835,11 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           if (e) {
             if (e._is_interop_channel_object) {
               var t = "Attempting to replace a channel object with a channel interop object. If you are trying to update a property for this channel you should change the property directly. Take this to #devel-redux";
-              if (u()) throw new Error(t);
+              if (l()) throw new Error(t);
               return void TS.console.error(t);
             }
-            var n = a(e.id);
-            n && TS.redux.channels.removeEntity(n), TS.redux.channels.addEntity(e);
+            var i = n(e.id);
+            i && TS.redux.channels.removeEntity(i), TS.redux.channels.addEntity(e);
           }
         },
         updateMutedChannels: function() {
@@ -18789,77 +18849,83 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           TS.redux.dispatch(TS.interop.redux.entities.channelsMeta.mutedChannels.setMutedChannels(e));
         },
         getEntityById: function(e) {
-          var t = a(e);
+          var t = n(e);
           return TS.redux.channels.interop.maybeWrapEntity(t);
         },
         getEntityByName: function(e) {
-          var t = s(e);
+          var t = i(e);
           return t ? TS.redux.channels.getEntityById(t) : null;
         },
         getChannelById: function(e) {
-          var n = TS.redux.channels.getEntityById(e);
-          return t(n) ? n : null;
+          var t = TS.redux.channels.getEntityById(e);
+          return t && t.is_channel ? t : null;
         },
         getChannelByName: function(e) {
-          var n = TS.redux.channels.getEntityByName(e);
-          return t(n) ? n : null;
+          var t = TS.redux.channels.getEntityByName(e);
+          return t && t.is_channel ? t : null;
         },
-        getGroupById: function(t) {
-          var n = TS.redux.channels.getEntityById(t);
-          return e(n) ? n : null;
+        getGroupById: function(e) {
+          var t = TS.redux.channels.getEntityById(e);
+          return t && t.is_group && !t.is_mpim ? t : null;
         },
-        getGroupByName: function(t) {
-          var n = TS.redux.channels.getEntityByName(t);
-          return e(n) ? n : null;
+        getGroupByName: function(e) {
+          var t = TS.redux.channels.getEntityByName(e);
+          return t && t.is_group && !t.is_mpim ? t : null;
         },
         getMpimById: function(e) {
           var t = TS.redux.channels.getEntityById(e);
-          return n(t) ? t : null;
+          return t && t.is_group && t.is_mpim ? t : null;
         },
         getMpimByName: function(e) {
           var t = TS.redux.channels.getEntityByName(e);
-          return n(t) ? t : null;
+          return t && t.is_group && t.is_mpim ? t : null;
         },
-        getImById: function(e) {
-          var t = TS.redux.channels.getEntityById(e);
-          return i(t) ? t : null;
+        getImById: function(t) {
+          var n = TS.redux.channels.getEntityById(t);
+          return e(n) ? n : null;
         },
-        getImByMemberId: function(e) {
-          var t = TS.redux.channels.getEntityByName(e);
-          return i(t) ? t : null;
+        getImByMemberId: function(t) {
+          var n = TS.redux.channels.getEntityByName(t);
+          return e(n) ? n : null;
         },
         test: function() {
           return {};
         }
       });
-      var e, t, n, i, r, a, s, o, l, d = {},
-        c = {
+      var e, t, n, i, r, a, s = {},
+        o = {
           channels: void 0,
           groups: void 0,
           mpims: void 0,
           ims: void 0
         },
-        u = function() {
+        l = function() {
           return TS.boot_data && ("dev" === TS.boot_data.version_ts || "local_js" === TS.boot_data.version_ts);
         },
-        m = function(a) {
-          var s, o = r();
-          switch (a) {
+        d = function(n) {
+          var i, r = t();
+          switch (n) {
             case "channels":
-              s = t;
+              i = function(e) {
+                return e.is_channel;
+              };
               break;
             case "groups":
-              s = e;
+              i = function(e) {
+                return e.is_group && !e.is_mpim;
+              };
               break;
             case "ims":
-              s = i;
+              i = e;
               break;
             case "mpims":
-              s = n;
+              i = function(e) {
+                return e.is_group && e.is_mpim;
+              };
           }
-          return o === l && d[a] ? d[a] : (o !== l && (l = o, d = {}), d[a] = _.filter(o, s), d[a] = _.map(d[a], TS.redux.channels.interop.maybeWrapEntity), c[a] || (c[a] = _.defer(function() {
-            delete d[a], delete c[a], l = null;
-          })), d[a]);
+          return r === a && s[n] ? s[n] : (r !== a && (a = r, s = {}), s[n] = _.filter(r, i), s[n] = _.map(s[n], TS.redux.channels.interop.maybeWrapEntity), o[n] || (o[n] = _.defer(function() {
+            delete s[n], delete o[n], a = null;
+          })), s[n]);
         };
     }();
   },
@@ -21115,7 +21181,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return TS.shared.ensureModelObsArePresent(n);
         },
         getHistoryApiMethodForModelOb: function(e) {
-          return e.is_mpim ? "mpim.history" : !e.is_group || e.is_private || _.startsWith(e.id, "C") ? e.is_im ? "im.history" : "channels.history" : "groups.history";
+          return TS.boot_data.feature_shared_channels_beta ? "conversations.history" : e.is_mpim ? "mpim.history" : !e.is_group || e.is_private || _.startsWith(e.id, "C") ? e.is_im ? "im.history" : "channels.history" : "groups.history";
         },
         addMsg: function(e, t) {
           return l(e, [t]);
@@ -25182,10 +25248,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             if (e.is_poll ? a = "voted for “" + _.escape(i || e.name) + "”" : i ? a = "said “" + _.escape(i) + "”" : (n = _.escape(r || e.name), a = TS.i18n.t("{reactionCount, plural, other{reacted with {emoji}}}", "rxn")({
                 emoji: n,
                 reactionCount: e.count
-              })), TS.emoji.isValidName(e.name) || e.url || (a += " " + TS.i18n.t("(emoji has been removed)", "rxn")()), a = ' <span class="subtle_silver">' + a + "</span>", 1 == e.count) return e.user_reacted ? TS.boot_data.feature_thanks ? TS.i18n.t("You", "rxn")() + a : TS.i18n.t("You (click to remove)", "rxn")() + a : _.escape(TS.members.getPrefCompliantMemberNameById(e.member_ids[0], !1, !0)) + a;
+              })), TS.emoji.isValidName(e.name) || e.url || (a += " " + TS.i18n.t("(emoji has been removed)", "rxn")()), a = ' <span class="subtle_silver">' + a + "</span>", 1 == e.count) return e.user_reacted ? TS.boot_data.feature_thanks ? TS.i18n.t("You", "rxn")() + a : TS.i18n.t("You (click to remove)", "rxn")() + a : _.escape(TS.members.getPrefCompliantMemberNameById(e.member_ids[0], !1, !0, !0)) + a;
             var s = e.member_ids.length != e.count,
               o = e.member_ids.map(function(e, t) {
-                return TS.model.user.id === e ? 0 === t ? TS.i18n.t("You", "rxn")() : TS.i18n.t("you", "rxn")() : TS.members.getPrefCompliantMemberNameById(e, !1, !0);
+                return TS.model.user.id === e ? 0 === t ? TS.i18n.t("You", "rxn")() : TS.i18n.t("you", "rxn")() : TS.members.getPrefCompliantMemberNameById(e, !1, !0, !0);
               });
             return s && o.push(TS.i18n.t("others", "rxn")()), _.escape(TS.i18n.listify(o, {
               no_escape: !0
@@ -34307,7 +34373,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         onStart: function() {
           i.in_slack_app = !!TS.client, i.in_call_window = !!TS.calls, i.calls_url_prefix = document.location.origin + "/call/", i.in_slack_app && (TS.isSocketManagerEnabled() ? (TS.interop.SocketManager.connectedSig.add(s), TS.interop.SocketManager.disconnectedSig.add(o), TS.interop.SocketManager.socketMessageReceivedSig.add(a)) : (TS.ms.on_msg_sig.add(a), TS.ms.connected_sig.add(s), TS.ms.disconnected_sig.add(o)), window.addEventListener("online", l), window.addEventListener("offline", l), window.addEventListener("message", J), TS.model.is_our_app && (window.macgap && TS.ssb.teams_did_load_sig.add(d), TS.client.login_sig.add(c)), TS.client.windows && (TS.client.windows.win_finished_loading_sig.add(u), TS.client.windows.win_will_close_sig.add(m), TS.client.windows.win_crashed_sig.add(p), TS.client.windows.win_became_key_sig.add(f), TS.client.windows.win_resigned_key_sig.add(h)), TS.ui && TS.ui.window_unloaded_sig.add(g), TS.model.is_our_app ? i.call_window_loaded = !1 : i.call_window_loaded = !0, i.is_ms_connected = !1, i.is_reachability_online = !0, TS.experiment.loadUserAssignments().then(function() {
-            "enabled" === TS.experiment.getGroup("calls_ss") && (i.screen_sharing_enabled = TS.model.supports_screen_sharing), "enabled" === TS.experiment.getGroup("calls_better_regions") && (i.calls_better_regions_expt = !0), "enabled" === TS.experiment.getGroup("calls_laser") && (i.laser_enabled = !0), "enabled" === TS.experiment.getGroup("calls_no_cursors_window") && (i.cursors_window_disabled = !0), TS.utility.isAppVersionBefore("2.5.2") || (TS.model.is_lin && "enabled" === TS.experiment.getGroup("calls_electron_webrtc_linux") && (i.electron_webrtc = !0), "enabled" === TS.experiment.getGroup("calls_electron_webrtc") && (i.electron_webrtc = !0), "enabled" === TS.experiment.getGroup("calls_webgl_recovery") && (i.webgl_recovery = !0));
+            "enabled" === TS.experiment.getGroup("calls_ss") && (i.screen_sharing_enabled = TS.model.supports_screen_sharing), "enabled" === TS.experiment.getGroup("calls_better_regions") && (i.calls_better_regions_expt = !0), "enabled" === TS.experiment.getGroup("calls_laser") && (i.laser_enabled = !0), TS.model.is_our_app && !TS.utility.isAppVersionBefore("2.5.2") && (TS.model.is_lin && "enabled" === TS.experiment.getGroup("calls_electron_webrtc_linux") && (i.electron_webrtc = !0), "enabled" === TS.experiment.getGroup("calls_electron_webrtc") && (i.electron_webrtc = !0), "enabled" === TS.experiment.getGroup("calls_webgl_recovery") && (i.webgl_recovery = !0));
           }));
         },
         startCallInModelOb: function(e, t, n) {
@@ -34854,17 +34920,13 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }
         },
         w = function() {
-          if (!i.cursors_window_disabled && i.screen_sharing_enabled) {
-            var e = [];
-            if (TS.boot_data.electron_window_injection_urls) {
-              var t = TS.boot_data.electron_window_injection_urls.calls_cursors;
-              i.laser_enabled && (e = e.concat(t.laser_js)), e = e.concat(t.js);
-            }
-            var n = TS.templates.calls_cursors({
+          if (i.screen_sharing_enabled) {
+            if (TS.boot_data.electron_window_injection_urls) var e = TS.boot_data.electron_window_injection_urls.calls_cursors.js;
+            var t = TS.templates.calls_cursors({
                 js_urls: e,
                 css_urls: TS.boot_data.electron_window_injection_urls ? TS.boot_data.electron_window_injection_urls.calls_cursors.css : []
               }),
-              r = {
+              n = {
                 width: 0,
                 height: 0,
                 windowType: "calls_cursors",
@@ -34874,7 +34936,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                 resizable: !1,
                 frame: !1,
                 useContentSize: !0,
-                content_html: n,
+                content_html: t,
                 type: "desktop",
                 fullscreenable: !1,
                 enableLargerThanScreen: !0,
@@ -34882,7 +34944,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                 focusable: !1,
                 show: !1
               };
-            i.cursors_window_token = TS.client.windows.openWindow(r);
+            i.cursors_window_token = TS.client.windows.openWindow(n);
           }
         },
         k = function() {
@@ -40931,12 +40993,16 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
       TS.registerModule("redux.messages", {
         addMessages: function(e, t, n) {
           if (TS.redux.dispatch(TS.interop.redux.entities.messages.addMessages(e)), t) {
-            var i = e && e[0] && e[0].channel;
-            TS.redux.dispatch(TS.interop.redux.entities.channelHistory.addTimestamps({
+            var i = e && e[0] && e[0].channel,
+              r = _.map(e, "ts"),
+              a = {};
+            n && (a = {
+              oldest: _.min(r),
+              hasMore: !1
+            }), TS.redux.dispatch(TS.interop.redux.entities.channelHistory.addTimestamps(_.assign({
               channelId: i,
-              timestamps: _.map(e, "ts"),
-              reachedEnd: n
-            }));
+              timestamps: r
+            }, a)));
           }
         },
         addMessage: function(e) {

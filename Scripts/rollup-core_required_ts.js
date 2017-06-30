@@ -2710,9 +2710,7 @@ webpackJsonp([12, 328, 337, 329], {
               } catch (e) {
                 TS.log("BOOT: _maybeFinalizeOrOpenConnectionToMS failed to finalize SocketManager"), TS.error(e), TS.interop.SocketManager.disconnect();
               }
-            } else TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS wanted to finalize SocketManager but it had no connection; making a new one"), TS.interop.SocketManager.connectProvisionallyAndFetchRtmStart().catch(function(e) {
-              TS.log("BOOT: _maybeFinalizeOrOpenConnectionToMS failed to make a new connection"), TS.error(e);
-            });
+            } else TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS wanted to finalize SocketManager but it had no connection; making a new one"), TS.interop.SocketManager.start();
           else TS.ms.hasProvisionalConnection() && TS.ms.finalizeProvisionalConnection() ? (TS.boot_data.feature_tinyspeck && TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS finalized MS connection"), TS.has_pri[X] && TS.log(X, "Successfully finalized a provisional MS connection")) : (TS.boot_data.feature_tinyspeck && TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS made a new MS connection"), TS.has_pri[X] && TS.log(X, "No valid provisional MS connection; making a new connection"), TS.ms.connectImmediately(TS.model.team.url || TS.boot_data.ms_connect_url));
           TS.boot_data.feature_tinyspeck && TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS did connect to MS");
         },
