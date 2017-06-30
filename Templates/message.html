@@ -333,23 +333,6 @@
     {{#if standalone}}
       {{#unless show_reply_bar}}{{#unless is_threads_view}}{{> show_conversation_link}}{{/unless}}{{/unless}}
     {{/if}}
-
-    <span id="{{makeMsgLabelDomId msg.ts}}" class="message_aria_label hidden">
-      <strong>{{#if member}}{{getPrefCompliantMemberName member}}{{else}}{{{getBotNameWithLink msg}}}{{/if}}</strong>.
-      {{{formatMessageByType msg false false model_ob}}}.
-      {{#if msg.thread_ts}}
-        {{#if msg.parent_user_id}}
-          {{! TBD - What do we want to put here for screenreaders? The whole snippet? }}
-        {{else}}
-          {{#if msg.reply_count}}
-            {{#t}}{msg.reply_count, plural, =1 {# reply} other {# replies}}{{/t}}
-          {{/if}}
-        {{/if}}
-      {{/if}}
-      {{#if msg.reply_count}}{{#t}}{msg.reply_count, plural, =1 {# reply} other {# replies}}{{/t}}{{/if}}
-      {{toTime msg.ts}}{{#if msg.edited}} {{#t note="indication a message was edited"}}Edited.{{/t}}{{/if}}{{#if msg.is_starred}} {{#t note="indication a message is starred"}}Starred.{{/t}}{{/if}}{{#if is_ephemeral}} {{#t note="indication on an ephemeral message that it is not visible to anyone else in the channel"}}Only visible to you.{{/t}}{{/if}}
-    </span>
-
   </div>
 
   {{#unless hide_actions}}

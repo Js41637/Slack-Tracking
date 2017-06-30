@@ -10029,7 +10029,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               width: e.thumb_width
             }
           });
-          var t = TS.utility.date.makeTsStamp(),
+          var t = TS.interop.datetime.makeTsStamp(),
             n = TS.templates.builders.buildAttachmentHTML({
               attachment: e,
               msg: {
@@ -15116,7 +15116,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         message: function(e) {
           if (TS.client) {
-            TS.has_pri[R] && TS.log(R, "recved message type " + e.type), e.is_ephemeral && !e.ts && (e.ts = TS.utility.date.makeTsStamp());
+            TS.has_pri[R] && TS.log(R, "recved message type " + e.type), e.is_ephemeral && !e.ts && (e.ts = TS.interop.datetime.makeTsStamp());
             var t, n = "subtype__" + e.subtype;
             if (n in TS.ms.msg_handlers) {
               if (TS.boot_data.feature_channel_eventlog_client) {
@@ -16900,7 +16900,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                 var o = _.extend({}, e, {
                   text: a.text,
                   edited: {
-                    ts: TS.utility.date.makeTsStamp(null, "0")
+                    ts: TS.interop.datetime.makeTsStamp(null, {
+                      padder: "0"
+                    })
                   }
                 });
                 TS.utility.msgs.replaceMsg(n, o);
@@ -17902,7 +17904,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         d = function(e, t) {
           var n = u(e, t),
-            i = TS.utility.date.makeTsStamp(null, "0");
+            i = TS.interop.datetime.makeTsStamp(null, {
+              padder: "0"
+            });
           TS.api.call("pins.add", n, function(n, r) {
             if (!n) {
               if ("too_many_pins" === r.error) {
@@ -19802,7 +19806,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return !1;
         },
         y = function(e, i, r, a, s, o, l) {
-          a = a || TS.utility.date.makeTsStamp(), s = !!s;
+          a = a || TS.interop.datetime.makeTsStamp(), s = !!s;
           var d = !1,
             c = n[i];
           c || (d = !0, t[t.length] = {
@@ -20725,7 +20729,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                     if (r.forEach(function(e) {
                         TS.membership.getUserChannelMembershipStatus(e, n).is_member || i.push(e);
                       }), i.length) {
-                      var o = TS.utility.date.makeTsStamp(),
+                      var o = TS.interop.datetime.makeTsStamp(),
                         l = "<!subteam^" + e + ">",
                         d = i.length,
                         c = "TS.client.ui.promptForGroupOrChannelInvite('" + n.id + "', '" + i.join(",") + "', '" + o + "')",
@@ -20759,7 +20763,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           if (!t) return !1;
           var s = TS.shared.getModelObById(e),
             o = s && s.msgs && s.msgs[0] && TS.interop.datetime.toDateObject(s.msgs[0].ts + 1) || Date.now(),
-            l = TS.utility.date.makeTsStamp(o),
+            l = TS.interop.datetime.makeTsStamp(o),
             d = TS.format.cleanMsg(t);
           if (!TS.boot_data.feature_name_tagging_client) {
             var c = _(TS.utility.members.getUsernamesMentionedInString(t)).reject(TS.members.getMemberByName).reject(TS.user_groups.getUserGroupsByHandle).reject(function(e) {
@@ -41001,7 +41005,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
       "use strict";
       TS.registerModule("redux.socket", {
         onStart: function() {
-          TS.useReactMessages() && (TS.isSocketManagerEnabled() ? (TS.interop.SocketManager.connectedSig.add(e), TS.interop.SocketManager.disconnectedSig.add(t), TS.interop.SocketManager.troubleConnectingSig.add(n), TS.interop.SocketManager.reconnectingSig.add(i)) : (TS.ms.connected_sig.add(e), TS.ms.trouble_sig.add(n), TS.ms.disconnected_sig.add(t), TS.ms.reconnecting_sig.add(i)));
+          TS.useReactMessages() && (TS.isSocketManagerEnabled() ? (TS.interop.SocketManager.connectedSig.add(e), TS.interop.SocketManager.disconnectedSig.add(t), TS.interop.SocketManager.troubleConnectingSig.add(n), TS.interop.SocketManager.waitingForRateLimitSig.add(i)) : (TS.ms.connected_sig.add(e), TS.ms.trouble_sig.add(n), TS.ms.disconnected_sig.add(t), TS.ms.reconnecting_sig.add(i)));
         },
         test: function() {
           return {
