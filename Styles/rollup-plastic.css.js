@@ -10309,7 +10309,8 @@ html.fs_modal_active {
 }
 
 .p-apps_browser_modal .contents_container .contents {
-  display: flex
+  display: flex;
+  padding: 0!important
 }
 
 .p-apps_browser_modal .contents_container .contents .links_container {
@@ -10342,7 +10343,9 @@ html.fs_modal_active {
 }
 
 .p-apps_browser_modal .contents_container .contents #apps_browser_container {
-  display: flex
+  display: flex;
+  flex: 1 1 0;
+  overflow: hidden
 }
 
 @media only screen and (max-width:1023px) {
@@ -10371,32 +10374,32 @@ html.fs_modal_active {
 }
 
 @media only screen and (max-width:767px) {
-  #fs_modal .fs_modal_btn {
+  #fs_modal:not(.p-apps_browser_modal) .fs_modal_btn {
     top: 1rem
   }
-  #fs_modal .fs_modal_btn#fs_modal_close_btn {
+  #fs_modal:not(.p-apps_browser_modal) .fs_modal_btn#fs_modal_close_btn {
     right: 1rem
   }
-  #fs_modal .fs_modal_btn#fs_modal_back_btn {
+  #fs_modal:not(.p-apps_browser_modal) .fs_modal_btn#fs_modal_back_btn {
     left: 1rem
   }
-  #fs_modal.fs_modal_sidebar .contents_container {
+  #fs_modal:not(.p-apps_browser_modal).fs_modal_sidebar .contents_container {
     display: block
   }
-  #fs_modal.fs_modal_sidebar .contents_container .contents {
+  #fs_modal:not(.p-apps_browser_modal).fs_modal_sidebar .contents_container .contents {
     margin: 0 auto
   }
-  #fs_modal.fs_modal_sidebar #fs_modal_sidebar {
+  #fs_modal:not(.p-apps_browser_modal).fs_modal_sidebar #fs_modal_sidebar {
     top: auto;
     position: relative;
     margin: 0 auto 1.5rem;
     text-align: center;
     max-width: 560px
   }
-  #fs_modal.fs_modal_sidebar #fs_modal_sidebar li {
+  #fs_modal:not(.p-apps_browser_modal).fs_modal_sidebar #fs_modal_sidebar li {
     display: inline-block
   }
-  #fs_modal.fs_modal_sidebar #fs_modal_sidebar li a {
+  #fs_modal:not(.p-apps_browser_modal).fs_modal_sidebar #fs_modal_sidebar li a {
     margin: 0
   }
 }
@@ -10412,6 +10415,18 @@ html.fs_modal_active {
   }
   #fs_modal .fs_modal_btn .key_label {
     display: none
+  }
+}
+
+@media only screen and (max-width:900px) {
+  #fs_modal.p-apps_browser_modal .fs_modal_btn {
+    top: 1rem
+  }
+  #fs_modal.p-apps_browser_modal .fs_modal_btn#fs_modal_close_btn {
+    right: 1rem
+  }
+  #fs_modal.p-apps_browser_modal .fs_modal_btn#fs_modal_back_btn {
+    left: 1rem
   }
 }
 

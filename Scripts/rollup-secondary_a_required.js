@@ -894,7 +894,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }
         },
         r = ["activity.mentions", "stars.list", "files.list", "files.info", "search.messages", "search.files", "channels.history", "groups.history", "im.history", "mpim.history", "channels.listShared", "groups.listShared", "unread.history", "pins.list", "subteams.users.list", "subteams.list", "channels.replies", "groups.replies", "im.replies", "subscriptions.thread.getView", "chat.command"],
-        a = ["channels.history", "pins.list"],
+        a = ["channels.history", "pins.list", "groups.history", "im.history", "mpim.history", "unread.history"],
         s = ["rtm.start", "rtm.leanStart", "files.list"],
         o = ["rtm.start", "rtm.leanStart", "activity.mentions", "stars.list", "files.list", "files.info", "apps.list", "commands.list", "channels.list", "emoji.list", "help.issues.list", "subteams.list", "subteams.users.list", "rtm.checkFastReconnect"],
         l = ["users.prefs.set", "rtm.start", "rtm.leanStart", "rtm.checkFastReconnect", "enterprise.setPhoto", "signup.createTeam"],
@@ -1467,7 +1467,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             var c = TS.utility.getYoutubeIdFromURL(e.youtube_url);
             a.youtube_url = e.youtube_url, a.youtube_id = c;
           }
-          if ((e.screenshots || e.youtube_url) && (a.has_screenshots = !0), (_.get(e.config, "date_deleted") > 0 || !0 === _.get(e.auth, "revoked")) && (a.deleted = !0, a.app_id = e.id), e.is_slack_integration ? e.is_slack_integration && (TS.boot_data.feature_shared_channels_client && e.is_slack_integration && o ? a.disabled = !1 : e.config && "1" === e.config.is_active && "0" === e.config.date_deleted || (a.disabled = !0)) : TS.boot_data.feature_shared_channels_client && o ? a.disabled = !1 : e.auth && !e.auth.revoked || (a.disabled = !0), !i || o || !s && e.is_slack_integration || (a.show_settings_section = !0), e.installation_summary && !e.is_xoxa_app) {
+          if ((e.screenshots || e.youtube_url) && (a.has_screenshots = !0), (_.get(e.config, "date_deleted") > 0 || !0 === _.get(e.auth, "revoked")) && (a.deleted = !0, a.app_id = e.id), e.is_slack_integration ? e.is_slack_integration && (TS.boot_data.feature_shared_channels_client && e.is_slack_integration && o ? a.disabled = !1 : e.config && "1" === e.config.is_active && "0" === e.config.date_deleted || (a.disabled = !0)) : TS.boot_data.feature_shared_channels_client && o ? a.disabled = !1 : e.auth && !e.auth.revoked || (a.disabled = !0), !i || o || !s && e.is_slack_integration || e.is_xoxa_app || (a.show_settings_section = !0), e.installation_summary && !e.is_xoxa_app) {
             var u = e.installation_summary.replace(/<@([A-Z0-9]+)>/g, function(e, t) {
               return TS.members.getMemberById(t) ? '<span class="app_card_member_link" data-member-profile-link=' + t + ">" + TS.members.getPrefCompliantMemberNameById(t, !0, !0) + "</span>" : '<span class="app_card_member_link" data-member-profile-link=' + t + ">A user</span>";
             });
@@ -1497,7 +1497,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           if (!_.isObject(e)) throw new Error("Expected app user to be an object");
           if (!_.isObject(t)) throw new Error("Expected channel to be an object");
           var o = t.is_im || t.is_mpim;
-          TS.api.call("apps.permissions.add", {
+          TS.api.call("apps.permissions.internal.add", {
             channel: t.id,
             app_user: e.id
           }).then(function(l) {
@@ -1514,7 +1514,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               })) : c();
             });
           }).then(function() {
-            return TS.api.call("apps.permissions.add", {
+            return TS.api.call("apps.permissions.internal.add", {
               channel: t.id,
               app_user: e.id,
               did_confirm: !0
@@ -1541,7 +1541,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             go_button_text: TS.i18n.t("Remove", "apps")(),
             go_button_class: "btn_danger",
             onGo: function() {
-              TS.api.call("apps.permissions.remove", {
+              TS.api.call("apps.permissions.internal.remove", {
                 channel: t.id,
                 app_user: e.id
               }).then(function() {}).catch(function() {
@@ -1556,7 +1556,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             })).join(","),
             a = TS.members.getMemberById(e),
             s = function(e) {
-              TS.api.call("apps.permissions.addScope", {
+              TS.api.call("apps.permissions.internal.addScope", {
                 trigger_id: n,
                 scopes: i,
                 did_confirm: e
@@ -28870,14 +28870,30 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               profile: JSON.stringify(n)
             },
             a = e.find('[name="tz"]').val();
-          a !== TS.model.user.tz && (TS.web && (TS.model.user.tz = a, TS.model.user.tz_offset = TS.boot_data.dst_offsets[a].tz_offset), TS.prefs.setPrefByAPI({
+          return a !== TS.model.user.tz && (TS.web && (TS.model.user.tz = a, TS.model.user.tz_offset = TS.boot_data.dst_offsets[a].tz_offset), TS.prefs.setPrefByAPI({
             name: "tz",
             value: a
           })), TS.api.call("users.profile.set", r).then(function(e) {
             $(".edit_member_profile_confirm_edit_btn").addClass("disabled"), TS.web && (TS.model.user.profile = e.data.profile, TS.members.upsertMember(TS.model.user)), TS.client && TS.ui.edit_member_profile._unregisterCurrentStatusInput(), TS.ui.fs_modal.close();
-          }).catch(function(e) {
-            return $(".edit_member_profile_confirm_edit_btn").addClass("disabled"), "ratelimited" === e.data.error ? TS.generic_dialog.alert(TS.i18n.t("You‘re changing your profile too often! You might have better luck if you try again in a few minutes.", "edit_profile")()) : TS.generic_dialog.alert(TS.i18n.t("Sorry! Something went wrong. Please try again.", "edit_profile")());
-          }).finally(Ladda.stopAll);
+          }).catch(function(t) {
+            if ($(".edit_member_profile_confirm_edit_btn").addClass("disabled"), "ratelimited" === t.data.error) return TS.generic_dialog.alert(TS.i18n.t("You‘re changing your profile too often! You might have better luck if you try again in a few minutes.", "edit_profile")());
+            if (TS.boot_data.feature_name_tagging_client) {
+              "invalid_name_specials" === t.data.error && (t.data.error = "name_invalid_name_specials");
+              var n = TS.ui.validation.getErrorMessage(t.data.error, {
+                maxlength: 80
+              });
+              if ("real_name" === t.data.field) return TS.ui.validation.showWarning(e.find('input[name="' + t.data.field + '"]'), n, {
+                custom_for: "real_name_profile_field_warnings",
+                should_truncate: !1
+              }), !1;
+              if ("display_name" === t.data.field) return TS.ui.validation.showWarning(e.find('input[name="' + t.data.field + '"]'), n, {
+                custom_for: "display_name_profile_field_warnings",
+                should_truncate: !1
+              }), !1;
+              TS.ui.fs_modal.close(), TS.generic_dialog.alert(TS.i18n.t("Sorry! Something went wrong. Please try again.", "edit_profile")());
+            }
+            return TS.generic_dialog.alert(TS.i18n.t("Sorry! Something went wrong. Please try again.", "edit_profile")());
+          }).finally(Ladda.stopAll), !TS.boot_data.feature_name_tagging_client && void 0;
         },
         se = function() {
           e.closest(".contents").addClass("display_flex flex_direction_column").css("height", "70vh"), e.css({
@@ -33174,16 +33190,16 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         } else if (e.is("select")) {
           if (e.val()) return !0;
           TS.ui.validation.showWarning(e, TS.i18n.t("Please select an option", "ui_validation")(), t);
-        } else if (N(e)) {
-          if (G(e).trim()) return !0;
+        } else if (G(e)) {
+          if (W(e).trim()) return !0;
           TS.ui.validation.showWarning(e, TS.i18n.t("This field can’t be empty", "ui_validation")(), t);
         } else TS.error("Error: cannot validate");
       }
 
       function t(e, t, n) {
         if (e.is('input[type="radio"]') || e.is('input[type="checkbox"]') || e.is("select")) return !0;
-        if (N(e)) {
-          var i = G(e).trim().toLowerCase();
+        if (G(e)) {
+          var i = W(e).trim().toLowerCase();
           if (-1 === n.split(",").indexOf(i)) return !0;
           TS.ui.validation.showWarning(e, TS.i18n.t('"{word}" is a reserved word. Try something else!', "ui_validation")({
             word: _.escape(i)
@@ -33198,8 +33214,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
       function i(e, t, n) {
         var i = TS.i18n.t("This doesn’t seem like a proper link. Sorry!", "ui_validation")();
         if (e.is('input[type="radio"]') || e.is('input[type="checkbox"]') || e.is("select")) return !0;
-        if (N(e)) {
-          var r = G(e);
+        if (G(e)) {
+          var r = W(e);
           if (!r) return !0;
           var a = r.match(x);
           if (a && 1 === a.length && a[0] === r) {
@@ -33217,12 +33233,12 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
       }
 
       function r(e, t, n) {
-        var i, r = G(e),
+        var i, r = W(e),
           a = TS.i18n.t("This doesn‘t seem like a proper link. Sorry!", "ui_validation")(),
           s = !1;
         if (!r) return !0;
         if (e.is('input[type="radio"]') || e.is('input[type="checkbox"]') || e.is("select")) return !0;
-        if (!N(e)) return void TS.error("Error: cannot validate");
+        if (!G(e)) return void TS.error("Error: cannot validate");
         if (n) {
           i = n.split(","), -1 != i.indexOf("https") && (a = TS.i18n.t("Please use https (for security).", "ui_validation")()), -1 != i.indexOf("http") && -1 == i.indexOf("https") && i.push("https");
           for (var o = 0; o < i.length; o += 1) 0 === r.indexOf(i[o] + "://") && (s = !0);
@@ -33234,8 +33250,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
       function a(e, t) {
         var n = TS.i18n.t("This doesn’t seem like a proper link. Sorry!", "ui_validation")();
         if (e.is('input[type="radio"]') || e.is('input[type="checkbox"]') || e.is("select")) return !0;
-        if (N(e)) {
-          var i = G(e);
+        if (G(e)) {
+          var i = W(e);
           if (!i) return !0;
           var r = i.match(M);
           if (r && 1 === r.length && r[0] === i) return !0;
@@ -33245,8 +33261,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
 
       function s(e, t) {
         if (e.is('input[type="radio"]') || e.is('input[type="checkbox"]') || e.is("select")) return !0;
-        if (N(e)) {
-          var n = G(e);
+        if (G(e)) {
+          var n = W(e);
           if (!n) return !0;
           if (!TS.utility.findUrls(n).length) return !0;
           TS.ui.validation.showWarning(e, TS.i18n.t("Unfortunately, custom messages can’t contain URLs.", "ui_validation")(), t);
@@ -33263,8 +33279,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
 
       function d(e, t, n, i, r) {
         if (e.is('input[type="radio"]') || e.is('input[type="checkbox"]') || e.is("select")) return !0;
-        if (N(e)) {
-          var a = G(e);
+        if (G(e)) {
+          var a = W(e);
           if (i = +i, void 0 === a || isNaN(i)) return void TS.error("Error: no length to validate");
           if ("minlength" === t) {
             if (a.length >= i) return !0;
@@ -33272,7 +33288,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               minlength: i
             }), n);
           } else if ("maxlength" === t) {
-            if (r || j(e, a.length, i, n), a.length <= i) return !0;
+            if (r || L(e, a.length, i, n), a.length <= i) return !0;
             TS.ui.validation.showError(e, TS.i18n.t("This field can’t be more than {maxlength, plural, =1{# character}other{# characters}}", "ui_validation")({
               maxlength: i
             }), n);
@@ -33290,8 +33306,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
 
       function m(e, t, n, i) {
         if (e.is('input[type="radio"]') || e.is('input[type="checkbox"]') || e.is("select")) return !0;
-        if (N(e)) {
-          var r = G(e).trim();
+        if (G(e)) {
+          var r = W(e).trim();
           if (i = +i, void 0 === r || isNaN(i)) return void TS.error("Error: no length to validate");
           if ("mincsv" === t) {
             if (r.split(/\s*,\s*/).length >= i) return !0;
@@ -33309,16 +33325,16 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
 
       function p(e, t, n) {
         if (e.is('input[type="radio"]') || e.is('input[type="checkbox"]') || e.is("select")) return !0;
-        if (N(e)) {
-          var i = G(e).trim();
+        if (G(e)) {
+          var i = W(e).trim();
           if (!i) return !0;
           var r, a, s, o;
           switch (n) {
             case "Y-m-d":
-              r = "YYYY-MM-DD", a = i.match(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/), s = a && 1 === a.length && a[0] === i, s && (o = B(i + "T00:00:00.000Z"));
+              r = "YYYY-MM-DD", a = i.match(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/), s = a && 1 === a.length && a[0] === i, s && (o = D(i + "T00:00:00.000Z"));
               break;
             case "m-d":
-              r = "MM-DD", a = i.match(/^[0-9]{2}-[0-9]{2}$/), s = a && 1 === a.length && a[0] === i, s && (o = B("0000-" + i + "T00:00:00.000Z"));
+              r = "MM-DD", a = i.match(/^[0-9]{2}-[0-9]{2}$/), s = a && 1 === a.length && a[0] === i, s && (o = D("0000-" + i + "T00:00:00.000Z"));
               break;
             default:
               return void TS.error("Error: cannot validate");
@@ -33333,18 +33349,18 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
       }
 
       function f(e, t) {
-        var n = N(e) ? G(e) : e.val();
+        var n = G(e) ? W(e) : e.val();
         if (n === n.toLocaleLowerCase()) return !0;
         TS.ui.validation.showWarning(e, TS.i18n.t("This field must be lowercase only", "ui_validation")(), t);
       }
 
       function h(e, t) {
-        if (!/\s/.test(N(e) ? G(e) : e.val())) return !0;
+        if (!/\s/.test(G(e) ? W(e) : e.val())) return !0;
         TS.ui.validation.showWarning(e, TS.i18n.t("This field can’t contain spaces", "ui_validation")(), t);
       }
 
       function g(e, t) {
-        if (/^[^\W_]/.test(N(e) ? G(e) : e.val())) return !0;
+        if (/^[^\W_]/.test(G(e) ? W(e) : e.val())) return !0;
         TS.ui.validation.showWarning(e, TS.i18n.t("This first character must be a letter or number", "ui_validation")(), t);
       }
 
@@ -33377,10 +33393,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
 
       function b(e, t, n) {
         if (e.is('input[type="radio"]') || e.is('input[type="checkbox"]') || e.is("select")) return !0;
-        if (!N(e)) return void TS.error("Error: cannot validate");
-        var i = G(e),
-          r = W(n);
-        if (_.includes(r, "fix") && (i = q(e)), T(e, t)) return !1;
+        if (!G(e)) return void TS.error("Error: cannot validate");
+        var i = W(e),
+          r = q(n);
+        if (_.includes(r, "fix") && (i = z(e)), T(e, t)) return !1;
         var a = TS.shared.getActiveModelOb() || {};
         return (!$(".channel_options_modal").is(":visible") || i !== a.name) && (!(TS.channels.getChannelByName(i) || TS.groups.getGroupByName(i) || TS.members.getMemberByName(i)) || void TS.ui.validation.showWarning(e, TS.i18n.t('"{name}" is already taken by a channel, username, or user group.', "ui_validation")({
           name: _.escape(i)
@@ -33389,10 +33405,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
 
       function v(e, t, n) {
         if (e.is('input[type="radio"]') || e.is('input[type="checkbox"]') || e.is("select")) return !0;
-        if (!N(e)) return void TS.error("Error: cannot validate");
-        var i = G(e),
-          r = W(n);
-        if (_.includes(r, "fix") && (i = q(e)), T(e, t)) return !1;
+        if (!G(e)) return void TS.error("Error: cannot validate");
+        var i = W(e),
+          r = q(n);
+        if (_.includes(r, "fix") && (i = z(e)), T(e, t)) return !1;
         var a = !1,
           s = TS.channels.getChannelByName(i) || TS.groups.getGroupByName(i) || TS.members.getMemberByName(i),
           o = TS.shared.getActiveModelOb();
@@ -33403,15 +33419,15 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
 
       function y(e, t) {
         t = t || {};
-        var n = G(e).trim(),
+        var n = W(e).trim(),
           i = TS.utility.teams.validateTeamName(n);
         return !!i.is_valid || (t.should_truncate = !1, "empty" === i.error_key ? TS.ui.validation.showCustomValidation(e, i.error_message, t) : TS.ui.validation.showError(e, i.error_message, t), !1);
       }
 
       function w(e, t) {
         if (e.is('input[type="radio"]') || e.is('input[type="checkbox"]') || e.is("select")) return !0;
-        if (N(e)) {
-          var n = G(e);
+        if (G(e)) {
+          var n = W(e);
           if (!n) return !0;
           var i = n.match(TS.utility.email_regex);
           if (i && 1 === i.length && i[0] === n) return !0;
@@ -33420,7 +33436,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
       }
 
       function k(e, t, n) {
-        var i = N(e) ? G(e) : e.val();
+        var i = G(e) ? W(e) : e.val();
         if (n.test(i)) return !0;
         TS.ui.validation.showWarning(e, TS.i18n.t("This field contains invalid characters", "ui_validation")(), t);
       }
@@ -33428,7 +33444,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         completed_sig: new signals.Signal,
         onStart: function() {
           $("body").on("input.validation paste.validation change.validation blur.validation", "[data-validation]", TS.utility.debounce(function(e) {
-            $(e.target).is(".ql-editor") || $(e.target).is(".ql-clipboard") ? O($(e.target).closest(".ql-container"), {}, e) : O($(e.target), {}, e);
+            $(e.target).is(".ql-editor") || $(e.target).is(".ql-clipboard") ? F($(e.target).closest(".ql-container"), {}, e) : F($(e.target), {}, e);
           }, 250)), $("body").on("submit.validation", "form[data-validation-form]", function(e) {
             var t = $(e.target),
               n = TS.ui.validation.validate(t);
@@ -33442,30 +33458,30 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           t = t || {};
           var n = document;
           if (e) {
-            if (e.is("[data-validation]")) return 1 === e.length ? O(e, t) : e.toArray().every(function(e) {
-              return O($(e), t);
+            if (e.is("[data-validation]")) return 1 === e.length ? F(e, t) : e.toArray().every(function(e) {
+              return F($(e), t);
             });
             n = e.get(0);
           }
           var i = Array.prototype.slice.call(n.querySelectorAll("[data-validation]"));
           if (t && t.fast) return i.every(function(e) {
-            return O($(e), t);
+            return F($(e), t);
           });
           if (t && t.verbose) {
             var r = {};
             return i.forEach(function(e) {
-              r[e.name] = O($(e), t);
+              r[e.name] = F($(e), t);
             }), r;
           }
           return i.reduce(function(e, n) {
-            return O($(n), t) && e;
+            return F($(n), t) && e;
           }, !0);
         },
         register: function(e, t) {
-          return E[e] ? void TS.warn(e + " cannot be registered because that key is already in use.") : "function" != typeof t ? void TS.warn("Only functions can be registered as validators.") : void(E[e] = t);
+          return O[e] ? void TS.warn(e + " cannot be registered because that key is already in use.") : "function" != typeof t ? void TS.warn("Only functions can be registered as validators.") : void(O[e] = t);
         },
         showCustomValidation: function(e, t, n, i) {
-          R(e, n.error_message || t, n.class, n, i);
+          H(e, n.error_message || t, n.class, n, i);
         },
         getErrorMessage: function(e, t) {
           switch (e) {
@@ -33484,23 +33500,36 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                 name: t.name
               });
             case "restricted_action":
-              return A.restricted_action();
+              return E.restricted_action();
+            case "starts_with_at":
+              return A.at_sign();
+            case "too_long":
+              return A.maxlength({
+                maxlength: t.maxlength
+              });
+            case "reserved_words":
+              return A.reserved();
+            case "characters_not_allowed":
+            case "name_invalid_name_specials":
+              return A.specials();
+            case "emoji_not_allowed":
+              return A.emoji();
             default:
               return TS.i18n.t("For some weird reason, that didn’t work. Please try again to continue.", "ui_validation")();
           }
         },
         showError: function(e, t, n, i) {
-          R(e, n.error_message || t, "validation_error", n, i);
+          H(e, n.error_message || t, "validation_error", n, i);
         },
         showWarning: function(e, t, n, i) {
-          R(e, n.warning_message || t, "validation_warning", n, i);
+          H(e, n.warning_message || t, "validation_warning", n, i);
         },
         showSuccess: function(e, t, n, i) {
-          R(e, n.success_message || t, "validation_success", n, i);
+          H(e, n.success_message || t, "validation_success", n, i);
         },
         test: function() {
           return {
-            validations: E
+            validations: O
           };
         }
       });
@@ -33522,9 +33551,16 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           specials: TS.i18n.t("Usernames can’t contain special characters. Sorry about that!", "ui_validation")
         },
         A = {
-          restricted_action: TS.i18n.t("Sorry! An admin on your team has restricted who can create private channels.", "ui_validation")
+          at_sign: TS.i18n.t("Names can’t start with the @ sign — that’s how your teammates will mention you in conversation.", "ui_validation"),
+          maxlength: TS.i18n.t("Unfortunately, names can’t be longer than {maxlength} characters.", "ui_validation"),
+          reserved: TS.i18n.t("That name’s already being used by Slack.", "ui_validation"),
+          specials: TS.i18n.t("Mostly, names can’t contain punctuation. (Apostrophes, spaces, and periods are fine.)", "ui_validation"),
+          emoji: TS.i18n.t("For all manner of complex reasons, names simply cannot contain emoji. Try again?", "ui_validation")
         },
         E = {
+          restricted_action: TS.i18n.t("Sorry! An admin on your team has restricted who can create private channels.", "ui_validation")
+        },
+        O = {
           dateandformat: p,
           firstalphanumeric: g,
           hasnourl: s,
@@ -33546,53 +33582,53 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           team_name: y,
           is_email: w
         },
-        O = function(e, t, n) {
-          t = t || {}, e.is("[data-validation-for]") && (t.custom_for = e.attr("data-validation-for")), t.success_message = TS.i18n.t("Nice, thanks!", "ui_validation")(), e.is("[data-validation-success]") && (t.success_message = e.attr("data-validation-success")), e.is("[data-validation-warning]") && (t.warning_message = e.attr("data-validation-warning")), e.is("[data-validation-error]") && (t.error_message = e.attr("data-validation-error")), N(e) && U(e, t);
-          var i = F(e).every(function(n) {
-            if (-1 === n.indexOf("=")) return E[n.trim()](e, t);
+        F = function(e, t, n) {
+          t = t || {}, e.is("[data-validation-for]") && (t.custom_for = e.attr("data-validation-for")), t.success_message = TS.i18n.t("Nice, thanks!", "ui_validation")(), e.is("[data-validation-success]") && (t.success_message = e.attr("data-validation-success")), e.is("[data-validation-warning]") && (t.warning_message = e.attr("data-validation-warning")), e.is("[data-validation-error]") && (t.error_message = e.attr("data-validation-error")), G(e) && N(e, t);
+          var i = B(e).every(function(n) {
+            if (-1 === n.indexOf("=")) return O[n.trim()](e, t);
             var i = n.split("=");
-            return E[i[0]](e, t, i[1]);
+            return O[i[0]](e, t, i[1]);
           });
           return TS.ui.validation.completed_sig.dispatch(e, {
             event: n,
             passed: i
-          }), D(e, i, t) && TS.ui.validation.showSuccess(e, t.success_message, t, 3e3), i;
-        },
-        F = function(e) {
-          return e.is("[data-validation]") ? e.attr("data-validation").replace(/\s*(,|=)\s*/g, "$1").split(/\s+/) : [];
+          }), R(e, i, t) && TS.ui.validation.showSuccess(e, t.success_message, t, 3e3), i;
         },
         B = function(e) {
+          return e.is("[data-validation]") ? e.attr("data-validation").replace(/\s*(,|=)\s*/g, "$1").split(/\s+/) : [];
+        },
+        D = function(e) {
           if (!isNaN(Date.parse(e))) {
             return !new Date(e).toISOString().indexOf(e);
           }
         },
-        D = function(e, t, n) {
+        R = function(e, t, n) {
           var i = $(document.querySelector('label[for="' + (n.custom_for || e.attr("name")) + '"]'));
           if (i.length) return !(n && n.quiet) && t && !1 === i.data("validation-ephemeral");
         },
-        R = function(e, t, n, i, r) {
+        H = function(e, t, n, i, r) {
           if (i = i || {}, _.isUndefined(i.should_truncate) && (i.should_truncate = !0), !i || !i.quiet) {
             var a = $(document.querySelector('label[for="' + (i.custom_for || e.attr("name")) + '"]'));
             if (a.length) {
               var s = a.data("validation-timeout");
               clearTimeout(s);
               var o = a.find(".validation_message");
-              o.length || (o = $("<span />").addClass("validation_message").toggleClass("overflow_ellipsis", i.should_truncate), e.is("select") ? o.insertBefore(a.find("select")) : o.appendTo(a)), P(e, a, n), o.get(0).title = t, o.fadeIn(100), a.data("validation-ephemeral", !!r), r && a.data("validation-timeout", setTimeout(function() {
+              o.length || (o = $("<span />").addClass("validation_message").toggleClass("overflow_ellipsis", i.should_truncate), e.is("select") ? o.insertBefore(a.find("select")) : o.appendTo(a)), j(e, a, n), o.get(0).title = t, o.fadeIn(100), a.data("validation-ephemeral", !!r), r && a.data("validation-timeout", setTimeout(function() {
                 a.removeData("validation-ephemeral").removeData("validation-timeout"), o.fadeOut(100, function() {
-                  P(e, a), o.remove();
+                  j(e, a), o.remove();
                 });
               }, r));
             }
           }
         },
-        H = ["validation_error", "validation_warning", "validation_success"],
-        P = function(e, t, n) {
-          t.hasClass(n) || (e.removeClass(H.join(" ")), e.addClass(n), t.removeClass(H.join(" ")), t.addClass(n));
-        },
-        j = function(e, t, n, i) {
-          n - t <= 6 ? L(e, t, n, i) : U(e, i);
+        P = ["validation_error", "validation_warning", "validation_success"],
+        j = function(e, t, n) {
+          t.hasClass(n) || (e.removeClass(P.join(" ")), e.addClass(n), t.removeClass(P.join(" ")), t.addClass(n));
         },
         L = function(e, t, n, i) {
+          n - t <= 6 ? U(e, t, n, i) : N(e, i);
+        },
+        U = function(e, t, n, i) {
           var r = document.querySelector('label[for="' + (i.custom_for || e.attr("name")) + '"]');
           if (r) {
             var a = [t, n].join("/");
@@ -33602,21 +33638,21 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             e.hasClass("no_validation_padding") || (e.data("countdown-padding-right") || e.data("countdown-padding-right", parseFloat(e.css("padding-right"))), e.css("padding-right", o + parseFloat(s.right) + e.data("countdown-padding-right")));
           }
         },
-        U = function(e, t) {
+        N = function(e, t) {
           var n = document.querySelector('label[for="' + (t.custom_for || e.attr("name")) + '"]');
           n && ($(n).removeClass("countdown"), e.removeData("countdown-padding-right"), e.css("padding-right", ""));
         },
-        N = function(e) {
+        G = function(e) {
           return TS.utility && TS.utility.contenteditable ? e.is("input") || e.is("textarea") || TS.utility.contenteditable.isContenteditable(e) : e.is("input") || e.is("textarea");
         },
-        G = function(e) {
+        W = function(e) {
           return TS.utility && TS.utility.contenteditable ? TS.utility.contenteditable.value(e) : e.val();
         },
-        W = function(e) {
+        q = function(e) {
           return _.isString(e) ? _(e).split(",").map(_.trim).compact().value() : [];
         },
-        q = function(e) {
-          var t = G(e),
+        z = function(e) {
+          var t = W(e),
             n = t.toLowerCase().replace(/^#+/, "");
           if (n && t !== n) {
             var i = TS.utility.contenteditable.cursorPosition(e).start;
@@ -40809,7 +40845,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return !t.hasOwnProperty(n) || t[n].ts && t[n].ts < Date.now() - e ? (t = {}, t[n] = {
             ts: null,
             apps: []
-          }, TS.api.call("apps.permissions.listForResource", {
+          }, TS.api.call("apps.permissions.internal.listForResource", {
             channel: n
           }).then(function(e) {
             return t[n].ts = Date.now(), t[n].apps = _.get(e, "data.apps", []), !0;

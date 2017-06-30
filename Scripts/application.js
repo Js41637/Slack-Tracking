@@ -31856,8 +31856,8 @@ webpackJsonp([332], [, function(e, t, n) {
           n.i(g.a)({
             fromValue: this.currentScrollTop,
             toValue: d,
-            duration: 500,
-            easing: "easeInOutQuad",
+            duration: 200,
+            easing: "easeInQuart",
             onTick: function(e) {
               var n = e.value,
                 r = e.nextTick;
@@ -31968,6 +31968,9 @@ webpackJsonp([332], [, function(e, t, n) {
               width: 220,
               onRowsRendered: e.onRowsRendered,
               onScroll: e.onScroll,
+              containerStyle: {
+                pointerEvents: "auto"
+              },
               ref: e.setRef,
               className: "p-channel_sidebar__virtualized"
             });
@@ -35075,13 +35078,14 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "render",
         value: function() {
-          var e = this,
-            t = s.a.cloneElement(this.props.children, {
-              ref: function(t) {
-                e.popoverContent = t;
-              }
-            });
-          return this.props.isOpen ? s.a.createElement(d.a, {
+          var e = this;
+          if (!this.props.isOpen) return null;
+          var t = s.a.cloneElement(this.props.children, {
+            ref: function(t) {
+              e.popoverContent = t;
+            }
+          });
+          return s.a.createElement(d.a, {
             isOpen: this.props.isOpen,
             contentLabel: "popover",
             className: "popover",
@@ -35089,7 +35093,7 @@ webpackJsonp([332], [, function(e, t, n) {
             style: this.getContentStyle(),
             onAfterOpen: this.onOpen,
             onRequestClose: this.onClose
-          }, t) : null;
+          }, t);
         }
       }]), t;
     }(a.PureComponent);
@@ -35826,11 +35830,11 @@ webpackJsonp([332], [, function(e, t, n) {
           min45: "%d minutes ago",
           min90: "1 hour ago",
           hrs24: "%d hours ago",
-          days1: "1 day ago",
-          days7: "%d days ago",
+          day: "1 day ago",
+          days: "%d days ago",
           month: "%d month ago",
           months: "%d months ago",
-          years1: "1 year ago",
+          year: "1 year ago",
           years: "%d years ago"
         },
         future: {
@@ -35839,11 +35843,11 @@ webpackJsonp([332], [, function(e, t, n) {
           min45: "in %d minutes",
           min90: "in 1 hour",
           hrs24: "in %d hours",
-          days1: "in 1 day",
-          days7: "in %d days",
+          day: "in 1 day",
+          days: "in %d days",
           month: "in %d month",
           months: "in %d months",
-          years1: "in 1 year",
+          year: "in 1 year",
           years: "in %d years"
         },
         compact: {
@@ -35852,9 +35856,9 @@ webpackJsonp([332], [, function(e, t, n) {
           min45: "%dm",
           min90: "1h",
           hrs24: "%dh",
-          days1: "1d",
-          days7: "%dd",
-          years1: "1y",
+          day: "1d",
+          days: "%dd",
+          year: "1y",
           years: "%dy"
         }
       };
@@ -35885,11 +35889,11 @@ webpackJsonp([332], [, function(e, t, n) {
           min45: "vor %d Minuten",
           min90: "vor 1 Stunde",
           hrs24: "vor %d Stunden",
-          days1: "vor 1 Tag",
-          days7: "vor %d Tagen",
+          day: "vor 1 Tag",
+          days: "vor %d Tagen",
           month: "vor %d Monat",
           months: "vor %d Monaten",
-          years1: "vor 1 Jahr",
+          year: "vor 1 Jahr",
           years: "vor %d Jahren"
         },
         future: {
@@ -35898,11 +35902,11 @@ webpackJsonp([332], [, function(e, t, n) {
           min45: "in %d Minuten",
           min90: "in 1 Stunde",
           hrs24: "in %d Stunden",
-          days1: "in 1 Tag",
-          days7: "in %d Tagen",
+          day: "in 1 Tag",
+          days: "in %d Tagen",
           month: "in %d Monat",
           months: "in %d Monaten",
-          years1: "in 1 Jahr",
+          year: "in 1 Jahr",
           years: "in %d Jahren"
         },
         compact: {
@@ -35911,9 +35915,9 @@ webpackJsonp([332], [, function(e, t, n) {
           min45: "%d Min.",
           min90: "1 Std.",
           hrs24: "%d Std.",
-          days1: "1 Tag",
-          days7: "%d Tage",
-          years1: "1 J.",
+          day: "1 Tag",
+          days: "%d Tage",
+          year: "1 J.",
           years: "%d J."
         }
       };
@@ -35944,11 +35948,11 @@ webpackJsonp([332], [, function(e, t, n) {
           min45: "il y a %d minutes",
           min90: "il y a une heure",
           hrs24: "il y a %d heures",
-          days1: "il y a un jour",
-          days7: "il y a %d jours",
+          day: "il y a un jour",
+          days: "il y a %d jours",
           month: "il y a un mois",
           months: "il y a %d mois",
-          years1: "il y a un an",
+          year: "il y a un an",
           years: "il y a %d ans"
         },
         future: {
@@ -35957,11 +35961,11 @@ webpackJsonp([332], [, function(e, t, n) {
           min45: "dans %d minutes",
           min90: "dans une heure",
           hrs24: "dans %d heures",
-          days1: "dans un jour",
-          days7: "dans %d jours",
+          day: "dans un jour",
+          days: "dans %d jours",
           month: "dans un mois",
           months: "dans %d mois",
-          years1: "dans un an",
+          year: "dans un an",
           years: "dans %d ans"
         },
         compact: {
@@ -35970,9 +35974,9 @@ webpackJsonp([332], [, function(e, t, n) {
           min45: "%d min",
           min90: "1 h",
           hrs24: "%d h",
-          days1: "1 j",
-          days7: "%d j",
-          years1: "1 an",
+          day: "1 j",
+          days: "%d j",
+          year: "1 an",
           years: "%d ans"
         }
       };
@@ -36003,11 +36007,11 @@ webpackJsonp([332], [, function(e, t, n) {
           min45: "hace %d minutos",
           min90: "hace 1 hora",
           hrs24: "hace %d horas",
-          days1: "hace 1 día",
-          days7: "hace %d días",
+          day: "hace 1 día",
+          days: "hace %d días",
           month: "hace 1 mes",
           months: "hace %d meses",
-          years1: "hace 1 año",
+          year: "hace 1 año",
           years: "hace %d años"
         },
         future: {
@@ -36016,11 +36020,11 @@ webpackJsonp([332], [, function(e, t, n) {
           min45: "en %d minutos",
           min90: "en 1 hora",
           hrs24: "en %d horas",
-          days1: "en 1 día",
-          days7: "en %d días",
+          day: "en 1 día",
+          days: "en %d días",
           month: "en 1 mes",
           months: "en %d meses",
-          years1: "en 1 año",
+          year: "en 1 año",
           years: "en %d años"
         },
         compact: {
@@ -36029,9 +36033,9 @@ webpackJsonp([332], [, function(e, t, n) {
           min45: "%d m",
           min90: "1 h",
           hrs24: "%d h",
-          days1: "1 d",
-          days7: "%d d",
-          years1: "1 a",
+          day: "1 d",
+          days: "%d d",
+          year: "1 a",
           years: "%d a"
         }
       };
@@ -36045,11 +36049,11 @@ webpackJsonp([332], [, function(e, t, n) {
           min45: "%d分前",
           min90: "1時間前",
           hrs24: "%d時間前",
-          days1: "1日前",
-          days7: "%d日前",
+          day: "1日前",
+          days: "%d日前",
           month: "1日前",
           months: "%d日前",
-          years1: "1年前",
+          year: "1年前",
           years: "%d年前"
         },
         future: {
@@ -36058,11 +36062,11 @@ webpackJsonp([332], [, function(e, t, n) {
           min45: "%d分後",
           min90: "1時間後",
           hrs24: "%d時間後",
-          days1: "1日後",
-          days7: "%d日後",
+          day: "1日後",
+          days: "%d日後",
           month: "1ヶ月",
           months: "%dヶ月",
-          years1: "1年後",
+          year: "1年後",
           years: "%d年後"
         },
         compact: {
@@ -36071,9 +36075,9 @@ webpackJsonp([332], [, function(e, t, n) {
           min45: "%d分",
           min90: "1時間",
           hrs24: "%d時間",
-          days1: "1日",
-          days7: "%d日",
-          years1: "1年",
+          day: "1日",
+          days: "%d日",
+          year: "1年",
           years: "%d年"
         }
       };
@@ -40513,11 +40517,11 @@ webpackJsonp([332], [, function(e, t, n) {
       v = _ / 365,
       g = f ? "future" : "past",
       b = o.a.localeData(o.a.locale()).timeAgo();
-    return p < 45 ? u ? b.compact.sec45 : b[g].sec45 : p < 90 ? u ? b.compact.sec90 : b[g].sec90 : h < 45 ? u ? b.compact.min45.replace(/%d/, Math.round(h)) : b[g].min45.replace(/%d/, Math.round(h)) : h < 90 ? u ? b.compact.min90 : b[g].min90 : m < 24 ? u ? b.compact.hrs24.replace(/%d/, Math.round(m)) : b[g].hrs24.replace(/%d/, Math.round(m)) : _ < 2 ? u ? b.compact.days1 : b[g].days1 : _ < 7 ? u ? b.compact.days7.replace(/%d/, Math.round(_)) : b[g].days7.replace(/%d/, Math.round(_)) : _ < 365 ? u && !f ? n.i(s.a)(e, {
+    return p < 45 ? u ? b.compact.sec45 : b[g].sec45 : p < 90 ? u ? b.compact.sec90 : b[g].sec90 : h < 45 ? u ? b.compact.min45.replace(/%d/, Math.round(h)) : b[g].min45.replace(/%d/, Math.round(h)) : h < 90 ? u ? b.compact.min90 : b[g].min90 : m < 24 ? u ? b.compact.hrs24.replace(/%d/, Math.round(m)) : b[g].hrs24.replace(/%d/, Math.round(m)) : _ < 2 ? u ? b.compact.day : b[g].day : _ < 7 ? u ? b.compact.days.replace(/%d/, Math.round(_)) : b[g].days.replace(/%d/, Math.round(_)) : _ < 365 ? u && !f ? n.i(s.a)(e, {
       shortenDay: !0,
       shortenMonth: !0,
       excludeYear: !0
-    }) : y < 2 ? b[g].month.replace(/%d/, Math.round(y)) : b[g].months.replace(/%d/, Math.round(y)) : v < 1.5 ? u ? b.compact.years1 : b[g].years1 : u ? b.compact.years.replace(/%d/, Math.round(v)) : b[g].years.replace(/%d/, Math.round(v));
+    }) : y < 2 ? y < .5 ? b[g].month.replace(/%d/, 1) : b[g].month.replace(/%d/, Math.round(y)) : b[g].months.replace(/%d/, Math.round(y)) : v < 1.5 ? u ? b.compact.year : b[g].year : u ? b.compact.years.replace(/%d/, Math.round(v)) : b[g].years.replace(/%d/, Math.round(v));
   }
   var o = n(2989),
     i = n(2356),
@@ -41466,8 +41470,8 @@ webpackJsonp([332], [, function(e, t, n) {
       name: "",
       display_name: "",
       apps: [{
-        name: S.t("Get started with apps"),
-        short_description: S.t("Learn about how you can customize your team with apps"),
+        name: S.t("What are apps?"),
+        short_description: S.t("A quick look at how apps in Slack can streamline your work"),
         icons: {
           image_84: cdn_url + "/7f023/img/tutorial@2x.png"
         },
@@ -41733,11 +41737,13 @@ webpackJsonp([332], [, function(e, t, n) {
               className: "p-apps_browser__app_info"
             }, u.a.createElement("div", {
               className: "p-apps_browser__app_name"
-            }, u.a.createElement("strong", null, e.name)), n.i(g.a)(e.short_description, function(e, t) {
+            }, u.a.createElement("strong", null, e.name)), u.a.createElement("div", {
+              className: "p-apps_browser__app_description"
+            }, n.i(g.a)(e.short_description, function(e, t) {
               return u.a.createElement("strong", {
                 key: t
               }, e);
-            })), u.a.createElement("button", {
+            }))), u.a.createElement("button", {
               className: "p-apps_browser__app_action"
             }, d));
           });
@@ -41788,7 +41794,7 @@ webpackJsonp([332], [, function(e, t, n) {
             href: "https://slack.com/apps"
           }, S.t("View App Directory"))), u.a.createElement("div", null, u.a.createElement(w.a, {
             ref: this.setSearchInputRef,
-            placeholder: S.t("Search apps"),
+            placeholder: S.t("Search for apps by name or category (e.g. productivity, sales)"),
             onChange: this.handleSearchInputChange
           }))), u.a.createElement("div", {
             className: t,
@@ -54153,9 +54159,9 @@ webpackJsonp([332], [, function(e, t, n) {
     sideEffect: r
   });
 }, , , , , function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".c-enhanced_text_input {\n  border-radius: 0.25rem;\n  display: flex;\n  align-items: center;\n  -webkit-transition: box-shadow 70ms ease-out, border-color 70ms ease-out 0.2s ease-out 0.0000001ms;\n  -moz-transition: box-shadow 70ms ease-out, border-color 70ms ease-out 0.2s ease-out 0.0000001ms;\n  transition: box-shadow 70ms ease-out, border-color 70ms ease-out 0.2s ease-out 0.0000001ms;\n  -webkit-transition: box-shadow 70ms ease-out, border-color 70ms ease-out;\n  -moz-transition: box-shadow 70ms ease-out, border-color 70ms ease-out;\n  transition: box-shadow 70ms ease-out, border-color 70ms ease-out;\n  border: 1px solid #A0A0A2;\n  padding: 0.25rem 0.5rem;\n  color: #A0A0A2;\n  font-size: 1rem;\n}\n.c-enhanced_text_input:hover {\n  border-color: #3AA3E3;\n}\n.c-enhanced_text_input--active {\n  border-color: #3AA3E3;\n  box-shadow: 0 0 7px rgba(58, 163, 227, 0.15);\n}\n.c-enhanced_text_input .c-icon:before {\n  font-size: 1rem;\n}\n.c-enhanced_text_input__input[type=text] {\n  flex-grow: 1;\n  margin: 0;\n  padding: 0 0.5rem;\n  border: 0 none !important;\n  font-size: 1rem;\n}\n.c-enhanced_text_input__input[type=text]:active,\n.c-enhanced_text_input__input[type=text]:focus {\n  box-shadow: none;\n}\n.c-enhanced_text_input__reset_button {\n  display: none;\n  cursor: pointer;\n}\n.c-enhanced_text_input__reset_button--visible {\n  display: block;\n}\n.feature_keyboard_navigation .c-enhanced_text_input:hover,\n.feature_keyboard_navigation .c-enhanced_text_input.c-enhanced_text_input--active {\n  border-color: #717274;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".c-enhanced_text_input {\n  border-radius: 0.25rem;\n  display: flex;\n  align-items: center;\n  -webkit-transition: box-shadow 70ms ease-out, border-color 70ms ease-out 0.2s ease-out 0.0000001ms;\n  -moz-transition: box-shadow 70ms ease-out, border-color 70ms ease-out 0.2s ease-out 0.0000001ms;\n  transition: box-shadow 70ms ease-out, border-color 70ms ease-out 0.2s ease-out 0.0000001ms;\n  -webkit-transition: box-shadow 70ms ease-out, border-color 70ms ease-out;\n  -moz-transition: box-shadow 70ms ease-out, border-color 70ms ease-out;\n  transition: box-shadow 70ms ease-out, border-color 70ms ease-out;\n  border: 1px solid #C5C5C5;\n  padding: 6px 8px;\n  color: #A0A0A2;\n  font-size: 1rem;\n}\n.c-enhanced_text_input:hover,\n.c-enhanced_text_input.c-enhanced_text_input--active {\n  border-color: #2780F8;\n  box-shadow: 0 0 7px rgba(39, 128, 248, 0.15);\n}\n.c-enhanced_text_input .c-icon:before {\n  font-size: 1.2rem;\n}\n.c-enhanced_text_input__input[type=text] {\n  flex-grow: 1;\n  margin: 0;\n  padding: 0 0.5rem;\n  border: 0 none !important;\n  font-size: 1rem;\n}\n.c-enhanced_text_input__input[type=text]:active,\n.c-enhanced_text_input__input[type=text]:focus {\n  box-shadow: none;\n}\n.c-enhanced_text_input__reset_button {\n  display: none;\n  cursor: pointer;\n}\n.c-enhanced_text_input__reset_button--visible {\n  display: block;\n}\n.feature_keyboard_navigation .c-enhanced_text_input:hover,\n.feature_keyboard_navigation .c-enhanced_text_input.c-enhanced_text_input--active {\n  border-color: #717274;\n}\n", ""]);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".p-apps_browser {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-weight: 400;\n  -webkit-font-smoothing: antialiased;\n  display: flex;\n  flex-direction: column;\n  margin: 9.5rem auto 1rem auto;\n  width: 650px;\n}\n.p-apps_browser__filter_container {\n  margin-bottom: 25px;\n}\n.p-apps_browser__filter_header {\n  display: flex;\n  margin-bottom: 25px;\n}\n.p-apps_browser__filter_header h2 {\n  font-weight: 900;\n  font-size: 2rem;\n  flex-grow: 1;\n  margin: 0;\n}\n.p-apps_browser__search_box {\n  display: flex;\n}\n.p-apps_browser__apps_list {\n  overflow-y: auto;\n  min-height: 200px;\n  position: relative;\n  cursor: pointer;\n}\n.p-apps_browser__apps_list--loading::before {\n  background-image: url('/img/loading_hash_animation_@2x.gif');\n  background-color: #FFF;\n  background-position: center;\n  background-repeat: no-repeat;\n  position: absolute;\n  content: '';\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n}\n.p-apps_browser__category_section {\n  margin-bottom: 20px;\n}\n.p-apps_browser__category_section--hidden {\n  display: none;\n}\n.p-apps_browser__category_header {\n  font-size: 13px;\n  background: #FFF;\n  color: #717274;\n  margin-bottom: 5px;\n}\n.p-apps_browser__category_header--sticky {\n  top: 0;\n  position: sticky;\n}\n.p-apps_browser__app {\n  padding: 10px;\n  border: 1px solid transparent;\n  border-top-color: #E8E8E8;\n  display: flex;\n  align-items: center;\n}\n.p-apps_browser__app:first-of-type {\n  border-top-color: transparent;\n}\n.p-apps_browser__category_section--tutorial .p-apps_browser__category_header {\n  display: none;\n}\n.p-apps_browser__category_section--tutorial .p-apps_browser__app {\n  box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.05);\n  border-radius: 6px;\n  border: 1px solid #E8E8E8;\n}\n.p-apps_browser__app--selected {\n  border-radius: 6px;\n  background: #F9F9F9;\n  border: 1px solid #E8E8E8;\n}\n.p-apps_browser__app--selected + .p-apps_browser__app {\n  border-top-color: transparent;\n}\n.p-apps_browser__app_icon {\n  width: 36px;\n  height: 36px;\n  margin-right: 10px;\n}\n.p-apps_browser__app_info {\n  flex-grow: 1;\n  font-size: 15px;\n  color: #2C2D30;\n}\n.p-apps_browser__app_action {\n  border-radius: 4px;\n  font-size: 0.875rem;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-weight: 700;\n  background-color: #F9F9F9;\n  border: 1px solid #A0A0A2;\n  color: #717274;\n  padding: 0 10px;\n}\n.p-apps_browser__app_action:hover {\n  color: #007AB8;\n}\n.p-apps_browser__app_name {\n  font-weight: bold;\n}\n.p-apps_browser__app_description {\n  color: #717274;\n}\n.p-apps_browser__no_results {\n  display: flex;\n  -ms-flex-pack: center;\n  -webkit-box-pack: center;\n  -webkit-justify-content: center;\n  -moz-justify-content: center;\n  justify-content: center;\n  align-items: center;\n  height: 100px;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".p-apps_browser {\n  flex: 1 1 0;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-weight: 400;\n  -webkit-font-smoothing: antialiased;\n  display: flex;\n  flex-direction: column;\n  margin: 6rem 0 1rem 0;\n  overflow: hidden;\n}\n.p-apps_browser__filter_container {\n  margin-bottom: 20px;\n}\n.p-apps_browser__filter_header {\n  display: flex;\n  align-items: center;\n  margin-bottom: 2rem;\n}\n.p-apps_browser__filter_header .c-button,\n.p-apps_browser__filter_header a.c-button,\n.p-apps_browser__filter_header a.c-button:link,\n.p-apps_browser__filter_header a.c-button:visited {\n  font-size: 0.9375rem;\n  background: #2ab27b;\n  padding: 8px 14px 9px;\n}\n.p-apps_browser__filter_header h2 {\n  font-size: 2.125rem;\n  line-height: 2.5625rem;\n  font-weight: 900;\n  flex-grow: 1;\n  margin: 0;\n}\n.p-apps_browser__search_box {\n  display: flex;\n}\n.p-apps_browser__apps_list {\n  overflow-y: auto;\n  min-height: 200px;\n  position: relative;\n}\n.p-apps_browser__apps_list--loading::before {\n  background-image: url('/img/loading_hash_animation_@2x.gif');\n  background-color: #FFF;\n  background-position: center;\n  background-repeat: no-repeat;\n  position: absolute;\n  content: '';\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n}\n.p-apps_browser__category_section {\n  margin-bottom: 25px;\n}\n.p-apps_browser__category_section--hidden {\n  display: none;\n}\n.p-apps_browser__category_section--tutorial .p-apps_browser__category_header {\n  display: none;\n}\n.p-apps_browser__category_section--tutorial .p-apps_browser__app {\n  box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.05);\n  border-radius: 6px;\n  border: 1px solid #E8E8E8;\n  padding: 12px;\n}\n.p-apps_browser__category_header {\n  font-size: .8rem;\n  line-height: 1.2rem;\n  background: #FFF;\n  color: #717274;\n  padding-bottom: .5rem;\n}\n.p-apps_browser__category_header--sticky {\n  top: 0;\n  position: sticky;\n}\n.p-apps_browser__app {\n  display: flex;\n  align-items: center;\n  padding: 11px 12px;\n  border: 1px solid transparent;\n  border-top-color: #E8E8E8;\n  cursor: pointer;\n}\n.p-apps_browser__app:first-of-type {\n  border-top-color: transparent;\n}\n.p-apps_browser__app--selected {\n  border-radius: 6px;\n  background: #F9F9F9;\n  border: 1px solid #E8E8E8;\n}\n.p-apps_browser__app--selected + .p-apps_browser__app {\n  border-top-color: transparent;\n}\n.p-apps_browser__app_icon {\n  flex: 0 0 auto;\n  border-radius: 0.2rem;\n  width: 36px;\n  height: 36px;\n  margin-right: 10px;\n}\n.p-apps_browser__app_info {\n  flex: 1 1 0;\n  font-size: 0.9375rem;\n  overflow: hidden;\n  line-height: 1.3rem;\n  color: #2C2D30;\n  margin-right: 12px;\n}\n.p-apps_browser__app_action {\n  flex: 0 0 auto;\n  border-radius: 0.25rem;\n  font-size: 0.875rem;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-weight: 700;\n  line-height: 1.2rem;\n  background-color: #FBFBFA;\n  border: 1px solid #C7CACD;\n  color: #555459;\n  padding: 4px 10px;\n}\n.p-apps_browser__app_action:hover {\n  background-color: #FFFFFF;\n  color: #007AB8;\n}\n.p-apps_browser__app_name {\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  font-weight: bold;\n}\n.p-apps_browser__app_description {\n  color: #717274;\n}\n.p-apps_browser__no_results {\n  display: flex;\n  -ms-flex-pack: center;\n  -webkit-box-pack: center;\n  -webkit-justify-content: center;\n  -moz-justify-content: center;\n  justify-content: center;\n  align-items: center;\n  height: 100px;\n}\n", ""]);
 }, function(e, t, n) {
   "use strict";
 
@@ -56159,7 +56165,7 @@ webpackJsonp([332], [, function(e, t, n) {
   }
 
   function s(e) {
-    return e.type.displayName === g;
+    return !(!e || !e.type) && e.type.displayName === g;
   }
   var u = n(2),
     l = n.n(u),
@@ -56225,10 +56231,10 @@ webpackJsonp([332], [, function(e, t, n) {
         value: function(e, t) {
           t.preventDefault();
           var n = this.getIndexOfNextMenuItemInDirection(e);
-          this.setState(function(e) {
-            return y({}, e, {
+          this.setState(function() {
+            return {
               highlightedMenuItemIndex: n
-            });
+            };
           });
         }
       }, {
@@ -56239,19 +56245,19 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "onMouseLeaveMenu",
         value: function() {
-          this.setState(function(e) {
-            return y({}, e, {
+          this.setState(function() {
+            return {
               highlightedMenuItemIndex: -1
-            });
+            };
           });
         }
       }, {
         key: "onMouseEnterMenuItem",
         value: function(e) {
-          this.setState(function(t) {
-            return y({}, t, {
+          this.setState(function() {
+            return {
               highlightedMenuItemIndex: e
-            });
+            };
           });
         }
       }, {
