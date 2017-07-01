@@ -1369,7 +1369,7 @@ webpackJsonp([225], {
             };
           };
           TS.members.view.bindTeamFilter("#team_filter", "#team_list_scroller", e), $("#team_filter input.member_filter").on("focus", function() {
-            re("ADMIN_ACTION_SEARCH");
+            re("ADMIN_SEARCH");
           });
         },
         P = function() {
@@ -1380,7 +1380,7 @@ webpackJsonp([225], {
             var e = F();
             e != y && U(e);
           }), e.on("focus", function() {
-            re("ADMIN_ACTION_SEARCH");
+            re("ADMIN_SEARCH");
           });
         },
         F = function() {

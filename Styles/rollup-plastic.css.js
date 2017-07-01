@@ -15015,13 +15015,13 @@ body:not(.unify_user) .tab_complete_ui li.tab_complete_ui_item {
 
 .channel_modal .channel_modal_filter_container .search_icon {
   position: absolute;
-  top: 6px;
+  top: 8px;
   left: 13px
 }
 
 .channel_modal .channel_modal_filter_container .clear_filter_icon {
   position: absolute;
-  top: 6px;
+  top: 8px;
   right: 10px;
   cursor: pointer;
   visibility: hidden
