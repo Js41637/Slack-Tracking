@@ -1365,6 +1365,12 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         isAppSpaceEnabled: function() {
           return TS.boot_data.is_app_space_enabled;
         },
+        isCurrentModelViewAnApp: function() {
+          var e = TS.shared.getActiveModelOb();
+          if (!e) return !1;
+          var t = TS.members.getMemberById(_.get(e, "user"));
+          return !!_.get(t, "profile.bot_id");
+        },
         resetUpApps: function() {
           TS.storage.storeApps(""), t();
         },
@@ -11487,7 +11493,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             return Promise.resolve();
           }
           var i = _.clone(f);
-          return C(i).then(function(t) {
+          return TS.utility.enableFeatureForUser(10) && i && TS.metrics.store("unknown_member_fetch_batch_size", i.length), C(i).then(function(t) {
             i.forEach(function(e) {
               var n = TS.members.getUnknownMemberById(e);
               _.find(t, {
@@ -15139,11 +15145,16 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             t = !1, D.disableStatsCollecting();
           })), TS.isSocketManagerEnabled() ? (TS.interop.SocketManager.socketMessageReceivedSig.add(TS.ms.msg_handlers.msgReceived), TS.interop.Eventlog.messageReceivedSig.add(TS.ms.msg_handlers.msgReceived), TS.interop.SocketManager.connectedSig.add(function() {
             TS.boot_data.feature_tinyspeck && (i && clearTimeout(i), i = setTimeout(function() {
-              if (l.length > 50 && !d) {
-                var e = _.compact([l[0].type, l[0].subtype]).join(".");
-                TS.warn("Looks like our msg_handlers queue might be wedged (it has " + l.length + " items in it, first one of type " + e + "). Kicking it.");
-                var t = new Error("msg_handlers_queue_stuck_v1");
-                TS.console.logError(t, "size = " + l.length + ", first item = " + e);
+              if (TS.interop.SocketManager.isConnected() && !(l.length < 50)) {
+                var e = l[0];
+                setTimeout(function() {
+                  if (l[0] === e) {
+                    var t = _.compact([l[0].type, l[0].subtype]).join(".");
+                    TS.warn("Looks like our msg_handlers queue might be wedged (it has " + l.length + " items in it, first one of type " + t + "). Kicking it.");
+                    var n = new Error("msg_handlers_queue_stuck_v2");
+                    TS.console.logError(n, "size = " + l.length + ", first item = " + t);
+                  }
+                }, 1e4);
               }
             }, 3e4));
           })) : TS.ms.on_msg_sig.add(TS.ms.msg_handlers.msgReceived);
@@ -22358,10 +22369,13 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           else if (t.hasClass("star_group")) s.channel = t.data("group-id"), r = function(e) {
             f(s.channel, e);
           };
-          else if (t.hasClass("star_im")) s.channel = t.data("im-id"), r = function(e) {
-            h(s.channel, e);
-          };
-          else {
+          else if (t.hasClass("star_im") || t.hasClass("star_app")) {
+            s.channel = t.data("im-id");
+            var l = !1;
+            TS.apps.isAppSpaceEnabled() && t.hasClass("star_app") && (l = !0), r = function(e) {
+              h(s.channel, e, l);
+            };
+          } else {
             if (!t.hasClass("star_mpim")) return TS.error("checkForStarClick doesn't know what to do with a click on " + t[0].outerHTML), !1;
             s.channel = t.data("mpim-id"), r = function(e) {
               g(s.channel, e);
@@ -22492,11 +22506,11 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           var i = '.star_group[data-group-id="' + e + '"]';
           S($(i), t, n, i), TS.client && TS.client.channel_pane.rebuild("channels", "starred");
         },
-        h = function(e, t) {
-          var n = TS.ims.getImById(e);
-          n || TS.warn("updateImStar im_id:" + e + " not found"), n.is_starred = t;
-          var i = '.star_im[data-im-id="' + e + '"]';
-          S($(i), t, n, i), TS.client && TS.client.channel_pane.rebuild("ims", "starred");
+        h = function(e, t, n) {
+          var i = TS.ims.getImById(e);
+          i || TS.warn("updateImStar im_id:" + e + " not found"), i.is_starred = t;
+          var r = "";
+          r = n ? '.star_app[data-im-id="' + e + '"]' : '.star_im[data-im-id="' + e + '"]', S($(r), t, i, r), TS.client && TS.client.channel_pane.rebuild("ims", "starred");
         },
         g = function(e, t) {
           var n = TS.mpims.getMpimById(e);
@@ -23576,7 +23590,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         else if ("file_comment" === e) r["data-comment-id"] = l, r["data-file-id"] = d, s.push("star_comment");
         else if ("channel" === e) o = "ts_tip_bottom", r["data-channel-id"] = l;
         else if ("group" === e) o = "ts_tip_bottom", r["data-group-id"] = l;
-        else if ("im" === e) o = "ts_tip_bottom", r["data-im-id"] = l;
+        else if ("im" === e) TS.apps.isAppSpaceEnabled() && TS.apps.isCurrentModelViewAnApp() && (e = "app"), o = "ts_tip_bottom", r["data-im-id"] = l;
         else {
           if ("mpim" !== e) return TS.error("buildStar needs to handle star item type:" + e), {};
           o = "ts_tip_bottom", r["data-mpim-id"] = l;
@@ -23591,6 +23605,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           channel: TS.i18n.t("channel", "templates_builders")(),
           group: TS.i18n.t("channel", "templates_builders")(),
           im: TS.i18n.t("direct message", "templates_builders")(),
+          app: TS.i18n.t("app", "templates_builders")(),
           mpim: TS.i18n.t("direct message", "templates_builders")()
         };
         return {
@@ -28948,7 +28963,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }).catch(function(t) {
             if ($(".edit_member_profile_confirm_edit_btn").addClass("disabled"), "ratelimited" === t.data.error) return TS.generic_dialog.alert(TS.i18n.t("You‘re changing your profile too often! You might have better luck if you try again in a few minutes.", "edit_profile")());
             if (TS.boot_data.feature_name_tagging_client) {
-              "invalid_name_specials" === t.data.error && (t.data.error = "name_invalid_name_specials");
+              "invalid_name_specials" === t.data.error && (t.data.error = "name_invalid_name_specials"), "invalid_name_maxlength" === t.data.error && (t.data.error = "name_invalid_name_maxlength");
               var n = TS.ui.validation.getErrorMessage(t.data.error, {
                 maxlength: 80
               });
@@ -33571,18 +33586,20 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               });
             case "restricted_action":
               return E.restricted_action();
-            case "starts_with_at":
+            case "name_invalid_name_required":
+              return A.required();
+            case "invalid_starts_with_at":
               return A.at_sign();
+            case "name_invalid_name_maxlength":
             case "too_long":
               return A.maxlength({
                 maxlength: t.maxlength
               });
-            case "reserved_words":
+            case "invalid_reserved_word":
               return A.reserved();
-            case "characters_not_allowed":
             case "name_invalid_name_specials":
               return A.specials();
-            case "emoji_not_allowed":
+            case "invalid_emoji_not_allowed":
               return A.emoji();
             default:
               return TS.i18n.t("For some weird reason, that didn’t work. Please try again to continue.", "ui_validation")();
@@ -33621,6 +33638,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           specials: TS.i18n.t("Usernames can’t contain special characters. Sorry about that!", "ui_validation")
         },
         A = {
+          required: TS.i18n.t("Unfortunately, you can’t leave this blank.", "ui_validation"),
           at_sign: TS.i18n.t("Names can’t start with the @ sign — that’s how your teammates will mention you in conversation.", "ui_validation"),
           maxlength: TS.i18n.t("Unfortunately, names can’t be longer than {maxlength} characters.", "ui_validation"),
           reserved: TS.i18n.t("That name’s already being used by Slack.", "ui_validation"),

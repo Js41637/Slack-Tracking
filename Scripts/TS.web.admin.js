@@ -1368,7 +1368,9 @@ webpackJsonp([225], {
               endpoint: "users.admin.fetchTeamUsers"
             };
           };
-          TS.members.view.bindTeamFilter("#team_filter", "#team_list_scroller", e);
+          TS.members.view.bindTeamFilter("#team_filter", "#team_list_scroller", e), $("#team_filter input.member_filter").on("focus", function() {
+            re("ADMIN_ACTION_SEARCH");
+          });
         },
         P = function() {
           var e = $("input.member_filter");
@@ -1377,6 +1379,8 @@ webpackJsonp([225], {
           }), e.on("change keyup cut paste", function() {
             var e = F();
             e != y && U(e);
+          }), e.on("focus", function() {
+            re("ADMIN_ACTION_SEARCH");
           });
         },
         F = function() {
