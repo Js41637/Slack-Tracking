@@ -40617,11 +40617,11 @@ webpackJsonp([332], [, function(e, t, n) {
       v = _ / 365,
       g = f ? "future" : "past",
       b = o.a.localeData(o.a.locale()).timeAgo();
-    return p < 45 ? u ? b.compact.sec45 : b[g].sec45 : p < 90 ? u ? b.compact.sec90 : b[g].sec90 : h < 45 ? u ? b.compact.min45.replace(/%d/, Math.round(h)) : b[g].min45.replace(/%d/, Math.round(h)) : h < 90 ? u ? b.compact.min90 : b[g].min90 : m < 24 ? u ? b.compact.hrs24.replace(/%d/, Math.round(m)) : b[g].hrs24.replace(/%d/, Math.round(m)) : _ < 2 ? u ? b.compact.day : b[g].day : _ < 7 ? u ? b.compact.days.replace(/%d/, Math.round(_)) : b[g].days.replace(/%d/, Math.round(_)) : _ < 365 ? u && !f ? n.i(s.a)(e, {
+    return p < 45 ? u ? b.compact.sec45 : b[g].sec45 : p < 90 ? u ? b.compact.sec90 : b[g].sec90 : h < 45 ? u ? b.compact.min45.replace(/%d/, Math.round(h)) : b[g].min45.replace(/%d/, Math.round(h)) : h < 90 ? u ? b.compact.min90 : b[g].min90 : m < 24 ? u ? b.compact.hrs24.replace(/%d/, Math.round(m)) : b[g].hrs24.replace(/%d/, Math.round(m)) : _ < 2 ? u ? b.compact.day : b[g].day : _ < 30 ? u ? b.compact.days.replace(/%d/, Math.round(_)) : b[g].days.replace(/%d/, Math.round(_)) : _ < 365 ? u && !f ? n.i(s.a)(e, {
       shortenDay: !0,
       shortenMonth: !0,
       excludeYear: !0
-    }) : y < 2 ? y < .5 ? b[g].month.replace(/%d/, 1) : b[g].month.replace(/%d/, Math.round(y)) : b[g].months.replace(/%d/, Math.round(y)) : v < 1.5 ? u ? b.compact.year : b[g].year : u ? b.compact.years.replace(/%d/, Math.round(v)) : b[g].years.replace(/%d/, Math.round(v));
+    }) : y < 2 ? b[g].month.replace(/%d/, Math.round(y)) : b[g].months.replace(/%d/, Math.round(y)) : v < 1.5 ? u ? b.compact.year : b[g].year : u ? b.compact.years.replace(/%d/, Math.round(v)) : b[g].years.replace(/%d/, Math.round(v));
   }
   var o = n(2989),
     i = n(2356),

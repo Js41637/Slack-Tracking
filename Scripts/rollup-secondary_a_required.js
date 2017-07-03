@@ -3959,6 +3959,29 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             }
           }
         },
+        "/slackdebugunreads": {
+          localized: null,
+          type: "client",
+          autocomplete: !1,
+          alias_of: null,
+          aliases: null,
+          func: function() {
+            var e = TS.shared.getAllModelObsForUser();
+            if (!e || !e.length) return void TS.warn("/slackdebugunreads: Could not get list of model objects for user. :(");
+            var t = [],
+              n = 0,
+              i = 0;
+            _.each(e, function(e) {
+              if (e.unread_cnt) {
+                var r;
+                r = e.is_group ? "group" : e.is_mpim ? "mpim" : e.is_im ? "im" : e.is_channel ? "channel" : "unknown", (e.unread_cnt || e.unread_highlight_cnt) && r ? (n += 1, t.push([e.id, "group" === r || "mpim" === r ? " (" + r + "):" : ":", e.unread_cnt ? " unread" + (e.is_im || e.is_mpim ? " (highlight)" : "") + " = " + e.unread_cnt : "", e.unread_highlight_cnt ? " highlight = " + e.unread_highlight_cnt : "", TS.notifs.isCorGMuted(e.id) ? " (muted)" : ""].join("")), i += e.unread_cnt) : TS.warn("bad type for channel id " + e.id + "?", r);
+              }
+            }), i || t.push("No unreads found across " + e.length + " channels??");
+            var r = TS.model.all_unread_highlights_cnt,
+              a = TS.model.all_unread_cnt;
+            t = ["🕵️📖 Unreads Report for user " + TS.model.user.id + " on team " + TS.model.team.id, i + " unreads across " + n + (1 === n ? " channel" : " channels")].concat(t), TS.model.is_our_app && (TS.boot_data.page_needs_enterprise && TS.model.team && TS.model.team.enterprise_id && TS.boot_data.other_accounts && (TS.model.all_unread_highlights_cnt_to_exclude && (t.push("TS.model.all_unread_highlights_cnt_to_exclude = " + TS.model.all_unread_highlights_cnt_to_exclude), r = Math.max(0, r - TS.model.all_unread_highlights_cnt_to_exclude)), TS.model.all_unread_cnt_to_exclude && (t.push("TS.model.all_unread_cnt_to_exclude = " + TS.model.all_unread_cnt_to_exclude), a = Math.max(0, a - TS.model.all_unread_cnt_to_exclude))), t.push("SSB setBadgeCount details: all_unread_highlights_cnt = " + r + ", all_unread_cnt = " + a + ", bullet = " + (!window.macgap && !window.winssb || !TS.model.prefs.mac_ssb_bullet ? "false" : "true"))), TS.info(t.join("\n"));
+          }
+        },
         "/slackdebugwidget": {
           localized: null,
           type: "client",
