@@ -2332,21 +2332,21 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         updateList: function(e) {
           if (e && _.isArray(e)) {
             var t = _.uniq(e),
-              n = _.difference(t, TS.model.threadable_channels);
-            _.difference(TS.model.threadable_channels, t).forEach(function(e) {
-              var t = TS.shared.getModelObById(e);
-              t && t.is_read_only && (t.can_thread = !1);
-            }), n.forEach(function(e) {
+              n = _.difference(t, TS.model.non_threadable_channels);
+            _.difference(TS.model.non_threadable_channels, t).forEach(function(e) {
               var t = TS.shared.getModelObById(e);
               t && t.is_read_only && (t.can_thread = !0);
-            }), TS.model.threadable_channels = t, TS.channels.read_only.threads.list_updated_sig.dispatch();
+            }), n.forEach(function(e) {
+              var t = TS.shared.getModelObById(e);
+              t && t.is_read_only && (t.can_thread = !1);
+            }), TS.model.non_threadable_channels = t, TS.channels.read_only.threads.list_updated_sig.dispatch();
           }
         },
         addChannelToList: function(e) {
-          TS.model.threadable_channels = _.uniq(_.concat(TS.model.threadable_channels, e)), TS.channels.read_only.threads.list_updated_sig.dispatch();
+          TS.model.non_threadable_channels = _.uniq(_.concat(TS.model.non_threadable_channels, e)), TS.channels.read_only.threads.list_updated_sig.dispatch();
         },
         removeChannelFromList: function(e) {
-          TS.model.threadable_channels = TS.model.threadable_channels.filter(function(t) {
+          TS.model.non_threadable_channels = TS.model.non_threadable_channels.filter(function(t) {
             return t !== e;
           }), TS.channels.read_only.threads.list_updated_sig.dispatch();
         },
@@ -2355,7 +2355,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             if (TS.model.user.enterprise_user && TS.model.user.enterprise_user.is_owner) return !0;
           } else if (TS.model.user.owner) return !0;
           var t = TS.shared.getModelObById(e);
-          return !!t && (!(!t.is_im && !t.is_mpim) || (!t.is_shared || (!TS.channels.read_only.isReadOnly(e) || (_.isUndefined(t.can_thread) ? TS.model.threadable_channels.indexOf(e) > -1 : t.can_thread))));
+          return !!t && (!(!t.is_im && !t.is_mpim) || (!t.is_shared || (!TS.channels.read_only.isReadOnly(e) || (_.isUndefined(t.can_thread) ? TS.model.non_threadable_channels.indexOf(e) < 0 : t.can_thread))));
         }
       });
     }();
@@ -32888,18 +32888,20 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           TS.utility.populateInput(i, "", 0), TS.utility.contenteditable.clearHistory($("#reply_container .message_input")), TS.storage.storeReplyInput(t.id, n, ""), e.find(".reply_broadcast_toggle").attr("checked", !1);
         },
         c = function(e, t, n) {
-          if (e && t && n && 0 !== n.length && TS.permissions.members.canPostInChannel(e)) {
+          if (e && t && n && 0 !== n.length) {
+            var i = TS.permissions.members.canPostInChannel(e);
             n.append(TS.templates.reply_broadcast_buttons({
               model_ob: e,
               label_id: t,
-              view: "threads"
+              view: "threads",
+              can_post_back_to_channel: i
             }));
-            var i = n.find(".reply_broadcast_label_container, .reply_send"),
-              r = n.find(".message_input");
-            i.mousedown(function(e) {
-              e.preventDefault(), TS.utility.contenteditable.focus(r);
+            var r = n.find(".reply_broadcast_label_container, .reply_send"),
+              a = n.find(".message_input");
+            r.mousedown(function(e) {
+              e.preventDefault(), TS.utility.contenteditable.focus(a);
             }).click(function() {
-              TS.utility.contenteditable.focus(r);
+              TS.utility.contenteditable.focus(a);
             });
           }
         },
@@ -40685,7 +40687,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }
         },
         o = ["_show_in_list_even_though_no_unreads", "deleted", "has_draft", "is_archived", "is_channel", "is_group", "is_im", "is_mpim", "is_open", "is_org_shared", "is_self_im", "is_shared", "is_slackbot_im", "is_starred", "members", "priority", "unread_cnt", "unread_highlight_cnt"],
-        l = ["_archive_msgs", "_checking_at_channel_status", "_consistency_has_been_checked", "_consistency_is_being_checked", "_delayed_fetch_timer", "_did_defer_initial_msg_history", "_display_name_lc", "_display_name_truncated", "_has_auto_scrolled", "_history_fetched_since_last_connect", "_i18n_ns_history", "_i18n_ns", "_internal_name", "_jumper_previous_name_match", "_latest_via_users_counts", "_mark_most_recent_read_timer", "_marked_reason", "_members", "_mention_count_display_via_users_counts", "_name_lc", "_needs_unread_recalc", "_prev_last_read", "_score", "_temp_last_read", "_temp_unread_cnt", "_users_counts_info", "active_members", "create_channel", "created", "creator", "date_created", "enterprise_id", "fetched_history_after_scrollback_time", "has_fetched_history_after_scrollback", "has_pins", "history_changed", "history_fetch_failed", "history_fetch_retries", "history_is_being_fetched", "id", "inviter", "is_default", "is_general", "is_global_shared", "is_limited", "is_member", "is_moved", "is_org_default", "is_org_mandatory", "is_private", "is_read_only", "last_made_active", "last_msg_input", "last_read", "latest", "length", "member", "msgs", "name_normalized", "name", "needs_created_message", "needs_invited_message", "needs_joined_message", "never_needs_joined_msg", "note", "num_members", "old_name", "oldest_msg_ts", "opened_this_session", "parent_group", "pinned_items", "pinned_items_count", "presence", "previous_names", "purpose", "scroll_top", "shared_team_ids", "team_url", "tooltip", "topic", "unread_count_display", "unread_count", "unread_highlight_cnt_in_client", "unread_highlights", "unreads", "user", "was_archived_this_session"];
+        l = ["_archive_msgs", "_checking_at_channel_status", "_consistency_has_been_checked", "_consistency_is_being_checked", "_delayed_fetch_timer", "_did_defer_initial_msg_history", "_display_name_lc", "_display_name_truncated", "_has_auto_scrolled", "_history_fetched_since_last_connect", "_i18n_ns_history", "_i18n_ns", "_internal_name", "_jumper_previous_name_match", "_latest_via_users_counts", "_mark_most_recent_read_timer", "_marked_reason", "_members", "_mention_count_display_via_users_counts", "_name_lc", "_needs_unread_recalc", "_prev_last_read", "_score", "_temp_last_read", "_temp_unread_cnt", "_users_counts_info", "active_members", "can_thread", "create_channel", "created", "creator", "date_created", "enterprise_id", "fetched_history_after_scrollback_time", "has_fetched_history_after_scrollback", "has_pins", "history_changed", "history_fetch_failed", "history_fetch_retries", "history_is_being_fetched", "id", "inviter", "is_default", "is_general", "is_global_shared", "is_limited", "is_member", "is_moved", "is_org_default", "is_org_mandatory", "is_private", "is_read_only", "last_made_active", "last_msg_input", "last_read", "latest", "length", "member", "msgs", "name_normalized", "name", "needs_created_message", "needs_invited_message", "needs_joined_message", "never_needs_joined_msg", "note", "num_members", "old_name", "oldest_msg_ts", "opened_this_session", "parent_group", "pinned_items", "pinned_items_count", "presence", "previous_names", "purpose", "scroll_top", "shared_team_ids", "team_url", "tooltip", "topic", "unread_count_display", "unread_count", "unread_highlight_cnt_in_client", "unread_highlights", "unreads", "user", "was_archived_this_session"];
       TS.useReactSidebar() ? o.push("_display_name") : l.push("_display_name");
       var d = ["_get", "_is_interop_channel_object", "_set", "_setWithReduxAction", "attributes", "children", "disabled", "is_broadcast_keyword", "is_divider", "is_emoji", "is_usergroup", "is_view", "nodeType", "old_name", "props_to_define", "selector", "then", "title", "toJSON", "window"],
         c = _.reduce(o, function(e, t) {
