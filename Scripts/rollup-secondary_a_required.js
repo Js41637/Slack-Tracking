@@ -20046,7 +20046,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               $("#header_search_form").toggleClass("active", !e), TS.search.autocomplete.triggerInputEvent("input");
             },
             onEscape: function() {
-              TS.utility.contenteditable.blur(TS.search.input), TS.search.autocomplete.triggerInputEvent("on-escape");
+              TS.boot_data.feature_keyboard_navigation ? $(".search_menu").is(":visible") || TS.utility.contenteditable.blur(TS.search.input) : TS.utility.contenteditable.blur(TS.search.input), TS.search.autocomplete.triggerInputEvent("on-escape");
             },
             onTab: function() {
               return TS.search.autocomplete.triggerInputEvent("on-tab"), TS.boot_data.feature_keyboard_navigation;
@@ -34426,7 +34426,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         onStart: function() {
           i.in_slack_app = !!TS.client, i.in_call_window = !!TS.calls, i.calls_url_prefix = document.location.origin + "/call/", i.in_slack_app && (TS.isSocketManagerEnabled() ? (TS.interop.SocketManager.connectedSig.add(s), TS.interop.SocketManager.disconnectedSig.add(o), TS.interop.SocketManager.socketMessageReceivedSig.add(a)) : (TS.ms.on_msg_sig.add(a), TS.ms.connected_sig.add(s), TS.ms.disconnected_sig.add(o)), window.addEventListener("online", l), window.addEventListener("offline", l), window.addEventListener("message", J), TS.model.is_our_app && (window.macgap && TS.ssb.teams_did_load_sig.add(d), TS.client.login_sig.add(c)), TS.client.windows && (TS.client.windows.win_finished_loading_sig.add(u), TS.client.windows.win_will_close_sig.add(m), TS.client.windows.win_crashed_sig.add(p), TS.client.windows.win_became_key_sig.add(f), TS.client.windows.win_resigned_key_sig.add(h)), TS.ui && TS.ui.window_unloaded_sig.add(g), TS.model.is_our_app ? i.call_window_loaded = !1 : i.call_window_loaded = !0, i.is_ms_connected = !1, i.is_reachability_online = !0, TS.experiment.loadUserAssignments().then(function() {
-            "enabled" === TS.experiment.getGroup("calls_ss") && (i.screen_sharing_enabled = TS.model.supports_screen_sharing), "enabled" === TS.experiment.getGroup("calls_better_regions") && (i.calls_better_regions_expt = !0), "enabled" === TS.experiment.getGroup("calls_laser") && (i.laser_enabled = !0), TS.model.is_our_app && !TS.utility.isAppVersionBefore("2.5.2") && (TS.model.is_lin && "enabled" === TS.experiment.getGroup("calls_electron_webrtc_linux") && (i.electron_webrtc = !0), "enabled" === TS.experiment.getGroup("calls_electron_webrtc") && (i.electron_webrtc = !0), "enabled" === TS.experiment.getGroup("calls_webgl_recovery") && (i.webgl_recovery = !0));
+            "enabled" === TS.experiment.getGroup("calls_ss") && (i.screen_sharing_enabled = TS.model.supports_screen_sharing), "enabled" === TS.experiment.getGroup("calls_better_regions") && (i.calls_better_regions_expt = !0), "enabled" === TS.experiment.getGroup("calls_laser") && (i.laser_enabled = !0);
           }));
         },
         startCallInModelOb: function(e, t, n) {
@@ -35188,7 +35188,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return TS.model.is_our_app && TSSSB.call("supportsCallWindowStatus") ? TSSSB.call("isCallWindowBusy") : Promise.resolve(!!i.is_call_window_busy);
         },
         j = function(e, t, n) {
-          n = n || {}, e += "?_fast_members=1&_end_call_sound=1" + (n.start_with_video ? "&_start_with_video=1" : ""), TS.pri && (e += "&pri=" + TS.pri), i.electron_webrtc && (e += "&_electron_webrtc=1"), i.webgl_recovery && (e += "&_webgl_recovery=1"), TS.qs_args._calls_halt_at_loading_screen && (e += "&_calls_halt_at_loading_screen=1"), TS.qs_args.locale && (e += "&locale=" + TS.qs_args.locale), TS.qs_args.js_path && (e += "&js_path=" + encodeURIComponent(TS.qs_args.js_path)), TS.utility.calls.promiseToGetRegions().then(function(e) {
+          n = n || {}, e += "?_fast_members=1&_end_call_sound=1" + (n.start_with_video ? "&_start_with_video=1" : ""), TS.pri && (e += "&pri=" + TS.pri), TS.qs_args._calls_halt_at_loading_screen && (e += "&_calls_halt_at_loading_screen=1"), TS.qs_args.locale && (e += "&locale=" + TS.qs_args.locale), TS.qs_args.js_path && (e += "&js_path=" + encodeURIComponent(TS.qs_args.js_path)), TS.utility.calls.promiseToGetRegions().then(function(e) {
             TS.utility.calls.promiseToGetServer(e, t).catch(_.noop);
           }), TS.model.is_our_app ? b(e) : i.window_handle = window.open(e, t), i.call_channel = t;
         },
