@@ -540,7 +540,7 @@ webpackJsonp([241], {
               return s = '<i class="ts_icon ts_icon_info_circle"></i> ' + TS.i18n.t("Pick a channel before inviting Single-Channel Guests.", "invite")(), void P("alert_warning", s);
             }
             var o = t.error;
-            if (TS.boot_data.page_needs_enterprise) {
+            if (TS.boot_data.page_needs_enterprise && !TS.boot_data.feature_lazy_load_members_and_bots_everywhere) {
               null !== TS.members.getMemberByEmail(n.email) && "org_user_is_disabled" === o && (o = "org_user_is_disabled_but_present");
             }
             m.push({

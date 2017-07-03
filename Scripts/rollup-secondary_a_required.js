@@ -12011,7 +12011,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               exclude_slackbot: n.exclude_slackbot,
               include_deleted: n.include_deleted
             };
-          return n.sort && (o.sort = n.sort), n.sort_dir && (o.sort_dir = n.sort_dir), n.include_org && (o.all_of_org = n.include_org), e.filter_cursor_mark && (o.cursor_mark = e.filter_cursor_mark), n.endpoint && (o.endpoint = n.endpoint), o;
+          return n.sort && (o.sort = n.sort), n.sort_dir && (o.sort_dir = n.sort_dir), n.include_org && (o.all_of_org = n.include_org), e.filter_cursor_mark && (o.cursor_mark = e.filter_cursor_mark), n.endpoint && (o.endpoint = n.endpoint), TS.web && (o.solr = !0), o;
         },
         k = function e(t, n, i) {
           var r = w(t, n, i);
@@ -19934,10 +19934,18 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           s && a && (_.pull(a.emoji[e], s), a.emoji[e].length || delete a.emoji[e], Object.keys(a.emoji).length || (delete n[i], _.pull(t, a))), TS.rxns.rxn_records_changed_sig.dispatch();
         },
         M = function(e) {
-          var t = TS.i18n.t("Reaction Limit Reached", "rxns")(),
-            n = TS.i18n.t("A message can contain up to 23 different emojis from a single person. Sorry, you can’t add any more than this!", "rxns")(),
-            i = TS.i18n.t("A message can contain up to 50 different emojis in its reactions. Sorry, you can’t add any more than this!", "rxns")();
-          e == I ? TS.generic_dialog.alert(n, t) : e == A && TS.generic_dialog.alert(i, t);
+          var t = TS.i18n.t("You've reached the reaction limit", "rxns")(),
+            n = [TS.i18n.t("For reasons of performance and productivity and brevity being the soul of wit, you can add up to 23 emoji to a message, but no more.", "rxns")(), TS.i18n.t("Well done! You’ve added the maximum amount of emoji one person can add to one message. For reasons of performance, productivity and sharpened creative thinking, we cap the number of individual reacji to 23.", "rxns")(), TS.i18n.t("Emotions! We all have them — but on Slack, you’re limited to 23 reactions per message.", "rxns")(), TS.i18n.t("Alas! Slack only allows each user to add 23 emoji reactions to a message. We’re sorry about that. \n", "rxns")() + "<center>" + TS.emoji.graphicReplace(":balloon:", {
+              jumbomoji: !0
+            }) + "</center>", TS.i18n.t("You're overreacting, we think.", "rxns")()],
+            i = [TS.i18n.t("The human heart is a powerful thing; its capacity to feel is limitless! A message’s capacity is 50.", "rxns")(), TS.i18n.t("Alas! Slack only allows each message a grand total of 50 emoji reactions.", "rxns")(), TS.i18n.t("A single message can’t have more than 50 unique reactions. When we asked the engineers why they said, “we have to set limits somewhere,” and then we tried to frown but this error popped up. So that’s where we’re at.", "rxns")()];
+          if (e == I) {
+            var r = _.sample(n);
+            TS.generic_dialog.alert(r, t);
+          } else if (e == A) {
+            var a = _.sample(i);
+            TS.generic_dialog.alert(a, t);
+          }
         },
         C = function() {
           $(".msgs_holder").find("ts-message").each(function() {
@@ -26848,7 +26856,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }), Handlebars.registerHelper("getTeamIconOfSize", function(e, t) {
             return e && e.icon ? e.icon["image_" + t] : null;
           }), Handlebars.registerHelper("listItemCount", function(e) {
-            return e = TS.utility.parseJSONOrElse(e, e), _.isString(e) && e.length ? e.split(",").length : e.length;
+            return _.isUndefined(e) ? (TS.error("The template helper listItemCount failed because it was passed undefined"), 0) : (e = TS.utility.parseJSONOrElse(e, e), _.isString(e) && e.length ? e.split(",").length : e.length);
           }), Handlebars.registerHelper("getIconSizeToFit", function(e) {
             var t = [230, 132, 102, 88, 68, 44, 34];
             if (e >= _.first(t)) return _.first(t);
@@ -32463,7 +32471,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           i.append || n.addClass("hidden"), i.style = _.get(TS.ui.team_picker.STYLES, i.style, TS.ui.team_picker.STYLES.normal);
           var o = {
             append: !!i.append,
-            data: e(i.teams || [], i.preselected_ids || []),
+            data: e(i.teams || [], i.preselected_ids || [], i.disabled_ids || []),
             approx_item_height: 38,
             per_page: 50,
             placeholder_text: TS.i18n.t("Add teams", "team_picker")(),
@@ -32499,10 +32507,11 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return e.lazyFilterSelect("value");
         }
       });
-      var e = function(e, t) {
+      var e = function(e, t, n) {
           return e && e.map(function(e) {
             return {
               team: e,
+              disabled: -1 !== n.indexOf(e.id),
               preselected: -1 !== t.indexOf(e.id)
             };
           });
@@ -33708,7 +33717,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }), R(e, i, t) && TS.ui.validation.showSuccess(e, t.success_message, t, 3e3), i;
         },
         B = function(e) {
-          return e.is("[data-validation]") ? e.attr("data-validation").replace(/\s*(,|=)\s*/g, "$1").split(/\s+/) : [];
+          return e.is("[data-validation]") ? _.compact(e.attr("data-validation").replace(/\s*(,|=)\s*/g, "$1").split(/\s+/)) : [];
         },
         D = function(e) {
           if (!isNaN(Date.parse(e))) {
@@ -33726,7 +33735,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               var s = a.data("validation-timeout");
               clearTimeout(s);
               var o = a.find(".validation_message");
-              o.length || (o = $("<span />").addClass("validation_message").toggleClass("overflow_ellipsis", i.should_truncate), e.is("select") ? o.insertBefore(a.find("select")) : o.appendTo(a)), j(e, a, n), o.get(0).title = t, o.fadeIn(100), a.data("validation-ephemeral", !!r), r && a.data("validation-timeout", setTimeout(function() {
+              if (o.length || (o = $("<span />").addClass("validation_message").toggleClass("overflow_ellipsis", i.should_truncate), e.is("select") ? o.insertBefore(a.find("select")) : o.appendTo(a)), !t) return void o.remove();
+              j(e, a, n), o.get(0).title = t, o.fadeIn(100), a.data("validation-ephemeral", !!r), r && a.data("validation-timeout", setTimeout(function() {
                 a.removeData("validation-ephemeral").removeData("validation-timeout"), o.fadeOut(100, function() {
                   j(e, a), o.remove();
                 });
@@ -38235,7 +38245,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         promiseToSearch: function(e) {
           if (!e || !e.query) return Promise.reject(new Error("cannot search without arguments and a query"));
           if (e.all_of_org && !TS.boot_data.page_needs_enterprise) return Promise.reject(new Error("cannot search an org when not an enterprise team"));
-          if (TS.lazyLoadMembersAndBots()) {
+          if (TS.lazyLoadMembersAndBots() && !e.solr) {
             if (!e.hasOwnProperty("raw_query")) return Promise.reject(new Error("Flannel searches require a `raw_query` to be provided"));
             var t, a = e.raw_query,
               s = e.count || 1 / 0;

@@ -52,73 +52,90 @@ webpackJsonp([225], {
         },
         startup: function() {
           var e = !1;
-          if (boot_data.admin_view && (TS.web.admin.view = boot_data.admin_view), TS.members.startBatchUpsert(), "list" === TS.web.admin.view) {
-            if (TS.boot_data.feature_name_tagging_client ? TS.web.admin.sort_order = $("#admin_sort").val() || "real_name" : TS.web.admin.sort_order = $("#admin_sort").val() || "screen_name", TS.web.admin.active_tab = $(".tab_pane.selected").data("tab"), Q() && E(), !Q()) {
-              var t = {};
-              TS.model.members.forEach(function(e) {
-                t[e.id] = e;
-              });
-              var r;
-              Object.keys(boot_data.all_members).forEach(function(e) {
-                r = boot_data.all_members[e];
-                var i = t[e];
-                if (!i) return void TS.warn("We have a member that is not in the local model but is in all_members: " + e);
-                if (i.email_pending = r.email_pending || "", i.is_inactive = r.is_inactive || !1, i.username_is_editable = r.username_is_editable || !1, i.email_is_editable = r.email_is_editable || !1, i.omit_caret = r.omit_caret || !1, i.bot_can_be_enabled = r.bot_can_be_enabled || !1, i.bot_can_be_configured = r.bot_can_be_configured || !1, i.deleted && (i.is_restricted = r.is_restricted || !1, i.is_ultra_restricted = r.is_ultra_restricted || !1), i.is_restricted || i.is_ultra_restricted) {
-                  var n = boot_data.channel_membership[i.id];
-                  n && (i.channels = n.channels, i.groups = n.groups, i.more_groups = n.more_groups);
-                }
-                void 0 !== r.two_factor_auth_enabled && (i.two_factor_auth_enabled = r.two_factor_auth_enabled, void 0 !== r.two_factor_type && (i.two_factor_type = r.two_factor_type)), "normal" !== boot_data.auth_mode && void 0 !== r.has_sso_token && (i.has_sso_token = r.has_sso_token), i.created = r.created, TS.boot_data.all_emails && TS.boot_data.all_emails[e] && (i.profile.email = TS.boot_data.all_emails[e]), TS.members.upsertMember(i);
-              }), t = void 0;
+          boot_data.admin_view && (TS.web.admin.view = boot_data.admin_view);
+          var t = Promise.resolve();
+          if (TS.boot_data.feature_lazy_load_members_and_bots_everywhere) {
+            if ("invites" === TS.web.admin.view) {
+              var r = _(TS.boot_data.accepted_invites).concat(TS.boot_data.pending_invites).flatMap(function(e) {
+                return [_.get(e, "user.id"), _.get(e, "inviter.id")];
+              }).compact().uniq().value();
+              t = TS.members.ensureMembersArePresent(r);
             }
-            Q() ? L() : P();
-          } else "invites" === TS.web.admin.view && (TS.web.admin.sort_order = "invite_date", TS.web.admin.active_tab = "pending", $.each(boot_data.pending_invites, function(i, n) {
-            n.invite_prefs && (n.type = n.invite_prefs.type, n.first_name = n.invite_prefs.first_name, n.last_name = n.invite_prefs.last_name, n.is_pending = !0, n.first_name && n.last_name && (n._real_name_lc = _.toLower(n.first_name + " " + n.last_name))), n.bouncing && !e && (e = !0);
-          }), 0 === boot_data.pending_invites.length && (TS.web.admin.active_tab = "accepted"), $.each(boot_data.accepted_invites, function(e, i) {
-            var n = TS.members.getMemberById(i.user.id);
-            n && (n.date_create = parseInt(i.date_create, 10), n.date_resent = parseInt(i.date_resent, 10), n.email = i.email, n.is_pending = !1, n.inviter = i.inviter, TS.members.upsertMember(n), boot_data.accepted_invites[e] = n);
-          }), TS.members.view.bindTeamFilter("#team_filter", "#invite_list"));
-          if (e && $("#invite_bounce_warning").slideToggle(150), $("#admin_sort").bind("change", function() {
-              var e = $(this).val();
-              e != TS.web.admin.sort_order && (TS.web.admin.sort_order = e, Q() ? D() : (TS.web.admin.sortList(), TS.web.admin.rebuildList())), re("ADMIN_SORT_BY", {
-                sort_by: e
-              });
-            }), TS.web.admin.rebuildList(), TS.web.admin.isSubsetCase() && boot_data.member_list_subset.length) {
-            var a = window.location.toString(),
-              s = a.indexOf("?"),
-              d = -1 !== s ? a.substr(s + 1).split("&")[0] : null;
-            n = d ? d.split("=")[1] : null, _.isString(n) && (n = n.toUpperCase());
-            var m = $("#admin_range [data-range]");
-            i = [];
-            for (var o, l = function(e) {
-                var t, r;
-                if (!_.isString(e)) return null;
-                for (e = e.toUpperCase(), t = 0, r = i.length; t < r; t += 1)
-                  if (-1 !== i[t].range.indexOf(e) && n !== e) return i[t];
-                return null;
-              }, b = 0, c = m.length; b < c; b += 1) o = $(m[b]), i.push({
-              range: o.data("range").toUpperCase(),
-              range_label: o.find(".range_link").text(),
-              link: o.find(".range_link").prop("href")
-            });
-            $("#admin_range").on("mousedown", "a.range_link", function(e) {
-              var i = $(e.target),
-                n = i.prop("href"),
-                t = window.location.hash,
-                r = i.attr("data-clog-range");
-              n && -1 === n.indexOf("#") && t && (n += "#" + t.replace("#", ""), i.prop("href", n)), r && re("ADMIN_SELECT_ALPHABETICAL_RANGE", {
-                range: r
-              });
-            }), $("#team_filter input.member_filter").on("keyup", function(e) {
-              var i, n = $(e.target),
-                t = n.val();
-              t.length > 0 && (t = t.charAt(0), i = l(t)), i && i.link || (i = null), T = i;
-            });
+            "list" === TS.web.admin.view && (TS.web.admin.isSubsetCase() ? t = TS.members.ensureMembersArePresent(TS.boot_data.member_list_subset) : Q() || (TS.info("Fetching all members..."), t = TS.api.call("users.list").then(function(e) {
+              TS.info("Upserting all members..."), e.data.members.forEach(function(e) {
+                TS.members.upsertMember(e);
+              }), TS.info("Fetched and upserted all members.");
+            })));
           }
-          Q() ? te() : R(), TS.web.admin.lazyload || (TS.web.admin.lazyload = $("#admin_list").find(".lazy").lazyload()), $("#admin_list").trigger("resize-immediate"), V(), TS.members.finishBatchUpsert(), ae(), TS.shouldLog(1e3) && (TS.log(1e3, TS.boot_data.accepted_invites.length + " accepted invites:"), TS.boot_data.accepted_invites.forEach(function(e) {
-            TS.log(1e3, e.id + " (invited by " + _.get(e, "inviter.id") + ")");
-          }), TS.log(1e3, TS.boot_data.pending_invites.length + " pending invites:"), TS.boot_data.pending_invites.forEach(function(e) {
-            TS.log(1e3, e.id + " (invited by " + _.get(e, "inviter.id") + ")");
-          }));
+          t.then(function() {
+            if (TS.members.startBatchUpsert(), "list" === TS.web.admin.view) {
+              if (TS.boot_data.feature_name_tagging_client ? TS.web.admin.sort_order = $("#admin_sort").val() || "real_name" : TS.web.admin.sort_order = $("#admin_sort").val() || "screen_name", TS.web.admin.active_tab = $(".tab_pane.selected").data("tab"), Q() && E(), !Q()) {
+                var t = {};
+                TS.model.members.forEach(function(e) {
+                  t[e.id] = e;
+                });
+                var r;
+                Object.keys(boot_data.all_members).forEach(function(e) {
+                  r = boot_data.all_members[e];
+                  var i = t[e];
+                  if (!i) return void TS.warn("We have a member that is not in the local model but is in all_members: " + e);
+                  if (i.email_pending = r.email_pending || "", i.is_inactive = r.is_inactive || !1, i.username_is_editable = r.username_is_editable || !1, i.email_is_editable = r.email_is_editable || !1, i.omit_caret = r.omit_caret || !1, i.bot_can_be_enabled = r.bot_can_be_enabled || !1, i.bot_can_be_configured = r.bot_can_be_configured || !1, i.deleted && (i.is_restricted = r.is_restricted || !1, i.is_ultra_restricted = r.is_ultra_restricted || !1), i.is_restricted || i.is_ultra_restricted) {
+                    var n = boot_data.channel_membership[i.id];
+                    n && (i.channels = n.channels, i.groups = n.groups, i.more_groups = n.more_groups);
+                  }
+                  void 0 !== r.two_factor_auth_enabled && (i.two_factor_auth_enabled = r.two_factor_auth_enabled, void 0 !== r.two_factor_type && (i.two_factor_type = r.two_factor_type)), "normal" !== boot_data.auth_mode && void 0 !== r.has_sso_token && (i.has_sso_token = r.has_sso_token), i.created = r.created, TS.boot_data.all_emails && TS.boot_data.all_emails[e] && (i.profile.email = TS.boot_data.all_emails[e]), TS.members.upsertMember(i);
+                }), t = void 0;
+              }
+              Q() ? P() : L();
+            } else "invites" === TS.web.admin.view && (TS.web.admin.sort_order = "invite_date", TS.web.admin.active_tab = "pending", $.each(boot_data.pending_invites, function(i, n) {
+              n.invite_prefs && (n.type = n.invite_prefs.type, n.first_name = n.invite_prefs.first_name, n.last_name = n.invite_prefs.last_name, n.is_pending = !0, n.first_name && n.last_name && (n._real_name_lc = _.toLower(n.first_name + " " + n.last_name))), n.bouncing && !e && (e = !0);
+            }), 0 === boot_data.pending_invites.length && (TS.web.admin.active_tab = "accepted"), $.each(boot_data.accepted_invites, function(e, i) {
+              var n = TS.members.getMemberById(i.user.id);
+              n && (n.date_create = parseInt(i.date_create, 10), n.date_resent = parseInt(i.date_resent, 10), n.email = i.email, n.is_pending = !1, n.inviter = i.inviter, TS.members.upsertMember(n), boot_data.accepted_invites[e] = n);
+            }), TS.members.view.bindTeamFilter("#team_filter", "#invite_list"));
+            if (e && $("#invite_bounce_warning").slideToggle(150), $("#admin_sort").bind("change", function() {
+                var e = $(this).val();
+                e != TS.web.admin.sort_order && (TS.web.admin.sort_order = e, Q() ? D() : (TS.web.admin.sortList(), TS.web.admin.rebuildList())), re("ADMIN_SORT_BY", {
+                  sort_by: e
+                });
+              }), TS.web.admin.rebuildList(), TS.web.admin.isSubsetCase() && boot_data.member_list_subset.length) {
+              var a = window.location.toString(),
+                s = a.indexOf("?"),
+                d = -1 !== s ? a.substr(s + 1).split("&")[0] : null;
+              n = d ? d.split("=")[1] : null, _.isString(n) && (n = n.toUpperCase());
+              var m = $("#admin_range [data-range]");
+              i = [];
+              for (var o, l = function(e) {
+                  var t, r;
+                  if (!_.isString(e)) return null;
+                  for (e = e.toUpperCase(), t = 0, r = i.length; t < r; t += 1)
+                    if (-1 !== i[t].range.indexOf(e) && n !== e) return i[t];
+                  return null;
+                }, b = 0, c = m.length; b < c; b += 1) o = $(m[b]), i.push({
+                range: o.data("range").toUpperCase(),
+                range_label: o.find(".range_link").text(),
+                link: o.find(".range_link").prop("href")
+              });
+              $("#admin_range").on("mousedown", "a.range_link", function(e) {
+                var i = $(e.target),
+                  n = i.prop("href"),
+                  t = window.location.hash,
+                  r = i.attr("data-clog-range");
+                n && -1 === n.indexOf("#") && t && (n += "#" + t.replace("#", ""), i.prop("href", n)), r && re("ADMIN_SELECT_ALPHABETICAL_RANGE", {
+                  range: r
+                });
+              }), $("#team_filter input.member_filter").on("keyup", function(e) {
+                var i, n = $(e.target),
+                  t = n.val();
+                t.length > 0 && (t = t.charAt(0), i = l(t)), i && i.link || (i = null), T = i;
+              });
+            }
+            Q() ? te() : R(), TS.web.admin.lazyload || (TS.web.admin.lazyload = $("#admin_list").find(".lazy").lazyload()), $("#admin_list").trigger("resize-immediate"), V(), TS.members.finishBatchUpsert(), ae(), TS.shouldLog(1e3) && (TS.log(1e3, TS.boot_data.accepted_invites.length + " accepted invites:"), TS.boot_data.accepted_invites.forEach(function(e) {
+              TS.log(1e3, e.id + " (invited by " + _.get(e, "inviter.id") + ")");
+            }), TS.log(1e3, TS.boot_data.pending_invites.length + " pending invites:"), TS.boot_data.pending_invites.forEach(function(e) {
+              TS.log(1e3, e.id + " (invited by " + _.get(e, "inviter.id") + ")");
+            }));
+          });
         },
         setLongListAdminListItems: function(e, i) {
           R();
@@ -277,24 +294,24 @@ webpackJsonp([225], {
           var d = !1;
           e.is_inactive && !e.deleted && "mobile" !== TS.boot_data.app && (d = !0), d && (e.is_bot || e.is_slackbot) && (d = !1);
           var m = !1,
-            o = e.is_ultra_restricted && !Object.keys(e.channels).length && !Object.keys(e.groups).length;
+            o = e.is_ultra_restricted && !_.keys(e.channels).length && !_.keys(e.groups).length;
           if (e.is_restricted && !e.is_ultra_restricted || o) {
-            var _ = [],
-              l = [];
+            var l = [],
+              b = [];
             $.each(TS.channels.getChannelsForUser(), function(i, n) {
-              e.channels && (e.channels.hasOwnProperty(n.id) || n.is_archived || _.push(n));
+              e.channels && (e.channels.hasOwnProperty(n.id) || n.is_archived || l.push(n));
             }), $.each(TS.model.groups, function(i, n) {
-              e.groups && (e.groups.hasOwnProperty(n.id) || n.is_archived || l.push(n));
-            }), (_.length || l.length) && (m = !0);
+              e.groups && (e.groups.hasOwnProperty(n.id) || n.is_archived || b.push(n));
+            }), (l.length || b.length) && (m = !0);
           }
-          var b = TS.boot_data.page_needs_enterprise,
-            c = !b || b && e.enterprise_user && e.enterprise_user.teams && e.enterprise_user.teams.length <= 1,
-            u = null;
-          e.profile.guest_expiration_ts && (u = TS.i18n.t("Will be deactivated on {date} at {time}", "web_admin")({
+          var c = TS.boot_data.page_needs_enterprise,
+            u = !c || c && e.enterprise_user && e.enterprise_user.teams && e.enterprise_user.teams.length <= 1,
+            S = null;
+          e.profile.guest_expiration_ts && (S = TS.i18n.t("Will be deactivated on {date} at {time}", "web_admin")({
             date: TS.interop.datetime.formatDate(e.profile.guest_expiration_ts, "{date}"),
             time: TS.interop.datetime.formatDate(e.profile.guest_expiration_ts, "{time}")
           }));
-          var S = {
+          var T = {
             member: e,
             member_type: TS.web.admin.getType(e),
             member_status: TS.web.admin.getStatus(e),
@@ -307,13 +324,13 @@ webpackJsonp([225], {
             show_inactive_tip: d,
             show_add_channel_btn: m,
             paid_team: TS.boot_data.pay_prod_cur,
-            is_enterprise: b,
-            can_convert_between_member_and_guest: c,
-            guest_expiration_str: u
+            is_enterprise: c,
+            can_convert_between_member_and_guest: u,
+            guest_expiration_str: S
           };
-          e.is_restricted && (S.channels_count = 0, e.channels && (S.channels_count = Object.keys(e.channels).length), S.group_count = 0, e.groups && (S.group_count = Object.keys(e.groups).length), e.more_groups && (S.group_count += e.more_groups), S.total_memberships = S.channels_count + S.group_count);
-          var T = TS.templates.admin_list_item(S);
-          return TS.web.admin.html_cache[e.id] = T, TS.web.admin.html_cache[e.id];
+          e.is_restricted && (T.channels_count = 0, e.channels && (T.channels_count = Object.keys(e.channels).length), T.group_count = 0, e.groups && (T.group_count = Object.keys(e.groups).length), e.more_groups && (T.group_count += e.more_groups), T.total_memberships = T.channels_count + T.group_count);
+          var w = TS.templates.admin_list_item(T);
+          return TS.web.admin.html_cache[e.id] = w, TS.web.admin.html_cache[e.id];
         },
         rebuildMember: function(e) {
           TS.web.admin.selectRow(e).replaceWith(TS.web.admin.buildMemberHTML(e, !0, !0));
@@ -1352,7 +1369,7 @@ webpackJsonp([225], {
         D = function(e) {
           e && TS.members.view.clearFilter("#team_filter", "#team_list_scroller"), TS.members.view.filterTeam(y, "#team_filter", "#team_list_scroller");
         },
-        L = function() {
+        P = function() {
           $(".tab_panels").on("click.filter", ".clear_members_filter", function() {
             TS.members.view.clearFilter("#team_filter", "#team_list_scroller");
           });
@@ -1372,7 +1389,7 @@ webpackJsonp([225], {
             re("ADMIN_SEARCH");
           });
         },
-        P = function() {
+        L = function() {
           var e = $("input.member_filter");
           $(".tab_panels").on("click", ".clear_members_filter", function() {
             e.val("").focus().trigger("change");
