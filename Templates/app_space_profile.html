@@ -52,6 +52,13 @@
         </section>
       {{/unless}}
 
+      {{!-- CUSTOM INTEGRATION --}}
+      {{#if custom_integration_type}}
+        <a href="/apps/{{app_id}}" target="_blank" class="btn_outline btn">
+          {{#t note="Manage permissions"}}Manage{{/t}}
+        </a>
+      {{/if}}
+
     </div>
 
   </div>
