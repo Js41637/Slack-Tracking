@@ -2401,7 +2401,7 @@ webpackJsonp([12, 328, 337, 329], {
           return TS.useSocket();
         },
         useSocket: function() {
-          return J();
+          return H();
         },
         isSocketManagerEnabled: function() {
           return !!TS.useSocket() && (!!TS.lazyLoadMembersAndBots() && "experiment" === TS.boot_data.ws_refactor_bucket);
@@ -2469,7 +2469,7 @@ webpackJsonp([12, 328, 337, 329], {
         getQsArgsForUrl: function(e) {
           if (!e && x) return x;
           x = "";
-          for (var n in TS.qs_args) "export_test" !== n && (x += "&" + n + "=" + TS.qs_args[n]);
+          for (var n in TS.qs_args) "export_test" !== n && (x += "&" + n + "=" + encodeURIComponent(TS.qs_args[n]));
           return x;
         },
         getOtherAccountsCount: function() {
@@ -2530,10 +2530,10 @@ webpackJsonp([12, 328, 337, 329], {
             }
           }), Object.defineProperty(e, "_shouldConnectToMS", {
             get: function() {
-              return J;
+              return H;
             },
             set: function(e) {
-              J = e;
+              H = e;
             }
           }), Object.defineProperty(e, "_maybeStartPerfTrace", {
             get: function() {
@@ -2701,7 +2701,7 @@ webpackJsonp([12, 328, 337, 329], {
         },
         j = function() {
           if (TS.isPartiallyBooted()) return void(TS.boot_data.feature_tinyspeck && TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS not connecting to MS until we complete incremental boot"));
-          if (!J()) return void(TS.boot_data.feature_tinyspeck && TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS will not connect to MS"));
+          if (!H()) return void(TS.boot_data.feature_tinyspeck && TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS will not connect to MS"));
           if (TS.boot_data.feature_tinyspeck && TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS wants to connect to MS"), TS.isSocketManagerEnabled())
             if (TS.interop.SocketManager.isProvisionallyConnected()) {
               TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS will finalize SocketManager");
@@ -2791,7 +2791,7 @@ webpackJsonp([12, 328, 337, 329], {
           });
         },
         F = function(e) {
-          TS.client && TSSSB.call("didStartLoading", 6e4), J() && (TS.isSocketManagerEnabled() ? C() : (TS.ms.reconnect_requested_sig.add(g), TS.ms.disconnected_sig.add(E))), N(), M = !0, TS.model.is_our_app && Q(), TS.ui.setUpWindowUnloadHandlers(), "client" === TS.boot_data.app ? TS.client.gogogo() : "web" !== TS.boot_data.app && "space" !== TS.boot_data.app && "calls" !== TS.boot_data.app || TS.web.gogogo(), TS.boot_data.no_login ? (TS.info("running without a user"), TS.web && TS.web.no_login_complete_sig.dispatch()) : e ? v(e) : TS.error("_initialDataFetchesComplete expected to receive rtm.start data; we cannot continue.");
+          TS.client && TSSSB.call("didStartLoading", 6e4), H() && (TS.isSocketManagerEnabled() ? C() : (TS.ms.reconnect_requested_sig.add(g), TS.ms.disconnected_sig.add(E))), N(), M = !0, TS.model.is_our_app && Q(), TS.ui.setUpWindowUnloadHandlers(), "client" === TS.boot_data.app ? TS.client.gogogo() : "web" !== TS.boot_data.app && "space" !== TS.boot_data.app && "calls" !== TS.boot_data.app || TS.web.gogogo(), TS.boot_data.no_login ? (TS.info("running without a user"), TS.web && TS.web.no_login_complete_sig.dispatch()) : e ? v(e) : TS.error("_initialDataFetchesComplete expected to receive rtm.start data; we cannot continue.");
         },
         L = function() {
           if (window.sessionStorage) try {
@@ -2823,9 +2823,7 @@ webpackJsonp([12, 328, 337, 329], {
             }, 7e4), L(), TS.qs_args.ws_flakiness) try {
             var e = parseFloat(TS.qs_args.ws_flakiness);
             TS.interop.SocketManager.debugSetSocketConnectFlakiness(e);
-          } catch (e) {}
-          if ((TS.model.is_chrome_desktop || TS.model.is_FF || TS.model.is_safari_desktop) && TS.storage.do_compression ? TS.model.supports_user_bot_caching = !0 : TS.model.win_ssb_version || TS.model.lin_ssb_version ? TS.model.supports_user_bot_caching = !0 : TS.model.mac_ssb_version && (1.1 == TS.model.mac_ssb_version && TS.model.mac_ssb_version_minor >= 4 ? TS.model.supports_user_bot_caching = !0 : TS.model.mac_ssb_version >= 2 && (TS.model.mac_ssb_version_minor > 0 || TS.model.mac_ssb_build >= 7398) ? TS.model.supports_user_bot_caching = !0 : TS.model.is_electron && (TS.model.supports_user_bot_caching = !0)), TS.model.supports_user_bot_caching && TS.boot_data.feature_name_tagging_client && TS.storage.disableMemberBotCache(), TS.model.supports_user_bot_caching && TS.boot_data.feature_omit_localstorage_users_bots && (TS.warn("Calling TS.storage.disableMemberBotCache() because feature_omit_localstorage_users_bots"), TS.storage.disableMemberBotCache()), (window.macgap && macgap.downloads || window.winssb && winssb.downloads) && (TS.model.supports_downloads = !0, TS.model.flex_names.push("downloads")), TS.client && window.WEB_SOCKET_USING_FLASH_BUT_NO_FLASH) return TS.info("WEB_SOCKET_USING_FLASH_BUT_NO_FLASH"), $("#loading_animation").addClass("hidden"), void $("#no_ws_and_bad_flash").css("display", "inline");
-          TS.client ? TSSSB.call("didStartLoading", 3e4) : TS.info("no TS.client on page:" + document.location.href), TS.api.paused_sig.add(function(e) {
+          } catch (e) {}(TS.model.is_chrome_desktop || TS.model.is_FF || TS.model.is_safari_desktop) && TS.storage.do_compression ? TS.model.supports_user_bot_caching = !0 : TS.model.win_ssb_version || TS.model.lin_ssb_version ? TS.model.supports_user_bot_caching = !0 : TS.model.mac_ssb_version && (1.1 == TS.model.mac_ssb_version && TS.model.mac_ssb_version_minor >= 4 ? TS.model.supports_user_bot_caching = !0 : TS.model.mac_ssb_version >= 2 && (TS.model.mac_ssb_version_minor > 0 || TS.model.mac_ssb_build >= 7398) ? TS.model.supports_user_bot_caching = !0 : TS.model.is_electron && (TS.model.supports_user_bot_caching = !0)), TS.model.supports_user_bot_caching && TS.boot_data.feature_name_tagging_client && TS.storage.disableMemberBotCache(), TS.model.supports_user_bot_caching && TS.boot_data.feature_omit_localstorage_users_bots && (TS.warn("Calling TS.storage.disableMemberBotCache() because feature_omit_localstorage_users_bots"), TS.storage.disableMemberBotCache()), (window.macgap && macgap.downloads || window.winssb && winssb.downloads) && (TS.model.supports_downloads = !0, TS.model.flex_names.push("downloads")), TS.client ? TSSSB.call("didStartLoading", 3e4) : TS.info("no TS.client on page:" + document.location.href), TS.api.paused_sig.add(function(e) {
             TS.boot_data.feature_tinyspeck && TS.api.debugShowQueue(), TS.client ? TS.client.apiPaused(e) : TS.web.apiPaused(e);
           }), TS.api.unpaused_sig.add(function() {
             TS.client ? TS.client.apiUnpaused() : TS.web.apiUnpaused();
@@ -3054,7 +3052,7 @@ webpackJsonp([12, 328, 337, 329], {
           }
         };
       V(TS);
-      var H, J = function() {
+      var J, H = function() {
           return !(!TS.boot_data.feature_lazy_load_members_and_bots_everywhere || TS.boot_data.no_login) || !!(TS.client || TS.web && TS.boot_data.page_has_ms);
         },
         K = function() {
@@ -3076,11 +3074,11 @@ webpackJsonp([12, 328, 337, 329], {
         X = 1996,
         ee = 481,
         ne = function() {
-          if (!H) {
-            H = !0, TS.metrics.count("rate_limit_dialog_shown");
+          if (!J) {
+            J = !0, TS.metrics.count("rate_limit_dialog_shown");
             var e = TS.generic_dialog.alert("Lots of your teammates are connecting to Slack right now, so it’s taking longer than usual. We’re really sorry about this, and we’ll have you online soon.", "Bear with us", "Dismiss"),
               n = function() {
-                e.isPending() && TS.generic_dialog.cancel(), H = !1;
+                e.isPending() && TS.generic_dialog.cancel(), J = !1;
               };
             TS.isSocketManagerEnabled() ? TS.interop.SocketManager.connectedSig.addOnce(n) : TS.ms.connected_sig.addOnce(n);
           }
