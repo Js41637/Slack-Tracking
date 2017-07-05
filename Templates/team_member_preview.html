@@ -324,15 +324,21 @@
     {{/if}}
   {{/pageNeedsEnterprise}}
 
-  {{#if member.is_stranger}}
+  {{#if member.is_external}}
     <hr class="member_details_divider">
 
-    <p class="lato align_center large_right_margin large_left_margin">
-      {{#t}}
-        <strong>You don\u2019t share any channels with this person.</strong>
-        To\u00a0interact with a person from another team, you need to be in at least one channel together.
-      {{/t}}
-    </p>
+    {{#if member.is_stranger}}
+      <p class="lato align_center large_right_margin large_left_margin">
+        {{#t}}
+          <strong>You don\u2019t share any channels with this person.</strong>
+          To\u00a0interact with a person from another team, you need to be in at least one channel together.
+        {{/t}}
+      </p>
+    {{else}}
+      <table id="member_data_table_shared_channels" class="member_data_table lato">
+        {{> shared_channels_profile_field}}
+      </table>
+    {{/if}}
   {{/if}}
 
   <div class="clear_both larger_bottom_margin"></div>

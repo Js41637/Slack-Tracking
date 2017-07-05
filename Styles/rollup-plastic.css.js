@@ -12741,6 +12741,17 @@ body:not(.unify_user) .team_list_item .member_image {
   background-position: 0 -46px
 }
 
+#member_preview_scroller .ts_icon_shared_channels,
+#team_list .ts_icon_shared_channels {
+  position: relative;
+  top: 3px
+}
+
+#member_preview_scroller .ts_icon_shared_channels:before,
+#team_list .ts_icon_shared_channels:before {
+  line-height: 0
+}
+
 .filter_header {
   background-color: #E8E8E8;
   font-family: Slack-Lato, appleLogo, sans-serif;
