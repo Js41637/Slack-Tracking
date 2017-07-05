@@ -36570,7 +36570,10 @@ webpackJsonp([332], [, function(e, t, n) {
       a = e.latest,
       s = void 0 === a ? null : a;
     return function(e) {
-      t && r && n.i(p.a)({
+      t && r && (s && e(n.i(_.setLoading)({
+        channelId: t,
+        loading: !0
+      })), n.i(p.a)({
         channelId: t,
         type: r,
         oldest: i,
@@ -36578,7 +36581,10 @@ webpackJsonp([332], [, function(e, t, n) {
       }).then(function(r) {
         var o = r.msgs,
           a = r.hasMore;
-        e(n.i(m.addMessages)(o)), e(n.i(_.addTimestamps)({
+        e(n.i(_.setLoading)({
+          channelId: t,
+          loading: !1
+        })), e(n.i(m.addMessages)(o)), e(n.i(_.addTimestamps)({
           channelId: t,
           timestamps: d.a.map(o, "ts"),
           oldest: i,
@@ -36587,7 +36593,7 @@ webpackJsonp([332], [, function(e, t, n) {
         }));
       }).catch(function(e) {
         return n.i(h.a)("Failed to fetch history", t, e);
-      });
+      }));
     };
   }
 
@@ -36840,6 +36846,13 @@ webpackJsonp([332], [, function(e, t, n) {
               return c.a.createElement(p.a, {
                 key: "unread"
               });
+            case "loading":
+              return c.a.createElement("div", {
+                style: {
+                  height: 37,
+                  background: "red"
+                }
+              });
             default:
               return null;
           }
@@ -36863,6 +36876,10 @@ webpackJsonp([332], [, function(e, t, n) {
             i = [],
             a = this.getLastVisibleReadTs(),
             s = void 0;
+          if (this.props.isLoading)
+            for (var l = 0; l < 42; l++) i.push("loading" + l), o.push({
+              type: "loading"
+            });
           u.a.forEach(r, function(e) {
             var n = parseInt(e, 10),
               r = t[e],
@@ -36883,10 +36900,12 @@ webpackJsonp([332], [, function(e, t, n) {
               })), i.push(e), c = e;
             }), s = r;
           }), this.rows = o;
-          var l = {};
-          return i.forEach(function(e, t) {
-            l[e] = t;
-          }), c.a.createElement(d.a, {
+          var f = {};
+          i.forEach(function(e, t) {
+            f[e] = t;
+          });
+          var p = this.props.startTs;
+          return c.a.createElement(d.a, {
             key: this.props.channelId
           }, function(t) {
             var n = t.width,
@@ -36894,8 +36913,9 @@ webpackJsonp([332], [, function(e, t, n) {
             return c.a.createElement(h.a, {
               className: "c-message_list",
               keys: i,
-              keyRow: l,
+              keyRow: f,
               rowRenderer: e.renderRow,
+              anchor: p,
               getHeight: e.getRowHeight,
               setHeight: e.setRowHeight,
               loadPre: e.requestOlder,
@@ -38928,27 +38948,29 @@ webpackJsonp([332], [, function(e, t, n) {
         a = n.i(l.getMessagePaneEditState)(e),
         s = a.editTs,
         u = a.editText,
-        c = n.i(l.getMessagePaneStartTs)(e);
-      !c && i && r && (c = r.last_read);
-      var f = y(e, t, c),
-        h = f.messages,
-        m = f.rollups,
-        _ = f.reachedStart,
-        v = f.reachedEnd,
-        g = o.a.map(h, function(e) {
+        f = n.i(c.getLoading)(e, t),
+        h = n.i(l.getMessagePaneStartTs)(e);
+      !h && i && r && (h = r.last_read);
+      var m = y(e, t, h),
+        _ = m.messages,
+        v = m.rollups,
+        g = m.reachedStart,
+        b = m.reachedEnd,
+        w = o.a.map(_, function(e) {
           return e.ts;
         });
       return {
         channelId: t,
         type: n.i(d.getChannelType)(r),
-        timestamps: g,
-        reachedStart: _,
-        reachedEnd: v,
-        lastReadTs: c,
-        startTs: c,
+        timestamps: w,
+        reachedStart: g,
+        reachedEnd: b,
+        lastReadTs: h,
+        startTs: h,
         editTs: s,
         editText: u,
-        rollups: m
+        rollups: v,
+        isLoading: f
       };
     },
     g = {
@@ -39036,7 +39058,8 @@ webpackJsonp([332], [, function(e, t, n) {
             stopEditingMessage: this.props.stopEditingMessage,
             updateEditText: this.props.updateEditText,
             editText: this.props.editText,
-            rollups: this.props.rollups
+            rollups: this.props.rollups,
+            isLoading: this.props.isLoading
           });
         }
       }]), t;
@@ -39054,7 +39077,8 @@ webpackJsonp([332], [, function(e, t, n) {
     stopEditingMessage: l.a.PropTypes.func,
     updateEditText: l.a.PropTypes.func,
     editText: l.a.PropTypes.string,
-    rollups: l.a.PropTypes.objectOf(l.a.PropTypes.objectOf(l.a.PropTypes.arrayOf(l.a.PropTypes.string)))
+    rollups: l.a.PropTypes.objectOf(l.a.PropTypes.objectOf(l.a.PropTypes.arrayOf(l.a.PropTypes.string))),
+    isLoading: l.a.PropTypes.bool
   }, f.defaultProps = {
     channelId: null,
     type: "channel",
@@ -39068,7 +39092,8 @@ webpackJsonp([332], [, function(e, t, n) {
     stopEditingMessage: s.a.noop,
     updateEditText: s.a.noop,
     editText: null,
-    rollups: null
+    rollups: null,
+    isLoading: !1
   };
 }, , , , function(e, t, n) {
   "use strict";
@@ -39220,6 +39245,7 @@ webpackJsonp([332], [, function(e, t, n) {
       rowHeight: a.PropTypes.number,
       rowRenderer: a.PropTypes.func.isRequired,
       keys: a.PropTypes.arrayOf(a.PropTypes.string).isRequired,
+      anchor: a.PropTypes.string,
       keyRow: a.PropTypes.objectOf(a.PropTypes.number).isRequired,
       getHeight: a.PropTypes.func.isRequired,
       setHeight: a.PropTypes.func.isRequired,
@@ -39230,6 +39256,7 @@ webpackJsonp([332], [, function(e, t, n) {
       width: "100%",
       rowHeight: 47,
       useSlackScrollbar: !1,
+      anchor: null,
       loadPre: f.a.noop,
       loadPost: f.a.noop
     },
@@ -39241,21 +39268,27 @@ webpackJsonp([332], [, function(e, t, n) {
         var i = e.height,
           a = e.rowHeight,
           s = e.keys.length,
-          u = {
-            start: s - Math.ceil(i / a),
-            end: s
+          u = e.keyRow[e.anchor],
+          l = u && e.anchor,
+          c = Math.ceil(i / a),
+          d = u || s - c,
+          f = d + c,
+          p = {
+            start: d,
+            end: f,
+            anchor: l
           };
-        u.totalHeight = 0;
-        for (var l = 0; l < u.start; l++) {
-          var c = e.keys[l];
-          u.totalHeight += n.getHeight(c);
+        p.totalHeight = 0;
+        for (var h = 0; h < p.start; h++) {
+          var m = e.keys[h];
+          p.totalHeight += n.getHeight(m);
         }
-        u.startTop = u.totalHeight;
-        for (var d = u.start; d < u.end; d++) {
-          var f = e.keys[d];
-          u.totalHeight += n.getHeight(f);
+        p.startTop = p.totalHeight;
+        for (var _ = p.start; _ < p.end; _++) {
+          var y = e.keys[_];
+          p.totalHeight += n.getHeight(y);
         }
-        return u.endBottom = u.totalHeight, n.state = u, n;
+        return p.endBottom = p.totalHeight, n.state = p, n;
       }
       return i(t, e), m(t, [{
         key: "componentDidMount",
@@ -39277,31 +39310,34 @@ webpackJsonp([332], [, function(e, t, n) {
               }
               a += t.getHeight(u);
             }
-            for (var c = o, d = 0, f = 0, p = i; p > 0 && c > 0;) {
-              var h = e.keys[c];
-              p -= t.getHeight(h), c -= 1;
+            var c = r.anchor;
+            e.anchor && e.keyRow[e.anchor] && !1 !== c && (c = e.anchor, o = e.keyRow[c], i = 50);
+            for (var d = o, f = 0, p = 0, h = i; h > 0 && d > 0;) {
+              var m = e.keys[d];
+              h -= t.getHeight(m), d -= 1;
             }
-            f -= p;
-            for (var m = 0; m < c; m++) {
-              var _ = e.keys[m];
-              d += t.getHeight(_);
+            p -= h;
+            for (var _ = 0; _ < d; _++) {
+              var y = e.keys[_];
+              f += t.getHeight(y);
             }
-            var y = d;
-            f += y;
-            for (var v = c; d < f + e.height && v < e.keys.length;) {
-              var g = e.keys[v];
-              d += t.getHeight(g), v += 1;
+            var v = f;
+            p += v;
+            for (var g = d; f < p + e.height && g < e.keys.length;) {
+              var b = e.keys[g];
+              f += t.getHeight(b), g += 1;
             }
-            for (var b = d, w = v; w < e.keys.length; w++) {
-              var k = e.keys[w];
-              d += t.getHeight(k);
+            for (var w = f, k = g; k < e.keys.length; k++) {
+              var M = e.keys[k];
+              f += t.getHeight(M);
             }
-            return t.scrollTop = f, d < e.height && (t.props.loadPost(), t.props.loadPre()), {
-              start: c,
-              startTop: y,
-              end: v,
-              endBottom: b,
-              totalHeight: d
+            return t.scrollTop = Math.max(0, Math.min(f - e.height, p)), f < e.height && (t.props.loadPost(), t.props.loadPre(), t.onScroll()), {
+              start: d,
+              startTop: v,
+              end: g,
+              endBottom: w,
+              totalHeight: f,
+              anchor: c
             };
           });
         }
@@ -39319,7 +39355,11 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "onScroll",
         value: function() {
           var e = this;
-          this.scrollTop = !1;
+          !1 === this.scrollTop && this.setState(function() {
+            return {
+              anchor: !1
+            };
+          }), this.scrollTop = !1;
           var t = this.node.scrollTop;
           t < 500 && this.props.loadPre(), t > this.state.totalHeight - this.props.height - 500 && this.props.loadPost(), this.setState(function(n, r) {
             for (var o = n.start, i = n.startTop, a = n.end, s = n.endBottom; i + e.getHeight(r.keys[o]) < t && o < r.keys.length;) i += e.getHeight(r.keys[o]), o += 1;
@@ -39353,7 +39393,7 @@ webpackJsonp([332], [, function(e, t, n) {
               c = o.endBottom,
               d = o.totalHeight,
               f = !1;
-            return r.node && (f = r.scrollTop || r.node.scrollTop), t < s && (l += i), t < u && (c += i), (t <= s || f === d - a.height) && !1 !== f && (r.scrollTop = f + i), d += i, r.props.setHeight(e, n), d < a.height && (r.props.loadPost(), r.props.loadPre()), {
+            return r.node && (f = r.scrollTop || r.node.scrollTop), t < s && (l += i), t < u && (c += i), (t <= s || f === d - a.height) && !1 !== f && (f += i, r.scrollTop = Math.max(0, Math.min(d - a.height, f))), d += i, r.props.setHeight(e, n), d < a.height && (r.props.loadPost(), r.props.loadPre()), {
               startTop: l,
               endBottom: c,
               totalHeight: d
@@ -52527,10 +52567,7 @@ webpackJsonp([332], [, function(e, t, n) {
         include_pin_count: !0,
         inclusive: !0
       };
-    if (u && (d.oldest = u), c && (d.latest = c), "0000000000.000000" === c) return Promise.resolve({
-      msgs: [],
-      hasMore: !1
-    });
+    u && "0000000000.000000" !== u && (d.oldest = u), c && "0000000000.000000" !== c && (d.latest = c);
     var f = void 0;
     switch (r) {
       case "channel":
@@ -59422,13 +59459,17 @@ webpackJsonp([332], [, function(e, t, n) {
   });
   var r = n(4152);
   n.d(t, "addTimestamps", function() {
-    return r.c;
-  }), n.d(t, "removeTimestamp", function() {
-    return r.d;
-  }), n.d(t, "resetReachedEnd", function() {
     return r.e;
+  }), n.d(t, "removeTimestamp", function() {
+    return r.f;
+  }), n.d(t, "resetReachedEnd", function() {
+    return r.g;
+  }), n.d(t, "setLoading", function() {
+    return r.d;
   }), n.d(t, "getTimestampsByChannelId", function() {
     return r.b;
+  }), n.d(t, "getLoading", function() {
+    return r.c;
   }), t.default = r.a;
 }, function(e, t, n) {
   "use strict";
@@ -59453,62 +59494,72 @@ webpackJsonp([332], [, function(e, t, n) {
     if (!i) return {
       timestamps: []
     };
-    if (!r) return l({}, n.i(a.last)(i), {
+    if (!r || "0000000000.000000" === r) return c({}, n.i(s.last)(i), {
+      reachedStart: 1 === i.length && o.reachedStart,
       reachedEnd: o.reachedEnd
     });
-    for (var s = 0; s < i.length; s++) {
-      var c = i[s];
-      if (n.i(u.d)(c, n.i(u.a)([r]))) return l({}, c, {
-        reachedStart: 0 === s && o.reachedStart,
-        reachedEnd: s === i.length - 1 && o.reachedEnd
+    for (var a = 0; a < i.length; a++) {
+      var u = i[a];
+      if (n.i(l.d)(u, n.i(l.a)([r]))) return c({}, u, {
+        reachedStart: 0 === a && o.reachedStart,
+        reachedEnd: a === i.length - 1 && o.reachedEnd
       });
     }
-    return o.reachedEnd && n.i(a.last)(i).end < r ? l({}, n.i(a.last)(i), {
+    return o.reachedEnd && n.i(s.last)(i).end < r ? c({}, n.i(s.last)(i), {
+      reachedStart: 1 === i.length && o.reachedStart,
       reachedEnd: !0
-    }) : o.reachedStart && n.i(a.first)(i).start > r ? l({}, n.i(a.first)(i), {
-      reachedStart: !0
+    }) : o.reachedStart && n.i(s.first)(i).start > r ? c({}, n.i(s.first)(i), {
+      reachedStart: !0,
+      reachedEnd: 1 === i.length && o.reachedEnd
     }) : {
       timestamps: []
     };
   }
-  n.d(t, "c", function() {
-    return c;
-  }), n.d(t, "d", function() {
+
+  function i(e, t) {
+    return e && e.channelHistory && e.channelHistory[t] && e.channelHistory[t].loading;
+  }
+  n.d(t, "e", function() {
     return d;
-  }), n.d(t, "e", function() {
+  }), n.d(t, "f", function() {
     return f;
-  }), t.b = o;
-  var i, a = n(6),
-    s = (n.n(a), n(17)),
-    u = (n.n(s), n(4153)),
-    l = Object.assign || function(e) {
+  }), n.d(t, "g", function() {
+    return p;
+  }), n.d(t, "d", function() {
+    return h;
+  }), t.b = o, t.c = i;
+  var a, s = n(6),
+    u = (n.n(s), n(17)),
+    l = (n.n(u), n(4153)),
+    c = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
         for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
       }
       return e;
     },
-    c = n.i(s.createAction)("Add timestamps to channel history"),
-    d = n.i(s.createAction)("Remove timestamps from channel history"),
-    f = n.i(s.createAction)("Was disconnected; reset reachedEnd to false"),
-    p = n.i(s.createReducer)((i = {}, r(i, c, function(e) {
+    d = n.i(u.createAction)("Add timestamps to channel history"),
+    f = n.i(u.createAction)("Remove timestamps from channel history"),
+    p = n.i(u.createAction)("Was disconnected; reset reachedEnd to false"),
+    h = n.i(u.createAction)("Set loading state"),
+    m = n.i(u.createReducer)((a = {}, r(a, d, function(e) {
       var t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : {},
         o = t.channelId,
         i = t.timestamps,
-        s = t.oldest,
-        c = t.latest,
+        a = t.oldest,
+        u = t.latest,
         d = t.hasMore;
-      if (!o || !i) return e;
-      var f = n.i(u.a)(i, s, c),
+      if (!o || !i || !i.length) return e;
+      var f = n.i(l.a)(i, a, u),
         p = e[o] || {},
         h = p.slices || [],
         m = p.reachedEnd,
-        _ = n.i(u.b)(h, f, m),
+        _ = n.i(l.b)(h, f, m),
         y = {};
-      return n.i(a.isBoolean)(d) && c && (y.reachedStart = !d), n.i(a.isBoolean)(d) && s && (y.reachedEnd = !d), l({}, e, r({}, o, l({}, p, y, {
+      return n.i(s.isBoolean)(d) && u && (y.reachedStart = !d), n.i(s.isBoolean)(d) && a && (y.reachedEnd = !d), c({}, e, r({}, o, c({}, p, y, {
         slices: _
       })));
-    }), r(i, d, function(e) {
+    }), r(a, f, function(e) {
       var t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : {},
         o = t.channelId,
         i = t.timestamp;
@@ -59517,18 +59568,24 @@ webpackJsonp([332], [, function(e, t, n) {
       if (!a) return e;
       var s = a.slices;
       if (!s) return e;
-      var c = n.i(u.c)(s, i);
-      return l({}, e, r({}, o, l({}, e[o], {
-        slices: c
+      var u = n.i(l.c)(s, i);
+      return c({}, e, r({}, o, c({}, e[o], {
+        slices: u
       })));
-    }), r(i, f, function(e) {
-      return n.i(a.mapValues)(e, function(e) {
-        return l({}, e, {
+    }), r(a, p, function(e) {
+      return n.i(s.mapValues)(e, function(e) {
+        return c({}, e, {
           reachedEnd: !1
         });
       });
-    }), i), {});
-  t.a = p;
+    }), r(a, h, function(e, t) {
+      var n = t.channelId,
+        o = t.loading;
+      return c({}, e, r({}, n, c({}, e[n], {
+        loading: o
+      })));
+    }), a), {});
+  t.a = m;
 }, function(e, t, n) {
   "use strict";
 
