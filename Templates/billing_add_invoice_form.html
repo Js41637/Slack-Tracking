@@ -1,51 +1,14 @@
 {{i18n_ns "pages_admin"}}
-<form action="" id="add_invoice_form" class="display_flex flex_direction_column large_top_margin">
+<form action="" data-js="add_invoice_form" class="display_flex flex_direction_column large_top_margin">
+  {{> billing_add_invoice_number_of_seats_input default_seat_text=default_seat_text current_user_count=current_user_count disabled=disabled}}
 
-  {{!-- Number of Seats Input --}}
-  <div class="bottom_margin">
-    <label for="add_invoice__number_of_seats">{{#t}}Number of Seats{{/t}}</label>
-    <div id="add_invoice__super_input" class="display_flex">
-      <input type="text" id="add_invoice__number_of_seats" class="small no_margin" name="add_invoice__number_of_seats" data-qa="invoice_seats" />
-      <input type="text" id="add_invoice__price_preview" class="small no_margin disabled hidden" name="add_invoice__price_preview" disabled="" aria-disabled="true" data-qa="invoice_price_preview" />
-    </div>
-    <span id="add_invoice__seat_error" class="input_note inline no_margin">{{default_seat_text}}</span>
-  </div>
+  {{#if disabled}}
+    {{> billing_add_invoice_team_too_large_error maximum_seats_possible=maximum_seats_possible}}
+  {{/if}}
 
-  {{!-- Billing Emails Input --}}
-  <div class="bottom_margin">
-    <label for="add_invoice__billing_emails">{{#t}}Additional Billing Emails{{/t}}</label>
-    <div class="add_invoice__billing_emails no_margin">
-      <input class="add_invoice__new_billing_email small no_margin" type="text" name="add_invoice__billing_emails" placeholder="{{#t}}e.g. @sara or accounting@acme.corp{{/t}}" data-qa="invoice_additional_billing_emails">
-    </div>
-    <span class="input_note inline no_margin">{{#t}}Add contacts by email or Slack @username{{/t}}</span>
-  </div>
+  {{> billing_add_invoice_billing_contacts_input disabled=disabled}}
 
-  {{!-- Purchase Order Radios --}}
-  <div class="bottom_margin">
-    <label for="add_invoice__requires_purchase_order">{{#t}}Need a purchase order?{{/t}}</label>
-    <div class="display_flex">
-      <label class="radio right_margin">
-        <input type="radio" name="add_invoice__requires_purchase_order" value="no" /> {{#t}}No{{/t}}
-      </label>
-      <label class="radio right_margin">
-        <input type="radio" name="add_invoice__requires_purchase_order" value="yes" /> {{#t}}Yes{{/t}}
-      </label>
-    </div>
-  </div>
+  {{> billing_add_invoice_purchase_order_input disabled=disabled}}
 
-  {{!-- Purchase Order Input --}}
-  <div id="add_invoice__purchase_order_container" class="hidden">
-    <div class="bottom_margin">
-      <label for="add_invoice__purchase_order_number">{{#t}}Purchase Order #{{/t}}</label>
-      <input type="text" id="add_invoice__purchase_order_number" class="small no_margin" name="add_invoice__purchase_order_number" data-qa="invoice_purchase_order" />
-    </div>
-  </div>
-
-  {{!-- Review Order button --}}
-  <p class="top_margin">
-    <button type="submit" data-qa="checkout_btn" class="checkout_button ladda-button btn btn_large full_width">
-      <span class="ladda-label">{{#t}}Review Order{{/t}}</span>
-      <span class="ladda-spinner"></span>
-    </button>
-  </p>
+  {{> billing_add_invoice_checkout_button disabled=disabled}}
 </form>

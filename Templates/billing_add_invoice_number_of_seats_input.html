@@ -1,0 +1,9 @@
+{{i18n_ns "pages_admin"}}
+<div class="bottom_margin payment_form_details">
+  <label for="add_invoice__number_of_seats" {{#if disabled}}class="disabled"{{/if}}>{{#t}}Number of Seats{{/t}}</label>
+  <div class="display_flex">
+    <input type="text" class="add_invoice__number_of_seats small no_margin" name="add_invoice__number_of_seats" {{#if disabled}}disabled="true" value={{current_user_count}} {{/if}} />
+    <input type="text" class="add_invoice__price_preview small no_margin disabled hidden" name="add_invoice__price_preview" disabled="" aria-disabled="true" />
+  </div>
+  <span data-js="add_invoice__seat_error" class="input_note inline no_margin {{#if disabled}}cursor_default{{/if}}">{{default_seat_text}}</span>
+</div>

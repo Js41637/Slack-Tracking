@@ -645,7 +645,8 @@ webpackJsonp([13], {
           t && (window.open(t), -1 == t.indexOf("hc/search?") && TS.clog.track("HELP_MODAL_ZD_HIT", {
             zd_article_url: t
           }), n && TS.clog.track("HELP_MODAL_SEARCH", {
-            search_terms: n
+            search_terms: n,
+            locale: TS.i18n.locale()
           }));
         },
         L = function(e) {

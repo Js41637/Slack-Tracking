@@ -307,20 +307,20 @@
 
   {{#pageNeedsEnterprise}}
     {{#if teams}}
-      <hr class="member_details_divider">
+      {{#if teams.shared}}
+        <hr class="member_details_divider">
 
-      <table class="member_data_table lato">
-        {{#if teams.shared}}
-          <tr>
-            <td><span class="small_right_padding old_petunia_grey" title="{{#t}}Shared Teams{{/t}}">{{#t}}Shared Teams{{/t}}</span></td>
-            <td>
-              {{#each teams.shared}}
-                {{name}}<br/>
-              {{/each}}
-            </td>
-          </tr>
-        {{/if}}
-      </table>
+        <table class="member_data_table lato">
+            <tr>
+              <td><span class="small_right_padding old_petunia_grey" title="{{#t}}Shared Teams{{/t}}">{{#t}}Shared Teams{{/t}}</span></td>
+              <td>
+                {{#each teams.shared}}
+                  {{name}}<br/>
+                {{/each}}
+              </td>
+            </tr>
+        </table>
+      {{/if}}
     {{/if}}
   {{/pageNeedsEnterprise}}
 

@@ -3549,8 +3549,6 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             e.preventDefault(), TS.ui.thread.joinChannelFromThread(e, t);
           }), TS.click.addClientHandler(".thread_error_state_refresh_button", function(e) {
             e.preventDefault(), TS.client.threads.maybeReloadThreadsView();
-          }), TS.click.addClientHandler(".app_space_error_state_refresh_button", function(e) {
-            e.preventDefault(), TS.client.app_space.maybeReloadAppSpaceView();
           }), TS.click.addClientHandler("#thread_notification_banner .banner_buttons .btn", function(e, t) {
             e.preventDefault();
             var n = t.data("turn-on-pref"),
@@ -7914,6 +7912,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             if (_.isObject(t) || (t = {}), 1 !== e.rangeCount) return void TS.info("TS.format.formatSelection: found " + e.rangeCount + " ranges");
             var n, i = e.getRangeAt(0);
             if (_.isElement(i.commonAncestorContainer)) {
+              if ($(i.commonAncestorContainer).is(".ql-editor")) return e.toString();
               if (TS.model.is_safari_desktop) {
                 if (i.commonAncestorContainer.querySelectorAll("ts-message").length > 1) return;
               }
@@ -31191,10 +31190,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             validate_name: !0
           }).then(function(e) {
             var t = e.data;
-            i && TS.channels.setPurpose(t.channel.id, i), r && r.length && TS.api.call("channels.invite", {
+            i && TS.channels.setPurpose(t.channel.id, i), r && r.length && (_.pull(r, TS.model.user.id), r.length && TS.api.call("channels.invite", {
               channel: t.channel.id,
               users: r.join(",")
-            }), a && a.length && TS.pending_users.invitePendingUsersToChannel(a, t.channel.id), TS.ui.fs_modal.close();
+            })), a && a.length && TS.pending_users.invitePendingUsersToChannel(a, t.channel.id), TS.ui.fs_modal.close();
           }).catch(function(i) {
             i = i || {};
             var r = i.data ? i.data.error : i.message;

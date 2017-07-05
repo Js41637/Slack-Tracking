@@ -1,0 +1,18 @@
+{{i18n_ns "pages_admin"}}
+<div class="bottom_margin payment_form_details">
+  <label for="add_invoice__requires_purchase_order" {{#if disabled}}class="disabled"{{/if}}>{{#t}}Need a purchase order?{{/t}}</label>
+  <div class="display_flex">
+    <label class="radio right_margin {{#if disabled}}disabled cursor_default{{/if}}">
+      <input type="radio" name="add_invoice__requires_purchase_order" value="no" {{#if disabled}}disabled="true"{{/if}} /> {{#t}}No{{/t}}
+    </label>
+    <label class="radio right_margin {{#if disabled}}disabled cursor_default{{/if}}">
+      <input type="radio" name="add_invoice__requires_purchase_order" value="yes" {{#if disabled}}disabled="true"{{/if}} /> {{#t}}Yes{{/t}}
+    </label>
+  </div>
+</div>
+<div class="hidden bottom_margin payment_form_details" data-js="add_invoice__purchase_order_container">
+  <div class="bottom_margin">
+    <label for="add_invoice__purchase_order_number">{{#t}}Purchase Order #{{/t}}</label>
+    <input type="text" class="small no_margin" name="add_invoice__purchase_order_number" data-qa="invoice_purchase_order" />
+  </div>
+</div>

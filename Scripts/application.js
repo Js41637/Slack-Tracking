@@ -32493,21 +32493,22 @@ webpackJsonp([332], [, function(e, t, n) {
     m = n(3028),
     _ = n(2906),
     y = n(2914),
-    v = Object.assign || function(e) {
+    v = n(2907),
+    g = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
         for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
       }
       return e;
     },
-    g = n.i(y.c)(5),
-    b = function(e) {
-      return g && n.i(_.a)(e + "_mark");
-    },
+    b = n.i(y.c)(5),
     w = function(e) {
-      return g && n.i(_.b)(e, e + "_mark");
+      return b && n.i(_.a)(e + "_mark");
     },
     k = function(e) {
+      return b && n.i(_.b)(e, e + "_mark");
+    },
+    M = function(e) {
       if (!n.i(m.isFeatureEnabled)(e, "feature_store_members_in_redux")) return !1;
       if (!n.i(d.a)(e)) return !1;
       var t = i()(n.i(h.getAllMembers)(e)).filter(function(e) {
@@ -32515,26 +32516,26 @@ webpackJsonp([332], [, function(e, t, n) {
       }).size();
       return !(t > 25) && (!(t >= 2) || "dim");
     },
-    M = function(e) {
-      b("react_channel_sidebar_calculate_sidebar_sections");
+    T = function(e) {
+      w("react_channel_sidebar_calculate_sidebar_sections");
       var t = n.i(l.a)(e),
         r = t.sidebarSections,
         o = t.sidebarSectionsOrdered;
-      w("react_channel_sidebar_calculate_sidebar_sections"), b("react_channel_sidebar_get_rows");
+      k("react_channel_sidebar_calculate_sidebar_sections"), w("react_channel_sidebar_get_rows");
       var i = n.i(c.a)({
           hasAllUnreadsLink: n.i(f.getUserPref)(e, "enable_unread_view"),
-          hasInvitePeopleLink: k(e),
+          hasInvitePeopleLink: M(e),
           sidebarSectionsOrdered: o,
           sidebarSections: r
         }),
         a = i.rows,
         s = i.rowIds;
-      return w("react_channel_sidebar_get_rows"), {
+      return k("react_channel_sidebar_get_rows"), {
         rows: a,
         rowIds: s
       };
     },
-    T = function(e) {
+    x = function(e) {
       var t = void 0,
         r = void 0,
         o = void 0,
@@ -32543,24 +32544,24 @@ webpackJsonp([332], [, function(e, t, n) {
       return function(l, c) {
         var d = n.i(s.getSelectedChannelItem)(l),
           f = n.i(p.getUnreadIds)(n.i(p.getAllChannels)(l)),
-          h = M(l),
+          h = T(l),
           m = h.rows,
           _ = h.rowIds,
           y = c.onItemSelect;
         if (d === r && n.i(a.a)(f, o) && n.i(a.a)(_, i) && n.i(a.a)(c, u)) return t;
-        var g = v({}, c, {
+        var b = g({}, c, {
           rows: m,
           rowIds: _,
           selectedItemId: d,
           unreadIds: f,
           onItemSelect: function(t) {
-            t !== d && (e(n.i(s.selectItem)(t)), y && y(t));
+            n.i(v.c)() || t === d || (e(n.i(s.selectItem)(t)), y && y(t));
           }
         });
-        return t = g, r = d, o = f, i = _, u = c, g;
+        return t = b, r = d, o = f, i = _, u = c, b;
       };
     };
-  t.a = n.i(r.c)(T)(u.a);
+  t.a = n.i(r.c)(x)(u.a);
 }, function(e, t, n) {
   "use strict";
   var r = n(2880);
@@ -35485,10 +35486,13 @@ webpackJsonp([332], [, function(e, t, n) {
     return o;
   }), n.d(t, "a", function() {
     return i;
+  }), n.d(t, "c", function() {
+    return a;
   });
   var r = n(2277),
     o = n.i(r.a)("TS.client.ui.showView", function() {}),
-    i = n.i(r.a)("TS.client.ui.files.previewFile", function() {});
+    i = n.i(r.a)("TS.client.ui.files.previewFile", function() {}),
+    a = n.i(r.a)("TS.client.ui.checkForEditing", function() {});
 }, function(e, t, n) {
   "use strict";
   n.d(t, "a", function() {
@@ -39869,12 +39873,12 @@ webpackJsonp([332], [, function(e, t, n) {
       return i(t, e), h(t, [{
         key: "onLabelClick",
         value: function(e) {
-          e.preventDefault(), this.tooltip && this.tooltip.hideTip(), this.props.onLabelClick();
+          e.preventDefault(), this.props.onLabelClick(), this.tooltip && this.tooltip.hideTip();
         }
       }, {
         key: "onPlusClick",
         value: function(e) {
-          e.preventDefault(), this.plusTooltip && this.plusTooltip.hideTip(), this.props.onPlusClick();
+          e.preventDefault(), this.props.onPlusClick(), this.plusTooltip && this.plusTooltip.hideTip();
         }
       }, {
         key: "setTooltipRef",
@@ -41656,8 +41660,13 @@ webpackJsonp([332], [, function(e, t, n) {
               selectedAppIndex: null
             };
           }, function() {
-            t.firstSelectableAppIndex = 1;
+            t.firstSelectableAppIndex = t.state.isShowingDefaultAppCategories ? 1 : 0;
           });
+        }
+      }, {
+        key: "componentWillUpdate",
+        value: function(e, t) {
+          this.state.isShowingDefaultAppCategories !== t.isShowingDefaultAppCategories && (this.firstSelectableAppIndex = t.isShowingDefaultAppCategories && e.hasSeenAppSpaceTutorial ? 1 : 0);
         }
       }, {
         key: "componentWillUnmount",
@@ -41743,7 +41752,8 @@ webpackJsonp([332], [, function(e, t, n) {
             var o = void 0;
             switch (e.which) {
               case 40:
-                this.isMouseMoveEnabled = !1, this.setState(function(e) {
+              case 9:
+                this.isElementTextInput(e.target) && (e.stopPropagation(), e.preventDefault()), this.isMouseMoveEnabled = !1, this.setState(function(e) {
                   var r = void 0;
                   return r = null === e.selectedAppIndex ? t.firstSelectableAppIndex : e.selectedAppIndex === n - 1 ? e.selectedAppIndex : e.selectedAppIndex + 1, {
                     selectedAppIndex: r
@@ -41753,7 +41763,7 @@ webpackJsonp([332], [, function(e, t, n) {
                 });
                 break;
               case 38:
-                this.isMouseMoveEnabled = !1, this.setState(function(n) {
+                this.isElementTextInput(e.target) && (e.stopPropagation(), e.preventDefault()), this.isMouseMoveEnabled = !1, this.setState(function(n) {
                   var r = void 0;
                   return r = null === n.selectedAppIndex ? t.firstSelectableAppIndex : n.selectedAppIndex === t.firstSelectableAppIndex ? t.firstSelectableAppIndex : e.getModifierState("Shift") ? t.firstSelectableAppIndex : n.selectedAppIndex - 1, {
                     selectedAppIndex: r
@@ -41766,6 +41776,11 @@ webpackJsonp([332], [, function(e, t, n) {
                 o = this.getSelectedApp(), o && this.selectApp(o.dataset);
             }
           }
+        }
+      }, {
+        key: "isElementTextInput",
+        value: function(e) {
+          return "text" === e.type;
         }
       }, {
         key: "scrollSelectedAppIntoView",
@@ -41846,7 +41861,7 @@ webpackJsonp([332], [, function(e, t, n) {
               return {
                 isLoading: !1,
                 appCategories: e.categories,
-                selectedAppIndex: f.a.get(e, "categories[0].apps", []).length && t === C.searchEndpoint ? n.firstSelectableAppIndex : null
+                selectedAppIndex: f.a.get(e, "categories[0].apps", []).length && t === C.searchEndpoint ? 0 : null
               };
             }), t === C.listEnpoint && 2 === e.categories.length && n.paginateCategories(t, r));
           }).catch(function() {});
