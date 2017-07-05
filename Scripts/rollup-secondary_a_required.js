@@ -28013,13 +28013,13 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           });
         },
         m = function() {
-          o = !0, e = null, t = null, n = null, i = null, d = !1, a = null, s = null, $(window).off("resize", T);
+          o = !0, e = null, t = null, n = null, i = null, d = !1, a = null, s = null, $(window).off("resize", T), TS.ui.admin_user_groups.user_groups_fetched.dispatch(l);
         },
         p = function(e) {
           e && e.preventDefault(), d ? (TS.ui.fs_modal.close(), a = null) : b();
         },
         f = function() {
-          d ? (TS.ui.fs_modal.close(), a = null) : (o = !0, b());
+          d ? (TS.ui.fs_modal.close(), a = null) : (o = !0, b()), TS.ui.admin_user_groups.user_groups_fetched.dispatch(l);
         },
         h = function() {
           d || (TS.ui.fs_modal.bindBackButton(b), TS.ui.fs_modal.showBackButton());
