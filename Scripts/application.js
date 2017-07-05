@@ -40684,26 +40684,41 @@ webpackJsonp([332], [, function(e, t, n) {
   Object.defineProperty(t, "__esModule", {
     value: !0
   }), n.d(t, "updateReaction", function() {
-    return a;
+    return l;
+  }), n.d(t, "bulkUpdateReaction", function() {
+    return c;
   }), n.d(t, "getReactionsForKey", function() {
-    return u;
+    return f;
   });
-  var o = n(17),
-    i = (n.n(o), Object.assign || function(e) {
+  var o, i = n(17),
+    a = (n.n(i), n(6)),
+    s = n.n(a),
+    u = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
         for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
       }
       return e;
-    }),
-    a = n.i(o.createAction)("update a reaction key"),
-    s = n.i(o.createReducer)(r({}, a, function(e, t) {
+    },
+    l = n.i(i.createAction)("update a reaction key"),
+    c = n.i(i.createAction)("bulk update reactions"),
+    d = n.i(i.createReducer)((o = {}, r(o, l, function(e, t) {
       var n = t.key,
         o = t.reactions;
-      return n ? i({}, e, r({}, n, o)) : e;
-    }), {});
-  t.default = s;
-  var u = function(e, t) {
+      return n ? u({}, e, r({}, n, o)) : e;
+    }), r(o, c, function(e, t) {
+      if (!s.a.isArray(t)) return e;
+      var n = s.a.filter(t, "key");
+      if (!n.length) return e;
+      var r = u({}, e);
+      return s.a.forEach(n, function(e) {
+        var t = e.key,
+          n = e.reactions;
+        r[t] = n;
+      }), r;
+    }), o), {});
+  t.default = d;
+  var f = function(e, t) {
     return e && e.reactions && e.reactions[t];
   };
 }, , , , , function(e, t, n) {
@@ -52575,49 +52590,53 @@ webpackJsonp([332], [, function(e, t, n) {
     var t = e.channelId,
       r = e.type,
       o = e.oldest,
-      u = void 0 === o ? null : o,
-      l = e.latest,
-      c = void 0 === l ? null : l,
-      d = {
+      l = void 0 === o ? null : o,
+      c = e.latest,
+      d = void 0 === c ? null : c,
+      f = {
         channel: t,
         count: 42,
         ignore_replies: !0,
         include_pin_count: !0,
         inclusive: !0
       };
-    u && "0000000000.000000" !== u && (d.oldest = u), c && "0000000000.000000" !== c && (d.latest = c);
-    var f = void 0;
+    l && "0000000000.000000" !== l && (f.oldest = l), d && "0000000000.000000" !== d && (f.latest = d);
+    var p = void 0;
     switch (r) {
       case "channel":
-        f = n.i(a.a)("channels.history", d);
+        p = n.i(a.a)("channels.history", f);
         break;
       case "mpim":
-        f = n.i(a.a)("mpim.history", d);
+        p = n.i(a.a)("mpim.history", f);
         break;
       case "private":
-        f = n.i(a.a)("groups.history", d);
+        p = n.i(a.a)("groups.history", f);
         break;
       case "im":
-        f = n.i(a.a)("im.history", d);
+        p = n.i(a.a)("im.history", f);
         break;
       default:
         return Promise.reject(new Error("Unknown channel type"));
     }
-    return f.then(function(e) {
+    return p.then(function(e) {
       var r = i.a.get(e, "data.messages");
-      return r ? {
-        msgs: i.a.map(r, function(e) {
-          return n.i(s.g)(e, t);
-        }),
+      if (!r) return [];
+      n.i(s.b)();
+      var o = i.a.map(r, function(e) {
+        return n.i(u.g)(e, t);
+      });
+      return n.i(s.c)(), {
+        msgs: o,
         hasMore: i.a.get(e, "data.has_more")
-      } : [];
+      };
     });
   }
   t.a = r;
   var o = n(6),
     i = n.n(o),
     a = n(3048),
-    s = n(3040);
+    s = n(3642),
+    u = n(3040);
 }, function(e, t, n) {
   "use strict";
   var r = n(2909);
@@ -54514,10 +54533,20 @@ webpackJsonp([332], [, function(e, t, n) {
   "use strict";
   n.d(t, "a", function() {
     return o;
+  }), n.d(t, "b", function() {
+    return i;
+  }), n.d(t, "c", function() {
+    return a;
   });
   var r = n(2277),
     o = n.i(r.a)("TS.rxns.changeRxnsFromUserAction", function() {
       return null;
+    }),
+    i = n.i(r.a)("TS.redux.reactions.startBulkUpsert", function() {
+      return !1;
+    }),
+    a = n.i(r.a)("TS.redux.reactions.finishBulkUpsert", function() {
+      return !1;
     });
 }, function(e, t, n) {
   "use strict";

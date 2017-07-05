@@ -36,8 +36,8 @@
     {{else}}
       <textarea id="msg_text" name="msg_text">{{edit_text}}</textarea>
     {{/supportsTextyTakesOver}}
-    <a id="cancel_edit" role="button" class="btn btn_small btn_outline">{{#t}}Cancel{{/t}}</a>
-    <a id="commit_edit" role="button" class="btn btn_small"><i class="ts_icon ts_icon_enter ts_icon_inherit small_right_margin"></i>{{#t}}Save Changes{{/t}}</a>
+    <button id="cancel_edit" type="button" class="btn btn_small btn_outline">{{#t}}Cancel{{/t}}</button>
+    <button id="commit_edit" type="button" class="btn btn_small"><i class="ts_icon ts_icon_enter ts_icon_inherit small_right_margin"></i>{{#t}}Save Changes{{/t}}</button>
     <span id="message_editing_info" class="mini" style="display: none;">{{#t}}Finish editing this message first! Or press <strong>escape</strong> if you've changed your mind.{{/t}}</span>
     <span class="mini float_right edit_controls"><span id="edit_countdown"></span>
     <span class="candy_red hidden edit_warning">{{#t}}text is too long!{{/t}}</span></span>

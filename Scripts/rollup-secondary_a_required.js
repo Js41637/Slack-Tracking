@@ -11580,7 +11580,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           e.profile && "object" === n(e.profile) || (e.profile = {}), "USLACKBOT" === e.id && (e.is_slackbot = !0), v(e), y(e), w(e), k(e), x(e), e._first_name_lc = "", e._last_name_lc = "", e._real_name_lc = "", e._real_name_normalized_lc = "", TS.boot_data.feature_name_tagging_client && (e._display_name_lc = "", e._display_name_normalized_lc = ""), G(e), W(e), e.files = [], e.activity = [], e.stars = [], e.mentions = [], z(e), M(e);
         },
         G = function(e) {
-          "name" in e && (e._name_lc = _.toLower(e.name)), _.isObject(e.profile) && ("first_name" in e.profile && (e._first_name_lc = _.toLower(e.profile.first_name)), "last_name" in e.profile && (e._last_name_lc = _.toLower(e.profile.last_name)), "real_name" in e.profile && (e._real_name_lc = _.toLower(e.profile.real_name)), "real_name_normalized" in e.profile && (e._real_name_normalized_lc = _.toLower(e.profile.real_name_normalized)), TS.boot_data.feature_name_tagging_client && ("display_name" in e.profile && (e._display_name_lc = _.toLower(e.profile.display_name)), "display_name_normalized" in e.profile && (e._display_name_normalized_lc = _.toLower(e.profile.display_name_normalized))));
+          "name" in e && (e._name_lc = _.toLower(e.name)), _.isObject(e.profile) && ("first_name" in e.profile && (e._first_name_lc = _.toLower(e.profile.first_name)), "last_name" in e.profile && (e._last_name_lc = _.toLower(e.profile.last_name)), "real_name" in e.profile && (e._real_name_lc = _.toLower(e.profile.real_name), e._real_name_normalized_lc = _.toLower(TS.i18n.deburr(e._real_name_lc)), e.profile.real_name_normalized = TS.i18n.deburr(e.profile.real_name)), TS.boot_data.feature_name_tagging_client && ("display_name" in e.profile && (e._display_name_lc = _.toLower(e.profile.display_name)), "display_name_normalized" in e.profile && (e._display_name_normalized_lc = _.toLower(e.profile.display_name_normalized))));
         },
         W = function(e) {
           if (_.isObject(e.profile)) {
@@ -19858,7 +19858,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           };
           if (!n && r[e]) return a[e] = _.cloneDeep(t), TS.has_pri[F] && TS.log(F, "_upsertRxns call ignored because !force && _pending_counts[" + e + "]:" + r[e]), s;
           var o = TS.rxns.getExistingRxnsByKey(e);
-          return t ? o ? TS.utility.areSimpleObjectsEqual(o, t, "rxn_key:" + e) || (s.status = "CHANGED", i[e] = t) : (s.status = "ADDED", i[e] = t) : o && (s.status = "CHANGED", delete i[e]), s.rxns = i[e] || null, TS.useReactMessages() && TS.redux.reactions.updateReaction(e, t), TS.has_pri[F] && TS.dir(F, s, e), s;
+          return t ? o ? TS.utility.areSimpleObjectsEqual(o, t, "rxn_key:" + e) || (s.status = "CHANGED", i[e] = t) : (s.status = "ADDED", i[e] = t) : o && (s.status = "CHANGED", delete i[e]), s.rxns = i[e] || null, TS.useReactMessages() && (TS.redux.reactions.isInBulkUpsertMode() ? TS.redux.reactions.addToBulkUpsertPayload(e, t) : TS.redux.reactions.updateReaction(e, t)), TS.has_pri[F] && TS.dir(F, s, e), s;
         },
         p = function(e) {
           e && (r[e] = r[e] || 0, r[e] += 1, TS.has_pri[F] && TS.log(F, "_incrementPendingCnt " + e + ": " + r[e]));
@@ -20676,16 +20676,16 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         calcUnreadCnts: function(e, t, n) {
           if (!TS.useReactMessages() && !TS._incremental_boot) {
-            if (TS.shared.didDeferMessageHistoryById(e.id)) {
-              if (TS.boot_data.feature_disable_history_prefetch && !e.is_im && !e.msgs.length) return void(TS.has_pri[k] && TS.log(k, "calcUnreadCnts (" + e.id + "): History prefetch disabled. msgs.length: " + (e.msgs && e.msgs.length)));
-              if (e.is_im || e.is_mpim) return void TS.shared.checkInitialMsgHistory(e, t);
-              if (!a[e.id]) {
-                var i = _.random(2500, 1e4);
-                TS.has_pri[k] && TS.log(k, "calcUnreadCnts (" + e.id + "): no history in model, no history call yet - delaying " + i + " ms before history fetch."), a[e.id] = window.setTimeout(function() {
-                  TS.has_pri[k] && TS.log(k, "calcUnreadCnts (" + e.id + "): fetching after " + i + " ms delay."), delete a[e.id], TS.shared.checkInitialMsgHistory(e, t);
-                }, i);
-              }
-            }
+            if (TS.shared.didDeferMessageHistoryById(e.id))
+              if (!TS.boot_data.feature_disable_history_prefetch || e.is_im || e.msgs.length) {
+                if (e.is_im || e.is_mpim) return void TS.shared.checkInitialMsgHistory(e, t);
+                if (!a[e.id]) {
+                  var i = _.random(2500, 1e4);
+                  TS.has_pri[k] && TS.log(k, "calcUnreadCnts (" + e.id + "): no history in model, no history call yet - delaying " + i + " ms before history fetch."), a[e.id] = window.setTimeout(function() {
+                    TS.has_pri[k] && TS.log(k, "calcUnreadCnts (" + e.id + "): fetching after " + i + " ms delay."), delete a[e.id], TS.shared.checkInitialMsgHistory(e, t);
+                  }, i);
+                }
+              } else TS.has_pri[k] && TS.log(k, "calcUnreadCnts (" + e.id + "): History prefetch disabled. msgs.length: " + (e.msgs && e.msgs.length));
             e.unreads.length = 0, e.unread_highlights.length = 0, TS.shared.setOldestUnreadTsForId(e.id, null);
             var r, o = e.msgs,
               l = e.unread_cnt,
@@ -26046,7 +26046,17 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }), Handlebars.registerHelper("toHour", function(e) {
             return TS.interop.datetime.toHour(e);
           }), Handlebars.registerHelper("memberLocalTime", function(e) {
-            return new Handlebars.SafeString(TS.utility.date.memberLocalTime(e));
+            var t = e && e.tz ? e.tz : "America/Los_Angeles",
+              n = TS && TS.boot_data && TS.boot_data.dst_offsets ? TS.boot_data.dst_offsets[e.tz].tz_offset : -25200,
+              i = TS.interop.datetime.memberLocalTime(Date.now(), {
+                timeZone: t,
+                timeZoneOffset: n,
+                do24hrTime: TS.utility.date.do24hrTime()
+              }),
+              r = TS.i18n.t('<span class="timezone_value">{local_time}</span> local time', "date_utilities")({
+                local_time: i
+              });
+            return new Handlebars.SafeString(r);
           }), Handlebars.registerHelper("memberUTCOffset", function(e) {
             return TS.utility.date.memberUTCOffset(e);
           }), Handlebars.registerHelper("isInDifferentTimeZone", function(e, t) {
@@ -40990,8 +41000,28 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             key: e,
             reactions: t
           }));
+        },
+        addToBulkUpsertPayload: function(n, i) {
+          n && e && t.push({
+            key: n,
+            reactions: i
+          });
+        },
+        isInBulkUpsertMode: function() {
+          return e;
+        },
+        startBulkUpsert: function() {
+          return !e && (e = !0, !0);
+        },
+        finishBulkUpsert: function() {
+          return !!e && (n(), !0);
         }
       });
+      var e = !1,
+        t = [],
+        n = function() {
+          t.length && (TS.redux.dispatch(TS.interop.redux.entities.reactions.bulkUpdateReaction(t)), t = []);
+        };
     }();
   },
   3426: function(e, t) {
