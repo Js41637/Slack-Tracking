@@ -1,3 +1,10 @@
+.t-button-reset {
+  padding: 0;
+  background-color: transparent;
+  border-width: 0;
+  cursor: pointer
+}
+
 .normal {
   font-weight: 400
 }

@@ -17366,6 +17366,13 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   line-height: 1.6rem
 }
 
+.t-button-reset {
+  padding: 0;
+  background-color: transparent;
+  border-width: 0;
+  cursor: pointer
+}
+
 .c-member__display-name {
   color: #2C2D30;
   font-weight: 700

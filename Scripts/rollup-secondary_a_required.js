@@ -3670,7 +3670,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                 l = n.data("model-ob-id"),
                 d = n.data("member-id"),
                 c = n.data("app-id"),
-                _ = {
+                u = {
                   message_timestamp: o,
                   channel_id: l,
                   channel_type: l ? l.charAt(0) : "",
@@ -3678,7 +3678,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                   app_id: c,
                   bot_id: a
                 };
-              TS.clog.track("USERNAME_CLICK", _), a ? r ? TS.boot_data.feature_shared_channels_client && s ? TS.menu.app.startWithApp(e, a, s, null, !0) : TS.menu.app.startWithApp(e, a, null, null, !0) : TS.boot_data.feature_shared_channels_client && s ? TS.menu.app.startWithApp(e, a, s) : TS.menu.app.startWithApp(e, a, null, !0) : TS.warn("hmm, no data-bot-id?");
+              if (TS.clog.track("USERNAME_CLICK", u), a) {
+                var m = d || _.get(TS.apps.getAppById(c), "bot_user.id");
+                TS.apps.isAppSpaceEnabled() && m ? TS.ims.startImByMemberId(m) : r ? TS.boot_data.feature_shared_channels_client && s ? TS.menu.app.startWithApp(e, a, s, null, !0) : TS.menu.app.startWithApp(e, a, null, null, !0) : TS.boot_data.feature_shared_channels_client && s ? TS.menu.app.startWithApp(e, a, s) : TS.menu.app.startWithApp(e, a, null, !0);
+              } else TS.warn("hmm, no data-bot-id?");
             }
           }), TS.click.addClientHandler(".attachment_attribution a", function(e, t) {
             var n = t.data("attribution-bot-id"),
@@ -7705,7 +7708,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           var t = TS.format.texty.convertContentsStringToContents(e.str);
           return e.str = _.reduce(t.contents, function(e, t) {
             return e + t.insert;
-          }, ""), n.do_specials && (e.str = _.escape(e.str)), e;
+          }, ""), n.do_specials && (e.str = TSF.getTokensString(e.str, "CLEAN", {
+            jumbomoji: TS.model.prefs.jumbomoji
+          })), e;
         })), t = TSF.swapOutPlaceholders(i, t)), t;
       }
 
