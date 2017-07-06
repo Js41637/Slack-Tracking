@@ -15211,7 +15211,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             t = TS.boot_data.feature_queue_metrics && TS.utility.enableFeatureForUser(R), D.enableStatsCollecting();
           }), TS.client.stats.stop_collecting_sig.add(function() {
             t = !1, D.disableStatsCollecting();
-          })), TS.isSocketManagerEnabled() ? (TS.interop.SocketManager.socketMessageReceivedSig.add(TS.ms.msg_handlers.msgReceived), TS.interop.Eventlog.messageReceivedSig.add(TS.ms.msg_handlers.msgReceived), TS.interop.SocketManager.connectedSig.add(function() {
+          })), TS.boot_data.feature_lazy_load_members_and_bots_everywhere && TS.web && !TS.web.space || (TS.isSocketManagerEnabled() ? (TS.interop.SocketManager.socketMessageReceivedSig.add(TS.ms.msg_handlers.msgReceived), TS.interop.Eventlog.messageReceivedSig.add(TS.ms.msg_handlers.msgReceived), TS.interop.SocketManager.connectedSig.add(function() {
             TS.boot_data.feature_tinyspeck && (i && clearTimeout(i), i = setTimeout(function() {
               if (TS.interop.SocketManager.isConnected() && !(l.length < 50)) {
                 var e = l[0];
@@ -15225,7 +15225,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                 }, 1e4);
               }
             }, 3e4));
-          })) : TS.ms.on_msg_sig.add(TS.ms.msg_handlers.msgReceived);
+          })) : TS.ms.on_msg_sig.add(TS.ms.msg_handlers.msgReceived));
         },
         debugGetQueueSize: function() {
           return l.length;
