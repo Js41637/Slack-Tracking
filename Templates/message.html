@@ -63,39 +63,42 @@
             <span class="meta message_commented">{{#t note="[sender] commented: [comment]"}}commented:{{/t}}</span>
           {{/if}}
         {{/if}}
-        {{#unless for_top_results_search_display}}
-        <{{#if permalink}}a href="{{permalink}}" target="{{newWindowName}}"{{else}}span{{/if}} class="timestamp ts_tip ts_tip_top ts_tip_float ts_tip_hidden ts_tip_multiline ts_tip_delay_300{{#if full_date}} no_wrap{{/if}}"><i class="copy_only">[</i>{{#if full_date}}{{#t note="when message was posted" date=(toCalendarDateOrNamedDayShort msg.ts)}}{date} at{{/t}} {{/if}}{{#if relative_ts}}{{toTimeAgoShort msg.ts}}{{else}}{{{toTime msg.ts}}}{{/if}}<i class="copy_only">]</i><span class="ts_tip_tip"><span class="ts_tip_multiline_inner">{{{msgTsTitle msg msg_dom_id permalink}}}</span></span></{{#if permalink}}a{{else}}span{{/if}}>
-        {{/unless}}
-        {{#unless standalone}}
-          {{#unless show_reply_bar}}{{#unless is_threads_view}}{{> show_conversation_link link_class="light_only"}}{{/unless}}{{/unless}}
-        {{/unless}}
-        {{#if show_user}}{{#if is_ephemeral}}<span class="only_visible_to_user">{{#t note="indication on an ephemeral message that it is not visible to anyone else in the channel"}}Only visible to you{{/t}}</span>{{/if}}{{/if}}
 
-        {{#if is_tombstone}}
-          <div class="deleted_message">{{#t}}This message was deleted.{{/t}}</div>
-        {{else}}
-          {{#feature flag="feature_sli_recaps"}}
-            {{#if show_recap_debug}}
-              <button type="button" class="recap_highlight_debug ts_icon ts_icon_info_circle btn_unstyle very_small_left_padding ts_tip ts_tip_top">
-                <span class="ts_tip_tip">{{#t note="This is a TS-only tool and will not be released to users."}}View in SLI Debugger{{/t}}</span>
-              </button>
-            {{/if}}
-          {{/feature}}
-          {{#if show_star}}<span class="message_star_holder">{{>star_with_tip star_components}}</span>{{/if}}
-          {{#if format_for_thread_root}}{{> thread_channel_link}}{{/if}}
-          {{#if for_top_results_search_display}}
-            {{#if archive_link}}
-              <span><a class="jump" href="{{archive_link}}" target="{{newWindowName}}">
-                {{#t note="link to view this message in its original context"}}View in Archive{{/t}}</a>
-              </span>
-            {{else}}
-              <span><a class="jump" href="{{permalink}}" target="{{newWindowName}}">
-                {{#t note="link to scroll back to this message in its original context"}}Jump{{/t}}</a>
-              </span>
-            {{/if}}
+        <span class="time_star_and_extra_metadata">
+          {{#unless for_top_results_search_display}}
+          <{{#if permalink}}a href="{{permalink}}" target="{{newWindowName}}"{{else}}span{{/if}} class="timestamp ts_tip ts_tip_top ts_tip_float ts_tip_hidden ts_tip_multiline ts_tip_delay_300{{#if full_date}} no_wrap{{/if}}"><i class="copy_only">[</i>{{#if full_date}}{{#t note="when message was posted" date=(toCalendarDateOrNamedDayShort msg.ts)}}{date} at{{/t}} {{/if}}{{#if relative_ts}}{{toTimeAgoShort msg.ts}}{{else}}{{{toTime msg.ts}}}{{/if}}<i class="copy_only">]</i><span class="ts_tip_tip"><span class="ts_tip_multiline_inner">{{{msgTsTitle msg msg_dom_id permalink}}}</span></span></{{#if permalink}}a{{else}}span{{/if}}>
+          {{/unless}}
+          {{#unless standalone}}
+            {{#unless show_reply_bar}}{{#unless is_threads_view}}{{> show_conversation_link link_class="light_only"}}{{/unless}}{{/unless}}
+          {{/unless}}
+          {{#if show_user}}{{#if is_ephemeral}}<span class="only_visible_to_user">{{#t note="indication on an ephemeral message that it is not visible to anyone else in the channel"}}Only visible to you{{/t}}</span>{{/if}}{{/if}}
 
+          {{#if is_tombstone}}
+            <div class="deleted_message">{{#t}}This message was deleted.{{/t}}</div>
+          {{else}}
+            {{#feature flag="feature_sli_recaps"}}
+              {{#if show_recap_debug}}
+                <button type="button" class="recap_highlight_debug ts_icon ts_icon_info_circle btn_unstyle very_small_left_padding ts_tip ts_tip_top">
+                  <span class="ts_tip_tip">{{#t note="This is a TS-only tool and will not be released to users."}}View in SLI Debugger{{/t}}</span>
+                </button>
+              {{/if}}
+            {{/feature}}
+            {{#if show_star}}<span class="message_star_holder">{{>star_with_tip star_components}}</span>{{/if}}
+            {{#if format_for_thread_root}}{{> thread_channel_link}}{{/if}}
+            {{#if for_top_results_search_display}}
+              {{#if archive_link}}
+                <span><a class="jump" href="{{archive_link}}" target="{{newWindowName}}">
+                  {{#t note="link to view this message in its original context"}}View in Archive{{/t}}</a>
+                </span>
+              {{else}}
+                <span><a class="jump" href="{{permalink}}" target="{{newWindowName}}">
+                  {{#t note="link to scroll back to this message in its original context"}}Jump{{/t}}</a>
+                </span>
+              {{/if}}
+
+            {{/if}}
           {{/if}}
-        {{/if}}
+        </span>
       </div>
       {{#if is_broadcast}}{{> message_broadcast_meta}}{{/if}}
       {{#if starred_items_actions}}

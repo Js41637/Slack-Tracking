@@ -4,21 +4,21 @@
 
   {{#unless first_card}}
     <div class="c-card_carousel__btn_container">
-      <a class="c-card_carousel__btn c-card_carousel__btn--left">
+      <a class="c-card_carousel__btn c-card_carousel__btn--left" data-card_left_button>
         <i class="ts_icon ts_icon_arrow_large_left"></i>
       </a>
     </div>
   {{/unless}}
 
   <div class="c-card_carousel__btn_container">
-    <a class="c-card_carousel__btn c-card_carousel__btn--right">
+    <a class="c-card_carousel__btn c-card_carousel__btn--right" data-card_right_button>
       <i class="ts_icon ts_icon_arrow_large_right"></i>
     </a>
   </div>
 
   {{#if last_card }}
     <div class="c-card_carousel__btn_container">
-      <a class="c-card_carousel__btn c-card_carousel__btn--close">
+      <a class="c-card_carousel__btn c-card_carousel__btn--close" data-card_close_button>
         <i class="ts_icon ts_icon_check_large"></i>
       </a>
     </div>

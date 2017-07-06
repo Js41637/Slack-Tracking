@@ -72,8 +72,8 @@ webpackJsonp([241], {
         m = [],
         c = [],
         u = TS.i18n.t("name@example.com", "invite")(),
-        v = u,
-        f = "",
+        f = u,
+        v = "",
         h = "",
         g = {
           url_in_message: TS.i18n.t("Sorry, but URLs are not allowed in the custom message. Please remove it and try again!", "invite")(),
@@ -157,8 +157,11 @@ webpackJsonp([241], {
           }, 0);
         },
         S = function() {
-          var i = $("#admin_invites_alert");
-          !TS.model.team.plan && TS.model.user.is_admin ? (i.removeClass("hidden"), TS.clog.track("GROWTH_PRICING", {
+          e = $("#admin_invites_container");
+          var i = e.find(".admin_invites_custom_message_container"),
+            t = e.find("#admin_invites_alert"),
+            n = e.find('button[data-action="api_send_invites"]');
+          !TS.model.team.plan && TS.model.user.is_admin ? (t.removeClass("hidden"), TS.clog.track("GROWTH_PRICING", {
             contexts: {
               ui_context: {
                 step: "admin_invites",
@@ -166,37 +169,37 @@ webpackJsonp([241], {
                 ui_element: "invite_modal_guest_alert"
               }
             }
-          })) : i.addClass("hidden");
-          var t;
-          e = $("#admin_invites_container"), e.find("#admin_invites_switcher").on("click", '[data-action="switch_type"]', function(e) {
+          })) : t.addClass("hidden"), e.find("#admin_invites_switcher").on("click", '[data-action="switch_type"]', function(e) {
             var i = $(e.target);
             i.is("a") || i.closest(".admin_invites_account_type_option").hasClass("disabled") || J($(this).data("account-type"));
           }), e.find('[data-action="admin_invites_add_row"]').on("click", O), e.find('a[data-action="admin_invites_switch_view"]').on("click", function() {
             V($(this).data("view"));
-          }), e.find('button[data-action="api_send_invites"]').on("click", function(e) {
-            e.preventDefault(), Z(), !TS.model.team.plan && TS.model.user.is_admin && i.css("visibility", "hidden");
+          }), e.find("#invite_rows").on("keydown", function(e) {
+            e.which === TS.utility.keymap.enter && n.trigger("click");
+          }), n.on("click", function(e) {
+            e.preventDefault(), Z(), !TS.model.team.plan && TS.model.user.is_admin && t.css("visibility", "hidden");
           }), e.find('button[data-action="api_parse_emails"]').on("click", function(e) {
             e.preventDefault(), ne(), $(this).find(".ladda-label").text(TS.i18n.t("Processing email addresses ...", "invite")());
-          }), t = e.find(".admin_invites_custom_message_container"), k(), y(), e.find('a[data-action="admin_invites_show_custom_message"]').on("click", function() {
+          }), k(), y(), e.find('a[data-action="admin_invites_show_custom_message"]').on("click", function() {
             G();
           }), e.find('[data-action="admin_invites_hide_custom_message"]').on("click", function() {
             M();
           }).hover(function() {
-            t.addClass("delete_highlight");
+            i.addClass("delete_highlight");
           }, function() {
-            t.removeClass("delete_highlight");
+            i.removeClass("delete_highlight");
           }), e.find("#admin_invite_custom_message").on("input", E), e.find("#bulk_emails").css("overflow", "hidden").autogrow(), c = TS.storage.fetchInvitesState(), c.length ? TS.ui.admin_invites.populateInvites(c) : O();
-          var n = e.find(".admin_invite_row").length;
-          if (n < 3) {
-            var a = 3 - n;
-            _.times(a, O);
+          var a = e.find(".admin_invite_row").length;
+          if (a < 3) {
+            var s = 3 - a;
+            _.times(s, O);
           }
         },
         T = function() {
           d = 0, r = 0, c = m.length ? [] : X(), l = [], m = [], N(), o && o(), TS.storage.storeInvitesState(c), TS.client && TS.ui.a11y.restorePreviousFocus();
         },
         b = function() {
-          v = u;
+          f = u;
         },
         y = function() {
           if (!TS.model.team.plan) return w(!1);
@@ -307,7 +310,7 @@ webpackJsonp([241], {
           0 === e.find(".admin_invite_row").length ? t = !1 : e.find(".admin_invite_row").first().find(".delete_row").removeClass("hidden"), e.find("#invite_rows").append(TS.templates.admin_invite_row({
             index: d,
             show_delete_btn: t,
-            placeholder_email_address: v
+            placeholder_email_address: f
           }));
           var a = e.find("#invite_" + d);
           a.find('[data-action="admin_invites_delete_row"]').on("click", function() {
@@ -559,12 +562,12 @@ webpackJsonp([241], {
             var e = function() {
               setTimeout(Ladda.stopAll, 0), TS.ui.admin_invites.invites_sent_sig.dispatch();
             };
-            f = de(l), f ? TS.api.call("team.checkEmailDomains", {
-              email_domains: f
+            v = de(l), v ? TS.api.call("team.checkEmailDomains", {
+              email_domains: v
             }).then(function(e) {
-              f = e.data.ok ? e.data.email_domains : "";
+              v = e.data.ok ? e.data.email_domains : "";
             }, function() {
-              f = "";
+              v = "";
             }).finally(e) : e();
           }
         },
@@ -597,7 +600,7 @@ webpackJsonp([241], {
             success_invites: l,
             error_invites: m,
             team_name: TS.model.team.name,
-            domains: f,
+            domains: v,
             paid_team: "" !== TS.model.team.plan,
             is_admin: TS.model.user.is_admin,
             expiration_msg: a

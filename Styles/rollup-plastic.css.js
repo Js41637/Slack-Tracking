@@ -17250,6 +17250,10 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   display: none!important
 }
 
+.mention_rxn .unknown_member {
+  display: inline-block
+}
+
 .dense_theme .mention_rxn_summary,
 .dense_theme .mention_rxn_summary_left {
   display: inline

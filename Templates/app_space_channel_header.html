@@ -23,13 +23,15 @@
     {{#t}}About{{/t}}
   </button>
 
-  <button
-    type="button"
-    class="btn_unstyle channel_header__tab hidden"
-    data-action="toggleAppSpaceView"
-    data-target="permissions"
-  >
-    {{#t}}Permissions{{/t}}
-  </button>
+  {{#feature flag="feature_app_space_permissions_tab"}}
+    <button
+      type="button"
+      class="btn_unstyle channel_header__tab hidden"
+      data-action="toggleAppSpaceView"
+      data-target="permissions"
+    >
+      {{#t}}Permissions{{/t}}
+    </button>
+  {{/feature}}
 
 </div>
