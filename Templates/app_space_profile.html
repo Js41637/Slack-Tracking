@@ -41,11 +41,17 @@
       {{!-- NON-SLACK APP --}}
       {{#unless is_directory_published}}
         <section>
-          <p class="p-app_space_profile__disclaimer">
-            <i>{{#t}}This app has not been reviewed or approved by Slack.{{/t}}</i>
-            <a href="https://get.slack.help/hc/en-us/articles/222386767-Manage-apps-for-your-team}" target="_blank">
-              {{#t note="Link text to Slack help article"}}Learn more{{/t}}
-            </a>
+          <p class="app_space_profile__disclaimer">
+            <i>
+            {{#if is_distributed}}
+              {{#t}}
+                This app has not been reviewed or approved by Slack.
+                <a href="https://get.slack.help/hc/en-us/articles/222386767-Manage-apps-for-your-team" target="_blank">Learn more</a>.
+              {{/t}}
+            {{else}}
+                {{installation_summary}}
+            {{/if}}
+            </i>
           </p>
         </section>
       {{/unless}}

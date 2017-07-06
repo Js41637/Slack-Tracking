@@ -1453,6 +1453,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               bot_id: t,
               is_slack_integration: e.is_slack_integration,
               is_directory_published: e.is_directory_published,
+              is_distributed: e.is_distributed,
               commands: _.toArray(e.commands)
             },
             s = _.get(e, "bot_user.id"),
@@ -2877,7 +2878,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         i = function(e) {
           if (e.is_shared) {
             if (e.is_global_shared) return e.shares && (e.shares = void 0), void(e.shared_team_ids && (e.shared_team_ids = void 0));
-            e.shares && TS.shared.isModelObOrgShared(e) ? (e.shared_team_ids = _(e.shared_team_ids || []).concat(_.map(e.shares, "id")).value(), e.shares && (e.shares = void 0)) : e.shares && TS.shared.isModelObShared(e) && (e.shared_team_ids = _.map(e.shares, "team.id"), e.shares && (e.shares = void 0)), e.shared_team_ids = _(e.shared_team_ids || []).uniq().value(), TS.shared.isModelObShared(e) && e.shared_team_ids.length && TS.teams.ensureTeamsArePresent(e.shared_team_ids);
+            e.shares && TS.shared.isModelObOrgShared(e) ? (e.shared_team_ids = _(e.shared_team_ids || []).concat(_.map(e.shares, "id")).value(), e.shares && (e.shares = void 0)) : e.shares && TS.shared.isModelObShared(e) && (e.is_mpim ? e.shared_team_ids = e.shares : e.shared_team_ids = _.map(e.shares, "team.id"), e.shares && (e.shares = void 0)), e.shared_team_ids = _(e.shared_team_ids || []).uniq().value(), TS.shared.isModelObShared(e) && e.shared_team_ids.length && TS.teams.ensureTeamsArePresent(e.shared_team_ids);
           }
         },
         r = function(e) {
@@ -14731,7 +14732,13 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           TS.prefs.display_real_names_override_changed_sig.add(s), TS.prefs.team_display_real_names_changed_sig.add(s), TS.members.changed_profile_sig.add(a);
         },
         getVisibleMpims: function(e) {
-          return e || (e = TS.model.mpims), e.filter(function(e) {
+          if (e || (e = TS.model.mpims), TS.boot_data.feature_shared_channels_client) {
+            var t = _.filter(TS.model.channels, function(e) {
+              if (e.is_mpim) return !0;
+            });
+            e = _.union(e, t);
+          }
+          return e.filter(function(e) {
             return !!e.is_open || (!!e.is_starred || (!!e.unread_cnt || !!(e.latest || e.msgs && e.msgs.length) && ((!e.members || 2 !== e.members.length) && (TS.model.user.is_ultra_restricted, !0))));
           });
         },
@@ -21077,7 +21084,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             });
         },
         getControllerForModelOb: function(e) {
-          return e ? e.is_im ? TS.ims : e.is_mpim ? TS.mpims : e.is_group ? TS.groups : TS.channels : {};
+          return e ? e.is_im ? TS.ims : e.is_mpim && e.is_group ? TS.mpims : e.is_group ? TS.groups : TS.channels : {};
         },
         getActiveModelOb: function() {
           var e;

@@ -9,6 +9,8 @@
       {{else}}
         {{#showDraftIcon model_ob}}
           {{> ts_icon class="ts_icon_pencil prefix"}}
+        {{else if model_ob.is_mpim}}
+          <ts-icon class="ts_icon ts_icon_multiparty_dm_{{mpimMemberCount model_ob}} prefix"></ts-icon>
         {{else if model_ob.is_private}}
           {{> ts_icon class="ts_icon_lock prefix"}}
         {{else}}
@@ -25,7 +27,11 @@
       </span>
       <span class="display_flex">
         <span class="overflow_ellipsis">
-          {{model_ob.name}}
+          {{#if model_ob.is_mpim}}
+            {{mpimDisplayName model_ob}}
+          {{else}}
+            {{model_ob.name}}
+          {{/if}}
         </span>
         {{#if model_ob.is_org_shared}}{{> shared_channel_icon}}{{else if model_ob.is_shared}}{{> shared_channels_icon}}{{/if}}
       </span>

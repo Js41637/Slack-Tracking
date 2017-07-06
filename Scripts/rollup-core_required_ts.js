@@ -1649,12 +1649,12 @@ webpackJsonp([12, 328, 337, 329], {
               id: a.self.id
             }) || a.users.push(a.self), a.users.forEach(function(e) {
               "USLACKBOT" !== e.id && e.id != TS.boot_data.user_id || (e.presence = "active"), delete e.updated;
-            }), o.is_mpim) i(o, a.mpims);
+            }), o.is_channel) i(o, a.channels);
+          else if (o.is_mpim) i(o, a.mpims);
           else if (o.is_group) i(o, a.groups);
-          else if (o.is_im) i(o, a.ims);
           else {
-            if (!o.is_channel) throw new Error("Unexpected model object type from channels.view");
-            i(o, a.channels);
+            if (!o.is_im) throw new Error("Unexpected model object type from channels.view");
+            i(o, a.ims);
           }
           return a.emoji_cache_ts = _.get(TS.storage.fetchCustomEmoji(), "cache_ts"), a.apps_cache_ts = _.get(TS.storage.fetchApps(), "cache_ts"), a.commands_cache_ts = _.get(TS.storage.fetchCmds(), "cache_ts"), a;
         },

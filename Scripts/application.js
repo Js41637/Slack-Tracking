@@ -21871,7 +21871,7 @@ webpackJsonp([332], [, function(e, t, n) {
 }, function(e, t, n) {
   t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.c-tooltip__tip {\n  display: inline-block;\n  color: #FFFFFF;\n  background-color: #000;\n  max-width: 250px;\n  padding: 0.5rem;\n  border-radius: 4px;\n  position: relative;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 0.8125rem;\n  font-weight: 700;\n  text-align: center;\n}\n.c-tooltip__tip:after {\n  position: absolute;\n  content: '';\n  width: 0;\n  height: 0;\n  margin: -5px;\n  border: 6px solid transparent;\n}\n.c-tooltip__tip--left {\n  margin-right: 0.5rem;\n}\n.c-tooltip__tip--left:after {\n  border-left-color: #000;\n  right: -6px;\n  top: 50%;\n}\n.c-tooltip__tip--right {\n  margin-left: 0.5rem;\n}\n.c-tooltip__tip--right:after {\n  border-right-color: #000;\n  left: -6px;\n  top: 50%;\n}\n.c-tooltip__tip--top {\n  margin-bottom: 0.5rem;\n}\n.c-tooltip__tip--top:after {\n  border-top-color: #000;\n  bottom: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--top-left {\n  margin-bottom: 0.5rem;\n}\n.c-tooltip__tip--top-left:after {\n  border-top-color: #000;\n  bottom: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--top-left:after {\n  left: 25%;\n}\n.c-tooltip__tip--top-right {\n  margin-bottom: 0.5rem;\n}\n.c-tooltip__tip--top-right:after {\n  border-top-color: #000;\n  bottom: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--top-right:after {\n  left: 75%;\n}\n.c-tooltip__tip--bottom {\n  margin-top: 0.5rem;\n}\n.c-tooltip__tip--bottom:after {\n  border-bottom-color: #000;\n  top: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--bottom-left {\n  margin-top: 0.5rem;\n}\n.c-tooltip__tip--bottom-left:after {\n  border-bottom-color: #000;\n  top: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--bottom-left:after {\n  left: 25%;\n}\n.c-tooltip__tip--bottom-right {\n  margin-top: 0.5rem;\n}\n.c-tooltip__tip--bottom-right:after {\n  border-bottom-color: #000;\n  top: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--bottom-right:after {\n  left: 75%;\n}\n.c-tooltip__tip--success {\n  background-color: #29A979;\n}\n.c-tooltip__tip--success.c-tooltip__tip--left:after {\n  border-left-color: #29A979;\n}\n.c-tooltip__tip--success.c-tooltip__tip--right:after {\n  border-right-color: #29A979;\n}\n.c-tooltip__tip--success.c-tooltip__tip--top:after,\n.c-tooltip__tip--success.c-tooltip__tip--top-left:after,\n.c-tooltip__tip--success.c-tooltip__tip--top-right:after {\n  border-top-color: #29A979;\n}\n.c-tooltip__tip--success.c-tooltip__tip--bottom:after,\n.c-tooltip__tip--success.c-tooltip__tip--bottom-left:after,\n.c-tooltip__tip--success.c-tooltip__tip--bottom-right:after {\n  border-bottom-color: #29A979;\n}\n", ""]);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.p-channel_sidebar {\n  width: 220px;\n  height: 100vh;\n  position: relative;\n  padding: 0;\n}\n.incremental_boot .p-channel_sidebar {\n  display: none;\n  visibility: hidden;\n}\n.p-channel_sidebar__virtualized {\n  outline: none;\n  -ms-overflow-style: none;\n}\n.p-channel_sidebar__virtualized::-webkit-scrollbar {\n  display: none;\n}\n.p-channel_sidebar__section_heading {\n  padding: 0 0.75rem 0 15px;\n  margin: 0;\n  width: 100%;\n  height: 26px;\n  display: flex;\n  align-items: center;\n}\n.p-channel_sidebar__section_heading_label {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  font-size: 1rem;\n  line-height: 1;\n  display: block;\n  opacity: 0.7;\n  text-align: left;\n  width: 100%;\n  transition: opacity 0.1s ease-out;\n}\n.p-channel_sidebar__section_heading_label:hover,\n.p-channel_sidebar__section_heading_label:focus,\n.p-channel_sidebar__section_heading_label:active {\n  outline: none;\n}\n.p-channel_sidebar__section_heading_label .c-icon:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  width: 20px;\n  opacity: 0.7;\n  margin: 0 1px 0 -4px;\n  vertical-align: baseline;\n}\n.p-channel_sidebar__section_heading_label--clickable:hover {\n  opacity: 1;\n}\n.p-channel_sidebar__section_heading_right {\n  margin-left: auto;\n}\n.p-channel_sidebar__section_heading_plus {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  line-height: 100%;\n}\n.p-channel_sidebar__section_heading_plus:hover,\n.p-channel_sidebar__section_heading_plus:focus,\n.p-channel_sidebar__section_heading_plus:active {\n  outline: none;\n}\n.p-channel_sidebar__section_heading_plus:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  width: 20px;\n  opacity: 0.7;\n  line-height: 100%;\n  content: '\\E228';\n  transition: opacity 0.1s ease-out;\n}\n.p-channel_sidebar__section_heading_plus:hover:before {\n  opacity: 1;\n}\n.p-channel_sidebar__banner {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  width: calc(100% - 1rem);\n  text-align: center;\n  position: absolute;\n  display: block;\n  z-index: 2;\n  color: #FFFFFF;\n  left: 0.5rem;\n  right: 0.5rem;\n  font-weight: 700;\n  font-size: 0.875rem;\n  line-height: 1.625rem;\n  cursor: pointer;\n}\n.p-channel_sidebar__banner:hover,\n.p-channel_sidebar__banner:focus,\n.p-channel_sidebar__banner:active {\n  outline: none;\n}\n.p-channel_sidebar__banner--top {\n  border-top-right-radius: 0;\n  border-bottom-right-radius: 6px;\n  border-bottom-left-radius: 6px;\n  border-top-left-radius: 0;\n  background-clip: padding-box;\n  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.1) inset;\n  top: 0;\n}\n.p-channel_sidebar__banner--bottom {\n  border-top-right-radius: 6px;\n  border-bottom-right-radius: 0;\n  border-bottom-left-radius: 0;\n  border-top-left-radius: 6px;\n  background-clip: padding-box;\n  box-shadow: 0 -1px 6px rgba(0, 0, 0, 0.1), 0 -1px 3px rgba(0, 0, 0, 0.1) inset;\n  bottom: 0;\n}\n.p-channel_sidebar__banner--mentions {\n  background: #EB4D5C;\n}\n.p-channel_sidebar__banner--unreads {\n  background: #2D9EE0;\n}\n.p-channel_sidebar__link {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n}\n.p-channel_sidebar__link:hover,\n.p-channel_sidebar__link:focus,\n.p-channel_sidebar__link:active {\n  outline: none;\n}\n.p-channel_sidebar__channel,\n.p-channel_sidebar__link {\n  display: flex;\n  align-items: center;\n  height: 26px;\n  line-height: 1.625rem;\n  padding: 0 0.75rem 0 15px;\n  width: 100%;\n}\n.p-channel_sidebar__channel:before,\n.p-channel_sidebar__link:before,\n.p-channel_sidebar__channel:after,\n.p-channel_sidebar__link:after {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  width: 20px;\n  opacity: 0.7;\n}\n.p-channel_sidebar__channel:before,\n.p-channel_sidebar__link:before {\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel:after,\n.p-channel_sidebar__link:after {\n  font-size: 1.25rem;\n  margin-left: 0.25rem;\n}\n.p-channel_sidebar__channel:hover,\n.p-channel_sidebar__link:hover,\n.p-channel_sidebar__channel:active,\n.p-channel_sidebar__link:active,\n.p-channel_sidebar__channel:focus,\n.p-channel_sidebar__link:focus,\n.p-channel_sidebar__channel:link,\n.p-channel_sidebar__link:link,\n.p-channel_sidebar__channel:visited,\n.p-channel_sidebar__link:visited {\n  text-decoration: none;\n}\n.p-channel_sidebar__channel:before {\n  content: '\\E125';\n}\n.p-channel_sidebar__channel--private:before {\n  content: '\\E567';\n}\n.p-channel_sidebar__channel--shared:after {\n  content: '\\E559';\n}\n.p-channel_sidebar__channel--org-shared:after {\n  content: '\\E166';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft):before {\n  font-size: 1.25rem;\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='2']:before {\n  content: '\\E521';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='3']:before {\n  content: '\\E522';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='4']:before {\n  content: '\\E523';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='5']:before {\n  content: '\\E524';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='6']:before {\n  content: '\\E525';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='7']:before {\n  content: '\\E526';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='8']:before {\n  content: '\\E527';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='9']:before {\n  content: '\\E528';\n}\n.p-channel_sidebar__channel--im:before {\n  content: none;\n}\n.p-channel_sidebar__channel--im .c-presence {\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel--im .c-presence--away {\n  opacity: 0.7;\n}\n.p-channel_sidebar__channel--im-slackbot:before {\n  content: '\\E515';\n  opacity: 1;\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel--im-slackbot.p-channel_sidebar__channel--draft:before {\n  color: inherit;\n}\n.p-channel_sidebar__channel--muted:not(.p-channel_sidebar__channel--selected) {\n  opacity: 0.4;\n}\n.p-channel_sidebar__channel--unread:not(.p-channel_sidebar__channel--muted) .p-channel_sidebar__name {\n  font-weight: 900;\n  opacity: 1;\n}\n.p-channel_sidebar__channel--selected .p-channel_sidebar__name {\n  opacity: 1;\n}\n.p-channel_sidebar__channel--draft:before {\n  content: '\\E024';\n  font-size: 0.875rem;\n  margin: 1px -2px 0 -1px;\n  flex-basis: 20px;\n  flex-shrink: 0;\n}\n.p-channel_sidebar__channel--archived:before {\n  content: '\\E534';\n}\n@keyframes typing {\n  100% {\n    background-position: -240px;\n  }\n}\n.p-channel_sidebar__channel--typing:before {\n  display: block;\n  content: '';\n  width: 11px;\n  height: 3px;\n  background-image: url(/img/typing-sprite.png);\n  background-repeat: no-repeat;\n  animation: 1s steps(15) 0s infinite normal none typing-sprite;\n  margin: 0 5px 0 1px;\n  opacity: 1;\n}\n@media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {\n  .p-channel_sidebar__channel--typing:before {\n    background-size: cover;\n    background-image: url(/img/typing-sprite@2x.png);\n  }\n}\n.p-channel_sidebar__name {\n  margin-right: auto;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  opacity: 0.7;\n}\n.p-channel_sidebar__name .c-custom_status {\n  float: right;\n  position: relative;\n  z-index: 1;\n}\n.p-channel_sidebar__name.p-channel_sidebar__name--away {\n  font-style: italic;\n}\n.p-channel_sidebar__badge {\n  order: 5;\n  padding: 1px 0.6rem;\n  margin-left: 0.25rem;\n  border-radius: 1rem;\n  line-height: 1rem;\n  font-size: 0.75rem;\n  font-weight: 700;\n  color: #FFFFFF;\n}\n.p-channel_sidebar__status {\n  margin-left: 0.5rem;\n}\n.p-channel_sidebar__you_label {\n  margin-left: 0.5rem;\n  font-weight: normal;\n  opacity: 0.7;\n}\n.p-channel_sidebar__close {\n  margin-left: 0.25rem;\n  display: none;\n}\n.p-channel_sidebar__close,\n.p-channel_sidebar__close:before {\n  line-height: 100%;\n}\n.p-channel_sidebar__channel:hover .p-channel_sidebar__close {\n  display: block;\n}\n.p-channel_sidebar__link--unread .p-channel_sidebar__name {\n  font-weight: 900;\n  opacity: 1;\n}\n.p-channel_sidebar__link--selected .p-channel_sidebar__name {\n  opacity: 1;\n}\n.p-channel_sidebar__link--all-unreads:before {\n  content: '\\E103';\n  margin: 0 4px 0 -4px;\n}\n.p-channel_sidebar__link--all-threads:before {\n  content: '\\E171';\n  margin: 0 4px 0 -4px;\n}\n.p-channel_sidebar__link--all-threads.p-channel_sidebar__link--unread:before {\n  content: '\\E554';\n}\n.p-channel_sidebar__link--invites:before {\n  content: '\\E281';\n}\n.p-channel_sidebar__link--invites:not(.p-channel_sidebar__link--dim) .p-channel_sidebar__name {\n  font-weight: 900;\n  opacity: 1;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.p-channel_sidebar {\n  width: 220px;\n  height: 100vh;\n  position: relative;\n  padding: 0;\n}\n.incremental_boot .p-channel_sidebar {\n  display: none;\n  visibility: hidden;\n}\n.p-channel_sidebar__virtualized {\n  outline: none;\n  -ms-overflow-style: none;\n}\n.p-channel_sidebar__virtualized::-webkit-scrollbar {\n  display: none;\n}\n.p-channel_sidebar__section_heading {\n  padding: 0 0.75rem 0 15px;\n  margin: 0;\n  width: 100%;\n  height: 26px;\n  display: flex;\n  align-items: center;\n}\n.p-channel_sidebar__section_heading_label {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  font-size: 1rem;\n  line-height: 1;\n  display: block;\n  opacity: 0.7;\n  text-align: left;\n  width: 100%;\n  transition: opacity 0.1s ease-out;\n}\n.p-channel_sidebar__section_heading_label:hover,\n.p-channel_sidebar__section_heading_label:focus,\n.p-channel_sidebar__section_heading_label:active {\n  outline: none;\n}\n.p-channel_sidebar__section_heading_label .c-icon:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  width: 20px;\n  opacity: 0.45;\n  margin: 0 1px 0 -4px;\n  vertical-align: baseline;\n}\n.p-channel_sidebar__section_heading_label--clickable:hover {\n  opacity: 1;\n}\n.p-channel_sidebar__section_heading_right {\n  margin-left: auto;\n}\n.p-channel_sidebar__section_heading_plus {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  line-height: 100%;\n}\n.p-channel_sidebar__section_heading_plus:hover,\n.p-channel_sidebar__section_heading_plus:focus,\n.p-channel_sidebar__section_heading_plus:active {\n  outline: none;\n}\n.p-channel_sidebar__section_heading_plus:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  width: 20px;\n  opacity: 0.45;\n  line-height: 100%;\n  content: '\\E228';\n  transition: opacity 0.1s ease-out;\n}\n.p-channel_sidebar__section_heading_plus:hover:before {\n  opacity: 1;\n}\n.p-channel_sidebar__banner {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  width: calc(100% - 1rem);\n  text-align: center;\n  position: absolute;\n  display: block;\n  z-index: 2;\n  color: #FFFFFF;\n  left: 0.5rem;\n  right: 0.5rem;\n  font-weight: 700;\n  font-size: 0.875rem;\n  line-height: 1.625rem;\n  cursor: pointer;\n}\n.p-channel_sidebar__banner:hover,\n.p-channel_sidebar__banner:focus,\n.p-channel_sidebar__banner:active {\n  outline: none;\n}\n.p-channel_sidebar__banner--top {\n  border-top-right-radius: 0;\n  border-bottom-right-radius: 6px;\n  border-bottom-left-radius: 6px;\n  border-top-left-radius: 0;\n  background-clip: padding-box;\n  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.1) inset;\n  top: 0;\n}\n.p-channel_sidebar__banner--bottom {\n  border-top-right-radius: 6px;\n  border-bottom-right-radius: 0;\n  border-bottom-left-radius: 0;\n  border-top-left-radius: 6px;\n  background-clip: padding-box;\n  box-shadow: 0 -1px 6px rgba(0, 0, 0, 0.1), 0 -1px 3px rgba(0, 0, 0, 0.1) inset;\n  bottom: 0;\n}\n.p-channel_sidebar__banner--mentions {\n  background: #EB4D5C;\n}\n.p-channel_sidebar__banner--unreads {\n  background: #2D9EE0;\n}\n.p-channel_sidebar__link {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n}\n.p-channel_sidebar__link:hover,\n.p-channel_sidebar__link:focus,\n.p-channel_sidebar__link:active {\n  outline: none;\n}\n.p-channel_sidebar__channel,\n.p-channel_sidebar__link {\n  display: flex;\n  align-items: center;\n  height: 26px;\n  line-height: 1.625rem;\n  padding: 0 0.75rem 0 15px;\n  width: 100%;\n}\n.p-channel_sidebar__channel:before,\n.p-channel_sidebar__link:before,\n.p-channel_sidebar__channel:after,\n.p-channel_sidebar__link:after {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  width: 20px;\n  opacity: 0.45;\n}\n.p-channel_sidebar__channel:before,\n.p-channel_sidebar__link:before {\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel:after,\n.p-channel_sidebar__link:after {\n  font-size: 1.25rem;\n  margin-left: 0.25rem;\n  opacity: 0.7;\n}\n.p-channel_sidebar__channel:hover,\n.p-channel_sidebar__link:hover,\n.p-channel_sidebar__channel:active,\n.p-channel_sidebar__link:active,\n.p-channel_sidebar__channel:focus,\n.p-channel_sidebar__link:focus,\n.p-channel_sidebar__channel:link,\n.p-channel_sidebar__link:link,\n.p-channel_sidebar__channel:visited,\n.p-channel_sidebar__link:visited {\n  text-decoration: none;\n}\n.p-channel_sidebar__channel:before {\n  content: '\\E125';\n}\n.p-channel_sidebar__channel--private:before {\n  content: '\\E567';\n}\n.p-channel_sidebar__channel--shared:after {\n  content: '\\E559';\n}\n.p-channel_sidebar__channel--org-shared:after {\n  content: '\\E166';\n}\n.p-channel_sidebar__channel--muted:after {\n  content: '\\E016';\n  font-size: 1.125rem;\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft):before {\n  font-size: 1.25rem;\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='2']:before {\n  content: '\\E521';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='3']:before {\n  content: '\\E522';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='4']:before {\n  content: '\\E523';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='5']:before {\n  content: '\\E524';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='6']:before {\n  content: '\\E525';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='7']:before {\n  content: '\\E526';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='8']:before {\n  content: '\\E527';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='9']:before {\n  content: '\\E528';\n}\n.p-channel_sidebar__channel--im:before {\n  content: none;\n}\n.p-channel_sidebar__channel--im .c-presence {\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel--im .c-presence--away {\n  opacity: 0.7;\n}\n.p-channel_sidebar__channel--im-slackbot:before {\n  content: '\\E515';\n  opacity: 1;\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel--im-slackbot.p-channel_sidebar__channel--draft:before {\n  color: inherit;\n}\n.p-channel_sidebar__channel--muted:not(.p-channel_sidebar__channel--selected) .p-channel_sidebar__name {\n  opacity: 0.45;\n}\n.p-channel_sidebar__channel--unread:not(.p-channel_sidebar__channel--muted) .p-channel_sidebar__name {\n  font-weight: 900;\n  opacity: 1;\n}\n.p-channel_sidebar__channel--selected .p-channel_sidebar__name {\n  opacity: 1;\n}\n.p-channel_sidebar__channel--draft:before {\n  content: '\\E024';\n  font-size: 0.875rem;\n  margin: 1px -2px 0 -1px;\n  flex-basis: 20px;\n  flex-shrink: 0;\n}\n.p-channel_sidebar__channel--archived:before {\n  content: '\\E534';\n}\n@keyframes typing {\n  100% {\n    background-position: -240px;\n  }\n}\n.p-channel_sidebar__channel--typing:before {\n  display: block;\n  content: '';\n  width: 11px;\n  height: 3px;\n  background-image: url(/img/typing-sprite.png);\n  background-repeat: no-repeat;\n  animation: 1s steps(15) 0s infinite normal none typing-sprite;\n  margin: 0 5px 0 1px;\n  opacity: 1;\n}\n@media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {\n  .p-channel_sidebar__channel--typing:before {\n    background-size: cover;\n    background-image: url(/img/typing-sprite@2x.png);\n  }\n}\n.p-channel_sidebar__name {\n  margin-right: auto;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  opacity: 0.7;\n}\n.p-channel_sidebar__name .c-custom_status {\n  float: right;\n  position: relative;\n  z-index: 1;\n}\n.p-channel_sidebar__name.p-channel_sidebar__name--away {\n  font-style: italic;\n}\n.p-channel_sidebar__badge {\n  order: 5;\n  padding: 1px 0.6rem;\n  margin-left: 0.25rem;\n  border-radius: 1rem;\n  line-height: 1rem;\n  font-size: 0.75rem;\n  font-weight: 700;\n  color: #FFFFFF;\n}\n.p-channel_sidebar__status {\n  margin-left: 0.5rem;\n}\n.p-channel_sidebar__you_label {\n  margin-left: 0.5rem;\n  font-weight: normal;\n  opacity: 0.7;\n}\n.p-channel_sidebar__close {\n  margin-left: 0.25rem;\n  display: none;\n}\n.p-channel_sidebar__close,\n.p-channel_sidebar__close:before {\n  line-height: 100%;\n}\n.p-channel_sidebar__channel:hover .p-channel_sidebar__close {\n  display: block;\n}\n.p-channel_sidebar__link--unread .p-channel_sidebar__name {\n  font-weight: 900;\n  opacity: 1;\n}\n.p-channel_sidebar__link--selected .p-channel_sidebar__name {\n  opacity: 1;\n}\n.p-channel_sidebar__link--all-unreads:before {\n  content: '\\E103';\n  margin: 0 4px 0 -4px;\n}\n.p-channel_sidebar__link--all-threads:before {\n  content: '\\E171';\n  margin: 0 4px 0 -4px;\n}\n.p-channel_sidebar__link--all-threads.p-channel_sidebar__link--unread:before {\n  content: '\\E554';\n}\n.p-channel_sidebar__link--invites:before {\n  content: '\\E281';\n}\n.p-channel_sidebar__link--invites:not(.p-channel_sidebar__link--dim) .p-channel_sidebar__name {\n  font-weight: 900;\n  opacity: 1;\n}\n", ""]);
 }, function(e, t, n) {
   "use strict";
   Object.defineProperty(t, "__esModule", {
@@ -40069,8 +40069,9 @@ webpackJsonp([332], [, function(e, t, n) {
         type: "allThreadsLink",
         id: "Vall_threads"
       }), r.forEach(function(e) {
-        var t = s[e] || {};
-        "sectionHeading" !== n.i(o.last)(u).type && u.push(a), t.hasHeading && u.push({
+        var t = s[e] || {},
+          r = t.channelsOrdered || [];
+        ("sectionHeading" !== n.i(o.last)(u).type || r.length > 0) && u.push(a), t.hasHeading && u.push({
           type: "sectionHeading",
           name: e
         }), t.channelsOrdered.forEach(function(e) {
@@ -41668,7 +41669,7 @@ webpackJsonp([332], [, function(e, t, n) {
         name: S.t("What are apps?"),
         short_description: S.t("A quick look at how apps in Slack can streamline your work"),
         icons: {
-          image_84: cdn_url + "/7f023/img/tutorial@2x.png"
+          image_84: cdn_url + "/1f0ce/img/tutorial@2x.png"
         },
         app_id: "tutorial_app",
         bot_id: "",
@@ -57647,7 +57648,8 @@ webpackJsonp([332], [, function(e, t, n) {
     h = n(3990),
     m = n(3040),
     _ = n(4165),
-    y = function() {
+    y = n(2356),
+    v = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
@@ -57658,19 +57660,20 @@ webpackJsonp([332], [, function(e, t, n) {
         return n && e(t.prototype, n), r && e(t, r), t;
       };
     }(),
-    v = new d.a("message"),
-    g = {
+    g = new d.a("message"),
+    b = {
+      ts: a.PropTypes.string.isRequired,
+      text: a.PropTypes.string.isRequired,
       cancelEdit: a.PropTypes.func,
       channel: a.PropTypes.shape({
-        id: a.PropTypes.string
+        id: a.PropTypes.string,
+        is_self_im: a.PropTypes.bool
       }),
-      text: a.PropTypes.string,
       featureMessageInputByteLimit: a.PropTypes.bool,
       featureNewBroadcast: a.PropTypes.bool,
       mergeMessage: a.PropTypes.func,
       removeMessage: a.PropTypes.func,
       updateEditText: a.PropTypes.func,
-      ts: a.PropTypes.string,
       subtype: a.PropTypes.string,
       threadTs: a.PropTypes.string,
       file: a.PropTypes.shape({
@@ -57681,31 +57684,31 @@ webpackJsonp([332], [, function(e, t, n) {
       isEphemeral: a.PropTypes.bool,
       userId: a.PropTypes.string,
       initialEditText: a.PropTypes.string,
-      didRequestToStopEditing: a.PropTypes.bool
+      didRequestToStopEditing: a.PropTypes.bool,
+      editWindowMin: a.PropTypes.number
     },
-    b = {
+    w = {
       cancelEdit: u.noop,
-      channel: null,
-      text: null,
+      channel: {},
       featureMessageInputByteLimit: !1,
       featureNewBroadcast: !1,
       mergeMessage: u.noop,
       removeMessage: u.noop,
       updateEditText: u.noop,
-      ts: null,
       subtype: null,
       threadTs: null,
       file: null,
       isEphemeral: !1,
       userId: null,
       initialEditText: null,
-      didRequestToStopEditing: !0
+      didRequestToStopEditing: !0,
+      editWindowMin: null
     },
-    w = function(e) {
+    k = function(e) {
       function t(e) {
         r(this, t);
         var i = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
-        return i.texty = null, i.isCancelling = !1, i.textyOptions = {
+        return i.setTextyRef = i.setTextyRef.bind(i), i.maybeSave = i.maybeSave.bind(i), i.onTimerInterval = i.onTimerInterval.bind(i), i.texty = null, i.isCancelling = !1, i.editWindowTimeout = null, i.textyOptions = {
           modules: {
             tabcomplete: {
               positionMenu: function(e) {
@@ -57729,16 +57732,19 @@ webpackJsonp([332], [, function(e, t, n) {
             });
           }
         }, i.state = {
+          editSecondsRemaining: i.countRemainingSeconds(),
           numCharsOverLimit: i.countCharsOverLimit()
-        }, i.setTextyRef = i.setTextyRef.bind(i), i.maybeSave = i.maybeSave.bind(i), i;
+        }, i;
       }
-      return i(t, e), y(t, [{
+      return i(t, e), v(t, [{
         key: "componentDidMount",
         value: function() {
           var e = this.props,
-            t = e.initialEditText,
-            n = e.text;
-          this.texty.focus(), this.texty.value(t || n), this.texty.setCursorAtEnd();
+            t = e.channel,
+            r = e.editWindowMin,
+            o = e.initialEditText,
+            i = e.text;
+          this.texty.focus(), this.texty.value(o || i), this.texty.setCursorAtEnd(), n.i(u.isNumber)(r) && r > 0 && !t.is_self_im && (this.editWindowTimeout = setInterval(this.onTimerInterval, 1e3));
         }
       }, {
         key: "componentWillReceiveProps",
@@ -57747,11 +57753,27 @@ webpackJsonp([332], [, function(e, t, n) {
           e.didRequestToStopEditing && !this.hasUnsavedChanges() && t();
         }
       }, {
+        key: "componentWillUpdate",
+        value: function(e, t) {
+          t.editSecondsRemaining <= 0 && clearInterval(this.editWindowTimeout);
+        }
+      }, {
         key: "componentWillUnmount",
         value: function() {
           if (!this.isCancelling) {
             (0, this.props.updateEditText)(this.texty.value());
           }
+          clearInterval(this.editWindowTimeout);
+        }
+      }, {
+        key: "onTimerInterval",
+        value: function() {
+          var e = this;
+          this.setState(function() {
+            return {
+              editSecondsRemaining: e.countRemainingSeconds()
+            };
+          });
         }
       }, {
         key: "setTextyRef",
@@ -57765,6 +57787,19 @@ webpackJsonp([332], [, function(e, t, n) {
             t = e.initialEditText,
             r = e.text;
           return this.texty ? this.texty.value() : n.i(u.isString)(t) ? t : r;
+        }
+      }, {
+        key: "countRemainingSeconds",
+        value: function() {
+          var e = this.props,
+            t = e.channel,
+            r = e.editWindowMin,
+            o = e.ts;
+          if (!n.i(u.isNumber)(r) || t.is_self_im) return null;
+          var i = n.i(y.a)(o),
+            a = 60 * r * 1e3,
+            s = i.getTime() / 1e3 + a;
+          return Math.round((s - Date.now()) / 1e3);
         }
       }, {
         key: "countCharsOverLimit",
@@ -57852,24 +57887,27 @@ webpackJsonp([332], [, function(e, t, n) {
             r = e.channel,
             o = e.text,
             i = e.mergeMessage,
-            a = e.ts;
-          if (this.state.numCharsOverLimit > 0) return !1;
-          var s = this.getEditText();
+            a = e.ts,
+            s = this.state,
+            l = s.editSecondsRemaining;
+          if (s.numCharsOverLimit > 0) return !1;
+          if (n.i(u.isNumber)(l) && l <= 0) return !1;
+          var c = this.getEditText();
           if (this.texty.isEmpty({
               doIgnoreWhitespace: !0
             })) return this.startDelete(), !1;
-          if (s === o) return t(), !1;
-          var l = n.i(p.a)(s, null, r.id);
-          if (l) {
-            var c = v.t("A Team Owner has restricted the use of <b>{keyword}</b> messages.", {
-              keyword: n.i(u.escape)(l)
+          if (c === o) return t(), !1;
+          var d = n.i(p.a)(c, null, r.id);
+          if (d) {
+            var f = g.t("A Team Owner has restricted the use of <b>{keyword}</b> messages.", {
+              keyword: n.i(u.escape)(d)
             });
-            return n.i(h.a)(c), !1;
+            return n.i(h.a)(f), !1;
           }
           return i({
             channelId: r.id,
             props: {
-              text: s
+              text: c
             },
             ts: a
           }), t(), !0;
@@ -57881,25 +57919,42 @@ webpackJsonp([332], [, function(e, t, n) {
             t = this.state.numCharsOverLimit;
           if (t <= 0) return null;
           var n = void 0;
-          return n = e ? v.t("Your message is {diffCount, plural, =1{# character}other{# characters}} too long", {
+          return n = e ? g.t("Your message is {diffCount, plural, =1{# character}other{# characters}} too long", {
             diffCount: t
-          }) : v.t("text is too long!"), s.a.createElement("span", {
+          }) : g.t("text is too long!"), s.a.createElement("span", {
             className: "c-message__editor__warning",
-            "data-qa": "length_warning"
+            "data-js": "length_warning"
           }, n);
+        }
+      }, {
+        key: "maybeRenderTimeoutWarning",
+        value: function() {
+          var e = this.state.editSecondsRemaining;
+          if (!n.i(u.isNumber)(e) || e > 60) return null;
+          var t = void 0;
+          return e <= 0 ? t = g.t("(your time to edit ran out)") : e <= 60 && (t = n.i(d.b)(g.t("(you have <b>{seconds, number}</b> {seconds, plural, =1{second}other{seconds}})", {
+            seconds: e
+          }), /<b>(.*)<\/b>/g, function(e, t, n) {
+            return s.a.createElement("b", {
+              key: n
+            }, e);
+          })), s.a.createElement("span", {
+            className: "c-message__editor__warning",
+            "data-js": "timeout_warning"
+          }, t);
         }
       }, {
         key: "maybeRenderUnsavedWarning",
         value: function() {
           if (!this.props.didRequestToStopEditing || !this.hasUnsavedChanges()) return null;
-          var e = n.i(d.b)(v.t("Finish editing this message first! Or press <b>escape</b> if you've changed your mind."), /<b>(.*)<\/b>/g, function(e, t, n) {
+          var e = n.i(d.b)(g.t("Finish editing this message first! Or press <b>escape</b> if you've changed your mind."), /<b>(.*)<\/b>/g, function(e, t, n) {
             return s.a.createElement("b", {
               key: n
             }, e);
           });
           return s.a.createElement("span", {
             className: "c-message__editor__info",
-            "data-qa": "unsaved_warning"
+            "data-js": "unsaved_warning"
           }, e);
         }
       }, {
@@ -57916,18 +57971,18 @@ webpackJsonp([332], [, function(e, t, n) {
             className: "c-message__editor__footer"
           }, s.a.createElement(l.a, {
             onClick: e
-          }, v.t("Cancel")), s.a.createElement(l.a, {
+          }, g.t("Cancel")), s.a.createElement(l.a, {
             className: "c-message__editor__save",
             onClick: this.maybeSave
           }, s.a.createElement("i", {
             className: "ts_icon ts_icon_enter ts_icon_inherit small_right_margin"
-          }), v.t("Save Changes")), s.a.createElement("div", {
+          }), g.t("Save Changes")), s.a.createElement("div", {
             className: "c-message__editor__messages"
-          }, this.maybeRenderUnsavedWarning(), this.maybeRenderLengthWarning())));
+          }, this.maybeRenderUnsavedWarning(), this.maybeRenderTimeoutWarning(), this.maybeRenderLengthWarning())));
         }
       }]), t;
     }(a.PureComponent);
-  t.a = w, w.propTypes = g, w.defaultProps = b, w.displayName = "BaseEditMessage";
+  t.a = k, k.propTypes = b, k.defaultProps = w, k.displayName = "BaseEditMessage";
 }, function(e, t, n) {
   "use strict";
 
@@ -57936,19 +57991,22 @@ webpackJsonp([332], [, function(e, t, n) {
       o = t.channelId,
       i = n.i(s.getMessageByTimestamp)(e, o, r);
     if (!i) return t;
-    var l = n.i(a.isFeatureEnabled)(e, "feature_new_broadcast"),
-      c = n.i(a.isFeatureEnabled)(e, "feature_message_input_byte_limit");
+    var c = n.i(a.isFeatureEnabled)(e, "feature_new_broadcast"),
+      d = n.i(a.isFeatureEnabled)(e, "feature_message_input_byte_limit"),
+      f = n.i(u.getChannelById)(e, o),
+      p = n.i(l.getTeamPref)(e, "msg_edit_window_mins");
     return {
-      channel: n.i(u.getChannelById)(e, o),
-      featureMessageInputByteLimit: c,
-      featureNewBroadcast: l,
+      channel: f,
+      featureMessageInputByteLimit: d,
+      featureNewBroadcast: c,
       file: i.file,
       isEphemeral: i.is_ephemeral,
       subtype: i.subtype,
       text: i.text,
       threadTs: i.thread_ts,
       userId: i.userId,
-      ts: r
+      ts: r,
+      editWindowMin: p
     };
   }
   var o = n(43),
@@ -57956,11 +58014,12 @@ webpackJsonp([332], [, function(e, t, n) {
     a = n(3028),
     s = n(3034),
     u = n(2295),
-    l = {
+    l = n(3045),
+    c = {
       mergeMessage: s.mergeMessage,
       removeMessage: s.removeMessage
     };
-  t.a = n.i(o.b)(r, l)(i.a);
+  t.a = n.i(o.b)(r, c)(i.a);
 }, function(e, t, n) {
   "use strict";
   var r = n(3997);
