@@ -16955,7 +16955,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         isMessageTooLong: function(e) {
           var t = TS.format.cleanMsg(TS.utility.contenteditable.value(e));
-          return TS.features.isEnabled("message_input_byte_limit") ? TS.utility.msgs.charsOverLimit(t) : t.length > TS.model.input_maxlength;
+          return TS.features.isEnabled("message_input_byte_limit") ? TS.utility.msgs.charsOverLimit(t) : t.length > TS.interop.constants.MAX_MESSAGE_INPUT_LENGTH;
         },
         updateTooLongWarning: function(e, t) {
           var n = $(e).parent().find(".edit_warning");
@@ -38127,7 +38127,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return e.text() === t || e.text() === n;
         },
         charsOverLimit: function(e, t) {
-          if (_.isNumber(t) || (t = TS.model.input_maxbytes), e.length <= t / 4) return 0;
+          if (_.isNumber(t) || (t = TS.interop.constants.MAX_MESSAGE_INPUT_BYTES), e.length <= t / 4) return 0;
           for (var n = 0, i = [], r = 0, a = 0; a < e.length; a++) {
             var s = e.charCodeAt(a);
             if ((s < 55296 || s > 57343) && (i.push(s), n += TS.utility.bytesInUnicodeCodePoint(s)), s >= 56320 && s <= 57343 && (i.push(65533), n += 1), s >= 55296 && s <= 56319)

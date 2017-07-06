@@ -2087,8 +2087,6 @@ webpackJsonp([12, 328, 337, 329], {
         subsequent_msgs_cnt: 100,
         special_initial_msgs_cnt: 100,
         hard_msg_limit: 500,
-        input_maxlength: 4e3,
-        input_maxbytes: 16e3,
         all_unread_cnt: 0,
         all_unread_highlights_cnt: 0,
         all_unread_cnt_to_exclude: 0,

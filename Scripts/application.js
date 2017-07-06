@@ -35468,7 +35468,7 @@ webpackJsonp([332], [, function(e, t, n) {
     s = n(2989),
     u = n(2694),
     l = n(2348);
-  n(3605), n(3051), n(3023), n(2697), n(3641), n(3966), n(3938), n(3651), n(3661), n(3886), n(3902);
+  n(3605), n(3051), n(3023), n(2697), n(3641), n(3966), n(4169), n(3938), n(3651), n(3661), n(3886), n(3902);
   window.ReactComponents = {}, window.ReactComponents.EmojiPicker = u.a, window.ReactComponents.Popover = l.a, window.ReactComponents.PopoverTrigger = l.b, window.React = o.a, window.ReactDOM = a.a, window.moment = s.a;
 }, function(e, t, n) {
   "use strict";
@@ -57752,7 +57752,7 @@ webpackJsonp([332], [, function(e, t, n) {
         value: function() {
           var e = this.props.featureMessageInputByteLimit,
             t = this.getEditText();
-          return e ? n.i(m.e)(t, _.a) : Math.max(0, t.length - _.b);
+          return e ? n.i(m.e)(t, _.MAX_MESSAGE_INPUT_BYTES) : Math.max(0, t.length - _.MAX_MESSAGE_INPUT_LENGTH);
         }
       }, {
         key: "hasUnsavedChanges",
@@ -60045,11 +60045,25 @@ webpackJsonp([332], [, function(e, t, n) {
   t.a = s;
 }, , function(e, t, n) {
   "use strict";
-  n.d(t, "b", function() {
+  Object.defineProperty(t, "__esModule", {
+    value: !0
+  }), n.d(t, "MAX_MESSAGE_INPUT_LENGTH", function() {
     return r;
-  }), n.d(t, "a", function() {
+  }), n.d(t, "MAX_MESSAGE_INPUT_BYTES", function() {
     return o;
   });
   var r = 4e3,
     o = 16e3;
+}, , , , function(e, t, n) {
+  "use strict";
+  var r = n(2353),
+    o = n(4165),
+    i = Object.assign || function(e) {
+      for (var t = 1; t < arguments.length; t++) {
+        var n = arguments[t];
+        for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
+      }
+      return e;
+    };
+  n.i(r.a)("interop.constants", i({}, o));
 }], [2905]);
