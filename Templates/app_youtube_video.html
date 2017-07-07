@@ -1,3 +1,8 @@
 <div class="responsive_youtube_container">
-  <iframe class="responsive_youtube_iframe" src="https://www.youtube.com/embed/{{youtube_id}}?autoplay=1" frameborder="0" allowfullscreen></iframe>
+  <iframe
+      class="responsive_youtube_iframe"
+      src="https://www.youtube.com/embed/{{youtube_id}}{{#unless disable_autoplay}}?autoplay=1{{/unless}}"
+      frameborder="0"
+      allowfullscreen
+  ></iframe>
 </div>

@@ -21,10 +21,7 @@
       border-color: {{theme.column_bg}};
     }
     body:not(.loading) #team_menu:hover,
-    body:not(.loading) #team_menu.active,
-    #quick_switcher_btn:hover,
-    #quick_switcher_btn:focus,
-    #quick_switcher_btn:active {
+    body:not(.loading) #team_menu.active {
       background: {{theme.menu_bg}};
       border-color: {{theme.menu_bg}};
     }
@@ -93,12 +90,6 @@
     #team_menu_user_details .current_status ts-icon,
     .channels_list_holder ul li .im_name.primary_action .current_status ts-icon {
       color: {{theme.text_color}};
-    }
-    #quick_switcher_label,
-    #quick_switcher_shortcut,
-    #quick_switcher_btn:hover #quick_switcher_shortcut,
-    #quick_switcher_btn:focus #quick_switcher_shortcut {
-      color: {{theme.text_color}} !important;
     }
     /* styles for experiment #feat-link-in-sidebar: Quick Switcher button at bottom of channel list */
     #quick_switcher_btn.quick_switcher_btn_feat_link_in_sidebar {

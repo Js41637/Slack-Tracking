@@ -34,7 +34,31 @@
       {{!-- DESCRIPTION --}}
       {{#if long_description}}
         <section>
-          {{> app_profile_description}}
+          <div class="
+          p-app_space_profile__description
+          app_profile_section_text app_profile_desc
+          {{#if_not_equal hide_expand_button compare=1}}--collapsed{{/if_not_equal}}"
+          data-js="app_profile_desc"
+        >
+          {{#if hide_expand_button}}
+            <div>{{long_description}}</div>
+          {{else}}
+            <span class="p-app_space_profile__description__collapsed" data-js="app_profile_desc_inner">
+              {{truncateToNearestWordBoundary long_description_raw 350}}
+            </span>
+            <span class="p-app_space_profile__description__expanded hidden">
+              {{long_description}}
+            </span>
+
+            <a href="#" class="p-app_space_profile__description__collapsed" data-js="app_profile_btn" data-action="desc_expand">
+              {{#t}}Read more{{/t}}
+            </a>
+            <a href="#" class="p-app_space_profile__description__expanded hidden" data-js="app_profile_btn" data-action="desc_collapse">
+              {{#t}}Show less{{/t}}
+            </a>
+          {{/if}}
+        </div>
+
         </section>
       {{/if}}
 

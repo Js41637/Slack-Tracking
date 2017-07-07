@@ -30663,193 +30663,213 @@ webpackJsonp([332], [, function(e, t, n) {
       writable: !0
     }) : e[t] = n, e;
   }
+
+  function o(e, t) {
+    return function(r, o) {
+      var i = t,
+        a = o(),
+        u = n.i(p.getTimestampsByChannelId)(a, e, t),
+        l = u.timestamps,
+        c = u.reachedStart;
+      if (l && l.length) {
+        var h = s.a.findLast(l, function(e) {
+          return e < t;
+        });
+        h ? i = h : c && (i = "0000000000.000000");
+      }
+      n.i(f.a)(e, i), n.i(d.a)();
+    };
+  }
   Object.defineProperty(t, "__esModule", {
     value: !0
   }), n.d(t, "bulkAddChannels", function() {
-    return d;
-  }), n.d(t, "addChannel", function() {
-    return f;
-  }), n.d(t, "removeChannel", function() {
-    return p;
-  }), n.d(t, "updateOneKeyForChannel", function() {
-    return h;
-  }), n.d(t, "forceUpdateOfChannelById", function() {
     return m;
-  }), n.d(t, "clearAllShowInListEvenThoughUnreadsFlags", function() {
+  }), n.d(t, "addChannel", function() {
     return _;
-  }), n.d(t, "getChannelById", function() {
+  }), n.d(t, "removeChannel", function() {
+    return y;
+  }), n.d(t, "updateOneKeyForChannel", function() {
     return v;
-  }), n.d(t, "getAllChannels", function() {
+  }), n.d(t, "forceUpdateOfChannelById", function() {
     return g;
-  }), n.d(t, "hasDraft", function() {
+  }), n.d(t, "clearAllShowInListEvenThoughUnreadsFlags", function() {
     return b;
-  }), n.d(t, "isPrivate", function() {
-    return w;
-  }), n.d(t, "isChannel", function() {
+  }), n.d(t, "getChannelById", function() {
     return k;
-  }), n.d(t, "isMpim", function() {
+  }), n.d(t, "getAllChannels", function() {
     return M;
-  }), n.d(t, "isIm", function() {
+  }), n.d(t, "hasDraft", function() {
     return T;
-  }), n.d(t, "isOpen", function() {
+  }), n.d(t, "isPrivate", function() {
     return x;
-  }), n.d(t, "isMemberOfChannel", function() {
+  }), n.d(t, "isChannel", function() {
     return S;
-  }), n.d(t, "isStarred", function() {
+  }), n.d(t, "isMpim", function() {
     return E;
-  }), n.d(t, "isArchived", function() {
+  }), n.d(t, "isIm", function() {
     return L;
-  }), n.d(t, "isRead", function() {
+  }), n.d(t, "isOpen", function() {
     return C;
-  }), n.d(t, "isUnread", function() {
+  }), n.d(t, "isMemberOfChannel", function() {
     return O;
-  }), n.d(t, "isYou", function() {
+  }), n.d(t, "isStarred", function() {
     return P;
-  }), n.d(t, "isSlackbot", function() {
+  }), n.d(t, "isArchived", function() {
     return j;
-  }), n.d(t, "shouldShowWithoutUnreads", function() {
+  }), n.d(t, "isRead", function() {
     return D;
-  }), n.d(t, "getChannelType", function() {
+  }), n.d(t, "isUnread", function() {
     return Y;
-  }), n.d(t, "getBadgeCount", function() {
+  }), n.d(t, "isYou", function() {
     return A;
-  }), n.d(t, "isMention", function() {
+  }), n.d(t, "isSlackbot", function() {
     return R;
-  }), n.d(t, "getUnreadIds", function() {
+  }), n.d(t, "shouldShowWithoutUnreads", function() {
     return I;
-  }), n.d(t, "getMentionIds", function() {
+  }), n.d(t, "getChannelType", function() {
     return N;
-  }), n.d(t, "getDisplayName", function() {
+  }), n.d(t, "getBadgeCount", function() {
     return F;
-  }), n.d(t, "getMemberIdFromIm", function() {
+  }), n.d(t, "isMention", function() {
     return H;
-  });
-  var o, i = n(6),
-    a = n.n(i),
-    s = n(17),
-    u = (n.n(s), n(3234)),
-    l = n(3233),
-    c = Object.assign || function(e) {
+  }), n.d(t, "getUnreadIds", function() {
+    return q;
+  }), n.d(t, "getMentionIds", function() {
+    return z;
+  }), n.d(t, "getDisplayName", function() {
+    return U;
+  }), n.d(t, "getMemberIdFromIm", function() {
+    return W;
+  }), t.setUnreadPoint = o;
+  var i, a = n(6),
+    s = n.n(a),
+    u = n(17),
+    l = (n.n(u), n(3234)),
+    c = n(3233),
+    d = n(2908),
+    f = n(4174),
+    p = n(4151),
+    h = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
         for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
       }
       return e;
     },
-    d = n.i(s.createAction)("Bulk add channels, overwriting anything previously stored with the same id"),
-    f = n.i(s.createAction)("Add a channel, overwriting anything previously stored with the same id"),
-    p = n.i(s.createAction)("Remove a channel"),
-    h = n.i(s.createAction)("Update one key for a channel by id"),
-    m = n.i(s.createAction)("Legacy hack: Force an update of a channel, because it broke immutability and updated in place"),
-    _ = n.i(s.createAction)("Legacy hack: set the _show_in_list_even_though_no_unreads for all channels to be false"),
-    y = n.i(s.createReducer)((o = {}, r(o, d, function(e, t) {
-      if (!t || !t.length || !a.a.isArray(t)) return e;
-      var n = a.a.filter(t, "id");
+    m = n.i(u.createAction)("Bulk add channels, overwriting anything previously stored with the same id"),
+    _ = n.i(u.createAction)("Add a channel, overwriting anything previously stored with the same id"),
+    y = n.i(u.createAction)("Remove a channel"),
+    v = n.i(u.createAction)("Update one key for a channel by id"),
+    g = n.i(u.createAction)("Legacy hack: Force an update of a channel, because it broke immutability and updated in place"),
+    b = n.i(u.createAction)("Legacy hack: set the _show_in_list_even_though_no_unreads for all channels to be false"),
+    w = n.i(u.createReducer)((i = {}, r(i, m, function(e, t) {
+      if (!t || !t.length || !s.a.isArray(t)) return e;
+      var n = s.a.filter(t, "id");
       if (!n.length) return e;
-      var r = c({}, e);
+      var r = h({}, e);
       return n.forEach(function(e) {
         r[e.id] = e;
       }), r;
-    }), r(o, h, function(e, t) {
+    }), r(i, v, function(e, t) {
       if (!t || !t.id || 2 !== Object.keys(t).length) return e;
       if (!e[t.id]) return e;
-      var n = a.a.omit(t, "id"),
+      var n = s.a.omit(t, "id"),
         o = Object.keys(n)[0];
-      return e[t.id][o] === n[o] ? e : c({}, e, r({}, t.id, c({}, e[t.id], n)));
-    }), r(o, f, function(e, t) {
-      return t && t.id ? c({}, e, r({}, t.id, t)) : e;
-    }), r(o, p, function(e, t) {
-      return t && t.id && e[t.id] ? a.a.omit(e, t.id) : e;
-    }), r(o, m, function(e) {
+      return e[t.id][o] === n[o] ? e : h({}, e, r({}, t.id, h({}, e[t.id], n)));
+    }), r(i, _, function(e, t) {
+      return t && t.id ? h({}, e, r({}, t.id, t)) : e;
+    }), r(i, y, function(e, t) {
+      return t && t.id && e[t.id] ? s.a.omit(e, t.id) : e;
+    }), r(i, g, function(e) {
       var t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : {},
         n = t.id;
       if (!n || !e[n]) return e;
-      var r = c({}, e);
-      return r[n] = c({}, r[n]), r;
-    }), r(o, _, function(e) {
-      var t = a.a.filter(e, "_show_in_list_even_though_no_unreads");
+      var r = h({}, e);
+      return r[n] = h({}, r[n]), r;
+    }), r(i, b, function(e) {
+      var t = s.a.filter(e, "_show_in_list_even_though_no_unreads");
       if (!t.length) return e;
-      var n = c({}, e);
+      var n = h({}, e);
       return t.forEach(function(e) {
         var t = e.id;
-        n[t] = c({}, n[t], {
+        n[t] = h({}, n[t], {
           _show_in_list_even_though_no_unreads: !1
         });
       }), n;
-    }), o), {});
-  t.default = y;
-  var v = function(e, t) {
+    }), i), {});
+  t.default = w;
+  var k = function(e, t) {
       return e && e.channels && e.channels[t];
     },
-    g = function(e) {
+    M = function(e) {
       return e.channels;
     },
-    b = function(e) {
+    T = function(e) {
       return e && e.has_draft;
     },
-    w = function(e) {
+    x = function(e) {
       return e && (e.is_private || e.is_group && !e.is_mpim);
     },
-    k = function(e) {
+    S = function(e) {
       return e && e.is_channel && !e.is_private && !e.is_mpim;
     },
-    M = function(e) {
+    E = function(e) {
       return e && e.is_mpim;
     },
-    T = function(e) {
+    L = function(e) {
       return e && e.is_im;
     },
-    x = function(e) {
+    C = function(e) {
       return e && e.is_open;
     },
-    S = function(e) {
+    O = function(e) {
       return e && e.is_channel && e.is_member;
     },
-    E = function(e) {
+    P = function(e) {
       return e && e.is_starred;
     },
-    L = function(e) {
+    j = function(e) {
       return e && e.is_archived;
     },
-    C = function(e) {
+    D = function(e) {
       return e && e.unread_cnt < 1;
     },
-    O = function(e) {
-      return !C(e);
-    },
-    P = function(e) {
-      return e && e.is_self_im;
-    },
-    j = function(e) {
-      return e && e.is_slackbot_im;
-    },
-    D = function(e) {
-      return e && e._show_in_list_even_though_no_unreads;
-    },
     Y = function(e) {
-      return w(e) ? "private" : M(e) ? "mpim" : T(e) ? "im" : "channel";
+      return !D(e);
     },
     A = function(e) {
-      return e ? M(e) || T(e) ? e.unread_cnt : e.unread_highlight_cnt : 0;
+      return e && e.is_self_im;
     },
     R = function(e) {
-      return A(e) > 0;
+      return e && e.is_slackbot_im;
     },
     I = function(e) {
-      return e ? a.a.filter(e, O).map(function(e) {
-        return e.id;
-      }) : [];
+      return e && e._show_in_list_even_though_no_unreads;
     },
     N = function(e) {
-      return e ? a.a.filter(e, R).map(function(e) {
+      return x(e) ? "private" : E(e) ? "mpim" : L(e) ? "im" : "channel";
+    },
+    F = function(e) {
+      return e ? E(e) || L(e) ? e.unread_cnt : e.unread_highlight_cnt : 0;
+    },
+    H = function(e) {
+      return F(e) > 0;
+    },
+    q = function(e) {
+      return e ? s.a.filter(e, Y).map(function(e) {
         return e.id;
       }) : [];
     },
-    F = function(e) {
-      return e._display_name ? e._display_name : M(e) ? n.i(u.a)(e) : T(e) ? n.i(l.a)(e) : e.name;
+    z = function(e) {
+      return e ? s.a.filter(e, H).map(function(e) {
+        return e.id;
+      }) : [];
     },
-    H = function(e) {
-      return e && T(e) && e.user;
+    U = function(e) {
+      return e._display_name ? e._display_name : E(e) ? n.i(l.a)(e) : L(e) ? n.i(c.a)(e) : e.name;
+    },
+    W = function(e) {
+      return e && L(e) && e.user;
     };
 }, function(e, t, n) {
   "use strict";
@@ -32501,7 +32521,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }
       return e;
     },
-    b = n.i(y.c)(5),
+    b = n.i(y.d)(5),
     w = function(e) {
       return b && n.i(_.a)(e + "_mark");
     },
@@ -32705,7 +32725,8 @@ webpackJsonp([332], [, function(e, t, n) {
     p = n(2295),
     h = n(3178),
     m = n(2287),
-    _ = function() {
+    _ = n(2288),
+    y = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
@@ -32716,7 +32737,8 @@ webpackJsonp([332], [, function(e, t, n) {
         return n && e(t.prototype, n), r && e(t, r), t;
       };
     }(),
-    y = {
+    v = new _.a("channel_sidebar"),
+    g = {
       isShowing: a.PropTypes.bool.isRequired,
       linkedRow: a.PropTypes.string,
       isMention: a.PropTypes.bool,
@@ -32726,7 +32748,7 @@ webpackJsonp([332], [, function(e, t, n) {
       startIndex: a.PropTypes.number,
       stopIndex: a.PropTypes.number
     },
-    v = {
+    b = {
       isShowing: !1,
       linkedRow: null,
       isMention: !1,
@@ -32736,13 +32758,13 @@ webpackJsonp([332], [, function(e, t, n) {
       startIndex: 0,
       stopIndex: 0
     },
-    g = function(e) {
+    w = function(e) {
       function t() {
         r(this, t);
         var e = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this));
         return e.onClick = e.onClick.bind(e), e;
       }
-      return i(t, e), _(t, [{
+      return i(t, e), y(t, [{
         key: "onClick",
         value: function(e) {
           var t = this.props,
@@ -32765,7 +32787,7 @@ webpackJsonp([332], [, function(e, t, n) {
               "p-channel_sidebar__banner--bottom": "bottom" === n
             }),
             i = "top" === n ? "up" : "down",
-            a = r ? "Unread Mentions" : "More Unreads";
+            a = r ? v.t("Unread Mentions") : v.t("More Unreads");
           return s.a.createElement("button", {
             className: o,
             onClick: this.onClick
@@ -32776,8 +32798,8 @@ webpackJsonp([332], [, function(e, t, n) {
         }
       }]), t;
     }(s.a.PureComponent);
-  g.propTypes = y, g.defaultProps = v;
-  var b = function(e, t) {
+  w.propTypes = g, w.defaultProps = b;
+  var k = function(e, t) {
     var r = t.rowIds,
       o = t.position,
       i = t.startIndex,
@@ -32803,7 +32825,7 @@ webpackJsonp([332], [, function(e, t, n) {
       isShowing: !1
     };
   };
-  t.a = n.i(c.b)(b)(g);
+  t.a = n.i(c.b)(k)(w);
 }, function(e, t, n) {
   "use strict";
 
@@ -34327,10 +34349,10 @@ webpackJsonp([332], [, function(e, t, n) {
             g = "progressing" === o && i ? i * f : void 0,
             w = void 0;
           w = g ? b.t("{partialSize} of {size} {prettyType}", {
-            partialSize: n.i(_.d)(g, 2),
-            size: n.i(_.d)(f),
+            partialSize: n.i(_.e)(g, 2),
+            size: n.i(_.e)(f),
             prettyType: d
-          }) : n.i(_.d)(f) + " " + d;
+          }) : n.i(_.e)(f) + " " + d;
           var k = t.getEstimatedTimeRemaining(this.props),
             M = l()("p-download_item", "clearfix", o, {
               highlight: p
@@ -35495,11 +35517,14 @@ webpackJsonp([332], [, function(e, t, n) {
     a = n.i(r.a)("TS.client.ui.checkForEditing", function() {});
 }, function(e, t, n) {
   "use strict";
-  n.d(t, "a", function() {
+  n.d(t, "b", function() {
     return o;
+  }), n.d(t, "a", function() {
+    return i;
   });
   var r = n(2277),
-    o = n.i(r.a)("TS.client.displayModelObById", function() {});
+    o = n.i(r.a)("TS.client.displayModelObById", function() {}),
+    i = n.i(r.a)("TS.client.markLastReadsWithAPI", function() {});
 }, function(e, t, n) {
   "use strict";
   n.d(t, "c", function() {
@@ -35637,12 +35662,14 @@ webpackJsonp([332], [, function(e, t, n) {
   "use strict";
   n.d(t, "a", function() {
     return o;
-  }), n.d(t, "c", function() {
-    return i;
   }), n.d(t, "d", function() {
+    return i;
+  }), n.d(t, "e", function() {
     return a;
-  }), n.d(t, "b", function() {
+  }), n.d(t, "c", function() {
     return s;
+  }), n.d(t, "b", function() {
+    return u;
   });
   var r = n(2277),
     o = (n.i(r.a)("TS.log", console.log), n.i(r.a)("TS.error", console.error)),
@@ -35653,6 +35680,9 @@ webpackJsonp([332], [, function(e, t, n) {
       return "0 bytes";
     }),
     s = n.i(r.a)("TS.utility.shouldLinksHaveTargets", function() {
+      return !1;
+    }),
+    u = n.i(r.a)("TS.utility.cmdKey", function() {
       return !1;
     });
 }, function(e, t, n) {
@@ -36145,7 +36175,7 @@ webpackJsonp([332], [, function(e, t, n) {
         hasHeading: !0
       }
     },
-    v = ["mention", "default", "private", "slackbot", "you", "ims", "muted"],
+    v = ["defaultMentions", "default", "privateMentions", "private", "slackbot", "you", "imsMentions", "ims", "mutedMentions", "muted"],
     g = o.a.invert(v),
     b = v.map(function() {
       return [];
@@ -36166,8 +36196,9 @@ webpackJsonp([332], [, function(e, t, n) {
     M = function(e) {
       var t = e.channel,
         r = e.isMuted,
-        o = e.shouldSeparatePrivateChannels;
-      return r ? g.muted : n.i(c.isSlackbot)(t) ? g.slackbot : n.i(c.isYou)(t) ? g.you : n.i(c.isIm)(t) || n.i(c.isMpim)(t) ? g.ims : o && n.i(c.isPrivate)(t) ? g.private : g.default;
+        o = e.shouldSeparatePrivateChannels,
+        i = e.shouldBumpMention;
+      return r ? i ? g.mutedMentions : g.muted : n.i(c.isSlackbot)(t) ? g.slackbot : n.i(c.isYou)(t) ? g.you : n.i(c.isIm)(t) || n.i(c.isMpim)(t) ? i ? g.imsMentions : g.ims : o && n.i(c.isPrivate)(t) ? i ? g.privateMentions : g.private : i ? g.defaultMentions : g.default;
     },
     T = function(e, t) {
       return n.i(p.f)(n.i(c.getDisplayName)(e), n.i(c.getDisplayName)(t));
@@ -36238,10 +36269,10 @@ webpackJsonp([332], [, function(e, t, n) {
           u = M({
             channel: o,
             isMuted: !!l[o.id],
-            shouldSeparatePrivateChannels: s
-          }),
-          f = v[i].channelsOrdered[u];
-        t && "priority" === a && n.i(c.isMention)(o) ? f.unshift(o.id) : f.push(o.id);
+            shouldSeparatePrivateChannels: s,
+            shouldBumpMention: t && "priority" === a && n.i(c.isMention)(o)
+          });
+        v[i].channelsOrdered[u].push(o.id);
       });
       var L = o.a.mapValues(v, function(e) {
         return m({}, e, {
@@ -36757,7 +36788,8 @@ webpackJsonp([332], [, function(e, t, n) {
       editText: c.a.PropTypes.string,
       didRequestToStopEditing: c.a.PropTypes.bool,
       requestToStopEditing: c.a.PropTypes.func,
-      rollups: c.a.PropTypes.objectOf(c.a.PropTypes.objectOf(c.a.PropTypes.arrayOf(c.a.PropTypes.string)))
+      rollups: c.a.PropTypes.objectOf(c.a.PropTypes.objectOf(c.a.PropTypes.arrayOf(c.a.PropTypes.string))),
+      setUnreadPoint: c.a.PropTypes.func
     },
     w = {
       channelId: null,
@@ -36771,7 +36803,8 @@ webpackJsonp([332], [, function(e, t, n) {
       editText: null,
       didRequestToStopEditing: !1,
       requestToStopEditing: u.a.noop,
-      rollups: null
+      rollups: null,
+      setUnreadPoint: u.a.noop
     },
     k = function(e) {
       function t(e) {
@@ -36845,7 +36878,8 @@ webpackJsonp([332], [, function(e, t, n) {
             didRequestToStopEditing: this.props.didRequestToStopEditing,
             requestToStopEditing: this.props.requestToStopEditing,
             isLast: t === r,
-            rollup: this.props.rollups[t]
+            rollup: this.props.rollups[t],
+            setUnreadPoint: this.props.setUnreadPoint
           });
         }
       }, {
@@ -36969,55 +37003,64 @@ webpackJsonp([332], [, function(e, t, n) {
   function i(e, t) {
     return e && e.messages && e.messages[t];
   }
+
+  function a(e, t) {
+    return function(r, i) {
+      var a = i(),
+        s = o(a, e, t);
+      s && n.i(d.c)(s);
+    };
+  }
   Object.defineProperty(t, "__esModule", {
     value: !0
   }), n.d(t, "addMessages", function() {
-    return d;
-  }), n.d(t, "removeMessage", function() {
-    return f;
-  }), n.d(t, "mergeMessage", function() {
     return p;
-  }), t.getMessageByTimestamp = o, t.getMessagesByChannelId = i;
-  var a, s = n(6),
-    u = n.n(s),
-    l = n(17),
-    c = (n.n(l), Object.assign || function(e) {
+  }), n.d(t, "removeMessage", function() {
+    return h;
+  }), n.d(t, "mergeMessage", function() {
+    return m;
+  }), t.getMessageByTimestamp = o, t.getMessagesByChannelId = i, t.logMessage = a;
+  var s, u = n(6),
+    l = n.n(u),
+    c = n(17),
+    d = (n.n(c), n(3060)),
+    f = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
         for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
       }
       return e;
-    }),
-    d = n.i(l.createAction)("Add messages"),
-    f = n.i(l.createAction)("Remove a message"),
-    p = n.i(l.createAction)("Merge props into message"),
-    h = n.i(l.createReducer)((a = {}, r(a, d, function(e, t) {
-      if (!t || !t.length || !u.a.isArray(t)) return e;
-      var n = u()(t).map("root").compact().value(),
+    },
+    p = n.i(c.createAction)("Add messages"),
+    h = n.i(c.createAction)("Remove a message"),
+    m = n.i(c.createAction)("Merge props into message"),
+    _ = n.i(c.createReducer)((s = {}, r(s, p, function(e, t) {
+      if (!t || !t.length || !l.a.isArray(t)) return e;
+      var n = l()(t).map("root").compact().value(),
         r = t.concat(n),
-        o = u.a.groupBy(r, "channel"),
-        i = u.a.mapValues(o, function(e) {
-          return u.a.keyBy(e, "ts");
+        o = l.a.groupBy(r, "channel"),
+        i = l.a.mapValues(o, function(e) {
+          return l.a.keyBy(e, "ts");
         }),
-        a = u.a.mapValues(i, function(t, n) {
-          return c({}, e[n], t);
+        a = l.a.mapValues(i, function(t, n) {
+          return f({}, e[n], t);
         });
-      return c({}, e, a);
-    }), r(a, f, function(e, t) {
+      return f({}, e, a);
+    }), r(s, h, function(e, t) {
       if (!t || !t.channel || !t.ts) return e;
-      var n = u.a.omit(e[t.channel], t.ts);
-      return c({}, e, r({}, t.channel, n));
-    }), r(a, p, function(e, t) {
+      var n = l.a.omit(e[t.channel], t.ts);
+      return f({}, e, r({}, t.channel, n));
+    }), r(s, m, function(e, t) {
       var n = t.channelId,
         o = t.ts,
         i = t.props;
-      if (!n || !o || !i || u.a.isEmpty(i)) return e;
+      if (!n || !o || !i || l.a.isEmpty(i)) return e;
       var a = e[n] ? e[n][o] : null;
       if (!a) return e;
-      var s = c({}, a, i);
-      return c({}, e, r({}, n, c({}, e[n], r({}, o, s))));
-    }), a), {});
-  t.default = h;
+      var s = f({}, a, i);
+      return f({}, e, r({}, n, f({}, e[n], r({}, o, s))));
+    }), s), {});
+  t.default = _;
 }, , function(e, t, n) {
   "use strict";
 
@@ -37118,7 +37161,8 @@ webpackJsonp([332], [, function(e, t, n) {
     },
     k = {
       mergeMessage: f.mergeMessage,
-      removeMessage: f.removeMessage
+      removeMessage: f.removeMessage,
+      logMessage: f.logMessage
     };
   t.a = n.i(c.b)(w, k)(d.a);
 }, function(e, t, n) {
@@ -37178,8 +37222,9 @@ webpackJsonp([332], [, function(e, t, n) {
     x = n(3040),
     S = n(3981),
     E = n(3956),
-    L = n(3119),
-    C = (n.n(L), function() {
+    L = n(2914),
+    C = n(3119),
+    O = (n.n(C), function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
@@ -37190,7 +37235,7 @@ webpackJsonp([332], [, function(e, t, n) {
         return n && e(t.prototype, n), r && e(t, r), t;
       };
     }()),
-    O = {
+    P = {
       channel: s.PropTypes.shape({
         id: s.PropTypes.string.isRequired,
         name: s.PropTypes.string
@@ -37237,9 +37282,11 @@ webpackJsonp([332], [, function(e, t, n) {
       rollup: s.PropTypes.objectOf(s.PropTypes.shape({
         name: s.PropTypes.string.isRequired,
         actions: s.PropTypes.arrayOf(s.PropTypes.string).isRequired
-      }))
+      })),
+      logMessage: s.PropTypes.func,
+      setUnreadPoint: s.PropTypes.func
     },
-    P = {
+    j = {
       text: null,
       alertType: null,
       subtype: null,
@@ -37264,15 +37311,17 @@ webpackJsonp([332], [, function(e, t, n) {
       didRequestToStopEditing: !1,
       requestToStopEditing: d.noop,
       isLast: !1,
-      rollup: null
+      rollup: null,
+      logMessage: d.noop,
+      setUnreadPoint: d.noop
     },
-    j = function(e) {
+    D = function(e) {
       function t(e) {
         o(this, t);
         var n = i(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
         return n.onContainerClick = n.onContainerClick.bind(n), n.onWindowClick = n.onWindowClick.bind(n), n.renderProfilePreview = n.renderProfilePreview.bind(n), n;
       }
-      return a(t, e), C(t, [{
+      return a(t, e), O(t, [{
         key: "componentDidMount",
         value: function() {
           this.props.isEditing && window.addEventListener("click", this.onWindowClick);
@@ -37298,7 +37347,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "onContainerClick",
         value: function(e) {
-          this.props.isEditing && e.stopPropagation();
+          return this.props.isEditing ? void e.stopPropagation() : e.shiftKey && n.i(L.b)(e) ? (e.stopPropagation(), void this.props.logMessage(this.props.channel.id, this.props.ts)) : void(e.altKey && (e.preventDefault(), this.props.setUnreadPoint(this.props.channel.id, this.props.ts)));
         }
       }, {
         key: "renderProfilePreview",
@@ -37500,7 +37549,7 @@ webpackJsonp([332], [, function(e, t, n) {
         }
       }]), t;
     }(s.PureComponent);
-  t.a = j, j.propTypes = O, j.defaultProps = P, j.displayName = "Message";
+  t.a = D, D.propTypes = P, D.defaultProps = j, D.displayName = "Message";
 }, , function(e, t, n) {
   "use strict";
   n.d(t, "h", function() {
@@ -37636,12 +37685,14 @@ webpackJsonp([332], [, function(e, t, n) {
   var r = n(3060);
   n.d(t, "a", function() {
     return r.a;
-  }), n.d(t, "c", function() {
+  }), n.d(t, "b", function() {
     return r.b;
-  }), n.d(t, "d", function() {
+  }), n.d(t, "c", function() {
     return r.c;
-  }), n.d(t, "e", function() {
+  }), n.d(t, "d", function() {
     return r.d;
+  }), n.d(t, "e", function() {
+    return r.e;
   });
 }, function(e, t, n) {
   "use strict";
@@ -38529,20 +38580,23 @@ webpackJsonp([332], [, function(e, t, n) {
     });
 }, function(e, t, n) {
   "use strict";
-  n.d(t, "b", function() {
+  n.d(t, "c", function() {
     return o;
-  }), n.d(t, "c", function() {
-    return i;
   }), n.d(t, "d", function() {
+    return i;
+  }), n.d(t, "b", function() {
     return a;
-  }), n.d(t, "a", function() {
+  }), n.d(t, "e", function() {
     return s;
+  }), n.d(t, "a", function() {
+    return u;
   });
   var r = n(2277),
     o = (n.i(r.a)("TS.console.getStackTrace", function() {}), n.i(r.a)("TS.console.info", function() {})),
     i = n.i(r.a)("TS.console.log", function() {}),
-    a = n.i(r.a)("TS.console.logError", function() {}),
-    s = (n.i(r.a)("TS.console.logStackTrace", function() {}), n.i(r.a)("TS.console.shouldLog", function() {}), n.i(r.a)("TS.console.warn", function() {}));
+    a = n.i(r.a)("TS.console.error", function() {}),
+    s = n.i(r.a)("TS.console.logError", function() {}),
+    u = (n.i(r.a)("TS.console.logStackTrace", function() {}), n.i(r.a)("TS.console.shouldLog", function() {}), n.i(r.a)("TS.console.warn", function() {}));
 }, function(e, t, n) {
   "use strict";
 
@@ -38926,7 +38980,7 @@ webpackJsonp([332], [, function(e, t, n) {
     };
   };
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.c-message {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  display: flex;\n  padding-right: 26px;\n  min-width: 1px;\n  position: relative;\n  -webkit-user-select: text;\n  -moz-user-select: text;\n  -ms-user-select: text;\n  user-select: text;\n}\n.c-message:hover:not(.c-message--highlight) {\n  background-color: #F9F9F9;\n}\n.c-message--highlight,\n.c-message--highlight_yellow_bg {\n  background: #FFFCE0;\n}\n.c-message--last {\n  margin-bottom: 16px;\n}\n.c-message.c-message--light {\n  padding-top: 5px;\n  padding-bottom: 3px;\n}\n.c-message.c-message--dense {\n  padding-top: 3px;\n  padding-bottom: 2px;\n}\n.c-message.c-message--light.c-message--adjacent {\n  padding-top: 2px;\n}\n.c-message__gutter {\n  text-align: right;\n  flex-shrink: 0;\n}\n.c-message--adjacent .c-message__gutter {\n  visibility: hidden;\n}\n.c-message--adjacent:hover .c-message__gutter {\n  visibility: visible;\n}\n.c-message--light .c-message__gutter {\n  width: 72px;\n  padding-right: 10px;\n}\n.c-message--dense .c-message__gutter {\n  width: 58px;\n  margin-right: 22px;\n}\n.c-message--dense .c-timestamp__label {\n  color: #717274;\n}\n.c-message__content {\n  flex: 0 1 100%;\n  margin-right: 14px;\n  min-width: 1px;\n}\n.c-message--dense .c-message__content {\n  padding-left: 8px;\n}\n.c-message__sender {\n  font-weight: 900;\n}\n.c-message--light .c-message__sender {\n  margin-right: 6px;\n  color: #2C2D30;\n}\n.c-message--dense .c-message__sender {\n  margin-left: -8px;\n  margin-right: 4px;\n}\n.c-message__sender--unknown {\n  display: inline-block;\n  width: 80px;\n  height: 0.9rem;\n  border-radius: 0.9rem;\n  vertical-align: bottom;\n  background: #E8E8E8;\n}\n.c-message--dense .c-message__content_header {\n  display: inline;\n  margin-bottom: 3px;\n}\n.c-message--dense.c-message--thread-broadcast .c-message__content_header {\n  display: flex;\n}\n.c-message--light .c-message__content_header {\n  line-height: 1;\n  margin-bottom: 3px;\n}\n.c-message__body {\n  line-height: 1.4;\n  color: #2C2D30;\n}\n.c-message__body--automated {\n  font-style: italic;\n  color: #A0A0A2;\n}\n.c-message:hover .c-message__body--automated {\n  color: #717274;\n}\n.c-message__mention {\n  background: #FFF4BF;\n  border-radius: 3px;\n  padding: 0 2px 1px 2px;\n}\n.c-message__editor {\n  flex: 0 1 100%;\n  min-height: 0;\n}\n.c-message__editor .ql-editor,\n.c-message__editor .ql-placeholder {\n  padding-bottom: 9px;\n  padding-top: 9px;\n}\n.feature_texty_mentions .c-message__editor .ql-editor,\n.feature_texty_mentions .c-message__editor .ql-placeholder {\n  line-height: 1.46667;\n}\n.c-message__editor__input {\n  background: #FFF;\n  border: 1px solid #C5C5C5;\n  border-radius: 0.25rem;\n  color: #3D3C40;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  height: auto;\n  line-height: 1.2;\n  margin: 0 0 0.5rem;\n  min-height: 40px;\n  overflow: auto;\n  box-shadow: none;\n  -webkit-user-select: auto;\n  -moz-user-select: auto;\n  -ms-user-select: auto;\n  user-select: auto;\n}\n.c-message__editor__input.focus {\n  border-color: #2780F8;\n  outline: none;\n  outline-offset: 0;\n  box-shadow: 0 0 7px rgba(39, 128, 248, 0.15);\n}\n.c-message__editor__footer {\n  align-items: center;\n  display: flex;\n}\n.c-message__editor__info {\n  flex: 1;\n  font-size: 0.8rem;\n  margin-left: 10px;\n}\n.c-message__editor__messages {\n  display: flex;\n  flex: 1;\n  justify-content: flex-end;\n}\n.c-message__editor__warning {\n  color: #EB4D5C;\n  font-size: 0.8rem;\n  margin-left: 10px;\n}\n.c-message__editor__save {\n  margin-left: 10px !important;\n}\n.c-message__editor button {\n  display: inline-block;\n}\n.c-message__reply_bar {\n  display: flex;\n  align-items: center;\n  max-width: 600px;\n  margin-top: 5px;\n  padding: 3px;\n  font-size: 12px;\n  border: 1px solid transparent;\n  border-radius: 6px;\n  cursor: pointer;\n}\n.c-message__reply_bar:hover {\n  background-color: #FFF;\n  border-color: rgba(0, 0, 0, 0.15);\n}\n.c-message__reply_bar:hover .c-message__reply_bar_arrow {\n  color: #A0A0A2;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_last_reply {\n  opacity: 0;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_view_thread {\n  opacity: 1;\n}\n.c-message__reply_bar .c-avatar {\n  margin-right: 4px;\n}\n.c-message__reply_count {\n  margin-left: 3px;\n  font-weight: bold;\n}\n.c-message__reply_bar_description {\n  position: relative;\n  margin-left: 8px;\n  color: #A0A0A2;\n}\n.c-message__reply_bar_arrow {\n  margin-left: auto;\n  color: transparent;\n}\n.c-message__reply_bar_arrow::before {\n  vertical-align: top;\n}\n.c-message__reply_bar_last_reply {\n  opacity: 1;\n  transition: opacity 0.2s;\n}\n.c-message__broadcast_preamble {\n  color: #A0A0A2;\n  display: flex;\n  overflow: hidden;\n  max-width: 100%;\n}\n.c-message--light .c-message__broadcast_preamble {\n  margin-bottom: 3px;\n}\n.c-message__broadcast_preamble_meta {\n  flex-shrink: 0;\n}\n.c-message__broadcast_preamble_link {\n  font-weight: bold;\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  margin-left: 4px;\n}\n.c-message__reply_bar_view_thread {\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  opacity: 0;\n  transition: opacity 0.2s;\n}\n.c-message__attachment {\n  display: flex;\n  align-items: stretch;\n  margin-top: 2px;\n}\n.c-message__attachment_column {\n  width: 4px;\n  background-color: #E8E8E8;\n  border-radius: 8px;\n}\n.c-message__attachment_body {\n  padding-left: 12px;\n  padding-right: 12px;\n}\n.c-message__bot-label {\n  color: #A0A0A2;\n  font-weight: 500;\n  font-size: 12px;\n  margin: 0 0.15rem;\n  padding: 0 0.1rem;\n  vertical-align: middle;\n  background: #f2f2f5;\n}\n.c-message__image_wrapper {\n  display: block;\n  position: relative;\n  overflow: hidden;\n  border-radius: 3px;\n}\n.c-message__image_description {\n  margin-bottom: 8px;\n  color: #A0A0A2;\n}\n.c-message:hover .c-message__image_description {\n  color: #717274;\n}\n.c-message__image_caret {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n}\n.c-message__image_caret:hover,\n.c-message__image_caret:focus,\n.c-message__image_caret:active {\n  outline: none;\n}\n.c-message__file_link {\n  font-weight: 700;\n}\n.c-message__file_meta {\n  line-height: 1.4;\n  color: #A0A0A2;\n}\n.c-message:hover .c-message__file_meta {\n  color: #717274;\n}\n.c-message__body--comment {\n  position: relative;\n  display: block;\n}\n.c-message__body--comment:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  content: '\\E516';\n  position: absolute;\n  left: -28px;\n  top: -4px;\n  color: #E8E8E8;\n}\n.c-message--dense .c-message__body--comment:before {\n  display: none;\n}\n.c-message__file_comment_user,\n.c-message__file_comment_user:link,\n.c-message__file_comment_user:visited {\n  color: inherit;\n}\n.c-message__actions {\n  position: absolute;\n  top: -14px;\n  right: 5px;\n  display: none;\n}\n.c-message:hover .c-message__actions,\n.c-message__actions.c-message__actions--menu-showing {\n  display: block;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.c-message {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  display: flex;\n  padding-right: 26px;\n  min-width: 1px;\n  position: relative;\n  -webkit-user-select: text;\n  -moz-user-select: text;\n  -ms-user-select: text;\n  user-select: text;\n}\n.c-message:hover:not(.c-message--highlight) {\n  background-color: #F9F9F9;\n}\n.c-message--highlight,\n.c-message--highlight_yellow_bg {\n  background: #FFFCE0;\n}\n.c-message--last {\n  margin-bottom: 16px;\n}\n.c-message.c-message--light {\n  padding-top: 5px;\n  padding-bottom: 3px;\n}\n.c-message.c-message--dense {\n  padding-top: 3px;\n  padding-bottom: 2px;\n}\n.c-message.c-message--light.c-message--adjacent {\n  padding-top: 2px;\n}\n.c-message__gutter {\n  text-align: right;\n  flex-shrink: 0;\n}\n.c-message--adjacent .c-message__gutter {\n  visibility: hidden;\n}\n.c-message--adjacent:hover .c-message__gutter {\n  visibility: visible;\n}\n.c-message--light .c-message__gutter {\n  width: 72px;\n  padding-right: 10px;\n}\n.c-message--dense .c-message__gutter {\n  width: 58px;\n  margin-right: 22px;\n}\n.c-message--dense .c-timestamp__label {\n  color: #717274;\n}\n.c-message__content {\n  flex: 0 1 100%;\n  margin-right: 14px;\n  min-width: 1px;\n}\n.c-message--dense .c-message__content {\n  padding-left: 8px;\n}\n.c-message__sender {\n  font-weight: 900;\n}\n.c-message--light .c-message__sender {\n  margin-right: 6px;\n  color: #2C2D30;\n}\n.c-message--dense .c-message__sender {\n  margin-left: -8px;\n  margin-right: 4px;\n}\n.c-message__sender--unknown {\n  display: inline-block;\n  width: 80px;\n  height: 0.9rem;\n  border-radius: 0.9rem;\n  vertical-align: bottom;\n  background: #E8E8E8;\n}\n.c-message--dense .c-message__content_header {\n  display: inline;\n  margin-bottom: 3px;\n}\n.c-message--dense.c-message--thread-broadcast .c-message__content_header {\n  display: flex;\n}\n.c-message--light .c-message__content_header {\n  line-height: 1;\n  margin-bottom: 3px;\n}\n.c-message__body {\n  line-height: 1.4;\n  color: #2C2D30;\n}\n.c-message__body--automated {\n  font-style: italic;\n  color: #A0A0A2;\n}\n.c-message:hover .c-message__body--automated {\n  color: #717274;\n}\n.c-message__mention {\n  background: #FFF4BF;\n  border-radius: 3px;\n  padding: 0 2px 1px 2px;\n}\n.c-message__editor {\n  flex: 0 1 100%;\n  min-height: 0;\n}\n.c-message__editor .ql-editor,\n.c-message__editor .ql-placeholder {\n  padding-bottom: 9px;\n  padding-top: 9px;\n}\n.feature_texty_mentions .c-message__editor .ql-editor,\n.feature_texty_mentions .c-message__editor .ql-placeholder {\n  line-height: 1.46667;\n}\n.c-message__editor__input {\n  background: #FFF;\n  border: 1px solid #C5C5C5;\n  border-radius: 0.25rem;\n  color: #3D3C40;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  height: auto;\n  line-height: 1.2;\n  margin: 0 0 0.5rem;\n  min-height: 40px;\n  overflow: auto;\n  box-shadow: none;\n  -webkit-user-select: auto;\n  -moz-user-select: auto;\n  -ms-user-select: auto;\n  user-select: auto;\n}\n.c-message__editor__input.focus {\n  border-color: #2780F8;\n  outline: none;\n  outline-offset: 0;\n  box-shadow: 0 0 7px rgba(39, 128, 248, 0.15);\n}\n.c-message__editor__footer {\n  align-items: center;\n  display: flex;\n}\n.c-message__editor__info {\n  flex: 1;\n  font-size: 0.8rem;\n  margin-left: 10px;\n}\n.c-message__editor__messages {\n  display: flex;\n  flex: 1;\n  justify-content: flex-end;\n}\n.c-message__editor__warning {\n  color: #EB4D5C;\n  font-size: 0.8rem;\n  margin-left: 10px;\n}\n.c-message__editor__save {\n  margin-left: 10px !important;\n}\n.c-message__editor button {\n  display: inline-block;\n}\n.c-message__reply_bar {\n  display: flex;\n  align-items: center;\n  max-width: 600px;\n  margin-top: 5px;\n  padding: 3px;\n  font-size: 12px;\n  border: 1px solid transparent;\n  border-radius: 6px;\n  cursor: pointer;\n}\n.c-message__reply_bar:hover {\n  background-color: #FFF;\n  border-color: rgba(0, 0, 0, 0.15);\n}\n.c-message__reply_bar:hover .c-message__reply_bar_arrow {\n  color: #A0A0A2;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_last_reply {\n  opacity: 0;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_view_thread {\n  opacity: 1;\n}\n.c-message__reply_bar .c-avatar {\n  margin-right: 4px;\n}\n.c-message__reply_count {\n  margin-left: 3px;\n  font-weight: bold;\n}\n.c-message__reply_bar_description {\n  position: relative;\n  margin-left: 8px;\n  color: #A0A0A2;\n}\n.c-message__reply_bar_arrow {\n  margin-left: auto;\n  color: transparent;\n}\n.c-message__reply_bar_arrow::before {\n  vertical-align: top;\n}\n.c-message__reply_bar_last_reply {\n  opacity: 1;\n  transition: opacity 0.2s;\n}\n.c-message__broadcast_preamble {\n  color: #A0A0A2;\n  display: flex;\n  overflow: hidden;\n  max-width: 100%;\n}\n.c-message--light .c-message__broadcast_preamble {\n  margin-bottom: 3px;\n}\n.c-message__broadcast_preamble_meta {\n  flex-shrink: 0;\n}\n.c-message__broadcast_preamble_link {\n  font-weight: bold;\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  margin-left: 4px;\n}\n.c-message__reply_bar_view_thread {\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  opacity: 0;\n  transition: opacity 0.2s;\n}\n.c-message__attachment {\n  display: flex;\n  align-items: stretch;\n  margin-top: 2px;\n}\n.c-message__attachment_column {\n  width: 4px;\n  background-color: #E8E8E8;\n  border-radius: 8px;\n}\n.c-message__attachment_body {\n  padding-left: 12px;\n  padding-right: 12px;\n}\n.c-message__bot-label {\n  color: #A0A0A2;\n  font-weight: 500;\n  font-size: 12px;\n  margin: 0 0.15rem;\n  padding: 0 0.1rem;\n  vertical-align: middle;\n  background: #f2f2f5;\n}\n.c-message__image_wrapper {\n  display: block;\n  position: relative;\n  overflow: hidden;\n  border-radius: 3px;\n}\n.c-message__image_description {\n  margin-bottom: 8px;\n  color: #A0A0A2;\n}\n.c-message:hover .c-message__image_description {\n  color: #717274;\n}\n.c-message__image_caret {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n}\n.c-message__image_caret:hover,\n.c-message__image_caret:focus,\n.c-message__image_caret:active {\n  outline: none;\n}\n.c-message__file_link {\n  font-weight: 700;\n}\n.c-message__file_meta {\n  line-height: 1.4;\n  color: #A0A0A2;\n}\n.c-message:hover .c-message__file_meta {\n  color: #717274;\n}\n.c-message__body--comment {\n  position: relative;\n  display: block;\n}\n.c-message__body--comment:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  content: '\\E516';\n  position: absolute;\n  left: -28px;\n  top: -4px;\n  color: #E8E8E8;\n}\n.c-message--dense .c-message__body--comment:before {\n  display: none;\n}\n.c-message__file_comment_user,\n.c-message__file_comment_user:link,\n.c-message__file_comment_user:visited {\n  color: inherit;\n}\n.c-message__actions {\n  position: absolute;\n  top: -14px;\n  right: 5px;\n  display: none;\n  z-index: 1;\n}\n.c-message:hover .c-message__actions,\n.c-message__actions.c-message__actions--menu-showing {\n  display: block;\n}\n", ""]);
 }, function(e, t, n) {
   t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.c-message_list__day_divider {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 0.9rem;\n  width: 100%;\n  color: #2C2D30;\n  font-weight: bold;\n  text-align: center;\n  position: relative;\n  padding: 1rem 0;\n}\n.c-message_list__day_divider .c-message_list__unread_divider {\n  top: 12px;\n}\n.c-message_list__day_divider .c-message_list__unread_divider__separator {\n  margin-right: 0;\n}\n.c-message_list__day_divider__label {\n  cursor: default;\n  display: inline-block;\n  background: #FFF;\n  padding: 0.25rem 0.75rem;\n  position: relative;\n  z-index: 1;\n}\n.c-message_list__day_divider__line {\n  position: absolute;\n  top: 50%;\n  left: 0;\n  right: 0;\n  border-top: 1px solid #E8E8E8;\n  border-bottom: 0;\n  z-index: -1;\n  margin: 0;\n}\n.c-message_list__unread_divider {\n  position: relative;\n  top: -1px;\n  z-index: 1;\n}\n.c-message_list__unread_divider__separator {\n  border-bottom: none;\n  border-color: rgba(255, 135, 109, 0.5);\n  margin: 0 18px -1px 0;\n  -webkit-transition: border 150ms ease-out 0;\n  -moz-transition: border 150ms ease-out 0;\n  transition: border 150ms ease-out 0;\n}\n.c-message_list__unread_divider__label {\n  background: #FFF;\n  border-radius: 7px;\n  color: rgba(255, 135, 109, 0.5);\n  cursor: default;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 13px;\n  font-weight: bold;\n  line-height: 8px;\n  margin: -5px 11px -5px 0;\n  padding: 0 5px 3px 5px;\n  position: absolute;\n  right: 0;\n  text-transform: lowercase;\n  -webkit-transition: color 150ms ease-out 0;\n  -moz-transition: color 150ms ease-out 0;\n  transition: color 150ms ease-out 0;\n}\n", ""]);
 }, function(e, t, n) {
@@ -39000,7 +39054,7 @@ webpackJsonp([332], [, function(e, t, n) {
         timestamps: k,
         reachedStart: b,
         reachedEnd: w,
-        lastReadTs: m,
+        lastReadTs: r && r.last_read,
         startTs: m,
         editTs: s,
         editText: u,
@@ -39013,7 +39067,8 @@ webpackJsonp([332], [, function(e, t, n) {
       fetchHistory: l.fetchHistory,
       stopEditingMessage: l.stopEditingMessage,
       updateEditText: l.updateEditText,
-      requestToStopEditing: l.requestToStopEditing
+      requestToStopEditing: l.requestToStopEditing,
+      setUnreadPoint: d.setUnreadPoint
     };
   t.a = n.i(i.b)(v, g)(s.a);
 }, function(e, t, n) {
@@ -39098,7 +39153,8 @@ webpackJsonp([332], [, function(e, t, n) {
             didRequestToStopEditing: this.props.didRequestToStopEditing,
             requestToStopEditing: this.props.requestToStopEditing,
             rollups: this.props.rollups,
-            isLoading: this.props.isLoading
+            isLoading: this.props.isLoading,
+            setUnreadPoint: this.props.setUnreadPoint
           });
         }
       }]), t;
@@ -39119,7 +39175,8 @@ webpackJsonp([332], [, function(e, t, n) {
     didRequestToStopEditing: l.a.PropTypes.bool,
     requestToStopEditing: l.a.PropTypes.func,
     rollups: l.a.PropTypes.objectOf(l.a.PropTypes.objectOf(l.a.PropTypes.arrayOf(l.a.PropTypes.string))),
-    isLoading: l.a.PropTypes.bool
+    isLoading: l.a.PropTypes.bool,
+    setUnreadPoint: l.a.PropTypes.func
   }, f.defaultProps = {
     channelId: null,
     type: "channel",
@@ -39136,7 +39193,8 @@ webpackJsonp([332], [, function(e, t, n) {
     didRequestToStopEditing: !1,
     requestToStopEditing: !1,
     rollups: null,
-    isLoading: !1
+    isLoading: !1,
+    setUnreadPoint: s.a.noop
   };
 }, , , , function(e, t, n) {
   "use strict";
@@ -42477,7 +42535,7 @@ webpackJsonp([332], [, function(e, t, n) {
           return s.a.createElement("a", {
             className: "internal_channel_link",
             href: "/archives/" + t,
-            target: n.i(u.b)() ? "/archives/" + t : "",
+            target: n.i(u.c)() ? "/archives/" + t : "",
             "data-channel-name": a,
             "data-channel-id": t
           }, a);
@@ -54744,7 +54802,7 @@ webpackJsonp([332], [, function(e, t, n) {
     _ = n(2881),
     y = function(e) {
       var t = "react_channel_sidebar_display_item";
-      n.i(u.a)(t + "_mark"), document && document.activeElement && document.activeElement.blur(), "V" === e[0] ? n.i(d.b)(e) : n.i(c.a)(e), n.i(u.b)(t, t + "_mark");
+      n.i(u.a)(t + "_mark"), document && document.activeElement && document.activeElement.blur(), "V" === e[0] ? n.i(d.b)(e) : n.i(c.b)(e), n.i(u.b)(t, t + "_mark");
     },
     v = function(e, t) {
       t && ("im" === e ? n.i(h.b)(t) : "mpim" === e && n.i(p.b)(t));
@@ -55447,7 +55505,7 @@ webpackJsonp([332], [, function(e, t, n) {
   }
 
   function o(e, t) {
-    n.i(T.c)(2005, "Fetching history for unread counting: " + e.id), n.i(m.a)({
+    n.i(T.d)(2005, "Fetching history for unread counting: " + e.id), n.i(m.a)({
       channelId: e.id,
       type: n.i(g.getChannelType)(e),
       oldest: null,
@@ -55500,10 +55558,10 @@ webpackJsonp([332], [, function(e, t, n) {
           }),
           S = x.unreadCnt,
           E = x.unreadHighlightCnt;
-        d <= s.last_read ? u = !1 : (S < s.unread_cnt && (S = s.unread_cnt), E < s.unread_highlight_cnt && (E = s.unread_highlight_cnt), u = c.length < 42 && !p), S !== s.unread_cnt && (n.i(T.c)(2005, "Updated unread_cnt for " + s.id + ": " + S), a(n.i(g.updateOneKeyForChannel)({
+        d <= s.last_read ? u = !1 : (S < s.unread_cnt && (S = s.unread_cnt), E < s.unread_highlight_cnt && (E = s.unread_highlight_cnt), u = c.length < 42 && !p), S !== s.unread_cnt && (n.i(T.d)(2005, "Updated unread_cnt for " + s.id + ": " + S), a(n.i(g.updateOneKeyForChannel)({
           id: s.id,
           unread_cnt: S
-        }))), E !== s.unread_highlight_cnt && (n.i(T.c)(2005, "Updated unread_highlight_cnt for " + s.id + ": " + E), a(n.i(g.updateOneKeyForChannel)({
+        }))), E !== s.unread_highlight_cnt && (n.i(T.d)(2005, "Updated unread_highlight_cnt for " + s.id + ": " + E), a(n.i(g.updateOneKeyForChannel)({
           id: s.id,
           unread_highlight_cnt: E
         })));
@@ -55546,7 +55604,7 @@ webpackJsonp([332], [, function(e, t, n) {
             return s(e, o, t);
           });
           var i = r.threads;
-          i && n.i(M.a)(i.has_unreads, i.mention_count), n.i(T.c)(2005, "Completed users.counts processing");
+          i && n.i(M.a)(i.has_unreads, i.mention_count), n.i(T.d)(2005, "Completed users.counts processing");
         }
       });
     }
@@ -55565,7 +55623,7 @@ webpackJsonp([332], [, function(e, t, n) {
         var p = d.last_read;
         f.a.some(c, function(e) {
           return e > p;
-        }) && (n.i(T.c)(2005, "Counting unreads in " + s + " because history changed"), a(s, o, t));
+        }) && (n.i(T.d)(2005, "Counting unreads in " + s + " because history changed"), a(s, o, t));
       }
     }
   }
@@ -55575,7 +55633,7 @@ webpackJsonp([332], [, function(e, t, n) {
       var o = r();
       if (n.i(_.isFeatureEnabled)(o, "feature_react_messages")) {
         var i = e.payload.id;
-        n.i(T.c)(2005, "Counting unreads in " + i + " because last_read changed"), a(i, o, t);
+        n.i(T.d)(2005, "Counting unreads in " + i + " because last_read changed"), a(i, o, t);
       }
     }
   }
@@ -60059,7 +60117,7 @@ webpackJsonp([332], [, function(e, t, n) {
       return "channel_join" === e || "group_join" === e;
     },
     m = function(e) {
-      return e && e.length ? 1 === e.length ? h(e[0]) ? d.t("joined") : d.t("left") : h(e[0]) ? d.t("joined and left") : d.t("left and rejoined") : n.i(l.error)("rollups missing actions???");
+      return e && e.length ? 1 === e.length ? h(e[0]) ? d.t("joined") : d.t("left") : h(e[0]) ? d.t("joined and left") : d.t("left and rejoined") : n.i(l.b)("rollups missing actions???");
     },
     _ = function(e) {
       var t = e.rollup,
@@ -60206,4 +60264,13 @@ webpackJsonp([332], [, function(e, t, n) {
   ]);
   n(219)(r, {});
   r.locals && (e.exports = r.locals);
+}, function(e, t, n) {
+  "use strict";
+  n.d(t, "a", function() {
+    return o;
+  });
+  var r = n(2277),
+    o = n.i(r.a)("TS.shared.markReadMsg", function() {
+      return !1;
+    });
 }], [2905]);

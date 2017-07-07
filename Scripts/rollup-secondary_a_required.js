@@ -1497,7 +1497,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             }
             a.disabled || TS.model.user.is_ultra_restricted || (a.show_channel_invite = !0), !0 === a.deleted && (a.hide_link_to_app_profile = !0);
           }
-          return e.long_desc_formatted && (a.long_description = new Handlebars.SafeString(e.long_desc_formatted)), e.support_url && (a.support_url = e.support_url), e.user_can_manage && (a.user_can_manage = e.user_can_manage), e.is_slack_integration && _.isEmpty(_.get(e, "commands")) && (a.hide_expand_button = !0), a;
+          return e.long_desc_formatted && (a.long_description = new Handlebars.SafeString(e.long_desc_formatted)), e.long_desc && (a.long_description_raw = new Handlebars.SafeString(e.long_desc)), e.support_url && (a.support_url = e.support_url), e.user_can_manage && (a.user_can_manage = e.user_can_manage), (e.is_slack_integration && _.isEmpty(_.get(e, "commands")) || TS.utility.strGetWordCount(e.long_desc) < 350) && (a.hide_expand_button = !0), a;
         },
         maybeInviteAppUserToChannel: function(e, t, n) {
           var s;
@@ -2833,6 +2833,17 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         getUnarchivedChannelsForUser: function() {
           var e = TS.channels.getChannelsForUser();
           return _.reject(e, "is_archived");
+        },
+        getAllVisibleMpimsForUser: function(e) {
+          if (e || (e = TS.model.mpims), TS.boot_data.feature_shared_channels_client) {
+            var t = _.filter(TS.model.channels, function(e) {
+              if (e.is_mpim) return !0;
+            });
+            e = _.union(e, t);
+          }
+          return e.filter(function(e) {
+            return !!e.is_open || (!!e.is_starred || (!!e.unread_cnt || !!(e.latest || e.msgs && e.msgs.length) && ((!e.members || 2 !== e.members.length) && (TS.model.user.is_ultra_restricted, !0))));
+          });
         },
         setDataRetention: function(e, t, n, i) {
           var r = {
@@ -11629,10 +11640,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return TS.members.invalidateMembersUserCanSeeArrayCaches(), J();
         },
         X = function() {
-          TS.model.guest_accessible_user_ids && (TS.model.guest_accessible_user_ids.length = 0);
+          TS.boot_data.feature_less_accessible_id_fetching && _.get(TS, "model.user.is_restricted") && TS.metrics.count("guest_member_accessible_disconnected"), TS.model.guest_accessible_user_ids && (TS.model.guest_accessible_user_ids.length = 0);
         },
         Z = function(e) {
-          return !TS.boot_data.feature_less_accessible_id_fetching || !e || !TS.model.user || !TS.model.user.is_restricted || !TS.model.guest_accessible_user_ids || !TS.model.guest_accessible_user_ids.length || !TS.membership.lazyLoadChannelMembership() || K;
+          return TS.boot_data.feature_less_accessible_id_fetching && (e ? _.get(TS, "model.guest_accessible_user_ids") ? _.get(TS, "model.guest_accessible_user_ids.length") ? K && TS.metrics.count("guest_member_accessible_still_fetching") : TS.metrics.count("guest_member_accessible_ids_cleared") : TS.metrics.count("guest_member_accessible_no_ids") : TS.metrics.count("guest_member_accessible_no_member")), !TS.boot_data.feature_less_accessible_id_fetching || !e || !TS.model.user || !TS.model.user.is_restricted || !TS.model.guest_accessible_user_ids || !TS.model.guest_accessible_user_ids.length || !TS.membership.lazyLoadChannelMembership() || K;
         },
         ee = function(e, t) {
           if (Z(e)) return Q();
@@ -14732,15 +14743,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           TS.prefs.display_real_names_override_changed_sig.add(s), TS.prefs.team_display_real_names_changed_sig.add(s), TS.members.changed_profile_sig.add(a);
         },
         getVisibleMpims: function(e) {
-          if (e || (e = TS.model.mpims), TS.boot_data.feature_shared_channels_client) {
-            var t = _.filter(TS.model.channels, function(e) {
-              if (e.is_mpim) return !0;
-            });
-            e = _.union(e, t);
-          }
-          return e.filter(function(e) {
-            return !!e.is_open || (!!e.is_starred || (!!e.unread_cnt || !!(e.latest || e.msgs && e.msgs.length) && ((!e.members || 2 !== e.members.length) && (TS.model.user.is_ultra_restricted, !0))));
-          });
+          TS.channels.getAllVisibleMpimsForUser(e);
         },
         addMsg: function(e, t) {
           var n = TS.mpims.getMpimById(e);
@@ -20527,7 +20530,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return e.include_archived ? TS.model.groups : TS.groups.getUnarchivedGroups();
         },
         d = function() {
-          return TS.useRedux() ? TS.mpims.getVisibleMpims(TS.redux.channels.dangerouslyGetMpims()) : TS.mpims.getVisibleMpims().slice();
+          return TS.useRedux() ? TS.channels.getAllVisibleMpimsForUser(TS.redux.channels.dangerouslyGetMpims()) : TS.channels.getAllVisibleMpimsForUser().slice();
         },
         c = function() {
           return _.values(TS.boot_data.other_accounts);
@@ -22058,7 +22061,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             l = TS.model.emoji_map,
             d = TS.utility.members.getBroadcastKeywordsForUser(),
             c = TS.model.NAMED_VIEWS;
-          TS.useRedux() ? (n = _.reject(TS.redux.channels.dangerouslyGetChannelsForUser(), "is_archived"), i = _.reject(TS.redux.channels.dangerouslyGetGroups(), "is_archived"), r = TS.mpims.getVisibleMpims(TS.redux.channels.dangerouslyGetMpims())) : (n = TS.channels.getUnarchivedChannelsForUser(), i = TS.groups.getUnarchivedGroups(), r = TS.mpims.getVisibleMpims());
+          TS.useRedux() ? (n = _.reject(TS.redux.channels.dangerouslyGetChannelsForUser(), "is_archived"), i = _.reject(TS.redux.channels.dangerouslyGetGroups(), "is_archived"), r = TS.channels.getAllVisibleMpimsForUser(TS.redux.channels.dangerouslyGetMpims())) : (n = TS.channels.getUnarchivedChannelsForUser(), i = TS.groups.getUnarchivedGroups(), r = TS.channels.getAllVisibleMpimsForUser());
           var u = {
             members: a,
             channels: n,
@@ -25553,8 +25556,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return '<i class="ts_icon ts_icon_chevron_medium_left back_icon"></i>';
         },
         buildQuickSwitcherBtnHtml: function() {
-          var e, t = TS.i18n.t("Quick Switcher", "templates_builders")();
-          return e = TS.model.is_mac || !TS.model.is_our_app && !TS.model.prefs.k_key_omnibox ? '<i class="ts_icon ts_icon_filter"></i><span id="quick_switcher_label">' + t + "</span>" : '<i class="ts_icon ts_icon_filter"></i><span id="quick_switcher_label" class="quick_switcher_label_windows_alignment">' + t + "</span>", TS.model.is_our_app || TS.model.prefs.k_key_omnibox ? [e, '<span id="quick_switcher_shortcut">', TS.model.is_mac ? "&#8984K" : "Ctrl+K", "</span>"].join("") : e;
+          var e = TS.i18n.t("Quick Switcher", "templates_builders")();
+          return (TS.model.is_our_app || TS.model.prefs.k_key_omnibox) && (e += [" ", '<span class="subtle_silver">(', TS.model.is_mac ? "&#8984K" : "Ctrl+K", ")</span>"].join("")), '<i class="ts_icon ts_icon_filter"></i><span id="quick_switcher_label" class="ts_tip_tip">' + e + "</span>";
         },
         atLabel: function(e) {
           var t = e;
@@ -37382,6 +37385,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return t.ts ? !TS.utility.msgs.getMsg(t.ts, n) || (TS.warn("msg " + t.ts + " already exists! (" + e + ")"), TS.dir(0, t), !1) : (TS.error("msg lacks a ts (" + e + ")"), TS.dir(0, t), !1);
         },
         findMsg: function(e, t) {
+          if (TS.useReactMessages()) return TS.redux.messages.getMessageByTimestamp(t, e);
           var n = TS.shared.getModelObById(t);
           if (n) {
             var i = n.msgs && TS.utility.msgs.getMsg(e, n.msgs);
@@ -39326,11 +39330,14 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         strLooksLikeATeamId: function(e) {
           return !(!_.isString(e) || e.length !== TS.model.model_ob_id_length) && !(!e || "T" !== e.charAt(0) || !e.match(/^[A-Z0-9]+$/));
         },
+        strGetWordCount: function(e) {
+          return e.trim().split(/\s+/).length;
+        },
         truncateToNearestWordBoundary: function(e, t) {
-          if (e.length <= t) return e;
+          if (e.string && (e = e.string), e.length <= t) return e;
           var n = e.substring(0, t),
             i = n.lastIndexOf(" ");
-          return i > 0 && i > t - 5 ? n.substring(0, i) + "…" : n.substring(0, n.length - 1) + "…";
+          return i > 0 && i > t - 15 ? n.substring(0, i) + "…" : n.substring(0, n.length - 1) + "…";
         },
         truncateAndEscape: function(e, t) {
           return e.length <= t ? _.escape(e) : _.escape(e.substring(0, t - 1)) + "&hellip;";
@@ -41146,6 +41153,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             channelId: e.channel,
             timestamp: e.ts
           })), TS.redux.dispatch(TS.interop.redux.entities.messages.removeMessage(e)));
+        },
+        getMessageByTimestamp: function(e, t) {
+          return TS.interop.redux.entities.messages.getMessageByTimestamp(TS.redux.getState(), e, t);
         }
       });
     }();
