@@ -1,0 +1,45 @@
+{{i18n_ns "pages_admin"}}
+<div class="p-add_invoice_confirmation_dialog__details_list">
+  <p class="bottom_margin">
+    <ts-icon class="ts_icon_check_circle_o seafoam_green"></ts-icon>
+    <span>{{plan_text}}</span>
+  </p>
+  <p class="bottom_margin">
+    <ts-icon class="ts_icon_check_circle_o seafoam_green"></ts-icon>
+    <span>{{#t}}You are paying <strong>Annually</strong>{{/t}}</span>
+  </p>
+  <p class="bottom_margin">
+    <ts-icon class="ts_icon_check_circle_o seafoam_green"></ts-icon>
+    <span>{{user_count_text}}</span>
+  </p>
+  <p>
+    <ts-icon class="ts_icon_check_circle_o seafoam_green"></ts-icon>
+    <span>{{overall_cost_text}}</span>
+  </p>
+</div>
+<div>
+  <table class="p-add_invoice_confirmation_dialog__table full_width small_bottom_margin">
+    <tr class="no_border">
+      <td class="no_border no_padding very_small_bottom_padding">{{active_user_text}}</td>
+      <td class="no_border no_padding very_small_bottom_padding align_right">{{cost_for_users}}</td>
+    </tr>
+    <tr class="no_border">
+      <td class="no_border no_padding very_small_bottom_padding">{{#t}}Credits for future usage{{/t}}</td>
+      <td class="no_border no_padding very_small_bottom_padding align_right">{{future_credits}}</td>
+    </tr>
+    <tr class="no_border">
+      <td class="no_border no_padding very_small_bottom_padding">{{#t}}Previous credits{{/t}}</td>
+      <td class="no_border no_padding very_small_bottom_padding align_right seafoam_green">{{previous_credits}}</td>
+    </tr>
+    <tr class="no_border">
+      <td class="no_border no_padding very_small_bottom_padding">{{#t}}Taxes{{/t}}</td>
+      <td class="no_border no_padding very_small_bottom_padding align_right">{{sales_tax}}</td>
+    </tr>
+  </table>
+</div>
+<hr class="small_top_margin small_bottom_margin"/>
+<span class="p-add_invoice_confirmation_dialog__tos_agreement small_bottom_margin">
+  {{#t}}
+    By clicking <strong>Send Invoice</strong>, you understand and agree to the Contract on behalf of the Customer (as described in our <a href="https://slack.com/terms-of-service" target="_blank" rel="noopener">Customer Terms of Service</a>).
+  {{/t}}
+</span>

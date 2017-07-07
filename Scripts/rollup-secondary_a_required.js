@@ -3675,25 +3675,21 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               if (i) return e.preventDefault(), TS.view.onMemberReferenceClick(e, i);
             } else {
               e.preventDefault();
-              var r = TS.model.active_im_id && !TS.client.activeChannelIsHidden(),
-                a = n.data("bot-id"),
-                s = n.data("team-id"),
-                o = n.data("ts") + "",
-                l = n.data("model-ob-id"),
-                d = n.data("member-id"),
-                c = n.data("app-id"),
-                u = {
-                  message_timestamp: o,
-                  channel_id: l,
-                  channel_type: l ? l.charAt(0) : "",
-                  member_id: d,
-                  app_id: c,
-                  bot_id: a
+              var r = n.data("bot-id"),
+                a = n.data("team-id"),
+                s = n.data("ts") + "",
+                o = n.data("model-ob-id"),
+                l = n.data("member-id"),
+                d = n.data("app-id"),
+                c = {
+                  message_timestamp: s,
+                  channel_id: o,
+                  channel_type: o ? o.charAt(0) : "",
+                  member_id: l,
+                  app_id: d,
+                  bot_id: r
                 };
-              if (TS.clog.track("USERNAME_CLICK", u), a) {
-                var m = d || _.get(TS.apps.getAppById(c), "bot_user.id");
-                TS.apps.isAppSpaceEnabled() && m ? TS.ims.startImByMemberId(m) : r ? TS.boot_data.feature_shared_channels_client && s ? TS.menu.app.startWithApp(e, a, s, null, !0) : TS.menu.app.startWithApp(e, a, null, null, !0) : TS.boot_data.feature_shared_channels_client && s ? TS.menu.app.startWithApp(e, a, s) : TS.menu.app.startWithApp(e, a, null, !0);
-              } else TS.warn("hmm, no data-bot-id?");
+              TS.clog.track("USERNAME_CLICK", c), r ? TS.boot_data.feature_shared_channels_client && a ? TS.menu.app.startWithApp(e, r, a) : TS.menu.app.startWithApp(e, r, null, !0) : TS.warn("hmm, no data-bot-id?");
             }
           }), TS.click.addClientHandler(".attachment_attribution a", function(e, t) {
             var n = t.data("attribution-bot-id"),

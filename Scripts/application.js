@@ -36204,7 +36204,10 @@ webpackJsonp([332], [, function(e, t, n) {
       return n.i(p.f)(n.i(c.getDisplayName)(e), n.i(c.getDisplayName)(t));
     },
     x = function(e, t) {
-      return t.priority - e.priority;
+      var n = e.priority,
+        r = void 0 === n ? -1 : n,
+        o = t.priority;
+      return (void 0 === o ? -1 : o) - r;
     },
     S = function(e) {
       var t = e.sortPref,
