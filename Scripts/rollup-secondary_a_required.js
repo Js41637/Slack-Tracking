@@ -8392,7 +8392,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             m += "data-" + t + '="' + e + '" ';
           });
           var p, f = "@" + a.name;
-          return TS.boot_data.feature_texty_mentions ? (TS.boot_data.feature_name_tagging_client && (f = TS.members.getPrefCompliantMemberName(a, !0, !0)), "EDIT" === e ? TS.boot_data.feature_name_tagging_client ? "<@" + a.id + "|" + f + ">" : "@" + a.name : "GROWL" !== e && TS.permissions.members.canUserSeeMember(a) ? (p = TS.utility.shouldLinksHaveTargets() ? 'target="/team/' + a.id + '" ' : "", a.id == TS.model.user.id && l.push("mention"), i ? f : (m += 'data-member-label="' + f + '" ', '<a href="/team/' + a.id + '" ' + p + m + 'class="' + l.join(" ") + '">' + f + "</a>")) : f) : "EDIT" === e || "GROWL" === e ? "@" + a.name : TS.permissions.members.canUserSeeMember(a) && !i ? (p = TS.utility.shouldLinksHaveTargets() ? 'target="/team/' + a.name + '" ' : "", n || (f = I(f)), '<a href="/team/' + a.name + '" ' + p + m + 'class="' + l.join(" ") + '">' + f + "</a>") : f;
+          return TS.boot_data.feature_texty_mentions ? (TS.boot_data.feature_name_tagging_client && (f = TS.members.getPrefCompliantMemberName(a, !0, !0), l.push("ts_tip ts_tip_top ts_tip_lazy ts_tip_float ts_tip_wide"), m += 'data-tip-member="' + a.id + '" '), "EDIT" === e ? TS.boot_data.feature_name_tagging_client ? "<@" + a.id + "|" + f + ">" : "@" + a.name : "GROWL" !== e && TS.permissions.members.canUserSeeMember(a) ? (p = TS.utility.shouldLinksHaveTargets() ? 'target="/team/' + a.id + '" ' : "", a.id == TS.model.user.id && l.push("mention"), i ? f : (m += 'data-member-label="' + f + '" ', '<a href="/team/' + a.id + '" ' + p + m + 'class="' + l.join(" ") + '">' + f + "</a>")) : f) : "EDIT" === e || "GROWL" === e ? "@" + a.name : TS.permissions.members.canUserSeeMember(a) && !i ? (p = TS.utility.shouldLinksHaveTargets() ? 'target="/team/' + a.name + '" ' : "", n || (f = I(f)), '<a href="/team/' + a.name + '" ' + p + m + 'class="' + l.join(" ") + '">' + f + "</a>") : f;
         },
         H = function(e, t, n, i) {
           if (TS.boot_data.page_needs_enterprise && TS.boot_data.feature_default_shared_channels) {
@@ -26583,7 +26583,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }), Handlebars.registerHelper("shouldShowMemberRestrictionBanner", function(t, n) {
             return n = e(n), _.isString(t) && (t = TS.members.getMemberById(t)), t && (t.is_restricted || t.is_external && TS.boot_data.feature_shared_channels_client) ? n.fn(this) : n.inverse(this);
           }), Handlebars.registerHelper("shouldUseUnifiedMemberDisplay", function(t) {
-            return t = e(t), TS.boot_data.feature_shared_channels_client ? t.fn(this) : t.inverse(this);
+            return t = e(t), TS.boot_data.feature_shared_channels_client || TS.boot_data.feature_name_tagging_client ? t.fn(this) : t.inverse(this);
           }), Handlebars.registerHelper("unlessUseUnifiedMemberDisplay", function(e) {
             return Handlebars.helpers.shouldUseUnifiedMemberDisplay.call(this, {
               fn: e.inverse,
@@ -27338,12 +27338,22 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           if (!e.text().trim().length && !e.attr("aria-label")) return _.uniqueId("ts_tip_tip_");
         },
         p = function(e, t) {
-          var n = e.prop("title"),
-            i = m(e),
-            r = i ? ' id="' + i + '"' : "",
-            a = t ? '<span class="ts_tip_multiline_inner">' + n + "</span>" : n,
-            s = ["<span", r, ' class="ts_tip_tip"', ">", a, "</span>"];
-          e.append(s.join("")), e.attr("aria-labelledby", i);
+          var n = "";
+          if (e.data("tip-member")) n = TS.templates["c-member"]({
+            member: TS.members.getMemberById(e.data("tip-member")),
+            size: "small",
+            avatar: !0,
+            no_tip: !0,
+            dark: !0
+          });
+          else {
+            var i = e.prop("title"),
+              r = m(e),
+              a = r ? ' id="' + r + '"' : "";
+            n = t ? '<span class="ts_tip_multiline_inner">' + i + "</span>" : i;
+          }
+          var s = ["<span", a, ' class="ts_tip_tip"', ">", n, "</span>"];
+          e.append(s.join("")), e.attr("aria-labelledby", r);
         };
     }();
   },
@@ -35902,9 +35912,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           if (!(e = a(e))) return "";
           if (s(e)) return _.isString(t) && (e.value = t), e.value;
           if (o(e)) {
-            TS.boot_data.feature_name_tagging_client && S();
             var n = l(e);
-            return _.isString(t) ? TS.boot_data.feature_name_tagging_client ? n.setContents(TS.format.texty.convertContentsStringToContents(t)) : n.setText(t) : _.isObject(t) && n.setContents(t), TS.boot_data.feature_name_tagging_client ? TS.format.texty.convertContentsToString(n.getContents()) : n.getText();
+            return _.isString(t) ? TS.boot_data.feature_name_tagging_client ? (n.setContents(TS.format.texty.convertContentsStringToContents(t)), S()) : n.setText(t) : _.isObject(t) && (n.setContents(t), S()), TS.boot_data.feature_name_tagging_client ? TS.format.texty.convertContentsToString(n.getContents()) : n.getText();
           }
           return "";
         },
@@ -36132,23 +36141,16 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                 o = [],
                 l = [],
                 d = 0;
-              n && (a = TS.tabcomplete.members.getBroadcastKeywords(n));
-              var c = {
-                  members: TS.members.getActiveMembersWithSelfAndSlackbot(),
-                  usergroups: TS.user_groups.getActiveUserGroups(),
-                  broadcast_keywords: a
-                },
-                u = {
-                  allow_empty_query: !1,
-                  frecency: !1,
-                  limit: 2,
-                  prefer_exact_match: !0
-                };
-              s.contents.forEach(function(e) {
+              n && (a = TS.tabcomplete.members.getBroadcastKeywords(n)), s.contents.forEach(function(e) {
                 e.attributes || e.insert.replace(t, function(t, n, i) {
                   if (i += t.length - n.length, !(r.start > i + d && r.start <= i + d + n.length)) {
-                    var a = TS.sorter.search(n, c, u);
-                    1 === a.length ? o.push(h(e.insert, n, i + d, a)) : a.length > 0 ? o.push(h(e.insert, n, i + d, a)) : l.push(n);
+                    var s = n.replace(/^@/, "");
+                    if (a && -1 !== _.map(a, "name").indexOf(s)) {
+                      var c = _.find(a, {
+                        name: s
+                      });
+                      o.push(h(e.insert, n, i + d, [c]));
+                    } else l.push(n);
                   }
                 }), d += e.insert.length;
               }), g(e, o), f(e, _.uniq(l));
@@ -36160,44 +36162,70 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             r.push(n);
             var a = {
               query: n.replace(/^@/, ""),
-              max_api_results: 2,
+              max_api_results: 20,
               include_org: !0,
               include_slackbot: !0,
               include_self: !0,
               full_profile_filter: !1
             };
             TS.members.promiseToSearchMembers(a).then(function(a) {
-              if (!a || !a.items || !a.items.length) return void i.push(n);
-              var s = 0,
-                o = [],
-                l = TS.utility.contenteditable.value(e),
-                d = TS.utility.contenteditable.cursorPosition(e);
-              TS.format.texty.convertContentsStringToContents(l).contents.forEach(function(e) {
+              var s = a && a.items ? a.items : [],
+                o = {
+                  usergroups: TS.user_groups.getActiveUserGroups()
+                },
+                l = {
+                  allow_empty_query: !1,
+                  frecency: !1,
+                  limit: 20,
+                  prefer_exact_match: !0
+                };
+              if (s = s.concat(TS.sorter.search(n, o, l)), !s.length) return void i.push(n);
+              var d = 0,
+                c = [],
+                u = TS.utility.contenteditable.value(e),
+                m = TS.utility.contenteditable.cursorPosition(e);
+              TS.format.texty.convertContentsStringToContents(u).contents.forEach(function(e) {
                 e.attributes || e.insert.replace(t, function(t, i, r) {
-                  i === n && (r += t.length - i.length, d.start > r + s && d.start <= r + s + i.length || (a.items.length, o.push(h(e.insert, i, r + s, a.items))));
-                }), s += e.insert.length;
-              }), g(e, o), _.pull(r, n);
+                  i === n && (r += t.length - i.length, m.start > r + d && m.start <= r + d + i.length || c.push(h(e.insert, i, r + d, s)));
+                }), d += e.insert.length;
+              }), g(e, c), _.pull(r, n);
             });
           });
         },
         h = function(e, t, n, i) {
-          var r = 1 === i.length && i[0],
-            a = {
+          var r, a = 1 === i.length && i[0],
+            s = {
               id: "UNVERIFIED",
               label: t,
               index: n,
               length: t.length
             };
-          if (r) {
-            var s = TS.tabcomplete.members.getDisplayTextForResult(r, !0);
-            a = {
-              id: r.id,
-              label: s,
-              index: n,
-              length: t.length
-            }, e.substr(n, s.length) === s && (a.length = s.length);
+          if (a) r = TS.tabcomplete.members.getDisplayTextForResult(a, !0), s = {
+            id: a.id,
+            label: r,
+            index: n,
+            length: t.length
+          }, e.substr(n, r.length).toLowerCase() === r.toLowerCase() && (s.length = r.length);
+          else {
+            i.sort(function(e, t) {
+              var n = TS.tabcomplete.members.getDisplayTextForResult(e, !0).length;
+              return TS.tabcomplete.members.getDisplayTextForResult(t, !0).length - n;
+            });
+            for (var o = function(e) {
+                return r === TS.tabcomplete.members.getDisplayTextForResult(e, !0);
+              }, l = 0; l < i.length; l += 1)
+              if (a = i[l], r = TS.tabcomplete.members.getDisplayTextForResult(a, !0), r.toLowerCase() === e.substr(n, r.length).toLowerCase()) {
+                var d = i.filter(o);
+                1 === d.length ? s = {
+                  id: a.id,
+                  label: r,
+                  index: n,
+                  length: r.length
+                } : (s.label = r, s.length = r.length);
+                break;
+              }
           }
-          return a;
+          return s;
         },
         g = function(e, t) {
           if (t.length) {

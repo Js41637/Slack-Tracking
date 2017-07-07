@@ -3855,6 +3855,10 @@ html.no_touch .alert_page a:hover {
   transform: translateY(-3px)
 }
 
+.ts_tip.ts_tip_wide .ts_tip_tip {
+  max-width: 500px
+}
+
 .ts_tip .ts_tip_tip {
   display: block;
   position: absolute;
@@ -17595,6 +17599,18 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   right: 0;
   order: 3;
   margin-left: 3px
+}
+
+.c-member--dark .c-member__current-status,
+.c-member--dark .c-member__current-status:before,
+.c-member--dark .c-member__name,
+.c-member--dark .c-member__secondary-name {
+  color: #A0A0A2
+}
+
+.c-member--dark .c-member__display-name,
+.c-member--dark .presence {
+  color: #FFF
 }
 
 .c-member--medium {

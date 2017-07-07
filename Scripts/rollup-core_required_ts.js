@@ -196,7 +196,7 @@ webpackJsonp([12, 328, 337, 329], {
             case "es-ES":
               return "de ";
             case "de-DE":
-              return e.substr && "s" === e.substr(e.length - 1) ? "" : "s";
+              return e.match(/[sßxz]$/i) ? "’" : "s";
             case "ja-JP":
               return "の";
             default:
