@@ -2329,34 +2329,83 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
     ! function() {
       "use strict";
       TS.registerModule("channels.read_only.threads", {
-        list_updated_sig: new signals.Signal,
-        updateList: function(e) {
+        non_threadable_list_updated_sig: new signals.Signal,
+        thread_only_list_updated_sig: new signals.Signal,
+        updateNonThreadableList: function(e) {
           if (e && _.isArray(e)) {
             var t = _.uniq(e),
               n = _.difference(t, TS.model.non_threadable_channels);
             _.difference(TS.model.non_threadable_channels, t).forEach(function(e) {
               var t = TS.shared.getModelObById(e);
-              t && t.is_read_only && (t.can_thread = !0);
+              if (t && t.is_read_only) {
+                var n = _.assign({}, t, {
+                  can_thread: !0
+                });
+                t.is_private ? TS.groups.upsertGroup(n) : TS.channels.upsertChannel(n);
+              }
             }), n.forEach(function(e) {
               var t = TS.shared.getModelObById(e);
-              t && t.is_read_only && (t.can_thread = !1);
-            }), TS.model.non_threadable_channels = t, TS.channels.read_only.threads.list_updated_sig.dispatch();
+              if (t && t.is_read_only) {
+                var n = _.assign({}, t, {
+                  can_thread: !1
+                });
+                t.is_private ? TS.groups.upsertGroup(n) : TS.channels.upsertChannel(n);
+              }
+            }), TS.model.non_threadable_channels = t, TS.channels.read_only.threads.non_threadable_list_updated_sig.dispatch();
           }
         },
-        addChannelToList: function(e) {
-          TS.model.non_threadable_channels = _.uniq(_.concat(TS.model.non_threadable_channels, e)), TS.channels.read_only.threads.list_updated_sig.dispatch();
+        addChannelToNonThreadableList: function(e) {
+          TS.model.non_threadable_channels = _.uniq(_.concat(TS.model.non_threadable_channels, e)), TS.channels.read_only.threads.non_threadable_list_updated_sig.dispatch();
         },
-        removeChannelFromList: function(e) {
+        removeChannelFromNonThreadableList: function(e) {
           TS.model.non_threadable_channels = TS.model.non_threadable_channels.filter(function(t) {
             return t !== e;
-          }), TS.channels.read_only.threads.list_updated_sig.dispatch();
+          }), TS.channels.read_only.threads.non_threadable_list_updated_sig.dispatch();
+        },
+        updateThreadOnlyList: function(e) {
+          if (e && _.isArray(e)) {
+            var t = _.uniq(e),
+              n = _.difference(t, TS.model.thread_only_channels);
+            _.difference(TS.model.thread_only_channels, t).forEach(function(e) {
+              var t = TS.shared.getModelObById(e);
+              if (t && t.is_read_only) {
+                var n = _.assign({}, t, {
+                  can_thread: !1
+                });
+                t.is_private ? TS.groups.upsertGroup(n) : TS.channels.upsertChannel(n);
+              }
+            }), n.forEach(function(e) {
+              var t = TS.shared.getModelObById(e);
+              if (t && t.is_read_only) {
+                var n = _.assign({}, t, {
+                  can_thread: !0
+                });
+                t.is_private ? TS.groups.upsertGroup(n) : TS.channels.upsertChannel(n);
+              }
+            }), TS.model.thread_only_channels = t, TS.channels.read_only.threads.non_threadable_list_updated_sig.dispatch();
+          }
+        },
+        addChannelToThreadOnlyList: function(e) {
+          TS.model.thread_only_channels = _.uniq(_.concat(TS.model.thread_only_channels, e)), TS.channels.read_only.threads.thread_only_list_updated_sig.dispatch();
+        },
+        removeChannelFromThreadOnlyList: function(e) {
+          TS.model.thread_only_channels = TS.model.thread_only_channels.filter(function(t) {
+            return t !== e;
+          }), TS.channels.read_only.threads.thread_only_list_updated_sig.dispatch();
         },
         canThread: function(e) {
           if (TS.boot_data.page_needs_enterprise) {
             if (TS.model.user.enterprise_user && TS.model.user.enterprise_user.is_owner) return !0;
           } else if (TS.model.user.owner) return !0;
           var t = TS.shared.getModelObById(e);
-          return !!t && (!(!t.is_im && !t.is_mpim) || (!t.is_shared || (!TS.channels.read_only.isReadOnly(e) || (_.isUndefined(t.can_thread) ? TS.model.non_threadable_channels.indexOf(e) < 0 : t.can_thread))));
+          if (!t) return !1;
+          if (t.is_im || t.is_mpim) return !0;
+          if (!t.is_shared) return !0;
+          if (!TS.channels.read_only.isReadOnly(e)) return !0;
+          if (!_.isUndefined(t.can_thread)) return t.can_thread;
+          if (TS.model.non_threadable_channels.indexOf(e) > -1) return !1;
+          TS.model.thread_only_channels.indexOf(e);
+          return !0;
         }
       });
     }();
@@ -2535,6 +2584,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         markMostRecentReadMsg: function(e, t, n) {
           if (!e) return void TS.error("channel unknown");
+          if (TS.useReactMessages()) return void TS.redux.dispatch(TS.interop.redux.entities.channels.markMostRecentMsgRead(e.id));
           if (e.msgs && e.msgs.length || n) {
             var i = TS.utility.msgs.getMostRecentValidTs(e);
             if (!i) return void(e.is_member && (e.msgs && e.msgs.length || !e._latest_via_users_counts) && TS.warn('no valid tses for channel "' + e.id + '"???'));
@@ -8942,6 +8992,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         markMostRecentReadMsg: function(e, t, n) {
           if (!e) return void TS.error("group unknown");
+          if (TS.useReactMessages()) return void TS.redux.dispatch(TS.interop.redux.entities.channels.markMostRecentMsgRead(e.id));
           if (e.msgs && e.msgs.length || n) {
             var i = TS.utility.msgs.getMostRecentValidTs(e);
             if (!i) return void((e.msgs && e.msgs.length || !e._latest_via_users_counts) && TS.warn('no valid tses for group "' + e.id + '"???'));
@@ -9626,6 +9677,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         markMostRecentReadMsg: function(e, t, n) {
           if (!e) return void TS.error("im unknown");
+          if (TS.useReactMessages()) return void TS.redux.dispatch(TS.interop.redux.entities.channels.markMostRecentMsgRead(e.id));
           if (e.msgs && e.msgs.length || n) {
             var i = TS.utility.msgs.getMostRecentValidTs(e);
             if (!i) return void((e.msgs && e.msgs.length || !e._latest_via_users_counts) && TS.warn('no valid tses for im "' + e.id + '"???'));
@@ -14868,6 +14920,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         markMostRecentReadMsg: function(e, t, n) {
           if (!e) return void TS.error("mpim unknown");
+          if (TS.useReactMessages()) return void TS.redux.dispatch(TS.interop.redux.entities.channels.markMostRecentMsgRead(e.id));
           if (e.msgs && e.msgs.length || n) {
             var i = TS.utility.msgs.getMostRecentValidTs(e);
             if (!i) return void((e.msgs && e.msgs.length || !e._latest_via_users_counts) && TS.warn('no valid tses for mpim "' + e.id + '"???'));
@@ -15656,6 +15709,12 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         user_read_only_channels: function(e) {
           TS.channels.read_only.updateList(e.channel_ids);
+        },
+        user_non_threadable_channels: function(e) {
+          TS.channels.read_only.threads.updateNonThreadableList(e.channel_ids);
+        },
+        user_thread_only_channels: function(e) {
+          TS.channels.read_only.threads.updateThreadOnlyList(e.channel_ids);
         },
         team_profile_change: function(e) {
           TS.team.upsertAndSignal({

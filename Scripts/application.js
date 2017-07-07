@@ -30668,208 +30668,219 @@ webpackJsonp([332], [, function(e, t, n) {
     return function(r, o) {
       var i = t,
         a = o(),
-        u = n.i(p.getTimestampsByChannelId)(a, e, t),
-        l = u.timestamps,
-        c = u.reachedStart;
+        s = n.i(h.getTimestampsByChannelId)(a, e, t),
+        l = s.timestamps,
+        c = s.reachedStart;
       if (l && l.length) {
-        var h = s.a.findLast(l, function(e) {
+        var d = u.a.findLast(l, function(e) {
           return e < t;
         });
-        h ? i = h : c && (i = "0000000000.000000");
+        d ? i = d : c && (i = "0000000000.000000");
       }
-      n.i(f.a)(e, i), n.i(d.a)();
+      n.i(p.a)(e, i), n.i(f.a)();
+    };
+  }
+
+  function i(e) {
+    return function(t, r) {
+      var o = r(),
+        i = M(o, e),
+        a = i.latest,
+        s = n.i(h.getTimestampsByChannelId)(o, e),
+        l = s.timestamps;
+      s.reachedEnd && (a = u.a.last(l)), a !== i.last_read && n.i(p.a)(e, a);
     };
   }
   Object.defineProperty(t, "__esModule", {
     value: !0
   }), n.d(t, "bulkAddChannels", function() {
-    return m;
-  }), n.d(t, "addChannel", function() {
     return _;
-  }), n.d(t, "removeChannel", function() {
+  }), n.d(t, "addChannel", function() {
     return y;
-  }), n.d(t, "updateOneKeyForChannel", function() {
+  }), n.d(t, "removeChannel", function() {
     return v;
-  }), n.d(t, "forceUpdateOfChannelById", function() {
+  }), n.d(t, "updateOneKeyForChannel", function() {
     return g;
-  }), n.d(t, "clearAllShowInListEvenThoughUnreadsFlags", function() {
+  }), n.d(t, "forceUpdateOfChannelById", function() {
     return b;
+  }), n.d(t, "clearAllShowInListEvenThoughUnreadsFlags", function() {
+    return w;
   }), n.d(t, "getChannelById", function() {
-    return k;
-  }), n.d(t, "getAllChannels", function() {
     return M;
-  }), n.d(t, "hasDraft", function() {
+  }), n.d(t, "getAllChannels", function() {
     return T;
-  }), n.d(t, "isPrivate", function() {
+  }), n.d(t, "hasDraft", function() {
     return x;
-  }), n.d(t, "isChannel", function() {
+  }), n.d(t, "isPrivate", function() {
     return S;
-  }), n.d(t, "isMpim", function() {
+  }), n.d(t, "isChannel", function() {
     return E;
-  }), n.d(t, "isIm", function() {
+  }), n.d(t, "isMpim", function() {
     return L;
-  }), n.d(t, "isOpen", function() {
+  }), n.d(t, "isIm", function() {
     return C;
-  }), n.d(t, "isMemberOfChannel", function() {
+  }), n.d(t, "isOpen", function() {
     return O;
-  }), n.d(t, "isStarred", function() {
+  }), n.d(t, "isMemberOfChannel", function() {
     return P;
-  }), n.d(t, "isArchived", function() {
+  }), n.d(t, "isStarred", function() {
     return j;
-  }), n.d(t, "isRead", function() {
+  }), n.d(t, "isArchived", function() {
     return D;
-  }), n.d(t, "isUnread", function() {
+  }), n.d(t, "isRead", function() {
     return Y;
-  }), n.d(t, "isYou", function() {
+  }), n.d(t, "isUnread", function() {
     return A;
-  }), n.d(t, "isSlackbot", function() {
+  }), n.d(t, "isYou", function() {
     return R;
-  }), n.d(t, "shouldShowWithoutUnreads", function() {
+  }), n.d(t, "isSlackbot", function() {
     return I;
-  }), n.d(t, "getChannelType", function() {
+  }), n.d(t, "shouldShowWithoutUnreads", function() {
     return N;
-  }), n.d(t, "getBadgeCount", function() {
+  }), n.d(t, "getChannelType", function() {
     return F;
-  }), n.d(t, "isMention", function() {
+  }), n.d(t, "getBadgeCount", function() {
     return H;
-  }), n.d(t, "getUnreadIds", function() {
+  }), n.d(t, "isMention", function() {
     return q;
-  }), n.d(t, "getMentionIds", function() {
+  }), n.d(t, "getUnreadIds", function() {
     return z;
-  }), n.d(t, "getDisplayName", function() {
+  }), n.d(t, "getMentionIds", function() {
     return U;
-  }), n.d(t, "getMemberIdFromIm", function() {
+  }), n.d(t, "getDisplayName", function() {
     return W;
-  }), t.setUnreadPoint = o;
-  var i, a = n(6),
-    s = n.n(a),
-    u = n(17),
-    l = (n.n(u), n(3234)),
-    c = n(3233),
-    d = n(2908),
-    f = n(4174),
-    p = n(4151),
-    h = Object.assign || function(e) {
+  }), n.d(t, "getMemberIdFromIm", function() {
+    return B;
+  }), t.setUnreadPoint = o, t.markMostRecentMsgRead = i;
+  var a, s = n(6),
+    u = n.n(s),
+    l = n(17),
+    c = (n.n(l), n(3234)),
+    d = n(3233),
+    f = n(2908),
+    p = n(4174),
+    h = n(4151),
+    m = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
         for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
       }
       return e;
     },
-    m = n.i(u.createAction)("Bulk add channels, overwriting anything previously stored with the same id"),
-    _ = n.i(u.createAction)("Add a channel, overwriting anything previously stored with the same id"),
-    y = n.i(u.createAction)("Remove a channel"),
-    v = n.i(u.createAction)("Update one key for a channel by id"),
-    g = n.i(u.createAction)("Legacy hack: Force an update of a channel, because it broke immutability and updated in place"),
-    b = n.i(u.createAction)("Legacy hack: set the _show_in_list_even_though_no_unreads for all channels to be false"),
-    w = n.i(u.createReducer)((i = {}, r(i, m, function(e, t) {
-      if (!t || !t.length || !s.a.isArray(t)) return e;
-      var n = s.a.filter(t, "id");
+    _ = n.i(l.createAction)("Bulk add channels, overwriting anything previously stored with the same id"),
+    y = n.i(l.createAction)("Add a channel, overwriting anything previously stored with the same id"),
+    v = n.i(l.createAction)("Remove a channel"),
+    g = n.i(l.createAction)("Update one key for a channel by id"),
+    b = n.i(l.createAction)("Legacy hack: Force an update of a channel, because it broke immutability and updated in place"),
+    w = n.i(l.createAction)("Legacy hack: set the _show_in_list_even_though_no_unreads for all channels to be false"),
+    k = n.i(l.createReducer)((a = {}, r(a, _, function(e, t) {
+      if (!t || !t.length || !u.a.isArray(t)) return e;
+      var n = u.a.filter(t, "id");
       if (!n.length) return e;
-      var r = h({}, e);
+      var r = m({}, e);
       return n.forEach(function(e) {
         r[e.id] = e;
       }), r;
-    }), r(i, v, function(e, t) {
+    }), r(a, g, function(e, t) {
       if (!t || !t.id || 2 !== Object.keys(t).length) return e;
       if (!e[t.id]) return e;
-      var n = s.a.omit(t, "id"),
+      var n = u.a.omit(t, "id"),
         o = Object.keys(n)[0];
-      return e[t.id][o] === n[o] ? e : h({}, e, r({}, t.id, h({}, e[t.id], n)));
-    }), r(i, _, function(e, t) {
-      return t && t.id ? h({}, e, r({}, t.id, t)) : e;
-    }), r(i, y, function(e, t) {
-      return t && t.id && e[t.id] ? s.a.omit(e, t.id) : e;
-    }), r(i, g, function(e) {
+      return e[t.id][o] === n[o] ? e : m({}, e, r({}, t.id, m({}, e[t.id], n)));
+    }), r(a, y, function(e, t) {
+      return t && t.id ? m({}, e, r({}, t.id, t)) : e;
+    }), r(a, v, function(e, t) {
+      return t && t.id && e[t.id] ? u.a.omit(e, t.id) : e;
+    }), r(a, b, function(e) {
       var t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : {},
         n = t.id;
       if (!n || !e[n]) return e;
-      var r = h({}, e);
-      return r[n] = h({}, r[n]), r;
-    }), r(i, b, function(e) {
-      var t = s.a.filter(e, "_show_in_list_even_though_no_unreads");
+      var r = m({}, e);
+      return r[n] = m({}, r[n]), r;
+    }), r(a, w, function(e) {
+      var t = u.a.filter(e, "_show_in_list_even_though_no_unreads");
       if (!t.length) return e;
-      var n = h({}, e);
+      var n = m({}, e);
       return t.forEach(function(e) {
         var t = e.id;
-        n[t] = h({}, n[t], {
+        n[t] = m({}, n[t], {
           _show_in_list_even_though_no_unreads: !1
         });
       }), n;
-    }), i), {});
-  t.default = w;
-  var k = function(e, t) {
+    }), a), {});
+  t.default = k;
+  var M = function(e, t) {
       return e && e.channels && e.channels[t];
     },
-    M = function(e) {
+    T = function(e) {
       return e.channels;
     },
-    T = function(e) {
+    x = function(e) {
       return e && e.has_draft;
     },
-    x = function(e) {
+    S = function(e) {
       return e && (e.is_private || e.is_group && !e.is_mpim);
     },
-    S = function(e) {
+    E = function(e) {
       return e && e.is_channel && !e.is_private && !e.is_mpim;
     },
-    E = function(e) {
+    L = function(e) {
       return e && e.is_mpim;
     },
-    L = function(e) {
+    C = function(e) {
       return e && e.is_im;
     },
-    C = function(e) {
+    O = function(e) {
       return e && e.is_open;
     },
-    O = function(e) {
+    P = function(e) {
       return e && e.is_channel && e.is_member;
     },
-    P = function(e) {
+    j = function(e) {
       return e && e.is_starred;
     },
-    j = function(e) {
+    D = function(e) {
       return e && e.is_archived;
     },
-    D = function(e) {
+    Y = function(e) {
       return e && e.unread_cnt < 1;
     },
-    Y = function(e) {
-      return !D(e);
-    },
     A = function(e) {
-      return e && e.is_self_im;
+      return !Y(e);
     },
     R = function(e) {
-      return e && e.is_slackbot_im;
+      return e && e.is_self_im;
     },
     I = function(e) {
-      return e && e._show_in_list_even_though_no_unreads;
+      return e && e.is_slackbot_im;
     },
     N = function(e) {
-      return x(e) ? "private" : E(e) ? "mpim" : L(e) ? "im" : "channel";
+      return e && e._show_in_list_even_though_no_unreads;
     },
     F = function(e) {
-      return e ? E(e) || L(e) ? e.unread_cnt : e.unread_highlight_cnt : 0;
+      return S(e) ? "private" : L(e) ? "mpim" : C(e) ? "im" : "channel";
     },
     H = function(e) {
-      return F(e) > 0;
+      return e ? L(e) || C(e) ? e.unread_cnt : e.unread_highlight_cnt : 0;
     },
     q = function(e) {
-      return e ? s.a.filter(e, Y).map(function(e) {
-        return e.id;
-      }) : [];
+      return H(e) > 0;
     },
     z = function(e) {
-      return e ? s.a.filter(e, H).map(function(e) {
+      return e ? u.a.filter(e, A).map(function(e) {
         return e.id;
       }) : [];
     },
     U = function(e) {
-      return e._display_name ? e._display_name : E(e) ? n.i(l.a)(e) : L(e) ? n.i(c.a)(e) : e.name;
+      return e ? u.a.filter(e, q).map(function(e) {
+        return e.id;
+      }) : [];
     },
     W = function(e) {
-      return e && L(e) && e.user;
+      return e._display_name ? e._display_name : L(e) ? n.i(c.a)(e) : C(e) ? n.i(d.a)(e) : e.name;
+    },
+    B = function(e) {
+      return e && C(e) && e.user;
     };
 }, function(e, t, n) {
   "use strict";
@@ -55578,15 +55589,19 @@ webpackJsonp([332], [, function(e, t, n) {
     if (o && !n.i(g.isArchived)(o) && (!n.i(g.isChannel)(o) || n.i(g.isMemberOfChannel)(o))) {
       var i = e.has_unreads,
         a = i ? 1 : 0,
-        s = 0,
+        s = e.latest,
         u = 0,
-        l = !1;
-      n.i(g.isIm)(o) ? s = e.dm_count || a : n.i(g.isMpim)(o) ? s = e.unread_count_display || a : (l = !0, s = a, u = e.mention_count_display || 0), s !== o.unread_cnt && r(n.i(g.updateOneKeyForChannel)({
+        l = 0,
+        c = !1;
+      n.i(g.isIm)(o) ? u = e.dm_count || a : n.i(g.isMpim)(o) ? u = e.unread_count_display || a : (c = !0, u = a, l = e.mention_count_display || 0), s && s !== o.latest && r(n.i(g.updateOneKeyForChannel)({
         id: o.id,
-        unread_cnt: s
-      })), l && u !== o.unread_highlight_cnt && r(n.i(g.updateOneKeyForChannel)({
+        latest: s
+      })), u !== o.unread_cnt && r(n.i(g.updateOneKeyForChannel)({
         id: o.id,
-        unread_highlight_cnt: u
+        unread_cnt: u
+      })), c && l !== o.unread_highlight_cnt && r(n.i(g.updateOneKeyForChannel)({
+        id: o.id,
+        unread_highlight_cnt: l
       }));
     }
   }

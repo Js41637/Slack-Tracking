@@ -2883,7 +2883,7 @@ webpackJsonp([12, 328, 337, 329], {
         Z = function(e, n) {
           return TS.lazyLoadMembersAndBots() && (e.bots = e.bots || []), new Promise(function(a, o) {
             var t = !TS.model.ms_logged_in_once;
-            if (TS.team.upsertTeam(e.team), TS.model.team.url = e.url, TS.boot_data.page_needs_enterprise && void 0 !== e.can_manage_shared_channels && (TS.model.team.prefs.can_user_manage_shared_channels = e.can_manage_shared_channels), TS.model.last_team_name || (TS.model.last_team_name = TS.model.team.name, TS.model.last_team_domain = TS.model.team.domain), TS.model.team.activity = [], TS.model.break_token && (TS.model.team.url += "f"), t) TS.model.rooms = [], TS.useRedux() || (TS.model.channels = [], TS.model.groups = [], TS.model.mpims = [], TS.model.ims = []), TS.useRedux() && TS.boot_data.feature_store_members_in_redux || (TS.model.members = [], TS.model.bots = []), TS.model.teams = [], TS.model.user_groups = [], TS.model.read_only_channels = [], TS.boot_data.feature_default_shared_channels && (TS.model.non_threadable_channels = []), TS.model.online_users = [];
+            if (TS.team.upsertTeam(e.team), TS.model.team.url = e.url, TS.boot_data.page_needs_enterprise && void 0 !== e.can_manage_shared_channels && (TS.model.team.prefs.can_user_manage_shared_channels = e.can_manage_shared_channels), TS.model.last_team_name || (TS.model.last_team_name = TS.model.team.name, TS.model.last_team_domain = TS.model.team.domain), TS.model.team.activity = [], TS.model.break_token && (TS.model.team.url += "f"), t) TS.model.rooms = [], TS.useRedux() || (TS.model.channels = [], TS.model.groups = [], TS.model.mpims = [], TS.model.ims = []), TS.useRedux() && TS.boot_data.feature_store_members_in_redux || (TS.model.members = [], TS.model.bots = []), TS.model.teams = [], TS.model.user_groups = [], TS.model.read_only_channels = [], TS.boot_data.feature_default_shared_channels && (TS.model.thread_only_channels = [], TS.model.non_threadable_channels = []), TS.model.online_users = [];
             else {
               var i = TS._did_incremental_boot && !TS._did_full_boot;
               i || TS.refreshTeams();
@@ -2978,7 +2978,7 @@ webpackJsonp([12, 328, 337, 329], {
                 e.is_archived || (E += 1);
               }), e.mpims && e.mpims.forEach(function(e) {
                 e.is_open && !e.is_archived && (E += 1);
-              }), e.read_only_channels && (TS.model.read_only_channels = e.read_only_channels), TS.boot_data.feature_default_shared_channels && e.non_threadable_channels && (TS.model.non_threadable_channels = e.non_threadable_channels), TS.model.initial_msgs_cnt = 42, TS.qs_args.api_count) {
+              }), e.read_only_channels && (TS.model.read_only_channels = e.read_only_channels), TS.boot_data.feature_default_shared_channels && e.non_threadable_channels && (TS.model.non_threadable_channels = e.non_threadable_channels), TS.boot_data.feature_default_shared_channels && e.thread_only_channels && (TS.model.thread_only_channels = e.thread_only_channels), TS.model.initial_msgs_cnt = 42, TS.qs_args.api_count) {
               var x = parseInt(TS.qs_args.api_count, 10) || TS.model.initial_msgs_cnt;
               TS.model.initial_msgs_cnt = Math.min(TS.model.initial_msgs_cnt, x);
             }
