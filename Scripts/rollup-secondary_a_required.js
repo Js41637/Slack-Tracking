@@ -14219,7 +14219,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               e.preventDefault(), TS.ui.workspaces.start();
               break;
             case "shared_channels":
-              e.preventDefault(), TS.ui.shared_channels_invites.start();
+              e.preventDefault(), TS.ui.enterprise_shared_channels_invites.start();
               break;
             case "version_info":
               e.preventDefault(), TS.ui.showVersionInfo();
@@ -17798,7 +17798,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return !!TS.boot_data.feature_shared_channels_client && !(!TS.model.user.is_owner && !TS.model.user.is_admin);
         },
         canRequestSharedChannel: function() {
-          return !!TS.boot_data.feature_shared_channels_invite && !!TS.boot_data.feature_shared_channels_client;
+          return !!TS.boot_data.feature_connecting_shared_channels && !!TS.boot_data.feature_shared_channels_client;
         },
         canExportMessageHistory: function(e) {
           return !!(TS.boot_data.feature_channel_exports && TS.boot_data.feature_archive_deeplink && (TS.model.user.is_admin || e.is_im || e.is_group));
@@ -31634,7 +31634,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }
         },
         f = function(e, t) {
-          var n = _.filter(TS.model.emoji_map, {
+          var n = _.find(TS.model.emoji_map, {
             name_with_colons: TS.emoji.stripLocalizedSkinTone(e.name)
           });
           t && (t = t.replace(/^:/, "")), n && TS.ui.frecency.record(n, t);
@@ -31931,661 +31931,6 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               i = $("ts-message[data-model-ob-id='" + e + "'][data-ts='" + t + "']");
             _.merge(n, TS.ui.thread.getTrackingPayloadForEl(i)), "threads_view" === TS.ui.thread.getContextForEl(i) && TS.client.ui.threads.incrementTrackingSeqId(), TS.clog.track("MSG_SHARED_CLICKED", n);
           }
-        };
-    }();
-  },
-  2642: function(e, t) {
-    ! function() {
-      "use strict";
-      TS.registerModule("ui.shared_channels_invites", {
-        onStart: function() {
-          TS.ui.validation.register("valid_invite", De);
-        },
-        start: function() {
-          TS.boot_data.page_needs_enterprise && ve();
-        }
-      });
-      var e, t, n, i, r, a, s, o, l, d = [],
-        c = !1,
-        u = !1,
-        m = [],
-        p = [],
-        f = [],
-        h = [],
-        g = !1,
-        S = function(e) {
-          if (e) {
-            var n = B(e, G(e));
-            n && t.find('.sci_send_email_container [data-action="replace_sent_emails"]').replaceWith(TS.templates.shared_channels_invites_sent_emails(n));
-          }
-        },
-        T = function(e, n) {
-          e || (e = !1), n || (n = !1), t.find("#sci_channels_create .input_wrapper .spinner").toggleClass("hidden", e), n && b(!e);
-        },
-        b = function(e) {
-          o && (clearTimeout(o), o = null), e || (e = !1);
-          var n = t.find("#sci_channels_create .input_wrapper .available");
-          n.toggleClass("hidden", e), e || (o = setTimeout(function() {
-            n.addClass("hidden");
-          }, 1e3));
-        },
-        v = function() {
-          TS.kb_nav.start(i.find(".list_items"), ".channel_browser_row", i, {
-            use_data_ordering: !0,
-            px_offset: 35,
-            scrollToStartImmediately: function() {
-              i.longListView("scrollToTop", !0);
-            },
-            scrollToEndImmediately: function() {
-              i.longListView("scrollToEnd", !0);
-            }
-          }), TS.kb_nav.setAllowHighlightWithoutBlurringInput(!0), TS.kb_nav.setSubmitItemHandler(function(e) {
-            g && X($(this), e);
-          }), i.find(".list_items").on("click", ".channel_browser_row", function(e) {
-            X($(this), e);
-          }), t.on("click", '[data-action="sci_to_create"]', we), t.on("click", '[data-action="sci_channels_create"]', M), t.on("click", '[data-action="sci_cancel"]', ke), t.on("change", '[type="radio"][name="share_with"]', Ee), t.on("click", '[data-action="sci_show_action"]', he);
-          var r = _.debounce(function(e) {
-            if (l && l.isPending()) return s && (clearTimeout(s), s = null), void(s = setTimeout(function(e) {
-              r(e);
-            }, 1e3, e));
-            $(".validation_message").remove(), $('label[for="channel_name"]').removeClass("validation_warning"), e.removeClass("validation_warning");
-            var t = !0,
-              n = !0,
-              i = !1,
-              a = $('#sci_channels_create [data-action="sci_channels_create"]');
-            if (T(), Me(null, a, !1, t), TS.ui.validation.validate(e)) {
-              var o = e.val().trim();
-              l = TS.api.callImmediately("enterprise.nameTaken", {
-                name: o,
-                ignore_local_team: !1
-              }, function(r, s) {
-                if (r) {
-                  if (s.name_taken) return n = !0, i = !1, T(n, i), t = !0, Me(null, a, !1, t), void TS.ui.validation.showWarning(e, '"' + _.escape(o) + '" is already taken by a channel, username, or user group.', {});
-                  n = !0, i = !0, T(n, i), t = !1, Me(null, a, !1, t);
-                } else n = !0, i = !1, T(n, i), TS.generic_dialog.alert("Something failed! " + s.error);
-                return null;
-              }).catch(function() {
-                l = null, n = !0, i = !1, T(n, i);
-              });
-            } else n = !0, T(n);
-          }, 1e3, {
-            leading: !1,
-            trailing: !0
-          });
-          t.on("input", '#sci_channels_create input[name="channel_name"]', function(e) {
-            e.preventDefault(), e.stopPropagation(), r($(this));
-          }), t.on("input", '#sci_channels_create [data-validation]:not([name="channel_name"])', function() {
-            var e = t.find("#sci_channels_create");
-            Me(e.find(A()), e.find('[data-action="sci_channels_create"]'), !0);
-          }), n.on("textchange", function() {
-            c && C();
-          }).on("keydown", function(e) {
-            e.which === TS.utility.keymap.esc && TS.ui.fs_modal.close();
-          }), a.on("change", function() {
-            if (c) {
-              var e = $(this).val();
-              TS.model.ui_state && (TS.model.ui_state.sort_shared_channel_browser_by = e, TS.storage.storeUIState(TS.model.ui_state)), Te(e), C();
-            }
-          }), t.on("click", ".clear_filter_icon", function() {
-            n.val("").trigger("textchange").focus();
-          }), e.on("keyup.sci", J), t.on("click", '[data-action="sci_toggle_contents"]', Ce), t.on("click", '[data-action="sci_toggle_send_email"]', Ae), t.on("click", '[data-action="sci_toggle_copy_link"]', Ie), t.on("click", '[data-action="sci_send"]', _e), t.on("click", '[data-action="sci_copy"]', q), t.on("click", '[data-action="sci_revoke"]', ce), t.on("input", "input[data-invite-id]", function(e) {
-            var t = $(e.target).parent();
-            Me(t, t.find('[data-action="sci_send"]'), !0);
-          });
-        },
-        y = function() {
-          t.find(".showing_sci_action").removeClass("showing_sci_action");
-        },
-        w = function(e) {
-          $(e.target).closest(".sci_invite_container").find(".sci_copy_link_mini_container").addClass("hidden");
-        },
-        k = function(e) {
-          $(e.target).closest(".sci_invite_container").find(".sci_send_email_mini_container").addClass("hidden");
-        },
-        x = function(e, t) {
-          var n = [];
-          return e.length > 0 && (n.push({
-            is_divider: !0,
-            name: TS.i18n.t("Channels you can join", "shared")()
-          }), n = n.concat(e)), t.length > 0 && (n.push({
-            is_divider: !0,
-            name: TS.i18n.t("Channels you belong to", "shared")()
-          }), n = n.concat(t)), n;
-        },
-        M = function() {
-          var e = t.find("#sci_channels_create"),
-            n = e.find(A());
-          if (!TS.ui.validation.validate(n, {
-              quiet: !0,
-              fast: !0
-            })) return TS.ui.validation.validate(n), Ladda.stopAll(), void e.find('[data-action="sci_channels_create"]').addClass("disabled");
-          var i = {},
-            r = !e.find('[name="access"]').prop("checked");
-          if (N()) switch (e.find('[name^="share_with"]:checked').val()) {
-            case "specific":
-              i.target_domains = e.find('[name="domains"]').val();
-              break;
-            case "external":
-              i.target_domain = e.find('[name="domain"]').val();
-              break;
-            case "all":
-              i.all_teams = !0;
-          } else i.target_domain = e.find('[name="domain"]').val();
-          var a = e.find('[name="channel_name"]').val();
-          a && (i.channel_name = a);
-          var s = e.find('[name="purpose"]').val();
-          s && (i.purpose = s.trim()), i.target_domain ? (i.is_private = r, ee(i).then(function(e) {
-            var t = e.data.invite_id;
-            return xe(e.data), ne().then(function(e) {
-              me(e.data.invites, r), oe(t);
-            });
-          }).catch(P).finally(Ladda.stopAll)) : Z(i, r).then(function(e) {
-            var t;
-            e.data.group ? (t = e.data.group.id, e.data.group.is_member || (TS.console.warn("A new shared private channel was just created (" + t + ") but the creator was not listed as a member in the API response"), e.data.group.is_member = !0), TS.groups.upsertGroup(e.data.group), TS.groups.displayGroup({
-              id: t
-            })) : (t = e.data.channel.id, e.data.channel.is_member || (TS.console.warn("A new shared channel was just created (" + t + ") but the creator was not listed as a member in the API response"), e.data.channel.is_member = !0), TS.channels.upsertChannel(e.data.channel), TS.channels.displayChannel({
-              id: t
-            })), TS.ui.fs_modal.close();
-          }).catch(P).finally(Ladda.stopAll);
-        },
-        C = function() {
-          var e = $.trim(n.val());
-          "" !== e && -1 !== e.indexOf("#") && (e = e.replace("#", "", "g"), e = $.trim(e)), e ? (n.closest(".channel_browser_filter_container").addClass("active"), d = O(e)) : (n.closest(".channel_browser_filter_container").removeClass("active"), d = O()), 0 === d.length ? (Fe(e), L("#sci_no_shared_channels")) : L("#sci_channels_container"), i.longListView("scrollToTop", !0), i.longListView("setItems", d), TS.utility.rAF(function() {
-            TS.ui.utility.updateClosestMonkeyScroller(i), i.longListView("resizeImmediately");
-          }), e ? TS.kb_nav.highlightFirstItem() : TS.kb_nav.clearHighlightedItem();
-        },
-        I = function(e, t) {
-          return _.find(D(), function(n) {
-            return n.team.domain === e && n.channel_name === t;
-          }) || _.find(D(!0), function(n) {
-            return n.team.domain === e && n.channel_name === t;
-          });
-        },
-        A = function() {
-          var e = ['[name="channel_name"]', '[name="purpose"]'];
-          if (N()) switch (t.find('[name^="share_with"]:checked').val()) {
-            case "specific":
-              e.push('[name="team_list"]');
-              break;
-            case "external":
-              e.push('[name="domain"]');
-          } else e.push('[name="domain"]');
-          return e.join(", ");
-        },
-        E = function() {
-          return N() ? _.filter(TS.model.enterprise_teams, function(e) {
-            return e.id !== TS.model.team.id;
-          }) : [];
-        },
-        O = function(e) {
-          var t = F(),
-            n = F(!0);
-          if (t.length || n.length) {
-            var i, r, a = K(t, n),
-              s = [],
-              o = [],
-              l = {};
-            return e && (e = TS.utility.regexpEscape(e), r = new RegExp(e, "i")), a.forEach(function(t) {
-              var n = l.hasOwnProperty(t.id);
-              if (!n && t.hasOwnProperty("name")) {
-                if (n || (l[t.id] = !0), e) {
-                  if (t.name.toLowerCase() === e.toLowerCase()) return void(i = t);
-                  if (!t.name.match(r)) return;
-                }
-                t.is_member ? o.push(t) : s.push(t);
-              }
-            }), i && (i.is_member ? o.unshift(i) : s.unshift(i)), x(s, o);
-          }
-        },
-        F = function(e) {
-          return e ? m : f;
-        },
-        B = function(e, t) {
-          return _.find(D(t), function(t) {
-            return t.invite_id == e;
-          });
-        },
-        D = function(e) {
-          return e ? p : h;
-        },
-        R = function() {
-          var e = TS.i18n.t("Anyone on your team can join", "shared")();
-          if (N()) {
-            var n = _.escape(TS.model.enterprise.name);
-            switch (t.find('[name^="share_with"]:checked').val()) {
-              case "specific":
-                e = TS.i18n.t("Specific teams at {name} can join", "shared")({
-                  name: n
-                });
-                break;
-              case "all":
-                e = TS.i18n.t("Anyone at {name} can join", "shared")({
-                  name: n
-                });
-            }
-          }
-          return e;
-        },
-        H = function() {
-          var e = TS.i18n.t("Restricted to invited members", "shared")();
-          if (N()) {
-            var n = _.escape(TS.model.enterprise.name);
-            switch (t.find('[name^="share_with"]:checked').val()) {
-              case "specific":
-                e = TS.i18n.t("Restricted to invited members on specific {name} teams", "shared")({
-                  name: n
-                });
-                break;
-              case "all":
-                e = TS.i18n.t("Restricted to invited members at {name}", "shared")({
-                  name: n
-                });
-            }
-          }
-          return e;
-        },
-        P = function(e) {
-          var t;
-          switch (e.data.error) {
-            case "invalid_target_domain":
-              t = TS.i18n.t("Darn&mdash;we couldn’t find a team with that domain. Try again?", "shared")();
-              break;
-            case "name_taken":
-              t = TS.i18n.t("Darn&mdash;that channel name is already taken. Try another?", "shared")();
-              break;
-            case "invite_exists":
-              t = TS.i18n.t("An invitation already exists for that team and channel.", "shared")();
-              break;
-            case "shared_channel_exists":
-              t = TS.i18n.t("Good news! That team has already joined the shared channel.", "shared")();
-              break;
-            case "not_paid":
-              t = TS.i18n.t("Darn&mdash;that team has to upgrade to a paid Slack plan to join a shared channel.", "shared")();
-              break;
-            default:
-              return j(e);
-          }
-          return TS.generic_dialog.alert(t);
-        },
-        j = function(e) {
-          var t = e.message || "";
-          e.data && e.data.error && (t += ": " + e.data.error), TS.error(t);
-          var n = TS.i18n.t("Sorry! Something went wrong. Please try again.", "shared")();
-          return TS.generic_dialog.alert(n);
-        },
-        L = function(e) {
-          var n = ["#sci_loading", "#sci_no_shared_channels", "#sci_channels_container", "#sci_channels_create", "#sci_send", "#sci_invites_container"].filter(function(t) {
-            return t !== e;
-          }).join(", ");
-          t.find(n).addClass("hidden"), t.find(e).removeClass("hidden");
-        },
-        U = function() {
-          u = !1, c && i.longListView("setHidden", !0);
-        },
-        N = function() {
-          return TS.boot_data.page_needs_enterprise;
-        },
-        G = function(e) {
-          return !!B(e, !0);
-        },
-        W = function() {
-          var e = t.find("#sci_channels_create");
-          e.find('[name="domains"]').each(function(t, n) {
-            var i = $(n);
-            TS.ui.team_picker.make(i, {
-              teams: E()
-            }), i.on("change", function() {
-              var t = TS.ui.team_picker.value(i).map(function(e) {
-                return e.team.domain;
-              }).join(",");
-              i.val(t);
-              Me(e.find(A()), e.find('[data-action="sci_channels_create"]'), !0);
-            });
-          });
-        },
-        q = function(e) {
-          var t = $(e.target),
-            n = t.parent(),
-            i = n.find("input"),
-            r = n.find("label > span"),
-            a = i.get(0),
-            s = i.val();
-          TS.clipboard.canWriteText() ? TS.clipboard.writeText(s) : ge(r), a && a.setSelectionRange(0, s.length);
-        },
-        z = function() {
-          D().length || F().length || D(!0).length || F(!0).length || ke();
-        },
-        K = function(e, t) {
-          return e.concat(t);
-        },
-        V = function(e) {
-          return "num_members" in e ? e.num_members || 0 : e.active_members ? e.active_members.length : 0;
-        },
-        Y = function() {
-          Oe(!0), t = null, e.off("keyup.sci"), e = null, TS.kb_nav.end(), u = !1, c = !1, ue([]), ue([], !0);
-        },
-        J = function(e) {
-          if (e.which === TS.utility.keymap.enter) {
-            var t = $(e.target);
-            t.is("input[data-invite-id]") ? _e(e) : t.is('input[name="domain"], input[name="channel_name"]') && (TS.ui.startButtonSpinner($('#sci_channels_create [data-action="sci_channels_create"]').get(0)), M(e));
-          }
-        },
-        Q = function() {
-          t = $("#sci_container"), e = $("body"), r = t.find(".list_container"), i = r.find(".list"), n = t.find("#channel_browser_filter"), a = t.find("#channel_browser_sort"), TS.model.ui_state && TS.model.ui_state.sort_shared_channel_browser_by && a.find('option[value="' + TS.model.ui_state.sort_shared_channel_browser_by + '"]').attr("selected", !0), ae().then(ke).catch(P);
-        },
-        X = function(e, t) {
-          if (e.hasClass("channel_link")) {
-            var n = e.data("channel-id");
-            TS.view.onChannelReferenceClick(t, n);
-          } else {
-            var i = e.data("group-id");
-            TS.view.onGroupReferenceClick(t, i);
-          }
-          TS.ui.fs_modal.close();
-        },
-        Z = function(e, t) {
-          return TS.api.call(t ? "enterprise.groups.createShared" : "enterprise.channels.createShared", e);
-        },
-        ee = function(e) {
-          return TS.api.call("channels.inviteShared", e);
-        },
-        te = function(e) {
-          return TS.api.call(e ? "groups.listShared" : "channels.listShared");
-        },
-        ne = function() {
-          return TS.api.call("channels.listSharedInvites");
-        },
-        ie = function(e) {
-          return TS.api.call("channels.revokeSharedInvite", e);
-        },
-        re = function(e) {
-          return TS.api.call("channels.sendSharedInvite", e);
-        },
-        ae = function() {
-          var e = [te().reflect(), te(!0).reflect()];
-          return TS.boot_data.feature_shared_channels_invite && e.push(ne().reflect()), Promise.all(e).then(function(e) {
-            var t = [];
-            if (e.forEach(function(e) {
-                e.isFulfilled() || t.push(e.reason());
-              }), t.length) return Promise.reject(new Error("Some shared channels start APIs failed:\n" + t.join("\n")));
-            ue(e[0].value().data.channels), ue(e[1].value().data.channels, !0), TS.boot_data.feature_shared_channels_invite && (me(e[2].value().data.invites), me(e[3].value().data.invites, !0));
-          });
-        },
-        se = function(e) {
-          if (e) {
-            var n = B(e, G(e));
-            n && t.find("#sci_invite_container_" + e + ' [data-action="replace_emailed_invites"]').replaceWith(TS.templates.shared_channels_invites_emailed_invitations(n));
-          }
-        },
-        oe = function(e) {
-          if (e) {
-            var n = B(e, G(e));
-            if (n) {
-              var i = t.find("#sci_invite_container_" + e);
-              i.length ? i.replaceWith(TS.templates.shared_channels_invites_invite(n)) : t.find("#sci_invites_container .sci_list_header").after(TS.templates.shared_channels_invites_invite(n)), t.find("#sci_invites_container").removeClass("hidden");
-            }
-          }
-        },
-        le = function(e) {
-          if (e) {
-            t.find("#sci_invite_container_" + e).remove();
-            var n = t.find("#sci_invites_container");
-            1 === n.children().length && n.addClass("hidden");
-          }
-        },
-        de = function(e, t) {
-          _.remove(D(t), function(t) {
-            return t.invite_id == e;
-          });
-        },
-        ce = function(e) {
-          var t = $(e.target),
-            n = t.data("invite-id"),
-            i = G(n);
-          ie({
-            invite_id: n
-          }).then(function() {
-            de(n, i), le(n), z();
-          }).catch(P);
-        },
-        _e = function(e) {
-          var t = $(e.target),
-            n = t.parent();
-          if (!TS.ui.validation.validate(n, {
-              quiet: !0,
-              fast: !0
-            })) return TS.ui.validation.validate(n), void n.find('[data-action="sci_send"]').addClass("disabled");
-          var i = t.data("invite-id"),
-            r = n.find("input"),
-            a = r.val();
-          if (a) {
-            var s = G(i);
-            re({
-              invite_id: i,
-              email: a
-            }).then(function() {
-              return r.val(""), ne().then(function(e) {
-                me(e.data.invites, s), se(i), S(i);
-              });
-            }).catch(P);
-          }
-        },
-        ue = function(e, t) {
-          e.length && (e = e.map(function(e) {
-            var t = TS.shared.getModelObById(e.channel);
-            return $.extend({}, e, t);
-          })), t ? m = e : f = e;
-        },
-        me = function(e, t) {
-          t ? p = e : h = e;
-        },
-        pe = function() {
-          var e = t.find("#sci_channels_create .placeholder_overlay");
-          t.find('#sci_channels_create input[name="domain"]').on("input", function(t) {
-            e.toggleClass("hidden", !!$(t.target).val());
-          });
-        },
-        fe = function() {
-          t.find('#sci_channels_create [name="access"]').togglify({
-            on_text: TS.i18n.t("Public", "shared")(),
-            off_text: TS.i18n.t("Private", "shared")(),
-            label: R(),
-            off_label: H(),
-            off_class: "ts_toggle_orange",
-            initial_state: !0
-          });
-        },
-        he = function(e) {
-          y();
-          var t = $(e.currentTarget).addClass("showing_sci_action");
-          t.is(".sci_send_email_container") && t.find("input").focus();
-        },
-        ge = function(e) {
-          var t = e.data("timeout");
-          clearTimeout(t), e.removeClass("hidden").data("timeout", setTimeout(function() {
-            e.addClass("hidden");
-          }, 3e3));
-        },
-        Se = function() {
-          if (!u) return c ? void(c && (u = !0, i.longListView("setHidden", !1), i.longListView("setItems", O(), !0), TS.utility.rAF(function() {
-            TS.ui.utility.updateClosestMonkeyScroller(i);
-          }))) : (ye(), void(u = !0));
-        },
-        Te = function(e) {
-          var t = ["name", "creator", "created", "members_high", "members_low"],
-            n = "name"; - 1 !== t.indexOf(e) && (n = e), be(F(), n), be(F(!0), n);
-        },
-        be = function(e, t) {
-          "name" === t ? e.sort(function(e, t) {
-            return e._name_lc > t._name_lc ? 1 : t._name_lc > e._name_lc ? -1 : 0;
-          }) : "creator" === t ? e.sort(function(e, t) {
-            var n, i;
-            return n = TS.members.getMemberById(e.creator), i = TS.members.getMemberById(t.creator), n && i ? n._name_lc > i._name_lc ? 1 : i._name_lc > n._name_lc ? -1 : 0 : n && !i ? -1 : !n && i ? 1 : 0;
-          }) : "created" === t ? e.sort(function(e, t) {
-            return e.created < t.created ? 1 : t.created < e.created ? -1 : 0;
-          }) : "members_high" === t ? e.sort(function(e, t) {
-            var n = V(e),
-              i = V(t);
-            return n < i ? 1 : i < n ? -1 : 0;
-          }) : "members_low" === t && e.sort(function(e, t) {
-            var n = V(e),
-              i = V(t);
-            return n > i ? 1 : i > n ? -1 : 0;
-          });
-        },
-        ve = function() {
-          var e = TS.permissions.members.canCreateConvertOrgSharedChannels(),
-            t = {
-              body_template_html: TS.templates.shared_channels_invites_modal({
-                show_create_shared_channel_btn: e
-              }),
-              onShow: Q,
-              onCancel: Y,
-              modal_class: "fs_modal_internal_scroll convert_to_shared_dialog"
-            };
-          TS.ui.fs_modal.start(t);
-        },
-        ye = function() {
-          c = !0;
-          var e = O(),
-            t = {
-              items: e,
-              approx_item_height: 60,
-              preserve_dom_order: !0,
-              approx_divider_height: 35,
-              pin_dividers: !0,
-              makeElement: function(e) {
-                var t = $(TS.templates.channel_browser_row({
-                  is_shared: !0
-                }));
-                return e.$icon = t.find(".channel_browser_type_icon"), e.$name = t.find(".channel_browser_channel_name"), e.$creator = t.find(".channel_browser_created_by"), e.$date = t.find(".channel_browser_created_on"), e.$purpose = t.find(".channel_browser_channel_purpose"), e.$member_count_container = t.find(".channel_browser_member_count_container"), e.$member_count = t.find(".channel_browser_member_count"), e.$open = t.find(".channel_browser_open"), e.$preview = t.find(".channel_browser_preview"), e.$joined = t.find(".channel_browser_joined"), e.$shared_channel_icon = t.find(".shared_channel_icon"), e.$teams = t.find(".teams"), t;
-              },
-              makeDivider: function() {
-                return $("<div>").addClass("channel_browser_divider");
-              },
-              renderItem: function(e, t, n) {
-                TS.shared.isModelObOrgShared(t) ? n.$shared_channel_icon.removeClass("hidden") : n.$shared_channel_icon.addClass("hidden"), t.is_channel ? n.$icon.removeClass("ts_icon_lock").addClass("ts_icon_channel_pane_hash") : n.$icon.removeClass("ts_icon_channel_pane_hash").addClass("ts_icon_lock"), n.$name.text(t.name ? t.name : "");
-                var i = TS.members.getMemberById(t.creator);
-                i ? (n.$creator.removeClass("hidden"), n.$creator.find(".channel_browser_creator_name").text(TS.members.getPrefCompliantMemberName(i))) : n.$creator.addClass("hidden"), n.$date.text(TS.interop.datetime.toCalendarDate(t.created));
-                var r = V(t);
-                if (n.$member_count.text(r), t.purpose && t.purpose.value) {
-                  var a = TS.utility.formatTopicOrPurpose(t.purpose.value);
-                  a = a.replace(/<a .*?>(.*?)<\/a>/g, "$1"), n.$purpose.removeClass("hidden").html(a);
-                } else n.$purpose.text("").addClass("hidden");
-                if (t.is_member || t.is_group ? (n.$open.removeClass("hidden"), n.$preview.addClass("hidden"), n.$joined.removeClass("hidden")) : (n.$open.addClass("hidden"), n.$preview.removeClass("hidden"), n.$joined.addClass("hidden")), t.is_group ? (e.removeClass("channel_link").removeAttr("data-channel-id"), e.addClass("group_link").attr("data-group-id", t.id)) : (e.removeClass("group_link").removeAttr("data-group-id"), e.addClass("channel_link").attr("data-channel-id", t.id)), TS.shared.isModelObOrgShared(t)) {
-                  var s = "",
-                    o = 0,
-                    l = [];
-                  t.is_global_shared ? TS.model.enterprise_teams.forEach(function(e, t) {
-                    if (t > 9) return void(o += 1);
-                    l.push(e);
-                  }) : t.shared_team_ids.forEach(function(e, t) {
-                    if (t > 9) return void(o += 1);
-                    var n = TS.enterprise.getTeamById(e);
-                    l.push(n);
-                  }), s += TS.templates.shared_channel_list_team_icon({
-                    teams: l,
-                    show_additional_teams: o > 0,
-                    additional_teams: o,
-                    org_shared: TS.shared.isModelObOrgShared(t)
-                  }), n.$teams.html(s);
-                } else n.$teams.empty();
-              },
-              renderDivider: function(e, t) {
-                e.text(t.name);
-              },
-              calcItemHeight: function(e) {
-                return e.outerHeight();
-              }
-            };
-          i.longListView(t), v(), TS.utility.rAF(function() {
-            i.monkeyScroll();
-          });
-        },
-        we = function() {
-          g = !1;
-          var e = N(),
-            n = {
-              reserved_domain: TS.model.team.domain
-            };
-          e && (n.enterprise_info = TS.model.enterprise);
-          var i = TS.templates.shared_channels_invites_create(n);
-          t.find("#sci_channels_create").html(i).find("textarea").autogrow(), L("#sci_channels_create"), U(), $("#fs_modal.convert_to_shared_dialog").toggleClass("fs_modal_internal_scroll", !1), t.find("#sci_header_wrapper").addClass("hidden"), pe(), fe(), e && W(), t.find('#sci_channels_create [name="domain"]').focus(), Ladda.bind('#sci_channels_create [data-action="sci_channels_create"]'), Oe();
-        },
-        ke = function() {
-          g = !0, t.find("#sci_header_wrapper").removeClass("hidden");
-          var e = F(),
-            n = F(!0);
-          if (!(e.length || n.length)) return Fe(), L("#sci_no_shared_channels"), U(), v(), null;
-          L("#sci_channels_container"), $("#fs_modal.convert_to_shared_dialog").toggleClass("fs_modal_internal_scroll", !0), Te(TS.model.ui_state && TS.model.ui_state.sort_shared_channel_browser_by ? TS.model.ui_state.sort_shared_channel_browser_by : a.val()), Se(), Oe(!0);
-        },
-        xe = function(e) {
-          g = !1;
-          var n = TS.templates.shared_channels_invites_send(e);
-          t.find("#sci_send").html(n), L("#sci_send"), U(), Oe();
-        },
-        Me = function(e, t, n, i) {
-          n && (i = !TS.ui.validation.validate(e, {
-            quiet: !0,
-            fast: !0
-          })), t.toggleClass("disabled", i);
-        },
-        Ce = function(e) {
-          if (!$(e.target).is("a, input, .btn")) {
-            var t = $(e.currentTarget),
-              n = t.hasClass("showing_contents");
-            t.toggleClass("showing_contents", !n), t.find(".sci_toggle_icon").toggleClass("ts_icon_caret_right", n).toggleClass("ts_icon_caret_down", !n);
-          }
-        },
-        Ie = function(e) {
-          var t = $(e.target).closest(".sci_invite_container").find(".sci_copy_link_mini_container");
-          t.toggleClass("hidden", !t.hasClass("hidden")), k(e);
-        },
-        Ae = function(e) {
-          var t = $(e.target).closest(".sci_invite_container").find(".sci_send_email_mini_container");
-          t.toggleClass("hidden", !t.hasClass("hidden")).find("input").focus(), w(e);
-        },
-        Ee = function(e) {
-          var n = $(e.target),
-            i = t.find("#sci_channels_create"),
-            r = n.val(),
-            a = "specific" === r,
-            s = "external" === r;
-          $("#sci_specific_team").toggleClass("hidden", !a), $("#sci_external_team").toggleClass("hidden", !s), i.find('[for="share_with_specific"]').toggleClass("hidden", !a), i.find('[for="share_with_external"]').toggleClass("hidden", !s), "specific" === r && i.find('[name="team_list"]').focus(), "external" === r && i.find('[name="domain"]').focus();
-          Me(i.find(A()), i.find('[data-action="sci_channels_create"]'), !0), Be();
-        },
-        Oe = function(e) {
-          e ? (TS.ui.fs_modal.unbindBackButton(), TS.ui.fs_modal.hideBackButton()) : (TS.ui.fs_modal.bindBackButton(ke), TS.ui.fs_modal.showBackButton());
-        },
-        Fe = function(e) {
-          var n = t.find("#sci_no_shared_channels"),
-            i = n.find(".sci_no_shared_note"),
-            r = TS.i18n.t("You don’t have any shared channels yet.", "shared")();
-          if (e) {
-            var a = TS.i18n.t("No matches found for <strong> {escaped_query_string} </strong>", "shared")({
-              escaped_query_string: TS.utility.truncateAndEscape(e, 50)
-            });
-            i.html(a);
-          } else i.text(r);
-        },
-        Be = function() {
-          t.find(".ts_toggle_on_label").text(R()), t.find(".ts_toggle_off_label").text(H());
-        },
-        De = function(e, n) {
-          if (!t) return !0;
-          if (!e.is("input")) return !0;
-          var i = $("#sci_channels_create"),
-            r = e.is('[name="domain"]') ? e : i.find("[name=domain]"),
-            a = e.is("[name=channel_name]") ? e : i.find("[name=channel_name]"),
-            s = r.val(),
-            o = a.val();
-          if (!s) return !0;
-          if (s = s.trim(), o = o.trim(), I(s, o)) {
-            n.quiet || e.addClass("invalid_invite");
-            var l = TS.i18n.t("This invite already exists. Try a different team or channel!", "shared")();
-            return void TS.ui.validation.showWarning(e, l, n);
-          }
-          return r === e ? o && !n.quiet && a.hasClass("invalid_invite") && (a.removeClass("invalid_invite"), TS.ui.validation.validate(a)) : s && !n.quiet && r.hasClass("invalid_invite") && (r.removeClass("invalid_invite"), TS.ui.validation.validate(r)), n.quiet || e.removeClass("invalid_invite"), !0;
         };
     }();
   },
@@ -41411,7 +40756,662 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         };
     }();
   },
-  4167: function(e, t, n) {
-    n(2499), n(2362), n(2423), n(2526), n(2366), n(2365), n(2496), n(2493), n(2494), n(2495), n(2533), n(2491), n(2505), n(3180), n(2501), n(2992), n(2504), n(3079), n(2502), n(3142), n(3627), n(2503), n(3046), n(3184), n(3633), n(3914), n(2389), n(2473), n(2387), n(2388), n(2391), n(2663), n(2425), n(2456), n(2449), n(2507), n(2459), n(2485), n(2516), n(2528), n(2676), n(2471), n(2492), n(2527), n(2367), n(3426), n(2371), n(2472), n(2498), n(2511), n(2488), n(2487), n(2450), n(2486), n(2429), n(2532), n(2530), n(2529), n(2531), n(2665), n(2670), n(2668), n(2675), n(2331), n(2672), n(2667), n(3890), n(2451), n(2514), n(2482), n(2475), n(2476), n(2477), n(2624), n(2478), n(2479), n(2480), n(2481), n(2426), n(2422), n(2524), n(2474), n(2468), n(2462), n(2466), n(2489), n(2613), n(2538), n(2550), n(2655), n(4166), n(2651), n(2446), n(2656), n(2457), n(2640), n(2497), n(2650), n(2464), n(2508), n(2631), n(2649), n(2623), n(2633), n(2654), n(2427), n(2620), n(2627), n(2393), n(2452), n(2612), n(2520), n(2453), n(2642), n(2647), n(2657), n(2539), n(2335), n(2518), n(2455), n(2330), n(2309), n(2673), n(2661), n(2662), n(2660), n(2664), n(2658), n(2460), n(2467), n(2619), n(2616), n(2543), n(2641), n(2369), n(2368), n(2535), n(2674), n(2677), n(2666), n(2652), n(2634), n(2363), n(2506), n(2648), n(2669), n(2637), n(2537), n(2513), n(2519), n(2671), n(2746), n(2754), n(2753), n(2750), n(2751), e.exports = n(2752);
+  4175: function(e, t) {
+    ! function() {
+      "use strict";
+      TS.registerModule("ui.enterprise_shared_channels_invites", {
+        onStart: function() {
+          TS.ui.validation.register("valid_invite", De);
+        },
+        start: function() {
+          TS.boot_data.page_needs_enterprise && ve();
+        }
+      });
+      var e, t, n, i, r, a, s, o, l, d = [],
+        c = !1,
+        u = !1,
+        m = [],
+        p = [],
+        f = [],
+        h = [],
+        g = !1,
+        S = function(e) {
+          if (e) {
+            var n = B(e, G(e));
+            n && t.find('.sci_send_email_container [data-action="replace_sent_emails"]').replaceWith(TS.templates.shared_channels_invites_sent_emails(n));
+          }
+        },
+        T = function(e, n) {
+          e || (e = !1), n || (n = !1), t.find("#sci_channels_create .input_wrapper .spinner").toggleClass("hidden", e), n && b(!e);
+        },
+        b = function(e) {
+          o && (clearTimeout(o), o = null), e || (e = !1);
+          var n = t.find("#sci_channels_create .input_wrapper .available");
+          n.toggleClass("hidden", e), e || (o = setTimeout(function() {
+            n.addClass("hidden");
+          }, 1e3));
+        },
+        v = function() {
+          TS.kb_nav.start(i.find(".list_items"), ".channel_browser_row", i, {
+            use_data_ordering: !0,
+            px_offset: 35,
+            scrollToStartImmediately: function() {
+              i.longListView("scrollToTop", !0);
+            },
+            scrollToEndImmediately: function() {
+              i.longListView("scrollToEnd", !0);
+            }
+          }), TS.kb_nav.setAllowHighlightWithoutBlurringInput(!0), TS.kb_nav.setSubmitItemHandler(function(e) {
+            g && X($(this), e);
+          }), i.find(".list_items").on("click", ".channel_browser_row", function(e) {
+            X($(this), e);
+          }), t.on("click", '[data-action="sci_to_create"]', we), t.on("click", '[data-action="sci_channels_create"]', M), t.on("click", '[data-action="sci_cancel"]', ke), t.on("change", '[type="radio"][name="share_with"]', Ee), t.on("click", '[data-action="sci_show_action"]', he);
+          var r = _.debounce(function(e) {
+            if (l && l.isPending()) return s && (clearTimeout(s), s = null), void(s = setTimeout(function(e) {
+              r(e);
+            }, 1e3, e));
+            $(".validation_message").remove(), $('label[for="channel_name"]').removeClass("validation_warning"), e.removeClass("validation_warning");
+            var t = !0,
+              n = !0,
+              i = !1,
+              a = $('#sci_channels_create [data-action="sci_channels_create"]');
+            if (T(), Me(null, a, !1, t), TS.ui.validation.validate(e)) {
+              var o = e.val().trim();
+              l = TS.api.callImmediately("enterprise.nameTaken", {
+                name: o,
+                ignore_local_team: !1
+              }, function(r, s) {
+                if (r) {
+                  if (s.name_taken) return n = !0, i = !1, T(n, i), t = !0, Me(null, a, !1, t), void TS.ui.validation.showWarning(e, '"' + _.escape(o) + '" is already taken by a channel, username, or user group.', {});
+                  n = !0, i = !0, T(n, i), t = !1, Me(null, a, !1, t);
+                } else n = !0, i = !1, T(n, i), TS.generic_dialog.alert("Something failed! " + s.error);
+                return null;
+              }).catch(function() {
+                l = null, n = !0, i = !1, T(n, i);
+              });
+            } else n = !0, T(n);
+          }, 1e3, {
+            leading: !1,
+            trailing: !0
+          });
+          t.on("input", '#sci_channels_create input[name="channel_name"]', function(e) {
+            e.preventDefault(), e.stopPropagation(), r($(this));
+          }), t.on("input", '#sci_channels_create [data-validation]:not([name="channel_name"])', function() {
+            var e = t.find("#sci_channels_create");
+            Me(e.find(A()), e.find('[data-action="sci_channels_create"]'), !0);
+          }), n.on("textchange", function() {
+            c && C();
+          }).on("keydown", function(e) {
+            e.which === TS.utility.keymap.esc && TS.ui.fs_modal.close();
+          }), a.on("change", function() {
+            if (c) {
+              var e = $(this).val();
+              TS.model.ui_state && (TS.model.ui_state.sort_shared_channel_browser_by = e, TS.storage.storeUIState(TS.model.ui_state)), Te(e), C();
+            }
+          }), t.on("click", ".clear_filter_icon", function() {
+            n.val("").trigger("textchange").focus();
+          }), e.on("keyup.sci", J), t.on("click", '[data-action="sci_toggle_contents"]', Ce), t.on("click", '[data-action="sci_toggle_send_email"]', Ae), t.on("click", '[data-action="sci_toggle_copy_link"]', Ie), t.on("click", '[data-action="sci_send"]', _e), t.on("click", '[data-action="sci_copy"]', q), t.on("click", '[data-action="sci_revoke"]', ce), t.on("input", "input[data-invite-id]", function(e) {
+            var t = $(e.target).parent();
+            Me(t, t.find('[data-action="sci_send"]'), !0);
+          });
+        },
+        y = function() {
+          t.find(".showing_sci_action").removeClass("showing_sci_action");
+        },
+        w = function(e) {
+          $(e.target).closest(".sci_invite_container").find(".sci_copy_link_mini_container").addClass("hidden");
+        },
+        k = function(e) {
+          $(e.target).closest(".sci_invite_container").find(".sci_send_email_mini_container").addClass("hidden");
+        },
+        x = function(e, t) {
+          var n = [];
+          return e.length > 0 && (n.push({
+            is_divider: !0,
+            name: TS.i18n.t("Channels you can join", "shared")()
+          }), n = n.concat(e)), t.length > 0 && (n.push({
+            is_divider: !0,
+            name: TS.i18n.t("Channels you belong to", "shared")()
+          }), n = n.concat(t)), n;
+        },
+        M = function() {
+          var e = t.find("#sci_channels_create"),
+            n = e.find(A());
+          if (!TS.ui.validation.validate(n, {
+              quiet: !0,
+              fast: !0
+            })) return TS.ui.validation.validate(n), Ladda.stopAll(), void e.find('[data-action="sci_channels_create"]').addClass("disabled");
+          var i = {},
+            r = !e.find('[name="access"]').prop("checked");
+          if (N()) switch (e.find('[name^="share_with"]:checked').val()) {
+            case "specific":
+              i.target_domains = e.find('[name="domains"]').val();
+              break;
+            case "external":
+              i.target_domain = e.find('[name="domain"]').val();
+              break;
+            case "all":
+              i.all_teams = !0;
+          } else i.target_domain = e.find('[name="domain"]').val();
+          var a = e.find('[name="channel_name"]').val();
+          a && (i.channel_name = a);
+          var s = e.find('[name="purpose"]').val();
+          s && (i.purpose = s.trim()), i.target_domain ? (i.is_private = r, ee(i).then(function(e) {
+            var t = e.data.invite_id;
+            return xe(e.data), ne().then(function(e) {
+              me(e.data.invites, r), oe(t);
+            });
+          }).catch(P).finally(Ladda.stopAll)) : Z(i, r).then(function(e) {
+            var t;
+            e.data.group ? (t = e.data.group.id, e.data.group.is_member || (TS.console.warn("A new shared private channel was just created (" + t + ") but the creator was not listed as a member in the API response"), e.data.group.is_member = !0), TS.groups.upsertGroup(e.data.group), TS.groups.displayGroup({
+              id: t
+            })) : (t = e.data.channel.id, e.data.channel.is_member || (TS.console.warn("A new shared channel was just created (" + t + ") but the creator was not listed as a member in the API response"), e.data.channel.is_member = !0), TS.channels.upsertChannel(e.data.channel), TS.channels.displayChannel({
+              id: t
+            })), TS.ui.fs_modal.close();
+          }).catch(P).finally(Ladda.stopAll);
+        },
+        C = function() {
+          var e = $.trim(n.val());
+          "" !== e && -1 !== e.indexOf("#") && (e = e.replace("#", "", "g"), e = $.trim(e)), e ? (n.closest(".channel_browser_filter_container").addClass("active"), d = O(e)) : (n.closest(".channel_browser_filter_container").removeClass("active"), d = O()), 0 === d.length ? (Fe(e), L("#sci_no_shared_channels")) : L("#sci_channels_container"), i.longListView("scrollToTop", !0), i.longListView("setItems", d), TS.utility.rAF(function() {
+            TS.ui.utility.updateClosestMonkeyScroller(i), i.longListView("resizeImmediately");
+          }), e ? TS.kb_nav.highlightFirstItem() : TS.kb_nav.clearHighlightedItem();
+        },
+        I = function(e, t) {
+          return _.find(D(), function(n) {
+            return n.team.domain === e && n.channel_name === t;
+          }) || _.find(D(!0), function(n) {
+            return n.team.domain === e && n.channel_name === t;
+          });
+        },
+        A = function() {
+          var e = ['[name="channel_name"]', '[name="purpose"]'];
+          if (N()) switch (t.find('[name^="share_with"]:checked').val()) {
+            case "specific":
+              e.push('[name="team_list"]');
+              break;
+            case "external":
+              e.push('[name="domain"]');
+          } else e.push('[name="domain"]');
+          return e.join(", ");
+        },
+        E = function() {
+          return N() ? _.filter(TS.model.enterprise_teams, function(e) {
+            return e.id !== TS.model.team.id;
+          }) : [];
+        },
+        O = function(e) {
+          var t = F(),
+            n = F(!0);
+          if (t.length || n.length) {
+            var i, r, a = K(t, n),
+              s = [],
+              o = [],
+              l = {};
+            return e && (e = TS.utility.regexpEscape(e), r = new RegExp(e, "i")), a.forEach(function(t) {
+              var n = l.hasOwnProperty(t.id);
+              if (!n && t.hasOwnProperty("name")) {
+                if (n || (l[t.id] = !0), e) {
+                  if (t.name.toLowerCase() === e.toLowerCase()) return void(i = t);
+                  if (!t.name.match(r)) return;
+                }
+                t.is_member ? o.push(t) : s.push(t);
+              }
+            }), i && (i.is_member ? o.unshift(i) : s.unshift(i)), x(s, o);
+          }
+        },
+        F = function(e) {
+          return e ? m : f;
+        },
+        B = function(e, t) {
+          return _.find(D(t), function(t) {
+            return t.invite_id == e;
+          });
+        },
+        D = function(e) {
+          return e ? p : h;
+        },
+        R = function() {
+          var e = TS.i18n.t("Anyone on your team can join", "shared")();
+          if (N()) {
+            var n = _.escape(TS.model.enterprise.name);
+            switch (t.find('[name^="share_with"]:checked').val()) {
+              case "specific":
+                e = TS.i18n.t("Specific teams at {name} can join", "shared")({
+                  name: n
+                });
+                break;
+              case "all":
+                e = TS.i18n.t("Anyone at {name} can join", "shared")({
+                  name: n
+                });
+            }
+          }
+          return e;
+        },
+        H = function() {
+          var e = TS.i18n.t("Restricted to invited members", "shared")();
+          if (N()) {
+            var n = _.escape(TS.model.enterprise.name);
+            switch (t.find('[name^="share_with"]:checked').val()) {
+              case "specific":
+                e = TS.i18n.t("Restricted to invited members on specific {name} teams", "shared")({
+                  name: n
+                });
+                break;
+              case "all":
+                e = TS.i18n.t("Restricted to invited members at {name}", "shared")({
+                  name: n
+                });
+            }
+          }
+          return e;
+        },
+        P = function(e) {
+          var t;
+          switch (e.data.error) {
+            case "invalid_target_domain":
+              t = TS.i18n.t("Darn&mdash;we couldn’t find a team with that domain. Try again?", "shared")();
+              break;
+            case "name_taken":
+              t = TS.i18n.t("Darn&mdash;that channel name is already taken. Try another?", "shared")();
+              break;
+            case "invite_exists":
+              t = TS.i18n.t("An invitation already exists for that team and channel.", "shared")();
+              break;
+            case "shared_channel_exists":
+              t = TS.i18n.t("Good news! That team has already joined the shared channel.", "shared")();
+              break;
+            case "not_paid":
+              t = TS.i18n.t("Darn&mdash;that team has to upgrade to a paid Slack plan to join a shared channel.", "shared")();
+              break;
+            default:
+              return j(e);
+          }
+          return TS.generic_dialog.alert(t);
+        },
+        j = function(e) {
+          var t = e.message || "";
+          e.data && e.data.error && (t += ": " + e.data.error), TS.error(t);
+          var n = TS.i18n.t("Sorry! Something went wrong. Please try again.", "shared")();
+          return TS.generic_dialog.alert(n);
+        },
+        L = function(e) {
+          var n = ["#sci_loading", "#sci_no_shared_channels", "#sci_channels_container", "#sci_channels_create", "#sci_send", "#sci_invites_container"].filter(function(t) {
+            return t !== e;
+          }).join(", ");
+          t.find(n).addClass("hidden"), t.find(e).removeClass("hidden");
+        },
+        U = function() {
+          u = !1, c && i.longListView("setHidden", !0);
+        },
+        N = function() {
+          return TS.boot_data.page_needs_enterprise;
+        },
+        G = function(e) {
+          return !!B(e, !0);
+        },
+        W = function() {
+          var e = t.find("#sci_channels_create");
+          e.find('[name="domains"]').each(function(t, n) {
+            var i = $(n);
+            TS.ui.team_picker.make(i, {
+              teams: E()
+            }), i.on("change", function() {
+              var t = TS.ui.team_picker.value(i).map(function(e) {
+                return e.team.domain;
+              }).join(",");
+              i.val(t);
+              Me(e.find(A()), e.find('[data-action="sci_channels_create"]'), !0);
+            });
+          });
+        },
+        q = function(e) {
+          var t = $(e.target),
+            n = t.parent(),
+            i = n.find("input"),
+            r = n.find("label > span"),
+            a = i.get(0),
+            s = i.val();
+          TS.clipboard.canWriteText() ? TS.clipboard.writeText(s) : ge(r), a && a.setSelectionRange(0, s.length);
+        },
+        z = function() {
+          D().length || F().length || D(!0).length || F(!0).length || ke();
+        },
+        K = function(e, t) {
+          return e.concat(t);
+        },
+        V = function(e) {
+          return "num_members" in e ? e.num_members || 0 : e.active_members ? e.active_members.length : 0;
+        },
+        Y = function() {
+          Oe(!0), t = null, e.off("keyup.sci"), e = null, TS.kb_nav.end(), u = !1, c = !1, ue([]), ue([], !0);
+        },
+        J = function(e) {
+          if (e.which === TS.utility.keymap.enter) {
+            var t = $(e.target);
+            t.is("input[data-invite-id]") ? _e(e) : t.is('input[name="domain"], input[name="channel_name"]') && (TS.ui.startButtonSpinner($('#sci_channels_create [data-action="sci_channels_create"]').get(0)), M(e));
+          }
+        },
+        Q = function() {
+          t = $("#sci_container"), e = $("body"), r = t.find(".list_container"), i = r.find(".list"), n = t.find("#channel_browser_filter"), a = t.find("#channel_browser_sort"), TS.model.ui_state && TS.model.ui_state.sort_shared_channel_browser_by && a.find('option[value="' + TS.model.ui_state.sort_shared_channel_browser_by + '"]').attr("selected", !0), ae().then(ke).catch(P);
+        },
+        X = function(e, t) {
+          if (e.hasClass("channel_link")) {
+            var n = e.data("channel-id");
+            TS.view.onChannelReferenceClick(t, n);
+          } else {
+            var i = e.data("group-id");
+            TS.view.onGroupReferenceClick(t, i);
+          }
+          TS.ui.fs_modal.close();
+        },
+        Z = function(e, t) {
+          return TS.api.call(t ? "enterprise.groups.createShared" : "enterprise.channels.createShared", e);
+        },
+        ee = function(e) {
+          return TS.api.call("channels.inviteShared", e);
+        },
+        te = function(e) {
+          return TS.api.call(e ? "groups.listShared" : "channels.listShared");
+        },
+        ne = function() {
+          return TS.api.call("channels.listSharedInvites");
+        },
+        ie = function(e) {
+          return TS.api.call("channels.revokeSharedInvite", e);
+        },
+        re = function(e) {
+          return TS.api.call("channels.sendSharedInvite", e);
+        },
+        ae = function() {
+          var e = [te().reflect(), te(!0).reflect()];
+          return Promise.all(e).then(function(e) {
+            var t = [];
+            if (e.forEach(function(e) {
+                e.isFulfilled() || t.push(e.reason());
+              }), t.length) return Promise.reject(new Error("Some shared channels start APIs failed:\n" + t.join("\n")));
+            ue(e[0].value().data.channels), ue(e[1].value().data.channels, !0);
+          });
+        },
+        se = function(e) {
+          if (e) {
+            var n = B(e, G(e));
+            n && t.find("#sci_invite_container_" + e + ' [data-action="replace_emailed_invites"]').replaceWith(TS.templates.shared_channels_invites_emailed_invitations(n));
+          }
+        },
+        oe = function(e) {
+          if (e) {
+            var n = B(e, G(e));
+            if (n) {
+              var i = t.find("#sci_invite_container_" + e);
+              i.length ? i.replaceWith(TS.templates.shared_channels_invites_invite(n)) : t.find("#sci_invites_container .sci_list_header").after(TS.templates.shared_channels_invites_invite(n)), t.find("#sci_invites_container").removeClass("hidden");
+            }
+          }
+        },
+        le = function(e) {
+          if (e) {
+            t.find("#sci_invite_container_" + e).remove();
+            var n = t.find("#sci_invites_container");
+            1 === n.children().length && n.addClass("hidden");
+          }
+        },
+        de = function(e, t) {
+          _.remove(D(t), function(t) {
+            return t.invite_id == e;
+          });
+        },
+        ce = function(e) {
+          var t = $(e.target),
+            n = t.data("invite-id"),
+            i = G(n);
+          ie({
+            invite_id: n
+          }).then(function() {
+            de(n, i), le(n), z();
+          }).catch(P);
+        },
+        _e = function(e) {
+          var t = $(e.target),
+            n = t.parent();
+          if (!TS.ui.validation.validate(n, {
+              quiet: !0,
+              fast: !0
+            })) return TS.ui.validation.validate(n), void n.find('[data-action="sci_send"]').addClass("disabled");
+          var i = t.data("invite-id"),
+            r = n.find("input"),
+            a = r.val();
+          if (a) {
+            var s = G(i);
+            re({
+              invite_id: i,
+              email: a
+            }).then(function() {
+              return r.val(""), ne().then(function(e) {
+                me(e.data.invites, s), se(i), S(i);
+              });
+            }).catch(P);
+          }
+        },
+        ue = function(e, t) {
+          e.length && (e = e.map(function(e) {
+            var t = TS.shared.getModelObById(e.channel);
+            return $.extend({}, e, t);
+          })), t ? m = e : f = e;
+        },
+        me = function(e, t) {
+          t ? p = e : h = e;
+        },
+        pe = function() {
+          var e = t.find("#sci_channels_create .placeholder_overlay");
+          t.find('#sci_channels_create input[name="domain"]').on("input", function(t) {
+            e.toggleClass("hidden", !!$(t.target).val());
+          });
+        },
+        fe = function() {
+          t.find('#sci_channels_create [name="access"]').togglify({
+            on_text: TS.i18n.t("Public", "shared")(),
+            off_text: TS.i18n.t("Private", "shared")(),
+            label: R(),
+            off_label: H(),
+            off_class: "ts_toggle_orange",
+            initial_state: !0
+          });
+        },
+        he = function(e) {
+          y();
+          var t = $(e.currentTarget).addClass("showing_sci_action");
+          t.is(".sci_send_email_container") && t.find("input").focus();
+        },
+        ge = function(e) {
+          var t = e.data("timeout");
+          clearTimeout(t), e.removeClass("hidden").data("timeout", setTimeout(function() {
+            e.addClass("hidden");
+          }, 3e3));
+        },
+        Se = function() {
+          if (!u) return c ? void(c && (u = !0, i.longListView("setHidden", !1), i.longListView("setItems", O(), !0), TS.utility.rAF(function() {
+            TS.ui.utility.updateClosestMonkeyScroller(i);
+          }))) : (ye(), void(u = !0));
+        },
+        Te = function(e) {
+          var t = ["name", "creator", "created", "members_high", "members_low"],
+            n = "name"; - 1 !== t.indexOf(e) && (n = e), be(F(), n), be(F(!0), n);
+        },
+        be = function(e, t) {
+          "name" === t ? e.sort(function(e, t) {
+            return e._name_lc > t._name_lc ? 1 : t._name_lc > e._name_lc ? -1 : 0;
+          }) : "creator" === t ? e.sort(function(e, t) {
+            var n, i;
+            return n = TS.members.getMemberById(e.creator), i = TS.members.getMemberById(t.creator), n && i ? n._name_lc > i._name_lc ? 1 : i._name_lc > n._name_lc ? -1 : 0 : n && !i ? -1 : !n && i ? 1 : 0;
+          }) : "created" === t ? e.sort(function(e, t) {
+            return e.created < t.created ? 1 : t.created < e.created ? -1 : 0;
+          }) : "members_high" === t ? e.sort(function(e, t) {
+            var n = V(e),
+              i = V(t);
+            return n < i ? 1 : i < n ? -1 : 0;
+          }) : "members_low" === t && e.sort(function(e, t) {
+            var n = V(e),
+              i = V(t);
+            return n > i ? 1 : i > n ? -1 : 0;
+          });
+        },
+        ve = function() {
+          var e = TS.permissions.members.canCreateConvertOrgSharedChannels(),
+            t = {
+              body_template_html: TS.templates.shared_channels_invites_modal({
+                show_create_shared_channel_btn: e
+              }),
+              onShow: Q,
+              onCancel: Y,
+              modal_class: "fs_modal_internal_scroll convert_to_shared_dialog"
+            };
+          TS.ui.fs_modal.start(t);
+        },
+        ye = function() {
+          c = !0;
+          var e = O(),
+            t = {
+              items: e,
+              approx_item_height: 60,
+              preserve_dom_order: !0,
+              approx_divider_height: 35,
+              pin_dividers: !0,
+              makeElement: function(e) {
+                var t = $(TS.templates.channel_browser_row({
+                  is_shared: !0
+                }));
+                return e.$icon = t.find(".channel_browser_type_icon"), e.$name = t.find(".channel_browser_channel_name"), e.$creator = t.find(".channel_browser_created_by"), e.$date = t.find(".channel_browser_created_on"), e.$purpose = t.find(".channel_browser_channel_purpose"), e.$member_count_container = t.find(".channel_browser_member_count_container"), e.$member_count = t.find(".channel_browser_member_count"), e.$open = t.find(".channel_browser_open"), e.$preview = t.find(".channel_browser_preview"), e.$joined = t.find(".channel_browser_joined"), e.$shared_channel_icon = t.find(".shared_channel_icon"), e.$teams = t.find(".teams"), t;
+              },
+              makeDivider: function() {
+                return $("<div>").addClass("channel_browser_divider");
+              },
+              renderItem: function(e, t, n) {
+                TS.shared.isModelObOrgShared(t) ? n.$shared_channel_icon.removeClass("hidden") : n.$shared_channel_icon.addClass("hidden"), t.is_channel ? n.$icon.removeClass("ts_icon_lock").addClass("ts_icon_channel_pane_hash") : n.$icon.removeClass("ts_icon_channel_pane_hash").addClass("ts_icon_lock"), n.$name.text(t.name ? t.name : "");
+                var i = TS.members.getMemberById(t.creator);
+                i ? (n.$creator.removeClass("hidden"), n.$creator.find(".channel_browser_creator_name").text(TS.members.getPrefCompliantMemberName(i))) : n.$creator.addClass("hidden"), n.$date.text(TS.interop.datetime.toCalendarDate(t.created));
+                var r = V(t);
+                if (n.$member_count.text(r), t.purpose && t.purpose.value) {
+                  var a = TS.utility.formatTopicOrPurpose(t.purpose.value);
+                  a = a.replace(/<a .*?>(.*?)<\/a>/g, "$1"), n.$purpose.removeClass("hidden").html(a);
+                } else n.$purpose.text("").addClass("hidden");
+                if (t.is_member || t.is_group ? (n.$open.removeClass("hidden"), n.$preview.addClass("hidden"), n.$joined.removeClass("hidden")) : (n.$open.addClass("hidden"), n.$preview.removeClass("hidden"), n.$joined.addClass("hidden")), t.is_group ? (e.removeClass("channel_link").removeAttr("data-channel-id"), e.addClass("group_link").attr("data-group-id", t.id)) : (e.removeClass("group_link").removeAttr("data-group-id"), e.addClass("channel_link").attr("data-channel-id", t.id)), TS.shared.isModelObOrgShared(t)) {
+                  var s = "",
+                    o = 0,
+                    l = [];
+                  t.is_global_shared ? TS.model.enterprise_teams.forEach(function(e, t) {
+                    if (t > 9) return void(o += 1);
+                    l.push(e);
+                  }) : t.shared_team_ids.forEach(function(e, t) {
+                    if (t > 9) return void(o += 1);
+                    var n = TS.enterprise.getTeamById(e);
+                    l.push(n);
+                  }), s += TS.templates.shared_channel_list_team_icon({
+                    teams: l,
+                    show_additional_teams: o > 0,
+                    additional_teams: o,
+                    org_shared: TS.shared.isModelObOrgShared(t)
+                  }), n.$teams.html(s);
+                } else n.$teams.empty();
+              },
+              renderDivider: function(e, t) {
+                e.text(t.name);
+              },
+              calcItemHeight: function(e) {
+                return e.outerHeight();
+              }
+            };
+          i.longListView(t), v(), TS.utility.rAF(function() {
+            i.monkeyScroll();
+          });
+        },
+        we = function() {
+          g = !1;
+          var e = N(),
+            n = {
+              reserved_domain: TS.model.team.domain
+            };
+          e && (n.enterprise_info = TS.model.enterprise);
+          var i = TS.templates.shared_channels_invites_create(n);
+          t.find("#sci_channels_create").html(i).find("textarea").autogrow(), L("#sci_channels_create"), U(), $("#fs_modal.convert_to_shared_dialog").toggleClass("fs_modal_internal_scroll", !1), t.find("#sci_header_wrapper").addClass("hidden"), pe(), fe(), e && W(), t.find('#sci_channels_create [name="domain"]').focus(), Ladda.bind('#sci_channels_create [data-action="sci_channels_create"]'), Oe();
+        },
+        ke = function() {
+          g = !0, t.find("#sci_header_wrapper").removeClass("hidden");
+          var e = F(),
+            n = F(!0);
+          if (!(e.length || n.length)) return Fe(), L("#sci_no_shared_channels"), U(), v(), null;
+          L("#sci_channels_container"), $("#fs_modal.convert_to_shared_dialog").toggleClass("fs_modal_internal_scroll", !0), Te(TS.model.ui_state && TS.model.ui_state.sort_shared_channel_browser_by ? TS.model.ui_state.sort_shared_channel_browser_by : a.val()), Se(), Oe(!0);
+        },
+        xe = function(e) {
+          g = !1;
+          var n = TS.templates.shared_channels_invites_send(e);
+          t.find("#sci_send").html(n), L("#sci_send"), U(), Oe();
+        },
+        Me = function(e, t, n, i) {
+          n && (i = !TS.ui.validation.validate(e, {
+            quiet: !0,
+            fast: !0
+          })), t.toggleClass("disabled", i);
+        },
+        Ce = function(e) {
+          if (!$(e.target).is("a, input, .btn")) {
+            var t = $(e.currentTarget),
+              n = t.hasClass("showing_contents");
+            t.toggleClass("showing_contents", !n), t.find(".sci_toggle_icon").toggleClass("ts_icon_caret_right", n).toggleClass("ts_icon_caret_down", !n);
+          }
+        },
+        Ie = function(e) {
+          var t = $(e.target).closest(".sci_invite_container").find(".sci_copy_link_mini_container");
+          t.toggleClass("hidden", !t.hasClass("hidden")), k(e);
+        },
+        Ae = function(e) {
+          var t = $(e.target).closest(".sci_invite_container").find(".sci_send_email_mini_container");
+          t.toggleClass("hidden", !t.hasClass("hidden")).find("input").focus(), w(e);
+        },
+        Ee = function(e) {
+          var n = $(e.target),
+            i = t.find("#sci_channels_create"),
+            r = n.val(),
+            a = "specific" === r,
+            s = "external" === r;
+          $("#sci_specific_team").toggleClass("hidden", !a), $("#sci_external_team").toggleClass("hidden", !s), i.find('[for="share_with_specific"]').toggleClass("hidden", !a), i.find('[for="share_with_external"]').toggleClass("hidden", !s), "specific" === r && i.find('[name="team_list"]').focus(), "external" === r && i.find('[name="domain"]').focus();
+          Me(i.find(A()), i.find('[data-action="sci_channels_create"]'), !0), Be();
+        },
+        Oe = function(e) {
+          e ? (TS.ui.fs_modal.unbindBackButton(), TS.ui.fs_modal.hideBackButton()) : (TS.ui.fs_modal.bindBackButton(ke), TS.ui.fs_modal.showBackButton());
+        },
+        Fe = function(e) {
+          var n = t.find("#sci_no_shared_channels"),
+            i = n.find(".sci_no_shared_note"),
+            r = TS.i18n.t("You don’t have any shared channels yet.", "shared")();
+          if (e) {
+            var a = TS.i18n.t("No matches found for <strong> {escaped_query_string} </strong>", "shared")({
+              escaped_query_string: TS.utility.truncateAndEscape(e, 50)
+            });
+            i.html(a);
+          } else i.text(r);
+        },
+        Be = function() {
+          t.find(".ts_toggle_on_label").text(R()), t.find(".ts_toggle_off_label").text(H());
+        },
+        De = function(e, n) {
+          if (!t) return !0;
+          if (!e.is("input")) return !0;
+          var i = $("#sci_channels_create"),
+            r = e.is('[name="domain"]') ? e : i.find("[name=domain]"),
+            a = e.is("[name=channel_name]") ? e : i.find("[name=channel_name]"),
+            s = r.val(),
+            o = a.val();
+          if (!s) return !0;
+          if (s = s.trim(), o = o.trim(), I(s, o)) {
+            n.quiet || e.addClass("invalid_invite");
+            var l = TS.i18n.t("This invite already exists. Try a different team or channel!", "shared")();
+            return void TS.ui.validation.showWarning(e, l, n);
+          }
+          return r === e ? o && !n.quiet && a.hasClass("invalid_invite") && (a.removeClass("invalid_invite"), TS.ui.validation.validate(a)) : s && !n.quiet && r.hasClass("invalid_invite") && (r.removeClass("invalid_invite"), TS.ui.validation.validate(r)), n.quiet || e.removeClass("invalid_invite"), !0;
+        };
+    }();
+  },
+  4176: function(e, t, n) {
+    n(2499), n(2362), n(2423), n(2526), n(2366), n(2365), n(2496), n(2493), n(2494), n(2495), n(2533), n(2491), n(2505), n(3180), n(2501), n(2992), n(2504), n(3079), n(2502), n(3142), n(3627), n(2503), n(3046), n(3184), n(3633), n(3914), n(2389), n(2473), n(2387), n(2388), n(2391), n(2663), n(2425), n(2456), n(2449), n(2507), n(2459), n(2485), n(2516), n(2528), n(2676), n(2471), n(2492), n(2527), n(2367), n(3426), n(2371), n(2472), n(2498), n(2511), n(2488), n(2487), n(2450), n(2486), n(2429), n(2532), n(2530), n(2529), n(2531), n(2665), n(2670), n(2668), n(2675), n(2331), n(2672), n(2667), n(3890), n(2451), n(2514), n(2482), n(2475), n(2476), n(2477), n(2624), n(2478), n(2479), n(2480), n(2481), n(2426), n(2422), n(2524), n(2474), n(2468), n(2462), n(2466), n(2489), n(2613), n(2538), n(2550), n(2655), n(4166), n(2651), n(2446), n(2656), n(2457), n(2640), n(2497), n(2650), n(2464), n(2508), n(2631), n(2649), n(2623), n(2633), n(2654), n(2427), n(2620), n(2627), n(2393), n(2452), n(2612), n(2520), n(2453), n(4175), n(2647), n(2657), n(2539), n(2335), n(2518), n(2455), n(2330), n(2309), n(2673), n(2661), n(2662), n(2660), n(2664), n(2658), n(2460), n(2467), n(2619), n(2616), n(2543), n(2641), n(2369), n(2368), n(2535), n(2674), n(2677), n(2666), n(2652), n(2634), n(2363), n(2506), n(2648), n(2669), n(2637), n(2537), n(2513), n(2519), n(2671), n(2746), n(2754), n(2753), n(2750), n(2751), e.exports = n(2752);
   }
-}, [4167]);
+}, [4176]);

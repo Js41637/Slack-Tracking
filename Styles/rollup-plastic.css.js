@@ -10308,16 +10308,17 @@ html.fs_modal_active {
   float: left
 }
 
-.p-apps_browser_modal .contents_container {
-  align-items: stretch!important
+#fs_modal.p-apps_browser_modal .contents_container {
+  align-items: stretch
 }
 
-.p-apps_browser_modal .contents_container .contents {
+#fs_modal.p-apps_browser_modal .contents_container .contents {
+  width: 660px;
   display: flex;
-  padding: 0!important
+  padding: 0
 }
 
-.p-apps_browser_modal .contents_container .contents .links_container {
+#fs_modal.p-apps_browser_modal .contents_container .contents .links_container {
   display: flex;
   position: absolute;
   left: 3%;
@@ -10325,28 +10326,28 @@ html.fs_modal_active {
   font-size: 15px
 }
 
-.p-apps_browser_modal .contents_container .contents .links_container a {
+#fs_modal.p-apps_browser_modal .contents_container .contents .links_container a {
   color: #717274
 }
 
-.p-apps_browser_modal .contents_container .contents .links_container a:active,
-.p-apps_browser_modal .contents_container .contents .links_container a:hover,
-.p-apps_browser_modal .contents_container .contents .links_container a:visited {
+#fs_modal.p-apps_browser_modal .contents_container .contents .links_container a:active,
+#fs_modal.p-apps_browser_modal .contents_container .contents .links_container a:hover,
+#fs_modal.p-apps_browser_modal .contents_container .contents .links_container a:visited {
   color: #717274;
   cursor: pointer
 }
 
-.p-apps_browser_modal .contents_container .contents .links_container .view_tutorial_link {
+#fs_modal.p-apps_browser_modal .contents_container .contents .links_container .view_tutorial_link {
   margin-left: 25px
 }
 
-.p-apps_browser_modal .contents_container .contents .links_container ts-icon {
+#fs_modal.p-apps_browser_modal .contents_container .contents .links_container ts-icon {
   position: relative;
   top: 4px;
   margin-right: .5rem
 }
 
-.p-apps_browser_modal .contents_container .contents #apps_browser_container {
+#fs_modal.p-apps_browser_modal .contents_container .contents #apps_browser_container {
   display: flex;
   flex: 1 1 0;
   overflow: hidden
