@@ -16728,6 +16728,44 @@ body:not(.unify_user) .lazy_filter_select .lfs_value .ts_icon_shared_channels {
   top: 4px
 }
 
+.lazy_filter_select .team_image {
+  border-radius: 3px;
+  background-size: 100%;
+  background-repeat: no-repeat;
+  display: inline-block;
+  position: relative;
+  top: -1px
+}
+
+.lazy_filter_select .team_image:after {
+  content: '';
+  display: block;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  box-shadow: inset 0 0 0 1px rgba(44, 45, 48, .08);
+  border-radius: 3px
+}
+
+.lazy_filter_select .team_image.default {
+  background-color: #717274;
+  font-weight: 800;
+  font-size: 18px;
+  line-height: 1.9;
+  color: #FFF;
+  font-style: normal;
+  letter-spacing: 0;
+  text-align: center;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, .2)
+}
+
+.lazy_filter_select .team_image.icon_16 {
+  width: 16px;
+  height: 16px;
+  font-size: 9px
+}
+
 .feature_keyboard_navigation .lazy_filter_select .lfs_input_container {
   border: 1px solid #A0A0A2;
   box-shadow: none

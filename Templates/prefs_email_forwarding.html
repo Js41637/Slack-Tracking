@@ -1,0 +1,24 @@
+{{i18n_ns "prefs"}}
+
+<div class="prefs_email_forwarding">
+  {{#if existing_forwarding_email}}
+    <p>
+      {{#t rough-draft=true}}Copy and paste this address to forward emails to Slack. (They'll
+      arrive in direct messages with yourself.){{/t}}
+    </p>
+    <p class="your_forwarding_address display_flex flex_wrap">
+      <label for="forwarding_address">{{#t rough-draft=true}}Your forwarding address{{/t}}</label>
+      <input type="text" id="forwarding_address" class="small flex_one small_right_margin" value="{{forwarding_address}}">
+      <button id="copy_forwarding_email_cb" class="btn btn_outline" type="button">{{#t note="Copy forwarding email address to clipboard"}}Copy{{/t}}</button>
+    </p>
+  <p><a role="button" href="#" class="link_btn"  id="disable_forwarding_email_cb">{{#t rough-draft=true}}Disable this address{{/t}}</a></p>
+  {{else}}
+    <p>
+      {{#t rough-draft=true}}Get an email address for forwarding email to Slack, as
+      a record for yourself or to share with your teammates.{{/t}}
+    </p>
+    <p>
+      <button id="get_forwarding_email_cb" class="btn btn_outline" type="button">{{#t rough-draft=true}}Get a Forwarding Address{{/t}}</button>
+    </p>
+  {{/if}}
+</div>

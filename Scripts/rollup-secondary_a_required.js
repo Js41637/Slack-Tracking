@@ -1474,30 +1474,33 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             var c = TS.utility.getYoutubeIdFromURL(e.youtube_url);
             a.youtube_url = e.youtube_url, a.youtube_id = c;
           }
-          if ((e.screenshots || e.youtube_url) && (a.has_screenshots = !0), (_.get(e.config, "date_deleted") > 0 || !0 === _.get(e.auth, "revoked")) && (a.deleted = !0, a.app_id = e.id), e.is_slack_integration ? e.is_slack_integration && (TS.boot_data.feature_shared_channels_client && e.is_slack_integration && o ? a.disabled = !1 : e.config && "1" === e.config.is_active && "0" === e.config.date_deleted || (a.disabled = !0)) : TS.boot_data.feature_shared_channels_client && o ? a.disabled = !1 : e.auth && !e.auth.revoked || (a.disabled = !0), !i || o || !s && e.is_slack_integration || e.is_xoxa_app || (a.show_settings_section = !0), e.installation_summary && !e.is_xoxa_app) {
-            var u = e.installation_summary.replace(/<@([A-Z0-9]+)>/g, function(e, t) {
+          var u = e.screenshots || e.youtube_url;
+          if (a.has_screenshots = u, (_.get(e.config, "date_deleted") > 0 || !0 === _.get(e.auth, "revoked")) && (a.deleted = !0, a.app_id = e.id), e.is_slack_integration ? e.is_slack_integration && (TS.boot_data.feature_shared_channels_client && e.is_slack_integration && o ? a.disabled = !1 : e.config && "1" === e.config.is_active && "0" === e.config.date_deleted || (a.disabled = !0)) : TS.boot_data.feature_shared_channels_client && o ? a.disabled = !1 : e.auth && !e.auth.revoked || (a.disabled = !0), !i || o || !s && e.is_slack_integration || e.is_xoxa_app || (a.show_settings_section = !0), e.installation_summary && !e.is_xoxa_app) {
+            var m = e.installation_summary.replace(/<@([A-Z0-9]+)>/g, function(e, t) {
               return TS.members.getMemberById(t) ? '<span class="app_card_member_link" data-member-profile-link=' + t + ">" + TS.members.getPrefCompliantMemberNameById(t, !0, !0) + "</span>" : '<span class="app_card_member_link" data-member-profile-link=' + t + ">A user</span>";
             });
-            u = u.replace(/#([a-z0-9-]+)/g, function(e, t) {
+            m = m.replace(/#([a-z0-9-]+)/g, function(e, t) {
               var n = TS.channels.getChannelByName(t);
               if (n) {
                 var i = TS.templates.builders.makeChannelPrefix(n);
                 return '<span class="app_card_channel_link internal_channel_link" data-channel-id="' + n.id + '">' + i + t + "</span>";
               }
               return t;
-            }), a.installation_summary = new Handlebars.SafeString(u);
+            }), a.installation_summary = new Handlebars.SafeString(m);
           }
           if (s) {
             a.bot_user = e.bot_user.id, a.username = e.bot_user.username, a.bot_user_channel_count = e.bot_user.memberships_count, e.bot_user.memberships_count < 1 && e.is_slack_integration && (a.show_settings_section = !1);
-            var m = TS.shared.getActiveModelOb();
+            var p = TS.shared.getActiveModelOb();
             if (TS.model.active_channel_id || TS.model.active_group_id) {
-              var p = TS.membership.getUserChannelMembershipStatus(e.bot_user.id, m),
-                f = p.is_known && p.is_member;
-              p.is_known || TS.warn("Not sure whether bot user " + e.bot_user.id + " is a member of " + m.id + "; assuming not just to be sure"), f && (m.is_group && TS.permissions.members.canKickFromGroups() || m.is_channel && TS.permissions.members.canKickFromChannels()) && (a.channel_kick_name = (TS.model.active_channel_id ? "#" : "") + m.name);
+              var f = TS.membership.getUserChannelMembershipStatus(e.bot_user.id, p),
+                h = f.is_known && f.is_member;
+              f.is_known || TS.warn("Not sure whether bot user " + e.bot_user.id + " is a member of " + p.id + "; assuming not just to be sure"), h && (p.is_group && TS.permissions.members.canKickFromGroups() || p.is_channel && TS.permissions.members.canKickFromChannels()) && (a.channel_kick_name = (TS.model.active_channel_id ? "#" : "") + p.name);
             }
             a.disabled || TS.model.user.is_ultra_restricted || (a.show_channel_invite = !0), !0 === a.deleted && (a.hide_link_to_app_profile = !0);
           }
-          return e.long_desc_formatted && (a.long_description = new Handlebars.SafeString(e.long_desc_formatted)), e.long_desc && (a.long_description_raw = new Handlebars.SafeString(e.long_desc)), e.support_url && (a.support_url = e.support_url), e.user_can_manage && (a.user_can_manage = e.user_can_manage), (e.is_slack_integration && _.isEmpty(_.get(e, "commands")) || TS.utility.strGetWordCount(e.long_desc) < 350) && (a.hide_expand_button = !0), a;
+          e.long_desc_formatted && (a.long_description = new Handlebars.SafeString(e.long_desc_formatted)), e.long_desc && (a.long_description_raw = new Handlebars.SafeString(e.long_desc)), e.support_url && (a.support_url = e.support_url), e.user_can_manage && (a.user_can_manage = e.user_can_manage);
+          var g = _.isEmpty(_.get(e, "commands"));
+          return (e.is_slack_integration && g || TS.utility.strGetWordCount(e.long_desc) < 350 || !u && g) && (a.hide_expand_button = !0), a;
         },
         maybeInviteAppUserToChannel: function(e, t, n) {
           var s;
@@ -23338,8 +23341,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             });
             var n = TS.model.teams;
             if (!n) return TS.console.warn("Trying to look up team by id (" + t + ") but TS.model.teams is not present."), null;
-            for (var i, r = 0; r < n.length; r += 1)
+            for (var i, r = 0; r < n.length; r += 1) {
               if (i = n[r], i.id === t) return e[t] = i, i;
+              if (i.enterprise_id === t) return i;
+            }
             return TS.console.warn("team " + t + " not in local model"), null;
           }
         },
@@ -30064,8 +30069,11 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         style: TS.ui.lazy_filter_select.STYLES.default,
         template: function(e) {
-          var t, n, i = e.toString();
-          return (e instanceof jQuery || e instanceof HTMLElement) && (i = $(e).text(), t = J($(e).attr("data-additional-search-field"), this), n = J($(e).attr("data-ts-icon"), this)), i = J(i, this), t && (i += ' <span class="addl_text">' + t + "</span>"), n && (i += ' <ts-icon class="addl_icon ' + n + '"></ts-icon>'), new Handlebars.SafeString(i);
+          var t, n, i, r, a = e.toString();
+          return (e instanceof jQuery || e instanceof HTMLElement) && (a = $(e).text(), t = J($(e).attr("data-additional-search-field"), this), n = J($(e).attr("data-ts-icon"), this), i = $(e).attr("data-team-id"), TS.boot_data.feature_shared_channels_client && i && (r = TS.templates.team_icon({
+            team: TS.teams.getTeamById(i),
+            size: 16
+          }))), a = J(a, this), t && (a += ' <span class="addl_text">' + t + "</span>"), n && (a += ' <ts-icon class="addl_icon ' + n + '"></ts-icon>'), r && (a += r), new Handlebars.SafeString(a);
         },
         tokenClass: null,
         tokenTemplate: null,
@@ -40455,7 +40463,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return !e && (e = !0, !0);
         },
         finishBulkUpsert: function() {
-          return !!e && (n(), !0);
+          return !!e && (n(), e = !1, !0);
         }
       });
       var e = !1,
