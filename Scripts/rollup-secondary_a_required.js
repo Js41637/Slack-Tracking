@@ -1554,7 +1554,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               TS.api.call("apps.permissions.internal.remove", {
                 channel: t.id,
                 app_user: e.id
-              }).then(function() {}).catch(function() {
+              }).catch(function() {
                 TS.utility.contenteditable.value(TS.client.ui.$msg_input, n);
               });
             }
@@ -2297,6 +2297,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
       "use strict";
       TS.registerModule("channels.read_only", {
         list_updated_sig: new signals.Signal,
+        updateLists: function(e, t, n) {
+          TS.channels.read_only.updateList(e), TS.channels.read_only.threads.updateNonThreadableList(t), TS.channels.read_only.threads.updateThreadOnlyList(n);
+        },
         updateList: function(e) {
           if (e && _.isArray(e)) {
             var t = _.uniq(e),
@@ -5088,9 +5091,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
       var t, n = function() {
           if (!t && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE) {
             t = !0;
-            var n;
-            _.forOwn(TS.cmd_handlers, function(t, i) {
-              0 === i.indexOf("/") && (n = TS.cmd_handlers[i].localized ? TS.cmd_handlers[i].localized.toLowerCase() : null) && n !== i && !TS.cmd_handlers[n] && (TS.cmd_handlers[n] = _.clone(TS.cmd_handlers[i]), TS.cmd_handlers[n].localized = null, TS.cmd_handlers[i].autocomplete = !1, _.includes(e, i) && e.push(n));
+            var n, i;
+            _.forOwn(TS.cmd_handlers, function(t, r) {
+              0 === r.indexOf("/") && (n = TS.cmd_handlers[r].localized ? TS.cmd_handlers[r].localized.toLowerCase() : null) && n !== r && !TS.cmd_handlers[n] && (TS.cmd_handlers[n] = _.clone(TS.cmd_handlers[r]), TS.cmd_handlers[n].localized = null, TS.cmd_handlers[r].autocomplete = !1, i = TS.i18n.deburr(n), n !== i && (TS.cmd_handlers[n].normalized = i, TS.cmd_handlers[i] || (TS.cmd_handlers[i] = _.clone(TS.cmd_handlers[r]))), _.includes(e, r) && e.push(n));
             });
           }
         },
@@ -11694,7 +11697,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           TS.boot_data.feature_less_accessible_id_fetching && _.get(TS, "model.user.is_restricted") && TS.metrics.count("guest_member_accessible_disconnected"), TS.model.guest_accessible_user_ids && (TS.model.guest_accessible_user_ids.length = 0);
         },
         Z = function(e) {
-          return TS.boot_data.feature_less_accessible_id_fetching && (e ? _.get(TS, "model.guest_accessible_user_ids") ? _.get(TS, "model.guest_accessible_user_ids.length") ? K && TS.metrics.count("guest_member_accessible_still_fetching") : TS.metrics.count("guest_member_accessible_ids_cleared") : TS.metrics.count("guest_member_accessible_no_ids") : TS.metrics.count("guest_member_accessible_no_member")), !TS.boot_data.feature_less_accessible_id_fetching || !e || !TS.model.user || !TS.model.user.is_restricted || !TS.model.guest_accessible_user_ids || !TS.model.guest_accessible_user_ids.length || !TS.membership.lazyLoadChannelMembership() || K;
+          return TS.boot_data.feature_less_accessible_id_fetching && _.get(TS, "model.user.is_restricted") && (e ? _.get(TS, "model.guest_accessible_user_ids") ? _.get(TS, "model.guest_accessible_user_ids.length") ? K && TS.metrics.count("guest_member_accessible_still_fetching") : TS.metrics.count("guest_member_accessible_ids_cleared") : TS.metrics.count("guest_member_accessible_no_ids") : TS.metrics.count("guest_member_accessible_no_member")), !TS.boot_data.feature_less_accessible_id_fetching || !e || !TS.model.user || !TS.model.user.is_restricted || !TS.model.guest_accessible_user_ids || !TS.model.guest_accessible_user_ids.length || !TS.membership.lazyLoadChannelMembership() || K;
         },
         ee = function(e, t) {
           if (Z(e)) return Q();
@@ -15711,13 +15714,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           TS.prefs.onTeamPrefChanged(e);
         },
         user_read_only_channels: function(e) {
-          TS.channels.read_only.updateList(e.channel_ids);
-        },
-        user_non_threadable_channels: function(e) {
-          TS.channels.read_only.threads.updateNonThreadableList(e.channel_ids);
-        },
-        user_thread_only_channels: function(e) {
-          TS.channels.read_only.threads.updateThreadOnlyList(e.channel_ids);
+          TS.boot_data.default_shared_channels ? TS.channels.read_only.updateLists(e.read_only_channels, e.non_threadable_channels, e.thread_only_channels) : TS.channels.read_only.updateList(e.channel_ids);
         },
         team_profile_change: function(e) {
           TS.team.upsertAndSignal({
@@ -39440,7 +39437,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         var i = t(n),
           r = e.toLowerCase();
         r && (i = i.filter(function(e) {
-          return 0 === e.name.indexOf(r) || !!e.aliases && e.aliases.some(function(e) {
+          return 0 === (e.normalized || e.name).indexOf(r) || !!e.aliases && e.aliases.some(function(e) {
             return 0 === e.indexOf(r);
           });
         }));
