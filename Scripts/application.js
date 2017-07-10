@@ -204,18 +204,18 @@ webpackJsonp([332], [, function(e, t, n) {
         return S(n) ? n(t) : n.replace(/%s/i, t);
       }
 
-      function I(e, t) {
+      function R(e, t) {
         var n = e.toLowerCase();
         Cr[n] = Cr[n + "s"] = Cr[t] = e;
       }
 
-      function R(e) {
+      function I(e) {
         return "string" == typeof e ? Cr[e] || Cr[e.toLowerCase()] : void 0;
       }
 
       function N(e) {
         var t, n, r = {};
-        for (n in e) l(e, n) && (t = R(n)) && (r[t] = e[n]);
+        for (n in e) l(e, n) && (t = I(n)) && (r[t] = e[n]);
         return r;
       }
 
@@ -249,14 +249,14 @@ webpackJsonp([332], [, function(e, t, n) {
       }
 
       function W(e) {
-        return e = R(e), S(this[e]) ? this[e]() : this;
+        return e = I(e), S(this[e]) ? this[e]() : this;
       }
 
       function B(e, t) {
         if ("object" == typeof e) {
           e = N(e);
           for (var n = H(e), r = 0; r < n.length; r++) this[n[r].unit](e[n[r].unit]);
-        } else if (e = R(e), S(this[e])) return this[e](t);
+        } else if (e = I(e), S(this[e])) return this[e](t);
         return this;
       }
 
@@ -509,7 +509,7 @@ webpackJsonp([332], [, function(e, t, n) {
         return n ? "dddd" === t ? (o = lo.call(this._weekdaysParse, a), -1 !== o ? o : null) : "ddd" === t ? (o = lo.call(this._shortWeekdaysParse, a), -1 !== o ? o : null) : (o = lo.call(this._minWeekdaysParse, a), -1 !== o ? o : null) : "dddd" === t ? -1 !== (o = lo.call(this._weekdaysParse, a)) ? o : -1 !== (o = lo.call(this._shortWeekdaysParse, a)) ? o : (o = lo.call(this._minWeekdaysParse, a), -1 !== o ? o : null) : "ddd" === t ? -1 !== (o = lo.call(this._shortWeekdaysParse, a)) ? o : -1 !== (o = lo.call(this._weekdaysParse, a)) ? o : (o = lo.call(this._minWeekdaysParse, a), -1 !== o ? o : null) : -1 !== (o = lo.call(this._minWeekdaysParse, a)) ? o : -1 !== (o = lo.call(this._weekdaysParse, a)) ? o : (o = lo.call(this._shortWeekdaysParse, a), -1 !== o ? o : null);
       }
 
-      function Ie(e, t, n) {
+      function Re(e, t, n) {
         var r, o, i;
         if (this._weekdaysParseExact) return Ae.call(this, e, t, n);
         for (this._weekdaysParse || (this._weekdaysParse = [], this._minWeekdaysParse = [], this._shortWeekdaysParse = [], this._fullWeekdaysParse = []), r = 0; r < 7; r++) {
@@ -520,7 +520,7 @@ webpackJsonp([332], [, function(e, t, n) {
         }
       }
 
-      function Re(e) {
+      function Ie(e) {
         if (!this.isValid()) return null != e ? this : NaN;
         var t = this._isUTC ? this._d.getUTCDay() : this._d.getDay();
         return null != e ? (e = Oe(e, this.localeData()), this.add(e - t, "d")) : t;
@@ -888,11 +888,11 @@ webpackJsonp([332], [, function(e, t, n) {
         return !!this.isValid() && (e = e ? gt(e).utcOffset() : 0, (this.utcOffset() - e) % 60 == 0);
       }
 
-      function It() {
+      function Rt() {
         return this.utcOffset() > this.clone().month(0).utcOffset() || this.utcOffset() > this.clone().month(5).utcOffset();
       }
 
-      function Rt() {
+      function It() {
         if (!_(this._isDSTShifted)) return this._isDSTShifted;
         var e = {};
         if (y(e, this), e = _t(e), e._a) {
@@ -993,12 +993,12 @@ webpackJsonp([332], [, function(e, t, n) {
 
       function $t(e, t) {
         var n = g(e) ? e : gt(e);
-        return !(!this.isValid() || !n.isValid()) && (t = R(_(t) ? "millisecond" : t), "millisecond" === t ? this.valueOf() > n.valueOf() : n.valueOf() < this.clone().startOf(t).valueOf());
+        return !(!this.isValid() || !n.isValid()) && (t = I(_(t) ? "millisecond" : t), "millisecond" === t ? this.valueOf() > n.valueOf() : n.valueOf() < this.clone().startOf(t).valueOf());
       }
 
       function Zt(e, t) {
         var n = g(e) ? e : gt(e);
-        return !(!this.isValid() || !n.isValid()) && (t = R(_(t) ? "millisecond" : t), "millisecond" === t ? this.valueOf() < n.valueOf() : this.clone().endOf(t).valueOf() < n.valueOf());
+        return !(!this.isValid() || !n.isValid()) && (t = I(_(t) ? "millisecond" : t), "millisecond" === t ? this.valueOf() < n.valueOf() : this.clone().endOf(t).valueOf() < n.valueOf());
       }
 
       function Qt(e, t, n, r) {
@@ -1007,7 +1007,7 @@ webpackJsonp([332], [, function(e, t, n) {
 
       function Xt(e, t) {
         var n, r = g(e) ? e : gt(e);
-        return !(!this.isValid() || !r.isValid()) && (t = R(t || "millisecond"), "millisecond" === t ? this.valueOf() === r.valueOf() : (n = r.valueOf(), this.clone().startOf(t).valueOf() <= n && n <= this.clone().endOf(t).valueOf()));
+        return !(!this.isValid() || !r.isValid()) && (t = I(t || "millisecond"), "millisecond" === t ? this.valueOf() === r.valueOf() : (n = r.valueOf(), this.clone().startOf(t).valueOf() <= n && n <= this.clone().endOf(t).valueOf()));
       }
 
       function en(e, t) {
@@ -1020,7 +1020,7 @@ webpackJsonp([332], [, function(e, t, n) {
 
       function nn(e, t, n) {
         var r, o, i, a;
-        return this.isValid() ? (r = Lt(e, this), r.isValid() ? (o = 6e4 * (r.utcOffset() - this.utcOffset()), t = R(t), "year" === t || "month" === t || "quarter" === t ? (a = rn(this, r), "quarter" === t ? a /= 3 : "year" === t && (a /= 12)) : (i = this - r, a = "second" === t ? i / 1e3 : "minute" === t ? i / 6e4 : "hour" === t ? i / 36e5 : "day" === t ? (i - o) / 864e5 : "week" === t ? (i - o) / 6048e5 : i), n ? a : b(a)) : NaN) : NaN;
+        return this.isValid() ? (r = Lt(e, this), r.isValid() ? (o = 6e4 * (r.utcOffset() - this.utcOffset()), t = I(t), "year" === t || "month" === t || "quarter" === t ? (a = rn(this, r), "quarter" === t ? a /= 3 : "year" === t && (a /= 12)) : (i = this - r, a = "second" === t ? i / 1e3 : "minute" === t ? i / 6e4 : "hour" === t ? i / 36e5 : "day" === t ? (i - o) / 864e5 : "week" === t ? (i - o) / 6048e5 : i), n ? a : b(a)) : NaN) : NaN;
       }
 
       function rn(e, t) {
@@ -1087,7 +1087,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }
 
       function mn(e) {
-        switch (e = R(e)) {
+        switch (e = I(e)) {
           case "year":
             this.month(0);
           case "quarter":
@@ -1109,7 +1109,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }
 
       function _n(e) {
-        return void 0 === (e = R(e)) || "millisecond" === e ? this : ("date" === e && (e = "day"), this.startOf(e).add(1, "isoWeek" === e ? "week" : e).subtract(1, "ms"));
+        return void 0 === (e = I(e)) || "millisecond" === e ? this : ("date" === e && (e = "day"), this.startOf(e).add(1, "isoWeek" === e ? "week" : e).subtract(1, "ms"));
       }
 
       function yn() {
@@ -1209,11 +1209,11 @@ webpackJsonp([332], [, function(e, t, n) {
         return null == e ? t : this.add(e - t, "d");
       }
 
-      function In(e, t) {
+      function Rn(e, t) {
         t[ao] = w(1e3 * ("0." + e));
       }
 
-      function Rn() {
+      function In() {
         return this._isUTC ? "UTC" : "";
       }
 
@@ -1316,7 +1316,7 @@ webpackJsonp([332], [, function(e, t, n) {
 
       function or(e) {
         var t, n, r = this._milliseconds;
-        if ("month" === (e = R(e)) || "year" === e) return t = this._days + r / 864e5, n = this._months + nr(t), "month" === e ? n : n / 12;
+        if ("month" === (e = I(e)) || "year" === e) return t = this._days + r / 864e5, n = this._months + nr(t), "month" === e ? n : n / 12;
         switch (t = this._days + Math.round(rr(this._months)), e) {
           case "week":
             return t / 7 + r / 6048e5;
@@ -1346,7 +1346,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }
 
       function sr(e) {
-        return e = R(e), this[e + "s"]();
+        return e = I(e), this[e + "s"]();
       }
 
       function ur(e) {
@@ -1460,8 +1460,8 @@ webpackJsonp([332], [, function(e, t, n) {
         Dr = {},
         Yr = {},
         Ar = /\d/,
-        Ir = /\d\d/,
-        Rr = /\d{3}/,
+        Rr = /\d\d/,
+        Ir = /\d{3}/,
         Nr = /\d{4}/,
         Fr = /[+-]?\d{6}/,
         Hr = /\d\d?/,
@@ -1500,7 +1500,7 @@ webpackJsonp([332], [, function(e, t, n) {
         return this.localeData().monthsShort(this, e);
       }), V("MMMM", 0, 0, function(e) {
         return this.localeData().months(this, e);
-      }), I("month", "M"), F("month", 8), Q("M", Hr), Q("MM", Hr, Ir), Q("MMM", function(e, t) {
+      }), R("month", "M"), F("month", 8), Q("M", Hr), Q("MM", Hr, Rr), Q("MMM", function(e, t) {
         return t.monthsShortRegex(e);
       }), Q("MMMM", function(e, t) {
         return t.monthsRegex(e);
@@ -1520,7 +1520,7 @@ webpackJsonp([332], [, function(e, t, n) {
         return e <= 9999 ? "" + e : "+" + e;
       }), V(0, ["YY", 2], 0, function() {
         return this.year() % 100;
-      }), V(0, ["YYYY", 4], 0, "year"), V(0, ["YYYYY", 5], 0, "year"), V(0, ["YYYYYY", 6, !0], 0, "year"), I("year", "y"), F("year", 1), Q("Y", Vr), Q("YY", Hr, Ir), Q("YYYY", Wr, Nr), Q("YYYYY", Br, Fr), Q("YYYYYY", Br, Fr), ne(["YYYYY", "YYYYYY"], eo), ne("YYYY", function(e, n) {
+      }), V(0, ["YYYY", 4], 0, "year"), V(0, ["YYYYY", 5], 0, "year"), V(0, ["YYYYYY", 6, !0], 0, "year"), R("year", "y"), F("year", 1), Q("Y", Vr), Q("YY", Hr, Rr), Q("YYYY", Wr, Nr), Q("YYYYY", Br, Fr), Q("YYYYYY", Br, Fr), ne(["YYYYY", "YYYYYY"], eo), ne("YYYY", function(e, n) {
         n[eo] = 2 === e.length ? t.parseTwoDigitYear(e) : w(e);
       }), ne("YY", function(e, n) {
         n[eo] = t.parseTwoDigitYear(e);
@@ -1530,7 +1530,7 @@ webpackJsonp([332], [, function(e, t, n) {
         return w(e) + (w(e) > 68 ? 1900 : 2e3);
       };
       var _o = q("FullYear", !0);
-      V("w", ["ww", 2], "wo", "week"), V("W", ["WW", 2], "Wo", "isoWeek"), I("week", "w"), I("isoWeek", "W"), F("week", 5), F("isoWeek", 5), Q("w", Hr), Q("ww", Hr, Ir), Q("W", Hr), Q("WW", Hr, Ir), re(["w", "ww", "W", "WW"], function(e, t, n, r) {
+      V("w", ["ww", 2], "wo", "week"), V("W", ["WW", 2], "Wo", "isoWeek"), R("week", "w"), R("isoWeek", "W"), F("week", 5), F("isoWeek", 5), Q("w", Hr), Q("ww", Hr, Rr), Q("W", Hr), Q("WW", Hr, Rr), re(["w", "ww", "W", "WW"], function(e, t, n, r) {
         t[r.substr(0, 1)] = w(e);
       });
       var yo = {
@@ -1543,7 +1543,7 @@ webpackJsonp([332], [, function(e, t, n) {
         return this.localeData().weekdaysShort(this, e);
       }), V("dddd", 0, 0, function(e) {
         return this.localeData().weekdays(this, e);
-      }), V("e", 0, 0, "weekday"), V("E", 0, 0, "isoWeekday"), I("day", "d"), I("weekday", "e"), I("isoWeekday", "E"), F("day", 11), F("weekday", 11), F("isoWeekday", 11), Q("d", Hr), Q("e", Hr), Q("E", Hr), Q("dd", function(e, t) {
+      }), V("e", 0, 0, "weekday"), V("E", 0, 0, "isoWeekday"), R("day", "d"), R("weekday", "e"), R("isoWeekday", "E"), F("day", 11), F("weekday", 11), F("isoWeekday", 11), Q("d", Hr), Q("e", Hr), Q("E", Hr), Q("dd", function(e, t) {
         return t.weekdaysMinRegex(e);
       }), Q("ddd", function(e, t) {
         return t.weekdaysShortRegex(e);
@@ -1569,7 +1569,7 @@ webpackJsonp([332], [, function(e, t, n) {
         return "" + this.hours() + G(this.minutes(), 2);
       }), V("Hmmss", 0, 0, function() {
         return "" + this.hours() + G(this.minutes(), 2) + G(this.seconds(), 2);
-      }), Ge("a", !0), Ge("A", !1), I("hour", "h"), F("hour", 13), Q("a", Ve), Q("A", Ve), Q("H", Hr), Q("h", Hr), Q("HH", Hr, Ir), Q("hh", Hr, Ir), Q("hmm", qr), Q("hmmss", zr), Q("Hmm", qr), Q("Hmmss", zr), ne(["H", "HH"], ro), ne(["a", "A"], function(e, t, n) {
+      }), Ge("a", !0), Ge("A", !1), R("hour", "h"), F("hour", 13), Q("a", Ve), Q("A", Ve), Q("H", Hr), Q("h", Hr), Q("HH", Hr, Rr), Q("hh", Hr, Rr), Q("hmm", qr), Q("hmmss", zr), Q("Hmm", qr), Q("Hmmss", zr), ne(["H", "HH"], ro), ne(["a", "A"], function(e, t, n) {
         n._isPm = n._locale.isPM(e), n._meridiem = e;
       }), ne(["h", "hh"], function(e, t, n) {
         t[ro] = w(e), p(n).bigHour = !0;
@@ -1638,11 +1638,11 @@ webpackJsonp([332], [, function(e, t, n) {
       t.createFromInputFallback = T("value provided is not in a recognized ISO format. moment construction falls back to js Date(), which is not reliable across all browsers and versions. Non ISO date formats are discouraged and will be removed in an upcoming major release. Please refer to http://momentjs.com/guides/#/warnings/js-date/ for more info.", function(e) {
         e._d = new Date(e._i + (e._useUTC ? " UTC" : ""));
       }), t.ISO_8601 = function() {};
-      var Io = T("moment().min is deprecated, use moment.max instead. http://momentjs.com/guides/#/warnings/min-max/", function() {
+      var Ro = T("moment().min is deprecated, use moment.max instead. http://momentjs.com/guides/#/warnings/min-max/", function() {
           var e = gt.apply(null, arguments);
           return this.isValid() && e.isValid() ? e < this ? this : e : m();
         }),
-        Ro = T("moment().max is deprecated, use moment.min instead. http://momentjs.com/guides/#/warnings/min-max/", function() {
+        Io = T("moment().max is deprecated, use moment.min instead. http://momentjs.com/guides/#/warnings/min-max/", function() {
           var e = gt.apply(null, arguments);
           return this.isValid() && e.isValid() ? e > this ? this : e : m();
         }),
@@ -1667,23 +1667,23 @@ webpackJsonp([332], [, function(e, t, n) {
         return this.weekYear() % 100;
       }), V(0, ["GG", 2], 0, function() {
         return this.isoWeekYear() % 100;
-      }), En("gggg", "weekYear"), En("ggggg", "weekYear"), En("GGGG", "isoWeekYear"), En("GGGGG", "isoWeekYear"), I("weekYear", "gg"), I("isoWeekYear", "GG"), F("weekYear", 1), F("isoWeekYear", 1), Q("G", Vr), Q("g", Vr), Q("GG", Hr, Ir), Q("gg", Hr, Ir), Q("GGGG", Wr, Nr), Q("gggg", Wr, Nr), Q("GGGGG", Br, Fr), Q("ggggg", Br, Fr), re(["gggg", "ggggg", "GGGG", "GGGGG"], function(e, t, n, r) {
+      }), En("gggg", "weekYear"), En("ggggg", "weekYear"), En("GGGG", "isoWeekYear"), En("GGGGG", "isoWeekYear"), R("weekYear", "gg"), R("isoWeekYear", "GG"), F("weekYear", 1), F("isoWeekYear", 1), Q("G", Vr), Q("g", Vr), Q("GG", Hr, Rr), Q("gg", Hr, Rr), Q("GGGG", Wr, Nr), Q("gggg", Wr, Nr), Q("GGGGG", Br, Fr), Q("ggggg", Br, Fr), re(["gggg", "ggggg", "GGGG", "GGGGG"], function(e, t, n, r) {
         t[r.substr(0, 2)] = w(e);
       }), re(["gg", "GG"], function(e, n, r, o) {
         n[o] = t.parseTwoDigitYear(e);
-      }), V("Q", 0, "Qo", "quarter"), I("quarter", "Q"), F("quarter", 7), Q("Q", Ar), ne("Q", function(e, t) {
+      }), V("Q", 0, "Qo", "quarter"), R("quarter", "Q"), F("quarter", 7), Q("Q", Ar), ne("Q", function(e, t) {
         t[to] = 3 * (w(e) - 1);
-      }), V("D", ["DD", 2], "Do", "date"), I("date", "D"), F("date", 9), Q("D", Hr), Q("DD", Hr, Ir), Q("Do", function(e, t) {
+      }), V("D", ["DD", 2], "Do", "date"), R("date", "D"), F("date", 9), Q("D", Hr), Q("DD", Hr, Rr), Q("Do", function(e, t) {
         return e ? t._ordinalParse : t._ordinalParseLenient;
       }), ne(["D", "DD"], no), ne("Do", function(e, t) {
         t[no] = w(e.match(Hr)[0], 10);
       });
       var Bo = q("Date", !0);
-      V("DDD", ["DDDD", 3], "DDDo", "dayOfYear"), I("dayOfYear", "DDD"), F("dayOfYear", 4), Q("DDD", Ur), Q("DDDD", Rr), ne(["DDD", "DDDD"], function(e, t, n) {
+      V("DDD", ["DDDD", 3], "DDDo", "dayOfYear"), R("dayOfYear", "DDD"), F("dayOfYear", 4), Q("DDD", Ur), Q("DDDD", Ir), ne(["DDD", "DDDD"], function(e, t, n) {
         n._dayOfYear = w(e);
-      }), V("m", ["mm", 2], 0, "minute"), I("minute", "m"), F("minute", 14), Q("m", Hr), Q("mm", Hr, Ir), ne(["m", "mm"], oo);
+      }), V("m", ["mm", 2], 0, "minute"), R("minute", "m"), F("minute", 14), Q("m", Hr), Q("mm", Hr, Rr), ne(["m", "mm"], oo);
       var Go = q("Minutes", !1);
-      V("s", ["ss", 2], 0, "second"), I("second", "s"), F("second", 15), Q("s", Hr), Q("ss", Hr, Ir), ne(["s", "ss"], io);
+      V("s", ["ss", 2], 0, "second"), R("second", "s"), F("second", 15), Q("s", Hr), Q("ss", Hr, Rr), ne(["s", "ss"], io);
       var Vo = q("Seconds", !1);
       V("S", 0, 0, function() {
         return ~~(this.millisecond() / 100);
@@ -1701,16 +1701,16 @@ webpackJsonp([332], [, function(e, t, n) {
         return 1e5 * this.millisecond();
       }), V(0, ["SSSSSSSSS", 9], 0, function() {
         return 1e6 * this.millisecond();
-      }), I("millisecond", "ms"), F("millisecond", 16), Q("S", Ur, Ar), Q("SS", Ur, Ir), Q("SSS", Ur, Rr);
+      }), R("millisecond", "ms"), F("millisecond", 16), Q("S", Ur, Ar), Q("SS", Ur, Rr), Q("SSS", Ur, Ir);
       var Ko;
       for (Ko = "SSSS"; Ko.length <= 9; Ko += "S") Q(Ko, Gr);
-      for (Ko = "S"; Ko.length <= 9; Ko += "S") ne(Ko, In);
+      for (Ko = "S"; Ko.length <= 9; Ko += "S") ne(Ko, Rn);
       var Jo = q("Milliseconds", !1);
       V("z", 0, 0, "zoneAbbr"), V("zz", 0, 0, "zoneName");
       var $o = v.prototype;
-      $o.add = zo, $o.calendar = Kt, $o.clone = Jt, $o.diff = nn, $o.endOf = _n, $o.format = un, $o.from = ln, $o.fromNow = cn, $o.to = dn, $o.toNow = fn, $o.get = W, $o.invalidAt = xn, $o.isAfter = $t, $o.isBefore = Zt, $o.isBetween = Qt, $o.isSame = Xt, $o.isSameOrAfter = en, $o.isSameOrBefore = tn, $o.isValid = Mn, $o.lang = Wo, $o.locale = pn, $o.localeData = hn, $o.max = Ro, $o.min = Io, $o.parsingFlags = Tn, $o.set = B, $o.startOf = mn, $o.subtract = Uo, $o.toArray = bn, $o.toObject = wn, $o.toDate = gn, $o.toISOString = an, $o.inspect = sn, $o.toJSON = kn, $o.toString = on, $o.unix = vn, $o.valueOf = yn, $o.creationData = Sn, $o.year = _o, $o.isLeapYear = ve, $o.weekYear = Ln, $o.isoWeekYear = Cn, $o.quarter = $o.quarters = Yn, $o.month = de, $o.daysInMonth = fe, $o.week = $o.weeks = Le, $o.isoWeek = $o.isoWeeks = Ce, $o.weeksInYear = Pn, $o.isoWeeksInYear = On, $o.date = Bo, $o.day = $o.days = Re, $o.weekday = Ne, $o.isoWeekday = Fe, $o.dayOfYear = An, $o.hour = $o.hours = So, $o.minute = $o.minutes = Go, $o.second = $o.seconds = Vo, $o.millisecond = $o.milliseconds = Jo, $o.utcOffset = Ot, $o.utc = jt, $o.local = Dt, $o.parseZone = Yt, $o.hasAlignedHourOffset = At, $o.isDST = It, $o.isLocal = Nt, $o.isUtcOffset = Ft, $o.isUtc = Ht, $o.isUTC = Ht, $o.zoneAbbr = Rn, $o.zoneName = Nn, $o.dates = T("dates accessor is deprecated. Use date instead.", Bo), $o.months = T("months accessor is deprecated. Use month instead", de), $o.years = T("years accessor is deprecated. Use year instead", _o), $o.zone = T("moment().zone is deprecated, use moment().utcOffset instead. http://momentjs.com/guides/#/warnings/zone/", Pt), $o.isDSTShifted = T("isDSTShifted is deprecated. See http://momentjs.com/guides/#/warnings/dst-shifted/ for more information", Rt);
+      $o.add = zo, $o.calendar = Kt, $o.clone = Jt, $o.diff = nn, $o.endOf = _n, $o.format = un, $o.from = ln, $o.fromNow = cn, $o.to = dn, $o.toNow = fn, $o.get = W, $o.invalidAt = xn, $o.isAfter = $t, $o.isBefore = Zt, $o.isBetween = Qt, $o.isSame = Xt, $o.isSameOrAfter = en, $o.isSameOrBefore = tn, $o.isValid = Mn, $o.lang = Wo, $o.locale = pn, $o.localeData = hn, $o.max = Io, $o.min = Ro, $o.parsingFlags = Tn, $o.set = B, $o.startOf = mn, $o.subtract = Uo, $o.toArray = bn, $o.toObject = wn, $o.toDate = gn, $o.toISOString = an, $o.inspect = sn, $o.toJSON = kn, $o.toString = on, $o.unix = vn, $o.valueOf = yn, $o.creationData = Sn, $o.year = _o, $o.isLeapYear = ve, $o.weekYear = Ln, $o.isoWeekYear = Cn, $o.quarter = $o.quarters = Yn, $o.month = de, $o.daysInMonth = fe, $o.week = $o.weeks = Le, $o.isoWeek = $o.isoWeeks = Ce, $o.weeksInYear = Pn, $o.isoWeeksInYear = On, $o.date = Bo, $o.day = $o.days = Ie, $o.weekday = Ne, $o.isoWeekday = Fe, $o.dayOfYear = An, $o.hour = $o.hours = So, $o.minute = $o.minutes = Go, $o.second = $o.seconds = Vo, $o.millisecond = $o.milliseconds = Jo, $o.utcOffset = Ot, $o.utc = jt, $o.local = Dt, $o.parseZone = Yt, $o.hasAlignedHourOffset = At, $o.isDST = Rt, $o.isLocal = Nt, $o.isUtcOffset = Ft, $o.isUtc = Ht, $o.isUTC = Ht, $o.zoneAbbr = In, $o.zoneName = Nn, $o.dates = T("dates accessor is deprecated. Use date instead.", Bo), $o.months = T("months accessor is deprecated. Use month instead", de), $o.years = T("years accessor is deprecated. Use year instead", _o), $o.zone = T("moment().zone is deprecated, use moment().utcOffset instead. http://momentjs.com/guides/#/warnings/zone/", Pt), $o.isDSTShifted = T("isDSTShifted is deprecated. See http://momentjs.com/guides/#/warnings/dst-shifted/ for more information", It);
       var Zo = C.prototype;
-      Zo.calendar = O, Zo.longDateFormat = P, Zo.invalidDate = j, Zo.ordinal = D, Zo.preparse = qn, Zo.postformat = qn, Zo.relativeTime = Y, Zo.pastFuture = A, Zo.set = E, Zo.months = ae, Zo.monthsShort = se, Zo.monthsParse = le, Zo.monthsRegex = he, Zo.monthsShortRegex = pe, Zo.week = xe, Zo.firstDayOfYear = Ee, Zo.firstDayOfWeek = Se, Zo.weekdays = je, Zo.weekdaysMin = Ye, Zo.weekdaysShort = De, Zo.weekdaysParse = Ie, Zo.weekdaysRegex = He, Zo.weekdaysShortRegex = qe, Zo.weekdaysMinRegex = ze, Zo.isPM = Ke, Zo.meridiem = Je, Xe("en", {
+      Zo.calendar = O, Zo.longDateFormat = P, Zo.invalidDate = j, Zo.ordinal = D, Zo.preparse = qn, Zo.postformat = qn, Zo.relativeTime = Y, Zo.pastFuture = A, Zo.set = E, Zo.months = ae, Zo.monthsShort = se, Zo.monthsParse = le, Zo.monthsRegex = he, Zo.monthsShortRegex = pe, Zo.week = xe, Zo.firstDayOfYear = Ee, Zo.firstDayOfWeek = Se, Zo.weekdays = je, Zo.weekdaysMin = Ye, Zo.weekdaysShort = De, Zo.weekdaysParse = Re, Zo.weekdaysRegex = He, Zo.weekdaysShortRegex = qe, Zo.weekdaysMinRegex = ze, Zo.isPM = Ke, Zo.meridiem = Je, Xe("en", {
         ordinalParse: /\d{1,2}(th|st|nd|rd)/,
         ordinal: function(e) {
           var t = e % 10;
@@ -1750,7 +1750,7 @@ webpackJsonp([332], [, function(e, t, n) {
         }), t.version = "2.17.1",
         function(e) {
           _r = e;
-        }(gt), t.fn = $o, t.min = wt, t.max = kt, t.now = No, t.utc = d, t.unix = Fn, t.months = Bn, t.isDate = s, t.locale = Xe, t.invalid = m, t.duration = qt, t.isMoment = g, t.weekdays = Vn, t.parseZone = Hn, t.localeData = nt, t.isDuration = Tt, t.monthsShort = Gn, t.weekdaysMin = Jn, t.defineLocale = et, t.updateLocale = tt, t.locales = rt, t.weekdaysShort = Kn, t.normalizeUnits = R, t.relativeTimeRounding = fr, t.relativeTimeThreshold = pr, t.calendarFormat = Vt, t.prototype = $o, t;
+        }(gt), t.fn = $o, t.min = wt, t.max = kt, t.now = No, t.utc = d, t.unix = Fn, t.months = Bn, t.isDate = s, t.locale = Xe, t.invalid = m, t.duration = qt, t.isMoment = g, t.weekdays = Vn, t.parseZone = Hn, t.localeData = nt, t.isDuration = Tt, t.monthsShort = Gn, t.weekdaysMin = Jn, t.defineLocale = et, t.updateLocale = tt, t.locales = rt, t.weekdaysShort = Kn, t.normalizeUnits = I, t.relativeTimeRounding = fr, t.relativeTimeThreshold = pr, t.calendarFormat = Vt, t.prototype = $o, t;
     });
   }).call(t, n(138)(e));
 }, function(e, t, n) {
@@ -1976,13 +1976,13 @@ webpackJsonp([332], [, function(e, t, n) {
         };
       }
 
-      function I(e, t) {
+      function R(e, t) {
         return m(t, function(t) {
           return e[t];
         });
       }
 
-      function R(e, t) {
+      function I(e, t) {
         return e.has(t);
       }
 
@@ -2123,9 +2123,9 @@ webpackJsonp([332], [, function(e, t, n) {
         De = 9007199254740991,
         Ye = 1.7976931348623157e308,
         Ae = NaN,
-        Ie = 4294967295,
-        Re = Ie - 1,
-        Ne = Ie >>> 1,
+        Re = 4294967295,
+        Ie = Re - 1,
+        Ne = Re >>> 1,
         Fe = [
           ["ary", Me],
           ["bind", _e],
@@ -2187,8 +2187,8 @@ webpackJsonp([332], [, function(e, t, n) {
         Dt = RegExp(jt.source),
         Yt = /^\s+|\s+$/g,
         At = /^\s+/,
-        It = /\s+$/,
-        Rt = /\{(?:\n\/\* \[wrapped with .+\] \*\/)?\n?/,
+        Rt = /\s+$/,
+        It = /\{(?:\n\/\* \[wrapped with .+\] \*\/)?\n?/,
         Nt = /\{\n\/\* \[wrapped with (.+)\] \*/,
         Ft = /,? & /,
         Ht = /[^\x00-\x2f\x3a-\x40\x5b-\x60\x7b-\x7f]+/g,
@@ -2452,11 +2452,11 @@ webpackJsonp([332], [, function(e, t, n) {
         Dn = Pn || jn || Function("return this")(),
         Yn = "object" == typeof t && t && !t.nodeType && t,
         An = Yn && "object" == typeof r && r && !r.nodeType && r,
-        In = An && An.exports === Yn,
-        Rn = In && Pn.process,
+        Rn = An && An.exports === Yn,
+        In = Rn && Pn.process,
         Nn = function() {
           try {
-            return Rn && Rn.binding && Rn.binding("util");
+            return In && In.binding && In.binding("util");
           } catch (e) {}
         }(),
         Fn = Nn && Nn.isArrayBuffer,
@@ -2485,7 +2485,7 @@ webpackJsonp([332], [, function(e, t, n) {
           }
 
           function b(e) {
-            this.__wrapped__ = e, this.__actions__ = [], this.__dir__ = 1, this.__filtered__ = !1, this.__iteratees__ = [], this.__takeCount__ = Ie, this.__views__ = [];
+            this.__wrapped__ = e, this.__actions__ = [], this.__dir__ = 1, this.__filtered__ = !1, this.__iteratees__ = [], this.__takeCount__ = Re, this.__views__ = [];
           }
 
           function C() {
@@ -2712,7 +2712,7 @@ webpackJsonp([332], [, function(e, t, n) {
             return Qi(No(e), nr(t, 0, e.length));
           }
 
-          function Rn(e) {
+          function In(e) {
             return Qi(No(e));
           }
 
@@ -2755,7 +2755,7 @@ webpackJsonp([332], [, function(e, t, n) {
           }
 
           function tr(e, t) {
-            for (var n = -1, r = t.length, o = nc(r), i = null == e; ++n < r;) o[n] = i ? oe : Ru(e, t[n]);
+            for (var n = -1, r = t.length, o = nc(r), i = null == e; ++n < r;) o[n] = i ? oe : Iu(e, t[n]);
             return o;
           }
 
@@ -2828,7 +2828,7 @@ webpackJsonp([332], [, function(e, t, n) {
               u = [],
               l = t.length;
             if (!s) return u;
-            n && (t = m(t, A(n))), r ? (i = h, a = !1) : t.length >= ie && (i = R, a = !1, t = new yn(t));
+            n && (t = m(t, A(n))), r ? (i = h, a = !1) : t.length >= ie && (i = I, a = !1, t = new yn(t));
             e: for (; ++o < s;) {
               var c = e[o],
                 d = null == n ? c : n(c);
@@ -2937,10 +2937,10 @@ webpackJsonp([332], [, function(e, t, n) {
             e: for (; ++d < o && l.length < u;) {
               var _ = c[d],
                 y = t ? t(_) : _;
-              if (_ = n || 0 !== _ ? _ : 0, !(f ? R(f, y) : r(l, y, n))) {
+              if (_ = n || 0 !== _ ? _ : 0, !(f ? I(f, y) : r(l, y, n))) {
                 for (a = i; --a;) {
                   var v = s[a];
-                  if (!(v ? R(v, y) : r(e[a], y, n))) continue e;
+                  if (!(v ? I(v, y) : r(e[a], y, n))) continue e;
                 }
                 f && f.push(y), l.push(_);
               }
@@ -3043,11 +3043,11 @@ webpackJsonp([332], [, function(e, t, n) {
             return iu(e) && Sd(e) == tt;
           }
 
-          function Ir(e) {
+          function Rr(e) {
             return iu(e) && ru(e.length) && !!Mn[vr(e)];
           }
 
-          function Rr(e) {
+          function Ir(e) {
             return "function" == typeof e ? e : null == e ? Ol : "object" == typeof e ? yf(e) ? Ur(e[0], e[1]) : zr(e) : Nl(e);
           }
 
@@ -3086,8 +3086,8 @@ webpackJsonp([332], [, function(e, t, n) {
           }
 
           function Ur(e, t) {
-            return Ri(e) && zi(t) ? Ui(Xi(e), t) : function(n) {
-              var r = Ru(n, e);
+            return Ii(e) && zi(t) ? Ui(Xi(e), t) : function(n) {
+              var r = Iu(n, e);
               return r === oe && r === t ? Fu(n, e) : Cr(t, r, he | me);
             };
           }
@@ -3273,7 +3273,7 @@ webpackJsonp([332], [, function(e, t, n) {
               else _ = l ? h && (r || f) : s ? h && f && (r || !p) : u ? h && f && !p && (r || !m) : !p && !m && (r ? d <= t : d < t);
               _ ? o = c + 1 : i = c;
             }
-            return Gc(i, Re);
+            return Gc(i, Ie);
           }
 
           function fo(e, t) {
@@ -3311,7 +3311,7 @@ webpackJsonp([332], [, function(e, t, n) {
             else if (i >= ie) {
               var l = t ? null : kd(e);
               if (l) return J(l);
-              a = !1, o = R, u = new yn;
+              a = !1, o = I, u = new yn;
             } else u = t ? [] : s;
             e: for (; ++r < i;) {
               var c = e[r],
@@ -3371,7 +3371,7 @@ webpackJsonp([332], [, function(e, t, n) {
           }
 
           function To(e, t) {
-            return yf(e) ? e : Ri(e, t) ? [e] : Pd(Eu(e));
+            return yf(e) ? e : Ii(e, t) ? [e] : Pd(Eu(e));
           }
 
           function xo(e, t, n) {
@@ -3445,14 +3445,14 @@ webpackJsonp([332], [, function(e, t, n) {
             return e.index - t.index;
           }
 
-          function Io(e, t, n, r) {
+          function Ro(e, t, n, r) {
             for (var o = -1, i = e.length, a = n.length, s = -1, u = t.length, l = Bc(i - a, 0), c = nc(u + l), d = !r; ++s < u;) c[s] = t[s];
             for (; ++o < a;)(d || o < i) && (c[n[o]] = e[o]);
             for (; l--;) c[s++] = e[o++];
             return c;
           }
 
-          function Ro(e, t, n, r) {
+          function Io(e, t, n, r) {
             for (var o = -1, i = e.length, a = -1, s = n.length, u = -1, l = t.length, c = Bc(i - s, 0), d = nc(c + l), f = !r; ++o < c;) d[o] = e[o];
             for (var p = o; ++u < l;) d[p + u] = t[u];
             for (; ++a < s;)(f || o < i) && (d[p + n[a]] = e[o++]);
@@ -3499,7 +3499,7 @@ webpackJsonp([332], [, function(e, t, n) {
                 o = n.length,
                 i = o > 1 ? n[o - 1] : oe,
                 a = o > 2 ? n[2] : oe;
-              for (i = e.length > 3 && "function" == typeof i ? (o--, i) : oe, a && Ii(n[0], n[1], a) && (i = o < 3 ? oe : i, o = 1), t = sc(t); ++r < o;) {
+              for (i = e.length > 3 && "function" == typeof i ? (o--, i) : oe, a && Ri(n[0], n[1], a) && (i = o < 3 ? oe : i, o = 1), t = sc(t); ++r < o;) {
                 var s = n[r];
                 s && e(t, s, r, i);
               }
@@ -3634,7 +3634,7 @@ webpackJsonp([332], [, function(e, t, n) {
               for (var y = arguments.length, v = nc(y), g = y; g--;) v[g] = arguments[g];
               if (h) var b = wi(c),
                 w = H(v, b);
-              if (r && (v = Io(v, r, o, h)), i && (v = Ro(v, i, a, h)), y -= w, h && y < l) {
+              if (r && (v = Ro(v, r, o, h)), i && (v = Io(v, i, a, h)), y -= w, h && y < l) {
                 var k = K(v, b);
                 return si(e, t, Xo, c.placeholder, n, v, k, s, u, l - y);
               }
@@ -3701,7 +3701,7 @@ webpackJsonp([332], [, function(e, t, n) {
 
           function ii(e) {
             return function(t, n, r) {
-              return r && "number" != typeof r && Ii(t, n, r) && (n = r = oe), t = wu(t), n === oe ? (n = t, t = 0) : n = wu(n), r = r === oe ? t < n ? 1 : -1 : wu(r), eo(t, n, r, e);
+              return r && "number" != typeof r && Ri(t, n, r) && (n = r = oe), t = wu(t), n === oe ? (n = t, t = 0) : n = wu(n), r = r === oe ? t < n ? 1 : -1 : wu(r), eo(t, n, r, e);
             };
           }
 
@@ -3790,7 +3790,7 @@ webpackJsonp([332], [, function(e, t, n) {
               }
               if (f) {
                 if (!g(t, function(e, t) {
-                    if (!R(f, t) && (p === e || o(p, e, n, r, i))) return f.push(t);
+                    if (!I(f, t) && (p === e || o(p, e, n, r, i))) return f.push(t);
                   })) {
                   d = !1;
                   break;
@@ -3894,7 +3894,7 @@ webpackJsonp([332], [, function(e, t, n) {
 
           function ki() {
             var e = n.iteratee || Pl;
-            return e = e === Pl ? Rr : e, arguments.length ? e(arguments[0], arguments[1]) : e;
+            return e = e === Pl ? Ir : e, arguments.length ? e(arguments[0], arguments[1]) : e;
           }
 
           function Mi(e, t) {
@@ -4014,7 +4014,7 @@ webpackJsonp([332], [, function(e, t, n) {
             var n = t.length;
             if (!n) return e;
             var r = n - 1;
-            return t[r] = (n > 1 ? "& " : "") + t[r], t = t.join(n > 2 ? ", " : " "), e.replace(Rt, "{\n/* [wrapped with " + t + "] */\n");
+            return t[r] = (n > 1 ? "& " : "") + t[r], t = t.join(n > 2 ? ", " : " "), e.replace(It, "{\n/* [wrapped with " + t + "] */\n");
           }
 
           function Yi(e) {
@@ -4025,13 +4025,13 @@ webpackJsonp([332], [, function(e, t, n) {
             return !!(t = null == t ? De : t) && ("number" == typeof e || Kt.test(e)) && e > -1 && e % 1 == 0 && e < t;
           }
 
-          function Ii(e, t, n) {
+          function Ri(e, t, n) {
             if (!ou(n)) return !1;
             var r = typeof t;
             return !!("number" == r ? Gs(n) && Ai(t, n.length) : "string" == r && t in n) && Bs(n[t], e);
           }
 
-          function Ri(e, t) {
+          function Ii(e, t) {
             if (yf(e)) return !1;
             var n = typeof e;
             return !("number" != n && "symbol" != n && "boolean" != n && null != e && !_u(e)) || (Ct.test(e) || !Lt.test(e) || null != t && e in sc(t));
@@ -4081,9 +4081,9 @@ webpackJsonp([332], [, function(e, t, n) {
             var s = t[3];
             if (s) {
               var u = e[3];
-              e[3] = u ? Io(u, s, t[4]) : s, e[4] = u ? K(e[3], ce) : t[4];
+              e[3] = u ? Ro(u, s, t[4]) : s, e[4] = u ? K(e[3], ce) : t[4];
             }
-            return s = t[5], s && (u = e[5], e[5] = u ? Ro(u, s, t[6]) : s, e[6] = u ? K(e[5], ce) : t[6]), s = t[7], s && (e[7] = s), r & Me && (e[8] = null == e[8] ? t[8] : Gc(e[8], t[8])), null == e[9] && (e[9] = t[9]), e[0] = t[0], e[1] = o, e;
+            return s = t[5], s && (u = e[5], e[5] = u ? Io(u, s, t[6]) : s, e[6] = u ? K(e[5], ce) : t[6]), s = t[7], s && (e[7] = s), r & Me && (e[8] = null == e[8] ? t[8] : Gc(e[8], t[8])), null == e[9] && (e[9] = t[9]), e[0] = t[0], e[1] = o, e;
           }
 
           function Bi(e) {
@@ -4181,7 +4181,7 @@ webpackJsonp([332], [, function(e, t, n) {
           }
 
           function ra(e, t, n) {
-            t = (n ? Ii(e, t, n) : t === oe) ? 1 : Bc(ku(t), 0);
+            t = (n ? Ri(e, t, n) : t === oe) ? 1 : Bc(ku(t), 0);
             var r = null == e ? 0 : e.length;
             if (!r || t < 1) return [];
             for (var o = 0, i = 0, a = nc(Nc(r / t)); o < r;) a[i++] = so(e, o, o += t);
@@ -4223,7 +4223,7 @@ webpackJsonp([332], [, function(e, t, n) {
 
           function ca(e, t, n, r) {
             var o = null == e ? 0 : e.length;
-            return o ? (n && "number" != typeof n && Ii(e, t, n) && (n = 0, r = o), cr(e, t, n, r)) : [];
+            return o ? (n && "number" != typeof n && Ri(e, t, n) && (n = 0, r = o), cr(e, t, n, r)) : [];
           }
 
           function da(e, t, n) {
@@ -4326,7 +4326,7 @@ webpackJsonp([332], [, function(e, t, n) {
 
           function Ca(e, t, n) {
             var r = null == e ? 0 : e.length;
-            return r ? (n && "number" != typeof n && Ii(e, t, n) ? (t = 0, n = r) : (t = null == t ? 0 : ku(t), n = n === oe ? r : ku(n)), so(e, t, n)) : [];
+            return r ? (n && "number" != typeof n && Ri(e, t, n) ? (t = 0, n = r) : (t = null == t ? 0 : ku(t), n = n === oe ? r : ku(n)), so(e, t, n)) : [];
           }
 
           function Oa(e, t) {
@@ -4362,11 +4362,11 @@ webpackJsonp([332], [, function(e, t, n) {
             return -1;
           }
 
-          function Ia(e) {
+          function Ra(e) {
             return e && e.length ? fo(e) : [];
           }
 
-          function Ra(e, t) {
+          function Ia(e, t) {
             return e && e.length ? fo(e, ki(t, 2)) : [];
           }
 
@@ -4493,7 +4493,7 @@ webpackJsonp([332], [, function(e, t, n) {
 
           function as(e, t, n) {
             var r = yf(e) ? d : ur;
-            return n && Ii(e, t, n) && (t = oe), r(e, ki(t, 3));
+            return n && Ri(e, t, n) && (t = oe), r(e, ki(t, 3));
           }
 
           function ss(e, t) {
@@ -4555,11 +4555,11 @@ webpackJsonp([332], [, function(e, t, n) {
           }
 
           function bs(e, t, n) {
-            return t = (n ? Ii(e, t, n) : t === oe) ? 1 : ku(t), (yf(e) ? An : oo)(e, t);
+            return t = (n ? Ri(e, t, n) : t === oe) ? 1 : ku(t), (yf(e) ? An : oo)(e, t);
           }
 
           function ws(e) {
-            return (yf(e) ? Rn : ao)(e);
+            return (yf(e) ? In : ao)(e);
           }
 
           function ks(e) {
@@ -4571,7 +4571,7 @@ webpackJsonp([332], [, function(e, t, n) {
 
           function Ms(e, t, n) {
             var r = yf(e) ? g : uo;
-            return n && Ii(e, t, n) && (t = oe), r(e, ki(t, 3));
+            return n && Ri(e, t, n) && (t = oe), r(e, ki(t, 3));
           }
 
           function Ts(e, t) {
@@ -4719,7 +4719,7 @@ webpackJsonp([332], [, function(e, t, n) {
             });
           }
 
-          function Is(e, t, n) {
+          function Rs(e, t, n) {
             var r = !0,
               o = !0;
             if ("function" != typeof e) throw new cc(se);
@@ -4730,7 +4730,7 @@ webpackJsonp([332], [, function(e, t, n) {
             });
           }
 
-          function Rs(e) {
+          function Is(e) {
             return xs(e, 1);
           }
 
@@ -4922,7 +4922,7 @@ webpackJsonp([332], [, function(e, t, n) {
           }
 
           function Mu(e) {
-            return e ? nr(ku(e), 0, Ie) : 0;
+            return e ? nr(ku(e), 0, Re) : 0;
           }
 
           function Tu(e) {
@@ -4983,11 +4983,11 @@ webpackJsonp([332], [, function(e, t, n) {
             return null == e ? [] : mr(e, Hu(e));
           }
 
-          function Iu(e) {
+          function Ru(e) {
             return null == e ? [] : mr(e, qu(e));
           }
 
-          function Ru(e, t, n) {
+          function Iu(e, t, n) {
             var r = null == e ? oe : _r(e, t);
             return r === oe ? n : r;
           }
@@ -5080,11 +5080,11 @@ webpackJsonp([332], [, function(e, t, n) {
           }
 
           function Xu(e) {
-            return null == e ? [] : I(e, Hu(e));
+            return null == e ? [] : R(e, Hu(e));
           }
 
           function el(e) {
-            return null == e ? [] : I(e, qu(e));
+            return null == e ? [] : R(e, qu(e));
           }
 
           function tl(e, t, n) {
@@ -5096,7 +5096,7 @@ webpackJsonp([332], [, function(e, t, n) {
           }
 
           function rl(e, t, n) {
-            if (n && "boolean" != typeof n && Ii(e, t, n) && (t = n = oe), n === oe && ("boolean" == typeof t ? (n = t, t = oe) : "boolean" == typeof e && (n = e, e = oe)), e === oe && t === oe ? (e = 0, t = 1) : (e = wu(e), t === oe ? (t = e, e = 0) : t = wu(t)), e > t) {
+            if (n && "boolean" != typeof n && Ri(e, t, n) && (t = n = oe), n === oe && ("boolean" == typeof t ? (n = t, t = oe) : "boolean" == typeof e && (n = e, e = oe)), e === oe && t === oe ? (e = 0, t = 1) : (e = wu(e), t === oe ? (t = e, e = 0) : t = wu(t)), e > t) {
               var r = e;
               e = t, t = r;
             }
@@ -5156,7 +5156,7 @@ webpackJsonp([332], [, function(e, t, n) {
           }
 
           function pl(e, t, n) {
-            return t = (n ? Ii(e, t, n) : t === oe) ? 1 : ku(t), to(Eu(e), t);
+            return t = (n ? Ri(e, t, n) : t === oe) ? 1 : ku(t), to(Eu(e), t);
           }
 
           function hl() {
@@ -5166,7 +5166,7 @@ webpackJsonp([332], [, function(e, t, n) {
           }
 
           function ml(e, t, n) {
-            return n && "number" != typeof n && Ii(e, t, n) && (t = n = oe), (n = n === oe ? Ie : n >>> 0) ? (e = Eu(e), e && ("string" == typeof t || null != t && !kf(t)) && !(t = ho(t)) && U(e) ? xo(ee(e), 0, n) : e.split(t, n)) : [];
+            return n && "number" != typeof n && Ri(e, t, n) && (t = n = oe), (n = n === oe ? Re : n >>> 0) ? (e = Eu(e), e && ("string" == typeof t || null != t && !kf(t)) && !(t = ho(t)) && U(e) ? xo(ee(e), 0, n) : e.split(t, n)) : [];
           }
 
           function _l(e, t, n) {
@@ -5175,10 +5175,10 @@ webpackJsonp([332], [, function(e, t, n) {
 
           function yl(e, t, r) {
             var o = n.templateSettings;
-            r && Ii(e, t, r) && (t = oe), e = Eu(e), t = Cf({}, t, o, di);
+            r && Ri(e, t, r) && (t = oe), e = Eu(e), t = Cf({}, t, o, di);
             var i, a, s = Cf({}, t.imports, o.imports, di),
               u = Hu(s),
-              l = I(s, u),
+              l = R(s, u),
               c = 0,
               d = t.interpolate || $t,
               f = "__p += '",
@@ -5213,7 +5213,7 @@ webpackJsonp([332], [, function(e, t, n) {
           }
 
           function wl(e, t, n) {
-            if ((e = Eu(e)) && (n || t === oe)) return e.replace(It, "");
+            if ((e = Eu(e)) && (n || t === oe)) return e.replace(Rt, "");
             if (!e || !(t = ho(t))) return e;
             var r = ee(e);
             return xo(r, 0, F(r, ee(t)) + 1).join("");
@@ -5298,7 +5298,7 @@ webpackJsonp([332], [, function(e, t, n) {
           }
 
           function Pl(e) {
-            return Rr("function" == typeof e ? e : rr(e, de));
+            return Ir("function" == typeof e ? e : rr(e, de));
           }
 
           function jl(e) {
@@ -5336,16 +5336,16 @@ webpackJsonp([332], [, function(e, t, n) {
             return Dn._ === this && (Dn._ = wc), this;
           }
 
-          function Il() {}
+          function Rl() {}
 
-          function Rl(e) {
+          function Il(e) {
             return e = ku(e), no(function(t) {
               return Gr(t, e);
             });
           }
 
           function Nl(e) {
-            return Ri(e) ? L(Xi(e)) : $r(e);
+            return Ii(e) ? L(Xi(e)) : $r(e);
           }
 
           function Fl(e) {
@@ -5376,9 +5376,9 @@ webpackJsonp([332], [, function(e, t, n) {
 
           function Bl(e, t) {
             if ((e = ku(e)) < 1 || e > De) return [];
-            var n = Ie,
-              r = Gc(e, Ie);
-            t = ki(t), e -= Ie;
+            var n = Re,
+              r = Gc(e, Re);
+            t = ki(t), e -= Re;
             for (var o = D(r, t); ++n < e;) t(n);
             return o;
           }
@@ -5448,7 +5448,7 @@ webpackJsonp([332], [, function(e, t, n) {
             bc = mc.call(sc),
             wc = Dn._,
             kc = uc("^" + mc.call(_c).replace(jt, "\\$&").replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, "$1.*?") + "$"),
-            Mc = In ? t.Buffer : oe,
+            Mc = Rn ? t.Buffer : oe,
             Tc = t.Symbol,
             xc = t.Uint8Array,
             Sc = Mc ? Mc.allocUnsafe : oe,
@@ -5466,8 +5466,8 @@ webpackJsonp([332], [, function(e, t, n) {
               } catch (e) {}
             }(),
             Ac = t.clearTimeout !== Dn.clearTimeout && t.clearTimeout,
-            Ic = rc && rc.now !== Dn.Date.now && rc.now,
-            Rc = t.setTimeout !== Dn.setTimeout && t.setTimeout,
+            Rc = rc && rc.now !== Dn.Date.now && rc.now,
+            Ic = t.setTimeout !== Dn.setTimeout && t.setTimeout,
             Nc = ac.ceil,
             Fc = ac.floor,
             Hc = sc.getOwnPropertySymbols,
@@ -5537,10 +5537,10 @@ webpackJsonp([332], [, function(e, t, n) {
             },
             kd = ed && 1 / J(new ed([, -0]))[1] == je ? function(e) {
               return new ed(e);
-            } : Il,
+            } : Rl,
             Md = rd ? function(e) {
               return rd.get(e);
-            } : Il,
+            } : Rl,
             Td = Hc ? function(e) {
               return null == e ? [] : (e = sc(e), f(Hc(e), function(t) {
                 return Cc.call(e, t);
@@ -5571,7 +5571,7 @@ webpackJsonp([332], [, function(e, t, n) {
           });
           var Ed = hc ? tu : ql,
             Ld = Zi(vd),
-            Cd = Rc || function(e, t) {
+            Cd = Ic || function(e, t) {
               return Dn.setTimeout(e, t);
             },
             Od = Zi(gd),
@@ -5602,12 +5602,12 @@ webpackJsonp([332], [, function(e, t, n) {
               var t = m(e, ko);
               return t.length && t[0] === e[0] ? Mr(t) : [];
             }),
-            Id = no(function(e) {
+            Rd = no(function(e) {
               var t = wa(e),
                 n = m(e, ko);
               return t === wa(n) ? t = oe : n.pop(), n.length && n[0] === e[0] ? Mr(n, ki(t, 2)) : [];
             }),
-            Rd = no(function(e) {
+            Id = no(function(e) {
               var t = wa(e),
                 n = m(e, ko);
               return t = "function" == typeof t ? t : oe, t && n.pop(), n.length && n[0] === e[0] ? Mr(n, oe, t) : [];
@@ -5696,9 +5696,9 @@ webpackJsonp([332], [, function(e, t, n) {
             rf = no(function(e, t) {
               if (null == e) return [];
               var n = t.length;
-              return n > 1 && Ii(e, t[0], t[1]) ? t = [] : n > 2 && Ii(t[0], t[1], t[2]) && (t = [t[0]]), Vr(e, fr(t, 1), []);
+              return n > 1 && Ri(e, t[0], t[1]) ? t = [] : n > 2 && Ri(t[0], t[1], t[2]) && (t = [t[0]]), Vr(e, fr(t, 1), []);
             }),
-            of = Ic || function() {
+            of = Rc || function() {
               return Dn.Date.now();
             },
             af = no(function(e, t, n) {
@@ -5759,7 +5759,7 @@ webpackJsonp([332], [, function(e, t, n) {
             wf = qn ? A(qn) : Pr,
             kf = zn ? A(zn) : Yr,
             Mf = Un ? A(Un) : Ar,
-            Tf = Wn ? A(Wn) : Ir,
+            Tf = Wn ? A(Wn) : Rr,
             xf = ai(Hr),
             Sf = ai(function(e, t) {
               return e <= t;
@@ -5790,8 +5790,8 @@ webpackJsonp([332], [, function(e, t, n) {
             Af = ei(function(e, t, n) {
               _c.call(e, t) ? e[t].push(n) : e[t] = [n];
             }, ki),
-            If = no(xr),
-            Rf = Uo(function(e, t, n) {
+            Rf = no(xr),
+            If = Uo(function(e, t, n) {
               Wr(e, t, n);
             }),
             Nf = Uo(function(e, t, n, r) {
@@ -5876,7 +5876,7 @@ webpackJsonp([332], [, function(e, t, n) {
             hp = ti(function(e, t) {
               return e - t;
             }, 0);
-          return n.after = Ts, n.ary = xs, n.assign = Ef, n.assignIn = Lf, n.assignInWith = Cf, n.assignWith = Of, n.at = Pf, n.before = Ss, n.bind = af, n.bindAll = Qf, n.bindKey = sf, n.castArray = Fs, n.chain = $a, n.chunk = ra, n.compact = oa, n.concat = ia, n.cond = Sl, n.conforms = El, n.constant = Ll, n.countBy = $d, n.create = Lu, n.curry = Es, n.curryRight = Ls, n.debounce = Cs, n.defaults = jf, n.defaultsDeep = Df, n.defer = uf, n.delay = lf, n.difference = jd, n.differenceBy = Dd, n.differenceWith = Yd, n.drop = aa, n.dropRight = sa, n.dropRightWhile = ua, n.dropWhile = la, n.fill = ca, n.filter = ss, n.flatMap = us, n.flatMapDeep = ls, n.flatMapDepth = cs, n.flatten = pa, n.flattenDeep = ha, n.flattenDepth = ma, n.flip = Os, n.flow = Xf, n.flowRight = ep, n.fromPairs = _a, n.functions = Au, n.functionsIn = Iu, n.groupBy = Xd, n.initial = ga, n.intersection = Ad, n.intersectionBy = Id, n.intersectionWith = Rd, n.invert = Yf, n.invertBy = Af, n.invokeMap = ef, n.iteratee = Pl, n.keyBy = tf, n.keys = Hu, n.keysIn = qu, n.map = hs, n.mapKeys = zu, n.mapValues = Uu, n.matches = jl, n.matchesProperty = Dl, n.memoize = Ps, n.merge = Rf, n.mergeWith = Nf, n.method = tp, n.methodOf = np, n.mixin = Yl, n.negate = js, n.nthArg = Rl, n.omit = Ff, n.omitBy = Wu, n.once = Ds, n.orderBy = ms, n.over = rp, n.overArgs = cf, n.overEvery = op, n.overSome = ip, n.partial = df, n.partialRight = ff, n.partition = nf, n.pick = Hf, n.pickBy = Bu, n.property = Nl, n.propertyOf = Fl, n.pull = Nd, n.pullAll = Ta, n.pullAllBy = xa, n.pullAllWith = Sa, n.pullAt = Fd, n.range = ap, n.rangeRight = sp, n.rearg = pf, n.reject = vs, n.remove = Ea, n.rest = Ys, n.reverse = La, n.sampleSize = bs, n.set = Vu, n.setWith = Ku, n.shuffle = ws, n.slice = Ca, n.sortBy = rf, n.sortedUniq = Ia, n.sortedUniqBy = Ra, n.split = ml, n.spread = As, n.tail = Na, n.take = Fa, n.takeRight = Ha, n.takeRightWhile = qa, n.takeWhile = za, n.tap = Za, n.throttle = Is, n.thru = Qa, n.toArray = bu, n.toPairs = qf, n.toPairsIn = zf, n.toPath = Gl, n.toPlainObject = xu, n.transform = Ju, n.unary = Rs, n.union = Hd, n.unionBy = qd, n.unionWith = zd, n.uniq = Ua, n.uniqBy = Wa, n.uniqWith = Ba, n.unset = $u, n.unzip = Ga, n.unzipWith = Va, n.update = Zu, n.updateWith = Qu, n.values = Xu, n.valuesIn = el, n.without = Ud, n.words = xl, n.wrap = Ns, n.xor = Wd, n.xorBy = Bd, n.xorWith = Gd, n.zip = Vd, n.zipObject = Ka, n.zipObjectDeep = Ja, n.zipWith = Kd, n.entries = qf, n.entriesIn = zf, n.extend = Lf, n.extendWith = Cf, Yl(n, n), n.add = up, n.attempt = Zf, n.camelCase = Uf, n.capitalize = ol, n.ceil = lp, n.clamp = tl, n.clone = Hs, n.cloneDeep = zs, n.cloneDeepWith = Us, n.cloneWith = qs, n.conformsTo = Ws, n.deburr = il, n.defaultTo = Cl, n.divide = cp, n.endsWith = al, n.eq = Bs, n.escape = sl, n.escapeRegExp = ul, n.every = as, n.find = Zd, n.findIndex = da, n.findKey = Cu, n.findLast = Qd, n.findLastIndex = fa, n.findLastKey = Ou, n.floor = dp, n.forEach = ds, n.forEachRight = fs, n.forIn = Pu, n.forInRight = ju, n.forOwn = Du, n.forOwnRight = Yu, n.get = Ru, n.gt = hf, n.gte = mf, n.has = Nu, n.hasIn = Fu, n.head = ya, n.identity = Ol, n.includes = ps, n.indexOf = va, n.inRange = nl, n.invoke = If, n.isArguments = _f, n.isArray = yf, n.isArrayBuffer = vf, n.isArrayLike = Gs, n.isArrayLikeObject = Vs, n.isBoolean = Ks, n.isBuffer = gf, n.isDate = bf, n.isElement = Js, n.isEmpty = $s, n.isEqual = Zs, n.isEqualWith = Qs, n.isError = Xs, n.isFinite = eu, n.isFunction = tu, n.isInteger = nu, n.isLength = ru, n.isMap = wf, n.isMatch = au, n.isMatchWith = su, n.isNaN = uu, n.isNative = lu, n.isNil = du, n.isNull = cu, n.isNumber = fu, n.isObject = ou, n.isObjectLike = iu, n.isPlainObject = pu, n.isRegExp = kf, n.isSafeInteger = hu, n.isSet = Mf, n.isString = mu, n.isSymbol = _u, n.isTypedArray = Tf, n.isUndefined = yu, n.isWeakMap = vu, n.isWeakSet = gu, n.join = ba, n.kebabCase = Wf, n.last = wa, n.lastIndexOf = ka, n.lowerCase = Bf, n.lowerFirst = Gf, n.lt = xf, n.lte = Sf, n.max = Kl, n.maxBy = Jl, n.mean = $l, n.meanBy = Zl, n.min = Ql, n.minBy = Xl, n.stubArray = Hl, n.stubFalse = ql, n.stubObject = zl, n.stubString = Ul, n.stubTrue = Wl, n.multiply = fp, n.nth = Ma, n.noConflict = Al, n.noop = Il, n.now = of , n.pad = ll, n.padEnd = cl, n.padStart = dl, n.parseInt = fl, n.random = rl, n.reduce = _s, n.reduceRight = ys, n.repeat = pl, n.replace = hl, n.result = Gu, n.round = pp, n.runInContext = e, n.sample = gs, n.size = ks, n.snakeCase = Vf, n.some = Ms, n.sortedIndex = Oa, n.sortedIndexBy = Pa, n.sortedIndexOf = ja, n.sortedLastIndex = Da, n.sortedLastIndexBy = Ya, n.sortedLastIndexOf = Aa, n.startCase = Kf, n.startsWith = _l, n.subtract = hp, n.sum = ec, n.sumBy = tc, n.template = yl, n.times = Bl, n.toFinite = wu, n.toInteger = ku, n.toLength = Mu, n.toLower = vl, n.toNumber = Tu, n.toSafeInteger = Su, n.toString = Eu, n.toUpper = gl, n.trim = bl, n.trimEnd = wl, n.trimStart = kl, n.truncate = Ml, n.unescape = Tl, n.uniqueId = Vl, n.upperCase = Jf, n.upperFirst = $f, n.each = ds, n.eachRight = fs, n.first = ya, Yl(n, function() {
+          return n.after = Ts, n.ary = xs, n.assign = Ef, n.assignIn = Lf, n.assignInWith = Cf, n.assignWith = Of, n.at = Pf, n.before = Ss, n.bind = af, n.bindAll = Qf, n.bindKey = sf, n.castArray = Fs, n.chain = $a, n.chunk = ra, n.compact = oa, n.concat = ia, n.cond = Sl, n.conforms = El, n.constant = Ll, n.countBy = $d, n.create = Lu, n.curry = Es, n.curryRight = Ls, n.debounce = Cs, n.defaults = jf, n.defaultsDeep = Df, n.defer = uf, n.delay = lf, n.difference = jd, n.differenceBy = Dd, n.differenceWith = Yd, n.drop = aa, n.dropRight = sa, n.dropRightWhile = ua, n.dropWhile = la, n.fill = ca, n.filter = ss, n.flatMap = us, n.flatMapDeep = ls, n.flatMapDepth = cs, n.flatten = pa, n.flattenDeep = ha, n.flattenDepth = ma, n.flip = Os, n.flow = Xf, n.flowRight = ep, n.fromPairs = _a, n.functions = Au, n.functionsIn = Ru, n.groupBy = Xd, n.initial = ga, n.intersection = Ad, n.intersectionBy = Rd, n.intersectionWith = Id, n.invert = Yf, n.invertBy = Af, n.invokeMap = ef, n.iteratee = Pl, n.keyBy = tf, n.keys = Hu, n.keysIn = qu, n.map = hs, n.mapKeys = zu, n.mapValues = Uu, n.matches = jl, n.matchesProperty = Dl, n.memoize = Ps, n.merge = If, n.mergeWith = Nf, n.method = tp, n.methodOf = np, n.mixin = Yl, n.negate = js, n.nthArg = Il, n.omit = Ff, n.omitBy = Wu, n.once = Ds, n.orderBy = ms, n.over = rp, n.overArgs = cf, n.overEvery = op, n.overSome = ip, n.partial = df, n.partialRight = ff, n.partition = nf, n.pick = Hf, n.pickBy = Bu, n.property = Nl, n.propertyOf = Fl, n.pull = Nd, n.pullAll = Ta, n.pullAllBy = xa, n.pullAllWith = Sa, n.pullAt = Fd, n.range = ap, n.rangeRight = sp, n.rearg = pf, n.reject = vs, n.remove = Ea, n.rest = Ys, n.reverse = La, n.sampleSize = bs, n.set = Vu, n.setWith = Ku, n.shuffle = ws, n.slice = Ca, n.sortBy = rf, n.sortedUniq = Ra, n.sortedUniqBy = Ia, n.split = ml, n.spread = As, n.tail = Na, n.take = Fa, n.takeRight = Ha, n.takeRightWhile = qa, n.takeWhile = za, n.tap = Za, n.throttle = Rs, n.thru = Qa, n.toArray = bu, n.toPairs = qf, n.toPairsIn = zf, n.toPath = Gl, n.toPlainObject = xu, n.transform = Ju, n.unary = Is, n.union = Hd, n.unionBy = qd, n.unionWith = zd, n.uniq = Ua, n.uniqBy = Wa, n.uniqWith = Ba, n.unset = $u, n.unzip = Ga, n.unzipWith = Va, n.update = Zu, n.updateWith = Qu, n.values = Xu, n.valuesIn = el, n.without = Ud, n.words = xl, n.wrap = Ns, n.xor = Wd, n.xorBy = Bd, n.xorWith = Gd, n.zip = Vd, n.zipObject = Ka, n.zipObjectDeep = Ja, n.zipWith = Kd, n.entries = qf, n.entriesIn = zf, n.extend = Lf, n.extendWith = Cf, Yl(n, n), n.add = up, n.attempt = Zf, n.camelCase = Uf, n.capitalize = ol, n.ceil = lp, n.clamp = tl, n.clone = Hs, n.cloneDeep = zs, n.cloneDeepWith = Us, n.cloneWith = qs, n.conformsTo = Ws, n.deburr = il, n.defaultTo = Cl, n.divide = cp, n.endsWith = al, n.eq = Bs, n.escape = sl, n.escapeRegExp = ul, n.every = as, n.find = Zd, n.findIndex = da, n.findKey = Cu, n.findLast = Qd, n.findLastIndex = fa, n.findLastKey = Ou, n.floor = dp, n.forEach = ds, n.forEachRight = fs, n.forIn = Pu, n.forInRight = ju, n.forOwn = Du, n.forOwnRight = Yu, n.get = Iu, n.gt = hf, n.gte = mf, n.has = Nu, n.hasIn = Fu, n.head = ya, n.identity = Ol, n.includes = ps, n.indexOf = va, n.inRange = nl, n.invoke = Rf, n.isArguments = _f, n.isArray = yf, n.isArrayBuffer = vf, n.isArrayLike = Gs, n.isArrayLikeObject = Vs, n.isBoolean = Ks, n.isBuffer = gf, n.isDate = bf, n.isElement = Js, n.isEmpty = $s, n.isEqual = Zs, n.isEqualWith = Qs, n.isError = Xs, n.isFinite = eu, n.isFunction = tu, n.isInteger = nu, n.isLength = ru, n.isMap = wf, n.isMatch = au, n.isMatchWith = su, n.isNaN = uu, n.isNative = lu, n.isNil = du, n.isNull = cu, n.isNumber = fu, n.isObject = ou, n.isObjectLike = iu, n.isPlainObject = pu, n.isRegExp = kf, n.isSafeInteger = hu, n.isSet = Mf, n.isString = mu, n.isSymbol = _u, n.isTypedArray = Tf, n.isUndefined = yu, n.isWeakMap = vu, n.isWeakSet = gu, n.join = ba, n.kebabCase = Wf, n.last = wa, n.lastIndexOf = ka, n.lowerCase = Bf, n.lowerFirst = Gf, n.lt = xf, n.lte = Sf, n.max = Kl, n.maxBy = Jl, n.mean = $l, n.meanBy = Zl, n.min = Ql, n.minBy = Xl, n.stubArray = Hl, n.stubFalse = ql, n.stubObject = zl, n.stubString = Ul, n.stubTrue = Wl, n.multiply = fp, n.nth = Ma, n.noConflict = Al, n.noop = Rl, n.now = of , n.pad = ll, n.padEnd = cl, n.padStart = dl, n.parseInt = fl, n.random = rl, n.reduce = _s, n.reduceRight = ys, n.repeat = pl, n.replace = hl, n.result = Gu, n.round = pp, n.runInContext = e, n.sample = gs, n.size = ks, n.snakeCase = Vf, n.some = Ms, n.sortedIndex = Oa, n.sortedIndexBy = Pa, n.sortedIndexOf = ja, n.sortedLastIndex = Da, n.sortedLastIndexBy = Ya, n.sortedLastIndexOf = Aa, n.startCase = Kf, n.startsWith = _l, n.subtract = hp, n.sum = ec, n.sumBy = tc, n.template = yl, n.times = Bl, n.toFinite = wu, n.toInteger = ku, n.toLength = Mu, n.toLower = vl, n.toNumber = Tu, n.toSafeInteger = Su, n.toString = Eu, n.toUpper = gl, n.trim = bl, n.trimEnd = wl, n.trimStart = kl, n.truncate = Ml, n.unescape = Tl, n.uniqueId = Vl, n.upperCase = Jf, n.upperFirst = $f, n.each = ds, n.eachRight = fs, n.first = ya, Yl(n, function() {
             var e = {};
             return pr(n, function(t, r) {
               _c.call(n.prototype, r) || (e[r] = t);
@@ -5890,7 +5890,7 @@ webpackJsonp([332], [, function(e, t, n) {
               n = n === oe ? 1 : Bc(ku(n), 0);
               var r = this.__filtered__ && !t ? new b(this) : this.clone();
               return r.__filtered__ ? r.__takeCount__ = Gc(n, r.__takeCount__) : r.__views__.push({
-                size: Gc(n, Ie),
+                size: Gc(n, Re),
                 type: e + (r.__dir__ < 0 ? "Right" : "")
               }), r;
             }, b.prototype[e + "Right"] = function(t) {
@@ -5935,7 +5935,7 @@ webpackJsonp([332], [, function(e, t, n) {
           }, b.prototype.takeRightWhile = function(e) {
             return this.reverse().takeWhile(e).reverse();
           }, b.prototype.toArray = function() {
-            return this.take(Ie);
+            return this.take(Re);
           }, pr(b.prototype, function(e, t) {
             var r = /^(?:filter|find|map|reject)|While$/.test(t),
               i = /^(?:head|last)$/.test(t),
@@ -17163,17 +17163,17 @@ webpackJsonp([332], [, function(e, t, n) {
     D = 1,
     Y = 9,
     A = 11,
-    I = {},
-    R = 1,
+    R = {},
+    I = 1,
     N = function() {
-      this.rootID = R++;
+      this.rootID = I++;
     };
   N.prototype.isReactComponent = {}, N.prototype.render = function() {
     return this.props.child;
   }, N.isReactTopLevelWrapper = !0;
   var F = {
     TopLevelWrapper: N,
-    _instancesByReactRootID: I,
+    _instancesByReactRootID: R,
     scrollMonitor: function(e, t) {
       t();
     },
@@ -17187,7 +17187,7 @@ webpackJsonp([332], [, function(e, t, n) {
       var o = L(e, !1);
       S.batchedUpdates(s, o, t, n, r);
       var i = o._instance.rootID;
-      return I[i] = o, o;
+      return R[i] = o, o;
     },
     renderSubtreeIntoContainer: function(e, t, n, r) {
       return null != e && k.has(e) || p("38"), F._renderSubtreeIntoContainer(e, t, n, r);
@@ -17231,7 +17231,7 @@ webpackJsonp([332], [, function(e, t, n) {
         l(e), 1 === e.nodeType && e.hasAttribute(j);
         return !1;
       }
-      return delete I[t._instance.rootID], S.batchedUpdates(u, t, e, !1), !0;
+      return delete R[t._instance.rootID], S.batchedUpdates(u, t, e, !1), !0;
     },
     _mountImageIntoNode: function(e, t, n, i, a) {
       if (c(t) || p("41"), i) {
@@ -21747,8 +21747,8 @@ webpackJsonp([332], [, function(e, t, n) {
     D = j && j.stringify,
     Y = p("_hidden"),
     A = p("toPrimitive"),
-    I = {}.propertyIsEnumerable,
-    R = c("symbol-registry"),
+    R = {}.propertyIsEnumerable,
+    I = c("symbol-registry"),
     N = c("symbols"),
     F = c("op-symbols"),
     H = Object.prototype,
@@ -21790,7 +21790,7 @@ webpackJsonp([332], [, function(e, t, n) {
       return void 0 === t ? M(e) : K(M(e), t);
     },
     $ = function(e) {
-      var t = I.call(this, e = w(e, !0));
+      var t = R.call(this, e = w(e, !0));
       return !(this === H && o(N, e) && !o(F, e)) && (!(t || !o(this, e) || !o(N, e) || o(this, Y) && this[Y][e]) || t);
     },
     Z = function(e, t) {
@@ -21828,10 +21828,10 @@ webpackJsonp([332], [, function(e, t, n) {
   for (var ee = E(p.store), te = 0; ee.length > te;) m(ee[te++]);
   a(a.S + a.F * !q, "Symbol", {
     for: function(e) {
-      return o(R, e += "") ? R[e] : R[e] = P(e);
+      return o(I, e += "") ? I[e] : I[e] = P(e);
     },
     keyFor: function(e) {
-      if (G(e)) return _(R, e);
+      if (G(e)) return _(I, e);
       throw TypeError(e + " is not a symbol!");
     },
     useSetter: function() {
@@ -21869,9 +21869,9 @@ webpackJsonp([332], [, function(e, t, n) {
 }, function(e, t, n) {
   t = e.exports = n(189)(), t.push([e.i, ".c-presence--active {\n  color: #93cc93;\n}\n.c-presence--away {\n  color: #717274;\n}\n", ""]);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.c-tooltip__tip {\n  display: inline-block;\n  color: #FFFFFF;\n  background-color: #000;\n  max-width: 250px;\n  padding: 0.5rem;\n  border-radius: 4px;\n  position: relative;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 0.8125rem;\n  font-weight: 700;\n  text-align: center;\n}\n.c-tooltip__tip:after {\n  position: absolute;\n  content: '';\n  width: 0;\n  height: 0;\n  margin: -5px;\n  border: 6px solid transparent;\n}\n.c-tooltip__tip--left {\n  margin-right: 0.5rem;\n}\n.c-tooltip__tip--left:after {\n  border-left-color: #000;\n  right: -6px;\n  top: 50%;\n}\n.c-tooltip__tip--right {\n  margin-left: 0.5rem;\n}\n.c-tooltip__tip--right:after {\n  border-right-color: #000;\n  left: -6px;\n  top: 50%;\n}\n.c-tooltip__tip--top {\n  margin-bottom: 0.5rem;\n}\n.c-tooltip__tip--top:after {\n  border-top-color: #000;\n  bottom: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--top-left {\n  margin-bottom: 0.5rem;\n}\n.c-tooltip__tip--top-left:after {\n  border-top-color: #000;\n  bottom: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--top-left:after {\n  left: 25%;\n}\n.c-tooltip__tip--top-right {\n  margin-bottom: 0.5rem;\n}\n.c-tooltip__tip--top-right:after {\n  border-top-color: #000;\n  bottom: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--top-right:after {\n  left: 75%;\n}\n.c-tooltip__tip--bottom {\n  margin-top: 0.5rem;\n}\n.c-tooltip__tip--bottom:after {\n  border-bottom-color: #000;\n  top: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--bottom-left {\n  margin-top: 0.5rem;\n}\n.c-tooltip__tip--bottom-left:after {\n  border-bottom-color: #000;\n  top: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--bottom-left:after {\n  left: 25%;\n}\n.c-tooltip__tip--bottom-right {\n  margin-top: 0.5rem;\n}\n.c-tooltip__tip--bottom-right:after {\n  border-bottom-color: #000;\n  top: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--bottom-right:after {\n  left: 75%;\n}\n.c-tooltip__tip--success {\n  background-color: #29A979;\n}\n.c-tooltip__tip--success.c-tooltip__tip--left:after {\n  border-left-color: #29A979;\n}\n.c-tooltip__tip--success.c-tooltip__tip--right:after {\n  border-right-color: #29A979;\n}\n.c-tooltip__tip--success.c-tooltip__tip--top:after,\n.c-tooltip__tip--success.c-tooltip__tip--top-left:after,\n.c-tooltip__tip--success.c-tooltip__tip--top-right:after {\n  border-top-color: #29A979;\n}\n.c-tooltip__tip--success.c-tooltip__tip--bottom:after,\n.c-tooltip__tip--success.c-tooltip__tip--bottom-left:after,\n.c-tooltip__tip--success.c-tooltip__tip--bottom-right:after {\n  border-bottom-color: #29A979;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.t-list-reset {\n  margin-bottom: 0;\n  margin-left: 0;\n  padding: 0;\n  list-style-type: none;\n}\n.c-tooltip__tip {\n  display: inline-block;\n  color: #FFFFFF;\n  background-color: #000;\n  max-width: 250px;\n  padding: 0.5rem;\n  border-radius: 4px;\n  position: relative;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 0.8125rem;\n  font-weight: 700;\n  text-align: center;\n}\n.c-tooltip__tip:after {\n  position: absolute;\n  content: '';\n  width: 0;\n  height: 0;\n  margin: -5px;\n  border: 6px solid transparent;\n}\n.c-tooltip__tip--left {\n  margin-right: 0.5rem;\n}\n.c-tooltip__tip--left:after {\n  border-left-color: #000;\n  right: -6px;\n  top: 50%;\n}\n.c-tooltip__tip--right {\n  margin-left: 0.5rem;\n}\n.c-tooltip__tip--right:after {\n  border-right-color: #000;\n  left: -6px;\n  top: 50%;\n}\n.c-tooltip__tip--top {\n  margin-bottom: 0.5rem;\n}\n.c-tooltip__tip--top:after {\n  border-top-color: #000;\n  bottom: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--top-left {\n  margin-bottom: 0.5rem;\n}\n.c-tooltip__tip--top-left:after {\n  border-top-color: #000;\n  bottom: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--top-left:after {\n  left: 25%;\n}\n.c-tooltip__tip--top-right {\n  margin-bottom: 0.5rem;\n}\n.c-tooltip__tip--top-right:after {\n  border-top-color: #000;\n  bottom: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--top-right:after {\n  left: 75%;\n}\n.c-tooltip__tip--bottom {\n  margin-top: 0.5rem;\n}\n.c-tooltip__tip--bottom:after {\n  border-bottom-color: #000;\n  top: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--bottom-left {\n  margin-top: 0.5rem;\n}\n.c-tooltip__tip--bottom-left:after {\n  border-bottom-color: #000;\n  top: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--bottom-left:after {\n  left: 25%;\n}\n.c-tooltip__tip--bottom-right {\n  margin-top: 0.5rem;\n}\n.c-tooltip__tip--bottom-right:after {\n  border-bottom-color: #000;\n  top: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--bottom-right:after {\n  left: 75%;\n}\n.c-tooltip__tip--success {\n  background-color: #29A979;\n}\n.c-tooltip__tip--success.c-tooltip__tip--left:after {\n  border-left-color: #29A979;\n}\n.c-tooltip__tip--success.c-tooltip__tip--right:after {\n  border-right-color: #29A979;\n}\n.c-tooltip__tip--success.c-tooltip__tip--top:after,\n.c-tooltip__tip--success.c-tooltip__tip--top-left:after,\n.c-tooltip__tip--success.c-tooltip__tip--top-right:after {\n  border-top-color: #29A979;\n}\n.c-tooltip__tip--success.c-tooltip__tip--bottom:after,\n.c-tooltip__tip--success.c-tooltip__tip--bottom-left:after,\n.c-tooltip__tip--success.c-tooltip__tip--bottom-right:after {\n  border-bottom-color: #29A979;\n}\n", ""]);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.p-channel_sidebar {\n  width: 220px;\n  height: 100vh;\n  position: relative;\n  padding: 0;\n}\n.incremental_boot .p-channel_sidebar {\n  display: none;\n  visibility: hidden;\n}\n.p-channel_sidebar__virtualized {\n  outline: none;\n  -ms-overflow-style: none;\n}\n.p-channel_sidebar__virtualized::-webkit-scrollbar {\n  display: none;\n}\n.p-channel_sidebar__section_heading {\n  padding: 0 0.75rem 0 15px;\n  margin: 0;\n  width: 100%;\n  height: 26px;\n  display: flex;\n  align-items: center;\n}\n.p-channel_sidebar__section_heading_label {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  font-size: 1rem;\n  line-height: 1;\n  display: block;\n  opacity: 0.7;\n  text-align: left;\n  width: 100%;\n  transition: opacity 0.1s ease-out;\n}\n.p-channel_sidebar__section_heading_label:hover,\n.p-channel_sidebar__section_heading_label:focus,\n.p-channel_sidebar__section_heading_label:active {\n  outline: none;\n}\n.p-channel_sidebar__section_heading_label .c-icon:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  width: 20px;\n  opacity: 0.45;\n  margin: 0 1px 0 -4px;\n  vertical-align: baseline;\n}\n.p-channel_sidebar__section_heading_label--clickable:hover {\n  opacity: 1;\n}\n.p-channel_sidebar__section_heading_right {\n  margin-left: auto;\n}\n.p-channel_sidebar__section_heading_plus {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  line-height: 100%;\n}\n.p-channel_sidebar__section_heading_plus:hover,\n.p-channel_sidebar__section_heading_plus:focus,\n.p-channel_sidebar__section_heading_plus:active {\n  outline: none;\n}\n.p-channel_sidebar__section_heading_plus:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  width: 20px;\n  opacity: 0.45;\n  line-height: 100%;\n  content: '\\E228';\n  transition: opacity 0.1s ease-out;\n}\n.p-channel_sidebar__section_heading_plus:hover:before {\n  opacity: 1;\n}\n.p-channel_sidebar__banner {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  width: calc(100% - 1rem);\n  text-align: center;\n  position: absolute;\n  display: block;\n  z-index: 2;\n  color: #FFFFFF;\n  left: 0.5rem;\n  right: 0.5rem;\n  font-weight: 700;\n  font-size: 0.875rem;\n  line-height: 1.625rem;\n  cursor: pointer;\n}\n.p-channel_sidebar__banner:hover,\n.p-channel_sidebar__banner:focus,\n.p-channel_sidebar__banner:active {\n  outline: none;\n}\n.p-channel_sidebar__banner--top {\n  border-top-right-radius: 0;\n  border-bottom-right-radius: 6px;\n  border-bottom-left-radius: 6px;\n  border-top-left-radius: 0;\n  background-clip: padding-box;\n  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.1) inset;\n  top: 0;\n}\n.p-channel_sidebar__banner--bottom {\n  border-top-right-radius: 6px;\n  border-bottom-right-radius: 0;\n  border-bottom-left-radius: 0;\n  border-top-left-radius: 6px;\n  background-clip: padding-box;\n  box-shadow: 0 -1px 6px rgba(0, 0, 0, 0.1), 0 -1px 3px rgba(0, 0, 0, 0.1) inset;\n  bottom: 0;\n}\n.p-channel_sidebar__banner--mentions {\n  background: #EB4D5C;\n}\n.p-channel_sidebar__banner--unreads {\n  background: #2D9EE0;\n}\n.p-channel_sidebar__link {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n}\n.p-channel_sidebar__link:hover,\n.p-channel_sidebar__link:focus,\n.p-channel_sidebar__link:active {\n  outline: none;\n}\n.p-channel_sidebar__channel,\n.p-channel_sidebar__link {\n  display: flex;\n  align-items: center;\n  height: 26px;\n  line-height: 1.625rem;\n  padding: 0 0.75rem 0 15px;\n  width: 100%;\n}\n.p-channel_sidebar__channel:before,\n.p-channel_sidebar__link:before,\n.p-channel_sidebar__channel:after,\n.p-channel_sidebar__link:after {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  width: 20px;\n  opacity: 0.45;\n}\n.p-channel_sidebar__channel:before,\n.p-channel_sidebar__link:before {\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel:after,\n.p-channel_sidebar__link:after {\n  font-size: 1.25rem;\n  margin-left: 0.25rem;\n  opacity: 0.7;\n}\n.p-channel_sidebar__channel:hover,\n.p-channel_sidebar__link:hover,\n.p-channel_sidebar__channel:active,\n.p-channel_sidebar__link:active,\n.p-channel_sidebar__channel:focus,\n.p-channel_sidebar__link:focus,\n.p-channel_sidebar__channel:link,\n.p-channel_sidebar__link:link,\n.p-channel_sidebar__channel:visited,\n.p-channel_sidebar__link:visited {\n  text-decoration: none;\n}\n.p-channel_sidebar__channel:before {\n  content: '\\E125';\n}\n.p-channel_sidebar__channel--private:before {\n  content: '\\E567';\n}\n.p-channel_sidebar__channel--shared:after {\n  content: '\\E559';\n}\n.p-channel_sidebar__channel--org-shared:after {\n  content: '\\E166';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft):before {\n  font-size: 1.25rem;\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='2']:before {\n  content: '\\E521';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='3']:before {\n  content: '\\E522';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='4']:before {\n  content: '\\E523';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='5']:before {\n  content: '\\E524';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='6']:before {\n  content: '\\E525';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='7']:before {\n  content: '\\E526';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='8']:before {\n  content: '\\E527';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='9']:before {\n  content: '\\E528';\n}\n.p-channel_sidebar__channel--im:before {\n  content: none;\n}\n.p-channel_sidebar__channel--im .c-presence {\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel--im .c-presence--away {\n  opacity: 0.7;\n}\n.p-channel_sidebar__channel--im-slackbot:before {\n  content: '\\E515';\n  opacity: 1;\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel--im-slackbot.p-channel_sidebar__channel--draft:before {\n  color: inherit;\n}\n.p-channel_sidebar__channel--muted:not(.p-channel_sidebar__channel--selected) .p-channel_sidebar__name {\n  opacity: 0.45;\n}\n.p-channel_sidebar__channel--unread:not(.p-channel_sidebar__channel--muted) .p-channel_sidebar__name {\n  font-weight: 900;\n  opacity: 1;\n}\n.p-channel_sidebar__channel--selected .p-channel_sidebar__name {\n  opacity: 1;\n}\n.p-channel_sidebar__channel--draft:before {\n  content: '\\E024';\n  font-size: 0.875rem;\n  margin: 1px -2px 0 -1px;\n  flex-basis: 20px;\n  flex-shrink: 0;\n}\n.p-channel_sidebar__channel--archived:before {\n  content: '\\E534';\n}\n@keyframes typing {\n  100% {\n    background-position: -240px;\n  }\n}\n.p-channel_sidebar__channel--typing:before {\n  display: block;\n  content: '';\n  width: 11px;\n  height: 3px;\n  background-image: url(/img/typing-sprite.png);\n  background-repeat: no-repeat;\n  animation: 1s steps(15) 0s infinite normal none typing-sprite;\n  margin: 0 5px 0 1px;\n  opacity: 1;\n}\n@media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {\n  .p-channel_sidebar__channel--typing:before {\n    background-size: cover;\n    background-image: url(/img/typing-sprite@2x.png);\n  }\n}\n.p-channel_sidebar__name {\n  margin-right: auto;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  opacity: 0.7;\n}\n.p-channel_sidebar__name .c-custom_status {\n  float: right;\n  position: relative;\n  z-index: 1;\n}\n.p-channel_sidebar__name.p-channel_sidebar__name--away {\n  font-style: italic;\n}\n.p-channel_sidebar__badge {\n  order: 5;\n  padding: 1px 0.6rem;\n  margin-left: 0.25rem;\n  border-radius: 1rem;\n  line-height: 1rem;\n  font-size: 0.75rem;\n  font-weight: 700;\n  color: #FFFFFF;\n}\n.p-channel_sidebar__status {\n  margin-left: 0.5rem;\n}\n.p-channel_sidebar__you_label {\n  margin-left: 0.5rem;\n  font-weight: normal;\n  opacity: 0.7;\n}\n.p-channel_sidebar__close {\n  margin-left: 0.25rem;\n  display: none;\n}\n.p-channel_sidebar__close,\n.p-channel_sidebar__close:before {\n  line-height: 100%;\n}\n.p-channel_sidebar__channel:hover .p-channel_sidebar__close {\n  display: block;\n}\n.p-channel_sidebar__link--unread .p-channel_sidebar__name {\n  font-weight: 900;\n  opacity: 1;\n}\n.p-channel_sidebar__link--selected .p-channel_sidebar__name {\n  opacity: 1;\n}\n.p-channel_sidebar__link--all-unreads:before {\n  content: '\\E103';\n  margin: 0 4px 0 -4px;\n}\n.p-channel_sidebar__link--all-threads:before {\n  content: '\\E171';\n  margin: 0 4px 0 -4px;\n}\n.p-channel_sidebar__link--all-threads.p-channel_sidebar__link--unread:before {\n  content: '\\E554';\n}\n.p-channel_sidebar__link--invites:before {\n  content: '\\E281';\n}\n.p-channel_sidebar__link--invites:not(.p-channel_sidebar__link--dim) .p-channel_sidebar__name {\n  font-weight: 900;\n  opacity: 1;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.t-list-reset {\n  margin-bottom: 0;\n  margin-left: 0;\n  padding: 0;\n  list-style-type: none;\n}\n.p-channel_sidebar {\n  width: 220px;\n  height: 100vh;\n  position: relative;\n  padding: 0;\n}\n.incremental_boot .p-channel_sidebar {\n  display: none;\n  visibility: hidden;\n}\n.p-channel_sidebar__virtualized {\n  outline: none;\n  -ms-overflow-style: none;\n}\n.p-channel_sidebar__virtualized::-webkit-scrollbar {\n  display: none;\n}\n.p-channel_sidebar__section_heading {\n  padding: 0 0.75rem 0 15px;\n  margin: 0;\n  width: 100%;\n  height: 26px;\n  display: flex;\n  align-items: center;\n}\n.p-channel_sidebar__section_heading_label {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  font-size: 1rem;\n  line-height: 1;\n  display: block;\n  opacity: 0.7;\n  text-align: left;\n  width: 100%;\n  transition: opacity 0.1s ease-out;\n}\n.p-channel_sidebar__section_heading_label:hover,\n.p-channel_sidebar__section_heading_label:focus,\n.p-channel_sidebar__section_heading_label:active {\n  outline: none;\n}\n.p-channel_sidebar__section_heading_label .c-icon:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  width: 20px;\n  opacity: 0.45;\n  margin: 0 1px 0 -4px;\n  vertical-align: baseline;\n}\n.p-channel_sidebar__section_heading_label--clickable:hover {\n  opacity: 1;\n}\n.p-channel_sidebar__section_heading_right {\n  margin-left: auto;\n}\n.p-channel_sidebar__section_heading_plus {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  line-height: 100%;\n}\n.p-channel_sidebar__section_heading_plus:hover,\n.p-channel_sidebar__section_heading_plus:focus,\n.p-channel_sidebar__section_heading_plus:active {\n  outline: none;\n}\n.p-channel_sidebar__section_heading_plus:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  width: 20px;\n  opacity: 0.45;\n  line-height: 100%;\n  content: '\\E228';\n  transition: opacity 0.1s ease-out;\n}\n.p-channel_sidebar__section_heading_plus:hover:before {\n  opacity: 1;\n}\n.p-channel_sidebar__banner {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  width: calc(100% - 1rem);\n  text-align: center;\n  position: absolute;\n  display: block;\n  z-index: 2;\n  color: #FFFFFF;\n  left: 0.5rem;\n  right: 0.5rem;\n  font-weight: 700;\n  font-size: 0.875rem;\n  line-height: 1.625rem;\n  cursor: pointer;\n}\n.p-channel_sidebar__banner:hover,\n.p-channel_sidebar__banner:focus,\n.p-channel_sidebar__banner:active {\n  outline: none;\n}\n.p-channel_sidebar__banner--top {\n  border-top-right-radius: 0;\n  border-bottom-right-radius: 6px;\n  border-bottom-left-radius: 6px;\n  border-top-left-radius: 0;\n  background-clip: padding-box;\n  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.1) inset;\n  top: 0;\n}\n.p-channel_sidebar__banner--bottom {\n  border-top-right-radius: 6px;\n  border-bottom-right-radius: 0;\n  border-bottom-left-radius: 0;\n  border-top-left-radius: 6px;\n  background-clip: padding-box;\n  box-shadow: 0 -1px 6px rgba(0, 0, 0, 0.1), 0 -1px 3px rgba(0, 0, 0, 0.1) inset;\n  bottom: 0;\n}\n.p-channel_sidebar__banner--mentions {\n  background: #EB4D5C;\n}\n.p-channel_sidebar__banner--unreads {\n  background: #2D9EE0;\n}\n.p-channel_sidebar__link {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n}\n.p-channel_sidebar__link:hover,\n.p-channel_sidebar__link:focus,\n.p-channel_sidebar__link:active {\n  outline: none;\n}\n.p-channel_sidebar__channel,\n.p-channel_sidebar__link {\n  display: flex;\n  align-items: center;\n  height: 26px;\n  line-height: 1.625rem;\n  padding: 0 0.75rem 0 15px;\n  width: 100%;\n}\n.p-channel_sidebar__channel:before,\n.p-channel_sidebar__link:before,\n.p-channel_sidebar__channel:after,\n.p-channel_sidebar__link:after {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  width: 20px;\n  opacity: 0.45;\n}\n.p-channel_sidebar__channel:before,\n.p-channel_sidebar__link:before {\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel:after,\n.p-channel_sidebar__link:after {\n  font-size: 1.25rem;\n  margin-left: 0.25rem;\n  opacity: 0.7;\n}\n.p-channel_sidebar__channel:hover,\n.p-channel_sidebar__link:hover,\n.p-channel_sidebar__channel:active,\n.p-channel_sidebar__link:active,\n.p-channel_sidebar__channel:focus,\n.p-channel_sidebar__link:focus,\n.p-channel_sidebar__channel:link,\n.p-channel_sidebar__link:link,\n.p-channel_sidebar__channel:visited,\n.p-channel_sidebar__link:visited {\n  text-decoration: none;\n}\n.p-channel_sidebar__channel:before {\n  content: '\\E125';\n}\n.p-channel_sidebar__channel--private:before {\n  content: '\\E567';\n}\n.p-channel_sidebar__channel--shared:after {\n  content: '\\E559';\n}\n.p-channel_sidebar__channel--org-shared:after {\n  content: '\\E166';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft):before {\n  font-size: 1.25rem;\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='2']:before {\n  content: '\\E521';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='3']:before {\n  content: '\\E522';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='4']:before {\n  content: '\\E523';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='5']:before {\n  content: '\\E524';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='6']:before {\n  content: '\\E525';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='7']:before {\n  content: '\\E526';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='8']:before {\n  content: '\\E527';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='9']:before {\n  content: '\\E528';\n}\n.p-channel_sidebar__channel--im:before {\n  content: none;\n}\n.p-channel_sidebar__channel--im .c-presence {\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel--im .c-presence--away {\n  opacity: 0.7;\n}\n.p-channel_sidebar__channel--im-slackbot:before {\n  content: '\\E515';\n  opacity: 1;\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel--im-slackbot.p-channel_sidebar__channel--draft:before {\n  color: inherit;\n}\n.p-channel_sidebar__channel--muted:not(.p-channel_sidebar__channel--selected) .p-channel_sidebar__name {\n  opacity: 0.45;\n}\n.p-channel_sidebar__channel--unread:not(.p-channel_sidebar__channel--muted) .p-channel_sidebar__name {\n  font-weight: 900;\n  opacity: 1;\n}\n.p-channel_sidebar__channel--selected .p-channel_sidebar__name {\n  opacity: 1;\n}\n.p-channel_sidebar__channel--draft:before {\n  content: '\\E024';\n  font-size: 0.875rem;\n  margin: 1px -2px 0 -1px;\n  flex-basis: 20px;\n  flex-shrink: 0;\n}\n.p-channel_sidebar__channel--archived:before {\n  content: '\\E534';\n}\n@keyframes typing {\n  100% {\n    background-position: -240px;\n  }\n}\n.p-channel_sidebar__channel--typing:before {\n  display: block;\n  content: '';\n  width: 11px;\n  height: 3px;\n  background-image: url(/img/typing-sprite.png);\n  background-repeat: no-repeat;\n  animation: 1s steps(15) 0s infinite normal none typing-sprite;\n  margin: 0 5px 0 1px;\n  opacity: 1;\n}\n@media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {\n  .p-channel_sidebar__channel--typing:before {\n    background-size: cover;\n    background-image: url(/img/typing-sprite@2x.png);\n  }\n}\n.p-channel_sidebar__name {\n  margin-right: auto;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  opacity: 0.7;\n}\n.p-channel_sidebar__name .c-custom_status {\n  float: right;\n  position: relative;\n  z-index: 1;\n}\n.p-channel_sidebar__name.p-channel_sidebar__name--away {\n  font-style: italic;\n}\n.p-channel_sidebar__badge {\n  order: 5;\n  padding: 1px 0.6rem;\n  margin-left: 0.25rem;\n  border-radius: 1rem;\n  line-height: 1rem;\n  font-size: 0.75rem;\n  font-weight: 700;\n  color: #FFFFFF;\n}\n.p-channel_sidebar__status {\n  margin-left: 0.5rem;\n}\n.p-channel_sidebar__you_label {\n  margin-left: 0.5rem;\n  font-weight: normal;\n  opacity: 0.7;\n}\n.p-channel_sidebar__close {\n  margin-left: 0.25rem;\n  display: none;\n}\n.p-channel_sidebar__close,\n.p-channel_sidebar__close:before {\n  line-height: 100%;\n}\n.p-channel_sidebar__channel:hover .p-channel_sidebar__close {\n  display: block;\n}\n.p-channel_sidebar__link--unread .p-channel_sidebar__name {\n  font-weight: 900;\n  opacity: 1;\n}\n.p-channel_sidebar__link--selected .p-channel_sidebar__name {\n  opacity: 1;\n}\n.p-channel_sidebar__link--all-unreads:before {\n  content: '\\E103';\n  margin: 0 4px 0 -4px;\n}\n.p-channel_sidebar__link--all-threads:before {\n  content: '\\E171';\n  margin: 0 4px 0 -4px;\n}\n.p-channel_sidebar__link--all-threads.p-channel_sidebar__link--unread:before {\n  content: '\\E554';\n}\n.p-channel_sidebar__link--invites:before {\n  content: '\\E281';\n}\n.p-channel_sidebar__link--invites:not(.p-channel_sidebar__link--dim) .p-channel_sidebar__name {\n  font-weight: 900;\n  opacity: 1;\n}\n", ""]);
 }, function(e, t, n) {
   "use strict";
   Object.defineProperty(t, "__esModule", {
@@ -22428,11 +22428,11 @@ webpackJsonp([332], [, function(e, t, n) {
       return this.__data__.set(e, me), this;
     }
 
-    function I(e) {
+    function R(e) {
       return this.__data__.has(e);
     }
 
-    function R(e, t) {
+    function I(e, t) {
       var n = Ke(e) || oe(e) ? c(e.length, String) : [],
         r = n.length,
         o = !!r;
@@ -22483,7 +22483,7 @@ webpackJsonp([332], [, function(e, t, n) {
     }
 
     function z(e) {
-      return !(!le(e) || Q(e)) && (se(e) || h(e) ? Ie : Me).test(ne(e));
+      return !(!le(e) || Q(e)) && (se(e) || h(e) ? Re : Me).test(ne(e));
     }
 
     function U(e) {
@@ -22609,7 +22609,7 @@ webpackJsonp([332], [, function(e, t, n) {
     }
 
     function fe(e) {
-      return ie(e) ? R(e, !0) : U(e);
+      return ie(e) ? I(e, !0) : U(e);
     }
 
     function pe() {
@@ -22640,17 +22640,17 @@ webpackJsonp([332], [, function(e, t, n) {
       De = Ce.toString,
       Ye = Oe.hasOwnProperty,
       Ae = Oe.toString,
-      Ie = RegExp("^" + De.call(Ye).replace(ke, "\\$&").replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, "$1.*?") + "$"),
-      Re = Ee.Symbol,
+      Re = RegExp("^" + De.call(Ye).replace(ke, "\\$&").replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, "$1.*?") + "$"),
+      Ie = Ee.Symbol,
       Ne = m(Object.getPrototypeOf, Object),
       Fe = Oe.propertyIsEnumerable,
       He = Le.splice,
-      qe = Re ? Re.isConcatSpreadable : void 0,
+      qe = Ie ? Ie.isConcatSpreadable : void 0,
       ze = Object.getOwnPropertySymbols,
       Ue = Math.max,
       We = K(Ee, "Map"),
       Be = K(Object, "create");
-    _.prototype.clear = y, _.prototype.delete = v, _.prototype.get = g, _.prototype.has = b, _.prototype.set = w, k.prototype.clear = M, k.prototype.delete = T, k.prototype.get = x, k.prototype.has = S, k.prototype.set = E, L.prototype.clear = C, L.prototype.delete = O, L.prototype.get = P, L.prototype.has = j, L.prototype.set = D, Y.prototype.add = Y.prototype.push = A, Y.prototype.has = I;
+    _.prototype.clear = y, _.prototype.delete = v, _.prototype.get = g, _.prototype.has = b, _.prototype.set = w, k.prototype.clear = M, k.prototype.delete = T, k.prototype.get = x, k.prototype.has = S, k.prototype.set = E, L.prototype.clear = C, L.prototype.delete = O, L.prototype.get = P, L.prototype.has = j, L.prototype.set = D, Y.prototype.add = Y.prototype.push = A, Y.prototype.has = R;
     var Ge = ze ? m(ze, Object) : pe,
       Ve = ze ? function(e) {
         for (var t = []; e;) a(t, Ge(e)), e = Ne(e);
@@ -22859,11 +22859,11 @@ webpackJsonp([332], [, function(e, t, n) {
       return this.__data__.delete(e);
     }
 
-    function I(e) {
+    function R(e) {
       return this.__data__.get(e);
     }
 
-    function R(e) {
+    function I(e) {
       return this.__data__.has(e);
     }
 
@@ -22871,7 +22871,7 @@ webpackJsonp([332], [, function(e, t, n) {
       var n = this.__data__;
       if (n instanceof v) {
         var r = n.__data__;
-        if (!Nt || r.length < Ie - 1) return r.push([e, t]), this;
+        if (!Nt || r.length < Re - 1) return r.push([e, t]), this;
         n = this.__data__ = new T(r);
       }
       return n.set(e, t), this;
@@ -22973,7 +22973,7 @@ webpackJsonp([332], [, function(e, t, n) {
     }
 
     function Z(e) {
-      if (!he(e)) return It(e);
+      if (!he(e)) return Rt(e);
       var t = [];
       for (var n in Object(e)) Ct.call(e, n) && "constructor" != n && t.push(n);
       return t;
@@ -23198,7 +23198,7 @@ webpackJsonp([332], [, function(e, t, n) {
     }
 
     function be(e, t) {
-      if ("function" != typeof e || t && "function" != typeof t) throw new TypeError(Re);
+      if ("function" != typeof e || t && "function" != typeof t) throw new TypeError(Ie);
       var n = function() {
         var r = arguments,
           o = t ? t.apply(this, r) : r[0],
@@ -23272,8 +23272,8 @@ webpackJsonp([332], [, function(e, t, n) {
     function Ae(e) {
       return de(e) ? i(ye(e)) : ee(e);
     }
-    var Ie = 200,
-      Re = "Expected a function",
+    var Re = 200,
+      Ie = "Expected a function",
       Ne = "__lodash_hash_undefined__",
       Fe = 1,
       He = 2,
@@ -23334,18 +23334,18 @@ webpackJsonp([332], [, function(e, t, n) {
       Dt = _t.Uint8Array,
       Yt = xt.propertyIsEnumerable,
       At = Mt.splice,
-      It = function(e, t) {
+      Rt = function(e, t) {
         return function(n) {
           return e(t(n));
         };
       }(Object.keys, Object),
-      Rt = ue(_t, "DataView"),
+      It = ue(_t, "DataView"),
       Nt = ue(_t, "Map"),
       Ft = ue(_t, "Promise"),
       Ht = ue(_t, "Set"),
       qt = ue(_t, "WeakMap"),
       zt = ue(Object, "create"),
-      Ut = ve(Rt),
+      Ut = ve(It),
       Wt = ve(Nt),
       Bt = ve(Ft),
       Gt = ve(Ht),
@@ -23353,7 +23353,7 @@ webpackJsonp([332], [, function(e, t, n) {
       Kt = jt ? jt.prototype : void 0,
       Jt = Kt ? Kt.valueOf : void 0,
       $t = Kt ? Kt.toString : void 0;
-    f.prototype.clear = p, f.prototype.delete = h, f.prototype.get = m, f.prototype.has = _, f.prototype.set = y, v.prototype.clear = g, v.prototype.delete = b, v.prototype.get = w, v.prototype.has = k, v.prototype.set = M, T.prototype.clear = x, T.prototype.delete = S, T.prototype.get = E, T.prototype.has = L, T.prototype.set = C, O.prototype.add = O.prototype.push = P, O.prototype.has = j, D.prototype.clear = Y, D.prototype.delete = A, D.prototype.get = I, D.prototype.has = R, D.prototype.set = N;
+    f.prototype.clear = p, f.prototype.delete = h, f.prototype.get = m, f.prototype.has = _, f.prototype.set = y, v.prototype.clear = g, v.prototype.delete = b, v.prototype.get = w, v.prototype.has = k, v.prototype.set = M, T.prototype.clear = x, T.prototype.delete = S, T.prototype.get = E, T.prototype.has = L, T.prototype.set = C, O.prototype.add = O.prototype.push = P, O.prototype.has = j, D.prototype.clear = Y, D.prototype.delete = A, D.prototype.get = R, D.prototype.has = I, D.prototype.set = N;
     var Zt = function(e, t) {
         return function(n, r) {
           if (null == n) return n;
@@ -23373,7 +23373,7 @@ webpackJsonp([332], [, function(e, t, n) {
         };
       }(),
       Xt = U;
-    (Rt && Xt(new Rt(new ArrayBuffer(1))) != ot || Nt && Xt(new Nt) != $e || Ft && "[object Promise]" != Xt(Ft.resolve()) || Ht && Xt(new Ht) != et || qt && "[object WeakMap]" != Xt(new qt)) && (Xt = function(e) {
+    (It && Xt(new It(new ArrayBuffer(1))) != ot || Nt && Xt(new Nt) != $e || Ft && "[object Promise]" != Xt(Ft.resolve()) || Ht && Xt(new Ht) != et || qt && "[object WeakMap]" != Xt(new qt)) && (Xt = function(e) {
       var t = Ot.call(e),
         n = t == Qe ? e.constructor : void 0,
         r = n ? ve(n) : void 0;
@@ -24896,7 +24896,7 @@ webpackJsonp([332], [, function(e, t, n) {
   function c() {
     var e = this;
     e._rootNodeID || m("63");
-    var t = R(e);
+    var t = I(e);
     switch (t || m("64"), e._tag) {
       case "iframe":
       case "object":
@@ -24960,8 +24960,8 @@ webpackJsonp([332], [, function(e, t, n) {
     D = n(1060),
     Y = (n(18), n(130)),
     A = (n(3), n(210), n(190), n(212), n(4), S),
-    I = M.deleteListener,
-    R = E.getNodeFromInstance,
+    R = M.deleteListener,
+    I = E.getNodeFromInstance,
     N = x.listenTo,
     F = T.registrationNameModules,
     H = {
@@ -25175,7 +25175,7 @@ webpackJsonp([332], [, function(e, t, n) {
             var s = this._previousStyleCopy;
             for (o in s) s.hasOwnProperty(o) && (a = a || {}, a[o] = "");
             this._previousStyleCopy = null;
-          } else F.hasOwnProperty(r) ? e[r] && I(this, r) : p(this._tag, e) ? z.hasOwnProperty(r) || k.deleteValueForAttribute(R(this), r) : (w.properties[r] || w.isCustomAttribute(r)) && k.deleteValueForProperty(R(this), r);
+          } else F.hasOwnProperty(r) ? e[r] && R(this, r) : p(this._tag, e) ? z.hasOwnProperty(r) || k.deleteValueForAttribute(I(this), r) : (w.properties[r] || w.isCustomAttribute(r)) && k.deleteValueForProperty(I(this), r);
       for (r in t) {
         var u = t[r],
           l = "style" === r ? this._previousStyleCopy : null != e ? e[r] : void 0;
@@ -25185,14 +25185,14 @@ webpackJsonp([332], [, function(e, t, n) {
               for (o in l) !l.hasOwnProperty(o) || u && u.hasOwnProperty(o) || (a = a || {}, a[o] = "");
               for (o in u) u.hasOwnProperty(o) && l[o] !== u[o] && (a = a || {}, a[o] = u[o]);
             } else a = u;
-        else if (F.hasOwnProperty(r)) u ? i(this, r, u, n) : l && I(this, r);
-        else if (p(this._tag, t)) z.hasOwnProperty(r) || k.setValueForAttribute(R(this), r, u);
+        else if (F.hasOwnProperty(r)) u ? i(this, r, u, n) : l && R(this, r);
+        else if (p(this._tag, t)) z.hasOwnProperty(r) || k.setValueForAttribute(I(this), r, u);
         else if (w.properties[r] || w.isCustomAttribute(r)) {
-          var c = R(this);
+          var c = I(this);
           null != u ? k.setValueForProperty(c, r, u) : k.deleteValueForProperty(c, r);
         }
       }
-      a && v.setValueForStyles(R(this), a, this);
+      a && v.setValueForStyles(I(this), a, this);
     },
     _updateDOMChildren: function(e, t, n, r) {
       var o = H[typeof e.children] ? e.children : null,
@@ -25206,7 +25206,7 @@ webpackJsonp([332], [, function(e, t, n) {
       null != u && null == l ? this.updateChildren(null, n, r) : c && !d && this.updateTextContent(""), null != i ? o !== i && this.updateTextContent("" + i) : null != s ? a !== s && this.updateMarkup("" + s) : null != l && this.updateChildren(l, n, r);
     },
     getHostNode: function() {
-      return R(this);
+      return I(this);
     },
     unmountComponent: function(e) {
       switch (this._tag) {
@@ -25230,7 +25230,7 @@ webpackJsonp([332], [, function(e, t, n) {
       this.unmountChildren(e), E.uncacheNode(this), M.deleteAllListeners(this), this._rootNodeID = 0, this._domID = 0, this._wrapperState = null;
     },
     getPublicInstance: function() {
-      return R(this);
+      return I(this);
     }
   }, _(h.prototype, h.Mixin, j.Mixin), e.exports = h;
 }, function(e, t, n) {
@@ -30502,9 +30502,9 @@ webpackJsonp([332], [, function(e, t, n) {
     value: !0
   }), t.default = r;
 }, , , , , , , , , , , , , , , , , , , , , , , , , , , , , function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.p-download_item {\n  min-height: 68px;\n  padding: 0.75rem 0.75rem 0.25rem 0.75rem;\n  margin: 0 1px 0 0.25rem;\n  position: relative;\n  font-weight: normal;\n  font-size: 1rem;\n  border: 1px solid transparent;\n  border-radius: 4px;\n  opacity: 0.8;\n  -webkit-transition: opacity 0.1s border 0.1s ease-out 0.0000001ms;\n  -moz-transition: opacity 0.1s border 0.1s ease-out 0.0000001ms;\n  transition: opacity 0.1s border 0.1s ease-out 0.0000001ms;\n}\n.p-download_item.progressing,\n.p-download_item:hover {\n  opacity: 1;\n}\n.p-download_item:hover {\n  border-color: #E8E8E8;\n}\n.p-download_item:hover .p-download_item__name_row {\n  padding-right: 2rem;\n}\n.p-download_item:hover .p-download_item__actions,\n.p-download_item:hover .p-download_item__action_icon {\n  opacity: 1;\n  -webkit-transform: translate3d(0, 0, 0);\n  -moz-transform: translate3d(0, 0, 0);\n  -ms-transform: translate3d(0, 0, 0);\n  transform: translate3d(0, 0, 0);\n}\n.p-download_item:hover .p-download_item__link--remove {\n  opacity: 1;\n}\n.p-download_item.progressing .p-download_item__name_row,\n.p-download_item.not_started .p-download_item__name_row {\n  padding-right: 6rem;\n}\n.p-download_item.progressing .p-download_item__link--remove,\n.p-download_item.not_started .p-download_item__link--remove,\n.p-download_item.progressing .p-download_item__action_icon,\n.p-download_item.not_started .p-download_item__action_icon {\n  display: none;\n}\n.p-download_item:not(.progressing) {\n  cursor: pointer;\n}\n@keyframes highlighter {\n  0% {\n    background: transparent;\n  }\n  10% {\n    background: #FFF4BF;\n  }\n  100% {\n    background: transparent;\n  }\n}\n.p-download_item.highlight {\n  animation: highlighter 1s ease-out;\n}\n.p-download_item.hidden_with_fade_out_and_shrink {\n  opacity: 0;\n  height: 0 !important;\n  margin-top: 0 !important;\n  padding-top: 0 !important;\n  padding-bottom: 0 !important;\n  overflow: hidden;\n  -webkit-transition: opacity .3s ease-out 0s, height .3s ease-out .2s, margin-top .3s ease-out .2s, padding-top .3s ease-out .2s, padding-bottom .3s ease-out .2s 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity .3s ease-out 0s, height .3s ease-out .2s, margin-top .3s ease-out .2s, padding-top .3s ease-out .2s, padding-bottom .3s ease-out .2s 0.2s ease-out 0.0000001ms;\n  transition: opacity .3s ease-out 0s, height .3s ease-out .2s, margin-top .3s ease-out .2s, padding-top .3s ease-out .2s, padding-bottom .3s ease-out .2s 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity .3s ease-out 0s, height .3s ease-out .2s, margin-top .3s ease-out .2s, padding-top .3s ease-out .2s, padding-bottom .3s ease-out .2s;\n  -moz-transition: opacity .3s ease-out 0s, height .3s ease-out .2s, margin-top .3s ease-out .2s, padding-top .3s ease-out .2s, padding-bottom .3s ease-out .2s;\n  transition: opacity .3s ease-out 0s, height .3s ease-out .2s, margin-top .3s ease-out .2s, padding-top .3s ease-out .2s, padding-bottom .3s ease-out .2s;\n}\n.p-download_item__icon_container {\n  float: left;\n  margin: 1px 0 0.5rem;\n  position: relative;\n}\n.p-download_item__action_icon {\n  position: absolute;\n  right: -8px;\n  bottom: -5px;\n  width: 18px;\n  height: 18px;\n  line-height: 15px;\n  border-radius: 50%;\n  background: #2D9EE0;\n  box-shadow: 0 0 0 3px #FFF;\n  color: #FFF;\n  opacity: 0;\n  -webkit-transform: translate3d(0, -6px, 0);\n  -moz-transform: translate3d(0, -6px, 0);\n  -ms-transform: translate3d(0, -6px, 0);\n  transform: translate3d(0, -6px, 0);\n  -webkit-transition: -webkit-transform 0.1s ease-out, opacity 0.1s ease-out;\n  -moz-transition: -moz-transform 0.1s ease-out, opacity 0.1s ease-out;\n  transition: transform 0.1s ease-out, opacity 0.1s ease-out;\n}\n.p-download_item__action_icon:before {\n  margin-left: -1px;\n}\n.p-download_item__action_icon.snippet {\n  background: #4D394B;\n}\n.p-download_item__action_icon.space,\n.p-download_item__action_icon.post {\n  background: #66C79E;\n}\n.p-download_item__action_icon.doc,\n.p-download_item__action_icon.docx {\n  background: #2C4098;\n}\n.p-download_item__action_icon.xls,\n.p-download_item__action_icon.xlsx,\n.p-download_item__action_icon.xlsm,\n.p-download_item__action_icon.xltx {\n  background: #377437;\n}\n.p-download_item__action_icon.ppt,\n.p-download_item__action_icon.pptx {\n  background: #E05A30;\n}\n.p-download_item__action_icon.ai,\n.p-download_item__action_icon.sketch {\n  background: #F4993C;\n}\n.p-download_item__action_icon.psd {\n  background: #56B6DE;\n}\n.p-download_item__action_icon.indd {\n  background: #EB81AB;\n}\n.p-download_item__action_icon.fla,\n.p-download_item__action_icon.swf {\n  background: #A72428;\n}\n.p-download_item__action_icon.ipa {\n  background: #9EA0A7;\n}\n.p-download_item__action_icon.apk {\n  background: #A4CA3A;\n}\n.p-download_item__action_icon.dropbox {\n  background: #007EE5;\n}\n.p-download_item__action_icon.gpres {\n  background: #F4B400;\n}\n.p-download_item__action_icon.gsheet {\n  background: #0F9D58;\n}\n.p-download_item__action_icon.gdoc {\n  background: #4285f4;\n}\n.p-download_item__action_icon.pdf,\n.p-download_item__action_icon.gform,\n.p-download_item__action_icon.gdraw {\n  background: #DB4437;\n}\n.p-download_item__image {\n  border: 1px solid #A0A0A2;\n  border-radius: 0.25rem;\n  margin-bottom: 6px;\n}\n.p-download_item__container {\n  margin-left: 2.75rem;\n  position: relative;\n  z-index: 1;\n}\n.p-download_item__container > div {\n  margin-bottom: 0.5rem;\n}\n.p-download_item__container .p-download_item__name_row {\n  line-height: initial;\n  color: #5a5b5d;\n  position: relative;\n  padding-right: 0;\n  margin-bottom: 0;\n}\n.p-download_item__name_row:not(:empty) {\n  font-weight: bold;\n  padding-bottom: 0.5rem;\n}\n.p-download_item__container .p-download_item__extra_actions {\n  position: absolute;\n  top: 2px;\n  right: 0;\n  display: flex;\n  opacity: 1;\n  pointer-events: auto;\n}\na.p-download_item__link--cancel,\na.p-download_item__link--pause,\na.p-download_item__link--resume {\n  font-size: 0.8rem;\n  margin-left: 5px;\n  color: #A0A0A2;\n}\n.p-download_item__link--remove {\n  position: absolute;\n  top: 50%;\n  right: 10px;\n  z-index: 2;\n  opacity: 0;\n  -webkit-transform: translateY(-50%);\n  -moz-transform: translateY(-50%);\n  -ms-transform: translateY(-50%);\n  transform: translateY(-50%);\n  -webkit-transition: opacity 0.1s, color 0.1s 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 0.1s, color 0.1s 0.2s ease-out 0.0000001ms;\n  transition: opacity 0.1s, color 0.1s 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 0.1s, color 0.1s;\n  -moz-transition: opacity 0.1s, color 0.1s;\n  transition: opacity 0.1s, color 0.1s;\n}\n.p-download_item__link--remove:hover {\n  color: #EB4D5C;\n}\n.p-download_item__size_row {\n  color: #A0A0A2;\n  font-size: 0.8rem;\n  position: relative;\n  display: flex;\n}\n.p-download_item__size {\n  margin-right: 3px;\n}\n.p-download_item__actions {\n  display: inline-block;\n  position: absolute;\n  left: 0;\n  top: 0;\n  width: 100%;\n  background: #FFF;\n  opacity: 0;\n  -webkit-transform: translate3d(0, -50%, 0);\n  -moz-transform: translate3d(0, -50%, 0);\n  -ms-transform: translate3d(0, -50%, 0);\n  transform: translate3d(0, -50%, 0);\n  -webkit-transition: -webkit-transform 0.1s ease-out , opacity 0.1s ease-out;\n  -moz-transition: -moz-transform 0.1s ease-out , opacity 0.1s ease-out;\n  transition: transform 0.1s ease-out , opacity 0.1s ease-out;\n}\na.p-download_item__link--show,\na.p-download_item__link--retry,\na.p-download_item__link--open {\n  opacity: 1;\n  display: none;\n  position: static;\n  font-weight: bold;\n  font-size: 0.9rem;\n  color: #A0A0A2;\n  top: 0;\n  left: 0.5rem;\n  white-space: nowrap;\n  pointer-events: none;\n}\n.p-download_item__time_remaining {\n  opacity: 1;\n  flex: none;\n  margin-left: auto;\n  white-space: nowrap;\n}\n.p-download_item__progress_row,\n.p-download_item__time_remaining {\n  height: 6px;\n  border-width: 0px;\n  border-radius: 3px;\n}\n.p-download_item__progress_row {\n  opacity: 1;\n  background-color: #E8E8E8;\n}\n.p-download_item__progress {\n  background-color: #2D9EE0;\n  width: 0%;\n}\n.p-download_item:not(.progressing) .p-download_item__extra_actions {\n  opacity: 0;\n  pointer-events: none;\n}\n.p-download_item:not(.progressing) .p-download_item__time_remaining {\n  opacity: 0;\n  pointer-events: none;\n}\n.p-download_item:not(.progressing) .p-download_item__progress_row {\n  display: none;\n}\n.p-download_item.completed .p-download_item__link--show {\n  opacity: 1;\n  pointer-events: auto;\n  display: block;\n}\n.p-download_item.completed .p-download_item__action_icon:before {\n  content: '\\E146';\n}\n.p-download_item.cancelled .p-download_item__action_icon:before,\n.p-download_item.interrupted .p-download_item__action_icon:before {\n  content: '\\E147';\n  margin-top: 1px;\n}\n.p-download_item.cancelled .p-download_item__link--retry,\n.p-download_item.interrupted .p-download_item__link--retry {\n  opacity: 1;\n  pointer-events: auto;\n  display: block;\n}\n.p-download_item.completed .p-download_item__partial_size {\n  display: none;\n}\n.p-download_item:last-of-type {\n  margin-bottom: 100px;\n}\n.p-downloads_list--shift_down .p-download_item.completed .p-download_item__action_icon {\n  border-radius: 3px;\n}\n.p-downloads_list--shift_down .p-download_item.completed .p-download_item__action_icon:before {\n  content: '\\E311';\n}\n.p-downloads_list--shift_down .p-download_item.completed .p-download_item__link--show {\n  display: none;\n}\n.p-downloads_list--shift_down .p-download_item.completed .p-download_item__link--open {\n  display: block;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.t-list-reset {\n  margin-bottom: 0;\n  margin-left: 0;\n  padding: 0;\n  list-style-type: none;\n}\n.p-download_item {\n  min-height: 68px;\n  padding: 0.75rem 0.75rem 0.25rem 0.75rem;\n  margin: 0 1px 0 0.25rem;\n  position: relative;\n  font-weight: normal;\n  font-size: 1rem;\n  border: 1px solid transparent;\n  border-radius: 4px;\n  opacity: 0.8;\n  -webkit-transition: opacity 0.1s border 0.1s ease-out 0.0000001ms;\n  -moz-transition: opacity 0.1s border 0.1s ease-out 0.0000001ms;\n  transition: opacity 0.1s border 0.1s ease-out 0.0000001ms;\n}\n.p-download_item.progressing,\n.p-download_item:hover {\n  opacity: 1;\n}\n.p-download_item:hover {\n  border-color: #E8E8E8;\n}\n.p-download_item:hover .p-download_item__name_row {\n  padding-right: 2rem;\n}\n.p-download_item:hover .p-download_item__actions,\n.p-download_item:hover .p-download_item__action_icon {\n  opacity: 1;\n  -webkit-transform: translate3d(0, 0, 0);\n  -moz-transform: translate3d(0, 0, 0);\n  -ms-transform: translate3d(0, 0, 0);\n  transform: translate3d(0, 0, 0);\n}\n.p-download_item:hover .p-download_item__link--remove {\n  opacity: 1;\n}\n.p-download_item.progressing .p-download_item__name_row,\n.p-download_item.not_started .p-download_item__name_row {\n  padding-right: 6rem;\n}\n.p-download_item.progressing .p-download_item__link--remove,\n.p-download_item.not_started .p-download_item__link--remove,\n.p-download_item.progressing .p-download_item__action_icon,\n.p-download_item.not_started .p-download_item__action_icon {\n  display: none;\n}\n.p-download_item:not(.progressing) {\n  cursor: pointer;\n}\n@keyframes highlighter {\n  0% {\n    background: transparent;\n  }\n  10% {\n    background: #FFF4BF;\n  }\n  100% {\n    background: transparent;\n  }\n}\n.p-download_item.highlight {\n  animation: highlighter 1s ease-out;\n}\n.p-download_item.hidden_with_fade_out_and_shrink {\n  opacity: 0;\n  height: 0 !important;\n  margin-top: 0 !important;\n  padding-top: 0 !important;\n  padding-bottom: 0 !important;\n  overflow: hidden;\n  -webkit-transition: opacity .3s ease-out 0s, height .3s ease-out .2s, margin-top .3s ease-out .2s, padding-top .3s ease-out .2s, padding-bottom .3s ease-out .2s 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity .3s ease-out 0s, height .3s ease-out .2s, margin-top .3s ease-out .2s, padding-top .3s ease-out .2s, padding-bottom .3s ease-out .2s 0.2s ease-out 0.0000001ms;\n  transition: opacity .3s ease-out 0s, height .3s ease-out .2s, margin-top .3s ease-out .2s, padding-top .3s ease-out .2s, padding-bottom .3s ease-out .2s 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity .3s ease-out 0s, height .3s ease-out .2s, margin-top .3s ease-out .2s, padding-top .3s ease-out .2s, padding-bottom .3s ease-out .2s;\n  -moz-transition: opacity .3s ease-out 0s, height .3s ease-out .2s, margin-top .3s ease-out .2s, padding-top .3s ease-out .2s, padding-bottom .3s ease-out .2s;\n  transition: opacity .3s ease-out 0s, height .3s ease-out .2s, margin-top .3s ease-out .2s, padding-top .3s ease-out .2s, padding-bottom .3s ease-out .2s;\n}\n.p-download_item__icon_container {\n  float: left;\n  margin: 1px 0 0.5rem;\n  position: relative;\n}\n.p-download_item__action_icon {\n  position: absolute;\n  right: -8px;\n  bottom: -5px;\n  width: 18px;\n  height: 18px;\n  line-height: 15px;\n  border-radius: 50%;\n  background: #2D9EE0;\n  box-shadow: 0 0 0 3px #FFF;\n  color: #FFF;\n  opacity: 0;\n  -webkit-transform: translate3d(0, -6px, 0);\n  -moz-transform: translate3d(0, -6px, 0);\n  -ms-transform: translate3d(0, -6px, 0);\n  transform: translate3d(0, -6px, 0);\n  -webkit-transition: -webkit-transform 0.1s ease-out, opacity 0.1s ease-out;\n  -moz-transition: -moz-transform 0.1s ease-out, opacity 0.1s ease-out;\n  transition: transform 0.1s ease-out, opacity 0.1s ease-out;\n}\n.p-download_item__action_icon:before {\n  margin-left: -1px;\n}\n.p-download_item__action_icon.snippet {\n  background: #4D394B;\n}\n.p-download_item__action_icon.space,\n.p-download_item__action_icon.post {\n  background: #66C79E;\n}\n.p-download_item__action_icon.doc,\n.p-download_item__action_icon.docx {\n  background: #2C4098;\n}\n.p-download_item__action_icon.xls,\n.p-download_item__action_icon.xlsx,\n.p-download_item__action_icon.xlsm,\n.p-download_item__action_icon.xltx {\n  background: #377437;\n}\n.p-download_item__action_icon.ppt,\n.p-download_item__action_icon.pptx {\n  background: #E05A30;\n}\n.p-download_item__action_icon.ai,\n.p-download_item__action_icon.sketch {\n  background: #F4993C;\n}\n.p-download_item__action_icon.psd {\n  background: #56B6DE;\n}\n.p-download_item__action_icon.indd {\n  background: #EB81AB;\n}\n.p-download_item__action_icon.fla,\n.p-download_item__action_icon.swf {\n  background: #A72428;\n}\n.p-download_item__action_icon.ipa {\n  background: #9EA0A7;\n}\n.p-download_item__action_icon.apk {\n  background: #A4CA3A;\n}\n.p-download_item__action_icon.dropbox {\n  background: #007EE5;\n}\n.p-download_item__action_icon.gpres {\n  background: #F4B400;\n}\n.p-download_item__action_icon.gsheet {\n  background: #0F9D58;\n}\n.p-download_item__action_icon.gdoc {\n  background: #4285f4;\n}\n.p-download_item__action_icon.pdf,\n.p-download_item__action_icon.gform,\n.p-download_item__action_icon.gdraw {\n  background: #DB4437;\n}\n.p-download_item__image {\n  border: 1px solid #A0A0A2;\n  border-radius: 0.25rem;\n  margin-bottom: 6px;\n}\n.p-download_item__container {\n  margin-left: 2.75rem;\n  position: relative;\n  z-index: 1;\n}\n.p-download_item__container > div {\n  margin-bottom: 0.5rem;\n}\n.p-download_item__container .p-download_item__name_row {\n  line-height: initial;\n  color: #5a5b5d;\n  position: relative;\n  padding-right: 0;\n  margin-bottom: 0;\n}\n.p-download_item__name_row:not(:empty) {\n  font-weight: bold;\n  padding-bottom: 0.5rem;\n}\n.p-download_item__container .p-download_item__extra_actions {\n  position: absolute;\n  top: 2px;\n  right: 0;\n  display: flex;\n  opacity: 1;\n  pointer-events: auto;\n}\na.p-download_item__link--cancel,\na.p-download_item__link--pause,\na.p-download_item__link--resume {\n  font-size: 0.8rem;\n  margin-left: 5px;\n  color: #A0A0A2;\n}\n.p-download_item__link--remove {\n  position: absolute;\n  top: 50%;\n  right: 10px;\n  z-index: 2;\n  opacity: 0;\n  -webkit-transform: translateY(-50%);\n  -moz-transform: translateY(-50%);\n  -ms-transform: translateY(-50%);\n  transform: translateY(-50%);\n  -webkit-transition: opacity 0.1s, color 0.1s 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 0.1s, color 0.1s 0.2s ease-out 0.0000001ms;\n  transition: opacity 0.1s, color 0.1s 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 0.1s, color 0.1s;\n  -moz-transition: opacity 0.1s, color 0.1s;\n  transition: opacity 0.1s, color 0.1s;\n}\n.p-download_item__link--remove:hover {\n  color: #EB4D5C;\n}\n.p-download_item__size_row {\n  color: #A0A0A2;\n  font-size: 0.8rem;\n  position: relative;\n  display: flex;\n}\n.p-download_item__size {\n  margin-right: 3px;\n}\n.p-download_item__actions {\n  display: inline-block;\n  position: absolute;\n  left: 0;\n  top: 0;\n  width: 100%;\n  background: #FFF;\n  opacity: 0;\n  -webkit-transform: translate3d(0, -50%, 0);\n  -moz-transform: translate3d(0, -50%, 0);\n  -ms-transform: translate3d(0, -50%, 0);\n  transform: translate3d(0, -50%, 0);\n  -webkit-transition: -webkit-transform 0.1s ease-out , opacity 0.1s ease-out;\n  -moz-transition: -moz-transform 0.1s ease-out , opacity 0.1s ease-out;\n  transition: transform 0.1s ease-out , opacity 0.1s ease-out;\n}\na.p-download_item__link--show,\na.p-download_item__link--retry,\na.p-download_item__link--open {\n  opacity: 1;\n  display: none;\n  position: static;\n  font-weight: bold;\n  font-size: 0.9rem;\n  color: #A0A0A2;\n  top: 0;\n  left: 0.5rem;\n  white-space: nowrap;\n  pointer-events: none;\n}\n.p-download_item__time_remaining {\n  opacity: 1;\n  flex: none;\n  margin-left: auto;\n  white-space: nowrap;\n}\n.p-download_item__progress_row,\n.p-download_item__time_remaining {\n  height: 6px;\n  border-width: 0px;\n  border-radius: 3px;\n}\n.p-download_item__progress_row {\n  opacity: 1;\n  background-color: #E8E8E8;\n}\n.p-download_item__progress {\n  background-color: #2D9EE0;\n  width: 0%;\n}\n.p-download_item:not(.progressing) .p-download_item__extra_actions {\n  opacity: 0;\n  pointer-events: none;\n}\n.p-download_item:not(.progressing) .p-download_item__time_remaining {\n  opacity: 0;\n  pointer-events: none;\n}\n.p-download_item:not(.progressing) .p-download_item__progress_row {\n  display: none;\n}\n.p-download_item.completed .p-download_item__link--show {\n  opacity: 1;\n  pointer-events: auto;\n  display: block;\n}\n.p-download_item.completed .p-download_item__action_icon:before {\n  content: '\\E146';\n}\n.p-download_item.cancelled .p-download_item__action_icon:before,\n.p-download_item.interrupted .p-download_item__action_icon:before {\n  content: '\\E147';\n  margin-top: 1px;\n}\n.p-download_item.cancelled .p-download_item__link--retry,\n.p-download_item.interrupted .p-download_item__link--retry {\n  opacity: 1;\n  pointer-events: auto;\n  display: block;\n}\n.p-download_item.completed .p-download_item__partial_size {\n  display: none;\n}\n.p-download_item:last-of-type {\n  margin-bottom: 100px;\n}\n.p-downloads_list--shift_down .p-download_item.completed .p-download_item__action_icon {\n  border-radius: 3px;\n}\n.p-downloads_list--shift_down .p-download_item.completed .p-download_item__action_icon:before {\n  content: '\\E311';\n}\n.p-downloads_list--shift_down .p-download_item.completed .p-download_item__link--show {\n  display: none;\n}\n.p-downloads_list--shift_down .p-download_item.completed .p-download_item__link--open {\n  display: block;\n}\n", ""]);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.p-downloads_list {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-weight: 400;\n  -webkit-font-smoothing: antialiased;\n  outline: none;\n  position: relative;\n  display: flex;\n  flex-direction: column;\n  flex: 1;\n  overflow: hidden;\n}\n.p-downloads_list__heading {\n  padding: 1rem;\n  margin-bottom: 0.25rem;\n}\n.p-downloads_list__heading_row {\n  align-items: center;\n}\n.p-downloads_list__clear_all {\n  padding-right: 1rem;\n  padding-left: 0.5rem;\n  margin-right: 1rem;\n  font-size: 1rem;\n  border-right: 1px solid #cfcfcf;\n}\n.p-downloads_list__flex_close {\n  height: 1.5rem;\n  padding-top: 0.1rem;\n}\n.p-downloads_list__empty {\n  padding: 8rem 4rem;\n  font-size: 1rem;\n  line-height: 1.5rem;\n  text-align: center;\n}\n.p-downloads_list__empty_hint_text {\n  max-width: 12rem;\n  margin: 1rem auto;\n}\n.p-downloads_list__empty_download_icon {\n  margin: 0 0.25rem;\n}\n.p-downloads_list__shift_hint {\n  display: block;\n  position: absolute;\n  height: 100px;\n  bottom: 0;\n  left: 0;\n  right: 1rem;\n  text-align: center;\n  line-height: 100px;\n  color: #717274;\n  font-size: 0.9rem;\n  background: linear-gradient(to bottom, rgba(255, 255, 255, 0), #ffffff 25%, #ffffff);\n  z-index: 5;\n}\n.p-downloads_list__keyboard_key {\n  display: inline-block;\n  border: 1px solid #E8E8E8;\n  line-height: 1rem;\n  padding: 0.2rem 0.4rem;\n  margin: 0 0.2rem;\n  font-weight: bold;\n  font-size: 0.8rem;\n  border-bottom-width: 2px;\n  border-radius: 4px;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.t-list-reset {\n  margin-bottom: 0;\n  margin-left: 0;\n  padding: 0;\n  list-style-type: none;\n}\n.p-downloads_list {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-weight: 400;\n  -webkit-font-smoothing: antialiased;\n  outline: none;\n  position: relative;\n  display: flex;\n  flex-direction: column;\n  flex: 1;\n  overflow: hidden;\n}\n.p-downloads_list__heading {\n  padding: 1rem;\n  margin-bottom: 0.25rem;\n}\n.p-downloads_list__heading_row {\n  align-items: center;\n}\n.p-downloads_list__clear_all {\n  padding-right: 1rem;\n  padding-left: 0.5rem;\n  margin-right: 1rem;\n  font-size: 1rem;\n  border-right: 1px solid #cfcfcf;\n}\n.p-downloads_list__flex_close {\n  height: 1.5rem;\n  padding-top: 0.1rem;\n}\n.p-downloads_list__empty {\n  padding: 8rem 4rem;\n  font-size: 1rem;\n  line-height: 1.5rem;\n  text-align: center;\n}\n.p-downloads_list__empty_hint_text {\n  max-width: 12rem;\n  margin: 1rem auto;\n}\n.p-downloads_list__empty_download_icon {\n  margin: 0 0.25rem;\n}\n.p-downloads_list__shift_hint {\n  display: block;\n  position: absolute;\n  height: 100px;\n  bottom: 0;\n  left: 0;\n  right: 1rem;\n  text-align: center;\n  line-height: 100px;\n  color: #717274;\n  font-size: 0.9rem;\n  background: linear-gradient(to bottom, rgba(255, 255, 255, 0), #ffffff 25%, #ffffff);\n  z-index: 5;\n}\n.p-downloads_list__keyboard_key {\n  display: inline-block;\n  border: 1px solid #E8E8E8;\n  line-height: 1rem;\n  padding: 0.2rem 0.4rem;\n  margin: 0 0.2rem;\n  font-weight: bold;\n  font-size: 0.8rem;\n  border-bottom-width: 2px;\n  border-radius: 4px;\n}\n", ""]);
 }, function(e, t, n) {
   var r = n(1490);
   "string" == typeof r && (r = [
@@ -30732,9 +30732,9 @@ webpackJsonp([332], [, function(e, t, n) {
   }), n.d(t, "isRead", function() {
     return A;
   }), n.d(t, "isUnread", function() {
-    return I;
-  }), n.d(t, "isYou", function() {
     return R;
+  }), n.d(t, "isYou", function() {
+    return I;
   }), n.d(t, "isSlackbot", function() {
     return N;
   }), n.d(t, "shouldShowWithoutUnreads", function() {
@@ -30848,10 +30848,10 @@ webpackJsonp([332], [, function(e, t, n) {
     A = function(e) {
       return e && e.unread_cnt < 1;
     },
-    I = function(e) {
+    R = function(e) {
       return !A(e);
     },
-    R = function(e) {
+    I = function(e) {
       return e && e.is_self_im;
     },
     N = function(e) {
@@ -30870,7 +30870,7 @@ webpackJsonp([332], [, function(e, t, n) {
       return q(e) > 0;
     },
     U = function(e) {
-      return e ? u.a.filter(e, I).map(function(e) {
+      return e ? u.a.filter(e, R).map(function(e) {
         return e.id;
       }) : [];
     },
@@ -31701,8 +31701,8 @@ webpackJsonp([332], [, function(e, t, n) {
     D = n(3645),
     Y = n(3172),
     A = n(3647),
-    I = n(3653),
-    R = n(3885),
+    R = n(3653),
+    I = n(3885),
     N = n(3907),
     F = n(4159);
   n.i(r.a)("interop.datetime", {
@@ -31738,8 +31738,8 @@ webpackJsonp([332], [, function(e, t, n) {
     daysToYearsPretty: D.a,
     maybeGetRelativeDay: Y.a,
     millisecondsToPrettifiedTime: A.a,
-    prettifyDateString: I.a,
-    makeTsStamp: R.a,
+    prettifyDateString: R.a,
+    makeTsStamp: I.a,
     formatDate: N.a,
     memberLocalTime: F.a
   });
@@ -32550,7 +32550,7 @@ webpackJsonp([332], [, function(e, t, n) {
       return b && n.i(_.b)(e, e + "_mark");
     },
     M = function(e) {
-      if (!n.i(m.isFeatureEnabled)(e, "feature_store_members_in_redux")) return !1;
+      if (!n.i(m.useReduxMembers)(e)) return !1;
       if (!n.i(d.a)(e)) return !1;
       var t = i()(n.i(h.getAllMembers)(e)).filter(function(e) {
         return !e.is_slackbot;
@@ -36259,7 +36259,7 @@ webpackJsonp([332], [, function(e, t, n) {
       return n.i(f.isFeatureEnabled)(e, "feature_sli_channel_priority");
     },
     C = function(e) {
-      return n.i(f.isFeatureEnabled)(e, "feature_store_members_in_redux");
+      return n.i(f.useReduxMembers)(e);
     },
     O = function(e) {
       return n.i(l.getUserPref)(e, "sidebar_behavior");
@@ -36581,7 +36581,7 @@ webpackJsonp([332], [, function(e, t, n) {
   function r(e) {
     var t = e;
     if (!t) {
-      var r = n.i(u.a)();
+      var r = n.i(c.a)();
       if (r && r.getState && (t = r.getState()), !t) return window.TS && TS.boot_data;
     }
     return t.bootData;
@@ -36600,26 +36600,34 @@ webpackJsonp([332], [, function(e, t, n) {
   function a(e) {
     return o(e, "user_id");
   }
+
+  function s(e) {
+    return o(e, "feature_react_messages") || o(e, "use_react_messages");
+  }
+
+  function u(e) {
+    return o(e, "feature_store_members_in_redux") || o(e, "use_react_messages");
+  }
   Object.defineProperty(t, "__esModule", {
     value: !0
   }), n.d(t, "setBootData", function() {
-    return l;
-  }), t.getFromBootData = o, t.isFeatureEnabled = i, t.getCurrentUserId = a;
-  var s = n(17),
-    u = (n.n(s), n(3629)),
-    l = n.i(s.createAction)("Load boot data into redux"),
-    c = {},
-    d = n.i(s.createReducer)(function(e, t, n) {
+    return d;
+  }), t.getFromBootData = o, t.isFeatureEnabled = i, t.getCurrentUserId = a, t.useReactMessages = s, t.useReduxMembers = u;
+  var l = n(17),
+    c = (n.n(l), n(3629)),
+    d = n.i(l.createAction)("Load boot data into redux"),
+    f = {},
+    p = n.i(l.createReducer)(function(e, t, n) {
       return t in e ? Object.defineProperty(e, t, {
         value: n,
         enumerable: !0,
         configurable: !0,
         writable: !0
       }) : e[t] = n, e;
-    }({}, l, function(e, t) {
+    }({}, d, function(e, t) {
       return t;
-    }), c);
-  t.default = d;
+    }), f);
+  t.default = p;
 }, function(e, t, n) {
   "use strict";
 
@@ -38266,14 +38274,14 @@ webpackJsonp([332], [, function(e, t, n) {
     })), be);
   }
 
-  function I() {
+  function R() {
     M({
       state: W.a.CONNECT,
       noopStates: [W.a.CONNECT, W.a.CONNECTED, W.a.CHECKING_FAST_RECONNECT, W.a.FAST_RECONNECTING, W.a.PROV_CONNECT, W.a.PROV_CONNECTED, W.a.PROV_CONNECTING, W.a.PROV_FINALIZE, W.a.PROV_FINALIZING]
     });
   }
 
-  function R() {
+  function I() {
     M({
       state: W.a.SLEEP,
       noopStates: [W.a.ASLEEP, W.a.SLEEPING]
@@ -38314,7 +38322,7 @@ webpackJsonp([332], [, function(e, t, n) {
     return Pe;
   }), n.d(t, "troubleConnectingSig", function() {
     return je;
-  }), t.send = u, t.debugGetState = y, t.debugResetRateLimit = v, t.debugSetFastReconnectsEnabled = g, t.debugSetSocketConnectFlakiness = b, t.clearFastReconnectUrl = w, t.hasNeverConnected = T, t.hasOpenWebSocket = x, t.isAsleep = S, t.isConnected = E, t.isConnecting = L, t.isProvisionallyConnected = C, t.isWaitingForConnectivity = O, t.isWaitingForRateLimit = P, t.start = j, t.disconnect = D, t.finalizeProvisionalConnection = Y, t.promiseToHaveOpenWebSocket = A, t.reconnectImmediately = I, t.sleep = R, t.wake = N;
+  }), t.send = u, t.debugGetState = y, t.debugResetRateLimit = v, t.debugSetFastReconnectsEnabled = g, t.debugSetSocketConnectFlakiness = b, t.clearFastReconnectUrl = w, t.hasNeverConnected = T, t.hasOpenWebSocket = x, t.isAsleep = S, t.isConnected = E, t.isConnecting = L, t.isProvisionallyConnected = C, t.isWaitingForConnectivity = O, t.isWaitingForRateLimit = P, t.start = j, t.disconnect = D, t.finalizeProvisionalConnection = Y, t.promiseToHaveOpenWebSocket = A, t.reconnectImmediately = R, t.sleep = I, t.wake = N;
   var F = n(6),
     H = (n.n(F), n(3050)),
     q = n(2906),
@@ -38683,7 +38691,7 @@ webpackJsonp([332], [, function(e, t, n) {
   var r = n(3062),
     o = r.a;
 }, , , , function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n@font-face {\n  font-family: 'Slack v2';\n  src: url('https://a.slack-edge.com/7c81/fonts/slack-icons-v2.woff2') format('woff2'), url('https://a.slack-edge.com/7c81/fonts/slack-icons-v2.woff') format('woff');\n  font-style: normal;\n  font-weight: 400;\n}\n.c-icon:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n}\n.c-icon--inherit:before {\n  font-size: inherit;\n}\n.c-icon--align-bottom:before {\n  vertical-align: bottom;\n}\n.c-icon--align-top:before {\n  vertical-align: top;\n}\n.c-icon--align-baseline:before {\n  vertical-align: baseline;\n}\n.c-icon--star-o:before {\n  content: '\\E001';\n}\n.c-icon--unstar-o:before {\n  content: '\\E002';\n}\n.c-icon--user:before {\n  content: '\\E003';\n}\n.c-icon--comment-alt:before {\n  content: '\\E004';\n}\n.c-icon--comment-o:before {\n  content: '\\E005';\n}\n.c-icon--home:before {\n  content: '\\E006';\n}\n.c-icon--info:before {\n  content: '\\E007';\n}\n.c-icon--channel-info:before,\n.c-icon--info-circle:before {\n  content: '\\E008';\n}\n.c-icon--mentions:before {\n  content: '\\E009';\n}\n.c-icon--search:before {\n  content: '\\E010';\n}\n.c-icon--bolt:before {\n  content: '\\E011';\n}\n.c-icon--mobile:before {\n  content: '\\E012';\n}\n.c-icon--tablet:before {\n  content: '\\E013';\n}\n.c-icon--laptop:before {\n  content: '\\E014';\n}\n.c-icon--bell-o:before {\n  content: '\\E015';\n}\n.c-icon--bell-slash:before {\n  content: '\\E016';\n}\n.c-icon--team-directory:before {\n  content: '\\E017';\n}\n.c-icon--cloud-upload:before {\n  content: '\\E018';\n}\n.c-icon--cloud-download:before {\n  content: '\\E019';\n}\n.c-icon--cog-o:before {\n  content: '\\E020';\n}\n.c-icon--cogs:before {\n  content: '\\E021';\n}\n.c-icon--key:before {\n  content: '\\E022';\n}\n.c-icon--calendar:before {\n  content: '\\E023';\n}\n.c-icon--pencil:before {\n  content: '\\E024';\n}\n.c-icon--lightbulb-o:before {\n  content: '\\E025';\n}\n.c-icon--magic:before {\n  content: '\\E026';\n}\n.c-icon--external-link:before {\n  content: '\\E027';\n}\n.c-icon--external-link-square:before {\n  content: '\\E028';\n}\n.c-icon--lock-o:before {\n  content: '\\E029';\n}\n.c-icon--unlock:before {\n  content: '\\E030';\n}\n.c-icon--folder:before {\n  content: '\\E031';\n}\n.c-icon--folder-open:before {\n  content: '\\E032';\n}\n.c-icon--archive:before {\n  content: '\\E033';\n}\n.c-icon--inbox:before {\n  content: '\\E034';\n}\n.c-icon--sitemap:before {\n  content: '\\E035';\n}\n.c-icon--book:before {\n  content: '\\E036';\n}\n.c-icon--envelope-o:before {\n  content: '\\E037';\n}\n.c-icon--image:before {\n  content: '\\E038';\n}\n.c-icon--building:before {\n  content: '\\E039';\n}\n.c-icon--plug:before {\n  content: '\\E040';\n}\n.c-icon--paper-plane:before {\n  content: '\\E041';\n}\n.c-icon--credit-card:before {\n  content: '\\E042';\n}\n.c-icon--life-ring:before {\n  content: '\\E043';\n}\n.c-icon--thumb-tack:before {\n  content: '\\E044';\n}\n.c-icon--thumb-tack-filled:before {\n  content: '\\E547';\n}\n.c-icon--trash:before {\n  content: '\\E045';\n}\n.c-icon--print:before {\n  content: '\\E046';\n}\n.c-icon--quote-o:before {\n  content: '\\E047';\n}\n.c-icon--th-large:before {\n  content: '\\E048';\n}\n.c-icon--eye:before {\n  content: '\\E049';\n}\n.c-icon--eye-closed:before {\n  content: '\\E050';\n}\n.c-icon--volume-off:before {\n  content: '\\E051';\n}\n.c-icon--volume-down:before {\n  content: '\\E052';\n}\n.c-icon--volume-medium:before {\n  content: '\\E053';\n}\n.c-icon--volume-up:before {\n  content: '\\E054';\n}\n.c-icon--volume-off-alt:before {\n  content: '\\E055';\n}\n.c-icon--heart-o:before {\n  content: '\\E056';\n}\n.c-icon--wrench:before {\n  content: '\\E057';\n}\n.c-icon--file:before {\n  content: '\\E058';\n}\n.c-icon--all-files:before {\n  content: '\\E059';\n}\n.c-icon--your-files:before {\n  content: '\\E060';\n}\n.c-icon--align-left:before {\n  content: '\\E061';\n}\n.c-icon--align-center:before {\n  content: '\\E062';\n}\n.c-icon--align-right:before {\n  content: '\\E063';\n}\n.c-icon--align-justify:before {\n  content: '\\E064';\n}\n.c-icon--paragraph:before {\n  content: '\\E065';\n}\n.c-icon--code:before {\n  content: '\\E066';\n}\n.c-icon--ellipsis:before {\n  content: '\\E067';\n}\n.c-icon--ellipsis-baseline:before {\n  content: '\\E068';\n}\n.c-icon--spinner:before {\n  content: '\\E069';\n}\n.c-icon--spiral:before {\n  content: '\\E070';\n}\n.c-icon--random:before {\n  content: '\\E071';\n}\n.c-icon--repeat:before {\n  content: '\\E072';\n}\n.c-icon--share-square-o:before {\n  content: '\\E073';\n}\n.c-icon--link:before {\n  content: '\\E074';\n}\n.c-icon--undo:before {\n  content: '\\E075';\n}\n.c-icon--history:before {\n  content: '\\E076';\n}\n.c-icon--hourglass-empty:before {\n  content: '\\E077';\n}\n.c-icon--hourglass:before {\n  content: '\\E078';\n}\n.c-icon--clock-o:before {\n  content: '\\E079';\n}\n.c-icon--dashboard:before {\n  content: '\\E080';\n}\n.c-icon--power-off:before {\n  content: '\\E081';\n}\n.c-icon--sign-in:before {\n  content: '\\E082';\n}\n.c-icon--sign-out:before {\n  content: '\\E083';\n}\n.c-icon--jump:before {\n  content: '\\E084';\n}\n.c-icon--globe:before {\n  content: '\\E085';\n}\n.c-icon--filter:before {\n  content: '\\E086';\n}\n.c-icon--microphone:before {\n  content: '\\E087';\n}\n.c-icon--microphone-slash:before {\n  content: '\\E088';\n}\n.c-icon--paperclip:before {\n  content: '\\E089';\n}\n.c-icon--video-camera:before {\n  content: '\\E090';\n}\n.c-icon--stop-video:before {\n  content: '\\E091';\n}\n.c-icon--phone:before {\n  content: '\\E092';\n}\n.c-icon--end-call:before {\n  content: '\\E093';\n}\n.c-icon--smile-o:before {\n  content: '\\E094';\n}\n.c-icon--share-screen:before {\n  content: '\\E095';\n}\n.c-icon--stop-screen-sharing:before {\n  content: '\\E096';\n}\n.c-icon--stop-screen-sharing-alt:before {\n  content: '\\E097';\n}\n.c-icon--feedback:before {\n  content: '\\E098';\n}\n.c-icon--paper-plane-alt:before {\n  content: '\\E099';\n}\n.c-icon--share:before {\n  content: '\\E100';\n}\n.c-icon--save:before {\n  content: '\\E101';\n}\n.c-icon--message-notification:before {\n  content: '\\E102';\n}\n.c-icon--list:before {\n  content: '\\E103';\n}\n.c-icon--channel:before {\n  content: '\\E104';\n}\n.c-icon--share-other-alt:before {\n  content: '\\E105';\n}\n.c-icon--broadcast:before {\n  content: '\\E106';\n}\n.c-icon--all-files-alt:before {\n  content: '\\E107';\n}\n.c-icon--search-files:before {\n  content: '\\E108';\n}\n.c-icon--add-user:before {\n  content: '\\E109';\n}\n.c-icon--switch-team:before {\n  content: '\\E110';\n}\n.c-icon--create-snippet:before {\n  content: '\\E111';\n}\n.c-icon--create-post:before {\n  content: '\\E112';\n}\n.c-icon--upload:before {\n  content: '\\E113';\n}\n.c-icon--download:before {\n  content: '\\E114';\n}\n.c-icon--share-email:before {\n  content: '\\E115';\n}\n.c-icon--import-email:before {\n  content: '\\E116';\n}\n.c-icon--ellipsis-o:before {\n  content: '\\E117';\n}\n.c-icon--add-reaction:before {\n  content: '\\E118';\n}\n.c-icon--happy-smile:before {\n  content: '\\E119';\n}\n.c-icon--mark-unread:before {\n  content: '\\E120';\n}\n.c-icon--camera:before {\n  content: '\\E121';\n}\n.c-icon--phone-flat:before {\n  content: '\\E122';\n}\n.c-icon--sparkles:before {\n  content: '\\E123';\n}\n.c-icon--location-pin:before {\n  content: '\\E124';\n}\n.c-icon--channel-pane-hash:before {\n  content: '\\E125';\n}\n.c-icon--emoji-nature:before {\n  content: '\\E126';\n}\n.c-icon--emoji-food:before {\n  content: '\\E127';\n}\n.c-icon--emoji-celebration:before {\n  content: '\\E128';\n}\n.c-icon--emoji-activities:before {\n  content: '\\E129';\n}\n.c-icon--emoji-travel:before {\n  content: '\\E130';\n}\n.c-icon--emoji-objects:before {\n  content: '\\E131';\n}\n.c-icon--file-gdrive:before {\n  content: '\\E133';\n}\n.c-icon--play:before {\n  content: '\\E134';\n}\n.c-icon--stream:before {\n  content: '\\E135';\n}\n.c-icon--field-text:before {\n  content: '\\E136';\n}\n.c-icon--poo:before {\n  content: '\\E137';\n}\n.c-icon--channel-list:before {\n  content: '\\E138';\n}\n.c-icon--share-android:before {\n  content: '\\E139';\n}\n.c-icon--highlight:before {\n  content: '\\E140';\n}\n.c-icon--flag:before {\n  content: '\\E141';\n}\n.c-icon--grabby-patty:before {\n  content: '\\E142';\n}\n.c-icon--backspace:before {\n  content: '\\E143';\n}\n.c-icon--android-keyboard:before {\n  content: '\\E144';\n}\n.c-icon--side-panel:before {\n  content: '\\E145';\n}\n.c-icon--search-small:before {\n  content: '\\E146';\n}\n.c-icon--reload-small:before {\n  content: '\\E147';\n}\n.c-icon--vertical-ellipsis:before {\n  content: '\\E148';\n}\n.c-icon--disable:before {\n  content: '\\E149';\n}\n.c-icon--bold-hash-small:before {\n  content: '\\E150';\n}\n.c-icon--cart:before {\n  content: '\\E151';\n}\n.c-icon--snooze-outline:before {\n  content: '\\E152';\n}\n.c-icon--new-window:before {\n  content: '\\E153';\n}\n.c-icon--h1:before {\n  content: '\\E154';\n}\n.c-icon--h2:before {\n  content: '\\E155';\n}\n.c-icon--h3:before {\n  content: '\\E156';\n}\n.c-icon--bullet-list:before {\n  content: '\\E157';\n}\n.c-icon--numbered-list:before {\n  content: '\\E158';\n}\n.c-icon--text-format-menu:before {\n  content: '\\E159';\n}\n.c-icon--bold:before {\n  content: '\\E160';\n}\n.c-icon--italic:before {\n  content: '\\E161';\n}\n.c-icon--underline:before {\n  content: '\\E162';\n}\n.c-icon--strikethrough:before {\n  content: '\\E163';\n}\n.c-icon--tag:before {\n  content: '\\E164';\n}\n.c-icon--org-shared-channel:before {\n  content: '\\E165';\n}\n.c-icon--shared-channel:before {\n  content: '\\E166';\n}\n.c-icon--external-channel:before {\n  content: '\\E167';\n}\n.c-icon--small-reaction:before {\n  content: '\\E170';\n}\n.c-icon--small-reply:before {\n  content: '\\E171';\n}\n.c-icon--small-ellipsis:before {\n  content: '\\E172';\n}\n.c-icon--small-star:before {\n  content: '\\E173';\n}\n.c-icon--small-quote:before {\n  content: '\\E174';\n}\n.c-icon--keyboard:before {\n  content: '\\E175';\n}\n.c-icon--share-action:before {\n  content: '\\E176';\n}\n.c-icon--handset:before {\n  content: '\\E177';\n}\n.c-icon--bluetooth-sound:before {\n  content: '\\E178';\n}\n.c-icon--bluetooth:before {\n  content: '\\E179';\n}\n.c-icon--bot:before {\n  content: '\\E180';\n}\n.c-icon--globe-plus:before {\n  content: '\\E181';\n}\n.c-icon--user-groups:before {\n  content: '\\E182';\n}\n.c-icon--frowning-face:before {\n  content: '\\E183';\n}\n.c-icon--mobile-notification:before {\n  content: '\\E184';\n}\n.c-icon--desktop-notification:before {\n  content: '\\E185';\n}\n.c-icon--collab-screenshare-on:before {\n  content: '\\E186';\n}\n.c-icon--collab-screenshare-off:before {\n  content: '\\E187';\n}\n.c-icon--thumbs-up:before {\n  content: '\\E188';\n}\n.c-icon--thumbs-down:before {\n  content: '\\E189';\n}\n.c-icon--expand:before {\n  content: '\\E200';\n}\n.c-icon--reduce:before {\n  content: '\\E201';\n}\n.c-icon--arrows-alt:before {\n  content: '\\E202';\n}\n.c-icon--reduce-alt:before {\n  content: '\\E203';\n}\n.c-icon--check-square-o:before {\n  content: '\\E204';\n}\n.c-icon--check-circle-o:before {\n  content: '\\E205';\n}\n.c-icon--check-circle-o-large:before {\n  content: '\\E206';\n}\n.c-icon--question:before {\n  content: '\\E207';\n}\n.c-icon--exclamation:before {\n  content: '\\E208';\n}\n.c-icon--warning:before {\n  content: '\\E209';\n}\n.c-icon--exclamation-circle:before {\n  content: '\\E210';\n}\n.c-icon--question-circle:before {\n  content: '\\E211';\n}\n.c-icon--plus-circle:before {\n  content: '\\E212';\n}\n.c-icon--minus-circle:before {\n  content: '\\E213';\n}\n.c-icon--times-circle:before {\n  content: '\\E214';\n}\n.c-icon--square-warning:before {\n  content: '\\E230';\n}\n.c-icon--square-question:before {\n  content: '\\E231';\n}\n.c-icon--plus-square-o:before {\n  content: '\\E232';\n}\n.c-icon--minus-square-o:before {\n  content: '\\E233';\n}\n.c-icon--square-times:before {\n  content: '\\E234';\n}\n.c-icon--times:before {\n  content: '\\E278';\n}\n.c-icon--plus:before {\n  content: '\\E279';\n}\n.c-icon--minus:before {\n  content: '\\E280';\n}\n.c-icon--plus-small:before {\n  content: '\\E281';\n}\n.c-icon--minus-small:before {\n  content: '\\E282';\n}\n.c-icon--exclamation-small:before {\n  content: '\\E283';\n}\n.c-icon--question-small:before {\n  content: '\\E284';\n}\n.c-icon--check-small:before {\n  content: '\\E285';\n}\n.c-icon--times-small:before {\n  content: '\\E294';\n}\n.c-icon--sync:before {\n  content: '\\E295';\n}\n.c-icon--replies:before {\n  content: '\\E296';\n}\n.c-icon--check-small-bold:before {\n  content: '\\E301';\n}\n.c-icon--enter:before {\n  content: '\\E302';\n}\n.c-icon--expand-vertical:before {\n  content: '\\E303';\n}\n.c-icon--collapse-vertical:before {\n  content: '\\E304';\n}\n.c-icon--android-upload:before {\n  content: '\\E305';\n}\n.c-icon--plus-thick:before {\n  content: '\\E306';\n}\n.c-icon--check-large-bold:before {\n  content: '\\E319';\n}\n.c-icon--check-large:before {\n  content: '\\E320';\n}\n.c-icon--calls:before {\n  content: '\\E478';\n}\n.c-icon--calls-small:before {\n  content: '\\E479';\n}\n.c-icon--calls-ended:before {\n  content: '\\E480';\n}\n.c-icon--calls-ended-small:before {\n  content: '\\E481';\n}\n.c-icon--star:before {\n  content: '\\E500';\n}\n.c-icon--unstar:before {\n  content: '\\E501';\n}\n.c-icon--bell:before {\n  content: '\\E502';\n}\n.c-icon--lock:before {\n  content: '\\E503';\n}\n.c-icon--external-link-small:before {\n  content: '\\E504';\n}\n.c-icon--external-link-large:before {\n  content: '\\E505';\n}\n.c-icon--presence-online:before {\n  content: '\\E506';\n}\n.c-icon--presence-offline:before {\n  content: '\\E507';\n}\n.c-icon--presence-dnd:before {\n  content: '\\E508';\n}\n.c-icon--presence-ra-online:before,\n.c-icon--presence-external-online:before {\n  content: '\\E509';\n}\n.c-icon--restricted-user:before {\n  content: '\\E509';\n}\n.c-icon--presence-ra-offline:before,\n.c-icon--presence-external-offline:before {\n  content: '\\E510';\n}\n.c-icon--presence-ra-dnd:before,\n.c-icon--presence-external-dnd:before {\n  content: '\\E511';\n}\n.c-icon--presence-ura-online:before {\n  content: '\\E512';\n}\n.c-icon--single-channel-guest:before {\n  content: '\\E512';\n}\n.c-icon--presence-ura-offline:before {\n  content: '\\E513';\n}\n.c-icon--presence-ura-dnd:before {\n  content: '\\E514';\n}\n.c-icon--heart:before {\n  content: '\\E515';\n}\n.c-icon--quote:before {\n  content: '\\E516';\n}\n.c-icon--cog:before {\n  content: '\\E517';\n}\n.c-icon--comment:before {\n  content: '\\E518';\n}\n.c-icon--minus-circle-small:before {\n  content: '\\E519';\n}\n.c-icon--times-circle-small:before {\n  content: '\\E520';\n}\n.c-icon--multiparty-dm-2:before {\n  content: '\\E521';\n}\n.c-icon--multiparty-dm-3:before {\n  content: '\\E522';\n}\n.c-icon--multiparty-dm-4:before {\n  content: '\\E523';\n}\n.c-icon--multiparty-dm-5:before {\n  content: '\\E524';\n}\n.c-icon--multiparty-dm-6:before {\n  content: '\\E525';\n}\n.c-icon--multiparty-dm-7:before {\n  content: '\\E526';\n}\n.c-icon--multiparty-dm-8:before {\n  content: '\\E527';\n}\n.c-icon--multiparty-dm-9:before {\n  content: '\\E528';\n}\n.c-icon--poo-filled:before {\n  content: '\\E529';\n}\n.c-icon--circle-fill:before {\n  content: '\\E530';\n}\n.c-icon--flag-filled:before {\n  content: '\\E531';\n}\n.c-icon--refresh-small:before {\n  content: '\\E532';\n}\n.c-icon--snooze-filled:before {\n  content: '\\E533';\n}\n.c-icon--archived-channel:before {\n  content: '\\E534';\n}\n.c-icon--presence-dnd-offline:before {\n  content: '\\E535';\n}\n.c-icon--presence-ra-dnd-offline:before,\n.c-icon--presence-external-dnd-offline:before {\n  content: '\\E536';\n}\n.c-icon--presence-ura-dnd-offline:before {\n  content: '\\E537';\n}\n.c-icon--presence-mobile-dnd:before {\n  content: '\\E538';\n}\n.c-icon--play-filled:before {\n  content: '\\E539';\n}\n.c-icon--broadcast-filled:before {\n  content: '\\E540';\n}\n.c-icon--small-star-filled:before {\n  content: '\\E541';\n}\n.c-icon--small-comment-filled:before {\n  content: '\\E542';\n}\n.c-icon--paperplane-filled:before {\n  content: '\\E543';\n}\n.c-icon--filebg-large-filled:before {\n  content: '\\E544';\n}\n.c-icon--filebg-small-filled:before {\n  content: '\\E545';\n}\n.c-icon--highlight-filled:before {\n  content: '\\E546';\n}\n.c-icon--pin-filled:before {\n  content: '\\E547';\n}\n.c-icon--close-filled:before {\n  content: '\\E548';\n}\n.c-icon--share-filled:before {\n  content: '\\E549';\n}\n.c-icon--pencil-filled:before {\n  content: '\\E550';\n}\n.c-icon--side-panel-filled:before {\n  content: '\\E551';\n}\n.c-icon--add-reaction-filled:before {\n  content: '\\E552';\n}\n.c-icon--mentions-filled:before {\n  content: '\\E553';\n}\n.c-icon--small-reply-filled:before {\n  content: '\\E554';\n}\n.c-icon--user-filled:before {\n  content: '\\E555';\n}\n.c-icon--microphone-on:before {\n  content: '\\E556';\n}\n.c-icon--camera-on:before {\n  content: '\\E557';\n}\n.c-icon--screenshare-on:before {\n  content: '\\E558';\n}\n.c-icon--shared-channels:before {\n  content: '\\E559';\n}\n.c-icon--heart-large-filled:before {\n  content: '\\E560';\n}\n.c-icon--thumbs-up-filled:before {\n  content: '\\E561';\n}\n.c-icon--thumbs-down-filled:before {\n  content: '\\E562';\n}\n.c-icon--slow-network:before {\n  content: '\\E563';\n}\n.c-icon--sparkles-filled:before {\n  content: '\\E564';\n}\n.c-icon--small-warning-filled:before {\n  content: '\\E565';\n}\n.c-icon--deactivated-user:before {\n  content: '\\E566';\n}\n.c-icon--arrow-right:before {\n  content: '\\E286';\n}\n.c-icon--arrow-left:before {\n  content: '\\E287';\n}\n.c-icon--arrow-up:before {\n  content: '\\E288';\n}\n.c-icon--arrow-down:before {\n  content: '\\E289';\n}\n.c-icon--arrow-right-medium:before {\n  content: '\\E290';\n}\n.c-icon--arrow-left-medium:before {\n  content: '\\E291';\n}\n.c-icon--arrow-up-medium:before {\n  content: '\\E292';\n}\n.c-icon--arrow-down-medium:before {\n  content: '\\E293';\n}\n.c-icon--angle-arrow-down-right-alt:before {\n  content: '\\E297';\n}\n.c-icon--angle-arrow-up-right-alt:before {\n  content: '\\E298';\n}\n.c-icon--angle-arrow-up-left-alt:before {\n  content: '\\E299';\n}\n.c-icon--angle-arrow-down-left-alt:before {\n  content: '\\E300';\n}\n.c-icon--arrow-circle-o-up:before {\n  content: '\\E215';\n}\n.c-icon--arrow-circle-o-down:before {\n  content: '\\E216';\n}\n.c-icon--arrow-circle-o-right:before {\n  content: '\\E217';\n}\n.c-icon--arrow-circle-o-left:before {\n  content: '\\E218';\n}\n.c-icon--chevron-circle-left:before {\n  content: '\\E219';\n}\n.c-icon--chevron-circle-right:before {\n  content: '\\E220';\n}\n.c-icon--chevron-circle-down:before {\n  content: '\\E221';\n}\n.c-icon--chevron-circle-up:before {\n  content: '\\E222';\n}\n.c-icon--plus-circle-small:before {\n  content: '\\E223';\n}\n.c-icon--circle-small:before {\n  content: '\\E224';\n}\n.c-icon--circle-large:before {\n  content: '\\E225';\n}\n.c-icon--plus-circle-medium:before {\n  content: '\\E228';\n}\n.c-icon--times-circle-medium:before {\n  content: '\\E229';\n}\n.c-icon--square-arrow-up:before {\n  content: '\\E235';\n}\n.c-icon--square-arrow-down:before {\n  content: '\\E236';\n}\n.c-icon--square-arrow-right:before {\n  content: '\\E237';\n}\n.c-icon--square-arrow-left:before {\n  content: '\\E238';\n}\n.c-icon--square-chevron-left:before {\n  content: '\\E239';\n}\n.c-icon--square-chevron-right:before {\n  content: '\\E240';\n}\n.c-icon--square-chevron-down:before {\n  content: '\\E241';\n}\n.c-icon--square-chevron-up:before {\n  content: '\\E242';\n}\n.c-icon--chevron-right:before {\n  content: '\\E250';\n}\n.c-icon--chevron-left:before {\n  content: '\\E251';\n}\n.c-icon--chevron-down:before {\n  content: '\\E252';\n}\n.c-icon--chevron-up:before {\n  content: '\\E253';\n}\n.c-icon--chevron-medium-right:before {\n  content: '\\E254';\n}\n.c-icon--chevron-medium-left:before {\n  content: '\\E255';\n}\n.c-icon--chevron-medium-down:before {\n  content: '\\E256';\n}\n.c-icon--chevron-medium-up:before {\n  content: '\\E257';\n}\n.c-icon--chevron-large-right:before {\n  content: '\\E258';\n}\n.c-icon--chevron-large-left:before {\n  content: '\\E259';\n}\n.c-icon--chevron-large-up:before {\n  content: '\\E260';\n}\n.c-icon--chevron-large-down:before {\n  content: '\\E261';\n}\n.c-icon--arrow-large-right:before {\n  content: '\\E262';\n}\n.c-icon--arrow-large-left:before {\n  content: '\\E263';\n}\n.c-icon--arrow-large-up:before {\n  content: '\\E264';\n}\n.c-icon--arrow-large-down:before {\n  content: '\\E265';\n}\n.c-icon--caret-outline-left:before {\n  content: '\\E266';\n}\n.c-icon--caret-outline-right:before {\n  content: '\\E267';\n}\n.c-icon--caret-outline-up:before {\n  content: '\\E268';\n}\n.c-icon--caret-outline-down:before {\n  content: '\\E269';\n}\n.c-icon--caret-up:before {\n  content: '\\E270';\n}\n.c-icon--caret-down:before {\n  content: '\\E271';\n}\n.c-icon--caret-right:before {\n  content: '\\E272';\n}\n.c-icon--caret-left:before {\n  content: '\\E273';\n}\n.c-icon--angle-arrow-down-left:before {\n  content: '\\E274';\n}\n.c-icon--angle-arrow-down-right:before {\n  content: '\\E275';\n}\n.c-icon--angle-arrow-up-right:before {\n  content: '\\E276';\n}\n.c-icon--angle-arrow-up-left:before {\n  content: '\\E277';\n}\n.c-icon--arrow-ne-large:before {\n  content: '\\E307';\n}\n.c-icon--arrow-nw-large:before {\n  content: '\\E308';\n}\n.c-icon--arrow-sw-large:before {\n  content: '\\E309';\n}\n.c-icon--arrow-se-large:before {\n  content: '\\E310';\n}\n.c-icon--arrow-ne-medium:before {\n  content: '\\E311';\n}\n.c-icon--arrow-nw-medium:before {\n  content: '\\E312';\n}\n.c-icon--arrow-sw-medium:before {\n  content: '\\E313';\n}\n.c-icon--arrow-se-medium:before {\n  content: '\\E314';\n}\n.c-icon--arrow-ne-small:before {\n  content: '\\E315';\n}\n.c-icon--arrow-nw-small:before {\n  content: '\\E316';\n}\n.c-icon--arrow-sw-small:before {\n  content: '\\E317';\n}\n.c-icon--arrow-se-small:before {\n  content: '\\E318';\n}\n.c-icon--slack:before {\n  content: '\\E800';\n}\n.c-icon--slack-pillow:before {\n  content: '\\E801';\n}\n.c-icon--apple:before {\n  content: '\\E802';\n}\n.c-icon--android:before {\n  content: '\\E803';\n}\n.c-icon--twitter:before {\n  content: '\\E804';\n}\n.c-icon--github:before {\n  content: '\\E805';\n}\n.c-icon--dropbox:before {\n  content: '\\E806';\n}\n.c-icon--google:before {\n  content: '\\E807';\n}\n.c-icon--windows:before {\n  content: '\\E808';\n}\n.c-icon--youtube:before {\n  content: '\\E809';\n}\n.c-icon--google-drive:before {\n  content: '\\E810';\n}\n.c-icon--skype:before {\n  content: '\\E811';\n}\n.c-icon--rss:before {\n  content: '\\E812';\n}\n.c-icon--facebook:before {\n  content: '\\E813';\n}\n.c-icon--asana:before {\n  content: '\\E814';\n}\n.c-icon--linkedin:before {\n  content: '\\E815';\n}\n.c-icon--tumblr:before {\n  content: '\\E816';\n}\n.c-icon--instagram:before {\n  content: '\\E817';\n}\n.c-icon--google-plus:before {\n  content: '\\E818';\n}\n.c-icon--soundcloud:before {\n  content: '\\E819';\n}\n.c-icon--flickr:before {\n  content: '\\E820';\n}\n.c-icon--pinterest:before {\n  content: '\\E821';\n}\n.c-icon--tripit:before {\n  content: '\\E822';\n}\n.c-icon--hangouts:before {\n  content: '\\E823';\n}\n.c-icon--viber:before {\n  content: '\\E824';\n}\n.c-icon--line:before {\n  content: '\\E825';\n}\n.c-icon--facebook-messenger:before {\n  content: '\\E826';\n}\n.c-icon--1password:before {\n  content: '\\E827';\n}\n.c-icon--box:before {\n  content: '\\E828';\n}\n.c-icon--box-square:before {\n  content: '\\E829';\n}\n.c-icon--google-play:before {\n  content: '\\E830';\n}\n.c-icon--spotify:before {\n  content: '\\E831';\n}\n.c-icon--siriusxm:before {\n  content: '\\E832';\n}\n.c-icon--stitcher:before {\n  content: '\\E833';\n}\n.c-icon--pocket-casts:before {\n  content: '\\E834';\n}\n.c-icon--onedrive:before {\n  content: '\\E835';\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.t-list-reset {\n  margin-bottom: 0;\n  margin-left: 0;\n  padding: 0;\n  list-style-type: none;\n}\n@font-face {\n  font-family: 'Slack v2';\n  src: url('https://a.slack-edge.com/7c81/fonts/slack-icons-v2.woff2') format('woff2'), url('https://a.slack-edge.com/7c81/fonts/slack-icons-v2.woff') format('woff');\n  font-style: normal;\n  font-weight: 400;\n}\n.c-icon:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n}\n.c-icon--inherit:before {\n  font-size: inherit;\n}\n.c-icon--align-bottom:before {\n  vertical-align: bottom;\n}\n.c-icon--align-top:before {\n  vertical-align: top;\n}\n.c-icon--align-baseline:before {\n  vertical-align: baseline;\n}\n.c-icon--star-o:before {\n  content: '\\E001';\n}\n.c-icon--unstar-o:before {\n  content: '\\E002';\n}\n.c-icon--user:before {\n  content: '\\E003';\n}\n.c-icon--comment-alt:before {\n  content: '\\E004';\n}\n.c-icon--comment-o:before {\n  content: '\\E005';\n}\n.c-icon--home:before {\n  content: '\\E006';\n}\n.c-icon--info:before {\n  content: '\\E007';\n}\n.c-icon--channel-info:before,\n.c-icon--info-circle:before {\n  content: '\\E008';\n}\n.c-icon--mentions:before {\n  content: '\\E009';\n}\n.c-icon--search:before {\n  content: '\\E010';\n}\n.c-icon--bolt:before {\n  content: '\\E011';\n}\n.c-icon--mobile:before {\n  content: '\\E012';\n}\n.c-icon--tablet:before {\n  content: '\\E013';\n}\n.c-icon--laptop:before {\n  content: '\\E014';\n}\n.c-icon--bell-o:before {\n  content: '\\E015';\n}\n.c-icon--bell-slash:before {\n  content: '\\E016';\n}\n.c-icon--team-directory:before {\n  content: '\\E017';\n}\n.c-icon--cloud-upload:before {\n  content: '\\E018';\n}\n.c-icon--cloud-download:before {\n  content: '\\E019';\n}\n.c-icon--cog-o:before {\n  content: '\\E020';\n}\n.c-icon--cogs:before {\n  content: '\\E021';\n}\n.c-icon--key:before {\n  content: '\\E022';\n}\n.c-icon--calendar:before {\n  content: '\\E023';\n}\n.c-icon--pencil:before {\n  content: '\\E024';\n}\n.c-icon--lightbulb-o:before {\n  content: '\\E025';\n}\n.c-icon--magic:before {\n  content: '\\E026';\n}\n.c-icon--external-link:before {\n  content: '\\E027';\n}\n.c-icon--external-link-square:before {\n  content: '\\E028';\n}\n.c-icon--lock-o:before {\n  content: '\\E029';\n}\n.c-icon--unlock:before {\n  content: '\\E030';\n}\n.c-icon--folder:before {\n  content: '\\E031';\n}\n.c-icon--folder-open:before {\n  content: '\\E032';\n}\n.c-icon--archive:before {\n  content: '\\E033';\n}\n.c-icon--inbox:before {\n  content: '\\E034';\n}\n.c-icon--sitemap:before {\n  content: '\\E035';\n}\n.c-icon--book:before {\n  content: '\\E036';\n}\n.c-icon--envelope-o:before {\n  content: '\\E037';\n}\n.c-icon--image:before {\n  content: '\\E038';\n}\n.c-icon--building:before {\n  content: '\\E039';\n}\n.c-icon--plug:before {\n  content: '\\E040';\n}\n.c-icon--paper-plane:before {\n  content: '\\E041';\n}\n.c-icon--credit-card:before {\n  content: '\\E042';\n}\n.c-icon--life-ring:before {\n  content: '\\E043';\n}\n.c-icon--thumb-tack:before {\n  content: '\\E044';\n}\n.c-icon--thumb-tack-filled:before {\n  content: '\\E547';\n}\n.c-icon--trash:before {\n  content: '\\E045';\n}\n.c-icon--print:before {\n  content: '\\E046';\n}\n.c-icon--quote-o:before {\n  content: '\\E047';\n}\n.c-icon--th-large:before {\n  content: '\\E048';\n}\n.c-icon--eye:before {\n  content: '\\E049';\n}\n.c-icon--eye-closed:before {\n  content: '\\E050';\n}\n.c-icon--volume-off:before {\n  content: '\\E051';\n}\n.c-icon--volume-down:before {\n  content: '\\E052';\n}\n.c-icon--volume-medium:before {\n  content: '\\E053';\n}\n.c-icon--volume-up:before {\n  content: '\\E054';\n}\n.c-icon--volume-off-alt:before {\n  content: '\\E055';\n}\n.c-icon--heart-o:before {\n  content: '\\E056';\n}\n.c-icon--wrench:before {\n  content: '\\E057';\n}\n.c-icon--file:before {\n  content: '\\E058';\n}\n.c-icon--all-files:before {\n  content: '\\E059';\n}\n.c-icon--your-files:before {\n  content: '\\E060';\n}\n.c-icon--align-left:before {\n  content: '\\E061';\n}\n.c-icon--align-center:before {\n  content: '\\E062';\n}\n.c-icon--align-right:before {\n  content: '\\E063';\n}\n.c-icon--align-justify:before {\n  content: '\\E064';\n}\n.c-icon--paragraph:before {\n  content: '\\E065';\n}\n.c-icon--code:before {\n  content: '\\E066';\n}\n.c-icon--ellipsis:before {\n  content: '\\E067';\n}\n.c-icon--ellipsis-baseline:before {\n  content: '\\E068';\n}\n.c-icon--spinner:before {\n  content: '\\E069';\n}\n.c-icon--spiral:before {\n  content: '\\E070';\n}\n.c-icon--random:before {\n  content: '\\E071';\n}\n.c-icon--repeat:before {\n  content: '\\E072';\n}\n.c-icon--share-square-o:before {\n  content: '\\E073';\n}\n.c-icon--link:before {\n  content: '\\E074';\n}\n.c-icon--undo:before {\n  content: '\\E075';\n}\n.c-icon--history:before {\n  content: '\\E076';\n}\n.c-icon--hourglass-empty:before {\n  content: '\\E077';\n}\n.c-icon--hourglass:before {\n  content: '\\E078';\n}\n.c-icon--clock-o:before {\n  content: '\\E079';\n}\n.c-icon--dashboard:before {\n  content: '\\E080';\n}\n.c-icon--power-off:before {\n  content: '\\E081';\n}\n.c-icon--sign-in:before {\n  content: '\\E082';\n}\n.c-icon--sign-out:before {\n  content: '\\E083';\n}\n.c-icon--jump:before {\n  content: '\\E084';\n}\n.c-icon--globe:before {\n  content: '\\E085';\n}\n.c-icon--filter:before {\n  content: '\\E086';\n}\n.c-icon--microphone:before {\n  content: '\\E087';\n}\n.c-icon--microphone-slash:before {\n  content: '\\E088';\n}\n.c-icon--paperclip:before {\n  content: '\\E089';\n}\n.c-icon--video-camera:before {\n  content: '\\E090';\n}\n.c-icon--stop-video:before {\n  content: '\\E091';\n}\n.c-icon--phone:before {\n  content: '\\E092';\n}\n.c-icon--end-call:before {\n  content: '\\E093';\n}\n.c-icon--smile-o:before {\n  content: '\\E094';\n}\n.c-icon--share-screen:before {\n  content: '\\E095';\n}\n.c-icon--stop-screen-sharing:before {\n  content: '\\E096';\n}\n.c-icon--stop-screen-sharing-alt:before {\n  content: '\\E097';\n}\n.c-icon--feedback:before {\n  content: '\\E098';\n}\n.c-icon--paper-plane-alt:before {\n  content: '\\E099';\n}\n.c-icon--share:before {\n  content: '\\E100';\n}\n.c-icon--save:before {\n  content: '\\E101';\n}\n.c-icon--message-notification:before {\n  content: '\\E102';\n}\n.c-icon--list:before {\n  content: '\\E103';\n}\n.c-icon--channel:before {\n  content: '\\E104';\n}\n.c-icon--share-other-alt:before {\n  content: '\\E105';\n}\n.c-icon--broadcast:before {\n  content: '\\E106';\n}\n.c-icon--all-files-alt:before {\n  content: '\\E107';\n}\n.c-icon--search-files:before {\n  content: '\\E108';\n}\n.c-icon--add-user:before {\n  content: '\\E109';\n}\n.c-icon--switch-team:before {\n  content: '\\E110';\n}\n.c-icon--create-snippet:before {\n  content: '\\E111';\n}\n.c-icon--create-post:before {\n  content: '\\E112';\n}\n.c-icon--upload:before {\n  content: '\\E113';\n}\n.c-icon--download:before {\n  content: '\\E114';\n}\n.c-icon--share-email:before {\n  content: '\\E115';\n}\n.c-icon--import-email:before {\n  content: '\\E116';\n}\n.c-icon--ellipsis-o:before {\n  content: '\\E117';\n}\n.c-icon--add-reaction:before {\n  content: '\\E118';\n}\n.c-icon--happy-smile:before {\n  content: '\\E119';\n}\n.c-icon--mark-unread:before {\n  content: '\\E120';\n}\n.c-icon--camera:before {\n  content: '\\E121';\n}\n.c-icon--phone-flat:before {\n  content: '\\E122';\n}\n.c-icon--sparkles:before {\n  content: '\\E123';\n}\n.c-icon--location-pin:before {\n  content: '\\E124';\n}\n.c-icon--channel-pane-hash:before {\n  content: '\\E125';\n}\n.c-icon--emoji-nature:before {\n  content: '\\E126';\n}\n.c-icon--emoji-food:before {\n  content: '\\E127';\n}\n.c-icon--emoji-celebration:before {\n  content: '\\E128';\n}\n.c-icon--emoji-activities:before {\n  content: '\\E129';\n}\n.c-icon--emoji-travel:before {\n  content: '\\E130';\n}\n.c-icon--emoji-objects:before {\n  content: '\\E131';\n}\n.c-icon--file-gdrive:before {\n  content: '\\E133';\n}\n.c-icon--play:before {\n  content: '\\E134';\n}\n.c-icon--stream:before {\n  content: '\\E135';\n}\n.c-icon--field-text:before {\n  content: '\\E136';\n}\n.c-icon--poo:before {\n  content: '\\E137';\n}\n.c-icon--channel-list:before {\n  content: '\\E138';\n}\n.c-icon--share-android:before {\n  content: '\\E139';\n}\n.c-icon--highlight:before {\n  content: '\\E140';\n}\n.c-icon--flag:before {\n  content: '\\E141';\n}\n.c-icon--grabby-patty:before {\n  content: '\\E142';\n}\n.c-icon--backspace:before {\n  content: '\\E143';\n}\n.c-icon--android-keyboard:before {\n  content: '\\E144';\n}\n.c-icon--side-panel:before {\n  content: '\\E145';\n}\n.c-icon--search-small:before {\n  content: '\\E146';\n}\n.c-icon--reload-small:before {\n  content: '\\E147';\n}\n.c-icon--vertical-ellipsis:before {\n  content: '\\E148';\n}\n.c-icon--disable:before {\n  content: '\\E149';\n}\n.c-icon--bold-hash-small:before {\n  content: '\\E150';\n}\n.c-icon--cart:before {\n  content: '\\E151';\n}\n.c-icon--snooze-outline:before {\n  content: '\\E152';\n}\n.c-icon--new-window:before {\n  content: '\\E153';\n}\n.c-icon--h1:before {\n  content: '\\E154';\n}\n.c-icon--h2:before {\n  content: '\\E155';\n}\n.c-icon--h3:before {\n  content: '\\E156';\n}\n.c-icon--bullet-list:before {\n  content: '\\E157';\n}\n.c-icon--numbered-list:before {\n  content: '\\E158';\n}\n.c-icon--text-format-menu:before {\n  content: '\\E159';\n}\n.c-icon--bold:before {\n  content: '\\E160';\n}\n.c-icon--italic:before {\n  content: '\\E161';\n}\n.c-icon--underline:before {\n  content: '\\E162';\n}\n.c-icon--strikethrough:before {\n  content: '\\E163';\n}\n.c-icon--tag:before {\n  content: '\\E164';\n}\n.c-icon--org-shared-channel:before {\n  content: '\\E165';\n}\n.c-icon--shared-channel:before {\n  content: '\\E166';\n}\n.c-icon--external-channel:before {\n  content: '\\E167';\n}\n.c-icon--small-reaction:before {\n  content: '\\E170';\n}\n.c-icon--small-reply:before {\n  content: '\\E171';\n}\n.c-icon--small-ellipsis:before {\n  content: '\\E172';\n}\n.c-icon--small-star:before {\n  content: '\\E173';\n}\n.c-icon--small-quote:before {\n  content: '\\E174';\n}\n.c-icon--keyboard:before {\n  content: '\\E175';\n}\n.c-icon--share-action:before {\n  content: '\\E176';\n}\n.c-icon--handset:before {\n  content: '\\E177';\n}\n.c-icon--bluetooth-sound:before {\n  content: '\\E178';\n}\n.c-icon--bluetooth:before {\n  content: '\\E179';\n}\n.c-icon--bot:before {\n  content: '\\E180';\n}\n.c-icon--globe-plus:before {\n  content: '\\E181';\n}\n.c-icon--user-groups:before {\n  content: '\\E182';\n}\n.c-icon--frowning-face:before {\n  content: '\\E183';\n}\n.c-icon--mobile-notification:before {\n  content: '\\E184';\n}\n.c-icon--desktop-notification:before {\n  content: '\\E185';\n}\n.c-icon--collab-screenshare-on:before {\n  content: '\\E186';\n}\n.c-icon--collab-screenshare-off:before {\n  content: '\\E187';\n}\n.c-icon--thumbs-up:before {\n  content: '\\E188';\n}\n.c-icon--thumbs-down:before {\n  content: '\\E189';\n}\n.c-icon--expand:before {\n  content: '\\E200';\n}\n.c-icon--reduce:before {\n  content: '\\E201';\n}\n.c-icon--arrows-alt:before {\n  content: '\\E202';\n}\n.c-icon--reduce-alt:before {\n  content: '\\E203';\n}\n.c-icon--check-square-o:before {\n  content: '\\E204';\n}\n.c-icon--check-circle-o:before {\n  content: '\\E205';\n}\n.c-icon--check-circle-o-large:before {\n  content: '\\E206';\n}\n.c-icon--question:before {\n  content: '\\E207';\n}\n.c-icon--exclamation:before {\n  content: '\\E208';\n}\n.c-icon--warning:before {\n  content: '\\E209';\n}\n.c-icon--exclamation-circle:before {\n  content: '\\E210';\n}\n.c-icon--question-circle:before {\n  content: '\\E211';\n}\n.c-icon--plus-circle:before {\n  content: '\\E212';\n}\n.c-icon--minus-circle:before {\n  content: '\\E213';\n}\n.c-icon--times-circle:before {\n  content: '\\E214';\n}\n.c-icon--square-warning:before {\n  content: '\\E230';\n}\n.c-icon--square-question:before {\n  content: '\\E231';\n}\n.c-icon--plus-square-o:before {\n  content: '\\E232';\n}\n.c-icon--minus-square-o:before {\n  content: '\\E233';\n}\n.c-icon--square-times:before {\n  content: '\\E234';\n}\n.c-icon--times:before {\n  content: '\\E278';\n}\n.c-icon--plus:before {\n  content: '\\E279';\n}\n.c-icon--minus:before {\n  content: '\\E280';\n}\n.c-icon--plus-small:before {\n  content: '\\E281';\n}\n.c-icon--minus-small:before {\n  content: '\\E282';\n}\n.c-icon--exclamation-small:before {\n  content: '\\E283';\n}\n.c-icon--question-small:before {\n  content: '\\E284';\n}\n.c-icon--check-small:before {\n  content: '\\E285';\n}\n.c-icon--times-small:before {\n  content: '\\E294';\n}\n.c-icon--sync:before {\n  content: '\\E295';\n}\n.c-icon--replies:before {\n  content: '\\E296';\n}\n.c-icon--check-small-bold:before {\n  content: '\\E301';\n}\n.c-icon--enter:before {\n  content: '\\E302';\n}\n.c-icon--expand-vertical:before {\n  content: '\\E303';\n}\n.c-icon--collapse-vertical:before {\n  content: '\\E304';\n}\n.c-icon--android-upload:before {\n  content: '\\E305';\n}\n.c-icon--plus-thick:before {\n  content: '\\E306';\n}\n.c-icon--check-large-bold:before {\n  content: '\\E319';\n}\n.c-icon--check-large:before {\n  content: '\\E320';\n}\n.c-icon--calls:before {\n  content: '\\E478';\n}\n.c-icon--calls-small:before {\n  content: '\\E479';\n}\n.c-icon--calls-ended:before {\n  content: '\\E480';\n}\n.c-icon--calls-ended-small:before {\n  content: '\\E481';\n}\n.c-icon--star:before {\n  content: '\\E500';\n}\n.c-icon--unstar:before {\n  content: '\\E501';\n}\n.c-icon--bell:before {\n  content: '\\E502';\n}\n.c-icon--lock:before {\n  content: '\\E503';\n}\n.c-icon--external-link-small:before {\n  content: '\\E504';\n}\n.c-icon--external-link-large:before {\n  content: '\\E505';\n}\n.c-icon--presence-online:before {\n  content: '\\E506';\n}\n.c-icon--presence-offline:before {\n  content: '\\E507';\n}\n.c-icon--presence-dnd:before {\n  content: '\\E508';\n}\n.c-icon--presence-ra-online:before,\n.c-icon--presence-external-online:before {\n  content: '\\E509';\n}\n.c-icon--restricted-user:before {\n  content: '\\E509';\n}\n.c-icon--presence-ra-offline:before,\n.c-icon--presence-external-offline:before {\n  content: '\\E510';\n}\n.c-icon--presence-ra-dnd:before,\n.c-icon--presence-external-dnd:before {\n  content: '\\E511';\n}\n.c-icon--presence-ura-online:before {\n  content: '\\E512';\n}\n.c-icon--single-channel-guest:before {\n  content: '\\E512';\n}\n.c-icon--presence-ura-offline:before {\n  content: '\\E513';\n}\n.c-icon--presence-ura-dnd:before {\n  content: '\\E514';\n}\n.c-icon--heart:before {\n  content: '\\E515';\n}\n.c-icon--quote:before {\n  content: '\\E516';\n}\n.c-icon--cog:before {\n  content: '\\E517';\n}\n.c-icon--comment:before {\n  content: '\\E518';\n}\n.c-icon--minus-circle-small:before {\n  content: '\\E519';\n}\n.c-icon--times-circle-small:before {\n  content: '\\E520';\n}\n.c-icon--multiparty-dm-2:before {\n  content: '\\E521';\n}\n.c-icon--multiparty-dm-3:before {\n  content: '\\E522';\n}\n.c-icon--multiparty-dm-4:before {\n  content: '\\E523';\n}\n.c-icon--multiparty-dm-5:before {\n  content: '\\E524';\n}\n.c-icon--multiparty-dm-6:before {\n  content: '\\E525';\n}\n.c-icon--multiparty-dm-7:before {\n  content: '\\E526';\n}\n.c-icon--multiparty-dm-8:before {\n  content: '\\E527';\n}\n.c-icon--multiparty-dm-9:before {\n  content: '\\E528';\n}\n.c-icon--poo-filled:before {\n  content: '\\E529';\n}\n.c-icon--circle-fill:before {\n  content: '\\E530';\n}\n.c-icon--flag-filled:before {\n  content: '\\E531';\n}\n.c-icon--refresh-small:before {\n  content: '\\E532';\n}\n.c-icon--snooze-filled:before {\n  content: '\\E533';\n}\n.c-icon--archived-channel:before {\n  content: '\\E534';\n}\n.c-icon--presence-dnd-offline:before {\n  content: '\\E535';\n}\n.c-icon--presence-ra-dnd-offline:before,\n.c-icon--presence-external-dnd-offline:before {\n  content: '\\E536';\n}\n.c-icon--presence-ura-dnd-offline:before {\n  content: '\\E537';\n}\n.c-icon--presence-mobile-dnd:before {\n  content: '\\E538';\n}\n.c-icon--play-filled:before {\n  content: '\\E539';\n}\n.c-icon--broadcast-filled:before {\n  content: '\\E540';\n}\n.c-icon--small-star-filled:before {\n  content: '\\E541';\n}\n.c-icon--small-comment-filled:before {\n  content: '\\E542';\n}\n.c-icon--paperplane-filled:before {\n  content: '\\E543';\n}\n.c-icon--filebg-large-filled:before {\n  content: '\\E544';\n}\n.c-icon--filebg-small-filled:before {\n  content: '\\E545';\n}\n.c-icon--highlight-filled:before {\n  content: '\\E546';\n}\n.c-icon--pin-filled:before {\n  content: '\\E547';\n}\n.c-icon--close-filled:before {\n  content: '\\E548';\n}\n.c-icon--share-filled:before {\n  content: '\\E549';\n}\n.c-icon--pencil-filled:before {\n  content: '\\E550';\n}\n.c-icon--side-panel-filled:before {\n  content: '\\E551';\n}\n.c-icon--add-reaction-filled:before {\n  content: '\\E552';\n}\n.c-icon--mentions-filled:before {\n  content: '\\E553';\n}\n.c-icon--small-reply-filled:before {\n  content: '\\E554';\n}\n.c-icon--user-filled:before {\n  content: '\\E555';\n}\n.c-icon--microphone-on:before {\n  content: '\\E556';\n}\n.c-icon--camera-on:before {\n  content: '\\E557';\n}\n.c-icon--screenshare-on:before {\n  content: '\\E558';\n}\n.c-icon--shared-channels:before {\n  content: '\\E559';\n}\n.c-icon--heart-large-filled:before {\n  content: '\\E560';\n}\n.c-icon--thumbs-up-filled:before {\n  content: '\\E561';\n}\n.c-icon--thumbs-down-filled:before {\n  content: '\\E562';\n}\n.c-icon--slow-network:before {\n  content: '\\E563';\n}\n.c-icon--sparkles-filled:before {\n  content: '\\E564';\n}\n.c-icon--small-warning-filled:before {\n  content: '\\E565';\n}\n.c-icon--deactivated-user:before {\n  content: '\\E566';\n}\n.c-icon--arrow-right:before {\n  content: '\\E286';\n}\n.c-icon--arrow-left:before {\n  content: '\\E287';\n}\n.c-icon--arrow-up:before {\n  content: '\\E288';\n}\n.c-icon--arrow-down:before {\n  content: '\\E289';\n}\n.c-icon--arrow-right-medium:before {\n  content: '\\E290';\n}\n.c-icon--arrow-left-medium:before {\n  content: '\\E291';\n}\n.c-icon--arrow-up-medium:before {\n  content: '\\E292';\n}\n.c-icon--arrow-down-medium:before {\n  content: '\\E293';\n}\n.c-icon--angle-arrow-down-right-alt:before {\n  content: '\\E297';\n}\n.c-icon--angle-arrow-up-right-alt:before {\n  content: '\\E298';\n}\n.c-icon--angle-arrow-up-left-alt:before {\n  content: '\\E299';\n}\n.c-icon--angle-arrow-down-left-alt:before {\n  content: '\\E300';\n}\n.c-icon--arrow-circle-o-up:before {\n  content: '\\E215';\n}\n.c-icon--arrow-circle-o-down:before {\n  content: '\\E216';\n}\n.c-icon--arrow-circle-o-right:before {\n  content: '\\E217';\n}\n.c-icon--arrow-circle-o-left:before {\n  content: '\\E218';\n}\n.c-icon--chevron-circle-left:before {\n  content: '\\E219';\n}\n.c-icon--chevron-circle-right:before {\n  content: '\\E220';\n}\n.c-icon--chevron-circle-down:before {\n  content: '\\E221';\n}\n.c-icon--chevron-circle-up:before {\n  content: '\\E222';\n}\n.c-icon--plus-circle-small:before {\n  content: '\\E223';\n}\n.c-icon--circle-small:before {\n  content: '\\E224';\n}\n.c-icon--circle-large:before {\n  content: '\\E225';\n}\n.c-icon--plus-circle-medium:before {\n  content: '\\E228';\n}\n.c-icon--times-circle-medium:before {\n  content: '\\E229';\n}\n.c-icon--square-arrow-up:before {\n  content: '\\E235';\n}\n.c-icon--square-arrow-down:before {\n  content: '\\E236';\n}\n.c-icon--square-arrow-right:before {\n  content: '\\E237';\n}\n.c-icon--square-arrow-left:before {\n  content: '\\E238';\n}\n.c-icon--square-chevron-left:before {\n  content: '\\E239';\n}\n.c-icon--square-chevron-right:before {\n  content: '\\E240';\n}\n.c-icon--square-chevron-down:before {\n  content: '\\E241';\n}\n.c-icon--square-chevron-up:before {\n  content: '\\E242';\n}\n.c-icon--chevron-right:before {\n  content: '\\E250';\n}\n.c-icon--chevron-left:before {\n  content: '\\E251';\n}\n.c-icon--chevron-down:before {\n  content: '\\E252';\n}\n.c-icon--chevron-up:before {\n  content: '\\E253';\n}\n.c-icon--chevron-medium-right:before {\n  content: '\\E254';\n}\n.c-icon--chevron-medium-left:before {\n  content: '\\E255';\n}\n.c-icon--chevron-medium-down:before {\n  content: '\\E256';\n}\n.c-icon--chevron-medium-up:before {\n  content: '\\E257';\n}\n.c-icon--chevron-large-right:before {\n  content: '\\E258';\n}\n.c-icon--chevron-large-left:before {\n  content: '\\E259';\n}\n.c-icon--chevron-large-up:before {\n  content: '\\E260';\n}\n.c-icon--chevron-large-down:before {\n  content: '\\E261';\n}\n.c-icon--arrow-large-right:before {\n  content: '\\E262';\n}\n.c-icon--arrow-large-left:before {\n  content: '\\E263';\n}\n.c-icon--arrow-large-up:before {\n  content: '\\E264';\n}\n.c-icon--arrow-large-down:before {\n  content: '\\E265';\n}\n.c-icon--caret-outline-left:before {\n  content: '\\E266';\n}\n.c-icon--caret-outline-right:before {\n  content: '\\E267';\n}\n.c-icon--caret-outline-up:before {\n  content: '\\E268';\n}\n.c-icon--caret-outline-down:before {\n  content: '\\E269';\n}\n.c-icon--caret-up:before {\n  content: '\\E270';\n}\n.c-icon--caret-down:before {\n  content: '\\E271';\n}\n.c-icon--caret-right:before {\n  content: '\\E272';\n}\n.c-icon--caret-left:before {\n  content: '\\E273';\n}\n.c-icon--angle-arrow-down-left:before {\n  content: '\\E274';\n}\n.c-icon--angle-arrow-down-right:before {\n  content: '\\E275';\n}\n.c-icon--angle-arrow-up-right:before {\n  content: '\\E276';\n}\n.c-icon--angle-arrow-up-left:before {\n  content: '\\E277';\n}\n.c-icon--arrow-ne-large:before {\n  content: '\\E307';\n}\n.c-icon--arrow-nw-large:before {\n  content: '\\E308';\n}\n.c-icon--arrow-sw-large:before {\n  content: '\\E309';\n}\n.c-icon--arrow-se-large:before {\n  content: '\\E310';\n}\n.c-icon--arrow-ne-medium:before {\n  content: '\\E311';\n}\n.c-icon--arrow-nw-medium:before {\n  content: '\\E312';\n}\n.c-icon--arrow-sw-medium:before {\n  content: '\\E313';\n}\n.c-icon--arrow-se-medium:before {\n  content: '\\E314';\n}\n.c-icon--arrow-ne-small:before {\n  content: '\\E315';\n}\n.c-icon--arrow-nw-small:before {\n  content: '\\E316';\n}\n.c-icon--arrow-sw-small:before {\n  content: '\\E317';\n}\n.c-icon--arrow-se-small:before {\n  content: '\\E318';\n}\n.c-icon--slack:before {\n  content: '\\E800';\n}\n.c-icon--slack-pillow:before {\n  content: '\\E801';\n}\n.c-icon--apple:before {\n  content: '\\E802';\n}\n.c-icon--android:before {\n  content: '\\E803';\n}\n.c-icon--twitter:before {\n  content: '\\E804';\n}\n.c-icon--github:before {\n  content: '\\E805';\n}\n.c-icon--dropbox:before {\n  content: '\\E806';\n}\n.c-icon--google:before {\n  content: '\\E807';\n}\n.c-icon--windows:before {\n  content: '\\E808';\n}\n.c-icon--youtube:before {\n  content: '\\E809';\n}\n.c-icon--google-drive:before {\n  content: '\\E810';\n}\n.c-icon--skype:before {\n  content: '\\E811';\n}\n.c-icon--rss:before {\n  content: '\\E812';\n}\n.c-icon--facebook:before {\n  content: '\\E813';\n}\n.c-icon--asana:before {\n  content: '\\E814';\n}\n.c-icon--linkedin:before {\n  content: '\\E815';\n}\n.c-icon--tumblr:before {\n  content: '\\E816';\n}\n.c-icon--instagram:before {\n  content: '\\E817';\n}\n.c-icon--google-plus:before {\n  content: '\\E818';\n}\n.c-icon--soundcloud:before {\n  content: '\\E819';\n}\n.c-icon--flickr:before {\n  content: '\\E820';\n}\n.c-icon--pinterest:before {\n  content: '\\E821';\n}\n.c-icon--tripit:before {\n  content: '\\E822';\n}\n.c-icon--hangouts:before {\n  content: '\\E823';\n}\n.c-icon--viber:before {\n  content: '\\E824';\n}\n.c-icon--line:before {\n  content: '\\E825';\n}\n.c-icon--facebook-messenger:before {\n  content: '\\E826';\n}\n.c-icon--1password:before {\n  content: '\\E827';\n}\n.c-icon--box:before {\n  content: '\\E828';\n}\n.c-icon--box-square:before {\n  content: '\\E829';\n}\n.c-icon--google-play:before {\n  content: '\\E830';\n}\n.c-icon--spotify:before {\n  content: '\\E831';\n}\n.c-icon--siriusxm:before {\n  content: '\\E832';\n}\n.c-icon--stitcher:before {\n  content: '\\E833';\n}\n.c-icon--pocket-casts:before {\n  content: '\\E834';\n}\n.c-icon--onedrive:before {\n  content: '\\E835';\n}\n", ""]);
 }, function(e, t, n) {
   var r = n(3069);
   "string" == typeof r && (r = [
@@ -39039,9 +39047,9 @@ webpackJsonp([332], [, function(e, t, n) {
     };
   };
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.c-message {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  display: flex;\n  padding-right: 26px;\n  min-width: 1px;\n  position: relative;\n  -webkit-user-select: text;\n  -moz-user-select: text;\n  -ms-user-select: text;\n  user-select: text;\n}\n.c-message:hover:not(.c-message--highlight) {\n  background-color: #F9F9F9;\n}\n.c-message--highlight,\n.c-message--highlight_yellow_bg {\n  background: #FFFCE0;\n}\n.c-message--last {\n  margin-bottom: 16px;\n}\n.c-message.c-message--light {\n  padding-top: 5px;\n  padding-bottom: 3px;\n}\n.c-message.c-message--dense {\n  padding-top: 3px;\n  padding-bottom: 2px;\n}\n.c-message.c-message--light.c-message--adjacent {\n  padding-top: 2px;\n}\n.c-message__gutter {\n  text-align: right;\n  flex-shrink: 0;\n}\n.c-message--adjacent .c-message__gutter {\n  visibility: hidden;\n}\n.c-message--adjacent:hover .c-message__gutter {\n  visibility: visible;\n}\n.c-message--light .c-message__gutter {\n  width: 72px;\n  padding-right: 10px;\n}\n.c-message--dense .c-message__gutter {\n  width: 58px;\n  margin-right: 22px;\n}\n.c-message--dense .c-timestamp__label {\n  color: #717274;\n}\n.c-message__content {\n  flex: 0 1 100%;\n  margin-right: 14px;\n  min-width: 1px;\n}\n.c-message--dense .c-message__content {\n  padding-left: 8px;\n}\n.c-message__sender {\n  font-weight: 900;\n}\n.c-message--light .c-message__sender {\n  margin-right: 6px;\n  color: #2C2D30;\n}\n.c-message--dense .c-message__sender {\n  margin-left: -8px;\n  margin-right: 4px;\n}\n.c-message__sender--unknown {\n  display: inline-block;\n  width: 80px;\n  height: 0.9rem;\n  border-radius: 0.9rem;\n  vertical-align: bottom;\n  background: #E8E8E8;\n}\n.c-message--dense .c-message__content_header {\n  display: inline;\n  margin-bottom: 3px;\n}\n.c-message--dense.c-message--thread-broadcast .c-message__content_header {\n  display: flex;\n}\n.c-message--light .c-message__content_header {\n  line-height: 1;\n  margin-bottom: 3px;\n}\n.c-message__body {\n  line-height: 1.4;\n  color: #2C2D30;\n}\n.c-message__body--automated {\n  font-style: italic;\n  color: #A0A0A2;\n}\n.c-message:hover .c-message__body--automated {\n  color: #717274;\n}\n.c-message__mention {\n  background: #FFF4BF;\n  border-radius: 3px;\n  padding: 0 2px 1px 2px;\n}\n.c-message__editor {\n  flex: 0 1 100%;\n  min-height: 0;\n}\n.c-message__editor .ql-editor,\n.c-message__editor .ql-placeholder {\n  padding-bottom: 9px;\n  padding-top: 9px;\n}\n.feature_texty_mentions .c-message__editor .ql-editor,\n.feature_texty_mentions .c-message__editor .ql-placeholder {\n  line-height: 1.46667;\n}\n.c-message__editor__input {\n  background: #FFF;\n  border: 1px solid #C5C5C5;\n  border-radius: 0.25rem;\n  color: #3D3C40;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  height: auto;\n  line-height: 1.2;\n  margin: 0 0 0.5rem;\n  min-height: 40px;\n  overflow: auto;\n  box-shadow: none;\n  -webkit-user-select: auto;\n  -moz-user-select: auto;\n  -ms-user-select: auto;\n  user-select: auto;\n}\n.c-message__editor__input.focus {\n  border-color: #2780F8;\n  outline: none;\n  outline-offset: 0;\n  box-shadow: 0 0 7px rgba(39, 128, 248, 0.15);\n}\n.c-message__editor__footer {\n  align-items: center;\n  display: flex;\n}\n.c-message__editor__info {\n  flex: 1;\n  font-size: 0.8rem;\n  margin-left: 10px;\n}\n.c-message__editor__messages {\n  display: flex;\n  flex: 1;\n  justify-content: flex-end;\n}\n.c-message__editor__warning {\n  color: #EB4D5C;\n  font-size: 0.8rem;\n  margin-left: 10px;\n}\n.c-message__editor__save {\n  margin-left: 10px !important;\n}\n.c-message__editor button {\n  display: inline-block;\n}\n.c-message__reply_bar {\n  display: flex;\n  align-items: center;\n  max-width: 600px;\n  margin-top: 5px;\n  padding: 3px;\n  font-size: 12px;\n  border: 1px solid transparent;\n  border-radius: 6px;\n  cursor: pointer;\n}\n.c-message__reply_bar:hover {\n  background-color: #FFF;\n  border-color: rgba(0, 0, 0, 0.15);\n}\n.c-message__reply_bar:hover .c-message__reply_bar_arrow {\n  color: #A0A0A2;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_last_reply {\n  opacity: 0;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_view_thread {\n  opacity: 1;\n}\n.c-message__reply_bar .c-avatar {\n  margin-right: 4px;\n}\n.c-message__reply_count {\n  margin-left: 3px;\n  font-weight: bold;\n}\n.c-message__reply_bar_description {\n  position: relative;\n  margin-left: 8px;\n  color: #A0A0A2;\n}\n.c-message__reply_bar_arrow {\n  margin-left: auto;\n  color: transparent;\n}\n.c-message__reply_bar_arrow::before {\n  vertical-align: top;\n}\n.c-message__reply_bar_last_reply {\n  opacity: 1;\n  transition: opacity 0.2s;\n}\n.c-message__broadcast_preamble {\n  color: #A0A0A2;\n  display: flex;\n  overflow: hidden;\n  max-width: 100%;\n}\n.c-message--light .c-message__broadcast_preamble {\n  margin-bottom: 3px;\n}\n.c-message__broadcast_preamble_meta {\n  flex-shrink: 0;\n}\n.c-message__broadcast_preamble_link {\n  font-weight: bold;\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  margin-left: 4px;\n}\n.c-message__reply_bar_view_thread {\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  opacity: 0;\n  transition: opacity 0.2s;\n}\n.c-message__attachment {\n  display: flex;\n  align-items: stretch;\n  margin-top: 2px;\n}\n.c-message__attachment_column {\n  width: 4px;\n  background-color: #E8E8E8;\n  border-radius: 8px;\n}\n.c-message__attachment_body {\n  padding-left: 12px;\n  padding-right: 12px;\n}\n.c-message__bot-label {\n  color: #A0A0A2;\n  font-weight: 500;\n  font-size: 12px;\n  margin: 0 0.15rem;\n  padding: 0 0.1rem;\n  vertical-align: middle;\n  background: #f2f2f5;\n}\n.c-message__file_link {\n  font-weight: 700;\n}\n.c-message__file_meta {\n  line-height: 1.4;\n  color: #A0A0A2;\n}\n.c-message:hover .c-message__file_meta {\n  color: #717274;\n}\n.c-message__body--comment {\n  position: relative;\n  display: block;\n}\n.c-message__body--comment:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  content: '\\E516';\n  position: absolute;\n  left: -28px;\n  top: -4px;\n  color: #E8E8E8;\n}\n.c-message--dense .c-message__body--comment:before {\n  display: none;\n}\n.c-message__file_comment_user,\n.c-message__file_comment_user:link,\n.c-message__file_comment_user:visited {\n  color: inherit;\n}\n.c-message__file_actions {\n  opacity: 0;\n  transition: opacity 0.1s;\n}\n.c-message__file_action_button {\n  font-size: 0.8125rem;\n  height: 30px;\n  padding: 0.5rem 0.6rem;\n  margin-left: 6px;\n  box-shadow: none;\n  background-color: rgba(255, 255, 255, 0.9);\n}\n.c-message__file_action_button:after {\n  border: 1px solid rgba(0, 0, 0, 0.1);\n  top: -1px;\n  left: -1px;\n  right: -1px;\n  bottom: -1px;\n}\n.c-message__image_container {\n  position: relative;\n}\n.c-message__image_container:hover .c-message__file_actions {\n  opacity: 1;\n}\n.c-message__image_wrapper {\n  display: block;\n  position: relative;\n  overflow: hidden;\n  border-radius: 3px;\n  cursor: nesw-resize;\n  cursor: zoom-in;\n}\n.c-message__image_wrapper:after {\n  content: '';\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  border: 1px solid rgba(0, 0, 0, 0.1);\n  border-radius: 3px;\n}\n.c-message__image_description {\n  margin-bottom: 8px;\n  color: #A0A0A2;\n}\n.c-message:hover .c-message__image_description {\n  color: #717274;\n}\n.c-message__image_caret {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n}\n.c-message__image_caret:hover,\n.c-message__image_caret:focus,\n.c-message__image_caret:active {\n  outline: none;\n}\n.c-message__file_actions--image {\n  position: absolute;\n  top: 10px;\n  right: 10px;\n}\n.c-message__actions {\n  position: absolute;\n  top: -14px;\n  right: 5px;\n  display: none;\n  z-index: 1;\n}\n.c-message:hover .c-message__actions,\n.c-message__actions.c-message__actions--menu-showing {\n  display: block;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.t-list-reset {\n  margin-bottom: 0;\n  margin-left: 0;\n  padding: 0;\n  list-style-type: none;\n}\n.c-message {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  display: flex;\n  padding-right: 26px;\n  min-width: 1px;\n  position: relative;\n  -webkit-user-select: text;\n  -moz-user-select: text;\n  -ms-user-select: text;\n  user-select: text;\n}\n.c-message:hover:not(.c-message--highlight) {\n  background-color: #F9F9F9;\n}\n.c-message--highlight,\n.c-message--highlight_yellow_bg {\n  background: #FFFCE0;\n}\n.c-message--last {\n  margin-bottom: 16px;\n}\n.c-message.c-message--light {\n  padding-top: 5px;\n  padding-bottom: 3px;\n}\n.c-message.c-message--dense {\n  padding-top: 3px;\n  padding-bottom: 2px;\n}\n.c-message.c-message--light.c-message--adjacent {\n  padding-top: 2px;\n}\n.c-message__gutter {\n  text-align: right;\n  flex-shrink: 0;\n}\n.c-message--adjacent .c-message__gutter {\n  visibility: hidden;\n}\n.c-message--adjacent:hover .c-message__gutter {\n  visibility: visible;\n}\n.c-message--light .c-message__gutter {\n  width: 72px;\n  padding-right: 10px;\n}\n.c-message--dense .c-message__gutter {\n  width: 58px;\n  margin-right: 22px;\n}\n.c-message--dense .c-timestamp__label {\n  color: #717274;\n}\n.c-message__content {\n  flex: 0 1 100%;\n  margin-right: 14px;\n  min-width: 1px;\n}\n.c-message--dense .c-message__content {\n  padding-left: 8px;\n}\n.c-message__sender {\n  font-weight: 900;\n}\n.c-message--light .c-message__sender {\n  margin-right: 6px;\n  color: #2C2D30;\n}\n.c-message--dense .c-message__sender {\n  margin-left: -8px;\n  margin-right: 4px;\n}\n.c-message__sender--unknown {\n  display: inline-block;\n  width: 80px;\n  height: 0.9rem;\n  border-radius: 0.9rem;\n  vertical-align: bottom;\n  background: #E8E8E8;\n}\n.c-message--dense .c-message__content_header {\n  display: inline;\n  margin-bottom: 3px;\n}\n.c-message--dense.c-message--thread-broadcast .c-message__content_header {\n  display: flex;\n}\n.c-message--light .c-message__content_header {\n  line-height: 1;\n  margin-bottom: 3px;\n}\n.c-message__body {\n  line-height: 1.4;\n  color: #2C2D30;\n}\n.c-message__body--automated {\n  font-style: italic;\n  color: #A0A0A2;\n}\n.c-message:hover .c-message__body--automated {\n  color: #717274;\n}\n.c-message__mention {\n  background: #FFF4BF;\n  border-radius: 3px;\n  padding: 0 2px 1px 2px;\n}\n.c-message__editor {\n  flex: 0 1 100%;\n  min-height: 0;\n}\n.c-message__editor .ql-editor,\n.c-message__editor .ql-placeholder {\n  padding-bottom: 9px;\n  padding-top: 9px;\n}\n.feature_texty_mentions .c-message__editor .ql-editor,\n.feature_texty_mentions .c-message__editor .ql-placeholder {\n  line-height: 1.46667;\n}\n.c-message__editor__input {\n  background: #FFF;\n  border: 1px solid #C5C5C5;\n  border-radius: 0.25rem;\n  color: #3D3C40;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  height: auto;\n  line-height: 1.2;\n  margin: 0 0 0.5rem;\n  min-height: 40px;\n  overflow: auto;\n  box-shadow: none;\n  -webkit-user-select: auto;\n  -moz-user-select: auto;\n  -ms-user-select: auto;\n  user-select: auto;\n}\n.c-message__editor__input.focus {\n  border-color: #2780F8;\n  outline: none;\n  outline-offset: 0;\n  box-shadow: 0 0 7px rgba(39, 128, 248, 0.15);\n}\n.c-message__editor__footer {\n  align-items: center;\n  display: flex;\n}\n.c-message__editor__info {\n  flex: 1;\n  font-size: 0.8rem;\n  margin-left: 10px;\n}\n.c-message__editor__messages {\n  display: flex;\n  flex: 1;\n  justify-content: flex-end;\n}\n.c-message__editor__warning {\n  color: #EB4D5C;\n  font-size: 0.8rem;\n  margin-left: 10px;\n}\n.c-message__editor__save {\n  margin-left: 10px !important;\n}\n.c-message__editor button {\n  display: inline-block;\n}\n.c-message__reply_bar {\n  display: flex;\n  align-items: center;\n  max-width: 600px;\n  margin-top: 5px;\n  padding: 3px;\n  font-size: 12px;\n  border: 1px solid transparent;\n  border-radius: 6px;\n  cursor: pointer;\n}\n.c-message__reply_bar:hover {\n  background-color: #FFF;\n  border-color: rgba(0, 0, 0, 0.15);\n}\n.c-message__reply_bar:hover .c-message__reply_bar_arrow {\n  color: #A0A0A2;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_last_reply {\n  opacity: 0;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_view_thread {\n  opacity: 1;\n}\n.c-message__reply_bar .c-avatar {\n  margin-right: 4px;\n}\n.c-message__reply_count {\n  margin-left: 3px;\n  font-weight: bold;\n}\n.c-message__reply_bar_description {\n  position: relative;\n  margin-left: 8px;\n  color: #A0A0A2;\n}\n.c-message__reply_bar_arrow {\n  margin-left: auto;\n  color: transparent;\n}\n.c-message__reply_bar_arrow::before {\n  vertical-align: top;\n}\n.c-message__reply_bar_last_reply {\n  opacity: 1;\n  transition: opacity 0.2s;\n}\n.c-message__broadcast_preamble {\n  color: #A0A0A2;\n  display: flex;\n  overflow: hidden;\n  max-width: 100%;\n}\n.c-message--light .c-message__broadcast_preamble {\n  margin-bottom: 3px;\n}\n.c-message__broadcast_preamble_meta {\n  flex-shrink: 0;\n}\n.c-message__broadcast_preamble_link {\n  font-weight: bold;\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  margin-left: 4px;\n}\n.c-message__reply_bar_view_thread {\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  opacity: 0;\n  transition: opacity 0.2s;\n}\n.c-message__attachment {\n  display: flex;\n  align-items: stretch;\n  margin-top: 2px;\n}\n.c-message__attachment_column {\n  width: 4px;\n  background-color: #E8E8E8;\n  border-radius: 8px;\n}\n.c-message__attachment_body {\n  padding-left: 12px;\n  padding-right: 12px;\n}\n.c-message__bot-label {\n  color: #A0A0A2;\n  font-weight: 500;\n  font-size: 12px;\n  margin: 0 0.15rem;\n  padding: 0 0.1rem;\n  vertical-align: middle;\n  background: #f2f2f5;\n}\n.c-message__file_link {\n  font-weight: 700;\n}\n.c-message__file_meta {\n  line-height: 1.4;\n  color: #A0A0A2;\n}\n.c-message:hover .c-message__file_meta {\n  color: #717274;\n}\n.c-message__body--comment {\n  position: relative;\n  display: block;\n}\n.c-message__body--comment:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  content: '\\E516';\n  position: absolute;\n  left: -28px;\n  top: -4px;\n  color: #E8E8E8;\n}\n.c-message--dense .c-message__body--comment:before {\n  display: none;\n}\n.c-message__file_comment_user,\n.c-message__file_comment_user:link,\n.c-message__file_comment_user:visited {\n  color: inherit;\n}\n.c-message__file_actions {\n  opacity: 0;\n  transition: opacity 0.1s;\n}\n.c-message__file_action_button {\n  font-size: 0.8125rem;\n  height: 30px;\n  padding: 0.5rem 0.6rem;\n  margin-left: 6px;\n  box-shadow: none;\n  background-color: rgba(255, 255, 255, 0.9);\n  vertical-align: top;\n}\n.c-message__file_action_button:before {\n  line-height: 30px;\n}\n.c-message__file_action_button:after {\n  border: 1px solid rgba(0, 0, 0, 0.1);\n  top: -1px;\n  left: -1px;\n  right: -1px;\n  bottom: -1px;\n}\n.c-message__image_container {\n  position: relative;\n}\n.c-message__image_container:hover .c-message__file_actions {\n  opacity: 1;\n}\n.c-message__image_wrapper {\n  display: block;\n  position: relative;\n  overflow: hidden;\n  border-radius: 3px;\n  cursor: nesw-resize;\n  cursor: zoom-in;\n}\n.c-message__image_wrapper:after {\n  content: '';\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  border: 1px solid rgba(0, 0, 0, 0.1);\n  border-radius: 3px;\n}\n.c-message__image_description {\n  margin-bottom: 8px;\n  color: #A0A0A2;\n}\n.c-message:hover .c-message__image_description {\n  color: #717274;\n}\n.c-message__image_caret {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n}\n.c-message__image_caret:hover,\n.c-message__image_caret:focus,\n.c-message__image_caret:active {\n  outline: none;\n}\n.c-message__file_actions--image {\n  position: absolute;\n  top: 10px;\n  right: 10px;\n}\n.c-message__actions {\n  position: absolute;\n  top: -14px;\n  right: 5px;\n  display: none;\n  z-index: 1;\n}\n.c-message:hover .c-message__actions,\n.c-message__actions.c-message__actions--menu-showing {\n  display: block;\n}\n", ""]);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.c-message_list__day_divider {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 0.9rem;\n  width: 100%;\n  color: #2C2D30;\n  font-weight: bold;\n  text-align: center;\n  position: relative;\n  padding: 1rem 0;\n}\n.c-message_list__day_divider .c-message_list__unread_divider {\n  top: 12px;\n}\n.c-message_list__day_divider .c-message_list__unread_divider__separator {\n  margin-right: 0;\n}\n.c-message_list__day_divider__label {\n  cursor: default;\n  display: inline-block;\n  background: #FFF;\n  padding: 0.25rem 0.75rem;\n  position: relative;\n  z-index: 1;\n}\n.c-message_list__day_divider__line {\n  position: absolute;\n  top: 50%;\n  left: 0;\n  right: 0;\n  border-top: 1px solid #E8E8E8;\n  border-bottom: 0;\n  z-index: -1;\n  margin: 0;\n}\n.c-message_list__unread_divider {\n  position: relative;\n  top: -1px;\n  z-index: 1;\n}\n.c-message_list__unread_divider__separator {\n  border-bottom: none;\n  border-color: rgba(255, 135, 109, 0.5);\n  margin: 0 18px -1px 0;\n  -webkit-transition: border 150ms ease-out 0;\n  -moz-transition: border 150ms ease-out 0;\n  transition: border 150ms ease-out 0;\n}\n.c-message_list__unread_divider__label {\n  background: #FFF;\n  border-radius: 7px;\n  color: rgba(255, 135, 109, 0.5);\n  cursor: default;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 13px;\n  font-weight: bold;\n  line-height: 8px;\n  margin: -5px 11px -5px 0;\n  padding: 0 5px 3px 5px;\n  position: absolute;\n  right: 0;\n  text-transform: lowercase;\n  -webkit-transition: color 150ms ease-out 0;\n  -moz-transition: color 150ms ease-out 0;\n  transition: color 150ms ease-out 0;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.t-list-reset {\n  margin-bottom: 0;\n  margin-left: 0;\n  padding: 0;\n  list-style-type: none;\n}\n.c-message_list__day_divider {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 0.9rem;\n  width: 100%;\n  color: #2C2D30;\n  font-weight: bold;\n  text-align: center;\n  position: relative;\n  padding: 1rem 0;\n}\n.c-message_list__day_divider .c-message_list__unread_divider {\n  top: 12px;\n}\n.c-message_list__day_divider .c-message_list__unread_divider__separator {\n  margin-right: 0;\n}\n.c-message_list__day_divider__label {\n  cursor: default;\n  display: inline-block;\n  background: #FFF;\n  padding: 0.25rem 0.75rem;\n  position: relative;\n  z-index: 1;\n}\n.c-message_list__day_divider__line {\n  position: absolute;\n  top: 50%;\n  left: 0;\n  right: 0;\n  border-top: 1px solid #E8E8E8;\n  border-bottom: 0;\n  z-index: -1;\n  margin: 0;\n}\n.c-message_list__unread_divider {\n  position: relative;\n  top: -1px;\n  z-index: 1;\n}\n.c-message_list__unread_divider__separator {\n  border-bottom: none;\n  border-color: rgba(255, 135, 109, 0.5);\n  margin: 0 18px -1px 0;\n  -webkit-transition: border 150ms ease-out 0;\n  -moz-transition: border 150ms ease-out 0;\n  transition: border 150ms ease-out 0;\n}\n.c-message_list__unread_divider__label {\n  background: #FFF;\n  border-radius: 7px;\n  color: rgba(255, 135, 109, 0.5);\n  cursor: default;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 13px;\n  font-weight: bold;\n  line-height: 8px;\n  margin: -5px 11px -5px 0;\n  padding: 0 5px 3px 5px;\n  position: absolute;\n  right: 0;\n  text-transform: lowercase;\n  -webkit-transition: color 150ms ease-out 0;\n  -moz-transition: color 150ms ease-out 0;\n  transition: color 150ms ease-out 0;\n}\n", ""]);
 }, function(e, t, n) {
   var r = n(3117);
   "string" == typeof r && (r = [
@@ -41000,7 +41008,7 @@ webpackJsonp([332], [, function(e, t, n) {
       return {
         emojiMode: n.i(i.getUserPref)(e, "emoji_mode"),
         highlights: n.i(i.getUserPref)(e, "highlight_words"),
-        featureReactMessages: n.i(a.isFeatureEnabled)(e, "feature_react_messages")
+        featureReactMessages: n.i(a.useReactMessages)(e)
       };
     };
   t.a = n.i(r.b)(s)(o.a);
@@ -41632,7 +41640,7 @@ webpackJsonp([332], [, function(e, t, n) {
   n(219)(r, {});
   r.locals && (e.exports = r.locals);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, '.t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.c-reaction {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  line-height: inherit;\n  padding: 2px 3px;\n  display: inline-flex;\n  align-items: center;\n  border: 1px solid #E8E8E8;\n  border-radius: 5px;\n  margin-right: 5px;\n  margin-bottom: 5px;\n}\n.c-reaction:hover,\n.c-reaction:focus,\n.c-reaction:active {\n  outline: none;\n}\n.c-reaction .emoji-sizer {\n  font-size: 16px;\n}\n.c-reaction:hover {\n  border-color: #2D9EE0;\n  cursor: pointer;\n}\n.c-reaction--reacted {\n  background-color: rgba(0, 122, 184, 0.05);\n  border-color: rgba(0, 122, 184, 0.3);\n}\n.c-reaction__count {\n  font-size: 0.6875rem;\n  color: #717274;\n  font-family: "Helvetica Neue", Helvetica, "Segoe UI", Tahoma, Arial, sans-serif;\n  padding: 0 1px 0 3px;\n}\n.c-reaction--reacted .c-reaction__count {\n  color: #007AB8;\n  font-weight: 700;\n}\n.c-reaction_bar {\n  margin-top: 5px;\n}\n.c-reaction_add {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  line-height: inherit;\n  padding: 2px 3px;\n  display: inline-flex;\n  align-items: center;\n  border: 1px solid #E8E8E8;\n  border-radius: 5px;\n  margin-right: 5px;\n  margin-bottom: 5px;\n  display: inline-block;\n  position: relative;\n  padding: 3px 4px 1px 2px;\n  margin-left: 9px;\n  opacity: 0;\n  transition: opacity 0.2s;\n}\n.c-reaction_add:hover,\n.c-reaction_add:focus,\n.c-reaction_add:active {\n  outline: none;\n}\n.c-reaction_add .emoji-sizer {\n  font-size: 16px;\n}\n.c-reaction_add:hover {\n  border-color: #2D9EE0;\n}\n.c-reaction_add__background {\n  position: absolute;\n  width: 1rem;\n  height: 1rem;\n  top: 1px;\n  left: 3px;\n  color: #FFF;\n}\n.c-reaction_add__icon {\n  position: relative;\n  display: block;\n  width: 1rem;\n  height: 1rem;\n  z-index: 1;\n  color: #A0A0A2;\n}\n.c-reaction_add__icon::before {\n  font-size: 17px;\n  vertical-align: text-top;\n}\n.c-reaction_add__background::before {\n  font-size: 16px;\n}\n.c-reaction_bar:hover .c-reaction_add {\n  opacity: 1;\n}\n.c-reaction_add:hover .c-reaction_add__icon {\n  color: #C39A48;\n}\n.c-reaction_add:hover .c-reaction_add__background {\n  color: #FFD06D;\n}\n.c-reaction__tip_subtitle {\n  color: #A0A0A2;\n}\n', ""]);
+  t = e.exports = n(189)(), t.push([e.i, '.t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.t-list-reset {\n  margin-bottom: 0;\n  margin-left: 0;\n  padding: 0;\n  list-style-type: none;\n}\n.c-reaction {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  line-height: inherit;\n  padding: 2px 3px;\n  display: inline-flex;\n  align-items: center;\n  border: 1px solid #E8E8E8;\n  border-radius: 5px;\n  margin-right: 5px;\n  margin-bottom: 5px;\n}\n.c-reaction:hover,\n.c-reaction:focus,\n.c-reaction:active {\n  outline: none;\n}\n.c-reaction .emoji-sizer {\n  font-size: 16px;\n}\n.c-reaction:hover {\n  border-color: #2D9EE0;\n  cursor: pointer;\n}\n.c-reaction--reacted {\n  background-color: rgba(0, 122, 184, 0.05);\n  border-color: rgba(0, 122, 184, 0.3);\n}\n.c-reaction__count {\n  font-size: 0.6875rem;\n  color: #717274;\n  font-family: "Helvetica Neue", Helvetica, "Segoe UI", Tahoma, Arial, sans-serif;\n  padding: 0 1px 0 3px;\n}\n.c-reaction--reacted .c-reaction__count {\n  color: #007AB8;\n  font-weight: 700;\n}\n.c-reaction_bar {\n  margin-top: 5px;\n}\n.c-reaction_add {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  line-height: inherit;\n  padding: 2px 3px;\n  display: inline-flex;\n  align-items: center;\n  border: 1px solid #E8E8E8;\n  border-radius: 5px;\n  margin-right: 5px;\n  margin-bottom: 5px;\n  display: inline-block;\n  position: relative;\n  padding: 3px 4px 1px 2px;\n  margin-left: 9px;\n  opacity: 0;\n  transition: opacity 0.2s;\n}\n.c-reaction_add:hover,\n.c-reaction_add:focus,\n.c-reaction_add:active {\n  outline: none;\n}\n.c-reaction_add .emoji-sizer {\n  font-size: 16px;\n}\n.c-reaction_add:hover {\n  border-color: #2D9EE0;\n}\n.c-reaction_add__background {\n  position: absolute;\n  width: 1rem;\n  height: 1rem;\n  top: 1px;\n  left: 3px;\n  color: #FFF;\n}\n.c-reaction_add__icon {\n  position: relative;\n  display: block;\n  width: 1rem;\n  height: 1rem;\n  z-index: 1;\n  color: #A0A0A2;\n}\n.c-reaction_add__icon::before {\n  font-size: 17px;\n  vertical-align: text-top;\n}\n.c-reaction_add__background::before {\n  font-size: 16px;\n}\n.c-reaction_bar:hover .c-reaction_add {\n  opacity: 1;\n}\n.c-reaction_add:hover .c-reaction_add__icon {\n  color: #C39A48;\n}\n.c-reaction_add:hover .c-reaction_add__background {\n  color: #FFD06D;\n}\n.c-reaction__tip_subtitle {\n  color: #A0A0A2;\n}\n', ""]);
 }, function(e, t, n) {
   "use strict";
   var r = n(3216);
@@ -41770,7 +41778,7 @@ webpackJsonp([332], [, function(e, t, n) {
     }),
     i = n.i(r.a)("TS.mpims.closeMpim", function() {});
 }, , , , function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, '.t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.p-emoji_picker {\n  position: absolute;\n  min-width: 361px;\n  max-width: 361px;\n  color: #2C2D30;\n  z-index: 1053;\n  font-size: 0.95rem;\n  font-family: \'Slack-Lato\', \'appleLogo\', sans-serif;\n  background: #F9F9F9;\n  line-height: 1rem;\n  outline: none;\n}\nbody.winssb .p-emoji_picker {\n  overflow: visible;\n}\n.p-emoji_picker__content {\n  position: relative;\n  z-index: 151;\n  overflow: hidden;\n}\n.p-emoji_picker__list_container {\n  max-height: 270px;\n  overflow-y: auto;\n  overflow-x: hidden;\n  background: #FFFFFF;\n  position: relative;\n  border-right: 0;\n}\n.p-emoji_picker__list {\n  position: relative;\n  padding: 33px 0 0 8px;\n  margin-top: -33px;\n  min-height: 270px;\n}\n.p-emoji_picker__list_scroller {\n  outline: none;\n}\n.supports_custom_scrollbar:not(.slim_scrollbar) .p-emoji_picker__list_scroller {\n  border-right: 0.25rem solid transparent;\n}\n.supports_custom_scrollbar:not(.slim_scrollbar) .p-emoji_picker__list_scroller::-webkit-scrollbar {\n  position: absolute;\n  -webkit-appearance: none;\n  width: 8px;\n}\n.supports_custom_scrollbar:not(.slim_scrollbar) .p-emoji_picker__list_scroller::-webkit-scrollbar-track,\n.supports_custom_scrollbar:not(.slim_scrollbar) .p-emoji_picker__list_scroller::-webkit-scrollbar-thumb {\n  background-clip: padding-box !important;\n  border-radius: 3px;\n  color: #FFFFFF;\n}\n.supports_custom_scrollbar:not(.slim_scrollbar) .p-emoji_picker__list_scroller::-webkit-scrollbar-track {\n  background: #F5F5F5;\n  box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0;\n}\n.supports_custom_scrollbar:not(.slim_scrollbar) .p-emoji_picker__list_scroller::-webkit-scrollbar-thumb {\n  background: default;\n  box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;\n  min-height: 36px;\n}\n.supports_custom_scrollbar:not(.slim_scrollbar) .p-emoji_picker__list_scroller::-webkit-scrollbar-corner {\n  background: #FFFFFF;\n}\n.supports_custom_scrollbar.slim_scrollbar .p-emoji_picker__list_scroller {\n  border-right: 0.25rem solid transparent;\n}\n.supports_custom_scrollbar.slim_scrollbar .p-emoji_picker__list_scroller::-webkit-scrollbar {\n  position: absolute;\n  -webkit-appearance: none;\n  width: 8px;\n}\n.supports_custom_scrollbar.slim_scrollbar .p-emoji_picker__list_scroller::-webkit-scrollbar-track,\n.supports_custom_scrollbar.slim_scrollbar .p-emoji_picker__list_scroller::-webkit-scrollbar-thumb {\n  background-clip: padding-box !important;\n  border-radius: 3px;\n  color: #FFFFFF;\n}\n.supports_custom_scrollbar.slim_scrollbar .p-emoji_picker__list_scroller::-webkit-scrollbar-track {\n  background: #F5F5F5;\n  box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0;\n}\n.supports_custom_scrollbar.slim_scrollbar .p-emoji_picker__list_scroller::-webkit-scrollbar-thumb {\n  background: slim;\n  box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;\n  min-height: 36px;\n}\n.supports_custom_scrollbar.slim_scrollbar .p-emoji_picker__list_scroller::-webkit-scrollbar-corner {\n  background: #FFFFFF;\n}\n.p-emoji_picker__list_item {\n  border-color: transparent;\n  font-size: 20px;\n  text-align: center;\n  line-height: 21px;\n  width: 36px;\n  height: 32px;\n  margin: 0 1px -1px 0;\n  float: none;\n  display: inline-block;\n  text-shadow: 0 1px #FFFFFF;\n  padding: 0.25rem 0 .2rem 0;\n  font-weight: normal;\n  text-decoration: none;\n  overflow: hidden;\n  border-radius: 6px;\n  background: transparent;\n  -webkit-transition: background 0.15s ease-out 0.05s 0.2s ease-out 0.0000001ms;\n  -moz-transition: background 0.15s ease-out 0.05s 0.2s ease-out 0.0000001ms;\n  transition: background 0.15s ease-out 0.05s 0.2s ease-out 0.0000001ms;\n  -webkit-transition: background 0.15s ease-out 0.05s;\n  -moz-transition: background 0.15s ease-out 0.05s;\n  transition: background 0.15s ease-out 0.05s;\n}\n.p-emoji_picker__list_item:hover {\n  text-decoration: none;\n  overflow: hidden;\n  -webkit-transition: background 0.05s ease-out 0.2s ease-out 0.0000001ms;\n  -moz-transition: background 0.05s ease-out 0.2s ease-out 0.0000001ms;\n  transition: background 0.05s ease-out 0.2s ease-out 0.0000001ms;\n  -webkit-transition: background 0.05s ease-out;\n  -moz-transition: background 0.05s ease-out;\n  transition: background 0.05s ease-out;\n}\n.p-emoji_picker__list_item[data-color-index="0"]:hover,\n.p-emoji_picker__list_item[data-color-index="0"].key_selection {\n  background: #b7e887;\n}\n.p-emoji_picker__list_item[data-color-index="1"]:hover,\n.p-emoji_picker__list_item[data-color-index="1"].key_selection {\n  background: #b5e0fe;\n}\n.p-emoji_picker__list_item[data-color-index="2"]:hover,\n.p-emoji_picker__list_item[data-color-index="2"].key_selection {\n  background: #f9ef67;\n}\n.p-emoji_picker__list_item[data-color-index="3"]:hover,\n.p-emoji_picker__list_item[data-color-index="3"].key_selection {\n  background: #F3C1FD;\n}\n.p-emoji_picker__list_item[data-color-index="4"]:hover,\n.p-emoji_picker__list_item[data-color-index="4"].key_selection {\n  background: #FFE1AE;\n}\n.p-emoji_picker__list_item[data-color-index="5"]:hover,\n.p-emoji_picker__list_item[data-color-index="5"].key_selection {\n  background: #E0DFFF;\n}\n.p-emoji_picker__list_item .emoji-sizer {\n  line-height: 20px;\n}\n.p-emoji_picker__group_tabs {\n  padding: 4px 0px 0px 7px;\n  border-bottom: 1px solid rgba(0, 0, 0, 0.15);\n  height: 38px;\n}\n.p-emoji_picker__group_tab {\n  height: 100%;\n  color: #A0A0A2;\n  display: inline-block;\n  padding: 4px 5.8px 6px;\n  border-radius: 0.6rem 0.6rem 0 0;\n  margin-right: 3px;\n  border-bottom: 3px solid transparent;\n}\n.p-emoji_picker__group_tab:hover {\n  color: #717274;\n  text-decoration: none;\n  background: #F5F5F5;\n}\n.p-emoji_picker__group_tab--active {\n  margin-bottom: -1px;\n  background: #F9F9F9;\n  padding-top: 3px;\n  border-bottom: 3px solid #29A979;\n}\n.p-emoji_picker__heading {\n  margin: 0px 6px;\n  font-size: 1rem;\n  font-weight: 700;\n  line-height: 1.5rem;\n  position: relative;\n  background: rgba(255, 255, 255, 0.95);\n}\n.p-emoji_picker__heading--handy_rxns {\n  float: left;\n  margin: 4px 2px;\n  background-color: transparent;\n  width: 141px;\n}\n.p-emoji_picker__sticky_header {\n  position: absolute;\n  width: 100%;\n  z-index: 10;\n  top: -1px;\n  padding-top: 1px;\n}\n.p-emoji_picker__sticky_header .p-emoji_picker__heading {\n  position: absolute;\n  right: 12px;\n  left: 0;\n  top: 0;\n  padding: 0 8px;\n}\ninput.p-emoji_picker__input {\n  padding-top: 2px;\n  padding-bottom: 2px;\n  padding-left: 32px;\n  padding-right: 32px;\n  font-size: 15px;\n  margin: 0;\n  height: 28px;\n  width: 100%;\n  border-radius: 1rem;\n}\ninput.p-emoji_picker__input:focus {\n  box-shadow: inset 0 0 0 rgba(44, 45, 48, 0.3);\n  border-color: #c5c5c5;\n}\n.p-emoji_picker__input_container {\n  background: #FFFFFF;\n  padding: 8px;\n  position: relative;\n}\n.p-emoji_picker__icon_search {\n  top: 0.8125rem;\n  left: 1rem;\n  text-shadow: none;\n  display: block;\n  position: absolute;\n  color: #A0A0A2;\n}\n.p-emoji_picker__tip i,\n.p-emoji_picker__no_results i {\n  color: #A0A0A2;\n}\n.p-emoji_picker__tip {\n  clear: both;\n  font-weight: normal;\n  font-size: .8rem;\n  margin: 10px 0px;\n  text-align: center;\n  color: #717274;\n}\n.p-emoji_picker__tip .c-icon {\n  position: relative;\n  top: -1px;\n}\n.p-emoji_picker__tip--can_add_emoji {\n  margin-top: 0;\n}\n.p-emoji_picker__no_results {\n  clear: both;\n  font-weight: normal;\n  font-size: 1rem;\n  padding-top: 70px;\n  padding-right: 0;\n  padding-bottom: 10px;\n  color: #A0A0A2;\n  text-align: center;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="0"]:hover {\n  background: transparent;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="0"].key_selection {\n  background: #b7e887;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="1"]:hover {\n  background: transparent;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="1"].key_selection {\n  background: #b5e0fe;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="2"]:hover {\n  background: transparent;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="2"].key_selection {\n  background: #f9ef67;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="3"]:hover {\n  background: transparent;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="3"].key_selection {\n  background: #F3C1FD;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="4"]:hover {\n  background: transparent;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="4"].key_selection {\n  background: #FFE1AE;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="5"]:hover {\n  background: transparent;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="5"].key_selection {\n  background: #E0DFFF;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item:not(.key_selection) a:hover {\n  background: none;\n}\n.p-emoji_picker__footer {\n  background: #F9F9F9;\n  padding-bottom: 0.4rem;\n  border-top: 1px solid rgba(0, 0, 0, 0.15);\n  position: relative;\n}\n.p-emoji_picker__footer--previewing .p-emoji_picker__preview {\n  -webkit-transition: opacity 0.1s ease-in 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 0.1s ease-in 0.2s ease-out 0.0000001ms;\n  transition: opacity 0.1s ease-in 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 0.1s ease-in;\n  -moz-transition: opacity 0.1s ease-in;\n  transition: opacity 0.1s ease-in;\n  opacity: 1;\n}\n.p-emoji_picker__footer--previewing .p-emoji_picker__emoji_deluxe_label {\n  opacity: 0;\n  -webkit-transition: opacity 0.05s ease-in 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 0.05s ease-in 0.2s ease-out 0.0000001ms;\n  transition: opacity 0.05s ease-in 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 0.05s ease-in;\n  -moz-transition: opacity 0.05s ease-in;\n  transition: opacity 0.05s ease-in;\n}\n.p-emoji_picker__preview {\n  opacity: 0;\n  -webkit-transition: opacity 0.1s ease-in 0.9s 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 0.1s ease-in 0.9s 0.2s ease-out 0.0000001ms;\n  transition: opacity 0.1s ease-in 0.9s 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 0.1s ease-in 0.9s;\n  -moz-transition: opacity 0.1s ease-in 0.9s;\n  transition: opacity 0.1s ease-in 0.9s;\n  padding: 0.3rem 0 0 0.7rem;\n}\n.p-emoji_picker__emoji_deluxe_label {\n  position: absolute;\n  font-size: 1.2rem;\n  color: #A0A0A2;\n  bottom: -26px;\n  left: 14px;\n  opacity: 1;\n  -webkit-transition: opacity 0.1s ease-in 1.1s 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 0.1s ease-in 1.1s 0.2s ease-out 0.0000001ms;\n  transition: opacity 0.1s ease-in 1.1s 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 0.1s ease-in 1.1s;\n  -moz-transition: opacity 0.1s ease-in 1.1s;\n  transition: opacity 0.1s ease-in 1.1s;\n  font-family: \'Slack-Lato\', \'appleLogo\', sans-serif;\n  font-weight: 700;\n}\n.p-emoji_picker__preview_text {\n  font-size: 0.9rem;\n  line-height: .9rem;\n  padding: 0.6rem 0.7rem 0.8rem 0;\n  background: #F9F9F9;\n  color: #717274;\n  font-weight: 700;\n  float: left;\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n}\n.p-emoji_picker__preview_text--shortened {\n  width: 180px;\n}\n.p-emoji_picker__preview_aliases {\n  font-size: 0.8rem;\n  font-weight: normal;\n}\n.p-emoji_picker__preview_img {\n  float: left;\n  font-size: 2rem;\n  height: 54px;\n  line-height: 2rem;\n  padding: 0.7rem 0.5rem 0 .1rem;\n  vertical-align: middle;\n  width: 46px;\n}\n.p-emoji_picker__preview_img span.emoji-sizer {\n  /* This rule only affects Chrome. Other browsers inline the emoji character. */\n  margin-top: -0.3rem;\n  vertical-align: top;\n  font-size: 2.25rem;\n  line-height: 2.25rem;\n}\n.p-emoji_picker__handy_rxns {\n  margin-top: -1px;\n  padding: .3rem 0.7rem;\n  border-bottom: 1px solid rgba(0, 0, 0, 0.15);\n}\n.p-emoji_picker__handy_rxns_list .p-emoji_picker__list_item {\n  margin-right: 1px;\n}\n.p-emoji_picker__skintone_options,\n.p-emoji_picker__skintone_btn_container,\n.p-emoji_picker__skintone_tip {\n  position: absolute;\n  font-size: 1.2rem;\n  color: #A0A0A2;\n  padding: 3px;\n  right: 16px;\n  bottom: -33px;\n  -webkit-transition: opacity 0.1s ease-in 0s 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 0.1s ease-in 0s 0.2s ease-out 0.0000001ms;\n  transition: opacity 0.1s ease-in 0s 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 0.1s ease-in 0s;\n  -moz-transition: opacity 0.1s ease-in 0s;\n  transition: opacity 0.1s ease-in 0s;\n}\n.p-emoji_picker__skintone_btn_container {\n  opacity: 1;\n  cursor: pointer;\n  border: 1px solid transparent;\n  border-radius: 10px;\n  padding: 7px 3px 2px 3px;\n  display: flex;\n}\n.p-emoji_picker__skintone_btn_container .emoji-sizer {\n  font-size: 23px;\n}\n.p-emoji_picker__skintone_label {\n  font-size: 0.9rem;\n  display: inline-block;\n  margin: 0 3px;\n  font-weight: bold;\n}\n.p-emoji_picker__content:hover .p-emoji_picker__skintone_btn_container {\n  border: 1px solid #FFFFFF;\n  background: #FFFFFF;\n}\n.p-emoji_picker__skintone_options {\n  opacity: 0;\n  background: #FFFFFF;\n  border-radius: 10px;\n  pointer-events: none;\n  padding: 7px 3px 2px 3px;\n  border: 1px solid transparent;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n.p-emoji_picker__skintone_options > span {\n  border-radius: 2px;\n}\n.p-emoji_picker__skintone_options > span[data-preferred="true"] {\n  background: #FFFFFF;\n}\n.p-emoji_picker__skintone_options span.emoji-sizer {\n  font-size: 23px;\n}\n.p-emoji_picker__skintone_options span.emoji,\n.p-emoji_picker__skintone_options span.emoji-outer {\n  cursor: pointer;\n}\n.p-emoji_picker__skintone_options--visible {\n  opacity: 1;\n  pointer-events: all;\n}\n.p-emoji_picker__skintone_tip {\n  opacity: 0;\n  font-size: .68rem;\n  bottom: -50px;\n  right: 14px;\n  z-index: 2;\n  pointer-events: none;\n  font-weight: bold;\n}\n.p-emoji_picker__skintone_tip--visible {\n  opacity: 1;\n}\n', ""]);
+  t = e.exports = n(189)(), t.push([e.i, '.t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.t-list-reset {\n  margin-bottom: 0;\n  margin-left: 0;\n  padding: 0;\n  list-style-type: none;\n}\n.p-emoji_picker {\n  position: absolute;\n  min-width: 361px;\n  max-width: 361px;\n  color: #2C2D30;\n  z-index: 1053;\n  font-size: 0.95rem;\n  font-family: \'Slack-Lato\', \'appleLogo\', sans-serif;\n  background: #F9F9F9;\n  line-height: 1rem;\n  outline: none;\n}\nbody.winssb .p-emoji_picker {\n  overflow: visible;\n}\n.p-emoji_picker__content {\n  position: relative;\n  z-index: 151;\n  overflow: hidden;\n}\n.p-emoji_picker__list_container {\n  max-height: 270px;\n  overflow-y: auto;\n  overflow-x: hidden;\n  background: #FFFFFF;\n  position: relative;\n  border-right: 0;\n}\n.p-emoji_picker__list {\n  position: relative;\n  padding: 33px 0 0 8px;\n  margin-top: -33px;\n  min-height: 270px;\n}\n.p-emoji_picker__list_scroller {\n  outline: none;\n}\n.supports_custom_scrollbar:not(.slim_scrollbar) .p-emoji_picker__list_scroller {\n  border-right: 0.25rem solid transparent;\n}\n.supports_custom_scrollbar:not(.slim_scrollbar) .p-emoji_picker__list_scroller::-webkit-scrollbar {\n  position: absolute;\n  -webkit-appearance: none;\n  width: 8px;\n}\n.supports_custom_scrollbar:not(.slim_scrollbar) .p-emoji_picker__list_scroller::-webkit-scrollbar-track,\n.supports_custom_scrollbar:not(.slim_scrollbar) .p-emoji_picker__list_scroller::-webkit-scrollbar-thumb {\n  background-clip: padding-box !important;\n  border-radius: 3px;\n  color: #FFFFFF;\n}\n.supports_custom_scrollbar:not(.slim_scrollbar) .p-emoji_picker__list_scroller::-webkit-scrollbar-track {\n  background: #F5F5F5;\n  box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0;\n}\n.supports_custom_scrollbar:not(.slim_scrollbar) .p-emoji_picker__list_scroller::-webkit-scrollbar-thumb {\n  background: default;\n  box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;\n  min-height: 36px;\n}\n.supports_custom_scrollbar:not(.slim_scrollbar) .p-emoji_picker__list_scroller::-webkit-scrollbar-corner {\n  background: #FFFFFF;\n}\n.supports_custom_scrollbar.slim_scrollbar .p-emoji_picker__list_scroller {\n  border-right: 0.25rem solid transparent;\n}\n.supports_custom_scrollbar.slim_scrollbar .p-emoji_picker__list_scroller::-webkit-scrollbar {\n  position: absolute;\n  -webkit-appearance: none;\n  width: 8px;\n}\n.supports_custom_scrollbar.slim_scrollbar .p-emoji_picker__list_scroller::-webkit-scrollbar-track,\n.supports_custom_scrollbar.slim_scrollbar .p-emoji_picker__list_scroller::-webkit-scrollbar-thumb {\n  background-clip: padding-box !important;\n  border-radius: 3px;\n  color: #FFFFFF;\n}\n.supports_custom_scrollbar.slim_scrollbar .p-emoji_picker__list_scroller::-webkit-scrollbar-track {\n  background: #F5F5F5;\n  box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0;\n}\n.supports_custom_scrollbar.slim_scrollbar .p-emoji_picker__list_scroller::-webkit-scrollbar-thumb {\n  background: slim;\n  box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;\n  min-height: 36px;\n}\n.supports_custom_scrollbar.slim_scrollbar .p-emoji_picker__list_scroller::-webkit-scrollbar-corner {\n  background: #FFFFFF;\n}\n.p-emoji_picker__list_item {\n  border-color: transparent;\n  font-size: 20px;\n  text-align: center;\n  line-height: 21px;\n  width: 36px;\n  height: 32px;\n  margin: 0 1px -1px 0;\n  float: none;\n  display: inline-block;\n  text-shadow: 0 1px #FFFFFF;\n  padding: 0.25rem 0 .2rem 0;\n  font-weight: normal;\n  text-decoration: none;\n  overflow: hidden;\n  border-radius: 6px;\n  background: transparent;\n  -webkit-transition: background 0.15s ease-out 0.05s 0.2s ease-out 0.0000001ms;\n  -moz-transition: background 0.15s ease-out 0.05s 0.2s ease-out 0.0000001ms;\n  transition: background 0.15s ease-out 0.05s 0.2s ease-out 0.0000001ms;\n  -webkit-transition: background 0.15s ease-out 0.05s;\n  -moz-transition: background 0.15s ease-out 0.05s;\n  transition: background 0.15s ease-out 0.05s;\n}\n.p-emoji_picker__list_item:hover {\n  text-decoration: none;\n  overflow: hidden;\n  -webkit-transition: background 0.05s ease-out 0.2s ease-out 0.0000001ms;\n  -moz-transition: background 0.05s ease-out 0.2s ease-out 0.0000001ms;\n  transition: background 0.05s ease-out 0.2s ease-out 0.0000001ms;\n  -webkit-transition: background 0.05s ease-out;\n  -moz-transition: background 0.05s ease-out;\n  transition: background 0.05s ease-out;\n}\n.p-emoji_picker__list_item[data-color-index="0"]:hover,\n.p-emoji_picker__list_item[data-color-index="0"].key_selection {\n  background: #b7e887;\n}\n.p-emoji_picker__list_item[data-color-index="1"]:hover,\n.p-emoji_picker__list_item[data-color-index="1"].key_selection {\n  background: #b5e0fe;\n}\n.p-emoji_picker__list_item[data-color-index="2"]:hover,\n.p-emoji_picker__list_item[data-color-index="2"].key_selection {\n  background: #f9ef67;\n}\n.p-emoji_picker__list_item[data-color-index="3"]:hover,\n.p-emoji_picker__list_item[data-color-index="3"].key_selection {\n  background: #F3C1FD;\n}\n.p-emoji_picker__list_item[data-color-index="4"]:hover,\n.p-emoji_picker__list_item[data-color-index="4"].key_selection {\n  background: #FFE1AE;\n}\n.p-emoji_picker__list_item[data-color-index="5"]:hover,\n.p-emoji_picker__list_item[data-color-index="5"].key_selection {\n  background: #E0DFFF;\n}\n.p-emoji_picker__list_item .emoji-sizer {\n  line-height: 20px;\n}\n.p-emoji_picker__group_tabs {\n  padding: 4px 0px 0px 7px;\n  border-bottom: 1px solid rgba(0, 0, 0, 0.15);\n  height: 38px;\n}\n.p-emoji_picker__group_tab {\n  height: 100%;\n  color: #A0A0A2;\n  display: inline-block;\n  padding: 4px 5.8px 6px;\n  border-radius: 0.6rem 0.6rem 0 0;\n  margin-right: 3px;\n  border-bottom: 3px solid transparent;\n}\n.p-emoji_picker__group_tab:hover {\n  color: #717274;\n  text-decoration: none;\n  background: #F5F5F5;\n}\n.p-emoji_picker__group_tab--active {\n  margin-bottom: -1px;\n  background: #F9F9F9;\n  padding-top: 3px;\n  border-bottom: 3px solid #29A979;\n}\n.p-emoji_picker__heading {\n  margin: 0px 6px;\n  font-size: 1rem;\n  font-weight: 700;\n  line-height: 1.5rem;\n  position: relative;\n  background: rgba(255, 255, 255, 0.95);\n}\n.p-emoji_picker__heading--handy_rxns {\n  float: left;\n  margin: 4px 2px;\n  background-color: transparent;\n  width: 141px;\n}\n.p-emoji_picker__sticky_header {\n  position: absolute;\n  width: 100%;\n  z-index: 10;\n  top: -1px;\n  padding-top: 1px;\n}\n.p-emoji_picker__sticky_header .p-emoji_picker__heading {\n  position: absolute;\n  right: 12px;\n  left: 0;\n  top: 0;\n  padding: 0 8px;\n}\ninput.p-emoji_picker__input {\n  padding-top: 2px;\n  padding-bottom: 2px;\n  padding-left: 32px;\n  padding-right: 32px;\n  font-size: 15px;\n  margin: 0;\n  height: 28px;\n  width: 100%;\n  border-radius: 1rem;\n}\ninput.p-emoji_picker__input:focus {\n  box-shadow: inset 0 0 0 rgba(44, 45, 48, 0.3);\n  border-color: #c5c5c5;\n}\n.p-emoji_picker__input_container {\n  background: #FFFFFF;\n  padding: 8px;\n  position: relative;\n}\n.p-emoji_picker__icon_search {\n  top: 0.8125rem;\n  left: 1rem;\n  text-shadow: none;\n  display: block;\n  position: absolute;\n  color: #A0A0A2;\n}\n.p-emoji_picker__tip i,\n.p-emoji_picker__no_results i {\n  color: #A0A0A2;\n}\n.p-emoji_picker__tip {\n  clear: both;\n  font-weight: normal;\n  font-size: .8rem;\n  margin: 10px 0px;\n  text-align: center;\n  color: #717274;\n}\n.p-emoji_picker__tip .c-icon {\n  position: relative;\n  top: -1px;\n}\n.p-emoji_picker__tip--can_add_emoji {\n  margin-top: 0;\n}\n.p-emoji_picker__no_results {\n  clear: both;\n  font-weight: normal;\n  font-size: 1rem;\n  padding-top: 70px;\n  padding-right: 0;\n  padding-bottom: 10px;\n  color: #A0A0A2;\n  text-align: center;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="0"]:hover {\n  background: transparent;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="0"].key_selection {\n  background: #b7e887;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="1"]:hover {\n  background: transparent;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="1"].key_selection {\n  background: #b5e0fe;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="2"]:hover {\n  background: transparent;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="2"].key_selection {\n  background: #f9ef67;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="3"]:hover {\n  background: transparent;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="3"].key_selection {\n  background: #F3C1FD;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="4"]:hover {\n  background: transparent;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="4"].key_selection {\n  background: #FFE1AE;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="5"]:hover {\n  background: transparent;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="5"].key_selection {\n  background: #E0DFFF;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item:not(.key_selection) a:hover {\n  background: none;\n}\n.p-emoji_picker__footer {\n  background: #F9F9F9;\n  padding-bottom: 0.4rem;\n  border-top: 1px solid rgba(0, 0, 0, 0.15);\n  position: relative;\n}\n.p-emoji_picker__footer--previewing .p-emoji_picker__preview {\n  -webkit-transition: opacity 0.1s ease-in 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 0.1s ease-in 0.2s ease-out 0.0000001ms;\n  transition: opacity 0.1s ease-in 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 0.1s ease-in;\n  -moz-transition: opacity 0.1s ease-in;\n  transition: opacity 0.1s ease-in;\n  opacity: 1;\n}\n.p-emoji_picker__footer--previewing .p-emoji_picker__emoji_deluxe_label {\n  opacity: 0;\n  -webkit-transition: opacity 0.05s ease-in 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 0.05s ease-in 0.2s ease-out 0.0000001ms;\n  transition: opacity 0.05s ease-in 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 0.05s ease-in;\n  -moz-transition: opacity 0.05s ease-in;\n  transition: opacity 0.05s ease-in;\n}\n.p-emoji_picker__preview {\n  opacity: 0;\n  -webkit-transition: opacity 0.1s ease-in 0.9s 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 0.1s ease-in 0.9s 0.2s ease-out 0.0000001ms;\n  transition: opacity 0.1s ease-in 0.9s 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 0.1s ease-in 0.9s;\n  -moz-transition: opacity 0.1s ease-in 0.9s;\n  transition: opacity 0.1s ease-in 0.9s;\n  padding: 0.3rem 0 0 0.7rem;\n}\n.p-emoji_picker__emoji_deluxe_label {\n  position: absolute;\n  font-size: 1.2rem;\n  color: #A0A0A2;\n  bottom: -26px;\n  left: 14px;\n  opacity: 1;\n  -webkit-transition: opacity 0.1s ease-in 1.1s 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 0.1s ease-in 1.1s 0.2s ease-out 0.0000001ms;\n  transition: opacity 0.1s ease-in 1.1s 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 0.1s ease-in 1.1s;\n  -moz-transition: opacity 0.1s ease-in 1.1s;\n  transition: opacity 0.1s ease-in 1.1s;\n  font-family: \'Slack-Lato\', \'appleLogo\', sans-serif;\n  font-weight: 700;\n}\n.p-emoji_picker__preview_text {\n  font-size: 0.9rem;\n  line-height: .9rem;\n  padding: 0.6rem 0.7rem 0.8rem 0;\n  background: #F9F9F9;\n  color: #717274;\n  font-weight: 700;\n  float: left;\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n}\n.p-emoji_picker__preview_text--shortened {\n  width: 180px;\n}\n.p-emoji_picker__preview_aliases {\n  font-size: 0.8rem;\n  font-weight: normal;\n}\n.p-emoji_picker__preview_img {\n  float: left;\n  font-size: 2rem;\n  height: 54px;\n  line-height: 2rem;\n  padding: 0.7rem 0.5rem 0 .1rem;\n  vertical-align: middle;\n  width: 46px;\n}\n.p-emoji_picker__preview_img span.emoji-sizer {\n  /* This rule only affects Chrome. Other browsers inline the emoji character. */\n  margin-top: -0.3rem;\n  vertical-align: top;\n  font-size: 2.25rem;\n  line-height: 2.25rem;\n}\n.p-emoji_picker__handy_rxns {\n  margin-top: -1px;\n  padding: .3rem 0.7rem;\n  border-bottom: 1px solid rgba(0, 0, 0, 0.15);\n}\n.p-emoji_picker__handy_rxns_list .p-emoji_picker__list_item {\n  margin-right: 1px;\n}\n.p-emoji_picker__skintone_options,\n.p-emoji_picker__skintone_btn_container,\n.p-emoji_picker__skintone_tip {\n  position: absolute;\n  font-size: 1.2rem;\n  color: #A0A0A2;\n  padding: 3px;\n  right: 16px;\n  bottom: -33px;\n  -webkit-transition: opacity 0.1s ease-in 0s 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 0.1s ease-in 0s 0.2s ease-out 0.0000001ms;\n  transition: opacity 0.1s ease-in 0s 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 0.1s ease-in 0s;\n  -moz-transition: opacity 0.1s ease-in 0s;\n  transition: opacity 0.1s ease-in 0s;\n}\n.p-emoji_picker__skintone_btn_container {\n  opacity: 1;\n  cursor: pointer;\n  border: 1px solid transparent;\n  border-radius: 10px;\n  padding: 7px 3px 2px 3px;\n  display: flex;\n}\n.p-emoji_picker__skintone_btn_container .emoji-sizer {\n  font-size: 23px;\n}\n.p-emoji_picker__skintone_label {\n  font-size: 0.9rem;\n  display: inline-block;\n  margin: 0 3px;\n  font-weight: bold;\n}\n.p-emoji_picker__content:hover .p-emoji_picker__skintone_btn_container {\n  border: 1px solid #FFFFFF;\n  background: #FFFFFF;\n}\n.p-emoji_picker__skintone_options {\n  opacity: 0;\n  background: #FFFFFF;\n  border-radius: 10px;\n  pointer-events: none;\n  padding: 7px 3px 2px 3px;\n  border: 1px solid transparent;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n.p-emoji_picker__skintone_options > span {\n  border-radius: 2px;\n}\n.p-emoji_picker__skintone_options > span[data-preferred="true"] {\n  background: #FFFFFF;\n}\n.p-emoji_picker__skintone_options span.emoji-sizer {\n  font-size: 23px;\n}\n.p-emoji_picker__skintone_options span.emoji,\n.p-emoji_picker__skintone_options span.emoji-outer {\n  cursor: pointer;\n}\n.p-emoji_picker__skintone_options--visible {\n  opacity: 1;\n  pointer-events: all;\n}\n.p-emoji_picker__skintone_tip {\n  opacity: 0;\n  font-size: .68rem;\n  bottom: -50px;\n  right: 14px;\n  z-index: 2;\n  pointer-events: none;\n  font-weight: bold;\n}\n.p-emoji_picker__skintone_tip--visible {\n  opacity: 1;\n}\n', ""]);
 }, function(e, t, n) {
   var r = n(3238);
   "string" == typeof r && (r = [
@@ -42389,7 +42397,7 @@ webpackJsonp([332], [, function(e, t, n) {
 
   function r(e, t, r) {
     var o = r();
-    if (n.i(a.isFeatureEnabled)(o, "feature_react_messages")) {
+    if (n.i(a.useReactMessages)(o)) {
       if (!n.i(i.wasLastConnectFast)(o)) {
         n.i(i.wasPreviouslyConnected)(o) && t(n.i(s.resetReachedEnd)());
       }
@@ -42476,7 +42484,7 @@ webpackJsonp([332], [, function(e, t, n) {
       return null;
     });
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.c-avatar {\n  position: relative;\n  display: inline-block;\n  border-radius: 3px;\n  overflow: hidden;\n  cursor: pointer;\n}\n.c-avatar--no_image {\n  background-color: #E8E8E8;\n  cursor: default;\n}\n.c-avatar__additional_overlay {\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  color: #FFF;\n  font-weight: bold;\n  font-size: 15px;\n  text-align: center;\n  background-color: rgba(0, 0, 0, 0.5);\n  border-radius: 3px;\n}\n.c-avatar--24,\n.c-avatar--24 .c-avatar__image {\n  width: 24px;\n  height: 24px;\n}\n.c-avatar--24 .c-avatar__additional_overlay {\n  line-height: 24px;\n}\n.c-avatar--36,\n.c-avatar--36 .c-avatar__image {\n  width: 36px;\n  height: 36px;\n}\n.c-avatar--36 .c-avatar__additional_overlay {\n  line-height: 36px;\n}\n.c-avatar--48,\n.c-avatar--48 .c-avatar__image {\n  width: 48px;\n  height: 48px;\n}\n.c-avatar--48 .c-avatar__additional_overlay {\n  line-height: 48px;\n}\n.c-avatar--72,\n.c-avatar--72 .c-avatar__image {\n  width: 72px;\n  height: 72px;\n}\n.c-avatar--72 .c-avatar__additional_overlay {\n  line-height: 72px;\n}\n.c-avatar--192 .c-avatar--192 .c-avatar__image {\n  width: 192px;\n  height: 192px;\n}\n.c-avatar--192 .c-avatar__additional_overlay {\n  line-height: 192px;\n}\n.c-avatar--512,\n.c-avatar--512 .c-avatar__image {\n  width: 512px;\n  height: 512px;\n}\n.c-avatar--512 .c-avatar__additional_overlay {\n  line-height: 512px;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.t-list-reset {\n  margin-bottom: 0;\n  margin-left: 0;\n  padding: 0;\n  list-style-type: none;\n}\n.c-avatar {\n  position: relative;\n  display: inline-block;\n  border-radius: 3px;\n  overflow: hidden;\n  cursor: pointer;\n}\n.c-avatar--no_image {\n  background-color: #E8E8E8;\n  cursor: default;\n}\n.c-avatar__additional_overlay {\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  color: #FFF;\n  font-weight: bold;\n  font-size: 15px;\n  text-align: center;\n  background-color: rgba(0, 0, 0, 0.5);\n  border-radius: 3px;\n}\n.c-avatar--24,\n.c-avatar--24 .c-avatar__image {\n  width: 24px;\n  height: 24px;\n}\n.c-avatar--24 .c-avatar__additional_overlay {\n  line-height: 24px;\n}\n.c-avatar--36,\n.c-avatar--36 .c-avatar__image {\n  width: 36px;\n  height: 36px;\n}\n.c-avatar--36 .c-avatar__additional_overlay {\n  line-height: 36px;\n}\n.c-avatar--48,\n.c-avatar--48 .c-avatar__image {\n  width: 48px;\n  height: 48px;\n}\n.c-avatar--48 .c-avatar__additional_overlay {\n  line-height: 48px;\n}\n.c-avatar--72,\n.c-avatar--72 .c-avatar__image {\n  width: 72px;\n  height: 72px;\n}\n.c-avatar--72 .c-avatar__additional_overlay {\n  line-height: 72px;\n}\n.c-avatar--192 .c-avatar--192 .c-avatar__image {\n  width: 192px;\n  height: 192px;\n}\n.c-avatar--192 .c-avatar__additional_overlay {\n  line-height: 192px;\n}\n.c-avatar--512,\n.c-avatar--512 .c-avatar__image {\n  width: 512px;\n  height: 512px;\n}\n.c-avatar--512 .c-avatar__additional_overlay {\n  line-height: 512px;\n}\n", ""]);
 }, function(e, t, n) {
   "use strict";
 
@@ -43059,9 +43067,9 @@ webpackJsonp([332], [, function(e, t, n) {
     D = n(3361),
     Y = r(D),
     A = n(3316),
-    I = r(A),
-    R = n(3363),
-    N = r(R),
+    R = r(A),
+    I = n(3363),
+    N = r(I),
     F = n(3365),
     H = r(F),
     q = n(3366),
@@ -43103,7 +43111,7 @@ webpackJsonp([332], [, function(e, t, n) {
     "formats/font": y.FontClass,
     "formats/size": v.SizeClass,
     "formats/blockquote": c.default,
-    "formats/code-block": I.default,
+    "formats/code-block": R.default,
     "formats/header": f.default,
     "formats/list": h.default,
     "formats/bold": b.default,
@@ -48803,16 +48811,16 @@ webpackJsonp([332], [, function(e, t, n) {
     D = n(3310),
     Y = r(D),
     A = n(3311),
-    I = r(A),
-    R = n(3309),
-    N = r(R),
+    R = r(A),
+    I = n(3309),
+    N = r(I),
     F = n(3331),
     H = n(3332),
     q = n(3323),
     z = n(3334),
     U = n(3335),
     W = n(3336),
-    B = (0, I.default)("quill:clipboard"),
+    B = (0, R.default)("quill:clipboard"),
     G = "__ql-matcher",
     V = [
       [Node.TEXT_NODE, M],
@@ -50272,12 +50280,12 @@ webpackJsonp([332], [, function(e, t, n) {
       if (n + r > e.length) throw new RangeError("Index out of range");
     }
 
-    function I(e, t, n, r) {
+    function R(e, t, n, r) {
       t < 0 && (t = 65535 + t + 1);
       for (var o = 0, i = Math.min(e.length - n, 2); o < i; ++o) e[n + o] = (t & 255 << 8 * (r ? o : 1 - o)) >>> 8 * (r ? o : 1 - o);
     }
 
-    function R(e, t, n, r) {
+    function I(e, t, n, r) {
       t < 0 && (t = 4294967295 + t + 1);
       for (var o = 0, i = Math.min(e.length - n, 4); o < i; ++o) e[n + o] = t >>> 8 * (r ? o : 3 - o) & 255;
     }
@@ -50608,13 +50616,13 @@ webpackJsonp([332], [, function(e, t, n) {
     }, i.prototype.writeUInt8 = function(e, t, n) {
       return e = +e, t |= 0, n || A(this, e, t, 1, 255, 0), i.TYPED_ARRAY_SUPPORT || (e = Math.floor(e)), this[t] = 255 & e, t + 1;
     }, i.prototype.writeUInt16LE = function(e, t, n) {
-      return e = +e, t |= 0, n || A(this, e, t, 2, 65535, 0), i.TYPED_ARRAY_SUPPORT ? (this[t] = 255 & e, this[t + 1] = e >>> 8) : I(this, e, t, !0), t + 2;
+      return e = +e, t |= 0, n || A(this, e, t, 2, 65535, 0), i.TYPED_ARRAY_SUPPORT ? (this[t] = 255 & e, this[t + 1] = e >>> 8) : R(this, e, t, !0), t + 2;
     }, i.prototype.writeUInt16BE = function(e, t, n) {
-      return e = +e, t |= 0, n || A(this, e, t, 2, 65535, 0), i.TYPED_ARRAY_SUPPORT ? (this[t] = e >>> 8, this[t + 1] = 255 & e) : I(this, e, t, !1), t + 2;
+      return e = +e, t |= 0, n || A(this, e, t, 2, 65535, 0), i.TYPED_ARRAY_SUPPORT ? (this[t] = e >>> 8, this[t + 1] = 255 & e) : R(this, e, t, !1), t + 2;
     }, i.prototype.writeUInt32LE = function(e, t, n) {
-      return e = +e, t |= 0, n || A(this, e, t, 4, 4294967295, 0), i.TYPED_ARRAY_SUPPORT ? (this[t + 3] = e >>> 24, this[t + 2] = e >>> 16, this[t + 1] = e >>> 8, this[t] = 255 & e) : R(this, e, t, !0), t + 4;
+      return e = +e, t |= 0, n || A(this, e, t, 4, 4294967295, 0), i.TYPED_ARRAY_SUPPORT ? (this[t + 3] = e >>> 24, this[t + 2] = e >>> 16, this[t + 1] = e >>> 8, this[t] = 255 & e) : I(this, e, t, !0), t + 4;
     }, i.prototype.writeUInt32BE = function(e, t, n) {
-      return e = +e, t |= 0, n || A(this, e, t, 4, 4294967295, 0), i.TYPED_ARRAY_SUPPORT ? (this[t] = e >>> 24, this[t + 1] = e >>> 16, this[t + 2] = e >>> 8, this[t + 3] = 255 & e) : R(this, e, t, !1), t + 4;
+      return e = +e, t |= 0, n || A(this, e, t, 4, 4294967295, 0), i.TYPED_ARRAY_SUPPORT ? (this[t] = e >>> 24, this[t + 1] = e >>> 16, this[t + 2] = e >>> 8, this[t + 3] = 255 & e) : I(this, e, t, !1), t + 4;
     }, i.prototype.writeIntLE = function(e, t, n, r) {
       if (e = +e, t |= 0, !r) {
         var o = Math.pow(2, 8 * n - 1);
@@ -50638,13 +50646,13 @@ webpackJsonp([332], [, function(e, t, n) {
     }, i.prototype.writeInt8 = function(e, t, n) {
       return e = +e, t |= 0, n || A(this, e, t, 1, 127, -128), i.TYPED_ARRAY_SUPPORT || (e = Math.floor(e)), e < 0 && (e = 255 + e + 1), this[t] = 255 & e, t + 1;
     }, i.prototype.writeInt16LE = function(e, t, n) {
-      return e = +e, t |= 0, n || A(this, e, t, 2, 32767, -32768), i.TYPED_ARRAY_SUPPORT ? (this[t] = 255 & e, this[t + 1] = e >>> 8) : I(this, e, t, !0), t + 2;
+      return e = +e, t |= 0, n || A(this, e, t, 2, 32767, -32768), i.TYPED_ARRAY_SUPPORT ? (this[t] = 255 & e, this[t + 1] = e >>> 8) : R(this, e, t, !0), t + 2;
     }, i.prototype.writeInt16BE = function(e, t, n) {
-      return e = +e, t |= 0, n || A(this, e, t, 2, 32767, -32768), i.TYPED_ARRAY_SUPPORT ? (this[t] = e >>> 8, this[t + 1] = 255 & e) : I(this, e, t, !1), t + 2;
+      return e = +e, t |= 0, n || A(this, e, t, 2, 32767, -32768), i.TYPED_ARRAY_SUPPORT ? (this[t] = e >>> 8, this[t + 1] = 255 & e) : R(this, e, t, !1), t + 2;
     }, i.prototype.writeInt32LE = function(e, t, n) {
-      return e = +e, t |= 0, n || A(this, e, t, 4, 2147483647, -2147483648), i.TYPED_ARRAY_SUPPORT ? (this[t] = 255 & e, this[t + 1] = e >>> 8, this[t + 2] = e >>> 16, this[t + 3] = e >>> 24) : R(this, e, t, !0), t + 4;
+      return e = +e, t |= 0, n || A(this, e, t, 4, 2147483647, -2147483648), i.TYPED_ARRAY_SUPPORT ? (this[t] = 255 & e, this[t + 1] = e >>> 8, this[t + 2] = e >>> 16, this[t + 3] = e >>> 24) : I(this, e, t, !0), t + 4;
     }, i.prototype.writeInt32BE = function(e, t, n) {
-      return e = +e, t |= 0, n || A(this, e, t, 4, 2147483647, -2147483648), e < 0 && (e = 4294967295 + e + 1), i.TYPED_ARRAY_SUPPORT ? (this[t] = e >>> 24, this[t + 1] = e >>> 16, this[t + 2] = e >>> 8, this[t + 3] = 255 & e) : R(this, e, t, !1), t + 4;
+      return e = +e, t |= 0, n || A(this, e, t, 4, 2147483647, -2147483648), e < 0 && (e = 4294967295 + e + 1), i.TYPED_ARRAY_SUPPORT ? (this[t] = e >>> 24, this[t + 1] = e >>> 16, this[t + 2] = e >>> 8, this[t + 3] = 255 & e) : I(this, e, t, !1), t + 4;
     }, i.prototype.writeFloatLE = function(e, t, n) {
       return F(this, e, t, !0, n);
     }, i.prototype.writeFloatBE = function(e, t, n) {
@@ -54657,9 +54665,9 @@ webpackJsonp([332], [, function(e, t, n) {
     sideEffect: r
   });
 }, , , , , function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.c-enhanced_text_input {\n  border-radius: 0.25rem;\n  display: flex;\n  align-items: center;\n  -webkit-transition: box-shadow 70ms ease-out, border-color 70ms ease-out 0.2s ease-out 0.0000001ms;\n  -moz-transition: box-shadow 70ms ease-out, border-color 70ms ease-out 0.2s ease-out 0.0000001ms;\n  transition: box-shadow 70ms ease-out, border-color 70ms ease-out 0.2s ease-out 0.0000001ms;\n  -webkit-transition: box-shadow 70ms ease-out, border-color 70ms ease-out;\n  -moz-transition: box-shadow 70ms ease-out, border-color 70ms ease-out;\n  transition: box-shadow 70ms ease-out, border-color 70ms ease-out;\n  border: 1px solid #C5C5C5;\n  padding: 6px 8px;\n  color: #A0A0A2;\n  font-size: 1rem;\n}\n.c-enhanced_text_input:hover,\n.c-enhanced_text_input.c-enhanced_text_input--active {\n  border-color: #2780F8;\n  box-shadow: 0 0 7px rgba(39, 128, 248, 0.15);\n}\n.c-enhanced_text_input .c-icon:before {\n  font-size: 1.2rem;\n}\n.c-enhanced_text_input__input[type=text] {\n  flex-grow: 1;\n  margin: 0;\n  padding: 0 0.5rem;\n  border: 0 none !important;\n  font-size: 1rem;\n}\n.c-enhanced_text_input__input[type=text]:active,\n.c-enhanced_text_input__input[type=text]:focus {\n  box-shadow: none;\n}\n.c-enhanced_text_input__reset_button {\n  display: none;\n  cursor: pointer;\n}\n.c-enhanced_text_input__reset_button--visible {\n  display: block;\n}\n.feature_keyboard_navigation .c-enhanced_text_input:hover,\n.feature_keyboard_navigation .c-enhanced_text_input.c-enhanced_text_input--active {\n  border-color: #717274;\n  box-shadow: none;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.t-list-reset {\n  margin-bottom: 0;\n  margin-left: 0;\n  padding: 0;\n  list-style-type: none;\n}\n.c-enhanced_text_input {\n  border-radius: 0.25rem;\n  display: flex;\n  align-items: center;\n  -webkit-transition: box-shadow 70ms ease-out, border-color 70ms ease-out 0.2s ease-out 0.0000001ms;\n  -moz-transition: box-shadow 70ms ease-out, border-color 70ms ease-out 0.2s ease-out 0.0000001ms;\n  transition: box-shadow 70ms ease-out, border-color 70ms ease-out 0.2s ease-out 0.0000001ms;\n  -webkit-transition: box-shadow 70ms ease-out, border-color 70ms ease-out;\n  -moz-transition: box-shadow 70ms ease-out, border-color 70ms ease-out;\n  transition: box-shadow 70ms ease-out, border-color 70ms ease-out;\n  border: 1px solid #C5C5C5;\n  padding: 6px 8px;\n  color: #A0A0A2;\n  font-size: 1rem;\n}\n.c-enhanced_text_input:hover,\n.c-enhanced_text_input.c-enhanced_text_input--active {\n  border-color: #2780F8;\n  box-shadow: 0 0 7px rgba(39, 128, 248, 0.15);\n}\n.c-enhanced_text_input .c-icon:before {\n  font-size: 1.2rem;\n}\n.c-enhanced_text_input__input[type=text] {\n  flex-grow: 1;\n  margin: 0;\n  padding: 0 0.5rem;\n  border: 0 none !important;\n  font-size: 1rem;\n}\n.c-enhanced_text_input__input[type=text]:active,\n.c-enhanced_text_input__input[type=text]:focus {\n  box-shadow: none;\n}\n.c-enhanced_text_input__reset_button {\n  display: none;\n  cursor: pointer;\n}\n.c-enhanced_text_input__reset_button--visible {\n  display: block;\n}\n.feature_keyboard_navigation .c-enhanced_text_input:hover,\n.feature_keyboard_navigation .c-enhanced_text_input.c-enhanced_text_input--active {\n  border-color: #717274;\n  box-shadow: none;\n}\n", ""]);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.p-apps_browser {\n  flex: 1 1 0;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-weight: 400;\n  -webkit-font-smoothing: antialiased;\n  display: flex;\n  flex-direction: column;\n  margin: 6rem 0 1rem 0;\n  overflow: hidden;\n}\n.p-apps_browser__filter_container {\n  margin-bottom: 20px;\n  padding: 10px;\n}\n.p-apps_browser__filter_header {\n  display: flex;\n  align-items: center;\n  margin-bottom: 2rem;\n}\n.p-apps_browser__filter_header .c-button,\n.p-apps_browser__filter_header a.c-button,\n.p-apps_browser__filter_header a.c-button:link,\n.p-apps_browser__filter_header a.c-button:visited {\n  font-size: 0.9375rem;\n  background: #2ab27b;\n  padding: 8px 14px 9px;\n}\n.p-apps_browser__filter_header h2 {\n  font-size: 2.125rem;\n  line-height: 2.5625rem;\n  font-weight: 900;\n  flex-grow: 1;\n  margin: 0;\n}\n.p-apps_browser__search_box {\n  display: flex;\n}\n.p-apps_browser__apps_list {\n  overflow-y: auto;\n  min-height: 200px;\n  position: relative;\n}\n.p-apps_browser__apps_list--loading::before {\n  background-image: url('/img/loading_hash_animation_@2x.gif');\n  background-color: #FFF;\n  background-position: center;\n  background-repeat: no-repeat;\n  position: absolute;\n  content: '';\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n}\n.p-apps_browser__category_section {\n  margin-bottom: 25px;\n  padding: 10px;\n}\n.p-apps_browser__category_section--hidden {\n  display: none;\n}\n.p-apps_browser__category_section--tutorial .p-apps_browser__category_header {\n  display: none;\n}\n.p-apps_browser__category_section--tutorial .p-apps_browser__app {\n  box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.05);\n  border-radius: 6px;\n  border: 1px solid #E8E8E8;\n  padding: 12px;\n}\n.p-apps_browser__category_section--tutorial .p-apps_browser__app--selected {\n  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.15);\n  background: #FFF;\n}\n.p-apps_browser__category_header {\n  font-size: .8rem;\n  line-height: 1.2rem;\n  background: #FFF;\n  color: #717274;\n  padding-bottom: .5rem;\n}\n.p-apps_browser__category_header--sticky {\n  top: 0;\n  position: sticky;\n}\n.p-apps_browser__app {\n  display: flex;\n  align-items: center;\n  padding: 11px 12px;\n  border: 1px solid transparent;\n  border-top-color: #E8E8E8;\n  cursor: pointer;\n}\n.p-apps_browser__app:first-of-type {\n  border-top-color: transparent;\n}\n.p-apps_browser__app--selected {\n  border-radius: 6px;\n  background: #F9F9F9;\n  border: 1px solid #E8E8E8;\n}\n.p-apps_browser__app--selected + .p-apps_browser__app {\n  border-top-color: transparent;\n}\n.p-apps_browser__app_icon {\n  flex: 0 0 auto;\n  border-radius: 0.2rem;\n  width: 36px;\n  height: 36px;\n  margin-right: 10px;\n}\n.p-apps_browser__app_info {\n  flex: 1 1 0;\n  font-size: 0.9375rem;\n  overflow: hidden;\n  line-height: 1.3rem;\n  color: #2C2D30;\n  margin-right: 12px;\n}\n.p-apps_browser__app_action {\n  flex: 0 0 auto;\n  border-radius: 0.25rem;\n  font-size: 0.875rem;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-weight: 700;\n  line-height: 1.2rem;\n  background-color: #FBFBFA;\n  border: 1px solid #C7CACD;\n  color: #555459;\n  padding: 4px 10px;\n}\n.p-apps_browser__app_action:hover {\n  background-color: #FFFFFF;\n  color: #007AB8;\n}\n.p-apps_browser__app_name {\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  font-weight: bold;\n}\n.p-apps_browser__app_description {\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  color: #717274;\n}\n.p-apps_browser__no_results {\n  display: flex;\n  -ms-flex-pack: center;\n  -webkit-box-pack: center;\n  -webkit-justify-content: center;\n  -moz-justify-content: center;\n  justify-content: center;\n  align-items: center;\n  height: 100px;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.t-list-reset {\n  margin-bottom: 0;\n  margin-left: 0;\n  padding: 0;\n  list-style-type: none;\n}\n.p-apps_browser {\n  flex: 1 1 0;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-weight: 400;\n  -webkit-font-smoothing: antialiased;\n  display: flex;\n  flex-direction: column;\n  margin: 6rem 0 1rem 0;\n  overflow: hidden;\n}\n.p-apps_browser__filter_container {\n  margin-bottom: 20px;\n  padding: 10px;\n}\n.p-apps_browser__filter_header {\n  display: flex;\n  align-items: center;\n  margin-bottom: 2rem;\n}\n.p-apps_browser__filter_header .c-button,\n.p-apps_browser__filter_header a.c-button,\n.p-apps_browser__filter_header a.c-button:link,\n.p-apps_browser__filter_header a.c-button:visited {\n  font-size: 0.9375rem;\n  background: #2ab27b;\n  padding: 8px 14px 9px;\n}\n.p-apps_browser__filter_header h2 {\n  font-size: 2.125rem;\n  line-height: 2.5625rem;\n  font-weight: 900;\n  flex-grow: 1;\n  margin: 0;\n}\n.p-apps_browser__search_box {\n  display: flex;\n}\n.p-apps_browser__apps_list {\n  overflow-y: auto;\n  min-height: 200px;\n  position: relative;\n}\n.p-apps_browser__apps_list--loading::before {\n  background-image: url('/img/loading_hash_animation_@2x.gif');\n  background-color: #FFF;\n  background-position: center;\n  background-repeat: no-repeat;\n  position: absolute;\n  content: '';\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n}\n.p-apps_browser__category_section {\n  margin-bottom: 25px;\n  padding: 10px;\n}\n.p-apps_browser__category_section--hidden {\n  display: none;\n}\n.p-apps_browser__category_section--tutorial .p-apps_browser__category_header {\n  display: none;\n}\n.p-apps_browser__category_section--tutorial .p-apps_browser__app {\n  box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.05);\n  border-radius: 6px;\n  border: 1px solid #E8E8E8;\n  padding: 12px;\n}\n.p-apps_browser__category_section--tutorial .p-apps_browser__app--selected {\n  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.15);\n  background: #FFF;\n}\n.p-apps_browser__category_header {\n  font-size: .8rem;\n  line-height: 1.2rem;\n  background: #FFF;\n  color: #717274;\n  padding-bottom: .5rem;\n}\n.p-apps_browser__category_header--sticky {\n  top: 0;\n  position: sticky;\n}\n.p-apps_browser__app {\n  display: flex;\n  align-items: center;\n  padding: 11px 12px;\n  border: 1px solid transparent;\n  border-top-color: #E8E8E8;\n  cursor: pointer;\n}\n.p-apps_browser__app:first-of-type {\n  border-top-color: transparent;\n}\n.p-apps_browser__app--selected {\n  border-radius: 6px;\n  background: #F9F9F9;\n  border: 1px solid #E8E8E8;\n}\n.p-apps_browser__app--selected + .p-apps_browser__app {\n  border-top-color: transparent;\n}\n.p-apps_browser__app_icon {\n  flex: 0 0 auto;\n  border-radius: 0.2rem;\n  width: 36px;\n  height: 36px;\n  margin-right: 10px;\n}\n.p-apps_browser__app_info {\n  flex: 1 1 0;\n  font-size: 0.9375rem;\n  overflow: hidden;\n  line-height: 1.3rem;\n  color: #2C2D30;\n  margin-right: 12px;\n}\n.p-apps_browser__app_action {\n  flex: 0 0 auto;\n  border-radius: 0.25rem;\n  font-size: 0.875rem;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-weight: 700;\n  line-height: 1.2rem;\n  background-color: #FBFBFA;\n  border: 1px solid #C7CACD;\n  color: #555459;\n  padding: 4px 10px;\n}\n.p-apps_browser__app_action:hover {\n  background-color: #FFFFFF;\n  color: #007AB8;\n}\n.p-apps_browser__app_name {\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  font-weight: bold;\n}\n.p-apps_browser__app_description {\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  color: #717274;\n}\n.p-apps_browser__no_results {\n  display: flex;\n  -ms-flex-pack: center;\n  -webkit-box-pack: center;\n  -webkit-justify-content: center;\n  -moz-justify-content: center;\n  justify-content: center;\n  align-items: center;\n  height: 100px;\n}\n", ""]);
 }, function(e, t, n) {
   "use strict";
 
@@ -55799,7 +55807,7 @@ webpackJsonp([332], [, function(e, t, n) {
 
   function u(e, t, r) {
     var o = r();
-    if (n.i(_.isFeatureEnabled)(o, "feature_react_messages")) {
+    if (n.i(_.useReactMessages)(o)) {
       n.i(v.wasLastConnectFast)(o) || n.i(h.a)().then(function(e) {
         var r = e.data;
         if (r) {
@@ -55821,7 +55829,7 @@ webpackJsonp([332], [, function(e, t, n) {
 
   function l(e, t, r) {
     var o = r();
-    if (n.i(_.isFeatureEnabled)(o, "feature_react_messages")) {
+    if (n.i(_.useReactMessages)(o)) {
       var i = e.payload,
         s = i.channelId,
         u = i.timestamps,
@@ -55841,7 +55849,7 @@ webpackJsonp([332], [, function(e, t, n) {
   function c(e, t, r) {
     if (e.payload.last_read) {
       var o = r();
-      if (n.i(_.isFeatureEnabled)(o, "feature_react_messages")) {
+      if (n.i(_.useReactMessages)(o)) {
         var i = e.payload.id;
         n.i(T.d)(2005, "Counting unreads in " + i + " because last_read changed"), a(i, o, t);
       }
@@ -56026,7 +56034,7 @@ webpackJsonp([332], [, function(e, t, n) {
   n(219)(r, {});
   r.locals && (e.exports = r.locals);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.c-message_actions__container {\n  background: #FFF;\n  border: 0.0625rem solid rgba(0, 0, 0, 0.15);\n  border-radius: 0.375rem;\n  overflow: hidden;\n  transition: all 50ms ease-in;\n  transition-property: border, box-shadow;\n}\n.c-message_actions__container:hover {\n  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);\n  border-color: rgba(0, 0, 0, 0.3);\n}\n.c-message_actions__container .c-message_actions__button:last-child {\n  border-right: none;\n}\n.c-message_actions__button {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  padding: 3px 7px;\n  color: #717274;\n  border: none;\n  border-right: 1px solid rgba(0, 0, 0, 0.15);\n  transition: all 50ms ease-in;\n  transition-property: background, border, opacity;\n}\n.c-message_actions__button:hover,\n.c-message_actions__button:focus,\n.c-message_actions__button:active {\n  outline: none;\n}\n.c-message_actions__button:hover {\n  color: #007AB8;\n}\n.c-message_actions__button:active {\n  background: #F9F9F9;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.t-list-reset {\n  margin-bottom: 0;\n  margin-left: 0;\n  padding: 0;\n  list-style-type: none;\n}\n.c-message_actions__container {\n  background: #FFF;\n  border: 0.0625rem solid rgba(0, 0, 0, 0.15);\n  border-radius: 0.375rem;\n  overflow: hidden;\n  transition: all 50ms ease-in;\n  transition-property: border, box-shadow;\n}\n.c-message_actions__container:hover {\n  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);\n  border-color: rgba(0, 0, 0, 0.3);\n}\n.c-message_actions__container .c-message_actions__button:last-child {\n  border-right: none;\n}\n.c-message_actions__button {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  padding: 3px 7px;\n  color: #717274;\n  border: none;\n  border-right: 1px solid rgba(0, 0, 0, 0.15);\n  transition: all 50ms ease-in;\n  transition-property: background, border, opacity;\n}\n.c-message_actions__button:hover,\n.c-message_actions__button:focus,\n.c-message_actions__button:active {\n  outline: none;\n}\n.c-message_actions__button:hover {\n  color: #007AB8;\n}\n.c-message_actions__button:active {\n  background: #F9F9F9;\n}\n", ""]);
 }, function(e, t, n) {
   "use strict";
   var r = n(3934);
@@ -56396,7 +56404,7 @@ webpackJsonp([332], [, function(e, t, n) {
 }, function(e, t, n) {
   t = e.exports = n(189)(), t.push([e.i, ".c-menu {\n  background-color: #FFF;\n  border: 1px solid rgba(0, 0, 0, 0.15);\n  border-radius: 6px;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  user-select: none;\n  width: 300px;\n  z-index: 1053;\n}\n.c-menu__items {\n  margin: 0.75rem 0;\n  padding: 0;\n}\n.c-menu__items.c-menu__items--no_margin {\n  margin: 0;\n}\n", ""]);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.c-menu_item__li {\n  line-height: 1.5rem;\n  list-style-type: none;\n  padding: 0 0.9375rem;\n  margin: 0;\n}\n.c-menu_item__button {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  background: transparent;\n  border-radius: 0.25rem;\n  color: #2C2D30;\n  cursor: pointer;\n  display: flex;\n  font-size: 15px;\n  line-height: 1.5625;\n  overflow-x: hidden;\n  padding: 0 0.5rem;\n  text-align: left;\n  text-decoration: none;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  width: 100%;\n}\n.c-menu_item__button:hover,\n.c-menu_item__button:focus,\n.c-menu_item__button:active {\n  outline: none;\n}\n.c-menu_item__description {\n  font-size: 12px;\n  line-height: 0.9375;\n  color: #717274;\n  padding-bottom: 0.25rem;\n  overflow-x: hidden;\n  text-overflow: ellipsis;\n}\n.c-menu_item__button--highlighted {\n  background-color: #2D9EE0;\n  color: #FFFFFF;\n}\n.c-menu_item__button--highlighted .c-menu_item__description {\n  color: #FFFFFF;\n}\n.c-menu_item__button--danger {\n  color: #EB4D5C;\n}\n.c-menu_item__button--danger .c-menu_item__description {\n  color: #EB4D5C;\n}\n.c-menu_item__button--danger.c-menu_item__button--highlighted {\n  color: #FFFFFF;\n  background-color: #EB4D5C;\n}\n.c-menu_item__button--danger.c-menu_item__button--highlighted .c-menu_item__description {\n  color: #FFFFFF;\n}\n.c-menu_item__label {\n  flex: 1 1 auto;\n}\n.c-menu_item__button.c-menu-item__button--with_submenu {\n  padding-right: 0;\n}\n.c-menu_item__caret {\n  display: block;\n  flex: 0 0 auto;\n}\n.c-menu_item__caret:before {\n  height: 1rem;\n  line-height: 0.6;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.t-list-reset {\n  margin-bottom: 0;\n  margin-left: 0;\n  padding: 0;\n  list-style-type: none;\n}\n.c-menu_item__li {\n  line-height: 1.5rem;\n  list-style-type: none;\n  padding: 0 0.9375rem;\n  margin: 0;\n}\n.c-menu_item__button {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  background: transparent;\n  border-radius: 0.25rem;\n  color: #2C2D30;\n  cursor: pointer;\n  display: flex;\n  font-size: 15px;\n  line-height: 1.5625;\n  overflow-x: hidden;\n  padding: 0 0.5rem;\n  text-align: left;\n  text-decoration: none;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  width: 100%;\n}\n.c-menu_item__button:hover,\n.c-menu_item__button:focus,\n.c-menu_item__button:active {\n  outline: none;\n}\n.c-menu_item__description {\n  font-size: 12px;\n  line-height: 0.9375;\n  color: #717274;\n  padding-bottom: 0.25rem;\n  overflow-x: hidden;\n  text-overflow: ellipsis;\n}\n.c-menu_item__button--highlighted {\n  background-color: #2D9EE0;\n  color: #FFFFFF;\n}\n.c-menu_item__button--highlighted .c-menu_item__description {\n  color: #FFFFFF;\n}\n.c-menu_item__button--danger {\n  color: #EB4D5C;\n}\n.c-menu_item__button--danger .c-menu_item__description {\n  color: #EB4D5C;\n}\n.c-menu_item__button--danger.c-menu_item__button--highlighted {\n  color: #FFFFFF;\n  background-color: #EB4D5C;\n}\n.c-menu_item__button--danger.c-menu_item__button--highlighted .c-menu_item__description {\n  color: #FFFFFF;\n}\n.c-menu_item__label {\n  flex: 1 1 auto;\n}\n.c-menu_item__button.c-menu-item__button--with_submenu {\n  padding-right: 0;\n}\n.c-menu_item__caret {\n  display: block;\n  flex: 0 0 auto;\n}\n.c-menu_item__caret:before {\n  height: 1rem;\n  line-height: 0.6;\n}\n", ""]);
 }, function(e, t, n) {
   t = e.exports = n(189)(), t.push([e.i, ".c-menu_separator__li {\n  line-height: 1.5rem;\n  list-style-type: none;\n  padding: 15px 0;\n  margin: 0;\n}\n.c-menu_separator__li.c-menu_separator__li--no_padding {\n  padding: 0;\n}\n.c-menu_separator__li.c-menu_separator__li--no_top_padding {\n  padding-top: 0;\n}\n.c-menu_separator__separator {\n  margin: 0;\n  border-top: 1px solid rgba(0, 0, 0, 0.15);\n  border-bottom: 1px solid #FFF;\n}\n", ""]);
 }, function(e, t, n) {
@@ -56803,7 +56811,7 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "getAllMenuItemIndices",
         value: function() {
           var e = [];
-          return this.props.children.forEach(function(t, n) {
+          return c.a.Children.toArray(this.props.children).forEach(function(t, n) {
             (s(t) || u(t)) && e.push(n);
           }), e;
         }
@@ -56941,7 +56949,7 @@ webpackJsonp([332], [, function(e, t, n) {
   };
   t.a = n.i(i.b)(d)(c);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.c-modal {\n  position: fixed;\n  top: 100%;\n  left: 0;\n  bottom: 0;\n  right: 0;\n  z-index: 1000;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n}\n.c-modal--active {\n  top: 0;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms;\n}\n.c-modal__background {\n  height: 100vh;\n  width: 100vw;\n  background-color: #FFFFFF;\n  position: absolute;\n  top: 0;\n  left: 0;\n  pointer-events: none;\n}\n.c-modal__contents {\n  height: 100vh;\n  top: 100%;\n  opacity: 0;\n  -webkit-transform: translateY(5px);\n  -moz-transform: translateY(5px);\n  -ms-transform: translateY(5px);\n  transform: translateY(5px);\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, -webkit-transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n}\n.c-modal__contents--active {\n  top: 0;\n  opacity: 1;\n  -webkit-transform: translateY(0);\n  -moz-transform: translateY(0);\n  -ms-transform: translateY(0);\n  transform: translateY(0);\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, -webkit-transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n}\n.c-modal__header {\n  position: fixed;\n  left: 0;\n  right: 0;\n  display: flex;\n  align-items: center;\n  -ms-flex-pack: distribute;\n  -webkit-box-pack: distribute;\n  -webkit-justify-content: space-around;\n  -moz-justify-content: space-around;\n  justify-content: space-around;\n  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);\n  height: 3.75rem;\n  background-color: #FFFFFF;\n  top: 0;\n  z-index: 10;\n}\n.c-modal__close {\n  position: absolute;\n  top: 20px;\n  right: 20px;\n  z-index: 100;\n  cursor: pointer;\n}\n.c-modal__close:before {\n  font-size: 30px;\n  color: #717274;\n}\n.c-modal__body {\n  padding-top: 3.75rem;\n  margin-bottom: 4.5rem;\n}\n.p-org_retention_request {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-weight: 400;\n  -webkit-font-smoothing: antialiased;\n  font-size: 15px;\n}\n.p-org_retention_request--font_bump {\n  font-size: 16px;\n  line-height: 1.5;\n}\n.p-org_retention_request__modal {\n  overflow-y: auto;\n}\n.p-org_retention_request__modal_content {\n  max-width: 640px;\n  margin: 0 auto;\n  padding-top: 7.5rem;\n}\n.p-org_retention_request__modal_section {\n  border-bottom: 1px solid #E8E8E8;\n  margin-bottom: 1rem;\n  padding: 0 1rem 1rem;\n  font-size: 15px;\n  line-height: 1.5;\n}\n.p-org_retention_request__modal_section--lead {\n  padding-left: 0;\n  padding-right: 0;\n}\n.p-org_retention_request__section_header {\n  font-weight: 900;\n  font-size: 22px;\n  margin-bottom: 1.875rem;\n  color: #2C2D30;\n}\n.p-org_retention_request__policy_select_group {\n  display: flex;\n}\n.p-org_retention_request__select_wrapper {\n  position: relative;\n  width: calc(100% - 200px);\n}\n.p-org_retention_request__select_wrapper:after {\n  font-family: 'Slack';\n  content: '\\E271';\n  position: absolute;\n  right: 10px;\n  top: 15px;\n  width: 20px;\n  height: 20px;\n  display: block;\n  pointer-events: none;\n}\n.p-org_retention_request__select {\n  display: block;\n  cursor: pointer;\n}\n.p-org_retention_request__duration_group {\n  position: relative;\n  max-width: 105px;\n  display: flex;\n  align-items: baseline;\n}\n.p-org_retention_request__duration_label {\n  position: absolute;\n  left: 0;\n  top: -1.5rem;\n}\n.p-org_retention_request__duration_label--secondary {\n  display: block;\n}\n.p-org_retention_request__requester_input {\n  width: calc(100% - 200px);\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.t-list-reset {\n  margin-bottom: 0;\n  margin-left: 0;\n  padding: 0;\n  list-style-type: none;\n}\n.c-modal {\n  position: fixed;\n  top: 100%;\n  left: 0;\n  bottom: 0;\n  right: 0;\n  z-index: 1000;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n}\n.c-modal--active {\n  top: 0;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms;\n}\n.c-modal__background {\n  height: 100vh;\n  width: 100vw;\n  background-color: #FFFFFF;\n  position: absolute;\n  top: 0;\n  left: 0;\n  pointer-events: none;\n}\n.c-modal__contents {\n  height: 100vh;\n  top: 100%;\n  opacity: 0;\n  -webkit-transform: translateY(5px);\n  -moz-transform: translateY(5px);\n  -ms-transform: translateY(5px);\n  transform: translateY(5px);\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, -webkit-transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n}\n.c-modal__contents--active {\n  top: 0;\n  opacity: 1;\n  -webkit-transform: translateY(0);\n  -moz-transform: translateY(0);\n  -ms-transform: translateY(0);\n  transform: translateY(0);\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, -webkit-transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n}\n.c-modal__header {\n  position: fixed;\n  left: 0;\n  right: 0;\n  display: flex;\n  align-items: center;\n  -ms-flex-pack: distribute;\n  -webkit-box-pack: distribute;\n  -webkit-justify-content: space-around;\n  -moz-justify-content: space-around;\n  justify-content: space-around;\n  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);\n  height: 3.75rem;\n  background-color: #FFFFFF;\n  top: 0;\n  z-index: 10;\n}\n.c-modal__close {\n  position: absolute;\n  top: 20px;\n  right: 20px;\n  z-index: 100;\n  cursor: pointer;\n}\n.c-modal__close:before {\n  font-size: 30px;\n  color: #717274;\n}\n.c-modal__body {\n  padding-top: 3.75rem;\n  margin-bottom: 4.5rem;\n}\n.p-org_retention_request {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-weight: 400;\n  -webkit-font-smoothing: antialiased;\n  font-size: 15px;\n}\n.p-org_retention_request--font_bump {\n  font-size: 16px;\n  line-height: 1.5;\n}\n.p-org_retention_request__modal {\n  overflow-y: auto;\n}\n.p-org_retention_request__modal_content {\n  max-width: 640px;\n  margin: 0 auto;\n  padding-top: 7.5rem;\n}\n.p-org_retention_request__modal_section {\n  border-bottom: 1px solid #E8E8E8;\n  margin-bottom: 1rem;\n  padding: 0 1rem 1rem;\n  font-size: 15px;\n  line-height: 1.5;\n}\n.p-org_retention_request__modal_section--lead {\n  padding-left: 0;\n  padding-right: 0;\n}\n.p-org_retention_request__section_header {\n  font-weight: 900;\n  font-size: 22px;\n  margin-bottom: 1.875rem;\n  color: #2C2D30;\n}\n.p-org_retention_request__policy_select_group {\n  display: flex;\n}\n.p-org_retention_request__select_wrapper {\n  position: relative;\n  width: calc(100% - 200px);\n}\n.p-org_retention_request__select_wrapper:after {\n  font-family: 'Slack';\n  content: '\\E271';\n  position: absolute;\n  right: 10px;\n  top: 15px;\n  width: 20px;\n  height: 20px;\n  display: block;\n  pointer-events: none;\n}\n.p-org_retention_request__select {\n  display: block;\n  cursor: pointer;\n}\n.p-org_retention_request__duration_group {\n  position: relative;\n  max-width: 105px;\n  display: flex;\n  align-items: baseline;\n}\n.p-org_retention_request__duration_label {\n  position: absolute;\n  left: 0;\n  top: -1.5rem;\n}\n.p-org_retention_request__duration_label--secondary {\n  display: block;\n}\n.p-org_retention_request__requester_input {\n  width: calc(100% - 200px);\n}\n", ""]);
 }, function(e, t, n) {
   var r = n(3963);
   "string" == typeof r && (r = [
@@ -57578,7 +57586,7 @@ webpackJsonp([332], [, function(e, t, n) {
     a = n.i(o.createReducer)({}, {});
   t.b = a;
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.c-member_profile_card_header {\n  position: relative;\n  cursor: pointer;\n}\n.c-member_profile_card_header:hover .c-member_profile_card__details {\n  opacity: 0;\n}\n.c-member_profile_card__details {\n  opacity: 1;\n  pointer-events: none;\n  position: absolute;\n  left: 1rem;\n  right: 1rem;\n  bottom: 1.625rem;\n  color: #FFF;\n  -webkit-transition: opacity 150ms ease 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 150ms ease 0.2s ease-out 0.0000001ms;\n  transition: opacity 150ms ease 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 150ms ease;\n  -moz-transition: opacity 150ms ease;\n  transition: opacity 150ms ease;\n}\n.c-member_profile_card_header__image {\n  background-repeat: no-repeat;\n  display: inline-block;\n  position: relative;\n  cursor: pointer;\n  border-top-right-radius: 0.25rem;\n  border-bottom-right-radius: 0;\n  border-bottom-left-radius: 0;\n  border-top-left-radius: 0.25rem;\n  background-clip: padding-box;\n  margin: 0;\n  width: 320px;\n  height: 224px;\n  background-position: 0 -448px, 0 -48px, 0 -48px;\n  background-size: 100% 300%,100%,100%,100%;\n  -webkit-transition: background-position 150ms ease 0.2s ease-out 0.0000001ms;\n  -moz-transition: background-position 150ms ease 0.2s ease-out 0.0000001ms;\n  transition: background-position 150ms ease 0.2s ease-out 0.0000001ms;\n  -webkit-transition: background-position 150ms ease;\n  -moz-transition: background-position 150ms ease;\n  transition: background-position 150ms ease;\n}\n.c-member_profile_card_header__image:hover {\n  background-position: 0 0, 0 -48px, 0 -48px;\n}\n.c-member_profile_card__name {\n  color: #FFF !important;\n  font-size: 1.125rem;\n  line-height: 1.5625rem;\n  font-weight: 900;\n  overflow: hidden;\n  text-overflow: ellipsis;\n}\n.c-member_profile_card__title {\n  color: #FFF;\n  font-size: .9375rem;\n  line-height: 1.375rem;\n  margin: 0;\n}\n.c-member_profile_card__footer {\n  max-width: 320px;\n  padding: 0.75rem;\n  border-top: 1px solid #f2f2f5;\n  border-radius: 0 0 6px 6px;\n  background: #F9F9F9;\n  margin-top: 1rem;\n}\n.c-member_profile_card__footer.c-member_profile_card__footer_notice {\n  padding: 0.75rem 1.25rem 1rem;\n  line-height: 1.4;\n  color: #717274;\n  background: #FFF;\n  margin-top: 0;\n  border-top: 0;\n}\n.c-enhanced_text_input {\n  background-color: #FFF;\n}\n.c-member_profile_card__timezone-row,\n.c-member_profile_card__status-row {\n  line-height: 1.875rem;\n  font-size: 0.75rem;\n  margin: 0 1.5rem;\n  display: flex;\n}\n.c-member_profile_card__owner {\n  flex: 1;\n}\n.c-member_profile_card__status--grey {\n  color: #A0A0A2;\n}\n.c-member_profile_card__items {\n  margin-top: 0.75rem;\n}\n.c-member_profile_card__items .c-menu_item__button {\n  margin: 0.2rem 0;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.t-list-reset {\n  margin-bottom: 0;\n  margin-left: 0;\n  padding: 0;\n  list-style-type: none;\n}\n.c-member_profile_card_header {\n  position: relative;\n  cursor: pointer;\n}\n.c-member_profile_card_header:hover .c-member_profile_card__details {\n  opacity: 0;\n}\n.c-member_profile_card_header:hover .c-member_profile_card__restriction {\n  opacity: 0;\n}\n.c-member_profile_card__details {\n  opacity: 1;\n  pointer-events: none;\n  position: absolute;\n  left: 1rem;\n  right: 1rem;\n  bottom: 1.625rem;\n  color: #FFF;\n  -webkit-transition: opacity 150ms ease 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 150ms ease 0.2s ease-out 0.0000001ms;\n  transition: opacity 150ms ease 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 150ms ease;\n  -moz-transition: opacity 150ms ease;\n  transition: opacity 150ms ease;\n}\n.c-member_profile_card_header__image {\n  background-repeat: no-repeat;\n  display: inline-block;\n  position: relative;\n  cursor: pointer;\n  border-top-right-radius: 0.25rem;\n  border-bottom-right-radius: 0;\n  border-bottom-left-radius: 0;\n  border-top-left-radius: 0.25rem;\n  background-clip: padding-box;\n  margin: 0;\n  width: 100%;\n  height: 224px;\n  background-position: 0 -448px, 0 -48px, 0 -48px;\n  background-size: 100% 300%,100%,100%,100%;\n  -webkit-transition: background-position 150ms ease 0.2s ease-out 0.0000001ms;\n  -moz-transition: background-position 150ms ease 0.2s ease-out 0.0000001ms;\n  transition: background-position 150ms ease 0.2s ease-out 0.0000001ms;\n  -webkit-transition: background-position 150ms ease;\n  -moz-transition: background-position 150ms ease;\n  transition: background-position 150ms ease;\n}\n.c-member_profile_card_header__image:hover {\n  background-position: 0 0, 0 -48px, 0 -48px;\n}\n.c-member_profile_card__restriction {\n  opacity: 1;\n  -webkit-transition: opacity 150ms ease 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 150ms ease 0.2s ease-out 0.0000001ms;\n  transition: opacity 150ms ease 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 150ms ease;\n  -moz-transition: opacity 150ms ease;\n  transition: opacity 150ms ease;\n  pointer-events: none;\n  position: absolute;\n  top: 0;\n  width: 100%;\n  border-top-right-radius: 0.25rem;\n  border-bottom-right-radius: 0;\n  border-bottom-left-radius: 0;\n  border-top-left-radius: 0.25rem;\n  background-clip: padding-box;\n  background-color: rgba(44, 45, 48, 0.8);\n  color: #FFF;\n  padding: 10px 14px;\n  font-size: 13px;\n}\n.c-member_profile_card__restriction .c-icon {\n  line-height: 0;\n}\n.c-member_profile_card__restriction .c-icon:before {\n  margin-left: -5px;\n}\n.c-member_profile_card__restriction .c-external_team_badge {\n  top: 9px;\n  right: 9px;\n}\n.c-member_profile_card__restriction--external {\n  padding-right: 32px;\n}\n.c-member_profile_card__name {\n  color: #FFF !important;\n  font-size: 1.125rem;\n  line-height: 1.5625rem;\n  font-weight: 900;\n  overflow: hidden;\n  text-overflow: ellipsis;\n}\n.c-member_profile_card__title {\n  color: #FFF;\n  font-size: .9375rem;\n  line-height: 1.375rem;\n  margin: 0;\n}\n.c-member_profile_card__footer {\n  max-width: 320px;\n  padding: 0.75rem;\n  border-top: 1px solid #f2f2f5;\n  border-radius: 0 0 6px 6px;\n  background: #F9F9F9;\n  margin-top: 1rem;\n}\n.c-member_profile_card__footer.c-member_profile_card__footer_notice {\n  padding: 0.75rem 1.25rem 1rem;\n  line-height: 1.4;\n  color: #717274;\n  background: #FFF;\n  margin-top: 0;\n  border-top: 0;\n}\n.c-enhanced_text_input {\n  background-color: #FFF;\n}\n.c-member_profile_card__timezone-row,\n.c-member_profile_card__status-row {\n  line-height: 1.875rem;\n  font-size: 0.75rem;\n  margin: 0 1.5rem;\n  display: flex;\n}\n.c-member_profile_card__owner {\n  flex: 1;\n}\n.c-member_profile_card__status--grey {\n  color: #A0A0A2;\n}\n.c-member_profile_card__items {\n  margin-top: 0.75rem;\n}\n.c-member_profile_card__items .c-menu_item__button {\n  margin: 0.2rem 0;\n}\n", ""]);
 }, function(e, t, n) {
   "use strict";
 
@@ -57668,15 +57676,16 @@ webpackJsonp([332], [, function(e, t, n) {
       o = e.username,
       a = e.title,
       u = e.isError,
-      l = "linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0) 34%, rgba(0,0,0,0.2) 66%, rgba(0,0,0,0.2) 83%, rgba(0,0,0,0.6)), url('" + t + "'), url('" + n + "')";
+      l = e.restriction,
+      c = "linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0) 34%, rgba(0,0,0,0.2) 66%, rgba(0,0,0,0.2) 83%, rgba(0,0,0,0.6)), url('" + t + "'), url('" + n + "')";
     return u ? null : i.a.createElement("div", {
       className: "c-member_profile_card_header"
     }, i.a.createElement("a", {
       className: "c-member_profile_card_header__image",
       style: {
-        backgroundImage: l
+        backgroundImage: c
       }
-    }), i.a.createElement("div", {
+    }), l, i.a.createElement("div", {
       className: "c-member_profile_card__details"
     }, i.a.createElement("div", {
       className: "c-member_profile_card__name"
@@ -57699,9 +57708,13 @@ webpackJsonp([332], [, function(e, t, n) {
       userId: o.PropTypes.string.isRequired,
       username: o.PropTypes.string.isRequired,
       title: o.PropTypes.string.isRequired,
-      isError: o.PropTypes.bool.isRequired
+      isError: o.PropTypes.bool.isRequired,
+      restriction: o.PropTypes.node
+    },
+    l = {
+      restriction: void 0
     };
-  r.propTypes = u, t.a = n.i(a.a)(r);
+  r.propTypes = u, r.defaultProps = l, t.a = n.i(a.a)(r);
 }, function(e, t, n) {
   "use strict";
 
@@ -57747,62 +57760,73 @@ webpackJsonp([332], [, function(e, t, n) {
       r = e.menuProps,
       o = e.timestamp,
       a = e.isBot,
-      h = e.username,
-      m = e.botID,
-      _ = e.isSelf,
-      g = e.isStranger,
-      b = e.imageUrl,
-      w = e.imageUrlSmall,
-      k = e.title,
-      M = e.isError,
-      T = e.isOwner,
-      x = e.status,
-      S = n.i(p.a)({
+      m = e.username,
+      _ = e.botID,
+      y = e.isSelf,
+      v = e.isStranger,
+      g = e.imageUrl,
+      b = e.imageUrlSmall,
+      M = e.title,
+      T = e.isError,
+      x = e.isOwner,
+      S = e.status,
+      E = e.isRestricted,
+      L = e.isUltraRestricted,
+      C = e.isExternal,
+      O = e.team,
+      P = n.i(h.a)({
         isBot: a,
-        username: h,
-        botID: m,
-        isSelf: _,
+        username: m,
+        botID: _,
+        isSelf: y,
         userId: t
       }),
-      E = S.map(function(e) {
-        return i.a.createElement(c.a, {
+      j = P.map(function(e) {
+        return i.a.createElement(d.a, {
           key: e.id,
           label: e.text,
           onSelected: e.callback,
           href: e.url
         });
       }),
-      L = i.a.createElement(u.a, {
-        imageUrl: b,
-        imageUrlSmall: w,
+      D = i.a.createElement(l.a, {
+        isRestricted: E,
+        isUltraRestricted: L,
+        isExternal: C,
+        team: O
+      }),
+      Y = i.a.createElement(u.a, {
+        imageUrl: g,
+        imageUrlSmall: b,
         userId: t,
-        username: h,
-        title: k,
-        isError: M
+        username: m,
+        title: M,
+        isError: T,
+        restriction: D
       });
-    if (g) {
-      var C = v.t("You don’t share any channels with this person."),
-        O = v.t("To interact with a person from another team, you need to be in at least one channel together.");
-      return i.a.createElement(l.b, y({}, r, {
+    if (v) {
+      var A = k.t("You don’t share any channels with this person."),
+        R = k.t("To interact with a person from another team, you need to be in at least one channel together.");
+      return i.a.createElement(c.b, w({}, r, {
         width: 320,
         noMargin: !0
-      }), L, i.a.createElement("div", {
+      }), Y, i.a.createElement("div", {
         className: "c-member_profile_card__footer c-member_profile_card__footer_notice"
-      }, i.a.createElement("strong", null, C), " ", O));
+      }, i.a.createElement("strong", null, A), " ", R));
     }
-    return i.a.createElement(l.b, y({}, r, {
+    return i.a.createElement(c.b, w({}, r, {
       width: 320,
       noMargin: !0
-    }), L, i.a.createElement(s.a, {
-      isOwner: T,
-      status: x,
+    }), Y, i.a.createElement(s.a, {
+      isOwner: x,
+      status: S,
       timestamp: o
-    }), i.a.createElement(f.a, {
+    }), i.a.createElement(p.a, {
       noPaddingAbove: !0
-    }), E, i.a.createElement("div", {
+    }), j, i.a.createElement("div", {
       className: "c-member_profile_card__footer"
-    }, i.a.createElement(d.a, {
-      placeholder: "Message " + h,
+    }, i.a.createElement(f.a, {
+      placeholder: "Message " + m,
       icon: ""
     })));
   }
@@ -57811,23 +57835,27 @@ webpackJsonp([332], [, function(e, t, n) {
     a = n(43),
     s = n(3983),
     u = n(3982),
-    l = n(3956),
-    c = n(3952),
-    d = n(3638),
-    f = n(3954),
-    p = n(3980),
-    h = n(3141),
-    m = n(2288),
-    _ = n(3985),
-    y = (n.n(_), Object.assign || function(e) {
+    l = n(4195),
+    c = n(3956),
+    d = n(3952),
+    f = n(3638),
+    p = n(3954),
+    h = n(3980),
+    m = n(3078),
+    _ = n(3141),
+    y = n(4196),
+    v = n(2697),
+    g = n(2288),
+    b = n(3985),
+    w = (n.n(b), Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
         for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
       }
       return e;
     }),
-    v = new m.a("team"),
-    g = {
+    k = new g.a("team"),
+    M = {
       userId: o.PropTypes.string.isRequired,
       status: o.PropTypes.oneOfType([i.a.PropTypes.node, o.PropTypes.string]),
       title: o.PropTypes.string,
@@ -57841,9 +57869,15 @@ webpackJsonp([332], [, function(e, t, n) {
       isSelf: o.PropTypes.bool,
       isStranger: o.PropTypes.bool,
       isOwner: o.PropTypes.bool,
-      isError: o.PropTypes.bool
+      isError: o.PropTypes.bool,
+      isRestricted: o.PropTypes.bool.isRequired,
+      isUltraRestricted: o.PropTypes.bool.isRequired,
+      isExternal: o.PropTypes.bool.isRequired,
+      team: o.PropTypes.shape({
+        name: o.PropTypes.string
+      })
     },
-    b = {
+    T = {
       status: "",
       title: "",
       username: "",
@@ -57852,30 +57886,59 @@ webpackJsonp([332], [, function(e, t, n) {
       timestamp: "",
       imageUrl: "",
       imageUrlSmall: "",
-      profileImage: "",
       menuProps: {},
       isSelf: !1,
       isStranger: !1,
       isOwner: !1,
-      isError: !1
+      isError: !1,
+      isRestricted: !1,
+      isUltraRestricted: !1,
+      isExternal: !1,
+      team: {}
     };
-  r.propTypes = g, r.defaultProps = b;
-  var w = function(e, t) {
+  r.propTypes = M, r.defaultProps = T;
+  var x = function(e, t) {
     var r = t.userId,
       o = "",
       i = "",
       a = "",
-      s = !1,
-      u = n.i(h.getMemberById)(e, r);
-    return u ? (o = u.profile.image_512, i = u.profile.image_48, a = u.profile.real_name || u.profile.display_name || u.name) : s = !0, {
+      s = void 0,
+      u = void 0,
+      l = !1,
+      c = void 0,
+      d = void 0,
+      f = void 0,
+      p = void 0,
+      h = void 0,
+      g = void 0,
+      b = void 0,
+      w = void 0,
+      k = void 0,
+      M = n.i(_.getMemberById)(e, r);
+    return M ? (o = M.profile.image_512, i = M.profile.image_48, a = M.profile.real_name || M.profile.display_name || M.name, s = M.bot_id, u = M.is_bot, c = M.is_external, d = M.is_owner, f = M.is_restricted, p = M.is_self, h = M.is_stranger, g = M.is_ultrarestricted, b = n.i(m.getCustomStatusByMemberId)(e, r), w = n.i(y.a)(M.team_id), k = n.i(v.memberLocalTime)(Date.now(), {
+      timeZone: M.tz || "America/Los_Angeles",
+      timeZoneOffset: -25200,
+      do24hrTime: !1
+    })) : l = !0, {
       userId: r,
       imageUrl: o,
       imageUrlSmall: i,
       username: a,
-      isError: s
+      botId: s,
+      isBot: u,
+      isError: l,
+      isExternal: c,
+      isOwner: d,
+      isRestricted: f,
+      isSelf: p,
+      isStranger: h,
+      isUltraRestricted: g,
+      status: b,
+      team: w,
+      timestamp: k
     };
   };
-  t.a = n.i(a.b)(w)(r);
+  t.a = n.i(a.b)(x)(r);
 }, function(e, t, n) {
   var r = n(3979);
   "string" == typeof r && (r = [
@@ -57884,7 +57947,7 @@ webpackJsonp([332], [, function(e, t, n) {
   n(219)(r, {});
   r.locals && (e.exports = r.locals);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.c-virtual_list {\n  overflow-y: scroll;\n  overflow-x: hidden;\n  position: relative;\n  will-change: transform;\n}\n.c-virtual_list--slack_scrollbar {\n  border-right: 0.25rem solid transparent;\n}\n.c-virtual_list--slack_scrollbar::-webkit-scrollbar {\n  position: absolute;\n  -webkit-appearance: none;\n  width: 8px;\n}\n.c-virtual_list--slack_scrollbar::-webkit-scrollbar-track,\n.c-virtual_list--slack_scrollbar::-webkit-scrollbar-thumb {\n  background-clip: padding-box !important;\n  border-radius: 3px;\n  color: #FFFFFF;\n}\n.c-virtual_list--slack_scrollbar::-webkit-scrollbar-track {\n  background: #F5F5F5;\n  box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0;\n}\n.c-virtual_list--slack_scrollbar::-webkit-scrollbar-thumb {\n  background: #D9D9DE;\n  box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;\n  min-height: 36px;\n}\n.c-virtual_list--slack_scrollbar::-webkit-scrollbar-corner {\n  background: #FFFFFF;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.t-list-reset {\n  margin-bottom: 0;\n  margin-left: 0;\n  padding: 0;\n  list-style-type: none;\n}\n.c-virtual_list {\n  overflow-y: scroll;\n  overflow-x: hidden;\n  position: relative;\n  will-change: transform;\n}\n.c-virtual_list--slack_scrollbar {\n  border-right: 0.25rem solid transparent;\n}\n.c-virtual_list--slack_scrollbar::-webkit-scrollbar {\n  position: absolute;\n  -webkit-appearance: none;\n  width: 8px;\n}\n.c-virtual_list--slack_scrollbar::-webkit-scrollbar-track,\n.c-virtual_list--slack_scrollbar::-webkit-scrollbar-thumb {\n  background-clip: padding-box !important;\n  border-radius: 3px;\n  color: #FFFFFF;\n}\n.c-virtual_list--slack_scrollbar::-webkit-scrollbar-track {\n  background: #F5F5F5;\n  box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0;\n}\n.c-virtual_list--slack_scrollbar::-webkit-scrollbar-thumb {\n  background: #D9D9DE;\n  box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;\n  min-height: 36px;\n}\n.c-virtual_list--slack_scrollbar::-webkit-scrollbar-corner {\n  background: #FFFFFF;\n}\n", ""]);
 }, function(e, t, n) {
   var r = n(3986);
   "string" == typeof r && (r = [
@@ -59015,8 +59078,8 @@ webpackJsonp([332], [, function(e, t, n) {
 }, function(e, t, n) {
   function r(e, t, n, P, j, D) {
     var Y, A = t & M,
-      I = t & T,
-      R = t & x;
+      R = t & T,
+      I = t & x;
     if (n && (Y = j ? n(e, P, j, D) : n(e)), void 0 !== Y) return Y;
     if (!w(e)) return e;
     var N = g(e);
@@ -59027,7 +59090,7 @@ webpackJsonp([332], [, function(e, t, n) {
         H = F == E || F == L;
       if (b(e)) return l(e, A);
       if (F == C || F == S || H && !j) {
-        if (Y = I || H ? {} : v(e), !A) return I ? f(e, u(Y, e)) : d(e, s(Y, e));
+        if (Y = R || H ? {} : v(e), !A) return R ? f(e, u(Y, e)) : d(e, s(Y, e));
       } else {
         if (!O[F]) return j ? e : {};
         Y = y(e, F, r, A);
@@ -59037,7 +59100,7 @@ webpackJsonp([332], [, function(e, t, n) {
     var q = D.get(e);
     if (q) return q;
     D.set(e, Y);
-    var z = R ? I ? h : p : I ? keysIn : k,
+    var z = I ? R ? h : p : R ? keysIn : k,
       U = N ? void 0 : z(e);
     return i(U || e, function(o, i) {
       U && (i = o, o = e[i]), a(Y, i, r(o, t, n, i, e, D));
@@ -60575,7 +60638,7 @@ webpackJsonp([332], [, function(e, t, n) {
     }
   });
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.c-rounded_button {\n  /* Color */\n  background-color: #29A979;\n  color: #FFFFFF;\n  /* Text */\n  -webkit-font-smoothing: antialiased;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 1rem;\n  line-height: 1.2;\n  font-weight: 900;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n  text-decoration: none;\n  outline: none;\n  cursor: pointer;\n  text-shadow: 0 1px 1px rgba(44, 45, 48, 0.1);\n  /* Border */\n  border: none;\n  border-radius: 0.25rem;\n  box-shadow: none;\n  /* Alignment */\n  position: relative;\n  display: inline-block;\n  text-align: center;\n  white-space: nowrap;\n  padding: 0.5rem 1rem;\n  -webkit-appearance: none;\n  -webkit-tap-highlight-color: transparent;\n}\n.c-rounded_button:after {\n  position: absolute;\n  content: '';\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  border-radius: 0.25rem;\n}\n.c-rounded_button .c-icon {\n  margin-right: 0.5rem;\n}\n.c-rounded_button .c-icon:before {\n  font-size: inherit;\n  vertical-align: bottom;\n}\n.c-rounded_button.c-button--icon {\n  width: 32px;\n  height: 30px;\n  padding: 0;\n}\n.c-rounded_button:link,\n.c-rounded_button:visited {\n  color: #FFFFFF;\n}\n.c-rounded_button--outline:link,\n.c-rounded_button--outline:active {\n  color: #717274;\n}\n.c-rounded_button:hover {\n  color: #FFFFFF;\n  text-decoration: none;\n}\n.c-rounded_button:hover:after {\n  box-shadow: inset 0 -2px rgba(0, 0, 0, 0.25);\n}\n.c-rounded_button:active:after {\n  box-shadow: inset 0 2px 1px rgba(0, 0, 0, 0.2);\n}\n.c-rounded_button--outline,\n.c-rounded_button--transparent {\n  font-weight: 700;\n  color: #717274;\n  box-shadow: inset 0 0 0 1px rgba(44, 45, 48, 0.3);\n  text-shadow: initial;\n}\n.c-rounded_button--outline {\n  background-color: #F9F9F9;\n}\n.c-rounded_button--outline:hover,\n.c-rounded_button--outline:active {\n  background-color: #FFFFFF;\n  color: #005E99;\n}\n.c-rounded_button--outline:hover:after,\n.c-rounded_button--outline:active:after {\n  box-shadow: initial;\n}\n.c-rounded_button--small {\n  font-size: 0.875rem;\n  padding-top: 0.3125rem;\n  padding-bottom: 0.3125rem;\n  padding-left: 0.625rem;\n  padding-right: 0.625rem;\n}\n.c-rounded_button--large {\n  font-size: 1.25rem;\n  padding-top: 0.875rem;\n  padding-bottom: 1rem;\n  padding-left: 2rem;\n  padding-right: 2rem;\n}\n.touch .c-rounded_button:focus {\n  outline: initial;\n  text-decoration: initial;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.t-list-reset {\n  margin-bottom: 0;\n  margin-left: 0;\n  padding: 0;\n  list-style-type: none;\n}\n.c-rounded_button {\n  /* Color */\n  background-color: #29A979;\n  color: #FFFFFF;\n  /* Text */\n  -webkit-font-smoothing: antialiased;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 1rem;\n  line-height: 1.2;\n  font-weight: 900;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n  text-decoration: none;\n  outline: none;\n  cursor: pointer;\n  text-shadow: 0 1px 1px rgba(44, 45, 48, 0.1);\n  /* Border */\n  border: none;\n  border-radius: 0.25rem;\n  box-shadow: none;\n  /* Alignment */\n  position: relative;\n  display: inline-block;\n  text-align: center;\n  white-space: nowrap;\n  padding: 0.5rem 1rem;\n  -webkit-appearance: none;\n  -webkit-tap-highlight-color: transparent;\n}\n.c-rounded_button:after {\n  position: absolute;\n  content: '';\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  border-radius: 0.25rem;\n}\n.c-rounded_button .c-icon {\n  margin-right: 0.5rem;\n}\n.c-rounded_button .c-icon:before {\n  font-size: inherit;\n  vertical-align: bottom;\n}\n.c-rounded_button.c-button--icon {\n  width: 32px;\n  height: 30px;\n  padding: 0;\n}\n.c-rounded_button:link,\n.c-rounded_button:visited {\n  color: #FFFFFF;\n}\n.c-rounded_button--outline:link,\n.c-rounded_button--outline:active {\n  color: #717274;\n}\n.c-rounded_button:hover {\n  color: #FFFFFF;\n  text-decoration: none;\n}\n.c-rounded_button:hover:after {\n  box-shadow: inset 0 -2px rgba(0, 0, 0, 0.25);\n}\n.c-rounded_button:active:after {\n  box-shadow: inset 0 2px 1px rgba(0, 0, 0, 0.2);\n}\n.c-rounded_button--outline,\n.c-rounded_button--transparent {\n  font-weight: 700;\n  color: #717274;\n  box-shadow: inset 0 0 0 1px rgba(44, 45, 48, 0.3);\n  text-shadow: initial;\n}\n.c-rounded_button--outline {\n  background-color: #F9F9F9;\n}\n.c-rounded_button--outline:hover,\n.c-rounded_button--outline:active {\n  background-color: #FFFFFF;\n  color: #005E99;\n}\n.c-rounded_button--outline:hover:after,\n.c-rounded_button--outline:active:after {\n  box-shadow: initial;\n}\n.c-rounded_button--small {\n  font-size: 0.875rem;\n  padding-top: 0.3125rem;\n  padding-bottom: 0.3125rem;\n  padding-left: 0.625rem;\n  padding-right: 0.625rem;\n}\n.c-rounded_button--large {\n  font-size: 1.25rem;\n  padding-top: 0.875rem;\n  padding-bottom: 1rem;\n  padding-left: 2rem;\n  padding-right: 2rem;\n}\n.touch .c-rounded_button:focus {\n  outline: initial;\n  text-decoration: initial;\n}\n", ""]);
 }, function(e, t, n) {
   var r = n(4172);
   "string" == typeof r && (r = [
@@ -60610,16 +60673,17 @@ webpackJsonp([332], [, function(e, t, n) {
     s = n.n(a),
     u = n(3253),
     l = n(2907),
-    c = {
+    c = n(4194),
+    d = {
       file: r.PropTypes.shape({
         id: r.PropTypes.string.isRequired
       }).isRequired,
       isImage: r.PropTypes.bool
     },
-    d = {
+    f = {
       isImage: !1
     },
-    f = function(e) {
+    p = function(e) {
       var t = e.file,
         r = e.isImage;
       return o.a.createElement("div", {
@@ -60629,7 +60693,12 @@ webpackJsonp([332], [, function(e, t, n) {
       }, o.a.createElement(u.a, {
         type: "outline",
         className: "c-message__file_action_button",
-        icon: "cloud-download"
+        icon: "cloud-download",
+        href: t.url_private_download,
+        target: t.url_private_download,
+        onClick: function(e) {
+          return n.i(c.a)(t, !0) && e.preventDefault();
+        }
       }), o.a.createElement(u.a, {
         type: "outline",
         className: "c-message__file_action_button",
@@ -60642,7 +60711,7 @@ webpackJsonp([332], [, function(e, t, n) {
         }
       }, "Add Comment"));
     };
-  f.propTypes = c, f.defaultProps = d, t.a = n.i(i.a)(f);
+  p.propTypes = d, p.defaultProps = f, t.a = n.i(i.a)(p);
 }, function(e, t, n) {
   "use strict";
   var r = n(2277);
@@ -60664,7 +60733,7 @@ webpackJsonp([332], [, function(e, t, n) {
 
   function o(e, t, o) {
     var i = o();
-    if (n.i(l.isFeatureEnabled)(i, "feature_react_messages")) {
+    if (n.i(l.useReactMessages)(i)) {
       var a = e.payload;
       a && r(a, t, o);
     }
@@ -60672,7 +60741,7 @@ webpackJsonp([332], [, function(e, t, n) {
 
   function i(e, t, o) {
     var i = o();
-    if (n.i(l.isFeatureEnabled)(i, "feature_react_messages")) {
+    if (n.i(l.useReactMessages)(i)) {
       var a = n.i(c.getMessagePaneChannelId)(i);
       a && r(a, t, o);
     }
@@ -60775,4 +60844,62 @@ webpackJsonp([332], [, function(e, t, n) {
       });
     };
   t.a = c;
+}, function(e, t, n) {
+  "use strict";
+  n.d(t, "a", function() {
+    return o;
+  });
+  var r = n(2277),
+    o = n.i(r.a)("TS.client.downloads.startDownload", function() {});
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e) {
+    var t = e.isRestricted,
+      n = e.isUltraRestricted,
+      r = e.isExternal,
+      o = e.team;
+    if (r) {
+      return i.a.createElement("div", {
+        className: "c-member_profile_card__restriction c-member_profile_card__restriction--external"
+      }, i.a.createElement("span", {
+        className: "overflow_ellipsis"
+      }, o.name));
+    }
+    if (t) {
+      var a = n ? u.t("Single-Channel Guest") : u.t("Multi-Channel Guest");
+      return i.a.createElement("div", {
+        className: "c-member_profile_card__restriction"
+      }, i.a.createElement("span", {
+        className: "overflow_ellipsis"
+      }, a));
+    }
+    return null;
+  }
+  var o = n(2),
+    i = n.n(o),
+    a = n(3115),
+    s = n(2288),
+    u = new s.a("team"),
+    l = {
+      isRestricted: o.PropTypes.bool.isRequired,
+      isUltraRestricted: o.PropTypes.bool.isRequired,
+      isExternal: o.PropTypes.bool.isRequired,
+      team: o.PropTypes.shape({
+        name: o.PropTypes.string
+      })
+    },
+    c = {
+      team: {
+        name: ""
+      }
+    };
+  r.propTypes = l, r.defaultProps = c, t.a = n.i(a.a)(r);
+}, function(e, t, n) {
+  "use strict";
+  n.d(t, "a", function() {
+    return o;
+  });
+  var r = n(2277),
+    o = n.i(r.a)("TS.teams.getTeamById", function() {});
 }], [2905]);

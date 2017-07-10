@@ -1,5 +1,5 @@
 {{i18n_ns "pages_admin"}}
-<form action="" data-js="add_invoice_form" class="display_flex flex_direction_column large_top_margin">
+<form action="" data-js="add_invoice_form" class="display_flex flex_direction_column large_top_margin" data-qa="inv_ss__form_container">
   {{> billing_add_invoice_number_of_seats_input default_seat_text=default_seat_text minimum_seats_possible=minimum_seats_possible current_user_count=current_user_count disabled=disabled}}
 
   {{#if disabled}}

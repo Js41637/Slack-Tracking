@@ -2421,7 +2421,6 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
       "use strict";
       TS.registerModule("channels", {
         switched_sig: new signals.Signal,
-        pre_switched_sig: new signals.Signal,
         joined_sig: new signals.Signal,
         member_joined_sig: new signals.Signal,
         left_sig: new signals.Signal,
@@ -2575,7 +2574,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             path: i,
             replace_history_state: o,
             no_history_add: c
-          }) && (TS.channels.pre_switched_sig.dispatch(), TS.channels.switched_sig.dispatch()), r && TS.channels.sendMsg(n, $.trim(r));
+          }) && TS.channels.switched_sig.dispatch(), r && TS.channels.sendMsg(n, $.trim(r));
         },
         setLastRead: function(e, t, n) {
           if (e.last_read === t) return !1;
@@ -8885,7 +8884,6 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
       "use strict";
       TS.registerModule("groups", {
         switched_sig: new signals.Signal,
-        pre_switched_sig: new signals.Signal,
         joined_sig: new signals.Signal,
         member_joined_sig: new signals.Signal,
         left_sig: new signals.Signal,
@@ -8976,7 +8974,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               path: c,
               replace_history_state: o,
               no_history_add: d
-            }) && (TS.groups.pre_switched_sig.dispatch(), TS.groups.switched_sig.dispatch()), l.is_open) return void(r && TS.groups.sendMsg(n, $.trim(r)));
+            }) && TS.groups.switched_sig.dispatch(), l.is_open) return void(r && TS.groups.sendMsg(n, $.trim(r)));
           TS.model.requested_group_opens[n] = {
             and_send_txt: r
           }, TS.boot_data.feature_shared_channels_beta ? TS.api.call("conversations.open", {
@@ -9533,7 +9531,6 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
       "use strict";
       TS.registerModule("ims", {
         switched_sig: new signals.Signal,
-        pre_switched_sig: new signals.Signal,
         history_fetched_sig: new signals.Signal,
         history_being_fetched_sig: new signals.Signal,
         message_received_sig: new signals.Signal,
@@ -9668,7 +9665,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return i ? (TS.utility.msgs.maybeClearPrevLastRead(), TS.utility.msgs.maybeClearPrevLastRead(i), TS.shared.maybeClearHasAutoScrolled(), TS.shared.didDeferMessageHistoryById(i.id) && TS.shared.checkInitialMsgHistory(i, TS.ims), e != TS.model.active_im_id || TS.client.activeChannelIsHidden() ? (TS.client.channelDisplaySwitched({
             id: e,
             no_history_add: t
-          }) && (TS.ims.pre_switched_sig.dispatch(), TS.ims.switched_sig.dispatch()), void(n && TS.ims.sendMsg(i.id, $.trim(n)))) : void(n && TS.ims.sendMsg(i.id, $.trim(n)))) : void TS.error('im "' + e + '" unknown');
+          }) && TS.ims.switched_sig.dispatch(), void(n && TS.ims.sendMsg(i.id, $.trim(n)))) : void(n && TS.ims.sendMsg(i.id, $.trim(n)))) : void TS.error('im "' + e + '" unknown');
         },
         setLastRead: function(e, t, n) {
           if (e.last_read == t) return !1;
@@ -14780,7 +14777,6 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
       "use strict";
       TS.registerModule("mpims", {
         switched_sig: new signals.Signal,
-        pre_switched_sig: new signals.Signal,
         joined_sig: new signals.Signal,
         member_joined_sig: new signals.Signal,
         history_fetched_sig: new signals.Signal,
@@ -14860,24 +14856,6 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             i && TS.mpims.closed_sig.dispatch(i);
           }
         },
-        startMpimWithMembers: function(e, t) {
-          var n = e.map(function(e) {
-            return e.id;
-          });
-          n = n.join(",");
-          var i = "mpim.open";
-          TS.boot_data.feature_shared_channels_beta && (i = "conversations.open"), TS.api.call(i, {
-            users: n
-          }, function(e, n, i) {
-            if (n.group) {
-              var r = TS.mpims.upsertMpim(n.group);
-              r ? TS.mpims.displayMpim({
-                id: r.id
-              }) : TS.error("no mpim?!?");
-            }
-            t && t(e, n, i);
-          });
-        },
         onOpened: function(e) {},
         displayMpim: function(e) {
           var t = _.defaults({}, e, {
@@ -14902,7 +14880,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               path: d,
               replace_history_state: s,
               no_history_add: l
-            }) && (TS.mpims.pre_switched_sig.dispatch(), TS.mpims.switched_sig.dispatch()), o.is_open) return void(r && TS.mpims.sendMsg(n, $.trim(r)));
+            }) && TS.mpims.switched_sig.dispatch(), o.is_open) return void(r && TS.mpims.sendMsg(n, $.trim(r)));
           TS.model.requested_mpim_opens[n] = {
             and_send_txt: r
           };

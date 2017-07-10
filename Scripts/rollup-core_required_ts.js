@@ -2413,10 +2413,10 @@ webpackJsonp([12, 328, 337, 329], {
           return TS.useRedux() && TS.boot_data.feature_react_sidebar;
         },
         useReactMessages: function() {
-          return TS.client && TS.useRedux() && TS.boot_data.feature_react_messages;
+          return TS.client && TS.useRedux() && (TS.boot_data.feature_react_messages || TS.boot_data.use_react_messages);
         },
         useReduxMembers: function() {
-          return TS.useRedux() && TS.boot_data.feature_store_members_in_redux;
+          return TS.useRedux() && (TS.boot_data.feature_store_members_in_redux || TS.boot_data.use_react_messages);
         },
         lazyLoadMembersAndBots: function() {
           return TS.useSocket();

@@ -6,6 +6,7 @@
 <div class="file_container generic_container{{#if file.thumb_480}} file_has_thumb{{/if}}">
 
   <a data-file-id="{{file.id}}"
+    {{#if_equal file.external_type compare="gdrive"}}tabindex=-1{{/if_equal}}
     target="{{#isClient}}{{newWindowName}}{{else}}_blank{{/isClient}}"
     class="file_header generic_header {{#if_equal file.mode compare='hosted'}}{{#fileDefaultIsNewWindow id=file.id}}{{else}}file_ssb_download_link{{/fileDefaultIsNewWindow}}{{/if_equal}} {{#nonImageCanUseFSFV file}}file_viewer_channel_link file_viewer_link{{/nonImageCanUseFSFV}}"
 

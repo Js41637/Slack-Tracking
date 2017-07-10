@@ -1,12 +1,12 @@
 {{i18n_ns "pages_admin"}}
-<div class="bottom_margin payment_form_details">
+<div class="bottom_margin payment_form_details" data-qa="inv_ss__purchase_order_radio_container">
   <label for="add_invoice__requires_purchase_order" {{#if disabled}}class="disabled"{{/if}}>{{#t}}Need a purchase order?{{/t}}</label>
   <div class="display_flex">
     <label class="radio right_margin {{#if disabled}}disabled cursor_default{{/if}}">
-      <input type="radio" name="add_invoice__requires_purchase_order" value="no" {{#if disabled}}disabled="true"{{/if}} /> {{#t}}No{{/t}}
+      <input type="radio" name="add_invoice__requires_purchase_order" value="no" {{#if disabled}}disabled="true"{{/if}} data-qa="inv_ss__purchase_order_radio_no"/> {{#t}}No{{/t}}
     </label>
     <label class="radio right_margin {{#if disabled}}disabled cursor_default{{/if}}">
-      <input type="radio" name="add_invoice__requires_purchase_order" value="yes" {{#if disabled}}disabled="true"{{/if}} /> {{#t}}Yes{{/t}}
+      <input type="radio" name="add_invoice__requires_purchase_order" value="yes" {{#if disabled}}disabled="true"{{/if}} data-qa="inv_ss__purchase_order_radio_yes" /> {{#t}}Yes{{/t}}
     </label>
   </div>
   <div class="p-add_invoice__warning_container very_small_padding hidden" data-js="add_invoice__purchase_order_radio_error">
@@ -15,10 +15,10 @@
     </p>
   </div>
 </div>
-<div class="hidden bottom_margin payment_form_details" data-js="add_invoice__purchase_order_container">
+<div class="hidden bottom_margin payment_form_details" data-js="add_invoice__purchase_order_container" data-qa="inv_ss__purchase_order_input_container">
   <div>
     <label for="add_invoice__purchase_order_number">{{#t}}Purchase Order #{{/t}}</label>
-    <input type="text" class="small no_margin" name="add_invoice__purchase_order_number" data-qa="invoice_purchase_order" />
+    <input type="text" class="small no_margin" name="add_invoice__purchase_order_number" data-qa="invoice_purchase_order" data-qa="inv_ss__purchase_order_input" />
   </div>
   <div class="p-add_invoice__warning_container very_small_padding hidden" data-js="add_invoice__purhchase_order_input_error">
     <p class="p-add_invoice__warning_text--without_icon small black small_left_margin no_bottom_margin">

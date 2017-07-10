@@ -1,8 +1,8 @@
 {{i18n_ns "pages_admin"}}
-<div class="bottom_margin payment_form_details">
+<div class="bottom_margin payment_form_details" data-qa="inv_ss__contacts_container">
   <label for="add_invoice__billing_emails" {{#if disabled}}class="disabled"{{/if}}>{{#t}}Additional Billing Contacts (Optional){{/t}}</label>
   <div class="add_invoice__billing_emails no_margin">
-    <input class="add_invoice__new_billing_email small no_margin" type="text" name="add_invoice__billing_emails" placeholder="{{#t}}e.g. @sara or accounting@acme.corp{{/t}}" data-qa="invoice_additional_billing_emails" {{#if disabled}}disabled="true"{{/if}}>
+    <input class="add_invoice__new_billing_email small no_margin" type="text" name="add_invoice__billing_emails" placeholder="{{#t}}e.g. @sara or accounting@acme.corp{{/t}}" data-qa="inv_ss__contacts_input" {{#if disabled}}disabled="true"{{/if}}>
   </div>
   <div class="p-add_invoice__warning_container very_small_padding hidden" data-js="add_invoice__contact_error">
     <p class="p-add_invoice__warning_text--without_icon small black small_left_margin no_bottom_margin">
