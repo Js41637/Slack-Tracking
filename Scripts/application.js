@@ -31660,7 +31660,7 @@ webpackJsonp([332], [, function(e, t, n) {
     p = n.i(i.a)("desktop.downloads.clearDownloads", o.a.noop);
 }, , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , function(e, t, n) {
   "use strict";
-  var r = n(4189);
+  var r = n(2887);
   t.a = r.a;
 }, function(e, t, n) {
   "use strict";
@@ -37003,7 +37003,10 @@ webpackJsonp([332], [, function(e, t, n) {
           i.forEach(function(e, t) {
             f[e] = t;
           });
-          var p = this.props.startTs;
+          var p = this.props.startTs,
+            m = {
+              editTs: this.props.editTs
+            };
           return c.a.createElement(d.a, {
             key: this.props.channelId
           }, function(t) {
@@ -37021,7 +37024,8 @@ webpackJsonp([332], [, function(e, t, n) {
               loadPost: e.requestNewer,
               height: r,
               width: n,
-              useSlackScrollbar: !0
+              useSlackScrollbar: !0,
+              unrelatedUpdateProps: m
             });
           });
         }
@@ -56022,7 +56026,7 @@ webpackJsonp([332], [, function(e, t, n) {
   n(219)(r, {});
   r.locals && (e.exports = r.locals);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.c-message_actions__container {\n  background: #FFF;\n  border: 0.0625rem solid rgba(0, 0, 0, 0.15);\n  border-radius: 0.375rem;\n  overflow: hidden;\n  transition: all 50ms ease-in;\n  transition-property: border, box-shadow;\n}\n.c-message_actions__container:hover {\n  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);\n  border-color: rgba(0, 0, 0, 0.3);\n}\n.c-message_actions__container .c-message_actions__button:last-child {\n  border-right: none;\n}\n.c-message_actions__button {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  padding: 4px 8px;\n  color: #717274;\n  border: none;\n  border-right: 1px solid rgba(0, 0, 0, 0.15);\n  transition: all 50ms ease-in;\n  transition-property: background, border, opacity;\n}\n.c-message_actions__button:hover,\n.c-message_actions__button:focus,\n.c-message_actions__button:active {\n  outline: none;\n}\n.c-message_actions__button .c-icon::before {\n  font-size: 1.1rem;\n}\n.c-message_actions__button:hover {\n  color: #007AB8;\n}\n.c-message_actions__button:active {\n  background: #F9F9F9;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.c-message_actions__container {\n  background: #FFF;\n  border: 0.0625rem solid rgba(0, 0, 0, 0.15);\n  border-radius: 0.375rem;\n  overflow: hidden;\n  transition: all 50ms ease-in;\n  transition-property: border, box-shadow;\n}\n.c-message_actions__container:hover {\n  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);\n  border-color: rgba(0, 0, 0, 0.3);\n}\n.c-message_actions__container .c-message_actions__button:last-child {\n  border-right: none;\n}\n.c-message_actions__button {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  padding: 3px 7px;\n  color: #717274;\n  border: none;\n  border-right: 1px solid rgba(0, 0, 0, 0.15);\n  transition: all 50ms ease-in;\n  transition-property: background, border, opacity;\n}\n.c-message_actions__button:hover,\n.c-message_actions__button:focus,\n.c-message_actions__button:active {\n  outline: none;\n}\n.c-message_actions__button:hover {\n  color: #007AB8;\n}\n.c-message_actions__button:active {\n  background: #F9F9F9;\n}\n", ""]);
 }, function(e, t, n) {
   "use strict";
   var r = n(3934);
@@ -56258,7 +56262,7 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "renderReaction",
         value: function() {
           return s.a.createElement(p.a, {
-            iconType: "add-reaction",
+            iconType: "small-reaction",
             tooltipText: S.t("Add reaction…"),
             onClick: this.onAddReaction
           });
@@ -56268,7 +56272,7 @@ webpackJsonp([332], [, function(e, t, n) {
         value: function() {
           var e = void 0;
           return e = this.props.file ? S.t("Add comment…") : this.props.replyCount ? S.t("Reply to thread") : S.t("Start a thread"), s.a.createElement(p.a, {
-            iconType: "comment-alt",
+            iconType: "small-reply",
             tooltipText: e,
             onClick: this.onComment
           });
@@ -56295,7 +56299,7 @@ webpackJsonp([332], [, function(e, t, n) {
             onOpen: this.onMoreActionsMenuOpen,
             onClose: this.onMoreActionsMenuClose
           }, s.a.createElement(p.a, {
-            iconType: "ellipsis",
+            iconType: "small-ellipsis",
             tooltipText: S.t("Show message actions"),
             tooltipPosition: "top-right"
           }));
@@ -60694,18 +60698,7 @@ webpackJsonp([332], [, function(e, t, n) {
   var r = n(4193),
     o = n(2353);
   n.i(o.a)("interop.mountEmojiPicker", r.a);
-}, function(e, t, n) {
-  "use strict";
-  var r = n(43),
-    o = n(3028),
-    i = n(2887),
-    a = function(e) {
-      return {
-        featureReactEmojiPickerFrecency: n.i(o.isFeatureEnabled)(e, "feature_react_emoji_picker_frecency")
-      };
-    };
-  t.a = n.i(r.b)(a)(i.a);
-}, function(e, t, n) {
+}, , function(e, t, n) {
   "use strict";
 
   function r(e) {
@@ -60773,17 +60766,13 @@ webpackJsonp([332], [, function(e, t, n) {
     o = n.n(r),
     i = n(20),
     a = n.n(i),
-    s = n(43),
-    u = n(3629),
-    l = n(2906),
-    c = n(2348),
-    d = n(2694),
-    f = function(e, t, r) {
-      n.i(l.a)("react_emoji_menu_render_mark"), a.a.render(o.a.createElement(s.a, {
-        store: n.i(u.a)()
-      }, o.a.createElement(c.a, r, o.a.createElement(d.a, t))), e, function() {
-        return n.i(l.b)("react_emoji_menu_render", "react_emoji_menu_render_mark");
+    s = n(2906),
+    u = n(2348),
+    l = n(2694),
+    c = function(e, t, r) {
+      n.i(s.a)("react_emoji_menu_render_mark"), a.a.render(o.a.createElement(u.a, r, o.a.createElement(l.a, t)), e, function() {
+        return n.i(s.b)("react_emoji_menu_render", "react_emoji_menu_render_mark");
       });
     };
-  t.a = f;
+  t.a = c;
 }], [2905]);

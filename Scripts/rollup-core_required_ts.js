@@ -1466,13 +1466,14 @@ webpackJsonp([12, 328, 337, 329], {
         b = function() {
           var e = TS.ui.frecency.getMostCommonWithPrefix("E", 36);
           if (e = _.map(e, "id"), !e.length) return [];
-          var n = TS.emoji.getChosenSkinTone(!!TS.boot_data.feature_localization);
-          return _.chain(TS.model.emoji_map).filter(function(n) {
-            return e.includes(n.id);
-          }).map(function(e) {
-            var a = e.display_name;
-            return n && e.is_skin && (a = a + "::" + n), a;
-          }).value();
+          var n = TS.emoji.getChosenSkinTone(!!TS.boot_data.feature_localization),
+            a = _.keyBy(TS.model.emoji_map, "id");
+          return _.chain(e).map(function(e) {
+            var o = a[e];
+            if (!o) return null;
+            var t = o.display_name;
+            return n && o.is_skin && (t = t + "::" + n), t;
+          }).compact().value();
         };
     }();
   },
@@ -2414,6 +2415,9 @@ webpackJsonp([12, 328, 337, 329], {
         useReactMessages: function() {
           return TS.client && TS.useRedux() && TS.boot_data.feature_react_messages;
         },
+        useReduxMembers: function() {
+          return TS.useRedux() && TS.boot_data.feature_store_members_in_redux;
+        },
         lazyLoadMembersAndBots: function() {
           return TS.useSocket();
         },
@@ -2902,7 +2906,7 @@ webpackJsonp([12, 328, 337, 329], {
         Z = function(e, n) {
           return TS.lazyLoadMembersAndBots() && (e.bots = e.bots || []), new Promise(function(a, o) {
             var t = !TS.model.ms_logged_in_once;
-            if (TS.team.upsertTeam(e.team), TS.model.team.url = e.url, TS.boot_data.page_needs_enterprise && void 0 !== e.can_manage_shared_channels && (TS.model.team.prefs.can_user_manage_shared_channels = e.can_manage_shared_channels), TS.model.last_team_name || (TS.model.last_team_name = TS.model.team.name, TS.model.last_team_domain = TS.model.team.domain), TS.model.team.activity = [], TS.model.break_token && (TS.model.team.url += "f"), t) TS.model.rooms = [], TS.useRedux() || (TS.model.channels = [], TS.model.groups = [], TS.model.mpims = [], TS.model.ims = []), TS.useRedux() && TS.boot_data.feature_store_members_in_redux || (TS.model.members = [], TS.model.bots = []), TS.model.teams = [], TS.model.user_groups = [], TS.model.read_only_channels = [], TS.boot_data.feature_default_shared_channels && (TS.model.thread_only_channels = [], TS.model.non_threadable_channels = []), TS.model.online_users = [];
+            if (TS.team.upsertTeam(e.team), TS.model.team.url = e.url, TS.boot_data.page_needs_enterprise && void 0 !== e.can_manage_shared_channels && (TS.model.team.prefs.can_user_manage_shared_channels = e.can_manage_shared_channels), TS.model.last_team_name || (TS.model.last_team_name = TS.model.team.name, TS.model.last_team_domain = TS.model.team.domain), TS.model.team.activity = [], TS.model.break_token && (TS.model.team.url += "f"), t) TS.model.rooms = [], TS.useRedux() || (TS.model.channels = [], TS.model.groups = [], TS.model.mpims = [], TS.model.ims = []), TS.useReduxMembers() || (TS.model.members = [], TS.model.bots = []), TS.model.teams = [], TS.model.user_groups = [], TS.model.read_only_channels = [], TS.boot_data.feature_default_shared_channels && (TS.model.thread_only_channels = [], TS.model.non_threadable_channels = []), TS.model.online_users = [];
             else {
               var i = TS._did_incremental_boot && !TS._did_full_boot;
               i || TS.refreshTeams();

@@ -2165,7 +2165,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           i = TS.utility.throttleFunc(i, 20);
         },
         getBotById: function(t) {
-          if (TS.useRedux() && TS.boot_data.feature_store_members_in_redux) return TS.redux.bots.getBotById(t);
+          if (TS.useReduxMembers()) return TS.redux.bots.getBotById(t);
           if (e[t]) return e[t];
           for (var n, i = TS.model.bots, r = 0; r < i.length; r += 1)
             if (n = i[r], n.id == t) return TS.warn(t + " not in _id_map"), e[t] = n, n;
@@ -2221,11 +2221,11 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             r = "NOOP",
             s = [];
           if (i) {
-            TS.has_pri[a] && TS.log(a, 'updating existing bot "' + t.id + '"'), TS.useRedux() && TS.boot_data.feature_store_members_in_redux && (i = _.assign({}, i));
+            TS.has_pri[a] && TS.log(a, 'updating existing bot "' + t.id + '"'), TS.useReduxMembers() && (i = _.assign({}, i));
             for (var o in t) "icons" === o ? t[o] && !TS.utility.areSimpleObjectsEqual(t[o], i[o], "bot:" + t.id + " " + t.name) && (i.icons = t.icons, r = "CHANGED", s.push(o)) : i[o] != t[o] && (t[o] && !TS.utility.isScalar(t[o]) ? (i[o] = t[o], TS.warn(o + " is not scalar! it needs to be handled by upsertBot specifically to test if it has changed! " + n(t[o]))) : "boolean" == typeof t[o] && !t[o] == !i[o] || (s.push(o), i[o] = t[o], r = "CHANGED"));
             t = i;
-          } else r = "ADDED", TS.has_pri[a] && TS.log(a, 'adding bot "' + t.id + '"'), TS.bots.processNewBotForUpserting(t), e[t.id] = t, TS.useRedux() && TS.boot_data.feature_store_members_in_redux || TS.model.bots.push(t);
-          return "ADDED" !== r && "CHANGED" !== r || (TS.bots.maybeStoreBots(), TS.useRedux() && TS.boot_data.feature_store_members_in_redux && (TS.bots.is_in_bulk_upsert_mode ? TS.redux.bots.addToBulkUpsertPayload(t) : TS.redux.bots.addBot(t))), {
+          } else r = "ADDED", TS.has_pri[a] && TS.log(a, 'adding bot "' + t.id + '"'), TS.bots.processNewBotForUpserting(t), e[t.id] = t, TS.useReduxMembers() || TS.model.bots.push(t);
+          return "ADDED" !== r && "CHANGED" !== r || (TS.bots.maybeStoreBots(), TS.useReduxMembers() && (TS.bots.is_in_bulk_upsert_mode ? TS.redux.bots.addToBulkUpsertPayload(t) : TS.redux.bots.addBot(t))), {
             status: r,
             bot: t,
             what_changed: s
@@ -10800,7 +10800,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         getMemberById: function(e) {
           if (!_.isString(e)) return null;
-          if (e && "@" === e.charAt(0) && (e = e.substring(1)), TS.useRedux() && TS.boot_data.feature_store_members_in_redux) return TS.redux.members.getMemberById(e);
+          if (e && "@" === e.charAt(0) && (e = e.substring(1)), TS.useReduxMembers()) return TS.redux.members.getMemberById(e);
           _e(e);
           var n = t[e];
           return void 0 !== n ? n.is_unknown ? null : n : null;
@@ -10868,7 +10868,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             s = "NOOP",
             o = [];
           if (a || (a = TS.members.getUnknownMemberById(n.id)), n.is_ultra_restricted && (n.is_restricted = !0), a) {
-            TS.useRedux && TS.boot_data.feature_store_members_in_redux && (a = _.assign({}, a)), TS.has_pri[re] && TS.log(re, 'updating existing member "' + n.id + '"');
+            TS.useReduxMembers() && (a = _.assign({}, a)), TS.has_pri[re] && TS.log(re, 'updating existing member "' + n.id + '"');
             var l = H(a, n);
             if (s = l.status, o = l.what_changed, TS.useRedux()) {
               if (_.includes(o, "presence") && (TS.members.is_in_bulk_upsert_mode ? TS.redux.presence.addToBulkUpsertPayload(a) : TS.redux.presence.updatePresenceForMember(a)), (_.includes(o, "is_restricted") || _.includes(o, "is_ultra_restricted")) && (TS.members.is_in_bulk_upsert_mode ? TS.redux.member_types.addToBulkUpdatePayload(a) : TS.redux.member_types.updateMemberTypeForMember(a)), _.includes(o, "deleted")) {
@@ -10878,9 +10878,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               _.includes(o, "current_status") && (TS.members.is_in_bulk_upsert_mode ? TS.redux.custom_status.addToBulkUpsertPayload(a) : TS.redux.custom_status.updateStatusForMember(a));
             }
             void 0 !== a.is_non_existent && delete a.is_non_existent, n = a;
-          } else n.id ? (s = "ADDED", N(n), TS.has_pri[re] && TS.log(re, 'adding member "' + n.id + '" color:' + n.color + " member_color:" + n.member_color), n.presence && TS.useRedux() && (TS.members.is_in_bulk_upsert_mode ? TS.redux.presence.addToBulkUpsertPayload(n) : TS.redux.presence.updatePresenceForMember(n)), n.profile && n.profile.status_emoji && TS.useRedux() && (TS.members.is_in_bulk_upsert_mode ? TS.redux.custom_status.addToBulkUpsertPayload(n) : TS.redux.custom_status.updateStatusForMember(n)), TS.useRedux() && (TS.members.is_in_bulk_upsert_mode ? TS.redux.member_types.addToBulkUpdatePayload(n) : TS.redux.member_types.updateMemberTypeForMember(n)), e += 1, t[n.id] = n, i[n._name_lc] = n.id, i["@" + n._name_lc] = n.id, TS.useRedux() && TS.boot_data.feature_store_members_in_redux || TS.model.members.push(n)) : TS.error("bad error, no member.id");
+          } else n.id ? (s = "ADDED", N(n), TS.has_pri[re] && TS.log(re, 'adding member "' + n.id + '" color:' + n.color + " member_color:" + n.member_color), n.presence && TS.useRedux() && (TS.members.is_in_bulk_upsert_mode ? TS.redux.presence.addToBulkUpsertPayload(n) : TS.redux.presence.updatePresenceForMember(n)), n.profile && n.profile.status_emoji && TS.useRedux() && (TS.members.is_in_bulk_upsert_mode ? TS.redux.custom_status.addToBulkUpsertPayload(n) : TS.redux.custom_status.updateStatusForMember(n)), TS.useRedux() && (TS.members.is_in_bulk_upsert_mode ? TS.redux.member_types.addToBulkUpdatePayload(n) : TS.redux.member_types.updateMemberTypeForMember(n)), e += 1, t[n.id] = n, i[n._name_lc] = n.id, i["@" + n._name_lc] = n.id, TS.useReduxMembers() || TS.model.members.push(n)) : TS.error("bad error, no member.id");
           if (n.is_self && n.deleted) return void TS.reload(null, "member.is_self && member.deleted");
-          TS.members.is_in_bulk_upsert_mode || (TS.members.invalidateMembersUserCanSeeArrayCaches(), TS.members.invalidateActiveMembersArrayCaches()), "ADDED" !== s && "CHANGED" !== s || TS.members.maybeStoreMembers(), TS.members.member_was_upserted_sig.dispatch(), TS.useRedux() && TS.boot_data.feature_store_members_in_redux && "NOOP" !== s && (n.profile = _.assign({}, n.profile), TS.members.is_in_bulk_upsert_mode ? TS.redux.members.addToBulkUpsertPayload(n) : TS.redux.members.addMember(n));
+          TS.members.is_in_bulk_upsert_mode || (TS.members.invalidateMembersUserCanSeeArrayCaches(), TS.members.invalidateActiveMembersArrayCaches()), "ADDED" !== s && "CHANGED" !== s || TS.members.maybeStoreMembers(), TS.members.member_was_upserted_sig.dispatch(), TS.useReduxMembers() && "NOOP" !== s && (n.profile = _.assign({}, n.profile), TS.members.is_in_bulk_upsert_mode ? TS.redux.members.addToBulkUpsertPayload(n) : TS.redux.members.addMember(n));
           var c = {
             status: s,
             member: n,
@@ -26104,6 +26104,12 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               includeMeridiem: !1 !== t,
               includeSeconds: !0 === n
             });
+          }), Handlebars.registerHelper("toTimeShort", function(e) {
+            return TS.utility.date.do24hrTime() ? TS.interop.datetime.toTime(e, {
+              timeFormat: "HH:mm"
+            }) : TS.interop.datetime.toTime(e, {
+              timeFormat: "h:mm"
+            });
           }), Handlebars.registerHelper("toTimeAgo", function(e) {
             return TS.interop.datetime.toTimeAgo(e);
           }), Handlebars.registerHelper("toTimeAgoShort", function(e, t) {
@@ -26602,10 +26608,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               inverse: e.fn,
               hash: e.hash
             });
-          }), Handlebars.registerHelper("getTeamNameByMember", function(e) {
-            return TS.teams.getTeamNameByMember(e);
           });
-          Handlebars.registerHelper("getTeamById", function(e) {
+          Handlebars.registerHelper("getTeamNameByMember", function(e) {
+            return TS.teams.getTeamNameByMember(e);
+          }), Handlebars.registerHelper("getTeamById", function(e) {
             return TS.teams.getTeamById(e);
           }), Handlebars.registerHelper("getTeamNameById", function(e) {
             return TS.teams.getTeamNameById(e);
@@ -31666,7 +31672,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             onClosed: T,
             canAddEmoji: !TS.model.user.is_restricted && (!TS.model.team.prefs.emoji_only_admins || TS.model.user.is_admin),
             emojiMap: TS.model.emoji_map,
-            skinToneModifier: TS.emoji.getChosenSkinToneModifier(!!TS.boot_data.feature_localization)
+            skinToneModifier: TS.emoji.getChosenSkinToneModifier(!!TS.boot_data.feature_localization),
+            featureReactEmojiPickerFrecency: TS.boot_data.feature_react_emoji_picker_frecency
           };
           return n && (t.handyRxnNames = a), t;
         },
@@ -37028,13 +37035,13 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         reCalcAndCountAllUnreads: function() {
           var e = TS.channels.getChannelsForUser();
           TS.utility.msgs.startBatchUnreadCalc(), e.forEach(function(e) {
-            e.is_archived && !e.was_archived_this_session || (TS.shared.didDeferMessageHistoryById(e.id) && TS.shared.setDeferMessageHistoryForId(e.id, !1), TS.channels.calcUnreadCnts(e));
+            e.is_archived && !e.was_archived_this_session || TS.shared.didDeferMessageHistoryById(e.id) || TS.channels.calcUnreadCnts(e);
           }), TS.model.groups.forEach(function(e) {
-            e.is_archived && !e.was_archived_this_session || (TS.shared.didDeferMessageHistoryById(e.id) && TS.shared.setDeferMessageHistoryForId(e.id, !1), TS.groups.calcUnreadCnts(e));
+            e.is_archived && !e.was_archived_this_session || TS.shared.didDeferMessageHistoryById(e.id) || TS.groups.calcUnreadCnts(e);
           }), TS.model.ims.forEach(function(e) {
-            TS.shared.didDeferMessageHistoryById(e.id) && TS.shared.setDeferMessageHistoryForId(e.id, !1), TS.ims.calcUnreadCnts(e);
+            TS.shared.didDeferMessageHistoryById(e.id) || TS.ims.calcUnreadCnts(e);
           }), TS.model.mpims.forEach(function(e) {
-            TS.shared.didDeferMessageHistoryById(e.id) && TS.shared.setDeferMessageHistoryForId(e.id, !1), TS.mpims.calcUnreadCnts(e);
+            TS.shared.didDeferMessageHistoryById(e.id) || TS.mpims.calcUnreadCnts(e);
           }), TS.utility.msgs.finishBatchUnreadCalc();
         },
         startBatchUnreadCalc: function() {
@@ -40379,7 +40386,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
       "use strict";
       TS.registerModule("redux.members", {
         onStart: function() {
-          TS.useRedux() && TS.boot_data.feature_store_members_in_redux && (r(), e = TS.redux.bindSingleArgSelectorToStore(TS.interop.redux.entities.members.getAllMembers), t = TS.redux.bindSingleArgSelectorToStore(TS.interop.redux.entities.members.getMemberById), Object.defineProperty(TS.model, "members", {
+          TS.useReduxMembers() && (r(), e = TS.redux.bindSingleArgSelectorToStore(TS.interop.redux.entities.members.getAllMembers), t = TS.redux.bindSingleArgSelectorToStore(TS.interop.redux.entities.members.getMemberById), Object.defineProperty(TS.model, "members", {
             get: function() {
               return TS.redux.members.getAllMembers();
             },
@@ -40523,7 +40530,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
       "use strict";
       TS.registerModule("redux.bots", {
         onStart: function() {
-          TS.useRedux() && TS.boot_data.feature_store_members_in_redux && (r(), e = TS.redux.bindSingleArgSelectorToStore(TS.interop.redux.entities.bots.getAllBots), t = TS.redux.bindSingleArgSelectorToStore(TS.interop.redux.entities.bots.getBotById), Object.defineProperty(TS.model, "bots", {
+          TS.useReduxMembers() && (r(), e = TS.redux.bindSingleArgSelectorToStore(TS.interop.redux.entities.bots.getAllBots), t = TS.redux.bindSingleArgSelectorToStore(TS.interop.redux.entities.bots.getBotById), Object.defineProperty(TS.model, "bots", {
             get: function() {
               return TS.redux.bots.getAllBots();
             },
