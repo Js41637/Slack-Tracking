@@ -1,6 +1,6 @@
 {{i18n_ns "pages_admin"}}
 <form action="" data-js="add_invoice_form" class="display_flex flex_direction_column large_top_margin">
-  {{> billing_add_invoice_number_of_seats_input default_seat_text=default_seat_text current_user_count=current_user_count disabled=disabled}}
+  {{> billing_add_invoice_number_of_seats_input default_seat_text=default_seat_text minimum_seats_possible=minimum_seats_possible current_user_count=current_user_count disabled=disabled}}
 
   {{#if disabled}}
     {{> billing_add_invoice_team_too_large_error maximum_seats_possible=maximum_seats_possible}}

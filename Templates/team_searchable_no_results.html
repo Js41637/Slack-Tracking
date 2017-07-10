@@ -45,6 +45,15 @@
           {{#t note="In response to a search"}}No deactivated members found.{{/t}}
         {{/if}}
       {{/if}}
+      {{#feature flag="feature_retire_team_site_directory"}}
+        {{#if bots_filter_selected}}
+          {{#if query}}
+            {{#t note="In response to a search" query=query}}No bots found matching <span class="query bold">{query}</span>.{{/t}}
+          {{else}}
+            {{#t note="In response to a search"}}No bots found.{{/t}}
+          {{/if}}
+        {{/if}}
+      {{/feature}}
     </p>
   </div>
   <p class="top_margin"><a class="clear_members_filter btn btn_outline btn_small btn_outline btn_small">

@@ -9,10 +9,20 @@
       <input type="radio" name="add_invoice__requires_purchase_order" value="yes" {{#if disabled}}disabled="true"{{/if}} /> {{#t}}Yes{{/t}}
     </label>
   </div>
+  <div class="p-add_invoice__warning_container very_small_padding hidden" data-js="add_invoice__purchase_order_radio_error">
+    <p class="p-add_invoice__warning_text--without_icon small black small_left_margin no_bottom_margin">
+      {{#t}}Please select an option.{{/t}}
+    </p>
+  </div>
 </div>
 <div class="hidden bottom_margin payment_form_details" data-js="add_invoice__purchase_order_container">
-  <div class="bottom_margin">
+  <div>
     <label for="add_invoice__purchase_order_number">{{#t}}Purchase Order #{{/t}}</label>
     <input type="text" class="small no_margin" name="add_invoice__purchase_order_number" data-qa="invoice_purchase_order" />
+  </div>
+  <div class="p-add_invoice__warning_container very_small_padding hidden" data-js="add_invoice__purhchase_order_input_error">
+    <p class="p-add_invoice__warning_text--without_icon small black small_left_margin no_bottom_margin">
+      {{#t}}A purchase order number is required.{{/t}}
+    </p>
   </div>
 </div>

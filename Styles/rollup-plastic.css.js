@@ -3855,8 +3855,9 @@ html.no_touch .alert_page a:hover {
   transform: translateY(-3px)
 }
 
-.ts_tip.ts_tip_wide .ts_tip_tip {
-  max-width: 500px
+.ts_tip.ts_tip_member .ts_tip_tip {
+  max-width: 500px;
+  padding: 6px 12px 6px 6px
 }
 
 .ts_tip .ts_tip_tip {

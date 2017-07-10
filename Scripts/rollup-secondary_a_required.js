@@ -8398,7 +8398,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             m += "data-" + t + '="' + e + '" ';
           });
           var p, f = "@" + a.name;
-          return TS.boot_data.feature_texty_mentions ? (TS.boot_data.feature_name_tagging_client && (f = TS.members.getPrefCompliantMemberName(a, !0, !0), l.push("ts_tip ts_tip_top ts_tip_lazy ts_tip_float ts_tip_wide"), m += 'data-tip-member="' + a.id + '" '), "EDIT" === e ? TS.boot_data.feature_name_tagging_client ? "<@" + a.id + "|" + f + ">" : "@" + a.name : "GROWL" !== e && TS.permissions.members.canUserSeeMember(a) ? (p = TS.utility.shouldLinksHaveTargets() ? 'target="/team/' + a.id + '" ' : "", a.id == TS.model.user.id && l.push("mention"), i ? f : (m += 'data-member-label="' + f + '" ', '<a href="/team/' + a.id + '" ' + p + m + 'class="' + l.join(" ") + '">' + f + "</a>")) : f) : "EDIT" === e || "GROWL" === e ? "@" + a.name : TS.permissions.members.canUserSeeMember(a) && !i ? (p = TS.utility.shouldLinksHaveTargets() ? 'target="/team/' + a.name + '" ' : "", n || (f = I(f)), '<a href="/team/' + a.name + '" ' + p + m + 'class="' + l.join(" ") + '">' + f + "</a>") : f;
+          return TS.boot_data.feature_texty_mentions ? (TS.boot_data.feature_name_tagging_client && (f = TS.members.getPrefCompliantMemberName(a, !0, !0), l.push("ts_tip ts_tip_top ts_tip_lazy ts_tip_float ts_tip_member"), m += 'data-tip-member="' + a.id + '" '), "EDIT" === e ? TS.boot_data.feature_name_tagging_client ? "<@" + a.id + "|" + f + ">" : "@" + a.name : "GROWL" !== e && TS.permissions.members.canUserSeeMember(a) ? (p = TS.utility.shouldLinksHaveTargets() ? 'target="/team/' + a.id + '" ' : "", a.id == TS.model.user.id && l.push("mention"), i ? f : (m += 'data-member-label="' + f + '" ', '<a href="/team/' + a.id + '" ' + p + m + 'class="' + l.join(" ") + '">' + f + "</a>")) : f) : "EDIT" === e || "GROWL" === e ? "@" + a.name : TS.permissions.members.canUserSeeMember(a) && !i ? (p = TS.utility.shouldLinksHaveTargets() ? 'target="/team/' + a.name + '" ' : "", n || (f = I(f)), '<a href="/team/' + a.name + '" ' + p + m + 'class="' + l.join(" ") + '">' + f + "</a>") : f;
         },
         H = function(e, t, n, i) {
           if (TS.boot_data.page_needs_enterprise && TS.boot_data.feature_default_shared_channels) {
@@ -13434,7 +13434,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               var s = TS.permissions.members.canManageOrgSharedChannels();
               !i.is_shared && s && (a.show_convert_item = !0), i.is_shared && (i.creator !== TS.model.user.id && (a.show_advanced_item = !1), s && (a.show_advanced_item = !0, a.show_manage_teams = !i.is_global_shared), a.is_not_allowed_integrations = !0);
             }
-            TS.boot_data.feature_dm_retention && "" !== TS.model.team.plan && TS.model.team.prefs.allow_retention_override && (a.show_message_retention = !0), TS.menu.$menu_items.html(TS.templates.menu_group_items(a)), TS.menu.$menu_header.bind("click.menu", TS.menu.group.onGroupHeaderClick), TS.menu.$menu_items.on("click.menu", "li", TS.menu.group.onGroupItemClick), TS.menu.start(t), TS.menu.$menu.attr("data-qa", "group_menu"), TS.menu.$menu.addClass("narrow_menu"), TS.ui.date_picker.getOldestMsgTs(), $("#menu_group_topic_input").bind("keydown", TS.menu.handleTopicKeydown), e || (e = $(t.target).closest("#channel_name").length);
+            "" !== TS.model.team.plan && TS.model.team.prefs.allow_retention_override && (a.show_message_retention = !0), TS.menu.$menu_items.html(TS.templates.menu_group_items(a)), TS.menu.$menu_header.bind("click.menu", TS.menu.group.onGroupHeaderClick), TS.menu.$menu_items.on("click.menu", "li", TS.menu.group.onGroupItemClick), TS.menu.start(t), TS.menu.$menu.attr("data-qa", "group_menu"), TS.menu.$menu.addClass("narrow_menu"), TS.ui.date_picker.getOldestMsgTs(), $("#menu_group_topic_input").bind("keydown", TS.menu.handleTopicKeydown), e || (e = $(t.target).closest("#channel_name").length);
             var o = e ? $("#channel_name") : $("#channel_actions_toggle"),
               l = o.height(),
               d = e ? l + 6 : l,
@@ -13658,7 +13658,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             var c = !1;
             TS.model.user.is_admin ? c = !0 : TS.model.team.prefs.slackbot_responses_disabled || TS.model.team.prefs.slackbot_responses_only_admins || (c = !0), n.show_slackbot_responses_item = c;
           }
-          return TS.utility.calls.isEnabled() && !e.is_bot && "USLACKBOT" !== e.id && (n.show_call_action = !0, e._is_local || (n.show_call_action = !1)), TS.boot_data.feature_dm_retention && "" !== TS.model.team.plan && TS.model.team.prefs.allow_retention_override && (n.show_dm_retention = !0), n.show_export_history = TS.permissions.members.canExportMessageHistory(i), n;
+          return TS.utility.calls.isEnabled() && !e.is_bot && "USLACKBOT" !== e.id && (n.show_call_action = !0, e._is_local || (n.show_call_action = !1)), "" !== TS.model.team.plan && TS.model.team.prefs.allow_retention_override && (n.show_dm_retention = !0), n.show_export_history = TS.permissions.members.canExportMessageHistory(i), n;
         },
         i = function(e) {
           e.preventDefault(), TS.client.ui.previewMember(TS.menu.member.member.id, "menu_member_header"), TS.clog.track("USER_CARD_CLICK"), TS.menu.member.end();
@@ -13741,7 +13741,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               show_mpim_convert: TS.permissions.members.canCreateGroups(),
               show_export_history: TS.permissions.members.canExportMessageHistory(TS.menu.mpim.mpim)
             };
-            TS.boot_data.feature_dm_retention && "" !== TS.model.team.plan && TS.model.team.prefs.allow_retention_override && (a.show_message_retention = !0), TS.menu.$menu_header.addClass("hidden").empty(), TS.notifs.isCorGMuted(i.id) && (a.mpim_is_muted = !0), TS.menu.$menu_items.html(TS.templates.menu_mpim_items(a)), TS.menu.$menu_header.bind("click.menu", TS.menu.mpim.onMpimHeaderClick), TS.menu.$menu_items.on("click.menu", "li", TS.menu.mpim.onMpimItemClick), TS.menu.start(t), TS.menu.$menu.attr("data-qa", "mpim_menu"), TS.menu.$menu.addClass("narrow_menu"), TS.ui.date_picker.getOldestMsgTs(), e || (e = $(t.target).closest("#channel_name").length);
+            "" !== TS.model.team.plan && TS.model.team.prefs.allow_retention_override && (a.show_message_retention = !0), TS.menu.$menu_header.addClass("hidden").empty(), TS.notifs.isCorGMuted(i.id) && (a.mpim_is_muted = !0), TS.menu.$menu_items.html(TS.templates.menu_mpim_items(a)), TS.menu.$menu_header.bind("click.menu", TS.menu.mpim.onMpimHeaderClick), TS.menu.$menu_items.on("click.menu", "li", TS.menu.mpim.onMpimItemClick), TS.menu.start(t), TS.menu.$menu.attr("data-qa", "mpim_menu"), TS.menu.$menu.addClass("narrow_menu"), TS.ui.date_picker.getOldestMsgTs(), e || (e = $(t.target).closest("#channel_name").length);
             var s = e ? $("#channel_name") : $("#channel_actions_toggle"),
               o = s.height(),
               l = e ? o + 6 : o,
@@ -14509,7 +14509,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               enterprise_filter_options: TS.boot_data.page_needs_enterprise,
               is_flannel: TS.lazyLoadMembersAndBots()
             };
-            if (TS.boot_data.page_needs_enterprise && _.merge(i, {
+            if (TS.features.isEnabled("retire_team_site_directory") && (i.bots_count = 0), TS.boot_data.page_needs_enterprise && (_.merge(i, {
                 is_enterprise: !0,
                 org_name: TS.model.team.enterprise_name,
                 team_name: TS.model.team.name,
@@ -14517,7 +14517,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                 org_members_count: 0,
                 org_admins_count: 0,
                 org_guests_count: 0
-              }), _.each(t, function(e, t) {
+              }), TS.features.isEnabled("retire_team_site_directory") && _.merge(i, {
+                org_bots_count: 0
+              })), _.each(t, function(e, t) {
                 i[t + "_count"] = e;
               }), TS.boot_data.feature_shared_channels_client) {
               var r = [];
@@ -22152,6 +22154,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         }
       });
       var e = function(e, n) {
+          n = n || {};
           var r = null != n.fuzzy_limit ? n.fuzzy_limit : 10;
           e = TS.i18n.deburr(e.toLocaleLowerCase());
           var l = "@" === e.charAt(0),
@@ -22167,7 +22170,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             },
             p = {
               fuzzy_limit: r,
-              substrings_only: !0
+              substrings_only: !0,
+              match_emoji_keywords: n.match_emoji_keywords
             },
             f = TS.fuzzy.makeFuzzyMatcher(e, u),
             h = TS.fuzzy.makeFuzzyMatcher(e, m),
@@ -22313,7 +22317,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             b = [],
             v = [],
             y = [],
-            w = [];
+            w = [],
+            k = a.match_emoji_keywords ? TS.emoji.findByKeyword(t) : [];
           n.members = n.members || [], n.channels = n.channels || [], n.groups = n.groups || [], n.mpims = n.mpims || [], n.teams = n.teams || [], n.usergroups = n.usergroups || [], n.emoji = n.emoji || [], n.broadcast_keywords = n.broadcast_keywords || [], n.views = n.views || [], s.only_channels || s.only_emoji || (l = n.members.filter(function(e) {
             if (TS.boot_data.feature_name_tagging_client) {
               if (a.prefer_exact_match && (TS.members.getMemberProfileFieldDisplayName(e).toLocaleLowerCase() === s.query || TS.members.getMemberRealName(e).toLocaleLowerCase() === s.query)) return i(e.id, "jumper_exact_match", !0), o.push(e), !1;
@@ -22335,24 +22340,29 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }), T = n.teams.filter(function(e) {
             return a.prefer_exact_match && e.team_name.toLocaleLowerCase() === s.query ? (i(e.id, "jumper_exact_match", !0), o.push(e), !1) : (i(e.id, "jumper_exact_match", !1), s.matchesTeam(e));
           })), s.only_channels || s.only_members || (v = n.emoji.filter(function(e) {
-            return a.prefer_exact_match && (e.display_name || e.name) === s.query ? (i(e.id, "jumper_exact_match", !0), o.push(e), !1) : (i(e.id, "jumper_exact_match", !1), s.matchesEmoji(e));
+            if (a.prefer_exact_match && (e.display_name || e.name) === s.query) return i(e.id, "jumper_exact_match", !0), o.push(e), !1;
+            if (i(e.id, "jumper_exact_match", !1), a.match_emoji_keywords && k.length) {
+              var t = TS.emoji.nameToBaseName(e.display_name || e.name);
+              if (-1 !== k.indexOf(t)) return !0;
+            }
+            return s.matchesEmoji(e);
           })), TS.client && n.views && (s.only_channels || s.only_members || (w = n.views.filter(function(e) {
             return a.prefer_exact_match && e.name === s.query ? (o.push(e), !1) : s.matchesView(e);
           })));
-          var k, x, M;
-          k = l.concat(c, h, S, v, b, y, w), k.sort(_.partial(u, !0)), x = p.concat(T), x.sort(_.partial(u, !0)), M = g.concat(f), M.sort(_.partial(u, !0));
-          var C = k.concat(x, M),
-            I = C;
+          var x, M, C;
+          x = l.concat(c, h, S, v, b, y, w), x.sort(_.partial(u, !0)), M = p.concat(T), M.sort(_.partial(u, !0)), C = g.concat(f), C.sort(_.partial(u, !0));
+          var I = x.concat(M, C),
+            A = I;
           if (a.prefer_exact_match && o.length > 0)
-            for (var A = 0; A < o.length; A += 1) I.unshift(o[A]);
-          if (a.frecency && (a.normalize = !0, I = TS.ui.frecency.query(I, t, m, a)), a.limit && (I = _.take(I, a.limit)), a.frecency && (I = d(I)), a.print) {
-            var E = "\n";
-            _.forEach(I, function(e) {
+            for (var E = 0; E < o.length; E += 1) A.unshift(o[E]);
+          if (a.frecency && (a.normalize = !0, A = TS.ui.frecency.query(A, t, m, a)), a.limit && (A = _.take(A, a.limit)), a.frecency && (A = d(A)), a.print) {
+            var O = "\n";
+            _.forEach(A, function(e) {
               var t = a.frecency ? e.model_ob : e;
-              a.frecency && (E += "[" + e.score + "] "), null != r(t.id, "jumper_score") && (E += "[" + r(t.id, "jumper_score") + "] "), t.is_mpim ? E += TS.mpims.getDisplayName(t) : t.is_channel ? E += "#" + t.name : t.is_group ? E += t.name : t.team_name ? E += t.team_name : t.is_usergroup ? E += "@" + t.name : t.presence ? E += "@" + t.name : E += e.model_ob.name, E += "\n";
-            }), TS.info(E);
+              a.frecency && (O += "[" + e.score + "] "), null != r(t.id, "jumper_score") && (O += "[" + r(t.id, "jumper_score") + "] "), t.is_mpim ? O += TS.mpims.getDisplayName(t) : t.is_channel ? O += "#" + t.name : t.is_group ? O += t.name : t.team_name ? O += t.team_name : t.is_usergroup ? O += "@" + t.name : t.presence ? O += "@" + t.name : O += e.model_ob.name, O += "\n";
+            }), TS.info(O);
           }
-          return I;
+          return A;
         },
         d = function(e) {
           var t = [];
@@ -31590,7 +31600,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             o && l && (a = "top-right"), t = $(e.e && e.e.target), c({
               open: !0,
               is_rxn: !!n
-            }), TS.tips.hideAll(), r = e.target_bounds || t.dimensions_rect();
+            }), TS.tips.hideAll(), TS.boot_data.feature_react_emoji_picker_frecency && TS.emoji.replaceFrecentlyUsed(), r = e.target_bounds || t.dimensions_rect();
             var m = window.pageYOffset;
             r.top += m, r.bottom += m, TS.ui.react_emoji_menu.is_showing = !0;
             var p = {},
@@ -31608,10 +31618,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             is_rxn: !!n
           }), t = null, s = "#msg_input", n = null, i = null, a = null, TS.tips.unhideAll(), TS.ui.react_emoji_menu.is_showing = !1, d();
         },
-        d = function(e, t) {
-          var n = h(e),
-            i = g(t);
-          k(n, i);
+        d = function(t, n) {
+          var i = h(t),
+            r = g(n);
+          TS.metrics.mark("react_emoji_menu_render_mark"), e || (e = w()), TS.interop.mountEmojiPicker(e, i, r);
         },
         c = function(e) {
           e.is_rxn ? (t.closest(".menu_rxn").toggleClass("active", e.open), t.closest(".rxn_panel").toggleClass("active", e.open), t.closest("ts-message").toggleClass("active", e.open), t.toggleClass("active", e.open)) : (t.closest(".emo_menu").toggleClass("active", e.open), t.closest(".handy_rxns_row").toggleClass("active", e.open), t.closest(".current_status_emoji_picker").toggleClass("active", e.open));
@@ -31654,7 +31664,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             numBackgroundColors: TS.model.emoji_menu_colors,
             onSelected: S,
             onClosed: T,
-            canAddEmoji: !TS.model.user.is_restricted && (!TS.model.team.prefs.emoji_only_admins || TS.model.user.is_admin)
+            canAddEmoji: !TS.model.user.is_restricted && (!TS.model.team.prefs.emoji_only_admins || TS.model.user.is_admin),
+            emojiMap: TS.model.emoji_map,
+            skinToneModifier: TS.emoji.getChosenSkinToneModifier(!!TS.boot_data.feature_localization)
           };
           return n && (t.handyRxnNames = a), t;
         },
@@ -31683,7 +31695,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             }), TS.prefs.setPrefByAPI({
               name: "preferred_skin_tone",
               value: e
-            }), n && u(n), TS.ui.react_emoji_menu.is_showing) {
+            }), n && u(n), TS.boot_data.feature_react_emoji_picker_frecency && TS.emoji.replaceFrecentlyUsed(), TS.ui.react_emoji_menu.is_showing) {
             d({
               skin_tone_id: e
             });
@@ -31701,14 +31713,6 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             e.setAttribute("id", "reactroot_emoji_picker"), document.body.appendChild(e);
           }
           return document.getElementById("reactroot_emoji_picker");
-        },
-        k = function(t, n) {
-          TS.metrics.mark("react_emoji_menu_render_mark"), e || (e = w());
-          var i = React.createElement(ReactComponents.EmojiPicker, t, null),
-            r = React.createElement(ReactComponents.Popover, n, i);
-          ReactDOM.render(r, e, function() {
-            TS.metrics.measureAndClear("react_emoji_menu_render", "react_emoji_menu_render_mark");
-          });
         };
     }();
   },
@@ -35163,10 +35167,14 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             };
             if (TS.boot_data.feature_texty_mentions && !t.avoidSlugging)
               if (TS.boot_data.feature_name_tagging_client) {
-                var i = n.modules.tabcomplete.searchOptions.complete_member_specials;
-                _.get(t, "modules.tabcomplete.searchOptions") && t.modules.tabcomplete.searchOptions.hasOwnProperty("complete_member_specials") && (i = t.modules.tabcomplete.searchOptions.complete_member_specials), n.modules.slackmention = {
+                var i = {
+                  complete_member_specials: n.modules.tabcomplete.searchOptions.complete_member_specials,
+                  no_model_ob: _.get(t, "modules.tabcomplete.no_model_ob"),
+                  model_ob: _.get(t, "modules.tabcomplete.searchOptions.model_ob")
+                };
+                _.get(t, "modules.tabcomplete.searchOptions") && t.modules.tabcomplete.searchOptions.hasOwnProperty("complete_member_specials") && (i.complete_member_specials = t.modules.tabcomplete.searchOptions.complete_member_specials), n.modules.slackmention = {
                   processPotentialMentions: _.debounce(function() {
-                    p(e, i || _.get(t, "modules.tabcomplete.searchOptions"));
+                    p(e, i);
                   }, 100)
                 };
               } else n.modules.slackmention = {};
@@ -35491,7 +35499,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                 o = [],
                 l = [],
                 d = 0;
-              n && (a = TS.tabcomplete.members.getBroadcastKeywords(n)), s.contents.forEach(function(e) {
+              n.complete_member_specials && (a = TS.tabcomplete.members.getBroadcastKeywords(n.complete_member_specials)), s.contents.forEach(function(e) {
                 e.attributes || e.insert.replace(t, function(t, n, i) {
                   if (i += t.length - n.length, !(r.start > i + d && r.start <= i + d + n.length)) {
                     var s = n.replace(/^@/, "");
@@ -35503,44 +35511,48 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                     } else l.push(n);
                   }
                 }), d += e.insert.length;
-              }), g(e, o), f(e, _.uniq(l));
+              }), g(e, o), f(e, _.uniq(l), n);
             }
           }
         },
-        f = function(e, n) {
-          _.pullAll(n, i), _.pullAll(n, r), n.length && n.forEach(function(n) {
-            r.push(n);
-            var a = {
-              query: n.replace(/^@/, ""),
-              max_api_results: 20,
-              include_org: !0,
-              include_slackbot: !0,
-              include_self: !0,
-              full_profile_filter: !1
-            };
-            TS.members.promiseToSearchMembers(a).then(function(a) {
-              var s = a && a.items ? a.items : [],
-                o = {
-                  usergroups: TS.user_groups.getActiveUserGroups()
-                },
-                l = {
-                  allow_empty_query: !1,
-                  frecency: !1,
-                  limit: 20,
-                  prefer_exact_match: !0
-                };
-              if (s = s.concat(TS.sorter.search(n, o, l)), !s.length) return void i.push(n);
-              var d = 0,
-                c = [],
-                u = TS.utility.contenteditable.value(e),
-                m = TS.utility.contenteditable.cursorPosition(e);
-              TS.format.texty.convertContentsStringToContents(u).contents.forEach(function(e) {
-                e.attributes || e.insert.replace(t, function(t, i, r) {
-                  i === n && (r += t.length - i.length, m.start > r + d && m.start <= r + d + i.length || c.push(h(e.insert, i, r + d, s)));
-                }), d += e.insert.length;
-              }), g(e, c), _.pull(r, n);
+        f = function(e, n, a) {
+          if (_.pullAll(n, i), _.pullAll(n, r), n.length) {
+            var s;
+            a.no_model_ob || (s = a.model_ob || TS.shared.getActiveModelOb()), n.forEach(function(n) {
+              r.push(n);
+              var a = {
+                query: n.replace(/^@/, ""),
+                max_api_results: 20,
+                include_org: !0,
+                include_slackbot: !0,
+                include_self: !0,
+                full_profile_filter: !1,
+                limit_by_model_relevancy: s
+              };
+              TS.members.promiseToSearchMembers(a).then(function(a) {
+                var s = a && a.items ? a.items : [],
+                  o = {
+                    usergroups: TS.user_groups.getActiveUserGroups()
+                  },
+                  l = {
+                    allow_empty_query: !1,
+                    frecency: !1,
+                    limit: 20,
+                    prefer_exact_match: !0
+                  };
+                if (s = s.concat(TS.sorter.search(n, o, l)), !s.length) return void i.push(n);
+                var d = 0,
+                  c = [],
+                  u = TS.utility.contenteditable.value(e),
+                  m = TS.utility.contenteditable.cursorPosition(e);
+                TS.format.texty.convertContentsStringToContents(u).contents.forEach(function(e) {
+                  e.attributes || e.insert.replace(t, function(t, i, r) {
+                    i === n && (r += t.length - i.length, m.start > r + d && m.start <= r + d + i.length || c.push(h(e.insert, i, r + d, s)));
+                  }), d += e.insert.length;
+                }), g(e, c), _.pull(r, n);
+              });
             });
-          });
+          }
         },
         h = function(e, t, n, i) {
           var r, a = 1 === i.length && i[0],

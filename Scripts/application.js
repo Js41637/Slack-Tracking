@@ -30677,80 +30677,82 @@ webpackJsonp([332], [, function(e, t, n) {
         });
         d ? i = d : c && (i = "0000000000.000000");
       }
-      n.i(p.a)(e, i), n.i(f.a)();
+      n.i(p.a)(e, i), n.i(f.a)(), r(n.i(m.userSetUnreadPoint)());
     };
   }
 
   function i(e) {
     return function(t, r) {
       var o = r(),
-        i = M(o, e),
-        a = i.latest,
-        s = n.i(h.getTimestampsByChannelId)(o, e),
-        l = s.timestamps;
-      s.reachedEnd && (a = u.a.last(l)), a !== i.last_read && n.i(p.a)(e, a);
+        i = T(o, e);
+      if (i) {
+        var a = i.latest,
+          s = n.i(h.getTimestampsByChannelId)(o, e),
+          l = s.timestamps;
+        s.reachedEnd && (a = u.a.last(l)), a !== i.last_read && n.i(p.a)(e, a);
+      }
     };
   }
   Object.defineProperty(t, "__esModule", {
     value: !0
   }), n.d(t, "bulkAddChannels", function() {
-    return _;
-  }), n.d(t, "addChannel", function() {
     return y;
-  }), n.d(t, "removeChannel", function() {
+  }), n.d(t, "addChannel", function() {
     return v;
-  }), n.d(t, "updateOneKeyForChannel", function() {
+  }), n.d(t, "removeChannel", function() {
     return g;
-  }), n.d(t, "forceUpdateOfChannelById", function() {
+  }), n.d(t, "updateOneKeyForChannel", function() {
     return b;
-  }), n.d(t, "clearAllShowInListEvenThoughUnreadsFlags", function() {
+  }), n.d(t, "forceUpdateOfChannelById", function() {
     return w;
+  }), n.d(t, "clearAllShowInListEvenThoughUnreadsFlags", function() {
+    return k;
   }), n.d(t, "getChannelById", function() {
-    return M;
-  }), n.d(t, "getAllChannels", function() {
     return T;
-  }), n.d(t, "hasDraft", function() {
+  }), n.d(t, "getAllChannels", function() {
     return x;
-  }), n.d(t, "isPrivate", function() {
+  }), n.d(t, "hasDraft", function() {
     return S;
-  }), n.d(t, "isChannel", function() {
+  }), n.d(t, "isPrivate", function() {
     return E;
-  }), n.d(t, "isMpim", function() {
+  }), n.d(t, "isChannel", function() {
     return L;
-  }), n.d(t, "isIm", function() {
+  }), n.d(t, "isMpim", function() {
     return C;
-  }), n.d(t, "isOpen", function() {
+  }), n.d(t, "isIm", function() {
     return O;
-  }), n.d(t, "isMemberOfChannel", function() {
+  }), n.d(t, "isOpen", function() {
     return P;
-  }), n.d(t, "isStarred", function() {
+  }), n.d(t, "isMemberOfChannel", function() {
     return j;
-  }), n.d(t, "isArchived", function() {
+  }), n.d(t, "isStarred", function() {
     return D;
-  }), n.d(t, "isRead", function() {
+  }), n.d(t, "isArchived", function() {
     return Y;
-  }), n.d(t, "isUnread", function() {
+  }), n.d(t, "isRead", function() {
     return A;
-  }), n.d(t, "isYou", function() {
+  }), n.d(t, "isUnread", function() {
     return I;
-  }), n.d(t, "isSlackbot", function() {
+  }), n.d(t, "isYou", function() {
     return R;
-  }), n.d(t, "shouldShowWithoutUnreads", function() {
+  }), n.d(t, "isSlackbot", function() {
     return N;
-  }), n.d(t, "getChannelType", function() {
+  }), n.d(t, "shouldShowWithoutUnreads", function() {
     return F;
-  }), n.d(t, "getBadgeCount", function() {
+  }), n.d(t, "getChannelType", function() {
     return H;
-  }), n.d(t, "isMention", function() {
+  }), n.d(t, "getBadgeCount", function() {
     return q;
-  }), n.d(t, "getUnreadIds", function() {
+  }), n.d(t, "isMention", function() {
     return z;
-  }), n.d(t, "getMentionIds", function() {
+  }), n.d(t, "getUnreadIds", function() {
     return U;
-  }), n.d(t, "getDisplayName", function() {
+  }), n.d(t, "getMentionIds", function() {
     return W;
-  }), n.d(t, "getMemberIdFromIm", function() {
+  }), n.d(t, "getDisplayName", function() {
     return B;
+  }), n.d(t, "getMemberIdFromIm", function() {
+    return G;
   }), t.setUnreadPoint = o, t.markMostRecentMsgRead = i;
   var a, s = n(6),
     u = n.n(s),
@@ -30760,127 +30762,128 @@ webpackJsonp([332], [, function(e, t, n) {
     f = n(2908),
     p = n(4174),
     h = n(4151),
-    m = Object.assign || function(e) {
+    m = n(3029),
+    _ = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
         for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
       }
       return e;
     },
-    _ = n.i(l.createAction)("Bulk add channels, overwriting anything previously stored with the same id"),
-    y = n.i(l.createAction)("Add a channel, overwriting anything previously stored with the same id"),
-    v = n.i(l.createAction)("Remove a channel"),
-    g = n.i(l.createAction)("Update one key for a channel by id"),
-    b = n.i(l.createAction)("Legacy hack: Force an update of a channel, because it broke immutability and updated in place"),
-    w = n.i(l.createAction)("Legacy hack: set the _show_in_list_even_though_no_unreads for all channels to be false"),
-    k = n.i(l.createReducer)((a = {}, r(a, _, function(e, t) {
+    y = n.i(l.createAction)("Bulk add channels, overwriting anything previously stored with the same id"),
+    v = n.i(l.createAction)("Add a channel, overwriting anything previously stored with the same id"),
+    g = n.i(l.createAction)("Remove a channel"),
+    b = n.i(l.createAction)("Update one key for a channel by id"),
+    w = n.i(l.createAction)("Legacy hack: Force an update of a channel, because it broke immutability and updated in place"),
+    k = n.i(l.createAction)("Legacy hack: set the _show_in_list_even_though_no_unreads for all channels to be false"),
+    M = n.i(l.createReducer)((a = {}, r(a, y, function(e, t) {
       if (!t || !t.length || !u.a.isArray(t)) return e;
       var n = u.a.filter(t, "id");
       if (!n.length) return e;
-      var r = m({}, e);
+      var r = _({}, e);
       return n.forEach(function(e) {
         r[e.id] = e;
       }), r;
-    }), r(a, g, function(e, t) {
+    }), r(a, b, function(e, t) {
       if (!t || !t.id || 2 !== Object.keys(t).length) return e;
       if (!e[t.id]) return e;
       var n = u.a.omit(t, "id"),
         o = Object.keys(n)[0];
-      return e[t.id][o] === n[o] ? e : m({}, e, r({}, t.id, m({}, e[t.id], n)));
-    }), r(a, y, function(e, t) {
-      return t && t.id ? m({}, e, r({}, t.id, t)) : e;
+      return e[t.id][o] === n[o] ? e : _({}, e, r({}, t.id, _({}, e[t.id], n)));
     }), r(a, v, function(e, t) {
+      return t && t.id ? _({}, e, r({}, t.id, t)) : e;
+    }), r(a, g, function(e, t) {
       return t && t.id && e[t.id] ? u.a.omit(e, t.id) : e;
-    }), r(a, b, function(e) {
+    }), r(a, w, function(e) {
       var t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : {},
         n = t.id;
       if (!n || !e[n]) return e;
-      var r = m({}, e);
-      return r[n] = m({}, r[n]), r;
-    }), r(a, w, function(e) {
+      var r = _({}, e);
+      return r[n] = _({}, r[n]), r;
+    }), r(a, k, function(e) {
       var t = u.a.filter(e, "_show_in_list_even_though_no_unreads");
       if (!t.length) return e;
-      var n = m({}, e);
+      var n = _({}, e);
       return t.forEach(function(e) {
         var t = e.id;
-        n[t] = m({}, n[t], {
+        n[t] = _({}, n[t], {
           _show_in_list_even_though_no_unreads: !1
         });
       }), n;
     }), a), {});
-  t.default = k;
-  var M = function(e, t) {
+  t.default = M;
+  var T = function(e, t) {
       return e && e.channels && e.channels[t];
     },
-    T = function(e) {
+    x = function(e) {
       return e.channels;
     },
-    x = function(e) {
+    S = function(e) {
       return e && e.has_draft;
     },
-    S = function(e) {
+    E = function(e) {
       return e && (e.is_private || e.is_group && !e.is_mpim);
     },
-    E = function(e) {
+    L = function(e) {
       return e && e.is_channel && !e.is_private && !e.is_mpim;
     },
-    L = function(e) {
+    C = function(e) {
       return e && e.is_mpim;
     },
-    C = function(e) {
+    O = function(e) {
       return e && e.is_im;
     },
-    O = function(e) {
+    P = function(e) {
       return e && e.is_open;
     },
-    P = function(e) {
+    j = function(e) {
       return e && e.is_channel && e.is_member;
     },
-    j = function(e) {
+    D = function(e) {
       return e && e.is_starred;
     },
-    D = function(e) {
+    Y = function(e) {
       return e && e.is_archived;
     },
-    Y = function(e) {
+    A = function(e) {
       return e && e.unread_cnt < 1;
     },
-    A = function(e) {
-      return !Y(e);
-    },
     I = function(e) {
-      return e && e.is_self_im;
+      return !A(e);
     },
     R = function(e) {
-      return e && e.is_slackbot_im;
+      return e && e.is_self_im;
     },
     N = function(e) {
-      return e && e._show_in_list_even_though_no_unreads;
+      return e && e.is_slackbot_im;
     },
     F = function(e) {
-      return S(e) ? "private" : L(e) ? "mpim" : C(e) ? "im" : "channel";
+      return e && e._show_in_list_even_though_no_unreads;
     },
     H = function(e) {
-      return e ? L(e) || C(e) ? e.unread_cnt : e.unread_highlight_cnt : 0;
+      return E(e) ? "private" : C(e) ? "mpim" : O(e) ? "im" : "channel";
     },
     q = function(e) {
-      return H(e) > 0;
+      return e ? C(e) || O(e) ? e.unread_cnt : e.unread_highlight_cnt : 0;
     },
     z = function(e) {
-      return e ? u.a.filter(e, A).map(function(e) {
-        return e.id;
-      }) : [];
+      return q(e) > 0;
     },
     U = function(e) {
-      return e ? u.a.filter(e, q).map(function(e) {
+      return e ? u.a.filter(e, I).map(function(e) {
         return e.id;
       }) : [];
     },
     W = function(e) {
-      return e._display_name ? e._display_name : L(e) ? n.i(c.a)(e) : C(e) ? n.i(d.a)(e) : e.name;
+      return e ? u.a.filter(e, z).map(function(e) {
+        return e.id;
+      }) : [];
     },
     B = function(e) {
-      return e && C(e) && e.user;
+      return e._display_name ? e._display_name : C(e) ? n.i(c.a)(e) : O(e) ? n.i(d.a)(e) : e.name;
+    },
+    G = function(e) {
+      return e && O(e) && e.user;
     };
 }, function(e, t, n) {
   "use strict";
@@ -31657,7 +31660,7 @@ webpackJsonp([332], [, function(e, t, n) {
     p = n.i(i.a)("desktop.downloads.clearDownloads", o.a.noop);
 }, , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , function(e, t, n) {
   "use strict";
-  var r = n(2887);
+  var r = n(4189);
   t.a = r.a;
 }, function(e, t, n) {
   "use strict";
@@ -33327,9 +33330,11 @@ webpackJsonp([332], [, function(e, t, n) {
     b = n(3432),
     w = n(2906),
     k = n(2890),
-    M = n(2889),
-    T = n(3239),
-    x = (n.n(T), function() {
+    M = n(4191),
+    T = n(4190),
+    x = n(2889),
+    S = n(3239),
+    E = (n.n(S), function() {
       function e(e, t) {
         var n = [],
           r = !0,
@@ -33354,7 +33359,7 @@ webpackJsonp([332], [, function(e, t, n) {
         throw new TypeError("Invalid attempt to destructure non-iterable instance");
       };
     }()),
-    S = function() {
+    L = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
@@ -33365,10 +33370,10 @@ webpackJsonp([332], [, function(e, t, n) {
         return n && e(t.prototype, n), r && e(t, r), t;
       };
     }(),
-    E = new v.a("emoji_picker"),
-    L = [0, -1],
-    C = [0, 1],
-    O = {
+    C = new v.a("emoji_picker"),
+    O = [0, -1],
+    P = [0, 1],
+    j = {
       handyRxnNames: u.PropTypes.array,
       skinToneChoiceNames: u.PropTypes.array,
       searchQuery: u.PropTypes.string,
@@ -33378,9 +33383,12 @@ webpackJsonp([332], [, function(e, t, n) {
       onSelected: u.PropTypes.func,
       onClosed: u.PropTypes.func,
       onSkinToneChanged: u.PropTypes.func,
-      canAddEmoji: u.PropTypes.bool
+      canAddEmoji: u.PropTypes.bool,
+      featureReactEmojiPickerFrecency: u.PropTypes.bool,
+      emojiMap: u.PropTypes.array,
+      skinToneModifier: u.PropTypes.string
     },
-    P = {
+    D = {
       numBackgroundColors: 6,
       canAddEmoji: !0,
       onSkinToneChanged: s.a.noop,
@@ -33390,15 +33398,18 @@ webpackJsonp([332], [, function(e, t, n) {
       activeSkinToneId: "",
       groups: [],
       onSelected: s.a.noop,
-      onClosed: s.a.noop
+      onClosed: s.a.noop,
+      featureReactEmojiPickerFrecency: !1,
+      emojiMap: [],
+      skinToneModifier: ""
     },
-    j = function(e) {
+    Y = function(e) {
       function t(e) {
         r(this, t);
         var i = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
-        i.onEmojiMouseEnter = i.onEmojiMouseEnter.bind(i), i.onEmojiMouseLeave = i.onEmojiMouseLeave.bind(i), i.onMouseWhileUsingKeyboard = i.onMouseWhileUsingKeyboard.bind(i), i.onListScroll = i.onListScroll.bind(i), i.onSearch = i.onSearch.bind(i), i.onEmojiPickerClick = i.onEmojiPickerClick.bind(i), i.onGroupTabClick = i.onGroupTabClick.bind(i), i.onSkinToneChanged = i.onSkinToneChanged.bind(i), i.onSkinTonePickerOpened = i.onSkinTonePickerOpened.bind(i), i.triggerSelect = i.triggerSelect.bind(i), i.triggerClose = i.triggerClose.bind(i), i.resetSelection = i.resetSelection.bind(i), i.getRowsForGroup = i.getRowsForGroup.bind(i), i.setMenuRef = i.setMenuRef.bind(i), i.setSearchInputRef = i.setSearchInputRef.bind(i), i.onSearchInputChange = i.onSearchInputChange.bind(i);
-        var a = n.i(M.a)(i.props.groups);
-        return i.state = {
+        i.onEmojiMouseEnter = i.onEmojiMouseEnter.bind(i), i.onEmojiMouseLeave = i.onEmojiMouseLeave.bind(i), i.onMouseWhileUsingKeyboard = i.onMouseWhileUsingKeyboard.bind(i), i.onListScroll = i.onListScroll.bind(i), i.onSearch = i.onSearch.bind(i), i.onEmojiPickerClick = i.onEmojiPickerClick.bind(i), i.onGroupTabClick = i.onGroupTabClick.bind(i), i.onSkinToneChanged = i.onSkinToneChanged.bind(i), i.onSkinTonePickerOpened = i.onSkinTonePickerOpened.bind(i), i.triggerSelect = i.triggerSelect.bind(i), i.triggerClose = i.triggerClose.bind(i), i.resetSelection = i.resetSelection.bind(i), i.getRowsForGroup = i.getRowsForGroup.bind(i), i.getSearchResults = i.getSearchResults.bind(i), i.setMenuRef = i.setMenuRef.bind(i), i.setSearchInputRef = i.setSearchInputRef.bind(i), i.onSearchInputChange = i.onSearchInputChange.bind(i);
+        var a = n.i(x.a)(i.props.groups);
+        return i.props.featureReactEmojiPickerFrecency && (i.searchMap = s.a.keyBy(a, "name")), i.state = {
           currentSelection: {},
           isPreviewing: !1,
           isSkinTonePickerOpen: !1,
@@ -33409,7 +33420,7 @@ webpackJsonp([332], [, function(e, t, n) {
           screenRows: i.getAllRows(e.groups, e.activeSkinToneId, e.searchQuery),
           handyRxns: n.i(k.a)(a, e.handyRxnNames),
           skinToneChoices: n.i(k.a)(a, e.skinToneChoiceNames),
-          cursorPosition: L,
+          cursorPosition: O,
           usingKeyboard: !1,
           mousePosition: null
         }, i.commands = [{
@@ -33436,29 +33447,7 @@ webpackJsonp([332], [, function(e, t, n) {
           handler: i.onArrowKey.bind(i, "right")
         }], i;
       }
-      return i(t, e), S(t, null, [{
-        key: "getSearchResults",
-        value: function(e, t) {
-          var n = s.a.chain(e).reject(function(e) {
-            return "mine" === e.name;
-          }).flatMap("items").compact().value();
-          if (":" === t) return n;
-          var r = s.a.compact(t.split(" "));
-          return s.a.chain(r).flatMap(function(e) {
-            if (":" === e.charAt(0) && ":" === e.slice(-1)) {
-              var t = e.slice(1, -1);
-              return n.filter(function(e) {
-                var n = b.a(e.display_name || e.name) === t;
-                return !n && e.display_name && e.display_name !== e.name && (n = b.a(e.name) === t), n;
-              });
-            }
-            var r = [];
-            return ":" !== e.substr(0, 1) && ":" !== e.slice(-1) && (r = b.b(e)), n.filter(function(t) {
-              return b.c(t, e, r);
-            });
-          }).uniqBy("name").value();
-        }
-      }, {
+      return i(t, e), L(t, null, [{
         key: "emojiMatchesSkinTone",
         value: function(e, t) {
           return !e.is_skin || e.skin_tone_id === (t || "1");
@@ -33468,12 +33457,12 @@ webpackJsonp([332], [, function(e, t, n) {
         value: function(e) {
           var t = b.a(e.display_name || e.name),
             n = e.display_names || e.names || "";
-          return n = b.d(n), {
+          return n = b.b(n), {
             name: t,
             aliases: n
           };
         }
-      }]), S(t, [{
+      }]), L(t, [{
         key: "componentWillMount",
         value: function() {
           this.props.searchQuery && this.onSearch(this.props.searchQuery), w.a("react_emoji_menu_mount_mark");
@@ -33492,8 +33481,8 @@ webpackJsonp([332], [, function(e, t, n) {
             i = this.state.searchQuery !== e.searchQuery,
             a = i ? e.searchQuery : this.state.searchQuery;
           if (i && this.onSearch(a), r || o) {
-            var u = n.i(M.a)(e.groups);
-            this.setState(function() {
+            var u = n.i(x.a)(e.groups);
+            this.props.featureReactEmojiPickerFrecency && (this.searchMap = s.a.keyBy(u, "name")), this.setState(function() {
               return {
                 handyRxns: n.i(k.a)(u, e.handyRxnNames),
                 skinToneChoices: n.i(k.a)(u, e.skinToneChoiceNames),
@@ -33535,7 +33524,7 @@ webpackJsonp([332], [, function(e, t, n) {
           this.state.usingKeyboard || this.setState(function() {
             return {
               currentSelection: e,
-              cursorPosition: L,
+              cursorPosition: O,
               isPreviewing: !0,
               isSkinTonePickerOpen: !1
             };
@@ -33561,7 +33550,7 @@ webpackJsonp([332], [, function(e, t, n) {
                 mousePosition: null,
                 usingKeyboard: !1,
                 scrollToIndex: null,
-                cursorPosition: L
+                cursorPosition: O
               };
             });
           }
@@ -33607,7 +33596,7 @@ webpackJsonp([332], [, function(e, t, n) {
             r = n.length >= 2 && s.a.get(n, "[1].items.length") >= 1,
             o = e && r && s.a.get(n, "[1].items[0]") || {},
             i = !(!e || !r),
-            a = e && r ? C : L;
+            a = e && r ? P : O;
           this.setState(function(r, s) {
             return {
               activeGroup: t.getFirstTab(s.groups),
@@ -33648,7 +33637,7 @@ webpackJsonp([332], [, function(e, t, n) {
             return {
               activeGroup: e,
               scrollToIndex: n || 0,
-              cursorPosition: L,
+              cursorPosition: O,
               searchQuery: "",
               screenRows: t
             };
@@ -33672,7 +33661,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "getCell",
         value: function(e, t) {
-          var n = x(t, 2),
+          var n = E(t, 2),
             r = n[0],
             o = n[1];
           return s.a.get(e, "[" + o + "].items[" + r + "]");
@@ -33715,14 +33704,32 @@ webpackJsonp([332], [, function(e, t, n) {
         }
       }, {
         key: "getActiveGroups",
-        value: function(e, n) {
-          if (!n) return e;
-          var r = t.getSearchResults(e, n);
-          return r.length > 0 ? [{
+        value: function(e, t) {
+          if (!t) return e;
+          var n = this.getSearchResults(e, t);
+          return n.length > 0 ? [{
             display_name: "Search Results",
-            items: r,
+            items: n,
             name: "search_results"
           }] : [];
+        }
+      }, {
+        key: "getSearchResults",
+        value: function(e, t) {
+          var r = s.a.reject(e, function(e) {
+              return "mine" === e.name;
+            }),
+            o = n.i(x.a)(r);
+          if (this.props.featureReactEmojiPickerFrecency) {
+            var i = {
+              searchQuery: t,
+              searchMap: this.searchMap,
+              emojiMap: this.props.emojiMap,
+              skinToneModifier: this.props.skinToneModifier
+            };
+            return n.i(T.a)(i);
+          }
+          return n.i(M.a)(t, o);
         }
       }, {
         key: "triggerSelect",
@@ -33741,7 +33748,7 @@ webpackJsonp([332], [, function(e, t, n) {
           if (this.state.screenRows.length < 2) return null;
           n || (n = this.state.cursorPosition);
           var r = n,
-            o = x(r, 2),
+            o = E(r, 2),
             i = o[0],
             a = o[1],
             u = i,
@@ -33789,7 +33796,7 @@ webpackJsonp([332], [, function(e, t, n) {
               currentSelection: {},
               isPreviewing: !1,
               scrollToIndex: null,
-              cursorPosition: L
+              cursorPosition: O
             };
           });
         }
@@ -33822,7 +33829,7 @@ webpackJsonp([332], [, function(e, t, n) {
             r = this.state.currentSelection,
             o = t.getEmojiPreviewData(r);
           if (e) {
-            var i = n.i(M.a)(this.props.groups);
+            var i = n.i(x.a)(this.props.groups);
             r = n.i(k.a)(i, ":cry:")[0], o = t.getEmojiPreviewData(r);
           }
           var a = d()("p-emoji_picker__preview_text", {
@@ -33839,15 +33846,15 @@ webpackJsonp([332], [, function(e, t, n) {
             className: a
           }, l.a.createElement("span", {
             "data-qa": "emoji_preview_name"
-          }, e ? E.t("Oh no!") : o.name), l.a.createElement("br", null), l.a.createElement("span", {
+          }, e ? C.t("Oh no!") : o.name), l.a.createElement("br", null), l.a.createElement("span", {
             className: "p-emoji_picker__preview_aliases",
             "data-qa": "emoji_preview_aliases"
-          }, e ? E.t("We couldn’t find that emoji") : o.aliases)));
+          }, e ? C.t("We couldn’t find that emoji") : o.aliases)));
         }
       }, {
         key: "renderStickyHeader",
         value: function() {
-          var e = this.state.searchQuery ? E.t("Search Results") : this.state.activeGroup.display_name;
+          var e = this.state.searchQuery ? C.t("Search Results") : this.state.activeGroup.display_name;
           return l.a.createElement("div", {
             className: "p-emoji_picker__sticky_header"
           }, l.a.createElement("h3", {
@@ -33885,7 +33892,7 @@ webpackJsonp([332], [, function(e, t, n) {
             ref: this.setSearchInputRef,
             className: "p-emoji_picker__input",
             type: "text",
-            placeholder: E.t("Search"),
+            placeholder: C.t("Search"),
             onChange: this.onSearchInputChange,
             value: this.state.searchQuery
           }), l.a.createElement(y.a, {
@@ -33910,11 +33917,11 @@ webpackJsonp([332], [, function(e, t, n) {
             className: a
           }, this.maybeRenderHandyRxns(), this.renderEmojiPreview(), l.a.createElement("div", {
             className: "p-emoji_picker__emoji_deluxe_label"
-          }, l.a.createElement("span", null, E.t("Emoji Deluxe")), "™"), this.maybeRenderSkinTonePicker())));
+          }, l.a.createElement("span", null, C.t("Emoji Deluxe")), "™"), this.maybeRenderSkinTonePicker())));
         }
       }]), t;
     }(u.Component);
-  t.a = j, j.propTypes = O, j.defaultProps = P;
+  t.a = Y, Y.propTypes = j, Y.defaultProps = D;
 }, function(e, t, n) {
   "use strict";
 
@@ -34792,14 +34799,14 @@ webpackJsonp([332], [, function(e, t, n) {
         return i.state = {
           isOpen: i.props.startsOpen,
           targetBounds: void 0
-        }, i.closePopover = i.closePopover.bind(i), i.onTrigger = i.onTrigger.bind(i), i.setTargetBounds = i.setTargetBounds.bind(i), i.onResize = n.i(d.debounce)(i.setTargetBounds, h, {
+        }, i.listenerInstalled = !1, i.closePopover = i.closePopover.bind(i), i.onTrigger = i.onTrigger.bind(i), i.setTargetBounds = i.setTargetBounds.bind(i), i.onResize = n.i(d.debounce)(i.setTargetBounds, h, {
           maxWait: h
         }), i;
       }
       return i(t, e), p(t, [{
         key: "componentWillUnmount",
         value: function() {
-          this.onResize.cancel(), window.removeEventListener("resize", this.onResize);
+          this.onResize.cancel(), this.listenerInstalled && window.removeEventListener("resize", this.onResize);
         }
       }, {
         key: "onTrigger",
@@ -34810,7 +34817,7 @@ webpackJsonp([332], [, function(e, t, n) {
               isOpen: !e.state.isOpen
             };
           }, function() {
-            e.state.isOpen ? window.addEventListener("resize", e.onResize) : (e.props.onClose(), e.onResize.cancel(), window.removeEventListener("resize", e.onResize));
+            e.state.isOpen ? (window.addEventListener("resize", e.onResize), e.listenerInstalled = !0) : (e.props.onClose(), e.onResize.cancel(), window.removeEventListener("resize", e.onResize), e.listenerInstalled = !1);
           });
         }
       }, {
@@ -34837,7 +34844,7 @@ webpackJsonp([332], [, function(e, t, n) {
               isOpen: !1
             };
           }, function() {
-            e.props.onClose(), e.onResize.cancel(), window.removeEventListener("resize", e.onResize);
+            e.props.onClose(), e.onResize.cancel(), window.removeEventListener("resize", e.onResize), e.listenerInstalled = !1;
           });
         }
       }, {
@@ -34854,7 +34861,7 @@ webpackJsonp([332], [, function(e, t, n) {
                 active: this.state.isOpen
               })
             }),
-            r = this.props.renderPopover(f({}, this.props, {
+            r = this.state.isOpen && this.props.renderPopover(f({}, this.props, {
               isOpen: this.state.isOpen,
               onClose: this.closePopover,
               targetBounds: this.state.targetBounds
@@ -35469,29 +35476,30 @@ webpackJsonp([332], [, function(e, t, n) {
             u = this.state,
             l = u.isShowing,
             d = u.tipOpacity,
-            h = u.contentsRect;
+            h = u.contentsRect,
+            m = l && c.a.createElement(p.a, {
+              isOpen: l,
+              position: n,
+              targetBounds: h,
+              overlayClassName: "popover_mask react_popover_mask no_pointer_events",
+              offsetX: a,
+              offsetY: s,
+              allowanceX: 0,
+              allowanceY: 0,
+              key: "tooltip-popover"
+            }, c.a.createElement("div", {
+              style: {
+                opacity: d
+              }
+            }, c.a.createElement(f.a, {
+              position: n,
+              status: i
+            }, o)));
           return c.a.cloneElement(t, {
             onMouseEnter: this.onMouseEnter,
             onMouseLeave: this.onMouseLeave,
             ref: this.setRef
-          }, [].concat(r(c.a.Children.toArray(t.props.children)), [c.a.createElement(p.a, {
-            isOpen: l,
-            position: n,
-            targetBounds: h,
-            overlayClassName: "popover_mask react_popover_mask no_pointer_events",
-            offsetX: a,
-            offsetY: s,
-            allowanceX: 0,
-            allowanceY: 0,
-            key: "tooltip-popover"
-          }, c.a.createElement("div", {
-            style: {
-              opacity: d
-            }
-          }, c.a.createElement(f.a, {
-            position: n,
-            status: i
-          }, o)))]));
+          }, [].concat(r(c.a.Children.toArray(t.props.children)), [m]));
         }
       }]), t;
     }(l.PureComponent);
@@ -35505,11 +35513,9 @@ webpackJsonp([332], [, function(e, t, n) {
     o = n.n(r),
     i = n(20),
     a = n.n(i),
-    s = n(2989),
-    u = n(2694),
-    l = n(2348);
-  n(3605), n(3051), n(3023), n(2697), n(3641), n(3966), n(4169), n(3938), n(3651), n(3661), n(3886), n(3902);
-  window.ReactComponents = {}, window.ReactComponents.EmojiPicker = u.a, window.ReactComponents.Popover = l.a, window.ReactComponents.PopoverTrigger = l.b, window.React = o.a, window.ReactDOM = a.a, window.moment = s.a;
+    s = n(2989);
+  n(3605), n(3051), n(3023), n(2697), n(3641), n(3966), n(4169), n(3938), n(3651), n(3661), n(3886), n(3902), n(4188);
+  window.React = o.a, window.ReactDOM = a.a, window.moment = s.a;
 }, function(e, t, n) {
   "use strict";
   var r = n(3607);
@@ -35528,21 +35534,29 @@ webpackJsonp([332], [, function(e, t, n) {
     return i;
   }), n.d(t, "c", function() {
     return a;
+  }), n.d(t, "d", function() {
+    return s;
   });
   var r = n(2277),
     o = n.i(r.a)("TS.client.ui.showView", function() {}),
     i = n.i(r.a)("TS.client.ui.files.previewFile", function() {}),
-    a = n.i(r.a)("TS.client.ui.checkForEditing", function() {});
+    a = n.i(r.a)("TS.client.ui.checkForEditing", function() {}),
+    s = n.i(r.a)("TS.client.ui.isUserAttentionOnChat", function() {
+      return !1;
+    });
 }, function(e, t, n) {
   "use strict";
   n.d(t, "b", function() {
     return o;
   }), n.d(t, "a", function() {
     return i;
+  }), n.d(t, "c", function() {
+    return a;
   });
   var r = n(2277),
     o = n.i(r.a)("TS.client.displayModelObById", function() {}),
-    i = n.i(r.a)("TS.client.markLastReadsWithAPI", function() {});
+    i = n.i(r.a)("TS.client.markLastReadsWithAPI", function() {}),
+    a = n.i(r.a)("TS.client.activeChannelIsHidden", function() {});
 }, function(e, t, n) {
   "use strict";
   n.d(t, "c", function() {
@@ -36626,10 +36640,10 @@ webpackJsonp([332], [, function(e, t, n) {
       a = e.latest,
       s = void 0 === a ? null : a;
     return function(e) {
-      t && r && (s && e(n.i(_.setLoading)({
+      t && r && (s && e(n.i(y.setLoading)({
         channelId: t,
         loading: !0
-      })), n.i(p.a)({
+      })), n.i(h.a)({
         channelId: t,
         type: r,
         oldest: i,
@@ -36637,16 +36651,16 @@ webpackJsonp([332], [, function(e, t, n) {
       }).then(function(r) {
         var o = r.msgs,
           a = r.hasMore;
-        e(n.i(m.addMessages)(o)), e(n.i(_.addTimestamps)({
+        e(n.i(_.addMessages)(o)), e(n.i(y.addTimestamps)({
           channelId: t,
-          timestamps: d.a.map(o, "ts"),
+          timestamps: f.a.map(o, "ts"),
           oldest: i,
           latest: s,
           hasMore: a,
           loading: !1
         }));
       }).catch(function(e) {
-        return n.i(h.a)("Failed to fetch history", t, e);
+        return n.i(m.a)("Failed to fetch history", t, e);
       }));
     };
   }
@@ -36657,7 +36671,7 @@ webpackJsonp([332], [, function(e, t, n) {
 
   function a(e) {
     var t = i(e);
-    return n.i(_.getTimestampsByChannelId)(e, t);
+    return n.i(y.getTimestampsByChannelId)(e, t);
   }
 
   function s(e) {
@@ -36675,72 +36689,85 @@ webpackJsonp([332], [, function(e, t, n) {
       didRequestToStopEditing: !1
     };
   }
+
+  function l(e) {
+    return e && e.messagePane && e.messagePane.userSetUnreadPoint;
+  }
   Object.defineProperty(t, "__esModule", {
     value: !0
   }), n.d(t, "switchToChannel", function() {
-    return v;
-  }), n.d(t, "startEditingMessage", function() {
     return g;
-  }), n.d(t, "stopEditingMessage", function() {
+  }), n.d(t, "startEditingMessage", function() {
     return b;
-  }), n.d(t, "updateEditText", function() {
+  }), n.d(t, "stopEditingMessage", function() {
     return w;
-  }), n.d(t, "requestToStopEditing", function() {
+  }), n.d(t, "updateEditText", function() {
     return k;
-  }), t.fetchHistory = o, t.getMessagePaneChannelId = i, t.getTimestampsForMessagePane = a, t.getMessagePaneStartTs = s, t.getMessagePaneEditState = u;
-  var l, c = n(6),
-    d = n.n(c),
-    f = n(17),
-    p = (n.n(f), n(3431)),
-    h = n(2914),
-    m = n(3034),
-    _ = n(4151),
-    y = Object.assign || function(e) {
+  }), n.d(t, "requestToStopEditing", function() {
+    return M;
+  }), n.d(t, "userSetUnreadPoint", function() {
+    return T;
+  }), t.fetchHistory = o, t.getMessagePaneChannelId = i, t.getTimestampsForMessagePane = a, t.getMessagePaneStartTs = s, t.getMessagePaneEditState = u, t.didUserSetUnreadPoint = l;
+  var c, d = n(6),
+    f = n.n(d),
+    p = n(17),
+    h = (n.n(p), n(3431)),
+    m = n(2914),
+    _ = n(3034),
+    y = n(4151),
+    v = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
         for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
       }
       return e;
     },
-    v = n.i(f.createAction)("Sets the active channel"),
-    g = n.i(f.createAction)("Start editing a message"),
-    b = n.i(f.createAction)("Stop editing current message"),
-    w = n.i(f.createAction)("Set the current edit text"),
-    k = n.i(f.createAction)("Request that editing be stopped"),
-    M = {
+    g = n.i(p.createAction)("Sets the active channel"),
+    b = n.i(p.createAction)("Start editing a message"),
+    w = n.i(p.createAction)("Stop editing current message"),
+    k = n.i(p.createAction)("Set the current edit text"),
+    M = n.i(p.createAction)("Request that editing be stopped"),
+    T = n.i(p.createAction)("User set the unread point manually"),
+    x = {
       channelId: null,
       startTs: null,
       editTs: null,
       editText: null,
-      didRequestToStopEditing: !1
+      didRequestToStopEditing: !1,
+      userSetUnreadPoint: !1
     },
-    T = n.i(f.createReducer)((l = {}, r(l, v, function(e, t, n) {
-      return y({}, e, {
+    S = n.i(p.createReducer)((c = {}, r(c, g, function(e, t, n) {
+      return v({}, e, {
         channelId: t,
-        startTs: n
+        startTs: n,
+        userSetUnreadPoint: !1
       });
-    }), r(l, g, function(e, t) {
-      return y({}, e, {
+    }), r(c, b, function(e, t) {
+      return v({}, e, {
         editTs: t,
         editText: null
       });
-    }), r(l, b, function(e) {
-      return y({}, e, {
+    }), r(c, w, function(e) {
+      return v({}, e, {
         editTs: null,
         editText: null,
         didRequestToStopEditing: !1
       });
-    }), r(l, w, function(e, t) {
-      return y({}, e, {
+    }), r(c, k, function(e, t) {
+      return v({}, e, {
         editText: t
       });
-    }), r(l, k, function(e) {
+    }), r(c, M, function(e) {
       var t = !(arguments.length > 1 && void 0 !== arguments[1]) || arguments[1];
-      return y({}, e, {
+      return v({}, e, {
         didRequestToStopEditing: t
       });
-    }), l), M);
-  t.default = T;
+    }), r(c, T, function(e) {
+      return v({}, e, {
+        userSetUnreadPoint: !0
+      });
+    }), c), x);
+  t.default = S;
 }, , , function(e, t, n) {
   "use strict";
   var r = n(3033);
@@ -37025,7 +37052,7 @@ webpackJsonp([332], [, function(e, t, n) {
     return function(r, i) {
       var a = i(),
         s = o(a, e, t);
-      s && n.i(d.c)(s);
+      s && n.i(d.b)(s);
     };
   }
   Object.defineProperty(t, "__esModule", {
@@ -37580,13 +37607,13 @@ webpackJsonp([332], [, function(e, t, n) {
   t.a = D, D.propTypes = P, D.defaultProps = j, D.displayName = "Message";
 }, , function(e, t, n) {
   "use strict";
-  n.d(t, "h", function() {
+  n.d(t, "g", function() {
     return o;
   }), n.d(t, "a", function() {
     return i;
   }), n.d(t, "d", function() {
     return a;
-  }), n.d(t, "g", function() {
+  }), n.d(t, "h", function() {
     return s;
   }), n.d(t, "b", function() {
     return u;
@@ -37714,9 +37741,9 @@ webpackJsonp([332], [, function(e, t, n) {
   n.d(t, "a", function() {
     return r.a;
   }), n.d(t, "b", function() {
-    return r.b;
-  }), n.d(t, "c", function() {
     return r.c;
+  }), n.d(t, "c", function() {
+    return r.b;
   }), n.d(t, "d", function() {
     return r.d;
   }), n.d(t, "e", function() {
@@ -38608,11 +38635,11 @@ webpackJsonp([332], [, function(e, t, n) {
     });
 }, function(e, t, n) {
   "use strict";
-  n.d(t, "c", function() {
+  n.d(t, "b", function() {
     return o;
   }), n.d(t, "d", function() {
     return i;
-  }), n.d(t, "b", function() {
+  }), n.d(t, "c", function() {
     return a;
   }), n.d(t, "e", function() {
     return s;
@@ -40368,7 +40395,7 @@ webpackJsonp([332], [, function(e, t, n) {
           var e = _.t("{replyCount, plural, =1 {# reply} other {# replies}}", {
               replyCount: this.props.replyCount
             }),
-            t = n.i(d.g)(this.props.channelId, this.props.threadTs);
+            t = n.i(d.h)(this.props.channelId, this.props.threadTs);
           return s.a.createElement("div", {
             className: "c-message__reply_bar"
           }, this.renderFaces(), s.a.createElement("a", {
@@ -41675,7 +41702,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "onReactionClick",
         value: function(e, t) {
-          n.i(p.a)(this.props.reactionKey, e, !t);
+          n.i(p.c)(this.props.reactionKey, e, !t);
         }
       }, {
         key: "render",
@@ -42352,7 +42379,7 @@ webpackJsonp([332], [, function(e, t, n) {
     a = {};
 }, function(e, t, n) {
   "use strict";
-  n(3267), n(3921), n(3630);
+  n(4187), n(3267), n(3921), n(3630);
 }, function(e, t, n) {
   "use strict";
 
@@ -52907,11 +52934,11 @@ webpackJsonp([332], [, function(e, t, n) {
     return p.then(function(e) {
       var r = i.a.get(e, "data.messages");
       if (!r) return [];
-      n.i(s.b)();
+      n.i(s.a)();
       var o = i.a.map(r, function(e) {
-        return n.i(u.h)(e, t);
+        return n.i(u.g)(e, t);
       });
-      return n.i(s.c)(), {
+      return n.i(s.b)(), {
         msgs: o,
         hasMore: i.a.get(e, "data.has_more")
       };
@@ -52929,10 +52956,6 @@ webpackJsonp([332], [, function(e, t, n) {
   n.d(t, "a", function() {
     return r.a;
   }), n.d(t, "b", function() {
-    return r.b;
-  }), n.d(t, "c", function() {
-    return r.c;
-  }), n.d(t, "d", function() {
     return r.d;
   });
 }, function(e, t, n) {
@@ -53185,10 +53208,10 @@ webpackJsonp([332], [, function(e, t, n) {
         count: 2e3,
         no_payload_if_has_more: !0,
         batch_deleted_files: !0
-      }).then(l).catch(u).finally(function() {
+      }).then(l).catch(u);
+      t.finally(function() {
         x = void 0, b("eventlog: fetched finish (cancelled? " + t.isCancelled() + ")"), t.isCancelled() || (b("eventlog: dispatching signal and clearing timestamp"), S.dispatch(), T = void 0);
-      });
-      x = t;
+      }), x = t;
     }
   }
 
@@ -54817,11 +54840,11 @@ webpackJsonp([332], [, function(e, t, n) {
   });
 }, function(e, t, n) {
   "use strict";
-  n.d(t, "a", function() {
+  n.d(t, "c", function() {
     return o;
-  }), n.d(t, "b", function() {
+  }), n.d(t, "a", function() {
     return i;
-  }), n.d(t, "c", function() {
+  }), n.d(t, "b", function() {
     return a;
   });
   var r = n(2277),
@@ -55695,7 +55718,8 @@ webpackJsonp([332], [, function(e, t, n) {
         channelId: e.id,
         timestamps: i,
         oldest: f.a.min(i),
-        hasMore: !1
+        hasMore: !1,
+        forceUnreadCount: !0
       }));
     });
   }
@@ -55798,13 +55822,14 @@ webpackJsonp([332], [, function(e, t, n) {
         s = i.channelId,
         u = i.timestamps,
         l = i.timestamp,
-        c = l ? [l] : u,
-        d = n.i(g.getChannelById)(o, s);
-      if (d) {
-        var p = d.last_read;
-        f.a.some(c, function(e) {
-          return e > p;
-        }) && (n.i(T.d)(2005, "Counting unreads in " + s + " because history changed"), a(s, o, t));
+        c = i.forceUnreadCount,
+        d = l ? [l] : u,
+        p = n.i(g.getChannelById)(o, s);
+      if (p) {
+        var h = p.last_read;
+        (f.a.some(d, function(e) {
+          return e > h;
+        }) || c) && (n.i(T.d)(2005, "Counting unreads in " + s + " because history changed"), a(s, o, t), 1 === u.length && u[0] > h && n.i(S.a)(s, t, r));
       }
     }
   }
@@ -55832,7 +55857,8 @@ webpackJsonp([332], [, function(e, t, n) {
     k = n(3141),
     M = n(3920),
     T = n(3060),
-    x = n(4171);
+    x = n(4171),
+    S = n(4187);
   n.i(p.b)({
     actions: [v.connected],
     sideEffect: u
@@ -56349,7 +56375,7 @@ webpackJsonp([332], [, function(e, t, n) {
     var t = e.replace(/^@/, "");
     if (t.length < 9) return !1;
     var r = t.charAt(0);
-    return "U" === r || "W" === r;
+    return ("U" === r || "W" === r) && /^[A-Z0-9]+$/.test(t);
   }
   t.a = r;
   var o = n(6);
@@ -56456,7 +56482,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "onReturnKey",
         value: function(e) {
-          this.props.highlighted && (e.preventDefault(), this.props.onSelected(e));
+          this.props.highlighted && !this.props.withSubmenu && (e.preventDefault(), this.props.onSelected(e));
         }
       }, {
         key: "bindKeyCommands",
@@ -56465,7 +56491,7 @@ webpackJsonp([332], [, function(e, t, n) {
             keys: ["return"],
             handler: this.onReturnKey.bind(this)
           }];
-          this.keyCommands = new f.a, this.keyCommands.bindAll(e);
+          this.keyCommands || (this.keyCommands = new f.a), this.keyCommands.bindAll(e);
         }
       }, {
         key: "renderCaret",
@@ -56697,28 +56723,38 @@ webpackJsonp([332], [, function(e, t, n) {
     b = {
       children: l.PropTypes.arrayOf(l.PropTypes.node).isRequired,
       onMenuItemSelected: l.PropTypes.func,
+      onMouseEnterMenuItem: l.PropTypes.func,
       onTriggerClose: l.PropTypes.func,
       noMargin: l.PropTypes.bool,
-      width: l.PropTypes.number
+      width: l.PropTypes.number,
+      kbNavActive: l.PropTypes.bool
     },
     w = {
       onMenuItemSelected: d.noop,
+      onMouseEnterMenuItem: d.noop,
       onTriggerClose: d.noop,
       width: 300,
-      noMargin: !1
+      noMargin: !1,
+      kbNavActive: !0
     },
     k = function(e) {
       function t(e) {
         o(this, t);
         var n = i(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
         return n.state = {
-          highlightedMenuItemIndex: -1
+          highlightedMenuItemIndex: -1,
+          kbNavActive: n.props.kbNavActive
         }, n.onMouseLeaveMenu = n.onMouseLeaveMenu.bind(n), n;
       }
       return a(t, e), y(t, [{
         key: "componentDidMount",
         value: function() {
-          this.bindKeyCommands();
+          this.state.kbNavActive && this.bindKeyCommands();
+        }
+      }, {
+        key: "componentWillReceiveProps",
+        value: function(e) {
+          e.kbNavActive !== this.state.kbNavActive && (e.kbNavActive ? this.activateKBNav(!0) : this.deactivateKBNav());
         }
       }, {
         key: "componentWillUnmount",
@@ -56753,11 +56789,11 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "onMouseEnterMenuItem",
         value: function(e) {
-          this.setState(function() {
+          this.props.onMouseEnterMenuItem(), this.setState(function() {
             return {
               highlightedMenuItemIndex: e
             };
-          });
+          }), this.state.kbNavActive || this.activateKBNav();
         }
       }, {
         key: "getAllMenuItemIndices",
@@ -56779,6 +56815,25 @@ webpackJsonp([332], [, function(e, t, n) {
           return t[n - 1 >= 0 ? n - 1 : r];
         }
       }, {
+        key: "activateKBNav",
+        value: function(e) {
+          var t = {
+            kbNavActive: !0
+          };
+          e && (t.highlightedMenuItemIndex = this.getIndexOfNextMenuItemInDirection("down")), this.setState(function() {
+            return t;
+          }, this.bindKeyCommands);
+        }
+      }, {
+        key: "deactivateKBNav",
+        value: function() {
+          this.keyCommands && this.keyCommands.reset(), this.setState(function() {
+            return {
+              kbNavActive: !1
+            };
+          });
+        }
+      }, {
         key: "bindKeyCommands",
         value: function() {
           var e = [{
@@ -56791,7 +56846,7 @@ webpackJsonp([332], [, function(e, t, n) {
             keys: ["esc"],
             handler: this.props.onTriggerClose
           }];
-          this.keyCommands = new h.a, this.keyCommands.bindAll(e);
+          this.keyCommands || (this.keyCommands = new h.a), this.keyCommands.bindAll(e);
         }
       }, {
         key: "renderMenuItem",
@@ -56801,12 +56856,14 @@ webpackJsonp([332], [, function(e, t, n) {
             o = function(r) {
               e.props.onSelected && e.props.onSelected(r), n.onMenuItemSelected(t, r);
             },
-            i = this.state.highlightedMenuItemIndex,
-            a = _({}, e.props, {
+            i = this.state,
+            a = i.highlightedMenuItemIndex,
+            l = i.kbNavActive,
+            d = _({}, e.props, {
               onMouseEnter: r,
               key: t
             });
-          return (s(e) || u(e)) && (a.onSelected = o, a.highlighted = i === t), c.a.cloneElement(e, a);
+          return (s(e) || u(e)) && (d.onSelected = o, d.highlighted = a === t && (u(e) || l)), u(e) && (d.kbNavActive = !l, d.stealKBNav = this.deactivateKBNav.bind(this), d.returnKBNav = this.activateKBNav.bind(this)), c.a.cloneElement(e, d);
         }
       }, {
         key: "renderMenuItems",
@@ -60589,4 +60646,144 @@ webpackJsonp([332], [, function(e, t, n) {
 }, function(e, t, n) {
   "use strict";
   n(4185);
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e, t, r) {
+    var o = r();
+    if (!n.i(c.didUserSetUnreadPoint)(o) && n.i(p.d)() && !n.i(f.c)()) {
+      if (n.i(c.getMessagePaneChannelId)(o) === e) {
+        n.i(d.getUserPref)(o, "mark_msgs_read_immediately") && t(n.i(s.markMostRecentMsgRead)(e));
+      }
+    }
+  }
+
+  function o(e, t, o) {
+    var i = o();
+    if (n.i(l.isFeatureEnabled)(i, "feature_react_messages")) {
+      var a = e.payload;
+      a && r(a, t, o);
+    }
+  }
+
+  function i(e, t, o) {
+    var i = o();
+    if (n.i(l.isFeatureEnabled)(i, "feature_react_messages")) {
+      var a = n.i(c.getMessagePaneChannelId)(i);
+      a && r(a, t, o);
+    }
+  }
+  t.a = r;
+  var a = n(3265),
+    s = n(2295),
+    u = n(3014),
+    l = n(3028),
+    c = n(3029),
+    d = n(3045),
+    f = n(2908),
+    p = n(2907);
+  n.i(a.b)({
+    actions: [c.switchToChannel],
+    sideEffect: o
+  }), n.i(a.b)({
+    actions: [u.updateFocus],
+    sideEffect: i
+  });
+}, function(e, t, n) {
+  "use strict";
+  var r = n(4193),
+    o = n(2353);
+  n.i(o.a)("interop.mountEmojiPicker", r.a);
+}, function(e, t, n) {
+  "use strict";
+  var r = n(43),
+    o = n(3028),
+    i = n(2887),
+    a = function(e) {
+      return {
+        featureReactEmojiPickerFrecency: n.i(o.isFeatureEnabled)(e, "feature_react_emoji_picker_frecency")
+      };
+    };
+  t.a = n.i(r.b)(a)(i.a);
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e) {
+    var t = e.searchQuery,
+      r = e.searchMap,
+      o = e.emojiMap,
+      s = e.skinToneModifier;
+    if (!(r && Object.keys(r).length && o && o.length)) return [];
+    var u = ":" !== t.substr(0, 1) && ":" !== t.slice(-1),
+      l = {
+        allow_empty_query: !0,
+        frecency: !0,
+        prefer_exact_match: !0,
+        match_emoji_keywords: u
+      },
+      c = t.replace(/^(\+|-)?:/, ""),
+      d = n.i(a.a)(c, {
+        emoji: o
+      }, l);
+    return i.a.chain(d).map(function(e) {
+      var t = e.model_ob.name_with_colons;
+      return e.model_ob.is_skin && s && (t += s), r[t];
+    }).compact().value();
+  }
+  t.a = r;
+  var o = n(6),
+    i = n.n(o),
+    a = n(4192);
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e, t) {
+    if (":" === e) return t;
+    var r = i.a.compact(e.split(" "));
+    return i.a.chain(r).flatMap(function(e) {
+      if (":" === e.charAt(0) && ":" === e.slice(-1)) {
+        var r = e.slice(1, -1);
+        return t.filter(function(e) {
+          var t = n.i(a.a)(e.display_name || e.name) === r;
+          return !t && e.display_name && e.display_name !== e.name && (t = n.i(a.a)(e.name) === r), t;
+        });
+      }
+      var o = [];
+      return ":" !== e.substr(0, 1) && ":" !== e.slice(-1) && (o = n.i(a.b)(e)), t.filter(function(t) {
+        return n.i(a.c)(t, e, o);
+      });
+    }).uniqBy("name").value();
+  }
+  t.a = r;
+  var o = n(6),
+    i = n.n(o),
+    a = n(2909);
+}, function(e, t, n) {
+  "use strict";
+  n.d(t, "a", function() {
+    return o;
+  });
+  var r = n(2277),
+    o = n.i(r.a)("TS.sorter.search", function() {
+      return [];
+    });
+}, function(e, t, n) {
+  "use strict";
+  var r = n(2),
+    o = n.n(r),
+    i = n(20),
+    a = n.n(i),
+    s = n(43),
+    u = n(3629),
+    l = n(2906),
+    c = n(2348),
+    d = n(2694),
+    f = function(e, t, r) {
+      n.i(l.a)("react_emoji_menu_render_mark"), a.a.render(o.a.createElement(s.a, {
+        store: n.i(u.a)()
+      }, o.a.createElement(c.a, r, o.a.createElement(d.a, t))), e, function() {
+        return n.i(l.b)("react_emoji_menu_render", "react_emoji_menu_render_mark");
+      });
+    };
+  t.a = f;
 }], [2905]);

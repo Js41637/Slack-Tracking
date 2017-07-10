@@ -14,6 +14,11 @@
     {{#if restricted_filter_selected}}
     {{#t note='A filter option for a list of members' count=guests_count}}Guest accounts ({count}){{/t}}
     {{/if}}
+    {{#feature flag="feature_retire_team_site_directory"}}
+      {{#if bots_filter_selected}}
+      {{#t note='A filter option for a list of bots' count=bots_count}}Bots ({count}){{/t}}
+      {{/if}}
+    {{/feature}}
     {{#if deactivated_filter_selected}}
     {{#t note='A filter option for a list of members'}}Deactivated accounts{{/t}}
     {{/if}}
@@ -26,6 +31,11 @@
     {{#if org_restricted_filter_selected}}
     {{#t note='A filter option for a list of guest account members in an organization' org_name=(truncate org_name 16) count=org_guests_count}}{org_name} &ndash; Guest accounts ({count}){{/t}}
     {{/if}}
+    {{#feature flag="feature_retire_team_site_directory"}}
+      {{#if org_bots_filter_selected}}
+      {{#t note='A filter option for a list of bots in an organization' org_name=(truncate org_name 16) count=org_bots_count}}{org_name} &ndash; Bots ({count}){{/t}}
+      {{/if}}
+    {{/feature}}
     {{#if team_members_filter_selected}}
     {{#t note='A filter option for a list of members in a team' org_name=(truncate team_name 16) count=members_count}}{team_name} &ndash; Members ({count}){{/t}}
     {{/if}}
@@ -35,6 +45,11 @@
     {{#if team_restricted_filter_selected}}
     {{#t note='A filter option for a list of guest account members in a team' org_name=(truncate team_name 16) count=guests_count}}{team_name} &ndash; Guest accounts ({count}){{/t}}
     {{/if}}
+    {{#feature flag="feature_retire_team_site_directory"}}
+      {{#if team_bots_filter_selected}}
+      {{#t note='A filter option for a list of bots in a team' org_name=(truncate team_name 16) count=bots_count}}{team_name} &ndash; Bots ({count}){{/t}}
+      {{/if}}
+    {{/feature}}
     {{#each ext_teams}}
       {{#if this.external_team_filter_selected}}
         {{#t note='A filter option for a list of external members on a team' team_name=this.external_team_name count=this.external_team_count}}{team_name} ({count}){{/t}}

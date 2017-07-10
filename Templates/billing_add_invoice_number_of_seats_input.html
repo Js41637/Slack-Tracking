@@ -5,7 +5,12 @@
     <input type="text" class="add_invoice__number_of_seats small no_margin" name="add_invoice__number_of_seats" {{#if disabled}}disabled="true" value={{current_user_count}} {{/if}} />
     <input type="text" class="add_invoice__price_preview small no_margin disabled hidden" name="add_invoice__price_preview" disabled="" aria-disabled="true" />
   </div>
+  <div class="p-add_invoice__warning_container very_small_padding hidden" data-js="add_invoice__seat_error">
+    <p class="p-add_invoice__warning_text--without_icon small black small_left_margin no_bottom_margin">
+      {{!-- Text populated by add_invoice_form template when errors appear --}}
+    </p>
+  </div>
   {{#unless disabled}}
-    <span data-js="add_invoice__seat_error" class="input_note inline no_margin">{{default_seat_text}}</span>
+    <span class="input_note inline no_margin">{{default_seat_text}}</span>
   {{/unless}}
 </div>

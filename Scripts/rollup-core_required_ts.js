@@ -883,16 +883,16 @@ webpackJsonp([12, 328, 337, 329], {
       "use strict";
       TS.registerModule("emoji", {
         onStart: function() {
-          TS.web && TS.web.login_sig.add(TS.emoji.onLogin), TS.client && TS.client.login_sig.add(TS.emoji.onLogin), TS.prefs.jumbomoji_changed_sig.add(f), TS.boot_data.feature_update_emoji_to_v4 && (u(), m.forEach(function(e) {
+          TS.web && TS.web.login_sig.add(TS.emoji.onLogin), TS.client && TS.client.login_sig.add(TS.emoji.onLogin), TS.prefs.jumbomoji_changed_sig.add(p), TS.boot_data.feature_update_emoji_to_v4 && (g(), u.forEach(function(e) {
             TS.emoji.spliceSkinToneVariationsIntoAnArrayOfEmojiNames(e.emoji_names);
           }));
-          g = TS.utility.throttleFunc(g, 3e3, !0);
+          f = TS.utility.throttleFunc(f, 3e3, !0);
         },
         onLogin: function() {
-          f();
+          p();
         },
         isValidName: function(e) {
-          return !!e && (e = TS.emoji.stripWrappingColons(e).toLowerCase(), void 0 !== o[e] && e);
+          return !!e && (e = TS.emoji.stripWrappingColons(e).toLowerCase(), void 0 !== t[e] && e);
         },
         substringMatchesName: function(e, n, a) {
           if (!(e && n && _.isString(e) && _.isString(n))) return !1;
@@ -944,49 +944,49 @@ webpackJsonp([12, 328, 337, 329], {
             var n = e.split("::");
             return 2 != n.length ? "" : (e = n[0], "::" + n[1]);
           }();
-          return (r()[e] || e) + n;
+          return (s()[e] || e) + n;
         },
         addCustomEmoji: function(e, n, a) {
-          S(e, n, a);
+          T(e, n, a);
         },
         removeCustomEmoji: function(e, n) {
-          S(e, void 0, n);
+          T(e, void 0, n);
         },
         ingestCustoms: function(e) {
-          function o(e) {
-            return c.map.colons.hasOwnProperty(e) || r.indexOf(e) >= 0;
+          function n(e) {
+            return d.map.colons.hasOwnProperty(e) || r.indexOf(e) >= 0;
           }
           TS.model.all_custom_emoji.length = 0, TS.model.emoji_complex_customs = {};
           var t, i, r = [];
-          _.forOwn(c.data, function(e) {
+          _.forOwn(d.data, function(e) {
             r.push.apply(r, e[3]);
-          }), _.forOwn(e, function(e, n) {
-            if ("object" === (void 0 === e ? "undefined" : a(e))) TS.model.emoji_complex_customs[n] = e, c.data[n] = [
-              [], null, null, [n], null, null, null, e.apple
-            ], c.map.colons[n] = n, TS.model.all_custom_emoji.push(n);
+          }), _.forOwn(e, function(e, o) {
+            if ("object" === (void 0 === e ? "undefined" : a(e))) TS.model.emoji_complex_customs[o] = e, d.data[o] = [
+              [], null, null, [o], null, null, null, e.apple
+            ], d.map.colons[o] = o, TS.model.all_custom_emoji.push(o);
             else {
               if (0 === e.indexOf("alias:")) return;
-              if (o(n)) return void TS.error("can't ingest custom emoji :" + n + ": because that already exists");
-              c.data[n] = [
-                [], null, null, [n], null, null, null, e
-              ], c.map.colons[n] = n, TS.model.all_custom_emoji.push(n);
+              if (n(o)) return void TS.error("can't ingest custom emoji :" + o + ": because that already exists");
+              d.data[o] = [
+                [], null, null, [o], null, null, null, e
+              ], d.map.colons[o] = o, TS.model.all_custom_emoji.push(o);
             }
-          }), _.forOwn(e, function(e, n) {
+          }), _.forOwn(e, function(e, o) {
             if ("object" !== (void 0 === e ? "undefined" : a(e)) && 0 === e.indexOf("alias:")) {
-              if (o(n)) return void TS.error("can't ingest custom emoji :" + n + ": because that already exists");
-              if (t = e.replace("alias:", ""), i = c.data.hasOwnProperty(t) && c.data[t]) return i[3].push(n), void(c.map.colons[n] = t);
-              if (t = c.map.colons.hasOwnProperty(t) && c.map.colons[t], i = c.data.hasOwnProperty(t) && c.data[t]) return i[3].push(n), void(c.map.colons[n] = t);
-              TS.boot_data && TS.boot_data.feature_tinyspeck && TS.warn('alias for "' + n + '":"' + e + '" not recognized');
+              if (n(o)) return void TS.error("can't ingest custom emoji :" + o + ": because that already exists");
+              if (t = e.replace("alias:", ""), i = d.data.hasOwnProperty(t) && d.data[t]) return i[3].push(o), void(d.map.colons[o] = t);
+              if (t = d.map.colons.hasOwnProperty(t) && d.map.colons[t], i = d.data.hasOwnProperty(t) && d.data[t]) return i[3].push(o), void(d.map.colons[o] = t);
+              TS.boot_data && TS.boot_data.feature_tinyspeck && TS.warn('alias for "' + o + '":"' + e + '" not recognized');
             }
-          }), TS.model.all_custom_emoji = TS.model.all_custom_emoji.sort(), c && c.inits && (delete c.inits.emoticons, c.init_emoticons()), n = s();
+          }), TS.model.all_custom_emoji = TS.model.all_custom_emoji.sort(), d && d.inits && (delete d.inits.emoticons, d.init_emoticons()), o = l();
         },
         setUpEmoji: function() {
           return new Promise(function(e) {
-            if (!c) return TS.boot_data.feature_tinyspeck && TS.info("BOOT: Done setting up emoji, there was nothing to do"), e();
+            if (!d) return TS.boot_data.feature_tinyspeck && TS.info("BOOT: Done setting up emoji, there was nothing to do"), e();
             var n = function() {
-              c.buildKeywordIndex(), h(), TS.boot_data.feature_tinyspeck && TS.info("BOOT: Done setting up emoji"), e();
+              d.buildKeywordIndex(), S(), TS.boot_data.feature_tinyspeck && TS.info("BOOT: Done setting up emoji"), e();
             };
-            if (p(), !TS.boot_data.page_needs_custom_emoji) return n();
+            if (h(), !TS.boot_data.page_needs_custom_emoji) return n();
             if (!TS.boot_data.page_needs_custom_emoji_fresh) {
               var a = TS.storage.fetchCustomEmoji();
               if (a && TS.model.emoji_cache_ts == a.cache_ts) return TS.model.did_we_load_with_emoji_cache = !0, TS.emoji.ingestCustoms(a.data), n();
@@ -1003,15 +1003,23 @@ webpackJsonp([12, 328, 337, 329], {
           });
         },
         resetUpEmoji: function() {
-          TS.storage.storeCustomEmoji(""), g();
+          TS.storage.storeCustomEmoji(""), f();
         },
         maybeRemakeMenuListsIfFrequentsChanged: function() {
-          var n = t();
-          TS.utility.areSimpleObjectsEqual(n, e, "maybemakeMenuLists") || (TS.boot_data.feature_localization ? i(n) : TS.emoji.makeMenuLists());
+          if (!TS.boot_data.feature_react_emoji_picker_frecency) {
+            var n = i();
+            TS.utility.areSimpleObjectsEqual(n, e, "maybemakeMenuLists") || (TS.boot_data.feature_localization ? r(n) : TS.emoji.makeMenuLists());
+          }
+        },
+        replaceFrecentlyUsed: function() {
+          if (TS.boot_data.feature_react_emoji_picker_frecency) {
+            var e = b();
+            e.length && (_.isEqual(e, n) || (r(e), n = e));
+          }
         },
         makeMenuLists: function() {
-          TS.model.emoji_groups.length = 0, TS.model.emoji_names.length = 0, o = {};
-          var n = _.cloneDeep(m);
+          TS.model.emoji_groups.length = 0, TS.model.emoji_names.length = 0, t = {};
+          var n = _.cloneDeep(u);
           TS.model.all_custom_emoji && TS.model.all_custom_emoji.length && n.push({
             display_name: TS.i18n.t("Custom", "emoji")(),
             tab_icon_html: '<span class="emoji-sizer"><i class="ts_icon ts_icon_slack"></i></span>',
@@ -1019,7 +1027,7 @@ webpackJsonp([12, 328, 337, 329], {
             tab_icon_name: "slack",
             name: "slack",
             emoji_names: TS.model.all_custom_emoji
-          }), e = t(), n.unshift({
+          }), e = i(), n.unshift({
             name: "mine",
             display_name: TS.i18n.t("Frequently Used", "emoji")(),
             tab_icon_html: '<span class="emoji-sizer"><i class="ts_icon ts_icon_clock_o"></i></span>',
@@ -1027,51 +1035,51 @@ webpackJsonp([12, 328, 337, 329], {
             tab_icon_name: "clock_o",
             emoji_names: e
           });
-          var a, i, r = [];
+          var a, o, r = [];
           for (a = 0; a < n.length; a += 1) r = r.concat(n[a].emoji_names);
           var s = {};
-          for (Object.keys(c.data).forEach(function(e) {
-              var n = c.data[e][3],
+          for (Object.keys(d.data).forEach(function(e) {
+              var n = d.data[e][3],
                 a = TS.emoji.isIdxSkinToneModifiable(e);
-              n.forEach(function(n, t, i) {
+              n.forEach(function(n, o, i) {
                 var r = n,
-                  _ = i;
-                TS.model.emoji_names.push(n), o[n] = !0, TS.boot_data.feature_localization && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE && (r = TSFEmoji.getLocalEmojiString(n, TS.i18n.locale()), _ = i.map(function(e) {
+                  l = i;
+                TS.model.emoji_names.push(n), t[n] = !0, TS.boot_data.feature_localization && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE && (r = TSFEmoji.getLocalEmojiString(n, TS.i18n.locale()), l = i.map(function(e) {
                   return TSFEmoji.getLocalEmojiString(e, TS.i18n.locale());
                 })), s[n] = {
                   html: TS.emoji.graphicReplace(":" + n + ":"),
                   name: ":" + n + ":",
                   names: ":" + i.join(": :") + ":",
                   display_name: ":" + r + ":",
-                  display_names: ":" + _.join(": :") + ":"
+                  display_names: ":" + l.join(": :") + ":"
                 }, TS.model.emoji_map.push({
-                  id: "E" + e + (t > 0 ? "_alias_" + t : ""),
+                  id: "E" + e + (o > 0 ? "_alias_" + o : ""),
                   name: n,
                   name_with_colons: ":" + n + ":",
                   display_name: r,
                   is_skin: a,
                   is_emoji: !0
-                }), a && (s[n].is_skin = !0, s[n].skin_tone_id = "1", c.skin_tones.forEach(function(a) {
-                  if (l(e, a)) {
-                    var t = c.data[a],
-                      d = t[3][0],
-                      m = n + "::" + d;
-                    TS.model.emoji_names.push(m), o[m] = !0;
+                }), a && (s[n].is_skin = !0, s[n].skin_tone_id = "1", d.skin_tones.forEach(function(a) {
+                  if (c(e, a)) {
+                    var o = d.data[a],
+                      _ = o[3][0],
+                      m = n + "::" + _;
+                    TS.model.emoji_names.push(m), t[m] = !0;
                     var u = ":" + m + ":",
                       g = i.map(function(e) {
-                        return e + "::" + d;
+                        return e + "::" + _;
                       }),
                       f = u,
                       p = g;
                     if (TS.boot_data.feature_localization && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE) {
-                      var h = TSFEmoji.getLocalEmojiString(d, TS.i18n.locale());
-                      f = ":" + r + "::" + h + ":", p = _.map(function(e) {
+                      var h = TSFEmoji.getLocalEmojiString(_, TS.i18n.locale());
+                      f = ":" + r + "::" + h + ":", p = l.map(function(e) {
                         return e + "::" + h;
                       });
                     }
                     s[m] = {
                       is_skin: !0,
-                      skin_tone_id: d.substr(-1, 1),
+                      skin_tone_id: _.substr(-1, 1),
                       html: TS.emoji.graphicReplace(u),
                       name: u,
                       names: ":" + g.join(": :") + ":",
@@ -1081,13 +1089,13 @@ webpackJsonp([12, 328, 337, 329], {
                   }
                 }));
               });
-            }), d = s, TS.model.emoji_map = _.uniqBy(TS.model.emoji_map, "id"), a = 0; a < r.length; a += 1) {
-            var u = r[a];
-            s[u] || TS.info(u + " not in cat_map?");
+            }), m = s, TS.model.emoji_map = _.uniqBy(TS.model.emoji_map, "id"), a = 0; a < r.length; a += 1) {
+            var l = r[a];
+            s[l] || TS.info(l + " not in cat_map?");
           }
           var g, f, p, h;
           for (a = 0; a < n.length; a += 1) {
-            for (g = n[a], f = [], p = null, h = "", g.tab_icon_html && (h = g.tab_icon_html), i = 0; i < g.emoji_names.length; i += 1) p = s[g.emoji_names[i]], f.push(p), h || g.emoji_names[i] == g.name && (h = p.html);
+            for (g = n[a], f = [], p = null, h = "", g.tab_icon_html && (h = g.tab_icon_html), o = 0; o < g.emoji_names.length; o += 1) p = s[g.emoji_names[o]], f.push(p), h || g.emoji_names[o] == g.name && (h = p.html);
             p = f[0], TS.model.emoji_groups.push({
               name: g.name,
               display_name: g.display_name,
@@ -1115,8 +1123,8 @@ webpackJsonp([12, 328, 337, 329], {
             }), e.forEach(function(e) {
               e.emoji_names.forEach(function(e) {
                 _.pull(n, e);
-                var a = c.map.colons[e],
-                  o = c.data[a];
+                var a = d.map.colons[e],
+                  o = d.data[a];
                 o && o[3].forEach(function(e) {
                   [e, e + "::skin-tone-2", e + "::skin-tone-3", e + "::skin-tone-4", e + "::skin-tone-5", e + "::skin-tone-6"].forEach(function(e) {
                     _.pull(n, e);
@@ -1159,39 +1167,39 @@ webpackJsonp([12, 328, 337, 329], {
           });
         },
         isIdxSkinToneModifiable: function(e) {
-          return l(e, c.skin_tones[0]);
+          return c(e, d.skin_tones[0]);
         },
         isNameSkinToneModifiable: function(e) {
           e = TS.emoji.stripWrappingColons(e), e = String(e).toLowerCase();
-          var n = c.map.colons[e];
+          var n = d.map.colons[e];
           return TS.emoji.isIdxSkinToneModifiable(n);
         },
         graphicReplace: function(e, n) {
           if (!e) return "";
           if (n = n || {}, n.show_icon_for_emoji_in_as_text_mode && TS.emoji.isValidName(e)) return '<ts-icon class="emoji-sizer ts_icon_info_circle ts_icon_inherit" title="' + e.replace(/:/g, "") + '"></ts-icon>';
-          c.init_env();
-          var a = c.text_mode,
-            o = c.include_title,
-            t = c.include_text,
-            i = c.supports_css,
-            r = c.allow_skin_tone_squares;
-          n.force_img && n.obey_emoji_mode_pref && (n.obey_emoji_mode_pref = !1, TS.error("obey_emoji_mode_pref now set to FALSE because options.force_img is TRUE")), n.force_style && n.obey_emoji_mode_pref && (n.obey_emoji_mode_pref = !1, TS.error("obey_emoji_mode_pref now set to FALSE because options.force_style is " + n.force_style)), c.text_mode = n.obey_emoji_mode_pref && "as_text" === _.get(TS, "model.prefs.emoji_mode"), n.force_style && (TS.emoji.setEmojiMode(n.force_style), c.use_sheet = !1), c.include_title = !!n.include_title, c.include_text = !!n.include_text, c.supports_css = !n.force_img, c.allow_skin_tone_squares = !n.no_skin_tone_squares;
-          var s = c.replace_colons(e, {
+          d.init_env();
+          var a = d.text_mode,
+            o = d.include_title,
+            t = d.include_text,
+            i = d.supports_css,
+            r = d.allow_skin_tone_squares;
+          n.force_img && n.obey_emoji_mode_pref && (n.obey_emoji_mode_pref = !1, TS.error("obey_emoji_mode_pref now set to FALSE because options.force_img is TRUE")), n.force_style && n.obey_emoji_mode_pref && (n.obey_emoji_mode_pref = !1, TS.error("obey_emoji_mode_pref now set to FALSE because options.force_style is " + n.force_style)), d.text_mode = n.obey_emoji_mode_pref && "as_text" === _.get(TS, "model.prefs.emoji_mode"), n.force_style && (TS.emoji.setEmojiMode(n.force_style), d.use_sheet = !1), d.include_title = !!n.include_title, d.include_text = !!n.include_text, d.supports_css = !n.force_img, d.allow_skin_tone_squares = !n.no_skin_tone_squares;
+          var s = d.replace_colons(e, {
             stop_animations: n.stop_animations
           });
-          return n.jumbomoji && (s = s.replace("emoji-sizer", "emoji-sizer emoji-only")), n.force_style && TS.emoji.setEmojiMode(), c.text_mode = a, c.include_title = o, c.include_text = t, c.supports_css = i, c.allow_skin_tone_squares = r, s;
+          return n.jumbomoji && (s = s.replace("emoji-sizer", "emoji-sizer emoji-only")), n.force_style && TS.emoji.setEmojiMode(), d.text_mode = a, d.include_title = o, d.include_text = t, d.supports_css = i, d.allow_skin_tone_squares = r, s;
         },
         replaceColons: function(e) {
-          return e.indexOf(":") < 0 ? e : c.replace_colons(e);
+          return e.indexOf(":") < 0 ? e : d.replace_colons(e);
         },
         maybeUnifiedReplace: function(e) {
-          return "unified" !== c.replace_mode ? e : c.replace_colons_with_unified(e);
+          return "unified" !== d.replace_mode ? e : d.replace_colons_with_unified(e);
         },
         replaceEmoticons: function(e) {
-          return c.replace_emoticons_with_colons(e);
+          return d.replace_emoticons_with_colons(e);
         },
         eachEmoticon: function(e, n) {
-          e.replace(c.rx_emoticons, n);
+          e.replace(d.rx_emoticons, n);
         },
         getLocalSkinToneName: function() {
           var e = "skin-tone";
@@ -1207,13 +1215,13 @@ webpackJsonp([12, 328, 337, 329], {
         },
         setEmojiMode: function(e) {
           var n = ["google", "emojione", "twitter", "apple"];
-          if (e = e || _.get(TS, "model.prefs.emoji_mode"), c.text_mode = "as_text" === e, c.do_emoticons = !!_.get(TS, "model.prefs.graphic_emoticons"), c.allow_native = !1, c.use_sheet = function() {
+          if (e = e || _.get(TS, "model.prefs.emoji_mode"), d.text_mode = "as_text" === e, d.do_emoticons = !!_.get(TS, "model.prefs.graphic_emoticons"), d.allow_native = !1, d.use_sheet = function() {
               return !!_.get(TS, "model.prefs.ss_emojis") && !!TS.boot_data.page_needs_custom_emoji;
-            }(), c.img_set = _.includes(n, e) ? e : "apple", TS.model.emoji_complex_customs)
-            for (var a in TS.model.emoji_complex_customs) c.data[a] && (c.data[a][7] = TS.model.emoji_complex_customs[a][c.img_set]);
+            }(), d.img_set = _.includes(n, e) ? e : "apple", TS.model.emoji_complex_customs)
+            for (var a in TS.model.emoji_complex_customs) d.data[a] && (d.data[a][7] = TS.model.emoji_complex_customs[a][d.img_set]);
         },
         getColonsRx: function() {
-          return c.rx_colons;
+          return d.rx_colons;
         },
         getEmojiByName: function(e) {
           if (e) return _.find(TS.model.emoji_map, {
@@ -1228,21 +1236,21 @@ webpackJsonp([12, 328, 337, 329], {
         },
         getEmojiForSpaces: function() {
           var e = {
-            emoticonEmojiNames: c.emoticons_data,
+            emoticonEmojiNames: d.emoticons_data,
             emoji: {},
-            sheetSize: c.sheet_size,
+            sheetSize: d.sheet_size,
             sheetPath: TS.emoji.getCurrentSheetUrl(),
             replace: function() {
-              var e = c.colons_mode;
-              c.colons_mode = !0;
-              var n = c.replace_unified.apply(c, arguments);
-              return TS.boot_data.feature_localization && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE && (n = TSFEmoji.translateEmojiStringToCanonical(n, TS.i18n.locale())), c.colons_mode = e, n;
+              var e = d.colons_mode;
+              d.colons_mode = !0;
+              var n = d.replace_unified.apply(d, arguments);
+              return TS.boot_data.feature_localization && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE && (n = TSFEmoji.translateEmojiStringToCanonical(n, TS.i18n.locale())), d.colons_mode = e, n;
             }
           };
           return TS.boot_data.feature_localization && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE && (e.getLocalEmojiString = function(e) {
             return TSFEmoji.getLocalEmojiString(e, TS.i18n.locale()) || e;
-          }), Object.keys(c.data).forEach(function(n) {
-            var a, o = c.data[n],
+          }), Object.keys(d.data).forEach(function(n) {
+            var a, o = d.data[n],
               t = o[3],
               i = o[4],
               r = o[5],
@@ -1260,36 +1268,36 @@ webpackJsonp([12, 328, 337, 329], {
           }), e;
         },
         getCurrentSheetUrl: function() {
-          return c.img_sets[c.img_set].sheet;
+          return d.img_sets[d.img_set].sheet;
         },
         getCurrentImagePath: function() {
-          return c.img_sets[c.img_set].path;
+          return d.img_sets[d.img_set].path;
         },
         test: function() {
           return {
-            emoji: c
+            emoji: d
           };
         },
         spliceSkinToneVariationsIntoAnArrayOfEmojiNames: function(e) {
           var n = 0;
           e.concat().forEach(function(a, o) {
-            var t = c.map.colons[a];
-            c.data.hasOwnProperty(t) && c.data[t] && c.skin_tones.forEach(function(i) {
-              if (l(t, i)) {
-                var r = c.data[i],
+            var t = d.map.colons[a];
+            d.data.hasOwnProperty(t) && d.data[t] && d.skin_tones.forEach(function(i) {
+              if (c(t, i)) {
+                var r = d.data[i],
                   s = r[3][0],
-                  _ = a + "::" + s;
-                if (-1 === e.indexOf(_)) {
+                  l = a + "::" + s;
+                if (-1 === e.indexOf(l)) {
                   n += 1;
-                  var d = n + o;
-                  e.splice(d, 0, _);
+                  var _ = n + o;
+                  e.splice(_, 0, l);
                 }
               }
             });
           });
         },
         findByKeyword: function(e) {
-          return c.findByKeyword(e);
+          return d.findByKeyword(e);
         },
         maybeGetCanonicalEmojiString: function(e) {
           return TS.boot_data.feature_localization && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE ? TSFEmoji.translateEmojiStringToCanonical(e, TS.i18n.locale()) : e;
@@ -1299,8 +1307,8 @@ webpackJsonp([12, 328, 337, 329], {
         },
         MISSING_EMOJI_HTML: '<span class="emoji-outer emoji-sizer emoji-bg-contain" style="background-image: url(' + cdn_url + '/ecf3e/img/emoji_missing.png);"></span>'
       });
-      var e, n, o = {},
-        t = function() {
+      var e, n, o, t = {},
+        i = function() {
           var e, n = {};
           _.each(_.keys(TS.model.emoji_use), function(a) {
             e = TS.emoji.nameToCanonicalName(a.split("::")[0]), n.hasOwnProperty(e) || (n[e] = 0), n[e] += TS.model.emoji_use[a];
@@ -1318,7 +1326,7 @@ webpackJsonp([12, 328, 337, 329], {
           for (var o, t = ["slightly_smiling_face", "heart", "+1", "100", "bug"]; a.length < 5 && t.length;) o = t.shift(), -1 === a.indexOf(o) && a.push(o);
           return TS.emoji.spliceSkinToneVariationsIntoAnArrayOfEmojiNames(a), a;
         },
-        i = function(n) {
+        r = function(n) {
           e = n;
           var a = _.find(_.get(TS.model, "emoji_groups"), {
             name: "mine"
@@ -1326,27 +1334,27 @@ webpackJsonp([12, 328, 337, 329], {
           a || TS.emoji.makeMenuLists();
           var o = [];
           e.forEach(function(e) {
-            var n = d[e];
+            var n = m[e];
             n && o.push(n);
           }), a.items = o;
         },
-        r = function() {
-          return n = n || s();
-        },
         s = function() {
+          return o = o || l();
+        },
+        l = function() {
           var e, n = {};
-          return Object.keys(c.data).forEach(function(a) {
-            e = c.data[a], n[e[3][0]] = null, e[3].forEach(function(a) {
+          return Object.keys(d.data).forEach(function(a) {
+            e = d.data[a], n[e[3][0]] = null, e[3].forEach(function(a) {
               n.hasOwnProperty(a) || (n[a] = e[3][0]);
             });
           }), n;
         },
-        l = function(e, n) {
-          return TS.boot_data.feature_update_emoji_to_v4 ? !(!c.variations_data[e] || !c.variations_data[e][n]) : !!c.variations_data[e + "-" + n];
+        c = function(e, n) {
+          return TS.boot_data.feature_update_emoji_to_v4 ? !(!d.variations_data[e] || !d.variations_data[e][n]) : !!d.variations_data[e + "-" + n];
         },
-        c = emoji,
-        d = {},
-        m = [{
+        d = emoji,
+        m = {},
+        u = [{
           name: "people",
           display_name: TS.i18n.t("People", "emoji")(),
           tab_icon_html: '<span class="emoji-sizer"><i class="ts_icon ts_icon_happy_smile"></i></span>',
@@ -1403,44 +1411,44 @@ webpackJsonp([12, 328, 337, 329], {
           tab_icon_name: "flag",
           emoji_names: ["flag-ac", "flag-ad", "flag-ae", "flag-af", "flag-ag", "flag-ai", "flag-al", "flag-am", "flag-ao", "flag-aq", "flag-ar", "flag-as", "flag-at", "flag-au", "flag-aw", "flag-ax", "flag-az", "flag-ba", "flag-bb", "flag-bd", "flag-be", "flag-bf", "flag-bg", "flag-bh", "flag-bi", "flag-bj", "flag-bl", "flag-bm", "flag-bn", "flag-bo", "flag-bq", "flag-br", "flag-bs", "flag-bt", "flag-bv", "flag-bw", "flag-by", "flag-bz", "flag-ca", "flag-cc", "flag-cd", "flag-cf", "flag-cg", "flag-ch", "flag-ci", "flag-ck", "flag-cl", "flag-cm", "flag-cn", "flag-co", "flag-cp", "flag-cr", "flag-cu", "flag-cv", "flag-cw", "flag-cx", "flag-cy", "flag-cz", "flag-de", "flag-dg", "flag-dj", "flag-dk", "flag-dm", "flag-do", "flag-dz", "flag-ea", "flag-ec", "flag-ee", "flag-eg", "flag-eh", "flag-er", "flag-es", "flag-et", "flag-eu", "flag-fi", "flag-fj", "flag-fk", "flag-fm", "flag-fo", "flag-fr", "flag-ga", "flag-gb", "flag-gd", "flag-ge", "flag-gf", "flag-gg", "flag-gh", "flag-gi", "flag-gl", "flag-gm", "flag-gn", "flag-gp", "flag-gq", "flag-gr", "flag-gs", "flag-gt", "flag-gu", "flag-gw", "flag-gy", "flag-hk", "flag-hm", "flag-hn", "flag-hr", "flag-ht", "flag-hu", "flag-ic", "flag-id", "flag-ie", "flag-il", "flag-im", "flag-in", "flag-io", "flag-iq", "flag-ir", "flag-is", "flag-it", "flag-je", "flag-jm", "flag-jo", "flag-jp", "flag-ke", "flag-kg", "flag-kh", "flag-ki", "flag-km", "flag-kn", "flag-kp", "flag-kr", "flag-kw", "flag-ky", "flag-kz", "flag-la", "flag-lb", "flag-lc", "flag-li", "flag-lk", "flag-lr", "flag-ls", "flag-lt", "flag-lu", "flag-lv", "flag-ly", "flag-ma", "flag-mc", "flag-md", "flag-me", "flag-mf", "flag-mg", "flag-mh", "flag-mk", "flag-ml", "flag-mm", "flag-mn", "flag-mo", "flag-mp", "flag-mq", "flag-mr", "flag-ms", "flag-mt", "flag-mu", "flag-mv", "flag-mw", "flag-mx", "flag-my", "flag-mz", "flag-na", "flag-nc", "flag-ne", "flag-nf", "flag-ng", "flag-ni", "flag-nl", "flag-no", "flag-np", "flag-nr", "flag-nu", "flag-nz", "flag-om", "flag-pa", "flag-pe", "flag-pf", "flag-pg", "flag-ph", "flag-pk", "flag-pl", "flag-pm", "flag-pn", "flag-pr", "flag-ps", "flag-pt", "flag-pw", "flag-py", "flag-qa", "flag-re", "flag-ro", "flag-rs", "flag-ru", "flag-rw", "flag-sa", "flag-sb", "flag-sc", "flag-sd", "flag-se", "flag-sg", "flag-sh", "flag-si", "flag-sj", "flag-sk", "flag-sl", "flag-sm", "flag-sn", "flag-so", "flag-sr", "flag-ss", "flag-st", "flag-sv", "flag-sx", "flag-sy", "flag-sz", "flag-ta", "flag-tc", "flag-td", "flag-tf", "flag-tg", "flag-th", "flag-tj", "flag-tk", "flag-tl", "flag-tm", "flag-tn", "flag-to", "flag-tr", "flag-tt", "flag-tv", "flag-tw", "flag-tz", "flag-ua", "flag-ug", "flag-um", "flag-us", "flag-uy", "flag-uz", "flag-va", "flag-vc", "flag-ve", "flag-vg", "flag-vi", "flag-vn", "flag-vu", "flag-wf", "flag-ws", "flag-xk", "flag-ye", "flag-yt", "flag-za", "flag-zm", "flag-zw"]
         }];
-      TS.boot_data.feature_update_emoji_to_v4 || m.forEach(function(e) {
+      TS.boot_data.feature_update_emoji_to_v4 || u.forEach(function(e) {
         TS.emoji.spliceSkinToneVariationsIntoAnArrayOfEmojiNames(e.emoji_names);
       });
-      var u = function() {
-          _.find(m, {
+      var g = function() {
+          _.find(u, {
             name: "people"
-          }).emoji_names = ["grinning", "smiley", "smile", "grin", "laughing", "sweat_smile", "joy", "rolling_on_the_floor_laughing", "relaxed", "blush", "innocent", "slightly_smiling_face", "upside_down_face", "wink", "relieved", "heart_eyes", "kissing_heart", "kissing", "kissing_smiling_eyes", "kissing_closed_eyes", "yum", "stuck_out_tongue_winking_eye", "stuck_out_tongue_closed_eyes", "stuck_out_tongue", "money_mouth_face", "hugging_face", "nerd_face", "sunglasses", "clown_face", "face_with_cowboy_hat", "smirk", "unamused", "disappointed", "pensive", "worried", "confused", "slightly_frowning_face", "white_frowning_face", "persevere", "confounded", "tired_face", "weary", "triumph", "angry", "rage", "no_mouth", "neutral_face", "expressionless", "hushed", "frowning", "anguished", "open_mouth", "astonished", "dizzy_face", "flushed", "scream", "fearful", "cold_sweat", "cry", "disappointed_relieved", "drooling_face", "sob", "sweat", "sleepy", "sleeping", "face_with_rolling_eyes", "thinking_face", "lying_face", "grimacing", "zipper_mouth_face", "nauseated_face", "sneezing_face", "mask", "face_with_thermometer", "face_with_head_bandage", "smiling_imp", "imp", "japanese_ogre", "japanese_goblin", "hankey", "ghost", "skull", "skull_and_crossbones", "alien", "space_invader", "robot_face", "jack_o_lantern", "smiley_cat", "smile_cat", "joy_cat", "heart_eyes_cat", "smirk_cat", "kissing_cat", "scream_cat", "crying_cat_face", "pouting_cat", "open_hands", "raised_hands", "clap", "pray", "handshake", "+1", "-1", "facepunch", "fist", "left-facing_fist", "right-facing_fist", "hand_with_index_and_middle_fingers_crossed", "v", "the_horns", "ok_hand", "point_left", "point_right", "point_up_2", "point_down", "point_up", "hand", "raised_back_of_hand", "raised_hand_with_fingers_splayed", "spock-hand", "wave", "call_me_hand", "muscle", "middle_finger", "writing_hand", "selfie", "nail_care", "ring", "lipstick", "kiss", "lips", "tongue", "ear", "nose", "footprints", "eye", "eyes", "speaking_head_in_silhouette", "bust_in_silhouette", "busts_in_silhouette", "baby", "boy", "girl", "man", "woman", "blond-haired-woman", "person_with_blond_hair", "older_man", "older_woman", "man_with_gua_pi_mao", "woman-wearing-turban", "man_with_turban", "female-police-officer", "cop", "female-construction-worker", "construction_worker", "female-guard", "guardsman", "female-detective", "sleuth_or_spy", "female-doctor", "male-doctor", "female-farmer", "male-farmer", "female-cook", "male-cook", "female-student", "male-student", "female-singer", "male-singer", "female-teacher", "male-teacher", "female-factory-worker", "male-factory-worker", "female-technologist", "male-technologist", "female-office-worker", "male-office-worker", "female-mechanic", "male-mechanic", "female-scientist", "male-scientist", "female-artist", "male-artist", "female-firefighter", "male-firefighter", "female-pilot", "male-pilot", "female-astronaut", "male-astronaut", "female-judge", "male-judge", "mother_christmas", "santa", "princess", "prince", "bride_with_veil", "man_in_tuxedo", "angel", "pregnant_woman", "woman-bowing", "bow", "information_desk_person", "man-tipping-hand", "no_good", "man-gesturing-no", "ok_woman", "man-gesturing-ok", "raising_hand", "man-raising-hand", "face_palm", "woman-facepalming", "man-facepalming", "shrug", "woman-shrugging", "man-shrugging", "person_with_pouting_face", "man-pouting", "person_frowning", "man-frowning", "haircut", "man-getting-haircut", "massage", "man-getting-massage", "man_in_business_suit_levitating", "dancer", "man_dancing", "dancers", "man-with-bunny-ears-partying", "woman-walking", "walking", "woman-running", "runner", "couple", "two_women_holding_hands", "two_men_holding_hands", "couple_with_heart", "woman-heart-woman", "man-heart-man", "couplekiss", "woman-kiss-woman", "man-kiss-man", "family", "man-woman-girl", "man-woman-girl-boy", "man-woman-boy-boy", "man-woman-girl-girl", "woman-woman-boy", "woman-woman-girl", "woman-woman-girl-boy", "woman-woman-boy-boy", "woman-woman-girl-girl", "man-man-boy", "man-man-girl", "man-man-girl-boy", "man-man-boy-boy", "man-man-girl-girl", "woman-boy", "woman-girl", "woman-girl-boy", "woman-boy-boy", "woman-girl-girl", "man-boy", "man-girl", "man-girl-boy", "man-boy-boy", "man-girl-girl", "womans_clothes", "shirt", "jeans", "necktie", "dress", "bikini", "kimono", "high_heel", "sandal", "boot", "mans_shoe", "athletic_shoe", "womans_hat", "tophat", "mortar_board", "crown", "helmet_with_white_cross", "school_satchel", "pouch", "purse", "handbag", "briefcase", "eyeglasses", "dark_sunglasses", "closed_umbrella", "umbrella", "man-woman-boy", "woman-heart-man", "woman-kiss-man", "male-police-officer", "blond-haired-man", "man-wearing-turban", "male-construction-worker", "male-guard", "male-detective", "woman-with-bunny-ears-partying", "man-running", "woman-getting-massage", "woman-getting-haircut", "man-walking", "woman-tipping-hand", "woman-gesturing-no", "woman-gesturing-ok", "man-bowing", "woman-raising-hand", "woman-frowning", "woman-pouting"], _.find(m, {
+          }).emoji_names = ["grinning", "smiley", "smile", "grin", "laughing", "sweat_smile", "joy", "rolling_on_the_floor_laughing", "relaxed", "blush", "innocent", "slightly_smiling_face", "upside_down_face", "wink", "relieved", "heart_eyes", "kissing_heart", "kissing", "kissing_smiling_eyes", "kissing_closed_eyes", "yum", "stuck_out_tongue_winking_eye", "stuck_out_tongue_closed_eyes", "stuck_out_tongue", "money_mouth_face", "hugging_face", "nerd_face", "sunglasses", "clown_face", "face_with_cowboy_hat", "smirk", "unamused", "disappointed", "pensive", "worried", "confused", "slightly_frowning_face", "white_frowning_face", "persevere", "confounded", "tired_face", "weary", "triumph", "angry", "rage", "no_mouth", "neutral_face", "expressionless", "hushed", "frowning", "anguished", "open_mouth", "astonished", "dizzy_face", "flushed", "scream", "fearful", "cold_sweat", "cry", "disappointed_relieved", "drooling_face", "sob", "sweat", "sleepy", "sleeping", "face_with_rolling_eyes", "thinking_face", "lying_face", "grimacing", "zipper_mouth_face", "nauseated_face", "sneezing_face", "mask", "face_with_thermometer", "face_with_head_bandage", "smiling_imp", "imp", "japanese_ogre", "japanese_goblin", "hankey", "ghost", "skull", "skull_and_crossbones", "alien", "space_invader", "robot_face", "jack_o_lantern", "smiley_cat", "smile_cat", "joy_cat", "heart_eyes_cat", "smirk_cat", "kissing_cat", "scream_cat", "crying_cat_face", "pouting_cat", "open_hands", "raised_hands", "clap", "pray", "handshake", "+1", "-1", "facepunch", "fist", "left-facing_fist", "right-facing_fist", "hand_with_index_and_middle_fingers_crossed", "v", "the_horns", "ok_hand", "point_left", "point_right", "point_up_2", "point_down", "point_up", "hand", "raised_back_of_hand", "raised_hand_with_fingers_splayed", "spock-hand", "wave", "call_me_hand", "muscle", "middle_finger", "writing_hand", "selfie", "nail_care", "ring", "lipstick", "kiss", "lips", "tongue", "ear", "nose", "footprints", "eye", "eyes", "speaking_head_in_silhouette", "bust_in_silhouette", "busts_in_silhouette", "baby", "boy", "girl", "man", "woman", "blond-haired-woman", "person_with_blond_hair", "older_man", "older_woman", "man_with_gua_pi_mao", "woman-wearing-turban", "man_with_turban", "female-police-officer", "cop", "female-construction-worker", "construction_worker", "female-guard", "guardsman", "female-detective", "sleuth_or_spy", "female-doctor", "male-doctor", "female-farmer", "male-farmer", "female-cook", "male-cook", "female-student", "male-student", "female-singer", "male-singer", "female-teacher", "male-teacher", "female-factory-worker", "male-factory-worker", "female-technologist", "male-technologist", "female-office-worker", "male-office-worker", "female-mechanic", "male-mechanic", "female-scientist", "male-scientist", "female-artist", "male-artist", "female-firefighter", "male-firefighter", "female-pilot", "male-pilot", "female-astronaut", "male-astronaut", "female-judge", "male-judge", "mother_christmas", "santa", "princess", "prince", "bride_with_veil", "man_in_tuxedo", "angel", "pregnant_woman", "woman-bowing", "bow", "information_desk_person", "man-tipping-hand", "no_good", "man-gesturing-no", "ok_woman", "man-gesturing-ok", "raising_hand", "man-raising-hand", "face_palm", "woman-facepalming", "man-facepalming", "shrug", "woman-shrugging", "man-shrugging", "person_with_pouting_face", "man-pouting", "person_frowning", "man-frowning", "haircut", "man-getting-haircut", "massage", "man-getting-massage", "man_in_business_suit_levitating", "dancer", "man_dancing", "dancers", "man-with-bunny-ears-partying", "woman-walking", "walking", "woman-running", "runner", "couple", "two_women_holding_hands", "two_men_holding_hands", "couple_with_heart", "woman-heart-woman", "man-heart-man", "couplekiss", "woman-kiss-woman", "man-kiss-man", "family", "man-woman-girl", "man-woman-girl-boy", "man-woman-boy-boy", "man-woman-girl-girl", "woman-woman-boy", "woman-woman-girl", "woman-woman-girl-boy", "woman-woman-boy-boy", "woman-woman-girl-girl", "man-man-boy", "man-man-girl", "man-man-girl-boy", "man-man-boy-boy", "man-man-girl-girl", "woman-boy", "woman-girl", "woman-girl-boy", "woman-boy-boy", "woman-girl-girl", "man-boy", "man-girl", "man-girl-boy", "man-boy-boy", "man-girl-girl", "womans_clothes", "shirt", "jeans", "necktie", "dress", "bikini", "kimono", "high_heel", "sandal", "boot", "mans_shoe", "athletic_shoe", "womans_hat", "tophat", "mortar_board", "crown", "helmet_with_white_cross", "school_satchel", "pouch", "purse", "handbag", "briefcase", "eyeglasses", "dark_sunglasses", "closed_umbrella", "umbrella", "man-woman-boy", "woman-heart-man", "woman-kiss-man", "male-police-officer", "blond-haired-man", "man-wearing-turban", "male-construction-worker", "male-guard", "male-detective", "woman-with-bunny-ears-partying", "man-running", "woman-getting-massage", "woman-getting-haircut", "man-walking", "woman-tipping-hand", "woman-gesturing-no", "woman-gesturing-ok", "man-bowing", "woman-raising-hand", "woman-frowning", "woman-pouting"], _.find(u, {
             name: "nature"
-          }).emoji_names = ["dog", "cat", "mouse", "hamster", "rabbit", "fox_face", "bear", "panda_face", "koala", "tiger", "lion_face", "cow", "pig", "pig_nose", "frog", "monkey_face", "see_no_evil", "hear_no_evil", "speak_no_evil", "monkey", "chicken", "penguin", "bird", "baby_chick", "hatching_chick", "hatched_chick", "duck", "eagle", "owl", "bat", "wolf", "boar", "horse", "unicorn_face", "bee", "bug", "butterfly", "snail", "shell", "beetle", "ant", "spider", "spider_web", "turtle", "snake", "lizard", "scorpion", "crab", "squid", "octopus", "shrimp", "tropical_fish", "fish", "blowfish", "dolphin", "shark", "whale", "whale2", "crocodile", "leopard", "tiger2", "water_buffalo", "ox", "cow2", "deer", "dromedary_camel", "camel", "elephant", "rhinoceros", "gorilla", "racehorse", "pig2", "goat", "ram", "sheep", "dog2", "poodle", "cat2", "rooster", "turkey", "dove_of_peace", "rabbit2", "mouse2", "rat", "chipmunk", "feet", "dragon", "dragon_face", "cactus", "christmas_tree", "evergreen_tree", "deciduous_tree", "palm_tree", "seedling", "herb", "shamrock", "four_leaf_clover", "bamboo", "tanabata_tree", "leaves", "fallen_leaf", "maple_leaf", "mushroom", "ear_of_rice", "bouquet", "tulip", "rose", "wilted_flower", "sunflower", "blossom", "cherry_blossom", "hibiscus", "earth_americas", "earth_africa", "earth_asia", "full_moon", "waning_gibbous_moon", "last_quarter_moon", "waning_crescent_moon", "new_moon", "waxing_crescent_moon", "first_quarter_moon", "moon", "new_moon_with_face", "full_moon_with_face", "sun_with_face", "first_quarter_moon_with_face", "last_quarter_moon_with_face", "crescent_moon", "dizzy", "star", "star2", "sparkles", "zap", "fire", "boom", "comet", "sunny", "mostly_sunny", "partly_sunny", "barely_sunny", "partly_sunny_rain", "rainbow", "cloud", "rain_cloud", "thunder_cloud_and_rain", "lightning", "snow_cloud", "snowman", "snowman_without_snow", "snowflake", "wind_blowing_face", "dash", "tornado", "fog", "ocean", "droplet", "sweat_drops", "umbrella_with_rain_drops"], _.find(m, {
+          }).emoji_names = ["dog", "cat", "mouse", "hamster", "rabbit", "fox_face", "bear", "panda_face", "koala", "tiger", "lion_face", "cow", "pig", "pig_nose", "frog", "monkey_face", "see_no_evil", "hear_no_evil", "speak_no_evil", "monkey", "chicken", "penguin", "bird", "baby_chick", "hatching_chick", "hatched_chick", "duck", "eagle", "owl", "bat", "wolf", "boar", "horse", "unicorn_face", "bee", "bug", "butterfly", "snail", "shell", "beetle", "ant", "spider", "spider_web", "turtle", "snake", "lizard", "scorpion", "crab", "squid", "octopus", "shrimp", "tropical_fish", "fish", "blowfish", "dolphin", "shark", "whale", "whale2", "crocodile", "leopard", "tiger2", "water_buffalo", "ox", "cow2", "deer", "dromedary_camel", "camel", "elephant", "rhinoceros", "gorilla", "racehorse", "pig2", "goat", "ram", "sheep", "dog2", "poodle", "cat2", "rooster", "turkey", "dove_of_peace", "rabbit2", "mouse2", "rat", "chipmunk", "feet", "dragon", "dragon_face", "cactus", "christmas_tree", "evergreen_tree", "deciduous_tree", "palm_tree", "seedling", "herb", "shamrock", "four_leaf_clover", "bamboo", "tanabata_tree", "leaves", "fallen_leaf", "maple_leaf", "mushroom", "ear_of_rice", "bouquet", "tulip", "rose", "wilted_flower", "sunflower", "blossom", "cherry_blossom", "hibiscus", "earth_americas", "earth_africa", "earth_asia", "full_moon", "waning_gibbous_moon", "last_quarter_moon", "waning_crescent_moon", "new_moon", "waxing_crescent_moon", "first_quarter_moon", "moon", "new_moon_with_face", "full_moon_with_face", "sun_with_face", "first_quarter_moon_with_face", "last_quarter_moon_with_face", "crescent_moon", "dizzy", "star", "star2", "sparkles", "zap", "fire", "boom", "comet", "sunny", "mostly_sunny", "partly_sunny", "barely_sunny", "partly_sunny_rain", "rainbow", "cloud", "rain_cloud", "thunder_cloud_and_rain", "lightning", "snow_cloud", "snowman", "snowman_without_snow", "snowflake", "wind_blowing_face", "dash", "tornado", "fog", "ocean", "droplet", "sweat_drops", "umbrella_with_rain_drops"], _.find(u, {
             name: "food_and_drink"
-          }).emoji_names = ["green_apple", "apple", "pear", "tangerine", "lemon", "banana", "watermelon", "grapes", "strawberry", "melon", "cherries", "peach", "pineapple", "kiwifruit", "avocado", "tomato", "eggplant", "cucumber", "carrot", "corn", "hot_pepper", "potato", "sweet_potato", "chestnut", "peanuts", "honey_pot", "croissant", "bread", "baguette_bread", "cheese_wedge", "egg", "fried_egg", "bacon", "pancakes", "fried_shrimp", "poultry_leg", "meat_on_bone", "pizza", "hotdog", "hamburger", "fries", "stuffed_flatbread", "taco", "burrito", "green_salad", "shallow_pan_of_food", "spaghetti", "ramen", "stew", "fish_cake", "sushi", "bento", "curry", "rice", "rice_ball", "rice_cracker", "oden", "dango", "shaved_ice", "ice_cream", "icecream", "cake", "birthday", "custard", "lollipop", "candy", "chocolate_bar", "popcorn", "doughnut", "cookie", "glass_of_milk", "baby_bottle", "coffee", "tea", "sake", "beer", "beers", "clinking_glasses", "wine_glass", "tumbler_glass", "cocktail", "tropical_drink", "champagne", "spoon", "fork_and_knife", "knife_fork_plate"], _.find(m, {
+          }).emoji_names = ["green_apple", "apple", "pear", "tangerine", "lemon", "banana", "watermelon", "grapes", "strawberry", "melon", "cherries", "peach", "pineapple", "kiwifruit", "avocado", "tomato", "eggplant", "cucumber", "carrot", "corn", "hot_pepper", "potato", "sweet_potato", "chestnut", "peanuts", "honey_pot", "croissant", "bread", "baguette_bread", "cheese_wedge", "egg", "fried_egg", "bacon", "pancakes", "fried_shrimp", "poultry_leg", "meat_on_bone", "pizza", "hotdog", "hamburger", "fries", "stuffed_flatbread", "taco", "burrito", "green_salad", "shallow_pan_of_food", "spaghetti", "ramen", "stew", "fish_cake", "sushi", "bento", "curry", "rice", "rice_ball", "rice_cracker", "oden", "dango", "shaved_ice", "ice_cream", "icecream", "cake", "birthday", "custard", "lollipop", "candy", "chocolate_bar", "popcorn", "doughnut", "cookie", "glass_of_milk", "baby_bottle", "coffee", "tea", "sake", "beer", "beers", "clinking_glasses", "wine_glass", "tumbler_glass", "cocktail", "tropical_drink", "champagne", "spoon", "fork_and_knife", "knife_fork_plate"], _.find(u, {
             name: "activity"
-          }).emoji_names = ["soccer", "basketball", "football", "baseball", "tennis", "volleyball", "rugby_football", "8ball", "table_tennis_paddle_and_ball", "badminton_racquet_and_shuttlecock", "goal_net", "ice_hockey_stick_and_puck", "field_hockey_stick_and_ball", "cricket_bat_and_ball", "golf", "bow_and_arrow", "fishing_pole_and_fish", "boxing_glove", "martial_arts_uniform", "ice_skate", "ski", "skier", "snowboarder", "woman-lifting-weights", "weight_lifter", "fencer", "wrestlers", "woman-wrestling", "man-wrestling", "person_doing_cartwheel", "woman-cartwheeling", "man-cartwheeling", "woman-bouncing-ball", "person_with_ball", "handball", "woman-playing-handball", "man-playing-handball", "woman-golfing", "golfer", "woman-surfing", "surfer", "woman-swimming", "swimmer", "water_polo", "woman-playing-water-polo", "man-playing-water-polo", "woman-rowing-boat", "rowboat", "horse_racing", "woman-biking", "bicyclist", "woman-mountain-biking", "mountain_bicyclist", "running_shirt_with_sash", "sports_medal", "medal", "first_place_medal", "second_place_medal", "third_place_medal", "trophy", "rosette", "reminder_ribbon", "ticket", "admission_tickets", "circus_tent", "juggling", "woman-juggling", "man-juggling", "performing_arts", "art", "clapper", "microphone", "headphones", "musical_score", "musical_keyboard", "drum_with_drumsticks", "saxophone", "trumpet", "guitar", "violin", "game_die", "dart", "bowling", "video_game", "slot_machine", "man-bouncing-ball", "man-lifting-weights", "man-golfing", "man-surfing", "man-swimming", "man-rowing-boat", "man-biking", "man-mountain-biking"], _.find(m, {
+          }).emoji_names = ["soccer", "basketball", "football", "baseball", "tennis", "volleyball", "rugby_football", "8ball", "table_tennis_paddle_and_ball", "badminton_racquet_and_shuttlecock", "goal_net", "ice_hockey_stick_and_puck", "field_hockey_stick_and_ball", "cricket_bat_and_ball", "golf", "bow_and_arrow", "fishing_pole_and_fish", "boxing_glove", "martial_arts_uniform", "ice_skate", "ski", "skier", "snowboarder", "woman-lifting-weights", "weight_lifter", "fencer", "wrestlers", "woman-wrestling", "man-wrestling", "person_doing_cartwheel", "woman-cartwheeling", "man-cartwheeling", "woman-bouncing-ball", "person_with_ball", "handball", "woman-playing-handball", "man-playing-handball", "woman-golfing", "golfer", "woman-surfing", "surfer", "woman-swimming", "swimmer", "water_polo", "woman-playing-water-polo", "man-playing-water-polo", "woman-rowing-boat", "rowboat", "horse_racing", "woman-biking", "bicyclist", "woman-mountain-biking", "mountain_bicyclist", "running_shirt_with_sash", "sports_medal", "medal", "first_place_medal", "second_place_medal", "third_place_medal", "trophy", "rosette", "reminder_ribbon", "ticket", "admission_tickets", "circus_tent", "juggling", "woman-juggling", "man-juggling", "performing_arts", "art", "clapper", "microphone", "headphones", "musical_score", "musical_keyboard", "drum_with_drumsticks", "saxophone", "trumpet", "guitar", "violin", "game_die", "dart", "bowling", "video_game", "slot_machine", "man-bouncing-ball", "man-lifting-weights", "man-golfing", "man-surfing", "man-swimming", "man-rowing-boat", "man-biking", "man-mountain-biking"], _.find(u, {
             name: "travel_and_places"
-          }).emoji_names = ["car", "taxi", "blue_car", "bus", "trolleybus", "racing_car", "police_car", "ambulance", "fire_engine", "minibus", "truck", "articulated_lorry", "tractor", "scooter", "bike", "motor_scooter", "racing_motorcycle", "rotating_light", "oncoming_police_car", "oncoming_bus", "oncoming_automobile", "oncoming_taxi", "aerial_tramway", "mountain_cableway", "suspension_railway", "railway_car", "train", "mountain_railway", "monorail", "bullettrain_side", "bullettrain_front", "light_rail", "steam_locomotive", "train2", "metro", "tram", "station", "helicopter", "small_airplane", "airplane", "airplane_departure", "airplane_arriving", "rocket", "satellite", "seat", "canoe", "boat", "motor_boat", "speedboat", "passenger_ship", "ferry", "ship", "anchor", "construction", "fuelpump", "busstop", "vertical_traffic_light", "traffic_light", "world_map", "moyai", "statue_of_liberty", "fountain", "tokyo_tower", "european_castle", "japanese_castle", "stadium", "ferris_wheel", "roller_coaster", "carousel_horse", "umbrella_on_ground", "beach_with_umbrella", "desert_island", "mountain", "snow_capped_mountain", "mount_fuji", "volcano", "desert", "camping", "tent", "railway_track", "motorway", "building_construction", "factory", "house", "house_with_garden", "house_buildings", "derelict_house_building", "office", "department_store", "post_office", "european_post_office", "hospital", "bank", "hotel", "convenience_store", "school", "love_hotel", "wedding", "classical_building", "church", "mosque", "synagogue", "kaaba", "shinto_shrine", "japan", "rice_scene", "national_park", "sunrise", "sunrise_over_mountains", "stars", "sparkler", "fireworks", "city_sunrise", "city_sunset", "cityscape", "night_with_stars", "milky_way", "bridge_at_night", "foggy"], _.find(m, {
+          }).emoji_names = ["car", "taxi", "blue_car", "bus", "trolleybus", "racing_car", "police_car", "ambulance", "fire_engine", "minibus", "truck", "articulated_lorry", "tractor", "scooter", "bike", "motor_scooter", "racing_motorcycle", "rotating_light", "oncoming_police_car", "oncoming_bus", "oncoming_automobile", "oncoming_taxi", "aerial_tramway", "mountain_cableway", "suspension_railway", "railway_car", "train", "mountain_railway", "monorail", "bullettrain_side", "bullettrain_front", "light_rail", "steam_locomotive", "train2", "metro", "tram", "station", "helicopter", "small_airplane", "airplane", "airplane_departure", "airplane_arriving", "rocket", "satellite", "seat", "canoe", "boat", "motor_boat", "speedboat", "passenger_ship", "ferry", "ship", "anchor", "construction", "fuelpump", "busstop", "vertical_traffic_light", "traffic_light", "world_map", "moyai", "statue_of_liberty", "fountain", "tokyo_tower", "european_castle", "japanese_castle", "stadium", "ferris_wheel", "roller_coaster", "carousel_horse", "umbrella_on_ground", "beach_with_umbrella", "desert_island", "mountain", "snow_capped_mountain", "mount_fuji", "volcano", "desert", "camping", "tent", "railway_track", "motorway", "building_construction", "factory", "house", "house_with_garden", "house_buildings", "derelict_house_building", "office", "department_store", "post_office", "european_post_office", "hospital", "bank", "hotel", "convenience_store", "school", "love_hotel", "wedding", "classical_building", "church", "mosque", "synagogue", "kaaba", "shinto_shrine", "japan", "rice_scene", "national_park", "sunrise", "sunrise_over_mountains", "stars", "sparkler", "fireworks", "city_sunrise", "city_sunset", "cityscape", "night_with_stars", "milky_way", "bridge_at_night", "foggy"], _.find(u, {
             name: "objects"
-          }).emoji_names = ["watch", "iphone", "calling", "computer", "keyboard", "desktop_computer", "printer", "three_button_mouse", "trackball", "joystick", "compression", "minidisc", "floppy_disk", "cd", "dvd", "vhs", "camera", "camera_with_flash", "video_camera", "movie_camera", "film_projector", "film_frames", "telephone_receiver", "phone", "pager", "fax", "tv", "radio", "studio_microphone", "level_slider", "control_knobs", "stopwatch", "timer_clock", "alarm_clock", "mantelpiece_clock", "hourglass", "hourglass_flowing_sand", "satellite_antenna", "battery", "electric_plug", "bulb", "flashlight", "candle", "wastebasket", "oil_drum", "money_with_wings", "dollar", "yen", "euro", "pound", "moneybag", "credit_card", "gem", "scales", "wrench", "hammer", "hammer_and_pick", "hammer_and_wrench", "pick", "nut_and_bolt", "gear", "chains", "gun", "bomb", "hocho", "dagger_knife", "crossed_swords", "shield", "smoking", "coffin", "funeral_urn", "amphora", "crystal_ball", "prayer_beads", "barber", "alembic", "telescope", "microscope", "hole", "pill", "syringe", "thermometer", "toilet", "potable_water", "shower", "bathtub", "bath", "bellhop_bell", "key", "old_key", "door", "couch_and_lamp", "bed", "sleeping_accommodation", "frame_with_picture", "shopping_bags", "shopping_trolley", "gift", "balloon", "flags", "ribbon", "confetti_ball", "tada", "dolls", "izakaya_lantern", "wind_chime", "email", "envelope_with_arrow", "incoming_envelope", "e-mail", "love_letter", "inbox_tray", "outbox_tray", "package", "label", "mailbox_closed", "mailbox", "mailbox_with_mail", "mailbox_with_no_mail", "postbox", "postal_horn", "scroll", "page_with_curl", "page_facing_up", "bookmark_tabs", "bar_chart", "chart_with_upwards_trend", "chart_with_downwards_trend", "spiral_note_pad", "spiral_calendar_pad", "calendar", "date", "card_index", "card_file_box", "ballot_box_with_ballot", "file_cabinet", "clipboard", "file_folder", "open_file_folder", "card_index_dividers", "rolled_up_newspaper", "newspaper", "notebook", "notebook_with_decorative_cover", "ledger", "closed_book", "green_book", "blue_book", "orange_book", "books", "book", "bookmark", "link", "paperclip", "linked_paperclips", "triangular_ruler", "straight_ruler", "pushpin", "round_pushpin", "scissors", "lower_left_ballpoint_pen", "lower_left_fountain_pen", "black_nib", "lower_left_paintbrush", "lower_left_crayon", "memo", "pencil2", "mag", "mag_right", "lock_with_ink_pen", "closed_lock_with_key", "lock", "unlock"], _.find(m, {
+          }).emoji_names = ["watch", "iphone", "calling", "computer", "keyboard", "desktop_computer", "printer", "three_button_mouse", "trackball", "joystick", "compression", "minidisc", "floppy_disk", "cd", "dvd", "vhs", "camera", "camera_with_flash", "video_camera", "movie_camera", "film_projector", "film_frames", "telephone_receiver", "phone", "pager", "fax", "tv", "radio", "studio_microphone", "level_slider", "control_knobs", "stopwatch", "timer_clock", "alarm_clock", "mantelpiece_clock", "hourglass", "hourglass_flowing_sand", "satellite_antenna", "battery", "electric_plug", "bulb", "flashlight", "candle", "wastebasket", "oil_drum", "money_with_wings", "dollar", "yen", "euro", "pound", "moneybag", "credit_card", "gem", "scales", "wrench", "hammer", "hammer_and_pick", "hammer_and_wrench", "pick", "nut_and_bolt", "gear", "chains", "gun", "bomb", "hocho", "dagger_knife", "crossed_swords", "shield", "smoking", "coffin", "funeral_urn", "amphora", "crystal_ball", "prayer_beads", "barber", "alembic", "telescope", "microscope", "hole", "pill", "syringe", "thermometer", "toilet", "potable_water", "shower", "bathtub", "bath", "bellhop_bell", "key", "old_key", "door", "couch_and_lamp", "bed", "sleeping_accommodation", "frame_with_picture", "shopping_bags", "shopping_trolley", "gift", "balloon", "flags", "ribbon", "confetti_ball", "tada", "dolls", "izakaya_lantern", "wind_chime", "email", "envelope_with_arrow", "incoming_envelope", "e-mail", "love_letter", "inbox_tray", "outbox_tray", "package", "label", "mailbox_closed", "mailbox", "mailbox_with_mail", "mailbox_with_no_mail", "postbox", "postal_horn", "scroll", "page_with_curl", "page_facing_up", "bookmark_tabs", "bar_chart", "chart_with_upwards_trend", "chart_with_downwards_trend", "spiral_note_pad", "spiral_calendar_pad", "calendar", "date", "card_index", "card_file_box", "ballot_box_with_ballot", "file_cabinet", "clipboard", "file_folder", "open_file_folder", "card_index_dividers", "rolled_up_newspaper", "newspaper", "notebook", "notebook_with_decorative_cover", "ledger", "closed_book", "green_book", "blue_book", "orange_book", "books", "book", "bookmark", "link", "paperclip", "linked_paperclips", "triangular_ruler", "straight_ruler", "pushpin", "round_pushpin", "scissors", "lower_left_ballpoint_pen", "lower_left_fountain_pen", "black_nib", "lower_left_paintbrush", "lower_left_crayon", "memo", "pencil2", "mag", "mag_right", "lock_with_ink_pen", "closed_lock_with_key", "lock", "unlock"], _.find(u, {
             name: "symbols"
-          }).emoji_names = ["heart", "yellow_heart", "green_heart", "blue_heart", "purple_heart", "black_heart", "broken_heart", "heavy_heart_exclamation_mark_ornament", "two_hearts", "revolving_hearts", "heartbeat", "heartpulse", "sparkling_heart", "cupid", "gift_heart", "heart_decoration", "peace_symbol", "latin_cross", "star_and_crescent", "om_symbol", "wheel_of_dharma", "star_of_david", "six_pointed_star", "menorah_with_nine_branches", "yin_yang", "orthodox_cross", "place_of_worship", "ophiuchus", "aries", "taurus", "gemini", "cancer", "leo", "virgo", "libra", "scorpius", "sagittarius", "capricorn", "aquarius", "pisces", "id", "atom_symbol", "accept", "radioactive_sign", "biohazard_sign", "mobile_phone_off", "vibration_mode", "u6709", "u7121", "u7533", "u55b6", "u6708", "eight_pointed_black_star", "vs", "white_flower", "ideograph_advantage", "secret", "congratulations", "u5408", "u6e80", "u5272", "u7981", "a", "b", "ab", "cl", "o2", "sos", "x", "o", "octagonal_sign", "no_entry", "name_badge", "no_entry_sign", "100", "anger", "hotsprings", "no_pedestrians", "do_not_litter", "no_bicycles", "non-potable_water", "underage", "no_mobile_phones", "no_smoking", "exclamation", "grey_exclamation", "question", "grey_question", "bangbang", "interrobang", "low_brightness", "high_brightness", "part_alternation_mark", "warning", "children_crossing", "trident", "fleur_de_lis", "beginner", "recycle", "white_check_mark", "u6307", "chart", "sparkle", "eight_spoked_asterisk", "negative_squared_cross_mark", "globe_with_meridians", "diamond_shape_with_a_dot_inside", "m", "cyclone", "zzz", "atm", "wc", "wheelchair", "parking", "u7a7a", "sa", "passport_control", "customs", "baggage_claim", "left_luggage", "mens", "womens", "baby_symbol", "restroom", "put_litter_in_its_place", "cinema", "signal_strength", "koko", "symbols", "information_source", "abc", "abcd", "capital_abcd", "ng", "ok", "up", "cool", "new", "free", "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "keycap_ten", "1234", "hash", "keycap_star", "arrow_forward", "double_vertical_bar", "black_right_pointing_triangle_with_double_vertical_bar", "black_square_for_stop", "eject", "black_circle_for_record", "black_right_pointing_double_triangle_with_vertical_bar", "black_left_pointing_double_triangle_with_vertical_bar", "fast_forward", "rewind", "arrow_double_up", "arrow_double_down", "arrow_backward", "arrow_up_small", "arrow_down_small", "arrow_right", "arrow_left", "arrow_up", "arrow_down", "arrow_upper_right", "arrow_lower_right", "arrow_lower_left", "arrow_upper_left", "arrow_up_down", "left_right_arrow", "arrow_right_hook", "leftwards_arrow_with_hook", "arrow_heading_up", "arrow_heading_down", "twisted_rightwards_arrows", "repeat", "repeat_one", "arrows_counterclockwise", "arrows_clockwise", "musical_note", "notes", "heavy_plus_sign", "heavy_minus_sign", "heavy_division_sign", "heavy_multiplication_x", "heavy_dollar_sign", "currency_exchange", "tm", "copyright", "registered", "wavy_dash", "curly_loop", "loop", "end", "back", "on", "top", "soon", "heavy_check_mark", "ballot_box_with_check", "radio_button", "white_circle", "black_circle", "red_circle", "large_blue_circle", "small_red_triangle", "small_red_triangle_down", "small_orange_diamond", "small_blue_diamond", "large_orange_diamond", "large_blue_diamond", "white_square_button", "black_square_button", "black_small_square", "white_small_square", "black_medium_small_square", "white_medium_small_square", "black_medium_square", "white_medium_square", "black_large_square", "white_large_square", "speaker", "mute", "sound", "loud_sound", "bell", "no_bell", "mega", "loudspeaker", "eye-in-speech-bubble", "speech_balloon", "left_speech_bubble", "thought_balloon", "right_anger_bubble", "spades", "clubs", "hearts", "diamonds", "black_joker", "flower_playing_cards", "mahjong", "clock1", "clock2", "clock3", "clock4", "clock5", "clock6", "clock7", "clock8", "clock9", "clock10", "clock11", "clock12", "clock130", "clock230", "clock330", "clock430", "clock530", "clock630", "clock730", "clock830", "clock930", "clock1030", "clock1130", "clock1230", "female_sign", "male_sign", "staff_of_aesculapius"], _.find(m, {
+          }).emoji_names = ["heart", "yellow_heart", "green_heart", "blue_heart", "purple_heart", "black_heart", "broken_heart", "heavy_heart_exclamation_mark_ornament", "two_hearts", "revolving_hearts", "heartbeat", "heartpulse", "sparkling_heart", "cupid", "gift_heart", "heart_decoration", "peace_symbol", "latin_cross", "star_and_crescent", "om_symbol", "wheel_of_dharma", "star_of_david", "six_pointed_star", "menorah_with_nine_branches", "yin_yang", "orthodox_cross", "place_of_worship", "ophiuchus", "aries", "taurus", "gemini", "cancer", "leo", "virgo", "libra", "scorpius", "sagittarius", "capricorn", "aquarius", "pisces", "id", "atom_symbol", "accept", "radioactive_sign", "biohazard_sign", "mobile_phone_off", "vibration_mode", "u6709", "u7121", "u7533", "u55b6", "u6708", "eight_pointed_black_star", "vs", "white_flower", "ideograph_advantage", "secret", "congratulations", "u5408", "u6e80", "u5272", "u7981", "a", "b", "ab", "cl", "o2", "sos", "x", "o", "octagonal_sign", "no_entry", "name_badge", "no_entry_sign", "100", "anger", "hotsprings", "no_pedestrians", "do_not_litter", "no_bicycles", "non-potable_water", "underage", "no_mobile_phones", "no_smoking", "exclamation", "grey_exclamation", "question", "grey_question", "bangbang", "interrobang", "low_brightness", "high_brightness", "part_alternation_mark", "warning", "children_crossing", "trident", "fleur_de_lis", "beginner", "recycle", "white_check_mark", "u6307", "chart", "sparkle", "eight_spoked_asterisk", "negative_squared_cross_mark", "globe_with_meridians", "diamond_shape_with_a_dot_inside", "m", "cyclone", "zzz", "atm", "wc", "wheelchair", "parking", "u7a7a", "sa", "passport_control", "customs", "baggage_claim", "left_luggage", "mens", "womens", "baby_symbol", "restroom", "put_litter_in_its_place", "cinema", "signal_strength", "koko", "symbols", "information_source", "abc", "abcd", "capital_abcd", "ng", "ok", "up", "cool", "new", "free", "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "keycap_ten", "1234", "hash", "keycap_star", "arrow_forward", "double_vertical_bar", "black_right_pointing_triangle_with_double_vertical_bar", "black_square_for_stop", "eject", "black_circle_for_record", "black_right_pointing_double_triangle_with_vertical_bar", "black_left_pointing_double_triangle_with_vertical_bar", "fast_forward", "rewind", "arrow_double_up", "arrow_double_down", "arrow_backward", "arrow_up_small", "arrow_down_small", "arrow_right", "arrow_left", "arrow_up", "arrow_down", "arrow_upper_right", "arrow_lower_right", "arrow_lower_left", "arrow_upper_left", "arrow_up_down", "left_right_arrow", "arrow_right_hook", "leftwards_arrow_with_hook", "arrow_heading_up", "arrow_heading_down", "twisted_rightwards_arrows", "repeat", "repeat_one", "arrows_counterclockwise", "arrows_clockwise", "musical_note", "notes", "heavy_plus_sign", "heavy_minus_sign", "heavy_division_sign", "heavy_multiplication_x", "heavy_dollar_sign", "currency_exchange", "tm", "copyright", "registered", "wavy_dash", "curly_loop", "loop", "end", "back", "on", "top", "soon", "heavy_check_mark", "ballot_box_with_check", "radio_button", "white_circle", "black_circle", "red_circle", "large_blue_circle", "small_red_triangle", "small_red_triangle_down", "small_orange_diamond", "small_blue_diamond", "large_orange_diamond", "large_blue_diamond", "white_square_button", "black_square_button", "black_small_square", "white_small_square", "black_medium_small_square", "white_medium_small_square", "black_medium_square", "white_medium_square", "black_large_square", "white_large_square", "speaker", "mute", "sound", "loud_sound", "bell", "no_bell", "mega", "loudspeaker", "eye-in-speech-bubble", "speech_balloon", "left_speech_bubble", "thought_balloon", "right_anger_bubble", "spades", "clubs", "hearts", "diamonds", "black_joker", "flower_playing_cards", "mahjong", "clock1", "clock2", "clock3", "clock4", "clock5", "clock6", "clock7", "clock8", "clock9", "clock10", "clock11", "clock12", "clock130", "clock230", "clock330", "clock430", "clock530", "clock630", "clock730", "clock830", "clock930", "clock1030", "clock1130", "clock1230", "female_sign", "male_sign", "staff_of_aesculapius"], _.find(u, {
             name: "flags"
           }).emoji_names = ["checkered_flag", "crossed_flags", "flag-ac", "flag-ad", "flag-ae", "flag-af", "flag-ag", "flag-ai", "flag-al", "flag-am", "flag-ao", "flag-aq", "flag-ar", "flag-as", "flag-at", "flag-au", "flag-aw", "flag-ax", "flag-az", "flag-ba", "flag-bb", "flag-bd", "flag-be", "flag-bf", "flag-bg", "flag-bh", "flag-bi", "flag-bj", "flag-bl", "flag-bm", "flag-bn", "flag-bo", "flag-bq", "flag-br", "flag-bs", "flag-bt", "flag-bv", "flag-bw", "flag-by", "flag-bz", "flag-ca", "flag-cc", "flag-cd", "flag-cf", "flag-cg", "flag-ch", "flag-ci", "flag-ck", "flag-cl", "flag-cm", "flag-cn", "flag-co", "flag-cp", "flag-cr", "flag-cu", "flag-cv", "flag-cw", "flag-cx", "flag-cy", "flag-cz", "flag-de", "flag-dg", "flag-dj", "flag-dk", "flag-dm", "flag-do", "flag-dz", "flag-ea", "flag-ec", "flag-ee", "flag-eg", "flag-eh", "flag-er", "flag-es", "flag-et", "flag-eu", "flag-fi", "flag-fj", "flag-fk", "flag-fm", "flag-fo", "flag-fr", "flag-ga", "flag-gb", "flag-gd", "flag-ge", "flag-gf", "flag-gg", "flag-gh", "flag-gi", "flag-gl", "flag-gm", "flag-gn", "flag-gp", "flag-gq", "flag-gr", "flag-gs", "flag-gt", "flag-gu", "flag-gw", "flag-gy", "flag-hk", "flag-hm", "flag-hn", "flag-hr", "flag-ht", "flag-hu", "flag-ic", "flag-id", "flag-ie", "flag-il", "flag-im", "flag-in", "flag-io", "flag-iq", "flag-ir", "flag-is", "flag-it", "flag-je", "flag-jm", "flag-jo", "flag-jp", "flag-ke", "flag-kg", "flag-kh", "flag-ki", "flag-km", "flag-kn", "flag-kp", "flag-kr", "flag-kw", "flag-ky", "flag-kz", "flag-la", "flag-lb", "flag-lc", "flag-li", "flag-lk", "flag-lr", "flag-ls", "flag-lt", "flag-lu", "flag-lv", "flag-ly", "flag-ma", "flag-mc", "flag-md", "flag-me", "flag-mf", "flag-mg", "flag-mh", "flag-mk", "flag-ml", "flag-mm", "flag-mn", "flag-mo", "flag-mp", "flag-mq", "flag-mr", "flag-ms", "flag-mt", "flag-mu", "flag-mv", "flag-mw", "flag-mx", "flag-my", "flag-mz", "flag-na", "flag-nc", "flag-ne", "flag-nf", "flag-ng", "flag-ni", "flag-nl", "flag-no", "flag-np", "flag-nr", "flag-nu", "flag-nz", "flag-om", "flag-pa", "flag-pe", "flag-pf", "flag-pg", "flag-ph", "flag-pk", "flag-pl", "flag-pm", "flag-pn", "flag-pr", "flag-ps", "flag-pt", "flag-pw", "flag-py", "flag-qa", "flag-re", "flag-ro", "flag-rs", "flag-ru", "flag-rw", "flag-sa", "flag-sb", "flag-sc", "flag-sd", "flag-se", "flag-sg", "flag-sh", "flag-si", "flag-sj", "flag-sk", "flag-sl", "flag-sm", "flag-sn", "flag-so", "flag-sr", "flag-ss", "flag-st", "flag-sv", "flag-sx", "flag-sy", "flag-sz", "flag-ta", "flag-tc", "flag-td", "flag-tf", "flag-tg", "flag-th", "flag-tj", "flag-tk", "flag-tl", "flag-tm", "flag-tn", "flag-to", "flag-tr", "flag-tt", "flag-tv", "flag-tw", "flag-tz", "flag-ua", "flag-ug", "flag-um", "flag-un", "flag-us", "flag-uy", "flag-uz", "flag-va", "flag-vc", "flag-ve", "flag-vg", "flag-vi", "flag-vn", "flag-vu", "flag-wf", "flag-ws", "flag-xk", "flag-ye", "flag-yt", "flag-za", "flag-zm", "flag-zw", "rainbow-flag", "triangular_flag_on_post", "waving_black_flag", "waving_white_flag"];
         },
-        g = function() {
+        f = function() {
           TS.emoji.setUpEmoji();
         },
-        f = function() {
+        p = function() {
           TS.client && TS.model.ms_logged_in_once && (TS.client.msg_pane.rebuildMsgsWithReason("_toggleJumbomoji"), TS.view.rebuildMentions(), TS.view.rebuildStars(), TS.model.previewed_file_id && TS.client.ui.files.rebuildFilePreview());
         },
-        p = function() {
-          c.unaltered_data && (c.data = _.cloneDeep(c.unaltered_data), c.inits = {}), c.ts_init_colons();
-        },
         h = function() {
+          d.unaltered_data && (d.data = _.cloneDeep(d.unaltered_data), d.inits = {}), d.ts_init_colons();
+        },
+        S = function() {
           TS.emoji.setEmojiMode(), TS.emoji.makeMenuLists();
           var e = !!TS.model.ms_logged_in_once;
           TS.client && e && TS.client.ui.rebuildAll(!1, !0);
         },
-        S = function(e, n, a) {
-          if (c) {
+        T = function(e, n, a) {
+          if (d) {
             var o = TS.storage.fetchCustomEmoji();
             if (!o) return void TS.emoji.resetUpEmoji();
             if (void 0 === n) {
@@ -1452,8 +1460,19 @@ webpackJsonp([12, 328, 337, 329], {
             TS.model.emoji_cache_ts = a, TS.storage.storeCustomEmoji({
               data: o.data,
               cache_ts: TS.model.emoji_cache_ts
-            }), p(), TS.emoji.ingestCustoms(o.data), h();
+            }), h(), TS.emoji.ingestCustoms(o.data), S();
           }
+        },
+        b = function() {
+          var e = TS.ui.frecency.getMostCommonWithPrefix("E", 36);
+          if (e = _.map(e, "id"), !e.length) return [];
+          var n = TS.emoji.getChosenSkinTone(!!TS.boot_data.feature_localization);
+          return _.chain(TS.model.emoji_map).filter(function(n) {
+            return e.includes(n.id);
+          }).map(function(e) {
+            var a = e.display_name;
+            return n && e.is_skin && (a = a + "::" + n), a;
+          }).value();
         };
     }();
   },

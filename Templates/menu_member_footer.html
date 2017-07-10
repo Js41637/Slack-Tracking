@@ -1,32 +1,16 @@
 {{i18n_ns "menu"}}
 
-{{#feature flag="feature_deleted_dm_archives"}}
-  {{#if member.is_stranger}}
+{{#if member.is_stranger}}
   <div class="menu_member_footer">
     <p class="menu_member_footer_notice no_bottom_margin">{{#t note="For members popup card"}}To interact with a person from another team, you need to be in at least one channel together.{{/t}}</p>
   </div>
-  {{else if member.deleted}}
-  {{else}}
-  <div class="menu_member_footer">
-    {{#feature flag="feature_texty_takes_over"}}
-      <div id="menu_member_dm_input"></div>
-    {{else}}
-      <input type="text" id="menu_member_dm_input" class="small" placeholder="{{#t name=(getPrefCompliantMemberName member false true)}}Message {name}{{/t}}">
-    {{/feature}}
-  </div>
-  {{/if}}
+{{else if member.deleted}}
 {{else}}
-<div class="menu_member_footer">
-  {{#if member.is_stranger}}
-    <p class="menu_member_footer_notice no_bottom_margin">{{#t note="For members popup card"}}To interact with a person from another team, you need to be in at least one channel together.{{/t}}</p>
-  {{else if member.deleted}}
-    <p class="menu_member_footer_notice no_bottom_margin">{{#t note="For members popup card"}}This account was deactivated.{{/t}}</p>
-  {{else}}
+  <div class="menu_member_footer">
     {{#feature flag="feature_texty_takes_over"}}
       <div id="menu_member_dm_input"></div>
     {{else}}
       <input type="text" id="menu_member_dm_input" class="small" placeholder="{{#t name=(getPrefCompliantMemberName member false true)}}Message {name}{{/t}}">
     {{/feature}}
-  {{/if}}
-</div>
-{{/feature}}
+  </div>
+{{/if}}

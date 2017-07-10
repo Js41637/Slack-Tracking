@@ -17,6 +17,11 @@
   <li><a data-filter="org_guests">{{#t note="Searchable member list filter option with total count of this type in an organization" total=org_guests_count}}
     Guest accounts <span>({total})</span>
   {{/t}}</a></li>
+  {{#feature flag="feature_retire_team_site_directory"}}
+    <li><a data-filter="org_bots">{{#t note="Searchable member list filter option with total count of this type in an organization" total=org_bots_count}}
+      Bots <span>({total})</span>
+    {{/t}}</a></li>
+  {{/feature}}
 
   <div class="section_header"><hr><span class="header_label menu_mini">{{team_name}}</span></div>
 
@@ -29,6 +34,11 @@
   <li><a data-filter="guests">{{#t note="Searchable member list filter option with total count of this type in a team" total=guests_count}}
     Guest accounts <span>({total})</span>
   {{/t}}</a></li>
+  {{#feature flag="feature_retire_team_site_directory"}}
+    <li><a data-filter="bots">{{#t note="Searchable member list filter option with total count of this type in a team" total=bots_count}}
+      Bots <span>({total})</span>
+    {{/t}}</a></li>
+  {{/feature}}
   {{#if ext_teams}}
     <div class="section_header"><hr><span class="header_label menu_mini">{{#t note="Filter menu section heading for external members filter option" org_name=org_name}}Teams Outside {org_name}{{/t}}</span></div>
     {{#each ext_teams}}
@@ -58,6 +68,11 @@
   <li><a data-filter="guests">{{#t note="Searchable member list filter option with total count of this type" total=guests_count}}
     Guest accounts <span>({total})</span>
   {{/t}}</a></li>
+  {{#feature flag="feature_retire_team_site_directory"}}
+    <li><a data-filter="bots">{{#t note="Searchable member list filter option with total count of this type" total=bots_count}}
+      Bots <span>({total})</span>
+    {{/t}}</a></li>
+  {{/feature}}
   {{#if ext_teams}}
     <li class="divider">
     {{#each ext_teams}}

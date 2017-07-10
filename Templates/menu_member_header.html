@@ -104,8 +104,7 @@
       </div>
     {{/shouldShowMemberRestrictionBanner}}
 
-    {{#feature flag="feature_deleted_dm_archives"}}
-      {{#unless member.is_restricted}}
+    {{#unless member.is_restricted}}
       {{#if member.deleted}}
         <div class="member_restriction_over_image">
           <span class="overflow_ellipsis lato_black">
@@ -114,8 +113,7 @@
           </span>
         </div>
       {{/if}}
-      {{/unless}}
-    {{/feature}}
+    {{/unless}}
 
   </div>
 
