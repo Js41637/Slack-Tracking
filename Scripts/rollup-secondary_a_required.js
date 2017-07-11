@@ -40564,21 +40564,23 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
       "use strict";
       TS.registerModule("redux.messages", {
         addMessages: function(e, t, n) {
-          if (TS.redux.dispatch(TS.interop.redux.entities.messages.addMessages(e)), t) {
-            var i = e && e[0] && e[0].channel,
-              r = _.map(e, "ts"),
-              a = {};
-            n && (a = {
-              oldest: _.min(r),
+          TS.redux.dispatch(TS.interop.redux.entities.messages.addMessages(e));
+          var i = _.reject(e, TS.utility.msgs.isMsgHidden);
+          if (!_.isEmpty(i) && t) {
+            var r = i && i[0] && i[0].channel,
+              a = _.map(i, "ts"),
+              s = {};
+            n && (s = {
+              oldest: _.min(a),
               hasMore: !1
             }), TS.redux.dispatch(TS.interop.redux.entities.channelHistory.addTimestamps(_.assign({
-              channelId: i,
-              timestamps: r
-            }, a)));
+              channelId: r,
+              timestamps: a
+            }, s)));
           }
         },
         addMessage: function(e) {
-          e && e.channel && e.ts && (TS.redux.dispatch(TS.interop.redux.entities.messages.addMessages([e])), TS.redux.dispatch(TS.interop.redux.entities.channelHistory.addTimestamps({
+          e && e.channel && e.ts && (TS.redux.dispatch(TS.interop.redux.entities.messages.addMessages([e])), TS.utility.msgs.isMsgHidden(e) || TS.redux.dispatch(TS.interop.redux.entities.channelHistory.addTimestamps({
             channelId: e.channel,
             timestamps: [e.ts]
           })));

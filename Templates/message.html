@@ -42,9 +42,11 @@
         {{/if}}
         {{#unless is_tombstone}}
         {{#feature flag="feature_shared_channels_client"}}
+            {{#unless member.is_unknown}}
             {{#if member.is_external}}
               {{> team_icon team=(getTeamById member.team_id) size=16}}
             {{/if}}
+            {{/unless}}
         {{/feature}}
           {{#if member}}
             {{{makeMemberPreviewLink member}}}

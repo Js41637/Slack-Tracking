@@ -21869,9 +21869,9 @@ webpackJsonp([332], [, function(e, t, n) {
 }, function(e, t, n) {
   t = e.exports = n(189)(), t.push([e.i, ".c-presence--active {\n  color: #93cc93;\n}\n.c-presence--away {\n  color: #717274;\n}\n", ""]);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.t-list-reset {\n  margin-bottom: 0;\n  margin-left: 0;\n  padding: 0;\n  list-style-type: none;\n}\n.c-tooltip__tip {\n  display: inline-block;\n  color: #FFFFFF;\n  background-color: #000;\n  max-width: 250px;\n  padding: 0.5rem;\n  border-radius: 4px;\n  position: relative;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 0.8125rem;\n  font-weight: 700;\n  text-align: center;\n}\n.c-tooltip__tip:after {\n  position: absolute;\n  content: '';\n  width: 0;\n  height: 0;\n  margin: -5px;\n  border: 6px solid transparent;\n}\n.c-tooltip__tip--left {\n  margin-right: 0.5rem;\n}\n.c-tooltip__tip--left:after {\n  border-left-color: #000;\n  right: -6px;\n  top: 50%;\n}\n.c-tooltip__tip--right {\n  margin-left: 0.5rem;\n}\n.c-tooltip__tip--right:after {\n  border-right-color: #000;\n  left: -6px;\n  top: 50%;\n}\n.c-tooltip__tip--top {\n  margin-bottom: 0.5rem;\n}\n.c-tooltip__tip--top:after {\n  border-top-color: #000;\n  bottom: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--top-left {\n  margin-bottom: 0.5rem;\n}\n.c-tooltip__tip--top-left:after {\n  border-top-color: #000;\n  bottom: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--top-left:after {\n  left: 25%;\n}\n.c-tooltip__tip--top-right {\n  margin-bottom: 0.5rem;\n}\n.c-tooltip__tip--top-right:after {\n  border-top-color: #000;\n  bottom: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--top-right:after {\n  left: 75%;\n}\n.c-tooltip__tip--bottom {\n  margin-top: 0.5rem;\n}\n.c-tooltip__tip--bottom:after {\n  border-bottom-color: #000;\n  top: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--bottom-left {\n  margin-top: 0.5rem;\n}\n.c-tooltip__tip--bottom-left:after {\n  border-bottom-color: #000;\n  top: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--bottom-left:after {\n  left: 25%;\n}\n.c-tooltip__tip--bottom-right {\n  margin-top: 0.5rem;\n}\n.c-tooltip__tip--bottom-right:after {\n  border-bottom-color: #000;\n  top: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--bottom-right:after {\n  left: 75%;\n}\n.c-tooltip__tip--success {\n  background-color: #29A979;\n}\n.c-tooltip__tip--success.c-tooltip__tip--left:after {\n  border-left-color: #29A979;\n}\n.c-tooltip__tip--success.c-tooltip__tip--right:after {\n  border-right-color: #29A979;\n}\n.c-tooltip__tip--success.c-tooltip__tip--top:after,\n.c-tooltip__tip--success.c-tooltip__tip--top-left:after,\n.c-tooltip__tip--success.c-tooltip__tip--top-right:after {\n  border-top-color: #29A979;\n}\n.c-tooltip__tip--success.c-tooltip__tip--bottom:after,\n.c-tooltip__tip--success.c-tooltip__tip--bottom-left:after,\n.c-tooltip__tip--success.c-tooltip__tip--bottom-right:after {\n  border-bottom-color: #29A979;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".c-tooltip__tip {\n  display: inline-block;\n  color: #FFFFFF;\n  background-color: #000;\n  max-width: 250px;\n  padding: 0.5rem;\n  border-radius: 4px;\n  position: relative;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 0.8125rem;\n  font-weight: 700;\n  text-align: center;\n}\n.c-tooltip__tip:after {\n  position: absolute;\n  content: '';\n  width: 0;\n  height: 0;\n  margin: -5px;\n  border: 6px solid transparent;\n}\n.c-tooltip__tip--left {\n  margin-right: 0.5rem;\n}\n.c-tooltip__tip--left:after {\n  border-left-color: #000;\n  right: -6px;\n  top: 50%;\n}\n.c-tooltip__tip--right {\n  margin-left: 0.5rem;\n}\n.c-tooltip__tip--right:after {\n  border-right-color: #000;\n  left: -6px;\n  top: 50%;\n}\n.c-tooltip__tip--top {\n  margin-bottom: 0.5rem;\n}\n.c-tooltip__tip--top:after {\n  border-top-color: #000;\n  bottom: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--top-left {\n  margin-bottom: 0.5rem;\n}\n.c-tooltip__tip--top-left:after {\n  border-top-color: #000;\n  bottom: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--top-left:after {\n  left: 25%;\n}\n.c-tooltip__tip--top-right {\n  margin-bottom: 0.5rem;\n}\n.c-tooltip__tip--top-right:after {\n  border-top-color: #000;\n  bottom: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--top-right:after {\n  left: 75%;\n}\n.c-tooltip__tip--bottom {\n  margin-top: 0.5rem;\n}\n.c-tooltip__tip--bottom:after {\n  border-bottom-color: #000;\n  top: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--bottom-left {\n  margin-top: 0.5rem;\n}\n.c-tooltip__tip--bottom-left:after {\n  border-bottom-color: #000;\n  top: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--bottom-left:after {\n  left: 25%;\n}\n.c-tooltip__tip--bottom-right {\n  margin-top: 0.5rem;\n}\n.c-tooltip__tip--bottom-right:after {\n  border-bottom-color: #000;\n  top: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--bottom-right:after {\n  left: 75%;\n}\n.c-tooltip__tip--success {\n  background-color: #29A979;\n}\n.c-tooltip__tip--success.c-tooltip__tip--left:after {\n  border-left-color: #29A979;\n}\n.c-tooltip__tip--success.c-tooltip__tip--right:after {\n  border-right-color: #29A979;\n}\n.c-tooltip__tip--success.c-tooltip__tip--top:after,\n.c-tooltip__tip--success.c-tooltip__tip--top-left:after,\n.c-tooltip__tip--success.c-tooltip__tip--top-right:after {\n  border-top-color: #29A979;\n}\n.c-tooltip__tip--success.c-tooltip__tip--bottom:after,\n.c-tooltip__tip--success.c-tooltip__tip--bottom-left:after,\n.c-tooltip__tip--success.c-tooltip__tip--bottom-right:after {\n  border-bottom-color: #29A979;\n}\n", ""]);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.t-list-reset {\n  margin-bottom: 0;\n  margin-left: 0;\n  padding: 0;\n  list-style-type: none;\n}\n.p-channel_sidebar {\n  width: 220px;\n  height: 100vh;\n  position: relative;\n  padding: 0;\n}\n.incremental_boot .p-channel_sidebar {\n  display: none;\n  visibility: hidden;\n}\n.p-channel_sidebar__virtualized {\n  outline: none;\n  -ms-overflow-style: none;\n}\n.p-channel_sidebar__virtualized::-webkit-scrollbar {\n  display: none;\n}\n.p-channel_sidebar__section_heading {\n  padding: 0 0.75rem 0 15px;\n  margin: 0;\n  width: 100%;\n  height: 26px;\n  display: flex;\n  align-items: center;\n}\n.p-channel_sidebar__section_heading_label {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  font-size: 1rem;\n  line-height: 1;\n  display: block;\n  opacity: 0.7;\n  text-align: left;\n  width: 100%;\n  transition: opacity 0.1s ease-out;\n}\n.p-channel_sidebar__section_heading_label:hover,\n.p-channel_sidebar__section_heading_label:focus,\n.p-channel_sidebar__section_heading_label:active {\n  outline: none;\n}\n.p-channel_sidebar__section_heading_label .c-icon:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  width: 20px;\n  opacity: 0.45;\n  margin: 0 1px 0 -4px;\n  vertical-align: baseline;\n}\n.p-channel_sidebar__section_heading_label--clickable:hover {\n  opacity: 1;\n}\n.p-channel_sidebar__section_heading_right {\n  margin-left: auto;\n}\n.p-channel_sidebar__section_heading_plus {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  line-height: 100%;\n}\n.p-channel_sidebar__section_heading_plus:hover,\n.p-channel_sidebar__section_heading_plus:focus,\n.p-channel_sidebar__section_heading_plus:active {\n  outline: none;\n}\n.p-channel_sidebar__section_heading_plus:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  width: 20px;\n  opacity: 0.45;\n  line-height: 100%;\n  content: '\\E228';\n  transition: opacity 0.1s ease-out;\n}\n.p-channel_sidebar__section_heading_plus:hover:before {\n  opacity: 1;\n}\n.p-channel_sidebar__banner {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  width: calc(100% - 1rem);\n  text-align: center;\n  position: absolute;\n  display: block;\n  z-index: 2;\n  color: #FFFFFF;\n  left: 0.5rem;\n  right: 0.5rem;\n  font-weight: 700;\n  font-size: 0.875rem;\n  line-height: 1.625rem;\n  cursor: pointer;\n}\n.p-channel_sidebar__banner:hover,\n.p-channel_sidebar__banner:focus,\n.p-channel_sidebar__banner:active {\n  outline: none;\n}\n.p-channel_sidebar__banner--top {\n  border-top-right-radius: 0;\n  border-bottom-right-radius: 6px;\n  border-bottom-left-radius: 6px;\n  border-top-left-radius: 0;\n  background-clip: padding-box;\n  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.1) inset;\n  top: 0;\n}\n.p-channel_sidebar__banner--bottom {\n  border-top-right-radius: 6px;\n  border-bottom-right-radius: 0;\n  border-bottom-left-radius: 0;\n  border-top-left-radius: 6px;\n  background-clip: padding-box;\n  box-shadow: 0 -1px 6px rgba(0, 0, 0, 0.1), 0 -1px 3px rgba(0, 0, 0, 0.1) inset;\n  bottom: 0;\n}\n.p-channel_sidebar__banner--mentions {\n  background: #EB4D5C;\n}\n.p-channel_sidebar__banner--unreads {\n  background: #2D9EE0;\n}\n.p-channel_sidebar__link {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n}\n.p-channel_sidebar__link:hover,\n.p-channel_sidebar__link:focus,\n.p-channel_sidebar__link:active {\n  outline: none;\n}\n.p-channel_sidebar__channel,\n.p-channel_sidebar__link {\n  display: flex;\n  align-items: center;\n  height: 26px;\n  line-height: 1.625rem;\n  padding: 0 0.75rem 0 15px;\n  width: 100%;\n}\n.p-channel_sidebar__channel:before,\n.p-channel_sidebar__link:before,\n.p-channel_sidebar__channel:after,\n.p-channel_sidebar__link:after {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  width: 20px;\n  opacity: 0.45;\n}\n.p-channel_sidebar__channel:before,\n.p-channel_sidebar__link:before {\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel:after,\n.p-channel_sidebar__link:after {\n  font-size: 1.25rem;\n  margin-left: 0.25rem;\n  opacity: 0.7;\n}\n.p-channel_sidebar__channel:hover,\n.p-channel_sidebar__link:hover,\n.p-channel_sidebar__channel:active,\n.p-channel_sidebar__link:active,\n.p-channel_sidebar__channel:focus,\n.p-channel_sidebar__link:focus,\n.p-channel_sidebar__channel:link,\n.p-channel_sidebar__link:link,\n.p-channel_sidebar__channel:visited,\n.p-channel_sidebar__link:visited {\n  text-decoration: none;\n}\n.p-channel_sidebar__channel:before {\n  content: '\\E125';\n}\n.p-channel_sidebar__channel--private:before {\n  content: '\\E567';\n}\n.p-channel_sidebar__channel--shared:after {\n  content: '\\E559';\n}\n.p-channel_sidebar__channel--org-shared:after {\n  content: '\\E166';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft):before {\n  font-size: 1.25rem;\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='2']:before {\n  content: '\\E521';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='3']:before {\n  content: '\\E522';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='4']:before {\n  content: '\\E523';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='5']:before {\n  content: '\\E524';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='6']:before {\n  content: '\\E525';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='7']:before {\n  content: '\\E526';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='8']:before {\n  content: '\\E527';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='9']:before {\n  content: '\\E528';\n}\n.p-channel_sidebar__channel--im:before {\n  content: none;\n}\n.p-channel_sidebar__channel--im .c-presence {\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel--im .c-presence--away {\n  opacity: 0.7;\n}\n.p-channel_sidebar__channel--im-slackbot:before {\n  content: '\\E515';\n  opacity: 1;\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel--im-slackbot.p-channel_sidebar__channel--draft:before {\n  color: inherit;\n}\n.p-channel_sidebar__channel--muted:not(.p-channel_sidebar__channel--selected) .p-channel_sidebar__name {\n  opacity: 0.45;\n}\n.p-channel_sidebar__channel--unread:not(.p-channel_sidebar__channel--muted) .p-channel_sidebar__name {\n  font-weight: 900;\n  opacity: 1;\n}\n.p-channel_sidebar__channel--selected .p-channel_sidebar__name {\n  opacity: 1;\n}\n.p-channel_sidebar__channel--draft:before {\n  content: '\\E024';\n  font-size: 0.875rem;\n  margin: 1px -2px 0 -1px;\n  flex-basis: 20px;\n  flex-shrink: 0;\n}\n.p-channel_sidebar__channel--archived:before {\n  content: '\\E534';\n}\n@keyframes typing {\n  100% {\n    background-position: -240px;\n  }\n}\n.p-channel_sidebar__channel--typing:before {\n  display: block;\n  content: '';\n  width: 11px;\n  height: 3px;\n  background-image: url(/img/typing-sprite.png);\n  background-repeat: no-repeat;\n  animation: 1s steps(15) 0s infinite normal none typing-sprite;\n  margin: 0 5px 0 1px;\n  opacity: 1;\n}\n@media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {\n  .p-channel_sidebar__channel--typing:before {\n    background-size: cover;\n    background-image: url(/img/typing-sprite@2x.png);\n  }\n}\n.p-channel_sidebar__name {\n  margin-right: auto;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  opacity: 0.7;\n}\n.p-channel_sidebar__name .c-custom_status {\n  float: right;\n  position: relative;\n  z-index: 1;\n}\n.p-channel_sidebar__name.p-channel_sidebar__name--away {\n  font-style: italic;\n}\n.p-channel_sidebar__badge {\n  order: 5;\n  padding: 1px 0.6rem;\n  margin-left: 0.25rem;\n  border-radius: 1rem;\n  line-height: 1rem;\n  font-size: 0.75rem;\n  font-weight: 700;\n  color: #FFFFFF;\n}\n.p-channel_sidebar__status {\n  margin-left: 0.5rem;\n}\n.p-channel_sidebar__you_label {\n  margin-left: 0.5rem;\n  font-weight: normal;\n  opacity: 0.7;\n}\n.p-channel_sidebar__close {\n  margin-left: 0.25rem;\n  display: none;\n}\n.p-channel_sidebar__close,\n.p-channel_sidebar__close:before {\n  line-height: 100%;\n}\n.p-channel_sidebar__channel:hover .p-channel_sidebar__close {\n  display: block;\n}\n.p-channel_sidebar__link--unread .p-channel_sidebar__name {\n  font-weight: 900;\n  opacity: 1;\n}\n.p-channel_sidebar__link--selected .p-channel_sidebar__name {\n  opacity: 1;\n}\n.p-channel_sidebar__link--all-unreads:before {\n  content: '\\E103';\n  margin: 0 4px 0 -4px;\n}\n.p-channel_sidebar__link--all-threads:before {\n  content: '\\E171';\n  margin: 0 4px 0 -4px;\n}\n.p-channel_sidebar__link--all-threads.p-channel_sidebar__link--unread:before {\n  content: '\\E554';\n}\n.p-channel_sidebar__link--invites:before {\n  content: '\\E281';\n}\n.p-channel_sidebar__link--invites:not(.p-channel_sidebar__link--dim) .p-channel_sidebar__name {\n  font-weight: 900;\n  opacity: 1;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".p-channel_sidebar {\n  width: 220px;\n  height: 100vh;\n  position: relative;\n  padding: 0;\n}\n.incremental_boot .p-channel_sidebar {\n  display: none;\n  visibility: hidden;\n}\n.p-channel_sidebar__virtualized {\n  outline: none;\n  -ms-overflow-style: none;\n}\n.p-channel_sidebar__virtualized::-webkit-scrollbar {\n  display: none;\n}\n.p-channel_sidebar__section_heading {\n  padding: 0 0.75rem 0 15px;\n  margin: 0;\n  width: 100%;\n  height: 26px;\n  display: flex;\n  align-items: center;\n}\n.p-channel_sidebar__section_heading_label {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  font-size: 1rem;\n  line-height: 1;\n  display: block;\n  opacity: 0.7;\n  text-align: left;\n  width: 100%;\n  transition: opacity 0.1s ease-out;\n}\n.p-channel_sidebar__section_heading_label:hover,\n.p-channel_sidebar__section_heading_label:focus,\n.p-channel_sidebar__section_heading_label:active {\n  outline: none;\n}\n.p-channel_sidebar__section_heading_label .c-icon:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  width: 20px;\n  opacity: 0.45;\n  margin: 0 1px 0 -4px;\n  vertical-align: baseline;\n}\n.p-channel_sidebar__section_heading_label--clickable:hover {\n  opacity: 1;\n}\n.p-channel_sidebar__section_heading_right {\n  margin-left: auto;\n}\n.p-channel_sidebar__section_heading_plus {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  line-height: 100%;\n}\n.p-channel_sidebar__section_heading_plus:hover,\n.p-channel_sidebar__section_heading_plus:focus,\n.p-channel_sidebar__section_heading_plus:active {\n  outline: none;\n}\n.p-channel_sidebar__section_heading_plus:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  width: 20px;\n  opacity: 0.45;\n  line-height: 100%;\n  content: '\\E228';\n  transition: opacity 0.1s ease-out;\n}\n.p-channel_sidebar__section_heading_plus:hover:before {\n  opacity: 1;\n}\n.p-channel_sidebar__banner {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  width: calc(100% - 1rem);\n  text-align: center;\n  position: absolute;\n  display: block;\n  z-index: 2;\n  color: #FFFFFF;\n  left: 0.5rem;\n  right: 0.5rem;\n  font-weight: 700;\n  font-size: 0.875rem;\n  line-height: 1.625rem;\n  cursor: pointer;\n}\n.p-channel_sidebar__banner:hover,\n.p-channel_sidebar__banner:focus,\n.p-channel_sidebar__banner:active {\n  outline: none;\n}\n.p-channel_sidebar__banner--top {\n  border-top-right-radius: 0;\n  border-bottom-right-radius: 6px;\n  border-bottom-left-radius: 6px;\n  border-top-left-radius: 0;\n  background-clip: padding-box;\n  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.1) inset;\n  top: 0;\n}\n.p-channel_sidebar__banner--bottom {\n  border-top-right-radius: 6px;\n  border-bottom-right-radius: 0;\n  border-bottom-left-radius: 0;\n  border-top-left-radius: 6px;\n  background-clip: padding-box;\n  box-shadow: 0 -1px 6px rgba(0, 0, 0, 0.1), 0 -1px 3px rgba(0, 0, 0, 0.1) inset;\n  bottom: 0;\n}\n.p-channel_sidebar__banner--mentions {\n  background: #EB4D5C;\n}\n.p-channel_sidebar__banner--unreads {\n  background: #2D9EE0;\n}\n.p-channel_sidebar__link {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n}\n.p-channel_sidebar__link:hover,\n.p-channel_sidebar__link:focus,\n.p-channel_sidebar__link:active {\n  outline: none;\n}\n.p-channel_sidebar__channel,\n.p-channel_sidebar__link {\n  display: flex;\n  align-items: center;\n  height: 26px;\n  line-height: 1.625rem;\n  padding: 0 0.75rem 0 15px;\n  width: 100%;\n}\n.p-channel_sidebar__channel:before,\n.p-channel_sidebar__link:before,\n.p-channel_sidebar__channel:after,\n.p-channel_sidebar__link:after {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  width: 20px;\n  opacity: 0.45;\n}\n.p-channel_sidebar__channel:before,\n.p-channel_sidebar__link:before {\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel:after,\n.p-channel_sidebar__link:after {\n  font-size: 1.25rem;\n  margin-left: 0.25rem;\n  opacity: 0.7;\n}\n.p-channel_sidebar__channel:hover,\n.p-channel_sidebar__link:hover,\n.p-channel_sidebar__channel:active,\n.p-channel_sidebar__link:active,\n.p-channel_sidebar__channel:focus,\n.p-channel_sidebar__link:focus,\n.p-channel_sidebar__channel:link,\n.p-channel_sidebar__link:link,\n.p-channel_sidebar__channel:visited,\n.p-channel_sidebar__link:visited {\n  text-decoration: none;\n}\n.p-channel_sidebar__channel:before {\n  content: '\\E125';\n}\n.p-channel_sidebar__channel--private:before {\n  content: '\\E567';\n}\n.p-channel_sidebar__channel--shared:after {\n  content: '\\E559';\n}\n.p-channel_sidebar__channel--org-shared:after {\n  content: '\\E166';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft):before {\n  font-size: 1.25rem;\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='2']:before {\n  content: '\\E521';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='3']:before {\n  content: '\\E522';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='4']:before {\n  content: '\\E523';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='5']:before {\n  content: '\\E524';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='6']:before {\n  content: '\\E525';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='7']:before {\n  content: '\\E526';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='8']:before {\n  content: '\\E527';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='9']:before {\n  content: '\\E528';\n}\n.p-channel_sidebar__channel--im:before {\n  content: none;\n}\n.p-channel_sidebar__channel--im .c-presence {\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel--im .c-presence--away {\n  opacity: 0.7;\n}\n.p-channel_sidebar__channel--im-slackbot:before {\n  content: '\\E515';\n  opacity: 1;\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel--im-slackbot.p-channel_sidebar__channel--draft:before {\n  color: inherit;\n}\n.p-channel_sidebar__channel--muted:not(.p-channel_sidebar__channel--selected) .p-channel_sidebar__name {\n  opacity: 0.45;\n}\n.p-channel_sidebar__channel--unread:not(.p-channel_sidebar__channel--muted) .p-channel_sidebar__name {\n  font-weight: 900;\n  opacity: 1;\n}\n.p-channel_sidebar__channel--selected .p-channel_sidebar__name {\n  opacity: 1;\n}\n.p-channel_sidebar__channel--draft:before {\n  content: '\\E024';\n  font-size: 0.875rem;\n  margin: 1px -2px 0 -1px;\n  flex-basis: 20px;\n  flex-shrink: 0;\n}\n.p-channel_sidebar__channel--archived:before {\n  content: '\\E534';\n}\n@keyframes typing {\n  100% {\n    background-position: -240px;\n  }\n}\n.p-channel_sidebar__channel--typing:before {\n  display: block;\n  content: '';\n  width: 11px;\n  height: 3px;\n  background-image: url(/img/typing-sprite.png);\n  background-repeat: no-repeat;\n  animation: 1s steps(15) 0s infinite normal none typing-sprite;\n  margin: 0 5px 0 1px;\n  opacity: 1;\n}\n@media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {\n  .p-channel_sidebar__channel--typing:before {\n    background-size: cover;\n    background-image: url(/img/typing-sprite@2x.png);\n  }\n}\n.p-channel_sidebar__name {\n  margin-right: auto;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  opacity: 0.7;\n}\n.p-channel_sidebar__name .c-custom_status {\n  float: right;\n  position: relative;\n  z-index: 1;\n}\n.p-channel_sidebar__name.p-channel_sidebar__name--away {\n  font-style: italic;\n}\n.p-channel_sidebar__badge {\n  order: 5;\n  padding: 1px 0.6rem;\n  margin-left: 0.25rem;\n  border-radius: 1rem;\n  line-height: 1rem;\n  font-size: 0.75rem;\n  font-weight: 700;\n  color: #FFFFFF;\n}\n.p-channel_sidebar__status {\n  margin-left: 0.5rem;\n}\n.p-channel_sidebar__you_label {\n  margin-left: 0.5rem;\n  font-weight: normal;\n  opacity: 0.7;\n}\n.p-channel_sidebar__close {\n  margin-left: 0.25rem;\n  display: none;\n}\n.p-channel_sidebar__close,\n.p-channel_sidebar__close:before {\n  line-height: 100%;\n}\n.p-channel_sidebar__channel:hover .p-channel_sidebar__close {\n  display: block;\n}\n.p-channel_sidebar__link--unread .p-channel_sidebar__name {\n  font-weight: 900;\n  opacity: 1;\n}\n.p-channel_sidebar__link--selected .p-channel_sidebar__name {\n  opacity: 1;\n}\n.p-channel_sidebar__link--all-unreads:before {\n  content: '\\E103';\n  margin: 0 4px 0 -4px;\n}\n.p-channel_sidebar__link--all-threads:before {\n  content: '\\E171';\n  margin: 0 4px 0 -4px;\n}\n.p-channel_sidebar__link--all-threads.p-channel_sidebar__link--unread:before {\n  content: '\\E554';\n}\n.p-channel_sidebar__link--invites:before {\n  content: '\\E281';\n}\n.p-channel_sidebar__link--invites:not(.p-channel_sidebar__link--dim) .p-channel_sidebar__name {\n  font-weight: 900;\n  opacity: 1;\n}\n", ""]);
 }, function(e, t, n) {
   "use strict";
   Object.defineProperty(t, "__esModule", {
@@ -30502,9 +30502,9 @@ webpackJsonp([332], [, function(e, t, n) {
     value: !0
   }), t.default = r;
 }, , , , , , , , , , , , , , , , , , , , , , , , , , , , , function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.t-list-reset {\n  margin-bottom: 0;\n  margin-left: 0;\n  padding: 0;\n  list-style-type: none;\n}\n.p-download_item {\n  min-height: 68px;\n  padding: 0.75rem 0.75rem 0.25rem 0.75rem;\n  margin: 0 1px 0 0.25rem;\n  position: relative;\n  font-weight: normal;\n  font-size: 1rem;\n  border: 1px solid transparent;\n  border-radius: 4px;\n  opacity: 0.8;\n  -webkit-transition: opacity 0.1s border 0.1s ease-out 0.0000001ms;\n  -moz-transition: opacity 0.1s border 0.1s ease-out 0.0000001ms;\n  transition: opacity 0.1s border 0.1s ease-out 0.0000001ms;\n}\n.p-download_item.progressing,\n.p-download_item:hover {\n  opacity: 1;\n}\n.p-download_item:hover {\n  border-color: #E8E8E8;\n}\n.p-download_item:hover .p-download_item__name_row {\n  padding-right: 2rem;\n}\n.p-download_item:hover .p-download_item__actions,\n.p-download_item:hover .p-download_item__action_icon {\n  opacity: 1;\n  -webkit-transform: translate3d(0, 0, 0);\n  -moz-transform: translate3d(0, 0, 0);\n  -ms-transform: translate3d(0, 0, 0);\n  transform: translate3d(0, 0, 0);\n}\n.p-download_item:hover .p-download_item__link--remove {\n  opacity: 1;\n}\n.p-download_item.progressing .p-download_item__name_row,\n.p-download_item.not_started .p-download_item__name_row {\n  padding-right: 6rem;\n}\n.p-download_item.progressing .p-download_item__link--remove,\n.p-download_item.not_started .p-download_item__link--remove,\n.p-download_item.progressing .p-download_item__action_icon,\n.p-download_item.not_started .p-download_item__action_icon {\n  display: none;\n}\n.p-download_item:not(.progressing) {\n  cursor: pointer;\n}\n@keyframes highlighter {\n  0% {\n    background: transparent;\n  }\n  10% {\n    background: #FFF4BF;\n  }\n  100% {\n    background: transparent;\n  }\n}\n.p-download_item.highlight {\n  animation: highlighter 1s ease-out;\n}\n.p-download_item.hidden_with_fade_out_and_shrink {\n  opacity: 0;\n  height: 0 !important;\n  margin-top: 0 !important;\n  padding-top: 0 !important;\n  padding-bottom: 0 !important;\n  overflow: hidden;\n  -webkit-transition: opacity .3s ease-out 0s, height .3s ease-out .2s, margin-top .3s ease-out .2s, padding-top .3s ease-out .2s, padding-bottom .3s ease-out .2s 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity .3s ease-out 0s, height .3s ease-out .2s, margin-top .3s ease-out .2s, padding-top .3s ease-out .2s, padding-bottom .3s ease-out .2s 0.2s ease-out 0.0000001ms;\n  transition: opacity .3s ease-out 0s, height .3s ease-out .2s, margin-top .3s ease-out .2s, padding-top .3s ease-out .2s, padding-bottom .3s ease-out .2s 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity .3s ease-out 0s, height .3s ease-out .2s, margin-top .3s ease-out .2s, padding-top .3s ease-out .2s, padding-bottom .3s ease-out .2s;\n  -moz-transition: opacity .3s ease-out 0s, height .3s ease-out .2s, margin-top .3s ease-out .2s, padding-top .3s ease-out .2s, padding-bottom .3s ease-out .2s;\n  transition: opacity .3s ease-out 0s, height .3s ease-out .2s, margin-top .3s ease-out .2s, padding-top .3s ease-out .2s, padding-bottom .3s ease-out .2s;\n}\n.p-download_item__icon_container {\n  float: left;\n  margin: 1px 0 0.5rem;\n  position: relative;\n}\n.p-download_item__action_icon {\n  position: absolute;\n  right: -8px;\n  bottom: -5px;\n  width: 18px;\n  height: 18px;\n  line-height: 15px;\n  border-radius: 50%;\n  background: #2D9EE0;\n  box-shadow: 0 0 0 3px #FFF;\n  color: #FFF;\n  opacity: 0;\n  -webkit-transform: translate3d(0, -6px, 0);\n  -moz-transform: translate3d(0, -6px, 0);\n  -ms-transform: translate3d(0, -6px, 0);\n  transform: translate3d(0, -6px, 0);\n  -webkit-transition: -webkit-transform 0.1s ease-out, opacity 0.1s ease-out;\n  -moz-transition: -moz-transform 0.1s ease-out, opacity 0.1s ease-out;\n  transition: transform 0.1s ease-out, opacity 0.1s ease-out;\n}\n.p-download_item__action_icon:before {\n  margin-left: -1px;\n}\n.p-download_item__action_icon.snippet {\n  background: #4D394B;\n}\n.p-download_item__action_icon.space,\n.p-download_item__action_icon.post {\n  background: #66C79E;\n}\n.p-download_item__action_icon.doc,\n.p-download_item__action_icon.docx {\n  background: #2C4098;\n}\n.p-download_item__action_icon.xls,\n.p-download_item__action_icon.xlsx,\n.p-download_item__action_icon.xlsm,\n.p-download_item__action_icon.xltx {\n  background: #377437;\n}\n.p-download_item__action_icon.ppt,\n.p-download_item__action_icon.pptx {\n  background: #E05A30;\n}\n.p-download_item__action_icon.ai,\n.p-download_item__action_icon.sketch {\n  background: #F4993C;\n}\n.p-download_item__action_icon.psd {\n  background: #56B6DE;\n}\n.p-download_item__action_icon.indd {\n  background: #EB81AB;\n}\n.p-download_item__action_icon.fla,\n.p-download_item__action_icon.swf {\n  background: #A72428;\n}\n.p-download_item__action_icon.ipa {\n  background: #9EA0A7;\n}\n.p-download_item__action_icon.apk {\n  background: #A4CA3A;\n}\n.p-download_item__action_icon.dropbox {\n  background: #007EE5;\n}\n.p-download_item__action_icon.gpres {\n  background: #F4B400;\n}\n.p-download_item__action_icon.gsheet {\n  background: #0F9D58;\n}\n.p-download_item__action_icon.gdoc {\n  background: #4285f4;\n}\n.p-download_item__action_icon.pdf,\n.p-download_item__action_icon.gform,\n.p-download_item__action_icon.gdraw {\n  background: #DB4437;\n}\n.p-download_item__image {\n  border: 1px solid #A0A0A2;\n  border-radius: 0.25rem;\n  margin-bottom: 6px;\n}\n.p-download_item__container {\n  margin-left: 2.75rem;\n  position: relative;\n  z-index: 1;\n}\n.p-download_item__container > div {\n  margin-bottom: 0.5rem;\n}\n.p-download_item__container .p-download_item__name_row {\n  line-height: initial;\n  color: #5a5b5d;\n  position: relative;\n  padding-right: 0;\n  margin-bottom: 0;\n}\n.p-download_item__name_row:not(:empty) {\n  font-weight: bold;\n  padding-bottom: 0.5rem;\n}\n.p-download_item__container .p-download_item__extra_actions {\n  position: absolute;\n  top: 2px;\n  right: 0;\n  display: flex;\n  opacity: 1;\n  pointer-events: auto;\n}\na.p-download_item__link--cancel,\na.p-download_item__link--pause,\na.p-download_item__link--resume {\n  font-size: 0.8rem;\n  margin-left: 5px;\n  color: #A0A0A2;\n}\n.p-download_item__link--remove {\n  position: absolute;\n  top: 50%;\n  right: 10px;\n  z-index: 2;\n  opacity: 0;\n  -webkit-transform: translateY(-50%);\n  -moz-transform: translateY(-50%);\n  -ms-transform: translateY(-50%);\n  transform: translateY(-50%);\n  -webkit-transition: opacity 0.1s, color 0.1s 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 0.1s, color 0.1s 0.2s ease-out 0.0000001ms;\n  transition: opacity 0.1s, color 0.1s 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 0.1s, color 0.1s;\n  -moz-transition: opacity 0.1s, color 0.1s;\n  transition: opacity 0.1s, color 0.1s;\n}\n.p-download_item__link--remove:hover {\n  color: #EB4D5C;\n}\n.p-download_item__size_row {\n  color: #A0A0A2;\n  font-size: 0.8rem;\n  position: relative;\n  display: flex;\n}\n.p-download_item__size {\n  margin-right: 3px;\n}\n.p-download_item__actions {\n  display: inline-block;\n  position: absolute;\n  left: 0;\n  top: 0;\n  width: 100%;\n  background: #FFF;\n  opacity: 0;\n  -webkit-transform: translate3d(0, -50%, 0);\n  -moz-transform: translate3d(0, -50%, 0);\n  -ms-transform: translate3d(0, -50%, 0);\n  transform: translate3d(0, -50%, 0);\n  -webkit-transition: -webkit-transform 0.1s ease-out , opacity 0.1s ease-out;\n  -moz-transition: -moz-transform 0.1s ease-out , opacity 0.1s ease-out;\n  transition: transform 0.1s ease-out , opacity 0.1s ease-out;\n}\na.p-download_item__link--show,\na.p-download_item__link--retry,\na.p-download_item__link--open {\n  opacity: 1;\n  display: none;\n  position: static;\n  font-weight: bold;\n  font-size: 0.9rem;\n  color: #A0A0A2;\n  top: 0;\n  left: 0.5rem;\n  white-space: nowrap;\n  pointer-events: none;\n}\n.p-download_item__time_remaining {\n  opacity: 1;\n  flex: none;\n  margin-left: auto;\n  white-space: nowrap;\n}\n.p-download_item__progress_row,\n.p-download_item__time_remaining {\n  height: 6px;\n  border-width: 0px;\n  border-radius: 3px;\n}\n.p-download_item__progress_row {\n  opacity: 1;\n  background-color: #E8E8E8;\n}\n.p-download_item__progress {\n  background-color: #2D9EE0;\n  width: 0%;\n}\n.p-download_item:not(.progressing) .p-download_item__extra_actions {\n  opacity: 0;\n  pointer-events: none;\n}\n.p-download_item:not(.progressing) .p-download_item__time_remaining {\n  opacity: 0;\n  pointer-events: none;\n}\n.p-download_item:not(.progressing) .p-download_item__progress_row {\n  display: none;\n}\n.p-download_item.completed .p-download_item__link--show {\n  opacity: 1;\n  pointer-events: auto;\n  display: block;\n}\n.p-download_item.completed .p-download_item__action_icon:before {\n  content: '\\E146';\n}\n.p-download_item.cancelled .p-download_item__action_icon:before,\n.p-download_item.interrupted .p-download_item__action_icon:before {\n  content: '\\E147';\n  margin-top: 1px;\n}\n.p-download_item.cancelled .p-download_item__link--retry,\n.p-download_item.interrupted .p-download_item__link--retry {\n  opacity: 1;\n  pointer-events: auto;\n  display: block;\n}\n.p-download_item.completed .p-download_item__partial_size {\n  display: none;\n}\n.p-download_item:last-of-type {\n  margin-bottom: 100px;\n}\n.p-downloads_list--shift_down .p-download_item.completed .p-download_item__action_icon {\n  border-radius: 3px;\n}\n.p-downloads_list--shift_down .p-download_item.completed .p-download_item__action_icon:before {\n  content: '\\E311';\n}\n.p-downloads_list--shift_down .p-download_item.completed .p-download_item__link--show {\n  display: none;\n}\n.p-downloads_list--shift_down .p-download_item.completed .p-download_item__link--open {\n  display: block;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".p-download_item {\n  min-height: 68px;\n  padding: 0.75rem 0.75rem 0.25rem 0.75rem;\n  margin: 0 1px 0 0.25rem;\n  position: relative;\n  font-weight: normal;\n  font-size: 1rem;\n  border: 1px solid transparent;\n  border-radius: 4px;\n  opacity: 0.8;\n  -webkit-transition: opacity 0.1s border 0.1s ease-out 0.0000001ms;\n  -moz-transition: opacity 0.1s border 0.1s ease-out 0.0000001ms;\n  transition: opacity 0.1s border 0.1s ease-out 0.0000001ms;\n}\n.p-download_item.progressing,\n.p-download_item:hover {\n  opacity: 1;\n}\n.p-download_item:hover {\n  border-color: #E8E8E8;\n}\n.p-download_item:hover .p-download_item__name_row {\n  padding-right: 2rem;\n}\n.p-download_item:hover .p-download_item__actions,\n.p-download_item:hover .p-download_item__action_icon {\n  opacity: 1;\n  -webkit-transform: translate3d(0, 0, 0);\n  -moz-transform: translate3d(0, 0, 0);\n  -ms-transform: translate3d(0, 0, 0);\n  transform: translate3d(0, 0, 0);\n}\n.p-download_item:hover .p-download_item__link--remove {\n  opacity: 1;\n}\n.p-download_item.progressing .p-download_item__name_row,\n.p-download_item.not_started .p-download_item__name_row {\n  padding-right: 6rem;\n}\n.p-download_item.progressing .p-download_item__link--remove,\n.p-download_item.not_started .p-download_item__link--remove,\n.p-download_item.progressing .p-download_item__action_icon,\n.p-download_item.not_started .p-download_item__action_icon {\n  display: none;\n}\n.p-download_item:not(.progressing) {\n  cursor: pointer;\n}\n@keyframes highlighter {\n  0% {\n    background: transparent;\n  }\n  10% {\n    background: #FFF4BF;\n  }\n  100% {\n    background: transparent;\n  }\n}\n.p-download_item.highlight {\n  animation: highlighter 1s ease-out;\n}\n.p-download_item.hidden_with_fade_out_and_shrink {\n  opacity: 0;\n  height: 0 !important;\n  margin-top: 0 !important;\n  padding-top: 0 !important;\n  padding-bottom: 0 !important;\n  overflow: hidden;\n  -webkit-transition: opacity .3s ease-out 0s, height .3s ease-out .2s, margin-top .3s ease-out .2s, padding-top .3s ease-out .2s, padding-bottom .3s ease-out .2s 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity .3s ease-out 0s, height .3s ease-out .2s, margin-top .3s ease-out .2s, padding-top .3s ease-out .2s, padding-bottom .3s ease-out .2s 0.2s ease-out 0.0000001ms;\n  transition: opacity .3s ease-out 0s, height .3s ease-out .2s, margin-top .3s ease-out .2s, padding-top .3s ease-out .2s, padding-bottom .3s ease-out .2s 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity .3s ease-out 0s, height .3s ease-out .2s, margin-top .3s ease-out .2s, padding-top .3s ease-out .2s, padding-bottom .3s ease-out .2s;\n  -moz-transition: opacity .3s ease-out 0s, height .3s ease-out .2s, margin-top .3s ease-out .2s, padding-top .3s ease-out .2s, padding-bottom .3s ease-out .2s;\n  transition: opacity .3s ease-out 0s, height .3s ease-out .2s, margin-top .3s ease-out .2s, padding-top .3s ease-out .2s, padding-bottom .3s ease-out .2s;\n}\n.p-download_item__icon_container {\n  float: left;\n  margin: 1px 0 0.5rem;\n  position: relative;\n}\n.p-download_item__action_icon {\n  position: absolute;\n  right: -8px;\n  bottom: -5px;\n  width: 18px;\n  height: 18px;\n  line-height: 15px;\n  border-radius: 50%;\n  background: #2D9EE0;\n  box-shadow: 0 0 0 3px #FFF;\n  color: #FFF;\n  opacity: 0;\n  -webkit-transform: translate3d(0, -6px, 0);\n  -moz-transform: translate3d(0, -6px, 0);\n  -ms-transform: translate3d(0, -6px, 0);\n  transform: translate3d(0, -6px, 0);\n  -webkit-transition: -webkit-transform 0.1s ease-out, opacity 0.1s ease-out;\n  -moz-transition: -moz-transform 0.1s ease-out, opacity 0.1s ease-out;\n  transition: transform 0.1s ease-out, opacity 0.1s ease-out;\n}\n.p-download_item__action_icon:before {\n  margin-left: -1px;\n}\n.p-download_item__action_icon.snippet {\n  background: #4D394B;\n}\n.p-download_item__action_icon.space,\n.p-download_item__action_icon.post {\n  background: #66C79E;\n}\n.p-download_item__action_icon.doc,\n.p-download_item__action_icon.docx {\n  background: #2C4098;\n}\n.p-download_item__action_icon.xls,\n.p-download_item__action_icon.xlsx,\n.p-download_item__action_icon.xlsm,\n.p-download_item__action_icon.xltx {\n  background: #377437;\n}\n.p-download_item__action_icon.ppt,\n.p-download_item__action_icon.pptx {\n  background: #E05A30;\n}\n.p-download_item__action_icon.ai,\n.p-download_item__action_icon.sketch {\n  background: #F4993C;\n}\n.p-download_item__action_icon.psd {\n  background: #56B6DE;\n}\n.p-download_item__action_icon.indd {\n  background: #EB81AB;\n}\n.p-download_item__action_icon.fla,\n.p-download_item__action_icon.swf {\n  background: #A72428;\n}\n.p-download_item__action_icon.ipa {\n  background: #9EA0A7;\n}\n.p-download_item__action_icon.apk {\n  background: #A4CA3A;\n}\n.p-download_item__action_icon.dropbox {\n  background: #007EE5;\n}\n.p-download_item__action_icon.gpres {\n  background: #F4B400;\n}\n.p-download_item__action_icon.gsheet {\n  background: #0F9D58;\n}\n.p-download_item__action_icon.gdoc {\n  background: #4285f4;\n}\n.p-download_item__action_icon.pdf,\n.p-download_item__action_icon.gform,\n.p-download_item__action_icon.gdraw {\n  background: #DB4437;\n}\n.p-download_item__image {\n  border: 1px solid #A0A0A2;\n  border-radius: 0.25rem;\n  margin-bottom: 6px;\n}\n.p-download_item__container {\n  margin-left: 2.75rem;\n  position: relative;\n  z-index: 1;\n}\n.p-download_item__container > div {\n  margin-bottom: 0.5rem;\n}\n.p-download_item__container .p-download_item__name_row {\n  line-height: initial;\n  color: #5a5b5d;\n  position: relative;\n  padding-right: 0;\n  margin-bottom: 0;\n}\n.p-download_item__name_row:not(:empty) {\n  font-weight: bold;\n  padding-bottom: 0.5rem;\n}\n.p-download_item__container .p-download_item__extra_actions {\n  position: absolute;\n  top: 2px;\n  right: 0;\n  display: flex;\n  opacity: 1;\n  pointer-events: auto;\n}\na.p-download_item__link--cancel,\na.p-download_item__link--pause,\na.p-download_item__link--resume {\n  font-size: 0.8rem;\n  margin-left: 5px;\n  color: #A0A0A2;\n}\n.p-download_item__link--remove {\n  position: absolute;\n  top: 50%;\n  right: 10px;\n  z-index: 2;\n  opacity: 0;\n  -webkit-transform: translateY(-50%);\n  -moz-transform: translateY(-50%);\n  -ms-transform: translateY(-50%);\n  transform: translateY(-50%);\n  -webkit-transition: opacity 0.1s, color 0.1s 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 0.1s, color 0.1s 0.2s ease-out 0.0000001ms;\n  transition: opacity 0.1s, color 0.1s 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 0.1s, color 0.1s;\n  -moz-transition: opacity 0.1s, color 0.1s;\n  transition: opacity 0.1s, color 0.1s;\n}\n.p-download_item__link--remove:hover {\n  color: #EB4D5C;\n}\n.p-download_item__size_row {\n  color: #A0A0A2;\n  font-size: 0.8rem;\n  position: relative;\n  display: flex;\n}\n.p-download_item__size {\n  margin-right: 3px;\n}\n.p-download_item__actions {\n  display: inline-block;\n  position: absolute;\n  left: 0;\n  top: 0;\n  width: 100%;\n  background: #FFF;\n  opacity: 0;\n  -webkit-transform: translate3d(0, -50%, 0);\n  -moz-transform: translate3d(0, -50%, 0);\n  -ms-transform: translate3d(0, -50%, 0);\n  transform: translate3d(0, -50%, 0);\n  -webkit-transition: -webkit-transform 0.1s ease-out , opacity 0.1s ease-out;\n  -moz-transition: -moz-transform 0.1s ease-out , opacity 0.1s ease-out;\n  transition: transform 0.1s ease-out , opacity 0.1s ease-out;\n}\na.p-download_item__link--show,\na.p-download_item__link--retry,\na.p-download_item__link--open {\n  opacity: 1;\n  display: none;\n  position: static;\n  font-weight: bold;\n  font-size: 0.9rem;\n  color: #A0A0A2;\n  top: 0;\n  left: 0.5rem;\n  white-space: nowrap;\n  pointer-events: none;\n}\n.p-download_item__time_remaining {\n  opacity: 1;\n  flex: none;\n  margin-left: auto;\n  white-space: nowrap;\n}\n.p-download_item__progress_row,\n.p-download_item__time_remaining {\n  height: 6px;\n  border-width: 0px;\n  border-radius: 3px;\n}\n.p-download_item__progress_row {\n  opacity: 1;\n  background-color: #E8E8E8;\n}\n.p-download_item__progress {\n  background-color: #2D9EE0;\n  width: 0%;\n}\n.p-download_item:not(.progressing) .p-download_item__extra_actions {\n  opacity: 0;\n  pointer-events: none;\n}\n.p-download_item:not(.progressing) .p-download_item__time_remaining {\n  opacity: 0;\n  pointer-events: none;\n}\n.p-download_item:not(.progressing) .p-download_item__progress_row {\n  display: none;\n}\n.p-download_item.completed .p-download_item__link--show {\n  opacity: 1;\n  pointer-events: auto;\n  display: block;\n}\n.p-download_item.completed .p-download_item__action_icon:before {\n  content: '\\E146';\n}\n.p-download_item.cancelled .p-download_item__action_icon:before,\n.p-download_item.interrupted .p-download_item__action_icon:before {\n  content: '\\E147';\n  margin-top: 1px;\n}\n.p-download_item.cancelled .p-download_item__link--retry,\n.p-download_item.interrupted .p-download_item__link--retry {\n  opacity: 1;\n  pointer-events: auto;\n  display: block;\n}\n.p-download_item.completed .p-download_item__partial_size {\n  display: none;\n}\n.p-download_item:last-of-type {\n  margin-bottom: 100px;\n}\n.p-downloads_list--shift_down .p-download_item.completed .p-download_item__action_icon {\n  border-radius: 3px;\n}\n.p-downloads_list--shift_down .p-download_item.completed .p-download_item__action_icon:before {\n  content: '\\E311';\n}\n.p-downloads_list--shift_down .p-download_item.completed .p-download_item__link--show {\n  display: none;\n}\n.p-downloads_list--shift_down .p-download_item.completed .p-download_item__link--open {\n  display: block;\n}\n", ""]);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.t-list-reset {\n  margin-bottom: 0;\n  margin-left: 0;\n  padding: 0;\n  list-style-type: none;\n}\n.p-downloads_list {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-weight: 400;\n  -webkit-font-smoothing: antialiased;\n  outline: none;\n  position: relative;\n  display: flex;\n  flex-direction: column;\n  flex: 1;\n  overflow: hidden;\n}\n.p-downloads_list__heading {\n  padding: 1rem;\n  margin-bottom: 0.25rem;\n}\n.p-downloads_list__heading_row {\n  align-items: center;\n}\n.p-downloads_list__clear_all {\n  padding-right: 1rem;\n  padding-left: 0.5rem;\n  margin-right: 1rem;\n  font-size: 1rem;\n  border-right: 1px solid #cfcfcf;\n}\n.p-downloads_list__flex_close {\n  height: 1.5rem;\n  padding-top: 0.1rem;\n}\n.p-downloads_list__empty {\n  padding: 8rem 4rem;\n  font-size: 1rem;\n  line-height: 1.5rem;\n  text-align: center;\n}\n.p-downloads_list__empty_hint_text {\n  max-width: 12rem;\n  margin: 1rem auto;\n}\n.p-downloads_list__empty_download_icon {\n  margin: 0 0.25rem;\n}\n.p-downloads_list__shift_hint {\n  display: block;\n  position: absolute;\n  height: 100px;\n  bottom: 0;\n  left: 0;\n  right: 1rem;\n  text-align: center;\n  line-height: 100px;\n  color: #717274;\n  font-size: 0.9rem;\n  background: linear-gradient(to bottom, rgba(255, 255, 255, 0), #ffffff 25%, #ffffff);\n  z-index: 5;\n}\n.p-downloads_list__keyboard_key {\n  display: inline-block;\n  border: 1px solid #E8E8E8;\n  line-height: 1rem;\n  padding: 0.2rem 0.4rem;\n  margin: 0 0.2rem;\n  font-weight: bold;\n  font-size: 0.8rem;\n  border-bottom-width: 2px;\n  border-radius: 4px;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".p-downloads_list {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-weight: 400;\n  -webkit-font-smoothing: antialiased;\n  outline: none;\n  position: relative;\n  display: flex;\n  flex-direction: column;\n  flex: 1;\n  overflow: hidden;\n}\n.p-downloads_list__heading {\n  padding: 1rem;\n  margin-bottom: 0.25rem;\n}\n.p-downloads_list__heading_row {\n  align-items: center;\n}\n.p-downloads_list__clear_all {\n  padding-right: 1rem;\n  padding-left: 0.5rem;\n  margin-right: 1rem;\n  font-size: 1rem;\n  border-right: 1px solid #cfcfcf;\n}\n.p-downloads_list__flex_close {\n  height: 1.5rem;\n  padding-top: 0.1rem;\n}\n.p-downloads_list__empty {\n  padding: 8rem 4rem;\n  font-size: 1rem;\n  line-height: 1.5rem;\n  text-align: center;\n}\n.p-downloads_list__empty_hint_text {\n  max-width: 12rem;\n  margin: 1rem auto;\n}\n.p-downloads_list__empty_download_icon {\n  margin: 0 0.25rem;\n}\n.p-downloads_list__shift_hint {\n  display: block;\n  position: absolute;\n  height: 100px;\n  bottom: 0;\n  left: 0;\n  right: 1rem;\n  text-align: center;\n  line-height: 100px;\n  color: #717274;\n  font-size: 0.9rem;\n  background: linear-gradient(to bottom, rgba(255, 255, 255, 0), #ffffff 25%, #ffffff);\n  z-index: 5;\n}\n.p-downloads_list__keyboard_key {\n  display: inline-block;\n  border: 1px solid #E8E8E8;\n  line-height: 1rem;\n  padding: 0.2rem 0.4rem;\n  margin: 0 0.2rem;\n  font-weight: bold;\n  font-size: 0.8rem;\n  border-bottom-width: 2px;\n  border-radius: 4px;\n}\n", ""]);
 }, function(e, t, n) {
   var r = n(1490);
   "string" == typeof r && (r = [
@@ -36657,10 +36657,10 @@ webpackJsonp([332], [, function(e, t, n) {
       a = e.latest,
       s = void 0 === a ? null : a;
     return function(e) {
-      t && r && (s && e(n.i(y.setLoading)({
+      t && r && (s && e(n.i(v.setLoading)({
         channelId: t,
         loading: !0
-      })), n.i(h.a)({
+      })), n.i(m.a)({
         channelId: t,
         type: r,
         oldest: i,
@@ -36668,123 +36668,157 @@ webpackJsonp([332], [, function(e, t, n) {
       }).then(function(r) {
         var o = r.msgs,
           a = r.hasMore;
-        e(n.i(_.addMessages)(o)), e(n.i(y.addTimestamps)({
+        e(n.i(y.addMessages)(o)), e(n.i(v.addTimestamps)({
           channelId: t,
-          timestamps: f.a.map(o, "ts"),
+          timestamps: p.a.map(o, "ts"),
           oldest: i,
           latest: s,
           hasMore: a,
           loading: !1
         }));
       }).catch(function(e) {
-        return n.i(m.a)("Failed to fetch history", t, e);
+        return n.i(_.a)("Failed to fetch history", t, e);
       }));
     };
   }
 
   function i(e) {
-    return e && e.messagePane && e.messagePane.channelId;
+    var t = e.channelId,
+      r = e.text,
+      o = e.ts;
+    return function(e) {
+      e(x("pending")), n.i(g.a)({
+        channelId: t,
+        text: r,
+        ts: o
+      }).then(function() {
+        e(M());
+      }).catch(function(r) {
+        var i = r.message;
+        "message_not_found" === i ? (e(n.i(y.removeMessage)({
+          channel: t,
+          ts: o
+        })), e(M())) : e(x(i));
+      });
+    };
   }
 
   function a(e) {
-    var t = i(e);
-    return n.i(y.getTimestampsByChannelId)(e, t);
+    return e && e.messagePane && e.messagePane.channelId;
   }
 
   function s(e) {
-    return e && e.messagePane && e.messagePane.startTs;
+    var t = a(e);
+    return n.i(v.getTimestampsByChannelId)(e, t);
   }
 
   function u(e) {
+    return e && e.messagePane && e.messagePane.startTs;
+  }
+
+  function l(e) {
     return e && e.messagePane ? {
+      editStatus: e.messagePane.editStatus,
       editTs: e.messagePane.editTs,
       editText: e.messagePane.editText,
       didRequestToStopEditing: e.messagePane.didRequestToStopEditing
     } : {
+      editStatus: null,
       editTs: null,
       editText: null,
       didRequestToStopEditing: !1
     };
   }
 
-  function l(e) {
+  function c(e) {
     return e && e.messagePane && e.messagePane.userSetUnreadPoint;
   }
   Object.defineProperty(t, "__esModule", {
     value: !0
   }), n.d(t, "switchToChannel", function() {
-    return g;
-  }), n.d(t, "startEditingMessage", function() {
-    return b;
-  }), n.d(t, "stopEditingMessage", function() {
     return w;
-  }), n.d(t, "updateEditText", function() {
+  }), n.d(t, "startEditingMessage", function() {
     return k;
-  }), n.d(t, "requestToStopEditing", function() {
+  }), n.d(t, "stopEditingMessage", function() {
     return M;
-  }), n.d(t, "userSetUnreadPoint", function() {
+  }), n.d(t, "updateEditText", function() {
     return T;
-  }), t.fetchHistory = o, t.getMessagePaneChannelId = i, t.getTimestampsForMessagePane = a, t.getMessagePaneStartTs = s, t.getMessagePaneEditState = u, t.didUserSetUnreadPoint = l;
-  var c, d = n(6),
-    f = n.n(d),
-    p = n(17),
-    h = (n.n(p), n(3431)),
-    m = n(2914),
-    _ = n(3034),
-    y = n(4151),
-    v = Object.assign || function(e) {
+  }), n.d(t, "updateEditStatus", function() {
+    return x;
+  }), n.d(t, "requestToStopEditing", function() {
+    return S;
+  }), n.d(t, "userSetUnreadPoint", function() {
+    return E;
+  }), t.fetchHistory = o, t.saveMessageEdit = i, t.getMessagePaneChannelId = a, t.getTimestampsForMessagePane = s, t.getMessagePaneStartTs = u, t.getMessagePaneEditState = l, t.didUserSetUnreadPoint = c;
+  var d, f = n(6),
+    p = n.n(f),
+    h = n(17),
+    m = (n.n(h), n(3431)),
+    _ = n(2914),
+    y = n(3034),
+    v = n(4151),
+    g = n(4202),
+    b = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
         for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
       }
       return e;
     },
-    g = n.i(p.createAction)("Sets the active channel"),
-    b = n.i(p.createAction)("Start editing a message"),
-    w = n.i(p.createAction)("Stop editing current message"),
-    k = n.i(p.createAction)("Set the current edit text"),
-    M = n.i(p.createAction)("Request that editing be stopped"),
-    T = n.i(p.createAction)("User set the unread point manually"),
-    x = {
+    w = n.i(h.createAction)("Sets the active channel"),
+    k = n.i(h.createAction)("Start editing a message"),
+    M = n.i(h.createAction)("Stop editing current message"),
+    T = n.i(h.createAction)("Set the current edit text"),
+    x = n.i(h.createAction)("Update current edit status"),
+    S = n.i(h.createAction)("Request that editing be stopped"),
+    E = n.i(h.createAction)("User set the unread point manually"),
+    L = {
       channelId: null,
       startTs: null,
       editTs: null,
       editText: null,
+      editStatus: null,
       didRequestToStopEditing: !1,
       userSetUnreadPoint: !1
     },
-    S = n.i(p.createReducer)((c = {}, r(c, g, function(e, t, n) {
-      return v({}, e, {
+    C = n.i(h.createReducer)((d = {}, r(d, w, function(e, t, n) {
+      return b({}, e, {
         channelId: t,
         startTs: n,
         userSetUnreadPoint: !1
       });
-    }), r(c, b, function(e, t) {
-      return v({}, e, {
+    }), r(d, k, function(e, t) {
+      return b({}, e, {
         editTs: t,
-        editText: null
+        editText: null,
+        editStatus: null
       });
-    }), r(c, w, function(e) {
-      return v({}, e, {
+    }), r(d, M, function(e) {
+      return b({}, e, {
         editTs: null,
         editText: null,
+        editStatus: null,
         didRequestToStopEditing: !1
       });
-    }), r(c, k, function(e, t) {
-      return v({}, e, {
+    }), r(d, T, function(e, t) {
+      return b({}, e, {
         editText: t
       });
-    }), r(c, M, function(e) {
+    }), r(d, x, function(e, t) {
+      return b({}, e, {
+        editStatus: t
+      });
+    }), r(d, S, function(e) {
       var t = !(arguments.length > 1 && void 0 !== arguments[1]) || arguments[1];
-      return v({}, e, {
+      return b({}, e, {
         didRequestToStopEditing: t
       });
-    }), r(c, T, function(e) {
-      return v({}, e, {
+    }), r(d, E, function(e) {
+      return b({}, e, {
         userSetUnreadPoint: !0
       });
-    }), c), x);
-  t.default = S;
+    }), d), L);
+  t.default = C;
 }, , , function(e, t, n) {
   "use strict";
   var r = n(3033);
@@ -36849,7 +36883,9 @@ webpackJsonp([332], [, function(e, t, n) {
       editTs: c.a.PropTypes.string,
       startEditingMessage: c.a.PropTypes.func,
       stopEditingMessage: c.a.PropTypes.func,
+      saveMessageEdit: c.a.PropTypes.func,
       updateEditText: c.a.PropTypes.func,
+      editStatus: c.a.PropTypes.string,
       editText: c.a.PropTypes.string,
       didRequestToStopEditing: c.a.PropTypes.bool,
       requestToStopEditing: c.a.PropTypes.func,
@@ -36866,7 +36902,9 @@ webpackJsonp([332], [, function(e, t, n) {
       editTs: null,
       startEditingMessage: u.a.noop,
       stopEditingMessage: u.a.noop,
+      saveMessageEdit: u.a.noop,
       updateEditText: u.a.noop,
+      editStatus: null,
       editText: null,
       didRequestToStopEditing: !1,
       requestToStopEditing: u.a.noop,
@@ -36878,7 +36916,7 @@ webpackJsonp([332], [, function(e, t, n) {
       function t(e) {
         r(this, t);
         var n = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
-        return n.heightCache = {}, n.rows = [], n.getRowHeight = n.getRowHeight.bind(n), n.setRowHeight = n.setRowHeight.bind(n), n.requestOlder = n.requestOlder.bind(n), n.requestNewer = n.requestNewer.bind(n), n.renderRow = n.renderRow.bind(n), n;
+        return n.heightCache = {}, n.rows = [], n.list = null, n.getRowHeight = n.getRowHeight.bind(n), n.setRowHeight = n.setRowHeight.bind(n), n.requestOlder = n.requestOlder.bind(n), n.requestNewer = n.requestNewer.bind(n), n.renderRow = n.renderRow.bind(n), n.setListRef = n.setListRef.bind(n), n;
       }
       return i(t, e), g(t, [{
         key: "getLastVisibleReadTs",
@@ -36899,6 +36937,23 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "setRowHeight",
         value: function(e, t) {
           this.heightCache[e] = t;
+        }
+      }, {
+        key: "setListRef",
+        value: function(e) {
+          this.list = e;
+        }
+      }, {
+        key: "getTimestampsOnScreen",
+        value: function() {
+          if (!this.list) return [];
+          var e = this.list.getVisibleFrame(),
+            t = e.start,
+            n = e.end,
+            r = this.rows.slice(t, n);
+          return u()(r).filter({
+            type: "message"
+          }).map("ts").value();
         }
       }, {
         key: "requestOlder",
@@ -36940,7 +36995,9 @@ webpackJsonp([332], [, function(e, t, n) {
             isEditing: t === this.props.editTs,
             startEdit: this.props.startEditingMessage,
             cancelEdit: this.props.stopEditingMessage,
+            saveMessageEdit: this.props.saveMessageEdit,
             updateEditText: this.props.updateEditText,
+            editStatus: this.props.editStatus,
             editText: this.props.editText,
             didRequestToStopEditing: this.props.didRequestToStopEditing,
             requestToStopEditing: this.props.requestToStopEditing,
@@ -37022,6 +37079,7 @@ webpackJsonp([332], [, function(e, t, n) {
           });
           var p = this.props.startTs,
             m = {
+              editStatus: this.props.editStatus,
               editTs: this.props.editTs
             };
           return c.a.createElement(d.a, {
@@ -37030,6 +37088,7 @@ webpackJsonp([332], [, function(e, t, n) {
             var n = t.width,
               r = t.height;
             return c.a.createElement(h.a, {
+              ref: e.setListRef,
               className: "c-message_list",
               keys: i,
               keyRow: f,
@@ -37082,8 +37141,6 @@ webpackJsonp([332], [, function(e, t, n) {
     return p;
   }), n.d(t, "removeMessage", function() {
     return h;
-  }), n.d(t, "mergeMessage", function() {
-    return m;
   }), t.getMessageByTimestamp = o, t.getMessagesByChannelId = i, t.logMessage = a;
   var s, u = n(6),
     l = n.n(u),
@@ -37098,8 +37155,7 @@ webpackJsonp([332], [, function(e, t, n) {
     },
     p = n.i(c.createAction)("Add messages"),
     h = n.i(c.createAction)("Remove a message"),
-    m = n.i(c.createAction)("Merge props into message"),
-    _ = n.i(c.createReducer)((s = {}, r(s, p, function(e, t) {
+    m = n.i(c.createReducer)((s = {}, r(s, p, function(e, t) {
       if (!t || !t.length || !l.a.isArray(t)) return e;
       var n = l()(t).map("root").compact().value(),
         r = t.concat(n),
@@ -37115,17 +37171,8 @@ webpackJsonp([332], [, function(e, t, n) {
       if (!t || !t.channel || !t.ts) return e;
       var n = l.a.omit(e[t.channel], t.ts);
       return f({}, e, r({}, t.channel, n));
-    }), r(s, m, function(e, t) {
-      var n = t.channelId,
-        o = t.ts,
-        i = t.props;
-      if (!n || !o || !i || l.a.isEmpty(i)) return e;
-      var a = e[n] ? e[n][o] : null;
-      if (!a) return e;
-      var s = f({}, a, i);
-      return f({}, e, r({}, n, f({}, e[n], r({}, o, s))));
     }), s), {});
-  t.default = _;
+  t.default = m;
 }, , function(e, t, n) {
   "use strict";
 
@@ -37221,11 +37268,11 @@ webpackJsonp([332], [, function(e, t, n) {
         reactionKey: w,
         showUser: v,
         isFileFollowup: g,
-        rollup: T
+        rollup: T,
+        edited: d.edited
       });
     },
     k = {
-      mergeMessage: f.mergeMessage,
       removeMessage: f.removeMessage,
       logMessage: f.logMessage
     };
@@ -37281,15 +37328,19 @@ webpackJsonp([332], [, function(e, t, n) {
     g = n(3916),
     b = n(4162),
     w = n(3188),
-    k = n(3624),
-    M = n(3937),
-    T = n(3998),
-    x = n(3040),
-    S = n(3981),
-    E = n(3956),
-    L = n(2914),
-    C = n(3119),
-    O = (n.n(C), function() {
+    k = n(2902),
+    M = n(3624),
+    T = n(3937),
+    x = n(3998),
+    S = n(3040),
+    E = n(3981),
+    L = n(3956),
+    C = n(2914),
+    O = n(2921),
+    P = n(3173),
+    j = n(2288),
+    D = n(3119),
+    Y = (n.n(D), function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
@@ -37300,7 +37351,8 @@ webpackJsonp([332], [, function(e, t, n) {
         return n && e(t.prototype, n), r && e(t, r), t;
       };
     }()),
-    P = {
+    A = new j.a("message"),
+    R = {
       channel: s.PropTypes.shape({
         id: s.PropTypes.string.isRequired,
         name: s.PropTypes.string
@@ -37340,8 +37392,14 @@ webpackJsonp([332], [, function(e, t, n) {
       isEditing: s.PropTypes.bool,
       startEdit: s.PropTypes.func,
       cancelEdit: s.PropTypes.func,
+      saveMessageEdit: s.PropTypes.func,
       updateEditText: s.PropTypes.func,
+      editStatus: s.PropTypes.string,
       editText: s.PropTypes.string,
+      edited: s.PropTypes.shape({
+        ts: s.PropTypes.string,
+        user: s.PropTypes.string
+      }),
       didRequestToStopEditing: s.PropTypes.bool,
       requestToStopEditing: s.PropTypes.func,
       isLast: s.PropTypes.bool,
@@ -37352,7 +37410,7 @@ webpackJsonp([332], [, function(e, t, n) {
       logMessage: s.PropTypes.func,
       setUnreadPoint: s.PropTypes.func
     },
-    j = {
+    I = {
       text: null,
       alertType: null,
       subtype: null,
@@ -37373,8 +37431,11 @@ webpackJsonp([332], [, function(e, t, n) {
       isEditing: !1,
       startEdit: d.noop,
       cancelEdit: d.noop,
+      saveMessageEdit: d.noop,
       updateEditText: d.noop,
+      editStatus: null,
       editText: null,
+      edited: null,
       didRequestToStopEditing: !1,
       requestToStopEditing: d.noop,
       isLast: !1,
@@ -37382,13 +37443,13 @@ webpackJsonp([332], [, function(e, t, n) {
       logMessage: d.noop,
       setUnreadPoint: d.noop
     },
-    D = function(e) {
+    N = function(e) {
       function t(e) {
         o(this, t);
         var n = i(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
         return n.onContainerClick = n.onContainerClick.bind(n), n.onWindowClick = n.onWindowClick.bind(n), n.renderProfilePreview = n.renderProfilePreview.bind(n), n.startEditing = n.startEditing.bind(n), n;
       }
-      return a(t, e), O(t, [{
+      return a(t, e), Y(t, [{
         key: "componentDidMount",
         value: function() {
           this.props.isEditing && window.addEventListener("click", this.onWindowClick);
@@ -37414,7 +37475,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "onContainerClick",
         value: function(e) {
-          return this.props.isEditing ? void e.stopPropagation() : e.shiftKey && n.i(L.b)(e) ? (e.stopPropagation(), void this.props.logMessage(this.props.channel.id, this.props.ts)) : void(e.altKey && (e.preventDefault(), this.props.setUnreadPoint(this.props.channel.id, this.props.ts)));
+          return this.props.isEditing ? void e.stopPropagation() : e.shiftKey && n.i(C.b)(e) ? (e.stopPropagation(), void this.props.logMessage(this.props.channel.id, this.props.ts)) : void(e.altKey && (e.preventDefault(), this.props.setUnreadPoint(this.props.channel.id, this.props.ts)));
         }
       }, {
         key: "startEditing",
@@ -37424,7 +37485,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "renderProfilePreview",
         value: function(e) {
-          return this.props.userId ? u.a.createElement(S.a, {
+          return this.props.userId ? u.a.createElement(E.a, {
             userId: this.props.userId,
             menuProps: e,
             timestamp: this.props.ts
@@ -37437,7 +37498,7 @@ webpackJsonp([332], [, function(e, t, n) {
             t = e.channel,
             r = e.ts,
             o = e.threadTs,
-            i = n.i(x.d)(t.id, r, o);
+            i = n.i(S.d)(t.id, r, o);
           return u.a.createElement(v.a, {
             timestamp: r,
             relative: !1,
@@ -37454,7 +37515,7 @@ webpackJsonp([332], [, function(e, t, n) {
             });
             if (this.props.isEditing || this.props.showUser) return u.a.createElement("div", {
               className: "c-message__gutter"
-            }, u.a.createElement(E.a, {
+            }, u.a.createElement(L.a, {
               renderMenu: this.renderProfilePreview,
               position: "right",
               offsetX: 16,
@@ -37492,19 +37553,38 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "renderThreadBroadcastPreamble",
         value: function() {
-          return "thread_broadcast" !== this.props.subtype ? null : u.a.createElement(k.a, {
+          return "thread_broadcast" !== this.props.subtype ? null : u.a.createElement(M.a, {
             ts: this.props.ts,
             threadTs: this.props.threadTs,
             channelId: this.props.channel.id
           });
         }
       }, {
+        key: "renderEditedLabel",
+        value: function() {
+          var e = this.props.edited,
+            t = e.ts,
+            r = A.t("{date} at {time}", {
+              date: n.i(P.a)(t, {
+                shortenMonth: !0
+              }),
+              time: n.i(O.a)(t)
+            });
+          return u.a.createElement(k.a, {
+            delay: 300,
+            tip: r
+          }, u.a.createElement("span", {
+            className: "c-message__edited_label"
+          }, "(edited)"));
+        }
+      }, {
         key: "renderBody",
         value: function() {
-          return this.props.file && "file_comment" !== this.props.subtype ? this.renderInlineFile() : this.props.file && this.props.comment && "file_comment" === this.props.subtype ? this.renderFileComment() : this.props.rollup ? this.renderRollup() : u.a.createElement(w.a, {
-            text: this.props.text,
+          return this.props.file && "file_comment" !== this.props.subtype ? this.renderInlineFile() : this.props.file && this.props.comment && "file_comment" === this.props.subtype ? this.renderFileComment() : this.props.rollup ? this.renderRollup() : u.a.createElement("span", {
             className: "c-message__body"
-          });
+          }, u.a.createElement(w.a, {
+            text: this.props.text
+          }), this.props.edited && " ", this.props.edited && this.renderEditedLabel());
         }
       }, {
         key: "renderReplyBar",
@@ -37578,7 +37658,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "renderActions",
         value: function() {
-          return u.a.createElement(M.a, {
+          return u.a.createElement(T.a, {
             reactionKey: this.props.reactionKey,
             file: this.props.file && this.props.file.id,
             replies: this.props.replies,
@@ -37599,19 +37679,23 @@ webpackJsonp([332], [, function(e, t, n) {
           var e = this.props,
             t = e.cancelEdit,
             n = e.channel,
-            r = e.editText,
-            o = e.didRequestToStopEditing,
-            i = e.requestToStopEditing,
-            a = e.ts,
-            s = e.updateEditText;
-          return u.a.createElement(T.a, {
+            r = e.editStatus,
+            o = e.editText,
+            i = e.didRequestToStopEditing,
+            a = e.requestToStopEditing,
+            s = e.saveMessageEdit,
+            l = e.ts,
+            c = e.updateEditText;
+          return u.a.createElement(x.a, {
             cancelEdit: t,
+            saveMessageEdit: s,
             channelId: n.id,
-            initialEditText: r,
-            updateEditText: s,
-            didRequestToStopEditing: o,
-            requestToStopEditing: i,
-            ts: a
+            initialEditText: o,
+            editStatus: r,
+            updateEditText: c,
+            didRequestToStopEditing: i,
+            requestToStopEditing: a,
+            ts: l
           });
         }
       }, {
@@ -37625,7 +37709,7 @@ webpackJsonp([332], [, function(e, t, n) {
         }
       }]), t;
     }(s.PureComponent);
-  t.a = D, D.propTypes = P, D.defaultProps = j, D.displayName = "Message";
+  t.a = N, N.propTypes = R, N.defaultProps = I, N.displayName = "Message";
 }, , function(e, t, n) {
   "use strict";
   n.d(t, "g", function() {
@@ -38700,7 +38784,7 @@ webpackJsonp([332], [, function(e, t, n) {
   var r = n(3062),
     o = r.a;
 }, , , , function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.t-list-reset {\n  margin-bottom: 0;\n  margin-left: 0;\n  padding: 0;\n  list-style-type: none;\n}\n@font-face {\n  font-family: 'Slack v2';\n  src: url('https://a.slack-edge.com/7c81/fonts/slack-icons-v2.woff2') format('woff2'), url('https://a.slack-edge.com/7c81/fonts/slack-icons-v2.woff') format('woff');\n  font-style: normal;\n  font-weight: 400;\n}\n.c-icon:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n}\n.c-icon--inherit:before {\n  font-size: inherit;\n}\n.c-icon--align-bottom:before {\n  vertical-align: bottom;\n}\n.c-icon--align-top:before {\n  vertical-align: top;\n}\n.c-icon--align-baseline:before {\n  vertical-align: baseline;\n}\n.c-icon--star-o:before {\n  content: '\\E001';\n}\n.c-icon--unstar-o:before {\n  content: '\\E002';\n}\n.c-icon--user:before {\n  content: '\\E003';\n}\n.c-icon--comment-alt:before {\n  content: '\\E004';\n}\n.c-icon--comment-o:before {\n  content: '\\E005';\n}\n.c-icon--home:before {\n  content: '\\E006';\n}\n.c-icon--info:before {\n  content: '\\E007';\n}\n.c-icon--channel-info:before,\n.c-icon--info-circle:before {\n  content: '\\E008';\n}\n.c-icon--mentions:before {\n  content: '\\E009';\n}\n.c-icon--search:before {\n  content: '\\E010';\n}\n.c-icon--bolt:before {\n  content: '\\E011';\n}\n.c-icon--mobile:before {\n  content: '\\E012';\n}\n.c-icon--tablet:before {\n  content: '\\E013';\n}\n.c-icon--laptop:before {\n  content: '\\E014';\n}\n.c-icon--bell-o:before {\n  content: '\\E015';\n}\n.c-icon--bell-slash:before {\n  content: '\\E016';\n}\n.c-icon--team-directory:before {\n  content: '\\E017';\n}\n.c-icon--cloud-upload:before {\n  content: '\\E018';\n}\n.c-icon--cloud-download:before {\n  content: '\\E019';\n}\n.c-icon--cog-o:before {\n  content: '\\E020';\n}\n.c-icon--cogs:before {\n  content: '\\E021';\n}\n.c-icon--key:before {\n  content: '\\E022';\n}\n.c-icon--calendar:before {\n  content: '\\E023';\n}\n.c-icon--pencil:before {\n  content: '\\E024';\n}\n.c-icon--lightbulb-o:before {\n  content: '\\E025';\n}\n.c-icon--magic:before {\n  content: '\\E026';\n}\n.c-icon--external-link:before {\n  content: '\\E027';\n}\n.c-icon--external-link-square:before {\n  content: '\\E028';\n}\n.c-icon--lock-o:before {\n  content: '\\E029';\n}\n.c-icon--unlock:before {\n  content: '\\E030';\n}\n.c-icon--folder:before {\n  content: '\\E031';\n}\n.c-icon--folder-open:before {\n  content: '\\E032';\n}\n.c-icon--archive:before {\n  content: '\\E033';\n}\n.c-icon--inbox:before {\n  content: '\\E034';\n}\n.c-icon--sitemap:before {\n  content: '\\E035';\n}\n.c-icon--book:before {\n  content: '\\E036';\n}\n.c-icon--envelope-o:before {\n  content: '\\E037';\n}\n.c-icon--image:before {\n  content: '\\E038';\n}\n.c-icon--building:before {\n  content: '\\E039';\n}\n.c-icon--plug:before {\n  content: '\\E040';\n}\n.c-icon--paper-plane:before {\n  content: '\\E041';\n}\n.c-icon--credit-card:before {\n  content: '\\E042';\n}\n.c-icon--life-ring:before {\n  content: '\\E043';\n}\n.c-icon--thumb-tack:before {\n  content: '\\E044';\n}\n.c-icon--thumb-tack-filled:before {\n  content: '\\E547';\n}\n.c-icon--trash:before {\n  content: '\\E045';\n}\n.c-icon--print:before {\n  content: '\\E046';\n}\n.c-icon--quote-o:before {\n  content: '\\E047';\n}\n.c-icon--th-large:before {\n  content: '\\E048';\n}\n.c-icon--eye:before {\n  content: '\\E049';\n}\n.c-icon--eye-closed:before {\n  content: '\\E050';\n}\n.c-icon--volume-off:before {\n  content: '\\E051';\n}\n.c-icon--volume-down:before {\n  content: '\\E052';\n}\n.c-icon--volume-medium:before {\n  content: '\\E053';\n}\n.c-icon--volume-up:before {\n  content: '\\E054';\n}\n.c-icon--volume-off-alt:before {\n  content: '\\E055';\n}\n.c-icon--heart-o:before {\n  content: '\\E056';\n}\n.c-icon--wrench:before {\n  content: '\\E057';\n}\n.c-icon--file:before {\n  content: '\\E058';\n}\n.c-icon--all-files:before {\n  content: '\\E059';\n}\n.c-icon--your-files:before {\n  content: '\\E060';\n}\n.c-icon--align-left:before {\n  content: '\\E061';\n}\n.c-icon--align-center:before {\n  content: '\\E062';\n}\n.c-icon--align-right:before {\n  content: '\\E063';\n}\n.c-icon--align-justify:before {\n  content: '\\E064';\n}\n.c-icon--paragraph:before {\n  content: '\\E065';\n}\n.c-icon--code:before {\n  content: '\\E066';\n}\n.c-icon--ellipsis:before {\n  content: '\\E067';\n}\n.c-icon--ellipsis-baseline:before {\n  content: '\\E068';\n}\n.c-icon--spinner:before {\n  content: '\\E069';\n}\n.c-icon--spiral:before {\n  content: '\\E070';\n}\n.c-icon--random:before {\n  content: '\\E071';\n}\n.c-icon--repeat:before {\n  content: '\\E072';\n}\n.c-icon--share-square-o:before {\n  content: '\\E073';\n}\n.c-icon--link:before {\n  content: '\\E074';\n}\n.c-icon--undo:before {\n  content: '\\E075';\n}\n.c-icon--history:before {\n  content: '\\E076';\n}\n.c-icon--hourglass-empty:before {\n  content: '\\E077';\n}\n.c-icon--hourglass:before {\n  content: '\\E078';\n}\n.c-icon--clock-o:before {\n  content: '\\E079';\n}\n.c-icon--dashboard:before {\n  content: '\\E080';\n}\n.c-icon--power-off:before {\n  content: '\\E081';\n}\n.c-icon--sign-in:before {\n  content: '\\E082';\n}\n.c-icon--sign-out:before {\n  content: '\\E083';\n}\n.c-icon--jump:before {\n  content: '\\E084';\n}\n.c-icon--globe:before {\n  content: '\\E085';\n}\n.c-icon--filter:before {\n  content: '\\E086';\n}\n.c-icon--microphone:before {\n  content: '\\E087';\n}\n.c-icon--microphone-slash:before {\n  content: '\\E088';\n}\n.c-icon--paperclip:before {\n  content: '\\E089';\n}\n.c-icon--video-camera:before {\n  content: '\\E090';\n}\n.c-icon--stop-video:before {\n  content: '\\E091';\n}\n.c-icon--phone:before {\n  content: '\\E092';\n}\n.c-icon--end-call:before {\n  content: '\\E093';\n}\n.c-icon--smile-o:before {\n  content: '\\E094';\n}\n.c-icon--share-screen:before {\n  content: '\\E095';\n}\n.c-icon--stop-screen-sharing:before {\n  content: '\\E096';\n}\n.c-icon--stop-screen-sharing-alt:before {\n  content: '\\E097';\n}\n.c-icon--feedback:before {\n  content: '\\E098';\n}\n.c-icon--paper-plane-alt:before {\n  content: '\\E099';\n}\n.c-icon--share:before {\n  content: '\\E100';\n}\n.c-icon--save:before {\n  content: '\\E101';\n}\n.c-icon--message-notification:before {\n  content: '\\E102';\n}\n.c-icon--list:before {\n  content: '\\E103';\n}\n.c-icon--channel:before {\n  content: '\\E104';\n}\n.c-icon--share-other-alt:before {\n  content: '\\E105';\n}\n.c-icon--broadcast:before {\n  content: '\\E106';\n}\n.c-icon--all-files-alt:before {\n  content: '\\E107';\n}\n.c-icon--search-files:before {\n  content: '\\E108';\n}\n.c-icon--add-user:before {\n  content: '\\E109';\n}\n.c-icon--switch-team:before {\n  content: '\\E110';\n}\n.c-icon--create-snippet:before {\n  content: '\\E111';\n}\n.c-icon--create-post:before {\n  content: '\\E112';\n}\n.c-icon--upload:before {\n  content: '\\E113';\n}\n.c-icon--download:before {\n  content: '\\E114';\n}\n.c-icon--share-email:before {\n  content: '\\E115';\n}\n.c-icon--import-email:before {\n  content: '\\E116';\n}\n.c-icon--ellipsis-o:before {\n  content: '\\E117';\n}\n.c-icon--add-reaction:before {\n  content: '\\E118';\n}\n.c-icon--happy-smile:before {\n  content: '\\E119';\n}\n.c-icon--mark-unread:before {\n  content: '\\E120';\n}\n.c-icon--camera:before {\n  content: '\\E121';\n}\n.c-icon--phone-flat:before {\n  content: '\\E122';\n}\n.c-icon--sparkles:before {\n  content: '\\E123';\n}\n.c-icon--location-pin:before {\n  content: '\\E124';\n}\n.c-icon--channel-pane-hash:before {\n  content: '\\E125';\n}\n.c-icon--emoji-nature:before {\n  content: '\\E126';\n}\n.c-icon--emoji-food:before {\n  content: '\\E127';\n}\n.c-icon--emoji-celebration:before {\n  content: '\\E128';\n}\n.c-icon--emoji-activities:before {\n  content: '\\E129';\n}\n.c-icon--emoji-travel:before {\n  content: '\\E130';\n}\n.c-icon--emoji-objects:before {\n  content: '\\E131';\n}\n.c-icon--file-gdrive:before {\n  content: '\\E133';\n}\n.c-icon--play:before {\n  content: '\\E134';\n}\n.c-icon--stream:before {\n  content: '\\E135';\n}\n.c-icon--field-text:before {\n  content: '\\E136';\n}\n.c-icon--poo:before {\n  content: '\\E137';\n}\n.c-icon--channel-list:before {\n  content: '\\E138';\n}\n.c-icon--share-android:before {\n  content: '\\E139';\n}\n.c-icon--highlight:before {\n  content: '\\E140';\n}\n.c-icon--flag:before {\n  content: '\\E141';\n}\n.c-icon--grabby-patty:before {\n  content: '\\E142';\n}\n.c-icon--backspace:before {\n  content: '\\E143';\n}\n.c-icon--android-keyboard:before {\n  content: '\\E144';\n}\n.c-icon--side-panel:before {\n  content: '\\E145';\n}\n.c-icon--search-small:before {\n  content: '\\E146';\n}\n.c-icon--reload-small:before {\n  content: '\\E147';\n}\n.c-icon--vertical-ellipsis:before {\n  content: '\\E148';\n}\n.c-icon--disable:before {\n  content: '\\E149';\n}\n.c-icon--bold-hash-small:before {\n  content: '\\E150';\n}\n.c-icon--cart:before {\n  content: '\\E151';\n}\n.c-icon--snooze-outline:before {\n  content: '\\E152';\n}\n.c-icon--new-window:before {\n  content: '\\E153';\n}\n.c-icon--h1:before {\n  content: '\\E154';\n}\n.c-icon--h2:before {\n  content: '\\E155';\n}\n.c-icon--h3:before {\n  content: '\\E156';\n}\n.c-icon--bullet-list:before {\n  content: '\\E157';\n}\n.c-icon--numbered-list:before {\n  content: '\\E158';\n}\n.c-icon--text-format-menu:before {\n  content: '\\E159';\n}\n.c-icon--bold:before {\n  content: '\\E160';\n}\n.c-icon--italic:before {\n  content: '\\E161';\n}\n.c-icon--underline:before {\n  content: '\\E162';\n}\n.c-icon--strikethrough:before {\n  content: '\\E163';\n}\n.c-icon--tag:before {\n  content: '\\E164';\n}\n.c-icon--org-shared-channel:before {\n  content: '\\E165';\n}\n.c-icon--shared-channel:before {\n  content: '\\E166';\n}\n.c-icon--external-channel:before {\n  content: '\\E167';\n}\n.c-icon--small-reaction:before {\n  content: '\\E170';\n}\n.c-icon--small-reply:before {\n  content: '\\E171';\n}\n.c-icon--small-ellipsis:before {\n  content: '\\E172';\n}\n.c-icon--small-star:before {\n  content: '\\E173';\n}\n.c-icon--small-quote:before {\n  content: '\\E174';\n}\n.c-icon--keyboard:before {\n  content: '\\E175';\n}\n.c-icon--share-action:before {\n  content: '\\E176';\n}\n.c-icon--handset:before {\n  content: '\\E177';\n}\n.c-icon--bluetooth-sound:before {\n  content: '\\E178';\n}\n.c-icon--bluetooth:before {\n  content: '\\E179';\n}\n.c-icon--bot:before {\n  content: '\\E180';\n}\n.c-icon--globe-plus:before {\n  content: '\\E181';\n}\n.c-icon--user-groups:before {\n  content: '\\E182';\n}\n.c-icon--frowning-face:before {\n  content: '\\E183';\n}\n.c-icon--mobile-notification:before {\n  content: '\\E184';\n}\n.c-icon--desktop-notification:before {\n  content: '\\E185';\n}\n.c-icon--collab-screenshare-on:before {\n  content: '\\E186';\n}\n.c-icon--collab-screenshare-off:before {\n  content: '\\E187';\n}\n.c-icon--thumbs-up:before {\n  content: '\\E188';\n}\n.c-icon--thumbs-down:before {\n  content: '\\E189';\n}\n.c-icon--expand:before {\n  content: '\\E200';\n}\n.c-icon--reduce:before {\n  content: '\\E201';\n}\n.c-icon--arrows-alt:before {\n  content: '\\E202';\n}\n.c-icon--reduce-alt:before {\n  content: '\\E203';\n}\n.c-icon--check-square-o:before {\n  content: '\\E204';\n}\n.c-icon--check-circle-o:before {\n  content: '\\E205';\n}\n.c-icon--check-circle-o-large:before {\n  content: '\\E206';\n}\n.c-icon--question:before {\n  content: '\\E207';\n}\n.c-icon--exclamation:before {\n  content: '\\E208';\n}\n.c-icon--warning:before {\n  content: '\\E209';\n}\n.c-icon--exclamation-circle:before {\n  content: '\\E210';\n}\n.c-icon--question-circle:before {\n  content: '\\E211';\n}\n.c-icon--plus-circle:before {\n  content: '\\E212';\n}\n.c-icon--minus-circle:before {\n  content: '\\E213';\n}\n.c-icon--times-circle:before {\n  content: '\\E214';\n}\n.c-icon--square-warning:before {\n  content: '\\E230';\n}\n.c-icon--square-question:before {\n  content: '\\E231';\n}\n.c-icon--plus-square-o:before {\n  content: '\\E232';\n}\n.c-icon--minus-square-o:before {\n  content: '\\E233';\n}\n.c-icon--square-times:before {\n  content: '\\E234';\n}\n.c-icon--times:before {\n  content: '\\E278';\n}\n.c-icon--plus:before {\n  content: '\\E279';\n}\n.c-icon--minus:before {\n  content: '\\E280';\n}\n.c-icon--plus-small:before {\n  content: '\\E281';\n}\n.c-icon--minus-small:before {\n  content: '\\E282';\n}\n.c-icon--exclamation-small:before {\n  content: '\\E283';\n}\n.c-icon--question-small:before {\n  content: '\\E284';\n}\n.c-icon--check-small:before {\n  content: '\\E285';\n}\n.c-icon--times-small:before {\n  content: '\\E294';\n}\n.c-icon--sync:before {\n  content: '\\E295';\n}\n.c-icon--replies:before {\n  content: '\\E296';\n}\n.c-icon--check-small-bold:before {\n  content: '\\E301';\n}\n.c-icon--enter:before {\n  content: '\\E302';\n}\n.c-icon--expand-vertical:before {\n  content: '\\E303';\n}\n.c-icon--collapse-vertical:before {\n  content: '\\E304';\n}\n.c-icon--android-upload:before {\n  content: '\\E305';\n}\n.c-icon--plus-thick:before {\n  content: '\\E306';\n}\n.c-icon--check-large-bold:before {\n  content: '\\E319';\n}\n.c-icon--check-large:before {\n  content: '\\E320';\n}\n.c-icon--calls:before {\n  content: '\\E478';\n}\n.c-icon--calls-small:before {\n  content: '\\E479';\n}\n.c-icon--calls-ended:before {\n  content: '\\E480';\n}\n.c-icon--calls-ended-small:before {\n  content: '\\E481';\n}\n.c-icon--star:before {\n  content: '\\E500';\n}\n.c-icon--unstar:before {\n  content: '\\E501';\n}\n.c-icon--bell:before {\n  content: '\\E502';\n}\n.c-icon--lock:before {\n  content: '\\E503';\n}\n.c-icon--external-link-small:before {\n  content: '\\E504';\n}\n.c-icon--external-link-large:before {\n  content: '\\E505';\n}\n.c-icon--presence-online:before {\n  content: '\\E506';\n}\n.c-icon--presence-offline:before {\n  content: '\\E507';\n}\n.c-icon--presence-dnd:before {\n  content: '\\E508';\n}\n.c-icon--presence-ra-online:before,\n.c-icon--presence-external-online:before {\n  content: '\\E509';\n}\n.c-icon--restricted-user:before {\n  content: '\\E509';\n}\n.c-icon--presence-ra-offline:before,\n.c-icon--presence-external-offline:before {\n  content: '\\E510';\n}\n.c-icon--presence-ra-dnd:before,\n.c-icon--presence-external-dnd:before {\n  content: '\\E511';\n}\n.c-icon--presence-ura-online:before {\n  content: '\\E512';\n}\n.c-icon--single-channel-guest:before {\n  content: '\\E512';\n}\n.c-icon--presence-ura-offline:before {\n  content: '\\E513';\n}\n.c-icon--presence-ura-dnd:before {\n  content: '\\E514';\n}\n.c-icon--heart:before {\n  content: '\\E515';\n}\n.c-icon--quote:before {\n  content: '\\E516';\n}\n.c-icon--cog:before {\n  content: '\\E517';\n}\n.c-icon--comment:before {\n  content: '\\E518';\n}\n.c-icon--minus-circle-small:before {\n  content: '\\E519';\n}\n.c-icon--times-circle-small:before {\n  content: '\\E520';\n}\n.c-icon--multiparty-dm-2:before {\n  content: '\\E521';\n}\n.c-icon--multiparty-dm-3:before {\n  content: '\\E522';\n}\n.c-icon--multiparty-dm-4:before {\n  content: '\\E523';\n}\n.c-icon--multiparty-dm-5:before {\n  content: '\\E524';\n}\n.c-icon--multiparty-dm-6:before {\n  content: '\\E525';\n}\n.c-icon--multiparty-dm-7:before {\n  content: '\\E526';\n}\n.c-icon--multiparty-dm-8:before {\n  content: '\\E527';\n}\n.c-icon--multiparty-dm-9:before {\n  content: '\\E528';\n}\n.c-icon--poo-filled:before {\n  content: '\\E529';\n}\n.c-icon--circle-fill:before {\n  content: '\\E530';\n}\n.c-icon--flag-filled:before {\n  content: '\\E531';\n}\n.c-icon--refresh-small:before {\n  content: '\\E532';\n}\n.c-icon--snooze-filled:before {\n  content: '\\E533';\n}\n.c-icon--archived-channel:before {\n  content: '\\E534';\n}\n.c-icon--presence-dnd-offline:before {\n  content: '\\E535';\n}\n.c-icon--presence-ra-dnd-offline:before,\n.c-icon--presence-external-dnd-offline:before {\n  content: '\\E536';\n}\n.c-icon--presence-ura-dnd-offline:before {\n  content: '\\E537';\n}\n.c-icon--presence-mobile-dnd:before {\n  content: '\\E538';\n}\n.c-icon--play-filled:before {\n  content: '\\E539';\n}\n.c-icon--broadcast-filled:before {\n  content: '\\E540';\n}\n.c-icon--small-star-filled:before {\n  content: '\\E541';\n}\n.c-icon--small-comment-filled:before {\n  content: '\\E542';\n}\n.c-icon--paperplane-filled:before {\n  content: '\\E543';\n}\n.c-icon--filebg-large-filled:before {\n  content: '\\E544';\n}\n.c-icon--filebg-small-filled:before {\n  content: '\\E545';\n}\n.c-icon--highlight-filled:before {\n  content: '\\E546';\n}\n.c-icon--pin-filled:before {\n  content: '\\E547';\n}\n.c-icon--close-filled:before {\n  content: '\\E548';\n}\n.c-icon--share-filled:before {\n  content: '\\E549';\n}\n.c-icon--pencil-filled:before {\n  content: '\\E550';\n}\n.c-icon--side-panel-filled:before {\n  content: '\\E551';\n}\n.c-icon--add-reaction-filled:before {\n  content: '\\E552';\n}\n.c-icon--mentions-filled:before {\n  content: '\\E553';\n}\n.c-icon--small-reply-filled:before {\n  content: '\\E554';\n}\n.c-icon--user-filled:before {\n  content: '\\E555';\n}\n.c-icon--microphone-on:before {\n  content: '\\E556';\n}\n.c-icon--camera-on:before {\n  content: '\\E557';\n}\n.c-icon--screenshare-on:before {\n  content: '\\E558';\n}\n.c-icon--shared-channels:before {\n  content: '\\E559';\n}\n.c-icon--heart-large-filled:before {\n  content: '\\E560';\n}\n.c-icon--thumbs-up-filled:before {\n  content: '\\E561';\n}\n.c-icon--thumbs-down-filled:before {\n  content: '\\E562';\n}\n.c-icon--slow-network:before {\n  content: '\\E563';\n}\n.c-icon--sparkles-filled:before {\n  content: '\\E564';\n}\n.c-icon--small-warning-filled:before {\n  content: '\\E565';\n}\n.c-icon--deactivated-user:before {\n  content: '\\E566';\n}\n.c-icon--arrow-right:before {\n  content: '\\E286';\n}\n.c-icon--arrow-left:before {\n  content: '\\E287';\n}\n.c-icon--arrow-up:before {\n  content: '\\E288';\n}\n.c-icon--arrow-down:before {\n  content: '\\E289';\n}\n.c-icon--arrow-right-medium:before {\n  content: '\\E290';\n}\n.c-icon--arrow-left-medium:before {\n  content: '\\E291';\n}\n.c-icon--arrow-up-medium:before {\n  content: '\\E292';\n}\n.c-icon--arrow-down-medium:before {\n  content: '\\E293';\n}\n.c-icon--angle-arrow-down-right-alt:before {\n  content: '\\E297';\n}\n.c-icon--angle-arrow-up-right-alt:before {\n  content: '\\E298';\n}\n.c-icon--angle-arrow-up-left-alt:before {\n  content: '\\E299';\n}\n.c-icon--angle-arrow-down-left-alt:before {\n  content: '\\E300';\n}\n.c-icon--arrow-circle-o-up:before {\n  content: '\\E215';\n}\n.c-icon--arrow-circle-o-down:before {\n  content: '\\E216';\n}\n.c-icon--arrow-circle-o-right:before {\n  content: '\\E217';\n}\n.c-icon--arrow-circle-o-left:before {\n  content: '\\E218';\n}\n.c-icon--chevron-circle-left:before {\n  content: '\\E219';\n}\n.c-icon--chevron-circle-right:before {\n  content: '\\E220';\n}\n.c-icon--chevron-circle-down:before {\n  content: '\\E221';\n}\n.c-icon--chevron-circle-up:before {\n  content: '\\E222';\n}\n.c-icon--plus-circle-small:before {\n  content: '\\E223';\n}\n.c-icon--circle-small:before {\n  content: '\\E224';\n}\n.c-icon--circle-large:before {\n  content: '\\E225';\n}\n.c-icon--plus-circle-medium:before {\n  content: '\\E228';\n}\n.c-icon--times-circle-medium:before {\n  content: '\\E229';\n}\n.c-icon--square-arrow-up:before {\n  content: '\\E235';\n}\n.c-icon--square-arrow-down:before {\n  content: '\\E236';\n}\n.c-icon--square-arrow-right:before {\n  content: '\\E237';\n}\n.c-icon--square-arrow-left:before {\n  content: '\\E238';\n}\n.c-icon--square-chevron-left:before {\n  content: '\\E239';\n}\n.c-icon--square-chevron-right:before {\n  content: '\\E240';\n}\n.c-icon--square-chevron-down:before {\n  content: '\\E241';\n}\n.c-icon--square-chevron-up:before {\n  content: '\\E242';\n}\n.c-icon--chevron-right:before {\n  content: '\\E250';\n}\n.c-icon--chevron-left:before {\n  content: '\\E251';\n}\n.c-icon--chevron-down:before {\n  content: '\\E252';\n}\n.c-icon--chevron-up:before {\n  content: '\\E253';\n}\n.c-icon--chevron-medium-right:before {\n  content: '\\E254';\n}\n.c-icon--chevron-medium-left:before {\n  content: '\\E255';\n}\n.c-icon--chevron-medium-down:before {\n  content: '\\E256';\n}\n.c-icon--chevron-medium-up:before {\n  content: '\\E257';\n}\n.c-icon--chevron-large-right:before {\n  content: '\\E258';\n}\n.c-icon--chevron-large-left:before {\n  content: '\\E259';\n}\n.c-icon--chevron-large-up:before {\n  content: '\\E260';\n}\n.c-icon--chevron-large-down:before {\n  content: '\\E261';\n}\n.c-icon--arrow-large-right:before {\n  content: '\\E262';\n}\n.c-icon--arrow-large-left:before {\n  content: '\\E263';\n}\n.c-icon--arrow-large-up:before {\n  content: '\\E264';\n}\n.c-icon--arrow-large-down:before {\n  content: '\\E265';\n}\n.c-icon--caret-outline-left:before {\n  content: '\\E266';\n}\n.c-icon--caret-outline-right:before {\n  content: '\\E267';\n}\n.c-icon--caret-outline-up:before {\n  content: '\\E268';\n}\n.c-icon--caret-outline-down:before {\n  content: '\\E269';\n}\n.c-icon--caret-up:before {\n  content: '\\E270';\n}\n.c-icon--caret-down:before {\n  content: '\\E271';\n}\n.c-icon--caret-right:before {\n  content: '\\E272';\n}\n.c-icon--caret-left:before {\n  content: '\\E273';\n}\n.c-icon--angle-arrow-down-left:before {\n  content: '\\E274';\n}\n.c-icon--angle-arrow-down-right:before {\n  content: '\\E275';\n}\n.c-icon--angle-arrow-up-right:before {\n  content: '\\E276';\n}\n.c-icon--angle-arrow-up-left:before {\n  content: '\\E277';\n}\n.c-icon--arrow-ne-large:before {\n  content: '\\E307';\n}\n.c-icon--arrow-nw-large:before {\n  content: '\\E308';\n}\n.c-icon--arrow-sw-large:before {\n  content: '\\E309';\n}\n.c-icon--arrow-se-large:before {\n  content: '\\E310';\n}\n.c-icon--arrow-ne-medium:before {\n  content: '\\E311';\n}\n.c-icon--arrow-nw-medium:before {\n  content: '\\E312';\n}\n.c-icon--arrow-sw-medium:before {\n  content: '\\E313';\n}\n.c-icon--arrow-se-medium:before {\n  content: '\\E314';\n}\n.c-icon--arrow-ne-small:before {\n  content: '\\E315';\n}\n.c-icon--arrow-nw-small:before {\n  content: '\\E316';\n}\n.c-icon--arrow-sw-small:before {\n  content: '\\E317';\n}\n.c-icon--arrow-se-small:before {\n  content: '\\E318';\n}\n.c-icon--slack:before {\n  content: '\\E800';\n}\n.c-icon--slack-pillow:before {\n  content: '\\E801';\n}\n.c-icon--apple:before {\n  content: '\\E802';\n}\n.c-icon--android:before {\n  content: '\\E803';\n}\n.c-icon--twitter:before {\n  content: '\\E804';\n}\n.c-icon--github:before {\n  content: '\\E805';\n}\n.c-icon--dropbox:before {\n  content: '\\E806';\n}\n.c-icon--google:before {\n  content: '\\E807';\n}\n.c-icon--windows:before {\n  content: '\\E808';\n}\n.c-icon--youtube:before {\n  content: '\\E809';\n}\n.c-icon--google-drive:before {\n  content: '\\E810';\n}\n.c-icon--skype:before {\n  content: '\\E811';\n}\n.c-icon--rss:before {\n  content: '\\E812';\n}\n.c-icon--facebook:before {\n  content: '\\E813';\n}\n.c-icon--asana:before {\n  content: '\\E814';\n}\n.c-icon--linkedin:before {\n  content: '\\E815';\n}\n.c-icon--tumblr:before {\n  content: '\\E816';\n}\n.c-icon--instagram:before {\n  content: '\\E817';\n}\n.c-icon--google-plus:before {\n  content: '\\E818';\n}\n.c-icon--soundcloud:before {\n  content: '\\E819';\n}\n.c-icon--flickr:before {\n  content: '\\E820';\n}\n.c-icon--pinterest:before {\n  content: '\\E821';\n}\n.c-icon--tripit:before {\n  content: '\\E822';\n}\n.c-icon--hangouts:before {\n  content: '\\E823';\n}\n.c-icon--viber:before {\n  content: '\\E824';\n}\n.c-icon--line:before {\n  content: '\\E825';\n}\n.c-icon--facebook-messenger:before {\n  content: '\\E826';\n}\n.c-icon--1password:before {\n  content: '\\E827';\n}\n.c-icon--box:before {\n  content: '\\E828';\n}\n.c-icon--box-square:before {\n  content: '\\E829';\n}\n.c-icon--google-play:before {\n  content: '\\E830';\n}\n.c-icon--spotify:before {\n  content: '\\E831';\n}\n.c-icon--siriusxm:before {\n  content: '\\E832';\n}\n.c-icon--stitcher:before {\n  content: '\\E833';\n}\n.c-icon--pocket-casts:before {\n  content: '\\E834';\n}\n.c-icon--onedrive:before {\n  content: '\\E835';\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, "@font-face {\n  font-family: 'Slack v2';\n  src: url('https://a.slack-edge.com/7c81/fonts/slack-icons-v2.woff2') format('woff2'), url('https://a.slack-edge.com/7c81/fonts/slack-icons-v2.woff') format('woff');\n  font-style: normal;\n  font-weight: 400;\n}\n.c-icon:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n}\n.c-icon--inherit:before {\n  font-size: inherit;\n}\n.c-icon--align-bottom:before {\n  vertical-align: bottom;\n}\n.c-icon--align-top:before {\n  vertical-align: top;\n}\n.c-icon--align-baseline:before {\n  vertical-align: baseline;\n}\n.c-icon--star-o:before {\n  content: '\\E001';\n}\n.c-icon--unstar-o:before {\n  content: '\\E002';\n}\n.c-icon--user:before {\n  content: '\\E003';\n}\n.c-icon--comment-alt:before {\n  content: '\\E004';\n}\n.c-icon--comment-o:before {\n  content: '\\E005';\n}\n.c-icon--home:before {\n  content: '\\E006';\n}\n.c-icon--info:before {\n  content: '\\E007';\n}\n.c-icon--channel-info:before,\n.c-icon--info-circle:before {\n  content: '\\E008';\n}\n.c-icon--mentions:before {\n  content: '\\E009';\n}\n.c-icon--search:before {\n  content: '\\E010';\n}\n.c-icon--bolt:before {\n  content: '\\E011';\n}\n.c-icon--mobile:before {\n  content: '\\E012';\n}\n.c-icon--tablet:before {\n  content: '\\E013';\n}\n.c-icon--laptop:before {\n  content: '\\E014';\n}\n.c-icon--bell-o:before {\n  content: '\\E015';\n}\n.c-icon--bell-slash:before {\n  content: '\\E016';\n}\n.c-icon--team-directory:before {\n  content: '\\E017';\n}\n.c-icon--cloud-upload:before {\n  content: '\\E018';\n}\n.c-icon--cloud-download:before {\n  content: '\\E019';\n}\n.c-icon--cog-o:before {\n  content: '\\E020';\n}\n.c-icon--cogs:before {\n  content: '\\E021';\n}\n.c-icon--key:before {\n  content: '\\E022';\n}\n.c-icon--calendar:before {\n  content: '\\E023';\n}\n.c-icon--pencil:before {\n  content: '\\E024';\n}\n.c-icon--lightbulb-o:before {\n  content: '\\E025';\n}\n.c-icon--magic:before {\n  content: '\\E026';\n}\n.c-icon--external-link:before {\n  content: '\\E027';\n}\n.c-icon--external-link-square:before {\n  content: '\\E028';\n}\n.c-icon--lock-o:before {\n  content: '\\E029';\n}\n.c-icon--unlock:before {\n  content: '\\E030';\n}\n.c-icon--folder:before {\n  content: '\\E031';\n}\n.c-icon--folder-open:before {\n  content: '\\E032';\n}\n.c-icon--archive:before {\n  content: '\\E033';\n}\n.c-icon--inbox:before {\n  content: '\\E034';\n}\n.c-icon--sitemap:before {\n  content: '\\E035';\n}\n.c-icon--book:before {\n  content: '\\E036';\n}\n.c-icon--envelope-o:before {\n  content: '\\E037';\n}\n.c-icon--image:before {\n  content: '\\E038';\n}\n.c-icon--building:before {\n  content: '\\E039';\n}\n.c-icon--plug:before {\n  content: '\\E040';\n}\n.c-icon--paper-plane:before {\n  content: '\\E041';\n}\n.c-icon--credit-card:before {\n  content: '\\E042';\n}\n.c-icon--life-ring:before {\n  content: '\\E043';\n}\n.c-icon--thumb-tack:before {\n  content: '\\E044';\n}\n.c-icon--thumb-tack-filled:before {\n  content: '\\E547';\n}\n.c-icon--trash:before {\n  content: '\\E045';\n}\n.c-icon--print:before {\n  content: '\\E046';\n}\n.c-icon--quote-o:before {\n  content: '\\E047';\n}\n.c-icon--th-large:before {\n  content: '\\E048';\n}\n.c-icon--eye:before {\n  content: '\\E049';\n}\n.c-icon--eye-closed:before {\n  content: '\\E050';\n}\n.c-icon--volume-off:before {\n  content: '\\E051';\n}\n.c-icon--volume-down:before {\n  content: '\\E052';\n}\n.c-icon--volume-medium:before {\n  content: '\\E053';\n}\n.c-icon--volume-up:before {\n  content: '\\E054';\n}\n.c-icon--volume-off-alt:before {\n  content: '\\E055';\n}\n.c-icon--heart-o:before {\n  content: '\\E056';\n}\n.c-icon--wrench:before {\n  content: '\\E057';\n}\n.c-icon--file:before {\n  content: '\\E058';\n}\n.c-icon--all-files:before {\n  content: '\\E059';\n}\n.c-icon--your-files:before {\n  content: '\\E060';\n}\n.c-icon--align-left:before {\n  content: '\\E061';\n}\n.c-icon--align-center:before {\n  content: '\\E062';\n}\n.c-icon--align-right:before {\n  content: '\\E063';\n}\n.c-icon--align-justify:before {\n  content: '\\E064';\n}\n.c-icon--paragraph:before {\n  content: '\\E065';\n}\n.c-icon--code:before {\n  content: '\\E066';\n}\n.c-icon--ellipsis:before {\n  content: '\\E067';\n}\n.c-icon--ellipsis-baseline:before {\n  content: '\\E068';\n}\n.c-icon--spinner:before {\n  content: '\\E069';\n}\n.c-icon--spiral:before {\n  content: '\\E070';\n}\n.c-icon--random:before {\n  content: '\\E071';\n}\n.c-icon--repeat:before {\n  content: '\\E072';\n}\n.c-icon--share-square-o:before {\n  content: '\\E073';\n}\n.c-icon--link:before {\n  content: '\\E074';\n}\n.c-icon--undo:before {\n  content: '\\E075';\n}\n.c-icon--history:before {\n  content: '\\E076';\n}\n.c-icon--hourglass-empty:before {\n  content: '\\E077';\n}\n.c-icon--hourglass:before {\n  content: '\\E078';\n}\n.c-icon--clock-o:before {\n  content: '\\E079';\n}\n.c-icon--dashboard:before {\n  content: '\\E080';\n}\n.c-icon--power-off:before {\n  content: '\\E081';\n}\n.c-icon--sign-in:before {\n  content: '\\E082';\n}\n.c-icon--sign-out:before {\n  content: '\\E083';\n}\n.c-icon--jump:before {\n  content: '\\E084';\n}\n.c-icon--globe:before {\n  content: '\\E085';\n}\n.c-icon--filter:before {\n  content: '\\E086';\n}\n.c-icon--microphone:before {\n  content: '\\E087';\n}\n.c-icon--microphone-slash:before {\n  content: '\\E088';\n}\n.c-icon--paperclip:before {\n  content: '\\E089';\n}\n.c-icon--video-camera:before {\n  content: '\\E090';\n}\n.c-icon--stop-video:before {\n  content: '\\E091';\n}\n.c-icon--phone:before {\n  content: '\\E092';\n}\n.c-icon--end-call:before {\n  content: '\\E093';\n}\n.c-icon--smile-o:before {\n  content: '\\E094';\n}\n.c-icon--share-screen:before {\n  content: '\\E095';\n}\n.c-icon--stop-screen-sharing:before {\n  content: '\\E096';\n}\n.c-icon--stop-screen-sharing-alt:before {\n  content: '\\E097';\n}\n.c-icon--feedback:before {\n  content: '\\E098';\n}\n.c-icon--paper-plane-alt:before {\n  content: '\\E099';\n}\n.c-icon--share:before {\n  content: '\\E100';\n}\n.c-icon--save:before {\n  content: '\\E101';\n}\n.c-icon--message-notification:before {\n  content: '\\E102';\n}\n.c-icon--list:before {\n  content: '\\E103';\n}\n.c-icon--channel:before {\n  content: '\\E104';\n}\n.c-icon--share-other-alt:before {\n  content: '\\E105';\n}\n.c-icon--broadcast:before {\n  content: '\\E106';\n}\n.c-icon--all-files-alt:before {\n  content: '\\E107';\n}\n.c-icon--search-files:before {\n  content: '\\E108';\n}\n.c-icon--add-user:before {\n  content: '\\E109';\n}\n.c-icon--switch-team:before {\n  content: '\\E110';\n}\n.c-icon--create-snippet:before {\n  content: '\\E111';\n}\n.c-icon--create-post:before {\n  content: '\\E112';\n}\n.c-icon--upload:before {\n  content: '\\E113';\n}\n.c-icon--download:before {\n  content: '\\E114';\n}\n.c-icon--share-email:before {\n  content: '\\E115';\n}\n.c-icon--import-email:before {\n  content: '\\E116';\n}\n.c-icon--ellipsis-o:before {\n  content: '\\E117';\n}\n.c-icon--add-reaction:before {\n  content: '\\E118';\n}\n.c-icon--happy-smile:before {\n  content: '\\E119';\n}\n.c-icon--mark-unread:before {\n  content: '\\E120';\n}\n.c-icon--camera:before {\n  content: '\\E121';\n}\n.c-icon--phone-flat:before {\n  content: '\\E122';\n}\n.c-icon--sparkles:before {\n  content: '\\E123';\n}\n.c-icon--location-pin:before {\n  content: '\\E124';\n}\n.c-icon--channel-pane-hash:before {\n  content: '\\E125';\n}\n.c-icon--emoji-nature:before {\n  content: '\\E126';\n}\n.c-icon--emoji-food:before {\n  content: '\\E127';\n}\n.c-icon--emoji-celebration:before {\n  content: '\\E128';\n}\n.c-icon--emoji-activities:before {\n  content: '\\E129';\n}\n.c-icon--emoji-travel:before {\n  content: '\\E130';\n}\n.c-icon--emoji-objects:before {\n  content: '\\E131';\n}\n.c-icon--file-gdrive:before {\n  content: '\\E133';\n}\n.c-icon--play:before {\n  content: '\\E134';\n}\n.c-icon--stream:before {\n  content: '\\E135';\n}\n.c-icon--field-text:before {\n  content: '\\E136';\n}\n.c-icon--poo:before {\n  content: '\\E137';\n}\n.c-icon--channel-list:before {\n  content: '\\E138';\n}\n.c-icon--share-android:before {\n  content: '\\E139';\n}\n.c-icon--highlight:before {\n  content: '\\E140';\n}\n.c-icon--flag:before {\n  content: '\\E141';\n}\n.c-icon--grabby-patty:before {\n  content: '\\E142';\n}\n.c-icon--backspace:before {\n  content: '\\E143';\n}\n.c-icon--android-keyboard:before {\n  content: '\\E144';\n}\n.c-icon--side-panel:before {\n  content: '\\E145';\n}\n.c-icon--search-small:before {\n  content: '\\E146';\n}\n.c-icon--reload-small:before {\n  content: '\\E147';\n}\n.c-icon--vertical-ellipsis:before {\n  content: '\\E148';\n}\n.c-icon--disable:before {\n  content: '\\E149';\n}\n.c-icon--bold-hash-small:before {\n  content: '\\E150';\n}\n.c-icon--cart:before {\n  content: '\\E151';\n}\n.c-icon--snooze-outline:before {\n  content: '\\E152';\n}\n.c-icon--new-window:before {\n  content: '\\E153';\n}\n.c-icon--h1:before {\n  content: '\\E154';\n}\n.c-icon--h2:before {\n  content: '\\E155';\n}\n.c-icon--h3:before {\n  content: '\\E156';\n}\n.c-icon--bullet-list:before {\n  content: '\\E157';\n}\n.c-icon--numbered-list:before {\n  content: '\\E158';\n}\n.c-icon--text-format-menu:before {\n  content: '\\E159';\n}\n.c-icon--bold:before {\n  content: '\\E160';\n}\n.c-icon--italic:before {\n  content: '\\E161';\n}\n.c-icon--underline:before {\n  content: '\\E162';\n}\n.c-icon--strikethrough:before {\n  content: '\\E163';\n}\n.c-icon--tag:before {\n  content: '\\E164';\n}\n.c-icon--org-shared-channel:before {\n  content: '\\E165';\n}\n.c-icon--shared-channel:before {\n  content: '\\E166';\n}\n.c-icon--external-channel:before {\n  content: '\\E167';\n}\n.c-icon--small-reaction:before {\n  content: '\\E170';\n}\n.c-icon--small-reply:before {\n  content: '\\E171';\n}\n.c-icon--small-ellipsis:before {\n  content: '\\E172';\n}\n.c-icon--small-star:before {\n  content: '\\E173';\n}\n.c-icon--small-quote:before {\n  content: '\\E174';\n}\n.c-icon--keyboard:before {\n  content: '\\E175';\n}\n.c-icon--share-action:before {\n  content: '\\E176';\n}\n.c-icon--handset:before {\n  content: '\\E177';\n}\n.c-icon--bluetooth-sound:before {\n  content: '\\E178';\n}\n.c-icon--bluetooth:before {\n  content: '\\E179';\n}\n.c-icon--bot:before {\n  content: '\\E180';\n}\n.c-icon--globe-plus:before {\n  content: '\\E181';\n}\n.c-icon--user-groups:before {\n  content: '\\E182';\n}\n.c-icon--frowning-face:before {\n  content: '\\E183';\n}\n.c-icon--mobile-notification:before {\n  content: '\\E184';\n}\n.c-icon--desktop-notification:before {\n  content: '\\E185';\n}\n.c-icon--collab-screenshare-on:before {\n  content: '\\E186';\n}\n.c-icon--collab-screenshare-off:before {\n  content: '\\E187';\n}\n.c-icon--thumbs-up:before {\n  content: '\\E188';\n}\n.c-icon--thumbs-down:before {\n  content: '\\E189';\n}\n.c-icon--expand:before {\n  content: '\\E200';\n}\n.c-icon--reduce:before {\n  content: '\\E201';\n}\n.c-icon--arrows-alt:before {\n  content: '\\E202';\n}\n.c-icon--reduce-alt:before {\n  content: '\\E203';\n}\n.c-icon--check-square-o:before {\n  content: '\\E204';\n}\n.c-icon--check-circle-o:before {\n  content: '\\E205';\n}\n.c-icon--check-circle-o-large:before {\n  content: '\\E206';\n}\n.c-icon--question:before {\n  content: '\\E207';\n}\n.c-icon--exclamation:before {\n  content: '\\E208';\n}\n.c-icon--warning:before {\n  content: '\\E209';\n}\n.c-icon--exclamation-circle:before {\n  content: '\\E210';\n}\n.c-icon--question-circle:before {\n  content: '\\E211';\n}\n.c-icon--plus-circle:before {\n  content: '\\E212';\n}\n.c-icon--minus-circle:before {\n  content: '\\E213';\n}\n.c-icon--times-circle:before {\n  content: '\\E214';\n}\n.c-icon--square-warning:before {\n  content: '\\E230';\n}\n.c-icon--square-question:before {\n  content: '\\E231';\n}\n.c-icon--plus-square-o:before {\n  content: '\\E232';\n}\n.c-icon--minus-square-o:before {\n  content: '\\E233';\n}\n.c-icon--square-times:before {\n  content: '\\E234';\n}\n.c-icon--times:before {\n  content: '\\E278';\n}\n.c-icon--plus:before {\n  content: '\\E279';\n}\n.c-icon--minus:before {\n  content: '\\E280';\n}\n.c-icon--plus-small:before {\n  content: '\\E281';\n}\n.c-icon--minus-small:before {\n  content: '\\E282';\n}\n.c-icon--exclamation-small:before {\n  content: '\\E283';\n}\n.c-icon--question-small:before {\n  content: '\\E284';\n}\n.c-icon--check-small:before {\n  content: '\\E285';\n}\n.c-icon--times-small:before {\n  content: '\\E294';\n}\n.c-icon--sync:before {\n  content: '\\E295';\n}\n.c-icon--replies:before {\n  content: '\\E296';\n}\n.c-icon--check-small-bold:before {\n  content: '\\E301';\n}\n.c-icon--enter:before {\n  content: '\\E302';\n}\n.c-icon--expand-vertical:before {\n  content: '\\E303';\n}\n.c-icon--collapse-vertical:before {\n  content: '\\E304';\n}\n.c-icon--android-upload:before {\n  content: '\\E305';\n}\n.c-icon--plus-thick:before {\n  content: '\\E306';\n}\n.c-icon--check-large-bold:before {\n  content: '\\E319';\n}\n.c-icon--check-large:before {\n  content: '\\E320';\n}\n.c-icon--calls:before {\n  content: '\\E478';\n}\n.c-icon--calls-small:before {\n  content: '\\E479';\n}\n.c-icon--calls-ended:before {\n  content: '\\E480';\n}\n.c-icon--calls-ended-small:before {\n  content: '\\E481';\n}\n.c-icon--star:before {\n  content: '\\E500';\n}\n.c-icon--unstar:before {\n  content: '\\E501';\n}\n.c-icon--bell:before {\n  content: '\\E502';\n}\n.c-icon--lock:before {\n  content: '\\E503';\n}\n.c-icon--external-link-small:before {\n  content: '\\E504';\n}\n.c-icon--external-link-large:before {\n  content: '\\E505';\n}\n.c-icon--presence-online:before {\n  content: '\\E506';\n}\n.c-icon--presence-offline:before {\n  content: '\\E507';\n}\n.c-icon--presence-dnd:before {\n  content: '\\E508';\n}\n.c-icon--presence-ra-online:before,\n.c-icon--presence-external-online:before {\n  content: '\\E509';\n}\n.c-icon--restricted-user:before {\n  content: '\\E509';\n}\n.c-icon--presence-ra-offline:before,\n.c-icon--presence-external-offline:before {\n  content: '\\E510';\n}\n.c-icon--presence-ra-dnd:before,\n.c-icon--presence-external-dnd:before {\n  content: '\\E511';\n}\n.c-icon--presence-ura-online:before {\n  content: '\\E512';\n}\n.c-icon--single-channel-guest:before {\n  content: '\\E512';\n}\n.c-icon--presence-ura-offline:before {\n  content: '\\E513';\n}\n.c-icon--presence-ura-dnd:before {\n  content: '\\E514';\n}\n.c-icon--heart:before {\n  content: '\\E515';\n}\n.c-icon--quote:before {\n  content: '\\E516';\n}\n.c-icon--cog:before {\n  content: '\\E517';\n}\n.c-icon--comment:before {\n  content: '\\E518';\n}\n.c-icon--minus-circle-small:before {\n  content: '\\E519';\n}\n.c-icon--times-circle-small:before {\n  content: '\\E520';\n}\n.c-icon--multiparty-dm-2:before {\n  content: '\\E521';\n}\n.c-icon--multiparty-dm-3:before {\n  content: '\\E522';\n}\n.c-icon--multiparty-dm-4:before {\n  content: '\\E523';\n}\n.c-icon--multiparty-dm-5:before {\n  content: '\\E524';\n}\n.c-icon--multiparty-dm-6:before {\n  content: '\\E525';\n}\n.c-icon--multiparty-dm-7:before {\n  content: '\\E526';\n}\n.c-icon--multiparty-dm-8:before {\n  content: '\\E527';\n}\n.c-icon--multiparty-dm-9:before {\n  content: '\\E528';\n}\n.c-icon--poo-filled:before {\n  content: '\\E529';\n}\n.c-icon--circle-fill:before {\n  content: '\\E530';\n}\n.c-icon--flag-filled:before {\n  content: '\\E531';\n}\n.c-icon--refresh-small:before {\n  content: '\\E532';\n}\n.c-icon--snooze-filled:before {\n  content: '\\E533';\n}\n.c-icon--archived-channel:before {\n  content: '\\E534';\n}\n.c-icon--presence-dnd-offline:before {\n  content: '\\E535';\n}\n.c-icon--presence-ra-dnd-offline:before,\n.c-icon--presence-external-dnd-offline:before {\n  content: '\\E536';\n}\n.c-icon--presence-ura-dnd-offline:before {\n  content: '\\E537';\n}\n.c-icon--presence-mobile-dnd:before {\n  content: '\\E538';\n}\n.c-icon--play-filled:before {\n  content: '\\E539';\n}\n.c-icon--broadcast-filled:before {\n  content: '\\E540';\n}\n.c-icon--small-star-filled:before {\n  content: '\\E541';\n}\n.c-icon--small-comment-filled:before {\n  content: '\\E542';\n}\n.c-icon--paperplane-filled:before {\n  content: '\\E543';\n}\n.c-icon--filebg-large-filled:before {\n  content: '\\E544';\n}\n.c-icon--filebg-small-filled:before {\n  content: '\\E545';\n}\n.c-icon--highlight-filled:before {\n  content: '\\E546';\n}\n.c-icon--pin-filled:before {\n  content: '\\E547';\n}\n.c-icon--close-filled:before {\n  content: '\\E548';\n}\n.c-icon--share-filled:before {\n  content: '\\E549';\n}\n.c-icon--pencil-filled:before {\n  content: '\\E550';\n}\n.c-icon--side-panel-filled:before {\n  content: '\\E551';\n}\n.c-icon--add-reaction-filled:before {\n  content: '\\E552';\n}\n.c-icon--mentions-filled:before {\n  content: '\\E553';\n}\n.c-icon--small-reply-filled:before {\n  content: '\\E554';\n}\n.c-icon--user-filled:before {\n  content: '\\E555';\n}\n.c-icon--microphone-on:before {\n  content: '\\E556';\n}\n.c-icon--camera-on:before {\n  content: '\\E557';\n}\n.c-icon--screenshare-on:before {\n  content: '\\E558';\n}\n.c-icon--shared-channels:before {\n  content: '\\E559';\n}\n.c-icon--heart-large-filled:before {\n  content: '\\E560';\n}\n.c-icon--thumbs-up-filled:before {\n  content: '\\E561';\n}\n.c-icon--thumbs-down-filled:before {\n  content: '\\E562';\n}\n.c-icon--slow-network:before {\n  content: '\\E563';\n}\n.c-icon--sparkles-filled:before {\n  content: '\\E564';\n}\n.c-icon--small-warning-filled:before {\n  content: '\\E565';\n}\n.c-icon--deactivated-user:before {\n  content: '\\E566';\n}\n.c-icon--arrow-right:before {\n  content: '\\E286';\n}\n.c-icon--arrow-left:before {\n  content: '\\E287';\n}\n.c-icon--arrow-up:before {\n  content: '\\E288';\n}\n.c-icon--arrow-down:before {\n  content: '\\E289';\n}\n.c-icon--arrow-right-medium:before {\n  content: '\\E290';\n}\n.c-icon--arrow-left-medium:before {\n  content: '\\E291';\n}\n.c-icon--arrow-up-medium:before {\n  content: '\\E292';\n}\n.c-icon--arrow-down-medium:before {\n  content: '\\E293';\n}\n.c-icon--angle-arrow-down-right-alt:before {\n  content: '\\E297';\n}\n.c-icon--angle-arrow-up-right-alt:before {\n  content: '\\E298';\n}\n.c-icon--angle-arrow-up-left-alt:before {\n  content: '\\E299';\n}\n.c-icon--angle-arrow-down-left-alt:before {\n  content: '\\E300';\n}\n.c-icon--arrow-circle-o-up:before {\n  content: '\\E215';\n}\n.c-icon--arrow-circle-o-down:before {\n  content: '\\E216';\n}\n.c-icon--arrow-circle-o-right:before {\n  content: '\\E217';\n}\n.c-icon--arrow-circle-o-left:before {\n  content: '\\E218';\n}\n.c-icon--chevron-circle-left:before {\n  content: '\\E219';\n}\n.c-icon--chevron-circle-right:before {\n  content: '\\E220';\n}\n.c-icon--chevron-circle-down:before {\n  content: '\\E221';\n}\n.c-icon--chevron-circle-up:before {\n  content: '\\E222';\n}\n.c-icon--plus-circle-small:before {\n  content: '\\E223';\n}\n.c-icon--circle-small:before {\n  content: '\\E224';\n}\n.c-icon--circle-large:before {\n  content: '\\E225';\n}\n.c-icon--plus-circle-medium:before {\n  content: '\\E228';\n}\n.c-icon--times-circle-medium:before {\n  content: '\\E229';\n}\n.c-icon--square-arrow-up:before {\n  content: '\\E235';\n}\n.c-icon--square-arrow-down:before {\n  content: '\\E236';\n}\n.c-icon--square-arrow-right:before {\n  content: '\\E237';\n}\n.c-icon--square-arrow-left:before {\n  content: '\\E238';\n}\n.c-icon--square-chevron-left:before {\n  content: '\\E239';\n}\n.c-icon--square-chevron-right:before {\n  content: '\\E240';\n}\n.c-icon--square-chevron-down:before {\n  content: '\\E241';\n}\n.c-icon--square-chevron-up:before {\n  content: '\\E242';\n}\n.c-icon--chevron-right:before {\n  content: '\\E250';\n}\n.c-icon--chevron-left:before {\n  content: '\\E251';\n}\n.c-icon--chevron-down:before {\n  content: '\\E252';\n}\n.c-icon--chevron-up:before {\n  content: '\\E253';\n}\n.c-icon--chevron-medium-right:before {\n  content: '\\E254';\n}\n.c-icon--chevron-medium-left:before {\n  content: '\\E255';\n}\n.c-icon--chevron-medium-down:before {\n  content: '\\E256';\n}\n.c-icon--chevron-medium-up:before {\n  content: '\\E257';\n}\n.c-icon--chevron-large-right:before {\n  content: '\\E258';\n}\n.c-icon--chevron-large-left:before {\n  content: '\\E259';\n}\n.c-icon--chevron-large-up:before {\n  content: '\\E260';\n}\n.c-icon--chevron-large-down:before {\n  content: '\\E261';\n}\n.c-icon--arrow-large-right:before {\n  content: '\\E262';\n}\n.c-icon--arrow-large-left:before {\n  content: '\\E263';\n}\n.c-icon--arrow-large-up:before {\n  content: '\\E264';\n}\n.c-icon--arrow-large-down:before {\n  content: '\\E265';\n}\n.c-icon--caret-outline-left:before {\n  content: '\\E266';\n}\n.c-icon--caret-outline-right:before {\n  content: '\\E267';\n}\n.c-icon--caret-outline-up:before {\n  content: '\\E268';\n}\n.c-icon--caret-outline-down:before {\n  content: '\\E269';\n}\n.c-icon--caret-up:before {\n  content: '\\E270';\n}\n.c-icon--caret-down:before {\n  content: '\\E271';\n}\n.c-icon--caret-right:before {\n  content: '\\E272';\n}\n.c-icon--caret-left:before {\n  content: '\\E273';\n}\n.c-icon--angle-arrow-down-left:before {\n  content: '\\E274';\n}\n.c-icon--angle-arrow-down-right:before {\n  content: '\\E275';\n}\n.c-icon--angle-arrow-up-right:before {\n  content: '\\E276';\n}\n.c-icon--angle-arrow-up-left:before {\n  content: '\\E277';\n}\n.c-icon--arrow-ne-large:before {\n  content: '\\E307';\n}\n.c-icon--arrow-nw-large:before {\n  content: '\\E308';\n}\n.c-icon--arrow-sw-large:before {\n  content: '\\E309';\n}\n.c-icon--arrow-se-large:before {\n  content: '\\E310';\n}\n.c-icon--arrow-ne-medium:before {\n  content: '\\E311';\n}\n.c-icon--arrow-nw-medium:before {\n  content: '\\E312';\n}\n.c-icon--arrow-sw-medium:before {\n  content: '\\E313';\n}\n.c-icon--arrow-se-medium:before {\n  content: '\\E314';\n}\n.c-icon--arrow-ne-small:before {\n  content: '\\E315';\n}\n.c-icon--arrow-nw-small:before {\n  content: '\\E316';\n}\n.c-icon--arrow-sw-small:before {\n  content: '\\E317';\n}\n.c-icon--arrow-se-small:before {\n  content: '\\E318';\n}\n.c-icon--slack:before {\n  content: '\\E800';\n}\n.c-icon--slack-pillow:before {\n  content: '\\E801';\n}\n.c-icon--apple:before {\n  content: '\\E802';\n}\n.c-icon--android:before {\n  content: '\\E803';\n}\n.c-icon--twitter:before {\n  content: '\\E804';\n}\n.c-icon--github:before {\n  content: '\\E805';\n}\n.c-icon--dropbox:before {\n  content: '\\E806';\n}\n.c-icon--google:before {\n  content: '\\E807';\n}\n.c-icon--windows:before {\n  content: '\\E808';\n}\n.c-icon--youtube:before {\n  content: '\\E809';\n}\n.c-icon--google-drive:before {\n  content: '\\E810';\n}\n.c-icon--skype:before {\n  content: '\\E811';\n}\n.c-icon--rss:before {\n  content: '\\E812';\n}\n.c-icon--facebook:before {\n  content: '\\E813';\n}\n.c-icon--asana:before {\n  content: '\\E814';\n}\n.c-icon--linkedin:before {\n  content: '\\E815';\n}\n.c-icon--tumblr:before {\n  content: '\\E816';\n}\n.c-icon--instagram:before {\n  content: '\\E817';\n}\n.c-icon--google-plus:before {\n  content: '\\E818';\n}\n.c-icon--soundcloud:before {\n  content: '\\E819';\n}\n.c-icon--flickr:before {\n  content: '\\E820';\n}\n.c-icon--pinterest:before {\n  content: '\\E821';\n}\n.c-icon--tripit:before {\n  content: '\\E822';\n}\n.c-icon--hangouts:before {\n  content: '\\E823';\n}\n.c-icon--viber:before {\n  content: '\\E824';\n}\n.c-icon--line:before {\n  content: '\\E825';\n}\n.c-icon--facebook-messenger:before {\n  content: '\\E826';\n}\n.c-icon--1password:before {\n  content: '\\E827';\n}\n.c-icon--box:before {\n  content: '\\E828';\n}\n.c-icon--box-square:before {\n  content: '\\E829';\n}\n.c-icon--google-play:before {\n  content: '\\E830';\n}\n.c-icon--spotify:before {\n  content: '\\E831';\n}\n.c-icon--siriusxm:before {\n  content: '\\E832';\n}\n.c-icon--stitcher:before {\n  content: '\\E833';\n}\n.c-icon--pocket-casts:before {\n  content: '\\E834';\n}\n.c-icon--onedrive:before {\n  content: '\\E835';\n}\n", ""]);
 }, function(e, t, n) {
   var r = n(3069);
   "string" == typeof r && (r = [
@@ -39056,9 +39140,9 @@ webpackJsonp([332], [, function(e, t, n) {
     };
   };
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.t-list-reset {\n  margin-bottom: 0;\n  margin-left: 0;\n  padding: 0;\n  list-style-type: none;\n}\n.c-message {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  display: flex;\n  padding-right: 26px;\n  min-width: 1px;\n  position: relative;\n  -webkit-user-select: text;\n  -moz-user-select: text;\n  -ms-user-select: text;\n  user-select: text;\n}\n.c-message:hover:not(.c-message--highlight) {\n  background-color: #F9F9F9;\n}\n.c-message--highlight,\n.c-message--highlight_yellow_bg {\n  background: #FFFCE0;\n}\n.c-message--last {\n  margin-bottom: 16px;\n}\n.c-message.c-message--light {\n  padding-top: 5px;\n  padding-bottom: 3px;\n}\n.c-message.c-message--dense {\n  padding-top: 3px;\n  padding-bottom: 2px;\n}\n.c-message.c-message--light.c-message--adjacent {\n  padding-top: 2px;\n}\n.c-message__gutter {\n  text-align: right;\n  flex-shrink: 0;\n}\n.c-message--adjacent .c-message__gutter {\n  visibility: hidden;\n}\n.c-message--adjacent:hover .c-message__gutter {\n  visibility: visible;\n}\n.c-message--light .c-message__gutter {\n  width: 72px;\n  padding-right: 10px;\n}\n.c-message--dense .c-message__gutter {\n  width: 58px;\n  margin-right: 22px;\n}\n.c-message--dense .c-timestamp__label {\n  color: #717274;\n}\n.c-message__content {\n  flex: 0 1 100%;\n  margin-right: 14px;\n  min-width: 1px;\n}\n.c-message--dense .c-message__content {\n  padding-left: 8px;\n}\n.c-message__sender {\n  font-weight: 900;\n}\n.c-message--light .c-message__sender {\n  margin-right: 6px;\n  color: #2C2D30;\n}\n.c-message--dense .c-message__sender {\n  margin-left: -8px;\n  margin-right: 4px;\n}\n.c-message__sender--unknown {\n  display: inline-block;\n  width: 80px;\n  height: 0.9rem;\n  border-radius: 0.9rem;\n  vertical-align: bottom;\n  background: #E8E8E8;\n}\n.c-message--dense .c-message__content_header {\n  display: inline;\n  margin-bottom: 3px;\n}\n.c-message--dense.c-message--thread-broadcast .c-message__content_header {\n  display: flex;\n}\n.c-message--light .c-message__content_header {\n  line-height: 1;\n  margin-bottom: 3px;\n}\n.c-message__body {\n  line-height: 1.4;\n  color: #2C2D30;\n}\n.c-message__body--automated {\n  font-style: italic;\n  color: #A0A0A2;\n}\n.c-message:hover .c-message__body--automated {\n  color: #717274;\n}\n.c-message__mention {\n  background: #FFF4BF;\n  border-radius: 3px;\n  padding: 0 2px 1px 2px;\n}\n.c-message__editor {\n  flex: 0 1 100%;\n  min-height: 0;\n}\n.c-message__editor .ql-editor,\n.c-message__editor .ql-placeholder {\n  padding-bottom: 9px;\n  padding-top: 9px;\n}\n.feature_texty_mentions .c-message__editor .ql-editor,\n.feature_texty_mentions .c-message__editor .ql-placeholder {\n  line-height: 1.46667;\n}\n.c-message__editor__input {\n  background: #FFF;\n  border: 1px solid #C5C5C5;\n  border-radius: 0.25rem;\n  color: #3D3C40;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  height: auto;\n  line-height: 1.2;\n  margin: 0 0 0.5rem;\n  min-height: 40px;\n  overflow: auto;\n  box-shadow: none;\n  -webkit-user-select: auto;\n  -moz-user-select: auto;\n  -ms-user-select: auto;\n  user-select: auto;\n}\n.c-message__editor__input.focus {\n  border-color: #2780F8;\n  outline: none;\n  outline-offset: 0;\n  box-shadow: 0 0 7px rgba(39, 128, 248, 0.15);\n}\n.c-message__editor__footer {\n  align-items: center;\n  display: flex;\n}\n.c-message__editor__info {\n  flex: 1;\n  font-size: 0.8rem;\n  margin-left: 10px;\n}\n.c-message__editor__messages {\n  display: flex;\n  flex: 1;\n  justify-content: flex-end;\n}\n.c-message__editor__warning {\n  color: #EB4D5C;\n  font-size: 0.8rem;\n  margin-left: 10px;\n}\n.c-message__editor__save {\n  margin-left: 10px !important;\n}\n.c-message__editor button {\n  display: inline-block;\n}\n.c-message__reply_bar {\n  display: flex;\n  align-items: center;\n  max-width: 600px;\n  margin-top: 5px;\n  padding: 3px;\n  font-size: 12px;\n  border: 1px solid transparent;\n  border-radius: 6px;\n  cursor: pointer;\n}\n.c-message__reply_bar:hover {\n  background-color: #FFF;\n  border-color: rgba(0, 0, 0, 0.15);\n}\n.c-message__reply_bar:hover .c-message__reply_bar_arrow {\n  color: #A0A0A2;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_last_reply {\n  opacity: 0;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_view_thread {\n  opacity: 1;\n}\n.c-message__reply_bar .c-avatar {\n  margin-right: 4px;\n}\n.c-message__reply_count {\n  margin-left: 3px;\n  font-weight: bold;\n}\n.c-message__reply_bar_description {\n  position: relative;\n  margin-left: 8px;\n  color: #A0A0A2;\n}\n.c-message__reply_bar_arrow {\n  margin-left: auto;\n  color: transparent;\n}\n.c-message__reply_bar_arrow::before {\n  vertical-align: top;\n}\n.c-message__reply_bar_last_reply {\n  opacity: 1;\n  transition: opacity 0.2s;\n}\n.c-message__broadcast_preamble {\n  color: #A0A0A2;\n  display: flex;\n  overflow: hidden;\n  max-width: 100%;\n}\n.c-message--light .c-message__broadcast_preamble {\n  margin-bottom: 3px;\n}\n.c-message__broadcast_preamble_meta {\n  flex-shrink: 0;\n}\n.c-message__broadcast_preamble_link {\n  font-weight: bold;\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  margin-left: 4px;\n}\n.c-message__reply_bar_view_thread {\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  opacity: 0;\n  transition: opacity 0.2s;\n}\n.c-message__attachment {\n  display: flex;\n  align-items: stretch;\n  margin-top: 2px;\n}\n.c-message__attachment_column {\n  width: 4px;\n  background-color: #E8E8E8;\n  border-radius: 8px;\n}\n.c-message__attachment_body {\n  padding-left: 12px;\n  padding-right: 12px;\n}\n.c-message__bot-label {\n  color: #A0A0A2;\n  font-weight: 500;\n  font-size: 12px;\n  margin: 0 0.15rem;\n  padding: 0 0.1rem;\n  vertical-align: middle;\n  background: #f2f2f5;\n}\n.c-message__file_link {\n  font-weight: 700;\n}\n.c-message__file_meta {\n  line-height: 1.4;\n  color: #A0A0A2;\n}\n.c-message:hover .c-message__file_meta {\n  color: #717274;\n}\n.c-message__body--comment {\n  position: relative;\n  display: block;\n}\n.c-message__body--comment:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  content: '\\E516';\n  position: absolute;\n  left: -28px;\n  top: -4px;\n  color: #E8E8E8;\n}\n.c-message--dense .c-message__body--comment:before {\n  display: none;\n}\n.c-message__file_comment_user,\n.c-message__file_comment_user:link,\n.c-message__file_comment_user:visited {\n  color: inherit;\n}\n.c-message__file_actions {\n  opacity: 0;\n  transition: opacity 0.1s;\n}\n.c-message__file_action_button {\n  font-size: 0.8125rem;\n  height: 30px;\n  padding: 0.5rem 0.6rem;\n  margin-left: 6px;\n  box-shadow: none;\n  background-color: rgba(255, 255, 255, 0.9);\n  vertical-align: top;\n}\n.c-message__file_action_button:before {\n  line-height: 30px;\n}\n.c-message__file_action_button:after {\n  border: 1px solid rgba(0, 0, 0, 0.1);\n  top: -1px;\n  left: -1px;\n  right: -1px;\n  bottom: -1px;\n}\n.c-message__file_action_trigger {\n  display: inline-block;\n}\n.c-message__image_container {\n  position: relative;\n}\n.c-message__image_container:hover .c-message__file_actions {\n  opacity: 1;\n}\n.c-message__image_wrapper {\n  display: block;\n  position: relative;\n  overflow: hidden;\n  border-radius: 3px;\n  cursor: nesw-resize;\n  cursor: zoom-in;\n}\n.c-message__image_wrapper:after {\n  content: '';\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  border: 1px solid rgba(0, 0, 0, 0.1);\n  border-radius: 3px;\n}\n.c-message__image_description {\n  margin-bottom: 8px;\n  color: #A0A0A2;\n}\n.c-message:hover .c-message__image_description {\n  color: #717274;\n}\n.c-message__image_caret {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n}\n.c-message__image_caret:hover,\n.c-message__image_caret:focus,\n.c-message__image_caret:active {\n  outline: none;\n}\n.c-message__file_actions--image {\n  position: absolute;\n  top: 10px;\n  right: 10px;\n}\n.c-message__actions {\n  position: absolute;\n  top: -14px;\n  right: 5px;\n  display: none;\n  z-index: 1;\n}\n.c-message:hover .c-message__actions,\n.c-message__actions.c-message__actions--menu-showing {\n  display: block;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".c-message {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  display: flex;\n  padding-right: 26px;\n  min-width: 1px;\n  position: relative;\n  -webkit-user-select: text;\n  -moz-user-select: text;\n  -ms-user-select: text;\n  user-select: text;\n}\n.c-message:hover:not(.c-message--highlight) {\n  background-color: #F9F9F9;\n}\n.c-message--highlight,\n.c-message--highlight_yellow_bg {\n  background: #FFFCE0;\n}\n.c-message--last {\n  margin-bottom: 16px;\n}\n.c-message.c-message--light {\n  padding-top: 5px;\n  padding-bottom: 3px;\n}\n.c-message.c-message--dense {\n  padding-top: 3px;\n  padding-bottom: 2px;\n}\n.c-message.c-message--light.c-message--adjacent {\n  padding-top: 2px;\n}\n.c-message__gutter {\n  text-align: right;\n  flex-shrink: 0;\n}\n.c-message--adjacent .c-message__gutter {\n  visibility: hidden;\n}\n.c-message--adjacent:hover .c-message__gutter {\n  visibility: visible;\n}\n.c-message--light .c-message__gutter {\n  width: 72px;\n  padding-right: 10px;\n}\n.c-message--dense .c-message__gutter {\n  width: 58px;\n  margin-right: 22px;\n}\n.c-message--dense .c-timestamp__label {\n  color: #717274;\n}\n.c-message__content {\n  flex: 0 1 100%;\n  margin-right: 14px;\n  min-width: 1px;\n}\n.c-message--dense .c-message__content {\n  padding-left: 8px;\n}\n.c-message__sender {\n  font-weight: 900;\n}\n.c-message--light .c-message__sender {\n  margin-right: 6px;\n  color: #2C2D30;\n}\n.c-message--dense .c-message__sender {\n  margin-left: -8px;\n  margin-right: 4px;\n}\n.c-message__sender--unknown {\n  display: inline-block;\n  width: 80px;\n  height: 0.9rem;\n  border-radius: 0.9rem;\n  vertical-align: bottom;\n  background: #E8E8E8;\n}\n.c-message--dense .c-message__content_header {\n  display: inline;\n  margin-bottom: 3px;\n}\n.c-message--dense.c-message--thread-broadcast .c-message__content_header {\n  display: flex;\n}\n.c-message--light .c-message__content_header {\n  line-height: 1;\n  margin-bottom: 3px;\n}\n.c-message__body {\n  line-height: 1.4;\n  color: #2C2D30;\n}\n.c-message__body--automated {\n  font-style: italic;\n  color: #A0A0A2;\n}\n.c-message:hover .c-message__body--automated {\n  color: #717274;\n}\n.c-message__mention {\n  background: #FFF4BF;\n  border-radius: 3px;\n  padding: 0 2px 1px 2px;\n}\n.c-message__edited_label {\n  color: #A0A0A2;\n  cursor: default;\n  font-size: 0.8125rem;\n}\n.c-message__editor {\n  flex: 0 1 100%;\n  min-height: 0;\n}\n.c-message__editor .ql-editor,\n.c-message__editor .ql-placeholder {\n  padding-bottom: 9px;\n  padding-top: 9px;\n}\n.feature_texty_mentions .c-message__editor .ql-editor,\n.feature_texty_mentions .c-message__editor .ql-placeholder {\n  line-height: 1.46667;\n}\n.c-message__editor__input {\n  background: #FFF;\n  border: 1px solid #C5C5C5;\n  border-radius: 0.25rem;\n  color: #3D3C40;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  height: auto;\n  line-height: 1.2;\n  margin: 0 0 0.5rem;\n  min-height: 40px;\n  overflow: auto;\n  box-shadow: none;\n  -webkit-user-select: auto;\n  -moz-user-select: auto;\n  -ms-user-select: auto;\n  user-select: auto;\n}\n.c-message__editor__input.focus {\n  border-color: #2780F8;\n  outline: none;\n  outline-offset: 0;\n  box-shadow: 0 0 7px rgba(39, 128, 248, 0.15);\n}\n.c-message__editor__footer {\n  align-items: center;\n  display: flex;\n}\n.c-message__editor__info {\n  flex: 1;\n  font-size: 0.8rem;\n  margin-left: 10px;\n}\n.c-message__editor__messages {\n  display: flex;\n  flex: 1;\n  justify-content: flex-end;\n}\n.c-message__editor__warning {\n  color: #EB4D5C;\n  font-size: 0.8rem;\n  margin-left: 10px;\n}\n.c-message__editor__save {\n  margin-left: 10px !important;\n}\n.c-message__editor button {\n  display: inline-block;\n}\n.c-message__reply_bar {\n  display: flex;\n  align-items: center;\n  max-width: 600px;\n  margin-top: 5px;\n  padding: 3px;\n  font-size: 12px;\n  border: 1px solid transparent;\n  border-radius: 6px;\n  cursor: pointer;\n}\n.c-message__reply_bar:hover {\n  background-color: #FFF;\n  border-color: rgba(0, 0, 0, 0.15);\n}\n.c-message__reply_bar:hover .c-message__reply_bar_arrow {\n  color: #A0A0A2;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_last_reply {\n  opacity: 0;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_view_thread {\n  opacity: 1;\n}\n.c-message__reply_bar .c-avatar {\n  margin-right: 4px;\n}\n.c-message__reply_count {\n  margin-left: 3px;\n  font-weight: bold;\n}\n.c-message__reply_bar_description {\n  position: relative;\n  margin-left: 8px;\n  color: #A0A0A2;\n}\n.c-message__reply_bar_arrow {\n  margin-left: auto;\n  color: transparent;\n}\n.c-message__reply_bar_arrow::before {\n  vertical-align: top;\n}\n.c-message__reply_bar_last_reply {\n  opacity: 1;\n  transition: opacity 0.2s;\n}\n.c-message__broadcast_preamble {\n  color: #A0A0A2;\n  display: flex;\n  overflow: hidden;\n  max-width: 100%;\n}\n.c-message--light .c-message__broadcast_preamble {\n  margin-bottom: 3px;\n}\n.c-message__broadcast_preamble_meta {\n  flex-shrink: 0;\n}\n.c-message__broadcast_preamble_link {\n  font-weight: bold;\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  margin-left: 4px;\n}\n.c-message__reply_bar_view_thread {\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  opacity: 0;\n  transition: opacity 0.2s;\n}\n.c-message__attachment {\n  display: flex;\n  align-items: stretch;\n  margin-top: 2px;\n}\n.c-message__attachment_column {\n  width: 4px;\n  background-color: #E8E8E8;\n  border-radius: 8px;\n}\n.c-message__attachment_body {\n  padding-left: 12px;\n  padding-right: 12px;\n}\n.c-message__bot-label {\n  color: #A0A0A2;\n  font-weight: 500;\n  font-size: 12px;\n  margin: 0 0.15rem;\n  padding: 0 0.1rem;\n  vertical-align: middle;\n  background: #f2f2f5;\n}\n.c-message__file_link {\n  font-weight: 700;\n}\n.c-message__file_meta {\n  line-height: 1.4;\n  color: #A0A0A2;\n}\n.c-message:hover .c-message__file_meta {\n  color: #717274;\n}\n.c-message__body--comment {\n  position: relative;\n  display: block;\n}\n.c-message__body--comment:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  content: '\\E516';\n  position: absolute;\n  left: -28px;\n  top: -4px;\n  color: #E8E8E8;\n}\n.c-message--dense .c-message__body--comment:before {\n  display: none;\n}\n.c-message__file_comment_user,\n.c-message__file_comment_user:link,\n.c-message__file_comment_user:visited {\n  color: inherit;\n}\n.c-message__file_actions {\n  opacity: 0;\n  transition: opacity 0.1s;\n}\n.c-message__file_action_button {\n  font-size: 0.8125rem;\n  height: 30px;\n  padding: 0.5rem 0.6rem;\n  margin-left: 6px;\n  box-shadow: none;\n  background-color: rgba(255, 255, 255, 0.9);\n  vertical-align: top;\n}\n.c-message__file_action_button:before {\n  line-height: 30px;\n}\n.c-message__file_action_button:after {\n  border: 1px solid rgba(0, 0, 0, 0.1);\n  top: -1px;\n  left: -1px;\n  right: -1px;\n  bottom: -1px;\n}\n.c-message__file_action_trigger {\n  display: inline-block;\n}\n.c-message__image_container {\n  position: relative;\n}\n.c-message__image_container:hover .c-message__file_actions {\n  opacity: 1;\n}\n.c-message__image_wrapper {\n  display: block;\n  position: relative;\n  overflow: hidden;\n  border-radius: 3px;\n  cursor: nesw-resize;\n  cursor: zoom-in;\n}\n.c-message__image_wrapper:after {\n  content: '';\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  border: 1px solid rgba(0, 0, 0, 0.1);\n  border-radius: 3px;\n}\n.c-message__image_description {\n  margin-bottom: 8px;\n  color: #A0A0A2;\n}\n.c-message:hover .c-message__image_description {\n  color: #717274;\n}\n.c-message__image_caret {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n}\n.c-message__image_caret:hover,\n.c-message__image_caret:focus,\n.c-message__image_caret:active {\n  outline: none;\n}\n.c-message__file_actions--image {\n  position: absolute;\n  top: 10px;\n  right: 10px;\n}\n.c-message__actions {\n  position: absolute;\n  top: -14px;\n  right: 5px;\n  display: none;\n  z-index: 1;\n}\n.c-message:hover .c-message__actions,\n.c-message__actions.c-message__actions--menu-showing {\n  display: block;\n}\n", ""]);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.t-list-reset {\n  margin-bottom: 0;\n  margin-left: 0;\n  padding: 0;\n  list-style-type: none;\n}\n.c-message_list__day_divider {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 0.9rem;\n  width: 100%;\n  color: #2C2D30;\n  font-weight: bold;\n  text-align: center;\n  position: relative;\n  padding: 1rem 0;\n}\n.c-message_list__day_divider .c-message_list__unread_divider {\n  top: 12px;\n}\n.c-message_list__day_divider .c-message_list__unread_divider__separator {\n  margin-right: 0;\n}\n.c-message_list__day_divider__label {\n  cursor: default;\n  display: inline-block;\n  background: #FFF;\n  padding: 0.25rem 0.75rem;\n  position: relative;\n  z-index: 1;\n}\n.c-message_list__day_divider__line {\n  position: absolute;\n  top: 50%;\n  left: 0;\n  right: 0;\n  border-top: 1px solid #E8E8E8;\n  border-bottom: 0;\n  z-index: -1;\n  margin: 0;\n}\n.c-message_list__unread_divider {\n  position: relative;\n  top: -1px;\n  z-index: 1;\n}\n.c-message_list__unread_divider__separator {\n  border-bottom: none;\n  border-color: rgba(255, 135, 109, 0.5);\n  margin: 0 18px -1px 0;\n  -webkit-transition: border 150ms ease-out 0;\n  -moz-transition: border 150ms ease-out 0;\n  transition: border 150ms ease-out 0;\n}\n.c-message_list__unread_divider__label {\n  background: #FFF;\n  border-radius: 7px;\n  color: rgba(255, 135, 109, 0.5);\n  cursor: default;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 13px;\n  font-weight: bold;\n  line-height: 8px;\n  margin: -5px 11px -5px 0;\n  padding: 0 5px 3px 5px;\n  position: absolute;\n  right: 0;\n  text-transform: lowercase;\n  -webkit-transition: color 150ms ease-out 0;\n  -moz-transition: color 150ms ease-out 0;\n  transition: color 150ms ease-out 0;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".c-message_list__day_divider {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 0.9rem;\n  width: 100%;\n  color: #2C2D30;\n  font-weight: bold;\n  text-align: center;\n  position: relative;\n  padding: 1rem 0;\n}\n.c-message_list__day_divider .c-message_list__unread_divider {\n  top: 12px;\n}\n.c-message_list__day_divider .c-message_list__unread_divider__separator {\n  margin-right: 0;\n}\n.c-message_list__day_divider__label {\n  cursor: default;\n  display: inline-block;\n  background: #FFF;\n  padding: 0.25rem 0.75rem;\n  position: relative;\n  z-index: 1;\n}\n.c-message_list__day_divider__line {\n  position: absolute;\n  top: 50%;\n  left: 0;\n  right: 0;\n  border-top: 1px solid #E8E8E8;\n  border-bottom: 0;\n  z-index: -1;\n  margin: 0;\n}\n.c-message_list__unread_divider {\n  position: relative;\n  top: -1px;\n  z-index: 1;\n}\n.c-message_list__unread_divider__separator {\n  border-bottom: none;\n  border-color: rgba(255, 135, 109, 0.5);\n  margin: 0 18px -1px 0;\n  -webkit-transition: border 150ms ease-out 0;\n  -moz-transition: border 150ms ease-out 0;\n  transition: border 150ms ease-out 0;\n}\n.c-message_list__unread_divider__label {\n  background: #FFF;\n  border-radius: 7px;\n  color: rgba(255, 135, 109, 0.5);\n  cursor: default;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 13px;\n  font-weight: bold;\n  line-height: 8px;\n  margin: -5px 11px -5px 0;\n  padding: 0 5px 3px 5px;\n  position: absolute;\n  right: 0;\n  text-transform: lowercase;\n  -webkit-transition: color 150ms ease-out 0;\n  -moz-transition: color 150ms ease-out 0;\n  transition: color 150ms ease-out 0;\n}\n", ""]);
 }, function(e, t, n) {
   var r = n(3117);
   "string" == typeof r && (r = [
@@ -39110,39 +39194,42 @@ webpackJsonp([332], [, function(e, t, n) {
         r = n.i(d.getChannelById)(e, t),
         i = n.i(p.getUserPref)(e, "start_scroll_at_oldest"),
         a = n.i(l.getMessagePaneEditState)(e),
-        s = a.editTs,
-        u = a.editText,
-        f = a.didRequestToStopEditing,
-        h = n.i(c.getLoading)(e, t),
-        m = n.i(l.getMessagePaneStartTs)(e);
-      !m && i && r && (m = r.last_read);
-      var _ = y(e, t, m),
-        v = _.messages,
-        g = _.rollups,
-        b = _.reachedStart,
-        w = _.reachedEnd,
-        k = o.a.map(v, function(e) {
+        s = a.editStatus,
+        u = a.editTs,
+        f = a.editText,
+        h = a.didRequestToStopEditing,
+        m = n.i(c.getLoading)(e, t),
+        _ = n.i(l.getMessagePaneStartTs)(e);
+      !_ && i && r && (_ = r.last_read);
+      var v = y(e, t, _),
+        g = v.messages,
+        b = v.rollups,
+        w = v.reachedStart,
+        k = v.reachedEnd,
+        M = o.a.map(g, function(e) {
           return e.ts;
         });
       return {
         channelId: t,
         type: n.i(d.getChannelType)(r),
-        timestamps: k,
-        reachedStart: b,
-        reachedEnd: w,
+        timestamps: M,
+        reachedStart: w,
+        reachedEnd: k,
         lastReadTs: r && r.last_read,
-        startTs: m,
-        editTs: s,
-        editText: u,
-        didRequestToStopEditing: f,
-        rollups: g,
-        isLoading: h
+        startTs: _,
+        editStatus: s,
+        editTs: u,
+        editText: f,
+        didRequestToStopEditing: h,
+        rollups: b,
+        isLoading: m
       };
     },
     g = {
       fetchHistory: l.fetchHistory,
       startEditingMessage: l.startEditingMessage,
       stopEditingMessage: l.stopEditingMessage,
+      saveMessageEdit: l.saveMessageEdit,
       updateEditText: l.updateEditText,
       requestToStopEditing: l.requestToStopEditing,
       setUnreadPoint: d.setUnreadPoint
@@ -39226,7 +39313,9 @@ webpackJsonp([332], [, function(e, t, n) {
             editTs: this.props.editTs,
             startEditingMessage: this.props.startEditingMessage,
             stopEditingMessage: this.props.stopEditingMessage,
+            saveMessageEdit: this.props.saveMessageEdit,
             updateEditText: this.props.updateEditText,
+            editStatus: this.props.editStatus,
             editText: this.props.editText,
             didRequestToStopEditing: this.props.didRequestToStopEditing,
             requestToStopEditing: this.props.requestToStopEditing,
@@ -39249,7 +39338,9 @@ webpackJsonp([332], [, function(e, t, n) {
     editTs: l.a.PropTypes.string,
     startEditingMessage: l.a.PropTypes.func,
     stopEditingMessage: l.a.PropTypes.func,
+    saveMessageEdit: l.a.PropTypes.func,
     updateEditText: l.a.PropTypes.func,
+    editStatus: l.a.PropTypes.string,
     editText: l.a.PropTypes.string,
     didRequestToStopEditing: l.a.PropTypes.bool,
     requestToStopEditing: l.a.PropTypes.func,
@@ -39268,7 +39359,9 @@ webpackJsonp([332], [, function(e, t, n) {
     editTs: null,
     startEditingMessage: s.a.noop,
     stopEditingMessage: s.a.noop,
+    saveMessageEdit: s.a.noop,
     updateEditText: s.a.noop,
+    editStatus: null,
     editText: null,
     didRequestToStopEditing: !1,
     requestToStopEditing: s.a.noop,
@@ -39538,6 +39631,14 @@ webpackJsonp([332], [, function(e, t, n) {
               endBottom: s
             };
           });
+        }
+      }, {
+        key: "getVisibleFrame",
+        value: function() {
+          return {
+            start: this.state.start,
+            end: this.state.end
+          };
         }
       }, {
         key: "getHeight",
@@ -41650,7 +41751,7 @@ webpackJsonp([332], [, function(e, t, n) {
   n(219)(r, {});
   r.locals && (e.exports = r.locals);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, '.t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.t-list-reset {\n  margin-bottom: 0;\n  margin-left: 0;\n  padding: 0;\n  list-style-type: none;\n}\n.c-reaction {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  line-height: inherit;\n  padding: 2px 3px;\n  display: inline-flex;\n  align-items: center;\n  border: 1px solid #E8E8E8;\n  border-radius: 5px;\n  margin-right: 5px;\n  margin-bottom: 5px;\n}\n.c-reaction:hover,\n.c-reaction:focus,\n.c-reaction:active {\n  outline: none;\n}\n.c-reaction .emoji-sizer {\n  font-size: 16px;\n}\n.c-reaction:hover {\n  border-color: #2D9EE0;\n  cursor: pointer;\n}\n.c-reaction--reacted {\n  background-color: rgba(0, 122, 184, 0.05);\n  border-color: rgba(0, 122, 184, 0.3);\n}\n.c-reaction__count {\n  font-size: 0.6875rem;\n  color: #717274;\n  font-family: "Helvetica Neue", Helvetica, "Segoe UI", Tahoma, Arial, sans-serif;\n  padding: 0 1px 0 3px;\n}\n.c-reaction--reacted .c-reaction__count {\n  color: #007AB8;\n  font-weight: 700;\n}\n.c-reaction_bar {\n  margin-top: 5px;\n}\n.c-reaction_add {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  line-height: inherit;\n  padding: 2px 3px;\n  display: inline-flex;\n  align-items: center;\n  border: 1px solid #E8E8E8;\n  border-radius: 5px;\n  margin-right: 5px;\n  margin-bottom: 5px;\n  display: inline-block;\n  position: relative;\n  padding: 3px 4px 1px 2px;\n  margin-left: 9px;\n  opacity: 0;\n  transition: opacity 0.2s;\n}\n.c-reaction_add:hover,\n.c-reaction_add:focus,\n.c-reaction_add:active {\n  outline: none;\n}\n.c-reaction_add .emoji-sizer {\n  font-size: 16px;\n}\n.c-reaction_add:hover {\n  border-color: #2D9EE0;\n}\n.c-reaction_add__background {\n  position: absolute;\n  width: 1rem;\n  height: 1rem;\n  top: 1px;\n  left: 3px;\n  color: #FFF;\n}\n.c-reaction_add__icon {\n  position: relative;\n  display: block;\n  width: 1rem;\n  height: 1rem;\n  z-index: 1;\n  color: #A0A0A2;\n}\n.c-reaction_add__icon::before {\n  font-size: 17px;\n  vertical-align: text-top;\n}\n.c-reaction_add__background::before {\n  font-size: 16px;\n}\n.c-reaction_bar:hover .c-reaction_add {\n  opacity: 1;\n}\n.c-reaction_add:hover .c-reaction_add__icon {\n  color: #C39A48;\n}\n.c-reaction_add:hover .c-reaction_add__background {\n  color: #FFD06D;\n}\n.c-reaction__tip_subtitle {\n  color: #A0A0A2;\n}\n', ""]);
+  t = e.exports = n(189)(), t.push([e.i, '.c-reaction {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  line-height: inherit;\n  padding: 2px 3px;\n  display: inline-flex;\n  align-items: center;\n  border: 1px solid #E8E8E8;\n  border-radius: 5px;\n  margin-right: 5px;\n  margin-bottom: 5px;\n}\n.c-reaction:hover,\n.c-reaction:focus,\n.c-reaction:active {\n  outline: none;\n}\n.c-reaction .emoji-sizer {\n  font-size: 16px;\n}\n.c-reaction:hover {\n  border-color: #2D9EE0;\n  cursor: pointer;\n}\n.c-reaction--reacted {\n  background-color: rgba(0, 122, 184, 0.05);\n  border-color: rgba(0, 122, 184, 0.3);\n}\n.c-reaction__count {\n  font-size: 0.6875rem;\n  color: #717274;\n  font-family: "Helvetica Neue", Helvetica, "Segoe UI", Tahoma, Arial, sans-serif;\n  padding: 0 1px 0 3px;\n}\n.c-reaction--reacted .c-reaction__count {\n  color: #007AB8;\n  font-weight: 700;\n}\n.c-reaction_bar {\n  margin-top: 5px;\n}\n.c-reaction_add {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  line-height: inherit;\n  padding: 2px 3px;\n  display: inline-flex;\n  align-items: center;\n  border: 1px solid #E8E8E8;\n  border-radius: 5px;\n  margin-right: 5px;\n  margin-bottom: 5px;\n  display: inline-block;\n  position: relative;\n  padding: 3px 4px 1px 2px;\n  margin-left: 9px;\n  opacity: 0;\n  transition: opacity 0.2s;\n}\n.c-reaction_add:hover,\n.c-reaction_add:focus,\n.c-reaction_add:active {\n  outline: none;\n}\n.c-reaction_add .emoji-sizer {\n  font-size: 16px;\n}\n.c-reaction_add:hover {\n  border-color: #2D9EE0;\n}\n.c-reaction_add__background {\n  position: absolute;\n  width: 1rem;\n  height: 1rem;\n  top: 1px;\n  left: 3px;\n  color: #FFF;\n}\n.c-reaction_add__icon {\n  position: relative;\n  display: block;\n  width: 1rem;\n  height: 1rem;\n  z-index: 1;\n  color: #A0A0A2;\n}\n.c-reaction_add__icon::before {\n  font-size: 17px;\n  vertical-align: text-top;\n}\n.c-reaction_add__background::before {\n  font-size: 16px;\n}\n.c-reaction_bar:hover .c-reaction_add {\n  opacity: 1;\n}\n.c-reaction_add:hover .c-reaction_add__icon {\n  color: #C39A48;\n}\n.c-reaction_add:hover .c-reaction_add__background {\n  color: #FFD06D;\n}\n.c-reaction__tip_subtitle {\n  color: #A0A0A2;\n}\n', ""]);
 }, function(e, t, n) {
   "use strict";
   var r = n(3216);
@@ -41788,7 +41889,7 @@ webpackJsonp([332], [, function(e, t, n) {
     }),
     i = n.i(r.a)("TS.mpims.closeMpim", function() {});
 }, , , , function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, '.t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.t-list-reset {\n  margin-bottom: 0;\n  margin-left: 0;\n  padding: 0;\n  list-style-type: none;\n}\n.p-emoji_picker {\n  position: absolute;\n  min-width: 361px;\n  max-width: 361px;\n  color: #2C2D30;\n  z-index: 1053;\n  font-size: 0.95rem;\n  font-family: \'Slack-Lato\', \'appleLogo\', sans-serif;\n  background: #F9F9F9;\n  line-height: 1rem;\n  outline: none;\n}\nbody.winssb .p-emoji_picker {\n  overflow: visible;\n}\n.p-emoji_picker__content {\n  position: relative;\n  z-index: 151;\n  overflow: hidden;\n}\n.p-emoji_picker__list_container {\n  max-height: 270px;\n  overflow-y: auto;\n  overflow-x: hidden;\n  background: #FFFFFF;\n  position: relative;\n  border-right: 0;\n}\n.p-emoji_picker__list {\n  position: relative;\n  padding: 33px 0 0 8px;\n  margin-top: -33px;\n  min-height: 270px;\n}\n.p-emoji_picker__list_scroller {\n  outline: none;\n}\n.supports_custom_scrollbar:not(.slim_scrollbar) .p-emoji_picker__list_scroller {\n  border-right: 0.25rem solid transparent;\n}\n.supports_custom_scrollbar:not(.slim_scrollbar) .p-emoji_picker__list_scroller::-webkit-scrollbar {\n  position: absolute;\n  -webkit-appearance: none;\n  width: 8px;\n}\n.supports_custom_scrollbar:not(.slim_scrollbar) .p-emoji_picker__list_scroller::-webkit-scrollbar-track,\n.supports_custom_scrollbar:not(.slim_scrollbar) .p-emoji_picker__list_scroller::-webkit-scrollbar-thumb {\n  background-clip: padding-box !important;\n  border-radius: 3px;\n  color: #FFFFFF;\n}\n.supports_custom_scrollbar:not(.slim_scrollbar) .p-emoji_picker__list_scroller::-webkit-scrollbar-track {\n  background: #F5F5F5;\n  box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0;\n}\n.supports_custom_scrollbar:not(.slim_scrollbar) .p-emoji_picker__list_scroller::-webkit-scrollbar-thumb {\n  background: default;\n  box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;\n  min-height: 36px;\n}\n.supports_custom_scrollbar:not(.slim_scrollbar) .p-emoji_picker__list_scroller::-webkit-scrollbar-corner {\n  background: #FFFFFF;\n}\n.supports_custom_scrollbar.slim_scrollbar .p-emoji_picker__list_scroller {\n  border-right: 0.25rem solid transparent;\n}\n.supports_custom_scrollbar.slim_scrollbar .p-emoji_picker__list_scroller::-webkit-scrollbar {\n  position: absolute;\n  -webkit-appearance: none;\n  width: 8px;\n}\n.supports_custom_scrollbar.slim_scrollbar .p-emoji_picker__list_scroller::-webkit-scrollbar-track,\n.supports_custom_scrollbar.slim_scrollbar .p-emoji_picker__list_scroller::-webkit-scrollbar-thumb {\n  background-clip: padding-box !important;\n  border-radius: 3px;\n  color: #FFFFFF;\n}\n.supports_custom_scrollbar.slim_scrollbar .p-emoji_picker__list_scroller::-webkit-scrollbar-track {\n  background: #F5F5F5;\n  box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0;\n}\n.supports_custom_scrollbar.slim_scrollbar .p-emoji_picker__list_scroller::-webkit-scrollbar-thumb {\n  background: slim;\n  box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;\n  min-height: 36px;\n}\n.supports_custom_scrollbar.slim_scrollbar .p-emoji_picker__list_scroller::-webkit-scrollbar-corner {\n  background: #FFFFFF;\n}\n.p-emoji_picker__list_item {\n  border-color: transparent;\n  font-size: 20px;\n  text-align: center;\n  line-height: 21px;\n  width: 36px;\n  height: 32px;\n  margin: 0 1px -1px 0;\n  float: none;\n  display: inline-block;\n  text-shadow: 0 1px #FFFFFF;\n  padding: 0.25rem 0 .2rem 0;\n  font-weight: normal;\n  text-decoration: none;\n  overflow: hidden;\n  border-radius: 6px;\n  background: transparent;\n  -webkit-transition: background 0.15s ease-out 0.05s 0.2s ease-out 0.0000001ms;\n  -moz-transition: background 0.15s ease-out 0.05s 0.2s ease-out 0.0000001ms;\n  transition: background 0.15s ease-out 0.05s 0.2s ease-out 0.0000001ms;\n  -webkit-transition: background 0.15s ease-out 0.05s;\n  -moz-transition: background 0.15s ease-out 0.05s;\n  transition: background 0.15s ease-out 0.05s;\n}\n.p-emoji_picker__list_item:hover {\n  text-decoration: none;\n  overflow: hidden;\n  -webkit-transition: background 0.05s ease-out 0.2s ease-out 0.0000001ms;\n  -moz-transition: background 0.05s ease-out 0.2s ease-out 0.0000001ms;\n  transition: background 0.05s ease-out 0.2s ease-out 0.0000001ms;\n  -webkit-transition: background 0.05s ease-out;\n  -moz-transition: background 0.05s ease-out;\n  transition: background 0.05s ease-out;\n}\n.p-emoji_picker__list_item[data-color-index="0"]:hover,\n.p-emoji_picker__list_item[data-color-index="0"].key_selection {\n  background: #b7e887;\n}\n.p-emoji_picker__list_item[data-color-index="1"]:hover,\n.p-emoji_picker__list_item[data-color-index="1"].key_selection {\n  background: #b5e0fe;\n}\n.p-emoji_picker__list_item[data-color-index="2"]:hover,\n.p-emoji_picker__list_item[data-color-index="2"].key_selection {\n  background: #f9ef67;\n}\n.p-emoji_picker__list_item[data-color-index="3"]:hover,\n.p-emoji_picker__list_item[data-color-index="3"].key_selection {\n  background: #F3C1FD;\n}\n.p-emoji_picker__list_item[data-color-index="4"]:hover,\n.p-emoji_picker__list_item[data-color-index="4"].key_selection {\n  background: #FFE1AE;\n}\n.p-emoji_picker__list_item[data-color-index="5"]:hover,\n.p-emoji_picker__list_item[data-color-index="5"].key_selection {\n  background: #E0DFFF;\n}\n.p-emoji_picker__list_item .emoji-sizer {\n  line-height: 20px;\n}\n.p-emoji_picker__group_tabs {\n  padding: 4px 0px 0px 7px;\n  border-bottom: 1px solid rgba(0, 0, 0, 0.15);\n  height: 38px;\n}\n.p-emoji_picker__group_tab {\n  height: 100%;\n  color: #A0A0A2;\n  display: inline-block;\n  padding: 4px 5.8px 6px;\n  border-radius: 0.6rem 0.6rem 0 0;\n  margin-right: 3px;\n  border-bottom: 3px solid transparent;\n}\n.p-emoji_picker__group_tab:hover {\n  color: #717274;\n  text-decoration: none;\n  background: #F5F5F5;\n}\n.p-emoji_picker__group_tab--active {\n  margin-bottom: -1px;\n  background: #F9F9F9;\n  padding-top: 3px;\n  border-bottom: 3px solid #29A979;\n}\n.p-emoji_picker__heading {\n  margin: 0px 6px;\n  font-size: 1rem;\n  font-weight: 700;\n  line-height: 1.5rem;\n  position: relative;\n  background: rgba(255, 255, 255, 0.95);\n}\n.p-emoji_picker__heading--handy_rxns {\n  float: left;\n  margin: 4px 2px;\n  background-color: transparent;\n  width: 141px;\n}\n.p-emoji_picker__sticky_header {\n  position: absolute;\n  width: 100%;\n  z-index: 10;\n  top: -1px;\n  padding-top: 1px;\n}\n.p-emoji_picker__sticky_header .p-emoji_picker__heading {\n  position: absolute;\n  right: 12px;\n  left: 0;\n  top: 0;\n  padding: 0 8px;\n}\ninput.p-emoji_picker__input {\n  padding-top: 2px;\n  padding-bottom: 2px;\n  padding-left: 32px;\n  padding-right: 32px;\n  font-size: 15px;\n  margin: 0;\n  height: 28px;\n  width: 100%;\n  border-radius: 1rem;\n}\ninput.p-emoji_picker__input:focus {\n  box-shadow: inset 0 0 0 rgba(44, 45, 48, 0.3);\n  border-color: #c5c5c5;\n}\n.p-emoji_picker__input_container {\n  background: #FFFFFF;\n  padding: 8px;\n  position: relative;\n}\n.p-emoji_picker__icon_search {\n  top: 0.8125rem;\n  left: 1rem;\n  text-shadow: none;\n  display: block;\n  position: absolute;\n  color: #A0A0A2;\n}\n.p-emoji_picker__tip i,\n.p-emoji_picker__no_results i {\n  color: #A0A0A2;\n}\n.p-emoji_picker__tip {\n  clear: both;\n  font-weight: normal;\n  font-size: .8rem;\n  margin: 10px 0px;\n  text-align: center;\n  color: #717274;\n}\n.p-emoji_picker__tip .c-icon {\n  position: relative;\n  top: -1px;\n}\n.p-emoji_picker__tip--can_add_emoji {\n  margin-top: 0;\n}\n.p-emoji_picker__no_results {\n  clear: both;\n  font-weight: normal;\n  font-size: 1rem;\n  padding-top: 70px;\n  padding-right: 0;\n  padding-bottom: 10px;\n  color: #A0A0A2;\n  text-align: center;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="0"]:hover {\n  background: transparent;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="0"].key_selection {\n  background: #b7e887;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="1"]:hover {\n  background: transparent;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="1"].key_selection {\n  background: #b5e0fe;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="2"]:hover {\n  background: transparent;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="2"].key_selection {\n  background: #f9ef67;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="3"]:hover {\n  background: transparent;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="3"].key_selection {\n  background: #F3C1FD;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="4"]:hover {\n  background: transparent;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="4"].key_selection {\n  background: #FFE1AE;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="5"]:hover {\n  background: transparent;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="5"].key_selection {\n  background: #E0DFFF;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item:not(.key_selection) a:hover {\n  background: none;\n}\n.p-emoji_picker__footer {\n  background: #F9F9F9;\n  padding-bottom: 0.4rem;\n  border-top: 1px solid rgba(0, 0, 0, 0.15);\n  position: relative;\n}\n.p-emoji_picker__footer--previewing .p-emoji_picker__preview {\n  -webkit-transition: opacity 0.1s ease-in 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 0.1s ease-in 0.2s ease-out 0.0000001ms;\n  transition: opacity 0.1s ease-in 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 0.1s ease-in;\n  -moz-transition: opacity 0.1s ease-in;\n  transition: opacity 0.1s ease-in;\n  opacity: 1;\n}\n.p-emoji_picker__footer--previewing .p-emoji_picker__emoji_deluxe_label {\n  opacity: 0;\n  -webkit-transition: opacity 0.05s ease-in 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 0.05s ease-in 0.2s ease-out 0.0000001ms;\n  transition: opacity 0.05s ease-in 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 0.05s ease-in;\n  -moz-transition: opacity 0.05s ease-in;\n  transition: opacity 0.05s ease-in;\n}\n.p-emoji_picker__preview {\n  opacity: 0;\n  -webkit-transition: opacity 0.1s ease-in 0.9s 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 0.1s ease-in 0.9s 0.2s ease-out 0.0000001ms;\n  transition: opacity 0.1s ease-in 0.9s 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 0.1s ease-in 0.9s;\n  -moz-transition: opacity 0.1s ease-in 0.9s;\n  transition: opacity 0.1s ease-in 0.9s;\n  padding: 0.3rem 0 0 0.7rem;\n}\n.p-emoji_picker__emoji_deluxe_label {\n  position: absolute;\n  font-size: 1.2rem;\n  color: #A0A0A2;\n  bottom: -26px;\n  left: 14px;\n  opacity: 1;\n  -webkit-transition: opacity 0.1s ease-in 1.1s 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 0.1s ease-in 1.1s 0.2s ease-out 0.0000001ms;\n  transition: opacity 0.1s ease-in 1.1s 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 0.1s ease-in 1.1s;\n  -moz-transition: opacity 0.1s ease-in 1.1s;\n  transition: opacity 0.1s ease-in 1.1s;\n  font-family: \'Slack-Lato\', \'appleLogo\', sans-serif;\n  font-weight: 700;\n}\n.p-emoji_picker__preview_text {\n  font-size: 0.9rem;\n  line-height: .9rem;\n  padding: 0.6rem 0.7rem 0.8rem 0;\n  background: #F9F9F9;\n  color: #717274;\n  font-weight: 700;\n  float: left;\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n}\n.p-emoji_picker__preview_text--shortened {\n  width: 180px;\n}\n.p-emoji_picker__preview_aliases {\n  font-size: 0.8rem;\n  font-weight: normal;\n}\n.p-emoji_picker__preview_img {\n  float: left;\n  font-size: 2rem;\n  height: 54px;\n  line-height: 2rem;\n  padding: 0.7rem 0.5rem 0 .1rem;\n  vertical-align: middle;\n  width: 46px;\n}\n.p-emoji_picker__preview_img span.emoji-sizer {\n  /* This rule only affects Chrome. Other browsers inline the emoji character. */\n  margin-top: -0.3rem;\n  vertical-align: top;\n  font-size: 2.25rem;\n  line-height: 2.25rem;\n}\n.p-emoji_picker__handy_rxns {\n  margin-top: -1px;\n  padding: .3rem 0.7rem;\n  border-bottom: 1px solid rgba(0, 0, 0, 0.15);\n}\n.p-emoji_picker__handy_rxns_list .p-emoji_picker__list_item {\n  margin-right: 1px;\n}\n.p-emoji_picker__skintone_options,\n.p-emoji_picker__skintone_btn_container,\n.p-emoji_picker__skintone_tip {\n  position: absolute;\n  font-size: 1.2rem;\n  color: #A0A0A2;\n  padding: 3px;\n  right: 16px;\n  bottom: -33px;\n  -webkit-transition: opacity 0.1s ease-in 0s 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 0.1s ease-in 0s 0.2s ease-out 0.0000001ms;\n  transition: opacity 0.1s ease-in 0s 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 0.1s ease-in 0s;\n  -moz-transition: opacity 0.1s ease-in 0s;\n  transition: opacity 0.1s ease-in 0s;\n}\n.p-emoji_picker__skintone_btn_container {\n  opacity: 1;\n  cursor: pointer;\n  border: 1px solid transparent;\n  border-radius: 10px;\n  padding: 7px 3px 2px 3px;\n  display: flex;\n}\n.p-emoji_picker__skintone_btn_container .emoji-sizer {\n  font-size: 23px;\n}\n.p-emoji_picker__skintone_label {\n  font-size: 0.9rem;\n  display: inline-block;\n  margin: 0 3px;\n  font-weight: bold;\n}\n.p-emoji_picker__content:hover .p-emoji_picker__skintone_btn_container {\n  border: 1px solid #FFFFFF;\n  background: #FFFFFF;\n}\n.p-emoji_picker__skintone_options {\n  opacity: 0;\n  background: #FFFFFF;\n  border-radius: 10px;\n  pointer-events: none;\n  padding: 7px 3px 2px 3px;\n  border: 1px solid transparent;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n.p-emoji_picker__skintone_options > span {\n  border-radius: 2px;\n}\n.p-emoji_picker__skintone_options > span[data-preferred="true"] {\n  background: #FFFFFF;\n}\n.p-emoji_picker__skintone_options span.emoji-sizer {\n  font-size: 23px;\n}\n.p-emoji_picker__skintone_options span.emoji,\n.p-emoji_picker__skintone_options span.emoji-outer {\n  cursor: pointer;\n}\n.p-emoji_picker__skintone_options--visible {\n  opacity: 1;\n  pointer-events: all;\n}\n.p-emoji_picker__skintone_tip {\n  opacity: 0;\n  font-size: .68rem;\n  bottom: -50px;\n  right: 14px;\n  z-index: 2;\n  pointer-events: none;\n  font-weight: bold;\n}\n.p-emoji_picker__skintone_tip--visible {\n  opacity: 1;\n}\n', ""]);
+  t = e.exports = n(189)(), t.push([e.i, '.p-emoji_picker {\n  position: absolute;\n  min-width: 361px;\n  max-width: 361px;\n  color: #2C2D30;\n  z-index: 1053;\n  font-size: 0.95rem;\n  font-family: \'Slack-Lato\', \'appleLogo\', sans-serif;\n  background: #F9F9F9;\n  line-height: 1rem;\n  outline: none;\n}\nbody.winssb .p-emoji_picker {\n  overflow: visible;\n}\n.p-emoji_picker__content {\n  position: relative;\n  z-index: 151;\n  overflow: hidden;\n}\n.p-emoji_picker__list_container {\n  max-height: 270px;\n  overflow-y: auto;\n  overflow-x: hidden;\n  background: #FFFFFF;\n  position: relative;\n  border-right: 0;\n}\n.p-emoji_picker__list {\n  position: relative;\n  padding: 33px 0 0 8px;\n  margin-top: -33px;\n  min-height: 270px;\n}\n.p-emoji_picker__list_scroller {\n  outline: none;\n}\n.supports_custom_scrollbar:not(.slim_scrollbar) .p-emoji_picker__list_scroller {\n  border-right: 0.25rem solid transparent;\n}\n.supports_custom_scrollbar:not(.slim_scrollbar) .p-emoji_picker__list_scroller::-webkit-scrollbar {\n  position: absolute;\n  -webkit-appearance: none;\n  width: 8px;\n}\n.supports_custom_scrollbar:not(.slim_scrollbar) .p-emoji_picker__list_scroller::-webkit-scrollbar-track,\n.supports_custom_scrollbar:not(.slim_scrollbar) .p-emoji_picker__list_scroller::-webkit-scrollbar-thumb {\n  background-clip: padding-box !important;\n  border-radius: 3px;\n  color: #FFFFFF;\n}\n.supports_custom_scrollbar:not(.slim_scrollbar) .p-emoji_picker__list_scroller::-webkit-scrollbar-track {\n  background: #F5F5F5;\n  box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0;\n}\n.supports_custom_scrollbar:not(.slim_scrollbar) .p-emoji_picker__list_scroller::-webkit-scrollbar-thumb {\n  background: default;\n  box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;\n  min-height: 36px;\n}\n.supports_custom_scrollbar:not(.slim_scrollbar) .p-emoji_picker__list_scroller::-webkit-scrollbar-corner {\n  background: #FFFFFF;\n}\n.supports_custom_scrollbar.slim_scrollbar .p-emoji_picker__list_scroller {\n  border-right: 0.25rem solid transparent;\n}\n.supports_custom_scrollbar.slim_scrollbar .p-emoji_picker__list_scroller::-webkit-scrollbar {\n  position: absolute;\n  -webkit-appearance: none;\n  width: 8px;\n}\n.supports_custom_scrollbar.slim_scrollbar .p-emoji_picker__list_scroller::-webkit-scrollbar-track,\n.supports_custom_scrollbar.slim_scrollbar .p-emoji_picker__list_scroller::-webkit-scrollbar-thumb {\n  background-clip: padding-box !important;\n  border-radius: 3px;\n  color: #FFFFFF;\n}\n.supports_custom_scrollbar.slim_scrollbar .p-emoji_picker__list_scroller::-webkit-scrollbar-track {\n  background: #F5F5F5;\n  box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0;\n}\n.supports_custom_scrollbar.slim_scrollbar .p-emoji_picker__list_scroller::-webkit-scrollbar-thumb {\n  background: slim;\n  box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;\n  min-height: 36px;\n}\n.supports_custom_scrollbar.slim_scrollbar .p-emoji_picker__list_scroller::-webkit-scrollbar-corner {\n  background: #FFFFFF;\n}\n.p-emoji_picker__list_item {\n  border-color: transparent;\n  font-size: 20px;\n  text-align: center;\n  line-height: 21px;\n  width: 36px;\n  height: 32px;\n  margin: 0 1px -1px 0;\n  float: none;\n  display: inline-block;\n  text-shadow: 0 1px #FFFFFF;\n  padding: 0.25rem 0 .2rem 0;\n  font-weight: normal;\n  text-decoration: none;\n  overflow: hidden;\n  border-radius: 6px;\n  background: transparent;\n  -webkit-transition: background 0.15s ease-out 0.05s 0.2s ease-out 0.0000001ms;\n  -moz-transition: background 0.15s ease-out 0.05s 0.2s ease-out 0.0000001ms;\n  transition: background 0.15s ease-out 0.05s 0.2s ease-out 0.0000001ms;\n  -webkit-transition: background 0.15s ease-out 0.05s;\n  -moz-transition: background 0.15s ease-out 0.05s;\n  transition: background 0.15s ease-out 0.05s;\n}\n.p-emoji_picker__list_item:hover {\n  text-decoration: none;\n  overflow: hidden;\n  -webkit-transition: background 0.05s ease-out 0.2s ease-out 0.0000001ms;\n  -moz-transition: background 0.05s ease-out 0.2s ease-out 0.0000001ms;\n  transition: background 0.05s ease-out 0.2s ease-out 0.0000001ms;\n  -webkit-transition: background 0.05s ease-out;\n  -moz-transition: background 0.05s ease-out;\n  transition: background 0.05s ease-out;\n}\n.p-emoji_picker__list_item[data-color-index="0"]:hover,\n.p-emoji_picker__list_item[data-color-index="0"].key_selection {\n  background: #b7e887;\n}\n.p-emoji_picker__list_item[data-color-index="1"]:hover,\n.p-emoji_picker__list_item[data-color-index="1"].key_selection {\n  background: #b5e0fe;\n}\n.p-emoji_picker__list_item[data-color-index="2"]:hover,\n.p-emoji_picker__list_item[data-color-index="2"].key_selection {\n  background: #f9ef67;\n}\n.p-emoji_picker__list_item[data-color-index="3"]:hover,\n.p-emoji_picker__list_item[data-color-index="3"].key_selection {\n  background: #F3C1FD;\n}\n.p-emoji_picker__list_item[data-color-index="4"]:hover,\n.p-emoji_picker__list_item[data-color-index="4"].key_selection {\n  background: #FFE1AE;\n}\n.p-emoji_picker__list_item[data-color-index="5"]:hover,\n.p-emoji_picker__list_item[data-color-index="5"].key_selection {\n  background: #E0DFFF;\n}\n.p-emoji_picker__list_item .emoji-sizer {\n  line-height: 20px;\n}\n.p-emoji_picker__group_tabs {\n  padding: 4px 0px 0px 7px;\n  border-bottom: 1px solid rgba(0, 0, 0, 0.15);\n  height: 38px;\n}\n.p-emoji_picker__group_tab {\n  height: 100%;\n  color: #A0A0A2;\n  display: inline-block;\n  padding: 4px 5.8px 6px;\n  border-radius: 0.6rem 0.6rem 0 0;\n  margin-right: 3px;\n  border-bottom: 3px solid transparent;\n}\n.p-emoji_picker__group_tab:hover {\n  color: #717274;\n  text-decoration: none;\n  background: #F5F5F5;\n}\n.p-emoji_picker__group_tab--active {\n  margin-bottom: -1px;\n  background: #F9F9F9;\n  padding-top: 3px;\n  border-bottom: 3px solid #29A979;\n}\n.p-emoji_picker__heading {\n  margin: 0px 6px;\n  font-size: 1rem;\n  font-weight: 700;\n  line-height: 1.5rem;\n  position: relative;\n  background: rgba(255, 255, 255, 0.95);\n}\n.p-emoji_picker__heading--handy_rxns {\n  float: left;\n  margin: 4px 2px;\n  background-color: transparent;\n  width: 141px;\n}\n.p-emoji_picker__sticky_header {\n  position: absolute;\n  width: 100%;\n  z-index: 10;\n  top: -1px;\n  padding-top: 1px;\n}\n.p-emoji_picker__sticky_header .p-emoji_picker__heading {\n  position: absolute;\n  right: 12px;\n  left: 0;\n  top: 0;\n  padding: 0 8px;\n}\ninput.p-emoji_picker__input {\n  padding-top: 2px;\n  padding-bottom: 2px;\n  padding-left: 32px;\n  padding-right: 32px;\n  font-size: 15px;\n  margin: 0;\n  height: 28px;\n  width: 100%;\n  border-radius: 1rem;\n}\ninput.p-emoji_picker__input:focus {\n  box-shadow: inset 0 0 0 rgba(44, 45, 48, 0.3);\n  border-color: #c5c5c5;\n}\n.p-emoji_picker__input_container {\n  background: #FFFFFF;\n  padding: 8px;\n  position: relative;\n}\n.p-emoji_picker__icon_search {\n  top: 0.8125rem;\n  left: 1rem;\n  text-shadow: none;\n  display: block;\n  position: absolute;\n  color: #A0A0A2;\n}\n.p-emoji_picker__tip i,\n.p-emoji_picker__no_results i {\n  color: #A0A0A2;\n}\n.p-emoji_picker__tip {\n  clear: both;\n  font-weight: normal;\n  font-size: .8rem;\n  margin: 10px 0px;\n  text-align: center;\n  color: #717274;\n}\n.p-emoji_picker__tip .c-icon {\n  position: relative;\n  top: -1px;\n}\n.p-emoji_picker__tip--can_add_emoji {\n  margin-top: 0;\n}\n.p-emoji_picker__no_results {\n  clear: both;\n  font-weight: normal;\n  font-size: 1rem;\n  padding-top: 70px;\n  padding-right: 0;\n  padding-bottom: 10px;\n  color: #A0A0A2;\n  text-align: center;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="0"]:hover {\n  background: transparent;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="0"].key_selection {\n  background: #b7e887;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="1"]:hover {\n  background: transparent;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="1"].key_selection {\n  background: #b5e0fe;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="2"]:hover {\n  background: transparent;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="2"].key_selection {\n  background: #f9ef67;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="3"]:hover {\n  background: transparent;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="3"].key_selection {\n  background: #F3C1FD;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="4"]:hover {\n  background: transparent;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="4"].key_selection {\n  background: #FFE1AE;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="5"]:hover {\n  background: transparent;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="5"].key_selection {\n  background: #E0DFFF;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item:not(.key_selection) a:hover {\n  background: none;\n}\n.p-emoji_picker__footer {\n  background: #F9F9F9;\n  padding-bottom: 0.4rem;\n  border-top: 1px solid rgba(0, 0, 0, 0.15);\n  position: relative;\n}\n.p-emoji_picker__footer--previewing .p-emoji_picker__preview {\n  -webkit-transition: opacity 0.1s ease-in 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 0.1s ease-in 0.2s ease-out 0.0000001ms;\n  transition: opacity 0.1s ease-in 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 0.1s ease-in;\n  -moz-transition: opacity 0.1s ease-in;\n  transition: opacity 0.1s ease-in;\n  opacity: 1;\n}\n.p-emoji_picker__footer--previewing .p-emoji_picker__emoji_deluxe_label {\n  opacity: 0;\n  -webkit-transition: opacity 0.05s ease-in 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 0.05s ease-in 0.2s ease-out 0.0000001ms;\n  transition: opacity 0.05s ease-in 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 0.05s ease-in;\n  -moz-transition: opacity 0.05s ease-in;\n  transition: opacity 0.05s ease-in;\n}\n.p-emoji_picker__preview {\n  opacity: 0;\n  -webkit-transition: opacity 0.1s ease-in 0.9s 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 0.1s ease-in 0.9s 0.2s ease-out 0.0000001ms;\n  transition: opacity 0.1s ease-in 0.9s 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 0.1s ease-in 0.9s;\n  -moz-transition: opacity 0.1s ease-in 0.9s;\n  transition: opacity 0.1s ease-in 0.9s;\n  padding: 0.3rem 0 0 0.7rem;\n}\n.p-emoji_picker__emoji_deluxe_label {\n  position: absolute;\n  font-size: 1.2rem;\n  color: #A0A0A2;\n  bottom: -26px;\n  left: 14px;\n  opacity: 1;\n  -webkit-transition: opacity 0.1s ease-in 1.1s 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 0.1s ease-in 1.1s 0.2s ease-out 0.0000001ms;\n  transition: opacity 0.1s ease-in 1.1s 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 0.1s ease-in 1.1s;\n  -moz-transition: opacity 0.1s ease-in 1.1s;\n  transition: opacity 0.1s ease-in 1.1s;\n  font-family: \'Slack-Lato\', \'appleLogo\', sans-serif;\n  font-weight: 700;\n}\n.p-emoji_picker__preview_text {\n  font-size: 0.9rem;\n  line-height: .9rem;\n  padding: 0.6rem 0.7rem 0.8rem 0;\n  background: #F9F9F9;\n  color: #717274;\n  font-weight: 700;\n  float: left;\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n}\n.p-emoji_picker__preview_text--shortened {\n  width: 180px;\n}\n.p-emoji_picker__preview_aliases {\n  font-size: 0.8rem;\n  font-weight: normal;\n}\n.p-emoji_picker__preview_img {\n  float: left;\n  font-size: 2rem;\n  height: 54px;\n  line-height: 2rem;\n  padding: 0.7rem 0.5rem 0 .1rem;\n  vertical-align: middle;\n  width: 46px;\n}\n.p-emoji_picker__preview_img span.emoji-sizer {\n  /* This rule only affects Chrome. Other browsers inline the emoji character. */\n  margin-top: -0.3rem;\n  vertical-align: top;\n  font-size: 2.25rem;\n  line-height: 2.25rem;\n}\n.p-emoji_picker__handy_rxns {\n  margin-top: -1px;\n  padding: .3rem 0.7rem;\n  border-bottom: 1px solid rgba(0, 0, 0, 0.15);\n}\n.p-emoji_picker__handy_rxns_list .p-emoji_picker__list_item {\n  margin-right: 1px;\n}\n.p-emoji_picker__skintone_options,\n.p-emoji_picker__skintone_btn_container,\n.p-emoji_picker__skintone_tip {\n  position: absolute;\n  font-size: 1.2rem;\n  color: #A0A0A2;\n  padding: 3px;\n  right: 16px;\n  bottom: -33px;\n  -webkit-transition: opacity 0.1s ease-in 0s 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 0.1s ease-in 0s 0.2s ease-out 0.0000001ms;\n  transition: opacity 0.1s ease-in 0s 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 0.1s ease-in 0s;\n  -moz-transition: opacity 0.1s ease-in 0s;\n  transition: opacity 0.1s ease-in 0s;\n}\n.p-emoji_picker__skintone_btn_container {\n  opacity: 1;\n  cursor: pointer;\n  border: 1px solid transparent;\n  border-radius: 10px;\n  padding: 7px 3px 2px 3px;\n  display: flex;\n}\n.p-emoji_picker__skintone_btn_container .emoji-sizer {\n  font-size: 23px;\n}\n.p-emoji_picker__skintone_label {\n  font-size: 0.9rem;\n  display: inline-block;\n  margin: 0 3px;\n  font-weight: bold;\n}\n.p-emoji_picker__content:hover .p-emoji_picker__skintone_btn_container {\n  border: 1px solid #FFFFFF;\n  background: #FFFFFF;\n}\n.p-emoji_picker__skintone_options {\n  opacity: 0;\n  background: #FFFFFF;\n  border-radius: 10px;\n  pointer-events: none;\n  padding: 7px 3px 2px 3px;\n  border: 1px solid transparent;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n.p-emoji_picker__skintone_options > span {\n  border-radius: 2px;\n}\n.p-emoji_picker__skintone_options > span[data-preferred="true"] {\n  background: #FFFFFF;\n}\n.p-emoji_picker__skintone_options span.emoji-sizer {\n  font-size: 23px;\n}\n.p-emoji_picker__skintone_options span.emoji,\n.p-emoji_picker__skintone_options span.emoji-outer {\n  cursor: pointer;\n}\n.p-emoji_picker__skintone_options--visible {\n  opacity: 1;\n  pointer-events: all;\n}\n.p-emoji_picker__skintone_tip {\n  opacity: 0;\n  font-size: .68rem;\n  bottom: -50px;\n  right: 14px;\n  z-index: 2;\n  pointer-events: none;\n  font-weight: bold;\n}\n.p-emoji_picker__skintone_tip--visible {\n  opacity: 1;\n}\n', ""]);
 }, function(e, t, n) {
   var r = n(3238);
   "string" == typeof r && (r = [
@@ -42503,7 +42604,7 @@ webpackJsonp([332], [, function(e, t, n) {
       return null;
     });
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.t-list-reset {\n  margin-bottom: 0;\n  margin-left: 0;\n  padding: 0;\n  list-style-type: none;\n}\n.c-avatar {\n  position: relative;\n  display: inline-block;\n  border-radius: 3px;\n  overflow: hidden;\n  cursor: pointer;\n}\n.c-avatar--no_image {\n  background-color: #E8E8E8;\n  cursor: default;\n}\n.c-avatar__additional_overlay {\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  color: #FFF;\n  font-weight: bold;\n  font-size: 15px;\n  text-align: center;\n  background-color: rgba(0, 0, 0, 0.5);\n  border-radius: 3px;\n}\n.c-avatar--24,\n.c-avatar--24 .c-avatar__image {\n  width: 24px;\n  height: 24px;\n}\n.c-avatar--24 .c-avatar__additional_overlay {\n  line-height: 24px;\n}\n.c-avatar--36,\n.c-avatar--36 .c-avatar__image {\n  width: 36px;\n  height: 36px;\n}\n.c-avatar--36 .c-avatar__additional_overlay {\n  line-height: 36px;\n}\n.c-avatar--48,\n.c-avatar--48 .c-avatar__image {\n  width: 48px;\n  height: 48px;\n}\n.c-avatar--48 .c-avatar__additional_overlay {\n  line-height: 48px;\n}\n.c-avatar--72,\n.c-avatar--72 .c-avatar__image {\n  width: 72px;\n  height: 72px;\n}\n.c-avatar--72 .c-avatar__additional_overlay {\n  line-height: 72px;\n}\n.c-avatar--192 .c-avatar--192 .c-avatar__image {\n  width: 192px;\n  height: 192px;\n}\n.c-avatar--192 .c-avatar__additional_overlay {\n  line-height: 192px;\n}\n.c-avatar--512,\n.c-avatar--512 .c-avatar__image {\n  width: 512px;\n  height: 512px;\n}\n.c-avatar--512 .c-avatar__additional_overlay {\n  line-height: 512px;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".c-avatar {\n  position: relative;\n  display: inline-block;\n  border-radius: 3px;\n  overflow: hidden;\n  cursor: pointer;\n}\n.c-avatar--no_image {\n  background-color: #E8E8E8;\n  cursor: default;\n}\n.c-avatar__additional_overlay {\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  color: #FFF;\n  font-weight: bold;\n  font-size: 15px;\n  text-align: center;\n  background-color: rgba(0, 0, 0, 0.5);\n  border-radius: 3px;\n}\n.c-avatar--24,\n.c-avatar--24 .c-avatar__image {\n  width: 24px;\n  height: 24px;\n}\n.c-avatar--24 .c-avatar__additional_overlay {\n  line-height: 24px;\n}\n.c-avatar--36,\n.c-avatar--36 .c-avatar__image {\n  width: 36px;\n  height: 36px;\n}\n.c-avatar--36 .c-avatar__additional_overlay {\n  line-height: 36px;\n}\n.c-avatar--48,\n.c-avatar--48 .c-avatar__image {\n  width: 48px;\n  height: 48px;\n}\n.c-avatar--48 .c-avatar__additional_overlay {\n  line-height: 48px;\n}\n.c-avatar--72,\n.c-avatar--72 .c-avatar__image {\n  width: 72px;\n  height: 72px;\n}\n.c-avatar--72 .c-avatar__additional_overlay {\n  line-height: 72px;\n}\n.c-avatar--192 .c-avatar--192 .c-avatar__image {\n  width: 192px;\n  height: 192px;\n}\n.c-avatar--192 .c-avatar__additional_overlay {\n  line-height: 192px;\n}\n.c-avatar--512,\n.c-avatar--512 .c-avatar__image {\n  width: 512px;\n  height: 512px;\n}\n.c-avatar--512 .c-avatar__additional_overlay {\n  line-height: 512px;\n}\n", ""]);
 }, function(e, t, n) {
   "use strict";
 
@@ -54684,9 +54785,9 @@ webpackJsonp([332], [, function(e, t, n) {
     sideEffect: r
   });
 }, , , , , function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.t-list-reset {\n  margin-bottom: 0;\n  margin-left: 0;\n  padding: 0;\n  list-style-type: none;\n}\n.c-enhanced_text_input {\n  border-radius: 0.25rem;\n  display: flex;\n  align-items: center;\n  -webkit-transition: box-shadow 70ms ease-out, border-color 70ms ease-out 0.2s ease-out 0.0000001ms;\n  -moz-transition: box-shadow 70ms ease-out, border-color 70ms ease-out 0.2s ease-out 0.0000001ms;\n  transition: box-shadow 70ms ease-out, border-color 70ms ease-out 0.2s ease-out 0.0000001ms;\n  -webkit-transition: box-shadow 70ms ease-out, border-color 70ms ease-out;\n  -moz-transition: box-shadow 70ms ease-out, border-color 70ms ease-out;\n  transition: box-shadow 70ms ease-out, border-color 70ms ease-out;\n  border: 1px solid #C5C5C5;\n  padding: 6px 8px;\n  color: #A0A0A2;\n  font-size: 1rem;\n}\n.c-enhanced_text_input:hover,\n.c-enhanced_text_input.c-enhanced_text_input--active {\n  border-color: #2780F8;\n  box-shadow: 0 0 7px rgba(39, 128, 248, 0.15);\n}\n.c-enhanced_text_input .c-icon:before {\n  font-size: 1.2rem;\n}\n.c-enhanced_text_input__input[type=text] {\n  flex-grow: 1;\n  margin: 0;\n  padding: 0 0.5rem;\n  border: 0 none !important;\n  font-size: 1rem;\n}\n.c-enhanced_text_input__input[type=text]:active,\n.c-enhanced_text_input__input[type=text]:focus {\n  box-shadow: none;\n}\n.c-enhanced_text_input__reset_button {\n  display: none;\n  cursor: pointer;\n}\n.c-enhanced_text_input__reset_button--visible {\n  display: block;\n}\n.feature_keyboard_navigation .c-enhanced_text_input:hover,\n.feature_keyboard_navigation .c-enhanced_text_input.c-enhanced_text_input--active {\n  border-color: #717274;\n  box-shadow: none;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".c-enhanced_text_input {\n  border-radius: 0.25rem;\n  display: flex;\n  align-items: center;\n  -webkit-transition: box-shadow 70ms ease-out, border-color 70ms ease-out 0.2s ease-out 0.0000001ms;\n  -moz-transition: box-shadow 70ms ease-out, border-color 70ms ease-out 0.2s ease-out 0.0000001ms;\n  transition: box-shadow 70ms ease-out, border-color 70ms ease-out 0.2s ease-out 0.0000001ms;\n  -webkit-transition: box-shadow 70ms ease-out, border-color 70ms ease-out;\n  -moz-transition: box-shadow 70ms ease-out, border-color 70ms ease-out;\n  transition: box-shadow 70ms ease-out, border-color 70ms ease-out;\n  border: 1px solid #C5C5C5;\n  padding: 6px 8px;\n  color: #A0A0A2;\n  font-size: 1rem;\n}\n.c-enhanced_text_input:hover,\n.c-enhanced_text_input.c-enhanced_text_input--active {\n  border-color: #2780F8;\n  box-shadow: 0 0 7px rgba(39, 128, 248, 0.15);\n}\n.c-enhanced_text_input .c-icon:before {\n  font-size: 1.2rem;\n}\n.c-enhanced_text_input__input[type=text] {\n  flex-grow: 1;\n  margin: 0;\n  padding: 0 0.5rem;\n  border: 0 none !important;\n  font-size: 1rem;\n}\n.c-enhanced_text_input__input[type=text]:active,\n.c-enhanced_text_input__input[type=text]:focus {\n  box-shadow: none;\n}\n.c-enhanced_text_input__reset_button {\n  display: none;\n  cursor: pointer;\n}\n.c-enhanced_text_input__reset_button--visible {\n  display: block;\n}\n.feature_keyboard_navigation .c-enhanced_text_input:hover,\n.feature_keyboard_navigation .c-enhanced_text_input.c-enhanced_text_input--active {\n  border-color: #717274;\n  box-shadow: none;\n}\n", ""]);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.t-list-reset {\n  margin-bottom: 0;\n  margin-left: 0;\n  padding: 0;\n  list-style-type: none;\n}\n.p-apps_browser {\n  flex: 1 1 0;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-weight: 400;\n  -webkit-font-smoothing: antialiased;\n  display: flex;\n  flex-direction: column;\n  margin: 6rem 0 1rem 0;\n  overflow: hidden;\n}\n.p-apps_browser__filter_container {\n  margin-bottom: 20px;\n  padding: 10px;\n}\n.p-apps_browser__filter_header {\n  display: flex;\n  align-items: center;\n  margin-bottom: 2rem;\n}\n.p-apps_browser__filter_header h2 {\n  font-size: 2.125rem;\n  line-height: 2.5625rem;\n  font-weight: 900;\n  flex-grow: 1;\n  margin: 0;\n}\n.p-apps_browser__search_box {\n  display: flex;\n}\n.p-apps_browser__apps_list {\n  overflow-y: auto;\n  min-height: 200px;\n  position: relative;\n}\n.p-apps_browser__apps_list--loading::before {\n  background-image: url('/img/loading_hash_animation_@2x.gif');\n  background-color: #FFF;\n  background-position: center;\n  background-repeat: no-repeat;\n  position: absolute;\n  content: '';\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n}\n.p-apps_browser__category_section {\n  margin-bottom: 25px;\n  padding: 10px;\n}\n.p-apps_browser__category_section--hidden {\n  display: none;\n}\n.p-apps_browser__category_section--tutorial .p-apps_browser__category_header {\n  display: none;\n}\n.p-apps_browser__category_section--tutorial .p-apps_browser__app {\n  box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.05);\n  border-radius: 6px;\n  border: 1px solid #E8E8E8;\n  padding: 12px;\n}\n.p-apps_browser__category_section--tutorial .p-apps_browser__app--selected {\n  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.15);\n  background: #FFF;\n}\n.p-apps_browser__category_header {\n  font-size: .8rem;\n  line-height: 1.2rem;\n  background: #FFF;\n  color: #717274;\n  padding-bottom: .5rem;\n}\n.p-apps_browser__category_header--sticky {\n  top: 0;\n  position: sticky;\n}\n.p-apps_browser__app {\n  display: flex;\n  align-items: center;\n  padding: 11px 12px;\n  border: 1px solid transparent;\n  border-top-color: #E8E8E8;\n  cursor: pointer;\n}\n.p-apps_browser__app:first-of-type {\n  border-top-color: transparent;\n}\n.p-apps_browser__app--selected {\n  border-radius: 6px;\n  background: #F9F9F9;\n  border: 1px solid #E8E8E8;\n}\n.p-apps_browser__app--selected + .p-apps_browser__app {\n  border-top-color: transparent;\n}\n.p-apps_browser__app_icon {\n  flex: 0 0 auto;\n  border-radius: 0.2rem;\n  width: 36px;\n  height: 36px;\n  margin-right: 10px;\n}\n.p-apps_browser__app_info {\n  flex: 1 1 0;\n  font-size: 0.9375rem;\n  overflow: hidden;\n  line-height: 1.3rem;\n  color: #2C2D30;\n  margin-right: 12px;\n}\n.p-apps_browser__browse_apps,\n.p-apps_browser__app_action {\n  flex: 0 0 auto;\n  border-radius: 0.25rem;\n  font-size: 0.875rem;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-weight: 700;\n  line-height: 1.2rem;\n  background-color: #FBFBFA;\n  border: 1px solid #C7CACD;\n  color: #555459;\n  padding: 4px 9px;\n}\n.p-apps_browser__browse_apps:hover,\n.p-apps_browser__app_action:hover,\n.p-apps_browser__browse_apps:focus,\n.p-apps_browser__app_action:focus {\n  background-color: #FFFFFF;\n  color: #007AB8;\n}\n.p-apps_browser__browse_apps:active,\n.p-apps_browser__app_action:active {\n  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.2);\n}\n.p-apps_browser__browse_apps {\n  font-size: 0.9375rem;\n  padding: 7px 13px 8px;\n}\n.p-apps_browser__app_name {\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  font-weight: bold;\n}\n.p-apps_browser__app_description {\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  color: #717274;\n}\n.p-apps_browser__no_results {\n  display: flex;\n  -ms-flex-pack: center;\n  -webkit-box-pack: center;\n  -webkit-justify-content: center;\n  -moz-justify-content: center;\n  justify-content: center;\n  align-items: center;\n  height: 100px;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".p-apps_browser {\n  flex: 1 1 0;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-weight: 400;\n  -webkit-font-smoothing: antialiased;\n  display: flex;\n  flex-direction: column;\n  margin: 6rem 0 1rem 0;\n  overflow: hidden;\n}\n.p-apps_browser__filter_container {\n  margin-bottom: 20px;\n  padding: 10px;\n}\n.p-apps_browser__filter_header {\n  display: flex;\n  align-items: center;\n  margin-bottom: 2rem;\n}\n.p-apps_browser__filter_header h2 {\n  font-size: 2.125rem;\n  line-height: 2.5625rem;\n  font-weight: 900;\n  flex-grow: 1;\n  margin: 0;\n}\n.p-apps_browser__search_box {\n  display: flex;\n}\n.p-apps_browser__apps_list {\n  border-right: 0.25rem solid transparent;\n  overflow-y: auto;\n  min-height: 200px;\n  position: relative;\n}\n.p-apps_browser__apps_list::-webkit-scrollbar {\n  position: absolute;\n  -webkit-appearance: none;\n  width: 8px;\n}\n.p-apps_browser__apps_list::-webkit-scrollbar-track,\n.p-apps_browser__apps_list::-webkit-scrollbar-thumb {\n  background-clip: padding-box !important;\n  border-radius: 3px;\n  color: #FFFFFF;\n}\n.p-apps_browser__apps_list::-webkit-scrollbar-track {\n  background: #F5F5F5;\n  box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0;\n}\n.p-apps_browser__apps_list::-webkit-scrollbar-thumb {\n  background: #D9D9DE;\n  box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;\n  min-height: 36px;\n}\n.p-apps_browser__apps_list::-webkit-scrollbar-corner {\n  background: #FFFFFF;\n}\n.p-apps_browser__apps_list--loading::before {\n  background-image: url('/img/loading_hash_animation_@2x.gif');\n  background-color: #FFF;\n  background-position: center;\n  background-repeat: no-repeat;\n  position: absolute;\n  content: '';\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n}\n.p-apps_browser__category_section {\n  margin-bottom: 25px;\n  padding: 10px;\n}\n.p-apps_browser__category_section--hidden {\n  display: none;\n}\n.p-apps_browser__category_section--tutorial .p-apps_browser__category_header {\n  display: none;\n}\n.p-apps_browser__category_section--tutorial .p-apps_browser__app {\n  box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.05);\n  border-radius: 6px;\n  border: 1px solid #E8E8E8;\n  padding: 12px;\n}\n.p-apps_browser__category_section--tutorial .p-apps_browser__app--selected {\n  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.15);\n  background: #FFF;\n}\n.p-apps_browser__category_header {\n  font-size: .8rem;\n  line-height: 1.2rem;\n  background: #FFF;\n  color: #717274;\n  padding-bottom: .5rem;\n}\n.p-apps_browser__category_header--sticky {\n  top: 0;\n  position: sticky;\n}\n.p-apps_browser__app {\n  display: flex;\n  align-items: center;\n  padding: 11px 12px;\n  border: 1px solid transparent;\n  border-top-color: #E8E8E8;\n  cursor: pointer;\n}\n.p-apps_browser__app:first-of-type {\n  border-top-color: transparent;\n}\n.p-apps_browser__app--selected {\n  border-radius: 6px;\n  background: #F9F9F9;\n  border: 1px solid #E8E8E8;\n}\n.p-apps_browser__app--selected + .p-apps_browser__app {\n  border-top-color: transparent;\n}\n.p-apps_browser__app_icon {\n  flex: 0 0 auto;\n  border-radius: 0.2rem;\n  width: 36px;\n  height: 36px;\n  margin-right: 10px;\n}\n.p-apps_browser__app_info {\n  flex: 1 1 0;\n  font-size: 0.9375rem;\n  overflow: hidden;\n  line-height: 1.3rem;\n  color: #2C2D30;\n  margin-right: 12px;\n}\n.p-apps_browser__browse_apps,\n.p-apps_browser__app_action {\n  flex: 0 0 auto;\n  border-radius: 0.25rem;\n  font-size: 0.875rem;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-weight: 700;\n  line-height: 1.2rem;\n  background-color: #FBFBFA;\n  border: 1px solid #C7CACD;\n  color: #555459;\n  padding: 4px 9px;\n}\n.p-apps_browser__browse_apps:hover,\n.p-apps_browser__app_action:hover,\n.p-apps_browser__browse_apps:focus,\n.p-apps_browser__app_action:focus {\n  background-color: #FFFFFF;\n  color: #007AB8;\n}\n.p-apps_browser__browse_apps:active,\n.p-apps_browser__app_action:active {\n  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.2);\n}\n.p-apps_browser__browse_apps {\n  font-size: 0.9375rem;\n  padding: 7px 13px 8px;\n}\n.p-apps_browser__app_name {\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  font-weight: bold;\n}\n.p-apps_browser__app_description {\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  color: #717274;\n}\n.p-apps_browser__no_results {\n  display: flex;\n  -ms-flex-pack: center;\n  -webkit-box-pack: center;\n  -webkit-justify-content: center;\n  -moz-justify-content: center;\n  justify-content: center;\n  align-items: center;\n  height: 100px;\n}\n", ""]);
 }, function(e, t, n) {
   "use strict";
 
@@ -56053,7 +56154,7 @@ webpackJsonp([332], [, function(e, t, n) {
   n(219)(r, {});
   r.locals && (e.exports = r.locals);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.t-list-reset {\n  margin-bottom: 0;\n  margin-left: 0;\n  padding: 0;\n  list-style-type: none;\n}\n.c-message_actions__container {\n  background: #FFF;\n  border: 0.0625rem solid rgba(0, 0, 0, 0.15);\n  border-radius: 0.375rem;\n  overflow: hidden;\n  transition: all 50ms ease-in;\n  transition-property: border, box-shadow;\n}\n.c-message_actions__container:hover {\n  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);\n  border-color: rgba(0, 0, 0, 0.3);\n}\n.c-message_actions__container .c-message_actions__button:last-child {\n  border-right: none;\n}\n.c-message_actions__button {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  padding: 3px 7px;\n  color: #717274;\n  border: none;\n  border-right: 1px solid rgba(0, 0, 0, 0.15);\n  transition: all 50ms ease-in;\n  transition-property: background, border, opacity;\n}\n.c-message_actions__button:hover,\n.c-message_actions__button:focus,\n.c-message_actions__button:active {\n  outline: none;\n}\n.c-message_actions__button:hover {\n  color: #007AB8;\n}\n.c-message_actions__button:active {\n  background: #F9F9F9;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".c-message_actions__container {\n  background: #FFF;\n  border: 0.0625rem solid rgba(0, 0, 0, 0.15);\n  border-radius: 0.375rem;\n  overflow: hidden;\n  transition: all 50ms ease-in;\n  transition-property: border, box-shadow;\n}\n.c-message_actions__container:hover {\n  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);\n  border-color: rgba(0, 0, 0, 0.3);\n}\n.c-message_actions__container .c-message_actions__button:last-child {\n  border-right: none;\n}\n.c-message_actions__button {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  padding: 3px 7px;\n  color: #717274;\n  border: none;\n  border-right: 1px solid rgba(0, 0, 0, 0.15);\n  transition: all 50ms ease-in;\n  transition-property: background, border, opacity;\n}\n.c-message_actions__button:hover,\n.c-message_actions__button:focus,\n.c-message_actions__button:active {\n  outline: none;\n}\n.c-message_actions__button:hover {\n  color: #007AB8;\n}\n.c-message_actions__button:active {\n  background: #F9F9F9;\n}\n", ""]);
 }, function(e, t, n) {
   "use strict";
   var r = n(3934);
@@ -56421,7 +56522,7 @@ webpackJsonp([332], [, function(e, t, n) {
 }, function(e, t, n) {
   t = e.exports = n(189)(), t.push([e.i, ".c-menu {\n  background-color: #FFF;\n  border: 1px solid rgba(0, 0, 0, 0.15);\n  border-radius: 6px;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  user-select: none;\n  width: 300px;\n  z-index: 1053;\n}\n.c-menu__items {\n  margin: 0.75rem 0;\n  padding: 0;\n}\n.c-menu__items.c-menu__items--no_margin {\n  margin: 0;\n}\n", ""]);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.t-list-reset {\n  margin-bottom: 0;\n  margin-left: 0;\n  padding: 0;\n  list-style-type: none;\n}\n.c-menu_item__li {\n  line-height: 1.5rem;\n  list-style-type: none;\n  padding: 0 0.9375rem;\n  margin: 0;\n}\n.c-menu_item__button {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  background: transparent;\n  border-radius: 0.25rem;\n  color: #2C2D30;\n  cursor: pointer;\n  display: flex;\n  font-size: 15px;\n  line-height: 1.5625;\n  overflow-x: hidden;\n  padding: 0 0.5rem;\n  text-align: left;\n  text-decoration: none;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  width: 100%;\n}\n.c-menu_item__button:hover,\n.c-menu_item__button:focus,\n.c-menu_item__button:active {\n  outline: none;\n}\n.c-menu_item__description {\n  font-size: 12px;\n  line-height: 0.9375;\n  color: #717274;\n  padding-bottom: 0.25rem;\n  overflow-x: hidden;\n  text-overflow: ellipsis;\n}\n.c-menu_item__button--highlighted {\n  background-color: #2D9EE0;\n  color: #FFFFFF;\n}\n.c-menu_item__button--highlighted .c-menu_item__description {\n  color: #FFFFFF;\n}\n.c-menu_item__button--danger {\n  color: #EB4D5C;\n}\n.c-menu_item__button--danger .c-menu_item__description {\n  color: #EB4D5C;\n}\n.c-menu_item__button--danger.c-menu_item__button--highlighted {\n  color: #FFFFFF;\n  background-color: #EB4D5C;\n}\n.c-menu_item__button--danger.c-menu_item__button--highlighted .c-menu_item__description {\n  color: #FFFFFF;\n}\n.c-menu_item__label {\n  flex: 1 1 auto;\n}\n.c-menu_item__button.c-menu-item__button--with_submenu {\n  padding-right: 0;\n}\n.c-menu_item__caret {\n  display: block;\n  flex: 0 0 auto;\n}\n.c-menu_item__caret:before {\n  height: 1rem;\n  line-height: 0.6;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".c-menu_item__li {\n  line-height: 1.5rem;\n  list-style-type: none;\n  padding: 0 0.9375rem;\n  margin: 0;\n}\n.c-menu_item__button {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  background: transparent;\n  border-radius: 0.25rem;\n  color: #2C2D30;\n  cursor: pointer;\n  display: flex;\n  font-size: 15px;\n  line-height: 1.5625;\n  overflow-x: hidden;\n  padding: 0 0.5rem;\n  text-align: left;\n  text-decoration: none;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  width: 100%;\n}\n.c-menu_item__button:hover,\n.c-menu_item__button:focus,\n.c-menu_item__button:active {\n  outline: none;\n}\n.c-menu_item__description {\n  font-size: 12px;\n  line-height: 0.9375;\n  color: #717274;\n  padding-bottom: 0.25rem;\n  overflow-x: hidden;\n  text-overflow: ellipsis;\n}\n.c-menu_item__button--highlighted {\n  background-color: #2D9EE0;\n  color: #FFFFFF;\n}\n.c-menu_item__button--highlighted .c-menu_item__description {\n  color: #FFFFFF;\n}\n.c-menu_item__button--danger {\n  color: #EB4D5C;\n}\n.c-menu_item__button--danger .c-menu_item__description {\n  color: #EB4D5C;\n}\n.c-menu_item__button--danger.c-menu_item__button--highlighted {\n  color: #FFFFFF;\n  background-color: #EB4D5C;\n}\n.c-menu_item__button--danger.c-menu_item__button--highlighted .c-menu_item__description {\n  color: #FFFFFF;\n}\n.c-menu_item__label {\n  flex: 1 1 auto;\n}\n.c-menu_item__button.c-menu-item__button--with_submenu {\n  padding-right: 0;\n}\n.c-menu_item__caret {\n  display: block;\n  flex: 0 0 auto;\n}\n.c-menu_item__caret:before {\n  height: 1rem;\n  line-height: 0.6;\n}\n", ""]);
 }, function(e, t, n) {
   t = e.exports = n(189)(), t.push([e.i, ".c-menu_separator__li {\n  line-height: 1.5rem;\n  list-style-type: none;\n  padding: 15px 0;\n  margin: 0;\n}\n.c-menu_separator__li.c-menu_separator__li--no_padding {\n  padding: 0;\n}\n.c-menu_separator__li.c-menu_separator__li--no_top_padding {\n  padding-top: 0;\n}\n.c-menu_separator__separator {\n  margin: 0;\n  border-top: 1px solid rgba(0, 0, 0, 0.15);\n  border-bottom: 1px solid #FFF;\n}\n", ""]);
 }, , , , , function(e, t, n) {
@@ -56794,7 +56895,7 @@ webpackJsonp([332], [, function(e, t, n) {
   };
   t.a = n.i(i.b)(d)(c);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.t-list-reset {\n  margin-bottom: 0;\n  margin-left: 0;\n  padding: 0;\n  list-style-type: none;\n}\n.c-modal {\n  position: fixed;\n  top: 100%;\n  left: 0;\n  bottom: 0;\n  right: 0;\n  z-index: 1000;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n}\n.c-modal--active {\n  top: 0;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms;\n}\n.c-modal__background {\n  height: 100vh;\n  width: 100vw;\n  background-color: #FFFFFF;\n  position: absolute;\n  top: 0;\n  left: 0;\n  pointer-events: none;\n}\n.c-modal__contents {\n  height: 100vh;\n  top: 100%;\n  opacity: 0;\n  -webkit-transform: translateY(5px);\n  -moz-transform: translateY(5px);\n  -ms-transform: translateY(5px);\n  transform: translateY(5px);\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, -webkit-transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n}\n.c-modal__contents--active {\n  top: 0;\n  opacity: 1;\n  -webkit-transform: translateY(0);\n  -moz-transform: translateY(0);\n  -ms-transform: translateY(0);\n  transform: translateY(0);\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, -webkit-transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n}\n.c-modal__header {\n  position: fixed;\n  left: 0;\n  right: 0;\n  display: flex;\n  align-items: center;\n  -ms-flex-pack: distribute;\n  -webkit-box-pack: distribute;\n  -webkit-justify-content: space-around;\n  -moz-justify-content: space-around;\n  justify-content: space-around;\n  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);\n  height: 3.75rem;\n  background-color: #FFFFFF;\n  top: 0;\n  z-index: 10;\n}\n.c-modal__close {\n  position: absolute;\n  top: 20px;\n  right: 20px;\n  z-index: 100;\n  cursor: pointer;\n}\n.c-modal__close:before {\n  font-size: 30px;\n  color: #717274;\n}\n.c-modal__body {\n  padding-top: 3.75rem;\n  margin-bottom: 4.5rem;\n}\n.p-org_retention_request {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-weight: 400;\n  -webkit-font-smoothing: antialiased;\n  font-size: 15px;\n}\n.p-org_retention_request--font_bump {\n  font-size: 16px;\n  line-height: 1.5;\n}\n.p-org_retention_request__modal {\n  overflow-y: auto;\n}\n.p-org_retention_request__modal_content {\n  max-width: 640px;\n  margin: 0 auto;\n  padding-top: 7.5rem;\n}\n.p-org_retention_request__modal_section {\n  border-bottom: 1px solid #E8E8E8;\n  margin-bottom: 1rem;\n  padding: 0 1rem 1rem;\n  font-size: 15px;\n  line-height: 1.5;\n}\n.p-org_retention_request__modal_section--lead {\n  padding-left: 0;\n  padding-right: 0;\n}\n.p-org_retention_request__section_header {\n  font-weight: 900;\n  font-size: 22px;\n  margin-bottom: 1.875rem;\n  color: #2C2D30;\n}\n.p-org_retention_request__policy_select_group {\n  display: flex;\n}\n.p-org_retention_request__select_wrapper {\n  position: relative;\n  width: calc(100% - 200px);\n}\n.p-org_retention_request__select_wrapper:after {\n  font-family: 'Slack';\n  content: '\\E271';\n  position: absolute;\n  right: 10px;\n  top: 15px;\n  width: 20px;\n  height: 20px;\n  display: block;\n  pointer-events: none;\n}\n.p-org_retention_request__select {\n  display: block;\n  cursor: pointer;\n}\n.p-org_retention_request__duration_group {\n  position: relative;\n  max-width: 105px;\n  display: flex;\n  align-items: baseline;\n}\n.p-org_retention_request__duration_label {\n  position: absolute;\n  left: 0;\n  top: -1.5rem;\n}\n.p-org_retention_request__duration_label--secondary {\n  display: block;\n}\n.p-org_retention_request__requester_input {\n  width: calc(100% - 200px);\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".c-modal {\n  position: fixed;\n  top: 100%;\n  left: 0;\n  bottom: 0;\n  right: 0;\n  z-index: 1000;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n}\n.c-modal--active {\n  top: 0;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms;\n}\n.c-modal__background {\n  height: 100vh;\n  width: 100vw;\n  background-color: #FFFFFF;\n  position: absolute;\n  top: 0;\n  left: 0;\n  pointer-events: none;\n}\n.c-modal__contents {\n  height: 100vh;\n  top: 100%;\n  opacity: 0;\n  -webkit-transform: translateY(5px);\n  -moz-transform: translateY(5px);\n  -ms-transform: translateY(5px);\n  transform: translateY(5px);\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, -webkit-transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n}\n.c-modal__contents--active {\n  top: 0;\n  opacity: 1;\n  -webkit-transform: translateY(0);\n  -moz-transform: translateY(0);\n  -ms-transform: translateY(0);\n  transform: translateY(0);\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, -webkit-transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n}\n.c-modal__header {\n  position: fixed;\n  left: 0;\n  right: 0;\n  display: flex;\n  align-items: center;\n  -ms-flex-pack: distribute;\n  -webkit-box-pack: distribute;\n  -webkit-justify-content: space-around;\n  -moz-justify-content: space-around;\n  justify-content: space-around;\n  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);\n  height: 3.75rem;\n  background-color: #FFFFFF;\n  top: 0;\n  z-index: 10;\n}\n.c-modal__close {\n  position: absolute;\n  top: 20px;\n  right: 20px;\n  z-index: 100;\n  cursor: pointer;\n}\n.c-modal__close:before {\n  font-size: 30px;\n  color: #717274;\n}\n.c-modal__body {\n  padding-top: 3.75rem;\n  margin-bottom: 4.5rem;\n}\n.p-org_retention_request {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-weight: 400;\n  -webkit-font-smoothing: antialiased;\n  font-size: 15px;\n}\n.p-org_retention_request--font_bump {\n  font-size: 16px;\n  line-height: 1.5;\n}\n.p-org_retention_request__modal {\n  overflow-y: auto;\n}\n.p-org_retention_request__modal_content {\n  max-width: 640px;\n  margin: 0 auto;\n  padding-top: 7.5rem;\n}\n.p-org_retention_request__modal_section {\n  border-bottom: 1px solid #E8E8E8;\n  margin-bottom: 1rem;\n  padding: 0 1rem 1rem;\n  font-size: 15px;\n  line-height: 1.5;\n}\n.p-org_retention_request__modal_section--lead {\n  padding-left: 0;\n  padding-right: 0;\n}\n.p-org_retention_request__section_header {\n  font-weight: 900;\n  font-size: 22px;\n  margin-bottom: 1.875rem;\n  color: #2C2D30;\n}\n.p-org_retention_request__policy_select_group {\n  display: flex;\n}\n.p-org_retention_request__select_wrapper {\n  position: relative;\n  width: calc(100% - 200px);\n}\n.p-org_retention_request__select_wrapper:after {\n  font-family: 'Slack';\n  content: '\\E271';\n  position: absolute;\n  right: 10px;\n  top: 15px;\n  width: 20px;\n  height: 20px;\n  display: block;\n  pointer-events: none;\n}\n.p-org_retention_request__select {\n  display: block;\n  cursor: pointer;\n}\n.p-org_retention_request__duration_group {\n  position: relative;\n  max-width: 105px;\n  display: flex;\n  align-items: baseline;\n}\n.p-org_retention_request__duration_label {\n  position: absolute;\n  left: 0;\n  top: -1.5rem;\n}\n.p-org_retention_request__duration_label--secondary {\n  display: block;\n}\n.p-org_retention_request__requester_input {\n  width: calc(100% - 200px);\n}\n", ""]);
 }, function(e, t, n) {
   var r = n(3963);
   "string" == typeof r && (r = [
@@ -57436,7 +57537,7 @@ webpackJsonp([332], [, function(e, t, n) {
     a = n.i(o.createReducer)({}, {});
   t.b = a;
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.t-list-reset {\n  margin-bottom: 0;\n  margin-left: 0;\n  padding: 0;\n  list-style-type: none;\n}\n.c-member_profile_card_header {\n  position: relative;\n  cursor: pointer;\n}\n.c-member_profile_card_header:hover .c-member_profile_card__details {\n  opacity: 0;\n}\n.c-member_profile_card_header:hover .c-member_profile_card__restriction {\n  opacity: 0;\n}\n.c-member_profile_card__details {\n  opacity: 1;\n  pointer-events: none;\n  position: absolute;\n  left: 1rem;\n  right: 1rem;\n  bottom: 1.625rem;\n  color: #FFF;\n  -webkit-transition: opacity 150ms ease 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 150ms ease 0.2s ease-out 0.0000001ms;\n  transition: opacity 150ms ease 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 150ms ease;\n  -moz-transition: opacity 150ms ease;\n  transition: opacity 150ms ease;\n}\n.c-member_profile_card_header__image {\n  background-repeat: no-repeat;\n  display: inline-block;\n  position: relative;\n  cursor: pointer;\n  border-top-right-radius: 0.25rem;\n  border-bottom-right-radius: 0;\n  border-bottom-left-radius: 0;\n  border-top-left-radius: 0.25rem;\n  background-clip: padding-box;\n  margin: 0;\n  width: 100%;\n  height: 224px;\n  background-position: 0 -448px, 0 -48px, 0 -48px;\n  background-size: 100% 300%,100%,100%,100%;\n  -webkit-transition: background-position 150ms ease 0.2s ease-out 0.0000001ms;\n  -moz-transition: background-position 150ms ease 0.2s ease-out 0.0000001ms;\n  transition: background-position 150ms ease 0.2s ease-out 0.0000001ms;\n  -webkit-transition: background-position 150ms ease;\n  -moz-transition: background-position 150ms ease;\n  transition: background-position 150ms ease;\n}\n.c-member_profile_card_header__image:hover {\n  background-position: 0 0, 0 -48px, 0 -48px;\n}\n.c-member_profile_card__restriction {\n  opacity: 1;\n  -webkit-transition: opacity 150ms ease 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 150ms ease 0.2s ease-out 0.0000001ms;\n  transition: opacity 150ms ease 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 150ms ease;\n  -moz-transition: opacity 150ms ease;\n  transition: opacity 150ms ease;\n  pointer-events: none;\n  position: absolute;\n  top: 0;\n  width: 100%;\n  border-top-right-radius: 0.25rem;\n  border-bottom-right-radius: 0;\n  border-bottom-left-radius: 0;\n  border-top-left-radius: 0.25rem;\n  background-clip: padding-box;\n  background-color: rgba(44, 45, 48, 0.8);\n  color: #FFF;\n  padding: 10px 14px;\n  font-size: 13px;\n}\n.c-member_profile_card__restriction .c-icon {\n  line-height: 0;\n}\n.c-member_profile_card__restriction .c-icon:before {\n  margin-left: -5px;\n}\n.c-member_profile_card__restriction .c-external_team_badge {\n  top: 9px;\n  right: 9px;\n}\n.c-member_profile_card__restriction--external {\n  padding-right: 32px;\n}\n.c-member_profile_card__name {\n  color: #FFF !important;\n  font-size: 1.125rem;\n  line-height: 1.5625rem;\n  font-weight: 900;\n  overflow: hidden;\n  text-overflow: ellipsis;\n}\n.c-member_profile_card__title {\n  color: #FFF;\n  font-size: .9375rem;\n  line-height: 1.375rem;\n  margin: 0;\n}\n.c-member_profile_card__footer {\n  max-width: 320px;\n  padding: 0.75rem;\n  border-top: 1px solid #f2f2f5;\n  border-radius: 0 0 6px 6px;\n  background: #F9F9F9;\n  margin-top: 1rem;\n}\n.c-member_profile_card__footer.c-member_profile_card__footer_notice {\n  padding: 0.75rem 1.25rem 1rem;\n  line-height: 1.4;\n  color: #717274;\n  background: #FFF;\n  margin-top: 0;\n  border-top: 0;\n}\n.c-enhanced_text_input {\n  background-color: #FFF;\n}\n.c-member_profile_card__timezone-row,\n.c-member_profile_card__status-row {\n  line-height: 1.875rem;\n  font-size: 0.75rem;\n  margin: 0 1.5rem;\n  display: flex;\n}\n.c-member_profile_card__owner {\n  flex: 1;\n}\n.c-member_profile_card__status--grey {\n  color: #A0A0A2;\n}\n.c-member_profile_card__items {\n  margin-top: 0.75rem;\n}\n.c-member_profile_card__items .c-menu_item__button {\n  margin: 0.2rem 0;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".c-member_profile_card_header {\n  position: relative;\n  cursor: pointer;\n}\n.c-member_profile_card_header:hover .c-member_profile_card__details,\n.c-member_profile_card_header:hover .c-member_profile_card__restriction {\n  opacity: 0;\n}\n.c-member_profile_card__details {\n  opacity: 1;\n  pointer-events: none;\n  position: absolute;\n  left: 1rem;\n  right: 1rem;\n  bottom: 1.625rem;\n  color: #FFF;\n  -webkit-transition: opacity 150ms ease 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 150ms ease 0.2s ease-out 0.0000001ms;\n  transition: opacity 150ms ease 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 150ms ease;\n  -moz-transition: opacity 150ms ease;\n  transition: opacity 150ms ease;\n}\n.c-member_profile_card_header__image {\n  background-repeat: no-repeat;\n  display: inline-block;\n  position: relative;\n  cursor: pointer;\n  border-top-right-radius: 0.25rem;\n  border-bottom-right-radius: 0;\n  border-bottom-left-radius: 0;\n  border-top-left-radius: 0.25rem;\n  background-clip: padding-box;\n  margin: 0;\n  width: 100%;\n  height: 224px;\n  background-position: 0 -448px, 0 -48px, 0 -48px;\n  background-size: 100% 300%,100%,100%,100%;\n  -webkit-transition: background-position 150ms ease 0.2s ease-out 0.0000001ms;\n  -moz-transition: background-position 150ms ease 0.2s ease-out 0.0000001ms;\n  transition: background-position 150ms ease 0.2s ease-out 0.0000001ms;\n  -webkit-transition: background-position 150ms ease;\n  -moz-transition: background-position 150ms ease;\n  transition: background-position 150ms ease;\n}\n.c-member_profile_card_header__image:hover {\n  background-position: 0 0, 0 -48px, 0 -48px;\n}\n.c-member_profile_card__restriction {\n  opacity: 1;\n  -webkit-transition: opacity 150ms ease 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 150ms ease 0.2s ease-out 0.0000001ms;\n  transition: opacity 150ms ease 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 150ms ease;\n  -moz-transition: opacity 150ms ease;\n  transition: opacity 150ms ease;\n  pointer-events: none;\n  position: absolute;\n  top: 0;\n  width: 100%;\n  border-top-right-radius: 0.25rem;\n  border-bottom-right-radius: 0;\n  border-bottom-left-radius: 0;\n  border-top-left-radius: 0.25rem;\n  background-clip: padding-box;\n  background-color: rgba(44, 45, 48, 0.8);\n  color: #FFF;\n  padding: 10px 14px;\n  font-size: 13px;\n}\n.c-member_profile_card__restriction .c-external_team_badge {\n  top: 9px;\n  right: 9px;\n  position: absolute;\n}\n.c-member_profile_card__restriction--external {\n  padding-right: 32px;\n}\n.c-member_profile_card__name {\n  color: #FFF !important;\n  font-size: 1.125rem;\n  line-height: 1.5625rem;\n  font-weight: 900;\n  overflow: hidden;\n  text-overflow: ellipsis;\n}\n.c-member_profile_card__title {\n  color: #FFF;\n  font-size: .9375rem;\n  line-height: 1.375rem;\n  margin: 0;\n}\n.c-member_profile_card__footer {\n  max-width: 320px;\n  padding: 0.75rem;\n  border-top: 1px solid #f2f2f5;\n  border-radius: 0 0 6px 6px;\n  background: #F9F9F9;\n  margin-top: 1rem;\n}\n.c-member_profile_card__footer.c-member_profile_card__footer_notice {\n  padding: 0.75rem 1.25rem 1rem;\n  line-height: 1.4;\n  color: #717274;\n  background: #FFF;\n  margin-top: 0;\n  border-top: 0;\n}\n.c-enhanced_text_input {\n  background-color: #FFF;\n}\n.c-member_profile_card__timezone-row,\n.c-member_profile_card__status-row {\n  line-height: 1.875rem;\n  font-size: 0.75rem;\n  margin: 0 1.5rem;\n  display: flex;\n}\n.c-member_profile_card__owner {\n  flex: 1;\n}\n.c-member_profile_card__status--grey {\n  color: #A0A0A2;\n}\n.c-member_profile_card__items {\n  margin-top: 0.75rem;\n}\n.c-member_profile_card__items .c-menu_item__button {\n  margin: 0.2rem 0;\n}\n", ""]);
 }, function(e, t, n) {
   "use strict";
 
@@ -57615,7 +57716,7 @@ webpackJsonp([332], [, function(e, t, n) {
       m = e.isSelf,
       _ = e.isStranger,
       y = e.imageUrl,
-      v = e.imageUrlSmall,
+      b = e.imageUrlSmall,
       w = e.title,
       k = e.isError,
       M = e.isOwner,
@@ -57647,7 +57748,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }),
       j = i.a.createElement(u.a, {
         imageUrl: y,
-        imageUrlSmall: v,
+        imageUrlSmall: b,
         userId: t,
         username: p,
         title: w,
@@ -57655,16 +57756,16 @@ webpackJsonp([332], [, function(e, t, n) {
         restriction: P
       });
     if (_) {
-      var D = b.t("You don’t share any channels with this person."),
-        Y = b.t("To interact with a person from another team, you need to be in at least one channel together.");
-      return i.a.createElement(c.c, g({}, r, {
+      var D = g.t("You don’t share any channels with this person."),
+        Y = g.t("To interact with a person from another team, you need to be in at least one channel together.");
+      return i.a.createElement(c.c, v({}, r, {
         width: 320,
         noMargin: !0
       }), j, i.a.createElement("div", {
         className: "c-member_profile_card__footer c-member_profile_card__footer_notice"
       }, i.a.createElement("strong", null, D), " ", Y));
     }
-    return i.a.createElement(c.c, g({}, r, {
+    return i.a.createElement(c.c, v({}, r, {
       width: 320,
       noMargin: !0
     }), j, i.a.createElement(s.a, {
@@ -57692,18 +57793,17 @@ webpackJsonp([332], [, function(e, t, n) {
     p = n(3078),
     h = n(3141),
     m = n(4196),
-    _ = n(2697),
-    y = n(2288),
-    v = n(3985),
-    g = (n.n(v), Object.assign || function(e) {
+    _ = n(2288),
+    y = n(3985),
+    v = (n.n(y), Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
         for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
       }
       return e;
     }),
-    b = new y.a("team"),
-    w = {
+    g = new _.a("team"),
+    b = {
       userId: o.PropTypes.string.isRequired,
       status: o.PropTypes.oneOfType([i.a.PropTypes.node, o.PropTypes.string]),
       title: o.PropTypes.string,
@@ -57725,7 +57825,7 @@ webpackJsonp([332], [, function(e, t, n) {
         name: o.PropTypes.string
       })
     },
-    k = {
+    w = {
       status: "",
       title: "",
       username: "",
@@ -57744,49 +57844,35 @@ webpackJsonp([332], [, function(e, t, n) {
       isExternal: !1,
       team: {}
     };
-  r.propTypes = w, r.defaultProps = k;
-  var M = function(e, t) {
+  r.propTypes = b, r.defaultProps = w;
+  var k = function(e, t) {
     var r = t.userId,
-      o = "",
-      i = "",
-      a = "",
-      s = void 0,
-      u = void 0,
-      l = !1,
-      c = void 0,
-      d = void 0,
-      f = void 0,
-      y = void 0,
-      v = void 0,
-      g = void 0,
-      b = void 0,
-      w = void 0,
-      k = void 0,
-      M = n.i(h.getMemberById)(e, r);
-    return M ? (o = M.profile.image_512, i = M.profile.image_48, a = M.profile.real_name || M.profile.display_name || M.name, s = M.bot_id, u = M.is_bot, c = M.is_external, d = M.is_owner, f = M.is_restricted, y = M.is_self, v = M.is_stranger, g = M.is_ultrarestricted, b = n.i(p.getCustomStatusByMemberId)(e, r), w = n.i(m.a)(M.team_id), k = n.i(_.memberLocalTime)(Date.now(), {
-      timeZone: M.tz || "America/Los_Angeles",
-      timeZoneOffset: -25200,
-      do24hrTime: !1
-    })) : l = !0, {
-      userId: r,
-      imageUrl: o,
-      imageUrlSmall: i,
-      username: a,
-      botId: s,
-      isBot: u,
-      isError: l,
-      isExternal: c,
-      isOwner: d,
-      isRestricted: f,
-      isSelf: y,
-      isStranger: v,
-      isUltraRestricted: g,
-      status: b,
-      team: w,
-      timestamp: k
-    };
+      o = {
+        userId: r,
+        imageUrl: "",
+        imageUrlSmall: "",
+        username: "",
+        isError: !1
+      },
+      i = n.i(h.getMemberById)(e, r);
+    return i ? v(o, {
+      imageUrl: i.profile.image_512,
+      imageUrlSmall: i.profile.image_48,
+      username: i.profile.real_name || i.profile.display_name || i.name,
+      botId: i.bot_id,
+      isBot: i.is_bot,
+      isExternal: i.is_external,
+      isOwner: i.is_owner,
+      isRestricted: i.is_restricted,
+      isSelf: i.is_self,
+      isStranger: i.is_stranger,
+      isUltraRestricted: i.is_ultrarestricted,
+      status: n.i(p.getCustomStatusByMemberId)(e, r),
+      team: n.i(m.a)(i.team_id),
+      timestamp: Date.now()
+    }) : (o.isError = !0, o);
   };
-  t.a = n.i(a.b)(M)(r);
+  t.a = n.i(a.b)(k)(r);
 }, function(e, t, n) {
   var r = n(3979);
   "string" == typeof r && (r = [
@@ -57795,7 +57881,7 @@ webpackJsonp([332], [, function(e, t, n) {
   n(219)(r, {});
   r.locals && (e.exports = r.locals);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.t-list-reset {\n  margin-bottom: 0;\n  margin-left: 0;\n  padding: 0;\n  list-style-type: none;\n}\n.c-virtual_list {\n  overflow-y: scroll;\n  overflow-x: hidden;\n  position: relative;\n  will-change: transform;\n}\n.c-virtual_list--slack_scrollbar {\n  border-right: 0.25rem solid transparent;\n}\n.c-virtual_list--slack_scrollbar::-webkit-scrollbar {\n  position: absolute;\n  -webkit-appearance: none;\n  width: 8px;\n}\n.c-virtual_list--slack_scrollbar::-webkit-scrollbar-track,\n.c-virtual_list--slack_scrollbar::-webkit-scrollbar-thumb {\n  background-clip: padding-box !important;\n  border-radius: 3px;\n  color: #FFFFFF;\n}\n.c-virtual_list--slack_scrollbar::-webkit-scrollbar-track {\n  background: #F5F5F5;\n  box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0;\n}\n.c-virtual_list--slack_scrollbar::-webkit-scrollbar-thumb {\n  background: #D9D9DE;\n  box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;\n  min-height: 36px;\n}\n.c-virtual_list--slack_scrollbar::-webkit-scrollbar-corner {\n  background: #FFFFFF;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".c-virtual_list {\n  overflow-y: scroll;\n  overflow-x: hidden;\n  position: relative;\n  will-change: transform;\n}\n.c-virtual_list--slack_scrollbar {\n  border-right: 0.25rem solid transparent;\n}\n.c-virtual_list--slack_scrollbar::-webkit-scrollbar {\n  position: absolute;\n  -webkit-appearance: none;\n  width: 8px;\n}\n.c-virtual_list--slack_scrollbar::-webkit-scrollbar-track,\n.c-virtual_list--slack_scrollbar::-webkit-scrollbar-thumb {\n  background-clip: padding-box !important;\n  border-radius: 3px;\n  color: #FFFFFF;\n}\n.c-virtual_list--slack_scrollbar::-webkit-scrollbar-track {\n  background: #F5F5F5;\n  box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0;\n}\n.c-virtual_list--slack_scrollbar::-webkit-scrollbar-thumb {\n  background: #D9D9DE;\n  box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;\n  min-height: 36px;\n}\n.c-virtual_list--slack_scrollbar::-webkit-scrollbar-corner {\n  background: #FFFFFF;\n}\n", ""]);
 }, function(e, t, n) {
   var r = n(3986);
   "string" == typeof r && (r = [
@@ -57922,13 +58008,13 @@ webpackJsonp([332], [, function(e, t, n) {
       ts: a.PropTypes.string.isRequired,
       text: a.PropTypes.string.isRequired,
       cancelEdit: a.PropTypes.func,
+      saveMessageEdit: a.PropTypes.func,
       channel: a.PropTypes.shape({
         id: a.PropTypes.string,
         is_self_im: a.PropTypes.bool
       }),
       featureMessageInputByteLimit: a.PropTypes.bool,
       featureNewBroadcast: a.PropTypes.bool,
-      mergeMessage: a.PropTypes.func,
       removeMessage: a.PropTypes.func,
       updateEditText: a.PropTypes.func,
       subtype: a.PropTypes.string,
@@ -57943,14 +58029,15 @@ webpackJsonp([332], [, function(e, t, n) {
       initialEditText: a.PropTypes.string,
       didRequestToStopEditing: a.PropTypes.bool,
       requestToStopEditing: a.PropTypes.func,
-      editWindowMin: a.PropTypes.number
+      editWindowMin: a.PropTypes.number,
+      editStatus: a.PropTypes.string
     },
     k = {
       cancelEdit: u.noop,
+      saveMessageEdit: u.noop,
       channel: {},
       featureMessageInputByteLimit: !1,
       featureNewBroadcast: !1,
-      mergeMessage: u.noop,
       removeMessage: u.noop,
       updateEditText: u.noop,
       subtype: null,
@@ -57961,7 +58048,8 @@ webpackJsonp([332], [, function(e, t, n) {
       initialEditText: null,
       didRequestToStopEditing: !0,
       requestToStopEditing: u.noop,
-      editWindowMin: -1
+      editWindowMin: -1,
+      editStatus: null
     },
     M = function(e) {
       function t(e) {
@@ -58108,39 +58196,36 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "startDelete",
         value: function() {
           var e = this.props,
-            t = e.cancelEdit,
-            r = e.channel,
-            o = e.text,
-            i = e.featureNewBroadcast,
-            a = e.file,
-            s = e.isEphemeral,
-            u = e.mergeMessage,
-            l = e.subtype,
-            c = e.threadTs,
-            d = e.ts,
-            f = e.userId,
-            p = {
-              file: a,
-              is_ephemeral: s,
-              subtype: l,
-              thread_ts: c,
-              ts: d,
-              user: f
+            t = e.channel,
+            r = e.text,
+            o = e.featureNewBroadcast,
+            i = e.file,
+            a = e.isEphemeral,
+            s = e.saveMessageEdit,
+            u = e.subtype,
+            l = e.threadTs,
+            c = e.ts,
+            d = e.userId,
+            f = {
+              file: i,
+              is_ephemeral: a,
+              subtype: u,
+              thread_ts: l,
+              ts: c,
+              user: d
             },
-            h = n.i(_.f)(p, r),
-            m = c && c !== d;
-          if (i && h && h.remove_broadcast && !m) this.startDeleteBroadcast();
-          else if (h && h.delete_msg) this.startDeleteMessage();
+            p = n.i(_.f)(f, t),
+            h = l && l !== c;
+          if (o && p && p.remove_broadcast && !h) this.startDeleteBroadcast();
+          else if (p && p.delete_msg) this.startDeleteMessage();
           else {
-            var y = o.replace(/~/g, ""),
-              v = "~" + y + "~";
-            u({
-              channelId: r.id,
-              props: {
-                text: v
-              },
-              ts: d
-            }), t();
+            var m = r.replace(/~/g, ""),
+              y = "~" + m + "~";
+            s({
+              channelId: t.id,
+              text: y,
+              ts: c
+            });
           }
         }
       }, {
@@ -58149,8 +58234,8 @@ webpackJsonp([332], [, function(e, t, n) {
           var e = this.props,
             t = e.cancelEdit,
             r = e.channel,
-            o = e.text,
-            i = e.mergeMessage,
+            o = e.saveMessageEdit,
+            i = e.text,
             a = e.ts,
             s = this.state,
             l = s.editSecondsRemaining;
@@ -58160,7 +58245,7 @@ webpackJsonp([332], [, function(e, t, n) {
           if (this.texty.isEmpty({
               doIgnoreWhitespace: !0
             })) return this.startDelete(), !1;
-          if (c === o) return t(), !1;
+          if (c === i) return t(), !1;
           var d = n.i(h.a)(c, null, r.id);
           if (d) {
             var f = b.t("A Team Owner has restricted the use of <b>{keyword}</b> messages.", {
@@ -58168,13 +58253,11 @@ webpackJsonp([332], [, function(e, t, n) {
             });
             return n.i(m.a)(f), !1;
           }
-          return i({
+          return o({
             channelId: r.id,
-            props: {
-              text: c
-            },
+            text: c,
             ts: a
-          }), t(), !0;
+          }), !0;
         }
       }, {
         key: "shouldShowLengthWarning",
@@ -58296,7 +58379,6 @@ webpackJsonp([332], [, function(e, t, n) {
     u = n(2295),
     l = n(3045),
     c = {
-      mergeMessage: s.mergeMessage,
       removeMessage: s.removeMessage
     };
   t.a = n.i(o.b)(r, c)(i.a);
@@ -60486,7 +60568,7 @@ webpackJsonp([332], [, function(e, t, n) {
     }
   });
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.t-list-reset {\n  margin-bottom: 0;\n  margin-left: 0;\n  padding: 0;\n  list-style-type: none;\n}\n.c-rounded_button {\n  /* Color */\n  background-color: #29A979;\n  color: #FFFFFF;\n  /* Text */\n  -webkit-font-smoothing: antialiased;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 1rem;\n  line-height: 1.2;\n  font-weight: 900;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n  text-decoration: none;\n  outline: none;\n  cursor: pointer;\n  text-shadow: 0 1px 1px rgba(44, 45, 48, 0.1);\n  /* Border */\n  border: none;\n  border-radius: 0.25rem;\n  box-shadow: none;\n  /* Alignment */\n  position: relative;\n  display: inline-block;\n  text-align: center;\n  white-space: nowrap;\n  padding: 0.5rem 1rem;\n  -webkit-appearance: none;\n  -webkit-tap-highlight-color: transparent;\n}\n.c-rounded_button:after {\n  position: absolute;\n  content: '';\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  border-radius: 0.25rem;\n}\n.c-rounded_button .c-icon {\n  margin-right: 0.5rem;\n}\n.c-rounded_button .c-icon:before {\n  font-size: inherit;\n  vertical-align: bottom;\n}\n.c-rounded_button.c-button--icon {\n  width: 32px;\n  height: 30px;\n  padding: 0;\n}\n.c-rounded_button:link,\n.c-rounded_button:visited {\n  color: #FFFFFF;\n}\n.c-rounded_button--outline:link,\n.c-rounded_button--outline:active {\n  color: #717274;\n}\n.c-rounded_button:hover {\n  color: #FFFFFF;\n  text-decoration: none;\n}\n.c-rounded_button:hover:after {\n  box-shadow: inset 0 -2px rgba(0, 0, 0, 0.25);\n}\n.c-rounded_button:active:after {\n  box-shadow: inset 0 2px 1px rgba(0, 0, 0, 0.2);\n}\n.c-rounded_button--outline,\n.c-rounded_button--transparent {\n  font-weight: 700;\n  color: #717274;\n  box-shadow: inset 0 0 0 1px rgba(44, 45, 48, 0.3);\n  text-shadow: initial;\n}\n.c-rounded_button--outline {\n  background-color: #F9F9F9;\n}\n.c-rounded_button--outline:hover,\n.c-rounded_button--outline:active {\n  background-color: #FFFFFF;\n  color: #005E99;\n}\n.c-rounded_button--outline:hover:after,\n.c-rounded_button--outline:active:after {\n  box-shadow: initial;\n}\n.c-rounded_button--small {\n  font-size: 0.875rem;\n  padding-top: 0.3125rem;\n  padding-bottom: 0.3125rem;\n  padding-left: 0.625rem;\n  padding-right: 0.625rem;\n}\n.c-rounded_button--large {\n  font-size: 1.25rem;\n  padding-top: 0.875rem;\n  padding-bottom: 1rem;\n  padding-left: 2rem;\n  padding-right: 2rem;\n}\n.touch .c-rounded_button:focus {\n  outline: initial;\n  text-decoration: initial;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".c-rounded_button {\n  /* Color */\n  background-color: #29A979;\n  color: #FFFFFF;\n  /* Text */\n  -webkit-font-smoothing: antialiased;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 1rem;\n  line-height: 1.2;\n  font-weight: 900;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n  text-decoration: none;\n  outline: none;\n  cursor: pointer;\n  text-shadow: 0 1px 1px rgba(44, 45, 48, 0.1);\n  /* Border */\n  border: none;\n  border-radius: 0.25rem;\n  box-shadow: none;\n  /* Alignment */\n  position: relative;\n  display: inline-block;\n  text-align: center;\n  white-space: nowrap;\n  padding: 0.5rem 1rem;\n  -webkit-appearance: none;\n  -webkit-tap-highlight-color: transparent;\n}\n.c-rounded_button:after {\n  position: absolute;\n  content: '';\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  border-radius: 0.25rem;\n}\n.c-rounded_button .c-icon {\n  margin-right: 0.5rem;\n}\n.c-rounded_button .c-icon:before {\n  font-size: inherit;\n  vertical-align: bottom;\n}\n.c-rounded_button.c-button--icon {\n  width: 32px;\n  height: 30px;\n  padding: 0;\n}\n.c-rounded_button:link,\n.c-rounded_button:visited {\n  color: #FFFFFF;\n}\n.c-rounded_button--outline:link,\n.c-rounded_button--outline:active {\n  color: #717274;\n}\n.c-rounded_button:hover {\n  color: #FFFFFF;\n  text-decoration: none;\n}\n.c-rounded_button:hover:after {\n  box-shadow: inset 0 -2px rgba(0, 0, 0, 0.25);\n}\n.c-rounded_button:active:after {\n  box-shadow: inset 0 2px 1px rgba(0, 0, 0, 0.2);\n}\n.c-rounded_button--outline,\n.c-rounded_button--transparent {\n  font-weight: 700;\n  color: #717274;\n  box-shadow: inset 0 0 0 1px rgba(44, 45, 48, 0.3);\n  text-shadow: initial;\n}\n.c-rounded_button--outline {\n  background-color: #F9F9F9;\n}\n.c-rounded_button--outline:hover,\n.c-rounded_button--outline:active {\n  background-color: #FFFFFF;\n  color: #005E99;\n}\n.c-rounded_button--outline:hover:after,\n.c-rounded_button--outline:active:after {\n  box-shadow: initial;\n}\n.c-rounded_button--small {\n  font-size: 0.875rem;\n  padding-top: 0.3125rem;\n  padding-bottom: 0.3125rem;\n  padding-left: 0.625rem;\n  padding-right: 0.625rem;\n}\n.c-rounded_button--large {\n  font-size: 1.25rem;\n  padding-top: 0.875rem;\n  padding-bottom: 1rem;\n  padding-left: 2rem;\n  padding-right: 2rem;\n}\n.touch .c-rounded_button:focus {\n  outline: initial;\n  text-decoration: initial;\n}\n", ""]);
 }, function(e, t, n) {
   var r = n(4172);
   "string" == typeof r && (r = [
@@ -60824,10 +60906,13 @@ webpackJsonp([332], [, function(e, t, n) {
         className: "c-member_profile_card__restriction c-member_profile_card__restriction--external"
       }, i.a.createElement("span", {
         className: "overflow_ellipsis"
-      }, o.name));
+      }, o.name), i.a.createElement(u.a, {
+        team: o,
+        badgeSize: 16
+      }));
     }
     if (t) {
-      var a = n ? u.t("Single-Channel Guest") : u.t("Multi-Channel Guest");
+      var a = n ? l.t("Single-Channel Guest") : l.t("Multi-Channel Guest");
       return i.a.createElement("div", {
         className: "c-member_profile_card__restriction"
       }, i.a.createElement("span", {
@@ -60840,8 +60925,9 @@ webpackJsonp([332], [, function(e, t, n) {
     i = n.n(o),
     a = n(3115),
     s = n(2288),
-    u = new s.a("team"),
-    l = {
+    u = n(4205),
+    l = new s.a("team"),
+    c = {
       isRestricted: o.PropTypes.bool.isRequired,
       isUltraRestricted: o.PropTypes.bool.isRequired,
       isExternal: o.PropTypes.bool.isRequired,
@@ -60849,12 +60935,12 @@ webpackJsonp([332], [, function(e, t, n) {
         name: o.PropTypes.string
       })
     },
-    c = {
+    d = {
       team: {
         name: ""
       }
     };
-  r.propTypes = l, r.defaultProps = c, t.a = n.i(a.a)(r);
+  r.propTypes = c, r.defaultProps = d, t.a = n.i(a.a)(r);
 }, function(e, t, n) {
   "use strict";
   n.d(t, "a", function() {
@@ -61032,4 +61118,129 @@ webpackJsonp([332], [, function(e, t, n) {
       }));
     };
   f.propTypes = c, f.defaultProps = d, t.a = n.i(a.a)(f);
+}, , , , function(e, t, n) {
+  "use strict";
+
+  function r(e, t) {
+    var o = e.channelId,
+      u = e.ts,
+      l = e.text,
+      c = arguments.length > 2 && void 0 !== arguments[2] ? arguments[2] : 0,
+      d = arguments.length > 3 && void 0 !== arguments[3] ? arguments[3] : 100;
+    n.i(i.a)("chat.update", {
+      channel: o,
+      text: l,
+      ts: u,
+      _attempts: c,
+      _delay_ms: d
+    }).then(function() {
+      t();
+    }).catch(function(e) {
+      var n = e.args,
+        i = e.data;
+      "message_not_found" === i.error && n._attempts < s ? r({
+        channelId: o,
+        ts: u,
+        text: l
+      }, t, n._attempts, d * a) : t(new Error(i.error || "unknown"));
+    });
+  }
+
+  function o(e) {
+    return new Promise(function(t, n) {
+      r(e, function(e) {
+        e ? n(e) : t();
+      });
+    });
+  }
+  t.a = o;
+  var i = n(3048),
+    a = 1.75,
+    s = 10;
+}, function(e, t, n) {
+  t = e.exports = n(189)(), t.push([e.i, ".c-external_team_badge {\n  display: inline-block;\n  vertical-align: bottom;\n  border-radius: 3px;\n  box-shadow: 0 0 0 2px #FFF;\n  background-size: 100%;\n  background-color: #FFF;\n  background-repeat: no-repeat;\n}\n.c-external_team_badge:after {\n  content: '';\n  display: block;\n  position: absolute;\n  top: 0;\n  width: 100%;\n  height: 100%;\n  box-shadow: inset 0 0 0 1px rgba(44, 45, 48, 0.08);\n  border-radius: 3px;\n}\n.c-external_team_badge.c-external_team_badge--default {\n  background-color: #717274;\n  font-weight: 800;\n  line-height: 1.6;\n  color: #FFFFFF;\n  font-style: normal;\n  letter-spacing: 0;\n  text-align: center;\n  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);\n}\n", ""]);
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e) {
+    return e.split(" ").slice(0, 2).map(function(e) {
+      return e.charAt(0).toUpperCase();
+    }).join("");
+  }
+
+  function o(e) {
+    return h.find(function(t) {
+      return 2 * e >= t;
+    }) || n.i(l.last)(h);
+  }
+
+  function i(e) {
+    var t = e.badgeSize,
+      n = e.iconSize,
+      i = e.team,
+      a = {
+        height: t + "px",
+        width: t + "px",
+        fontSize: t / 1.6 + "px"
+      },
+      u = n || o(t),
+      l = d()("c-external_team_badge", {
+        "c-external_team_badge--default": !i || i.icon.image_default
+      });
+    if (i && !i.icon.image_default) {
+      var c = i.icon["image_" + u];
+      c && (a.backgroundImage = "url('" + c + "')");
+    } else if (i && i.icon.image_default) return s.a.createElement(f.a, {
+      className: l,
+      "aria-hidden": "true",
+      style: a
+    }, r(i.name));
+    return s.a.createElement(f.a, {
+      className: l,
+      style: a,
+      "aria-hidden": "true"
+    });
+  }
+  var a = n(2),
+    s = n.n(a),
+    u = n(3115),
+    l = n(6),
+    c = (n.n(l), n(9)),
+    d = n.n(c),
+    f = n(2287),
+    p = n(4206),
+    h = (n.n(p), [230, 132, 102, 88, 68, 44, 34]),
+    m = {
+      iconSize: a.PropTypes.oneOf(h),
+      badgeSize: a.PropTypes.number.isRequired,
+      team: a.PropTypes.shape({
+        name: a.PropTypes.string.isRequired,
+        icon: a.PropTypes.shape({
+          image_default: a.PropTypes.string,
+          image_34: a.PropTypes.string,
+          image_44: a.PropTypes.string,
+          image_68: a.PropTypes.string,
+          image_88: a.PropTypes.string,
+          image_102: a.PropTypes.string,
+          image_132: a.PropTypes.string,
+          image_230: a.PropTypes.string
+        }).isRequired
+      })
+    },
+    _ = {
+      team: void 0,
+      iconSize: void 0
+    };
+  i.propTypes = m, i.defaultProps = _, t.a = n.i(u.a)(i);
+}, function(e, t, n) {
+  "use strict";
+  var r = n(4204);
+  t.a = r.a;
+}, function(e, t, n) {
+  var r = n(4203);
+  "string" == typeof r && (r = [
+    [e.i, r, ""]
+  ]);
+  n(219)(r, {});
+  r.locals && (e.exports = r.locals);
 }], [2905]);

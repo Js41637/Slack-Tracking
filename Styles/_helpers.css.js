@@ -1,17 +1,3 @@
-.t-button-reset {
-  padding: 0;
-  background-color: transparent;
-  border-width: 0;
-  cursor: pointer
-}
-
-.t-list-reset {
-  margin-bottom: 0;
-  margin-left: 0;
-  padding: 0;
-  list-style-type: none
-}
-
 .normal {
   font-weight: 400
 }
