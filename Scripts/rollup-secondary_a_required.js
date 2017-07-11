@@ -31087,7 +31087,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             e.member ? a.push(e.member.id) : s.push(e);
           });
           var o = _.trim(TS.utility.contenteditable.value(e.find("#channel_purpose_input")));
-          TS.boot_data.feature_name_tagging_client && (o = TS.format.cleanMsg(o)), t && t.start(), n ? m(i, o, a, s) : p(i, o, a, s);
+          t && t.start(), n ? m(i, o, a, s) : p(i, o, a, s);
         },
         end: function() {
           v();

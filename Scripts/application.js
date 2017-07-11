@@ -41841,22 +41841,21 @@ webpackJsonp([332], [, function(e, t, n) {
     v = n(3296),
     g = n(2288),
     b = n(3969),
-    w = n(3253),
-    k = n(3638),
-    M = n(3640),
-    T = (n.n(M), "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(e) {
+    w = n(3638),
+    k = n(3640),
+    M = (n.n(k), "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(e) {
       return typeof e;
     } : function(e) {
       return e && "function" == typeof Symbol && e.constructor === Symbol && e !== Symbol.prototype ? "symbol" : typeof e;
     }),
-    x = Object.assign || function(e) {
+    T = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
         for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
       }
       return e;
     },
-    S = function() {
+    x = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
@@ -41867,26 +41866,26 @@ webpackJsonp([332], [, function(e, t, n) {
         return n && e(t.prototype, n), r && e(t, r), t;
       };
     }(),
-    E = new g.a("apps_browser"),
-    L = {
+    S = new g.a("apps_browser"),
+    E = {
       hasSeenAppSpaceTutorial: u.a.PropTypes.bool,
       doesSupportStickyPosition: u.a.PropTypes.bool
     },
-    C = {
+    L = {
       hasSeenAppSpaceTutorial: !1,
       doesSupportStickyPosition: !0
     },
-    O = {
+    C = {
       listEnpoint: "apps.index.list",
       searchEndpoint: "apps.index.search"
     },
-    P = {
+    O = {
       id: "tutorial_category",
       name: "",
       display_name: "",
       apps: [{
-        name: E.t("What are apps?"),
-        short_description: E.t("A quick look at how apps in Slack can streamline your work"),
+        name: S.t("What are apps?"),
+        short_description: S.t("A quick look at how apps in Slack can streamline your work"),
         icons: {
           image_84: cdn_url + "/1f0ce/img/tutorial@2x.png"
         },
@@ -41896,7 +41895,7 @@ webpackJsonp([332], [, function(e, t, n) {
         is_installed: !1
       }]
     },
-    j = function(e) {
+    P = function(e) {
       function t(e) {
         o(this, t);
         var n = i(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
@@ -41910,17 +41909,17 @@ webpackJsonp([332], [, function(e, t, n) {
           leading: !1
         }), n.debouncedEnableMouseMove = f.a.debounce(n.enableMouseMove, 200), n;
       }
-      return a(t, e), S(t, [{
+      return a(t, e), x(t, [{
         key: "componentDidMount",
         value: function() {
           var e = this;
-          document.body.addEventListener("keydown", this.handleKeydown), document.body.addEventListener("mousemove", this.handleMouseMove), this.completeRequest(n.i(_.a)(O.listEnpoint, {
+          document.body.addEventListener("keydown", this.handleKeydown), document.body.addEventListener("mousemove", this.handleMouseMove), this.completeRequest(n.i(_.a)(C.listEnpoint, {
             limit: 20
           }).then(function(t) {
-            return e.defaultAppCategories = [P].concat(r(t.data.categories)), {
+            return e.defaultAppCategories = [O].concat(r(t.data.categories)), {
               categories: e.defaultAppCategories
             };
-          }), O.listEnpoint), this.searchInput.focus();
+          }), C.listEnpoint), this.searchInput.focus();
         }
       }, {
         key: "componentWillReceiveProps",
@@ -41983,7 +41982,7 @@ webpackJsonp([332], [, function(e, t, n) {
               category: e.id,
               cursor: e.next_cursor
             };
-            t === O.searchEndpoint && (a.query = this.state.searchTerm), n.i(_.a)(t, a).then(function(n) {
+            t === C.searchEndpoint && (a.query = this.state.searchTerm), n.i(_.a)(t, a).then(function(n) {
               if (!(o < i.lastRequestId)) {
                 var a = n.data.categories[0];
                 a && i.setState(function(n) {
@@ -41992,18 +41991,18 @@ webpackJsonp([332], [, function(e, t, n) {
                     if (n.appCategories[s].id === e.id) {
                       var u = function() {
                         var e = [].concat(r(n.appCategories[s].apps), r(a.apps)),
-                          u = x({}, n.appCategories[s]);
+                          u = T({}, n.appCategories[s]);
                         u.apps = e, u.next_cursor = a.next_cursor;
                         var l = [].concat(r(n.appCategories));
                         return l[s] = u, u.next_cursor && setTimeout(function() {
                           i.paginateCategory(u, t, o);
-                        }, 0), t === O.listEnpoint && (i.defaultAppCategories = l), {
+                        }, 0), t === C.listEnpoint && (i.defaultAppCategories = l), {
                           v: {
                             appCategories: l
                           }
                         };
                       }();
-                      if ("object" === (void 0 === u ? "undefined" : T(u))) return u.v;
+                      if ("object" === (void 0 === u ? "undefined" : M(u))) return u.v;
                     }
                   return {};
                 });
@@ -42104,7 +42103,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "handleAppDirectoryButtonClick",
         value: function() {
-          n.i(y.a)("APP_INDEX_VIEW_APP_DIRECTORY_CLICK");
+          window.open(window.location.origin + "/apps"), n.i(y.a)("APP_INDEX_VIEW_APP_DIRECTORY_CLICK");
         }
       }, {
         key: "handleSearchInputChange",
@@ -42115,7 +42114,7 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "searchApps",
         value: function(e) {
           var t = this;
-          e ? this.completeRequest(n.i(_.a)(O.searchEndpoint, {
+          e ? this.completeRequest(n.i(_.a)(C.searchEndpoint, {
             query: e
           }).then(function(n) {
             return t.setState(function() {
@@ -42124,7 +42123,7 @@ webpackJsonp([332], [, function(e, t, n) {
                 isShowingDefaultAppCategories: !1
               };
             }), n.data;
-          }), O.searchEndpoint) : this.setState(function() {
+          }), C.searchEndpoint) : this.setState(function() {
             return {
               isLoading: !1,
               appCategories: t.defaultAppCategories,
@@ -42143,9 +42142,9 @@ webpackJsonp([332], [, function(e, t, n) {
               return {
                 isLoading: !1,
                 appCategories: e.categories,
-                selectedAppIndex: f.a.get(e, "categories[0].apps", []).length && t === O.searchEndpoint ? 0 : null
+                selectedAppIndex: f.a.get(e, "categories[0].apps", []).length && t === C.searchEndpoint ? 0 : null
               };
-            }), t === O.listEnpoint && 2 === e.categories.length && n.paginateCategories(t, r));
+            }), t === C.listEnpoint && 2 === e.categories.length && n.paginateCategories(t, r));
           }).catch(function() {});
         }
       }, {
@@ -42159,8 +42158,8 @@ webpackJsonp([332], [, function(e, t, n) {
               }),
               s = "app-" + e.app_id + "-" + e.bot_id,
               l = r.getAppIcon(e),
-              d = E.t("Install");
-            return "tutorial_app" === e.app_id ? d = E.t("Start") : e.is_installed && (d = E.t("View")), u.a.createElement("div", {
+              d = S.t("Install");
+            return "tutorial_app" === e.app_id ? d = S.t("Start") : e.is_installed && (d = S.t("View")), u.a.createElement("div", {
               key: s,
               className: a,
               onClick: r.handleAppClick,
@@ -42217,43 +42216,41 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "render",
         value: function() {
-          var e = window.location.origin + "/apps",
-            t = void 0,
-            n = c()("p-apps_browser__apps_list", {
+          var e = void 0,
+            t = c()("p-apps_browser__apps_list", {
               "p-apps_browser__apps_list--loading": this.state.isLoading
             });
-          return t = !this.getTotalAppsCount() && this.state.searchTerm ? u.a.createElement("section", {
+          return e = !this.getTotalAppsCount() && this.state.searchTerm ? u.a.createElement("section", {
             key: "no-results",
             className: "p-apps_browser__no_results"
-          }, E.t("There are no apps matching"), " ", u.a.createElement("strong", null, this.state.searchTerm)) : this.createAppCategoriesMarkup(), u.a.createElement("div", {
+          }, S.t("There are no apps matching"), " ", u.a.createElement("strong", null, this.state.searchTerm)) : this.createAppCategoriesMarkup(), u.a.createElement("div", {
             className: "p-apps_browser"
           }, u.a.createElement("div", {
             className: "p-apps_browser__filter_container"
           }, u.a.createElement("div", {
             className: "p-apps_browser__filter_header"
-          }, u.a.createElement("h2", null, E.t("Browse Apps")), u.a.createElement(w.a, {
-            target: "_blank",
-            href: e,
+          }, u.a.createElement("h2", null, S.t("Browse Apps")), u.a.createElement("button", {
+            className: "p-apps_browser__browse_apps",
             onClick: this.handleAppDirectoryButtonClick
-          }, E.t("View App Directory"))), u.a.createElement("div", null, u.a.createElement(k.a, {
+          }, S.t("View App Directory"))), u.a.createElement("div", null, u.a.createElement(w.a, {
             ref: this.setSearchInputRef,
-            placeholder: E.t("Search by name or category (e.g. productivity, sales)"),
+            placeholder: S.t("Search by name or category (e.g. productivity, sales)"),
             onChange: this.handleSearchInputChange
           }))), u.a.createElement("div", {
-            className: n,
+            className: t,
             "data-apps_list": !0
-          }, t));
+          }, e));
         }
       }]), t;
     }(s.Component);
-  j.propTypes = L, j.defaultProps = C;
-  var D = function(e) {
+  P.propTypes = E, P.defaultProps = L;
+  var j = function(e) {
     return {
       hasSeenAppSpaceTutorial: n.i(h.getUserPref)(e, "seen_app_space_tutorial"),
       doesSupportStickyPosition: n.i(m.getSupportStickyPosition)(e)
     };
   };
-  t.a = n.i(p.b)(D)(j);
+  t.a = n.i(p.b)(j)(P);
 }, function(e, t, n) {
   "use strict";
   var r = n(3250);
@@ -54689,7 +54686,7 @@ webpackJsonp([332], [, function(e, t, n) {
 }, , , , , function(e, t, n) {
   t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.t-list-reset {\n  margin-bottom: 0;\n  margin-left: 0;\n  padding: 0;\n  list-style-type: none;\n}\n.c-enhanced_text_input {\n  border-radius: 0.25rem;\n  display: flex;\n  align-items: center;\n  -webkit-transition: box-shadow 70ms ease-out, border-color 70ms ease-out 0.2s ease-out 0.0000001ms;\n  -moz-transition: box-shadow 70ms ease-out, border-color 70ms ease-out 0.2s ease-out 0.0000001ms;\n  transition: box-shadow 70ms ease-out, border-color 70ms ease-out 0.2s ease-out 0.0000001ms;\n  -webkit-transition: box-shadow 70ms ease-out, border-color 70ms ease-out;\n  -moz-transition: box-shadow 70ms ease-out, border-color 70ms ease-out;\n  transition: box-shadow 70ms ease-out, border-color 70ms ease-out;\n  border: 1px solid #C5C5C5;\n  padding: 6px 8px;\n  color: #A0A0A2;\n  font-size: 1rem;\n}\n.c-enhanced_text_input:hover,\n.c-enhanced_text_input.c-enhanced_text_input--active {\n  border-color: #2780F8;\n  box-shadow: 0 0 7px rgba(39, 128, 248, 0.15);\n}\n.c-enhanced_text_input .c-icon:before {\n  font-size: 1.2rem;\n}\n.c-enhanced_text_input__input[type=text] {\n  flex-grow: 1;\n  margin: 0;\n  padding: 0 0.5rem;\n  border: 0 none !important;\n  font-size: 1rem;\n}\n.c-enhanced_text_input__input[type=text]:active,\n.c-enhanced_text_input__input[type=text]:focus {\n  box-shadow: none;\n}\n.c-enhanced_text_input__reset_button {\n  display: none;\n  cursor: pointer;\n}\n.c-enhanced_text_input__reset_button--visible {\n  display: block;\n}\n.feature_keyboard_navigation .c-enhanced_text_input:hover,\n.feature_keyboard_navigation .c-enhanced_text_input.c-enhanced_text_input--active {\n  border-color: #717274;\n  box-shadow: none;\n}\n", ""]);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.t-list-reset {\n  margin-bottom: 0;\n  margin-left: 0;\n  padding: 0;\n  list-style-type: none;\n}\n.p-apps_browser {\n  flex: 1 1 0;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-weight: 400;\n  -webkit-font-smoothing: antialiased;\n  display: flex;\n  flex-direction: column;\n  margin: 6rem 0 1rem 0;\n  overflow: hidden;\n}\n.p-apps_browser__filter_container {\n  margin-bottom: 20px;\n  padding: 10px;\n}\n.p-apps_browser__filter_header {\n  display: flex;\n  align-items: center;\n  margin-bottom: 2rem;\n}\n.p-apps_browser__filter_header .c-button,\n.p-apps_browser__filter_header a.c-button,\n.p-apps_browser__filter_header a.c-button:link,\n.p-apps_browser__filter_header a.c-button:visited {\n  font-size: 0.9375rem;\n  background: #2ab27b;\n  padding: 8px 14px 9px;\n}\n.p-apps_browser__filter_header h2 {\n  font-size: 2.125rem;\n  line-height: 2.5625rem;\n  font-weight: 900;\n  flex-grow: 1;\n  margin: 0;\n}\n.p-apps_browser__search_box {\n  display: flex;\n}\n.p-apps_browser__apps_list {\n  overflow-y: auto;\n  min-height: 200px;\n  position: relative;\n}\n.p-apps_browser__apps_list--loading::before {\n  background-image: url('/img/loading_hash_animation_@2x.gif');\n  background-color: #FFF;\n  background-position: center;\n  background-repeat: no-repeat;\n  position: absolute;\n  content: '';\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n}\n.p-apps_browser__category_section {\n  margin-bottom: 25px;\n  padding: 10px;\n}\n.p-apps_browser__category_section--hidden {\n  display: none;\n}\n.p-apps_browser__category_section--tutorial .p-apps_browser__category_header {\n  display: none;\n}\n.p-apps_browser__category_section--tutorial .p-apps_browser__app {\n  box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.05);\n  border-radius: 6px;\n  border: 1px solid #E8E8E8;\n  padding: 12px;\n}\n.p-apps_browser__category_section--tutorial .p-apps_browser__app--selected {\n  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.15);\n  background: #FFF;\n}\n.p-apps_browser__category_header {\n  font-size: .8rem;\n  line-height: 1.2rem;\n  background: #FFF;\n  color: #717274;\n  padding-bottom: .5rem;\n}\n.p-apps_browser__category_header--sticky {\n  top: 0;\n  position: sticky;\n}\n.p-apps_browser__app {\n  display: flex;\n  align-items: center;\n  padding: 11px 12px;\n  border: 1px solid transparent;\n  border-top-color: #E8E8E8;\n  cursor: pointer;\n}\n.p-apps_browser__app:first-of-type {\n  border-top-color: transparent;\n}\n.p-apps_browser__app--selected {\n  border-radius: 6px;\n  background: #F9F9F9;\n  border: 1px solid #E8E8E8;\n}\n.p-apps_browser__app--selected + .p-apps_browser__app {\n  border-top-color: transparent;\n}\n.p-apps_browser__app_icon {\n  flex: 0 0 auto;\n  border-radius: 0.2rem;\n  width: 36px;\n  height: 36px;\n  margin-right: 10px;\n}\n.p-apps_browser__app_info {\n  flex: 1 1 0;\n  font-size: 0.9375rem;\n  overflow: hidden;\n  line-height: 1.3rem;\n  color: #2C2D30;\n  margin-right: 12px;\n}\n.p-apps_browser__app_action {\n  flex: 0 0 auto;\n  border-radius: 0.25rem;\n  font-size: 0.875rem;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-weight: 700;\n  line-height: 1.2rem;\n  background-color: #FBFBFA;\n  border: 1px solid #C7CACD;\n  color: #555459;\n  padding: 4px 10px;\n}\n.p-apps_browser__app_action:hover {\n  background-color: #FFFFFF;\n  color: #007AB8;\n}\n.p-apps_browser__app_name {\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  font-weight: bold;\n}\n.p-apps_browser__app_description {\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  color: #717274;\n}\n.p-apps_browser__no_results {\n  display: flex;\n  -ms-flex-pack: center;\n  -webkit-box-pack: center;\n  -webkit-justify-content: center;\n  -moz-justify-content: center;\n  justify-content: center;\n  align-items: center;\n  height: 100px;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.t-list-reset {\n  margin-bottom: 0;\n  margin-left: 0;\n  padding: 0;\n  list-style-type: none;\n}\n.p-apps_browser {\n  flex: 1 1 0;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-weight: 400;\n  -webkit-font-smoothing: antialiased;\n  display: flex;\n  flex-direction: column;\n  margin: 6rem 0 1rem 0;\n  overflow: hidden;\n}\n.p-apps_browser__filter_container {\n  margin-bottom: 20px;\n  padding: 10px;\n}\n.p-apps_browser__filter_header {\n  display: flex;\n  align-items: center;\n  margin-bottom: 2rem;\n}\n.p-apps_browser__filter_header h2 {\n  font-size: 2.125rem;\n  line-height: 2.5625rem;\n  font-weight: 900;\n  flex-grow: 1;\n  margin: 0;\n}\n.p-apps_browser__search_box {\n  display: flex;\n}\n.p-apps_browser__apps_list {\n  overflow-y: auto;\n  min-height: 200px;\n  position: relative;\n}\n.p-apps_browser__apps_list--loading::before {\n  background-image: url('/img/loading_hash_animation_@2x.gif');\n  background-color: #FFF;\n  background-position: center;\n  background-repeat: no-repeat;\n  position: absolute;\n  content: '';\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n}\n.p-apps_browser__category_section {\n  margin-bottom: 25px;\n  padding: 10px;\n}\n.p-apps_browser__category_section--hidden {\n  display: none;\n}\n.p-apps_browser__category_section--tutorial .p-apps_browser__category_header {\n  display: none;\n}\n.p-apps_browser__category_section--tutorial .p-apps_browser__app {\n  box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.05);\n  border-radius: 6px;\n  border: 1px solid #E8E8E8;\n  padding: 12px;\n}\n.p-apps_browser__category_section--tutorial .p-apps_browser__app--selected {\n  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.15);\n  background: #FFF;\n}\n.p-apps_browser__category_header {\n  font-size: .8rem;\n  line-height: 1.2rem;\n  background: #FFF;\n  color: #717274;\n  padding-bottom: .5rem;\n}\n.p-apps_browser__category_header--sticky {\n  top: 0;\n  position: sticky;\n}\n.p-apps_browser__app {\n  display: flex;\n  align-items: center;\n  padding: 11px 12px;\n  border: 1px solid transparent;\n  border-top-color: #E8E8E8;\n  cursor: pointer;\n}\n.p-apps_browser__app:first-of-type {\n  border-top-color: transparent;\n}\n.p-apps_browser__app--selected {\n  border-radius: 6px;\n  background: #F9F9F9;\n  border: 1px solid #E8E8E8;\n}\n.p-apps_browser__app--selected + .p-apps_browser__app {\n  border-top-color: transparent;\n}\n.p-apps_browser__app_icon {\n  flex: 0 0 auto;\n  border-radius: 0.2rem;\n  width: 36px;\n  height: 36px;\n  margin-right: 10px;\n}\n.p-apps_browser__app_info {\n  flex: 1 1 0;\n  font-size: 0.9375rem;\n  overflow: hidden;\n  line-height: 1.3rem;\n  color: #2C2D30;\n  margin-right: 12px;\n}\n.p-apps_browser__browse_apps,\n.p-apps_browser__app_action {\n  flex: 0 0 auto;\n  border-radius: 0.25rem;\n  font-size: 0.875rem;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-weight: 700;\n  line-height: 1.2rem;\n  background-color: #FBFBFA;\n  border: 1px solid #C7CACD;\n  color: #555459;\n  padding: 4px 9px;\n}\n.p-apps_browser__browse_apps:hover,\n.p-apps_browser__app_action:hover,\n.p-apps_browser__browse_apps:focus,\n.p-apps_browser__app_action:focus {\n  background-color: #FFFFFF;\n  color: #007AB8;\n}\n.p-apps_browser__browse_apps:active,\n.p-apps_browser__app_action:active {\n  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.2);\n}\n.p-apps_browser__browse_apps {\n  font-size: 0.9375rem;\n  padding: 7px 13px 8px;\n}\n.p-apps_browser__app_name {\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  font-weight: bold;\n}\n.p-apps_browser__app_description {\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  color: #717274;\n}\n.p-apps_browser__no_results {\n  display: flex;\n  -ms-flex-pack: center;\n  -webkit-box-pack: center;\n  -webkit-justify-content: center;\n  -moz-justify-content: center;\n  justify-content: center;\n  align-items: center;\n  height: 100px;\n}\n", ""]);
 }, function(e, t, n) {
   "use strict";
 
