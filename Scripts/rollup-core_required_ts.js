@@ -1707,7 +1707,7 @@ webpackJsonp([12, 328, 337, 329], {
         },
         onLogin: function() {
           var a = Math.floor(Math.random() * n);
-          setInterval(s, e + a), TS.boot_data.feature_electron_memory_logging && TS.model.is_electron && f(), $(window).on("beforeunload", r), TS.metrics.store("dom_ready", window.performance.timing.loadEventEnd - window.performance.timing.navigationStart);
+          setInterval(s, e + a), TS.boot_data.feature_electron_memory_logging && TS.model.is_electron && f(), $(window).on("beforeunload", r), TS.utility.enableFeatureForUser(1) && TS.metrics.store("dom_ready", window.performance.timing.loadEventEnd - window.performance.timing.navigationStart);
         },
         mark: function(e) {
           window.performance && performance.mark && performance.mark(e);

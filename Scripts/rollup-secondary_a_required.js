@@ -1507,7 +1507,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           if (!_.isObject(e)) throw new Error("Expected app user to be an object");
           if (!_.isObject(t)) throw new Error("Expected channel to be an object");
           var o = t.is_im || t.is_mpim;
-          TS.api.call("apps.permissions.internal.add", {
+          return TS.api.call("apps.permissions.internal.add", {
             channel: t.id,
             app_user: e.id
           }).then(function(l) {
@@ -1529,6 +1529,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               app_user: e.id,
               did_confirm: !0
             });
+          }).then(function() {
+            TS.boot_data.feature_app_permissions_api_site && TS.apps.permissions.handleAppResourceMembershipChanged(t, e);
           }).catch(function() {
             TS.utility.contenteditable.value(TS.client.ui.$msg_input, n);
           });
@@ -1538,26 +1540,32 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           if (!_.isObject(t)) throw new Error("Expected channel to be an object");
           var i = _.escape(e.real_name),
             r = a(t);
-          TS.generic_dialog.start({
-            dialog_class: "p-app_permission_remove_modal",
-            title: new Handlebars.SafeString(TS.i18n.t("Remove {app_name} from {channel_name}?", "apps")({
-              app_name: i,
-              channel_name: r
-            })),
-            body: new Handlebars.SafeString(TS.i18n.t("{app_name} will no longer be able to access or post to {channel_name}, unless you invite it again.", "apps")({
-              app_name: i,
-              channel_name: r
-            })),
-            go_button_text: TS.i18n.t("Remove", "apps")(),
-            go_button_class: "btn_danger",
-            onGo: function() {
-              TS.api.call("apps.permissions.internal.remove", {
-                channel: t.id,
-                app_user: e.id
-              }).catch(function() {
-                TS.utility.contenteditable.value(TS.client.ui.$msg_input, n);
-              });
-            }
+          return new Promise(function(e) {
+            TS.generic_dialog.start({
+              dialog_class: "p-app_permission_remove_modal",
+              title: new Handlebars.SafeString(TS.i18n.t("Remove {app_name} from {channel_name}?", "apps")({
+                app_name: i,
+                channel_name: r
+              })),
+              body: new Handlebars.SafeString(TS.i18n.t("{app_name} will no longer be able to access or post to {channel_name}, unless you invite it again.", "apps")({
+                app_name: i,
+                channel_name: r
+              })),
+              go_button_text: TS.i18n.t("Remove", "apps")(),
+              go_button_class: "btn_danger",
+              onGo: function() {
+                e();
+              }
+            });
+          }).then(function() {
+            return TS.api.call("apps.permissions.internal.remove", {
+              channel: t.id,
+              app_user: e.id
+            });
+          }).then(function() {
+            TS.boot_data.feature_app_permissions_api_site && TS.apps.permissions.handleAppResourceMembershipChanged(t, e);
+          }).catch(function() {
+            TS.utility.contenteditable.value(TS.client.ui.$msg_input, n);
           });
         },
         requestPermissions: function(e, t, n) {
@@ -36390,6 +36398,43 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               })
             }
           };
+        },
+        recordAnalyticsPricingEvents: function(e, t, n) {
+          n = n || {};
+          var i = {};
+          switch (t) {
+            case "overview_impression":
+              i.action = "impression", i.step = "team_stats_overview";
+              break;
+            case "coachmark_impression":
+              i.action = "impression", i.step = "team_stats_overview_" + _.get(n, "callout_module") + "_coachmark";
+              break;
+            case "coachmark_resolve":
+              i.action = "click", i.step = "team_stats_overview_" + _.get(n, "callout_module") + "_coachmark", i.ui_element = "learn_more_btn";
+              break;
+            case "coachmark_reject":
+              i.action = "dismiss", i.step = "team_stats_overview_" + _.get(n, "callout_module") + "_coachmark", i.ui_element = "skip_this";
+              break;
+            case "msg_files_pricing_btn_click":
+              i.action = "click", i.step = "team_stats_overview", i.ui_element = "msg_files_chart_link_btn";
+              break;
+            case "single_callout_upgrade_link_impression":
+              i.action = "impression", i.step = "team_stats_overview", i.ui_element = _.get(n, "callout_module") + "_upgrade_link";
+              break;
+            case "multi_callout_upgrade_link_impression":
+              i.action = "impression", i.step = "team_stats_overview", i.ui_element = "multi_lim_upgrade_link";
+              break;
+            case "data_table_upsell_banner_impression":
+              i.action = "impression", i.step = "team_stats_" + _.get(n, "report_name");
+              break;
+            case "data_table_upsell_banner_click":
+              i.action = "click", i.step = "team_stats_" + _.get(n, "report_name"), i.ui_element = "see_pricing_plans_btn";
+          }
+          TS.clog.track(e, {
+            contexts: {
+              ui_context: i
+            }
+          });
         }
       });
     }();
@@ -40479,36 +40524,76 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
     ! function() {
       "use strict";
       TS.registerModule("apps.permissions", {
-        ensureAppResourceMembershipIsKnown: function(n) {
-          return !t.hasOwnProperty(n) || t[n].ts && t[n].ts < Date.now() - e ? (t = {}, t[n] = {
-            ts: null,
-            apps: []
-          }, TS.api.call("apps.permissions.internal.listForResource", {
-            channel: n
-          }).then(function(e) {
-            return t[n].ts = Date.now(), t[n].apps = _.get(e, "data.apps", []), !0;
+        onStart: function() {
+          TS.boot_data.feature_app_permissions_api_site && (TS.channels.member_joined_sig.add(s), TS.channels.member_left_sig.add(s), TS.groups.member_joined_sig.add(s), TS.groups.member_left_sig.add(s));
+        },
+        app_resource_membership_changed_sig: new signals.Signal,
+        ensureAppResourceMembershipIsKnown: function(a) {
+          return TS.boot_data.feature_app_permissions_api_site && r(a) && 0 !== e ? (t = a, n = {}, e = 0, i = !0, TS.api.call("apps.permissions.internal.listForResource", {
+            channel: a
+          }).then(function(t) {
+            return e = Date.now(), _.get(t, "data.apps", []).forEach(function(e) {
+              n[e.app_user_id] = e;
+            }), !0;
           })) : Promise.resolve(!1);
         },
-        promiseToGetAppsForResource: function(e) {
-          return TS.apps.permissions.ensureAppResourceMembershipIsKnown(e).then(function() {
-            return t[e].apps;
-          });
+        promiseToGenerateAppAndBotListForResource: function(e) {
+          return TS.boot_data.feature_app_permissions_api_site ? TS.apps.permissions.ensureAppResourceMembershipIsKnown(e).then(function() {
+            return a(e);
+          }).then(function() {
+            return _.values(n).reduce(function(e, t) {
+              if (t.app_id) {
+                var n = TS.apps.getAppById(t.app_id);
+                n && (n.app_user_id = t.app_user_id, e.push(n));
+              } else t.name && e.push(t);
+              return e;
+            }, []).sort(TS.i18n.mappedSorter("name"));
+          }) : Promise.resolve(!1);
         },
-        getAppUserResourceMembershipStatus: function(e, n) {
-          var i = t[n];
-          return i ? {
-            is_known: !!i.ts,
-            is_member: _.findIndex(i.apps, function(t) {
-              return t.app_user_id === e;
-            }) > -1
+        getAppUserResourceMembershipStatus: function(e, i) {
+          return TS.boot_data.feature_app_permissions_api_site && i === t ? {
+            is_known: !r(i),
+            is_member: n.hasOwnProperty(e)
           } : {
             is_known: !1,
             is_member: !1
           };
+        },
+        removeAppOrBotFromActiveResource: function(e) {
+          if (TS.boot_data.feature_app_permissions_api_site) {
+            var t = TS.shared.getActiveModelOb();
+            if (e.is_app_user) return void TS.apps.maybeKickAppUserFromChannel(e, t);
+            TS.shared.kickMember(t, e.id);
+          }
+        },
+        handleAppResourceMembershipChanged: function(e, n) {
+          TS.boot_data.feature_app_permissions_api_site && (t = null, TS.apps.permissions.app_resource_membership_changed_sig.dispatch(e, n));
         }
       });
-      var e = 12e4,
-        t = {};
+      var e, t, n = {},
+        i = !0,
+        r = function(n) {
+          return n !== t || e < Date.now() - 12e4;
+        },
+        a = function(e) {
+          return i ? TS.flannel.fetchAndUpsertObjectsWithQuery({
+            channels: [e],
+            filter: "bots"
+          }).then(function(e) {
+            return _.get(e, "objects", []).forEach(function(e) {
+              var t = _.get(e, "id");
+              n[t] = {
+                app_id: _.get(e, "profile.api_app_id"),
+                app_user_id: _.get(e, "id"),
+                name: _.get(e, "real_name"),
+                app_icon: _.get(e, "profile.image_24")
+              };
+            }), i = !1, !0;
+          }) : Promise.resolve(!1);
+        },
+        s = function(e, n) {
+          n.is_bot && e.id === t && TS.apps.permissions.handleAppResourceMembershipChanged(e, n);
+        };
     }();
   },
   3627: function(e, t) {

@@ -28,13 +28,13 @@
   {{#if team_profile_fields}}
     {{#each team_profile_fields}}
       <div class="row clearfix visible_row" data-action="edit_team_profile_to_edit" data-id="{{this.id}}" data-qa="{{this.label}}" data-is-scim={{#if this.options.is_scim}}true{{else}}false{{/if}}>
-        <div class="col no_bottom_margin span_2_of_6">
-          <span class="no_margin">{{this.label}}</span>
+        <div class="col no_bottom_margin span_2_of_6 {{#if this.options.is_scim}}ent_profile_field--scim_provisioned{{/if}}">
           {{#if this.options.is_scim}}
-            <ts-icon class="ts_icon_sync profile_field__icon--scim_provisioned sk_light_grey ts_tip ts_tip_top ts_tip_multiline">
+            <ts-icon class="ts_icon_lock sk_light_grey ts_tip ts_tip_top ts_tip_multiline">
               <span class="ts_tip_tip ts_tip_multiline_inner">{{#t}}This field is automatically synced by your organization.{{/t}}</span>
             </ts-icon>
           {{/if}}
+          <span class="no_margin">{{this.label}}</span>
         </div>
         <div class="col no_bottom_margin span_3_of_6">
           <p class="subtle_silver no_bottom_margin">{{this.hint}}</p>
@@ -56,12 +56,13 @@
   {{#if hidden_team_profile_fields}}
     {{#each hidden_team_profile_fields}}
       <div class="row clearfix hidden_row" data-action="edit_team_profile_to_edit" data-id="{{this.id}}" data-qa="{{this.label}}" data-is-scim={{#if this.options.is_scim}}true{{else}}false{{/if}}>
-        <div class="col no_bottom_margin span_2_of_6"><span class="no_margin subtle_silver">{{this.label}}</span>
+        <div class="col no_bottom_margin span_2_of_6 {{#if this.options.is_scim}}ent_profile_field--scim_provisioned{{/if}}">
           {{#if this.options.is_scim}}
-            <ts-icon class="ts_icon_sync profile_field__icon--scim_provisioned sk_light_grey ts_tip ts_tip_top ts_tip_multiline no_margin">
+            <ts-icon class="ts_icon_lock sk_light_grey ts_tip ts_tip_top ts_tip_multiline no_margin">
               <span class="ts_tip_tip ts_tip_multiline_inner">{{#t}}This field is automatically synced by your organization.{{/t}}</span>
             </ts-icon>
           {{/if}}
+          <span class="no_margin subtle_silver">{{this.label}}</span>
           <em class="subtle_silver normal">{{#t}}(Hidden){{/t}}</em>
         </div>
         <div class="col no_bottom_margin {{#if this.options.is_scim}}span_2_of_6{{else}}span_3_of_6{{/if}}">

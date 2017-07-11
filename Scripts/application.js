@@ -30887,39 +30887,56 @@ webpackJsonp([332], [, function(e, t, n) {
     };
 }, function(e, t, n) {
   "use strict";
+
+  function r(e, t, n) {
+    return t in e ? Object.defineProperty(e, t, {
+      value: n,
+      enumerable: !0,
+      configurable: !0,
+      writable: !0
+    }) : e[t] = n, e;
+  }
+
+  function o() {
+    return function(e) {
+      var t = performance.now();
+      e(l(t));
+    };
+  }
   Object.defineProperty(t, "__esModule", {
     value: !0
   }), n.d(t, "selectItem", function() {
-    return i;
-  }), n.d(t, "getSelectedChannelItem", function() {
     return u;
+  }), n.d(t, "forceUpdateWithTimestamp", function() {
+    return l;
+  }), t.forceUpdate = o, n.d(t, "getSelectedChannelItem", function() {
+    return f;
   });
-  var r = n(17),
-    o = (n.n(r), Object.assign || function(e) {
+  var i, a = n(17),
+    s = (n.n(a), Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
         for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
       }
       return e;
     }),
-    i = n.i(r.createAction)("Select an item"),
-    a = {
-      selectedItemId: void 0
+    u = n.i(a.createAction)("Select an item"),
+    l = n.i(a.createAction)("Force an update to the channel sidebar store with a timestamp"),
+    c = {
+      selectedItemId: void 0,
+      forceUpdateTs: void 0
     },
-    s = n.i(r.createReducer)(function(e, t, n) {
-      return t in e ? Object.defineProperty(e, t, {
-        value: n,
-        enumerable: !0,
-        configurable: !0,
-        writable: !0
-      }) : e[t] = n, e;
-    }({}, i, function(e, t) {
-      return e.selectedItemId === t ? e : o({}, e, {
+    d = n.i(a.createReducer)((i = {}, r(i, u, function(e, t) {
+      return e.selectedItemId === t ? e : s({}, e, {
         selectedItemId: t
       });
-    }), a);
-  t.default = s;
-  var u = function(e) {
+    }), r(i, l, function(e, t) {
+      return s({}, e, {
+        forceUpdateTs: t
+      });
+    }), i), c);
+  t.default = d;
+  var f = function(e) {
     return e && e.channelSidebar && e.channelSidebar.selectedItemId;
   };
 }, , function(e, t, n) {
@@ -32519,90 +32536,104 @@ webpackJsonp([332], [, function(e, t, n) {
   t.a = n.i(c.b)(P)(O);
 }, function(e, t, n) {
   "use strict";
-  var r = n(43),
-    o = n(6),
-    i = n.n(o),
-    a = n(3989),
-    s = n(2296),
-    u = n(2878),
-    l = n(2991),
-    c = n(3164),
-    d = n(3438),
-    f = n(3045),
-    p = n(2295),
-    h = n(3141),
-    m = n(3028),
-    _ = n(2906),
-    y = n(2914),
-    v = n(2907),
-    g = Object.assign || function(e) {
+
+  function r() {
+    if (E = !1, L) {
+      var e = n.i(p.a)(),
+        t = e && e.dispatch;
+      if (!t || !a.a.isFunction(t)) throw new Error("Could not find a store instance to dispatch an update to");
+      t(n.i(u.forceUpdate)());
+    }
+  }
+  var o = n(43),
+    i = n(6),
+    a = n.n(i),
+    s = n(3989),
+    u = n(2296),
+    l = n(2878),
+    c = n(2991),
+    d = n(3164),
+    f = n(3438),
+    p = n(3629),
+    h = n(3045),
+    m = n(2295),
+    _ = n(3141),
+    y = n(3028),
+    v = n(2906),
+    g = n(2914),
+    b = n(2907),
+    w = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
         for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
       }
       return e;
     },
-    b = n.i(y.d)(5),
-    w = function(e) {
-      return b && n.i(_.a)(e + "_mark");
-    },
-    k = function(e) {
-      return b && n.i(_.b)(e, e + "_mark");
-    },
+    k = n.i(g.d)(5),
     M = function(e) {
-      if (!n.i(m.useReduxMembers)(e)) return !1;
-      if (!n.i(d.a)(e)) return !1;
-      var t = i()(n.i(h.getAllMembers)(e)).filter(function(e) {
+      return k && n.i(v.a)(e + "_mark");
+    },
+    T = function(e) {
+      return k && n.i(v.b)(e, e + "_mark");
+    },
+    x = function(e) {
+      if (!n.i(y.useReduxMembers)(e)) return !1;
+      if (!n.i(f.a)(e)) return !1;
+      var t = a()(n.i(_.getAllMembers)(e)).filter(function(e) {
         return !e.is_slackbot;
       }).size();
       return !(t > 25) && (!(t >= 2) || "dim");
     },
-    T = function(e) {
-      w("react_channel_sidebar_calculate_sidebar_sections");
-      var t = n.i(l.a)(e),
+    S = function(e) {
+      M("react_channel_sidebar_calculate_sidebar_sections");
+      var t = n.i(c.a)(e),
         r = t.sidebarSections,
         o = t.sidebarSectionsOrdered;
-      k("react_channel_sidebar_calculate_sidebar_sections"), w("react_channel_sidebar_get_rows");
-      var i = n.i(c.a)({
-          hasAllUnreadsLink: n.i(f.getUserPref)(e, "enable_unread_view"),
-          hasInvitePeopleLink: M(e),
+      T("react_channel_sidebar_calculate_sidebar_sections"), M("react_channel_sidebar_get_rows");
+      var i = n.i(d.a)({
+          hasAllUnreadsLink: n.i(h.getUserPref)(e, "enable_unread_view"),
+          hasInvitePeopleLink: x(e),
           sidebarSectionsOrdered: o,
           sidebarSections: r
         }),
         a = i.rows,
         s = i.rowIds;
-      return k("react_channel_sidebar_get_rows"), {
+      return T("react_channel_sidebar_get_rows"), {
         rows: a,
         rowIds: s
       };
     },
-    x = function(e) {
+    E = void 0,
+    L = void 0,
+    C = function(e) {
       var t = void 0,
-        r = void 0,
         o = void 0,
         i = void 0,
-        u = void 0;
-      return function(l, c) {
-        var d = n.i(s.getSelectedChannelItem)(l),
-          f = n.i(p.getUnreadIds)(n.i(p.getAllChannels)(l)),
-          h = T(l),
-          m = h.rows,
-          _ = h.rowIds,
-          y = c.onItemSelect;
-        if (d === r && n.i(a.a)(f, o) && n.i(a.a)(_, i) && n.i(a.a)(c, u)) return t;
-        var b = g({}, c, {
-          rows: m,
-          rowIds: _,
-          selectedItemId: d,
-          unreadIds: f,
+        a = void 0,
+        l = void 0;
+      return function(c, d) {
+        if (E) return L = !0, t;
+        E = !0, L = !1, window.requestAnimationFrame(r);
+        var f = n.i(u.getSelectedChannelItem)(c),
+          p = n.i(m.getUnreadIds)(n.i(m.getAllChannels)(c)),
+          h = S(c),
+          _ = h.rows,
+          y = h.rowIds,
+          v = d.onItemSelect;
+        if (f === o && n.i(s.a)(p, i) && n.i(s.a)(y, a) && n.i(s.a)(d, l)) return t;
+        var g = w({}, d, {
+          rows: _,
+          rowIds: y,
+          selectedItemId: f,
+          unreadIds: p,
           onItemSelect: function(t) {
-            n.i(v.c)() || t === d || (e(n.i(s.selectItem)(t)), y && y(t));
+            n.i(b.c)() || t === f || (e(n.i(u.selectItem)(t)), v && v(t));
           }
         });
-        return t = b, r = d, o = f, i = _, u = c, b;
+        return t = g, o = f, i = p, a = y, l = d, g;
       };
     };
-  t.a = n.i(r.c)(x)(u.a);
+  t.a = n.i(o.c)(C)(l.a);
 }, function(e, t, n) {
   "use strict";
   var r = n(2880);
