@@ -21,10 +21,6 @@
   </div>
   <ul>
     <li>{{#t}}You can invite other people from the channel menu, which you'll find at the top of this column.{{/t}}</li>
-    {{#feature flag="feature_archive_deeplink"}}
-    {{else}}
-    <li>{{#t new_win_name=(newWindowName)}}You can review messages from this channel in the <a href="/archives/{name_for_url}" class="bold" target={new_win_name}>Channel Archive</a>.{{/t}}</li>
-    {{/feature}}
   </ul>
   {{#if group.purpose.value}}
     <p class="channel_overlay_purpose">{{#t purpose=(formatTopicOrPurpose group.purpose.value)}}The purpose of this channel is:<br /><em>{purpose}{{/t}}</em></p>

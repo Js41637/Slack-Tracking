@@ -99,7 +99,7 @@
       {{#t member_name=(getPrefCompliantMemberName member) team_name=(getTeamNameByMember member)}}{member_name} is from <strong>{team_name}</strong> and not a member of your team, so share files and information with care.{{/t}}
     {{else}}
       {{#t member_name=(getPrefCompliantMemberName member)}}This is <span class="not_limited_copy">the very beginning of</span> your direct message history with <strong>{member_name}</strong>.{{/t}}
-      {{#if member.is_bot}}
+      {{#if show_bot_about_link}}
           <button class="btn_link bot_about_link" type="button" data-bot_about_link><i class="ts_icon ts_icon_lightbulb_o ts_icon_inherit"></i>{{#t member_name=(getPrefCompliantMemberName member)}}How does {member_name} work?{{/t}}</button>
       {{/if}}
     {{/if}}

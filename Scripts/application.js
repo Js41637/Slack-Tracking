@@ -35030,6 +35030,15 @@ webpackJsonp([332], [, function(e, t, n) {
                 right: r.left + o,
                 left: r.left - e.width + o
               };
+            case "left-bottom":
+              return {
+                width: e.width,
+                height: e.height,
+                top: r.top + i,
+                bottom: r.top + e.height + i,
+                right: r.left + o,
+                left: r.left - e.width + o
+              };
             case "right":
               return {
                 width: e.width,
@@ -39047,7 +39056,7 @@ webpackJsonp([332], [, function(e, t, n) {
     };
   };
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.t-list-reset {\n  margin-bottom: 0;\n  margin-left: 0;\n  padding: 0;\n  list-style-type: none;\n}\n.c-message {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  display: flex;\n  padding-right: 26px;\n  min-width: 1px;\n  position: relative;\n  -webkit-user-select: text;\n  -moz-user-select: text;\n  -ms-user-select: text;\n  user-select: text;\n}\n.c-message:hover:not(.c-message--highlight) {\n  background-color: #F9F9F9;\n}\n.c-message--highlight,\n.c-message--highlight_yellow_bg {\n  background: #FFFCE0;\n}\n.c-message--last {\n  margin-bottom: 16px;\n}\n.c-message.c-message--light {\n  padding-top: 5px;\n  padding-bottom: 3px;\n}\n.c-message.c-message--dense {\n  padding-top: 3px;\n  padding-bottom: 2px;\n}\n.c-message.c-message--light.c-message--adjacent {\n  padding-top: 2px;\n}\n.c-message__gutter {\n  text-align: right;\n  flex-shrink: 0;\n}\n.c-message--adjacent .c-message__gutter {\n  visibility: hidden;\n}\n.c-message--adjacent:hover .c-message__gutter {\n  visibility: visible;\n}\n.c-message--light .c-message__gutter {\n  width: 72px;\n  padding-right: 10px;\n}\n.c-message--dense .c-message__gutter {\n  width: 58px;\n  margin-right: 22px;\n}\n.c-message--dense .c-timestamp__label {\n  color: #717274;\n}\n.c-message__content {\n  flex: 0 1 100%;\n  margin-right: 14px;\n  min-width: 1px;\n}\n.c-message--dense .c-message__content {\n  padding-left: 8px;\n}\n.c-message__sender {\n  font-weight: 900;\n}\n.c-message--light .c-message__sender {\n  margin-right: 6px;\n  color: #2C2D30;\n}\n.c-message--dense .c-message__sender {\n  margin-left: -8px;\n  margin-right: 4px;\n}\n.c-message__sender--unknown {\n  display: inline-block;\n  width: 80px;\n  height: 0.9rem;\n  border-radius: 0.9rem;\n  vertical-align: bottom;\n  background: #E8E8E8;\n}\n.c-message--dense .c-message__content_header {\n  display: inline;\n  margin-bottom: 3px;\n}\n.c-message--dense.c-message--thread-broadcast .c-message__content_header {\n  display: flex;\n}\n.c-message--light .c-message__content_header {\n  line-height: 1;\n  margin-bottom: 3px;\n}\n.c-message__body {\n  line-height: 1.4;\n  color: #2C2D30;\n}\n.c-message__body--automated {\n  font-style: italic;\n  color: #A0A0A2;\n}\n.c-message:hover .c-message__body--automated {\n  color: #717274;\n}\n.c-message__mention {\n  background: #FFF4BF;\n  border-radius: 3px;\n  padding: 0 2px 1px 2px;\n}\n.c-message__editor {\n  flex: 0 1 100%;\n  min-height: 0;\n}\n.c-message__editor .ql-editor,\n.c-message__editor .ql-placeholder {\n  padding-bottom: 9px;\n  padding-top: 9px;\n}\n.feature_texty_mentions .c-message__editor .ql-editor,\n.feature_texty_mentions .c-message__editor .ql-placeholder {\n  line-height: 1.46667;\n}\n.c-message__editor__input {\n  background: #FFF;\n  border: 1px solid #C5C5C5;\n  border-radius: 0.25rem;\n  color: #3D3C40;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  height: auto;\n  line-height: 1.2;\n  margin: 0 0 0.5rem;\n  min-height: 40px;\n  overflow: auto;\n  box-shadow: none;\n  -webkit-user-select: auto;\n  -moz-user-select: auto;\n  -ms-user-select: auto;\n  user-select: auto;\n}\n.c-message__editor__input.focus {\n  border-color: #2780F8;\n  outline: none;\n  outline-offset: 0;\n  box-shadow: 0 0 7px rgba(39, 128, 248, 0.15);\n}\n.c-message__editor__footer {\n  align-items: center;\n  display: flex;\n}\n.c-message__editor__info {\n  flex: 1;\n  font-size: 0.8rem;\n  margin-left: 10px;\n}\n.c-message__editor__messages {\n  display: flex;\n  flex: 1;\n  justify-content: flex-end;\n}\n.c-message__editor__warning {\n  color: #EB4D5C;\n  font-size: 0.8rem;\n  margin-left: 10px;\n}\n.c-message__editor__save {\n  margin-left: 10px !important;\n}\n.c-message__editor button {\n  display: inline-block;\n}\n.c-message__reply_bar {\n  display: flex;\n  align-items: center;\n  max-width: 600px;\n  margin-top: 5px;\n  padding: 3px;\n  font-size: 12px;\n  border: 1px solid transparent;\n  border-radius: 6px;\n  cursor: pointer;\n}\n.c-message__reply_bar:hover {\n  background-color: #FFF;\n  border-color: rgba(0, 0, 0, 0.15);\n}\n.c-message__reply_bar:hover .c-message__reply_bar_arrow {\n  color: #A0A0A2;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_last_reply {\n  opacity: 0;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_view_thread {\n  opacity: 1;\n}\n.c-message__reply_bar .c-avatar {\n  margin-right: 4px;\n}\n.c-message__reply_count {\n  margin-left: 3px;\n  font-weight: bold;\n}\n.c-message__reply_bar_description {\n  position: relative;\n  margin-left: 8px;\n  color: #A0A0A2;\n}\n.c-message__reply_bar_arrow {\n  margin-left: auto;\n  color: transparent;\n}\n.c-message__reply_bar_arrow::before {\n  vertical-align: top;\n}\n.c-message__reply_bar_last_reply {\n  opacity: 1;\n  transition: opacity 0.2s;\n}\n.c-message__broadcast_preamble {\n  color: #A0A0A2;\n  display: flex;\n  overflow: hidden;\n  max-width: 100%;\n}\n.c-message--light .c-message__broadcast_preamble {\n  margin-bottom: 3px;\n}\n.c-message__broadcast_preamble_meta {\n  flex-shrink: 0;\n}\n.c-message__broadcast_preamble_link {\n  font-weight: bold;\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  margin-left: 4px;\n}\n.c-message__reply_bar_view_thread {\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  opacity: 0;\n  transition: opacity 0.2s;\n}\n.c-message__attachment {\n  display: flex;\n  align-items: stretch;\n  margin-top: 2px;\n}\n.c-message__attachment_column {\n  width: 4px;\n  background-color: #E8E8E8;\n  border-radius: 8px;\n}\n.c-message__attachment_body {\n  padding-left: 12px;\n  padding-right: 12px;\n}\n.c-message__bot-label {\n  color: #A0A0A2;\n  font-weight: 500;\n  font-size: 12px;\n  margin: 0 0.15rem;\n  padding: 0 0.1rem;\n  vertical-align: middle;\n  background: #f2f2f5;\n}\n.c-message__file_link {\n  font-weight: 700;\n}\n.c-message__file_meta {\n  line-height: 1.4;\n  color: #A0A0A2;\n}\n.c-message:hover .c-message__file_meta {\n  color: #717274;\n}\n.c-message__body--comment {\n  position: relative;\n  display: block;\n}\n.c-message__body--comment:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  content: '\\E516';\n  position: absolute;\n  left: -28px;\n  top: -4px;\n  color: #E8E8E8;\n}\n.c-message--dense .c-message__body--comment:before {\n  display: none;\n}\n.c-message__file_comment_user,\n.c-message__file_comment_user:link,\n.c-message__file_comment_user:visited {\n  color: inherit;\n}\n.c-message__file_actions {\n  opacity: 0;\n  transition: opacity 0.1s;\n}\n.c-message__file_action_button {\n  font-size: 0.8125rem;\n  height: 30px;\n  padding: 0.5rem 0.6rem;\n  margin-left: 6px;\n  box-shadow: none;\n  background-color: rgba(255, 255, 255, 0.9);\n  vertical-align: top;\n}\n.c-message__file_action_button:before {\n  line-height: 30px;\n}\n.c-message__file_action_button:after {\n  border: 1px solid rgba(0, 0, 0, 0.1);\n  top: -1px;\n  left: -1px;\n  right: -1px;\n  bottom: -1px;\n}\n.c-message__image_container {\n  position: relative;\n}\n.c-message__image_container:hover .c-message__file_actions {\n  opacity: 1;\n}\n.c-message__image_wrapper {\n  display: block;\n  position: relative;\n  overflow: hidden;\n  border-radius: 3px;\n  cursor: nesw-resize;\n  cursor: zoom-in;\n}\n.c-message__image_wrapper:after {\n  content: '';\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  border: 1px solid rgba(0, 0, 0, 0.1);\n  border-radius: 3px;\n}\n.c-message__image_description {\n  margin-bottom: 8px;\n  color: #A0A0A2;\n}\n.c-message:hover .c-message__image_description {\n  color: #717274;\n}\n.c-message__image_caret {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n}\n.c-message__image_caret:hover,\n.c-message__image_caret:focus,\n.c-message__image_caret:active {\n  outline: none;\n}\n.c-message__file_actions--image {\n  position: absolute;\n  top: 10px;\n  right: 10px;\n}\n.c-message__actions {\n  position: absolute;\n  top: -14px;\n  right: 5px;\n  display: none;\n  z-index: 1;\n}\n.c-message:hover .c-message__actions,\n.c-message__actions.c-message__actions--menu-showing {\n  display: block;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.t-list-reset {\n  margin-bottom: 0;\n  margin-left: 0;\n  padding: 0;\n  list-style-type: none;\n}\n.c-message {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  display: flex;\n  padding-right: 26px;\n  min-width: 1px;\n  position: relative;\n  -webkit-user-select: text;\n  -moz-user-select: text;\n  -ms-user-select: text;\n  user-select: text;\n}\n.c-message:hover:not(.c-message--highlight) {\n  background-color: #F9F9F9;\n}\n.c-message--highlight,\n.c-message--highlight_yellow_bg {\n  background: #FFFCE0;\n}\n.c-message--last {\n  margin-bottom: 16px;\n}\n.c-message.c-message--light {\n  padding-top: 5px;\n  padding-bottom: 3px;\n}\n.c-message.c-message--dense {\n  padding-top: 3px;\n  padding-bottom: 2px;\n}\n.c-message.c-message--light.c-message--adjacent {\n  padding-top: 2px;\n}\n.c-message__gutter {\n  text-align: right;\n  flex-shrink: 0;\n}\n.c-message--adjacent .c-message__gutter {\n  visibility: hidden;\n}\n.c-message--adjacent:hover .c-message__gutter {\n  visibility: visible;\n}\n.c-message--light .c-message__gutter {\n  width: 72px;\n  padding-right: 10px;\n}\n.c-message--dense .c-message__gutter {\n  width: 58px;\n  margin-right: 22px;\n}\n.c-message--dense .c-timestamp__label {\n  color: #717274;\n}\n.c-message__content {\n  flex: 0 1 100%;\n  margin-right: 14px;\n  min-width: 1px;\n}\n.c-message--dense .c-message__content {\n  padding-left: 8px;\n}\n.c-message__sender {\n  font-weight: 900;\n}\n.c-message--light .c-message__sender {\n  margin-right: 6px;\n  color: #2C2D30;\n}\n.c-message--dense .c-message__sender {\n  margin-left: -8px;\n  margin-right: 4px;\n}\n.c-message__sender--unknown {\n  display: inline-block;\n  width: 80px;\n  height: 0.9rem;\n  border-radius: 0.9rem;\n  vertical-align: bottom;\n  background: #E8E8E8;\n}\n.c-message--dense .c-message__content_header {\n  display: inline;\n  margin-bottom: 3px;\n}\n.c-message--dense.c-message--thread-broadcast .c-message__content_header {\n  display: flex;\n}\n.c-message--light .c-message__content_header {\n  line-height: 1;\n  margin-bottom: 3px;\n}\n.c-message__body {\n  line-height: 1.4;\n  color: #2C2D30;\n}\n.c-message__body--automated {\n  font-style: italic;\n  color: #A0A0A2;\n}\n.c-message:hover .c-message__body--automated {\n  color: #717274;\n}\n.c-message__mention {\n  background: #FFF4BF;\n  border-radius: 3px;\n  padding: 0 2px 1px 2px;\n}\n.c-message__editor {\n  flex: 0 1 100%;\n  min-height: 0;\n}\n.c-message__editor .ql-editor,\n.c-message__editor .ql-placeholder {\n  padding-bottom: 9px;\n  padding-top: 9px;\n}\n.feature_texty_mentions .c-message__editor .ql-editor,\n.feature_texty_mentions .c-message__editor .ql-placeholder {\n  line-height: 1.46667;\n}\n.c-message__editor__input {\n  background: #FFF;\n  border: 1px solid #C5C5C5;\n  border-radius: 0.25rem;\n  color: #3D3C40;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  height: auto;\n  line-height: 1.2;\n  margin: 0 0 0.5rem;\n  min-height: 40px;\n  overflow: auto;\n  box-shadow: none;\n  -webkit-user-select: auto;\n  -moz-user-select: auto;\n  -ms-user-select: auto;\n  user-select: auto;\n}\n.c-message__editor__input.focus {\n  border-color: #2780F8;\n  outline: none;\n  outline-offset: 0;\n  box-shadow: 0 0 7px rgba(39, 128, 248, 0.15);\n}\n.c-message__editor__footer {\n  align-items: center;\n  display: flex;\n}\n.c-message__editor__info {\n  flex: 1;\n  font-size: 0.8rem;\n  margin-left: 10px;\n}\n.c-message__editor__messages {\n  display: flex;\n  flex: 1;\n  justify-content: flex-end;\n}\n.c-message__editor__warning {\n  color: #EB4D5C;\n  font-size: 0.8rem;\n  margin-left: 10px;\n}\n.c-message__editor__save {\n  margin-left: 10px !important;\n}\n.c-message__editor button {\n  display: inline-block;\n}\n.c-message__reply_bar {\n  display: flex;\n  align-items: center;\n  max-width: 600px;\n  margin-top: 5px;\n  padding: 3px;\n  font-size: 12px;\n  border: 1px solid transparent;\n  border-radius: 6px;\n  cursor: pointer;\n}\n.c-message__reply_bar:hover {\n  background-color: #FFF;\n  border-color: rgba(0, 0, 0, 0.15);\n}\n.c-message__reply_bar:hover .c-message__reply_bar_arrow {\n  color: #A0A0A2;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_last_reply {\n  opacity: 0;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_view_thread {\n  opacity: 1;\n}\n.c-message__reply_bar .c-avatar {\n  margin-right: 4px;\n}\n.c-message__reply_count {\n  margin-left: 3px;\n  font-weight: bold;\n}\n.c-message__reply_bar_description {\n  position: relative;\n  margin-left: 8px;\n  color: #A0A0A2;\n}\n.c-message__reply_bar_arrow {\n  margin-left: auto;\n  color: transparent;\n}\n.c-message__reply_bar_arrow::before {\n  vertical-align: top;\n}\n.c-message__reply_bar_last_reply {\n  opacity: 1;\n  transition: opacity 0.2s;\n}\n.c-message__broadcast_preamble {\n  color: #A0A0A2;\n  display: flex;\n  overflow: hidden;\n  max-width: 100%;\n}\n.c-message--light .c-message__broadcast_preamble {\n  margin-bottom: 3px;\n}\n.c-message__broadcast_preamble_meta {\n  flex-shrink: 0;\n}\n.c-message__broadcast_preamble_link {\n  font-weight: bold;\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  margin-left: 4px;\n}\n.c-message__reply_bar_view_thread {\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  opacity: 0;\n  transition: opacity 0.2s;\n}\n.c-message__attachment {\n  display: flex;\n  align-items: stretch;\n  margin-top: 2px;\n}\n.c-message__attachment_column {\n  width: 4px;\n  background-color: #E8E8E8;\n  border-radius: 8px;\n}\n.c-message__attachment_body {\n  padding-left: 12px;\n  padding-right: 12px;\n}\n.c-message__bot-label {\n  color: #A0A0A2;\n  font-weight: 500;\n  font-size: 12px;\n  margin: 0 0.15rem;\n  padding: 0 0.1rem;\n  vertical-align: middle;\n  background: #f2f2f5;\n}\n.c-message__file_link {\n  font-weight: 700;\n}\n.c-message__file_meta {\n  line-height: 1.4;\n  color: #A0A0A2;\n}\n.c-message:hover .c-message__file_meta {\n  color: #717274;\n}\n.c-message__body--comment {\n  position: relative;\n  display: block;\n}\n.c-message__body--comment:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  content: '\\E516';\n  position: absolute;\n  left: -28px;\n  top: -4px;\n  color: #E8E8E8;\n}\n.c-message--dense .c-message__body--comment:before {\n  display: none;\n}\n.c-message__file_comment_user,\n.c-message__file_comment_user:link,\n.c-message__file_comment_user:visited {\n  color: inherit;\n}\n.c-message__file_actions {\n  opacity: 0;\n  transition: opacity 0.1s;\n}\n.c-message__file_action_button {\n  font-size: 0.8125rem;\n  height: 30px;\n  padding: 0.5rem 0.6rem;\n  margin-left: 6px;\n  box-shadow: none;\n  background-color: rgba(255, 255, 255, 0.9);\n  vertical-align: top;\n}\n.c-message__file_action_button:before {\n  line-height: 30px;\n}\n.c-message__file_action_button:after {\n  border: 1px solid rgba(0, 0, 0, 0.1);\n  top: -1px;\n  left: -1px;\n  right: -1px;\n  bottom: -1px;\n}\n.c-message__file_action_trigger {\n  display: inline-block;\n}\n.c-message__image_container {\n  position: relative;\n}\n.c-message__image_container:hover .c-message__file_actions {\n  opacity: 1;\n}\n.c-message__image_wrapper {\n  display: block;\n  position: relative;\n  overflow: hidden;\n  border-radius: 3px;\n  cursor: nesw-resize;\n  cursor: zoom-in;\n}\n.c-message__image_wrapper:after {\n  content: '';\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  border: 1px solid rgba(0, 0, 0, 0.1);\n  border-radius: 3px;\n}\n.c-message__image_description {\n  margin-bottom: 8px;\n  color: #A0A0A2;\n}\n.c-message:hover .c-message__image_description {\n  color: #717274;\n}\n.c-message__image_caret {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n}\n.c-message__image_caret:hover,\n.c-message__image_caret:focus,\n.c-message__image_caret:active {\n  outline: none;\n}\n.c-message__file_actions--image {\n  position: absolute;\n  top: 10px;\n  right: 10px;\n}\n.c-message__actions {\n  position: absolute;\n  top: -14px;\n  right: 5px;\n  display: none;\n  z-index: 1;\n}\n.c-message:hover .c-message__actions,\n.c-message__actions.c-message__actions--menu-showing {\n  display: block;\n}\n", ""]);
 }, function(e, t, n) {
   t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.t-list-reset {\n  margin-bottom: 0;\n  margin-left: 0;\n  padding: 0;\n  list-style-type: none;\n}\n.c-message_list__day_divider {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 0.9rem;\n  width: 100%;\n  color: #2C2D30;\n  font-weight: bold;\n  text-align: center;\n  position: relative;\n  padding: 1rem 0;\n}\n.c-message_list__day_divider .c-message_list__unread_divider {\n  top: 12px;\n}\n.c-message_list__day_divider .c-message_list__unread_divider__separator {\n  margin-right: 0;\n}\n.c-message_list__day_divider__label {\n  cursor: default;\n  display: inline-block;\n  background: #FFF;\n  padding: 0.25rem 0.75rem;\n  position: relative;\n  z-index: 1;\n}\n.c-message_list__day_divider__line {\n  position: absolute;\n  top: 50%;\n  left: 0;\n  right: 0;\n  border-top: 1px solid #E8E8E8;\n  border-bottom: 0;\n  z-index: -1;\n  margin: 0;\n}\n.c-message_list__unread_divider {\n  position: relative;\n  top: -1px;\n  z-index: 1;\n}\n.c-message_list__unread_divider__separator {\n  border-bottom: none;\n  border-color: rgba(255, 135, 109, 0.5);\n  margin: 0 18px -1px 0;\n  -webkit-transition: border 150ms ease-out 0;\n  -moz-transition: border 150ms ease-out 0;\n  transition: border 150ms ease-out 0;\n}\n.c-message_list__unread_divider__label {\n  background: #FFF;\n  border-radius: 7px;\n  color: rgba(255, 135, 109, 0.5);\n  cursor: default;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 13px;\n  font-weight: bold;\n  line-height: 8px;\n  margin: -5px 11px -5px 0;\n  padding: 0 5px 3px 5px;\n  position: absolute;\n  right: 0;\n  text-transform: lowercase;\n  -webkit-transition: color 150ms ease-out 0;\n  -moz-transition: color 150ms ease-out 0;\n  transition: color 150ms ease-out 0;\n}\n", ""]);
 }, function(e, t, n) {
@@ -39634,26 +39643,28 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "render",
         value: function() {
-          for (var e = this, t = this.state, n = t.start, r = t.end, o = t.startTop, i = [], a = o, u = n; u < r; u++) ! function(t) {
+          for (var e = this, t = this.state, n = t.start, r = t.end, o = t.startTop, i = t.endBottom, a = n, u = o; a > 0 && o - u < 500;) a -= 1, u -= this.getHeight(this.props.keys[a]);
+          for (var l = r, d = i; l < this.props.keys.length - 1 && d - i < 500;) d += this.getHeight(this.props.keys[l]), l += 1;
+          for (var f = [], h = u, m = a; m < l; m++) ! function(t) {
             var n = e.props.keys[t],
               r = e.getHeight(n);
-            i.push(s.a.createElement(p.a, {
+            f.push(s.a.createElement(p.a, {
               key: n,
               style: {
                 position: "absolute",
                 width: "100%",
-                top: a
+                top: h
               },
               onHeightChange: function(r) {
                 return e.setHeight(n, t, r);
               }
-            }, e.props.rowRenderer(t))), a += r;
-          }(u);
-          var l = c()("c-virtual_list", {
+            }, e.props.rowRenderer(t))), h += r;
+          }(m);
+          var _ = c()("c-virtual_list", {
             "c-virtual_list--slack_scrollbar": this.props.useSlackScrollbar
           });
           return s.a.createElement("div", {
-            className: l,
+            className: _,
             style: {
               height: this.props.height,
               width: this.props.width,
@@ -39665,7 +39676,7 @@ webpackJsonp([332], [, function(e, t, n) {
               position: "relative",
               height: this.state.totalHeight
             }
-          }, i));
+          }, f));
         }
       }]), t;
     }(h.a);
@@ -40702,11 +40713,10 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "render",
         value: function() {
           return this.props.file && n.i(d.b)(this.props.file) && ("file_share" === this.props.subtype || "file_mention" === this.props.subtype) ? this.renderImage() : s.a.createElement("div", null, s.a.createElement("span", null, "File: "), s.a.createElement("a", {
-            className: "file_preview_link",
+            className: "c-message__file_link",
             "data-file-id": this.props.id,
             href: this.props.permalink,
-            target: "_blank",
-            rel: "noopener noreferrer"
+            onClick: this.previewFile
           }, this.props.name), s.a.createElement("div", {
             style: {
               fontSize: "10px",
@@ -57338,6 +57348,11 @@ webpackJsonp([332], [, function(e, t, n) {
           e && e.length && (this.quill.deleteText(e.index, e.length), this.quill.setSelection(e.index));
         }
       }, {
+        key: "deleteText",
+        value: function(e, t) {
+          this.quill.deleteText(e, t);
+        }
+      }, {
         key: "clearHistory",
         value: function() {
           this.quill.history.clear();
@@ -60666,52 +60681,160 @@ webpackJsonp([332], [, function(e, t, n) {
     });
 }, , , , , , , function(e, t, n) {
   "use strict";
-  var r = n(2),
-    o = n.n(r),
-    i = n(3115),
-    a = n(9),
+
+  function r(e, t) {
+    if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
+  }
+
+  function o(e, t) {
+    if (!e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    return !t || "object" != typeof t && "function" != typeof t ? e : t;
+  }
+
+  function i(e, t) {
+    if ("function" != typeof t && null !== t) throw new TypeError("Super expression must either be null or a function, not " + typeof t);
+    e.prototype = Object.create(t && t.prototype, {
+      constructor: {
+        value: e,
+        enumerable: !1,
+        writable: !0,
+        configurable: !0
+      }
+    }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
+  }
+  var a = n(2),
     s = n.n(a),
-    u = n(3253),
-    l = n(2907),
-    c = n(4194),
-    d = {
-      file: r.PropTypes.shape({
-        id: r.PropTypes.string.isRequired
-      }).isRequired,
-      isImage: r.PropTypes.bool
+    u = n(9),
+    l = n.n(u),
+    c = n(3253),
+    d = n(3956),
+    f = n(3954),
+    p = n(3952),
+    h = n(2288),
+    m = n(2907),
+    _ = n(4194),
+    y = Object.assign || function(e) {
+      for (var t = 1; t < arguments.length; t++) {
+        var n = arguments[t];
+        for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
+      }
+      return e;
     },
-    f = {
+    v = function() {
+      function e(e, t) {
+        for (var n = 0; n < t.length; n++) {
+          var r = t[n];
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
+        }
+      }
+      return function(t, n, r) {
+        return n && e(t.prototype, n), r && e(t, r), t;
+      };
+    }(),
+    g = new h.a("message"),
+    b = {
+      file: a.PropTypes.shape({
+        id: a.PropTypes.string.isRequired
+      }).isRequired,
+      isImage: a.PropTypes.bool
+    },
+    w = {
       isImage: !1
     },
-    p = function(e) {
-      var t = e.file,
-        r = e.isImage;
-      return o.a.createElement("div", {
-        className: s()("c-message__file_actions", {
-          "c-message__file_actions--image": r
-        })
-      }, o.a.createElement(u.a, {
-        type: "outline",
-        className: "c-message__file_action_button",
-        icon: "cloud-download",
-        href: t.url_private_download,
-        target: t.url_private_download,
-        onClick: function(e) {
-          return n.i(c.a)(t, !0) && e.preventDefault();
+    k = function(e) {
+      function t(e) {
+        r(this, t);
+        var n = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
+        return n.onDownload = n.onDownload.bind(n), n.onComment = n.onComment.bind(n), n.renderMenu = n.renderMenu.bind(n), n;
+      }
+      return i(t, e), v(t, [{
+        key: "onDownload",
+        value: function(e) {
+          n.i(_.a)(this.props.file, !0) && e.preventDefault();
         }
-      }), o.a.createElement(u.a, {
-        type: "outline",
-        className: "c-message__file_action_button",
-        icon: "ellipsis"
-      }), o.a.createElement(u.a, {
-        type: "outline",
-        className: "c-message__file_action_button",
-        onClick: function() {
-          return n.i(l.a)(t.id, "", !1, !0, null);
+      }, {
+        key: "onComment",
+        value: function() {
+          n.i(m.a)(this.props.file.id, "", !1, !0, null);
         }
-      }, "Add Comment"));
-    };
-  p.propTypes = d, p.defaultProps = f, t.a = n.i(i.a)(p);
+      }, {
+        key: "renderMenu",
+        value: function(e) {
+          return s.a.createElement(d.b, y({}, e, {
+            width: 220
+          }), s.a.createElement(p.a, {
+            label: g.t("Share"),
+            onSelected: function() {}
+          }), s.a.createElement(p.a, {
+            label: g.t("Add reaction…"),
+            onSelected: function() {}
+          }), s.a.createElement(p.a, {
+            label: g.t("Copy link…"),
+            onSelected: function() {}
+          }), s.a.createElement(p.a, {
+            label: g.t("Pin to {channel}…", {
+              channel: "#general"
+            }),
+            onSelected: function() {}
+          }), s.a.createElement(p.a, {
+            label: g.t("View details"),
+            onSelected: function() {}
+          }), s.a.createElement(p.a, {
+            label: g.t("Open original"),
+            onSelected: function() {}
+          }), s.a.createElement(f.a, null), s.a.createElement(p.a, {
+            label: g.t("Edit…"),
+            onSelected: function() {}
+          }), s.a.createElement(p.a, {
+            label: g.t("Rename…"),
+            onSelected: function() {}
+          }), s.a.createElement(p.a, {
+            label: g.t("Create external link"),
+            onSelected: function() {}
+          }), s.a.createElement(p.a, {
+            label: g.t("Print…"),
+            onSelected: function() {}
+          }), s.a.createElement(f.a, null), s.a.createElement(p.a, {
+            label: g.t("Delete file"),
+            danger: !0,
+            onSelected: function() {}
+          }));
+        }
+      }, {
+        key: "render",
+        value: function() {
+          var e = this.props,
+            t = e.file,
+            n = e.isImage;
+          return s.a.createElement("div", {
+            className: l()("c-message__file_actions", {
+              "c-message__file_actions--image": n
+            })
+          }, s.a.createElement(c.a, {
+            type: "outline",
+            className: "c-message__file_action_button",
+            icon: "cloud-download",
+            href: t.url_private_download,
+            target: t.url_private_download,
+            onClick: this.onDownload
+          }), s.a.createElement(d.a, {
+            renderMenu: this.renderMenu,
+            position: "left-bottom",
+            offsetX: -4,
+            className: "c-message__file_action_trigger"
+          }, s.a.createElement(c.a, {
+            type: "outline",
+            className: "c-message__file_action_button",
+            icon: "ellipsis"
+          })), s.a.createElement(c.a, {
+            type: "outline",
+            className: "c-message__file_action_button",
+            onClick: this.onComment
+          }, "Add Comment"));
+        }
+      }]), t;
+    }(s.a.PureComponent);
+  k.propTypes = b, k.defaultProps = w, t.a = k;
 }, function(e, t, n) {
   "use strict";
   var r = n(2277);

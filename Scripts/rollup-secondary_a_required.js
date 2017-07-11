@@ -8252,37 +8252,37 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             else if (0 === W.indexOf("<@")) K = R(r, W, a, w), V += K;
             else if (0 === W.indexOf("<#")) V += B(r, W, w);
             else if (0 === W.indexOf(TSF.LINK_START.split(" ")[0])) {
-              var ee, te = function(e) {
+              var ee, te, ne = function(e) {
                   var t = $.trim(e.replace(TSF.LINK_START.split(" ")[0], ""));
                   return t.substr(0, t.length - 1);
                 }(W),
-                ne = TS.utility.getBotIDFromURL(te),
-                ie = "",
-                re = "";
-              if (ne && ((ee = TS.bots.getBotById(ne)) || (TS.warn("No bot found for " + ne), n.source_team_id && (ee = {
-                  id: ne,
+                ie = TS.utility.getBotIDFromURL(ne),
+                re = "",
+                ae = "";
+              if (ie && ((te = TS.bots.getBotById(ie)) || (TS.warn("No bot found for " + ie), n.user && (ee = _.get(TS.members.getMemberById(n.user), "profile.team"), te = {
+                  id: ie,
                   name: TS.bots.getBotNameByBotLink(n.text),
-                  source_team_id: n.source_team_id
-                }))), ne && ee) X = !0, z = TS.utility.shouldLinksHaveTargets() ? 'target="' + te + '" ' : "", Q = a ? ee.name : I(ee.name), U[q + 1] && U[q + 1] == te && (Q = te), Q = Q.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"), ee.app_id && (ie = ee.app_id), ee.source_team_id && (re = "data-team-id=" + ee.source_team_id + " "), V += '<a href="' + te + '" ' + z + 'data-bot-id="' + ne + '" data-app-id="' + ie + '" ' + re + 'class="internal_bot_link app_preview_link">' + Q;
-              else if (0 === te.indexOf(TS.utility.msgs.api_url_prefix + "chat.help")) d ? (J = _.escape(JSON.stringify("" + te)), V += '<a onclick="TS.utility.msgs.doApiUrl(' + J + ')" class="api_url">') : V += '<a class="api_url muted">(Disabled) ';
-              else if (0 === te.indexOf(TS.utility.msgs.new_api_url_prefix)) d ? (J = _.escape(JSON.stringify("" + te)), V += '<a onclick="TS.utility.msgs.doNewApiUrl(' + J + ')" class="api_url">') : V += '<a class="api_url muted">(Disabled) ';
-              else if (0 === te.indexOf("javascript:")) V += '<a onclick="TS.client.msg_pane.maybeClick(this)" data-maybe-click="' + te.replace("javascript:", "") + '">';
-              else if (TS.client && TS.client.core_url && 0 === te.indexOf(TS.client.core_url)) V += '<a target="_self" href="' + te + '">';
+                  source_team_id: ee
+                }))), ie && te) X = !0, z = TS.utility.shouldLinksHaveTargets() ? 'target="' + ne + '" ' : "", Q = a ? te.name : I(te.name), U[q + 1] && U[q + 1] == ne && (Q = ne), Q = Q.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"), te.app_id && (re = te.app_id), te.source_team_id && (ae = "data-team-id=" + te.source_team_id + " "), V += '<a href="' + ne + '" ' + z + 'data-bot-id="' + ie + '" data-app-id="' + re + '" ' + ae + 'class="internal_bot_link app_preview_link">' + Q;
+              else if (0 === ne.indexOf(TS.utility.msgs.api_url_prefix + "chat.help")) d ? (J = _.escape(JSON.stringify("" + ne)), V += '<a onclick="TS.utility.msgs.doApiUrl(' + J + ')" class="api_url">') : V += '<a class="api_url muted">(Disabled) ';
+              else if (0 === ne.indexOf(TS.utility.msgs.new_api_url_prefix)) d ? (J = _.escape(JSON.stringify("" + ne)), V += '<a onclick="TS.utility.msgs.doNewApiUrl(' + J + ')" class="api_url">') : V += '<a class="api_url muted">(Disabled) ';
+              else if (0 === ne.indexOf("javascript:")) V += '<a onclick="TS.client.msg_pane.maybeClick(this)" data-maybe-click="' + ne.replace("javascript:", "") + '">';
+              else if (TS.client && TS.client.core_url && 0 === ne.indexOf(TS.client.core_url)) V += '<a target="_self" href="' + ne + '">';
               else {
-                var ae = TS.utility.getFileIDFromURL(te),
-                  se = !1;
-                if (ae && TS.model && TS.model.user && TS.model.user.is_primary_owner) {
-                  var oe = !!TS.files && TS.files.getFileById(ae);
-                  oe && TS.utility.welcome_post && oe.name == TS.utility.welcome_post.WELCOME_POST_NAME && (se = !0);
+                var se = TS.utility.getFileIDFromURL(ne),
+                  oe = !1;
+                if (se && TS.model && TS.model.user && TS.model.user.is_primary_owner) {
+                  var le = !!TS.files && TS.files.getFileById(se);
+                  le && TS.utility.welcome_post && le.name == TS.utility.welcome_post.WELCOME_POST_NAME && (oe = !0);
                 }
-                var le = se ? "file_new_window_link welcome_post_slackbot_message" : "file_preview_link",
-                  de = ae ? ' class="no_jumbomoji ' + le + '"' : "",
-                  ce = ae ? ' data-file-id="' + ae + '"' : "";
-                V += "<a " + TS.utility.makeRefererSafeLink(te) + ' target="_blank"' + de + ce + ">", Z && TS.error("WTF we should have no attach_html"), Z = "";
-                var _e;
-                n && n.ts && l && (_e = TS.inline_attachments.getAttachmentByFromUrl(n.attachments, te)) && (TS.boot_data.feature_attachments_inline || TS.templates.builders.shouldDoSimpleAttachment(_e, n)) && (Z = TS.templates.builders.buildAttachmentHTML({
-                  attachment: _e,
-                  url: te,
+                var de = oe ? "file_new_window_link welcome_post_slackbot_message" : "file_preview_link",
+                  ce = se ? ' class="no_jumbomoji ' + de + '"' : "",
+                  _e = se ? ' data-file-id="' + se + '"' : "";
+                V += "<a " + TS.utility.makeRefererSafeLink(ne) + ' target="_blank"' + ce + _e + ">", Z && TS.error("WTF we should have no attach_html"), Z = "";
+                var ue;
+                n && n.ts && l && (ue = TS.inline_attachments.getAttachmentByFromUrl(n.attachments, ne)) && (TS.boot_data.feature_attachments_inline || TS.templates.builders.shouldDoSimpleAttachment(ue, n)) && (Z = TS.templates.builders.buildAttachmentHTML({
+                  attachment: ue,
+                  url: ne,
                   msg: n,
                   show_initial_caret: !0
                 }));
@@ -8313,11 +8313,11 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             }).join("")), V += W) : TS.error("token has a < in it but it is not the first character!\n" + W);
           }
           if (n && ("sh_room_created" === n.subtype || "sh_room_shared" === n.subtype)) {
-            var ue = TS.ui.growls.extractFromNameFromCorGMessage(n);
-            ue && (("GROWL" !== r || TS.utility.platformSupportsHtmlNotifications()) && (ue = _.escape(ue)), ue += ": "), V = "sh_room_created" === n.subtype ? TS.i18n.t("{from_name} Started a call", "string_format")({
-              from_name: ue
+            var me = TS.ui.growls.extractFromNameFromCorGMessage(n);
+            me && (("GROWL" !== r || TS.utility.platformSupportsHtmlNotifications()) && (me = _.escape(me)), me += ": "), V = "sh_room_created" === n.subtype ? TS.i18n.t("{from_name} Started a call", "string_format")({
+              from_name: me
             }) : TS.i18n.t("{from_name} Shared a call", "string_format")({
-              from_name: ue
+              from_name: me
             });
           }
           return V = TS.format.deTokenizeStr(A, V);
@@ -12791,7 +12791,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               user: TS.model.user,
               show_email_item: r,
               show_handy_rxns: TS.model.user.is_admin && TS.boot_data.feature_thanks,
-              can_delete_channel: TS.boot_data.feature_archive_deeplink && TS.model.user.is_admin && i.is_channel && !TS.channels.isChannelRequired(i)
+              can_delete_channel: TS.model.user.is_admin && i.is_channel && !TS.channels.isChannelRequired(i)
             };
             if (TS.channels.isChannelRequired(i) && !TS.permissions.members.canPostInChannel(i) || 0 === i.purpose.last_set && !TS.model.user.is_ultra_restricted && i.is_member && (a.show_purpose_item = !0), TS.notifs.isCorGMuted(i.id) && (a.channel_is_muted = !0), !i.is_member || TS.channels.isChannelRequired(i) && !TS.permissions.members.canPostInChannel(i) || (a.show_advanced_item = !0), TS.boot_data.page_needs_enterprise) {
               var s = TS.permissions.members.canManageOrgSharedChannels();
@@ -17781,7 +17781,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return !!TS.boot_data.feature_connecting_shared_channels && !!TS.boot_data.feature_shared_channels_client;
         },
         canExportMessageHistory: function(e) {
-          return !!(TS.boot_data.feature_channel_exports && TS.boot_data.feature_archive_deeplink && (TS.model.user.is_admin || e.is_im || e.is_group));
+          return !(!TS.boot_data.feature_channel_exports || !(TS.model.user.is_admin || e.is_im || e.is_group));
         },
         canUserInviteToChannel: function(e) {
           return !TS.model.user.is_ultra_restricted && (!(!e.is_channel || !e.is_member) || !!e.is_group);
@@ -26099,13 +26099,12 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             return new Handlebars.SafeString(i);
           }), Handlebars.registerHelper("toTimeDuration", function(e) {
             return TS.interop.datetime.toTimeDuration(e);
-          }), Handlebars.registerHelper("msgTsTitle", function(e, t, n) {
-            var i, r, a = e.is_ephemeral || TS.utility.msgs.isTempMsg(e),
-              s = TS.model.unread_view_is_showing && _.isString(t) && t === TS.templates.makeMsgDomIdInUnreadView(e.ts),
-              o = TS.model.threads_view_is_showing && _.isString(t) && t === TS.templates.makeMsgDomIdInThreadsView(e.ts),
-              l = TS.client && TS.ui.replies.activeConvoThreadTs() === e.thread_ts && _.isString(t) && TS.templates.makeMsgDomIdInConversation(e.ts) === t;
-            s ? r = TS.i18n.t("Jump to conversation", "templates_helpers")() : o ? r = e.ts === e.thread_ts ? TS.i18n.t("Open in channel", "templates_helpers")() : TS.i18n.t("Open in sidebar", "templates_helpers")() : l ? e.ts === e.thread_ts && (r = TS.i18n.t("Open in channel", "templates_helpers")()) : TS.client && !a && n && (TS.boot_data.feature_archive_deeplink || (r = TS.i18n.t("Open in archives", "templates_helpers")()));
-            var d = TS.i18n.t("{date} at {time}", "templates_helpers")({
+          }), Handlebars.registerHelper("msgTsTitle", function(e, t) {
+            var n, i, r = TS.model.unread_view_is_showing && _.isString(t) && t === TS.templates.makeMsgDomIdInUnreadView(e.ts),
+              a = TS.model.threads_view_is_showing && _.isString(t) && t === TS.templates.makeMsgDomIdInThreadsView(e.ts),
+              s = TS.client && TS.ui.replies.activeConvoThreadTs() === e.thread_ts && _.isString(t) && TS.templates.makeMsgDomIdInConversation(e.ts) === t;
+            r ? i = TS.i18n.t("Jump to conversation", "templates_helpers")() : a ? i = e.ts === e.thread_ts ? TS.i18n.t("Open in channel", "templates_helpers")() : TS.i18n.t("Open in sidebar", "templates_helpers")() : s && e.ts === e.thread_ts && (i = TS.i18n.t("Open in channel", "templates_helpers")());
+            var o = TS.i18n.t("{date} at {time}", "templates_helpers")({
               date: TS.interop.datetime.toCalendarDateOrNamedDay(e.ts, {
                 shortenMonth: !0
               }),
@@ -26114,7 +26113,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                 includeSeconds: !0
               })
             }).replace(/\s/g, "&nbsp;");
-            return i = r ? r + '<br><span class="subtle_silver no_wrap">' + d + "</span>" : d, new Handlebars.SafeString(i);
+            return n = i ? i + '<br><span class="subtle_silver no_wrap">' + o + "</span>" : o, new Handlebars.SafeString(n);
           }), Handlebars.registerHelper("toHour", function(e) {
             return TS.interop.datetime.toHour(e);
           }), Handlebars.registerHelper("memberLocalTime", function(e) {
@@ -35415,6 +35414,11 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }
           window.getSelection().deleteFromDocument();
         },
+        deleteText: function(e, t, n) {
+          if ((e = a(e)) && o(e)) {
+            l(e).deleteText(t, n);
+          }
+        },
         getTextPreferences: function() {
           return e;
         },
@@ -37261,7 +37265,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                   if (!t.comments.length && t.is_tombstoned) continue;
                   e.id == TS.model.active_im_id ? TS.ims.message_changed_sig.dispatch(e, r) : e.id == TS.model.active_channel_id ? TS.channels.message_changed_sig.dispatch(e, r) : e.id == TS.model.active_group_id ? TS.groups.message_changed_sig.dispatch(e, r) : e.id == TS.model.active_mpim_id && TS.mpims.message_changed_sig.dispatch(e, r);
                 }
-                TS.client ? TS.view.rebuildMsgFile(r, t, i) : TS.web && TS.web.channel.rebuildMsgFile(r, t);
+                TS.view.rebuildMsgFile(r, t, i);
               }
             }
         },

@@ -25,7 +25,7 @@
       {{else}}
         {{{toTime msg.ts}}}
       {{/if}}
-    {{/if}}<span class="ts_tip_tip"><span class="ts_tip_multiline_inner">{{{msgTsTitle msg null permalink}}}</span></span>
+    {{/if}}<span class="ts_tip_tip"><span class="ts_tip_multiline_inner">{{{msgTsTitle msg}}}</span></span>
     </{{#if permalink}}a{{else}}span{{/if}}>{{!-- <i class="copy_only">[</i> --}}
     {{#if show_star}}<span class="message_star_holder">{{star 'message' msg model_ob}}</span>{{/if}}
   </div>

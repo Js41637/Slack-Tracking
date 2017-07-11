@@ -28,10 +28,6 @@
         {{/isThereComplianceExportsTeam}}
       {{/if}}
     {{/pageNeedsEnterprise}}
-    {{#feature flag="feature_archive_deeplink"}}
-    {{else}}
-    <li>{{#t new_win_name=(newWindowName)}}You can review messages from this channel in the <a href="/archives/{name_for_url}" class="bold" target={new_win_name}>Channel Archive</a>.{{/t}}</li>
-    {{/feature}}
     <li>{{#t}}Others on your team can join from the <strong>Channel List</strong>.{{/t}}</li>
     <li>{{#t}}Or, you can <a class="bold invite_link">invite some teammates now</a>!{{/t}}</li>
   </ul>
