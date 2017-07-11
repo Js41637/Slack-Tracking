@@ -41837,25 +41837,26 @@ webpackJsonp([332], [, function(e, t, n) {
     h = n(3045),
     m = n(3922),
     _ = n(3048),
-    y = (n(4186), n(3296)),
-    v = n(2288),
-    g = n(3969),
-    b = n(3253),
-    w = n(3638),
-    k = n(3640),
-    M = (n.n(k), "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(e) {
+    y = n(4186),
+    v = n(3296),
+    g = n(2288),
+    b = n(3969),
+    w = n(3253),
+    k = n(3638),
+    M = n(3640),
+    T = (n.n(M), "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(e) {
       return typeof e;
     } : function(e) {
       return e && "function" == typeof Symbol && e.constructor === Symbol && e !== Symbol.prototype ? "symbol" : typeof e;
     }),
-    T = Object.assign || function(e) {
+    x = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
         for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
       }
       return e;
     },
-    x = function() {
+    S = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
@@ -41866,26 +41867,26 @@ webpackJsonp([332], [, function(e, t, n) {
         return n && e(t.prototype, n), r && e(t, r), t;
       };
     }(),
-    S = new v.a("apps_browser"),
-    E = {
+    E = new g.a("apps_browser"),
+    L = {
       hasSeenAppSpaceTutorial: u.a.PropTypes.bool,
       doesSupportStickyPosition: u.a.PropTypes.bool
     },
-    L = {
+    C = {
       hasSeenAppSpaceTutorial: !1,
       doesSupportStickyPosition: !0
     },
-    C = {
+    O = {
       listEnpoint: "apps.index.list",
       searchEndpoint: "apps.index.search"
     },
-    O = {
+    P = {
       id: "tutorial_category",
       name: "",
       display_name: "",
       apps: [{
-        name: S.t("What are apps?"),
-        short_description: S.t("A quick look at how apps in Slack can streamline your work"),
+        name: E.t("What are apps?"),
+        short_description: E.t("A quick look at how apps in Slack can streamline your work"),
         icons: {
           image_84: cdn_url + "/1f0ce/img/tutorial@2x.png"
         },
@@ -41895,7 +41896,7 @@ webpackJsonp([332], [, function(e, t, n) {
         is_installed: !1
       }]
     },
-    P = function(e) {
+    j = function(e) {
       function t(e) {
         o(this, t);
         var n = i(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
@@ -41905,21 +41906,21 @@ webpackJsonp([332], [, function(e, t, n) {
           appCategories: [],
           isLoading: !0,
           selectedAppIndex: null
-        }, n.handleKeydown = n.handleKeydown.bind(n), n.handleMouseMove = n.handleMouseMove.bind(n), n.handleSearchInputChange = n.handleSearchInputChange.bind(n), n.handleAppClick = n.handleAppClick.bind(n), n.handleAppMouseLeave = n.handleAppMouseLeave.bind(n), n.searchApps = n.searchApps.bind(n), n.completeRequest = n.completeRequest.bind(n), n.enableMouseMove = n.enableMouseMove.bind(n), n.setSearchInputRef = n.setSearchInputRef.bind(n), n.throttledSearchApps = f.a.throttle(n.searchApps, 500, {
+        }, n.handleKeydown = n.handleKeydown.bind(n), n.handleMouseMove = n.handleMouseMove.bind(n), n.handleAppDirectoryButtonClick = n.handleAppDirectoryButtonClick.bind(n), n.handleSearchInputChange = n.handleSearchInputChange.bind(n), n.handleAppClick = n.handleAppClick.bind(n), n.handleAppMouseLeave = n.handleAppMouseLeave.bind(n), n.searchApps = n.searchApps.bind(n), n.completeRequest = n.completeRequest.bind(n), n.enableMouseMove = n.enableMouseMove.bind(n), n.setSearchInputRef = n.setSearchInputRef.bind(n), n.throttledSearchApps = f.a.throttle(n.searchApps, 500, {
           leading: !1
         }), n.debouncedEnableMouseMove = f.a.debounce(n.enableMouseMove, 200), n;
       }
-      return a(t, e), x(t, [{
+      return a(t, e), S(t, [{
         key: "componentDidMount",
         value: function() {
           var e = this;
-          document.body.addEventListener("keydown", this.handleKeydown), document.body.addEventListener("mousemove", this.handleMouseMove), this.completeRequest(n.i(_.a)(C.listEnpoint, {
+          document.body.addEventListener("keydown", this.handleKeydown), document.body.addEventListener("mousemove", this.handleMouseMove), this.completeRequest(n.i(_.a)(O.listEnpoint, {
             limit: 20
           }).then(function(t) {
-            return e.defaultAppCategories = [O].concat(r(t.data.categories)), {
+            return e.defaultAppCategories = [P].concat(r(t.data.categories)), {
               categories: e.defaultAppCategories
             };
-          }), C.listEnpoint), this.searchInput.focus();
+          }), O.listEnpoint), this.searchInput.focus();
         }
       }, {
         key: "componentWillReceiveProps",
@@ -41982,7 +41983,7 @@ webpackJsonp([332], [, function(e, t, n) {
               category: e.id,
               cursor: e.next_cursor
             };
-            t === C.searchEndpoint && (a.query = this.state.searchTerm), n.i(_.a)(t, a).then(function(n) {
+            t === O.searchEndpoint && (a.query = this.state.searchTerm), n.i(_.a)(t, a).then(function(n) {
               if (!(o < i.lastRequestId)) {
                 var a = n.data.categories[0];
                 a && i.setState(function(n) {
@@ -41991,18 +41992,18 @@ webpackJsonp([332], [, function(e, t, n) {
                     if (n.appCategories[s].id === e.id) {
                       var u = function() {
                         var e = [].concat(r(n.appCategories[s].apps), r(a.apps)),
-                          u = T({}, n.appCategories[s]);
+                          u = x({}, n.appCategories[s]);
                         u.apps = e, u.next_cursor = a.next_cursor;
                         var l = [].concat(r(n.appCategories));
                         return l[s] = u, u.next_cursor && setTimeout(function() {
                           i.paginateCategory(u, t, o);
-                        }, 0), t === C.listEnpoint && (i.defaultAppCategories = l), {
+                        }, 0), t === O.listEnpoint && (i.defaultAppCategories = l), {
                           v: {
                             appCategories: l
                           }
                         };
                       }();
-                      if ("object" === (void 0 === u ? "undefined" : M(u))) return u.v;
+                      if ("object" === (void 0 === u ? "undefined" : T(u))) return u.v;
                     }
                   return {};
                 });
@@ -42081,7 +42082,12 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "selectApp",
         value: function(e) {
-          "tutorial_app" === e.app_id ? n.i(y.a)() : "true" === e.is_installed ? n.i(y.b)(e) : window.open(window.location.origin + "/apps/" + e.app_id);
+          var t = {
+            app_id: e.app_id,
+            bot_id: e.bot_id,
+            is_from_search: this.state.isShowingDefaultAppCategories ? "1" : "0"
+          };
+          "tutorial_app" === e.app_id ? n.i(v.a)() : "true" === e.is_installed ? (n.i(v.b)(e), n.i(y.a)("APP_INDEX_VIEW_CLICK", t)) : (window.open(window.location.origin + "/apps/" + e.app_id), n.i(y.a)("APP_INDEX_INSTALL_CLICK", t));
         }
       }, {
         key: "handleMouseMove",
@@ -42096,6 +42102,11 @@ webpackJsonp([332], [, function(e, t, n) {
           }
         }
       }, {
+        key: "handleAppDirectoryButtonClick",
+        value: function() {
+          n.i(y.a)("APP_INDEX_VIEW_APP_DIRECTORY_CLICK");
+        }
+      }, {
         key: "handleSearchInputChange",
         value: function(e) {
           this.throttledSearchApps(e.target.value);
@@ -42104,7 +42115,7 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "searchApps",
         value: function(e) {
           var t = this;
-          e ? this.completeRequest(n.i(_.a)(C.searchEndpoint, {
+          e ? this.completeRequest(n.i(_.a)(O.searchEndpoint, {
             query: e
           }).then(function(n) {
             return t.setState(function() {
@@ -42113,13 +42124,13 @@ webpackJsonp([332], [, function(e, t, n) {
                 isShowingDefaultAppCategories: !1
               };
             }), n.data;
-          }), C.searchEndpoint) : this.setState(function() {
+          }), O.searchEndpoint) : this.setState(function() {
             return {
               isLoading: !1,
               appCategories: t.defaultAppCategories,
               isShowingDefaultAppCategories: !0
             };
-          });
+          }), n.i(y.a)("APP_INDEX_SEARCH");
         }
       }, {
         key: "completeRequest",
@@ -42132,9 +42143,9 @@ webpackJsonp([332], [, function(e, t, n) {
               return {
                 isLoading: !1,
                 appCategories: e.categories,
-                selectedAppIndex: f.a.get(e, "categories[0].apps", []).length && t === C.searchEndpoint ? 0 : null
+                selectedAppIndex: f.a.get(e, "categories[0].apps", []).length && t === O.searchEndpoint ? 0 : null
               };
-            }), t === C.listEnpoint && 2 === e.categories.length && n.paginateCategories(t, r));
+            }), t === O.listEnpoint && 2 === e.categories.length && n.paginateCategories(t, r));
           }).catch(function() {});
         }
       }, {
@@ -42148,8 +42159,8 @@ webpackJsonp([332], [, function(e, t, n) {
               }),
               s = "app-" + e.app_id + "-" + e.bot_id,
               l = r.getAppIcon(e),
-              d = S.t("Install");
-            return "tutorial_app" === e.app_id ? d = S.t("Start") : e.is_installed && (d = S.t("View")), u.a.createElement("div", {
+              d = E.t("Install");
+            return "tutorial_app" === e.app_id ? d = E.t("Start") : e.is_installed && (d = E.t("View")), u.a.createElement("div", {
               key: s,
               className: a,
               onClick: r.handleAppClick,
@@ -42170,7 +42181,7 @@ webpackJsonp([332], [, function(e, t, n) {
               className: "p-apps_browser__app_name"
             }, u.a.createElement("strong", null, e.name)), u.a.createElement("div", {
               className: "p-apps_browser__app_description"
-            }, n.i(g.a)(e.short_description, function(e, t) {
+            }, n.i(b.a)(e.short_description, function(e, t) {
               return u.a.createElement("strong", {
                 key: t
               }, e);
@@ -42214,18 +42225,19 @@ webpackJsonp([332], [, function(e, t, n) {
           return t = !this.getTotalAppsCount() && this.state.searchTerm ? u.a.createElement("section", {
             key: "no-results",
             className: "p-apps_browser__no_results"
-          }, S.t("There are no apps matching"), " ", u.a.createElement("strong", null, this.state.searchTerm)) : this.createAppCategoriesMarkup(), u.a.createElement("div", {
+          }, E.t("There are no apps matching"), " ", u.a.createElement("strong", null, this.state.searchTerm)) : this.createAppCategoriesMarkup(), u.a.createElement("div", {
             className: "p-apps_browser"
           }, u.a.createElement("div", {
             className: "p-apps_browser__filter_container"
           }, u.a.createElement("div", {
             className: "p-apps_browser__filter_header"
-          }, u.a.createElement("h2", null, S.t("Browse Apps")), u.a.createElement(b.a, {
+          }, u.a.createElement("h2", null, E.t("Browse Apps")), u.a.createElement(w.a, {
             target: "_blank",
-            href: e
-          }, S.t("View App Directory"))), u.a.createElement("div", null, u.a.createElement(w.a, {
+            href: e,
+            onClick: this.handleAppDirectoryButtonClick
+          }, E.t("View App Directory"))), u.a.createElement("div", null, u.a.createElement(k.a, {
             ref: this.setSearchInputRef,
-            placeholder: S.t("Search by name or category (e.g. productivity, sales)"),
+            placeholder: E.t("Search by name or category (e.g. productivity, sales)"),
             onChange: this.handleSearchInputChange
           }))), u.a.createElement("div", {
             className: n,
@@ -42234,14 +42246,14 @@ webpackJsonp([332], [, function(e, t, n) {
         }
       }]), t;
     }(s.Component);
-  P.propTypes = E, P.defaultProps = L;
-  var j = function(e) {
+  j.propTypes = L, j.defaultProps = C;
+  var D = function(e) {
     return {
       hasSeenAppSpaceTutorial: n.i(h.getUserPref)(e, "seen_app_space_tutorial"),
       doesSupportStickyPosition: n.i(m.getSupportStickyPosition)(e)
     };
   };
-  t.a = n.i(p.b)(j)(P);
+  t.a = n.i(p.b)(D)(j);
 }, function(e, t, n) {
   "use strict";
   var r = n(3250);
@@ -56144,17 +56156,15 @@ webpackJsonp([332], [, function(e, t, n) {
     f = n(3935),
     p = n(3933),
     h = n(3956),
-    m = n(3952),
-    _ = n(3954),
-    y = n(2288),
-    v = n(3644),
-    g = n(3965),
-    b = n(2907),
-    w = n(3948),
-    k = n(2910),
-    M = n(3992),
-    T = n(3972),
-    x = function() {
+    m = n(2288),
+    _ = n(3644),
+    y = n(3965),
+    v = n(2907),
+    g = n(3948),
+    b = n(2910),
+    w = n(3992),
+    k = n(3972),
+    M = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
@@ -56165,8 +56175,8 @@ webpackJsonp([332], [, function(e, t, n) {
         return n && e(t.prototype, n), r && e(t, r), t;
       };
     }(),
-    S = new y.a("message"),
-    E = {
+    T = new m.a("message"),
+    x = {
       reactionKey: a.PropTypes.string,
       file: a.PropTypes.string,
       replies: s.a.PropTypes.arrayOf(s.a.PropTypes.shape({
@@ -56183,7 +56193,7 @@ webpackJsonp([332], [, function(e, t, n) {
       editHandler: a.PropTypes.func,
       unreadHandler: a.PropTypes.func
     },
-    L = {
+    S = {
       reactionKey: null,
       file: null,
       replies: [],
@@ -56197,11 +56207,11 @@ webpackJsonp([332], [, function(e, t, n) {
       editHandler: l.a.noop,
       unreadHandler: l.a.noop
     },
-    C = {
+    E = {
       x: 12,
       y: -80
     },
-    O = function(e) {
+    L = function(e) {
       function t(e) {
         r(this, t);
         var n = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
@@ -56210,10 +56220,10 @@ webpackJsonp([332], [, function(e, t, n) {
           subscribed: "loading"
         }, n.onAddReaction = n.onAddReaction.bind(n), n.onComment = n.onComment.bind(n), n.onShare = n.onShare.bind(n), n.onEdit = n.onEdit.bind(n), n.onDelete = n.onDelete.bind(n), n.onMarkUnread = n.onMarkUnread.bind(n), n.onMoreActionsMenuOpen = n.onMoreActionsMenuOpen.bind(n), n.onMoreActionsMenuClose = n.onMoreActionsMenuClose.bind(n), n.renderMoreActionsMenu = n.renderMoreActionsMenu.bind(n), n;
       }
-      return i(t, e), x(t, [{
+      return i(t, e), M(t, [{
         key: "onAddReaction",
         value: function(e) {
-          this.props.reactionKey && n.i(v.a)({
+          this.props.reactionKey && n.i(_.a)({
             e: e,
             rxn_key: this.props.reactionKey
           });
@@ -56221,16 +56231,16 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "onComment",
         value: function() {
-          if (this.props.file) n.i(b.a)(this.props.file, "", !1, !0, null);
+          if (this.props.file) n.i(v.a)(this.props.file, "", !1, !0, null);
           else {
             var e = this.props.threadTs || this.props.ts;
-            n.i(w.a)([], this.props.channel, e);
+            n.i(g.a)([], this.props.channel, e);
           }
         }
       }, {
         key: "onShare",
         value: function() {
-          this.props.file && "file_comment" !== this.props.subtype ? n.i(k.a)(this.props.file, !1, !1, this.props.channel, !0) : n.i(g.a)(this.props.ts, this.props.channel);
+          this.props.file && "file_comment" !== this.props.subtype ? n.i(b.a)(this.props.file, !1, !1, this.props.channel, !0) : n.i(y.a)(this.props.ts, this.props.channel);
         }
       }, {
         key: "onEdit",
@@ -56240,7 +56250,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "onDelete",
         value: function() {
-          n.i(T.a)(this.props.ts, this.props.channel);
+          n.i(k.a)(this.props.ts, this.props.channel);
         }
       }, {
         key: "onMarkUnread",
@@ -56259,7 +56269,7 @@ webpackJsonp([332], [, function(e, t, n) {
           var t = this.props,
             r = t.channelId,
             o = t.ts;
-          n.i(M.a)(r, o).then(function(t) {
+          n.i(w.a)(r, o).then(function(t) {
             e.setState(function() {
               return {
                 subscribed: t && t.subscribed
@@ -56281,7 +56291,7 @@ webpackJsonp([332], [, function(e, t, n) {
         value: function() {
           return s.a.createElement(p.a, {
             iconType: "small-reaction",
-            tooltipText: S.t("Add reaction…"),
+            tooltipText: T.t("Add reaction…"),
             onClick: this.onAddReaction
           });
         }
@@ -56289,7 +56299,7 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "renderComment",
         value: function() {
           var e = void 0;
-          return e = this.props.file ? S.t("Add comment…") : this.props.replyCount ? S.t("Reply to thread") : S.t("Start a thread"), s.a.createElement(p.a, {
+          return e = this.props.file ? T.t("Add comment…") : this.props.replyCount ? T.t("Reply to thread") : T.t("Start a thread"), s.a.createElement(p.a, {
             iconType: "small-reply",
             tooltipText: e,
             onClick: this.onComment
@@ -56299,7 +56309,7 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "renderShare",
         value: function() {
           var e = void 0;
-          return e = this.props.file && "file_comment" !== this.props.subtype ? S.t("Share file…") : S.t("Share message…"), s.a.createElement(p.a, {
+          return e = this.props.file && "file_comment" !== this.props.subtype ? T.t("Share file…") : T.t("Share message…"), s.a.createElement(p.a, {
             iconType: "share-action",
             tooltipText: e,
             onClick: this.onShare
@@ -56312,13 +56322,13 @@ webpackJsonp([332], [, function(e, t, n) {
             renderMenu: this.renderMoreActionsMenu,
             position: "right",
             className: "inline_block",
-            offsetX: C.x,
-            offsetY: C.y,
+            offsetX: E.x,
+            offsetY: E.y,
             onOpen: this.onMoreActionsMenuOpen,
             onClose: this.onMoreActionsMenuClose
           }, s.a.createElement(p.a, {
             iconType: "small-ellipsis",
-            tooltipText: S.t("Show message actions"),
+            tooltipText: T.t("Show message actions"),
             tooltipPosition: "top-right"
           }));
         }
@@ -56336,7 +56346,7 @@ webpackJsonp([332], [, function(e, t, n) {
             l = void 0,
             c = void 0,
             d = void 0;
-          return "loading" === a ? l = S.t("Loading...") : (n.length && (c = n[n.length - 1].ts), u = M.b.bind(null, t, o, !a, c), a ? r ? (l = S.t("Unfollow thread"), d = i ? S.t("You won’t be notified about new replies") : S.t("This will be removed from All Threads")) : (l = S.t("Unfollow message"), d = i ? S.t("You won’t be notified about replies") : S.t("Replies will be excluded from All Threads")) : r ? (l = S.t("Follow thread"), d = i ? S.t("You’ll be notified about new replies") : S.t("New replies will appear in All Threads")) : (l = S.t("Follow message"), d = i ? S.t("You’ll be notified about any replies") : S.t("Any replies will show up in All Threads"))), s.a.createElement(m.a, {
+          return "loading" === a ? l = T.t("Loading...") : (n.length && (c = n[n.length - 1].ts), u = w.b.bind(null, t, o, !a, c), a ? r ? (l = T.t("Unfollow thread"), d = i ? T.t("You won’t be notified about new replies") : T.t("This will be removed from All Threads")) : (l = T.t("Unfollow message"), d = i ? T.t("You won’t be notified about replies") : T.t("Replies will be excluded from All Threads")) : r ? (l = T.t("Follow thread"), d = i ? T.t("You’ll be notified about new replies") : T.t("New replies will appear in All Threads")) : (l = T.t("Follow message"), d = i ? T.t("You’ll be notified about any replies") : T.t("Any replies will show up in All Threads"))), s.a.createElement(h.b, {
             label: l,
             description: d,
             onSelected: u
@@ -56345,26 +56355,26 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "renderMoreActionsMenu",
         value: function(e) {
-          return s.a.createElement(h.b, e, this.renderThreadAction(), s.a.createElement(_.a, null), s.a.createElement(m.a, {
-            label: S.t("Share message"),
+          return s.a.createElement(h.c, e, this.renderThreadAction(), s.a.createElement(h.d, null), s.a.createElement(h.b, {
+            label: T.t("Share message"),
             onSelected: this.onShare
-          }), s.a.createElement(m.a, {
-            label: S.t("Copy link"),
+          }), s.a.createElement(h.b, {
+            label: T.t("Copy link"),
             onSelected: function() {}
-          }), s.a.createElement(m.a, {
-            label: S.t("Mark unread"),
+          }), s.a.createElement(h.b, {
+            label: T.t("Mark unread"),
             onSelected: this.onMarkUnread
-          }), s.a.createElement(_.a, null), s.a.createElement(m.a, {
-            label: S.t("Add reaction …"),
+          }), s.a.createElement(h.d, null), s.a.createElement(h.b, {
+            label: T.t("Add reaction …"),
             onSelected: this.onAddReaction
-          }), s.a.createElement(m.a, {
-            label: S.t("Pin to #general …"),
+          }), s.a.createElement(h.b, {
+            label: T.t("Pin to #general …"),
             onSelected: function() {}
-          }), s.a.createElement(_.a, null), s.a.createElement(m.a, {
-            label: S.t("Edit message"),
+          }), s.a.createElement(h.d, null), s.a.createElement(h.b, {
+            label: T.t("Edit message"),
             onSelected: this.onEdit
-          }), s.a.createElement(m.a, {
-            label: S.t("Delete message"),
+          }), s.a.createElement(h.b, {
+            label: T.t("Delete message"),
             onSelected: this.onDelete,
             danger: !0
           }));
@@ -56381,7 +56391,7 @@ webpackJsonp([332], [, function(e, t, n) {
         }
       }]), t;
     }(a.PureComponent);
-  O.propTypes = E, O.defaultProps = L, t.a = O;
+  L.propTypes = x, L.defaultProps = S, t.a = L;
 }, function(e, t, n) {
   "use strict";
   var r = n(2353),
@@ -56417,192 +56427,20 @@ webpackJsonp([332], [, function(e, t, n) {
   t = e.exports = n(189)(), t.push([e.i, ".t-button-reset {\n  padding: 0;\n  background-color: transparent;\n  border-width: 0;\n  cursor: pointer;\n}\n.t-list-reset {\n  margin-bottom: 0;\n  margin-left: 0;\n  padding: 0;\n  list-style-type: none;\n}\n.c-menu_item__li {\n  line-height: 1.5rem;\n  list-style-type: none;\n  padding: 0 0.9375rem;\n  margin: 0;\n}\n.c-menu_item__button {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  background: transparent;\n  border-radius: 0.25rem;\n  color: #2C2D30;\n  cursor: pointer;\n  display: flex;\n  font-size: 15px;\n  line-height: 1.5625;\n  overflow-x: hidden;\n  padding: 0 0.5rem;\n  text-align: left;\n  text-decoration: none;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  width: 100%;\n}\n.c-menu_item__button:hover,\n.c-menu_item__button:focus,\n.c-menu_item__button:active {\n  outline: none;\n}\n.c-menu_item__description {\n  font-size: 12px;\n  line-height: 0.9375;\n  color: #717274;\n  padding-bottom: 0.25rem;\n  overflow-x: hidden;\n  text-overflow: ellipsis;\n}\n.c-menu_item__button--highlighted {\n  background-color: #2D9EE0;\n  color: #FFFFFF;\n}\n.c-menu_item__button--highlighted .c-menu_item__description {\n  color: #FFFFFF;\n}\n.c-menu_item__button--danger {\n  color: #EB4D5C;\n}\n.c-menu_item__button--danger .c-menu_item__description {\n  color: #EB4D5C;\n}\n.c-menu_item__button--danger.c-menu_item__button--highlighted {\n  color: #FFFFFF;\n  background-color: #EB4D5C;\n}\n.c-menu_item__button--danger.c-menu_item__button--highlighted .c-menu_item__description {\n  color: #FFFFFF;\n}\n.c-menu_item__label {\n  flex: 1 1 auto;\n}\n.c-menu_item__button.c-menu-item__button--with_submenu {\n  padding-right: 0;\n}\n.c-menu_item__caret {\n  display: block;\n  flex: 0 0 auto;\n}\n.c-menu_item__caret:before {\n  height: 1rem;\n  line-height: 0.6;\n}\n", ""]);
 }, function(e, t, n) {
   t = e.exports = n(189)(), t.push([e.i, ".c-menu_separator__li {\n  line-height: 1.5rem;\n  list-style-type: none;\n  padding: 15px 0;\n  margin: 0;\n}\n.c-menu_separator__li.c-menu_separator__li--no_padding {\n  padding: 0;\n}\n.c-menu_separator__li.c-menu_separator__li--no_top_padding {\n  padding-top: 0;\n}\n.c-menu_separator__separator {\n  margin: 0;\n  border-top: 1px solid rgba(0, 0, 0, 0.15);\n  border-bottom: 1px solid #FFF;\n}\n", ""]);
-}, function(e, t, n) {
-  "use strict";
-  var r = n(3953);
-  t.a = r.a;
-}, function(e, t, n) {
-  "use strict";
-
-  function r(e, t) {
-    if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
-  }
-
-  function o(e, t) {
-    if (!e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-    return !t || "object" != typeof t && "function" != typeof t ? e : t;
-  }
-
-  function i(e, t) {
-    if ("function" != typeof t && null !== t) throw new TypeError("Super expression must either be null or a function, not " + typeof t);
-    e.prototype = Object.create(t && t.prototype, {
-      constructor: {
-        value: e,
-        enumerable: !1,
-        writable: !0,
-        configurable: !0
-      }
-    }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
-  }
-  var a = n(2),
-    s = n.n(a),
-    u = n(9),
-    l = n.n(u),
-    c = n(6),
-    d = (n.n(c), n(2287)),
-    f = n(3428),
-    p = n(3960),
-    h = (n.n(p), function() {
-      function e(e, t) {
-        for (var n = 0; n < t.length; n++) {
-          var r = t[n];
-          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
-        }
-      }
-      return function(t, n, r) {
-        return n && e(t.prototype, n), r && e(t, r), t;
-      };
-    }()),
-    m = {
-      highlighted: a.PropTypes.bool,
-      onMouseEnter: a.PropTypes.func,
-      onSelected: a.PropTypes.func,
-      className: a.PropTypes.string,
-      label: a.PropTypes.string,
-      description: a.PropTypes.string,
-      children: a.PropTypes.element,
-      danger: a.PropTypes.bool,
-      href: a.PropTypes.string,
-      withSubmenu: a.PropTypes.bool
-    },
-    _ = {
-      children: void 0,
-      highlighted: !1,
-      onMouseEnter: c.noop,
-      onSelected: c.noop,
-      className: "",
-      label: "",
-      description: "",
-      danger: !1,
-      href: "",
-      withSubmenu: !1
-    },
-    y = function(e) {
-      function t() {
-        return r(this, t), o(this, (t.__proto__ || Object.getPrototypeOf(t)).apply(this, arguments));
-      }
-      return i(t, e), h(t, [{
-        key: "componentDidMount",
-        value: function() {
-          this.bindKeyCommands();
-        }
-      }, {
-        key: "componentWillUnmount",
-        value: function() {
-          this.keyCommands && this.keyCommands.reset();
-        }
-      }, {
-        key: "onReturnKey",
-        value: function(e) {
-          this.props.highlighted && !this.props.withSubmenu && (e.preventDefault(), this.props.onSelected(e));
-        }
-      }, {
-        key: "bindKeyCommands",
-        value: function() {
-          var e = [{
-            keys: ["return"],
-            handler: this.onReturnKey.bind(this)
-          }];
-          this.keyCommands || (this.keyCommands = new f.a), this.keyCommands.bindAll(e);
-        }
-      }, {
-        key: "renderCaret",
-        value: function() {
-          return this.props.withSubmenu ? s.a.createElement(d.a, {
-            type: "caret-right",
-            className: "c-menu_item__caret"
-          }) : null;
-        }
-      }, {
-        key: "render",
-        value: function() {
-          var e = this.props,
-            t = e.children,
-            n = e.className,
-            r = e.danger,
-            o = e.highlighted,
-            i = e.label,
-            a = e.onMouseEnter,
-            u = e.onSelected,
-            c = e.href,
-            d = e.withSubmenu,
-            f = l()(n, "c-menu_item__button", {
-              "c-menu_item__button--highlighted": o,
-              "c-menu_item__button--danger": r,
-              "c-menu-item__button--with_submenu": d
-            }),
-            p = this.props.description ? s.a.createElement("div", {
-              className: "c-menu_item__description"
-            }, this.props.description) : "";
-          return s.a.createElement("li", {
-            className: "c-menu_item__li",
-            onMouseEnter: a
-          }, s.a.createElement("button", {
-            type: "button",
-            className: f,
-            onClick: u,
-            href: c
-          }, s.a.createElement("div", {
-            className: "c-menu_item__label"
-          }, i, t, p), this.renderCaret()));
-        }
-      }]), t;
-    }(a.PureComponent);
-  y.propTypes = m, y.defaultProps = _, y.displayName = "MenuItem", t.a = y;
-}, function(e, t, n) {
-  "use strict";
-  var r = n(3955);
-  t.a = r.a;
-}, function(e, t, n) {
-  "use strict";
-  var r = n(2),
-    o = n.n(r),
-    i = n(6),
-    a = (n.n(i), n(3115)),
-    s = n(9),
-    u = n.n(s),
-    l = n(3961),
-    c = (n.n(l), {
-      onMouseEnter: r.PropTypes.func,
-      noPadding: r.PropTypes.bool,
-      noPaddingAbove: r.PropTypes.bool
-    }),
-    d = {
-      onMouseEnter: i.noop,
-      noPadding: !1,
-      noPaddingAbove: !1
-    },
-    f = function(e) {
-      var t = u()("c-menu_separator__li", {
-        "c-menu_separator__li--no_padding": e.noPadding,
-        "c-menu_separator__li--no_top_padding": e.noPaddingAbove
-      });
-      return o.a.createElement("li", {
-        className: t,
-        onMouseEnter: e.onMouseEnter
-      }, o.a.createElement("hr", {
-        className: "c-menu_separator__separator"
-      }));
-    };
-  f.propTypes = c, f.defaultProps = d, t.a = n.i(a.a)(f);
-}, function(e, t, n) {
+}, , , , , function(e, t, n) {
   "use strict";
   var r = n(3958),
-    o = n(3957);
-  n.d(t, "b", function() {
+    o = n(3957),
+    i = n(4197),
+    a = n(4198);
+  n.d(t, "c", function() {
     return r.a;
   }), n.d(t, "a", function() {
     return o.a;
+  }), n.d(t, "b", function() {
+    return i.a;
+  }), n.d(t, "d", function() {
+    return a.a;
   });
   r.a;
 }, function(e, t, n) {
@@ -57744,7 +57582,7 @@ webpackJsonp([332], [, function(e, t, n) {
       className: "c-member_profile_card__owner"
     }, c.t("Team Owner")), o && i.a.createElement("span", null, i.a.createElement("span", {
       className: "c-member_profile_card__status--grey"
-    }, c.t("Status"), " "), i.a.createElement("span", null, n))), t || o ? i.a.createElement(u.a, {
+    }, c.t("Status"), " "), i.a.createElement("span", null, n))), t || o ? i.a.createElement(u.d, {
       noPadding: !0
     }) : null, i.a.createElement("p", {
       className: "c-member_profile_card__timezone-row"
@@ -57758,7 +57596,7 @@ webpackJsonp([332], [, function(e, t, n) {
     i = n.n(o),
     a = n(3115),
     s = n(2288),
-    u = n(3954),
+    u = n(3956),
     l = n(3198),
     c = new s.a("member_profile_card"),
     d = {
@@ -57775,73 +57613,73 @@ webpackJsonp([332], [, function(e, t, n) {
       r = e.menuProps,
       o = e.timestamp,
       a = e.isBot,
-      m = e.username,
-      _ = e.botID,
-      y = e.isSelf,
-      v = e.isStranger,
-      g = e.imageUrl,
-      b = e.imageUrlSmall,
-      M = e.title,
-      T = e.isError,
-      x = e.isOwner,
-      S = e.status,
-      E = e.isRestricted,
-      L = e.isUltraRestricted,
-      C = e.isExternal,
-      O = e.team,
-      P = n.i(h.a)({
+      p = e.username,
+      h = e.botID,
+      m = e.isSelf,
+      _ = e.isStranger,
+      y = e.imageUrl,
+      v = e.imageUrlSmall,
+      w = e.title,
+      k = e.isError,
+      M = e.isOwner,
+      T = e.status,
+      x = e.isRestricted,
+      S = e.isUltraRestricted,
+      E = e.isExternal,
+      L = e.team,
+      C = n.i(f.a)({
         isBot: a,
-        username: m,
-        botID: _,
-        isSelf: y,
+        username: p,
+        botID: h,
+        isSelf: m,
         userId: t
       }),
-      j = P.map(function(e) {
-        return i.a.createElement(d.a, {
+      O = C.map(function(e) {
+        return i.a.createElement(c.b, {
           key: e.id,
           label: e.text,
           onSelected: e.callback,
           href: e.url
         });
       }),
-      D = i.a.createElement(l.a, {
-        isRestricted: E,
-        isUltraRestricted: L,
-        isExternal: C,
-        team: O
+      P = i.a.createElement(l.a, {
+        isRestricted: x,
+        isUltraRestricted: S,
+        isExternal: E,
+        team: L
       }),
-      Y = i.a.createElement(u.a, {
-        imageUrl: g,
-        imageUrlSmall: b,
+      j = i.a.createElement(u.a, {
+        imageUrl: y,
+        imageUrlSmall: v,
         userId: t,
-        username: m,
-        title: M,
-        isError: T,
-        restriction: D
+        username: p,
+        title: w,
+        isError: k,
+        restriction: P
       });
-    if (v) {
-      var A = k.t("You don’t share any channels with this person."),
-        R = k.t("To interact with a person from another team, you need to be in at least one channel together.");
-      return i.a.createElement(c.b, w({}, r, {
+    if (_) {
+      var D = b.t("You don’t share any channels with this person."),
+        Y = b.t("To interact with a person from another team, you need to be in at least one channel together.");
+      return i.a.createElement(c.c, g({}, r, {
         width: 320,
         noMargin: !0
-      }), Y, i.a.createElement("div", {
+      }), j, i.a.createElement("div", {
         className: "c-member_profile_card__footer c-member_profile_card__footer_notice"
-      }, i.a.createElement("strong", null, A), " ", R));
+      }, i.a.createElement("strong", null, D), " ", Y));
     }
-    return i.a.createElement(c.b, w({}, r, {
+    return i.a.createElement(c.c, g({}, r, {
       width: 320,
       noMargin: !0
-    }), Y, i.a.createElement(s.a, {
-      isOwner: x,
-      status: S,
+    }), j, i.a.createElement(s.a, {
+      isOwner: M,
+      status: T,
       timestamp: o
-    }), i.a.createElement(p.a, {
+    }), i.a.createElement(c.d, {
       noPaddingAbove: !0
-    }), j, i.a.createElement("div", {
+    }), O, i.a.createElement("div", {
       className: "c-member_profile_card__footer"
-    }, i.a.createElement(f.a, {
-      placeholder: "Message " + m,
+    }, i.a.createElement(d.a, {
+      placeholder: "Message " + p,
       icon: ""
     })));
   }
@@ -57852,25 +57690,23 @@ webpackJsonp([332], [, function(e, t, n) {
     u = n(3982),
     l = n(4195),
     c = n(3956),
-    d = n(3952),
-    f = n(3638),
-    p = n(3954),
-    h = n(3980),
-    m = n(3078),
-    _ = n(3141),
-    y = n(4196),
-    v = n(2697),
-    g = n(2288),
-    b = n(3985),
-    w = (n.n(b), Object.assign || function(e) {
+    d = n(3638),
+    f = n(3980),
+    p = n(3078),
+    h = n(3141),
+    m = n(4196),
+    _ = n(2697),
+    y = n(2288),
+    v = n(3985),
+    g = (n.n(v), Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
         for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
       }
       return e;
     }),
-    k = new g.a("team"),
-    M = {
+    b = new y.a("team"),
+    w = {
       userId: o.PropTypes.string.isRequired,
       status: o.PropTypes.oneOfType([i.a.PropTypes.node, o.PropTypes.string]),
       title: o.PropTypes.string,
@@ -57892,7 +57728,7 @@ webpackJsonp([332], [, function(e, t, n) {
         name: o.PropTypes.string
       })
     },
-    T = {
+    k = {
       status: "",
       title: "",
       username: "",
@@ -57911,8 +57747,8 @@ webpackJsonp([332], [, function(e, t, n) {
       isExternal: !1,
       team: {}
     };
-  r.propTypes = M, r.defaultProps = T;
-  var x = function(e, t) {
+  r.propTypes = w, r.defaultProps = k;
+  var M = function(e, t) {
     var r = t.userId,
       o = "",
       i = "",
@@ -57923,14 +57759,14 @@ webpackJsonp([332], [, function(e, t, n) {
       c = void 0,
       d = void 0,
       f = void 0,
-      p = void 0,
-      h = void 0,
+      y = void 0,
+      v = void 0,
       g = void 0,
       b = void 0,
       w = void 0,
       k = void 0,
-      M = n.i(_.getMemberById)(e, r);
-    return M ? (o = M.profile.image_512, i = M.profile.image_48, a = M.profile.real_name || M.profile.display_name || M.name, s = M.bot_id, u = M.is_bot, c = M.is_external, d = M.is_owner, f = M.is_restricted, p = M.is_self, h = M.is_stranger, g = M.is_ultrarestricted, b = n.i(m.getCustomStatusByMemberId)(e, r), w = n.i(y.a)(M.team_id), k = n.i(v.memberLocalTime)(Date.now(), {
+      M = n.i(h.getMemberById)(e, r);
+    return M ? (o = M.profile.image_512, i = M.profile.image_48, a = M.profile.real_name || M.profile.display_name || M.name, s = M.bot_id, u = M.is_bot, c = M.is_external, d = M.is_owner, f = M.is_restricted, y = M.is_self, v = M.is_stranger, g = M.is_ultrarestricted, b = n.i(p.getCustomStatusByMemberId)(e, r), w = n.i(m.a)(M.team_id), k = n.i(_.memberLocalTime)(Date.now(), {
       timeZone: M.tz || "America/Los_Angeles",
       timeZoneOffset: -25200,
       do24hrTime: !1
@@ -57945,15 +57781,15 @@ webpackJsonp([332], [, function(e, t, n) {
       isExternal: c,
       isOwner: d,
       isRestricted: f,
-      isSelf: p,
-      isStranger: h,
+      isSelf: y,
+      isStranger: v,
       isUltraRestricted: g,
       status: b,
       team: w,
       timestamp: k
     };
   };
-  t.a = n.i(a.b)(x)(r);
+  t.a = n.i(a.b)(M)(r);
 }, function(e, t, n) {
   var r = n(3979);
   "string" == typeof r && (r = [
@@ -60708,19 +60544,17 @@ webpackJsonp([332], [, function(e, t, n) {
     l = n.n(u),
     c = n(3253),
     d = n(3956),
-    f = n(3954),
-    p = n(3952),
-    h = n(2288),
-    m = n(2907),
-    _ = n(4194),
-    y = Object.assign || function(e) {
+    f = n(2288),
+    p = n(2907),
+    h = n(4194),
+    m = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
         for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
       }
       return e;
     },
-    v = function() {
+    _ = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
@@ -60731,71 +60565,71 @@ webpackJsonp([332], [, function(e, t, n) {
         return n && e(t.prototype, n), r && e(t, r), t;
       };
     }(),
-    g = new h.a("message"),
-    b = {
+    y = new f.a("message"),
+    v = {
       file: a.PropTypes.shape({
         id: a.PropTypes.string.isRequired
       }).isRequired,
       isImage: a.PropTypes.bool
     },
-    w = {
+    g = {
       isImage: !1
     },
-    k = function(e) {
+    b = function(e) {
       function t(e) {
         r(this, t);
         var n = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
         return n.onDownload = n.onDownload.bind(n), n.onComment = n.onComment.bind(n), n.renderMenu = n.renderMenu.bind(n), n;
       }
-      return i(t, e), v(t, [{
+      return i(t, e), _(t, [{
         key: "onDownload",
         value: function(e) {
-          n.i(_.a)(this.props.file, !0) && e.preventDefault();
+          n.i(h.a)(this.props.file, !0) && e.preventDefault();
         }
       }, {
         key: "onComment",
         value: function() {
-          n.i(m.a)(this.props.file.id, "", !1, !0, null);
+          n.i(p.a)(this.props.file.id, "", !1, !0, null);
         }
       }, {
         key: "renderMenu",
         value: function(e) {
-          return s.a.createElement(d.b, y({}, e, {
+          return s.a.createElement(d.c, m({}, e, {
             width: 220
-          }), s.a.createElement(p.a, {
-            label: g.t("Share"),
+          }), s.a.createElement(d.b, {
+            label: y.t("Share"),
             onSelected: function() {}
-          }), s.a.createElement(p.a, {
-            label: g.t("Add reaction…"),
+          }), s.a.createElement(d.b, {
+            label: y.t("Add reaction…"),
             onSelected: function() {}
-          }), s.a.createElement(p.a, {
-            label: g.t("Copy link…"),
+          }), s.a.createElement(d.b, {
+            label: y.t("Copy link…"),
             onSelected: function() {}
-          }), s.a.createElement(p.a, {
-            label: g.t("Pin to {channel}…", {
+          }), s.a.createElement(d.b, {
+            label: y.t("Pin to {channel}…", {
               channel: "#general"
             }),
             onSelected: function() {}
-          }), s.a.createElement(p.a, {
-            label: g.t("View details"),
+          }), s.a.createElement(d.b, {
+            label: y.t("View details"),
             onSelected: function() {}
-          }), s.a.createElement(p.a, {
-            label: g.t("Open original"),
+          }), s.a.createElement(d.b, {
+            label: y.t("Open original"),
             onSelected: function() {}
-          }), s.a.createElement(f.a, null), s.a.createElement(p.a, {
-            label: g.t("Edit…"),
+          }), s.a.createElement(d.d, null), s.a.createElement(d.b, {
+            label: y.t("Edit…"),
             onSelected: function() {}
-          }), s.a.createElement(p.a, {
-            label: g.t("Rename…"),
+          }), s.a.createElement(d.b, {
+            label: y.t("Rename…"),
             onSelected: function() {}
-          }), s.a.createElement(p.a, {
-            label: g.t("Create external link"),
+          }), s.a.createElement(d.b, {
+            label: y.t("Create external link"),
             onSelected: function() {}
-          }), s.a.createElement(p.a, {
-            label: g.t("Print…"),
+          }), s.a.createElement(d.b, {
+            label: y.t("Print…"),
             onSelected: function() {}
-          }), s.a.createElement(f.a, null), s.a.createElement(p.a, {
-            label: g.t("Delete file"),
+          }), s.a.createElement(d.d, null), s.a.createElement(d.b, {
+            label: y.t("Delete file"),
             danger: !0,
             onSelected: function() {}
           }));
@@ -60834,14 +60668,20 @@ webpackJsonp([332], [, function(e, t, n) {
         }
       }]), t;
     }(s.a.PureComponent);
-  k.propTypes = b, k.defaultProps = w, t.a = k;
+  b.propTypes = v, b.defaultProps = g, t.a = b;
 }, function(e, t, n) {
   "use strict";
-  var r = n(2277);
-  n.i(r.a)("TS.clog.track", function() {});
+  n.d(t, "a", function() {
+    return o;
+  });
+  var r = n(2277),
+    o = n.i(r.a)("TS.clog.track", function() {});
 }, function(e, t, n) {
   "use strict";
-  n(4185);
+  var r = n(4185);
+  n.d(t, "a", function() {
+    return r.a;
+  });
 }, function(e, t, n) {
   "use strict";
 
@@ -61025,4 +60865,174 @@ webpackJsonp([332], [, function(e, t, n) {
   });
   var r = n(2277),
     o = n.i(r.a)("TS.teams.getTeamById", function() {});
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e, t) {
+    if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
+  }
+
+  function o(e, t) {
+    if (!e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    return !t || "object" != typeof t && "function" != typeof t ? e : t;
+  }
+
+  function i(e, t) {
+    if ("function" != typeof t && null !== t) throw new TypeError("Super expression must either be null or a function, not " + typeof t);
+    e.prototype = Object.create(t && t.prototype, {
+      constructor: {
+        value: e,
+        enumerable: !1,
+        writable: !0,
+        configurable: !0
+      }
+    }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
+  }
+  var a = n(2),
+    s = n.n(a),
+    u = n(9),
+    l = n.n(u),
+    c = n(6),
+    d = (n.n(c), n(2287)),
+    f = n(3428),
+    p = n(3960),
+    h = (n.n(p), function() {
+      function e(e, t) {
+        for (var n = 0; n < t.length; n++) {
+          var r = t[n];
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
+        }
+      }
+      return function(t, n, r) {
+        return n && e(t.prototype, n), r && e(t, r), t;
+      };
+    }()),
+    m = {
+      highlighted: a.PropTypes.bool,
+      onMouseEnter: a.PropTypes.func,
+      onSelected: a.PropTypes.func,
+      className: a.PropTypes.string,
+      label: a.PropTypes.string,
+      description: a.PropTypes.string,
+      children: a.PropTypes.element,
+      danger: a.PropTypes.bool,
+      href: a.PropTypes.string,
+      withSubmenu: a.PropTypes.bool
+    },
+    _ = {
+      children: void 0,
+      highlighted: !1,
+      onMouseEnter: c.noop,
+      onSelected: c.noop,
+      className: "",
+      label: "",
+      description: "",
+      danger: !1,
+      href: "",
+      withSubmenu: !1
+    },
+    y = function(e) {
+      function t() {
+        return r(this, t), o(this, (t.__proto__ || Object.getPrototypeOf(t)).apply(this, arguments));
+      }
+      return i(t, e), h(t, [{
+        key: "componentDidMount",
+        value: function() {
+          this.bindKeyCommands();
+        }
+      }, {
+        key: "componentWillUnmount",
+        value: function() {
+          this.keyCommands && this.keyCommands.reset();
+        }
+      }, {
+        key: "onReturnKey",
+        value: function(e) {
+          this.props.highlighted && !this.props.withSubmenu && (e.preventDefault(), this.props.onSelected(e));
+        }
+      }, {
+        key: "bindKeyCommands",
+        value: function() {
+          var e = [{
+            keys: ["return"],
+            handler: this.onReturnKey.bind(this)
+          }];
+          this.keyCommands || (this.keyCommands = new f.a), this.keyCommands.bindAll(e);
+        }
+      }, {
+        key: "renderCaret",
+        value: function() {
+          return this.props.withSubmenu ? s.a.createElement(d.a, {
+            type: "caret-right",
+            className: "c-menu_item__caret"
+          }) : null;
+        }
+      }, {
+        key: "render",
+        value: function() {
+          var e = this.props,
+            t = e.children,
+            n = e.className,
+            r = e.danger,
+            o = e.highlighted,
+            i = e.label,
+            a = e.onMouseEnter,
+            u = e.onSelected,
+            c = e.href,
+            d = e.withSubmenu,
+            f = l()(n, "c-menu_item__button", {
+              "c-menu_item__button--highlighted": o,
+              "c-menu_item__button--danger": r,
+              "c-menu-item__button--with_submenu": d
+            }),
+            p = this.props.description ? s.a.createElement("div", {
+              className: "c-menu_item__description"
+            }, this.props.description) : "";
+          return s.a.createElement("li", {
+            className: "c-menu_item__li",
+            onMouseEnter: a
+          }, s.a.createElement("button", {
+            type: "button",
+            className: f,
+            onClick: u,
+            href: c
+          }, s.a.createElement("div", {
+            className: "c-menu_item__label"
+          }, i, t, p), this.renderCaret()));
+        }
+      }]), t;
+    }(a.PureComponent);
+  y.propTypes = m, y.defaultProps = _, y.displayName = "MenuItem", t.a = y;
+}, function(e, t, n) {
+  "use strict";
+  var r = n(2),
+    o = n.n(r),
+    i = n(6),
+    a = (n.n(i), n(3115)),
+    s = n(9),
+    u = n.n(s),
+    l = n(3961),
+    c = (n.n(l), {
+      onMouseEnter: r.PropTypes.func,
+      noPadding: r.PropTypes.bool,
+      noPaddingAbove: r.PropTypes.bool
+    }),
+    d = {
+      onMouseEnter: i.noop,
+      noPadding: !1,
+      noPaddingAbove: !1
+    },
+    f = function(e) {
+      var t = u()("c-menu_separator__li", {
+        "c-menu_separator__li--no_padding": e.noPadding,
+        "c-menu_separator__li--no_top_padding": e.noPaddingAbove
+      });
+      return o.a.createElement("li", {
+        className: t,
+        onMouseEnter: e.onMouseEnter
+      }, o.a.createElement("hr", {
+        className: "c-menu_separator__separator"
+      }));
+    };
+  f.propTypes = c, f.defaultProps = d, t.a = n.i(a.a)(f);
 }], [2905]);

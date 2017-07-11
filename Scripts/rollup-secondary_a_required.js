@@ -3753,8 +3753,12 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }), TS.click.addHandler("[data-slash-command-autofill]", function(e, t) {
             var n = TS.client.msg_input.$input,
               i = TS.utility.contenteditable.value(n),
-              r = t.data("slash-command-autofill");
-            TS.apps.isAppSpaceEnabled() && "messages" !== TS.client.ui.app_space.active_view && TS.client.ui.app_space.toggleView("messages"), i || (TS.utility.contenteditable.clear(n), TS.utility.contenteditable.insertTextAtCursor(n, r), TS.utility.contenteditable.supportsTexty() || n.TS_tabComplete("promiseToChoose", void 0, !0)), TS.utility.contenteditable.value(n, r + " " + i), TS.utility.contenteditable.cursorPosition(n, r.length + 1, i.length), TS.utility.contenteditable.focus(n), TS.utility.contenteditable.supportsTexty() || n.trigger("textchange");
+              r = t.data("slash-command-autofill"),
+              a = t.data("app_space_profile_slash_command") ? "APP_SPACE_ABOUT_SLASH_COMMAND_CLICK" : "APP_PROFILE_SLASH_COMMAND_CLICK";
+            TS.clog.track(a, {
+              app_id: TS.client.ui.app_space.active_app.id,
+              bot_id: TS.client.ui.app_space.app_bot_id
+            }), TS.apps.isAppSpaceEnabled() && "messages" !== TS.client.ui.app_space.active_view && TS.client.ui.app_space.toggleView("messages"), i || (TS.utility.contenteditable.clear(n), TS.utility.contenteditable.insertTextAtCursor(n, r), TS.utility.contenteditable.supportsTexty() || n.TS_tabComplete("promiseToChoose", void 0, !0)), TS.utility.contenteditable.value(n, r + " " + i), TS.utility.contenteditable.cursorPosition(n, r.length + 1, i.length), TS.utility.contenteditable.focus(n), TS.utility.contenteditable.supportsTexty() || n.trigger("textchange");
           }), TS.boot_data.feature_tinyspeck && TS.click.addClientHandler(".recap_highlight_debug", function(e) {
             if ("sli_debug_info" === TS.client.highlights.sli_recaps_debug_group) {
               var t;

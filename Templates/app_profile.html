@@ -55,7 +55,7 @@
       <section data-qa="app_profile_commands">
         <div class="app_profile_section_header">{{#t note="Refers to slash commands the app responds to."}}Responds to&hellip;{{/t}}</div>
         {{#each commands}}
-          <div class="app_profile_slash_command" data-slash-command-autofill="{{name}}">
+          <div class="app_profile_slash_command" data-slash-command-autofill="{{name}}" data-app_profile_slash_command="true">
             <div class="app_slash_command_title overflow_ellipsis">
               <span class="app_slash_command_title_name">{{name}}</span>
               <span>{{usage}}</span>
