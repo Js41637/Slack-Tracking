@@ -52,10 +52,6 @@
         <p class="description">{{#t}}Passwords must be at least 6 characters long, and can't be things like <i>password</i>, <i>123456</i> or <i>abcdef</i>.{{/t}}</p>
     </div>
 
-    {{#if collect_user_role}}
-        {{> invite_inc_user_role}}
-    {{/if}}
-
     {{#if collect_guest_user_role}}
         {{> invite_inc_guest_user_role}}
     {{/if}}

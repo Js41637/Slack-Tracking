@@ -54,8 +54,12 @@
     {{/each}}
   {{/if}}
   {{#if hidden_team_profile_fields}}
+    <div class="row clearfix hide_on_mobile header_row ent_hidden_profile_field--header">
+      <div class="col no_bottom_margin span_2_of_6">{{#t}}Hidden label{{/t}}</div>
+      <div class="col no_bottom_margin span_4_of_6">{{#t}}Hint{{/t}}</div>
+    </div>
     {{#each hidden_team_profile_fields}}
-      <div class="row clearfix hidden_row" data-action="edit_team_profile_to_edit" data-id="{{this.id}}" data-qa="{{this.label}}" data-is-scim={{#if this.options.is_scim}}true{{else}}false{{/if}}>
+      <div class="row clearfix hidden_row sk_off_white_bg sk_dark_gray" data-action="edit_team_profile_to_edit" data-id="{{this.id}}" data-qa="{{this.label}}" data-is-scim={{#if this.options.is_scim}}true{{else}}false{{/if}}>
         <div class="col no_bottom_margin span_2_of_6 {{#if this.options.is_scim}}ent_profile_field--scim_provisioned{{/if}}">
           {{#if this.options.is_scim}}
             <ts-icon class="ts_icon_lock sk_light_grey ts_tip ts_tip_top ts_tip_multiline no_margin">
@@ -63,7 +67,6 @@
             </ts-icon>
           {{/if}}
           <span class="no_margin subtle_silver">{{this.label}}</span>
-          <em class="subtle_silver normal">{{#t}}(Hidden){{/t}}</em>
         </div>
         <div class="col no_bottom_margin {{#if this.options.is_scim}}span_2_of_6{{else}}span_3_of_6{{/if}}">
           <p class="subtle_silver no_bottom_margin">{{this.hint}}</p>

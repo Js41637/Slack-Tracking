@@ -1252,13 +1252,12 @@ webpackJsonp([13], {
           if ((t = TS.sounds.filenameForSoundName(t, n)) && !TS.sounds.shouldMuteSounds(n)) return e[t];
         },
         play: function(e, n) {
-          n = n || {}, n.should_loop = n.should_loop || !1, n.playback_device = n.playback_device || "", n.ignore_mute = n.ignore_mute || !1;
+          n = n || {}, n.should_loop = n.should_loop || !1, n.ignore_mute = n.ignore_mute || !1;
           var i = TS.sounds.soundForName(e, n);
           if (i) {
             var o = {
               url: i.url,
-              should_loop: n.should_loop,
-              playback_device: n.playback_device
+              should_loop: n.should_loop
             };
             TSSSB.call("playRemoteSound", o) ? TS.has_pri[t] && TS.log(t, "called TSSSB.call('playRemoteSound', '" + JSON.stringify(o) + "'})") : _.isFunction(i.play) ? (TS.has_pri[t] && TS.log(t, "calling sound.play()"), i.play({
               loops: n.should_loop ? 999999 : 0

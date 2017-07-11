@@ -7805,6 +7805,10 @@ html.no_touch .plastic_row:hover .chevron {
   margin-bottom: -1px
 }
 
+.customize_tab_set a {
+  padding: 12px 22px 11px
+}
+
 .accordion_section {
   border-bottom: 1px solid #E8E8E8;
   padding: 1rem 6rem 1rem 0;

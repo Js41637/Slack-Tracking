@@ -3,11 +3,11 @@
 <div class="share_channel_modal_contents">
 
   {{#if show_heading}}
-    <h1>
+    <h1 class="share_channel_modal_heading">
       {{#if model_ob}}
-        {{#t channel_name=model_ob.name}}Share #{channel_name}{{/t}}</h1>
+        {{#t channel_name=model_ob.name}}Invite another team{{/t}}</h1>
       {{else}}
-        {{#t}}Share a new channel{{/t}}</h1>
+        {{#t}}Create a new shared channel{{/t}}</h1>
       {{/if}}
     </h1>
   {{/if}}
@@ -63,7 +63,7 @@
 
     <p class="align_right large_top_margin">
       <button class="btn btn_large btn_outline btn cancel_share" type="button">{{#t}}Cancel{{/t}}</button>
-      <button class="btn btn_large ladda-button submit" disabled="disabled" data-style="expand-right">{{#t note="Form submit button label"}}Share channel{{/t}}</button>
+      <button class="btn btn_large ladda-button submit" data-style="expand-right">{{#t note="Form submit button label"}}Share channel{{/t}}</button>
     </p>
 
   {{else}}

@@ -1,0 +1,27 @@
+{{!-- hbslint-disable unwrapped --}}
+{{!-- This template is for internal use and won't be shown to users in anything resembling the curent form --}}
+
+<div class="search_facets_results">
+    <div class="search_module_header position_relative">
+        <p>Facet Suggestions</p>
+    </div>
+    {{#if channel_names }}
+        <div id="sli_search_facets_channel" class="search_module" data-js="sli_search_facets__channel_facets">
+            <span class="sli_search_facets_channel__title"><strong class="black">Try in these channels:</strong></span>
+            {{#each channel_names}}
+                <span style="white-space: nowrap" class="sli_search_facets_channel__channel_names">#{{this}}{{#unless @last}},{{/unless}}</span>
+            {{/each}}
+        </div>
+        <br>
+    {{/if}}
+    {{#if user_names }}
+        <div id="sli_search_facets_channel" class="search_module" data-js="sli_search_facets__channel_facets">
+            <span class="sli_search_facets_channel__title"><strong class="black">Try from these users:</strong></span>
+            {{#each user_names}}
+                <span style="white-space: nowrap" class="sli_search_facets_channel__user_names">@{{this}}{{#unless @last}},{{/unless}}</span>
+            {{/each}}
+        </div>
+        <br>
+    {{/if}}
+</div>
+
