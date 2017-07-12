@@ -419,7 +419,7 @@ webpackJsonp([241], {
             if (n) {
               var a = "";
               $.each(n, function(e, i) {
-                i.first_name && (a += i.first_name + " "), i.last_name && (a += i.last_name + " "), a += "<" + i.email + ">, ";
+                TS.boot_data.feature_name_tagging_client ? i.real_name && (a += i.real_name + " ") : (i.first_name && (a += i.first_name + " "), i.last_name && (a += i.last_name + " ")), a += "<" + i.email + ">, ";
               }), e.find("#bulk_emails").val(a).autogrow();
             }
             e.find("#bulk_emails").focus();

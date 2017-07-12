@@ -15,14 +15,11 @@
         <ts-icon aria-hidden="true" class="ts_icon_pencil"></ts-icon>
       {{/if}}
     {{else}}
-      {{#if this.model_ob.is_group}}
-        {{#if this.model_ob.is_mpim}}
-          <ts-icon class="ts_icon_multiparty_dm_{{mpimMemberCount this.model_ob}}"></ts-icon>
-        {{else}}
-          <ts-icon class="ts_icon_lock"></ts-icon>
-        {{/if}}
-      {{/if}}
-      {{#if this.model_ob.is_channel}}
+      {{#if this.model_ob.is_mpim}}
+        <ts-icon class="ts_icon_multiparty_dm_{{mpimMemberCount this.model_ob}}"></ts-icon>
+      {{else if this.model_ob.is_group}}
+        <ts-icon class="ts_icon_lock"></ts-icon>
+      {{else if this.model_ob.is_channel}}
         {{#if this.model_ob.is_archived}}
           <ts-icon aria-hidden="true" class="ts_icon_archived_channel"></ts-icon>
         {{else}}

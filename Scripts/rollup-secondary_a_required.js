@@ -631,9 +631,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             _decrementPending: k,
             _getDefaultArgsByMethodName: M,
             _kickOffACallOrEnqueue: C,
-            _callOutsideHandler: $,
+            _callOutsideHandler: P,
             _nextFromQ: E,
-            _reQueue: P,
+            _reQueue: $,
             _calculateHTTPErrorDelayMs: j,
             _makeLogSafeMethodName: L,
             _logError: H,
@@ -976,15 +976,15 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                 args: t
               }, 'got api rsp for method "' + e + '" (took ' + a + "ms)"), i = i || {
                 ok: !1
-              }, i.ok) return B(l), $(e, t, i, r, n), {
+              }, i.ok) return B(l), P(e, t, i, r, n), {
               breathing_ms: 100,
               try_again: !1
             };
-            if (R(l), H(e, t, i), -1 != d.indexOf(e)) return TS.warn('NOT re-Qing "' + e + '", as specified'), $(e, t, i, r, n), {
+            if (R(l), H(e, t, i), -1 != d.indexOf(e)) return TS.warn('NOT re-Qing "' + e + '", as specified'), P(e, t, i, r, n), {
               breathing_ms: 100,
               try_again: !1
             };
-            if ((429 == i.status || 503 == i.status) && t._attempts >= v(e) || t._synchronously) return TS.warn('NOT re-Qing api call "' + e + '" because we tried too many times (' + t._attempts + ")"), $(e, t, i, r, n), {
+            if ((429 == i.status || 503 == i.status) && t._attempts >= v(e) || t._synchronously) return TS.warn('NOT re-Qing api call "' + e + '" because we tried too many times (' + t._attempts + ")"), P(e, t, i, r, n), {
               breathing_ms: 100,
               try_again: !1
             };
@@ -1024,7 +1024,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             return t._attempts < 3 && ("search.files" !== e && "search.messages" !== e || "solr_failed" !== i.error ? "users.info" === e && "user_not_found" === i.error && (u = 1e3 * t._attempts, _ = !0) : _ = !0), _ ? {
               breathing_ms: u,
               try_again: !0
-            } : ($(e, t, i, r, n), {
+            } : (P(e, t, i, r, n), {
               breathing_ms: 100,
               try_again: !1
             });
@@ -1041,12 +1041,12 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               b = 0;
               var r = l(e, d.getResponseHeader("X-Slack-Req-Id"));
               r.try_again && setTimeout(function() {
-                P(t, n, i, a, s);
+                $(t, n, i, a, s);
               }, r.breathing_ms), x(t);
             },
             f = function() {
               function e() {
-                P(t, n, i, a, s), x(t);
+                $(t, n, i, a, s), x(t);
               }
               "rtm.start" !== t && "rtm.leanStart" !== t || !TS.ms || TS.isSocketManagerEnabled() || TS.ms.logConnectionFlow("TS.api got a " + d.status + " response for method: " + t);
               var r = {
@@ -1058,7 +1058,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               r.status >= 500 || 0 == r.status ? b += 1 : b = 0;
               var o = l(r);
               if (!1 === o.try_again) {
-                $(t, n, r, void 0, i), x(t);
+                P(t, n, r, void 0, i), x(t);
               } else o.breathing_ms ? setTimeout(e, o.breathing_ms) : e();
             },
             h = function() {
@@ -1070,7 +1070,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                 },
                 r = l(e);
               setTimeout(function() {
-                r.try_again && P(t, n, i, a, s), x(t);
+                r.try_again && $(t, n, i, a, s), x(t);
               }, r.breathing_ms);
             };
           i.onCancel = function() {
@@ -1165,7 +1165,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             } else TS.warn("args/data logging skipped, run with ?log_api_failures=1 to enable full logging");
           }
         },
-        $ = function(e, t, n, i, s) {
+        P = function(e, t, n, i, s) {
           var o = function() {
             var r, a, o = TS.client && TS.client.stats && TS.client.stats.isEnabled();
             if (o && (le += 1, r = "api_response_handler_" + le, a = "slow_api_handler_" + e, TS.metrics.mark(r)), s.handler(n.ok, n, t, i), o) {
@@ -1212,7 +1212,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             return Promise.join(d(), c(), u());
           }).then(o);
         },
-        P = function(e, t, n, i, r) {
+        $ = function(e, t, n, i, r) {
           TS.warn('re Qing api call "' + e + '"'), (-1 != l.indexOf(e) ? f : m).unshift({
             method: e,
             args: t,
@@ -3311,17 +3311,21 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             var T = TS.utility.msgs.extractLinkAction(t, p);
             T && (d.link_action = T);
             var b = TS.utility.msgs.extractLinkItemId(t, p, S);
-            if ((b && (d.item_id = b, d.item_type = b.charAt(0)), f && f.attachments) && t.closest(".attachment_group").length > 0) {
+            if (b && (d.item_id = b, d.item_type = b.charAt(0), "channel" === S)) {
+              var v = TS.channels.getChannelById(b);
+              v && null !== v.is_member && (d.is_member = v.is_member);
+            }
+            if (f && f.attachments && t.closest(".attachment_group").length > 0) {
               d.link_is_attachment = !0;
-              var v = TS.utility.msgs.extractLinkAttachmentField(t);
-              v && (d.link_attachment_field = v);
+              var y = TS.utility.msgs.extractLinkAttachmentField(t);
+              y && (d.link_attachment_field = y);
             }
             TS.model.unread_view_is_showing && (_.merge(d, TS.client.ui.unread.getTrackingData(i)), TS.client.ui.unread.incrementTrackingSeqId()), c = t.closest(".msg_inline_img_holder").length > 0, u = t.attr("data-file-id"), u || (u = t.closest("[data-file-id]").attr("data-file-id")), m = u ? TS.files.getFileById(u) : null, "gdrive" === _.get(m, "external_type") && (d.contexts || (d.contexts = {}), d.contexts.platform || (d.contexts.platform = {}), d.contexts.platform.service_type = "GSUITE", d.contexts.platform.app_id = 9, d.contexts.platform.has_rich_preview = TS.files.fileHasRichPreview(m)), (c || m && TS.files.fileIsImage(m)) && TS.clog.track("MSG_PHOTO_EXPAND", d), TS.clog.track("MSG_LINK_CLICKED", d);
-            var y = TS.utility.url.urlQueryStringParse(l).state;
-            if (y = y ? y.match(/(\{.*\})/g) : null, y = y ? y[0] : null, (y = y ? JSON.parse(y) : null) && y.is_external_auth_url) {
-              var w = "auto" === y.ask ? "PLATFORM_APPS_TARGETED_SUGGESTIONS_SELECTED" : "PLATFORM_APPS_TARGETED_SUGGESTIONS_JUST_THIS_ONCE_SELECTED";
-              TS.clog.track(w, {
-                app_id: y.service_type_id
+            var w = TS.utility.url.urlQueryStringParse(l).state;
+            if (w = w ? w.match(/(\{.*\})/g) : null, w = w ? w[0] : null, (w = w ? JSON.parse(w) : null) && w.is_external_auth_url) {
+              var k = "auto" === w.ask ? "PLATFORM_APPS_TARGETED_SUGGESTIONS_SELECTED" : "PLATFORM_APPS_TARGETED_SUGGESTIONS_JUST_THIS_ONCE_SELECTED";
+              TS.clog.track(k, {
+                app_id: w.service_type_id
               });
             }
           }), TS.click.addClientHandler("ts-message .msg_inline_video_buttons_div .msg_inline_video_play_button", function(e, t) {
@@ -8369,16 +8373,17 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         R = function(e, t, n, i) {
           var r = t.replace(/<|>/g, ""),
-            a = TS.utility.msgs.getMemberFromMemberMarkup(r),
-            s = TS.experiment.getGroup("unknown_members_perf", TS.members.unknown_members_perf_exp_metrics);
-          if ("unknown_members" === s && a && "EDIT" !== e && "GROWL" !== e) {
+            a = TS.utility.msgs.getMemberFromMemberMarkup(r);
+          if (a && "EDIT" !== e && "GROWL" !== e) {
             if (a.is_unknown) return TS.templates.unknown_member();
-            if (a.is_non_existent && TS.interop.utility.looksLikeMemberId(a.id)) return TS.templates.message_member_non_existent();
+            if (a.is_non_existent && TS.interop.utility.looksLikeMemberId(a.id)) return TS.templates.message_member_non_existent({
+              id: a.id
+            });
           }
           if (!a) {
             if ("GROWL" === e) return t;
-            var o = r.split("|");
-            return o.length > 1 && o[1] ? "@" + o[1] : (!TS.boot_data.feature_shared_channels_client && TS.interop.utility.looksLikeMemberId(r) && setTimeout(function() {
+            var s = r.split("|");
+            return s.length > 1 && s[1] ? "@" + s[1] : (!TS.boot_data.feature_shared_channels_client && TS.interop.utility.looksLikeMemberId(r) && setTimeout(function() {
               if (!TS.members.getMemberById(r)) {
                 TS.console.logError({
                   item: t,
@@ -8388,29 +8393,29 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                   no_linking: i
                 }, "", "member_not_found_in_markup", !0);
               }
-            }, 3e4), "unknown_members" !== s && TS.interop.utility.looksLikeMemberId(r) ? TS.templates.message_member_non_existent() : r);
+            }, 3e4), r);
           }
-          var l = ["internal_member_link"],
-            d = {
+          var o = ["internal_member_link"],
+            l = {
               "member-id": a.id,
               "member-name": a.name,
               "stringify-text": "@" + a.id
             };
           if (a.is_bot && a.profile) {
-            var c = _.get(a.profile, "bot_id");
-            if (c) {
-              d["bot-id"] = c;
-              var u = TS.bots.getBotById(c);
-              _.get(u, "app_id") && (d["app-id"] = u.app_id);
+            var d = _.get(a.profile, "bot_id");
+            if (d) {
+              l["bot-id"] = d;
+              var c = TS.bots.getBotById(d);
+              _.get(c, "app_id") && (l["app-id"] = c.app_id);
             }
-            l = _.pull(l, "internal_member_link"), l.push("app_preview_link");
+            o = _.pull(o, "internal_member_link"), o.push("app_preview_link");
           }
-          var m = "";
-          _.forEach(d, function(e, t) {
-            m += "data-" + t + '="' + e + '" ';
+          var u = "";
+          _.forEach(l, function(e, t) {
+            u += "data-" + t + '="' + e + '" ';
           });
-          var p, f = "@" + a.name;
-          return TS.boot_data.feature_texty_mentions ? (TS.boot_data.feature_name_tagging_client && (f = TS.members.getPrefCompliantMemberName(a, !0, !0), l.push("ts_tip ts_tip_top ts_tip_lazy ts_tip_float ts_tip_member"), m += 'data-tip-member="' + a.id + '" '), "EDIT" === e ? TS.boot_data.feature_name_tagging_client ? "<@" + a.id + "|" + f + ">" : "@" + a.name : "GROWL" !== e && TS.permissions.members.canUserSeeMember(a) ? (p = TS.utility.shouldLinksHaveTargets() ? 'target="/team/' + a.id + '" ' : "", a.id == TS.model.user.id && l.push("mention"), i ? f : (m += 'data-member-label="' + f + '" ', '<a href="/team/' + a.id + '" ' + p + m + 'class="' + l.join(" ") + '">' + f + "</a>")) : f) : "EDIT" === e || "GROWL" === e ? "@" + a.name : TS.permissions.members.canUserSeeMember(a) && !i ? (p = TS.utility.shouldLinksHaveTargets() ? 'target="/team/' + a.name + '" ' : "", n || (f = I(f)), '<a href="/team/' + a.name + '" ' + p + m + 'class="' + l.join(" ") + '">' + f + "</a>") : f;
+          var m, p = "@" + a.name;
+          return TS.boot_data.feature_texty_mentions ? (TS.boot_data.feature_name_tagging_client && (p = TS.members.getPrefCompliantMemberName(a, !0, !0), o.push("ts_tip ts_tip_top ts_tip_lazy ts_tip_float ts_tip_member"), u += 'data-tip-member="' + a.id + '" '), "EDIT" === e ? TS.boot_data.feature_name_tagging_client ? "<@" + a.id + "|" + p + ">" : "@" + a.name : "GROWL" !== e && TS.permissions.members.canUserSeeMember(a) ? (m = TS.utility.shouldLinksHaveTargets() ? 'target="/team/' + a.id + '" ' : "", a.id == TS.model.user.id && o.push("mention"), i ? p : (u += 'data-member-label="' + p + '" ', '<a href="/team/' + a.id + '" ' + m + u + 'class="' + o.join(" ") + '">' + p + "</a>")) : p) : "EDIT" === e || "GROWL" === e ? "@" + a.name : TS.permissions.members.canUserSeeMember(a) && !i ? (m = TS.utility.shouldLinksHaveTargets() ? 'target="/team/' + a.name + '" ' : "", n || (p = I(p)), '<a href="/team/' + a.name + '" ' + m + u + 'class="' + o.join(" ") + '">' + p + "</a>") : p;
         },
         H = function(e, t, n, i) {
           if (TS.boot_data.page_needs_enterprise && TS.boot_data.feature_default_shared_channels) {
@@ -10787,12 +10792,17 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           if (n && n.is_unknown) return n;
           if (!TS.interop.utility.looksLikeMemberId(e)) {
             var i = TS.members.getMemberByName(e);
-            return i || (de(e), {
+            if (i) return i;
+            var r = {
+              id: e,
+              stack: TS.console.getStackTrace()
+            };
+            return TS.console.logError(r, "get_unknown_not_an_id", "unknown_member_error", !0), de(e), {
               id: e,
               name: e,
               is_unknown: !1,
               is_non_existent: !0
-            });
+            };
           }
           return TS.members.getMemberById(e) || j(e);
         },
@@ -16344,7 +16354,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           };
         },
         send: function(e, t, n) {
-          P += 1, e.id = P;
+          $ += 1, e.id = $;
           var i = JSON.stringify(e);
           if (i.length > 32768) {
             var r = e.subtype ? e.type + "." + e.subtype : e.type,
@@ -16359,11 +16369,11 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               handler: t,
               ts: Date.now(),
               temp_ts: n
-            }, "ping" === e.type || "pong" === e.type ? TS.has_pri[Oe] && (TS.log(Oe, "MS sending " + e.type), TS.dir(Oe, e)) : (TS.model.last_net_send = Date.now(), TS.has_pri[Oe] && (TS.log(Oe, "sending " + e.type), TS.dir(Oe, e))), !$) {
+            }, "ping" === e.type || "pong" === e.type ? TS.has_pri[Oe] && (TS.log(Oe, "MS sending " + e.type), TS.dir(Oe, e)) : (TS.model.last_net_send = Date.now(), TS.has_pri[Oe] && (TS.log(Oe, "sending " + e.type), TS.dir(Oe, e))), !P) {
             var s = new Error("TS.ms.send called when we have no _websocket! This is a programming error.");
             throw TS.error(s), TS.info("Some context for debugging:"), TS.info("TS.model.calling_rtm_start=" + TS.model.calling_rtm_start), TS.info("TS.model.ms_connected=" + TS.model.ms_connected), TS.info("TS.model.ms_connecting=" + TS.model.ms_connecting), TS.console.logStackTrace("TS.ms.sendMsg(...)"), s;
           }
-          return TS.client && TS.client.stats.isEnabled() && "message" === e.type && (TS.metrics.mark("user_send_message_" + P), TS.metrics.mark("user_message_unprocessed_" + P)), $.send(i), e.id;
+          return TS.client && TS.client.stats.isEnabled() && "message" === e.type && (TS.metrics.mark("user_send_message_" + $), TS.metrics.mark("user_message_unprocessed_" + $)), P.send(i), e.id;
         },
         handleMsg: function(e) {
           var t, n = e.reply_to && !("ok" in e) && "message" === e.type;
@@ -16421,11 +16431,11 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           TS.ms.logConnectionFlow("manual_reconnect"), clearTimeout(H), clearInterval(D), clearTimeout(A), U = 0, TS.model.window_unloading || (TS.info("MS wants to reconnect because of a user interaction"), TS.ms.reconnect_requested_sig.dispatch(), TS.ms.reconnecting_sig.dispatch(0));
         },
         disconnect: function(e, n) {
-          if ($ && $.readyState != WebSocket.CLOSED) {
+          if (P && P.readyState != WebSocket.CLOSED) {
             t = !!e, TS.ms.logConnectionFlow("disconnect"), TS.model.ms_connected ? TS.info("TS.ms.disconnect called; closing the socket") : TS.info("TS.ms.disconnect called while we have a WebSocket but are not connected; closing the socket");
             var i = "Disconnecting because TS.ms.disconnect was called. was_requested_by_server = " + !!e;
-            _.isString(n) && n.length && (i = n + " was_requested_by_server = " + !!e, i = i.slice(0, 120)), $.close(4005, i), TS.model.ms_connected = !1, TS.ms.disconnected_sig.dispatch();
-          } else TS.warn("TS.ms.disconnect called, but _websocket=" + $ + " TS.model.ms_connected=" + TS.model.ms_connected);
+            _.isString(n) && n.length && (i = n + " was_requested_by_server = " + !!e, i = i.slice(0, 120)), P.close(4005, i), TS.model.ms_connected = !1, TS.ms.disconnected_sig.dispatch();
+          } else TS.warn("TS.ms.disconnect called, but _websocket=" + P + " TS.model.ms_connected=" + TS.model.ms_connected);
         },
         logConnectionFlow: function(e) {
           var t = TS.model.ms_conn_log,
@@ -16451,7 +16461,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return !!f;
         },
         hasOpenWebSocket: function() {
-          return _.get($, "readyState") == WebSocket.OPEN;
+          return _.get(P, "readyState") == WebSocket.OPEN;
         },
         promiseToHaveOpenWebSocket: function() {
           return TS.ms.hasOpenWebSocket() ? Promise.resolve() : (n || (n = new Promise(function(e) {
@@ -16486,7 +16496,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }
         },
         wake: function() {
-          S && ($ && (ee(null, "Forcing disconnect because we are trying to wake up"), ne(4e3, "Forcing a disconnect of an old socket while waking up")), e = void 0, t = void 0, S = !1, TS.info("MS: starting reconnection after waking"), TS.ms.startReconnection());
+          S && (P && (ee(null, "Forcing disconnect because we are trying to wake up"), ne(4e3, "Forcing a disconnect of an old socket while waking up")), e = void 0, t = void 0, S = !1, TS.info("MS: starting reconnection after waking"), TS.ms.startReconnection());
         }
       });
       var e, t, n, i, r, a, s, o, l, d, c, u, m, p, f, h, g, S = !1,
@@ -16508,8 +16518,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         D = 0,
         R = 1e3,
         H = 0,
-        $ = null,
-        P = 0,
+        P = null,
+        $ = 0,
         j = !1,
         L = 0,
         U = 0,
@@ -16535,7 +16545,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             type: "mp_command",
             subtype: "login",
             url: me(TS.model.team.url)
-          }), Me(), $.onmessage = K, TS.model.ms_conn_log.length = 0, TS.info("MS WS connected!"), TS.ms.logConnectionFlow("on_connect"), clearTimeout(F), F = setTimeout(re, 3e4);
+          }), Me(), P.onmessage = K, TS.model.ms_conn_log.length = 0, TS.info("MS WS connected!"), TS.ms.logConnectionFlow("on_connect"), clearTimeout(F), F = setTimeout(re, 3e4);
         },
         Y = function() {
           TS.client && TS.shared.maybeFetchHistoryAndThenCheckConsistency(TS.shared.getActiveModelOb());
@@ -16611,15 +16621,15 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         te = function(e) {},
         ne = function(e, t) {
-          if (TS.model.ms_connecting = !1, $) {
-            $.onclose = null, $.onerror = null, $.onmessage = null, $.onopen = null;
+          if (TS.model.ms_connecting = !1, P) {
+            P.onclose = null, P.onerror = null, P.onmessage = null, P.onopen = null;
             try {
-              t && (t = t.slice(0, 120)), $.close(e, t);
+              t && (t = t.slice(0, 120)), P.close(e, t);
             } catch (e) {
               TS.info("Problem while deprecating current socket: " + e);
             }
-            var n = $;
-            $ = void 0, w.dispatch(n);
+            var n = P;
+            P = void 0, w.dispatch(n);
           }
           f = !1, Ie();
         },
@@ -16704,7 +16714,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           pe.push(TS.makeLogDate() + t);
         },
         Se = function() {
-          TS.info("Finalizing provisional MS connection"), $.readyState != WebSocket.OPEN && ue(), c.replay(V), u.replay(ee), m.replay(se), p.replay(K), $.onopen = V, $.onclose = ee, $.onerror = se, c = void 0, u = void 0, m = void 0, p = void 0;
+          TS.info("Finalizing provisional MS connection"), P.readyState != WebSocket.OPEN && ue(), c.replay(V), u.replay(ee), m.replay(se), p.replay(K), P.onopen = V, P.onclose = ee, P.onerror = se, c = void 0, u = void 0, m = void 0, p = void 0;
         },
         Te = function(e) {
           if (!TS.utility.url.isValidSlackWebSocketUrl(e)) return TS.error("Tried to connect to a WebSocket URL that doesn’t look right; aborting"), TS.ms.onFailure("Invalid WebSocket URL"), !1;
@@ -16712,7 +16722,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           var t = e.replace(TS.boot_data.api_token, "REDACTED");
           TS.info("Connecting to: " + t), clearTimeout(A), TS.ms.last_url = e, TS.ms.last_start_ms = Date.now(), TS.metrics.mark("ms_websocket_create");
           try {
-            $ = new WebSocket(e);
+            P = new WebSocket(e);
           } catch (e) {
             return TS.warn("failed to create new WebSocket"), TS.error(e), TS.ms.onFailure("failed to create new WebSocket"), !1;
           }
@@ -16720,10 +16730,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         be = function() {
           TS.info("Initializing provisional MS connection and fetching rtm.start over the socket"), f = !0;
-          var e = $;
+          var e = P;
           return new Promise(function(t, n) {
             var i = function(t) {
-                TS.warn("Giving up on rtm.start-over-MS attempt"), clearTimeout(a), a = void 0, n(t), TS.ms.disconnected_sig.dispatch(), w.remove(r), $ && $ == e && ne(4001, "Deprecating socket because we are aborting an rtm start attempt");
+                TS.warn("Giving up on rtm.start-over-MS attempt"), clearTimeout(a), a = void 0, n(t), TS.ms.disconnected_sig.dispatch(), w.remove(r), P && P == e && ne(4001, "Deprecating socket because we are aborting an rtm start attempt");
               },
               r = function(t) {
                 t !== e && (TS.warn("Received a call to abort RTM start attempt for a websocket that is not the current websocket, this should not be happening!"), TS.info("current_websocket defined?", !!e, "recently_deprecated_socket defined?", !!t)), i(new Error("Socket was deprecated"));
@@ -16759,15 +16769,15 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                   error: _.get(n, "error.msg")
                 }, i(d);
               }
-            }), $.onclose = u, $.onerror = m, $.onmessage = p, $.onopen = c, setTimeout(function() {
-              $ && $.readyState == WebSocket.CLOSED && i(new Error("WebSocket already closed; maybe internet is offline?"));
+            }), P.onclose = u, P.onerror = m, P.onmessage = p, P.onopen = c, setTimeout(function() {
+              P && P.readyState == WebSocket.CLOSED && i(new Error("WebSocket already closed; maybe internet is offline?"));
             }, 100);
           }).catch(function(e) {
             throw TS.logError(e, "rtm-start-over-MS error", "error on rtm start"), e;
           });
         },
         ve = function() {
-          $.onopen = V, $.onclose = ee, $.onerror = se, ue();
+          P.onopen = V, P.onclose = ee, P.onerror = se, ue();
         },
         ye = function(e) {
           if (e.reply_to) {
@@ -16788,10 +16798,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }
         },
         ke = function() {
-          return Ie(), f && !$ ? (f = !1, TS.warn("Tried to finalize provisional connection while _did_make_provisional_connection flag is true, but there is no _websocket. This is a programming error."), !1) : f ? (f = !1, Se(), !0) : (TS.warn("Tried to finalize provisional connection while _did_make_provisional_connection flag is false. This is a programming error."), !1);
+          return Ie(), f && !P ? (f = !1, TS.warn("Tried to finalize provisional connection while _did_make_provisional_connection flag is true, but there is no _websocket. This is a programming error."), !1) : f ? (f = !1, Se(), !0) : (TS.warn("Tried to finalize provisional connection while _did_make_provisional_connection flag is false. This is a programming error."), !1);
         },
         xe = function(e) {
-          if ($ && $.readyState == WebSocket.OPEN) throw TS.warn("TS.ms has an open WebSocket but we are trying to connect; TS.model.ms_connected = " + TS.model.ms_connected + "; TS.model.ms_connecting = " + TS.model.ms_connecting), new Error("TS.ms.connect called but we are already connected. This is a programming error.");
+          if (P && P.readyState == WebSocket.OPEN) throw TS.warn("TS.ms has an open WebSocket but we are trying to connect; TS.model.ms_connected = " + TS.model.ms_connected + "; TS.model.ms_connecting = " + TS.model.ms_connecting), new Error("TS.ms.connect called but we are already connected. This is a programming error.");
           if (!Te(e)) throw new Error("Error creating WebSocket for URL " + e);
           TS.model.ms_connecting = !0;
         },
@@ -22460,7 +22470,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return TS.stars.fetched_once || (TS.stars.fetched_once = !0), TS.api.call("stars.list", e, o);
         },
         userStarStatusHasChanged: function(e, t, n) {
-          if (d(t, n), "message" === t.type) c(t.message.ts, t.channel, e, !1);
+          if (d(t, n), "message" === t.type) c(t.message.ts, t.channel, e, !1), TS.useReactMessages() && TS.redux.messages.replaceMessage(_.assign({
+            channel: t.channel
+          }, t.message));
           else if ("file" === t.type) t.file.is_starred != e && m(t.file.id, e);
           else if ("file_comment" === t.type) t.comment.is_starred != e && u(t.comment.id, t.file.id, e);
           else if ("channel" === t.type) {
@@ -22679,11 +22691,11 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           };
         },
         onStart: function() {
-          TS.storage.onStart = function() {}, TS.boot_data.page_has_incomplete_user_model && (TS.lazyLoadMembersAndBots() && TS.has_pri[j] && TS.log(j, "Flannel: disabling member bot cache"), TS.storage.disableMemberBotCache()), TS.storage.do_compression || TS.boot_data.feature_disable_ls_compression || !TS.boot_data.feature_force_ls_compression || (TS.warn("Special case: force-enabling LS compression for this session."), TS.storage.do_compression = !0), TS.storage.do_compression && TS.boot_data.feature_disable_ls_compression && (TS.has_pri[P] && TS.log(P, "TS.storage: disabling compression"), TS.storage.do_compression = !1), TS.storage.version += TS.storage.do_compression ? "-compressed-LZString" : "";
+          TS.storage.onStart = function() {}, TS.boot_data.page_has_incomplete_user_model && (TS.lazyLoadMembersAndBots() && TS.has_pri[j] && TS.log(j, "Flannel: disabling member bot cache"), TS.storage.disableMemberBotCache()), TS.storage.do_compression || TS.boot_data.feature_disable_ls_compression || !TS.boot_data.feature_force_ls_compression || (TS.warn("Special case: force-enabling LS compression for this session."), TS.storage.do_compression = !0), TS.storage.do_compression && TS.boot_data.feature_disable_ls_compression && (TS.has_pri[$] && TS.log($, "TS.storage: disabling compression"), TS.storage.do_compression = !1), TS.storage.version += TS.storage.do_compression ? "-compressed-LZString" : "";
           var t = e || "1" == TS.qs_args.ls_disabled || !F || TS.boot_data && TS.boot_data.ls_disabled || function() {
             return !TS.storage.storageAvailable() && (g(), !TS.storage.storageAvailable()) && (TS.warn("TS.storage.storageAvailable() = false in onStart after flushing all our keys, so disabling"), !0);
           }();
-          TS.has_pri[P] && (TS.log(P, "TS.storage.onStart should_disable:" + t), TS.log(P, "TS.storage.do_compression:" + TS.storage.do_compression + " (_ls.getItem('is_compressed') === 'yes'):" + (F && "yes" === F.getItem("is_compressed")))), TS.ui.window_unloaded_sig.add(T), TS.ui.window_focus_changed_sig.add(b), TS.storage.setDisabled(t), I("rxn_records", null);
+          TS.has_pri[$] && (TS.log($, "TS.storage.onStart should_disable:" + t), TS.log($, "TS.storage.do_compression:" + TS.storage.do_compression + " (_ls.getItem('is_compressed') === 'yes'):" + (F && "yes" === F.getItem("is_compressed")))), TS.ui.window_unloaded_sig.add(T), TS.ui.window_focus_changed_sig.add(b), TS.storage.setDisabled(t), I("rxn_records", null);
         },
         setDisabled: function(t) {
           e != t && (t || !F ? (e = !0, F && g()) : (e = !1, h()), TS.info("_disabled:" + e));
@@ -22707,7 +22719,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return !r && TS.model && TS.model.supports_user_bot_caching;
         },
         disableMemberBotCache: function() {
-          TS.has_pri[P] && TS.log(P, 'disableMemberBotCache(): _user_bot_caching_disabled is currently "' + r + '"'), r = !0;
+          TS.has_pri[$] && TS.log($, 'disableMemberBotCache(): _user_bot_caching_disabled is currently "' + r + '"'), r = !0;
         },
         completelyEmptyAllStorageAndReset: function() {
           TS.info("completelyEmptyAllStorageAndReset running"), S(), TS.storage.storeLastEventTS("", !0, !0);
@@ -22721,10 +22733,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           TS.dir(488, e, "_getKeys()"), TS.storage.storeBots(), TS.storage.storeMembers(), e = f(), TS.dir(488, e, "_getKeys()");
         },
         flush: function(e) {
-          TS.has_pri[P] && TS.log(P, "TS.storage.flush()"), g(), e && TS.storage.clearBufferAndCache();
+          TS.has_pri[$] && TS.log($, "TS.storage.flush()"), g(), e && TS.storage.clearBufferAndCache();
         },
         clearBufferAndCache: function() {
-          TS.has_pri[P] && TS.log(P, "TS.storage.clearBufferAndCache()"), o = {}, l = {}, s = null, TS.compresion && TS.compression.terminate();
+          TS.has_pri[$] && TS.log($, "TS.storage.clearBufferAndCache()"), o = {}, l = {}, s = null, TS.compresion && TS.compression.terminate();
         },
         fetchLastActiveModelObId: function() {
           return M("last_active_model_ob_id", void 0);
@@ -22909,18 +22921,18 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           } : null);
         },
         rememberLastCacheTS: function(e) {
-          if (!TS.storage.isUsingMemberBotCache()) return void(TS.has_pri[P] && e && TS.log(P, "rememberLastCacheTS: Exiting because isUsingMemberBotCache() returned false."));
+          if (!TS.storage.isUsingMemberBotCache()) return void(TS.has_pri[$] && e && TS.log($, "rememberLastCacheTS: Exiting because isUsingMemberBotCache() returned false."));
           if (e) {
-            if (s && e <= s) return void(TS.has_pri[P] && TS.log(P, "rememberLastCacheTS: provided ts of " + e + " <= _last_cache_ts_possible of " + s + " - exiting."));
-            TS.has_pri[P] && TS.log(P, "rememberLastCacheTS(" + e + ")"), s = e;
+            if (s && e <= s) return void(TS.has_pri[$] && TS.log($, "rememberLastCacheTS: provided ts of " + e + " <= _last_cache_ts_possible of " + s + " - exiting."));
+            TS.has_pri[$] && TS.log($, "rememberLastCacheTS(" + e + ")"), s = e;
           }
         },
         fetchLastCacheTS: function() {
           var e = parseInt(s, 10) || 0;
-          if (!TS.storage.isUsingMemberBotCache()) return e ? (TS.warn("fetchLastCacheTS: isUsingMemberBotCache() = false, but returning last_possible of " + e + " instead of 0."), e) : (TS.has_pri[P] && TS.log(P, "fetchLastCacheTS: returning 0 because isUsingMemberBotCache() returned false, and no last_possible from _last_cache_ts_possible.", e, s), 0);
+          if (!TS.storage.isUsingMemberBotCache()) return e ? (TS.warn("fetchLastCacheTS: isUsingMemberBotCache() = false, but returning last_possible of " + e + " instead of 0."), e) : (TS.has_pri[$] && TS.log($, "fetchLastCacheTS: returning 0 because isUsingMemberBotCache() returned false, and no last_possible from _last_cache_ts_possible.", e, s), 0);
           var t = parseInt(M("last_cache_ts"), 10) || 0,
             n = t || e;
-          return TS.has_pri[P] && TS.log(P, 'fetchLastCacheTS: _get returned "' + t + '", last_possible = "' + e + '" - returning "' + n + '"'), n;
+          return TS.has_pri[$] && TS.log($, 'fetchLastCacheTS: _get returned "' + t + '", last_possible = "' + e + '" - returning "' + n + '"'), n;
         },
         fetchFrecency: function(e) {
           return M("frecency_" + e);
@@ -22975,13 +22987,13 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               var n = e.replace(t, ""),
                 i = C(e, F.getItem(e)),
                 r = "converting: " + e + " -> " + n + " val.length: " + (void 0 === i || null === i ? -1 : String(i).length);
-              I(n, null), I(n, i), M(n) == i ? TS.has_pri[P] && TS.log(P, r + " SUCCESS _get(name) has a value:" + !!M(n) + ", and it it the same as val") : TS.error(r + " FAILURE _get(name) !== val");
-            }), TS.warn("migration to compressed format complete, " + n.length + " migrated"), TS.storage.storeStorageVersion(TS.storage.version)) : TS.has_pri[P] && TS.log(P, "no migration needed"), F.setItem("is_compressed", TS.storage.do_compression ? "yes" : "no");
+              I(n, null), I(n, i), M(n) == i ? TS.has_pri[$] && TS.log($, r + " SUCCESS _get(name) has a value:" + !!M(n) + ", and it it the same as val") : TS.error(r + " FAILURE _get(name) !== val");
+            }), TS.warn("migration to compressed format complete, " + n.length + " migrated"), TS.storage.storeStorageVersion(TS.storage.version)) : TS.has_pri[$] && TS.log($, "no migration needed"), F.setItem("is_compressed", TS.storage.do_compression ? "yes" : "no");
           }
           var a = TS.storage.fetchCacheTSStorageVersion();
-          TS.has_pri[P] && (TS.log(P, "TS.storage.cache_ts_version:" + TS.storage.cache_ts_version), TS.log(P, "storage_cache_ts_version:" + a));
+          TS.has_pri[$] && (TS.log($, "TS.storage.cache_ts_version:" + TS.storage.cache_ts_version), TS.log($, "storage_cache_ts_version:" + a));
           var s = TS.storage.fetchStorageVersion() || "";
-          TS.has_pri[P] && (TS.log(P, "TS.storage.version:" + TS.storage.version), TS.log(P, "storage_version:" + s), TS.log(P, "TS.storage last_unload_flushing: " + M("last_unload_flushing")), TS.log(P, "TS.storage.storageAvailable(): " + TS.storage.storageAvailable())), n = f(), TS.has_pri[P] && TS.dir(P, n, "_getKeys()"), TS.storage.storageAvailable() ? s != TS.storage.version ? (TS.warn("storage_version:" + s + " does not match TS.storage.version:" + TS.storage.version + " so flushing all our keys: " + n.join(", ")), g()) : TS.storage.fetchLastEventTS() ? a != TS.storage.cache_ts_version && (TS.warn("storage_cache_ts_version:" + a + " does not match TS.storage.cache_ts_version:" + TS.storage.cache_ts_version + " so flushing user/bot data"), TS.storage.cleanOutCacheTsStorage()) : (TS.warn("TS.storage.fetchLastEventTS() is empty so flushing channel data"), S()) : (TS.warn("TS.storage.storageAvailable() = false so flushing all our keys"), g()), TS.storage.storeStorageVersion(TS.storage.version), TS.storage.storeCacheTSStorageVersion(TS.storage.cache_ts_version), TS.isSocketManagerEnabled() ? TS.interop.SocketManager.connectedSig.addOnce(v) : TS.ms.connected_sig.addOnce(v);
+          TS.has_pri[$] && (TS.log($, "TS.storage.version:" + TS.storage.version), TS.log($, "storage_version:" + s), TS.log($, "TS.storage last_unload_flushing: " + M("last_unload_flushing")), TS.log($, "TS.storage.storageAvailable(): " + TS.storage.storageAvailable())), n = f(), TS.has_pri[$] && TS.dir($, n, "_getKeys()"), TS.storage.storageAvailable() ? s != TS.storage.version ? (TS.warn("storage_version:" + s + " does not match TS.storage.version:" + TS.storage.version + " so flushing all our keys: " + n.join(", ")), g()) : TS.storage.fetchLastEventTS() ? a != TS.storage.cache_ts_version && (TS.warn("storage_cache_ts_version:" + a + " does not match TS.storage.cache_ts_version:" + TS.storage.cache_ts_version + " so flushing user/bot data"), TS.storage.cleanOutCacheTsStorage()) : (TS.warn("TS.storage.fetchLastEventTS() is empty so flushing channel data"), S()) : (TS.warn("TS.storage.storageAvailable() = false so flushing all our keys"), g()), TS.storage.storeStorageVersion(TS.storage.version), TS.storage.storeCacheTSStorageVersion(TS.storage.cache_ts_version), TS.isSocketManagerEnabled() ? TS.interop.SocketManager.connectedSig.addOnce(v) : TS.ms.connected_sig.addOnce(v);
         },
         g = function() {
           f().forEach(function(e) {
@@ -22990,7 +23002,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         S = function() {
           var e = f();
-          TS.has_pri[P] && TS.log(P, e, "_getKeys()");
+          TS.has_pri[$] && TS.log($, e, "_getKeys()");
           for (var n, i = 0; i < e.length; i += 1) n = e[i], 0 === n.indexOf(t) && (-1 == n.indexOf("channel_msgs_") && -1 == n.indexOf("oldest_msg_ts_") || (F.removeItem(n), delete o[n], TS.warn("_ls.removeItem:" + n)));
           for (n in o) 0 === n.indexOf(t) && (-1 == n.indexOf("channel_msgs_") && -1 == n.indexOf("oldest_msg_ts_") || (delete o[n], TS.warn("delete _buffer:" + n)));
           l = {}, e = f(), TS.dir(488, e, "_getKeys()");
@@ -23012,9 +23024,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                 n = "";
               TS.model.ui.is_window_focused || (n = "window blurred!", t = !0);
               var i = Date.now() - TS.model.client.last_user_active_timestamp;
-              if (t || i >= 1e4 && (n = "window focused, but user has been idle long enough " + i + " >= 10000", t = !0), TS.has_pri[P] && TS.log(P, "_maybeFlushBuffer ok_to_flush_all:" + t), t) return void x(!0, "maybeFlushBuffer (" + e + ") " + n);
+              if (t || i >= 1e4 && (n = "window focused, but user has been idle long enough " + i + " >= 10000", t = !0), TS.has_pri[$] && TS.log($, "_maybeFlushBuffer ok_to_flush_all:" + t), t) return void x(!0, "maybeFlushBuffer (" + e + ") " + n);
               var r = i > 1e3;
-              TS.has_pri[P] && TS.log(P, "_maybeFlushBuffer ok_to_flush_some:" + r), n = "window focused, but user has been idle long enough " + i + " >= 1000", r && x(!1, "maybeFlushBuffer (" + e + ") " + n);
+              TS.has_pri[$] && TS.log($, "_maybeFlushBuffer ok_to_flush_some:" + r), n = "window focused, but user has been idle long enough " + i + " >= 1000", r && x(!1, "maybeFlushBuffer (" + e + ") " + n);
             }
           }
         },
@@ -23039,14 +23051,14 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                   TS.warn("_flushBuffer _ls.setItem failed once, flushing all our keys. TS.storage.storageSize():" + TS.storage.storageSize(!1)), TS.error(0, e), g(), delete o[r], delete l[r];
                   continue;
                 }
-                if (h += 1, i = Date.now() - f, S && TS.has_pri[P] && TS.log(P, "_flushBuffer _ls.setItem " + r + ": " + i + "ms " + (o[r] && o[r].val && o[r].val.toString ? o[r].val.toString().substr(0, 100) : "NULL?")), !t && (a = new Date - p, !u && a > 1e3)) {
+                if (h += 1, i = Date.now() - f, S && TS.has_pri[$] && TS.log($, "_flushBuffer _ls.setItem " + r + ": " + i + "ms " + (o[r] && o[r].val && o[r].val.toString ? o[r].val.toString().substr(0, 100) : "NULL?")), !t && (a = new Date - p, !u && a > 1e3)) {
                   u = !0, d = new Date;
                   try {
                     s = TS.storage.storageSize();
                   } catch (e) {}
                   d = new Date - d, _ = "Took " + a + "ms for " + h + " item (!all case) (threshold is 1000 ms). Key: " + r + ". Buffer length: " + (o[r] && o[r].val && o[r].val.toString() ? o[r].val.toString().length : "unknown (not a string)") + ". localStorage size: " + (s || "unknown") + ". Time to read LS size: " + d, TS.info("_flushBuffer exceeded slow write threshold: " + _);
                 }
-                if (o[r] && (o[r].being_flushed = !0), !t) return void(TS.has_pri[P] && TS.log(P, "_flushBuffer: Wrote one item. why: " + n));
+                if (o[r] && (o[r].being_flushed = !0), !t) return void(TS.has_pri[$] && TS.log($, "_flushBuffer: Wrote one item. why: " + n));
                 l = {};
               }
             if (h && !m && (a = new Date - p) > 1e3) {
@@ -23056,7 +23068,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               } catch (e) {}
               _ = "Took " + a + "ms for " + h + " items (threshold is 1000 ms). localStorage size: " + s + ". App open for " + ((Date.now() - TS.boot_data.start_ms) / 1e3 / 60).toFixed(2) + " min. why: " + n, TS.info("_flushBuffer exceeded slow write threshold (all case): " + _);
             }
-            TS.has_pri[P] && (0 === h ? TS.log(P, "_flushBuffer: Nothing to save.") : TS.log(P, "_flushBuffer: Saved " + h + (1 === h ? " item" : " items") + " why: " + n));
+            TS.has_pri[$] && (0 === h ? TS.log($, "_flushBuffer: Nothing to save.") : TS.log($, "_flushBuffer: Saved " + h + (1 === h ? " item" : " items") + " why: " + n));
           }
         },
         M = function(n, i, r) {
@@ -23064,7 +23076,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           if (r && TS.info("_get name:" + n + " k:" + a + " disabled:" + e + ' _buffer["' + a + '"].val:' + (o[a] && o[a].val)), e) return o[a] && o[a].val || i;
           if (a in o) return o[a] && o[a].val || i;
           if (l.hasOwnProperty(a)) return l[a];
-          var s = C(a, $(a, F.getItem(a)), i, r);
+          var s = C(a, P(a, F.getItem(a)), i, r);
           return l[a] = s, s;
         },
         C = function(e, t, i, r) {
@@ -23109,21 +23121,21 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                   var p = "_set exceeded slow set threshold (immediate): Took " + _ + "ms to write " + u + " (theshold is 1000ms), length = " + (i && !isNaN(i.length) ? i.length : "unknown") + ". Storage length: " + s;
                   TS.info(p);
                 }
-              } else TS.has_pri[P] && TS.log(P, "_set GOOD immediately: " + r + " " + n + ": " + _ + "ms", i);
+              } else TS.has_pri[$] && TS.log($, "_set GOOD immediately: " + r + " " + n + ": " + _ + "ms", i);
           }
         },
         A = function() {
           var e = t + "bots_data",
             n = F.getItem(e),
-            i = n && JSON.parse(k($(e, n))) || null,
+            i = n && JSON.parse(k(P(e, n))) || null,
             r = F.getItem(e),
-            a = r && JSON.parse(k($(e, r))) || null;
-          return !TS.model.bots.length && a && a.cache_ts ? (TS.has_pri[P] && TS.log(P, "_calcLastCacheTS: no TS.model.bots.length, but we have members_data && members_data.cache_ts = " + a.cache_ts), a.cache_ts) : i && i.cache_ts && a && a.cache_ts ? (TS.has_pri[P] && TS.log(P, "_calcLastCacheTS: bots_data && members_data && both have cache_ts, returning the lesser of " + i.cache_ts + " and " + a.cache_ts), i.cache_ts < a.cache_ts ? i.cache_ts : a.cache_ts) : (TS.has_pri[P] && TS.log(P, "_calcLastCacheTS: WTF maybe no members or bots data at all? Returning 0", a, i), 0);
+            a = r && JSON.parse(k(P(e, r))) || null;
+          return !TS.model.bots.length && a && a.cache_ts ? (TS.has_pri[$] && TS.log($, "_calcLastCacheTS: no TS.model.bots.length, but we have members_data && members_data.cache_ts = " + a.cache_ts), a.cache_ts) : i && i.cache_ts && a && a.cache_ts ? (TS.has_pri[$] && TS.log($, "_calcLastCacheTS: bots_data && members_data && both have cache_ts, returning the lesser of " + i.cache_ts + " and " + a.cache_ts), i.cache_ts < a.cache_ts ? i.cache_ts : a.cache_ts) : (TS.has_pri[$] && TS.log($, "_calcLastCacheTS: WTF maybe no members or bots data at all? Returning 0", a, i), 0);
         },
         E = function() {
-          if (!TS.storage.isUsingMemberBotCache()) return void(TS.has_pri[P] && TS.log(P, "_storeLastCacheTS(): Exiting because isUsingMemberBotCache() returned false."));
+          if (!TS.storage.isUsingMemberBotCache()) return void(TS.has_pri[$] && TS.log($, "_storeLastCacheTS(): Exiting because isUsingMemberBotCache() returned false."));
           var e = A();
-          TS.has_pri[P] && TS.log(P, "setting last_cache_ts from _calcLastCacheTS(): " + e), I("last_cache_ts", e, !0);
+          TS.has_pri[$] && TS.log($, "setting last_cache_ts from _calcLastCacheTS(): " + e), I("last_cache_ts", e, !0);
         },
         O = !(!window.macgap || !macgap.ls),
         F = O ? macgap.ls : window.localStorage,
@@ -23153,14 +23165,14 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             TS.error("WTF not saved, try #" + r + " " + e.k + " " + (e.str || "").length + " typeof ob.str:" + n(e.str) + " from_ls:" + (void 0 === a ? "undefined" : n(a))), F.setItem(e.k, e.str), setTimeout(i, 1e3, r + 1);
           }(1);
         },
-        $ = function(e, t) {
+        P = function(e, t) {
           if (!TS.storage.do_compression) return t;
           var n = Date.now();
           t && (t = LZString.decompress(t));
           var i = Date.now() - n;
-          return t && TS.has_pri[P] && TS.log(P, e + " took " + i + "ms to _decompress str.length: " + t.length), t;
+          return t && TS.has_pri[$] && TS.log($, e + " took " + i + "ms to _decompress str.length: " + t.length), t;
         },
-        P = 488,
+        $ = 488,
         j = 1989;
     }();
   },
@@ -26617,6 +26629,17 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             return e && (n = !!TS.members.getMemberSecondaryName(e)), n ? t.fn(this) : t.inverse(this);
           }), Handlebars.registerHelper("unlessMemberHasSecondaryName", function(e, t) {
             return Handlebars.helpers.memberHasSecondaryName.call(this, e, {
+              fn: t.inverse,
+              inverse: t.fn,
+              hash: t.hash
+            });
+          }), Handlebars.registerHelper("getMemberProfileFieldDisplayName", function(e) {
+            return TS.members.getMemberProfileFieldDisplayName(e);
+          }), Handlebars.registerHelper("memberHasProfileFieldDisplayName", function(e, t) {
+            var n = !1;
+            return e && (n = !!TS.members.getMemberProfileFieldDisplayName(e)), n ? t.fn(this) : t.inverse(this);
+          }), Handlebars.registerHelper("unlessMemberHasProfileFieldDisplayName", function(e, t) {
+            return Handlebars.helpers.memberHasProfileFieldDisplayName.call(this, e, {
               fn: t.inverse,
               inverse: t.fn,
               hash: t.hash
@@ -32674,7 +32697,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
       TS.registerModule("ui.utility", {
         onStart: _.noop,
         preventElementFromScrolling: function(e, t, i) {
-          if (!e.length || n) return void t();
+          if (e = $(e), !e.length || n) return void t();
           var r = e.offset();
           try {
             n = !0, t();

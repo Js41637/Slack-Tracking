@@ -58,17 +58,20 @@
       </a>
     </li>
 
-    {{#if hide_view_profile}}
-      <li id="member_open_profile_item" role="menuitem"><a target="{{newWindowName}}" href="/team/{{~#feature flag="feature_name_tagging_client"~}}
-          {{member.id}}
-        {{~else~}}
-          {{~#feature flag="feature_shared_channels_client"~}}
+    {{#feature flag="feature_retire_team_site_directory"}}
+    {{else}}
+      {{#if hide_view_profile}}
+        <li id="member_open_profile_item" role="menuitem"><a target="{{newWindowName}}" href="/team/{{~#feature flag="feature_name_tagging_client"~}}
             {{member.id}}
           {{~else~}}
-            {{member.name}}
-          {{~/feature~}}
-        {{~/feature~}}">{{#t}}Open profile in new window{{/t}}&nbsp;</a></li>{{!-- Add &nbsp; or w becomes ... on non-retina screen --}}
-    {{/if}}
+            {{~#feature flag="feature_shared_channels_client"~}}
+              {{member.id}}
+            {{~else~}}
+              {{member.name}}
+            {{~/feature~}}
+          {{~/feature~}}">{{#t}}Open profile in new window{{/t}}&nbsp;</a></li>{{!-- Add &nbsp; or w becomes ... on non-retina screen --}}
+      {{/if}}
+    {{/feature}}
 
     <li class="divider"></li>
 
@@ -177,19 +180,22 @@
       </a></li>
     {{/if}}
 
-    {{#if hide_view_profile}}
-      <li id="member_open_profile_item" role="menuitem"><a target="{{newWindowName}}" href="/team/{{~#feature flag="feature_name_tagging_client"~}}
-          {{member.id}}
-        {{~else~}}
-          {{~#feature flag="feature_shared_channels_client"~}}
+    {{#feature flag="feature_retire_team_site_directory"}}
+    {{else}}
+      {{#if hide_view_profile}}
+        <li id="member_open_profile_item" role="menuitem"><a target="{{newWindowName}}" href="/team/{{~#feature flag="feature_name_tagging_client"~}}
             {{member.id}}
           {{~else~}}
-            {{member.name}}
-          {{~/feature~}}
-        {{~/feature~}}">
-        {{#t}}Open profile in new window{{/t}}&nbsp;
-      </a></li>{{!-- Add &nbsp; or w becomes ... on non-retina screen --}}
-    {{/if}}
+            {{~#feature flag="feature_shared_channels_client"~}}
+              {{member.id}}
+            {{~else~}}
+              {{member.name}}
+            {{~/feature~}}
+          {{~/feature~}}">
+          {{#t}}Open profile in new window{{/t}}&nbsp;
+        </a></li>{{!-- Add &nbsp; or w becomes ... on non-retina screen --}}
+      {{/if}}
+    {{/feature}}
 
   {{/if}}
 {{/if}}

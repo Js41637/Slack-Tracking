@@ -88,7 +88,7 @@ webpackJsonp([225], {
               }
               Q() ? P() : L();
             } else "invites" === TS.web.admin.view && (TS.web.admin.sort_order = "invite_date", TS.web.admin.active_tab = "pending", $.each(boot_data.pending_invites, function(i, n) {
-              n.invite_prefs && (n.type = n.invite_prefs.type, n.first_name = n.invite_prefs.first_name, n.last_name = n.invite_prefs.last_name, n.is_pending = !0, n.first_name && n.last_name && (n._real_name_lc = _.toLower(n.first_name + " " + n.last_name))), n.bouncing && !e && (e = !0);
+              n.invite_prefs && (n.type = n.invite_prefs.type, n.first_name = n.invite_prefs.first_name, n.last_name = n.invite_prefs.last_name, n.real_name = n.invite_prefs.real_name, n.is_pending = !0, n.real_name ? n._real_name_lc = _.toLower(n.real_name) : n.first_name && n.last_name && (n._real_name_lc = _.toLower(n.first_name + " " + n.last_name))), n.bouncing && !e && (e = !0);
             }), 0 === boot_data.pending_invites.length && (TS.web.admin.active_tab = "accepted"), $.each(boot_data.accepted_invites, function(e, i) {
               var n = TS.members.getMemberById(i.user.id);
               n && (n.date_create = parseInt(i.date_create, 10), n.date_resent = parseInt(i.date_resent, 10), n.email = i.email, n.is_pending = !1, n.inviter = i.inviter, TS.members.upsertMember(n), boot_data.accepted_invites[e] = n);
@@ -528,7 +528,7 @@ webpackJsonp([225], {
             i && i.match(/checkbox|button|submit|reset/i) || $(this).select();
           }), i.find("input").unbind("keyup").bind("keyup", function(i) {
             var n, t, r, a;
-            (n = $(this).attr("name")) && (t = n.match(/first_name|last_name/i), a = "email" === n, r = "username" === n, i.which == TS.utility.keymap.enter ? t && TS.web.admin.submitNameForm(e.id) : i.which == TS.utility.keymap.esc && (t ? TS.web.admin.cancelNameForm(e.id) : a ? TS.web.admin.cancelEmailForm(e.id) : r && TS.web.admin.cancelUsernameForm(e.id)));
+            (n = $(this).attr("name")) && (t = n.match(/real_name|first_name|last_name/i), a = "email" === n, r = "username" === n, i.which == TS.utility.keymap.enter ? t && TS.web.admin.submitNameForm(e.id) : i.which == TS.utility.keymap.esc && (t ? TS.web.admin.cancelNameForm(e.id) : a ? TS.web.admin.cancelEmailForm(e.id) : r && TS.web.admin.cancelUsernameForm(e.id)));
           }), i.find(".inline_name_edit_form").unbind("submit").bind("submit", function(e) {
             e.preventDefault();
           }), i.find(".inline_username_edit_form").unbind("submit").bind("submit", function(e) {

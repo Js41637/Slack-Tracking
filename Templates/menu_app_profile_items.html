@@ -9,9 +9,16 @@
       {{#t}}Invite to a channel&hellip;{{/t}}
     </a></li>
   {{/if}}
-  <li role="menuitem"><a href="/team/{{username}}" target="_blank">
-    {{#t}}Open profile in new window{{/t}}
-  </a></li>
+  {{#feature flag="feature_retire_team_site_directory"}}
+    <li role="menuitem" data-action="view_bot_profile"><a href="/team/{{username}}" target="/team/{{username}}">
+      {{#t}}View profile{{/t}}
+    </a></li>
+  {{else}}
+    <li role="menuitem"><a href="/team/{{username}}" target="_blank">
+      {{#t}}Open profile in new window{{/t}}
+    </a></li>
+  {{/feature}}
+
   <li class="divider"></li>
 {{/if}}
 {{#if support_url}}

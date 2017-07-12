@@ -159,7 +159,7 @@
 .admin_list_item input[name=first_name],
 .admin_list_item input[name=last_name],
 .admin_list_item input[name=username],
-.admin_list_item input[name=full_name],
+.admin_list_item input[name=real_name],
 .admin_list_item input[name=email] {
   width: 7rem;
   font-size: 14px;
@@ -167,7 +167,7 @@
   padding: 0rem .5rem
 }
 
-.admin_list_item input[name=full_name],
+.admin_list_item input[name=real_name],
 .admin_list_item input[name=email] {
   width: auto
 }
@@ -464,7 +464,8 @@
     right: 0
   }
   .admin_list_item input[name=first_name],
-  .admin_list_item input[name=last_name] {
+  .admin_list_item input[name=last_name],
+  .admin_list_item input[name=real_name] {
     width: 6.5rem;
     display: inline;
     line-height: 1.5rem;
