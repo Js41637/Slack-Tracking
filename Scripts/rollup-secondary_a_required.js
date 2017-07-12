@@ -36711,7 +36711,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                 TS.model.user.is_admin || _.includes(a, e.subtype) || (n.delete_msg = !1);
               }
             } else TS.model.user.is_admin || (n.delete_msg = !1);
-            else r ? n.delete_msg = !1 : TS.model.user.is_admin ? TS.model.active_im_id && (i || "USLACKBOT" === e.user || "bot_message" === e.subtype || (n.delete_msg = !1)) : n.delete_msg = !1;
+            else r ? TS.boot_data.page_needs_enterprise && TS.model.user.enterprise_user.is_owner ? n.delete_msg = !0 : n.delete_msg = !1 : TS.model.user.is_admin ? TS.model.active_im_id && (i || "USLACKBOT" === e.user || "bot_message" === e.subtype || (n.delete_msg = !1)) : n.delete_msg = !1;
             if (TS.boot_data.feature_new_broadcast && "thread_broadcast" === e.subtype && (n.remove_broadcast = n.delete_msg), e.is_ephemeral) n.delete_msg = !0;
             else {
               if (TS.client && "pinned_item" !== e.subtype && "unpinned_item" !== e.subtype && "sh_room_created" !== e.subtype && "sh_room_shared" !== e.subtype) {
@@ -40396,12 +40396,12 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
       "use strict";
       TS.registerModule("apps.permissions", {
         onStart: function() {
-          TS.boot_data.feature_app_permissions_api_site && (TS.channels.member_joined_sig.add(o), TS.channels.member_left_sig.add(o), TS.groups.member_joined_sig.add(o), TS.groups.member_left_sig.add(o));
+          TS.boot_data.feature_app_permissions_api_site && (TS.channels.member_joined_sig.add(s), TS.channels.member_left_sig.add(s), TS.groups.member_joined_sig.add(s), TS.groups.member_left_sig.add(s));
         },
         app_resource_membership_changed_sig: new signals.Signal,
-        ensureAppResourceMembershipIsKnown: function(r) {
-          return TS.boot_data.feature_app_permissions_api_site && a(r) && 0 !== e ? (t = r, n = {}, e = 0, i = !0, TS.api.call("apps.permissions.internal.listForResource", {
-            channel: r
+        ensureAppResourceMembershipIsKnown: function(a) {
+          return TS.boot_data.feature_app_permissions_api_site && r(a) && 0 !== e ? (t = a, n = {}, e = 0, i = !0, TS.api.call("apps.permissions.internal.listForResource", {
+            channel: a
           }).then(function(t) {
             return e = Date.now(), _.get(t, "data.apps", []).forEach(function(e) {
               n[e.app_user_id] = e;
@@ -40410,7 +40410,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         promiseToGenerateAppAndBotListForResource: function(e) {
           return TS.boot_data.feature_app_permissions_api_site ? TS.apps.permissions.ensureAppResourceMembershipIsKnown(e).then(function() {
-            return s(e);
+            return a(e);
           }).then(function() {
             return _.values(n).reduce(function(e, t) {
               if (t.app_id) {
@@ -40423,7 +40423,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         getAppUserResourceMembershipStatus: function(e, i) {
           return TS.boot_data.feature_app_permissions_api_site && i === t ? {
-            is_known: !a(i),
+            is_known: !r(i),
             is_member: n.hasOwnProperty(e)
           } : {
             is_known: !1,
@@ -40439,17 +40439,17 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             channel: t.id,
             app_user: e.id
           }).then(function(a) {
-            return new Promise(function(s, o) {
-              _.get(a, "data.should_confirm") ? (i = _.get(a, "data.scope_info", []), d(e, i, new Handlebars.SafeString(c(t)), s, function() {
+            return new Promise(function(s, c) {
+              _.get(a, "data.should_confirm") ? (i = _.get(a, "data.scope_info", []), l(e, i, new Handlebars.SafeString(d(t)), s, function() {
                 var t = r ? TS.i18n.t("{app_user} wasn’t added to this direct message.", "apps")({
-                  app_user: l(e)
+                  app_user: o(e)
                 }) : TS.i18n.t("{app_user} wasn’t added to this channel.", "apps")({
-                  app_user: l(e)
+                  app_user: o(e)
                 });
                 TS.cmd_handlers.addEphemeralFeedback(t, {
                   input_txt: n
                 });
-              })) : o();
+              })) : c();
             });
           }).then(function() {
             return TS.api.call("apps.permissions.internal.add", {
@@ -40467,7 +40467,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           if (!_.isObject(e)) throw new Error("Expected app user to be an object");
           if (!_.isObject(t)) throw new Error("Expected model_ob to be an object");
           var i = _.escape(e.real_name),
-            r = c(t);
+            r = d(t);
           return new Promise(function(e) {
             TS.generic_dialog.start({
               dialog_class: "p-app_permission_remove_modal",
@@ -40512,7 +40512,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                 });
               });
             };
-          d(r, t, null, function() {
+          l(r, t, null, function() {
             a(!0);
           }, function() {
             a(!1);
@@ -40531,11 +40531,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
       });
       var e, t, n = {},
         i = !0,
-        r = TS.environment.is_dev ? 0 : 3e3,
-        a = function(n) {
+        r = function(n) {
           return n !== t || e < Date.now() - 12e4;
         },
-        s = function(e) {
+        a = function(e) {
           return i ? TS.flannel.fetchAndUpsertObjectsWithQuery({
             channels: [e],
             filter: "bots"
@@ -40551,22 +40550,21 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             }), i = !1, !0;
           }) : Promise.resolve(!1);
         },
-        o = function(e, n) {
+        s = function(e, n) {
           n.is_bot && e.id === t && TS.apps.permissions.handleAppResourceMembershipChanged(e, n);
         },
-        l = function(e) {
+        o = function(e) {
           return "@" + _.escape(e.name);
         },
-        d = function(e, t, n, i, a) {
-          var s = _.partition(t, function(e) {
+        l = function(e, t, n, i, r) {
+          var a = _.partition(t, function(e) {
               return !e.is_dangerous;
             }),
-            o = s[0],
-            l = s[1];
+            s = a[0],
+            o = a[1];
           TS.generic_dialog.start({
             dialog_class: "p-app_permission_modal",
             go_button_text: TS.i18n.t("Authorize", "apps")(),
-            go_button_class: "disabled",
             show_cancel_button: !1,
             show_close_button: !0,
             secondary_go_button_text: TS.i18n.t("Don’t Allow", "apps")(),
@@ -40577,15 +40575,13 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               app_name: e.real_name,
               app_image: e.profile.image_48,
               channel_name: n,
-              safe_scope_info: o,
-              dangerous_scope_info: l
+              safe_scope_info: s,
+              dangerous_scope_info: o
             }),
             onGo: i,
-            onSecondaryGo: a,
+            onSecondaryGo: r,
             onShow: function() {
-              setTimeout(function() {
-                $(".p-app_permission_modal .dialog_go").toggleClass("disabled", !1);
-              }, r), $('[data-js="app_permission_modal_scope_descriptions"]').on("click", "[data-toggle-visibility]", function() {
+              $('[data-js="app_permission_modal_scope_descriptions"]').on("click", "[data-toggle-visibility]", function() {
                 var e = $(this),
                   t = e.data("toggle-visibility");
                 $("[data-toggle-visibility-id=" + t + "]").toggleClass("hidden");
@@ -40597,7 +40593,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             }
           });
         },
-        c = function(e) {
+        d = function(e) {
           return (e.is_channel ? "#" : e.is_im ? "@" : e.is_mpim ? '<i class="ts_icon ts_icon_multiparty_dm_' + TS.mpims.getMemberCount(e) + '"></i>' : '<i class="ts_icon ts_icon_lock"></i>') + _.escape(TS.shared.getDisplayNameForModelObNoSigns(e));
         };
     }();

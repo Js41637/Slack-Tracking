@@ -30848,7 +30848,7 @@ webpackJsonp([332], [, function(e, t, n) {
       return e && e.has_draft;
     },
     E = function(e) {
-      return e && (e.is_private || e.is_group && !e.is_mpim);
+      return e && (e.is_private || e.is_group) && !e.is_mpim;
     },
     L = function(e) {
       return e && e.is_channel && !e.is_private && !e.is_mpim;
@@ -30887,7 +30887,7 @@ webpackJsonp([332], [, function(e, t, n) {
       return e && e._show_in_list_even_though_no_unreads;
     },
     F = function(e) {
-      return E(e) ? "private" : C(e) ? "mpim" : P(e) ? "im" : "channel";
+      return C(e) ? "mpim" : E(e) ? "private" : P(e) ? "im" : "channel";
     },
     q = function(e) {
       return e ? C(e) || P(e) ? e.unread_cnt : e.unread_highlight_cnt : 0;
@@ -31154,7 +31154,7 @@ webpackJsonp([332], [, function(e, t, n) {
 
   function r(e) {
     return function(t) {
-      return n.i(s.d)(e).then(function(e) {
+      return n.i(s.f)(e).then(function(e) {
         return t(n.i(l.a)(e));
       }).catch(function() {
         return n.i(u.a)("Failed to fetch files", e);
@@ -35650,12 +35650,16 @@ webpackJsonp([332], [, function(e, t, n) {
   "use strict";
   n.d(t, "c", function() {
     return i;
-  }), n.d(t, "d", function() {
+  }), n.d(t, "f", function() {
     return a;
   }), n.d(t, "b", function() {
     return s;
   }), n.d(t, "a", function() {
     return u;
+  }), n.d(t, "d", function() {
+    return l;
+  }), n.d(t, "e", function() {
+    return c;
   });
   var r = n(2277),
     o = function() {
@@ -35697,7 +35701,9 @@ webpackJsonp([332], [, function(e, t, n) {
     s = n.i(r.a)("TS.files.fileIsImage", function() {
       return !0;
     }),
-    u = n.i(r.a)("TS.files.shareOrReshareFile", function() {});
+    u = n.i(r.a)("TS.files.shareOrReshareFile", function() {}),
+    l = n.i(r.a)("TS.files.editFileTitle", function() {}),
+    c = n.i(r.a)("TS.files.createPublicURL", function() {});
 }, function(e, t, n) {
   "use strict";
   n.d(t, "a", function() {
@@ -37113,9 +37119,9 @@ webpackJsonp([332], [, function(e, t, n) {
             i = [],
             a = this.getLastVisibleReadTs(),
             s = void 0;
-          if (this.props.reachedStart && o.push({
+          if (this.props.reachedStart && (i.push("foreword." + this.props.channelId), o.push({
               type: "foreword"
-            }), this.props.isLoading)
+            })), this.props.isLoading)
             for (var l = 0; l < 42; l++) i.push("loading" + l), o.push({
               type: "loading"
             });
@@ -38178,8 +38184,8 @@ webpackJsonp([332], [, function(e, t, n) {
   }
 
   function i() {
-    oe.forEach(function(e) {
-      n.i($.d)(e, "sm_logs", void 0, !0);
+    oe.forEach(function(e, t) {
+      n.i($.d)(t + " " + e, "sm_logs_2", void 0, !0);
     }), oe.length = 0;
   }
 
@@ -38249,6 +38255,7 @@ webpackJsonp([332], [, function(e, t, n) {
       case V.a.CONNECTING:
       case V.a.FAST_RECONNECTING:
       case V.a.PROV_CONNECTING:
+      case V.a.PROV_CONNECTED:
         t === V.a.ERROR && (de += 1, 1 === de ? (pe = Date.now(), fe = !1) : _());
         break;
       case V.a.CONNECTED:
@@ -38273,8 +38280,8 @@ webpackJsonp([332], [, function(e, t, n) {
     xe && (clearTimeout(xe), xe = void 0);
     var a = (t = {}, r(t, V.a.CONNECTED, 1 / 0), r(t, V.a.ASLEEP, 1 / 0), r(t, V.a.FAST_RECONNECTING, 2e4), r(t, V.a.PROV_CONNECTING, 2e4), r(t, V.a.PROV_CONNECTED, 6e4), r(t, V.a.CHECKING_FAST_RECONNECT, 6e4), r(t, V.a.WAIT_FOR_CONNECTIVITY, 3e5), r(t, V.a.WAIT_FOR_RATE_LIMIT, 12e4), t),
       s = a[e] || 1e4;
-    o(1996, "socket-manager: will stay in this state for up to " + s + " ms"), s !== 1 / 0 && (xe = setTimeout(function() {
-      o(1996, "socket-manager: Spent " + s + " ms in " + e + " state; giving up"), e === V.a.PROV_CONNECTED && (n.i(U.c)("sm_flow_prov_timeout"), i()), T(V.a.ERROR);
+    o(1996, "socket-manager: will stay in " + e + " state for up to " + s + " ms"), s !== 1 / 0 && (xe = setTimeout(function() {
+      o(1996, "socket-manager: Spent " + s + " ms in " + e + " state; giving up"), e === V.a.PROV_CONNECTED && (n.i(U.c)("sm_flow_prov_timeout_2"), i()), T(V.a.ERROR);
     }, s));
   }
 
@@ -38308,10 +38315,14 @@ webpackJsonp([332], [, function(e, t, n) {
       case V.a.PROV_CONNECTING:
         break;
       case V.a.PROV_CONNECTED:
-        je.dispatch(Se.startData);
+        try {
+          o(1996, "socket-manager: will dispatch provisionallyConnectedSig"), je.dispatch(Se.startData), o(1996, "socket-manager: did dispatch provisionallyConnectedSig");
+        } catch (e) {
+          throw n.i(U.c)("sm_prov_connect_sig_dispatch_error"), o(1996, "socket-manager: error dispatching provisionallyConnectedSig"), e;
+        }
         break;
       case V.a.PROV_FINALIZE:
-        T(V.a.PROV_FINALIZING), Se.messageDelegate = l, T(V.a.CONNECTED);
+        T(V.a.PROV_FINALIZING), Se || o(1996, "socket-manager: tried to finalize, but we do not have a socket"), Se.messageDelegate = l, T(V.a.CONNECTED);
         break;
       case V.a.PROV_FINALIZING:
         break;
@@ -38444,10 +38455,16 @@ webpackJsonp([332], [, function(e, t, n) {
   }
 
   function R() {
-    if (n.i(U.c)("sm_flow_finalize_prov"), S({
+    n.i(U.c)("sm_flow_finalize_prov_2");
+    var e = _e;
+    if (S({
         state: V.a.PROV_FINALIZE,
         allowableSourceStates: [V.a.PROV_CONNECTED]
-      }), _e !== V.a.CONNECTED) throw T(V.a.ERROR), new Error("Failed to finalize connection -- expected to be connected but actually " + _e);
+      }), _e !== V.a.CONNECTED) {
+      var t = _e;
+      throw n.i(U.c)("sm_flow_finalize_prov_error_2"), T(V.a.ERROR), new Error("Failed to finalize connection -- expected to be connected but actually " + t + " (start state was " + e + ")");
+    }
+    n.i(U.c)("sm_flow_finalize_prov_ok_2");
   }
 
   function I() {
@@ -59537,19 +59554,21 @@ webpackJsonp([332], [, function(e, t, n) {
     c = n(3253),
     d = n(3956),
     p = n(2288),
-    f = n(2907),
-    h = n(4194),
-    m = n(2910),
-    _ = n(3644),
-    y = n(4234),
-    v = Object.assign || function(e) {
+    f = n(4194),
+    h = n(2907),
+    m = n(4234),
+    _ = n(2910),
+    y = n(4249),
+    v = n(3644),
+    g = n(4250),
+    b = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
         for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
       }
       return e;
     },
-    g = function() {
+    w = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
@@ -59560,8 +59579,8 @@ webpackJsonp([332], [, function(e, t, n) {
         return n && e(t.prototype, n), r && e(t, r), t;
       };
     }(),
-    b = new p.a("message"),
-    w = {
+    k = new p.a("message"),
+    M = {
       file: a.PropTypes.shape({
         id: a.PropTypes.string.isRequired,
         _rxn_key: a.PropTypes.string.isRequired,
@@ -59569,81 +59588,87 @@ webpackJsonp([332], [, function(e, t, n) {
       }).isRequired,
       isImage: a.PropTypes.bool
     },
-    k = {
+    T = {
       isImage: !1
     },
-    M = function(e) {
+    S = function(e) {
       function t(e) {
         r(this, t);
         var n = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
         return n.onDownload = n.onDownload.bind(n), n.onComment = n.onComment.bind(n), n.renderMenu = n.renderMenu.bind(n), n;
       }
-      return i(t, e), g(t, [{
+      return i(t, e), w(t, [{
         key: "onDownload",
         value: function(e) {
-          n.i(h.a)(this.props.file, !0) && e.preventDefault();
+          n.i(f.a)(this.props.file, !0) && e.preventDefault();
         }
       }, {
         key: "onComment",
         value: function() {
-          n.i(f.a)(this.props.file.id, "", !1, !0, null);
+          n.i(h.a)(this.props.file.id, "", !1, !0, null);
         }
       }, {
         key: "renderMenu",
         value: function(e) {
-          var t = this,
-            r = this.props.file;
-          return s.a.createElement(d.c, v({}, e, {
+          var t = this.props.file;
+          return s.a.createElement(d.c, b({}, e, {
             width: 220
           }), s.a.createElement(d.b, {
-            label: b.t("Share"),
+            label: k.t("Share"),
             onSelected: function() {
-              return n.i(m.a)(r.id, !1, !1, null, !0);
+              return n.i(_.a)(t.id, !1, !1, null, !0);
             }
           }), s.a.createElement(d.b, {
-            label: b.t("Add reaction…"),
+            label: k.t("Add reaction…"),
             onSelected: function(e) {
-              return n.i(_.a)({
+              return n.i(v.a)({
                 e: e,
-                rxn_key: r._rxn_key
+                rxn_key: t._rxn_key
               });
             }
           }), s.a.createElement(d.b, {
-            label: b.t("Copy link"),
+            label: k.t("Copy link"),
             onSelected: function() {
-              return n.i(y.a)(r.permalink);
+              return n.i(m.a)(t.permalink);
             }
           }), s.a.createElement(d.b, {
-            label: b.t("Pin to {channel}…", {
+            label: k.t("Pin to {channel}…", {
               channel: "#general"
             }),
             onSelected: function() {}
           }), s.a.createElement(d.b, {
-            label: b.t("View details"),
+            label: k.t("View details"),
             onSelected: function() {
-              return n.i(f.a)(t.props.file.id, "", !1, !0, null);
+              return n.i(h.a)(t.id, "", !1, !0, null);
             }
           }), s.a.createElement(d.b, {
-            label: b.t("Open original"),
-            target: r.id,
-            href: r.url_private,
+            label: k.t("Open original"),
+            target: t.id,
+            href: t.url_private
+          }), s.a.createElement(d.d, null), s.a.createElement(d.b, {
+            label: k.t("Edit…"),
+            onSelected: function() {}
+          }), s.a.createElement(d.b, {
+            label: k.t("Rename…"),
+            onSelected: function() {
+              n.i(h.a)(t.id, "", !1, !0, null), n.i(_.d)(t.id);
+            }
+          }), s.a.createElement(d.b, {
+            label: t.public_url_shared ? k.t("View external link") : k.t("Create external link"),
+            onSelected: function() {
+              t.public_url_shared ? n.i(y.a)(t) : n.i(_.e)(t, function(e) {
+                return e && n.i(y.a)(t);
+              });
+            }
+          }), s.a.createElement(d.b, {
+            label: k.t("Print…"),
             onSelected: function() {}
           }), s.a.createElement(d.d, null), s.a.createElement(d.b, {
-            label: b.t("Edit…"),
-            onSelected: function() {}
-          }), s.a.createElement(d.b, {
-            label: b.t("Rename…"),
-            onSelected: function() {}
-          }), s.a.createElement(d.b, {
-            label: b.t("Create external link"),
-            onSelected: function() {}
-          }), s.a.createElement(d.b, {
-            label: b.t("Print…"),
-            onSelected: function() {}
-          }), s.a.createElement(d.d, null), s.a.createElement(d.b, {
-            label: b.t("Delete file"),
+            label: k.t("Delete file"),
             danger: !0,
-            onSelected: function() {}
+            onSelected: function() {
+              return n.i(g.a)(t.id);
+            }
           }));
         }
       }, {
@@ -59680,7 +59705,7 @@ webpackJsonp([332], [, function(e, t, n) {
         }
       }]), t;
     }(s.a.PureComponent);
-  M.propTypes = w, M.defaultProps = k, t.a = M;
+  S.propTypes = M, S.defaultProps = T, t.a = S;
 }, function(e, t, n) {
   "use strict";
   n.d(t, "a", function() {
@@ -61681,4 +61706,22 @@ webpackJsonp([332], [, function(e, t, n) {
   ]);
   n(219)(r, {});
   r.locals && (e.exports = r.locals);
+}, function(e, t, n) {
+  "use strict";
+  n.d(t, "a", function() {
+    return o;
+  });
+  var r = n(2277),
+    o = n.i(r.a)("TS.ui.file_share.fileShowPublicUrlDialog", function() {
+      return null;
+    });
+}, function(e, t, n) {
+  "use strict";
+  n.d(t, "a", function() {
+    return o;
+  });
+  var r = n(2277),
+    o = n.i(r.a)("TS.view.files.delete", function() {
+      return null;
+    });
 }], [2905]);

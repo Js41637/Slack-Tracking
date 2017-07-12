@@ -17650,6 +17650,10 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   color: #FFF
 }
 
+.c-member--dark .team_image {
+  margin-left: 10px
+}
+
 .c-member--medium {
   position: relative;
   font-size: 15px;

@@ -2724,7 +2724,10 @@ webpackJsonp([12, 328, 337, 329], {
             var a;
             a = TS._did_incremental_boot ? TS.model.ms_logged_in_once : !TS.model.ms_logged_in_once, a && e && (TS.boot_data.feature_tinyspeck && TS.info("BOOT: Divine clementine, we are finalizing a full boot!"), e(), e = null, TSSSB.call("didFinishLoading"), r = !0), TS.model.ms_logged_in_once = !0, TS.boot_data.feature_tinyspeck && TS.info("BOOT: Holy guacamole, we're all done!"), TS.info("User id: " + _.get(TS.boot_data, "user_id") + ", team id: " + _.get(TS.model, "team.id"));
           }).catch(function(e) {
-            TS.error("_setUpModel failed with err: " + (e ? e.message : "no err provided")), TS.dir(e), TS.info(e.stack), TS._last_boot_error = e;
+            if (TS.error("_setUpModel failed with err: " + (e ? e.message : "no err provided")), TS.isSocketManagerEnabled() && TS.boot_data.ws_refactor_bucket) {
+              TS.logError(e, "sm_logs_setup_err", void 0, !0);
+            }
+            TS.dir(e), TS.info(e.stack), TS._last_boot_error = e;
           })) : void TS.error("No team?") : void TS.error("No self?");
         },
         y = function() {
@@ -2750,7 +2753,8 @@ webpackJsonp([12, 328, 337, 329], {
               try {
                 TS.interop.SocketManager.finalizeProvisionalConnection(), TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS did finalize SocketManager");
               } catch (e) {
-                TS.log("BOOT: _maybeFinalizeOrOpenConnectionToMS failed to finalize SocketManager"), TS.error(e), TS.interop.SocketManager.disconnect();
+                TS.log("BOOT: _maybeFinalizeOrOpenConnectionToMS failed to finalize SocketManager");
+                TS.console.logError(e, "sm_finalize_failed_2", void 0, !0), TS.interop.SocketManager.disconnect();
               }
             } else TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS wanted to finalize SocketManager but it had no connection; making a new one"), TS.interop.SocketManager.start();
           else TS.ms.hasProvisionalConnection() && TS.ms.finalizeProvisionalConnection() ? (TS.boot_data.feature_tinyspeck && TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS finalized MS connection"), TS.has_pri[X] && TS.log(X, "Successfully finalized a provisional MS connection")) : (TS.boot_data.feature_tinyspeck && TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS made a new MS connection"), TS.has_pri[X] && TS.log(X, "No valid provisional MS connection; making a new connection"), TS.ms.connectImmediately(TS.model.team.url || TS.boot_data.ms_connect_url));
