@@ -1360,7 +1360,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
       "use strict";
       TS.registerModule("apps", {
         onStart: function() {
-          t = TS.utility.throttleFunc(t, 3e3, !0);
+          e = TS.utility.throttleFunc(e, 3e3, !0);
         },
         isAppSpaceEnabled: function() {
           return TS.boot_data.is_app_space_enabled;
@@ -1372,7 +1372,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return !!_.get(t, "profile.bot_id");
         },
         resetUpApps: function() {
-          TS.storage.storeApps(""), t();
+          TS.storage.storeApps(""), e();
         },
         setUp: function() {
           return TS.apps.fetchApps();
@@ -1502,94 +1502,6 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           var g = _.isEmpty(_.get(e, "commands"));
           return (e.is_slack_integration && g || TS.utility.strGetWordCount(e.long_desc) < 350 || !u && g) && (a.hide_expand_button = !0), a;
         },
-        maybeInviteAppUserToChannel: function(e, t, n) {
-          var s;
-          if (!_.isObject(e)) throw new Error("Expected app user to be an object");
-          if (!_.isObject(t)) throw new Error("Expected channel to be an object");
-          var o = t.is_im || t.is_mpim;
-          return TS.api.call("apps.permissions.internal.add", {
-            channel: t.id,
-            app_user: e.id
-          }).then(function(l) {
-            return new Promise(function(d, c) {
-              _.get(l, "data.should_confirm") ? (s = _.get(l, "data.scope_info", []), r(e, s, new Handlebars.SafeString(a(t)), d, function() {
-                var t = o ? TS.i18n.t("{app_user} wasn’t added to this direct message.", "apps")({
-                  app_user: i(e)
-                }) : TS.i18n.t("{app_user} wasn’t added to this channel.", "apps")({
-                  app_user: i(e)
-                });
-                TS.cmd_handlers.addEphemeralFeedback(t, {
-                  input_txt: n
-                });
-              })) : c();
-            });
-          }).then(function() {
-            return TS.api.call("apps.permissions.internal.add", {
-              channel: t.id,
-              app_user: e.id,
-              did_confirm: !0
-            });
-          }).then(function() {
-            TS.boot_data.feature_app_permissions_api_site && TS.apps.permissions.handleAppResourceMembershipChanged(t, e);
-          }).catch(function() {
-            TS.utility.contenteditable.value(TS.client.ui.$msg_input, n);
-          });
-        },
-        maybeKickAppUserFromChannel: function(e, t, n) {
-          if (!_.isObject(e)) throw new Error("Expected app user to be an object");
-          if (!_.isObject(t)) throw new Error("Expected channel to be an object");
-          var i = _.escape(e.real_name),
-            r = a(t);
-          return new Promise(function(e) {
-            TS.generic_dialog.start({
-              dialog_class: "p-app_permission_remove_modal",
-              title: new Handlebars.SafeString(TS.i18n.t("Remove {app_name} from {channel_name}?", "apps")({
-                app_name: i,
-                channel_name: r
-              })),
-              body: new Handlebars.SafeString(TS.i18n.t("{app_name} will no longer be able to access or post to {channel_name}, unless you invite it again.", "apps")({
-                app_name: i,
-                channel_name: r
-              })),
-              go_button_text: TS.i18n.t("Remove", "apps")(),
-              go_button_class: "btn_danger",
-              onGo: function() {
-                e();
-              }
-            });
-          }).then(function() {
-            return TS.api.call("apps.permissions.internal.remove", {
-              channel: t.id,
-              app_user: e.id
-            });
-          }).then(function() {
-            TS.boot_data.feature_app_permissions_api_site && TS.apps.permissions.handleAppResourceMembershipChanged(t, e);
-          }).catch(function() {
-            TS.utility.contenteditable.value(TS.client.ui.$msg_input, n);
-          });
-        },
-        requestPermissions: function(e, t, n) {
-          var i = _.flatten(t.map(function(e) {
-              return e.scopes;
-            })).join(","),
-            a = TS.members.getMemberById(e),
-            s = function(e) {
-              TS.api.call("apps.permissions.internal.addScope", {
-                trigger_id: n,
-                scopes: i,
-                did_confirm: e
-              }).catch(function() {
-                TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("Hmm, something went wrong, try again?", "apps")(), {
-                  slackbot_feels: "sad_surprise"
-                });
-              });
-            };
-          r(a, t, null, function() {
-            s(!0);
-          }, function() {
-            s(!1);
-          });
-        },
         promiseToParsePermissionsForApp: function(e) {
           if (e) {
             var t = {},
@@ -1606,56 +1518,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }
         }
       });
-      var e = TS.environment.is_dev ? 0 : 3e3,
-        t = function() {
-          TS.apps.setUp();
-        },
-        i = function(e) {
-          return "@" + _.escape(e.name);
-        },
-        r = function(t, n, i, r, a) {
-          var s = _.partition(n, function(e) {
-              return !e.is_dangerous;
-            }),
-            o = s[0],
-            l = s[1];
-          TS.generic_dialog.start({
-            dialog_class: "p-app_permission_modal",
-            go_button_text: TS.i18n.t("Authorize", "apps")(),
-            go_button_class: "disabled",
-            show_cancel_button: !1,
-            show_close_button: !0,
-            secondary_go_button_text: TS.i18n.t("Don’t Allow", "apps")(),
-            secondary_go_button_class: "btn_outline",
-            show_secondary_go_button: !0,
-            force_small: !0,
-            body: TS.templates.app_permission_modal({
-              app_name: t.real_name,
-              app_image: t.profile.image_48,
-              channel_name: i,
-              safe_scope_info: o,
-              dangerous_scope_info: l
-            }),
-            onGo: r,
-            onSecondaryGo: a,
-            onShow: function() {
-              setTimeout(function() {
-                $(".p-app_permission_modal .dialog_go").toggleClass("disabled", !1);
-              }, e), $('[data-js="app_permission_modal_scope_descriptions"]').on("click", "[data-toggle-visibility]", function() {
-                var e = $(this),
-                  t = e.data("toggle-visibility");
-                $("[data-toggle-visibility-id=" + t + "]").toggleClass("hidden");
-                var n = e.find("[data-toggled-text]"),
-                  i = n.data("toggled-text"),
-                  r = n.text();
-                n.data("toggled-text", r), n.text(i);
-              });
-            }
-          });
-        },
-        a = function(e) {
-          return (e.is_channel ? "#" : e.is_im ? "@" : e.is_mpim ? '<i class="ts_icon ts_icon_multiparty_dm_' + TS.mpims.getMemberCount(e) + '"></i>' : '<i class="ts_icon ts_icon_lock"></i>') + _.escape(TS.shared.getDisplayNameForModelObNoSigns(e));
-        };
+      var e = function() {
+        TS.apps.setUp();
+      };
     }();
   },
   2368: function(e, t) {
@@ -4339,7 +4204,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             }
             if (s && s.is_app_user) {
               var l = TS.shared.getActiveModelOb();
-              return void TS.apps.maybeInviteAppUserToChannel(s, l, i);
+              return void TS.apps.permissions.addAppToResource(s, l, i);
             }
             var d = n.length > 2 ? n[2] : "";
             if (d) {
@@ -4972,7 +4837,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                 slackbot_feels: "sad_surprise"
               });
             }
-            return a.is_app_user ? void TS.apps.maybeKickAppUserFromChannel(a, r, i) : TS.model.active_im_id || TS.model.active_mpim_id ? void TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("You can’t remove someone from a DM.", "cmd_handlers")(), {
+            return a.is_app_user ? void TS.apps.permissions.removeAppFromResource(a, r, i) : TS.model.active_im_id || TS.model.active_mpim_id ? void TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("You can’t remove someone from a DM.", "cmd_handlers")(), {
               slackbot_feels: "sad_surprise"
             }) : !TS.channels.isChannelRequired(r) || a.is_restricted || a.is_bot ? void TS.membership.ensureChannelMembershipIsKnownForUsers(r.id, [a.id]).then(function() {
               if (!TS.membership.getUserChannelMembershipStatus(a.id, r).is_member) {
@@ -10792,17 +10657,12 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           if (n && n.is_unknown) return n;
           if (!TS.interop.utility.looksLikeMemberId(e)) {
             var i = TS.members.getMemberByName(e);
-            if (i) return i;
-            var r = {
-              id: e,
-              stack: TS.console.getStackTrace()
-            };
-            return TS.console.logError(r, "get_unknown_not_an_id", "unknown_member_error", !0), de(e), {
+            return i || (de(e), {
               id: e,
               name: e,
               is_unknown: !1,
               is_non_existent: !0
-            };
+            });
           }
           return TS.members.getMemberById(e) || j(e);
         },
@@ -16022,7 +15882,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           TS.client && TS.ui.shared_invites_modal.updateCode();
         },
         app_permission_request: function(e) {
-          TS.apps.requestPermissions(e.app_user, e.scope_info, e.trigger_id);
+          TS.apps.permissions.requestPermissions(e.app_user, e.scope_info, e.trigger_id);
         }
       });
       var e, t, i, r = 0,
@@ -40544,12 +40404,12 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
       "use strict";
       TS.registerModule("apps.permissions", {
         onStart: function() {
-          TS.boot_data.feature_app_permissions_api_site && (TS.channels.member_joined_sig.add(s), TS.channels.member_left_sig.add(s), TS.groups.member_joined_sig.add(s), TS.groups.member_left_sig.add(s));
+          TS.boot_data.feature_app_permissions_api_site && (TS.channels.member_joined_sig.add(o), TS.channels.member_left_sig.add(o), TS.groups.member_joined_sig.add(o), TS.groups.member_left_sig.add(o));
         },
         app_resource_membership_changed_sig: new signals.Signal,
-        ensureAppResourceMembershipIsKnown: function(a) {
-          return TS.boot_data.feature_app_permissions_api_site && r(a) && 0 !== e ? (t = a, n = {}, e = 0, i = !0, TS.api.call("apps.permissions.internal.listForResource", {
-            channel: a
+        ensureAppResourceMembershipIsKnown: function(r) {
+          return TS.boot_data.feature_app_permissions_api_site && a(r) && 0 !== e ? (t = r, n = {}, e = 0, i = !0, TS.api.call("apps.permissions.internal.listForResource", {
+            channel: r
           }).then(function(t) {
             return e = Date.now(), _.get(t, "data.apps", []).forEach(function(e) {
               n[e.app_user_id] = e;
@@ -40558,7 +40418,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         promiseToGenerateAppAndBotListForResource: function(e) {
           return TS.boot_data.feature_app_permissions_api_site ? TS.apps.permissions.ensureAppResourceMembershipIsKnown(e).then(function() {
-            return a(e);
+            return s(e);
           }).then(function() {
             return _.values(n).reduce(function(e, t) {
               if (t.app_id) {
@@ -40571,17 +40431,105 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         getAppUserResourceMembershipStatus: function(e, i) {
           return TS.boot_data.feature_app_permissions_api_site && i === t ? {
-            is_known: !r(i),
+            is_known: !a(i),
             is_member: n.hasOwnProperty(e)
           } : {
             is_known: !1,
             is_member: !1
           };
         },
+        addAppToResource: function(e, t, n) {
+          var i;
+          if (!_.isObject(e)) throw new Error("Expected app user to be an object");
+          if (!_.isObject(t)) throw new Error("Expected model_ob to be an object");
+          var r = t.is_im || t.is_mpim;
+          return TS.api.call("apps.permissions.internal.add", {
+            channel: t.id,
+            app_user: e.id
+          }).then(function(a) {
+            return new Promise(function(s, o) {
+              _.get(a, "data.should_confirm") ? (i = _.get(a, "data.scope_info", []), d(e, i, new Handlebars.SafeString(c(t)), s, function() {
+                var t = r ? TS.i18n.t("{app_user} wasn’t added to this direct message.", "apps")({
+                  app_user: l(e)
+                }) : TS.i18n.t("{app_user} wasn’t added to this channel.", "apps")({
+                  app_user: l(e)
+                });
+                TS.cmd_handlers.addEphemeralFeedback(t, {
+                  input_txt: n
+                });
+              })) : o();
+            });
+          }).then(function() {
+            return TS.api.call("apps.permissions.internal.add", {
+              channel: t.id,
+              app_user: e.id,
+              did_confirm: !0
+            });
+          }).then(function() {
+            TS.boot_data.feature_app_permissions_api_site && TS.apps.permissions.handleAppResourceMembershipChanged(t, e);
+          }).catch(function() {
+            TS.utility.contenteditable.value(TS.client.ui.$msg_input, n);
+          });
+        },
+        removeAppFromResource: function(e, t, n) {
+          if (!_.isObject(e)) throw new Error("Expected app user to be an object");
+          if (!_.isObject(t)) throw new Error("Expected model_ob to be an object");
+          var i = _.escape(e.real_name),
+            r = c(t);
+          return new Promise(function(e) {
+            TS.generic_dialog.start({
+              dialog_class: "p-app_permission_remove_modal",
+              title: new Handlebars.SafeString(TS.i18n.t("Remove {app_name} from {resource_name}?", "apps")({
+                app_name: i,
+                resource_name: r
+              })),
+              body: new Handlebars.SafeString(TS.i18n.t("{app_name} will no longer be able to access or post to {resource_name}, unless you invite it again.", "apps")({
+                app_name: i,
+                resource_name: r
+              })),
+              go_button_text: TS.i18n.t("Remove", "apps")(),
+              go_button_class: "btn_danger",
+              onGo: function() {
+                e();
+              }
+            });
+          }).then(function() {
+            return TS.api.call("apps.permissions.internal.remove", {
+              channel: t.id,
+              app_user: e.id
+            });
+          }).then(function() {
+            TS.boot_data.feature_app_permissions_api_site && TS.apps.permissions.handleAppResourceMembershipChanged(t, e);
+          }).catch(function() {
+            TS.utility.contenteditable.value(TS.client.ui.$msg_input, n);
+          });
+        },
+        requestPermissions: function(e, t, n) {
+          var i = _.flatten(t.map(function(e) {
+              return e.scopes;
+            })).join(","),
+            r = TS.members.getMemberById(e),
+            a = function(e) {
+              TS.api.call("apps.permissions.internal.addScope", {
+                trigger_id: n,
+                scopes: i,
+                did_confirm: e
+              }).catch(function() {
+                TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("Hmm, something went wrong, try again?", "apps")(), {
+                  slackbot_feels: "sad_surprise"
+                });
+              });
+            };
+          d(r, t, null, function() {
+            a(!0);
+          }, function() {
+            a(!1);
+          });
+        },
         removeAppOrBotFromActiveResource: function(e) {
           if (TS.boot_data.feature_app_permissions_api_site) {
             var t = TS.shared.getActiveModelOb();
-            if (e.is_app_user) return void TS.apps.maybeKickAppUserFromChannel(e, t);
+            if (e.is_app_user) return void TS.apps.removeAppFromResource(e, t);
             TS.shared.kickMember(t, e.id);
           }
         },
@@ -40591,10 +40539,11 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
       });
       var e, t, n = {},
         i = !0,
-        r = function(n) {
+        r = TS.environment.is_dev ? 0 : 3e3,
+        a = function(n) {
           return n !== t || e < Date.now() - 12e4;
         },
-        a = function(e) {
+        s = function(e) {
           return i ? TS.flannel.fetchAndUpsertObjectsWithQuery({
             channels: [e],
             filter: "bots"
@@ -40610,8 +40559,54 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             }), i = !1, !0;
           }) : Promise.resolve(!1);
         },
-        s = function(e, n) {
+        o = function(e, n) {
           n.is_bot && e.id === t && TS.apps.permissions.handleAppResourceMembershipChanged(e, n);
+        },
+        l = function(e) {
+          return "@" + _.escape(e.name);
+        },
+        d = function(e, t, n, i, a) {
+          var s = _.partition(t, function(e) {
+              return !e.is_dangerous;
+            }),
+            o = s[0],
+            l = s[1];
+          TS.generic_dialog.start({
+            dialog_class: "p-app_permission_modal",
+            go_button_text: TS.i18n.t("Authorize", "apps")(),
+            go_button_class: "disabled",
+            show_cancel_button: !1,
+            show_close_button: !0,
+            secondary_go_button_text: TS.i18n.t("Don’t Allow", "apps")(),
+            secondary_go_button_class: "btn_outline",
+            show_secondary_go_button: !0,
+            force_small: !0,
+            body: TS.templates.app_permission_modal({
+              app_name: e.real_name,
+              app_image: e.profile.image_48,
+              channel_name: n,
+              safe_scope_info: o,
+              dangerous_scope_info: l
+            }),
+            onGo: i,
+            onSecondaryGo: a,
+            onShow: function() {
+              setTimeout(function() {
+                $(".p-app_permission_modal .dialog_go").toggleClass("disabled", !1);
+              }, r), $('[data-js="app_permission_modal_scope_descriptions"]').on("click", "[data-toggle-visibility]", function() {
+                var e = $(this),
+                  t = e.data("toggle-visibility");
+                $("[data-toggle-visibility-id=" + t + "]").toggleClass("hidden");
+                var n = e.find("[data-toggled-text]"),
+                  i = n.data("toggled-text"),
+                  r = n.text();
+                n.data("toggled-text", r), n.text(i);
+              });
+            }
+          });
+        },
+        c = function(e) {
+          return (e.is_channel ? "#" : e.is_im ? "@" : e.is_mpim ? '<i class="ts_icon ts_icon_multiparty_dm_' + TS.mpims.getMemberCount(e) + '"></i>' : '<i class="ts_icon ts_icon_lock"></i>') + _.escape(TS.shared.getDisplayNameForModelObNoSigns(e));
         };
     }();
   },

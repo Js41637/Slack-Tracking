@@ -143,7 +143,7 @@ webpackJsonp([12, 328, 337, 329], {
       TS.registerModule("i18n", {
         DEFAULT_LOCALE: "en-US",
         onStart: function() {
-          m(), u(), g();
+          m(), u(), TS.client && TS.client.login_sig && TS.client.login_sig.add(g);
         },
         locale: function() {
           return m(), r;
