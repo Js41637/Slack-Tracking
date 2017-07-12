@@ -31907,6 +31907,11 @@ webpackJsonp([332], [, function(e, t, n) {
           }
         }
       }, {
+        key: "getScreenHeightInRows",
+        value: function(e) {
+          return Math.floor(e / 26);
+        }
+      }, {
         key: "scrollToRow",
         value: function(e) {
           var t = this,
@@ -32054,6 +32059,7 @@ webpackJsonp([332], [, function(e, t, n) {
               },
               style: t,
               className: "p-channel_sidebar__virtualized",
+              overscanRowCount: e.getScreenHeightInRows(o),
               ref: e.setListRef
             }));
           });
@@ -56457,17 +56463,26 @@ webpackJsonp([332], [, function(e, t, n) {
     p = n(3935),
     f = n(3933),
     h = n(3956),
-    m = n(2288),
-    _ = n(3049),
-    y = n(4230),
-    v = n(3644),
-    g = n(3965),
-    b = n(2907),
-    w = n(3948),
-    k = n(2910),
-    M = n(3992),
-    T = n(3972),
-    S = function() {
+    m = n(4252),
+    _ = n(2288),
+    y = n(3049),
+    v = n(4230),
+    g = n(3644),
+    b = n(3965),
+    w = n(2907),
+    k = n(3948),
+    M = n(2910),
+    T = n(3992),
+    S = n(3972),
+    x = n(4254),
+    E = Object.assign || function(e) {
+      for (var t = 1; t < arguments.length; t++) {
+        var n = arguments[t];
+        for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
+      }
+      return e;
+    },
+    L = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
@@ -56478,8 +56493,8 @@ webpackJsonp([332], [, function(e, t, n) {
         return n && e(t.prototype, n), r && e(t, r), t;
       };
     }(),
-    x = new m.a("message"),
-    E = {
+    C = new _.a("message"),
+    P = {
       reactionKey: a.PropTypes.string,
       file: a.PropTypes.string,
       comment: a.PropTypes.string,
@@ -56498,7 +56513,7 @@ webpackJsonp([332], [, function(e, t, n) {
       editHandler: a.PropTypes.func,
       unreadHandler: a.PropTypes.func
     },
-    L = {
+    O = {
       reactionKey: null,
       file: null,
       comment: null,
@@ -56514,23 +56529,23 @@ webpackJsonp([332], [, function(e, t, n) {
       editHandler: l.a.noop,
       unreadHandler: l.a.noop
     },
-    C = {
+    j = {
       x: 12,
       y: -80
     },
-    P = function(e) {
+    D = function(e) {
       function t(e) {
         r(this, t);
         var n = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
         return n.state = {
           moreActionsMenuOpen: !1,
           subscribed: "loading"
-        }, n.onStar = n.onStar.bind(n), n.onAddReaction = n.onAddReaction.bind(n), n.onComment = n.onComment.bind(n), n.onShare = n.onShare.bind(n), n.onEdit = n.onEdit.bind(n), n.onDelete = n.onDelete.bind(n), n.onMarkUnread = n.onMarkUnread.bind(n), n.onMoreActionsMenuOpen = n.onMoreActionsMenuOpen.bind(n), n.onMoreActionsMenuClose = n.onMoreActionsMenuClose.bind(n), n.renderMoreActionsMenu = n.renderMoreActionsMenu.bind(n), n;
+        }, n.onStar = n.onStar.bind(n), n.onAddReaction = n.onAddReaction.bind(n), n.onComment = n.onComment.bind(n), n.onShare = n.onShare.bind(n), n.onEdit = n.onEdit.bind(n), n.onDelete = n.onDelete.bind(n), n.onMarkUnread = n.onMarkUnread.bind(n), n.onMoreActionsMenuOpen = n.onMoreActionsMenuOpen.bind(n), n.onMoreActionsMenuClose = n.onMoreActionsMenuClose.bind(n), n.renderMoreActionsMenu = n.renderMoreActionsMenu.bind(n), n.renderRemindMeAboutThisSubmenu = n.renderRemindMeAboutThisSubmenu.bind(n), n;
       }
-      return i(t, e), S(t, [{
+      return i(t, e), L(t, [{
         key: "onStar",
         value: function() {
-          return this.props.file || this.props.comment ? n.i(_.a)("Star action not implemented yet for files or file comments") : n.i(y.a)(!this.props.isStarred, {
+          return this.props.file || this.props.comment ? n.i(y.a)("Star action not implemented yet for files or file comments") : n.i(v.a)(!this.props.isStarred, {
             channel: this.props.channelId,
             timestamp: this.props.ts
           });
@@ -56538,7 +56553,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "onAddReaction",
         value: function(e) {
-          this.props.reactionKey && n.i(v.a)({
+          this.props.reactionKey && n.i(g.a)({
             e: e,
             rxn_key: this.props.reactionKey
           });
@@ -56546,16 +56561,16 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "onComment",
         value: function() {
-          if (this.props.file) n.i(b.a)(this.props.file, "", !1, !0, null);
+          if (this.props.file) n.i(w.a)(this.props.file, "", !1, !0, null);
           else {
             var e = this.props.threadTs || this.props.ts;
-            n.i(w.a)([], this.props.channel, e);
+            n.i(k.a)([], this.props.channel, e);
           }
         }
       }, {
         key: "onShare",
         value: function() {
-          this.props.file && "file_comment" !== this.props.subtype ? n.i(k.a)(this.props.file, !1, !1, this.props.channel, !0) : n.i(g.a)(this.props.ts, this.props.channel);
+          this.props.file && "file_comment" !== this.props.subtype ? n.i(M.a)(this.props.file, !1, !1, this.props.channel, !0) : n.i(b.a)(this.props.ts, this.props.channel);
         }
       }, {
         key: "onEdit",
@@ -56565,7 +56580,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "onDelete",
         value: function() {
-          n.i(T.a)(this.props.ts, this.props.channel);
+          n.i(S.a)(this.props.ts, this.props.channel);
         }
       }, {
         key: "onMarkUnread",
@@ -56584,7 +56599,7 @@ webpackJsonp([332], [, function(e, t, n) {
           var t = this.props,
             r = t.channelId,
             o = t.ts;
-          n.i(M.a)(r, o).then(function(t) {
+          n.i(T.a)(r, o).then(function(t) {
             e.setState(function() {
               return {
                 subscribed: t && t.subscribed
@@ -56602,18 +56617,34 @@ webpackJsonp([332], [, function(e, t, n) {
           });
         }
       }, {
+        key: "getRemindMeFunction",
+        value: function(e) {
+          var t = this.props,
+            r = t.channel,
+            o = t.ts,
+            i = t.subtype;
+          return function() {
+            n.i(x.a)({
+              time: e,
+              message_channel: r.id,
+              message_ts: o,
+              respond_in_channel: "thread_broadcast" === i
+            });
+          };
+        }
+      }, {
         key: "renderStar",
         value: function() {
           var e = this.props,
             t = e.file,
             n = e.subtype,
             r = e.isStarred,
-            o = x.t("message");
-          return t && (o = "file_comment" === n ? x.t("file comment") : x.t("file")), s.a.createElement(f.a, {
+            o = C.t("message");
+          return t && (o = "file_comment" === n ? C.t("file comment") : C.t("file")), s.a.createElement(f.a, {
             iconType: r ? "small-star-filled" : "small-star",
-            tooltipText: r ? x.t("Unstar this {type}", {
+            tooltipText: r ? C.t("Unstar this {type}", {
               type: o
-            }) : x.t("Star this {type}", {
+            }) : C.t("Star this {type}", {
               type: o
             }),
             onClick: this.onStar
@@ -56624,7 +56655,7 @@ webpackJsonp([332], [, function(e, t, n) {
         value: function() {
           return s.a.createElement(f.a, {
             iconType: "small-reaction",
-            tooltipText: x.t("Add reaction…"),
+            tooltipText: C.t("Add reaction…"),
             onClick: this.onAddReaction
           });
         }
@@ -56632,7 +56663,7 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "renderComment",
         value: function() {
           var e = void 0;
-          return e = this.props.file ? x.t("Add comment…") : this.props.replyCount ? x.t("Reply to thread") : x.t("Start a thread"), s.a.createElement(f.a, {
+          return e = this.props.file ? C.t("Add comment…") : this.props.replyCount ? C.t("Reply to thread") : C.t("Start a thread"), s.a.createElement(f.a, {
             iconType: "small-reply",
             tooltipText: e,
             onClick: this.onComment
@@ -56642,7 +56673,7 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "renderShare",
         value: function() {
           var e = void 0;
-          return e = this.props.file && "file_comment" !== this.props.subtype ? x.t("Share file…") : x.t("Share message…"), s.a.createElement(f.a, {
+          return e = this.props.file && "file_comment" !== this.props.subtype ? C.t("Share file…") : C.t("Share message…"), s.a.createElement(f.a, {
             iconType: "share-action",
             tooltipText: e,
             onClick: this.onShare
@@ -56655,13 +56686,13 @@ webpackJsonp([332], [, function(e, t, n) {
             renderMenu: this.renderMoreActionsMenu,
             position: "right",
             className: "inline_block",
-            offsetX: C.x,
-            offsetY: C.y,
+            offsetX: j.x,
+            offsetY: j.y,
             onOpen: this.onMoreActionsMenuOpen,
             onClose: this.onMoreActionsMenuClose
           }, s.a.createElement(f.a, {
             iconType: "small-ellipsis",
-            tooltipText: x.t("Show message actions"),
+            tooltipText: C.t("Show message actions"),
             tooltipPosition: "top-right"
           }));
         }
@@ -56679,35 +56710,60 @@ webpackJsonp([332], [, function(e, t, n) {
             l = void 0,
             c = void 0,
             d = void 0;
-          return "loading" === a ? l = x.t("Loading...") : (n.length && (c = n[n.length - 1].ts), u = M.b.bind(null, t, o, !a, c), a ? r ? (l = x.t("Unfollow thread"), d = i ? x.t("You won’t be notified about new replies") : x.t("This will be removed from All Threads")) : (l = x.t("Unfollow message"), d = i ? x.t("You won’t be notified about replies") : x.t("Replies will be excluded from All Threads")) : r ? (l = x.t("Follow thread"), d = i ? x.t("You’ll be notified about new replies") : x.t("New replies will appear in All Threads")) : (l = x.t("Follow message"), d = i ? x.t("You’ll be notified about any replies") : x.t("Any replies will show up in All Threads"))), s.a.createElement(h.b, {
+          return "loading" === a ? l = C.t("Loading...") : (n.length && (c = n[n.length - 1].ts), u = T.b.bind(null, t, o, !a, c), a ? r ? (l = C.t("Unfollow thread"), d = i ? C.t("You won’t be notified about new replies") : C.t("This will be removed from All Threads")) : (l = C.t("Unfollow message"), d = i ? C.t("You won’t be notified about replies") : C.t("Replies will be excluded from All Threads")) : r ? (l = C.t("Follow thread"), d = i ? C.t("You’ll be notified about new replies") : C.t("New replies will appear in All Threads")) : (l = C.t("Follow message"), d = i ? C.t("You’ll be notified about any replies") : C.t("Any replies will show up in All Threads"))), s.a.createElement(h.b, {
             label: l,
             description: d,
             onSelected: u
           });
         }
       }, {
+        key: "renderRemindMeAboutThisSubmenu",
+        value: function(e) {
+          return s.a.createElement(h.c, E({}, e, {
+            width: "auto"
+          }), s.a.createElement(h.b, {
+            label: C.t("in 20 minutes"),
+            onSelected: this.getRemindMeFunction("in 20 minutes")
+          }), s.a.createElement(h.b, {
+            label: C.t("in 1 hour"),
+            onSelected: this.getRemindMeFunction("in 1 hour")
+          }), s.a.createElement(h.b, {
+            label: C.t("in 3 hours"),
+            onSelected: this.getRemindMeFunction("in 3 hours")
+          }), s.a.createElement(h.b, {
+            label: C.t("Tomorrow"),
+            onSelected: this.getRemindMeFunction("tomorrow")
+          }), s.a.createElement(h.b, {
+            label: C.t("Next Week"),
+            onSelected: this.getRemindMeFunction("next week")
+          }));
+        }
+      }, {
         key: "renderMoreActionsMenu",
         value: function(e) {
           return s.a.createElement(h.c, e, this.renderThreadAction(), s.a.createElement(h.d, null), s.a.createElement(h.b, {
-            label: x.t("Share message"),
+            label: C.t("Share message"),
             onSelected: this.onShare
           }), s.a.createElement(h.b, {
-            label: x.t("Copy link"),
+            label: C.t("Copy link"),
             onSelected: function() {}
           }), s.a.createElement(h.b, {
-            label: x.t("Mark unread"),
+            label: C.t("Mark unread"),
             onSelected: this.onMarkUnread
+          }), s.a.createElement(m.a, {
+            label: C.t("Remind me about this"),
+            renderSubmenu: this.renderRemindMeAboutThisSubmenu
           }), s.a.createElement(h.d, null), s.a.createElement(h.b, {
-            label: x.t("Add reaction …"),
+            label: C.t("Add reaction …"),
             onSelected: this.onAddReaction
           }), s.a.createElement(h.b, {
-            label: x.t("Pin to #general …"),
+            label: C.t("Pin to #general …"),
             onSelected: function() {}
           }), s.a.createElement(h.d, null), s.a.createElement(h.b, {
-            label: x.t("Edit message"),
+            label: C.t("Edit message"),
             onSelected: this.onEdit
           }), s.a.createElement(h.b, {
-            label: x.t("Delete message"),
+            label: C.t("Delete message"),
             onSelected: this.onDelete,
             danger: !0
           }));
@@ -56724,7 +56780,7 @@ webpackJsonp([332], [, function(e, t, n) {
         }
       }]), t;
     }(a.PureComponent);
-  P.propTypes = E, P.defaultProps = L, t.a = P;
+  D.propTypes = P, D.defaultProps = O, t.a = D;
 }, function(e, t, n) {
   "use strict";
   var r = n(2353),
@@ -56919,7 +56975,7 @@ webpackJsonp([332], [, function(e, t, n) {
       onMouseEnterMenuItem: l.PropTypes.func,
       onTriggerClose: l.PropTypes.func,
       noMargin: l.PropTypes.bool,
-      width: l.PropTypes.number,
+      width: l.PropTypes.oneOfType([l.PropTypes.number, l.PropTypes.string]),
       kbNavActive: l.PropTypes.bool
     },
     w = {
@@ -56947,7 +57003,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "componentWillReceiveProps",
         value: function(e) {
-          e.kbNavActive !== this.state.kbNavActive && (e.kbNavActive ? this.activateKBNav(!0) : this.deactivateKBNav());
+          e.kbNavActive !== this.state.kbNavActive && (e.kbNavActive ? this.activateKBNav() : this.deactivateKBNav());
         }
       }, {
         key: "componentWillUnmount",
@@ -57009,12 +57065,13 @@ webpackJsonp([332], [, function(e, t, n) {
         }
       }, {
         key: "activateKBNav",
-        value: function(e) {
-          var t = {
-            kbNavActive: !0
-          };
-          e && (t.highlightedMenuItemIndex = this.getIndexOfNextMenuItemInDirection("down")), this.setState(function() {
-            return t;
+        value: function() {
+          var e = this;
+          this.setState(function(t) {
+            return {
+              kbNavActive: !0,
+              highlightedMenuItemIndex: -1 === t.highlightedMenuItemIndex ? e.getIndexOfNextMenuItemInDirection("down") : t.highlightedMenuItemIndex
+            };
           }, this.bindKeyCommands);
         }
       }, {
@@ -61724,4 +61781,210 @@ webpackJsonp([332], [, function(e, t, n) {
     o = n.i(r.a)("TS.view.files.delete", function() {
       return null;
     });
+}, function(e, t, n) {
+  t = e.exports = n(189)(), t.push([e.i, ".c-submenu {\n  position: relative;\n}\n.c-submenu__container {\n  position: absolute;\n  left: 100%;\n  top: -100%;\n  margin-left: 8px;\n  margin-right: 8px;\n}\n", ""]);
+}, function(e, t, n) {
+  "use strict";
+  var r = n(4253);
+  t.a = r.a;
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e, t) {
+    var n = {};
+    for (var r in e) t.indexOf(r) >= 0 || Object.prototype.hasOwnProperty.call(e, r) && (n[r] = e[r]);
+    return n;
+  }
+
+  function o(e, t) {
+    if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
+  }
+
+  function i(e, t) {
+    if (!e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    return !t || "object" != typeof t && "function" != typeof t ? e : t;
+  }
+
+  function a(e, t) {
+    if ("function" != typeof t && null !== t) throw new TypeError("Super expression must either be null or a function, not " + typeof t);
+    e.prototype = Object.create(t && t.prototype, {
+      constructor: {
+        value: e,
+        enumerable: !1,
+        writable: !0,
+        configurable: !0
+      }
+    }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
+  }
+  var s = n(2),
+    u = n.n(s),
+    l = n(20),
+    c = (n.n(l), n(6)),
+    d = (n.n(c), n(3956)),
+    p = n(3428),
+    f = n(4255),
+    h = (n.n(f), Object.assign || function(e) {
+      for (var t = 1; t < arguments.length; t++) {
+        var n = arguments[t];
+        for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
+      }
+      return e;
+    }),
+    m = function() {
+      function e(e, t) {
+        for (var n = 0; n < t.length; n++) {
+          var r = t[n];
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
+        }
+      }
+      return function(t, n, r) {
+        return n && e(t.prototype, n), r && e(t, r), t;
+      };
+    }(),
+    _ = {
+      highlighted: s.PropTypes.bool,
+      onSelected: s.PropTypes.func,
+      renderSubmenu: s.PropTypes.func,
+      kbNavActive: s.PropTypes.bool,
+      stealKBNav: s.PropTypes.func,
+      returnKBNav: s.PropTypes.func
+    },
+    y = {
+      highlighted: !1,
+      onSelected: c.noop,
+      renderSubmenu: c.noop,
+      kbNavActive: !1,
+      stealKBNav: c.noop,
+      returnKBNav: c.noop
+    },
+    v = function(e) {
+      function t(e) {
+        o(this, t);
+        var n = i(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
+        return n.state = {
+          isOpen: n.props.highlighted,
+          contentBounds: {}
+        }, n.closeSubmenu = n.closeSubmenu.bind(n), n.setRef = n.setRef.bind(n), n;
+      }
+      return a(t, e), m(t, [{
+        key: "componentDidMount",
+        value: function() {
+          this.bindKeyCommands(), this.state.isOpen && this.measureContents();
+        }
+      }, {
+        key: "componentWillReceiveProps",
+        value: function(e) {
+          var t = this;
+          this.props.highlighted !== e.highlighted && this.setState(function() {
+            return {
+              isOpen: e.highlighted
+            };
+          }, function() {
+            t.measureContents();
+          });
+        }
+      }, {
+        key: "componentWillUnmount",
+        value: function() {
+          this.keyCommands && this.keyCommands.reset();
+        }
+      }, {
+        key: "onRightKeyPress",
+        value: function(e) {
+          !this.props.kbNavActive && this.state.isOpen && (e.preventDefault(), this.props.stealKBNav());
+        }
+      }, {
+        key: "onLeftKeyPress",
+        value: function(e) {
+          this.props.kbNavActive && this.state.isOpen && (e.preventDefault(), this.props.returnKBNav());
+        }
+      }, {
+        key: "getSubmenuContainerStyle",
+        value: function() {
+          var e = this.state.contentBounds,
+            t = {};
+          return e.right > window.innerWidth && (t.right = "100%", t.left = "initial"), t;
+        }
+      }, {
+        key: "setRef",
+        value: function(e) {
+          this.submenuContainer = e;
+        }
+      }, {
+        key: "bindKeyCommands",
+        value: function() {
+          var e = [{
+            keys: ["right"],
+            handler: this.onRightKeyPress.bind(this)
+          }, {
+            keys: ["left"],
+            handler: this.onLeftKeyPress.bind(this)
+          }];
+          this.keyCommands || (this.keyCommands = new p.a), this.keyCommands.bindAll(e);
+        }
+      }, {
+        key: "closeSubmenu",
+        value: function() {
+          this.props.returnKBNav(), this.setState(function() {
+            return {
+              isOpen: !1
+            };
+          });
+        }
+      }, {
+        key: "measureContents",
+        value: function() {
+          var e = this.submenuContainer ? n.i(l.findDOMNode)(this.submenuContainer).getBoundingClientRect() : {};
+          this.setState(function() {
+            return {
+              contentBounds: e
+            };
+          });
+        }
+      }, {
+        key: "renderSubmenu",
+        value: function() {
+          if (!this.state.isOpen) return null;
+          var e = this.props.renderSubmenu({
+              onTriggerClose: this.closeSubmenu,
+              onMenuItemSelected: this.props.onSelected,
+              kbNavActive: this.props.kbNavActive,
+              onMouseEnterMenuItem: this.props.stealKBNav
+            }),
+            t = this.getSubmenuContainerStyle();
+          return u.a.createElement("div", {
+            className: "c-submenu__container",
+            ref: this.setRef,
+            style: t
+          }, e);
+        }
+      }, {
+        key: "render",
+        value: function() {
+          var e = this.props,
+            t = (e.onSelected, r(e, ["onSelected"]));
+          return u.a.createElement("div", {
+            className: "c-submenu"
+          }, u.a.createElement(d.b, h({}, t, {
+            withSubmenu: !0
+          })), this.renderSubmenu());
+        }
+      }]), t;
+    }(s.PureComponent);
+  v.propTypes = _, v.defaultProps = y, v.displayName = "Submenu", t.a = v;
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e) {
+    return n.i(o.a)("reminders.addFromMessage", e);
+  }
+  t.a = r;
+  var o = n(3048);
+}, function(e, t, n) {
+  var r = n(4251);
+  "string" == typeof r && (r = [
+    [e.i, r, ""]
+  ]);
+  n(219)(r, {});
+  r.locals && (e.exports = r.locals);
 }], [2905]);
