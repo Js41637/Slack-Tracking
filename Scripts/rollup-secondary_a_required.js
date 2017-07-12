@@ -25485,21 +25485,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return (TS.model.is_our_app || TS.model.prefs.k_key_omnibox) && (e += [" ", '<span class="subtle_silver">(', TS.model.is_mac ? "&#8984K" : "Ctrl+K", ")</span>"].join("")), '<i class="ts_icon ts_icon_filter"></i><span id="quick_switcher_label" class="ts_tip_tip">' + e + "</span>";
         },
         atLabel: function(e) {
-          var t = e;
-          switch (e) {
-            case "channel":
-              t = "@channel";
-              break;
-            case "everyone":
-              t = "@everyone";
-              break;
-            case "here":
-              t = "@here";
-              break;
-            case "group":
-              t = "@group";
-          }
-          return t;
+          return "group" === e && (e = "channel"), "@" + (_.keyBy(TS.model.BROADCAST_KEYWORDS, "ms_name")[e].name || e);
         },
         makeMemberTypeBadge: function(e, t, n, i) {
           if (!TS.boot_data.page_needs_enterprise) return "";
@@ -35340,7 +35326,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         }
       });
       var e = !1,
-        t = /(?:^|\s|\{|\[|\(|<|>|\*|_|\/|"|“|‘|'|:)(@[\w|.|-]+)/g,
+        t = /(?:^|\s|\{|\[|\(|<|>|\*|_|\/|"|“|‘|'|:)(@[^\s]+)/g,
         i = [],
         r = [],
         a = function(e) {
@@ -35435,39 +35421,45 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }
         },
         h = function(e, t, n, i) {
-          var r, a = 1 === i.length && i[0],
-            s = {
+          var r, a, s = 1 === i.length && i[0],
+            o = {
               id: "UNVERIFIED",
               label: t,
               index: n,
               length: t.length
+            },
+            l = function(e) {
+              return r === TS.tabcomplete.members.getDisplayTextForResult(e, !0);
+            },
+            d = function(e) {
+              return a === "@" + TS.members.getMemberSecondaryName(e);
             };
-          if (a) r = TS.tabcomplete.members.getDisplayTextForResult(a, !0), s = {
-            id: a.id,
+          s && (r = TS.tabcomplete.members.getDisplayTextForResult(s, !0), o = {
+            id: s.id,
             label: r,
             index: n,
             length: t.length
-          }, e.substr(n, r.length).toLowerCase() === r.toLowerCase() && (s.length = r.length);
-          else {
-            i.sort(function(e, t) {
-              var n = TS.tabcomplete.members.getDisplayTextForResult(e, !0).length;
-              return TS.tabcomplete.members.getDisplayTextForResult(t, !0).length - n;
-            });
-            for (var o = function(e) {
-                return r === TS.tabcomplete.members.getDisplayTextForResult(e, !0);
-              }, l = 0; l < i.length; l += 1)
-              if (a = i[l], r = TS.tabcomplete.members.getDisplayTextForResult(a, !0), r.toLowerCase() === e.substr(n, r.length).toLowerCase()) {
-                var d = i.filter(o);
-                1 === d.length ? s = {
-                  id: a.id,
-                  label: r,
-                  index: n,
-                  length: r.length
-                } : (s.label = r, s.length = r.length);
-                break;
-              }
+          }), i.sort(function(e, t) {
+            var n = TS.tabcomplete.members.getDisplayTextForResult(e, !0).length;
+            return TS.tabcomplete.members.getDisplayTextForResult(t, !0).length - n;
+          });
+          for (var c = 0; c < i.length; c += 1) {
+            s = i[c], r = TS.tabcomplete.members.getDisplayTextForResult(s, !0), a = s.is_broadcast_keyword || s.is_usergroup ? "" : TS.members.getMemberSecondaryName(s);
+            var _ = r.length > o.length && r.toLowerCase() === e.substr(n, r.length).toLowerCase(),
+              u = !1;
+            if (!_ && a && (a = "@" + a, u = a.length > o.length && a.toLowerCase() === e.substr(n, a.length).toLowerCase()), _ || u) {
+              var m = [],
+                p = _ ? r : a;
+              m = _ ? i.filter(l) : i.filter(d), 1 === m.length ? o = {
+                id: s.id,
+                label: p,
+                index: n,
+                length: p.length
+              } : (o.label = p, o.length = p.length);
+              break;
+            }
           }
-          return s;
+          return o;
         },
         g = function(e, t) {
           if (t.length) {
@@ -41544,13 +41536,13 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           e && (n = _(e).chain().filter(function(e, t) {
             return "order" !== t;
           }).map(function(e) {
-            return TS.channels.getChannelById(e.id).name;
+            return _.get(TS.channels.getChannelById(e.id), "name") || _.get(TS.groups.getGroupById(e.id), "name") || "???";
           }).value());
           var i = null;
           t && (i = _(t).chain().filter(function(e, t) {
             return "order" !== t;
           }).map(function(e) {
-            return "U" === e.id.substr(0, 1) ? _.get(TS.members.getMemberById(e.id), "name", "???") : "B" === e.id.substr(0, 1) ? _.get(TS.bots.getBotById(e.id), "name", "???") : "???";
+            return _.get(TS.members.getMemberById(e.id), "name") || _.get(TS.bots.getBotById(e.id), "name") || "???";
           }).value());
           var r = "";
           return r += TS.templates.sli_search_facets_results({
