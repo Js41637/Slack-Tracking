@@ -40042,7 +40042,7 @@ webpackJsonp([332], [, function(e, t, n) {
     }), u), {}),
     v = {},
     g = c.a.debounce(function() {
-      n.i(p.c)(c.a.keys(v)), v = {};
+      n.i(p.a)(c.a.keys(v)), v = {};
     }, 1e3);
   t.default = y;
 }, , , , , , , , , function(e, t, n) {
@@ -42489,7 +42489,8 @@ webpackJsonp([332], [, function(e, t, n) {
       onClick: s.PropTypes.func,
       type: s.PropTypes.oneOf(["rounded", "outline"]),
       size: s.PropTypes.oneOf(["small", "medium", "large"]),
-      icon: s.PropTypes.string
+      icon: s.PropTypes.string,
+      isDisabled: s.PropTypes.bool
     },
     _ = {
       className: null,
@@ -42498,7 +42499,8 @@ webpackJsonp([332], [, function(e, t, n) {
       target: null,
       type: "rounded",
       size: "medium",
-      icon: null
+      icon: null,
+      isDisabled: !1
     },
     y = function(e) {
       function t() {
@@ -42520,9 +42522,11 @@ webpackJsonp([332], [, function(e, t, n) {
             n = t.className,
             o = t.type,
             i = t.size,
-            a = t.icon;
+            a = t.icon,
+            s = t.isDisabled;
           return c()("c-button", n, (e = {
-            "c-rounded_button": "rounded" === o || "outline" === o || "transparent" === o || "large" === i || "small" === i
+            "c-rounded_button": "rounded" === o || "outline" === o || "transparent" === o || "large" === i || "small" === i,
+            "c-rounded_button--disabled": s
           }, r(e, "c-rounded_button--" + o, "rounded" === o || "outline" === o || "transparent" === o), r(e, "c-rounded_button--" + i, "text" !== o), r(e, "c-button--icon", a), r(e, "c-icon", a), r(e, "c-icon--" + a, a), e));
         }
       }, {
@@ -42530,10 +42534,12 @@ webpackJsonp([332], [, function(e, t, n) {
         value: function() {
           var e = this.props,
             t = e.children,
-            n = e.onClick;
+            n = e.onClick,
+            r = e.isDisabled;
           return u.a.createElement("button", {
             className: this.getButtonClasses(),
-            onClick: n
+            onClick: n,
+            disabled: r
           }, t);
         }
       }, {
@@ -42543,12 +42549,14 @@ webpackJsonp([332], [, function(e, t, n) {
             t = e.children,
             n = e.onClick,
             r = e.href,
-            o = e.target;
+            o = e.target,
+            i = e.isDisabled;
           return u.a.createElement("a", {
             href: r,
             className: this.getButtonClasses(),
             onClick: n,
-            target: o
+            target: o,
+            disabled: i
           }, t);
         }
       }, {
@@ -42658,11 +42666,11 @@ webpackJsonp([332], [, function(e, t, n) {
   r.propTypes = c;
 }, , , , function(e, t, n) {
   "use strict";
-  n.d(t, "c", function() {
+  n.d(t, "a", function() {
     return o;
-  }), n.d(t, "a", function() {
-    return i;
   }), n.d(t, "b", function() {
+    return i;
+  }), n.d(t, "c", function() {
     return a;
   }), n.d(t, "d", function() {
     return s;
@@ -55434,7 +55442,7 @@ webpackJsonp([332], [, function(e, t, n) {
     var r = n.i(l.getCurrentUserId)(e);
     return {
       users: s.a.map(t.users, function(e, t) {
-        return e === r ? 0 === t ? f.t("You") : f.t("you") : n.i(d.b)(e, !1, !0);
+        return e === r ? 0 === t ? f.t("You") : f.t("you") : n.i(d.c)(e, !1, !0);
       })
     };
   };
@@ -55889,7 +55897,7 @@ webpackJsonp([332], [, function(e, t, n) {
       o = n.i(u.getMemberById)(e, r);
     return {
       userId: r,
-      userName: n.i(l.a)(o)
+      userName: n.i(l.b)(o)
     };
   };
   t.a = n.i(i.b)(m)(h);
@@ -57064,7 +57072,7 @@ webpackJsonp([332], [, function(e, t, n) {
   c.propTypes = l;
   var d = function(e, t) {
     return {
-      name: n.i(u.b)(t.id)
+      name: n.i(u.c)(t.id)
     };
   };
   t.a = n.i(i.b)(d)(c);
@@ -58166,7 +58174,8 @@ webpackJsonp([332], [, function(e, t, n) {
     _ = n(3040),
     y = n(4165),
     v = n(2356),
-    g = function() {
+    g = n(2990),
+    b = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
@@ -58177,8 +58186,8 @@ webpackJsonp([332], [, function(e, t, n) {
         return n && e(t.prototype, n), r && e(t, r), t;
       };
     }(),
-    b = new f.a("message"),
-    w = {
+    w = new f.a("message"),
+    k = {
       ts: a.PropTypes.string.isRequired,
       text: a.PropTypes.string.isRequired,
       cancelEdit: a.PropTypes.func,
@@ -58204,9 +58213,10 @@ webpackJsonp([332], [, function(e, t, n) {
       didRequestToStopEditing: a.PropTypes.bool,
       requestToStopEditing: a.PropTypes.func,
       editWindowMin: a.PropTypes.number,
-      editStatus: a.PropTypes.string
+      editStatus: a.PropTypes.oneOf(["pending", "msg_too_long", "message_not_found", "edit_window_closed", "unknown_error"]),
+      isAdminUser: a.PropTypes.bool
     },
-    k = {
+    M = {
       cancelEdit: u.noop,
       saveMessageEdit: u.noop,
       channel: {},
@@ -58223,9 +58233,10 @@ webpackJsonp([332], [, function(e, t, n) {
       didRequestToStopEditing: !0,
       requestToStopEditing: u.noop,
       editWindowMin: -1,
-      editStatus: null
+      editStatus: null,
+      isAdminUser: !1
     },
-    M = function(e) {
+    T = function(e) {
       function t(e) {
         r(this, t);
         var i = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
@@ -58260,7 +58271,7 @@ webpackJsonp([332], [, function(e, t, n) {
           numCharsOverLimit: i.countCharsOverLimit()
         }, i;
       }
-      return i(t, e), g(t, [{
+      return i(t, e), b(t, [{
         key: "componentDidMount",
         value: function() {
           var e = this.props,
@@ -58280,6 +58291,12 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "componentWillUpdate",
         value: function(e, t) {
           t.editSecondsRemaining <= 0 && clearInterval(this.editWindowTimeout);
+        }
+      }, {
+        key: "componentDidUpdate",
+        value: function(e) {
+          var t = this.props.editStatus;
+          t && t !== e.editStatus && this.handleEditStatusChange();
         }
       }, {
         key: "componentWillUnmount",
@@ -58422,7 +58439,7 @@ webpackJsonp([332], [, function(e, t, n) {
           if (c === i) return t(), !1;
           var d = n.i(h.a)(c, null, r.id);
           if (d) {
-            var f = b.t("A Team Owner has restricted the use of <b>{keyword}</b> messages.", {
+            var f = w.t("A Team Owner has restricted the use of <b>{keyword}</b> messages.", {
               keyword: n.i(u.escape)(d)
             });
             return n.i(m.a)(f), !1;
@@ -58432,6 +58449,31 @@ webpackJsonp([332], [, function(e, t, n) {
             text: c,
             ts: a
           }), !0;
+        }
+      }, {
+        key: "handleEditStatusChange",
+        value: function() {
+          var e = this.props,
+            t = e.editStatus,
+            r = e.editWindowMin,
+            o = e.isAdminUser,
+            i = [];
+          if ("edit_window_closed" === t) {
+            var a = n.i(g.a)(r, {
+                units: "minutes"
+              }),
+              s = w.t("Sorry, but messages can only be edited for <strong>{msg_edit_duration_text}</strong> after posting.", {
+                msg_edit_duration_text: a
+              });
+            if (i.push("<p>" + s + "</p>"), o) {
+              var u = w.t('(To adjust the message editing window, visit <a href="/admin/settings#message_editing" target="_new">Team&nbsp;Settings</a>)');
+              i.push(u);
+            }
+          } else "msg_too_long" === t ? i.push(w.t("Sorry, your message is too long. Please shorten it and try again.")) : "unknown_error" === t && i.push(w.t("Sorry, something went wrong with editing your message. Try again in a moment."));
+          if (i.length) {
+            var l = w.t("Message editing failed");
+            n.i(m.a)(i.join(""), l);
+          }
         }
       }, {
         key: "shouldShowLengthWarning",
@@ -58455,9 +58497,9 @@ webpackJsonp([332], [, function(e, t, n) {
           var e = this.props.featureMessageInputByteLimit,
             t = this.state.numCharsOverLimit,
             n = void 0;
-          return n = e ? b.t("Your message is {diffCount, plural, =1{# character}other{# characters}} too long", {
+          return n = e ? w.t("Your message is {diffCount, plural, =1{# character}other{# characters}} too long", {
             diffCount: t
-          }) : b.t("text is too long!"), s.a.createElement("span", {
+          }) : w.t("text is too long!"), s.a.createElement("span", {
             className: "c-message__editor__warning",
             "data-js": "length_warning"
           }, n);
@@ -58467,7 +58509,7 @@ webpackJsonp([332], [, function(e, t, n) {
         value: function() {
           var e = this.state.editSecondsRemaining,
             t = void 0;
-          return e <= 0 ? t = b.t("(your time to edit ran out)") : e <= 60 && (t = n.i(f.b)(b.t("(you have <b>{seconds, number}</b> {seconds, plural, =1{second}other{seconds}})", {
+          return e <= 0 ? t = w.t("(your time to edit ran out)") : e <= 60 && (t = n.i(f.b)(w.t("(you have <b>{seconds, number}</b> {seconds, plural, =1{second}other{seconds}})", {
             seconds: e
           }), /<b>(.*)<\/b>/g, function(e, t, n) {
             return s.a.createElement("b", {
@@ -58481,7 +58523,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "renderUnsavedWarning",
         value: function() {
-          var e = n.i(f.b)(b.t("Finish editing this message first! Or press <b>escape</b> if you've changed your mind."), /<b>(.*)<\/b>/g, function(e, t, n) {
+          var e = n.i(f.b)(w.t("Finish editing this message first! Or press <b>escape</b> if you've changed your mind."), /<b>(.*)<\/b>/g, function(e, t, n) {
             return s.a.createElement("b", {
               key: n
             }, e);
@@ -58494,7 +58536,10 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "render",
         value: function() {
-          var e = this.props.cancelEdit;
+          var e = this.props,
+            t = e.cancelEdit,
+            n = e.editStatus,
+            r = "pending" === n;
           return s.a.createElement("div", {
             className: "c-message__editor"
           }, s.a.createElement(d.a, {
@@ -58506,20 +58551,22 @@ webpackJsonp([332], [, function(e, t, n) {
           }, s.a.createElement(l.a, {
             type: "outline",
             size: "small",
-            onClick: e
-          }, b.t("Cancel")), s.a.createElement(l.a, {
+            onClick: t
+          }, w.t("Cancel")), s.a.createElement(l.a, {
             size: "small",
             className: "c-message__editor__save",
-            onClick: this.maybeSave
+            onClick: this.maybeSave,
+            isPending: r,
+            isDisabled: r
           }, s.a.createElement(c.a, {
             type: "enter"
-          }), b.t("Save Changes")), s.a.createElement("div", {
+          }), w.t("Save Changes")), s.a.createElement("div", {
             className: "c-message__editor__messages"
           }, this.shouldShowUnsavedWarning() && this.renderUnsavedWarning(), this.shouldShowTimeoutWarning() && this.renderTimeoutWarning(), this.shouldShowLengthWarning() && this.renderLengthWarning())));
         }
       }]), t;
     }(a.PureComponent);
-  t.a = M, M.propTypes = w, M.defaultProps = k, M.displayName = "BaseEditMessage";
+  t.a = T, T.propTypes = k, T.defaultProps = M, T.displayName = "BaseEditMessage";
 }, function(e, t, n) {
   "use strict";
 
@@ -58528,14 +58575,15 @@ webpackJsonp([332], [, function(e, t, n) {
       o = t.channelId,
       i = n.i(s.getMessageByTimestamp)(e, o, r);
     if (!i) return t;
-    var c = n.i(a.isFeatureEnabled)(e, "feature_new_broadcast"),
-      d = n.i(a.isFeatureEnabled)(e, "feature_message_input_byte_limit"),
-      f = n.i(u.getChannelById)(e, o),
-      p = n.i(l.getTeamPref)(e, "msg_edit_window_mins");
+    var d = n.i(a.isFeatureEnabled)(e, "feature_new_broadcast"),
+      f = n.i(a.isFeatureEnabled)(e, "feature_message_input_byte_limit"),
+      p = n.i(u.getChannelById)(e, o),
+      h = n.i(l.getTeamPref)(e, "msg_edit_window_mins"),
+      m = n.i(c.getCurrentMember)(e);
     return {
-      channel: f,
-      featureMessageInputByteLimit: d,
-      featureNewBroadcast: c,
+      channel: p,
+      featureMessageInputByteLimit: f,
+      featureNewBroadcast: d,
       file: i.file,
       isEphemeral: i.is_ephemeral,
       subtype: i.subtype,
@@ -58543,7 +58591,8 @@ webpackJsonp([332], [, function(e, t, n) {
       threadTs: i.thread_ts,
       userId: i.userId,
       ts: r,
-      editWindowMin: p
+      editWindowMin: h,
+      isAdminUser: m.is_admin
     };
   }
   var o = n(43),
@@ -58552,10 +58601,11 @@ webpackJsonp([332], [, function(e, t, n) {
     s = n(3034),
     u = n(2295),
     l = n(3045),
-    c = {
+    c = n(3141),
+    d = {
       removeMessage: s.removeMessage
     };
-  t.a = n.i(o.b)(r, c)(i.a);
+  t.a = n.i(o.b)(r, d)(i.a);
 }, function(e, t, n) {
   "use strict";
   var r = n(3997);
@@ -60746,7 +60796,7 @@ webpackJsonp([332], [, function(e, t, n) {
     }
   });
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".c-rounded_button {\n  /* Color */\n  background-color: #29A979;\n  color: #FFFFFF;\n  /* Text */\n  -webkit-font-smoothing: antialiased;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 1rem;\n  line-height: 1.2;\n  font-weight: 900;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n  text-decoration: none;\n  outline: none;\n  cursor: pointer;\n  text-shadow: 0 1px 1px rgba(44, 45, 48, 0.1);\n  /* Border */\n  border: none;\n  border-radius: 0.25rem;\n  box-shadow: none;\n  /* Alignment */\n  position: relative;\n  display: inline-block;\n  text-align: center;\n  white-space: nowrap;\n  padding: 0.5rem 1rem;\n  -webkit-appearance: none;\n  -webkit-tap-highlight-color: transparent;\n}\n.c-rounded_button:after {\n  position: absolute;\n  content: '';\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  border-radius: 0.25rem;\n}\n.c-rounded_button .c-icon {\n  margin-right: 0.5rem;\n}\n.c-rounded_button .c-icon:before {\n  font-size: inherit;\n  vertical-align: bottom;\n}\n.c-rounded_button.c-button--icon {\n  width: 32px;\n  height: 30px;\n  padding: 0;\n}\n.c-rounded_button:link,\n.c-rounded_button:visited {\n  color: #FFFFFF;\n}\n.c-rounded_button--outline:link,\n.c-rounded_button--outline:active {\n  color: #717274;\n}\n.c-rounded_button:hover {\n  color: #FFFFFF;\n  text-decoration: none;\n}\n.c-rounded_button:hover:after {\n  box-shadow: inset 0 -2px rgba(0, 0, 0, 0.25);\n}\n.c-rounded_button:active:after {\n  box-shadow: inset 0 2px 1px rgba(0, 0, 0, 0.2);\n}\n.c-rounded_button--outline,\n.c-rounded_button--transparent {\n  font-weight: 700;\n  color: #717274;\n  box-shadow: inset 0 0 0 1px rgba(44, 45, 48, 0.3);\n  text-shadow: initial;\n}\n.c-rounded_button--outline {\n  background-color: #F9F9F9;\n}\n.c-rounded_button--outline:hover,\n.c-rounded_button--outline:active {\n  background-color: #FFFFFF;\n  color: #005E99;\n}\n.c-rounded_button--outline:hover:after,\n.c-rounded_button--outline:active:after {\n  box-shadow: initial;\n}\n.c-rounded_button--small {\n  font-size: 0.875rem;\n  padding-top: 0.3125rem;\n  padding-bottom: 0.3125rem;\n  padding-left: 0.625rem;\n  padding-right: 0.625rem;\n}\n.c-rounded_button--large {\n  font-size: 1.25rem;\n  padding-top: 0.875rem;\n  padding-bottom: 1rem;\n  padding-left: 2rem;\n  padding-right: 2rem;\n}\n.touch .c-rounded_button:focus {\n  outline: initial;\n  text-decoration: initial;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".c-rounded_button {\n  /* Color */\n  background-color: #29A979;\n  color: #FFFFFF;\n  /* Text */\n  -webkit-font-smoothing: antialiased;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 1rem;\n  line-height: 1.2;\n  font-weight: 900;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n  text-decoration: none;\n  outline: none;\n  cursor: pointer;\n  text-shadow: 0 1px 1px rgba(44, 45, 48, 0.1);\n  /* Border */\n  border: none;\n  border-radius: 0.25rem;\n  box-shadow: none;\n  /* Alignment */\n  position: relative;\n  display: inline-block;\n  text-align: center;\n  white-space: nowrap;\n  padding: 0.5rem 1rem;\n  -webkit-appearance: none;\n  -webkit-tap-highlight-color: transparent;\n}\n.c-rounded_button:after {\n  position: absolute;\n  content: '';\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  border-radius: 0.25rem;\n}\n.c-rounded_button .c-icon {\n  margin-right: 0.5rem;\n}\n.c-rounded_button .c-icon:before {\n  font-size: inherit;\n  vertical-align: bottom;\n}\n.c-rounded_button.c-button--icon {\n  width: 32px;\n  height: 30px;\n  padding: 0;\n}\n.c-rounded_button:link,\n.c-rounded_button:visited {\n  color: #FFFFFF;\n}\n.c-rounded_button--outline:link,\n.c-rounded_button--outline:active {\n  color: #717274;\n}\n.c-rounded_button:hover {\n  color: #FFFFFF;\n  text-decoration: none;\n}\n.c-rounded_button:hover:after {\n  box-shadow: inset 0 -2px rgba(0, 0, 0, 0.25);\n}\n.c-rounded_button:active:after {\n  box-shadow: inset 0 2px 1px rgba(0, 0, 0, 0.2);\n}\n.c-rounded_button--outline,\n.c-rounded_button--transparent {\n  font-weight: 700;\n  color: #717274;\n  box-shadow: inset 0 0 0 1px rgba(44, 45, 48, 0.3);\n  text-shadow: initial;\n}\n.c-rounded_button--outline {\n  background-color: #F9F9F9;\n}\n.c-rounded_button--outline:hover,\n.c-rounded_button--outline:active {\n  background-color: #FFFFFF;\n  color: #005E99;\n}\n.c-rounded_button--outline:hover:after,\n.c-rounded_button--outline:active:after {\n  box-shadow: initial;\n}\n.c-rounded_button--small {\n  font-size: 0.875rem;\n  padding-top: 0.3125rem;\n  padding-bottom: 0.3125rem;\n  padding-left: 0.625rem;\n  padding-right: 0.625rem;\n}\n.c-rounded_button--large {\n  font-size: 1.25rem;\n  padding-top: 0.875rem;\n  padding-bottom: 1rem;\n  padding-left: 2rem;\n  padding-right: 2rem;\n}\n.c-rounded_button--disabled {\n  background: rgba(113, 114, 116, 0.35);\n  color: #FFFFFF;\n}\n.touch .c-rounded_button:focus {\n  outline: initial;\n  text-decoration: initial;\n}\n", ""]);
 }, function(e, t, n) {
   var r = n(4172);
   "string" == typeof r && (r = [
@@ -61320,7 +61370,7 @@ webpackJsonp([332], [, function(e, t, n) {
         channelId: o,
         ts: u,
         text: l
-      }, t, n._attempts, d * a) : t(new Error(i.error || "unknown"));
+      }, t, n._attempts, n._delay_ms * a) : t(new Error(i.error || "unknown_error"));
     });
   }
 
