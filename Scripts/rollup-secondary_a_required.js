@@ -2322,11 +2322,11 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         addMsg: function(e, t) {
           var n = TS.channels.getChannelById(e);
           if (!n) return void TS.error('unknown channel "' + e + '"');
-          if (TS.useReactMessages()) return void TS.redux.messages.addMessage(t, !0);
-          if (TS.shared.addMsg(n, t)) {
-            var i = !TS.utility.msgs.isTempMsg(t);
-            TS.channels.calcUnreadCnts(n, i), TS.utility.msgs.maybeTruncateMsgs(n), TS.channels.message_received_sig.dispatch(n, t);
-          }
+          if (TS.useReactMessages()) {
+            if (!TS.redux.messages.addMessage(t, !0)) return;
+          } else if (!TS.shared.addMsg(n, t)) return;
+          var i = !TS.utility.msgs.isTempMsg(t);
+          TS.channels.calcUnreadCnts(n, i), TS.utility.msgs.maybeTruncateMsgs(n), TS.channels.message_received_sig.dispatch(n, t);
         },
         calcUnreadCnts: function(e, t) {
           TS.shared.calcUnreadCnts(e, TS.channels, t);
@@ -8794,15 +8794,15 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         addMsg: function(e, t) {
           var n = TS.groups.getGroupById(e);
           if (!n) return void TS.error('unknown group "' + e + '"');
-          if (TS.useReactMessages()) return void TS.redux.messages.addMessage(t, !0);
-          if (TS.shared.addMsg(n, t)) {
-            var i = !TS.utility.msgs.isTempMsg(t);
-            TS.groups.calcUnreadCnts(n, i), TS.utility.msgs.maybeTruncateMsgs(n), TS.groups.message_received_sig.dispatch(n, t), n.is_open || (TS.boot_data.feature_shared_channels_beta ? TS.api.call("conversations.open", {
-              channel: n.id
-            }) : TS.api.call("groups.open", {
-              channel: n.id
-            }));
-          }
+          if (TS.useReactMessages()) {
+            if (!TS.redux.messages.addMessage(t, !0)) return;
+          } else if (!TS.shared.addMsg(n, t)) return;
+          var i = !TS.utility.msgs.isTempMsg(t);
+          TS.groups.calcUnreadCnts(n, i), TS.utility.msgs.maybeTruncateMsgs(n), TS.groups.message_received_sig.dispatch(n, t), n.is_open || (TS.boot_data.feature_shared_channels_beta ? TS.api.call("conversations.open", {
+            channel: n.id
+          }) : TS.api.call("groups.open", {
+            channel: n.id
+          }));
         },
         calcUnreadCnts: function(e, t) {
           TS.shared.calcUnreadCnts(e, TS.groups, t);
@@ -9420,19 +9420,19 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         addMsg: function(e, t) {
           var n = TS.ims.getImById(e);
           if (!n) return void TS.error('unknown im "' + e + '"');
-          if (TS.useReactMessages()) return void TS.redux.messages.addMessage(t, !0);
-          if (TS.shared.addMsg(n, t)) {
-            var i = !TS.utility.msgs.isTempMsg(t);
-            TS.ims.calcUnreadCnts(n, i), TS.utility.msgs.maybeTruncateMsgs(n), TS.ims.message_received_sig.dispatch(n, t), n.is_open || (TS.boot_data.feature_shared_channels_beta ? TS.api.call("conversations.open", {
-              users: n.user,
-              return_im: !0,
-              reason: "TS.ims.addMsg"
-            }, TS.ims.onOpened) : TS.api.call("im.open", {
-              user: n.user,
-              return_im: !0,
-              reason: "TS.ims.addMsg"
-            }, TS.ims.onOpened));
-          }
+          if (TS.useReactMessages()) {
+            if (!TS.redux.messages.addMessage(t, !0)) return;
+          } else if (!TS.shared.addMsg(n, t)) return;
+          var i = !TS.utility.msgs.isTempMsg(t);
+          TS.ims.calcUnreadCnts(n, i), TS.utility.msgs.maybeTruncateMsgs(n), TS.ims.message_received_sig.dispatch(n, t), n.is_open || (TS.boot_data.feature_shared_channels_beta ? TS.api.call("conversations.open", {
+            users: n.user,
+            return_im: !0,
+            reason: "TS.ims.addMsg"
+          }, TS.ims.onOpened) : TS.api.call("im.open", {
+            user: n.user,
+            return_im: !0,
+            reason: "TS.ims.addMsg"
+          }, TS.ims.onOpened));
         },
         calcUnreadCnts: function(e, t) {
           TS.shared.calcUnreadCnts(e, TS.ims, t);
@@ -14672,29 +14672,29 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         addMsg: function(e, t) {
           var n = TS.mpims.getMpimById(e);
           if (!n) return void TS.error('unknown mpim "' + e + '"');
-          if (TS.useReactMessages()) return void TS.redux.messages.addMessage(t, !0);
-          if (TS.shared.addMsg(n, t)) {
-            var i = !TS.utility.msgs.isTempMsg(t);
-            if (TS.mpims.calcUnreadCnts(n, i), TS.utility.msgs.maybeTruncateMsgs(n), TS.mpims.message_received_sig.dispatch(n, t), !n.is_open && TS.utility.msgs.msgCanCountAsUnread(t))
-              if (1 == n.members.length) {
-                var r = n.members[0];
-                TS.boot_data.feature_shared_channels_beta ? TS.api.call("conversations.open", {
-                  users: r,
-                  return_im: !0,
-                  reason: "TS.mpims.addMsg"
-                }, TS.ims.onOpened) : TS.api.call("im.open", {
-                  user: r,
-                  return_im: !0,
-                  reason: "TS.mpims.addMsg"
-                }, TS.ims.onOpened);
-              } else if (n.members.length > 1) {
-              var a = n.members.join(",");
+          if (TS.useReactMessages()) {
+            if (!TS.redux.messages.addMessage(t, !0)) return;
+          } else if (!TS.shared.addMsg(n, t)) return;
+          var i = !TS.utility.msgs.isTempMsg(t);
+          if (TS.mpims.calcUnreadCnts(n, i), TS.utility.msgs.maybeTruncateMsgs(n), TS.mpims.message_received_sig.dispatch(n, t), !n.is_open && TS.utility.msgs.msgCanCountAsUnread(t))
+            if (1 == n.members.length) {
+              var r = n.members[0];
               TS.boot_data.feature_shared_channels_beta ? TS.api.call("conversations.open", {
-                users: a
-              }, TS.mpims.onOpened) : TS.api.call("mpim.open", {
-                users: a
-              }, TS.mpims.onOpened);
-            }
+                users: r,
+                return_im: !0,
+                reason: "TS.mpims.addMsg"
+              }, TS.ims.onOpened) : TS.api.call("im.open", {
+                user: r,
+                return_im: !0,
+                reason: "TS.mpims.addMsg"
+              }, TS.ims.onOpened);
+            } else if (n.members.length > 1) {
+            var a = n.members.join(",");
+            TS.boot_data.feature_shared_channels_beta ? TS.api.call("conversations.open", {
+              users: a
+            }, TS.mpims.onOpened) : TS.api.call("mpim.open", {
+              users: a
+            }, TS.mpims.onOpened);
           }
         },
         calcUnreadCnts: function(e, t) {
@@ -40654,29 +40654,37 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
     ! function() {
       "use strict";
       TS.registerModule("redux.messages", {
-        addMessages: function(e, t, n) {
-          if (TS.redux.dispatch(TS.interop.redux.entities.messages.addMessages(e)), t) {
-            var i = _.reject(e, TS.utility.msgs.isMsgHidden);
-            if (_.isEmpty(i)) return;
-            var r = i && i[0] && i[0].channel,
-              a = _.map(i, "ts"),
-              s = {};
-            n && (s = {
-              oldest: _.min(a),
+        addMessages: function(t, n, i) {
+          var r = _.some(t, function(t) {
+            return !e(t.channel, t.ts);
+          });
+          if (TS.redux.dispatch(TS.interop.redux.entities.messages.addMessages(t)), n) {
+            var a = _.reject(t, TS.utility.msgs.isMsgHidden);
+            if (_.isEmpty(a)) return r;
+            var s = a && a[0] && a[0].channel,
+              o = _.map(a, "ts"),
+              l = {};
+            i && (l = {
+              oldest: _.min(o),
               hasMore: !1
             }), TS.redux.dispatch(TS.interop.redux.entities.channelHistory.addTimestamps(_.assign({
-              channelId: r,
-              timestamps: a
-            }, s)));
+              channelId: s,
+              timestamps: o
+            }, l)));
           }
+          return r;
         },
-        addMessage: function(e, t) {
-          if (e && e.channel && e.ts && (TS.redux.dispatch(TS.interop.redux.entities.messages.addMessages([e])), !TS.utility.msgs.isMsgHidden(e))) {
-            var n = {
-              channelId: e.channel,
-              timestamps: [e.ts]
-            };
-            t && (n.oldest = e.ts, n.hasMore = !1), TS.redux.dispatch(TS.interop.redux.entities.channelHistory.addTimestamps(n));
+        addMessage: function(t, n) {
+          if (t && t.channel && t.ts) {
+            var i = e(t.channel, t.ts);
+            if (TS.redux.dispatch(TS.interop.redux.entities.messages.addMessages([t])), !TS.utility.msgs.isMsgHidden(t)) {
+              var r = {
+                channelId: t.channel,
+                timestamps: [t.ts]
+              };
+              n && (r.oldest = t.ts, r.hasMore = !1), TS.redux.dispatch(TS.interop.redux.entities.channelHistory.addTimestamps(r));
+            }
+            return !i;
           }
         },
         replaceMessage: function(e) {
@@ -40692,6 +40700,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return TS.interop.redux.entities.messages.getMessageByTimestamp(TS.redux.getState(), e, t);
         }
       });
+      var e = function(e, t) {
+        return TS.interop.redux.entities.messages.getMessageByTimestamp ? TS.interop.redux.entities.messages.getMessageByTimestamp(TS.redux.getState(), e, t) : null;
+      };
     }();
   },
   3890: function(e, t) {
