@@ -7,12 +7,12 @@ webpackJsonp([12, 328, 337, 329], {
       "use strict";
       TS.registerModule("clog", {
         onStart: function() {
-          o = TS.log && TS.has_pri[o] ? o : null;
+          t = TS.log && TS.has_pri[t] ? t : null;
           var e = Math.floor(5e3 * Math.random());
           setInterval(c, 3e4 + e), $(window).on("beforeunload pagehide", c), $("body").on("click", '[data-clog-click="true"], [data-clog-ui-action="click"], [data-clog-event=WEBSITE_CLICK]', d), u(), TS.clog.flush();
         },
         setUser: function(e) {
-          t = e;
+          o = e;
         },
         setTeam: function(e) {
           n = e;
@@ -59,20 +59,20 @@ webpackJsonp([12, 328, 337, 329], {
           if (!e) return {};
           e = e.split(",");
           var n, a = {},
-            t = 0,
-            o = e.length;
-          for (t; t < o; t += 1) n = e[t].split("="), a[n[0]] = n[1];
+            o = 0,
+            t = e.length;
+          for (o; o < t; o += 1) n = e[o].split("="), a[n[0]] = n[1];
           return a;
         }
       });
-      var e, n, a, t, o = 1e3,
+      var e, n, a, o, t = 1e3,
         i = [],
         r = !1,
         s = function(n) {
           var a = n.match(/^([^.]+\.)?(?:enterprise\.)?(dev[0-9]*)\.slack\.com/),
-            t = n.match(/^([^.]+\.)?(?:enterprise\.)?(qa[0-9]*)\.slack\.com/),
-            o = n.match(/^([^.]+\.)?(?:enterprise\.)?(staging)\.slack\.com/);
-          e = a ? "https://" + a[2] + ".slack.com/clog/track/" : t ? "https://" + t[2] + ".slack.com/clog/track/" : o ? "https://staging.slack.com/clog/track/" : "https://slack.com/clog/track/";
+            o = n.match(/^([^.]+\.)?(?:enterprise\.)?(qa[0-9]*)\.slack\.com/),
+            t = n.match(/^([^.]+\.)?(?:enterprise\.)?(staging)\.slack\.com/);
+          e = a ? "https://" + a[2] + ".slack.com/clog/track/" : o ? "https://" + o[2] + ".slack.com/clog/track/" : t ? "https://staging.slack.com/clog/track/" : "https://slack.com/clog/track/";
         },
         l = function(e, s) {
           if ("string" == typeof e) {
@@ -82,7 +82,7 @@ webpackJsonp([12, 328, 337, 329], {
               event: e,
               args: s
             };
-            if (u(), n && (l.team_id = n), a && (l.enterprise_id = a), t && (l.user_id = t), i.push(l), TS.log) r && TS.console.log(1e3, l), TS.has_pri[o] && TS.log(o, "Event called:", e, s);
+            if (u(), n && (l.team_id = n), a && (l.enterprise_id = a), o && (l.user_id = o), i.push(l), TS.log) r && TS.console.log(1e3, l), TS.has_pri[t] && TS.log(t, "Event called:", e, s);
             else if (r) try {
               console.log(l);
             } catch (e) {}
@@ -90,20 +90,20 @@ webpackJsonp([12, 328, 337, 329], {
         },
         c = function() {
           if (0 !== i.length) {
-            TS.log && TS.has_pri[o] && (TS.log(o, "Sending clog data, emptying queue"), TS.log(o, "Logs: ", i));
+            TS.log && TS.has_pri[t] && (TS.log(t, "Sending clog data, emptying queue"), TS.log(t, "Logs: ", i));
             for (var e, n = _(i), a = 0; a < n.length; a += 1) {
               e = n[a];
-              (new Image).src = e, TS.log && TS.has_pri[o] && TS.log(o, "Logged event: " + e);
+              (new Image).src = e, TS.log && TS.has_pri[t] && TS.log(t, "Logged event: " + e);
             }
             i = [];
           }
         },
         _ = function(n) {
           e || s(location.host);
-          for (var a, t = [], i = [], r = "", l = function(n) {
+          for (var a, o = [], i = [], r = "", l = function(n) {
               return e + "?logs=" + encodeURIComponent(JSON.stringify(n));
-            }, c = 0; c < n.length; c += 1) a = n[c], i.push(a), r = l(i), r.length > 2e3 && (i.pop(), t.push(l(i)), i = [a]);
-          return t.push(l(i)), TS.log && TS.has_pri[o] && TS.log(o, "URLs:", t), t;
+            }, c = 0; c < n.length; c += 1) a = n[c], i.push(a), r = l(i), r.length > 2e3 && (i.pop(), o.push(l(i)), i = [a]);
+          return o.push(l(i)), TS.log && TS.has_pri[t] && TS.log(t, "URLs:", o), o;
         },
         d = function() {
           var e = this.getAttribute("data-clog-event");
@@ -163,16 +163,16 @@ webpackJsonp([12, 328, 337, 329], {
           var e = TS.i18n.DEFAULT_LOCALE.toLowerCase();
           return l && l[r.toLowerCase()] && (e = l[r.toLowerCase()]), e;
         },
-        t: function(e, a, o) {
+        t: function(e, a, t) {
           if (m(), !a && n) {
             return (TS.error ? TS.error : console.error).call(this, "TS.i18n.t requires a namespace string as the second argument. Currently " + a + "."),
               function() {
                 return "";
               };
           }
-          o = o || r;
-          var s = o + ":" + a + ":" + e;
-          return void 0 === c[s] && (i || "pseudo" === o ? c[s] = new MessageFormat(o, h(e)).format : (n && a && window.sha1 && window.tsTranslations && window.tsTranslations[a] && (e = window.tsTranslations[a][window.sha1(e)] || e), c[s] = new MessageFormat(o, e).format), n && t && (c[s].toString = p(s, a))), c[s];
+          t = t || r;
+          var s = t + ":" + a + ":" + e;
+          return void 0 === c[s] && (i || "pseudo" === t ? c[s] = new MessageFormat(t, h(e)).format : (n && a && window.sha1 && window.tsTranslations && window.tsTranslations[a] && (e = window.tsTranslations[a][window.sha1(e)] || e), c[s] = new MessageFormat(t, e).format), n && o && (c[s].toString = p(s, a))), c[s];
         },
         number: function(e) {
           return m(), Intl.NumberFormat(r).format(e);
@@ -183,8 +183,8 @@ webpackJsonp([12, 328, 337, 329], {
         mappedSorter: function(e) {
           return function(n, a) {
             if (!n || !a) return n ? 1 : -1;
-            var t = (e + "").split(".");
-            return t.length > 1 ? t.forEach(function(e) {
+            var o = (e + "").split(".");
+            return o.length > 1 ? o.forEach(function(e) {
               n = n[e], a = a[e];
             }) : (n = n[e], a = a[e]), TS.i18n.sorter(n, a);
           };
@@ -214,10 +214,10 @@ webpackJsonp([12, 328, 337, 329], {
         },
         listify: function(e, n) {
           m();
-          var a, t = [],
-            o = e.length,
+          var a, o = [],
+            t = e.length,
             i = n && "or" === n.conj ? TS.i18n.t("or", "general")() : TS.i18n.t("and", "general")(),
-            s = o > 2 ? "," : "",
+            s = t > 2 ? "," : "",
             l = n && n.strong ? "<strong>" : "",
             c = n && n.strong ? "</strong>" : "",
             d = n && n.no_escape,
@@ -230,17 +230,17 @@ webpackJsonp([12, 328, 337, 329], {
               a = s + " " + i + " ";
           }
           return e.forEach(function(e, n) {
-            d || (e = _.escape(e)), t.push(l + u + e + c), n < o - 2 ? t.push(", ") : n < o - 1 && t.push(a);
-          }), t;
+            d || (e = _.escape(e)), o.push(l + u + e + c), n < t - 2 ? o.push(", ") : n < t - 1 && o.push(a);
+          }), o;
         },
         deburr: function(e) {
-          return e = _.deburr(e), e = a(e), e = o(e);
+          return e = _.deburr(e), e = a(e), e = t(e);
         },
         getStaticTranslation: function(e, n) {
           if (!f()) return null;
           var a = TS.storage.fetchStaticTranslations(),
-            t = _.get(a, "data." + n);
-          return t && t[e] ? t[e] : null;
+            o = _.get(a, "data." + n);
+          return o && o[e] ? o[e] : null;
         },
         start_of_the_week: {
           "en-US": 0
@@ -309,11 +309,11 @@ webpackJsonp([12, 328, 337, 329], {
           }
         }
       });
-      var e, n, t, i, r, s, l, c = {},
+      var e, n, o, i, r, s, l, c = {},
         d = [],
         m = function() {
           if (!e) {
-            n = location.host.match(/^([^.]+\.)?(?:enterprise\.)?(dev[0-9]*)\.slack\.com/), t = TS.qs_args && TS.qs_args.local_assets || TS.qs_args && TS.qs_args.js_path;
+            n = location.host.match(/^([^.]+\.)?(?:enterprise\.)?(dev[0-9]*)\.slack\.com/), o = TS.qs_args && TS.qs_args.local_assets || TS.qs_args && TS.qs_args.js_path;
             var a = location.search.match(new RegExp("\\?locale=(.*?)($|&)", "i"));
             a && (r = a[1]), r || (r = document.documentElement.lang || TS.i18n.DEFAULT_LOCALE), "pseudo" === r && (i = !0), s = Intl.Collator ? Intl.Collator(r) : null, e = !0;
           }
@@ -341,8 +341,8 @@ webpackJsonp([12, 328, 337, 329], {
             var a = n + "." + e;
             if (!(d.indexOf(a) >= 0)) {
               d.push(a);
-              var t = "TS.i18n.t(" + JSON.stringify(e) + ", " + JSON.stringify(n) + ")";
-              return TS.console.logStackTrace("Tried to use an i18n function as a string — you probably did " + t + " when you meant to do " + t + "()"), alert("Dev-only alert: tried to use an i18n function as a string! See console for stack trace.\n\nNamespace: " + n + "\nString: " + e), "";
+              var o = "TS.i18n.t(" + JSON.stringify(e) + ", " + JSON.stringify(n) + ")";
+              return TS.console.logStackTrace("Tried to use an i18n function as a string — you probably did " + o + " when you meant to do " + o + "()"), alert("Dev-only alert: tried to use an i18n function as a string! See console for stack trace.\n\nNamespace: " + n + "\nString: " + e), "";
             }
           };
         },
@@ -350,19 +350,19 @@ webpackJsonp([12, 328, 337, 329], {
           var n = !1;
           e.endsWith(":") && (n = !0, e = e.substr(0, e.length - 1));
           var a = /(<[^>]+>)|(&\w+;)/gi,
-            t = e.match(a) || [];
+            o = e.match(a) || [];
           e = e.replace(a, "<>");
-          var o = parseMessageFormatString(e);
-          o.error && TS.error(o.error);
+          var t = parseMessageFormatString(e);
+          t.error && TS.error(t.error);
           var i;
-          return e = o.tokens.map(function(e) {
+          return e = t.tokens.map(function(e) {
             return "text" === e[0] ? (i = e[1], _.forOwn(S, function(e) {
               i = i.replace(e[0], e[1]);
             }), i.split(" ").map(function(e) {
               return e += new Array(Math.floor(.3 * e.length) + 1).join("~");
             }).join(" ")) : e[1];
           }).join(""), e = e.split("<>").map(function(e, n) {
-            return e + (t[n] || "");
+            return e + (o[n] || "");
           }).join(""), n && (e += ":"), e;
         },
         S = {
@@ -405,9 +405,9 @@ webpackJsonp([12, 328, 337, 329], {
         };
     }();
     var a = function(e) {
-        return e && e.replace(/([\u3000-\u301f\u30a0-\u30ff\uff00-\uffef])/g, t);
+        return e && e.replace(/([\u3000-\u301f\u30a0-\u30ff\uff00-\uffef])/g, o);
       },
-      t = function(e) {
+      o = function(e) {
         var n = {
             "ガ": "ｶﾞ",
             "ギ": "ｷﾞ",
@@ -510,7 +510,7 @@ webpackJsonp([12, 328, 337, 329], {
           a = e.charCodeAt(0);
         return e in n ? n[e] : a >= 65280 && a <= 65374 ? String.fromCharCode(a - 65248) : e;
       },
-      o = function(e) {
+      t = function(e) {
         return e && e.replace(/([\u0400-\u04ff])/g, i);
       },
       i = function(e) {
@@ -598,10 +598,10 @@ webpackJsonp([12, 328, 337, 329], {
           })), a);
         },
         loadVisitorAssignments: function() {
-          return o || (o = l("experiments.getByVisitor")), o;
+          return t || (t = l("experiments.getByVisitor")), t;
         },
         loadUserAssignments: function() {
-          return e ? (t || (t = l("experiments.getByUser")), t) : (TS.warn && TS.warn("TS.experiment.loadUserAssignments requires a user to be logged in"), Promise.resolve(!1));
+          return e ? (o || (o = l("experiments.getByUser")), o) : (TS.warn && TS.warn("TS.experiment.loadUserAssignments requires a user to be logged in"), Promise.resolve(!1));
         },
         getGroup: function(e, n) {
           return i[e] ? (i[e].log_exposures && d(e, i[e]), n && i[e].group && n.forEach(function(n) {
@@ -636,13 +636,13 @@ webpackJsonp([12, 328, 337, 329], {
           }), e;
         }
       });
-      var e, n, a, t, o, i = {},
+      var e, n, a, o, t, i = {},
         r = {},
         s = {},
         l = function(e, a) {
-          return new Promise(function(t) {
+          return new Promise(function(o) {
             n(e, _.extend(TS.utility.url.queryStringParse(location.search.substring(1)), a), function(e, n) {
-              e && n.assignments && c(n.assignments), t(e);
+              e && n.assignments && c(n.assignments), o(e);
             });
           });
         },
@@ -672,21 +672,21 @@ webpackJsonp([12, 328, 337, 329], {
       "use strict";
       var e = function(e, n) {
           var a = TS.model && TS.model.team && TS.model.team.id ? TS.model.team.id : "none",
-            t = TS.model && TS.model.user && TS.model.user.id ? TS.model.user.id : "none",
-            o = {
+            o = TS.model && TS.model.user && TS.model.user.id ? TS.model.user.id : "none",
+            t = {
               description: n,
               error_json: JSON.stringify(e),
               team: a,
-              user: t,
+              user: o,
               version: TS.boot_data.version_ts
             };
-          $.post(TS.boot_data.beacon_error_url, o);
+          $.post(TS.boot_data.beacon_error_url, t);
         },
         n = function(e, n, a) {
           if (window.console && console[e]) {
-            var t = TS.qs_args.clean_log,
-              o = null !== n;
-            if (a = Array.prototype.slice.call(a), o) {
+            var o = TS.qs_args.clean_log,
+              t = null !== n;
+            if (a = Array.prototype.slice.call(a), t) {
               if (!TS.console.shouldLog(n)) return;
               a.splice(0, 1);
             }
@@ -694,10 +694,10 @@ webpackJsonp([12, 328, 337, 329], {
               return i(e);
             });
             for (var r = !0, s = a.length; r && s;) s -= 1, r = "string" == typeof a[s];
-            if (!t || "error" === e || n === parseInt(TS.qs_args.pri, 10) && o)
+            if (!o || "error" === e || n === parseInt(TS.qs_args.pri, 10) && t)
               if (r) {
                 var l = TS.makeLogDate();
-                o && !t && (l += "[** " + n + " **]"), a.unshift(l), console[e](a.join(" "));
+                t && !o && (l += "[** " + n + " **]"), a.unshift(l), console[e](a.join(" "));
               } else console[e].apply(console, a);
           }
         };
@@ -711,15 +711,15 @@ webpackJsonp([12, 328, 337, 329], {
         dir: function(e, n, a) {
           if (window.console && console.dir && (!e || TS.shouldLog(e))) {
             a = a || "", n = i(n);
-            var t = parseInt(TS.qs_args.dir_json, 10);
-            if (t) {
-              var o = 1 == t ? "2000" : t;
+            var o = parseInt(TS.qs_args.dir_json, 10);
+            if (o) {
+              var t = 1 == o ? "2000" : o;
               try {
                 var r = JSON.stringify(n, null, "  ");
-                if (r.length > o) throw new Error("too long");
+                if (r.length > t) throw new Error("too long");
                 return void console.info(TS.makeLogDate() + "[** " + e + " **] " + a + " " + r);
-              } catch (t) {
-                if ("too long" !== t) return void console.info(TS.makeLogDate() + "[** " + e + " **] " + a + " " + n);
+              } catch (o) {
+                if ("too long" !== o) return void console.info(TS.makeLogDate() + "[** " + e + " **] " + a + " " + n);
               }
             }
             try {
@@ -750,13 +750,13 @@ webpackJsonp([12, 328, 337, 329], {
             n = (new Error).stack;
           if (e) {
             var a = new Error,
-              t = Promise.resolve();
-            if (_.isFunction(t._attachExtraTrace)) {
-              t._attachExtraTrace(a), n = a.stack || "";
-              var o = n.split("\n");
-              if (o.length && o.indexOf("From previous event:") >= 0) {
-                var i = o.indexOf("From previous event:") + 1;
-                n = [o[0]].concat(o.slice(i)).join("\n");
+              o = Promise.resolve();
+            if (_.isFunction(o._attachExtraTrace)) {
+              o._attachExtraTrace(a), n = a.stack || "";
+              var t = n.split("\n");
+              if (t.length && t.indexOf("From previous event:") >= 0) {
+                var i = t.indexOf("From previous event:") + 1;
+                n = [t[0]].concat(t.slice(i)).join("\n");
               }
             }
           }
@@ -773,16 +773,16 @@ webpackJsonp([12, 328, 337, 329], {
         log: function(e) {
           n("log", e, arguments);
         },
-        logError: function(n, a, t, o) {
+        logError: function(n, a, o, t) {
           var i = n instanceof Error ? n : new Error,
             r = {
-              subtype: t || "none",
+              subtype: o || "none",
               message: n instanceof Error ? n.message || n.description : JSON.stringify(n),
               fileName: i.fileName || i.sourceURL,
               lineNumber: i.lineNumber || i.line,
               stack: i.stack || i.backtrace || i.stacktrace
             };
-          e(r, a), !o && window.console && console.error && console.error(TS.makeLogDate() + "logging " + (n ? "e: " + n : "") + (n && n.stack ? " e.stack: " + n.stack : "") + (a ? " desc: " + a : "") + (n && n.message ? " e.message: " + n.message : ""));
+          e(r, a), !t && window.console && console.error && console.error(TS.makeLogDate() + "logging " + (n ? "e: " + n : "") + (n && n.stack ? " e.stack: " + n.stack : "") + (a ? " desc: " + a : "") + (n && n.message ? " e.message: " + n.message : ""));
         },
         logStackTrace: function(e) {
           var n = _.isUndefined(e) ? "" : e + "\n";
@@ -800,7 +800,7 @@ webpackJsonp([12, 328, 337, 329], {
         },
         setAppropriatePri: function(e) {
           var n = "";
-          TS.qs_args.pri && (n += TS.qs_args.pri), e && TS.boot_data.client_logs_pri && ("" !== n && (n += ","), n += TS.boot_data.client_logs_pri), TS.model && TS.model.prefs && TS.model.prefs.client_logs_pri && ("" !== n && (n += ","), n += TS.model.prefs.client_logs_pri), "" !== n && (n += ","), n += "0", TS.pri = _.uniq(n.split(",")).join(","), t();
+          TS.qs_args.pri && (n += TS.qs_args.pri), e && TS.boot_data.client_logs_pri && ("" !== n && (n += ","), n += TS.boot_data.client_logs_pri), TS.model && TS.model.prefs && TS.model.prefs.client_logs_pri && ("" !== n && (n += ","), n += TS.model.prefs.client_logs_pri), "" !== n && (n += ","), n += "0", TS.pri = _.uniq(n.split(",")).join(","), o();
         },
         shouldLog: function(e) {
           var n = String(TS.pri).split(",");
@@ -842,7 +842,7 @@ webpackJsonp([12, 328, 337, 329], {
           };
         }
       };
-      var t = function() {
+      var o = function() {
           var e = String(TS.pri).split(",");
           TS.has_pri = _(Object.keys(TS.boot_data.client_logs || {})).filter(function(n) {
             var a = TS.boot_data.client_logs[n];
@@ -855,7 +855,7 @@ webpackJsonp([12, 328, 337, 329], {
             return e;
           }).value();
         },
-        o = {
+        t = {
           name: 1,
           real_name: 1,
           src: 1,
@@ -866,27 +866,27 @@ webpackJsonp([12, 328, 337, 329], {
           if (!TS.boot_data || TS.boot_data.feature_tinyspeck || "dev" === TS.boot_data.version_ts) return n;
           if (!n || !_.isObject(n)) return n;
           if (a ? a += 1 : a = 1, a >= 10) return n;
-          var t;
-          return t = _.isArray(n) ? [] : {}, _.each(n, function(n, i) {
-            t[i] = o[i] ? "[redacted " + r(n) + "]" : e(n, a);
-          }), t;
+          var o;
+          return o = _.isArray(n) ? [] : {}, _.each(n, function(n, i) {
+            o[i] = t[i] ? "[redacted " + r(n) + "]" : e(n, a);
+          }), o;
         },
         r = function(e) {
           var n = {};
-          return function(t) {
-            var o = void 0 === t ? "undefined" : a(t);
-            return null === t ? "null" : t === e ? "global" : "object" !== o ? o : t.nodeType ? "DOM node" : n[o = {}.toString.call(t)] || (n[o] = o.slice(8, -1).toLowerCase());
+          return function(o) {
+            var t = void 0 === o ? "undefined" : a(o);
+            return null === o ? "null" : o === e ? "global" : "object" !== t ? t : o.nodeType ? "DOM node" : n[t = {}.toString.call(o)] || (n[t] = t.slice(8, -1).toLowerCase());
           };
         }(this),
         s = function() {
           var e, n, a = arguments && arguments[0],
-            t = "",
-            o = !0;
+            o = "",
+            t = !0;
           if (a) {
-            if (t = "", (e = a.srcElement || a.target) && e.nodeName)
-              if ("SCRIPT" === e.nodeName) t = (a.type || "error") + " from script at " + e.src + " (failed to load?)";
+            if (o = "", (e = a.srcElement || a.target) && e.nodeName)
+              if ("SCRIPT" === e.nodeName) o = (a.type || "error") + " from script at " + e.src + " (failed to load?)";
               else if ("IMG" === e.nodeName) return void(TS.pri && TS.console && TS.console.warn && TS.console.warn("<img> fired error with url = " + (e.src || e.currentSrc || "unkonwn")));
-            if (a.error && a.error.stack ? t += a.error.stack : a.filename && (t = " from " + a.filename + (a.lineno ? " @ line " + a.lineno + ", col " + a.colno : "")), n = (a.error && a.error.stack ? "" : a.message || "") + " " + t, n && n.replace && (n = n.replace(/\s+/g, " ").trim()), n && n.length || (n = e ? "error event from node of " + (e.nodeName || "unknown") + ", no message provided?" : "error event fired, no relevant message or node found", o = !1), n = "🐞 " + n, (TS.console && TS.console.error || window.console.error || function() {})(n), o) {
+            if (a.error && a.error.stack ? o += a.error.stack : a.filename && (o = " from " + a.filename + (a.lineno ? " @ line " + a.lineno + ", col " + a.colno : "")), n = (a.error && a.error.stack ? "" : a.message || "") + " " + o, n && n.replace && (n = n.replace(/\s+/g, " ").trim()), n && n.length || (n = e ? "error event from node of " + (e.nodeName || "unknown") + ", no message provided?" : "error event fired, no relevant message or node found", t = !1), n = "🐞 " + n, (TS.console && TS.console.error || window.console.error || function() {})(n), t) {
               TS.console.logError(a.error || a, n, null, !1);
             }
             e = null, n = null;
@@ -913,17 +913,17 @@ webpackJsonp([12, 328, 337, 329], {
           p();
         },
         isValidName: function(e) {
-          return !!e && (e = TS.emoji.stripWrappingColons(e).toLowerCase(), void 0 !== o[e] && e);
+          return !!e && (e = TS.emoji.stripWrappingColons(e).toLowerCase(), void 0 !== t[e] && e);
         },
         substringMatchesName: function(e, n, a) {
           if (!(e && n && _.isString(e) && _.isString(n))) return !1;
           if ("::" === n) return !1;
-          var t = ":" === n.charAt(0),
-            o = ":" === n.slice(-1);
+          var o = ":" === n.charAt(0),
+            t = ":" === n.slice(-1);
           if (!(n = TS.emoji.stripWrappingColons(n.toLowerCase()))) return !0;
-          if (t && o) return n === e;
-          if (t) return e.slice(0, n.length) === n;
-          if (o) return e.slice(-1 * n.length) === n;
+          if (o && t) return n === e;
+          if (o) return e.slice(0, n.length) === n;
+          if (t) return e.slice(-1 * n.length) === n;
           if (-1 !== e.indexOf(n)) return !0;
           if (a) {
             var i = TS.rxns.getHandyRxnsTitleForEmojiByRxnKey(e, a);
@@ -933,13 +933,13 @@ webpackJsonp([12, 328, 337, 329], {
         },
         emojiMatchesTerm: function(e, n, a) {
           if (!e || !n) return !1;
-          var t = TS.emoji.nameToBaseName(e.display_name || e.name);
-          if (TS.boot_data.feature_localization && (n = TS.emoji.normalizeSearchTerm(n), t = TS.i18n.deburr(t)), TS.emoji.substringMatchesName(t, n)) return !0;
-          var o = e.display_names || e.names;
-          TS.boot_data.feature_localization && (o = TS.i18n.deburr(o), e.display_names && e.display_names !== e.names && (o += " " + e.names));
-          for (var i = o.split(" "), r = 0; r < i.length; r += 1)
+          var o = TS.emoji.nameToBaseName(e.display_name || e.name);
+          if (TS.boot_data.feature_localization && (n = TS.emoji.normalizeSearchTerm(n), o = TS.i18n.deburr(o)), TS.emoji.substringMatchesName(o, n)) return !0;
+          var t = e.display_names || e.names;
+          TS.boot_data.feature_localization && (t = TS.i18n.deburr(t), e.display_names && e.display_names !== e.names && (t += " " + e.names));
+          for (var i = t.split(" "), r = 0; r < i.length; r += 1)
             if (TS.emoji.substringMatchesName(TS.emoji.nameToBaseName(i[r]), n)) return !0;
-          return -1 !== _.indexOf(a, t);
+          return -1 !== _.indexOf(a, o);
         },
         normalizeSearchTerm: function(e) {
           if (e && _.isString(e)) return e = e.toLowerCase(), e = TS.i18n.deburr(e), e = e.replace(/['ʼ’]/g, "'");
@@ -978,28 +978,28 @@ webpackJsonp([12, 328, 337, 329], {
             return d.map.colons.hasOwnProperty(e) || r.indexOf(e) >= 0;
           }
           TS.model.all_custom_emoji.length = 0, TS.model.emoji_complex_customs = {};
-          var o, i, r = [];
+          var t, i, r = [];
           _.forOwn(d.data, function(e) {
             r.push.apply(r, e[3]);
-          }), _.forOwn(e, function(e, t) {
-            if ("object" === (void 0 === e ? "undefined" : a(e))) TS.model.emoji_complex_customs[t] = e, d.data[t] = [
-              [], null, null, [t], null, null, null, e.apple
-            ], d.map.colons[t] = t, TS.model.all_custom_emoji.push(t);
+          }), _.forOwn(e, function(e, o) {
+            if ("object" === (void 0 === e ? "undefined" : a(e))) TS.model.emoji_complex_customs[o] = e, d.data[o] = [
+              [], null, null, [o], null, null, null, e.apple
+            ], d.map.colons[o] = o, TS.model.all_custom_emoji.push(o);
             else {
               if (0 === e.indexOf("alias:")) return;
-              if (n(t)) return void TS.error("can't ingest custom emoji :" + t + ": because that already exists");
-              d.data[t] = [
-                [], null, null, [t], null, null, null, e
-              ], d.map.colons[t] = t, TS.model.all_custom_emoji.push(t);
+              if (n(o)) return void TS.error("can't ingest custom emoji :" + o + ": because that already exists");
+              d.data[o] = [
+                [], null, null, [o], null, null, null, e
+              ], d.map.colons[o] = o, TS.model.all_custom_emoji.push(o);
             }
-          }), _.forOwn(e, function(e, t) {
+          }), _.forOwn(e, function(e, o) {
             if ("object" !== (void 0 === e ? "undefined" : a(e)) && 0 === e.indexOf("alias:")) {
-              if (n(t)) return void TS.error("can't ingest custom emoji :" + t + ": because that already exists");
-              if (o = e.replace("alias:", ""), i = d.data.hasOwnProperty(o) && d.data[o]) return i[3].push(t), void(d.map.colons[t] = o);
-              if (o = d.map.colons.hasOwnProperty(o) && d.map.colons[o], i = d.data.hasOwnProperty(o) && d.data[o]) return i[3].push(t), void(d.map.colons[t] = o);
-              TS.boot_data && TS.boot_data.feature_tinyspeck && TS.warn('alias for "' + t + '":"' + e + '" not recognized');
+              if (n(o)) return void TS.error("can't ingest custom emoji :" + o + ": because that already exists");
+              if (t = e.replace("alias:", ""), i = d.data.hasOwnProperty(t) && d.data[t]) return i[3].push(o), void(d.map.colons[o] = t);
+              if (t = d.map.colons.hasOwnProperty(t) && d.map.colons[t], i = d.data.hasOwnProperty(t) && d.data[t]) return i[3].push(o), void(d.map.colons[o] = t);
+              TS.boot_data && TS.boot_data.feature_tinyspeck && TS.warn('alias for "' + o + '":"' + e + '" not recognized');
             }
-          }), TS.model.all_custom_emoji = TS.model.all_custom_emoji.sort(), d && d.inits && (delete d.inits.emoticons, d.init_emoticons()), t = l();
+          }), TS.model.all_custom_emoji = TS.model.all_custom_emoji.sort(), d && d.inits && (delete d.inits.emoticons, d.init_emoticons()), o = l();
         },
         setUpEmoji: function() {
           return new Promise(function(e) {
@@ -1039,7 +1039,7 @@ webpackJsonp([12, 328, 337, 329], {
           }
         },
         makeMenuLists: function() {
-          TS.model.emoji_groups.length = 0, TS.model.emoji_names.length = 0, o = {};
+          TS.model.emoji_groups.length = 0, TS.model.emoji_names.length = 0, t = {};
           var n = _.cloneDeep(u);
           TS.model.all_custom_emoji && TS.model.all_custom_emoji.length && n.push({
             display_name: TS.i18n.t("Custom", "emoji")(),
@@ -1056,16 +1056,16 @@ webpackJsonp([12, 328, 337, 329], {
             tab_icon_name: "clock_o",
             emoji_names: e
           });
-          var a, t, r = [];
+          var a, o, r = [];
           for (a = 0; a < n.length; a += 1) r = r.concat(n[a].emoji_names);
           var s = {};
           for (Object.keys(d.data).forEach(function(e) {
               var n = d.data[e][3],
                 a = TS.emoji.isIdxSkinToneModifiable(e);
-              n.forEach(function(n, t, i) {
+              n.forEach(function(n, o, i) {
                 var r = n,
                   l = i;
-                TS.model.emoji_names.push(n), o[n] = !0, TS.boot_data.feature_localization && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE && (r = TSFEmoji.getLocalEmojiString(n, TS.i18n.locale()), l = i.map(function(e) {
+                TS.model.emoji_names.push(n), t[n] = !0, TS.boot_data.feature_localization && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE && (r = TSFEmoji.getLocalEmojiString(n, TS.i18n.locale()), l = i.map(function(e) {
                   return TSFEmoji.getLocalEmojiString(e, TS.i18n.locale());
                 })), s[n] = {
                   html: TS.emoji.graphicReplace(":" + n + ":"),
@@ -1074,7 +1074,7 @@ webpackJsonp([12, 328, 337, 329], {
                   display_name: ":" + r + ":",
                   display_names: ":" + l.join(": :") + ":"
                 }, TS.model.emoji_map.push({
-                  id: "E" + e + (t > 0 ? "_alias_" + t : ""),
+                  id: "E" + e + (o > 0 ? "_alias_" + o : ""),
                   name: n,
                   name_with_colons: ":" + n + ":",
                   display_name: r,
@@ -1082,10 +1082,10 @@ webpackJsonp([12, 328, 337, 329], {
                   is_emoji: !0
                 }), a && (s[n].is_skin = !0, s[n].skin_tone_id = "1", d.skin_tones.forEach(function(a) {
                   if (c(e, a)) {
-                    var t = d.data[a],
-                      _ = t[3][0],
+                    var o = d.data[a],
+                      _ = o[3][0],
                       m = n + "::" + _;
-                    TS.model.emoji_names.push(m), o[m] = !0;
+                    TS.model.emoji_names.push(m), t[m] = !0;
                     var u = ":" + m + ":",
                       g = i.map(function(e) {
                         return e + "::" + _;
@@ -1116,7 +1116,7 @@ webpackJsonp([12, 328, 337, 329], {
           }
           var g, f, p, h;
           for (a = 0; a < n.length; a += 1) {
-            for (g = n[a], f = [], p = null, h = "", g.tab_icon_html && (h = g.tab_icon_html), t = 0; t < g.emoji_names.length; t += 1) p = s[g.emoji_names[t]], f.push(p), h || g.emoji_names[t] == g.name && (h = p.html);
+            for (g = n[a], f = [], p = null, h = "", g.tab_icon_html && (h = g.tab_icon_html), o = 0; o < g.emoji_names.length; o += 1) p = s[g.emoji_names[o]], f.push(p), h || g.emoji_names[o] == g.name && (h = p.html);
             p = f[0], TS.model.emoji_groups.push({
               name: g.name,
               display_name: g.display_name,
@@ -1145,8 +1145,8 @@ webpackJsonp([12, 328, 337, 329], {
               e.emoji_names.forEach(function(e) {
                 _.pull(n, e);
                 var a = d.map.colons[e],
-                  t = d.data[a];
-                t && t[3].forEach(function(e) {
+                  o = d.data[a];
+                o && o[3].forEach(function(e) {
                   [e, e + "::skin-tone-2", e + "::skin-tone-3", e + "::skin-tone-4", e + "::skin-tone-5", e + "::skin-tone-6"].forEach(function(e) {
                     _.pull(n, e);
                   });
@@ -1165,16 +1165,16 @@ webpackJsonp([12, 328, 337, 329], {
             first: "point_up",
             second: "point_down"
           }].forEach(function(e) {
-            var n = _.reduce(TS.model.emoji_names, function(n, a, t) {
+            var n = _.reduce(TS.model.emoji_names, function(n, a, o) {
               if (0 === a.indexOf(e.filter)) {
-                var o = TS.model.all_custom_emoji.indexOf(a) > -1,
-                  i = !o && 0 === a.indexOf(e.first),
-                  r = !o && !i && 0 === a.indexOf(e.second);
+                var t = TS.model.all_custom_emoji.indexOf(a) > -1,
+                  i = !t && 0 === a.indexOf(e.first),
+                  r = !t && !i && 0 === a.indexOf(e.second);
                 n.emoji.push({
                   name: a,
                   is_first: i,
                   is_second: r
-                }), n.indexes.push(t);
+                }), n.indexes.push(o);
               }
               return n;
             }, {
@@ -1182,8 +1182,8 @@ webpackJsonp([12, 328, 337, 329], {
               emoji: []
             });
             n.emoji = _.orderBy(n.emoji, ["is_first", "is_second", "name"], ["desc", "desc", "asc"]), _.forEach(n.emoji, function(e, a) {
-              var t = n.indexes[a];
-              TS.model.emoji_names[t] = e.name;
+              var o = n.indexes[a];
+              TS.model.emoji_names[o] = e.name;
             });
           });
         },
@@ -1200,15 +1200,15 @@ webpackJsonp([12, 328, 337, 329], {
           if (n = n || {}, n.show_icon_for_emoji_in_as_text_mode && TS.emoji.isValidName(e)) return '<ts-icon class="emoji-sizer ts_icon_info_circle ts_icon_inherit" title="' + e.replace(/:/g, "") + '"></ts-icon>';
           d.init_env();
           var a = d.text_mode,
-            t = d.include_title,
-            o = d.include_text,
+            o = d.include_title,
+            t = d.include_text,
             i = d.supports_css,
             r = d.allow_skin_tone_squares;
           n.force_img && n.obey_emoji_mode_pref && (n.obey_emoji_mode_pref = !1, TS.error("obey_emoji_mode_pref now set to FALSE because options.force_img is TRUE")), n.force_style && n.obey_emoji_mode_pref && (n.obey_emoji_mode_pref = !1, TS.error("obey_emoji_mode_pref now set to FALSE because options.force_style is " + n.force_style)), d.text_mode = n.obey_emoji_mode_pref && "as_text" === _.get(TS, "model.prefs.emoji_mode"), n.force_style && (TS.emoji.setEmojiMode(n.force_style), d.use_sheet = !1), d.include_title = !!n.include_title, d.include_text = !!n.include_text, d.supports_css = !n.force_img, d.allow_skin_tone_squares = !n.no_skin_tone_squares;
           var s = d.replace_colons(e, {
             stop_animations: n.stop_animations
           });
-          return n.jumbomoji && (s = s.replace("emoji-sizer", "emoji-sizer emoji-only")), n.force_style && TS.emoji.setEmojiMode(), d.text_mode = a, d.include_title = t, d.include_text = o, d.supports_css = i, d.allow_skin_tone_squares = r, s;
+          return n.jumbomoji && (s = s.replace("emoji-sizer", "emoji-sizer emoji-only")), n.force_style && TS.emoji.setEmojiMode(), d.text_mode = a, d.include_title = o, d.include_text = t, d.supports_css = i, d.allow_skin_tone_squares = r, s;
         },
         replaceColons: function(e) {
           return e.indexOf(":") < 0 ? e : d.replace_colons(e);
@@ -1271,11 +1271,11 @@ webpackJsonp([12, 328, 337, 329], {
           return TS.boot_data.feature_localization && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE && (e.getLocalEmojiString = function(e) {
             return TSFEmoji.getLocalEmojiString(e, TS.i18n.locale()) || e;
           }), Object.keys(d.data).forEach(function(n) {
-            var a, t = d.data[n],
-              o = t[3],
-              i = t[4],
-              r = t[5],
-              s = t[7];
+            var a, o = d.data[n],
+              t = o[3],
+              i = o[4],
+              r = o[5],
+              s = o[7];
             if (null !== i && null !== r) a = [i, r];
             else {
               if (!s) return void TS.error('WTF, _emoji "' + n + '" is missing coords or and a url, or something!');
@@ -1283,7 +1283,7 @@ webpackJsonp([12, 328, 337, 329], {
                 emoji: !0
               }) : s;
             }
-            o.forEach(function(n) {
+            t.forEach(function(n) {
               e.emoji[n] = a;
             });
           }), e;
@@ -1301,16 +1301,16 @@ webpackJsonp([12, 328, 337, 329], {
         },
         spliceSkinToneVariationsIntoAnArrayOfEmojiNames: function(e) {
           var n = 0;
-          e.concat().forEach(function(a, t) {
-            var o = d.map.colons[a];
-            d.data.hasOwnProperty(o) && d.data[o] && d.skin_tones.forEach(function(i) {
-              if (c(o, i)) {
+          e.concat().forEach(function(a, o) {
+            var t = d.map.colons[a];
+            d.data.hasOwnProperty(t) && d.data[t] && d.skin_tones.forEach(function(i) {
+              if (c(t, i)) {
                 var r = d.data[i],
                   s = r[3][0],
                   l = a + "::" + s;
                 if (-1 === e.indexOf(l)) {
                   n += 1;
-                  var _ = n + t;
+                  var _ = n + o;
                   e.splice(_, 0, l);
                 }
               }
@@ -1328,23 +1328,23 @@ webpackJsonp([12, 328, 337, 329], {
         },
         MISSING_EMOJI_HTML: '<span class="emoji-outer emoji-sizer emoji-bg-contain" style="background-image: url(' + cdn_url + '/ecf3e/img/emoji_missing.png);"></span>'
       });
-      var e, n, t, o = {},
+      var e, n, o, t = {},
         i = function() {
           var e, n = {};
           _.each(_.keys(TS.model.emoji_use), function(a) {
             e = TS.emoji.nameToCanonicalName(a.split("::")[0]), n.hasOwnProperty(e) || (n[e] = 0), n[e] += TS.model.emoji_use[a];
           }), TS.dir(777, n, "condensed emoji names:");
           var a = Object.keys(n).sort(function(e, a) {
-            var t = n[e],
-              o = n[a];
-            if (t == o) {
+            var o = n[e],
+              t = n[a];
+            if (o == t) {
               if (e < a) return -1;
               if (e > a) return 1;
             }
-            return -(t - o);
+            return -(o - t);
           });
           a.length = Math.min(a.length, 4 * TS.model.emoji_menu_columns);
-          for (var t, o = ["slightly_smiling_face", "heart", "+1", "100", "bug"]; a.length < 5 && o.length;) t = o.shift(), -1 === a.indexOf(t) && a.push(t);
+          for (var o, t = ["slightly_smiling_face", "heart", "+1", "100", "bug"]; a.length < 5 && t.length;) o = t.shift(), -1 === a.indexOf(o) && a.push(o);
           return TS.emoji.spliceSkinToneVariationsIntoAnArrayOfEmojiNames(a), a;
         },
         r = function(n) {
@@ -1353,14 +1353,14 @@ webpackJsonp([12, 328, 337, 329], {
             name: "mine"
           });
           a || TS.emoji.makeMenuLists();
-          var t = [];
+          var o = [];
           e.forEach(function(e) {
             var n = m[e];
-            n && t.push(n);
-          }), a.items = t;
+            n && o.push(n);
+          }), a.items = o;
         },
         s = function() {
-          return t = t || l();
+          return o = o || l();
         },
         l = function() {
           var e, n = {};
@@ -1470,18 +1470,18 @@ webpackJsonp([12, 328, 337, 329], {
         },
         T = function(e, n, a) {
           if (d) {
-            var t = TS.storage.fetchCustomEmoji();
-            if (!t) return void TS.emoji.resetUpEmoji();
+            var o = TS.storage.fetchCustomEmoji();
+            if (!o) return void TS.emoji.resetUpEmoji();
             if (void 0 === n) {
-              if (delete TS.model.emoji_use[e], !t.data.hasOwnProperty(e)) return;
-              delete t.data[e], _.remove(TS.model.emoji_map, {
+              if (delete TS.model.emoji_use[e], !o.data.hasOwnProperty(e)) return;
+              delete o.data[e], _.remove(TS.model.emoji_map, {
                 name: e
               });
-            } else t.data[e] = n;
+            } else o.data[e] = n;
             TS.model.emoji_cache_ts = a, TS.storage.storeCustomEmoji({
-              data: t.data,
+              data: o.data,
               cache_ts: TS.model.emoji_cache_ts
-            }), h(), TS.emoji.ingestCustoms(t.data), S();
+            }), h(), TS.emoji.ingestCustoms(o.data), S();
           }
         },
         b = function() {
@@ -1490,10 +1490,10 @@ webpackJsonp([12, 328, 337, 329], {
           var n = TS.emoji.getChosenSkinTone(!!TS.boot_data.feature_localization),
             a = _.keyBy(TS.model.emoji_map, "id");
           return _.chain(e).map(function(e) {
-            var t = a[e];
-            if (!t) return null;
-            var o = t.display_name;
-            return n && t.is_skin && (o = o + "::" + n), o;
+            var o = a[e];
+            if (!o) return null;
+            var t = o.display_name;
+            return n && o.is_skin && (t = t + "::" + n), t;
           }).compact().value();
         };
     }();
@@ -1520,29 +1520,29 @@ webpackJsonp([12, 328, 337, 329], {
         var n = document.createElement("css_property_supported").style;
         e = e.replace(m, "").replace(/([A-Z]+)([A-Z][a-z])/g, "$1-$2").replace(/([a-z\d])([A-Z])/g, "$1-$2").replace(d, "").toLowerCase(), e = _.camelCase(e, "-");
         var a = _.upperFirst(e);
-        return void 0 !== n[e] || c.some(function(t) {
-          return void 0 !== n[t + a] || void 0 !== n[t + e];
+        return void 0 !== n[e] || c.some(function(o) {
+          return void 0 !== n[o + a] || void 0 !== n[o + e];
         });
       }
 
-      function t(e, n) {
+      function o(e, n) {
         var a = document.createElement("css_value_supported");
         return n = n.replace(d, "").toLowerCase(), a.style.cssText = e + ":" + l.join(n + ";" + e + ":") + n + ";", !!a.style.length;
       }
 
-      function o() {
-        TS.environment.supports_sticky_position = t("position", "sticky"), "Chrome" === window.bowser.name && parseInt(window.bowser.version, 10) < 57 && e() && (TS.environment.supports_sticky_position = !1), TS.useRedux() && TS.redux.dispatch(TS.interop.redux.entities.environment.setSupportsStickyPosition(TS.environment.supports_sticky_position));
+      function t() {
+        TS.environment.supports_sticky_position = o("position", "sticky"), "Chrome" === window.bowser.name && parseInt(window.bowser.version, 10) < 57 && e() && (TS.environment.supports_sticky_position = !1), TS.useRedux() && TS.redux.dispatch(TS.interop.redux.entities.environment.setSupportsStickyPosition(TS.environment.supports_sticky_position));
       }
 
       function i() {
-        TS.environment.is_apple_webkit = !(!TS.model.mac_ssb_version && !TS.model.is_safari_desktop), TS.environment.is_dev = "dev" === TS.boot_data.version_ts, TS.environment.is_macgap = !!window.macgap, TS.environment.is_retina = e(), TS.environment.supports_custom_scrollbar = a("scrollbar"), TS.environment.slim_scrollbar = TS.environment.supports_custom_scrollbar && TS.boot_data.feature_slim_scrollbar, TS.environment.supports_flexbox = a("flex-wrap"), TS.environment.supports_line_clamp = a("line-clamp"), TS.environment.supports_intersection_observer = "function" == typeof IntersectionObserver, o();
+        TS.environment.is_apple_webkit = !(!TS.model.mac_ssb_version && !TS.model.is_safari_desktop), TS.environment.is_dev = "dev" === TS.boot_data.version_ts, TS.environment.is_macgap = !!window.macgap, TS.environment.is_retina = e(), TS.environment.supports_custom_scrollbar = a("scrollbar"), TS.environment.slim_scrollbar = TS.environment.supports_custom_scrollbar && TS.boot_data.feature_slim_scrollbar, TS.environment.supports_flexbox = a("flex-wrap"), TS.environment.supports_line_clamp = a("line-clamp"), TS.environment.supports_intersection_observer = "function" == typeof IntersectionObserver, t();
       }
 
       function r() {
         if (window.matchMedia) {
           window.matchMedia("screen and (-webkit-min-device-pixel-ratio: 1.5), screen and (min--moz-device-pixel-ratio: 1.5), screen and (min-device-pixel-ratio: 1.5)").addListener(function() {
             var a = TS.environment.is_retina;
-            TS.environment.is_retina = e(), TS.environment.is_retina !== a && (TS.info("TS.environment.is_retina changed from " + a + " to " + TS.environment.is_retina), TS.environment.retina_changed_sig.dispatch(TS.environment.is_retina), o(), n());
+            TS.environment.is_retina = e(), TS.environment.is_retina !== a && (TS.info("TS.environment.is_retina changed from " + a + " to " + TS.environment.is_retina), TS.environment.retina_changed_sig.dispatch(TS.environment.is_retina), t(), n());
           });
         }
       }
@@ -1575,11 +1575,11 @@ webpackJsonp([12, 328, 337, 329], {
               major: 0,
               minor: 0
             },
-            t = {
+            o = {
               major: 0,
               minor: 0
             };
-          return n.length > 2 && (a.minor = parseFloat(n.pop())), a.major = parseFloat(n.join(".")), TS.model.mac_ssb_version ? (t.major = TS.model.mac_ssb_version, t.minor = TS.model.mac_ssb_version_minor) : TS.model.win_ssb_version ? (t.major = TS.model.win_ssb_version, t.minor = TS.model.win_ssb_version_minor) : TS.model.lin_ssb_version && (t.major = TS.model.lin_ssb_version, t.minor = TS.model.lin_ssb_version_minor), TS.utility.compareVersions(t, a) >= 0;
+          return n.length > 2 && (a.minor = parseFloat(n.pop())), a.major = parseFloat(n.join(".")), TS.model.mac_ssb_version ? (o.major = TS.model.mac_ssb_version, o.minor = TS.model.mac_ssb_version_minor) : TS.model.win_ssb_version ? (o.major = TS.model.win_ssb_version, o.minor = TS.model.win_ssb_version_minor) : TS.model.lin_ssb_version && (o.major = TS.model.lin_ssb_version, o.minor = TS.model.lin_ssb_version_minor), TS.utility.compareVersions(o, a) >= 0;
         },
         doesSupportStickyPosition: function() {
           return TS.environment.supports_sticky_position;
@@ -1598,10 +1598,10 @@ webpackJsonp([12, 328, 337, 329], {
             }
           }), Object.defineProperty(e, "cssValueSupported", {
             get: function() {
-              return t;
+              return o;
             },
             set: function(e) {
-              t = e;
+              o = e;
             }
           }), e;
         }
@@ -1645,27 +1645,27 @@ webpackJsonp([12, 328, 337, 329], {
             include_pin_count: !!TS.boot_data.feature_lazy_pins
           };
           TS.boot_data.feature_name_tagging_client && (a.name_tagging = !0);
-          var t = TS.utility.getChannelNameFromUrl(window.location.toString());
-          if (t) TS.model.c_name_in_url = t, a.name = t;
+          var o = TS.utility.getChannelNameFromUrl(window.location.toString());
+          if (o) TS.model.c_name_in_url = o, a.name = o;
           else {
             var i = TS.storage.fetchLastActiveModelObId();
             i && (a.channel = i);
           }
-          return TS.membership && TS.membership.lazyLoadChannelMembership() && (a.no_members = !0), o(!0), TS.model.change_channels_when_offline = !1, TS.api.call("channels.view", a).then(function(a) {
+          return TS.membership && TS.membership.lazyLoadChannelMembership() && (a.no_members = !0), t(!0), TS.model.change_channels_when_offline = !1, TS.api.call("channels.view", a).then(function(a) {
             return TS._incremental_boot = !0, {
               ok: !0,
               data: n(e, a.data),
               args: a.args
             };
           }).catch(function(e) {
-            throw TS.warn("Incremental boot failed with error: " + e), TS._incremental_boot = !1, TS._did_incremental_boot = !1, TS.model.change_channels_when_offline = !0, o(!1), e;
+            throw TS.warn("Incremental boot failed with error: " + e), TS._incremental_boot = !1, TS._did_incremental_boot = !1, TS.model.change_channels_when_offline = !0, t(!1), e;
           });
         },
         beforeFullBoot: function() {
-          TS._incremental_boot && TS._did_incremental_boot && (TS._did_full_boot || (TS._incremental_boot = !1, e = setTimeout(t, 1e4), TS.client && TS.client.ui && TS.client.ui.$messages_input_container && TS.client.ui.$messages_input_container.one(a, t), TS.isSocketManagerEnabled() ? TS.interop.SocketManager.connectedSig.addOnce(t) : TS.ms.connected_sig.addOnce(t)));
+          TS._incremental_boot && TS._did_incremental_boot && (TS._did_full_boot || (TS._incremental_boot = !1, e = setTimeout(o, 1e4), TS.client && TS.client.ui && TS.client.ui.$messages_input_container && TS.client.ui.$messages_input_container.one(a, o), TS.isSocketManagerEnabled() ? TS.interop.SocketManager.connectedSig.addOnce(o) : TS.ms.connected_sig.addOnce(o)));
         },
         afterFullBoot: function() {
-          TS._did_incremental_boot && (TS._did_full_boot = !0, TS.model.change_channels_when_offline = !0), o(!1);
+          TS._did_incremental_boot && (TS._did_full_boot = !0, TS.model.change_channels_when_offline = !0), t(!1);
         },
         shouldIncrementalBoot: function() {
           if (TS._did_incremental_boot) return !1;
@@ -1676,34 +1676,34 @@ webpackJsonp([12, 328, 337, 329], {
           return TS.utility.isUnreadViewPath(e.pathname) ? (delete TS.boot_data.incremental_boot_data, !1) : TS.utility.isThreadsViewPath(e.pathname) ? (delete TS.boot_data.incremental_boot_data, !1) : !TS.utility.isAppSpaceViewPath(e.pathname) || (delete TS.boot_data.incremental_boot_data, !1);
         },
         userDidInteractWithUI: function() {
-          TS.sounds.play("beep"), t();
+          TS.sounds.play("beep"), o();
         }
       });
       var e, n = function(e, n) {
           var a = n;
           a.channels = a.channels || [], a.groups = a.groups || [], a.ims = a.ims || [], a.mpims = a.mpims || [];
-          var t = a.channel || a.group || a.im;
-          if (TS.model.initial_cid = t.id, delete a.channel, delete a.group, a.history && a.history.messages ? t.msgs = a.history.messages : t.msgs = [], TS.boot_data.feature_lazy_pins && TS.pins && a.history && TS.pins.updateCount(t, a.history.pin_count), Object.keys(e).forEach(function(n) {
+          var o = a.channel || a.group || a.im;
+          if (TS.model.initial_cid = o.id, delete a.channel, delete a.group, a.history && a.history.messages ? o.msgs = a.history.messages : o.msgs = [], TS.boot_data.feature_lazy_pins && TS.pins && a.history && TS.pins.updateCount(o, a.history.pin_count), Object.keys(e).forEach(function(n) {
               a[n] = _.merge(e[n], a[n]);
             }), !a.self || a.self.id != TS.boot_data.user_id) throw new Error("Missing `self` from incremental boot data");
           if (_.find(a.users, {
               id: a.self.id
             }) || a.users.push(a.self), a.users.forEach(function(e) {
               "USLACKBOT" !== e.id && e.id != TS.boot_data.user_id || (e.presence = "active"), delete e.updated;
-            }), t.is_channel) i(t, a.channels);
-          else if (t.is_mpim) i(t, a.mpims);
-          else if (t.is_group) i(t, a.groups);
+            }), o.is_channel) i(o, a.channels);
+          else if (o.is_mpim) i(o, a.mpims);
+          else if (o.is_group) i(o, a.groups);
           else {
-            if (!t.is_im) throw new Error("Unexpected model object type from channels.view");
-            i(t, a.ims);
+            if (!o.is_im) throw new Error("Unexpected model object type from channels.view");
+            i(o, a.ims);
           }
           return a.emoji_cache_ts = _.get(TS.storage.fetchCustomEmoji(), "cache_ts"), a.apps_cache_ts = _.get(TS.storage.fetchApps(), "cache_ts"), a.commands_cache_ts = _.get(TS.storage.fetchCmds(), "cache_ts"), a;
         },
         a = "change.incremental_boot keydown.incremental_boot paste.incremental_boot",
-        t = function n() {
+        o = function n() {
           TS.client && TS.client.ui && TS.client.ui.$messages_input_container && (TS.client.ui.$messages_input_container.off(a), TS.client.ui.$messages_input_container.removeClass("pretend-to-be-online")), TS.isSocketManagerEnabled() ? TS.interop.SocketManager.connectedSig.remove(n) : TS.ms.connected_sig.remove(n), e && (clearTimeout(e), e = void 0);
         },
-        o = function(e) {
+        t = function(e) {
           $("#col_channels, #team_menu").toggleClass("placeholder", e), $(document.body).toggleClass("incremental_boot", e);
         },
         i = function(e, n) {
@@ -1729,8 +1729,8 @@ webpackJsonp([12, 328, 337, 329], {
         onLogin: function() {
           var a = Math.floor(Math.random() * n);
           setInterval(s, e + a), TS.boot_data.feature_electron_memory_logging && TS.model.is_electron && f(), $(window).on("beforeunload", r);
-          var t = TS.experiments ? TS.experiments.getGroup("link_preload_test", ["dom_ready"]) : "";
-          (TS.utility.enableFeatureForUser(1) || t) && TS.metrics.store("dom_ready", window.performance.timing.loadEventEnd - window.performance.timing.navigationStart);
+          var o = TS.experiments ? TS.experiments.getGroup("link_preload_test", ["dom_ready"]) : "";
+          (TS.utility.enableFeatureForUser(1) || o) && TS.metrics.store("dom_ready", window.performance.timing.loadEventEnd - window.performance.timing.navigationStart);
         },
         mark: function(e) {
           window.performance && performance.mark && performance.mark(e);
@@ -1744,17 +1744,17 @@ webpackJsonp([12, 328, 337, 329], {
         clearMarks: function(e) {
           window.performance && performance.clearMarks && performance.clearMarks(e);
         },
-        measure: function(e, n, a, t) {
+        measure: function(e, n, a, o) {
           "start_nav" === n && (n = "navigationStart");
-          var o = !1;
-          a || (o = !0, a = e + "__" + n + "_end", window.performance && performance.mark && performance.mark(a));
+          var t = !1;
+          a || (t = !0, a = e + "__" + n + "_end", window.performance && performance.mark && performance.mark(a));
           var i, r = performance.timing;
           if (r && TS.metrics.special_start_mark_labels.indexOf(n) > -1) {
             var s = r[n];
             if (!s) return;
             var l = performance.getEntriesByName(a);
             if (0 === l.length) return;
-            return i = r.navigationStart + l[l.length - 1].startTime - s, o && window.performance && performance.clearMarks && performance.clearMarks(a), TS.metrics.store(e, i, t);
+            return i = r.navigationStart + l[l.length - 1].startTime - s, t && window.performance && performance.clearMarks && performance.clearMarks(a), TS.metrics.store(e, i, o);
           }
           try {
             performance.measure(e, n, a);
@@ -1762,7 +1762,7 @@ webpackJsonp([12, 328, 337, 329], {
             return void TS.warn("Couldn't complete TS.metrics measurement for start mark \"" + n + '"');
           }
           var c = performance.getEntriesByName(e);
-          if (0 !== c.length) return i = c[c.length - 1].duration, i = TS.metrics.store(e, i, t), performance.clearMeasures(e), o && performance.clearMarks(a), i;
+          if (0 !== c.length) return i = c[c.length - 1].duration, i = TS.metrics.store(e, i, o), performance.clearMeasures(e), t && performance.clearMarks(a), i;
         },
         measureAndClear: function(e, n) {
           var a = TS.metrics.measure(e, n);
@@ -1770,8 +1770,8 @@ webpackJsonp([12, 328, 337, 329], {
         },
         store: function(e, n, a) {
           a || (a = {});
-          var t;
-          return n >= (a.allow_zero ? 0 : 1) && (a.in_seconds ? (n = m(n), t = " seconds") : a.is_count ? (n = Math.round(n), t = " (count)") : (n = TS.utility ? TS.utility.roundToThree(n) : n, t = "ms"), a.ephemeral || u(e, n), c(e) && TS.info("[TIMING] " + e + ": " + n + t + " " + (a.ephemeral ? "(ephemeral)" : ""))), n;
+          var o;
+          return n >= (a.allow_zero ? 0 : 1) && (a.in_seconds ? (n = m(n), o = " seconds") : a.is_count ? (n = Math.round(n), o = " (count)") : (n = TS.utility ? TS.utility.roundToThree(n) : n, o = "ms"), a.ephemeral || u(e, n), c(e) && TS.info("[TIMING] " + e + ": " + n + o + " " + (a.ephemeral ? "(ephemeral)" : ""))), n;
         },
         count: function(e, n) {
           n = n || 1, TS.metrics.store(e, n, {
@@ -1795,8 +1795,8 @@ webpackJsonp([12, 328, 337, 329], {
           }));
         },
         getMemoryStats: function() {
-          return o && i ? {
-            teams: o,
+          return t && i ? {
+            teams: t,
             app: i
           } : null;
         },
@@ -1804,10 +1804,10 @@ webpackJsonp([12, 328, 337, 329], {
           return {
             createBeaconURLs: l,
             getMeasures: function() {
-              return t;
+              return o;
             },
             reset: function() {
-              performance.clearMarks(), performance.clearMeasures(), t = {};
+              performance.clearMarks(), performance.clearMeasures(), o = {};
             }
           };
         }
@@ -1815,8 +1815,8 @@ webpackJsonp([12, 328, 337, 329], {
       var e = 25e3,
         n = 1e4,
         a = !1,
-        t = {},
-        o = null,
+        o = {},
+        t = null,
         i = null,
         r = function() {
           TS.client && TS.metrics.getLatestMark("start_load") && TS.metrics.measure("session_lifespan", "start_load", null, {
@@ -1824,23 +1824,23 @@ webpackJsonp([12, 328, 337, 329], {
           }), s();
         },
         s = function() {
-          if (0 !== Object.keys(t).length) {
-            if (TS.utility.enableFeatureForUser(1) && window.performance && performance.memory && performance.memory.usedJSHeapSize && (t.used_js_heap_size = [TS.utility.roundToThree(TS.utility.convertBytesToMegabytes(performance.memory.usedJSHeapSize))]), a) {
+          if (0 !== Object.keys(o).length) {
+            if (TS.utility.enableFeatureForUser(1) && window.performance && performance.memory && performance.memory.usedJSHeapSize && (o.used_js_heap_size = [TS.utility.roundToThree(TS.utility.convertBytesToMegabytes(performance.memory.usedJSHeapSize))]), a) {
               var e = document.getElementsByTagName("*").length;
               TS.metrics.store("dom_node_count", e, {
                 is_count: !0
               });
             }
             TS.boot_data.feature_electron_memory_logging && TS.model.is_electron && f();
-            l(t).forEach(function(e) {
+            l(o).forEach(function(e) {
               (new Image).src = e;
-            }), window.performance && performance.clearMeasures && performance.clearMeasures(), t = {};
+            }), window.performance && performance.clearMeasures && performance.clearMeasures(), o = {};
           }
         },
         l = function(e) {
           var n = TS.boot_data.beacon_timing_url || window.ts_endpoint_url;
           if (!n) return [];
-          var a, t, o = [],
+          var a, o, t = [],
             i = "",
             r = [],
             s = {
@@ -1858,8 +1858,8 @@ webpackJsonp([12, 328, 337, 329], {
           var l = function(e, a) {
             return e.data = a.join(";"), n + "?" + d(e);
           };
-          for (a in e) e.hasOwnProperty(a) && (t = a + ":" + e[a].join(","), r.push(t), i = l(s, r), i.length > 2e3 && (r.pop(), o.push(l(s, r)), r = [t]));
-          return o.push(l(s, r)), o;
+          for (a in e) e.hasOwnProperty(a) && (o = a + ":" + e[a].join(","), r.push(o), i = l(s, r), i.length > 2e3 && (r.pop(), t.push(l(s, r)), r = [o]));
+          return t.push(l(s, r)), t;
         },
         c = function(e) {
           return TS.qs_args.log_timings || TS.qs_args.log_timing === e || !0 === TS.metrics.log || TS.metrics.log === e || TS.metrics.log instanceof Array && -1 !== TS.metrics.log.indexOf(e);
@@ -1872,16 +1872,16 @@ webpackJsonp([12, 328, 337, 329], {
         m = function(e) {
           return Math.round(e / 1e3);
         },
-        u = function e(n, a, o) {
-          if (t[n] || (t[n] = []), t[n].push(a), !o) {
-            TS.boot_data.experiment_client_metrics && TS.boot_data.experiment_client_metrics[n] && TS.boot_data.experiment_client_metrics[n].forEach(function(t) {
-              var o = TS.boot_data["exp_" + t];
-              if (o) {
-                e("exp_" + t + "_" + o + "_" + n, a, !0);
+        u = function e(n, a, t) {
+          if (o[n] || (o[n] = []), o[n].push(a), !t) {
+            TS.boot_data.experiment_client_metrics && TS.boot_data.experiment_client_metrics[n] && TS.boot_data.experiment_client_metrics[n].forEach(function(o) {
+              var t = TS.boot_data["exp_" + o];
+              if (t) {
+                e("exp_" + o + "_" + t + "_" + n, a, !0);
               }
             });
-            (TS.experiment ? TS.experiment.getExperimentsForMetric(n) : []).forEach(function(t) {
-              e("exp--" + t.experiment_id + "--" + t.group + "--" + n, a, !0);
+            (TS.experiment ? TS.experiment.getExperimentsForMetric(n) : []).forEach(function(o) {
+              e("exp--" + o.experiment_id + "--" + o.group + "--" + n, a, !0);
             });
           }
         },
@@ -1900,14 +1900,14 @@ webpackJsonp([12, 328, 337, 329], {
         ],
         f = function() {
           if (desktop && desktop.stats && desktop.stats.getTeamsMemoryUsage && desktop.stats.getCombinedMemoryUsage) {
-            var e, n, a, t, r = TSSSB.call("getTeamsMemoryUsage"),
+            var e, n, a, o, r = TSSSB.call("getTeamsMemoryUsage"),
               s = TSSSB.call("getCombinedMemoryUsage");
             Promise.all([r, s]).then(function(r) {
-              if (o = r[0], i = r[1], !o) throw o;
-              if (_.forOwn(o, function(n) {
+              if (t = r[0], i = r[1], !t) throw t;
+              if (_.forOwn(t, function(n) {
                   e = Math.ceil(TS.utility.convertKilobytesToMegabytes(n.memory.privateBytes)), TS.metrics.store("memory_team_mb_" + n.state, e);
                 }), !i || !i.memory) throw i;
-              a = Math.ceil(TS.utility.convertKilobytesToMegabytes(i.memory.sharedBytes)), t = Math.ceil(TS.utility.convertKilobytesToMegabytes(i.memory.privateBytes)), n = a + t, TS.metrics.store("memory_app_mb_" + i.numTeams + "_teams", n), TS.metrics.store("memory_app_shared_mb_" + i.numTeams + "_teams", a), TS.metrics.store("memory_app_private_mb_" + i.numTeams + "_teams", t);
+              a = Math.ceil(TS.utility.convertKilobytesToMegabytes(i.memory.sharedBytes)), o = Math.ceil(TS.utility.convertKilobytesToMegabytes(i.memory.privateBytes)), n = a + o, TS.metrics.store("memory_app_mb_" + i.numTeams + "_teams", n), TS.metrics.store("memory_app_shared_mb_" + i.numTeams + "_teams", a), TS.metrics.store("memory_app_private_mb_" + i.numTeams + "_teams", o);
             }).catch(function(e) {
               TS.warn("TS.metrics: Invalid data returned by desktop.stats", e);
             });
@@ -1946,8 +1946,8 @@ webpackJsonp([12, 328, 337, 329], {
       }
 
       function a(a) {
-        var t = /(OS X)/g.test(a),
-          o = -1 !== a.indexOf("Windows"),
+        var o = /(OS X)/g.test(a),
+          t = -1 !== a.indexOf("Windows"),
           i = /(WOW64|Win64)/g.test(a),
           r = -1 !== a.indexOf("Linux"),
           s = /(iPad|iPhone|iPod)/g.test(a),
@@ -1968,10 +1968,10 @@ webpackJsonp([12, 328, 337, 329], {
           is_edge: c,
           is_chrome_desktop: _ && !d && !m,
           is_chrome_mobile: d,
-          is_safari_desktop: f && !_ && t && !s,
-          is_mac: t,
+          is_safari_desktop: f && !_ && o && !s,
+          is_mac: o,
           mac_version: n(a) || void 0,
-          is_win: o,
+          is_win: t,
           is_win_64: i,
           is_win_7_plus: e(a),
           is_lin: r,
@@ -2299,12 +2299,12 @@ webpackJsonp([12, 328, 337, 329], {
             });
           }
           TS.model.files_url = TS.utility.normalizeDevHost("https://" + document.location.hostname + "/files"), TS.model.archives_url = TS.utility.normalizeDevHost("https://" + document.location.hostname + "/archives"), TS.model.bots_url = TS.utility.normalizeDevHost("https://" + document.location.hostname + "/services"), TS.model.team_url = TS.utility.normalizeDevHost("https://" + document.location.hostname + "/team");
-          var t = [];
-          TS.model.is_safari_desktop && t.push("is_safari_desktop"), TS.model.is_electron && TS.model.is_mac && TSSSB.call("isMainWindowFrameless") && t.push("is_electron_mac"), TS.model.is_mac && t.push("is_mac"), TS.model.is_win && t.push("is_win"), $("html").addClass(t.join(" "));
-          var o = n(e),
+          var o = [];
+          TS.model.is_safari_desktop && o.push("is_safari_desktop"), TS.model.is_electron && TS.model.is_mac && TSSSB.call("isMainWindowFrameless") && o.push("is_electron_mac"), TS.model.is_mac && o.push("is_mac"), TS.model.is_win && o.push("is_win"), $("html").addClass(o.join(" "));
+          var t = n(e),
             i = !TS.model.is_electron && TS.model.mac_ssb_version && TS.utility.compareSemanticVersions(TS.model.mac_ssb_version.toString(), "0.61") >= 0,
             r = TS.model.is_electron && TS.model.mac_ssb_version && TS.utility.compareSemanticVersions(TS.model.mac_ssb_version.toString(), "2.2") >= 0;
-          TS.model.supports_growl_subtitle = (i || r) && TS.utility.compareSemanticVersions(o, "10.7") > 0;
+          TS.model.supports_growl_subtitle = (i || r) && TS.utility.compareSemanticVersions(t, "10.7") > 0;
           var s = !1;
           if (Object.defineProperty(TS.model, "dialog_is_showing", {
               get: function() {
@@ -2336,15 +2336,15 @@ webpackJsonp([12, 328, 337, 329], {
           }));
         },
         incrementUnknownIdHandled: function(e) {
-          t[e] = t[e] || {
+          o[e] = o[e] || {
             tries: 0,
             state: 0
           };
-          var n = t[e];
+          var n = o[e];
           return n.tries += 1, n.state = 0, n.tries > 2 ? TS.maybeError(48, 'calling the API for id: "' + e + '", try #' + n.tries) : n.tries > 1 ? TS.maybeWarn(48, 'calling the API for id: "' + e + '", try #' + n.tries) : TS.log(48, 'calling the API for id: "' + e + '", try #' + n.tries), n.tries;
         },
         reportResultOfUnknownIdHandled: function(e, n) {
-          var a = t[e];
+          var a = o[e];
           a && (a.state = n ? 1 : -1, 1 == a.state ? TS.log(48, 'API call for id: "' + e + '" SUCCEEDED, try #' + a.tries) : TS.maybeWarn(48, 'API call for id: "' + e + '" FAILED, try #' + a.tries));
         },
         logUnknownIdsHandled: function(e, n) {
@@ -2383,14 +2383,14 @@ webpackJsonp([12, 328, 337, 329], {
           return TS.model.prefs;
         }
       }), _.merge(TS.model, a(navigator.userAgent));
-      var t = {},
-        o = [-1, 0, 1],
+      var o = {},
+        t = [-1, 0, 1],
         i = function(e, n) {
-          e = parseInt(e, 10) || 1, n = _.includes(o, n) ? n : "any";
+          e = parseInt(e, 10) || 1, n = _.includes(t, n) ? n : "any";
           var a = {};
-          return Object.keys(t).forEach(function(o) {
-            var i = t[o];
-            e > i.tries || "any" !== n && i.state != n || (a[o] = t[o]);
+          return Object.keys(o).forEach(function(t) {
+            var i = o[t];
+            e > i.tries || "any" !== n && i.state != n || (a[t] = o[t]);
           }), {
             state: n,
             min_tries: e,
@@ -2404,8 +2404,8 @@ webpackJsonp([12, 328, 337, 329], {
     ! function() {
       "use strict";
       var e, n, a = window.TS && TS.raw_templates,
-        t = window.TS && TS.console,
-        o = window.TS && TS.features,
+        o = window.TS && TS.console,
+        t = window.TS && TS.features,
         i = 0,
         r = !1;
       window.TS = {
@@ -2413,8 +2413,8 @@ webpackJsonp([12, 328, 337, 329], {
         qs_args: {},
         pri: 0,
         has_pri: {},
-        console: t,
-        features: o,
+        console: o,
+        features: t,
         exportToLegacy: function(e, n) {
           if (_.has(TS, e)) throw new Error("exportToLegacy: there is already something at " + e + "; we cannot overwrite it");
           if (!e || 0 !== e.indexOf("interop")) throw new Error("exportToLegacy: Name " + e + ' must start with "interop".');
@@ -2441,6 +2441,9 @@ webpackJsonp([12, 328, 337, 329], {
         useReduxMembers: function() {
           return TS.useRedux() && (TS.boot_data.feature_store_members_in_redux || TS.boot_data.use_react_messages);
         },
+        useReactLFS: function() {
+          return TS.boot_data.feature_react_lfs;
+        },
         lazyLoadMembersAndBots: function() {
           return TS.useSocket();
         },
@@ -2464,9 +2467,9 @@ webpackJsonp([12, 328, 337, 329], {
             this._constructor && this._constructor.apply(this, arguments), this.id || (this.id = e + "_auto_guid_" + i, i += 1), this.test && u() ? this.test = void 0 : "function" == typeof this.test && (this.test = this.test()), n._add(this.id, this);
           };
           if (void 0 === s(e, a, "component")) return void(D[e] = n);
-          var t = n.destroy;
+          var o = n.destroy;
           n.destroy = function() {
-            a._remove(this.id), t.call(this);
+            a._remove(this.id), o.call(this);
           }, a.prototype = Object.create(n), a.instances = {}, a._name = e, z[e] = a, a._add = function(n, a) {
             z[e].instances[n] && TS.warn("A " + e + " component with the instance id " + n + "already exists"), z[e].instances[n] = a;
           }, a._remove = function(n) {
@@ -2507,7 +2510,7 @@ webpackJsonp([12, 328, 337, 329], {
         error: function() {
           TS.console.error.apply(this, [].slice.call(arguments, 0));
         },
-        logError: function(e, n, a, t) {
+        logError: function(e, n, a, o) {
           TS.console.logError.apply(this, [].slice.call(arguments, 0));
         },
         getQsArgsForUrl: function(e) {
@@ -2525,7 +2528,7 @@ webpackJsonp([12, 328, 337, 329], {
             var n = e.data;
             TS.boot_data.other_accounts = {};
             var a = 0;
-            for (var t in n.accounts) t != TS.model.user.id && (TS.boot_data.other_accounts[t] = n.accounts[t], a += 1);
+            for (var o in n.accounts) o != TS.model.user.id && (TS.boot_data.other_accounts[o] = n.accounts[o], a += 1);
             TS.view && !a && TS.view.updateTitleBarColor();
           }).catch(function(e) {
             TS.console && TS.console.warn && TS.console.error && (TS.console.warn(8675309, "unable to do anything with refreshTeams rsp"), TS.console.error(8675309, e));
@@ -2590,18 +2593,18 @@ webpackJsonp([12, 328, 337, 329], {
         }
       };
       var s = function(e, n, a) {
-        var t = e,
-          o = TS,
-          i = t.split("."),
+        var o = e,
+          t = TS,
+          i = o.split("."),
           r = i.length - 1;
-        if (r >= 3) TS.error(a + ' "' + t + '" cannot be registered, as we only support a depth of two sub modules right now');
+        if (r >= 3) TS.error(a + ' "' + o + '" cannot be registered, as we only support a depth of two sub modules right now');
         else if (r) {
-          t = i[r];
+          o = i[r];
           var s = 0;
           for (s; s < r; s += 1)
-            if (i[s] || TS.error(a + ' "' + e + '" cannot be registered because of a bad name'), void 0 === (o = o[i[s]])) return o;
+            if (i[s] || TS.error(a + ' "' + e + '" cannot be registered because of a bad name'), void 0 === (t = t[i[s]])) return t;
         }
-        return void 0 !== o[t] ? TS.error(a + ' "' + e + '" cannot be registered; "' + t + '" already exists on "' + (o._name || "TS") + '"') : o[t] = n, o;
+        return void 0 !== t[o] ? TS.error(a + ' "' + e + '" cannot be registered; "' + o + '" already exists on "' + (t._name || "TS") + '"') : t[o] = n, t;
       };
       a && (TS.raw_templates = a, a = null);
       var l, c, d, m, u = function() {
@@ -2771,13 +2774,13 @@ webpackJsonp([12, 328, 337, 329], {
         var e, n = location.search.substring(1),
           a = {};
         e = n.split("&");
-        for (var t = 0; t < e.length; t += 1) {
-          var o = e[t].indexOf("=");
-          if (-1 != o) {
-            var i = e[t].substring(0, o),
-              r = e[t].substring(o + 1);
+        for (var o = 0; o < e.length; o += 1) {
+          var t = e[o].indexOf("=");
+          if (-1 != t) {
+            var i = e[o].substring(0, t),
+              r = e[o].substring(t + 1);
             a[i] = unescape(r);
-          } else e[t].length && (a[e[t]] = "");
+          } else e[o].length && (a[e[o]] = "");
         }
         return a;
       }(), TS.pri = TS.qs_args.pri ? TS.qs_args.pri + ",0" : TS.pri, _.each(TS.pri && TS.pri.split(","), function(e) {
@@ -2816,8 +2819,8 @@ webpackJsonp([12, 328, 337, 329], {
           var n = new Promise(function(e) {
             function n(a) {
               a.then(function(a) {
-                var t = a.rtm_start;
-                TS.flannel.hydrateStartData(t).then(function(a) {
+                var o = a.rtm_start;
+                TS.flannel.hydrateStartData(o).then(function(a) {
                   TS.interop.SocketManager.provisionallyConnectedSig.remove(n), e(a);
                 });
               }).catch(function(e) {
@@ -2887,14 +2890,14 @@ webpackJsonp([12, 328, 337, 329], {
         },
         q = function() {
           function e() {
-            return t += 1, new Promise(function(n) {
+            return o += 1, new Promise(function(n) {
               if (window.TS && TS.raw_templates && Object.keys(TS.raw_templates).length > 0) return void n();
               TS.utility.getCachedScript(a).done(function() {
                 if (0 == Object.keys(TS.raw_templates).length) return void TS.error(a + " returned no templates D:");
                 n();
-              }).fail(function(n, o, i) {
-                var r = Math.min(1e3 * t, 1e4);
-                TS.warn("loading " + a + " failed (textStatus:" + o + " errorThrown:" + i + " attempts:" + t + "), trying again in " + r + "ms"), setTimeout(e, r);
+              }).fail(function(n, t, i) {
+                var r = Math.min(1e3 * o, 1e4);
+                TS.warn("loading " + a + " failed (textStatus:" + t + " errorThrown:" + i + " attempts:" + o + "), trying again in " + r + "ms"), setTimeout(e, r);
               });
             });
           }
@@ -2903,7 +2906,7 @@ webpackJsonp([12, 328, 337, 329], {
           n = TS.boot_data.hbs_templates_version && "dev" !== TS.boot_data.version_ts ? TS.boot_data.hbs_templates_version : "dev" === TS.boot_data.version_ts ? Date.now() : TS.boot_data.version_ts;
           var a = "/templates.php?cb=" + n + TS.getQsArgsForUrl();
           TS.boot_data.template_groups && (a += "&template_groups=" + TS.boot_data.template_groups), TS.boot_data.template_exclude_feature_flagged && (a += "&template_exclude_feature_flagged=1"), /&locale=[a-zA-Z-]/.test(a) && (a = a.replace(/\?locale=[a-zA-Z-]*&/, "?").replace(/[?|&]locale=[a-zA-Z-]*/, ""), a = a.replace(/&locale=[a-zA-Z-]/, "")), TS.i18n.locale() && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE && (a += "&locale=" + TS.i18n.locale());
-          var t = 0;
+          var o = 0;
           return e();
         },
         W = function() {
@@ -2931,9 +2934,9 @@ webpackJsonp([12, 328, 337, 329], {
           n && (N = _.noop);
         },
         Z = function(e, n) {
-          return TS.lazyLoadMembersAndBots() && (e.bots = e.bots || []), new Promise(function(a, t) {
-            var o = !TS.model.ms_logged_in_once;
-            if (TS.team.upsertTeam(e.team), TS.model.team.url = e.url, TS.boot_data.page_needs_enterprise && void 0 !== e.can_manage_shared_channels && (TS.model.team.prefs.can_user_manage_shared_channels = e.can_manage_shared_channels), TS.model.last_team_name || (TS.model.last_team_name = TS.model.team.name, TS.model.last_team_domain = TS.model.team.domain), TS.model.team.activity = [], TS.model.break_token && (TS.model.team.url += "f"), o) TS.model.rooms = [], TS.useRedux() || (TS.model.channels = [], TS.model.groups = [], TS.model.mpims = [], TS.model.ims = []), TS.useReduxMembers() || (TS.model.members = [], TS.model.bots = []), TS.model.teams = [], TS.model.user_groups = [], TS.model.read_only_channels = [], TS.boot_data.feature_default_shared_channels && (TS.model.thread_only_channels = [], TS.model.non_threadable_channels = []), TS.model.online_users = [];
+          return TS.lazyLoadMembersAndBots() && (e.bots = e.bots || []), new Promise(function(a, o) {
+            var t = !TS.model.ms_logged_in_once;
+            if (TS.team.upsertTeam(e.team), TS.model.team.url = e.url, TS.boot_data.page_needs_enterprise && void 0 !== e.can_manage_shared_channels && (TS.model.team.prefs.can_user_manage_shared_channels = e.can_manage_shared_channels), TS.model.last_team_name || (TS.model.last_team_name = TS.model.team.name, TS.model.last_team_domain = TS.model.team.domain), TS.model.team.activity = [], TS.model.break_token && (TS.model.team.url += "f"), t) TS.model.rooms = [], TS.useRedux() || (TS.model.channels = [], TS.model.groups = [], TS.model.mpims = [], TS.model.ims = []), TS.useReduxMembers() || (TS.model.members = [], TS.model.bots = []), TS.model.teams = [], TS.model.user_groups = [], TS.model.read_only_channels = [], TS.boot_data.feature_default_shared_channels && (TS.model.thread_only_channels = [], TS.model.non_threadable_channels = []), TS.model.online_users = [];
             else {
               var i = TS._did_incremental_boot && !TS._did_full_boot;
               i || TS.refreshTeams();
@@ -2945,7 +2948,7 @@ webpackJsonp([12, 328, 337, 329], {
                 s = Date.now();
               if (TS.model.online_users = _.filter(TS.model.online_users, function(e) {
                   var n = TS.members.getMemberById(e);
-                  return !n || ("active" !== n.presence && (n.presence = "active", o || (r += 1, TS.members.presence_changed_sig.dispatch(n))), !1);
+                  return !n || ("active" !== n.presence && (n.presence = "active", t || (r += 1, TS.members.presence_changed_sig.dispatch(n))), !1);
                 }), r) {
                 var l = Date.now() - s;
                 l > 500 && TS.warn("_setUpModel: took " + l + " msec to dispatch " + r + " presence_changed signals.");
@@ -2987,23 +2990,23 @@ webpackJsonp([12, 328, 337, 329], {
               if (TS.calls) return !0;
               if (TS.boot_data.page_needs_enterprise && TS.boot_data.exclude_org_members) return !0;
               var a = {},
-                t = function(e) {
+                o = function(e) {
                   e.is_group && e.is_shared && !n || e.members && e.members.forEach && e.members.forEach(function(e) {
                     a[e] = !0;
                   });
                 };
-              e.channels.forEach(t), e.groups.forEach(t), e.mpims && e.mpims.filter(function(e) {
+              e.channels.forEach(o), e.groups.forEach(o), e.mpims && e.mpims.filter(function(e) {
                 return !e.is_shared || n;
-              }).forEach(t), e.ims.forEach(function(e) {
+              }).forEach(o), e.ims.forEach(function(e) {
                 e.is_shared && !n || e.user && (a[e.user] = !0);
               });
-              var o = [];
-              for (var i in a) TS.members.getMemberById(i) || o.push(i);
-              return o.length ? (f.push("doAllMembersFromChannelsInRawDataExist() found (" + o.length + ") unknown members: " + o.join(", ")), !!TS.boot_data.page_needs_enterprise) : (f.push("doAllMembersFromChannelsInRawDataExist() confirmed all members"), !0);
+              var t = [];
+              for (var i in a) TS.members.getMemberById(i) || t.push(i);
+              return t.length ? (f.push("doAllMembersFromChannelsInRawDataExist() found (" + t.length + ") unknown members: " + t.join(", ")), !!TS.boot_data.page_needs_enterprise) : (f.push("doAllMembersFromChannelsInRawDataExist() confirmed all members"), !0);
             };
-            if (!TS.model.user) return G("no TS.model.user", f.join("\n")), void t(Error("called _onBadUserCache"));
+            if (!TS.model.user) return G("no TS.model.user", f.join("\n")), void o(Error("called _onBadUserCache"));
             if (!k()) {
-              if (parseInt(n.cache_ts, 10)) return G("!doAllMembersFromChannelsInRawDataExist()", f.join("\n")), void t(Error("called _onBadUserCache"));
+              if (parseInt(n.cache_ts, 10)) return G("!doAllMembersFromChannelsInRawDataExist()", f.join("\n")), void o(Error("called _onBadUserCache"));
               TS.logError({
                 message: f.join("\n")
               }, "doAllMembersFromChannelsInRawDataExist() failed");
@@ -3039,17 +3042,14 @@ webpackJsonp([12, 328, 337, 329], {
               TS.utility.msgs.startBatchUnreadCalc(), TS.metrics.mark("upsert_channels_start");
               var a = !1;
               TS.useRedux() && (a = !0);
-              var t = _.map(e.channels, function(e) {
+              var o = _.map(e.channels, function(e) {
                 if (!n || e.is_general) return TS.channels.upsertChannel(e, a);
               });
-              TS.useRedux() && t.length && TS.redux.channels.bulkAddEntities(_.compact(t)), TS.metrics.measureAndClear("upsert_channels", "upsert_channels_start");
-              var o = TS.boot_data.page_needs_enterprise && TS.boot_data.exclude_org_members;
-              if (!o) {
-                var i = _.map(e.ims, function(e) {
-                  if (!n || "USLACKBOT" === e.user) return TS.ims.upsertIm(e, a);
-                });
-                TS.useRedux() && i.length && TS.redux.channels.bulkAddEntities(_.compact(i));
-              }
+              TS.metrics.measureAndClear("upsert_channels", "upsert_channels_start");
+              var t = TS.boot_data.page_needs_enterprise && TS.boot_data.exclude_org_members;
+              if (!t) var i = _.map(e.ims, function(e) {
+                if (!n || "USLACKBOT" === e.user) return TS.ims.upsertIm(e, a);
+              });
               if (TS.metrics.mark("upsert_groups_start"), !TS.isPartiallyBooted()) {
                 var r = _.map(TS.model.groups, "id"),
                   s = _.map(e.groups, "id"),
@@ -3062,11 +3062,12 @@ webpackJsonp([12, 328, 337, 329], {
               var c = _.map(e.groups, function(e) {
                 if (!n) return TS.groups.upsertGroup(e, a);
               });
-              if (TS.useRedux() && c.length && TS.redux.channels.bulkAddEntities(_.compact(c)), TS.metrics.measureAndClear("upsert_groups", "upsert_groups_start"), e.mpims && !o) {
-                var d = _.map(e.mpims, function(e) {
-                  if (!n) return TS.mpims.upsertMpim(e, a);
-                });
-                TS.useRedux() && d.length && TS.redux.channels.bulkAddEntities(_.compact(d));
+              if (TS.metrics.measureAndClear("upsert_groups", "upsert_groups_start"), e.mpims && !t) var d = _.map(e.mpims, function(e) {
+                if (!n) return TS.mpims.upsertMpim(e, a);
+              });
+              if (TS.useRedux()) {
+                var m = _.compact(o.concat(i).concat(c).concat(d));
+                TS.redux.channels.bulkAddEntities(m);
               }
               TS.utility.msgs.finishBatchUnreadCalc(), TS.model.user.is_restricted && !TS._incremental_boot && TS._did_incremental_boot && TS.members.invalidateMembersUserCanSeeArrayCaches();
             };
@@ -3074,14 +3075,14 @@ webpackJsonp([12, 328, 337, 329], {
               var O = e.ims.concat(e.mpims || [], e.groups || []);
               return TS.members.ensureMembersArePresentInSharedModelObs(O).then(function() {
                 if (!k(!0)) {
-                  if (parseInt(n.cache_ts, 10)) return G("!doAllMembersFromChannelsInRawDataExist(with_shared=true)", f.join("\n")), void t(Error("called _onBadUserCache"));
+                  if (parseInt(n.cache_ts, 10)) return G("!doAllMembersFromChannelsInRawDataExist(with_shared=true)", f.join("\n")), void o(Error("called _onBadUserCache"));
                   TS.logError({
                     message: f.join("\n")
                   }, "doAllMembersFromChannelsInRawDataExist(with_shared=true) failed");
                 }
                 C(), a();
               }, function(e) {
-                t(Error("could not fetch all external members: " + (e && e.message)));
+                o(Error("could not fetch all external members: " + (e && e.message)));
               });
             }
             C(), a();
@@ -3140,13 +3141,13 @@ webpackJsonp([12, 328, 337, 329], {
       TS.registerModule("ssb", {
         teams_did_load_sig: new signals.Signal,
         onStart: function() {
-          TS.files && TS.files.team_file_deleted_sig.add(t);
+          TS.files && TS.files.team_file_deleted_sig.add(o);
         },
-        openNewFileWindow: function(e, n, t) {
-          if (r && TS.log(r, "TS.ssb.openNewFileWindow url: " + n), TS.client) return TS.client.windows.openFileWindow(e.id, t);
+        openNewFileWindow: function(e, n, o) {
+          if (r && TS.log(r, "TS.ssb.openNewFileWindow url: " + n), TS.client) return TS.client.windows.openFileWindow(e.id, o);
           if (window.is_in_ssb) {
             if (TS.ssb.upsertFileInSSBParentWin(e), document.ssb_main) return !document.ssb_main.TS || document.ssb_main.TS.client.windows.openFileWindow(e.id, n);
-            if (window.winssb && window.opener && window.opener.executeJavaScript) return r && TS.log(r, "calling _executeInAtomSSBParentWin for TS.client.windows.openFileWindow"), o("TS.client.windows.openFileWindow(" + a(e.id) + ", " + a(n) + ");"), !0;
+            if (window.winssb && window.opener && window.opener.executeJavaScript) return r && TS.log(r, "calling _executeInAtomSSBParentWin for TS.client.windows.openFileWindow"), t("TS.client.windows.openFileWindow(" + a(e.id) + ", " + a(n) + ");"), !0;
           }
           return !1;
         },
@@ -3157,21 +3158,21 @@ webpackJsonp([12, 328, 337, 329], {
           i(e, "window.is_in_ssb = true;"), TS.shouldLog(438) && !e._has_console && (e._has_console = 1);
         },
         upsertFileInSSBParentWin: function(e) {
-          TS.web && (document.ssb_main ? document.ssb_main.TS && document.ssb_main.TS.files.upsertAndSignal(e) : window.winssb && window.opener && window.opener.executeJavaScript && (r && TS.log(r, "calling _executeInAtomSSBParentWin for TS.files.upsertAndSignal"), o("TS.files.upsertAndSignal(" + n(e) + ");")));
+          TS.web && (document.ssb_main ? document.ssb_main.TS && document.ssb_main.TS.files.upsertAndSignal(e) : window.winssb && window.opener && window.opener.executeJavaScript && (r && TS.log(r, "calling _executeInAtomSSBParentWin for TS.files.upsertAndSignal"), t("TS.files.upsertAndSignal(" + n(e) + ");")));
         },
-        toggleMuteInWin: function(n, a, t) {
+        toggleMuteInWin: function(n, a, o) {
           if (r && TS.log(r, "toggleMuteInWin called with token: " + n), TS.client) {
-            var o = TS.client.windows.getWinByToken(n);
-            if (!o) return void TS.error("toggleMuteInWin called with bad token: " + n);
+            var t = TS.client.windows.getWinByToken(n);
+            if (!t) return void TS.error("toggleMuteInWin called with bad token: " + n);
             if (window.macgap) {
               var s, l;
               try {
-                s = o.window.toggleMute(a);
+                s = t.window.toggleMute(a);
               } catch (e) {
                 TS.error("error calling macgap win.window.toggleMute"), TS.error(e), l = e;
               }
-              t && setTimeout(t, 0, l, s);
-            } else i(o, "window.toggleMute(" + e(a) + ");", t);
+              o && setTimeout(o, 0, l, s);
+            } else i(t, "window.toggleMute(" + e(a) + ");", o);
           }
         },
         teamsDidLoad: function() {
@@ -3179,13 +3180,13 @@ webpackJsonp([12, 328, 337, 329], {
         },
         distributeMsgToWin: function(e, a) {
           if (r && TS.log(r, "distributeMsgToWin called with token: " + e), TS.client) {
-            var t = TS.client.windows.getWinByToken(e);
-            if (!t) return void TS.error("distributeMsgToWin called with bad token: " + e);
+            var o = TS.client.windows.getWinByToken(e);
+            if (!o) return void TS.error("distributeMsgToWin called with bad token: " + e);
             if (window.macgap) try {
-              t && t.window && t.window.TS && t.window.TS.ms && t.window.TS.ms.msg_handlers ? t.window.TS.ms.msg_handlers.msgReceivedFromParentWindow(a) : r && TS.maybeWarn(r, "distributeMsgToWin win.window not ready! token: " + e);
+              o && o.window && o.window.TS && o.window.TS.ms && o.window.TS.ms.msg_handlers ? o.window.TS.ms.msg_handlers.msgReceivedFromParentWindow(a) : r && TS.maybeWarn(r, "distributeMsgToWin win.window not ready! token: " + e);
             } catch (e) {
               TS.error("error calling macgap win.window.TS.ms.msg_handlers.msgReceivedFromParentWindow"), TS.error(e);
-            } else i(t, "TS.ms.msg_handlers.msgReceivedFromParentWindow(" + n(a) + ");");
+            } else i(o, "TS.ms.msg_handlers.msgReceivedFromParentWindow(" + n(a) + ");");
           }
         }
       });
@@ -3198,7 +3199,7 @@ webpackJsonp([12, 328, 337, 329], {
         a = function(e) {
           return e = String(e), '"' + (e = e.replace(/"/g, '\\"')) + '"';
         },
-        t = function(e) {
+        o = function(e) {
           if (e && TS.client) {
             var n = TS.client.windows.getWinByProp("file_id", e.id);
             n && setTimeout(function() {
@@ -3208,7 +3209,7 @@ webpackJsonp([12, 328, 337, 329], {
             }, 1e3);
           }
         },
-        o = function(e, n) {
+        t = function(e, n) {
           return TSSSB.call("executeJavaScriptInParentWindow", {
             code: e,
             callback: n
@@ -3230,7 +3231,7 @@ webpackJsonp([12, 328, 337, 329], {
       TS.registerModule("statsd", {
         onStart: function() {
           var e = Math.floor(5e3 * Math.random());
-          setInterval(t, 3e4 + e), $(window).on("beforeunload", t);
+          setInterval(o, 3e4 + e), $(window).on("beforeunload", o);
         },
         count: function(e, n) {
           _.isUndefined(n) && (n = 1), a(e, "count", n);
@@ -3239,7 +3240,7 @@ webpackJsonp([12, 328, 337, 329], {
           a(e, "timing", n);
         },
         flush: function() {
-          t();
+          o();
         },
         mark: function(e) {
           TS.metrics.mark(e);
@@ -3248,10 +3249,10 @@ webpackJsonp([12, 328, 337, 329], {
           TS.metrics.clearMarks(e);
         },
         measure: function(e, n, a) {
-          var t = TS.metrics.measure(e, n, a, {
+          var o = TS.metrics.measure(e, n, a, {
             ephemeral: !0
           });
-          if (!_.isNaN(t) && !_.isUndefined(t)) return TS.statsd.timing(e, t), t;
+          if (!_.isNaN(o) && !_.isUndefined(o)) return TS.statsd.timing(e, o), o;
         },
         measureAndClear: function(e, n) {
           var a = TS.statsd.measure(e, n);
@@ -3275,44 +3276,44 @@ webpackJsonp([12, 328, 337, 329], {
             }
           }), Object.defineProperty(e, "_sendDataAndEmptyQueue", {
             get: function() {
-              return t;
+              return o;
             },
             set: function(e) {
-              t = e;
+              o = e;
             }
           }), e;
         }
       });
       var e, n = [],
-        a = function(e, a, t) {
-          var o;
-          if ("count" === a) o = " (count)", t = _.round(t, 0);
+        a = function(e, a, o) {
+          var t;
+          if ("count" === a) t = " (count)", o = _.round(o, 0);
           else {
             if ("timing" !== a) return void TS.error("TS.statsd._record called with invalid type: " + a);
-            o = "ms", t = _.round(t, 3);
+            t = "ms", o = _.round(o, 3);
           }
-          i(e) && TS.info("[STATSD " + a.toUpperCase() + "] " + e + ": " + t + o), n.push({
+          i(e) && TS.info("[STATSD " + a.toUpperCase() + "] " + e + ": " + o + t), n.push({
             stat: e,
             type: a,
-            value: t
+            value: o
           });
         },
-        t = function() {
+        o = function() {
           if (n.length) {
             var e = [],
               a = [],
-              t = "",
+              o = "",
               r = function(e) {
-                return o() + "?stats=" + encodeURIComponent(JSON.stringify(e));
+                return t() + "?stats=" + encodeURIComponent(JSON.stringify(e));
               };
             n.forEach(function(n) {
-              a.push(n), t = r(a), t.length > 2e3 && (a.pop(), e.push(r(a)), a = [n]);
+              a.push(n), o = r(a), o.length > 2e3 && (a.pop(), e.push(r(a)), a = [n]);
             }), e.push(r(a)), e.forEach(function(e) {
               (new Image).src = e;
             }), i() && TS.info("[STATSD] Sending data: " + JSON.stringify(n)), n = [];
           }
         },
-        o = function() {
+        t = function() {
           return e || (e = TS.environment.is_dev ? "https://" + location.host.match(/^([^.]+\.)?(?:enterprise\.)?(dev[0-9]*)\.slack\.com/)[2] + "/beacon/statsd" : location.host.match(/staging.slack.com/) ? "https://staging.slack.com/beacon/statsd" : "https://slack.com/beacon/statsd");
         },
         i = function(e) {
@@ -3334,13 +3335,13 @@ webpackJsonp([12, 328, 337, 329], {
           if (TS.info("handleDropFromWinSSB called files:" + e), $("body").removeClass("drop-target"), !TS.client.ui.checkForEditing()) return e && e.length ? void TS.client.ui.files.validateFiles(e, TS.model.shift_key_pressed) : void TS.warn("handleDropFromWinSSB called with no files");
         },
         preselected: [],
-        bindFileShareDropdowns: function(o, i, r, s) {
+        bindFileShareDropdowns: function(t, i, r, s) {
           var l = $("#select_share_channels"),
             c = "60%";
           if (TS.web && TS.web.space && (c = "100%"), 1 != l.length) return void alert("error: " + l.length + " $('#select_share_channels')s");
           TS.ui.file_share.preselected = r || [], n = i;
           var d = TS.ui.file_share.promiseToGetFileShareSelectOptions;
-          s && (d = t), e = {
+          s && (d = o), e = {
             append: !0,
             single: !0,
             data_promise: d,
@@ -3349,7 +3350,7 @@ webpackJsonp([12, 328, 337, 329], {
             template: function(e) {
               return new Handlebars.SafeString(TS.templates.file_sharing_channel_row({
                 item: e.model_ob,
-                show_share_prefix: o
+                show_share_prefix: t
               }));
             },
             onItemAdded: a,
@@ -3363,9 +3364,9 @@ webpackJsonp([12, 328, 337, 329], {
               $("#select_share_channels .lfs_list_container").removeClass("new_channel_container"), e.html(_.escape(n.label)).removeClass("new_channel_not_found");
             },
             setValue: function(e) {
-              var n, a, t, o = this.data.length;
-              for (n = 0; n < o; n += 1)
-                for (t = this.data[n].children.length, a = 0; a < t; a += 1)
+              var n, a, o, t = this.data.length;
+              for (n = 0; n < t; n += 1)
+                for (o = this.data[n].children.length, a = 0; a < o; a += 1)
                   if (this.data[n].children[a].model_ob.id === e) return void this.$container.find('.lfs_item[data-lfs-id="' + [n, a] + '"]').trigger("click");
             }
           }, l.lazyFilterSelect(e), l.css({
@@ -3384,7 +3385,7 @@ webpackJsonp([12, 328, 337, 329], {
           });
         },
         promiseToGetFileShareSelectOptions: function(e) {
-          var n = o();
+          var n = t();
           return TS.searcher.search(e, {
             members: {
               include_self: !0
@@ -3401,24 +3402,24 @@ webpackJsonp([12, 328, 337, 329], {
               allow_empty_query: !0
             }
           }).then(function(a) {
-            var t = !1;
+            var o = !1;
             if (a.all_items_fetched = !0, a.filter(function(e) {
                 return TS.permissions.members.canPostInChannel(e.model_ob);
               }).forEach(function(e) {
-                e.lfs_id = e.model_ob.id, e.preselected = i(e.model_ob.id, n), e.preselected && (t = !0);
-              }), !e && !t && n) {
-              var o = TS.shared.getModelObById(n);
-              if (_.get(o, "is_im")) {
-                var r = TS.members.getMemberById(o.user);
+                e.lfs_id = e.model_ob.id, e.preselected = i(e.model_ob.id, n), e.preselected && (o = !0);
+              }), !e && !o && n) {
+              var t = TS.shared.getModelObById(n);
+              if (_.get(t, "is_im")) {
+                var r = TS.members.getMemberById(t.user);
                 a.push({
                   preselected: !0,
                   lfs_id: r.id,
                   model_ob: r
                 });
-              } else o && TS.permissions.members.canPostInChannel(o) && a.push({
+              } else t && TS.permissions.members.canPostInChannel(t) && a.push({
                 preselected: !0,
-                lfs_id: o.id,
-                model_ob: o
+                lfs_id: t.id,
+                model_ob: t
               });
             }
             var s = _(a).map("model_ob").filter(TS.utility.members.isMember).map("id").compact().value();
@@ -3436,12 +3437,12 @@ webpackJsonp([12, 328, 337, 329], {
           });
         },
         updateAtChannelWarningNote: function(e) {
-          var n, a, t = TS.utility.contenteditable.value($("#file_comment_textarea")),
-            o = $("#select_share_channels").lazyFilterSelect("value")[0];
-          o && (n = o.model_ob.id || "");
+          var n, a, o = TS.utility.contenteditable.value($("#file_comment_textarea")),
+            t = $("#select_share_channels").lazyFilterSelect("value")[0];
+          t && (n = t.model_ob.id || "");
           var i = $("#select_share_at_channel_note");
-          if (TS.ui.needToShowAtChannelWarning(n, t)) {
-            var r = TS.format.cleanMsg(t),
+          if (TS.ui.needToShowAtChannelWarning(n, o)) {
+            var r = TS.format.cleanMsg(o),
               s = "",
               l = !0;
             TS.model.everyone_regex.test(r) ? s = "everyone" : TS.model.channel_regex.test(r) ? s = "channel" : TS.model.group_regex.test(r) && (s = "group");
@@ -3472,9 +3473,9 @@ webpackJsonp([12, 328, 337, 329], {
         updateAtChannelBlockedNote: function() {
           var e, n = TS.utility.contenteditable.value($("#file_comment_textarea")),
             a = $("#select_share_channels").lazyFilterSelect("value")[0],
-            t = $("#share_cb"),
-            o = 0 === t.length || t.is(":checked");
-          a && o && (e = a.model_ob.id);
+            o = $("#share_cb"),
+            t = 0 === o.length || o.is(":checked");
+          a && t && (e = a.model_ob.id);
           var i = $("#select_share_at_channel_blocked_note"),
             r = $(".modal .btn.dialog_go"),
             s = TS.ui.needToBlockAtChannelKeyword(n, null, e);
@@ -3485,9 +3486,9 @@ webpackJsonp([12, 328, 337, 329], {
         shouldBlockUploadDialogSubmission: function() {
           var e, n = TS.utility.contenteditable.value($("#file_comment_textarea")),
             a = $("#select_share_channels").lazyFilterSelect("value")[0],
-            t = $("#share_cb"),
-            o = 0 === t.length || t.is(":checked");
-          a && o && (e = a.model_ob.id);
+            o = $("#share_cb"),
+            t = 0 === o.length || o.is(":checked");
+          a && t && (e = a.model_ob.id);
           var i = TS.ui.needToBlockAtChannelKeyword(n, null, e);
           return !!i && (TS.info("Can't submit dialog because comment contains " + i), !0);
         },
@@ -3524,10 +3525,10 @@ webpackJsonp([12, 328, 337, 329], {
         fileRevokePublicLink: function(e) {
           var n = TS.files.getFileById(e);
           if (!n) return !1;
-          var a, t;
-          TS.boot_data.feature_external_files ? (a = TS.i18n.t("Revoke external file link", "files")(), t = '<p class="no_bottom_margin">' + TS.i18n.t("This will disable the external link for this file. Any previously shared links will stop working.<br /><br />Are you sure you want to revoke this link?", "files")() + "</p>") : (a = TS.i18n.t("Revoke public file link", "files")(), t = '<p class="no_bottom_margin">' + TS.i18n.t("This will disable the Public Link for this file. This will cause any previously shared links to stop working.<br /><br />Are you sure you want to revoke this public link?", "files")() + "</p>"), TS.generic_dialog.start({
+          var a, o;
+          TS.boot_data.feature_external_files ? (a = TS.i18n.t("Revoke external file link", "files")(), o = '<p class="no_bottom_margin">' + TS.i18n.t("This will disable the external link for this file. Any previously shared links will stop working.<br /><br />Are you sure you want to revoke this link?", "files")() + "</p>") : (a = TS.i18n.t("Revoke public file link", "files")(), o = '<p class="no_bottom_margin">' + TS.i18n.t("This will disable the Public Link for this file. This will cause any previously shared links to stop working.<br /><br />Are you sure you want to revoke this public link?", "files")() + "</p>"), TS.generic_dialog.start({
             title: a,
-            body: t,
+            body: o,
             go_button_text: TS.i18n.t("Revoke it", "files")(),
             go_button_class: "btn_warning",
             onGo: function() {
@@ -3550,13 +3551,13 @@ webpackJsonp([12, 328, 337, 329], {
           if (n = e.model_ob.id) {
             if ($("#share_model_ob_id").val(n), $("#select_share_groups_note, #select_share_channels_note, #select_share_ims_note, #select_share_mpims_note, #select_share_channels_join_note").addClass("hidden"), "C" === (a = n.substring(0, 1))) {
               $("#select_share_channels_note").removeClass("hidden"), $("#share_context_label").text(TS.i18n.t("Share in", "files")());
-              var t = TS.shared.getModelObById(n);
-              t && !t.is_member && $("#select_share_channels_join_note").removeClass("hidden");
+              var o = TS.shared.getModelObById(n);
+              o && !o.is_member && $("#select_share_channels_join_note").removeClass("hidden");
             } else "U" === a || "W" === a || "D" === a ? ($("#select_share_ims_note").removeClass("hidden"), $("#share_context_label").text(TS.i18n.t("Share with", "files")())) : e && e.model_ob && e.model_ob.is_mpim ? ($("#select_share_mpims_note").removeClass("hidden"), $("#share_context_label").text(TS.i18n.t("Share with", "files")())) : ($("#select_share_groups_note").removeClass("hidden"), $("#share_context_label").text(TS.i18n.t("Share in", "files")()));
             $("#share_cb").prop("checked", !0), TS.ui.file_share.updateAtChannelWarningNote(), TS.ui.file_share.updateAtChannelBlockedNote();
           }
         },
-        t = function(e) {
+        o = function(e) {
           return TS.ui.file_share.promiseToGetFileShareSelectOptions(e).then(function(n) {
             if ($("#select_share_channels .lfs_list_container").removeClass("new_channel_container"), 0 === n.length) {
               var a = TS.utility.channels.getPermissibleChannelName(e);
@@ -3576,7 +3577,7 @@ webpackJsonp([12, 328, 337, 329], {
             return n;
           });
         },
-        o = function() {
+        t = function() {
           if (TS.client && TS.client.activeChannelIsHidden()) {
             if (n) return n.id;
           } else {
@@ -3605,7 +3606,7 @@ webpackJsonp([12, 328, 337, 329], {
             target: window
           }) : TS.ui.onWindowFocus({
             target: window
-          }), TS.model.win_ssb_version && $("body").addClass("winssb"), o();
+          }), TS.model.win_ssb_version && $("body").addClass("winssb"), t();
         },
         setUpWindowUnloadHandlers: function() {
           window.macgap ? window.onbeforeunload = TS.ui.onWindowUnload : void 0 !== window.addEventListener ? window.addEventListener("beforeunload", TS.ui.onWindowUnload, !1) : void 0 !== document.addEventListener ? document.addEventListener("beforeunload", TS.ui.onWindowUnload, !1) : void 0 !== window.attachEvent ? window.attachEvent("onbeforeunload", TS.ui.onWindowUnload) : "function" == typeof window.onbeforeunload ? window.onbeforeunload = function() {
@@ -3644,25 +3645,25 @@ webpackJsonp([12, 328, 337, 329], {
           "hidden" === document.visibilityState ? TS.ui.onWindowBlur(e) : "visible" === document.visibilityState && TS.ui.onWindowFocus(e);
         },
         needToShowAtChannelWarning: function(e, n) {
-          var a, t = TS.format.cleanMsg(n),
-            o = TS.model.everyone_regex.test(t),
-            i = TS.model.channel_regex.test(t),
-            r = TS.model.group_regex.test(t),
+          var a, o = TS.format.cleanMsg(n),
+            t = TS.model.everyone_regex.test(o),
+            i = TS.model.channel_regex.test(o),
+            r = TS.model.group_regex.test(o),
             s = !!TS.model.prefs.last_seen_at_channel_warning,
             l = new Date(TS.model.prefs.last_seen_at_channel_warning),
             c = s && TS.interop.datetime.isSameDay(l, new Date);
-          return !!(o || i || r) && (!(!(a = TS.shared.getModelObById(e)) || a.is_im) && (!((i || r) && !TS.permissions.members.canAtChannelOrGroup(a.id)) && (!(a.is_general && o && !TS.permissions.members.canAtMentionEveryone(a.id)) && ("never" !== TS.model.team.prefs.warn_before_at_channel && (("once" !== TS.model.team.prefs.warn_before_at_channel || !s) && ("daily" !== TS.model.team.prefs.warn_before_at_channel || !c))))));
+          return !!(t || i || r) && (!(!(a = TS.shared.getModelObById(e)) || a.is_im) && (!((i || r) && !TS.permissions.members.canAtChannelOrGroup(a.id)) && (!(a.is_general && t && !TS.permissions.members.canAtMentionEveryone(a.id)) && ("never" !== TS.model.team.prefs.warn_before_at_channel && (("once" !== TS.model.team.prefs.warn_before_at_channel || !s) && ("daily" !== TS.model.team.prefs.warn_before_at_channel || !c))))));
         },
         needToBlockAtChannelKeyword: function(e, n, a) {
-          var t = TS.format.cleanMsg(e),
-            o = a && TS.shared.getModelObById(a);
-          if (!(o && !o.is_im && !o.is_mpim || n && (n.channels.length || n.groups.length))) return !1;
-          var i = TS.model.everyone_regex.test(t),
-            r = TS.model.here_regex.test(t),
-            s = TS.model.channel_regex.test(t),
-            l = TS.model.group_regex.test(t),
+          var o = TS.format.cleanMsg(e),
+            t = a && TS.shared.getModelObById(a);
+          if (!(t && !t.is_im && !t.is_mpim || n && (n.channels.length || n.groups.length))) return !1;
+          var i = TS.model.everyone_regex.test(o),
+            r = TS.model.here_regex.test(o),
+            s = TS.model.channel_regex.test(o),
+            l = TS.model.group_regex.test(o),
             c = !1;
-          if (o) c = !!o.is_general;
+          if (t) c = !!t.is_general;
           else if (n && 0 === n.groups.length && 1 === n.channels.length) {
             var _ = TS.channels.getChannelById(n.channels[0]);
             c = !!_.is_general;
@@ -3674,7 +3675,7 @@ webpackJsonp([12, 328, 337, 329], {
             if (l) return "@group";
             if (i) return "@everyone";
           }
-          var d = o && o.is_general;
+          var d = t && t.is_general;
           return !d && n && n.channels && n.channels.forEach(function(e) {
             var n = TS.channels.getChannelById(e);
             n && n.is_general && (d = !0);
@@ -3682,18 +3683,18 @@ webpackJsonp([12, 328, 337, 329], {
         },
         startButtonSpinner: function(e) {
           TS.ui.resetButtonSpinner(e);
-          var n = t(e);
+          var n = o(e);
           n.isLoading() || n.start();
         },
         stopButtonSpinner: function(e, n) {
-          var a = t(e);
+          var a = o(e);
           if (a.isLoading() && (a.stop(), n)) {
-            var o = $(e).find(".ladda-label").text();
-            $(e).data("original_text", o), $(e).removeClass("").addClass("btn_success").find(".ladda-label").html('<i class="ts_icon ts_icon_check_circle_o small_right_margin"></i>' + TS.i18n.t("Saved", "ui")());
+            var t = $(e).find(".ladda-label").text();
+            $(e).data("original_text", t), $(e).removeClass("").addClass("btn_success").find(".ladda-label").html('<i class="ts_icon ts_icon_check_circle_o small_right_margin"></i>' + TS.i18n.t("Saved", "ui")());
           }
         },
         resetButtonSpinner: function(e) {
-          if (!t(e).isLoading()) {
+          if (!o(e).isLoading()) {
             var n = $(e).data("original_text");
             n && ($(e).find(".ladda-label").text(n), $(e).removeData("original_text"), $(e).removeClass("btn_success").addClass(""));
           }
@@ -3743,11 +3744,11 @@ webpackJsonp([12, 328, 337, 329], {
       var e, n, a = function() {
           void 0 !== document.hidden ? (n = "hidden", e = "visibilitychange") : void 0 !== document.msHidden ? (n = "msHidden", e = "msvisibilitychange") : void 0 !== document.webkitHidden && (n = "webkitHidden", e = "webkitvisibilitychange"), void 0 !== document[n] && $(window).bind(e, TS.ui.onWindowVisibilityChange);
         },
-        t = function(e) {
+        o = function(e) {
           var n = $(e).data("ladda");
           return n || (n = Ladda.create(e), $(e).data("ladda", n)), n;
         },
-        o = function() {
+        t = function() {
           $("body").on("click.plastic_date", 'input[type="text"][data-plastic-type="date"]', function(e) {
             var n = $(e.target);
             if (n.pickmeup) {
@@ -3771,8 +3772,8 @@ webpackJsonp([12, 328, 337, 329], {
                     monthsShort: TS.utility.date.short_month_names
                   }
                 }).pickmeup("show"), a) {
-                var t = n.data("picker");
-                t || (t = $('<div class="position_relative no_margin no_padding"></div>'), n.data("picker", t)), n.after(t.append(n.find(".pickmeup").detach()));
+                var o = n.data("picker");
+                o || (o = $('<div class="position_relative no_margin no_padding"></div>'), n.data("picker", o)), n.after(o.append(n.find(".pickmeup").detach()));
               }
             }
           }).on("keydown.plastic_date", 'input[type="text"][data-plastic-type="date"]', function(e) {

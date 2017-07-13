@@ -19,30 +19,36 @@
   </div>
   <div class="small_bottom_margin display_flex align_items_center">
     <div class="show_which_channels_container flex_one right_margin">
+      {{#feature flag="feature_react_lfs"}}
+        <div id="show_which_channels_react"></div>
+      {{/feature}}
       <select id="show_which_channels" class="small">
-        <option value="all">{{#t}}All channels{{/t}}</option>
-        <option value="private">{{#t}}Private channels{{/t}}</option>
+        <option {{#if_equal sort_by_selected compare="all"}}selected{{/if_equal}} value="all">{{#t}}All channels{{/t}}</option>
+        <option {{#if_equal sort_by_selected compare="private"}}selected{{/if_equal}} value="private">{{#t}}Private channels{{/t}}</option>
         {{#feature flag="feature_shared_channels_client"}}
-          <option value="ext_shared">{{#t}}Shared channels (beta){{/t}}</option>
+          <option {{#if_equal sort_by_selected compare="ext_shared"}}selected{{/if_equal}} value="ext_shared">{{#t}}Shared channels (beta){{/t}}</option>
         {{/feature}}
         {{#pageNeedsEnterprise}}
-          <option value="org_shared">{{#t}}Shared channels{{/t}}</option>
+          <option {{#if_equal sort_by_selected compare="org_shared"}}selected{{/if_equal}} value="org_shared">{{#t}}Shared channels{{/t}}</option>
         {{/pageNeedsEnterprise}}
         {{#sharedChannelsEnabled}}
-          <option value="local">{{#t team_name=(currentTeamName)}}{team_name} channels{{/t}}</option>
+          <option {{#if_equal sort_by_selected compare="local"}}selected{{/if_equal}} value="local">{{#t team_name=(currentTeamName)}}{team_name} channels{{/t}}</option>
         {{/sharedChannelsEnabled}}
-        <option value="archived">{{#t}}Archived channels{{/t}}</option>
+        <option {{#if_equal sort_by_selected compare="archived"}}selected{{/if_equal}} value="archived">{{#t}}Archived channels{{/t}}</option>
       </select>
     </div>
     <div class="channel_browser_sort_container flex_one">
+      {{#feature flag="feature_react_lfs"}}
+        <div id="channel_browser_sort_react"></div>
+      {{/feature}}
       <select id="channel_browser_sort" class="small">
-        <option value="name">
+        <option {{#if_equal sort_by_selected compare="name"}}selected{{/if_equal}} value="name">
         {{#t}}Channel Name{{/t}}
         </option>
-        <option value="creator">{{#t}}Name of Creator{{/t}}</option>
-        <option value="created">{{#t}}Creation Date (newest first){{/t}}</option>
-        <option value="members_high">{{#t}}Members (most to fewest){{/t}}</option>
-        <option value="members_low">{{#t}}Members (fewest to most){{/t}}</option>
+        <option {{#if_equal sort_by_selected compare="creator"}}selected{{/if_equal}} value="creator">{{#t}}Name of Creator{{/t}}</option>
+        <option {{#if_equal sort_by_selected compare="created"}}selected{{/if_equal}} value="created">{{#t}}Creation Date (newest first){{/t}}</option>
+        <option {{#if_equal sort_by_selected compare="members_high"}}selected{{/if_equal}} value="members_high">{{#t}}Members (most to fewest){{/t}}</option>
+        <option {{#if_equal sort_by_selected compare="members_low"}}selected{{/if_equal}} value="members_low">{{#t}}Members (fewest to most){{/t}}</option>
       </select>
     </div>
   </div>

@@ -114,10 +114,14 @@
     </label>
   {{/isOurApp}}
 
+{{#feature flag='feature_sidebar_prefs'}}
+{{else}}
   <label class="checkbox">
     <input id="no_omnibox_in_channels_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_other_options">
     {{#t}}Hide the Quick Switcher in the channel list{{/t}}
   </label>
+{{/feature}}
+
   {{#feature flag='feature_prev_next_button'}}
     <label class="checkbox">
       <input id="prev_next_btn" checked="checked" type="checkbox" data-inline-saver="#prefs_other_options">

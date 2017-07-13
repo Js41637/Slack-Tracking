@@ -35575,7 +35575,7 @@ webpackJsonp([332], [, function(e, t, n) {
     i = n(20),
     a = n.n(i),
     s = n(2989);
-  n(3605), n(3051), n(3023), n(2697), n(3641), n(3966), n(4169), n(3938), n(3651), n(4265), n(3661), n(3886), n(3902), n(4188);
+  n(3605), n(3051), n(3023), n(2697), n(3641), n(3966), n(4169), n(3938), n(3651), n(4265), n(4274), n(3661), n(3886), n(3902), n(4188);
   window.React = o.a, window.ReactDOM = a.a, window.moment = s.a;
 }, function(e, t, n) {
   "use strict";
@@ -52346,7 +52346,7 @@ webpackJsonp([332], [, function(e, t, n) {
             o = n.prevMatch,
             i = this.getResultAtIndex(r),
             a = this.getInsertDataFromResult(i);
-          return this.onSelect(a), t && (o.completer.onSelect && o.completer.onSelect(i, o.text), this.state.prevMatch = null, this.hideMenu()), !0;
+          return this.onSelect(a), t && (o.completer.onSelect && o.completer.onSelect(i, o.text), this.state.prevMatch = null, this.hideMenu()), this.options.onEnter && this.options.onEnter(), !0;
         }
       }, {
         key: "onSelect",
@@ -63301,4 +63301,38 @@ webpackJsonp([332], [, function(e, t, n) {
   ]);
   n(219)(r, {});
   r.locals && (e.exports = r.locals);
+}, function(e, t, n) {
+  "use strict";
+
+  function r(e) {
+    return new s.a("channel_browser").rt("<span>Show:</span> {label}", {
+      label: e.label
+    }, function(t) {
+      var n = t.text;
+      return a.a.createElement("span", {
+        key: e.id,
+        className: "sk_dark_gray"
+      }, n);
+    });
+  }
+
+  function o(e) {
+    return new s.a("channel_browser").rt("<span>Sort:</span> {label}", {
+      label: e.label
+    }, function(t) {
+      var n = t.text;
+      return a.a.createElement("span", {
+        key: e.id,
+        className: "sk_dark_gray"
+      }, n);
+    });
+  }
+  var i = n(2),
+    a = n.n(i),
+    s = n(2288),
+    l = n(2353);
+  n.i(l.a)("interop.lazyFilterSelect", {
+    channelBrowserShowWhichChannelsToken: r,
+    channelBrowserSortByToken: o
+  });
 }], [2905]);

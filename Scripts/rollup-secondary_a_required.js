@@ -731,17 +731,17 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             }
           }), Object.defineProperty(e, "_maybeTimingMark", {
             get: function() {
-              return z;
-            },
-            set: function(e) {
-              z = e;
-            }
-          }), Object.defineProperty(e, "_maybeTimingMeasure", {
-            get: function() {
               return q;
             },
             set: function(e) {
               q = e;
+            }
+          }), Object.defineProperty(e, "_maybeTimingMeasure", {
+            get: function() {
+              return z;
+            },
+            set: function(e) {
+              z = e;
             }
           }), Object.defineProperty(e, "_maybeShowConnectivityWarning", {
             get: function() {
@@ -1116,7 +1116,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           var n = "api_call_" + L(e),
             i = n + "__headers",
             r = "start_" + T.total_asks + "_" + n;
-          return z(r), {
+          return q(r), {
             args: t,
             method: e,
             mark_label: r,
@@ -1126,19 +1126,19 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           };
         },
         F = function(e) {
-          e && (q(e.headers_label, e.mark_label, null, {
+          e && (z(e.headers_label, e.mark_label, null, {
             ephemeral: e.ephemeral
           }), D(e, e.headers_label));
         },
         B = function(e) {
-          e && (z(e.complete_label, e.mark_label, null, {
+          e && (q(e.complete_label, e.mark_label, null, {
             ephemeral: e.ephemeral
           }), D(e, e.complete_label), K(e.mark_label));
         },
         D = function(e, t) {
           if (e && ("rtm.start" === e.method || "rtm.leanStart" === e.method)) {
             var n = t;
-            n += "__dmeliding_" + (e.args.only_relevant_ims ? "yes" : "no"), n += "__usercache_" + (TS.storage.isUsingMemberBotCache() ? "yes" : "no"), TS.storage.isUsingMemberBotCache() && (parseInt(e.args.cache_ts, 10) ? n += "__hadcache_yes" : TS.model.had_bad_user_cache ? (n += "__hadcache_bad", t == e.complete_label && (TS.model.had_bad_user_cache = !1)) : n += "__hadcache_no"), q(n, e.mark_label, null, {
+            n += "__dmeliding_" + (e.args.only_relevant_ims ? "yes" : "no"), n += "__usercache_" + (TS.storage.isUsingMemberBotCache() ? "yes" : "no"), TS.storage.isUsingMemberBotCache() && (parseInt(e.args.cache_ts, 10) ? n += "__hadcache_yes" : TS.model.had_bad_user_cache ? (n += "__hadcache_bad", t == e.complete_label && (TS.model.had_bad_user_cache = !1)) : n += "__hadcache_no"), z(n, e.mark_label, null, {
               ephemeral: e.ephemeral
             });
           }
@@ -1261,10 +1261,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         W = function(e, t) {
           G && TS.metrics.count(e, t);
         },
-        z = function(e) {
+        q = function(e) {
           G && TS.metrics.mark(e);
         },
-        q = function(e, t, n, i) {
+        z = function(e, t, n, i) {
           G && TS.metrics.measure(e, t, n, i);
         },
         K = function(e) {
@@ -1294,10 +1294,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         Z = function(e) {
           if (void 0 === e) throw new Error("Please specify the reason pausing the API");
-          h || (h = !0, W("ts_api_pause"), z("ts_api_pause_start"), TS.api.paused_sig.dispatch(e));
+          h || (h = !0, W("ts_api_pause"), q("ts_api_pause_start"), TS.api.paused_sig.dispatch(e));
         },
         ee = function() {
-          h && (h = !1, W("ts_api_unpause"), q("ts_api_pause_duration", "ts_api_pause_start"), K("ts_api_pause_start"));
+          h && (h = !1, W("ts_api_unpause"), z("ts_api_pause_duration", "ts_api_pause_start"), K("ts_api_pause_start"));
         },
         te = function() {
           TS.api.unpaused_sig.dispatch();
@@ -1854,17 +1854,15 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         var i = _.clone(t.action);
         delete i.options;
         var r = {
-          actions: [i],
-          attachment_id: t.attachment.id,
-          callback_id: t.attachment.callback_id,
-          channel_id: t.channel_id,
-          is_ephemeral: t.message.is_ephemeral,
-          message_ts: t.message.ts
-        };
-        if (TS.boot_data.feature_shared_channels_client) {
-          var a = _.get(t.message, "bot_profile.team_id");
-          r.team_id = a;
-        }
+            actions: [i],
+            attachment_id: t.attachment.id,
+            callback_id: t.attachment.callback_id,
+            channel_id: t.channel_id,
+            is_ephemeral: t.message.is_ephemeral,
+            message_ts: t.message.ts
+          },
+          a = _.get(t.message, "bot_profile.team_id", !1);
+        a && (r.team_id = a);
         var s = {
           payload: JSON.stringify(r)
         };
@@ -8135,10 +8133,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           U = G ? n.cached_formatting : TSF.getTokensArray($.trim(e), r, {
             jumbomoji: !m
           }), p && (U = U.map(t)), w && (U = _.reject(U, N));
-          var W, z, q, K, V = "";
+          var W, q, z, K, V = "";
           if ("GROWL" === r || "EDIT" === r)
-            for (z = 0; z < U.length; z += 1)
-              if (W = U[z], 0 === W.indexOf("<")) M[W] ? TS.error('unexpected: mode == "GROWL" || "EDIT", and yet we got something in the formatting map? ' + W) : 0 === W.indexOf("<!") ? V += H(r, W) : 0 === W.indexOf("<@") ? (K = R(r, W), V += K) : 0 === W.indexOf("<#") ? V += B(r, W) : TS.error('unexpected: mode == "GROWL" || "EDIT", and yet we got ' + W);
+            for (q = 0; q < U.length; q += 1)
+              if (W = U[q], 0 === W.indexOf("<")) M[W] ? TS.error('unexpected: mode == "GROWL" || "EDIT", and yet we got something in the formatting map? ' + W) : 0 === W.indexOf("<!") ? V += H(r, W) : 0 === W.indexOf("<@") ? (K = R(r, W), V += K) : 0 === W.indexOf("<#") ? V += B(r, W) : TS.error('unexpected: mode == "GROWL" || "EDIT", and yet we got ' + W);
               else if (-1 == W.indexOf("<"))
             if ("EDIT" === r) TS.boot_data.feature_localization && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE && (W = TSFEmoji.translateEmojiStringToLocal(W, TS.i18n.locale())), V += _.unescape(W);
             else if (TS.utility.platformSupportsHtmlNotifications()) TS.utility.platformSupportsImgEmojiInHtmlNotifications() && (V += TS.emoji.graphicReplace(W, {
@@ -8151,8 +8149,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           } else TS.error("token has a < in it but it is not the first character!\n" + W);
           else {
             var J, Q, X, Z = "";
-            for (z = 0; z < U.length; z += 1)
-              if (W = U[z], 0 === W.indexOf("<"))
+            for (q = 0; q < U.length; q += 1)
+              if (W = U[q], 0 === W.indexOf("<"))
                 if (M[W]) V += M[W], W == TSF.LINK_END && (V += Z, Z = "");
                 else if (0 === W.indexOf("<!")) V += H(r, W, a, w);
             else if (0 === W.indexOf("<@")) K = R(r, W, a, w), V += K;
@@ -8169,7 +8167,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                   id: ie,
                   name: TS.bots.getBotNameByBotLink(n.text),
                   source_team_id: ee
-                }))), ie && te) X = !0, q = TS.utility.shouldLinksHaveTargets() ? 'target="' + ne + '" ' : "", Q = a ? te.name : I(te.name), U[z + 1] && U[z + 1] == ne && (Q = ne), Q = Q.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"), te.app_id && (re = te.app_id), te.source_team_id && (ae = "data-team-id=" + te.source_team_id + " "), V += '<a href="' + ne + '" ' + q + 'data-bot-id="' + ie + '" data-app-id="' + re + '" ' + ae + 'class="internal_bot_link app_preview_link">' + Q;
+                }))), ie && te) X = !0, z = TS.utility.shouldLinksHaveTargets() ? 'target="' + ne + '" ' : "", Q = a ? te.name : I(te.name), U[q + 1] && U[q + 1] == ne && (Q = ne), Q = Q.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"), te.app_id && (re = te.app_id), te.source_team_id && (ae = "data-team-id=" + te.source_team_id + " "), V += '<a href="' + ne + '" ' + z + 'data-bot-id="' + ie + '" data-app-id="' + re + '" ' + ae + 'class="internal_bot_link app_preview_link">' + Q;
               else if (0 === ne.indexOf(TS.utility.msgs.api_url_prefix + "chat.help")) d ? (J = _.escape(JSON.stringify("" + ne)), V += '<a onclick="TS.utility.msgs.doApiUrl(' + J + ')" class="api_url">') : V += '<a class="api_url muted">(Disabled) ';
               else if (0 === ne.indexOf(TS.utility.msgs.new_api_url_prefix)) d ? (J = _.escape(JSON.stringify("" + ne)), V += '<a onclick="TS.utility.msgs.doNewApiUrl(' + J + ')" class="api_url">') : V += '<a class="api_url muted">(Disabled) ';
               else if (0 === ne.indexOf("javascript:")) V += '<a onclick="TS.client.msg_pane.maybeClick(this)" data-maybe-click="' + ne.replace("javascript:", "") + '">';
@@ -11455,7 +11453,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         H = function(e, t) {
           var i = "NOOP",
             r = [];
-          return z(e, t), Object.keys(t).forEach(function(a) {
+          return q(e, t), Object.keys(t).forEach(function(a) {
             if ("profile" === a) {
               var s = R(e.profile),
                 o = R(t.profile);
@@ -11542,7 +11540,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           });
         },
         N = function(e) {
-          e.profile && "object" === n(e.profile) || (e.profile = {}), "USLACKBOT" === e.id && (e.is_slackbot = !0), v(e), y(e), w(e), k(e), x(e), e._first_name_lc = "", e._last_name_lc = "", e._real_name_lc = "", e._real_name_normalized_lc = "", TS.boot_data.feature_name_tagging_client && (e._display_name_lc = "", e._display_name_normalized_lc = ""), G(e), W(e), e.files = [], e.activity = [], e.stars = [], e.mentions = [], q(e), M(e);
+          e.profile && "object" === n(e.profile) || (e.profile = {}), "USLACKBOT" === e.id && (e.is_slackbot = !0), v(e), y(e), w(e), k(e), x(e), e._first_name_lc = "", e._last_name_lc = "", e._real_name_lc = "", e._real_name_normalized_lc = "", TS.boot_data.feature_name_tagging_client && (e._display_name_lc = "", e._display_name_normalized_lc = ""), G(e), W(e), e.files = [], e.activity = [], e.stars = [], e.mentions = [], z(e), M(e);
         },
         G = function(e) {
           "name" in e && (e._name_lc = _.toLower(e.name)), _.isObject(e.profile) && ("first_name" in e.profile && (e._first_name_lc = _.toLower(e.profile.first_name)), "last_name" in e.profile && (e._last_name_lc = _.toLower(e.profile.last_name)), "real_name" in e.profile && (e._real_name_lc = _.toLower(e.profile.real_name), e._real_name_normalized_lc = _.toLower(TS.i18n.deburr(e._real_name_lc)), e.profile.real_name_normalized = TS.i18n.deburr(e.profile.real_name)), TS.boot_data.feature_name_tagging_client && ("display_name" in e.profile && (e._display_name_lc = _.toLower(e.profile.display_name)), "display_name_normalized" in e.profile && (e._display_name_normalized_lc = _.toLower(e.profile.display_name_normalized))));
@@ -11556,10 +11554,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             }), delete e.profile.image_original;
           }
         },
-        z = function(e, t) {
+        q = function(e, t) {
           _.get(e, "profile.always_active") !== _.get(t, "profile.always_active") && (t.presence = _.get(t, "profile.always_active") ? "active" : "away");
         },
-        q = function(e) {
+        z = function(e) {
           if (!e.presence && !_.isEmpty(TS.model.online_users)) {
             var t = TS.model.online_users.indexOf(e.id);
             t > -1 && (e.presence = "active", TS.model.online_users.splice(t, 1));
@@ -12326,7 +12324,13 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         ensureChannelMembershipIsKnownForUsers: function(e, t) {
           var n = o(e, t);
-          return 0 === n.length ? Promise.resolve(!1) : TS.flannel.fetchChannelMembershipForUsers(e, n).then(function(t) {
+          if (0 === n.length) return Promise.resolve(!1);
+          if (TS.interop.utility.looksLikeMemberId(e)) try {
+            throw new Error("Member counts request for user ID rather than channel ID " + e);
+          } catch (e) {
+            TS.console.logError(e, "tcm_ensure_called_with_member_id", void 0, !0);
+          }
+          return TS.flannel.fetchChannelMembershipForUsers(e, n).then(function(t) {
             return _.forEach(t, function(t, n) {
               s(e, n, t);
             }), !0;
@@ -12389,6 +12393,11 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         l = function(e, t) {
           if (!e) return void TS.warn("_promiseToGetChannelMemberCountsFromAPI needs a model_ob!");
+          if (TS.interop.utility.looksLikeMemberId(e.id)) try {
+            throw new Error("Member counts request for user ID rather than channel ID " + e.id);
+          } catch (e) {
+            TS.console.logError(e, "tcm_with_member_id", void 0, !0);
+          }
           var n = Date.now() - t,
             r = i[e.id];
           if (r) return r;
@@ -16223,7 +16232,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         onStart: function() {
           if (!window.WebSocket && (window.WebSocket = window.MozWebSocket, !window.WebSocket)) return void alert(TS.i18n.t("Your browser does not support WebSockets.", "ms")());
-          TS.boot_data.ws_refactor_bucket && TS.metrics.count("ms_flow_exposure"), q(TS.model.ui.is_window_focused || !1), TS.ui.window_focus_changed_sig.add(q), setInterval(function() {
+          TS.boot_data.ws_refactor_bucket && TS.metrics.count("ms_flow_exposure"), z(TS.model.ui.is_window_focused || !1), TS.ui.window_focus_changed_sig.add(z), setInterval(function() {
             TS.model.ms_connected && (TS.model.rtm_start_throttler < 1 || (TS.model.rtm_start_throttler -= 1));
           }, 6e4);
           a = TS.boot_data.feature_tinyspeck || TS.utility.enableFeatureForUser(1), s = Date.now(), TS.boot_data.feature_tinyspeck || (he = _.noop, ge = _.noop, fe = _.noop), TS.client && TS.client.stats && (TS.client.stats.start_collecting_sig.add(function() {
@@ -16413,8 +16422,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         N = null,
         G = null,
         W = null,
-        z = !1,
-        q = function(e) {
+        q = !1,
+        z = function(e) {
           L = e ? 6e4 : 12e4, L += 1e4, TS.has_pri[Oe] && TS.log(Oe, "MS _pong_timeout_ms set to:" + L + " has_focus:" + e);
         },
         K = function(e) {
@@ -16428,7 +16437,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           TS.ms.handleMsg(i);
         },
         V = function() {
-          clearTimeout(A), U = 0, Ae(), v ? (ce(), TS.metrics.measureAndClear("ms_fast_reconnect", "ms_websocket_create"), z = !0) : (TS.metrics.measureAndClear("ms_connect", "ms_websocket_create"), z = !1), h && TS.ms.send({
+          clearTimeout(A), U = 0, Ae(), v ? (ce(), TS.metrics.measureAndClear("ms_fast_reconnect", "ms_websocket_create"), q = !0) : (TS.metrics.measureAndClear("ms_connect", "ms_websocket_create"), q = !1), h && TS.ms.send({
             type: "mp_command",
             subtype: "login",
             url: me(TS.model.team.url)
@@ -16550,14 +16559,14 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         le = function(e) {
           clearTimeout(F);
           var t = Date.now() - TS.ms.last_pong_time;
-          TS.info("Hello msg recvd, since_last_pong_ms:" + t), e && TS.info("host_id: " + _.get(e, "host_id") + ", server_version: " + _.get(e, "server_version")), TS.ms.logConnectionFlow("on_hello"), TS.client && t > 3e5 && !z && TS.client.ui.maybePromptForSetActive(), T = 0, clearInterval(D), j = !0, TS.ms.last_pong_time = Date.now(), clearInterval(M), M = setInterval(X, 3e3), clearInterval(C), C = setInterval(Z, 1e4), TS.model.ms_connecting = !1, TS.model.ms_connected = !0;
+          TS.info("Hello msg recvd, since_last_pong_ms:" + t), e && TS.info("host_id: " + _.get(e, "host_id") + ", server_version: " + _.get(e, "server_version")), TS.ms.logConnectionFlow("on_hello"), TS.client && t > 3e5 && !q && TS.client.ui.maybePromptForSetActive(), T = 0, clearInterval(D), j = !0, TS.ms.last_pong_time = Date.now(), clearInterval(M), M = setInterval(X, 3e3), clearInterval(C), C = setInterval(Z, 1e4), TS.model.ms_connecting = !1, TS.model.ms_connected = !0;
           var n = l || TS.storage.fetchLastEventTS();
-          !!y && (n && !z ? (TS.info("calling eventlog.history with start:" + n + " (from TS.storage.fetchLastEventTS())"), o && TS.info("last_event_ts is from " + o), TS.api.callImmediately("eventlog.history", {
+          !!y && (n && !q ? (TS.info("calling eventlog.history with start:" + n + " (from TS.storage.fetchLastEventTS())"), o && TS.info("last_event_ts is from " + o), TS.api.callImmediately("eventlog.history", {
             start: n,
             count: 2e3,
             no_payload_if_has_more: !0,
             batch_deleted_files: !0
-          }).then(Q).catch(J).finally(_.noop)) : TS.client && TS.shared.maybeFetchHistoryAndThenCheckConsistency(TS.shared.getActiveModelOb())), TS.ms.connected_sig.dispatch(z), y += 1, Z();
+          }).then(Q).catch(J).finally(_.noop)) : TS.client && TS.shared.maybeFetchHistoryAndThenCheckConsistency(TS.shared.getActiveModelOb())), TS.ms.connected_sig.dispatch(q), y += 1, Z();
         },
         de = function() {
           return !!TS.ms.fast_reconnects_enabled && (!!G && (!!TS.utility.url.isValidSlackWebSocketUrl(G) && (Date.now() - W < 3e5 || (ce(), !1))));
@@ -20000,6 +20009,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                 matchOptions: {
                   allowed_preceding_symbols: [":"]
                 },
+                onEnter: function() {
+                  TS.boot_data.feature_more_texty_search && (TS.search.submitSearch(), TS.search.autocomplete.triggerInputEvent("on-enter"));
+                },
                 positionMenu: function(e) {
                   var t = $(TS.search.input),
                     n = t.offset(),
@@ -23425,30 +23437,30 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                   k = !0;
                   var W = $(g + " div.day_divider");
                   if (W.length > 0) {
-                    var z, q = $(W[W.length - 1]);
-                    if (q.length) {
-                      z = "";
+                    var q, z = $(W[W.length - 1]);
+                    if (z.length) {
+                      q = "";
                       try {
-                        z = TS.templates.messages_day_divider({
-                          ts: q.data("ts")
+                        q = TS.templates.messages_day_divider({
+                          ts: z.data("ts")
                         });
                       } catch (e) {
-                        e.message || (e.message = ""), e.message += " $last_divider.data('ts'):" + q.data("ts"), TS.info("Problem with TS.templates.messages_day_divider 2.1: " + JSON.stringify(e));
+                        e.message || (e.message = ""), e.message += " $last_divider.data('ts'):" + z.data("ts"), TS.info("Problem with TS.templates.messages_day_divider 2.1: " + JSON.stringify(e));
                       }
-                      q.replaceWith(z);
+                      z.replaceWith(q);
                     }
                     if (W.length > 1) {
                       var K = $(W[W.length - 2]);
                       if (K.length) {
-                        z = "";
+                        q = "";
                         try {
-                          z = TS.templates.messages_day_divider({
+                          q = TS.templates.messages_day_divider({
                             ts: K.data("ts")
                           });
                         } catch (e) {
                           e.message || (e.message = ""), e.message += " $second_last_divider.data('ts'):" + K.data("ts"), TS.info("Problem with TS.templates.messages_day_divider 3.1: " + JSON.stringify(e));
                         }
-                        K.replaceWith(z);
+                        K.replaceWith(q);
                       }
                     }
                   }
@@ -27640,13 +27652,13 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             r && (r = $.extend({}, r), r.is_hidden = t, t && (r.ordering = P()), h("team.profile.set", [r]).then(function() {
               return TS.api.call("team.profile.get");
             }).then(function(e) {
-              TS.model.team.profile.fields = _.get(e, "data.profile.fields"), g(), q(i);
+              TS.model.team.profile.fields = _.get(e, "data.profile.fields"), g(), z(i);
             }, _.noop));
           }
         },
         f = function(t) {
           function n() {
-            g(), q(a);
+            g(), z(a);
           }
           var i = e.find("#edit_team_profile_edit");
           if (!TS.ui.validation.validate(i, {
@@ -27689,7 +27701,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             back: t
           });
           var n = {};
-          n.team_profile_fields = N(), n.hidden_team_profile_fields = G(), n.default_team_profile_fields = z();
+          n.team_profile_fields = N(), n.hidden_team_profile_fields = G(), n.default_team_profile_fields = q();
           var r = TS.templates.admin_edit_team_profile_list(n);
           e.find("#edit_team_profile_header").text(TS.i18n.t("Customize profile", "team_profile")()).removeClass("hidden center_and_narrow");
           var a;
@@ -27700,7 +27712,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             back: t
           });
           var n = {};
-          n.default_team_profile_fields = z();
+          n.default_team_profile_fields = q();
           var r = TS.templates.admin_edit_team_profile_add(n);
           e.find("#edit_team_profile_header").text(TS.i18n.t("Select a field type", "team_profile")()).removeClass("center_and_narrow"), e.find("#edit_team_profile_value_note").addClass("hidden"), e.find("#edit_team_profile_add").html(r), U("#edit_team_profile_add"), k(), M();
         },
@@ -27901,7 +27913,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             return e[t.label.toLowerCase()] = !0, e;
           }, {});
         },
-        z = function() {
+        q = function() {
           var e = W(),
             t = [{
               type: "text",
@@ -27956,7 +27968,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             });
           return t.length ? t : [];
         },
-        q = function(t) {
+        z = function(t) {
           var n = t ? "[data-id=" + t + "]" : ".visible_row[data-id]",
             i = e.find("#edit_team_profile_list").find(n).last(),
             r = -2 * i.outerHeight();
@@ -28920,17 +28932,17 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             var a = TS.templates.edit_member_profile_list(n);
             e.find("#edit_member_profile_list").html(a), TS.client && TS.ui.edit_member_profile._registerCurrentStatusInput();
           }
-          _e("#edit_member_profile_list"), TS.ui.fs_modal.showFooter(), TS.ui.fs_modal.setHeaderTitle(TS.i18n.t("Edit your profile", "edit_profile")()), Ladda.bind(".edit_member_profile_confirm_edit_btn"), me(), pe(), oe(), ue(!0), TS.boot_data.feature_take_profile_photo && (q(), Q());
-        },
-        z = function() {
-          return !0 === TS.model.user.profile.is_custom_image;
+          _e("#edit_member_profile_list"), TS.ui.fs_modal.showFooter(), TS.ui.fs_modal.setHeaderTitle(TS.i18n.t("Edit your profile", "edit_profile")()), Ladda.bind(".edit_member_profile_confirm_edit_btn"), me(), pe(), oe(), ue(!0), TS.boot_data.feature_take_profile_photo && (z(), Q());
         },
         q = function() {
+          return !0 === TS.model.user.profile.is_custom_image;
+        },
+        z = function() {
           var t = e.find(".show_delete");
-          z() ? (t.removeClass("hidden"), e.find(".member_image_wrapped_no_photo").addClass("hidden"), e.find(".member_image_wrapped").removeClass("hidden")) : (t.addClass("hidden"), e.find(".member_image_wrapped_no_photo").removeClass("hidden"), e.find(".member_image_wrapped").addClass("hidden"));
+          q() ? (t.removeClass("hidden"), e.find(".member_image_wrapped_no_photo").addClass("hidden"), e.find(".member_image_wrapped").removeClass("hidden")) : (t.addClass("hidden"), e.find(".member_image_wrapped_no_photo").removeClass("hidden"), e.find(".member_image_wrapped").addClass("hidden"));
         },
         K = function() {
-          z() ? e.find(".member_image_wrapped").addClass("hidden") : e.find(".member_image_wrapped_no_photo").addClass("hidden"), e.find(".edit-profile-drop-overlay").removeClass("hidden"), e.find(".member_image_upload").removeClass("hidden"), $(".file_drop_icon").fadeIn({
+          q() ? e.find(".member_image_wrapped").addClass("hidden") : e.find(".member_image_wrapped_no_photo").addClass("hidden"), e.find(".edit-profile-drop-overlay").removeClass("hidden"), e.find(".member_image_upload").removeClass("hidden"), $(".file_drop_icon").fadeIn({
             queue: !1,
             duration: "slow"
           }), $(".file_drop_icon").animate({
@@ -28938,7 +28950,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }, "slow");
         },
         V = function() {
-          z() ? e.find(".member_image_wrapped").removeClass("hidden") : e.find(".member_image_wrapped_no_photo").removeClass("hidden"), e.find(".member_image_upload").addClass("hidden"), e.find(".edit-profile-drop-overlay").addClass("hidden"), e.find(".file_drop_icon").css("top", "-20px");
+          q() ? e.find(".member_image_wrapped").removeClass("hidden") : e.find(".member_image_wrapped_no_photo").removeClass("hidden"), e.find(".member_image_upload").addClass("hidden"), e.find(".edit-profile-drop-overlay").addClass("hidden"), e.find(".file_drop_icon").css("top", "-20px");
         },
         Y = function() {
           e.find(".member_image_upload").addClass("hovered");
@@ -29058,7 +29070,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           });
         },
         le = function(t) {
-          t.stopPropagation(), z() && !$(t.target).is(".btn") || TS.model.is_iOS ? TS.menu.member.startWithEditMemberProfilePhotoActions(t, de) : e.find('[data-action="edit_member_profile_upload_photo"]').trigger("click");
+          t.stopPropagation(), q() && !$(t.target).is(".btn") || TS.model.is_iOS ? TS.menu.member.startWithEditMemberProfilePhotoActions(t, de) : e.find('[data-action="edit_member_profile_upload_photo"]').trigger("click");
         },
         de = function(t) {
           var n;
@@ -29859,6 +29871,19 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
   2623: function(e, t) {
     ! function() {
       "use strict";
+
+      function e(e) {
+        var t = w(e);
+        return t = t.map(function(e, t) {
+          return e instanceof HTMLOptionElement && (e = {
+            id: String(e.lfs_id || t),
+            original_item: e,
+            label: $(e).text(),
+            value: e.value,
+            preselected: e.selected
+          }), e;
+        });
+      }
       TS.registerModule("ui.lazy_filter_select", {
         STYLES: {
           default: "default",
@@ -29871,35 +29896,36 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             use_data_attributes: !0
           });
         },
-        create: function(t, n) {
+        create: function(e, n) {
           if (n.use_data_attributes) {
-            Object.keys(t.data()).forEach(function(e) {
-              if (e.indexOf("lazyFilterSelect") > -1 && "TS-lazyFilterSelect" !== e && "" !== t.data(e)) {
-                var i = t.data(e);
-                "true" !== i && "false" !== i || (i = "true" === i), n[e.replace("lazyFilterSelect", "").toLowerCase()] = i;
+            Object.keys(e.data()).forEach(function(t) {
+              if (t.indexOf("lazyFilterSelect") > -1 && "TS-lazyFilterSelect" !== t && "" !== e.data(t)) {
+                var i = e.data(t);
+                "true" !== i && "false" !== i || (i = "true" === i), n[t.replace("lazyFilterSelect", "").toLowerCase()] = i;
               }
             });
           }
-          "SELECT" === t.prop("tagName") && void 0 === n.single && (n.single = !t.prop("multiple"));
-          var i = $.extend({}, e, n);
+          "SELECT" === e.prop("tagName") && void 0 === n.single && (n.single = !e.prop("multiple"));
+          var i = $.extend({}, t, n);
           void 0 === n.approx_divider_height && (i.approx_divider_height *= 1), void 0 === n.approx_item_height && (i.approx_item_height *= 1);
-          var a = $('<div class="lazy_filter_select">');
-          i.classes && a.addClass(i.classes), t.prop("disabled") && (i.disabled = !0), i.disabled && a.addClass("disabled"), i.style = _.get(TS.ui.lazy_filter_select.STYLES, i.style, TS.ui.lazy_filter_select.STYLES.default), Z(i) && !i.single && (TS.console.warn("Multi-select lazyFilterSelect instances can't use the 'filter_in_list' style. Using 'default' style instead."), i.style = TS.ui.lazy_filter_select.default);
+          var r = $('<div class="lazy_filter_select">');
+          i.classes && r.addClass(i.classes), e.prop("disabled") && (i.disabled = !0), i.disabled && r.addClass("disabled"), i.style = _.get(TS.ui.lazy_filter_select.STYLES, i.style, TS.ui.lazy_filter_select.STYLES.default), ee(i) && !i.single && (TS.console.warn("Multi-select lazyFilterSelect instances can't use the 'filter_in_list' style. Using 'default' style instead."), i.style = TS.ui.lazy_filter_select.default);
           var s = TS.templates.lazy_filter_select_container({
             instance: i,
-            aria_labelledby: t.attr("aria-labelledby"),
+            aria_labelledby: e.attr("aria-labelledby"),
             STYLES: TS.ui.lazy_filter_select.STYLES
           });
-          return a.html(s), i.append ? a.appendTo(t) : a.insertAfter(t), a.addClass(i.style + "_style"), i.single && a.addClass("single"), i.width && a.css("width", i.width), i.css && a.css(i.css), i.$container = a, i.$select = t, i.$input_container = a.find(".lfs_input_container"), i.$lfs_value = a.find(".lfs_value"), i.$input = a.find(".lfs_input"), i.$list_container = a.find(".lfs_list_container"), i.$list = a.find(".lfs_list"), i.$status = a.find(".lfs_status"), i.$status_loading_indicator = i.$status.find(".lfs_status_loading_indicator"), i.$status_content = i.$status.find(".lfs_status_content"), Z(i) ? i.$filter_input = a.find(".lfs_filter_input") : i.$filter_input = i.$input, i._page_number = 1, i._slug_id_counter = 1, i.run = E, i.data_promise ? (B(i) && i._running_promise.cancel("Uhhh..."), i._running_promise = F(i, "").then(function(e) {
-            i.data = e, i.run(), r(i);
+          return r.html(s), i.append ? r.appendTo(e) : r.insertAfter(e), r.addClass(i.style + "_style"), i.single && r.addClass("single"), i.width && r.css("width", i.width), i.css && r.css(i.css), i.$container = r, i.$select = e, i.$input_container = r.find(".lfs_input_container"), i.$lfs_value = r.find(".lfs_value"), i.$input = r.find(".lfs_input"), i.$list_container = r.find(".lfs_list_container"), i.$list = r.find(".lfs_list"), i.$status = r.find(".lfs_status"), i.$status_loading_indicator = i.$status.find(".lfs_status_loading_indicator"), i.$status_content = i.$status.find(".lfs_status_content"), ee(i) ? i.$filter_input = r.find(".lfs_filter_input") : i.$filter_input = i.$input, i._page_number = 1, i._slug_id_counter = 1, i.run = O, i.data_promise ? (D(i) && i._running_promise.cancel("Uhhh..."), i._running_promise = B(i, "").then(function(e) {
+            i.data = e, i.run(), a(i);
           }, function(e) {
-            r(i), te(i, e, "Something failed while trying to return the initial data for lazyFilterSelect.");
+            a(i), ne(i, e, "Something failed while trying to return the initial data for lazyFilterSelect.");
           })) : (i.data && (i.data = i.data.slice()), TS.useRedux() && _.forEach(i.data, function(e, t, n) {
             e && e._is_interop_channel_object && (n[t] = _.assign({}, e));
-          }), i.run(), r(i)), i.current_items_in_view_signal = new signals.Signal, i;
-        }
+          }), i.run(), a(i)), i.current_items_in_view_signal = new signals.Signal, i;
+        },
+        convertHTMLDataToRLFSData: e
       });
-      var e = {
+      var t = {
         allow_item_unselect: !1,
         allow_list_position_above: !1,
         always_visible: !1,
@@ -29925,7 +29951,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         monkey_scroll: !0,
         no_default_selection: !1,
         noResultsTemplate: function(e) {
-          return ee(this) && e.length < this.min_query_length ? TS.i18n.t("{query_length, plural, =0 {Start typing to see results…} other {Keep typing to see results…}}", "lazy_filter_select")({
+          return te(this) && e.length < this.min_query_length ? TS.i18n.t("{query_length, plural, =0 {Start typing to see results…} other {Keep typing to see results…}}", "lazy_filter_select")({
             query_length: e.length
           }) : TS.i18n.t("No items matched {query}", "lazy_filter_select")({
             query: "<strong>" + _.escape(e) + "</strong>"
@@ -29964,10 +29990,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         style: TS.ui.lazy_filter_select.STYLES.default,
         template: function(e) {
           var t, n, i, r, a = e.toString();
-          return (e instanceof jQuery || e instanceof HTMLElement) && (a = $(e).text(), t = J($(e).attr("data-additional-search-field"), this), n = J($(e).attr("data-ts-icon"), this), i = $(e).attr("data-team-id"), TS.boot_data.feature_shared_channels_client && i && (r = TS.templates.team_icon({
+          return (e instanceof jQuery || e instanceof HTMLElement) && (a = $(e).text(), t = Q($(e).attr("data-additional-search-field"), this), n = Q($(e).attr("data-ts-icon"), this), i = $(e).attr("data-team-id"), TS.boot_data.feature_shared_channels_client && i && (r = TS.templates.team_icon({
             team: TS.teams.getTeamById(i),
             size: 16
-          }))), a = J(a, this), t && (a += ' <span class="addl_text">' + t + "</span>"), n && (a += ' <ts-icon class="addl_icon ' + n + '"></ts-icon>'), r && (a += r), new Handlebars.SafeString(a);
+          }))), a = Q(a, this), t && (a += ' <span class="addl_text">' + t + "</span>"), n && (a += ' <ts-icon class="addl_icon ' + n + '"></ts-icon>'), r && (a += r), new Handlebars.SafeString(a);
         },
         tokenClass: null,
         tokenTemplate: null,
@@ -30000,21 +30026,21 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           if (this.instance.single) {
             if (this.instance._selected.length) {
               var e = this.instance.$input_container.find(".lfs_item");
-              I(this.instance, e);
+              A(this.instance, e);
             }
-          } else M(this.instance);
+          } else C(this.instance);
         },
         container: function() {
           return this.instance.$container;
         },
         disable: function() {
-          d(this.instance);
+          c(this.instance);
         },
         disabled: function() {
           return this.instance.disabled;
         },
         enable: function() {
-          u(this.instance);
+          m(this.instance);
         },
         focus: function() {
           this.instance.$filter_input.focus();
@@ -30023,12 +30049,12 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return this.instance;
         },
         hideList: function() {
-          g(this.instance, {
+          S(this.instance, {
             force: !0
-          }), ae(this.instance);
+          }), se(this.instance);
         },
         recomputeHeight: function() {
-          V(this.instance);
+          Y(this.instance);
         },
         setValue: function(e) {
           var t = this.element[0].selectedIndex;
@@ -30036,73 +30062,73 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           var n = this.element[0].options[this.element[0].selectedIndex];
           if (this.instance.single) {
             if (this.element[0].selectedIndex == t) return;
-          } else M(this.instance);
-          var i = f(this.instance, $(n));
-          H(this.instance, i);
+          } else C(this.instance);
+          var i = h(this.instance, $(n));
+          P(this.instance, i);
         },
         forceSelectItem: function(e) {
-          this.instance.$lfs_value.html(a(this.instance, e, {
+          this.instance.$lfs_value.html(s(this.instance, e, {
             force_selected: !0
           })), this.instance.$container.addClass("value");
         },
         showList: function() {
-          N(this.instance);
+          G(this.instance);
         },
         update: function(e) {
-          K(this.instance, e);
+          V(this.instance, e);
         },
         updatePlaceholder: function(e) {
           this.instance.placeholder_text = e, this.instance.$input.prop("placeholder", e);
         },
         updateFilterPlaceholder: function(e) {
-          Z(this.instance) && (this.instance.filter_placeholder_text = e, this.instance.$filter_input.prop("placeholder", e));
+          ee(this.instance) && (this.instance.filter_placeholder_text = e, this.instance.$filter_input.prop("placeholder", e));
         },
         value: function() {
           return this.instance._selected;
         }
       });
-      var t = function(e, t) {
-          if (S(e) && t.trim() && l(e)) {
-            var i = {};
-            i[e.sluggify.key_name] = t.trim(), i.lfs_id = null, i.lfs_slug_id = e._slug_id_counter, e._slug_id_counter += 1, e._selected.push(i);
+      var n = function(e, t) {
+          if (T(e) && t.trim() && d(e)) {
+            var n = {};
+            n[e.sluggify.key_name] = t.trim(), n.lfs_id = null, n.lfs_slug_id = e._slug_id_counter, e._slug_id_counter += 1, e._selected.push(n);
             var r = TS.templates.lazy_filter_select_item({
-                content: e.tokenTemplate(i),
+                content: e.tokenTemplate(n),
                 applied_classes: "lfs_token",
-                slug_id: i.lfs_slug_id,
+                slug_id: n.lfs_slug_id,
                 data_qa: e.data_qa
               }).replace(/(\r\n|\n|\r)/gm, ""),
               a = $(r);
-            a.insertBefore(e.$input), e.sluggify.validator && e.sluggify.validator(a), w(e, e.data), N(e), e.$filter_input.val(""), e._previous_val = "", n(e), e.onItemAdded(i), l(e) || e.onMaxItemsSelected();
+            a.insertBefore(e.$input), e.sluggify.validator && e.sluggify.validator(a), k(e, e.data), G(e), e.$filter_input.val(""), e._previous_val = "", i(e), e.onItemAdded(n), d(e) || e.onMaxItemsSelected();
           }
         },
-        n = function(e) {
-          e.single || (e.$input.prop("size", e.$filter_input.val().length + 1), e.$filter_input.val().length + e._selected.length === 0 ? U(e) : (e.$input_container.removeClass("empty"), e.$input_container.removeClass("error"), Q(e)));
-        },
         i = function(e) {
+          e.single || (e.$input.prop("size", e.$filter_input.val().length + 1), e.$filter_input.val().length + e._selected.length === 0 ? N(e) : (e.$input_container.removeClass("empty"), e.$input_container.removeClass("error"), X(e)));
+        },
+        r = function(e) {
           e.data_promise && e.$list.on("scroll", function() {
             var t = $(this).scrollTop(),
               n = e.$list.height(),
               i = e.$list.find(".list_items").height(),
               r = i - t - n;
-            r <= e.scroll_threshold && !e._scroll_callback_was_called && !e._all_done_fetching ? (o(e, e._previous_val, e._page_number + 1), e._scroll_callback_was_called = !0) : r > e.scroll_threshold && e._scroll_callback_was_called && (B(e) && e._running_promise.cancel("User scrolled back and we do not need to add more data"), e._scroll_callback_was_called = !1);
+            r <= e.scroll_threshold && !e._scroll_callback_was_called && !e._all_done_fetching ? (l(e, e._previous_val, e._page_number + 1), e._scroll_callback_was_called = !0) : r > e.scroll_threshold && e._scroll_callback_was_called && (D(e) && e._running_promise.cancel("User scrolled back and we do not need to add more data"), e._scroll_callback_was_called = !1);
           });
         },
-        r = function(e) {
-          e.$container.on("mouseleave", se.bind(null, e)), e.$container.on("click", oe.bind(null, e)), e.$container.parents("label").on("click", le.bind(null, e)), e.$input_container.on("focus", de.bind(null, e)), e.$input.on("focus", ce.bind(null, e));
+        a = function(e) {
+          e.$container.on("mouseleave", oe.bind(null, e)), e.$container.on("click", le.bind(null, e)), e.$container.parents("label").on("click", de.bind(null, e)), e.$input_container.on("focus", ce.bind(null, e)), e.$input.on("focus", _e.bind(null, e));
           var t;
-          t = _.isUndefined(e.input_debounce_wait_time) ? _e : _.debounce(_e, e.input_debounce_wait_time), e.$filter_input.on("input", t.bind(null, e)), e.$filter_input.on("keydown", ue.bind(null, e)), e.$filter_input.on("blur", me.bind(null, e)), e.$lfs_value.on("click", Se.bind(null, e)), e.$lfs_value.on("mousedown", Te.bind(null, e)), e.$input_container.on("click", ".lfs_token", be.bind(null, e)), e.$input_container.on("mousedown", ".lfs_token", ve.bind(null, e)), e.$list_container.on("mousedown", ye.bind(null, e)), e.$list_container.on("mouseup", we.bind(null, e)), e.$list_container.on("mousemove", ".lfs_item", ke.bind(null, e)), e.$list_container.on("mouseleave", ".lfs_item.active", xe.bind(null, e));
+          t = _.isUndefined(e.input_debounce_wait_time) ? ue : _.debounce(ue, e.input_debounce_wait_time), e.$filter_input.on("input", t.bind(null, e)), e.$filter_input.on("keydown", me.bind(null, e)), e.$filter_input.on("blur", pe.bind(null, e)), e.$lfs_value.on("click", Te.bind(null, e)), e.$lfs_value.on("mousedown", be.bind(null, e)), e.$input_container.on("click", ".lfs_token", ve.bind(null, e)), e.$input_container.on("mousedown", ".lfs_token", ye.bind(null, e)), e.$list_container.on("mousedown", we.bind(null, e)), e.$list_container.on("mouseup", ke.bind(null, e)), e.$list_container.on("mousemove", ".lfs_item", xe.bind(null, e)), e.$list_container.on("mouseleave", ".lfs_item.active", Me.bind(null, e));
           var n = null === _.get(TSSSB, "env.desktop_app_version") ? "click" : "mousedown";
-          e.$list_container.on(n, ".lfs_item", Me.bind(null, e)), e.onReady();
+          e.$list_container.on(n, ".lfs_item", Ce.bind(null, e)), e.onReady();
         },
-        a = function(e, t, n) {
+        s = function(e, t, n) {
           var i = $(t);
           n = n || {};
-          var r = n.force_selected || T(e, t),
+          var r = n.force_selected || b(e, t),
             a = t.disabled || t.lfs_disabled;
           e.restrict_preselected_item_removal && t.preselected && (a = !0);
           var s;
           s = n.should_tokenize && _.isFunction(e.tokenTemplate) ? e.tokenTemplate(t) : e.single && _.isFunction(e.tokenTemplateSingle) ? e.tokenTemplateSingle(t) : e.template(t);
-          var o = J(i.data("lfs-item-desc"), e),
+          var o = Q(i.data("lfs-item-desc"), e),
             l = {
               active: "" !== e._previous_val && !r && !a,
               disabled: a,
@@ -30120,7 +30146,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             data_qa: e.data_qa
           }).replace(/(\r\n|\n|\r)/gm, "");
         },
-        s = function(e) {
+        o = function(e) {
           if (e._list_built || e._showing_status) {
             e.$list_container.removeClass("position_above");
             var t = e.$list.css("max-height");
@@ -30129,7 +30155,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             });
             var n = e.$list[0].scrollHeight,
               i = parseInt(e.$list_container.css("padding-top"), 10) + parseInt(e.$list_container.css("padding-bottom"), 10) + parseInt(e.$list_container.css("border-top-width"), 10) + parseInt(e.$list_container.css("border-bottom-width"), 10) + parseInt(e.$list_container.css("margin-top"), 10) + parseInt(e.$list_container.css("margin-bottom"), 10);
-            Z(e) && (i += e.$filter_input.outerHeight() + parseInt(e.$filter_input.css("margin-bottom"), 10));
+            ee(e) && (i += e.$filter_input.outerHeight() + parseInt(e.$filter_input.css("margin-bottom"), 10));
             var r = parseInt(e.$list_container.css("max-height"), 10),
               a = 2 * e.approx_item_height + i,
               s = Math.min(n + i, r),
@@ -30149,31 +30175,31 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             });
           }
         },
-        o = function(e, t, n) {
-          B(e) && e._running_promise.cancel("Scrolling happened"), e._all_done_fetching || (e._running_promise = e.data_promise(t, n).then(function(t) {
+        l = function(e, t, n) {
+          D(e) && e._running_promise.cancel("Scrolling happened"), e._all_done_fetching || (e._running_promise = e.data_promise(t, n).then(function(t) {
             var n = t;
             if (n.items && (n = n.items), n && n.length) {
               e._page_number += 1, e._current_data || (e._current_data = e.data.slice()), void 0 !== t.all_items_fetched && (e._all_done_fetching = !!t.all_items_fetched), void 0 !== t.num_remaining && 0 === t.num_remaining && (e._all_done_fetching = !0);
               var i, r = parseInt(t.num_new, 10) || 0;
-              i = n.slice(-r), i.length ? (t._replace_all_items || t.replace_all_items ? e._current_data = i : e._current_data = e._current_data.concat(i), c(e, e._current_data)) : e._all_done_fetching = !0;
+              i = n.slice(-r), i.length ? (t._replace_all_items || t.replace_all_items ? e._current_data = i : e._current_data = e._current_data.concat(i), u(e, e._current_data)) : e._all_done_fetching = !0;
             } else e._all_done_fetching = !0;
           }, function(t) {
-            te(e, t, "Something failed while trying to return the next batch of data for lazyFilterSelect.");
+            ne(e, t, "Something failed while trying to return the next batch of data for lazyFilterSelect.");
           }));
         },
-        l = function(e) {
+        d = function(e) {
           return e._selected.length < e.max_selected_items;
         },
-        d = function(e) {
+        c = function(e) {
           e.disabled || (e.disabled = !0, e.$container.addClass("disabled"), e.$input.prop("disabled", !0), e.$filter_input.prop("disabled", !0));
         },
-        c = function(e, t) {
-          x(e, t), w(e, t), e._list_built && (!e.data || 0 === e.data.length || e.always_visible) && N(e, !0), n(e);
+        u = function(e, t) {
+          M(e, t), k(e, t), e._list_built && (!e.data || 0 === e.data.length || e.always_visible) && G(e, !0), i(e);
         },
-        u = function(e) {
+        m = function(e) {
           e.disabled && (e.disabled = !1, e.$container.removeClass("disabled"), e.$input.prop("disabled", !1), e.$filter_input.prop("disabled", !1));
         },
-        m = function(e, t) {
+        p = function(e, t) {
           for (var n = e.data, i = [], r = 0; r < n.length; r += 1) {
             var a = n[r];
             if (a.lfs_group || a.is_divider) {
@@ -30191,11 +30217,11 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }
           return i;
         },
-        p = function(e) {
+        f = function(e) {
           return e.attr("data-lfs-id") || e.prop("lfs_id") || null;
         },
-        f = function(e, t, n) {
-          var i, r = p(t);
+        h = function(e, t, n) {
+          var i, r = f(t);
           if (n) i = e._selected;
           else if (i = e.data_promise && e._current_data ? e._current_data : e.data, -1 !== r.indexOf(".")) {
             var a = parseInt(r.split(".")[0], 10);
@@ -30206,7 +30232,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           });
           return s.length ? s[0] : null;
         },
-        h = function(e, t) {
+        g = function(e, t) {
           var n = parseInt(t.attr("data-lfs-slug-id"), 10),
             i = e._selected,
             r = i.filter(function(e) {
@@ -30214,24 +30240,24 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             });
           return r.length ? r[0] : null;
         },
-        g = function(e, t) {
+        S = function(e, t) {
           t = t || {}, (!e._list_visible || e.always_visible || e.disabled) && !t.force || (e._list_visible = !1, e.$list_container.removeClass("visible"), e.$container.removeClass("list_visible"), e.$input_container.removeClass("active"), e._list_built && e.$list.longListView("setHidden", !0), e._$active = null, e.onListHidden());
         },
-        S = function(e) {
+        T = function(e) {
           return !!e.sluggify.enabled && (e.sluggify.delimiter ? e.sluggify.key_name ? !e.single || (TS.error("Sluggify only works in multi-select versions of lazyFilterSelect."), !1) : (TS.error("You must pass a key name to use sluggify with lazyFilterSelect."), !1) : (TS.error("You must pass a delimiter regular expression to use sluggify with lazyFilterSelect."), !1));
         },
-        T = function(e, t) {
+        b = function(e, t) {
           return !!e._selected.length && !!e._selected.filter(function(e) {
             return e.lfs_id === t.lfs_id;
           }).length;
         },
-        b = function(e) {
+        v = function(e) {
           return e instanceof jQuery ? !!e.attr("data-lfs-slug-id") : void 0 !== e.lfs_slug_id;
         },
-        v = function(e, t, i) {
-          if (S(e) && b(t)) {
+        y = function(e, t, n) {
+          if (T(e) && v(t)) {
             var r = $(t),
-              a = J(r.data("lfs-item-desc"), e);
+              a = Q(r.data("lfs-item-desc"), e);
             e._slug_id_counter = Math.max(t.lfs_slug_id, e._slug_id_counter) + 1, e._selected.push(t);
             var s, o = TS.templates.lazy_filter_select_item({
               content: e.tokenTemplate(t),
@@ -30241,12 +30267,12 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               slug_id: t.lfs_slug_id,
               data_qa: e.data_qa
             }).replace(/(\r\n|\n|\r)/gm, "");
-            return s = $(o), s.insertBefore(e.$input), n(e), e.sluggify.validator && e.sluggify.validator(s), e.data = i.filter(function(e) {
+            return s = $(o), s.insertBefore(e.$input), i(e), e.sluggify.validator && e.sluggify.validator(s), e.data = n.filter(function(e) {
               return e.lfs_slug_id !== t.lfs_slug_id;
             }), e.data;
           }
         },
-        y = function(e) {
+        w = function(e) {
           var t = e.children("option, optgroup"),
             n = t.length > 0 ? [] : void 0;
           return t.each(function() {
@@ -30263,168 +30289,168 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             } else n.push(this);
           }), n;
         },
-        w = function(e, t) {
-          if (t || (t = e.data), !t) return void te(e);
-          if (0 === t.length) return void ne(e);
-          if (ae(e, {
+        k = function(e, t) {
+          if (t || (t = e.data), !t) return void ne(e);
+          if (0 === t.length) return void ie(e);
+          if (se(e, {
               keep_input_active: !0
             }), e._list_built) {
-            var n = k(t);
-            e.$list.longListView("setItems", n, !0), e._current_data = t, V(e);
-          } else e.data && 0 !== e.data.length || (e.data = t), G(e);
-          s(e);
+            var n = x(t);
+            e.$list.longListView("setItems", n, !0), e._current_data = t, Y(e);
+          } else e.data && 0 !== e.data.length || (e.data = t), W(e);
+          o(e);
         },
-        k = function(e) {
+        x = function(e) {
           var t = [];
           return e.forEach(function(e) {
             if (t.push(e), e.children && e.children.length)
               for (var n = 0; n < e.children.length; n += 1) t.push(e.children[n]);
           }), t;
         },
-        x = function(e, t) {
+        M = function(e, t) {
           if (t || (t = e.data), t) {
             for (var n = "", i = !e.single, r = 0; r < t.length;) {
-              var s = t[r];
-              if (b(s)) t = v(e, s, t);
+              var a = t[r];
+              if (v(a)) t = y(e, a, t);
               else {
-                if (s.children && s.children.length && (s.lfs_group = !0), s.lfs_group || s.is_divider) {
-                  s.is_divider = !0;
-                  for (var o = r, l = 0; l < s.children.length; l += 1) {
-                    var d = s.children[l];
+                if (a.children && a.children.length && (a.lfs_group = !0), a.lfs_group || a.is_divider) {
+                  a.is_divider = !0;
+                  for (var o = r, l = 0; l < a.children.length; l += 1) {
+                    var d = a.children[l];
                     if (d.lfs_id = d.lfs_id || o + "." + l, (d.selected || d.preselected) && !1 === e.no_default_selection) {
-                      if (e.single && e._selected.length > 0 || T(e, d)) continue;
-                      e._selected.push(d), n += a(e, d, {
+                      if (e.single && e._selected.length > 0 || b(e, d)) continue;
+                      e._selected.push(d), n += s(e, d, {
                         should_tokenize: i
                       });
                     }
                   }
-                } else if (s.lfs_id = s.lfs_id || String(r), (s.selected || s.preselected) && !1 === e.no_default_selection) {
-                  if (e.single && e._selected.length > 0 || T(e, s)) {
+                } else if (a.lfs_id = a.lfs_id || String(r), (a.selected || a.preselected) && !1 === e.no_default_selection) {
+                  if (e.single && e._selected.length > 0 || b(e, a)) {
                     r += 1;
                     continue;
                   }
-                  e._selected.push(s), n += a(e, s, {
+                  e._selected.push(a), n += s(e, a, {
                     should_tokenize: i
                   });
                 }
                 r += 1;
               }
             }
-            n.length > 0 && (e.$container.addClass("value"), e.single ? e.$lfs_value.html(n) : ($(n).insertBefore(e.$input), e.$input_container.removeClass("empty"), e.$input_container.removeClass("error"), Q(e)));
+            n.length > 0 && (e.$container.addClass("value"), e.single ? e.$lfs_value.html(n) : ($(n).insertBefore(e.$input), e.$input_container.removeClass("empty"), e.$input_container.removeClass("error"), X(e)));
           }
         },
-        M = function(e) {
-          for (; e.$input_container.find(".lfs_token").length > 0;) C(e);
-        },
         C = function(e) {
-          var t = e.$input_container.find(".lfs_token").last();
-          t.length && I(e, t);
+          for (; e.$input_container.find(".lfs_token").length > 0;) I(e);
         },
-        I = function(e, t) {
+        I = function(e) {
+          var t = e.$input_container.find(".lfs_token").last();
+          t.length && A(e, t);
+        },
+        A = function(e, t) {
           if (!e.disabled) {
-            if (b(t)) return void A(e, t);
-            var n = f(e, t, !0);
+            if (v(t)) return void E(e, t);
+            var n = h(e, t, !0);
             if (!(n.disabled || e.restrict_preselected_item_removal && n.preselected)) {
               e._selected = e._selected.filter(function(e) {
                 return e !== n;
               });
-              e.$list.find('[data-lfs-id="' + n.lfs_id + '"]').removeClass("selected"), t.remove(), Y(e), e.$filter_input.val().length + e._selected.length === 0 && U(e), 0 === e._selected.length && e.$container.removeClass("value"), e.onItemRemoved(n);
+              e.$list.find('[data-lfs-id="' + n.lfs_id + '"]').removeClass("selected"), t.remove(), J(e), e.$filter_input.val().length + e._selected.length === 0 && N(e), 0 === e._selected.length && e.$container.removeClass("value"), e.onItemRemoved(n);
             }
           }
         },
-        A = function(e, t) {
-          if (S(e)) {
-            var n = h(e, t);
+        E = function(e, t) {
+          if (T(e)) {
+            var n = g(e, t);
             e._selected = e._selected.filter(function(e) {
               return e !== n;
-            }), t.remove(), Y(e), e.$filter_input.val().length + e._selected.length === 0 && U(e), e.onItemRemoved(n);
+            }), t.remove(), J(e), e.$filter_input.val().length + e._selected.length === 0 && N(e), e.onItemRemoved(n);
           }
         },
-        E = function() {
-          this.data && 0 === this.data.length && TS.warn("Data passed to lazyFilterSelect is empty."), K(this, this.data), this.always_visible && N(this), this.restrict_input_container_height && (this.$container.addClass("has_restricted_input_container_height"), TS.environment.supports_custom_scrollbar || this.$input_container.monkeyScroll());
+        O = function() {
+          this.data && 0 === this.data.length && TS.warn("Data passed to lazyFilterSelect is empty."), V(this, this.data), this.always_visible && G(this), this.restrict_input_container_height && (this.$container.addClass("has_restricted_input_container_height"), TS.environment.supports_custom_scrollbar || this.$input_container.monkeyScroll());
         },
-        O = function(e, t, i) {
+        F = function(e, t, n) {
           if (!e.disabled && t !== e._previous_val)
-            if (e._all_done_fetching = !1, e._previous_val = t, e._$active = null, n(e), e._page_number = 1, e._list_built && e.$list.longListView("scrollToTop", !0), e.data_promise) B(e) && e._running_promise.cancel("User entered more text"), e._running_promise = F(e, t).then(function(t) {
-              c(e, t), N(e, i);
+            if (e._all_done_fetching = !1, e._previous_val = t, e._$active = null, i(e), e._page_number = 1, e._list_built && e.$list.longListView("scrollToTop", !0), e.data_promise) D(e) && e._running_promise.cancel("User entered more text"), e._running_promise = B(e, t).then(function(t) {
+              u(e, t), G(e, n);
             }, function(t) {
-              te(e, t, "Something failed while trying to return the filtered data for lazyFilterSelect.");
+              ne(e, t, "Something failed while trying to return the filtered data for lazyFilterSelect.");
             });
             else {
-              N(e, i);
-              var r = m(e, t);
-              w(e, r), n(e);
+              G(e, n);
+              var r = p(e, t);
+              k(e, r), i(e);
             }
         },
-        F = function(e, t) {
+        B = function(e, t) {
           return new Promise(function(n, i) {
             t.length < e.min_query_length ? (e._all_done_fetching = !0, n([])) : (_.delay(function() {
-              B(e) && ie(e);
+              D(e) && re(e);
             }, 650), e.data_promise(t).then(function(t) {
               t = t || {}, _.isUndefined(t.all_items_fetched) || (e._all_done_fetching = !!t.all_items_fetched), 0 === t.num_remaining && (e._all_done_fetching = !0);
               var i = (t.items || t).slice();
-              n(i), ae(e, {
+              n(i), se(e, {
                 keep_input_active: !0
               });
             }, function(t) {
-              i(t), ae(e);
+              i(t), se(e);
             }));
           });
         },
-        B = function(e) {
+        D = function(e) {
           return e._running_promise && e._running_promise.isPending();
         },
-        D = function(e, t) {
+        R = function(e, t) {
           if (!e.disabled) {
-            if (!e._list_visible) return void N(e);
+            if (!e._list_visible) return void G(e);
             var n;
             n = e._$active ? e._$active[t](".lfs_item:not(.disabled, .hidden)").first() : e.$list.find(".lfs_item:not(.disabled, .hidden)").first(), n.length && (n.scrollintoview({
               duration: 0
             }), e._$active && e._$active.removeClass("active"), n.addClass("active"), e._$active = n);
           }
         },
-        R = function(e) {
+        H = function(e) {
           return !(e.hasClass("selected") || e.hasClass("disabled"));
         },
-        H = function(e, t) {
-          if (l(e)) {
+        P = function(e, t) {
+          if (d(e)) {
             if (e.single && e._selected.length) {
               e.$list.find('[data-lfs-id="' + e._selected[0].lfs_id + '"]').removeClass("selected"), e._selected.length = 0, e.$lfs_value.empty();
             }
-            e._selected.push(t), Y(e);
-            var n = $(a(e, t, {
+            e._selected.push(t), J(e);
+            var n = $(s(e, t, {
               should_tokenize: !e.single
             }));
-            _.isFunction(e.tokenClass) && n.addClass(e.tokenClass(t)), e.single ? e.$lfs_value.html(n) : (n.addClass("lfs_token"), n.insertBefore(e.$input)), e.single || (e.$input_container.removeClass("empty"), e.$input_container.removeClass("error"), Q(e)), e.$container.addClass("value"), e.onItemAdded(t), l(e) || e.onMaxItemsSelected(), e.single || e.$filter_input.focus();
+            _.isFunction(e.tokenClass) && n.addClass(e.tokenClass(t)), e.single ? e.$lfs_value.html(n) : (n.addClass("lfs_token"), n.insertBefore(e.$input)), e.single || (e.$input_container.removeClass("empty"), e.$input_container.removeClass("error"), X(e)), e.$container.addClass("value"), e.onItemAdded(t), d(e) || e.onMaxItemsSelected(), e.single || e.$filter_input.focus();
           }
         },
-        P = function(e) {
-          return D(e, "nextAll");
-        },
         j = function(e) {
+          return R(e, "nextAll");
+        },
+        L = function(e) {
           if (!e.disabled) {
             var t = e._$active;
-            if (t.length && R(t) && l(e)) {
+            if (t.length && H(t) && d(e)) {
               t.addClass("selected"), t.removeClass("active"), e._$active = null;
-              var n = f(e, t);
-              H(e, n);
+              var n = h(e, t);
+              P(e, n);
             }
           }
         },
-        L = function(e) {
-          return D(e, "prevAll");
-        },
         U = function(e) {
-          e.$input_container.addClass("empty"), X(e);
+          return R(e, "prevAll");
         },
-        N = function(e, t) {
+        N = function(e) {
+          e.$input_container.addClass("empty"), Z(e);
+        },
+        G = function(e, t) {
           e.disabled || (TS.utility.rAF(function() {
             e.$filter_input.focus();
-          }), e._list_visible || e._showing_status && e.always_visible || (e._list_built || G(e), (e._list_built || e._showing_status) && (e._list_visible = !0, e.$list_container.addClass("visible"), e.$container.addClass("list_visible"), Z(e) || e.$input_container.addClass("active"), e._list_built && e.$list.longListView("setHidden", !1)), e.single && !t && (e.$filter_input.val(""), e._previous_val = "", e.$filter_input.focus(), ee(e) && (e.data = []), w(e)), e.set_height && (s(e), e.monkey_scroll && !TS.environment.supports_custom_scrollbar && e.$list.monkeyScroll()), e.onListShown()));
+          }), e._list_visible || e._showing_status && e.always_visible || (e._list_built || W(e), (e._list_built || e._showing_status) && (e._list_visible = !0, e.$list_container.addClass("visible"), e.$container.addClass("list_visible"), ee(e) || e.$input_container.addClass("active"), e._list_built && e.$list.longListView("setHidden", !1)), e.single && !t && (e.$filter_input.val(""), e._previous_val = "", e.$filter_input.focus(), te(e) && (e.data = []), k(e)), e.set_height && (o(e), e.monkey_scroll && !TS.environment.supports_custom_scrollbar && e.$list.monkeyScroll()), e.onListShown()));
         },
-        G = function(e) {
+        W = function(e) {
           if (e.data && 0 !== e.data.length) {
-            var t = k(e.data);
+            var t = x(e.data);
             e._list_built = !0;
             var n = {
               items: t,
@@ -30442,14 +30468,14 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               },
               renderDivider: function(t, n, i) {
                 if (e.renderDividerFunc) return e.renderDividerFunc(t, n, i);
-                t.html(J(n.label, e));
+                t.html(Q(n.label, e));
               },
               renderItem: function(t, n, i) {
                 if (e.render_item_func) return e.render_item_func(t, n, i);
                 var r = $(n),
                   a = {
                     disabled: n.disabled || n.lfs_disabled,
-                    selected: T(e, n),
+                    selected: b(e, n),
                     single: e.single,
                     group_item: r.hasClass("group_item")
                   };
@@ -30466,13 +30492,13 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                   t.prepend(d);
                 }
                 if (r.data("lfs-item-desc")) {
-                  var c = J(r.data("lfs-item-desc"), e),
+                  var c = Q(r.data("lfs-item-desc"), e),
                     u = $('<span class="lfs_item_desc">').html(c);
                   t.append(u);
                 }
               }
             };
-            e.$list.longListView(n), i(e), e.$list_items = e.$container.find(".list_items"), TS.utility.rAF(function() {
+            e.$list.longListView(n), r(e), e.$list_items = e.$container.find(".list_items"), TS.utility.rAF(function() {
               e.monkey_scroll && !TS.environment.supports_custom_scrollbar && e.$list.monkeyScroll(), e.$list.longListView("resizeImmediately"), TS.utility.rAF(function() {
                 e.current_items_in_view_signal.dispatch(e.$list.longListView("getCurrentItemsInView") || []);
               });
@@ -30481,35 +30507,35 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             });
           }
         },
-        W = function(e) {
+        q = function(e) {
           e.stopPropagation(), e.preventDefault();
         },
         z = function(e, t) {
           if (!e.single && e.allow_item_unselect) {
-            var n = f(e, t, !0);
+            var n = h(e, t, !0);
             t.removeClass("selected"), e._selected = e._selected.filter(function(e) {
               return e !== n;
-            }), e.$input_container.find('.lfs_item[data-lfs-id="' + n.lfs_id + '"]').remove(), Y(e), e.$filter_input.val().length + e._selected.length === 0 && U(e), 0 === e._selected.length && e.$container.removeClass("value"), e.onItemRemoved(n);
-          }
-        },
-        q = function(e, t) {
-          if (S(e) && b(t)) {
-            var i = t.text().trim();
-            t.length && A(e, t), e.$filter_input.val(i), n(e), e.$filter_input.select();
+            }), e.$input_container.find('.lfs_item[data-lfs-id="' + n.lfs_id + '"]').remove(), J(e), e.$filter_input.val().length + e._selected.length === 0 && N(e), 0 === e._selected.length && e.$container.removeClass("value"), e.onItemRemoved(n);
           }
         },
         K = function(e, t) {
-          if (e.data = t || y(e.$select), e.data && (e._selected = [], x(e), e.$filter_input.val().length)) {
-            var n = e.$filter_input.val();
-            e._previous_val = "", O(e, n);
+          if (T(e) && v(t)) {
+            var n = t.text().trim();
+            t.length && E(e, t), e.$filter_input.val(n), i(e), e.$filter_input.select();
           }
         },
-        V = function(e) {
-          e.restrict_input_container_height && TS.ui.utility.updateClosestMonkeyScroller(e.$input_container, !0), e.monkey_scroll && !TS.environment.supports_custom_scrollbar && (s(e), TS.utility.rAF(function() {
+        V = function(e, t) {
+          if (e.data = t || w(e.$select), e.data && (e._selected = [], M(e), e.$filter_input.val().length)) {
+            var n = e.$filter_input.val();
+            e._previous_val = "", F(e, n);
+          }
+        },
+        Y = function(e) {
+          e.restrict_input_container_height && TS.ui.utility.updateClosestMonkeyScroller(e.$input_container, !0), e.monkey_scroll && !TS.environment.supports_custom_scrollbar && (o(e), TS.utility.rAF(function() {
             TS.ui.utility.updateClosestMonkeyScroller(e.$list, !0);
           }));
         },
-        Y = function(e) {
+        J = function(e) {
           if (!e.append) {
             var t = e._selected.filter(function(e) {
               return e instanceof HTMLOptionElement;
@@ -30519,160 +30545,160 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             e.$select.val(t).trigger("change");
           }
         },
-        J = function(e, t) {
+        Q = function(e, t) {
           return e = _.escape(e), _.get(t, "should_graphic_replace_emoji") && (e = TS.emoji.graphicReplace(e)), e;
         },
-        Q = function(e) {
-          e.$input.attr("placeholder", ""), Z(e) && e.$filter_input.attr("placeholder", "");
-        },
         X = function(e) {
-          e.$input.attr("placeholder", e.placeholder_text), Z(e) && e.$filter_input.attr("placeholder", e.filter_placeholder_text);
+          e.$input.attr("placeholder", ""), ee(e) && e.$filter_input.attr("placeholder", "");
         },
         Z = function(e) {
-          return e.style === TS.ui.lazy_filter_select.STYLES.filter_in_list;
+          e.$input.attr("placeholder", e.placeholder_text), ee(e) && e.$filter_input.attr("placeholder", e.filter_placeholder_text);
         },
         ee = function(e) {
+          return e.style === TS.ui.lazy_filter_select.STYLES.filter_in_list;
+        },
+        te = function(e) {
           return _.isFunction(e.data_promise) && e.min_query_length;
         },
-        te = function(e, t, n) {
-          re(e, e.errorTemplate(t), {
+        ne = function(e, t, n) {
+          ae(e, e.errorTemplate(t), {
             internal_error_message: n,
             clear_active_items: !0
           });
         },
-        ne = function(e) {
+        ie = function(e) {
           var t = e.noResultsTemplate(e.$filter_input.val());
-          re(e, t, {
+          ae(e, t, {
             clear_active_items: !0
           });
         },
-        ie = function(e) {
+        re = function(e) {
           var t = TS.i18n.t("Loading results…", "lazy_filter_select")();
-          re(e, t, {
+          ae(e, t, {
             show_loading_indicator: !0
           });
         },
-        re = function(e, t, n) {
-          n = n || {}, e._showing_status = !0, n.internal_error_message && TS.error(n.internal_error_message), Z(e) || e.$input_container.addClass("active"), n.show_loading_indicator && e.$status_loading_indicator.removeClass("hidden"), n.clear_active_items && (e._$active = null), e.$status_content.html(t), e.$list_container.addClass("show_status");
+        ae = function(e, t, n) {
+          n = n || {}, e._showing_status = !0, n.internal_error_message && TS.error(n.internal_error_message), ee(e) || e.$input_container.addClass("active"), n.show_loading_indicator && e.$status_loading_indicator.removeClass("hidden"), n.clear_active_items && (e._$active = null), e.$status_content.html(t), e.$list_container.addClass("show_status");
         },
-        ae = function(e, t) {
+        se = function(e, t) {
           t = t || {}, e._showing_status = !1, t.keep_input_active || e.$input_container.removeClass("active"), e.$status_loading_indicator.addClass("hidden"), e.$list_container.removeClass("show_status");
         },
-        se = function(e) {
+        oe = function(e) {
           e._prevent_blur = !1;
         },
-        oe = function(e) {
-          e.disabled || N(e);
+        le = function(e) {
+          e.disabled || G(e);
         },
-        le = function(e, t) {
-          e.disabled || (t.preventDefault(), N(e));
-        },
-        de = function(e) {
-          e.$input_container.click(), e.$input.focus();
+        de = function(e, t) {
+          e.disabled || (t.preventDefault(), G(e));
         },
         ce = function(e) {
-          e._input_is_focused || (e._input_is_focused = !0, e.$input_container.click(), e.onInputFocus()), e.single || e.$input_container.addClass("active");
+          e.$input_container.click(), e.$input.focus();
         },
         _e = function(e) {
-          var n = e.$filter_input.val();
-          if (S(e) && n.match(e.sluggify.delimiter)) {
-            n.split(e.sluggify.delimiter).forEach(function(n) {
-              n.length && t(e, n);
-            });
-          } else O(e, n, !0);
+          e._input_is_focused || (e._input_is_focused = !0, e.$input_container.click(), e.onInputFocus()), e.single || e.$input_container.addClass("active");
         },
-        ue = function(e, t) {
+        ue = function(e) {
+          var t = e.$filter_input.val();
+          if (T(e) && t.match(e.sluggify.delimiter)) {
+            t.split(e.sluggify.delimiter).forEach(function(t) {
+              t.length && n(e, t);
+            });
+          } else F(e, t, !0);
+        },
+        me = function(e, t) {
           if (!e.disabled) {
             switch (t.keyCode) {
               case TS.utility.keymap.down:
-                W(t), P(e);
+                q(t), j(e);
                 break;
               case TS.utility.keymap.up:
-                W(t), L(e);
+                q(t), U(e);
                 break;
               case TS.utility.keymap.enter:
-                pe(e, t);
-                break;
-              case TS.utility.keymap.del:
                 fe(e, t);
                 break;
-              case TS.utility.keymap.tab:
+              case TS.utility.keymap.del:
                 he(e, t);
                 break;
-              case TS.utility.keymap.esc:
+              case TS.utility.keymap.tab:
                 ge(e, t);
+                break;
+              case TS.utility.keymap.esc:
+                Se(e, t);
             }
             e.onKeyDown(t, t.isDefaultPrevented());
           }
         },
-        me = function(e) {
-          e._prevent_blur || (g(e), ae(e)), e.$filter_input.val().trim() && S(e) && t(e, e.$filter_input.val()), e._input_is_focused = !1, e.onInputBlur();
+        pe = function(e) {
+          e._prevent_blur || (S(e), se(e)), e.$filter_input.val().trim() && T(e) && n(e, e.$filter_input.val()), e._input_is_focused = !1, e.onInputBlur();
         },
-        pe = function(e, t) {
+        fe = function(e, t) {
           if (e._$active && e._$active.length && e._list_visible) {
-            W(t);
+            q(t);
             var n = e._$active;
-            if (!e.single && e.allow_item_unselect && T(e, f(e, n))) z(e, n);
+            if (!e.single && e.allow_item_unselect && b(e, h(e, n))) z(e, n);
             else {
-              if (!l(e)) return;
-              j(e);
+              if (!d(e)) return;
+              L(e);
               var i = $(t.currentTarget);
-              "" !== i.val() && (i.val(""), e._previous_val = "", w(e)), e.single && (g(e), ae(e));
+              "" !== i.val() && (i.val(""), e._previous_val = "", k(e)), e.single && (S(e), se(e));
             }
           }
         },
-        fe = function(e, t) {
+        he = function(e, t) {
           if ("" === e.$filter_input.val()) {
-            W(t);
+            q(t);
             var n = e.$input_container.find(".lfs_token").last();
-            S(e) && b(n) ? q(e, n) : C(e);
+            T(e) && v(n) ? K(e, n) : I(e);
           }
         },
-        he = function(e, n) {
-          e.$filter_input.val().trim() && S(e) ? (W(n), t(e, e.$filter_input.val())) : e.tab_to_nav && (W(n), n.shiftKey ? L(e) : P(e));
-        },
         ge = function(e, t) {
-          W(t), g(e), ae(e), e.$filter_input.blur();
+          e.$filter_input.val().trim() && T(e) ? (q(t), n(e, e.$filter_input.val())) : e.tab_to_nav && (q(t), t.shiftKey ? U(e) : j(e));
         },
         Se = function(e, t) {
-          e.disabled || (t.stopPropagation(), N(e), e._prevent_blur = !1);
+          q(t), S(e), se(e), e.$filter_input.blur();
         },
         Te = function(e, t) {
-          1 === t.which && (e._prevent_blur = !0);
+          e.disabled || (t.stopPropagation(), G(e), e._prevent_blur = !1);
         },
         be = function(e, t) {
-          e.disabled || (I(e, $(t.currentTarget)), e._prevent_blur = !1);
+          1 === t.which && (e._prevent_blur = !0);
         },
         ve = function(e, t) {
-          1 === t.which && (e._prevent_blur = !0);
+          e.disabled || (A(e, $(t.currentTarget)), e._prevent_blur = !1);
         },
         ye = function(e, t) {
           1 === t.which && (e._prevent_blur = !0);
         },
-        we = function(e) {
+        we = function(e, t) {
+          1 === t.which && (e._prevent_blur = !0);
+        },
+        ke = function(e) {
           e._prevent_blur && e.$filter_input.focus();
         },
-        ke = function(e, t) {
+        xe = function(e, t) {
           if (!e.disabled && (t.clientX != e._mouse.lastX || t.clientY != e._mouse.lastY)) {
             var n = $(t.currentTarget);
-            e._$active && e._$active.removeClass("active"), !n.hasClass("active") && R(n) && (n.addClass("active"), e._$active = n), e._mouse.lastX = t.clientX, e._mouse.lastY = t.clientY;
+            e._$active && e._$active.removeClass("active"), !n.hasClass("active") && H(n) && (n.addClass("active"), e._$active = n), e._mouse.lastX = t.clientX, e._mouse.lastY = t.clientY;
           }
         },
-        xe = function(e, t) {
+        Me = function(e, t) {
           $(t.currentTarget).removeClass("active"), e._$active = null;
         },
-        Me = function(e, t) {
+        Ce = function(e, t) {
           if (!e.disabled) {
             t.preventDefault();
             var n = $(t.currentTarget);
             e._$active = n;
-            if (!e.single && e.allow_item_unselect && T(e, f(e, n))) z(e, n);
+            if (!e.single && e.allow_item_unselect && b(e, h(e, n))) z(e, n);
             else {
-              var i = R(n);
+              var i = H(n);
               if (!i && !e.single) return;
-              if (!l(e)) return;
-              if (!i && e.single) return g(e), void t.stopPropagation();
-              j(e), "" !== e.$filter_input.val() && (e.$filter_input.val(""), e._previous_val = "", w(e)), e.single && (g(e), t.stopPropagation());
+              if (!d(e)) return;
+              if (!i && e.single) return S(e), void t.stopPropagation();
+              L(e), "" !== e.$filter_input.val() && (e.$filter_input.val(""), e._previous_val = "", k(e)), e.single && (S(e), t.stopPropagation());
             }
             e._prevent_blur = !1;
           }
@@ -32889,8 +32915,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         if (e.is('input[type="radio"]') || e.is('input[type="checkbox"]') || e.is("select")) return !0;
         if (!G(e)) return void TS.error("Error: cannot validate");
         var i = W(e),
-          r = z(n);
-        if (_.includes(r, "fix") && (i = q(e)), T(e, t)) return !1;
+          r = q(n);
+        if (_.includes(r, "fix") && (i = z(e)), T(e, t)) return !1;
         var a = TS.shared.getActiveModelOb() || {};
         return (!$(".channel_options_modal").is(":visible") || i !== a.name) && (!(TS.channels.getChannelByName(i) || TS.groups.getGroupByName(i) || TS.members.getMemberByName(i)) || void TS.ui.validation.showWarning(e, TS.i18n.t('"{name}" is already taken by a channel, username, or user group.', "ui_validation")({
           name: _.escape(i)
@@ -32901,8 +32927,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         if (e.is('input[type="radio"]') || e.is('input[type="checkbox"]') || e.is("select")) return !0;
         if (!G(e)) return void TS.error("Error: cannot validate");
         var i = W(e),
-          r = z(n);
-        if (_.includes(r, "fix") && (i = q(e)), T(e, t)) return !1;
+          r = q(n);
+        if (_.includes(r, "fix") && (i = z(e)), T(e, t)) return !1;
         var a = !1,
           s = TS.channels.getChannelByName(i) || TS.groups.getGroupByName(i) || TS.members.getMemberByName(i),
           o = TS.shared.getActiveModelOb();
@@ -33146,10 +33172,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         W = function(e) {
           return TS.utility && TS.utility.contenteditable ? TS.utility.contenteditable.value(e) : e.val();
         },
-        z = function(e) {
+        q = function(e) {
           return _.isString(e) ? _(e).split(",").map(_.trim).compact().value() : [];
         },
-        q = function(e) {
+        z = function(e) {
           var t = W(e),
             n = t.toLowerCase().replace(/^#+/, "");
           if (n && t !== n) {
@@ -34238,7 +34264,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             }
           }), e) {
             case i.call_window_token:
-              i.last_call_window_token = i.call_window_token, q(), i.call_window_token && delete i.call_window_token, k(), x();
+              i.last_call_window_token = i.call_window_token, z(), i.call_window_token && delete i.call_window_token, k(), x();
               break;
             case i.mini_panel_token:
               i.mini_panel_token && delete i.mini_panel_token;
@@ -34253,7 +34279,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               mp_token: i.mini_panel_token,
               ic_token: i.incoming_call_token
             }
-          }), e !== i.last_call_window_token && e !== i.call_window_token || (C(), q(), delete i.call_window_token, TS.utility.calls_log.logEvent({
+          }), e !== i.last_call_window_token && e !== i.call_window_token || (C(), z(), delete i.call_window_token, TS.utility.calls_log.logEvent({
             event: n.log_events.previous_crash
           }), k(), x());
         },
@@ -34391,7 +34417,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         M = function() {
           i.mini_panel_token && (TSSSB.call("closeWindow", i.mini_panel_token), delete i.mini_panel_token), i.call_window_token && (F({
             message_type: TS.utility.calls.messages_to_call_window_types.did_close_window
-          }), C(), TSSSB.call("closeWindow", i.call_window_token), q(), delete i.call_window_token), i.window_handle && (i.window_handle.close(), delete i.window_handle);
+          }), C(), TSSSB.call("closeWindow", i.call_window_token), z(), delete i.call_window_token), i.window_handle && (i.window_handle.close(), delete i.window_handle);
         },
         C = function() {
           R(!1), H(!1);
@@ -34547,7 +34573,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             value: {
               is_busy: e
             }
-          }), i.is_call_window_busy = e, e ? (z(), i.accepted_caller_id && F({
+          }), i.is_call_window_busy = e, e ? (q(), i.accepted_caller_id && F({
             message_type: TS.utility.calls.messages_to_call_window_types.caller_id,
             args: {
               caller_id: i.accepted_caller_id
@@ -34557,7 +34583,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             cancel_type: i.cached_invite_cancel.cancel_type,
             user_id: i.cached_invite_cancel.user_id,
             room_id: i.cached_invite_cancel.room_id
-          })) : (q(), i.call_channel = void 0, i.is_publisher_screensharing = !1, i.is_publisher_screenhero = !1), i.accepted_caller_id && delete i.accepted_caller_id, i.cached_invite_cancel && delete i.cached_invite_cancel;
+          })) : (z(), i.call_channel = void 0, i.is_publisher_screensharing = !1, i.is_publisher_screenhero = !1), i.accepted_caller_id && delete i.accepted_caller_id, i.cached_invite_cancel && delete i.cached_invite_cancel;
         },
         P = function() {
           return TS.model.is_our_app && TSSSB.call("supportsCallWindowStatus") ? TSSSB.call("isCallWindowBusy") : Promise.resolve(!!i.is_call_window_busy);
@@ -34616,7 +34642,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             mini_panel_state: e
           });
         },
-        z = function() {
+        q = function() {
           TS.model.is_our_app && (TSSSB.call("setCallWindowBusy", {
             is_busy: !0
           }), TSSSB.call("setCallWindowToken", {
@@ -34627,7 +34653,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             team_name: TS.model.team.name
           }));
         },
-        q = function() {
+        z = function() {
           if (TS.model.is_our_app && TSSSB.call("supportsCallWindowStatus")) {
             var e = String(i.call_window_token);
             TSSSB.call("getCallWindowToken", {
@@ -40315,12 +40341,19 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
       "use strict";
       TS.registerModule("redux.members", {
         onStart: function() {
-          TS.useReduxMembers() && (s(), e = TS.redux.bindSingleArgSelectorToStore(TS.interop.redux.entities.members.getAllMembers), t = TS.redux.bindSingleArgSelectorToStore(TS.interop.redux.entities.members.getMemberById), Object.defineProperty(TS.model, "members", {
+          TS.useReduxMembers() && (o(), e = TS.redux.bindSingleArgSelectorToStore(TS.interop.redux.entities.members.getAllMembers), t = TS.redux.bindSingleArgSelectorToStore(TS.interop.redux.entities.members.getMemberById), n = TS.redux.bindSingleArgSelectorToStore(TS.interop.redux.entities.members.getCurrentMember), Object.defineProperty(TS.model, "members", {
             get: function() {
               return TS.redux.members.getAllMembers();
             },
             set: function() {
               return TS.error("TS.redux.members: trying to set TS.model.members???"), !1;
+            }
+          }), Object.defineProperty(TS.model, "user", {
+            get: function() {
+              return n();
+            },
+            set: function(e) {
+              TS.warn("setting TS.model.user!!"), TS.redux.members.addMember(e);
             }
           }));
         },
@@ -40330,32 +40363,32 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         getAllMembers: function() {
           var t = e();
-          return t === n ? i : (i = _.values(t), n = t, i);
+          return t === i ? r : (r = _.values(t), i = t, r);
         },
         addMember: function(e) {
           e && TS.redux.dispatch(TS.interop.redux.entities.members.addMember(e));
         },
         addToBulkUpsertPayload: function(e) {
-          r.push(e);
+          a.push(e);
         },
         test: function() {
           var e = {};
           return Object.defineProperty(e, "_bulk_upsert_payload", {
             get: function() {
-              return r;
+              return a;
             },
             set: function(e) {
-              r = e;
+              a = e;
             }
           }), e;
         }
       });
-      var e, t, n, i, r = [],
-        a = function() {
-          r.length && (TS.redux.dispatch(TS.interop.redux.entities.members.bulkAddMembers(r)), r = []);
-        },
+      var e, t, n, i, r, a = [],
         s = function() {
-          TS.members.batch_upserted_sig.add(a);
+          a.length && (TS.redux.dispatch(TS.interop.redux.entities.members.bulkAddMembers(a)), a = []);
+        },
+        o = function() {
+          TS.members.batch_upserted_sig.add(s);
         };
     }();
   },
@@ -40991,7 +41024,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             }
           }), t.on("click", ".clear_filter_icon", function() {
             n.val("").trigger("textchange").focus();
-          }), e.on("keyup.sci", J), t.on("click", '[data-action="sci_toggle_contents"]', Ce), t.on("click", '[data-action="sci_toggle_send_email"]', Ae), t.on("click", '[data-action="sci_toggle_copy_link"]', Ie), t.on("click", '[data-action="sci_send"]', _e), t.on("click", '[data-action="sci_copy"]', z), t.on("click", '[data-action="sci_revoke"]', ce), t.on("input", "input[data-invite-id]", function(e) {
+          }), e.on("keyup.sci", J), t.on("click", '[data-action="sci_toggle_contents"]', Ce), t.on("click", '[data-action="sci_toggle_send_email"]', Ae), t.on("click", '[data-action="sci_toggle_copy_link"]', Ie), t.on("click", '[data-action="sci_send"]', _e), t.on("click", '[data-action="sci_copy"]', q), t.on("click", '[data-action="sci_revoke"]', ce), t.on("input", "input[data-invite-id]", function(e) {
             var t = $(e.target).parent();
             Me(t, t.find('[data-action="sci_send"]'), !0);
           });
@@ -41206,7 +41239,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             });
           });
         },
-        z = function(e) {
+        q = function(e) {
           var t = $(e.target),
             n = t.parent(),
             i = n.find("input"),
@@ -41215,7 +41248,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             s = i.val();
           TS.clipboard.canWriteText() ? TS.clipboard.writeText(s) : ge(r), a && a.setSelectionRange(0, s.length);
         },
-        q = function() {
+        z = function() {
           D().length || F().length || D(!0).length || F(!0).length || ke();
         },
         K = function(e, t) {
@@ -41308,7 +41341,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           ie({
             invite_id: n
           }).then(function() {
-            de(n, i), le(n), q();
+            de(n, i), le(n), z();
           }).catch(P);
         },
         _e = function(e) {
