@@ -144,74 +144,40 @@
     {{! Nothing yet }}
   {{else}}
     <!-- calls button -->
-    <div id="channel_calls_container" class="hidden channel_calls_container"></div>{{!--
-    --}}{{#feature flag='feature_tinyspeck'}}
-      <!--channel details icon  -->
-      <button type="button" id="details_toggle" class="channel_header_icon btn_unstyle blue_on_hover channel_details_toggle ts_tip ts_tip_bottom {{#if details_showing}}active{{/if}} no_left_margin">
-        {{#if details_showing}}
-          {{#if member}}
-          <span class="ts_tip_tip">{{#t}}Hide Conversation Details{{/t}}</span>
-          {{else if mpim}}
-          <span class="ts_tip_tip">{{#t}}Hide Conversation Details{{/t}}</span>
-          {{else}}
-          <span class="ts_tip_tip">{{#t}}Hide Channel Details{{/t}}</span>
-          {{/if}}
-        {{else}}
-          {{#if member}}
-          <span class="ts_tip_tip">{{#t}}Show Conversation Details{{/t}}</span>
-          {{else if mpim}}
-          <span class="ts_tip_tip">{{#t}}Show Conversation Details{{/t}}</span>
-          {{else}}
-          <span class="ts_tip_tip">{{#t}}Show Channel Details{{/t}}</span>
-          {{/if}}
-        {{/if}}
-        {{> ts_icon class="ts_icon_info_circle"}}
-      </button>
+    <div id="channel_calls_container" class="hidden channel_calls_container"></div>
 
-      <!-- channel actions menu toggle -->
-      <button type="button" id="channel_actions_toggle" class="btn_unstyle blue_on_hover channel_actions_toggle channel_header_icon ts_tip ts_tip_bottom">
+    <!--channel details icon  -->
+    <button type="button" id="details_toggle" class="channel_header_icon btn_unstyle blue_on_hover channel_details_toggle ts_tip ts_tip_bottom {{#if details_showing}}active{{/if}}">
+      {{#if details_showing}}
         {{#if member}}
-        <span class="ts_tip_tip">{{#t}}Conversation Settings{{/t}}</span>
+        <span class="ts_tip_tip">{{#t}}Hide Conversation Details{{/t}}</span>
         {{else if mpim}}
-        <span class="ts_tip_tip">{{#t}}Conversation Settings{{/t}}</span>
+        <span class="ts_tip_tip">{{#t}}Hide Conversation Details{{/t}}</span>
         {{else}}
-        <span class="ts_tip_tip">{{#t}}Channel Settings{{/t}}</span>
+        <span class="ts_tip_tip">{{#t}}Hide Channel Details{{/t}}</span>
         {{/if}}
-        {{> ts_icon class="ts_icon_cog_o"}}
-      </button>
-    {{else}}
-      <button type="button" id="channel_actions_toggle" class="btn_unstyle blue_on_hover channel_actions_toggle channel_header_icon ts_tip ts_tip_bottom">
+      {{else}}
         {{#if member}}
-        <span class="ts_tip_tip">{{#t}}Conversation Settings{{/t}}</span>
+        <span class="ts_tip_tip">{{#t}}Show Conversation Details{{/t}}</span>
         {{else if mpim}}
-        <span class="ts_tip_tip">{{#t}}Conversation Settings{{/t}}</span>
+        <span class="ts_tip_tip">{{#t}}Show Conversation Details{{/t}}</span>
         {{else}}
-        <span class="ts_tip_tip">{{#t}}Channel Settings{{/t}}</span>
+        <span class="ts_tip_tip">{{#t}}Show Channel Details{{/t}}</span>
         {{/if}}
-        {{> ts_icon class="ts_icon_cog_o"}}
-      </button>{{!--
+      {{/if}}
+      {{> ts_icon class="ts_icon_info_circle"}}
+    </button>
 
-      <!--channel details icon  -->
-      --}}<button type="button" id="details_toggle" class="channel_header_icon btn_unstyle blue_on_hover channel_details_toggle ts_tip ts_tip_bottom {{#if details_showing}}active{{/if}}">
-        {{#if details_showing}}
-          {{#if member}}
-          <span class="ts_tip_tip">{{#t}}Hide Conversation Details{{/t}}</span>
-          {{else if mpim}}
-          <span class="ts_tip_tip">{{#t}}Hide Conversation Details{{/t}}</span>
-          {{else}}
-          <span class="ts_tip_tip">{{#t}}Hide Channel Details{{/t}}</span>
-          {{/if}}
-        {{else}}
-          {{#if member}}
-          <span class="ts_tip_tip">{{#t}}Show Conversation Details{{/t}}</span>
-          {{else if mpim}}
-          <span class="ts_tip_tip">{{#t}}Show Conversation Details{{/t}}</span>
-          {{else}}
-          <span class="ts_tip_tip">{{#t}}Show Channel Details{{/t}}</span>
-          {{/if}}
-        {{/if}}
-        {{> ts_icon class="ts_icon_side_panel"}}
-      </button>
-    {{/feature}}
+    <!-- channel actions menu toggle -->
+    <button type="button" id="channel_actions_toggle" class="btn_unstyle blue_on_hover channel_actions_toggle channel_header_icon ts_tip ts_tip_bottom">
+      {{#if member}}
+      <span class="ts_tip_tip">{{#t}}Conversation Settings{{/t}}</span>
+      {{else if mpim}}
+      <span class="ts_tip_tip">{{#t}}Conversation Settings{{/t}}</span>
+      {{else}}
+      <span class="ts_tip_tip">{{#t}}Channel Settings{{/t}}</span>
+      {{/if}}
+      {{> ts_icon class="ts_icon_cog_o"}}
+    </button>
   {{/if}}
 </div>

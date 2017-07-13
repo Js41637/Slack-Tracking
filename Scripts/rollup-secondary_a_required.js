@@ -1645,18 +1645,19 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
       function u(e) {
         return function(t) {
           return new Promise(function(n, i) {
-            var r = {
-              name: e.action.name,
-              value: t,
-              attachment_id: e.attachment.id,
-              callback_id: e.attachment.callback_id,
-              channel_id: e.channel_id,
-              is_ephemeral: !0,
-              message_ts: e.message.ts
-            };
-            TS.api.call("chat.attachmentSuggestion", {
+            var r = _.get(e.message, "bot_profile.team_id", !1),
+              a = {
+                name: e.action.name,
+                value: t,
+                attachment_id: e.attachment.id,
+                callback_id: e.attachment.callback_id,
+                channel_id: e.channel_id,
+                is_ephemeral: !0,
+                message_ts: e.message.ts
+              };
+            r && (a.team_id = r), TS.api.call("chat.attachmentSuggestion", {
               service_id: M(e),
-              payload: JSON.stringify(r)
+              payload: JSON.stringify(a)
             }).then(function(e) {
               n({
                 all_items_fetched: !0,
@@ -1864,7 +1865,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           a = _.get(t.message, "bot_profile.team_id", !1);
         a && (r.team_id = a);
         var s = {
-          payload: JSON.stringify(r)
+          payload: JSON.stringify(r),
+          client_token: TS.interop.client_action_token.generateAndEnqueue()
         };
         t.message.bot_id && (s.service_id = t.message.bot_id), t.message.user && (s.bot_user_id = t.message.user), TS.api.call("chat.attachmentAction", s).then(function(e) {
           TS.attachment_actions.action_completed_sig.dispatch({
@@ -3649,7 +3651,13 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               a = t.data("app_space_profile_slash_command") ? "APP_SPACE_ABOUT_SLASH_COMMAND_CLICK" : "APP_PROFILE_SLASH_COMMAND_CLICK";
             TS.clog.track(a, {
               app_id: TS.client.ui.app_space.active_app.id,
-              bot_id: TS.client.ui.app_space.app_bot_id
+              bot_id: TS.client.ui.app_space.app_bot_id,
+              contexts: {
+                core: {
+                  app_id: TS.client.ui.app_space.active_app.id,
+                  bot_id: TS.client.ui.app_space.app_bot_id
+                }
+              }
             }), TS.apps.isAppSpaceEnabled() && "messages" !== TS.client.ui.app_space.active_view && TS.client.ui.app_space.toggleView("messages"), i || (TS.utility.contenteditable.clear(n), TS.utility.contenteditable.insertTextAtCursor(n, r), TS.utility.contenteditable.supportsTexty() || n.TS_tabComplete("promiseToChoose", void 0, !0)), TS.utility.contenteditable.value(n, r + " " + i), TS.utility.contenteditable.cursorPosition(n, r.length + 1, i.length), TS.utility.contenteditable.focus(n), TS.utility.contenteditable.supportsTexty() || n.trigger("textchange");
           }), TS.boot_data.feature_tinyspeck && TS.click.addClientHandler(".recap_highlight_debug", function(e) {
             if ("sli_debug_info" === TS.client.highlights.sli_recaps_debug_group) {
@@ -4907,7 +4915,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                 var n = {
                   command: e,
                   text: TS.format.cleanCommandText(t),
-                  channel: TS.model.active_cid
+                  channel: TS.model.active_cid,
+                  client_token: TS.interop.client_action_token.generateAndEnqueue()
                 };
                 a && r && (n.channel = a.id, n.thread_ts = r.ts);
                 var s = t;
@@ -12324,13 +12333,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         ensureChannelMembershipIsKnownForUsers: function(e, t) {
           var n = o(e, t);
-          if (0 === n.length) return Promise.resolve(!1);
-          if (TS.interop.utility.looksLikeMemberId(e)) try {
-            throw new Error("Member counts request for user ID rather than channel ID " + e);
-          } catch (e) {
-            TS.console.logError(e, "tcm_ensure_called_with_member_id", void 0, !0);
-          }
-          return TS.flannel.fetchChannelMembershipForUsers(e, n).then(function(t) {
+          return 0 === n.length ? Promise.resolve(!1) : TS.flannel.fetchChannelMembershipForUsers(e, n).then(function(t) {
             return _.forEach(t, function(t, n) {
               s(e, n, t);
             }), !0;
@@ -12392,12 +12395,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }) : [];
         },
         l = function(e, t) {
-          if (!e) return void TS.warn("_promiseToGetChannelMemberCountsFromAPI needs a model_ob!");
-          if (TS.interop.utility.looksLikeMemberId(e.id)) try {
-            throw new Error("Member counts request for user ID rather than channel ID " + e.id);
-          } catch (e) {
-            TS.console.logError(e, "tcm_with_member_id", void 0, !0);
-          }
+          if (!e) return Promise.reject(new Error("Cannot fetch member counts without model_ob"));
+          if (TS.interop.utility.looksLikeMemberId(e.id)) return Promise.reject(new Error("Cannot fetch member counts on user objects"));
           var n = Date.now() - t,
             r = i[e.id];
           if (r) return r;
@@ -16232,7 +16231,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         onStart: function() {
           if (!window.WebSocket && (window.WebSocket = window.MozWebSocket, !window.WebSocket)) return void alert(TS.i18n.t("Your browser does not support WebSockets.", "ms")());
-          TS.boot_data.ws_refactor_bucket && TS.metrics.count("ms_flow_exposure"), z(TS.model.ui.is_window_focused || !1), TS.ui.window_focus_changed_sig.add(z), setInterval(function() {
+          z(TS.model.ui.is_window_focused || !1), TS.ui.window_focus_changed_sig.add(z), setInterval(function() {
             TS.model.ms_connected && (TS.model.rtm_start_throttler < 1 || (TS.model.rtm_start_throttler -= 1));
           }, 6e4);
           a = TS.boot_data.feature_tinyspeck || TS.utility.enableFeatureForUser(1), s = Date.now(), TS.boot_data.feature_tinyspeck || (he = _.noop, ge = _.noop, fe = _.noop), TS.client && TS.client.stats && (TS.client.stats.start_collecting_sig.add(function() {
@@ -36792,15 +36791,15 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return t.ts ? !TS.utility.msgs.getMsg(t.ts, n) || (TS.warn("msg " + t.ts + " already exists! (" + e + ")"), TS.dir(0, t), !1) : (TS.error("msg lacks a ts (" + e + ")"), TS.dir(0, t), !1);
         },
         findMsg: function(e, t) {
-          if (TS.useReactMessages()) return TS.redux.messages.getMessageByTimestamp(t, e);
-          var n = TS.shared.getModelObById(t);
-          if (n) {
-            var i = n.msgs && TS.utility.msgs.getMsg(e, n.msgs);
-            if (i) return i;
-            if (i = n._archive_msgs && TS.utility.msgs.getMsg(e, n._archive_msgs)) return i;
-            if (TS.ui.replies && (i = TS.ui.replies.getActiveMessage(n, e))) return i;
-            if (TS.client && (i = TS.client.threads.getMessage(n, e))) return i;
-            if (!i && TS.model.unread_view_is_showing && TS.client && (i = TS.client.unread.getMessage(n, e))) return i;
+          var n;
+          if (TS.useReactMessages() && (n = TS.redux.messages.getMessageByTimestamp(t, e))) return n;
+          var i = TS.shared.getModelObById(t);
+          if (i) {
+            if (n = i.msgs && TS.utility.msgs.getMsg(e, i.msgs)) return n;
+            if (n = i._archive_msgs && TS.utility.msgs.getMsg(e, i._archive_msgs)) return n;
+            if (TS.ui.replies && (n = TS.ui.replies.getActiveMessage(i, e))) return n;
+            if (TS.client && (n = TS.client.threads.getMessage(i, e))) return n;
+            if (!n && TS.model.unread_view_is_showing && TS.client && (n = TS.client.unread.getMessage(i, e))) return n;
           }
           var r = TS.mentions.getMentionByMsgId(e);
           return r ? r.message : null;
@@ -40711,37 +40710,37 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
     ! function() {
       "use strict";
       TS.registerModule("redux.messages", {
-        addMessages: function(t, n, i) {
-          var r = _.some(t, function(t) {
-            return !e(t.channel, t.ts);
+        addMessages: function(e, t, n) {
+          var i = _.some(e, function(e) {
+            return !TS.redux.messages.getMessageByTimestamp(e.channel, e.ts);
           });
-          if (TS.redux.dispatch(TS.interop.redux.entities.messages.addMessages(t)), n) {
-            var a = _.reject(t, TS.utility.msgs.isMsgHidden);
-            if (_.isEmpty(a)) return r;
-            var s = a && a[0] && a[0].channel,
-              o = _.map(a, "ts"),
-              l = {};
-            i && (l = {
-              oldest: _.min(o),
+          if (TS.redux.dispatch(TS.interop.redux.entities.messages.addMessages(e)), t) {
+            var r = _.reject(e, TS.utility.msgs.isMsgHidden);
+            if (_.isEmpty(r)) return i;
+            var a = r && r[0] && r[0].channel,
+              s = _.map(r, "ts"),
+              o = {};
+            n && (o = {
+              oldest: _.min(s),
               hasMore: !1
             }), TS.redux.dispatch(TS.interop.redux.entities.channelHistory.addTimestamps(_.assign({
-              channelId: s,
-              timestamps: o
-            }, l)));
+              channelId: a,
+              timestamps: s
+            }, o)));
           }
-          return r;
+          return i;
         },
-        addMessage: function(t, n) {
-          if (t && t.channel && t.ts) {
-            var i = e(t.channel, t.ts);
-            if (TS.redux.dispatch(TS.interop.redux.entities.messages.addMessages([t])), !TS.utility.msgs.isMsgHidden(t)) {
-              var r = {
-                channelId: t.channel,
-                timestamps: [t.ts]
+        addMessage: function(e, t) {
+          if (e && e.channel && e.ts) {
+            var n = TS.redux.messages.getMessageByTimestamp(e.channel, e.ts);
+            if (TS.redux.dispatch(TS.interop.redux.entities.messages.addMessages([e])), !TS.utility.msgs.isMsgHidden(e)) {
+              var i = {
+                channelId: e.channel,
+                timestamps: [e.ts]
               };
-              n && (r.oldest = t.ts, r.hasMore = !1), TS.redux.dispatch(TS.interop.redux.entities.channelHistory.addTimestamps(r));
+              t && (i.oldest = e.ts, i.hasMore = !1), TS.redux.dispatch(TS.interop.redux.entities.channelHistory.addTimestamps(i));
             }
-            return !i;
+            return !n;
           }
         },
         replaceMessage: function(e) {
@@ -40754,12 +40753,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           })), TS.redux.dispatch(TS.interop.redux.entities.messages.removeMessage(e)));
         },
         getMessageByTimestamp: function(e, t) {
-          return TS.interop.redux.entities.messages.getMessageByTimestamp(TS.redux.getState(), e, t);
+          return TS.interop.redux.entities.messages.getMessageByTimestamp ? TS.interop.redux.entities.messages.getMessageByTimestamp(TS.redux.getState(), e, t) : null;
         }
       });
-      var e = function(e, t) {
-        return TS.interop.redux.entities.messages.getMessageByTimestamp ? TS.interop.redux.entities.messages.getMessageByTimestamp(TS.redux.getState(), e, t) : null;
-      };
     }();
   },
   3890: function(e, t) {

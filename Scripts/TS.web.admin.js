@@ -232,7 +232,7 @@ webpackJsonp([225], {
         buildArrays: function() {
           var i, n, t, r = TS.web.admin.isSubsetCase();
           if (r)
-            for (n = [], t = 0; t < boot_data.member_list_subset.length; t += 1) n.push(TS.members.getMemberById(boot_data.member_list_subset[t]));
+            for (n = [], t = 0; t < boot_data.member_list_subset.length; t += 1)(i = TS.members.getMemberById(boot_data.member_list_subset[t])) && n.push(i);
           else n = TS.model.members;
           if (e = n, "list" === TS.web.admin.view) {
             if (0 === TS.web.admin.active_members.length) {

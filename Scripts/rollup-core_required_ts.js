@@ -172,7 +172,7 @@ webpackJsonp([12, 328, 337, 329], {
           }
           t = t || r;
           var s = t + ":" + a + ":" + e;
-          return void 0 === c[s] && (i || "pseudo" === t ? c[s] = new MessageFormat(t, h(e)).format : (n && a && window.sha1 && window.tsTranslations && window.tsTranslations[a] && (e = window.tsTranslations[a][window.sha1(e)] || e), c[s] = new MessageFormat(t, e).format), n && o && (c[s].toString = p(s, a))), c[s];
+          return void 0 === c[s] && (i || "pseudo" === t ? c[s] = new MessageFormat(t, S(e)).format : (n && a && window.sha1 && window.tsTranslations && window.tsTranslations[a] && (e = window.tsTranslations[a][window.sha1(e)] || e), c[s] = new MessageFormat(t, e).format), n && o && (c[s].toString = p(s, a))), c[s];
         },
         number: function(e) {
           return m(), Intl.NumberFormat(r).format(e);
@@ -346,7 +346,7 @@ webpackJsonp([12, 328, 337, 329], {
             }
           };
         },
-        h = function(e) {
+        S = function(e) {
           var n = !1;
           e.endsWith(":") && (n = !0, e = e.substr(0, e.length - 1));
           var a = /(<[^>]+>)|(&\w+;)/gi,
@@ -356,7 +356,7 @@ webpackJsonp([12, 328, 337, 329], {
           t.error && TS.error(t.error);
           var i;
           return e = t.tokens.map(function(e) {
-            return "text" === e[0] ? (i = e[1], _.forOwn(S, function(e) {
+            return "text" === e[0] ? (i = e[1], _.forOwn(h, function(e) {
               i = i.replace(e[0], e[1]);
             }), i.split(" ").map(function(e) {
               return e += new Array(Math.floor(.3 * e.length) + 1).join("~");
@@ -365,7 +365,7 @@ webpackJsonp([12, 328, 337, 329], {
             return e + (o[n] || "");
           }).join(""), n && (e += ":"), e;
         },
-        S = {
+        h = {
           a: [/a/g, "á"],
           b: [/b/g, "β"],
           c: [/c/g, "ç"],
@@ -663,7 +663,14 @@ webpackJsonp([12, 328, 337, 329], {
     }();
   },
   2424: function(e, n) {
-    var a = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(e) {
+    function a(e) {
+      if (Array.isArray(e)) {
+        for (var n = 0, a = Array(e.length); n < e.length; n++) a[n] = e[n];
+        return a;
+      }
+      return Array.from(e);
+    }
+    var o = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(e) {
       return typeof e;
     } : function(e) {
       return e && "function" == typeof Symbol && e.constructor === Symbol && e !== Symbol.prototype ? "symbol" : typeof e;
@@ -682,23 +689,28 @@ webpackJsonp([12, 328, 337, 329], {
             };
           $.post(TS.boot_data.beacon_error_url, t);
         },
-        n = function(e, n, a) {
+        n = function(e, n, o) {
           if (window.console && console[e]) {
-            var o = TS.qs_args.clean_log,
-              t = null !== n;
-            if (a = Array.prototype.slice.call(a), t) {
+            var t = TS.qs_args.clean_log,
+              i = null !== n;
+            if (o = Array.prototype.slice.call(o), i) {
               if (!TS.console.shouldLog(n)) return;
-              a.splice(0, 1);
+              o.splice(0, 1);
             }
-            a = _.map(a, function(e) {
-              return i(e);
+            o = _.map(o, function(e) {
+              return r(e);
             });
-            for (var r = !0, s = a.length; r && s;) s -= 1, r = "string" == typeof a[s];
-            if (!o || "error" === e || n === parseInt(TS.qs_args.pri, 10) && t)
-              if (r) {
-                var l = TS.makeLogDate();
-                t && !o && (l += "[** " + n + " **]"), a.unshift(l), console[e](a.join(" "));
-              } else console[e].apply(console, a);
+            for (var s = !0, l = o.length; s && l;) l -= 1, s = "string" == typeof o[l];
+            if (!t || "error" === e || n === parseInt(TS.qs_args.pri, 10) && i) {
+              if (s) {
+                var c = TS.makeLogDate();
+                i && !t && (c += "[** " + n + " **]"), o.unshift(c), console[e](o.join(" "));
+              } else console[e].apply(console, o);
+              if (TS.boot_data.ws_refactor_bucket && TS.isSocketManagerEnabled()) {
+                var d;
+                (d = TS.interop.SocketManager).debugAddToLog.apply(d, a(o));
+              }
+            }
           }
         };
       window.TS || (window.TS = {}), TS.console = {
@@ -710,14 +722,14 @@ webpackJsonp([12, 328, 337, 329], {
         },
         dir: function(e, n, a) {
           if (window.console && console.dir && (!e || TS.shouldLog(e))) {
-            a = a || "", n = i(n);
+            a = a || "", n = r(n);
             var o = parseInt(TS.qs_args.dir_json, 10);
             if (o) {
               var t = 1 == o ? "2000" : o;
               try {
-                var r = JSON.stringify(n, null, "  ");
-                if (r.length > t) throw new Error("too long");
-                return void console.info(TS.makeLogDate() + "[** " + e + " **] " + a + " " + r);
+                var i = JSON.stringify(n, null, "  ");
+                if (i.length > t) throw new Error("too long");
+                return void console.info(TS.makeLogDate() + "[** " + e + " **] " + a + " " + i);
               } catch (o) {
                 if ("too long" !== o) return void console.info(TS.makeLogDate() + "[** " + e + " **] " + a + " " + n);
               }
@@ -800,7 +812,7 @@ webpackJsonp([12, 328, 337, 329], {
         },
         setAppropriatePri: function(e) {
           var n = "";
-          TS.qs_args.pri && (n += TS.qs_args.pri), e && TS.boot_data.client_logs_pri && ("" !== n && (n += ","), n += TS.boot_data.client_logs_pri), TS.model && TS.model.prefs && TS.model.prefs.client_logs_pri && ("" !== n && (n += ","), n += TS.model.prefs.client_logs_pri), "" !== n && (n += ","), n += "0", TS.pri = _.uniq(n.split(",")).join(","), o();
+          TS.qs_args.pri && (n += TS.qs_args.pri), e && TS.boot_data.client_logs_pri && ("" !== n && (n += ","), n += TS.boot_data.client_logs_pri), TS.model && TS.model.prefs && TS.model.prefs.client_logs_pri && ("" !== n && (n += ","), n += TS.model.prefs.client_logs_pri), "" !== n && (n += ","), n += "0", TS.pri = _.uniq(n.split(",")).join(","), t();
         },
         shouldLog: function(e) {
           var n = String(TS.pri).split(",");
@@ -826,7 +838,7 @@ webpackJsonp([12, 328, 337, 329], {
         },
         watchForErrors: function() {
           if (TS.boot_data && TS.boot_data.feature_tinyspeck) {
-            window.addEventListener("error", s, !0);
+            window.addEventListener("error", l, !0);
           }
         },
         trace: function() {
@@ -837,12 +849,12 @@ webpackJsonp([12, 328, 337, 329], {
         },
         test: function() {
           return {
-            _maybeRedactFields: i,
-            _windowErrorHandler: s
+            _maybeRedactFields: r,
+            _windowErrorHandler: l
           };
         }
       };
-      var o = function() {
+      var t = function() {
           var e = String(TS.pri).split(",");
           TS.has_pri = _(Object.keys(TS.boot_data.client_logs || {})).filter(function(n) {
             var a = TS.boot_data.client_logs[n];
@@ -855,30 +867,30 @@ webpackJsonp([12, 328, 337, 329], {
             return e;
           }).value();
         },
-        t = {
+        i = {
           name: 1,
           real_name: 1,
           src: 1,
           text: 1,
           msgs: 1
         },
-        i = function e(n, a) {
+        r = function e(n, a) {
           if (!TS.boot_data || TS.boot_data.feature_tinyspeck || "dev" === TS.boot_data.version_ts) return n;
           if (!n || !_.isObject(n)) return n;
           if (a ? a += 1 : a = 1, a >= 10) return n;
           var o;
-          return o = _.isArray(n) ? [] : {}, _.each(n, function(n, i) {
-            o[i] = t[i] ? "[redacted " + r(n) + "]" : e(n, a);
+          return o = _.isArray(n) ? [] : {}, _.each(n, function(n, t) {
+            o[t] = i[t] ? "[redacted " + s(n) + "]" : e(n, a);
           }), o;
         },
-        r = function(e) {
+        s = function(e) {
           var n = {};
-          return function(o) {
-            var t = void 0 === o ? "undefined" : a(o);
-            return null === o ? "null" : o === e ? "global" : "object" !== t ? t : o.nodeType ? "DOM node" : n[t = {}.toString.call(o)] || (n[t] = t.slice(8, -1).toLowerCase());
+          return function(a) {
+            var t = void 0 === a ? "undefined" : o(a);
+            return null === a ? "null" : a === e ? "global" : "object" !== t ? t : a.nodeType ? "DOM node" : n[t = {}.toString.call(a)] || (n[t] = t.slice(8, -1).toLowerCase());
           };
         }(this),
-        s = function() {
+        l = function() {
           var e, n, a = arguments && arguments[0],
             o = "",
             t = !0;
@@ -1005,9 +1017,9 @@ webpackJsonp([12, 328, 337, 329], {
           return new Promise(function(e) {
             if (!d) return TS.boot_data.feature_tinyspeck && TS.info("BOOT: Done setting up emoji, there was nothing to do"), e();
             var n = function() {
-              d.buildKeywordIndex(), S(), TS.boot_data.feature_tinyspeck && TS.info("BOOT: Done setting up emoji"), e();
+              d.buildKeywordIndex(), h(), TS.boot_data.feature_tinyspeck && TS.info("BOOT: Done setting up emoji"), e();
             };
-            if (h(), !TS.boot_data.page_needs_custom_emoji) return n();
+            if (S(), !TS.boot_data.page_needs_custom_emoji) return n();
             if (!TS.boot_data.page_needs_custom_emoji_fresh) {
               var a = TS.storage.fetchCustomEmoji();
               if (a && TS.model.emoji_cache_ts == a.cache_ts) return TS.model.did_we_load_with_emoji_cache = !0, TS.emoji.ingestCustoms(a.data), n();
@@ -1093,9 +1105,9 @@ webpackJsonp([12, 328, 337, 329], {
                       f = u,
                       p = g;
                     if (TS.boot_data.feature_localization && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE) {
-                      var h = TSFEmoji.getLocalEmojiString(_, TS.i18n.locale());
-                      f = ":" + r + "::" + h + ":", p = l.map(function(e) {
-                        return e + "::" + h;
+                      var S = TSFEmoji.getLocalEmojiString(_, TS.i18n.locale());
+                      f = ":" + r + "::" + S + ":", p = l.map(function(e) {
+                        return e + "::" + S;
                       });
                     }
                     s[m] = {
@@ -1114,24 +1126,24 @@ webpackJsonp([12, 328, 337, 329], {
             var l = r[a];
             s[l] || TS.info(l + " not in cat_map?");
           }
-          var g, f, p, h;
+          var g, f, p, S;
           for (a = 0; a < n.length; a += 1) {
-            for (g = n[a], f = [], p = null, h = "", g.tab_icon_html && (h = g.tab_icon_html), o = 0; o < g.emoji_names.length; o += 1) p = s[g.emoji_names[o]], f.push(p), h || g.emoji_names[o] == g.name && (h = p.html);
+            for (g = n[a], f = [], p = null, S = "", g.tab_icon_html && (S = g.tab_icon_html), o = 0; o < g.emoji_names.length; o += 1) p = s[g.emoji_names[o]], f.push(p), S || g.emoji_names[o] == g.name && (S = p.html);
             p = f[0], TS.model.emoji_groups.push({
               name: g.name,
               display_name: g.display_name,
-              tab_html: h || p.html,
+              tab_html: S || p.html,
               tab_icon: g.tab_icon,
               tab_icon_name: g.tab_icon_name,
               items: f
             });
           }
-          var S = TS.emoji.getCurrentSheetUrl();
-          if (_.get(TS, "model.prefs.ss_emojis") && S) {
+          var h = TS.emoji.getCurrentSheetUrl();
+          if (_.get(TS, "model.prefs.ss_emojis") && h) {
             var T = new Image;
             T.onload = function() {
               T.onload = null, T.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==", T = null;
-            }, T.src = S;
+            }, T.src = h;
           }
           TS.model.emoji_names.sort(), TS.emoji.friendlyReorder();
           var b = TS.model.emoji_names.indexOf("ok"),
@@ -1460,10 +1472,10 @@ webpackJsonp([12, 328, 337, 329], {
         p = function() {
           TS.client && TS.model.ms_logged_in_once && (TS.client.msg_pane.rebuildMsgsWithReason("_toggleJumbomoji"), TS.view.rebuildMentions(), TS.view.rebuildStars(), TS.model.previewed_file_id && TS.client.ui.files.rebuildFilePreview());
         },
-        h = function() {
+        S = function() {
           d.unaltered_data && (d.data = _.cloneDeep(d.unaltered_data), d.inits = {}), d.ts_init_colons();
         },
-        S = function() {
+        h = function() {
           TS.emoji.setEmojiMode(), TS.emoji.makeMenuLists();
           var e = !!TS.model.ms_logged_in_once;
           TS.client && e && TS.client.ui.rebuildAll(!1, !0);
@@ -1481,7 +1493,7 @@ webpackJsonp([12, 328, 337, 329], {
             TS.model.emoji_cache_ts = a, TS.storage.storeCustomEmoji({
               data: o.data,
               cache_ts: TS.model.emoji_cache_ts
-            }), h(), TS.emoji.ingestCustoms(o.data), S();
+            }), S(), TS.emoji.ingestCustoms(o.data), h();
           }
         },
         b = function() {
@@ -1960,7 +1972,7 @@ webpackJsonp([12, 328, 337, 329], {
           g = /(Firefox)/g.test(a),
           f = /(Safari)/g.test(a),
           p = /(AtomShell)/g.test(a),
-          h = /(MSIE)/g.test(a);
+          S = /(MSIE)/g.test(a);
         return {
           is_iOS: s,
           is_IE: u,
@@ -1977,7 +1989,7 @@ webpackJsonp([12, 328, 337, 329], {
           is_lin: r,
           is_our_app: m,
           is_electron: p,
-          is_old_ie: h
+          is_old_ie: S
         };
       }
       TS.registerModule("model", {
@@ -2454,7 +2466,7 @@ webpackJsonp([12, 328, 337, 329], {
           return !!TS.useSocket() && (!!TS.lazyLoadMembersAndBots() && "experiment" === TS.boot_data.ws_refactor_bucket);
         },
         getSocketStartArgs: function() {
-          return h();
+          return S();
         },
         registerModule: function(e, n, a) {
           return V(n), M ? TS.error('module "' + e + '" must be registered on before dom ready') : P[e] ? TS.error('module "' + e + '" already exists') : void 0 === s(e, n, "module") ? void(a ? TS.error('module "' + e + '" cannot be registered after delay; "' + e.split(".").slice(0, -1).join(".") + '" is not registered') : U[e] = n) : (n._name = e, void(P[e] = n));
@@ -2570,10 +2582,10 @@ webpackJsonp([12, 328, 337, 329], {
           };
           return Object.defineProperty(e, "_getMSLoginArgs", {
             get: function() {
-              return h;
+              return S;
             },
             set: function(e) {
-              h = e;
+              S = e;
             }
           }), Object.defineProperty(e, "_shouldConnectToMS", {
             get: function() {
@@ -2616,9 +2628,9 @@ webpackJsonp([12, 328, 337, 329], {
             if (TS.model.ms_connected) return void TS.warn("Reconnect requested, but we are already connected; doing nothing.");
             if (TS.model.ms_connecting) return void TS.warn("Reconnect requested, but we are already connecting; doing nothing.");
             if (TS.metrics.mark("ms_reconnect_requested"), TS.api.paused_sig.has(f) || TS.api.paused_sig.addOnce(f), TS.isSocketManagerEnabled() ? TS.interop.SocketManager.connectedSig.has(p) || TS.interop.SocketManager.connectedSig.addOnce(p) : TS.ms.connected_sig.has(p) || TS.ms.connected_sig.addOnce(p), TS.isPartiallyBooted()) {
-              var e = S();
+              var e = h();
               A(e);
-            } else S().then(v);
+            } else h().then(v);
           }
         },
         f = function() {
@@ -2633,7 +2645,7 @@ webpackJsonp([12, 328, 337, 329], {
             TS.info("OK, MS is now reconnected -- it took " + _.round(e / 1e3, 2) + " seconds"), TS.api.paused_sig.remove(f), TS.api.unpaused_sig.remove(g);
           }
         },
-        h = function() {
+        S = function() {
           var e = {
             agent: "webapp_" + TS.boot_data.version_uid,
             simple_latest: !0,
@@ -2649,7 +2661,7 @@ webpackJsonp([12, 328, 337, 329], {
             TS.has_pri[Y] && TS.log(Y, "Flannel: Appending " + n + " (" + TS.qs_args[n] + ") to login_args"), e[n] = TS.qs_args[n];
           })) : TS.boot_data.page_needs_just_me ? (TS.storage.disableMemberBotCache(), e.just_me = !0, e.no_members = !0) : e.cache_ts = c || TS.storage.fetchLastCacheTS(), TS.web && (TS.boot_data.page_needs_state || TS.boot_data.page_has_ms || TS.lazyLoadMembersAndBots() ? e.no_presence = !0 : e.no_state = !0), TS.calls && (e.no_subteams = !0), TS.boot_data.page_needs_all_ims || (e.only_relevant_ims = !0), TS.boot_data.feature_name_tagging_client && (e.name_tagging = !0), TS.boot_data.feature_ms_latest && (e.ms_latest = !0), TS.lazyLoadMembersAndBots() && TS.has_pri[Y] && TS.log(Y, "Flannel: MS login args:", e), e;
         },
-        S = function() {
+        h = function() {
           var e = TS.incremental_boot && TS.incremental_boot.shouldIncrementalBoot(),
             n = b();
           return e ? (m = n, TS.info("Starting incremental boot"), TS.incremental_boot.startIncrementalBoot().catch(function() {
@@ -2681,7 +2693,7 @@ webpackJsonp([12, 328, 337, 329], {
             }
             TS.ms.logConnectionFlow("login"), TS.model.rtm_start_throttler += 1, TS.info("Setting calling_rtm_start to true"), TS.model.calling_rtm_start = !0;
           }
-          if (!TS.useSocket()) return TS.api.callImmediately("rtm.start", h()).finally(function() {
+          if (!TS.useSocket()) return TS.api.callImmediately("rtm.start", S()).finally(function() {
             TS.model.calling_rtm_start = !1, TS.info("Setting calling_rtm_start to false (after rtm.start from API)");
           });
           var a;
@@ -2829,7 +2841,7 @@ webpackJsonp([12, 328, 337, 329], {
             }
             TS.interop.SocketManager.provisionallyConnectedSig.add(n);
           });
-          return TS.boot_data.ws_refactor_bucket && (TS.has_pri[1996] = !0, TS.metrics.count("sm_flow_exposure")), TS.interop.SocketManager.start(), n;
+          return TS.boot_data.ws_refactor_bucket && (TS.has_pri[1996] = !0, TS.metrics.count("sm_flow_exposure_2")), TS.interop.SocketManager.start(), n;
         },
         B = function() {
           if (TS.isSocketManagerEnabled()) return Promise.reject(new Error("_connectAndFetchStartDataWithoutSocketManager can only be used when TS.isSocketManagerEnabled is false"));
@@ -2837,7 +2849,7 @@ webpackJsonp([12, 328, 337, 329], {
           var e = TS.flannel.getFlannelConnectionUrl(),
             n = TS.ms.connectProvisionallyAndFetchRtmStart(e);
           if (!n) throw new Error("TS.ms.connect did not return an rtm.start promise");
-          return n.then(function(e) {
+          return TS.boot_data.ws_refactor_bucket && TS.metrics.count("ms_flow_exposure_2"), n.then(function(e) {
             return TS.flannel.hydrateStartData(e.rtm_start);
           });
         },
@@ -2882,7 +2894,7 @@ webpackJsonp([12, 328, 337, 329], {
             url: "/img/sm/",
             debugMode: !1
           }), TS.storage.onStart(), W();
-          var n = TS.boot_data.no_login ? Promise.resolve() : S(),
+          var n = TS.boot_data.no_login ? Promise.resolve() : h(),
             a = [q(), n];
           TS.boot_data.page_needs_enterprise && !TS.boot_data.no_login && a.push(TS.enterprise.promiseToEnsureEnterprise()), TS.web && TS.boot_data.page_needs_team_profile_fields && a.push(TS.team.ensureTeamProfileFields()), Promise.all(a).then(function() {
             return n.then(F), null;
@@ -2967,22 +2979,22 @@ webpackJsonp([12, 328, 337, 329], {
               f.push("api args: " + p);
             }
             TS.members.startBatchUpsert(), TS.bots.startBatchUpsert();
-            var h = e.updated_users || e.users || [],
-              S = e.updated_bots || e.bots || [],
+            var S = e.updated_users || e.users || [],
+              h = e.updated_bots || e.bots || [],
               T = TS.storage.fetchMembers(),
               b = {};
             if (!TS._did_incremental_boot || TS._incremental_boot || TS._did_full_boot)
-              for (c = 0; c < h.length; c += 1) b[h[c].id] = !0;
+              for (c = 0; c < S.length; c += 1) b[S[c].id] = !0;
             else;
             var w = TS.boot_data.page_needs_enterprise && TS.boot_data.exclude_org_members;
             for (c = 0; c < T.length; c += 1) u = T[c], w && !TS.members.isLocalTeamMember(u) || b[u.id] || (e.online_users && (u.presence = _.includes(e.online_users, u.id) ? "active" : "away"), _.get(u, "profile.always_active") && (u.presence = "active"), d = TS.members.upsertAndSignal(u), TS.has_pri[ee] && TS.log(ee, "upsert from CACHE: " + u.id + " " + d.status), d.member.id == e.self.id && g(d.member));
-            for (c = 0; c < h.length; c += 1) u = h[c], w && !TS.members.isLocalTeamMember(u) || (TS.lazyLoadMembersAndBots() ? u.presence = _.has(u, "presence") && "active" === u.presence ? "active" : "away" : e.online_users && (u.presence = _.includes(e.online_users, u.id) ? "active" : "away"), _.get(u, "profile.always_active") && (u.presence = "active"), d = TS.members.upsertAndSignal(u), TS.has_pri[ee] && TS.log(ee, "upsert from DATA: " + u.id + " " + d.status), d.member.id == e.self.id && g(d.member));
+            for (c = 0; c < S.length; c += 1) u = S[c], w && !TS.members.isLocalTeamMember(u) || (TS.lazyLoadMembersAndBots() ? u.presence = _.has(u, "presence") && "active" === u.presence ? "active" : "away" : e.online_users && (u.presence = _.includes(e.online_users, u.id) ? "active" : "away"), _.get(u, "profile.always_active") && (u.presence = "active"), d = TS.members.upsertAndSignal(u), TS.has_pri[ee] && TS.log(ee, "upsert from DATA: " + u.id + " " + d.status), d.member.id == e.self.id && g(d.member));
             var v = TS.storage.fetchBots(),
               y = {};
-            for (c = 0; c < S.length; c += 1) y[S[c].id] = !0;
+            for (c = 0; c < h.length; c += 1) y[h[c].id] = !0;
             for (c = 0; c < v.length; c += 1) m = v[c], y[m.id] || (d = TS.bots.upsertAndSignal(m));
-            for (c = 0; c < S.length; c += 1) TS.bots.upsertAndSignal(S[c]);
-            f.push("members from LS:" + T.length + ", from updated_users in rtm.start:" + h.length + " (slackbot will always be here)"), f.push("bots from LS:" + v.length + ", from updated_bots in rtm.start:" + S.length), h.length < TS.model.members.length / 20 && (TS.model.did_we_load_with_user_cache = !0), y = null, b = null, TS.info(f.join("\n")), TS.has_pri[ee] && (TS.dir(ee, T, "users_cache"), TS.dir(ee, v, "bots_cache"));
+            for (c = 0; c < h.length; c += 1) TS.bots.upsertAndSignal(h[c]);
+            f.push("members from LS:" + T.length + ", from updated_users in rtm.start:" + S.length + " (slackbot will always be here)"), f.push("bots from LS:" + v.length + ", from updated_bots in rtm.start:" + h.length), S.length < TS.model.members.length / 20 && (TS.model.did_we_load_with_user_cache = !0), y = null, b = null, TS.info(f.join("\n")), TS.has_pri[ee] && (TS.dir(ee, T, "users_cache"), TS.dir(ee, v, "bots_cache"));
             var k = function(n) {
               if (TS._incremental_boot) return !0;
               if (TS.lazyLoadMembersAndBots()) return !0;
@@ -3476,12 +3488,11 @@ webpackJsonp([12, 328, 337, 329], {
             o = $("#share_cb"),
             t = 0 === o.length || o.is(":checked");
           a && t && (e = a.model_ob.id);
-          var i = $("#select_share_at_channel_blocked_note"),
-            r = $(".modal .btn.dialog_go"),
-            s = TS.ui.needToBlockAtChannelKeyword(n, null, e);
-          s ? (i.html(TS.templates.at_channel_blocked_note({
-            keyword: s
-          })), i.removeClass("hidden"), r.addClass("disabled")) : (i.addClass("hidden"), r.removeClass("disabled"));
+          var i, r = $("#select_share_at_channel_blocked_note"),
+            s = $(".modal .btn.dialog_go");
+          TS.interop.utility.looksLikeMemberId(e) || (i = TS.ui.needToBlockAtChannelKeyword(n, null, e)), i ? (r.html(TS.templates.at_channel_blocked_note({
+            keyword: i
+          })), r.removeClass("hidden"), s.addClass("disabled")) : (r.addClass("hidden"), s.removeClass("disabled"));
         },
         shouldBlockUploadDialogSubmission: function() {
           var e, n = TS.utility.contenteditable.value($("#file_comment_textarea")),
@@ -3489,8 +3500,8 @@ webpackJsonp([12, 328, 337, 329], {
             o = $("#share_cb"),
             t = 0 === o.length || o.is(":checked");
           a && t && (e = a.model_ob.id);
-          var i = TS.ui.needToBlockAtChannelKeyword(n, null, e);
-          return !!i && (TS.info("Can't submit dialog because comment contains " + i), !0);
+          var i;
+          return TS.interop.utility.looksLikeMemberId(e) || (i = TS.ui.needToBlockAtChannelKeyword(n, null, e)), !!i && (TS.info("Can't submit dialog because comment contains " + i), !0);
         },
         fileShowPublicUrlDialog: function(e) {
           if (e && e.public_url_shared) {
@@ -3655,6 +3666,7 @@ webpackJsonp([12, 328, 337, 329], {
           return !!(t || i || r) && (!(!(a = TS.shared.getModelObById(e)) || a.is_im) && (!((i || r) && !TS.permissions.members.canAtChannelOrGroup(a.id)) && (!(a.is_general && t && !TS.permissions.members.canAtMentionEveryone(a.id)) && ("never" !== TS.model.team.prefs.warn_before_at_channel && (("once" !== TS.model.team.prefs.warn_before_at_channel || !s) && ("daily" !== TS.model.team.prefs.warn_before_at_channel || !c))))));
         },
         needToBlockAtChannelKeyword: function(e, n, a) {
+          if (TS.interop.utility.looksLikeMemberId(a)) return !1;
           var o = TS.format.cleanMsg(e),
             t = a && TS.shared.getModelObById(a);
           if (!(t && !t.is_im && !t.is_mpim || n && (n.channels.length || n.groups.length))) return !1;
