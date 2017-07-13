@@ -2170,6 +2170,22 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
       "use strict";
       TS.registerModule("channels.read_only", {
         list_updated_sig: new signals.Signal,
+        onStart: function() {
+          e = {};
+        },
+        updateBackfillingList: function(t) {
+          var n = e[t.id];
+          if (t.backfill_ends) {
+            if (!n) return;
+            "remove_default" !== t.backfill_ends && n.backfill_starts !== t.backfill_ends || delete e[t.id];
+          } else if (t.backfill_starts) {
+            if (n) return;
+            e[t.id] = t;
+          }
+        },
+        isBackfilling: function(t) {
+          return !!TS.boot_data.feature_default_shared_channels && !!e[t];
+        },
         updateLists: function(e, t, n) {
           TS.channels.read_only.updateList(e), TS.channels.read_only.threads.updateNonThreadableList(t), TS.channels.read_only.threads.updateThreadOnlyList(n);
         },
@@ -2202,6 +2218,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return !!t && (!t.is_im && !t.is_mpim && (_.isUndefined(t.is_read_only) ? TS.model.read_only_channels.indexOf(e) > -1 : t.is_read_only));
         }
       });
+      var e;
     }();
   },
   2388: function(e, t) {
@@ -15270,6 +15287,9 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             var t = TS.channels.upsertChannel(e.channel);
             TS.channels.created_sig.dispatch(t);
           }
+        },
+        channel_changed: function(e) {
+          e.channel && TS.channels.read_only.updateBackfillingList(e.channel);
         },
         channel_converted_to_shared: function(e) {
           if (!e.channel || !e.channel.id) return void TS.error("No channel info sent");
