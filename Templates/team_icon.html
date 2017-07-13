@@ -1,9 +1,9 @@
 {{i18n_ns "teams"}}
 
 {{#if team.icon.image_default}}
-  <ts-icon class="team_image icon_{{size}} default" aria-hidden="true">{{initialsSafe team.name}}</ts-icon>
+  <ts-icon class="team_image icon_{{size}} default{{#if with_tooltip}} ts_tip ts_tip_top ts_tip_float{{/if}}" aria-hidden="true"{{#if with_tooltip}} title="{{team.name}}"{{/if}}>{{initialsSafe team.name}}</ts-icon>
 
 {{else}}
-  <ts-icon class="team_image icon_{{size}} {{classes}}" style="background-image: url('{{getTeamIconOfSize team (getIconSizeToFit (math size '*' 2))}}');"></ts-icon>
+  <ts-icon class="team_image icon_{{size}} {{classes}}{{#if with_tooltip}} ts_tip ts_tip_top ts_tip_float{{/if}}" style="background-image: url('{{getTeamIconOfSize team (getIconSizeToFit (math size '*' 2))}}');"{{#if with_tooltip}} title="{{team.name}}"{{/if}}></ts-icon>
 
 {{/if}}

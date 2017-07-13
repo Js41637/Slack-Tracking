@@ -35476,10 +35476,12 @@ webpackJsonp([332], [, function(e, t, n) {
     return l;
   }), n.d(t, "d", function() {
     return u;
-  }), n.d(t, "e", function() {
-    return c;
   }), n.d(t, "f", function() {
+    return c;
+  }), n.d(t, "e", function() {
     return d;
+  }), n.d(t, "g", function() {
+    return p;
   });
   var r = n(6),
     o = n.n(r),
@@ -35499,7 +35501,10 @@ webpackJsonp([332], [, function(e, t, n) {
     c = n.i(i.a)("TS.emoji.graphicReplace", function() {
       return "";
     }),
-    d = n.i(i.a)("TSFEmoji.translateEmojiStringToLocal", o.a.identity);
+    d = n.i(i.a)("TS.emoji.getEmojiMap", function() {
+      return "";
+    }),
+    p = n.i(i.a)("TSFEmoji.translateEmojiStringToLocal", o.a.identity);
 }, function(e, t, n) {
   "use strict";
   n.d(t, "c", function() {
@@ -41127,7 +41132,7 @@ webpackJsonp([332], [, function(e, t, n) {
     u = function(e) {
       var t = e.text,
         r = e.isJumbomoji,
-        i = n.i(a.e)(t);
+        i = n.i(a.f)(t);
       return r && (i = i.replace("emoji-sizer", "emoji-sizer emoji-only")), o.a.createElement("span", {
         dangerouslySetInnerHTML: {
           __html: i
@@ -41145,14 +41150,19 @@ webpackJsonp([332], [, function(e, t, n) {
     o = n(3192),
     i = n(3045),
     a = n(3028),
-    s = function(e) {
+    s = n(2909),
+    l = function(e) {
+      var t = n.i(i.getUserPref)(e, "emoji_mode"),
+        r = n.i(i.getUserPref)(e, "highlight_words"),
+        o = n.i(a.useReactMessages)(e);
       return {
-        emojiMode: n.i(i.getUserPref)(e, "emoji_mode"),
-        highlights: n.i(i.getUserPref)(e, "highlight_words"),
-        featureReactMessages: n.i(a.useReactMessages)(e)
+        emojiMode: t,
+        highlights: r,
+        featureReactMessages: o,
+        emojiMap: o ? null : n.i(s.e)()
       };
     };
-  t.a = n.i(r.b)(s)(o.a);
+  t.a = n.i(r.b)(l)(o.a);
 }, function(e, t, n) {
   "use strict";
 
@@ -55402,7 +55412,7 @@ webpackJsonp([332], [, function(e, t, n) {
         i = e.count,
         a = e.reacted,
         s = ":" + r + ":";
-      l.a.locale() !== l.a.DEFAULT_LOCALE && (s = n.i(c.f)(s, l.a.locale()));
+      l.a.locale() !== l.a.DEFAULT_LOCALE && (s = n.i(c.g)(s, l.a.locale()));
       var u = o.a.createElement("span", {
         className: "c-reaction__tip_subtitle"
       }, p.t("{count, plural, other{reacted with {emoji}}}", {
@@ -60233,7 +60243,7 @@ webpackJsonp([332], [, function(e, t, n) {
     a = 1.75,
     s = 10;
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".c-external_team_badge {\n  display: inline-block;\n  vertical-align: bottom;\n  border-radius: 3px;\n  box-shadow: 0 0 0 2px #fff;\n  background-size: 100%;\n  background-color: #fff;\n  background-repeat: no-repeat;\n}\n.c-external_team_badge:after {\n  content: '';\n  display: block;\n  position: absolute;\n  top: 0;\n  width: 100%;\n  height: 100%;\n  box-shadow: inset 0 0 0 1px rgba(44, 45, 48, 0.08);\n  border-radius: 3px;\n}\n.c-external_team_badge.c-external_team_badge--default {\n  background-color: #717274;\n  font-weight: 800;\n  line-height: 1.6;\n  color: #fff;\n  font-style: normal;\n  letter-spacing: 0;\n  text-align: center;\n  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".c-external_team_badge__container {\n  display: inline-block;\n}\n.c-external_team_badge {\n  display: inline-block;\n  vertical-align: bottom;\n  border-radius: 3px;\n  box-shadow: 0 0 0 2px #fff;\n  background-size: 100%;\n  background-color: #fff;\n  background-repeat: no-repeat;\n}\n.c-external_team_badge:after {\n  content: '';\n  display: block;\n  position: absolute;\n  top: 0;\n  width: 100%;\n  height: 100%;\n  box-shadow: inset 0 0 0 1px rgba(44, 45, 48, 0.08);\n  border-radius: 3px;\n}\n.c-external_team_badge.c-external_team_badge--default {\n  background-color: #717274;\n  font-weight: 800;\n  line-height: 1.6;\n  color: #fff;\n  font-style: normal;\n  letter-spacing: 0;\n  text-align: center;\n  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);\n}\n", ""]);
 }, function(e, t, n) {
   "use strict";
 
@@ -60244,37 +60254,48 @@ webpackJsonp([332], [, function(e, t, n) {
   }
 
   function o(e) {
-    return h.find(function(t) {
+    return m.find(function(t) {
       return 2 * e >= t;
-    }) || n.i(u.last)(h);
+    }) || n.i(u.last)(m);
   }
 
   function i(e) {
     var t = e.badgeSize,
       n = e.iconSize,
       i = e.team,
-      a = {
+      a = e.withTooltip,
+      l = void 0,
+      u = {
         height: t + "px",
         width: t + "px",
         fontSize: t / 1.6 + "px"
       },
-      l = n || o(t),
-      u = d()("c-external_team_badge", {
+      c = n || o(t),
+      h = d()("c-external_team_badge", {
         "c-external_team_badge--default": !i || i.icon.image_default
       });
-    if (i && !i.icon.image_default) {
-      var c = i.icon["image_" + l];
-      c && (a.backgroundImage = "url('" + c + "')");
-    } else if (i && i.icon.image_default) return s.a.createElement(p.a, {
-      className: u,
+    if (i && i.icon.image_default) l = s.a.createElement(p.a, {
+      className: h,
       "aria-hidden": "true",
-      style: a
+      style: u
     }, r(i.name));
-    return s.a.createElement(p.a, {
-      className: u,
-      style: a,
-      "aria-hidden": "true"
-    });
+    else {
+      if (i) {
+        var m = i.icon["image_" + c];
+        m && (u.backgroundImage = "url('" + m + "')");
+      }
+      l = s.a.createElement(p.a, {
+        className: h,
+        style: u,
+        "aria-hidden": "true"
+      });
+    }
+    return a && i ? s.a.createElement(f.a, {
+      tip: i.name,
+      position: "top"
+    }, s.a.createElement("div", {
+      className: "c-external_team_badge__container"
+    }, l)) : l;
   }
   var a = n(2),
     s = n.n(a),
@@ -60283,10 +60304,11 @@ webpackJsonp([332], [, function(e, t, n) {
     c = (n.n(u), n(9)),
     d = n.n(c),
     p = n(2287),
-    f = n(4206),
-    h = (n.n(f), [230, 132, 102, 88, 68, 44, 34]),
-    m = {
-      iconSize: a.PropTypes.oneOf(h),
+    f = n(2902),
+    h = n(4206),
+    m = (n.n(h), [230, 132, 102, 88, 68, 44, 34]),
+    _ = {
+      iconSize: a.PropTypes.oneOf(m),
       badgeSize: a.PropTypes.number.isRequired,
       team: a.PropTypes.shape({
         name: a.PropTypes.string.isRequired,
@@ -60300,13 +60322,15 @@ webpackJsonp([332], [, function(e, t, n) {
           image_132: a.PropTypes.string,
           image_230: a.PropTypes.string
         }).isRequired
-      })
+      }),
+      withTooltip: a.PropTypes.bool
     },
-    _ = {
+    y = {
       team: void 0,
-      iconSize: void 0
+      iconSize: void 0,
+      withTooltip: !1
     };
-  i.propTypes = m, i.defaultProps = _, t.a = n.i(l.a)(i);
+  i.propTypes = _, i.defaultProps = y, t.a = n.i(l.a)(i);
 }, function(e, t, n) {
   "use strict";
   var r = n(4204);

@@ -1267,6 +1267,9 @@ webpackJsonp([12, 328, 337, 329], {
           });
           return n || void TS.warn("no emoji ob found for " + e);
         },
+        getEmojiMap: function() {
+          return TS.model.emoji_map;
+        },
         getEmojiForSpaces: function() {
           var e = {
             emoticonEmojiNames: d.emoticons_data,
@@ -2338,7 +2341,7 @@ webpackJsonp([12, 328, 337, 329], {
         },
         makeYouRegex: function() {
           var e = TS.model.user;
-          e && (TS.model.you_regex = new RegExp("<@(" + e.id + "|" + e.name + ")\\b"));
+          e && (TS.boot_data.feature_name_tagging_client ? TS.model.you_regex = new RegExp("<@(" + e.id + ")\\b") : TS.model.you_regex = new RegExp("<@(" + e.id + "|" + e.name + ")\\b"));
         },
         addProfilingKeyTime: function(e, n) {
           n && e && (TS.model.profiling_key_times || (TS.model.profiling_key_times = []), TS.model.profiling_key_times.push({

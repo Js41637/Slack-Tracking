@@ -72,8 +72,8 @@ webpackJsonp([241], {
         m = [],
         c = [],
         u = TS.i18n.t("name@example.com", "invite")(),
-        f = u,
-        v = "",
+        v = u,
+        f = "",
         h = "",
         g = {
           url_in_message: TS.i18n.t("Sorry, but URLs are not allowed in the custom message. Please remove it and try again!", "invite")(),
@@ -199,7 +199,7 @@ webpackJsonp([241], {
           d = 0, r = 0, c = m.length ? [] : X(), l = [], m = [], N(), o && o(), TS.storage.storeInvitesState(c), TS.client && TS.ui.a11y.restorePreviousFocus();
         },
         b = function() {
-          f = u;
+          v = u;
         },
         y = function() {
           if (!TS.model.team.plan) return w(!1);
@@ -310,7 +310,7 @@ webpackJsonp([241], {
           0 === e.find(".admin_invite_row").length ? t = !1 : e.find(".admin_invite_row").first().find(".delete_row").removeClass("hidden"), e.find("#invite_rows").append(TS.templates.admin_invite_row({
             index: d,
             show_delete_btn: t,
-            placeholder_email_address: f
+            placeholder_email_address: v
           }));
           var a = e.find("#invite_" + d);
           a.find('[data-action="admin_invites_delete_row"]').on("click", function() {
@@ -543,7 +543,7 @@ webpackJsonp([241], {
               return s = '<i class="ts_icon ts_icon_info_circle"></i> ' + TS.i18n.t("Pick a channel before inviting Single-Channel Guests.", "invite")(), void P("alert_warning", s);
             }
             var o = t.error;
-            if (TS.boot_data.page_needs_enterprise && !TS.boot_data.feature_lazy_load_members_and_bots_everywhere) {
+            if (TS.boot_data.feature_name_tagging_client && ("invalid_name_specials" === o && (o = "name_invalid_name_specials"), "invalid_name_maxlength" === o && (o = "name_invalid_name_maxlength")), TS.boot_data.page_needs_enterprise && !TS.boot_data.feature_lazy_load_members_and_bots_everywhere) {
               null !== TS.members.getMemberByEmail(n.email) && "org_user_is_disabled" === o && (o = "org_user_is_disabled_but_present");
             }
             m.push({
@@ -562,12 +562,12 @@ webpackJsonp([241], {
             var e = function() {
               setTimeout(Ladda.stopAll, 0), TS.ui.admin_invites.invites_sent_sig.dispatch();
             };
-            v = de(l), v ? TS.api.call("team.checkEmailDomains", {
-              email_domains: v
+            f = de(l), f ? TS.api.call("team.checkEmailDomains", {
+              email_domains: f
             }).then(function(e) {
-              v = e.data.ok ? e.data.email_domains : "";
+              f = e.data.ok ? e.data.email_domains : "";
             }, function() {
-              v = "";
+              f = "";
             }).finally(e) : e();
           }
         },
@@ -600,7 +600,7 @@ webpackJsonp([241], {
             success_invites: l,
             error_invites: m,
             team_name: TS.model.team.name,
-            domains: v,
+            domains: f,
             paid_team: "" !== TS.model.team.plan,
             is_admin: TS.model.user.is_admin,
             expiration_msg: a
@@ -711,9 +711,10 @@ webpackJsonp([241], {
           return TS.model.user.is_admin && "" !== TS.model.team.plan;
         },
         ue = function(e) {
-          if (!e || !e.error || !g[e.error]) return "";
-          var i = g[e.error];
-          return _.isFunction(i) ? i(e) : i;
+          var i = "";
+          return e && e.error ? TS.boot_data.feature_name_tagging_client && !g[e.error] ? TS.ui.validation.getErrorMessage(e.error, {
+            maxlength: 80
+          }) : g[e.error] ? (i = g[e.error], _.isFunction(i) ? i(e) : i) : "" : "";
         };
     }();
   }

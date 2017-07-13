@@ -44,7 +44,7 @@
         {{#feature flag="feature_shared_channels_client"}}
             {{#unless member.is_unknown}}
             {{#if member.is_external}}
-              {{> team_icon team=(getTeamById member.team_id) size=16}}
+              {{> team_icon team=(getTeamById member.team_id) size=16 with_tooltip=true}}
             {{/if}}
             {{/unless}}
         {{/feature}}

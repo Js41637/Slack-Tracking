@@ -32,7 +32,7 @@
       <label for="display_name_profile_field">{{#t note="For a members profile"}}Display name{{/t}}</label>
       <input type="text" class="no_bottom_margin" name="display_name" value="{{member.profile.display_name}}" placeholder="{{member.profile.real_name}}" id="display_name_profile_field" data-validation data-validation-for="display_name_profile_field_warnings" data-validation-success />
       <label for="display_name_profile_field_warnings"><span class="validation_message"></span></label>
-      <span class="input_note">{{#t note="Helper note for setting a display name"}}This could be your first name, or a nickname \u2014 however you\u2019d like people to refer to you in Slack.{{/t}}</span>
+      <span class="input_note">{{#t note="Helper note for setting a display name"}}This is how your name will show up in Slack. It\u2019s best kept simple: whatever people call you in everyday conversation.{{/t}}</span>
     {{else}}
       <label for="last_name_profile_field">{{#t note="For a members profile"}}Last name{{/t}}</label>
       <input type="text" class="no_bottom_margin" name="last_name" value="{{member.profile.last_name}}" placeholder="{{#t note='For a members profile'}}Last name{{/t}}" data-validation="maxlength=35" data-validation-for="last_name_profile_field" id="last_name_profile_field" />
