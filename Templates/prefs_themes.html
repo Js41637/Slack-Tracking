@@ -2,6 +2,46 @@
 
 <div id="prefs_themes">
 
+{{#feature flag='feature_sidebar_prefs'}}
+  <h2 id="prefs_channel_list" class="inline_block small_bottom_margin">{{#t}}Sidebar Settings{{/t}}</h2>
+  <p class="bold">{{#t}}In the sidebar, show:{{/t}}</p>
+  <p>
+    <label class="radio">
+      <input name="pr_sidebar" type="radio" value="" checked="checked" data-inline-saver="#prefs_channel_list">
+      <span class='normal'>{{#t}}All my channels and DMs{{/t}}</span>
+    </label>
+    <label class="radio">
+      <input name="pr_sidebar" type="radio" value="hide_read_channels" data-inline-saver="#prefs_channel_list">
+      <span class='normal'>{{#t}}Just my unread channels and DMs{{/t}}</span>
+    </label>
+    <label class="radio">
+      <input name="pr_sidebar" type="radio" value="hide_read_channels_unless_starred" data-inline-saver="#prefs_channel_list">
+      <span class='normal'>{{#t}}My unreads, along with everything I've starred{{/t}}</span>
+    </label>
+  </p>
+  <p>
+    <label for="separate_private_channels_cb" class="checkbox no_margin">
+      <input id="separate_private_channels_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_channel_list">
+      <span>{{#t}}List private channels separately{{/t}}</span>
+    </label>
+    {{#if show_separate_shared_channels_pref}}
+      <label for="separate_shared_channels_cb" class="checkbox no_margin">
+        <input id="separate_shared_channels_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_channel_list">
+        <span>{{#t}}List shared channels separately{{/t}}<span class="normal greigh small_left_margin">{{#t}}This doesn't do anything yet.{{/t}}</span></span>
+      </label>
+    {{/if}}
+  </p>
+  <p>
+    <label class="checkbox nor_margin">
+      <input id="enable_unread_view" checked="" type="checkbox" data-inline-saver="#prefs_channel_list">
+      {{#t}}Turn on All Unreads<br />
+      <span class="normal greigh">This collects all the messages you\u2019ve missed in one handy place.</span>{{/t}}
+    </label>
+  </p>
+
+  <hr class="large_top_margin large_bottom_margin">
+{{/feature}}
+
   <h2 id="prefs_sidebar_theme" class="inline_block">{{#t}}Sidebar Theme{{/t}}</h2>
 
   <p>{{#t team_name=(currentTeamName)}}Customize the look of the <strong>{team_name}</strong> team. Only you will see this.{{/t}}</p>
@@ -67,7 +107,7 @@
 
   </label>
 
-  <hr class="clear_both large_top_margin large_bottom_margin">
+  <div class="clear_both bottom_margin"></div>
 
   <h4 id="prefs_sidebar_theme_accessible" class="inline_block bottom_margin">{{#t}}Accessible Themes{{/t}}</h4><br>
 
@@ -91,7 +131,7 @@
     </div>
   </label>
 
-  <hr class="clear_both large_top_margin large_bottom_margin">
+  <div class="clear_both bottom_margin"></div>
 
   <p id="customize_theme_info" class="{{#if show_customization_ui}}hidden{{/if}}">
     {{#t}}Feeling adventurous?<br>

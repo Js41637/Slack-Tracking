@@ -44,6 +44,8 @@
 
 <hr>
 
+{{#feature flag='feature_sidebar_prefs'}}
+{{else}}
 <h2 id="prefs_channel_list" class="inline_block small_bottom_margin">{{#t}}Channel List{{/t}}</h2>
 <p class="bold">{{#t}}In the sidebar, show:{{/t}}</p>
 <p>
@@ -81,6 +83,7 @@
 </p>
 
 <hr>
+{{/feature}}
 
 <h2 id="prefs_other_options" class="inline_block">{{#t}}Other Options{{/t}}</h2>
 <p>

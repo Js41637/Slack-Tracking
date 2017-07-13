@@ -7,11 +7,11 @@
 </div>
 
 {{#if show_more_members_link}}
-  <button id="see_all_members" class="btn btn_small btn_outline small_top_margin {{#if show_channel_invite_link}}small_bottom_margin{{/if}}">
+  <button type="button" id="see_all_members" class="btn btn_small btn_outline small_top_margin {{#if show_channel_invite_link}}small_bottom_margin{{/if}}">
     {{#t}}See all {total_member_count, number} members{{/t}}
   </button>
 {{/if}}
 
 {{#if show_channel_invite_link}}
-  <a class="add_someone small_top_margin block">{{#t}}Invite more people &hellip;{{/t}}</a>
+  <button type="button" class="btn_link add_someone small_top_margin block">{{#t}}Invite more people &hellip;{{/t}}</button>
 {{/if}}

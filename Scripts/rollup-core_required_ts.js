@@ -1728,7 +1728,9 @@ webpackJsonp([12, 328, 337, 329], {
         },
         onLogin: function() {
           var a = Math.floor(Math.random() * n);
-          setInterval(s, e + a), TS.boot_data.feature_electron_memory_logging && TS.model.is_electron && f(), $(window).on("beforeunload", r), TS.utility.enableFeatureForUser(1) && TS.metrics.store("dom_ready", window.performance.timing.loadEventEnd - window.performance.timing.navigationStart);
+          setInterval(s, e + a), TS.boot_data.feature_electron_memory_logging && TS.model.is_electron && f(), $(window).on("beforeunload", r);
+          var t = TS.experiments ? TS.experiments.getGroup("link_preload_test", ["dom_ready"]) : "";
+          (TS.utility.enableFeatureForUser(1) || t) && TS.metrics.store("dom_ready", window.performance.timing.loadEventEnd - window.performance.timing.navigationStart);
         },
         mark: function(e) {
           window.performance && performance.mark && performance.mark(e);
@@ -2824,7 +2826,7 @@ webpackJsonp([12, 328, 337, 329], {
             }
             TS.interop.SocketManager.provisionallyConnectedSig.add(n);
           });
-          return TS.boot_data.ws_refactor_bucket && (TS.has_pri[1996] = !0), TS.interop.SocketManager.start(), n;
+          return TS.boot_data.ws_refactor_bucket && (TS.has_pri[1996] = !0, TS.metrics.count("sm_flow_exposure")), TS.interop.SocketManager.start(), n;
         },
         B = function() {
           if (TS.isSocketManagerEnabled()) return Promise.reject(new Error("_connectAndFetchStartDataWithoutSocketManager can only be used when TS.isSocketManagerEnabled is false"));
