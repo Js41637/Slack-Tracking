@@ -635,23 +635,23 @@
 }
 
 .bordered {
-  border: 1px solid #E8E8E8
+  border: 1px solid #e8e8e8
 }
 
 .border_top {
-  border-top: 1px solid #E8E8E8
+  border-top: 1px solid #e8e8e8
 }
 
 .border_right {
-  border-right: 1px solid #E8E8E8
+  border-right: 1px solid #e8e8e8
 }
 
 .border_bottom {
-  border-bottom: 1px solid #E8E8E8
+  border-bottom: 1px solid #e8e8e8
 }
 
 .border_left {
-  border-left: 1px solid #E8E8E8
+  border-left: 1px solid #e8e8e8
 }
 
 .hidden {
@@ -871,7 +871,7 @@
 }
 
 .sk_black {
-  color: #2C2D30
+  color: #2c2d30
 }
 
 .sk_dark_gray,
@@ -886,30 +886,30 @@
 
 .sk_light_gray,
 .sk_light_grey {
-  color: #A0A0A2
+  color: #a0a0a2
 }
 
 .sk_light_gray_bg,
 .sk_light_grey_bg {
-  background-color: #A0A0A2
+  background-color: #a0a0a2
 }
 
 .sk_soft_gray,
 .sk_soft_grey {
-  color: #E8E8E8
+  color: #e8e8e8
 }
 
 .sk_soft_gray_bg,
 .sk_soft_grey_bg {
-  background-color: #E8E8E8
+  background-color: #e8e8e8
 }
 
 .sk_off_white {
-  color: #F9F9F9
+  color: #f9f9f9
 }
 
 .sk_off_white_bg {
-  background-color: #F9F9F9
+  background-color: #f9f9f9
 }
 
 .sk_cloud_white {
@@ -921,128 +921,128 @@
 }
 
 .sk_white {
-  color: #FFF
+  color: #fff
 }
 
 .sk_white_bg {
-  background-color: #FFF
+  background-color: #fff
 }
 
 .sk_link_blue {
-  color: #007AB8
+  color: #007ab8
 }
 
 .sk_link_blue_bg {
-  background-color: #007AB8
+  background-color: #007ab8
 }
 
 .sk_hover_blue {
-  color: #005E99
+  color: #005e99
 }
 
 .sk_hover_blue_bg {
-  background-color: #005E99
+  background-color: #005e99
 }
 
 .sk_fill_blue {
-  color: #2D9EE0
+  color: #2d9ee0
 }
 
 .sk_fill_blue_bg {
-  background-color: #2D9EE0
+  background-color: #2d9ee0
 }
 
 .sk_accessiblue {
-  color: #1543D9
+  color: #1543d9
 }
 
 .sk_accessiblue_bg {
-  background-color: #1543D9
+  background-color: #1543d9
 }
 
 .sk_pale_blue {
-  color: #F0F7FB
+  color: #f0f7fb
 }
 
 .sk_pale_blue_bg {
-  background-color: #F0F7FB
+  background-color: #f0f7fb
 }
 
 .sk_seafoam_green {
-  color: #29A979
+  color: #29a979
 }
 
 .sk_seafoam_green_bg {
-  background-color: #29A979
+  background-color: #29a979
 }
 
 .sk_candy_red {
-  color: #EB4D5C
+  color: #eb4d5c
 }
 
 .sk_candy_red_bg {
-  background-color: #EB4D5C
+  background-color: #eb4d5c
 }
 
 .sk_code_red {
-  color: #C25
+  color: #c25
 }
 
 .sk_code_red_bg {
-  background-color: #C25
+  background-color: #c25
 }
 
 .sk_colonel_mustard {
-  color: #E0AA34
+  color: #e0aa34
 }
 
 .sk_colonel_mustard_bg {
-  background-color: #E0AA34
+  background-color: #e0aa34
 }
 
 .sk_star_yellow {
-  color: #FC0
+  color: #fc0
 }
 
 .sk_star_yellow_bg {
-  background-color: #FC0
+  background-color: #fc0
 }
 
 .top_border {
-  border-top: 1px solid #E8E8E8
+  border-top: 1px solid #e8e8e8
 }
 
 .right_border {
-  border-right: 1px solid #E8E8E8
+  border-right: 1px solid #e8e8e8
 }
 
 .bottom_border {
-  border-bottom: 1px solid #E8E8E8
+  border-bottom: 1px solid #e8e8e8
 }
 
 .left_border {
-  border-left: 1px solid #E8E8E8
+  border-left: 1px solid #e8e8e8
 }
 
 .sk_clear_blue {
-  color: #3AA3E3
+  color: #3aa3e3
 }
 
 .sk_clear_blue_bg {
-  background-color: #3AA3E3
+  background-color: #3aa3e3
 }
 
 .sk_havana_blue {
-  color: #2A80B9
+  color: #2a80b9
 }
 
 .sk_havana_blue_bg {
-  background-color: #2A80B9
+  background-color: #2a80b9
 }
 
 .sk_subtle_gray_bg,
 .sk_subtle_grey_bg {
-  background-color: #F5F5F5
+  background-color: #f5f5f5
 }
 
 .no_margin {

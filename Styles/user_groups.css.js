@@ -232,7 +232,7 @@
     background-color: #FFFCE0
   }
   to {
-    background-color: #FFF
+    background-color: #fff
   }
 }
 
@@ -241,7 +241,7 @@
     background-color: #FFFCE0
   }
   to {
-    background-color: #FFF
+    background-color: #fff
   }
 }
 
@@ -250,7 +250,7 @@
     background-color: #FFFCE0
   }
   to {
-    background-color: #FFF
+    background-color: #fff
   }
 }
 
@@ -285,7 +285,7 @@ body:not(.unify_user) .user_group_invite_member_small {
 .user_group_invite_member_small .ts_icon_deactivated_user {
   bottom: 13px;
   position: relative;
-  color: #A0A0A2
+  color: #a0a0a2
 }
 
 .lfs_item.active .user_group_invite_member_small .add_icon,
@@ -356,7 +356,7 @@ body:not(.unify_user) .lfs_item.lfs_token .user_group_invite_member_small {
 .lfs_item.lfs_token .user_group_invite_member_small .c-member__current-status--small:before,
 .lfs_item.lfs_token .user_group_invite_member_small .c-member__display-name,
 .lfs_item.lfs_token .user_group_invite_member_small .c-member__secondary-name {
-  color: #FFF
+  color: #fff
 }
 
 .user_groups_img {

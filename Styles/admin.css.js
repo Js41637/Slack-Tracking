@@ -15,7 +15,7 @@
 }
 
 #admin_list [data-admin-csv-download]:disabled {
-  color: #FFF!important
+  color: #fff!important
 }
 
 .admin_action_bar {
@@ -300,7 +300,7 @@
   border-radius: .25rem;
   padding: .25rem .25rem .25rem .5rem;
   margin: .5rem 0 0 -2.75rem;
-  color: #FFF;
+  color: #fff;
   font-size: .9rem;
   text-shadow: 0 1px 1px rgba(0, 0, 0, .2);
   display: none

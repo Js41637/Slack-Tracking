@@ -3344,7 +3344,7 @@ svg.ts_icon_spinner svg {
 .alert {
   padding: .75rem 1rem .75rem 3rem;
   border: 1px solid #E8E8E8;
-  background: #FFF;
+  background: #fff;
   color: #555459;
   border-left-width: 5px;
   margin: 0 auto 1rem;
@@ -3409,7 +3409,7 @@ svg.ts_icon_spinner svg {
   width: 100%;
   padding: .3rem 1rem .4rem;
   background: #2ab27b;
-  color: #FFF;
+  color: #fff;
   font-weight: 700;
   text-align: center;
   font-size: 1rem;
@@ -3426,13 +3426,13 @@ svg.ts_icon_spinner svg {
 .alert_page a,
 .alert_page a:link,
 .alert_page a:visited {
-  color: #FFF;
+  color: #fff;
   font-weight: 900
 }
 
 html.no_touch .alert_page a:active,
 html.no_touch .alert_page a:hover {
-  color: #FFF;
+  color: #fff;
   text-decoration: underline
 }
 
@@ -3721,7 +3721,7 @@ html.no_touch .alert_page a:hover {
 }
 
 .ts_toggle .ts_toggle_button .ts_toggle_handle {
-  background: #FFF;
+  background: #fff;
   display: inline-block;
   width: 23px;
   height: 23px;
@@ -3756,7 +3756,7 @@ html.no_touch .alert_page a:hover {
 
 .ts_toggle.checked .ts_toggle_button {
   background: #2ab27b;
-  color: #FFF;
+  color: #fff;
   padding: .1rem 2rem .1rem 1rem
 }
 
@@ -3787,7 +3787,7 @@ html.no_touch .alert_page a:hover {
 
 .ts_toggle.ts_toggle_orange .ts_toggle_button {
   background: #FF8B00;
-  color: #FFF
+  color: #fff
 }
 
 .ts_toggle.disabled {
@@ -3873,7 +3873,7 @@ html.no_touch .alert_page a:hover {
   transform: translateX(-50%);
   text-align: left;
   opacity: 0;
-  color: #FFF;
+  color: #fff;
   font-size: 13px;
   font-weight: 700;
   font-style: normal;
@@ -4530,7 +4530,7 @@ html.no_touch .alert_page a:hover {
 .supports_custom_scrollbar:not(.slim_scrollbar) .slack_scrollbar::-webkit-scrollbar-track {
   background-clip: padding-box!important;
   border-radius: 3px;
-  color: #FFF
+  color: #fff
 }
 
 .supports_custom_scrollbar:not(.slim_scrollbar) .slack_scrollbar::-webkit-scrollbar-track {
@@ -4545,7 +4545,7 @@ html.no_touch .alert_page a:hover {
 }
 
 .supports_custom_scrollbar:not(.slim_scrollbar) .slack_scrollbar::-webkit-scrollbar-corner {
-  background: #FFF
+  background: #fff
 }
 
 .supports_custom_scrollbar.slim_scrollbar .slack_scrollbar {
@@ -5184,11 +5184,11 @@ html.no_touch .alert_page a:hover {
 }
 
 .neutral_white {
-  color: #FFF!important
+  color: #fff!important
 }
 
 .neutral_white_bg {
-  background-color: #FFF!important
+  background-color: #fff!important
 }
 
 .off_white {
@@ -5754,7 +5754,7 @@ a.mini:hover {
 }
 
 .square_icon {
-  color: #FFF;
+  color: #fff;
   width: 48px;
   height: 48px;
   text-align: center;
@@ -5813,7 +5813,7 @@ table tr:last-child {
   line-height: 2.25rem;
   text-align: center;
   font-weight: 900;
-  color: #FFF;
+  color: #fff;
   font-size: 1rem;
   letter-spacing: -1px;
   text-shadow: 0 1px 1px rgba(0, 0, 0, .2);
@@ -6018,7 +6018,7 @@ html.no_touch .pager .previous>a:hover {
   float: left;
   padding: .25rem .75rem;
   line-height: 20px;
-  background-color: #FFF;
+  background-color: #fff;
   border: 1px solid #E8E8E8;
   border-left-width: 0;
   text-decoration: none!important
@@ -6028,18 +6028,18 @@ html.no_touch .pager .previous>a:hover {
 .pagination ul>.active>span,
 .pagination ul>li>a:focus {
   background-color: #3aa3e3;
-  color: #FFF;
+  color: #fff;
   cursor: default
 }
 
 html.no_touch .pagination ul>li>a:hover {
   background-color: #3aa3e3;
-  color: #FFF
+  color: #fff
 }
 
 html.no_touch .pagination ul>.disabled>a:hover {
   color: #9e9ea6;
-  background: #FFF
+  background: #fff
 }
 
 .pagination ul>.disabled>a,
@@ -6047,7 +6047,7 @@ html.no_touch .pagination ul>.disabled>a:hover {
 .pagination ul>.disabled>span {
   color: #9e9ea6;
   cursor: default;
-  background: #FFF
+  background: #fff
 }
 
 .pagination ul>li:first-child>a,
@@ -6297,7 +6297,7 @@ img.emoji {
 .icon_comment {
   width: 16px;
   height: 16px;
-  color: #FFF;
+  color: #fff;
   text-shadow: 0 0 2px #000;
   display: inline-block
 }
@@ -6434,7 +6434,7 @@ body.plaid {
   line-height: .9rem;
   border-radius: 3px;
   background: #2D9EE0;
-  color: #FFF;
+  color: #fff;
   font-size: .64rem;
   text-shadow: none
 }
@@ -7069,7 +7069,7 @@ nav#site_nav #site_nav_contents {
 }
 
 nav#site_nav #user_menu_contents {
-  color: #FFF;
+  color: #fff;
   font-weight: 700;
   display: block;
   cursor: pointer;
@@ -7112,7 +7112,7 @@ nav#site_nav #user_menu_name {
   max-width: 175px;
   margin-top: -5px;
   margin-bottom: -4px;
-  color: #FFF
+  color: #fff
 }
 
 nav#site_nav .nav_contents {
@@ -7145,7 +7145,7 @@ nav#site_nav ul a:active,
 nav#site_nav ul a:hover,
 nav#site_nav ul a:link,
 nav#site_nav ul a:visited {
-  color: #FFF;
+  color: #fff;
   text-decoration: none;
   padding: .25rem 0;
   display: block;
@@ -7264,7 +7264,7 @@ nav#site_nav #footer_signature {
 }
 
 header {
-  background: #FFF;
+  background: #fff;
   height: 5rem;
   box-shadow: 0 1px 4px rgba(0, 0, 0, .15);
   position: fixed;
@@ -7423,7 +7423,7 @@ header #header_team_nav {
   position: absolute;
   top: 90%;
   right: 9.5rem;
-  background: #FFF;
+  background: #fff;
   list-style: none;
   margin: 0;
   min-width: 260px;
@@ -7513,7 +7513,7 @@ header #header_team_nav.open {
 }
 
 header .deprecate_banner.alert_page {
-  background-color: #2C2D30;
+  background-color: #2c2d30;
   box-shadow: inset 0 1px 4px rgba(0, 0, 0, .15)
 }
 
@@ -7550,7 +7550,7 @@ only screen and (min-resolution:2dppx) {
 }
 
 .card {
-  background-color: #FFF;
+  background-color: #fff;
   border-radius: .25rem;
   box-shadow: 0 1px 0 rgba(0, 0, 0, .25);
   padding: 2rem 2rem 1rem;
@@ -7631,7 +7631,7 @@ only screen and (min-resolution:2dppx) {
 }
 
 .plastic_row .icon {
-  color: #FFF;
+  color: #fff;
   width: 48px;
   height: 48px;
   font-size: 30px;
@@ -7752,8 +7752,8 @@ html.no_touch .plastic_row:hover .chevron {
 .tab_set a.secondary.selected,
 .tab_set a.selected {
   border: 1px solid #E8E8E8;
-  background: #FFF;
-  border-bottom-color: #FFF;
+  background: #fff;
+  border-bottom-color: #fff;
   color: #555459;
   cursor: default
 }
@@ -7781,7 +7781,7 @@ html.no_touch .plastic_row:hover .chevron {
 
 .tab_pane {
   display: none;
-  background: #FFF;
+  background: #fff;
   border-radius: 0 0 .25rem .25rem;
   box-shadow: 0 1px 0 rgba(0, 0, 0, .25);
   padding: 2rem 2rem 1rem;
@@ -7798,7 +7798,7 @@ html.no_touch .plastic_row:hover .chevron {
 }
 
 .tab_actions {
-  background: #FFF;
+  background: #fff;
   height: 4.5rem;
   padding: 1rem;
   border: 1px solid #E8E8E8;
@@ -8023,7 +8023,7 @@ screen and (max-width:640px) {
     display: block;
     position: absolute;
     width: 100%;
-    background: #FFF;
+    background: #fff;
     border: 1px solid #E8E8E8;
     padding: 12px 3rem 11px 1rem;
     cursor: pointer;
@@ -12454,7 +12454,7 @@ a.plastic_typeahead_item:hover {
 }
 
 .channels_list_holder ul li.active .slackbot_icon {
-  color: #FFF
+  color: #fff
 }
 
 .ts_icon_guest_large:before {
@@ -12509,7 +12509,7 @@ h3 .presence {
 }
 
 #channels_scroller.show_which_channel_is_active li.member.active .presence {
-  color: #FFF
+  color: #fff
 }
 
 #channels_scroller.show_which_channel_is_active li.member.active .presence.away {
@@ -12620,7 +12620,7 @@ body:not(.unify_user) .team_list_item .member_image {
 }
 
 #disabled_members_tab a:hover {
-  background: #FFF;
+  background: #fff;
   color: #005E99
 }
 
@@ -12823,7 +12823,7 @@ body:not(.unify_user) #member_preview_scroller .team_list_item:hover {
 
 .unify_user #client-ui #team_list .team_list_item:hover,
 .unify_user #member_preview_scroller .team_list_item:hover {
-  background: #F9F9F9
+  background: #f9f9f9
 }
 
 #client-ui #team_list .team_list_item .disclosure_arrow,
@@ -13289,7 +13289,7 @@ body:not(.unify_user) #member_preview_scroller .member_details {
 #member_preview_scroller,
 #member_preview_web_container,
 .menu_member_header {
-  background-color: #FFF
+  background-color: #fff
 }
 
 #member_preview_scroller .member_data_table td,
@@ -13591,7 +13591,7 @@ body:not(.unify_user) #member_preview_scroller .member_details {
   width: 100%;
   border-radius: .2rem .2rem 0 0;
   background-color: rgba(44, 45, 48, .8);
-  color: #FFF;
+  color: #fff;
   padding: 10px 14px;
   font-size: 13px
 }
@@ -13614,7 +13614,7 @@ body:not(.unify_user) #member_preview_scroller .member_details {
 }
 
 .menu_member_header .member_details .member_name_and_presence {
-  color: #FFF;
+  color: #fff;
   font-size: 1.125rem;
   line-height: 1.5625rem;
   font-weight: 900;
@@ -13623,16 +13623,16 @@ body:not(.unify_user) #member_preview_scroller .member_details {
 }
 
 .menu_member_header .member_details .member_name_and_presence .member_name {
-  color: #FFF;
+  color: #fff;
   text-decoration: none
 }
 
 .menu_member_header .member_details .member_name_and_presence .presence.away {
-  color: #FFF
+  color: #fff
 }
 
 .menu_member_header .member_details .member_title {
-  color: #FFF;
+  color: #fff;
   font-size: .9375rem;
   line-height: 1.375rem;
   margin: 0
@@ -13867,7 +13867,7 @@ body:not(.unify_user) #member_preview_scroller .member_details {
   padding: 10px 32px 10px 14px;
   border-radius: .2rem .2rem 0 0;
   background-color: #2C2D30;
-  color: #FFF;
+  color: #fff;
   font-size: 13px;
   line-height: 1.23
 }
@@ -13912,7 +13912,7 @@ body:not(.unify_user) #member_preview_scroller .member_details {
 }
 
 #file_member_filter {
-  background: #FFF
+  background: #fff
 }
 
 #file_member_filter_no_matches {
@@ -14000,7 +14000,7 @@ body:not(.unify_user) #member_preview_scroller .member_details {
 }
 
 #client-ui .member_file_filter_menu .searchable_member_list_scroller .team_list_item:hover .member {
-  color: #FFF;
+  color: #fff;
   text-decoration: none
 }
 
@@ -14081,7 +14081,7 @@ body:not(.unify_user) #client-ui .searchable_member_list .team_list_item:hover {
 }
 
 .unify_user #client-ui .searchable_member_list .team_list_item:hover {
-  background: #F9F9F9
+  background: #f9f9f9
 }
 
 #client-ui .searchable_member_list .searchable_member_list_scroller {
@@ -14236,7 +14236,7 @@ body:not(.unify_user) .mpdm_badge .member_image {
 
 .dm_badge .dm_badge_meta .member_team_name,
 .mpdm_badge .dm_badge_meta .member_team_name {
-  color: #A0A0A2
+  color: #a0a0a2
 }
 
 body:not(.unify_user) .dm_badge a.app_preview_link,
@@ -14461,9 +14461,9 @@ body:not(.unify_user) .mpdm_badge a {
   bottom: -2px;
   right: -2px;
   border-radius: 3px;
-  box-shadow: 0 0 0 2px #FFF;
+  box-shadow: 0 0 0 2px #fff;
   background-size: 100%;
-  background-color: #FFF;
+  background-color: #fff;
   background-repeat: no-repeat
 }
 
@@ -14483,7 +14483,7 @@ body:not(.unify_user) .mpdm_badge a {
   font-weight: 800;
   font-size: 10px;
   line-height: 1.6;
-  color: #FFF;
+  color: #fff;
   font-style: normal;
   letter-spacing: 0;
   text-align: center;
@@ -14500,7 +14500,7 @@ body:not(.unify_user) .mpdm_badge a {
   width: 22px;
   height: 22px;
   border-radius: 4px;
-  box-shadow: 0 0 0 3px #FFF
+  box-shadow: 0 0 0 3px #fff
 }
 
 .external_team_badge.team_badge_22.default {
@@ -15127,7 +15127,7 @@ html:not(.supports_flexbox) .channel_modal_with_list .channel_modal_list {
 .supports_custom_scrollbar:not(.slim_scrollbar) .channel_modal_with_list .channel_modal_list::-webkit-scrollbar-track {
   background-clip: padding-box!important;
   border-radius: 3px;
-  color: #FFF
+  color: #fff
 }
 
 .supports_custom_scrollbar:not(.slim_scrollbar) .channel_modal_with_list .channel_modal_list::-webkit-scrollbar-track {
@@ -15142,7 +15142,7 @@ html:not(.supports_flexbox) .channel_modal_with_list .channel_modal_list {
 }
 
 .supports_custom_scrollbar:not(.slim_scrollbar) .channel_modal_with_list .channel_modal_list::-webkit-scrollbar-corner {
-  background: #FFF
+  background: #fff
 }
 
 .supports_custom_scrollbar.slim_scrollbar .channel_modal_with_list .channel_modal_list {
@@ -15297,7 +15297,7 @@ html:not(.supports_flexbox) .channel_modal_with_list .channel_modal_list {
   width: 100%;
   padding-left: 1rem;
   font-weight: 700;
-  background: #FFF
+  background: #fff
 }
 
 #channel_browser #channel_browser_sort {
@@ -15415,7 +15415,7 @@ body:not(.unify_user) #im_browser .im_browser_row .member_image {
 
 #im_browser .im_browser_row.multiparty {
   padding-left: 62px;
-  color: #2C2D30
+  color: #2c2d30
 }
 
 body:not(.unify_user) #im_browser .im_browser_row.multiparty {
@@ -15444,7 +15444,7 @@ body:not(.unify_user) #im_browser .im_browser_row.multiparty .im_display_name_co
 
 #im_browser .im_browser_row.multiparty .member_image+.member_image:not(.ra):not(.ura) {
   border-radius: 5px;
-  border: 2px solid #FFF
+  border: 2px solid #fff
 }
 
 #im_browser .im_browser_row .im_display_name_container {
@@ -15479,7 +15479,7 @@ body:not(.unify_user) #im_browser .im_browser_row.multiparty .im_display_name_co
 }
 
 #im_browser .im_browser_row .im_unread_cnt {
-  color: #FFF;
+  color: #fff;
   background: #FF876D;
   border-radius: 9px;
   font-size: .9rem;
@@ -15760,7 +15760,7 @@ html:not(.supports_flexbox) #channel_invite_tokens {
 #im_browser_tokens .member_token {
   position: relative;
   background: #2D9EE0;
-  color: #FFF;
+  color: #fff;
   border-radius: .2rem;
   font-weight: 700;
   font-size: 15px;
@@ -15852,7 +15852,7 @@ body:not(.unify_user) .channel_invite_pending_user_small .member_image {
   background-color: #2D9EE0;
   padding-top: 12px;
   padding-left: 8px;
-  color: #FFF;
+  color: #fff;
   border-radius: 3px
 }
 
@@ -16234,7 +16234,7 @@ body:not(.unify_user) #channel_invite_container.page_needs_enterprise .channel_i
 .supports_custom_scrollbar:not(.slim_scrollbar) #generic_dialog.modal.all_members_dialog #all_members_container::-webkit-scrollbar-track {
   background-clip: padding-box!important;
   border-radius: 3px;
-  color: #FFF
+  color: #fff
 }
 
 .supports_custom_scrollbar:not(.slim_scrollbar) #generic_dialog.modal.all_members_dialog #all_members_container::-webkit-scrollbar-track {
@@ -16249,7 +16249,7 @@ body:not(.unify_user) #channel_invite_container.page_needs_enterprise .channel_i
 }
 
 .supports_custom_scrollbar:not(.slim_scrollbar) #generic_dialog.modal.all_members_dialog #all_members_container::-webkit-scrollbar-corner {
-  background: #FFF
+  background: #fff
 }
 
 .supports_custom_scrollbar.slim_scrollbar #generic_dialog.modal.all_members_dialog #all_members_container {
@@ -16402,7 +16402,7 @@ body:not(.unify_user) .lazy_filter_select .lfs_input_container.empty .lfs_input 
   margin-bottom: 3px;
   border: 1px solid #D8D8D8;
   border-radius: 4px;
-  background: #FFF;
+  background: #fff;
   box-shadow: 0 0 3px rgba(0, 0, 0, .1);
   padding: 4px 3px 4px 4px
 }
@@ -16435,8 +16435,8 @@ body:not(.unify_user) .lazy_filter_select .lfs_input_container.empty .lfs_input 
 .supports_custom_scrollbar:not(.slim_scrollbar) .lazy_filter_select .lfs_list_container .lfs_list::-webkit-scrollbar-thumb,
 .supports_custom_scrollbar:not(.slim_scrollbar) .lazy_filter_select .lfs_list_container .lfs_list::-webkit-scrollbar-track {
   background-clip: padding-box!important;
-  color: #FFF;
-  border-left: 4px solid #FFF;
+  color: #fff;
+  border-left: 4px solid #fff;
   border-radius: 8px 4px 4px 8px/4px
 }
 
@@ -16452,7 +16452,7 @@ body:not(.unify_user) .lazy_filter_select .lfs_input_container.empty .lfs_input 
 }
 
 .supports_custom_scrollbar:not(.slim_scrollbar) .lazy_filter_select .lfs_list_container .lfs_list::-webkit-scrollbar-corner {
-  background: #FFF
+  background: #fff
 }
 
 .supports_custom_scrollbar.slim_scrollbar .lazy_filter_select .lfs_list_container .lfs_list {
@@ -16596,7 +16596,7 @@ body:not(.unify_user) .lazy_filter_select .lfs_input_container.empty .lfs_input 
   border: 1px solid #439fe0;
   border-radius: 3px;
   background: #439fe0;
-  color: #FFF;
+  color: #fff;
   cursor: pointer;
   font-size: .85rem;
   font-weight: 700;
@@ -16608,7 +16608,7 @@ body:not(.unify_user) .lazy_filter_select .lfs_input_container.empty .lfs_input 
   content: '\00D7';
   font-weight: 400;
   line-height: 0;
-  color: #FFF;
+  color: #fff;
   display: inline-block;
   margin-left: 8px;
   font-size: 1.3rem;
@@ -16758,7 +16758,7 @@ body:not(.unify_user) .lazy_filter_select .lfs_value .ts_icon_shared_channels {
   font-weight: 800;
   font-size: 18px;
   line-height: 1.9;
-  color: #FFF;
+  color: #fff;
   font-style: normal;
   letter-spacing: 0;
   text-align: center;
@@ -16797,7 +16797,7 @@ body:not(.unify_user) .lazy_filter_select .lfs_value .ts_icon_shared_channels {
 
 .unify_user #select_share_channels .lazy_filter_select .lfs_value .lfs_item.selected {
   height: 25px;
-  color: #2C2D30;
+  color: #2c2d30;
   font-weight: 700
 }
 
@@ -16812,7 +16812,7 @@ body:not(.unify_user) .lazy_filter_select .lfs_value .ts_icon_shared_channels {
 }
 
 .unify_user #select_share_channels .lazy_filter_select .lfs_item {
-  color: #2C2D30;
+  color: #2c2d30;
   font-weight: 700;
   font-size: 15px;
   padding: 0;
@@ -17415,7 +17415,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 }
 
 .c-member__display-name {
-  color: #2C2D30;
+  color: #2c2d30;
   font-weight: 700
 }
 
@@ -17482,9 +17482,9 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   bottom: -2px;
   right: -2px;
   border-radius: 3px;
-  box-shadow: 0 0 0 2px #FFF;
+  box-shadow: 0 0 0 2px #fff;
   background-size: 100%;
-  background-color: #FFF;
+  background-color: #fff;
   background-repeat: no-repeat
 }
 
@@ -17498,7 +17498,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   font-weight: 800;
   font-size: 10px;
   line-height: 1.6;
-  color: #FFF;
+  color: #fff;
   font-style: normal;
   letter-spacing: 0;
   text-align: center;
@@ -17585,7 +17585,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   line-height: 1.6;
   flex: 0 0 16px;
   order: 3;
-  border: 1px solid #FFF;
+  border: 1px solid #fff;
   border-radius: 3px;
   background-size: 100%;
   background-repeat: no-repeat;
@@ -17598,7 +17598,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   font-weight: 800;
   line-height: 1.6;
   font-size: 9.5px;
-  color: #FFF;
+  color: #fff;
   font-style: normal;
   letter-spacing: 0;
   text-align: center;
@@ -17642,12 +17642,12 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 .c-member--dark .c-member__current-status:before,
 .c-member--dark .c-member__name,
 .c-member--dark .c-member__secondary-name {
-  color: #A0A0A2
+  color: #a0a0a2
 }
 
 .c-member--dark .c-member__display-name,
 .c-member--dark .presence {
-  color: #FFF
+  color: #fff
 }
 
 .c-member--dark .team_image {
@@ -17683,7 +17683,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 }
 
 .c-member__secondary-name--medium {
-  color: #2C2D30
+  color: #2c2d30
 }
 
 .c-member--medium .presence {
@@ -17740,7 +17740,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 
 .c-member__display-name--large,
 .c-member__title--large {
-  color: #2C2D30
+  color: #2c2d30
 }
 
 .c-member__other-names--large {
