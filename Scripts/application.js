@@ -36977,43 +36977,46 @@ webpackJsonp([332], [, function(e, t, n) {
             o = [],
             i = [],
             a = this.getLastVisibleReadTs(),
-            s = void 0;
+            s = void 0,
+            u = void 0;
           if (this.props.reachedStart && (i.push("foreword." + this.props.channelId), o.push({
               type: "foreword"
             })), this.props.isLoading)
-            for (var u = 0; u < 42; u++) i.push("loading" + u), o.push({
+            for (var p = 0; p < 42; p++) i.push("loading" + p), o.push({
               type: "loading"
             });
           l.a.forEach(r, function(e) {
             var n = parseInt(e, 10),
               r = t[e],
-              u = r[0] === a && r[0] !== l.a.last(r) || l.a.last(s) === a;
-            o.push({
+              c = l.a.last(s) === a;
+            c && (u = e), o.push({
               type: "day",
               day: n,
-              showDayDividerAsUnread: u
+              showDayDividerAsUnread: c
             }), i.push(e);
-            var c = void 0;
+            var d = void 0;
             l.a.forEach(r, function(e, t) {
-              o.push({
-                type: "message",
-                ts: e,
-                previousMessageTs: c
-              }), i.push(e), c = e, t > 0 && t !== r.length - 1 && e === a && (i.push(e + ".unread"), o.push({
-                type: "unread"
-              }));
+              if (o.push({
+                  type: "message",
+                  ts: e,
+                  previousMessageTs: d
+                }), i.push(e), d = e, t !== r.length - 1 && e === a) {
+                var n = e + ".unread";
+                i.push(n), o.push({
+                  type: "unread"
+                }), u = n;
+              }
             }), s = r;
           }), this.rows = o;
-          var p = {};
+          var f = {};
           i.forEach(function(e, t) {
-            p[e] = t;
+            f[e] = t;
           });
-          var f = this.props.startTs,
-            m = {
-              didRequestToStopEditing: this.props.didRequestToStopEditing,
-              editStatus: this.props.editStatus,
-              editTs: this.props.editTs
-            };
+          var m = {
+            didRequestToStopEditing: this.props.didRequestToStopEditing,
+            editStatus: this.props.editStatus,
+            editTs: this.props.editTs
+          };
           return c.a.createElement(d.a, {
             key: this.props.channelId
           }, function(t) {
@@ -37023,9 +37026,9 @@ webpackJsonp([332], [, function(e, t, n) {
               ref: e.setListRef,
               className: "c-message_list",
               keys: i,
-              keyRow: p,
+              keyRow: f,
               rowRenderer: e.renderRow,
-              anchor: f,
+              anchor: u,
               getHeight: e.getRowHeight,
               setHeight: e.setRowHeight,
               getHeightValidity: e.getHeightValidity,

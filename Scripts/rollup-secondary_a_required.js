@@ -11441,7 +11441,11 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               _.find(t, {
                 id: e
               }) || (n.is_non_existent = !0, v(n));
-            });
+            }), t && i.length !== _.map(t, "id").length && TS.console.logError({
+              member_ids_requested: i,
+              member_ids_returned: _.map(t, "id"),
+              is_enterprise: "enterprise" === TS.model.team.plan
+            }, "member_non_existent", "unknown_member_error", !1);
             return TS.client && TS.client.ui && TS.client.ui.rebuildAll(!1, !0), e();
           }).catch(function(e) {
             throw e.unknown_member_ids = f, e.unknown_member_ids_getting_fetched = i, TS.console.logError(e, "unknown_fetch_error", "unknown_member_error", !0), e;
