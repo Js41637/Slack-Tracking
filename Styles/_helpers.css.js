@@ -1,3 +1,47 @@
+.t-form_type_default {
+  font-family: Slack-Lato, appleLogo, sans-serif;
+  font-size: 15px;
+  line-height: 1.86666667
+}
+
+.t-form_type_label {
+  font-family: Slack-Lato, appleLogo, sans-serif;
+  font-size: 15px;
+  line-height: 1.86666667;
+  font-weight: 700
+}
+
+.t-form_type_placeholder {
+  color: #a0a0a2
+}
+
+.t-form_element_sizing {
+  margin: 0 0 12px;
+  padding: 8px 12px
+}
+
+.t-form_label {
+  display: block;
+  margin: 0;
+  font-family: Slack-Lato, appleLogo, sans-serif;
+  font-size: 15px;
+  line-height: 1.86666667;
+  font-weight: 700
+}
+
+.t-form_border {
+  border-radius: 4px;
+  border: 1px solid #a0a0a2
+}
+
+.t-form_cursor {
+  cursor: pointer
+}
+
+.t-form_cursor[disabled] {
+  cursor: default
+}
+
 .normal {
   font-weight: 400
 }

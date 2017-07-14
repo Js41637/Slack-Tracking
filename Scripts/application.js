@@ -148,34 +148,34 @@ webpackJsonp([332], [, function(e, t, n) {
         }, n);
       }
 
-      function S(e, n) {
+      function x(e, n) {
         null != t.deprecationHandler && t.deprecationHandler(e, n), wr[e] || (M(n), wr[e] = !0);
       }
 
-      function x(e) {
+      function S(e) {
         return e instanceof Function || "[object Function]" === Object.prototype.toString.call(e);
       }
 
       function E(e) {
         var t, n;
-        for (n in e) t = e[n], x(t) ? this[n] = t : this["_" + n] = t;
+        for (n in e) t = e[n], S(t) ? this[n] = t : this["_" + n] = t;
         this._config = e, this._ordinalParseLenient = new RegExp(this._ordinalParse.source + "|" + /\d{1,2}/.source);
       }
 
-      function P(e, t) {
+      function L(e, t) {
         var n, r = c({}, e);
         for (n in t) u(t, n) && (o(e[n]) && o(t[n]) ? (r[n] = {}, c(r[n], e[n]), c(r[n], t[n])) : null != t[n] ? r[n] = t[n] : delete r[n]);
         for (n in e) u(e, n) && !u(t, n) && o(e[n]) && (r[n] = c({}, r[n]));
         return r;
       }
 
-      function L(e) {
+      function P(e) {
         null != e && this.set(e);
       }
 
       function C(e, t, n) {
         var r = this._calendar[e] || this._calendar.sameElse;
-        return x(r) ? r.call(t, n) : r;
+        return S(r) ? r.call(t, n) : r;
       }
 
       function O(e) {
@@ -196,21 +196,21 @@ webpackJsonp([332], [, function(e, t, n) {
 
       function I(e, t, n, r) {
         var o = this._relativeTime[n];
-        return x(o) ? o(e, t, n, r) : o.replace(/%d/i, e);
+        return S(o) ? o(e, t, n, r) : o.replace(/%d/i, e);
       }
 
       function Y(e, t) {
         var n = this._relativeTime[e > 0 ? "future" : "past"];
-        return x(n) ? n(t) : n.replace(/%s/i, t);
+        return S(n) ? n(t) : n.replace(/%s/i, t);
       }
 
       function R(e, t) {
         var n = e.toLowerCase();
-        Lr[n] = Lr[n + "s"] = Lr[t] = e;
+        Pr[n] = Pr[n + "s"] = Pr[t] = e;
       }
 
       function A(e) {
-        return "string" == typeof e ? Lr[e] || Lr[e.toLowerCase()] : void 0;
+        return "string" == typeof e ? Pr[e] || Pr[e.toLowerCase()] : void 0;
       }
 
       function N(e) {
@@ -249,14 +249,14 @@ webpackJsonp([332], [, function(e, t, n) {
       }
 
       function W(e) {
-        return e = A(e), x(this[e]) ? this[e]() : this;
+        return e = A(e), S(this[e]) ? this[e]() : this;
       }
 
       function B(e, t) {
         if ("object" == typeof e) {
           e = N(e);
           for (var n = z(e), r = 0; r < n.length; r++) this[n[r].unit](e[n[r].unit]);
-        } else if (e = A(e), x(this[e])) return this[e](t);
+        } else if (e = A(e), S(this[e])) return this[e](t);
         return this;
       }
 
@@ -305,7 +305,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }
 
       function Q(e, t, n) {
-        Qr[e] = x(t) ? t : function(e, r) {
+        Qr[e] = S(t) ? t : function(e, r) {
           return e && n ? n : t;
         };
       }
@@ -460,11 +460,11 @@ webpackJsonp([332], [, function(e, t, n) {
         return (_e(e) - r + o) / 7;
       }
 
-      function Se(e) {
+      function xe(e) {
         return Me(e, this._week.dow, this._week.doy).week;
       }
 
-      function xe() {
+      function Se() {
         return this._week.dow;
       }
 
@@ -472,12 +472,12 @@ webpackJsonp([332], [, function(e, t, n) {
         return this._week.doy;
       }
 
-      function Pe(e) {
+      function Le(e) {
         var t = this.localeData().week(this);
         return null == e ? t : this.add(7 * (e - t), "d");
       }
 
-      function Le(e) {
+      function Pe(e) {
         var t = Me(this, 1, 4).week;
         return null == e ? t : this.add(7 * (e - t), "d");
       }
@@ -610,10 +610,10 @@ webpackJsonp([332], [, function(e, t, n) {
 
       function Qe(t) {
         var r = null;
-        if (!Po[t] && void 0 !== e && e && e.exports) try {
+        if (!Lo[t] && void 0 !== e && e && e.exports) try {
           r = To._abbr, n(976)("./" + t), Xe(r);
         } catch (e) {}
-        return Po[t];
+        return Lo[t];
       }
 
       function Xe(e, t) {
@@ -624,27 +624,27 @@ webpackJsonp([332], [, function(e, t, n) {
       function et(e, t) {
         if (null !== t) {
           var n = Eo;
-          if (t.abbr = e, null != Po[e]) S("defineLocaleOverride", "use moment.updateLocale(localeName, config) to change an existing locale. moment.defineLocale(localeName, config) should only be used for creating a new locale See http://momentjs.com/guides/#/warnings/define-locale/ for more info."), n = Po[e]._config;
+          if (t.abbr = e, null != Lo[e]) x("defineLocaleOverride", "use moment.updateLocale(localeName, config) to change an existing locale. moment.defineLocale(localeName, config) should only be used for creating a new locale See http://momentjs.com/guides/#/warnings/define-locale/ for more info."), n = Lo[e]._config;
           else if (null != t.parentLocale) {
-            if (null == Po[t.parentLocale]) return Lo[t.parentLocale] || (Lo[t.parentLocale] = []), Lo[t.parentLocale].push({
+            if (null == Lo[t.parentLocale]) return Po[t.parentLocale] || (Po[t.parentLocale] = []), Po[t.parentLocale].push({
               name: e,
               config: t
             }), null;
-            n = Po[t.parentLocale]._config;
+            n = Lo[t.parentLocale]._config;
           }
-          return Po[e] = new L(P(n, t)), Lo[e] && Lo[e].forEach(function(e) {
+          return Lo[e] = new P(L(n, t)), Po[e] && Po[e].forEach(function(e) {
             et(e.name, e.config);
-          }), Xe(e), Po[e];
+          }), Xe(e), Lo[e];
         }
-        return delete Po[e], null;
+        return delete Lo[e], null;
       }
 
       function tt(e, t) {
         if (null != t) {
           var n, r = Eo;
-          null != Po[e] && (r = Po[e]._config), t = P(r, t), n = new L(t), n.parentLocale = Po[e], Po[e] = n, Xe(e);
-        } else null != Po[e] && (null != Po[e].parentLocale ? Po[e] = Po[e].parentLocale : null != Po[e] && delete Po[e]);
-        return Po[e];
+          null != Lo[e] && (r = Lo[e]._config), t = L(r, t), n = new P(t), n.parentLocale = Lo[e], Lo[e] = n, Xe(e);
+        } else null != Lo[e] && (null != Lo[e].parentLocale ? Lo[e] = Lo[e].parentLocale : null != Lo[e] && delete Lo[e]);
+        return Lo[e];
       }
 
       function nt(e) {
@@ -658,7 +658,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }
 
       function rt() {
-        return Tr(Po);
+        return Tr(Lo);
       }
 
       function ot(e) {
@@ -821,11 +821,11 @@ webpackJsonp([332], [, function(e, t, n) {
         return e instanceof Mt;
       }
 
-      function St(e) {
+      function xt(e) {
         return e < 0 ? -1 * Math.round(-1 * e) : Math.round(e);
       }
 
-      function xt(e, t) {
+      function St(e, t) {
         G(e, 0, 0, function() {
           var e = this.utcOffset(),
             n = "+";
@@ -842,12 +842,12 @@ webpackJsonp([332], [, function(e, t, n) {
         return 0 === i ? 0 : "+" === o[0] ? i : -i;
       }
 
-      function Pt(e, n) {
+      function Lt(e, n) {
         var r, o;
         return n._isUTC ? (r = n.clone(), o = (v(e) || s(e) ? e.valueOf() : vt(e).valueOf()) - r.valueOf(), r._d.setTime(r._d.valueOf() + o), t.updateOffset(r, !1), r) : vt(e).local();
       }
 
-      function Lt(e) {
+      function Pt(e) {
         return 15 * -Math.round(e._d.getTimezoneOffset() / 15);
       }
 
@@ -858,9 +858,9 @@ webpackJsonp([332], [, function(e, t, n) {
           if ("string" == typeof e) {
             if (null === (e = Et(Jr, e))) return this;
           } else Math.abs(e) < 16 && (e *= 60);
-          return !this._isUTC && n && (r = Lt(this)), this._offset = e, this._isUTC = !0, null != r && this.add(r, "m"), o !== e && (!n || this._changeInProgress ? Vt(this, Ft(e - o, "m"), 1, !1) : this._changeInProgress || (this._changeInProgress = !0, t.updateOffset(this, !0), this._changeInProgress = null)), this;
+          return !this._isUTC && n && (r = Pt(this)), this._offset = e, this._isUTC = !0, null != r && this.add(r, "m"), o !== e && (!n || this._changeInProgress ? Vt(this, Ft(e - o, "m"), 1, !1) : this._changeInProgress || (this._changeInProgress = !0, t.updateOffset(this, !0), this._changeInProgress = null)), this;
         }
-        return this._isUTC ? o : Lt(this);
+        return this._isUTC ? o : Pt(this);
       }
 
       function Ot(e, t) {
@@ -872,7 +872,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }
 
       function Dt(e) {
-        return this._isUTC && (this.utcOffset(0, e), this._isUTC = !1, e && this.subtract(Lt(this), "m")), this;
+        return this._isUTC && (this.utcOffset(0, e), this._isUTC = !1, e && this.subtract(Pt(this), "m")), this;
       }
 
       function It() {
@@ -927,7 +927,7 @@ webpackJsonp([332], [, function(e, t, n) {
           h: w(s[ro]) * n,
           m: w(s[oo]) * n,
           s: w(s[io]) * n,
-          ms: w(St(1e3 * s[ao])) * n
+          ms: w(xt(1e3 * s[ao])) * n
         }) : (s = Fo.exec(e)) ? (n = "-" === s[1] ? -1 : 1, i = {
           y: qt(s[2], n),
           M: qt(s[3], n),
@@ -954,7 +954,7 @@ webpackJsonp([332], [, function(e, t, n) {
 
       function Wt(e, t) {
         var n;
-        return e.isValid() && t.isValid() ? (t = Pt(t, e), e.isBefore(t) ? n = Ut(e, t) : (n = Ut(t, e), n.milliseconds = -n.milliseconds, n.months = -n.months), n) : {
+        return e.isValid() && t.isValid() ? (t = Lt(t, e), e.isBefore(t) ? n = Ut(e, t) : (n = Ut(t, e), n.milliseconds = -n.milliseconds, n.months = -n.months), n) : {
           milliseconds: 0,
           months: 0
         };
@@ -963,14 +963,14 @@ webpackJsonp([332], [, function(e, t, n) {
       function Bt(e, t) {
         return function(n, r) {
           var o, i;
-          return null === r || isNaN(+r) || (S(t, "moment()." + t + "(period, number) is deprecated. Please use moment()." + t + "(number, period). See http://momentjs.com/guides/#/warnings/add-inverted-param/ for more info."), i = n, n = r, r = i), n = "string" == typeof n ? +n : n, o = Ft(n, r), Vt(this, o, e), this;
+          return null === r || isNaN(+r) || (x(t, "moment()." + t + "(period, number) is deprecated. Please use moment()." + t + "(number, period). See http://momentjs.com/guides/#/warnings/add-inverted-param/ for more info."), i = n, n = r, r = i), n = "string" == typeof n ? +n : n, o = Ft(n, r), Vt(this, o, e), this;
         };
       }
 
       function Vt(e, n, r, o) {
         var i = n._milliseconds,
-          a = St(n._days),
-          s = St(n._months);
+          a = xt(n._days),
+          s = xt(n._months);
         e.isValid() && (o = null == o || o, i && e._d.setTime(e._d.valueOf() + i * r), a && U(e, "Date", q(e, "Date") + a * r), s && ce(e, q(e, "Month") + s * r), o && t.updateOffset(e, a || s));
       }
 
@@ -981,9 +981,9 @@ webpackJsonp([332], [, function(e, t, n) {
 
       function Kt(e, n) {
         var r = e || vt(),
-          o = Pt(r, this).startOf("day"),
+          o = Lt(r, this).startOf("day"),
           i = t.calendarFormat(this, o) || "sameElse",
-          a = n && (x(n[i]) ? n[i].call(this, r) : n[i]);
+          a = n && (S(n[i]) ? n[i].call(this, r) : n[i]);
         return this.format(a || this.localeData().calendar(i, this, vt(r)));
       }
 
@@ -1020,7 +1020,7 @@ webpackJsonp([332], [, function(e, t, n) {
 
       function nn(e, t, n) {
         var r, o, i, a;
-        return this.isValid() ? (r = Pt(e, this), r.isValid() ? (o = 6e4 * (r.utcOffset() - this.utcOffset()), t = A(t), "year" === t || "month" === t || "quarter" === t ? (a = rn(this, r), "quarter" === t ? a /= 3 : "year" === t && (a /= 12)) : (i = this - r, a = "second" === t ? i / 1e3 : "minute" === t ? i / 6e4 : "hour" === t ? i / 36e5 : "day" === t ? (i - o) / 864e5 : "week" === t ? (i - o) / 6048e5 : i), n ? a : b(a)) : NaN) : NaN;
+        return this.isValid() ? (r = Lt(e, this), r.isValid() ? (o = 6e4 * (r.utcOffset() - this.utcOffset()), t = A(t), "year" === t || "month" === t || "quarter" === t ? (a = rn(this, r), "quarter" === t ? a /= 3 : "year" === t && (a /= 12)) : (i = this - r, a = "second" === t ? i / 1e3 : "minute" === t ? i / 6e4 : "hour" === t ? i / 36e5 : "day" === t ? (i - o) / 864e5 : "week" === t ? (i - o) / 6048e5 : i), n ? a : b(a)) : NaN) : NaN;
       }
 
       function rn(e, t) {
@@ -1035,7 +1035,7 @@ webpackJsonp([332], [, function(e, t, n) {
 
       function an() {
         var e = this.clone().utc();
-        return 0 < e.year() && e.year() <= 9999 ? x(Date.prototype.toISOString) ? this.toDate().toISOString() : Z(e, "YYYY-MM-DD[T]HH:mm:ss.SSS[Z]") : Z(e, "YYYYYY-MM-DD[T]HH:mm:ss.SSS[Z]");
+        return 0 < e.year() && e.year() <= 9999 ? S(Date.prototype.toISOString) ? this.toDate().toISOString() : Z(e, "YYYY-MM-DD[T]HH:mm:ss.SSS[Z]") : Z(e, "YYYYYY-MM-DD[T]HH:mm:ss.SSS[Z]");
       }
 
       function sn() {
@@ -1154,11 +1154,11 @@ webpackJsonp([332], [, function(e, t, n) {
         return c({}, f(this));
       }
 
-      function Sn() {
+      function xn() {
         return f(this).overflow;
       }
 
-      function xn() {
+      function Sn() {
         return {
           input: this._i,
           format: this._f,
@@ -1172,11 +1172,11 @@ webpackJsonp([332], [, function(e, t, n) {
         G(0, [e, e.length], 0, t);
       }
 
-      function Pn(e) {
+      function Ln(e) {
         return jn.call(this, e, this.week(), this.weekday(), this.localeData()._week.dow, this.localeData()._week.doy);
       }
 
-      function Ln(e) {
+      function Pn(e) {
         return jn.call(this, e, this.isoWeek(), this.isoWeekday(), 1, 4);
       }
 
@@ -1421,7 +1421,7 @@ webpackJsonp([332], [, function(e, t, n) {
         return n;
       };
       var Mr, Tr = kr,
-        Sr = {
+        xr = {
           sameDay: "[Today at] LT",
           nextDay: "[Tomorrow at] LT",
           nextWeek: "dddd [at] LT",
@@ -1429,7 +1429,7 @@ webpackJsonp([332], [, function(e, t, n) {
           lastWeek: "[Last] dddd [at] LT",
           sameElse: "L"
         },
-        xr = {
+        Sr = {
           LTS: "h:mm:ss A",
           LT: "h:mm A",
           L: "MM/DD/YYYY",
@@ -1438,7 +1438,7 @@ webpackJsonp([332], [, function(e, t, n) {
           LLLL: "dddd, MMMM D, YYYY h:mm A"
         },
         Er = /\d{1,2}/,
-        Pr = {
+        Lr = {
           future: "in %s",
           past: "%s ago",
           s: "a few seconds",
@@ -1453,7 +1453,7 @@ webpackJsonp([332], [, function(e, t, n) {
           y: "a year",
           yy: "%d years"
         },
-        Lr = {},
+        Pr = {},
         Cr = {},
         Or = /(\[[^\[]*\])|(\\)?([Hh]mm(ss)?|Mo|MM?M?M?|Do|DDDo|DD?D?D?|ddd?d?|do?|w[o|w]?|W[o|W]?|Qo?|YYYYYY|YYYYY|YYYY|YY|gg(ggg?)?|GG(GGG?)?|e|E|a|A|hh?|HH?|kk?|mm?|ss?|S{1,9}|x|X|zz?|ZZ?|.)/g,
         jr = /(\[[^\[]*\])|(\\)?(LTS|LT|LL?L?L?|l{1,4})/g,
@@ -1588,25 +1588,25 @@ webpackJsonp([332], [, function(e, t, n) {
           o = e.length - 2;
         t[ro] = w(e.substr(0, r)), t[oo] = w(e.substr(r, 2)), t[io] = w(e.substr(o));
       });
-      var To, So = /[ap]\.?m?\.?/i,
-        xo = F("Hours", !0),
+      var To, xo = /[ap]\.?m?\.?/i,
+        So = F("Hours", !0),
         Eo = {
-          calendar: Sr,
-          longDateFormat: xr,
+          calendar: xr,
+          longDateFormat: Sr,
           invalidDate: "Invalid date",
           ordinal: "%d",
           ordinalParse: Er,
-          relativeTime: Pr,
+          relativeTime: Lr,
           months: po,
           monthsShort: fo,
           week: yo,
           weekdays: go,
           weekdaysMin: bo,
           weekdaysShort: vo,
-          meridiemParse: So
+          meridiemParse: xo
         },
-        Po = {},
         Lo = {},
+        Po = {},
         Co = /^\s*((?:[+-]\d{6}|\d{4})-(?:\d\d-\d\d|W\d\d-\d|W\d\d|\d\d\d|\d\d))(?:(T| )(\d\d(?::\d\d(?::\d\d(?:[.,]\d+)?)?)?)([\+\-]\d\d(?::?\d\d)?|\s*Z)?)?$/,
         Oo = /^\s*((?:[+-]\d{6}|\d{4})(?:\d\d\d\d|W\d\d\d|W\d\d|\d\d\d|\d\d))(?:(T| )(\d\d(?:\d\d(?:\d\d(?:[.,]\d+)?)?)?)([\+\-]\d\d(?::?\d\d)?|\s*Z)?)?$/,
         jo = /Z|[+-]\d\d(?::?\d\d)?/,
@@ -1649,7 +1649,7 @@ webpackJsonp([332], [, function(e, t, n) {
         No = function() {
           return Date.now ? Date.now() : +new Date;
         };
-      xt("Z", ":"), xt("ZZ", ""), Q("Z", Jr), Q("ZZ", Jr), ne(["Z", "ZZ"], function(e, t, n) {
+      St("Z", ":"), St("ZZ", ""), Q("Z", Jr), Q("ZZ", Jr), ne(["Z", "ZZ"], function(e, t, n) {
         n._useUTC = !0, n._tzm = Et(Jr, e);
       });
       var Ho = /([\+\-]|\d\d)/gi;
@@ -1708,9 +1708,9 @@ webpackJsonp([332], [, function(e, t, n) {
       var Jo = F("Milliseconds", !1);
       G("z", 0, 0, "zoneAbbr"), G("zz", 0, 0, "zoneName");
       var Zo = g.prototype;
-      Zo.add = qo, Zo.calendar = Kt, Zo.clone = Jt, Zo.diff = nn, Zo.endOf = _n, Zo.format = ln, Zo.from = un, Zo.fromNow = cn, Zo.to = dn, Zo.toNow = pn, Zo.get = W, Zo.invalidAt = Sn, Zo.isAfter = Zt, Zo.isBefore = $t, Zo.isBetween = Qt, Zo.isSame = Xt, Zo.isSameOrAfter = en, Zo.isSameOrBefore = tn, Zo.isValid = Mn, Zo.lang = Wo, Zo.locale = fn, Zo.localeData = hn, Zo.max = Ao, Zo.min = Ro, Zo.parsingFlags = Tn, Zo.set = B, Zo.startOf = mn, Zo.subtract = Uo, Zo.toArray = bn, Zo.toObject = wn, Zo.toDate = vn, Zo.toISOString = an, Zo.inspect = sn, Zo.toJSON = kn, Zo.toString = on, Zo.unix = gn, Zo.valueOf = yn, Zo.creationData = xn, Zo.year = _o, Zo.isLeapYear = ge, Zo.weekYear = Pn, Zo.isoWeekYear = Ln, Zo.quarter = Zo.quarters = In, Zo.month = de, Zo.daysInMonth = pe, Zo.week = Zo.weeks = Pe, Zo.isoWeek = Zo.isoWeeks = Le, Zo.weeksInYear = On, Zo.isoWeeksInYear = Cn, Zo.date = Bo, Zo.day = Zo.days = Ae, Zo.weekday = Ne, Zo.isoWeekday = He, Zo.dayOfYear = Yn, Zo.hour = Zo.hours = xo, Zo.minute = Zo.minutes = Vo, Zo.second = Zo.seconds = Go, Zo.millisecond = Zo.milliseconds = Jo, Zo.utcOffset = Ct, Zo.utc = jt, Zo.local = Dt, Zo.parseZone = It, Zo.hasAlignedHourOffset = Yt, Zo.isDST = Rt, Zo.isLocal = Nt, Zo.isUtcOffset = Ht, Zo.isUtc = zt, Zo.isUTC = zt, Zo.zoneAbbr = An, Zo.zoneName = Nn, Zo.dates = T("dates accessor is deprecated. Use date instead.", Bo), Zo.months = T("months accessor is deprecated. Use month instead", de), Zo.years = T("years accessor is deprecated. Use year instead", _o), Zo.zone = T("moment().zone is deprecated, use moment().utcOffset instead. http://momentjs.com/guides/#/warnings/zone/", Ot), Zo.isDSTShifted = T("isDSTShifted is deprecated. See http://momentjs.com/guides/#/warnings/dst-shifted/ for more information", At);
-      var $o = L.prototype;
-      $o.calendar = C, $o.longDateFormat = O, $o.invalidDate = j, $o.ordinal = D, $o.preparse = Fn, $o.postformat = Fn, $o.relativeTime = I, $o.pastFuture = Y, $o.set = E, $o.months = ae, $o.monthsShort = se, $o.monthsParse = ue, $o.monthsRegex = he, $o.monthsShortRegex = fe, $o.week = Se, $o.firstDayOfYear = Ee, $o.firstDayOfWeek = xe, $o.weekdays = je, $o.weekdaysMin = Ie, $o.weekdaysShort = De, $o.weekdaysParse = Re, $o.weekdaysRegex = ze, $o.weekdaysShortRegex = Fe, $o.weekdaysMinRegex = qe, $o.isPM = Ke, $o.meridiem = Je, Xe("en", {
+      Zo.add = qo, Zo.calendar = Kt, Zo.clone = Jt, Zo.diff = nn, Zo.endOf = _n, Zo.format = ln, Zo.from = un, Zo.fromNow = cn, Zo.to = dn, Zo.toNow = pn, Zo.get = W, Zo.invalidAt = xn, Zo.isAfter = Zt, Zo.isBefore = $t, Zo.isBetween = Qt, Zo.isSame = Xt, Zo.isSameOrAfter = en, Zo.isSameOrBefore = tn, Zo.isValid = Mn, Zo.lang = Wo, Zo.locale = fn, Zo.localeData = hn, Zo.max = Ao, Zo.min = Ro, Zo.parsingFlags = Tn, Zo.set = B, Zo.startOf = mn, Zo.subtract = Uo, Zo.toArray = bn, Zo.toObject = wn, Zo.toDate = vn, Zo.toISOString = an, Zo.inspect = sn, Zo.toJSON = kn, Zo.toString = on, Zo.unix = gn, Zo.valueOf = yn, Zo.creationData = Sn, Zo.year = _o, Zo.isLeapYear = ge, Zo.weekYear = Ln, Zo.isoWeekYear = Pn, Zo.quarter = Zo.quarters = In, Zo.month = de, Zo.daysInMonth = pe, Zo.week = Zo.weeks = Le, Zo.isoWeek = Zo.isoWeeks = Pe, Zo.weeksInYear = On, Zo.isoWeeksInYear = Cn, Zo.date = Bo, Zo.day = Zo.days = Ae, Zo.weekday = Ne, Zo.isoWeekday = He, Zo.dayOfYear = Yn, Zo.hour = Zo.hours = So, Zo.minute = Zo.minutes = Vo, Zo.second = Zo.seconds = Go, Zo.millisecond = Zo.milliseconds = Jo, Zo.utcOffset = Ct, Zo.utc = jt, Zo.local = Dt, Zo.parseZone = It, Zo.hasAlignedHourOffset = Yt, Zo.isDST = Rt, Zo.isLocal = Nt, Zo.isUtcOffset = Ht, Zo.isUtc = zt, Zo.isUTC = zt, Zo.zoneAbbr = An, Zo.zoneName = Nn, Zo.dates = T("dates accessor is deprecated. Use date instead.", Bo), Zo.months = T("months accessor is deprecated. Use month instead", de), Zo.years = T("years accessor is deprecated. Use year instead", _o), Zo.zone = T("moment().zone is deprecated, use moment().utcOffset instead. http://momentjs.com/guides/#/warnings/zone/", Ot), Zo.isDSTShifted = T("isDSTShifted is deprecated. See http://momentjs.com/guides/#/warnings/dst-shifted/ for more information", At);
+      var $o = P.prototype;
+      $o.calendar = C, $o.longDateFormat = O, $o.invalidDate = j, $o.ordinal = D, $o.preparse = Fn, $o.postformat = Fn, $o.relativeTime = I, $o.pastFuture = Y, $o.set = E, $o.months = ae, $o.monthsShort = se, $o.monthsParse = ue, $o.monthsRegex = he, $o.monthsShortRegex = fe, $o.week = xe, $o.firstDayOfYear = Ee, $o.firstDayOfWeek = Se, $o.weekdays = je, $o.weekdaysMin = Ie, $o.weekdaysShort = De, $o.weekdaysParse = Re, $o.weekdaysRegex = ze, $o.weekdaysShortRegex = Fe, $o.weekdaysMinRegex = qe, $o.isPM = Ke, $o.meridiem = Je, Xe("en", {
         ordinalParse: /\d{1,2}(th|st|nd|rd)/,
         ordinal: function(e) {
           var t = e % 10;
@@ -1909,16 +1909,16 @@ webpackJsonp([332], [, function(e, t, n) {
       }
 
       function T(e, t, n) {
-        return t === t ? $(e, t, n) : M(e, x, n);
+        return t === t ? $(e, t, n) : M(e, S, n);
       }
 
-      function S(e, t, n, r) {
+      function x(e, t, n, r) {
         for (var o = n - 1, i = e.length; ++o < i;)
           if (r(e[o], t)) return o;
         return -1;
       }
 
-      function x(e) {
+      function S(e) {
         return e !== e;
       }
 
@@ -1927,13 +1927,13 @@ webpackJsonp([332], [, function(e, t, n) {
         return n ? j(e, t) / n : Ye;
       }
 
-      function P(e) {
+      function L(e) {
         return function(t) {
           return null == t ? oe : t[e];
         };
       }
 
-      function L(e) {
+      function P(e) {
         return function(t) {
           return null == e ? oe : e[t];
         };
@@ -2002,7 +2002,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }
 
       function F(e) {
-        return "\\" + Pn[e];
+        return "\\" + Ln[e];
       }
 
       function q(e, t) {
@@ -2112,11 +2112,11 @@ webpackJsonp([332], [, function(e, t, n) {
         ke = 64,
         Me = 128,
         Te = 256,
-        Se = 512,
-        xe = 30,
+        xe = 512,
+        Se = 30,
         Ee = "...",
-        Pe = 800,
-        Le = 16,
+        Le = 800,
+        Pe = 16,
         Ce = 1,
         Oe = 2,
         je = 1 / 0,
@@ -2132,7 +2132,7 @@ webpackJsonp([332], [, function(e, t, n) {
           ["bindKey", ye],
           ["curry", ve],
           ["curryRight", be],
-          ["flip", Se],
+          ["flip", xe],
           ["partial", we],
           ["partialRight", ke],
           ["rearg", Te]
@@ -2176,11 +2176,11 @@ webpackJsonp([332], [, function(e, t, n) {
         kt = /[&<>"']/g,
         Mt = RegExp(wt.source),
         Tt = RegExp(kt.source),
-        St = /<%-([\s\S]+?)%>/g,
-        xt = /<%([\s\S]+?)%>/g,
+        xt = /<%-([\s\S]+?)%>/g,
+        St = /<%([\s\S]+?)%>/g,
         Et = /<%=([\s\S]+?)%>/g,
-        Pt = /\.|\[(?:[^[\]]*|(["'])(?:(?!\1)[^\\]|\\.)*?\1)\]/,
-        Lt = /^\w*$/,
+        Lt = /\.|\[(?:[^[\]]*|(["'])(?:(?!\1)[^\\]|\\.)*?\1)\]/,
+        Pt = /^\w*$/,
         Ct = /^\./,
         Ot = /[^.[\]]+|\[(?:(-?\d+(?:\.\d+)?)|(["'])((?:(?!\2)[^\\]|\\.)*?)\2)\]|(?=(?:\.|\[\])(?:\.|\[\]|$))/g,
         jt = /[\\^$.*+?()[\]{}|]/g,
@@ -2231,7 +2231,7 @@ webpackJsonp([332], [, function(e, t, n) {
       Mn[ut] = Mn[ct] = Mn[dt] = Mn[pt] = Mn[ft] = Mn[ht] = Mn[mt] = Mn[_t] = Mn[yt] = !0, Mn[ze] = Mn[Fe] = Mn[st] = Mn[Ue] = Mn[lt] = Mn[We] = Mn[Ve] = Mn[Ge] = Mn[Je] = Mn[Ze] = Mn[Qe] = Mn[et] = Mn[tt] = Mn[nt] = Mn[it] = !1;
       var Tn = {};
       Tn[ze] = Tn[Fe] = Tn[st] = Tn[lt] = Tn[Ue] = Tn[We] = Tn[ut] = Tn[ct] = Tn[dt] = Tn[pt] = Tn[ft] = Tn[Je] = Tn[Ze] = Tn[Qe] = Tn[et] = Tn[tt] = Tn[nt] = Tn[rt] = Tn[ht] = Tn[mt] = Tn[_t] = Tn[yt] = !0, Tn[Ve] = Tn[Ge] = Tn[it] = !1;
-      var Sn = {
+      var xn = {
           "À": "A",
           "Á": "A",
           "Â": "A",
@@ -2423,7 +2423,7 @@ webpackJsonp([332], [, function(e, t, n) {
           "ŉ": "'n",
           "ſ": "s"
         },
-        xn = {
+        Sn = {
           "&": "&amp;",
           "<": "&lt;",
           ">": "&gt;",
@@ -2437,7 +2437,7 @@ webpackJsonp([332], [, function(e, t, n) {
           "&quot;": '"',
           "&#39;": "'"
         },
-        Pn = {
+        Ln = {
           "\\": "\\",
           "'": "'",
           "\n": "n",
@@ -2445,7 +2445,7 @@ webpackJsonp([332], [, function(e, t, n) {
           "\u2028": "u2028",
           "\u2029": "u2029"
         },
-        Ln = parseFloat,
+        Pn = parseFloat,
         Cn = parseInt,
         On = "object" == typeof e && e && e.Object === Object && e,
         jn = "object" == typeof self && self && self.Object === Object && self,
@@ -2465,10 +2465,10 @@ webpackJsonp([332], [, function(e, t, n) {
         qn = Nn && Nn.isRegExp,
         Un = Nn && Nn.isSet,
         Wn = Nn && Nn.isTypedArray,
-        Bn = P("length"),
-        Vn = L(Sn),
-        Gn = L(xn),
-        Kn = L(En),
+        Bn = L("length"),
+        Vn = P(xn),
+        Gn = P(Sn),
+        Kn = P(En),
         Jn = function e(t) {
           function n(e) {
             if (il(e) && !_p(e) && !(e instanceof b)) {
@@ -2488,7 +2488,7 @@ webpackJsonp([332], [, function(e, t, n) {
             this.__wrapped__ = e, this.__actions__ = [], this.__dir__ = 1, this.__filtered__ = !1, this.__iteratees__ = [], this.__takeCount__ = Re, this.__views__ = [];
           }
 
-          function L() {
+          function P() {
             var e = new b(this.__wrapped__);
             return e.__actions__ = No(this.__actions__), e.__dir__ = this.__dir__, e.__filtered__ = this.__filtered__, e.__iteratees__ = No(this.__iteratees__), e.__takeCount__ = this.__takeCount__, e.__views__ = No(this.__views__), e;
           }
@@ -2663,11 +2663,11 @@ webpackJsonp([332], [, function(e, t, n) {
             this.size = t.size;
           }
 
-          function Sn() {
+          function xn() {
             this.__data__ = new nn, this.size = 0;
           }
 
-          function xn(e) {
+          function Sn(e) {
             var t = this.__data__,
               n = t.delete(e);
             return this.size = t.size, n;
@@ -2677,7 +2677,7 @@ webpackJsonp([332], [, function(e, t, n) {
             return this.__data__.get(e);
           }
 
-          function Pn(e) {
+          function Ln(e) {
             return this.__data__.has(e);
           }
 
@@ -2773,9 +2773,9 @@ webpackJsonp([332], [, function(e, t, n) {
             if (d) {
               if (a = Ci(e), !s) return No(e, a);
             } else {
-              var p = xd(e),
+              var p = Sd(e),
                 f = p == Ge || p == Ke;
-              if (gp(e)) return xo(e, s);
+              if (gp(e)) return So(e, s);
               if (p == Qe || p == ze || f && !o) {
                 if (a = l || f ? {} : Oi(e), !s) return l ? Fo(e, Xn(a, e)) : zo(e, Qn(a, e));
               } else {
@@ -2815,7 +2815,7 @@ webpackJsonp([332], [, function(e, t, n) {
 
           function ar(e, t, n) {
             if ("function" != typeof e) throw new cc(se);
-            return Ld(function() {
+            return Pd(function() {
               e.apply(oe, n);
             }, t);
           }
@@ -2907,7 +2907,7 @@ webpackJsonp([332], [, function(e, t, n) {
           }
 
           function gr(e) {
-            return null == e ? e === oe ? ot : $e : Dc && Dc in sc(e) ? xi(e) : Vi(e);
+            return null == e ? e === oe ? ot : $e : Dc && Dc in sc(e) ? Si(e) : Vi(e);
           }
 
           function vr(e, t) {
@@ -2954,13 +2954,13 @@ webpackJsonp([332], [, function(e, t, n) {
             }), r;
           }
 
-          function Sr(e, t, n) {
+          function xr(e, t, n) {
             t = To(t, e), e = Ki(e, t);
             var r = null == e ? e : e[Xi(wa(t))];
             return null == r ? oe : s(r, e, n);
           }
 
-          function xr(e) {
+          function Sr(e) {
             return il(e) && gr(e) == ze;
           }
 
@@ -2968,19 +2968,19 @@ webpackJsonp([332], [, function(e, t, n) {
             return il(e) && gr(e) == st;
           }
 
-          function Pr(e) {
+          function Lr(e) {
             return il(e) && gr(e) == We;
           }
 
-          function Lr(e, t, n, r, o) {
-            return e === t || (null == e || null == t || !il(e) && !il(t) ? e !== e && t !== t : Cr(e, t, n, r, Lr, o));
+          function Pr(e, t, n, r, o) {
+            return e === t || (null == e || null == t || !il(e) && !il(t) ? e !== e && t !== t : Cr(e, t, n, r, Pr, o));
           }
 
           function Cr(e, t, n, r, o, i) {
             var a = _p(e),
               s = _p(t),
-              l = a ? Fe : xd(e),
-              u = s ? Fe : xd(t);
+              l = a ? Fe : Sd(e),
+              u = s ? Fe : Sd(t);
             l = l == ze ? Qe : l, u = u == ze ? Qe : u;
             var c = l == Qe,
               d = u == Qe,
@@ -3003,7 +3003,7 @@ webpackJsonp([332], [, function(e, t, n) {
           }
 
           function Or(e) {
-            return il(e) && xd(e) == Je;
+            return il(e) && Sd(e) == Je;
           }
 
           function jr(e, t, n, r) {
@@ -3025,7 +3025,7 @@ webpackJsonp([332], [, function(e, t, n) {
               } else {
                 var d = new bn;
                 if (r) var p = r(u, c, l, e, t, d);
-                if (!(p === oe ? Lr(c, u, he | me, r, d) : p)) return !1;
+                if (!(p === oe ? Pr(c, u, he | me, r, d) : p)) return !1;
               }
             }
             return !0;
@@ -3040,7 +3040,7 @@ webpackJsonp([332], [, function(e, t, n) {
           }
 
           function Yr(e) {
-            return il(e) && xd(e) == tt;
+            return il(e) && Sd(e) == tt;
           }
 
           function Rr(e) {
@@ -3088,7 +3088,7 @@ webpackJsonp([332], [, function(e, t, n) {
           function Ur(e, t) {
             return Ai(e) && qi(t) ? Ui(Xi(e), t) : function(n) {
               var r = Al(n, e);
-              return r === oe && r === t ? Hl(n, e) : Lr(t, r, he | me);
+              return r === oe && r === t ? Hl(n, e) : Pr(t, r, he | me);
             };
           }
 
@@ -3113,7 +3113,7 @@ webpackJsonp([332], [, function(e, t, n) {
               var p = _p(l),
                 f = !p && gp(l),
                 h = !p && !f && Mp(l);
-              c = l, p || f || h ? _p(s) ? c = s : Gs(s) ? c = No(s) : f ? (d = !1, c = xo(l, !0)) : h ? (d = !1, c = Do(l, !0)) : c = [] : fl(l) || mp(l) ? (c = s, mp(s) ? c = Sl(s) : (!ol(s) || r && tl(s)) && (c = Oi(l))) : d = !1;
+              c = l, p || f || h ? _p(s) ? c = s : Gs(s) ? c = No(s) : f ? (d = !1, c = So(l, !0)) : h ? (d = !1, c = Do(l, !0)) : c = [] : fl(l) || mp(l) ? (c = s, mp(s) ? c = xl(s) : (!ol(s) || r && tl(s)) && (c = Oi(l))) : d = !1;
             }
             d && (a.set(l, c), o(c, l, r, i, a), a.delete(l)), Nn(e, n, c);
           }
@@ -3160,7 +3160,7 @@ webpackJsonp([332], [, function(e, t, n) {
           }
 
           function $r(e, t, n, r) {
-            var o = r ? S : T,
+            var o = r ? x : T,
               i = -1,
               a = t.length,
               s = e;
@@ -3374,29 +3374,29 @@ webpackJsonp([332], [, function(e, t, n) {
             return _p(e) ? e : Ai(e, t) ? [e] : Od(El(e));
           }
 
-          function So(e, t, n) {
+          function xo(e, t, n) {
             var r = e.length;
             return n = n === oe ? r : n, !t && n >= r ? e : so(e, t, n);
           }
 
-          function xo(e, t) {
+          function So(e, t) {
             if (t) return e.slice();
             var n = e.length,
-              r = xc ? xc(n) : new e.constructor(n);
+              r = Sc ? Sc(n) : new e.constructor(n);
             return e.copy(r), r;
           }
 
           function Eo(e) {
             var t = new e.constructor(e.byteLength);
-            return new Sc(t).set(new Sc(e)), t;
+            return new xc(t).set(new xc(e)), t;
           }
 
-          function Po(e, t) {
+          function Lo(e, t) {
             var n = t ? Eo(e.buffer) : e.buffer;
             return new e.constructor(n, e.byteOffset, e.byteLength);
           }
 
-          function Lo(e, t, n) {
+          function Po(e, t, n) {
             return y(t ? n(V(e), de) : V(e), i, new e.constructor);
           }
 
@@ -3482,7 +3482,7 @@ webpackJsonp([332], [, function(e, t, n) {
           }
 
           function Fo(e, t) {
-            return Ho(e, Sd(e), t);
+            return Ho(e, xd(e), t);
           }
 
           function qo(e, t) {
@@ -3541,14 +3541,14 @@ webpackJsonp([332], [, function(e, t, n) {
               t = El(t);
               var n = U(t) ? ee(t) : oe,
                 r = n ? n[0] : t.charAt(0),
-                o = n ? So(n, 1).join("") : t.slice(1);
+                o = n ? xo(n, 1).join("") : t.slice(1);
               return r[e]() + o;
             };
           }
 
           function Ko(e) {
             return function(t) {
-              return y(Su(iu(t).replace(mn, "")), e, "");
+              return y(xu(iu(t).replace(mn, "")), e, "");
             };
           }
 
@@ -3646,7 +3646,7 @@ webpackJsonp([332], [, function(e, t, n) {
               p = t & _e,
               f = t & ye,
               h = t & (ve | be),
-              m = t & Se,
+              m = t & xe,
               _ = f ? oe : Jo(e);
             return c;
           }
@@ -3685,7 +3685,7 @@ webpackJsonp([332], [, function(e, t, n) {
             var n = t.length;
             if (n < 2) return n ? to(t, e) : t;
             var r = to(t, Nc(e / X(t)));
-            return U(t) ? So(ee(r), 0, e).join("") : r.slice(0, e);
+            return U(t) ? xo(ee(r), 0, e).join("") : r.slice(0, e);
           }
 
           function oi(e, t, n, r) {
@@ -3720,7 +3720,7 @@ webpackJsonp([332], [, function(e, t, n) {
             t |= c ? we : ke, (t &= ~(c ? ke : we)) & ge || (t &= ~(_e | ye));
             var m = [e, t, o, f, d, h, p, s, l, u],
               _ = n.apply(oe, m);
-            return Hi(e) && Pd(_, m), _.placeholder = r, Zi(_, e, t);
+            return Hi(e) && Ld(_, m), _.placeholder = r, Zi(_, e, t);
           }
 
           function li(e) {
@@ -3736,7 +3736,7 @@ webpackJsonp([332], [, function(e, t, n) {
 
           function ui(e) {
             return function(t) {
-              var n = xd(t);
+              var n = Sd(t);
               return n == Je ? V(t) : n == tt ? Z(t) : I(t, e(t));
             };
           }
@@ -3754,7 +3754,7 @@ webpackJsonp([332], [, function(e, t, n) {
               f = [e, t, n, r, o, c, d, i, a, s];
             if (p && Wi(f, p), e = f[0], t = f[1], n = f[2], r = f[3], o = f[4], s = f[9] = f[9] === oe ? l ? 0 : e.length : Bc(f[9] - u, 0), !s && t & (ve | be) && (t &= ~(ve | be)), t && t != _e) h = t == ve || t == be ? Zo(e, t, s) : t != we && t != (_e | we) || o.length ? Xo.apply(oe, f) : oi(e, t, n, r);
             else var h = Vo(e, t, n);
-            return Zi((p ? gd : Pd)(h, f), e, t);
+            return Zi((p ? gd : Ld)(h, f), e, t);
           }
 
           function di(e, t, n, r) {
@@ -3809,7 +3809,7 @@ webpackJsonp([332], [, function(e, t, n) {
                 if (e.byteLength != t.byteLength || e.byteOffset != t.byteOffset) return !1;
                 e = e.buffer, t = t.buffer;
               case st:
-                return !(e.byteLength != t.byteLength || !i(new Sc(e), new Sc(t)));
+                return !(e.byteLength != t.byteLength || !i(new xc(e), new xc(t)));
               case Ue:
               case We:
               case Ze:
@@ -3876,7 +3876,7 @@ webpackJsonp([332], [, function(e, t, n) {
           }
 
           function vi(e) {
-            return yr(e, Fl, Sd);
+            return yr(e, Fl, xd);
           }
 
           function bi(e) {
@@ -3911,12 +3911,12 @@ webpackJsonp([332], [, function(e, t, n) {
             return t;
           }
 
-          function Si(e, t) {
+          function xi(e, t) {
             var n = q(e, t);
             return Dr(n) ? n : oe;
           }
 
-          function xi(e) {
+          function Si(e) {
             var t = _c.call(e, Dc),
               n = e[Dc];
             try {
@@ -3951,12 +3951,12 @@ webpackJsonp([332], [, function(e, t, n) {
             };
           }
 
-          function Pi(e) {
+          function Li(e) {
             var t = e.match(Nt);
             return t ? t[1].split(Ht) : [];
           }
 
-          function Li(e, t, n) {
+          function Pi(e, t, n) {
             t = To(t, e);
             for (var r = -1, o = t.length, i = !1; ++r < o;) {
               var a = Xi(t[r]);
@@ -3985,7 +3985,7 @@ webpackJsonp([332], [, function(e, t, n) {
               case We:
                 return new o(+e);
               case lt:
-                return Po(e, r);
+                return Lo(e, r);
               case ut:
               case ct:
               case dt:
@@ -3997,7 +3997,7 @@ webpackJsonp([332], [, function(e, t, n) {
               case yt:
                 return Do(e, r);
               case Je:
-                return Lo(e, r, n);
+                return Po(e, r, n);
               case Ze:
               case nt:
                 return new o(e);
@@ -4034,7 +4034,7 @@ webpackJsonp([332], [, function(e, t, n) {
           function Ai(e, t) {
             if (_p(e)) return !1;
             var n = typeof e;
-            return !("number" != n && "symbol" != n && "boolean" != n && null != e && !_l(e)) || (Lt.test(e) || !Pt.test(e) || null != t && e in sc(t));
+            return !("number" != n && "symbol" != n && "boolean" != n && null != e && !_l(e)) || (Pt.test(e) || !Lt.test(e) || null != t && e in sc(t));
           }
 
           function Ni(e) {
@@ -4121,7 +4121,7 @@ webpackJsonp([332], [, function(e, t, n) {
 
           function Zi(e, t, n) {
             var r = t + "";
-            return Cd(e, Di(r, ta(Pi(r), n)));
+            return Cd(e, Di(r, ta(Li(r), n)));
           }
 
           function $i(e) {
@@ -4129,9 +4129,9 @@ webpackJsonp([332], [, function(e, t, n) {
               n = 0;
             return function() {
               var r = Gc(),
-                o = Le - (r - n);
+                o = Pe - (r - n);
               if (n = r, o > 0) {
-                if (++t >= Pe) return arguments[0];
+                if (++t >= Le) return arguments[0];
               } else t = 0;
               return e.apply(oe, arguments);
             };
@@ -4288,7 +4288,7 @@ webpackJsonp([332], [, function(e, t, n) {
             var r = null == e ? 0 : e.length;
             if (!r) return -1;
             var o = r;
-            return n !== oe && (o = kl(n), o = o < 0 ? Bc(r + o, 0) : Vc(o, r - 1)), t === t ? Q(e, t, o) : M(e, x, o, !0);
+            return n !== oe && (o = kl(n), o = o < 0 ? Bc(r + o, 0) : Vc(o, r - 1)), t === t ? Q(e, t, o) : M(e, S, o, !0);
           }
 
           function Ma(e, t) {
@@ -4299,11 +4299,11 @@ webpackJsonp([332], [, function(e, t, n) {
             return e && e.length && t && t.length ? $r(e, t) : e;
           }
 
-          function Sa(e, t, n) {
+          function xa(e, t, n) {
             return e && e.length && t && t.length ? $r(e, t, ki(n, 2)) : e;
           }
 
-          function xa(e, t, n) {
+          function Sa(e, t, n) {
             return e && e.length && t && t.length ? $r(e, t, oe, n) : e;
           }
 
@@ -4320,11 +4320,11 @@ webpackJsonp([332], [, function(e, t, n) {
             return Qr(e, o), n;
           }
 
-          function Pa(e) {
+          function La(e) {
             return null == e ? e : Zc.call(e);
           }
 
-          function La(e, t, n) {
+          function Pa(e, t, n) {
             var r = null == e ? 0 : e.length;
             return r ? (n && "number" != typeof n && Ri(e, t, n) ? (t = 0, n = r) : (t = null == t ? 0 : kl(t), n = n === oe ? r : kl(n)), so(e, t, n)) : [];
           }
@@ -4410,7 +4410,7 @@ webpackJsonp([332], [, function(e, t, n) {
             return e = p(e, function(e) {
               if (Gs(e)) return t = Bc(e.length, t), !0;
             }), D(t, function(t) {
-              return m(e, P(t));
+              return m(e, L(t));
             });
           }
 
@@ -4480,11 +4480,11 @@ webpackJsonp([332], [, function(e, t, n) {
               var t = e;
               return this.__actions__.length && (t = new b(this)), t = t.reverse(), t.__actions__.push({
                 func: Qa,
-                args: [Pa],
+                args: [La],
                 thisArg: oe
               }), new o(t, this.__chain__);
             }
-            return this.thru(Pa);
+            return this.thru(La);
           }
 
           function is() {
@@ -4565,7 +4565,7 @@ webpackJsonp([332], [, function(e, t, n) {
           function ks(e) {
             if (null == e) return 0;
             if (Vs(e)) return ml(e) ? X(e) : e.length;
-            var t = xd(e);
+            var t = Sd(e);
             return t == Je || t == tt ? e.size : Nr(e).length;
           }
 
@@ -4582,11 +4582,11 @@ webpackJsonp([332], [, function(e, t, n) {
               };
           }
 
-          function Ss(e, t, n) {
+          function xs(e, t, n) {
             return t = n ? oe : t, t = e && null == t ? e.length : t, ci(e, Me, oe, oe, oe, oe, t);
           }
 
-          function xs(e, t) {
+          function Ss(e, t) {
             var n;
             if ("function" != typeof t) throw new cc(se);
             return e = kl(e),
@@ -4601,13 +4601,13 @@ webpackJsonp([332], [, function(e, t, n) {
             return r.placeholder = Es.placeholder, r;
           }
 
-          function Ps(e, t, n) {
+          function Ls(e, t, n) {
             t = n ? oe : t;
             var r = ci(e, be, oe, oe, oe, oe, oe, t);
-            return r.placeholder = Ps.placeholder, r;
+            return r.placeholder = Ls.placeholder, r;
           }
 
-          function Ls(e, t, n) {
+          function Ps(e, t, n) {
             function r(t) {
               var n = p,
                 r = f;
@@ -4615,7 +4615,7 @@ webpackJsonp([332], [, function(e, t, n) {
             }
 
             function o(e) {
-              return g = e, _ = Ld(s, t), v ? r(e) : m;
+              return g = e, _ = Pd(s, t), v ? r(e) : m;
             }
 
             function i(e) {
@@ -4634,7 +4634,7 @@ webpackJsonp([332], [, function(e, t, n) {
             function s() {
               var e = op();
               if (a(e)) return l(e);
-              _ = Ld(s, i(e));
+              _ = Pd(s, i(e));
             }
 
             function l(e) {
@@ -4654,9 +4654,9 @@ webpackJsonp([332], [, function(e, t, n) {
                 n = a(e);
               if (p = arguments, f = this, y = e, n) {
                 if (_ === oe) return o(y);
-                if (b) return _ = Ld(s, t), r(y);
+                if (b) return _ = Pd(s, t), r(y);
               }
-              return _ === oe && (_ = Ld(s, t)), m;
+              return _ === oe && (_ = Pd(s, t)), m;
             }
             var p, f, h, m, _, y, g = 0,
               v = !1,
@@ -4667,7 +4667,7 @@ webpackJsonp([332], [, function(e, t, n) {
           }
 
           function Cs(e) {
-            return ci(e, Se);
+            return ci(e, xe);
           }
 
           function Os(e, t) {
@@ -4702,7 +4702,7 @@ webpackJsonp([332], [, function(e, t, n) {
           }
 
           function Ds(e) {
-            return xs(2, e);
+            return Ss(2, e);
           }
 
           function Is(e, t) {
@@ -4714,7 +4714,7 @@ webpackJsonp([332], [, function(e, t, n) {
             if ("function" != typeof e) throw new cc(se);
             return t = null == t ? 0 : Bc(kl(t), 0), no(function(n) {
               var r = n[t],
-                o = So(n, 0, t);
+                o = xo(n, 0, t);
               return r && _(o, r), s(e, this, o);
             });
           }
@@ -4723,7 +4723,7 @@ webpackJsonp([332], [, function(e, t, n) {
             var r = !0,
               o = !0;
             if ("function" != typeof e) throw new cc(se);
-            return ol(n) && (r = "leading" in n ? !!n.leading : r, o = "trailing" in n ? !!n.trailing : o), Ls(e, t, {
+            return ol(n) && (r = "leading" in n ? !!n.leading : r, o = "trailing" in n ? !!n.trailing : o), Ps(e, t, {
               leading: r,
               maxWait: t,
               trailing: o
@@ -4731,7 +4731,7 @@ webpackJsonp([332], [, function(e, t, n) {
           }
 
           function As(e) {
-            return Ss(e, 1);
+            return xs(e, 1);
           }
 
           function Ns(e, t) {
@@ -4787,7 +4787,7 @@ webpackJsonp([332], [, function(e, t, n) {
           function Zs(e) {
             if (null == e) return !0;
             if (Vs(e) && (_p(e) || "string" == typeof e || "function" == typeof e.splice || gp(e) || Mp(e) || mp(e))) return !e.length;
-            var t = xd(e);
+            var t = Sd(e);
             if (t == Je || t == tt) return !e.size;
             if (Fi(e)) return !Nr(e).length;
             for (var n in e)
@@ -4796,13 +4796,13 @@ webpackJsonp([332], [, function(e, t, n) {
           }
 
           function $s(e, t) {
-            return Lr(e, t);
+            return Pr(e, t);
           }
 
           function Qs(e, t, n) {
             n = "function" == typeof n ? n : oe;
             var r = n ? n(e, t) : oe;
-            return r === oe ? Lr(e, t, oe, n) : !!r;
+            return r === oe ? Pr(e, t, oe, n) : !!r;
           }
 
           function Xs(e) {
@@ -4892,7 +4892,7 @@ webpackJsonp([332], [, function(e, t, n) {
           }
 
           function gl(e) {
-            return il(e) && xd(e) == it;
+            return il(e) && Sd(e) == it;
           }
 
           function vl(e) {
@@ -4903,7 +4903,7 @@ webpackJsonp([332], [, function(e, t, n) {
             if (!e) return [];
             if (Vs(e)) return ml(e) ? ee(e) : No(e);
             if (jc && e[jc]) return B(e[jc]());
-            var t = xd(e);
+            var t = Sd(e);
             return (t == Je ? V : t == tt ? J : Xl)(e);
           }
 
@@ -4938,11 +4938,11 @@ webpackJsonp([332], [, function(e, t, n) {
             return n || Gt.test(e) ? Cn(e.slice(2), n ? 2 : 8) : Wt.test(e) ? Ye : +e;
           }
 
-          function Sl(e) {
+          function xl(e) {
             return Ho(e, Fl(e));
           }
 
-          function xl(e) {
+          function Sl(e) {
             return e ? nr(kl(e), -De, De) : 0 === e ? e : 0;
           }
 
@@ -4950,12 +4950,12 @@ webpackJsonp([332], [, function(e, t, n) {
             return null == e ? "" : ho(e);
           }
 
-          function Pl(e, t) {
+          function Ll(e, t) {
             var n = fd(e);
             return null == t ? n : Qn(n, t);
           }
 
-          function Ll(e, t) {
+          function Pl(e, t) {
             return k(e, ki(t, 3), fr);
           }
 
@@ -4993,11 +4993,11 @@ webpackJsonp([332], [, function(e, t, n) {
           }
 
           function Nl(e, t) {
-            return null != e && Li(e, t, br);
+            return null != e && Pi(e, t, br);
           }
 
           function Hl(e, t) {
-            return null != e && Li(e, t, wr);
+            return null != e && Pi(e, t, wr);
           }
 
           function zl(e) {
@@ -5102,7 +5102,7 @@ webpackJsonp([332], [, function(e, t, n) {
             }
             if (n || e % 1 || t % 1) {
               var o = Jc();
-              return Vc(e + o * (t - e + Ln("1e-" + ((o + "").length - 1))), t);
+              return Vc(e + o * (t - e + Pn("1e-" + ((o + "").length - 1))), t);
             }
             return Xr(e, t);
           }
@@ -5166,7 +5166,7 @@ webpackJsonp([332], [, function(e, t, n) {
           }
 
           function mu(e, t, n) {
-            return n && "number" != typeof n && Ri(e, t, n) && (t = n = oe), (n = n === oe ? Re : n >>> 0) ? (e = El(e), e && ("string" == typeof t || null != t && !wp(t)) && !(t = ho(t)) && U(e) ? So(ee(e), 0, n) : e.split(t, n)) : [];
+            return n && "number" != typeof n && Ri(e, t, n) && (t = n = oe), (n = n === oe ? Re : n >>> 0) ? (e = El(e), e && ("string" == typeof t || null != t && !wp(t)) && !(t = ho(t)) && U(e) ? xo(ee(e), 0, n) : e.split(t, n)) : [];
           }
 
           function _u(e, t, n) {
@@ -5175,8 +5175,8 @@ webpackJsonp([332], [, function(e, t, n) {
 
           function yu(e, t, r) {
             var o = n.templateSettings;
-            r && Ri(e, t, r) && (t = oe), e = El(e), t = Pp({}, t, o, di);
-            var i, a, s = Pp({}, t.imports, o.imports, di),
+            r && Ri(e, t, r) && (t = oe), e = El(e), t = Lp({}, t, o, di);
+            var i, a, s = Lp({}, t.imports, o.imports, di),
               l = zl(s),
               u = R(s, l),
               c = 0,
@@ -5209,25 +5209,25 @@ webpackJsonp([332], [, function(e, t, n) {
             if (!e || !(t = ho(t))) return e;
             var r = ee(e),
               o = ee(t);
-            return So(r, N(r, o), H(r, o) + 1).join("");
+            return xo(r, N(r, o), H(r, o) + 1).join("");
           }
 
           function wu(e, t, n) {
             if ((e = El(e)) && (n || t === oe)) return e.replace(Rt, "");
             if (!e || !(t = ho(t))) return e;
             var r = ee(e);
-            return So(r, 0, H(r, ee(t)) + 1).join("");
+            return xo(r, 0, H(r, ee(t)) + 1).join("");
           }
 
           function ku(e, t, n) {
             if ((e = El(e)) && (n || t === oe)) return e.replace(Yt, "");
             if (!e || !(t = ho(t))) return e;
             var r = ee(e);
-            return So(r, N(r, ee(t))).join("");
+            return xo(r, N(r, ee(t))).join("");
           }
 
           function Mu(e, t) {
-            var n = xe,
+            var n = Se,
               r = Ee;
             if (ol(t)) {
               var o = "separator" in t ? t.separator : o;
@@ -5242,7 +5242,7 @@ webpackJsonp([332], [, function(e, t, n) {
             if (n >= i) return e;
             var s = n - X(r);
             if (s < 1) return r;
-            var l = a ? So(a, 0, s).join("") : e.slice(0, s);
+            var l = a ? xo(a, 0, s).join("") : e.slice(0, s);
             if (o === oe) return l + r;
             if (a && (s += l.length - s), wp(o)) {
               if (e.slice(s).search(o)) {
@@ -5261,11 +5261,11 @@ webpackJsonp([332], [, function(e, t, n) {
             return e = El(e), e && Mt.test(e) ? e.replace(wt, Kn) : e;
           }
 
-          function Su(e, t, n) {
+          function xu(e, t, n) {
             return e = El(e), t = n ? oe : t, t === oe ? W(e) ? re(e) : w(e) : e.match(t) || [];
           }
 
-          function xu(e) {
+          function Su(e) {
             var t = null == e ? 0 : e.length,
               n = ki();
             return e = t ? m(e, function(e) {
@@ -5283,13 +5283,13 @@ webpackJsonp([332], [, function(e, t, n) {
             return or(rr(e, de));
           }
 
-          function Pu(e) {
+          function Lu(e) {
             return function() {
               return e;
             };
           }
 
-          function Lu(e, t) {
+          function Pu(e, t) {
             return null == e || e !== e ? t : e;
           }
 
@@ -5345,7 +5345,7 @@ webpackJsonp([332], [, function(e, t, n) {
           }
 
           function Nu(e) {
-            return Ai(e) ? P(Xi(e)) : Zr(e);
+            return Ai(e) ? L(Xi(e)) : Zr(e);
           }
 
           function Hu(e) {
@@ -5450,18 +5450,18 @@ webpackJsonp([332], [, function(e, t, n) {
             kc = lc("^" + mc.call(_c).replace(jt, "\\$&").replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, "$1.*?") + "$"),
             Mc = Rn ? t.Buffer : oe,
             Tc = t.Symbol,
-            Sc = t.Uint8Array,
-            xc = Mc ? Mc.allocUnsafe : oe,
+            xc = t.Uint8Array,
+            Sc = Mc ? Mc.allocUnsafe : oe,
             Ec = G(sc.getPrototypeOf, sc),
-            Pc = sc.create,
-            Lc = fc.propertyIsEnumerable,
+            Lc = sc.create,
+            Pc = fc.propertyIsEnumerable,
             Cc = dc.splice,
             Oc = Tc ? Tc.isConcatSpreadable : oe,
             jc = Tc ? Tc.iterator : oe,
             Dc = Tc ? Tc.toStringTag : oe,
             Ic = function() {
               try {
-                var e = Si(sc, "defineProperty");
+                var e = xi(sc, "defineProperty");
                 return e({}, "", {}), e;
               } catch (e) {}
             }(),
@@ -5481,12 +5481,12 @@ webpackJsonp([332], [, function(e, t, n) {
             Kc = t.parseInt,
             Jc = ac.random,
             Zc = dc.reverse,
-            $c = Si(t, "DataView"),
-            Qc = Si(t, "Map"),
-            Xc = Si(t, "Promise"),
-            ed = Si(t, "Set"),
-            td = Si(t, "WeakMap"),
-            nd = Si(sc, "create"),
+            $c = xi(t, "DataView"),
+            Qc = xi(t, "Map"),
+            Xc = xi(t, "Promise"),
+            ed = xi(t, "Set"),
+            td = xi(t, "WeakMap"),
+            nd = xi(sc, "create"),
             rd = td && new td,
             od = {},
             id = ea($c),
@@ -5501,21 +5501,21 @@ webpackJsonp([332], [, function(e, t, n) {
               function e() {}
               return function(t) {
                 if (!ol(t)) return {};
-                if (Pc) return Pc(t);
+                if (Lc) return Lc(t);
                 e.prototype = t;
                 var n = new e;
                 return e.prototype = oe, n;
               };
             }();
           n.templateSettings = {
-            escape: St,
-            evaluate: xt,
+            escape: xt,
+            evaluate: St,
             interpolate: Et,
             variable: "",
             imports: {
               _: n
             }
-          }, n.prototype = r.prototype, n.prototype.constructor = n, o.prototype = fd(r.prototype), o.prototype.constructor = o, b.prototype = fd(r.prototype), b.prototype.constructor = b, ne.prototype.clear = zt, ne.prototype.delete = Qt, ne.prototype.get = Xt, ne.prototype.has = en, ne.prototype.set = tn, nn.prototype.clear = rn, nn.prototype.delete = on, nn.prototype.get = an, nn.prototype.has = sn, nn.prototype.set = ln, un.prototype.clear = cn, un.prototype.delete = dn, un.prototype.get = pn, un.prototype.has = fn, un.prototype.set = hn, yn.prototype.add = yn.prototype.push = gn, yn.prototype.has = vn, bn.prototype.clear = Sn, bn.prototype.delete = xn, bn.prototype.get = En, bn.prototype.has = Pn, bn.prototype.set = On;
+          }, n.prototype = r.prototype, n.prototype.constructor = n, o.prototype = fd(r.prototype), o.prototype.constructor = o, b.prototype = fd(r.prototype), b.prototype.constructor = b, ne.prototype.clear = zt, ne.prototype.delete = Qt, ne.prototype.get = Xt, ne.prototype.has = en, ne.prototype.set = tn, nn.prototype.clear = rn, nn.prototype.delete = on, nn.prototype.get = an, nn.prototype.has = sn, nn.prototype.set = ln, un.prototype.clear = cn, un.prototype.delete = dn, un.prototype.get = pn, un.prototype.has = fn, un.prototype.set = hn, yn.prototype.add = yn.prototype.push = gn, yn.prototype.has = vn, bn.prototype.clear = xn, bn.prototype.delete = Sn, bn.prototype.get = En, bn.prototype.has = Ln, bn.prototype.set = On;
           var hd = Wo(fr),
             md = Wo(hr, !0),
             _d = Bo(),
@@ -5527,7 +5527,7 @@ webpackJsonp([332], [, function(e, t, n) {
               return Ic(e, "toString", {
                 configurable: !0,
                 enumerable: !1,
-                value: Pu(t),
+                value: Lu(t),
                 writable: !0
               });
             } : Cu,
@@ -5543,15 +5543,15 @@ webpackJsonp([332], [, function(e, t, n) {
             } : Ru,
             Td = zc ? function(e) {
               return null == e ? [] : (e = sc(e), p(zc(e), function(t) {
-                return Lc.call(e, t);
+                return Pc.call(e, t);
               }));
             } : zu,
-            Sd = zc ? function(e) {
+            xd = zc ? function(e) {
               for (var t = []; e;) _(t, Td(e)), e = Ec(e);
               return t;
             } : zu,
-            xd = gr;
-          ($c && xd(new $c(new ArrayBuffer(1))) != lt || Qc && xd(new Qc) != Je || Xc && "[object Promise]" != xd(Xc.resolve()) || ed && xd(new ed) != tt || td && xd(new td) != it) && (xd = function(e) {
+            Sd = gr;
+          ($c && Sd(new $c(new ArrayBuffer(1))) != lt || Qc && Sd(new Qc) != Je || Xc && "[object Promise]" != Sd(Xc.resolve()) || ed && Sd(new ed) != tt || td && Sd(new td) != it) && (Sd = function(e) {
             var t = gr(e),
               n = t == Qe ? e.constructor : oe,
               r = n ? ea(n) : "";
@@ -5570,8 +5570,8 @@ webpackJsonp([332], [, function(e, t, n) {
             return t;
           });
           var Ed = hc ? tl : Fu,
-            Pd = $i(gd),
-            Ld = Ac || function(e, t) {
+            Ld = $i(gd),
+            Pd = Ac || function(e, t) {
               return Dn.setTimeout(e, t);
             },
             Cd = $i(vd),
@@ -5679,7 +5679,7 @@ webpackJsonp([332], [, function(e, t, n) {
                 o = "function" == typeof t,
                 i = Vs(e) ? nc(e.length) : [];
               return hd(e, function(e) {
-                i[++r] = o ? s(t, e, n) : Sr(e, t, n);
+                i[++r] = o ? s(t, e, n) : xr(e, t, n);
               }), i;
             }),
             tp = qo(function(e, t, n) {
@@ -5747,50 +5747,50 @@ webpackJsonp([332], [, function(e, t, n) {
             hp = ai(function(e, t) {
               return e >= t;
             }),
-            mp = xr(function() {
+            mp = Sr(function() {
               return arguments;
-            }()) ? xr : function(e) {
-              return il(e) && _c.call(e, "callee") && !Lc.call(e, "callee");
+            }()) ? Sr : function(e) {
+              return il(e) && _c.call(e, "callee") && !Pc.call(e, "callee");
             },
             _p = nc.isArray,
             yp = Hn ? Y(Hn) : Er,
             gp = Fc || Fu,
-            vp = zn ? Y(zn) : Pr,
+            vp = zn ? Y(zn) : Lr,
             bp = Fn ? Y(Fn) : Or,
             wp = qn ? Y(qn) : Ir,
             kp = Un ? Y(Un) : Yr,
             Mp = Wn ? Y(Wn) : Rr,
             Tp = ai(zr),
-            Sp = ai(function(e, t) {
+            xp = ai(function(e, t) {
               return e <= t;
             }),
-            xp = Uo(function(e, t) {
+            Sp = Uo(function(e, t) {
               if (Fi(t) || Vs(t)) return void Ho(t, zl(t), e);
               for (var n in t) _c.call(t, n) && Bn(e, n, t[n]);
             }),
             Ep = Uo(function(e, t) {
               Ho(t, Fl(t), e);
             }),
-            Pp = Uo(function(e, t, n, r) {
+            Lp = Uo(function(e, t, n, r) {
               Ho(t, Fl(t), e, r);
             }),
-            Lp = Uo(function(e, t, n, r) {
+            Pp = Uo(function(e, t, n, r) {
               Ho(t, zl(t), e, r);
             }),
             Cp = yi(tr),
             Op = no(function(e) {
-              return e.push(oe, di), s(Pp, oe, e);
+              return e.push(oe, di), s(Lp, oe, e);
             }),
             jp = no(function(e) {
               return e.push(oe, pi), s(Ap, oe, e);
             }),
             Dp = ei(function(e, t, n) {
               e[t] = n;
-            }, Pu(Cu)),
+            }, Lu(Cu)),
             Ip = ei(function(e, t, n) {
               _c.call(e, t) ? e[t].push(n) : e[t] = [n];
             }, ki),
-            Yp = no(Sr),
+            Yp = no(xr),
             Rp = Uo(function(e, t, n) {
               Wr(e, t, n);
             }),
@@ -5848,12 +5848,12 @@ webpackJsonp([332], [, function(e, t, n) {
             Xp = Qo(!0),
             ef = no(function(e, t) {
               return function(n) {
-                return Sr(n, e, t);
+                return xr(n, e, t);
               };
             }),
             tf = no(function(e, t) {
               return function(n) {
-                return Sr(e, n, t);
+                return xr(e, n, t);
               };
             }),
             nf = ni(m),
@@ -5876,7 +5876,7 @@ webpackJsonp([332], [, function(e, t, n) {
             hf = ti(function(e, t) {
               return e - t;
             }, 0);
-          return n.after = Ts, n.ary = Ss, n.assign = xp, n.assignIn = Ep, n.assignInWith = Pp, n.assignWith = Lp, n.at = Cp, n.before = xs, n.bind = ip, n.bindAll = $p, n.bindKey = ap, n.castArray = Hs, n.chain = Za, n.chunk = ra, n.compact = oa, n.concat = ia, n.cond = xu, n.conforms = Eu, n.constant = Pu, n.countBy = Zd, n.create = Pl, n.curry = Es, n.curryRight = Ps, n.debounce = Ls, n.defaults = Op, n.defaultsDeep = jp, n.defer = sp, n.delay = lp, n.difference = jd, n.differenceBy = Dd, n.differenceWith = Id, n.drop = aa, n.dropRight = sa, n.dropRightWhile = la, n.dropWhile = ua, n.fill = ca, n.filter = ss, n.flatMap = ls, n.flatMapDeep = us, n.flatMapDepth = cs, n.flatten = fa, n.flattenDeep = ha, n.flattenDepth = ma, n.flip = Cs, n.flow = Qp, n.flowRight = Xp, n.fromPairs = _a, n.functions = Yl, n.functionsIn = Rl, n.groupBy = Xd, n.initial = va, n.intersection = Yd, n.intersectionBy = Rd, n.intersectionWith = Ad, n.invert = Dp, n.invertBy = Ip, n.invokeMap = ep, n.iteratee = Ou, n.keyBy = tp, n.keys = zl, n.keysIn = Fl, n.map = hs, n.mapKeys = ql, n.mapValues = Ul, n.matches = ju, n.matchesProperty = Du, n.memoize = Os, n.merge = Rp, n.mergeWith = Ap, n.method = ef, n.methodOf = tf, n.mixin = Iu, n.negate = js, n.nthArg = Au, n.omit = Np, n.omitBy = Wl, n.once = Ds, n.orderBy = ms, n.over = nf, n.overArgs = up, n.overEvery = rf, n.overSome = of , n.partial = cp, n.partialRight = dp, n.partition = np, n.pick = Hp, n.pickBy = Bl, n.property = Nu, n.propertyOf = Hu, n.pull = Nd, n.pullAll = Ta, n.pullAllBy = Sa, n.pullAllWith = xa, n.pullAt = Hd, n.range = af, n.rangeRight = sf, n.rearg = pp, n.reject = gs, n.remove = Ea, n.rest = Is, n.reverse = Pa, n.sampleSize = bs, n.set = Gl, n.setWith = Kl, n.shuffle = ws, n.slice = La, n.sortBy = rp, n.sortedUniq = Ra, n.sortedUniqBy = Aa, n.split = mu, n.spread = Ys, n.tail = Na, n.take = Ha, n.takeRight = za, n.takeRightWhile = Fa, n.takeWhile = qa, n.tap = $a, n.throttle = Rs, n.thru = Qa, n.toArray = bl, n.toPairs = zp, n.toPairsIn = Fp, n.toPath = Vu, n.toPlainObject = Sl, n.transform = Jl, n.unary = As, n.union = zd, n.unionBy = Fd, n.unionWith = qd, n.uniq = Ua, n.uniqBy = Wa, n.uniqWith = Ba, n.unset = Zl, n.unzip = Va, n.unzipWith = Ga, n.update = $l, n.updateWith = Ql, n.values = Xl, n.valuesIn = eu, n.without = Ud, n.words = Su, n.wrap = Ns, n.xor = Wd, n.xorBy = Bd, n.xorWith = Vd, n.zip = Gd, n.zipObject = Ka, n.zipObjectDeep = Ja, n.zipWith = Kd, n.entries = zp, n.entriesIn = Fp, n.extend = Ep, n.extendWith = Pp, Iu(n, n), n.add = lf, n.attempt = Zp, n.camelCase = qp, n.capitalize = ou, n.ceil = uf, n.clamp = tu, n.clone = zs, n.cloneDeep = qs, n.cloneDeepWith = Us, n.cloneWith = Fs, n.conformsTo = Ws, n.deburr = iu, n.defaultTo = Lu, n.divide = cf, n.endsWith = au, n.eq = Bs, n.escape = su, n.escapeRegExp = lu, n.every = as, n.find = $d, n.findIndex = da, n.findKey = Ll, n.findLast = Qd, n.findLastIndex = pa, n.findLastKey = Cl, n.floor = df, n.forEach = ds, n.forEachRight = ps, n.forIn = Ol, n.forInRight = jl, n.forOwn = Dl, n.forOwnRight = Il, n.get = Al, n.gt = fp, n.gte = hp, n.has = Nl, n.hasIn = Hl, n.head = ya, n.identity = Cu, n.includes = fs, n.indexOf = ga, n.inRange = nu, n.invoke = Yp, n.isArguments = mp, n.isArray = _p, n.isArrayBuffer = yp, n.isArrayLike = Vs, n.isArrayLikeObject = Gs, n.isBoolean = Ks, n.isBuffer = gp, n.isDate = vp, n.isElement = Js, n.isEmpty = Zs, n.isEqual = $s, n.isEqualWith = Qs, n.isError = Xs, n.isFinite = el, n.isFunction = tl, n.isInteger = nl, n.isLength = rl, n.isMap = bp, n.isMatch = al, n.isMatchWith = sl, n.isNaN = ll, n.isNative = ul, n.isNil = dl, n.isNull = cl, n.isNumber = pl, n.isObject = ol, n.isObjectLike = il, n.isPlainObject = fl, n.isRegExp = wp, n.isSafeInteger = hl, n.isSet = kp, n.isString = ml, n.isSymbol = _l, n.isTypedArray = Mp, n.isUndefined = yl, n.isWeakMap = gl, n.isWeakSet = vl, n.join = ba, n.kebabCase = Up, n.last = wa, n.lastIndexOf = ka, n.lowerCase = Wp, n.lowerFirst = Bp, n.lt = Tp, n.lte = Sp, n.max = Ku, n.maxBy = Ju, n.mean = Zu, n.meanBy = $u, n.min = Qu, n.minBy = Xu, n.stubArray = zu, n.stubFalse = Fu, n.stubObject = qu, n.stubString = Uu, n.stubTrue = Wu, n.multiply = pf, n.nth = Ma, n.noConflict = Yu, n.noop = Ru, n.now = op, n.pad = uu, n.padEnd = cu, n.padStart = du, n.parseInt = pu, n.random = ru, n.reduce = _s, n.reduceRight = ys, n.repeat = fu, n.replace = hu, n.result = Vl, n.round = ff, n.runInContext = e, n.sample = vs, n.size = ks, n.snakeCase = Vp, n.some = Ms, n.sortedIndex = Ca, n.sortedIndexBy = Oa, n.sortedIndexOf = ja, n.sortedLastIndex = Da, n.sortedLastIndexBy = Ia, n.sortedLastIndexOf = Ya, n.startCase = Gp, n.startsWith = _u, n.subtract = hf, n.sum = ec, n.sumBy = tc, n.template = yu, n.times = Bu, n.toFinite = wl, n.toInteger = kl, n.toLength = Ml, n.toLower = gu, n.toNumber = Tl, n.toSafeInteger = xl, n.toString = El, n.toUpper = vu, n.trim = bu, n.trimEnd = wu, n.trimStart = ku, n.truncate = Mu, n.unescape = Tu, n.uniqueId = Gu, n.upperCase = Kp, n.upperFirst = Jp, n.each = ds, n.eachRight = ps, n.first = ya, Iu(n, function() {
+          return n.after = Ts, n.ary = xs, n.assign = Sp, n.assignIn = Ep, n.assignInWith = Lp, n.assignWith = Pp, n.at = Cp, n.before = Ss, n.bind = ip, n.bindAll = $p, n.bindKey = ap, n.castArray = Hs, n.chain = Za, n.chunk = ra, n.compact = oa, n.concat = ia, n.cond = Su, n.conforms = Eu, n.constant = Lu, n.countBy = Zd, n.create = Ll, n.curry = Es, n.curryRight = Ls, n.debounce = Ps, n.defaults = Op, n.defaultsDeep = jp, n.defer = sp, n.delay = lp, n.difference = jd, n.differenceBy = Dd, n.differenceWith = Id, n.drop = aa, n.dropRight = sa, n.dropRightWhile = la, n.dropWhile = ua, n.fill = ca, n.filter = ss, n.flatMap = ls, n.flatMapDeep = us, n.flatMapDepth = cs, n.flatten = fa, n.flattenDeep = ha, n.flattenDepth = ma, n.flip = Cs, n.flow = Qp, n.flowRight = Xp, n.fromPairs = _a, n.functions = Yl, n.functionsIn = Rl, n.groupBy = Xd, n.initial = va, n.intersection = Yd, n.intersectionBy = Rd, n.intersectionWith = Ad, n.invert = Dp, n.invertBy = Ip, n.invokeMap = ep, n.iteratee = Ou, n.keyBy = tp, n.keys = zl, n.keysIn = Fl, n.map = hs, n.mapKeys = ql, n.mapValues = Ul, n.matches = ju, n.matchesProperty = Du, n.memoize = Os, n.merge = Rp, n.mergeWith = Ap, n.method = ef, n.methodOf = tf, n.mixin = Iu, n.negate = js, n.nthArg = Au, n.omit = Np, n.omitBy = Wl, n.once = Ds, n.orderBy = ms, n.over = nf, n.overArgs = up, n.overEvery = rf, n.overSome = of , n.partial = cp, n.partialRight = dp, n.partition = np, n.pick = Hp, n.pickBy = Bl, n.property = Nu, n.propertyOf = Hu, n.pull = Nd, n.pullAll = Ta, n.pullAllBy = xa, n.pullAllWith = Sa, n.pullAt = Hd, n.range = af, n.rangeRight = sf, n.rearg = pp, n.reject = gs, n.remove = Ea, n.rest = Is, n.reverse = La, n.sampleSize = bs, n.set = Gl, n.setWith = Kl, n.shuffle = ws, n.slice = Pa, n.sortBy = rp, n.sortedUniq = Ra, n.sortedUniqBy = Aa, n.split = mu, n.spread = Ys, n.tail = Na, n.take = Ha, n.takeRight = za, n.takeRightWhile = Fa, n.takeWhile = qa, n.tap = $a, n.throttle = Rs, n.thru = Qa, n.toArray = bl, n.toPairs = zp, n.toPairsIn = Fp, n.toPath = Vu, n.toPlainObject = xl, n.transform = Jl, n.unary = As, n.union = zd, n.unionBy = Fd, n.unionWith = qd, n.uniq = Ua, n.uniqBy = Wa, n.uniqWith = Ba, n.unset = Zl, n.unzip = Va, n.unzipWith = Ga, n.update = $l, n.updateWith = Ql, n.values = Xl, n.valuesIn = eu, n.without = Ud, n.words = xu, n.wrap = Ns, n.xor = Wd, n.xorBy = Bd, n.xorWith = Vd, n.zip = Gd, n.zipObject = Ka, n.zipObjectDeep = Ja, n.zipWith = Kd, n.entries = zp, n.entriesIn = Fp, n.extend = Ep, n.extendWith = Lp, Iu(n, n), n.add = lf, n.attempt = Zp, n.camelCase = qp, n.capitalize = ou, n.ceil = uf, n.clamp = tu, n.clone = zs, n.cloneDeep = qs, n.cloneDeepWith = Us, n.cloneWith = Fs, n.conformsTo = Ws, n.deburr = iu, n.defaultTo = Pu, n.divide = cf, n.endsWith = au, n.eq = Bs, n.escape = su, n.escapeRegExp = lu, n.every = as, n.find = $d, n.findIndex = da, n.findKey = Pl, n.findLast = Qd, n.findLastIndex = pa, n.findLastKey = Cl, n.floor = df, n.forEach = ds, n.forEachRight = ps, n.forIn = Ol, n.forInRight = jl, n.forOwn = Dl, n.forOwnRight = Il, n.get = Al, n.gt = fp, n.gte = hp, n.has = Nl, n.hasIn = Hl, n.head = ya, n.identity = Cu, n.includes = fs, n.indexOf = ga, n.inRange = nu, n.invoke = Yp, n.isArguments = mp, n.isArray = _p, n.isArrayBuffer = yp, n.isArrayLike = Vs, n.isArrayLikeObject = Gs, n.isBoolean = Ks, n.isBuffer = gp, n.isDate = vp, n.isElement = Js, n.isEmpty = Zs, n.isEqual = $s, n.isEqualWith = Qs, n.isError = Xs, n.isFinite = el, n.isFunction = tl, n.isInteger = nl, n.isLength = rl, n.isMap = bp, n.isMatch = al, n.isMatchWith = sl, n.isNaN = ll, n.isNative = ul, n.isNil = dl, n.isNull = cl, n.isNumber = pl, n.isObject = ol, n.isObjectLike = il, n.isPlainObject = fl, n.isRegExp = wp, n.isSafeInteger = hl, n.isSet = kp, n.isString = ml, n.isSymbol = _l, n.isTypedArray = Mp, n.isUndefined = yl, n.isWeakMap = gl, n.isWeakSet = vl, n.join = ba, n.kebabCase = Up, n.last = wa, n.lastIndexOf = ka, n.lowerCase = Wp, n.lowerFirst = Bp, n.lt = Tp, n.lte = xp, n.max = Ku, n.maxBy = Ju, n.mean = Zu, n.meanBy = $u, n.min = Qu, n.minBy = Xu, n.stubArray = zu, n.stubFalse = Fu, n.stubObject = qu, n.stubString = Uu, n.stubTrue = Wu, n.multiply = pf, n.nth = Ma, n.noConflict = Yu, n.noop = Ru, n.now = op, n.pad = uu, n.padEnd = cu, n.padStart = du, n.parseInt = pu, n.random = ru, n.reduce = _s, n.reduceRight = ys, n.repeat = fu, n.replace = hu, n.result = Vl, n.round = ff, n.runInContext = e, n.sample = vs, n.size = ks, n.snakeCase = Vp, n.some = Ms, n.sortedIndex = Ca, n.sortedIndexBy = Oa, n.sortedIndexOf = ja, n.sortedLastIndex = Da, n.sortedLastIndexBy = Ia, n.sortedLastIndexOf = Ya, n.startCase = Gp, n.startsWith = _u, n.subtract = hf, n.sum = ec, n.sumBy = tc, n.template = yu, n.times = Bu, n.toFinite = wl, n.toInteger = kl, n.toLength = Ml, n.toLower = gu, n.toNumber = Tl, n.toSafeInteger = Sl, n.toString = El, n.toUpper = vu, n.trim = bu, n.trimEnd = wu, n.trimStart = ku, n.truncate = Mu, n.unescape = Tu, n.uniqueId = Gu, n.upperCase = Kp, n.upperFirst = Jp, n.each = ds, n.eachRight = ps, n.first = ya, Iu(n, function() {
             var e = {};
             return fr(n, function(t, r) {
               _c.call(n.prototype, r) || (e[r] = t);
@@ -5924,7 +5924,7 @@ webpackJsonp([332], [, function(e, t, n) {
             return this.reverse().find(e);
           }, b.prototype.invokeMap = no(function(e, t) {
             return "function" == typeof e ? new b(this) : this.map(function(n) {
-              return Sr(n, e, t);
+              return xr(n, e, t);
             });
           }), b.prototype.reject = function(e) {
             return this.filter(js(ki(e)));
@@ -5993,7 +5993,7 @@ webpackJsonp([332], [, function(e, t, n) {
           }), od[Xo(oe, ye).name] = [{
             name: "wrapper",
             func: oe
-          }], b.prototype.clone = L, b.prototype.reverse = $, b.prototype.value = te, n.prototype.at = Jd, n.prototype.chain = Xa, n.prototype.commit = es, n.prototype.next = ts, n.prototype.plant = rs, n.prototype.reverse = os, n.prototype.toJSON = n.prototype.valueOf = n.prototype.value = is, n.prototype.first = n.prototype.head, jc && (n.prototype[jc] = ns), n;
+          }], b.prototype.clone = P, b.prototype.reverse = $, b.prototype.value = te, n.prototype.at = Jd, n.prototype.chain = Xa, n.prototype.commit = es, n.prototype.next = ts, n.prototype.plant = rs, n.prototype.reverse = os, n.prototype.toJSON = n.prototype.valueOf = n.prototype.value = is, n.prototype.first = n.prototype.head, jc && (n.prototype[jc] = ns), n;
         }();
       Dn._ = Jn, (o = function() {
         return Jn;
@@ -6387,7 +6387,7 @@ webpackJsonp([332], [, function(e, t, n) {
         this.dirtyComponentsLength = y.length;
       },
       close: function() {
-        this.dirtyComponentsLength !== y.length ? (y.splice(0, this.dirtyComponentsLength), S()) : y.length = 0;
+        this.dirtyComponentsLength !== y.length ? (y.splice(0, this.dirtyComponentsLength), x()) : y.length = 0;
       }
     },
     M = {
@@ -6410,7 +6410,7 @@ webpackJsonp([332], [, function(e, t, n) {
       return _.perform.call(this, this.reconcileTransaction.perform, this.reconcileTransaction, e, t, n);
     }
   }), f.addPoolingTo(o);
-  var S = function() {
+  var x = function() {
       for (; y.length || b;) {
         if (y.length) {
           var e = o.getPooled();
@@ -6423,7 +6423,7 @@ webpackJsonp([332], [, function(e, t, n) {
         }
       }
     },
-    x = {
+    S = {
       injectReconcileTransaction: function(e) {
         e || c("126"), E.ReactReconcileTransaction = e;
       },
@@ -6435,8 +6435,8 @@ webpackJsonp([332], [, function(e, t, n) {
       ReactReconcileTransaction: null,
       batchedUpdates: i,
       enqueueUpdate: l,
-      flushBatchedUpdates: S,
-      injection: x,
+      flushBatchedUpdates: x,
+      injection: S,
       asap: u
     };
   e.exports = E;
@@ -8542,7 +8542,7 @@ webpackJsonp([332], [, function(e, t, n) {
   e.exports = function(e, t, n, m, _, y, g) {
     u(n, t, m);
     var v, b, w, k = function(e) {
-        if (!f && e in x) return x[e];
+        if (!f && e in S) return S[e];
         switch (e) {
           case "keys":
           case "values":
@@ -8556,22 +8556,22 @@ webpackJsonp([332], [, function(e, t, n) {
       },
       M = t + " Iterator",
       T = "values" == _,
-      S = !1,
-      x = e.prototype,
-      E = x[p] || x["@@iterator"] || _ && x[_],
-      P = E || k(_),
-      L = _ ? T ? k("entries") : P : void 0,
-      C = "Array" == t ? x.entries || E : E;
-    if (C && (w = d(C.call(new e))) !== Object.prototype && (c(w, M, !0), r || s(w, p) || a(w, p, h)), T && E && "values" !== E.name && (S = !0, P = function() {
+      x = !1,
+      S = e.prototype,
+      E = S[p] || S["@@iterator"] || _ && S[_],
+      L = E || k(_),
+      P = _ ? T ? k("entries") : L : void 0,
+      C = "Array" == t ? S.entries || E : E;
+    if (C && (w = d(C.call(new e))) !== Object.prototype && (c(w, M, !0), r || s(w, p) || a(w, p, h)), T && E && "values" !== E.name && (x = !0, L = function() {
         return E.call(this);
-      }), r && !g || !f && !S && x[p] || a(x, p, P), l[t] = P, l[M] = h, _)
+      }), r && !g || !f && !x && S[p] || a(S, p, L), l[t] = L, l[M] = h, _)
       if (v = {
-          values: T ? P : k("values"),
-          keys: y ? P : k("keys"),
-          entries: L
+          values: T ? L : k("values"),
+          keys: y ? L : k("keys"),
+          entries: P
         }, g)
-        for (b in v) b in x || i(x, b, v[b]);
-      else o(o.P + o.F * (f || S), t, v);
+        for (b in v) b in S || i(S, b, v[b]);
+      else o(o.P + o.F * (f || x), t, v);
     return v;
   };
 }, function(e, t, n) {
@@ -8736,7 +8736,7 @@ webpackJsonp([332], [, function(e, t, n) {
   }
 
   function u(e, t) {
-    return !!(t = null == t ? w : t) && ("number" == typeof e || S.test(e)) && e > -1 && e % 1 == 0 && e < t;
+    return !!(t = null == t ? w : t) && ("number" == typeof e || x.test(e)) && e > -1 && e % 1 == 0 && e < t;
   }
 
   function c(e, t, n) {
@@ -8747,7 +8747,7 @@ webpackJsonp([332], [, function(e, t, n) {
 
   function d(e) {
     var t = e && e.constructor;
-    return e === ("function" == typeof t && t.prototype || x);
+    return e === ("function" == typeof t && t.prototype || S);
   }
 
   function p(e, t) {
@@ -8755,7 +8755,7 @@ webpackJsonp([332], [, function(e, t, n) {
   }
 
   function f(e) {
-    return m(e) && E.call(e, "callee") && (!L.call(e, "callee") || P.call(e) == k);
+    return m(e) && E.call(e, "callee") && (!P.call(e, "callee") || L.call(e) == k);
   }
 
   function h(e) {
@@ -8767,7 +8767,7 @@ webpackJsonp([332], [, function(e, t, n) {
   }
 
   function _(e) {
-    var t = g(e) ? P.call(e) : "";
+    var t = g(e) ? L.call(e) : "";
     return t == M || t == T;
   }
 
@@ -8791,18 +8791,18 @@ webpackJsonp([332], [, function(e, t, n) {
     k = "[object Arguments]",
     M = "[object Function]",
     T = "[object GeneratorFunction]",
-    S = /^(?:0|[1-9]\d*)$/,
-    x = Object.prototype,
-    E = x.hasOwnProperty,
-    P = x.toString,
-    L = x.propertyIsEnumerable,
+    x = /^(?:0|[1-9]\d*)$/,
+    S = Object.prototype,
+    E = S.hasOwnProperty,
+    L = S.toString,
+    P = S.propertyIsEnumerable,
     C = function(e, t) {
       return function(n) {
         return e(t(n));
       };
     }(Object.keys, Object),
     O = Math.max,
-    j = !L.call({
+    j = !P.call({
       valueOf: 1
     }, "valueOf"),
     D = Array.isArray,
@@ -16950,8 +16950,8 @@ webpackJsonp([332], [, function(e, t, n) {
   }
 
   function s(e, t, n, r) {
-    var o = x.ReactReconcileTransaction.getPooled(!n && b.useCreateElement);
-    o.perform(a, null, e, t, o, n, r), x.ReactReconcileTransaction.release(o);
+    var o = S.ReactReconcileTransaction.getPooled(!n && b.useCreateElement);
+    o.perform(a, null, e, t, o, n, r), S.ReactReconcileTransaction.release(o);
   }
 
   function l(e, t, n) {
@@ -16992,11 +16992,11 @@ webpackJsonp([332], [, function(e, t, n) {
     k = n(82),
     M = (n(19), n(1054)),
     T = n(67),
-    S = n(205),
-    x = n(30),
+    x = n(205),
+    S = n(30),
     E = n(74),
-    P = n(368),
-    L = (n(3), n(131)),
+    L = n(368),
+    P = (n(3), n(131)),
     C = n(211),
     O = (n(4), m.ID_ATTRIBUTE_NAME),
     j = m.ROOT_ATTRIBUTE_NAME,
@@ -17019,13 +17019,13 @@ webpackJsonp([332], [, function(e, t, n) {
     },
     _updateRootComponent: function(e, t, n, r, o) {
       return H.scrollMonitor(r, function() {
-        S.enqueueElementInternal(e, t, n), o && S.enqueueCallbackInternal(e, o);
+        x.enqueueElementInternal(e, t, n), o && x.enqueueCallbackInternal(e, o);
       }), e;
     },
     _renderNewRootComponent: function(e, t, n, r) {
       c(t) || f("37"), y.ensureScrollValueMonitoring();
-      var o = P(e, !1);
-      x.batchedUpdates(s, o, t, n, r);
+      var o = L(e, !1);
+      S.batchedUpdates(s, o, t, n, r);
       var i = o._instance.rootID;
       return R[i] = o, o;
     },
@@ -17033,7 +17033,7 @@ webpackJsonp([332], [, function(e, t, n) {
       return null != e && k.has(e) || f("38"), H._renderSubtreeIntoContainer(e, t, n, r);
     },
     _renderSubtreeIntoContainer: function(e, t, n, r) {
-      S.validateCallback(r, "ReactDOM.render"), _.isValidElement(t) || f("39", "string" == typeof t ? " Instead of passing a string like 'div', pass React.createElement('div') or <div />." : "function" == typeof t ? " Instead of passing a class like Foo, pass React.createElement(Foo) or <Foo />." : null != t && void 0 !== t.props ? " This may be caused by unintentionally loading two independent copies of React." : "");
+      x.validateCallback(r, "ReactDOM.render"), _.isValidElement(t) || f("39", "string" == typeof t ? " Instead of passing a string like 'div', pass React.createElement('div') or <div />." : "function" == typeof t ? " Instead of passing a class like Foo, pass React.createElement(Foo) or <Foo />." : null != t && void 0 !== t.props ? " This may be caused by unintentionally loading two independent copies of React." : "");
       var a, s = _.createElement(N, {
         child: t
       });
@@ -17071,7 +17071,7 @@ webpackJsonp([332], [, function(e, t, n) {
         u(e), 1 === e.nodeType && e.hasAttribute(j);
         return !1;
       }
-      return delete R[t._instance.rootID], x.batchedUpdates(l, t, e, !1), !0;
+      return delete R[t._instance.rootID], S.batchedUpdates(l, t, e, !1), !0;
     },
     _mountImageIntoNode: function(e, t, n, i, a) {
       if (c(t) || f("41"), i) {
@@ -17089,7 +17089,7 @@ webpackJsonp([332], [, function(e, t, n) {
       if (t.nodeType === I && f("43"), a.useCreateElement) {
         for (; t.lastChild;) t.removeChild(t.lastChild);
         h.insertTreeBefore(t, e, null);
-      } else L(t, e), g.precacheNode(n, t.firstChild);
+      } else P(t, e), g.precacheNode(n, t.firstChild);
     }
   };
   e.exports = H;
@@ -17374,16 +17374,16 @@ webpackJsonp([332], [, function(e, t, n) {
       k = void 0 === w ? "connectAdvanced" : w,
       M = c.renderCountProp,
       T = void 0 === M ? void 0 : M,
-      S = c.shouldHandleStateChanges,
-      x = void 0 === S || S,
+      x = c.shouldHandleStateChanges,
+      S = void 0 === x || x,
       E = c.storeKey,
-      P = void 0 === E ? "store" : E,
-      L = c.withRef,
-      C = void 0 !== L && L,
+      L = void 0 === E ? "store" : E,
+      P = c.withRef,
+      C = void 0 !== P && P,
       O = a(c, ["getDisplayName", "methodName", "renderCountProp", "shouldHandleStateChanges", "storeKey", "withRef"]),
-      j = P + "Subscription",
+      j = L + "Subscription",
       D = g++,
-      I = (t = {}, t[P] = _.a, t[j] = _.b, t),
+      I = (t = {}, t[L] = _.a, t[j] = _.b, t),
       Y = (u = {}, u[j] = _.b, u);
     return function(t) {
       f()("function" == typeof t, "You must pass a component to the function returned by connect. Instead received " + JSON.stringify(t));
@@ -17393,8 +17393,8 @@ webpackJsonp([332], [, function(e, t, n) {
           getDisplayName: b,
           methodName: k,
           renderCountProp: T,
-          shouldHandleStateChanges: x,
-          storeKey: P,
+          shouldHandleStateChanges: S,
+          storeKey: L,
           withRef: C,
           displayName: u,
           wrappedComponentName: a,
@@ -17404,13 +17404,13 @@ webpackJsonp([332], [, function(e, t, n) {
           function d(e, t) {
             r(this, d);
             var n = o(this, a.call(this, e, t));
-            return n.version = D, n.state = {}, n.renderCount = 0, n.store = e[P] || t[P], n.propsMode = Boolean(e[P]), n.setWrappedInstance = n.setWrappedInstance.bind(n), f()(n.store, 'Could not find "' + P + '" in either the context or props of "' + u + '". Either wrap the root component in a <Provider>, or explicitly pass "' + P + '" as a prop to "' + u + '".'), n.initSelector(), n.initSubscription(), n;
+            return n.version = D, n.state = {}, n.renderCount = 0, n.store = e[L] || t[L], n.propsMode = Boolean(e[L]), n.setWrappedInstance = n.setWrappedInstance.bind(n), f()(n.store, 'Could not find "' + L + '" in either the context or props of "' + u + '". Either wrap the root component in a <Provider>, or explicitly pass "' + L + '" as a prop to "' + u + '".'), n.initSelector(), n.initSubscription(), n;
           }
           return i(d, a), d.prototype.getChildContext = function() {
             var e, t = this.propsMode ? null : this.subscription;
             return e = {}, e[j] = t || this.context[j], e;
           }, d.prototype.componentDidMount = function() {
-            x && (this.subscription.trySubscribe(), this.selector.run(this.props), this.selector.shouldComponentUpdate && this.forceUpdate());
+            S && (this.subscription.trySubscribe(), this.selector.run(this.props), this.selector.shouldComponentUpdate && this.forceUpdate());
           }, d.prototype.componentWillReceiveProps = function(e) {
             this.selector.run(e);
           }, d.prototype.shouldComponentUpdate = function() {
@@ -17425,7 +17425,7 @@ webpackJsonp([332], [, function(e, t, n) {
             var t = e(this.store.dispatch, c);
             this.selector = l(t, this.store), this.selector.run(this.props);
           }, d.prototype.initSubscription = function() {
-            if (x) {
+            if (S) {
               var e = (this.propsMode ? this.props : this.context)[j];
               this.subscription = new m.a(this.store, e, this.onStateChange.bind(this)), this.notifyNestedSubs = this.subscription.notifyNestedSubs.bind(this.subscription);
             }
@@ -18115,14 +18115,14 @@ webpackJsonp([332], [, function(e, t, n) {
     k = n(215),
     M = n(384),
     T = n(1120),
-    S = n(383),
-    x = n(237),
-    E = n.n(x),
-    P = {
+    x = n(383),
+    S = n(237),
+    E = n.n(S),
+    L = {
       OBSERVED: "observed",
       REQUESTED: "requested"
     },
-    L = function(e) {
+    P = function(e) {
       function t(e, r) {
         l()(this, t);
         var o = p()(this, (t.__proto__ || a()(t)).call(this, e, r));
@@ -18197,7 +18197,7 @@ webpackJsonp([332], [, function(e, t, n) {
                   isScrolling: !0,
                   scrollDirectionHorizontal: m,
                   scrollDirectionVertical: _,
-                  scrollPositionChangeReason: P.OBSERVED
+                  scrollPositionChangeReason: L.OBSERVED
                 };
               a || (y.scrollTop = h), s || (y.scrollLeft = f), this.setState(y);
             }
@@ -18304,7 +18304,7 @@ webpackJsonp([332], [, function(e, t, n) {
             y = h.scrollTop;
           this._handleInvalidatedGridSize();
           var g = s > 0 && 0 === e.columnCount || u > 0 && 0 === e.rowCount;
-          _ === P.REQUESTED && (!a && m >= 0 && (m !== t.scrollLeft && m !== this._scrollingContainer.scrollLeft || g) && (this._scrollingContainer.scrollLeft = m), !i && y >= 0 && (y !== t.scrollTop && y !== this._scrollingContainer.scrollTop || g) && (this._scrollingContainer.scrollTop = y));
+          _ === L.REQUESTED && (!a && m >= 0 && (m !== t.scrollLeft && m !== this._scrollingContainer.scrollLeft || g) && (this._scrollingContainer.scrollLeft = m), !i && y >= 0 && (y !== t.scrollTop && y !== this._scrollingContainer.scrollTop || g) && (this._scrollingContainer.scrollTop = y));
           var v = (0 === e.width || 0 === e.height) && l > 0 && f > 0;
           if (this._recomputeScrollLeftFlag ? (this._recomputeScrollLeftFlag = !1, this._updateScrollLeftForScrollToColumn(this.props)) : n.i(T.a)({
               cellSizeAndPositionManager: this._columnSizeAndPositionManager,
@@ -18647,7 +18647,7 @@ webpackJsonp([332], [, function(e, t, n) {
           var t = e.scrollLeft,
             n = e.scrollTop,
             r = {
-              scrollPositionChangeReason: P.REQUESTED
+              scrollPositionChangeReason: L.REQUESTED
             };
           t >= 0 && (r.scrollDirectionHorizontal = t > this.state.scrollLeft ? M.a : M.b, r.scrollLeft = t), n >= 0 && (r.scrollDirectionVertical = n > this.state.scrollTop ? M.a : M.b, r.scrollTop = n), (t >= 0 && t !== this.state.scrollLeft || n >= 0 && n !== this.state.scrollTop) && this.setState(r);
         }
@@ -18752,9 +18752,9 @@ webpackJsonp([332], [, function(e, t, n) {
         }
       }]), t;
     }(m.PureComponent);
-  L.defaultProps = {
+  P.defaultProps = {
     "aria-label": "grid",
-    cellRangeRenderer: S.a,
+    cellRangeRenderer: x.a,
     estimatedColumnSize: 100,
     estimatedRowSize: 30,
     getScrollbarSize: E.a,
@@ -18777,7 +18777,7 @@ webpackJsonp([332], [, function(e, t, n) {
     scrollToRow: -1,
     style: {},
     tabIndex: 0
-  }, t.a = L;
+  }, t.a = P;
 }, function(e, t, n) {
   "use strict";
 
@@ -18785,10 +18785,10 @@ webpackJsonp([332], [, function(e, t, n) {
     for (var t = e.cellCache, n = e.cellRenderer, r = e.columnSizeAndPositionManager, o = e.columnStartIndex, i = e.columnStopIndex, a = e.deferredMeasurementCache, s = e.horizontalOffsetAdjustment, l = e.isScrolling, u = e.parent, c = e.rowSizeAndPositionManager, d = e.rowStartIndex, p = e.rowStopIndex, f = (e.scrollLeft, e.scrollTop, e.styleCache), h = e.verticalOffsetAdjustment, m = e.visibleColumnIndices, _ = e.visibleRowIndices, y = void 0 !== a, g = [], v = r.areOffsetsAdjusted() || c.areOffsetsAdjusted(), b = !l || !v, w = d; w <= p; w++)
       for (var k = c.getSizeAndPositionOfCell(w), M = o; M <= i; M++) {
         var T = r.getSizeAndPositionOfCell(M),
-          S = M >= m.start && M <= m.stop && w >= _.start && w <= _.stop,
-          x = w + "-" + M,
+          x = M >= m.start && M <= m.stop && w >= _.start && w <= _.stop,
+          S = w + "-" + M,
           E = void 0;
-        b && f[x] ? E = f[x] : y && !a.has(w, M) ? E = {
+        b && f[S] ? E = f[S] : y && !a.has(w, M) ? E = {
           height: "auto",
           left: 0,
           position: "absolute",
@@ -18800,18 +18800,18 @@ webpackJsonp([332], [, function(e, t, n) {
           position: "absolute",
           top: k.offset + h,
           width: T.size
-        }, f[x] = E);
-        var P = {
+        }, f[S] = E);
+        var L = {
             columnIndex: M,
             isScrolling: l,
-            isVisible: S,
-            key: x,
+            isVisible: x,
+            key: S,
             parent: u,
             rowIndex: w,
             style: E
           },
-          L = void 0;
-        !l || s || h ? L = n(P) : (t[x] || (t[x] = n(P)), L = t[x]), null != L && !1 !== L && g.push(L);
+          P = void 0;
+        !l || s || h ? P = n(L) : (t[S] || (t[S] = n(L)), P = t[S]), null != P && !1 !== P && g.push(P);
       }
     return g;
   }
@@ -19007,7 +19007,7 @@ webpackJsonp([332], [, function(e, t, n) {
     k = n.n(w),
     M = n(9),
     T = n.n(M),
-    S = function(e) {
+    x = function(e) {
       function t(e, n) {
         p()(this, t);
         var r = _()(this, (t.__proto__ || c()(t)).call(this, e, n));
@@ -19125,7 +19125,7 @@ webpackJsonp([332], [, function(e, t, n) {
         }
       }]), t;
     }(w.PureComponent);
-  S.defaultProps = {
+  x.defaultProps = {
     estimatedRowSize: 30,
     noRowsRenderer: function() {
       return null;
@@ -19141,7 +19141,7 @@ webpackJsonp([332], [, function(e, t, n) {
     scrollToAlignment: "auto",
     scrollToIndex: -1,
     style: {}
-  }, t.a = S;
+  }, t.a = x;
 }, function(e, t, n) {
   "use strict";
 
@@ -19242,13 +19242,13 @@ webpackJsonp([332], [, function(e, t, n) {
             M = this._positionCache.shortestColumnSize,
             T = this._positionCache.count;
           if (M < v + l + d && T < r)
-            for (var S = Math.min(r - T, Math.ceil((v + l + d - M) / o.defaultHeight * m / o.defaultWidth)), x = T; x < T + S; x++) w.push(i({
-              index: x,
+            for (var x = Math.min(r - T, Math.ceil((v + l + d - M) / o.defaultHeight * m / o.defaultWidth)), S = T; S < T + x; S++) w.push(i({
+              index: S,
               isScrolling: y,
-              key: c(x),
+              key: c(S),
               parent: this,
               style: {
-                width: o.getWidth(x)
+                width: o.getWidth(S)
               }
             }));
           else ! function() {
@@ -20015,7 +20015,7 @@ webpackJsonp([332], [, function(e, t, n) {
     k = n(397),
     M = n(396),
     T = n(214),
-    S = function(e) {
+    x = function(e) {
       function t(e) {
         l()(this, t);
         var n = p()(this, (t.__proto__ || a()(t)).call(this, e));
@@ -20220,7 +20220,7 @@ webpackJsonp([332], [, function(e, t, n) {
               sortBy: u,
               sortDirection: c
             }),
-            S = {
+            x = {
               role: "columnheader"
             };
           return (b || s) && function() {
@@ -20238,8 +20238,8 @@ webpackJsonp([332], [, function(e, t, n) {
               r = function(e) {
                 "Enter" !== e.key && " " !== e.key || n(e);
               };
-            S["aria-label"] = t.props["aria-label"] || y || p, S.tabIndex = 0, S.onClick = n, S.onKeyDown = r;
-          }(), u === p && (S["aria-sort"] = c === T.a.ASC ? "ascending" : "descending"), m && (S.id = m), v.a.createElement("div", o()({}, S, {
+            x["aria-label"] = t.props["aria-label"] || y || p, x.tabIndex = 0, x.onClick = n, x.onKeyDown = r;
+          }(), u === p && (x["aria-sort"] = c === T.a.ASC ? "ascending" : "descending"), m && (x.id = m), v.a.createElement("div", o()({}, x, {
             key: "Header-Col" + n,
             className: w,
             style: k
@@ -20285,14 +20285,14 @@ webpackJsonp([332], [, function(e, t, n) {
                 scrollbarWidth: b
               });
             }),
-            S = _()("ReactVirtualized__Table__row", w),
-            x = o()({}, s, k, {
+            x = _()("ReactVirtualized__Table__row", w),
+            S = o()({}, s, k, {
               height: this._getRowHeight(n),
               overflow: "hidden",
               paddingRight: b
             });
           return y({
-            className: S,
+            className: x,
             columns: T,
             index: n,
             isScrolling: r,
@@ -20302,7 +20302,7 @@ webpackJsonp([332], [, function(e, t, n) {
             onRowMouseOver: p,
             onRowMouseOut: f,
             rowData: M,
-            style: x
+            style: S
           });
         }
       }, {
@@ -20382,7 +20382,7 @@ webpackJsonp([332], [, function(e, t, n) {
         }
       }]), t;
     }(g.PureComponent);
-  S.defaultProps = {
+  x.defaultProps = {
     disableHeader: !1,
     estimatedRowSize: 30,
     headerHeight: 0,
@@ -20738,10 +20738,10 @@ webpackJsonp([332], [, function(e, t, n) {
   }
 
   function s(e) {
-    var t, n = S.getDisplayName(e),
-      r = S.getElement(e),
-      o = S.getOwnerID(e);
-    return o && (t = S.getDisplayName(o)), i(n, r && r._source, t);
+    var t, n = x.getDisplayName(e),
+      r = x.getElement(e),
+      o = x.getOwnerID(e);
+    return o && (t = x.getDisplayName(o)), i(n, r && r._source, t);
   }
   var l, u, c, d, p, f, h, m = n(70),
     _ = n(36),
@@ -20795,7 +20795,7 @@ webpackJsonp([332], [, function(e, t, n) {
     };
   }
   var T = [],
-    S = {
+    x = {
       onSetChildren: function(e, t) {
         var n = u(e);
         n || m("144"), n.childIDs = t;
@@ -20836,7 +20836,7 @@ webpackJsonp([332], [, function(e, t, n) {
         T.push(e);
       },
       purgeUnmountedComponents: function() {
-        if (!S._preventPurging) {
+        if (!x._preventPurging) {
           for (var e = 0; e < T.length; e++) {
             o(T[e]);
           }
@@ -20856,10 +20856,10 @@ webpackJsonp([332], [, function(e, t, n) {
         }
         var o = _.current,
           s = o && o._debugID;
-        return t += S.getStackAddendumByID(s);
+        return t += x.getStackAddendumByID(s);
       },
       getStackAddendumByID: function(e) {
-        for (var t = ""; e;) t += s(e), e = S.getParentID(e);
+        for (var t = ""; e;) t += s(e), e = x.getParentID(e);
         return t;
       },
       getChildIDs: function(e) {
@@ -20867,7 +20867,7 @@ webpackJsonp([332], [, function(e, t, n) {
         return t ? t.childIDs : [];
       },
       getDisplayName: function(e) {
-        var t = S.getElement(e);
+        var t = x.getElement(e);
         return t ? a(t) : null;
       },
       getElement: function(e) {
@@ -20875,7 +20875,7 @@ webpackJsonp([332], [, function(e, t, n) {
         return t ? t.element : null;
       },
       getOwnerID: function(e) {
-        var t = S.getElement(e);
+        var t = x.getElement(e);
         return t && t._owner ? t._owner._debugID : null;
       },
       getParentID: function(e) {
@@ -20888,7 +20888,7 @@ webpackJsonp([332], [, function(e, t, n) {
         return null != n ? n._source : null;
       },
       getText: function(e) {
-        var t = S.getElement(e);
+        var t = x.getElement(e);
         return "string" == typeof t ? t : "number" == typeof t ? "" + t : null;
       },
       getUpdateCount: function(e) {
@@ -20898,7 +20898,7 @@ webpackJsonp([332], [, function(e, t, n) {
       getRootIDs: h,
       getRegisteredIDs: d
     };
-  e.exports = S;
+  e.exports = x;
 }, function(e, t, n) {
   "use strict";
   var r = "function" == typeof Symbol && Symbol.for && Symbol.for("react.element") || 60103;
@@ -21578,11 +21578,11 @@ webpackJsonp([332], [, function(e, t, n) {
     k = n(124),
     M = n(176),
     T = n(923),
-    S = n(177),
-    x = n(57),
+    x = n(177),
+    S = n(57),
     E = n(64),
-    P = S.f,
     L = x.f,
+    P = S.f,
     C = T.f,
     O = r.Symbol,
     j = r.JSON,
@@ -21598,17 +21598,17 @@ webpackJsonp([332], [, function(e, t, n) {
     q = r.QObject,
     U = !q || !q.prototype || !q.prototype.findChild,
     W = i && u(function() {
-      return 7 != M(L({}, "a", {
+      return 7 != M(P({}, "a", {
         get: function() {
-          return L(this, "a", {
+          return P(this, "a", {
             value: 7
           }).a;
         }
       })).a;
     }) ? function(e, t, n) {
-      var r = P(z, t);
-      r && delete z[t], L(e, t, n), r && e !== z && L(z, t, r);
-    } : L,
+      var r = L(z, t);
+      r && delete z[t], P(e, t, n), r && e !== z && P(z, t, r);
+    } : P,
     B = function(e) {
       var t = N[e] = M(O.prototype);
       return t._k = e, t;
@@ -21621,7 +21621,7 @@ webpackJsonp([332], [, function(e, t, n) {
     G = function(e, t, n) {
       return e === z && G(H, t, n), v(e), t = w(t, !0), v(n), o(N, t) ? (n.enumerable ? (o(e, I) && e[I][t] && (e[I][t] = !1), n = M(n, {
         enumerable: k(0, !1)
-      })) : (o(e, I) || L(e, I, k(1, {})), e[I][t] = !0), W(e, t, n)) : L(e, t, n);
+      })) : (o(e, I) || P(e, I, k(1, {})), e[I][t] = !0), W(e, t, n)) : P(e, t, n);
     },
     K = function(e, t) {
       v(e);
@@ -21637,7 +21637,7 @@ webpackJsonp([332], [, function(e, t, n) {
     },
     $ = function(e, t) {
       if (e = b(e), t = w(t, !0), e !== z || !o(N, t) || o(H, t)) {
-        var n = P(e, t);
+        var n = L(e, t);
         return !n || !o(N, t) || o(e, I) && e[I][t] || (n.enumerable = !0), n;
       }
     },
@@ -21661,7 +21661,7 @@ webpackJsonp([332], [, function(e, t, n) {
     }), B(e);
   }, s(O.prototype, "toString", function() {
     return this._k;
-  }), S.f = $, x.f = G, n(233).f = T.f = Q, n(123).f = Z, n(178).f = X, i && !n(175) && s(z, "propertyIsEnumerable", Z, !0), h.f = function(e) {
+  }), x.f = $, S.f = G, n(233).f = T.f = Q, n(123).f = Z, n(178).f = X, i && !n(175) && s(z, "propertyIsEnumerable", Z, !0), h.f = function(e) {
     return B(f(e));
   }), a(a.G + a.W + a.F * !F, {
     Symbol: O
@@ -21709,11 +21709,11 @@ webpackJsonp([332], [, function(e, t, n) {
 }, function(e, t, n) {
   n(185)("observable");
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".c-presence--active {\n  color: #93cc93;\n}\n.c-presence--away {\n  color: #717274;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-form_type_default {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n}\n.t-form_type_label {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_type_placeholder {\n  color: #a0a0a2;\n}\n.t-form_element_sizing {\n  margin: 0 0 12px;\n  padding: 8px 12px;\n}\n.t-form_label {\n  display: block;\n  margin: 0;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_border {\n  border-radius: 4px;\n  border: solid 1px #a0a0a2;\n}\n.t-form_cursor {\n  cursor: pointer;\n}\n.t-form_cursor[disabled] {\n  cursor: default;\n}\n.c-presence--active {\n  color: #93cc93;\n}\n.c-presence--away {\n  color: #717274;\n}\n", ""]);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".c-tooltip__tip {\n  display: inline-block;\n  color: #fff;\n  background-color: #000;\n  max-width: 250px;\n  padding: 0.5rem;\n  border-radius: 4px;\n  position: relative;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 0.8125rem;\n  font-weight: 700;\n  text-align: center;\n}\n.c-tooltip__tip:after {\n  position: absolute;\n  content: '';\n  width: 0;\n  height: 0;\n  margin: -5px;\n  border: 6px solid transparent;\n}\n.c-tooltip__tip--left {\n  margin-right: 0.5rem;\n}\n.c-tooltip__tip--left:after {\n  border-left-color: #000;\n  right: -6px;\n  top: 50%;\n}\n.c-tooltip__tip--right {\n  margin-left: 0.5rem;\n}\n.c-tooltip__tip--right:after {\n  border-right-color: #000;\n  left: -6px;\n  top: 50%;\n}\n.c-tooltip__tip--top {\n  margin-bottom: 0.5rem;\n}\n.c-tooltip__tip--top:after {\n  border-top-color: #000;\n  bottom: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--top-left {\n  margin-bottom: 0.5rem;\n}\n.c-tooltip__tip--top-left:after {\n  border-top-color: #000;\n  bottom: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--top-left:after {\n  left: 25%;\n}\n.c-tooltip__tip--top-right {\n  margin-bottom: 0.5rem;\n}\n.c-tooltip__tip--top-right:after {\n  border-top-color: #000;\n  bottom: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--top-right:after {\n  left: 75%;\n}\n.c-tooltip__tip--bottom {\n  margin-top: 0.5rem;\n}\n.c-tooltip__tip--bottom:after {\n  border-bottom-color: #000;\n  top: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--bottom-left {\n  margin-top: 0.5rem;\n}\n.c-tooltip__tip--bottom-left:after {\n  border-bottom-color: #000;\n  top: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--bottom-left:after {\n  left: 25%;\n}\n.c-tooltip__tip--bottom-right {\n  margin-top: 0.5rem;\n}\n.c-tooltip__tip--bottom-right:after {\n  border-bottom-color: #000;\n  top: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--bottom-right:after {\n  left: 75%;\n}\n.c-tooltip__tip--success {\n  background-color: #29a979;\n}\n.c-tooltip__tip--success.c-tooltip__tip--left:after {\n  border-left-color: #29a979;\n}\n.c-tooltip__tip--success.c-tooltip__tip--right:after {\n  border-right-color: #29a979;\n}\n.c-tooltip__tip--success.c-tooltip__tip--top:after,\n.c-tooltip__tip--success.c-tooltip__tip--top-left:after,\n.c-tooltip__tip--success.c-tooltip__tip--top-right:after {\n  border-top-color: #29a979;\n}\n.c-tooltip__tip--success.c-tooltip__tip--bottom:after,\n.c-tooltip__tip--success.c-tooltip__tip--bottom-left:after,\n.c-tooltip__tip--success.c-tooltip__tip--bottom-right:after {\n  border-bottom-color: #29a979;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-form_type_default {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n}\n.t-form_type_label {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_type_placeholder {\n  color: #a0a0a2;\n}\n.t-form_element_sizing {\n  margin: 0 0 12px;\n  padding: 8px 12px;\n}\n.t-form_label {\n  display: block;\n  margin: 0;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_border {\n  border-radius: 4px;\n  border: solid 1px #a0a0a2;\n}\n.t-form_cursor {\n  cursor: pointer;\n}\n.t-form_cursor[disabled] {\n  cursor: default;\n}\n.c-tooltip__tip {\n  display: inline-block;\n  color: #fff;\n  background-color: #000;\n  max-width: 250px;\n  padding: 0.5rem;\n  border-radius: 4px;\n  position: relative;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 0.8125rem;\n  font-weight: 700;\n  text-align: center;\n}\n.c-tooltip__tip:after {\n  position: absolute;\n  content: '';\n  width: 0;\n  height: 0;\n  margin: -5px;\n  border: 6px solid transparent;\n}\n.c-tooltip__tip--left {\n  margin-right: 0.5rem;\n}\n.c-tooltip__tip--left:after {\n  border-left-color: #000;\n  right: -6px;\n  top: 50%;\n}\n.c-tooltip__tip--right {\n  margin-left: 0.5rem;\n}\n.c-tooltip__tip--right:after {\n  border-right-color: #000;\n  left: -6px;\n  top: 50%;\n}\n.c-tooltip__tip--top {\n  margin-bottom: 0.5rem;\n}\n.c-tooltip__tip--top:after {\n  border-top-color: #000;\n  bottom: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--top-left {\n  margin-bottom: 0.5rem;\n}\n.c-tooltip__tip--top-left:after {\n  border-top-color: #000;\n  bottom: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--top-left:after {\n  left: 25%;\n}\n.c-tooltip__tip--top-right {\n  margin-bottom: 0.5rem;\n}\n.c-tooltip__tip--top-right:after {\n  border-top-color: #000;\n  bottom: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--top-right:after {\n  left: 75%;\n}\n.c-tooltip__tip--bottom {\n  margin-top: 0.5rem;\n}\n.c-tooltip__tip--bottom:after {\n  border-bottom-color: #000;\n  top: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--bottom-left {\n  margin-top: 0.5rem;\n}\n.c-tooltip__tip--bottom-left:after {\n  border-bottom-color: #000;\n  top: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--bottom-left:after {\n  left: 25%;\n}\n.c-tooltip__tip--bottom-right {\n  margin-top: 0.5rem;\n}\n.c-tooltip__tip--bottom-right:after {\n  border-bottom-color: #000;\n  top: -6px;\n  left: 50%;\n}\n.c-tooltip__tip--bottom-right:after {\n  left: 75%;\n}\n.c-tooltip__tip--success {\n  background-color: #29a979;\n}\n.c-tooltip__tip--success.c-tooltip__tip--left:after {\n  border-left-color: #29a979;\n}\n.c-tooltip__tip--success.c-tooltip__tip--right:after {\n  border-right-color: #29a979;\n}\n.c-tooltip__tip--success.c-tooltip__tip--top:after,\n.c-tooltip__tip--success.c-tooltip__tip--top-left:after,\n.c-tooltip__tip--success.c-tooltip__tip--top-right:after {\n  border-top-color: #29a979;\n}\n.c-tooltip__tip--success.c-tooltip__tip--bottom:after,\n.c-tooltip__tip--success.c-tooltip__tip--bottom-left:after,\n.c-tooltip__tip--success.c-tooltip__tip--bottom-right:after {\n  border-bottom-color: #29a979;\n}\n", ""]);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".p-channel_sidebar {\n  width: 220px;\n  height: 100vh;\n  position: relative;\n  padding: 0;\n}\n.incremental_boot .p-channel_sidebar {\n  display: none;\n  visibility: hidden;\n}\n.p-channel_sidebar__virtualized {\n  outline: none;\n}\n.p-channel_sidebar__section_heading {\n  padding: 0 0.75rem 0 15px;\n  margin: 0;\n  width: 100%;\n  height: 26px;\n  display: flex;\n  align-items: center;\n}\n.p-channel_sidebar__section_heading_label {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  font-size: 1rem;\n  line-height: 1;\n  display: block;\n  opacity: 0.7;\n  text-align: left;\n  width: 100%;\n  transition: opacity 0.1s ease-out;\n}\n.p-channel_sidebar__section_heading_label:hover,\n.p-channel_sidebar__section_heading_label:focus,\n.p-channel_sidebar__section_heading_label:active {\n  outline: none;\n}\n.p-channel_sidebar__section_heading_label .c-icon:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  width: 20px;\n  opacity: 0.45;\n  margin: 0 1px 0 -4px;\n  vertical-align: baseline;\n}\n.p-channel_sidebar__section_heading_label--clickable:hover {\n  opacity: 1;\n}\n.p-channel_sidebar__section_heading_right {\n  margin-left: auto;\n}\n.p-channel_sidebar__section_heading_plus {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  line-height: 100%;\n}\n.p-channel_sidebar__section_heading_plus:hover,\n.p-channel_sidebar__section_heading_plus:focus,\n.p-channel_sidebar__section_heading_plus:active {\n  outline: none;\n}\n.p-channel_sidebar__section_heading_plus:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  width: 20px;\n  opacity: 0.45;\n  line-height: 100%;\n  content: '\\E228';\n  transition: opacity 0.1s ease-out;\n}\n.p-channel_sidebar__section_heading_plus:hover:before {\n  opacity: 1;\n}\n.p-channel_sidebar__banner {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  width: calc(100% - 1rem);\n  text-align: center;\n  position: absolute;\n  display: block;\n  z-index: 2;\n  color: #fff;\n  left: 0.5rem;\n  right: 0.5rem;\n  font-weight: 700;\n  font-size: 0.875rem;\n  line-height: 1.625rem;\n  cursor: pointer;\n}\n.p-channel_sidebar__banner:hover,\n.p-channel_sidebar__banner:focus,\n.p-channel_sidebar__banner:active {\n  outline: none;\n}\n.p-channel_sidebar__banner--top {\n  border-top-right-radius: 0;\n  border-bottom-right-radius: 6px;\n  border-bottom-left-radius: 6px;\n  border-top-left-radius: 0;\n  background-clip: padding-box;\n  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.1) inset;\n  top: 0;\n}\n.p-channel_sidebar__banner--bottom {\n  border-top-right-radius: 6px;\n  border-bottom-right-radius: 0;\n  border-bottom-left-radius: 0;\n  border-top-left-radius: 6px;\n  background-clip: padding-box;\n  box-shadow: 0 -1px 6px rgba(0, 0, 0, 0.1), 0 -1px 3px rgba(0, 0, 0, 0.1) inset;\n  bottom: 0;\n}\n.p-channel_sidebar__banner--mentions {\n  background: #eb4d5c;\n}\n.p-channel_sidebar__banner--unreads {\n  background: #2d9ee0;\n}\n.p-channel_sidebar__link {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n}\n.p-channel_sidebar__link:hover,\n.p-channel_sidebar__link:focus,\n.p-channel_sidebar__link:active {\n  outline: none;\n}\n.p-channel_sidebar__channel,\n.p-channel_sidebar__link {\n  display: flex;\n  align-items: center;\n  height: 26px;\n  line-height: 1.625rem;\n  padding: 0 0.75rem 0 15px;\n  width: 100%;\n}\n.p-channel_sidebar__channel:before,\n.p-channel_sidebar__link:before,\n.p-channel_sidebar__channel:after,\n.p-channel_sidebar__link:after {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  width: 20px;\n  opacity: 0.45;\n}\n.p-channel_sidebar__channel:before,\n.p-channel_sidebar__link:before {\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel:after,\n.p-channel_sidebar__link:after {\n  font-size: 1.25rem;\n  margin-left: 0.25rem;\n  opacity: 0.7;\n}\n.p-channel_sidebar__channel:hover,\n.p-channel_sidebar__link:hover,\n.p-channel_sidebar__channel:active,\n.p-channel_sidebar__link:active,\n.p-channel_sidebar__channel:focus,\n.p-channel_sidebar__link:focus,\n.p-channel_sidebar__channel:link,\n.p-channel_sidebar__link:link,\n.p-channel_sidebar__channel:visited,\n.p-channel_sidebar__link:visited {\n  text-decoration: none;\n}\n.p-channel_sidebar__channel:before {\n  content: '\\E125';\n}\n.p-channel_sidebar__channel--private:before {\n  content: '\\E567';\n}\n.p-channel_sidebar__channel--shared:after {\n  content: '\\E559';\n}\n.p-channel_sidebar__channel--org-shared:after {\n  content: '\\E166';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft):before {\n  font-size: 1.25rem;\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='2']:before {\n  content: '\\E521';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='3']:before {\n  content: '\\E522';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='4']:before {\n  content: '\\E523';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='5']:before {\n  content: '\\E524';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='6']:before {\n  content: '\\E525';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='7']:before {\n  content: '\\E526';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='8']:before {\n  content: '\\E527';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='9']:before {\n  content: '\\E528';\n}\n.p-channel_sidebar__channel--im:before {\n  content: none;\n}\n.p-channel_sidebar__channel--im .c-presence {\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel--im .c-presence--away {\n  opacity: 0.7;\n}\n.p-channel_sidebar__channel--im-slackbot:before {\n  content: '\\E515';\n  opacity: 1;\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel--im-slackbot.p-channel_sidebar__channel--draft:before {\n  color: inherit;\n}\n.p-channel_sidebar__channel--muted:not(.p-channel_sidebar__channel--selected) .p-channel_sidebar__name {\n  opacity: 0.45;\n}\n.p-channel_sidebar__channel--unread:not(.p-channel_sidebar__channel--muted) .p-channel_sidebar__name {\n  font-weight: 900;\n  opacity: 1;\n}\n.p-channel_sidebar__channel--selected .p-channel_sidebar__name {\n  opacity: 1;\n}\n.p-channel_sidebar__channel--draft:before {\n  content: '\\E024';\n  font-size: 0.875rem;\n  margin: 1px -2px 0 -1px;\n  flex-basis: 20px;\n  flex-shrink: 0;\n}\n.p-channel_sidebar__channel--archived:before {\n  content: '\\E534';\n}\n@keyframes typing {\n  100% {\n    background-position: -240px;\n  }\n}\n.p-channel_sidebar__channel--typing:before {\n  display: block;\n  content: '';\n  width: 11px;\n  height: 3px;\n  background-image: url(/img/typing-sprite.png);\n  background-repeat: no-repeat;\n  animation: 1s steps(15) 0s infinite normal none typing-sprite;\n  margin: 0 5px 0 1px;\n  opacity: 1;\n}\n@media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {\n  .p-channel_sidebar__channel--typing:before {\n    background-size: cover;\n    background-image: url(/img/typing-sprite@2x.png);\n  }\n}\n.p-channel_sidebar__name {\n  margin-right: auto;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  opacity: 0.7;\n}\n.p-channel_sidebar__name .c-custom_status {\n  float: right;\n  position: relative;\n  z-index: 1;\n}\n.p-channel_sidebar__name.p-channel_sidebar__name--away {\n  font-style: italic;\n}\n.p-channel_sidebar__badge {\n  order: 5;\n  padding: 1px 0.6rem;\n  margin-left: 0.25rem;\n  border-radius: 1rem;\n  line-height: 1rem;\n  font-size: 0.75rem;\n  font-weight: 700;\n  color: #fff;\n}\n.p-channel_sidebar__status {\n  margin-left: 0.5rem;\n}\n.p-channel_sidebar__you_label {\n  margin-left: 0.5rem;\n  font-weight: normal;\n  opacity: 0.7;\n}\n.p-channel_sidebar__close {\n  margin-left: 0.25rem;\n  display: none;\n}\n.p-channel_sidebar__close,\n.p-channel_sidebar__close:before {\n  line-height: 100%;\n}\n.p-channel_sidebar__channel:hover .p-channel_sidebar__close {\n  display: block;\n}\n.p-channel_sidebar__link--unread .p-channel_sidebar__name {\n  font-weight: 900;\n  opacity: 1;\n}\n.p-channel_sidebar__link--selected .p-channel_sidebar__name {\n  opacity: 1;\n}\n.p-channel_sidebar__link--all-unreads:before {\n  content: '\\E103';\n  margin: 0 4px 0 -4px;\n}\n.p-channel_sidebar__link--all-threads:before {\n  content: '\\E171';\n  margin: 0 4px 0 -4px;\n}\n.p-channel_sidebar__link--all-threads.p-channel_sidebar__link--unread:before {\n  content: '\\E554';\n}\n.p-channel_sidebar__link--invites:before {\n  content: '\\E281';\n}\n.p-channel_sidebar__link--invites:not(.p-channel_sidebar__link--dim) .p-channel_sidebar__name {\n  font-weight: 900;\n  opacity: 1;\n}\n.p-channel_sidebar .c-custom_scrollbar__track_vertical {\n  display: none;\n}\n.p-channel_sidebar:hover .c-custom_scrollbar__track_vertical {\n  display: block;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-form_type_default {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n}\n.t-form_type_label {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_type_placeholder {\n  color: #a0a0a2;\n}\n.t-form_element_sizing {\n  margin: 0 0 12px;\n  padding: 8px 12px;\n}\n.t-form_label {\n  display: block;\n  margin: 0;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_border {\n  border-radius: 4px;\n  border: solid 1px #a0a0a2;\n}\n.t-form_cursor {\n  cursor: pointer;\n}\n.t-form_cursor[disabled] {\n  cursor: default;\n}\n.p-channel_sidebar {\n  width: 220px;\n  height: 100vh;\n  position: relative;\n  padding: 0;\n}\n.incremental_boot .p-channel_sidebar {\n  display: none;\n  visibility: hidden;\n}\n.p-channel_sidebar__virtualized {\n  outline: none;\n}\n.p-channel_sidebar__section_heading {\n  padding: 0 0.75rem 0 15px;\n  margin: 0;\n  width: 100%;\n  height: 26px;\n  display: flex;\n  align-items: center;\n}\n.p-channel_sidebar__section_heading_label {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  font-size: 1rem;\n  line-height: 1;\n  display: block;\n  opacity: 0.7;\n  text-align: left;\n  width: 100%;\n  transition: opacity 0.1s ease-out;\n}\n.p-channel_sidebar__section_heading_label:hover,\n.p-channel_sidebar__section_heading_label:focus,\n.p-channel_sidebar__section_heading_label:active {\n  outline: none;\n}\n.p-channel_sidebar__section_heading_label .c-icon:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  width: 20px;\n  opacity: 0.45;\n  margin: 0 1px 0 -4px;\n  vertical-align: baseline;\n}\n.p-channel_sidebar__section_heading_label--clickable:hover {\n  opacity: 1;\n}\n.p-channel_sidebar__section_heading_right {\n  margin-left: auto;\n}\n.p-channel_sidebar__section_heading_plus {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  line-height: 100%;\n}\n.p-channel_sidebar__section_heading_plus:hover,\n.p-channel_sidebar__section_heading_plus:focus,\n.p-channel_sidebar__section_heading_plus:active {\n  outline: none;\n}\n.p-channel_sidebar__section_heading_plus:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  width: 20px;\n  opacity: 0.45;\n  line-height: 100%;\n  content: '\\E228';\n  transition: opacity 0.1s ease-out;\n}\n.p-channel_sidebar__section_heading_plus:hover:before {\n  opacity: 1;\n}\n.p-channel_sidebar__banner {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  width: calc(100% - 1rem);\n  text-align: center;\n  position: absolute;\n  display: block;\n  z-index: 2;\n  color: #fff;\n  left: 0.5rem;\n  right: 0.5rem;\n  font-weight: 700;\n  font-size: 0.875rem;\n  line-height: 1.625rem;\n  cursor: pointer;\n}\n.p-channel_sidebar__banner:hover,\n.p-channel_sidebar__banner:focus,\n.p-channel_sidebar__banner:active {\n  outline: none;\n}\n.p-channel_sidebar__banner--top {\n  border-top-right-radius: 0;\n  border-bottom-right-radius: 6px;\n  border-bottom-left-radius: 6px;\n  border-top-left-radius: 0;\n  background-clip: padding-box;\n  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.1) inset;\n  top: 0;\n}\n.p-channel_sidebar__banner--bottom {\n  border-top-right-radius: 6px;\n  border-bottom-right-radius: 0;\n  border-bottom-left-radius: 0;\n  border-top-left-radius: 6px;\n  background-clip: padding-box;\n  box-shadow: 0 -1px 6px rgba(0, 0, 0, 0.1), 0 -1px 3px rgba(0, 0, 0, 0.1) inset;\n  bottom: 0;\n}\n.p-channel_sidebar__banner--mentions {\n  background: #eb4d5c;\n}\n.p-channel_sidebar__banner--unreads {\n  background: #2d9ee0;\n}\n.p-channel_sidebar__link {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n}\n.p-channel_sidebar__link:hover,\n.p-channel_sidebar__link:focus,\n.p-channel_sidebar__link:active {\n  outline: none;\n}\n.p-channel_sidebar__channel,\n.p-channel_sidebar__link {\n  display: flex;\n  align-items: center;\n  height: 26px;\n  line-height: 1.625rem;\n  padding: 0 0.75rem 0 15px;\n  width: 100%;\n}\n.p-channel_sidebar__channel:before,\n.p-channel_sidebar__link:before,\n.p-channel_sidebar__channel:after,\n.p-channel_sidebar__link:after {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  width: 20px;\n  opacity: 0.45;\n}\n.p-channel_sidebar__channel:before,\n.p-channel_sidebar__link:before {\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel:after,\n.p-channel_sidebar__link:after {\n  font-size: 1.25rem;\n  margin-left: 0.25rem;\n  opacity: 0.7;\n}\n.p-channel_sidebar__channel:hover,\n.p-channel_sidebar__link:hover,\n.p-channel_sidebar__channel:active,\n.p-channel_sidebar__link:active,\n.p-channel_sidebar__channel:focus,\n.p-channel_sidebar__link:focus,\n.p-channel_sidebar__channel:link,\n.p-channel_sidebar__link:link,\n.p-channel_sidebar__channel:visited,\n.p-channel_sidebar__link:visited {\n  text-decoration: none;\n}\n.p-channel_sidebar__channel:before {\n  content: '\\E125';\n}\n.p-channel_sidebar__channel--private:before {\n  content: '\\E567';\n}\n.p-channel_sidebar__channel--shared:after {\n  content: '\\E559';\n}\n.p-channel_sidebar__channel--org-shared:after {\n  content: '\\E166';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft):before {\n  font-size: 1.25rem;\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='2']:before {\n  content: '\\E521';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='3']:before {\n  content: '\\E522';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='4']:before {\n  content: '\\E523';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='5']:before {\n  content: '\\E524';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='6']:before {\n  content: '\\E525';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='7']:before {\n  content: '\\E526';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='8']:before {\n  content: '\\E527';\n}\n.p-channel_sidebar__channel--mpim:not(.p-channel_sidebar__channel--draft)[data-user-count='9']:before {\n  content: '\\E528';\n}\n.p-channel_sidebar__channel--im:before {\n  content: none;\n}\n.p-channel_sidebar__channel--im .c-presence {\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel--im .c-presence--away {\n  opacity: 0.7;\n}\n.p-channel_sidebar__channel--im-slackbot:before {\n  content: '\\E515';\n  opacity: 1;\n  margin: 0 1px 0 -4px;\n}\n.p-channel_sidebar__channel--im-slackbot.p-channel_sidebar__channel--draft:before {\n  color: inherit;\n}\n.p-channel_sidebar__channel--muted:not(.p-channel_sidebar__channel--selected) .p-channel_sidebar__name {\n  opacity: 0.45;\n}\n.p-channel_sidebar__channel--unread:not(.p-channel_sidebar__channel--muted) .p-channel_sidebar__name {\n  font-weight: 900;\n  opacity: 1;\n}\n.p-channel_sidebar__channel--selected .p-channel_sidebar__name {\n  opacity: 1;\n}\n.p-channel_sidebar__channel--draft:before {\n  content: '\\E024';\n  font-size: 0.875rem;\n  margin: 1px -2px 0 -1px;\n  flex-basis: 20px;\n  flex-shrink: 0;\n}\n.p-channel_sidebar__channel--archived:before {\n  content: '\\E534';\n}\n@keyframes typing {\n  100% {\n    background-position: -240px;\n  }\n}\n.p-channel_sidebar__channel--typing:before {\n  display: block;\n  content: '';\n  width: 11px;\n  height: 3px;\n  background-image: url(/img/typing-sprite.png);\n  background-repeat: no-repeat;\n  animation: 1s steps(15) 0s infinite normal none typing-sprite;\n  margin: 0 5px 0 1px;\n  opacity: 1;\n}\n@media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {\n  .p-channel_sidebar__channel--typing:before {\n    background-size: cover;\n    background-image: url(/img/typing-sprite@2x.png);\n  }\n}\n.p-channel_sidebar__name {\n  margin-right: auto;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  opacity: 0.7;\n}\n.p-channel_sidebar__name .c-custom_status {\n  float: right;\n  position: relative;\n  z-index: 1;\n}\n.p-channel_sidebar__name.p-channel_sidebar__name--away {\n  font-style: italic;\n}\n.p-channel_sidebar__badge {\n  order: 5;\n  padding: 1px 0.6rem;\n  margin-left: 0.25rem;\n  border-radius: 1rem;\n  line-height: 1rem;\n  font-size: 0.75rem;\n  font-weight: 700;\n  color: #fff;\n}\n.p-channel_sidebar__status {\n  margin-left: 0.5rem;\n}\n.p-channel_sidebar__you_label {\n  margin-left: 0.5rem;\n  font-weight: normal;\n  opacity: 0.7;\n}\n.p-channel_sidebar__close {\n  margin-left: 0.25rem;\n  display: none;\n}\n.p-channel_sidebar__close,\n.p-channel_sidebar__close:before {\n  line-height: 100%;\n}\n.p-channel_sidebar__channel:hover .p-channel_sidebar__close {\n  display: block;\n}\n.p-channel_sidebar__link--unread .p-channel_sidebar__name {\n  font-weight: 900;\n  opacity: 1;\n}\n.p-channel_sidebar__link--selected .p-channel_sidebar__name {\n  opacity: 1;\n}\n.p-channel_sidebar__link--all-unreads:before {\n  content: '\\E103';\n  margin: 0 4px 0 -4px;\n}\n.p-channel_sidebar__link--all-threads:before {\n  content: '\\E171';\n  margin: 0 4px 0 -4px;\n}\n.p-channel_sidebar__link--all-threads.p-channel_sidebar__link--unread:before {\n  content: '\\E554';\n}\n.p-channel_sidebar__link--invites:before {\n  content: '\\E281';\n}\n.p-channel_sidebar__link--invites:not(.p-channel_sidebar__link--dim) .p-channel_sidebar__name {\n  font-weight: 900;\n  opacity: 1;\n}\n.p-channel_sidebar .c-custom_scrollbar__track_vertical {\n  display: none;\n}\n.p-channel_sidebar:hover .c-custom_scrollbar__track_vertical {\n  display: block;\n}\n", ""]);
 }, function(e, t, n) {
   "use strict";
   Object.defineProperty(t, "__esModule", {
@@ -22211,13 +22211,13 @@ webpackJsonp([332], [, function(e, t, n) {
       return !(n < 0) && (n == t.length - 1 ? t.pop() : ze.call(t, n, 1), !0);
     }
 
-    function S(e) {
+    function x(e) {
       var t = this.__data__,
         n = N(t, e);
       return n < 0 ? void 0 : t[n][1];
     }
 
-    function x(e) {
+    function S(e) {
       return N(this.__data__, e) > -1;
     }
 
@@ -22227,7 +22227,7 @@ webpackJsonp([332], [, function(e, t, n) {
       return r < 0 ? n.push([e, t]) : n[r][1] = t, this;
     }
 
-    function P(e) {
+    function L(e) {
       var t = -1,
         n = e ? e.length : 0;
       for (this.clear(); ++t < n;) {
@@ -22236,7 +22236,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }
     }
 
-    function L() {
+    function P() {
       this.__data__ = {
         hash: new _,
         map: new(We || k),
@@ -22263,7 +22263,7 @@ webpackJsonp([332], [, function(e, t, n) {
     function I(e) {
       var t = -1,
         n = e ? e.length : 0;
-      for (this.__data__ = new P; ++t < n;) this.add(e[t]);
+      for (this.__data__ = new L; ++t < n;) this.add(e[t]);
     }
 
     function Y(e) {
@@ -22468,31 +22468,31 @@ webpackJsonp([332], [, function(e, t, n) {
       ke = /[\\^$.*+?()[\]{}|]/g,
       Me = /^\[object .+?Constructor\]$/,
       Te = /^(?:0|[1-9]\d*)$/,
-      Se = "object" == typeof t && t && t.Object === Object && t,
-      xe = "object" == typeof self && self && self.Object === Object && self,
-      Ee = Se || xe || Function("return this")(),
-      Pe = Array.prototype,
-      Le = Function.prototype,
+      xe = "object" == typeof t && t && t.Object === Object && t,
+      Se = "object" == typeof self && self && self.Object === Object && self,
+      Ee = xe || Se || Function("return this")(),
+      Le = Array.prototype,
+      Pe = Function.prototype,
       Ce = Object.prototype,
       Oe = Ee["__core-js_shared__"],
       je = function() {
         var e = /[^.]+$/.exec(Oe && Oe.keys && Oe.keys.IE_PROTO || "");
         return e ? "Symbol(src)_1." + e : "";
       }(),
-      De = Le.toString,
+      De = Pe.toString,
       Ie = Ce.hasOwnProperty,
       Ye = Ce.toString,
       Re = RegExp("^" + De.call(Ie).replace(ke, "\\$&").replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, "$1.*?") + "$"),
       Ae = Ee.Symbol,
       Ne = m(Object.getPrototypeOf, Object),
       He = Ce.propertyIsEnumerable,
-      ze = Pe.splice,
+      ze = Le.splice,
       Fe = Ae ? Ae.isConcatSpreadable : void 0,
       qe = Object.getOwnPropertySymbols,
       Ue = Math.max,
       We = K(Ee, "Map"),
       Be = K(Object, "create");
-    _.prototype.clear = y, _.prototype.delete = g, _.prototype.get = v, _.prototype.has = b, _.prototype.set = w, k.prototype.clear = M, k.prototype.delete = T, k.prototype.get = S, k.prototype.has = x, k.prototype.set = E, P.prototype.clear = L, P.prototype.delete = C, P.prototype.get = O, P.prototype.has = j, P.prototype.set = D, I.prototype.add = I.prototype.push = Y, I.prototype.has = R;
+    _.prototype.clear = y, _.prototype.delete = g, _.prototype.get = v, _.prototype.has = b, _.prototype.set = w, k.prototype.clear = M, k.prototype.delete = T, k.prototype.get = x, k.prototype.has = S, k.prototype.set = E, L.prototype.clear = P, L.prototype.delete = C, L.prototype.get = O, L.prototype.has = j, L.prototype.set = D, I.prototype.add = I.prototype.push = Y, I.prototype.has = R;
     var Ve = qe ? m(qe, Object) : fe,
       Ge = qe ? function(e) {
         for (var t = []; e;) a(t, Ve(e)), e = Ne(e);
@@ -22595,12 +22595,12 @@ webpackJsonp([332], [, function(e, t, n) {
         var n = t[e];
         return n === Ne ? void 0 : n;
       }
-      return Lt.call(t, e) ? t[e] : void 0;
+      return Pt.call(t, e) ? t[e] : void 0;
     }
 
     function _(e) {
       var t = this.__data__;
-      return qt ? void 0 !== t[e] : Lt.call(t, e);
+      return qt ? void 0 !== t[e] : Pt.call(t, e);
     }
 
     function y(e, t) {
@@ -22651,7 +22651,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }
     }
 
-    function S() {
+    function x() {
       this.__data__ = {
         hash: new p,
         map: new(Nt || g),
@@ -22659,7 +22659,7 @@ webpackJsonp([332], [, function(e, t, n) {
       };
     }
 
-    function x(e) {
+    function S(e) {
       return ae(this, e).delete(e);
     }
 
@@ -22667,11 +22667,11 @@ webpackJsonp([332], [, function(e, t, n) {
       return ae(this, e).get(e);
     }
 
-    function P(e) {
+    function L(e) {
       return ae(this, e).has(e);
     }
 
-    function L(e, t) {
+    function P(e, t) {
       return ae(this, e).set(e, t), this;
     }
 
@@ -22723,7 +22723,7 @@ webpackJsonp([332], [, function(e, t, n) {
       var n = tn(e) || ke(e) ? s(e.length, String) : [],
         r = n.length,
         o = !!r;
-      for (var i in e) !t && !Lt.call(e, i) || o && ("length" == i || ce(i, r)) || n.push(i);
+      for (var i in e) !t && !Pt.call(e, i) || o && ("length" == i || ce(i, r)) || n.push(i);
       return n;
     }
 
@@ -22752,7 +22752,7 @@ webpackJsonp([332], [, function(e, t, n) {
     }
 
     function B(e, t, n, r, o) {
-      return e === t || (null == e || null == t || !Ee(e) && !Pe(t) ? e !== e && t !== t : V(e, t, B, n, r, o));
+      return e === t || (null == e || null == t || !Ee(e) && !Le(t) ? e !== e && t !== t : V(e, t, B, n, r, o));
     }
 
     function V(e, t, n, r, o, i) {
@@ -22766,8 +22766,8 @@ webpackJsonp([332], [, function(e, t, n) {
         f = l == c;
       if (f && !d) return i || (i = new D), a || nn(e) ? re(e, t, n, r, o, i) : oe(e, t, l, n, r, o, i);
       if (!(o & ze)) {
-        var h = d && Lt.call(e, "__wrapped__"),
-          m = p && Lt.call(t, "__wrapped__");
+        var h = d && Pt.call(e, "__wrapped__"),
+          m = p && Pt.call(t, "__wrapped__");
         if (h || m) {
           var _ = h ? e.value() : e,
             y = m ? t.value() : t;
@@ -22803,11 +22803,11 @@ webpackJsonp([332], [, function(e, t, n) {
     }
 
     function K(e) {
-      return !(!Ee(e) || fe(e)) && (Se(e) || u(e) ? Ot : dt).test(ge(e));
+      return !(!Ee(e) || fe(e)) && (xe(e) || u(e) ? Ot : dt).test(ge(e));
     }
 
     function J(e) {
-      return Pe(e) && xe(e.length) && !!ft[Ct.call(e)];
+      return Le(e) && Se(e.length) && !!ft[Ct.call(e)];
     }
 
     function Z(e) {
@@ -22817,7 +22817,7 @@ webpackJsonp([332], [, function(e, t, n) {
     function $(e) {
       if (!he(e)) return Rt(e);
       var t = [];
-      for (var n in Object(e)) Lt.call(e, n) && "constructor" != n && t.push(n);
+      for (var n in Object(e)) Pt.call(e, n) && "constructor" != n && t.push(n);
       return t;
     }
 
@@ -22843,7 +22843,7 @@ webpackJsonp([332], [, function(e, t, n) {
 
     function te(e) {
       if ("string" == typeof e) return e;
-      if (Le(e)) return Zt ? Zt.call(e) : "";
+      if (Pe(e)) return Zt ? Zt.call(e) : "";
       var t = e + "";
       return "0" == t && 1 / e == -Fe ? "-0" : t;
     }
@@ -22925,7 +22925,7 @@ webpackJsonp([332], [, function(e, t, n) {
       if (l != De(t).length && !a) return !1;
       for (var u = l; u--;) {
         var c = s[u];
-        if (!(a ? c in t : Lt.call(t, c))) return !1;
+        if (!(a ? c in t : Pt.call(t, c))) return !1;
       }
       var d = i.get(e);
       if (d && i.get(t)) return d == t;
@@ -22978,7 +22978,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }
       if (r) return r;
       var i = e ? e.length : 0;
-      return !!i && xe(i) && ce(a, i) && (tn(e) || ke(e));
+      return !!i && Se(i) && ce(a, i) && (tn(e) || ke(e));
     }
 
     function ce(e, t) {
@@ -22988,7 +22988,7 @@ webpackJsonp([332], [, function(e, t, n) {
     function de(e, t) {
       if (tn(e)) return !1;
       var n = typeof e;
-      return !("number" != n && "symbol" != n && "boolean" != n && null != e && !Le(e)) || (at.test(e) || !it.test(e) || null != t && e in Object(t));
+      return !("number" != n && "symbol" != n && "boolean" != n && null != e && !Pe(e)) || (at.test(e) || !it.test(e) || null != t && e in Object(t));
     }
 
     function pe(e) {
@@ -23002,7 +23002,7 @@ webpackJsonp([332], [, function(e, t, n) {
 
     function he(e) {
       var t = e && e.constructor;
-      return e === ("function" == typeof t && t.prototype || St);
+      return e === ("function" == typeof t && t.prototype || xt);
     }
 
     function me(e) {
@@ -23016,7 +23016,7 @@ webpackJsonp([332], [, function(e, t, n) {
     }
 
     function ye(e) {
-      if ("string" == typeof e || Le(e)) return e;
+      if ("string" == typeof e || Pe(e)) return e;
       var t = e + "";
       return "0" == t && 1 / e == -Fe ? "-0" : t;
     }
@@ -23024,7 +23024,7 @@ webpackJsonp([332], [, function(e, t, n) {
     function ge(e) {
       if (null != e) {
         try {
-          return Pt.call(e);
+          return Lt.call(e);
         } catch (e) {}
         try {
           return e + "";
@@ -23057,23 +23057,23 @@ webpackJsonp([332], [, function(e, t, n) {
     }
 
     function ke(e) {
-      return Te(e) && Lt.call(e, "callee") && (!It.call(e, "callee") || Ct.call(e) == Ue);
+      return Te(e) && Pt.call(e, "callee") && (!It.call(e, "callee") || Ct.call(e) == Ue);
     }
 
     function Me(e) {
-      return null != e && xe(e.length) && !Se(e);
+      return null != e && Se(e.length) && !xe(e);
     }
 
     function Te(e) {
-      return Pe(e) && Me(e);
+      return Le(e) && Me(e);
     }
 
-    function Se(e) {
+    function xe(e) {
       var t = Ee(e) ? Ct.call(e) : "";
       return t == Ke || t == Je;
     }
 
-    function xe(e) {
+    function Se(e) {
       return "number" == typeof e && e > -1 && e % 1 == 0 && e <= qe;
     }
 
@@ -23082,12 +23082,12 @@ webpackJsonp([332], [, function(e, t, n) {
       return !!e && ("object" == t || "function" == t);
     }
 
-    function Pe(e) {
+    function Le(e) {
       return !!e && "object" == typeof e;
     }
 
-    function Le(e) {
-      return "symbol" == typeof e || Pe(e) && Ct.call(e) == nt;
+    function Pe(e) {
+      return "symbol" == typeof e || Le(e) && Ct.call(e) == nt;
     }
 
     function Ce(e) {
@@ -23162,19 +23162,19 @@ webpackJsonp([332], [, function(e, t, n) {
       kt = wt && wt.isTypedArray,
       Mt = Array.prototype,
       Tt = Function.prototype,
-      St = Object.prototype,
-      xt = _t["__core-js_shared__"],
+      xt = Object.prototype,
+      St = _t["__core-js_shared__"],
       Et = function() {
-        var e = /[^.]+$/.exec(xt && xt.keys && xt.keys.IE_PROTO || "");
+        var e = /[^.]+$/.exec(St && St.keys && St.keys.IE_PROTO || "");
         return e ? "Symbol(src)_1." + e : "";
       }(),
-      Pt = Tt.toString,
-      Lt = St.hasOwnProperty,
-      Ct = St.toString,
-      Ot = RegExp("^" + Pt.call(Lt).replace(ut, "\\$&").replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, "$1.*?") + "$"),
+      Lt = Tt.toString,
+      Pt = xt.hasOwnProperty,
+      Ct = xt.toString,
+      Ot = RegExp("^" + Lt.call(Pt).replace(ut, "\\$&").replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, "$1.*?") + "$"),
       jt = _t.Symbol,
       Dt = _t.Uint8Array,
-      It = St.propertyIsEnumerable,
+      It = xt.propertyIsEnumerable,
       Yt = Mt.splice,
       Rt = function(e, t) {
         return function(n) {
@@ -23195,7 +23195,7 @@ webpackJsonp([332], [, function(e, t, n) {
       Kt = jt ? jt.prototype : void 0,
       Jt = Kt ? Kt.valueOf : void 0,
       Zt = Kt ? Kt.toString : void 0;
-    p.prototype.clear = f, p.prototype.delete = h, p.prototype.get = m, p.prototype.has = _, p.prototype.set = y, g.prototype.clear = v, g.prototype.delete = b, g.prototype.get = w, g.prototype.has = k, g.prototype.set = M, T.prototype.clear = S, T.prototype.delete = x, T.prototype.get = E, T.prototype.has = P, T.prototype.set = L, C.prototype.add = C.prototype.push = O, C.prototype.has = j, D.prototype.clear = I, D.prototype.delete = Y, D.prototype.get = R, D.prototype.has = A, D.prototype.set = N;
+    p.prototype.clear = f, p.prototype.delete = h, p.prototype.get = m, p.prototype.has = _, p.prototype.set = y, g.prototype.clear = v, g.prototype.delete = b, g.prototype.get = w, g.prototype.has = k, g.prototype.set = M, T.prototype.clear = x, T.prototype.delete = S, T.prototype.get = E, T.prototype.has = L, T.prototype.set = P, C.prototype.add = C.prototype.push = O, C.prototype.has = j, D.prototype.clear = I, D.prototype.delete = Y, D.prototype.get = R, D.prototype.has = A, D.prototype.set = N;
     var $t = function(e, t) {
         return function(n, r) {
           if (null == n) return n;
@@ -23707,8 +23707,8 @@ webpackJsonp([332], [, function(e, t, n) {
           escape: "esc",
           plus: "+",
           mod: /Mac|iPod|iPhone|iPad/.test(navigator.platform) ? "meta" : "ctrl"
-        }, S = 1; S < 20; ++S) w[111 + S] = "f" + S;
-      for (S = 0; S <= 9; ++S) w[S + 96] = S;
+        }, x = 1; x < 20; ++x) w[111 + x] = "f" + x;
+      for (x = 0; x <= 9; ++x) w[x + 96] = x;
       v.prototype.bind = function(e, t, n) {
         var r = this;
         return e = e instanceof Array ? e : [e], r._bindMultiple.call(r, e, t, n), r;
@@ -23819,11 +23819,11 @@ webpackJsonp([332], [, function(e, t, n) {
   function o(e) {
     switch (e) {
       case "topCompositionStart":
-        return S.compositionStart;
+        return x.compositionStart;
       case "topCompositionEnd":
-        return S.compositionEnd;
+        return x.compositionEnd;
       case "topCompositionUpdate":
-        return S.compositionUpdate;
+        return x.compositionUpdate;
     }
   }
 
@@ -23853,8 +23853,8 @@ webpackJsonp([332], [, function(e, t, n) {
 
   function l(e, t, n, r) {
     var l, u;
-    if (v ? l = o(e) : E ? a(e, n) && (l = S.compositionEnd) : i(e, n) && (l = S.compositionStart), !l) return null;
-    k && (E || l !== S.compositionStart ? l === S.compositionEnd && E && (u = E.getData()) : E = h.getPooled(r));
+    if (v ? l = o(e) : E ? a(e, n) && (l = x.compositionEnd) : i(e, n) && (l = x.compositionStart), !l) return null;
+    k && (E || l !== x.compositionStart ? l === x.compositionEnd && E && (u = E.getData()) : E = h.getPooled(r));
     var c = m.getPooled(l, t, n, r);
     if (u) c.data = u;
     else {
@@ -23869,10 +23869,10 @@ webpackJsonp([332], [, function(e, t, n) {
       case "topCompositionEnd":
         return s(t);
       case "topKeyPress":
-        return t.which !== M ? null : (x = !0, T);
+        return t.which !== M ? null : (S = !0, T);
       case "topTextInput":
         var n = t.data;
-        return n === T && x ? null : n;
+        return n === T && S ? null : n;
       default:
         return null;
     }
@@ -23901,7 +23901,7 @@ webpackJsonp([332], [, function(e, t, n) {
   function d(e, t, n, r) {
     var o;
     if (!(o = w ? u(e, n) : c(e, n))) return null;
-    var i = _.getPooled(S.beforeInput, t, n, r);
+    var i = _.getPooled(x.beforeInput, t, n, r);
     return i.data = o, p.accumulateTwoPhaseDispatches(i), i;
   }
   var p = n(81),
@@ -23921,7 +23921,7 @@ webpackJsonp([332], [, function(e, t, n) {
     k = f.canUseDOM && (!v || b && b > 8 && b <= 11),
     M = 32,
     T = String.fromCharCode(M),
-    S = {
+    x = {
       beforeInput: {
         phasedRegistrationNames: {
           bubbled: "onBeforeInput",
@@ -23951,15 +23951,15 @@ webpackJsonp([332], [, function(e, t, n) {
         dependencies: ["topBlur", "topCompositionUpdate", "topKeyDown", "topKeyPress", "topKeyUp", "topMouseDown"]
       }
     },
-    x = !1,
+    S = !1,
     E = null,
-    P = {
-      eventTypes: S,
+    L = {
+      eventTypes: x,
       extractEvents: function(e, t, n, r) {
         return [l(e, t, n, r), d(e, t, n, r)];
       }
     };
-  e.exports = P;
+  e.exports = L;
 }, function(e, t, n) {
   "use strict";
   var r = n(352),
@@ -24016,7 +24016,7 @@ webpackJsonp([332], [, function(e, t, n) {
   }
 
   function o(e) {
-    var t = M.getPooled(E.change, L, e, T(e));
+    var t = M.getPooled(E.change, P, e, T(e));
     v.accumulateTwoPhaseDispatches(t), k.batchedUpdates(i, t);
   }
 
@@ -24025,11 +24025,11 @@ webpackJsonp([332], [, function(e, t, n) {
   }
 
   function a(e, t) {
-    P = e, L = t, P.attachEvent("onchange", o);
+    L = e, P = t, L.attachEvent("onchange", o);
   }
 
   function s() {
-    P && (P.detachEvent("onchange", o), P = null, L = null);
+    L && (L.detachEvent("onchange", o), L = null, P = null);
   }
 
   function l(e, t) {
@@ -24041,11 +24041,11 @@ webpackJsonp([332], [, function(e, t, n) {
   }
 
   function c(e, t) {
-    P = e, L = t, C = e.value, O = Object.getOwnPropertyDescriptor(e.constructor.prototype, "value"), Object.defineProperty(P, "value", I), P.attachEvent ? P.attachEvent("onpropertychange", p) : P.addEventListener("propertychange", p, !1);
+    L = e, P = t, C = e.value, O = Object.getOwnPropertyDescriptor(e.constructor.prototype, "value"), Object.defineProperty(L, "value", I), L.attachEvent ? L.attachEvent("onpropertychange", p) : L.addEventListener("propertychange", p, !1);
   }
 
   function d() {
-    P && (delete P.value, P.detachEvent ? P.detachEvent("onpropertychange", p) : P.removeEventListener("propertychange", p, !1), P = null, L = null, C = null, O = null);
+    L && (delete L.value, L.detachEvent ? L.detachEvent("onpropertychange", p) : L.removeEventListener("propertychange", p, !1), L = null, P = null, C = null, O = null);
   }
 
   function p(e) {
@@ -24064,7 +24064,7 @@ webpackJsonp([332], [, function(e, t, n) {
   }
 
   function m(e, t) {
-    if (("topSelectionChange" === e || "topKeyUp" === e || "topKeyDown" === e) && P && P.value !== C) return C = P.value, L;
+    if (("topSelectionChange" === e || "topKeyUp" === e || "topKeyDown" === e) && L && L.value !== C) return C = L.value, P;
   }
 
   function _(e) {
@@ -24081,8 +24081,8 @@ webpackJsonp([332], [, function(e, t, n) {
     k = n(30),
     M = n(35),
     T = n(209),
-    S = n(210),
-    x = n(369),
+    x = n(210),
+    S = n(369),
     E = {
       change: {
         phasedRegistrationNames: {
@@ -24092,14 +24092,14 @@ webpackJsonp([332], [, function(e, t, n) {
         dependencies: ["topBlur", "topChange", "topClick", "topFocus", "topInput", "topKeyDown", "topKeyUp", "topSelectionChange"]
       }
     },
-    P = null,
     L = null,
+    P = null,
     C = null,
     O = null,
     j = !1;
-  b.canUseDOM && (j = S("change") && (!document.documentMode || document.documentMode > 8));
+  b.canUseDOM && (j = x("change") && (!document.documentMode || document.documentMode > 8));
   var D = !1;
-  b.canUseDOM && (D = S("input") && (!document.documentMode || document.documentMode > 11));
+  b.canUseDOM && (D = x("input") && (!document.documentMode || document.documentMode > 11));
   var I = {
       get: function() {
         return O.get.call(this);
@@ -24112,7 +24112,7 @@ webpackJsonp([332], [, function(e, t, n) {
       eventTypes: E,
       extractEvents: function(e, t, n, o) {
         var i, a, s = t ? w.getNodeFromInstance(t) : window;
-        if (r(s) ? j ? i = l : a = u : x(s) ? D ? i = f : (i = m, a = h) : _(s) && (i = y), i) {
+        if (r(s) ? j ? i = l : a = u : S(s) ? D ? i = f : (i = m, a = h) : _(s) && (i = y), i) {
           var c = i(e, t);
           if (c) {
             var d = M.getPooled(E.change, c, n, o);
@@ -24722,7 +24722,7 @@ webpackJsonp([332], [, function(e, t, n) {
 
   function s() {
     var e = this;
-    P.postMountWrapper(e);
+    L.postMountWrapper(e);
   }
 
   function l() {
@@ -24732,7 +24732,7 @@ webpackJsonp([332], [, function(e, t, n) {
 
   function u() {
     var e = this;
-    L.postMountWrapper(e);
+    P.postMountWrapper(e);
   }
 
   function c() {
@@ -24742,26 +24742,26 @@ webpackJsonp([332], [, function(e, t, n) {
     switch (t || m("64"), e._tag) {
       case "iframe":
       case "object":
-        e._wrapperState.listeners = [S.trapBubbledEvent("topLoad", "load", t)];
+        e._wrapperState.listeners = [x.trapBubbledEvent("topLoad", "load", t)];
         break;
       case "video":
       case "audio":
         e._wrapperState.listeners = [];
-        for (var n in W) W.hasOwnProperty(n) && e._wrapperState.listeners.push(S.trapBubbledEvent(n, W[n], t));
+        for (var n in W) W.hasOwnProperty(n) && e._wrapperState.listeners.push(x.trapBubbledEvent(n, W[n], t));
         break;
       case "source":
-        e._wrapperState.listeners = [S.trapBubbledEvent("topError", "error", t)];
+        e._wrapperState.listeners = [x.trapBubbledEvent("topError", "error", t)];
         break;
       case "img":
-        e._wrapperState.listeners = [S.trapBubbledEvent("topError", "error", t), S.trapBubbledEvent("topLoad", "load", t)];
+        e._wrapperState.listeners = [x.trapBubbledEvent("topError", "error", t), x.trapBubbledEvent("topLoad", "load", t)];
         break;
       case "form":
-        e._wrapperState.listeners = [S.trapBubbledEvent("topReset", "reset", t), S.trapBubbledEvent("topSubmit", "submit", t)];
+        e._wrapperState.listeners = [x.trapBubbledEvent("topReset", "reset", t), x.trapBubbledEvent("topSubmit", "submit", t)];
         break;
       case "input":
       case "select":
       case "textarea":
-        e._wrapperState.listeners = [S.trapBubbledEvent("topInvalid", "invalid", t)];
+        e._wrapperState.listeners = [x.trapBubbledEvent("topInvalid", "invalid", t)];
     }
   }
 
@@ -24791,20 +24791,20 @@ webpackJsonp([332], [, function(e, t, n) {
     k = n(354),
     M = n(80),
     T = n(199),
-    S = n(127),
-    x = n(355),
+    x = n(127),
+    S = n(355),
     E = n(11),
-    P = n(1042),
-    L = n(1043),
+    L = n(1042),
+    P = n(1043),
     C = n(356),
     O = n(1046),
     j = (n(19), n(1055)),
     D = n(1060),
     I = (n(18), n(130)),
-    Y = (n(3), n(210), n(190), n(212), n(4), x),
+    Y = (n(3), n(210), n(190), n(212), n(4), S),
     R = M.deleteListener,
     A = E.getNodeFromInstance,
-    N = S.listenTo,
+    N = x.listenTo,
     H = T.registrationNameModules,
     z = {
       string: !0,
@@ -24889,10 +24889,10 @@ webpackJsonp([332], [, function(e, t, n) {
           }, e.getReactMountReady().enqueue(c, this);
           break;
         case "input":
-          P.mountWrapper(this, i, t), i = P.getHostProps(this, i), e.getReactMountReady().enqueue(c, this);
+          L.mountWrapper(this, i, t), i = L.getHostProps(this, i), e.getReactMountReady().enqueue(c, this);
           break;
         case "option":
-          L.mountWrapper(this, i, t), i = L.getHostProps(this, i);
+          P.mountWrapper(this, i, t), i = P.getHostProps(this, i);
           break;
         case "select":
           C.mountWrapper(this, i, t), i = C.getHostProps(this, i), e.getReactMountReady().enqueue(c, this);
@@ -24987,10 +24987,10 @@ webpackJsonp([332], [, function(e, t, n) {
         a = this._currentElement.props;
       switch (this._tag) {
         case "input":
-          i = P.getHostProps(this, i), a = P.getHostProps(this, a);
+          i = L.getHostProps(this, i), a = L.getHostProps(this, a);
           break;
         case "option":
-          i = L.getHostProps(this, i), a = L.getHostProps(this, a);
+          i = P.getHostProps(this, i), a = P.getHostProps(this, a);
           break;
         case "select":
           i = C.getHostProps(this, i), a = C.getHostProps(this, a);
@@ -25000,7 +25000,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }
       switch (o(this, a), this._updateDOMProperties(i, a, e), this._updateDOMChildren(i, a, e, r), this._tag) {
         case "input":
-          P.updateWrapper(this);
+          L.updateWrapper(this);
           break;
         case "textarea":
           O.updateWrapper(this);
@@ -26442,7 +26442,7 @@ webpackJsonp([332], [, function(e, t, n) {
     k[e] = o, M[r] = o;
   });
   var T = {},
-    S = {
+    x = {
       eventTypes: k,
       extractEvents: function(e, t, n, r) {
         var o = M[e];
@@ -26553,7 +26553,7 @@ webpackJsonp([332], [, function(e, t, n) {
         }
       }
     };
-  e.exports = S;
+  e.exports = x;
 }, function(e, t, n) {
   "use strict";
 
@@ -27338,8 +27338,8 @@ webpackJsonp([332], [, function(e, t, n) {
         k = l.areMergedPropsEqual,
         M = void 0 === k ? s.a : k,
         T = r(l, ["pure", "areStatesEqual", "areOwnPropsEqual", "areStatePropsEqual", "areMergedPropsEqual"]),
-        S = o(e, h, "mapStateToProps"),
-        x = o(t, _, "mapDispatchToProps"),
+        x = o(e, h, "mapStateToProps"),
+        S = o(t, _, "mapDispatchToProps"),
         E = o(a, g, "mergeProps");
       return n(b, p({
         methodName: "connect",
@@ -27347,8 +27347,8 @@ webpackJsonp([332], [, function(e, t, n) {
           return "Connect(" + e + ")";
         },
         shouldHandleStateChanges: Boolean(e),
-        initMapStateToProps: S,
-        initMapDispatchToProps: x,
+        initMapStateToProps: x,
+        initMapDispatchToProps: S,
         initMergeProps: E,
         pure: c,
         areStatesEqual: f,
@@ -27644,7 +27644,7 @@ webpackJsonp([332], [, function(e, t, n) {
   }
 
   function r(e, t) {
-    var r = S(e) || s(e) ? n(e.length, String) : [],
+    var r = x(e) || s(e) ? n(e.length, String) : [],
       o = r.length,
       a = !!o;
     for (var l in e) !t && !w.call(e, l) || a && ("length" == l || i(l, o)) || r.push(l);
@@ -27714,7 +27714,7 @@ webpackJsonp([332], [, function(e, t, n) {
         return e(t(n));
       };
     }(Object.keys, Object),
-    S = Array.isArray;
+    x = Array.isArray;
   e.exports = h;
 }, function(e, t, n) {
   "use strict";
@@ -27964,9 +27964,9 @@ webpackJsonp([332], [, function(e, t, n) {
             k = Math.max(0, m - s),
             M = Math.max(0, _ - d),
             T = Math.min(w, m + p + s),
-            S = Math.min(b, _ + a + d),
-            x = a > 0 && p > 0 ? r.cellRenderers({
-              height: S - M,
+            x = Math.min(b, _ + a + d),
+            S = a > 0 && p > 0 ? r.cellRenderers({
+              height: x - M,
               isScrolling: h,
               width: T - k,
               x: k,
@@ -27981,9 +27981,9 @@ webpackJsonp([332], [, function(e, t, n) {
               width: p,
               willChange: "transform"
             },
-            P = b > a ? this._scrollbarSize : 0,
-            L = w > p ? this._scrollbarSize : 0;
-          return E.overflowX = w + P <= p ? "hidden" : "auto", E.overflowY = b + L <= a ? "hidden" : "auto", y.a.createElement("div", {
+            L = b > a ? this._scrollbarSize : 0,
+            P = w > p ? this._scrollbarSize : 0;
+          return E.overflowX = w + L <= p ? "hidden" : "auto", E.overflowY = b + P <= a ? "hidden" : "auto", y.a.createElement("div", {
             ref: this._setScrollingContainerRef,
             "aria-label": this.props["aria-label"],
             className: v()("ReactVirtualized__Collection", i),
@@ -28002,7 +28002,7 @@ webpackJsonp([332], [, function(e, t, n) {
               pointerEvents: h ? "none" : "",
               width: w
             }
-          }, x), 0 === n && u());
+          }, S), 0 === n && u());
         }
       }, {
         key: "_enablePointerEventsAfterDelay",
@@ -30348,9 +30348,9 @@ webpackJsonp([332], [, function(e, t, n) {
     value: !0
   }), t.default = r;
 }, , , , , , , , , , , , , , , , , , , , , , , , , , , , , function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".p-download_item {\n  min-height: 68px;\n  padding: 0.75rem 0.75rem 0.25rem 0.75rem;\n  margin: 0 1px 0 0.25rem;\n  position: relative;\n  font-weight: normal;\n  font-size: 1rem;\n  border: 1px solid transparent;\n  border-radius: 4px;\n  opacity: 0.8;\n  -webkit-transition: opacity 0.1s border 0.1s ease-out 0.0000001ms;\n  -moz-transition: opacity 0.1s border 0.1s ease-out 0.0000001ms;\n  transition: opacity 0.1s border 0.1s ease-out 0.0000001ms;\n}\n.p-download_item.progressing,\n.p-download_item:hover {\n  opacity: 1;\n}\n.p-download_item:hover {\n  border-color: #e8e8e8;\n}\n.p-download_item:hover .p-download_item__name_row {\n  padding-right: 2rem;\n}\n.p-download_item:hover .p-download_item__actions,\n.p-download_item:hover .p-download_item__action_icon {\n  opacity: 1;\n  -webkit-transform: translate3d(0, 0, 0);\n  -moz-transform: translate3d(0, 0, 0);\n  -ms-transform: translate3d(0, 0, 0);\n  transform: translate3d(0, 0, 0);\n}\n.p-download_item:hover .p-download_item__link--remove {\n  opacity: 1;\n}\n.p-download_item.progressing .p-download_item__name_row,\n.p-download_item.not_started .p-download_item__name_row {\n  padding-right: 6rem;\n}\n.p-download_item.progressing .p-download_item__link--remove,\n.p-download_item.not_started .p-download_item__link--remove,\n.p-download_item.progressing .p-download_item__action_icon,\n.p-download_item.not_started .p-download_item__action_icon {\n  display: none;\n}\n.p-download_item:not(.progressing) {\n  cursor: pointer;\n}\n@keyframes highlighter {\n  0% {\n    background: transparent;\n  }\n  10% {\n    background: #fff4bf;\n  }\n  100% {\n    background: transparent;\n  }\n}\n.p-download_item.highlight {\n  animation: highlighter 1s ease-out;\n}\n.p-download_item.hidden_with_fade_out_and_shrink {\n  opacity: 0;\n  height: 0 !important;\n  margin-top: 0 !important;\n  padding-top: 0 !important;\n  padding-bottom: 0 !important;\n  overflow: hidden;\n  -webkit-transition: opacity .3s ease-out 0s, height .3s ease-out .2s, margin-top .3s ease-out .2s, padding-top .3s ease-out .2s, padding-bottom .3s ease-out .2s 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity .3s ease-out 0s, height .3s ease-out .2s, margin-top .3s ease-out .2s, padding-top .3s ease-out .2s, padding-bottom .3s ease-out .2s 0.2s ease-out 0.0000001ms;\n  transition: opacity .3s ease-out 0s, height .3s ease-out .2s, margin-top .3s ease-out .2s, padding-top .3s ease-out .2s, padding-bottom .3s ease-out .2s 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity .3s ease-out 0s, height .3s ease-out .2s, margin-top .3s ease-out .2s, padding-top .3s ease-out .2s, padding-bottom .3s ease-out .2s;\n  -moz-transition: opacity .3s ease-out 0s, height .3s ease-out .2s, margin-top .3s ease-out .2s, padding-top .3s ease-out .2s, padding-bottom .3s ease-out .2s;\n  transition: opacity .3s ease-out 0s, height .3s ease-out .2s, margin-top .3s ease-out .2s, padding-top .3s ease-out .2s, padding-bottom .3s ease-out .2s;\n}\n.p-download_item__icon_container {\n  float: left;\n  margin: 1px 0 0.5rem;\n  position: relative;\n}\n.p-download_item__action_icon {\n  position: absolute;\n  right: -8px;\n  bottom: -5px;\n  width: 18px;\n  height: 18px;\n  line-height: 15px;\n  border-radius: 50%;\n  background: #2d9ee0;\n  box-shadow: 0 0 0 3px #fff;\n  color: #fff;\n  opacity: 0;\n  -webkit-transform: translate3d(0, -6px, 0);\n  -moz-transform: translate3d(0, -6px, 0);\n  -ms-transform: translate3d(0, -6px, 0);\n  transform: translate3d(0, -6px, 0);\n  -webkit-transition: -webkit-transform 0.1s ease-out, opacity 0.1s ease-out;\n  -moz-transition: -moz-transform 0.1s ease-out, opacity 0.1s ease-out;\n  transition: transform 0.1s ease-out, opacity 0.1s ease-out;\n}\n.p-download_item__action_icon:before {\n  margin-left: -1px;\n}\n.p-download_item__action_icon.snippet {\n  background: #4D394B;\n}\n.p-download_item__action_icon.space,\n.p-download_item__action_icon.post {\n  background: #66C79E;\n}\n.p-download_item__action_icon.doc,\n.p-download_item__action_icon.docx {\n  background: #2C4098;\n}\n.p-download_item__action_icon.xls,\n.p-download_item__action_icon.xlsx,\n.p-download_item__action_icon.xlsm,\n.p-download_item__action_icon.xltx {\n  background: #377437;\n}\n.p-download_item__action_icon.ppt,\n.p-download_item__action_icon.pptx {\n  background: #E05A30;\n}\n.p-download_item__action_icon.ai,\n.p-download_item__action_icon.sketch {\n  background: #F4993C;\n}\n.p-download_item__action_icon.psd {\n  background: #56B6DE;\n}\n.p-download_item__action_icon.indd {\n  background: #EB81AB;\n}\n.p-download_item__action_icon.fla,\n.p-download_item__action_icon.swf {\n  background: #A72428;\n}\n.p-download_item__action_icon.ipa {\n  background: #9EA0A7;\n}\n.p-download_item__action_icon.apk {\n  background: #A4CA3A;\n}\n.p-download_item__action_icon.dropbox {\n  background: #007EE5;\n}\n.p-download_item__action_icon.gpres {\n  background: #F4B400;\n}\n.p-download_item__action_icon.gsheet {\n  background: #0F9D58;\n}\n.p-download_item__action_icon.gdoc {\n  background: #4285f4;\n}\n.p-download_item__action_icon.pdf,\n.p-download_item__action_icon.gform,\n.p-download_item__action_icon.gdraw {\n  background: #DB4437;\n}\n.p-download_item__image {\n  border: 1px solid #a0a0a2;\n  border-radius: 0.25rem;\n  margin-bottom: 6px;\n}\n.p-download_item__container {\n  margin-left: 2.75rem;\n  position: relative;\n  z-index: 1;\n}\n.p-download_item__container > div {\n  margin-bottom: 0.5rem;\n}\n.p-download_item__container .p-download_item__name_row {\n  line-height: initial;\n  color: #5a5b5d;\n  position: relative;\n  padding-right: 0;\n  margin-bottom: 0;\n}\n.p-download_item__name_row:not(:empty) {\n  font-weight: bold;\n  padding-bottom: 0.5rem;\n}\n.p-download_item__container .p-download_item__extra_actions {\n  position: absolute;\n  top: 2px;\n  right: 0;\n  display: flex;\n  opacity: 1;\n  pointer-events: auto;\n}\na.p-download_item__link--cancel,\na.p-download_item__link--pause,\na.p-download_item__link--resume {\n  font-size: 0.8rem;\n  margin-left: 5px;\n  color: #a0a0a2;\n}\n.p-download_item__link--remove {\n  position: absolute;\n  top: 50%;\n  right: 10px;\n  z-index: 2;\n  opacity: 0;\n  -webkit-transform: translateY(-50%);\n  -moz-transform: translateY(-50%);\n  -ms-transform: translateY(-50%);\n  transform: translateY(-50%);\n  -webkit-transition: opacity 0.1s, color 0.1s 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 0.1s, color 0.1s 0.2s ease-out 0.0000001ms;\n  transition: opacity 0.1s, color 0.1s 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 0.1s, color 0.1s;\n  -moz-transition: opacity 0.1s, color 0.1s;\n  transition: opacity 0.1s, color 0.1s;\n}\n.p-download_item__link--remove:hover {\n  color: #eb4d5c;\n}\n.p-download_item__size_row {\n  color: #a0a0a2;\n  font-size: 0.8rem;\n  position: relative;\n  display: flex;\n}\n.p-download_item__size {\n  margin-right: 3px;\n}\n.p-download_item__actions {\n  display: inline-block;\n  position: absolute;\n  left: 0;\n  top: 0;\n  width: 100%;\n  background: #fff;\n  opacity: 0;\n  -webkit-transform: translate3d(0, -50%, 0);\n  -moz-transform: translate3d(0, -50%, 0);\n  -ms-transform: translate3d(0, -50%, 0);\n  transform: translate3d(0, -50%, 0);\n  -webkit-transition: -webkit-transform 0.1s ease-out , opacity 0.1s ease-out;\n  -moz-transition: -moz-transform 0.1s ease-out , opacity 0.1s ease-out;\n  transition: transform 0.1s ease-out , opacity 0.1s ease-out;\n}\na.p-download_item__link--show,\na.p-download_item__link--retry,\na.p-download_item__link--open {\n  opacity: 1;\n  display: none;\n  position: static;\n  font-weight: bold;\n  font-size: 0.9rem;\n  color: #a0a0a2;\n  top: 0;\n  left: 0.5rem;\n  white-space: nowrap;\n  pointer-events: none;\n}\n.p-download_item__time_remaining {\n  opacity: 1;\n  flex: none;\n  margin-left: auto;\n  white-space: nowrap;\n}\n.p-download_item__progress_row,\n.p-download_item__time_remaining {\n  height: 6px;\n  border-width: 0px;\n  border-radius: 3px;\n}\n.p-download_item__progress_row {\n  opacity: 1;\n  background-color: #e8e8e8;\n}\n.p-download_item__progress {\n  background-color: #2d9ee0;\n  width: 0%;\n}\n.p-download_item:not(.progressing) .p-download_item__extra_actions {\n  opacity: 0;\n  pointer-events: none;\n}\n.p-download_item:not(.progressing) .p-download_item__time_remaining {\n  opacity: 0;\n  pointer-events: none;\n}\n.p-download_item:not(.progressing) .p-download_item__progress_row {\n  display: none;\n}\n.p-download_item.completed .p-download_item__link--show {\n  opacity: 1;\n  pointer-events: auto;\n  display: block;\n}\n.p-download_item.completed .p-download_item__action_icon:before {\n  content: '\\E146';\n}\n.p-download_item.cancelled .p-download_item__action_icon:before,\n.p-download_item.interrupted .p-download_item__action_icon:before {\n  content: '\\E147';\n  margin-top: 1px;\n}\n.p-download_item.cancelled .p-download_item__link--retry,\n.p-download_item.interrupted .p-download_item__link--retry {\n  opacity: 1;\n  pointer-events: auto;\n  display: block;\n}\n.p-download_item.completed .p-download_item__partial_size {\n  display: none;\n}\n.p-download_item:last-of-type {\n  margin-bottom: 100px;\n}\n.p-downloads_list--shift_down .p-download_item.completed .p-download_item__action_icon {\n  border-radius: 3px;\n}\n.p-downloads_list--shift_down .p-download_item.completed .p-download_item__action_icon:before {\n  content: '\\E311';\n}\n.p-downloads_list--shift_down .p-download_item.completed .p-download_item__link--show {\n  display: none;\n}\n.p-downloads_list--shift_down .p-download_item.completed .p-download_item__link--open {\n  display: block;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-form_type_default {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n}\n.t-form_type_label {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_type_placeholder {\n  color: #a0a0a2;\n}\n.t-form_element_sizing {\n  margin: 0 0 12px;\n  padding: 8px 12px;\n}\n.t-form_label {\n  display: block;\n  margin: 0;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_border {\n  border-radius: 4px;\n  border: solid 1px #a0a0a2;\n}\n.t-form_cursor {\n  cursor: pointer;\n}\n.t-form_cursor[disabled] {\n  cursor: default;\n}\n.p-download_item {\n  min-height: 68px;\n  padding: 0.75rem 0.75rem 0.25rem 0.75rem;\n  margin: 0 1px 0 0.25rem;\n  position: relative;\n  font-weight: normal;\n  font-size: 1rem;\n  border: 1px solid transparent;\n  border-radius: 4px;\n  opacity: 0.8;\n  -webkit-transition: opacity 0.1s border 0.1s ease-out 0.0000001ms;\n  -moz-transition: opacity 0.1s border 0.1s ease-out 0.0000001ms;\n  transition: opacity 0.1s border 0.1s ease-out 0.0000001ms;\n}\n.p-download_item.progressing,\n.p-download_item:hover {\n  opacity: 1;\n}\n.p-download_item:hover {\n  border-color: #e8e8e8;\n}\n.p-download_item:hover .p-download_item__name_row {\n  padding-right: 2rem;\n}\n.p-download_item:hover .p-download_item__actions,\n.p-download_item:hover .p-download_item__action_icon {\n  opacity: 1;\n  -webkit-transform: translate3d(0, 0, 0);\n  -moz-transform: translate3d(0, 0, 0);\n  -ms-transform: translate3d(0, 0, 0);\n  transform: translate3d(0, 0, 0);\n}\n.p-download_item:hover .p-download_item__link--remove {\n  opacity: 1;\n}\n.p-download_item.progressing .p-download_item__name_row,\n.p-download_item.not_started .p-download_item__name_row {\n  padding-right: 6rem;\n}\n.p-download_item.progressing .p-download_item__link--remove,\n.p-download_item.not_started .p-download_item__link--remove,\n.p-download_item.progressing .p-download_item__action_icon,\n.p-download_item.not_started .p-download_item__action_icon {\n  display: none;\n}\n.p-download_item:not(.progressing) {\n  cursor: pointer;\n}\n@keyframes highlighter {\n  0% {\n    background: transparent;\n  }\n  10% {\n    background: #fff4bf;\n  }\n  100% {\n    background: transparent;\n  }\n}\n.p-download_item.highlight {\n  animation: highlighter 1s ease-out;\n}\n.p-download_item.hidden_with_fade_out_and_shrink {\n  opacity: 0;\n  height: 0 !important;\n  margin-top: 0 !important;\n  padding-top: 0 !important;\n  padding-bottom: 0 !important;\n  overflow: hidden;\n  -webkit-transition: opacity .3s ease-out 0s, height .3s ease-out .2s, margin-top .3s ease-out .2s, padding-top .3s ease-out .2s, padding-bottom .3s ease-out .2s 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity .3s ease-out 0s, height .3s ease-out .2s, margin-top .3s ease-out .2s, padding-top .3s ease-out .2s, padding-bottom .3s ease-out .2s 0.2s ease-out 0.0000001ms;\n  transition: opacity .3s ease-out 0s, height .3s ease-out .2s, margin-top .3s ease-out .2s, padding-top .3s ease-out .2s, padding-bottom .3s ease-out .2s 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity .3s ease-out 0s, height .3s ease-out .2s, margin-top .3s ease-out .2s, padding-top .3s ease-out .2s, padding-bottom .3s ease-out .2s;\n  -moz-transition: opacity .3s ease-out 0s, height .3s ease-out .2s, margin-top .3s ease-out .2s, padding-top .3s ease-out .2s, padding-bottom .3s ease-out .2s;\n  transition: opacity .3s ease-out 0s, height .3s ease-out .2s, margin-top .3s ease-out .2s, padding-top .3s ease-out .2s, padding-bottom .3s ease-out .2s;\n}\n.p-download_item__icon_container {\n  float: left;\n  margin: 1px 0 0.5rem;\n  position: relative;\n}\n.p-download_item__action_icon {\n  position: absolute;\n  right: -8px;\n  bottom: -5px;\n  width: 18px;\n  height: 18px;\n  line-height: 15px;\n  border-radius: 50%;\n  background: #2d9ee0;\n  box-shadow: 0 0 0 3px #fff;\n  color: #fff;\n  opacity: 0;\n  -webkit-transform: translate3d(0, -6px, 0);\n  -moz-transform: translate3d(0, -6px, 0);\n  -ms-transform: translate3d(0, -6px, 0);\n  transform: translate3d(0, -6px, 0);\n  -webkit-transition: -webkit-transform 0.1s ease-out, opacity 0.1s ease-out;\n  -moz-transition: -moz-transform 0.1s ease-out, opacity 0.1s ease-out;\n  transition: transform 0.1s ease-out, opacity 0.1s ease-out;\n}\n.p-download_item__action_icon:before {\n  margin-left: -1px;\n}\n.p-download_item__action_icon.snippet {\n  background: #4D394B;\n}\n.p-download_item__action_icon.space,\n.p-download_item__action_icon.post {\n  background: #66C79E;\n}\n.p-download_item__action_icon.doc,\n.p-download_item__action_icon.docx {\n  background: #2C4098;\n}\n.p-download_item__action_icon.xls,\n.p-download_item__action_icon.xlsx,\n.p-download_item__action_icon.xlsm,\n.p-download_item__action_icon.xltx {\n  background: #377437;\n}\n.p-download_item__action_icon.ppt,\n.p-download_item__action_icon.pptx {\n  background: #E05A30;\n}\n.p-download_item__action_icon.ai,\n.p-download_item__action_icon.sketch {\n  background: #F4993C;\n}\n.p-download_item__action_icon.psd {\n  background: #56B6DE;\n}\n.p-download_item__action_icon.indd {\n  background: #EB81AB;\n}\n.p-download_item__action_icon.fla,\n.p-download_item__action_icon.swf {\n  background: #A72428;\n}\n.p-download_item__action_icon.ipa {\n  background: #9EA0A7;\n}\n.p-download_item__action_icon.apk {\n  background: #A4CA3A;\n}\n.p-download_item__action_icon.dropbox {\n  background: #007EE5;\n}\n.p-download_item__action_icon.gpres {\n  background: #F4B400;\n}\n.p-download_item__action_icon.gsheet {\n  background: #0F9D58;\n}\n.p-download_item__action_icon.gdoc {\n  background: #4285f4;\n}\n.p-download_item__action_icon.pdf,\n.p-download_item__action_icon.gform,\n.p-download_item__action_icon.gdraw {\n  background: #DB4437;\n}\n.p-download_item__image {\n  border: 1px solid #a0a0a2;\n  border-radius: 0.25rem;\n  margin-bottom: 6px;\n}\n.p-download_item__container {\n  margin-left: 2.75rem;\n  position: relative;\n  z-index: 1;\n}\n.p-download_item__container > div {\n  margin-bottom: 0.5rem;\n}\n.p-download_item__container .p-download_item__name_row {\n  line-height: initial;\n  color: #5a5b5d;\n  position: relative;\n  padding-right: 0;\n  margin-bottom: 0;\n}\n.p-download_item__name_row:not(:empty) {\n  font-weight: bold;\n  padding-bottom: 0.5rem;\n}\n.p-download_item__container .p-download_item__extra_actions {\n  position: absolute;\n  top: 2px;\n  right: 0;\n  display: flex;\n  opacity: 1;\n  pointer-events: auto;\n}\na.p-download_item__link--cancel,\na.p-download_item__link--pause,\na.p-download_item__link--resume {\n  font-size: 0.8rem;\n  margin-left: 5px;\n  color: #a0a0a2;\n}\n.p-download_item__link--remove {\n  position: absolute;\n  top: 50%;\n  right: 10px;\n  z-index: 2;\n  opacity: 0;\n  -webkit-transform: translateY(-50%);\n  -moz-transform: translateY(-50%);\n  -ms-transform: translateY(-50%);\n  transform: translateY(-50%);\n  -webkit-transition: opacity 0.1s, color 0.1s 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 0.1s, color 0.1s 0.2s ease-out 0.0000001ms;\n  transition: opacity 0.1s, color 0.1s 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 0.1s, color 0.1s;\n  -moz-transition: opacity 0.1s, color 0.1s;\n  transition: opacity 0.1s, color 0.1s;\n}\n.p-download_item__link--remove:hover {\n  color: #eb4d5c;\n}\n.p-download_item__size_row {\n  color: #a0a0a2;\n  font-size: 0.8rem;\n  position: relative;\n  display: flex;\n}\n.p-download_item__size {\n  margin-right: 3px;\n}\n.p-download_item__actions {\n  display: inline-block;\n  position: absolute;\n  left: 0;\n  top: 0;\n  width: 100%;\n  background: #fff;\n  opacity: 0;\n  -webkit-transform: translate3d(0, -50%, 0);\n  -moz-transform: translate3d(0, -50%, 0);\n  -ms-transform: translate3d(0, -50%, 0);\n  transform: translate3d(0, -50%, 0);\n  -webkit-transition: -webkit-transform 0.1s ease-out , opacity 0.1s ease-out;\n  -moz-transition: -moz-transform 0.1s ease-out , opacity 0.1s ease-out;\n  transition: transform 0.1s ease-out , opacity 0.1s ease-out;\n}\na.p-download_item__link--show,\na.p-download_item__link--retry,\na.p-download_item__link--open {\n  opacity: 1;\n  display: none;\n  position: static;\n  font-weight: bold;\n  font-size: 0.9rem;\n  color: #a0a0a2;\n  top: 0;\n  left: 0.5rem;\n  white-space: nowrap;\n  pointer-events: none;\n}\n.p-download_item__time_remaining {\n  opacity: 1;\n  flex: none;\n  margin-left: auto;\n  white-space: nowrap;\n}\n.p-download_item__progress_row,\n.p-download_item__time_remaining {\n  height: 6px;\n  border-width: 0px;\n  border-radius: 3px;\n}\n.p-download_item__progress_row {\n  opacity: 1;\n  background-color: #e8e8e8;\n}\n.p-download_item__progress {\n  background-color: #2d9ee0;\n  width: 0%;\n}\n.p-download_item:not(.progressing) .p-download_item__extra_actions {\n  opacity: 0;\n  pointer-events: none;\n}\n.p-download_item:not(.progressing) .p-download_item__time_remaining {\n  opacity: 0;\n  pointer-events: none;\n}\n.p-download_item:not(.progressing) .p-download_item__progress_row {\n  display: none;\n}\n.p-download_item.completed .p-download_item__link--show {\n  opacity: 1;\n  pointer-events: auto;\n  display: block;\n}\n.p-download_item.completed .p-download_item__action_icon:before {\n  content: '\\E146';\n}\n.p-download_item.cancelled .p-download_item__action_icon:before,\n.p-download_item.interrupted .p-download_item__action_icon:before {\n  content: '\\E147';\n  margin-top: 1px;\n}\n.p-download_item.cancelled .p-download_item__link--retry,\n.p-download_item.interrupted .p-download_item__link--retry {\n  opacity: 1;\n  pointer-events: auto;\n  display: block;\n}\n.p-download_item.completed .p-download_item__partial_size {\n  display: none;\n}\n.p-download_item:last-of-type {\n  margin-bottom: 100px;\n}\n.p-downloads_list--shift_down .p-download_item.completed .p-download_item__action_icon {\n  border-radius: 3px;\n}\n.p-downloads_list--shift_down .p-download_item.completed .p-download_item__action_icon:before {\n  content: '\\E311';\n}\n.p-downloads_list--shift_down .p-download_item.completed .p-download_item__link--show {\n  display: none;\n}\n.p-downloads_list--shift_down .p-download_item.completed .p-download_item__link--open {\n  display: block;\n}\n", ""]);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".p-downloads_list {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-weight: 400;\n  -webkit-font-smoothing: antialiased;\n  outline: none;\n  position: relative;\n  display: flex;\n  flex-direction: column;\n  flex: 1;\n  overflow: hidden;\n}\n.p-downloads_list__heading {\n  padding: 1rem;\n  margin-bottom: 0.25rem;\n}\n.p-downloads_list__heading_row {\n  align-items: center;\n}\n.p-downloads_list__clear_all {\n  padding-right: 1rem;\n  padding-left: 0.5rem;\n  margin-right: 1rem;\n  font-size: 1rem;\n  border-right: 1px solid #cfcfcf;\n}\n.p-downloads_list__flex_close {\n  height: 1.5rem;\n  padding-top: 0.1rem;\n}\n.p-downloads_list__empty {\n  padding: 8rem 4rem;\n  font-size: 1rem;\n  line-height: 1.5rem;\n  text-align: center;\n}\n.p-downloads_list__empty_hint_text {\n  max-width: 12rem;\n  margin: 1rem auto;\n}\n.p-downloads_list__empty_download_icon {\n  margin: 0 0.25rem;\n}\n.p-downloads_list__shift_hint {\n  display: block;\n  position: absolute;\n  height: 100px;\n  bottom: 0;\n  left: 0;\n  right: 1rem;\n  text-align: center;\n  line-height: 100px;\n  color: #717274;\n  font-size: 0.9rem;\n  background: linear-gradient(to bottom, rgba(255, 255, 255, 0), #ffffff 25%, #ffffff);\n  z-index: 5;\n}\n.p-downloads_list__keyboard_key {\n  display: inline-block;\n  border: 1px solid #e8e8e8;\n  line-height: 1rem;\n  padding: 0.2rem 0.4rem;\n  margin: 0 0.2rem;\n  font-weight: bold;\n  font-size: 0.8rem;\n  border-bottom-width: 2px;\n  border-radius: 4px;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-form_type_default {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n}\n.t-form_type_label {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_type_placeholder {\n  color: #a0a0a2;\n}\n.t-form_element_sizing {\n  margin: 0 0 12px;\n  padding: 8px 12px;\n}\n.t-form_label {\n  display: block;\n  margin: 0;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_border {\n  border-radius: 4px;\n  border: solid 1px #a0a0a2;\n}\n.t-form_cursor {\n  cursor: pointer;\n}\n.t-form_cursor[disabled] {\n  cursor: default;\n}\n.p-downloads_list {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-weight: 400;\n  -webkit-font-smoothing: antialiased;\n  outline: none;\n  position: relative;\n  display: flex;\n  flex-direction: column;\n  flex: 1;\n  overflow: hidden;\n}\n.p-downloads_list__heading {\n  padding: 1rem;\n  margin-bottom: 0.25rem;\n}\n.p-downloads_list__heading_row {\n  align-items: center;\n}\n.p-downloads_list__clear_all {\n  padding-right: 1rem;\n  padding-left: 0.5rem;\n  margin-right: 1rem;\n  font-size: 1rem;\n  border-right: 1px solid #cfcfcf;\n}\n.p-downloads_list__flex_close {\n  height: 1.5rem;\n  padding-top: 0.1rem;\n}\n.p-downloads_list__empty {\n  padding: 8rem 4rem;\n  font-size: 1rem;\n  line-height: 1.5rem;\n  text-align: center;\n}\n.p-downloads_list__empty_hint_text {\n  max-width: 12rem;\n  margin: 1rem auto;\n}\n.p-downloads_list__empty_download_icon {\n  margin: 0 0.25rem;\n}\n.p-downloads_list__shift_hint {\n  display: block;\n  position: absolute;\n  height: 100px;\n  bottom: 0;\n  left: 0;\n  right: 1rem;\n  text-align: center;\n  line-height: 100px;\n  color: #717274;\n  font-size: 0.9rem;\n  background: linear-gradient(to bottom, rgba(255, 255, 255, 0), #ffffff 25%, #ffffff);\n  z-index: 5;\n}\n.p-downloads_list__keyboard_key {\n  display: inline-block;\n  border: 1px solid #e8e8e8;\n  line-height: 1rem;\n  padding: 0.2rem 0.4rem;\n  margin: 0 0.2rem;\n  font-weight: bold;\n  font-size: 0.8rem;\n  border-bottom-width: 2px;\n  border-radius: 4px;\n}\n", ""]);
 }, function(e, t, n) {
   var r = n(1490);
   "string" == typeof r && (r = [
@@ -30586,15 +30586,15 @@ webpackJsonp([332], [, function(e, t, n) {
   }), n.d(t, "getChannelById", function() {
     return T;
   }), n.d(t, "getAllChannels", function() {
-    return S;
-  }), n.d(t, "hasDraft", function() {
     return x;
+  }), n.d(t, "hasDraft", function() {
+    return S;
   }), n.d(t, "isPrivate", function() {
     return E;
   }), n.d(t, "isChannel", function() {
-    return P;
-  }), n.d(t, "isMpim", function() {
     return L;
+  }), n.d(t, "isMpim", function() {
+    return P;
   }), n.d(t, "isIm", function() {
     return C;
   }), n.d(t, "isOpen", function() {
@@ -30691,19 +30691,19 @@ webpackJsonp([332], [, function(e, t, n) {
   var T = function(e, t) {
       return e && e.channels && e.channels[t];
     },
-    S = function(e) {
+    x = function(e) {
       return e.channels;
     },
-    x = function(e) {
+    S = function(e) {
       return e && e.has_draft;
     },
     E = function(e) {
       return e && (e.is_private || e.is_group) && !e.is_mpim;
     },
-    P = function(e) {
+    L = function(e) {
       return e && e.is_channel && !e.is_private && !e.is_mpim;
     },
-    L = function(e) {
+    P = function(e) {
       return e && e.is_mpim;
     },
     C = function(e) {
@@ -30737,10 +30737,10 @@ webpackJsonp([332], [, function(e, t, n) {
       return e && e._show_in_list_even_though_no_unreads;
     },
     z = function(e) {
-      return L(e) ? "mpim" : E(e) ? "private" : C(e) ? "im" : "channel";
+      return P(e) ? "mpim" : E(e) ? "private" : C(e) ? "im" : "channel";
     },
     F = function(e) {
-      return e ? L(e) || C(e) ? e.unread_cnt : e.unread_highlight_cnt : 0;
+      return e ? P(e) || C(e) ? e.unread_cnt : e.unread_highlight_cnt : 0;
     },
     q = function(e) {
       return F(e) > 0;
@@ -30756,7 +30756,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }) : [];
     },
     B = function(e) {
-      return e._display_name ? e._display_name : L(e) ? n.i(c.a)(e) : C(e) ? n.i(d.a)(e) : e.name;
+      return e._display_name ? e._display_name : P(e) ? n.i(c.a)(e) : C(e) ? n.i(d.a)(e) : e.name;
     },
     V = function(e) {
       return e && C(e) && e.user;
@@ -31564,11 +31564,11 @@ webpackJsonp([332], [, function(e, t, n) {
     k = n(3140),
     M = n(3151),
     T = n(3150),
-    S = n(3169),
-    x = n(3173),
+    x = n(3169),
+    S = n(3173),
     E = n(3622),
-    P = n(3977),
-    L = n(3176),
+    L = n(3977),
+    P = n(3176),
     C = n(3177),
     O = n(3182),
     j = n(3202),
@@ -31601,11 +31601,11 @@ webpackJsonp([332], [, function(e, t, n) {
     toDayOfTheWeek: k.a,
     toHour: M.a,
     getActivityDayStamp: T.a,
-    toCalendarDate: S.a,
-    toCalendarDateOrNamedDay: x.a,
+    toCalendarDate: x.a,
+    toCalendarDateOrNamedDay: S.a,
     toCalendarDateIfYesterdayOrToday: E.a,
-    toFilenameFriendlyDate: P.a,
-    toHumanReadableDateAndTime: L.a,
+    toFilenameFriendlyDate: L.a,
+    toHumanReadableDateAndTime: P.a,
     convertISOtoUTCReadableDate: C.a,
     toTimeAgo: O.a,
     addDays: j.a,
@@ -31655,7 +31655,8 @@ webpackJsonp([332], [, function(e, t, n) {
     g = n(3195),
     v = n(3899),
     b = n(2355),
-    w = function() {
+    w = n(2288),
+    k = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
@@ -31666,7 +31667,8 @@ webpackJsonp([332], [, function(e, t, n) {
         return n && e(t.prototype, n), r && e(t, r), t;
       };
     }(),
-    k = {
+    M = new w.a("channel_sidebar"),
+    T = {
       rows: l.PropTypes.arrayOf(l.PropTypes.shape({
         type: l.PropTypes.string
       })).isRequired,
@@ -31679,7 +31681,7 @@ webpackJsonp([332], [, function(e, t, n) {
       onBrowseAppsClick: l.PropTypes.func,
       reportRenderedRowIndexes: l.PropTypes.func
     },
-    M = {
+    x = {
       rows: [],
       selectedItemId: "",
       onItemClick: s.a.noop,
@@ -31691,13 +31693,13 @@ webpackJsonp([332], [, function(e, t, n) {
       onBrowseAppsClick: s.a.noop,
       reportRenderedRowIndexes: s.a.noop
     },
-    T = function(e) {
+    S = function(e) {
       function t(e) {
         r(this, t);
         var n = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
         return n.setCustomScrollbarRef = n.setCustomScrollbarRef.bind(n), n.setListRef = n.setListRef.bind(n), n.onScroll = n.onScroll.bind(n), n.onItemClick = n.onItemClick.bind(n), n.onInviteClick = n.onInviteClick.bind(n), n.getRowHeight = n.getRowHeight.bind(n), n.renderRow = n.renderRow.bind(n), n.onRowsRendered = n.onRowsRendered.bind(n), n;
       }
-      return i(t, e), w(t, [{
+      return i(t, e), k(t, [{
         key: "componentDidUpdate",
         value: function(e) {
           this.List && e.rows !== this.props.rows && this.List.recomputeRowHeights();
@@ -31908,13 +31910,15 @@ webpackJsonp([332], [, function(e, t, n) {
               style: t,
               className: "p-channel_sidebar__virtualized",
               overscanRowCount: e.getScreenHeightInRows(o),
-              ref: e.setListRef
+              ref: e.setListRef,
+              tabIndex: -1,
+              "aria-label": M.t("Channels and direct messages")
             }));
           });
         }
       }]), t;
     }(u.a.PureComponent);
-  T.propTypes = k, T.defaultProps = M, t.a = T;
+  S.propTypes = T, S.defaultProps = x, t.a = S;
 }, function(e, t, n) {
   "use strict";
 
@@ -32181,14 +32185,14 @@ webpackJsonp([332], [, function(e, t, n) {
     k = n(3083),
     M = n(3962),
     T = n(2288),
-    S = Object.assign || function(e) {
+    x = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
         for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
       }
       return e;
     },
-    x = function() {
+    S = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
@@ -32200,7 +32204,7 @@ webpackJsonp([332], [, function(e, t, n) {
       };
     }(),
     E = new T.a("channel_sidebar"),
-    P = {
+    L = {
       isShared: a.PropTypes.bool,
       isOrgShared: a.PropTypes.bool,
       type: a.PropTypes.oneOf(["channel", "private", "im", "mpim"]),
@@ -32223,7 +32227,7 @@ webpackJsonp([332], [, function(e, t, n) {
       members: a.PropTypes.arrayOf(a.PropTypes.string),
       memberPresences: a.PropTypes.arrayOf(a.PropTypes.string)
     },
-    L = {
+    P = {
       isSelected: !1,
       isShared: !1,
       isOrgShared: !1,
@@ -32251,7 +32255,7 @@ webpackJsonp([332], [, function(e, t, n) {
         var n = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
         return n.onClick = n.onClick.bind(n), n.closeIM = n.closeIM.bind(n), n.state = {}, n;
       }
-      return i(t, e), x(t, [{
+      return i(t, e), S(t, [{
         key: "onClick",
         value: function(e) {
           e.preventDefault(), this.props.selectItem(this.props.id);
@@ -32299,6 +32303,30 @@ webpackJsonp([332], [, function(e, t, n) {
           }) : null;
         }
       }, {
+        key: "buildAriaLabel",
+        value: function() {
+          var e = this.props,
+            t = e.type,
+            n = e.displayName,
+            r = e.isShared,
+            o = e.isOrgShared,
+            i = e.isYou,
+            a = e.isMuted,
+            s = e.hasUnreads,
+            l = e.hasDraft,
+            c = e.isArchived,
+            d = e.badgeCount,
+            p = e.isSelected,
+            f = e.userActive,
+            h = e.isTyping,
+            m = [p ? E.t("selected") : null];
+          return "channel" === t ? m.push(r || o ? E.t("shared channel") : E.t("channel")) : "private" === t ? m.push(E.t("private channel")) : "mpim" === t ? m.push(E.t("group direct messsage")) : "im" === t && (m.push(E.t("direct message")), m.push(f ? E.t("active") : E.t("away"))), c && m.push("archived"), a && m.push(E.t("muted")), s && !d && m.push(E.t("has unreads")), d && m.push(E.t("{count} {count, plural, =1 {unread highlight} other {unread highlights}}", {
+            count: d
+          })), l && m.push(E.t("has draft")), h && m.push(E.t("typing")), (i ? E.t("{name} (you)", {
+            name: n
+          }) : n) + " (" + u()(m).filter(u.a.identity).join(", ") + ")";
+        }
+      }, {
         key: "renderPresence",
         value: function(e) {
           return s.a.createElement(w.a, {
@@ -32344,15 +32372,15 @@ webpackJsonp([332], [, function(e, t, n) {
             T = s.a.createElement(v.a, {
               count: f
             }),
-            x = this.shouldShowClose() && s.a.createElement(b.a, {
+            S = this.shouldShowClose() && s.a.createElement(b.a, {
               type: "times-circle-medium",
               onClick: this.closeIM,
               className: "p-channel_sidebar__close"
             }),
-            P = {
+            L = {
               "data-user-count": m
             },
-            L = this.shouldShowPresence() && this.renderPresence(y),
+            P = this.shouldShowPresence() && this.renderPresence(y),
             C = "im" === n && s.a.createElement(k.a, {
               memberId: y
             }),
@@ -32364,19 +32392,20 @@ webpackJsonp([332], [, function(e, t, n) {
                 "p-channel_sidebar__name--away": !g
               })
             }, C, "mpim" === n ? this.buildMpimName() : _, O);
-          return s.a.createElement("a", S({
+          return s.a.createElement("a", x({
             href: "/messages/" + t,
             className: M,
             onClick: this.onClick
-          }, P, {
+          }, L, {
             "data-qa-channel-sidebar-channel": !0,
             "data-qa-channel-sidebar-channel-id": t,
-            "data-qa-channel-sidebar-channel-type": n
-          }), L, j, T, x);
+            "data-qa-channel-sidebar-channel-type": n,
+            "aria-label": this.buildAriaLabel()
+          }), P, j, T, S);
         }
       }]), t;
     }(s.a.Component);
-  C.propTypes = P, C.defaultProps = L;
+  C.propTypes = L, C.defaultProps = P;
   var O = function(e, t) {
     var r = t.id,
       o = n.i(h.getChannelById)(e, r);
@@ -32476,7 +32505,7 @@ webpackJsonp([332], [, function(e, t, n) {
         rowIds: s
       };
     },
-    S = function(e) {
+    x = function(e) {
       var t = void 0,
         r = void 0,
         o = void 0,
@@ -32502,7 +32531,7 @@ webpackJsonp([332], [, function(e, t, n) {
         return t = b, r = d, o = p, i = _, l = c, b;
       };
     };
-  t.a = n.i(r.c)(S)(l.a);
+  t.a = n.i(r.c)(x)(l.a);
 }, function(e, t, n) {
   "use strict";
   var r = n(2880);
@@ -32537,7 +32566,8 @@ webpackJsonp([332], [, function(e, t, n) {
     c = n(9),
     d = n.n(c),
     p = n(3179),
-    f = function() {
+    f = n(2288),
+    h = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
@@ -32548,7 +32578,8 @@ webpackJsonp([332], [, function(e, t, n) {
         return n && e(t.prototype, n), r && e(t, r), t;
       };
     }(),
-    h = {
+    m = new f.a("channel_sidebar"),
+    _ = {
       id: a.PropTypes.string.isRequired,
       label: a.PropTypes.string.isRequired,
       labelUnread: a.PropTypes.string,
@@ -32558,7 +32589,7 @@ webpackJsonp([332], [, function(e, t, n) {
       selectItem: a.PropTypes.func,
       isDim: a.PropTypes.bool
     },
-    m = {
+    y = {
       isSelected: !1,
       selectable: !0,
       label: "",
@@ -32568,13 +32599,13 @@ webpackJsonp([332], [, function(e, t, n) {
       selectItem: u.a.noop,
       isDim: !1
     },
-    _ = function(e) {
+    g = function(e) {
       function t(e) {
         r(this, t);
         var n = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
         return n.onClick = n.onClick.bind(n), n.state = {}, n;
       }
-      return i(t, e), f(t, [{
+      return i(t, e), h(t, [{
         key: "onClick",
         value: function(e) {
           e.preventDefault(), this.props.selectItem(this.props.id);
@@ -32590,7 +32621,7 @@ webpackJsonp([332], [, function(e, t, n) {
             i = e.badgeCount,
             a = e.isSelected,
             l = e.isDim,
-            u = d()("p-channel_sidebar__link", {
+            c = d()("p-channel_sidebar__link", {
               "p-channel_sidebar__link--all-unreads": "Vall_unreads" === t,
               "p-channel_sidebar__link--all-threads": "Vall_threads" === t,
               "p-channel_sidebar__link--invites": "Vinvites" === t,
@@ -32598,21 +32629,27 @@ webpackJsonp([332], [, function(e, t, n) {
               "p-channel_sidebar__link--unread": o,
               "p-channel_sidebar__link--dim": l
             }),
-            c = o && r ? r : n,
-            f = s.a.createElement("span", {
+            f = o && r ? r : n,
+            h = s.a.createElement("span", {
               className: "p-channel_sidebar__name"
-            }, c),
-            h = s.a.createElement(p.a, {
+            }, f),
+            _ = u.a.filter([a ? m.t("selected") : null, o && !i ? m.t("has unreads") : null, i ? m.t("{count} {count, plural, =1 {unread highlight} other {unread highlights}}", {
+              count: i
+            }) : null], u.a.identity),
+            y = f + (_.length ? " (" + _.join(", ") + ")" : ""),
+            g = s.a.createElement(p.a, {
               count: i
             });
           return s.a.createElement("button", {
-            className: u,
-            onClick: this.onClick
-          }, f, h);
+            type: "button",
+            className: c,
+            onClick: this.onClick,
+            "aria-label": y
+          }, h, g);
         }
       }]), t;
     }(a.PureComponent);
-  _.propTypes = h, _.defaultProps = m, t.a = _;
+  g.propTypes = _, g.defaultProps = y, t.a = g;
 }, function(e, t, n) {
   "use strict";
 
@@ -32710,6 +32747,7 @@ webpackJsonp([332], [, function(e, t, n) {
             i = "top" === n ? "up" : "down",
             a = r ? g.t("Unread Mentions") : g.t("More Unreads");
           return s.a.createElement("button", {
+            type: "button",
             className: o,
             onClick: this.onClick
           }, a, " ", s.a.createElement(m.a, {
@@ -33232,9 +33270,9 @@ webpackJsonp([332], [, function(e, t, n) {
     k = n(2890),
     M = n(4191),
     T = n(4190),
-    S = n(2889),
-    x = n(3239),
-    E = (n.n(x), function() {
+    x = n(2889),
+    S = n(3239),
+    E = (n.n(S), function() {
       function e(e, t) {
         var n = [],
           r = !0,
@@ -33259,7 +33297,7 @@ webpackJsonp([332], [, function(e, t, n) {
         throw new TypeError("Invalid attempt to destructure non-iterable instance");
       };
     }()),
-    P = function() {
+    L = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
@@ -33270,7 +33308,7 @@ webpackJsonp([332], [, function(e, t, n) {
         return n && e(t.prototype, n), r && e(t, r), t;
       };
     }(),
-    L = new g.a("emoji_picker"),
+    P = new g.a("emoji_picker"),
     C = [0, -1],
     O = [0, 1],
     j = {
@@ -33308,7 +33346,7 @@ webpackJsonp([332], [, function(e, t, n) {
         r(this, t);
         var i = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
         i.onEmojiMouseEnter = i.onEmojiMouseEnter.bind(i), i.onEmojiMouseLeave = i.onEmojiMouseLeave.bind(i), i.onMouseWhileUsingKeyboard = i.onMouseWhileUsingKeyboard.bind(i), i.onListScroll = i.onListScroll.bind(i), i.onSearch = i.onSearch.bind(i), i.onEmojiPickerClick = i.onEmojiPickerClick.bind(i), i.onGroupTabClick = i.onGroupTabClick.bind(i), i.onSkinToneChanged = i.onSkinToneChanged.bind(i), i.onSkinTonePickerOpened = i.onSkinTonePickerOpened.bind(i), i.triggerSelect = i.triggerSelect.bind(i), i.triggerClose = i.triggerClose.bind(i), i.resetSelection = i.resetSelection.bind(i), i.getRowsForGroup = i.getRowsForGroup.bind(i), i.getSearchResults = i.getSearchResults.bind(i), i.setMenuRef = i.setMenuRef.bind(i), i.setSearchInputRef = i.setSearchInputRef.bind(i), i.onSearchInputChange = i.onSearchInputChange.bind(i);
-        var a = n.i(S.a)(i.props.groups);
+        var a = n.i(x.a)(i.props.groups);
         return i.props.featureReactEmojiPickerFrecency && (i.searchMap = s.a.keyBy(a, "name")), i.state = {
           currentSelection: {},
           isPreviewing: !1,
@@ -33347,7 +33385,7 @@ webpackJsonp([332], [, function(e, t, n) {
           handler: i.onArrowKey.bind(i, "right")
         }], i;
       }
-      return i(t, e), P(t, null, [{
+      return i(t, e), L(t, null, [{
         key: "emojiMatchesSkinTone",
         value: function(e, t) {
           return !e.is_skin || e.skin_tone_id === (t || "1");
@@ -33362,7 +33400,7 @@ webpackJsonp([332], [, function(e, t, n) {
             aliases: n
           };
         }
-      }]), P(t, [{
+      }]), L(t, [{
         key: "componentWillMount",
         value: function() {
           this.props.searchQuery && this.onSearch(this.props.searchQuery), w.a("react_emoji_menu_mount_mark");
@@ -33381,7 +33419,7 @@ webpackJsonp([332], [, function(e, t, n) {
             i = this.state.searchQuery !== e.searchQuery,
             a = i ? e.searchQuery : this.state.searchQuery;
           if (i && this.onSearch(a), r || o) {
-            var l = n.i(S.a)(e.groups);
+            var l = n.i(x.a)(e.groups);
             this.props.featureReactEmojiPickerFrecency && (this.searchMap = s.a.keyBy(l, "name")), this.setState(function() {
               return {
                 handyRxns: n.i(k.a)(l, e.handyRxnNames),
@@ -33619,7 +33657,7 @@ webpackJsonp([332], [, function(e, t, n) {
           var r = s.a.reject(e, function(e) {
               return "mine" === e.name;
             }),
-            o = n.i(S.a)(r);
+            o = n.i(x.a)(r);
           if (this.props.featureReactEmojiPickerFrecency) {
             var i = {
               searchQuery: t,
@@ -33729,7 +33767,7 @@ webpackJsonp([332], [, function(e, t, n) {
             r = this.state.currentSelection,
             o = t.getEmojiPreviewData(r);
           if (e) {
-            var i = n.i(S.a)(this.props.groups);
+            var i = n.i(x.a)(this.props.groups);
             r = n.i(k.a)(i, ":cry:")[0], o = t.getEmojiPreviewData(r);
           }
           var a = d()("p-emoji_picker__preview_text", {
@@ -33746,15 +33784,15 @@ webpackJsonp([332], [, function(e, t, n) {
             className: a
           }, u.a.createElement("span", {
             "data-qa": "emoji_preview_name"
-          }, e ? L.t("Oh no!") : o.name), u.a.createElement("br", null), u.a.createElement("span", {
+          }, e ? P.t("Oh no!") : o.name), u.a.createElement("br", null), u.a.createElement("span", {
             className: "p-emoji_picker__preview_aliases",
             "data-qa": "emoji_preview_aliases"
-          }, e ? L.t("We couldn’t find that emoji") : o.aliases)));
+          }, e ? P.t("We couldn’t find that emoji") : o.aliases)));
         }
       }, {
         key: "renderStickyHeader",
         value: function() {
-          var e = this.state.searchQuery ? L.t("Search Results") : this.state.activeGroup.display_name;
+          var e = this.state.searchQuery ? P.t("Search Results") : this.state.activeGroup.display_name;
           return u.a.createElement("div", {
             className: "p-emoji_picker__sticky_header"
           }, u.a.createElement("h3", {
@@ -33792,7 +33830,7 @@ webpackJsonp([332], [, function(e, t, n) {
             ref: this.setSearchInputRef,
             className: "p-emoji_picker__input",
             type: "text",
-            placeholder: L.t("Search"),
+            placeholder: P.t("Search"),
             onChange: this.onSearchInputChange,
             value: this.state.searchQuery
           }), u.a.createElement(y.a, {
@@ -33817,7 +33855,7 @@ webpackJsonp([332], [, function(e, t, n) {
             className: a
           }, this.maybeRenderHandyRxns(), this.renderEmojiPreview(), u.a.createElement("div", {
             className: "p-emoji_picker__emoji_deluxe_label"
-          }, u.a.createElement("span", null, L.t("Emoji Deluxe")), "™"), this.maybeRenderSkinTonePicker())));
+          }, u.a.createElement("span", null, P.t("Emoji Deluxe")), "™"), this.maybeRenderSkinTonePicker())));
         }
       }]), t;
     }(l.Component);
@@ -34287,8 +34325,8 @@ webpackJsonp([332], [, function(e, t, n) {
               "p-download_item__action_icon--image": !!l,
               fileType: c
             }),
-            S = n.i(m.a)() ? b.t("Show in Finder") : b.t("Open containing folder"),
-            x = {
+            x = n.i(m.a)() ? b.t("Show in Finder") : b.t("Open containing folder"),
+            S = {
               width: g + "%"
             };
           return s.a.createElement("div", {
@@ -34319,7 +34357,7 @@ webpackJsonp([332], [, function(e, t, n) {
             className: "p-download_item__actions"
           }, s.a.createElement("a", {
             className: "p-download_item__link--show"
-          }, S), s.a.createElement("a", {
+          }, x), s.a.createElement("a", {
             className: "p-download_item__link--open"
           }, b.t("Click to open")), s.a.createElement("a", {
             className: "p-download_item__link--retry",
@@ -34331,7 +34369,7 @@ webpackJsonp([332], [, function(e, t, n) {
             className: "p-download_item__progress_row progress_bar"
           }, s.a.createElement("div", {
             className: "p-download_item__progress progress_bar_progress",
-            style: x
+            style: S
           }))));
         }
       }]), t;
@@ -34427,8 +34465,8 @@ webpackJsonp([332], [, function(e, t, n) {
       fetchFileInfo: s.a.noop,
       isWindowFocused: !1
     },
-    S = new _.a("page_client"),
-    x = function(e) {
+    x = new _.a("page_client"),
+    S = function(e) {
       function t(e) {
         r(this, t);
         var n = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
@@ -34449,7 +34487,7 @@ webpackJsonp([332], [, function(e, t, n) {
           var t = {
               download_icon: "download_icon"
             },
-            r = n.i(_.b)(S.t("You can download files by clicking the {download_icon} button.", t), /(download_icon)/g, function(e, t, n) {
+            r = n.i(_.b)(x.t("You can download files by clicking the {download_icon} button.", t), /(download_icon)/g, function(e, t, n) {
               return u.a.createElement(y.a, {
                 key: n,
                 type: "cloud_download",
@@ -34468,7 +34506,7 @@ webpackJsonp([332], [, function(e, t, n) {
           var e = {
               shift_key: "shift_key"
             },
-            t = n.i(_.b)(S.t("Hold {shift_key} to open the file.", e), /(shift_key)/g, function(e, t, n) {
+            t = n.i(_.b)(x.t("Hold {shift_key} to open the file.", e), /(shift_key)/g, function(e, t, n) {
               return u.a.createElement("span", {
                 key: n,
                 className: "p-downloads_list__keyboard_key"
@@ -34485,7 +34523,7 @@ webpackJsonp([332], [, function(e, t, n) {
             type: "button",
             className: "p-downloads_list__clear_all btn_basic",
             onClick: v.a
-          }, S.t("Clear all"));
+          }, x.t("Clear all"));
         }
       }]), k(t, [{
         key: "componentDidMount",
@@ -34563,13 +34601,13 @@ webpackJsonp([332], [, function(e, t, n) {
             className: "p-downloads_list__heading_row heading_row"
           }, u.a.createElement("h2", {
             className: "heading_text overflow_ellipsis"
-          }, S.t("Downloads")), o, u.a.createElement(h.a, {
+          }, x.t("Downloads")), o, u.a.createElement(h.a, {
             className: "p-downloads_list__flex_close"
           }))), n, r);
         }
       }]), t;
     }(u.a.Component);
-  x.propTypes = M, x.defaultProps = T, t.a = x;
+  S.propTypes = M, S.defaultProps = T, t.a = S;
 }, function(e, t, n) {
   "use strict";
 
@@ -35692,8 +35730,8 @@ webpackJsonp([332], [, function(e, t, n) {
     k = n(3626),
     M = n(3978),
     T = n(3183),
-    S = n(3014),
-    x = n(3922),
+    x = n(3014),
+    S = n(3922),
     E = n.i(r.e)({
       allUnreads: o.default,
       bootData: i.default,
@@ -35716,8 +35754,8 @@ webpackJsonp([332], [, function(e, t, n) {
       socket: f.default,
       reactions: T.default,
       typing: h.default,
-      window: S.default,
-      environment: x.default
+      window: x.default,
+      environment: S.default
     });
   t.a = E;
 }, , , function(e, t, n) {
@@ -36155,16 +36193,16 @@ webpackJsonp([332], [, function(e, t, n) {
     T = function(e, t) {
       return n.i(f.f)(n.i(c.getDisplayName)(e), n.i(c.getDisplayName)(t));
     },
-    S = function(e, t) {
+    x = function(e, t) {
       var n = e.priority,
         r = void 0 === n ? -1 : n,
         o = t.priority;
       return (void 0 === o ? -1 : o) - r;
     },
-    x = function(e) {
+    S = function(e) {
       var t = e.sortPref,
         n = e.featurePrioritySortEnabled;
-      return "priority" === t && n ? S : T;
+      return "priority" === t && n ? x : T;
     },
     E = function(e) {
       var t = e.channel,
@@ -36175,10 +36213,10 @@ webpackJsonp([332], [, function(e, t, n) {
         a = o && r ? r[i] : n.i(h.d)(i);
       return n.i(s.isAppOrBot)(a);
     },
-    P = function(e) {
+    L = function(e) {
       return n.i(p.isFeatureEnabled)(e, "feature_sli_channel_priority");
     },
-    L = function(e) {
+    P = function(e) {
       return n.i(p.useReduxMembers)(e);
     },
     C = function(e) {
@@ -36190,7 +36228,7 @@ webpackJsonp([332], [, function(e, t, n) {
     j = function(e) {
       return n.i(u.getUserPref)(e, "separate_private_channels");
     },
-    D = n.i(i.createSelector)([l.a, P, L, C, O, j, c.getAllChannels, a.getMutedChannels, s.getAllMembers, d.getSelectedChannelItem], function(e, t, r, i, a, s, l, u, d, p) {
+    D = n.i(i.createSelector)([l.a, L, P, C, O, j, c.getAllChannels, a.getMutedChannels, s.getAllMembers, d.getSelectedChannelItem], function(e, t, r, i, a, s, l, u, d, p) {
       var f = "hide_read_channels" === i,
         h = "hide_read_channels_unless_starred" === i,
         g = {},
@@ -36207,11 +36245,11 @@ webpackJsonp([332], [, function(e, t, n) {
             shouldHideReadChannelsUnlessStarred: h
           });
         }),
-        S = x({
+        x = S({
           sortPref: a,
           featurePrioritySortEnabled: t
         });
-      T.sort(S).forEach(function(o) {
+      T.sort(x).forEach(function(o) {
         var i = k({
             channel: o,
             isApp: E({
@@ -36229,18 +36267,18 @@ webpackJsonp([332], [, function(e, t, n) {
           });
         g[i].channelsOrdered[l].push(o.id);
       });
-      var P = o.a.mapValues(g, function(e) {
+      var L = o.a.mapValues(g, function(e) {
         return m({}, e, {
           channelsOrdered: o.a.flatten(e.channelsOrdered)
         });
       });
-      return P.starred.channelsOrdered.length < 1 && (delete P.starred, o.a.remove(v, function(e) {
+      return L.starred.channelsOrdered.length < 1 && (delete L.starred, o.a.remove(v, function(e) {
         return "starred" === e;
-      })), e || (delete P.apps, o.a.remove(v, function(e) {
+      })), e || (delete L.apps, o.a.remove(v, function(e) {
         return "apps" === e;
       })), {
         sidebarSectionsOrdered: v,
-        sidebarSections: P
+        sidebarSections: L
       };
     });
 }, , , function(e, t, n) {
@@ -36456,11 +36494,11 @@ webpackJsonp([332], [, function(e, t, n) {
     k = n(2344),
     M = n(2345),
     T = n(3029),
-    S = n(3045),
-    x = n(2346),
+    x = n(3045),
+    S = n(2346),
     E = n(3913),
-    P = n(2351),
-    L = n(3922);
+    L = n(2351),
+    P = n(3922);
   n.i(o.a)("interop.redux", {
     configureStore: a.a,
     entities: {
@@ -36477,7 +36515,7 @@ webpackJsonp([332], [, function(e, t, n) {
       messages: f,
       reactions: _,
       window: y,
-      environment: L
+      environment: P
     },
     features: {
       allUnreads: g,
@@ -36487,10 +36525,10 @@ webpackJsonp([332], [, function(e, t, n) {
       dnd: k,
       downloads: M,
       messagePane: T,
-      prefs: S,
-      presence: x,
+      prefs: x,
+      presence: S,
       socket: E,
-      typing: P
+      typing: L
     },
     downloadsView: i.a,
     provider: r.a
@@ -36598,7 +36636,7 @@ webpackJsonp([332], [, function(e, t, n) {
       r = e.text,
       o = e.ts;
     return function(e) {
-      e(S("pending")), n.i(v.a)({
+      e(x("pending")), n.i(v.a)({
         channelId: t,
         text: r,
         ts: o
@@ -36609,7 +36647,7 @@ webpackJsonp([332], [, function(e, t, n) {
         "message_not_found" === i ? (e(n.i(y.removeMessage)({
           channel: t,
           ts: o
-        })), e(M())) : e(S(i));
+        })), e(M())) : e(x(i));
       });
     };
   }
@@ -36655,9 +36693,9 @@ webpackJsonp([332], [, function(e, t, n) {
   }), n.d(t, "updateEditText", function() {
     return T;
   }), n.d(t, "updateEditStatus", function() {
-    return S;
-  }), n.d(t, "requestToStopEditing", function() {
     return x;
+  }), n.d(t, "requestToStopEditing", function() {
+    return S;
   }), n.d(t, "userSetUnreadPoint", function() {
     return E;
   }), t.fetchHistory = o, t.saveMessageEdit = i, t.getMessagePaneChannelId = a, t.getTimestampsForMessagePane = s, t.getMessagePaneStartTs = l, t.getMessagePaneEditState = u, t.didUserSetUnreadPoint = c;
@@ -36680,10 +36718,10 @@ webpackJsonp([332], [, function(e, t, n) {
     k = n.i(h.createAction)("Start editing a message"),
     M = n.i(h.createAction)("Stop editing current message"),
     T = n.i(h.createAction)("Set the current edit text"),
-    S = n.i(h.createAction)("Update current edit status"),
-    x = n.i(h.createAction)("Request that editing be stopped"),
+    x = n.i(h.createAction)("Update current edit status"),
+    S = n.i(h.createAction)("Request that editing be stopped"),
     E = n.i(h.createAction)("User set the unread point manually"),
-    P = {
+    L = {
       channelId: null,
       startTs: null,
       editTs: null,
@@ -36692,7 +36730,7 @@ webpackJsonp([332], [, function(e, t, n) {
       didRequestToStopEditing: !1,
       userSetUnreadPoint: !1
     },
-    L = n.i(h.createReducer)((d = {}, r(d, w, function(e, t, n) {
+    P = n.i(h.createReducer)((d = {}, r(d, w, function(e, t, n) {
       return b({}, e, {
         channelId: t,
         startTs: n,
@@ -36715,11 +36753,11 @@ webpackJsonp([332], [, function(e, t, n) {
       return b({}, e, {
         editText: t
       });
-    }), r(d, S, function(e, t) {
+    }), r(d, x, function(e, t) {
       return b({}, e, {
         editStatus: t
       });
-    }), r(d, x, function(e) {
+    }), r(d, S, function(e) {
       var t = !(arguments.length > 1 && void 0 !== arguments[1]) || arguments[1];
       return b({}, e, {
         didRequestToStopEditing: t
@@ -36728,8 +36766,8 @@ webpackJsonp([332], [, function(e, t, n) {
       return b({}, e, {
         userSetUnreadPoint: !0
       });
-    }), d), P);
-  t.default = L;
+    }), d), L);
+  t.default = P;
 }, , , function(e, t, n) {
   "use strict";
   var r = n(3033);
@@ -37202,9 +37240,9 @@ webpackJsonp([332], [, function(e, t, n) {
         k = a(d),
         M = r(d),
         T = n.i(f.getChannelById)(e, u),
-        S = s(e, t.rollup),
-        x = d.comment;
-      return "file_share" === d.subtype && (x = d.file.initial_comment), w({
+        x = s(e, t.rollup),
+        S = d.comment;
+      return "file_share" === d.subtype && (S = d.file.initial_comment), w({
         channel: T,
         alertType: d.alert_type,
         subtype: d.subtype,
@@ -37217,11 +37255,11 @@ webpackJsonp([332], [, function(e, t, n) {
         threadsEverythingPref: _,
         attachments: d.attachments,
         file: d.file,
-        comment: x,
+        comment: S,
         reactionKey: k,
         showUser: g,
         isFileFollowup: b,
-        rollup: S,
+        rollup: x,
         edited: d.edited,
         isStarred: n.i(v.a)(d)
       });
@@ -37285,11 +37323,11 @@ webpackJsonp([332], [, function(e, t, n) {
     k = n(2902),
     M = n(3624),
     T = n(3937),
-    S = n(3998),
-    x = n(3040),
+    x = n(3998),
+    S = n(3040),
     E = n(3981),
-    P = n(3956),
-    L = n(2914),
+    L = n(3956),
+    P = n(2914),
     C = n(2921),
     O = n(3173),
     j = n(2288),
@@ -37433,7 +37471,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "onContainerClick",
         value: function(e) {
-          return this.props.isEditing ? void e.stopPropagation() : e.shiftKey && n.i(L.b)(e) ? (e.stopPropagation(), void this.props.logMessage(this.props.channel.id, this.props.ts)) : void(e.altKey && (e.preventDefault(), this.props.setUnreadPoint(this.props.channel.id, this.props.ts)));
+          return this.props.isEditing ? void e.stopPropagation() : e.shiftKey && n.i(P.b)(e) ? (e.stopPropagation(), void this.props.logMessage(this.props.channel.id, this.props.ts)) : void(e.altKey && (e.preventDefault(), this.props.setUnreadPoint(this.props.channel.id, this.props.ts)));
         }
       }, {
         key: "startEditing",
@@ -37456,7 +37494,7 @@ webpackJsonp([332], [, function(e, t, n) {
             t = e.channel,
             r = e.ts,
             o = e.threadTs,
-            i = n.i(x.d)(t.id, r, o);
+            i = n.i(S.d)(t.id, r, o);
           return l.a.createElement(g.a, {
             timestamp: r,
             relative: !1,
@@ -37473,7 +37511,7 @@ webpackJsonp([332], [, function(e, t, n) {
             });
             if (this.props.isEditing || this.props.showUser) return l.a.createElement("div", {
               className: "c-message__gutter"
-            }, l.a.createElement(P.a, {
+            }, l.a.createElement(L.a, {
               renderMenu: this.renderProfilePreview,
               position: "right",
               offsetX: 16,
@@ -37653,7 +37691,7 @@ webpackJsonp([332], [, function(e, t, n) {
             s = e.saveMessageEdit,
             u = e.ts,
             c = e.updateEditText;
-          return l.a.createElement(S.a, {
+          return l.a.createElement(x.a, {
             cancelEdit: t,
             saveMessageEdit: s,
             channelId: n.id,
@@ -38083,13 +38121,13 @@ webpackJsonp([332], [, function(e, t, n) {
   }
 
   function s(e) {
-    if (Pe) throw new Error("We already have a socket");
+    if (Le) throw new Error("We already have a socket");
     if (be && Math.random() <= be) return n.i(Q.e)("Intentionally closing socket to simulate flakiness"), void l();
-    Pe = new G.a(e), Pe.onCloseSig.addOnce(l), Pe.onConnectSig.addOnce(u);
+    Le = new G.a(e), Le.onCloseSig.addOnce(l), Le.onConnectSig.addOnce(u);
   }
 
   function l() {
-    n.i(B.c)("sm_flow_unexpected_close_2"), p(), E({
+    n.i(B.c)("sm_flow_unexpected_close_7"), p(), E({
       state: K.a.ERROR
     });
   }
@@ -38098,7 +38136,7 @@ webpackJsonp([332], [, function(e, t, n) {
     E({
       state: ve === K.a.FAST_RECONNECTING ? K.a.CONNECTED : K.a.PROV_CONNECTED,
       allowableSourceStates: [K.a.FAST_RECONNECTING, K.a.PROV_CONNECTING]
-    }), Ee && (xe = void 0, Ee(), Ee = void 0);
+    }), Ee && (Se = void 0, Ee(), Ee = void 0);
   }
 
   function c(e) {
@@ -38112,12 +38150,12 @@ webpackJsonp([332], [, function(e, t, n) {
   }
 
   function d(e) {
-    if (!Pe) throw new Error("Cannot send messages when we do not have a socket");
-    return Pe.send(e);
+    if (!Le) throw new Error("Cannot send messages when we do not have a socket");
+    return Le.send(e);
   }
 
   function p(e) {
-    Pe && (Pe.onConnectSig.remove(u), Pe.onCloseSig.remove(l), Pe.readyState !== WebSocket.CLOSED && Pe.close(e, "Closed by socket manager"), Pe = void 0);
+    Le && (Le.onConnectSig.remove(u), Le.onCloseSig.remove(l), Le.readyState !== WebSocket.CLOSED && Le.close(e, "Closed by socket manager"), Le = void 0);
   }
 
   function f() {
@@ -38132,7 +38170,7 @@ webpackJsonp([332], [, function(e, t, n) {
   }
 
   function h() {
-    return Se.getDelay();
+    return xe.getDelay();
   }
 
   function m() {
@@ -38164,17 +38202,17 @@ webpackJsonp([332], [, function(e, t, n) {
 
   function y() {
     if (!(_e || he < ge)) {
-      Date.now() - me < ye || (_e = !0, n.i(B.c)("sm_flow_trouble_connecting_2"), Ne.dispatch());
+      Date.now() - me < ye || (_e = !0, n.i(B.c)("sm_flow_trouble_connecting_7"), Ne.dispatch());
     }
   }
 
   function g(e) {
     var t;
-    Le && (clearTimeout(Le), Le = void 0);
+    Pe && (clearTimeout(Pe), Pe = void 0);
     var i = (t = {}, r(t, K.a.CONNECTED, 1 / 0), r(t, K.a.ASLEEP, 1 / 0), r(t, K.a.FAST_RECONNECTING, 2e4), r(t, K.a.PROV_CONNECTING, 2e4), r(t, K.a.PROV_CONNECTED, 6e4), r(t, K.a.CHECKING_FAST_RECONNECT, 6e4), r(t, K.a.WAIT_FOR_CONNECTIVITY, 3e5), r(t, K.a.WAIT_FOR_RATE_LIMIT, 12e4), t),
       s = i[e] || 1e4;
-    o(1996, "socket-manager: will stay in " + e + " state for up to " + s + " ms"), s !== 1 / 0 && (Le = setTimeout(function() {
-      o(1996, "socket-manager: Spent " + s + " ms in " + e + " state; giving up"), e === K.a.PROV_CONNECTED && (n.i(B.c)("sm_flow_prov_timeout_6"), a()), x(K.a.ERROR);
+    o(1996, "socket-manager: will stay in " + e + " state for up to " + s + " ms"), s !== 1 / 0 && (Pe = setTimeout(function() {
+      o(1996, "socket-manager: Spent " + s + " ms in " + e + " state; giving up"), e === K.a.PROV_CONNECTED && (n.i(B.c)("sm_flow_prov_timeout_7"), a()), S(K.a.ERROR);
     }, s));
   }
 
@@ -38183,13 +38221,13 @@ webpackJsonp([332], [, function(e, t, n) {
     switch (e) {
       case K.a.NEVER_CONNECTED:
         if (!oe()) return;
-        x(K.a.PROV_CONNECT);
+        S(K.a.PROV_CONNECT);
         break;
       case K.a.CONNECT:
-        x(K.a.CHECKING_FAST_RECONNECT), f().then(function(e) {
-          n.i(B.c)("sm_flow_fast_reconnect_2"), x(K.a.FAST_RECONNECTING), s(e), Pe.messageDelegate = c;
+        S(K.a.CHECKING_FAST_RECONNECT), f().then(function(e) {
+          n.i(B.c)("sm_flow_fast_reconnect_7"), S(K.a.FAST_RECONNECTING), s(e), Le.messageDelegate = c;
         }).catch(function() {
-          p(fe), x(K.a.PROV_CONNECT);
+          p(fe), S(K.a.PROV_CONNECT);
         });
         break;
       case K.a.FAST_RECONNECTING:
@@ -38204,37 +38242,37 @@ webpackJsonp([332], [, function(e, t, n) {
       case K.a.CHECKING_FAST_RECONNECT:
         break;
       case K.a.PROV_CONNECT:
-        n.i(B.c)("sm_flow_connect_prov_3"), x(K.a.PROV_CONNECTING), s(ne());
+        n.i(B.c)("sm_flow_connect_prov_7"), S(K.a.PROV_CONNECTING), s(ne());
         break;
       case K.a.PROV_CONNECTING:
         break;
       case K.a.PROV_CONNECTED:
         try {
-          o(1996, "socket-manager: will dispatch provisionallyConnectedSig"), Ye.dispatch(Pe.startData), o(1996, "socket-manager: did dispatch provisionallyConnectedSig");
+          o(1996, "socket-manager: will dispatch provisionallyConnectedSig"), Ye.dispatch(Le.startData), o(1996, "socket-manager: did dispatch provisionallyConnectedSig");
         } catch (e) {
           throw n.i(B.c)("sm_prov_connect_sig_dispatch_error"), o(1996, "socket-manager: error dispatching provisionallyConnectedSig"), e;
         }
         break;
       case K.a.PROV_FINALIZE:
-        o(1996, "socket-manager: running PROV_FINALIZE"), x(K.a.PROV_FINALIZING), Pe || o(1996, "socket-manager: tried to finalize, but we do not have a socket"), Pe.messageDelegate = c, x(K.a.CONNECTED);
+        o(1996, "socket-manager: running PROV_FINALIZE"), S(K.a.PROV_FINALIZING), Le || o(1996, "socket-manager: tried to finalize, but we do not have a socket"), Le.messageDelegate = c, S(K.a.CONNECTED);
         break;
       case K.a.PROV_FINALIZING:
         break;
       case K.a.DISCONNECT:
-        x(K.a.DISCONNECTING), p(ue), x(K.a.DISCONNECTED);
+        S(K.a.DISCONNECTING), p(ue), S(K.a.DISCONNECTED);
         break;
       case K.a.DISCONNECTING:
         break;
       case K.a.DISCONNECTED:
-        x(K.a.WAIT_FOR_RATE_LIMIT);
+        S(K.a.WAIT_FOR_RATE_LIMIT);
         break;
       case K.a.ERROR:
         p(ce), setTimeout(function() {
-          x(K.a.WAIT_FOR_CONNECTIVITY);
+          S(K.a.WAIT_FOR_CONNECTIVITY);
         }, 0);
         break;
       case K.a.SLEEP:
-        x(K.a.SLEEPING), p(pe), x(K.a.ASLEEP);
+        S(K.a.SLEEPING), p(pe), S(K.a.ASLEEP);
         break;
       case K.a.SLEEPING:
       case K.a.ASLEEP:
@@ -38243,24 +38281,24 @@ webpackJsonp([332], [, function(e, t, n) {
         Ce = new Promise(function(e, t) {
           ie().then(e).catch(t);
         }), Ce.then(function() {
-          ve === K.a.WAIT_FOR_CONNECTIVITY && x(K.a.WAIT_FOR_RATE_LIMIT);
+          ve === K.a.WAIT_FOR_CONNECTIVITY && S(K.a.WAIT_FOR_RATE_LIMIT);
         }).catch(function() {
-          ve === K.a.WAIT_FOR_CONNECTIVITY && (o(1996, "socket-manager: Waited too long for connectivity to come back"), x(K.a.ERROR));
+          ve === K.a.WAIT_FOR_CONNECTIVITY && (o(1996, "socket-manager: Waited too long for connectivity to come back"), S(K.a.ERROR));
         });
         break;
       case K.a.WAIT_FOR_RATE_LIMIT:
-        if (!Se.increment()) {
-          var i = Se.getDelay();
+        if (!xe.increment()) {
+          var i = xe.getDelay();
           o(1996, "socket-manager: will wait for " + i + " ms");
           var a = setInterval(function() {
-            var e = Math.ceil(Se.getDelay() / 1e3);
+            var e = Math.ceil(xe.getDelay() / 1e3);
             Re.dispatch(e);
           }, 1e3);
           return void(Oe = setTimeout(function() {
             clearInterval(a), ve === K.a.WAIT_FOR_RATE_LIMIT && v(K.a.WAIT_FOR_RATE_LIMIT);
           }, i));
         }
-        Re.dispatch(0), x(K.a.CONNECT);
+        Re.dispatch(0), S(K.a.CONNECT);
     }
   }
 
@@ -38269,7 +38307,7 @@ webpackJsonp([332], [, function(e, t, n) {
   }
 
   function w() {
-    Se.reset();
+    xe.reset();
   }
 
   function k(e) {
@@ -38282,14 +38320,14 @@ webpackJsonp([332], [, function(e, t, n) {
   }
 
   function T() {
-    x(K.a.ERROR);
+    S(K.a.ERROR);
   }
 
-  function S() {
+  function x() {
     Me = void 0, Te = void 0;
   }
 
-  function x(e) {
+  function S(e) {
     if (!n.i(K.b)(e)) throw new Error("Invalid state");
     if (o(1996, "socket-manager: Changing from " + ve + " to " + e), ve === K.a.PROV_CONNECTED && e === K.a.ERROR) try {
       throw new Error("Changing from prov_connected to error");
@@ -38301,20 +38339,20 @@ webpackJsonp([332], [, function(e, t, n) {
     try {
       e === K.a.PROV_FINALIZE && o(1996, "socket-manager: PROV_FINALIZE will call leaveState"), _(t, e), e === K.a.PROV_FINALIZE && o(1996, "socket-manager: PROV_FINALIZE did call leaveState, will call maybeStartStuckStateTimeout"), g(e), e === K.a.PROV_FINALIZE && o(1996, "socket-manager: PROV_FINALIZE did call leaveState, will call runState"), v(e, t);
     } catch (e) {
-      o(1996, "socket-manager: Caught an error while trying to change states: " + e), n.i(Q.d)(e), ve === K.a.ERROR ? o(1996, "socket-manager: We were already trying to change to an error state; unsure how to proceed") : (o(1996, "socket-manager: Switching to ERROR just in case"), x(K.a.ERROR));
+      o(1996, "socket-manager: Caught an error while trying to change states: " + e), n.i(Q.d)(e), ve === K.a.ERROR ? o(1996, "socket-manager: We were already trying to change to an error state; unsure how to proceed") : (o(1996, "socket-manager: Switching to ERROR just in case"), S(K.a.ERROR));
     }
   }
 
   function E(e) {
-    n.i(K.c)(ve, e, x);
-  }
-
-  function P() {
-    return ve === K.a.NEVER_CONNECTED;
+    n.i(K.c)(ve, e, S);
   }
 
   function L() {
-    return !(!Pe || !Pe.isConnected);
+    return ve === K.a.NEVER_CONNECTED;
+  }
+
+  function P() {
+    return !(!Le || !Le.isConnected);
   }
 
   function C() {
@@ -38357,22 +38395,22 @@ webpackJsonp([332], [, function(e, t, n) {
   }
 
   function N() {
-    n.i(B.c)("sm_flow_finalize_prov_3");
+    n.i(B.c)("sm_flow_finalize_prov_7");
     var e = ve;
     if (E({
         state: K.a.PROV_FINALIZE,
         allowableSourceStates: [K.a.PROV_CONNECTED]
       }), ve !== K.a.CONNECTED) {
       var t = ve;
-      throw n.i(B.c)("sm_flow_finalize_prov_error_3"), x(K.a.ERROR), new Error("Failed to finalize connection -- expected to be connected but actually " + t + " (start state was " + e + ")");
+      throw n.i(B.c)("sm_flow_finalize_prov_error_7"), S(K.a.ERROR), new Error("Failed to finalize connection -- expected to be connected but actually " + t + " (start state was " + e + ")");
     }
-    n.i(B.c)("sm_flow_finalize_prov_ok_3");
+    n.i(B.c)("sm_flow_finalize_prov_ok_7");
   }
 
   function H() {
-    return L() ? Promise.resolve() : (xe || (xe = new Promise(function(e) {
+    return P() ? Promise.resolve() : (Se || (Se = new Promise(function(e) {
       Ee = e;
-    })), xe);
+    })), Se);
   }
 
   function z() {
@@ -38423,7 +38461,7 @@ webpackJsonp([332], [, function(e, t, n) {
     return Ae;
   }), n.d(t, "troubleConnectingSig", function() {
     return Ne;
-  }), t.send = d, t.debugGetState = b, t.debugResetRateLimit = w, t.debugSetFastReconnectsEnabled = k, t.debugSetSocketConnectFlakiness = M, t.debugTriggerError = T, t.clearFastReconnectUrl = S, t.hasNeverConnected = P, t.hasOpenWebSocket = L, t.isAsleep = C, t.isConnected = O, t.isConnecting = j, t.isProvisionallyConnected = D, t.isWaitingForConnectivity = I, t.isWaitingForRateLimit = Y, t.start = R, t.disconnect = A, t.finalizeProvisionalConnection = N, t.promiseToHaveOpenWebSocket = H, t.reconnectImmediately = z, t.sleep = F, t.wake = q;
+  }), t.send = d, t.debugGetState = b, t.debugResetRateLimit = w, t.debugSetFastReconnectsEnabled = k, t.debugSetSocketConnectFlakiness = M, t.debugTriggerError = T, t.clearFastReconnectUrl = x, t.hasNeverConnected = L, t.hasOpenWebSocket = P, t.isAsleep = C, t.isConnected = O, t.isConnecting = j, t.isProvisionallyConnected = D, t.isWaitingForConnectivity = I, t.isWaitingForRateLimit = Y, t.start = R, t.disconnect = A, t.finalizeProvisionalConnection = N, t.promiseToHaveOpenWebSocket = H, t.reconnectImmediately = z, t.sleep = F, t.wake = q;
   var U = n(6),
     W = (n.n(U), n(3050)),
     B = n(2906),
@@ -38558,14 +38596,14 @@ webpackJsonp([332], [, function(e, t, n) {
     }
   }), Object.defineProperty(le, "limiter", {
     get: function() {
-      return Se;
+      return xe;
     }
   }), Object.defineProperty(le, "openWebSocketP", {
     get: function() {
-      return xe;
+      return Se;
     },
     set: function(e) {
-      xe = e;
+      Se = e;
     }
   }), Object.defineProperty(le, "openWebSocketPResolve", {
     get: function() {
@@ -38590,17 +38628,17 @@ webpackJsonp([332], [, function(e, t, n) {
     }
   }), Object.defineProperty(le, "setState", {
     get: function() {
-      return x;
+      return S;
     },
     set: function(e) {
-      x = e;
+      S = e;
     }
   }), Object.defineProperty(le, "socket", {
     get: function() {
-      return Pe;
+      return Le;
     },
     set: function(e) {
-      Pe = e;
+      Le = e;
     }
   }), Object.defineProperty(le, "transitionSafely", {
     get: function() {
@@ -38640,14 +38678,14 @@ webpackJsonp([332], [, function(e, t, n) {
     ke = !0,
     Me = void 0,
     Te = void 0,
-    Se = new V.a({
+    xe = new V.a({
       maxPerHour: 66,
       burstCount: 6
     }),
-    xe = void 0,
+    Se = void 0,
     Ee = void 0,
-    Pe = void 0,
     Le = void 0,
+    Pe = void 0,
     Ce = void 0,
     Oe = void 0,
     je = new W.a,
@@ -38794,7 +38832,7 @@ webpackJsonp([332], [, function(e, t, n) {
   var r = n(3062),
     o = r.a;
 }, , , , function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, "@font-face {\n  font-family: 'Slack v2';\n  src: url('https://a.slack-edge.com/7c81/fonts/slack-icons-v2.woff2') format('woff2'), url('https://a.slack-edge.com/7c81/fonts/slack-icons-v2.woff') format('woff');\n  font-style: normal;\n  font-weight: 400;\n}\n.c-icon:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n}\n.c-icon--inherit:before {\n  font-size: inherit;\n}\n.c-icon--align-bottom:before {\n  vertical-align: bottom;\n}\n.c-icon--align-top:before {\n  vertical-align: top;\n}\n.c-icon--align-baseline:before {\n  vertical-align: baseline;\n}\n.c-icon--star-o:before {\n  content: '\\E001';\n}\n.c-icon--unstar-o:before {\n  content: '\\E002';\n}\n.c-icon--user:before {\n  content: '\\E003';\n}\n.c-icon--comment-alt:before {\n  content: '\\E004';\n}\n.c-icon--comment-o:before {\n  content: '\\E005';\n}\n.c-icon--home:before {\n  content: '\\E006';\n}\n.c-icon--info:before {\n  content: '\\E007';\n}\n.c-icon--channel-info:before,\n.c-icon--info-circle:before {\n  content: '\\E008';\n}\n.c-icon--mentions:before {\n  content: '\\E009';\n}\n.c-icon--search:before {\n  content: '\\E010';\n}\n.c-icon--bolt:before {\n  content: '\\E011';\n}\n.c-icon--mobile:before {\n  content: '\\E012';\n}\n.c-icon--tablet:before {\n  content: '\\E013';\n}\n.c-icon--laptop:before {\n  content: '\\E014';\n}\n.c-icon--bell-o:before {\n  content: '\\E015';\n}\n.c-icon--bell-slash:before {\n  content: '\\E016';\n}\n.c-icon--team-directory:before {\n  content: '\\E017';\n}\n.c-icon--cloud-upload:before {\n  content: '\\E018';\n}\n.c-icon--cloud-download:before {\n  content: '\\E019';\n}\n.c-icon--cog-o:before {\n  content: '\\E020';\n}\n.c-icon--cogs:before {\n  content: '\\E021';\n}\n.c-icon--key:before {\n  content: '\\E022';\n}\n.c-icon--calendar:before {\n  content: '\\E023';\n}\n.c-icon--pencil:before {\n  content: '\\E024';\n}\n.c-icon--lightbulb-o:before {\n  content: '\\E025';\n}\n.c-icon--magic:before {\n  content: '\\E026';\n}\n.c-icon--external-link:before {\n  content: '\\E027';\n}\n.c-icon--external-link-square:before {\n  content: '\\E028';\n}\n.c-icon--lock-o:before {\n  content: '\\E029';\n}\n.c-icon--unlock:before {\n  content: '\\E030';\n}\n.c-icon--folder:before {\n  content: '\\E031';\n}\n.c-icon--folder-open:before {\n  content: '\\E032';\n}\n.c-icon--archive:before {\n  content: '\\E033';\n}\n.c-icon--inbox:before {\n  content: '\\E034';\n}\n.c-icon--sitemap:before {\n  content: '\\E035';\n}\n.c-icon--book:before {\n  content: '\\E036';\n}\n.c-icon--envelope-o:before {\n  content: '\\E037';\n}\n.c-icon--image:before {\n  content: '\\E038';\n}\n.c-icon--building:before {\n  content: '\\E039';\n}\n.c-icon--plug:before {\n  content: '\\E040';\n}\n.c-icon--paper-plane:before {\n  content: '\\E041';\n}\n.c-icon--credit-card:before {\n  content: '\\E042';\n}\n.c-icon--life-ring:before {\n  content: '\\E043';\n}\n.c-icon--thumb-tack:before {\n  content: '\\E044';\n}\n.c-icon--thumb-tack-filled:before {\n  content: '\\E547';\n}\n.c-icon--trash:before {\n  content: '\\E045';\n}\n.c-icon--print:before {\n  content: '\\E046';\n}\n.c-icon--quote-o:before {\n  content: '\\E047';\n}\n.c-icon--th-large:before {\n  content: '\\E048';\n}\n.c-icon--eye:before {\n  content: '\\E049';\n}\n.c-icon--eye-closed:before {\n  content: '\\E050';\n}\n.c-icon--volume-off:before {\n  content: '\\E051';\n}\n.c-icon--volume-down:before {\n  content: '\\E052';\n}\n.c-icon--volume-medium:before {\n  content: '\\E053';\n}\n.c-icon--volume-up:before {\n  content: '\\E054';\n}\n.c-icon--volume-off-alt:before {\n  content: '\\E055';\n}\n.c-icon--heart-o:before {\n  content: '\\E056';\n}\n.c-icon--wrench:before {\n  content: '\\E057';\n}\n.c-icon--file:before {\n  content: '\\E058';\n}\n.c-icon--all-files:before {\n  content: '\\E059';\n}\n.c-icon--your-files:before {\n  content: '\\E060';\n}\n.c-icon--align-left:before {\n  content: '\\E061';\n}\n.c-icon--align-center:before {\n  content: '\\E062';\n}\n.c-icon--align-right:before {\n  content: '\\E063';\n}\n.c-icon--align-justify:before {\n  content: '\\E064';\n}\n.c-icon--paragraph:before {\n  content: '\\E065';\n}\n.c-icon--code:before {\n  content: '\\E066';\n}\n.c-icon--ellipsis:before {\n  content: '\\E067';\n}\n.c-icon--ellipsis-baseline:before {\n  content: '\\E068';\n}\n.c-icon--spinner:before {\n  content: '\\E069';\n}\n.c-icon--spiral:before {\n  content: '\\E070';\n}\n.c-icon--random:before {\n  content: '\\E071';\n}\n.c-icon--repeat:before {\n  content: '\\E072';\n}\n.c-icon--share-square-o:before {\n  content: '\\E073';\n}\n.c-icon--link:before {\n  content: '\\E074';\n}\n.c-icon--undo:before {\n  content: '\\E075';\n}\n.c-icon--history:before {\n  content: '\\E076';\n}\n.c-icon--hourglass-empty:before {\n  content: '\\E077';\n}\n.c-icon--hourglass:before {\n  content: '\\E078';\n}\n.c-icon--clock-o:before {\n  content: '\\E079';\n}\n.c-icon--dashboard:before {\n  content: '\\E080';\n}\n.c-icon--power-off:before {\n  content: '\\E081';\n}\n.c-icon--sign-in:before {\n  content: '\\E082';\n}\n.c-icon--sign-out:before {\n  content: '\\E083';\n}\n.c-icon--jump:before {\n  content: '\\E084';\n}\n.c-icon--globe:before {\n  content: '\\E085';\n}\n.c-icon--filter:before {\n  content: '\\E086';\n}\n.c-icon--microphone:before {\n  content: '\\E087';\n}\n.c-icon--microphone-slash:before {\n  content: '\\E088';\n}\n.c-icon--paperclip:before {\n  content: '\\E089';\n}\n.c-icon--video-camera:before {\n  content: '\\E090';\n}\n.c-icon--stop-video:before {\n  content: '\\E091';\n}\n.c-icon--phone:before {\n  content: '\\E092';\n}\n.c-icon--end-call:before {\n  content: '\\E093';\n}\n.c-icon--smile-o:before {\n  content: '\\E094';\n}\n.c-icon--share-screen:before {\n  content: '\\E095';\n}\n.c-icon--stop-screen-sharing:before {\n  content: '\\E096';\n}\n.c-icon--stop-screen-sharing-alt:before {\n  content: '\\E097';\n}\n.c-icon--feedback:before {\n  content: '\\E098';\n}\n.c-icon--paper-plane-alt:before {\n  content: '\\E099';\n}\n.c-icon--share:before {\n  content: '\\E100';\n}\n.c-icon--save:before {\n  content: '\\E101';\n}\n.c-icon--message-notification:before {\n  content: '\\E102';\n}\n.c-icon--list:before {\n  content: '\\E103';\n}\n.c-icon--channel:before {\n  content: '\\E104';\n}\n.c-icon--share-other-alt:before {\n  content: '\\E105';\n}\n.c-icon--broadcast:before {\n  content: '\\E106';\n}\n.c-icon--all-files-alt:before {\n  content: '\\E107';\n}\n.c-icon--search-files:before {\n  content: '\\E108';\n}\n.c-icon--add-user:before {\n  content: '\\E109';\n}\n.c-icon--switch-team:before {\n  content: '\\E110';\n}\n.c-icon--create-snippet:before {\n  content: '\\E111';\n}\n.c-icon--create-post:before {\n  content: '\\E112';\n}\n.c-icon--upload:before {\n  content: '\\E113';\n}\n.c-icon--download:before {\n  content: '\\E114';\n}\n.c-icon--share-email:before {\n  content: '\\E115';\n}\n.c-icon--import-email:before {\n  content: '\\E116';\n}\n.c-icon--ellipsis-o:before {\n  content: '\\E117';\n}\n.c-icon--add-reaction:before {\n  content: '\\E118';\n}\n.c-icon--happy-smile:before {\n  content: '\\E119';\n}\n.c-icon--mark-unread:before {\n  content: '\\E120';\n}\n.c-icon--camera:before {\n  content: '\\E121';\n}\n.c-icon--phone-flat:before {\n  content: '\\E122';\n}\n.c-icon--sparkles:before {\n  content: '\\E123';\n}\n.c-icon--location-pin:before {\n  content: '\\E124';\n}\n.c-icon--channel-pane-hash:before {\n  content: '\\E125';\n}\n.c-icon--emoji-nature:before {\n  content: '\\E126';\n}\n.c-icon--emoji-food:before {\n  content: '\\E127';\n}\n.c-icon--emoji-celebration:before {\n  content: '\\E128';\n}\n.c-icon--emoji-activities:before {\n  content: '\\E129';\n}\n.c-icon--emoji-travel:before {\n  content: '\\E130';\n}\n.c-icon--emoji-objects:before {\n  content: '\\E131';\n}\n.c-icon--file-gdrive:before {\n  content: '\\E133';\n}\n.c-icon--play:before {\n  content: '\\E134';\n}\n.c-icon--stream:before {\n  content: '\\E135';\n}\n.c-icon--field-text:before {\n  content: '\\E136';\n}\n.c-icon--poo:before {\n  content: '\\E137';\n}\n.c-icon--channel-list:before {\n  content: '\\E138';\n}\n.c-icon--share-android:before {\n  content: '\\E139';\n}\n.c-icon--highlight:before {\n  content: '\\E140';\n}\n.c-icon--flag:before {\n  content: '\\E141';\n}\n.c-icon--grabby-patty:before {\n  content: '\\E142';\n}\n.c-icon--backspace:before {\n  content: '\\E143';\n}\n.c-icon--android-keyboard:before {\n  content: '\\E144';\n}\n.c-icon--side-panel:before {\n  content: '\\E145';\n}\n.c-icon--search-small:before {\n  content: '\\E146';\n}\n.c-icon--reload-small:before {\n  content: '\\E147';\n}\n.c-icon--vertical-ellipsis:before {\n  content: '\\E148';\n}\n.c-icon--disable:before {\n  content: '\\E149';\n}\n.c-icon--bold-hash-small:before {\n  content: '\\E150';\n}\n.c-icon--cart:before {\n  content: '\\E151';\n}\n.c-icon--snooze-outline:before {\n  content: '\\E152';\n}\n.c-icon--new-window:before {\n  content: '\\E153';\n}\n.c-icon--h1:before {\n  content: '\\E154';\n}\n.c-icon--h2:before {\n  content: '\\E155';\n}\n.c-icon--h3:before {\n  content: '\\E156';\n}\n.c-icon--bullet-list:before {\n  content: '\\E157';\n}\n.c-icon--numbered-list:before {\n  content: '\\E158';\n}\n.c-icon--text-format-menu:before {\n  content: '\\E159';\n}\n.c-icon--bold:before {\n  content: '\\E160';\n}\n.c-icon--italic:before {\n  content: '\\E161';\n}\n.c-icon--underline:before {\n  content: '\\E162';\n}\n.c-icon--strikethrough:before {\n  content: '\\E163';\n}\n.c-icon--tag:before {\n  content: '\\E164';\n}\n.c-icon--org-shared-channel:before {\n  content: '\\E165';\n}\n.c-icon--shared-channel:before {\n  content: '\\E166';\n}\n.c-icon--external-channel:before {\n  content: '\\E167';\n}\n.c-icon--small-reaction:before {\n  content: '\\E170';\n}\n.c-icon--small-reply:before {\n  content: '\\E171';\n}\n.c-icon--small-ellipsis:before {\n  content: '\\E172';\n}\n.c-icon--small-star:before {\n  content: '\\E173';\n}\n.c-icon--small-quote:before {\n  content: '\\E174';\n}\n.c-icon--keyboard:before {\n  content: '\\E175';\n}\n.c-icon--share-action:before {\n  content: '\\E176';\n}\n.c-icon--handset:before {\n  content: '\\E177';\n}\n.c-icon--bluetooth-sound:before {\n  content: '\\E178';\n}\n.c-icon--bluetooth:before {\n  content: '\\E179';\n}\n.c-icon--bot:before {\n  content: '\\E180';\n}\n.c-icon--globe-plus:before {\n  content: '\\E181';\n}\n.c-icon--user-groups:before {\n  content: '\\E182';\n}\n.c-icon--frowning-face:before {\n  content: '\\E183';\n}\n.c-icon--mobile-notification:before {\n  content: '\\E184';\n}\n.c-icon--desktop-notification:before {\n  content: '\\E185';\n}\n.c-icon--collab-screenshare-on:before {\n  content: '\\E186';\n}\n.c-icon--collab-screenshare-off:before {\n  content: '\\E187';\n}\n.c-icon--thumbs-up:before {\n  content: '\\E188';\n}\n.c-icon--thumbs-down:before {\n  content: '\\E189';\n}\n.c-icon--expand:before {\n  content: '\\E200';\n}\n.c-icon--reduce:before {\n  content: '\\E201';\n}\n.c-icon--arrows-alt:before {\n  content: '\\E202';\n}\n.c-icon--reduce-alt:before {\n  content: '\\E203';\n}\n.c-icon--check-square-o:before {\n  content: '\\E204';\n}\n.c-icon--check-circle-o:before {\n  content: '\\E205';\n}\n.c-icon--check-circle-o-large:before {\n  content: '\\E206';\n}\n.c-icon--question:before {\n  content: '\\E207';\n}\n.c-icon--exclamation:before {\n  content: '\\E208';\n}\n.c-icon--warning:before {\n  content: '\\E209';\n}\n.c-icon--exclamation-circle:before {\n  content: '\\E210';\n}\n.c-icon--question-circle:before {\n  content: '\\E211';\n}\n.c-icon--plus-circle:before {\n  content: '\\E212';\n}\n.c-icon--minus-circle:before {\n  content: '\\E213';\n}\n.c-icon--times-circle:before {\n  content: '\\E214';\n}\n.c-icon--square-warning:before {\n  content: '\\E230';\n}\n.c-icon--square-question:before {\n  content: '\\E231';\n}\n.c-icon--plus-square-o:before {\n  content: '\\E232';\n}\n.c-icon--minus-square-o:before {\n  content: '\\E233';\n}\n.c-icon--square-times:before {\n  content: '\\E234';\n}\n.c-icon--times:before {\n  content: '\\E278';\n}\n.c-icon--plus:before {\n  content: '\\E279';\n}\n.c-icon--minus:before {\n  content: '\\E280';\n}\n.c-icon--plus-small:before {\n  content: '\\E281';\n}\n.c-icon--minus-small:before {\n  content: '\\E282';\n}\n.c-icon--exclamation-small:before {\n  content: '\\E283';\n}\n.c-icon--question-small:before {\n  content: '\\E284';\n}\n.c-icon--check-small:before {\n  content: '\\E285';\n}\n.c-icon--times-small:before {\n  content: '\\E294';\n}\n.c-icon--sync:before {\n  content: '\\E295';\n}\n.c-icon--replies:before {\n  content: '\\E296';\n}\n.c-icon--check-small-bold:before {\n  content: '\\E301';\n}\n.c-icon--enter:before {\n  content: '\\E302';\n}\n.c-icon--expand-vertical:before {\n  content: '\\E303';\n}\n.c-icon--collapse-vertical:before {\n  content: '\\E304';\n}\n.c-icon--android-upload:before {\n  content: '\\E305';\n}\n.c-icon--plus-thick:before {\n  content: '\\E306';\n}\n.c-icon--check-large-bold:before {\n  content: '\\E319';\n}\n.c-icon--check-large:before {\n  content: '\\E320';\n}\n.c-icon--calls:before {\n  content: '\\E478';\n}\n.c-icon--calls-small:before {\n  content: '\\E479';\n}\n.c-icon--calls-ended:before {\n  content: '\\E480';\n}\n.c-icon--calls-ended-small:before {\n  content: '\\E481';\n}\n.c-icon--star:before {\n  content: '\\E500';\n}\n.c-icon--unstar:before {\n  content: '\\E501';\n}\n.c-icon--bell:before {\n  content: '\\E502';\n}\n.c-icon--lock:before {\n  content: '\\E503';\n}\n.c-icon--external-link-small:before {\n  content: '\\E504';\n}\n.c-icon--external-link-large:before {\n  content: '\\E505';\n}\n.c-icon--presence-online:before {\n  content: '\\E506';\n}\n.c-icon--presence-offline:before {\n  content: '\\E507';\n}\n.c-icon--presence-dnd:before {\n  content: '\\E508';\n}\n.c-icon--presence-ra-online:before,\n.c-icon--presence-external-online:before {\n  content: '\\E509';\n}\n.c-icon--restricted-user:before {\n  content: '\\E509';\n}\n.c-icon--presence-ra-offline:before,\n.c-icon--presence-external-offline:before {\n  content: '\\E510';\n}\n.c-icon--presence-ra-dnd:before,\n.c-icon--presence-external-dnd:before {\n  content: '\\E511';\n}\n.c-icon--presence-ura-online:before {\n  content: '\\E512';\n}\n.c-icon--single-channel-guest:before {\n  content: '\\E512';\n}\n.c-icon--presence-ura-offline:before {\n  content: '\\E513';\n}\n.c-icon--presence-ura-dnd:before {\n  content: '\\E514';\n}\n.c-icon--heart:before {\n  content: '\\E515';\n}\n.c-icon--quote:before {\n  content: '\\E516';\n}\n.c-icon--cog:before {\n  content: '\\E517';\n}\n.c-icon--comment:before {\n  content: '\\E518';\n}\n.c-icon--minus-circle-small:before {\n  content: '\\E519';\n}\n.c-icon--times-circle-small:before {\n  content: '\\E520';\n}\n.c-icon--multiparty-dm-2:before {\n  content: '\\E521';\n}\n.c-icon--multiparty-dm-3:before {\n  content: '\\E522';\n}\n.c-icon--multiparty-dm-4:before {\n  content: '\\E523';\n}\n.c-icon--multiparty-dm-5:before {\n  content: '\\E524';\n}\n.c-icon--multiparty-dm-6:before {\n  content: '\\E525';\n}\n.c-icon--multiparty-dm-7:before {\n  content: '\\E526';\n}\n.c-icon--multiparty-dm-8:before {\n  content: '\\E527';\n}\n.c-icon--multiparty-dm-9:before {\n  content: '\\E528';\n}\n.c-icon--poo-filled:before {\n  content: '\\E529';\n}\n.c-icon--circle-fill:before {\n  content: '\\E530';\n}\n.c-icon--flag-filled:before {\n  content: '\\E531';\n}\n.c-icon--refresh-small:before {\n  content: '\\E532';\n}\n.c-icon--snooze-filled:before {\n  content: '\\E533';\n}\n.c-icon--archived-channel:before {\n  content: '\\E534';\n}\n.c-icon--presence-dnd-offline:before {\n  content: '\\E535';\n}\n.c-icon--presence-ra-dnd-offline:before,\n.c-icon--presence-external-dnd-offline:before {\n  content: '\\E536';\n}\n.c-icon--presence-ura-dnd-offline:before {\n  content: '\\E537';\n}\n.c-icon--presence-mobile-dnd:before {\n  content: '\\E538';\n}\n.c-icon--play-filled:before {\n  content: '\\E539';\n}\n.c-icon--broadcast-filled:before {\n  content: '\\E540';\n}\n.c-icon--small-star-filled:before {\n  content: '\\E541';\n}\n.c-icon--small-comment-filled:before {\n  content: '\\E542';\n}\n.c-icon--paperplane-filled:before {\n  content: '\\E543';\n}\n.c-icon--filebg-large-filled:before {\n  content: '\\E544';\n}\n.c-icon--filebg-small-filled:before {\n  content: '\\E545';\n}\n.c-icon--highlight-filled:before {\n  content: '\\E546';\n}\n.c-icon--pin-filled:before {\n  content: '\\E547';\n}\n.c-icon--close-filled:before {\n  content: '\\E548';\n}\n.c-icon--share-filled:before {\n  content: '\\E549';\n}\n.c-icon--pencil-filled:before {\n  content: '\\E550';\n}\n.c-icon--side-panel-filled:before {\n  content: '\\E551';\n}\n.c-icon--add-reaction-filled:before {\n  content: '\\E552';\n}\n.c-icon--mentions-filled:before {\n  content: '\\E553';\n}\n.c-icon--small-reply-filled:before {\n  content: '\\E554';\n}\n.c-icon--user-filled:before {\n  content: '\\E555';\n}\n.c-icon--microphone-on:before {\n  content: '\\E556';\n}\n.c-icon--camera-on:before {\n  content: '\\E557';\n}\n.c-icon--screenshare-on:before {\n  content: '\\E558';\n}\n.c-icon--shared-channels:before {\n  content: '\\E559';\n}\n.c-icon--heart-large-filled:before {\n  content: '\\E560';\n}\n.c-icon--thumbs-up-filled:before {\n  content: '\\E561';\n}\n.c-icon--thumbs-down-filled:before {\n  content: '\\E562';\n}\n.c-icon--slow-network:before {\n  content: '\\E563';\n}\n.c-icon--sparkles-filled:before {\n  content: '\\E564';\n}\n.c-icon--small-warning-filled:before {\n  content: '\\E565';\n}\n.c-icon--deactivated-user:before {\n  content: '\\E566';\n}\n.c-icon--arrow-right:before {\n  content: '\\E286';\n}\n.c-icon--arrow-left:before {\n  content: '\\E287';\n}\n.c-icon--arrow-up:before {\n  content: '\\E288';\n}\n.c-icon--arrow-down:before {\n  content: '\\E289';\n}\n.c-icon--arrow-right-medium:before {\n  content: '\\E290';\n}\n.c-icon--arrow-left-medium:before {\n  content: '\\E291';\n}\n.c-icon--arrow-up-medium:before {\n  content: '\\E292';\n}\n.c-icon--arrow-down-medium:before {\n  content: '\\E293';\n}\n.c-icon--angle-arrow-down-right-alt:before {\n  content: '\\E297';\n}\n.c-icon--angle-arrow-up-right-alt:before {\n  content: '\\E298';\n}\n.c-icon--angle-arrow-up-left-alt:before {\n  content: '\\E299';\n}\n.c-icon--angle-arrow-down-left-alt:before {\n  content: '\\E300';\n}\n.c-icon--arrow-circle-o-up:before {\n  content: '\\E215';\n}\n.c-icon--arrow-circle-o-down:before {\n  content: '\\E216';\n}\n.c-icon--arrow-circle-o-right:before {\n  content: '\\E217';\n}\n.c-icon--arrow-circle-o-left:before {\n  content: '\\E218';\n}\n.c-icon--chevron-circle-left:before {\n  content: '\\E219';\n}\n.c-icon--chevron-circle-right:before {\n  content: '\\E220';\n}\n.c-icon--chevron-circle-down:before {\n  content: '\\E221';\n}\n.c-icon--chevron-circle-up:before {\n  content: '\\E222';\n}\n.c-icon--plus-circle-small:before {\n  content: '\\E223';\n}\n.c-icon--circle-small:before {\n  content: '\\E224';\n}\n.c-icon--circle-large:before {\n  content: '\\E225';\n}\n.c-icon--plus-circle-medium:before {\n  content: '\\E228';\n}\n.c-icon--times-circle-medium:before {\n  content: '\\E229';\n}\n.c-icon--square-arrow-up:before {\n  content: '\\E235';\n}\n.c-icon--square-arrow-down:before {\n  content: '\\E236';\n}\n.c-icon--square-arrow-right:before {\n  content: '\\E237';\n}\n.c-icon--square-arrow-left:before {\n  content: '\\E238';\n}\n.c-icon--square-chevron-left:before {\n  content: '\\E239';\n}\n.c-icon--square-chevron-right:before {\n  content: '\\E240';\n}\n.c-icon--square-chevron-down:before {\n  content: '\\E241';\n}\n.c-icon--square-chevron-up:before {\n  content: '\\E242';\n}\n.c-icon--chevron-right:before {\n  content: '\\E250';\n}\n.c-icon--chevron-left:before {\n  content: '\\E251';\n}\n.c-icon--chevron-down:before {\n  content: '\\E252';\n}\n.c-icon--chevron-up:before {\n  content: '\\E253';\n}\n.c-icon--chevron-medium-right:before {\n  content: '\\E254';\n}\n.c-icon--chevron-medium-left:before {\n  content: '\\E255';\n}\n.c-icon--chevron-medium-down:before {\n  content: '\\E256';\n}\n.c-icon--chevron-medium-up:before {\n  content: '\\E257';\n}\n.c-icon--chevron-large-right:before {\n  content: '\\E258';\n}\n.c-icon--chevron-large-left:before {\n  content: '\\E259';\n}\n.c-icon--chevron-large-up:before {\n  content: '\\E260';\n}\n.c-icon--chevron-large-down:before {\n  content: '\\E261';\n}\n.c-icon--arrow-large-right:before {\n  content: '\\E262';\n}\n.c-icon--arrow-large-left:before {\n  content: '\\E263';\n}\n.c-icon--arrow-large-up:before {\n  content: '\\E264';\n}\n.c-icon--arrow-large-down:before {\n  content: '\\E265';\n}\n.c-icon--caret-outline-left:before {\n  content: '\\E266';\n}\n.c-icon--caret-outline-right:before {\n  content: '\\E267';\n}\n.c-icon--caret-outline-up:before {\n  content: '\\E268';\n}\n.c-icon--caret-outline-down:before {\n  content: '\\E269';\n}\n.c-icon--caret-up:before {\n  content: '\\E270';\n}\n.c-icon--caret-down:before {\n  content: '\\E271';\n}\n.c-icon--caret-right:before {\n  content: '\\E272';\n}\n.c-icon--caret-left:before {\n  content: '\\E273';\n}\n.c-icon--angle-arrow-down-left:before {\n  content: '\\E274';\n}\n.c-icon--angle-arrow-down-right:before {\n  content: '\\E275';\n}\n.c-icon--angle-arrow-up-right:before {\n  content: '\\E276';\n}\n.c-icon--angle-arrow-up-left:before {\n  content: '\\E277';\n}\n.c-icon--arrow-ne-large:before {\n  content: '\\E307';\n}\n.c-icon--arrow-nw-large:before {\n  content: '\\E308';\n}\n.c-icon--arrow-sw-large:before {\n  content: '\\E309';\n}\n.c-icon--arrow-se-large:before {\n  content: '\\E310';\n}\n.c-icon--arrow-ne-medium:before {\n  content: '\\E311';\n}\n.c-icon--arrow-nw-medium:before {\n  content: '\\E312';\n}\n.c-icon--arrow-sw-medium:before {\n  content: '\\E313';\n}\n.c-icon--arrow-se-medium:before {\n  content: '\\E314';\n}\n.c-icon--arrow-ne-small:before {\n  content: '\\E315';\n}\n.c-icon--arrow-nw-small:before {\n  content: '\\E316';\n}\n.c-icon--arrow-sw-small:before {\n  content: '\\E317';\n}\n.c-icon--arrow-se-small:before {\n  content: '\\E318';\n}\n.c-icon--slack:before {\n  content: '\\E800';\n}\n.c-icon--slack-pillow:before {\n  content: '\\E801';\n}\n.c-icon--apple:before {\n  content: '\\E802';\n}\n.c-icon--android:before {\n  content: '\\E803';\n}\n.c-icon--twitter:before {\n  content: '\\E804';\n}\n.c-icon--github:before {\n  content: '\\E805';\n}\n.c-icon--dropbox:before {\n  content: '\\E806';\n}\n.c-icon--google:before {\n  content: '\\E807';\n}\n.c-icon--windows:before {\n  content: '\\E808';\n}\n.c-icon--youtube:before {\n  content: '\\E809';\n}\n.c-icon--google-drive:before {\n  content: '\\E810';\n}\n.c-icon--skype:before {\n  content: '\\E811';\n}\n.c-icon--rss:before {\n  content: '\\E812';\n}\n.c-icon--facebook:before {\n  content: '\\E813';\n}\n.c-icon--asana:before {\n  content: '\\E814';\n}\n.c-icon--linkedin:before {\n  content: '\\E815';\n}\n.c-icon--tumblr:before {\n  content: '\\E816';\n}\n.c-icon--instagram:before {\n  content: '\\E817';\n}\n.c-icon--google-plus:before {\n  content: '\\E818';\n}\n.c-icon--soundcloud:before {\n  content: '\\E819';\n}\n.c-icon--flickr:before {\n  content: '\\E820';\n}\n.c-icon--pinterest:before {\n  content: '\\E821';\n}\n.c-icon--tripit:before {\n  content: '\\E822';\n}\n.c-icon--hangouts:before {\n  content: '\\E823';\n}\n.c-icon--viber:before {\n  content: '\\E824';\n}\n.c-icon--line:before {\n  content: '\\E825';\n}\n.c-icon--facebook-messenger:before {\n  content: '\\E826';\n}\n.c-icon--1password:before {\n  content: '\\E827';\n}\n.c-icon--box:before {\n  content: '\\E828';\n}\n.c-icon--box-square:before {\n  content: '\\E829';\n}\n.c-icon--google-play:before {\n  content: '\\E830';\n}\n.c-icon--spotify:before {\n  content: '\\E831';\n}\n.c-icon--siriusxm:before {\n  content: '\\E832';\n}\n.c-icon--stitcher:before {\n  content: '\\E833';\n}\n.c-icon--pocket-casts:before {\n  content: '\\E834';\n}\n.c-icon--onedrive:before {\n  content: '\\E835';\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-form_type_default {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n}\n.t-form_type_label {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_type_placeholder {\n  color: #a0a0a2;\n}\n.t-form_element_sizing {\n  margin: 0 0 12px;\n  padding: 8px 12px;\n}\n.t-form_label {\n  display: block;\n  margin: 0;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_border {\n  border-radius: 4px;\n  border: solid 1px #a0a0a2;\n}\n.t-form_cursor {\n  cursor: pointer;\n}\n.t-form_cursor[disabled] {\n  cursor: default;\n}\n@font-face {\n  font-family: 'Slack v2';\n  src: url('https://a.slack-edge.com/7c81/fonts/slack-icons-v2.woff2') format('woff2'), url('https://a.slack-edge.com/7c81/fonts/slack-icons-v2.woff') format('woff');\n  font-style: normal;\n  font-weight: 400;\n}\n.c-icon:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n}\n.c-icon--inherit:before {\n  font-size: inherit;\n}\n.c-icon--align-bottom:before {\n  vertical-align: bottom;\n}\n.c-icon--align-top:before {\n  vertical-align: top;\n}\n.c-icon--align-baseline:before {\n  vertical-align: baseline;\n}\n.c-icon--star-o:before {\n  content: '\\E001';\n}\n.c-icon--unstar-o:before {\n  content: '\\E002';\n}\n.c-icon--user:before {\n  content: '\\E003';\n}\n.c-icon--comment-alt:before {\n  content: '\\E004';\n}\n.c-icon--comment-o:before {\n  content: '\\E005';\n}\n.c-icon--home:before {\n  content: '\\E006';\n}\n.c-icon--info:before {\n  content: '\\E007';\n}\n.c-icon--channel-info:before,\n.c-icon--info-circle:before {\n  content: '\\E008';\n}\n.c-icon--mentions:before {\n  content: '\\E009';\n}\n.c-icon--search:before {\n  content: '\\E010';\n}\n.c-icon--bolt:before {\n  content: '\\E011';\n}\n.c-icon--mobile:before {\n  content: '\\E012';\n}\n.c-icon--tablet:before {\n  content: '\\E013';\n}\n.c-icon--laptop:before {\n  content: '\\E014';\n}\n.c-icon--bell-o:before {\n  content: '\\E015';\n}\n.c-icon--bell-slash:before {\n  content: '\\E016';\n}\n.c-icon--team-directory:before {\n  content: '\\E017';\n}\n.c-icon--cloud-upload:before {\n  content: '\\E018';\n}\n.c-icon--cloud-download:before {\n  content: '\\E019';\n}\n.c-icon--cog-o:before {\n  content: '\\E020';\n}\n.c-icon--cogs:before {\n  content: '\\E021';\n}\n.c-icon--key:before {\n  content: '\\E022';\n}\n.c-icon--calendar:before {\n  content: '\\E023';\n}\n.c-icon--pencil:before {\n  content: '\\E024';\n}\n.c-icon--lightbulb-o:before {\n  content: '\\E025';\n}\n.c-icon--magic:before {\n  content: '\\E026';\n}\n.c-icon--external-link:before {\n  content: '\\E027';\n}\n.c-icon--external-link-square:before {\n  content: '\\E028';\n}\n.c-icon--lock-o:before {\n  content: '\\E029';\n}\n.c-icon--unlock:before {\n  content: '\\E030';\n}\n.c-icon--folder:before {\n  content: '\\E031';\n}\n.c-icon--folder-open:before {\n  content: '\\E032';\n}\n.c-icon--archive:before {\n  content: '\\E033';\n}\n.c-icon--inbox:before {\n  content: '\\E034';\n}\n.c-icon--sitemap:before {\n  content: '\\E035';\n}\n.c-icon--book:before {\n  content: '\\E036';\n}\n.c-icon--envelope-o:before {\n  content: '\\E037';\n}\n.c-icon--image:before {\n  content: '\\E038';\n}\n.c-icon--building:before {\n  content: '\\E039';\n}\n.c-icon--plug:before {\n  content: '\\E040';\n}\n.c-icon--paper-plane:before {\n  content: '\\E041';\n}\n.c-icon--credit-card:before {\n  content: '\\E042';\n}\n.c-icon--life-ring:before {\n  content: '\\E043';\n}\n.c-icon--thumb-tack:before {\n  content: '\\E044';\n}\n.c-icon--thumb-tack-filled:before {\n  content: '\\E547';\n}\n.c-icon--trash:before {\n  content: '\\E045';\n}\n.c-icon--print:before {\n  content: '\\E046';\n}\n.c-icon--quote-o:before {\n  content: '\\E047';\n}\n.c-icon--th-large:before {\n  content: '\\E048';\n}\n.c-icon--eye:before {\n  content: '\\E049';\n}\n.c-icon--eye-closed:before {\n  content: '\\E050';\n}\n.c-icon--volume-off:before {\n  content: '\\E051';\n}\n.c-icon--volume-down:before {\n  content: '\\E052';\n}\n.c-icon--volume-medium:before {\n  content: '\\E053';\n}\n.c-icon--volume-up:before {\n  content: '\\E054';\n}\n.c-icon--volume-off-alt:before {\n  content: '\\E055';\n}\n.c-icon--heart-o:before {\n  content: '\\E056';\n}\n.c-icon--wrench:before {\n  content: '\\E057';\n}\n.c-icon--file:before {\n  content: '\\E058';\n}\n.c-icon--all-files:before {\n  content: '\\E059';\n}\n.c-icon--your-files:before {\n  content: '\\E060';\n}\n.c-icon--align-left:before {\n  content: '\\E061';\n}\n.c-icon--align-center:before {\n  content: '\\E062';\n}\n.c-icon--align-right:before {\n  content: '\\E063';\n}\n.c-icon--align-justify:before {\n  content: '\\E064';\n}\n.c-icon--paragraph:before {\n  content: '\\E065';\n}\n.c-icon--code:before {\n  content: '\\E066';\n}\n.c-icon--ellipsis:before {\n  content: '\\E067';\n}\n.c-icon--ellipsis-baseline:before {\n  content: '\\E068';\n}\n.c-icon--spinner:before {\n  content: '\\E069';\n}\n.c-icon--spiral:before {\n  content: '\\E070';\n}\n.c-icon--random:before {\n  content: '\\E071';\n}\n.c-icon--repeat:before {\n  content: '\\E072';\n}\n.c-icon--share-square-o:before {\n  content: '\\E073';\n}\n.c-icon--link:before {\n  content: '\\E074';\n}\n.c-icon--undo:before {\n  content: '\\E075';\n}\n.c-icon--history:before {\n  content: '\\E076';\n}\n.c-icon--hourglass-empty:before {\n  content: '\\E077';\n}\n.c-icon--hourglass:before {\n  content: '\\E078';\n}\n.c-icon--clock-o:before {\n  content: '\\E079';\n}\n.c-icon--dashboard:before {\n  content: '\\E080';\n}\n.c-icon--power-off:before {\n  content: '\\E081';\n}\n.c-icon--sign-in:before {\n  content: '\\E082';\n}\n.c-icon--sign-out:before {\n  content: '\\E083';\n}\n.c-icon--jump:before {\n  content: '\\E084';\n}\n.c-icon--globe:before {\n  content: '\\E085';\n}\n.c-icon--filter:before {\n  content: '\\E086';\n}\n.c-icon--microphone:before {\n  content: '\\E087';\n}\n.c-icon--microphone-slash:before {\n  content: '\\E088';\n}\n.c-icon--paperclip:before {\n  content: '\\E089';\n}\n.c-icon--video-camera:before {\n  content: '\\E090';\n}\n.c-icon--stop-video:before {\n  content: '\\E091';\n}\n.c-icon--phone:before {\n  content: '\\E092';\n}\n.c-icon--end-call:before {\n  content: '\\E093';\n}\n.c-icon--smile-o:before {\n  content: '\\E094';\n}\n.c-icon--share-screen:before {\n  content: '\\E095';\n}\n.c-icon--stop-screen-sharing:before {\n  content: '\\E096';\n}\n.c-icon--stop-screen-sharing-alt:before {\n  content: '\\E097';\n}\n.c-icon--feedback:before {\n  content: '\\E098';\n}\n.c-icon--paper-plane-alt:before {\n  content: '\\E099';\n}\n.c-icon--share:before {\n  content: '\\E100';\n}\n.c-icon--save:before {\n  content: '\\E101';\n}\n.c-icon--message-notification:before {\n  content: '\\E102';\n}\n.c-icon--list:before {\n  content: '\\E103';\n}\n.c-icon--channel:before {\n  content: '\\E104';\n}\n.c-icon--share-other-alt:before {\n  content: '\\E105';\n}\n.c-icon--broadcast:before {\n  content: '\\E106';\n}\n.c-icon--all-files-alt:before {\n  content: '\\E107';\n}\n.c-icon--search-files:before {\n  content: '\\E108';\n}\n.c-icon--add-user:before {\n  content: '\\E109';\n}\n.c-icon--switch-team:before {\n  content: '\\E110';\n}\n.c-icon--create-snippet:before {\n  content: '\\E111';\n}\n.c-icon--create-post:before {\n  content: '\\E112';\n}\n.c-icon--upload:before {\n  content: '\\E113';\n}\n.c-icon--download:before {\n  content: '\\E114';\n}\n.c-icon--share-email:before {\n  content: '\\E115';\n}\n.c-icon--import-email:before {\n  content: '\\E116';\n}\n.c-icon--ellipsis-o:before {\n  content: '\\E117';\n}\n.c-icon--add-reaction:before {\n  content: '\\E118';\n}\n.c-icon--happy-smile:before {\n  content: '\\E119';\n}\n.c-icon--mark-unread:before {\n  content: '\\E120';\n}\n.c-icon--camera:before {\n  content: '\\E121';\n}\n.c-icon--phone-flat:before {\n  content: '\\E122';\n}\n.c-icon--sparkles:before {\n  content: '\\E123';\n}\n.c-icon--location-pin:before {\n  content: '\\E124';\n}\n.c-icon--channel-pane-hash:before {\n  content: '\\E125';\n}\n.c-icon--emoji-nature:before {\n  content: '\\E126';\n}\n.c-icon--emoji-food:before {\n  content: '\\E127';\n}\n.c-icon--emoji-celebration:before {\n  content: '\\E128';\n}\n.c-icon--emoji-activities:before {\n  content: '\\E129';\n}\n.c-icon--emoji-travel:before {\n  content: '\\E130';\n}\n.c-icon--emoji-objects:before {\n  content: '\\E131';\n}\n.c-icon--file-gdrive:before {\n  content: '\\E133';\n}\n.c-icon--play:before {\n  content: '\\E134';\n}\n.c-icon--stream:before {\n  content: '\\E135';\n}\n.c-icon--field-text:before {\n  content: '\\E136';\n}\n.c-icon--poo:before {\n  content: '\\E137';\n}\n.c-icon--channel-list:before {\n  content: '\\E138';\n}\n.c-icon--share-android:before {\n  content: '\\E139';\n}\n.c-icon--highlight:before {\n  content: '\\E140';\n}\n.c-icon--flag:before {\n  content: '\\E141';\n}\n.c-icon--grabby-patty:before {\n  content: '\\E142';\n}\n.c-icon--backspace:before {\n  content: '\\E143';\n}\n.c-icon--android-keyboard:before {\n  content: '\\E144';\n}\n.c-icon--side-panel:before {\n  content: '\\E145';\n}\n.c-icon--search-small:before {\n  content: '\\E146';\n}\n.c-icon--reload-small:before {\n  content: '\\E147';\n}\n.c-icon--vertical-ellipsis:before {\n  content: '\\E148';\n}\n.c-icon--disable:before {\n  content: '\\E149';\n}\n.c-icon--bold-hash-small:before {\n  content: '\\E150';\n}\n.c-icon--cart:before {\n  content: '\\E151';\n}\n.c-icon--snooze-outline:before {\n  content: '\\E152';\n}\n.c-icon--new-window:before {\n  content: '\\E153';\n}\n.c-icon--h1:before {\n  content: '\\E154';\n}\n.c-icon--h2:before {\n  content: '\\E155';\n}\n.c-icon--h3:before {\n  content: '\\E156';\n}\n.c-icon--bullet-list:before {\n  content: '\\E157';\n}\n.c-icon--numbered-list:before {\n  content: '\\E158';\n}\n.c-icon--text-format-menu:before {\n  content: '\\E159';\n}\n.c-icon--bold:before {\n  content: '\\E160';\n}\n.c-icon--italic:before {\n  content: '\\E161';\n}\n.c-icon--underline:before {\n  content: '\\E162';\n}\n.c-icon--strikethrough:before {\n  content: '\\E163';\n}\n.c-icon--tag:before {\n  content: '\\E164';\n}\n.c-icon--org-shared-channel:before {\n  content: '\\E165';\n}\n.c-icon--shared-channel:before {\n  content: '\\E166';\n}\n.c-icon--external-channel:before {\n  content: '\\E167';\n}\n.c-icon--small-reaction:before {\n  content: '\\E170';\n}\n.c-icon--small-reply:before {\n  content: '\\E171';\n}\n.c-icon--small-ellipsis:before {\n  content: '\\E172';\n}\n.c-icon--small-star:before {\n  content: '\\E173';\n}\n.c-icon--small-quote:before {\n  content: '\\E174';\n}\n.c-icon--keyboard:before {\n  content: '\\E175';\n}\n.c-icon--share-action:before {\n  content: '\\E176';\n}\n.c-icon--handset:before {\n  content: '\\E177';\n}\n.c-icon--bluetooth-sound:before {\n  content: '\\E178';\n}\n.c-icon--bluetooth:before {\n  content: '\\E179';\n}\n.c-icon--bot:before {\n  content: '\\E180';\n}\n.c-icon--globe-plus:before {\n  content: '\\E181';\n}\n.c-icon--user-groups:before {\n  content: '\\E182';\n}\n.c-icon--frowning-face:before {\n  content: '\\E183';\n}\n.c-icon--mobile-notification:before {\n  content: '\\E184';\n}\n.c-icon--desktop-notification:before {\n  content: '\\E185';\n}\n.c-icon--collab-screenshare-on:before {\n  content: '\\E186';\n}\n.c-icon--collab-screenshare-off:before {\n  content: '\\E187';\n}\n.c-icon--thumbs-up:before {\n  content: '\\E188';\n}\n.c-icon--thumbs-down:before {\n  content: '\\E189';\n}\n.c-icon--expand:before {\n  content: '\\E200';\n}\n.c-icon--reduce:before {\n  content: '\\E201';\n}\n.c-icon--arrows-alt:before {\n  content: '\\E202';\n}\n.c-icon--reduce-alt:before {\n  content: '\\E203';\n}\n.c-icon--check-square-o:before {\n  content: '\\E204';\n}\n.c-icon--check-circle-o:before {\n  content: '\\E205';\n}\n.c-icon--check-circle-o-large:before {\n  content: '\\E206';\n}\n.c-icon--question:before {\n  content: '\\E207';\n}\n.c-icon--exclamation:before {\n  content: '\\E208';\n}\n.c-icon--warning:before {\n  content: '\\E209';\n}\n.c-icon--exclamation-circle:before {\n  content: '\\E210';\n}\n.c-icon--question-circle:before {\n  content: '\\E211';\n}\n.c-icon--plus-circle:before {\n  content: '\\E212';\n}\n.c-icon--minus-circle:before {\n  content: '\\E213';\n}\n.c-icon--times-circle:before {\n  content: '\\E214';\n}\n.c-icon--square-warning:before {\n  content: '\\E230';\n}\n.c-icon--square-question:before {\n  content: '\\E231';\n}\n.c-icon--plus-square-o:before {\n  content: '\\E232';\n}\n.c-icon--minus-square-o:before {\n  content: '\\E233';\n}\n.c-icon--square-times:before {\n  content: '\\E234';\n}\n.c-icon--times:before {\n  content: '\\E278';\n}\n.c-icon--plus:before {\n  content: '\\E279';\n}\n.c-icon--minus:before {\n  content: '\\E280';\n}\n.c-icon--plus-small:before {\n  content: '\\E281';\n}\n.c-icon--minus-small:before {\n  content: '\\E282';\n}\n.c-icon--exclamation-small:before {\n  content: '\\E283';\n}\n.c-icon--question-small:before {\n  content: '\\E284';\n}\n.c-icon--check-small:before {\n  content: '\\E285';\n}\n.c-icon--times-small:before {\n  content: '\\E294';\n}\n.c-icon--sync:before {\n  content: '\\E295';\n}\n.c-icon--replies:before {\n  content: '\\E296';\n}\n.c-icon--check-small-bold:before {\n  content: '\\E301';\n}\n.c-icon--enter:before {\n  content: '\\E302';\n}\n.c-icon--expand-vertical:before {\n  content: '\\E303';\n}\n.c-icon--collapse-vertical:before {\n  content: '\\E304';\n}\n.c-icon--android-upload:before {\n  content: '\\E305';\n}\n.c-icon--plus-thick:before {\n  content: '\\E306';\n}\n.c-icon--check-large-bold:before {\n  content: '\\E319';\n}\n.c-icon--check-large:before {\n  content: '\\E320';\n}\n.c-icon--calls:before {\n  content: '\\E478';\n}\n.c-icon--calls-small:before {\n  content: '\\E479';\n}\n.c-icon--calls-ended:before {\n  content: '\\E480';\n}\n.c-icon--calls-ended-small:before {\n  content: '\\E481';\n}\n.c-icon--star:before {\n  content: '\\E500';\n}\n.c-icon--unstar:before {\n  content: '\\E501';\n}\n.c-icon--bell:before {\n  content: '\\E502';\n}\n.c-icon--lock:before {\n  content: '\\E503';\n}\n.c-icon--external-link-small:before {\n  content: '\\E504';\n}\n.c-icon--external-link-large:before {\n  content: '\\E505';\n}\n.c-icon--presence-online:before {\n  content: '\\E506';\n}\n.c-icon--presence-offline:before {\n  content: '\\E507';\n}\n.c-icon--presence-dnd:before {\n  content: '\\E508';\n}\n.c-icon--presence-ra-online:before,\n.c-icon--presence-external-online:before {\n  content: '\\E509';\n}\n.c-icon--restricted-user:before {\n  content: '\\E509';\n}\n.c-icon--presence-ra-offline:before,\n.c-icon--presence-external-offline:before {\n  content: '\\E510';\n}\n.c-icon--presence-ra-dnd:before,\n.c-icon--presence-external-dnd:before {\n  content: '\\E511';\n}\n.c-icon--presence-ura-online:before {\n  content: '\\E512';\n}\n.c-icon--single-channel-guest:before {\n  content: '\\E512';\n}\n.c-icon--presence-ura-offline:before {\n  content: '\\E513';\n}\n.c-icon--presence-ura-dnd:before {\n  content: '\\E514';\n}\n.c-icon--heart:before {\n  content: '\\E515';\n}\n.c-icon--quote:before {\n  content: '\\E516';\n}\n.c-icon--cog:before {\n  content: '\\E517';\n}\n.c-icon--comment:before {\n  content: '\\E518';\n}\n.c-icon--minus-circle-small:before {\n  content: '\\E519';\n}\n.c-icon--times-circle-small:before {\n  content: '\\E520';\n}\n.c-icon--multiparty-dm-2:before {\n  content: '\\E521';\n}\n.c-icon--multiparty-dm-3:before {\n  content: '\\E522';\n}\n.c-icon--multiparty-dm-4:before {\n  content: '\\E523';\n}\n.c-icon--multiparty-dm-5:before {\n  content: '\\E524';\n}\n.c-icon--multiparty-dm-6:before {\n  content: '\\E525';\n}\n.c-icon--multiparty-dm-7:before {\n  content: '\\E526';\n}\n.c-icon--multiparty-dm-8:before {\n  content: '\\E527';\n}\n.c-icon--multiparty-dm-9:before {\n  content: '\\E528';\n}\n.c-icon--poo-filled:before {\n  content: '\\E529';\n}\n.c-icon--circle-fill:before {\n  content: '\\E530';\n}\n.c-icon--flag-filled:before {\n  content: '\\E531';\n}\n.c-icon--refresh-small:before {\n  content: '\\E532';\n}\n.c-icon--snooze-filled:before {\n  content: '\\E533';\n}\n.c-icon--archived-channel:before {\n  content: '\\E534';\n}\n.c-icon--presence-dnd-offline:before {\n  content: '\\E535';\n}\n.c-icon--presence-ra-dnd-offline:before,\n.c-icon--presence-external-dnd-offline:before {\n  content: '\\E536';\n}\n.c-icon--presence-ura-dnd-offline:before {\n  content: '\\E537';\n}\n.c-icon--presence-mobile-dnd:before {\n  content: '\\E538';\n}\n.c-icon--play-filled:before {\n  content: '\\E539';\n}\n.c-icon--broadcast-filled:before {\n  content: '\\E540';\n}\n.c-icon--small-star-filled:before {\n  content: '\\E541';\n}\n.c-icon--small-comment-filled:before {\n  content: '\\E542';\n}\n.c-icon--paperplane-filled:before {\n  content: '\\E543';\n}\n.c-icon--filebg-large-filled:before {\n  content: '\\E544';\n}\n.c-icon--filebg-small-filled:before {\n  content: '\\E545';\n}\n.c-icon--highlight-filled:before {\n  content: '\\E546';\n}\n.c-icon--pin-filled:before {\n  content: '\\E547';\n}\n.c-icon--close-filled:before {\n  content: '\\E548';\n}\n.c-icon--share-filled:before {\n  content: '\\E549';\n}\n.c-icon--pencil-filled:before {\n  content: '\\E550';\n}\n.c-icon--side-panel-filled:before {\n  content: '\\E551';\n}\n.c-icon--add-reaction-filled:before {\n  content: '\\E552';\n}\n.c-icon--mentions-filled:before {\n  content: '\\E553';\n}\n.c-icon--small-reply-filled:before {\n  content: '\\E554';\n}\n.c-icon--user-filled:before {\n  content: '\\E555';\n}\n.c-icon--microphone-on:before {\n  content: '\\E556';\n}\n.c-icon--camera-on:before {\n  content: '\\E557';\n}\n.c-icon--screenshare-on:before {\n  content: '\\E558';\n}\n.c-icon--shared-channels:before {\n  content: '\\E559';\n}\n.c-icon--heart-large-filled:before {\n  content: '\\E560';\n}\n.c-icon--thumbs-up-filled:before {\n  content: '\\E561';\n}\n.c-icon--thumbs-down-filled:before {\n  content: '\\E562';\n}\n.c-icon--slow-network:before {\n  content: '\\E563';\n}\n.c-icon--sparkles-filled:before {\n  content: '\\E564';\n}\n.c-icon--small-warning-filled:before {\n  content: '\\E565';\n}\n.c-icon--deactivated-user:before {\n  content: '\\E566';\n}\n.c-icon--arrow-right:before {\n  content: '\\E286';\n}\n.c-icon--arrow-left:before {\n  content: '\\E287';\n}\n.c-icon--arrow-up:before {\n  content: '\\E288';\n}\n.c-icon--arrow-down:before {\n  content: '\\E289';\n}\n.c-icon--arrow-right-medium:before {\n  content: '\\E290';\n}\n.c-icon--arrow-left-medium:before {\n  content: '\\E291';\n}\n.c-icon--arrow-up-medium:before {\n  content: '\\E292';\n}\n.c-icon--arrow-down-medium:before {\n  content: '\\E293';\n}\n.c-icon--angle-arrow-down-right-alt:before {\n  content: '\\E297';\n}\n.c-icon--angle-arrow-up-right-alt:before {\n  content: '\\E298';\n}\n.c-icon--angle-arrow-up-left-alt:before {\n  content: '\\E299';\n}\n.c-icon--angle-arrow-down-left-alt:before {\n  content: '\\E300';\n}\n.c-icon--arrow-circle-o-up:before {\n  content: '\\E215';\n}\n.c-icon--arrow-circle-o-down:before {\n  content: '\\E216';\n}\n.c-icon--arrow-circle-o-right:before {\n  content: '\\E217';\n}\n.c-icon--arrow-circle-o-left:before {\n  content: '\\E218';\n}\n.c-icon--chevron-circle-left:before {\n  content: '\\E219';\n}\n.c-icon--chevron-circle-right:before {\n  content: '\\E220';\n}\n.c-icon--chevron-circle-down:before {\n  content: '\\E221';\n}\n.c-icon--chevron-circle-up:before {\n  content: '\\E222';\n}\n.c-icon--plus-circle-small:before {\n  content: '\\E223';\n}\n.c-icon--circle-small:before {\n  content: '\\E224';\n}\n.c-icon--circle-large:before {\n  content: '\\E225';\n}\n.c-icon--plus-circle-medium:before {\n  content: '\\E228';\n}\n.c-icon--times-circle-medium:before {\n  content: '\\E229';\n}\n.c-icon--square-arrow-up:before {\n  content: '\\E235';\n}\n.c-icon--square-arrow-down:before {\n  content: '\\E236';\n}\n.c-icon--square-arrow-right:before {\n  content: '\\E237';\n}\n.c-icon--square-arrow-left:before {\n  content: '\\E238';\n}\n.c-icon--square-chevron-left:before {\n  content: '\\E239';\n}\n.c-icon--square-chevron-right:before {\n  content: '\\E240';\n}\n.c-icon--square-chevron-down:before {\n  content: '\\E241';\n}\n.c-icon--square-chevron-up:before {\n  content: '\\E242';\n}\n.c-icon--chevron-right:before {\n  content: '\\E250';\n}\n.c-icon--chevron-left:before {\n  content: '\\E251';\n}\n.c-icon--chevron-down:before {\n  content: '\\E252';\n}\n.c-icon--chevron-up:before {\n  content: '\\E253';\n}\n.c-icon--chevron-medium-right:before {\n  content: '\\E254';\n}\n.c-icon--chevron-medium-left:before {\n  content: '\\E255';\n}\n.c-icon--chevron-medium-down:before {\n  content: '\\E256';\n}\n.c-icon--chevron-medium-up:before {\n  content: '\\E257';\n}\n.c-icon--chevron-large-right:before {\n  content: '\\E258';\n}\n.c-icon--chevron-large-left:before {\n  content: '\\E259';\n}\n.c-icon--chevron-large-up:before {\n  content: '\\E260';\n}\n.c-icon--chevron-large-down:before {\n  content: '\\E261';\n}\n.c-icon--arrow-large-right:before {\n  content: '\\E262';\n}\n.c-icon--arrow-large-left:before {\n  content: '\\E263';\n}\n.c-icon--arrow-large-up:before {\n  content: '\\E264';\n}\n.c-icon--arrow-large-down:before {\n  content: '\\E265';\n}\n.c-icon--caret-outline-left:before {\n  content: '\\E266';\n}\n.c-icon--caret-outline-right:before {\n  content: '\\E267';\n}\n.c-icon--caret-outline-up:before {\n  content: '\\E268';\n}\n.c-icon--caret-outline-down:before {\n  content: '\\E269';\n}\n.c-icon--caret-up:before {\n  content: '\\E270';\n}\n.c-icon--caret-down:before {\n  content: '\\E271';\n}\n.c-icon--caret-right:before {\n  content: '\\E272';\n}\n.c-icon--caret-left:before {\n  content: '\\E273';\n}\n.c-icon--angle-arrow-down-left:before {\n  content: '\\E274';\n}\n.c-icon--angle-arrow-down-right:before {\n  content: '\\E275';\n}\n.c-icon--angle-arrow-up-right:before {\n  content: '\\E276';\n}\n.c-icon--angle-arrow-up-left:before {\n  content: '\\E277';\n}\n.c-icon--arrow-ne-large:before {\n  content: '\\E307';\n}\n.c-icon--arrow-nw-large:before {\n  content: '\\E308';\n}\n.c-icon--arrow-sw-large:before {\n  content: '\\E309';\n}\n.c-icon--arrow-se-large:before {\n  content: '\\E310';\n}\n.c-icon--arrow-ne-medium:before {\n  content: '\\E311';\n}\n.c-icon--arrow-nw-medium:before {\n  content: '\\E312';\n}\n.c-icon--arrow-sw-medium:before {\n  content: '\\E313';\n}\n.c-icon--arrow-se-medium:before {\n  content: '\\E314';\n}\n.c-icon--arrow-ne-small:before {\n  content: '\\E315';\n}\n.c-icon--arrow-nw-small:before {\n  content: '\\E316';\n}\n.c-icon--arrow-sw-small:before {\n  content: '\\E317';\n}\n.c-icon--arrow-se-small:before {\n  content: '\\E318';\n}\n.c-icon--slack:before {\n  content: '\\E800';\n}\n.c-icon--slack-pillow:before {\n  content: '\\E801';\n}\n.c-icon--apple:before {\n  content: '\\E802';\n}\n.c-icon--android:before {\n  content: '\\E803';\n}\n.c-icon--twitter:before {\n  content: '\\E804';\n}\n.c-icon--github:before {\n  content: '\\E805';\n}\n.c-icon--dropbox:before {\n  content: '\\E806';\n}\n.c-icon--google:before {\n  content: '\\E807';\n}\n.c-icon--windows:before {\n  content: '\\E808';\n}\n.c-icon--youtube:before {\n  content: '\\E809';\n}\n.c-icon--google-drive:before {\n  content: '\\E810';\n}\n.c-icon--skype:before {\n  content: '\\E811';\n}\n.c-icon--rss:before {\n  content: '\\E812';\n}\n.c-icon--facebook:before {\n  content: '\\E813';\n}\n.c-icon--asana:before {\n  content: '\\E814';\n}\n.c-icon--linkedin:before {\n  content: '\\E815';\n}\n.c-icon--tumblr:before {\n  content: '\\E816';\n}\n.c-icon--instagram:before {\n  content: '\\E817';\n}\n.c-icon--google-plus:before {\n  content: '\\E818';\n}\n.c-icon--soundcloud:before {\n  content: '\\E819';\n}\n.c-icon--flickr:before {\n  content: '\\E820';\n}\n.c-icon--pinterest:before {\n  content: '\\E821';\n}\n.c-icon--tripit:before {\n  content: '\\E822';\n}\n.c-icon--hangouts:before {\n  content: '\\E823';\n}\n.c-icon--viber:before {\n  content: '\\E824';\n}\n.c-icon--line:before {\n  content: '\\E825';\n}\n.c-icon--facebook-messenger:before {\n  content: '\\E826';\n}\n.c-icon--1password:before {\n  content: '\\E827';\n}\n.c-icon--box:before {\n  content: '\\E828';\n}\n.c-icon--box-square:before {\n  content: '\\E829';\n}\n.c-icon--google-play:before {\n  content: '\\E830';\n}\n.c-icon--spotify:before {\n  content: '\\E831';\n}\n.c-icon--siriusxm:before {\n  content: '\\E832';\n}\n.c-icon--stitcher:before {\n  content: '\\E833';\n}\n.c-icon--pocket-casts:before {\n  content: '\\E834';\n}\n.c-icon--onedrive:before {\n  content: '\\E835';\n}\n", ""]);
 }, function(e, t, n) {
   var r = n(3069);
   "string" == typeof r && (r = [
@@ -38924,7 +38962,7 @@ webpackJsonp([332], [, function(e, t, n) {
     return e.customStatus[t];
   };
 }, , function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".c-custom_status {\n  margin-left: 0.5rem;\n}\n.c-custom_status .emoji-sizer {\n  font-size: 1rem;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-form_type_default {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n}\n.t-form_type_label {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_type_placeholder {\n  color: #a0a0a2;\n}\n.t-form_element_sizing {\n  margin: 0 0 12px;\n  padding: 8px 12px;\n}\n.t-form_label {\n  display: block;\n  margin: 0;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_border {\n  border-radius: 4px;\n  border: solid 1px #a0a0a2;\n}\n.t-form_cursor {\n  cursor: pointer;\n}\n.t-form_cursor[disabled] {\n  cursor: default;\n}\n.c-custom_status {\n  margin-left: 0.5rem;\n}\n.c-custom_status .emoji-sizer {\n  font-size: 1rem;\n}\n", ""]);
 }, function(e, t, n) {
   "use strict";
   var r = n(43),
@@ -39154,9 +39192,9 @@ webpackJsonp([332], [, function(e, t, n) {
     };
   };
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".c-message {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  display: flex;\n  padding-right: 26px;\n  min-width: 1px;\n  position: relative;\n  -webkit-user-select: text;\n  -moz-user-select: text;\n  -ms-user-select: text;\n  user-select: text;\n}\n.c-message:hover:not(.c-message--highlight) {\n  background-color: #f9f9f9;\n}\n.c-message--highlight,\n.c-message--highlight_yellow_bg {\n  background: #fffce0;\n}\n.c-message--last {\n  margin-bottom: 16px;\n}\n.c-message.c-message--light {\n  padding-top: 5px;\n  padding-bottom: 3px;\n}\n.c-message.c-message--dense {\n  padding-top: 3px;\n  padding-bottom: 2px;\n}\n.c-message.c-message--light.c-message--adjacent {\n  padding-top: 2px;\n}\n.c-message__gutter {\n  text-align: right;\n  flex-shrink: 0;\n}\n.c-message--adjacent .c-message__gutter {\n  visibility: hidden;\n}\n.c-message--adjacent:hover .c-message__gutter {\n  visibility: visible;\n}\n.c-message--light .c-message__gutter {\n  width: 72px;\n  padding-right: 10px;\n}\n.c-message--dense .c-message__gutter {\n  width: 58px;\n  margin-right: 22px;\n}\n.c-message--dense .c-timestamp__label {\n  color: #717274;\n}\n.c-message__content {\n  flex: 0 1 100%;\n  margin-right: 14px;\n  min-width: 1px;\n}\n.c-message--dense .c-message__content {\n  padding-left: 8px;\n}\n.c-message__sender {\n  font-weight: 900;\n}\n.c-message--light .c-message__sender {\n  margin-right: 6px;\n  color: #2c2d30;\n}\n.c-message--dense .c-message__sender {\n  margin-left: -8px;\n  margin-right: 4px;\n}\n.c-message__sender--unknown {\n  display: inline-block;\n  width: 80px;\n  height: 0.9rem;\n  border-radius: 0.9rem;\n  vertical-align: bottom;\n  background: #e8e8e8;\n}\n.c-message--dense .c-message__content_header {\n  display: inline;\n  margin-bottom: 3px;\n}\n.c-message--dense.c-message--thread-broadcast .c-message__content_header {\n  display: flex;\n}\n.c-message--light .c-message__content_header {\n  line-height: 1;\n  margin-bottom: 3px;\n}\n.c-message__body {\n  line-height: 1.4;\n  color: #2c2d30;\n  word-wrap: break-word;\n}\n.c-message__body--automated {\n  font-style: italic;\n  color: #a0a0a2;\n}\n.c-message:hover .c-message__body--automated {\n  color: #717274;\n}\n.c-message__mention {\n  background: #fff4bf;\n  border-radius: 3px;\n  padding: 0 2px 1px 2px;\n}\n.c-message__edited_label {\n  color: #a0a0a2;\n  cursor: default;\n  font-size: 0.8125rem;\n}\n.c-message__editor {\n  flex: 0 1 100%;\n  min-height: 0;\n}\n.c-message__editor .ql-editor,\n.c-message__editor .ql-placeholder {\n  padding-bottom: 9px;\n  padding-top: 9px;\n}\n.feature_texty_mentions .c-message__editor .ql-editor,\n.feature_texty_mentions .c-message__editor .ql-placeholder {\n  line-height: 1.46667;\n}\n.c-message__editor__input {\n  background: #fff;\n  border: 1px solid #c5c5c5;\n  border-radius: 0.25rem;\n  color: #3d3c40;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  height: auto;\n  line-height: 1.2;\n  margin: 0 0 0.5rem;\n  min-height: 40px;\n  overflow: auto;\n  box-shadow: none;\n  -webkit-user-select: auto;\n  -moz-user-select: auto;\n  -ms-user-select: auto;\n  user-select: auto;\n}\n.c-message__editor__input.focus {\n  border-color: #2780f8;\n  outline: none;\n  outline-offset: 0;\n  box-shadow: 0 0 7px rgba(39, 128, 248, 0.15);\n}\n.c-message__editor__footer {\n  align-items: center;\n  display: flex;\n}\n.c-message__editor__info {\n  flex: 1;\n  font-size: 0.8rem;\n  margin-left: 10px;\n}\n.c-message__editor__messages {\n  display: flex;\n  flex: 1;\n  justify-content: flex-end;\n}\n.c-message__editor__warning {\n  color: #eb4d5c;\n  font-size: 0.8rem;\n  margin-left: 10px;\n}\n.c-message__editor__save {\n  margin-left: 10px !important;\n}\n.c-message__editor button {\n  display: inline-block;\n}\n.c-message__reply_bar {\n  display: flex;\n  align-items: center;\n  max-width: 600px;\n  margin-top: 5px;\n  padding: 3px;\n  font-size: 12px;\n  border: 1px solid transparent;\n  border-radius: 6px;\n  cursor: pointer;\n}\n.c-message__reply_bar:hover {\n  background-color: #fff;\n  border-color: rgba(0, 0, 0, 0.15);\n}\n.c-message__reply_bar:hover .c-message__reply_bar_arrow {\n  color: #a0a0a2;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_last_reply {\n  opacity: 0;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_view_thread {\n  opacity: 1;\n}\n.c-message__reply_bar .c-avatar {\n  margin-right: 4px;\n}\n.c-message__reply_count {\n  margin-left: 3px;\n  font-weight: bold;\n}\n.c-message__reply_bar_description {\n  position: relative;\n  margin-left: 8px;\n  color: #a0a0a2;\n}\n.c-message__reply_bar_arrow {\n  margin-left: auto;\n  color: transparent;\n}\n.c-message__reply_bar_arrow::before {\n  vertical-align: top;\n}\n.c-message__reply_bar_last_reply {\n  opacity: 1;\n  transition: opacity 0.2s;\n}\n.c-message__broadcast_preamble {\n  color: #a0a0a2;\n  display: flex;\n  overflow: hidden;\n  max-width: 100%;\n}\n.c-message--light .c-message__broadcast_preamble {\n  margin-bottom: 3px;\n}\n.c-message__broadcast_preamble_meta {\n  flex-shrink: 0;\n}\n.c-message__broadcast_preamble_link {\n  font-weight: bold;\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  margin-left: 4px;\n}\n.c-message__reply_bar_view_thread {\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  opacity: 0;\n  transition: opacity 0.2s;\n}\n.c-message__attachment {\n  display: flex;\n  align-items: stretch;\n  margin-top: 5px;\n}\n.c-message__attachment_column {\n  width: 4px;\n  flex-shrink: 0;\n  background-color: #e8e8e8;\n  border-radius: 8px;\n}\n.c-message__attachment_body {\n  padding-left: 12px;\n  padding-right: 12px;\n  line-height: 1.4;\n  word-wrap: break-word;\n}\n.c-message__bot-label {\n  color: #a0a0a2;\n  font-weight: 500;\n  font-size: 12px;\n  margin: 0 0.15rem;\n  padding: 0 0.1rem;\n  vertical-align: middle;\n  background: #f2f2f5;\n}\n.c-message__file_link {\n  font-weight: 700;\n}\n.c-message__file_meta {\n  line-height: 1.4;\n  color: #a0a0a2;\n}\n.c-message:hover .c-message__file_meta {\n  color: #717274;\n}\n.c-message__comment {\n  position: relative;\n  display: block;\n}\n.c-message__comment:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  content: '\\E516';\n  position: absolute;\n  left: -28px;\n  top: -4px;\n  color: #e8e8e8;\n}\n.c-message--dense .c-message__comment:before {\n  display: none;\n}\n.c-message__file_comment_user,\n.c-message__file_comment_user:link,\n.c-message__file_comment_user:visited {\n  color: inherit;\n}\n.c-message__file_actions {\n  opacity: 0;\n  transition: opacity 0.1s;\n}\n.c-message__file_action_button {\n  font-size: 0.8125rem;\n  height: 30px;\n  padding: 0.5rem 0.6rem;\n  margin-left: 6px;\n  box-shadow: none;\n  background-color: rgba(255, 255, 255, 0.9);\n  vertical-align: top;\n}\n.c-message__file_action_button:before {\n  line-height: 30px;\n}\n.c-message__file_action_button:after {\n  border: 1px solid rgba(0, 0, 0, 0.1);\n  top: -1px;\n  left: -1px;\n  right: -1px;\n  bottom: -1px;\n}\n.c-message__file_action_trigger {\n  display: inline-block;\n}\n.c-message__image_container {\n  position: relative;\n  margin-bottom: 6px;\n}\n.c-message__image_container:hover .c-message__file_actions {\n  opacity: 1;\n}\n.c-message__image_wrapper {\n  display: block;\n  position: relative;\n  overflow: hidden;\n  border-radius: 3px;\n  cursor: nesw-resize;\n  cursor: zoom-in;\n}\n.c-message__image_wrapper:after {\n  content: '';\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  border: 1px solid rgba(0, 0, 0, 0.1);\n  border-radius: 3px;\n}\n.c-message__image_description {\n  margin-bottom: 8px;\n  color: #a0a0a2;\n}\n.c-message:hover .c-message__image_description {\n  color: #717274;\n}\n.c-message__image_caret {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n}\n.c-message__image_caret:hover,\n.c-message__image_caret:focus,\n.c-message__image_caret:active {\n  outline: none;\n}\n.c-message__file_actions--image {\n  position: absolute;\n  top: 10px;\n  right: 10px;\n}\n.c-message__actions {\n  position: absolute;\n  top: -14px;\n  right: 5px;\n  display: none;\n  z-index: 1;\n}\n.c-message:hover .c-message__actions,\n.c-message__actions.c-message__actions--menu-showing {\n  display: block;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-form_type_default {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n}\n.t-form_type_label {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_type_placeholder {\n  color: #a0a0a2;\n}\n.t-form_element_sizing {\n  margin: 0 0 12px;\n  padding: 8px 12px;\n}\n.t-form_label {\n  display: block;\n  margin: 0;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_border {\n  border-radius: 4px;\n  border: solid 1px #a0a0a2;\n}\n.t-form_cursor {\n  cursor: pointer;\n}\n.t-form_cursor[disabled] {\n  cursor: default;\n}\n.c-message {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  display: flex;\n  padding-right: 26px;\n  min-width: 1px;\n  position: relative;\n  -webkit-user-select: text;\n  -moz-user-select: text;\n  -ms-user-select: text;\n  user-select: text;\n}\n.c-message:hover:not(.c-message--highlight) {\n  background-color: #f9f9f9;\n}\n.c-message--highlight,\n.c-message--highlight_yellow_bg {\n  background: #fffce0;\n}\n.c-message--last {\n  margin-bottom: 16px;\n}\n.c-message.c-message--light {\n  padding-top: 5px;\n  padding-bottom: 3px;\n}\n.c-message.c-message--dense {\n  padding-top: 3px;\n  padding-bottom: 2px;\n}\n.c-message.c-message--light.c-message--adjacent {\n  padding-top: 2px;\n}\n.c-message__gutter {\n  text-align: right;\n  flex-shrink: 0;\n}\n.c-message--adjacent .c-message__gutter {\n  visibility: hidden;\n}\n.c-message--adjacent:hover .c-message__gutter {\n  visibility: visible;\n}\n.c-message--light .c-message__gutter {\n  width: 72px;\n  padding-right: 10px;\n}\n.c-message--dense .c-message__gutter {\n  width: 58px;\n  margin-right: 22px;\n}\n.c-message--dense .c-timestamp__label {\n  color: #717274;\n}\n.c-message__content {\n  flex: 0 1 100%;\n  margin-right: 14px;\n  min-width: 1px;\n}\n.c-message--dense .c-message__content {\n  padding-left: 8px;\n}\n.c-message__sender {\n  font-weight: 900;\n}\n.c-message--light .c-message__sender {\n  margin-right: 6px;\n  color: #2c2d30;\n}\n.c-message--dense .c-message__sender {\n  margin-left: -8px;\n  margin-right: 4px;\n}\n.c-message__sender--unknown {\n  display: inline-block;\n  width: 80px;\n  height: 0.9rem;\n  border-radius: 0.9rem;\n  vertical-align: bottom;\n  background: #e8e8e8;\n}\n.c-message--dense .c-message__content_header {\n  display: inline;\n  margin-bottom: 3px;\n}\n.c-message--dense.c-message--thread-broadcast .c-message__content_header {\n  display: flex;\n}\n.c-message--light .c-message__content_header {\n  line-height: 1;\n  margin-bottom: 3px;\n}\n.c-message__body {\n  line-height: 1.4;\n  color: #2c2d30;\n  word-wrap: break-word;\n}\n.c-message__body--automated {\n  font-style: italic;\n  color: #a0a0a2;\n}\n.c-message:hover .c-message__body--automated {\n  color: #717274;\n}\n.c-message__mention {\n  background: #fff4bf;\n  border-radius: 3px;\n  padding: 0 2px 1px 2px;\n}\n.c-message__edited_label {\n  color: #a0a0a2;\n  cursor: default;\n  font-size: 0.8125rem;\n}\n.c-message__editor {\n  flex: 0 1 100%;\n  min-height: 0;\n}\n.c-message__editor .ql-editor,\n.c-message__editor .ql-placeholder {\n  padding-bottom: 9px;\n  padding-top: 9px;\n}\n.feature_texty_mentions .c-message__editor .ql-editor,\n.feature_texty_mentions .c-message__editor .ql-placeholder {\n  line-height: 1.46667;\n}\n.c-message__editor__input {\n  background: #fff;\n  border: 1px solid #c5c5c5;\n  border-radius: 0.25rem;\n  color: #3d3c40;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  height: auto;\n  line-height: 1.2;\n  margin: 0 0 0.5rem;\n  min-height: 40px;\n  overflow: auto;\n  box-shadow: none;\n  -webkit-user-select: auto;\n  -moz-user-select: auto;\n  -ms-user-select: auto;\n  user-select: auto;\n}\n.c-message__editor__input.focus {\n  border-color: #2780f8;\n  outline: none;\n  outline-offset: 0;\n  box-shadow: 0 0 7px rgba(39, 128, 248, 0.15);\n}\n.c-message__editor__footer {\n  align-items: center;\n  display: flex;\n}\n.c-message__editor__info {\n  flex: 1;\n  font-size: 0.8rem;\n  margin-left: 10px;\n}\n.c-message__editor__messages {\n  display: flex;\n  flex: 1;\n  justify-content: flex-end;\n}\n.c-message__editor__warning {\n  color: #eb4d5c;\n  font-size: 0.8rem;\n  margin-left: 10px;\n}\n.c-message__editor__save {\n  margin-left: 10px !important;\n}\n.c-message__editor button {\n  display: inline-block;\n}\n.c-message__reply_bar {\n  display: flex;\n  align-items: center;\n  max-width: 600px;\n  margin-top: 5px;\n  padding: 3px;\n  font-size: 12px;\n  border: 1px solid transparent;\n  border-radius: 6px;\n  cursor: pointer;\n}\n.c-message__reply_bar:hover {\n  background-color: #fff;\n  border-color: rgba(0, 0, 0, 0.15);\n}\n.c-message__reply_bar:hover .c-message__reply_bar_arrow {\n  color: #a0a0a2;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_last_reply {\n  opacity: 0;\n}\n.c-message__reply_bar:hover .c-message__reply_bar_view_thread {\n  opacity: 1;\n}\n.c-message__reply_bar .c-avatar {\n  margin-right: 4px;\n}\n.c-message__reply_count {\n  margin-left: 3px;\n  font-weight: bold;\n}\n.c-message__reply_bar_description {\n  position: relative;\n  margin-left: 8px;\n  color: #a0a0a2;\n}\n.c-message__reply_bar_arrow {\n  margin-left: auto;\n  color: transparent;\n}\n.c-message__reply_bar_arrow::before {\n  vertical-align: top;\n}\n.c-message__reply_bar_last_reply {\n  opacity: 1;\n  transition: opacity 0.2s;\n}\n.c-message__broadcast_preamble {\n  color: #a0a0a2;\n  display: flex;\n  overflow: hidden;\n  max-width: 100%;\n}\n.c-message--light .c-message__broadcast_preamble {\n  margin-bottom: 3px;\n}\n.c-message__broadcast_preamble_meta {\n  flex-shrink: 0;\n}\n.c-message__broadcast_preamble_link {\n  font-weight: bold;\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  margin-left: 4px;\n}\n.c-message__reply_bar_view_thread {\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  opacity: 0;\n  transition: opacity 0.2s;\n}\n.c-message__attachment {\n  display: flex;\n  align-items: stretch;\n  margin-top: 5px;\n}\n.c-message__attachment_column {\n  width: 4px;\n  flex-shrink: 0;\n  background-color: #e8e8e8;\n  border-radius: 8px;\n}\n.c-message__attachment_body {\n  padding-left: 12px;\n  padding-right: 12px;\n  line-height: 1.4;\n  word-wrap: break-word;\n}\n.c-message__bot-label {\n  color: #a0a0a2;\n  font-weight: 500;\n  font-size: 12px;\n  margin: 0 0.15rem;\n  padding: 0 0.1rem;\n  vertical-align: middle;\n  background: #f2f2f5;\n}\n.c-message__file_link {\n  font-weight: 700;\n}\n.c-message__file_meta {\n  line-height: 1.4;\n  color: #a0a0a2;\n}\n.c-message:hover .c-message__file_meta {\n  color: #717274;\n}\n.c-message__comment {\n  position: relative;\n  display: block;\n}\n.c-message__comment:before {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  display: inline-block;\n  vertical-align: middle;\n  content: '\\E516';\n  position: absolute;\n  left: -28px;\n  top: -4px;\n  color: #e8e8e8;\n}\n.c-message--dense .c-message__comment:before {\n  display: none;\n}\n.c-message__file_comment_user,\n.c-message__file_comment_user:link,\n.c-message__file_comment_user:visited {\n  color: inherit;\n}\n.c-message__file_actions {\n  opacity: 0;\n  transition: opacity 0.1s;\n}\n.c-message__file_action_button {\n  font-size: 0.8125rem;\n  height: 30px;\n  padding: 0.5rem 0.6rem;\n  margin-left: 6px;\n  box-shadow: none;\n  background-color: rgba(255, 255, 255, 0.9);\n  vertical-align: top;\n}\n.c-message__file_action_button:before {\n  line-height: 30px;\n}\n.c-message__file_action_button:after {\n  border: 1px solid rgba(0, 0, 0, 0.1);\n  top: -1px;\n  left: -1px;\n  right: -1px;\n  bottom: -1px;\n}\n.c-message__file_action_trigger {\n  display: inline-block;\n}\n.c-message__image_container {\n  position: relative;\n  margin-bottom: 6px;\n}\n.c-message__image_container:hover .c-message__file_actions {\n  opacity: 1;\n}\n.c-message__image_wrapper {\n  display: block;\n  position: relative;\n  overflow: hidden;\n  border-radius: 3px;\n  cursor: nesw-resize;\n  cursor: zoom-in;\n}\n.c-message__image_wrapper:after {\n  content: '';\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  border: 1px solid rgba(0, 0, 0, 0.1);\n  border-radius: 3px;\n}\n.c-message__image_description {\n  margin-bottom: 8px;\n  color: #a0a0a2;\n}\n.c-message:hover .c-message__image_description {\n  color: #717274;\n}\n.c-message__image_caret {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n}\n.c-message__image_caret:hover,\n.c-message__image_caret:focus,\n.c-message__image_caret:active {\n  outline: none;\n}\n.c-message__file_actions--image {\n  position: absolute;\n  top: 10px;\n  right: 10px;\n}\n.c-message__actions {\n  position: absolute;\n  top: -14px;\n  right: 5px;\n  display: none;\n  z-index: 1;\n}\n.c-message:hover .c-message__actions,\n.c-message__actions.c-message__actions--menu-showing {\n  display: block;\n}\n", ""]);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".c-message_list__day_divider {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 0.9rem;\n  width: 100%;\n  color: #2c2d30;\n  font-weight: bold;\n  text-align: center;\n  position: relative;\n  padding: 1rem 0;\n}\n.c-message_list__day_divider .c-message_list__unread_divider {\n  top: 12px;\n}\n.c-message_list__day_divider .c-message_list__unread_divider__separator {\n  margin-right: 0;\n}\n.c-message_list__day_divider__label {\n  cursor: default;\n  display: inline-block;\n  background: #fff;\n  padding: 0.25rem 0.75rem;\n  position: relative;\n  z-index: 1;\n}\n.c-message_list__day_divider__line {\n  position: absolute;\n  top: 50%;\n  left: 0;\n  right: 0;\n  border-top: 1px solid #e8e8e8;\n  border-bottom: 0;\n  z-index: -1;\n  margin: 0;\n}\n.c-message_list__unread_divider {\n  position: relative;\n  top: -1px;\n  z-index: 1;\n}\n.c-message_list__unread_divider__separator {\n  border-bottom: none;\n  border-color: rgba(255, 135, 109, 0.5);\n  margin: 0 18px -1px 0;\n  -webkit-transition: border 150ms ease-out 0;\n  -moz-transition: border 150ms ease-out 0;\n  transition: border 150ms ease-out 0;\n}\n.c-message_list__unread_divider__label {\n  background: #fff;\n  border-radius: 7px;\n  color: rgba(255, 135, 109, 0.5);\n  cursor: default;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 13px;\n  font-weight: bold;\n  line-height: 8px;\n  margin: -5px 11px -5px 0;\n  padding: 0 5px 3px 5px;\n  position: absolute;\n  right: 0;\n  text-transform: lowercase;\n  -webkit-transition: color 150ms ease-out 0;\n  -moz-transition: color 150ms ease-out 0;\n  transition: color 150ms ease-out 0;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-form_type_default {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n}\n.t-form_type_label {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_type_placeholder {\n  color: #a0a0a2;\n}\n.t-form_element_sizing {\n  margin: 0 0 12px;\n  padding: 8px 12px;\n}\n.t-form_label {\n  display: block;\n  margin: 0;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_border {\n  border-radius: 4px;\n  border: solid 1px #a0a0a2;\n}\n.t-form_cursor {\n  cursor: pointer;\n}\n.t-form_cursor[disabled] {\n  cursor: default;\n}\n.c-message_list__day_divider {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 0.9rem;\n  width: 100%;\n  color: #2c2d30;\n  font-weight: bold;\n  text-align: center;\n  position: relative;\n  padding: 1rem 0;\n}\n.c-message_list__day_divider .c-message_list__unread_divider {\n  top: 12px;\n}\n.c-message_list__day_divider .c-message_list__unread_divider__separator {\n  margin-right: 0;\n}\n.c-message_list__day_divider__label {\n  cursor: default;\n  display: inline-block;\n  background: #fff;\n  padding: 0.25rem 0.75rem;\n  position: relative;\n  z-index: 1;\n}\n.c-message_list__day_divider__line {\n  position: absolute;\n  top: 50%;\n  left: 0;\n  right: 0;\n  border-top: 1px solid #e8e8e8;\n  border-bottom: 0;\n  z-index: -1;\n  margin: 0;\n}\n.c-message_list__unread_divider {\n  position: relative;\n  top: -1px;\n  z-index: 1;\n}\n.c-message_list__unread_divider__separator {\n  border-bottom: none;\n  border-color: rgba(255, 135, 109, 0.5);\n  margin: 0 18px -1px 0;\n  -webkit-transition: border 150ms ease-out 0;\n  -moz-transition: border 150ms ease-out 0;\n  transition: border 150ms ease-out 0;\n}\n.c-message_list__unread_divider__label {\n  background: #fff;\n  border-radius: 7px;\n  color: rgba(255, 135, 109, 0.5);\n  cursor: default;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 13px;\n  font-weight: bold;\n  line-height: 8px;\n  margin: -5px 11px -5px 0;\n  padding: 0 5px 3px 5px;\n  position: absolute;\n  right: 0;\n  text-transform: lowercase;\n  -webkit-transition: color 150ms ease-out 0;\n  -moz-transition: color 150ms ease-out 0;\n  transition: color 150ms ease-out 0;\n}\n", ""]);
 }, function(e, t, n) {
   var r = n(3117);
   "string" == typeof r && (r = [
@@ -39756,8 +39794,8 @@ webpackJsonp([332], [, function(e, t, n) {
           }
           for (var M = 0; M < p; M++) {
             var T = e.keys[M],
-              S = e.getHeight(T);
-            _ += S, f += S, m += S, y += S;
+              x = e.getHeight(T);
+            _ += x, f += x, m += x, y += x;
           }
           return {
             start: p,
@@ -41619,7 +41657,7 @@ webpackJsonp([332], [, function(e, t, n) {
     };
   t.a = n.i(i.a)(u);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".c-timestamp,\n.c-timestamp:link,\n.c-timestamp:hover {\n  text-decoration: none;\n  cursor: default;\n}\n.c-timestamp__label {\n  font-size: 12px;\n  color: #a0a0a2;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-form_type_default {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n}\n.t-form_type_label {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_type_placeholder {\n  color: #a0a0a2;\n}\n.t-form_element_sizing {\n  margin: 0 0 12px;\n  padding: 8px 12px;\n}\n.t-form_label {\n  display: block;\n  margin: 0;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_border {\n  border-radius: 4px;\n  border: solid 1px #a0a0a2;\n}\n.t-form_cursor {\n  cursor: pointer;\n}\n.t-form_cursor[disabled] {\n  cursor: default;\n}\n.c-timestamp,\n.c-timestamp:link,\n.c-timestamp:hover {\n  text-decoration: none;\n  cursor: default;\n}\n.c-timestamp__label {\n  font-size: 12px;\n  color: #a0a0a2;\n}\n", ""]);
 }, function(e, t, n) {
   "use strict";
   var r = n(2),
@@ -41800,7 +41838,7 @@ webpackJsonp([332], [, function(e, t, n) {
   n(4275)(r, o);
   r.locals && (e.exports = r.locals);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, '.c-reaction {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  line-height: inherit;\n  padding: 2px 3px;\n  display: inline-flex;\n  align-items: center;\n  border: 1px solid #e8e8e8;\n  border-radius: 5px;\n  margin-right: 5px;\n  margin-bottom: 5px;\n}\n.c-reaction:hover,\n.c-reaction:focus,\n.c-reaction:active {\n  outline: none;\n}\n.c-reaction .emoji-sizer {\n  font-size: 16px;\n}\n.c-reaction:hover {\n  border-color: #2d9ee0;\n  cursor: pointer;\n}\n.c-reaction--reacted {\n  background-color: rgba(0, 122, 184, 0.05);\n  border-color: rgba(0, 122, 184, 0.3);\n}\n.c-reaction__count {\n  font-size: 0.6875rem;\n  color: #717274;\n  font-family: "Helvetica Neue", Helvetica, "Segoe UI", Tahoma, Arial, sans-serif;\n  padding: 0 1px 0 3px;\n}\n.c-reaction--reacted .c-reaction__count {\n  color: #007ab8;\n  font-weight: 700;\n}\n.c-reaction_bar {\n  margin-top: 5px;\n}\n.c-reaction_add {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  line-height: inherit;\n  padding: 2px 3px;\n  display: inline-flex;\n  align-items: center;\n  border: 1px solid #e8e8e8;\n  border-radius: 5px;\n  margin-right: 5px;\n  margin-bottom: 5px;\n  display: inline-block;\n  position: relative;\n  padding: 3px 4px 1px 2px;\n  margin-left: 9px;\n  opacity: 0;\n  transition: opacity 0.2s;\n}\n.c-reaction_add:hover,\n.c-reaction_add:focus,\n.c-reaction_add:active {\n  outline: none;\n}\n.c-reaction_add .emoji-sizer {\n  font-size: 16px;\n}\n.c-reaction_add:hover {\n  border-color: #2d9ee0;\n}\n.c-reaction_add__background {\n  position: absolute;\n  width: 1rem;\n  height: 1rem;\n  top: 1px;\n  left: 3px;\n  color: #fff;\n}\n.c-reaction_add__icon {\n  position: relative;\n  display: block;\n  width: 1rem;\n  height: 1rem;\n  z-index: 1;\n  color: #a0a0a2;\n}\n.c-reaction_add__icon::before {\n  font-size: 17px;\n  vertical-align: text-top;\n}\n.c-reaction_add__background::before {\n  font-size: 16px;\n}\n.c-reaction_bar:hover .c-reaction_add {\n  opacity: 1;\n}\n.c-reaction_add:hover .c-reaction_add__icon {\n  color: #C39A48;\n}\n.c-reaction_add:hover .c-reaction_add__background {\n  color: #FFD06D;\n}\n.c-reaction__tip_subtitle {\n  color: #a0a0a2;\n}\n', ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-form_type_default {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n}\n.t-form_type_label {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_type_placeholder {\n  color: #a0a0a2;\n}\n.t-form_element_sizing {\n  margin: 0 0 12px;\n  padding: 8px 12px;\n}\n.t-form_label {\n  display: block;\n  margin: 0;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_border {\n  border-radius: 4px;\n  border: solid 1px #a0a0a2;\n}\n.t-form_cursor {\n  cursor: pointer;\n}\n.t-form_cursor[disabled] {\n  cursor: default;\n}\n.c-reaction {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  line-height: inherit;\n  padding: 2px 3px;\n  display: inline-flex;\n  align-items: center;\n  border: 1px solid #e8e8e8;\n  border-radius: 5px;\n  margin-right: 5px;\n  margin-bottom: 5px;\n}\n.c-reaction:hover,\n.c-reaction:focus,\n.c-reaction:active {\n  outline: none;\n}\n.c-reaction .emoji-sizer {\n  font-size: 16px;\n}\n.c-reaction:hover {\n  border-color: #2d9ee0;\n  cursor: pointer;\n}\n.c-reaction--reacted {\n  background-color: rgba(0, 122, 184, 0.05);\n  border-color: rgba(0, 122, 184, 0.3);\n}\n.c-reaction__count {\n  font-size: 0.6875rem;\n  color: #717274;\n  font-family: \"Helvetica Neue\", Helvetica, \"Segoe UI\", Tahoma, Arial, sans-serif;\n  padding: 0 1px 0 3px;\n}\n.c-reaction--reacted .c-reaction__count {\n  color: #007ab8;\n  font-weight: 700;\n}\n.c-reaction_bar {\n  margin-top: 5px;\n}\n.c-reaction_add {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  line-height: inherit;\n  padding: 2px 3px;\n  display: inline-flex;\n  align-items: center;\n  border: 1px solid #e8e8e8;\n  border-radius: 5px;\n  margin-right: 5px;\n  margin-bottom: 5px;\n  display: inline-block;\n  position: relative;\n  padding: 3px 4px 1px 2px;\n  margin-left: 9px;\n  opacity: 0;\n  transition: opacity 0.2s;\n}\n.c-reaction_add:hover,\n.c-reaction_add:focus,\n.c-reaction_add:active {\n  outline: none;\n}\n.c-reaction_add .emoji-sizer {\n  font-size: 16px;\n}\n.c-reaction_add:hover {\n  border-color: #2d9ee0;\n}\n.c-reaction_add__background {\n  position: absolute;\n  width: 1rem;\n  height: 1rem;\n  top: 1px;\n  left: 3px;\n  color: #fff;\n}\n.c-reaction_add__icon {\n  position: relative;\n  display: block;\n  width: 1rem;\n  height: 1rem;\n  z-index: 1;\n  color: #a0a0a2;\n}\n.c-reaction_add__icon::before {\n  font-size: 17px;\n  vertical-align: text-top;\n}\n.c-reaction_add__background::before {\n  font-size: 16px;\n}\n.c-reaction_bar:hover .c-reaction_add {\n  opacity: 1;\n}\n.c-reaction_add:hover .c-reaction_add__icon {\n  color: #C39A48;\n}\n.c-reaction_add:hover .c-reaction_add__background {\n  color: #FFD06D;\n}\n.c-reaction__tip_subtitle {\n  color: #a0a0a2;\n}\n", ""]);
 }, function(e, t, n) {
   "use strict";
   var r = n(3216);
@@ -41938,7 +41976,7 @@ webpackJsonp([332], [, function(e, t, n) {
     }),
     i = n.i(r.a)("TS.mpims.closeMpim", function() {});
 }, , , , function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, '.p-emoji_picker {\n  position: absolute;\n  min-width: 361px;\n  max-width: 361px;\n  color: #2c2d30;\n  z-index: 1053;\n  font-size: 0.95rem;\n  font-family: \'Slack-Lato\', \'appleLogo\', sans-serif;\n  background: #f9f9f9;\n  line-height: 1rem;\n  outline: none;\n}\nbody.winssb .p-emoji_picker {\n  overflow: visible;\n}\n.p-emoji_picker__content {\n  position: relative;\n  z-index: 151;\n  overflow: hidden;\n}\n.p-emoji_picker__list_container {\n  max-height: 270px;\n  overflow-y: auto;\n  overflow-x: hidden;\n  background: #fff;\n  position: relative;\n  border-right: 0;\n}\n.p-emoji_picker__list {\n  position: relative;\n  padding: 33px 0 0 8px;\n  margin-top: -33px;\n  min-height: 270px;\n}\n.p-emoji_picker__list_scroller {\n  outline: none;\n}\n.supports_custom_scrollbar:not(.slim_scrollbar) .p-emoji_picker__list_scroller {\n  border-right: 0.25rem solid transparent;\n}\n.supports_custom_scrollbar:not(.slim_scrollbar) .p-emoji_picker__list_scroller::-webkit-scrollbar {\n  position: absolute;\n  -webkit-appearance: none;\n  width: 8px;\n}\n.supports_custom_scrollbar:not(.slim_scrollbar) .p-emoji_picker__list_scroller::-webkit-scrollbar-track,\n.supports_custom_scrollbar:not(.slim_scrollbar) .p-emoji_picker__list_scroller::-webkit-scrollbar-thumb {\n  background-clip: padding-box !important;\n  border-radius: 3px;\n  color: #fff;\n}\n.supports_custom_scrollbar:not(.slim_scrollbar) .p-emoji_picker__list_scroller::-webkit-scrollbar-track {\n  background: #f5f5f5;\n  box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0;\n}\n.supports_custom_scrollbar:not(.slim_scrollbar) .p-emoji_picker__list_scroller::-webkit-scrollbar-thumb {\n  background: default;\n  box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;\n  min-height: 36px;\n}\n.supports_custom_scrollbar:not(.slim_scrollbar) .p-emoji_picker__list_scroller::-webkit-scrollbar-corner {\n  background: #fff;\n}\n.supports_custom_scrollbar.slim_scrollbar .p-emoji_picker__list_scroller {\n  border-right: 0.25rem solid transparent;\n}\n.supports_custom_scrollbar.slim_scrollbar .p-emoji_picker__list_scroller::-webkit-scrollbar {\n  position: absolute;\n  -webkit-appearance: none;\n  width: 8px;\n}\n.supports_custom_scrollbar.slim_scrollbar .p-emoji_picker__list_scroller::-webkit-scrollbar-track,\n.supports_custom_scrollbar.slim_scrollbar .p-emoji_picker__list_scroller::-webkit-scrollbar-thumb {\n  background-clip: padding-box !important;\n  border-radius: 3px;\n  color: #fff;\n}\n.supports_custom_scrollbar.slim_scrollbar .p-emoji_picker__list_scroller::-webkit-scrollbar-track {\n  background: #f5f5f5;\n  box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0;\n}\n.supports_custom_scrollbar.slim_scrollbar .p-emoji_picker__list_scroller::-webkit-scrollbar-thumb {\n  background: slim;\n  box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;\n  min-height: 36px;\n}\n.supports_custom_scrollbar.slim_scrollbar .p-emoji_picker__list_scroller::-webkit-scrollbar-corner {\n  background: #fff;\n}\n.p-emoji_picker__list_item {\n  border-color: transparent;\n  font-size: 20px;\n  text-align: center;\n  line-height: 21px;\n  width: 36px;\n  height: 32px;\n  margin: 0 1px -1px 0;\n  float: none;\n  display: inline-block;\n  text-shadow: 0 1px #fff;\n  padding: 0.25rem 0 .2rem 0;\n  font-weight: normal;\n  text-decoration: none;\n  overflow: hidden;\n  border-radius: 6px;\n  background: transparent;\n  -webkit-transition: background 0.15s ease-out 0.05s 0.2s ease-out 0.0000001ms;\n  -moz-transition: background 0.15s ease-out 0.05s 0.2s ease-out 0.0000001ms;\n  transition: background 0.15s ease-out 0.05s 0.2s ease-out 0.0000001ms;\n  -webkit-transition: background 0.15s ease-out 0.05s;\n  -moz-transition: background 0.15s ease-out 0.05s;\n  transition: background 0.15s ease-out 0.05s;\n}\n.p-emoji_picker__list_item:hover {\n  text-decoration: none;\n  overflow: hidden;\n  -webkit-transition: background 0.05s ease-out 0.2s ease-out 0.0000001ms;\n  -moz-transition: background 0.05s ease-out 0.2s ease-out 0.0000001ms;\n  transition: background 0.05s ease-out 0.2s ease-out 0.0000001ms;\n  -webkit-transition: background 0.05s ease-out;\n  -moz-transition: background 0.05s ease-out;\n  transition: background 0.05s ease-out;\n}\n.p-emoji_picker__list_item[data-color-index="0"]:hover,\n.p-emoji_picker__list_item[data-color-index="0"].key_selection {\n  background: #b7e887;\n}\n.p-emoji_picker__list_item[data-color-index="1"]:hover,\n.p-emoji_picker__list_item[data-color-index="1"].key_selection {\n  background: #b5e0fe;\n}\n.p-emoji_picker__list_item[data-color-index="2"]:hover,\n.p-emoji_picker__list_item[data-color-index="2"].key_selection {\n  background: #f9ef67;\n}\n.p-emoji_picker__list_item[data-color-index="3"]:hover,\n.p-emoji_picker__list_item[data-color-index="3"].key_selection {\n  background: #F3C1FD;\n}\n.p-emoji_picker__list_item[data-color-index="4"]:hover,\n.p-emoji_picker__list_item[data-color-index="4"].key_selection {\n  background: #FFE1AE;\n}\n.p-emoji_picker__list_item[data-color-index="5"]:hover,\n.p-emoji_picker__list_item[data-color-index="5"].key_selection {\n  background: #E0DFFF;\n}\n.p-emoji_picker__list_item .emoji-sizer {\n  line-height: 20px;\n}\n.p-emoji_picker__group_tabs {\n  padding: 4px 0px 0px 7px;\n  border-bottom: 1px solid rgba(0, 0, 0, 0.15);\n  height: 38px;\n}\n.p-emoji_picker__group_tab {\n  height: 100%;\n  color: #a0a0a2;\n  display: inline-block;\n  padding: 4px 5.8px 6px;\n  border-radius: 0.6rem 0.6rem 0 0;\n  margin-right: 3px;\n  border-bottom: 3px solid transparent;\n}\n.p-emoji_picker__group_tab:hover {\n  color: #717274;\n  text-decoration: none;\n  background: #f5f5f5;\n}\n.p-emoji_picker__group_tab--active {\n  margin-bottom: -1px;\n  background: #f9f9f9;\n  padding-top: 3px;\n  border-bottom: 3px solid #29a979;\n}\n.p-emoji_picker__heading {\n  margin: 0px 6px;\n  font-size: 1rem;\n  font-weight: 700;\n  line-height: 1.5rem;\n  position: relative;\n  background: rgba(255, 255, 255, 0.95);\n}\n.p-emoji_picker__heading--handy_rxns {\n  float: left;\n  margin: 4px 2px;\n  background-color: transparent;\n  width: 141px;\n}\n.p-emoji_picker__sticky_header {\n  position: absolute;\n  width: 100%;\n  z-index: 10;\n  top: -1px;\n  padding-top: 1px;\n}\n.p-emoji_picker__sticky_header .p-emoji_picker__heading {\n  position: absolute;\n  right: 12px;\n  left: 0;\n  top: 0;\n  padding: 0 8px;\n}\ninput.p-emoji_picker__input {\n  padding-top: 2px;\n  padding-bottom: 2px;\n  padding-left: 32px;\n  padding-right: 32px;\n  font-size: 15px;\n  margin: 0;\n  height: 28px;\n  width: 100%;\n  border-radius: 1rem;\n}\ninput.p-emoji_picker__input:focus {\n  box-shadow: inset 0 0 0 rgba(44, 45, 48, 0.3);\n  border-color: #c5c5c5;\n}\n.p-emoji_picker__input_container {\n  background: #fff;\n  padding: 8px;\n  position: relative;\n}\n.p-emoji_picker__icon_search {\n  top: 0.8125rem;\n  left: 1rem;\n  text-shadow: none;\n  display: block;\n  position: absolute;\n  color: #a0a0a2;\n}\n.p-emoji_picker__tip i,\n.p-emoji_picker__no_results i {\n  color: #a0a0a2;\n}\n.p-emoji_picker__tip {\n  clear: both;\n  font-weight: normal;\n  font-size: .8rem;\n  margin: 10px 0px;\n  text-align: center;\n  color: #717274;\n}\n.p-emoji_picker__tip .c-icon {\n  position: relative;\n  top: -1px;\n}\n.p-emoji_picker__tip--can_add_emoji {\n  margin-top: 0;\n}\n.p-emoji_picker__no_results {\n  clear: both;\n  font-weight: normal;\n  font-size: 1rem;\n  padding-top: 70px;\n  padding-right: 0;\n  padding-bottom: 10px;\n  color: #a0a0a2;\n  text-align: center;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="0"]:hover {\n  background: transparent;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="0"].key_selection {\n  background: #b7e887;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="1"]:hover {\n  background: transparent;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="1"].key_selection {\n  background: #b5e0fe;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="2"]:hover {\n  background: transparent;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="2"].key_selection {\n  background: #f9ef67;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="3"]:hover {\n  background: transparent;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="3"].key_selection {\n  background: #F3C1FD;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="4"]:hover {\n  background: transparent;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="4"].key_selection {\n  background: #FFE1AE;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="5"]:hover {\n  background: transparent;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="5"].key_selection {\n  background: #E0DFFF;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item:not(.key_selection) a:hover {\n  background: none;\n}\n.p-emoji_picker__footer {\n  background: #f9f9f9;\n  padding-bottom: 0.4rem;\n  border-top: 1px solid rgba(0, 0, 0, 0.15);\n  position: relative;\n}\n.p-emoji_picker__footer--previewing .p-emoji_picker__preview {\n  -webkit-transition: opacity 0.1s ease-in 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 0.1s ease-in 0.2s ease-out 0.0000001ms;\n  transition: opacity 0.1s ease-in 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 0.1s ease-in;\n  -moz-transition: opacity 0.1s ease-in;\n  transition: opacity 0.1s ease-in;\n  opacity: 1;\n}\n.p-emoji_picker__footer--previewing .p-emoji_picker__emoji_deluxe_label {\n  opacity: 0;\n  -webkit-transition: opacity 0.05s ease-in 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 0.05s ease-in 0.2s ease-out 0.0000001ms;\n  transition: opacity 0.05s ease-in 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 0.05s ease-in;\n  -moz-transition: opacity 0.05s ease-in;\n  transition: opacity 0.05s ease-in;\n}\n.p-emoji_picker__preview {\n  opacity: 0;\n  -webkit-transition: opacity 0.1s ease-in 0.9s 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 0.1s ease-in 0.9s 0.2s ease-out 0.0000001ms;\n  transition: opacity 0.1s ease-in 0.9s 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 0.1s ease-in 0.9s;\n  -moz-transition: opacity 0.1s ease-in 0.9s;\n  transition: opacity 0.1s ease-in 0.9s;\n  padding: 0.3rem 0 0 0.7rem;\n}\n.p-emoji_picker__emoji_deluxe_label {\n  position: absolute;\n  font-size: 1.2rem;\n  color: #a0a0a2;\n  bottom: -26px;\n  left: 14px;\n  opacity: 1;\n  -webkit-transition: opacity 0.1s ease-in 1.1s 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 0.1s ease-in 1.1s 0.2s ease-out 0.0000001ms;\n  transition: opacity 0.1s ease-in 1.1s 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 0.1s ease-in 1.1s;\n  -moz-transition: opacity 0.1s ease-in 1.1s;\n  transition: opacity 0.1s ease-in 1.1s;\n  font-family: \'Slack-Lato\', \'appleLogo\', sans-serif;\n  font-weight: 700;\n}\n.p-emoji_picker__preview_text {\n  font-size: 0.9rem;\n  line-height: .9rem;\n  padding: 0.6rem 0.7rem 0.8rem 0;\n  background: #f9f9f9;\n  color: #717274;\n  font-weight: 700;\n  float: left;\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n}\n.p-emoji_picker__preview_text--shortened {\n  width: 180px;\n}\n.p-emoji_picker__preview_aliases {\n  font-size: 0.8rem;\n  font-weight: normal;\n}\n.p-emoji_picker__preview_img {\n  float: left;\n  font-size: 2rem;\n  height: 54px;\n  line-height: 2rem;\n  padding: 0.7rem 0.5rem 0 .1rem;\n  vertical-align: middle;\n  width: 46px;\n}\n.p-emoji_picker__preview_img span.emoji-sizer {\n  /* This rule only affects Chrome. Other browsers inline the emoji character. */\n  margin-top: -0.3rem;\n  vertical-align: top;\n  font-size: 2.25rem;\n  line-height: 2.25rem;\n}\n.p-emoji_picker__handy_rxns {\n  margin-top: -1px;\n  padding: .3rem 0.7rem;\n  border-bottom: 1px solid rgba(0, 0, 0, 0.15);\n}\n.p-emoji_picker__handy_rxns_list .p-emoji_picker__list_item {\n  margin-right: 1px;\n}\n.p-emoji_picker__skintone_options,\n.p-emoji_picker__skintone_btn_container,\n.p-emoji_picker__skintone_tip {\n  position: absolute;\n  font-size: 1.2rem;\n  color: #a0a0a2;\n  padding: 3px;\n  right: 16px;\n  bottom: -33px;\n  -webkit-transition: opacity 0.1s ease-in 0s 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 0.1s ease-in 0s 0.2s ease-out 0.0000001ms;\n  transition: opacity 0.1s ease-in 0s 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 0.1s ease-in 0s;\n  -moz-transition: opacity 0.1s ease-in 0s;\n  transition: opacity 0.1s ease-in 0s;\n}\n.p-emoji_picker__skintone_btn_container {\n  opacity: 1;\n  cursor: pointer;\n  border: 1px solid transparent;\n  border-radius: 10px;\n  padding: 7px 3px 2px 3px;\n  display: flex;\n}\n.p-emoji_picker__skintone_btn_container .emoji-sizer {\n  font-size: 23px;\n}\n.p-emoji_picker__skintone_label {\n  font-size: 0.9rem;\n  display: inline-block;\n  margin: 0 3px;\n  font-weight: bold;\n}\n.p-emoji_picker__content:hover .p-emoji_picker__skintone_btn_container {\n  border: 1px solid #fff;\n  background: #fff;\n}\n.p-emoji_picker__skintone_options {\n  opacity: 0;\n  background: #fff;\n  border-radius: 10px;\n  pointer-events: none;\n  padding: 7px 3px 2px 3px;\n  border: 1px solid transparent;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n.p-emoji_picker__skintone_options > span {\n  border-radius: 2px;\n}\n.p-emoji_picker__skintone_options > span[data-preferred="true"] {\n  background: #fff;\n}\n.p-emoji_picker__skintone_options span.emoji-sizer {\n  font-size: 23px;\n}\n.p-emoji_picker__skintone_options span.emoji,\n.p-emoji_picker__skintone_options span.emoji-outer {\n  cursor: pointer;\n}\n.p-emoji_picker__skintone_options--visible {\n  opacity: 1;\n  pointer-events: all;\n}\n.p-emoji_picker__skintone_tip {\n  opacity: 0;\n  font-size: .68rem;\n  bottom: -50px;\n  right: 14px;\n  z-index: 2;\n  pointer-events: none;\n  font-weight: bold;\n}\n.p-emoji_picker__skintone_tip--visible {\n  opacity: 1;\n}\n', ""]);
+  t = e.exports = n(189)(), t.push([e.i, '.t-form_type_default {\n  font-family: \'Slack-Lato\', \'appleLogo\', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n}\n.t-form_type_label {\n  font-family: \'Slack-Lato\', \'appleLogo\', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_type_placeholder {\n  color: #a0a0a2;\n}\n.t-form_element_sizing {\n  margin: 0 0 12px;\n  padding: 8px 12px;\n}\n.t-form_label {\n  display: block;\n  margin: 0;\n  font-family: \'Slack-Lato\', \'appleLogo\', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_border {\n  border-radius: 4px;\n  border: solid 1px #a0a0a2;\n}\n.t-form_cursor {\n  cursor: pointer;\n}\n.t-form_cursor[disabled] {\n  cursor: default;\n}\n.p-emoji_picker {\n  position: absolute;\n  min-width: 361px;\n  max-width: 361px;\n  color: #2c2d30;\n  z-index: 1053;\n  font-size: 0.95rem;\n  font-family: \'Slack-Lato\', \'appleLogo\', sans-serif;\n  background: #f9f9f9;\n  line-height: 1rem;\n  outline: none;\n}\nbody.winssb .p-emoji_picker {\n  overflow: visible;\n}\n.p-emoji_picker__content {\n  position: relative;\n  z-index: 151;\n  overflow: hidden;\n}\n.p-emoji_picker__list_container {\n  max-height: 270px;\n  overflow-y: auto;\n  overflow-x: hidden;\n  background: #fff;\n  position: relative;\n  border-right: 0;\n}\n.p-emoji_picker__list {\n  position: relative;\n  padding: 33px 0 0 8px;\n  margin-top: -33px;\n  min-height: 270px;\n}\n.p-emoji_picker__list_scroller {\n  outline: none;\n}\n.supports_custom_scrollbar:not(.slim_scrollbar) .p-emoji_picker__list_scroller {\n  border-right: 0.25rem solid transparent;\n}\n.supports_custom_scrollbar:not(.slim_scrollbar) .p-emoji_picker__list_scroller::-webkit-scrollbar {\n  position: absolute;\n  -webkit-appearance: none;\n  width: 8px;\n}\n.supports_custom_scrollbar:not(.slim_scrollbar) .p-emoji_picker__list_scroller::-webkit-scrollbar-track,\n.supports_custom_scrollbar:not(.slim_scrollbar) .p-emoji_picker__list_scroller::-webkit-scrollbar-thumb {\n  background-clip: padding-box !important;\n  border-radius: 3px;\n  color: #fff;\n}\n.supports_custom_scrollbar:not(.slim_scrollbar) .p-emoji_picker__list_scroller::-webkit-scrollbar-track {\n  background: #f5f5f5;\n  box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0;\n}\n.supports_custom_scrollbar:not(.slim_scrollbar) .p-emoji_picker__list_scroller::-webkit-scrollbar-thumb {\n  background: default;\n  box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;\n  min-height: 36px;\n}\n.supports_custom_scrollbar:not(.slim_scrollbar) .p-emoji_picker__list_scroller::-webkit-scrollbar-corner {\n  background: #fff;\n}\n.supports_custom_scrollbar.slim_scrollbar .p-emoji_picker__list_scroller {\n  border-right: 0.25rem solid transparent;\n}\n.supports_custom_scrollbar.slim_scrollbar .p-emoji_picker__list_scroller::-webkit-scrollbar {\n  position: absolute;\n  -webkit-appearance: none;\n  width: 8px;\n}\n.supports_custom_scrollbar.slim_scrollbar .p-emoji_picker__list_scroller::-webkit-scrollbar-track,\n.supports_custom_scrollbar.slim_scrollbar .p-emoji_picker__list_scroller::-webkit-scrollbar-thumb {\n  background-clip: padding-box !important;\n  border-radius: 3px;\n  color: #fff;\n}\n.supports_custom_scrollbar.slim_scrollbar .p-emoji_picker__list_scroller::-webkit-scrollbar-track {\n  background: #f5f5f5;\n  box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0;\n}\n.supports_custom_scrollbar.slim_scrollbar .p-emoji_picker__list_scroller::-webkit-scrollbar-thumb {\n  background: slim;\n  box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;\n  min-height: 36px;\n}\n.supports_custom_scrollbar.slim_scrollbar .p-emoji_picker__list_scroller::-webkit-scrollbar-corner {\n  background: #fff;\n}\n.p-emoji_picker__list_item {\n  border-color: transparent;\n  font-size: 20px;\n  text-align: center;\n  line-height: 21px;\n  width: 36px;\n  height: 32px;\n  margin: 0 1px -1px 0;\n  float: none;\n  display: inline-block;\n  text-shadow: 0 1px #fff;\n  padding: 0.25rem 0 .2rem 0;\n  font-weight: normal;\n  text-decoration: none;\n  overflow: hidden;\n  border-radius: 6px;\n  background: transparent;\n  -webkit-transition: background 0.15s ease-out 0.05s 0.2s ease-out 0.0000001ms;\n  -moz-transition: background 0.15s ease-out 0.05s 0.2s ease-out 0.0000001ms;\n  transition: background 0.15s ease-out 0.05s 0.2s ease-out 0.0000001ms;\n  -webkit-transition: background 0.15s ease-out 0.05s;\n  -moz-transition: background 0.15s ease-out 0.05s;\n  transition: background 0.15s ease-out 0.05s;\n}\n.p-emoji_picker__list_item:hover {\n  text-decoration: none;\n  overflow: hidden;\n  -webkit-transition: background 0.05s ease-out 0.2s ease-out 0.0000001ms;\n  -moz-transition: background 0.05s ease-out 0.2s ease-out 0.0000001ms;\n  transition: background 0.05s ease-out 0.2s ease-out 0.0000001ms;\n  -webkit-transition: background 0.05s ease-out;\n  -moz-transition: background 0.05s ease-out;\n  transition: background 0.05s ease-out;\n}\n.p-emoji_picker__list_item[data-color-index="0"]:hover,\n.p-emoji_picker__list_item[data-color-index="0"].key_selection {\n  background: #b7e887;\n}\n.p-emoji_picker__list_item[data-color-index="1"]:hover,\n.p-emoji_picker__list_item[data-color-index="1"].key_selection {\n  background: #b5e0fe;\n}\n.p-emoji_picker__list_item[data-color-index="2"]:hover,\n.p-emoji_picker__list_item[data-color-index="2"].key_selection {\n  background: #f9ef67;\n}\n.p-emoji_picker__list_item[data-color-index="3"]:hover,\n.p-emoji_picker__list_item[data-color-index="3"].key_selection {\n  background: #F3C1FD;\n}\n.p-emoji_picker__list_item[data-color-index="4"]:hover,\n.p-emoji_picker__list_item[data-color-index="4"].key_selection {\n  background: #FFE1AE;\n}\n.p-emoji_picker__list_item[data-color-index="5"]:hover,\n.p-emoji_picker__list_item[data-color-index="5"].key_selection {\n  background: #E0DFFF;\n}\n.p-emoji_picker__list_item .emoji-sizer {\n  line-height: 20px;\n}\n.p-emoji_picker__group_tabs {\n  padding: 4px 0px 0px 7px;\n  border-bottom: 1px solid rgba(0, 0, 0, 0.15);\n  height: 38px;\n}\n.p-emoji_picker__group_tab {\n  height: 100%;\n  color: #a0a0a2;\n  display: inline-block;\n  padding: 4px 5.8px 6px;\n  border-radius: 0.6rem 0.6rem 0 0;\n  margin-right: 3px;\n  border-bottom: 3px solid transparent;\n}\n.p-emoji_picker__group_tab:hover {\n  color: #717274;\n  text-decoration: none;\n  background: #f5f5f5;\n}\n.p-emoji_picker__group_tab--active {\n  margin-bottom: -1px;\n  background: #f9f9f9;\n  padding-top: 3px;\n  border-bottom: 3px solid #29a979;\n}\n.p-emoji_picker__heading {\n  margin: 0px 6px;\n  font-size: 1rem;\n  font-weight: 700;\n  line-height: 1.5rem;\n  position: relative;\n  background: rgba(255, 255, 255, 0.95);\n}\n.p-emoji_picker__heading--handy_rxns {\n  float: left;\n  margin: 4px 2px;\n  background-color: transparent;\n  width: 141px;\n}\n.p-emoji_picker__sticky_header {\n  position: absolute;\n  width: 100%;\n  z-index: 10;\n  top: -1px;\n  padding-top: 1px;\n}\n.p-emoji_picker__sticky_header .p-emoji_picker__heading {\n  position: absolute;\n  right: 12px;\n  left: 0;\n  top: 0;\n  padding: 0 8px;\n}\ninput.p-emoji_picker__input {\n  padding-top: 2px;\n  padding-bottom: 2px;\n  padding-left: 32px;\n  padding-right: 32px;\n  font-size: 15px;\n  margin: 0;\n  height: 28px;\n  width: 100%;\n  border-radius: 1rem;\n}\ninput.p-emoji_picker__input:focus {\n  box-shadow: inset 0 0 0 rgba(44, 45, 48, 0.3);\n  border-color: #c5c5c5;\n}\n.p-emoji_picker__input_container {\n  background: #fff;\n  padding: 8px;\n  position: relative;\n}\n.p-emoji_picker__icon_search {\n  top: 0.8125rem;\n  left: 1rem;\n  text-shadow: none;\n  display: block;\n  position: absolute;\n  color: #a0a0a2;\n}\n.p-emoji_picker__tip i,\n.p-emoji_picker__no_results i {\n  color: #a0a0a2;\n}\n.p-emoji_picker__tip {\n  clear: both;\n  font-weight: normal;\n  font-size: .8rem;\n  margin: 10px 0px;\n  text-align: center;\n  color: #717274;\n}\n.p-emoji_picker__tip .c-icon {\n  position: relative;\n  top: -1px;\n}\n.p-emoji_picker__tip--can_add_emoji {\n  margin-top: 0;\n}\n.p-emoji_picker__no_results {\n  clear: both;\n  font-weight: normal;\n  font-size: 1rem;\n  padding-top: 70px;\n  padding-right: 0;\n  padding-bottom: 10px;\n  color: #a0a0a2;\n  text-align: center;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="0"]:hover {\n  background: transparent;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="0"].key_selection {\n  background: #b7e887;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="1"]:hover {\n  background: transparent;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="1"].key_selection {\n  background: #b5e0fe;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="2"]:hover {\n  background: transparent;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="2"].key_selection {\n  background: #f9ef67;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="3"]:hover {\n  background: transparent;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="3"].key_selection {\n  background: #F3C1FD;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="4"]:hover {\n  background: transparent;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="4"].key_selection {\n  background: #FFE1AE;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="5"]:hover {\n  background: transparent;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item[data-color-index="5"].key_selection {\n  background: #E0DFFF;\n}\n.p-emoji_picker[data-using-keyboard="true"] .p-emoji_picker__list_item:not(.key_selection) a:hover {\n  background: none;\n}\n.p-emoji_picker__footer {\n  background: #f9f9f9;\n  padding-bottom: 0.4rem;\n  border-top: 1px solid rgba(0, 0, 0, 0.15);\n  position: relative;\n}\n.p-emoji_picker__footer--previewing .p-emoji_picker__preview {\n  -webkit-transition: opacity 0.1s ease-in 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 0.1s ease-in 0.2s ease-out 0.0000001ms;\n  transition: opacity 0.1s ease-in 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 0.1s ease-in;\n  -moz-transition: opacity 0.1s ease-in;\n  transition: opacity 0.1s ease-in;\n  opacity: 1;\n}\n.p-emoji_picker__footer--previewing .p-emoji_picker__emoji_deluxe_label {\n  opacity: 0;\n  -webkit-transition: opacity 0.05s ease-in 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 0.05s ease-in 0.2s ease-out 0.0000001ms;\n  transition: opacity 0.05s ease-in 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 0.05s ease-in;\n  -moz-transition: opacity 0.05s ease-in;\n  transition: opacity 0.05s ease-in;\n}\n.p-emoji_picker__preview {\n  opacity: 0;\n  -webkit-transition: opacity 0.1s ease-in 0.9s 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 0.1s ease-in 0.9s 0.2s ease-out 0.0000001ms;\n  transition: opacity 0.1s ease-in 0.9s 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 0.1s ease-in 0.9s;\n  -moz-transition: opacity 0.1s ease-in 0.9s;\n  transition: opacity 0.1s ease-in 0.9s;\n  padding: 0.3rem 0 0 0.7rem;\n}\n.p-emoji_picker__emoji_deluxe_label {\n  position: absolute;\n  font-size: 1.2rem;\n  color: #a0a0a2;\n  bottom: -26px;\n  left: 14px;\n  opacity: 1;\n  -webkit-transition: opacity 0.1s ease-in 1.1s 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 0.1s ease-in 1.1s 0.2s ease-out 0.0000001ms;\n  transition: opacity 0.1s ease-in 1.1s 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 0.1s ease-in 1.1s;\n  -moz-transition: opacity 0.1s ease-in 1.1s;\n  transition: opacity 0.1s ease-in 1.1s;\n  font-family: \'Slack-Lato\', \'appleLogo\', sans-serif;\n  font-weight: 700;\n}\n.p-emoji_picker__preview_text {\n  font-size: 0.9rem;\n  line-height: .9rem;\n  padding: 0.6rem 0.7rem 0.8rem 0;\n  background: #f9f9f9;\n  color: #717274;\n  font-weight: 700;\n  float: left;\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n}\n.p-emoji_picker__preview_text--shortened {\n  width: 180px;\n}\n.p-emoji_picker__preview_aliases {\n  font-size: 0.8rem;\n  font-weight: normal;\n}\n.p-emoji_picker__preview_img {\n  float: left;\n  font-size: 2rem;\n  height: 54px;\n  line-height: 2rem;\n  padding: 0.7rem 0.5rem 0 .1rem;\n  vertical-align: middle;\n  width: 46px;\n}\n.p-emoji_picker__preview_img span.emoji-sizer {\n  /* This rule only affects Chrome. Other browsers inline the emoji character. */\n  margin-top: -0.3rem;\n  vertical-align: top;\n  font-size: 2.25rem;\n  line-height: 2.25rem;\n}\n.p-emoji_picker__handy_rxns {\n  margin-top: -1px;\n  padding: .3rem 0.7rem;\n  border-bottom: 1px solid rgba(0, 0, 0, 0.15);\n}\n.p-emoji_picker__handy_rxns_list .p-emoji_picker__list_item {\n  margin-right: 1px;\n}\n.p-emoji_picker__skintone_options,\n.p-emoji_picker__skintone_btn_container,\n.p-emoji_picker__skintone_tip {\n  position: absolute;\n  font-size: 1.2rem;\n  color: #a0a0a2;\n  padding: 3px;\n  right: 16px;\n  bottom: -33px;\n  -webkit-transition: opacity 0.1s ease-in 0s 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 0.1s ease-in 0s 0.2s ease-out 0.0000001ms;\n  transition: opacity 0.1s ease-in 0s 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 0.1s ease-in 0s;\n  -moz-transition: opacity 0.1s ease-in 0s;\n  transition: opacity 0.1s ease-in 0s;\n}\n.p-emoji_picker__skintone_btn_container {\n  opacity: 1;\n  cursor: pointer;\n  border: 1px solid transparent;\n  border-radius: 10px;\n  padding: 7px 3px 2px 3px;\n  display: flex;\n}\n.p-emoji_picker__skintone_btn_container .emoji-sizer {\n  font-size: 23px;\n}\n.p-emoji_picker__skintone_label {\n  font-size: 0.9rem;\n  display: inline-block;\n  margin: 0 3px;\n  font-weight: bold;\n}\n.p-emoji_picker__content:hover .p-emoji_picker__skintone_btn_container {\n  border: 1px solid #fff;\n  background: #fff;\n}\n.p-emoji_picker__skintone_options {\n  opacity: 0;\n  background: #fff;\n  border-radius: 10px;\n  pointer-events: none;\n  padding: 7px 3px 2px 3px;\n  border: 1px solid transparent;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n.p-emoji_picker__skintone_options > span {\n  border-radius: 2px;\n}\n.p-emoji_picker__skintone_options > span[data-preferred="true"] {\n  background: #fff;\n}\n.p-emoji_picker__skintone_options span.emoji-sizer {\n  font-size: 23px;\n}\n.p-emoji_picker__skintone_options span.emoji,\n.p-emoji_picker__skintone_options span.emoji-outer {\n  cursor: pointer;\n}\n.p-emoji_picker__skintone_options--visible {\n  opacity: 1;\n  pointer-events: all;\n}\n.p-emoji_picker__skintone_tip {\n  opacity: 0;\n  font-size: .68rem;\n  bottom: -50px;\n  right: 14px;\n  z-index: 2;\n  pointer-events: none;\n  font-weight: bold;\n}\n.p-emoji_picker__skintone_tip--visible {\n  opacity: 1;\n}\n', ""]);
 }, function(e, t, n) {
   var r = n(3238);
   "string" == typeof r && (r = [
@@ -42007,7 +42045,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }
       return e;
     },
-    S = function() {
+    x = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
@@ -42018,16 +42056,16 @@ webpackJsonp([332], [, function(e, t, n) {
         return n && e(t.prototype, n), r && e(t, r), t;
       };
     }(),
-    x = new v.a("apps_browser"),
+    S = new v.a("apps_browser"),
     E = {
       hasSeenAppSpaceTutorial: l.a.PropTypes.bool,
       doesSupportStickyPosition: l.a.PropTypes.bool
     },
-    P = {
+    L = {
       hasSeenAppSpaceTutorial: !1,
       doesSupportStickyPosition: !0
     },
-    L = {
+    P = {
       listEnpoint: "apps.index.list",
       searchEndpoint: "apps.index.search"
     },
@@ -42036,8 +42074,8 @@ webpackJsonp([332], [, function(e, t, n) {
       name: "",
       display_name: "",
       apps: [{
-        name: x.t("What are apps?"),
-        short_description: x.t("A quick look at how apps in Slack can streamline your work"),
+        name: S.t("What are apps?"),
+        short_description: S.t("A quick look at how apps in Slack can streamline your work"),
         icons: {
           image_84: cdn_url + "/1f0ce/img/tutorial@2x.png"
         },
@@ -42061,17 +42099,17 @@ webpackJsonp([332], [, function(e, t, n) {
           leading: !1
         }), n.debouncedEnableMouseMove = p.a.debounce(n.enableMouseMove, 200), n;
       }
-      return a(t, e), S(t, [{
+      return a(t, e), x(t, [{
         key: "componentDidMount",
         value: function() {
           var e = this;
-          document.body.addEventListener("keydown", this.handleKeydown), document.body.addEventListener("mousemove", this.handleMouseMove), this.completeRequest(n.i(_.a)(L.listEnpoint, {
+          document.body.addEventListener("keydown", this.handleKeydown), document.body.addEventListener("mousemove", this.handleMouseMove), this.completeRequest(n.i(_.a)(P.listEnpoint, {
             limit: 20
           }).then(function(t) {
             return e.defaultAppCategories = [C].concat(r(t.data.categories)), {
               categories: e.defaultAppCategories
             };
-          }), L.listEnpoint), this.searchInput.focus();
+          }), P.listEnpoint), this.searchInput.focus();
         }
       }, {
         key: "componentWillReceiveProps",
@@ -42134,7 +42172,7 @@ webpackJsonp([332], [, function(e, t, n) {
               category: e.id,
               cursor: e.next_cursor
             };
-            t === L.searchEndpoint && (a.query = this.state.searchTerm), n.i(_.a)(t, a).then(function(n) {
+            t === P.searchEndpoint && (a.query = this.state.searchTerm), n.i(_.a)(t, a).then(function(n) {
               if (!(o < i.lastRequestId)) {
                 var a = n.data.categories[0];
                 a && i.setState(function(n) {
@@ -42148,7 +42186,7 @@ webpackJsonp([332], [, function(e, t, n) {
                         var u = [].concat(r(n.appCategories));
                         return u[s] = l, l.next_cursor && setTimeout(function() {
                           i.paginateCategory(l, t, o);
-                        }, 0), t === L.listEnpoint && (i.defaultAppCategories = u), {
+                        }, 0), t === P.listEnpoint && (i.defaultAppCategories = u), {
                           v: {
                             appCategories: u
                           }
@@ -42272,7 +42310,7 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "searchApps",
         value: function(e) {
           var t = this;
-          e ? (this.completeRequest(n.i(_.a)(L.searchEndpoint, {
+          e ? (this.completeRequest(n.i(_.a)(P.searchEndpoint, {
             query: e
           }).then(function(n) {
             return t.setState(function() {
@@ -42281,7 +42319,7 @@ webpackJsonp([332], [, function(e, t, n) {
                 isShowingDefaultAppCategories: !1
               };
             }), n.data;
-          }), L.searchEndpoint), n.i(y.a)("APP_INDEX_SEARCH")) : this.setState(function() {
+          }), P.searchEndpoint), n.i(y.a)("APP_INDEX_SEARCH")) : this.setState(function() {
             return {
               isLoading: !1,
               appCategories: t.defaultAppCategories,
@@ -42300,9 +42338,9 @@ webpackJsonp([332], [, function(e, t, n) {
               return {
                 isLoading: !1,
                 appCategories: e.categories,
-                selectedAppIndex: p.a.get(e, "categories[0].apps", []).length && t === L.searchEndpoint ? 0 : null
+                selectedAppIndex: p.a.get(e, "categories[0].apps", []).length && t === P.searchEndpoint ? 0 : null
               };
-            }), t === L.listEnpoint && 2 === e.categories.length && n.paginateCategories(t, r));
+            }), t === P.listEnpoint && 2 === e.categories.length && n.paginateCategories(t, r));
           }).catch(function() {});
         }
       }, {
@@ -42316,8 +42354,8 @@ webpackJsonp([332], [, function(e, t, n) {
               }),
               s = "app-" + e.app_id + "-" + e.bot_id,
               u = r.getAppIcon(e),
-              d = x.t("Install");
-            return "tutorial_app" === e.app_id ? d = x.t("Start") : e.is_installed && (d = x.t("View")), l.a.createElement("div", {
+              d = S.t("Install");
+            return "tutorial_app" === e.app_id ? d = S.t("Start") : e.is_installed && (d = S.t("View")), l.a.createElement("div", {
               key: s,
               className: a,
               onClick: r.handleAppClick,
@@ -42381,18 +42419,18 @@ webpackJsonp([332], [, function(e, t, n) {
           return e = !this.getTotalAppsCount() && this.state.searchTerm ? l.a.createElement("section", {
             key: "no-results",
             className: "p-apps_browser__no_results"
-          }, x.t("There are no apps matching"), " ", l.a.createElement("strong", null, this.state.searchTerm)) : this.createAppCategoriesMarkup(), l.a.createElement("div", {
+          }, S.t("There are no apps matching"), " ", l.a.createElement("strong", null, this.state.searchTerm)) : this.createAppCategoriesMarkup(), l.a.createElement("div", {
             className: "p-apps_browser"
           }, l.a.createElement("div", {
             className: "p-apps_browser__filter_container"
           }, l.a.createElement("div", {
             className: "p-apps_browser__filter_header"
-          }, l.a.createElement("h2", null, x.t("Browse Apps")), l.a.createElement("button", {
+          }, l.a.createElement("h2", null, S.t("Browse Apps")), l.a.createElement("button", {
             className: "p-apps_browser__browse_apps",
             onClick: this.handleAppDirectoryButtonClick
-          }, x.t("View App Directory"))), l.a.createElement("div", null, l.a.createElement(w.a, {
+          }, S.t("View App Directory"))), l.a.createElement("div", null, l.a.createElement(w.a, {
             ref: this.setSearchInputRef,
-            placeholder: x.t("Search by name or category (e.g. productivity, sales)"),
+            placeholder: S.t("Search by name or category (e.g. productivity, sales)"),
             onChange: this.handleSearchInputChange
           }))), l.a.createElement("div", {
             className: t,
@@ -42401,7 +42439,7 @@ webpackJsonp([332], [, function(e, t, n) {
         }
       }]), t;
     }(s.Component);
-  O.propTypes = E, O.defaultProps = P;
+  O.propTypes = E, O.defaultProps = L;
   var j = function(e) {
     return {
       hasSeenAppSpaceTutorial: n.i(h.getUserPref)(e, "seen_app_space_tutorial"),
@@ -42669,7 +42707,7 @@ webpackJsonp([332], [, function(e, t, n) {
       return null;
     });
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".c-avatar {\n  position: relative;\n  display: inline-block;\n  border-radius: 3px;\n  overflow: hidden;\n  cursor: pointer;\n}\n.c-avatar--no_image {\n  background-color: #e8e8e8;\n  cursor: default;\n}\n.c-avatar__additional_overlay {\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  color: #fff;\n  font-weight: bold;\n  font-size: 15px;\n  text-align: center;\n  background-color: rgba(0, 0, 0, 0.5);\n  border-radius: 3px;\n}\n.c-avatar--24,\n.c-avatar--24 .c-avatar__image {\n  width: 24px;\n  height: 24px;\n}\n.c-avatar--24 .c-avatar__additional_overlay {\n  line-height: 24px;\n}\n.c-avatar--36,\n.c-avatar--36 .c-avatar__image {\n  width: 36px;\n  height: 36px;\n}\n.c-avatar--36 .c-avatar__additional_overlay {\n  line-height: 36px;\n}\n.c-avatar--48,\n.c-avatar--48 .c-avatar__image {\n  width: 48px;\n  height: 48px;\n}\n.c-avatar--48 .c-avatar__additional_overlay {\n  line-height: 48px;\n}\n.c-avatar--72,\n.c-avatar--72 .c-avatar__image {\n  width: 72px;\n  height: 72px;\n}\n.c-avatar--72 .c-avatar__additional_overlay {\n  line-height: 72px;\n}\n.c-avatar--192 .c-avatar--192 .c-avatar__image {\n  width: 192px;\n  height: 192px;\n}\n.c-avatar--192 .c-avatar__additional_overlay {\n  line-height: 192px;\n}\n.c-avatar--512,\n.c-avatar--512 .c-avatar__image {\n  width: 512px;\n  height: 512px;\n}\n.c-avatar--512 .c-avatar__additional_overlay {\n  line-height: 512px;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-form_type_default {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n}\n.t-form_type_label {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_type_placeholder {\n  color: #a0a0a2;\n}\n.t-form_element_sizing {\n  margin: 0 0 12px;\n  padding: 8px 12px;\n}\n.t-form_label {\n  display: block;\n  margin: 0;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_border {\n  border-radius: 4px;\n  border: solid 1px #a0a0a2;\n}\n.t-form_cursor {\n  cursor: pointer;\n}\n.t-form_cursor[disabled] {\n  cursor: default;\n}\n.c-avatar {\n  position: relative;\n  display: inline-block;\n  border-radius: 3px;\n  overflow: hidden;\n  cursor: pointer;\n}\n.c-avatar--no_image {\n  background-color: #e8e8e8;\n  cursor: default;\n}\n.c-avatar__additional_overlay {\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  color: #fff;\n  font-weight: bold;\n  font-size: 15px;\n  text-align: center;\n  background-color: rgba(0, 0, 0, 0.5);\n  border-radius: 3px;\n}\n.c-avatar--24,\n.c-avatar--24 .c-avatar__image {\n  width: 24px;\n  height: 24px;\n}\n.c-avatar--24 .c-avatar__additional_overlay {\n  line-height: 24px;\n}\n.c-avatar--36,\n.c-avatar--36 .c-avatar__image {\n  width: 36px;\n  height: 36px;\n}\n.c-avatar--36 .c-avatar__additional_overlay {\n  line-height: 36px;\n}\n.c-avatar--48,\n.c-avatar--48 .c-avatar__image {\n  width: 48px;\n  height: 48px;\n}\n.c-avatar--48 .c-avatar__additional_overlay {\n  line-height: 48px;\n}\n.c-avatar--72,\n.c-avatar--72 .c-avatar__image {\n  width: 72px;\n  height: 72px;\n}\n.c-avatar--72 .c-avatar__additional_overlay {\n  line-height: 72px;\n}\n.c-avatar--192 .c-avatar--192 .c-avatar__image {\n  width: 192px;\n  height: 192px;\n}\n.c-avatar--192 .c-avatar__additional_overlay {\n  line-height: 192px;\n}\n.c-avatar--512,\n.c-avatar--512 .c-avatar__image {\n  width: 512px;\n  height: 512px;\n}\n.c-avatar--512 .c-avatar__additional_overlay {\n  line-height: 512px;\n}\n", ""]);
 }, function(e, t, n) {
   "use strict";
 
@@ -43243,12 +43281,12 @@ webpackJsonp([332], [, function(e, t, n) {
     k = r(w),
     M = n(3317),
     T = r(M),
-    S = n(3358),
-    x = r(S),
+    x = n(3358),
+    S = r(x),
     E = n(3359),
-    P = r(E),
-    L = n(3360),
-    C = r(L),
+    L = r(E),
+    P = n(3360),
+    C = r(P),
     O = n(3354),
     j = r(O),
     D = n(3361),
@@ -43305,8 +43343,8 @@ webpackJsonp([332], [, function(e, t, n) {
     "formats/code": Y.Code,
     "formats/italic": k.default,
     "formats/link": T.default,
-    "formats/script": x.default,
-    "formats/strike": P.default,
+    "formats/script": S.default,
+    "formats/strike": L.default,
     "formats/underline": C.default,
     "formats/image": j.default,
     "formats/video": I.default,
@@ -43535,14 +43573,14 @@ webpackJsonp([332], [, function(e, t, n) {
         key: "insertAt",
         value: function(e, n, r) {
           if ("string" == typeof n && n.endsWith("\n")) {
-            var o = m.default.create(S.blotName);
+            var o = m.default.create(x.blotName);
             this.parent.insertBefore(o, 0 === e ? this : this.next), o.insertAt(0, n.slice(0, -1));
           } else u(t.prototype.__proto__ || Object.getPrototypeOf(t.prototype), "insertAt", this).call(this, e, n, r);
         }
       }]), t;
     }(v.default);
   T.scope = m.default.Scope.BLOCK_BLOT;
-  var S = function(e) {
+  var x = function(e) {
     function t(e) {
       o(this, t);
       var n = i(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
@@ -43623,7 +43661,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }
     }]), t;
   }(m.default.Block);
-  S.blotName = "block", S.tagName = "P", S.defaultChild = "break", S.allowedChildren = [w.default, v.default, M.default], t.bubbleFormats = s, t.BlockEmbed = T, t.default = S;
+  x.blotName = "block", x.tagName = "P", x.defaultChild = "break", x.allowedChildren = [w.default, v.default, M.default], t.bubbleFormats = s, t.BlockEmbed = T, t.default = x;
 }, function(e, t, n) {
   "use strict";
 
@@ -43874,7 +43912,7 @@ webpackJsonp([332], [, function(e, t, n) {
   }
 
   function a(e, t) {
-    if (t = (0, x.default)(!0, {
+    if (t = (0, S.default)(!0, {
         container: e,
         modules: {
           clipboard: !0,
@@ -43884,7 +43922,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }, t), t.theme && t.theme !== j.DEFAULTS.theme) {
       if (t.theme = j.import("themes/" + t.theme), null == t.theme) throw new Error("Invalid theme " + t.theme + ". Did you register it?");
     } else t.theme = C.default;
-    var n = (0, x.default)(!0, {}, t.theme.DEFAULTS);
+    var n = (0, S.default)(!0, {}, t.theme.DEFAULTS);
     [n, t].forEach(function(e) {
       e.modules = e.modules || {}, Object.keys(e.modules).forEach(function(t) {
         !0 === e.modules[t] && (e.modules[t] = {});
@@ -43897,7 +43935,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {});
     return null != t.modules && t.modules.toolbar && t.modules.toolbar.constructor !== Object && (t.modules.toolbar = {
       container: t.modules.toolbar
-    }), t = (0, x.default)(!0, {}, j.DEFAULTS, {
+    }), t = (0, S.default)(!0, {}, j.DEFAULTS, {
       modules: o
     }, n, t), ["bounds", "container", "scrollingContainer"].forEach(function(e) {
       "string" == typeof t[e] && (t[e] = document.querySelector(t[e]));
@@ -44002,13 +44040,13 @@ webpackJsonp([332], [, function(e, t, n) {
     k = r(w),
     M = n(3322),
     T = r(M),
-    S = n(3304),
-    x = r(S),
+    x = n(3304),
+    S = r(x),
     E = n(3311),
-    P = r(E),
-    L = n(3330),
-    C = r(L),
-    O = (0, P.default)("quill"),
+    L = r(E),
+    P = n(3330),
+    C = r(P),
+    O = (0, L.default)("quill"),
     j = function() {
       function e(t) {
         var n = this,
@@ -44035,7 +44073,7 @@ webpackJsonp([332], [, function(e, t, n) {
       return p(e, null, [{
         key: "debug",
         value: function(e) {
-          !0 === e && (e = "log"), P.default.level(e);
+          !0 === e && (e = "log"), L.default.level(e);
         }
       }, {
         key: "find",
@@ -45609,10 +45647,10 @@ webpackJsonp([332], [, function(e, t, n) {
                 }));
               }
             if (p)
-              for (var S = Object.getOwnPropertyNames(o), b = 0; b < S.length; b++) {
-                var x = S[b],
-                  T = Object.getOwnPropertyDescriptor(o, x);
-                T && T.enumerable || (y[x] = f(o[x], a - 1), Object.defineProperty(y, x, {
+              for (var x = Object.getOwnPropertyNames(o), b = 0; b < x.length; b++) {
+                var S = x[b],
+                  T = Object.getOwnPropertyDescriptor(o, S);
+                T && T.enumerable || (y[S] = f(o[S], a - 1), Object.defineProperty(y, S, {
                   enumerable: !1
                 }));
               }
@@ -46459,7 +46497,7 @@ webpackJsonp([332], [, function(e, t, n) {
         }
       }
       var d = /[\uD800-\uDBFF][\uDC00-\uDFFF]$/.test(t.prefix) ? 2 : 1;
-      this.quill.deleteText(e.index - d, d, P.default.sources.USER), Object.keys(i).length > 0 && this.quill.formatLine(e.index - d, d, i, P.default.sources.USER), this.quill.selection.scrollIntoView();
+      this.quill.deleteText(e.index - d, d, L.default.sources.USER), Object.keys(i).length > 0 && this.quill.formatLine(e.index - d, d, i, L.default.sources.USER), this.quill.selection.scrollIntoView();
     }
   }
 
@@ -46481,22 +46519,22 @@ webpackJsonp([332], [, function(e, t, n) {
           r = T.default.attributes.diff(d, p) || {}, o = c.length();
         }
       }
-      this.quill.deleteText(e.index, n, P.default.sources.USER), Object.keys(r).length > 0 && this.quill.formatLine(e.index + o - 1, n, r, P.default.sources.USER);
+      this.quill.deleteText(e.index, n, L.default.sources.USER), Object.keys(r).length > 0 && this.quill.formatLine(e.index + o - 1, n, r, L.default.sources.USER);
     }
   }
 
   function u(e) {
-    this.quill.deleteText(e, P.default.sources.USER), this.quill.setSelection(e.index, P.default.sources.SILENT), this.quill.selection.scrollIntoView();
+    this.quill.deleteText(e, L.default.sources.USER), this.quill.setSelection(e.index, L.default.sources.SILENT), this.quill.selection.scrollIntoView();
   }
 
   function c(e, t) {
     var n = this;
     e.length > 0 && this.quill.scroll.deleteAt(e.index, e.length);
     var r = Object.keys(t.format).reduce(function(e, n) {
-      return x.default.query(n, x.default.Scope.BLOCK) && !Array.isArray(t.format[n]) && (e[n] = t.format[n]), e;
+      return S.default.query(n, S.default.Scope.BLOCK) && !Array.isArray(t.format[n]) && (e[n] = t.format[n]), e;
     }, {});
-    this.quill.insertText(e.index, "\n", r, P.default.sources.USER), this.quill.setSelection(e.index + 1, P.default.sources.SILENT), this.quill.selection.scrollIntoView(), Object.keys(t.format).forEach(function(e) {
-      null == r[e] && (Array.isArray(t.format[e]) || "link" !== e && n.quill.format(e, t.format[e], P.default.sources.USER));
+    this.quill.insertText(e.index, "\n", r, L.default.sources.USER), this.quill.setSelection(e.index + 1, L.default.sources.SILENT), this.quill.selection.scrollIntoView(), Object.keys(t.format).forEach(function(e) {
+      null == r[e] && (Array.isArray(t.format[e]) || "link" !== e && n.quill.format(e, t.format[e], L.default.sources.USER));
     });
   }
 
@@ -46508,7 +46546,7 @@ webpackJsonp([332], [, function(e, t, n) {
         "code-block": !0
       },
       handler: function(t) {
-        var n = x.default.query("code-block"),
+        var n = S.default.query("code-block"),
           r = t.index,
           o = t.length,
           i = this.quill.scroll.descendant(n, r),
@@ -46522,7 +46560,7 @@ webpackJsonp([332], [, function(e, t, n) {
             p = s.domNode.textContent.slice(c, d).split("\n");
           l = 0, p.forEach(function(t, i) {
             e ? (s.insertAt(c + l, n.TAB), l += n.TAB.length, 0 === i ? r += n.TAB.length : o += n.TAB.length) : t.startsWith(n.TAB) && (s.deleteAt(c + l, n.TAB.length), l -= n.TAB.length, 0 === i ? r -= n.TAB.length : o -= n.TAB.length), l += t.length + 1;
-          }), this.quill.update(P.default.sources.USER), this.quill.setSelection(r, o, P.default.sources.SILENT);
+          }), this.quill.update(L.default.sources.USER), this.quill.setSelection(r, o, L.default.sources.SILENT);
         }
       }
     };
@@ -46533,7 +46571,7 @@ webpackJsonp([332], [, function(e, t, n) {
       key: e[0].toUpperCase(),
       shortKey: !0,
       handler: function(t, n) {
-        this.quill.format(e, !n.format[e], P.default.sources.USER);
+        this.quill.format(e, !n.format[e], L.default.sources.USER);
       }
     };
   }
@@ -46602,12 +46640,12 @@ webpackJsonp([332], [, function(e, t, n) {
     k = r(w),
     M = n(3319),
     T = r(M),
-    S = n(3300),
-    x = r(S),
+    x = n(3300),
+    S = r(x),
     E = n(3310),
-    P = r(E),
-    L = n(3311),
-    C = r(L),
+    L = r(E),
+    P = n(3311),
+    C = r(P),
     O = n(3309),
     j = r(O),
     D = (0, C.default)("quill:keyboard"),
@@ -46708,8 +46746,8 @@ webpackJsonp([332], [, function(e, t, n) {
                     y = m(_, 2),
                     g = y[0],
                     v = y[1],
-                    w = p instanceof x.default.Text ? p.value().slice(0, f) : "",
-                    k = g instanceof x.default.Text ? g.value().slice(v) : "",
+                    w = p instanceof S.default.Text ? p.value().slice(0, f) : "",
+                    k = g instanceof S.default.Text ? g.value().slice(v) : "",
                     M = {
                       collapsed: 0 === i.length,
                       empty: 0 === i.length && l.length() <= 1,
@@ -46758,7 +46796,7 @@ webpackJsonp([332], [, function(e, t, n) {
         format: ["blockquote", "indent", "list"],
         handler: function(e, t) {
           if (t.collapsed && 0 !== t.offset) return !0;
-          this.quill.format("indent", "+1", P.default.sources.USER);
+          this.quill.format("indent", "+1", L.default.sources.USER);
         }
       },
       outdent: {
@@ -46767,7 +46805,7 @@ webpackJsonp([332], [, function(e, t, n) {
         format: ["blockquote", "indent", "list"],
         handler: function(e, t) {
           if (t.collapsed && 0 !== t.offset) return !0;
-          this.quill.format("indent", "-1", P.default.sources.USER);
+          this.quill.format("indent", "-1", L.default.sources.USER);
         }
       },
       "outdent backspace": {
@@ -46780,7 +46818,7 @@ webpackJsonp([332], [, function(e, t, n) {
         format: ["blockquote", "indent", "list"],
         offset: 0,
         handler: function(e, t) {
-          null != t.format.indent ? this.quill.format("indent", "-1", P.default.sources.USER) : null != t.format.blockquote ? this.quill.format("blockquote", !1, P.default.sources.USER) : null != t.format.list && this.quill.format("list", !1, P.default.sources.USER);
+          null != t.format.indent ? this.quill.format("indent", "-1", L.default.sources.USER) : null != t.format.blockquote ? this.quill.format("blockquote", !1, L.default.sources.USER) : null != t.format.list && this.quill.format("list", !1, L.default.sources.USER);
         }
       },
       "indent code-block": d(!0),
@@ -46791,13 +46829,13 @@ webpackJsonp([332], [, function(e, t, n) {
         collapsed: !0,
         prefix: /\t$/,
         handler: function(e) {
-          this.quill.deleteText(e.index - 1, 1, P.default.sources.USER);
+          this.quill.deleteText(e.index - 1, 1, L.default.sources.USER);
         }
       },
       tab: {
         key: Y.keys.TAB,
         handler: function(e, t) {
-          t.collapsed || this.quill.scroll.deleteAt(e.index, e.length), this.quill.insertText(e.index, "\t", P.default.sources.USER), this.quill.setSelection(e.index + 1, P.default.sources.SILENT);
+          t.collapsed || this.quill.scroll.deleteAt(e.index, e.length), this.quill.insertText(e.index, "\t", L.default.sources.USER), this.quill.setSelection(e.index + 1, L.default.sources.SILENT);
         }
       },
       "list empty enter": {
@@ -46806,7 +46844,7 @@ webpackJsonp([332], [, function(e, t, n) {
         format: ["list"],
         empty: !0,
         handler: function(e, t) {
-          this.quill.format("list", !1, P.default.sources.USER), t.format.indent && this.quill.format("indent", !1, P.default.sources.USER);
+          this.quill.format("list", !1, L.default.sources.USER), t.format.indent && this.quill.format("indent", !1, L.default.sources.USER);
         }
       },
       "checklist enter": {
@@ -46818,7 +46856,7 @@ webpackJsonp([332], [, function(e, t, n) {
         handler: function(e) {
           this.quill.scroll.insertAt(e.index, "\n");
           var t = this.quill.getLine(e.index + 1);
-          m(t, 1)[0].format("list", "unchecked"), this.quill.update(P.default.sources.USER), this.quill.setSelection(e.index + 1, P.default.sources.SILENT), this.quill.selection.scrollIntoView();
+          m(t, 1)[0].format("list", "unchecked"), this.quill.update(L.default.sources.USER), this.quill.setSelection(e.index + 1, L.default.sources.SILENT), this.quill.selection.scrollIntoView();
         }
       },
       "header enter": {
@@ -46827,7 +46865,7 @@ webpackJsonp([332], [, function(e, t, n) {
         format: ["header"],
         suffix: /^$/,
         handler: function(e) {
-          this.quill.scroll.insertAt(e.index, "\n"), this.quill.formatText(e.index + 1, 1, "header", !1, P.default.sources.USER), this.quill.setSelection(e.index + 1, P.default.sources.SILENT), this.quill.selection.scrollIntoView();
+          this.quill.scroll.insertAt(e.index, "\n"), this.quill.formatText(e.index + 1, 1, "header", !1, L.default.sources.USER), this.quill.setSelection(e.index + 1, L.default.sources.SILENT), this.quill.selection.scrollIntoView();
         }
       },
       "list autofill": {
@@ -46855,7 +46893,7 @@ webpackJsonp([332], [, function(e, t, n) {
             default:
               r = "ordered";
           }
-          this.quill.scroll.deleteAt(e.index - n, n), this.quill.formatLine(e.index - n, 1, "list", r, P.default.sources.USER), this.quill.setSelection(e.index - n, P.default.sources.SILENT);
+          this.quill.scroll.deleteAt(e.index - n, n), this.quill.formatLine(e.index - n, 1, "list", r, L.default.sources.USER), this.quill.setSelection(e.index - n, L.default.sources.SILENT);
         }
       },
       "code exit": {
@@ -46865,7 +46903,7 @@ webpackJsonp([332], [, function(e, t, n) {
         prefix: /\n\n$/,
         suffix: /^\s+$/,
         handler: function(e) {
-          this.quill.format("code-block", !1, P.default.sources.USER), this.quill.deleteText(e.index - 2, 1, P.default.sources.USER);
+          this.quill.format("code-block", !1, L.default.sources.USER), this.quill.deleteText(e.index - 2, 1, L.default.sources.USER);
         }
       }
     }
@@ -46947,11 +46985,11 @@ webpackJsonp([332], [, function(e, t, n) {
     k = n(3340),
     M = r(k),
     T = n(3318),
-    S = r(T),
-    x = n(3341),
-    E = r(x),
-    P = [!1, "center", "right", "justify"],
-    L = ["#000000", "#e60000", "#ff9900", "#ffff00", "#008a00", "#0066cc", "#9933ff", "#ffffff", "#facccc", "#ffebcc", "#ffffcc", "#cce8cc", "#cce0f5", "#ebd6ff", "#bbbbbb", "#f06666", "#ffc266", "#ffff66", "#66b966", "#66a3e0", "#c285ff", "#888888", "#a10000", "#b26b00", "#b2b200", "#006100", "#0047b2", "#6b24b2", "#444444", "#5c0000", "#663d00", "#666600", "#003700", "#002966", "#3d1466"],
+    x = r(T),
+    S = n(3341),
+    E = r(S),
+    L = [!1, "center", "right", "justify"],
+    P = ["#000000", "#e60000", "#ff9900", "#ffff00", "#008a00", "#0066cc", "#9933ff", "#ffffff", "#facccc", "#ffebcc", "#ffffcc", "#cce8cc", "#cce0f5", "#ebd6ff", "#bbbbbb", "#f06666", "#ffc266", "#ffff66", "#66b966", "#66a3e0", "#c285ff", "#888888", "#a10000", "#b26b00", "#b2b200", "#006100", "#0047b2", "#6b24b2", "#444444", "#5c0000", "#663d00", "#666600", "#003700", "#002966", "#3d1466"],
     C = [!1, "serif", "monospace"],
     O = ["1", "2", "3", !1],
     j = ["small", !1, "large", "huge"],
@@ -46993,12 +47031,12 @@ webpackJsonp([332], [, function(e, t, n) {
         value: function(e, t) {
           var n = this;
           this.pickers = e.map(function(e) {
-            if (e.classList.contains("ql-align")) return null == e.querySelector("option") && s(e, P), new M.default(e, t.align);
+            if (e.classList.contains("ql-align")) return null == e.querySelector("option") && s(e, L), new M.default(e, t.align);
             if (e.classList.contains("ql-background") || e.classList.contains("ql-color")) {
               var n = e.classList.contains("ql-background") ? "background" : "color";
-              return null == e.querySelector("option") && s(e, L, "background" === n ? "#ffffff" : "#000000"), new w.default(e, t[n]);
+              return null == e.querySelector("option") && s(e, P, "background" === n ? "#ffffff" : "#000000"), new w.default(e, t[n]);
             }
-            return null == e.querySelector("option") && (e.classList.contains("ql-font") ? s(e, C) : e.classList.contains("ql-header") ? s(e, O) : e.classList.contains("ql-size") && s(e, j)), new S.default(e);
+            return null == e.querySelector("option") && (e.classList.contains("ql-font") ? s(e, C) : e.classList.contains("ql-header") ? s(e, O) : e.classList.contains("ql-size") && s(e, j)), new x.default(e);
           });
           var r = function() {
             n.pickers.forEach(function(e) {
@@ -47742,11 +47780,11 @@ webpackJsonp([332], [, function(e, t, n) {
     k = n(3313),
     M = r(k),
     T = n(3362),
-    S = r(T),
-    x = n(3364),
-    E = r(x),
-    P = n(3337),
-    L = r(P);
+    x = r(T),
+    S = n(3364),
+    E = r(S),
+    L = n(3337),
+    P = r(L);
   s.default.register({
     "blots/block": u.default,
     "blots/block/embed": l.BlockEmbed,
@@ -47757,9 +47795,9 @@ webpackJsonp([332], [, function(e, t, n) {
     "blots/inline": v.default,
     "blots/scroll": w.default,
     "blots/text": M.default,
-    "modules/clipboard": S.default,
+    "modules/clipboard": x.default,
     "modules/history": E.default,
-    "modules/keyboard": L.default
+    "modules/keyboard": P.default
   }), i.default.register(u.default, d.default, m.default, v.default, w.default, M.default), e.exports = s.default;
 }, function(e, t, n) {
   "use strict";
@@ -47862,11 +47900,11 @@ webpackJsonp([332], [, function(e, t, n) {
     k = r(w),
     M = n(3324),
     T = r(M),
-    S = n(3314),
-    x = r(S),
+    x = n(3314),
+    S = r(x),
     E = n(3304),
-    P = r(E),
-    L = function() {
+    L = r(E),
+    P = function() {
       function e(t) {
         i(this, e), this.scroll = t, this.delta = this.getDelta();
       }
@@ -47888,12 +47926,12 @@ webpackJsonp([332], [, function(e, t, n) {
                   d = u(c, 2),
                   p = d[0],
                   f = d[1],
-                  m = (0, P.default)({}, (0, w.bubbleFormats)(p));
+                  m = (0, L.default)({}, (0, w.bubbleFormats)(p));
                 if (p instanceof k.default) {
                   var y = p.descendant(_.default.Leaf, f),
                     g = u(y, 1),
                     v = g[0];
-                  m = (0, P.default)(m, (0, w.bubbleFormats)(v));
+                  m = (0, L.default)(m, (0, w.bubbleFormats)(v));
                 }
                 a = h.default.attributes.diff(m, a) || {};
               } else if ("object" === l(o.insert)) {
@@ -47977,7 +48015,7 @@ webpackJsonp([332], [, function(e, t, n) {
             }
             return t;
           });
-          return P.default.apply(P.default, o);
+          return L.default.apply(L.default, o);
         }
       }, {
         key: "getText",
@@ -48042,12 +48080,12 @@ webpackJsonp([332], [, function(e, t, n) {
             e = (new p.default).retain(a).concat(l.diff(u, n)).reduce(function(e, t) {
               return t.insert ? e.insert(t.insert, i) : e.push(t);
             }, new p.default), this.delta = r.compose(e);
-          } else this.delta = this.getDelta(), e && (0, x.default)(r.compose(e), this.delta) || (e = r.diff(this.delta, n));
+          } else this.delta = this.getDelta(), e && (0, S.default)(r.compose(e), this.delta) || (e = r.diff(this.delta, n));
           return e;
         }
       }]), e;
     }();
-  t.default = L;
+  t.default = P;
 }, function(e, t, n) {
   "use strict";
   var r = document.createElement("div");
@@ -48837,7 +48875,7 @@ webpackJsonp([332], [, function(e, t, n) {
     return "object" === (void 0 === t ? "undefined" : T(t)) ? Object.keys(t).reduce(function(e, n) {
       return u(e, n, t[n]);
     }, e) : e.reduce(function(e, r) {
-      return r.attributes && r.attributes[t] ? e.push(r) : e.insert(r.insert, (0, P.default)({}, o({}, t, n), r.attributes));
+      return r.attributes && r.attributes[t] ? e.push(r) : e.insert(r.insert, (0, L.default)({}, o({}, t, n), r.attributes));
     }, new C.default);
   }
 
@@ -48953,7 +48991,7 @@ webpackJsonp([332], [, function(e, t, n) {
     } : function(e) {
       return e && "function" == typeof Symbol && e.constructor === Symbol && e !== Symbol.prototype ? "symbol" : typeof e;
     },
-    S = function() {
+    x = function() {
       function e(e, t) {
         var n = [],
           r = !0,
@@ -48978,7 +49016,7 @@ webpackJsonp([332], [, function(e, t, n) {
         throw new TypeError("Invalid attempt to destructure non-iterable instance");
       };
     }(),
-    x = function() {
+    S = function() {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
@@ -48990,9 +49028,9 @@ webpackJsonp([332], [, function(e, t, n) {
       };
     }(),
     E = n(3304),
-    P = r(E),
-    L = n(3301),
-    C = r(L),
+    L = r(E),
+    P = n(3301),
+    C = r(P),
     O = n(3300),
     j = r(O),
     D = n(3310),
@@ -49037,7 +49075,7 @@ webpackJsonp([332], [, function(e, t, n) {
           r.addMatcher.apply(r, i(e));
         }), r;
       }
-      return l(t, e), x(t, [{
+      return l(t, e), S(t, [{
         key: "addMatcher",
         value: function(e, t) {
           this.matchers.push([e, t]);
@@ -49047,7 +49085,7 @@ webpackJsonp([332], [, function(e, t, n) {
         value: function(e) {
           "string" == typeof e && (this.container.innerHTML = e.replace(/\>\r?\n +\</g, "><"));
           var t = this.prepareMatching(),
-            n = S(t, 2),
+            n = x(t, 2),
             r = n[0],
             o = n[1],
             i = f(this.container, r, o);
@@ -49081,7 +49119,7 @@ webpackJsonp([332], [, function(e, t, n) {
             t = [],
             n = [];
           return this.matchers.forEach(function(r) {
-            var o = S(r, 2),
+            var o = x(r, 2),
               i = o[0],
               a = o[1];
             switch (i) {
@@ -50289,7 +50327,7 @@ webpackJsonp([332], [, function(e, t, n) {
           return j(this, t, n);
         case "utf8":
         case "utf-8":
-          return P(this, t, n);
+          return L(this, t, n);
         case "ascii":
           return C(this, t, n);
         case "latin1":
@@ -50384,11 +50422,11 @@ webpackJsonp([332], [, function(e, t, n) {
       return M(e, t, n, r);
     }
 
-    function S(e, t, n, r) {
+    function x(e, t, n, r) {
       return K(G(t), e, n, r);
     }
 
-    function x(e, t, n, r) {
+    function S(e, t, n, r) {
       return K(V(t, e.length - n), e, n, r);
     }
 
@@ -50396,7 +50434,7 @@ webpackJsonp([332], [, function(e, t, n) {
       return 0 === t && n === e.length ? Z.fromByteArray(e) : Z.fromByteArray(e.slice(t, n));
     }
 
-    function P(e, t, n) {
+    function L(e, t, n) {
       n = Math.min(e.length, n);
       for (var r = [], o = t; o < n;) {
         var i = e[o],
@@ -50420,10 +50458,10 @@ webpackJsonp([332], [, function(e, t, n) {
         }
         null === a ? (a = 65533, s = 1) : a > 65535 && (a -= 65536, r.push(a >>> 10 & 1023 | 55296), a = 56320 | 1023 & a), r.push(a), o += s;
       }
-      return L(r);
+      return P(r);
     }
 
-    function L(e) {
+    function P(e) {
       var t = e.length;
       if (t <= X) return String.fromCharCode.apply(String, e);
       for (var n = "", r = 0; r < t;) n += String.fromCharCode.apply(String, e.slice(r, r += X));
@@ -50659,7 +50697,7 @@ webpackJsonp([332], [, function(e, t, n) {
       return this;
     }, i.prototype.toString = function() {
       var e = 0 | this.length;
-      return 0 === e ? "" : 0 === arguments.length ? P(this, 0, e) : y.apply(this, arguments);
+      return 0 === e ? "" : 0 === arguments.length ? L(this, 0, e) : y.apply(this, arguments);
     }, i.prototype.equals = function(e) {
       if (!i.isBuffer(e)) throw new TypeError("Argument must be a Buffer");
       return this === e || 0 === i.compare(this, e);
@@ -50708,12 +50746,12 @@ webpackJsonp([332], [, function(e, t, n) {
         case "binary":
           return T(this, e, t, n);
         case "base64":
-          return S(this, e, t, n);
+          return x(this, e, t, n);
         case "ucs2":
         case "ucs-2":
         case "utf16le":
         case "utf-16le":
-          return x(this, e, t, n);
+          return S(this, e, t, n);
         default:
           if (i) throw new TypeError("Unknown encoding: " + r);
           r = ("" + r).toLowerCase(), i = !0;
@@ -50974,23 +51012,23 @@ webpackJsonp([332], [, function(e, t, n) {
         else if (p) {
           var T = a + d - b;
           if (T >= 0 && T < s && -1 != u[T]) {
-            var S = n - u[T];
-            if (w >= S) return i(e, t, w, M);
+            var x = n - u[T];
+            if (w >= x) return i(e, t, w, M);
           }
         }
       }
-      for (var x = -v + y; x <= v - g; x += 2) {
-        var S, T = a + x;
-        S = x == -v || x != v && u[T - 1] < u[T + 1] ? u[T + 1] : u[T - 1] + 1;
-        for (var E = S - x; S < n && E < r && e.charAt(n - S - 1) == t.charAt(r - E - 1);) S++, E++;
-        if (u[T] = S, S > n) g += 2;
+      for (var S = -v + y; S <= v - g; S += 2) {
+        var x, T = a + S;
+        x = S == -v || S != v && u[T - 1] < u[T + 1] ? u[T + 1] : u[T - 1] + 1;
+        for (var E = x - S; x < n && E < r && e.charAt(n - x - 1) == t.charAt(r - E - 1);) x++, E++;
+        if (u[T] = x, x > n) g += 2;
         else if (E > r) y += 2;
         else if (!p) {
-          var k = a + d - x;
+          var k = a + d - S;
           if (k >= 0 && k < s && -1 != l[k]) {
             var w = l[k],
               M = a + w - k;
-            if (S = n - S, w >= S) return i(e, t, w, M);
+            if (x = n - x, w >= x) return i(e, t, w, M);
           }
         }
       }
@@ -53392,7 +53430,7 @@ webpackJsonp([332], [, function(e, t, n) {
     });
     var n = s(t.events);
     if (b("eventlog: processing " + n.length + " events out of a total set of " + t.events.length), n.forEach(function(e) {
-        P.dispatch(e);
+        L.dispatch(e);
       }), n.length > 0) {
       var r = n[n.length - 1].event_ts;
       r && r > (T || 0) && (T = r);
@@ -53400,22 +53438,22 @@ webpackJsonp([332], [, function(e, t, n) {
   }
 
   function c(e) {
-    if ((!e || M) && S) {
-      b("eventlog: fetching events since " + S + " (" + (Math.ceil(Date.now() / 1e3) - S) + " seconds ago)");
+    if ((!e || M) && x) {
+      b("eventlog: fetching events since " + x + " (" + (Math.ceil(Date.now() / 1e3) - x) + " seconds ago)");
       var t = v("eventlog.history", {
-        start: S,
+        start: x,
         count: 2e3,
         no_payload_if_has_more: !0,
         batch_deleted_files: !0
       }).then(u).catch(l);
       t.finally(function() {
-        x = void 0, b("eventlog: fetched finish (cancelled? " + t.isCancelled() + ")"), M = !!t.isCancelled(), t.isCancelled() || (b("eventlog: dispatching signal and clearing timestamp"), E.dispatch(), S = void 0);
-      }), x = t;
+        S = void 0, b("eventlog: fetched finish (cancelled? " + t.isCancelled() + ")"), M = !!t.isCancelled(), t.isCancelled() || (b("eventlog: dispatching signal and clearing timestamp"), E.dispatch(), x = void 0);
+      }), S = t;
     }
   }
 
   function d() {
-    S = S || T, x && (b("eventlog: socket was closed while we were fetching history; cancelling our request"), x.cancel(), x = void 0);
+    x = x || T, S && (b("eventlog: socket was closed while we were fetching history; cancelling our request"), S.cancel(), S = void 0);
   }
 
   function p(e) {
@@ -53426,9 +53464,9 @@ webpackJsonp([332], [, function(e, t, n) {
   }), n.d(t, "didProcessEventLogSig", function() {
     return E;
   }), n.d(t, "messageReceivedSig", function() {
-    return P;
-  }), t.debugSetLastEventTimestamp = r, t.initialize = o, t.makeUniqueIdForEvent = i, t.filterEvents = s, n.d(t, "test", function() {
     return L;
+  }), t.debugSetLastEventTimestamp = r, t.initialize = o, t.makeUniqueIdForEvent = i, t.filterEvents = s, n.d(t, "test", function() {
+    return P;
   });
   var f = n(6),
     h = (n.n(f), n(3048)),
@@ -53442,85 +53480,85 @@ webpackJsonp([332], [, function(e, t, n) {
     k = y.a,
     M = !1,
     T = void 0,
-    S = void 0,
     x = void 0,
+    S = void 0,
     E = new g.a,
-    P = new g.a,
-    L = {
+    L = new g.a,
+    P = {
       eventlogErrorHandler: l,
       eventlogOKHandler: u
     };
-  Object.defineProperty(L, "callImmediately", {
+  Object.defineProperty(P, "callImmediately", {
     get: function() {
       return v;
     },
     set: function(e) {
       v = e;
     }
-  }), Object.defineProperty(L, "eventlogHistoryP", {
-    get: function() {
-      return x;
-    },
-    set: function(e) {
-      x = e;
-    }
-  }), Object.defineProperty(L, "info", {
-    get: function() {
-      return b;
-    },
-    set: function(e) {
-      b = e;
-    }
-  }), Object.defineProperty(L, "lastAttemptWasCancelled", {
-    get: function() {
-      return M;
-    },
-    set: function(e) {
-      M = e;
-    }
-  }), Object.defineProperty(L, "lastEventTimestamp", {
-    get: function() {
-      return T;
-    },
-    set: function(e) {
-      T = e;
-    }
-  }), Object.defineProperty(L, "lastEventTimestampBeforeDisconnection", {
+  }), Object.defineProperty(P, "eventlogHistoryP", {
     get: function() {
       return S;
     },
     set: function(e) {
       S = e;
     }
-  }), Object.defineProperty(L, "onSocketConnected", {
+  }), Object.defineProperty(P, "info", {
+    get: function() {
+      return b;
+    },
+    set: function(e) {
+      b = e;
+    }
+  }), Object.defineProperty(P, "lastAttemptWasCancelled", {
+    get: function() {
+      return M;
+    },
+    set: function(e) {
+      M = e;
+    }
+  }), Object.defineProperty(P, "lastEventTimestamp", {
+    get: function() {
+      return T;
+    },
+    set: function(e) {
+      T = e;
+    }
+  }), Object.defineProperty(P, "lastEventTimestampBeforeDisconnection", {
+    get: function() {
+      return x;
+    },
+    set: function(e) {
+      x = e;
+    }
+  }), Object.defineProperty(P, "onSocketConnected", {
     get: function() {
       return c;
     },
     set: function(e) {
       c = e;
     }
-  }), Object.defineProperty(L, "onSocketDisconnected", {
+  }), Object.defineProperty(P, "onSocketDisconnected", {
     get: function() {
       return d;
     },
     set: function(e) {
       d = e;
     }
-  }), Object.defineProperty(L, "onSocketMessage", {
+  }), Object.defineProperty(P, "onSocketMessage", {
     get: function() {
       return p;
     },
     set: function(e) {
       p = e;
     }
-  }), Object.defineProperty(L, "reload", {
+  }), Object.defineProperty(P, "reload", {
     get: function() {
       return w;
     },
     set: function(e) {
       w = e;
     }
-  }), Object.defineProperty(L, "warn", {
+  }), Object.defineProperty(P, "warn", {
     get: function() {
       return k;
     },
@@ -54909,9 +54947,9 @@ webpackJsonp([332], [, function(e, t, n) {
     sideEffect: r
   });
 }, , , , , function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".c-enhanced_text_input {\n  border-radius: 0.25rem;\n  display: flex;\n  align-items: center;\n  -webkit-transition: box-shadow 70ms ease-out, border-color 70ms ease-out 0.2s ease-out 0.0000001ms;\n  -moz-transition: box-shadow 70ms ease-out, border-color 70ms ease-out 0.2s ease-out 0.0000001ms;\n  transition: box-shadow 70ms ease-out, border-color 70ms ease-out 0.2s ease-out 0.0000001ms;\n  -webkit-transition: box-shadow 70ms ease-out, border-color 70ms ease-out;\n  -moz-transition: box-shadow 70ms ease-out, border-color 70ms ease-out;\n  transition: box-shadow 70ms ease-out, border-color 70ms ease-out;\n  border: 1px solid #c5c5c5;\n  padding: 6px 8px;\n  color: #a0a0a2;\n  font-size: 1rem;\n}\n.c-enhanced_text_input:hover,\n.c-enhanced_text_input.c-enhanced_text_input--active {\n  border-color: #2780f8;\n  box-shadow: 0 0 7px rgba(39, 128, 248, 0.15);\n}\n.c-enhanced_text_input .c-icon:before {\n  font-size: 1.2rem;\n}\n.c-enhanced_text_input__input[type=text] {\n  flex-grow: 1;\n  margin: 0;\n  padding: 0 0.5rem;\n  border: 0 none !important;\n  font-size: 1rem;\n}\n.c-enhanced_text_input__input[type=text]:active,\n.c-enhanced_text_input__input[type=text]:focus {\n  box-shadow: none;\n}\n.c-enhanced_text_input__reset_button {\n  display: none;\n  cursor: pointer;\n}\n.c-enhanced_text_input__reset_button--visible {\n  display: block;\n}\n.feature_keyboard_navigation .c-enhanced_text_input:hover,\n.feature_keyboard_navigation .c-enhanced_text_input.c-enhanced_text_input--active {\n  border-color: #717274;\n  box-shadow: none;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-form_type_default {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n}\n.t-form_type_label {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_type_placeholder {\n  color: #a0a0a2;\n}\n.t-form_element_sizing {\n  margin: 0 0 12px;\n  padding: 8px 12px;\n}\n.t-form_label {\n  display: block;\n  margin: 0;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_border {\n  border-radius: 4px;\n  border: solid 1px #a0a0a2;\n}\n.t-form_cursor {\n  cursor: pointer;\n}\n.t-form_cursor[disabled] {\n  cursor: default;\n}\n.c-enhanced_text_input {\n  border-radius: 0.25rem;\n  display: flex;\n  align-items: center;\n  -webkit-transition: box-shadow 70ms ease-out, border-color 70ms ease-out 0.2s ease-out 0.0000001ms;\n  -moz-transition: box-shadow 70ms ease-out, border-color 70ms ease-out 0.2s ease-out 0.0000001ms;\n  transition: box-shadow 70ms ease-out, border-color 70ms ease-out 0.2s ease-out 0.0000001ms;\n  -webkit-transition: box-shadow 70ms ease-out, border-color 70ms ease-out;\n  -moz-transition: box-shadow 70ms ease-out, border-color 70ms ease-out;\n  transition: box-shadow 70ms ease-out, border-color 70ms ease-out;\n  border: 1px solid #c5c5c5;\n  padding: 6px 8px;\n  color: #a0a0a2;\n  font-size: 1rem;\n}\n.c-enhanced_text_input:hover,\n.c-enhanced_text_input.c-enhanced_text_input--active {\n  border-color: #2780f8;\n  box-shadow: 0 0 7px rgba(39, 128, 248, 0.15);\n}\n.c-enhanced_text_input .c-icon:before {\n  font-size: 1.2rem;\n}\n.c-enhanced_text_input__input[type=text] {\n  flex-grow: 1;\n  margin: 0;\n  padding: 0 0.5rem;\n  border: 0 none !important;\n  font-size: 1rem;\n}\n.c-enhanced_text_input__input[type=text]:active,\n.c-enhanced_text_input__input[type=text]:focus {\n  box-shadow: none;\n}\n.c-enhanced_text_input__reset_button {\n  display: none;\n  cursor: pointer;\n}\n.c-enhanced_text_input__reset_button--visible {\n  display: block;\n}\n.feature_keyboard_navigation .c-enhanced_text_input:hover,\n.feature_keyboard_navigation .c-enhanced_text_input.c-enhanced_text_input--active {\n  border-color: #717274;\n  box-shadow: none;\n}\n", ""]);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".p-apps_browser {\n  flex: 1 1 0;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-weight: 400;\n  -webkit-font-smoothing: antialiased;\n  display: flex;\n  flex-direction: column;\n  margin: 6rem 0 1rem 0;\n  overflow: hidden;\n}\n.p-apps_browser__filter_container {\n  margin-bottom: 20px;\n  padding: 10px;\n}\n.p-apps_browser__filter_header {\n  display: flex;\n  align-items: center;\n  margin-bottom: 2rem;\n}\n.p-apps_browser__filter_header h2 {\n  font-size: 2.125rem;\n  line-height: 2.5625rem;\n  font-weight: 900;\n  flex-grow: 1;\n  margin: 0;\n}\n.p-apps_browser__search_box {\n  display: flex;\n}\n.p-apps_browser__apps_list {\n  border-right: 0.25rem solid transparent;\n  overflow-y: auto;\n  min-height: 200px;\n  position: relative;\n}\n.p-apps_browser__apps_list::-webkit-scrollbar {\n  position: absolute;\n  -webkit-appearance: none;\n  width: 8px;\n}\n.p-apps_browser__apps_list::-webkit-scrollbar-track,\n.p-apps_browser__apps_list::-webkit-scrollbar-thumb {\n  background-clip: padding-box !important;\n  border-radius: 3px;\n  color: #fff;\n}\n.p-apps_browser__apps_list::-webkit-scrollbar-track {\n  background: #f5f5f5;\n  box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0;\n}\n.p-apps_browser__apps_list::-webkit-scrollbar-thumb {\n  background: #D9D9DE;\n  box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;\n  min-height: 36px;\n}\n.p-apps_browser__apps_list::-webkit-scrollbar-corner {\n  background: #fff;\n}\n.p-apps_browser__apps_list--loading::before {\n  background-image: url('/img/loading_hash_animation_@2x.gif');\n  background-color: #fff;\n  background-position: center;\n  background-repeat: no-repeat;\n  position: absolute;\n  content: '';\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n}\n.p-apps_browser__category_section {\n  margin-bottom: 25px;\n  padding: 10px;\n}\n.p-apps_browser__category_section--hidden {\n  display: none;\n}\n.p-apps_browser__category_section--tutorial .p-apps_browser__category_header {\n  display: none;\n}\n.p-apps_browser__category_section--tutorial .p-apps_browser__app {\n  box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.05);\n  border-radius: 6px;\n  border: 1px solid #e8e8e8;\n  padding: 12px;\n}\n.p-apps_browser__category_section--tutorial .p-apps_browser__app--selected {\n  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.15);\n  background: #fff;\n}\n.p-apps_browser__category_header {\n  font-size: .8rem;\n  line-height: 1.2rem;\n  background: #fff;\n  color: #717274;\n  padding-bottom: .5rem;\n}\n.p-apps_browser__category_header--sticky {\n  top: 0;\n  position: sticky;\n}\n.p-apps_browser__app {\n  display: flex;\n  align-items: center;\n  padding: 11px 12px;\n  border: 1px solid transparent;\n  border-top-color: #e8e8e8;\n  cursor: pointer;\n}\n.p-apps_browser__app:first-of-type {\n  border-top-color: transparent;\n}\n.p-apps_browser__app--selected {\n  border-radius: 6px;\n  background: #f9f9f9;\n  border: 1px solid #e8e8e8;\n}\n.p-apps_browser__app--selected + .p-apps_browser__app {\n  border-top-color: transparent;\n}\n.p-apps_browser__app_icon {\n  flex: 0 0 auto;\n  border-radius: 0.2rem;\n  width: 36px;\n  height: 36px;\n  margin-right: 10px;\n}\n.p-apps_browser__app_info {\n  flex: 1 1 0;\n  font-size: 0.9375rem;\n  overflow: hidden;\n  line-height: 1.3rem;\n  color: #2c2d30;\n  margin-right: 12px;\n}\n.p-apps_browser__browse_apps,\n.p-apps_browser__app_action {\n  flex: 0 0 auto;\n  border-radius: 0.25rem;\n  font-size: 0.875rem;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-weight: 700;\n  line-height: 1.2rem;\n  background-color: #fbfbfa;\n  border: 1px solid #C7CACD;\n  color: #555459;\n  padding: 4px 9px;\n}\n.p-apps_browser__browse_apps:hover,\n.p-apps_browser__app_action:hover,\n.p-apps_browser__browse_apps:focus,\n.p-apps_browser__app_action:focus {\n  background-color: #fff;\n  color: #007ab8;\n}\n.p-apps_browser__browse_apps:active,\n.p-apps_browser__app_action:active {\n  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.2);\n}\n.p-apps_browser__browse_apps {\n  font-size: 0.9375rem;\n  padding: 7px 13px 8px;\n}\n.p-apps_browser__app_name {\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  font-weight: bold;\n}\n.p-apps_browser__app_description {\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  color: #717274;\n}\n.p-apps_browser__no_results {\n  display: flex;\n  -ms-flex-pack: center;\n  -webkit-box-pack: center;\n  -webkit-justify-content: center;\n  -moz-justify-content: center;\n  justify-content: center;\n  align-items: center;\n  height: 100px;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-form_type_default {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n}\n.t-form_type_label {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_type_placeholder {\n  color: #a0a0a2;\n}\n.t-form_element_sizing {\n  margin: 0 0 12px;\n  padding: 8px 12px;\n}\n.t-form_label {\n  display: block;\n  margin: 0;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_border {\n  border-radius: 4px;\n  border: solid 1px #a0a0a2;\n}\n.t-form_cursor {\n  cursor: pointer;\n}\n.t-form_cursor[disabled] {\n  cursor: default;\n}\n.p-apps_browser {\n  flex: 1 1 0;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-weight: 400;\n  -webkit-font-smoothing: antialiased;\n  display: flex;\n  flex-direction: column;\n  margin: 6rem 0 1rem 0;\n  overflow: hidden;\n}\n.p-apps_browser__filter_container {\n  margin-bottom: 20px;\n  padding: 10px;\n}\n.p-apps_browser__filter_header {\n  display: flex;\n  align-items: center;\n  margin-bottom: 2rem;\n}\n.p-apps_browser__filter_header h2 {\n  font-size: 2.125rem;\n  line-height: 2.5625rem;\n  font-weight: 900;\n  flex-grow: 1;\n  margin: 0;\n}\n.p-apps_browser__search_box {\n  display: flex;\n}\n.p-apps_browser__apps_list {\n  border-right: 0.25rem solid transparent;\n  overflow-y: auto;\n  min-height: 200px;\n  position: relative;\n}\n.p-apps_browser__apps_list::-webkit-scrollbar {\n  position: absolute;\n  -webkit-appearance: none;\n  width: 8px;\n}\n.p-apps_browser__apps_list::-webkit-scrollbar-track,\n.p-apps_browser__apps_list::-webkit-scrollbar-thumb {\n  background-clip: padding-box !important;\n  border-radius: 3px;\n  color: #fff;\n}\n.p-apps_browser__apps_list::-webkit-scrollbar-track {\n  background: #f5f5f5;\n  box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0;\n}\n.p-apps_browser__apps_list::-webkit-scrollbar-thumb {\n  background: #D9D9DE;\n  box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;\n  min-height: 36px;\n}\n.p-apps_browser__apps_list::-webkit-scrollbar-corner {\n  background: #fff;\n}\n.p-apps_browser__apps_list--loading::before {\n  background-image: url('/img/loading_hash_animation_@2x.gif');\n  background-color: #fff;\n  background-position: center;\n  background-repeat: no-repeat;\n  position: absolute;\n  content: '';\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n}\n.p-apps_browser__category_section {\n  margin-bottom: 25px;\n  padding: 10px;\n}\n.p-apps_browser__category_section--hidden {\n  display: none;\n}\n.p-apps_browser__category_section--tutorial .p-apps_browser__category_header {\n  display: none;\n}\n.p-apps_browser__category_section--tutorial .p-apps_browser__app {\n  box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.05);\n  border-radius: 6px;\n  border: 1px solid #e8e8e8;\n  padding: 12px;\n}\n.p-apps_browser__category_section--tutorial .p-apps_browser__app--selected {\n  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.15);\n  background: #fff;\n}\n.p-apps_browser__category_header {\n  font-size: .8rem;\n  line-height: 1.2rem;\n  background: #fff;\n  color: #717274;\n  padding-bottom: .5rem;\n}\n.p-apps_browser__category_header--sticky {\n  top: 0;\n  position: sticky;\n}\n.p-apps_browser__app {\n  display: flex;\n  align-items: center;\n  padding: 11px 12px;\n  border: 1px solid transparent;\n  border-top-color: #e8e8e8;\n  cursor: pointer;\n}\n.p-apps_browser__app:first-of-type {\n  border-top-color: transparent;\n}\n.p-apps_browser__app--selected {\n  border-radius: 6px;\n  background: #f9f9f9;\n  border: 1px solid #e8e8e8;\n}\n.p-apps_browser__app--selected + .p-apps_browser__app {\n  border-top-color: transparent;\n}\n.p-apps_browser__app_icon {\n  flex: 0 0 auto;\n  border-radius: 0.2rem;\n  width: 36px;\n  height: 36px;\n  margin-right: 10px;\n}\n.p-apps_browser__app_info {\n  flex: 1 1 0;\n  font-size: 0.9375rem;\n  overflow: hidden;\n  line-height: 1.3rem;\n  color: #2c2d30;\n  margin-right: 12px;\n}\n.p-apps_browser__browse_apps,\n.p-apps_browser__app_action {\n  flex: 0 0 auto;\n  border-radius: 0.25rem;\n  font-size: 0.875rem;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-weight: 700;\n  line-height: 1.2rem;\n  background-color: #fbfbfa;\n  border: 1px solid #C7CACD;\n  color: #555459;\n  padding: 4px 9px;\n}\n.p-apps_browser__browse_apps:hover,\n.p-apps_browser__app_action:hover,\n.p-apps_browser__browse_apps:focus,\n.p-apps_browser__app_action:focus {\n  background-color: #fff;\n  color: #007ab8;\n}\n.p-apps_browser__browse_apps:active,\n.p-apps_browser__app_action:active {\n  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.2);\n}\n.p-apps_browser__browse_apps {\n  font-size: 0.9375rem;\n  padding: 7px 13px 8px;\n}\n.p-apps_browser__app_name {\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  font-weight: bold;\n}\n.p-apps_browser__app_description {\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  color: #717274;\n}\n.p-apps_browser__no_results {\n  display: flex;\n  -ms-flex-pack: center;\n  -webkit-box-pack: center;\n  -webkit-justify-content: center;\n  -moz-justify-content: center;\n  justify-content: center;\n  align-items: center;\n  height: 100px;\n}\n", ""]);
 }, function(e, t, n) {
   "use strict";
 
@@ -56003,7 +56041,7 @@ webpackJsonp([332], [, function(e, t, n) {
       a = 0,
       s = 0;
     return r.forEach(function(e) {
-      n.i(S.b)(e, t) && (a += 1, n.i(S.c)({
+      n.i(x.b)(e, t) && (a += 1, n.i(x.c)({
         msg: e,
         channel: t,
         userIsAway: o,
@@ -56049,14 +56087,14 @@ webpackJsonp([332], [, function(e, t, n) {
           userIsAway: m,
           userPresenceLastChanged: g
         }),
-        S = M.unreadCnt,
-        x = M.unreadHighlightCnt;
-      c <= a.last_read ? s = !1 : (S < a.unread_cnt && (S = a.unread_cnt), x < a.unread_highlight_cnt && (x = a.unread_highlight_cnt), s = u.length < 42 && !d), S !== a.unread_cnt && (n.i(T.d)(2005, "Updated unread_cnt for " + a.id + ": " + S), i(n.i(v.updateOneKeyForChannel)({
+        x = M.unreadCnt,
+        S = M.unreadHighlightCnt;
+      c <= a.last_read ? s = !1 : (x < a.unread_cnt && (x = a.unread_cnt), S < a.unread_highlight_cnt && (S = a.unread_highlight_cnt), s = u.length < 42 && !d), x !== a.unread_cnt && (n.i(T.d)(2005, "Updated unread_cnt for " + a.id + ": " + x), i(n.i(v.updateOneKeyForChannel)({
         id: a.id,
-        unread_cnt: S
-      }))), x !== a.unread_highlight_cnt && (n.i(T.d)(2005, "Updated unread_highlight_cnt for " + a.id + ": " + x), i(n.i(v.updateOneKeyForChannel)({
+        unread_cnt: x
+      }))), S !== a.unread_highlight_cnt && (n.i(T.d)(2005, "Updated unread_highlight_cnt for " + a.id + ": " + S), i(n.i(v.updateOneKeyForChannel)({
         id: a.id,
-        unread_highlight_cnt: x
+        unread_highlight_cnt: S
       })));
     }
     return !s;
@@ -56064,11 +56102,11 @@ webpackJsonp([332], [, function(e, t, n) {
 
   function a(e, t, r) {
     if (E[e.id]) return void n.i(T.a)("Ignoring new unread counting history request for " + e.id);
-    if (P[e.id]) return void n.i(T.d)(2005, "Dropping unread history request for " + e.id + " since there is already one pending");
-    P[e.id] = !0;
+    if (L[e.id]) return void n.i(T.d)(2005, "Dropping unread history request for " + e.id + " since there is already one pending");
+    L[e.id] = !0;
     var o = p.a.random(2500, 1e4);
     n.i(T.d)(2005, "Fetching history for unread counting: " + e.id + ", waiting " + o + " ms"), setTimeout(function() {
-      if (i(e.id, t, r)) return void delete P[e.id];
+      if (i(e.id, t, r)) return void delete L[e.id];
       n.i(m.a)({
         channelId: e.id,
         type: n.i(v.getChannelType)(e),
@@ -56086,7 +56124,7 @@ webpackJsonp([332], [, function(e, t, n) {
           forceUnreadCount: !0
         }));
       }).finally(function() {
-        delete P[e.id];
+        delete L[e.id];
       });
     }, o);
   }
@@ -56151,7 +56189,7 @@ webpackJsonp([332], [, function(e, t, n) {
             return e > m;
           }) || d) {
           n.i(T.d)(2005, "Counting unreads in " + l + " because history changed");
-          i(l, o, t) || a(h, o, t), u && 1 === u.length && u[0] > m && n.i(x.a)(l, t, r);
+          i(l, o, t) || a(h, o, t), u && 1 === u.length && u[0] > m && n.i(S.a)(l, t, r);
         }
       }
     }
@@ -56184,10 +56222,10 @@ webpackJsonp([332], [, function(e, t, n) {
     k = n(3141),
     M = n(3920),
     T = n(3060),
-    S = n(4171),
-    x = n(4187),
+    x = n(4171),
+    S = n(4187),
     E = {},
-    P = {};
+    L = {};
   n.i(f.b)({
     actions: [g.connected],
     sideEffect: l
@@ -56353,7 +56391,7 @@ webpackJsonp([332], [, function(e, t, n) {
   n(4275)(r, o);
   r.locals && (e.exports = r.locals);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".c-message_actions__container {\n  background: #fff;\n  border: 0.0625rem solid rgba(0, 0, 0, 0.15);\n  border-radius: 0.375rem;\n  overflow: hidden;\n  transition: all 50ms ease-in;\n  transition-property: border, box-shadow;\n}\n.c-message_actions__container:hover {\n  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);\n  border-color: rgba(0, 0, 0, 0.3);\n}\n.c-message_actions__container .c-message_actions__button:last-child {\n  border-right: none;\n}\n.c-message_actions__button {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  padding: 3px 7px;\n  color: #717274;\n  border: none;\n  border-right: 1px solid rgba(0, 0, 0, 0.15);\n  transition: all 50ms ease-in;\n  transition-property: background, border, opacity;\n}\n.c-message_actions__button:hover,\n.c-message_actions__button:focus,\n.c-message_actions__button:active {\n  outline: none;\n}\n.c-message_actions__button:hover {\n  color: #007ab8;\n}\n.c-message_actions__button:active {\n  background: #f9f9f9;\n}\n.c-message_actions__button .c-icon--small-star-filled {\n  color: #ffcc00;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-form_type_default {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n}\n.t-form_type_label {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_type_placeholder {\n  color: #a0a0a2;\n}\n.t-form_element_sizing {\n  margin: 0 0 12px;\n  padding: 8px 12px;\n}\n.t-form_label {\n  display: block;\n  margin: 0;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_border {\n  border-radius: 4px;\n  border: solid 1px #a0a0a2;\n}\n.t-form_cursor {\n  cursor: pointer;\n}\n.t-form_cursor[disabled] {\n  cursor: default;\n}\n.c-message_actions__container {\n  background: #fff;\n  border: 0.0625rem solid rgba(0, 0, 0, 0.15);\n  border-radius: 0.375rem;\n  overflow: hidden;\n  transition: all 50ms ease-in;\n  transition-property: border, box-shadow;\n}\n.c-message_actions__container:hover {\n  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);\n  border-color: rgba(0, 0, 0, 0.3);\n}\n.c-message_actions__container .c-message_actions__button:last-child {\n  border-right: none;\n}\n.c-message_actions__button {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  padding: 3px 7px;\n  color: #717274;\n  border: none;\n  border-right: 1px solid rgba(0, 0, 0, 0.15);\n  transition: all 50ms ease-in;\n  transition-property: background, border, opacity;\n}\n.c-message_actions__button:hover,\n.c-message_actions__button:focus,\n.c-message_actions__button:active {\n  outline: none;\n}\n.c-message_actions__button:hover {\n  color: #007ab8;\n}\n.c-message_actions__button:active {\n  background: #f9f9f9;\n}\n.c-message_actions__button .c-icon--small-star-filled {\n  color: #ffcc00;\n}\n", ""]);
 }, function(e, t, n) {
   "use strict";
   var r = n(3934);
@@ -56463,11 +56501,11 @@ webpackJsonp([332], [, function(e, t, n) {
     k = n(3948),
     M = n(2910),
     T = n(3992),
-    S = n(3972),
-    x = n(4234),
+    x = n(3972),
+    S = n(4234),
     E = n(3040),
-    P = n(4254),
-    L = Object.assign || function(e) {
+    L = n(4254),
+    P = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
         for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
@@ -56572,7 +56610,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "onDelete",
         value: function() {
-          n.i(S.a)(this.props.ts, this.props.channel);
+          n.i(x.a)(this.props.ts, this.props.channel);
         }
       }, {
         key: "onMarkUnread",
@@ -56616,7 +56654,7 @@ webpackJsonp([332], [, function(e, t, n) {
             o = t.ts,
             i = t.subtype;
           return function() {
-            n.i(P.a)({
+            n.i(L.a)({
               time: e,
               message_channel: r.id,
               message_ts: o,
@@ -56711,7 +56749,7 @@ webpackJsonp([332], [, function(e, t, n) {
       }, {
         key: "renderRemindMeAboutThisSubmenu",
         value: function(e) {
-          return s.a.createElement(h.c, L({}, e, {
+          return s.a.createElement(h.c, P({}, e, {
             width: "auto"
           }), s.a.createElement(h.b, {
             label: O.t("in 20 minutes"),
@@ -56744,7 +56782,7 @@ webpackJsonp([332], [, function(e, t, n) {
           }), s.a.createElement(h.b, {
             label: O.t("Copy link"),
             onSelected: function() {
-              return n.i(x.a)(a);
+              return n.i(S.a)(a);
             }
           }), s.a.createElement(h.b, {
             label: O.t("Mark unread"),
@@ -56810,11 +56848,11 @@ webpackJsonp([332], [, function(e, t, n) {
       return null;
     });
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".c-menu {\n  background-color: #fff;\n  border: 1px solid rgba(0, 0, 0, 0.15);\n  border-radius: 6px;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  user-select: none;\n  width: 300px;\n  z-index: 1053;\n}\n.c-menu__items {\n  margin: 0.75rem 0;\n  padding: 0;\n}\n.c-menu__items.c-menu__items--no_margin {\n  margin: 0;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-form_type_default {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n}\n.t-form_type_label {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_type_placeholder {\n  color: #a0a0a2;\n}\n.t-form_element_sizing {\n  margin: 0 0 12px;\n  padding: 8px 12px;\n}\n.t-form_label {\n  display: block;\n  margin: 0;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_border {\n  border-radius: 4px;\n  border: solid 1px #a0a0a2;\n}\n.t-form_cursor {\n  cursor: pointer;\n}\n.t-form_cursor[disabled] {\n  cursor: default;\n}\n.c-menu {\n  background-color: #fff;\n  border: 1px solid rgba(0, 0, 0, 0.15);\n  border-radius: 6px;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  user-select: none;\n  width: 300px;\n  z-index: 1053;\n}\n.c-menu__items {\n  margin: 0.75rem 0;\n  padding: 0;\n}\n.c-menu__items.c-menu__items--no_margin {\n  margin: 0;\n}\n", ""]);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".c-menu_item__li {\n  line-height: 1.5rem;\n  list-style-type: none;\n  padding: 0 0.9375rem;\n  margin: 0;\n}\n.c-menu_item__button,\n.c-menu_item__button:link,\n.c-menu_item__button:visited {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  background: transparent;\n  border-radius: 0.25rem;\n  color: #2c2d30;\n  cursor: pointer;\n  display: flex;\n  font-size: 15px;\n  line-height: 1.5625;\n  overflow-x: hidden;\n  padding: 0 0.5rem;\n  text-align: left;\n  text-decoration: none;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  width: 100%;\n}\n.c-menu_item__button:hover,\n.c-menu_item__button:link:hover,\n.c-menu_item__button:visited:hover,\n.c-menu_item__button:focus,\n.c-menu_item__button:link:focus,\n.c-menu_item__button:visited:focus,\n.c-menu_item__button:active,\n.c-menu_item__button:link:active,\n.c-menu_item__button:visited:active {\n  outline: none;\n}\n.c-menu_item__description {\n  font-size: 12px;\n  line-height: 0.9375;\n  color: #717274;\n  padding-bottom: 0.25rem;\n  overflow-x: hidden;\n  text-overflow: ellipsis;\n}\n.c-menu_item__button--highlighted,\n.c-menu_item__button--highlighted:link,\n.c-menu_item__button--highlighted:visited {\n  background-color: #2d9ee0;\n  color: #fff;\n}\n.c-menu_item__button--highlighted .c-menu_item__description,\n.c-menu_item__button--highlighted:link .c-menu_item__description,\n.c-menu_item__button--highlighted:visited .c-menu_item__description {\n  color: #fff;\n}\n.c-menu_item__button--danger,\n.c-menu_item__button--danger:link,\n.c-menu_item__button--danger:visited {\n  color: #eb4d5c;\n}\n.c-menu_item__button--danger .c-menu_item__description,\n.c-menu_item__button--danger:link .c-menu_item__description,\n.c-menu_item__button--danger:visited .c-menu_item__description {\n  color: #eb4d5c;\n}\n.c-menu_item__button--danger.c-menu_item__button--highlighted,\n.c-menu_item__button--danger.c-menu_item__button--highlighted:link,\n.c-menu_item__button--danger.c-menu_item__button--highlighted:visited {\n  color: #fff;\n  background-color: #eb4d5c;\n}\n.c-menu_item__button--danger.c-menu_item__button--highlighted .c-menu_item__description,\n.c-menu_item__button--danger.c-menu_item__button--highlighted:link .c-menu_item__description,\n.c-menu_item__button--danger.c-menu_item__button--highlighted:visited .c-menu_item__description {\n  color: #fff;\n}\n.c-menu_item__label {\n  flex: 1 1 auto;\n}\n.c-menu_item__button.c-menu-item__button--with_submenu {\n  padding-right: 0;\n}\n.c-menu_item__caret {\n  display: block;\n  flex: 0 0 auto;\n}\n.c-menu_item__caret:before {\n  height: 1rem;\n  line-height: 0.6;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-form_type_default {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n}\n.t-form_type_label {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_type_placeholder {\n  color: #a0a0a2;\n}\n.t-form_element_sizing {\n  margin: 0 0 12px;\n  padding: 8px 12px;\n}\n.t-form_label {\n  display: block;\n  margin: 0;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_border {\n  border-radius: 4px;\n  border: solid 1px #a0a0a2;\n}\n.t-form_cursor {\n  cursor: pointer;\n}\n.t-form_cursor[disabled] {\n  cursor: default;\n}\n.c-menu_item__li {\n  line-height: 1.5rem;\n  list-style-type: none;\n  padding: 0 0.9375rem;\n  margin: 0;\n}\n.c-menu_item__button,\n.c-menu_item__button:link,\n.c-menu_item__button:visited {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  background: transparent;\n  border-radius: 0.25rem;\n  color: #2c2d30;\n  cursor: pointer;\n  display: flex;\n  font-size: 15px;\n  line-height: 1.5625;\n  overflow-x: hidden;\n  padding: 0 0.5rem;\n  text-align: left;\n  text-decoration: none;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  width: 100%;\n}\n.c-menu_item__button:hover,\n.c-menu_item__button:link:hover,\n.c-menu_item__button:visited:hover,\n.c-menu_item__button:focus,\n.c-menu_item__button:link:focus,\n.c-menu_item__button:visited:focus,\n.c-menu_item__button:active,\n.c-menu_item__button:link:active,\n.c-menu_item__button:visited:active {\n  outline: none;\n}\n.c-menu_item__description {\n  font-size: 12px;\n  line-height: 0.9375;\n  color: #717274;\n  padding-bottom: 0.25rem;\n  overflow-x: hidden;\n  text-overflow: ellipsis;\n}\n.c-menu_item__button--highlighted,\n.c-menu_item__button--highlighted:link,\n.c-menu_item__button--highlighted:visited {\n  background-color: #2d9ee0;\n  color: #fff;\n}\n.c-menu_item__button--highlighted .c-menu_item__description,\n.c-menu_item__button--highlighted:link .c-menu_item__description,\n.c-menu_item__button--highlighted:visited .c-menu_item__description {\n  color: #fff;\n}\n.c-menu_item__button--danger,\n.c-menu_item__button--danger:link,\n.c-menu_item__button--danger:visited {\n  color: #eb4d5c;\n}\n.c-menu_item__button--danger .c-menu_item__description,\n.c-menu_item__button--danger:link .c-menu_item__description,\n.c-menu_item__button--danger:visited .c-menu_item__description {\n  color: #eb4d5c;\n}\n.c-menu_item__button--danger.c-menu_item__button--highlighted,\n.c-menu_item__button--danger.c-menu_item__button--highlighted:link,\n.c-menu_item__button--danger.c-menu_item__button--highlighted:visited {\n  color: #fff;\n  background-color: #eb4d5c;\n}\n.c-menu_item__button--danger.c-menu_item__button--highlighted .c-menu_item__description,\n.c-menu_item__button--danger.c-menu_item__button--highlighted:link .c-menu_item__description,\n.c-menu_item__button--danger.c-menu_item__button--highlighted:visited .c-menu_item__description {\n  color: #fff;\n}\n.c-menu_item__label {\n  flex: 1 1 auto;\n}\n.c-menu_item__button.c-menu-item__button--with_submenu {\n  padding-right: 0;\n}\n.c-menu_item__caret {\n  display: block;\n  flex: 0 0 auto;\n}\n.c-menu_item__caret:before {\n  height: 1rem;\n  line-height: 0.6;\n}\n", ""]);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".c-menu_separator__li {\n  line-height: 1.5rem;\n  list-style-type: none;\n  padding: 15px 0;\n  margin: 0;\n}\n.c-menu_separator__li.c-menu_separator__li--no_padding {\n  padding: 0;\n}\n.c-menu_separator__li.c-menu_separator__li--no_top_padding {\n  padding-top: 0;\n}\n.c-menu_separator__separator {\n  margin: 0;\n  border-top: 1px solid rgba(0, 0, 0, 0.15);\n  border-bottom: 1px solid #fff;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-form_type_default {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n}\n.t-form_type_label {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_type_placeholder {\n  color: #a0a0a2;\n}\n.t-form_element_sizing {\n  margin: 0 0 12px;\n  padding: 8px 12px;\n}\n.t-form_label {\n  display: block;\n  margin: 0;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_border {\n  border-radius: 4px;\n  border: solid 1px #a0a0a2;\n}\n.t-form_cursor {\n  cursor: pointer;\n}\n.t-form_cursor[disabled] {\n  cursor: default;\n}\n.c-menu_separator__li {\n  line-height: 1.5rem;\n  list-style-type: none;\n  padding: 15px 0;\n  margin: 0;\n}\n.c-menu_separator__li.c-menu_separator__li--no_padding {\n  padding: 0;\n}\n.c-menu_separator__li.c-menu_separator__li--no_top_padding {\n  padding-top: 0;\n}\n.c-menu_separator__separator {\n  margin: 0;\n  border-top: 1px solid rgba(0, 0, 0, 0.15);\n  border-bottom: 1px solid #fff;\n}\n", ""]);
 }, , , , , function(e, t, n) {
   "use strict";
   var r = n(3958),
@@ -57192,7 +57230,7 @@ webpackJsonp([332], [, function(e, t, n) {
   };
   t.a = n.i(i.b)(d)(c);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".c-modal {\n  position: fixed;\n  top: 100%;\n  left: 0;\n  bottom: 0;\n  right: 0;\n  z-index: 1000;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n}\n.c-modal--active {\n  top: 0;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms;\n}\n.c-modal__background {\n  height: 100vh;\n  width: 100vw;\n  background-color: #fff;\n  position: absolute;\n  top: 0;\n  left: 0;\n  pointer-events: none;\n}\n.c-modal__contents {\n  height: 100vh;\n  top: 100%;\n  opacity: 0;\n  -webkit-transform: translateY(5px);\n  -moz-transform: translateY(5px);\n  -ms-transform: translateY(5px);\n  transform: translateY(5px);\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, -webkit-transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n}\n.c-modal__contents--active {\n  top: 0;\n  opacity: 1;\n  -webkit-transform: translateY(0);\n  -moz-transform: translateY(0);\n  -ms-transform: translateY(0);\n  transform: translateY(0);\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, -webkit-transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n}\n.c-modal__header {\n  position: fixed;\n  left: 0;\n  right: 0;\n  display: flex;\n  align-items: center;\n  -ms-flex-pack: distribute;\n  -webkit-box-pack: distribute;\n  -webkit-justify-content: space-around;\n  -moz-justify-content: space-around;\n  justify-content: space-around;\n  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);\n  height: 3.75rem;\n  background-color: #fff;\n  top: 0;\n  z-index: 10;\n}\n.c-modal__close {\n  position: absolute;\n  top: 20px;\n  right: 20px;\n  z-index: 100;\n  cursor: pointer;\n}\n.c-modal__close:before {\n  font-size: 30px;\n  color: #717274;\n}\n.c-modal__body {\n  padding-top: 3.75rem;\n  margin-bottom: 4.5rem;\n}\n.p-org_retention_request {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-weight: 400;\n  -webkit-font-smoothing: antialiased;\n  font-size: 15px;\n}\n.p-org_retention_request--font_bump {\n  font-size: 16px;\n  line-height: 1.5;\n}\n.p-org_retention_request__modal {\n  overflow-y: auto;\n}\n.p-org_retention_request__modal_content {\n  max-width: 640px;\n  margin: 0 auto;\n  padding-top: 7.5rem;\n}\n.p-org_retention_request__modal_section {\n  border-bottom: 1px solid #e8e8e8;\n  margin-bottom: 1rem;\n  padding: 0 1rem 1rem;\n  font-size: 15px;\n  line-height: 1.5;\n}\n.p-org_retention_request__modal_section--lead {\n  padding-left: 0;\n  padding-right: 0;\n}\n.p-org_retention_request__section_header {\n  font-weight: 900;\n  font-size: 22px;\n  margin-bottom: 1.875rem;\n  color: #2c2d30;\n}\n.p-org_retention_request__policy_select_group {\n  display: flex;\n}\n.p-org_retention_request__select_wrapper {\n  position: relative;\n  width: calc(100% - 200px);\n}\n.p-org_retention_request__select_wrapper:after {\n  font-family: 'Slack';\n  content: '\\E271';\n  position: absolute;\n  right: 10px;\n  top: 15px;\n  width: 20px;\n  height: 20px;\n  display: block;\n  pointer-events: none;\n}\n.p-org_retention_request__select {\n  display: block;\n  cursor: pointer;\n}\n.p-org_retention_request__duration_group {\n  position: relative;\n  max-width: 105px;\n  display: flex;\n  align-items: baseline;\n}\n.p-org_retention_request__duration_label {\n  position: absolute;\n  left: 0;\n  top: -1.5rem;\n}\n.p-org_retention_request__duration_label--secondary {\n  display: block;\n}\n.p-org_retention_request__requester_input {\n  width: calc(100% - 200px);\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-form_type_default {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n}\n.t-form_type_label {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_type_placeholder {\n  color: #a0a0a2;\n}\n.t-form_element_sizing {\n  margin: 0 0 12px;\n  padding: 8px 12px;\n}\n.t-form_label {\n  display: block;\n  margin: 0;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_border {\n  border-radius: 4px;\n  border: solid 1px #a0a0a2;\n}\n.t-form_cursor {\n  cursor: pointer;\n}\n.t-form_cursor[disabled] {\n  cursor: default;\n}\n.c-modal {\n  position: fixed;\n  top: 100%;\n  left: 0;\n  bottom: 0;\n  right: 0;\n  z-index: 1000;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n}\n.c-modal--active {\n  top: 0;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms;\n  -moz-transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms;\n  transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms;\n}\n.c-modal__background {\n  height: 100vh;\n  width: 100vw;\n  background-color: #fff;\n  position: absolute;\n  top: 0;\n  left: 0;\n  pointer-events: none;\n}\n.c-modal__contents {\n  height: 100vh;\n  top: 100%;\n  opacity: 0;\n  -webkit-transform: translateY(5px);\n  -moz-transform: translateY(5px);\n  -ms-transform: translateY(5px);\n  transform: translateY(5px);\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, -webkit-transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, top 0ms linear 250ms;\n}\n.c-modal__contents--active {\n  top: 0;\n  opacity: 1;\n  -webkit-transform: translateY(0);\n  -moz-transform: translateY(0);\n  -ms-transform: translateY(0);\n  transform: translateY(0);\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms 0.2s ease-out 0.0000001ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n  -moz-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n  transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n  -webkit-transition: opacity 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms, -webkit-transform 150ms cubic-bezier(0.2, 0.8, 0.5, 1) 100ms;\n}\n.c-modal__header {\n  position: fixed;\n  left: 0;\n  right: 0;\n  display: flex;\n  align-items: center;\n  -ms-flex-pack: distribute;\n  -webkit-box-pack: distribute;\n  -webkit-justify-content: space-around;\n  -moz-justify-content: space-around;\n  justify-content: space-around;\n  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);\n  height: 3.75rem;\n  background-color: #fff;\n  top: 0;\n  z-index: 10;\n}\n.c-modal__close {\n  position: absolute;\n  top: 20px;\n  right: 20px;\n  z-index: 100;\n  cursor: pointer;\n}\n.c-modal__close:before {\n  font-size: 30px;\n  color: #717274;\n}\n.c-modal__body {\n  padding-top: 3.75rem;\n  margin-bottom: 4.5rem;\n}\n.p-org_retention_request {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-weight: 400;\n  -webkit-font-smoothing: antialiased;\n  font-size: 15px;\n}\n.p-org_retention_request--font_bump {\n  font-size: 16px;\n  line-height: 1.5;\n}\n.p-org_retention_request__modal {\n  overflow-y: auto;\n}\n.p-org_retention_request__modal_content {\n  max-width: 640px;\n  margin: 0 auto;\n  padding-top: 7.5rem;\n}\n.p-org_retention_request__modal_section {\n  border-bottom: 1px solid #e8e8e8;\n  margin-bottom: 1rem;\n  padding: 0 1rem 1rem;\n  font-size: 15px;\n  line-height: 1.5;\n}\n.p-org_retention_request__modal_section--lead {\n  padding-left: 0;\n  padding-right: 0;\n}\n.p-org_retention_request__section_header {\n  font-weight: 900;\n  font-size: 22px;\n  margin-bottom: 1.875rem;\n  color: #2c2d30;\n}\n.p-org_retention_request__policy_select_group {\n  display: flex;\n}\n.p-org_retention_request__select_wrapper {\n  position: relative;\n  width: calc(100% - 200px);\n}\n.p-org_retention_request__select_wrapper:after {\n  font-family: 'Slack';\n  content: '\\E271';\n  position: absolute;\n  right: 10px;\n  top: 15px;\n  width: 20px;\n  height: 20px;\n  display: block;\n  pointer-events: none;\n}\n.p-org_retention_request__select {\n  display: block;\n  cursor: pointer;\n}\n.p-org_retention_request__duration_group {\n  position: relative;\n  max-width: 105px;\n  display: flex;\n  align-items: baseline;\n}\n.p-org_retention_request__duration_label {\n  position: absolute;\n  left: 0;\n  top: -1.5rem;\n}\n.p-org_retention_request__duration_label--secondary {\n  display: block;\n}\n.p-org_retention_request__requester_input {\n  width: calc(100% - 200px);\n}\n", ""]);
 }, function(e, t, n) {
   var r = n(3963);
   "string" == typeof r && (r = [
@@ -57326,7 +57364,7 @@ webpackJsonp([332], [, function(e, t, n) {
       var t = e.match(/```/g);
       return !!t && !!(t.length % 2);
     },
-    S = function(e) {
+    x = function(e) {
       var t = e;
       if (!t) return !1;
       if (T(t)) return !0;
@@ -57334,14 +57372,14 @@ webpackJsonp([332], [, function(e, t, n) {
       var n = t.match(/`/g);
       return !!n && !!(n.length % 2);
     },
-    x = function(e, t) {
+    S = function(e, t) {
       return !!(t && t.modules && t.modules.textsubstitutions) && {
         getTextPreferences: t.modules.textsubstitutions.getTextPreferences,
         buildSmartQuotesDelta: t.modules.textsubstitutions.buildSmartQuotesDelta,
         shouldDoSubstitutions: function(t) {
           if (!t) return !1;
           var n = e.quill.getText(0, t.index + t.length);
-          return !S(n);
+          return !x(n);
         }
       };
     },
@@ -57364,7 +57402,7 @@ webpackJsonp([332], [, function(e, t, n) {
               onTab: this.onTab
             },
             tabcomplete: M(this.options),
-            textsubstitutions: x(this, this.options),
+            textsubstitutions: S(this, this.options),
             msginput: this.options.modules.msginput,
             slacksearch: this.options.modules.slacksearch,
             slackmention: this.options.modules.slackmention
@@ -57836,7 +57874,7 @@ webpackJsonp([332], [, function(e, t, n) {
     a = n.i(o.createReducer)({}, {});
   t.b = a;
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".c-member_profile_card_header {\n  position: relative;\n  cursor: pointer;\n}\n.c-member_profile_card_header:hover .c-member_profile_card__details,\n.c-member_profile_card_header:hover .c-member_profile_card__restriction {\n  opacity: 0;\n}\n.c-member_profile_card__details {\n  opacity: 1;\n  pointer-events: none;\n  position: absolute;\n  left: 1rem;\n  right: 1rem;\n  bottom: 1.625rem;\n  color: #fff;\n  -webkit-transition: opacity 150ms ease 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 150ms ease 0.2s ease-out 0.0000001ms;\n  transition: opacity 150ms ease 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 150ms ease;\n  -moz-transition: opacity 150ms ease;\n  transition: opacity 150ms ease;\n}\n.c-member_profile_card_header__image {\n  background-repeat: no-repeat;\n  display: inline-block;\n  position: relative;\n  cursor: pointer;\n  border-top-right-radius: 0.25rem;\n  border-bottom-right-radius: 0;\n  border-bottom-left-radius: 0;\n  border-top-left-radius: 0.25rem;\n  background-clip: padding-box;\n  margin: 0;\n  width: 100%;\n  height: 224px;\n  background-position: 0 -448px, 0 -48px, 0 -48px;\n  background-size: 100% 300%,100%,100%,100%;\n  -webkit-transition: background-position 150ms ease 0.2s ease-out 0.0000001ms;\n  -moz-transition: background-position 150ms ease 0.2s ease-out 0.0000001ms;\n  transition: background-position 150ms ease 0.2s ease-out 0.0000001ms;\n  -webkit-transition: background-position 150ms ease;\n  -moz-transition: background-position 150ms ease;\n  transition: background-position 150ms ease;\n}\n.c-member_profile_card_header__image:hover {\n  background-position: 0 0, 0 -48px, 0 -48px;\n}\n.c-member_profile_card__restriction {\n  opacity: 1;\n  -webkit-transition: opacity 150ms ease 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 150ms ease 0.2s ease-out 0.0000001ms;\n  transition: opacity 150ms ease 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 150ms ease;\n  -moz-transition: opacity 150ms ease;\n  transition: opacity 150ms ease;\n  pointer-events: none;\n  position: absolute;\n  top: 0;\n  width: 100%;\n  border-top-right-radius: 0.25rem;\n  border-bottom-right-radius: 0;\n  border-bottom-left-radius: 0;\n  border-top-left-radius: 0.25rem;\n  background-clip: padding-box;\n  background-color: rgba(44, 45, 48, 0.8);\n  color: #fff;\n  padding: 10px 14px;\n  font-size: 13px;\n}\n.c-member_profile_card__restriction .c-external_team_badge {\n  top: 9px;\n  right: 9px;\n  position: absolute;\n}\n.c-member_profile_card__restriction--external {\n  padding-right: 32px;\n}\n.c-member_profile_card__name {\n  color: #fff !important;\n  font-size: 1.125rem;\n  line-height: 1.5625rem;\n  font-weight: 900;\n  overflow: hidden;\n  text-overflow: ellipsis;\n}\n.c-member_profile_card__title {\n  color: #fff;\n  font-size: .9375rem;\n  line-height: 1.375rem;\n  margin: 0;\n}\n.c-member_profile_card__footer {\n  max-width: 320px;\n  padding: 0.75rem;\n  border-top: 1px solid #f2f2f5;\n  border-radius: 0 0 6px 6px;\n  background: #f9f9f9;\n  margin-top: 1rem;\n}\n.c-member_profile_card__footer.c-member_profile_card__footer_notice {\n  padding: 0.75rem 1.25rem 1rem;\n  line-height: 1.4;\n  color: #717274;\n  background: #fff;\n  margin-top: 0;\n  border-top: 0;\n}\n.c-enhanced_text_input {\n  background-color: #fff;\n}\n.c-member_profile_card__timezone-row,\n.c-member_profile_card__status-row {\n  line-height: 1.875rem;\n  font-size: 0.75rem;\n  margin: 0 1.5rem;\n  display: flex;\n}\n.c-member_profile_card__owner {\n  flex: 1;\n}\n.c-member_profile_card__status--grey {\n  color: #a0a0a2;\n}\n.c-member_profile_card__items {\n  margin-top: 0.75rem;\n}\n.c-member_profile_card__items .c-menu_item__button {\n  margin: 0.2rem 0;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-form_type_default {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n}\n.t-form_type_label {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_type_placeholder {\n  color: #a0a0a2;\n}\n.t-form_element_sizing {\n  margin: 0 0 12px;\n  padding: 8px 12px;\n}\n.t-form_label {\n  display: block;\n  margin: 0;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_border {\n  border-radius: 4px;\n  border: solid 1px #a0a0a2;\n}\n.t-form_cursor {\n  cursor: pointer;\n}\n.t-form_cursor[disabled] {\n  cursor: default;\n}\n.c-member_profile_card_header {\n  position: relative;\n  cursor: pointer;\n}\n.c-member_profile_card_header:hover .c-member_profile_card__details,\n.c-member_profile_card_header:hover .c-member_profile_card__restriction {\n  opacity: 0;\n}\n.c-member_profile_card__details {\n  opacity: 1;\n  pointer-events: none;\n  position: absolute;\n  left: 1rem;\n  right: 1rem;\n  bottom: 1.625rem;\n  color: #fff;\n  -webkit-transition: opacity 150ms ease 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 150ms ease 0.2s ease-out 0.0000001ms;\n  transition: opacity 150ms ease 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 150ms ease;\n  -moz-transition: opacity 150ms ease;\n  transition: opacity 150ms ease;\n}\n.c-member_profile_card_header__image {\n  background-repeat: no-repeat;\n  display: inline-block;\n  position: relative;\n  cursor: pointer;\n  border-top-right-radius: 0.25rem;\n  border-bottom-right-radius: 0;\n  border-bottom-left-radius: 0;\n  border-top-left-radius: 0.25rem;\n  background-clip: padding-box;\n  margin: 0;\n  width: 100%;\n  height: 224px;\n  background-position: 0 -448px, 0 -48px, 0 -48px;\n  background-size: 100% 300%,100%,100%,100%;\n  -webkit-transition: background-position 150ms ease 0.2s ease-out 0.0000001ms;\n  -moz-transition: background-position 150ms ease 0.2s ease-out 0.0000001ms;\n  transition: background-position 150ms ease 0.2s ease-out 0.0000001ms;\n  -webkit-transition: background-position 150ms ease;\n  -moz-transition: background-position 150ms ease;\n  transition: background-position 150ms ease;\n}\n.c-member_profile_card_header__image:hover {\n  background-position: 0 0, 0 -48px, 0 -48px;\n}\n.c-member_profile_card__restriction {\n  opacity: 1;\n  -webkit-transition: opacity 150ms ease 0.2s ease-out 0.0000001ms;\n  -moz-transition: opacity 150ms ease 0.2s ease-out 0.0000001ms;\n  transition: opacity 150ms ease 0.2s ease-out 0.0000001ms;\n  -webkit-transition: opacity 150ms ease;\n  -moz-transition: opacity 150ms ease;\n  transition: opacity 150ms ease;\n  pointer-events: none;\n  position: absolute;\n  top: 0;\n  width: 100%;\n  border-top-right-radius: 0.25rem;\n  border-bottom-right-radius: 0;\n  border-bottom-left-radius: 0;\n  border-top-left-radius: 0.25rem;\n  background-clip: padding-box;\n  background-color: rgba(44, 45, 48, 0.8);\n  color: #fff;\n  padding: 10px 14px;\n  font-size: 13px;\n}\n.c-member_profile_card__restriction .c-external_team_badge {\n  top: 9px;\n  right: 9px;\n  position: absolute;\n}\n.c-member_profile_card__restriction--external {\n  padding-right: 32px;\n}\n.c-member_profile_card__name {\n  color: #fff !important;\n  font-size: 1.125rem;\n  line-height: 1.5625rem;\n  font-weight: 900;\n  overflow: hidden;\n  text-overflow: ellipsis;\n}\n.c-member_profile_card__title {\n  color: #fff;\n  font-size: .9375rem;\n  line-height: 1.375rem;\n  margin: 0;\n}\n.c-member_profile_card__footer {\n  max-width: 320px;\n  padding: 0.75rem;\n  border-top: 1px solid #f2f2f5;\n  border-radius: 0 0 6px 6px;\n  background: #f9f9f9;\n  margin-top: 1rem;\n}\n.c-member_profile_card__footer.c-member_profile_card__footer_notice {\n  padding: 0.75rem 1.25rem 1rem;\n  line-height: 1.4;\n  color: #717274;\n  background: #fff;\n  margin-top: 0;\n  border-top: 0;\n}\n.c-enhanced_text_input {\n  background-color: #fff;\n}\n.c-member_profile_card__timezone-row,\n.c-member_profile_card__status-row {\n  line-height: 1.875rem;\n  font-size: 0.75rem;\n  margin: 0 1.5rem;\n  display: flex;\n}\n.c-member_profile_card__owner {\n  flex: 1;\n}\n.c-member_profile_card__status--grey {\n  color: #a0a0a2;\n}\n.c-member_profile_card__items {\n  margin-top: 0.75rem;\n}\n.c-member_profile_card__items .c-menu_item__button {\n  margin: 0.2rem 0;\n}\n", ""]);
 }, function(e, t, n) {
   "use strict";
 
@@ -58020,18 +58058,18 @@ webpackJsonp([332], [, function(e, t, n) {
       k = e.isError,
       M = e.isOwner,
       T = e.status,
-      S = e.isRestricted,
-      x = e.isUltraRestricted,
+      x = e.isRestricted,
+      S = e.isUltraRestricted,
       E = e.isExternal,
-      P = e.team,
-      L = n.i(p.a)({
+      L = e.team,
+      P = n.i(p.a)({
         isBot: a,
         username: f,
         botID: h,
         isSelf: m,
         userId: t
       }),
-      C = L.map(function(e) {
+      C = P.map(function(e) {
         return i.a.createElement(c.b, {
           key: e.id,
           label: e.text,
@@ -58040,10 +58078,10 @@ webpackJsonp([332], [, function(e, t, n) {
         });
       }),
       O = i.a.createElement(u.a, {
-        isRestricted: S,
-        isUltraRestricted: x,
+        isRestricted: x,
+        isUltraRestricted: S,
         isExternal: E,
-        team: P
+        team: L
       }),
       j = i.a.createElement(l.a, {
         imageUrl: y,
@@ -58182,7 +58220,7 @@ webpackJsonp([332], [, function(e, t, n) {
   n(4275)(r, o);
   r.locals && (e.exports = r.locals);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".c-virtual_list {\n  overflow-y: scroll;\n  overflow-x: hidden;\n  position: relative;\n  will-change: transform;\n}\n.c-virtual_list--slack_scrollbar {\n  border-right: 0.25rem solid transparent;\n}\n.c-virtual_list--slack_scrollbar::-webkit-scrollbar {\n  position: absolute;\n  -webkit-appearance: none;\n  width: 8px;\n}\n.c-virtual_list--slack_scrollbar::-webkit-scrollbar-track,\n.c-virtual_list--slack_scrollbar::-webkit-scrollbar-thumb {\n  background-clip: padding-box !important;\n  border-radius: 3px;\n  color: #fff;\n}\n.c-virtual_list--slack_scrollbar::-webkit-scrollbar-track {\n  background: #f5f5f5;\n  box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0;\n}\n.c-virtual_list--slack_scrollbar::-webkit-scrollbar-thumb {\n  background: #D9D9DE;\n  box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;\n  min-height: 36px;\n}\n.c-virtual_list--slack_scrollbar::-webkit-scrollbar-corner {\n  background: #fff;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-form_type_default {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n}\n.t-form_type_label {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_type_placeholder {\n  color: #a0a0a2;\n}\n.t-form_element_sizing {\n  margin: 0 0 12px;\n  padding: 8px 12px;\n}\n.t-form_label {\n  display: block;\n  margin: 0;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_border {\n  border-radius: 4px;\n  border: solid 1px #a0a0a2;\n}\n.t-form_cursor {\n  cursor: pointer;\n}\n.t-form_cursor[disabled] {\n  cursor: default;\n}\n.c-virtual_list {\n  overflow-y: scroll;\n  overflow-x: hidden;\n  position: relative;\n  will-change: transform;\n}\n.c-virtual_list--slack_scrollbar {\n  border-right: 0.25rem solid transparent;\n}\n.c-virtual_list--slack_scrollbar::-webkit-scrollbar {\n  position: absolute;\n  -webkit-appearance: none;\n  width: 8px;\n}\n.c-virtual_list--slack_scrollbar::-webkit-scrollbar-track,\n.c-virtual_list--slack_scrollbar::-webkit-scrollbar-thumb {\n  background-clip: padding-box !important;\n  border-radius: 3px;\n  color: #fff;\n}\n.c-virtual_list--slack_scrollbar::-webkit-scrollbar-track {\n  background: #f5f5f5;\n  box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0;\n}\n.c-virtual_list--slack_scrollbar::-webkit-scrollbar-thumb {\n  background: #D9D9DE;\n  box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;\n  min-height: 36px;\n}\n.c-virtual_list--slack_scrollbar::-webkit-scrollbar-corner {\n  background: #fff;\n}\n", ""]);
 }, function(e, t, n) {
   var r = n(3986);
   "string" == typeof r && (r = [
@@ -58824,11 +58862,11 @@ webpackJsonp([332], [, function(e, t, n) {
         var k = d.slice(2, -1).split("|"),
           M = u(k, 2),
           T = M[0],
-          S = M[1];
+          x = M[1];
         i.push({
           type: "channel",
           id: T,
-          name: S
+          name: x
         });
       } else 0 === d.indexOf("<EMOJI:COLONS") ? i.push({
         type: "emoji",
@@ -59616,7 +59654,7 @@ webpackJsonp([332], [, function(e, t, n) {
     }
   });
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".c-rounded_button {\n  /* Color */\n  background-color: #29a979;\n  color: #fff;\n  /* Text */\n  -webkit-font-smoothing: antialiased;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 1rem;\n  line-height: 1.2;\n  font-weight: 900;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n  text-decoration: none;\n  outline: none;\n  cursor: pointer;\n  text-shadow: 0 1px 1px rgba(44, 45, 48, 0.1);\n  /* Border */\n  border: none;\n  border-radius: 0.25rem;\n  box-shadow: none;\n  /* Alignment */\n  position: relative;\n  display: inline-block;\n  text-align: center;\n  white-space: nowrap;\n  padding: 0.5rem 1rem;\n  -webkit-appearance: none;\n  -webkit-tap-highlight-color: transparent;\n}\n.c-rounded_button:after {\n  position: absolute;\n  content: '';\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  border-radius: 0.25rem;\n}\n.c-rounded_button .c-icon {\n  margin-right: 0.5rem;\n}\n.c-rounded_button .c-icon:before {\n  font-size: inherit;\n  vertical-align: bottom;\n}\n.c-rounded_button.c-button--icon {\n  width: 32px;\n  height: 30px;\n  padding: 0;\n}\n.c-rounded_button:link,\n.c-rounded_button:visited {\n  color: #fff;\n}\n.c-rounded_button--outline:link,\n.c-rounded_button--outline:active {\n  color: #717274;\n}\n.c-rounded_button:hover {\n  color: #fff;\n  text-decoration: none;\n}\n.c-rounded_button:hover:after {\n  box-shadow: inset 0 -2px rgba(0, 0, 0, 0.25);\n}\n.c-rounded_button:active:after {\n  box-shadow: inset 0 2px 1px rgba(0, 0, 0, 0.2);\n}\n.c-rounded_button--outline,\n.c-rounded_button--transparent {\n  font-weight: 700;\n  color: #717274;\n  box-shadow: inset 0 0 0 1px rgba(44, 45, 48, 0.3);\n  text-shadow: initial;\n}\n.c-rounded_button--outline {\n  background-color: #f9f9f9;\n}\n.c-rounded_button--outline:hover,\n.c-rounded_button--outline:active {\n  background-color: #fff;\n  color: #005e99;\n}\n.c-rounded_button--outline:hover:after,\n.c-rounded_button--outline:active:after {\n  box-shadow: initial;\n}\n.c-rounded_button--small {\n  font-size: 0.875rem;\n  padding-top: 0.3125rem;\n  padding-bottom: 0.3125rem;\n  padding-left: 0.625rem;\n  padding-right: 0.625rem;\n}\n.c-rounded_button--large {\n  font-size: 1.25rem;\n  padding-top: 0.875rem;\n  padding-bottom: 1rem;\n  padding-left: 2rem;\n  padding-right: 2rem;\n}\n.c-rounded_button--disabled {\n  background: rgba(113, 114, 116, 0.35);\n  color: #fff;\n}\n.touch .c-rounded_button:focus {\n  outline: initial;\n  text-decoration: initial;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-form_type_default {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n}\n.t-form_type_label {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_type_placeholder {\n  color: #a0a0a2;\n}\n.t-form_element_sizing {\n  margin: 0 0 12px;\n  padding: 8px 12px;\n}\n.t-form_label {\n  display: block;\n  margin: 0;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_border {\n  border-radius: 4px;\n  border: solid 1px #a0a0a2;\n}\n.t-form_cursor {\n  cursor: pointer;\n}\n.t-form_cursor[disabled] {\n  cursor: default;\n}\n.c-rounded_button {\n  /* Color */\n  background-color: #29a979;\n  color: #fff;\n  /* Text */\n  -webkit-font-smoothing: antialiased;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 1rem;\n  line-height: 1.2;\n  font-weight: 900;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n  text-decoration: none;\n  outline: none;\n  cursor: pointer;\n  text-shadow: 0 1px 1px rgba(44, 45, 48, 0.1);\n  /* Border */\n  border: none;\n  border-radius: 0.25rem;\n  box-shadow: none;\n  /* Alignment */\n  position: relative;\n  display: inline-block;\n  text-align: center;\n  white-space: nowrap;\n  padding: 0.5rem 1rem;\n  -webkit-appearance: none;\n  -webkit-tap-highlight-color: transparent;\n}\n.c-rounded_button:after {\n  position: absolute;\n  content: '';\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  border-radius: 0.25rem;\n}\n.c-rounded_button .c-icon {\n  margin-right: 0.5rem;\n}\n.c-rounded_button .c-icon:before {\n  font-size: inherit;\n  vertical-align: bottom;\n}\n.c-rounded_button.c-button--icon {\n  width: 32px;\n  height: 30px;\n  padding: 0;\n}\n.c-rounded_button:link,\n.c-rounded_button:visited {\n  color: #fff;\n}\n.c-rounded_button--outline:link,\n.c-rounded_button--outline:active {\n  color: #717274;\n}\n.c-rounded_button:hover {\n  color: #fff;\n  text-decoration: none;\n}\n.c-rounded_button:hover:after {\n  box-shadow: inset 0 -2px rgba(0, 0, 0, 0.25);\n}\n.c-rounded_button:active:after {\n  box-shadow: inset 0 2px 1px rgba(0, 0, 0, 0.2);\n}\n.c-rounded_button--outline,\n.c-rounded_button--transparent {\n  font-weight: 700;\n  color: #717274;\n  box-shadow: inset 0 0 0 1px rgba(44, 45, 48, 0.3);\n  text-shadow: initial;\n}\n.c-rounded_button--outline {\n  background-color: #f9f9f9;\n}\n.c-rounded_button--outline:hover,\n.c-rounded_button--outline:active {\n  background-color: #fff;\n  color: #005e99;\n}\n.c-rounded_button--outline:hover:after,\n.c-rounded_button--outline:active:after {\n  box-shadow: initial;\n}\n.c-rounded_button--small {\n  font-size: 0.875rem;\n  padding-top: 0.3125rem;\n  padding-bottom: 0.3125rem;\n  padding-left: 0.625rem;\n  padding-right: 0.625rem;\n}\n.c-rounded_button--large {\n  font-size: 1.25rem;\n  padding-top: 0.875rem;\n  padding-bottom: 1rem;\n  padding-left: 2rem;\n  padding-right: 2rem;\n}\n.c-rounded_button--disabled {\n  background: rgba(113, 114, 116, 0.35);\n  color: #fff;\n}\n.touch .c-rounded_button:focus {\n  outline: initial;\n  text-decoration: initial;\n}\n", ""]);
 }, function(e, t, n) {
   var r = n(4172);
   "string" == typeof r && (r = [
@@ -59711,7 +59749,7 @@ webpackJsonp([332], [, function(e, t, n) {
     T = {
       isImage: !1
     },
-    S = function(e) {
+    x = function(e) {
       function t(e) {
         r(this, t);
         var n = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
@@ -59825,7 +59863,7 @@ webpackJsonp([332], [, function(e, t, n) {
         }
       }]), t;
     }(s.a.PureComponent);
-  S.propTypes = M, S.defaultProps = T, t.a = S;
+  x.propTypes = M, x.defaultProps = T, t.a = x;
 }, function(e, t, n) {
   "use strict";
   n.d(t, "a", function() {
@@ -60246,7 +60284,7 @@ webpackJsonp([332], [, function(e, t, n) {
     a = 1.75,
     s = 10;
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".c-external_team_badge__container {\n  display: inline-block;\n}\n.c-external_team_badge {\n  display: inline-block;\n  vertical-align: bottom;\n  border-radius: 3px;\n  box-shadow: 0 0 0 2px #fff;\n  background-size: 100%;\n  background-color: #fff;\n  background-repeat: no-repeat;\n}\n.c-external_team_badge:after {\n  content: '';\n  display: block;\n  position: absolute;\n  top: 0;\n  width: 100%;\n  height: 100%;\n  box-shadow: inset 0 0 0 1px rgba(44, 45, 48, 0.08);\n  border-radius: 3px;\n}\n.c-external_team_badge.c-external_team_badge--default {\n  background-color: #717274;\n  font-weight: 800;\n  line-height: 1.6;\n  color: #fff;\n  font-style: normal;\n  letter-spacing: 0;\n  text-align: center;\n  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-form_type_default {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n}\n.t-form_type_label {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_type_placeholder {\n  color: #a0a0a2;\n}\n.t-form_element_sizing {\n  margin: 0 0 12px;\n  padding: 8px 12px;\n}\n.t-form_label {\n  display: block;\n  margin: 0;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_border {\n  border-radius: 4px;\n  border: solid 1px #a0a0a2;\n}\n.t-form_cursor {\n  cursor: pointer;\n}\n.t-form_cursor[disabled] {\n  cursor: default;\n}\n.c-external_team_badge__container {\n  display: inline-block;\n}\n.c-external_team_badge {\n  display: inline-block;\n  vertical-align: bottom;\n  border-radius: 3px;\n  box-shadow: 0 0 0 2px #fff;\n  background-size: 100%;\n  background-color: #fff;\n  background-repeat: no-repeat;\n}\n.c-external_team_badge:after {\n  content: '';\n  display: block;\n  position: absolute;\n  top: 0;\n  width: 100%;\n  height: 100%;\n  box-shadow: inset 0 0 0 1px rgba(44, 45, 48, 0.08);\n  border-radius: 3px;\n}\n.c-external_team_badge.c-external_team_badge--default {\n  background-color: #717274;\n  font-weight: 800;\n  line-height: 1.6;\n  color: #fff;\n  font-style: normal;\n  letter-spacing: 0;\n  text-align: center;\n  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);\n}\n", ""]);
 }, function(e, t, n) {
   "use strict";
 
@@ -60642,11 +60680,11 @@ webpackJsonp([332], [, function(e, t, n) {
     k = r(w),
     M = n(4218),
     T = r(M),
-    S = n(4217),
-    x = r(S),
+    x = n(4217),
+    S = r(x),
     E = n(4215),
-    P = n(4213),
-    L = function(e) {
+    L = n(4213),
+    P = function(e) {
       function t(e) {
         var n;
         i(this, t);
@@ -60751,7 +60789,7 @@ webpackJsonp([332], [, function(e, t, n) {
             r = this.view,
             o = r.scrollHeight,
             i = r.clientHeight,
-            a = (0, x.default)(this.trackVertical),
+            a = (0, S.default)(this.trackVertical),
             s = Math.ceil(i / o * a);
           return a === s ? 0 : t || Math.max(s, n);
         }
@@ -60769,7 +60807,7 @@ webpackJsonp([332], [, function(e, t, n) {
           var t = this.view,
             n = t.scrollHeight,
             r = t.clientHeight;
-          return e / ((0, x.default)(this.trackVertical) - this.getThumbVerticalHeight()) * (n - r);
+          return e / ((0, S.default)(this.trackVertical) - this.getThumbVerticalHeight()) * (n - r);
         }
       }, {
         key: "scrollLeft",
@@ -61050,7 +61088,7 @@ webpackJsonp([332], [, function(e, t, n) {
               p = o.scrollTop,
               h = o.clientHeight,
               m = o.scrollHeight,
-              _ = (0, x.default)(this.trackVertical),
+              _ = (0, S.default)(this.trackVertical),
               y = this.getThumbVerticalHeight(),
               g = p / (m - h) * (_ - y),
               v = {
@@ -61095,7 +61133,7 @@ webpackJsonp([332], [, function(e, t, n) {
               minHeight: _,
               maxHeight: y
             }), v),
-            S = l({}, E.viewStyleDefault, {
+            x = l({}, E.viewStyleDefault, {
               marginRight: t ? -t : 0,
               marginBottom: t ? -t : 0
             }, m && l({}, E.viewStyleAutoHeight, {
@@ -61105,14 +61143,14 @@ webpackJsonp([332], [, function(e, t, n) {
               minHeight: _,
               maxHeight: y
             }, f && !M && E.viewStyleUniversalInitial),
-            x = {
+            S = {
               transition: "opacity " + p + "ms",
               opacity: 0
             },
-            P = l({}, E.trackHorizontalStyleDefault, d && x, (!t || f && !M) && {
+            L = l({}, E.trackHorizontalStyleDefault, d && S, (!t || f && !M) && {
               display: "none"
             }),
-            L = l({}, E.trackVerticalStyleDefault, d && x, (!t || f && !M) && {
+            P = l({}, E.trackVerticalStyleDefault, d && S, (!t || f && !M) && {
               display: "none"
             });
           return (0, h.createElement)(c, l({}, k, {
@@ -61121,14 +61159,14 @@ webpackJsonp([332], [, function(e, t, n) {
               e.container = t;
             }
           }), [(0, h.cloneElement)(r({
-            style: S
+            style: x
           }), {
             key: "view",
             ref: function(t) {
               e.view = t;
             }
           }, w), (0, h.cloneElement)(i({
-            style: P
+            style: L
           }), {
             key: "trackHorizontal",
             ref: function(t) {
@@ -61141,7 +61179,7 @@ webpackJsonp([332], [, function(e, t, n) {
               e.thumbHorizontal = t;
             }
           })), (0, h.cloneElement)(a({
-            style: L
+            style: P
           }), {
             key: "trackVertical",
             ref: function(t) {
@@ -61157,7 +61195,7 @@ webpackJsonp([332], [, function(e, t, n) {
         }
       }]), t;
     }(h.Component);
-  t.default = L, L.propTypes = {
+  t.default = P, P.propTypes = {
     onScroll: _.default.func,
     onScrollFrame: _.default.func,
     onScrollStart: _.default.func,
@@ -61181,12 +61219,12 @@ webpackJsonp([332], [, function(e, t, n) {
     universal: _.default.bool,
     style: _.default.object,
     children: _.default.node
-  }, L.defaultProps = {
-    renderView: P.renderViewDefault,
-    renderTrackHorizontal: P.renderTrackHorizontalDefault,
-    renderTrackVertical: P.renderTrackVerticalDefault,
-    renderThumbHorizontal: P.renderThumbHorizontalDefault,
-    renderThumbVertical: P.renderThumbVerticalDefault,
+  }, P.defaultProps = {
+    renderView: L.renderViewDefault,
+    renderTrackHorizontal: L.renderTrackHorizontalDefault,
+    renderTrackVertical: L.renderTrackVerticalDefault,
+    renderThumbHorizontal: L.renderThumbHorizontalDefault,
+    renderThumbVertical: L.renderThumbVerticalDefault,
     tagName: "div",
     thumbMinSize: 30,
     hideTracksWhenNotNeeded: !1,
@@ -62085,7 +62123,7 @@ webpackJsonp([332], [, function(e, t, n) {
     o = n(2353);
   n.i(o.a)("interop.mountLazyFilterSelect", r.a);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".c-lazy_filter_select {\n  position: relative;\n  display: block;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  font-weight: 400;\n}\n.c-lazy_filter_select__input_container {\n  border: 1px solid #a0a0a2;\n  position: relative;\n  border-radius: 5px;\n  display: block;\n  width: 100%;\n  cursor: text;\n  padding: 2px 0;\n  max-height: 250px;\n  overflow-y: auto;\n}\n.c-lazy_filter_select__value {\n  display: inline-block;\n}\n.c-lazy_filter_select__token {\n  display: inline-block;\n  margin: 0 0 0 7px;\n  padding: 7px 32px 7px 10px;\n  border: 1px solid #2d9ee0;\n  border-radius: 4px;\n  background: #2d9ee0;\n  color: #fff;\n  cursor: pointer;\n  font-size: 18px;\n  position: relative;\n  vertical-align: middle;\n}\n.c-lazy_filter_select__token:not(.c-lazy_filter_select__token--disabled):not(.c-lazy_filter_select__token--single):after {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  vertical-align: middle;\n  content: '\\E294';\n  font-size: 32px;\n  font-weight: 400;\n  line-height: 0;\n  color: #fff;\n  display: inline-block;\n  margin-left: 8px;\n  position: absolute;\n  right: 0px;\n  top: 50%;\n  transform: translateY(-50%);\n}\n.c-lazy_filter_select__token--disabled {\n  padding-right: 10px;\n  background: #a0a0a2;\n  border-color: #a0a0a2;\n}\n.c-lazy_filter_select__token--single {\n  padding: 12px;\n  border: none;\n  background: transparent;\n  color: inherit;\n  font-weight: inherit;\n  margin: 0;\n}\n.c-lazy_filter_select__token--highlighted {\n  background: #005e99;\n  border-color: #005e99;\n}\n.c-lazy_filter_select__token--highlighted.c-lazy_filter_select__token--disabled {\n  background: #717274;\n  border-color: #717274;\n}\ninput[type='text'].c-lazy_filter_select__input {\n  border: none;\n  outline: none;\n  display: inline-block;\n  width: auto;\n  box-shadow: none !important;\n  margin-bottom: 0;\n  vertical-align: middle;\n}\n.c-lazy_filter_select__list_container {\n  display: none;\n  position: absolute;\n  z-index: 200;\n  width: 100%;\n  max-height: 260px;\n  top: 100%;\n  left: 0;\n  overflow: auto;\n  margin-top: -1px;\n  margin-bottom: 3px;\n  border: 1px solid #a0a0a2;\n  border-radius: 5px 5px 5px 5px;\n  background: #fff;\n  box-shadow: 0 3px 3px rgba(44, 45, 48, 0.1);\n  padding: 4px 3px 4px 4px;\n}\n.c-lazy_filter_select__list_container--visible {\n  display: block;\n}\n.c-lazy_filter_select__list {\n  max-height: 250px;\n  height: 100%;\n  margin-right: 1px;\n  width: 100%;\n}\n.c-lazy_filter_select__item {\n  cursor: pointer;\n  border: 1px solid transparent;\n  border-radius: 5px;\n  line-height: 1;\n  width: 100%;\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  padding: 6px;\n  color: #2c2d30;\n}\n.c-lazy_filter_select__item--selected {\n  background-color: #e8e8e8;\n  border-color: #e8e8e8;\n  color: #2c2d30;\n}\n.c-lazy_filter_select__item--selected:after {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  vertical-align: middle;\n  content: '\\E301';\n  font-weight: 400;\n  line-height: 0;\n  color: #2c2d30;\n  display: inline-block;\n  position: absolute;\n  right: 2px;\n  top: 50%;\n  transform: translateY(-50%);\n}\n.c-lazy_filter_select__item--active {\n  background-color: #2d9ee0;\n  border-color: #2d9ee0;\n  color: #fff;\n}\n.c-lazy_filter_select__item--active.c-lazy_filter_select__item--selected:after {\n  color: #fff;\n}\n.c-lazy_filter_select__item--child {\n  padding-left: 16px;\n}\n.c-lazy_filter_select__item--group {\n  font-weight: bold;\n  width: 100%;\n  color: #2c2d30;\n}\n.c-lazy_filter_select__item--disabled {\n  background: #a0a0a2;\n  border-color: #a0a0a2;\n}\n.c-lazy_filter_select__item--active.c-lazy_filter_select__item--disabled {\n  background-color: #717274;\n  border-color: #717274;\n  color: #fff;\n}\n.c-lazy_filter_select__status {\n  cursor: pointer;\n  border: 1px solid transparent;\n  border-radius: 2px;\n  line-height: 1;\n  width: 100%;\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  padding: 6px;\n  font-size: 14px;\n  text-align: center;\n}\n.c-lazy_filter_select__list_container--showing_status .c-lazy_filter_select__list {\n  display: none;\n}\n.c-lazy_filter_select__list_container--showing_status .c-lazy_filter_select__status {\n  display: block;\n}\n.c-lazy_filter_select--single .c-lazy_filter_select__input_container:after {\n  content: \"\\E271\";\n  font-family: 'Slack';\n  position: absolute;\n  right: 11px;\n  top: 12px;\n  font-size: 20px;\n  pointer-events: none;\n}\n.c-lazy_filter_select--single .c-lazy_filter_select__input_container--active:after {\n  color: #005e99;\n}\n.c-lazy_filter_select--single .c-lazy_filter_select__input_container--value input[type='text'].c-lazy_filter_select__input {\n  display: none;\n}\n.c-lazy_filter_select--disabled {\n  background: #f9f9f9;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-form_type_default {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n}\n.t-form_type_label {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_type_placeholder {\n  color: #a0a0a2;\n}\n.t-form_element_sizing {\n  margin: 0 0 12px;\n  padding: 8px 12px;\n}\n.t-form_label {\n  display: block;\n  margin: 0;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_border {\n  border-radius: 4px;\n  border: solid 1px #a0a0a2;\n}\n.t-form_cursor {\n  cursor: pointer;\n}\n.t-form_cursor[disabled] {\n  cursor: default;\n}\n.c-lazy_filter_select {\n  position: relative;\n  display: block;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  font-weight: 400;\n}\n.c-lazy_filter_select__input_container {\n  border: 1px solid #a0a0a2;\n  position: relative;\n  border-radius: 5px;\n  display: block;\n  width: 100%;\n  cursor: text;\n  padding: 2px 0;\n  max-height: 250px;\n  overflow-y: auto;\n}\n.c-lazy_filter_select__value {\n  display: inline-block;\n}\n.c-lazy_filter_select__token {\n  display: inline-block;\n  margin: 0 0 0 7px;\n  padding: 7px 32px 7px 10px;\n  border: 1px solid #2d9ee0;\n  border-radius: 4px;\n  background: #2d9ee0;\n  color: #fff;\n  cursor: pointer;\n  font-size: 18px;\n  position: relative;\n  vertical-align: middle;\n}\n.c-lazy_filter_select__token:not(.c-lazy_filter_select__token--disabled):not(.c-lazy_filter_select__token--single):after {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  vertical-align: middle;\n  content: '\\E294';\n  font-size: 32px;\n  font-weight: 400;\n  line-height: 0;\n  color: #fff;\n  display: inline-block;\n  margin-left: 8px;\n  position: absolute;\n  right: 0px;\n  top: 50%;\n  transform: translateY(-50%);\n}\n.c-lazy_filter_select__token--disabled {\n  padding-right: 10px;\n  background: #a0a0a2;\n  border-color: #a0a0a2;\n}\n.c-lazy_filter_select__token--single {\n  padding: 12px;\n  border: none;\n  background: transparent;\n  color: inherit;\n  font-weight: inherit;\n  margin: 0;\n}\n.c-lazy_filter_select__token--highlighted {\n  background: #005e99;\n  border-color: #005e99;\n}\n.c-lazy_filter_select__token--highlighted.c-lazy_filter_select__token--disabled {\n  background: #717274;\n  border-color: #717274;\n}\ninput[type='text'].c-lazy_filter_select__input {\n  border: none;\n  outline: none;\n  display: inline-block;\n  width: auto;\n  box-shadow: none !important;\n  margin-bottom: 0;\n  vertical-align: middle;\n}\n.c-lazy_filter_select__list_container {\n  display: none;\n  position: absolute;\n  z-index: 200;\n  width: 100%;\n  max-height: 260px;\n  top: 100%;\n  left: 0;\n  overflow: auto;\n  margin-top: -1px;\n  margin-bottom: 3px;\n  border: 1px solid #a0a0a2;\n  border-radius: 5px 5px 5px 5px;\n  background: #fff;\n  box-shadow: 0 3px 3px rgba(44, 45, 48, 0.1);\n  padding: 4px 3px 4px 4px;\n}\n.c-lazy_filter_select__list_container--visible {\n  display: block;\n}\n.c-lazy_filter_select__list {\n  max-height: 250px;\n  height: 100%;\n  margin-right: 1px;\n  width: 100%;\n}\n.c-lazy_filter_select__item {\n  cursor: pointer;\n  border: 1px solid transparent;\n  border-radius: 5px;\n  line-height: 1;\n  width: 100%;\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  padding: 6px;\n  color: #2c2d30;\n}\n.c-lazy_filter_select__item--selected {\n  background-color: #e8e8e8;\n  border-color: #e8e8e8;\n  color: #2c2d30;\n}\n.c-lazy_filter_select__item--selected:after {\n  font-family: 'Slack v2';\n  font-size: 1.25rem;\n  font-style: normal;\n  font-weight: normal;\n  vertical-align: middle;\n  content: '\\E301';\n  font-weight: 400;\n  line-height: 0;\n  color: #2c2d30;\n  display: inline-block;\n  position: absolute;\n  right: 2px;\n  top: 50%;\n  transform: translateY(-50%);\n}\n.c-lazy_filter_select__item--active {\n  background-color: #2d9ee0;\n  border-color: #2d9ee0;\n  color: #fff;\n}\n.c-lazy_filter_select__item--active.c-lazy_filter_select__item--selected:after {\n  color: #fff;\n}\n.c-lazy_filter_select__item--child {\n  padding-left: 16px;\n}\n.c-lazy_filter_select__item--group {\n  font-weight: bold;\n  width: 100%;\n  color: #2c2d30;\n}\n.c-lazy_filter_select__item--disabled {\n  background: #a0a0a2;\n  border-color: #a0a0a2;\n}\n.c-lazy_filter_select__item--active.c-lazy_filter_select__item--disabled {\n  background-color: #717274;\n  border-color: #717274;\n  color: #fff;\n}\n.c-lazy_filter_select__status {\n  cursor: pointer;\n  border: 1px solid transparent;\n  border-radius: 2px;\n  line-height: 1;\n  width: 100%;\n  display: block;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  padding: 6px;\n  font-size: 14px;\n  text-align: center;\n}\n.c-lazy_filter_select__list_container--showing_status .c-lazy_filter_select__list {\n  display: none;\n}\n.c-lazy_filter_select__list_container--showing_status .c-lazy_filter_select__status {\n  display: block;\n}\n.c-lazy_filter_select--single .c-lazy_filter_select__input_container:after {\n  content: \"\\E271\";\n  font-family: 'Slack';\n  position: absolute;\n  right: 11px;\n  top: 12px;\n  font-size: 20px;\n  pointer-events: none;\n}\n.c-lazy_filter_select--single .c-lazy_filter_select__input_container--active:after {\n  color: #005e99;\n}\n.c-lazy_filter_select--single .c-lazy_filter_select__input_container--value input[type='text'].c-lazy_filter_select__input {\n  display: none;\n}\n.c-lazy_filter_select--disabled {\n  background: #f9f9f9;\n}\n", ""]);
 }, function(e, t) {
   t = e.exports = function(e) {
     if (e && "object" == typeof e) {
@@ -62517,7 +62555,7 @@ webpackJsonp([332], [, function(e, t, n) {
         return e.label;
       }
     },
-    S = function(e) {
+    x = function(e) {
       function t(e) {
         r(this, t);
         var n = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
@@ -63286,7 +63324,7 @@ webpackJsonp([332], [, function(e, t, n) {
         }
       }]), t;
     }(a.PureComponent);
-  t.a = S, S.propTypes = M, S.defaultProps = T;
+  t.a = x, x.propTypes = M, x.defaultProps = T;
 }, function(e, t, n) {
   "use strict";
   var r = n(2),
@@ -63637,7 +63675,7 @@ webpackJsonp([332], [, function(e, t, n) {
     };
   r.propTypes = d, r.defaultProps = p, r.displayName = "AlertDialog", t.a = n.i(a.a)(r);
 }, function(e, t, n) {
-  t = e.exports = n(189)(), t.push([e.i, ".c-dialog {\n  background: rgba(0, 0, 0, 0.4);\n  height: 100%;\n  left: 0;\n  position: absolute;\n  top: 0;\n  width: 100%;\n  z-index: 1053;\n}\n.c-dialog__content {\n  background: #fff;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  left: 50%;\n  outline: none;\n  position: absolute;\n  top: 50%;\n  -webkit-transform: translate(-50%, -50%);\n  -moz-transform: translate(-50%, -50%);\n  -ms-transform: translate(-50%, -50%);\n  transform: translate(-50%, -50%);\n  box-shadow: 0 1px 10px rgba(0, 0, 0, 0.6);\n  border-radius: 0.25rem;\n  width: 560px;\n}\n.c-dialog__cancel {\n  margin-right: 0.5rem;\n}\n.c-dialog__header {\n  background: #f2f2f5;\n  padding: 0.5rem 1rem;\n  position: relative;\n  border-top-right-radius: 0.25rem;\n  border-bottom-right-radius: 0;\n  border-bottom-left-radius: 0;\n  border-top-left-radius: 0.25rem;\n  background-clip: padding-box;\n}\n.c-dialog__close {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  color: #555459;\n  font-family: \"Helvetica Neue\", Helvetica, \"Segoe UI\", Tahoma, Arial, sans-serif;\n  font-size: 2rem;\n  font-weight: 900;\n  opacity: 0.25;\n  -moz-opacity: 0.25;\n  -khtml-opacity: 0.25;\n  margin-top: -4px;\n  position: absolute;\n  right: 1rem;\n  text-shadow: none;\n  top: 50%;\n  -webkit-transform: translateY(-50%);\n  -moz-transform: translateY(-50%);\n  -ms-transform: translateY(-50%);\n  transform: translateY(-50%);\n  -webkit-transition: opacity 0.1s ease-out 0.0000001ms;\n  -moz-transition: opacity 0.1s ease-out 0.0000001ms;\n  transition: opacity 0.1s ease-out 0.0000001ms;\n}\n.c-dialog__close:hover,\n.c-dialog__close:focus,\n.c-dialog__close:active {\n  outline: none;\n}\n.c-dialog__close:hover {\n  opacity: 1;\n  -moz-opacity: 1;\n  -khtml-opacity: 1;\n}\n.c-dialog__title {\n  color: #555459;\n  font-size: 1.25rem;\n  font-weight: 900;\n  line-height: 1.5;\n  margin: 0;\n}\n.c-dialog__body {\n  line-height: 1.2;\n  padding: 1rem;\n  -webkit-user-select: text;\n  -moz-user-select: text;\n  -ms-user-select: text;\n  user-select: text;\n}\n.c-dialog__footer {\n  background: #fff;\n  border-top: none;\n  padding: 0 1rem 1rem 1rem;\n  text-align: right;\n  border-top-right-radius: 0;\n  border-bottom-right-radius: 0.25rem;\n  border-bottom-left-radius: 0.25rem;\n  border-top-left-radius: 0;\n  background-clip: padding-box;\n  box-shadow: none;\n}\n", ""]);
+  t = e.exports = n(189)(), t.push([e.i, ".t-form_type_default {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n}\n.t-form_type_label {\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_type_placeholder {\n  color: #a0a0a2;\n}\n.t-form_element_sizing {\n  margin: 0 0 12px;\n  padding: 8px 12px;\n}\n.t-form_label {\n  display: block;\n  margin: 0;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  font-size: 15px;\n  line-height: 1.86666667;\n  font-weight: 700;\n}\n.t-form_border {\n  border-radius: 4px;\n  border: solid 1px #a0a0a2;\n}\n.t-form_cursor {\n  cursor: pointer;\n}\n.t-form_cursor[disabled] {\n  cursor: default;\n}\n.c-dialog {\n  background: rgba(0, 0, 0, 0.4);\n  height: 100%;\n  left: 0;\n  position: absolute;\n  top: 0;\n  width: 100%;\n  z-index: 1053;\n}\n.c-dialog__content {\n  background: #fff;\n  font-family: 'Slack-Lato', 'appleLogo', sans-serif;\n  left: 50%;\n  outline: none;\n  position: absolute;\n  top: 50%;\n  -webkit-transform: translate(-50%, -50%);\n  -moz-transform: translate(-50%, -50%);\n  -ms-transform: translate(-50%, -50%);\n  transform: translate(-50%, -50%);\n  box-shadow: 0 1px 10px rgba(0, 0, 0, 0.6);\n  border-radius: 0.25rem;\n  width: 560px;\n}\n.c-dialog__cancel {\n  margin-right: 0.5rem;\n}\n.c-dialog__header {\n  background: #f2f2f5;\n  padding: 0.5rem 1rem;\n  position: relative;\n  border-top-right-radius: 0.25rem;\n  border-bottom-right-radius: 0;\n  border-bottom-left-radius: 0;\n  border-top-left-radius: 0.25rem;\n  background-clip: padding-box;\n}\n.c-dialog__close {\n  background: none;\n  border: 0;\n  color: inherit;\n  font: inherit;\n  line-height: normal;\n  overflow: visible;\n  padding: 0;\n  color: #555459;\n  font-family: \"Helvetica Neue\", Helvetica, \"Segoe UI\", Tahoma, Arial, sans-serif;\n  font-size: 2rem;\n  font-weight: 900;\n  opacity: 0.25;\n  -moz-opacity: 0.25;\n  -khtml-opacity: 0.25;\n  margin-top: -4px;\n  position: absolute;\n  right: 1rem;\n  text-shadow: none;\n  top: 50%;\n  -webkit-transform: translateY(-50%);\n  -moz-transform: translateY(-50%);\n  -ms-transform: translateY(-50%);\n  transform: translateY(-50%);\n  -webkit-transition: opacity 0.1s ease-out 0.0000001ms;\n  -moz-transition: opacity 0.1s ease-out 0.0000001ms;\n  transition: opacity 0.1s ease-out 0.0000001ms;\n}\n.c-dialog__close:hover,\n.c-dialog__close:focus,\n.c-dialog__close:active {\n  outline: none;\n}\n.c-dialog__close:hover {\n  opacity: 1;\n  -moz-opacity: 1;\n  -khtml-opacity: 1;\n}\n.c-dialog__title {\n  color: #555459;\n  font-size: 1.25rem;\n  font-weight: 900;\n  line-height: 1.5;\n  margin: 0;\n}\n.c-dialog__body {\n  line-height: 1.2;\n  padding: 1rem;\n  -webkit-user-select: text;\n  -moz-user-select: text;\n  -ms-user-select: text;\n  user-select: text;\n}\n.c-dialog__footer {\n  background: #fff;\n  border-top: none;\n  padding: 0 1rem 1rem 1rem;\n  text-align: right;\n  border-top-right-radius: 0;\n  border-bottom-right-radius: 0.25rem;\n  border-bottom-left-radius: 0.25rem;\n  border-top-left-radius: 0;\n  background-clip: padding-box;\n  box-shadow: none;\n}\n", ""]);
 }, function(e, t, n) {
   "use strict";
   var r = n(4281);

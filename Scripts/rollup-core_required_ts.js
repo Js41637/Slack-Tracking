@@ -2843,7 +2843,7 @@ webpackJsonp([12, 328, 337, 329], {
             }
             TS.interop.SocketManager.provisionallyConnectedSig.add(n);
           });
-          return TS.boot_data.ws_refactor_bucket && (TS.has_pri[1996] = !0, TS.metrics.count("sm_flow_exposure_3")), TS.interop.SocketManager.start(), n;
+          return TS.boot_data.ws_refactor_bucket && (TS.has_pri[1996] = !0, TS.metrics.count("sm_flow_exposure_7")), TS.interop.SocketManager.start(), n;
         },
         B = function() {
           if (TS.isSocketManagerEnabled()) return Promise.reject(new Error("_connectAndFetchStartDataWithoutSocketManager can only be used when TS.isSocketManagerEnabled is false"));
@@ -2851,7 +2851,7 @@ webpackJsonp([12, 328, 337, 329], {
           var e = TS.flannel.getFlannelConnectionUrl(),
             n = TS.ms.connectProvisionallyAndFetchRtmStart(e);
           if (!n) throw new Error("TS.ms.connect did not return an rtm.start promise");
-          return TS.boot_data.ws_refactor_bucket && TS.metrics.count("ms_flow_exposure_3"), n.then(function(e) {
+          return TS.boot_data.ws_refactor_bucket && TS.metrics.count("ms_flow_exposure_7"), n.then(function(e) {
             return TS.flannel.hydrateStartData(e.rtm_start);
           });
         },

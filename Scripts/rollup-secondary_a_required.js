@@ -16256,7 +16256,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           e = me(e), xe(e), ve();
         },
         connectProvisionallyAndFetchRtmStart: function(e) {
-          return e || (e = TS.model.team.url), e = me(e), xe(e), TS.boot_data.ws_refactor_bucket && TS.metrics.count("ms_flow_connect_prov_3"), be();
+          return e || (e = TS.model.team.url), e = me(e), xe(e), TS.boot_data.ws_refactor_bucket && TS.metrics.count("ms_flow_connect_prov_7"), be();
         },
         hasProvisionalConnection: function() {
           return !!f;
@@ -16270,12 +16270,12 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           })), n);
         },
         finalizeProvisionalConnection: function() {
-          return TS.boot_data.ws_refactor_bucket && TS.metrics.count("ms_flow_finalize_prov_3"), ke();
+          return TS.boot_data.ws_refactor_bucket && TS.metrics.count("ms_flow_finalize_prov_7"), ke();
         },
         fastReconnect: function() {
           TS.info("Trying fast reconnect"), TS.ms.calling_test_fast_reconnect = !0, TS.api.callImmediately("rtm.checkFastReconnect").then(function(e) {
             var t = e.data;
-            TS.reloadIfVersionsChanged(t) || (TS.boot_data.ws_refactor_bucket && TS.metrics.count("ms_flow_fast_reconnect_2"), TS.ms.connectImmediately(G));
+            TS.reloadIfVersionsChanged(t) || (TS.boot_data.ws_refactor_bucket && TS.metrics.count("ms_flow_fast_reconnect_7"), TS.ms.connectImmediately(G));
           }, function(e) {
             var t = e.data,
               n = t && t.error;
@@ -16401,7 +16401,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           if (j) {
             var e = Date.now() - TS.ms.last_pong_time;
             if (TS.has_pri[Oe] && TS.log(Oe, "MS since_last_pong_ms:" + e + " pong_timeout_ms:" + L), !(e < L || TS.boot_data.feature_no_pong_timeout)) {
-              TS.metrics.count("ms_pong_timeout"), TS.metrics.store("ms_time_since_pong", e), TS.warn("since_last_pong_ms too long! " + e + " > " + L), fe(), he(), TS.warn("calling disconnect(), expect to get an onDisconnect() callback"), TS.ms.logConnectionFlow("on_ping_timeout"), TS.boot_data.ws_refactor_bucket && TS.metrics.count("ms_flow_trouble_connecting_2"), TS.ms.trouble_sig.dispatch(), j = !1, te("You are on team Tiny Speck, so here are some pong details:\n>>>since_last_pong_ms too long! " + e + " > " + L + " ... calling disconnect(), expect to get an onDisconnect() callback");
+              TS.metrics.count("ms_pong_timeout"), TS.metrics.store("ms_time_since_pong", e), TS.warn("since_last_pong_ms too long! " + e + " > " + L), fe(), he(), TS.warn("calling disconnect(), expect to get an onDisconnect() callback"), TS.ms.logConnectionFlow("on_ping_timeout"), TS.boot_data.ws_refactor_bucket && TS.metrics.count("ms_flow_trouble_connecting_7"), TS.ms.trouble_sig.dispatch(), j = !1, te("You are on team Tiny Speck, so here are some pong details:\n>>>since_last_pong_ms too long! " + e + " > " + L + " ... calling disconnect(), expect to get an onDisconnect() callback");
               try {
                 TS.ms.disconnect(!1, "Disconnecting because of pong timeout"), clearTimeout(B), B = setTimeout(function() {
                   TS.info("called disconnect, no onDisconnect callback happened in 5000ms, so calling _onDisconnect() manually now"), ee(null, "since_last_pong_ms too long! then called disconnect, but no onDisconnect callback happened in 5000ms, so calling _onDisconnect() manually now");
@@ -16418,7 +16418,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }), j && k && (TS.info("Sent another ping to MS; prior ping was never replied to"), r = !0), a && TS.metrics.mark("ms_ping_sent"), j = !0, k = !0;
         },
         ee = function(n, i) {
-          S || (e = e || performance.now()), !i && t && (i = "disconnected after a goodbye message"), i = i || "_onDisconnect called with event:" + n, TS.info("MS WS disconnected"), TS.ms.logConnectionFlow("on_disconnect"), clearTimeout(B), clearTimeout(F), clearTimeout(A), h = !1, f = !1, Ie(), n ? (TS.info("_onDisconnect event.code:" + n.code), n.code == TS.ms.errors.CONNECTION_TROUBLE && (TS.info("TS.ms: This was an unexpected WebSocket disconnection"), TS.boot_data.ws_refactor_bucket && TS.metrics.count("ms_flow_unexpected_close_2"), T && (TS.info("TS.ms: resetting ms_reconnect delay"), T = 0), TS.model.rtm_start_throttler && (TS.info("TS.ms: resetting rtm.start throttler"), TS.model.rtm_start_throttler = 0))) : TS.info("no event"), de() && (v = !0), TS.ms.onFailure(i);
+          S || (e = e || performance.now()), !i && t && (i = "disconnected after a goodbye message"), i = i || "_onDisconnect called with event:" + n, TS.info("MS WS disconnected"), TS.ms.logConnectionFlow("on_disconnect"), clearTimeout(B), clearTimeout(F), clearTimeout(A), h = !1, f = !1, Ie(), n ? (TS.info("_onDisconnect event.code:" + n.code), n.code == TS.ms.errors.CONNECTION_TROUBLE && (TS.info("TS.ms: This was an unexpected WebSocket disconnection"), TS.boot_data.ws_refactor_bucket && TS.metrics.count("ms_flow_unexpected_close_7"), T && (TS.info("TS.ms: resetting ms_reconnect delay"), T = 0), TS.model.rtm_start_throttler && (TS.info("TS.ms: resetting rtm.start throttler"), TS.model.rtm_start_throttler = 0))) : TS.info("no event"), de() && (v = !0), TS.ms.onFailure(i);
         },
         te = function(e) {},
         ne = function(e, t) {
@@ -16611,7 +16611,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         Ce = function() {
           Ie(), TS.qs_args.no_prov_timeout || (g = setTimeout(function() {
-            f ? (TS.boot_data.ws_refactor_bucket && TS.metrics.count("ms_flow_prov_timeout_6"), TS.warn("Giving up on provisional connection because no one ever finalized it"), ne(4002, "Deprecating socket because the provisional connection was never finalized")) : TS.warn("Provisional connection timed out, but it does not look like we have a provisional connection");
+            f ? (TS.boot_data.ws_refactor_bucket && TS.metrics.count("ms_flow_prov_timeout_7"), TS.warn("Giving up on provisional connection because no one ever finalized it"), ne(4002, "Deprecating socket because the provisional connection was never finalized")) : TS.warn("Provisional connection timed out, but it does not look like we have a provisional connection");
           }, 6e4));
         },
         Ie = function() {
