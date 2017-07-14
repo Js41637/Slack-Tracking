@@ -3,7 +3,7 @@
 <div id="prefs_themes">
 
 {{#feature flag='feature_sidebar_prefs'}}
-  <h2 id="prefs_channel_list" class="inline_block small_bottom_margin">{{#t}}Sidebar Settings{{/t}}</h2>
+  <h2 id="prefs_channel_list" class="inline_block small_bottom_margin">{{#t}}Sidebar{{/t}}</h2>
   <p class="bold">{{#t}}In the sidebar, show:{{/t}}</p>
   <p>
     <label class="radio">
@@ -34,15 +34,19 @@
   <p>
     <label class="checkbox nor_margin">
       <input id="enable_unread_view" checked="" type="checkbox" data-inline-saver="#prefs_channel_list">
-      {{#t}}Turn on All Unreads<br />
-      <span class="normal greigh">This collects all the messages you\u2019ve missed in one handy place.</span>{{/t}}
+      {{#t}}Show All Unreads{{/t}}<br>
+      <span class="normal greigh">{{#t}}This collects all the messages you\u2019ve missed in one handy place.{{/t}}</span>
     </label>
   </p>
 
   <p>
     <label class="checkbox">
       <input id="no_omnibox_in_channels_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_other_options">
-      {{#t}}Hide the Quick Switcher in the sidebar{{/t}}
+      {{#t}}Show the Quick Switcher{{/t}}<br>
+      <span class="normal greigh">
+        {{#t}}This lets you jump to specific channels and conversations in a snap.{{/t}}<br>
+        {{#t cmd_key_label=cmd_key_label cmd_key=cmd_key keyboard_shortcut_label='k'}}(You can also use <span class="keyboard" aria-label="{cmd_key_label}">{cmd_key}</span><span class="keyboard">{keyboard_shortcut_label}</span>){{/t}}
+      </span>
     </label>
   </p>
 

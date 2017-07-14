@@ -636,7 +636,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             _reQueue: $,
             _calculateHTTPErrorDelayMs: j,
             _makeLogSafeMethodName: L,
-            _logError: R,
+            _logError: H,
             _getAPIErrorObject: U,
             _maybeShowConnectivityWarning: J,
             _one_at_a_time_Q: f
@@ -980,7 +980,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               breathing_ms: 100,
               try_again: !1
             };
-            if (H(l), R(e, t, i), -1 != d.indexOf(e)) return TS.warn('NOT re-Qing "' + e + '", as specified'), P(e, t, i, r, n), {
+            if (R(l), H(e, t, i), -1 != d.indexOf(e)) return TS.warn('NOT re-Qing "' + e + '", as specified'), P(e, t, i, r, n), {
               breathing_ms: 100,
               try_again: !1
             };
@@ -1143,10 +1143,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             });
           }
         },
-        H = function(e) {
+        R = function(e) {
           e && K(e.mark_label);
         },
-        R = function(e, t, n) {
+        H = function(e, t, n) {
           if ("file_deleted" === n.error);
           else {
             var i = n,
@@ -8119,7 +8119,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           var W, z, q, K, V = "";
           if ("GROWL" === r || "EDIT" === r)
             for (z = 0; z < U.length; z += 1)
-              if (W = U[z], 0 === W.indexOf("<")) M[W] ? TS.error('unexpected: mode == "GROWL" || "EDIT", and yet we got something in the formatting map? ' + W) : 0 === W.indexOf("<!") ? V += R(r, W) : 0 === W.indexOf("<@") ? (K = H(r, W), V += K) : 0 === W.indexOf("<#") ? V += B(r, W) : TS.error('unexpected: mode == "GROWL" || "EDIT", and yet we got ' + W);
+              if (W = U[z], 0 === W.indexOf("<")) M[W] ? TS.error('unexpected: mode == "GROWL" || "EDIT", and yet we got something in the formatting map? ' + W) : 0 === W.indexOf("<!") ? V += H(r, W) : 0 === W.indexOf("<@") ? (K = R(r, W), V += K) : 0 === W.indexOf("<#") ? V += B(r, W) : TS.error('unexpected: mode == "GROWL" || "EDIT", and yet we got ' + W);
               else if (-1 == W.indexOf("<"))
             if ("EDIT" === r) TS.boot_data.feature_localization && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE && (W = TSFEmoji.translateEmojiStringToLocal(W, TS.i18n.locale())), V += _.unescape(W);
             else if (TS.utility.platformSupportsHtmlNotifications()) TS.utility.platformSupportsImgEmojiInHtmlNotifications() && (V += TS.emoji.graphicReplace(W, {
@@ -8135,8 +8135,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             for (z = 0; z < U.length; z += 1)
               if (W = U[z], 0 === W.indexOf("<"))
                 if (M[W]) V += M[W], W == TSF.LINK_END && (V += Z, Z = "");
-                else if (0 === W.indexOf("<!")) V += R(r, W, a, w);
-            else if (0 === W.indexOf("<@")) K = H(r, W, a, w), V += K;
+                else if (0 === W.indexOf("<!")) V += H(r, W, a, w);
+            else if (0 === W.indexOf("<@")) K = R(r, W, a, w), V += K;
             else if (0 === W.indexOf("<#")) V += B(r, W, w);
             else if (0 === W.indexOf(TSF.LINK_START.split(" ")[0])) {
               var ee, te, ne = function(e) {
@@ -8241,7 +8241,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             stop_animations: t.stop_animations
           }), i && -1 !== i.indexOf(">>") && TS.warn("TS.emoji.graphicReplace may be malformed: " + i), i;
         },
-        H = function(e, t, n, i) {
+        R = function(e, t, n, i) {
           var r = t.replace(/<|>/g, "");
           if (TS.boot_data.feature_name_tagging_client) {
             var a = TS.utility.msgs.getMemberIdFromMemberMarkup(r);
@@ -8291,7 +8291,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           var p, f = "@" + s.name;
           return TS.boot_data.feature_texty_mentions ? (TS.boot_data.feature_name_tagging_client && (f = TS.members.getPrefCompliantMemberName(s, !0, !0), l.push("ts_tip ts_tip_top ts_tip_lazy ts_tip_float ts_tip_member"), m += 'data-tip-member="' + s.id + '" '), "EDIT" === e ? TS.boot_data.feature_name_tagging_client ? "<@" + s.id + "|" + f + ">" : "@" + s.name : "GROWL" !== e && TS.permissions.members.canUserSeeMember(s) ? (p = TS.utility.shouldLinksHaveTargets() ? 'target="/team/' + s.id + '" ' : "", s.id == TS.model.user.id && l.push("mention"), i ? f : (m += 'data-member-label="' + f + '" ', '<a href="/team/' + s.id + '" ' + p + m + 'class="' + l.join(" ") + '">' + f + "</a>")) : f) : "EDIT" === e || "GROWL" === e ? "@" + s.name : TS.permissions.members.canUserSeeMember(s) && !i ? (p = TS.utility.shouldLinksHaveTargets() ? 'target="/team/' + s.name + '" ' : "", n || (f = I(f)), '<a href="/team/' + s.name + '" ' + p + m + 'class="' + l.join(" ") + '">' + f + "</a>") : f;
         },
-        R = function(e, t, n, i) {
+        H = function(e, t, n, i) {
           if (TS.boot_data.page_needs_enterprise && TS.boot_data.feature_default_shared_channels) {
             var r = TS.shared.getActiveModelOb() || {};
             r.is_shared && TS.channels.isChannelOrgDefault(r) && (n = !0, i = !0);
@@ -10695,7 +10695,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             o = [];
           if (a || (a = TS.members.getUnknownMemberById(n.id)), n.is_ultra_restricted && (n.is_restricted = !0), a) {
             TS.useReduxMembers() && (a = _.assign({}, a)), TS.has_pri[re] && TS.log(re, 'updating existing member "' + n.id + '"');
-            var l = R(a, n);
+            var l = H(a, n);
             if (s = l.status, o = l.what_changed, _.includes(o, "presence") && (TS.members.is_in_bulk_upsert_mode ? TS.redux.presence.addToBulkUpsertPayload(a) : TS.redux.presence.updatePresenceForMember(a)), (_.includes(o, "is_restricted") || _.includes(o, "is_ultra_restricted")) && (TS.members.is_in_bulk_upsert_mode ? TS.redux.member_types.addToBulkUpdatePayload(a) : TS.redux.member_types.updateMemberTypeForMember(a)), _.includes(o, "deleted")) {
               var d = TS.ims.getImByMemberId(a.id);
               d && (d.is_archived = a.deleted);
@@ -10712,7 +10712,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return TS.members.is_in_bulk_upsert_mode && r.push(c), c;
         },
         processExistingMemberForUpserting: function(e, t) {
-          return R(e, t);
+          return H(e, t);
         },
         processNewMemberForUpserting: function(e) {
           N(e);
@@ -10946,7 +10946,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               if (t._is_local) {
                 e = {}, r.push(e);
                 for (n in t) "files" !== n && "activity" !== n && "stars" !== n && "mentions" !== n && 0 !== n.indexOf("_") && (e[n] = t[n]);
-                e.profile = H(e.profile);
+                e.profile = R(e.profile);
               }
             } else TS.warn("prepareMembersForLS: no member at offset " + i + "??");
           return r;
@@ -11373,18 +11373,18 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             return e.num_new = n.length, e.items.push.apply(e.items, n), Promise.resolve(e);
           });
         },
-        H = function(e) {
+        R = function(e) {
           return _.isObject(e) ? _.omitBy(e, function(e, t) {
             return 0 === t.indexOf("image_");
           }) : e;
         },
-        R = function(e, t) {
+        H = function(e, t) {
           var i = "NOOP",
             r = [];
           return z(e, t), Object.keys(t).forEach(function(a) {
             if ("profile" === a) {
-              var s = H(e.profile),
-                o = H(t.profile);
+              var s = R(e.profile),
+                o = R(t.profile);
               if (_.isObject(o)) {
                 s.status_text === o.status_text && s.status_emoji === o.status_emoji || (i = "CHANGED", r.push("current_status"), e.profile.status_text = o.status_text, e.profile.status_emoji = o.status_emoji);
                 var l = Object.keys(s).filter(function(e) {
@@ -15052,7 +15052,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
       TS.registerModule("ms.msg_handlers", {
         onStart: function() {
           C = window.performance && TS.boot_data && TS.boot_data.feature_ms_msg_handlers_profiling, TS.client && TS.client.stats && (TS.client.stats.start_collecting_sig.add(function() {
-            t = TS.boot_data.feature_queue_metrics && TS.utility.enableFeatureForUser(H), D.enableStatsCollecting();
+            t = TS.boot_data.feature_queue_metrics && TS.utility.enableFeatureForUser(R), D.enableStatsCollecting();
           }), TS.client.stats.stop_collecting_sig.add(function() {
             t = !1, D.disableStatsCollecting();
           })), TS.boot_data.feature_lazy_load_members_and_bots_everywhere && TS.web && !TS.web.space || (TS.isSocketManagerEnabled() ? (TS.interop.SocketManager.socketMessageReceivedSig.add(TS.ms.msg_handlers.msgReceived), TS.interop.Eventlog.messageReceivedSig.add(TS.ms.msg_handlers.msgReceived), TS.interop.SocketManager.connectedSig.add(function() {
@@ -15093,7 +15093,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         },
         message: function(e) {
           if (TS.client) {
-            TS.has_pri[R] && TS.log(R, "recved message type " + e.type), e.is_ephemeral && !e.ts && (e.ts = TS.interop.datetime.makeTsStamp());
+            TS.has_pri[H] && TS.log(H, "recved message type " + e.type), e.is_ephemeral && !e.ts && (e.ts = TS.interop.datetime.makeTsStamp());
             var t, n = "subtype__" + e.subtype;
             if (n in TS.ms.msg_handlers) {
               if (TS.boot_data.feature_channel_eventlog_client) {
@@ -15120,10 +15120,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           e.file && e.file.id == TS.files.polling_file_id && TS.files.uploadProcessingOver(!0, e.file.id);
         },
         message_changed: function(e) {
-          TS.has_pri[R] && TS.log(R, "recved message type " + e.type), TS.ms.msg_handlers.message_changed_worker(e);
+          TS.has_pri[H] && TS.log(H, "recved message type " + e.type), TS.ms.msg_handlers.message_changed_worker(e);
         },
         subtype__message_changed: function(e) {
-          TS.has_pri[R] && TS.log(R, "recved subtype " + e.subtype), TS.boot_data.feature_channel_eventlog_client && TS.warn("feature_channel_eventlog_client=1 so we should never be getting subtype " + e.subtype), TS.ms.msg_handlers.message_changed_worker(e);
+          TS.has_pri[H] && TS.log(H, "recved subtype " + e.subtype), TS.boot_data.feature_channel_eventlog_client && TS.warn("feature_channel_eventlog_client=1 so we should never be getting subtype " + e.subtype), TS.ms.msg_handlers.message_changed_worker(e);
         },
         message_changed_worker: function(e) {
           if (!e.message) return void TS.error("no message?");
@@ -15134,10 +15134,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           TS.utility.msgs.replaceMsg(t, e.message, !0);
         },
         message_deleted: function(e) {
-          TS.has_pri[R] && TS.log(R, "recved message type " + e.type), TS.ms.msg_handlers.message_deleted_worker(e);
+          TS.has_pri[H] && TS.log(H, "recved message type " + e.type), TS.ms.msg_handlers.message_deleted_worker(e);
         },
         subtype__message_deleted: function(e) {
-          TS.has_pri[R] && TS.log(R, "recved subtype " + e.subtype), TS.boot_data.feature_channel_eventlog_client && TS.warn("feature_channel_eventlog_client=1 so we should never be getting subtype " + e.subtype), TS.ms.msg_handlers.message_deleted_worker(e);
+          TS.has_pri[H] && TS.log(H, "recved subtype " + e.subtype), TS.boot_data.feature_channel_eventlog_client && TS.warn("feature_channel_eventlog_client=1 so we should never be getting subtype " + e.subtype), TS.ms.msg_handlers.message_deleted_worker(e);
         },
         message_deleted_worker: function(e) {
           if (!e.deleted_ts) return void TS.error("no deleted_ts?");
@@ -15793,7 +15793,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           TS.ms.msg_handlers.message_changed_worker(e);
         },
         subtype__message_replied: function(e) {
-          TS.has_pri[R] && TS.log(R, "recved subtype " + e.subtype), TS.boot_data.feature_channel_eventlog_client && TS.warn("feature_channel_eventlog_client=1 so we should never be getting subtype " + e.subtype), TS.ms.msg_handlers.message_changed_worker(e);
+          TS.has_pri[H] && TS.log(H, "recved subtype " + e.subtype), TS.boot_data.feature_channel_eventlog_client && TS.warn("feature_channel_eventlog_client=1 so we should never be getting subtype " + e.subtype), TS.ms.msg_handlers.message_changed_worker(e);
         },
         thread_subscribed: function(e) {
           var t = e.subscription;
@@ -15849,7 +15849,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             trailing: !0
           };
           return _.debounce(function(e, t) {
-            TS.has_pri[R] && TS.log(R, "TS.metrics: " + e + ", Q length = " + t), TS.metrics.store(e, t, {
+            TS.has_pri[H] && TS.log(H, "TS.metrics: " + e + ", Q length = " + t), TS.metrics.store(e, t, {
               is_count: !0
             });
           }, 500, e);
@@ -15857,7 +15857,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         u = function(e) {
           if (e._from_evt_log && (d = !0), e._enqueued_at = performance.now(), l.push(e), t && (r += 1, e._id = r, TS.metrics.mark("ms_event_queue_add_" + r)), 1 == l.length) m();
           else {
-            if (TS.has_pri[R] && TS.log(R, e.type + " is Qed and not being handled immediately _Q.length:" + l.length), !TS.client || !TS.client.stats.isEnabled()) return;
+            if (TS.has_pri[H] && TS.log(H, e.type + " is Qed and not being handled immediately _Q.length:" + l.length), !TS.client || !TS.client.stats.isEnabled()) return;
             d ? l.length > 100 && c("ms_event_from_log_q", l.length) : l.length > 10 && c("ms_event_q", l.length);
           }
         },
@@ -15929,7 +15929,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return Promise.resolve();
         },
         S = function(t) {
-          TS.has_pri[R] && TS.log(R, t.type + " is now being handled");
+          TS.has_pri[H] && TS.log(H, t.type + " is now being handled");
           var i;
           C && (i = D.start(t.type));
           var r = function() {
@@ -16100,8 +16100,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             TS.has_pri[U] && TS.log(U, "🏔️ MS message handler stat collecting disabled"), I = !1;
           }
         },
-        H = 50,
-        R = 2,
+        R = 50,
+        H = 2,
         P = 141,
         j = 552,
         L = 1989,
@@ -16221,15 +16221,15 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           })) : (TS.info("MS: starting reconnection after socket failure"), void TS.ms.startReconnection());
         },
         startReconnection: function() {
-          b = Date.now() + T, T ? (TS.console.logStackTrace("Attempting to reconnect in " + T + "ms"), clearTimeout(R), R = setTimeout(function() {
+          b = Date.now() + T, T ? (TS.console.logStackTrace("Attempting to reconnect in " + T + "ms"), clearTimeout(H), H = setTimeout(function() {
             TS.model.window_unloading || TS.ms.startReconnectionImmediately();
-          }, T)) : (TS.console.logStackTrace("Attempting to reconnect immediately"), TS.ms.startReconnectionImmediately()), clearInterval(D), D = setInterval(ie, H), ie();
+          }, T)) : (TS.console.logStackTrace("Attempting to reconnect immediately"), TS.ms.startReconnectionImmediately()), clearInterval(D), D = setInterval(ie, R), ie();
         },
         startReconnectionImmediately: function() {
-          TS.info("MS wants to reconnect because of a start call"), clearTimeout(R), v && de() ? TS.ms.fastReconnect() : (v && ce(), TS.ms.reconnect_requested_sig.dispatch());
+          TS.info("MS wants to reconnect because of a start call"), clearTimeout(H), v && de() ? TS.ms.fastReconnect() : (v && ce(), TS.ms.reconnect_requested_sig.dispatch());
         },
         manualReconnectNow: function() {
-          TS.ms.logConnectionFlow("manual_reconnect"), clearTimeout(R), clearInterval(D), clearTimeout(A), U = 0, TS.model.window_unloading || (TS.info("MS wants to reconnect because of a user interaction"), TS.ms.reconnect_requested_sig.dispatch(), TS.ms.reconnecting_sig.dispatch(0));
+          TS.ms.logConnectionFlow("manual_reconnect"), clearTimeout(H), clearInterval(D), clearTimeout(A), U = 0, TS.model.window_unloading || (TS.info("MS wants to reconnect because of a user interaction"), TS.ms.reconnect_requested_sig.dispatch(), TS.ms.reconnecting_sig.dispatch(0));
         },
         disconnect: function(e, n) {
           if (P && P.readyState != WebSocket.CLOSED) {
@@ -16317,8 +16317,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         F = 0,
         B = 0,
         D = 0,
-        H = 1e3,
-        R = 0,
+        R = 1e3,
+        H = 0,
         P = null,
         $ = 0,
         j = !1,
@@ -22848,7 +22848,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               if (!o[r].being_flushed) {
                 if (void 0 === (c = w(o[r].val)) || null === c) F.removeItem(r), delete o[r], delete l[r];
                 else try {
-                  H(r, c);
+                  R(r, c);
                 } catch (e) {
                   TS.warn("_flushBuffer _ls.setItem failed once, flushing all our keys. TS.storage.storageSize():" + TS.storage.storageSize(!1)), TS.error(0, e), g(), delete o[r], delete l[r];
                   continue;
@@ -22908,7 +22908,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               var m = w(i);
               if (void 0 === m || null === m) F.removeItem(u), delete o[u];
               else try {
-                H(u, m, r);
+                R(u, m, r);
               } catch (e) {
                 TS.warn("_set _ls.setItem failed, flushing. TS.storage.storageSize():" + TS.storage.storageSize(!1)), d = !0;
               }
@@ -22947,14 +22947,14 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         D = function(e) {
           F = e;
         },
-        H = function(e, t, n) {
-          if (t = String(t), TS.storage.do_compression) return void TS.compression.compress(e, t, n || a, R);
-          R({
+        R = function(e, t, n) {
+          if (t = String(t), TS.storage.do_compression) return void TS.compression.compress(e, t, n || a, H);
+          H({
             k: e,
             str: t
           });
         },
-        R = function(e) {
+        H = function(e) {
           F.setItem(e.k, e.str);
           ! function i(r) {
             var a = F.getItem(e.k);
@@ -23314,11 +23314,11 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               A = TS.templates.makeMsgDomId(i.ts),
               E = TS.utility.msgs.getMsgActions(i, r);
             C || (C = TS.templates.builders.getBotIdentifier(i));
-            var O, F, B, D, H = TS.utility.msgs.shouldHaveBotLabel(i, v);
+            var O, F, B, D, R = TS.utility.msgs.shouldHaveBotLabel(i, v);
             A = t.msg_dom_id || A;
-            var R = !!t.is_in_conversation,
+            var H = !!t.is_in_conversation,
               P = !!t.is_threads_view;
-            if (H) {
+            if (R) {
               var j = TS.bots.getBotInfoByMsg(i);
               j && (O = _.get(j, "app_id"), F = _.get(j, "bot_id"), B = _.get(j, "team_id") ? j.team_id : _.get(i, "source_team_id")), D = !0;
             }
@@ -23336,7 +23336,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                       (N || G) && (y = !1);
                     }!TS.utility.msgs.isTempMsg(i) || "bot_message" !== i.type && "USLACKBOT" !== i.user || (y = !0);
                   }
-                if (!M && !TS.interop.datetime.isSameDay(w, L) && !R) {
+                if (!M && !TS.interop.datetime.isSameDay(w, L) && !H) {
                   k = !0;
                   var W = $(g + " div.day_divider");
                   if (W.length > 0) {
@@ -23368,7 +23368,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                     }
                   }
                 }!M && TS.interop.datetime.distanceInMinutes(w, L) > TS.model.msg_activity_interval && (x = !0);
-              } else R || (x = !0);
+              } else H || (x = !0);
             x && (y = !0), "message" !== i.type && (y = !0), ("me_message" === i.subtype || a && "me_message" === a.subtype) && (y = !0);
             var V = !0;
             l && (V = !1);
@@ -23397,7 +23397,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               no_attachments: o,
               is_ephemeral: I,
               enable_slack_action_links: S,
-              is_bot: H,
+              is_bot: R,
               bot_id: F,
               app_id: O,
               team_id: B,
@@ -23411,7 +23411,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               for_top_results_search_display: t.for_top_results_search_display,
               ts_tip_delay_class: "ts_tip_delay_600",
               is_root_msg: t.is_root_msg,
-              is_in_conversation: R,
+              is_in_conversation: H,
               is_threads_view: P,
               file_title_only: "file_reaction" === i.subtype,
               is_slackbot_response: "slackbot_response" === i.subtype,
@@ -23421,14 +23421,14 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             };
             (E.add_rxn || E.add_file_rxn || E.add_file_comment_rxn) && (Z.show_rxn_action = !0), Z.star_components = TS.templates.builders.buildStarComponents("message", i, r);
             var ee = !0;
-            if (l && (ee = !1), TS.utility.msgs.isFileMsg(i) && (ee = !1), Z.selectable = ee, R && (Z.msg_dom_id = TS.templates.makeMsgDomIdInConversation(i.ts)), TS.utility.msgs.isMsgReply(i)) Z.show_reply_action = !1;
+            if (l && (ee = !1), TS.utility.msgs.isFileMsg(i) && (ee = !1), Z.selectable = ee, H && (Z.msg_dom_id = TS.templates.makeMsgDomIdInConversation(i.ts)), TS.utility.msgs.isMsgReply(i)) Z.show_reply_action = !1;
             else {
               Z.show_reply_action = TS.replies.canReplyToMsg(r, i, !0) && !t.is_root_msg, !Z.show_reply_action && TS.utility.msgs.isFileMsg(i) && i.file && (Z.show_comment_action = !0);
             }
             var te = i.ts == i.thread_ts;
-            if ((te || !i.thread_ts) && R && TS.client && (Z.format_for_thread_root = !0, r.is_im || r.is_mpim ? Z.model_ob_name = TS.i18n.t("Direct message", "messages")() : Z.model_ob_name = TS.i18n.t("in {channel_display_name}", "messages")({
+            if ((te || !i.thread_ts) && H && TS.client && (Z.format_for_thread_root = !0, r.is_im || r.is_mpim ? Z.model_ob_name = TS.i18n.t("Direct message", "messages")() : Z.model_ob_name = TS.i18n.t("in {channel_display_name}", "messages")({
                 channel_display_name: TS.shared.getDisplayNameForModelOb(r)
-              })), !te || !i.reply_count || R || l || t.for_search_display || t.for_top_results_search_display || t.is_threads_view || (Z.show_reply_bar = !0), Z.is_tombstone = "tombstone" === i.subtype, Z.is_new_reply = !!t.is_new_reply, !TS.boot_data.feature_new_broadcast || !TS.utility.msgs.isMsgReply(i) || "thread_broadcast" !== i.subtype || R || l || t.is_threads_view || (Z.is_broadcast = !0, Z.show_reply_action = !0), Z.is_broadcast && i.root && (Z.root_repliers_summary = new Handlebars.SafeString(TS.templates.builders.buildBroadcastRepliersSummaryHTML(i.root)), "tombstone" !== i.root.subtype)) {
+              })), !te || !i.reply_count || H || l || t.for_search_display || t.for_top_results_search_display || t.is_threads_view || (Z.show_reply_bar = !0), Z.is_tombstone = "tombstone" === i.subtype, Z.is_new_reply = !!t.is_new_reply, !TS.boot_data.feature_new_broadcast || !TS.utility.msgs.isMsgReply(i) || "thread_broadcast" !== i.subtype || H || l || t.is_threads_view || (Z.is_broadcast = !0, Z.show_reply_action = !0), Z.is_broadcast && i.root && (Z.root_repliers_summary = new Handlebars.SafeString(TS.templates.builders.buildBroadcastRepliersSummaryHTML(i.root)), "tombstone" !== i.root.subtype)) {
               var ne = i.root.text,
                 ie = _.first(i.root.attachments);
               if (_.get(ie, "is_msg_unfurl")) {
@@ -24161,7 +24161,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             group_name: f
           });
           else if ("channel_archive" === e.subtype) {
-            var H = "'" + a.id + "'";
+            var R = "'" + a.id + "'";
             m = a.is_private ? TS.model.group_prefix + a.name : a ? "#" + a.name : TS.i18n.t("the channel", "templates_builders")(), S = _.get(TS.model.enterprise, "name", ""), TS.client && 1 == a.is_moved ? (e.user && (T = TS.members.getMemberById(e.user), b = TS.format.formatNoHighlightsNoSpecials("<@" + T.id + "|" + T.name + ">")), l = TS.model.archive_view_is_showing ? TS.i18n.t("moved {channel_name} to another {enterprise_name} team. The contents up until this point are still browsable and available in search.", "templates_builders")({
               channel_name: m,
               enterprise_name: S,
@@ -24172,14 +24172,14 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               enterprise_name: S,
               mover_name: b,
               name_for_url: a.id,
-              channel_id: H
+              channel_id: R
             })) : TS.client && a ? l = TS.model.archive_view_is_showing ? TS.i18n.t("archived {channel_name}. The contents will still be browsable and available in search.", "templates_builders")({
               channel_name: m,
               name_for_url: a.id
             }) : TS.i18n.t('archived {channel_name}. The contents will still be browsable and available in search. \t\t\t\t\t\tIt can also be un-archived at any time. To close it now, <a onclick="TS.channels.closeArchivedChannel({channel_id})">click here</a>.', "templates_builders")({
               channel_name: m,
               name_for_url: a.id,
-              channel_id: H
+              channel_id: R
             }) : a && 1 == a.is_moved && (l = TS.i18n.t("moved {channel_name} to another {enterprise_name} team", "templates_builders")({
               channel_name: m,
               enterprise_name: S
@@ -27607,7 +27607,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           var r = TS.templates.admin_edit_team_profile_list(n);
           e.find("#edit_team_profile_header").text(TS.i18n.t("Customize profile", "team_profile")()).removeClass("hidden center_and_narrow");
           var a;
-          a = TS.model.team.profile && TS.model.team.profile.fields.length >= 50 ? '<div class="alert alert_info"><i class="ts_icon ts_icon_info_circle"></i>' + TS.i18n.t("You have reached the maximum number of fields that can be added to profiles.", "team_profile")() + "</div>" : TS.i18n.t("Expand your team’s profiles by adding additional fields below", "team_profile")(), e.find("#edit_team_profile_value_note").html(a).removeClass("hidden center_and_narrow"), e.find("#edit_team_profile_list").html(r), U("#edit_team_profile_list"), R(), k(), M(!0);
+          a = TS.model.team.profile && TS.model.team.profile.fields.length >= 50 ? '<div class="alert alert_info"><i class="ts_icon ts_icon_info_circle"></i>' + TS.i18n.t("You have reached the maximum number of fields that can be added to profiles.", "team_profile")() + "</div>" : TS.i18n.t("Expand your team’s profiles by adding additional fields below", "team_profile")(), e.find("#edit_team_profile_value_note").html(a).removeClass("hidden center_and_narrow"), e.find("#edit_team_profile_list").html(r), U("#edit_team_profile_list"), H(), k(), M(!0);
         },
         S = function t() {
           i.push({
@@ -27623,7 +27623,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             back: t
           });
           var n = TS.templates.admin_edit_team_profile_custom();
-          e.find("#edit_team_profile_header").text(TS.i18n.t("Create a new field", "team_profile")()).removeClass("center_and_narrow"), e.find("#edit_team_profile_value_note").text(TS.i18n.t("Which type of field would you like to create?", "team_profile")()).removeClass("hidden center_and_narrow"), e.find("#edit_team_profile_custom").html(n), U("#edit_team_profile_custom"), k(), M(), H();
+          e.find("#edit_team_profile_header").text(TS.i18n.t("Create a new field", "team_profile")()).removeClass("center_and_narrow"), e.find("#edit_team_profile_value_note").text(TS.i18n.t("Which type of field would you like to create?", "team_profile")()).removeClass("hidden center_and_narrow"), e.find("#edit_team_profile_custom").html(n), U("#edit_team_profile_custom"), k(), M(), R();
         },
         b = function t(n) {
           var r = $(n.target);
@@ -27640,7 +27640,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             event: n
           });
           var l = TS.templates.admin_edit_team_profile_edit(o);
-          e.find("#edit_team_profile_header").text(s).removeClass("center_and_narrow"), e.find("#edit_team_profile_value_note").addClass("hidden"), e.find("#edit_team_profile_edit").html(l), U("#edit_team_profile_edit"), C(), I(), H(), Ladda.bind("#edit_team_profile_confirm_edit_btn"), k(), M(), K();
+          e.find("#edit_team_profile_header").text(s).removeClass("center_and_narrow"), e.find("#edit_team_profile_value_note").addClass("hidden"), e.find("#edit_team_profile_edit").html(l), U("#edit_team_profile_edit"), C(), I(), R(), Ladda.bind("#edit_team_profile_confirm_edit_btn"), k(), M(), K();
         },
         v = function t(n) {
           var r = $(n.target),
@@ -27747,7 +27747,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             i = n.closest("select");
           i.length && (n = i), n.removeClass("highlight_yellow_bg");
         },
-        H = function() {
+        R = function() {
           var t = e.find(".edit_team_profile_lazy_filter_select");
           if (t.length) {
             var n = {
@@ -27758,7 +27758,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             TS.ui.people_picker.make(t, n);
           }
         },
-        R = function() {
+        H = function() {
           e.find("#edit_team_profile_list_drag_and_drop_area").sortable({
             items: ".visible_row[data-id]",
             handle: ".ts_icon_grabby_patty",
@@ -28546,7 +28546,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return TS.generic_dialog.alert(TS.i18n.t("Sorry! Your camera could not be found!", "edit_profile")()).then(W);
         },
         x = function() {
-          TS.boot_data.feature_take_profile_photo && l.is_enabled && M().then(I).then(A).then(E).then(R).then(P).then(j).then(L).catch(U);
+          TS.boot_data.feature_take_profile_photo && l.is_enabled && M().then(I).then(A).then(E).then(H).then(P).then(j).then(L).catch(U);
         },
         M = function() {
           if (TS.boot_data.feature_take_profile_photo) return new Promise(function(e, t) {
@@ -28651,7 +28651,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }
           if (t) {
             if (TS.model.is_iOS && TS.menu.end(), !t.length) return;
-            te(), ge(0), D(t[0]).then(H).then(R).then(P).then(j).then(L).catch(U), e.find('[data-action="edit_member_profile_upload_photo"]').val("");
+            te(), ge(0), D(t[0]).then(R).then(H).then(P).then(j).then(L).catch(U), e.find('[data-action="edit_member_profile_upload_photo"]').val("");
           }
         },
         D = function(e) {
@@ -28675,10 +28675,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             }, i.readAsDataURL(e);
           });
         },
-        H = function(e) {
+        R = function(e) {
           return e.file.type.match(/image\/(?:gif|png|jpeg)/i) ? Promise.resolve(e) : Promise.reject(new Error("format"));
         },
-        R = function(e) {
+        H = function(e) {
           return new Promise(function(t, n) {
             r = new Image, r.onload = function() {
               t(e);
@@ -30302,7 +30302,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         D = function(e) {
           return e._running_promise && e._running_promise.isPending();
         },
-        H = function(e, t) {
+        R = function(e, t) {
           if (!e.disabled) {
             if (!e._list_visible) return void G(e);
             var n;
@@ -30311,7 +30311,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             }), e._$active && e._$active.removeClass("active"), n.addClass("active"), e._$active = n);
           }
         },
-        R = function(e) {
+        H = function(e) {
           return !(e.hasClass("selected") || e.hasClass("disabled"));
         },
         P = function(e, t) {
@@ -30327,12 +30327,12 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }
         },
         j = function(e) {
-          return H(e, "nextAll");
+          return R(e, "nextAll");
         },
         L = function(e) {
           if (!e.disabled) {
             var t = e._$active;
-            if (t.length && R(t) && d(e)) {
+            if (t.length && H(t) && d(e)) {
               t.addClass("selected"), t.removeClass("active"), e._$active = null;
               var n = h(e, t);
               P(e, n);
@@ -30340,7 +30340,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }
         },
         U = function(e) {
-          return H(e, "prevAll");
+          return R(e, "prevAll");
         },
         N = function(e) {
           e.$input_container.addClass("empty"), Z(e);
@@ -30583,7 +30583,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         xe = function(e, t) {
           if (!e.disabled && (t.clientX != e._mouse.lastX || t.clientY != e._mouse.lastY)) {
             var n = $(t.currentTarget);
-            e._$active && e._$active.removeClass("active"), !n.hasClass("active") && R(n) && (n.addClass("active"), e._$active = n), e._mouse.lastX = t.clientX, e._mouse.lastY = t.clientY;
+            e._$active && e._$active.removeClass("active"), !n.hasClass("active") && H(n) && (n.addClass("active"), e._$active = n), e._mouse.lastX = t.clientX, e._mouse.lastY = t.clientY;
           }
         },
         Me = function(e, t) {
@@ -30596,7 +30596,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             e._$active = n;
             if (!e.single && e.allow_item_unselect && b(e, h(e, n))) q(e, n);
             else {
-              var i = R(n);
+              var i = H(n);
               if (!i && !e.single) return;
               if (!d(e)) return;
               if (!i && e.single) return S(e), void t.stopPropagation();
@@ -32903,7 +32903,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return O[e] ? void TS.warn(e + " cannot be registered because that key is already in use.") : "function" != typeof t ? void TS.warn("Only functions can be registered as validators.") : void(O[e] = t);
         },
         showCustomValidation: function(e, t, n, i) {
-          R(e, n.error_message || t, n.class, n, i);
+          H(e, n.error_message || t, n.class, n, i);
         },
         getErrorMessage: function(e, t) {
           switch (e) {
@@ -32943,13 +32943,13 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }
         },
         showError: function(e, t, n, i) {
-          R(e, n.error_message || t, "validation_error", n, i);
+          H(e, n.error_message || t, "validation_error", n, i);
         },
         showWarning: function(e, t, n, i) {
-          R(e, n.warning_message || t, "validation_warning", n, i);
+          H(e, n.warning_message || t, "validation_warning", n, i);
         },
         showSuccess: function(e, t, n, i) {
-          R(e, n.success_message || t, "validation_success", n, i);
+          H(e, n.success_message || t, "validation_success", n, i);
         },
         test: function() {
           return {
@@ -33017,7 +33017,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           return TS.ui.validation.completed_sig.dispatch(e, {
             event: n,
             passed: i
-          }), H(e, i, t) && TS.ui.validation.showSuccess(e, t.success_message, t, 3e3), i;
+          }), R(e, i, t) && TS.ui.validation.showSuccess(e, t.success_message, t, 3e3), i;
         },
         B = function(e) {
           return e.is("[data-validation]") ? _.compact(e.attr("data-validation").replace(/\s*(,|=)\s*/g, "$1").split(/\s+/)) : [];
@@ -33027,11 +33027,11 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             return !new Date(e).toISOString().indexOf(e);
           }
         },
-        H = function(e, t, n) {
+        R = function(e, t, n) {
           var i = $(document.querySelector('label[for="' + (n.custom_for || e.attr("name")) + '"]'));
           if (i.length) return !(n && n.quiet) && t && !1 === i.data("validation-ephemeral");
         },
-        R = function(e, t, n, i, r) {
+        H = function(e, t, n, i, r) {
           if (i = i || {}, _.isUndefined(i.should_truncate) && (i.should_truncate = !0), !i || !i.quiet) {
             var a = $(document.querySelector('label[for="' + (i.custom_for || e.attr("name")) + '"]'));
             if (a.length) {
@@ -34322,7 +34322,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }), C(), TSSSB.call("closeWindow", i.call_window_token), q(), delete i.call_window_token), i.window_handle && (i.window_handle.close(), delete i.window_handle);
         },
         C = function() {
-          H(!1), R(!1);
+          R(!1), H(!1);
         },
         I = function(e, t, r) {
           if (TS.utility.calls.isEnabled()) {
@@ -34461,7 +34461,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             online: i.is_reachability_online
           });
         },
-        H = function(e) {
+        R = function(e) {
           TS.utility.calls_log.logEvent({
             event: n.log_events.call_window_loaded,
             value: {
@@ -34469,7 +34469,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
             }
           }), i.call_window_loaded = e, G(), e && TSSSB.call("focusWindow", i.call_window_token), D();
         },
-        R = function(e) {
+        H = function(e) {
           TS.utility.calls_log.logEvent({
             event: n.log_events.call_window_busy,
             value: {
@@ -34623,10 +34623,10 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
                 W(e.data.mini_panel_state), e.data.mini_panel_state.hidden && TSSSB.call("hideWindow", i.mini_panel_token);
                 break;
               case TS.utility.calls.messages_from_call_window_types.set_call_window_loaded:
-                H(e.data.is_loaded), D();
+                R(e.data.is_loaded), D();
                 break;
               case TS.utility.calls.messages_from_call_window_types.set_call_window_busy:
-                R(e.data.is_busy);
+                H(e.data.is_busy);
                 break;
               case TS.utility.calls.messages_from_call_window_types.show_growl_notification:
                 "nothing" !== TS.notifs.getGlobalNotificationSetting() && TS.ui.growls.show(e.data.title, e.data.txt, null, {
@@ -36261,6 +36261,48 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
               ui_context: i
             }
           });
+        },
+        recordAnalyticsOverviewImpression: function(e, t, n) {
+          var i = {},
+            r = {};
+          i.action = "impression", i.ui_element = e, r.entity_key = t, r.tracking_code = n, r.anchor_page = "organization_overview", r.target_team_id = TS.enterprise.model.get("org.enterprise.id") || _.get(TS.boot_data, "team_id"), TS.clog.track("ENTERPRISE_ANALYTICS", _.assign({}, r, {
+            contexts: {
+              ui_context: i
+            }
+          }));
+        },
+        recordAnalyticsTooltipHover: function(e) {
+          var t = {},
+            n = {};
+          t.action = "hover", t.ui_element = "NOTING_BADGE", n.entity_key = e, n.anchor_page = "organization_overview", n.target_team_id = TS.enterprise.model.get("org.enterprise.id") || _.get(TS.boot_data, "team_id"), TS.clog.track("ENTERPRISE_ANALYTICS", _.assign({}, n, {
+            contexts: {
+              ui_context: t
+            }
+          }));
+        },
+        convertDateRangeToThriftID: function(e) {
+          switch (e) {
+            case "30d":
+              return "FILTER_LAST_30DAYS";
+            case "all":
+              return "FILTER_ALL_TIME";
+          }
+        },
+        convertTimeseriesTabToClogKey: function(e) {
+          switch (e) {
+            case "active-users_weekly_active_users":
+              return "wau_ts";
+            case "active-users_daily_active_users":
+              return "dau_ts";
+            case "messages-and-files_messages_sent":
+              return "messages_sent_ts";
+            case "messages-and-files_files_uploaded":
+              return "files_uploaded_ts";
+            case "transparency_messages_sent":
+              return "transparency_sent_ts";
+            case "transparency_messages_read":
+              return "transparency_read_ts";
+          }
         }
       });
     }();
@@ -41052,7 +41094,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
         D = function(e) {
           return e ? p : h;
         },
-        H = function() {
+        R = function() {
           var e = TS.i18n.t("Anyone on your team can join", "shared")();
           if (N()) {
             var n = _.escape(TS.model.enterprise.name);
@@ -41070,7 +41112,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           }
           return e;
         },
-        R = function() {
+        H = function() {
           var e = TS.i18n.t("Restricted to invited members", "shared")();
           if (N()) {
             var n = _.escape(TS.model.enterprise.name);
@@ -41293,8 +41335,8 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           t.find('#sci_channels_create [name="access"]').togglify({
             on_text: TS.i18n.t("Public", "shared")(),
             off_text: TS.i18n.t("Private", "shared")(),
-            label: H(),
-            off_label: R(),
+            label: R(),
+            off_label: H(),
             off_class: "ts_toggle_orange",
             initial_state: !0
           });
@@ -41473,7 +41515,7 @@ webpackJsonp([1, 243, 244, 245, 246, 247, 253, 257], {
           } else i.text(r);
         },
         Be = function() {
-          t.find(".ts_toggle_on_label").text(H()), t.find(".ts_toggle_off_label").text(R());
+          t.find(".ts_toggle_on_label").text(R()), t.find(".ts_toggle_off_label").text(H());
         },
         De = function(e, n) {
           if (!t) return !0;
