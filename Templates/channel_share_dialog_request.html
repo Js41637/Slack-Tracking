@@ -1,0 +1,20 @@
+{{i18n_ns 'share_channels'}}
+
+{{#feature flag="feature_connecting_shared_channels"}}
+
+<div class="share_channel_modal_contents">
+    <h1 class="share_channel_modal_heading">
+      {{#t}}Shared Channel Request{{/t}}</h1>
+    </h1>
+
+    <p>
+      {{#t}}You've received a request from <strong>{team_name}</strong> to join the channel <strong>#{channel_name}</strong>.{{/t}}
+    </p>
+
+    <p class="align_right large_top_margin">
+      <button class="btn btn_large btn_outline btn" type="button">{{#t}}Cancel{{/t}}</button>
+      <button class="btn btn_large ladda-button submit" data-style="expand-right">{{#t note="Form submit button label"}}Approve &amp; Add Channel{{/t}}</button>
+    </p>
+</div>
+
+{{/feature}}
