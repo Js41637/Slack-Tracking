@@ -1,0 +1,29 @@
+{{i18n_ns "pages_admin"}}
+<table class="p-add_invoice__price_preview_table full_width small_bottom_margin">
+  <tbody>
+    <tr class="no_border">
+      <td class="no_border no_padding" data-js="inv_ss__price_preview_number_of_seats" data-qa="inv_ss__price_preview_number_of_seats">{{user_count_text}}</td>
+      <td class="no_border no_padding align_right" data-js="inv_ss__price_preview_cost_for_users" data-qa="inv_ss__price_preview_cost_for_users">{{cost_for_users}}</td>
+    </tr>
+    <tr class="no_border">
+      <td class="no_border no_padding">{{#t}}Credits for future usage{{/t}}</td>
+      <td class="no_border no_padding align_right" data-js="inv_ss__price_preview_future_credits" data-qa="inv_ss__price_preview_future_credits">{{future_credits}}</td>
+    </tr>
+    <tr class="bottom_border">
+      <td class="no_border no_padding very_small_bottom_padding">{{#t}}Previous credits:{{/t}}</td>
+      <td class="no_border no_padding very_small_bottom_padding align_right seafoam_green" data-js="inv_ss__price_preview_prev_credits" data-qa="inv_ss__price_preview_prev_credits">({{team_credits}})</td>
+    </tr>
+    <tr class="no_border {{#if hide_taxes}}hidden{{/if}}" data-js="inv_ss__price_preview_subtotal_container" data-qa="inv_ss__price_preview_tax_container">
+      <td class="no_border no_padding very_small_top_padding">{{#t}}Subtotal:{{/t}}</td>
+      <td class="no_border no_padding very_small_top_padding align_right" data-js="inv_ss__price_preview_subtotal" data-qa="inv_ss__price_preview_subtotal">{{subtotal}}</td>
+    </tr>
+    <tr class="no_border {{#if hide_taxes}}hidden{{/if}}" data-js="inv_ss__price_preview_tax_container" data-qa="inv_ss__price_preview_tax_container">
+      <td class="no_border no_padding">{{#t}}Taxes{{/t}}</td>
+      <td class="no_border no_padding align_right" data-js="inv_ss__price_preview_taxes" data-qa="inv_ss__price_preview_taxes">{{taxes}}</td>
+    </tr>
+    <tr class="no_border">
+      <td class="no_border no_padding black">{{#t}}Total{{/t}}</td>
+      <td class="no_border no_padding align_right black" data-js="inv_ss__price_preview_total" data-qa="inv_ss__price_preview_total">{{total}}</td>
+    </tr>
+  </tbody>
+</table>

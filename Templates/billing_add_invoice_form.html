@@ -10,5 +10,9 @@
 
   {{> billing_add_invoice_purchase_order_input disabled=disabled}}
 
+  <div class="payment_form_details" data-js="p-add_invoice__price_preview_container">
+    {{!-- This field populated by add_invoice_price_preview when necessary (check TS.ui.add_invoice_form.source.js)  --}}
+  </div>
+
   {{> billing_add_invoice_checkout_button disabled=disabled}}
 </form>

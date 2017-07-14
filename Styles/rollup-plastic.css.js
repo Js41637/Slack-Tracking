@@ -13749,10 +13749,6 @@ body:not(.unify_user) #member_preview_scroller .member_details {
   padding-right: 1rem
 }
 
-#team_tab #back_from_member_preview {
-  flex-grow: 1
-}
-
 #team_tab #member_preview_scroller {
   width: 100%
 }

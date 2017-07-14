@@ -15,9 +15,11 @@
     {{#t}}View in app directory{{/t}}
   </a></li>
 {{else}}
-  <li role="menuitem" data-qa="app_card_edit_settings"><a href="/services/{{bot_id}}" target="_blank">
-    {{#t}}View settings{{/t}}
-  </a></li>
+  {{#unless is_foreign_app}}
+    <li role="menuitem" data-qa="app_card_edit_settings"><a href="/services/{{bot_id}}" target="_blank">
+      {{#t}}View settings{{/t}}
+    </a></li>
+  {{/unless}}
 {{/if}}
 {{!-- Bot-specific --}}
 {{#if bot_user}}
