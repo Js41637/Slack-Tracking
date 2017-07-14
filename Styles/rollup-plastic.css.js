@@ -15824,7 +15824,7 @@ body:not(.unify_user) .channel_invite_pending_user_small {
 .channel_invite_member_small .add_icon,
 .channel_invite_pending_user_small .add_icon {
   margin-top: .7rem;
-  font-size: 2rem;
+  font-size: 1.6rem;
   color: #439fe0
 }
 
