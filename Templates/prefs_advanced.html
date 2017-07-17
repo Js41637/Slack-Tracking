@@ -44,47 +44,6 @@
 
 <hr>
 
-{{#feature flag='feature_sidebar_prefs'}}
-{{else}}
-<h2 id="prefs_channel_list" class="inline_block small_bottom_margin">{{#t}}Channel List{{/t}}</h2>
-<p class="bold">{{#t}}In the sidebar, show:{{/t}}</p>
-<p>
-  <label class="radio">
-    <input name="pr_sidebar" type="radio" value="" checked="checked" data-inline-saver="#prefs_channel_list">
-    <span class='normal'>{{#t}}All my channels and DMs{{/t}}</span>
-  </label>
-  <label class="radio">
-    <input name="pr_sidebar" type="radio" value="hide_read_channels" data-inline-saver="#prefs_channel_list">
-    <span class='normal'>{{#t}}Just my unread channels and DMs{{/t}}</span>
-  </label>
-  <label class="radio">
-    <input name="pr_sidebar" type="radio" value="hide_read_channels_unless_starred" data-inline-saver="#prefs_channel_list">
-    <span class='normal'>{{#t}}My unreads, along with everything I've starred{{/t}}</span>
-  </label>
-</p>
-<p>
-  <label for="separate_private_channels_cb" class="checkbox no_margin">
-    <input id="separate_private_channels_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_channel_list">
-    <span>{{#t}}List private channels separately{{/t}}</span>
-  </label>
-  {{#if show_separate_shared_channels_pref}}
-    <label for="separate_shared_channels_cb" class="checkbox no_margin">
-      <input id="separate_shared_channels_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_channel_list">
-      <span>{{#t}}List shared channels separately{{/t}}</span>
-    </label>
-  {{/if}}
-</p>
-<p>
-  <label class="checkbox nor_margin">
-    <input id="enable_unread_view" checked="" type="checkbox" data-inline-saver="#prefs_channel_list">
-    {{#t}}Turn on All Unreads<br />
-    <span class="normal greigh">This collects all the messages you\u2019ve missed in one handy place.</span>{{/t}}
-  </label>
-</p>
-
-<hr>
-{{/feature}}
-
 <h2 id="prefs_other_options" class="inline_block">{{#t}}Other Options{{/t}}</h2>
 <p>
 
@@ -113,14 +72,6 @@
       <span class="normal greigh">{{#t}}Overrides normal behavior in some browsers{{/t}}</span>
     </label>
   {{/isOurApp}}
-
-{{#feature flag='feature_sidebar_prefs'}}
-{{else}}
-  <label class="checkbox">
-    <input id="no_omnibox_in_channels_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_other_options">
-    {{#t}}Hide the Quick Switcher in the channel list{{/t}}
-  </label>
-{{/feature}}
 
   {{#feature flag='feature_prev_next_button'}}
     <label class="checkbox">
