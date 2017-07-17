@@ -12937,14 +12937,14 @@ body:not(.unify_user) #member_preview_scroller .member_details {
 #member_preview_scroller .member_data_table .current_status_cell .current_status_container,
 .statuses_container .current_status_container {
   position: relative;
-  left: -10px;
-  width: calc(100% + 10px)
+  left: -12px;
+  width: calc(100% + 12px)
 }
 
 #member_preview_scroller .member_data_table .current_status_cell .current_status_container .current_status_cover,
 .statuses_container .current_status_container .current_status_cover {
   position: relative;
-  padding: .45rem .75rem .55rem;
+  padding: .45rem .65rem .55rem;
   background-clip: padding-box;
   min-height: 36px;
   display: inline-block;
@@ -12956,7 +12956,6 @@ body:not(.unify_user) #member_preview_scroller .member_details {
 
 #member_preview_scroller .member_data_table .current_status_cell .current_status_container .current_status_cover .current_status_cover_content,
 .statuses_container .current_status_container .current_status_cover .current_status_cover_content {
-  padding-right: 15px;
   padding-left: 27px;
   line-height: normal
 }
@@ -17318,13 +17317,6 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   margin-bottom: .25rem;
   height: 96px;
   max-height: 112px!important
-}
-
-.handy_rxns_poll_label {
-  display: inline-block;
-  position: relative;
-  top: -3px;
-  font-weight: 700
 }
 
 #handy_rxns_controller {

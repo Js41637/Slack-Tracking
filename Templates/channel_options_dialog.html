@@ -92,7 +92,11 @@
 
   {{#if show_manage_posting_privilege_btn}}
     <div class="channel_option_item top_padding bottom_padding" data-action="posting_privilege_btn">
-      <div class="title bold charcoal_grey small_bottom_margin">{{#t}}Manage posting privileges{{/t}}</div>
+      {{#feature flag="feature_channel_options_review_stage"}}
+        <div class="title bold charcoal_grey small_bottom_margin">{{#t}}Manage posting permissions{{/t}}</div>
+      {{else}}
+        <div class="title bold charcoal_grey small_bottom_margin">{{#t}}Manage posting privileges{{/t}}</div>
+      {{/feature}}
 
       <p class="subtle_silver no_bottom_margin">{{#t}}Change who is allowed to post messages in this channel.{{/t}}</p>
 
@@ -143,9 +147,23 @@
 <div class="channel_options_section" data-section="option">
   <div class="channel_options_header charcoal_grey larger_bottom_padding larger_bottom_margin"></div>
   <div class="channel_option_content"></div>
+</div>
 
-  <div class="channel_option_buttons">
-    <button class="btn btn_outline option_cancel" data-qa="channel_option_cancel">{{#t}}Cancel{{/t}}</button>
-    <button class="btn ladda-button option_go very_small_left_margin" data-style="expand-right" data-qa="channel_option_go"><span class="ladda-label">{{#t}}Ok{{/t}}</span></button>
+<div class="channel_options_section" data-section="review">
+  <div class="channel_options_header charcoal_grey larger_bottom_padding larger_bottom_margin">
+    {{#feature flag="feature_channel_options_review_stage"}}
+      {{#t}}Review Changes{{/t}}
+    {{/feature}}
   </div>
+  <div class="channel_options_review_content"></div>
+</div>
+
+<div class="channel_options_buttons hidden">
+  <button class="btn btn_outline option_cancel" data-qa="channel_option_cancel">{{#t}}Cancel{{/t}}</button>
+  <button class="btn option_review very_small_left_margin" data-qa="channel_option_review">
+    {{#feature flag="feature_channel_options_review_stage"}}
+      {{#t}}Review Changes{{/t}}
+    {{/feature}}
+  </button>
+  <button class="btn ladda-button option_go very_small_left_margin hidden" data-style="expand-right" data-qa="channel_option_go"><span class="ladda-label">{{#t}}Ok{{/t}}</span></button>
 </div>

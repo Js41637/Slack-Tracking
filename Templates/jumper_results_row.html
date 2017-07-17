@@ -123,7 +123,7 @@
     {{/if}}
     {{#if this.model_ob.is_shared}}
       {{#unless this.model_ob.is_org_shared}}
-        {{> shared_channels_icon}}
+        {{> shared_channels_icon tooltip=true shared_team_ids=this.model_ob.shared_team_ids}}
       {{else}}
         {{#unless this.model_ob.is_mpim}}
           {{> shared_channel_icon}}

@@ -33,7 +33,7 @@
             {{model_ob.name}}
           {{/if}}
         </span>
-        {{#if model_ob.is_org_shared}}{{> shared_channel_icon}}{{else if model_ob.is_shared}}{{> shared_channels_icon}}{{/if}}
+        {{#if model_ob.is_org_shared}}{{> shared_channel_icon}}{{else if model_ob.is_shared}}{{> shared_channels_icon tooltip=true shared_team_ids=model_ob.shared_team_ids}}{{/if}}
       </span>
     </a>
   </li>
