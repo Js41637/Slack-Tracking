@@ -9,26 +9,47 @@
     <div class="fs_split_body">
 
       <h1>{{#t}}What\u2019s your name?{{/t}}</h1>
-      <p class="desc">{{#t}}Your name will be displayed along with your messages in Slack.{{/t}}</p>
-      <div class="names no_top_padding bottom_padding" id="name_fields">
-        <label>{{#t}}Your name{{/t}}</label>
-        <div class="col span_1_of_2 no_padding name_field" id="first_name_wrapper">
-          <input type="text" placeholder="{{#t}}First name{{/t}}" id="signup_first_name" maxlength="35" autocomplete="off" data-qa="first_name_field" value="{{first_name}}" aria-label="First name"/>
-          <p class="error_message"></p>
-        </div>
-        <div class="col span_1_of_2 no_padding name_field" id="last_name_wrapper">
-          <input type="text" placeholder="{{#t}}Last name{{/t}}" id="signup_last_name" maxlength="35" autocomplete="off" data-qa="last_name_field" value="{{last_name}}" aria-label="Last name"/>
-          <p class="error_message"></p>
-        </div>
-      </div>
+        {{#feature flag="feature_name_tagging_client"}}
+          <p class="desc">{{#t}}This is how your teammates in Slack will see and refer to you.{{/t}}</p>
+          <div class="names no_top_padding bottom_padding" id="name_fields">
+            <label>{{#t}}Full name{{/t}}</label>
+            <div class="name_field" id="real_name_wrapper">
+              <input type="text" name="full_name" placeholder="{{#t}}Full name{{/t}}" id="signup_real_name" autocomplete="off" data-qa="real_name_field" {{#if real_name}}value="{{real_name}}"{{/if}} data-validation data-validation-for="real_name_profile_field_warnings" data-validation-success/>
+              <label for="real_name_profile_field_warnings"><span class="validation_message"></span></label>
+            </div>
+          </div>
+        {{else}}
+          <p class="desc">{{#t}}Your name will be displayed along with your messages in Slack.{{/t}}</p>
+          <div class="names no_top_padding bottom_padding" id="name_fields">
+            <label>{{#t}}Your name{{/t}}</label>
+            <div class="col span_1_of_2 no_padding name_field" id="first_name_wrapper">
+              <input type="text" placeholder="{{#t}}First name{{/t}}" id="signup_first_name" maxlength="35" autocomplete="off" data-qa="first_name_field" value="{{first_name}}" aria-label="First name"/>
+              <p class="error_message"></p>
+            </div>
+            <div class="col span_1_of_2 no_padding name_field" id="last_name_wrapper">
+              <input type="text" placeholder="{{#t}}Last name{{/t}}" id="signup_last_name" maxlength="35" autocomplete="off" data-qa="last_name_field" value="{{last_name}}" aria-label="Last name"/>
+              <p class="error_message"></p>
+            </div>
+          </div>
+          {{/feature}}        
       <div id="username_form_body" class="clear_both">
-        <label id="username_label">{{#t}}Username{{/t}}</label>
-        <div class="input_wrapper username">
-          <p id="username_overlay" class="input_overlay"></p>
-          <input type="text" id="signup_username" maxlength="21" autocomplete="off" placeholder="{{#t note="form input placeholder text"}}username{{/t}}" data-qa="username_field" value="{{username}}" aria-labelledby="username_label username_rule_label"/>
-        </div>
-        <p class="error_message"></p>
-        <p id="username_rule_label" class="subtle_silver">{{#t}}Please choose a username that is all lowercase, containing only letters, numbers, periods, hyphens, and underscores.{{/t}}</p>
+          {{#feature flag="feature_name_tagging_client"}}
+          <label for="display_name">{{#t}}Display name{{/t}}</label>
+          <div class="input_wrapper display_name">
+            <p id="display_name_overlay" class="input_overlay"></p>
+            <input type="text" name="display_name" id="signup_display_name" autocomplete="off" data-qa="display_name_field" placeholder="{{#if display_name_placeholder_prefill}}{{display_name_placeholder_prefill}}{{else}}{{#t}}Display name{{/t}}{{/if}}" data-validation data-validation-for="display_name_profile_field_warnings" data-validation-success/>
+          </div>
+          <label for="display_name_profile_field_warnings"><span class="validation_message"></span></label>
+          <p class="subtle_silver">{{#t}}By default, Slack will display your full name when people mention you \u2014 but you can choose something shorter if you\u2019d like.{{/t}}</p>
+          {{else}}
+          <label id="username_label">{{#t}}Username{{/t}}</label>
+          <div class="input_wrapper username">
+            <p id="username_overlay" class="input_overlay"></p>
+            <input type="text" id="signup_username" maxlength="21" autocomplete="off" placeholder="{{#t note="form input placeholder text"}}username{{/t}}" data-qa="username_field" value="{{username}}" aria-labelledby="username_label username_rule_label"/>
+          </div>
+          <p class="error_message"></p>
+          <p id="username_rule_label" class="subtle_silver">{{#t}}Please choose a username that is all lowercase, containing only letters, numbers, periods, hyphens, and underscores.{{/t}}</p>
+        {{/feature}}  
       </div>
 
       {{#if inc_misc_and_legalese}}

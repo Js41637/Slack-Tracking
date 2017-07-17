@@ -67,9 +67,9 @@
       </div>
 
       {{#feature flag="feature_app_permissions_api_site"}}
-        <div class="p-channel_page_apps overflow_hidden channel_page_section {{#if state.expanded_sections.apps}}expanded{{/if}}" data-js="channel_page_apps" data-section-name="apps">
+        <div class="p-channel_page_apps overflow_hidden channel_page_section very_small_left_padding {{#if state.expanded_sections.apps}}expanded{{/if}}" data-js="channel_page_apps" data-section-name="apps">
 
-          <button class="section_header no_bottom_margin btn_unstyle" title="{{#t}}Click to expand or collapse{{/t}}" type="button">
+          <button class="section_header no_bottom_margin btn_unstyle very_small_left_padding" title="{{#t}}Click to expand or collapse{{/t}}" type="button">
             <div class="channel_section_label display_flex align_items_center">
               <i class="ts_icon ts_icon_bolt thrills_purple small_right_margin"></i>
               <span class="section_title flex_one" data-js="channel_page_apps_title"></span>
@@ -81,7 +81,7 @@
             </div>
           </button>
 
-          <div class="section_content p-channel_page_apps__list" data-js="channel_page_apps_list"></div>
+          <div class="section_content p-channel_page_apps__list no_padding" data-js="channel_page_apps_list"></div>
         </div>
       {{/feature}}
 

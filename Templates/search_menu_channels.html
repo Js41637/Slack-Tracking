@@ -14,7 +14,7 @@
           {{#if ../show_modifier}}
             <span>{{../conversation_modifier}}</span>
           {{/if}}
-          <strong>{{#if is_channel}}#{{/if}}{{name}}</strong>
+          <strong>{{#if is_channel}}#{{/if}}{{name}}{{#if is_org_shared}}{{> shared_channel_icon}}{{else if is_shared}}{{> shared_channels_icon tooltip=true}}{{/if}}</strong>
 
           {{> ts_icon class="ts_icon_plus_square_o ts_icon_inherit modifier_icon"}}
         </button>

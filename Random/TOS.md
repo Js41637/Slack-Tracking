@@ -82,7 +82,7 @@ Any credits that may accrue to Customer’s account (for example, from a promoti
 
 #### Downgrade for Non-Payment
 
-If any fees owed to us by Customer (excluding amounts disputed reasonably and in good faith) are thirty (30) days or more overdue, we may, without limiting our other rights and remedies, downgrade any fee-based Services to free plans until those amounts are paid in full, so long as we have given Customer ten (10) or more days’ prior notice that its account is overdue. Notwithstanding the second paragraph of the “Providing the Services” section below, Customer acknowledges and agrees that a downgrade will result in a decrease in certain features and functionality and potential loss of access to Customer Data, as illustrated by comparing the plans in the [Pricing Guide](https://slack.com/pricing).
+If any fees owed to us by Customer (excluding amounts disputed reasonably and in good faith) are thirty (30) days or more overdue, we may, without limiting our other rights and remedies, downgrade any fee-based Services to free plans until those amounts are paid in full, so long as we have given Customer ten (10) or more days’ prior notice that its account is overdue. Notwithstanding the second paragraph of the “Providing the Services” section below, Customer acknowledges and agrees that a downgrade will result in a decrease in certain features and functionality and potential loss of access to Customer Data, as illustrated by comparing the plans in the [Pricing Guide](https://slack.com/pricing?ui_step=32&ui_element=5).
 
 ## Our Responsibilities
 
