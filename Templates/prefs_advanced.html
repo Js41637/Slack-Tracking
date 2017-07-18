@@ -6,6 +6,22 @@
     <input id="webapp_spellcheck_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_input_options">
     {{#t}}Enable spellcheck on your messages{{/t}}
   </label>
+  {{#feature flag="feature_configurable_spellchecker"}}
+  {{#if show_language_select}}
+  <label class="select small bottom_margin no_left_margin half_width">
+    <select id="spellchecker_languages" data-inline-saver="#prefs_input_options" class="small">
+      <option value="automatic"{{#unless selected_language}} selected{{/unless}}>
+        {{#t note="If selected, the spellchecker will attempt to automatically detect the language (and choose the right one accordingly)"}}Automatic by language{{/t}}
+      </option>
+      {{#each available_dictionaries}}
+        <option value="{{this.key}}"{{#if this.selected}} selected{{/if}}>
+          {{this.label}}
+        </option>
+      {{/each}}
+    </select>
+  </label>
+  {{/if}}
+  {{/feature}}
   {{#feature flag="feature_name_tagging_client"}}{{else}}
   <label class="checkbox">
     <input id="require_at_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_input_options">
