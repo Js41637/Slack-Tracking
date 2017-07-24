@@ -34,13 +34,7 @@
         <button type="button" id="dm_title" class="btn_unstyle dm_title">{{mpimDisplayName mpim true}}</button>
       {{else}}
         {{#if member}}
-          <button type="button" id="im_title" class="btn_unstyle">
-            {{#if member.is_unknown}}
-              {{> unknown_member}}
-            {{else}}
-              {{getPrefCompliantMemberName member}}
-            {{/if}}
-          {{#if member.is_self}}<span class="normal subtle_silver"> {{#t}}(you){{/t}}</span>{{/if}}</button>
+          <button type="button" id="im_title" class="btn_unstyle">{{getPrefCompliantMemberName member}} {{#if member.is_self}}<span class="normal subtle_silver"> {{#t}}(you){{/t}}</span>{{/if}}</button>
           {{#or member.profile.status_emoji member.profile.status_text}}
             <div class="channel_header_member_current_status overflow_ellipsis normal subtle_silver">
               {{getMemberCurrentStatusForDisplayWithoutAnimations member}}

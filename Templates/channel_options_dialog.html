@@ -54,6 +54,20 @@
     </div>
   {{/if}}
 
+  {{#feature flag="feature_removing_workspaces_from_cross_workspace_channels"}}
+    {{#if show_manage_teams}}
+      <div class="channel_option_item top_padding bottom_padding" data-action="manage_teams_btn">
+        <div class="title bold charcoal_grey small_bottom_margin">{{#t rough-draft=true}}Manage teams{{/t}}</div>
+
+        <p class="subtle_silver no_bottom_margin">{{#t rough-draft=true}}Manage teams in a channel{{/t}}</p>
+
+        <div class="channel_option_open">
+          <ts-icon class="ts_icon_arrow_large_right"></ts-icon>
+        </div>
+      </div>
+    {{/if}}
+  {{/feature}}
+
   {{#if show_rename_btn}}
     <div class="channel_option_item top_padding bottom_padding" data-action="channel_rename_btn">
       <div class="title bold charcoal_grey small_bottom_margin">{{#t}}Rename this channel{{/t}}</div>
