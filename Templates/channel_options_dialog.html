@@ -34,7 +34,11 @@
     <div class="channel_option_item top_padding bottom_padding" data-action="shared_channel_convert_btn">
       <div class="title bold charcoal_grey small_bottom_margin">{{#t}}Convert this channel to a shared channel{{/t}}</div>
 
-      <p class="subtle_silver no_bottom_margin">{{#t}}Shared channels are similar to channels, but they\u2019re shared across teams. This conversion cannot be undone.{{/t}}</p>
+      {{#feature flag="feature_teams_to_workspaces"}}
+        <p class="subtle_silver no_bottom_margin">{{#t}}Shared channels are similar to channels, but they\u2019re shared across workspaces. This conversion cannot be undone.{{/t}}</p>
+      {{else}}
+        <p class="subtle_silver no_bottom_margin">{{#t}}Shared channels are similar to channels, but they\u2019re shared across teams. This conversion cannot be undone.{{/t}}</p>
+      {{/feature}}
 
       <div class="channel_option_open">
         <ts-icon class="ts_icon_arrow_large_right"></ts-icon>
@@ -44,9 +48,15 @@
 
   {{#if show_share_channel_btn}}
     <div class="channel_option_item top_padding bottom_padding" data-action="share_channel_btn">
-      <div class="title bold charcoal_grey small_bottom_margin">{{#t}}Share this channel with another team{{/t}}</div>
+      {{#feature flag="feature_teams_to_workspaces"}}
+        <div class="title bold charcoal_grey small_bottom_margin">{{#t}}Share this channel with another workspace{{/t}}</div>
 
-      <p class="subtle_silver no_bottom_margin">{{#t}}In a shared channel, two Slack teams can send messages, share files, and access the channel\u2019s history. <a href="http://help.slack.com">Learn more</a>{{/t}}</p>
+        <p class="subtle_silver no_bottom_margin">{{#t}}In a shared channel, two Slack workspaces can send messages, share files, and access the channel\u2019s history. <a href="http://help.slack.com">Learn more</a>{{/t}}</p>
+      {{else}}
+        <div class="title bold charcoal_grey small_bottom_margin">{{#t}}Share this channel with another team{{/t}}</div>
+
+        <p class="subtle_silver no_bottom_margin">{{#t}}In a shared channel, two Slack teams can send messages, share files, and access the channel\u2019s history. <a href="http://help.slack.com">Learn more</a>{{/t}}</p>
+      {{/feature}}
 
       <div class="channel_option_open">
         <ts-icon class="ts_icon_arrow_large_right"></ts-icon>
@@ -91,11 +101,19 @@
       </div>
 
       <p class="subtle_silver no_bottom_margin">
-        {{#if model_ob.purpose.value}}
-          {{#t formatted_purpose=(formatTopicOrPurpose model_ob.purpose.value)}}Channel purposes are especially useful to new team members choosing which conversations to join. This channel\u2019s current purpose is <em>"{formatted_purpose}"</em>{{/t}}
+        {{#feature flag="feature_teams_to_workspaces"}}
+          {{#if model_ob.purpose.value}}
+            {{#t formatted_purpose=(formatTopicOrPurpose model_ob.purpose.value)}}Channel purposes are especially useful to new members choosing which conversations to join. This channel\u2019s current purpose is <em>"{formatted_purpose}"</em>{{/t}}
+          {{else}}
+            {{#t}}Channel purposes are especially useful to new members choosing which conversations to join.{{/t}}
+          {{/if}}
         {{else}}
-          {{#t}}Channel purposes are especially useful to new team members choosing which conversations to join.{{/t}}
-        {{/if}}
+          {{#if model_ob.purpose.value}}
+            {{#t formatted_purpose=(formatTopicOrPurpose model_ob.purpose.value)}}Channel purposes are especially useful to new team members choosing which conversations to join. This channel\u2019s current purpose is <em>"{formatted_purpose}"</em>{{/t}}
+          {{else}}
+            {{#t}}Channel purposes are especially useful to new team members choosing which conversations to join.{{/t}}
+          {{/if}}
+        {{/feature}}
       </p>
 
       <div class="channel_option_open">
@@ -124,7 +142,11 @@
     <div class="channel_option_item top_padding bottom_padding" data-action="data_retention_btn">
       <div class="title bold charcoal_grey small_bottom_margin">{{#t}}Set the channel message retention policy{{/t}}</div>
 
-      <p class="subtle_silver no_bottom_margin">{{#t}}By default, Slack will save your message data for the lifetime of the team. You can configure a custom message retention policy duration.{{/t}}</p>
+      {{#feature flag="feature_teams_to_workspaces"}}
+        <p class="subtle_silver no_bottom_margin">{{#t}}By default, Slack will save your message data for the lifetime of the workspace. You can configure a custom message retention policy duration.{{/t}}</p>
+      {{else}}
+        <p class="subtle_silver no_bottom_margin">{{#t}}By default, Slack will save your message data for the lifetime of the team. You can configure a custom message retention policy duration.{{/t}}</p>
+      {{/feature}}
 
       <div class="channel_option_open">
         <ts-icon class="ts_icon_arrow_large_right"></ts-icon>

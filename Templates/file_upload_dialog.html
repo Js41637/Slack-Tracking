@@ -12,7 +12,11 @@
     {{#if over_storage_limit}}
       <p class="alert alert_warning">
       <i class="ts_icon ts_icon_info_circle"></i>
-      {{#t note="Inline error message indicating the team's storage limit has been exceeded."}}Your team is over its storage limit.<br /> Please <a href="/pricing?paid_feature=files&ui_step=70&ui_element=5" target="{newWindowName}" class="bold underline" data-clog-event="GROWTH_PRICING" data-clog-ui-element="pricing_link" data-clog-ui-action="click" data-clog-ui-step="file_upload">upgrade to a paid plan</a> or <a href="/files" target="{newWindowName}" class="bold underline">delete the files you don\u2019t need</a>.{{/t}}
+      {{#feature flag="feature_teams_to_workspaces"}}
+        {{#t note="Inline error message indicating the team's storage limit has been exceeded."}}You are over your storage limit.<br /> Please <a href="/pricing?paid_feature=files&ui_step=70&ui_element=5" target="{newWindowName}" class="bold underline" data-clog-event="GROWTH_PRICING" data-clog-ui-element="pricing_link" data-clog-ui-action="click" data-clog-ui-step="file_upload">upgrade to a paid plan</a> or <a href="/files" target="{newWindowName}" class="bold underline">delete the files you don\u2019t need</a>.{{/t}}
+      {{else}}
+        {{#t note="Inline error message indicating the team's storage limit has been exceeded."}}Your team is over its storage limit.<br /> Please <a href="/pricing?paid_feature=files&ui_step=70&ui_element=5" target="{newWindowName}" class="bold underline" data-clog-event="GROWTH_PRICING" data-clog-ui-element="pricing_link" data-clog-ui-action="click" data-clog-ui-step="file_upload">upgrade to a paid plan</a> or <a href="/files" target="{newWindowName}" class="bold underline">delete the files you don\u2019t need</a>.{{/t}}
+      {{/feature}}
       </p>
     {{/if}}
 
@@ -35,7 +39,11 @@
     <div class="upload_actions">
       {{#if file_retention_type}}
         <div class="modal_input_note_full_width small_bottom_margin align_right">
-          {{#t}}Due to your team\u2019s custom file retention <br />policy, this file will be deleted after <span class="bold">{file_retention_duration}</span>.{{/t}}
+          {{#feature flag="feature_teams_to_workspaces"}}
+            {{#t}}Due to your custom file retention <br />policy, this file will be deleted after <span class="bold">{file_retention_duration}</span>.{{/t}}
+          {{else}}
+            {{#t}}Due to your team\u2019s custom file retention <br />policy, this file will be deleted after <span class="bold">{file_retention_duration}</span>.{{/t}}
+          {{/feature}}
         </div>
       {{/if}}
       {{#if more_in_queue}}<button type="button" class="btn btn_outline dialog_cancel_all">{{#t note="Label for the button that cancels uploading all files when multiple files have been selected for upload."}}Cancel All{{/t}}</button>{{/if}}

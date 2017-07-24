@@ -1,12 +1,28 @@
 {{i18n_ns "transfer_ownership"}}
 
 {{#if member_not_found}}
-  <p>{{#t}}Rats! We couldn\u2019t find <strong>{name}</strong> in your Slack team. Give that dropdown another go.{{/t}}</p>
+  {{#feature flag="feature_teams_to_workspaces"}}
+    <p>{{#t}}Rats! We couldn\u2019t find <strong>{name}</strong> in your Slack workspace. Give that dropdown another go.{{/t}}</p>
+  {{else}}
+    <p>{{#t}}Rats! We couldn\u2019t find <strong>{name}</strong> in your Slack team. Give that dropdown another go.{{/t}}</p>
+  {{/feature}}
 {{else}}
+  {{#feature flag="feature_teams_to_workspaces"}}
+
   {{#t}}
-  <p>Are you sure you want to make <strong>{name}</strong> the new team owner? This cannot be undone.</p> 
+  <p>Are you sure you want to make <strong>{name}</strong> the new workspace owner? This cannot be undone.</p>
   <p><strong>Transfer ownership to:</strong></p>
   {{/t}}
+
+  {{else}}
+
+  {{#t fallback_hash="2913572a3aa1872a1c03068f66da8706f5f84fe5"}}
+  <p>Are you sure you want to make <strong>{name}</strong> the new team owner? This cannot be undone.</p>
+  <p><strong>Transfer ownership to:</strong></p>
+  {{/t}}
+
+  {{/feature}}
+
   <div class="member_card">
     <div class="member_image thumb_72 medium_right_margin" style="background-image: url('{{profile_image}}');"></div>
     <div class="member_card_details">

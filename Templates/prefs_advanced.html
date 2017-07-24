@@ -52,7 +52,11 @@
 <hr>
 <div class="clearfix">
   <h2 id="prefs_download_location" class="inline_block small_bottom_margin">{{#t}}Download Location{{/t}}</h2>
-  <p class="small_bottom_margin">{{#t}}Note: this setting is for this computer only and affects all teams you are signed in to.{{/t}}</p>
+  {{#feature flag="feature_teams_to_workspaces"}}
+    <p class="small_bottom_margin">{{#t}}Note: this setting is for this computer only and affects all workspaces you are signed in to.{{/t}}</p>
+  {{else}}
+    <p class="small_bottom_margin">{{#t}}Note: this setting is for this computer only and affects all teams you are signed in to.{{/t}}</p>
+  {{/feature}}
   <div class="col span_3_of_4"><input id="app_download_path_input" type="text" disabled="disabled" value="{{app_download_path}}" class="small"></div>
   <div class="col span_1_of_4"><button data-action="select_ssb_download_path" class="btn btn_outline full_width">{{#t}}Change &hellip;{{/t}}</button></div>
 </div>

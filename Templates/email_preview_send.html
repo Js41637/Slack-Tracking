@@ -1,0 +1,16 @@
+{{!-- hbslint-disable unwrapped --}}
+{{!-- because users won't ever see it, yo --}}
+<form id="send_email_preview_form" action={{url}} method="POST" target="dump">
+  <input type="hidden" name="crumb" value={{crumb}}></input>
+  {{#if email_on_acid}}
+    This sends an email to Email On Acid, which will generate email previews on all the different email clients.
+    <a href="https://www.emailonacid.com/login">Log in</a> to Slack's account to view the email previews.
+    If you need help using Email on Acid, instructions are pinned to the #emails channel.
+    <input type="hidden" name="send" value="iamcal.runme.spam@previews.emailonacid.com"></input>
+    <input type="hidden" name="subjectsuffix" value="true"></input>
+  {{else}}
+    List your recipients\u2019 e-mail addresses here, separating multiple addresses with commas.
+    <br><br>
+    <textarea id="recipients" name="send"></textarea>
+  {{/if}}
+</form>

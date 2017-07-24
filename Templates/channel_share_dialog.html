@@ -7,7 +7,11 @@
   {{#if show_heading}}
     <h1 class="share_channel_modal_heading">
       {{#if model_ob}}
-        {{#t channel_name=model_ob.name}}Invite another team{{/t}}</h1>
+        {{#feature flag="feature_teams_to_workspaces"}}
+          {{#t channel_name=model_ob.name}}Invite another workspace{{/t}}</h1>
+        {{else}}
+          {{#t channel_name=model_ob.name}}Invite another team{{/t}}</h1>
+        {{/feature}}
       {{else}}
         {{#t}}Create a new shared channel{{/t}}</h1>
       {{/if}}
@@ -22,7 +26,11 @@
 
       <p>
         <label class="checkbox">
-          <input id="channel_public_private_toggle" type="checkbox" name="public" value="public" {{#unless is_private}}checked="checked"{{/unless}} data-on-text="{{#t}}Public{{/t}}" data-off-text="{{#t}}Private{{/t}}" data-label="{{#t}}Anyone on your team can view and join this channel.{{/t}}" data-off-label="{{#t}}This channel can only be joined or viewed by invite.{{/t}}" data-off-class="ts_toggle_orange">
+          {{#feature flag="feature_teams_to_workspaces"}}
+            <input id="channel_public_private_toggle" type="checkbox" name="public" value="public" {{#unless is_private}}checked="checked"{{/unless}} data-on-text="{{#t}}Public{{/t}}" data-off-text="{{#t}}Private{{/t}}" data-label="{{#t}}Anyone in your workspace can view and join this channel.{{/t}}" data-off-label="{{#t}}This channel can only be joined or viewed by invite.{{/t}}" data-off-class="ts_toggle_orange">
+          {{else}}
+            <input id="channel_public_private_toggle" type="checkbox" name="public" value="public" {{#unless is_private}}checked="checked"{{/unless}} data-on-text="{{#t}}Public{{/t}}" data-off-text="{{#t}}Private{{/t}}" data-label="{{#t}}Anyone on your team can view and join this channel.{{/t}}" data-off-label="{{#t}}This channel can only be joined or viewed by invite.{{/t}}" data-off-class="ts_toggle_orange">
+          {{/feature}}
         </label>
       </p>
 
@@ -70,7 +78,11 @@
     </p>
 
     <div class="message_field">
-      <div id="message" name="message">{{#t channel_name=model_ob.name}}Hi there, I was hoping to make #{channel_name} a shared channel on our team. Would you be able to help?{{/t}}</div>
+      {{#feature flag="feature_teams_to_workspaces"}}
+        <div id="message" name="message">{{#t channel_name=model_ob.name}}Hi there, I was hoping to make #{channel_name} a shared channel on our workspace. Would you be able to help?{{/t}}</div>
+      {{else}}
+        <div id="message" name="message">{{#t channel_name=model_ob.name}}Hi there, I was hoping to make #{channel_name} a shared channel on our team. Would you be able to help?{{/t}}</div>
+      {{/feature}}
       <button class="emo_menu btn_unstyle" aria-label="{{#t}}emoji menu{{/t}}" type="button"><i class="ts_icon ts_icon_circle_fill"></i><i class="ts_icon ts_icon_smile_o"></i><i class="ts_icon ts_icon_happy_smile"></i></button>
     </div>
 

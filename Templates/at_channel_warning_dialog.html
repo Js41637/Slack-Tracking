@@ -20,11 +20,19 @@
     </div>
 {{#currentUserIsAdmin}}
     <div class="at_channel_flexible_width">
-      <span class="tiny dialog_admin_hint">{{#t}}Pssst... admins! <a href="/admin/settings#permissions" target="_blank">Team settings</a> control this warning{{/t}}</span>
+      {{#feature flag="feature_teams_to_workspaces"}}
+        <span class="tiny dialog_admin_hint">{{#t}}Pssst... admins! <a href="/admin/settings#permissions" target="_blank">Workspace settings</a> control this warning{{/t}}</span>
+      {{else}}
+        <span class="tiny dialog_admin_hint">{{#t}}Pssst... admins! <a href="/admin/settings#permissions" target="_blank">Team settings</a> control this warning{{/t}}</span>
+      {{/feature}}
     </div>
 {{else}}
     <div class="at_channel_flexible_width">
-      <span class="tiny dialog_admin_hint">{{#t}}Psssssst! These warnings can be modified by a Team Admin!{{/t}}</span>
+      {{#feature flag="feature_teams_to_workspaces"}}
+        <span class="tiny dialog_admin_hint">{{#t}}Psssssst! These warnings can be modified by an Admin!{{/t}}</span>
+      {{else}}
+        <span class="tiny dialog_admin_hint">{{#t}}Psssssst! These warnings can be modified by a Team Admin!{{/t}}</span>
+      {{/feature}}
     </div>
 {{/currentUserIsAdmin}}
 

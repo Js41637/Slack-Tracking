@@ -7804,6 +7804,7 @@ html.no_touch .plastic_row:hover .chevron {
   margin-bottom: -1px
 }
 
+.admin_tabs a,
 .customize_tab_set a {
   padding: 12px 22px 11px
 }
@@ -14695,6 +14696,39 @@ body:not(.unify_user) .tab_complete_ui ul.type_members .member_image {
   margin-right: .4rem
 }
 
+body:not(.unify_user) .tab_complete_ui ul.type_members .broadcast {
+  display: inline-block;
+  color: #555459;
+  font-weight: 900;
+  margin-left: 0
+}
+
+.tab_complete_ui ul.type_members .broadcast {
+  display: flex;
+  align-items: center;
+  color: #2c2d30;
+  font-weight: 700;
+  margin-left: 25px
+}
+
+.tab_complete_ui ul.type_members .broadcast .ts_icon_broadcast {
+  color: #717274;
+  margin-right: .5rem;
+  width: 20px;
+  height: 20px;
+  text-align: center;
+  align-self: baseline
+}
+
+.tab_complete_ui ul.type_members .broadcast .ts_icon_broadcast:before {
+  font-size: 1rem
+}
+
+.tab_complete_ui ul.type_members .broadcast_info {
+  font-weight: 400;
+  margin-left: .25rem
+}
+
 .tab_complete_ui ul.type_members .broadcast_info,
 .tab_complete_ui ul.type_members .realname,
 .tab_complete_ui ul.type_members .team_name {
@@ -14853,6 +14887,11 @@ body:not(.unify_user) .tab_complete_ui li.tab_complete_ui_item {
 .tab_complete_ui li.tab_complete_ui_group.active .app_label,
 .tab_complete_ui li.tab_complete_ui_item.active .app_label {
   background-color: rgba(255, 255, 255, .3)
+}
+
+.tab_complete_ui li.tab_complete_ui_group.active .ts_icon_broadcast,
+.tab_complete_ui li.tab_complete_ui_item.active .ts_icon_broadcast {
+  color: #fff
 }
 
 .tab_complete_ui li.tab_complete_ui_group .emoji-sizer,

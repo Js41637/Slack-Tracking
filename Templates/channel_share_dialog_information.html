@@ -1,8 +1,16 @@
 {{i18n_ns 'share_channels'}}
 <p class="large_bottom_margin information">
   {{#if can_create_shared_channel}}
-    {{#t}}In a shared channel, two Slack teams can send messages, share files, and access the channel\u02bcs history. <a href="https://help.slack.com">Learn more</a>{{/t}}
+    {{#feature flag="feature_teams_to_workspaces"}}
+      {{#t}}In a shared channel, two Slack workspaces can send messages, share files, and access the channel\u02bcs history. <a href="https://help.slack.com">Learn more</a>{{/t}}
+    {{else}}
+      {{#t}}In a shared channel, two Slack teams can send messages, share files, and access the channel\u02bcs history. <a href="https://help.slack.com">Learn more</a>{{/t}}
+    {{/feature}}
   {{else}}
-    {{#t}}Only Team Admins can share channels. If you'd like, you can request to share a channel with the form below.{{/t}}
+    {{#feature flag="feature_teams_to_workspaces"}}
+      {{#t}}Only Workspace Admins can share channels. If you'd like, you can request to share a channel with the form below.{{/t}}
+    {{else}}
+      {{#t}}Only Team Admins can share channels. If you'd like, you can request to share a channel with the form below.{{/t}}
+    {{/feature}}
   {{/if}}
 </p>

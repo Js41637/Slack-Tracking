@@ -3,8 +3,15 @@
 {{#each results as |result|}}
   {{#if result.is_broadcast_keyword}}
     <li class="tab_complete_ui_item" data-type="keyword" data-index="{{@index}}">
-      <span class="broadcast">@{{result.name}}</span>{{!
-      !}}<span class="broadcast_info">{{result.description}}</span>
+      <span class="broadcast">
+        {{#shouldUseUnifiedMemberDisplay}}
+          {{#feature flag="feature_unified_usergroups"}}
+            <i class="ts_icon ts_icon_broadcast"></i>
+          {{/feature}}
+        {{/shouldUseUnifiedMemberDisplay}}
+        @{{result.name}}
+        <span class="broadcast_info">{{result.description}}</span>
+      </span>
     </li>
   {{else if result.is_usergroup}}
     <li class="tab_complete_ui_item" data-type="usergroup" data-index="{{@index}}">
