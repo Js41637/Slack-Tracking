@@ -34,7 +34,7 @@
  * @module Mocking
  */ /** for typedoc */
 
-import * as cloneDeep from 'lodash.clonedeep';
+import { cloneDeep } from 'lodash';
 
 export class Mock {
   public get<T>(this: any, ...modifiers: Array<any>): T {

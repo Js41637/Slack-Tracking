@@ -6,10 +6,11 @@ import * as fs from 'graceful-fs';
 import * as path from 'path';
 
 import * as jszip from 'jszip';
+import { Observable } from 'rxjs/Observable';
+import { spawnPromise } from 'spawn-rx';
 import { logger } from '../logger';
 import { promisify } from '../promisify';
-import { spawnPromise } from 'spawn-rx';
-import { Observable } from 'rxjs/Observable';
+import '../rx-operators';
 
 const pfs = promisify(fs);
 

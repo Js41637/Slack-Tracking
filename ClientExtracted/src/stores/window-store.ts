@@ -2,35 +2,45 @@
  * @module Stores
  */ /** for typedoc */
 
-import { pickBy } from '../utils/pick-by';
+import { pickBy } from 'lodash';
+
 import { Store } from '../lib/store';
-import { getWindowOfType, Window, getWindows } from './window-store-helper';
+import { WindowsState } from '../reducers/windows-reducer';
+import {
+  CALLS_WINDOW_TYPES,
+  WINDOW_TYPES,
+  WindowMetadata,
+  windowType
+} from '../utils/shared-constants';
+import { getWindowOfType, getWindows } from './window-store-helper';
 
-import { StringMap, WINDOW_TYPES, CALLS_WINDOW_TYPES, windowType } from '../utils/shared-constants';
-
-const CURRENT_WINDOW_ID = process.type === 'renderer' ?
-  require('electron').remote.getCurrentWindow().id : null;
+const CURRENT_WINDOW_ID = process.type === 'renderer'
+  ? require('electron').remote.getCurrentWindow().id
+  : null;
 
 /**
- * This store handles all metadata about Windows, however the BrowserWindow
- * objects themselves are kept outside of app Actions or State, since they are
- * objects we do not control.
+ * This store keeps track of window metadata. The BrowserWindow objects
+ * themselves are kept out of actions & state, since they aren't amenable to
+ * serialization or sending via remote.
  */
 export class WindowStore {
-  public getWindows(windowTypes: Array<windowType> | null = null): StringMap<Window> {
-    return windowTypes ? getWindows(Store, windowTypes) :
-                         Store.getState().windows;
+  public getWindows(windowTypes: Array<windowType> | null = null) {
+    return windowTypes ?
+      getWindows(Store, windowTypes) :
+      Store.getState().windows as WindowsState;
   }
 
-  public getWindowsForTeam(teamId: string = ''): StringMap<Window> {
-    const windows = Store.getState().windows as StringMap<Window>;
-    return pickBy<StringMap<Window>, StringMap<Window>>(windows, (win: Window) => win.teamId === teamId);
+  public getWindowsForTeam(teamId: string = ''): WindowsState {
+    const windows = Store.getState().windows as WindowsState;
+    return pickBy<WindowsState, WindowsState>(windows, (win: WindowMetadata) => win.teamId === teamId);
   }
 
-  public getWindowOfSubType(subType: string): Window | null {
-    const windows = Store.getState().windows as StringMap<Window>;
+  public getWindowOfSubType(subType: string) {
+    const windows = Store.getState().windows as WindowsState;
     const foundKey = Object.keys(windows).find((key) => {
-      return windows[key] && windows[key].type === WINDOW_TYPES.WEBAPP && windows[key].subType === subType;
+      return windows[key] &&
+        windows[key].type === WINDOW_TYPES.WEBAPP &&
+        windows[key].subType === subType;
     });
 
     if (!foundKey) return null;
@@ -49,7 +59,7 @@ export class WindowStore {
     return getWindowOfType(Store, WINDOW_TYPES.NOTIFICATIONS);
   }
 
-  public typeOfWindow(id: number): windowType {
+  public typeOfWindow(id: number) {
     return this.getWindows()[id] ? this.getWindows()[id].type : null;
   }
 
@@ -59,8 +69,8 @@ export class WindowStore {
     return metadata.subType || null;
   }
 
-  public isCallsWindow(subType: windowType | null = null): boolean {
-    return CALLS_WINDOW_TYPES.includes(subType || this.subTypeOfWindow());
+  public isCallsWindow(subType: string | null = null) {
+    return CALLS_WINDOW_TYPES.includes(subType || this.subTypeOfWindow()!);
   }
 
   public getCallWindow() {

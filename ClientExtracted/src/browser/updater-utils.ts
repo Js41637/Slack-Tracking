@@ -4,11 +4,11 @@
 
 import { Observable } from 'rxjs/Observable';
 
-import { logger } from '../logger';
 import { appActions } from '../actions/app-actions';
-import { UPDATE_STATUS, updateStatusType, UpdateInformation } from '../utils/shared-constants';
+import { logger } from '../logger';
+import { UPDATE_STATUS, UpdateInformation, updateStatusType } from '../utils/shared-constants';
 
-import { intl as $intl, LOCALE_NAMESPACE } from '../i18n/intl';
+import { LOCALE_NAMESPACE, intl as $intl } from '../i18n/intl';
 
 /**
  * Returns an Observable that hooks several Squirrel events and turns them
@@ -43,29 +43,29 @@ export function autoUpdaterFinished(autoUpdater: Electron.AutoUpdater): Observab
  * Returns arguments to create a menu item based on the current update status.
  *
  * @param  {String} updateStatus  The current update status
- * @return {MenuItemOptions}      Arguments for creating a {Electron.MenuItem}
+ * @return {MenuItemConstructorOptions}      Arguments for creating a {Electron.MenuItem}
  */
-export function getMenuItemForUpdateStatus(updateStatus: updateStatusType): Electron.MenuItemOptions {
+export function getMenuItemForUpdateStatus(updateStatus: updateStatusType): Electron.MenuItemConstructorOptions {
   switch (updateStatus) {
   case UPDATE_STATUS.CHECKING_FOR_UPDATE:
   case UPDATE_STATUS.CHECKING_FOR_UPDATE_MANUAL:
     return {
-      label: $intl.t(`Checking for Update`, LOCALE_NAMESPACE.MENU)(),
+      label: $intl.t('Checking for Update', LOCALE_NAMESPACE.MENU)(),
       enabled: false
     };
   case UPDATE_STATUS.DOWNLOADING_UPDATE:
     return {
-      label: $intl.t(`Downloading Update`, LOCALE_NAMESPACE.MENU)(),
+      label: $intl.t('Downloading Update', LOCALE_NAMESPACE.MENU)(),
       enabled: false
     };
   case UPDATE_STATUS.UPDATE_AVAILABLE:
     return {
-      label: $intl.t(`An Update Is Available`, LOCALE_NAMESPACE.MENU)(),
+      label: $intl.t('An Update Is Available', LOCALE_NAMESPACE.MENU)(),
       enabled: false
     };
   case UPDATE_STATUS.UPDATE_DOWNLOADED:
     return {
-      label: $intl.t(`Restart to Apply Update`, LOCALE_NAMESPACE.MENU)(),
+      label: $intl.t('Restart to Apply Update', LOCALE_NAMESPACE.MENU)(),
       enabled: true,
       click: () => appActions.setUpdateStatus(UPDATE_STATUS.RESTART_TO_APPLY)
     };
@@ -74,29 +74,11 @@ export function getMenuItemForUpdateStatus(updateStatus: updateStatusType): Elec
   case UPDATE_STATUS.ERROR:
   default:
     return {
-      label: $intl.t(`&Check for Updates…`, LOCALE_NAMESPACE.MENU)(),
+      label: $intl.t('&Check for Updates…', LOCALE_NAMESPACE.MENU)(),
       enabled: true,
       click: () => appActions.checkForUpdate()
     };
   }
-}
-
-/**
- * Returns the appropriate release notes URL for the current platform and
- * release channel.
- *
- * @param  {Bool} isPreRelease  True if on the alpha or beta channel
- * @return {String}             The release notes URL
- */
-export function getReleaseNotesUrl(isPreRelease: boolean): string {
-  let url = 'https://www.slack.com/apps/';
-  switch (process.platform) {
-  case 'win32': url += 'windows'; break;
-  case 'darwin': url += 'mac'; break;
-  case 'linux': url += 'linux'; break;
-  }
-  url += isPreRelease ? '/release-notes-beta' : '/release-notes';
-  return url;
 }
 
 function updateDownloadedSelector(_e: Error, releaseNotes: string, releaseName: string, releaseDate: Date, _updateURL: string): UpdateInformation {

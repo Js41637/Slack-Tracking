@@ -2,10 +2,10 @@
  * @module Browser
  */ /** for typedoc */
 
-import { logger } from '../logger';
+import { protocol } from 'electron';
 import { createCompilerHostFromProjectRootSync } from 'electron-compile';
 import * as path from 'path';
-import { protocol } from 'electron';
+import { logger } from '../logger';
 
 import { ReduxComponent } from '../lib/redux-component';
 import { settingStore } from '../stores/setting-store';
@@ -40,7 +40,7 @@ export class SlackWebappDevHandler extends ReduxComponent<SlackWebappDevHandlerS
         // TODO: Throw an error if trying to an access a file outside the local assets path
       } catch (e) {
         logger.error(`Failed to load resource ${request.url}: ${e.message}\n${e.stack}`);
-        completion({ error: -6 /*net::ERR_FILE_NOT_FOUND*/ });
+        completion({ error: -6 /*net::ERR_FILE_NOT_FOUND*/ } as any);
         return;
       }
 
@@ -54,7 +54,7 @@ export class SlackWebappDevHandler extends ReduxComponent<SlackWebappDevHandlerS
         }
       } catch (e) {
         logger.error(`Failed to read file ${absolutePath}: ${e.message}\n${e.stack}`);
-        completion({ error: -2 /*net::FAILED*/ });
+        completion({ error: -2 /*net::FAILED*/ } as any);
         return;
       }
     });

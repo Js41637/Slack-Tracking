@@ -25,7 +25,7 @@
 //                promisify.
 //
 // Returns either a {Function} or an {Object}, based on funcOrObject.
-export function promisify(funcOrObject: Function | Object): any {
+export function promisify(funcOrObject: Function | object): any {
   if (typeof funcOrObject === 'function') {
     return function(...args: Array<any>) {
       return new Promise(function(this: any, resolve: (reason: any) => void, reject: (reason: any) => void) {

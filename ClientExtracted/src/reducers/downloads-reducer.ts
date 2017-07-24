@@ -2,62 +2,170 @@
  * @module Reducers
  */ /** for typedoc */
 
-import { Action } from '../actions/action';
-import { DOWNLOADS } from '../actions';
+import * as assert from 'assert';
+import { flatMap, omit } from 'lodash';
+import { Store } from 'redux';
+import { createAction, createReducer } from 'redux-act';
+import { REHYDRATE } from 'redux-persist/constants';
+import { RootState } from '../reducers';
+import { StringMap } from '../utils/shared-constants';
 
-export interface DownloadEventState {
-  timestamp: number;
-  token: string | null;
-}
+export const startDownload = createAction<DownloadInfo, void>('Start a download');
+export const updateDownload = createAction<UpdateDownloadPayload, void>('Update an existing download');
+export const removeDownload = createAction<DownloadKey, void>('Remove a single download');
+export const removeDownloads = createAction<Array<string>, void>('Remove multiple downloads');
 
-export interface DownloadState {
-  startDownload: DownloadEventState & {url: string | null, teamId: string | null};
-  cancelDownload: DownloadEventState;
-  retryDownload: DownloadEventState;
-  revealDownload: DownloadEventState;
-  clearDownloads: {timestamp: number, tokens: Array<string> | null};
-  downloadStarted: DownloadEventState & {filePath: string | null};
-  downloadFinished: DownloadEventState & {state: string | null};
-}
-
-const initialState: DownloadState = {
-  startDownload: { timestamp: 0, token: null, url: null, teamId: null },
-  cancelDownload: { timestamp: 0, token: null },
-  retryDownload: { timestamp: 0, token: null },
-  revealDownload: { timestamp: 0, token: null },
-  clearDownloads: { timestamp: 0, tokens: null },
-
-  downloadStarted: { timestamp: 0, token: null, filePath: null },
-  downloadFinished: { timestamp: 0, token: null, state: null }
-};
+const legacyEventKeys = [
+  'startDownload',
+  'cancelDownload',
+  'clearDownloads',
+  'retryDownload',
+  'revealDownload',
+  'downloadStarted',
+  'downloadFinished'
+];
 
 /**
- * @hidden
+ * We need both a file ID and the team ID to retrieve a download.
  */
-export function reduce(state: DownloadState = initialState, action: Action<any>): DownloadState {
-  switch (action.type) {
-  case DOWNLOADS.START_DOWNLOAD:
-    return downloadEvent(state, 'startDownload', action.data);
-  case DOWNLOADS.CANCEL_DOWNLOAD:
-    return downloadEvent(state, 'cancelDownload', { token: action.data });
-  case DOWNLOADS.RETRY_DOWNLOAD:
-    return downloadEvent(state, 'retryDownload', { token: action.data });
-  case DOWNLOADS.REVEAL_DOWNLOAD:
-    return downloadEvent(state, 'revealDownload', { token: action.data });
-  case DOWNLOADS.CLEAR_DOWNLOADS:
-    return downloadEvent(state, 'clearDownloads', { tokens: action.data });
+export interface DownloadKey {
+  id: string;
+  teamId: string;
+}
 
-  case DOWNLOADS.DOWNLOAD_STARTED:
-    return downloadEvent(state, 'downloadStarted', action.data);
-  case DOWNLOADS.DOWNLOAD_FINISHED:
-    return downloadEvent(state, 'downloadFinished', action.data);
-  default:
-    return state;
-  }
-};
+/**
+ * A download is composed of the two IDs, its URL, and some optional state.
+ */
+export type DownloadInfo = DownloadKey & OptionalDownloadProps & { url: string };
+export type UpdateDownloadPayload = DownloadKey & { newProps: OptionalDownloadProps };
 
-function downloadEvent(state: DownloadState, eventName: string, data: any = {}) {
-  const update = {};
-  update[eventName] = { timestamp: Date.now(), ...data };
-  return { ...state, ...update };
+export interface OptionalDownloadProps {
+  startTime?: number;
+  endTime?: number;
+  downloadState?: 'not_started' | 'progressing' | 'completed' | 'cancelled' | 'interrupted';
+  downloadPath?: string;
+  progress?: number;
+  isPaused?: boolean;
+  highlight?: boolean;
+  requestState?: 'cancel' | 'pause' | 'resume';
+}
+
+/**
+ * Downloads are a map of team IDs to secondary maps, which map file IDs to
+ * download objects.
+ */
+export type DownloadsList = StringMap<DownloadInfo>;
+export type DownloadsState = StringMap<DownloadsList>;
+
+const reduce = createReducer<DownloadsState>({
+  [startDownload as any]: (state, download: DownloadInfo) => {
+    assert(download && download.id && download.teamId && download.url);
+    return {
+      ...state,
+      [download.teamId]: {
+        ...state[download.teamId],
+        [download.id]: {
+          ...download,
+          downloadState: 'not_started',
+          startTime: Date.now()
+        }
+      }
+    };
+  },
+
+  [updateDownload as any]: (state, { id, teamId, ...newProps }: UpdateDownloadPayload) => {
+    assert(id && teamId && newProps);
+    if (!state[teamId] || !state[teamId][id]) return state;
+    return {
+      ...state,
+      [teamId]: {
+        ...state[teamId],
+        [id]: {
+          ...state[teamId][id],
+          ...newProps
+        }
+      }
+    };
+  },
+
+  [removeDownload as any]: (state, { id, teamId }: DownloadKey) => {
+    assert(id && teamId);
+    return {
+      ...state,
+      [teamId]: omit<StringMap<DownloadInfo>, StringMap<DownloadInfo>>(state[teamId], id)
+    };
+  },
+
+  [removeDownloads as any]: (state, ids: Array<string>) => {
+    assert(ids);
+    return Object.keys(state).reduce<DownloadsState>((newState, teamId) => {
+      newState[teamId] = omit<StringMap<DownloadInfo>, StringMap<DownloadInfo>>(state[teamId], ids);
+      return newState;
+    }, {});
+  },
+
+  /**
+   * It shouldn't be possible, but if folks somehow get themselves wedged with
+   * state from the previous downloads reducer (that was event-based), clear it
+   * out on rehydrate.
+   *
+   * TODO: Remove this when 99% users are >= version 2.7.0.
+   */
+  [REHYDRATE]: (state, payload: RootState) => {
+    if (payload.downloads) {
+      return {
+        ...state,
+        ...omit(payload.downloads, legacyEventKeys)
+      };
+    } else {
+      return state;
+    }
+  },
+}, {});
+
+export { reduce };
+
+export function getDownloads(store: Store<RootState>) {
+  return store.getState().downloads;
+}
+
+export function getDownloadsForTeam(store: Store<RootState>, teamId: string) {
+  return getDownloads(store)[teamId] || {};
+}
+
+export function getDownloadById(store: Store<RootState>, { id, teamId }: DownloadKey) {
+  return getDownloadsForTeam(store, teamId)[id];
+}
+
+/**
+ * Downloads are stored per team & by file ID, so we use this helper to flatten
+ * them out into one array.
+ */
+export function getAllDownloads(store: Store<RootState>): Array<DownloadInfo> {
+  return flatMap<DownloadInfo>(getDownloads(store), (downloadsPerTeam: DownloadsList) => {
+    return flatMap<DownloadInfo>(downloadsPerTeam);
+  });
+}
+
+/**
+ * Returns the maximum download progress.
+ */
+export function getMaxDownloadProgress(allDownloads: Array<DownloadInfo>) {
+  const progressValues = allDownloads.filter(({ downloadState }) => {
+    return downloadState === 'progressing';
+  }).map(({ progress }) => progress!);
+
+  return Math.max(...progressValues);
+}
+
+/**
+ * We only want to clear finished downloads (where finished could be cancelled,
+ * interrupted, or completed).
+ */
+export function getDownloadsToClear(store: Store<RootState>, teamId: string) {
+  return getAllDownloads(store).filter((download) => {
+    return download.teamId === teamId &&
+      !!download.downloadState &&
+      download.downloadState !== 'progressing';
+  });
 }

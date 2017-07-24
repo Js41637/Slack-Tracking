@@ -2,42 +2,31 @@
  * @module Stores
  */ /** for typedoc */
 
-import { applyMiddleware, createStore, combineReducers, compose } from 'redux';
-import { persistStore, autoRehydrate, Persistor } from 'redux-persist';
-import { electronEnhancer } from 'redux-electron-store';
-import * as createFilter from 'redux-persist-transform-filter';
-import createEncryptor from 'redux-persist-transform-encrypt';
 import * as fs from 'graceful-fs';
-import { promisify } from '../promisify';
-
-import { logger } from '../logger';
-import { p } from '../get-path';
-import { isPrebuilt } from '../utils/process-helpers';
-import { reducers } from '../reducers';
+import { applyMiddleware, combineReducers, compose, createStore } from 'redux';
+import { electronEnhancer } from 'redux-electron-store';
 import { createEpicMiddleware } from 'redux-observable';
-import { epics } from '../epics';
+import { Persistor, autoRehydrate, persistStore } from 'redux-persist';
+import createEncryptor from 'redux-persist-transform-encrypt';
+import * as createFilter from 'redux-persist-transform-filter';
+import createPasswordTransform, { accessKeychain } from 'redux-persist-transform-passwords';
 
-import { BaseStore } from './base-store';
-import { LocalStorage } from '../browser/local-storage';
-import { migrationManager } from '../browser/migration-manager';
-import { MigrationType } from '../utils/shared-constants';
-import { ReduxPersistStorage } from '../browser/redux-persist-storage';
-
-import { TEAMS, MIGRATIONS } from '../actions';
+import { MIGRATIONS, TEAMS } from '../actions';
 import { Action } from '../actions/action';
+import { LocalStorage, localSettings } from '../browser/local-storage';
+import { migrationManager } from '../browser/migration-manager';
+import { ReduxPersistStorage } from '../browser/redux-persist-storage';
+import { epics } from '../epics/browser';
+import { p } from '../get-path';
+import { logger } from '../logger';
+import { promisify } from '../promisify';
+import { RootState, reducers } from '../reducers';
+import { TokensState } from '../reducers/tokens-reducer';
+import { isPrebuilt } from '../utils/process-helpers';
+import { MigrationType, keychainAccountName, keychainServiceName, persistWhitelist } from '../utils/shared-constants';
+import { BaseStore } from './base-store';
 
 const pfs = promisify(fs) as typeof fs;
-
-// The keys to persist to local files.
-const persistWhitelist = [
-  'appTeams',
-  'dialog',
-  'migrations',
-  'settings',
-  'teams',
-  'unreads',
-  'windowFrame'
-];
 
 // Controls the subkeys that are persisted. If a filter isn't defined, all of
 // the state is persisted.
@@ -60,7 +49,8 @@ const permanentKeys = [
 // take effect immediately (e.g., add / remove teams, team usage on exit).
 const saveImmediateWhitelist = [
   `${keyPrefix}teams`,
-  `${keyPrefix}settings`
+  `${keyPrefix}settings`,
+  `${keyPrefix}downloads`
 ];
 
 const saveEventuallyWhitelist = [
@@ -69,8 +59,9 @@ const saveEventuallyWhitelist = [
 
 // We're more interested in obfuscating the user's proxy credentials than
 // encrypting them, so we just keep this key here.
+const secretKey = '7c5f5fc4-eae8-4edf-89b6-abd01cfd0f10';
 const encryptor = createEncryptor({
-  secretKey: '7c5f5fc4-eae8-4edf-89b6-abd01cfd0f10',
+  secretKey,
   whitelist: ['dialog']
 });
 
@@ -78,7 +69,7 @@ const encryptor = createEncryptor({
  * This store is for the browser / main process which persists state using
  * redux-persist.
  */
-export class BrowserStore<T> extends BaseStore<T> {
+export class BrowserStore extends BaseStore {
   private storagePath: string;
   private reduxStatePath: string;
   private persistor: Persistor;
@@ -108,15 +99,15 @@ export class BrowserStore<T> extends BaseStore<T> {
         postDispatchCallback: this.postDispatchCallback.bind(this),
         // Allows synced actions to pass through all enhancers
         // check https://github.com/samiskin/redux-electron-store/issues/31#issuecomment-260240981 for details of this practice
-        dispatchProxy: (action: Action<any>) => this.store.dispatch(action),
+        dispatchProxy: (action: Action<any>) => this.store.dispatch(action)
       }),
       autoRehydrate()
     ];
 
-    this.store = createStore<T>(
-      combineReducers<T>(reducers),
+    this.store = createStore<RootState>(
+      combineReducers<RootState>(reducers),
       (compose as any)(...toCompose)
-    ) as BaseStore<T>;
+    );
   }
 
   /**
@@ -139,24 +130,36 @@ export class BrowserStore<T> extends BaseStore<T> {
    *
    * @return {Promise}  A Promise indicating completion
    */
-  public async loadPersistentState(): Promise<any> {
+  public async loadPersistentState(): Promise<void> {
     const filters = Object.keys(filterByReducer).map((reducer) => {
       return createFilter.default(reducer, filterByReducer[reducer]);
     });
 
+    let whitelist = persistWhitelist;
+    const transforms = [...filters, encryptor];
+
+    const tokenTransform = await this.createApiTokenTransform();
+    if (tokenTransform) {
+      transforms.push(tokenTransform);
+    } else {
+      whitelist = persistWhitelist.filter((key) => key !== 'tokens');
+    }
+
     this.storage = new ReduxPersistStorage({
       storagePath: this.storagePath,
+      storageFileWhitelist: persistWhitelist,
       saveImmediateWhitelist,
       saveEventuallyWhitelist
     });
 
     await new Promise((res, rej) => {
       this.persistor = persistStore(this.store, {
-        whitelist: persistWhitelist,
         storage: this.storage,
-        transforms: [...filters, encryptor],
+        asyncTransforms: true,
+        whitelist,
+        transforms,
         keyPrefix
-      } as any, (err: Error, restoredState: any) => {
+      }, (err: Error, restoredState: RootState) => {
         if (err) {
           rej(err);
         } else {
@@ -176,7 +179,7 @@ export class BrowserStore<T> extends BaseStore<T> {
     const { devMode, devEnv } = global.loadSettings;
     if (devEnv && devEnv.length > 1) return;
 
-    const state = this.getState() as any;
+    const state = this.getState();
     const initialLaunch = !state.migrations.macgap && !state.migrations.redux;
     let wasMigrationPerformed = false;
     let hasMigratedRedux = this.hasMigrated(state, 'redux');
@@ -212,6 +215,41 @@ export class BrowserStore<T> extends BaseStore<T> {
         type: MIGRATIONS.COMPLETED,
         data: migrationsPerformed
       });
+    }
+  }
+
+  public dispose(): void {
+    this.storage.dispose();
+  }
+
+  /**
+   * Sets up a persistence transform that will write team API tokens into the
+   * keychain on serialize, and read them from the keychain on deserialize.
+   *
+   * If this fails for some reason (e.g., the user didn't grant keychain
+   * access), we won't persist any tokens in the keychain.
+   *
+   * @return {Transform<RootState, RootState>|null} The transform, or null if permission was denied
+   */
+  private async createApiTokenTransform() {
+    if (localSettings.getItem('keychainAccessDenied') === true) {
+      logger.info(`BrowserStore: Keychain access previously denied, don't ask again`);
+      return null;
+    }
+
+    const hasKeychainAccess = await accessKeychain(keychainServiceName, keychainAccountName);
+
+    if (hasKeychainAccess) {
+      return createPasswordTransform<TokensState, TokensState>({
+        serviceName: keychainServiceName,
+        accountName: keychainAccountName,
+        whitelist: ['tokens'],
+        logger: logger.info.bind(logger)
+      });
+    } else {
+      logger.warn(`BrowserStore: Couldn't access keychain, make note of it`);
+      localSettings.setItem('keychainAccessDenied', true);
+      return null;
     }
   }
 

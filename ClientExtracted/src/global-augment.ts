@@ -6,23 +6,25 @@
 // We've injected custom flavored bugsnag setup, so only import type definition
 // tslint:disable-line:no-reference
 /// <reference path="../node_modules/@types/bugsnag/index.d.ts" />
-import { BaseStore } from './lib/base-store';
-import { WebappWindowManager } from './ssb/webapp-window-manager';
-import { AppIntegration } from './ssb/app';
-import { ClipboardIntegration } from './ssb/clipboard';
-import { DockIntegration } from './ssb/dock';
-import { NotificationIntegration } from './ssb/notify';
-import { DownloadIntegration } from './ssb/downloads';
-import { Stats } from './ssb/stats';
-import { Calls } from './ssb/calls';
-import { DeviceStorage } from './ssb/device-storage';
-import { windowType } from './utils/shared-constants';
-import { LoggerConfiguration } from './logger-configuration';
 import { BugsnagReporter } from './browser/bugsnag-reporter';
+import { BaseStore } from './lib/base-store';
+import { LoggerConfiguration } from './logger-configuration';
 import { getMemoryUsage } from './memory-usage';
+import { DownloadsList } from './reducers/downloads-reducer';
+import { AppIntegration } from './ssb/app';
+import { Calls } from './ssb/calls';
+import { ClipboardIntegration } from './ssb/clipboard';
+import { DeviceStorage } from './ssb/device-storage';
+import { DockIntegration } from './ssb/dock';
+import { DownloadIntegration } from './ssb/downloads';
+import { NativeImageIntegration } from './ssb/native-image';
+import { NotificationIntegration } from './ssb/notify';
 import { ReduxHelper } from './ssb/redux-helper';
 import { SpellCheckingHelper } from './ssb/spell-checking';
+import { Stats } from './ssb/stats';
 import { TouchBarIntegration } from './ssb/touchbar';
+import { WebappWindowManager } from './ssb/webapp-window-manager';
+import { windowType } from './utils/shared-constants';
 
 // https://github.com/Microsoft/TypeScript/wiki/What's-new-in-TypeScript#augmenting-globalmodule-scope-from-modules
 
@@ -32,6 +34,7 @@ export interface LoadSettings extends LoggerConfiguration {
   devEnv: string;
   resourcePath?: string;
   version?: string;
+  sessionId: string;
 }
 
 export interface Desktop {
@@ -51,10 +54,12 @@ export interface Desktop {
   downloads: DownloadIntegration;
   stats: Stats;
   calls: Calls | null;
+  screen: Electron.Screen;
   screenhero: Calls | null;
-  store: BaseStore<any>;
+  store: BaseStore;
   deviceStorage: DeviceStorage;
   touchbar?: TouchBarIntegration;
+  nativeImage: NativeImageIntegration;
 }
 
 /* tslint:disable */
@@ -71,8 +76,7 @@ declare global {
 
     //define globally patched TSSSB interface
     TSSSB: {
-      downloadMetadataChanged(): void;
-      downloadWithTokenDidSelectFilepath(token: string, filePath: string): void;
+      updateDownloadsView(downloads?: DownloadsList): void;
       canUrlBeOpenedInSSBWindow(url: string): boolean;
       getThemeValues(): any;
       recentMessagesFromCurrentChannel(): {msgs: Array<any>};
@@ -99,23 +103,15 @@ declare global {
     teamId?: string;
     __REDUX_DEVTOOLS_EXTENSION_COMPOSE__?: any;
     Bugsnag: BugsnagStatic;
+
+    Notification: any;
   }
 
   namespace Electron {
-    interface CommonElectron {
-      TouchBar: any;
-    }
 
     interface BrowserWindow {
       exitApp?: boolean;
       closed: boolean;
-      setTouchBar: (touchBar: any) => void;
-    }
-
-    //augument until type definition being updated.
-    //https://github.com/electron/electron/blob/master/docs/api/menu-item.md#new-menuitemoptions
-    interface MenuItem {
-      id?: string;
     }
 
     interface DidFailLoadArguments {
@@ -156,14 +152,11 @@ declare global {
       window: Window;
       debugProfiler: any;
       Bugsnag: BugsnagStatic;
+      ga: (...args:Array<any>) => void;
     }
 
     interface Process {
       guestInstanceId: string;
-      getCPUUsage: () => {
-        idleWakeupsPerSecond: number;
-        percentCPUUsage: number;
-      };
     }
   }
 

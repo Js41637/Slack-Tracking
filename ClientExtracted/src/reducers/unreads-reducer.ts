@@ -2,28 +2,30 @@
  * @module Reducers
  */ /** for typedoc */
 
+import { omit } from 'lodash';
+import { TEAMS, UNREADS } from '../actions';
 import { Action } from '../actions/action';
-import { omit } from '../utils/omit';
-import { StringMap } from '../utils/shared-constants';
 import { UnreadsInfo } from '../actions/unreads-actions';
-import { UNREADS, TEAMS } from '../actions';
+import { StringMap } from '../utils/shared-constants';
+
+export type UnreadsState = StringMap<UnreadsInfo>;
 
 /**
  * @hidden
  */
-export function reduce(state: StringMap<UnreadsInfo> = {}, action: Action<any>): StringMap<UnreadsInfo> {
+export function reduce(state: UnreadsState = {}, action: Action<any>): UnreadsState {
   switch (action.type) {
   case UNREADS.UPDATE_UNREADS:
     return updateUnreads(state, action.data);
   case TEAMS.REMOVE_TEAM:
   case TEAMS.REMOVE_TEAMS:
-    return omit<StringMap<UnreadsInfo>, StringMap<UnreadsInfo>>(state, action.data);
+    return omit<UnreadsState, UnreadsState>(state, action.data);
   default:
     return state;
   }
-};
+}
 
-function updateUnreads(state: StringMap<UnreadsInfo>, {
+function updateUnreads(state: UnreadsState, {
   teamId, unreads, unreadHighlights, showBullet
 }: UnreadsInfo) {
   return {

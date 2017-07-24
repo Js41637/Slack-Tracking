@@ -2,15 +2,16 @@
  * @module Bugsnag
  */ /** for typedoc */
 
-import { app, BrowserWindow, dialog } from 'electron';
+import { BrowserWindow, app, dialog } from 'electron';
 import * as fs from 'graceful-fs';
 import * as path from 'path';
 
-import * as bugsnag from './bugsnag/bugsnag';
 import { logger } from '../logger';
+import * as bugsnag from './bugsnag/bugsnag';
 import { restartApp } from './restart-app';
 
-import { intl as $intl, LOCALE_NAMESPACE } from '../i18n/intl';
+import { LOCALE_NAMESPACE, intl as $intl } from '../i18n/intl';
+import { TELEMETRY_EVENT, flushTelemetry, track } from '../telemetry';
 import { getInstanceUuid } from '../uuid';
 
 export class BugsnagReporter {
@@ -19,6 +20,11 @@ export class BugsnagReporter {
   constructor(resourcePath: string, devMode: boolean) {
     const packageJson = path.resolve(resourcePath, 'package.json');
     const version = JSON.parse(fs.readFileSync(packageJson, 'utf-8')).version;
+
+    if (devMode && !!process.env.DEBUG) {
+      logger.debug(`BugsnagReporter: skipping setup bugsnag for main process.
+        If this is production build, ensure package is generated correctly`);
+    }
 
     (bugsnag as any).register('acaff8df67924f677747922423057034', {
       releaseStage: devMode ? 'development' : 'production',
@@ -40,14 +46,14 @@ export class BugsnagReporter {
 
         if (!e.message && !e.stack) {
           logger.error(e as any);
-          this.handleFatalError();
+          this.handleFatalError(e.name);
           return;
         }
 
         if (e.message) logger.error(e.message);
         if (e.stack) logger.error(e.stack);
 
-        this.handleFatalError();
+        this.handleFatalError(e.message);
       }
     });
   }
@@ -60,21 +66,23 @@ export class BugsnagReporter {
     return new Promise((resolve) => {
       dialog.showMessageBox(BrowserWindow.getFocusedWindow() || null, {
         type: 'error',
-        title: $intl.t(`Slack crashed!`, LOCALE_NAMESPACE.MESSAGEBOX)(),
-        message: $intl.t(`We're terribly sorry, but we've run into trouble and need to restart Slack.`, LOCALE_NAMESPACE.MESSAGEBOX)(),
-        detail: $intl.t(`If the problem persists, you can report an issue or contact us at feedback@slack.com.`, LOCALE_NAMESPACE.MESSAGEBOX)(),
-        buttons: [$intl.t(`Close`, LOCALE_NAMESPACE.GENERAL)(),
-                  $intl.t(`Restart`, LOCALE_NAMESPACE.GENERAL)(),
-                  $intl.t(`Restart {ampersand} Report Issue`, LOCALE_NAMESPACE.MESSAGEBOX)({
-                    ampersand: process.platform === 'win32' ? '&&' : '&'
-                  })],
+        title: $intl.t('Slack crashed!', LOCALE_NAMESPACE.MESSAGEBOX)(),
+        message: $intl.t('We’re terribly sorry, but we’ve run into trouble and need to restart Slack.', LOCALE_NAMESPACE.MESSAGEBOX)(),
+        detail: $intl.t('If the problem persists, you can report an issue or contact us at feedback@slack.com.', LOCALE_NAMESPACE.MESSAGEBOX)(),
+        buttons: [$intl.t('Close', LOCALE_NAMESPACE.GENERAL)(),
+        $intl.t('Restart', LOCALE_NAMESPACE.GENERAL)(),
+        process.platform === 'win32' ?
+          // @i18n double ampersand is for windows platform. if translated string does not need ampersand can ignore it.
+          $intl.t('Restart && Report Issue', LOCALE_NAMESPACE.MESSAGEBOX)() :
+          $intl.t('Restart & Report Issue', LOCALE_NAMESPACE.MESSAGEBOX)()
+        ],
         defaultId: 2,
         cancelId: 0,
       }, resolve);
     });
   }
 
-  private async handleFatalError(): Promise<void> {
+  private async handleFatalError(telemetryMessage?: string): Promise<void> {
     // If we haven't opened any windows, just die
     if (BrowserWindow.getAllWindows().length < 1) {
       setTimeout(() => {
@@ -88,6 +96,14 @@ export class BugsnagReporter {
     if (this.handlingFatalError) return;
     this.handlingFatalError = true;
     try {
+      track(TELEMETRY_EVENT.DESKTOP_CRASH, {
+        crashOrigin: 'browser',
+        crashMessage: telemetryMessage || 'empty',
+        crashes: 1
+      });
+
+      await flushTelemetry();
+
       const button = await this.showDialogOfShame();
       if (button === 2) {
         const SettingActions = require('../actions/setting-actions').settingActions;

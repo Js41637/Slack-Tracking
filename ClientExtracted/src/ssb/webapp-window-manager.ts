@@ -2,22 +2,22 @@
  * @module SSBIntegration
  */ /** for typedoc */
 
-import * as difference from 'lodash.difference';
 import { ipcRenderer, remote, screen as Screen } from 'electron';
 import { getSenderIdentifier } from 'electron-remote';
+import { difference } from 'lodash';
 import { Signal } from 'signals';
 
-import { canAccessLocalStorage } from './post-dom-tasks';
-import { executeRemoteEval, RemoteEvalOption } from './execute-remote-eval';
 import { logger } from '../logger';
-import { getPostMessageTemplate } from './post-message';
 import { getUserAgent } from '../ssb-user-agent';
+import { RemoteEvalOption, executeRemoteEval } from './execute-remote-eval';
+import { canAccessLocalStorage } from './post-dom-tasks';
+import { getPostMessageTemplate } from './post-message';
 
 import { ReduxComponent } from '../lib/redux-component';
-import { Window } from '../stores/window-store-helper';
-import { WindowHelpers } from '../utils/window-helpers';
+import { Store } from '../lib/store';
 import { windowStore } from '../stores/window-store';
-import { StringMap, WINDOW_TYPES } from '../utils/shared-constants';
+import { StringMap, WINDOW_TYPES, WindowMetadata } from '../utils/shared-constants';
+import { WindowHelpers } from '../utils/window-helpers';
 
 const { BrowserWindow } = remote;
 
@@ -30,7 +30,7 @@ function browserWindowFromToken(token: string): Electron.BrowserWindow {
 }
 
 export interface WebappWindowManagerState {
-  windows: StringMap<Window>;
+  windows: StringMap<WindowMetadata>;
   subType: any;
 }
 
@@ -61,7 +61,7 @@ export class WebappWindowManager extends ReduxComponent<WebappWindowManagerState
       this.doConsistencyCheck();
     }
 
-    ipcRenderer.on('inter-window-message', (_event: Electron.IpcRendererEvent, ...args: Array<any>) => {
+    ipcRenderer.on('inter-window-message', (_event: Electron.Event, ...args: Array<any>) => {
       this.receiveMessageSignal.dispatch(...args);
     });
 
@@ -112,7 +112,7 @@ export class WebappWindowManager extends ReduxComponent<WebappWindowManagerState
       // Create the window in the main process, and use a synchronous IPC call
       // to get the ID back to us. We create it there to avoid attaching remote
       // event handlers.
-      const windowId = ipcRenderer.sendSync('create-webapp-window', params);
+      const windowId = (ipcRenderer.sendSync as any)('create-webapp-window', params);
 
       // Stash the parameters used to create this window in localStorage, so
       // that we can tell the webapp about them later.
@@ -133,32 +133,38 @@ export class WebappWindowManager extends ReduxComponent<WebappWindowManagerState
    * the returned url in a browser, if the returned url begins with https.
    *
    * @param {string} url
-   * @returns {Promise<boolean>} Promise that resolves with true once the link is opened
+   * @returns {Promise<void>} Promise that resolves once the link is opened
    */
-  public openAuthenticatedInBrowser(url: string): Promise<boolean> {
-    return new Promise((resolve, reject) => {
-      return fetch(url, { credentials: 'include' })
-        .then((response) => response.json())
-        .then((result) => {
-          if (!result || !result.url) {
-            return reject('Response not valid: Did not contain url');
-          }
+  public async openAuthenticatedInBrowser(url: string): Promise<void> {
+    const response = await fetch(url, { credentials: 'include' });
 
-          if (!result.url.startsWith('https://')) {
-            return reject('Response not valid: Url did not start with https://');
-          }
+    if (response.status === 404) {
+      throw new Error(`Response not valid: url does not exist`);
+    }
 
-          try {
-            logger.info(`Opening authenticated Slack url in browser ${result.url}`);
-            remote.shell.openExternal(result.url);
+    let result;
 
-            return resolve(true);
-          } catch (error) {
-            logger.error('Tried to open authenticated url in browser, but failed', error);
-            return reject('Tried to open authenticated url in browser, but failed');
-          }
-        });
-    });
+    try {
+      result = await response.json();
+    } catch (error) {
+      throw new Error(`Couldn't parse response: ${error.message}`);
+    }
+
+    if (!result || !result.url) {
+      throw new Error('Response not valid: Did not contain url');
+    }
+
+    if (!result.url.startsWith('https://')) {
+      throw new Error('Response not valid: Url did not start with https://');
+    }
+
+    try {
+      logger.info(`Opening authenticated Slack url in browser ${result.url}`);
+      remote.shell.openExternal(result.url);
+    } catch (error) {
+      logger.error('Tried to open authenticated url in browser, but failed', error);
+      throw new Error('Tried to open authenticated url in browser, but failed');
+    }
   }
 
   /**
@@ -190,7 +196,7 @@ export class WebappWindowManager extends ReduxComponent<WebappWindowManagerState
    * @param  {Object} data            Data to attach to the `Event`
    * @param  {String} window_token    The value you got from `open`
    */
-  public postMessage(data: string | Object = '', window_token: string = ''): void {
+  public postMessage(data: string | object = '', window_token: string = ''): void {
     if (!window_token || !data) {
       throw new Error('Missing parameters, needs window_token and data');
     }
@@ -350,7 +356,7 @@ export class WebappWindowManager extends ReduxComponent<WebappWindowManagerState
   public focus(options: {
     window_token: string
   }): void {
-    this.safeInvokeOnWindow(options.window_token, (wnd) => WindowHelpers.bringToForeground(wnd));
+    this.safeInvokeOnWindow(options.window_token, (wnd) => WindowHelpers.bringToForeground(wnd, Store));
   }
 
   /**
@@ -375,27 +381,6 @@ export class WebappWindowManager extends ReduxComponent<WebappWindowManagerState
     window_token: string
   }): void {
     this.safeInvokeOnWindow(options.window_token, (wnd) => (wnd as any).toggleDevTools());
-  }
-
-  /**
-   * Returns an object describing the primary display.
-   *
-   * @return {Object}
-   * @return {Object}.bounds      Describes the size and position of the display
-   * @return {Object}.workArea    Describes the available size (e.g., minus the taskbar)
-   * @return {Object}.scaleFactor Describes the scaling of the display
-   */
-  public getPrimaryDisplay(): Electron.Display {
-    return Screen.getPrimaryDisplay();
-  }
-
-  /**
-   * Returns an array of displays that are currently active.
-   *
-   * @return {Array}  An array of display objects
-   */
-  public getAllDisplays(): Array<Electron.Display> {
-    return Screen.getAllDisplays();
   }
 
   /**

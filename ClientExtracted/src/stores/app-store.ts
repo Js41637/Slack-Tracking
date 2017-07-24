@@ -17,7 +17,7 @@
 
 import { Store } from '../lib/store';
 import { AppState } from '../reducers/app-reducer';
-import { MenuItemsMap, Region, networkStatusType, UpdateInformation,
+import { LastError, MenuItemsMap, Region, UpdateInformation, networkStatusType,
   updateStatusType } from '../utils/shared-constants';
 
 export class AppStore {
@@ -37,7 +37,8 @@ export class AppStore {
     return this.app.updateInfo;
   }
 
-  public getCustomMenuItems(teamId: string): MenuItemsMap {
+  public getCustomMenuItems(teamId: string | null): MenuItemsMap {
+    if (!teamId) return null;
     return this.app.customMenuItems ?
       this.app.customMenuItems[teamId] :
       null;
@@ -53,6 +54,10 @@ export class AppStore {
 
   public getNoDragRegions(): Array<Region> {
     return this.app.noDragRegions;
+  }
+
+  public getLastError(): LastError | null {
+    return this.app.lastError;
   }
 }
 

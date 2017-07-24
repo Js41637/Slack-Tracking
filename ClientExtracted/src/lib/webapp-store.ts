@@ -2,13 +2,13 @@
  * @module Stores
  */ /** for typedoc */
 
-import { applyMiddleware, createStore, combineReducers, compose } from 'redux';
+import { applyMiddleware, combineReducers, compose, createStore } from 'redux';
 import { electronEnhancer } from 'redux-electron-store';
-import { reducers } from '../reducers';
+import { RootState, reducers } from '../reducers';
 
 import { BaseStore } from './base-store';
 
-export class WebappStore<T> extends BaseStore<T> {
+export class WebappStore extends BaseStore {
   constructor() {
     super();
 
@@ -20,8 +20,8 @@ export class WebappStore<T> extends BaseStore<T> {
       })
     ];
 
-    this.store = createStore(
-      combineReducers(reducers),
+    this.store = createStore<RootState>(
+      combineReducers<RootState>(reducers),
       (compose as any)(...toCompose)
     ) as any;
   }

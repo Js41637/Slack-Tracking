@@ -1,0 +1,51 @@
+.DoomedError {
+  position: fixed;
+  top: -30px;
+  /* Fade in: Account for the sidebar */
+  left: ~"calc(50vw - 300px + 34px)";
+  z-index: -10000;
+  width: 600px;
+  height: 100vh;
+  display: flex;
+  opacity: 0;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  line-height: 1.6rem;
+
+  & > img {
+    margin-left: auto;
+    margin-right: auto;
+    padding-bottom: 20px;
+    height: 230px;
+    width: 200px;
+  }
+
+  & > h1 {
+    font-size: 1.7rem;
+    margin: 0;
+  }
+
+  & > p {
+    text-align: left;
+  }
+}
+
+.DoomedErrorFadeIn {
+  /* Fade in: Ensure that we never see the screen during startup */
+  transition: opacity 2s linear;
+  transition-delay: 3s;
+  opacity: 1;
+}
+
+.LastKnownError {
+  bottom: 25px;
+  position: absolute;
+  width: 600px;
+  left: 0;
+
+  & code {
+    font-size: .85rem;
+    font-family: Consolas, monaco, "Ubuntu Mono", courier, monospace;
+  }
+}

@@ -3,6 +3,7 @@
  */ /** for typedoc */
 
 import { Store } from '../lib/store';
+import { electronWindowDisposition } from '../utils/shared-constants';
 import { EVENTS } from './';
 
 export class EventActions {
@@ -13,10 +14,10 @@ export class EventActions {
     });
   }
 
-  public appCommand(command: string): void {
+  public appCommand(command: 'browser-backward' | 'browser-forward'): void {
     Store.dispatch({
       type: EVENTS.APP_COMMAND,
-      data: { command }
+      data: command
     });
   }
 
@@ -38,6 +39,13 @@ export class EventActions {
     });
   }
 
+  public handleSettingsLink(url: string): void {
+    Store.dispatch({
+      type: EVENTS.HANDLE_SETTINGS_LINK,
+      data: { url }
+    });
+  }
+
   public handleDeepLink(url: string): void {
     Store.dispatch({
       type: EVENTS.HANDLE_DEEP_LINK,
@@ -45,7 +53,7 @@ export class EventActions {
     });
   }
 
-  public handleExternalLink(url: string, disposition: Electron.NewWindowDisposition): void {
+  public handleExternalLink(url: string, disposition: electronWindowDisposition): void {
     Store.dispatch({
       type: EVENTS.HANDLE_EXTERNAL_LINK,
       data: { url, disposition }
@@ -119,10 +127,6 @@ export class EventActions {
     Store.dispatch({ type: EVENTS.PREPARE_AND_REVEAL_LOGS } as any);
   }
 
-  public closeAllUpdateBanners(): void {
-    Store.dispatch({ type: EVENTS.CLOSE_ALL_UPDATE_BANNERS } as any);
-  }
-
   public popupAppMenu(invokedViaKeyboard: boolean): void {
     Store.dispatch({ type: EVENTS.POPUP_APP_MENU, data: { invokedViaKeyboard } });
   }
@@ -131,8 +135,16 @@ export class EventActions {
     Store.dispatch({ type: EVENTS.SYSTEM_TEXT_SETTINGS_CHANGED });
   }
 
-  public reportCrashLogs(count: number): void {
-    Store.dispatch({ type: EVENTS.REPORT_CRASH_TELEMETRY, data: { count } });
+  /**
+   * Unload specified team to minweb.
+   * @param {string} teamId team Id to change loaded state.
+   */
+  public unloadTeam(teamId: string): void {
+    Store.dispatch({ type: EVENTS.UNLOAD_TEAM, data: { teamId } });
+  }
+
+  public tickleMessageServer(teamId: string): void {
+    Store.dispatch({ type: EVENTS.TICKLE_MESSAGE_SERVER, data: teamId, omitFromLog: true });
   }
 }
 

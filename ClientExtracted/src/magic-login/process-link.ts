@@ -2,13 +2,13 @@
  * @module MagicLogin
  */ /** for typedoc */
 
-import { logger } from '../logger';
 import { BrowserWindow } from 'electron';
-import { Observable } from 'rxjs/Observable';
 import { executeJavaScriptMethod } from 'electron-remote';
+import { Observable } from 'rxjs/Observable';
+import { logger } from '../logger';
 
 import { dialogActions } from '../actions/dialog-actions';
-import { teamActions, Team } from '../actions/team-actions';
+import { Team, teamActions } from '../actions/team-actions';
 
 interface MagicLoginResponse {
   team: string;
@@ -51,7 +51,7 @@ export function processMagicLoginLink({ teamId, token }: {teamId: string, token:
     .map((response) => teamFromLoginMagicResponse(response))
     .subscribe(
       (team: Team) => {
-        teamActions.addTeam(team, true);
+        teamActions.addTeam(team, false);
         dialogActions.hideLoginDialog();
       },
       (err) => {
@@ -82,5 +82,5 @@ function teamFromLoginMagicResponse({ team, team_name, user, user_name, redir }:
     id: user,
     name: user_name,
     team_url: redir
-  } as Team;
+  } as any as Team;
 }

@@ -4,10 +4,10 @@
 
 import * as os from 'os';
 import { version } from '../package.json';
-import { nativeInterop } from './native-interop';
-import { IS_WINDOWS_STORE } from './utils/shared-constants';
-import { settingStore } from './stores/setting-store';
 import { LinuxSettings } from './browser/application';
+import { nativeInterop } from './native-interop';
+import { settingStore } from './stores/setting-store';
+import { IS_WINDOWS_STORE } from './utils/shared-constants';
 const { isWindows10OrHigher, getOSVersion } = nativeInterop;
 
 // NB: This must be the last segment of the user agent.

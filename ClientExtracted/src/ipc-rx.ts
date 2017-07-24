@@ -2,22 +2,22 @@
  * @module IPC
  */ /** for typedoc */
 
-import * as assignIn from 'lodash.assignin';
-import { Subscription } from 'rxjs/Subscription';
+import { assignIn } from 'lodash';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
+import { Subscription } from 'rxjs/Subscription';
 
 //lock down type to IpcMain, as module is actually determined runtime can't have corresponding types for ipcRenderer
 const electronIpc = require('electron')[process.type === 'renderer' ?
-  'ipcRenderer' : 'ipcMain'] as Electron.IpcMain;
+  'ipcRenderer' : 'ipcMain'] as (Electron.IpcMain | Electron.IpcRenderer);
 
 const ipc = assignIn({}, electronIpc, {
   listen: (channel: string) => {
     return Observable.create((subj: Subject<any>) => {
 
       const listener = (process.type === 'browser' ?
-        (_event: Electron.IpcMainEvent, args: any) => subj.next(args) :
-        (...args: Array<any>) => subj.next(args)) as Electron.IpcMainEventListener;
+        (_event: Electron.Event, args: any) => subj.next(args) :
+        (...args: Array<any>) => subj.next(args));
 
       electronIpc.on(channel, listener);
 

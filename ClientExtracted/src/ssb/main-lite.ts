@@ -5,6 +5,7 @@
 import { webFrame } from 'electron';
 import { initializeEvalHandler } from 'electron-remote';
 import { logger } from '../logger';
+import { setupCrashReporter } from '../setup-crash-reporter';
 import { overrideWindowOpen } from './override-window-open';
 
 import { AppIntegration } from './app';
@@ -14,6 +15,8 @@ import { WebappWindowManager } from './webapp-window-manager';
 import { WindowOpener } from './window-opener';
 
 (window as any).globalLogger = logger;
+
+setupCrashReporter(global.loadSettings);
 
 initializeEvalHandler();
 

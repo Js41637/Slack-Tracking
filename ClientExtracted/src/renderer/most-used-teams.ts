@@ -2,8 +2,7 @@
  * @module Renderer
  */ /** for typedoc */
 
-import { sum } from '../utils/sum';
-import * as sortBy from 'lodash.sortby';
+import { sortBy, sumBy } from 'lodash';
 
 /**
  * Returns an array of teams sorted by usage, that accounts for at least 70%
@@ -16,11 +15,11 @@ import * as sortBy from 'lodash.sortby';
  *
  * @return {Array}                An array of the n most used team IDs
  */
-export function getMostUsedTeams(teams: Object, usageTarget: number = 0.7) {
+export function getMostUsedTeams(teams: object, usageTarget: number = 0.7) {
   const usagePairs = Object.keys(teams).map((id) => [id, teams[id].usage || 0]);
 
   const sortedPairs = sortBy(usagePairs, ([, usage]: Array<number>) => usage).reverse();
-  const totalTimeUsed = sum(usagePairs, ([, usage]) => usage);
+  const totalTimeUsed = sumBy(usagePairs, ([, usage]) => usage);
 
   const mostUsedTeams: Array<string> = [];
   let usageTotal = 0.0;

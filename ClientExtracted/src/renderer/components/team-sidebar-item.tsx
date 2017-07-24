@@ -5,13 +5,13 @@
 import * as classNames from 'classnames';
 import * as React from 'react'; // tslint:disable-line:no-unused-variable
 
-import { Component } from '../../lib/component';
-import { getContainsInvalid } from '../../utils/utf-safety';
-import { getTextColor, getSidebarColor } from '../../utils/color';
-import { intl as $intl, LOCALE_NAMESPACE } from '../../i18n/intl';
 import { Team, teamActions } from '../../actions/team-actions';
-import { TeamIcon } from './team-icon';
 import { UnreadsInfo } from '../../actions/unreads-actions';
+import { LOCALE_NAMESPACE, intl as $intl } from '../../i18n/intl';
+import { Component } from '../../lib/component';
+import { getSidebarColor, getTextColor } from '../../utils/color';
+import { getContainsInvalid } from '../../utils/utf-safety';
+import { TeamIcon } from './team-icon';
 
 const isDarwin = process.platform === 'darwin';
 
@@ -32,10 +32,7 @@ export interface TeamSidebarItemProps {
   borderRadius: number;
 }
 
-export interface TeamSidebarItemState {
-}
-
-export class TeamSidebarItem extends Component<TeamSidebarItemProps, TeamSidebarItemState> {
+export class TeamSidebarItem extends Component<TeamSidebarItemProps> {
   public static readonly defaultProps = {
     iconSize: 36
   };
@@ -136,11 +133,9 @@ export class TeamSidebarItem extends Component<TeamSidebarItemProps, TeamSidebar
   private computeShortcutText(index: number): string | null {
     let shortcut: string | null = null;
     if (index < 9) {
-      shortcut = $intl.t(`{modifier}{idx}`, LOCALE_NAMESPACE.RENDERER)({
-          modifier: isDarwin ? `⌘` : $intl.t(`Ctrl+`, LOCALE_NAMESPACE.GENERAL)(),
-          idx: index + 1
-        }
-      );
+      shortcut = isDarwin ?
+        $intl.t('⌘{idx}', LOCALE_NAMESPACE.RENDERER)({ idx: index + 1 }) :
+        $intl.t('Ctrl+{idx}', LOCALE_NAMESPACE.RENDERER)({ idx: index + 1 });
     }
 
     return shortcut;

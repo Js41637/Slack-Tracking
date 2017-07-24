@@ -2,13 +2,13 @@
  * @module RendererComponents
  */ /** for typedoc */
 
+import { assignIn } from 'lodash';
 import * as ReactCSSTransitionGroup from 'react-addons-css-transition-group';
-import * as assignIn from 'lodash.assignin';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/observable/fromEvent';
 
-import { noop } from '../../utils/noop';
 import { Component } from '../../lib/component';
+import { noop } from '../../utils/noop';
 
 import * as React from 'react'; // tslint:disable-line:no-unused-variable
 
@@ -23,8 +23,7 @@ export interface ModalProps {
 
 export interface ModalState {
   styleOverride: {
-    top: number,
-    transition: string
+    top: number
   };
 }
 
@@ -53,8 +52,7 @@ export class Modal extends Component<ModalProps, ModalState> {
     // getBoundingClientRect() doesn't work at first, needs a requestAnimationFrame
     requestAnimationFrame(() => {
       this.setState({ styleOverride: {
-        top: this.getCenteredDialogPos(),
-        transition: 'all 0.5s ease-out'
+        top: this.getCenteredDialogPos()
       }});
     });
 
@@ -62,7 +60,6 @@ export class Modal extends Component<ModalProps, ModalState> {
     this.disposables.add(Observable.fromEvent(window, 'resize').subscribe(() => {
       this.setState({styleOverride: {
         top: this.getCenteredDialogPos(),
-        transition: 'none'
       }});
     }));
   }
@@ -74,7 +71,7 @@ export class Modal extends Component<ModalProps, ModalState> {
       top: '-100%'
     };
 
-    assignIn(dialogStyle, this.state.styleOverride); // Used for animations
+   assignIn(dialogStyle, this.state.styleOverride); // Used for animations
 
     return (
       <div className={`${this.props.className} Modal`} ref={this.refHandlers.main}>

@@ -1,7 +1,7 @@
-import { Observable } from 'rxjs/Rx';
 import { remote } from 'electron';
-import { Subscription } from 'rxjs/Subscription';
 import { fromRemoteWindow } from 'electron-remote';
+import { Observable } from 'rxjs/Rx';
+import { Subscription } from 'rxjs/Subscription';
 
 /**
  * ContextMenuListener will listen to the given window / WebView control and
@@ -23,8 +23,8 @@ export class ContextMenuListener {
    *                                                ContextMenu event
    */
   constructor(handler: (...args: Array<any>) => void,
-              windowOrWebView: Electron.BrowserWindow | Electron.WebContents | Electron.WebViewElement | null = remote.getCurrentWebContents(),
-              contextMenuEvent: Observable<any> | null= null) {
+              windowOrWebView: Electron.BrowserWindow | Electron.WebContents | Electron.WebviewTag | null = remote.getCurrentWebContents(),
+              contextMenuEvent: Observable<any> | null = null) {
     if (!contextMenuEvent) {
       windowOrWebView = windowOrWebView || remote.getCurrentWebContents();
       contextMenuEvent = fromRemoteWindow(windowOrWebView, 'context-menu', true).map(([x]: any) => x[1]);

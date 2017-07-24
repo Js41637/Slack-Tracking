@@ -4,32 +4,35 @@
 
 global.shellStartTime = Date.now();
 
+import { app, protocol, session } from 'electron';
+import { initializeEvalHandler } from 'electron-remote';
+import { EventEmitter } from 'events';
 import * as fs from 'graceful-fs';
-import * as assignIn from 'lodash.assignin';
+import { assignIn } from 'lodash';
 import * as mkdirp from 'mkdirp';
 import * as path from 'path';
-import { app, protocol } from 'electron';
-import { initializeEvalHandler } from 'electron-remote';
 import { Observable } from 'rxjs/Observable';
-import { EventEmitter } from 'events';
 
-import { BugsnagReporter } from './bugsnag-reporter';
 import { channel } from '../../package.json';
-import { getAppId } from '../utils/app-id';
-import { getMemoryUsage } from '../memory-usage';
-import { logger } from '../logger';
 import { p } from '../get-path';
+import { applyLocale } from '../i18n/apply-locale';
+import { logger } from '../logger';
+import { getMemoryUsage } from '../memory-usage';
 import { parseCommandLine } from '../parse-command-line';
 import { parseProtocolUrl } from '../parse-protocol-url';
 import { setupCrashReporter } from '../setup-crash-reporter';
-import { onInstall, onUpdate, onUninstall } from './squirrel-event-handlers';
-import { IS_WINDOWS_STORE } from '../utils/shared-constants';
+import { getAppId } from '../utils/app-id';
+import { copySmallFileSync } from '../utils/file-helpers';
+import { IS_WINDOWS_STORE, persistWhitelist } from '../utils/shared-constants';
+import { getSessionId, initializeSessionId } from '../uuid';
 import { OsInfo, getLinuxDistro } from '../webapp-shared/linux-distro';
-
-import '../rx-operators';
-import '../custom-operators';
-import { locale } from '../i18n/locale';
+import { BugsnagReporter } from './bugsnag-reporter';
+import { localSettings } from './local-storage';
+import { onInstall, onUninstall, onUpdate } from './squirrel-event-handlers';
 import { traceRecorder } from './trace-recorder';
+
+import '../custom-operators';
+import '../rx-operators';
 
 protocol.registerStandardSchemes(['slack-resources', 'slack-webapp-dev']);
 
@@ -87,10 +90,7 @@ async function handleSquirrelEvents() {
  * @return {Bool}           The modified `shouldRun`
  */
 function handleDisableGpuOnLinux(shouldRun: boolean): boolean {
-  const LocalStorage = require('./local-storage').LocalStorage;
-  const localStorage = new LocalStorage();
-
-  const disableGpu = localStorage.getItem('useHwAcceleration') === false;
+  const disableGpu = localSettings.getItem('useHwAcceleration') === false;
   if (!disableGpu) return shouldRun;
 
   if (process.argv.find((x) => !!x.match(/disable-gpu/))) {
@@ -202,7 +202,9 @@ async function waitForAppReady(args: any): Promise<any> {
   // NB: Too many people mess with the system Temp directory and constantly are
   // breaking it on Windows. We're gonna use our own instead and dodge like 40
   // bullets.
-  if (process.platform !== 'linux') {
+  // But, we want to use the system Temp directory on Windows Store builds,
+  // otherwise we'll end up trapped in a virtualized container.
+  if (process.platform !== 'linux' && !IS_WINDOWS_STORE) {
     const newTemp = p`${'userData'}/temp`;
 
     mkdirp.sync(newTemp);
@@ -218,9 +220,79 @@ async function waitForAppReady(args: any): Promise<any> {
 
   traceRecorder.initializeListener();
   await new Promise((res) => app.once('ready', (e: any) => {
-    locale.invalidate(); //memoize locale values as soon as application initialized
+    applyLocale();
     res(e);
   }));
+}
+
+/**
+ * If on a QA / Dev environment and special tsauth-token is passed then set it
+ * on the default session. This allows automation tests to run without hitting
+ * Slauth.
+ */
+function setTsAuthCookie({ tsaToken, devEnv }: { tsaToken: string, devEnv: string }) {
+  const chromiumCookie = {
+    url: 'https://*.' + devEnv + '.slack.com/',
+    name: 'tsa-token',
+    value: tsaToken,
+    domain: '.slack.com',
+    secure: true,
+    session: false,
+    expirationDate: Date.now() + 3600000
+  };
+
+  session.defaultSession!.cookies.set(chromiumCookie, (e) => {
+    if (e) {
+      throw e;
+    } else {
+      logger.info('TSAuth cookie set');
+    }
+  });
+}
+
+/**
+ * When the app is started for the first time, check if a MAS Application Support directory
+ * exists in the Containers folder and if the corresponding DDL folder (which should exist
+ * even on first launch, since Logger creates it) has neither an existing 'storage' folder
+ * nor an existing 'Local Storage' folder.
+ *
+ * If so, we take it to mean this is a MAS->DDL migration, so we copy 'Cookies',
+ * 'storage/slack-*', and 'Local Storage/*' to the DDL Application Support folder, to migrate
+ * teams and logins from MAS to DDL.
+ *
+ * @return {Boolean}  'true' if a migration occurred. 'false' otherwise.
+ */
+function migrateMasToDdlIfNeeded(args: any) {
+  if (process.platform !== 'darwin') return false;
+  if (channel === 'mas') return false;
+  if (args.devEnv || args.devMode) return false;
+
+  try {
+    const ddlAppDataPath = app.getPath('userData');
+    const masAppDataPath = p`${'HOME'}/Library/Containers/com.tinyspeck.slackmacgap/Data/Library/Application Support/Slack`;
+    if (fs.existsSync(masAppDataPath)
+        && !fs.existsSync(path.join(ddlAppDataPath, 'storage'))
+        && !fs.existsSync(path.join(ddlAppDataPath, 'Local Storage'))) {
+      copySmallFileSync(path.join(masAppDataPath, 'Cookies'), path.join(ddlAppDataPath, 'Cookies'));
+      fs.mkdirSync(path.join(ddlAppDataPath, 'storage'));
+      persistWhitelist.forEach((file) => {
+        file = path.join('storage', 'slack-' + file);
+        if (fs.existsSync(path.join(masAppDataPath, file))) {
+          copySmallFileSync(path.join(masAppDataPath, file), path.join(ddlAppDataPath, file));
+        }
+      });
+      fs.mkdirSync(path.join(ddlAppDataPath, 'Local Storage'));
+      fs.readdirSync(path.join(masAppDataPath, 'Local Storage')).forEach((file) => {
+        file = path.join('Local Storage', file);
+        copySmallFileSync(path.join(masAppDataPath, file), path.join(ddlAppDataPath, file));
+      });
+
+      return true;
+    }
+  } catch (e) {
+    logger.warn('Failed to migrate MAS to DDL: ', e);
+  }
+  return false;
 }
 
 /**
@@ -287,6 +359,7 @@ function createSlackApplication(args: any) {
     }
 
     global.application = new Application(args);
+    if (args.tsaToken && args.devEnv) setTsAuthCookie(args);
 
     logger.info(`App load time: ${Date.now() - global.shellStartTime}ms`);
 
@@ -302,18 +375,24 @@ async function main() {
   try {
     let shouldRun = true;
     shouldRun = shouldRun && await handleSquirrelEvents();
-    shouldRun = shouldRun && (process.platform === 'linux' ? handleDisableGpuOnLinux(shouldRun) : true);
+    shouldRun = shouldRun &&
+      process.platform === 'linux'
+        ? handleDisableGpuOnLinux(shouldRun)
+        : true;
 
     const commandLineArgs = handleSingleInstance(shouldRun);
 
+    migrateMasToDdlIfNeeded(commandLineArgs);
     await waitForAppReady(commandLineArgs);
     await createBrowserStore();
+    initializeSessionId();
     createSlackApplication({
       ...commandLineArgs,
+      sessionId: getSessionId(),
       linux: process.platform === 'linux' && await getLinuxInfo()
     });
   } catch (e) {
-    console.error(e);
+    console.error(e); //tslint:disable-line:no-console
     app.quit();
     process.exit(0);
   }

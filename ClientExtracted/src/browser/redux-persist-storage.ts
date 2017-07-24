@@ -5,8 +5,8 @@
 import * as fs from 'graceful-fs';
 import * as path from 'path';
 import { Storage } from 'redux-persist';
-import { Subject } from 'rxjs/Subject';
 import { Scheduler } from 'rxjs/Scheduler';
+import { Subject } from 'rxjs/Subject';
 import { sync as writeFileSync } from 'write-file-atomic-fsync';
 
 import { logger } from '../logger';
@@ -29,6 +29,7 @@ interface SetItemArguments {
 
 export interface ReduxPersistStorageOptions {
   storagePath: string;
+  storageFileWhitelist: Array<string>;
   saveImmediateWhitelist: Array<string>;
   saveEventuallyWhitelist: Array<string>;
   scheduler?: Scheduler;
@@ -50,8 +51,13 @@ export class ReduxPersistStorage implements Storage {
     this.storagePath = options.storagePath;
     this.saveImmediateWhitelist = options.saveImmediateWhitelist;
 
+    // Read files in from the storage path and assign a set of reducer keys
+    // from those. Don't just let any ole file through – filter a defined set.
     if (fs.statSyncNoException(this.storagePath)) {
-      this.reducerKeys = new Set(fs.readdirSync(this.storagePath));
+      const storageFiles = fs.readdirSync(this.storagePath)
+        .filter((key) => options.storageFileWhitelist
+          .some((keyToSave) => key.includes(keyToSave)));
+      this.reducerKeys = new Set(storageFiles);
     } else {
       fs.mkdirSync(this.storagePath);
     }
@@ -65,6 +71,15 @@ export class ReduxPersistStorage implements Storage {
         SAVE_DEBOUNCE_MS,
         options.scheduler))
       .subscribe(({ key, value, callback }) => this.setItemImmediately(key, value, callback));
+  }
+
+  /**
+   * Dispose persist storage.
+   * This'll completes and flush out current queued persist request into persist storage immediately.
+   *
+   */
+  public dispose(): void {
+    this.saveDebounce.complete();
   }
 
   public getItem(key: string, callback: StorageOperationCallback): any {

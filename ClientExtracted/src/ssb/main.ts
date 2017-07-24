@@ -17,6 +17,7 @@
  * - `desktop.deviceStorage`: [[DeviceStorage]]
  * - `desktop.reduxHelper`: [[ReduxHelper]]
  * - `desktop.touchbar`: [[TouchBarIntegration]]
+ * - `desktop.nativeImage`: [[NativeImageIntegration]]
  *
  * To learn more about an individual namespace, check out the corresponding module.
  *
@@ -24,31 +25,32 @@
  * @preferred
  */ /** for typedoc */
 
-import { TouchBarIntegration } from './touchbar';
-import { webFrame, remote } from 'electron';
+import { remote, webFrame } from 'electron';
 import { initializeEvalHandler } from 'electron-remote';
 import { logger } from '../logger';
-import { overrideWindowOpen } from './override-window-open';
-import { overrideDropbox } from './override-dropbox';
 import { setupCrashReporter } from '../setup-crash-reporter';
+import { overrideDropbox } from './override-dropbox';
+import { overrideWindowOpen } from './override-window-open';
+import { TouchBarIntegration } from './touchbar';
 
+import { screen as ElectronScreen } from 'electron';
+import { Store } from '../lib/store';
 import { AppIntegration } from './app';
 import { Calls } from './calls';
 import { ClipboardIntegration } from './clipboard';
 import { DeviceStorage } from './device-storage';
 import { DockIntegration } from './dock';
 import { DownloadIntegration } from './downloads';
+import { NativeImageIntegration } from './native-image';
 import { NotificationIntegration } from './notify';
-import {setupTouchscreenEvents, setupDoubleClickHandler,
-  canAccessLocalStorage, disableDesktopIntegration} from './post-dom-tasks';
+import { canAccessLocalStorage, disableDesktopIntegration,
+  setupDoubleClickHandler, setupTouchscreenEvents } from './post-dom-tasks';
+import { ReduxHelper } from './redux-helper';
 import { SpellCheckingHelper } from './spell-checking';
 import { Stats as StatsIntegration } from './stats';
-import { Store } from '../lib/store';
-import { ReduxHelper } from './redux-helper';
 import { TeamIntegration } from './team';
 import { WebappWindowManager } from './webapp-window-manager';
 import { WindowOpener } from './window-opener';
-import { WEBAPP_MESSAGES_URL } from '../utils/shared-constants';
 
 (window as any).globalLogger = logger;
 
@@ -85,9 +87,7 @@ const postDOMSetup = () => {
     }
   }
 
-  if (document.location.href.match(WEBAPP_MESSAGES_URL)) {
-    window.winssb.spellCheckingHelper = new SpellCheckingHelper();
-  }
+  window.winssb.spellCheckingHelper = new SpellCheckingHelper();
 
   if (isDarwin) {
     if (currentWindow) {
@@ -120,7 +120,7 @@ let callsModule = null;
 try {
   callsModule = new Calls();
 } catch (e) {
-  console.error('Calls failed to load, bailing', e);
+  console.error('Calls failed to load, bailing', e); //tslint:disable-line:no-console
 }
 
 // TODO: Rename this to window.desktop outright when webapp is ready, before shipping for Mac
@@ -143,6 +143,8 @@ window.winssb = {
 
   calls: callsModule,
 
+  screen: ElectronScreen,
+
   // NB: For backwards compatibility with the webapp
   screenhero: callsModule,
 
@@ -156,7 +158,9 @@ window.winssb = {
 
   touchbar: process.platform === 'darwin'
     ? new TouchBarIntegration()
-    : undefined
+    : undefined,
+
+  nativeImage: NativeImageIntegration
 };
 
 // NB: We will be moving to this more generic name for our desktop integration global.

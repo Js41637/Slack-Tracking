@@ -3,14 +3,15 @@
  */ /** for typedoc */
 
 import { BrowserWindow } from 'electron';
-import { nativeInterop } from '../native-interop';
 
-import { notificationStore } from '../stores/notification-store';
-import { StoreEvent } from '../stores/event-store';
 import { ReduxComponent } from '../lib/redux-component';
+import { nativeInterop } from '../native-interop';
+import { NotificationEvent } from '../reducers/notifications-reducer';
+import { notificationStore } from '../stores/notification-store';
 import { settingStore } from '../stores/setting-store';
 import { windowStore } from '../stores/window-store';
 import { windowFlashBehaviorType } from './behaviors/main-window-close-behavior';
+
 const { getIdleTimeInMs } = nativeInterop;
 
 // The amount of time (in milliseconds) that a user must be inactive before
@@ -18,7 +19,7 @@ const { getIdleTimeInMs } = nativeInterop;
 const idleThresholdMs = 10 * 1000;
 
 export interface WindowFlashNotificationManagerState {
-  newNotificationEvent: StoreEvent;
+  newNotificationEvent: NotificationEvent;
   windowFlashBehavior: windowFlashBehaviorType;
   isWindows: boolean;
   mainWindow: Electron.BrowserWindow;

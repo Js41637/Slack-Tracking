@@ -2,11 +2,11 @@
  * @module RendererComponents
  */ /** for typedoc */
 
+import { omit } from 'lodash';
 import { Observable } from 'rxjs/Observable';
 import { Observer } from 'rxjs/Observer';
 import { Component } from '../../lib/component';
 import { logger } from '../../logger';
-import { omit } from '../../utils/omit';
 import { shallowEqual } from '../../utils/shallow-equal';
 
 import * as React from 'react'; // tslint:disable-line
@@ -27,7 +27,7 @@ export interface AsyncImageProps {
   renderPending: () => JSX.Element;
   srcSet?: string;
   src: string;
-  style?: Object;
+  style?: object;
   width: number;
 }
 

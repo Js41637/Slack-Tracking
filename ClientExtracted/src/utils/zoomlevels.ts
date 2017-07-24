@@ -9,7 +9,7 @@
  * @param {Electron.WebContents|Electron.WebViewElement} webContents  The webContents to set zoom
  * @param {Number}  zoomLevel                                         The Electron zoom level
  */
-export function setZoomLevelAndLimits(webContents: Electron.WebContents|Electron.WebViewElement, zoomLevel: number): void {
+export function setZoomLevelAndLimits(webContents: Electron.WebContents|Electron.WebviewTag, zoomLevel: number): void {
   const factor = zoomLevelToFactor(zoomLevel);
   const level = zoomFactorToLevel(factor);
 

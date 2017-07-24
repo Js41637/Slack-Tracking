@@ -3,23 +3,23 @@
  */ /** for typedoc */
 
 import * as fs from 'graceful-fs';
-import * as path from 'path';
-import * as winston from 'winston';
-import * as packageJson from '../package.json';
 import * as os from 'os';
-import * as util from 'util';
-import { p } from './get-path';
-import { noop } from './utils/noop';
-import { redactApiTokens } from './utils/redact-utils';
-import { IS_WINDOWS_STORE, UUID_FILENAME } from './utils/shared-constants';
-import { promisify } from './promisify';
-import { LoggerConfiguration } from './logger-configuration';
+import * as path from 'path';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 import 'rxjs/add/observable/from';
+import 'rxjs/add/observable/of';
 import 'rxjs/add/operator/filter';
 import 'rxjs/add/operator/take';
-import 'rxjs/add/observable/of';
+import * as util from 'util';
+import * as winston from 'winston';
+import * as packageJson from '../package.json';
+import { p } from './get-path';
+import { LoggerConfiguration } from './logger-configuration';
+import { promisify } from './promisify';
+import { noop } from './utils/noop';
+import { redactApiTokens } from './utils/redact-utils';
+import { IS_WINDOWS_STORE, UUID_FILENAME } from './utils/shared-constants';
 
 const pfs = promisify(fs);
 const isBrowser = process.type === 'browser';

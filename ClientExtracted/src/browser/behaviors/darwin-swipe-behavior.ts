@@ -3,8 +3,8 @@
  */ /** for typedoc */
 
 import { Subscription } from 'rxjs/Subscription';
-import { WindowBehavior } from './window-behavior';
 import { appTeamsActions } from '../../actions/app-teams-actions';
+import { WindowBehavior } from './window-behavior';
 
 export class DarwinSwipeBehavior extends WindowBehavior {
   public static isSupported(platform: string): boolean {

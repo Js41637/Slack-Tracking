@@ -2,9 +2,9 @@
  * @module Utilities
  */ /** for typedoc */
 
+import { nativeImage } from 'electron';
 import * as path from 'path';
 import { logger } from '../logger';
-import { nativeImage } from 'electron';
 
 /**
  * Creates a `nativeImage` from a static image resource. Tray is currently

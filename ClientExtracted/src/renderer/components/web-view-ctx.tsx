@@ -2,30 +2,32 @@
  * @module RendererComponents
  */ /** for typedoc */
 
-import * as assignIn from 'lodash.assignin';
+import * as classNames from 'classnames';
+import { executeJavaScriptMethod, setParentInformation } from 'electron-remote';
+import { assignIn } from 'lodash';
 import * as path from 'path';
-import * as url from 'url';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 import { Subscription } from 'rxjs/Subscription';
-import { executeJavaScriptMethod, setParentInformation } from 'electron-remote';
+import * as url from 'url';
 
+import { Logger, logger } from '../../logger';
 import { getUserAgent } from '../../ssb-user-agent';
-import { isSlackURL } from '../../utils/url-utils';
-import { releaseDocumentFocus } from '../../utils/document-focus';
-import { logger, Logger } from '../../logger';
 import { noop } from '../../utils/noop';
+import { isSlackURL } from '../../utils/url-utils';
 
+import { appActions } from '../../actions/app-actions';
+import { eventActions } from '../../actions/event-actions';
 import { Component } from '../../lib/component';
 import { dialogStore } from '../../stores/dialog-store';
-import { eventActions } from '../../actions/event-actions';
-import { WebViewBehavior } from '../behaviors/webView-behavior';
-import { contextMenuBehavior } from '../behaviors/context-menu-behavior';
-import { externalLinkBehavior } from '../behaviors/external-link-behavior';
 import { settingStore } from '../../stores/setting-store';
+import { contextMenuBehavior } from '../../utils/context-menu-behavior';
 import { setZoomLevelAndLimits } from '../../utils/zoomlevels';
+import { Behavior } from '../behaviors/behavior';
+import { externalLinkBehavior } from '../behaviors/external-link-behavior';
 
 import * as React from 'react'; // tslint:disable-line:no-unused-variable
+import { TELEMETRY_EVENT, track } from '../../telemetry';
 
 /**
  * Webview `did-fail-load` happens in many cases we don't care about. See
@@ -68,10 +70,11 @@ export interface WebViewContextProps {
 export interface WebViewContextState {
   zoomLevel: number;
   isMac: boolean;
-  authInfo: Electron.LoginAuthInfo;
+  authInfo: Electron.AuthInfo | null;
+  isLoading?: boolean;
 }
 
-export class WebViewContext extends Component<WebViewContextProps, Partial<WebViewContextState>> {
+export class WebViewContext extends Component<WebViewContextProps, WebViewContextState> {
   public static readonly defaultProps = {
     id: null,
     login: false,
@@ -87,11 +90,11 @@ export class WebViewContext extends Component<WebViewContextProps, Partial<WebVi
 
   private currentViewId = 0;
   private consoleLogger: Logger;
-  private behaviors: Array<WebViewBehavior> = [contextMenuBehavior, externalLinkBehavior];
+  private behaviors: Array<Behavior<Electron.WebviewTag>> = [contextMenuBehavior, externalLinkBehavior];
   private authDialogClosed: Subject<boolean> = new Subject();
-  private webViewElement: Electron.WebViewElement;
+  private webViewElement: Electron.WebviewTag;
   private readonly refHandlers = {
-    webView: (ref: Electron.WebViewElement) => this.webViewElement = ref
+    webView: (ref: Electron.WebviewTag) => this.webViewElement = ref
   };
 
   private get WebContents(): Electron.WebContents {
@@ -108,7 +111,7 @@ export class WebViewContext extends Component<WebViewContextProps, Partial<WebVi
     });
   }
 
-  public syncState(): Partial<WebViewContextState> {
+  public syncState(): WebViewContextState {
     return {
       zoomLevel: settingStore.getSetting<number>('zoomLevel'),
       isMac: settingStore.isMac(),
@@ -128,6 +131,18 @@ export class WebViewContext extends Component<WebViewContextProps, Partial<WebVi
     );
 
     this.disposables.add(this.logConsoleMessages(webView));
+
+    // Keep track of the loading state of the webview, because if we try to set
+    // `visibility: hidden` while it's loading it won't render properly.
+    // Refer to https://github.com/electron/electron/issues/8505.
+    this.disposables.add(
+      Observable.merge(
+        Observable.fromEvent(webView, 'did-start-loading').mapTo(true),
+        Observable.fromEvent(webView, 'did-stop-loading').mapTo(false)
+      )
+      .startWith(true)
+      .subscribe((isLoading) => this.setState(() => ({ isLoading })))
+    );
 
     this.disposables.add(Observable.fromEvent(webView, 'dom-ready').subscribe(() => {
       setParentInformation(webView);
@@ -154,6 +169,8 @@ export class WebViewContext extends Component<WebViewContextProps, Partial<WebVi
     this.disposables.add(Observable.fromEvent(webView, 'did-get-redirect-request')
       .filter(({ isMainFrame }) => isMainFrame)
       .subscribe((e: HashChangeEvent) => {
+        if (this.delayPageRefresh(e)) return;
+
         logger.info(`WebView: Received redirect request from ${e.oldURL} to ${e.newURL}.`);
         this.props.onRedirect!(e);
       })
@@ -182,7 +199,7 @@ export class WebViewContext extends Component<WebViewContextProps, Partial<WebVi
     this.webViewElement.closeDevTools();
   }
 
-  public get WebView(): Electron.WebViewElement {
+  public get WebView(): Electron.WebviewTag {
     return this.webViewElement;
   }
 
@@ -205,47 +222,12 @@ export class WebViewContext extends Component<WebViewContextProps, Partial<WebVi
     return this.webViewElement.getURL() || '';
   }
 
-  public downloadURL(theUrl: string): void {
-    this.WebContents.downloadURL(theUrl);
-  }
-
   public loadURL(theURL: string): void {
     this.webViewElement.src = theURL;
   }
 
   public reload(): void {
     this.webViewElement.reloadIgnoringCache();
-  }
-
-  /**
-   * Focus is a tricky beast with `webview` tags, as we have to dodge a bunch
-   * of Chromium bugs. We don't focus the `webview` itself to avoid an
-   * apparently unstylable focus rectangle. In addition, we need the host page
-   * to release document focus in order for focus to propagate to any of its
-   * `webview` children. Refer to
-   * https://github.com/javan/electron-webview-ime-fix for details.
-   */
-  public focus(): void {
-    const defaultFocusMethod = () => this.webViewElement.shadowRoot!.querySelector('object')!.focus();
-
-    if (this.state.isMac) {
-      //somehow direct focus to webview and its contents in mac os causes synchronous ipc blocking,
-      //falls back to legacy focus instead
-      defaultFocusMethod();
-    } else {
-      try {
-        const contents = this.webViewElement.getWebContents();
-        if (!!contents && !contents.isFocused()) {
-          this.webViewElement.focus();
-          (contents as any).focus();
-        }
-      } catch (e) {
-        defaultFocusMethod();
-        logger.warn(e);
-      }
-    }
-
-    releaseDocumentFocus();
   }
 
   public replaceMisspelling(correction: string): void {
@@ -277,7 +259,10 @@ export class WebViewContext extends Component<WebViewContextProps, Partial<WebVi
   }
 
   public render(): JSX.Element | null {
-    const id = `webview${this.currentViewId}${this.props.id ? `:${this.props.id}` : ''}`;
+    const id = `webview:${this.props.id ? `${this.props.id}` : `${this.currentViewId}`}`;
+    const className = classNames('WebViewContext', {
+      isLoading: this.state.isLoading
+    });
 
     const options = assignIn({
       id,
@@ -291,12 +276,43 @@ export class WebViewContext extends Component<WebViewContextProps, Partial<WebVi
 
     return (
       <webview
-        {...options}
-        style={{ width: '100%', height: '100%', backgroundColor: 'white' }}
-        className='WebViewContext'
+        tabIndex='-1'
         ref={this.refHandlers.webView}
+        className={className}
+        {...options}
+        style={{ width: '100%', height: '100%' }}
       />
     );
+  }
+
+  /**
+   * A dirty workaround to prevent white screens when the embedded page
+   * refreshes itself. This navigation happens before did-start-loading, which
+   * means the webview is still hidden and we fall into
+   * https://github.com/electron/electron/issues/8505.
+   *
+   * @param {HashChangeEvent} e   The redirect event
+   * @returns {Boolean}           True if we handled the event, false otherwise
+   */
+  private delayPageRefresh(e: HashChangeEvent): boolean {
+    if (e.oldURL && e.newURL) {
+      // Trim slashes at the end of URLs before checking equality
+      const oldURL = e.oldURL.endsWith('/') ? e.oldURL.slice(0, -1) : e.oldURL;
+      const newURL = e.newURL.endsWith('/') ? e.newURL.slice(0, -1) : e.newURL;
+
+      // They're the same; this must be a page refresh
+      if (oldURL === newURL) {
+        logger.fatal('WebView: Delaying page refresh');
+        e.preventDefault();
+
+        // Set the webview to visible before doing any navigation
+        this.setState(() => ({ isLoading: true }));
+        requestAnimationFrame(() => this.webViewElement.loadURL(newURL));
+        return true;
+      }
+    }
+
+    return false;
   }
 
   /**
@@ -305,14 +321,26 @@ export class WebViewContext extends Component<WebViewContextProps, Partial<WebVi
    * @param  {WebView} webView  The webview tag
    * @return {Subscription}     A Subscription that will clean up this listener
    */
-  private setupErrorHandling(webView: Electron.WebViewElement): Subscription {
+  private setupErrorHandling(webView: Electron.WebviewTag): Subscription {
     return Observable.merge(
       Observable.fromEvent(webView, 'crashed').mapTo('Renderer'),
       Observable.fromEvent(webView, 'gpu-crashed').mapTo('GPU'),
       Observable.fromEvent(webView, 'plugin-crashed').map((n, v) => `Plugin ${n} ${v}`))
       .filter((type) => !type.startsWith('Plugin'))
       .subscribe((type) => {
-        logger.error(`WebView: ${type} crash occurred in webView: ${JSON.stringify(this.props.options)}`);
+        const error = `WebView: ${type} crash occurred in webView: ${JSON.stringify(this.props.options)}`;
+        logger.error(error);
+
+        track(TELEMETRY_EVENT.DESKTOP_CRASH, {
+          crashOrigin: 'webview',
+          crashMessage: error,
+          crashes: 1
+        });
+
+        appActions.setLastError({
+          errorCode: -2, // -2 is Chrome's common error code for "something broke, we don't know what"
+          errorDescription: error
+        });
 
         // NB: Reload the entire window. We can't reload the webView in this
         // case because we can't even access it.
@@ -328,7 +356,7 @@ export class WebViewContext extends Component<WebViewContextProps, Partial<WebVi
    * @param {any} webView
    * @returns {Subscription}
    */
-  private setupLoadChecks(webView: Electron.WebViewElement): Subscription {
+  private setupLoadChecks(webView: Electron.WebviewTag): Subscription {
     const checkBlankPage = `document.location.href !== '${CHROMIUM_BLANK_PAGE_URL}'`;
     const checkForLoadedCSS = `document.styleSheets.length >= [...document.head.children].filter(c => c.type === 'text/css').length`;
     const fullyLoadedCheck = `${checkBlankPage} && ${checkForLoadedCSS}`;
@@ -350,7 +378,7 @@ export class WebViewContext extends Component<WebViewContextProps, Partial<WebVi
    *
    * @return {Boolean}  True to bypass the empty page check, false otherwise
    */
-  private shouldSkipLoadCheck(webView: Electron.WebViewElement): boolean {
+  private shouldSkipLoadCheck(webView: Electron.WebviewTag): boolean {
     if (!webView || !isSlackURL(this.getURL())) {
       return true;
     }
@@ -370,7 +398,7 @@ export class WebViewContext extends Component<WebViewContextProps, Partial<WebVi
    * @param  {WebView} webView  The webview tag
    * @return {Subscription}     A Subscription that will clean up this listener
    */
-  private logConsoleMessages(webView: Electron.WebViewElement): Subscription {
+  private logConsoleMessages(webView: Electron.WebviewTag): Subscription {
     return Observable.fromEvent(webView, 'console-message')
       .subscribe(({ level, message }) => {
         switch (level) {

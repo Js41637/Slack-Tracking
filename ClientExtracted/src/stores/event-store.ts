@@ -3,10 +3,10 @@
  */ /** for typedoc */
 
 import { Store } from '../lib/store';
-import { State } from '../lib/state-events';
 
-export interface StoreEvent extends State {
+export interface StoreEvent {
   name: string;
+  timestamp?: number;
 }
 
 /**

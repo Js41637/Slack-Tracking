@@ -3,8 +3,8 @@
  */ /** for typedoc */
 
 import * as fs from 'graceful-fs';
-import * as path from 'path';
 import * as os from 'os';
+import * as path from 'path';
 import { spawn } from 'spawn-rx';
 
 import { logger } from './logger';
@@ -26,7 +26,7 @@ export interface NativeInterop {
 }
 
 export const interops = {
-  'win32': {
+  win32: {
     shouldDisplayNotifications: () => {
       let notificationState = null;
 
@@ -166,3 +166,4 @@ const nativeInterop: NativeInterop = interops[process.platform];
 export {
   nativeInterop
 }
+;

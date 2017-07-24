@@ -3,69 +3,142 @@
  */ /** for typedoc */
 
 import { shell } from 'electron';
-import { uniqueId } from '../utils/unique-id';
+import { ReduxComponent } from '../lib/redux-component';
+import { Store } from '../lib/store';
+import {
+  DownloadsList,
+  getDownloadById,
+  getDownloadsForTeam,
+  getDownloadsToClear,
+  removeDownload,
+  removeDownloads,
+  startDownload,
+  updateDownload
+} from '../reducers/downloads-reducer';
 
-import { downloadActions } from '../actions/download-actions';
+export class DownloadIntegration extends ReduxComponent<DownloadsList> {
 
-export class DownloadIntegration {
   /**
-   * start new download to given url.
+   * Starts a download of the given file resource, or highlight a download that
+   * already exists.
    *
-   * @param {string} url
-   * @returns {number} unique id attached to specific download.
-   *
-   * @memberOf DownloadIntegration
+   * @param {string} id   The file ID
+   * @param {string} url  The URL of the resource
    */
-  public startDownload(url: string): string {
-    const token = uniqueId();
-    downloadActions.startDownload({ token, url, teamId: window.teamId });
-    return token;
+  public startDownload({ id, url }: { id: string, url: string }) {
+    const teamId = window.teamId!;
+    const item = getDownloadById(Store, { id, teamId });
+
+    if (item) {
+      highlightDownload(id, teamId);
+    } else {
+      Store.dispatch(startDownload({ id, teamId, url }));
+    }
   }
 
-  public cancelDownloadWithToken(token: string) {
-    downloadActions.cancelDownload(token);
+  /**
+   * Shows a download in the file system. This will open the OS file browser.
+   */
+  public showDownload(id: string) {
+    const item = getDownloadById(Store, { id, teamId: window.teamId! });
+    if (item && item.downloadPath) shell.showItemInFolder(item.downloadPath);
   }
 
-  public retryDownloadWithToken(token: string) {
-    downloadActions.retryDownload(token);
+  /**
+   * Opens a file using the OS.
+   */
+  public openDownload(id: string) {
+    const item = getDownloadById(Store, { id, teamId: window.teamId! });
+    if (item && item.downloadPath) shell.openItem(item.downloadPath);
   }
 
-  public clearHistory() {
-    const metadata = JSON.parse(this.metadataForDownloads());
-    const tokens = Object.keys(metadata);
-    this.pruneTokensFromHistory(tokens);
+  /**
+   * Retries a failed download.
+   */
+  public retryDownload(id: string) {
+    const item = getDownloadById(Store, { id, teamId: window.teamId! });
+    if (!item) return;
+
+    Store.dispatch(startDownload({
+      id,
+      url: item.url,
+      teamId: window.teamId,
+      startTime: Date.now(),
+      downloadState: 'not_started'
+    }));
   }
 
-  public revealDownloadWithToken(token: string) {
-    downloadActions.revealDownload(token);
+  /**
+   * Cancels a download with the given ID.
+   */
+  public cancelDownload(id: string) {
+    Store.dispatch(updateDownload({ id, teamId: window.teamId, requestState: 'cancel' }));
   }
 
-  public revealFileAtPath(filePath: string) {
-    shell.showItemInFolder(filePath);
+  /**
+   * Pauses a download with the given ID.
+   */
+  public pauseDownload(id: string) {
+    Store.dispatch(updateDownload({ id, teamId: window.teamId, requestState: 'pause' }));
   }
 
-  public openFileAtPath(filePath: string) {
-    shell.openItem(filePath);
+  /**
+   * Resumes a download with the given ID.
+   */
+  public resumeDownload(id: string) {
+    Store.dispatch(updateDownload({ id, teamId: window.teamId, requestState: 'resume' }));
   }
 
-  //
-  // Trampolines for methods in download-manager
-  //
-
-  public syncMetadata(metaData: any) {
-    localStorage.setItem('downloads:metadata', JSON.stringify(metaData));
-    window.TSSSB.downloadMetadataChanged();
+  /**
+   * Removes a download with the given ID.
+   */
+  public removeDownload(id: string) {
+    Store.dispatch(removeDownload({ id, teamId: window.teamId }));
   }
 
-  public downloadWithTokenDidSelectFilepath(token: string, filePath: string) {
-    window.TSSSB.downloadWithTokenDidSelectFilepath(token, filePath);
+  /**
+   * Clears all stopped downloads for this team.
+   */
+  public clearDownloads() {
+    const ids = getDownloadsToClear(Store, window.teamId!).map(({ id }) => id);
+    Store.dispatch(removeDownloads(ids));
   }
 
-  private metadataForDownloads() {
-    return localStorage.getItem('downloads:metadata') || '{}';
+  /**
+   * Keep the webapp in sync with the downloads it cares about.
+   *
+   * @returns {DownloadsIntegrationState}
+   */
+  public syncState() {
+    return getDownloadsForTeam(Store, window.teamId!);
   }
 
-  private pruneTokensFromHistory(tokens: Array<string>) {
-    downloadActions.clearDownloads(JSON.parse(tokens as any));
+  /**
+   * Only update if our state changed and TSSSB is there.
+   */
+  public shouldComponentUpdate(prevState: DownloadsList, newState: DownloadsList) {
+    if (!window.TSSSB || !window.TSSSB.updateDownloadsView) return false;
+    return super.shouldComponentUpdate(prevState, newState);
   }
+
+  /**
+   * The webapp component uses our state to render its downloads view. Because
+   * of that, we need to tell that component when to re-render.
+   */
+  public update() {
+    window.TSSSB.updateDownloadsView(this.state);
+  }
+}
+
+/**
+ * This is a lulzy workaround to control item highlighting. We don't care to
+ * wire up epics here, and we don't have a way to control webapp state without
+ * passing a prop.
+ */
+function highlightDownload(id: string, teamId: string) {
+  Store.dispatch(updateDownload({ id, teamId, highlight: true }));
+
+  setTimeout(() => {
+    Store.dispatch(updateDownload({ id, teamId, highlight: false }));
+  }, 1000);
 }

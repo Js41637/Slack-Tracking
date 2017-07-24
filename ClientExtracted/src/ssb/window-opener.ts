@@ -2,8 +2,8 @@
  * @module SSBIntegration
  */ /** for typedoc */
 
+import { RemoteEvalOption, executeRemoteEval } from './execute-remote-eval';
 import { getPostMessageTemplate } from './post-message';
-import { executeRemoteEval, RemoteEvalOption } from './execute-remote-eval';
 
 export class WindowOpener {
   /**
@@ -33,7 +33,7 @@ export class WindowOpener {
    *
    * @return {Promise}                A Promise indicating completion
    */
-  public postMessage(data: string | Object = ''): Promise<any> {
+  public postMessage(data: string | object = ''): Promise<any> {
     const code = getPostMessageTemplate(data, document.location.origin, window.winssb.browserWindowId!);
 
     return this.executeJavaScript({ code });

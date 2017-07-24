@@ -2,14 +2,28 @@
  * @module ContextMenu
  */ /** for typedoc */
 
-import { clipboard, nativeImage, remote, shell } from 'electron';
+import { clipboard, nativeImage, screen, shell } from 'electron';
 
-import { truncateString } from './utils/truncate-string';
-import { matchesWord } from './utils/matches-word';
-import { intl as $intl, LOCALE_NAMESPACE } from './i18n/intl';
+import { LOCALE_NAMESPACE, intl as $intl } from './i18n/intl';
 import { logger } from './logger';
+import { matchesWord } from './utils/matches-word';
+import { truncateString } from './utils/truncate-string';
 
-const { Menu, MenuItem } = remote;
+let Menu: typeof Electron.Menu,
+    MenuItem: typeof Electron.MenuItem,
+    BrowserWindow: typeof Electron.BrowserWindow,
+    remote: Electron.Remote;
+
+if (process.type === 'renderer') {
+  remote = require('electron').remote;
+  Menu = remote.Menu;
+  MenuItem = remote.MenuItem;
+  BrowserWindow = remote.BrowserWindow;
+} else {
+  Menu = require('electron').Menu;
+  MenuItem = require('electron').MenuItem;
+  BrowserWindow = require('electron').BrowserWindow;
+}
 
 export interface ContextMenuStringTable {
   copyMail: () => string;
@@ -26,21 +40,29 @@ export interface ContextMenuStringTable {
   inspectElement: () => string;
 }
 
-export const contextMenuStringTable: ContextMenuStringTable = {
-  copyMail: $intl.t(`Copy Email Address`, LOCALE_NAMESPACE.MENU),
-  copyLinkUrl: $intl.t(`Copy Link`, LOCALE_NAMESPACE.MENU),
-  openLinkUrl: $intl.t(`Open Link`, LOCALE_NAMESPACE.MENU),
-  copyImageUrl: $intl.t(`Copy Image URL`, LOCALE_NAMESPACE.MENU),
-  copyImage: $intl.t(`Copy Image`, LOCALE_NAMESPACE.MENU),
-  addToDictionary: $intl.t(`Add to Dictionary`, LOCALE_NAMESPACE.MENU),
-  lookUpDefinition: $intl.t(`Look Up "{word}"`, LOCALE_NAMESPACE.MENU),
-  searchGoogle: $intl.t(`Search with Google`, LOCALE_NAMESPACE.MENU),
-  cut: $intl.t(`Cut`, LOCALE_NAMESPACE.MENU),
-  copy: $intl.t(`Copy`, LOCALE_NAMESPACE.MENU),
-  paste: $intl.t(`Paste`, LOCALE_NAMESPACE.MENU),
-  inspectElement: $intl.t(`Inspect Element`, LOCALE_NAMESPACE.MENU),
+export const contextMenuStringTable = {
+  copyMail: () => $intl.t('Copy Email Address', LOCALE_NAMESPACE.MENU)(),
+  copyLinkUrl: () => $intl.t('Copy Link', LOCALE_NAMESPACE.MENU)(),
+  openLinkUrl: () => $intl.t('Open Link', LOCALE_NAMESPACE.MENU)(),
+  copyImageUrl: () => $intl.t('Copy Image URL', LOCALE_NAMESPACE.MENU)(),
+  copyImage: () => $intl.t('Copy Image', LOCALE_NAMESPACE.MENU)(),
+  addToDictionary: () => $intl.t('Add to Dictionary', LOCALE_NAMESPACE.MENU)(),
+  // @i18n Do not translate between {}
+  lookUpDefinition: (...args: Array<any>) => $intl.t('Look Up "{word}"', LOCALE_NAMESPACE.MENU)(...args),
+  searchGoogle: () => $intl.t('Search with Google', LOCALE_NAMESPACE.MENU)(),
+  cut: () => $intl.t('Cut', LOCALE_NAMESPACE.MENU)(),
+  copy: () => $intl.t('Copy', LOCALE_NAMESPACE.MENU)(),
+  paste: () => $intl.t('Paste', LOCALE_NAMESPACE.MENU)(),
+  inspectElement: () => $intl.t('Inspect Element', LOCALE_NAMESPACE.MENU)(),
 };
 
+export type WindowOrWebContents = Electron.BrowserWindow | Electron.WebContents | Electron.WebviewTag | null;
+
+export const getCurrentWindow = () => {
+  return process.type === 'renderer'
+          ? remote.getCurrentWindow()
+          : BrowserWindow.getFocusedWindow();
+};
 export class ContextMenuBuilder {
   public menu: Electron.Menu | null = null;
   public readonly webContents: Electron.WebContents;
@@ -58,7 +80,7 @@ export class ContextMenuBuilder {
    *                                it prior to display. Signature: (menu, info) => menu
    */
   constructor(readonly spellCheckHandler?: any,
-              windowOrWebView: Electron.BrowserWindow | Electron.WebContents | Electron.WebViewElement | null = remote.getCurrentWindow(),
+              windowOrWebView: WindowOrWebContents = getCurrentWindow(),
               readonly debugMode: boolean = false,
               readonly processMenu: ((m: Electron.Menu, mi: Electron.ContextMenuParams) => Electron.Menu) = (m) => m) {
     this.stringTable = contextMenuStringTable;
@@ -71,7 +93,7 @@ export class ContextMenuBuilder {
       // have a WebContents, we need to defer the call to getWebContents
       this.getWebContents = 'webContents' in windowOrWebView! ?
         () => (windowOrWebView! as Electron.BrowserWindow).webContents :
-        () => (windowOrWebView! as Electron.WebViewElement).getWebContents();
+        () => (windowOrWebView! as Electron.WebviewTag).getWebContents();
     }
   }
 
@@ -103,7 +125,10 @@ export class ContextMenuBuilder {
     const menu = await this.buildMenuForElement(contextInfo);
 
     if (!menu) return;
-    (menu as any).popup(remote.getCurrentWindow(), { async: true });
+
+    const currentWindow: Electron.BrowserWindow = getCurrentWindow();
+
+    (menu).popup(currentWindow, { y: screen.getCursorScreenPoint().y, async: true });
   }
 
   /**
@@ -137,7 +162,9 @@ export class ContextMenuBuilder {
   public async buildMenuForTextInput(menuInfo: Electron.ContextMenuParams) {
     const menu = new Menu();
 
-    await this.addSpellingItems(menu, menuInfo);
+    if (this.spellCheckHandler) {
+      await this.addSpellingItems(menu, menuInfo);
+    }
 
     this.addSearchItems(menu, menuInfo);
     this.addCut(menu, menuInfo);

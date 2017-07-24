@@ -2,20 +2,20 @@
  * @module Component
  */ /** for typedoc */
 
-import * as clone from 'lodash.clone';
-import * as React from 'react'; // tslint:disable-line
+import { clone } from 'lodash';
+import * as React from 'react';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { Observable } from 'rxjs/Observable';
+import { Subscription } from 'rxjs/Subscription';
 
-import { ComponentBase } from './component-base';
 import { logger } from '../logger';
 import { settingStore } from '../stores/setting-store';
 import { shallowEqual } from '../utils/shallow-equal';
+import { ComponentBase } from './component-base';
 import { stateEventHandler } from './state-events';
 import { Store } from './store';
-import { Subscription } from 'rxjs/Subscription';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { Observable } from 'rxjs/Observable';
 
-export class Component<P, S> extends React.Component<P, S> implements ComponentBase {
+export class Component<P, S = {}> extends React.Component<P, S> implements ComponentBase {
   protected disposables: Subscription;
   private readonly mounted: BehaviorSubject<boolean> = new BehaviorSubject(false);
   private isDevMode: boolean;
@@ -43,12 +43,14 @@ export class Component<P, S> extends React.Component<P, S> implements ComponentB
   public shouldComponentUpdate(nextProps: P, nextState: S): boolean {
     return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
   }
+
   public componentWillMount(): void {
     this.mounted.next(true);
   }
 
   public componentWillUnmount(): void {
     this.mounted.next(false);
+    this.mounted.unsubscribe();
     this.disposables.unsubscribe();
   }
 
@@ -58,7 +60,7 @@ export class Component<P, S> extends React.Component<P, S> implements ComponentB
 
   private update(): void {
     if (!this.mounted.closed && this.mounted.value) {
-      const prevState = clone(this.state);
+      const prevState = clone<S>(this.state);
       const stateUpdates = (this.syncState() || {}) as S;
 
       if (this.isDevMode) {
@@ -75,7 +77,7 @@ export class Component<P, S> extends React.Component<P, S> implements ComponentB
 
       Object.keys(stateUpdates).forEach((key) => {
         const value = stateUpdates[key];
-        const handler = stateEventHandler(this, value, key, prevState);
+        const handler = stateEventHandler(this, value, key, prevState as any);
         if (handler) handler(value);
       });
     } else {

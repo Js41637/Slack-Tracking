@@ -2,8 +2,8 @@
  * @module Reducers
  */ /** for typedoc */
 
-import { Action } from '../actions/action';
 import { MIGRATIONS } from '../actions';
+import { Action } from '../actions/action';
 
 export interface MigrationsState {
   redux: boolean;
@@ -25,4 +25,4 @@ export function reduce(state: MigrationsState = initialState, action: Action<any
   default:
     return state;
   }
-};
+}

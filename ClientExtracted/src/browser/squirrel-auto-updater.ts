@@ -3,23 +3,23 @@
  */ /** for typedoc */
 
 import { BrowserWindow, dialog, shell } from 'electron';
+import SerialSubscription from 'rxjs-serial-subscription';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
-import SerialSubscription from 'rxjs-serial-subscription';
 
 import { appActions } from '../actions/app-actions';
+import { LOCALE_NAMESPACE, intl as $intl } from '../i18n/intl';
+import { ReduxComponent } from '../lib/redux-component';
+import { logger } from '../logger';
 import { appStore } from '../stores/app-store';
 import { dialogStore } from '../stores/dialog-store';
-import { getReleaseNotesUrl } from './updater-utils';
-import { intl as $intl, LOCALE_NAMESPACE } from '../i18n/intl';
-import { logger } from '../logger';
-import { ReduxComponent } from '../lib/redux-component';
 import { settingStore } from '../stores/setting-store';
 import { windowStore } from '../stores/window-store';
-import { Window } from '../stores/window-store-helper';
+import { getReleaseNotesUrl } from '../utils/url-utils';
+import { closeAllWindows } from './close-windows';
 
-import { UPDATE_STATUS, IS_STORE_BUILD, updateStatusType,
-  Credentials, ReleaseChannel, UpdaterOption, UpdateInformation } from '../utils/shared-constants';
+import { Credentials, IS_STORE_BUILD, ReleaseChannel, UPDATE_STATUS,
+  UpdateInformation, UpdaterOption, WindowMetadata, updateStatusType } from '../utils/shared-constants';
 
 /**
  * Check for updates every six hours
@@ -34,9 +34,9 @@ export interface SquirrelAutoUpdaterState {
   appVersion: string;
   isDevMode: boolean;
   releaseChannel: ReleaseChannel;
-  credentials: Credentials;
+  credentials: Credentials | null;
   updateStatus: updateStatusType;
-  mainWindow: Window;
+  mainWindow: WindowMetadata;
 }
 
 export class SquirrelAutoUpdater extends ReduxComponent<SquirrelAutoUpdaterState> {
@@ -59,7 +59,7 @@ export class SquirrelAutoUpdater extends ReduxComponent<SquirrelAutoUpdaterState
     }
   }
 
-  public syncState(): Partial<SquirrelAutoUpdaterState> {
+  public syncState(): SquirrelAutoUpdaterState {
     return {
       appVersion: settingStore.getSetting<string>('appVersion'),
       isDevMode: settingStore.getSetting<boolean>('isDevMode'),
@@ -135,11 +135,11 @@ export class SquirrelAutoUpdater extends ReduxComponent<SquirrelAutoUpdaterState
       appActions.updateDownloaded(updateInfo);
 
       const options = {
-        title: $intl.t(`An update is available`, LOCALE_NAMESPACE.MESSAGEBOX)(),
-        buttons: [$intl.t(`Close`, LOCALE_NAMESPACE.GENERAL)(),
-          $intl.t(`What's New`, LOCALE_NAMESPACE.MESSAGEBOX)(),
-          $intl.t(`Update Now`, LOCALE_NAMESPACE.MESSAGEBOX)()],
-        message: $intl.t(`A new version of Slack is available!`, LOCALE_NAMESPACE.MESSAGEBOX)()
+        title: $intl.t('An update is available', LOCALE_NAMESPACE.MESSAGEBOX)(),
+        buttons: [$intl.t('Close', LOCALE_NAMESPACE.GENERAL)(),
+          $intl.t('What’s New', LOCALE_NAMESPACE.MESSAGEBOX)(),
+          $intl.t('Update Now', LOCALE_NAMESPACE.MESSAGEBOX)()],
+        message: $intl.t('A new version of Slack is available!', LOCALE_NAMESPACE.MESSAGEBOX)()
       };
 
       dialog.showMessageBox(browserWindow, options, (response) => {
@@ -162,9 +162,9 @@ export class SquirrelAutoUpdater extends ReduxComponent<SquirrelAutoUpdaterState
       appActions.setUpdateStatus(UPDATE_STATUS.UP_TO_DATE);
 
       dialog.showMessageBox(browserWindow, {
-        title: $intl.t(`You're all good`, LOCALE_NAMESPACE.MESSAGEBOX)(),
-        buttons: [$intl.t(`OK`, LOCALE_NAMESPACE.GENERAL)()],
-        message: $intl.t(`You've got the latest version of Slack; thanks for staying on the ball.`, LOCALE_NAMESPACE.MESSAGEBOX)()
+        title: $intl.t('You’re all good', LOCALE_NAMESPACE.MESSAGEBOX)(),
+        buttons: [$intl.t('OK', LOCALE_NAMESPACE.GENERAL)()],
+        message: $intl.t('You’ve got the latest version of Slack; thanks for staying on the ball.', LOCALE_NAMESPACE.MESSAGEBOX)()
       });
     };
 
@@ -172,9 +172,9 @@ export class SquirrelAutoUpdater extends ReduxComponent<SquirrelAutoUpdaterState
       appActions.setUpdateStatus(UPDATE_STATUS.ERROR);
 
       dialog.showMessageBox(browserWindow, {
-        title: $intl.t(`We couldn't check for updates`, LOCALE_NAMESPACE.MESSAGEBOX)(),
-        buttons: [$intl.t(`OK`, LOCALE_NAMESPACE.GENERAL)()],
-        message: $intl.t(`Check your Internet connection, and contact support if this issue persists.`, LOCALE_NAMESPACE.MESSAGEBOX)(),
+        title: $intl.t('We couldn’t check for updates', LOCALE_NAMESPACE.MESSAGEBOX)(),
+        buttons: [$intl.t('OK', LOCALE_NAMESPACE.GENERAL)()],
+        message: $intl.t('Check your Internet connection, and contact support if this issue persists.', LOCALE_NAMESPACE.MESSAGEBOX)(),
         detail: process.platform === 'darwin' ? errorMessage : undefined
       });
     };
@@ -257,6 +257,10 @@ export class SquirrelAutoUpdater extends ReduxComponent<SquirrelAutoUpdaterState
   private restartToApplyUpdate(): void {
     const browserWindow = BrowserWindow.fromId(this.state.mainWindow.id);
     browserWindow.exitApp = true;
+
+    // Close all windows, making the `app.quit()` part of updating easier
+    closeAllWindows({ destroyWindows: true });
+
     this.autoUpdater.quitAndInstall();
   }
 }

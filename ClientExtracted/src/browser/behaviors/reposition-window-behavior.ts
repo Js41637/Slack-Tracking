@@ -3,16 +3,16 @@
  */ /** for typedoc */
 
 import { screen } from 'electron';
-import { Subscription } from 'rxjs/Subscription';
 import { Observable } from 'rxjs/Observable';
 import { Scheduler } from 'rxjs/Scheduler';
+import { Subscription } from 'rxjs/Subscription';
 
+import 'rxjs/add/observable/empty';
 import 'rxjs/add/observable/fromEvent';
 import 'rxjs/add/observable/merge';
-import 'rxjs/add/observable/empty';
+import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/filter';
-import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/throttleTime';
 
 import { logger } from '../../logger';
@@ -79,6 +79,8 @@ export class RepositionWindowBehavior extends WindowBehavior {
 
     const bounds = activeDisplay.workArea;
 
+    //avoid tslint bug for destructure alias: https://github.com/palantir/tslint/issues/2551
+    //tslint:disable-next-line:no-use-before-declare
     const { width: windowWidth, height: windowHeight } = RepositionWindowBehavior.getDefaultWindowSize(bounds, percentSize);
 
     const centerX = bounds.x + bounds.width / 2.0;
@@ -159,7 +161,7 @@ export class RepositionWindowBehavior extends WindowBehavior {
 
     if (!senderDisplay || !paramsDisplay || senderDisplay.id !== paramsDisplay.id) {
       const displayCenter = this.getCenterForDisplay(senderDisplay);
-      ret = Object.assign(ret, displayCenter);
+      ret = { ...ret, ...displayCenter };
     }
     return ret;
   }

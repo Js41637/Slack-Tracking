@@ -3,18 +3,16 @@
  */ /** for typedoc */
 
 import { Observable } from 'rxjs';
-import { Component } from '../../lib/component';
 import { eventActions } from '../../actions/event-actions';
+import { Component } from '../../lib/component';
 
 import * as React from 'react'; // tslint:disable-line:no-unused-variable
 
 export interface WinHamburgerProps {
   fillColor?: string;
-};
+}
 
-export interface WinHamburgerState {};
-
-export class WinHamburger extends Component<WinHamburgerProps, WinHamburgerState> {
+export class WinHamburger extends Component<WinHamburgerProps> {
   public static readonly defaultProps: WinHamburgerProps = {
    fillColor: '#fff'
   };
@@ -22,6 +20,10 @@ export class WinHamburger extends Component<WinHamburgerProps, WinHamburgerState
   private hamburgerBtn: HTMLElement;
   private readonly refHandlers = {
     hamburger: (ref: HTMLElement) => this.hamburgerBtn = ref,
+  };
+
+  private readonly eventHandlers = {
+    onMouseDown: (e: React.MouseEvent<HTMLButtonElement>) => this.handleMouseDown(e),
   };
 
   public componentWillMount() {
@@ -37,7 +39,7 @@ export class WinHamburger extends Component<WinHamburgerProps, WinHamburgerState
 
     return (
       <div className='Windows-Titlebar-hamburger'>
-        <button ref={this.refHandlers.hamburger} title='Menu' className='Windows-Titlebar-button' onMouseDown={this.handleMouseDown.bind(this)}>
+        <button ref={this.refHandlers.hamburger} title='Menu' className='Windows-Titlebar-button' onMouseDown={this.eventHandlers.onMouseDown}>
           <svg className='Windows-Titlebar-icon' x='0px' y='0px' viewBox='0 0 10.2 10.2'>
             <rect fill={fillColor} width='10' height='1'/>
             <rect fill={fillColor} y='4' width='10.2' height='1'/>
@@ -48,7 +50,7 @@ export class WinHamburger extends Component<WinHamburgerProps, WinHamburgerState
     );
   }
 
-  private handleMouseDown(e: Event): void {
+  private handleMouseDown(e: React.MouseEvent<HTMLButtonElement>): void {
     e.preventDefault();
     eventActions.popupAppMenu(false);
   }

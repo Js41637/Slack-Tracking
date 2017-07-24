@@ -7,11 +7,13 @@ import * as fs from 'graceful-fs';
 import * as path from 'path';
 import { spawn } from 'spawn-rx';
 
-import { AutoLaunch } from './auto-launch';
-import { copySmallFileSync } from '../utils/file-helpers';
+import { clearKeychain } from 'redux-persist-transform-passwords';
+import { p } from '../get-path';
 import { logger } from '../logger';
 import { nativeInterop } from '../native-interop';
-import { p } from '../get-path';
+import { copySmallFileSync } from '../utils/file-helpers';
+import { keychainAccountName, keychainServiceName } from '../utils/shared-constants';
+import { AutoLaunch } from './auto-launch';
 
 /**
  * Create Run registry entry and shortcuts.
@@ -93,6 +95,8 @@ export async function onUninstall(locations: string): Promise<void> {
   await spawn(updateDotExe, args).toPromise();
 
   removeStartMenuFolder();
+
+  await clearKeychain(keychainServiceName, keychainAccountName);
 
   const taskKill = p`${'SYSTEMROOT'}/system32/taskkill.exe`;
   const killArgs = ['/F', '/IM', 'slack.exe', '/T'];

@@ -3,16 +3,18 @@
  */ /** for typedoc */
 
 import { Store } from '../lib/store';
-import { StoreEvent } from './event-store';
-import { Notification } from '../actions/notification-actions';
 
 export class NotificationStore {
-  public getNotifications(): Array<Notification> {
-    return Store.getState().notifications.notifications;
+  private get notifications() {
+    return Store.getState().notifications;
   }
 
-  public getNewNotificationEvent(): StoreEvent {
-    return Store.getState().notifications.newNotification;
+  public getNotifications() {
+    return this.notifications.notifications;
+  }
+
+  public getNewNotificationEvent() {
+    return this.notifications.newNotification;
   }
 }
 

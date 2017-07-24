@@ -4,8 +4,8 @@
 
 import * as classNames from 'classnames';
 import { Observable } from 'rxjs/Observable';
-import { Component } from '../../lib/component';
 import 'rxjs/add/observable/fromEvent';
+import { Component } from '../../lib/component';
 
 import * as React from 'react'; // tslint:disable-line:no-unused-variable
 
@@ -17,9 +17,7 @@ export interface ScrollableAreaProps {
   maxScroll?: number;
 }
 
-export interface ScrollableAreaState { }
-
-export class ScrollableArea extends Component<ScrollableAreaProps, ScrollableAreaState> {
+export class ScrollableArea extends Component<ScrollableAreaProps> {
   public static readonly defaultProps: ScrollableAreaProps = {
     style: {},
     scrollbar: 'default',
@@ -29,6 +27,10 @@ export class ScrollableArea extends Component<ScrollableAreaProps, ScrollableAre
   private scrollableElement: HTMLElement;
   private readonly refHandlers = {
     scrollable: (ref: HTMLElement) => this.scrollableElement = ref
+  };
+
+  private readonly eventHandlers = {
+    onScroll: (e: React.UIEvent<HTMLDivElement>) => this.handleScroll(e)
   };
 
   public get ScrollTop(): number {
@@ -50,7 +52,7 @@ export class ScrollableArea extends Component<ScrollableAreaProps, ScrollableAre
         <div
           ref={this.refHandlers.scrollable}
           className={containerClassNames}
-          onScroll={this.handleScroll.bind(this)}
+          onScroll={this.eventHandlers.onScroll}
         >
           {this.props.children}
         </div>
@@ -58,7 +60,7 @@ export class ScrollableArea extends Component<ScrollableAreaProps, ScrollableAre
     );
   }
 
-  private handleScroll(e: Event): void {
+  private handleScroll(e: React.UIEvent<HTMLDivElement>): void {
     const scrollable = this.scrollableElement;
     const maxScroll = this.props.maxScroll;
     if (!maxScroll || isNaN(maxScroll)) {

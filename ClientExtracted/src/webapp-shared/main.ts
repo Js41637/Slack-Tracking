@@ -31,7 +31,7 @@
  * If any of these caveats truly are tripping you up, come talk to us and we
  * can work out a solution
  *
- * @module WebAppShared
+ * @module WebappShared
  */ /** for typedoc */
 export class WebappSharedMainModule {
   constructor() {

@@ -2,22 +2,21 @@
  * @module Stores
  */ /** for typedoc */
 
-import { sum } from '../utils/sum';
+import { sumBy } from 'lodash';
 import { Store } from '../lib/store';
-import { StringMap } from '../utils/shared-constants';
-import { UnreadsInfo } from '../actions/unreads-actions';
+import { UnreadsState } from '../reducers/unreads-reducer';
 
 export class UnreadsStore {
-  public get unreads(): StringMap<UnreadsInfo> {
+  public get unreads(): UnreadsState {
     return Store.getState().unreads;
   }
 
   public getCombinedUnreadsInfo() {
-    const unreadsPerTeam = this.unreads;
+    const unreadsPerTeam = Object.keys(this.unreads).map((k) => this.unreads[k]);
 
     return {
-      unreads: sum(unreadsPerTeam, 'unreads'),
-      unreadHighlights: sum(unreadsPerTeam, 'unreadHighlights'),
+      unreads: sumBy(unreadsPerTeam as any, 'unreads'),
+      unreadHighlights: sumBy(unreadsPerTeam as any, 'unreadHighlights'),
       showBullet: Object.keys(unreadsPerTeam).some((key) => {
         const { showBullet, unreads } = unreadsPerTeam[key];
         return showBullet && unreads > 0;

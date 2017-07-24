@@ -2,19 +2,19 @@
  * @module Stores
  */ /** for typedoc */
 
-import { Store } from '../lib/store';
 import { appTeamsActions } from '../actions/app-teams-actions';
+import { Store } from '../lib/store';
 
 export class AppTeamsStore {
   private get appTeams() {
     return Store.getState().appTeams;
   }
 
-  public getSelectedTeamId(): string {
+  public getSelectedTeamId() {
     return this.appTeams.selectedTeamId;
   }
 
-  public getSelectedChannelId(): string {
+  public getSelectedChannelId() {
     return this.appTeams.selectedChannelId;
   }
 

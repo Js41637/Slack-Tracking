@@ -2,19 +2,21 @@
  * @module Browser
  */ /** for typedoc */
 
-import { logger } from '../logger';
-import { p } from '../get-path';
-import { Subject } from 'rxjs/Subject';
 import * as fs from 'graceful-fs';
-import { sync as writeFileAtomicSync } from 'write-file-atomic';
+import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/throttleTime';
+import { sync as writeFileAtomicSync } from 'write-file-atomic';
+
+import { p } from '../get-path';
+import { logger } from '../logger';
 import '../rx-operators';
 
 /**
- * Public: This class is a copy of the DOM LocalStorage API, backed by our local
- * settings file. Make sure to not use this directly, but use the instance in
- * {SlackApplication} or else you'll have multiple instances competing with each
- * other
+ * This class is a copy of the DOM LocalStorage API, backed by our local
+ * settings file. Don't instantiate new instances of this class without
+ * providing a storage path, just use the `localSettings` export. Otherwise
+ * you'll have multiple instances competing with each other.
+ *
  * @class LocalStorage
  */
 export class LocalStorage {
@@ -81,3 +83,6 @@ export class LocalStorage {
     }
   }
 }
+
+const localSettings = new LocalStorage();
+export { localSettings };

@@ -2,9 +2,9 @@
  * @module Reducers
  */ /** for typedoc */
 
-import { WindowSetting } from '../browser/behaviors/window-behavior';
+import { MIGRATIONS, WINDOW_FRAME } from '../actions';
 import { Action } from '../actions/action';
-import { WINDOW_FRAME, MIGRATIONS } from '../actions';
+import { WindowSetting } from '../browser/behaviors/window-behavior';
 
 export interface WindowFrameState {
   windowSettings: WindowSetting | null;
@@ -35,4 +35,4 @@ export function reduce(state: WindowFrameState = initialState, action: Action<an
   default:
     return state;
   }
-};
+}

@@ -2,20 +2,20 @@
  * @module BrowserBehaviors
  */ /** for typedoc */
 
-import { logger } from '../../logger';
-import { Subscription } from 'rxjs/Subscription';
+import { isObject } from 'lodash';
 import { Observable } from 'rxjs/Observable';
-import { async } from 'rxjs/scheduler/async';
-import { isObject } from '../../utils/is-object';
+import { Subscription } from 'rxjs/Subscription';
 import 'rxjs/add/observable/timer';
+import { async } from 'rxjs/scheduler/async';
+import { logger } from '../../logger';
 
 import { windowFrameActions } from '../../actions/window-frame-actions';
 import { windowFrameStore } from '../../stores/window-frame-store';
-import { WindowBehavior, WindowSetting } from './window-behavior';
 import { RepositionWindowBehavior } from './reposition-window-behavior';
+import { WindowBehavior, WindowSetting } from './window-behavior';
 
 export interface PersistSettingsWindowBehaviorState {
-  windowSettings: WindowSetting;
+  windowSettings: WindowSetting | null;
 }
 
 export class PersistSettingsWindowBehavior extends WindowBehavior {

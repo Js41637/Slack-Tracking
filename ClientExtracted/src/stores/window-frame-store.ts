@@ -3,23 +3,22 @@
  */ /** for typedoc */
 
 import { Store } from '../lib/store';
-import { WindowSetting } from '../browser/behaviors/window-behavior';
 /**
  * Handles all data related to Slack's window frame.
  *
  * @class WindowFrameStore
  */
 export class WindowFrameStore {
-  private get WindowFrame() {
+  private get windowFrame() {
     return Store.getState().windowFrame;
   }
 
-  public getWindowSettings(): WindowSetting {
-    return this.WindowFrame.windowSettings;
+  public getWindowSettings() {
+    return this.windowFrame.windowSettings;
   }
 
-  public isFullScreen(): boolean {
-    return this.WindowFrame.isFullScreen;
+  public isFullScreen() {
+    return this.windowFrame.isFullScreen;
   }
 }
 

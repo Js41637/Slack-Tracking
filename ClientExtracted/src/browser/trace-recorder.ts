@@ -1,25 +1,25 @@
-import { ipcMain, contentTracing, net, app } from 'electron';
-import { Observable } from 'rxjs/Observable';
-import { p } from '../get-path';
-import * as path from 'path';
-import * as fs from 'graceful-fs';
 import * as JSONStream from 'JSONStream';
 import * as archiver from 'archiver';
+import { app, contentTracing, ipcMain, net } from 'electron';
+import * as fs from 'graceful-fs';
+import * as path from 'path';
+import { Observable } from 'rxjs/Observable';
+import { p } from '../get-path';
 import { logger } from '../logger';
 import { promisify } from '../promisify';
 
+import { noop } from '../utils/noop';
 import {
-  TRACE_RECORD_CHANNEL,
-  startTraceArgumentType,
   StopTraceArgument,
-  TraceResponse,
   StopTraceResponse,
-  defaultTraceCategories,
   StringMap,
+  TRACE_RECORD_CHANNEL,
+  TraceResponse,
+  defaultTraceCategories,
+  startTraceArgumentType,
   traceUploadStatus
 } from '../utils/shared-constants';
 import { getInstanceUuid } from '../uuid';
-import { noop } from '../utils/noop';
 
 
 /**
@@ -31,6 +31,9 @@ class TraceRecorder {
   private state: startTraceArgumentType;
 
   private readonly traceLocation = p`${'userData'}/logs/recorded-trace`;
+
+  // set of categories we won't offer capture support for
+  private readonly excludedCategories: Readonly<Array<string>> = ['disabled-by-default-devtools.screenshot'];
 
   constructor() {
     if (process.type !== 'browser') {
@@ -45,7 +48,7 @@ class TraceRecorder {
   public initializeListener(): void {
     const [startEventObservable, stopEventObservable] =
       Observable.fromEvent(ipcMain, TRACE_RECORD_CHANNEL,
-        (event: Electron.IpcMainEvent, args: { type: 'start' | 'stop' }) => ({ sender: event.sender, args }))
+        (event: Electron.Event, args: { type: 'start' | 'stop' }) => ({ sender: event.sender, args }))
         .partition((x) => x.args.type === 'start');
 
     startEventObservable.subscribe((x) => this.startTrace(x.sender, x.args as startTraceArgumentType));
@@ -93,7 +96,7 @@ class TraceRecorder {
 
   private startTrace(sender: Electron.WebContents, args: startTraceArgumentType): void {
     const respondResult = (error?: string) => {
-      const response: TraceResponse = Object.assign({ pid: args.pid }, { error });
+      const response: TraceResponse = { pid: args.pid, error };
       logger.info(`startTrace: sending response to ${args.pid}`, response);
       sender.send(TRACE_RECORD_CHANNEL, response);
       if (!!error) {
@@ -123,7 +126,8 @@ class TraceRecorder {
       //construct content-trace options. `sampling-frequency` is included regardless of category configuration
       //cause for non-perf profiling it'll be just no-op but for perf profiling it should be included.
       const traceOptions = {
-        categoryFilter: (args.categoryFilter ? args.categoryFilter : defaultTraceCategories).join(','),
+        categoryFilter: (args.categoryFilter ? args.categoryFilter : defaultTraceCategories)
+          .filter((x) => !this.excludedCategories.includes(x)).join(','),
         traceOptions: 'record-until-full',
         options: 'sampling-frequency=10000'
       };
@@ -153,7 +157,7 @@ class TraceRecorder {
 
   private stopTrace(sender: Electron.WebContents, args: StopTraceArgument): void {
     const respondResult = (error: string | null, result?: { status: traceUploadStatus, filePath?: string }) => {
-      const response: StopTraceResponse = Object.assign({ pid: args.pid }, result);
+      const response: StopTraceResponse = { pid: args.pid, ...result };
       logger.info(`stopTrace: sending response to ${args.pid}`, response);
       sender.send(TRACE_RECORD_CHANNEL, response);
       if (!!error) {
@@ -181,7 +185,7 @@ class TraceRecorder {
     const outputZipFilePath = path.join(this.traceLocation, `${captureAllProcess ? 'full' : 'filtered'}_${uniqueFileName}.zip`);
 
     const filterPredicate = (x: { pid: number }) => x.pid && x.pid === senderId || x.pid === process.pid;
-    const getMetadata = () => Object.assign({
+    const getMetadata = () => ({
       token: this.state.token,
       identifier: this.state.identifier,
       instanceUuid: getInstanceUuid(),
@@ -226,7 +230,7 @@ class TraceRecorder {
    * @return {Observable<{status: traceUploadStatus, filePath?: string}>} Observable contains
    * status of upload. If fails, it'll also attach local path to trace file.
    */
-  private uploadTraceRecord(filePath: string, endpoint: string, metadata?: StringMap<string>): Observable<{
+  private uploadTraceRecord(filePath: string, endpoint: string, metadata?: Partial<StringMap<string>>): Observable<{
     status: traceUploadStatus,
     filePath?: string
   }> {

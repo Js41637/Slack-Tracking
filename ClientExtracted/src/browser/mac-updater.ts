@@ -3,25 +3,25 @@
  */ /** for typedoc */
 
 import * as connect from 'connect';
-import * as semver from 'semver';
 import * as fs from 'graceful-fs';
 import * as http from 'http';
-import * as temp from 'temp';
 import * as path from 'path';
 import * as runas from 'runas';
+import * as semver from 'semver';
+import * as temp from 'temp';
 
 import { Observable } from 'rxjs/Observable';
-import { getCurrentUser } from '../utils/file-helpers';
 import { p } from '../get-path';
+import { getCurrentUser } from '../utils/file-helpers';
 
 import { channel } from '../../package.json';
-import { fetchURL, downloadURL } from './fetch-url';
-import { logger } from '../logger';
-import { uniqueId } from '../utils/unique-id';
-import { autoUpdaterFinished } from './updater-utils';
-import { nativeInterop } from '../native-interop';
 import { ReduxComponent } from '../lib/redux-component';
-import { Credentials, UpdaterOption, UpdateInformation } from '../utils/shared-constants';
+import { logger } from '../logger';
+import { nativeInterop } from '../native-interop';
+import { Credentials, UpdateInformation, UpdaterOption } from '../utils/shared-constants';
+import { uniqueId } from '../utils/unique-id';
+import { downloadURL, fetchURL } from './fetch-url';
+import { autoUpdaterFinished } from './updater-utils';
 
 const { getOSVersion } = nativeInterop;
 const isAppStore = channel === 'mas';
@@ -32,7 +32,7 @@ const shipItPath = p`${'HOME'}/Library/Caches/com.tinyspeck.slackmacgap.ShipIt`;
 export interface MacSquirrelUpdaterOption extends UpdaterOption {
   port: number;
   autoUpdater: Electron.AutoUpdater;
-};
+}
 
 export interface MacSquirrelVersionJsonEntry {
   url: string;
@@ -52,7 +52,7 @@ export interface MacSquirrelVersionJsonEntry {
 export class MacSquirrelUpdater extends ReduxComponent<MacSquirrelUpdaterOption> {
   private version: string;
   private port: number;
-  private credentials?: Credentials;
+  private credentials?: Credentials | null;
   private ssbUpdateUrl: string;
   private autoUpdater: Electron.AutoUpdater;
   private bustUpdateCache: boolean;
@@ -316,7 +316,7 @@ export class MacSquirrelUpdater extends ReduxComponent<MacSquirrelUpdaterOption>
       return;
     }
 
-    const ourAppDir = path.resolve(path.dirname(process.resourcesPath), '..', '..');
+    const ourAppDir = path.resolve(path.dirname(process.resourcesPath!), '..', '..');
     const args = ['-R', `${uid}:${gid}`, ourAppDir];
     if (shipItIsBorked) args.push(shipItPath);
 

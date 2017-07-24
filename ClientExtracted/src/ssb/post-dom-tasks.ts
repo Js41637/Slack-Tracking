@@ -2,13 +2,13 @@
  * @module SSBIntegration
  */ /** for typedoc */
 
-import { noop } from '../utils/noop';
 import { remote } from 'electron';
 import { RecursiveProxyHandler } from 'electron-remote';
 import * as Hammer from 'hammerjs';
+import { noop } from '../utils/noop';
 
-import { logger } from '../logger';
 import { appTeamsActions } from '../actions/app-teams-actions';
+import { logger } from '../logger';
 
 const { systemPreferences } = remote;
 const invalidEventTargetHeader = ['#search_container', '#topic_inline_edit'];
@@ -47,9 +47,9 @@ function isEventInvalid(elements: HTMLElement, event: Event) {
  * @param  {Object} mainWindow  A {BrowserWindow} instance representing the main
  * window of the app.
  */
-function setupDoubleClickHandler(mainWindow: Electron.BrowserWindow): void{
+function setupDoubleClickHandler(mainWindow: Electron.BrowserWindow): void {
   let channelHeader: Element | null = null;
-  const invalidEventElements = { };
+  const invalidEventElements = {};
 
   window.addEventListener('dblclick', (event: MouseEvent) => {
     const actionOnDoubleClick = systemPreferences.getUserDefault('AppleActionOnDoubleClick', 'string');
@@ -60,16 +60,16 @@ function setupDoubleClickHandler(mainWindow: Electron.BrowserWindow): void{
       return;
     }
 
-    switch (actionOnDoubleClick) {
-    case 'Maximize':
-    default:
-      mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize();
-      break;
-    case 'Minimize':
-      mainWindow.minimize();
-      break;
-    case 'None':
-      break;
+    switch (actionOnDoubleClick as any) {
+      case 'Maximize':
+      default:
+        mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize();
+        break;
+      case 'Minimize':
+        mainWindow.minimize();
+        break;
+      case 'None':
+        break;
     }
   }, true);
 }

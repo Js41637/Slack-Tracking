@@ -6,6 +6,11 @@ import * as ReactDOM from 'react-dom';
 import { logger } from '../../logger';
 
 import * as React from 'react'; // tslint:disable-line
+import { applyLocale } from '../../i18n/apply-locale';
+
+//apply locale into component window before initialize react,
+//let each component looks up locale based on applied one
+applyLocale();
 
 const component = React.createElement(getComponent()!);
 const host = global.document.createElement('span');
@@ -29,7 +34,7 @@ function getComponent(): React.ComponentClass<any> | null {
         (global.window as any).loadSettings = loadSettings;
         const componentModule = require(loadSettings.component);
         //supports named export via specifying named exported component in loadSettings.name
-        const componentClass = componentModule['default'] || componentModule[loadSettings.name];
+        const componentClass = (componentModule as any).default || componentModule[loadSettings.name];
 
         if (!componentClass) {
           throw new Error(`loaded module ${loadSettings.name} does not contain any class to create`);
@@ -45,4 +50,4 @@ function getComponent(): React.ComponentClass<any> | null {
     logger.warn('Component Window: window does not includes any loadSettings, skipping to create component.');
   }
   return null;
-};
+}

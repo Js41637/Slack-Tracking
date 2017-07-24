@@ -3,8 +3,8 @@
  */ /** for typedoc */
 
 export interface CombinedStats {
-  memory: NodeJS.ProcessMemoryInfo;
-  resources?: Electron.ResourceUsages;
+  memory: Electron.ProcessMemoryInfo;
+  resources?: Electron.ResourceUsage;
 }
 
 export type TeamLoadedState =
@@ -15,9 +15,12 @@ export type TeamLoadedState =
 
 export interface TeamMemoryStats {
   teamId: string;
-  memory?: NodeJS.ProcessMemoryInfo;
+  memory?: Electron.ProcessMemoryInfo;
   state: TeamLoadedState;
   reason?: string;
+  teamName: string;
+  isBooted: boolean;
+  isUnloaded: boolean;
 }
 
 /**

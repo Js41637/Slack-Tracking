@@ -1,53 +1,53 @@
+import { isReplyLink, isSettingsLink, isSlackLink } from '../utils/protocol-link';
 /**
  * @module Browser
  */ /** for typedoc */
 
-import * as assignIn from 'lodash.assignin';
-import '../rx-operators';
-import { dialog, shell, session, systemPreferences, powerMonitor } from 'electron';
-import { ipc } from '../ipc-rx';
-import { logger } from '../logger';
+import { dialog, powerMonitor, session, shell, systemPreferences } from 'electron';
 import * as fs from 'graceful-fs';
+import { assignIn } from 'lodash';
+import * as mkdirp from 'mkdirp';
 import * as os from 'os';
 import * as path from 'path';
 import * as rimraf from 'rimraf';
-import * as mkdirp from 'mkdirp';
-import * as packageJson from '../../package.json';
-import { restartApp } from './restart-app';
-import * as temp from 'temp';
-import { promisify } from '../promisify';
-import { getReleaseNotesUrl } from './updater-utils';
-import { processMagicLoginLink } from '../magic-login/process-link';
-import { parseProtocolUrl } from '../parse-protocol-url';
-import { Subscription } from 'rxjs/Subscription';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
-import SerialSubscription from 'rxjs-serial-subscription';
+import { Subscription } from 'rxjs/Subscription';
+import * as temp from 'temp';
+import * as packageJson from '../../package.json';
 import { p } from '../get-path';
-import { IS_WINDOWS_STORE, DEFAULT_CLEAR_STORAGE_OPTIONS } from '../utils/shared-constants';
-import { createZipArchiver, createZipArchiveWithPowershell, copySmallFileSync } from '../utils/file-helpers';
+import { logger } from '../logger';
+import { processMagicLoginLink } from '../magic-login/process-link';
+import { parseProtocolUrl } from '../parse-protocol-url';
+import { promisify } from '../promisify';
+import '../rx-operators';
+import { copySmallFileSync, createZipArchiveWithPowershell, createZipArchiver } from '../utils/file-helpers';
+import { DEFAULT_CLEAR_STORAGE_OPTIONS, IS_WINDOWS_STORE } from '../utils/shared-constants';
+import { getReleaseNotesUrl } from '../utils/url-utils';
+import { restartApp } from './restart-app';
 
 import { appActions } from '../actions/app-actions';
+import { eventActions } from '../actions/event-actions';
+import { settingActions } from '../actions/setting-actions';
+import { ReduxComponent } from '../lib/redux-component';
+import { Store } from '../lib/store';
+import { StoreEvent, eventStore } from '../stores/event-store';
+import { settingStore } from '../stores/setting-store';
+import { teamStore } from '../stores/team-store';
 import { AppMenu } from './app-menu';
 import { AutoLaunch } from './auto-launch';
 import { BasicAuthHandler } from './basic-auth-handler';
-import { eventActions } from '../actions/event-actions';
-import { eventStore, StoreEvent } from '../stores/event-store';
-import { ReduxComponent } from '../lib/redux-component';
-import { settingActions } from '../actions/setting-actions';
-import { settingStore } from '../stores/setting-store';
+import { SignoutManager } from './signout-manager';
 import { SlackResourcesUrlHandler } from './slack-resources-url-handler';
 import { SlackWebappDevHandler } from './slack-webapp-dev-handler';
 import { SquirrelAutoUpdater } from './squirrel-auto-updater';
-import { Store } from '../lib/store';
-import { teamStore } from '../stores/team-store';
 import { TrayHandler } from './tray-handler';
-import { SignoutManager } from './signout-manager';
-import { WebContentsMediator, WebContentsMediatorState } from './web-contents-mediator';
+import { WebContentsMediator } from './web-contents-mediator';
 import { windowCreator } from './window-creator';
-import { noop } from '../utils/noop';
 
-import { intl as $intl, LOCALE_NAMESPACE } from '../i18n/intl';
+import { EVENTS } from '../actions';
+import { LOCALE_NAMESPACE, intl as $intl } from '../i18n/intl';
+import { TELEMETRY_EVENT, flushTelemetry, track } from '../telemetry';
 
 const pmkdirp = promisify(mkdirp);
 const primraf = promisify(rimraf);
@@ -89,7 +89,6 @@ export interface SettingsToInitialize {
     teamId: string;
     token: string;
   };
-  chromeDriver?: boolean;
   version?: string;
   protoUrl?: string;
   releaseChannel?: string;
@@ -106,7 +105,7 @@ export class Application extends ReduxComponent<ApplicationState> {
   private readonly protocols: Subscription = new Subscription();
   private readonly resourceUrlHandler: SlackResourcesUrlHandler;
   private readonly webappDevHandler: SlackWebappDevHandler;
-  private readonly webContentsMediator: WebContentsMediator<WebContentsMediatorState>;
+  private readonly webContentsMediator: WebContentsMediator;
   private readonly mainWindow: Electron.BrowserWindow;
   private readonly basicAuthHandler: BasicAuthHandler;
   private readonly signoutManager: SignoutManager;
@@ -128,16 +127,19 @@ export class Application extends ReduxComponent<ApplicationState> {
     // Handle non-component tasks (maybe refactor into their own component later)
     temp.track(); // Track file changes
     this.setupSingleInstance();
-    this.setupTracingByIpc();
-    session.defaultSession.allowNTLMCredentialsForDomains('*');
+    if (session.defaultSession) {
+      session.defaultSession.allowNTLMCredentialsForDomains('*');
+    } else {
+      logger.warn(`Application: default session is not available`);
+    }
 
     // Initialize Components
     this.resourceUrlHandler = new SlackResourcesUrlHandler();
     if (options.webappSrcPath) {
       this.webappDevHandler = new SlackWebappDevHandler();
-    };
+    }
 
-    this.webContentsMediator = new WebContentsMediator<WebContentsMediatorState>();
+    this.webContentsMediator = new WebContentsMediator();
 
     if (process.platform === 'darwin') {
       this.appMenu = new AppMenu();
@@ -145,16 +147,22 @@ export class Application extends ReduxComponent<ApplicationState> {
         .onPreferenceChanged(eventActions.systemTextSettingsChanged);
     }
 
-    if (options.chromeDriver) {
-      this.mainWindow = windowCreator.createChromeDriverWindow();
-      return;
-    }
+    //capture initial value before state changes
+    const hasRunApp = this.state.hasRunApp ? this.state.hasRunApp : false;
 
     if (!this.state.hasRunApp) {
       this.handleFirstExecution();
     }
 
     this.mainWindow = windowCreator.createMainWindow(options);
+    this.mainWindow.once('show', () => {
+      Store.dispatch({ type: EVENTS.APP_STARTED });
+      track(TELEMETRY_EVENT.DESKTOP_CLIENT_LAUNCH, {
+        hasRunApp,
+        launchTeamsNum: this.state.numTeams
+      });
+    });
+
     this.basicAuthHandler = new BasicAuthHandler();
     this.signoutManager = new SignoutManager();
 
@@ -282,10 +290,10 @@ export class Application extends ReduxComponent<ApplicationState> {
    */
   public async confirmAndResetAppEvent(): Promise<void> {
     const options = {
-      title: $intl.t(`Reset Slack?`, LOCALE_NAMESPACE.MESSAGEBOX)(),
-      buttons: [$intl.t(`Cancel`, LOCALE_NAMESPACE.GENERAL)(), $intl.t(`Yes`, LOCALE_NAMESPACE.GENERAL)()],
-      message: $intl.t(`Are you sure?`, LOCALE_NAMESPACE.MESSAGEBOX)(),
-      detail: $intl.t(`This will sign you out from all of your teams, reset the app to its original state, and restart it.`,
+      title: $intl.t('Reset Slack?', LOCALE_NAMESPACE.MESSAGEBOX)(),
+      buttons: [$intl.t('Cancel', LOCALE_NAMESPACE.GENERAL)(), $intl.t('Yes', LOCALE_NAMESPACE.GENERAL)()],
+      message: $intl.t('Are you sure?', LOCALE_NAMESPACE.MESSAGEBOX)(),
+      detail: $intl.t('This will sign you out from all of your teams, reset the app to its original state, and restart it.',
         LOCALE_NAMESPACE.MESSAGEBOX)(),
       noLink: true
     };
@@ -299,6 +307,8 @@ export class Application extends ReduxComponent<ApplicationState> {
     if (await confirmation) {
       logger.warn('App: User chose to clear all app data, say goodbye!');
 
+      track(TELEMETRY_EVENT.DESKTOP_CLIENT_RESET, { resetScope: 'all' });
+      await flushTelemetry();
       await this.clearCacheAndStorage();
       await (Store as any).resetStore();
 
@@ -311,9 +321,11 @@ export class Application extends ReduxComponent<ApplicationState> {
    * This will clear the cache and storage data (excluding cookies), followed by an app restart.
    */
   public async clearCacheRestartAppEvent() {
-    const storageOptions = { ...DEFAULT_CLEAR_STORAGE_OPTIONS };
+    const storageOptions: Electron.ClearStorageDataOptions = { ...DEFAULT_CLEAR_STORAGE_OPTIONS } as any;
     storageOptions.storages = storageOptions.storages!.filter((v) => v !== 'cookies');
 
+    track(TELEMETRY_EVENT.DESKTOP_CLIENT_RESET, { resetScope: 'cache' });
+    await flushTelemetry();
     await this.clearCacheAndStorage({ storageOptions });
 
     restartApp({ destroyWindows: true });
@@ -328,7 +340,7 @@ export class Application extends ReduxComponent<ApplicationState> {
     if (this.mainWindow && this.mainWindow.webContents && this.mainWindow.webContents.session) {
       const mainSession = this.mainWindow.webContents.session;
       await new Promise((resolve) => mainSession.clearCache(resolve));
-      await new Promise((resolve) => mainSession.clearStorageData(storageOptions, resolve));
+      await new Promise((resolve) => mainSession.clearStorageData(storageOptions as Electron.ClearStorageDataOptions, resolve));
     }
   }
 
@@ -342,7 +354,7 @@ export class Application extends ReduxComponent<ApplicationState> {
     if ((prevState.numTeams || 0) > 0 && this.state.numTeams === 0) {
       const mainSession = this.mainWindow.webContents.session;
 
-      mainSession.clearStorageData(() => {
+      mainSession.clearStorageData(undefined, () => {
         logger.info('App: No teams left, cleared session storage.');
       });
     }
@@ -384,30 +396,6 @@ export class Application extends ReduxComponent<ApplicationState> {
     assignIn(global.loadSettings, payload);
   }
 
-  private setupTracingByIpc(): void {
-    let tracing: Electron.ContentTracing;
-    const tracingSession = new SerialSubscription();
-
-    ipc.listen('tracing:start').subscribe(() => {
-      tracing = tracing || require('electron').contentTracing;
-
-      const option: Electron.ContentTracingOptions = {
-        categoryFilter: '*',
-        traceOptions: 'enable-sampling,enable-systrace'
-      };
-
-      tracing.startRecording(option, noop);
-      tracingSession.add(() => {
-        tracing.stopRecording('', (tracingPath) => {
-          logger.info(`App: Content logging written to ${tracingPath}`);
-        });
-      });
-    });
-
-    ipc.listen('tracing:stop').subscribe(() =>
-      tracingSession.add(Subscription.EMPTY));
-  }
-
   private handleFirstExecution(): void {
     settingActions.updateSettings({ hasRunApp: true });
   }
@@ -426,26 +414,18 @@ export class Application extends ReduxComponent<ApplicationState> {
     otherAppSignaledUs.startWith(...global.secondaryParamsReceived)
       .filter((cmd: Array<string>) => Array.isArray(cmd) && cmd.length > 0)
       .subscribe((cmd: Array<string>) => {
-        const re = /^slack:/i;
-        const rs = /^slack:\/\/reply/i;
-        let protoUrl: string | null = null;
-        let replyUrl: string | null = null;
-
-        try {
-          protoUrl = cmd.find((x) => !!x.match(re))!;
-          replyUrl = cmd.find((x) => !!x.match(rs))!;
-        } catch (e) {
-          logger.warn('App: not able to determine protocol ', cmd);
-        }
+        const protoUrl: string | undefined = cmd.find((x) => !!(x && isSlackLink(x)));
+        const replyUrl: string | undefined = cmd.find((x) => !!(x && isReplyLink(x)));
+        const settingsUrl: string | undefined = cmd.find((x) => !!(x && isSettingsLink(x)));
 
         if (replyUrl) {
           logger.info('App: Received reply link protocol activation.');
-          logger.debug('App: Link was:', protoUrl);
-          if (protoUrl) {
-            eventActions.handleReplyLink(protoUrl);
-          } else {
-            logger.warn('App: protocol url is empty, cannot activate reply link');
-          }
+          logger.debug('App: Link was:', replyUrl);
+          eventActions.handleReplyLink(replyUrl);
+        } else if (settingsUrl) {
+          logger.info('App: Received settings link protocol activation.');
+          logger.debug('App: Link was:', settingsUrl);
+          eventActions.handleSettingsLink(settingsUrl);
         } else if (protoUrl) {
           logger.info('App: Received deep link protocol activation.');
           logger.debug('App: Link was:', protoUrl);

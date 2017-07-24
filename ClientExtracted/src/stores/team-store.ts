@@ -2,8 +2,8 @@
  * @module Stores
  */ /** for typedoc */
 
-import { Store } from '../lib/store';
 import { TeamBase } from '../actions/team-actions';
+import { Store } from '../lib/store';
 import { StringMap } from '../utils/shared-constants';
 
 export class TeamStore {
@@ -19,7 +19,8 @@ export class TeamStore {
     return Object.keys(this.teams);
   }
 
-  public getTeam(teamId: string) {
+  public getTeam(teamId: string | null) {
+    if (!teamId) return null;
     return this.teams[teamId];
   }
 

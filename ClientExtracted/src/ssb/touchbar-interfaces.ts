@@ -41,7 +41,7 @@ export interface ITouchBarGroup {
   new (options: ITouchBarGroupOptions): ITouchBarGroupInstance;
 }
 
-export interface ITouchBarGroupInstance { }
+export interface ITouchBarGroupInstance { } //tslint:disable-line:no-empty-interface
 
 export interface ITouchBarGroupOptions {
   items: Array<ITouchBarButton | ITouchBarColorPicker | ITouchBarLabel | ITouchBarPopover | ITouchBarSlider | ITouchBarSpacer>;
@@ -100,7 +100,7 @@ export interface ITouchBarSpacer {
   new (options: ITouchBarSpacerOptions): ITouchBarSpacerInstance;
 }
 
-export interface ITouchBarSpacerInstance { }
+export interface ITouchBarSpacerInstance { } //tslint:disable-line:no-empty-interface
 
 export interface ITouchBarSpacerOptions {
   size: 'small' | 'large' | 'flexible';

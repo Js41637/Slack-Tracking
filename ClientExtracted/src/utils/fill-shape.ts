@@ -29,7 +29,7 @@ Will return:
 
 export function fillShape<T extends {}, R extends {}>(source: T, sink: R | boolean): T | R | undefined {
   if (typeof sink === 'function') {
-    sink = sink(source); //eslint-disable-line
+    sink = sink(source);
   }
 
   if (sink === true) {
@@ -38,7 +38,7 @@ export function fillShape<T extends {}, R extends {}>(source: T, sink: R | boole
     return undefined;
   }
 
-  const filledObject = {} as R;
+  const filledObject: R = {} as any;
   Object.keys(sink).forEach((key) => {
     if (source[key] === undefined) {
       return;

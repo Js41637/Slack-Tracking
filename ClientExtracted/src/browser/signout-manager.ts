@@ -34,8 +34,8 @@
 import { BrowserWindow } from 'electron';
 import { Observable } from 'rxjs/Observable';
 
-import { logger } from '../logger';
 import { ReduxComponent } from '../lib/redux-component';
+import { logger } from '../logger';
 
 import { appTeamsActions } from '../actions/app-teams-actions';
 import { teamActions } from '../actions/team-actions';
@@ -154,7 +154,7 @@ export class SignoutManager extends ReduxComponent<SignoutManagerState> {
         } catch (e) {
           logger.error('Tried to close signout browser window, but failed', e);
         }
-      };
+      }
     }, 1000);
   }
 

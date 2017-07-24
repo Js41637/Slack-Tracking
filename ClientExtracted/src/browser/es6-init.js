@@ -28,15 +28,15 @@ if (args.devEnv) {
 }
 
 if (!args.devEnv && args.devMode) {
-  app.commandLine.appendSwitch('remote-debugging-port', '8315');
+  //https://developer.chrome.com/devtools/docs/debugger-protocol#simultaneous
+  //https://bugs.chromium.org/p/chromedriver/issues/detail?id=878#c16
+  //selenium needs to initiate own debug protocol setup, so if it's set by remote-debugging-port it can't connect into.
+  if (!args.chromeDriver) {
+    app.commandLine.appendSwitch('remote-debugging-port', '8315');
+  }
 
   appData = app.getPath('appData');
   app.setPath('userData', path.join(appData, 'SlackDevMode'));
-}
-
-if (args.chromeDriver) {
-  appData = app.getPath('appData');
-  app.setPath('userData', path.join(appData, 'SlackQaMode'));
 }
 
 if (readOnlyMode) {

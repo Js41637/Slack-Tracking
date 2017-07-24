@@ -2,15 +2,6 @@
 declare module 'JSONStream';
 declare module 'url';
 declare module 'error-stack-parser';
-declare module 'lodash.clone';
-declare module 'lodash.difference';
-declare module 'lodash.transform';
-declare module 'lodash.assignin';
-declare module 'lodash.clamp';
-declare module 'lodash.kebabcase';
-declare module 'lodash.clonedeep';
-declare module 'lodash.sortby';
-declare module 'lodash.values';
 declare module 'nslog';
 declare module 'write-file-atomic';
 declare module 'write-file-atomic-fsync';
@@ -27,10 +18,16 @@ declare module 'module';
 declare module 'execa';
 declare module 'electron-compile';
 declare module 'electron-remote';
+declare module 'electron-remote/*';
 declare module 'electron-spellchecker';
+declare module 'electron-winstaller';
+declare module 'electron-windows-notifications';
 declare module 'rxjs-serial-subscription';
 declare module 'message-format';
 declare module 'devtron';
+declare module 'node-mac-notifier';
+declare module 'node-fetch';
+declare module 'jsdom';
 
 //https://github.com/Microsoft/TypeScript/wiki/What's-new-in-TypeScript#wildcard-character-in-module-name
 declare module '*/package.json';

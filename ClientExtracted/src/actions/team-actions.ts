@@ -3,8 +3,8 @@
  */ /** for typedoc */
 
 import { Store } from '../lib/store';
-import { TEAMS } from './';
 import { StringMap } from '../utils/shared-constants';
+import { TEAMS } from './';
 
 export interface TeamIcons {
   image_34: string;
@@ -14,6 +14,7 @@ export interface TeamIcons {
   image_102: string;
   image_132: string;
   image_230: string;
+  image_512: string;
   image_original: string;
 }
 
@@ -43,6 +44,7 @@ export interface TeamBase {
   showBullet: boolean;
   unreadHighlights: number;
   unreads: number;
+  locale: string;
 }
 
 export type Team = Readonly<TeamBase>;
@@ -124,10 +126,10 @@ export class TeamActions {
     });
   }
 
-  public setTeamIdleTimeout(timeout: number, teamId: string): void {
+  public updateTeamLocale(locale: string, teamId: string): void {
     Store.dispatch({
-      type: TEAMS.SET_TEAM_IDLE_TIMEOUT,
-      data: { timeout, teamId }
+      type: TEAMS.UPDATE_TEAM_LOCALE,
+      data: { locale, teamId }
     });
   }
 }

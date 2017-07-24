@@ -3,21 +3,21 @@
  */ /** for typedoc */
 
 import { dialogActions } from '../../actions/dialog-actions';
-import { dialogStore } from '../../stores/dialog-store';
 import { Component } from '../../lib/component';
+import { dialogStore } from '../../stores/dialog-store';
 import { Modal } from './modal';
 
-import { intl as $intl, LOCALE_NAMESPACE } from '../../i18n/intl';
+import { LOCALE_NAMESPACE, intl as $intl } from '../../i18n/intl';
 
 import * as React from 'react'; // tslint:disable-line
 
 export interface BasicAuthViewProps {
-  authInfo: Electron.LoginAuthInfo;
+  authInfo: Electron.AuthInfo;
 }
 
 export interface BasicAuthViewState {
-  username: string;
-  password: string;
+  username: string | null;
+  password: string | null;
 }
 
 export class BasicAuthView extends Component<BasicAuthViewProps, Partial<BasicAuthViewState>> {
@@ -28,13 +28,19 @@ export class BasicAuthView extends Component<BasicAuthViewProps, Partial<BasicAu
     password: (ref: HTMLElement) => this.passwordElement = ref
   };
 
+  private readonly eventHandlers = {
+    onSubmit: () => this.handleSubmit(),
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => this.handleChange(e),
+  };
+
   constructor() {
     super();
 
-    this.state = Object.assign({}, this.state, dialogStore.getAuthCredentials() || {
-      username: null,
-      password: null
-    });
+    //TODO: revise to avoid direct state assignment required.
+    this.state = {
+      ...this.state,
+      ...(dialogStore.getAuthCredentials() || { username: null, password: null })
+    };
   }
 
   public handleSubmit(): void {
@@ -50,10 +56,10 @@ export class BasicAuthView extends Component<BasicAuthViewProps, Partial<BasicAu
 
   public render(): JSX.Element | null {
     const { isProxy, host } = this.props.authInfo;
-    const message = $intl.t(`To connect to Slack, you need to enter a username and password for the {hostType} `, LOCALE_NAMESPACE.RENDERER)({
-      hostType: isProxy ? $intl.t(`proxy`, LOCALE_NAMESPACE.GENERAL)() : $intl.t(`server`, LOCALE_NAMESPACE.GENERAL)()
-    });
+    const message = isProxy ? $intl.t('To connect to Slack, you need to enter a username and password for the proxy ', LOCALE_NAMESPACE.RENDERER)()
+      : $intl.t('To connect to Slack, you need to enter a username and password for the server ', LOCALE_NAMESPACE.RENDERER)();
 
+    //TODO: `state.username` and `state.password` can be `null`, able to lead into react warning. Consider refactoring interfaces.
     return (
       <Modal
         className='AuthView'
@@ -66,25 +72,25 @@ export class BasicAuthView extends Component<BasicAuthViewProps, Partial<BasicAu
             {message}
             <strong>{host}</strong>
           </div>
-          <form onSubmit={this.handleSubmit.bind(this)}>
-            <label htmlFor='username'>{$intl.t(`Username`, LOCALE_NAMESPACE.GENERAL)()}</label>
-            <input type='text' id='username' value={this.state.username} onChange={this.handleChange.bind(this)} ref={this.refHandlers.username} />
-            <label htmlFor='password'>{$intl.t(`Password`, LOCALE_NAMESPACE.GENERAL)()}</label>
+          <form onSubmit={this.eventHandlers.onSubmit}>
+            <label htmlFor='username'>{$intl.t('Username', LOCALE_NAMESPACE.GENERAL)()}</label>
+            <input type='text' id='username' value={this.state.username!} onChange={this.eventHandlers.onChange} ref={this.refHandlers.username} />
+            <label htmlFor='password'>{$intl.t('Password', LOCALE_NAMESPACE.GENERAL)()}</label>
             <input
               type='password'
               id='password'
-              value={this.state.password}
-              onChange={this.handleChange.bind(this)}
+              value={this.state.password!}
+              onChange={this.eventHandlers.onChange}
               ref={this.refHandlers.password}
             />
-            <button type='submit' className='AuthView-button'>{$intl.t(`Submit`, LOCALE_NAMESPACE.GENERAL)()}</button>
+            <button type='submit' className='AuthView-button'>{$intl.t('Submit', LOCALE_NAMESPACE.GENERAL)()}</button>
           </form>
         </div>
       </Modal>
     );
   }
 
-  private handleChange(event: Event): void {
+  private handleChange(event: React.ChangeEvent<HTMLInputElement>): void {
     this.setState({
       [(event.target as any).id]: (event.target as any).value
     });

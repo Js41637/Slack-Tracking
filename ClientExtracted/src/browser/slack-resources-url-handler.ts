@@ -3,9 +3,9 @@
  */ /** for typedoc */
 
 import { protocol } from 'electron';
-import { logger } from '../logger';
-import * as path from 'path';
 import * as LRU from 'lru-cache';
+import * as path from 'path';
+import { logger } from '../logger';
 
 import { ReduxComponent } from '../lib/redux-component';
 import { settingStore } from '../stores/setting-store';
@@ -55,7 +55,7 @@ export class SlackResourcesUrlHandler extends ReduxComponent<SlackResourcesUrlHa
         }
       } catch (e) {
         logger.error(`Failed to load resource ${rq.url}: ${e.message}\n${e.stack}`);
-        completion({ error: -6 /*net::ERR_FILE_NOT_FOUND*/ });
+        completion({ error: -6 /*net::ERR_FILE_NOT_FOUND*/ } as any);
         return;
       }
 
@@ -77,7 +77,7 @@ export class SlackResourcesUrlHandler extends ReduxComponent<SlackResourcesUrlHa
         }, timeout + 1000);
       } catch (e) {
         logger.error(`Failed to read file ${absPath}: ${e.message}\n${e.stack}`);
-        completion({ error: -2 /*net::FAILED*/ });
+        completion({ error: -2 /*net::FAILED*/ } as any);
         return;
       }
     });

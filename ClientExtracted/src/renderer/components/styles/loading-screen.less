@@ -11,12 +11,11 @@
     cursor: default;
   }
 
-  &-centerColumn {
+  &-connecting, &-noService, &-offline {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    color: #555549;
   }
 
   .anim-appear {
@@ -28,15 +27,13 @@
     transition: opacity 0.2s ease-out;
   }
 
-  &-title {
-    font-size: 1.25rem;
-    font-weight: bold;
-    margin-top: 0.5rem;
-  }
-
-  &-link {
-    color: #2A80B9;
-    cursor: pointer;
+  &-text {
+    margin-top: 10px;
+    height: 28px;
+    display: block;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    color: #555549;
   }
 
   &-button {

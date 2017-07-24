@@ -2,15 +2,15 @@
  * @module Component
  */ /** for typedoc */
 
-import * as assignIn from 'lodash.assignin';
+import { assignIn } from 'lodash';
 import { Subscription } from 'rxjs/Subscription';
-import { shallowEqual } from '../utils/shallow-equal';
-import { stateEventHandler } from './state-events';
 
-import { noop } from '../utils/noop';
-import { Store } from './store';
 import { settingStore } from '../stores/setting-store';
+import { noop } from '../utils/noop';
+import { shallowEqual } from '../utils/shallow-equal';
 import { ComponentBase } from './component-base';
+import { stateEventHandler } from './state-events';
+import { Store } from './store';
 
 /**
  * This is our way of extending the goodness of React Components to the Browser
@@ -26,20 +26,23 @@ import { ComponentBase } from './component-base';
  * is updated, a component's `update` function will be called, with the old
  * state provided as a parameter.
  */
-export class ReduxComponent<S extends {}> implements ComponentBase {
+export class ReduxComponent<S extends object = {}> implements ComponentBase {
   protected state: S;
   protected disposables: Subscription = new Subscription();
 
-  /* In updateState, we figure out if the component has had its state changed
-   * if it has, we add the update function as a callback to this set.
-   * A post dispatch subscription is made to run all the callbacks in this function
+  /**
+   * In updateState, we figure out if the component state has changed. If it
+   * has, we add the update function as a callback to this set. After the
+   * dispatch completes, we'll run all of the component updates.
    */
-  private updateCallbacks: Set<() => void>;
+  private readonly updateCallbacks: Array<Function> = [];
 
-  /* Handles subscribing the component to the Store
-   * @param {object} args - The this. variables that get assigned prior to running syncState
+  /**
+   * Create a new `ReduxComponent` and subscribe it to store updates.
+   *
+   * @param {Object} args Values to assign to `this`
    */
-  constructor(args: any = {}) {
+  constructor(args: Partial<S> = {}) {
     assignIn(this, args);
     this.state = (this.syncState() || {}) as S;
 
@@ -53,60 +56,76 @@ export class ReduxComponent<S extends {}> implements ComponentBase {
       });
     }
 
-    /* In order to allow redux components to directly call each other
-     * we must ensure that all state is updated first before update
-     * methods are called, that way no two components will have
-     * different data from the stores
+    /**
+     * To support chained Redux components calling each other in an update
+     * cycle, we must ensure that all state is updated _before_ any individual
+     * component's update method is called. Otherwise two different components
+     * could be out of sync.
      */
-    this.disposables.add(new Subscription(Store.subscribe(this._updateState.bind(this)))); // Subscribe returns a function to unsub
-    this.disposables.add(new Subscription(Store.subscribePostDispatch(this._runUpdateCallbacks.bind(this))));
-
-    this.updateCallbacks = new Set();
+    this.disposables.add(new Subscription(
+      Store.subscribe(this.updateState.bind(this))));
+    this.disposables.add(new Subscription(
+      Store.subscribePostDispatch(this.runUpdateCallbacks.bind(this))));
   }
 
-  /* This function handles ALL data that is obtained from Stores
-   * @returns {object} - An object where each key is a variable for this.state,
-   *                     and each value is a value from the Store
+  /**
+   * Request all data from stores or reducer accessors here.
+   * Called after each store dispatch.
+   *
+   * @returns {Partial<S>} The new state for this component
    */
   public syncState(): Partial<S> | null {
     return null;
   }
 
-  /* This function gets ran any time the component's state has changed (from syncState)
-   * @param {object} prevState - The previous state of the component
+  /**
+   * Occurs when a component's state (calculated in `syncState`) has changed.
    */
   public update(_prevState: Partial<S>): void {
     noop();
   }
 
+  /**
+   * Allow components to override the shallow equality check.
+   */
+  public shouldComponentUpdate(prevState: Partial<S>, newState: Partial<S>): boolean {
+    return !shallowEqual(prevState, newState);
+  }
+
+  /**
+   * Dispose this component, unsubscribing it from the store.
+   */
   public dispose(): void {
     this.disposables.unsubscribe();
   }
 
-  /* Updates the state variable of this component, as well as checks all the
-   * state events to see if they need to be fired
+  /**
+   * Updates the state of this component, and checks any events declared within
+   * `syncState` and fires them if necessary.
    */
-  private _updateState(): void {
-    if (this.disposables.closed) return; // Sometimes update is called even after unsubscribed
+  private updateState(): void {
+    // NB: Sometimes update is called even after unsubscribed
+    if (this.disposables.closed) return;
 
-    const prevState = this.state as any; //TS 2.1 spread only support object type, not yet with <T> requires cast
+    // TODO: https://github.com/Microsoft/TypeScript/issues/10727
+    const prevState = this.state as any;
     const newState = (this.syncState() || {}) as any;
-    if (!shallowEqual(prevState, newState)) {
-      const current = { ...prevState };
-      this.state = { ...current, ...newState } as any;
+
+    if (this.shouldComponentUpdate(prevState, newState)) {
+      this.state = { ...newState };
 
       Object.keys(newState).forEach((key) => {
-        const value = newState[key];
+        const value = newState[key] as any;
         const handler = stateEventHandler(this, value, key, prevState);
-        if (handler) this.updateCallbacks.add(() => handler(value));
+        if (handler) this.updateCallbacks.push(() => handler(value));
       });
 
-      this.updateCallbacks.add(() => this.update(prevState));
+      this.updateCallbacks.push(() => this.update(prevState));
     }
   }
 
-  private _runUpdateCallbacks(): void {
-    this.updateCallbacks.forEach((callback: Function) => callback());
-    this.updateCallbacks.clear();
+  private runUpdateCallbacks(): void {
+    let cb = this.updateCallbacks.shift();
+    while (cb) { cb(); cb = this.updateCallbacks.shift(); }
   }
 }

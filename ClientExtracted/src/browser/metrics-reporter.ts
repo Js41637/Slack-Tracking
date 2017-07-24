@@ -2,13 +2,13 @@
  * @module Browser
  */ /** for typedoc */
 
-import { Subscription } from 'rxjs/Subscription';
 import { Observable } from 'rxjs/Observable';
+import { Subscription } from 'rxjs/Subscription';
 
 // Public: Reporter handles sending metrics and command information to Google
 // Analytics.
 export class MetricsReporter {
-  public commandCount: Object;
+  public commandCount: object;
   public reporterStartTime: number;
   private readonly mainWindow: Electron.WebContents;
 

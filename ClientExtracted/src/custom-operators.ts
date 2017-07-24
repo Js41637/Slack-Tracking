@@ -5,9 +5,9 @@
 import { Observable } from 'rxjs/Observable';
 import { Scheduler } from 'rxjs/Scheduler';
 import { async } from 'rxjs/scheduler/async';
-import { EventTargetLike } from 'rxjs/observable/FromEventObservable';
-import { logger } from './logger';
-import { Action } from 'redux';
+
+  // Provides utility function to ActionsObservable for pure-side-effect epic does not need to dispatch further action
+export const completeAction = (o: Observable<any>) => o.ignoreElements();
 
 /* tslint:disable:object-literal-shorthand */
 export const newCoolOperators = {
@@ -19,11 +19,6 @@ export const newCoolOperators = {
 
   retryAtIntervals: function<T>(this: Observable<T>, maxRetries: number = 3) {
     return this.retryWhen((errors: any) => retryWithDelayOrError(errors, maxRetries));
-  },
-
-  // Provides utility function to ActionsObservable for pure-side-effect epic does not need to dispatch further action
-  completeAction: function<T>(this: Observable<T>): Observable<Action> {
-    return this.mapTo({ type: 'EPIC_ACTION_COMPLETED' });
   }
 };
 /* tslint:enable */
@@ -53,31 +48,11 @@ for (const key of Object.keys(newCoolOperators)) {
   Observable.prototype[key] = newCoolOperators[key];
 }
 
-export function loggableFromEventObservable<T>(target: EventTargetLike, eventName: string): Observable<{
-  eventName: string;
-  event: T
-}> {
-  return Observable.fromEvent(target, eventName, (e: Event) => ({
-    eventName,
-    event: e
-  })).catch((err: Error) => {
-    logger.warn(`LoggableFromEvent: Error occurred in ${eventName}:`, err);
-    return Observable.throw(err);
-  });
-}
-
-(Observable as any).loggableFromEvent = loggableFromEventObservable;
 
 //supply type definition of custom operators
 declare module 'rxjs/Observable' {
   interface Observable<T> {
     guaranteedThrottle: typeof newCoolOperators.guaranteedThrottle;
     retryAtIntervals: typeof newCoolOperators.retryAtIntervals;
-    completeAction: typeof newCoolOperators.completeAction;
   }
-  /* tslint:disable:no-namespace */
-  namespace Observable {
-    export const loggableFromEvent: typeof loggableFromEventObservable;
-  }
-  /* tslint:enable */
 }

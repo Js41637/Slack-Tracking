@@ -2,34 +2,16 @@
  * @module Actions
  */ /** for typedoc */
 
-import { uniqueId } from '../utils/unique-id';
 import { Store } from '../lib/store';
+import { NativeNotificationOptions } from '../renderer/notifications/interfaces';
+import { uniqueId } from '../utils/unique-id';
 import { NOTIFICATIONS } from './';
 
 // NB: Don't log personally-identifying information
 const keysToOmit = ['content', 'title', 'onclick', 'onclick_arg', 'subtitle'];
 
-export interface Notification {
-  teamId: string;
-  title: string;
-  content: string;
-  id: string;
-  channel: string;
-  msg: string;
-  thread_ts: string;
-  icons: string;
-  theme: string;
-  initials: string;
-  imageUri: string;
-  interactive: boolean;
-  launchUri: string;
-  avatarImage: string;
-  subtitle: string;
-  ssbFilename: string;
-}
-
 export class NotificationActions {
-  public newNotification(notification: Partial<Notification>): void {
+  public newNotification(notification: Partial<NativeNotificationOptions>): void {
     notification = { id: uniqueId(), ...notification };
 
     Store.dispatch({

@@ -2,23 +2,22 @@
  * @module SSBIntegration
  */ /** for typedoc */
 
+import { ReduxComponent } from '../lib/redux-component';
+import { logger } from '../logger';
 import { appStore } from '../stores/app-store';
 import { appTeamsStore } from '../stores/app-teams-store';
-import { eventStore, StoreEvent } from '../stores/event-store';
-import { ReduxComponent } from '../lib/redux-component';
+import { StoreEvent, eventStore } from '../stores/event-store';
 import { settingStore } from '../stores/setting-store';
-
-import { getReleaseNotesUrl } from '../browser/updater-utils';
-import { UpdateInformation, updateStatusType, UPDATE_STATUS, IS_STORE_BUILD } from '../utils/shared-constants';
-
-import { logger } from '../logger';
+import { IS_STORE_BUILD, UPDATE_STATUS, UpdateInformation, updateStatusType } from '../utils/shared-constants';
+import { getReleaseNotesUrl } from '../utils/url-utils';
 
 export interface ReduxHelperState {
   isMachineAwake: boolean;
-  currentTeamId: string;
+  currentTeamId: string | null;
   updateStatus: updateStatusType;
   updateInfo: UpdateInformation | null;
   releaseChannel: string;
+  spellcheckerLanguage: string;
   canUpdate: boolean;
   customMenuItemClickedEvent: StoreEvent;
   systemTextSettingsChangedEvent: StoreEvent;
@@ -35,7 +34,7 @@ export class ReduxHelper extends ReduxComponent<ReduxHelperState> {
     this.update();
   }
 
-  public syncState(): Partial<ReduxHelperState> | null {
+  public syncState(): ReduxHelperState {
     return {
       isMachineAwake: appStore.getSuspendStatus(),
       currentTeamId: appTeamsStore.getSelectedTeamId(),
@@ -44,7 +43,8 @@ export class ReduxHelper extends ReduxComponent<ReduxHelperState> {
       releaseChannel: settingStore.getSetting<string>('releaseChannel'),
       customMenuItemClickedEvent: eventStore.getEvent('customMenuItemClicked'),
       systemTextSettingsChangedEvent: eventStore.getEvent('systemTextSettingsChanged'),
-      canUpdate: process.platform !== 'linux' && !IS_STORE_BUILD
+      spellcheckerLanguage: settingStore.getSetting<string>('spellcheckerLanguage'),
+      canUpdate: process.platform !== 'linux' && !IS_STORE_BUILD,
     };
   }
 
@@ -52,6 +52,7 @@ export class ReduxHelper extends ReduxComponent<ReduxHelperState> {
     this.updateLastActiveTeam(prevState);
     this.updateSuspendResume(prevState);
     this.updateUpdateStatus(prevState);
+    this.updateSpellcheckerLanguage(prevState);
   }
 
   public updateLastActiveTeam(prevState: Partial<ReduxHelperState>): void {
@@ -61,6 +62,24 @@ export class ReduxHelper extends ReduxComponent<ReduxHelperState> {
 
     while (this.lastSelectedTeams.length > 16) {
       this.lastSelectedTeams.pop();
+    }
+  }
+
+  /**
+   * When the `spellcheckerLanguage` setting is changed, we'll automatically
+   * configure the spellchecker to use the given language.
+   *
+   * @param {Partial<ReduxHelperState>} prevState
+   * @returns {void}
+   */
+  public updateSpellcheckerLanguage(prevState: Partial<ReduxHelperState>): void {
+    if (this.state.spellcheckerLanguage === prevState.spellcheckerLanguage) return;
+
+    if (window.desktop && window.desktop.spellCheckingHelper) {
+      logger.info(`updateSpellcheckerLanguage: Updating language`, this.state.spellcheckerLanguage);
+      window.desktop.spellCheckingHelper.updateLanguage(this.state.spellcheckerLanguage);
+    } else {
+      logger.warn(`updateSpellcheckerLanguage: Tried to update language, but spellchecker not initialized`);
     }
   }
 
@@ -108,7 +127,7 @@ export class ReduxHelper extends ReduxComponent<ReduxHelperState> {
   public customMenuItemClickedEvent({ itemId }: { itemId: string }): void {
     if (window.TSSSB &&
       window.TSSSB.customMenuItemClicked &&
-      window.teamId === this.state.currentTeamId) {
+      this.isSelectedTeam()) {
       window.TSSSB.customMenuItemClicked(itemId);
     }
   }
@@ -117,5 +136,9 @@ export class ReduxHelper extends ReduxComponent<ReduxHelperState> {
     if (window.TSSSB && window.TSSSB.systemTextSettingsChanged) {
       window.TSSSB.systemTextSettingsChanged();
     }
+  }
+
+  public isSelectedTeam(): boolean {
+    return window.teamId === this.state.currentTeamId;
   }
 }

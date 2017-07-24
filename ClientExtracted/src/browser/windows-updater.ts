@@ -2,14 +2,14 @@
  * @module Browser
  */ /** for typedoc */
 
-import * as semver from 'semver';
 import { Observable } from 'rxjs/Observable';
+import * as semver from 'semver';
 
 import { logger } from '../logger';
-import { autoUpdaterFinished } from './updater-utils';
 import { nativeInterop } from '../native-interop';
-import { UpdaterOption, UpdateInformation } from '../utils/shared-constants';
 import { getLatestReleaseVersion } from '../releases-helpers';
+import { UpdateInformation, UpdaterOption } from '../utils/shared-constants';
+import { autoUpdaterFinished } from './updater-utils';
 
 const { is64BitOperatingSystem } = nativeInterop;
 

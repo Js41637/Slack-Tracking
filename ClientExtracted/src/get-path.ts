@@ -3,8 +3,9 @@
  */ /** for typedoc */
 
 import * as path from 'path';
+import electronType = require('electron');
 
-let electronApp: Electron.App;
+let electronApp: typeof electronType.app;
 
 if ('type' in process) {
   if (process.type === 'renderer') {

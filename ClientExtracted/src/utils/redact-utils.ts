@@ -5,5 +5,5 @@
  * @returns {String}        The redacted message
  */
 export function redactApiTokens(message: string): string {
-  return message.replace(/&token=([\w-]{10})[\w-]*/g, '&token=$1⋯');
+  return message.replace(/(xoxs-)[\w-]*/g, '$1⋯');
 }

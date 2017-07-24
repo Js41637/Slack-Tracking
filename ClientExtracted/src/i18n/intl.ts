@@ -12,11 +12,15 @@
  * DO NOT CHANGE INTERFACES UNTIL ABSOLUTELY NECESSARY
  */
 
+import * as fs from 'fs';
 import * as MessageFormat from 'message-format';
-import { parseCommandLine } from '../parse-command-line';
+import * as path from 'path';
+import { logger } from '../logger';
+import { getHashCode } from '../utils/get-hash-code';
 import { StringMap } from '../utils/shared-constants';
+import { LOCALE_NAMESPACE, localeNamespaceType } from './locale-namespace';
 
-export type translationFormatFunction = (...args: Array<any>) => string;
+type stringFormatterFunction = (...args: Array<any>) => string;
 
 export type localeType = 'jp' | 'en-US';
 export const LOCALE = {
@@ -24,61 +28,63 @@ export const LOCALE = {
   US: 'en-US' as localeType
 };
 
-export type localeNamespaceType = 'general' | 'renderer' | 'browser' | 'menu' | 'messagebox';
-export const LOCALE_NAMESPACE = {
-  GENERAL: 'general' as localeNamespaceType,
-  BROWSER: 'browser' as localeNamespaceType,
-  RENDERER: 'renderer' as localeNamespaceType,
-  MESSAGEBOX: 'messagebox' as localeNamespaceType,
-  MENU: 'menu' as localeNamespaceType
-};
-
-/**
- * helper method for easier translation verification to show pseudo-translated strings
- * TODO: This function should be removed when actual translation is available
- */
-function pseudoTranslate(value: string): string {
-  const translate_re = /[aaaaaceeeeiiiinooooouuuuyyAAAAACEEEEIIIINOOOOOUUUUY]/g;
-  const translate = 'àáâãäçèéêëìíîïñòóôõöùúûüýÿÀÁÂÃÄÇÈÉÊËÌÍÎÏÑÒÓÔÕÖÙÚÛÜÝ';
-  const translated = value.replace(translate_re,
-    (match: string) => translate.substr(translate_re.source.indexOf(match) - 1, 1)
-  );
-
-  return translated;
+interface LocaleResource {
+  translation: string;
+  notes: string;
 }
 
-export class TranslationLookup {
-  private locale: localeType = LOCALE.US; //default to en
+class TranslationLookup {
+  private static defaultLocale: localeType | string = LOCALE.US.substring(0, 2);
+  private locale: localeType | string = TranslationLookup.defaultLocale;
   private readonly defaultConjunction: string = ', ';
-  private readonly namespaceTable: StringMap<StringMap<translationFormatFunction>> = {};
-  private readonly pseudoTranslateEnabled: boolean = false;
+  private readonly defaultStringFormatterTable: Partial<Record<localeNamespaceType, StringMap<stringFormatterFunction>>> = {};
+  private stringFormatterTable: Partial<Record<localeNamespaceType, StringMap<stringFormatterFunction>>> = {};
+  private localeResourceTable: Partial<Record<localeNamespaceType, StringMap<LocaleResource>>> = {};
 
-  constructor() {
-    const settings = global.loadSettings || parseCommandLine(); //ask global settings for renderer
-    this.pseudoTranslateEnabled = !!(settings as any).i18nOverride && !!settings.devMode;
-  }
 
-  public initialize(locale: localeType): void {
-    this.locale = locale;
-    throw new Error('init to different locale is not supported yet');
+  /**
+   * Apply locale into translation module to lookup string for given locale
+   * by clearing existing formatter lookup table and create new formatter based on new locale.
+   *
+   * Note this won't affect string already formatted by previous formatters - to replace those strings
+   * it need to be explicitly reloaded.
+   *
+   * @param {String} locale language code to apply for further string lookup
+   */
+  public applyLocale(locale: string): void {
+    //default namespace table (English) won't be cleared once generated
+    this.stringFormatterTable = {};
+    this.localeResourceTable = {};
+
+    if (!locale || locale.length < 2) {
+      throw new Error(`Invalid locale code ${locale} specified`);
+    }
+
+    //we do not apply region codes yet into translated strings, stripping it out
+    this.locale = locale.substring(0, 2);
+    logger.info(`TranslationLookup: locale set to ${locale} for ${process.type}`);
   }
 
   /**
-   * Returns function that will return translated string for current locale
+   * Returns function allows ICU formatting message (http://userguide.icu-project.org/formatparse/messages)
+   * based on current locale specifed.
    *
-   * @param {String} key The English string which is also used as the key
+   * @param {String} value Default string originally composed, English
    * @param {String} namespace Namespace for the key
-   * @return {Function} The string translator function
+   * @return {stringFormatterFunction} The string translator function
    */
-  public t(key: string, namespace: localeNamespaceType): translationFormatFunction {
-    const translations = this.loadTranslationFrom(namespace);
+  public t(value: string, namespace: localeNamespaceType): stringFormatterFunction {
+    const key = getHashCode(value);
 
-    const translation = translations[key];
-    if (!translation) {
-      const formatter = new MessageFormat(this.locale, key).format;
-      translations[key] = this.pseudoTranslateEnabled ? (arg: Object) => pseudoTranslate(formatter(arg)) : formatter;
+    const cachedFormatter = this.lookupStringFormatter(namespace, key);
+    if (cachedFormatter) {
+      return cachedFormatter;
     }
-    return translations[key];
+
+    const translatedStringValue = this.translate(namespace, key) || value;
+    const formatter = new MessageFormat(this.locale, translatedStringValue).format;
+    this.updateFormatter(namespace, key, formatter);
+    return formatter;
   }
 
   /**
@@ -129,16 +135,129 @@ export class TranslationLookup {
     }, []);
   }
 
-  private loadTranslationFrom(namespace: localeNamespaceType): StringMap<translationFormatFunction> {
-    let table = this.namespaceTable[namespace];
-    if (!table) {
-      table = this.namespaceTable[namespace] = {};
+  /**
+   * Find string formatter function if exists in current lookup table.
+   *
+   * @param {localeNamespaceType} namespace namespace of string value
+   * @param {number} key key to lookup formatter function, hashcode of original string
+   * @return {stringFormatterFunction | null} translator function, or null if not exist
+   */
+  private lookupStringFormatter(namespace: localeNamespaceType, key: number): stringFormatterFunction | null {
+    const table = this.locale === TranslationLookup.defaultLocale ? this.defaultStringFormatterTable : this.stringFormatterTable;
+    const namespaceTable = table[namespace];
+
+    return namespaceTable ? namespaceTable[key] : null;
+  }
+
+  /**
+   * Fill in corresponding namespace's locale resource with empty dictionary.
+   * This will prevent continious subsequent file system lookup
+   * If loading resources for given namespace failed for some reason
+   * @param namespace
+   */
+  private updateEmptyLocaleDictionary(namespace: localeNamespaceType): StringMap<LocaleResource> {
+    logger.warn(`TranslationLookup: locale lookup for ${namespace} will be skipped until applying new locales`);
+    return this.localeResourceTable[namespace] = {};
+  }
+
+  private loadLocaleResource(namespace: localeNamespaceType): StringMap<LocaleResource> {
+    //first, lookup stored resource first
+    if (this.localeResourceTable[namespace]) {
+      return this.localeResourceTable[namespace]!;
     }
-    return table;
+
+    const setEmptyDict = () => this.updateEmptyLocaleDictionary(namespace);
+    logger.debug(`TranslationLookup: trying to load locale resources for ${namespace}_${this.locale}`);
+
+    const resourcePath = path.resolve(__dirname, 'resources', this.locale);
+
+    if (!fs.statSyncNoException(resourcePath)) {
+      logger.info(`TranslationLookup: resource for ${this.locale} is not available at ${resourcePath}`);
+      return setEmptyDict();
+    }
+
+    let resources: Array<string>;
+    try {
+      resources = fs.readdirSync(resourcePath);
+    } catch (e) {
+      logger.error(`TranslationLookup: failed to lookup resources for ${this.locale}`, e);
+      return setEmptyDict();
+    }
+
+    if (!resources || resources.length === 0) {
+      logger.error(`TranslationLookup: there are no resources exist, something went wrong`);
+      return setEmptyDict();
+    }
+
+    //as we're ignoring region codes for now, find any matching translated resource
+    const resourceFileName = resources.filter((file) => file.match(new RegExp(`${namespace}_${this.locale}.+\\.json`)));
+
+    if (resourceFileName.length !== 1) {
+      logger.error(`TranslationLookup: could not find corresponding local resources for ${namespace}_${this.locale}`, resourceFileName);
+      return setEmptyDict();
+    }
+
+    let resource: StringMap<LocaleResource>;
+    try {
+      resource = require(path.join(resourcePath, resourceFileName[0]));
+    } catch (e) {
+      logger.error(`TranslationLookup: failed to load resources from ${resourceFileName[0]}`, e);
+      return setEmptyDict();
+    }
+
+    return this.localeResourceTable[namespace] = resource;
+  }
+
+  /**
+   * Find translated string corresponds to given key and namespaces.
+   *
+   * @param {localeNamespaceType} namespace namespace of string value
+   * @param {number} key key to lookup formatter function, hashcode of original string
+   */
+  private translate(namespace: localeNamespaceType, key: number): string | null {
+    //default locale does not need to lookup translated resources
+    if (this.locale === TranslationLookup.defaultLocale) {
+      return null;
+    }
+
+    const translateValue = this.loadLocaleResource(namespace)[key];
+
+    //empty dictionary by failing load resources, fall back to default locale simply
+    if (!translateValue) {
+      return null;
+    }
+
+    if (!translateValue.translation || translateValue.translation.length === 0) {
+      logger.error(`TranslationLookup: loaded resources are corrupted, does not contain locale values for ${namespace}_${key}`);
+      return null;
+    }
+
+    return translateValue.translation;
+  }
+
+  /**
+   * Store given formatter function into lookup table.
+   *
+   * @param {localeNamespaceType} namespace namespace of string value
+   * @param {number} key key to lookup formatter function, hashcode of original string
+   * @param {stringFormatterFunction} formatter formatter to be stored
+   */
+  private updateFormatter(namespace: localeNamespaceType, key: number, formatter: stringFormatterFunction): void {
+    const table = this.locale === TranslationLookup.defaultLocale ? this.defaultStringFormatterTable : this.stringFormatterTable;
+    let namespaceTable = table[namespace];
+    if (!namespaceTable) {
+      namespaceTable = table[namespace] = {};
+    }
+
+    namespaceTable[key] = formatter;
   }
 }
 
 const intl = new TranslationLookup();
 export {
+  stringFormatterFunction,
+  localeNamespaceType,
+  LOCALE_NAMESPACE,
+  TranslationLookup,
   intl
 };

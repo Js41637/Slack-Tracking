@@ -4,19 +4,20 @@ require('../stat-cache');
 const profiler = require('../utils/profiler.js');
 if (profiler.shouldProfile()) profiler.startProfiling();
 
-var assignIn = require('lodash.assignin');
-var path = require('path');
-var isPrebuilt = require('../utils/process-helpers').isPrebuilt;
+let assignIn = require('lodash').assignIn;
+let path = require('path');
+let isPrebuilt = require('../utils/process-helpers').isPrebuilt;
 
+// tslint:disable-next-line
 process.on('uncaughtException', (e) => console.error(e));
 
 // Warning: You almost certainly do *not* want to edit this code - instead, you
 // want to edit src/ssb/main.js instead
-var start = function(loadSettings) {
+let start = function(loadSettings) {
   window.loadSettings = loadSettings;
 
-  var mainModule = path.join(loadSettings.resourcePath, 'src', 'ssb', 'main.ts');
-  var isDevMode = loadSettings.devMode && isPrebuilt();
+  const mainModule = path.join(loadSettings.resourcePath, 'src', 'ssb', 'main.ts');
+  const isDevMode = loadSettings.devMode && isPrebuilt();
   require('electron-compile').init(loadSettings.resourcePath, mainModule, !isDevMode);
 };
 
@@ -32,4 +33,4 @@ process.nextTick(function() { // eslint-disable-line
 // As it does not have clear usecases at the moment, blocking it to prevent webapp abnormality
 // setTimeout(function() { window.global = window; }, 10);
 
-start(assignIn({}, require('electron').remote.getGlobal('loadSettings'), {windowType: 'WEBAPP'}));
+start(assignIn({}, require('electron').remote.getGlobal('loadSettings'), { windowType: 'WEBAPP' }));

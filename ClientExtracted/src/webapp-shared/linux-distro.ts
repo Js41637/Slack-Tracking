@@ -53,4 +53,4 @@ export async function getLinuxDistro(): Promise<OsInfo> {
       codename: res.codename || ''
     };
   }
-};
+}

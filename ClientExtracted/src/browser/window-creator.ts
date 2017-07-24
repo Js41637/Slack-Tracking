@@ -2,42 +2,43 @@
  * @module Browser
  */ /** for typedoc */
 
-import { ipcMain, BrowserWindow } from 'electron';
+import { BrowserWindow, ipcMain } from 'electron';
+import { assignIn, kebabCase, omit } from 'lodash';
 import * as profiler from '../utils/profiler';
 
 const { app } = require('electron');
-import { omit } from '../utils/omit';
-import * as assignIn from 'lodash.assignin';
-import * as kebabCase from 'lodash.kebabcase';
-import { logger } from '../logger';
 import { executeJavaScriptMethod, remoteEval } from 'electron-remote';
-import { Subscription } from 'rxjs/Subscription';
 import { Observable } from 'rxjs/Observable';
+import { Subscription } from 'rxjs/Subscription';
+import { logger } from '../logger';
 
-import { AppMenu } from './app-menu';
-import { BrowserWindowManager } from './browser-window-manager';
-import { DownloadListener } from './download-listener';
 import { eventActions } from '../actions/event-actions';
-import { behaviors as windowBehaviors } from './behaviors';
-import { externalLinkBehavior } from '../renderer/behaviors/external-link-behavior';
-import { WindowBehavior } from './behaviors/window-behavior';
-import { MainWindowCloseBehavior } from './behaviors/main-window-close-behavior';
-import { MetricsReporter } from './metrics-reporter';
-import { NotificationWindowManager } from './notification-window-manager';
-import { ReduxComponent } from '../lib/redux-component';
-import { RepositionWindowBehavior } from './behaviors/reposition-window-behavior';
-import { settingStore } from '../stores/setting-store';
 import { windowActions } from '../actions/window-actions';
 import { windowFrameActions } from '../actions/window-frame-actions';
-import { WindowFlashNotificationManager } from './window-flash-notification-manager';
-import { WindowHelpers } from '../utils/window-helpers';
+import { ReduxComponent } from '../lib/redux-component';
+import { externalLinkBehavior } from '../renderer/behaviors/external-link-behavior';
+import { settingStore } from '../stores/setting-store';
 import { windowStore } from '../stores/window-store';
 import { resolveImage } from '../utils/resolve-image';
+import { WindowHelpers } from '../utils/window-helpers';
+import { AppMenu } from './app-menu';
+import { behaviors as windowBehaviors } from './behaviors';
+import { MainWindowCloseBehavior } from './behaviors/main-window-close-behavior';
+import { RepositionWindowBehavior } from './behaviors/reposition-window-behavior';
+import { WindowBehavior } from './behaviors/window-behavior';
+import { BrowserWindowManager } from './browser-window-manager';
+import { DownloadListener } from './download-listener';
+import { MetricsReporter } from './metrics-reporter';
+import { NotificationWindowManager } from './notification-window-manager';
+import { WindowFlashNotificationManager } from './window-flash-notification-manager';
 
-import { SLACK_PROTOCOL, WINDOW_TYPES, SIDEBAR_WIDTH } from '../utils/shared-constants';
+import { SIDEBAR_WIDTH, SLACK_PROTOCOL, WINDOW_TYPES } from '../utils/shared-constants';
 import { WindowCreatorBase } from './window-creator-base';
 
-import { intl as $intl, LOCALE_NAMESPACE } from '../i18n/intl';
+import { LOCALE_NAMESPACE, intl as $intl } from '../i18n/intl';
+import { Store } from '../lib/store';
+import { getUserAgent } from '../ssb-user-agent';
+import { setTelemetrySession } from '../telemetry';
 
 const { reportRendererCrashes, reportWindowMetrics, loadWindowFileUrl } = WindowHelpers;
 
@@ -64,18 +65,17 @@ export class WindowCreator extends ReduxComponent<WindowCreatorState> implements
 
   constructor() {
     super();
-
     /**
      * We only want to create windows in the main process (remote event
      * handlers are unreliable). But the webapp needs to know the ID of the
      * created window synchronously, so set the `returnValue`.
      */
-    ipcMain.on('create-webapp-window', (e: Electron.IpcMainEvent, options) => {
+    ipcMain.on('create-webapp-window', (e: Electron.Event, options: any) => {
       const webappWindow = this.createWebappWindow(options, e.sender);
       e.returnValue = webappWindow.id;
     });
 
-    ipcMain.on('inter-window-message', (_event, window_token, window_type, ...args) => {
+    ipcMain.on('inter-window-message', (_event: any, window_token: string, window_type: string, ...args: Array<any>) => {
       let browserWindow = null;
       if (window_token) {
         browserWindow = BrowserWindow.fromId(parseInt(window_token, 10));
@@ -95,7 +95,7 @@ export class WindowCreator extends ReduxComponent<WindowCreatorState> implements
 
   public syncState(): WindowCreatorState {
     return {
-      title: $intl.t(`Slack`, LOCALE_NAMESPACE.BROWSER)(),
+      title: $intl.t('Slack', LOCALE_NAMESPACE.GENERAL)(),
       isMac: settingStore.isMac(),
       platform: settingStore.getSetting<string>('platform'),
       isWindows: settingStore.isWindows(),
@@ -140,45 +140,34 @@ export class WindowCreator extends ReduxComponent<WindowCreatorState> implements
     }
 
     const browserWindow = new BrowserWindow(options);
+    const userAgent = getUserAgent(browserWindow.webContents.getUserAgent());
+    browserWindow.webContents.setUserAgent(userAgent);
+
     const disposable = new Subscription();
 
-    windowActions.addWindow({ windowId: browserWindow.id, windowType: WINDOW_TYPES.MAIN });
+    windowActions.addWindow({ id: browserWindow.id, type: WINDOW_TYPES.MAIN });
 
     const behaviors: Array<WindowBehavior> = windowBehaviors
-                                              .filter((x) => x.isSupported(this.state.platform))
-                                              .map((behavior) => {
-                                                const ret = new behavior();
-                                                disposable.add(ret.setup(browserWindow));
-                                                return ret;
-                                              });
+      .filter((x) => x.isSupported(this.state.platform))
+      .map((behavior) => {
+        const ret = new behavior();
+        disposable.add(ret.setup(browserWindow));
+        return ret;
+      });
     const windowCloseBehavior = behaviors.filter((x) => x instanceof MainWindowCloseBehavior)[0] as MainWindowCloseBehavior;
+
+    disposable.add(() => Store.dispose());
 
     browserWindow.on('enter-full-screen', () => {
       windowFrameActions.setFullScreen(true);
     });
-
-    //once main window appears and if there's any crash report generated before application starts,
-    //ask any team (current selected team will picks up this event) to send clogs, then flush out reported crashes
-    //NOTE: disabled until get clarification from https://github.com/electron/electron/issues/9100,
-    //since this failure prevents user to use slack at all
-    /*
-    browserWindow.once('show', () => {
-      const report = crashReporter.getUploadedReports();
-      const count = Array.isArray(report) ? report.length : 0;
-
-      if (count > 0) {
-        logger.info('WindowCreator: Found native crash reports, reporting to webapp');
-        eventActions.reportCrashLogs(count);
-        flushCurrentReports();
-      }
-    });*/
 
     browserWindow.on('leave-full-screen', () => {
       windowFrameActions.setFullScreen(false);
     });
 
     browserWindow.on('focus', eventActions.mainWindowFocused);
-    browserWindow.on('app-command', (_e: Electron.Event, cmd) => {
+    browserWindow.on('app-command', (_e: Electron.Event, cmd: 'browser-backward' | 'browser-forward' | 'unknown') => {
       if (cmd !== 'unknown') eventActions.appCommand(cmd);
     });
 
@@ -230,7 +219,7 @@ export class WindowCreator extends ReduxComponent<WindowCreatorState> implements
       name: 'AboutBox',
       parent: null,
       windowType: WINDOW_TYPES.OTHER,
-      title: $intl.t(`About Slack`, LOCALE_NAMESPACE.BROWSER)()
+      title: $intl.t('About Slack', LOCALE_NAMESPACE.BROWSER)()
     })!;
   }
 
@@ -250,7 +239,7 @@ export class WindowCreator extends ReduxComponent<WindowCreatorState> implements
     loadWindowFileUrl(browserWindow, options);
     this.preventWindowNavigation(browserWindow);
 
-    windowActions.addWindow({ windowId, windowType: WINDOW_TYPES.NOTIFICATIONS });
+    windowActions.addWindow({ id: windowId, type: WINDOW_TYPES.NOTIFICATIONS });
     disposable.add(() => windowActions.removeWindow(windowId));
 
     browserWindow.once('close', () => {
@@ -259,28 +248,6 @@ export class WindowCreator extends ReduxComponent<WindowCreatorState> implements
     });
 
     return browserWindow;
-  }
-
-  /**
-   * Creates a Main Window that the QA tests can kick around via ChromeDriver that
-   * is similar to the Webapp's SSB interop context.
-   *
-   * @return {BrowserWindow} A Browser Window that looks like the webapp SSB context
-   */
-  public createChromeDriverWindow(): Electron.BrowserWindow {
-    logger.info('Creating main window for ChromeDriver in webapp mode');
-
-    // NB: Normally we'd be calling this method from a renderer, where we can get
-    // our existing User Agent, but since we'll be calling it from the Browser
-    // where we can't get the user agent, we'll have to fake it up.
-    const userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Slack/2.0.2 Chrome/47.0.2526.110 AtomShell/0.36.9 Safari/537.36 Slack_SSB/2.0.2'; // tslint:disable-line
-
-    return this.createWebappWindow({
-      url: 'about:blank',
-      width: 1024,
-      height: 768,
-      userAgent
-    });
   }
 
   /**
@@ -311,6 +278,8 @@ export class WindowCreator extends ReduxComponent<WindowCreatorState> implements
     // otherwise the app never loads.
     if (options.invokedOnStartup) {
       mainWindow.minimize();
+    } else if (process.platform === 'darwin' && app.getLoginItemSettings().wasOpenedAsHidden) {
+      mainWindow.hide();
     } else {
       mainWindow.show();
     }
@@ -330,7 +299,10 @@ export class WindowCreator extends ReduxComponent<WindowCreatorState> implements
    */
   private createChildComponents(mainWindow: Electron.BrowserWindow): Subscription {
     const disp = new Subscription();
-    const windowManager = new BrowserWindowManager(mainWindow);
+
+    setTelemetrySession(mainWindow);
+
+    const windowManager = new BrowserWindowManager();
     disp.add(() => windowManager.dispose());
 
     if (!this.state.isMac) {
@@ -356,8 +328,10 @@ export class WindowCreator extends ReduxComponent<WindowCreatorState> implements
 
     disp.add(reportWindowMetrics(mainWindow, metricsReporter));
     disp.add(reportRendererCrashes(mainWindow, metricsReporter));
+
     return disp;
   }
+
 
   /**
    * Creates a new window used by the webapp `window` API.
@@ -379,7 +353,7 @@ export class WindowCreator extends ReduxComponent<WindowCreatorState> implements
 
     // Ensure that the new window pops up on the same screen as the app
     const rect: Electron.Rectangle = { x: params.x!, y: params.y!, width: params.width!, height: params.height! };
-    const senderWindow = (sender ? BrowserWindow.fromWebContents(sender!) : null) || BrowserWindow.getFocusedWindow();
+    const senderWindow = BrowserWindow.fromWebContents(sender!) || BrowserWindow.getFocusedWindow();
     Object.assign(params, RepositionWindowBehavior.moveRectToDisplay(rect, senderWindow));
 
     Object.keys(params).forEach((key) => {
@@ -392,7 +366,9 @@ export class WindowCreator extends ReduxComponent<WindowCreatorState> implements
     options.fullscreenable = (params.fullscreenable !== undefined) ? params.fullscreenable : true;
     options = RepositionWindowBehavior.getValidWindowPositionAndSize(options) as any;
 
-    logger.info('Creating webapp window.', omit(options, 'url', 'content_html'));
+    const toOmit = ['url', 'content_html', 'destination_url'];
+    if (options.url && /slack.com\/files\//i.test(options.url)) toOmit.push('title');
+    logger.info('Creating webapp window.', omit(options, toOmit));
 
     const browserWindow = new BrowserWindow(options);
     const windowId = browserWindow.id;
@@ -427,8 +403,8 @@ export class WindowCreator extends ReduxComponent<WindowCreatorState> implements
     });
 
     const windowCreationOptions = {
-      windowId,
-      windowType: WINDOW_TYPES.WEBAPP,
+      id: windowId,
+      type: WINDOW_TYPES.WEBAPP,
       subType: params.windowType,
       teamId: params.teamId
     };
@@ -456,7 +432,7 @@ export class WindowCreator extends ReduxComponent<WindowCreatorState> implements
                        create component window with given option ${params}`);
     }
 
-    const options = assignIn(this.getSlackWindowOpts(), {
+    const options = assignIn<any>(this.getSlackWindowOpts(), {
       show: false,
       center: true,
       height: 300,
@@ -511,7 +487,7 @@ export class WindowCreator extends ReduxComponent<WindowCreatorState> implements
   private getNotificationWindowOpts() {
     return assignIn(this.getSlackWindowOpts(), {
       windowType: WINDOW_TYPES.NOTIFICATIONS,
-      bootstrapScript: require.resolve('../notification/main'),
+      bootstrapScript: require.resolve('../renderer/notifications/html-notifications/main'),
       show: false,
       frame: false,
       transparent: true,

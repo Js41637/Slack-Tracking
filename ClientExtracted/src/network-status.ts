@@ -2,11 +2,11 @@
  * @module NetworkStatus
  */ /** for typedoc */
 
-import { networkStatusType } from './utils/shared-constants';
-import { logger } from './logger';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 import { async } from 'rxjs/scheduler/async';
+import { logger } from './logger';
+import { networkStatusType } from './utils/shared-constants';
 
 import './custom-operators';
 

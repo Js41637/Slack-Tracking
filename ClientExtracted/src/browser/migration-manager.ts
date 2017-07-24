@@ -1,16 +1,16 @@
+import { TeamBase } from '../actions/team-actions';
 /**
  * @module Browser
  */ /** for typedoc */
 
-import * as transform from 'lodash.transform';
-import { pick } from '../utils/pick';
-import * as path from 'path';
-import * as fs from 'graceful-fs';
 import { session } from 'electron';
+import * as fs from 'graceful-fs';
+import { pick, transform } from 'lodash';
+import * as path from 'path';
 
-import { getInitialsOfName } from '../reducers/teams-reducer';
-import { logger } from '../logger';
 import { p } from '../get-path';
+import { logger } from '../logger';
+import { getInitialsOfName } from '../reducers/teams-reducer';
 import * as CookieParser from './safari-cookies';
 
 /**
@@ -94,12 +94,8 @@ export class MigrationManager {
   }
 
   private parseTeamList(teamList: Array<any>) {
-    return transform(teamList, (teams: Array<any>, teamEntry: any) => {
-      const team = pick<{
-        initials: string,
-        team_name: string,
-        team_id: string
-      }, any>(teamEntry, 'name', 'id', 'team_id', 'team_name', 'team_url', 'theme', 'icons');
+    return transform<Array<TeamBase>, any>(teamList, (teams: Array<any>, teamEntry: any) => {
+      const team = pick<any, any>(teamEntry, 'name', 'id', 'team_id', 'team_name', 'team_url', 'theme', 'icons');
       team.initials = getInitialsOfName(team.team_name);
 
       teams[team.team_id] = team;
@@ -194,7 +190,7 @@ export class MigrationManager {
 
           logger.debug(JSON.stringify(chromiumCookie));
 
-          session.defaultSession.cookies.set(chromiumCookie, (e) => {
+          session.defaultSession!.cookies.set(chromiumCookie, (e) => {
             if (e) { logger.info(e as any); reject(e); } else { resolve(true); }
           });
         });

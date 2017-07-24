@@ -2,17 +2,20 @@
  * @module Epics
  */ /** for typedoc */
 
-import { Action } from '../actions/action';
-import { MiddlewareAPI } from 'redux';
-import { Epic, ActionsObservable } from 'redux-observable';
 import { BrowserWindow, webContents } from 'electron';
-import { APP } from '../actions/';
+import { MiddlewareAPI } from 'redux';
+import { ActionsObservable, Epic } from 'redux-observable';
+
+import { APP, EVENTS, NOTIFICATIONS } from '../actions';
+import { Action } from '../actions/action';
+import { completeAction } from '../custom-operators';
 import { logger } from '../logger';
-import { EVENTS } from '../actions';
-import { WINDOW_TYPES, IS_WINDOWS_STORE } from '../utils/shared-constants';
-import { getWindowOfType, getWindows } from '../stores/window-store-helper';
-import { NodeRTNotificationHelpers } from '../renderer/components/node-rt-notification-helpers';
-import '../custom-operators';
+import { RootState } from '../reducers';
+import { NodeRTNotificationHelpers } from '../renderer/notifications/node-rt-notification-helpers';
+import { getWindows } from '../stores/window-store-helper';
+import { flushTelemetry } from '../telemetry';
+import { IS_WINDOWS_STORE, WINDOW_TYPES } from '../utils/shared-constants';
+import { OverlayIPCArg, focusMainWindow, getMainBrowserWindow, handleOverlayIcon } from './focus-main-window';
 
 const CHILD_WINDOWS = [WINDOW_TYPES.WEBAPP];
 
@@ -52,30 +55,37 @@ const clearActionCenter = (store: MiddlewareAPI<any>) => {
       } else {
         resolve();
       }
-    } catch (e) {
-      logger.warn(`BrowserWindow Epic: Clearing action center failed: ${JSON.stringify(e)}`);
+    } catch (error) {
+      logger.warn(`BrowserWindow Epic: Clearing action center failed`, { error });
       resolve();
     }
   });
 };
 
+/**
+ * Override the `MainWindowCloseBehavior` so we can exit.
+ */
 const exitApplication = (store: MiddlewareAPI<any>): void => {
-  const mainWindow = getWindowOfType(store, 'MAIN')!;
-  const mainWnd = BrowserWindow.fromId(mainWindow.id);
-
-  // Setting this overrides the `MainWindowCloseBehavior`
-  mainWnd.exitApp = true;
-  mainWnd.close();
+  const mainWnd = getMainBrowserWindow(store);
+  if (!mainWnd) {
+    logger.error(`exitApplication: trying to exit application but main windows instance does not exist`);
+  } else {
+    mainWnd.exitApp = true;
+    mainWnd.close();
+  }
 };
 
-export const quitApplicationEpic: Epic<Action<any>, any> = (actionObservable: ActionsObservable<Action<any>>, store: MiddlewareAPI<any>) => {
-  return actionObservable.ofType(EVENTS.QUIT_APP)
-  .take(1)
-  .do(() => clearActionCenter(store))
-  .do(() => closeChildWindows(store))
-  .do(() => exitApplication(store))
-  .completeAction();
-};
+/**
+ * Do a bunch of clean-up work before we quit.
+ */
+const quitApplicationEpic: Epic<Action<any>, any> = (actionObservable: ActionsObservable<Action<any>>, store: MiddlewareAPI<any>) =>
+  actionObservable.ofType(EVENTS.QUIT_APP)
+    .take(1)
+    .do(() => clearActionCenter(store))
+    .do(() => closeChildWindows(store))
+    .do(() => exitApplication(store))
+    .mergeMap(flushTelemetry)
+    .let(completeAction);
 
 const canOpenDevtools = (store: MiddlewareAPI<any>, contents: Electron.WebContents, electronDevTools: boolean): boolean => {
   // If opening devTools for the main renderer, nothing to filter.
@@ -113,8 +123,8 @@ const buildDevtoolsContext = (electron: boolean) => {
  * @param  {Boolean} electronDevTools  True to open devTools for the main renderer,
  *                                     false for just the selected team's webView
  */
-export const openDevToolsEpic: Epic<Action<any>, any> = (actionObservable: ActionsObservable<Action<any>>, store: MiddlewareAPI<any>) => {
-  return actionObservable.ofType(EVENTS.TOGGLE_DEV_TOOLS)
+const openDevToolsEpic: Epic<Action<any>, any> = (actionObservable: ActionsObservable<Action<any>>, store: MiddlewareAPI<any>) =>
+  actionObservable.ofType(EVENTS.TOGGLE_DEV_TOOLS)
     .map((x) => buildDevtoolsContext(x.data))
     .do((context) => {
       const { opened, contents, electron } = context;
@@ -130,10 +140,59 @@ export const openDevToolsEpic: Epic<Action<any>, any> = (actionObservable: Actio
       type: APP.MARK_DEVTOOLS_STATE,
       data: context.opened.length === 0
     }));
+
+/**
+ * Focus the main window for certain types of events. Note that the actual
+ * event handling occurs in renderer side epics.
+ */
+const focusMainWindowEpic: Epic<Action<any>, any> = (
+  actionObservable: ActionsObservable<Action<any>>,
+  store: MiddlewareAPI<RootState>
+) => {
+  const eventObservable = actionObservable.ofType(
+    EVENTS.APP_STARTED,
+    EVENTS.QUIT_APP,
+    EVENTS.FOREGROUND_APP,
+    EVENTS.HANDLE_DEEP_LINK,
+    EVENTS.SHOW_WEBAPP_DIALOG,
+    NOTIFICATIONS.CLICK_NOTIFICATION
+  );
+
+  // Split into separate observables to process
+  const [appEventObservable, focusObservable] = eventObservable
+    .partition((x) => (x.type === EVENTS.APP_STARTED || x.type === EVENTS.QUIT_APP));
+  const [started, quitEvent] = appEventObservable
+    .partition((x) => x.type === EVENTS.APP_STARTED);
+
+  // When the application starts, listen for IPC events for the overlay icon.
+  // We do it with old-fashioned IPC because storing the whole buffer in Redux
+  // would be unwieldy.
+  const overlayIconObservable = started
+    .mergeMap(() =>
+      handleOverlayIcon().do((arg) => {
+        const mainWindow = getMainBrowserWindow(store);
+        if (mainWindow) {
+          mainWindow.setOverlayIcon(arg.overlay!, arg.overlayDescription);
+        }
+      }))
+    .takeUntil(quitEvent);
+
+  return focusObservable
+    .withLatestFrom(overlayIconObservable)
+    .do((arg: [Action<any>, OverlayIPCArg]) => focusMainWindow(store, arg[1]))
+    .let(completeAction);
 };
 
-const browserWindowEpics = [quitApplicationEpic, openDevToolsEpic];
+const browserWindowEpics = [
+  quitApplicationEpic,
+  openDevToolsEpic,
+  focusMainWindowEpic
+];
 
 export {
+  quitApplicationEpic,
+  canOpenDevtools,
+  openDevToolsEpic,
+  focusMainWindowEpic,
   browserWindowEpics
 };

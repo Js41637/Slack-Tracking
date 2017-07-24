@@ -2,34 +2,35 @@
  * @module Reducers
  */ /** for typedoc */
 
-import { Window } from '../actions/window-actions';
+import { omit } from 'lodash';
 import { Action } from '../actions/action';
 import { WINDOWS } from '../actions/index';
-import { omit } from '../utils/omit';
-import { StringMap } from '../utils/shared-constants';
+import { StringMap, WindowMetadata } from '../utils/shared-constants';
+
+export type WindowsState = StringMap<WindowMetadata>;
 
 /**
  * @hidden
  */
-export function reduce(windows: StringMap<Window> = {}, action: Action<any>): StringMap<Window> {
+export function reduce(windows: WindowsState = {}, action: Action<any>): WindowsState {
   switch (action.type) {
     case WINDOWS.ADD_WINDOW:
       return addWindow(windows, action.data);
     case WINDOWS.REMOVE_WINDOW:
-      return omit<StringMap<Window>, StringMap<Window>>(windows, action.data);
+      return omit<WindowsState, WindowsState>(windows, action.data);
     default:
       return windows;
   }
-};
+}
 
-function addWindow(windowList: StringMap<Window>, { windowId, windowType, subType, teamId = '' }: Window): StringMap<Window> {
+function addWindow(windowList: WindowsState, metadata: WindowMetadata): WindowsState {
   return {
     ...windowList,
-    [windowId]: {
-      id: windowId,
-      type: windowType,
-      subType,
-      teamId
+    [metadata.id]: {
+      id: metadata.id,
+      type: metadata.type,
+      subType: metadata.subType,
+      teamId: metadata.teamId || ''
     }
   };
 }

@@ -2,27 +2,27 @@
  * @module Browser
  */ /** for typedoc */
 
-import { app, Menu, MenuItem, shell } from 'electron';
+import { BrowserWindow, Menu, MenuItem, app, shell } from 'electron';
 
+import { isEqual } from 'lodash';
 import { appActions } from '../actions/app-actions';
 import { appTeamsActions } from '../actions/app-teams-actions';
+import { dialogActions } from '../actions/dialog-actions';
+import { eventActions } from '../actions/event-actions';
+import { settingActions } from '../actions/setting-actions';
+import { TeamBase } from '../actions/team-actions';
+import { ReduxComponent } from '../lib/redux-component';
 import { appStore } from '../stores/app-store';
 import { appTeamsStore } from '../stores/app-teams-store';
-import { dialogActions } from '../actions/dialog-actions';
-import { eventStore, StoreEvent } from '../stores/event-store';
-import { eventActions } from '../actions/event-actions';
-import { ReduxComponent } from '../lib/redux-component';
-import { settingActions } from '../actions/setting-actions';
+import { StoreEvent, eventStore } from '../stores/event-store';
 import { settingStore } from '../stores/setting-store';
 import { teamStore } from '../stores/team-store';
-import { TeamBase } from '../actions/team-actions';
 
-import { getMenuItemForUpdateStatus } from './updater-utils';
-import { intl as $intl, LOCALE_NAMESPACE } from '../i18n/intl';
-import { isEqualArrays } from '../utils/array-is-equal';
+import { LOCALE_NAMESPACE, intl as $intl } from '../i18n/intl';
 import { logger } from '../logger';
+import { IS_STORE_BUILD, MenuItemsMap, StringMap, updateStatusType } from '../utils/shared-constants';
 import { MENU_ITEM_ID, MENU_PARENT_ID, menuParentIdType } from './app-menu-ids';
-import { StringMap, MenuItemsMap, updateStatusType, IS_STORE_BUILD } from '../utils/shared-constants';
+import { getMenuItemForUpdateStatus } from './updater-utils';
 
 //memoize frequently used platform variables
 const isDarwin = process.platform === 'darwin';
@@ -36,7 +36,7 @@ const topLevelMenuItems = Object.keys(MENU_PARENT_ID)
 export interface AppMenuState {
   teams: StringMap<TeamBase>;
   teamsByIndex: Array<string>;
-  selectedTeamId: string;
+  selectedTeamId: string | null;
   customMenuItems: MenuItemsMap;
   updateStatus: updateStatusType;
   popupAppMenuEvent: StoreEvent;
@@ -48,7 +48,7 @@ export interface AppMenuState {
 
 export class AppMenu extends ReduxComponent<AppMenuState> {
   private menu: Electron.Menu;
-  private menuMap: StringMap<Electron.MenuItemOptions>;
+  private menuMap: StringMap<Electron.MenuItemConstructorOptions>;
 
   /**
    * Creates a new instance of `AppMenu`.
@@ -62,7 +62,7 @@ export class AppMenu extends ReduxComponent<AppMenuState> {
     this.buildMenu();
   }
 
-  public syncState(): Partial<AppMenuState> {
+  public syncState(): AppMenuState {
     const selectedTeamId = appTeamsStore.getSelectedTeamId();
     return {
       teams: teamStore.teams,
@@ -115,14 +115,29 @@ export class AppMenu extends ReduxComponent<AppMenuState> {
     if (invokedViaKeyboard && this.associatedWindow && !this.associatedWindow.isDestroyed()) {
       try {
         this.menu.popup(this.associatedWindow, { x: 20, y: 15, async: true } as any);
+        return;
       } catch (error) {
         logger.warn(`Tried to open app menu, but failed`, error);
-
-        // Try again, but don't try to do it on a specific window
-        this.menu.popup(undefined, { async: true } as any);
       }
-    } else {
-      this.menu.popup(undefined, { async: true } as any);
+    }
+
+    // We don't have a window, so we'll try without one. Sadly, Electron will just
+    // try to get the window via BrowserWindow.getFocusedWindow(), and that fails
+    // sometimes, too - race conditions can lead to the window being null.
+    // Instead, we'll try to get the focussed Window, followed by the first window.
+    // If everything fails, we'll give up, but won't crash.
+    try {
+      let browserWindow: Electron.BrowserWindow | null = BrowserWindow.getFocusedWindow();
+
+      if (!browserWindow) {
+        const allWindows = BrowserWindow.getAllWindows() || [];
+        browserWindow = allWindows.length > 0 ? allWindows[0] : null;
+      }
+
+      // NB: browserWindow! can be null, but that's okay
+      this.menu.popup(browserWindow!, { x: 20, y: 15, async: true } as any);
+    } catch (error) {
+      logger.warn(`Tried to open app menu (fallback), but failed`, error);
     }
   }
 
@@ -137,7 +152,7 @@ export class AppMenu extends ReduxComponent<AppMenuState> {
   private buildMenu(changedKeys?: Array<string>): void {
     const keysToBuild = changedKeys || topLevelMenuItems;
 
-    this.menuMap = keysToBuild.reduce((map: StringMap<Electron.MenuItemOptions>, key: string) => {
+    this.menuMap = keysToBuild.reduce((map: StringMap<Electron.MenuItemConstructorOptions>, key: string) => {
       logger.debug(`AppMenu: Rebuilding ${key}`);
 
       map[key] = this.buildMenuForKey(key);
@@ -165,24 +180,24 @@ export class AppMenu extends ReduxComponent<AppMenuState> {
    *
    * @param {String} key  The key to build
    */
-  private buildMenuForKey(key: string): Electron.MenuItemOptions {
+  private buildMenuForKey(key: string): Electron.MenuItemConstructorOptions {
     switch (key) {
-    case MENU_PARENT_ID.SLACK:
-      return this.buildSlackMenu();
-    case MENU_PARENT_ID.FILE:
-      return this.buildFileMenu();
-    case MENU_PARENT_ID.EDIT:
-      return this.buildEditMenu();
-    case MENU_PARENT_ID.VIEW:
-      return this.buildViewMenu();
-    case MENU_PARENT_ID.HISTORY:
-      return this.buildHistoryMenu();
-    case MENU_PARENT_ID.WINDOW:
-      return this.buildWindowMenu();
-    case MENU_PARENT_ID.HELP:
-      return this.buildHelpMenu();
-    default:
-      throw new Error(`${key} not defined!`);
+      case MENU_PARENT_ID.SLACK:
+        return this.buildSlackMenu();
+      case MENU_PARENT_ID.FILE:
+        return this.buildFileMenu();
+      case MENU_PARENT_ID.EDIT:
+        return this.buildEditMenu();
+      case MENU_PARENT_ID.VIEW:
+        return this.buildViewMenu();
+      case MENU_PARENT_ID.HISTORY:
+        return this.buildHistoryMenu();
+      case MENU_PARENT_ID.WINDOW:
+        return this.buildWindowMenu();
+      case MENU_PARENT_ID.HELP:
+        return this.buildHelpMenu();
+      default:
+        throw new Error(`${key} not defined!`);
     }
   }
 
@@ -191,9 +206,9 @@ export class AppMenu extends ReduxComponent<AppMenuState> {
    * back to the webapp.
    *
    * @param {String} parentId               The top-level group to add items to
-   * @param {Electron.MenuItemOptions} menu The menu template that pertains to that group
+   * @param {Electron.MenuItemConstructorOptions} menu The menu template that pertains to that group
    */
-  private addCustomMenuItems(parentId: string, menu: Electron.MenuItemOptions): void {
+  private addCustomMenuItems(parentId: string, menu: Electron.MenuItemConstructorOptions): void {
     const { customMenuItems } = this.state;
 
     if (!customMenuItems) return;
@@ -209,7 +224,7 @@ export class AppMenu extends ReduxComponent<AppMenuState> {
     }
   }
 
-  private buildAboutBoxMenu(): Electron.MenuItemOptions {
+  private buildAboutBoxMenu(): Electron.MenuItemConstructorOptions {
     return {
       label: $intl.t('About Slack', LOCALE_NAMESPACE.MENU)(),
       id: MENU_ITEM_ID.ABOUT_SLACK,
@@ -217,9 +232,9 @@ export class AppMenu extends ReduxComponent<AppMenuState> {
     };
   }
 
-  private buildSlackMenu(): Electron.MenuItemOptions {
+  private buildSlackMenu(): Electron.MenuItemConstructorOptions {
     const menu = {
-      label: 'Slack',
+      label: $intl.t('Slack', LOCALE_NAMESPACE.GENERAL)(),
       id: MENU_PARENT_ID.SLACK,
       submenu: [this.buildAboutBoxMenu(), {
         type: 'separator'
@@ -227,23 +242,23 @@ export class AppMenu extends ReduxComponent<AppMenuState> {
         type: 'separator'
       }, {
         id: MENU_ITEM_ID.SERVICES,
-        role: 'services' as Electron.MenuItemRole,
+        role: 'services',
         submenu: []
       }, {
         type: 'separator'
       }, {
         id: MENU_ITEM_ID.HIDE_SLACK,
-        role: 'hide' as Electron.MenuItemRole
+        role: 'hide'
       }, {
         id: MENU_ITEM_ID.HIDE_OTHERS,
-        role: 'hideothers' as Electron.MenuItemRole
+        role: 'hideothers'
       }, {
         id: MENU_ITEM_ID.SHOW_ALL,
-        role: 'unhide' as Electron.MenuItemRole
+        role: 'unhide'
       }, {
         type: 'separator'
       },
-      this.buildQuitMenuItem()] as Array<Electron.MenuItemOptions>
+      this.buildQuitMenuItem()] as Array<Electron.MenuItemConstructorOptions>
     };
 
     if (!this.state.isStoreBuild) {
@@ -255,7 +270,7 @@ export class AppMenu extends ReduxComponent<AppMenuState> {
     return menu;
   }
 
-  private buildFileMenu(): Electron.MenuItemOptions {
+  private buildFileMenu(): Electron.MenuItemConstructorOptions {
     return isDarwin ? {
       label: $intl.t('&File', LOCALE_NAMESPACE.MENU)(),
       id: MENU_PARENT_ID.FILE,
@@ -271,17 +286,19 @@ export class AppMenu extends ReduxComponent<AppMenuState> {
     };
   }
 
-  private buildEditMenu(): Electron.MenuItemOptions {
+  private buildEditMenu(): Electron.MenuItemConstructorOptions {
     const menu = {
-      label: '&Edit',
+      label: $intl.t('Edit', LOCALE_NAMESPACE.MENU)(),
       id: MENU_PARENT_ID.EDIT,
       submenu: [{
         id: MENU_ITEM_ID.UNDO,
-        role: 'undo' as Electron.MenuItemRole,
+        label: $intl.t('Undo', LOCALE_NAMESPACE.MENU)(),
+        role: 'undo',
         accelerator: 'CmdOrCtrl+Z'
       }, {
         id: MENU_ITEM_ID.REDO,
-        role: 'redo' as Electron.MenuItemRole,
+        label: $intl.t('Redo', LOCALE_NAMESPACE.MENU)(),
+        role: 'redo',
         accelerator: isDarwin ?
           'Command+Shift+Z' :
           'Ctrl+Y'
@@ -289,37 +306,43 @@ export class AppMenu extends ReduxComponent<AppMenuState> {
         type: 'separator'
       }, {
         id: MENU_ITEM_ID.CUT,
-        role: 'cut' as Electron.MenuItemRole,
+        label: $intl.t('Cut', LOCALE_NAMESPACE.MENU)(),
+        role: 'cut',
         accelerator: 'CmdOrCtrl+X'
       }, {
         id: MENU_ITEM_ID.COPY,
-        role: 'copy' as Electron.MenuItemRole,
+        label: $intl.t('Copy', LOCALE_NAMESPACE.MENU)(),
+        role: 'copy',
         accelerator: 'CmdOrCtrl+C'
       }, {
         id: MENU_ITEM_ID.PASTE,
-        role: 'paste' as Electron.MenuItemRole,
+        label: $intl.t('Paste', LOCALE_NAMESPACE.MENU)(),
+        role: 'paste',
         accelerator: 'CmdOrCtrl+V'
       }, {
         id: MENU_ITEM_ID.PASTE_AS,
-        role: 'pasteandmatchstyle' as Electron.MenuItemRole,
+        label: $intl.t('Paste and Match Style', LOCALE_NAMESPACE.MENU)(),
+        role: 'pasteandmatchstyle',
         accelerator: 'CmdOrCtrl+Shift+V'
       }, {
         id: MENU_ITEM_ID.DELETE,
-        role: 'delete' as Electron.MenuItemRole
+        label: $intl.t('Delete', LOCALE_NAMESPACE.MENU)(),
+        role: 'delete'
       }, {
         id: MENU_ITEM_ID.SELECT_ALL,
-        role: 'selectall' as Electron.MenuItemRole,
+        label: $intl.t('Select All', LOCALE_NAMESPACE.MENU)(),
+        role: 'selectall',
         accelerator: 'CmdOrCtrl+A'
       }, {
         type: 'separator'
-      }] as Array<Electron.MenuItemOptions>
+      }] as Array<Electron.MenuItemConstructorOptions>
     };
 
     menu.submenu.push(this.buildFindMenuItem());
     return menu;
   }
 
-  private buildViewMenu(): Electron.MenuItemOptions {
+  private buildViewMenu(): Electron.MenuItemConstructorOptions {
     const menu = {
       label: $intl.t('&View', LOCALE_NAMESPACE.MENU)(),
       id: MENU_PARENT_ID.VIEW,
@@ -354,7 +377,7 @@ export class AppMenu extends ReduxComponent<AppMenuState> {
         id: MENU_ITEM_ID.ZOOM_OUT,
         click: settingActions.zoomOut,
         accelerator: 'CmdOrCtrl+-'
-      }] as Array<Electron.MenuItemOptions>
+      }] as Array<Electron.MenuItemConstructorOptions>
     };
 
     if (this.state.isDevMode) {
@@ -364,9 +387,9 @@ export class AppMenu extends ReduxComponent<AppMenuState> {
     return menu;
   }
 
-  private buildHistoryMenu(): Electron.MenuItemOptions {
+  private buildHistoryMenu(): Electron.MenuItemConstructorOptions {
     return {
-      label: 'H&istory',
+      label: $intl.t('H&istory', LOCALE_NAMESPACE.MENU)(),
       id: MENU_PARENT_ID.HISTORY,
       submenu: [{
         label: $intl.t('&Back', LOCALE_NAMESPACE.MENU)(),
@@ -386,12 +409,12 @@ export class AppMenu extends ReduxComponent<AppMenuState> {
     ]};
   }
 
-  private buildWindowMenu(): Electron.MenuItemOptions {
+  private buildWindowMenu(): Electron.MenuItemConstructorOptions {
     const menu =  {
       label: $intl.t('&Window', LOCALE_NAMESPACE.MENU)(),
       id: MENU_PARENT_ID.WINDOW,
-      role: 'window' as Electron.MenuItemRole,
-      submenu: [] as Array<Electron.MenuItemOptions>
+      role: 'window',
+      submenu: [] as Array<Electron.MenuItemConstructorOptions>
     };
 
     let startWithSeparator = true;
@@ -412,9 +435,10 @@ export class AppMenu extends ReduxComponent<AppMenuState> {
 
       menu.submenu.push(...teamMenuItems);
 
-      menu.submenu.push(...[{
-        type: 'separator' as Electron.MenuItemType
-      }, {
+      const getSeparator: () => Electron.MenuItemConstructorOptions =
+        () => ({ type: 'separator' });
+
+      menu.submenu.push(...[getSeparator(), {
         label: $intl.t('Select &Next Team', LOCALE_NAMESPACE.MENU)(),
         id: MENU_ITEM_ID.SELECT_NEXT_TEAM,
         click: appTeamsActions.selectNextTeam,
@@ -428,25 +452,23 @@ export class AppMenu extends ReduxComponent<AppMenuState> {
         accelerator: isDarwin ?
           'Command+{' :
           'Control+Shift+Tab'
-      }, {
-        type: 'separator' as Electron.MenuItemType
-      }]);
+      }, getSeparator()]);
     }
 
     menu.submenu.push(this.buildSigninToTeamMenuItem());
     return menu;
   }
 
-  private buildHelpMenu(): Electron.MenuItemOptions {
-    const fileManager = isDarwin ?
-      $intl.t('Finder', LOCALE_NAMESPACE.MENU)() : process.platform === 'win32' ?
-      $intl.t('Explorer', LOCALE_NAMESPACE.MENU)() :
-      $intl.t('File Manager', LOCALE_NAMESPACE.MENU)();
+  private buildHelpMenu(): Electron.MenuItemConstructorOptions {
+    const fileManagerLabel = isDarwin ?
+      $intl.t('Show &Logs in Finder', LOCALE_NAMESPACE.MENU)() : process.platform === 'win32' ?
+      $intl.t('Show &Logs in Explorer', LOCALE_NAMESPACE.MENU)() :
+      $intl.t('Show &Logs in File Manager', LOCALE_NAMESPACE.MENU)();
 
     const menu = {
-      label: '&Help',
+      label: $intl.t('&Help', LOCALE_NAMESPACE.MENU)(),
       id: MENU_PARENT_ID.HELP,
-      role: 'help' as Electron.MenuItemRole,
+      role: 'help',
       submenu: [{
         label: $intl.t('&Keyboard Shortcuts', LOCALE_NAMESPACE.MENU)(),
         id: MENU_ITEM_ID.KEYBOARD_SHORTCUT,
@@ -463,11 +485,11 @@ export class AppMenu extends ReduxComponent<AppMenuState> {
         id: MENU_ITEM_ID.REPORT_ISSUE,
         click: eventActions.reportIssue
       }, {
-        label: $intl.t(`Show &Logs in {fileManager}`, LOCALE_NAMESPACE.MENU)({ fileManager }),
+        label: fileManagerLabel,
         id: MENU_ITEM_ID.REVEAL_LOGS,
         click: eventActions.prepareAndRevealLogs
       }, {
-        label: $intl.t(`&Clear Cache and Restart`, LOCALE_NAMESPACE.MENU)(),
+        label: $intl.t('&Clear Cache and Restart', LOCALE_NAMESPACE.MENU)(),
         id: MENU_ITEM_ID.CLEAR_CACHE,
         click: eventActions.clearCacheRestartApp
       }, {
@@ -477,10 +499,10 @@ export class AppMenu extends ReduxComponent<AppMenuState> {
       }, {
         type: 'separator'
       }, {
-        label: $intl.t("What's &New…", LOCALE_NAMESPACE.MENU)(),
+        label: $intl.t('What’s &New…', LOCALE_NAMESPACE.MENU)(),
         id: MENU_ITEM_ID.RELEASE_NOTES,
         click: eventActions.showReleaseNotes
-      }] as Array<Electron.MenuItemOptions>
+      }] as Array<Electron.MenuItemConstructorOptions>
     };
 
     if (process.platform === 'win32' && !this.state.isStoreBuild) {
@@ -503,10 +525,10 @@ export class AppMenu extends ReduxComponent<AppMenuState> {
    * Builds the team menu items that will be added to the Window menu, in
    * addition to populating the Dock on macOS.
    */
-  private buildTeamMenuItems(): Array<Electron.MenuItemOptions> {
+  private buildTeamMenuItems(): Array<Electron.MenuItemConstructorOptions> {
     const { teams, teamsByIndex } = this.state;
 
-    const teamMenuItems = teamsByIndex.reduce((acc: Array<Electron.MenuItemOptions>, teamId, index) => {
+    const teamMenuItems = teamsByIndex.reduce((acc: Array<Electron.MenuItemConstructorOptions>, teamId, index) => {
       if (!teams[teamId]) return acc;
       const teamName = teams[teamId].team_name;
       acc.push(this.buildTeamMenuItem(teamName, teamId, index + 1));
@@ -528,7 +550,7 @@ export class AppMenu extends ReduxComponent<AppMenuState> {
    * Build a menu template for a single team. Insert all teams before a
    * designated team list separator.
    */
-  private buildTeamMenuItem(name: string, teamId: string, position: number): Electron.MenuItemOptions {
+  private buildTeamMenuItem(name: string, teamId: string, position: number): Electron.MenuItemConstructorOptions {
     return {
       label: name.replace('&', '&&&'), // & is special for accelerators, &&& escapes it
       accelerator: `CmdOrCtrl+${position}`,
@@ -542,7 +564,7 @@ export class AppMenu extends ReduxComponent<AppMenuState> {
   /**
    * Populates the dock menu with team-specific items.
    */
-  private updateDockMenu(teamItems: Array<Electron.MenuItemOptions>): void {
+  private updateDockMenu(teamItems: Array<Electron.MenuItemConstructorOptions>): void {
     const dockMenu = new Menu();
 
     teamItems.forEach((item, index) => dockMenu.insert(index, new MenuItem(item)));
@@ -551,23 +573,24 @@ export class AppMenu extends ReduxComponent<AppMenuState> {
     app.dock.setMenu(dockMenu);
   }
 
-  private buildSigninToTeamMenuItem(): Electron.MenuItemOptions {
+  private buildSigninToTeamMenuItem(): Electron.MenuItemConstructorOptions {
     return {
-      label: $intl.t(`&Sign in to Another Team...`, LOCALE_NAMESPACE.MENU)(),
+      label: $intl.t('&Sign in to Another Team...', LOCALE_NAMESPACE.MENU)(),
       id: MENU_ITEM_ID.SIGN_IN,
       click: dialogActions.showLoginDialog
     };
   }
 
-  private buildCloseMenuItem(): Electron.MenuItemOptions {
+  private buildCloseMenuItem(): Electron.MenuItemConstructorOptions {
     return {
       id: MENU_ITEM_ID.FILE_CLOSE,
+      label: isDarwin ? $intl.t('Close Window', LOCALE_NAMESPACE.MENU)() : $intl.t('Close', LOCALE_NAMESPACE.MENU)(),
       role: 'close',
       accelerator: 'CmdOrCtrl+W'
     };
   }
 
-  private buildPreferencesMenuItem(): Electron.MenuItemOptions {
+  private buildPreferencesMenuItem(): Electron.MenuItemConstructorOptions {
     return {
       label: $intl.t('&Preferences…', LOCALE_NAMESPACE.MENU)(),
       id: MENU_ITEM_ID.PREFERENCES,
@@ -576,16 +599,16 @@ export class AppMenu extends ReduxComponent<AppMenuState> {
     };
   }
 
-  private buildQuitMenuItem(): Electron.MenuItemOptions {
+  private buildQuitMenuItem(): Electron.MenuItemConstructorOptions {
     return {
-      label: $intl.t('&Quit', LOCALE_NAMESPACE.MENU)(),
+      label: $intl.t('&Quit Slack', LOCALE_NAMESPACE.MENU)(),
       id: MENU_ITEM_ID.QUIT,
       click: eventActions.quitApp,
       accelerator: 'CmdOrCtrl+Q'
     };
   }
 
-  private buildFindMenuItem(): Electron.MenuItemOptions {
+  private buildFindMenuItem(): Electron.MenuItemConstructorOptions {
     return isDarwin ? {
       label: $intl.t('Find', LOCALE_NAMESPACE.MENU)(),
       submenu: [{
@@ -607,7 +630,7 @@ export class AppMenu extends ReduxComponent<AppMenuState> {
     };
   }
 
-  private buildDeveloperMenuItems(): Array<Electron.MenuItemOptions> {
+  private buildDeveloperMenuItems(): Array<Electron.MenuItemConstructorOptions> {
     return [{
       type: 'separator'
     }, {
@@ -632,22 +655,25 @@ export class AppMenu extends ReduxComponent<AppMenuState> {
     ]}];
   }
 
-  private buildMacWindowItems(): Array<Electron.MenuItemOptions> {
+  private buildMacWindowItems(): Array<Electron.MenuItemConstructorOptions> {
     return [{
+      label: $intl.t('Minimize', LOCALE_NAMESPACE.MENU)(),
       id: MENU_ITEM_ID.WINDOW_MINIMIZE,
       role: 'minimize'
     }, {
+      label: $intl.t('Zoom', LOCALE_NAMESPACE.MENU)(),
       id: MENU_ITEM_ID.WINDOW_ZOOM,
       role: 'zoom'
     }, {
       type: 'separator'
     }, {
+      label: $intl.t('Bring all to front', LOCALE_NAMESPACE.MENU)(),
       id: MENU_ITEM_ID.WINDOW_BRING_FRONT,
       role: 'front'
     }];
   }
 
-  private buildWinLinuxWindowItems(): Electron.MenuItemOptions {
+  private buildWinLinuxWindowItems(): Electron.MenuItemConstructorOptions {
     const autoHideMenuBar = this.state.autoHideMenuBar;
     return {
       label: $intl.t('Always Show &Menu Bar', LOCALE_NAMESPACE.MENU)(),
@@ -667,7 +693,7 @@ export class AppMenu extends ReduxComponent<AppMenuState> {
   }
 
   private didTeamsChange(prevState: Partial<AppMenuState>): boolean {
-    if (!isEqualArrays(this.state.teamsByIndex, prevState.teamsByIndex)) {
+    if (!isEqual(this.state.teamsByIndex, prevState.teamsByIndex)) {
       return true;
     }
 
@@ -676,6 +702,6 @@ export class AppMenu extends ReduxComponent<AppMenuState> {
     const previousTeamNames = Object.keys(prevState.teams || {})
       .map((teamId) => prevState.teams![teamId].team_name);
 
-    return !isEqualArrays(teamNames, previousTeamNames);
+    return !isEqual(teamNames, previousTeamNames);
   }
 }

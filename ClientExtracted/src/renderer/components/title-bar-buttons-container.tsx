@@ -2,8 +2,6 @@
  * @module RendererComponents
  */ /** for typedoc */
 
-import { Component } from '../../lib/component';
-
 import * as React from 'react'; // tslint:disable-line:no-unused-variable
 
 export interface TitleBarButtonsContainerProps {
@@ -12,28 +10,19 @@ export interface TitleBarButtonsContainerProps {
   zIndex: number;
 }
 
-export interface TitleBarButtonsContainerState {
-}
+export function TitleBarButtonsContainer(props: TitleBarButtonsContainerProps): JSX.Element {
+  const height: number = 22;
+  const { backgroundColor, zIndex } = props;
 
-export class TitleBarButtonsContainer extends Component<TitleBarButtonsContainerProps, TitleBarButtonsContainerState> {
-  private readonly height: number = 22;
+  const titleBarStyle = {
+    position: 'absolute',
+    width: '100%',
+    backgroundColor,
+    transition: 'inherit',
+    zIndex,
+    top: props.isTitleBarHidden ? 0 : -height,
+    height
+  };
 
-  public render(): JSX.Element | null {
-    const titleBarStyle = {
-      position: 'absolute',
-      width: '100%',
-      backgroundColor: this.props.backgroundColor,
-      transition: 'inherit',
-      zIndex: this.props.zIndex,
-      top: this.props.isTitleBarHidden ? 0 : -this.height,
-      height: this.height
-    };
-
-    return (
-      <div
-        className='StoplightContainer'
-        style={titleBarStyle}
-      />
-    );
-  }
+  return (<div className='StoplightContainer' style={titleBarStyle} />);
 }

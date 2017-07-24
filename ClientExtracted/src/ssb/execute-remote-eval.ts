@@ -2,8 +2,8 @@
  * @module SSBIntegration
  */ /** for typedoc */
 
-import { logger } from '../logger';
 import { remoteEval } from 'electron-remote';
+import { logger } from '../logger';
 
 export interface RemoteEvalOption {
   code: string;

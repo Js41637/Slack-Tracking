@@ -2,9 +2,11 @@
  * @module SSBIntegration
  */ /** for typedoc */
 
+import { NotifyNotificationOptions } from 'src/renderer/notifications/interfaces';
+import { notificationActions } from '../actions/notification-actions';
 import { logger } from '../logger';
 import { nativeInterop } from '../native-interop';
-import { notificationActions, Notification } from '../actions/notification-actions';
+import { settingStore } from '../stores/setting-store';
 
 let getIsQuietHours = () => false;
 try {
@@ -14,18 +16,12 @@ try {
 }
 
 export class NotificationIntegration {
-
   /**
    * Occurs when the webapp needs to display a notification.
    *
-   * @param  {Object} args            Contains the notification data
-   * @param  {String} args.title      The notification title, e.g., "[earth] in #tardis"
-   * @param  {String} args.content    The notification content, e.g., "John Smith: Allons y alonso"
-   * @param  {String} args.launchUri  A URI used to activate our app and focus the message, e.g.,
-   *                                  "slack://channel?id=1234&message=123.231"
-   * @param  {String} args.channel    The channel ID where the notification occurred, e.g., "C054787UZ"
+   * @param {NotifyNotificationOptions} args
    */
-  public notify(args: Notification) {
+  public notify(args: NotifyNotificationOptions): void {
     if (nativeInterop.isWindows10OrHigher(true) || nativeInterop.shouldDisplayNotifications()) {
       const interactive = window.TS && window.TS.boot_data && window.TS.boot_data.feature_interactive_win_notifs;
       const options = { ...args, interactive, teamId: window.teamId };
@@ -56,6 +52,15 @@ export class NotificationIntegration {
    * @return {Bool}  True if sound need to be attached
    */
   public shouldAttachSoundToNotification(): boolean {
-    return process.platform === 'darwin';
+    if (process.platform === 'darwin') {
+      return true;
+    }
+
+    if (nativeInterop.isWindows10OrHigher()) {
+      const notificationMethod = settingStore.getSetting('notificationMethod');
+      return !(notificationMethod && notificationMethod !== 'winrt');
+    }
+
+    return false;
   }
 }

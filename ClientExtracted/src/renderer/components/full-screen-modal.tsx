@@ -5,7 +5,7 @@
 import * as classNames from 'classnames';
 import { Component } from '../../lib/component';
 
-import { intl as $intl, LOCALE_NAMESPACE } from '../../i18n/intl';
+import { LOCALE_NAMESPACE, intl as $intl } from '../../i18n/intl';
 
 import * as React from 'react'; // tslint:disable-line:no-unused-variable
 
@@ -77,14 +77,14 @@ export class FullScreenModal extends Component<Partial<FullScreenModalProps>, Fu
     const backButton = !showBack ? null : (
       <a id='fs_modal_back_btn' className='fs_modal_btn hidden' onClick={onBack!}>
         <i className='ts_icon ts_icon_arrow_large_left' />
-        <span className='key_label'>{$intl.t(`back`, LOCALE_NAMESPACE.RENDERER)()}</span>
+        <span className='key_label'>{$intl.t('back', LOCALE_NAMESPACE.RENDERER)()}</span>
       </a>
     );
 
     const cancelButton = !showCancel ? null : (
       <a id='fs_modal_close_btn' className='fs_modal_btn' onClick={this.eventHandlers.onCancel}>
         <i className='ts_icon ts_icon_times' />
-        <span className='key_label'>{$intl.t(`esc`, LOCALE_NAMESPACE.RENDERER)()}</span>
+        <span className='key_label'>{$intl.t('esc', LOCALE_NAMESPACE.RENDERER)()}</span>
       </a>
     );
 

@@ -2,11 +2,10 @@
  * @module Mocking
  */ /** for typedoc */
 
+import { cloneDeep, values } from 'lodash';
 import { Mock } from '../lib/mock';
-import { teamMock } from './team-mock';
 import { StringMap } from '../utils/shared-constants';
-import * as cloneDeep from 'lodash.clonedeep';
-import * as values from 'lodash.values';
+import { teamMock } from './team-mock';
 
 class TeamsMock extends Mock {
   public base() {

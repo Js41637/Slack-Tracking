@@ -3,7 +3,7 @@
  */ /** for typedoc */
 
 import * as fs from 'graceful-fs';
-import * as sortBy from 'lodash.sortby';
+import { sortBy } from 'lodash';
 
 const lineBreak = '\r\n';
 

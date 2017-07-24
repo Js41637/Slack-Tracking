@@ -2,13 +2,13 @@
  * @module Stores
  */ /** for typedoc */
 
-import { WINDOW_TYPES } from '../utils/shared-constants';
 import { BaseStore } from '../lib/base-store';
+import { WINDOW_TYPES } from '../utils/shared-constants';
 
 const isBrowser = process.type === 'browser';
 const isWebapp = process.guestInstanceId || global.loadSettings.windowType === WINDOW_TYPES.WEBAPP;
 
-let StoreForProcess: any;
+let StoreForProcess: new() => BaseStore;
 
 if (isBrowser) {
   StoreForProcess = require('./browser-store').BrowserStore;
@@ -24,7 +24,7 @@ if (isBrowser) {
  * application. Any consumer that needs data should import this store and call
  * `getState` to retrieve the state tree.
  */
-const Store: BaseStore<any> = new (StoreForProcess as any)();
+const Store: BaseStore = new StoreForProcess();
 export {
   Store
 };

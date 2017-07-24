@@ -2,15 +2,14 @@
  * @module Reducers
  */ /** for typedoc */
 
-import { nativeInterop } from '../native-interop';
-import { objectMerge } from '../utils/object-merge';
-import { omit } from '../utils/omit';
+import { omit } from 'lodash';
+import * as url from 'url';
 import { channel } from '../../package.json';
 import { Action } from '../actions/action';
+import { nativeInterop } from '../native-interop';
 import { ReleaseChannel } from '../utils/shared-constants';
-import { NotifyPosition } from '../notification/notification-window-helpers';
 
-import { SETTINGS, EVENTS, MIGRATIONS } from '../actions';
+import { EVENTS, MIGRATIONS, SETTINGS } from '../actions';
 
 export interface SettingsState {
   appVersion: string;
@@ -40,6 +39,7 @@ export interface SettingsState {
   reportIssueOnStartup: boolean;
   runFromTray: boolean;
   launchOnStartup: boolean;
+  spellcheckerLanguage: string | null;
   zoomLevel: number;
   whitelistedUrlSchemes: Array<string>;
   PrefSSBFileDownloadPath: string | null;
@@ -49,7 +49,7 @@ export interface SettingsState {
   hasExplainedWindowFlash?: boolean;
   clearNotificationsOnExit?: boolean;
   useHwAcceleration?: boolean;
-  notifyPosition?: NotifyPosition;
+  notificationMethod?: 'html' | 'winrt' | 'window' | null;
   os?: boolean;
   release?: boolean;
   desktopEnvironment?: boolean;
@@ -95,12 +95,16 @@ export const defaultSettings = {
     // User configurable settings
     runFromTray: true,
     launchOnStartup: false,
+    spellcheckerLanguage: null,
     zoomLevel: 0,
     whitelistedUrlSchemes: ['http:', 'https:', 'mailto:', 'skype:',
       'spotify:', 'live:', 'callto:', 'tel:', 'im:', 'sip:', 'sips:'],
 
     // Preferences needed for the webapp
-    PrefSSBFileDownloadPath: null
+    PrefSSBFileDownloadPath: null,
+
+    // Notifications
+    notificationMethod: null,
   },
 
   // Settings specific to Windows 10
@@ -119,7 +123,6 @@ export const defaultSettings = {
     isAeroGlassEnabled: true,
     windowFlashBehavior: 'idle',
     hasExplainedWindowFlash: false,
-    notifyPosition: { corner: 'bottom_right', display: 'same_as_app' },
   },
 
   // Settings specific to Linux
@@ -154,16 +157,20 @@ export function reduce(settings: SettingsState = initialSettings, action: Action
       return { ...settings, reportIssueOnStartup: false };
     case EVENTS.HANDLE_DEEP_LINK:
       return { ...settings, launchedWithLink: null };
+    case EVENTS.HANDLE_REPLY_LINK:
+      return { ...settings, launchedWithLink: null };
+    case EVENTS.HANDLE_SETTINGS_LINK:
+      return handleSettingsLink(settings, action.data.url);
 
     case MIGRATIONS.REDUX_STATE:
       return updateSettings(settings, action.data.settings);
     case MIGRATIONS.COMPLETED:
       // NB: We used to track migrations in settings.
-      return omit(settings, 'hasMigratedData') as SettingsState;
+      return omit<SettingsState, SettingsState>(settings, 'hasMigratedData');
     default:
       return settings;
   }
-};
+}
 
 function getDefaultSettings(): SettingsState {
   const { base, linux, winBefore10, win10, darwin } = defaultSettings;
@@ -182,7 +189,29 @@ function getDefaultSettings(): SettingsState {
 }
 
 function updateSettings(settings: SettingsState, update: Partial<SettingsState>) {
-  return objectMerge(settings, update);
+  return {
+    ...settings,
+    ...update
+  };
+}
+
+/**
+ * Takes the link from the action, parses the contained JSON, and
+ * adjusts the settings accordingly
+ *
+ * @param {SettingsState} settings
+ * @param {string} link
+ */
+function handleSettingsLink(settings: SettingsState, link: string) {
+  const parsedUrl = (typeof link === 'string') ? url.parse(link, true) : null;
+  const raw = parsedUrl && parsedUrl.query ? parsedUrl.query.update : '{}';
+
+  try {
+    const update = JSON.parse(raw);
+    return { ...settings, ...update, launchedWithLink: null };
+  } catch (error) {
+    return { ...settings, launchedWithLink: null };
+  }
 }
 
 function changeWindowZoom(settings: SettingsState, change: number) {

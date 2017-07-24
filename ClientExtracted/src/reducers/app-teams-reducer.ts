@@ -2,16 +2,17 @@
  * @module Reducers
  */ /** for typedoc */
 
+import { clone, union } from 'lodash';
 import * as url from 'url';
-import * as clone from 'lodash.clone';
 
 import { Action } from '../actions/action';
-import { union } from '../utils/union';
 
-import { APP_TEAMS, TEAMS, EVENTS, MIGRATIONS } from '../actions';
+import { APP_TEAMS, EVENTS, MIGRATIONS, TEAMS } from '../actions';
 import { Team } from '../actions/team-actions';
+import { logger } from '../logger';
+import { TeamsState } from '../reducers/teams-reducer';
 
-import { StringMap, SLACK_PROTOCOL } from '../utils/shared-constants';
+import { SLACK_PROTOCOL } from '../utils/shared-constants';
 
 export interface AppTeamsState {
   selectedTeamId: string | null;
@@ -69,12 +70,12 @@ export function reduce(state: AppTeamsState = initialState, action: Action<any> 
   default:
     return state;
   }
-};
+}
 
 // Move the indices back to fill the space left over, and
 // assign a new selectedTeamId if needed
 function handleRemoveTeam(state: AppTeamsState, removedTeamId: string) {
-  const teamsByIndex: Array<string> = clone(state.teamsByIndex);
+  const teamsByIndex = clone(state.teamsByIndex);
   const removedIndex = teamsByIndex.findIndex((teamId) => teamId === removedTeamId);
   teamsByIndex.splice(removedIndex, 1);
 
@@ -86,13 +87,13 @@ function handleRemoveTeam(state: AppTeamsState, removedTeamId: string) {
   return { ...state, selectedTeamId, teamsByIndex };
 }
 
-function handleNewTeam(state: AppTeamsState, selectedTeamId: string, selectTeam: boolean = true) {
-  const teamsToSignOut = state.teamsToSignOut.filter((team) => team !== selectedTeamId);
+function handleNewTeam(state: AppTeamsState, newTeamId: string, selectTeam: boolean = true) {
+  const teamsToSignOut = state.teamsToSignOut.filter((team) => team !== newTeamId);
 
   return {
     ...state,
-    selectedTeamId: selectTeam ? selectedTeamId : state.selectedTeamId,
-    teamsByIndex: union(state.teamsByIndex, [selectedTeamId]),
+    selectedTeamId: selectTeam ? newTeamId : state.selectedTeamId,
+    teamsByIndex: union(state.teamsByIndex, [newTeamId]),
     teamsToSignOut
   };
 }
@@ -124,12 +125,14 @@ function handleSignOutTeam(state: AppTeamsState, teamId: string) {
 
 function getTeamAtIndex(state: AppTeamsState, index: number) {
   if (!state.teamsByIndex[index]) {
-    throw new Error('Attempting to get team at a non-existent index');
+    logger.error('Attempting to get team at a non-existent index', index);
+    return state.teamsByIndex.find((t) => !!t) || null;
   }
+
   return state.teamsByIndex[index];
 }
 
-function selectTeamByUserId(state: AppTeamsState, data: { userId: string, teamList: StringMap<Team> }) {
+function selectTeamByUserId(state: AppTeamsState, data: { userId: string, teamList: TeamsState }) {
   const { userId, teamList } = data;
   const selectedTeam = Object.keys(teamList)
     .map((teamId) => teamList[teamId])
@@ -148,7 +151,7 @@ function selectNextTeam(state: AppTeamsState) {
   if (selectedIndex === -1) return state;
 
   const nextIndex = mod(selectedIndex + 1, state.teamsByIndex.length);
-  return Object.assign({}, state, { selectedTeamId: state.teamsByIndex[nextIndex] });
+  return { ...state,  selectedTeamId: state.teamsByIndex[nextIndex] };
 }
 
 function selectPreviousTeam(state: AppTeamsState) {
@@ -156,7 +159,7 @@ function selectPreviousTeam(state: AppTeamsState) {
   if (selectedIndex === -1) return state;
 
   const previousIndex = mod(selectedIndex - 1, state.teamsByIndex.length);
-  return Object.assign({}, state, { selectedTeamId: state.teamsByIndex[previousIndex] });
+  return { ...state, selectedTeamId: state.teamsByIndex[previousIndex] };
 }
 
 // If a team was provided in a deep link, try to switch to it
@@ -167,7 +170,7 @@ function parseTeamFromDeepLink(state: AppTeamsState, evt: { url: string }) {
     // Make sure the team exists before we assign it
     const index = state.teamsByIndex.findIndex((teamId) => teamId === theUrl.query.team);
     if (index >= 0) {
-      return Object.assign({}, state, { selectedTeamId: theUrl.query.team });
+      return { ...state, selectedTeamId: theUrl.query.team };
     }
   }
   return state;

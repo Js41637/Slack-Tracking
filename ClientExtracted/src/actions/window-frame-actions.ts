@@ -1,9 +1,9 @@
 /**
  * @module Actions
  */ /** for typedoc */
+import { WindowSetting } from '../browser/behaviors/window-behavior';
 import { Store } from '../lib/store';
 import { WINDOW_FRAME } from './';
-import { WindowSetting } from '../browser/behaviors/window-behavior';
 
 export class WindowFrameActions {
   public saveWindowSettings(settings: WindowSetting): void {

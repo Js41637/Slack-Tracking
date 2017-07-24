@@ -3,12 +3,12 @@
  */ /** for typedoc */
 
 import { remote } from 'electron';
-import { Subscription } from 'rxjs/Subscription';
 import SerialSubscription from 'rxjs-serial-subscription';
+import { Subscription } from 'rxjs/Subscription';
 const { app } = remote;
 
-import { noop } from '../utils/noop';
 import { unreadsActions } from '../actions/unreads-actions';
+import { noop } from '../utils/noop';
 
 class FakeDock {
   public getBadge = noop;

@@ -16,7 +16,7 @@ import { Credentials } from '../utils/shared-constants';
  *
  * @return {Promise<String>}          A Promise to the JSON string
  */
-export function fetchURL(options: string|{}, credentials?: Credentials): Promise<string> {
+export function fetchURL(options: string|{}, credentials?: Credentials | null): Promise<string> {
   const request = net.request(options);
 
   return new Promise((resolve, reject) => {
@@ -36,7 +36,7 @@ export function fetchURL(options: string|{}, credentials?: Credentials): Promise
       });
     });
 
-    request.on('login', (_authInfo: Electron.LoginAuthInfo, callback: Function) => {
+    request.on('login', (_authInfo: Electron.AuthInfo, callback: Function) => {
       if (credentials) callback(credentials.username, credentials.password);
     });
 
@@ -58,13 +58,18 @@ export function fetchURL(options: string|{}, credentials?: Credentials): Promise
  *
  * @return {Promise<void>}            A Promise representing completion
  */
-export function downloadURL(options: string|{}, outputPath: string, credentials?: Credentials): Promise<void> {
+export function downloadURL(
+  options: string|{},
+  outputPath: string,
+  credentials?: Credentials | null
+): Promise<void> {
   const request = net.request(options);
 
   return new Promise<void>((resolve, reject) => {
     request.on('response', (response: Electron.IncomingMessage) => {
       const outputStream = fs.createWriteStream(outputPath);
-      response.pipe(outputStream);
+      //TODO: check type / code - is IncomingMessage still stream in latest electron?
+      (response as any).pipe(outputStream);
 
       response.on('end', () => {
         resolve();
@@ -76,7 +81,7 @@ export function downloadURL(options: string|{}, outputPath: string, credentials?
       });
     });
 
-    request.on('login', (_authInfo: Electron.LoginAuthInfo, callback: Function) => {
+    request.on('login', (_authInfo: Electron.AuthInfo, callback: Function) => {
       if (credentials) callback(credentials.username, credentials.password);
     });
   });

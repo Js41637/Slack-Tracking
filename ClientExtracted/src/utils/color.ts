@@ -3,8 +3,8 @@
  */ /** for typedoc */
 
 import * as Kolor from 'color';
-import { themeMock } from '../mocks/theme-mock';
 import { Team, TeamTheme } from '../actions/team-actions';
+import { themeMock } from '../mocks/theme-mock';
 
 /**
  * Returns a suitable sidebar color as a hex string.

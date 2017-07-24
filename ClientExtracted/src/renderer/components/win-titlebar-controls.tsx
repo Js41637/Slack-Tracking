@@ -2,25 +2,25 @@
  * @module RendererComponents
  */ /** for typedoc */
 
-import { Component } from '../../lib/component';
 import { remote } from 'electron';
-import { logger } from '../../logger';
 import { Observable } from 'rxjs';
-import 'rxjs/add/operator/merge';
 import 'rxjs/add/observable/fromEvent';
+import 'rxjs/add/operator/merge';
 import 'rxjs/add/operator/takeUntil';
+import { Component } from '../../lib/component';
+import { logger } from '../../logger';
 
-import { intl as $intl, LOCALE_NAMESPACE } from '../../i18n/intl';
+import { LOCALE_NAMESPACE, intl as $intl } from '../../i18n/intl';
 
 import * as React from 'react'; // tslint:disable-line:no-unused-variable
 
 export interface WinWindowControlsProps {
   fillColor?: string;
-};
+}
 
 export interface WinWindowControlsState {
   isMaximized: boolean;
-};
+}
 
 export class WinWindowControls extends Component<WinWindowControlsProps, WinWindowControlsState> {
   public static readonly defaultProps: WinWindowControlsProps = {
@@ -37,6 +37,13 @@ export class WinWindowControls extends Component<WinWindowControlsProps, WinWind
     maximize: (ref: HTMLElement) => this.maximizeBtn = ref,
     minimize: (ref: HTMLElement) => this.minimizeBtn = ref,
     close: (ref: HTMLElement) => this.closeBtn = ref,
+  };
+
+  private readonly eventHandlers = {
+    onMinimize: () => this.minimize(),
+    onClose: () => this.close(),
+    onUnmaximize: () => this.unmaximize(),
+    onMaximize: () => this.maximize()
   };
 
   constructor(props: WinWindowControlsProps) {
@@ -68,7 +75,6 @@ export class WinWindowControls extends Component<WinWindowControlsProps, WinWind
           logger.warn('WinTitleBar: Titlebar could not find window object');
         }
       });
-
   }
 
   public render(): JSX.Element | null {
@@ -78,10 +84,10 @@ export class WinWindowControls extends Component<WinWindowControlsProps, WinWind
       <div className='Windows-Titlebar-controls'>
         <button
           ref={this.refHandlers.minimize}
-          title={$intl.t(`Minimize`, LOCALE_NAMESPACE.GENERAL)()}
+          title={$intl.t('Minimize', LOCALE_NAMESPACE.GENERAL)()}
           className='Windows-Titlebar-button'
           onMouseDown={this.handleMouseDown}
-          onClick={this.minimize.bind(this)}
+          onClick={this.eventHandlers.onMinimize}
         >
           <svg className='Windows-Titlebar-icon' x='0px' y='0px' viewBox='0 0 10.2 1'>
             <rect fill={fillColor} width='10.2' height='1'/>
@@ -90,10 +96,10 @@ export class WinWindowControls extends Component<WinWindowControlsProps, WinWind
         {this.renderMaximize()}
         <button
           ref={this.refHandlers.close}
-          title={$intl.t(`Close`, LOCALE_NAMESPACE.GENERAL)()}
+          title={$intl.t('Close', LOCALE_NAMESPACE.GENERAL)()}
           className='Windows-Titlebar-button'
           onMouseDown={this.handleMouseDown}
-          onClick={this.close.bind(this)}
+          onClick={this.eventHandlers.onClose}
         >
           <svg className='Windows-Titlebar-icon' x='0px' y='0px' viewBox='0 0 10.2 10.2'>
             <polygon
@@ -114,10 +120,10 @@ export class WinWindowControls extends Component<WinWindowControlsProps, WinWind
       return (
         <button
           ref={this.refHandlers.unmaximize}
-          title={$intl.t(`Unmaximize`, LOCALE_NAMESPACE.GENERAL)()}
+          title={$intl.t('Unmaximize', LOCALE_NAMESPACE.GENERAL)()}
           className='Windows-Titlebar-button'
           onMouseDown={this.handleMouseDown}
-          onClick={this.unmaximize.bind(this)}
+          onClick={this.eventHandlers.onUnmaximize}
         >
            <svg className='Windows-Titlebar-icon' x='0px' y='0px' viewBox='0 0 10.2 10.2'>
             <path
@@ -131,10 +137,10 @@ export class WinWindowControls extends Component<WinWindowControlsProps, WinWind
       return (
         <button
           ref={this.refHandlers.maximize}
-          title={$intl.t(`Maximize`, LOCALE_NAMESPACE.GENERAL)()}
+          title={$intl.t('Maximize', LOCALE_NAMESPACE.GENERAL)()}
           className='Windows-Titlebar-button'
           onMouseDown={this.handleMouseDown}
-          onClick={this.maximize.bind(this)}
+          onClick={this.eventHandlers.onMaximize}
         >
            <svg className='Windows-Titlebar-icon' x='0px' y='0px' viewBox='0 0 10.2 10.2'>
             <path
@@ -177,4 +183,4 @@ export class WinWindowControls extends Component<WinWindowControlsProps, WinWind
       this.window.close();
     }
   }
-};
+}

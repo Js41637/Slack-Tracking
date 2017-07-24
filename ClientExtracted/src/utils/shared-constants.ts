@@ -21,6 +21,13 @@ export const SLACK_CORP_TEAM_ID = 'T024BE7LD';
  */
 export const WEBAPP_MESSAGES_URL = /^https:\/\/(\S*\.){1,2}slack\.com\/messages/i;
 
+export interface WindowMetadata {
+  id: number;
+  type: windowType;
+  subType?: string;
+  teamId?: string;
+}
+
 export type windowType = 'MAIN' | 'NOTIFICATIONS' | 'WEBAPP' | 'OTHER';
 export const WINDOW_TYPES = {
   MAIN: 'MAIN' as windowType,
@@ -30,11 +37,7 @@ export const WINDOW_TYPES = {
 };
 
 export type callWindowType = 'calls' | 'calls_mini_panel' | 'calls_incoming_call';
-export const CALLS_WINDOW_TYPES = [
-  'calls' as callWindowType,
-  'calls_mini_panel' as callWindowType,
-  'calls_incoming_call' as callWindowType
-];
+export const CALLS_WINDOW_TYPES = ['calls', 'calls_mini_panel', 'calls_incoming_call'];
 
 export const REPORT_ISSUE_WINDOW_TYPE = 'report-issue';
 
@@ -70,6 +73,11 @@ export type networkStatusType = 'online' | 'slackDown' | 'offline' | 'connection
 export type ReleaseChannel = 'prod' | 'alpha' | 'beta';
 export type MigrationType = 'redux' | 'macgap';
 
+export interface LastError {
+  errorCode: number;
+  errorDescription: string;
+}
+
 export interface UpdateInformation {
   releaseNotes: string;
   releaseName: string;
@@ -80,7 +88,7 @@ export interface UpdaterOption {
   version: string;
   releaseChannel?: ReleaseChannel;
   ssbUpdateUrl?: string;
-  credentials?: Credentials;
+  credentials?: Credentials | null;
 }
 
 export interface Credentials {
@@ -100,19 +108,51 @@ export interface StringMap<T> {
   [key: string]: T;
 }
 
-export type MenuItemsMap = StringMap<Array<Electron.MenuItemOptions>> | null;
+export type MenuItemsMap = StringMap<Array<Electron.MenuItemConstructorOptions>> | null;
+
 export const IS_WINDOWS_STORE = process.windowsStore;
 export const IS_STORE_BUILD = process.mas || IS_WINDOWS_STORE;
-export const IS_SIGNED_IN_EVAL = `!!(typeof TSSSB !== 'undefined' && TS && TS.boot_data)`;
+export const IS_SIGNED_IN_EVAL = `!!(typeof TSSSB !== 'undefined' && window.TS && TS.boot_data)`;
 
-export const DEFAULT_CLEAR_STORAGE_OPTIONS: Electron.ClearStorageDataOptions = {
+export const DEFAULT_CLEAR_STORAGE_OPTIONS: Partial<Electron.ClearStorageDataOptions> = {
   storages: [ 'appcache', 'cookies', 'filesystem', 'indexdb', 'localstorage', 'shadercache', 'websql', 'serviceworkers' ],
-  quotas: [ 'temporary', 'persistent', 'syncable' ]
+  quotas: [ 'temporary', 'persistent', 'syncable' ],
 };
 
 export const UUID_FILENAME = 'installation';
 
+export type webViewLifeCycleType =
+  'unloaded' |
+  'page-loaded' |
+  'page-fail-load' |
+  'webapp-loaded' |
+  'minweb-loaded' |
+  'signin-loaded' |
+  'page-closed' |
+  'component-disposed';
+
+export const WEBVIEW_LIFECYCLE = {
+  UNLOADED: 'unloaded' as webViewLifeCycleType,                     // Webview created but not yet loaded
+  PAGE_LOADED: 'page-loaded' as webViewLifeCycleType,               // Webview fired `dom-ready`
+  PAGE_FAIL_LOAD: 'page-fail-load' as webViewLifeCycleType,         // Webview fired 'did-fail-load'
+  WEBAPP_LOADED: 'webapp-loaded' as webViewLifeCycleType,           // Webview finished loading slack.com/messages
+  MINWEB_LOADED: 'minweb-loaded' as webViewLifeCycleType,           // Webview finished loading slack.com/min
+  SIGNIN_LOADED: 'signin-loaded' as webViewLifeCycleType,           // Webview finished loading slack.com/signin
+  PAGE_REDIRECT: 'page-redirect' as webViewLifeCycleType,           // Webview fired 'did-get-redirect-request'
+  PAGE_CLOSED: 'page-closed' as webViewLifeCycleType,               // Webview fired 'close'
+  COMPONENT_DISPOSED: 'component-disposed' as webViewLifeCycleType  // Webview unmounted & disposed
+};
+
 export const TRACE_RECORD_CHANNEL = 'trace-record';
+
+/**
+ * Set of all loaded events that indicate the embedded page is ready.
+ */
+export const webAppLoadedState: Readonly<Array<webViewLifeCycleType>> = [
+  WEBVIEW_LIFECYCLE.MINWEB_LOADED,
+  WEBVIEW_LIFECYCLE.WEBAPP_LOADED,
+  WEBVIEW_LIFECYCLE.SIGNIN_LOADED
+];
 
 /**
  * Argument to be delivered from webapp IPC to TraceRecorder when start recording.
@@ -129,7 +169,7 @@ export type startTraceArgumentType = Readonly<TraceRecordOptions> & { type: 'sta
 export interface StopTraceArgument {
   type: 'stop';
   pid: number;
-};
+}
 
 /**
  * Configuration options to start trace recording via desktop.stats.startTraceRecord().
@@ -210,12 +250,27 @@ export interface StopTraceResponse extends TraceResponse {
 }
 
 /**
+ * The keys to persist to local files.
+ */
+export const persistWhitelist = [
+  'appTeams',
+  'dialog',
+  'downloads',
+  'migrations',
+  'settings',
+  'teams',
+  'tokens',
+  'unreads',
+  'windowFrame'
+];
+
+/**
  * Predefined set of chrome tracing event category set enabled devtools timeline profiling with JS stack trace support.
  */
 export const defaultTraceCategories: Readonly<Array<string>> = [
   '-*', 'devtools.timeline', 'disabled-by-default-devtools.timeline',
   'disabled-by-default-devtools.timeline.frame', 'toplevel', 'blink.console',
-  'disabled-by-default-devtools.timeline.stack', 'disabled-by-default-devtools.screenshot',
+  'disabled-by-default-devtools.timeline.stack',
   'disabled-by-default-v8.cpu_profile', 'disabled-by-default-v8.cpu_profiler',
   'disabled-by-default-v8.cpu_profiler.hires'
 ];
@@ -223,3 +278,14 @@ export const defaultTraceCategories: Readonly<Array<string>> = [
 //desktop client can't mutate values by TS Compiler, but webapp can mutate it
 //introduce naive approach to prevent accidental mutation of default categories while try to override it
 Object.freeze(defaultTraceCategories);
+
+//predefined constant values to be used ping message server in team view.
+export const MAX_TIME_BEFORE_IDLE = 10 * 60 * 1000;
+export const IDLE_POLLING_TIME = 1 * 60 * 1000;
+
+export type electronWindowDisposition = 'default' | 'foreground-tab' | 'background-tab' | 'new-window' | 'save-to-disk' | 'other';
+
+
+//Predefined keys to lookup API tokens from keytar
+export const keychainServiceName = 'Slack';
+export const keychainAccountName = 'tokens';

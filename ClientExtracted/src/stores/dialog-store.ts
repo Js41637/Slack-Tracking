@@ -3,8 +3,6 @@
  */ /** for typedoc */
 
 import { Store } from '../lib/store';
-import { UrlScheme, BalloonContent } from '../actions/dialog-actions';
-import { Credentials } from '../utils/shared-constants';
 
 /*
   Handles all data related to dialogs and other popup-y
@@ -19,19 +17,19 @@ export class DialogStore {
     return this.dialog.isShowingLoginDialog;
   }
 
-  public getInfoForAuthDialog(): Electron.LoginAuthInfo {
+  public getInfoForAuthDialog() {
     return this.dialog.authInfo;
   }
 
-  public getAuthCredentials(): Credentials {
+  public getAuthCredentials() {
     return this.dialog.credentials;
   }
 
-  public getLastBalloon(): BalloonContent {
+  public getLastBalloon() {
     return this.dialog.lastBalloon;
   }
 
-  public getUrlSchemeModal(): UrlScheme {
+  public getUrlSchemeModal() {
     return this.dialog.urlSchemeModal;
   }
 }

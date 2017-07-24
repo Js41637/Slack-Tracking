@@ -3,8 +3,8 @@
  */ /** for typedoc */
 
 import { Mock } from '../lib/mock';
-import { themeMock } from './theme-mock';
 import { iconsMock } from './icons-mock';
+import { themeMock } from './theme-mock';
 
 class TeamMock extends Mock {
   public readonly base = {

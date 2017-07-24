@@ -2,17 +2,20 @@
  * @module Stores
  */ /** for typedoc */
 
+import { omit } from 'lodash';
+import { Reducer, Store, Unsubscribe } from 'redux';
 import * as traverse from 'traverse';
-import { logger } from '../logger';
 
-import { noop } from '../utils/noop';
 import { Action } from '../actions/action';
-import { Unsubscribe, Store, Reducer } from 'redux';
+import { logger } from '../logger';
+import { RootState } from '../reducers';
+import { noop } from '../utils/noop';
+
 /**
  * Provides some basic functionality for every store.
  */
-export class BaseStore<T> implements Store<T> {
-  protected store: BaseStore<T>;
+export class BaseStore implements Store<RootState> {
+  protected store: Store<RootState>;
   protected readonly postDispatchCallback: (action: Action<any>) => void;
   private postDispatchListeners: Set<(action: Action<any>) => void> = new Set();
 
@@ -22,7 +25,7 @@ export class BaseStore<T> implements Store<T> {
     };
   }
 
-  public getState(): T {
+  public getState(): RootState {
     return this.store.getState();
   }
 
@@ -35,6 +38,10 @@ export class BaseStore<T> implements Store<T> {
   }
 
   public replaceReducer<S>(_nextReducer: Reducer<S>): void {
+    noop();
+  }
+
+  public dispose(): void {
     noop();
   }
 
@@ -66,6 +73,7 @@ export class BaseStore<T> implements Store<T> {
       appTeams: true,
       settings: true,
       dialog: true,
+      downloads: true,
       teams: true,
       events: {
         reload: true,
@@ -97,7 +105,7 @@ export class BaseStore<T> implements Store<T> {
           }
         });
       } else {
-        payload = action.data;
+        payload = action.data && action.data.deleted ? omit(action.data, 'deleted') : action.data;
       }
 
       // Allow store actions to define a log level

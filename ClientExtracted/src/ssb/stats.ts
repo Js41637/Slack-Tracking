@@ -2,17 +2,17 @@
  * @module SSBIntegration
  */ /** for typedoc */
 
-import { WindowSetting } from '../browser/behaviors/window-behavior';
 import { ipcRenderer, remote, webFrame } from 'electron';
 import { executeJavaScriptMethod } from 'electron-remote';
+import { WindowSetting } from '../browser/behaviors/window-behavior';
 
-import { logger } from '../logger';
-import { getMemoryUsage, CombinedStats } from '../memory-usage';
-import { windowFrameStore } from '../stores/window-frame-store';
-import { getInstanceUuid } from '../uuid';
-import { locale } from '../i18n/locale';
 import { Observable } from 'rxjs/Observable';
-import { TraceResponse, StopTraceResponse, TRACE_RECORD_CHANNEL, defaultTraceCategories, TraceRecordOptions } from '../utils/shared-constants';
+import { locale } from '../i18n/locale';
+import { logger } from '../logger';
+import { CombinedStats, getMemoryUsage } from '../memory-usage';
+import { windowFrameStore } from '../stores/window-frame-store';
+import { StopTraceResponse, TRACE_RECORD_CHANNEL, TraceRecordOptions, TraceResponse, defaultTraceCategories } from '../utils/shared-constants';
+import { getInstanceUuid, getSessionId } from '../uuid';
 
 export interface TelemetryId {
   instanceUid: string;
@@ -51,7 +51,8 @@ export class Stats {
    * @returns {CPUUsage} Information about CPU usage
    */
   public getCPUUsage() {
-    return process.getCPUUsage();
+    // TODO: Remove this when electron.d.ts is correct
+    return (process as any).getCPUUsage();
   }
 
   /**
@@ -99,7 +100,7 @@ export class Stats {
    */
   public getDisplayInformation(): {
     displays: Array<Electron.Display>;
-    windowFrame: WindowSetting
+    windowFrame: WindowSetting | null
   } {
     const displays = remote.screen.getAllDisplays();
     const windowFrame = windowFrameStore.getWindowSettings();
@@ -113,11 +114,10 @@ export class Stats {
   public getLocaleInformation(): TelemetryId & LocaleInformation {
     const localeInfo = locale.currentLocale;
 
-    const ret = Object.assign(localeInfo, {
+    const ret = {...localeInfo,
       instanceUid: getInstanceUuid(),
       keyboardLayouts: [],
-      inputMethods: []
-    });
+      inputMethods: []};
 
     return ret;
   }
@@ -156,7 +156,7 @@ export class Stats {
       return Promise.reject(`identifier is missing, can't start trace`);
     }
 
-    const configuration = Object.assign({ type: 'start', pid }, options);
+    const configuration = { type: 'start', pid, ...options };
 
     logger.info(`startTraceRecord: ${pid} requests to trigger trace recording`, configuration);
 
@@ -208,5 +208,19 @@ export class Stats {
     ipcRenderer.send(TRACE_RECORD_CHANNEL, { type: 'stop', pid });
 
     return ret;
+  }
+
+  /**
+   * Returns an object containing information about unique Id of desktop client
+   * and id of current session in desktop client.
+   *
+   * NOTE: Desktop client does not define sessionid in 2.7.0, will always return empty string.
+   * DESKTOP-1766 tracks sessionid effort.
+   */
+  public get Id(): { instanceUid: string, sessionId: string } {
+    return {
+      instanceUid: getInstanceUuid(),
+      sessionId: getSessionId()
+    };
   }
 }

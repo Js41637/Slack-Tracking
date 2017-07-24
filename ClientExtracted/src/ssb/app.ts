@@ -2,29 +2,30 @@
  * @module SSBIntegration
  */ /** for typedoc */
 
-import * as fs from 'graceful-fs';
-import { EventEmitter } from 'events';
 import { ipcRenderer, remote } from 'electron';
+import { EventEmitter } from 'events';
+import * as fs from 'graceful-fs';
 import * as path from 'path';
 import { Subscription } from 'rxjs/Subscription';
 
+import { channel, version } from '../../package.json';
+import { logger } from '../logger';
+import '../rx-operators';
+import { createZipArchiver, domFileFromPath } from '../utils/file-helpers';
 import * as profiler from '../utils/profiler';
 import { IS_WINDOWS_STORE } from '../utils/shared-constants';
-import { logger } from '../logger';
-import { channel } from '../../package.json';
-import { domFileFromPath, createZipArchiver } from '../utils/file-helpers';
-import '../rx-operators';
 
 import { appActions } from '../actions/app-actions';
 import { eventActions } from '../actions/event-actions';
 import { settingActions } from '../actions/setting-actions';
 import { settingStore } from '../stores/setting-store';
+import { Region, StringMap, UPDATE_STATUS, WEBVIEW_LIFECYCLE, webAppLoadedState, webViewLifeCycleType } from '../utils/shared-constants';
+
+declare const TS: any;
 
 const globalProcess = (window as any).process;
 const isDarwin = globalProcess.platform === 'darwin';
 const isWin32 = globalProcess.platform === 'win32';
-
-import { Region, StringMap, UPDATE_STATUS } from '../utils/shared-constants';
 
 let dialog: Electron.Dialog;
 let performTextSubstitution: (input: HTMLElement) => Subscription;
@@ -36,7 +37,7 @@ const safeProcessKeys = ['title', 'version', 'versions', 'arch', 'platform',
   'getProcessMemoryInfo', 'getSystemMemoryInfo', 'windowsStore'];
 
 const safeProcess = safeProcessKeys.reduce((acc, k) => {
-  if (typeof(process[k]) !== 'function') {
+  if (typeof (process[k]) !== 'function') {
     acc[k] = process[k];
     return acc;
   }
@@ -85,17 +86,22 @@ export class AppIntegration {
   }
 
   /**
-   * Occurs when the SSB starts loading.
+   * A signal for when the embedded page finishes loading. This is called when
+   * slack.com/messages gets past its loading screen, and so unlike the
+   * page-loaded event, we can guarantee that we have Slack-specific globals,
+   * such as `window.TS`
+   *
+   * It's also called for other slack.com pages, such as /signin, so beware of
+   * using this signal exclusively for webapp behavior.
+   *
+   * @param {webViewLifeCycleType} [state]  Identifies the state of the page
    */
-  public didStartLoading(): void {
-    ipcRenderer.sendToHost('didStartLoading');
-  }
+  public didFinishLoading(state?: webViewLifeCycleType): void {
+    const webappState = !!state && webAppLoadedState.includes(state)
+      ? state
+      : WEBVIEW_LIFECYCLE.WEBAPP_LOADED;
 
-  /**
-   * Occurs when the SSB finishes loading.
-   */
-  public didFinishLoading(): void {
-    ipcRenderer.sendToHost('didFinishLoading');
+    ipcRenderer.sendToHost('didFinishLoading', webappState);
     if (profiler.shouldProfile()) profiler.stopProfiling('webapp');
 
     try {
@@ -201,11 +207,35 @@ export class AppIntegration {
   }
 
   /**
+   * Shows a native file informational dialog.
+   *
+   * @param  {Object}   options   Options to pass to the dialog
+   * @param  {Function} callback  A method called with the clicked button index on completion
+   * @return {Promise}            If a callback is specified, returns nothing.
+   * Otherwise, returns a `Promise` that will be resolved with the clicked button index.
+   */
+  public showMessageBox(options: any, callback?: (response: number, checkboxChecked: boolean) => void): Promise<string> | void {
+    if (!options || !options.message) return;
+    dialog = dialog || remote.dialog;
+
+    if (callback) {
+      dialog.showMessageBox(options, callback);
+      return;
+    }
+
+    return new Promise((resolve) => {
+      dialog.showMessageBox(options, (response) => {
+        resolve(response);
+      });
+    });
+  }
+
+  /**
    * Adds additional items to the application menu.
    *
-   * @param {StringMap<Array<Electron.MenuItemOptions>>} customItems  A map describing the items
+   * @param {StringMap<Array<Electron.MenuItemConstructorOptions>>} customItems  A map describing the items
    */
-  public setCustomMenuItems(customItems: StringMap<Array<Electron.MenuItemOptions>>): void {
+  public setCustomMenuItems(customItems: StringMap<Array<Electron.MenuItemConstructorOptions>>): void {
     if (window.teamId) appActions.setCustomMenuItems(customItems, window.teamId);
   }
 
@@ -222,6 +252,13 @@ export class AppIntegration {
    */
   public quitAndInstallUpdate(): void {
     appActions.setUpdateStatus(UPDATE_STATUS.RESTART_TO_APPLY);
+  }
+
+  /**
+   * Quits the app.
+   */
+  public quit(): void {
+    eventActions.quitApp();
   }
 
   /**
@@ -254,7 +291,12 @@ export class AppIntegration {
    * Reloads the current team.
    */
   public reload(): void {
-    window.location.reload();
+    if (window.TS && (window.TS as any).reload) {
+      TS.reload(false, 'desktop initiated');
+    } else {
+      logger.warn(`TS.reload is not available, fall back to location.reload instead`);
+      window.location.reload();
+    }
   }
 
   /**
@@ -277,6 +319,37 @@ export class AppIntegration {
     const style = document.createElement('style');
     style.innerHTML = data;
     document.head.appendChild(style);
+  }
+
+  /**
+   * Returns the major.minor.patch version as a string.
+   * @return {String} Version string.
+   */
+  public versionString(): string {
+    return version.split('-')[0];
+  }
+
+  /**
+   * Returns the major.minor.patch-prerelease version as a string.
+   * @return {String} Version string.
+   */
+  public versionStringWithPrerelease(): string {
+    return version;
+  }
+
+  /**
+   * Returns the components of the version.
+   * @return {Object} Version.
+   */
+  public version(): {
+    major: number,
+    minor: number,
+    patch: number,
+    prerelease: string
+  } {
+    const [version_num, prerelease] = version.split('-');
+    const [major, minor, patch] = version_num.split('.');
+    return { major, minor, patch, prerelease };
   }
 
   public isAppStoreBuild(): boolean {
@@ -402,10 +475,6 @@ export class AppIntegration {
    */
   public isMainWindowFrameless(): boolean {
     return settingStore.getSetting<boolean>('isTitleBarHidden');
-  }
-
-  public closeAllUpdateBanners(): void {
-    eventActions.closeAllUpdateBanners();
   }
 
   /**

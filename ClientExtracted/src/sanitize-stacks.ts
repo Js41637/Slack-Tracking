@@ -36,4 +36,4 @@ export function sanitizeStacks(stackTraceString: string, appResourcePath?: strin
 
   const sanitizedStack = lines.join('\n');
   return sanitizedStack;
-};
+}

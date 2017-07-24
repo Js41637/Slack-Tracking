@@ -3,22 +3,21 @@
  */ /** for typedoc */
 
 import { shell } from 'electron';
-import * as React from 'react'; // tslint:disable-line
+import * as React from 'react';
 import * as reactStringReplace from 'react-string-replace-recursively';
 
-import { Component } from '../../lib/component';
 import { eventActions } from '../../actions/event-actions';
-import { intl as $intl, LOCALE_NAMESPACE } from '../../i18n/intl';
+import { LOCALE_NAMESPACE, intl as $intl } from '../../i18n/intl';
+import { Component } from '../../lib/component';
+import { LastError } from '../../utils/shared-constants';
 
 export interface ConnectionTroubleProps {
   reloadApp: () => void;
   openStatusPage: () => void;
+  lastError?: LastError | null;
 }
 
-export interface ConnectionTroubleState {
-}
-
-export class ConnectionTrouble extends Component<ConnectionTroubleProps, ConnectionTroubleState> {
+export class ConnectionTrouble extends Component<ConnectionTroubleProps> {
   private readonly statusReplacementLinkConfig = {
     statusPage: {
       pattern: /(check the status of our servers)/,
@@ -53,11 +52,36 @@ export class ConnectionTrouble extends Component<ConnectionTroubleProps, Connect
     }
   };
 
+  /**
+   * Whenever we encounter an error, we store it in the app store's "lastError" property.
+   * This allows us to display the last encountered error to the user, thus giving at least
+   * a hint around what could have gone wrong. This method renders an error if it exists, or
+   * returns null if it doesn't.
+   *
+   * @returns {(JSX.Element | null)}
+   */
+  public renderLastError(): JSX.Element | null {
+    const { lastError } = this.props;
+
+    if (lastError) {
+      const explanation = $intl.t('The last error we encountered had the code', LOCALE_NAMESPACE.RENDERER)();
+      const { errorCode } = lastError;
+      const description = lastError.errorDescription ? `(${lastError.errorDescription})` : '';
+      const error = `${errorCode} ${description}`.trim();
+
+      return (
+        <li>{explanation} <code>{error}</code></li>
+      );
+    }
+
+    return null;
+  }
+
   public render(): JSX.Element | null {
-    const serverStatusMessage = $intl.t(`We’re quite sorry about this! Before you try to troubleshoot, please do check the status of our servers.`,
+    const serverStatusMessage = $intl.t('We’re quite sorry about this! Before you try to troubleshoot, please do check the status of our servers.',
       LOCALE_NAMESPACE.GENERAL)();
-    const reloadSlackMessage = $intl.t(`Reload Slack, or even restart the app.`, LOCALE_NAMESPACE.GENERAL)();
-    const checkConsoleOrSupportMessage = $intl.t(`Check your Console or app logs for errors, and drop us a line for more help.`,
+    const reloadSlackMessage = $intl.t('Reload Slack, or even restart the app.', LOCALE_NAMESPACE.GENERAL)();
+    const checkConsoleOrSupportMessage = $intl.t('Check your Console or app logs for errors, and drop us a line for more help.',
       LOCALE_NAMESPACE.GENERAL)();
 
     const checkServerStatusElement = reactStringReplace(this.statusReplacementLinkConfig)(serverStatusMessage);
@@ -66,18 +90,19 @@ export class ConnectionTrouble extends Component<ConnectionTroubleProps, Connect
 
     return (
       <div id='trouble_loading'>
-        <h1>{$intl.t(`For some reason, Slack couldn’t load `, LOCALE_NAMESPACE.RENDERER)()}<span title="'Face With Cold Sweat' emoji">😓</span></h1>
+        <h1>{$intl.t('For some reason, Slack couldn’t load ', LOCALE_NAMESPACE.RENDERER)()}<span title="'Face With Cold Sweat' emoji">😓</span></h1>
         <p>{checkServerStatusElement}</p>
 
         <h3>Troubleshooting</h3>
 
         <div className='trouble_loading_content'>
-          <p>{$intl.t(`A few things to try:`, LOCALE_NAMESPACE.GENERAL)()}</p>
+          <p>{$intl.t('A few things to try:', LOCALE_NAMESPACE.RENDERER)()}</p>
 
           <ul>
             <li>{reloadSlackElement}</li>
-            <li>{$intl.t(`Make sure your security software isn’t blocking Slack.`, LOCALE_NAMESPACE.RENDERER)()}</li>
+            <li>{$intl.t('Make sure your security software isn’t blocking Slack.', LOCALE_NAMESPACE.RENDERER)()}</li>
             <li>{checkConsoleOrSupportElement}</li>
+            {this.renderLastError()}
           </ul>
         </div>
       </div>

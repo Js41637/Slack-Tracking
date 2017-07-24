@@ -8,6 +8,23 @@
     position: relative;
     height: 100%;
   }
+
+  // Use z-index to control visibility while the webview is loading. Once it's
+  // finished loading, set to hidden to trigger Chromium background throttling.
+  &-teamView {
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+
+    &:not(.isSelected) {
+      z-index: -1;
+
+      .WebViewContext:not(.isLoading) {
+        visibility: hidden;
+      }
+    }
+  }
 }
 
 .fancy-frame .TeamsDisplay {

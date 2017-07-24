@@ -11,5 +11,4 @@ export interface WindowCreatorBase {
   createMainWindow(params: any): Electron.BrowserWindow;
   createAboutWindow(): Electron.BrowserWindow;
   createNotificationsWindow(): Electron.BrowserWindow;
-  createChromeDriverWindow(): Electron.BrowserWindow;
 }

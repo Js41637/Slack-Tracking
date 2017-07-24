@@ -2,16 +2,19 @@
  * @module SSBIntegration
  */ /** for typedoc */
 
-import { Subscription } from 'rxjs/Subscription';
+import * as url from 'url';
+
+import { find, isObject } from 'lodash';
 import { Observable } from 'rxjs/Observable';
 import { Observer } from 'rxjs/Observer';
-import { logger } from '../logger';
+import { Subscription } from 'rxjs/Subscription';
 
 import { appTeamsActions } from '../actions/app-teams-actions';
 import { dialogActions } from '../actions/dialog-actions';
-import { Team, teamActions } from '../actions/team-actions';
+import { Team, TeamBase, teamActions } from '../actions/team-actions';
+import { logger } from '../logger';
+import { settingStore } from '../stores/setting-store';
 import { teamStore } from '../stores/team-store';
-import { isValidTeam } from '../utils/is-valid-team';
 
 function fetchRecentMessages() {
   const { msgs } = window.TSSSB.recentMessagesFromCurrentChannel();
@@ -52,8 +55,8 @@ export class TeamIntegration {
    */
   public didSignIn(teams: Array<Team> | Team, selectTeam: boolean = true): void {
     if (Array.isArray(teams)) {
-      teamActions.addTeams(teams.filter((t) => isValidTeam(t)), selectTeam);
-    } else if (isValidTeam(teams)) {
+      teamActions.addTeams(teams, selectTeam);
+    } else if (isObject(teams)) {
       teamActions.addTeam(teams, selectTeam);
     } else {
       logger.warn(`didSignIn: didSignIn called with invalid team object, do nothing`, teams);
@@ -62,15 +65,10 @@ export class TeamIntegration {
     dialogActions.hideLoginDialog();
   }
 
-  /**
-   * Signs given team(s) out.
-   *
-   * @param {(Array<any> | Object)} teamIds
-   */
-  public didSignOut(teamIds: Array<any> | Object): void {
+  public didSignOut(teamIds: Array<any> | string | object): void {
     if (Array.isArray(teamIds)) {
-      teamActions.removeTeams(teamIds.filter((t) => t));
-    } else if (teamIds) {
+      teamActions.removeTeams(teamIds);
+    } else {
       teamActions.removeTeam(teamIds as string);
     }
   }
@@ -99,7 +97,31 @@ export class TeamIntegration {
     return teamStore.getTeamIds();
   }
 
+  /**
+   * Find a team by subdomain and returns its team ID.
+   *
+   * @param {String} subdomain  The subdomain, e.g. 'tinyspeck'
+   * @returns {String|null}     The ID of the team that matches, or null
+   */
+  public findTeamIdForSubdomain(subdomain: string): string|null {
+    const matchingTeam = find<TeamBase>(teamStore.teams, (team) => {
+      if (!team || !team.team_url) return false;
+      const hostname = url.parse(team.team_url).hostname;
+      return hostname.split('.')[0] === subdomain;
+    });
+
+    return matchingTeam
+      ? matchingTeam.team_id
+      : null;
+  }
+
   public fetchContentForChannel(retries: number = 0): void {
+    // Do nothing if we have a language set
+    if (settingStore.getSetting('spellcheckerLanguage')) {
+      logger.debug(`Asked to provide hint content for channel, but refusing: spellcheckerLanguage is set`);
+      return;
+    }
+
     const observableFetchRecentMessages = Observable.create((subj: Observer<string>) => {
       try {
         const ret = fetchRecentMessages().join('\n');
@@ -148,23 +170,30 @@ export class TeamIntegration {
     teamActions.updateTeamUrl(url, window.teamId!);
   }
 
-  /**
-   * Changes the duration that a team must remain unselected before it will be
-   * unloaded.
-   *
-   * @param  {Number} timeout The timeout duration, in seconds
-   */
-  public setTeamIdleTimeout(timeout: number): void {
-    teamActions.setTeamIdleTimeout(timeout, window.teamId!);
+  public setTeamIdleTimeout(): void {
+    // Min-web is disabled for 2.7.0
   }
 
-  // We now handle team updates through `didSignIn` / `didSignOut`, so this
-  // method is unused
+  /**
+   * @deprecated use team updates through `didSignIn` / `didSignOut` instead of this.
+   */
   public update(teamInfo: any): void {
     logger.debug(`Webapp update with teams: ${JSON.stringify(teamInfo)}`);
   }
 
   public getLastActiveTeamIdForTeamIds(teamsToSelect: any): Array<string> {
     return window.winssb.reduxHelper.getLastActiveTeamIdForTeamIds(teamsToSelect);
+  }
+
+  /**
+   * Notify current team's locale into desktop client.
+   * Desktop client expects this to be called each time team's bootup (after `DidFinishLoading`)
+   * and each time webapp changes its locale preferences to detect locale and switch it accordingly.
+   *
+   * @param  {String} locale locale of team. Requires form of `${locale}-${region}`,
+   * while region code is optional and can be skipped.
+   */
+  public setTeamLocale(locale: string): void {
+    teamActions.updateTeamLocale(locale, window.teamId!);
   }
 }

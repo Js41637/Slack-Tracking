@@ -5,7 +5,7 @@
 import { Store } from '../lib/store';
 import { DIALOG } from './';
 
-import { Credentials } from '../utils/shared-constants';
+import { Credentials, electronWindowDisposition } from '../utils/shared-constants';
 
 export interface BalloonContent {
   title: string;
@@ -15,7 +15,7 @@ export interface BalloonContent {
 
 export interface UrlScheme {
   url: string;
-  disposition: Electron.NewWindowDisposition;
+  disposition: electronWindowDisposition;
   isShowing?: boolean;
 }
 
@@ -43,7 +43,7 @@ export class DialogActions {
     });
   }
 
-  public showAuthenticationDialog(authInfo: Electron.LoginAuthInfo): void {
+  public showAuthenticationDialog(authInfo: Electron.AuthInfo): void {
     Store.dispatch({ type: DIALOG.SHOW_AUTH_DIALOG, data: authInfo });
   }
 

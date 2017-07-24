@@ -2,7 +2,7 @@
  * @module RendererComponents
  */ /** for typedoc */
 
-import { createDevTools, IDevTools } from 'redux-devtools';
+import { IDevTools, createDevTools } from 'redux-devtools';
 
 const LogMonitor = require('redux-devtools-log-monitor').default; // tslint:disable-line
 const DockMonitor = require('redux-devtools-dock-monitor').default; // tslint:disable-line

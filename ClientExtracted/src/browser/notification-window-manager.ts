@@ -4,15 +4,15 @@
 
 import { BrowserWindow, powerMonitor, screen } from 'electron';
 
-import { logger } from '../logger';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 import '../custom-operators';
+import { logger } from '../logger';
 
 import { ReduxComponent } from '../lib/redux-component';
 import { settingStore } from '../stores/setting-store';
-import { WindowCreatorBase } from './window-creator-base';
 import { windowStore } from '../stores/window-store';
+import { WindowCreatorBase } from './window-creator-base';
 
 export interface NotificationWindowManagerState {
   isShowingHtmlNotifications: boolean;

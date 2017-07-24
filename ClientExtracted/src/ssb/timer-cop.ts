@@ -91,6 +91,7 @@ window.setTimeout = function(callback: (...args: Array<any>) => void, delay: num
   }
 
   if (!delay || delay < 100) {
+    //tslint:disable-next-line:no-console
     console.error(`Calling setTimeout with a low delay is Bad, use requestAnimationFrame instead!\n${stack}}`);
   }
 
@@ -110,6 +111,7 @@ window.setInterval = function(callback: (...args: Array<any>) => void, delay: nu
   }
 
   if (!delay || delay < 100) {
+    //tslint:disable-next-line:no-console
     console.error(`Calling setInterval with a low delay is Very Bad, use requestAnimationFrame instead!\n${stack}}`);
   }
 

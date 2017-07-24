@@ -6,21 +6,21 @@ import { app } from 'electron';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 
-import { Credentials } from '../utils/shared-constants';
 import { dialogActions } from '../actions/dialog-actions';
-import { dialogStore } from '../stores/dialog-store';
-import { logger } from '../logger';
 import { ReduxComponent } from '../lib/redux-component';
+import { logger } from '../logger';
+import { dialogStore } from '../stores/dialog-store';
+import { Credentials } from '../utils/shared-constants';
 
 export interface BasicAuthHandlerState {
-  authInfo: Electron.LoginAuthInfo;
-  credentials: Credentials;
+  authInfo: Electron.AuthInfo | null;
+  credentials: Credentials | null;
 }
 
 interface LoginEventArgs {
   event: Electron.Event;
-  request: Electron.LoginRequest;
-  authInfo: Electron.LoginAuthInfo;
+  request: Electron.Request;
+  authInfo: Electron.AuthInfo;
   callback: (username: string, password: string) => void;
 }
 
@@ -61,7 +61,7 @@ export class BasicAuthHandler extends ReduxComponent<BasicAuthHandlerState> {
       .subscribe(({ username, password, callback }: LoginCompletedArgs) => callback(username, password)));
   }
 
-  public syncState(): Partial<BasicAuthHandlerState> {
+  public syncState(): BasicAuthHandlerState {
     return {
       authInfo: dialogStore.getInfoForAuthDialog(),
       credentials: dialogStore.getAuthCredentials()
@@ -77,10 +77,10 @@ export class BasicAuthHandler extends ReduxComponent<BasicAuthHandlerState> {
    * shows our own auth dialog.
    *
    * @param  {Event}          event     The `login` event from Electron
-   * @param  {LoginAuthInfo}  authInfo  Contains info about the request
+   * @param  {AuthInfo}  authInfo  Contains info about the request
    * @param  {LoginRequest}   request   The login request from Electron
    */
-  private showAuthDialog(event: Electron.Event, authInfo: Electron.LoginAuthInfo, request: Electron.LoginRequest): void {
+  private showAuthDialog(event: Electron.Event, authInfo: Electron.AuthInfo, request: Electron.Request): void {
     event.preventDefault();
     logger.info('Got login event, now showing the authentication dialog', { authInfo, request });
     dialogActions.showAuthenticationDialog(authInfo);
@@ -100,7 +100,7 @@ export class BasicAuthHandler extends ReduxComponent<BasicAuthHandlerState> {
       .filter((authInfo) => authInfo === null)
       .map(() => {
         logger.info('Received user credentials, passing on.');
-        const { username, password } = this.state.credentials;
+        const { username, password } = this.state.credentials!;
         return { callback, username, password };
       })
       .take(1)

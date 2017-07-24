@@ -2,8 +2,8 @@
  * @module Utilities
  */ /** for typedoc */
 
-import { p } from './get-path';
 import * as fs from 'fs';
+import { p } from './get-path';
 import { logger } from './logger';
 import { UUID_FILENAME } from './utils/shared-constants';
 
@@ -11,7 +11,7 @@ const uuidLocation = p`${'userData'}/${UUID_FILENAME}`;
 
 //memoize value to not read file system every time
 let uuidValue: string;
-
+let sessionIdValue: string;
 /**
  * Returns uuid value of given installation, generate one if not exists.
  * If there isn't available uuid stored in memory, this function will try to attempt
@@ -23,7 +23,7 @@ let uuidValue: string;
  * user uninstalls either manually remove storage data. This will allow to preserve
  * single user machine regardless of client is being updated.
  */
-export function getInstanceUuid(): string {
+function getInstanceUuid(): string {
   if (!!uuidValue) {
     logger.debug(`return memoized uuidValue`);
     return uuidValue;
@@ -56,3 +56,42 @@ export function getInstanceUuid(): string {
 
   return uuidValue;
 }
+
+/**
+ * Returns `session` id of desktop client, which represents one lifetime cycle of
+ * desktop applition from start to exit. This value is volatile and recreates each time
+ * application starts.
+ *
+ * To establish multi-process singleton, it uses internal memoized value as well as
+ * our global.loadSettings object for lightweight access and allow bailing to return empty string
+ * if value is not ready.
+ */
+function getSessionId(): string {
+  if (sessionIdValue) {
+    return sessionIdValue;
+  }
+
+  if (global && global.loadSettings && global.loadSettings.sessionId) {
+    return global.loadSettings.sessionId;
+  }
+
+  return '';
+}
+
+/**
+ * Initialize new session id to be used for getSessionId.
+ * Unlike uuid value, this will be explicitly initialize only once in application creation
+ * in `main` function.
+ */
+const initializeSessionId = () => {
+  if (!!getSessionId()) {
+    throw new Error('Do not attempt initialize session id more than once');
+  }
+  sessionIdValue = Buffer.from(`${getInstanceUuid()}_${(new Date()).getTime()}`).toString('base64');
+};
+
+export {
+  getInstanceUuid,
+  getSessionId,
+  initializeSessionId,
+};

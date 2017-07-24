@@ -3,11 +3,9 @@
  */ /** for typedoc */
 
 import { logger } from '../logger';
+import { StoreEvent } from '../stores/event-store';
 import { ComponentBase } from './component-base';
 
-export interface State {
-  timestamp?: number;
-}
 /**
  * Check if the given state change is an event (i.e., does it have a timestamp
  * and is the timestamp newer than the previous). If so, look for a method on
@@ -20,9 +18,9 @@ export interface State {
  * @return {Function}         The handler for the event, or null if none was found
  */
 export function stateEventHandler(component: ComponentBase,
-                                  event: State,
+                                  event: StoreEvent,
                                   eventName: string,
-                                  prevState: State): Function | null {
+                                  prevState: StoreEvent): Function | null {
   if (event &&
     event.timestamp &&
     event.timestamp > prevState[eventName].timestamp) {

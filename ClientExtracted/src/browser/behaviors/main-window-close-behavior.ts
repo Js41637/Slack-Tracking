@@ -3,17 +3,18 @@
  */ /** for typedoc */
 
 import { app } from 'electron';
-import { Subscription } from 'rxjs/Subscription';
 import { Observable } from 'rxjs/Observable';
+import { Subscription } from 'rxjs/Subscription';
 import { logger } from '../../logger';
 import { WindowBehavior } from './window-behavior';
 
-import { dialogActions, BalloonContent } from '../../actions/dialog-actions';
+import { BalloonContent, dialogActions } from '../../actions/dialog-actions';
 import { settingActions } from '../../actions/setting-actions';
+import { Store } from '../../lib/store';
 import { settingStore } from '../../stores/setting-store';
 import { WindowHelpers } from '../../utils/window-helpers';
 
-import { intl as $intl, LOCALE_NAMESPACE } from '../../i18n/intl';
+import { LOCALE_NAMESPACE, intl as $intl } from '../../i18n/intl';
 
 export type windowFlashBehaviorType = 'idle' | 'always';
 
@@ -60,7 +61,7 @@ export class MainWindowCloseBehavior extends WindowBehavior {
     }));
 
     subscription.add(Observable.fromEvent(app, 'activate').subscribe(() => {
-      WindowHelpers.bringToForeground(mainWindow);
+      WindowHelpers.bringToForeground(mainWindow, Store);
     }));
 
     return subscription;
@@ -112,19 +113,19 @@ export class MainWindowCloseBehavior extends WindowBehavior {
     if (keepAppInTaskbar && !this.state.hasExplainedWindowFlash) {
       settingActions.updateSettings({ hasExplainedWindowFlash: true });
       args = {
-        title: $intl.t(`Why didn't Slack quit?`, LOCALE_NAMESPACE.BROWSER)(),
-        content: $intl.t(`Slack’s set to always flash when you get notifications. To change this, visit Preferences > Notifications.`,
+        title: $intl.t('Why didn’t Slack quit?', LOCALE_NAMESPACE.BROWSER)(),
+        content: $intl.t('Slack’s set to always flash when you get notifications. To change this, visit Preferences > Notifications.',
                           LOCALE_NAMESPACE.BROWSER)()
       };
     } else if (!keepAppInTaskbar && !this.state.hasRunFromTray) {
       settingActions.updateSettings({ hasRunFromTray: true });
       args = {
-        title: $intl.t(`Why didn't Slack quit?`, LOCALE_NAMESPACE.BROWSER)(),
-        content: $intl.t(`Slack's set to stay running in the notification area. To change this, visit Preferences > {platform} App.`, // tslint:disable-line:max-line-length
+        title: $intl.t('Why didn’t Slack quit?', LOCALE_NAMESPACE.BROWSER)(),
+        content: $intl.t('Slack’s set to stay running in the notification area. To change this, visit Preferences > {platform} App.', // tslint:disable-line:max-line-length
                           LOCALE_NAMESPACE.BROWSER)({
                             platform: this.state.isWindows ?
-                                      $intl.t(`Windows`, LOCALE_NAMESPACE.GENERAL)() :
-                                      $intl.t(`Linux`, LOCALE_NAMESPACE.GENERAL)()
+                                      $intl.t('Windows', LOCALE_NAMESPACE.GENERAL)() :
+                                      $intl.t('Linux', LOCALE_NAMESPACE.GENERAL)()
                           })
       };
     }

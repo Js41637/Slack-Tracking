@@ -2,30 +2,27 @@
  * @module RendererComponents
  */ /** for typedoc */
 
-import { logger } from '../../logger';
 import { shell } from 'electron';
 import { Observable } from 'rxjs/Observable';
 import * as url from 'url';
+import { logger } from '../../logger';
 
-import { dialogActions, UrlScheme } from '../../actions/dialog-actions';
-import { settingStore } from '../../stores/setting-store';
+import { UrlScheme, dialogActions } from '../../actions/dialog-actions';
 import { settingActions } from '../../actions/setting-actions';
 import { Component } from '../../lib/component';
+import { settingStore } from '../../stores/setting-store';
 import { Modal } from './modal';
 
 import * as reactStringReplace from 'react-string-replace-recursively';
-import { intl as $intl, LOCALE_NAMESPACE } from '../../i18n/intl';
+import { LOCALE_NAMESPACE, intl as $intl } from '../../i18n/intl';
 
 import * as React from 'react'; // tslint:disable-line
-
-export interface UrlSchemeModalProps extends UrlScheme {
-}
 
 export interface UrlSchemeModalState {
   whitelistedUrlSchemes: Array<string>;
 }
 
-export class UrlSchemeModal extends Component<UrlSchemeModalProps, UrlSchemeModalState> {
+export class UrlSchemeModal extends Component<UrlScheme, UrlSchemeModalState> {
   private readonly protocol: string | undefined;
   private confirmElement: HTMLElement;
   private whitelistElement: HTMLInputElement;
@@ -33,6 +30,11 @@ export class UrlSchemeModal extends Component<UrlSchemeModalProps, UrlSchemeModa
   private readonly refHandlers = {
     whitelist: (ref: HTMLInputElement) => this.whitelistElement = ref,
     confirm: (ref: HTMLElement) => this.confirmElement = ref
+  };
+
+  private readonly eventHandlers = {
+    onCancel: () => this.handleCancel(),
+    onConfirm: () => this.handleConfirm()
   };
 
   constructor() {
@@ -68,7 +70,7 @@ export class UrlSchemeModal extends Component<UrlSchemeModalProps, UrlSchemeModa
       }
     };
 
-    const protocolMessage = $intl.t(`Always open links to {protocol}//`, LOCALE_NAMESPACE.RENDERER)({
+    const protocolMessage = $intl.t('Always open links to {protocol}//', LOCALE_NAMESPACE.RENDERER)({
       protocol: this.protocol
     });
     const protocolElement = reactStringReplace(protocolReplacementConfig)(protocolMessage);
@@ -82,20 +84,18 @@ export class UrlSchemeModal extends Component<UrlSchemeModalProps, UrlSchemeModa
       >
         <div className='UrlSchemeModal'>
           <div className='UrlSchemeModal-overlay'>
-            <header><h4>{$intl.t(`Open link to app`, LOCALE_NAMESPACE.RENDERER)()}</h4></header>
-            <p> {/* tslint:disable:jsx-no-multiline-js */}
-              {$intl.t(`This link opens an app, not a website.
-                If that’s what you’re expecting, click on through.
-                Otherwise, please make sure this is a link you trust.`, LOCALE_NAMESPACE.RENDERER)()}
+            <header><h4>{$intl.t('Open link to app', LOCALE_NAMESPACE.RENDERER)()}</h4></header>
+            <p> {/* tslint:disable:max-line-length */}
+              {$intl.t('This link opens an app, not a website. If that’s what you’re expecting, click on through. Otherwise, please make sure this is a link you trust.', LOCALE_NAMESPACE.RENDERER)()}
             </p>
             <label>
               <input type='checkbox' ref={this.refHandlers.whitelist} />
               {protocolElement}
             </label>
             <div className='url-scheme-buttons'>
-              <button className='cancel' onClick={this.handleCancel.bind(this)}>{$intl.t(`Cancel`, LOCALE_NAMESPACE.GENERAL)()}</button>
-              <button ref={this.refHandlers.confirm} onClick={this.handleConfirm.bind(this)}>
-                {$intl.t(`Open Link`, LOCALE_NAMESPACE.GENERAL)()}
+              <button className='cancel' onClick={this.eventHandlers.onCancel}>{$intl.t('Cancel', LOCALE_NAMESPACE.GENERAL)()}</button>
+              <button ref={this.refHandlers.confirm} onClick={this.eventHandlers.onConfirm}>
+                {$intl.t('Open Link', LOCALE_NAMESPACE.GENERAL)()}
               </button>
             </div>
           </div>

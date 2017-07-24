@@ -2,27 +2,22 @@
  * @module Stores
  */ /** for typedoc */
 
+import { pickBy } from 'lodash';
 import { MiddlewareAPI } from 'redux';
-import { StringMap, windowType } from '../utils/shared-constants';
-import { pickBy } from '../utils/pick-by';
+import { RootState } from '../reducers';
+import { WindowsState } from '../reducers/windows-reducer';
+import { WindowMetadata, windowType } from '../utils/shared-constants';
 
-export interface Window {
-  subType: any;
-  type: any;
-  id: number;
-  teamId: string;
-}
-
-export function getWindowOfType(store: MiddlewareAPI<any>, windowType: windowType): Window | null {
-  const windows: Array<any> = store.getState().windows;
+export function getWindowOfType(store: MiddlewareAPI<RootState>, windowType: windowType): WindowMetadata | null {
+  const windows = store.getState().windows;
   const foundKey = Object.keys(windows).find((key) => windows[key].type === windowType);
 
   if (!foundKey) return null;
   return windows[foundKey] || null;
 }
 
-export function getWindows(store: MiddlewareAPI<any>, windowTypes: Array<windowType>): StringMap<Window> {
+export function getWindows(store: MiddlewareAPI<RootState>, windowTypes: Array<windowType>): WindowsState {
   const windows = store.getState().windows;
   if (!windowTypes) return windows;
-  return pickBy<StringMap<Window>, any>(windows, ({ type }) => windowTypes.includes(type));
+  return pickBy<WindowsState, WindowsState>(windows, ({ type }: WindowMetadata) => windowTypes.includes(type));
 }

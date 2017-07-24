@@ -3,9 +3,9 @@
  */ /** for typedoc */
 
 import { ipcRenderer } from 'electron';
+import { UnreadsInfo } from '../../actions/unreads-actions';
 import { ReduxComponent } from '../../lib/redux-component';
 import { unreadsStore } from '../../stores/unreads-store';
-import { UnreadsInfo } from '../../actions/unreads-actions';
 
 const ratio = window.devicePixelRatio;
 const scale = (size: number) => size * ratio;

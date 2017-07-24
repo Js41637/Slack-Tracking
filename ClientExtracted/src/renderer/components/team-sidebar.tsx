@@ -6,35 +6,37 @@ import { remote } from 'electron';
 const { Menu, MenuItem } = remote;
 const currentWindow = remote.getCurrentWindow();
 
-import * as clamp from 'lodash.clamp';
+import { clamp } from 'lodash';
 import * as React from 'react';
-import rxjsconfig from 'recompose/rxjsObservableConfig';
 import { Motion, spring } from 'react-motion';
 import { createEventHandler, setObservableConfig } from 'recompose';
+import rxjsconfig from 'recompose/rxjsObservableConfig';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 
-import { appTeamsStore } from '../../stores/app-teams-store';
 import { appTeamsActions } from '../../actions/app-teams-actions';
-import { Component } from '../../lib/component';
 import { dialogActions } from '../../actions/dialog-actions';
 import { eventActions } from '../../actions/event-actions';
-import { getScaledBorderRadius } from '../../utils/component-helpers';
-import { getSidebarColor, getTextColor } from '../../utils/color';
-import { ScrollableArea } from './scrollable-area';
+import { Component } from '../../lib/component';
+import { TeamsState } from '../../reducers/teams-reducer';
+import { UnreadsState } from '../../reducers/unreads-reducer';
+import { appTeamsStore } from '../../stores/app-teams-store';
 import { settingStore } from '../../stores/setting-store';
+import { teamStore } from '../../stores/team-store';
+import { unreadsStore } from '../../stores/unreads-store';
+import { windowFrameStore } from '../../stores/window-frame-store';
+import { getSidebarColor, getTextColor } from '../../utils/color';
+import { getScaledBorderRadius } from '../../utils/component-helpers';
+import { ScrollableArea } from './scrollable-area';
 import { TeamAddButton } from './team-add-button';
 import { TeamSidebarItem } from './team-sidebar-item';
-import { teamStore } from '../../stores/team-store';
 import { TitleBarButtonsContainer } from './title-bar-buttons-container';
-import { unreadsStore } from '../../stores/unreads-store';
-import { UnreadsInfo } from '../../actions/unreads-actions';
-import { windowFrameStore } from '../../stores/window-frame-store';
 
-import { intl as $intl, LOCALE_NAMESPACE } from '../../i18n/intl';
-import {StringMap, SIDEBAR_WIDTH, SIDEBAR_ROW_HEIGHT, SIDEBAR_ICON_SIZE,
-  SIDEBAR_ITEM_MARGIN_LEFT, SIDEBAR_ITEM_MARGIN_TOP,
-  SIDEBAR_ITEM_MARGIN_TOP_NO_TITLE_BAR} from '../../utils/shared-constants';
+import { LOCALE_NAMESPACE, intl as $intl } from '../../i18n/intl';
+import { noop } from '../../utils/noop';
+import { SIDEBAR_ICON_SIZE, SIDEBAR_ITEM_MARGIN_LEFT, SIDEBAR_ITEM_MARGIN_TOP,
+  SIDEBAR_ITEM_MARGIN_TOP_NO_TITLE_BAR, SIDEBAR_ROW_HEIGHT,
+  SIDEBAR_WIDTH } from '../../utils/shared-constants';
 
 const SIDEBAR_ICON_BORDER_RADIUS = getScaledBorderRadius(SIDEBAR_ICON_SIZE);
 const MOUSE_LEFT_BUTTON = 0;
@@ -45,23 +47,19 @@ export interface TeamSidebarProps {
 }
 
 export interface TeamSidebarState {
-  teams: any;
+  teams: TeamsState;
   teamsByIndex: Array<string>;
-  unreads: StringMap<UnreadsInfo>;
+  unreads: UnreadsState;
   numberOfTeams: number;
   sidebarItemOffset: Array<number>;
   isTitleBarHidden: boolean;
-  selectedTeamId: string;
+  selectedTeamId: string | null;
   isFullScreen: boolean;
   isMac: boolean;
   isWin10: boolean;
 
-  topDeltaY: number;
-  mouseY: number;
-  isMouseDown: boolean;
-  isDragging: boolean;
-  lastMovedTeamId: string;
-  dragMoveDistance: number;
+  mouseY?: number;
+  selectedTeamToDrag?: string | null;
 }
 
 interface MotionCallbackArgs {
@@ -75,23 +73,66 @@ interface HandlerSubscriptionPair {
   subscription: Subscription;
 }
 
+interface ClickTarget<T> {
+  teamId: string | null;
+  event: T;
+}
+
+interface DragEventArgs<T> extends ClickTarget<T> {
+  teamId: string;
+  pressY: number;
+}
+
+interface MovePosition {
+  pageY: number;
+  clientY: number;
+  identifier?: number; //unique id for distinguish between different touch
+}
+
+interface DragTargetPosition extends MovePosition {
+  teamId: string;
+  pressY: number;
+}
+
+type movePositionSelector = (o: Observable<TouchEvent | MouseEvent>) => Observable<MovePosition>;
+type syntheticTouch = React.TouchEvent<HTMLDivElement>;
+type syntheticMouse = React.MouseEvent<HTMLDivElement>;
+type dragTouch = DragEventArgs<syntheticTouch>;
+type dragMouse = DragEventArgs<syntheticMouse>;
+
 setObservableConfig(rxjsconfig);
 
-export class TeamSidebar extends Component<TeamSidebarProps, Partial<TeamSidebarState>> {
-  private onAnimationEnded: () => void;
+export class TeamSidebar extends Component<TeamSidebarProps, TeamSidebarState> {
   private onSidebarClicked: (value: {}) => void;
+
+  private readonly touchSignal = createEventHandler<dragTouch, Observable<dragTouch>>();
+  private readonly mouseSignal = createEventHandler<dragMouse, Observable<dragMouse>>();
+
+  //inlining this will make TS language service confuses between generic to JSX syntax
+  private readonly contextMenuSignal = createEventHandler<
+    ClickTarget<syntheticMouse>, Observable<ClickTarget<syntheticMouse>>>();
+
+  private readonly eventHandlers = {
+    onTouch: (teamId: string, pressY: number) => (event: syntheticTouch) => this.touchSignal.handler({ teamId, pressY, event }),
+    onMouseClick: (teamId: string, pressY: number) => (event: syntheticMouse) => this.mouseSignal.handler({ teamId, pressY, event }),
+    onContextMenu: (teamId: string | null = null) => (event: syntheticMouse) => this.contextMenuSignal.handler({ teamId, event })
+  };
 
   constructor(props: TeamSidebarProps) {
     super(props);
 
     this.state = {
       ...this.state,
-      topDeltaY: 0,
       mouseY: 0,
-      dragMoveDistance: 0,
-      isDragging: false,
       teamsByIndex: appTeamsStore.getTeamsByIndex()
     };
+
+    //setup eventhandlers once component is ready
+    this.componentMountedObservable.filter((x: boolean) => x)
+      .subscribe(() => {
+        this.setupMouseDragEventHandler();
+        this.setupTouchDragEventHandler();
+      });
   }
 
   public syncState(): Partial<TeamSidebarState> {
@@ -119,15 +160,9 @@ export class TeamSidebar extends Component<TeamSidebarProps, Partial<TeamSidebar
   }
 
   public componentDidMount(): void {
-    this.disposables.add(this.handleMouseEventsOnWindow());
-
     const clicksWithinSidebar = this.handleClicksWithinSidebar();
     this.onSidebarClicked = clicksWithinSidebar.handler;
     this.disposables.add(clicksWithinSidebar.subscription);
-
-    const dragAnimationEnd = this.handleDragAnimationEnd();
-    this.onAnimationEnded = dragAnimationEnd.handler as () => void;
-    this.disposables.add(dragAnimationEnd.subscription);
 
     if (this.state.isMac) {
       this.disposables.add(this.selectTeamUsingCtrlTab());
@@ -148,17 +183,18 @@ export class TeamSidebar extends Component<TeamSidebarProps, Partial<TeamSidebar
   }
 
   public render(): JSX.Element {
-    const {teams, teamsByIndex, selectedTeamId, unreads, isMac,
-      sidebarItemOffset, mouseY, isDragging, lastMovedTeamId} = this.state as TeamSidebarState;
+    const { teams, teamsByIndex, selectedTeamId, unreads,
+      isMac, sidebarItemOffset, selectedTeamToDrag, mouseY } = this.state as TeamSidebarState;
 
-    const selectedTeam = teams[selectedTeamId];
+    const isDragging = !!selectedTeamToDrag;
+
+    const selectedTeam = teams[selectedTeamId!];
     const backgroundColor = getSidebarColor(selectedTeam);
     const textColor = getTextColor(selectedTeam);
     const [left, top] = sidebarItemOffset;
 
     const teamSidebarItems = Object.keys(teams)
       .map((teamId: string) => {
-
         const team = teams[teamId];
         const unreadsInfo = unreads[teamId];
         const order = teamsByIndex.indexOf(teamId);
@@ -168,7 +204,7 @@ export class TeamSidebar extends Component<TeamSidebarProps, Partial<TeamSidebar
             left,
             top,
             transform: `translate3d(0, ${y}px, 0) scale(${scale})`,
-            zIndex: teamId === lastMovedTeamId ? 1 : 0,
+            zIndex: teamId === selectedTeamToDrag ? 1 : 0,
             color: textColor
           };
 
@@ -177,8 +213,10 @@ export class TeamSidebar extends Component<TeamSidebarProps, Partial<TeamSidebar
               style={itemStyle}
               title={team.team_name}
               className='TeamSidebar-item'
-              onMouseDown={this.handleMouseDown.bind(this, teamId, y)}
-              onContextMenu={this.handleItemContextMenu.bind(this, teamId)}
+              onMouseDown={this.eventHandlers.onMouseClick(teamId, y)}
+              onContextMenu={this.eventHandlers.onContextMenu(teamId)}
+              onTouchStart={this.eventHandlers.onTouch(teamId, y)}
+              onTouchEnd={this.eventHandlers.onTouch(teamId, y)}
             >
               <TeamSidebarItem
                 index={order}
@@ -193,7 +231,8 @@ export class TeamSidebar extends Component<TeamSidebarProps, Partial<TeamSidebar
           );
         };
 
-        const style = lastMovedTeamId === teamId && isDragging ? {
+        const useDraggingStyle = !!selectedTeamToDrag && selectedTeamToDrag === teamId;
+        const style: React.CSSProperties = useDraggingStyle ? {
           y: mouseY,
           scale: spring(1.2),
           shadow: spring(16)
@@ -204,11 +243,11 @@ export class TeamSidebar extends Component<TeamSidebarProps, Partial<TeamSidebar
         };
 
         return (
-          <Motion style={style} key={teamId} onRest={this.onAnimationEnded}>
+          <Motion style={style} key={teamId} >
             {renderTeamSidebarItem}
           </Motion>
         );
-    });
+      });
 
     const sidebarStyle = {
       backgroundColor,
@@ -228,7 +267,7 @@ export class TeamSidebar extends Component<TeamSidebarProps, Partial<TeamSidebar
         style={sidebarStyle}
         tabIndex={0}
         onClick={this.onSidebarClicked}
-        onContextMenu={this.handleContextMenu.bind(this)}
+        onContextMenu={this.eventHandlers.onContextMenu()}
       >
         {this.renderTitleBarButtonsContainer(backgroundColor)}
 
@@ -237,7 +276,6 @@ export class TeamSidebar extends Component<TeamSidebarProps, Partial<TeamSidebar
           scrollbar={isMac ? 'none' : 'custom'}
         >
           {teamSidebarItems}
-
           <TeamAddButton
             style={addButtonStyle}
             handleAddClick={dialogActions.showLoginDialog}
@@ -266,134 +304,175 @@ export class TeamSidebar extends Component<TeamSidebarProps, Partial<TeamSidebar
   }
 
   /**
+   * MouseEvent / Touch isn't plain object provides keys via Object.keys(), Cannot use utils/pick implementation instead do simple destructuring.
+   * also there isn't union type between MouseEvent / Touch, cast to any for param
+   */
+  private readonly pickPosition = ({ pageY, clientY, identifier }: any) => ({ pageY, clientY, identifier });
+
+  /**
    * Mouse move and up events need to be handled at the window level rather
    * than the item, so that the drag can be completed even outside the bounds
    * of the sidebar.
    */
-  private handleMouseEventsOnWindow(): Subscription {
-    const sub = Observable.fromEvent(window, 'mousemove')
-      .subscribe(this.handleMouseMove.bind(this));
-    sub.add(Observable.fromEvent(window, 'mouseup')
-      .subscribe(this.handleMouseUp.bind(this)));
-    return sub;
-  }
-
-  private handleMouseDown(teamId: string, pressY: number, e: MouseEvent): void {
-    if (e.button !== MOUSE_LEFT_BUTTON || e.ctrlKey) return;
-
-    this.setState({
-      topDeltaY: e.clientY - pressY,
-      mouseY: pressY,
-      isMouseDown: true,
-      lastMovedTeamId: teamId,
+  private setupMouseDragEventHandler(): void {
+    const moveEventObservable = Observable.fromEvent<MouseEvent>(window, 'mousemove');
+    const startDragObservable = this.mouseSignal.stream.filter((x) => {
+      return x.event.button === MOUSE_LEFT_BUTTON && !x.event.ctrlKey;
     });
+    const endDragObservable = Observable.fromEvent(window, 'mouseup');
+    const startPositionObservable = startDragObservable.map((x) => ({
+      teamId: x.teamId,
+      pressY: x.pressY,
+      pageY: x.event.pageY,
+      clientY: x.event.clientY
+    }));
+
+    this.setupDragEventHandler(moveEventObservable, startDragObservable, endDragObservable, startPositionObservable, (v) => v.map(this.pickPosition));
+    this.setupContextMenuEventHandler(startDragObservable, endDragObservable);
   }
 
-  private handleMouseMove(e: MouseEvent): void {
-    let { isDragging, dragMoveDistance } = this.state;
-    dragMoveDistance = dragMoveDistance || 0;
+  private setupTouchDragEventHandler(): void {
+    const moveEventObservable = Observable.fromEvent<TouchEvent>(window, 'touchmove');
+    const [startDragObservable, endDragObservable] = this.touchSignal.stream.partition((x) => x.event.touches.length > 0);
+    const startPositionObservable = startDragObservable.map((x) => Object.assign(({
+      teamId: x.teamId,
+      pressY: x.pressY
+    }), this.pickPosition(x.event.changedTouches.item(0))));
 
-    const { teamsByIndex, isMouseDown, topDeltaY, lastMovedTeamId } = this.state as TeamSidebarState;
+    const dragPositionSelector: movePositionSelector = (v: Observable<TouchEvent>) =>
+      v.filter((x) => !!x.changedTouches.item(0)).map((x) => this.pickPosition(x.changedTouches.item(0)));
 
-    // NB: Chrome fires a `mousemove` event immediately after `mousedown`.
-    const mouseMoved = e.movementX !== 0 || e.movementY !== 0;
-    if (mouseMoved && isMouseDown && !isDragging) {
-      dragMoveDistance += normalizedDragDistance(e);
-    }
+    this.setupDragEventHandler(moveEventObservable, startDragObservable, endDragObservable, startPositionObservable, dragPositionSelector);
+    this.setupContextMenuEventHandler(startDragObservable, endDragObservable);
+  }
 
-    // NB: Initiate a drag only after the mouse moves some distance. Otherwise
-    // it'll be treated as a click.
-    if (dragMoveDistance > DRAG_MOVE_THRESHOLD) {
-      isDragging = true;
-      this.setState({ isDragging, dragMoveDistance: 0 });
-    } else {
-      this.setState({ dragMoveDistance });
-    }
+  private setupDragEventHandler(moveEventObservable: Observable<TouchEvent | MouseEvent>,
+                                startDragObservable: Observable<DragEventArgs<syntheticMouse | syntheticTouch>>,
+                                endDragObservable: Observable<any>,
+                                startPositionObservable: Observable<DragTargetPosition>,
+                                selector: movePositionSelector) {
+    const isOutThreshold = (start: number, moved: number) => Math.abs(start - moved) > DRAG_MOVE_THRESHOLD;
 
-    if (isDragging) {
-      const mouseY = e.clientY - topDeltaY;
+    const getDragPosition = ({ movePosition, startPosition }: { movePosition: MovePosition, startPosition: DragTargetPosition }) =>
+      ({
+        teamId: startPosition.teamId,
+        mouseY: movePosition.clientY - (startPosition.clientY - startPosition.pressY) //movedY - topDeltaY
+      });
+
+    const dragTeamIcon = (x: {
+      mouseY: number,
+      teamId: string
+    }) => {
+      const { teamsByIndex } = this.state;
+      const { mouseY, teamId } = x;
       const currentRow = clamp(Math.round(mouseY / SIDEBAR_ROW_HEIGHT), 0, teamsByIndex.length - 1);
-      const dragIndex = teamsByIndex.indexOf(lastMovedTeamId);
+      const dragIndex = teamsByIndex.indexOf(teamId);
 
-      if (currentRow !== dragIndex) {
-        this.setState({ mouseY, teamsByIndex: reinsert(teamsByIndex, dragIndex, currentRow) });
-      } else {
-        this.setState({ mouseY });
+      const state = currentRow !== dragIndex ? {
+        mouseY,
+        selectedTeamToDrag: teamId,
+        teamsByIndex: reinsert(teamsByIndex, dragIndex, currentRow)
+      } : {
+        mouseY
+      };
+
+      this.setState(state as TeamSidebarState);
+    };
+
+    //Set teams by index in the store after drag completes.
+    const setupRepositionTeamEventHandler = (dragObservable: Observable<any>) =>
+      dragObservable
+        .do(noop, noop, () => this.setState({ selectedTeamToDrag: null })) //completes drag once move stops and mouse up immediately
+        .debounceTime(100)
+        .takeLast(1)
+        .map(() => this.state.teamsByIndex)
+        .filter((x: Array<string>) => !!x && x.length > 0)
+        .map((x: Array<string>) => x.filter((t: string) => !!t))
+        .subscribe(appTeamsActions.setTeamsByIndex);
+
+    //if mouse move stops within given threshold only, consider it as click to select team
+    const setupSelectTeamEventHandler = (dragObservable: Observable<any>, teamId: string) =>
+      dragObservable.isEmpty().filter((x) => x).subscribe(() => appTeamsActions.selectTeam(teamId));
+
+    //apply selector to map TouchEvent or MouseEvent into commont structure, then apply filter to take out elements within threshold in given window
+    const getDragObservable = (window: [Observable<TouchEvent | MouseEvent>, DragTargetPosition]) => {
+      const startPosition = window[1];
+      const dragObservable = window[0].let(selector)
+        .filter((p: MovePosition) => isOutThreshold(startPosition.pageY, p.pageY))
+        //only emits if drag event comes from same touch. MouseEvent will be always true
+        .filter((p: MovePosition) => startPosition.identifier === p.identifier)
+        .map((movePosition: MovePosition) => ({ movePosition, startPosition }));
+
+      setupRepositionTeamEventHandler(dragObservable);
+
+      //do not setup select team event handler for touch event (where identifier exists)
+      //single touch event (press, or press-and-hold) interop into click / context menu event,
+      //so register for touch event will invoke same action twice when team is selected via touch
+      if (!Number.isInteger(startPosition.identifier!)) {
+        setupSelectTeamEventHandler(dragObservable, startPosition.teamId);
       }
-    }
-  }
+      return dragObservable;
+    };
 
-  private handleMouseUp(): void {
-    const { isDragging, lastMovedTeamId } = this.state as TeamSidebarState;
-
-    if (!isDragging && lastMovedTeamId) {
-      appTeamsActions.selectTeam(lastMovedTeamId);
-    }
-
-    this.setState({
-      isDragging: false,
-      isMouseDown: false,
-      lastMovedTeamId: undefined,
-      topDeltaY: 0,
-      dragMoveDistance: 0
-    });
+    moveEventObservable
+      .takeUntil(this.componentMountedObservable.filter((x: boolean) => !x))
+      //Creates window observable emits move event between drag start to end, represents move event only within drag period
+      .windowToggle(startDragObservable, () => endDragObservable)
+      //each time window for drag observable created, picks up latest known target position to pair with move event
+      .withLatestFrom(startPositionObservable)
+      //get filtered window to rule out within threshold and apply switchmap to only subscriber latest drag movement
+      .switchMap(getDragObservable)
+      .map(getDragPosition)
+      .subscribe(dragTeamIcon);
   }
 
   /**
-   * Handles the context menu for each team in the sidebar.
-   */
-  private handleItemContextMenu(teamId: string, e: MouseEvent): void {
-    e.stopPropagation();
-    e.preventDefault();
-
-    const { teams, isMac } = this.state;
-    const menu = new Menu();
-
-    // NB: On Mac, '&' characters are removed unless escaped.
-    const teamName = isMac ?
-      teams[teamId].team_name.replace('&', '&&') :
-      teams[teamId].team_name;
-
-    menu.append(new MenuItem({
-      label: $intl.t(`&Remove {teamName}`, LOCALE_NAMESPACE.MENU)({ teamName }),
-      click: () => eventActions.signOutTeam(teamId)
-    }));
-
-    menu.popup(currentWindow, { async: true } as any);
-  }
-
-  /**
-   * Handles the context menu elsewhere in the sidebar.
-   */
-  private handleContextMenu(e: MouseEvent): void {
-    e.stopPropagation();
-    e.preventDefault();
-
-    const menu = new Menu();
-
-    menu.append(new MenuItem({
-      label: $intl.t(`&Sign in to another team…`, LOCALE_NAMESPACE.MENU)(),
-      click: dialogActions.showLoginDialog
-    }));
-
-    menu.popup(currentWindow, { async: true } as any);
-  }
-
-  /**
-   * Set teams by index in the store after animations have finished.
+   * Subscribe to contextMenuSignal observable forwarded via onContextMenu on sidebar / teamIcon to display popup menu.
+   * If there are ongoing dragging events, context menu will not be displayed. This behavior is to prevent press-and-hold
+   * touch event shows context menu too early, blocks drag attempt.
    *
-   * @return {HandlerSubscriptionPair}   Contains the event handler & the subscription
+   * @param startDragObservable {Observable<any>} Observable emits when drag starts.
+   * @param endDragObservable {Observable<any>} Observable emits when drag completes.
    */
-  private handleDragAnimationEnd(): HandlerSubscriptionPair {
-    const { handler, stream } = createEventHandler<{}, Observable<{}>>();
+  private setupContextMenuEventHandler(startDragObservable: Observable<any>, endDragObservable: Observable<any>): void {
+    this.contextMenuSignal.stream.windowToggle(endDragObservable, () => startDragObservable)
+      .switchMap((x) => x).subscribe((x) => {
+        const event = x.event;
+        event.stopPropagation();
+        event.preventDefault();
 
-    const subscription = stream
-      .filter(() => !this.state.isDragging)
-      .debounceTime(100)
-      .map(() => this.state.teamsByIndex)
-      .subscribe(appTeamsActions.setTeamsByIndex);
+        const menu = this.buildContextMenu(x.teamId);
 
-    return { handler, subscription };
+        //apply additional +2px, to avoid menuitem is auto-selected via mouse click
+        //by clientX gives exact position of cursor
+        menu.popup(currentWindow, { x: event.clientX + 2, y: event.clientY + 2, async: true } as any);
+      });
+  }
+
+  private buildContextMenu(teamId: string | null): Electron.Menu {
+    let menuItem: Electron.MenuItem;
+    if (!!teamId) {
+      const { teams, isMac } = this.state;
+      // NB: On Mac, '&' characters are removed unless escaped.
+      const teamName = isMac ?
+        teams[teamId].team_name.replace('&', '&&') :
+        teams[teamId].team_name;
+
+      menuItem = new MenuItem({
+        // @i18n Do not translate between {}
+        label: $intl.t('&Remove {teamName}', LOCALE_NAMESPACE.MENU)({ teamName }),
+        click: () => eventActions.signOutTeam(teamId)
+      });
+    } else {
+      menuItem = new MenuItem({
+        label: $intl.t('&Sign in to another team…', LOCALE_NAMESPACE.MENU)(),
+        click: dialogActions.showLoginDialog
+      });
+    }
+
+    const menu = new Menu();
+    menu.append(menuItem);
+    return menu;
   }
 
   /**
@@ -403,7 +482,7 @@ export class TeamSidebar extends Component<TeamSidebarProps, Partial<TeamSidebar
    * @return {HandlerSubscriptionPair}   Contains the event handler & the subscription
    */
   private handleClicksWithinSidebar(): HandlerSubscriptionPair {
-    const { handler, stream } = createEventHandler<{}, Observable<boolean>>();
+    const { handler, stream } = createEventHandler<any, Observable<boolean>>();
     const subscription = stream
       .concatMap(() => {
         return stream
@@ -440,24 +519,10 @@ export class TeamSidebar extends Component<TeamSidebarProps, Partial<TeamSidebar
  * @param {Number}      to      The index where the element should be inserted
  * @return {Array<any>}         A new array
  */
-function reinsert(source: Array<any>, from: number, to: number) {
+function reinsert<T>(source: Array<T>, from: number, to: number) {
   const result = [...source];
   const item = result[from];
   result.splice(from, 1);
   result.splice(to, 0, item);
   return result;
-}
-
-/**
- * Take the root sum of squares of the x & y coordinates for a drag event.
- *
- * @param {DragEvent} e           The drag event
- * @param {Number}    e.movementX Mouse movement in the x direction
- * @param {Number}    e.movementY Mouse movement in the y direction
- * @return {Number}               The root sum of squares of x & y
- */
-function normalizedDragDistance({ movementX, movementY }: {
-  movementX: number, movementY: number
-}): number {
-  return Math.sqrt(Math.pow(movementX, 2) + Math.pow(movementY, 2));
 }

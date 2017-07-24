@@ -16,7 +16,7 @@ const { BrowserWindow } = remote;
  * @param  {Function} overrideMethod  A method that will create a popup window
  * @return {BrowserWindow}            The new BrowserWindow
  */
-export function overrideWindowOpen(overrideMethod: Function) {
+export function overrideWindowOpen(overrideMethod: (...args: Array<any>) => number) {
   // NB: Save off the original `window.open` for the default behavior
   const originalWindowOpen = window.open;
 
@@ -74,13 +74,13 @@ const desiredKeys = ['left', 'top', 'width', 'height'];
  * @return {Object}.width   The width of the window
  * @return {Object}.height  The height of the window
  */
-function getCoordinatesFromFeatures(features: string): Region {
-  if (!features || features === '') return {} as Region;
+function getCoordinatesFromFeatures(features: string): Partial<Region> {
+  if (!features || features === '') return {};
 
   const params = features.split(',');
-  if (params.length === 1) return {} as Region;
+  if (params.length === 1) return {};
 
-  const result = {} as Region;
+  const result = {};
 
   for (const param of params) {
     const expression = param.split('=');

@@ -2,30 +2,34 @@
  * @module Notifications
  */ /** for typedoc */
 
- import * as assignIn from 'lodash.assignin';
+import { assignIn } from 'lodash';
 import * as path from 'path';
-import * as url from 'url';
 import { Observable } from 'rxjs/Observable';
+import * as url from 'url';
 
-import { logger } from '../../logger';
-import { notificationActions, Notification } from '../../actions/notification-actions';
-import { eventStore, StoreEvent } from '../../stores/event-store';
-import { notificationStore } from '../../stores/notification-store';
+import { TeamBase } from 'src/actions/team-actions';
+import { notificationActions } from '../../actions/notification-actions';
 import { ReduxComponent } from '../../lib/redux-component';
+import { logger } from '../../logger';
+import { NotificationEvent } from '../../reducers/notifications-reducer';
+import { StoreEvent, eventStore } from '../../stores/event-store';
+import { notificationStore } from '../../stores/notification-store';
 import { settingStore } from '../../stores/setting-store';
 import { teamStore } from '../../stores/team-store';
-import { NotifyPosition } from '../../notification/notification-window-helpers';
-import { NodeRTNotificationHelpers } from './node-rt-notification-helpers';
+import { NativeNotificationOptions, WebappNotificationOptions } from '../notifications/interfaces';
+import { NodeRTNotificationHelpers } from '../notifications/node-rt-notification-helpers';
 
 let NativeNotification: NativeNotificationCtor;
 
 export interface NativeNotificationCtor {
   new(title: string, options: any): any;
 }
+
 export interface NativeNotificationManagerState {
-  isWindows: boolean;
   isMac: boolean;
-  notifyPosition: NotifyPosition;
+  isWindows: boolean;
+  newNotificationEvent: NotificationEvent;
+  handleReplyLinkEvent: StoreEvent;
 }
 
 export interface NotificationUserData {
@@ -40,30 +44,51 @@ export interface NotificationUserData {
 export class NativeNotificationManager extends ReduxComponent<NativeNotificationManagerState> {
   constructor() {
     super();
-
-    // We need to do this eventually, but Windows will leave
-    // us a bit of time, so let's  do this after initial boot.
-    if (this.state.isWindows) setTimeout(() => {
-      this.setupWindowsNotifications();
-    }, 500);
+    this.setup();
   }
 
-  public syncState() {
+  public syncState(): NativeNotificationManagerState {
     const state = {
-      newNotificationEvent: notificationStore.getNewNotificationEvent() as StoreEvent,
-      handleReplyLinkEvent: eventStore.getEvent('handleReplyLink'),
+      isMac: settingStore.isMac(),
       isWindows: settingStore.isWindows(),
-      isMac: settingStore.isMac()
+      newNotificationEvent: notificationStore.getNewNotificationEvent(),
+      handleReplyLinkEvent: eventStore.getEvent('handleReplyLink'),
     };
 
-    // Notification position is only used on Windows 7 / 8.
-    if (state.isWindows && settingStore.getSetting('isBeforeWin10')) {
-      assignIn(state, {
-        notifyPosition: settingStore.getSetting('notifyPosition')
-      });
+    return state;
+  }
+
+  /**
+   * Let's setup our notifications
+   */
+  public setup() {
+    if (this.state.isWindows) {
+      NativeNotification = NativeNotification || require('../notifications/native-windows-notification').NativeWindowsNotification;
+    } else if (this.state.isMac) {
+      NativeNotification = NativeNotification || require('../notifications/native-mac-notification').NativeMacNotification;
+    } else {
+      NativeNotification = NativeNotification || require('../notifications/native-window-notification').NativeWindowNotification;
     }
 
-    return state;
+    /**
+     * Windows notifications are a delicate matter, so this method ensures
+     * that native components are registered and active. We need to do this
+     * before we're sending notifications, since old notifications (hanging
+     * around in the Action Center) could be activated.
+     */
+    if (this.state.isWindows) {
+      logger.info(`Setting up Windows notifications (activator & notification queue)`);
+
+      // Activating the activator on launch is necessary to support sending replies
+      // written while Slack was closed. However, its behavior is still a bit wonky,
+      // so we're hiding it behind a global environment variable that can be enabled
+      // by brave test pilots.
+      if (process.env.SLACK_INTERACTIVE_REPLIES_ON_LAUNCH) {
+        NodeRTNotificationHelpers.registerActivator();
+      }
+
+      NodeRTNotificationHelpers.enableNotificationQueue();
+    }
   }
 
   /**
@@ -73,16 +98,8 @@ export class NativeNotificationManager extends ReduxComponent<NativeNotification
    *
    * @param  {Object} {notification} Contains the webapp notification arguments
    */
-  public newNotificationEvent({ notification }: {notification: Notification}) {
-    if (this.state.isWindows) {
-      // NB: We delay-initialize notifications here because if we attempt to
-      // load Edge.js and SlackNotifier during startup it hangs Electron.
-      NativeNotification = require('../../csx/native-notifications').default;
-    } else if (this.state.isMac) {
-      NativeNotification = NativeNotification || require('node-mac-notifier');
-    } else {
-      NativeNotification = NativeNotification || (window as any).Notification;
-    }
+  public newNotificationEvent({ notification }: { notification: WebappNotificationOptions }) {
+    const { id, channel, msg, thread_ts } = notification;
 
     let team, userId: string | undefined, teamId: string | undefined;
     if (notification.teamId) {
@@ -98,17 +115,11 @@ export class NativeNotificationManager extends ReduxComponent<NativeNotification
 
     this.disposables.add(Observable.fromEvent(element, 'click').take(1)
       .subscribe(() => {
-        const { id, channel, msg, thread_ts } = notification;
-
-        if (this.state.isMac) element.close();
         notificationActions.clickNotification(id, channel, teamId!, msg, thread_ts);
       }));
 
     this.disposables.add(Observable.fromEvent(element, 'reply').take(1)
       .subscribe(({ response }) => {
-        const { channel, msg, thread_ts } = notification;
-
-        if (this.state.isMac) element.close();
         notificationActions.replyToNotification(response, channel, userId!, teamId!, msg, thread_ts);
       }));
 
@@ -135,15 +146,15 @@ export class NativeNotificationManager extends ReduxComponent<NativeNotification
    */
   public handleReplyLinkEvent(event: {url: string, timestamp: number} = {} as any): void {
     const theUrl = url.parse(event.url, true);
-    const args = Object.assign({}, theUrl.query);
+    const args = { ...theUrl.query };
 
     let userData: Array<NotificationUserData> = [];
 
     try {
       userData = JSON.parse(decodeURIComponent(args.userData));
-    } catch (e) {
+    } catch (error) {
       // We failed to parse the message, which is troublesome.
-      logger.warn(`Native Notification Manager: Failed to parse reply from deeplink: ${JSON.stringify(e)}`);
+      logger.warn(`Native Notification Manager: Failed to parse reply from deeplink.`, error);
     }
 
     if (userData.length > 0 && userData[0].value && /\S/.test(userData[0].value)) {
@@ -160,55 +171,38 @@ export class NativeNotificationManager extends ReduxComponent<NativeNotification
    * @param  {Object} team Contains information about the notifying team
    * @return {Object}      A new object containing all arguments
    */
-  private getNotificationOptionsForPlatform(args: Notification, team: any) {
-    const icons = team ? team.icons : args.icons;
+  private getNotificationOptionsForPlatform(args: WebappNotificationOptions, team?: TeamBase | null): Partial<NativeNotificationOptions> {
+    const icons = team ? team.icons : null;
     const icon = icons ? (icons.image_512 || icons.image_132 || icons.image_102 || icons.image_68) : undefined;
     const teamId = team ? team.team_id : undefined;
+    const soundName = args.ssbFilename ? path.basename(args.ssbFilename, '.mp3') : undefined;
+    const canReply = !!args.channel;
+    const body = args.content;
+    const { channel, id } = args;
 
-    const options = { teamId, icon, body: args.content, canReply: !!args.channel };
+    const options = { id, channel, teamId, icon, body, soundName, canReply };
 
     if (this.state.isWindows) {
-      assignIn(options, {
-        theme: team ? team.theme : args.theme,
-        initials: team ? team.initials : args.initials,
-        screenPosition: this.state.notifyPosition,
+     assignIn(options, {
+        avatarImage: args.avatarImage,
         channel: args.channel,
         imageUri: args.imageUri,
+        initials: team ? team.initials : '',
         interactive: args.interactive,
         launchUri: args.launchUri,
-        avatarImage: args.avatarImage,
         msg: args.msg,
+        theme: team ? team.theme : '',
+        thread_ts: args.thread_ts,
         userId: team ? team.id : null
       });
     } else if (this.state.isMac) {
-      assignIn(options, {
+     assignIn(options, {
         icon: undefined,
         subtitle: args.subtitle,
-        soundName: args.ssbFilename ? path.basename(args.ssbFilename, '.mp3') : undefined,
         bundleId: 'com.tinyspeck.slackmacgap'
       });
     }
 
     return options;
-  }
-
-  /**
-   * Windows notifications are a delicate matter, so this method ensures
-   * that native components are registered and active. We need to do this
-   * before we're sending notifications, since old notifications (hanging
-   * around in the Action Center) could be activated.
-   */
-  private setupWindowsNotifications(): void {
-    logger.info(`Setting up Windows notifications (activator & notification queue)`);
-
-    // Activating the activator on launch is necessary to support sending replies
-    // written while Slack was closed. However, its behavior is still a bit wonky,
-    // so we're hiding it behind a global environment variable that can be enabled
-    // by brave test pilots.
-    if (process.env.SLACK_INTERACTIVE_REPLIES_ON_LAUNCH) {
-      NodeRTNotificationHelpers.registerActivator();
-    }
-
-    NodeRTNotificationHelpers.enableNotificationQueue();
   }
 }

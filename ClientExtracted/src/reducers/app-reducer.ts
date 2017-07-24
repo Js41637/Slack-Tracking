@@ -2,10 +2,10 @@
  * @module Reducers
  */ /** for typedoc */
 
-import { Action } from '../actions/action';
 import { APP } from '../actions';
-import { Region, StringMap, MenuItemsMap, UpdateInformation,
-   updateStatusType, networkStatusType, UPDATE_STATUS } from '../utils/shared-constants';
+import { Action } from '../actions/action';
+import { LastError, MenuItemsMap, Region, StringMap,
+   UPDATE_STATUS, UpdateInformation, networkStatusType, updateStatusType } from '../utils/shared-constants';
 
 export interface AppState {
   networkStatus: networkStatusType;
@@ -15,6 +15,7 @@ export interface AppState {
   isMachineAwake: boolean;
   areDevToolsOpen: boolean;
   noDragRegions: Array<Region>;
+  lastError: LastError | null;
 }
 
 const initialState: AppState = {
@@ -24,7 +25,8 @@ const initialState: AppState = {
   customMenuItems: null,
   isMachineAwake: true,
   areDevToolsOpen: false,
-  noDragRegions: []
+  noDragRegions: [],
+  lastError: null
 };
 
 /**
@@ -47,10 +49,12 @@ export function reduce(
     return { ...state, areDevToolsOpen: action.data };
   case APP.UPDATE_NO_DRAG_REGION:
     return updateNoDragRegion(state, action.data.region);
+  case APP.SET_LAST_ERROR:
+    return { ...state, lastError: action.data };
   default:
     return state;
   }
-};
+}
 
 function setUpdateStatus(
   state: AppState,

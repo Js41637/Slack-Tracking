@@ -2,26 +2,23 @@
  * @module Browser
  */ /** for typedoc */
 
-import { app, BrowserWindow } from 'electron';
+import { BrowserWindow, app } from 'electron';
 
 import { ReduxComponent } from '../lib/redux-component';
 import { settingStore } from '../stores/setting-store';
-import { setZoomLevelAndLimits } from '../utils/zoomlevels';
 import { windowStore } from '../stores/window-store';
-import { Window } from '../stores/window-store-helper';
-
-import { StringMap, WINDOW_TYPES } from '../utils/shared-constants';
+import { WINDOW_TYPES } from '../utils/shared-constants';
+import { setZoomLevelAndLimits } from '../utils/zoomlevels';
 
 export interface WebContentsMediatorState {
   zoomLevel: number;
-  childWindows: StringMap<Window>;
 }
 
 /**
  * We use this class when we need to hook events that apply to all webContents
  * but want to avoid the curse of remote event handlers.
  */
-export class WebContentsMediator<S extends WebContentsMediatorState> extends ReduxComponent<S> {
+export class WebContentsMediator extends ReduxComponent<WebContentsMediatorState> {
   constructor() {
     super();
 
@@ -30,11 +27,10 @@ export class WebContentsMediator<S extends WebContentsMediatorState> extends Red
     });
   }
 
-  public syncState(): Partial<S> | null {
+  public syncState(): Partial<WebContentsMediatorState> | null {
     return {
       zoomLevel: settingStore.getSetting<number>('zoomLevel'),
-      childWindows: windowStore.getWindows([WINDOW_TYPES.WEBAPP])
-    } as S;
+    };
   }
 
   /**
@@ -83,7 +79,8 @@ export class WebContentsMediator<S extends WebContentsMediatorState> extends Red
     const browserWindow = BrowserWindow.fromWebContents(webContents);
     if (!browserWindow) return false;
 
-    const windowParams = this.state.childWindows[browserWindow.id];
+    const childWindows = windowStore.getWindows([WINDOW_TYPES.WEBAPP]);
+    const windowParams = childWindows[browserWindow.id];
     if (!windowParams) return false;
 
     return windowStore.isCallsWindow(windowParams.subType);

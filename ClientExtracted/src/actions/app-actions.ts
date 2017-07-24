@@ -3,9 +3,9 @@
  */ /** for typedoc */
 
 import { Store } from '../lib/store';
+import { LastError, Region, StringMap, UPDATE_STATUS,
+  UpdateInformation, networkStatusType, updateStatusType } from '../utils/shared-constants';
 import { APP } from './';
-import { Region, StringMap, UPDATE_STATUS, updateStatusType,
-  networkStatusType, UpdateInformation } from '../utils/shared-constants';
 
 export class AppActions {
   public setNetworkStatus(status: networkStatusType): void {
@@ -59,12 +59,19 @@ export class AppActions {
   }
 
   public setCustomMenuItems(
-    customItems: StringMap<Array<Electron.MenuItemOptions>>,
+    customItems: StringMap<Array<Electron.MenuItemConstructorOptions>>,
     teamId: string
   ): void {
     Store.dispatch({
       type: APP.SET_CUSTOM_MENU_ITEMS,
       data: { customItems, teamId }
+    });
+  }
+
+  public setLastError(error: LastError): void {
+    Store.dispatch({
+      type: APP.SET_LAST_ERROR,
+      data: error
     });
   }
 

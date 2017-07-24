@@ -5,13 +5,13 @@
 import * as ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 
 import { Component } from '../../lib/component';
-import { eventStore, StoreEvent } from '../../stores/event-store';
-import { FullScreenModal } from './full-screen-modal';
 import { settingStore } from '../../stores/setting-store';
-import { WebViewContext } from './web-view-ctx';
 import { noop } from '../../utils/noop';
+import { FullScreenModal } from './full-screen-modal';
 
 import * as React from 'react'; // tslint:disable-line:no-unused-variable
+import { eventActions } from '../../actions/event-actions';
+import { WebViewLifeCycleComponent } from './web-view-life-cycle-component';
 
 export interface LoginViewProps {
   cancelable: boolean;
@@ -23,7 +23,6 @@ export interface LoginViewState {
   pageDidLoad: boolean;
   spinnerOpacity: number;
   slackUrl: string;
-  mainWindowFocusedEvent: StoreEvent;
 }
 
 export class LoginView extends Component<LoginViewProps, Partial<LoginViewState>> {
@@ -36,11 +35,9 @@ export class LoginView extends Component<LoginViewProps, Partial<LoginViewState>
 
   private spinnerElement: HTMLImageElement;
   private modalElement: FullScreenModal;
-  private webViewElement: WebViewContext;
   private readonly refHandlers = {
     spinner: (ref: HTMLImageElement) => this.spinnerElement = ref,
-    modal: (ref: FullScreenModal) => this.modalElement = ref,
-    webView: (ref: WebViewContext) => this.webViewElement = ref
+    modal: (ref: FullScreenModal) => this.modalElement = ref
   };
 
   private readonly eventHandlers = {
@@ -59,19 +56,12 @@ export class LoginView extends Component<LoginViewProps, Partial<LoginViewState>
 
   public syncState(): Partial<LoginViewState> {
     return {
-      slackUrl: settingStore.getSignInUrl(),
-      mainWindowFocusedEvent: eventStore.getEvent('mainWindowFocused')
+      slackUrl: settingStore.getSignInUrl()
     };
   }
 
   public componentDidMount(): void {
     this.setState({ spinnerOpacity: 1 });
-  }
-
-  public mainWindowFocusedEvent(): void {
-    if (this.webViewElement) {
-      this.webViewElement.focus();
-    }
   }
 
   public cancel(): void {
@@ -106,13 +96,12 @@ export class LoginView extends Component<LoginViewProps, Partial<LoginViewState>
             {overlay}
           </ReactCSSTransitionGroup>
 
-          <WebViewContext
+          <WebViewLifeCycleComponent
             className='webView'
             login={true}
             options={{ src: this.state.slackUrl! }}
             onPageLoad={this.eventHandlers.onPageLoad}
             onRequestClose={this.eventHandlers.onCancel}
-            ref={this.refHandlers.webView}
             id='login'
           />
         </div>
@@ -122,6 +111,6 @@ export class LoginView extends Component<LoginViewProps, Partial<LoginViewState>
 
   private handlePageLoad(): void {
     this.setState({ pageDidLoad: true });
-    this.webViewElement.focus();
+    eventActions.mainWindowFocused();
   }
 }

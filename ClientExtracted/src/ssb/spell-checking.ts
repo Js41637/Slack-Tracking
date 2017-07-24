@@ -6,7 +6,7 @@ import { ContextMenuBuilder } from '../context-menu';
 import { ContextMenuListener } from '../context-menu-listener';
 import { ipc } from '../ipc-rx';
 import { logger } from '../logger';
-
+import { settingStore } from '../stores/setting-store';
 
 export class SpellCheckingHelper {
   public spellCheckHandler: any;
@@ -17,14 +17,45 @@ export class SpellCheckingHelper {
     this.setupInputEventListener();
   }
 
+  /**
+   * Configures the spellchecker to only check in the given language. On macOS, it'll
+   * accept all dictionary identifiers used by macOS ("de-DE", "german", "de"), while
+   * it'll attempt to find a fitting dictionary on Windows and Linux, where hunspell
+   * needs a precise dictionary identifier.
+   *
+   * If the method is called without parameters (or a falsey one), it'll configure the
+   * spellchecker to continuously attempt auto-detection of the typed language.
+   *
+   * @param {string} [language]
+   */
+  public updateLanguage(language?: string) {
+    try {
+      if (language) {
+        this.spellCheckHandler.switchLanguage(language);
+      }
+
+      this.spellCheckHandler.automaticallyIdentifyLanguages = !!language;
+    } catch (error) {
+      logger.warn(`Tried to update spellchecker language, but failed`, error);
+    }
+  }
+
   private setupSpellChecker() {
     try {
       const { SpellCheckHandler, setGlobalLogger } = require('electron-spellchecker');
+      const language = settingStore.getSetting('spellcheckerLanguage');
 
       setGlobalLogger(logger.info.bind(logger));
 
       this.spellCheckHandler = new SpellCheckHandler();
       this.spellCheckHandler.autoUnloadDictionariesOnBlur();
+
+      // We can optionally force a language. This is useful for customers who
+      // use a mix of languages that computers get confused by.
+      if (language) {
+        this.spellCheckHandler.automaticallyIdentifyLanguages = false;
+        this.spellCheckHandler.switchLanguage(language);
+      }
     } catch (error) {
       logger.warn(`We tried to setup the spellchecker, but failed`, error);
     }
@@ -37,7 +68,7 @@ export class SpellCheckingHelper {
 
     if (process.guestInstanceId) {
       this.contextMenuListener = new ContextMenuListener((info: any) => {
-        ipc.sendToHost('context-menu-show', info);
+        (ipc as Electron.IpcRenderer).sendToHost('context-menu-show', info);
       }, null, contextMenuIpc);
     } else {
       const contextMenuBuilder = new ContextMenuBuilder(this.spellCheckHandler);

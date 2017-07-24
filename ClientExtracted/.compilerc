@@ -1,11 +1,6 @@
 {
   "env": {
     "development": {
-      "application/javascript": {
-        "presets": ["es2017-node7", "react"],
-        "plugins": ["transform-async-to-generator"],
-        "sourceMaps": "inline"
-      },
       "text/jade": {
         "isProduction": false
       },
@@ -34,11 +29,6 @@
       }
     },
     "production": {
-      "application/javascript": {
-        "presets": ["es2017-node7", "react"],
-        "plugins": ["transform-async-to-generator"],
-        "sourceMaps": false
-      },
       "text/jade": {
         "isProduction": true
       },

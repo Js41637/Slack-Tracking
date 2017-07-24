@@ -2,30 +2,31 @@
  * @module RendererComponents
  */ /** for typedoc */
 
-import { Observable } from 'rxjs';
 import * as Kolor from 'color';
-import * as fs from 'fs';
 import { rendererRequireDirect } from 'electron-remote';
+import * as fs from 'fs';
+import { Observable } from 'rxjs';
 
+import { remote } from 'electron';
+import { TeamBase } from '../../actions/team-actions';
 import { p } from '../../get-path';
 import { Component } from '../../lib/component';
 import { logger } from '../../logger';
-import { remote } from 'electron';
-import { teamStore } from '../../stores/team-store';
-import { StoreEvent } from '../../stores/event-store';
-import { TeamBase } from '../../actions/team-actions';
+import { NotificationEvent } from '../../reducers/notifications-reducer';
 import { notificationStore } from '../../stores/notification-store';
+import { teamStore } from '../../stores/team-store';
 import { StringMap } from '../../utils/shared-constants';
 
 declare function requestIdleCallback(callback: any): any;
 
 export interface ChromaProps {
   keyboardColor: Color.Color;
-};
+}
 
 export interface ChromaState {
   numTeams: number;
   teams: StringMap<TeamBase>;
+  newNotificationEvent: NotificationEvent;
 }
 
 /**
@@ -132,11 +133,11 @@ export class RazerChroma extends Component<ChromaProps, ChromaState> {
    * We ask for the number of teams (to color the ctrl buttons) - as well
    * as the new notification event.
    */
-  public syncState(): any {
+  public syncState(): ChromaState {
     return {
        numTeams: teamStore.getNumTeams(),
        teams: teamStore.teams,
-       newNotificationEvent: notificationStore.getNewNotificationEvent() as StoreEvent
+       newNotificationEvent: notificationStore.getNewNotificationEvent()
     };
   }
 

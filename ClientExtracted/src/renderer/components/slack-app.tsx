@@ -2,51 +2,51 @@
  * @module RendererComponents
  */ /** for typedoc */
 
-import { ipcRenderer, shell, remote, webFrame } from 'electron';
-import { executeJavaScriptMethod, getSenderIdentifier } from 'electron-remote';
 import * as classNames from 'classnames';
+import { ipcRenderer, remote, shell, webFrame } from 'electron';
+import { executeJavaScriptMethod, getSenderIdentifier } from 'electron-remote';
+import { sum } from 'lodash';
+import * as ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
-import * as ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 
-import { isPrebuilt } from '../../utils/process-helpers';
 import { getUserAgent } from '../../ssb-user-agent';
+import { isPrebuilt } from '../../utils/process-helpers';
 import { zoomLevelToFactor } from '../../utils/zoomlevels';
-import { objectSum } from '../../utils/object-sum';
 
-import { getMemoryUsage, TeamMemoryStats } from '../../memory-usage';
 import { appActions } from '../../actions/app-actions';
-import { appStore } from '../../stores/app-store';
 import { appTeamsActions } from '../../actions/app-teams-actions';
-import { appTeamsStore } from '../../stores/app-teams-store';
-import { BasicAuthView } from './basic-auth-view';
+import { UrlScheme, dialogActions } from '../../actions/dialog-actions';
+import { eventActions } from '../../actions/event-actions';
+import { settingActions } from '../../actions/setting-actions';
+import { TeamBase } from '../../actions/team-actions';
 import { Component } from '../../lib/component';
-import { DraggableRegion } from './draggable-region';
+import { Store } from '../../lib/store';
+import { TeamMemoryStats, getMemoryUsage } from '../../memory-usage';
+import { NetworkStatus } from '../../network-status';
+import { appStore } from '../../stores/app-store';
+import { appTeamsStore } from '../../stores/app-teams-store';
 import { dialogStore } from '../../stores/dialog-store';
-import { dialogActions, UrlScheme } from '../../actions/dialog-actions';
-import { eventStore, StoreEvent } from '../../stores/event-store';
+import { StoreEvent, eventStore } from '../../stores/event-store';
+import { settingStore } from '../../stores/setting-store';
+import { teamStore } from '../../stores/team-store';
+import { windowFrameStore } from '../../stores/window-frame-store';
+import { windowStore } from '../../stores/window-store';
+import { Region, StringMap, WindowMetadata } from '../../utils/shared-constants';
+import { WindowHelpers } from '../../utils/window-helpers';
+import { BasicAuthView } from './basic-auth-view';
+import { DraggableRegion } from './draggable-region';
 import { LoadingScreen } from './loading-screen';
 import { LoginView } from './login-view';
 import { NativeNotificationManager } from './native-notification-manager';
-import { NetworkStatus } from '../../network-status';
 import { NonDraggableRegion } from './non-draggable-region';
 import { OverlayManager } from './overlay-manager';
-import { settingActions } from '../../actions/setting-actions';
-import { settingStore } from '../../stores/setting-store';
-import { Store } from '../../lib/store';
 import { TeamsDisplay } from './teams-display';
-import { teamStore } from '../../stores/team-store';
 import { UrlSchemeModal } from './url-scheme-modal';
-import { windowFrameStore } from '../../stores/window-frame-store';
-import { WindowHelpers } from '../../utils/window-helpers';
-import { windowStore } from '../../stores/window-store';
 import { WinTitlebar } from './win-titlebar';
-import { TeamBase } from '../../actions/team-actions';
-import { Window } from '../../stores/window-store-helper';
-import { Region, StringMap } from '../../utils/shared-constants';
 
-import {SIDEBAR_WIDTH, CHANNEL_HEADER_HEIGHT, SIDEBAR_ICON_SIZE,
-  SIDEBAR_ITEM_MARGIN_TOP_NO_TITLE_BAR, REPORT_ISSUE_WINDOW_TYPE, networkStatusType} from '../../utils/shared-constants';
+import {CHANNEL_HEADER_HEIGHT, REPORT_ISSUE_WINDOW_TYPE, SIDEBAR_ICON_SIZE,
+  SIDEBAR_ITEM_MARGIN_TOP_NO_TITLE_BAR, SIDEBAR_WIDTH, networkStatusType} from '../../utils/shared-constants';
 
 import * as React from 'react'; // tslint:disable-line
 
@@ -66,18 +66,17 @@ function keyCodeInRange({ keyCode }: { keyCode: number }, min: number, max: numb
   return keyCode >= min && keyCode <= max;
 }
 
-export interface SlackAppProps {
-}
+export interface SlackAppProps { } //tslint:disable-line:no-empty-interface
 
 export interface SlackAppState {
   networkStatus: networkStatusType;
   isShowingLoginDialog: boolean;
   isTitleBarHidden: boolean;
   noDragRegions: Array<Region>;
-  authInfo: Electron.LoginAuthInfo;
-  urlSchemeModal: UrlScheme;
-  selectedTeam: TeamBase;
-  selectedTeamId: string;
+  authInfo: Electron.AuthInfo | null;
+  urlSchemeModal: UrlScheme | null;
+  selectedTeam: TeamBase | null;
+  selectedTeamId: string | null;
   numTeams: number;
   isDevMode: boolean;
   areDevToolsOpen: boolean;
@@ -85,12 +84,12 @@ export interface SlackAppState {
   isMac: boolean;
   isFullScreen: boolean;
   zoomLevel: number;
-  reportIssueWindow: Window | null;
+  reportIssueWindow: WindowMetadata | null;
   reportIssueEvent: StoreEvent;
   reportIssueOnStartup: boolean;
   isWin10: boolean;
-  isMaximized: boolean;
-  wasConnected: boolean;
+  isMaximized?: boolean;
+  wasConnected?: boolean;
 }
 
 export class SlackApp extends Component<SlackAppProps, Partial<SlackAppState>> {
@@ -101,6 +100,14 @@ export class SlackApp extends Component<SlackAppProps, Partial<SlackAppState>> {
   private loginViewElement: LoginView;
   private teamsDisplayElement: TeamsDisplay;
   private mainElement: HTMLElement;
+  /**
+   * Capture state `reportIssueOnStartup` to `reportIssueEvent` can read values before state changed.
+   * Report issue will append tag based on state of this flag.
+   *
+   * Note : this is immediate solution for 2.7 until migrated `reportIssueEvent` into epics
+   */
+  private reportIssueOnStartup: boolean = false;
+
 
   private readonly refHandlers = {
     loginView: (ref: LoginView) => this.loginViewElement = ref,
@@ -112,7 +119,7 @@ export class SlackApp extends Component<SlackAppProps, Partial<SlackAppState>> {
     onCancelLogin: () => dialogActions.hideLoginDialog()
   };
 
-  public syncState(): Partial<SlackAppState> {
+  public syncState(): SlackAppState {
     const selectedTeamId = appTeamsStore.getSelectedTeamId();
     const selectedTeam = teamStore.getTeam(selectedTeamId) || null;
     const reportIssueWindow = windowStore.getWindowOfSubType(REPORT_ISSUE_WINDOW_TYPE);
@@ -163,9 +170,9 @@ export class SlackApp extends Component<SlackAppProps, Partial<SlackAppState>> {
     }
 
     this.disposables.add(this.setupWindowWatcher());
-
     if (this.state.reportIssueOnStartup) {
-      this.reportIssueEvent();
+      this.reportIssueOnStartup = true;
+      eventActions.reportIssue();
     }
   }
 
@@ -191,17 +198,22 @@ export class SlackApp extends Component<SlackAppProps, Partial<SlackAppState>> {
   public reportIssueEvent(): void {
     const { selectedTeam, reportIssueWindow } = this.state;
 
+    const baseUrl = require('url').resolve(
+      selectedTeam ? selectedTeam.team_url : `https://slack.com`,
+      `help/requests/new`
+    );
+    const helpUrl = `${baseUrl}${this.reportIssueOnStartup ? `?crash_report=1` : ''}`;
+
     if (reportIssueWindow) {
       const browserWindow = remote.BrowserWindow.fromId(reportIssueWindow.id);
-      WindowHelpers.bringToForeground(browserWindow);
+      WindowHelpers.bringToForeground(browserWindow, Store);
     } else if (selectedTeam) {
-      const helpUrl = require('url').resolve(selectedTeam.team_url, 'help/requests/new');
       this.createReportIssueWindow(helpUrl);
     } else {
-      shell.openExternal(`https://slack.com/help/requests/new`);
+      shell.openExternal(helpUrl);
     }
 
-    settingActions.updateSettings({ reportIssueOnStartup: false });
+    this.reportIssueOnStartup = false;
   }
 
   /**
@@ -217,11 +229,9 @@ export class SlackApp extends Component<SlackAppProps, Partial<SlackAppState>> {
     const allTeamsMemory = this.teamsDisplayElement ?
       await this.teamsDisplayElement.getCombinedMemoryUsage() : null;
 
-    const combinedMemory = [rendererMemory, browserMemory, allTeamsMemory].reduce(objectSum);
+    const combinedMemory = [rendererMemory, browserMemory, allTeamsMemory].reduce(sum);
 
-    return Object.assign(combinedMemory, {
-      numTeams: this.state.numTeams
-    });
+    return { ...combinedMemory, numTeams: this.state.numTeams };
   }
 
   /**
@@ -236,8 +246,17 @@ export class SlackApp extends Component<SlackAppProps, Partial<SlackAppState>> {
   }
 
   public render(): JSX.Element | null {
-    const {numTeams, networkStatus, authInfo, isShowingLoginDialog,
-      urlSchemeModal, isWin10, isMaximized, isFullScreen} = this.state;
+    const {
+      numTeams,
+      networkStatus,
+      authInfo,
+      isShowingLoginDialog,
+      urlSchemeModal,
+      isWin10,
+      isMaximized,
+      isFullScreen
+    } = this.state;
+
     const hasTeams = (numTeams || 0) > 0;
     const isOnline = networkStatus === 'online';
     const className = classNames('SlackApp', {
@@ -256,12 +275,12 @@ export class SlackApp extends Component<SlackAppProps, Partial<SlackAppState>> {
       teamContent = <TeamsDisplay ref={this.refHandlers.teamDisplay}/>;
 
       if (!hasTeams || isShowingLoginDialog) {
-        loginContent =
+        loginContent = (
           <LoginView
             ref={this.refHandlers.loginView}
             cancelable={hasTeams}
             onCancel={this.eventHandlers.onCancelLogin}
-          />;
+          />);
       }
     }
 

@@ -3,9 +3,11 @@
  */ /** for typedoc */
 
 import { remote } from 'electron';
+import { clipboard } from 'electron';
+import { desktopCapturer as ElectronDesktopCapturer } from 'electron';
+import { get } from 'lodash';
 import { logger } from '../logger';
 import { IS_WINDOWS_STORE } from '../utils/shared-constants';
-import { clipboard } from 'electron';
 
 let WebRTC: any = null;
 const path = require('path');
@@ -58,7 +60,8 @@ export class Calls {
     }
   }
 
-  public startNewCall() {
+  public startNewCall(options: any) {
+    options = options || {};
     const version = `${window.TS.model.win_ssb_version}.${window.TS.model.win_ssb_version_minor}`;
     logger.info('Starting new Calls');
     this.appSleepId = remote.powerSaveBlocker.start('prevent-display-sleep');
@@ -69,7 +72,24 @@ export class Calls {
       this.onRemoteFrame.bind(this),
       this.onLocalFrame.bind(this),
       version,
-      logger.logLocation);
+      logger.logLocation,
+      get(options, 'is_slim_mode', false),
+      get(options, 'should_start_cpu_monitor', true));
+  }
+
+  public getScreenPreviewThumbnails(size: Electron.Size, captureTypes?: Array<string>): Promise<Array<Electron.DesktopCapturerSource>> {
+    return new Promise(function(resolve: (reason: any) => void, reject: (reason: any) => void) {
+      ElectronDesktopCapturer.getSources(
+          { types: captureTypes || ['screen'], thumbnailSize: size },
+          (err: Error, sources: Array<Electron.DesktopCapturerSource>) => {
+            if (err) {
+              logger.error('Screen preview failed with error: ', err);
+              reject(err);
+              return;
+            }
+            resolve(sources);
+          });
+    });
   }
 
   public invokeJSMethod(msg_json: string): void {

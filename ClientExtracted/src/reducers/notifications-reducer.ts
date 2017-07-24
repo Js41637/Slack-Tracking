@@ -2,16 +2,18 @@
  * @module Reducers
  */ /** for typedoc */
 
-import { Notification } from '../actions/notification-actions';
-import { Action } from '../actions/action';
 import { NOTIFICATIONS } from '../actions';
+import { Action } from '../actions/action';
+import { WebappNotificationOptions } from '../renderer/notifications/interfaces';
+
+export interface NotificationEvent {
+  timestamp: number;
+  notification: WebappNotificationOptions;
+}
 
 export interface NotificationState {
-  notifications: Array<Notification>;
-  newNotification: {
-    timestamp: number,
-    notification: Notification
-  };
+  notifications: Array<WebappNotificationOptions>;
+  newNotification: NotificationEvent;
 }
 
 // Here we store an array of all notifications as well as an event that
@@ -39,9 +41,9 @@ export function reduce(state: NotificationState = initialState, action: Action<a
   default:
     return state;
   }
-};
+}
 
-function newNotification(state: NotificationState, notification: Notification): NotificationState {
+function newNotification(state: NotificationState, notification: WebappNotificationOptions): NotificationState {
   return {
     ...state,
     notifications: [...state.notifications, notification],

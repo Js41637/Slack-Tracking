@@ -4,7 +4,7 @@ const url = require('url');
 const querystring = require('querystring');
 
 const expressionsToMatch = [{
-  regex: /devEnv=(dev\d*|staging)/,
+  regex: /devEnv=(dev\d*|staging|qa\d*)/,
   onMatch: (match) => ({ devMode: true, devEnv: match[1] })
 }, {
   regex: /releaseChannel=(beta|prod)/,
