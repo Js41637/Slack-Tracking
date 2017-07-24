@@ -2,11 +2,19 @@
 
 {{#if model_ob.is_org_shared}}
   <div class="channel_shared_teams_section bottom_margin">
-    <div class="bold greigh shared_teams_label mini small_bottom_margin">{{#t}}Teams{{/t}}</div>
+    {{#feature flag="feature_teams_to_workspaces"}}
+      <div class="bold greigh shared_teams_label mini small_bottom_margin">{{#t}}Workspaces{{/t}}</div>
+    {{else}}
+      <div class="bold greigh shared_teams_label mini small_bottom_margin">{{#t}}Teams{{/t}}</div>
+    {{/feature}}
     {{#if is_globally_shared}}
       <p>
         <img class="member_image float_left small_right_margin" src="{{enterprise_org_icon.image_68}}" srcset="{{enterprise_org_icon.image_34}} 1x, {{enterprise_org_icon.image_68}} 2x"/>
-        {{#t}}Shared with all teams in the {enterprise_org_name} organization{{/t}}
+        {{#feature flag="feature_teams_to_workspaces"}}
+          {{#t}}Shared with all workspaces in the {enterprise_org_name} organization{{/t}}
+        {{else}}
+          {{#t}}Shared with all teams in the {enterprise_org_name} organization{{/t}}
+        {{/feature}}
       </p>
     {{else}}
       <div class="channel_shared_teams">
@@ -24,7 +32,11 @@
   </div>
 {{else if model_ob.is_shared}}
   <div class="channel_shared_teams_section bottom_margin">
-    <div class="bold greigh shared_teams_label mini small_bottom_margin">{{#t}}Teams{{/t}}</div>
+    {{#feature flag="feature_teams_to_workspaces"}}
+      <div class="bold greigh shared_teams_label mini small_bottom_margin">{{#t}}Workspaces{{/t}}</div>
+    {{else}}
+      <div class="bold greigh shared_teams_label mini small_bottom_margin">{{#t}}Teams{{/t}}</div>
+    {{/feature}}
     {{#each shared_teams}}
       <div class="shared_team_details small_top_margin">
         {{> team_icon team=this size=36}}

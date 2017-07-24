@@ -8,21 +8,37 @@
 
     <div id="team_name_form_body" class="fs_split_body">
 
-      <h1>{{#if header_copy}} {{preventWidow header_copy}} {{else}} {{#t}}What do you want to call your Slack team?{{/t}} {{/if}}</h1>
+      {{#feature flag="feature_teams_to_workspaces"}}
+        <h1>{{#if header_copy}} {{preventWidow header_copy}} {{else}} {{#t}}What do you want to call your Slack workspace?{{/t}} {{/if}}</h1>
+      {{else}}
+        <h1>{{#if header_copy}} {{preventWidow header_copy}} {{else}} {{#t}}What do you want to call your Slack team?{{/t}} {{/if}}</h1>
+      {{/feature}}
       {{#unless header_copy}}
       <p class="desc">
-        {{#t}}Name your team after the group that will be using Slack together.{{/t}}
+        {{#feature flag="feature_teams_to_workspaces"}}
+          {{#t}}Name your workspace after the group that will be using Slack together.{{/t}}
+        {{else}}
+          {{#t}}Name your team after the group that will be using Slack together.{{/t}}
+        {{/feature}}
       </p>
       <p class="desc">
         <span class="bold flat_grey">{{#t}}Work at a large company?</span> Try using the name of your division, instead of your company name.{{/t}}
       </p>
       {{/unless}}
       <label id="teamname_label">
-        {{#if input_label}} {{input_label}} {{else}} {{#t}}Slack team name <span class="subtle_silver normal">(you can change this later)</span>{{/t}} {{/if}}
+        {{#feature flag="feature_teams_to_workspaces"}}
+          {{#if input_label}} {{input_label}} {{else}} {{#t}}Slack workspace name <span class="subtle_silver normal">(you can change this later)</span>{{/t}} {{/if}}
+        {{else}}
+          {{#if input_label}} {{input_label}} {{else}} {{#t}}Slack team name <span class="subtle_silver normal">(you can change this later)</span>{{/t}} {{/if}}
+        {{/feature}}
       </label>
       <input type="text" placeholder="{{#if placeholder}}{{placeholder}}{{else}}{{#t}}Ex. Acme or Acme Marketing{{/t}}{{/if}}" id="signup_team_name" name="team_name" maxlength="255" autocomplete="off" data-qa="team_name_field" value="{{team_name}}" aria-labelledby="teamname_label" data-validation="team_name"/>
       <label for="team_name" class="team_name_input_label"></label>
-      {{#if input_label}}<p class="subtle_silver normal">{{#t}}We\u2019ll use this to name your Slack team, which you can always change later.{{/t}}</p>{{/if}}
+      {{#feature flag="feature_teams_to_workspaces"}}
+        {{#if input_label}}<p class="subtle_silver normal">{{#t}}We\u2019ll use this to name your Slack workspace, which you can always change later.{{/t}}</p>{{/if}}
+      {{else}}
+        {{#if input_label}}<p class="subtle_silver normal">{{#t}}We\u2019ll use this to name your Slack team, which you can always change later.{{/t}}</p>{{/if}}
+      {{/feature}}
     </div>
 
 

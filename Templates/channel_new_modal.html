@@ -6,12 +6,20 @@
       <span class="public_channel_item{{#unless is_public}} hidden{{/unless}}">{{#t}}Create a channel{{/t}}</span>
       <span class="private_channel_item{{#is_public}} hidden{{/is_public}}">{{#t}}Create a private channel{{/t}}</span>
     </h1>
-    <p class="input_note_special medium_bottom_margin">{{#t}}Channels are where your team communicates. They\u2019re best when organized around a topic \u2014 #leads, for example.{{/t}}</p>
+    {{#feature flag="feature_teams_to_workspaces"}}
+      <p class="input_note_special medium_bottom_margin">{{#t}}Channels are where your members communicate. They\u2019re best when organized around a topic \u2014 #leads, for example.{{/t}}</p>
+    {{else}}
+      <p class="input_note_special medium_bottom_margin">{{#t}}Channels are where your team communicates. They\u2019re best when organized around a topic \u2014 #leads, for example.{{/t}}</p>
+    {{/feature}}
   </div>
   <div class="bottom_margin">
     {{#if can_toggle_private}}
       <label class="checkbox">
-        <input id="channel_public_private_toggle" type="checkbox" name="public" value="public" {{#is_public}}checked="checked"{{/is_public}} data-style="toggle" data-on-text="{{#t}}Public{{/t}}" data-off-text="{{#t}}Private{{/t}}" data-label="{{#t}}Anyone on your team can view and join this channel.{{/t}}" data-off-label="{{#t}}This channel can only be joined or viewed by invite.{{/t}}" data-off-class="ts_toggle_orange">
+        {{#feature flag="feature_teams_to_workspaces"}}
+          <input id="channel_public_private_toggle" type="checkbox" name="public" value="public" {{#is_public}}checked="checked"{{/is_public}} data-style="toggle" data-on-text="{{#t}}Public{{/t}}" data-off-text="{{#t}}Private{{/t}}" data-label="{{#t}}Anyone in your workspace can view and join this channel.{{/t}}" data-off-label="{{#t}}This channel can only be joined or viewed by invite.{{/t}}" data-off-class="ts_toggle_orange">
+        {{else}}
+          <input id="channel_public_private_toggle" type="checkbox" name="public" value="public" {{#is_public}}checked="checked"{{/is_public}} data-style="toggle" data-on-text="{{#t}}Public{{/t}}" data-off-text="{{#t}}Private{{/t}}" data-label="{{#t}}Anyone on your team can view and join this channel.{{/t}}" data-off-label="{{#t}}This channel can only be joined or viewed by invite.{{/t}}" data-off-class="ts_toggle_orange">
+        {{/feature}}
       </label>
     {{/if}}
   </div>
@@ -85,6 +93,10 @@
     <button type="reset" class="btn btn_large btn_outline float_right small_right_margin ladda-button new_channel_cancel_btn"><span class="ladda-label">{{#t}}Cancel{{/t}}</span></button>
   </div>
   {{#if can_create_shared_channel}}
-    <button class="btn_unstyle create_share_channel position_absolute sk_light_grey subtle_silver" type="button"><ts-icon class="ts_icon_plus_circle position_relative"></ts-icon> {{#t}}Share a channel with another team{{/t}}</button>
+    {{#feature flag="feature_teams_to_workspaces"}}
+      <button class="btn_unstyle create_share_channel position_absolute sk_light_grey subtle_silver" type="button"><ts-icon class="ts_icon_plus_circle position_relative"></ts-icon> {{#t}}Share a channel with another workspace{{/t}}</button>
+    {{else}}
+      <button class="btn_unstyle create_share_channel position_absolute sk_light_grey subtle_silver" type="button"><ts-icon class="ts_icon_plus_circle position_relative"></ts-icon> {{#t}}Share a channel with another team{{/t}}</button>
+    {{/feature}}
   {{/if}}
 </div>

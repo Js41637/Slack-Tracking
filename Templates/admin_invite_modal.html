@@ -4,7 +4,11 @@
   <div id="admin_invites_alert" class="align_center alert hidden">
     <p class="inline">
       <ts-icon class="ts_icon_add_user very_small_right_margin blue_fill"></ts-icon>
-      {{#t}}Paid teams can also invite <span class="bold">guests</span>, like contractors, vendors, or clients.{{/t}}
+      {{#feature flag="feature_teams_to_workspaces"}}
+        {{#t}}Workspaces with paid plans can also invite <span class="bold">guests</span>, like contractors, vendors, or clients.{{/t}}
+      {{else}}
+        {{#t}}Paid teams can also invite <span class="bold">guests</span>, like contractors, vendors, or clients.{{/t}}
+      {{/feature}}
     </p>
     <a id="invites_alert_see_pricing_cta" class="no_underline" href="/pricing?paid_feature=guest_account&ui_step=66&ui_element=5" data-clog-event="GROWTH_PRICING" data-clog-ui-element="pricing_link" data-clog-ui-action="click" data-clog-ui-step="admin_invites">{{#t}}See pricing plans{{/t}}</a>
   </div>

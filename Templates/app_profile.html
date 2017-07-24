@@ -19,7 +19,11 @@
           {{#if_equal custom_integration_type compare="outgoing-webhook"}}
             {{!-- TODO: Outgoing webhook description. --}}
           {{else if_equal custom_integration_type compare="bot"}}
-            {{#t}}You can message bots and invite them to channels like other team members.{{/t}}
+            {{#feature flag="feature_teams_to_workspaces"}}
+              {{#t}}You can message bots and invite them to channels like other members.{{/t}}
+            {{else}}
+              {{#t}}You can message bots and invite them to channels like other team members.{{/t}}
+            {{/feature}}
           {{else if_equal custom_integration_type compare="slash-commands"}}
             {{#t}}Slash commands take actions when you post them in a conversation.{{/t}}
           {{/if_equal}}

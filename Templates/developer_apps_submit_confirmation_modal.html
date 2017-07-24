@@ -227,7 +227,11 @@
       </tr>
       {{#or team_events.length deleted.team_events.length}}
         <tr>
-          <td class="submission_modal_row_title">{{#t}}Team Events{{/t}}</td>
+          {{#feature flag="feature_teams_to_workspaces"}}
+            <td class="submission_modal_row_title">{{#t}}Workspace Events{{/t}}</td>
+          {{else}}
+            <td class="submission_modal_row_title">{{#t}}Team Events{{/t}}</td>
+          {{/feature}}
           <td class="submission_modal_cell">
             {{#each team_events}}
               <div>{{this}}</div>

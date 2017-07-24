@@ -7,8 +7,17 @@
   <div class="fs_split_flex_wrapper">
 
     <div class="shared_invite_link_form_body fs_split_body">
-      <h1 class="small_bottom_margin">{{#t}}Share your invite link with&nbsp;teammates{{/t}}</h1>
-      <p class="desc shared_invite_link_text">{{#t}}Anyone can use the following link to join your new Slack team. Just copy and share it!{{/t}}</p>
+      {{#feature flag="feature_teams_to_workspaces"}}
+        <h1 class="small_bottom_margin">{{#t}}Share your invite link{{/t}}</h1>
+      {{else}}
+        <h1 class="small_bottom_margin">{{#t}}Share your invite link with&nbsp;teammates{{/t}}</h1>
+      {{/feature}}
+
+      {{#feature flag="feature_teams_to_workspaces"}}
+        <p class="desc shared_invite_link_text">{{#t}}Anyone can use the following link to join your new Slack workspace. Just copy and share it!{{/t}}</p>
+      {{else}}
+        <p class="desc shared_invite_link_text">{{#t}}Anyone can use the following link to join your new Slack team. Just copy and share it!{{/t}}</p>
+      {{/feature}}
 
       <div class="shared_invite_link_container">
         <span class="shared_invite_link_label">{{#t}}{team_name}\u2019s invite link{{/t}}</span>
@@ -19,7 +28,11 @@
             <span class="shared_invite_link_tooltip ts_tip_tip hidden">{{#t}}Link copied!{{/t}} \ud83d\udc4f\ud83c\udffe</span>
           </button>
         </div>
-        <div class="shared_invite_link_info">{{#t}}This initial link will work for {link_duration} and up to {link_max_signups} team members.{{/t}}</div>
+        {{#feature flag="feature_teams_to_workspaces"}}
+          <div class="shared_invite_link_info">{{#t}}This initial link will work for {link_duration} and up to {link_max_signups} members.{{/t}}</div>
+        {{else}}
+          <div class="shared_invite_link_info">{{#t}}This initial link will work for {link_duration} and up to {link_max_signups} team members.{{/t}}</div>
+        {{/feature}}
       </div>
 
       <div class="shared_invite_link_skip_container">

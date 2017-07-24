@@ -42,7 +42,11 @@
       {{#if ../show_shared}}
         {{#if is_shared}}
           <div class="col span_3_of_12 subtle_silver">
-            <div class="show_on_mobile bottom_margin">{{#t}}Teams{{/t}}</div>
+            {{#feature flag="feature_teams_to_workspaces"}}
+              <div class="show_on_mobile bottom_margin">{{#t}}Workspaces{{/t}}</div>
+            {{else}}
+              <div class="show_on_mobile bottom_margin">{{#t}}Teams{{/t}}</div>
+            {{/feature}}
             {{#each shares}}
               <div class="shared_team bottom_margin clearfix">
                 <img class="member_image float_left" src="{{team.icon.image_68}}" srcset="{{team.icon.image_34}} 1x, {{team.icon.image_68}} 2x"/>

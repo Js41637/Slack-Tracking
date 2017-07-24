@@ -21,15 +21,24 @@
   <ul>
     {{#pageNeedsEnterprise}}
       {{#if channel.is_shared}}
-        <li>{{#t}}Messages, files, and members in this channel will be visible to both teams.{{/t}}</li>
+        {{#feature flag="feature_teams_to_workspaces"}}
+          <li>{{#t}}Messages, files, and members in this channel will be visible to both workspaces.{{/t}}</li>
+        {{else}}
+          <li>{{#t}}Messages, files, and members in this channel will be visible to both teams.{{/t}}</li>
+        {{/feature}}
         <li>{{#t}}Slack integrations are disabled in this channel.{{/t}}</li>
         {{#isThereComplianceExportsTeam channel}}
           <li>{{makeTeamsThatHaveComplianceExportsBlurb channel}}</li>
         {{/isThereComplianceExportsTeam}}
       {{/if}}
     {{/pageNeedsEnterprise}}
-    <li>{{#t}}Others on your team can join from the <strong>Channel List</strong>.{{/t}}</li>
-    <li>{{#t}}Or, you can <a class="bold invite_link">invite some teammates now</a>!{{/t}}</li>
+    {{#feature flag="feature_teams_to_workspaces"}}
+      <li>{{#t}}Others in your workspace can join from the <strong>Channel List</strong>.{{/t}}</li>
+      <li>{{#t}}Or, you can <a class="bold invite_link">invite other people now</a>!{{/t}}</li>
+    {{else}}
+      <li>{{#t}}Others on your team can join from the <strong>Channel List</strong>.{{/t}}</li>
+      <li>{{#t}}Or, you can <a class="bold invite_link">invite some teammates now</a>!{{/t}}</li>
+    {{/feature}}
   </ul>
   {{#if channel.purpose.value}}
     <p class="channel_overlay_purpose">{{#t channel_purpose=(formatTopicOrPurpose channel.purpose.value)}}The purpose of this channel is:<br /><em>{channel_purpose}</em>{{/t}}</p>

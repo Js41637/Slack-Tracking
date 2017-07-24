@@ -21,7 +21,11 @@ Used in billing_history_list_item_col.hbs
 {{else if_equal type compare="invoice_adjust"}}
   {{#t}}Invoice adjusted{{/t}}
 {{else if_equal type compare="invoice_cancel"}}
-  {{#t}}Your team is no longer paying by invoice.{{/t}}
+  {{#feature flag="feature_teams_to_workspaces"}}
+    {{#t}}You are no longer paying by invoice.{{/t}}
+  {{else}}
+    {{#t}}Your team is no longer paying by invoice.{{/t}}
+  {{/feature}}
 {{else if_equal type compare="purchase"}}
   {{#if_equal is_discounted compare=true}}
     {{#if_equal is_simple_discount compare=true}}
@@ -106,7 +110,11 @@ Used in billing_history_list_item_col.hbs
 {{else if_equal type compare="charge_high_balance"}}
   {{#t}}Charged for high balance{{/t}}
 {{else if_equal type compare="annual_team_balance_paid"}}
-  {{#t}}Monthly accrued balance for annual teams{{/t}}
+  {{#feature flag="feature_teams_to_workspaces"}}
+    {{#t}}Monthly accrued balance for annual plans{{/t}}
+  {{else}}
+    {{#t}}Monthly accrued balance for annual teams{{/t}}
+  {{/feature}}
 {{!-- Types with no billing statement associated, will not link --}}
 {{else if_equal type compare="staff_gift"}}
   {{#if_equal this.details.gift_type compare="surprise"}}
@@ -121,15 +129,27 @@ Used in billing_history_list_item_col.hbs
     {{#t}}Credit Adjustment{{/t}}
   {{/if_equal}}
 {{else if_equal type compare="referral_purchase_credit"}}
-  {{#t}}Credit for referring a new team{{/t}}
+  {{#feature flag="feature_teams_to_workspaces"}}
+    {{#t}}Credit for referring a new workspace{{/t}}
+  {{else}}
+    {{#t}}Credit for referring a new team{{/t}}
+  {{/feature}}
 {{else if_equal type compare="referral_credit"}}
   {{#t}}Referral signup credit{{/t}}
 {{else if_equal type compare="beta_credit"}}
   {{#t}}Beta testing credit{{/t}}
 {{else if_equal type compare="launch_credit"}}
-  {{#t}}New team credit{{/t}}
+  {{#feature flag="feature_teams_to_workspaces"}}
+    {{#t}}New workspce credit{{/t}}
+  {{else}}
+    {{#t}}New team credit{{/t}}
+  {{/feature}}
 {{else if_equal type compare="credit_test_group"}}
-  {{#t}}New team credit{{/t}}
+  {{#feature flag="feature_teams_to_workspaces"}}
+    {{#t}}New workspce credit{{/t}}
+  {{else}}
+    {{#t}}New team credit{{/t}}
+  {{/feature}}
 {{else if_equal type compare="survey_credit"}}
   {{#t}}Survey completed{{/t}}
 {{else if_equal type compare="txn_void"}}
@@ -149,12 +169,24 @@ Used in billing_history_list_item_col.hbs
     {{#t}}Enterprise plan transfer{{/t}}
   {{/if}}
 {{else if_equal type compare="event_billing_linked_to_enterprise"}}
-  {{#t}}Team linked to Enterprise{{/t}}
+  {{#feature flag="feature_teams_to_workspaces"}}
+    {{#t}}Workspace linked to Enterprise{{/t}}
+  {{else}}
+    {{#t}}Team linked to Enterprise{{/t}}
+  {{/feature}}
 {{else if_equal type compare="transfer"}}
   {{#if_gt delta compare=0}}
-    {{#t}}Transferred {formatted_charges.delta} to team{{/t}}
+    {{#feature flag="feature_teams_to_workspaces"}}
+      {{#t}}Transferred {formatted_charges.delta} to workspace{{/t}}
+    {{else}}
+      {{#t}}Transferred {formatted_charges.delta} to team{{/t}}
+    {{/feature}}
   {{else}}
-    {{#t}}Transferred {formatted_charges.delta} from team{{/t}}
+    {{#feature flag="feature_teams_to_workspaces"}}
+      {{#t}}Transferred {formatted_charges.delta} from workspace{{/t}}
+    {{else}}
+      {{#t}}Transferred {formatted_charges.delta} from team{{/t}}
+    {{/feature}}
   {{/if_gt}}
   {{#if_equal details.reason compare='payments_group'}}
     {{#t}}(payment group transfer){{/t}}

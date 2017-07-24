@@ -10,12 +10,20 @@
     {{> create_inc_api_alert}}
 
     <div id="email_form_body" class="fs_split_body">
-      <h1>{{#t}}Create a new team{{/t}}</h1>
+      {{#feature flag="feature_teams_to_workspaces"}}
+        <h1>{{#t}}Create a new workspace{{/t}}</h1>
+      {{else}}
+        <h1>{{#t}}Create a new team{{/t}}</h1>
+      {{/feature}}
         <label id="email_label"><span class="normal">{{#t}}Your </span>email address{{/t}}</label>
         <input type="text" placeholder="{{#t}}you@example.com{{/t}}" id="signup_email" data-qa="email_field" spellcheck="false" {{#if email}} value="{{email}}" {{/if}} aria-labelledby="email_label" data-email-healing="true"/>
         <p class="error_message"></p>
         {{#if referral}}
-          <h4>{{#t}}Sign up now and get $100.00 in free credit thanks to the team at {referral}!{{/t}}</h4>
+          {{#feature flag="feature_teams_to_workspaces"}}
+            <h4>{{#t}}Sign up now and get $100.00 in free credit thanks to the group at {referral}!{{/t}}</h4>
+          {{else}}
+            <h4>{{#t}}Sign up now and get $100.00 in free credit thanks to the team at {referral}!{{/t}}</h4>
+          {{/feature}}
         {{/if}}
     </div>
 

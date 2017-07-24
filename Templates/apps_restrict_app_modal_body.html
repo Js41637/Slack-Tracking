@@ -27,23 +27,46 @@
   <p>
     {{#if request_id}}
       {{#if app_name}}
-        {{#t}}Team members will not be able to add or edit {app_name} configurations.{{/t}}
+        {{#feature flag="feature_teams_to_workspaces"}}
+          {{#t}}Members will not be able to add or edit {app_name} configurations.{{/t}}
+        {{else}}
+          {{#t}}Team members will not be able to add or edit {app_name} configurations.{{/t}}
+        {{/feature}}
       {{else}}
-        {{#t}}Team members will not be able to add or edit this app's configurations.{{/t}}
+        {{#feature flag="feature_teams_to_workspaces"}}
+          {{#t}}Members will not be able to add or edit this app's configurations.{{/t}}
+        {{else}}
+          {{#t}}Team members will not be able to add or edit this app's configurations.{{/t}}
+        {{/feature}}
       {{/if}}
     {{else}}
       {{#if app_name}}
-        {{#t}}Team members will no longer be able to add or edit {app_name} configurations.{{/t}}
+        {{#feature flag="feature_teams_to_workspaces"}}
+          {{#t}}Members will no longer be able to add or edit {app_name} configurations.{{/t}}
+        {{else}}
+          {{#t}}Team members will no longer be able to add or edit {app_name} configurations.{{/t}}
+        {{/feature}}
       {{else}}
-        {{#t}}Team members will no longer be able to add or edit this app's configurations.{{/t}}
+        {{#feature flag="feature_teams_to_workspaces"}}
+          {{#t}}Members will no longer be able to add or edit this app's configurations.{{/t}}
+        {{else}}
+          {{#t}}Team members will no longer be able to add or edit this app's configurations.{{/t}}
+        {{/feature}}
       {{/if}}
     {{/if}}
   </p>
   <p class="no_margin">
     {{#if config_count}}
-      {{#t}}
-        <b>{config_count, plural, =1 {# existing configuration} other {# existing configurations}}</b> will remain in use until removed from Team Apps.
-      {{/t}}
+      {{#feature flag="feature_teams_to_workspaces"}}
+        {{#t}}
+          <b>{config_count, plural, =1 {# existing configuration} other {# existing configurations}}</b> will remain in use until removed from Workspace Apps.
+        {{/t}}
+      {{else}}
+        {{#t fallback_hash="e9a92ab0988bbfad0eb5fea891af6a05e170409f"}}
+          <b>{config_count, plural, =1 {# existing configuration} other {# existing configurations}}</b> will remain in use until removed from Team Apps.
+        {{/t}}
+      {{/feature}}
+
     {{else}}
       {{#t}}There are no existing configurations.{{/t}}
     {{/if}}

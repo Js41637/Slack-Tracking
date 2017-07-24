@@ -4,7 +4,11 @@
     {{#if show_inactive_tip}}
         <span class="ts_tip_tip">
             <span class="ts_tip_multiline_inner">
-                {{#t}}This team member has not been active in Slack recently.{{/t}}
+                {{#feature flag="feature_teams_to_workspaces"}}
+                    {{#t}}This person has not been active in Slack recently.{{/t}}
+                {{else}}
+                    {{#t}}This team member has not been active in Slack recently.{{/t}}
+                {{/feature}}
             </span>
         </span>
     {{/if}}
@@ -190,7 +194,11 @@
             {{/each}}
         {{else}}
             {{#if show_transfer_btn}}
-                <a href="/admin/transfer" class="btn btn_outline btn_small btn_outline btn_small admin_transfer_ownership_btn">{{#t}}Transfer team ownership{{/t}}</a>
+                {{#feature flag="feature_teams_to_workspaces"}}
+                    <a href="/admin/transfer" class="btn btn_outline btn_small btn_outline btn_small admin_transfer_ownership_btn">{{#t}}Transfer workspace ownership{{/t}}</a>
+                {{else}}
+                    <a href="/admin/transfer" class="btn btn_outline btn_small btn_outline btn_small admin_transfer_ownership_btn">{{#t}}Transfer team ownership{{/t}}</a>
+                {{/feature}}
 
                 {{#memberIsSelf id=member.id}}
                     {{#t}}To make edits, see your <a href="/account/settings">account settings</a>.{{/t}}

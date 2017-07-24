@@ -1,0 +1,44 @@
+{{i18n_ns 'share_channels'}}
+
+{{#feature flag="feature_connecting_shared_channels"}}
+
+<p>
+  <label for="email_address">{{#t note="Input label for share channel form"}}Email address of admin on receiving team{{/t}}</label>
+  <input class="tiny_bottom_margin" type="text" name="email_address" id="email_address" placeholder="{{#t}}jane@acme-corp.com{{/t}}" data-validation="required">
+  <span class="extra_help subtle_silver">{{#t}}This should be the email address they use to sign into Slack.{{/t}}</span>
+</p>
+
+<p>
+  <label for="team_url">{{#t note="Input label for share channel form"}}Other team\u02bcs URL{{/t}}</label>
+  <input class="tiny_bottom_margin" type="text" name="team_url" id="team_url" placeholder="{{#t}}acme-corp{{/t}}" data-validation="required">
+  <span class="url_domain_slack_dot_com bold">.slack.com</span>
+  <span class="extra_help subtle_silver">{{#t locale=(zdLocale)}}Each Slack team has a unique URL. <a href="https://get.slack.help/hc/{locale}/articles/221769328-Find-your-Slack-team-URL">How to find a Team URL</a>{{/t}}</span>
+</p>
+
+<div class="small_bottom_margin">
+  <label for="custom_message">{{#t note="Input label for share channel form"}}Add a custom message to your invitation{{/t}}</label>
+
+  <div class="p-share_channel_dialog__custom_message_container">
+    <div class="p-share_channel_dialog__custom_message_user medium_bottom_margin">
+      <div class="c-member c-member--medium">
+        <span class="member_image">
+          {{> member_preview_link_image (getMemberPreviewLinkImageArgs inviter 36 false true false)}}
+          {{> member_type_external_badge size=36 badge_size=(getTeamBadgeSize size) with_tooltip=true}}
+        </span>
+        <div class="c-member__flex-container--medium">
+          <div class="c-member__name c-member__name--medium">
+            <span class="c-member__display-name c-member__display-name--medium">{{getPrefCompliantMemberName inviter}}</span>
+            {{#memberHasSecondaryName inviter}}
+              <span class="c-member__secondary-name c-member__secondary-name--medium">{{getMemberSecondaryName inviter}}</span>
+            {{/memberHasSecondaryName}}
+          </div>
+          <div class="c-member__title c-member__title--medium">{{team.name}}</div>
+        </div>
+      </div>
+    </div>
+
+    <textarea class="p-share_channel_dialog__custom_message_input" name="custom_message" id="custom_message" placeholder="{{#t}}Add a message...{{/t}}"></textarea>
+  </div>
+</div>
+
+{{/feature}}

@@ -11,7 +11,11 @@
   </div>
   <div class="row clearfix default_row">
     <div class="col no_bottom_margin span_2_of_6"><span class="no_margin">{{#t}}What I Do{{/t}}</span></div>
-    <div class="col no_bottom_margin span_3_of_6"><p class="subtle_silver no_bottom_margin">{{#t}}Let others on your team know what you do.{{/t}}</p></div>
+    {{#feature flag="feature_teams_to_workspaces"}}
+      <div class="col no_bottom_margin span_3_of_6"><p class="subtle_silver no_bottom_margin">{{#t}}Let other people know what you do.{{/t}}</p></div>
+    {{else}}
+      <div class="col no_bottom_margin span_3_of_6"><p class="subtle_silver no_bottom_margin">{{#t}}Let others on your team know what you do.{{/t}}</p></div>
+    {{/feature}}
     <div class="col no_bottom_margin span_1_of_6"><em class="cloud_silver">{{#t}}default field{{/t}}</em></div>
   </div>
   {{#isClient}}

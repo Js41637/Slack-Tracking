@@ -19,16 +19,28 @@
 
       {{#if email_has_account}}
 
-        <h3>{{#t}}Only Org Admins can create new {enterprise.name} teams.{{/t}}</h3>
+        {{#feature flag="feature_teams_to_workspaces"}}
+          <h3>{{#t}}Only Org Admins can create new {enterprise.name} workspaces.{{/t}}</h3>
+        {{else}}
+          <h3>{{#t}}Only Org Admins can create new {enterprise.name} teams.{{/t}}</h3>
+        {{/feature}}
 
         {{#if is_logged_in}}
 
           <!-- signed-in version -->
 
           {{#if enterprise.org_contact_email}}
-            <p>{{#t}}If you need help getting access to or creating a team, <a href="mailto:{enterprise.org_contact_email}">contact an Org Admin</a>. Or, continue to access your teams.{{/t}}</p>
+            {{#feature flag="feature_teams_to_workspaces"}}
+              <p>{{#t}}If you need help getting access to or creating a workspace, <a href="mailto:{enterprise.org_contact_email}">contact an Org Admin</a>. Or, continue to access your workspaces.{{/t}}</p>
+            {{else}}
+              <p>{{#t}}If you need help getting access to or creating a team, <a href="mailto:{enterprise.org_contact_email}">contact an Org Admin</a>. Or, continue to access your teams.{{/t}}</p>
+            {{/feature}}
           {{else}}
-            <p>{{#t}}If you need help getting access to or creating a team, contact an Org Admin. Or, continue to access your teams.{{/t}}</p>
+            {{#feature flag="feature_teams_to_workspaces"}}
+              <p>{{#t}}If you need help getting access to or creating a workspace, contact an Org Admin. Or, continue to access your teams.{{/t}}</p>
+            {{else}}
+              <p>{{#t}}If you need help getting access to or creating a team, contact an Org Admin. Or, continue to access your teams.{{/t}}</p>
+            {{/feature}}
           {{/if}}
 
           <div class="large_top_margin">
@@ -41,9 +53,17 @@
           <!-- signed-out version -->
 
           {{#if enterprise.org_contact_email}}
-            <p>{{#t}}If you need help getting access to or creating a team, <a href="mailto:{enterprise.org_contact_email}">contact an Org Admin</a>. Or, sign in to access your teams.{{/t}}</p>
+            {{#feature flag="feature_teams_to_workspaces"}}
+              <p>{{#t}}If you need help getting access to or creating a workspce, <a href="mailto:{enterprise.org_contact_email}">contact an Org Admin</a>. Or, sign in to access your workspaces.{{/t}}</p>
+            {{else}}
+              <p>{{#t}}If you need help getting access to or creating a team, <a href="mailto:{enterprise.org_contact_email}">contact an Org Admin</a>. Or, sign in to access your teams.{{/t}}</p>
+            {{/feature}}
           {{else}}
-            <p>{{#t}}If you need help getting access to or creating a team, contact an Org Admin. Or, sign in to access your teams.{{/t}}</p>
+            {{#feature flag="feature_teams_to_workspaces"}}
+              <p>{{#t}}If you need help getting access to or creating a workspace, contact an Org Admin. Or, sign in to access your workspaces.{{/t}}</p>
+            {{else}}
+              <p>{{#t}}If you need help getting access to or creating a team, contact an Org Admin. Or, sign in to access your teams.{{/t}}</p>
+            {{/feature}}
           {{/if}}
 
           <div class="medium_top_margin medium_bottom_margin">
@@ -71,9 +91,17 @@
 
         <p class="small">
           {{#if enterprise.org_contact_email}}
-            {{#t}}Your organization has restricted the creation of teams by accounts using <strong>@{email_domain}</strong> email addresses. If you need help getting access or creating a team, <a href="mailto:{enterprise.org_contact_email}">contact an organization administrator</a>.{{/t}}
+            {{#feature flag="feature_teams_to_workspaces"}}
+              {{#t}}Your organization has restricted the creation of workspaces by accounts using <strong>@{email_domain}</strong> email addresses. If you need help getting access or creating a workspace, <a href="mailto:{enterprise.org_contact_email}">contact an organization administrator</a>.{{/t}}
+            {{else}}
+              {{#t}}Your organization has restricted the creation of teams by accounts using <strong>@{email_domain}</strong> email addresses. If you need help getting access or creating a team, <a href="mailto:{enterprise.org_contact_email}">contact an organization administrator</a>.{{/t}}
+            {{/feature}}
           {{else}}
-            {{#t}}Your organization has restricted the creation of teams by accounts using <strong>@{email_domain}</strong> email addresses. If you need help getting access or creating a team, contact an organization administrator.{{/t}}
+            {{#feature flag="feature_teams_to_workspaces"}}
+              {{#t}}Your organization has restricted the creation of workspaces by accounts using <strong>@{email_domain}</strong> email addresses. If you need help getting access or creating a workspace, contact an organization administrator.{{/t}}
+            {{else}}
+              {{#t}}Your organization has restricted the creation of teams by accounts using <strong>@{email_domain}</strong> email addresses. If you need help getting access or creating a team, contact an organization administrator.{{/t}}
+            {{/feature}}
           {{/if}}
         </p>
 
