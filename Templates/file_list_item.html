@@ -11,11 +11,11 @@
     <div class="actions">
       {{#isClient}}
         {{#if can_share}}
-          <button class="file_share btn_icon btn_outline btn ts_icon ts_icon_share_action ts_tip_btn ts_tip ts_tip_top" data-file-id="{{file.id}}">
+          <button class="file_share btn_icon btn_outline btn ts_icon ts_icon_share_action ts_tip_btn ts_tip ts_tip_top ts_tip_float" data-file-id="{{file.id}}">
             <div class="ts_tip_tip">{{#t}}Share{{/t}}</div>
           </button>
         {{/if}}
-        <button class="file_actions btn_icon btn_outline btn ts_icon ts_icon_ellipsis ts_tip_btn ts_tip ts_tip_top" data-file-id="{{file.id}}" data-include-view-public-link="true">
+        <button class="file_actions btn_icon btn_outline btn ts_icon ts_icon_ellipsis ts_tip_btn ts_tip ts_tip_top ts_tip_float" data-file-id="{{file.id}}" data-include-view-public-link="true">
           <div class="ts_tip_tip">
             {{#if info_pane_visible}}
               {{#t}}File actions{{/t}}

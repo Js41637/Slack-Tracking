@@ -12585,7 +12585,7 @@ body:not(.unify_user) .team_list_item a:not(.member_name):not(.current_status_pr
 }
 
 .unify_user .team_list_item .member_details {
-  min-height: 64px;
+  min-height: 56px;
   display: flex;
   flex-direction: column;
   justify-content: center
@@ -14056,11 +14056,12 @@ body:not(.unify_user) #member_preview_scroller .member_details {
 }
 
 #client-ui .searchable_member_list .team_list_item {
-  padding: .5rem
+  padding: .75rem .5rem .75rem .75rem
 }
 
 body:not(.unify_user) #client-ui .searchable_member_list .team_list_item {
   margin: .5rem;
+  padding: .5rem;
   border-radius: 5px;
   border: 1px solid transparent
 }
@@ -14071,8 +14072,7 @@ body:not(.unify_user) #client-ui .searchable_member_list .team_list_item:hover {
 
 .unify_user #client-ui .searchable_member_list .team_list_item {
   border-bottom: 1px solid #E0E0E0;
-  border-top: none;
-  padding-left: 12px
+  border-top: none
 }
 
 .unify_user #client-ui .searchable_member_list .team_list_item:hover {
