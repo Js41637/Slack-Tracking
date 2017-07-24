@@ -1,8 +1,8 @@
 {{i18n_ns "shared_channels"}}
 
-{{#feature flag="feature_shared_channels_client"}}
-  <ts-icon class="ts_icon_shared_channels {{#and tooltip shared_team_ids}}ts_tip_float ts_tip ts_tip_multiline ts_tip_{{#if tooltip_position}}{{tooltip_position}}{{else}}top{{/if}}{{/and}}">
-    {{~#and tooltip shared_team_ids~}}
+{{~#feature flag="feature_shared_channels_client"~}}
+  <ts-icon class="ts_icon_shared_channels {{#and tooltip (makeExternalTeamNameList shared_team_ids)}}ts_tip_float ts_tip ts_tip_multiline ts_tip_{{#if tooltip_position}}{{tooltip_position}}{{else}}top{{/if}}{{/and}}"{{#and tooltip shared_team_ids}} data-shared-team-ids="{{json shared_team_ids}}" data-tooltip-position="{{tooltip_position}}"{{/and}}>
+    {{~#and tooltip (makeExternalTeamNameList shared_team_ids)~}}
       <span class="ts_tip_tip">
         <span class="ts_tip_multiline_inner">
           {{#t team_names=(makeExternalTeamNameList shared_team_ids)}}This channel is shared with {team_names}{{/t}}
@@ -10,4 +10,4 @@
       </span>
     {{~/and~}}
   </ts-icon>
-{{/feature}}
+{{~/feature~}}

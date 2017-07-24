@@ -4328,8 +4328,7 @@ html.no_touch .alert_page a:hover {
 
 .lato {
   font-family: Slack-Lato, appleLogo, sans-serif;
-  font-weight: 400;
-  -webkit-font-smoothing: antialiased
+  font-weight: 400
 }
 
 .lato_black {
@@ -6492,8 +6491,8 @@ a.delete_link:hover {
 body {
   font-family: Slack-Lato, appleLogo, sans-serif;
   font-variant-ligatures: common-ligatures;
-  -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
   color: #555459;
   line-height: 1.5rem
 }
@@ -8390,7 +8389,6 @@ section {
 .btn {
   background: #2ab27b;
   color: #fff;
-  -webkit-font-smoothing: antialiased;
   font-family: Slack-Lato, appleLogo, sans-serif;
   line-height: 1.2rem;
   font-weight: 900;
@@ -8567,7 +8565,6 @@ a.btn {
 }
 
 .btn_unstyle {
-  -webkit-font-smoothing: antialiased;
   font-family: Slack-Lato, appleLogo, sans-serif;
   background: 0 0;
   border: none;
@@ -8582,7 +8579,6 @@ a.btn {
 }
 
 .btn_basic {
-  -webkit-font-smoothing: antialiased;
   font-family: Slack-Lato, appleLogo, sans-serif;
   background: 0 0;
   border: none;
@@ -8603,7 +8599,6 @@ a.btn {
 }
 
 .btn_link {
-  -webkit-font-smoothing: antialiased;
   font-family: Slack-Lato, appleLogo, sans-serif;
   background: 0 0;
   border: none;
@@ -9068,8 +9063,6 @@ textarea {
   -webkit-transition: box-shadow 70ms ease-out, border-color 70ms ease-out;
   -moz-transition: box-shadow 70ms ease-out, border-color 70ms ease-out;
   transition: box-shadow 70ms ease-out, border-color 70ms ease-out;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
   box-shadow: none;
   height: auto
 }
@@ -9737,14 +9730,19 @@ only screen and (min-resolution:2dppx) {
 #generic_dialog.basic_share_dialog .lazy_filter_select .lfs_item .ts_icon:not(.presence_icon):before,
 #share_dialog .lazy_filter_select .lfs_item .ts_icon:not(.presence_icon):before {
   position: absolute;
-  top: 3px;
+  top: 4px;
   left: 1px;
   font-size: 18px
 }
 
 #generic_dialog.basic_share_dialog .lazy_filter_select .lfs_item .ts_icon:not(.presence_icon).ts_icon_channel:before,
 #share_dialog .lazy_filter_select .lfs_item .ts_icon:not(.presence_icon).ts_icon_channel:before {
-  top: 4px
+  top: 5px
+}
+
+#generic_dialog.basic_share_dialog .lazy_filter_select .lfs_item ts-icon.ts_icon_shared_channel,
+#share_dialog .lazy_filter_select .lfs_item ts-icon.ts_icon_shared_channel {
+  line-height: 0
 }
 
 #generic_dialog.basic_share_dialog .lazy_filter_select .lfs_item .presence,
@@ -14842,16 +14840,13 @@ body:not(.unify_user) .tab_complete_ui li.tab_complete_ui_item {
 
 .tab_complete_ui li.tab_complete_ui_group.active .cmd-left-td,
 .tab_complete_ui li.tab_complete_ui_group.active .cmd-right-td,
+.tab_complete_ui li.tab_complete_ui_group.active .presence.active,
 .tab_complete_ui li.tab_complete_ui_group.active span,
 .tab_complete_ui li.tab_complete_ui_item.active .cmd-left-td,
 .tab_complete_ui li.tab_complete_ui_item.active .cmd-right-td,
+.tab_complete_ui li.tab_complete_ui_item.active .presence.active,
 .tab_complete_ui li.tab_complete_ui_item.active span {
   color: #fff!important
-}
-
-.tab_complete_ui li.tab_complete_ui_group.active .presence.active,
-.tab_complete_ui li.tab_complete_ui_item.active .presence.active {
-  color: #93cc93!important
 }
 
 .tab_complete_ui li.tab_complete_ui_group.active .app_label,
@@ -14889,6 +14884,10 @@ body:not(.unify_user) .tab_complete_ui li.tab_complete_ui_item {
 .unify_user .tab_complete_ui li.tab_complete_ui_group .ts_icon_shared_channel:before,
 .unify_user .tab_complete_ui li.tab_complete_ui_item .ts_icon_shared_channel:before {
   line-height: 20px
+}
+
+.tab_complete_ui li.tab_complete_ui_item[data-type=member] {
+  padding: 0 10px 0 4px
 }
 
 .tab_complete_ui .not_in_channel {
@@ -15790,8 +15789,7 @@ html:not(.supports_flexbox) #im_browser_tokens .member_token {
 .channel_invite_member_small,
 .channel_invite_pending_user_small {
   font-size: 14px;
-  position: relative;
-  height: 30px
+  position: relative
 }
 
 body:not(.unify_user) .channel_invite_member,
@@ -15822,9 +15820,9 @@ body:not(.unify_user) .channel_invite_pending_user_small {
 .channel_invite_member .add_icon,
 .channel_invite_member_small .add_icon,
 .channel_invite_pending_user_small .add_icon {
-  margin-top: .7rem;
   font-size: 1.6rem;
-  color: #439fe0
+  color: #439fe0;
+  align-self: center
 }
 
 body:not(.unify_user) .channel_invite_member .invite_user_group_avatar,
@@ -15920,6 +15918,10 @@ body:not(.unify_user) .channel_invite_pending_user_small .member_image {
   font-size: 22px
 }
 
+.channel_invite_member {
+  display: flex
+}
+
 body:not(.unify_user) .channel_invite_member {
   padding-left: 50px;
   height: 40px
@@ -15932,6 +15934,10 @@ body:not(.unify_user) .channel_invite_member {
 
 .channel_invite_member .name_container {
   height: 40px
+}
+
+.channel_invite_member .c-member {
+  flex-grow: 1
 }
 
 .channel_invite_member_token,
@@ -16095,16 +16101,13 @@ body:not(.unify_user) #channel_invite_container.page_needs_enterprise .channel_i
 
 #channel_invite_container.page_needs_enterprise .channel_invite_row .name_container {
   height: 42px;
-  display: block
+  display: block;
+  flex-grow: 1
 }
 
 #channel_invite_container.page_needs_enterprise .channel_invite_row .name_container>div {
   height: 21px;
   line-height: 21px
-}
-
-#channel_invite_container.page_needs_enterprise .channel_invite_row .add_icon {
-  margin-top: .5rem
 }
 
 #channel_invite_modal .channel_invite_filter_container {
@@ -17402,51 +17405,8 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   line-height: 1.6rem
 }
 
-.t-form_type_default {
-  font-family: Slack-Lato, appleLogo, sans-serif;
-  font-size: 15px;
-  line-height: 1.86666667
-}
-
-.t-form_type_label {
-  font-family: Slack-Lato, appleLogo, sans-serif;
-  font-size: 15px;
-  line-height: 1.86666667;
-  font-weight: 700
-}
-
-.t-form_type_placeholder {
-  color: #a0a0a2
-}
-
-.t-form_element_sizing {
-  margin: 0 0 12px;
-  padding: 8px 12px
-}
-
-.t-form_label {
-  display: block;
-  margin: 0;
-  font-family: Slack-Lato, appleLogo, sans-serif;
-  font-size: 15px;
-  line-height: 1.86666667;
-  font-weight: 700
-}
-
-.t-form_border {
-  border-radius: 4px;
-  border: 1px solid #a0a0a2
-}
-
-.t-form_cursor {
-  cursor: pointer
-}
-
-.t-form_cursor[disabled] {
-  cursor: default
-}
-
-.c-member__display-name {
+.c-member__display-name,
+.c-usergroup__handle {
   color: #2c2d30;
   font-weight: 700
 }
@@ -17459,7 +17419,8 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   opacity: .6
 }
 
-.c-member .member_image {
+.c-member .member_image,
+.c-usergroup .usergroup_icon {
   display: inline-block;
   position: relative;
   float: left;
@@ -17549,14 +17510,16 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   border-radius: 3px
 }
 
-.c-member--small {
+.c-member--small,
+.c-usergroup--small {
   display: flex;
   align-items: center;
   font-size: 15px;
   line-height: 2
 }
 
-.c-member__name--small {
+.c-member__name--small,
+.c-usergroup__name--small {
   color: #717274;
   font-weight: 400;
   word-break: break-word;
@@ -17568,7 +17531,8 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   margin-left: .25rem
 }
 
-.c-member__with-avatar--small .c-member__name--small {
+.c-member__with-avatar--small .c-member__name--small,
+.c-usergroup__with-icon--small .c-usergroup__name--small {
   margin-left: .5rem
 }
 
@@ -17604,7 +17568,8 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   position: relative
 }
 
-.c-member--small .member_image {
+.c-member--small .member_image,
+.c-usergroup--small .usergroup_icon {
   width: 20px;
   height: 20px;
   margin-left: .25rem
@@ -17638,7 +17603,8 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   float: left
 }
 
-.c-member__secondary-name--small {
+.c-member__secondary-name--small,
+.c-usergroup__description--small {
   margin-left: .25rem
 }
 
@@ -17658,7 +17624,8 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   top: 0
 }
 
-.c-member__context.c-member__not-in-channel-context--small {
+.c-member__context.c-member__not-in-channel-context--small,
+.c-usergroup__context.c-usergroup__not-in-channel-context--small {
   line-height: 0
 }
 
@@ -17790,4 +17757,17 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 .c-member--large .member_image {
   width: 56px;
   height: 56px
+}
+
+.c-usergroup--small .ts_icon_user_groups {
+  background-color: #717274;
+  color: #fff;
+  text-align: center;
+  margin-left: 25px
+}
+
+.c-usergroup--small .ts_icon_user_groups:before {
+  font-size: 1rem;
+  position: relative;
+  bottom: 6px
 }

@@ -5,11 +5,7 @@
     {{~#if is_loading_members~}}
       {{#t}}Members{{/t}}
     {{~else~}}
-      {{~#if lazy_load_members_and_bots~}}
-        {{#t}}{member_count, plural, =1 {# Member} other {# Members}}{{/t}}
-      {{~else~}}
-        {{#t}}{online_count, number}<span class="dull_grey">/{member_count, number}</span>  {member_count, plural, =1 {Member} other {Members}}{{/t}}
-      {{~/if~}}
+      {{#t}}{member_count, plural, =1 {# Member} other {# Members}}{{/t}}
     {{~/if~}}
   </span>
 

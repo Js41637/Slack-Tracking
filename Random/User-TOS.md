@@ -50,7 +50,7 @@ The sections titled “The Relationship Between You, Customer, and Us”, “Lim
 
 ### Email and Slack Messages
 
-Except as otherwise set forth herein, all notices under the User Terms will be by email, although we may instead choose to provide notice to Authorized Users through the Services (e.g., a slackbot notification). Notices to Slack should be sent to [feedback@slack.com](mailto:feedback@slack.com), except for legal notices, which must be sent to [legal@slack.com](https://slack.comlegal@slack.com). A notice will be deemed to have been duly given (a) the day after it is sent, in the case of a notice sent through email; and (b) the same day, in the case of a notice sent through the Services. Notices under the Contract will be delivered solely to Customer in accordance with the terms of that agreement.
+Except as otherwise set forth herein, all notices under the User Terms will be by email, although we may instead choose to provide notice to Authorized Users through the Services (e.g., a slackbot notification). Notices to Slack should be sent to [feedback@slack.com](mailto:feedback@slack.com), except for legal notices, which must be sent to [legal@slack.com](mailto:legal@slack.com). A notice will be deemed to have been duly given (a) the day after it is sent, in the case of a notice sent through email; and (b) the same day, in the case of a notice sent through the Services. Notices under the Contract will be delivered solely to Customer in accordance with the terms of that agreement.
 
 ### Privacy Policy
 

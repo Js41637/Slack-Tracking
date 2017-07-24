@@ -12,9 +12,15 @@
       {{#if options.inline}}
         <span class="inline_thread_title">{{#t}}Thread{{/t}}</span>
       {{else}}
-        <a href="{{channel_msg_permalink}}">
+        <a href="{{channel_msg_permalink}}" class="inline_block">
           {{~#if model_ob.is_channel~}}
-            <ts-icon class="ts_icon_channel_pane_hash"></ts-icon>{{model_ob.name}}
+            <ts-icon class="ts_icon_channel_pane_hash"></ts-icon>
+            {{model_ob.name}}
+            {{~#if model_ob.is_org_shared~}}
+              {{~> shared_channel_icon~}}
+            {{~else if model_ob.is_shared~}}
+              {{~> shared_channels_icon tooltip=true shared_team_ids=model_ob.shared_team_ids~}}
+            {{~/if~}}
           {{~else if model_ob.is_im~}}
             {{#if im_user}}{{makeMemberPresenceIcon im_user}}{{/if}}{{model_ob.name}}
           {{~else if model_ob.is_mpim~}}

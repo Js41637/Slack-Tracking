@@ -8,14 +8,18 @@
     </li>
   {{else if result.is_usergroup}}
     <li class="tab_complete_ui_item" data-type="usergroup" data-index="{{@index}}">
-      <span class="broadcast">@{{result.usergroup.handle}}</span>{{!
-      !}}<span class="realname">
-        {{~#t user_count=result.usergroup.user_count}}{user_count, plural, =1 {# Member} other {# Members}}{{/t~}}
-        {{#if result.members_not_in_channel}}
-          {{#t members_not_in_channel=result.members_not_in_channel}}({members_not_in_channel, number} not in channel){{/t}}
-        {{~/if~}}
-        <span class="bullet">&bull;</span>{{result.description}}
-      </span>
+      {{#feature flag="feature_unified_usergroups"}}
+        {{> c-usergroup size="small" result=result}}
+      {{else}}
+        <span class="broadcast">@{{result.usergroup.handle}}</span>{{!
+        !}}<span class="realname">
+          {{~#t user_count=result.usergroup.user_count}}{user_count, plural, =1 {# Member} other {# Members}}{{/t~}}
+          {{#if result.members_not_in_channel}}
+            {{#t members_not_in_channel=result.members_not_in_channel}}({members_not_in_channel, number} not in channel){{/t}}
+          {{~/if~}}
+          <span class="bullet">&bull;</span>{{result.description}}
+        </span>
+      {{/feature}}
     </li>
   {{else if result.is_member}}
     <li class="tab_complete_ui_item" data-type="member" data-index="{{@index}}">

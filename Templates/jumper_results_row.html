@@ -121,14 +121,12 @@
         <span class="unread_count">{{this.model_ob.unread_highlight_cnt}}</span>
       {{/if}}
     {{/if}}
-    {{#if this.model_ob.is_shared}}
-      {{#unless this.model_ob.is_org_shared}}
+    {{#unless this.model_ob.is_mpim}}
+      {{#if this.model_ob.is_org_shared}}
+        {{> shared_channel_icon}}
+      {{else if this.model_ob.is_shared}}
         {{> shared_channels_icon tooltip=true shared_team_ids=this.model_ob.shared_team_ids}}
-      {{else}}
-        {{#unless this.model_ob.is_mpim}}
-          {{> shared_channel_icon}}
-        {{/unless}}
-      {{/unless}}
-    {{/if}}
+      {{/if}}
+    {{/unless}}
   </span>
 </li>

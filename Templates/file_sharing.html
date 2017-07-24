@@ -2,7 +2,7 @@
 
 <div id="file_sharing_div">
 
-  <div class="small_bottom_margin">
+  <div class="small_bottom_margin clear_both">
     <input type="hidden" id="share_model_ob_id" value="{{#if selection}}{{selection}}{{else}}{{#if model_ob.is_im}}{{model_ob.user}}{{else}}{{model_ob.id}}{{/if}}{{/if}}">
     <label for="share_cb" class="{{#isWeb}}block{{/isWeb}} small_bottom_margin">
       <input id="share_cb" checked="checked" name="share_cb" type="checkbox" class="no_top_margin small_right_margin {{#if hide_checkbox}}hidden{{/if}}" tabindex="2">

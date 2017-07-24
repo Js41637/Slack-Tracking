@@ -2,7 +2,10 @@
 
 {{!-- 90% copied from templates/js/menu/team_and_user_items.hbs --}}
 <section class="slack_menu_you slack_menu_section" aria-label="{{#t}}you{{/t}}">
-  {{> slack_menu_you_header user}}
+
+  {{#unless is_user_menu}}
+    {{> slack_menu_you_header user}}
+  {{/unless}}
 
   <ul class="menu_list">
     <li id="member_current_status_item" class="has_submenu" data-qa="member_current_status_link" role="menuitem">
@@ -51,6 +54,7 @@
   </ul>
 </section>
 
+{{#unless is_user_menu}}
 <section class="slack_menu_current_team slack_menu_section" aria-label="{{#t}}current team{{/t}}">
   {{> slack_menu_team_header team}}
 
@@ -110,7 +114,7 @@
 
     {{#if show_statistics_link}}
       <li id="team_statistics" role="menuitem">
-        <a class="overflow_ellipsis" href="/stats" target="{{newWindowName}}">{{#feature flag="feature_team_site_basic_analytics"}}{{#t}}Analytics{{/t}}{{else}}{{#t}}Statistics{{/t}}{{/feature}}</a>
+        <a class="overflow_ellipsis" href="/stats" target="{{newWindowName}}">{{#feature flag="feature_basic_analytics"}}{{#t}}Analytics{{/t}}{{else}}{{#t}}Statistics{{/t}}{{/feature}}</a>
       </li>
     {{/if}}
 
@@ -125,7 +129,7 @@
           {{else}}
             {{#experiment name="upgrade_slack_team_menu" group="show_upgrade_slack"}}
               <li id="team_pricing" role="menuitem">
-                <a class="overflow_ellipsis" href="/pricing" target="{{newWindowName}}" data-clog-event="GROWTH_PRICING" data-clog-ui-element="pricing_link" data-clog-ui-action="click" data-clog-ui-step="slack_menu">{{#t}}Upgrade Slack{{/t}}</a>
+                <a class="overflow_ellipsis" href="/pricing?ui_step=61&ui_element=5" target="{{newWindowName}}" data-clog-event="GROWTH_PRICING" data-clog-ui-element="pricing_link" data-clog-ui-action="click" data-clog-ui-step="slack_menu">{{#t}}Upgrade Slack{{/t}}</a>
               </li>
             {{else}}
               <li id="team_billing" role="menuitem">
@@ -142,7 +146,7 @@
         {{else}}
           {{#experiment name="upgrade_slack_team_menu" group="show_upgrade_slack"}}
             <li id="team_pricing" role="menuitem">
-              <a class="overflow_ellipsis" href="/pricing" target="{{newWindowName}}" data-clog-event="GROWTH_PRICING" data-clog-ui-element="pricing_link" data-clog-ui-action="click" data-clog-ui-step="slack_menu">{{#t}}Upgrade Slack{{/t}}</a>
+              <a class="overflow_ellipsis" href="/pricing?ui_step=61&ui_element=5" target="{{newWindowName}}" data-clog-event="GROWTH_PRICING" data-clog-ui-element="pricing_link" data-clog-ui-action="click" data-clog-ui-step="slack_menu">{{#t}}Upgrade Slack{{/t}}</a>
             </li>
           {{else}}
             <li id="team_billing" role="menuitem">
@@ -265,3 +269,4 @@
     </ul>
   </section>
 {{/unlessOurApp}}
+{{/unless}}

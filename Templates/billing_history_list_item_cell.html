@@ -20,16 +20,19 @@
   {{else}}
     <span>{{> billing_history_item_strings this}}</span>
   {{/if}}
-  {{#if has_billing_statement}}
+  {{#if_equal type compare="invoice"}}
+    {{#if this.invoice_netsuite_id}}
+      <span>(<a href="/admin/billing/{{id}}/pdf">{{#t note="download PDF button label"}}PDF{{/t}}</a>)</span>
+    {{/if}}
+  {{else if has_billing_statement}}
     <span>(<a href="/admin/billing/{{id}}/pdf">{{#t note="download PDF button label"}}PDF{{/t}}</a>)</span>
-  {{/if}}
+  {{/if_equal}}
 {{else}}
   <span>{{> billing_history_item_strings this}}</span>
 {{/if}}
 <br />
 {{#if_equal type compare="invoice"}}
-  <span class="link_invoice_id">{{#t}}Invoice #{id}{{/t}}</span>
-{{/if_equal}}
-{{#if has_billing_statement}}
+  <span><a data-qa="link_statement_id" href="/admin/billing/{{id}}" class="link_statement_id">{{#t}}Invoice #{id}{{/t}}</a></span>
+{{else if has_billing_statement}}
   <span><a data-qa="link_statement_id" href="/admin/billing/{{id}}" class="link_statement_id">{{#t}}Billing Statement #{id}{{/t}}</a></span>
-{{/if}}
+{{/if_equal}}

@@ -1,136 +1,51 @@
 {{i18n_ns 'menu'}}
 
-{{#if user.is_ultra_restricted}}
-  <li id="channel_jump_item" role="menuitem">
-    <a class="date_picker" target="{{newWindowName}}">{{#t note="Within a list of messages in a channel"}}Jump to date &hellip;{{/t}}</a>
-  </li>
-  <li id="channel_details_item">
-    <a>{{#t}}View channel details{{/t}}</a>
-  </li>
-  <li class="divider"></li>
-  <li id="channel_prefs" role="menuitem">
-    <a>{{#t}}Notification preferences &hellip;{{/t}}</a>
-  </li>
-  <li id="channel_mute_item" role="menuitem">
-    <a>
-      {{#unless channel.is_private}}
-        {{#if channel_is_muted}}
-          {{#t}}Unmute #{channel.name}{{/t}}
-        {{else}}
-          {{#t}}Mute #{channel.name}{{/t}}
-        {{/if}}
-      {{else}}
-        {{#if channel_is_muted}}
-          {{#t}}Unmute {channel.name}{{/t}}
-        {{else}}
-          {{#t}}Mute {channel.name}{{/t}}
-        {{/if}}
-      {{/unless}}
-    </a>
-  </li>
+{{#unless channel.is_mpim}}
 
-{{else}}
-  {{#if user.is_restricted}}
-    {{#if channel.is_member}}
-      <li id="channel_jump_item" role="menuitem">
-        <a class="date_picker" target="{{newWindowName}}">{{#t note="Within a list of messages in a channel"}}Jump to date &hellip;{{/t}}</a>
-      </li>
-      {{#unless hide_invite}}<li id="channel_invite_item" role="menuitem"><a>
-        {{#t note="Invite members to join a channel"}}Invite team members to join &hellip;{{/t}}
-      </a></li>{{/unless}}
-      <li id="channel_details_item">
-        <a>{{#t}}View channel details{{/t}}</a>
-      </li>
-      <li class="divider"></li>
-      <li id="channel_prefs" role="menuitem">
-        <a>{{#t note="Individual channel notification preferences"}}Notification preferences &hellip;{{/t}}</a>
-      </li>
-      <li id="channel_mute_item" role="menuitem">
-        <a>
-          {{#unless channel.is_private}}
-            {{#if channel_is_muted}}
-              {{#t}}Unmute #{channel.name}{{/t}}
-            {{else}}
-              {{#t}}Mute #{channel.name}{{/t}}
-            {{/if}}
-          {{else}}
-            {{#if channel_is_muted}}
-              {{#t}}Unmute {channel.name}{{/t}}
-            {{else}}
-              {{#t}}Mute {channel.name}{{/t}}
-            {{/if}}
-          {{/unless}}
-        </a>
-      </li>
-    {{/if}}
+  {{#if user.is_ultra_restricted}}
+    <li id="channel_jump_item" role="menuitem">
+      <a class="date_picker" target="{{newWindowName}}">{{#t note="Within a list of messages in a channel"}}Jump to date &hellip;{{/t}}</a>
+    </li>
+    <li id="channel_details_item">
+      <a>{{#t}}View channel details{{/t}}</a>
+    </li>
     <li class="divider"></li>
+    <li id="channel_notification_prefs" role="menuitem">
+      <a>{{#t}}Notification preferences &hellip;{{/t}}</a>
+    </li>
+    <li id="channel_mute_item" role="menuitem">
+      <a>
+        {{#unless channel.is_private}}
+          {{#if channel_is_muted}}
+            {{#t}}Unmute #{channel.name}{{/t}}
+          {{else}}
+            {{#t}}Mute #{channel.name}{{/t}}
+          {{/if}}
+        {{else}}
+          {{#if channel_is_muted}}
+            {{#t}}Unmute {channel.name}{{/t}}
+          {{else}}
+            {{#t}}Mute {channel.name}{{/t}}
+          {{/if}}
+        {{/unless}}
+      </a>
+    </li>
+
   {{else}}
-      <li id="channel_jump_item" role="menuitem">
-        <a class="date_picker" target="{{newWindowName}}">{{#t note="Within a list of messages in a channel"}}Jump to date &hellip;{{/t}}</a>
-      </li>
-    {{#if channel.is_archived}}
-      <li id="channel_details_item">
-        <a>{{#t}}View channel details{{/t}}</a>
-      </li>
-      <li class="divider"></li>
-      {{#if channel.was_archived_this_session}}
-        {{#isChannelRequired channel}}{{else}}<li id="channel_close_archived_item" role="menuitem"><a>
-          {{#unless channel.is_private}}
-            {{#t}}Leave #{channel.name}{{/t}}
-          {{else}}
-            {{#t}}Leave {channel.name}{{/t}}
-          {{/unless}}
-        </a></li>{{/isChannelRequired}}
-      {{/if}}
-      {{#unless (if_equal channel.is_moved compare=1)}}
-        <li id="channel_unarchive_item" role="menuitem"><a>
-          {{#unless channel.is_private}}
-            {{#t}}Un-archive #{channel.name}{{/t}}
-          {{else}}
-            {{#t}}Un-archive {channel.name}{{/t}}
-          {{/unless}}
-        </a></li>
-      {{/unless}}
-      {{#if can_delete_channel}}
-        <li id="channel_delete_item" role="menuitem"><a>{{#t}}Delete #{channel.name}{{/t}}
-      {{/if}}
-    {{else}}
-      {{#unless hide_invite}}<li id="channel_invite_item" role="menuitem"><a>
-        {{#t note="Invite members to join a channel"}}Invite team members to join &hellip;{{/t}}
-      </a></li>{{/unless}}
-      <li id="channel_details_item">
-        <a>{{#t}}View channel details{{/t}}</a>
-      </li>
-      {{#if show_manage_teams}}
-        <li id="channel_manage_teams_item" role="menuitem"><a>
-          {{#t}}Manage teams in this channel &hellip;{{/t}}
-        </a></li>
-      {{/if}}
-      {{#if highlights_toggle}}
-        <li id="channel_highlight_toggle" role="menuitem">
-          <a>
-            {{#if highlights_on}}
-              {{#t}}Hide all message highlights{{/t}}
-            {{else}}
-              {{#t}}Turn on message highlights{{/t}}
-            {{/if}}
-          </a>
-        </li>
-      {{/if}}
-      {{#if show_advanced_item}}
-        <li id="channel_advanced_item" role="menuitem"><a>
-          {{#t note="Additional options for individual channels"}}Additional options &hellip;{{/t}}
-        </a></li>
-      {{/if}}
-      <li class="divider"></li>
-      {{#if show_convert_item}}
-        <li id="channel_convert_item" role="menuitem"><a>
-          {{#t}}Convert to a shared channel{{/t}}
-        </a></li>
-      {{/if}}
+    {{#if user.is_restricted}}
       {{#if channel.is_member}}
-        <li id="channel_prefs" role="menuitem">
-          <a>{{#t note="Notification preferences for individual channels"}}Notification preferences &hellip;{{/t}}</a>
+        <li id="channel_jump_item" role="menuitem">
+          <a class="date_picker" target="{{newWindowName}}">{{#t note="Within a list of messages in a channel"}}Jump to date &hellip;{{/t}}</a>
+        </li>
+        {{#unless hide_invite}}<li id="channel_invite_item" role="menuitem"><a>
+          {{#t note="Invite members to join a channel"}}Invite team members to join &hellip;{{/t}}
+        </a></li>{{/unless}}
+        <li id="channel_details_item">
+          <a>{{#t}}View channel details{{/t}}</a>
+        </li>
+        <li class="divider"></li>
+        <li id="channel_notification_prefs" role="menuitem">
+          <a>{{#t note="Individual channel notification preferences"}}Notification preferences &hellip;{{/t}}</a>
         </li>
         <li id="channel_mute_item" role="menuitem">
           <a>
@@ -149,47 +64,174 @@
             {{/unless}}
           </a>
         </li>
+      {{/if}}
+      <li class="divider"></li>
+    {{else}}
+        <li id="channel_jump_item" role="menuitem">
+          <a class="date_picker" target="{{newWindowName}}">{{#t note="Within a list of messages in a channel"}}Jump to date &hellip;{{/t}}</a>
+        </li>
+      {{#if channel.is_archived}}
+        <li id="channel_details_item">
+          <a>{{#t}}View channel details{{/t}}</a>
+        </li>
         <li class="divider"></li>
-        {{#unless is_not_allowed_integrations}}
-          <li id="channel_add_service_item">
-            <a href="/apps/new?channel={{channel.id}}" target="{{newWindowName}}" role="menuitem">
-              {{#t note="To this individual channel"}}Add an app or integration{{/t}}
-            </a>
-          </li>
-        {{/unless}}
-        {{#if show_email_item}}
-          <li id="channel_email_item" role="menuitem">
-            <a target="{{newWindowName}}" href="/services/new/email">
-              {{#unless channel.is_private}}
-                {{#t}}Send email to #{channel.name} &hellip;{{/t}}
-              {{else}}
-                {{#t}}Send email to {channel.name} &hellip;{{/t}}
-              {{/unless}}
-            </a>
-          </li>
-        {{/if}}
-        {{#isChannelRequired channel}}{{else}}
-          {{#unless is_not_allowed_integrations}}
-            <li class="divider"></li>
-          {{else}}
-            {{#if show_email_item}}
-              <li class="divider"></li>
-            {{/if}}
-          {{/unless}}
-          <li id="channel_leave_item" role="menuitem"><a>
+        {{#if channel.was_archived_this_session}}
+          {{#isChannelRequired channel}}{{else}}<li id="channel_close_archived_item" role="menuitem"><a>
             {{#unless channel.is_private}}
               {{#t}}Leave #{channel.name}{{/t}}
             {{else}}
               {{#t}}Leave {channel.name}{{/t}}
             {{/unless}}
+          </a></li>{{/isChannelRequired}}
+        {{/if}}
+        {{#unless (if_equal channel.is_moved compare=1)}}
+          <li id="channel_unarchive_item" role="menuitem"><a>
+            {{#unless channel.is_private}}
+              {{#t}}Un-archive #{channel.name}{{/t}}
+            {{else}}
+              {{#t}}Un-archive {channel.name}{{/t}}
+            {{/unless}}
           </a></li>
-        {{/isChannelRequired}}
+        {{/unless}}
+        {{#if can_delete_channel}}
+          <li id="channel_delete_item" role="menuitem"><a>{{#t}}Delete #{channel.name}{{/t}}
+        {{/if}}
       {{else}}
-        <li id="channel_join_item" role="menuitem"><a>
-          {{#t}}Join #{channel.name}{{/t}}
-        </a></li>
-      {{/if}}
+        {{#unless hide_invite}}<li id="channel_invite_item" role="menuitem"><a>
+          {{#t note="Invite members to join a channel"}}Invite team members to join &hellip;{{/t}}
+        </a></li>{{/unless}}
+        <li id="channel_details_item">
+          <a>{{#t}}View channel details{{/t}}</a>
+        </li>
+        {{#if show_manage_teams}}
+          <li id="channel_manage_teams_item" role="menuitem"><a>
+            {{#t}}Manage teams in this channel &hellip;{{/t}}
+          </a></li>
+        {{/if}}
+        {{#if highlights_toggle}}
+          <li id="channel_highlight_toggle" role="menuitem">
+            <a>
+              {{#if highlights_on}}
+                {{#t}}Hide all message highlights{{/t}}
+              {{else}}
+                {{#t}}Turn on message highlights{{/t}}
+              {{/if}}
+            </a>
+          </li>
+        {{/if}}
+        {{#if show_advanced_item}}
+          <li id="channel_advanced_item" role="menuitem"><a>
+            {{#t note="Additional options for individual channels"}}Additional options &hellip;{{/t}}
+          </a></li>
+        {{/if}}
+        <li class="divider"></li>
+        {{#if show_convert_item}}
+          <li id="channel_convert_item" role="menuitem"><a>
+            {{#t}}Convert to a shared channel{{/t}}
+          </a></li>
+        {{/if}}
+        {{#if channel.is_member}}
+          <li id="channel_notification_prefs" role="menuitem">
+            <a>{{#t note="Notification preferences for individual channels"}}Notification preferences &hellip;{{/t}}</a>
+          </li>
+          <li id="channel_mute_item" role="menuitem">
+            <a>
+              {{#unless channel.is_private}}
+                {{#if channel_is_muted}}
+                  {{#t}}Unmute #{channel.name}{{/t}}
+                {{else}}
+                  {{#t}}Mute #{channel.name}{{/t}}
+                {{/if}}
+              {{else}}
+                {{#if channel_is_muted}}
+                  {{#t}}Unmute {channel.name}{{/t}}
+                {{else}}
+                  {{#t}}Mute {channel.name}{{/t}}
+                {{/if}}
+              {{/unless}}
+            </a>
+          </li>
+          <li class="divider"></li>
+          {{#unless is_not_allowed_integrations}}
+            <li id="channel_add_service_item">
+              <a href="/apps/new?channel={{channel.id}}" target="{{newWindowName}}" role="menuitem">
+                {{#t note="To this individual channel"}}Add an app or integration{{/t}}
+              </a>
+            </li>
+          {{/unless}}
+          {{#if show_email_item}}
+            <li id="channel_email_item" role="menuitem">
+              <a target="{{newWindowName}}" href="/services/new/email">
+                {{#unless channel.is_private}}
+                  {{#t}}Send email to #{channel.name} &hellip;{{/t}}
+                {{else}}
+                  {{#t}}Send email to {channel.name} &hellip;{{/t}}
+                {{/unless}}
+              </a>
+            </li>
+          {{/if}}
+          {{#isChannelRequired channel}}{{else}}
+            {{#unless is_not_allowed_integrations}}
+              <li class="divider"></li>
+            {{else}}
+              {{#if show_email_item}}
+                <li class="divider"></li>
+              {{/if}}
+            {{/unless}}
+            <li id="channel_leave_item" role="menuitem"><a>
+              {{#unless channel.is_private}}
+                {{#t}}Leave #{channel.name}{{/t}}
+              {{else}}
+                {{#t}}Leave {channel.name}{{/t}}
+              {{/unless}}
+            </a></li>
+          {{/isChannelRequired}}
+        {{else}}
+          <li id="channel_join_item" role="menuitem"><a>
+            {{#t}}Join #{channel.name}{{/t}}
+          </a></li>
+        {{/if}}
 
+      {{/if}}
     {{/if}}
   {{/if}}
-{{/if}}
+{{else}}
+  <!-- This is where we handle shared mpims, which are C-id channels that just happen to be mpims. -->
+  <!-- Actually we could handle all mpims here, but we dont because idk. -->
+
+  <li id="channel_jump_item" role="menuitem">
+    <a target="{{newWindowName}}">{{#t note="Jump to a date within a MPDM"}}Jump to date \u2026{{/t}}</a>
+  </li>
+  {{#if show_mpim_create}}<li id="channel_create_mpim_item" role="menuitem"><a>{{#t note="Invite another team member to join an MPDM"}}Invite another team member \u2026{{/t}}</a></li>{{/if}}
+  <li id="channel_details_item">
+    <a>{{#t note="View details of an MPDM"}}View conversation details{{/t}}</a>
+  </li>
+  {{#if show_mpim_convert}}
+    <li id="convert_to_private_channel" role="menuitem"><a>{{#t note="Convert an MPDM to a private channel"}}Convert to private channel \u2026{{/t}}</a></li>
+  {{/if}}
+  {{#if show_message_retention}}
+    <li id="channel_mpim_message_retention" role="menuitem"><a>{{#t note="Set the message retention policy"}}Set message retention \u2026{{/t}}</a></li>
+  {{/if}}
+  <li class="divider"></li>
+
+  <li id="channel_notification_prefs" role="menuitem"><a>{{#t note="Notification preferences for an MPDM"}}Notification preferences \u2026{{/t}}</a></li>
+  <li id="channel_mute_item" role="menuitem">
+    <a>
+      {{#if channel_is_muted}}
+        {{#t note="Unmute an MPDM"}}Unmute this conversation{{/t}}
+      {{else}}
+        {{#t note="Multe an MPDM"}}Mute this conversation{{/t}}
+      {{/if}}
+    </a>
+  </li>
+  {{#if show_email_item}}
+    <li class="divider"></li>
+    <li id="channel_email_item" role="menuitem">
+      <a target="{{newWindowName}}" href="/services/new/email">{{#t note="Send email to an MPDM"}}Send email to this conversation \u2026{{/t}}</a>
+    </li>
+  {{/if}}
+  {{#if show_export_history}}
+    <li class="divider"></li>
+    <li id="channel_mpim_export_history" role="menuitem"><a>{{#t}}Export message history \u2026{{/t}}</a></li>
+  {{/if}}
+{{/unless}}

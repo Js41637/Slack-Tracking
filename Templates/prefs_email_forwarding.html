@@ -13,7 +13,7 @@
         </p>
         <p class="your_forwarding_address display_flex flex_wrap">
           <label for="forwarding_address">{{#t}}Your forwarding address{{/t}}</label>
-          <input type="text" id="forwarding_address" class="small flex_one small_right_margin" value="{{existing_forwarding_email}}" disabled>
+          <input type="text" id="forwarding_address" class="small flex_one small_right_margin" value="{{existing_forwarding_email}}" readonly>
           <button id="copy_forwarding_email_cb" class="btn btn_outline ts_tip ts_tip_top" type="button">
             {{#t note="Copy forwarding email address to clipboard"}}Copy{{/t}}
             <span class="ts_tip_tip">{{#t}}Copy email address{{/t}}</span>

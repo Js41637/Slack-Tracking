@@ -1,7 +1,9 @@
 {{i18n_ns "autocomplete"}}
 
 <li class="tab_complete_ui_item" data-index="{{index}}">
-
+{{#feature flag="feature_unified_usergroups"}}
+  {{> c-usergroup size="small" result=result}}
+{{else}}
   <span class="broadcast">@{{usergroup.handle}}</span>
   
   <span class="realname">
@@ -15,5 +17,6 @@
       <span class="bullet">&bull;</span> {{usergroup.name}}
     {{/if}}
   </span>
+{{/feature}}
 
 </li>

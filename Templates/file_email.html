@@ -22,11 +22,13 @@
       <div class="file_header email_header">
         {{#feature flag="feature_email_like_fix_files"}}<i class="file_header_icon email_header_icon ts_icon {{#if is_message}}ts_icon_file_email{{else}}ts_icon_file_email_small{{/if}}"></i>{{/feature}}
 
-        <p class="file_header_meta email_header_meta overflow_ellipsis">
-          {{#each file.from}}
-            {{#if this.name}}{{this.name}}{{else}}{{this.address}}{{/if}}
-          {{/each}}
-        </p>
+        {{#unless file.sent_to_self}}
+          <p class="file_header_meta email_header_meta overflow_ellipsis">
+            {{#each file.from}}
+              {{#if this.name}}{{this.name}}{{else}}{{this.address}}{{/if}}
+            {{/each}}
+          </p>
+        {{/unless}}
 
         {{#if file.title}}
           <h4 class="file_header_title email_header_title overflow_ellipsis no_jumbomoji">
@@ -49,13 +51,15 @@
       <div class="file_header email_header">
         {{#feature flag="feature_email_like_fix_files"}}<i class="file_header_icon email_header_icon ts_icon {{#if is_message}}ts_icon_file_email{{else}}ts_icon_file_email_small{{/if}}"></i>{{/feature}}
 
-        {{#if file.from}}
-          <p class="file_header_meta email_header_meta">
-            {{#each file.from}}
-              <span class="email_header_label">{{#t note='Followed by a name, email address, or both.'}}From{{/t}}</span>{{#if this.name}}{{this.name}} {{/if}}<span class="email_address">&lt;{{this.address}}&gt;</span>
-            {{/each}}
-          </p>
-        {{/if}}
+        {{#unless file.sent_to_self}}
+          {{#if file.from}}
+            <p class="file_header_meta email_header_meta">
+              {{#each file.from}}
+                <span class="email_header_label">{{#t note='Followed by a name, email address, or both.'}}From{{/t}}</span>{{#if this.name}}{{this.name}} {{/if}}<span class="email_address">&lt;{{this.address}}&gt;</span>
+              {{/each}}
+            </p>
+          {{/if}}
+        {{/unless}}
 
         {{#if file.to}}
           <p class="file_header_meta email_header_meta">
