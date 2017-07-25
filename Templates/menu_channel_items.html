@@ -100,6 +100,11 @@
         {{#unless hide_invite}}<li id="channel_invite_item" role="menuitem"><a>
           {{#t note="Invite members to join a channel"}}Invite team members to join &hellip;{{/t}}
         </a></li>{{/unless}}
+        {{#feature flag="feature_app_permissions_api_site"}}
+          <li id="channel_add_apps_item" role="menuitem">
+            <a>{{#t}}Add apps...{{/t}}</a>
+          </li>
+        {{/feature}}
         <li id="channel_details_item">
           <a>{{#t}}View channel details{{/t}}</a>
         </li>
@@ -206,6 +211,11 @@
   <li id="channel_details_item">
     <a>{{#t note="View details of an MPDM"}}View conversation details{{/t}}</a>
   </li>
+  {{#feature flag="feature_app_permissions_api_site"}}
+    <li id="channel_add_apps_item" role="menuitem">
+      <a>{{#t}}Add apps...{{/t}}</a>
+    </li>
+  {{/feature}}
   {{#if show_mpim_convert}}
     <li id="convert_to_private_channel" role="menuitem"><a>{{#t note="Convert an MPDM to a private channel"}}Convert to private channel \u2026{{/t}}</a></li>
   {{/if}}

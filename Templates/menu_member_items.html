@@ -13,6 +13,11 @@
         {{#t}}Edit your profile{{/t}}
       </a></li>
     {{/unless}}
+    {{#feature flag="feature_app_permissions_api_site"}}
+      <li id="member_add_apps_item" role="menuitem">
+        <a>{{#t}}Add apps...{{/t}}</a>
+      </li>
+    {{/feature}}
     <li id="member_details_item"><a>
       {{#t}}View conversation details{{/t}}
     </a></li>
@@ -115,6 +120,11 @@
           {{#t name=(getPrefCompliantMemberName member)}}Invite {name} to a channel &hellip;{{/t}}
         </a></li>
       {{/if}}
+      {{#feature flag="feature_app_permissions_api_site"}}
+        <li id="member_add_apps_item" role="menuitem">
+          <a>{{#t}}Add apps...{{/t}}</a>
+        </li>
+      {{/feature}}
       <li id="member_details_item">
         <a>{{#t}}View conversation details{{/t}}</a>
       </li>
