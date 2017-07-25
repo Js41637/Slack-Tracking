@@ -83,12 +83,13 @@
     <div class="clearfix">
       <p class="col {{#if_equal this.type compare="link"}}span_2_of_3{{else}}{{#if_equal this.type compare="date"}}span_2_of_3{{else}}span_1_of_1{{/if_equal}}{{/if_equal}} no_padding">
         {{#if_not_equal this.type compare="options_list"}}
-          <label for="{{this.id}}_profile_field">{{this.label}}
+          <label for="{{this.id}}_profile_field">
             {{#if this.options.is_scim}}
-              <ts-icon class="ts_icon_sync profile_field__icon--scim_provisioned sk_light_grey ts_tip ts_tip_top ts_tip_multiline">
+              <ts-icon class="ts_icon_lock sk_light_grey ts_tip ts_tip_top ts_tip_multiline">
                 <span class="ts_tip_tip ts_tip_multiline_inner">{{#t}}This field is automatically synced by your organization.{{/t}}</span>
               </ts-icon>
             {{/if}}
+            {{this.label}}
           </label>
         {{/if_not_equal}}
         {{#if_equal this.type compare="text"}}

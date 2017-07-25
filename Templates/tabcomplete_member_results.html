@@ -3,12 +3,12 @@
 {{#each results as |result|}}
   {{#if result.is_broadcast_keyword}}
     <li class="tab_complete_ui_item" data-type="keyword" data-index="{{@index}}">
-      <span class="broadcast">
-        {{#shouldUseUnifiedMemberDisplay}}
-          {{#feature flag="feature_unified_usergroups"}}
+      <span class="broadcast {{#feature flag="feature_unified_usergroups"}}unify_broadcast{{/feature}}">
+        {{#feature flag="feature_unified_usergroups"}}
+          {{#shouldUseUnifiedMemberDisplay}}
             <i class="ts_icon ts_icon_broadcast"></i>
-          {{/feature}}
-        {{/shouldUseUnifiedMemberDisplay}}
+          {{/shouldUseUnifiedMemberDisplay}}
+        {{/feature}}
         @{{result.name}}
         <span class="broadcast_info">{{result.description}}</span>
       </span>

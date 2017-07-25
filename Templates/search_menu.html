@@ -180,7 +180,19 @@
           {{/if}}
 
           {{#feature flag="feature_name_tagging_client"}}
-            {{> member_menu_names}}
+            {{#if this.is_usergroup}}
+              <strong>@{{this.handle}}</strong>
+              <span class="muted_text">
+                {{~#t user_count=this.user_count}}{user_count, plural, =1 {# Member} other {# Members}}{{/t~}}
+                {{#if this.description}}
+                  <span class="bullet">&bull;</span> {{this.description}}
+                {{/if}}
+              </span>
+            {{else if this.is_broadcast_keyword}}
+              <strong>@{{this.name}}</strong>
+            {{else}}
+              {{> member_menu_names}}
+            {{/if}}
           {{else}}
             {{#if real_name}}
               <strong>{{real_name}} </strong>

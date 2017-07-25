@@ -1,0 +1,64 @@
+{{i18n_ns "channel_created"}}
+
+{{#feature flag="feature_i18n_channel_meta"}}
+
+{{#if creator.is_self}}
+
+  {{#if shared}}
+    {{#if shared.all_teams}}
+      {{#t note="{date} is either a date e.g. 'on July 14th', or 'yesterday' or 'today'"}}You created this {private, select, true {private} other {}} channel across all teams in your organization {date}.{{/t}}
+    {{else}}
+      {{#t
+        note="{date} is either a date e.g. 'on July 14th', or 'yesterday' or 'today'"
+        teams_shared_with=(listify shared.teams_shared_with map="name")
+      }}You created this channel across <a class="ts_tip ts_tip_top ts_tip_float ts_tip_multiline">{shared.model_ob.shared_team_ids.length, plural, =1 {# team} other {# teams}}
+        <span class="ts_tip_tip">
+          <span class="ts_tip_multiline_inner">{teams_shared_with}</span>
+        </span>
+      </a> {date}.{{/t}}
+    {{/if}}
+  {{else}}
+    {{#t note="{date} is either a date e.g. 'on July 14th', or 'yesterday' or 'today'"}}You created this {private, select, true {private} other {}} channel {date}.{{/t}}
+  {{/if}}
+
+{{else}}{{#if creator.user}}
+  
+  {{#if shared}}
+    {{#if shared.all_teams}}
+      {{#t note="{date} is either a date e.g. 'on July 14th', or 'yesterday' or 'today'. Also, {creator.user} is always third person, e.g. 'UserA created this...'"}}{creator.user} created this {private, select, true {private} other {}} channel across all teams in your organization {date}.{{/t}}
+    {{else}}
+      {{#t
+        note="{date} is either a date e.g. 'on July 14th', or 'yesterday' or 'today'. Also, {creator.user} is always third person, e.g. 'UserA created this...'"
+        teams_shared_with=(listify shared.teams_shared_with map="name")
+      }}{creator.user} created this {private, select, true {private} other {}} channel across <a class="ts_tip ts_tip_top ts_tip_float ts_tip_multiline">{shared.model_ob.shared_team_ids.length, plural, =1 {# team} other {# teams}}
+        <span class="ts_tip_tip">
+          <span class="ts_tip_multiline_inner">{teams_shared_with}</span>
+        </span>
+      </a> {date}.{{/t}}
+    {{/if}}
+  {{else}}
+    {{#t note="{date} is either a date e.g. 'on July 14th', or 'yesterday' or 'today'. Also, {creator.user} is always third person, e.g. 'UserA created this...'"}}{creator.user} created this {private, select, true {private} other {}} channel {date}.{{/t}}
+  {{/if}}
+
+{{else}}
+
+  {{#if shared}}
+    {{#if shared.all_teams}}
+      {{#t note="{date} is either a date e.g. 'on July 14th', or 'yesterday' or 'today'"}}Unknown created this {private, select, true {private} other {}} channel across all teams in your organization {date}.{{/t}}
+    {{else}}
+      {{#t
+        note="{date} is either a date e.g. 'on July 14th', or 'yesterday' or 'today'"
+        teams_shared_with=(listify shared.teams_shared_with map="name")
+      }}Unknown created this {private, select, true {private} other {}} channel across <a class="ts_tip ts_tip_top ts_tip_float ts_tip_multiline">{shared.model_ob.shared_team_ids.length, plural, =1 {# team} other {# teams}}
+        <span class="ts_tip_tip">
+          <span class="ts_tip_multiline_inner">{teams_shared_with}</span>
+        </span>
+      </a> {date}.{{/t}}
+    {{/if}}
+  {{else}}
+    {{#t note="{date} is either a date e.g. 'on July 14th', or 'yesterday' or 'today'"}}Unknown created this {private, select, true {private} other {}} channel {date}.{{/t}}
+  {{/if}}
+
+{{/if}}{{/if}}
+
+{{/feature}}

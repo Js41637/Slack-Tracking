@@ -14703,7 +14703,7 @@ body:not(.unify_user) .tab_complete_ui ul.type_members .broadcast {
   margin-left: 0
 }
 
-.tab_complete_ui ul.type_members .broadcast {
+.tab_complete_ui ul.type_members .unify_broadcast {
   display: flex;
   align-items: center;
   color: #2c2d30;
@@ -14711,7 +14711,7 @@ body:not(.unify_user) .tab_complete_ui ul.type_members .broadcast {
   margin-left: 25px
 }
 
-.tab_complete_ui ul.type_members .broadcast .ts_icon_broadcast {
+.tab_complete_ui ul.type_members .unify_broadcast .ts_icon_broadcast {
   color: #717274;
   margin-right: .5rem;
   width: 20px;
@@ -14720,8 +14720,15 @@ body:not(.unify_user) .tab_complete_ui ul.type_members .broadcast {
   align-self: baseline
 }
 
-.tab_complete_ui ul.type_members .broadcast .ts_icon_broadcast:before {
+.tab_complete_ui ul.type_members .unify_broadcast .ts_icon_broadcast:before {
   font-size: 1rem
+}
+
+body:not(.unify_user) .tab_complete_ui ul.type_members .unify_broadcast {
+  display: inline-block;
+  color: #555459;
+  font-weight: 900;
+  margin-left: 0
 }
 
 .tab_complete_ui ul.type_members .broadcast_info {
