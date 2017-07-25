@@ -16784,7 +16784,7 @@ body:not(.unify_user) .lazy_filter_select .lfs_value .ts_icon_shared_channels {
   background-repeat: no-repeat;
   display: inline-block;
   position: relative;
-  top: -1px
+  top: 1px
 }
 
 .lazy_filter_select .team_image:after {
