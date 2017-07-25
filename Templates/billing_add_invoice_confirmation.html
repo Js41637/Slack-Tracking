@@ -20,7 +20,7 @@
   </p>
   <p>
     <ts-icon class="ts_icon_check_circle_o seafoam_green"></ts-icon>
-    <span>{{overall_cost_text}}</span>
+    <span>{{invoice_total_text}}</span>
   </p>
 </div>
 <div>
@@ -35,9 +35,9 @@
     </tr>
     <tr class="no_border">
       <td class="small no_border no_padding">{{#t}}Previous credits{{/t}}</td>
-      <td class="small no_border no_padding align_right seafoam_green">{{previous_credits}}</td>
+      <td class="small no_border no_padding align_right seafoam_green">{{team_credits}}</td>
     </tr>
-    <tr class="no_border {{#if hide_tax}}hidden{{/if}}">
+    <tr class="no_border {{#if hide_taxes}}hidden{{/if}}">
       <td class="small no_border no_padding">{{#t}}Taxes{{/t}}</td>
       <td class="small no_border no_padding align_right">{{sales_tax}}</td>
     </tr>

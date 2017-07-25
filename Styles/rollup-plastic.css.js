@@ -9999,6 +9999,10 @@ only screen and (min-resolution:2dppx) {
   order: 2
 }
 
+.modal#generic_dialog.c-modal--onboarding_dialog {
+  z-index: 1041
+}
+
 @font-face {
   font-family: appleLogo;
   src: local("Lucida Grande");
@@ -14293,7 +14297,7 @@ body:not(.unify_user) .mpdm_badge a {
 }
 
 .unknown_member {
-  display: none;
+  display: inline-block;
   background: #E8E8E8;
   width: 80px;
   height: 10px;
@@ -17341,10 +17345,6 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 .mention_rxn .mention_rxn_msg_holder .message_content>a.timestamp,
 .mention_rxn .mention_rxn_msg_holder .message_content>i {
   display: none!important
-}
-
-.mention_rxn .unknown_member {
-  display: inline-block
 }
 
 .dense_theme .mention_rxn_summary,

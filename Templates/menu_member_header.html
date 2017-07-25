@@ -80,7 +80,9 @@
 
       {{#if member.profile}}
         {{#if member.profile.title}}
-          <div class="member_title lato">{{member.profile.title}}</div>
+          {{#unless member.deleted}}
+            <div class="member_title lato">{{member.profile.title}}</div>
+          {{/unless}}
         {{/if}}
       {{/if}}
     </div>

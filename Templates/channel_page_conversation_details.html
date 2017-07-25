@@ -58,12 +58,14 @@
           <div class="timezone_label mini greigh" data-member-id="{{member.id}}">{{{memberLocalTime member}}}</div>
         {{/if}}
       {{/feature}}
-      <div class="member_title mini">
-        {{#if member.is_slackbot}}
-          {{#t new_win_name=(newWindowName) locale=(zdLocale)}}Friendly bot, part-time programmer, and <a href="https://get.slack.help/hc/{locale}" target="{new_win_name}">Help Center</a> assistant-in-training.{{/t}}
-        {{else}}{{member.profile.title}}
-        {{/if}}
-      </div>
+      {{#unless member.deleted}}
+        <div class="member_title mini">
+          {{#if member.is_slackbot}}
+            {{#t new_win_name=(newWindowName) locale=(zdLocale)}}Friendly bot, part-time programmer, and <a href="https://get.slack.help/hc/{locale}" target="{new_win_name}">Help Center</a> assistant-in-training.{{/t}}
+          {{else}}{{member.profile.title}}
+          {{/if}}
+        </div>
+      {{/unless}}
     </div>
     <div class="clearfix"></div>
   {{/shouldUseUnifiedMemberDisplay}}

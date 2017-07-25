@@ -2,7 +2,7 @@
 <table class="p-add_invoice__price_preview_table full_width small_bottom_margin">
   <tbody>
     <tr class="no_border">
-      <td class="no_border no_padding" data-js="inv_ss__price_preview_number_of_seats" data-qa="inv_ss__price_preview_number_of_seats">{{user_count_text}}</td>
+      <td class="no_border no_padding" data-js="inv_ss__price_preview_number_of_seats" data-qa="inv_ss__price_preview_number_of_seats">{{active_users}} active users:</td>
       <td class="no_border no_padding align_right" data-js="inv_ss__price_preview_cost_for_users" data-qa="inv_ss__price_preview_cost_for_users">{{cost_for_users}}</td>
     </tr>
     <tr class="no_border">
@@ -19,11 +19,11 @@
     </tr>
     <tr class="no_border {{#if hide_taxes}}hidden{{/if}}" data-js="inv_ss__price_preview_tax_container" data-qa="inv_ss__price_preview_tax_container">
       <td class="no_border no_padding">{{#t}}Taxes{{/t}}</td>
-      <td class="no_border no_padding align_right" data-js="inv_ss__price_preview_taxes" data-qa="inv_ss__price_preview_taxes">{{taxes}}</td>
+      <td class="no_border no_padding align_right" data-js="inv_ss__price_preview_taxes" data-qa="inv_ss__price_preview_taxes">{{sales_tax}}</td>
     </tr>
     <tr class="no_border">
       <td class="no_border no_padding black">{{#t}}Total{{/t}}</td>
-      <td class="no_border no_padding align_right black" data-js="inv_ss__price_preview_total" data-qa="inv_ss__price_preview_total">{{total}}</td>
+      <td class="no_border no_padding align_right black" data-js="inv_ss__price_preview_total" data-qa="inv_ss__price_preview_total">{{invoice_total}}</td>
     </tr>
   </tbody>
 </table>
