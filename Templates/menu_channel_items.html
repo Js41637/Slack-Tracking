@@ -101,9 +101,11 @@
           {{#t note="Invite members to join a channel"}}Invite team members to join &hellip;{{/t}}
         </a></li>{{/unless}}
         {{#feature flag="feature_app_permissions_api_site"}}
-          <li id="channel_add_apps_item" role="menuitem">
-            <a>{{#t}}Add apps...{{/t}}</a>
-          </li>
+          {{#if show_add_apps}}
+            <li id="channel_add_apps_item" role="menuitem">
+              <a>{{#t}}Add apps ...{{/t}}</a>
+            </li>
+          {{/if}}
         {{/feature}}
         <li id="channel_details_item">
           <a>{{#t}}View channel details{{/t}}</a>
@@ -156,13 +158,15 @@
               {{/unless}}
             </a>
           </li>
-          <li class="divider"></li>
-          {{#unless is_not_allowed_integrations}}
-            <li id="channel_add_service_item">
-              <a href="/apps/new?channel={{channel.id}}" target="{{newWindowName}}" role="menuitem">
-                {{#t note="To this individual channel"}}Add an app or integration{{/t}}
-              </a>
-            </li>
+          {{#unless show_add_apps}}
+            <li class="divider"></li>
+            {{#unless is_not_allowed_integrations}}
+              <li id="channel_add_service_item">
+                <a href="/apps/new?channel={{channel.id}}" target="{{newWindowName}}" role="menuitem">
+                  {{#t note="To this individual channel"}}Add an app or integration{{/t}}
+                </a>
+              </li>
+            {{/unless}}
           {{/unless}}
           {{#if show_email_item}}
             <li id="channel_email_item" role="menuitem">
@@ -212,9 +216,11 @@
     <a>{{#t note="View details of an MPDM"}}View conversation details{{/t}}</a>
   </li>
   {{#feature flag="feature_app_permissions_api_site"}}
-    <li id="channel_add_apps_item" role="menuitem">
-      <a>{{#t}}Add apps...{{/t}}</a>
-    </li>
+    {{#if show_add_apps}}
+      <li id="channel_add_apps_item" role="menuitem">
+        <a>{{#t}}Add apps ...{{/t}}</a>
+      </li>
+    {{/if}}
   {{/feature}}
   {{#if show_mpim_convert}}
     <li id="convert_to_private_channel" role="menuitem"><a>{{#t note="Convert an MPDM to a private channel"}}Convert to private channel \u2026{{/t}}</a></li>

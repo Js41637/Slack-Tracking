@@ -77,9 +77,11 @@
         </a></li>
       {{/unless}}
       {{#feature flag="feature_app_permissions_api_site"}}
-        <li id="group_add_apps_item" role="menuitem">
-          <a>{{#t}}Add apps...{{/t}}</a>
-        </li>
+        {{#if show_add_apps}}
+          <li id="group_add_apps_item" role="menuitem">
+            <a>{{#t}}Add apps ...{{/t}}</a>
+          </li>
+        {{/if}}
       {{/feature}}
       <li id="group_details_item"><a>
         {{#t}}View channel details{{/t}}
@@ -115,12 +117,13 @@
           {{#t note="Mute an individual private channel"}}Mute {group.name}{{/t}}
         {{/if}}
       </a></li>
-      <li class="divider"></li>
-
-      {{#unless is_not_allowed_integrations}}
-        <li id="group_add_service_item" role="menuitem"><a href="/services/new?channel_id={{group.id}}" target="{{newWindowName}}">
-          {{#t}}Add an app or integration{{/t}}
-        </a></li>
+      {{#unless show_add_apps}}
+        <li class="divider"></li>
+        {{#unless is_not_allowed_integrations}}
+          <li id="group_add_service_item" role="menuitem"><a href="/services/new?channel_id={{group.id}}" target="{{newWindowName}}">
+            {{#t}}Add an app or integration{{/t}}
+          </a></li>
+        {{/unless}}
       {{/unless}}
 
       {{#if show_email_item}}

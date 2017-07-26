@@ -5541,6 +5541,10 @@ moscow_red_bg {
   background-color: #2D9EE0!important
 }
 
+.i18n_wordwrap {
+  display: inline-block
+}
+
 .show_on_mobile {
   display: none!important
 }

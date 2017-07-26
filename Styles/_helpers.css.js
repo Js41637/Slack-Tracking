@@ -1008,6 +1008,10 @@
   background-color: #fc0
 }
 
+.i18n_wordwrap {
+  display: inline-block
+}
+
 .top_border {
   border-top: 1px solid #e8e8e8
 }

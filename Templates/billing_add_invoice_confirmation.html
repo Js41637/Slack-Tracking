@@ -1,4 +1,5 @@
 {{i18n_ns "pages_admin"}}
+{{#feature flag="feature_ssi_checkout"}}
 <div class="p-add_invoice__confirmation_dialog__error_container small_bottom_margin left_padding right_padding small_top_padding small_bottom_padding hidden">
   <ts-icon class="p-add_invoice__confirmation_dialog__error_icon ts_icon_warning sk_candy_red small_right_margin"></ts-icon>
   <span class="p-add_invoice__confirmation_dialog__error_text">
@@ -30,15 +31,15 @@
       <td class="small no_border no_padding align_right">{{cost_for_users}}</td>
     </tr>
     <tr class="no_border">
-      <td class="small no_border no_padding">{{#t}}Credits for future usage{{/t}}</td>
+      <td class="small no_border no_padding">{{#t}}Credits for future usage:{{/t}}</td>
       <td class="small no_border no_padding align_right">{{future_credits}}</td>
     </tr>
-    <tr class="no_border">
-      <td class="small no_border no_padding">{{#t}}Previous credits{{/t}}</td>
+    <tr class="no_border {{#if hide_existing_credits}}hidden{{/if}}">
+      <td class="small no_border no_padding">{{#t}}Existing credits applied:{{/t}}</td>
       <td class="small no_border no_padding align_right seafoam_green">{{team_credits}}</td>
     </tr>
     <tr class="no_border {{#if hide_taxes}}hidden{{/if}}">
-      <td class="small no_border no_padding">{{#t}}Taxes{{/t}}</td>
+      <td class="small no_border no_padding">{{#t}}Taxes:{{/t}}</td>
       <td class="small no_border no_padding align_right">{{sales_tax}}</td>
     </tr>
   </table>
@@ -51,3 +52,4 @@
     {{/t}}
   </span>
 </div>
+{{/feature}}
