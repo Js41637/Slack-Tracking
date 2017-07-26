@@ -14711,8 +14711,7 @@ body:not(.unify_user) .tab_complete_ui ul.type_members .broadcast {
   display: flex;
   align-items: center;
   color: #2c2d30;
-  font-weight: 700;
-  margin-left: 25px
+  font-weight: 700
 }
 
 .tab_complete_ui ul.type_members .unify_broadcast .ts_icon_broadcast {
@@ -14939,6 +14938,11 @@ body:not(.unify_user) .tab_complete_ui li.tab_complete_ui_item {
 
 .tab_complete_ui li.tab_complete_ui_item[data-type=member] {
   padding: 0 10px 0 4px
+}
+
+.tab_complete_ui li.tab_complete_ui_item[data-type=usergroup],
+.tab_complete_ui li.tab_complete_ui_item[data-type=keyword] {
+  padding: 0 10px 0 1.8rem
 }
 
 .tab_complete_ui .not_in_channel {
@@ -17467,7 +17471,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 }
 
 .c-member .member_image,
-.c-usergroup .usergroup_icon {
+.c-usergroup .c-usergroup__icon {
   display: inline-block;
   position: relative;
   float: left;
@@ -17616,9 +17620,13 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 }
 
 .c-member--small .member_image,
-.c-usergroup--small .usergroup_icon {
+.c-usergroup--small .c-usergroup__icon {
   width: 20px;
   height: 20px;
+  line-height: 1.25
+}
+
+.c-member--small .member_image {
   margin-left: .25rem
 }
 
@@ -17673,7 +17681,9 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 
 .c-member__context.c-member__not-in-channel-context--small,
 .c-usergroup__context.c-usergroup__not-in-channel-context--small {
-  line-height: 0
+  margin-left: .25rem;
+  line-height: 0;
+  white-space: nowrap
 }
 
 .c-member__frecency-score--small.frecency_score {
@@ -17806,15 +17816,17 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   height: 56px
 }
 
-.c-usergroup--small .ts_icon_user_groups {
+.c-usergroup--small .c-usergroup__icon {
   background-color: #717274;
   color: #fff;
-  text-align: center;
-  margin-left: 25px
+  text-align: center
 }
 
-.c-usergroup--small .ts_icon_user_groups:before {
-  font-size: 1rem;
-  position: relative;
-  bottom: 6px
+.c-usergroup--small .c-usergroup__icon:before {
+  font-size: 1rem
+}
+
+.c-usergroup__not-in-channel-context--small {
+  color: #717274;
+  font-size: .7rem
 }

@@ -19,6 +19,24 @@
     <ts-icon class="very_small_left_padding ts_icon_question_circle"></ts-icon>
     <span class="ts_tip_multiline_inner ts_tip_tip">
       {{#feature flag="feature_teams_to_workspaces"}}
+        {{#feature flag="feature_guest_invitation_restrictions"}}
+
+        {{#if member.is_single_channel_guest}}
+          {{#t name=formatted_member_name }}
+            {name} is a Single-Channel Guest on other workspaces in this organization, so their account type can only be changed at the org level.
+          {{/t}}
+        {{else if member.is_multi_channel_guest}}
+          {{#t name=formatted_member_name }}
+            {name} is a Multi-Channel Guest on other workspaces in this organization, so their account type can only be changed at the org level.
+          {{/t}}
+        {{else}}
+          {{#t name=formatted_member_name }}
+            {name} is a Full Member on other workspaces in this organization, so their account type can only be changed at the org level.
+          {{/t}}
+        {{/if}}
+
+        {{else}}
+
         {{#if member.is_single_channel_guest}}
           {{#t name=formatted_member_name }}
             {name} is a Single-Channel Guest on other workspaces in this organization. Their account type must be the same for every workspace and can only be changed at the org level.
@@ -32,7 +50,27 @@
             {name} is a Full Member on other workspaces in this organization. Their account type must be the same for every workspace and can only be changed at the org level.
           {{/t}}
         {{/if}}
+
+        {{/feature}}
       {{else}}
+        {{#feature flag="feature_guest_invitation_restrictions"}}
+
+        {{#if member.is_single_channel_guest}}
+          {{#t name=formatted_member_name}}
+            {name} is a Single-Channel Guest on other teams in this organization, so their account type can only be changed at the org level.
+          {{/t}}
+        {{else if member.is_multi_channel_guest}}
+          {{#t name=formatted_member_name}}
+            {name} is a Multi-Channel Guest on other teams in this organization, so their account type can only be changed at the org level.
+          {{/t}}
+        {{else}}
+          {{#t name=formatted_member_name}}
+            {name} is a Full Member on other teams in this organization, so their account type can only be changed at the org level.
+          {{/t}}
+        {{/if}}
+
+        {{else}}
+
         {{#if member.is_single_channel_guest}}
           {{#t name=formatted_member_name fallback_hash="51b43a311d627f7bf849d8f91f6ec9a0c70c5dcc"}}
             {name} is a Single-Channel Guest on other teams in this organization. Their account type must be the same for every team and can only be changed at the org level.
@@ -46,6 +84,10 @@
             {name} is a Full Member on other teams in this organization. Their account type must be the same for every team and can only be changed at the org level.
           {{/t}}
         {{/if}}
+
+        {{/feature}}
+
+
       {{/feature}}
     </span>
   {{else if_equal action compare="cant_deactivate"}}
