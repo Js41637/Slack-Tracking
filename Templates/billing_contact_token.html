@@ -1,0 +1,7 @@
+<div class="clearfix display_flex align_items_center">
+  {{#if member}}
+    <div class="overflow_ellipsis small_left_padding">{{getPrefCompliantMemberName member true true}}</div>
+  {{else}}
+    <div class="overflow_ellipsis small_left_padding">{{email}}</div>
+  {{/if}}
+</div>
