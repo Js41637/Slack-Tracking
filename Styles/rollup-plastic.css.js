@@ -14942,7 +14942,8 @@ body:not(.unify_user) .tab_complete_ui li.tab_complete_ui_item {
 
 .tab_complete_ui li.tab_complete_ui_item[data-type=usergroup],
 .tab_complete_ui li.tab_complete_ui_item[data-type=keyword] {
-  padding: 0 10px 0 1.8rem
+  padding-right: 10px;
+  padding-left: calc(.4rem + 22px)
 }
 
 .tab_complete_ui .not_in_channel {
@@ -17622,8 +17623,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 .c-member--small .member_image,
 .c-usergroup--small .c-usergroup__icon {
   width: 20px;
-  height: 20px;
-  line-height: 1.25
+  height: 20px
 }
 
 .c-member--small .member_image {
@@ -17819,7 +17819,8 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 .c-usergroup--small .c-usergroup__icon {
   background-color: #717274;
   color: #fff;
-  text-align: center
+  text-align: center;
+  line-height: 1.3
 }
 
 .c-usergroup--small .c-usergroup__icon:before {
