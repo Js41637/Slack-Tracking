@@ -2,3 +2,10 @@
   <a id="search_file_list_heading">
     <span class="heading_label">{{filetype_label}}</span> <i class="ts_icon ts_icon_caret_down"></i>
   </a>
+    {{#if sli_model_group}}
+        <a onclick="TS.search.debugFileQuery('{{team_id}}', '{{user_id}}');">
+            <ts-icon class="ts_icon_info sli_query_info">
+            </ts-icon>
+        </a>
+    {{/if}}
+

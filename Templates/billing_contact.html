@@ -7,7 +7,7 @@
       <div class="inline_block" style="margin-left: 8px">
         <div class="no_wrap">
           <strong>{{#if member.is_self}}{{#t note="Shown when primary owner is viewing primary owner field"}}You &bull;{{/t}} {{/if}}{{getPrefCompliantMemberName member}}</strong>
-          {{#if member.deleted}}&bull; <em class="subtle_silver">{{#t note="Display next to username if user is disabled"}}(Disabled){{/t}}</em>{{/if}}
+          {{#if member.deleted}}&bull; <em class="subtle_silver">{{#t fallback_hash="c7bf0af2fe1980a6f8dab58b72359fff1127eb12" note="Display next to username if user is disabled"}}(Deactivated){{/t}}</em>{{/if}}
         </div>
         <div>{{member_type}} {{#unless member.is_primary_owner}}&bull; {{member.profile.email}}{{/unless}}</div>
       </div>
