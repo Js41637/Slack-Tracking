@@ -35,8 +35,14 @@
       <td class="small no_border no_padding align_right">{{future_credits}}</td>
     </tr>
     <tr class="no_border {{#if hide_existing_credits}}hidden{{/if}}">
-      <td class="small no_border no_padding">{{#t}}Existing credits applied:{{/t}}</td>
-      <td class="small no_border no_padding align_right seafoam_green">{{team_credits}}</td>
+      <td class="small no_border no_padding">
+        {{#if is_negative_credits}}
+          {{#t}}Outstanding balance:{{/t}}
+        {{else}}
+          {{#t}}Existing credits:{{/t}}
+        {{/if}}
+      </td>
+      <td class="small no_border no_padding align_right {{#unless is_negative_credits}}seafoam_green{{/unless}}">{{team_credits_display}}</td>
     </tr>
     <tr class="no_border {{#if hide_taxes}}hidden{{/if}}">
       <td class="small no_border no_padding">{{#t}}Taxes:{{/t}}</td>

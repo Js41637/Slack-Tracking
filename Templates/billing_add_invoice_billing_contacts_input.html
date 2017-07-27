@@ -4,7 +4,9 @@
   <div data-js="add_invoice__billing_contacts_lfs" class="add_invoice__billing_emails no_margin"></div>
   <div class="p-add_invoice__warning_container very_small_padding hidden" data-js="add_invoice__contact_error">
     <p class="p-add_invoice__warning_text--without_icon small black small_left_margin no_bottom_margin">
-      {{#t}}That doesn't look like an email or @username.{{/t}}
+      {{#feature flag="feature_ssi_checkout"}}
+        {{#t}}Sorry, you\u2019ve entered an invalid email{{/t}}
+      {{/feature}}
     </p>
   </div>
   <span class="input_note inline no_margin {{#if disabled}}cursor_default{{/if}}">{{#t}}Add contacts by email or Slack @username{{/t}}</span>

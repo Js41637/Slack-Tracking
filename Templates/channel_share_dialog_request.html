@@ -1,6 +1,6 @@
 {{i18n_ns 'share_channels'}}
 
-{{#feature flag="feature_connecting_shared_channels"}}
+{{#feature flag="feature_shared_channels_client"}}
 
 <div class="share_channel_modal_contents">
     <h1 class="share_channel_modal_heading">
@@ -28,11 +28,13 @@
       </div>
     </div> 
 
+    {{#if custom_message}}
     <div class="bottom_margin">
       {{#t note="Custom message for a shared channel invitation, wrapped in quotes" custom_message=custom_message}}
         \u201c{custom_message}\u201d
       {{/t}}
     </div>
+    {{/if}}
 
     <h2 class="large_top_margin small_bottom_margin">{{#t}}Channel details{{/t}}</h2>
     <p class="greigh large_bottom_margin">{{#t}}You can change the channel name or privacy. Doing so will only affect your team.{{/t}}</p>

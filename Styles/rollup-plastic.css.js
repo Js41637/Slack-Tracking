@@ -10031,20 +10031,43 @@ only screen and (min-resolution:2dppx) {
 }
 
 .c-modal_body--onboarding_dialog {
+  max-height: 526px;
+  height: 526px;
   padding: 0;
   margin: 0
 }
 
 .c-modal_close--onboarding_dialog {
-  position: absolute;
   top: 7px;
   right: 15px;
-  padding: 0;
-  margin: 0;
-  border-style: none;
   background: 0 0;
-  font-size: 24px;
+  font-size: 1.5rem;
   color: #717274
+}
+
+.c-modal_media_container--onboarding_dialog {
+  display: flex;
+  -ms-flex-pack: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -moz-justify-content: center;
+  justify-content: center;
+  align-items: center;
+  height: 280px
+}
+
+.c-modal_media--onboarding_dialog {
+  max-height: 100%
+}
+
+.c-modal_copy--onboarding_dialog {
+  height: 246px;
+  padding: 0 22px 22px
+}
+
+.c-modal_copy--onboarding_dialog>p {
+  margin-bottom: 24px;
+  font-size: .9375rem
 }
 
 .c-modal--onboarding_dialog+.modal-backdrop {
@@ -10056,11 +10079,6 @@ only screen and (min-resolution:2dppx) {
 
 .c-modal--onboarding_dialog.in+.modal-backdrop {
   opacity: .4
-}
-
-.c-modal_media_container--onboarding_dialog {
-  height: 270px;
-  width: 100%
 }
 
 @font-face {
