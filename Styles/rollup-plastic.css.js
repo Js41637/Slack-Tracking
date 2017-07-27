@@ -10007,6 +10007,62 @@ only screen and (min-resolution:2dppx) {
   z-index: 1041
 }
 
+.c-modal--onboarding_dialog {
+  width: 370px;
+  top: 50%;
+  right: 0;
+  left: initial;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  -webkit-transform: translate3d(500px, -50%, 0);
+  -moz-transform: translate3d(500px, -50%, 0);
+  -ms-transform: translate3d(500px, -50%, 0);
+  transform: translate3d(500px, -50%, 0);
+  -webkit-transition: transform .5s ease-out 0s;
+  -moz-transition: transform .5s ease-out 0s;
+  transition: transform .5s ease-out 0s
+}
+
+.c-modal--onboarding_dialog.in {
+  -webkit-transform: translate3d(0, -50%, 0);
+  -moz-transform: translate3d(0, -50%, 0);
+  -ms-transform: translate3d(0, -50%, 0);
+  transform: translate3d(0, -50%, 0)
+}
+
+.c-modal_body--onboarding_dialog {
+  padding: 0;
+  margin: 0
+}
+
+.c-modal_close--onboarding_dialog {
+  position: absolute;
+  top: 7px;
+  right: 15px;
+  padding: 0;
+  margin: 0;
+  border-style: none;
+  background: 0 0;
+  font-size: 24px;
+  color: #717274
+}
+
+.c-modal--onboarding_dialog+.modal-backdrop {
+  opacity: 0;
+  -webkit-transition: opacity .5s ease-out 0s;
+  -moz-transition: opacity .5s ease-out 0s;
+  transition: opacity .5s ease-out 0s
+}
+
+.c-modal--onboarding_dialog.in+.modal-backdrop {
+  opacity: .4
+}
+
+.c-modal_media_container--onboarding_dialog {
+  height: 270px;
+  width: 100%
+}
+
 @font-face {
   font-family: appleLogo;
   src: local("Lucida Grande");
