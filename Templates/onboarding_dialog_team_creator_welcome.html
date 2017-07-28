@@ -1,11 +1,11 @@
 {{i18n_ns "dialogs_onboarding"}}
 {{#feature flag="feature_quest_onboarding"}}
-<button id="onboarding_dialog_close" type="button" class="c-modal_close--onboarding_dialog no_padding no_margin no_border position_absolute" data-dismiss="close">&times;</button>
-<div class="c-modal_media_container--onboarding_dialog full_width">
-  <img class="c-modal_media--onboarding_dialog full_max_width" src="{{versioned_focus_rocks}}" />
+<button type="button" class="c-modal__close--onboarding_dialog no_padding no_margin no_border position_absolute" data-dismiss="close">&times;</button>
+<div class="c-modal__media_container--onboarding_dialog full_width">
+  <img class="c-modal__media--onboarding_dialog full_max_width" src="{{versioned_focus_rocks}}" />
 </div>
 {{#t first_name=first_name team_name=team_name}}
-<div class="c-modal_copy--onboarding_dialog align_center full_width">
+<div class="c-modal__copy--onboarding_dialog align_center full_width">
   <h2 class="align_center small_bottom_margin">Welcome, {first_name}!</h2>
   <p class="align_center">
     You just created <strong>{team_name}</strong> on Slack. Next, we\u2019ll show you how to get the conversation going \u2014 it only takes a minute or two!
