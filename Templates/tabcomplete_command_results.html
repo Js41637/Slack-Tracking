@@ -8,7 +8,7 @@
   </li>
   {{#each group.cmds as |cmd|}}
     <li class="tab_complete_ui_item" data-index="{{cmd.index}}">
-      <div class="cmd-left-td">
+      <div>
         <span class="cmdname">{{cmd.name}}</span>
         {{#if cmd.aliases}}
           ({{#t note="'or' used when describing alternative slash commands, ex. '/leave or /part, /close'"}}or{{/t}}
@@ -30,7 +30,7 @@
           {{/each}}
         {{/if}}
       </div>
-      <div class="cmd-right-td">
+      <div>
         <span class="cmddesc">{{cmd.desc}}</span>
       </div>
     </li>

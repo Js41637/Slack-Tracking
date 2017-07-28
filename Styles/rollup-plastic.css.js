@@ -748,7 +748,7 @@
 
 @font-face {
   font-family: Slack;
-  src: url(/81c44/fonts/slack-icons-Regular.woff2) format('woff2'), url(/81c44/fonts/slack-icons-Regular.woff) format('woff');
+  src: url(/436da/fonts/slack-icons-Regular.woff2) format('woff2'), url(/436da/fonts/slack-icons-Regular.woff) format('woff');
   font-style: normal;
   font-weight: 400
 }
@@ -11748,10 +11748,6 @@ body.ReactModal__Body--open {
   margin-right: 0
 }
 
-#chat_input_tab_ui .monkey_scroll_bar.hidden+.monkey_scroll_hider .cmd-right-td {
-  padding-right: 0!important
-}
-
 #chat_input_tab_ui~#client-ui #convo_scroller,
 #chat_input_tab_ui~#client-ui #threads_msgs_scroller_div {
   overflow: hidden
@@ -14732,7 +14728,7 @@ body:not(.unify_user) .mpdm_badge a {
 
 .tab_complete_ui.narrow .header_help,
 .tab_complete_ui.narrow .not_in_channel,
-.tab_complete_ui.narrow .type_cmds .tab_complete_ui_item .cmd-right-td {
+.tab_complete_ui.narrow .type_cmds .tab_complete_ui_item .cmddesc {
   display: none
 }
 
@@ -14886,37 +14882,25 @@ body:not(.unify_user) .tab_complete_ui ul.type_members .unify_broadcast {
 }
 
 .tab_complete_ui ul.type_cmds li.tab_complete_ui_item {
-  display: table;
-  width: 100%
+  padding: 6px 10px;
+  line-height: 1.2rem
 }
 
-.tab_complete_ui ul.type_cmds li.tab_complete_ui_item .cmd-left-td,
-.tab_complete_ui ul.type_cmds li.tab_complete_ui_item .cmd-right-td {
-  color: #717274;
-  display: table-cell;
-  padding-right: 15px
-}
-
-.supports_custom_scrollbar .tab_complete_ui ul.type_cmds li.tab_complete_ui_item .cmd-left-td,
-.supports_custom_scrollbar .tab_complete_ui ul.type_cmds li.tab_complete_ui_item .cmd-right-td {
-  padding-right: 0
-}
-
-.tab_complete_ui ul.type_cmds li.tab_complete_ui_item .cmd-left-td {
-  white-space: nowrap
-}
-
-.tab_complete_ui ul.type_cmds li.tab_complete_ui_item .cmd-right-td {
-  text-align: right
+body:not(.unify_user) .tab_complete_ui ul.type_cmds li.tab_complete_ui_item {
+  padding: 6px 10px;
+  line-height: 1.2rem
 }
 
 .tab_complete_ui ul.type_cmds .cmdname {
-  color: #555459;
+  color: #000;
   font-weight: 900
 }
 
 .tab_complete_ui ul.type_cmds .cmddesc {
-  font-style: italic
+  display: block;
+  overflow: hidden;
+  color: #717274;
+  text-overflow: ellipsis
 }
 
 .tab_complete_ui ul.type_channels .channelname {
