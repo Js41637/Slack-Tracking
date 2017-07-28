@@ -6,7 +6,7 @@
 <div data-real-src="{{inline_video.real_src}}" class="clear_both msg_inline_video_holder msg_inline_holder{{#unless inline_video.expand_it}} hidden{{/unless}}" style="width:{{inline_video.display_w}}px;height:{{inline_video.display_h}}px;max-width:100%">
   <div class="msg_inline_video_iframe_div hidden" data-url="{{inline_video.data_url}}"></div>
   <div class="msg_inline_video_thumb_div">
-    <img class="msg_inline_video msg_inline_child{{#if inline_video.hide_by_default}} hidden{{/if}}" {{#if inline_video.hide_by_default}}data-real-src{{else}}src{{/if}}="{{inline_video.proxied_src_or_src}}" style="width:{{inline_video.display_w}}px;" />
+    <img class="msg_inline_video msg_inline_child" src="{{inline_video.proxied_src_or_src}}" style="width:{{inline_video.display_w}}px;" />
     <div class="msg_inline_video_buttons_div">
     {{#if inline_video.show_play}}
       <div class="button_left">

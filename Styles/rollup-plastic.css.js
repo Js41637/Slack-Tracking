@@ -11782,7 +11782,7 @@ body.ReactModal__Body--open {
   right: 5px;
   width: 180px;
   height: 80px;
-  background-image: url(/ad071/img/notifications_menu/dnd_menu_header_bg.svg);
+  background-image: url(/436da/img/notifications_menu/dnd_menu_header_bg.svg);
   background-size: 190px;
   background-repeat: no-repeat
 }
@@ -14349,8 +14349,8 @@ body:not(.unify_user) .mpdm_badge a {
   font-size: 1rem
 }
 
-.dm_badge .presence,
-.mpdm_badge .presence {
+body:not(.unify_user) .dm_badge .presence,
+body:not(.unify_user) .mpdm_badge .presence {
   margin: 0 .25rem
 }
 
@@ -17800,6 +17800,15 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   flex: 0 0 auto
 }
 
+.c-member__name--medium {
+  font-size: 0
+}
+
+.c-member__display-name--medium,
+.c-member__secondary-name--medium {
+  font-size: 15px
+}
+
 .c-member__secondary-name--medium {
   color: #2c2d30
 }
@@ -17807,7 +17816,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 .c-member--medium .presence {
   color: #717274;
   margin: 0;
-  width: 24px;
+  width: 22px;
   height: 18px
 }
 
@@ -17816,7 +17825,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   font-size: 20px;
   line-height: .4;
   top: 0;
-  left: 0;
+  left: -3px;
   position: relative
 }
 
@@ -17867,10 +17876,6 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 
 .c-member__display-name--large {
   font-weight: 700
-}
-
-.c-member--large .presence .presence_icon {
-  margin-left: .25rem
 }
 
 .c-member--large .member_image {

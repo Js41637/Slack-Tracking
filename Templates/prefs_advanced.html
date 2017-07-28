@@ -170,15 +170,13 @@
     {{/t}}
   </label>
   {{#feature flag="feature_tinyspeck"}}
-    {{#feature flag="feature_flannel_fe"}}
-      <label class="select bottom_margin no_left_margin half_width">
-        {{#t}}Flannel server pool{{/t}}<br>
-        <select id="flannel_server_pool" data-inline-saver="#prefs_debug">
-          <option value="production">{{#t}}Production{{/t}}</option>
-          <option value="canary">{{#t}}Canary{{/t}}</option>
-          <option value="random">{{#t}}Production / canary at random{{/t}}</option>
-        </select>
-      </label>
-    {{/feature}}
+    <label class="select bottom_margin no_left_margin half_width">
+      {{#t}}Flannel server pool{{/t}}<br>
+      <select id="flannel_server_pool" data-inline-saver="#prefs_debug">
+        <option value="production">{{#t}}Production{{/t}}</option>
+        <option value="canary">{{#t}}Canary{{/t}}</option>
+        <option value="random">{{#t}}Production / canary at random{{/t}}</option>
+      </select>
+    </label>
   {{/feature}}
 </p>

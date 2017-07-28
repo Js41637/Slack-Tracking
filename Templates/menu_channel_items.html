@@ -100,7 +100,7 @@
         {{#unless hide_invite}}<li id="channel_invite_item" role="menuitem"><a>
           {{#t note="Invite members to join a channel"}}Invite team members to join &hellip;{{/t}}
         </a></li>{{/unless}}
-        {{#feature flag="feature_app_permissions_api_site"}}
+        {{#feature flag="feature_workspace_token_apps_in_client"}}
           {{#if show_add_apps}}
             <li id="channel_add_apps_item" role="menuitem">
               <a>{{#t}}Add apps ...{{/t}}</a>
@@ -215,7 +215,7 @@
   <li id="channel_details_item">
     <a>{{#t note="View details of an MPDM"}}View conversation details{{/t}}</a>
   </li>
-  {{#feature flag="feature_app_permissions_api_site"}}
+  {{#feature flag="feature_workspace_token_apps_in_client"}}
     {{#if show_add_apps}}
       <li id="channel_add_apps_item" role="menuitem">
         <a>{{#t}}Add apps ...{{/t}}</a>

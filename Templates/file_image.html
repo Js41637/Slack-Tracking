@@ -28,12 +28,7 @@
     {{/unless}}>
 
     <div class="image_preserve_aspect_ratio">
-      <figure class="image_bg" 
-        {{#if image_lazyload}}
-          data-real-background-image="{{image_src}}" style="
-        {{else}}
-          style="background-image:url('{{image_src}}');
-        {{/if}}
+      <figure class="image_bg" style="background-image:url('{{image_src}}');
         {{#if preserve_aspect_ratio}}
           padding-top: -webkit-calc( {{file.thumb_360_h}} / {{file.thumb_360_w}} * 100%); padding-top: -moz-calc( {{file.thumb_360_h}} / {{file.thumb_360_w}} * 100%); padding-top: calc( {{file.thumb_360_h}} / {{file.thumb_360_w}} * 100%);
         {{else}}
