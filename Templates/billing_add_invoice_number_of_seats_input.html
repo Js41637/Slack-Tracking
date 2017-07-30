@@ -1,6 +1,7 @@
 {{i18n_ns "pages_admin"}}
+{{#feature flag="feature_ssi_checkout"}}
 <div class="bottom_margin payment_form_details" data-qa="inv_ss__seat_number_container">
-  <label for="add_invoice__number_of_seats" {{#if disabled}}class="disabled"{{/if}}>{{#t}}Number of Seats{{/t}}</label>
+  <label for="add_invoice__number_of_seats" class="lato_black {{#if disabled}}disabled{{/if}}">{{#t}}Number of Users{{/t}}</label>
   <div class="display_flex">
     <input type="text" class="add_invoice__number_of_seats small no_margin" name="add_invoice__number_of_seats" {{#if disabled}}disabled="true" value={{current_user_count}} {{/if}} data-qa="inv_ss__seat_number_input" />
     <input type="text" class="add_invoice__price_preview small no_margin disabled hidden" name="add_invoice__price_preview" disabled="" aria-disabled="true" data-qa="inv_ss__seat_number_price_preview" />
@@ -14,3 +15,4 @@
     <span data-js="add_invoice__seat_input_note" class="input_note inline no_margin" data-qa="inv_ss__seat_input_note">{{default_seat_text}}</span>
   {{/unless}}
 </div>
+{{/feature}}

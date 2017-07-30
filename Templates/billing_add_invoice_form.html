@@ -1,5 +1,7 @@
 {{i18n_ns "pages_admin"}}
-<form action="" data-js="add_invoice_form" class="display_flex flex_direction_column large_top_margin" data-qa="inv_ss__form_container">
+{{#feature flag="feature_ssi_checkout"}}
+<span class="input_note inline_block no_margin payment_form_details">{{#t}}Invoices will be sent to the Primary Owner and all Additional Billing Contacts.{{/t}}</span>
+<form action="" data-js="add_invoice_form" class="display_flex flex_direction_column top_margin" data-qa="inv_ss__form_container">
   {{> billing_add_invoice_number_of_seats_input default_seat_text=default_seat_text minimum_seats_possible=minimum_seats_possible current_user_count=current_user_count disabled=disabled}}
 
   {{#if disabled}}
@@ -16,3 +18,4 @@
 
   {{> billing_add_invoice_checkout_button disabled=disabled}}
 </form>
+{{/feature}}

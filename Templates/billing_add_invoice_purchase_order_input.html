@@ -1,7 +1,7 @@
 {{i18n_ns "pages_admin"}}
 {{#feature flag="feature_ssi_checkout"}}
 <div class="bottom_margin payment_form_details" data-qa="inv_ss__purchase_order_radio_container">
-  <label for="add_invoice__requires_purchase_order" {{#if disabled}}class="disabled"{{/if}}>{{#t}}Need a purchase order?{{/t}}</label>
+  <label for="add_invoice__requires_purchase_order" class="lato_black {{#if disabled}}disabled{{/if}}">{{#t}}Need a purchase order?{{/t}}</label>
   <div class="display_flex">
     <label class="radio right_margin {{#if disabled}}disabled cursor_default{{/if}}">
       <input type="radio" name="add_invoice__requires_purchase_order" value="no" {{#if disabled}}disabled="true"{{/if}} data-qa="inv_ss__purchase_order_radio_no"/> {{#t}}No{{/t}}
@@ -18,7 +18,7 @@
 </div>
 <div class="hidden bottom_margin payment_form_details" data-js="add_invoice__purchase_order_input_container" data-qa="inv_ss__purchase_order_input_container">
   <div>
-    <label for="add_invoice__purchase_order_number">{{#t}}Purchase Order #{{/t}}</label>
+    <label class="lato_black" for="add_invoice__purchase_order_number">{{#t}}Purchase Order #{{/t}}</label>
     <input type="text" class="small no_margin" name="add_invoice__purchase_order_number" data-qa="inv_ss__purchase_order_input" />
   </div>
   <div class="p-add_invoice__warning_container very_small_left_padding very_small_right_padding small_top_padding small_bottom_padding hidden" data-js="add_invoice__purchase_order_input_error">
