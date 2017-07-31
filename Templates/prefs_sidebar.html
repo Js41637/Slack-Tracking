@@ -3,8 +3,8 @@
 <div id="prefs_sidebar">
 
   <h2 id="prefs_channel_list" class="inline_block small_bottom_margin">{{#t}}Sidebar{{/t}}</h2>
-  <p class="bold">{{#t}}In the sidebar, show:{{/t}}</p>
-  <p>
+  <h4>{{#t}}In the sidebar, show:{{/t}}</h4>
+  <p class="large_bottom_margin">
     <label class="radio">
       <input name="pr_sidebar" type="radio" value="" checked="checked" data-inline-saver="#prefs_channel_list">
       {{#if is_app_space_enabled}}
@@ -26,6 +26,18 @@
       <span class='normal'>{{#t}}My unreads, along with everything I've starred{{/t}}</span>
     </label>
   </p>
+  {{#if show_sidebar_sort_pref}}
+  {{#feature flag='feature_sli_channel_priority'}}
+  <h4 class="no_bottom_margin">{{#t}}Sort my channels:{{/t}}</h4>
+  <p class="large_bottom_margin">
+    <label class="select small inline_block">
+      <select id="channel_sort_select" class="small" data-inline-saver="#prefs_channel_list">
+        {{! Options wil be added in by `TS.ui.prefs_dialog` }}
+      </select>
+    </label>
+  </p>
+  {{/feature}}
+  {{/if}}
   <p>
     <label for="separate_private_channels_cb" class="checkbox no_margin">
       <input id="separate_private_channels_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_channel_list">
@@ -45,7 +57,6 @@
       <span class="normal greigh">{{#t}}This collects all the messages you\u2019ve missed in one handy place.{{/t}}</span>
     </label>
   </p>
-
   <p>
     <label class="checkbox">
       <input id="no_omnibox_in_channels_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_channel_list">

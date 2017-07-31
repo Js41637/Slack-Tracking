@@ -740,6 +740,473 @@
   border-bottom-color: #555549
 }
 
+
+/*!
+ * Quill Editor v1.2.4
+ * https://quilljs.com/
+ * Copyright (c) 2014, Jason Chen
+ * Copyright (c) 2013, salesforce.com
+ */
+
+.ql-container {
+  box-sizing: border-box;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  height: 100%;
+  margin: 0;
+  position: relative
+}
+
+.ql-container.ql-disabled .ql-tooltip {
+  visibility: hidden
+}
+
+.ql-container.ql-disabled .ql-editor ul[data-checked]>li::before {
+  pointer-events: none
+}
+
+.ql-clipboard {
+  left: -100000px;
+  height: 1px;
+  overflow-y: hidden;
+  position: absolute
+}
+
+.ql-clipboard p {
+  margin: 0;
+  padding: 0
+}
+
+.ql-editor {
+  box-sizing: border-box;
+  cursor: text;
+  height: 100%;
+  outline: 0;
+  overflow-y: auto;
+  text-align: left;
+  white-space: pre-wrap;
+  word-wrap: break-word
+}
+
+.ql-editor blockquote,
+.ql-editor h1,
+.ql-editor h2,
+.ql-editor h3,
+.ql-editor h4,
+.ql-editor h5,
+.ql-editor h6,
+.ql-editor ol,
+.ql-editor p,
+.ql-editor pre,
+.ql-editor ul {
+  margin: 0;
+  padding: 0;
+  counter-reset: list-1 list-2 list-3 list-4 list-5 list-6 list-7 list-8 list-9
+}
+
+.ql-editor ol,
+.ql-editor ul {
+  padding-left: 1.5em
+}
+
+.ql-editor ol>li,
+.ql-editor ul>li {
+  list-style-type: none
+}
+
+.ql-editor ul>li::before {
+  content: '\2022'
+}
+
+.ql-editor ul[data-checked=false],
+.ql-editor ul[data-checked=true] {
+  pointer-events: none
+}
+
+.ql-editor ul[data-checked=false]>li *,
+.ql-editor ul[data-checked=true]>li * {
+  pointer-events: all
+}
+
+.ql-editor ul[data-checked=false]>li::before,
+.ql-editor ul[data-checked=true]>li::before {
+  color: #777;
+  cursor: pointer;
+  pointer-events: all
+}
+
+.ql-editor ul[data-checked=true]>li::before {
+  content: '\2611'
+}
+
+.ql-editor ul[data-checked=false]>li::before {
+  content: '\2610'
+}
+
+.ql-editor li::before {
+  display: inline-block;
+  margin-right: .3em;
+  text-align: right;
+  white-space: nowrap;
+  width: 1.2em
+}
+
+.ql-editor li:not(.ql-direction-rtl)::before {
+  margin-left: -1.5em
+}
+
+.ql-editor ol li,
+.ql-editor ul li {
+  padding-left: 1.5em
+}
+
+.ql-editor ol li {
+  counter-reset: list-1 list-2 list-3 list-4 list-5 list-6 list-7 list-8 list-9;
+  counter-increment: list-num
+}
+
+.ql-editor ol li:before {
+  content: counter(list-num, decimal) '. '
+}
+
+.ql-editor ol li.ql-indent-1 {
+  counter-increment: list-1;
+  counter-reset: list-2 list-3 list-4 list-5 list-6 list-7 list-8 list-9
+}
+
+.ql-editor ol li.ql-indent-1:before {
+  content: counter(list-1, lower-alpha) '. '
+}
+
+.ql-editor ol li.ql-indent-2 {
+  counter-increment: list-2;
+  counter-reset: list-3 list-4 list-5 list-6 list-7 list-8 list-9
+}
+
+.ql-editor ol li.ql-indent-2:before {
+  content: counter(list-2, lower-roman) '. '
+}
+
+.ql-editor ol li.ql-indent-3 {
+  counter-increment: list-3;
+  counter-reset: list-4 list-5 list-6 list-7 list-8 list-9
+}
+
+.ql-editor ol li.ql-indent-3:before {
+  content: counter(list-3, decimal) '. '
+}
+
+.ql-editor ol li.ql-indent-4 {
+  counter-increment: list-4;
+  counter-reset: list-5 list-6 list-7 list-8 list-9
+}
+
+.ql-editor ol li.ql-indent-4:before {
+  content: counter(list-4, lower-alpha) '. '
+}
+
+.ql-editor ol li.ql-indent-5 {
+  counter-increment: list-5;
+  counter-reset: list-6 list-7 list-8 list-9
+}
+
+.ql-editor ol li.ql-indent-5:before {
+  content: counter(list-5, lower-roman) '. '
+}
+
+.ql-editor ol li.ql-indent-6 {
+  counter-increment: list-6;
+  counter-reset: list-7 list-8 list-9
+}
+
+.ql-editor ol li.ql-indent-6:before {
+  content: counter(list-6, decimal) '. '
+}
+
+.ql-editor ol li.ql-indent-7 {
+  counter-increment: list-7;
+  counter-reset: list-8 list-9
+}
+
+.ql-editor ol li.ql-indent-7:before {
+  content: counter(list-7, lower-alpha) '. '
+}
+
+.ql-editor ol li.ql-indent-8 {
+  counter-increment: list-8;
+  counter-reset: list-9
+}
+
+.ql-editor ol li.ql-indent-8:before {
+  content: counter(list-8, lower-roman) '. '
+}
+
+.ql-editor ol li.ql-indent-9 {
+  counter-increment: list-9
+}
+
+.ql-editor ol li.ql-indent-9:before {
+  content: counter(list-9, decimal) '. '
+}
+
+.ql-editor .ql-indent-1:not(.ql-direction-rtl) {
+  padding-left: 3em
+}
+
+.ql-editor li.ql-indent-1:not(.ql-direction-rtl) {
+  padding-left: 4.5em
+}
+
+.ql-editor .ql-indent-1.ql-direction-rtl.ql-align-right {
+  padding-right: 3em
+}
+
+.ql-editor li.ql-indent-1.ql-direction-rtl.ql-align-right {
+  padding-right: 4.5em
+}
+
+.ql-editor .ql-indent-2:not(.ql-direction-rtl) {
+  padding-left: 6em
+}
+
+.ql-editor li.ql-indent-2:not(.ql-direction-rtl) {
+  padding-left: 7.5em
+}
+
+.ql-editor .ql-indent-2.ql-direction-rtl.ql-align-right {
+  padding-right: 6em
+}
+
+.ql-editor li.ql-indent-2.ql-direction-rtl.ql-align-right {
+  padding-right: 7.5em
+}
+
+.ql-editor .ql-indent-3:not(.ql-direction-rtl) {
+  padding-left: 9em
+}
+
+.ql-editor li.ql-indent-3:not(.ql-direction-rtl) {
+  padding-left: 10.5em
+}
+
+.ql-editor .ql-indent-3.ql-direction-rtl.ql-align-right {
+  padding-right: 9em
+}
+
+.ql-editor li.ql-indent-3.ql-direction-rtl.ql-align-right {
+  padding-right: 10.5em
+}
+
+.ql-editor .ql-indent-4:not(.ql-direction-rtl) {
+  padding-left: 12em
+}
+
+.ql-editor li.ql-indent-4:not(.ql-direction-rtl) {
+  padding-left: 13.5em
+}
+
+.ql-editor .ql-indent-4.ql-direction-rtl.ql-align-right {
+  padding-right: 12em
+}
+
+.ql-editor li.ql-indent-4.ql-direction-rtl.ql-align-right {
+  padding-right: 13.5em
+}
+
+.ql-editor .ql-indent-5:not(.ql-direction-rtl) {
+  padding-left: 15em
+}
+
+.ql-editor li.ql-indent-5:not(.ql-direction-rtl) {
+  padding-left: 16.5em
+}
+
+.ql-editor .ql-indent-5.ql-direction-rtl.ql-align-right {
+  padding-right: 15em
+}
+
+.ql-editor li.ql-indent-5.ql-direction-rtl.ql-align-right {
+  padding-right: 16.5em
+}
+
+.ql-editor .ql-indent-6:not(.ql-direction-rtl) {
+  padding-left: 18em
+}
+
+.ql-editor li.ql-indent-6:not(.ql-direction-rtl) {
+  padding-left: 19.5em
+}
+
+.ql-editor .ql-indent-6.ql-direction-rtl.ql-align-right {
+  padding-right: 18em
+}
+
+.ql-editor li.ql-indent-6.ql-direction-rtl.ql-align-right {
+  padding-right: 19.5em
+}
+
+.ql-editor .ql-indent-7:not(.ql-direction-rtl) {
+  padding-left: 21em
+}
+
+.ql-editor li.ql-indent-7:not(.ql-direction-rtl) {
+  padding-left: 22.5em
+}
+
+.ql-editor .ql-indent-7.ql-direction-rtl.ql-align-right {
+  padding-right: 21em
+}
+
+.ql-editor li.ql-indent-7.ql-direction-rtl.ql-align-right {
+  padding-right: 22.5em
+}
+
+.ql-editor .ql-indent-8:not(.ql-direction-rtl) {
+  padding-left: 24em
+}
+
+.ql-editor li.ql-indent-8:not(.ql-direction-rtl) {
+  padding-left: 25.5em
+}
+
+.ql-editor .ql-indent-8.ql-direction-rtl.ql-align-right {
+  padding-right: 24em
+}
+
+.ql-editor li.ql-indent-8.ql-direction-rtl.ql-align-right {
+  padding-right: 25.5em
+}
+
+.ql-editor .ql-indent-9:not(.ql-direction-rtl) {
+  padding-left: 27em
+}
+
+.ql-editor li.ql-indent-9:not(.ql-direction-rtl) {
+  padding-left: 28.5em
+}
+
+.ql-editor .ql-indent-9.ql-direction-rtl.ql-align-right {
+  padding-right: 27em
+}
+
+.ql-editor li.ql-indent-9.ql-direction-rtl.ql-align-right {
+  padding-right: 28.5em
+}
+
+.ql-editor .ql-video {
+  display: block;
+  max-width: 100%
+}
+
+.ql-editor .ql-video.ql-align-center {
+  margin: 0 auto
+}
+
+.ql-editor .ql-video.ql-align-right {
+  margin: 0 0 0 auto
+}
+
+.ql-editor .ql-bg-black {
+  background-color: #000
+}
+
+.ql-editor .ql-bg-red {
+  background-color: #e60000
+}
+
+.ql-editor .ql-bg-orange {
+  background-color: #f90
+}
+
+.ql-editor .ql-bg-yellow {
+  background-color: #ff0
+}
+
+.ql-editor .ql-bg-green {
+  background-color: #008a00
+}
+
+.ql-editor .ql-bg-blue {
+  background-color: #06c
+}
+
+.ql-editor .ql-bg-purple {
+  background-color: #93f
+}
+
+.ql-editor .ql-color-white {
+  color: #fff
+}
+
+.ql-editor .ql-color-red {
+  color: #e60000
+}
+
+.ql-editor .ql-color-orange {
+  color: #f90
+}
+
+.ql-editor .ql-color-yellow {
+  color: #ff0
+}
+
+.ql-editor .ql-color-green {
+  color: #008a00
+}
+
+.ql-editor .ql-color-blue {
+  color: #06c
+}
+
+.ql-editor .ql-color-purple {
+  color: #93f
+}
+
+.ql-editor .ql-font-serif {
+  font-family: Georgia, Times New Roman, serif
+}
+
+.ql-editor .ql-font-monospace {
+  font-family: Monaco, Courier New, monospace
+}
+
+.ql-editor .ql-size-small {
+  font-size: .75em
+}
+
+.ql-editor .ql-size-large {
+  font-size: 1.5em
+}
+
+.ql-editor .ql-size-huge {
+  font-size: 2.5em
+}
+
+.ql-editor .ql-direction-rtl {
+  direction: rtl;
+  text-align: inherit
+}
+
+.ql-editor .ql-align-center {
+  text-align: center
+}
+
+.ql-editor .ql-align-justify {
+  text-align: justify
+}
+
+.ql-editor .ql-align-right {
+  text-align: right
+}
+
+.ql-editor.ql-blank::before {
+  color: rgba(0, 0, 0, .6);
+  content: attr(data-placeholder);
+  font-style: italic;
+  pointer-events: none;
+  position: absolute
+}
+
 @font-face {
   font-family: appleLogo;
   src: local("Lucida Grande");
@@ -17901,4 +18368,580 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 .c-usergroup__not-in-channel-context--small {
   color: #717274;
   font-size: .7rem
+}
+
+@font-face {
+  font-family: appleLogo;
+  src: local("Lucida Grande");
+  unicode-range: U+F8FF
+}
+
+.ql-clipboard {
+  top: -100000px
+}
+
+.ql-editor,
+.ql-placeholder {
+  padding: 9px 30px 9px 9px
+}
+
+.supports_custom_scrollbar .ql-editor,
+.supports_custom_scrollbar .ql-placeholder {
+  padding: 8px 30px 8px 9px
+}
+
+.ql-editor {
+  tab-size: 8;
+  -moz-tab-size: 8;
+  font-variant-ligatures: none;
+  line-height: 1.2rem;
+  -webkit-user-select: text;
+  overflow: auto;
+  max-height: 10rem;
+  max-width: 100%;
+  min-height: 39px;
+  margin-right: 2px;
+  position: relative
+}
+
+.ql-editor::-webkit-scrollbar {
+  position: absolute;
+  -webkit-appearance: none;
+  width: 6px
+}
+
+.ql-editor::-webkit-scrollbar-thumb {
+  background-color: rgba(113, 114, 116, .5);
+  background-clip: padding-box!important;
+  border-radius: 3px;
+  color: #717274;
+  min-height: 36px
+}
+
+.ql-editor::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(113, 114, 116, .8)
+}
+
+.supports_custom_scrollbar .ql-container:not(.texty_single_line_input) .ql-editor {
+  min-height: 21px
+}
+
+.ql-editor.ql-blank:before {
+  display: none
+}
+
+.ql-editor.ql-blank~.ql-placeholder {
+  display: block
+}
+
+.ql-placeholder {
+  color: #000;
+  opacity: .375;
+  -webkit-filter: grayscale(100%);
+  filter: grayscale(100%);
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  display: none;
+  font-style: normal;
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  max-height: 100%
+}
+
+.ql-placeholder ::selection {
+  background: 0 0
+}
+
+.supports_custom_scrollbar .ql-placeholder {
+  min-height: 21px
+}
+
+.ql-container.texty_single_line_input .ql-editor,
+.ql-container.texty_single_line_input .ql-placeholder {
+  width: 100%;
+  margin: 0;
+  white-space: pre;
+  overflow: hidden;
+  padding: 0
+}
+
+.ql-container.texty_single_line_input .ql-editor {
+  height: 19px;
+  min-height: 19px;
+  max-height: 19px
+}
+
+.feature_keyboard_navigation .ql-container.texty_single_line_input.focus,
+.feature_keyboard_navigation .ql-container.texty_single_line_input:hover {
+  border-color: #717274
+}
+
+.inline_message_input_container {
+  max-width: 100%
+}
+
+.inline_message_input_container .ql-editor {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text
+}
+
+.inline_message_input_container .ql-container {
+  border: 1px solid #E0E0E0;
+  font-family: Slack-Lato, appleLogo, sans-serif;
+  height: auto;
+  border-radius: .25rem
+}
+
+.inline_message_input_container .ql-container.focus,
+.inline_message_input_container .ql-container:active {
+  border-color: #bbbdbf
+}
+
+.inline_message_input_container .ql-container~.emo_menu {
+  width: 36px;
+  right: 10px
+}
+
+.feature_keyboard_navigation .inline_message_input_container .ql-container {
+  border-color: #A0A0A2
+}
+
+.feature_keyboard_navigation .inline_message_input_container .ql-container.focus,
+.feature_keyboard_navigation .inline_message_input_container .ql-container:active,
+.feature_keyboard_navigation .inline_message_input_container .ql-container:hover {
+  border-color: #717274
+}
+
+#msg_input.ql-container {
+  padding: 0 0 0 2.625rem;
+  height: auto;
+  max-height: none;
+  min-height: 41px
+}
+
+.feature_texty_mentions #msg_input.ql-container~.msg_mentions_button {
+  right: 48px
+}
+
+.supports_custom_scrollbar .feature_texty_mentions #msg_input.ql-container~.msg_mentions_button {
+  right: 40px
+}
+
+.feature_texty_mentions #msg_input.ql-container .ql-editor {
+  padding-right: 78px
+}
+
+.supports_custom_scrollbar .feature_texty_mentions #msg_input.ql-container .ql-editor {
+  padding-right: 66px
+}
+
+#msg_input.ql-container .ql-placeholder {
+  left: 2.625rem;
+  right: 30px
+}
+
+#message_edit_form .ql-container~.emo_menu,
+#msg_form .ql-container~.emo_menu {
+  width: 36px;
+  right: 12px
+}
+
+.supports_custom_scrollbar #message_edit_form .ql-container~.emo_menu,
+.supports_custom_scrollbar #msg_form .ql-container~.emo_menu {
+  width: 36px;
+  right: 5px
+}
+
+.feature_texty_mentions #message_edit_form .ql-editor,
+.feature_texty_mentions #message_edit_form .ql-placeholder,
+.feature_texty_mentions #msg_form .ql-editor,
+.feature_texty_mentions #msg_form .ql-placeholder {
+  line-height: 1.46667
+}
+
+#message_edit_form .ql-editor,
+#message_edit_form .ql-placeholder,
+#msg_form .ql-editor,
+#msg_form .ql-placeholder {
+  padding-bottom: 9px;
+  padding-top: 9px
+}
+
+.feature_keyboard_navigation.feature_texty_mentions #msg_form .ql-container~.msg_mentions_button {
+  width: 30px;
+  right: 38px
+}
+
+.feature_keyboard_navigation.feature_texty_mentions #msg_form .ql-container~.emo_menu {
+  width: 30px;
+  right: 8px
+}
+
+#msg_edit_container .message_input {
+  min-height: 0
+}
+
+#share_dialog_input_container #file_comment_textarea.ql-container {
+  border: 1px solid #C5C5C5;
+  border-radius: 4px;
+  padding-right: 2px
+}
+
+#share_dialog_input_container #file_comment_textarea.ql-container .ql-editor {
+  margin: 0
+}
+
+#share_dialog_input_container #file_comment_textarea.ql-container~.emo_menu {
+  right: 32px
+}
+
+.supports_custom_scrollbar #share_dialog_input_container #file_comment_textarea.ql-container~.emo_menu {
+  right: 16px
+}
+
+#share_dialog_input_container #file_comment_textarea.ql-container.focus {
+  border-color: #2780F8
+}
+
+.feature_keyboard_navigation #share_dialog_input_container #file_comment_textarea.ql-container {
+  border-color: #A0A0A2
+}
+
+.feature_keyboard_navigation #share_dialog_input_container #file_comment_textarea.ql-container.focus,
+.feature_keyboard_navigation #share_dialog_input_container #file_comment_textarea.ql-container:hover {
+  border-color: #717274
+}
+
+#reply_container .inline_message_input_container .ql-editor {
+  min-height: 34px;
+  padding-bottom: 7px
+}
+
+#reply_container .inline_message_input_container .emo_menu {
+  top: 1px
+}
+
+.reply_input_container .ql-container {
+  background-color: #fff;
+  border: 1px solid #E0E0E0;
+  border-radius: 0 0 10px 10px
+}
+
+.reply_input_container .ql-container.focus {
+  border-color: rgba(0, 0, 0, .35)
+}
+
+.reply_input_container .ql-container.focus~.emo_menu {
+  color: #717274
+}
+
+.reply_input_container .ql-container~.emo_menu {
+  top: 0!important;
+  color: #bbbdbf
+}
+
+.reply_input_container .ql-editor,
+.reply_input_container .ql-placeholder {
+  padding: 11px 30px 11px 13px
+}
+
+.supports_custom_scrollbar .reply_input_container .ql-editor,
+.supports_custom_scrollbar .reply_input_container .ql-placeholder {
+  padding: 10px 30px 10px 13px
+}
+
+.reply_input_container .ql-editor {
+  margin-right: 2px;
+  border: none
+}
+
+.reply_input_container .ql-editor::-webkit-scrollbar {
+  position: absolute;
+  -webkit-appearance: none;
+  width: 6px
+}
+
+.reply_input_container .ql-editor::-webkit-scrollbar-thumb {
+  background-color: rgba(113, 114, 116, .5);
+  background-clip: padding-box!important;
+  border-radius: 3px;
+  color: #717274;
+  min-height: 36px
+}
+
+.reply_input_container .ql-editor::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(113, 114, 116, .8)
+}
+
+.feature_keyboard_navigation .reply_input_container .ql-container {
+  border-color: #A0A0A2
+}
+
+.feature_keyboard_navigation .reply_input_container .ql-container.focus,
+.feature_keyboard_navigation .reply_input_container .ql-container:hover {
+  border-color: #717274
+}
+
+#menu_member_dm_input.texty_single_line_input {
+  width: 296px
+}
+
+#menu_member_dm_input.texty_single_line_input .ql-placeholder {
+  padding: 10px .75rem
+}
+
+.supports_custom_scrollbar #menu_member_dm_input.texty_single_line_input .ql-placeholder {
+  padding: 9px .75rem
+}
+
+.current_status_input_wrap .current_status_input.texty_single_line_input {
+  padding-right: 33px;
+  padding-left: 50px
+}
+
+.current_status_input_wrap .current_status_input.texty_single_line_input .ql-editor.ql-blank~.ql-placeholder {
+  padding-right: 2.0625rem;
+  padding-left: 3.125rem;
+  padding-top: 0;
+  padding-bottom: 0;
+  margin: 0;
+  height: 19px;
+  min-height: 19px;
+  top: .4rem
+}
+
+.current_status_input_wrap .current_status_input.texty_single_line_input p {
+  line-height: normal;
+  font-size: 15px
+}
+
+#current_status_for_team_menu.current_status_input.texty_single_line_input .ql-editor.ql-blank~.ql-placeholder {
+  top: .5rem
+}
+
+.current_status_input_for_edit_profile .current_status_input.texty_single_line_input {
+  padding-top: 12px;
+  padding-bottom: 12px
+}
+
+.current_status_input_for_edit_profile .current_status_input.texty_single_line_input .ql-editor {
+  height: 24px;
+  min-height: 24px;
+  max-height: 24px
+}
+
+.current_status_input_for_edit_profile .current_status_input.texty_single_line_input .ql-editor.ql-blank~.ql-placeholder {
+  padding-left: 3.875rem;
+  padding-right: 2.5rem;
+  top: .75rem;
+  bottom: .75rem;
+  margin: 0;
+  height: 24px;
+  min-height: 24px
+}
+
+.current_status_input_for_edit_profile .current_status_input.texty_single_line_input p {
+  font-size: 1.25rem
+}
+
+.current_status_input_for_edit_profile .current_status_input.texty_single_line_input .ql-editor.ql-blank:before {
+  top: 3px
+}
+
+.ql-container.texty_single_line_input {
+  background: #fff;
+  font-family: Slack-Lato, appleLogo, sans-serif;
+  font-size: .9375rem;
+  color: #555459;
+  border: 1px solid #C5C5C5;
+  border-radius: .25rem;
+  -webkit-user-select: auto;
+  -moz-user-select: auto;
+  -ms-user-select: auto;
+  user-select: auto;
+  -webkit-appearance: none;
+  outline: 0;
+  padding: .45rem .75rem .5rem
+}
+
+.ql-container.texty_single_line_input.focus,
+.ql-container.texty_single_line_input:hover {
+  border-color: #2780F8;
+  box-shadow: 0 0 7px rgba(39, 128, 248, .15);
+  outline-offset: 0;
+  outline: 0
+}
+
+.ql-container.texty_single_line_input .ql-editor {
+  width: 100%;
+  margin: 0;
+  white-space: pre;
+  overflow: hidden;
+  padding: 0
+}
+
+.feature_keyboard_navigation .ql-container.texty_single_line_input {
+  border-color: #A0A0A2
+}
+
+.feature_keyboard_navigation .ql-container.texty_single_line_input.focus,
+.feature_keyboard_navigation .ql-container.texty_single_line_input:hover {
+  box-shadow: none
+}
+
+#file_comment_textarea.texty_comment_input,
+.comment_form .texty_comment_input,
+.edit_comment_form .texty_comment_input {
+  overflow: auto;
+  height: auto;
+  background: #fff;
+  -webkit-user-select: auto;
+  -moz-user-select: auto;
+  -ms-user-select: auto;
+  user-select: auto;
+  font-family: Slack-Lato, appleLogo, sans-serif;
+  width: 100%;
+  border: 1px solid #C5C5C5;
+  border-radius: .25rem;
+  -webkit-appearance: none;
+  box-shadow: none;
+  outline: 0;
+  resize: none!important;
+  margin: 0 0 .5rem;
+  font-size: 15px;
+  line-height: 1.4;
+  color: #3D3C40
+}
+
+.feature_texty_mentions #file_comment_textarea.texty_comment_input,
+.feature_texty_mentions .comment_form .texty_comment_input,
+.feature_texty_mentions .edit_comment_form .texty_comment_input {
+  line-height: 1.46667
+}
+
+#file_comment_textarea.texty_comment_input.focus,
+#file_comment_textarea.texty_comment_input:hover,
+.comment_form .texty_comment_input.focus,
+.comment_form .texty_comment_input:hover,
+.edit_comment_form .texty_comment_input.focus,
+.edit_comment_form .texty_comment_input:hover {
+  border-color: #2780F8;
+  outline-offset: 0;
+  outline: 0
+}
+
+#file_comment_textarea.texty_comment_input .ql-editor,
+.comment_form .texty_comment_input .ql-editor,
+.edit_comment_form .texty_comment_input .ql-editor {
+  max-height: none
+}
+
+.feature_keyboard_navigation #file_comment_textarea.texty_comment_input,
+.feature_keyboard_navigation .comment_form .texty_comment_input,
+.feature_keyboard_navigation .edit_comment_form .texty_comment_input {
+  border-color: #A0A0A2
+}
+
+.feature_keyboard_navigation #file_comment_textarea.texty_comment_input.focus,
+.feature_keyboard_navigation #file_comment_textarea.texty_comment_input:hover,
+.feature_keyboard_navigation .comment_form .texty_comment_input.focus,
+.feature_keyboard_navigation .comment_form .texty_comment_input:hover,
+.feature_keyboard_navigation .edit_comment_form .texty_comment_input.focus,
+.feature_keyboard_navigation .edit_comment_form .texty_comment_input:hover {
+  border-color: #717274
+}
+
+#file_comment_textarea.texty_comment_input {
+  max-height: none!important;
+  overflow: visible;
+  position: relative
+}
+
+#file_comment_textarea.texty_comment_input .ql-editor {
+  min-height: 66px;
+  max-height: 112px
+}
+
+#file_page .comment_form .texty_comment_input .ql-editor,
+#post_page .comment_form .texty_comment_input .ql-editor {
+  min-height: 102px
+}
+
+#channel_purpose_input.ql-container,
+#purpose_input.ql-container {
+  border: 1px solid #C5C5C5;
+  border-radius: .25rem;
+  font-family: Slack-Lato, appleLogo, sans-serif
+}
+
+#channel_purpose_input.ql-container.focus,
+#channel_purpose_input.ql-container:hover,
+#purpose_input.ql-container.focus,
+#purpose_input.ql-container:hover {
+  border-color: #2780F8
+}
+
+#channel_purpose_input.ql-container.small,
+#purpose_input.ql-container.small {
+  margin-bottom: .5rem;
+  font-size: .9rem
+}
+
+#channel_purpose_input.ql-container.small .ql-editor,
+#purpose_input.ql-container.small .ql-editor {
+  padding: .5rem
+}
+
+#channel_purpose_input.ql-container.texty_single_line_input,
+#purpose_input.ql-container.texty_single_line_input {
+  font-size: 18px;
+  margin-bottom: 0;
+  padding: 0
+}
+
+#channel_purpose_input.ql-container.texty_single_line_input .ql-editor,
+#purpose_input.ql-container.texty_single_line_input .ql-editor {
+  min-height: 46px;
+  padding: .75rem
+}
+
+.feature_keyboard_navigation #channel_purpose_input.ql-container,
+.feature_keyboard_navigation #purpose_input.ql-container {
+  border-color: #A0A0A2
+}
+
+.feature_keyboard_navigation #channel_purpose_input.ql-container.focus,
+.feature_keyboard_navigation #channel_purpose_input.ql-container:hover,
+.feature_keyboard_navigation #purpose_input.ql-container.focus,
+.feature_keyboard_navigation #purpose_input.ql-container:hover {
+  border-color: #717274
+}
+
+#purpose_input.ql-container {
+  height: 4.5rem;
+  font-size: 1rem;
+  width: 72%;
+  margin: 0;
+  display: inline-block;
+  vertical-align: top
+}
+
+.channel_option_content #purpose_input.ql-container {
+  width: 100%;
+  margin-bottom: .5rem;
+  display: block
+}
+
+.search_input.ql-container .ql-placeholder {
+  margin-top: 1px
+}
+
+.feature_name_tagging_client .channel_topic_dialog .ql-editor {
+  height: 6rem
 }

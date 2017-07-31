@@ -11,14 +11,15 @@
 
   {{#feature flag="feature_app_permissions_api_site"}}
     {{#if_equal token_type compare="xoxp"}}
+    {{!--TODO: href="/slack-apps-preview" when that URL is ready --}}
     <a href="https://medium.com/slack-developer-blog" target="_blank" class="p-app_creation_banner__anchor">
       <div class="p-app_creation_banner">
 
         {{> developer_apps_new_modal_flask_svg}}
 
         <div class="p-app_creation_banner__content">
-          <h2 class="p-app_creation_banner__header">{{#t note="Title text of a call to action to a blog post"}}Interested in the Next Generation of Apps?{{/t}}</h2>
-          <p class="p-app_creation_banner__para">{{#t note="call to action text"}}Click here to learn about our beta for apps with in-client, progressive permissions and a DM with every new user{{/t}}.</p>
+          <h2 class="p-app_creation_banner__header">{{#t note="Title text of a call to action to a blog post"}}Interested in the next generation of apps?{{/t}}</h2>
+          <p class="p-app_creation_banner__para">{{#t note="call to action text"}}We\u2019re improving app development and distribution. Join the API Preview period for workspace tokens and the Permissions API.{{/t}}</p>
         </div>
       </div>
     </a>

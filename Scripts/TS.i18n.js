@@ -45,31 +45,30 @@ webpackJsonp([407], {
           }
           return r;
         },
-        t: function e(t, n, s) {
+        t: function e(t, n) {
           f();
           if (!n && r) {
-            var u = TS.error ? TS.error : console.error;
-            u.call(this, "TS.i18n.t requires a namespace string as the second argument. Currently " + n + ".");
+            var s = TS.error ? TS.error : console.error;
+            s.call(this, "TS.i18n.t requires a namespace string as the second argument. Currently " + n + ".");
             return function() {
               return "";
             };
           }
-          s = s || i;
-          var c = s + ":" + n + ":" + t;
-          if (l[c] === undefined) {
-            if (o || s === "pseudo") {
-              l[c] = new MessageFormat(s, h(t)).format;
+          var u = i + ":" + n + ":" + t;
+          if (l[u] === undefined) {
+            if (o || i === "pseudo") {
+              l[u] = new MessageFormat(i, h(t)).format;
             } else {
               if (r && n && window.sha1 && window.tsTranslations && window.tsTranslations[n]) {
                 t = window.tsTranslations[n][window.sha1(t)] || t;
               }
-              l[c] = new MessageFormat(s, t).format;
+              l[u] = new MessageFormat(i, t).format;
             }
             if (r && a) {
-              l[c].toString = T(c, n);
+              l[u].toString = T(u, n);
             }
           }
-          return l[c];
+          return l[u];
         },
         number: function e(r) {
           f();

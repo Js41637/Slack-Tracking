@@ -4,7 +4,7 @@
   <label for="add_invoice__requires_purchase_order" class="lato_black {{#if disabled}}disabled{{/if}}">{{#t}}Need a purchase order?{{/t}}</label>
   <div class="display_flex">
     <label class="radio right_margin {{#if disabled}}disabled cursor_default{{/if}}">
-      <input type="radio" name="add_invoice__requires_purchase_order" value="no" {{#if disabled}}disabled="true"{{/if}} data-qa="inv_ss__purchase_order_radio_no"/> {{#t}}No{{/t}}
+      <input type="radio" name="add_invoice__requires_purchase_order" value="no" checked="checked" aria-checked="true" {{#if disabled}}disabled="true"{{/if}} data-qa="inv_ss__purchase_order_radio_no"/> {{#t}}No{{/t}}
     </label>
     <label class="radio right_margin {{#if disabled}}disabled cursor_default{{/if}}">
       <input type="radio" name="add_invoice__requires_purchase_order" value="yes" {{#if disabled}}disabled="true"{{/if}} data-qa="inv_ss__purchase_order_radio_yes" /> {{#t}}Yes{{/t}}
