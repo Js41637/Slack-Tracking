@@ -1,4 +1,4 @@
-<div class="channel_invite_member">
+<div class="channel_invite_member{{#if invite_exception_reason}} disabled{{/if}}">
   {{#shouldUseUnifiedMemberDisplay}}
     {{> c-member member=member size="medium"}}
   {{else}}
@@ -18,12 +18,14 @@
           <div class="greigh not_in_token">
             {{getMemberSecondaryName member}}
             {{~#if member.profile.title}}, {{member.profile.title}}{{/if}}
+            {{invite_exception_reason}}
           </div>
         {{else}}
           <div class="greigh not_in_token">
             {{#if member.profile.title}}
               {{member.profile.title}}
             {{/if}}
+            {{invite_exception_reason}}
           </div>
         {{/memberHasSecondaryName}}
       {{else}}
@@ -40,6 +42,7 @@
           <div class="greigh not_in_token">
             @{{member.name~}}
             {{~#if member.profile.title}}, {{member.profile.title}}{{/if}}
+            {{invite_exception_reason}}
           </div>
         {{else}}
           <div class="bold">
@@ -54,6 +57,7 @@
           {{#if member.profile.title}}
             <div class="greigh not_in_token">{{member.profile.title}}</div>
           {{/if}}
+          {{invite_exception_reason}}
         {{/if}}
       {{/feature}}
     </div>

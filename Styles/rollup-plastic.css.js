@@ -16201,7 +16201,7 @@ body:not(.unify_user) #channel_invite_container.page_needs_enterprise .channel_i
 
 #channel_invite_container.page_needs_enterprise .channel_invite_row.disabled {
   cursor: default;
-  color: #2780F8
+  color: #717274
 }
 
 #channel_invite_container.page_needs_enterprise .channel_invite_row.disabled .add_icon {
@@ -16251,21 +16251,25 @@ body:not(.unify_user) #channel_invite_container.page_needs_enterprise .channel_i
   top: 5px
 }
 
-#channel_invite_modal #channel_invite_container:not(.keyboard_active).not_scrolling .channel_invite_row:hover,
-#channel_invite_modal .channel_invite_row.highlighted {
+#channel_invite_modal #channel_invite_container:not(.keyboard_active).not_scrolling .channel_invite_row:not(.disabled):hover,
+#channel_invite_modal .channel_invite_row.highlighted:not(.disabled) {
   background: #edf7fd;
   border: 1px solid #d3ecfa;
   border-radius: 6px
 }
 
-#channel_invite_modal #channel_invite_container:not(.keyboard_active).not_scrolling .channel_invite_row:hover .add_icon,
-#channel_invite_modal .channel_invite_row.highlighted .add_icon {
+#channel_invite_modal #channel_invite_container:not(.keyboard_active).not_scrolling .channel_invite_row:not(.disabled):hover .add_icon,
+#channel_invite_modal .channel_invite_row.highlighted:not(.disabled) .add_icon {
   display: inline
 }
 
-#channel_invite_modal #channel_invite_container:not(.keyboard_active).not_scrolling .channel_invite_row:hover+.channel_invite_row,
-#channel_invite_modal .channel_invite_row.highlighted+.channel_invite_row {
+#channel_invite_modal #channel_invite_container:not(.keyboard_active).not_scrolling .channel_invite_row:not(.disabled):hover+.channel_invite_row,
+#channel_invite_modal .channel_invite_row.highlighted:not(.disabled)+.channel_invite_row {
   border-color: transparent
+}
+
+#channel_invite_modal #channel_invite_container .channel_invite_row.disabled {
+  background: #F9F9F9
 }
 
 #channel_invite_modal .enter_to_go_label {

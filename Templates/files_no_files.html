@@ -1,0 +1,13 @@
+{{i18n_ns 'files'}}
+
+{{#feature flag="feature_fetch_files"}}
+
+  {{#if error}}
+    <p class="alert alert_error"><i class="ts_icon ts_icon_warning"></i>{{#t}}Oops! Something went wrong fetching those files. Trying again might help.{{/t}}</p>
+  {{else if has_filter}}
+    <p class="alert alert_info"><i class="ts_icon ts_icon_info_circle"></i>{{#t}}No files match this filter.{{/t}}</p>
+  {{else}}
+    <p class="alert alert_info"><i class="ts_icon ts_icon_info_circle"></i>{{#t}}There are no files to show yet.{{/t}}</p>
+  {{/if}}
+
+{{/feature}}
