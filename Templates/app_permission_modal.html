@@ -3,11 +3,7 @@
 <button type="button" class="close p-app_permission_modal__close position_absolute no_margin normal" data-dismiss="modal" aria-hidden="true">&times;</button>
 <div class="align_center"><img class="rounded" src="{{app_image}}" height="48" width="48" alt="{{#t}}{app_name}{{/t}}" /></div>
 <h3 class="normal bottom_margin top_margin align_center">
-  {{#if channel_name}}
-    {{#t}}{app_name} would like to do the following in <strong class="no_wrap">{channel_name}:</strong>{{/t}}
-  {{else}}
-    {{#t}}{app_name} would like to do the following in <strong>all channels it\u2019s a member of:</strong>{{/t}}
-  {{/if}}
+  {{title}}
 </h3>
 <div data-js="app_permission_modal_scope_descriptions">
   <div class="c-oauth_scope_info__safe_scopes no_border">
