@@ -11,9 +11,8 @@
 
   {{#feature flag="feature_app_permissions_api_site"}}
     {{#if_equal token_type compare="xoxp"}}
-    {{!--TODO: href="/slack-apps-preview" when that URL is ready --}}
-    <a href="https://medium.com/slack-developer-blog" target="_blank" class="p-app_creation_banner__anchor">
-      <div class="p-app_creation_banner">
+    <a href="/slack-apps-preview" target="_blank" class="p-app_creation_banner__anchor">
+      <div class="p-app_creation_banner {{#if env_is_dev}}p-app_creation_banner--is-dev{{/if}}">
 
         {{> developer_apps_new_modal_flask_svg}}
 
@@ -23,13 +22,6 @@
         </div>
       </div>
     </a>
-
-    {{!-- TODO @conrad: copy not final --}}
-    {{#feature flag="feature_teams_to_workspaces"}}
-      <p>{{#t}}<a href="/apps/new_app_token" data-js="new-team-token-app">Click here</a> to create a workspace-token app.{{/t}}</p>
-    {{else}}
-      <p>{{#t}}<a href="/apps/new_app_token" data-js="new-team-token-app">Click here</a> to create a team-token app.{{/t}}</p>
-    {{/feature}}
     {{/if_equal}}
   {{/feature}}
 
