@@ -1215,7 +1215,7 @@
 
 @font-face {
   font-family: Slack;
-  src: url(/436da/fonts/slack-icons-Regular.woff2) format('woff2'), url(/436da/fonts/slack-icons-Regular.woff) format('woff');
+  src: url(/6b14d/fonts/slack-icons-Regular.woff2) format('woff2'), url(/6b14d/fonts/slack-icons-Regular.woff) format('woff');
   font-style: normal;
   font-weight: 400
 }
@@ -2494,6 +2494,10 @@ svg.ts_icon_spinner svg {
 
 .ts_icon_deactivated_user:before {
   content: '\E566'
+}
+
+.ts_icon_shared_channels_baseline:before {
+  content: '\E568'
 }
 
 .ts_icon_arrow_right:before {
