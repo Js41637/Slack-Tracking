@@ -286,22 +286,34 @@
   {{/if}}
 
   {{#pageNeedsEnterprise}}
-    {{#if teams}}
-      {{#if teams.shared}}
-        <hr class="member_details_divider">
+    {{#pageNeedsEnterprise}}
+      {{#feature flag="feature_lazy_grid_teams"}}
+        {{#if shared_teams}}
+          <hr class="member_details_divider">
 
-        <table class="member_data_table lato">
-            <tr>
-              <td><span class="small_right_padding old_petunia_grey" title="{{#t}}Shared Teams{{/t}}">{{#t}}Shared Teams{{/t}}</span></td>
-              <td>
-                {{#each teams.shared}}
-                  {{name}}<br/>
-                {{/each}}
-              </td>
-            </tr>
-        </table>
-      {{/if}}
-    {{/if}}
+          <table id="member_data_table_shared_teams" class="member_data_table lato">
+            {{> member_shared_teams lazy_load_shared_teams=lazy_load_shared_teams shared_teams=shared_teams}}
+          </table>
+        {{/if}}
+      {{else}}
+        {{#if teams}}
+          {{#if teams.shared}}
+            <hr class="member_details_divider">
+
+            <table class="member_data_table lato">
+                <tr>
+                  <td><span class="small_right_padding old_petunia_grey" title="{{#t}}Shared Teams{{/t}}">{{#t}}Shared Teams{{/t}}</span></td>
+                  <td>
+                    {{#each teams.shared}}
+                      {{name}}<br/>
+                    {{/each}}
+                  </td>
+                </tr>
+            </table>
+          {{/if}}
+        {{/if}}
+      {{/feature}}
+    {{/pageNeedsEnterprise}}
   {{/pageNeedsEnterprise}}
 
   {{#if member.is_external}}
