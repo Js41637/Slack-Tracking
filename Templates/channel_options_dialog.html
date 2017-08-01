@@ -166,6 +166,20 @@
     </div>
   {{/if}}
 
+  {{#feature flag="feature_disconnecting_shared_channels"}}
+    {{#if show_disconnect_btn}}
+      <div class="channel_option_item top_padding bottom_padding" data-action="channel_disconnect_btn">
+        <div class="title bold charcoal_grey small_bottom_margin">{{#t rough-draft=true}}Stop sharing this channel{{/t}}</div>
+
+        <p class="subtle_silver no_bottom_margin">{{#t}}You can stop sharing this channel at any time. Note that you won't be able to re-share this channel again.{{/t}}</p>
+
+        <div class="channel_option_open">
+          <ts-icon class="ts_icon_arrow_large_right"></ts-icon>
+        </div>
+      </div>
+    {{/if}}
+  {{/feature}}
+
   {{#if show_delete_btn}}
     <div class="channel_option_item top_padding bottom_padding" data-action="channel_delete_btn">
       <div class="title bold charcoal_grey small_bottom_margin">{{#t}}Delete this channel{{/t}}</div>

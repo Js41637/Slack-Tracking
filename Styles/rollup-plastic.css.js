@@ -10520,7 +10520,44 @@ only screen and (min-resolution:2dppx) {
   -moz-justify-content: center;
   justify-content: center;
   align-items: center;
-  height: 280px
+  height: 280px;
+  border-top-left-radius: 4px;
+  color: #fff
+}
+
+.c-modal__left_navigation--onboarding_dialog,
+.c-modal__right_navigation--onboarding_dialog {
+  display: flex;
+  height: 52px;
+  width: 26px;
+  background: rgba(44, 45, 48, .25)
+}
+
+.c-modal__left_navigation--onboarding_dialog {
+  left: 0;
+  border-top-right-radius: 104px;
+  border-bottom-right-radius: 104px
+}
+
+.c-modal__right_navigation--onboarding_dialog {
+  right: 0;
+  border-top-left-radius: 104px;
+  border-bottom-left-radius: 104px
+}
+
+.c-modal__left_caret--onboarding_dialog {
+  top: 16px;
+  right: 11px
+}
+
+.c-modal__right_caret--onboarding_dialog {
+  top: 16px;
+  right: 3px
+}
+
+.c-modal__left_caret--onboarding_dialog::before,
+.c-modal__right_caret--onboarding_dialog::before {
+  font-size: 2.5rem
 }
 
 .c-modal__media--onboarding_dialog {
@@ -10529,12 +10566,17 @@ only screen and (min-resolution:2dppx) {
 
 .c-modal__copy--onboarding_dialog {
   height: 246px;
-  padding: 0 22px 22px
+  padding: 0 22px 22px;
+  color: #2C2D30
 }
 
 .c-modal__copy--onboarding_dialog>p {
   margin-bottom: 24px;
   font-size: .9375rem
+}
+
+.c-modal__media_container--onboarding_dialog_blue {
+  background-color: rgba(45, 158, 224, .9)
 }
 
 .c-modal--onboarding_dialog+.modal-backdrop {

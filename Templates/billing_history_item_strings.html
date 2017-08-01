@@ -140,13 +140,13 @@ Used in billing_history_list_item_col.hbs
   {{#t}}Beta testing credit{{/t}}
 {{else if_equal type compare="launch_credit"}}
   {{#feature flag="feature_teams_to_workspaces"}}
-    {{#t}}New workspce credit{{/t}}
+    {{#t}}New workspace credit{{/t}}
   {{else}}
     {{#t}}New team credit{{/t}}
   {{/feature}}
 {{else if_equal type compare="credit_test_group"}}
   {{#feature flag="feature_teams_to_workspaces"}}
-    {{#t}}New workspce credit{{/t}}
+    {{#t}}New workspace credit{{/t}}
   {{else}}
     {{#t}}New team credit{{/t}}
   {{/feature}}
