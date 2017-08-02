@@ -5803,7 +5803,7 @@ html.no_touch .alert_page a:hover {
 }
 
 .code_red {
-  color: #C25!important
+  color: #c25!important
 }
 
 .highlight_yellow_bg {
@@ -5819,11 +5819,11 @@ html.no_touch .alert_page a:hover {
 }
 
 .star_yellow {
-  color: #FC0!important
+  color: #fC0!important
 }
 
 .star_yellow_bg {
-  background-color: #FC0!important
+  background-color: #fC0!important
 }
 
 .yolk_orange {
@@ -7160,7 +7160,7 @@ pre {
 
 code {
   background: #F9F9F9;
-  color: #C25;
+  color: #c25;
   font-size: .75rem;
   padding: 2px 3px 1px;
   white-space: normal
@@ -9731,19 +9731,19 @@ textarea.small {
 }
 
 ::-webkit-input-placeholder {
-  color: #AAA
+  color: #aaa
 }
 
 :-moz-placeholder {
-  color: #AAA
+  color: #aaa
 }
 
 ::-moz-placeholder {
-  color: #AAA
+  color: #aaa
 }
 
 :-ms-input-placeholder {
-  color: #AAA
+  color: #aaa
 }
 
 input:disabled,

@@ -214,10 +214,12 @@
 
 <div class="channel_options_buttons hidden">
   <button class="btn btn_outline option_cancel" data-qa="channel_option_cancel">{{#t}}Cancel{{/t}}</button>
-  <button class="btn option_review very_small_left_margin" data-qa="channel_option_review">
-    {{#feature flag="feature_channel_options_review_stage"}}
-      {{#t}}Review Changes{{/t}}
-    {{/feature}}
+  <button class="btn ladda-button option_review very_small_left_margin" data-style="expand-right" data-qa="channel_option_review">
+    <span class="ladda-label">
+      {{#feature flag="feature_channel_options_review_stage"}}
+        {{#t}}Review Changes{{/t}}
+      {{/feature}}
+    </span>
   </button>
   <button class="btn ladda-button option_go very_small_left_margin hidden" data-style="expand-right" data-qa="channel_option_go"><span class="ladda-label">{{#t}}Ok{{/t}}</span></button>
 </div>
