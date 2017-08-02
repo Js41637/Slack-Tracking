@@ -18174,8 +18174,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 .c-member__unread-context--small {
   order: 4;
   position: relative;
-  bottom: 1px;
-  margin-left: .6rem
+  bottom: 1px
 }
 
 .c-member--small .team_image~.c-member__not-in-channel-context--small {
@@ -18248,16 +18247,6 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   height: 15px
 }
 
-.c-member__unread-context--small {
-  flex: 0 0 20px;
-  height: 15px
-}
-
-.c-member__unread-context--small .unread_count {
-  right: 0;
-  top: 0
-}
-
 .c-member__context.c-member__not-in-channel-context--small,
 .c-usergroup__context.c-usergroup__not-in-channel-context--small {
   margin-left: .25rem;
@@ -18266,11 +18255,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 }
 
 .c-member__frecency-score--small.frecency_score {
-  position: relative;
-  flex: 0 0 10px;
-  right: 0;
-  order: 3;
-  margin-left: 3px
+  order: 3
 }
 
 .c-member--dark .c-member__current-status,
