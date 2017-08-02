@@ -86,9 +86,9 @@
 </div>
 
 <div class="creator italic greigh top_margin">
-  {{#if is_member_unknown}}
-    <a class="creator_link greigh" href="{{permalink}}"> {{#t}}Created by {unknown_member_token} {days_since_creation, select, 0 {today} 1 {yesterday} other {on {creation_date, date, long}}}{{/t}} </a>
+  {{#if creator_is_self}}
+    <a class="creator_link greigh" href="{{permalink}}"> {{#t fallback_hash="4b197ebc802f1ac39c4c8dcaf2d61ff642582d92"}}Created by you {days_since_creation, select, 0 {today} 1 {yesterday} other {on {creation_date, date, long}}}{{/t}} </a>
   {{else}}
-    <a class="creator_link greigh" href="{{permalink}}"> {{#t}}Created by {creator_name} {days_since_creation, select, 0 {today} 1 {yesterday} other {on {creation_date, date, long}}}{{/t}} </a>
+    <a class="creator_link greigh" href="{{permalink}}"> {{#t note="{creator_name} will always be third person, e.g. 'Created by UserA'"}}Created by {creator_name} {days_since_creation, select, 0 {today} 1 {yesterday} other {on {creation_date, date, long}}}{{/t}} </a>
   {{/if}}
 </div>
