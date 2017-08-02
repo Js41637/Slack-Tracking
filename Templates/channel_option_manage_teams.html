@@ -7,18 +7,23 @@
 {{#feature flag="feature_removing_workspaces_from_cross_workspace_channels"}}
 
 <div class="bottom_margin">
-  <label>{{#t rough-draft=true}}Share this channel with:{{/t}}</label>
+  {{#feature flag="feature_teams_to_workspaces"}}
+    <label>{{#t org_name=(currentEnterpriseName)}}Choose which {org_name} workspaces can find and join this channel.{{/t}}</label>
+  {{else}}
+    <label>{{#t org_name=(currentEnterpriseName)}}Choose which {org_name} teams can find and join this channel.{{/t}}</label>
+  {{/feature}}
 
-  <label class="radio small_bottom_margin"><input type="radio" name="share_with" value="all" checked>{{#t currentEnterpriseName=(currentEnterpriseName rough-draft=true)}}All <span class="enterprise-name">{currentEnterpriseName}</span> teams{{/t}}</label>
-  <label class="radio small_bottom_margin"><input type="radio" name="share_with" value="specific">{{#t currentEnterpriseName=(currentEnterpriseName) rough-draft=true}}Specific <span class="enterprise-name">{currentEnterpriseName}</span> teams{{/t}}</label>
+  <label class="radio small_bottom_margin"><input type="radio" name="share_with" value="specific" {{#unless model_ob.is_global_shared}}checked{{/unless}}>{{#t currentEnterpriseName=(currentEnterpriseName) rough-draft=true}}Specific <span class="enterprise-name">{currentEnterpriseName}</span> teams{{/t}}</label>
 
-  <div class="specific_team hidden">
+  <div class="specific_team bottom_margin {{#if model_ob.is_global_shared}}hidden{{/if}}">
     {{#feature flag="feature_react_lfs"}}
       <div id="manage_teams_team_picker"></div>
     {{else}}
       <input type="text" name="domains" placeholder="{{#t rough-draft=true}}Add teams{{/t}}" data-validation="required" data-validation-for="share_with_specific">
     {{/feature}}
   </div>
+
+  <label class="radio small_bottom_margin"><input type="radio" name="share_with" value="all" {{#if model_ob.is_global_shared}}checked{{/if}}>{{#t currentEnterpriseName=(currentEnterpriseName rough-draft=true)}}All <span class="enterprise-name">{currentEnterpriseName}</span> teams{{/t}}</label>
 </div>
 
 {{/feature}}

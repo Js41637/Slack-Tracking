@@ -112,7 +112,11 @@
         </li>
         {{#if show_manage_teams}}
           <li id="channel_manage_teams_item" role="menuitem"><a>
-            {{#t}}Manage teams in this channel &hellip;{{/t}}
+            {{#feature flag="feature_removing_workspaces_from_cross_workspace_channels"}}
+              {{#t}}Manage access to this channel &hellip;{{/t}}
+            {{else}}
+              {{#t}}Manage teams in this channel &hellip;{{/t}}
+            {{/feature}}
           </a></li>
         {{/if}}
         {{#if highlights_toggle}}

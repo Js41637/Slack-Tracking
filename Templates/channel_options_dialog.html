@@ -46,30 +46,34 @@
     </div>
   {{/if}}
 
-  {{#if show_share_channel_btn}}
-    <div class="channel_option_item top_padding bottom_padding" data-action="share_channel_btn">
-      {{#feature flag="feature_teams_to_workspaces"}}
-        <div class="title bold charcoal_grey small_bottom_margin">{{#t}}Share this channel with another workspace{{/t}}</div>
-
-        <p class="subtle_silver no_bottom_margin">{{#t}}In a shared channel, two Slack workspaces can send messages, share files, and access the channel\u2019s history. <a href="http://help.slack.com">Learn more</a>{{/t}}</p>
-      {{else}}
-        <div class="title bold charcoal_grey small_bottom_margin">{{#t}}Share this channel with another team{{/t}}</div>
-
-        <p class="subtle_silver no_bottom_margin">{{#t}}In a shared channel, two Slack teams can send messages, share files, and access the channel\u2019s history. <a href="http://help.slack.com">Learn more</a>{{/t}}</p>
-      {{/feature}}
-
-      <div class="channel_option_open">
-        <ts-icon class="ts_icon_arrow_large_right"></ts-icon>
-      </div>
-    </div>
-  {{/if}}
-
   {{#feature flag="feature_removing_workspaces_from_cross_workspace_channels"}}
     {{#if show_manage_teams}}
       <div class="channel_option_item top_padding bottom_padding" data-action="manage_teams_btn">
-        <div class="title bold charcoal_grey small_bottom_margin">{{#t rough-draft=true}}Manage teams{{/t}}</div>
+        <div class="title bold charcoal_grey small_bottom_margin">{{#t}}Manage access to this channel{{/t}}</div>
 
-        <p class="subtle_silver no_bottom_margin">{{#t rough-draft=true}}Manage teams in a channel{{/t}}</p>
+        {{#feature flag="feature_teams_to_workspaces"}}
+          <p class="subtle_silver no_bottom_margin">{{#t org_name=(currentEnterpriseName)}}Choose which {org_name} workspaces can find and join this channel.{{/t}}</p>
+        {{else}}
+          <p class="subtle_silver no_bottom_margin">{{#t org_name=(currentEnterpriseName)}}Choose which {org_name} teams can find and join this channel.{{/t}}</p>
+        {{/feature}}
+
+        <div class="channel_option_open">
+          <ts-icon class="ts_icon_arrow_large_right"></ts-icon>
+        </div>
+      </div>
+    {{/if}}
+  {{else}}
+    {{#if show_share_channel_btn}}
+      <div class="channel_option_item top_padding bottom_padding" data-action="share_channel_btn">
+        {{#feature flag="feature_teams_to_workspaces"}}
+          <div class="title bold charcoal_grey small_bottom_margin">{{#t}}Share this channel with another workspace{{/t}}</div>
+
+          <p class="subtle_silver no_bottom_margin">{{#t}}In a shared channel, two Slack workspaces can send messages, share files, and access the channel\u2019s history. <a href="http://help.slack.com">Learn more</a>{{/t}}</p>
+        {{else}}
+          <div class="title bold charcoal_grey small_bottom_margin">{{#t}}Share this channel with another team{{/t}}</div>
+
+          <p class="subtle_silver no_bottom_margin">{{#t}}In a shared channel, two Slack teams can send messages, share files, and access the channel\u2019s history. <a href="http://help.slack.com">Learn more</a>{{/t}}</p>
+        {{/feature}}
 
         <div class="channel_option_open">
           <ts-icon class="ts_icon_arrow_large_right"></ts-icon>
