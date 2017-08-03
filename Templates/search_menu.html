@@ -49,21 +49,21 @@
 
 {{#if modifier_groups}}
   <ol class="conversation_modifiers results modifiers" aria-label="{{#t}}conversation modifier{{/t}}">
-    <li data-replacement="from:">
+    <li data-replacement="{{#t}}from:{{/t}}">
       <button class="result_item_btn btn_unstyle" type="button" tabindex="-1">
         <strong>{{#t}}from: {{/t}}</strong>
         <span class="muted_text">{{#t}}team member{{/t}}</span>
         {{> ts_icon class="ts_icon_plus_square_o ts_icon_inherit modifier_icon"}}
       </button>
     </li>
-    <li data-replacement="in:">
+    <li data-replacement="{{#t}}in:{{/t}}">
       <button class="result_item_btn btn_unstyle" type="button" tabindex="-1">
         {{#t}}<strong>in: </strong>
         <span class="muted_text">channel or direct message</span>{{/t}}
         {{> ts_icon class="ts_icon_plus_square_o ts_icon_inherit modifier_icon"}}
       </button>
     </li>
-    <li data-replacement="has:">
+    <li data-replacement="{{#t}}has:{{/t}}">
       <button class="result_item_btn btn_unstyle" type="button" tabindex="-1">
         {{#t}}<strong>has: </strong>
         <span class="muted_text">star, pin, link, or reaction</span>{{/t}}
@@ -73,21 +73,21 @@
   </ol>
 
   <ol class="time_modifiers results modifiers" aria-label="{{#t}}time modifier{{/t}}">
-    <li data-replacement="after:">
+    <li data-replacement="{{#t}}after:{{/t}}">
       <button class="result_item_btn btn_unstyle" type="button" tabindex="-1">
         {{#t}}<strong>after: </strong>
         <span class="muted_text">date</span>{{/t}}
         {{> ts_icon class="ts_icon_plus_square_o ts_icon_inherit modifier_icon"}}
       </button>
     </li>
-    <li data-replacement="before:">
+    <li data-replacement="{{#t}}before:{{/t}}">
       <button class="result_item_btn btn_unstyle" type="button" tabindex="-1">
         {{#t}}<strong>before: </strong>
         <span class="muted_text">date</span>{{/t}}
         {{> ts_icon class="ts_icon_plus_square_o ts_icon_inherit modifier_icon"}}
       </button>
     </li>
-    <li data-replacement="on:">
+    <li data-replacement="{{#t}}on:{{/t}}">
       <button class="result_item_btn btn_unstyle" type="button" tabindex="-1">
         {{#t}}<strong>on: </strong>
         <span class="muted_text">date, month or year</span>{{/t}}
