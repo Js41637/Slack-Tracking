@@ -17838,13 +17838,13 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 .rxn.menu_rxn.active .ts_icon_circle_fill,
 .rxn.menu_rxn:hover .ts_icon_circle_fill {
   opacity: 1;
-  color: #FFD06D
+  color: #ffd06d
 }
 
 .rxn.menu_rxn.active .ts_icon_add_reaction,
 .rxn.menu_rxn:hover .ts_icon_add_reaction {
   opacity: 1;
-  color: #C39A48
+  color: #c39a48
 }
 
 .rxn:focus {
