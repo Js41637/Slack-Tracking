@@ -1,9 +1,11 @@
 {{i18n_ns "app_items"}}
 
 {{#feature flag="feature_i18n_app_space"}}
+{{#unless is_xoxa_app}}
 <li role="menuitem" data-action="invite_to_channel"><a>
   {{#t}}Invite to a channel &hellip;{{/t}}
 </a></li>
+{{/unless}}
 <li role="menuitem" data-qa="app_settings"><a href="/services/{{bot_id}}" target="_blank">
   {{#t}}View settings{{/t}}
 </a></li>
