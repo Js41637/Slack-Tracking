@@ -64,10 +64,16 @@
           {{#if_equal invite.date_resent compare="0"}}
             {{#t date=(toCalendarDateOrNamedDayShort invite.date_create)}}Invited {date}{{/t}}{{#if invite.inviter}}<br>{{#t}}by {inviter_link}{{/t}}{{/if}}
           {{else}}
-            {{#t date=(toCalendarDateOrNamedDayShort invite.date_resent)}}Resent {date}{{/t}}{{#if invite.inviter}}<br>{{#t}}Invited by {inviter_link}{{/t}}{{/if}}
+            {{#t date=(toCalendarDateOrNamedDayShort invite.date_resent)}}Resent {date}{{/t}}
+            {{#if invite.inviter}}
+              <br><span class="admin_invite_invited_by">{{#t}}Invited by {inviter_link}{{/t}}</span>
+            {{/if}}
           {{/if_equal}}
         {{else}}
-          {{#t date=(toCalendarDateOrNamedDayShort invite.date_create)}}Joined {date}{{/t}}{{#if invite.inviter}}<br>{{#t}}Invited by {inviter_link}{{/t}}{{/if}}
+          {{#t date=(toCalendarDateOrNamedDayShort invite.date_create)}}Joined {date}{{/t}}
+          {{#if invite.inviter}}
+            <br><span class="admin_invite_invited_by">{{#t}}Invited by {inviter_link}{{/t}}</span>
+          {{/if}}
         {{/if}}
       </span>
 

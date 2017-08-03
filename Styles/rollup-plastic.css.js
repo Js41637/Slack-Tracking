@@ -15469,6 +15469,11 @@ body:not(.unify_user) .tab_complete_ui li.tab_complete_ui_item {
   color: #fff!important
 }
 
+.tab_complete_ui li.tab_complete_ui_group.active .presence,
+.tab_complete_ui li.tab_complete_ui_item.active .presence {
+  opacity: 1
+}
+
 .tab_complete_ui li.tab_complete_ui_group.active .app_label,
 .tab_complete_ui li.tab_complete_ui_item.active .app_label {
   background-color: rgba(255, 255, 255, .3)
