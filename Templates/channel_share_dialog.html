@@ -6,94 +6,59 @@
 
   {{#if show_heading}}
     <h1 class="share_channel_modal_heading">
-      {{#if model_ob}}
-        {{#feature flag="feature_teams_to_workspaces"}}
-          {{#t channel_name=model_ob.name}}Invite another workspace{{/t}}</h1>
-        {{else}}
-          {{#t channel_name=model_ob.name}}Invite another team{{/t}}</h1>
-        {{/feature}}
-      {{else}}
         {{#t}}Create a new shared channel{{/t}}</h1>
-      {{/if}}
     </h1>
   {{/if}}
 
   {{> channel_share_dialog_information}}
 
-  {{#if can_create_shared_channel}}
+  <div class="alert alert_error large_bottom_margin hidden" data-label="shared_channel_form_error">
+    <ts-icon class="ts_icon_warning"></ts-icon>
+    <span data-label="shared_channel_form_error_label"></span>
+  </div>
 
-    {{#unless model_ob}}
+  {{#if is_new_channel}}
 
-      <p>
-        <label class="checkbox">
-          {{#feature flag="feature_teams_to_workspaces"}}
-            <input id="channel_public_private_toggle" type="checkbox" name="public" value="public" {{#unless is_private}}checked="checked"{{/unless}} data-on-text="{{#t}}Public{{/t}}" data-off-text="{{#t}}Private{{/t}}" data-label="{{#t}}Anyone in your workspace can view and join this channel.{{/t}}" data-off-label="{{#t}}This channel can only be joined or viewed by invite.{{/t}}" data-off-class="ts_toggle_orange">
-          {{else}}
-            <input id="channel_public_private_toggle" type="checkbox" name="public" value="public" {{#unless is_private}}checked="checked"{{/unless}} data-on-text="{{#t}}Public{{/t}}" data-off-text="{{#t}}Private{{/t}}" data-label="{{#t}}Anyone on your team can view and join this channel.{{/t}}" data-off-label="{{#t}}This channel can only be joined or viewed by invite.{{/t}}" data-off-class="ts_toggle_orange">
-          {{/feature}}
-        </label>
-      </p>
-
-      <p class="no_margin">
-        <label for="channel_create_title" class="block align_left">{{#t}}Channel name{{/t}}</label>
-        <div class="channel_modal_title_input_container no_margin">
-          <i class="channel_icon private_channel_item subtle_silver ts_icon_lock ts_icon hidden" />
-          <i class="channel_icon public_channel_item subtle_silver ts_icon_channel ts_icon" />
-          <input
-            id="channel_create_title"
-            name="title_input"
-            type="text"
-            class="lowercase title_input large_left_padding tiny_bottom_margin"
-            placeholder="{{#t}}e.g. leads{{/t}}"
-            data-validation="channel_name=fix"
-            data-validation-for="channel_create_title"
-            data-validation-success=""
-            autocapitalize="off"
-            autocorrect="off"
-            autocomplete="off"
-            value="{{title}}"
-          />
-        </div>
-      </p>
-
-    {{/unless}}
-
-    {{> channel_share_dialog_invite_fields}}
-
-    <p class="align_right large_top_margin">
-      <button class="btn btn_large btn_outline btn cancel_share" type="button">{{#t}}Cancel{{/t}}</button>
-      <button class="btn btn_large ladda-button submit" data-style="expand-right">{{#t note="Form submit button label"}}Share channel{{/t}}</button>
-    </p>
-
-  {{else}}
-
-    <p class="tiny_bottom_margin">
-      <label for="select_admin">{{#t note="Form input label"}}Choose an Admin{{/t}}
-        <div class="lfs_container"></div>
+    <p>
+      <label class="checkbox">
+        {{#feature flag="feature_teams_to_workspaces"}}
+          <input id="channel_public_private_toggle" type="checkbox" name="public" value="public" {{#unless is_private}}checked="checked"{{/unless}} data-on-text="{{#t}}Public{{/t}}" data-off-text="{{#t}}Private{{/t}}" data-label="{{#t}}Anyone in your workspace can view and join this channel.{{/t}}" data-off-label="{{#t}}This channel can only be joined or viewed by invite.{{/t}}" data-off-class="ts_toggle_orange">
+        {{else}}
+          <input id="channel_public_private_toggle" type="checkbox" name="public" value="public" {{#unless is_private}}checked="checked"{{/unless}} data-on-text="{{#t}}Public{{/t}}" data-off-text="{{#t}}Private{{/t}}" data-label="{{#t}}Anyone on your team can view and join this channel.{{/t}}" data-off-label="{{#t}}This channel can only be joined or viewed by invite.{{/t}}" data-off-class="ts_toggle_orange">
+        {{/feature}}
       </label>
     </p>
 
-    <p class="tiny_bottom_margin">
-      <label for="message">{{#t note="Form input label"}}Add a message{{/t}}</label>
-    </p>
-
-    <div class="message_field">
-      {{#feature flag="feature_teams_to_workspaces"}}
-        <div id="message" name="message">{{#t channel_name=model_ob.name}}Hi there, I was hoping to make #{channel_name} a shared channel on our workspace. Would you be able to help?{{/t}}</div>
-      {{else}}
-        <div id="message" name="message">{{#t channel_name=model_ob.name}}Hi there, I was hoping to make #{channel_name} a shared channel on our team. Would you be able to help?{{/t}}</div>
-      {{/feature}}
-      <button class="emo_menu btn_unstyle" aria-label="{{#t}}emoji menu{{/t}}" type="button"><i class="ts_icon ts_icon_circle_fill"></i><i class="ts_icon ts_icon_smile_o"></i><i class="ts_icon ts_icon_happy_smile"></i></button>
-    </div>
-
-    <div class="message_attachment"></div>
-
-    <p class="align_right large_top_margin">
-      <button class="btn btn_large btn_outline btn cancel_share" type="button">{{#t}}Cancel{{/t}}</button>
-      <button class="btn btn_large ladda-button submit" data-style="expand-right">{{#t note="Form submit button label"}}Request channel share{{/t}}</button>
+    <p class="no_margin">
+      <label for="channel_title" class="block align_left">{{#t}}Channel name{{/t}}</label>
+      <div class="channel_modal_title_input_container p-share_channel_dialog__input_wrapper">
+        <i class="channel_icon private_channel_item subtle_silver ts_icon_lock ts_icon hidden" />
+        <i class="channel_icon public_channel_item subtle_silver ts_icon_channel ts_icon" />
+        <input
+          name="channel_title"
+          type="text"
+          class="lowercase title_input large_left_padding tiny_bottom_margin"
+          placeholder="{{#t}}e.g. leads{{/t}}"
+          data-input="channel_title"
+          data-validation="channel_name=fix"
+          data-validation-for="channel_title"
+          data-validation-success=""
+          autocapitalize="off"
+          autocorrect="off"
+          autocomplete="off"
+          value="{{title}}"
+        />
+      </div>
     </p>
 
   {{/if}}
+
+  {{> channel_share_dialog_invite_fields}}
+
+  <p class="align_right large_top_margin">
+    <button class="btn btn_large btn_outline btn cancel_share" type="button">{{#t}}Cancel{{/t}}</button>
+    <button class="btn btn_large ladda-button submit" data-style="expand-right">{{#t note="Form submit button label"}}Share channel{{/t}}</button>
+  </p>
 
 </div>
 

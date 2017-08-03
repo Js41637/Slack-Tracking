@@ -199,8 +199,8 @@
     {{/if}}
 
     {{! Special Attachment Actions: Shared Channel Request}}
-     {{#feature flag="feature_connecting_shared_channels"}}
-     {{#if shared_channel_request_actions}}
+    {{#feature flag="feature_connecting_shared_channels"}}
+    {{#if shared_channel_request_actions}}
       <div class="msg_inline_attachment_row attachment_actions">
         {{> attachment_actions attachment=shared_channel_request_actions}}
       </div>

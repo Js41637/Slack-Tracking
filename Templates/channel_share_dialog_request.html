@@ -26,7 +26,7 @@
           <div class="c-member__title c-member__title--large">{{team.name}}</div>
         </div>
       </div>
-    </div> 
+    </div>
 
     {{#if custom_message}}
     <div class="bottom_margin">
@@ -39,38 +39,45 @@
     <h2 class="large_top_margin small_bottom_margin">{{#t}}Channel details{{/t}}</h2>
     <p class="greigh large_bottom_margin">{{#t}}You can change the channel name or privacy. Doing so will only affect your team.{{/t}}</p>
 
+    <div class="alert alert_error large_bottom_margin hidden" data-label="shared_channel_form_error">
+      <ts-icon class="ts_icon_warning"></ts-icon>
+      <span data-label="shared_channel_form_error_label"></span>
+    </div>
+
     <div class="bottom_margin">
       <label class="checkbox">
-          <input 
-            id="channel_public_private_toggle" 
-            type="checkbox" 
-            name="public" 
-            value="public" 
-            checked="checked" 
-            data-style="toggle" 
-            data-on-text="{{#t}}Public{{/t}}" 
-            data-off-text="{{#t}}Private{{/t}}" 
-            data-label="{{#t team_name=team.name}}Anyone on {team_name} can view and join this channel{{/t}}" 
-            data-off-label="{{#t team_name=team.name}}Members of {team_name} can join by invitation only{{/t}}" 
+          <input
+            id="channel_public_private_toggle"
+            type="checkbox"
+            name="public"
+            value="public"
+            checked="checked"
+            data-style="toggle"
+            data-on-text="{{#t}}Public{{/t}}"
+            data-off-text="{{#t}}Private{{/t}}"
+            data-label="{{#t team_name=team.name}}Anyone on {team_name} can view and join this channel{{/t}}"
+            data-off-label="{{#t team_name=team.name}}Members of {team_name} can join by invitation only{{/t}}"
             data-off-class="ts_toggle_orange">
       </label>
     </div>
 
     <div class="bottom_margin">
-      <label for="channel_create_title" class="block align_left">{{#t team_name=team.name}}Name on {team_name}{{/t}}</label>
+      <label for="channel_title" class="block align_left">{{#t team_name=team.name}}Name on {team_name}{{/t}}</label>
       <div class="channel_modal_title_input_container no_margin">
         <i class="channel_icon private_channel_item subtle_silver ts_icon_lock ts_icon hidden" />
         <i class="channel_icon public_channel_item subtle_silver ts_icon_channel ts_icon" />
         <input
-          id="channel_create_title"
-          name="title_input"
+          name="channel_title"
           type="text"
           class="lowercase title_input large_left_padding tiny_bottom_margin"
-          placeholder="{{channel_name}}"
           autocapitalize="off"
           autocorrect="off"
           autocomplete="off"
-          value="{{title}}"
+          data-input="channel_title"
+          data-validation="channel_name=fix"
+          data-validation-for="channel_title"
+          data-validation-success=""
+          value="{{channel_name}}"
         />
       </div>
       <span class="modal_input_note margin_auto">{{#t team_name=team.name}}Current name was set by {team_name}. You can change for your team.{{/t}}</span>
