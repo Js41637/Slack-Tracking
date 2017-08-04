@@ -2,26 +2,26 @@
 {{#feature flag="feature_quest_onboarding"}}
 <button type="button" class="c-modal__close--onboarding_dialog no_padding no_margin no_border position_absolute" data-dismiss="close">&times;</button>
 <div class="c-modal__media_container--onboarding_dialog full_width {{modal_color_class}}">
-  <div class="c-modal__left_arrow--onboarding_dialog position_absolute">
-    <ts-icon class="ts_icon_chevron_left c-modal__left_caret--onboarding_dialog position_relative"></ts-icon>
-  </div>
-  <div class="c-modal__right_arrow--onboarding_dialog position_absolute">
-    <ts-icon class="ts_icon_chevron_right c-modal__right_caret--onboarding_dialog position_relative"></ts-icon>
-  </div>
+  <button class="c-modal__left_navigation--onboarding_dialog position_absolute no_border no_padding">
+    <ts-icon class="ts_icon_chevron_left c-modal__left_caret--onboarding_dialog position_absolute"></ts-icon>
+  </button>
+  <button class="c-modal__right_navigation--onboarding_dialog position_absolute no_border no_padding">
+    <ts-icon class="ts_icon_chevron_right c-modal__right_caret--onboarding_dialog position_absolute"></ts-icon>
+  </button>
   <img class="c-modal__media--onboarding_dialog full_max_width" src="{{versioned_file_drop_blue}}" />
 </div>
-{{#t modal_color_class=modal_color_class modal_title=modal_title}}
 <div class="c-modal__copy--onboarding_dialog full_width align_right">
   <div class="top_padding align_center">
-    <ts-icon class="ts_icon_circle_fill"></ts-icon>
-    <ts-icon class="ts_icon_circle_fill"></ts-icon>
-    <ts-icon class="ts_icon_circle_fill"></ts-icon>
+    {{#each quest_dot_classes}}
+      <ts-icon class="{{this}}"></ts-icon>
+    {{/each}}
   </div>
+  {{#t modal_color_class=modal_color_class modal_title=modal_title}}
   <h3 class="lato_black top_margin small_bottom_margin align_left">{modal_title}</h3>
   <p class="align_left">
     Lorem ipsum dolor sit amet, maiorum temporibus definitiones ne. Sed ei iusto conceptam, dolorem appareat at his. Vix.
   </p>
   <button class="btn" type="button">Try it now</button>
+  {{/t}}
 </div>
-{{/t}}
 {{/feature}}

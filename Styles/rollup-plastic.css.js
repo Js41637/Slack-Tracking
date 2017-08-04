@@ -10531,10 +10531,11 @@ only screen and (min-resolution:2dppx) {
 
 .c-modal__left_navigation--onboarding_dialog,
 .c-modal__right_navigation--onboarding_dialog {
-  display: flex;
   height: 52px;
   width: 26px;
-  background: rgba(44, 45, 48, .25)
+  overflow: hidden;
+  background: rgba(44, 45, 48, .25);
+  color: #fff
 }
 
 .c-modal__left_navigation--onboarding_dialog {
@@ -10550,13 +10551,13 @@ only screen and (min-resolution:2dppx) {
 }
 
 .c-modal__left_caret--onboarding_dialog {
-  top: 16px;
-  right: 11px
+  top: 12px;
+  left: -10px
 }
 
 .c-modal__right_caret--onboarding_dialog {
-  top: 16px;
-  right: 3px
+  top: 12px;
+  right: -9px
 }
 
 .c-modal__left_caret--onboarding_dialog::before,
@@ -10579,8 +10580,16 @@ only screen and (min-resolution:2dppx) {
   font-size: .9375rem
 }
 
+.c-modal__circle_fill--onboarding-dialog {
+  color: #E8E8E8
+}
+
 .c-modal__media_container--onboarding_dialog_blue {
   background-color: rgba(45, 158, 224, .9)
+}
+
+.c-modal__circle_fill--onboarding_dialog_blue {
+  color: rgba(45, 158, 224, .9)
 }
 
 .c-modal--onboarding_dialog+.modal-backdrop {

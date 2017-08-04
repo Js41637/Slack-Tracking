@@ -7,14 +7,14 @@
         <div class="current_status_emoji_cover">
           {{#if_equal (emojiModePref) compare="as_text"}}
             {{formatCurrentStatusWithoutAnimations status_emoji ignore_emoji_mode_pref=true show_icon_for_emoji_in_as_text_mode=false
-            transform_missing_emoji=true}}
+            transform_missing_emoji=true prevent_copy_paste=false no_emoji_text=false}}
           {{else}}
-            {{formatCurrentStatusWithoutAnimations status_emoji transform_missing_emoji=true}}
+            {{formatCurrentStatusWithoutAnimations status_emoji transform_missing_emoji=true prevent_copy_paste=false no_emoji_text=false}}
           {{/if_equal}}
         </div>
       </span>
       <span class="current_status">
-        {{formatCurrentStatus status_text}}
+        {{formatCurrentStatus status_text prevent_copy_paste=false no_emoji_text=false}}
       </span>
     </div>
 

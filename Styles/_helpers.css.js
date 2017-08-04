@@ -137,6 +137,11 @@
   top: 0
 }
 
+.position_absolute_bottom {
+  position: absolute;
+  bottom: 0
+}
+
 .position_absolute_right {
   position: absolute;
   right: 0
@@ -652,6 +657,10 @@
 
 .border_left {
   border-left: 1px solid #e8e8e8
+}
+
+.inner_shadow {
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, .4)
 }
 
 .hidden {

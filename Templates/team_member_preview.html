@@ -176,7 +176,7 @@
               {{> current_status_cover status_text=member.profile.status_text status_emoji=member.profile.status_emoji editable=member.is_self}}
             </td>
           {{else}}
-            <td class="current_status">{{getMemberCurrentStatusForDisplayWithoutAnimations member}}</td>
+            <td class="current_status">{{getMemberCurrentStatusForDisplayWithoutAnimations member prevent_copy_paste=false no_emoji_text=false}}</td>
           {{/isClient}}
           </tr>
         </tr>
