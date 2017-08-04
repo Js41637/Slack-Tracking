@@ -8,7 +8,11 @@
 </div>
 
 <div id="invite_form_body" class="fs_split_body">
-    <h1>{{#t}}Join the Slack team for <span class="bold">{team_name}</span>{{/t}}</h1>
+    {{#feature flag="feature_teams_to_workspaces"}}
+        <h1>{{#t}}Join the Slack workspace <span class="bold">{team_name}</span>{{/t}}</h1>
+    {{else}}
+        <h1>{{#t}}Join the Slack team for <span class="bold">{team_name}</span>{{/t}}</h1>
+    {{/feature}}
 
     <div class="names_container no_top_padding bottom_padding" id="names_container">
         {{#feature flag="feature_name_tagging_client"}}
@@ -53,7 +57,11 @@
 
         {{#if custom_username_policy}}
             <div id="custom_username_policy" class="large_bottom_margin">
-                <p class="bold small_bottom_margin">{{#t}}Custom rules for this team:{{/t}}</p>
+                {{#feature flag="feature_teams_to_workspaces"}}
+                    <p class="bold small_bottom_margin">{{#t}}Custom rules for this workspace:{{/t}}</p>
+                {{else}}
+                    <p class="bold small_bottom_margin">{{#t}}Custom rules for this team:{{/t}}</p>
+                {{/feature}}
                 <p class="no_bottom_margin">{{custom_username_policy}}</p>
             </div>
         {{/if}}

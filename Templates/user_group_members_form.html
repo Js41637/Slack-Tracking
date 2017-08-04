@@ -1,7 +1,11 @@
 {{i18n_ns 'user_groups'}}
 
 <div id="user_groups_header" class="clearfix">
-  <h1>{{#if is_new}}{{#t group_name=user_group.name}}Invite team members to {group_name}{{/t}}{{else}}{{#t group_name=user_group.name}}Edit members of {group_name}{{/t}}{{/if}}</h1>
+  {{#feature flag="feature_teams_to_workspaces"}}
+    <h1>{{#if is_new}}{{#t group_name=user_group.name}}Invite members to {group_name}{{/t}}{{else}}{{#t group_name=user_group.name}}Edit members of {group_name}{{/t}}{{/if}}</h1>
+  {{else}}
+    <h1>{{#if is_new}}{{#t group_name=user_group.name}}Invite team members to {group_name}{{/t}}{{else}}{{#t group_name=user_group.name}}Edit members of {group_name}{{/t}}{{/if}}</h1>
+  {{/feature}}
 </div>
 
 <form class="user_group_members_form">
@@ -13,11 +17,19 @@
   {{#if user_group.auto_type}}
     <p class="alert alert_info">
       <i class="ts_icon ts_icon_info_circle"></i>
-      {{#if_equal user_group.auto_type compare="admin"}}
-        {{#t}}This User Group is automatically generated for team admins.{{/t}}
+      {{#feature flag="feature_teams_to_workspaces"}}
+        {{#if_equal user_group.auto_type compare="admin"}}
+          {{#t}}This User Group is automatically generated for Workspace Admins.{{/t}}
+        {{else}}
+          {{#t}}This User Group is automatically generated for Workspace Owners.{{/t}}
+        {{/if_equal}}
       {{else}}
-        {{#t}}This User Group is automatically generated for team owners.{{/t}}
-      {{/if_equal}}
+        {{#if_equal user_group.auto_type compare="admin"}}
+          {{#t}}This User Group is automatically generated for team admins.{{/t}}
+        {{else}}
+          {{#t}}This User Group is automatically generated for team owners.{{/t}}
+        {{/if_equal}}
+      {{/feature}}
     </p>
   {{/if}}
 

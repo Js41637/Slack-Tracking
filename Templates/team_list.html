@@ -50,7 +50,11 @@
           <div id="restricted_no_results" class="no_results hidden"></div>
           {{#isWeb}}
             <p class="help">
-              {{#t}}These team members are restricted to the channels that they are invited to join.{{/t}}
+              {{#feature flag="feature_teams_to_workspaces"}}
+                {{#t}}These members are restricted to the channels that they are invited to join.{{/t}}
+              {{else}}
+                {{#t}}These team members are restricted to the channels that they are invited to join.{{/t}}
+              {{/feature}}
               {{#currentUserIsAdmin}}
                 <br />{{#isClient}}<br />{{/isClient}}
                 <a href="/admin?tab=restricted" {{#isClient}}target="new"{{/isClient}} class="bold">{{#t}}Manage multi-channel guests{{/t}}</a>
@@ -79,7 +83,11 @@
           </div>
           <div id="disabled_no_results" class="no_results hidden"></div>
           <p class="help">
-            {{#t}}These team members have been deactivated and can no longer access your team.{{/t}}
+            {{#feature flag="feature_teams_to_workspaces"}}
+              {{#t}}These members have been deactivated and can no longer access your workspace.{{/t}}
+            {{else}}
+              {{#t}}These team members have been deactivated and can no longer access your team.{{/t}}
+            {{/feature}}
             {{#currentUserIsAdmin}}
               <br />
               <a href="/admin" class="bold" target="_blank">{{#t}}Manage deactivated accounts{{/t}}</a>

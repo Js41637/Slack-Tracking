@@ -38,7 +38,11 @@
           <a class="date_picker" target="{{newWindowName}}">{{#t note="Within a list of messages in a channel"}}Jump to date &hellip;{{/t}}</a>
         </li>
         {{#unless hide_invite}}<li id="channel_invite_item" role="menuitem"><a>
-          {{#t note="Invite members to join a channel"}}Invite team members to join &hellip;{{/t}}
+          {{#feature flag="feature_teams_to_workspaces"}}
+            {{#t note="Invite members to join a channel"}}Invite new members to join &hellip;{{/t}}
+          {{else}}
+            {{#t note="Invite members to join a channel"}}Invite team members to join &hellip;{{/t}}
+          {{/feature}}
         </a></li>{{/unless}}
         <li id="channel_details_item">
           <a>{{#t}}View channel details{{/t}}</a>
@@ -98,7 +102,11 @@
         {{/if}}
       {{else}}
         {{#unless hide_invite}}<li id="channel_invite_item" role="menuitem"><a>
-          {{#t note="Invite members to join a channel"}}Invite team members to join &hellip;{{/t}}
+          {{#feature flag="feature_teams_to_workspaces"}}
+            {{#t note="Invite members to join a channel"}}Invite new members to join &hellip;{{/t}}
+          {{else}}
+            {{#t note="Invite members to join a channel"}}Invite team members to join &hellip;{{/t}}
+          {{/feature}}
         </a></li>{{/unless}}
         {{#feature flag="feature_workspace_token_apps_in_client"}}
           {{#if show_add_apps}}
@@ -115,7 +123,11 @@
             {{#feature flag="feature_removing_workspaces_from_cross_workspace_channels"}}
               {{#t}}Manage access to this channel &hellip;{{/t}}
             {{else}}
-              {{#t}}Manage teams in this channel &hellip;{{/t}}
+              {{#feature flag="feature_teams_to_workspaces"}}
+                {{#t}}Manage workspaces in this channel &hellip;{{/t}}
+              {{else}}
+                {{#t}}Manage teams in this channel &hellip;{{/t}}
+              {{/feature}}
             {{/feature}}
           </a></li>
         {{/if}}
@@ -215,7 +227,11 @@
   <li id="channel_jump_item" role="menuitem">
     <a target="{{newWindowName}}">{{#t note="Jump to a date within a MPDM"}}Jump to date \u2026{{/t}}</a>
   </li>
-  {{#if show_mpim_create}}<li id="channel_create_mpim_item" role="menuitem"><a>{{#t note="Invite another team member to join an MPDM"}}Invite another team member \u2026{{/t}}</a></li>{{/if}}
+  {{#feature flag="feature_teams_to_workspaces"}}
+    {{#if show_mpim_create}}<li id="channel_create_mpim_item" role="menuitem"><a>{{#t note="Invite another team member to join an MPDM"}}Invite another member \u2026{{/t}}</a></li>{{/if}}
+  {{else}}
+    {{#if show_mpim_create}}<li id="channel_create_mpim_item" role="menuitem"><a>{{#t note="Invite another team member to join an MPDM"}}Invite another team member \u2026{{/t}}</a></li>{{/if}}
+  {{/feature}}
   <li id="channel_details_item">
     <a>{{#t note="View details of an MPDM"}}View conversation details{{/t}}</a>
   </li>

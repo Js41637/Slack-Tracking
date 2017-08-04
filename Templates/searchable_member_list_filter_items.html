@@ -40,7 +40,11 @@
     {{/t}}</a></li>
   {{/feature}}
   {{#if ext_teams}}
-    <div class="section_header"><hr><span class="header_label menu_mini">{{#t note="Filter menu section heading for external members filter option" org_name=org_name}}Teams Outside {org_name}{{/t}}</span></div>
+    {{#feature flag="feature_teams_to_workspaces"}}
+      <div class="section_header"><hr><span class="header_label menu_mini">{{#t note="Filter menu section heading for external members filter option" org_name=org_name}}Workspaces Outside {org_name}{{/t}}</span></div>
+    {{else}}
+      <div class="section_header"><hr><span class="header_label menu_mini">{{#t note="Filter menu section heading for external members filter option" org_name=org_name}}Teams Outside {org_name}{{/t}}</span></div>
+    {{/feature}}
     {{#each ext_teams}}
       <li><a data-filter="{{this.id}}">{{#t note="Searchable member list filter option with total count of this type" total=this.count name=this.name}}
       {name} <span>({total})</span>

@@ -9,12 +9,21 @@
 <div{{#unless is_flexpane}} class="col span_3_of_4"{{/unless}}>
 
   <div class="normal_padding{{#if is_flexpane}} dull_grey{{/if}}">
-    <p class="user_groups_tip lato">
-      {{#t at_everyone=(atLabel 'everyone') at_channel=(atLabel 'channel') at_here=(atLabel 'here') note="note explaining user groups"}}While commands like <span class="mention">{at_everyone}</span>, <span class="mention">{at_channel}</span>, and <span class="mention">{at_here}</span> call the attention of team members in a conversation, User Groups let you choose exactly who should get your message.{{/t}}
-    </p>
-    <p class="user_groups_tip lato">
-      {{#t note="note explaining how to set up a user group"}}Choose a group name, like <span class="mention">@design</span> or <span class="mention">@marketing</span>, then select the group members. Now, when someone on your team mentions the User Group, only its members will be notified. You can even add those team members to channels of your choice automatically!{{/t}}
-    </p>
+    {{#feature flag="feature_teams_to_workspaces"}}
+      <p class="user_groups_tip lato">
+        {{#t at_everyone=(atLabel 'everyone') at_channel=(atLabel 'channel') at_here=(atLabel 'here') note="note explaining user groups"}}While commands like <span class="mention">{at_everyone}</span>, <span class="mention">{at_channel}</span>, and <span class="mention">{at_here}</span> call the attention of all members in a conversation, User Groups let you choose exactly who should get your message.{{/t}}
+      </p>
+      <p class="user_groups_tip lato">
+        {{#t note="note explaining how to set up a user group"}}Choose a group name, like <span class="mention">@design</span> or <span class="mention">@marketing</span>, then select the group members. Now, when someone in your workspace mentions the User Group, only its members will be notified. You can even add those members to channels of your choice automatically!{{/t}}
+      </p>
+    {{else}}
+      <p class="user_groups_tip lato">
+        {{#t at_everyone=(atLabel 'everyone') at_channel=(atLabel 'channel') at_here=(atLabel 'here') note="note explaining user groups"}}While commands like <span class="mention">{at_everyone}</span>, <span class="mention">{at_channel}</span>, and <span class="mention">{at_here}</span> call the attention of team members in a conversation, User Groups let you choose exactly who should get your message.{{/t}}
+      </p>
+      <p class="user_groups_tip lato">
+        {{#t note="note explaining how to set up a user group"}}Choose a group name, like <span class="mention">@design</span> or <span class="mention">@marketing</span>, then select the group members. Now, when someone on your team mentions the User Group, only its members will be notified. You can even add those team members to channels of your choice automatically!{{/t}}
+      </p>
+    {{/feature}}
   </div>
 
 </div>

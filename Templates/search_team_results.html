@@ -1,6 +1,10 @@
   {{i18n_ns "search"}}
 
-  <p class="team_results_heading">{{#t}}We found <strong>{ matches.length, plural, =1 { # team member } other { # team members }}</strong> matching your query:{{/t}}</p>
+  {{#feature flag="feature_teams_to_workspaces"}}
+    <p class="team_results_heading">{{#t}}We found <strong>{ matches.length, plural, =1 { # member } other { # members }}</strong> matching your query:{{/t}}</p>
+  {{else}}
+    <p class="team_results_heading">{{#t}}We found <strong>{ matches.length, plural, =1 { # team member } other { # team members }}</strong> matching your query:{{/t}}</p>
+  {{/feature}}
   <div id="team_results_container">
   {{#each matches}}
     <p class="team_result">

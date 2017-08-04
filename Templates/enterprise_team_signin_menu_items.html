@@ -1,7 +1,15 @@
 {{i18n_ns 'enterprise_workspaces'}}
 
-<li data-which="visit_team_site" class="enterprise_team_signin_menu_item"><a href="{{team_site_url}}" target="blank">{{#t}}Visit Team Site{{/t}}</a></li>
+{{#feature flag="feature_teams_to_workspaces"}}
+  <li data-which="visit_team_site" class="enterprise_team_signin_menu_item"><a href="{{team_site_url}}" target="blank">{{#t}}Visit workspace settings...{{/t}}</a></li>
 
-{{#if should_show_leave_team}}
-  <li data-which="leave_team" class="enterprise_team_signin_menu_item"><a class="candy_red">{{#t}}Leave Team{{/t}}</a></li>
-{{/if}}
+  {{#if should_show_leave_team}}
+    <li data-which="leave_team" class="enterprise_team_signin_menu_item"><a class="candy_red">{{#t}}Leave Workspace{{/t}}</a></li>
+  {{/if}}
+{{else}}
+  <li data-which="visit_team_site" class="enterprise_team_signin_menu_item"><a href="{{team_site_url}}" target="blank">{{#t}}Visit Team Site{{/t}}</a></li>
+
+  {{#if should_show_leave_team}}
+    <li data-which="leave_team" class="enterprise_team_signin_menu_item"><a class="candy_red">{{#t}}Leave Team{{/t}}</a></li>
+  {{/if}}
+{{/feature}}

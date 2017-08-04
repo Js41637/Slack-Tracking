@@ -28,18 +28,36 @@
   <p class="alert alert_error"><i class="ts_icon ts_icon_warning"></i> <strong>{{#t}}User Groups must have members.{{/t}}</strong></p>
 {{/if_equal}}
 
-{{#if can_create_auto_owners}}
-  <p class="alert alert_info"><i class="ts_icon ts_icon_info"></i>{{#t}}Trying to create a group for all Team Owners? <a href="#auto-group" data-auto-type="owners" data-auto-action="create" class="user_group_auto_action">Make an automatic one</a> that's always up to date.{{/t}}</p>
-{{/if}}
+{{#feature flag="feature_teams_to_workspaces"}}
+  {{#if can_create_auto_owners}}
+    <p class="alert alert_info"><i class="ts_icon ts_icon_info"></i>{{#t}}Trying to create a group for all Workspace Owners? <a href="#auto-group" data-auto-type="owners" data-auto-action="create" class="user_group_auto_action">Make an automatic one</a> that's always up to date.{{/t}}</p>
+  {{/if}}
 
-{{#if can_enable_auto_owners}}
-  <p class="alert alert_info"><i class="ts_icon ts_icon_info"></i>{{#t}}Trying to create a group for all Team Owners? <a href="#auto-group" data-auto-type="owners" data-auto-action="enable" class="user_group_auto_action">Re-enable the automatic one</a> that's always up to date.{{/t}}</p>
-{{/if}}
+  {{#if can_enable_auto_owners}}
+    <p class="alert alert_info"><i class="ts_icon ts_icon_info"></i>{{#t}}Trying to create a group for all Workspace Owners? <a href="#auto-group" data-auto-type="owners" data-auto-action="enable" class="user_group_auto_action">Re-enable the automatic one</a> that's always up to date.{{/t}}</p>
+  {{/if}}
 
-{{#if can_create_auto_admins}}
-  <p class="alert alert_info"><i class="ts_icon ts_icon_info"></i>{{#t}}Trying to create a group for all Team Admins? <a href="#auto-group" data-auto-type="admins" data-auto-action="create" class="user_group_auto_action">Make an automatic one</a> that's always up to date.{{/t}}</p>
-{{/if}}
+  {{#if can_create_auto_admins}}
+    <p class="alert alert_info"><i class="ts_icon ts_icon_info"></i>{{#t}}Trying to create a group for all Workspace Admins? <a href="#auto-group" data-auto-type="admins" data-auto-action="create" class="user_group_auto_action">Make an automatic one</a> that's always up to date.{{/t}}</p>
+  {{/if}}
 
-{{#if can_enable_auto_admins}}
-  <p class="alert alert_info"><i class="ts_icon ts_icon_info"></i>{{#t}}Trying to create a group for all Team Admins? <a href="#auto-group" data-auto-type="admins" data-auto-action="enable" class="user_group_auto_action">Re-enable the automatic one</a> that's always up to date.{{/t}}</p>
-{{/if}}
+  {{#if can_enable_auto_admins}}
+    <p class="alert alert_info"><i class="ts_icon ts_icon_info"></i>{{#t}}Trying to create a group for all Workspace Admins? <a href="#auto-group" data-auto-type="admins" data-auto-action="enable" class="user_group_auto_action">Re-enable the automatic one</a> that's always up to date.{{/t}}</p>
+  {{/if}}
+{{else}}
+  {{#if can_create_auto_owners}}
+    <p class="alert alert_info"><i class="ts_icon ts_icon_info"></i>{{#t}}Trying to create a group for all Team Owners? <a href="#auto-group" data-auto-type="owners" data-auto-action="create" class="user_group_auto_action">Make an automatic one</a> that's always up to date.{{/t}}</p>
+  {{/if}}
+
+  {{#if can_enable_auto_owners}}
+    <p class="alert alert_info"><i class="ts_icon ts_icon_info"></i>{{#t}}Trying to create a group for all Team Owners? <a href="#auto-group" data-auto-type="owners" data-auto-action="enable" class="user_group_auto_action">Re-enable the automatic one</a> that's always up to date.{{/t}}</p>
+  {{/if}}
+
+  {{#if can_create_auto_admins}}
+    <p class="alert alert_info"><i class="ts_icon ts_icon_info"></i>{{#t}}Trying to create a group for all Team Admins? <a href="#auto-group" data-auto-type="admins" data-auto-action="create" class="user_group_auto_action">Make an automatic one</a> that's always up to date.{{/t}}</p>
+  {{/if}}
+
+  {{#if can_enable_auto_admins}}
+    <p class="alert alert_info"><i class="ts_icon ts_icon_info"></i>{{#t}}Trying to create a group for all Team Admins? <a href="#auto-group" data-auto-type="admins" data-auto-action="enable" class="user_group_auto_action">Re-enable the automatic one</a> that's always up to date.{{/t}}</p>
+  {{/if}}
+{{/feature}}

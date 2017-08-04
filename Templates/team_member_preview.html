@@ -112,7 +112,11 @@
         {{#t note="Description for bot"}}Non-sentient Bot{{/t}}
         <i class="ts_icon ts_icon_question_circle ts_tip ts_tip_top ts_tip_multiline ts_tip_float">
           <span class="ts_tip_tip">
-            <span class="ts_tip_multiline_inner">{{#t}}Bots are built with code and are free to add to your team. Unlike humans, they are non-sentient, but they can listen and post to Slack just like everyone else on your team.{{/t}}</span>
+            {{#feature flag="feature_teams_to_workspaces"}}
+              <span class="ts_tip_multiline_inner">{{#t}}Bots are built with code and are free to add to your workspace. Unlike humans, they are non-sentient, but they can listen and post to Slack just like everyone else in your workspace.{{/t}}</span>
+            {{else}}
+              <span class="ts_tip_multiline_inner">{{#t}}Bots are built with code and are free to add to your team. Unlike humans, they are non-sentient, but they can listen and post to Slack just like everyone else on your team.{{/t}}</span>
+            {{/feature}}
           </span>
         </i>
       </div>
@@ -261,7 +265,11 @@
       {{/and}}
       {{#if show_admin_info}}
         <tr>
-          <td><span class="small_right_padding old_petunia_grey" title="{{#t}}Team Role{{/t}}">{{#t}}Team Role{{/t}}</span></td>
+          {{#feature flag="feature_teams_to_workspaces"}}
+            <td><span class="small_right_padding old_petunia_grey" title="{{#t}}Role{{/t}}">{{#t}}Role{{/t}}</span></td>
+          {{else}}
+            <td><span class="small_right_padding old_petunia_grey" title="{{#t}}Team Role{{/t}}">{{#t}}Team Role{{/t}}</span></td>
+          {{/feature}}
           <td>
             {{#if member.is_owner}}
               {{#t}}Owner of {team_name}{{/t}}
@@ -302,7 +310,11 @@
 
             <table class="member_data_table lato">
                 <tr>
-                  <td><span class="small_right_padding old_petunia_grey" title="{{#t}}Shared Teams{{/t}}">{{#t}}Shared Teams{{/t}}</span></td>
+                  {{#feature flag="feature_teams_to_workspaces"}}
+                    <td><span class="small_right_padding old_petunia_grey" title="{{#t}}Shared Workspaces{{/t}}">{{#t}}Shared Workspaces{{/t}}</span></td>
+                  {{else}}
+                    <td><span class="small_right_padding old_petunia_grey" title="{{#t}}Shared Teams{{/t}}">{{#t}}Shared Teams{{/t}}</span></td>
+                  {{/feature}}
                   <td>
                     {{#each teams.shared}}
                       {{name}}<br/>

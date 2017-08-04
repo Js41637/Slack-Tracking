@@ -23,7 +23,11 @@
 {{#if other_accounts}}
   <li class="divider"></li>
 
-  <div class="section_header"><span class="header_label menu_mini">{{#t}}Your other teams{{/t}}</span></div>
+  {{#feature flag="feature_teams_to_workspaces"}}
+    <div class="section_header"><span class="header_label menu_mini">{{#t}}Your other workspaces{{/t}}</span></div>
+  {{else}}
+    <div class="section_header"><span class="header_label menu_mini">{{#t}}Your other teams{{/t}}</span></div>
+  {{/feature}}
 
   {{#each other_accounts}}
     {{#if @first}}{{else}}<li class="divider subdivider"></li>{{/if}}
@@ -38,5 +42,9 @@
 {{#if signin_url}}
   <li class="divider"></li>
 
-  <li id="add_team" role="menuitem"><a href="{{signin_url}}"> {{#t}}Sign in to another team &hellip;{{/t}}</a></li>
+  {{#feature flag="feature_teams_to_workspaces"}}
+    <li id="add_team" role="menuitem"><a href="{{signin_url}}"> {{#t}}Sign in to another workspace &hellip;{{/t}}</a></li>
+  {{else}}
+    <li id="add_team" role="menuitem"><a href="{{signin_url}}"> {{#t}}Sign in to another team &hellip;{{/t}}</a></li>
+  {{/feature}}
 {{/if}}

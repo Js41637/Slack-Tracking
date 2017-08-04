@@ -73,7 +73,11 @@
     {{else}}
       {{#unless user.is_restricted}}
         <li id="group_invite_item" role="menuitem"><a>
-          {{#t note="Invite to a private channel"}}Invite team members to join &hellip;{{/t}}
+          {{#feature flag="feature_teams_to_workspaces"}}
+            {{#t note="Invite to a private channel"}}Invite new members to join &hellip;{{/t}}
+          {{else}}
+            {{#t note="Invite to a private channel"}}Invite team members to join &hellip;{{/t}}
+          {{/feature}}
         </a></li>
       {{/unless}}
       {{#feature flag="feature_workspace_token_apps_in_client"}}
@@ -91,7 +95,11 @@
           {{#feature flag="feature_removing_workspaces_from_cross_workspace_channels"}}
             {{#t note="Manage enterprise teams in this private channel"}}Manage access to this channel &hellip;{{/t}}
           {{else}}
-            {{#t note="Manage enterprise teams in this private channel"}}Manage teams in this channel &hellip;{{/t}}
+            {{#feature flag="feature_teams_to_workspaces"}}
+              {{#t note="Manage enterprise teams in this private channel"}}Manage workspaces in this channel &hellip;{{/t}}
+            {{else}}
+              {{#t note="Manage enterprise teams in this private channel"}}Manage teams in this channel &hellip;{{/t}}
+            {{/feature}}
           {{/feature}}
         </a></li>
       {{/if}}

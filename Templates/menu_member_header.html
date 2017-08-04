@@ -33,13 +33,23 @@
             <span class="overflow_ellipsis">{{#t note="Labelling a bot in the member card"}}Non-sentient Bot{{/t}}</span>
           </span>
         {{/if}}
-        {{#if show_admin_info}}
-          {{#if member.is_owner}}
-            {{#t}}Team Owner{{/t}}
-          {{else}}
-            {{#t}}Team Admin{{/t}}
+        {{#feature flag="feature_teams_to_workspaces"}}
+          {{#if show_admin_info}}
+            {{#if member.is_owner}}
+              {{#t}}Workspace Owner{{/t}}
+            {{else}}
+              {{#t}}Workspace Admin{{/t}}
+            {{/if}}
           {{/if}}
-        {{/if}}
+        {{else}}
+          {{#if show_admin_info}}
+            {{#if member.is_owner}}
+              {{#t}}Team Owner{{/t}}
+            {{else}}
+              {{#t}}Team Admin{{/t}}
+            {{/if}}
+          {{/if}}
+        {{/feature}}  
       </p>
     {{/unless}}
 

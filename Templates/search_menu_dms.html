@@ -3,7 +3,11 @@
 {{#if dms}}
   <header>
     <span class="header_label search_mini">
-      <span class="header_label__text">{{#t}}Team members{{/t}}</span>
+      {{#feature flag="feature_teams_to_workspaces"}}
+        <span class="header_label__text">{{#t}}Members{{/t}}</span>
+      {{else}}
+        <span class="header_label__text">{{#t}}Team members{{/t}}</span>
+      {{/feature}}
       <hr class="header_label__separator" />
     </span>
   </header>

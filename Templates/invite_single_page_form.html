@@ -10,7 +10,11 @@
 </div>
 
 <div id="invite_form_body">
-    <h1>{{#t}}Join the Slack team for {team_name}{{/t}}</h1>
+    {{#feature flag="feature_teams_to_workspaces"}}
+        <h1>{{#t}}Join the Slack workspace {team_name}{{/t}}</h1>
+    {{else}}
+        <h1>{{#t}}Join the Slack team for {team_name}{{/t}}</h1>
+    {{/feature}}
 
     <div class="names_container" id="names_container">
         <label>{{#t}}Your name{{/t}}</label>
@@ -38,7 +42,11 @@
 
         {{#if custom_username_policy}}
             <div id="custom_username_policy" class="large_bottom_margin">
-                <p class="bold small_bottom_margin">{{#t}}Custom rules for this team:{{/t}}</p>
+                {{#feature flag="feature_teams_to_workspaces"}}
+                    <p class="bold small_bottom_margin">{{#t}}Custom rules for this workspace:{{/t}}</p>
+                {{else}}
+                    <p class="bold small_bottom_margin">{{#t}}Custom rules for this team:{{/t}}</p>
+                {{/feature}}
                 <p class="no_bottom_margin">{{custom_username_policy}}</p>
             </div>
         {{/if}}

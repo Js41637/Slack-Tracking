@@ -34,7 +34,11 @@
     <span class="file_share_public_label inline_block{{#unless file.is_public}} hidden{{/unless}}" data-file-id="{{file.id}}">
       <span class="file_share_shared_label bold_share_labels{{#unless file.is_shared}} hidden{{/unless}}">{{#t note='Followed by where the file is shared, like "in general"'}}Shared{{/t}} {{makeFileShareLabel file}}</span>
       <span class= "file_share_unshared_label{{#if file.is_shared}} hidden{{/if}}" data-file-id="{{file.id}}">
-        {{#t}}Team file{{/t}}
+        {{#feature flag="feature_teams_to_workspaces"}}
+          {{#t}}Workspace file{{/t}}
+        {{else}}
+          {{#t}}Team file{{/t}}
+        {{/feature}}
       </span>
     </span>
 

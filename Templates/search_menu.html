@@ -52,7 +52,11 @@
     <li data-replacement="{{#t}}from:{{/t}}">
       <button class="result_item_btn btn_unstyle" type="button" tabindex="-1">
         <strong>{{#t}}from: {{/t}}</strong>
-        <span class="muted_text">{{#t}}team member{{/t}}</span>
+        {{#feature flag="feature_teams_to_workspaces"}}
+          <span class="muted_text">{{#t}}member{{/t}}</span>
+        {{else}}
+          <span class="muted_text">{{#t}}team member{{/t}}</span>
+        {{/feature}}
         {{> ts_icon class="ts_icon_plus_square_o ts_icon_inherit modifier_icon"}}
       </button>
     </li>
@@ -163,7 +167,11 @@
 {{#if users}}
   <header>
     <span class="header_label search_mini">
-      <span class="header_label__text">{{#t}}Team members{{/t}}</span>
+      {{#feature flag="feature_teams_to_workspaces"}}
+        <span class="header_label__text">{{#t}}Members{{/t}}</span>
+      {{else}}
+        <span class="header_label__text">{{#t}}Team members{{/t}}</span>
+      {{/feature}}
       <hr class="header_label__separator" />
     </span>
   </header>

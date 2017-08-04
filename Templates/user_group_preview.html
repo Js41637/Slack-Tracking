@@ -59,19 +59,35 @@
           {{/each}}
         </div>
       {{else}}
-        <p class="no_results align_left">
-          {{#t note="note explaining benefit of setting default channels for a user group, shown when none are configured"}}
-            This group does not have any default channel.<br><br>
-            Default channels are a great way to include all the members of a group to the right channels. When adding a new default channel to a group, all the members will be automatically invited to it.<br><br>
-            This is a great way to make sure new members of your team are part of the right discussions from the get go.
-          {{/t}}
-          <br><br>
-          {{#if show_user_groups_edit}}
-            <button id="edit_default_channels" class="btn small_right_margin">{{#t note="button to add default channels to the user group"}}Add default channels to this group{{/t}}</button>
-          {{else}}
-            {{#t note="note explaining why action to add default channels to the user group is unavailable"}}(Only admins or owners can add channels to a User Group.){{/t}}
-          {{/if}}
-        </p>
+        {{#feature flag="feature_teams_to_workspaces"}}
+          <p class="no_results align_left">
+            {{#t note="note explaining benefit of setting default channels for a user group, shown when none are configured"}}
+              This group does not have any default channels.<br><br>
+              Default channels are a great way to include all the members of a group to the right channels. When adding a new default channel to a group, all the members will be automatically invited to it.<br><br>
+              This is a great way to make sure new members of your workspace are part of the right discussions from the get go.
+            {{/t}}
+            <br><br>
+            {{#if show_user_groups_edit}}
+              <button id="edit_default_channels" class="btn small_right_margin">{{#t note="button to add default channels to the user group"}}Add default channels to this group{{/t}}</button>
+            {{else}}
+              {{#t note="note explaining why action to add default channels to the user group is unavailable"}}(Only admins or owners can add channels to a User Group.){{/t}}
+            {{/if}}
+          </p>
+        {{else}}
+          <p class="no_results align_left">
+            {{#t note="note explaining benefit of setting default channels for a user group, shown when none are configured" fallback_hash="e880278a7eb4942173175a61fdd40bb57b497d01"}}
+              This group does not have any default channel.<br><br>
+              Default channels are a great way to include all the members of a group to the right channels. When adding a new default channel to a group, all the members will be automatically invited to it.<br><br>
+              This is a great way to make sure new members of your team are part of the right discussions from the get go.
+            {{/t}}
+            <br><br>
+            {{#if show_user_groups_edit}}
+              <button id="edit_default_channels" class="btn small_right_margin">{{#t note="button to add default channels to the user group"}}Add default channels to this group{{/t}}</button>
+            {{else}}
+              {{#t note="note explaining why action to add default channels to the user group is unavailable"}}(Only admins or owners can add channels to a User Group.){{/t}}
+            {{/if}}
+          </p>
+        {{/feature}}
       {{/if}}
     </div>
   </div>

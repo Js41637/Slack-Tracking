@@ -84,9 +84,15 @@
       {{/if}}
     {{else}}
       {{#if this.user.is_admin}}
-        <li id="manage_team" role="menuitem">
-          <a class="overflow_ellipsis" href="/admin" target="{{newWindowName}}">{{#t}}Manage team members{{/t}}</a>
-        </li>
+        {{#feature flag="feature_teams_to_workspaces"}}
+          <li id="manage_team" role="menuitem">
+            <a class="overflow_ellipsis" href="/admin" target="{{newWindowName}}">{{#t}}Manage members{{/t}}</a>
+          </li>
+        {{else}}
+          <li id="manage_team" role="menuitem">
+            <a class="overflow_ellipsis" href="/admin" target="{{newWindowName}}">{{#t}}Manage team members{{/t}}</a>
+          </li>
+        {{/feature}}
 
         <li class="divider subdivider"></li>
       {{/if}}
@@ -113,9 +119,15 @@
       {{/if}}
 
       {{#if this.user.is_admin}}
-        <li id="team_settings" role="menuitem">
-          <a class="overflow_ellipsis" href="/admin/settings" target="{{newWindowName}}">{{#t}}Team settings{{/t}}</a>
-        </li>
+        {{#feature flag="feature_teams_to_workspaces"}}
+          <li id="team_settings" role="menuitem">
+            <a class="overflow_ellipsis" href="/admin/settings" target="{{newWindowName}}">{{#t}}Workspace settings{{/t}}</a>
+          </li>
+        {{else}}
+          <li id="team_settings" role="menuitem">
+            <a class="overflow_ellipsis" href="/admin/settings" target="{{newWindowName}}">{{#t}}Team settings{{/t}}</a>
+          </li>
+        {{/feature}}
       {{/if}}
 
     {{/pageNeedsEnterprise}}
@@ -161,9 +173,15 @@
 
     {{#pageNeedsEnterprise}}
       {{#if can_show_leave_workspace}}
-        <li id="leave_workspace" role="menuitem">
-          <a class="overflow_ellipsis">{{#t}}Leave this team{{/t}}</a>
-        </li>
+        {{#feature flag="feature_teams_to_workspaces"}}
+          <li id="leave_workspace" role="menuitem">
+            <a class="overflow_ellipsis">{{#t}}Leave this workspace{{/t}}</a>
+          </li>
+        {{else}}
+          <li id="leave_workspace" role="menuitem">
+            <a class="overflow_ellipsis">{{#t}}Leave this team{{/t}}</a>
+          </li>
+        {{/feature}}
       {{/if}}
     {{/pageNeedsEnterprise}}
 
@@ -181,7 +199,11 @@
         <li class="divider subdivider"></li>
         {{#unless this.user.is_restricted}}
           <li id="workspaces" role="menuitem">
-            <a class="overflow_ellipsis">{{#t}}Find more teams{{/t}}</a>
+            {{#feature flag="feature_teams_to_workspaces"}}
+              <a class="overflow_ellipsis">{{#t}}Find more workspaces{{/t}}</a>
+            {{else}}
+              <a class="overflow_ellipsis">{{#t}}Find more teams{{/t}}</a>
+            {{/feature}}
           </li>
         {{/unless}}
         <li id="enterprise_logout" role="menuitem" class="enterprise_logout_url">
@@ -200,12 +222,20 @@
         {{#isOurApp}}
           {{#if signin_url}}
             <li id="add_team" role="menuitem">
-              <a class="overflow_ellipsis" href="{{signin_url}}"> {{#t}}Sign in to another team &hellip;{{/t}}</a>
+              {{#feature flag="feature_teams_to_workspaces"}}
+                <a class="overflow_ellipsis" href="{{signin_url}}"> {{#t}}Sign in to another workspace &hellip;{{/t}}</a>
+              {{else}}
+                <a class="overflow_ellipsis" href="{{signin_url}}"> {{#t}}Sign in to another team &hellip;{{/t}}</a>
+              {{/feature}}
             </li>
           {{/if}}
         {{else}}
           <li id="switch_teams" class="has_submenu" role="menuitem">
-            <a class="overflow_ellipsis">{{#t}}Switch teams &hellip;{{/t}} <ts-icon class="ts_icon_caret_right submenu_caret"></ts-icon></a>
+            {{#feature flag="feature_teams_to_workspaces"}}
+              <a class="overflow_ellipsis">{{#t}}Switch workspaces &hellip;{{/t}} <ts-icon class="ts_icon_caret_right submenu_caret"></ts-icon></a>
+            {{else}}
+              <a class="overflow_ellipsis">{{#t}}Switch teams &hellip;{{/t}} <ts-icon class="ts_icon_caret_right submenu_caret"></ts-icon></a>
+            {{/feature}}
           </li>
         {{/isOurApp}}
       </ul>
@@ -225,7 +255,11 @@
 
         {{#if signin_url}}
           <li id="add_team" role="menuitem">
-            <a class="overflow_ellipsis" href="{{signin_url}}"> {{#t}}Sign in to another team &hellip;{{/t}}</a>
+            {{#feature flag="feature_teams_to_workspaces"}}
+              <a class="overflow_ellipsis" href="{{signin_url}}"> {{#t}}Sign in to another workspace &hellip;{{/t}}</a>
+            {{else}}
+              <a class="overflow_ellipsis" href="{{signin_url}}"> {{#t}}Sign in to another team &hellip;{{/t}}</a>
+            {{/feature}}
           </li>
         {{/if}}
       </ul>
@@ -246,7 +280,11 @@
 
       {{#if signin_url}}
         <li id="add_team" role="menuitem">
-          <a class="overflow_ellipsis" href="{{signin_url}}"> {{#t}}Sign in to another team &hellip;{{/t}}</a>
+          {{#feature flag="feature_teams_to_workspaces"}}
+            <a class="overflow_ellipsis" href="{{signin_url}}"> {{#t}}Sign in to another workspace &hellip;{{/t}}</a>
+          {{else}}
+            <a class="overflow_ellipsis" href="{{signin_url}}"> {{#t}}Sign in to another team &hellip;{{/t}}</a>
+          {{/feature}}
         </li>
       {{/if}}
     </ul>

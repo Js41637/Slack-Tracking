@@ -8,6 +8,10 @@
 </li>
 {{#if is_enterprise}}
   <li class="no_top_padding no_wrap" role="menuitem">
-    <label for="search_only_current_team_cb"><input id="search_only_current_team_cb" type="checkbox" class="small_right_margin" {{#unless search_only_current_team}}checked="checked"{{/unless}}/>{{#t note="Within search results" currentEnterpriseName=(currentEnterpriseName)}}Include {result_type, select, files {files} other {messages}} from my other {currentEnterpriseName} teams{{/t}}</label>
+    {{#feature flag="feature_teams_to_workspaces"}}
+      <label for="search_only_current_team_cb"><input id="search_only_current_team_cb" type="checkbox" class="small_right_margin" {{#unless search_only_current_team}}checked="checked"{{/unless}}/>{{#t note="Within search results" currentEnterpriseName=(currentEnterpriseName)}}Include {result_type, select, files {files} other {messages}} from my other {currentEnterpriseName} workspaces{{/t}}</label>
+    {{else}}
+      <label for="search_only_current_team_cb"><input id="search_only_current_team_cb" type="checkbox" class="small_right_margin" {{#unless search_only_current_team}}checked="checked"{{/unless}}/>{{#t note="Within search results" currentEnterpriseName=(currentEnterpriseName)}}Include {result_type, select, files {files} other {messages}} from my other {currentEnterpriseName} teams{{/t}}</label>
+    {{/feature}}
   </li>
 {{/if}}
