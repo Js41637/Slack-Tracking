@@ -1,0 +1,25 @@
+{{i18n_ns "menu"}}
+
+
+{{#experiment name="feat_limit_meters" group="show_limit_meters"}}
+  <div class="slack_menu_header" id="limit_meter">
+    <div id="limit_meter_circle_progress"></div>
+    <div id="limit_meter_messages_count">{{messages_count_str}}</div>
+
+    <div>
+      <div class="slack_menu_header_primary" id="limit_meter_message_header">{{#t}}Total Messages{{/t}}</div>
+
+      <div class="slack_menu_header_secondary" id="limit_meter_message_body">
+        {{#if_gt messages_count compare=10000}}
+          {{#or (if_lt messages_count compare=10100) (if_gt messages_count compare=1000000)}}
+            {{#t note="limit to 60 characters in length"}}Upgrade to access all of your messages.{{/t}}
+          {{else}}
+            {{#t note="limit to 60 characters in length" hidden_messages_count=hidden_messages_count_str}} Upgrade to access your first {hidden_messages_count} messages.{{/t}}
+          {{/or}}
+        {{else}}
+          {{#t note="limit to 60 characters in length"}}On the free plan, you can only view 10k most recent.{{/t}}
+        {{/if_gt}}
+      </div>
+    </div>
+  </div>
+{{/experiment}}

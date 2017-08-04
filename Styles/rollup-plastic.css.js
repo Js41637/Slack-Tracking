@@ -1215,7 +1215,7 @@
 
 @font-face {
   font-family: Slack;
-  src: url(/6b14d/fonts/slack-icons-Regular.woff2) format('woff2'), url(/6b14d/fonts/slack-icons-Regular.woff) format('woff');
+  src: url(/a425/fonts/slack-icons-Regular.woff2) format('woff2'), url(/a425/fonts/slack-icons-Regular.woff) format('woff');
   font-style: normal;
   font-weight: 400
 }
