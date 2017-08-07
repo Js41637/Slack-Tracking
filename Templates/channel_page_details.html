@@ -54,7 +54,12 @@
 {{/if}}
 
 <div class="channel_purpose_section">
-  <div class="bold greigh purpose_label mini">{{#t}}Purpose{{/t}}</div>
+  {{#feature flag="feature_sli_channel_insights"}}
+    <div class="black greigh purpose_label mini small_bottom_margin">{{#t}}Purpose{{/t}}</div>
+  {{else}}
+    <div class="bold greigh purpose_label mini">{{#t}}Purpose{{/t}}</div>
+  {{/feature}}
+
   <div class="bold greigh edit_purpose_label hidden mini tiny_bottom_margin">{{#t}}Set a new purpose{{/t}}</div>
 
   <div class="channel_purpose_text no_jumbomoji">

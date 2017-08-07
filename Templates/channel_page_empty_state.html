@@ -6,11 +6,15 @@
 
       <div class="conversation_details"></div>
 
-      <div class="channel_page_about channel_page_section {{#if state.expanded_sections.about}}expanded{{/if}}" data-section-name="about">
+      <div class="channel_page_about channel_page_section {{#if state.expanded_sections.about}}expanded{{/if}} {{#feature flag="feature_sli_channel_insights"}}feature_sli_channel_insights{{/feature}}" data-section-name="about">
 
         <button class="section_header no_bottom_margin btn_unstyle" title="{{#t}}Click to expand or collapse{{/t}}" type="button">
           <div class="channel_section_label display_flex align_items_center">
-            <i class="ts_icon ts_icon_info channel_page_blue small_right_margin"></i>
+            {{#feature flag="feature_sli_channel_insights"}}
+              <i class="ts_icon ts_icon_info_circle small_right_margin"></i>
+            {{else}}
+              <i class="ts_icon ts_icon_info channel_page_blue small_right_margin"></i>
+            {{/feature}}
             <span id="channel_page_title" class="section_title flex_one"></span>
 
             <div class="disclosure_triangle inline_block left_margin">
