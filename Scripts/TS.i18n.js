@@ -1,15 +1,13 @@
 webpackJsonp([407], {
-  3624: function(e, r) {
+  26174: function(e, r) {
     (function() {
       "use strict";
       TS.registerModule("i18n", {
         DEFAULT_LOCALE: "en-US",
         onStart: function e() {
           f();
-          d();
-          if (TS.client && TS.client.login_sig) {
-            TS.client.login_sig.add(g);
-          }
+          g();
+          if (TS.client && TS.client.login_sig) TS.client.login_sig.add(d);
         },
         locale: function e() {
           f();
@@ -29,20 +27,16 @@ webpackJsonp([407], {
           return r;
         },
         localeOrPseudo: function e() {
-          if (o) {
-            return "pseudo";
-          }
+          if (o) return "pseudo";
           return TS.i18n.locale();
         },
         isLocaleCJK: function e() {
-          return TS.i18n.locale() === "ja-JP";
+          return "ja-JP" === TS.i18n.locale();
         },
         zdLocale: function e() {
           f();
           var r = TS.i18n.DEFAULT_LOCALE.toLowerCase();
-          if (u && u[i.toLowerCase()]) {
-            r = u[i.toLowerCase()];
-          }
+          if (u && u[i.toLowerCase()]) r = u[i.toLowerCase()];
           return r;
         },
         t: function e(t, n) {
@@ -55,18 +49,13 @@ webpackJsonp([407], {
             };
           }
           var u = i + ":" + n + ":" + t;
-          if (l[u] === undefined) {
-            if (o || i === "pseudo") {
-              l[u] = new MessageFormat(i, h(t)).format;
-            } else {
-              if (r && n && window.sha1 && window.tsTranslations && window.tsTranslations[n]) {
-                t = window.tsTranslations[n][window.sha1(t)] || t;
-              }
+          if (void 0 === l[u]) {
+            if (o || "pseudo" === i) l[u] = new MessageFormat(i, v(t)).format;
+            else {
+              if (r && n && window.sha1 && window.tsTranslations && window.tsTranslations[n]) t = window.tsTranslations[n][window.sha1(t)] || t;
               l[u] = new MessageFormat(i, t).format;
             }
-            if (r && a) {
-              l[u].toString = T(u, n);
-            }
+            if (r && a) l[u].toString = T(u, n);
           }
           return l[u];
         },
@@ -77,21 +66,18 @@ webpackJsonp([407], {
         sorter: function e(r, t) {
           f();
           if (!r || !t) return !r ? -1 : 1;
-          if (s) {
-            return s.compare(r, t);
-          }
+          if (s) return s.compare(r, t);
           return r.localeCompare(t);
         },
         mappedSorter: function e(r) {
           return function(e, t) {
             if (!e || !t) return !e ? -1 : 1;
             var a = ("" + r).split(".");
-            if (a.length > 1) {
-              a.forEach(function(r) {
-                e = e[r];
-                t = t[r];
-              });
-            } else {
+            if (a.length > 1) a.forEach(function(r) {
+              e = e[r];
+              t = t[r];
+            });
+            else {
               e = e[r];
               t = t[r];
             }
@@ -129,12 +115,12 @@ webpackJsonp([407], {
           var a;
           var n = [];
           var o = r.length;
-          var s = t && t.conj === "or" ? TS.i18n.t("or", "general")() : TS.i18n.t("and", "general")();
+          var s = t && "or" === t.conj ? TS.i18n.t("or", "general")() : TS.i18n.t("and", "general")();
           var l = o > 2 ? "," : "";
           var u = t && t.strong ? "<strong>" : "";
           var c = t && t.strong ? "</strong>" : "";
-          var d = t && t.no_escape;
-          var g = t && t.item_prefix ? t.item_prefix : "";
+          var g = t && t.no_escape;
+          var d = t && t.item_prefix ? t.item_prefix : "";
           switch (i) {
             case "ja-JP":
               a = ", ";
@@ -143,13 +129,10 @@ webpackJsonp([407], {
               a = l + " " + s + " ";
           }
           r.forEach(function(e, r) {
-            if (!d) e = _.escape(e);
-            n.push(u + g + e + c);
-            if (r < o - 2) {
-              n.push(", ");
-            } else if (r < o - 1) {
-              n.push(a);
-            }
+            if (!g) e = _.escape(e);
+            n.push(u + d + e + c);
+            if (r < o - 2) n.push(", ");
+            else if (r < o - 1) n.push(a);
           });
           return n;
         },
@@ -250,41 +233,30 @@ webpackJsonp([407], {
         a = TS.qs_args && TS.qs_args.local_assets || TS.qs_args && TS.qs_args.js_path;
         var n = location.search.match(new RegExp("\\?locale=(.*?)($|&)", "i"));
         if (n) i = n[1];
-        if (!i) {
-          i = document.documentElement.lang || TS.i18n.DEFAULT_LOCALE;
-        }
-        if (i === "pseudo") {
-          o = true;
-        }
-        if (Intl.Collator) {
-          s = Intl.Collator(i);
-        } else {
-          s = null;
-        }
+        if (!i) i = document.documentElement.lang || TS.i18n.DEFAULT_LOCALE;
+        if ("pseudo" === i) o = true;
+        if (Intl.Collator) s = Intl.Collator(i);
+        else s = null;
         e = true;
       };
-      var d = function e() {
-        if (TS.boot_data && TS.boot_data.slack_to_zd_locale) {
-          u = TS.boot_data.slack_to_zd_locale;
-        }
-      };
       var g = function e() {
+        if (TS.boot_data && TS.boot_data.slack_to_zd_locale) u = TS.boot_data.slack_to_zd_locale;
+      };
+      var d = function e() {
         if (!TS.boot_data.feature_localization || TS.i18n.locale() === TS.i18n.DEFAULT_LOCALE) return;
-        if (!S()) {
-          TS.api.call("i18n.translations.get").then(function(e) {
-            var r = e.data;
-            if (!r || !r.ok) {
-              TS.error("Failed to fetch static i18n translations, recieved this response: ", e);
-              return;
-            }
-            TS.model.static_translations_cache_ts = r.cache_ts;
-            TS.storage.storeStaticTranslations({
-              data: r,
-              cache_ts: TS.model.static_translations_cache_ts,
-              locale: r.locale
-            });
+        if (!S()) TS.api.call("i18n.translations.get").then(function(e) {
+          var r = e.data;
+          if (!r || !r.ok) {
+            TS.error("Failed to fetch static i18n translations, recieved this response: ", e);
+            return;
+          }
+          TS.model.static_translations_cache_ts = r.cache_ts;
+          TS.storage.storeStaticTranslations({
+            data: r,
+            cache_ts: TS.model.static_translations_cache_ts,
+            locale: r.locale
           });
-        }
+        });
       };
       var S = function e() {
         var r = TS.storage.fetchStaticTranslations();
@@ -304,7 +276,7 @@ webpackJsonp([407], {
           return "";
         };
       };
-      var h = function e(r) {
+      var v = function e(r) {
         var t = false;
         if (r.endsWith(":")) {
           t = true;
@@ -317,9 +289,9 @@ webpackJsonp([407], {
         if (o.error) TS.error(o.error);
         var i;
         r = o.tokens.map(function(e) {
-          if (e[0] === "text") {
+          if ("text" === e[0]) {
             i = e[1];
-            _.forOwn(v, function(e) {
+            _.forOwn(h, function(e) {
               i = i.replace(e[0], e[1]);
             });
             return i.split(" ").map(function(e) {
@@ -332,12 +304,10 @@ webpackJsonp([407], {
         r = r.split("<>").map(function(e, r) {
           return e + (n[r] || "");
         }).join("");
-        if (t) {
-          r += ":";
-        }
+        if (t) r += ":";
         return r;
       };
-      var v = {
+      var h = {
         a: [/a/g, "á"],
         b: [/b/g, "β"],
         c: [/c/g, "ç"],
@@ -480,11 +450,8 @@ webpackJsonp([407], {
         "￦": "₩"
       };
       var a = r.charCodeAt(0);
-      if (r in t) {
-        return t[r];
-      } else if (a >= 65280 && a <= 65374) {
-        return String.fromCharCode(a - 65248);
-      }
+      if (r in t) return t[r];
+      else if (a >= 65280 && a <= 65374) return String.fromCharCode(a - 65248);
       return r;
     };
     var n = function e(r) {
@@ -559,10 +526,8 @@ webpackJsonp([407], {
         "ю": "ju",
         "я": "ja"
       };
-      if (r in t) {
-        return t[r];
-      }
+      if (r in t) return t[r];
       return r;
     };
   }
-}, [3624]);
+}, [26174]);

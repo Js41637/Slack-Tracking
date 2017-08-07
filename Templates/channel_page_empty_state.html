@@ -24,24 +24,6 @@
       </div>
 
       {{#feature flag="feature_sli_channel_insights"}}
-        <div class="channel_page_insights channel_page_section hidden {{#if state.expanded_sections.insights}}expanded{{/if}}" data-section-name="insights">
-
-          <button class="section_header no_bottom_margin btn_unstyle" title="{{#t}}Click to expand or collapse{{/t}}" type="button">
-            <div class="channel_section_label display_flex align_items_center">
-              <i class="ts_icon ts_icon_sparkles blue_fill small_right_margin"></i>
-              <span class="section_title flex_one" id="insights_title">{{#t note="This is a TS-only prototype"}}Insights{{/t}}</span>
-
-              <div class="disclosure_triangle inline_block left_margin">
-                <i class="ts_icon ts_icon_caret_right"></i>
-                <i class="ts_icon ts_icon_caret_down"></i>
-              </div>
-            </div>
-          </button>
-
-          <div class="section_content insights" data-js="sli_channel_insights_section"></div>
-
-        </div>
-
         <div class="channel_page_highlights channel_page_section hidden {{#if state.expanded_sections.highlights}}expanded{{/if}}" data-section-name="highlights">
 
           <button class="section_header no_bottom_margin btn_unstyle" title="{{#t}}Click to expand or collapse{{/t}}" type="button">

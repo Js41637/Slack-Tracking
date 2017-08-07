@@ -1,16 +1,16 @@
 webpackJsonp([450], {
-  3640: function(t, e) {
+  26197: function(t, e) {
     (function() {
       "use strict";
       TS.registerModule("clog", {
         onStart: function t() {
           a = TS.log && TS.has_pri[a] ? a : null;
-          var e = 30 * 1e3;
-          var r = 5 * 1e3;
-          var n = Math.floor(Math.random() * r);
-          setInterval(g, e + n);
+          var e = 3e4;
+          var r = 5e3;
+          var o = Math.floor(Math.random() * r);
+          setInterval(g, e + o);
           $(window).on("beforeunload pagehide", g);
-          $("body").on("click", '[data-clog-click="true"], [data-clog-ui-action="click"], [data-clog-event=WEBSITE_CLICK]', d);
+          $("body").on("click", '[data-clog-click="true"], [data-clog-ui-action="click"], [data-clog-event=WEBSITE_CLICK]', v);
           p();
           TS.clog.flush();
         },
@@ -18,14 +18,14 @@ webpackJsonp([450], {
           c = e;
         },
         setTeam: function t(e) {
-          o = e;
+          n = e;
         },
         setEnterprise: function t(e) {
           i = e;
         },
         toggleDebugMode: function t() {
-          l = !l;
-          return l;
+          s = !s;
+          return s;
         },
         track: function t(e, r) {
           u(e, r);
@@ -47,16 +47,16 @@ webpackJsonp([450], {
           return {
             createLogURLs: f,
             sendDataAndEmptyQueue: g,
-            detectClogEndpoint: s,
+            detectClogEndpoint: l,
             getLogs: function t() {
-              return n;
+              return o;
             },
             getClogEndpoint: function e() {
               return t;
             },
             reset: function e() {
-              n = [];
-              t = undefined;
+              o = [];
+              t = void 0;
             }
           };
         },
@@ -65,11 +65,11 @@ webpackJsonp([450], {
           e = e.split(",");
           var r = {};
           var a = 0;
-          var n = e.length;
-          var o;
-          for (a; a < n; a += 1) {
-            o = e[a].split("=");
-            r[o[0]] = o[1];
+          var o = e.length;
+          var n;
+          for (a; a < o; a += 1) {
+            n = e[a].split("=");
+            r[n[0]] = n[1];
           }
           return r;
         }
@@ -78,87 +78,80 @@ webpackJsonp([450], {
       var e = 2e3;
       var r = 1e3;
       var a = r;
-      var n = [];
-      var o;
+      var o = [];
+      var n;
       var i;
       var c;
-      var l = false;
-      var s = function e(r) {
+      var s = false;
+      var l = function e(r) {
         var a = r.match(/^([^.]+\.)?(?:enterprise\.)?(dev[0-9]*)\.slack\.com/);
-        var n = r.match(/^([^.]+\.)?(?:enterprise\.)?(qa[0-9]*)\.slack\.com/);
-        var o = r.match(/^([^.]+\.)?(?:enterprise\.)?(staging)\.slack\.com/);
-        if (a) {
-          t = "https://" + a[2] + ".slack.com/clog/track/";
-        } else if (n) {
-          t = "https://" + n[2] + ".slack.com/clog/track/";
-        } else if (o) {
-          t = "https://staging.slack.com/clog/track/";
-        } else {
-          t = "https://slack.com/clog/track/";
-        }
+        var o = r.match(/^([^.]+\.)?(?:enterprise\.)?(qa[0-9]*)\.slack\.com/);
+        var n = r.match(/^([^.]+\.)?(?:enterprise\.)?(staging)\.slack\.com/);
+        if (a) t = "https://" + a[2] + ".slack.com/clog/track/";
+        else if (o) t = "https://" + o[2] + ".slack.com/clog/track/";
+        else if (n) t = "https://staging.slack.com/clog/track/";
+        else t = "https://slack.com/clog/track/";
       };
-      var u = function t(e, s) {
-        if (typeof e !== "string") return;
-        if (!s) s = null;
+      var u = function t(e, l) {
+        if ("string" !== typeof e) return;
+        if (!l) l = null;
         var u = {
           tstamp: Date.now(),
           event: e,
-          args: s
+          args: l
         };
         p();
-        if (o) u.team_id = o;
+        if (n) u.team_id = n;
         if (i) u.enterprise_id = i;
         if (c) u.user_id = c;
-        n.push(u);
+        o.push(u);
         if (TS.log) {
-          if (l) TS.console.log(r, u);
-          if (TS.has_pri[a]) TS.log(a, "Event called:", e, s);
-        } else if (l) {
-          try {
-            console.log(u);
-          } catch (t) {}
-        }
+          if (s) TS.console.log(r, u);
+          if (TS.has_pri[a]) TS.log(a, "Event called:", e, l);
+        } else if (s) try {
+          console.log(u);
+        } catch (t) {}
       };
       var g = function t() {
-        if (n.length === 0) return;
+        if (0 === o.length) return;
         if (TS.log && TS.has_pri[a]) {
           TS.log(a, "Sending clog data, emptying queue");
-          TS.log(a, "Logs: ", n);
+          TS.log(a, "Logs: ", o);
         }
-        var e = f(n);
+        var e = f(o);
         var r;
-        for (var o = 0; o < e.length; o += 1) {
-          r = e[o];
+        for (var n = 0; n < e.length; n += 1) {
+          r = e[n];
           var i = new Image;
           i.src = r;
           if (TS.log && TS.has_pri[a]) TS.log(a, "Logged event: " + r);
         }
-        n = [];
+        o = [];
       };
-      var f = function r(n) {
-        if (!t) s(location.host);
-        var o = [];
+      var f = function r(o) {
+        if (!t) l(location.host);
+        var n = [];
         var i = [];
         var c = "";
-        var l = function e(r) {
+        var s = function e(r) {
           return t + "?logs=" + encodeURIComponent(JSON.stringify(r));
         };
         var u;
-        for (var g = 0; g < n.length; g += 1) {
-          u = n[g];
+        for (var g = 0; g < o.length; g += 1) {
+          u = o[g];
           i.push(u);
-          c = l(i);
+          c = s(i);
           if (c.length > e) {
             i.pop();
-            o.push(l(i));
+            n.push(s(i));
             i = [u];
           }
         }
-        o.push(l(i));
-        if (TS.log && TS.has_pri[a]) TS.log(a, "URLs:", o);
-        return o;
+        n.push(s(i));
+        if (TS.log && TS.has_pri[a]) TS.log(a, "URLs:", n);
+        return n;
       };
-      var d = function t() {
+      var v = function t() {
         var e = this.getAttribute("data-clog-event");
         if (!e) {
           if (TS.warn) TS.warn("Logging clicks with data-clog-click requires a data-clog-event attribute");
@@ -166,8 +159,8 @@ webpackJsonp([450], {
         }
         var r = {};
         var a = TS.clog.parseParams(this.getAttribute("data-clog-params"));
-        var n = this.getAttribute("data-clog-ui-action");
-        if (n) {
+        var o = this.getAttribute("data-clog-ui-action");
+        if (o) {
           r = {
             ui_element: this.getAttribute("data-clog-ui-element"),
             action: this.getAttribute("data-clog-ui-action"),
@@ -182,14 +175,11 @@ webpackJsonp([450], {
         switch (e.toUpperCase()) {
           case "WEBSITE_CLICK":
             a.page_url = location.href;
-            break;
-          default:
-            break;
         }
-        r = v(a, r);
+        r = d(a, r);
         TS.clog.track(e, r);
       };
-      var v = function t(e, r) {
+      var d = function t(e, r) {
         var a = {};
         Object.keys(e).forEach(function(t) {
           a[t] = e[t];
@@ -208,4 +198,4 @@ webpackJsonp([450], {
       };
     })();
   }
-}, [3640]);
+}, [26197]);
