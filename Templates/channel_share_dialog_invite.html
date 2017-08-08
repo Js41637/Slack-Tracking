@@ -1,0 +1,54 @@
+{{i18n_ns 'share_channels'}}
+
+{{#feature flag="feature_shared_channels_client"}}
+
+<div class="p-share_channel_dialog__contents">
+
+  {{#if show_heading}}
+        <h3 class="p-share_channel_dialog__subheading">
+                {{#t}}Step 2 of 2{{/t}}
+        </h3>
+
+    <h1 class="p-share_channel_dialog__heading">
+        {{#t}}Send an invitation{{/t}}
+    </h1>
+  {{/if}}
+
+    {{#if sharing_existing_channel}}
+        <p class="p-share_channel_dialog__description--channel-options-menu">
+            {{#feature flag="feature_teams_to_workspaces"}}
+                {{#t}}To share this channel, you\u2019ll need the contact info of an admin at the other workspace.{{/t}}
+            {{else}}
+                {{#t}}To share this channel, you\u2019ll need the contact info of an admin at the other team.{{/t}}
+            {{/feature}}
+            <br/>
+            {{#t}}<a href="https://get.slack.help" target="_blank">Learn more about shared channels</a>{{/t}}
+        </p>
+    {{else}}
+        <p class="p-share_channel_dialog__description">
+            {{#feature flag="feature_teams_to_workspaces"}}
+                {{#t}}Next, invite another workspace. You\u2019ll need an admin\u2019s contact info, and they\u2019ll receive this via Slackbot.{{/t}}
+            {{else}}
+                {{#t}}Next, invite another team. You\u2019ll need an admin\u2019s contact info, and they\u2019ll receive this via Slackbot.{{/t}}
+            {{/feature}}
+        </p>
+    {{/if}}
+
+  <div class="alert alert_error large_bottom_margin hidden" data-label="shared_channel_form_error">
+    <ts-icon class="ts_icon_warning"></ts-icon>
+    <span data-label="shared_channel_form_error_label"></span>
+  </div>
+
+  {{> channel_share_dialog_invite_fields}}
+
+  {{#if sharing_existing_channel}}
+    <p class="align_right large_top_margin">
+      <button class="btn btn_large btn_outline btn cancel_share" type="button">{{#t}}Cancel{{/t}}</button>
+      <button class="btn btn_large ladda-button submit" data-style="expand-right">{{#t note="Form submit button label"}}Share channel{{/t}}</button>
+    </p>
+  {{/if}}
+
+</div>
+
+{{/feature}}
+

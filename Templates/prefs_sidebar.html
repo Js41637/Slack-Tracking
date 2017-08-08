@@ -63,7 +63,11 @@
       {{#t}}Show the Quick Switcher{{/t}}<br>
       <span class="normal greigh">
         {{#t}}This lets you jump to specific channels and conversations in a snap.{{/t}}<br>
-        {{#t cmd_key_label=cmd_key_label cmd_key=cmd_key keyboard_shortcut_label='k'}}(You can also use <span class="keyboard" aria-label="{cmd_key_label}">{cmd_key}</span><span class="keyboard">{keyboard_shortcut_label}</span>){{/t}}
+        {{#feature flag='feature_consistent_key_styles'}}
+          {{#t cmd_key_label=cmd_key_label cmd_key=cmd_key keyboard_shortcut_label='k'}}(You can also use <span class="c-keyboard_key" aria-label="{cmd_key_label}">{cmd_key}</span><span class="c-keyboard_key">{keyboard_shortcut_label}</span>){{/t}}
+        {{else}}
+          {{#t cmd_key_label=cmd_key_label cmd_key=cmd_key keyboard_shortcut_label='k'}}(You can also use <span class="keyboard" aria-label="{cmd_key_label}">{cmd_key}</span><span class="keyboard">{keyboard_shortcut_label}</span>){{/t}}
+        {{/feature}}
       </span>
     </label>
   </p>

@@ -1,0 +1,72 @@
+{{i18n_ns 'share_channels'}}
+
+{{#feature flag="feature_shared_channels_client"}}
+
+<div class="p-share_channel_dialog__contents">
+
+  <h3 class="p-share_channel_dialog__subheading">
+      {{#t}}Step 1 of 2{{/t}}
+  </h3>
+
+  <h1 class="p-share_channel_dialog__heading">
+      {{#t}}Create a shared channel{{/t}}
+  </h1>
+
+  <p class="p-share_channel_dialog__description">
+    {{#t}}First, choose a name and privacy setting for your channel.{{/t}}
+  </p>
+
+  <div class="small_bottom_margin">
+    <label class="checkbox">
+      {{#feature flag="feature_teams_to_workspaces"}}
+        <input id="channel_public_private_toggle" type="checkbox" name="public" value="public" {{#unless is_private}}checked="checked"{{/unless}} data-on-text="{{#t}}Public{{/t}}" data-off-text="{{#t}}Private{{/t}}" data-label="{{#t}}Anyone in your workspace can view and join this channel.{{/t}}" data-off-label="{{#t}}This channel can only be joined or viewed by invitation.{{/t}}" data-off-class="ts_toggle_orange">
+      {{else}}
+        <input id="channel_public_private_toggle" type="checkbox" name="public" value="public" {{#unless is_private}}checked="checked"{{/unless}} data-on-text="{{#t}}Public{{/t}}" data-off-text="{{#t}}Private{{/t}}" data-label="{{#t}}Anyone on your team can view and join this channel.{{/t}}" data-off-label="{{#t}}This channel can only be joined or viewed by invitation.{{/t}}" data-off-class="ts_toggle_orange">
+      {{/feature}}
+    </label>
+
+    <div class="alert alert_warning large_bottom_margin hidden" data-alert="private_channel">
+      <ts-icon class="ts_icon_warning"></ts-icon>
+      {{#t}}<strong>Note:</strong> This setting only applies to <strong>{team.name}</strong>. The channel won\u2019t necessarily be private on other workspaces.{{/t}}
+    </div>
+  </div>
+
+  <p class="no_margin">
+    <label for="channel_name" class="block align_left">{{#t}}Name{{/t}}</label>
+    <div class="channel_modal_title_input_container">
+      <i class="channel_icon private_channel_item subtle_silver ts_icon_lock ts_icon hidden" />
+      <i class="channel_icon public_channel_item subtle_silver ts_icon_channel ts_icon" />
+      <input
+        name="channel_name"
+        type="text"
+        class="lowercase title_input large_left_padding tiny_bottom_margin"
+        placeholder="{{#t note="placeholder for a channel name input"}}e.g. leads{{/t}}"
+        data-input="channel_name"
+        data-validation="channel_name=fix"
+        data-validation-for="channel_name"
+        data-validation-success=""
+        autocapitalize="off"
+        autocorrect="off"
+        autocomplete="off"
+        value="{{channel_name}}"
+      />
+    </div>
+    <span class="modal_input_note margin_auto">
+      {{#t}}Names must be lowercase, without spaces or periods, and shorter than 22 characters.{{/t}}
+    </span>
+  </p>
+
+  <div class="large_bottom_margin">
+    <label for="invite_members_input" class="block align_left">
+      {{#t}}
+      Invite people
+      <span class="normal">(optional)</span>
+      {{/t}}
+    </label>
+    <div id="invite_members_container"></div>
+  </div>
+
+</div>
+
+{{/feature}}
+

@@ -4,6 +4,7 @@
 {{#each results as |group|}}
   <li class="tab_complete_ui_group">
     <span class="group_name">{{group.name}}</span>
+    {{#if group.xoxa_app_not_in_channel}}<span class="not_in_channel">(not in channel)</span>{{/if}}
     <hr class="group_divider">
   </li>
   {{#each group.cmds as |cmd|}}

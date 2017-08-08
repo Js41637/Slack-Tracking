@@ -3,7 +3,7 @@
 {{#feature flag="feature_shared_channels_client"}}
 
 <p class="no_margin">
-  <label for="email_address">{{#t note="Input label for share channel form"}}Admin's email address{{/t}}</label>
+  <label for="email_address">{{#t note="Input label for share channel form"}}Admin\u2019s email address{{/t}}</label>
   <div class="p-share_channel_dialog__input_wrapper">
     <input
       class="tiny_bottom_margin"
@@ -14,13 +14,21 @@
       data-validation="is_email=fix"
       data-validation-for="email_address"
       data-validation-success=""
+      {{#if email_address}}value={{email_address}}{{/if}}
     />
   </div>
-  <span class="extra_help subtle_silver">{{#t}}This should be the email address they use to sign into Slack.{{/t}}</span>
 </p>
 
 <p class="no_margin">
-  <label for="team_url">{{#t note="Input label for share channel form"}}Slack URL{{/t}}</label>
+  <label class="p-share_channel_dialog__input_label" for="team_url">
+    {{#t note="Input label for share channel form"}}Slack URL{{/t}}
+
+    {{#t locale=(zdLocale)}}
+    <a href="https://get.slack.help/hc/{locale}/articles/221769328-Find-your-Slack-team-URL">
+      <ts-icon class="ts_icon_info_circle ts_tip ts_tip_multiline ts_tip_top"></ts-icon>
+    </a>
+    {{/t}}
+  </label>
   <div class="p-share_channel_dialog__input_wrapper">
     <input
       class="p-share_channel_dialog__team_url tiny_bottom_margin"
@@ -29,16 +37,12 @@
       placeholder="{{#t}}acme-corp{{/t}}"
       data-validation="required"
       data-input="team_url"
+      {{#if team_url}}value={{team_url}}{{/if}}
     />
     <span class="p-share_channel_dialog__team_url_suffix">
       .slack.com
     </span>
   </div>
-  {{#feature flag="feature_teams_to_workspaces"}}
-    <span class="extra_help subtle_silver">{{#t locale=(zdLocale)}}Each Slack workspace has a unique URL. <a href="https://get.slack.help/hc/{locale}/articles/221769328-Find-your-Slack-team-URL">How to find a Workspace URL</a>{{/t}}</span>
-  {{else}}
-    <span class="extra_help subtle_silver">{{#t locale=(zdLocale)}}Each Slack team has a unique URL. <a href="https://get.slack.help/hc/{locale}/articles/221769328-Find-your-Slack-team-URL">How to find a Team URL</a>{{/t}}</span>
-  {{/feature}}
 </p>
 
 <div class="small_bottom_margin">
@@ -64,8 +68,8 @@
       class="p-share_channel_dialog__custom_message_input"
       name="custom_message"
       data-input="custom_message"
-      placeholder="{{#t}}Add a message...{{/t}}"
-    ></textarea>
+      placeholder="{{#t note="placeholder for a message input"}}e.g. Hi there! I\u2019m working on a project with...{{/t}}"
+    >{{#if custom_message}}{{custom_message}}{{/if}}</textarea>
   </div>
 </div>
 

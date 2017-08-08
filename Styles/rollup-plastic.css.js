@@ -15403,6 +15403,12 @@ body:not(.unify_user) .tab_complete_ui ul.type_members .unify_broadcast {
   margin: .8rem 0 0
 }
 
+.tab_complete_ui ul.type_cmds li.tab_complete_ui_group .not_in_channel {
+  color: #717274;
+  font-size: .7rem;
+  line-height: 1.5rem
+}
+
 .tab_complete_ui ul.type_cmds li.tab_complete_ui_item {
   padding: 6px 10px;
   line-height: 1.2rem

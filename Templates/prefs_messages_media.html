@@ -15,43 +15,57 @@
     </label>
   </div>
   <div class="message_theme_preview">
-    <ts-message class="first">
-      <div class="message_gutter">
-        <span class="timestamp"><i class="copy_only">[</i>{{toTime}}<i class="copy_only">]</i></span>
-        <div class="message_icon">
-          <div class="member_image thumb_36" style="background-image: url(/img/slackbot_72.png)" aria-hidden="true"></div>
-        </div>
-      </div>
-      <div class="message_content">
-        <div class="message_content_header">
-          <div class="message_content_header_left">
-            {{!-- hbslint-disable unwrapped --}}
-            {{!-- Don't need to translate slackbot --}}
-            <span class="message_sender color_USLACKBOT color_757575 member">slackbot</span>
-            {{!-- hbslint-enable unwrapped --}}
-            <span class="timestamp"><i class="copy_only">[</i>{{toTime}}<i class="copy_only">]</i></span>
-          </div>
-        </div>
-        <span class="message_body">{{#t}}Feeling great!{{/t}}</span>
-      </div>
-    </ts-message>
+    {{> prefs_messages_media_message avatar="/img/slackbot_72.png" name="slackbot" message=slackbot_message}}
   </div>
 </div>
 
 <h4 id="prefs_display_options" class="inline_block">{{#t}}Display Options{{/t}}</h4>
-<p class="large_bottom_margin">
-  <label class="checkbox">
-    <input id="show_typing_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_display_options">
-    {{#t}}Display information about who is currently typing a message{{/t}}
-  </label>
-  <label class="checkbox">
-    <input id="display_real_names_override_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_display_options">
-    {{#feature flag="feature_name_tagging_client"}}
-      {{#t note="(team_default) appears twice here, but one of them will be removed via JavaScript, so don't worry about redundancy"}}Show full names <span id="display_real_names_default">(team default)</span> instead of display names <span id="display_usernames_default"> (team default)</span>{{/t}}
-    {{else}}
+<div class="large_bottom_margin">
+  {{#feature flag="feature_name_tagging_client"}}
+    <p class="small_bottom_margin">{{#t rough-draft=true}}You can change your own full name and display name in your <a data-action="edit_member_profile_modal">profile settings</a>.{{/t}}</p>
+    <div class="global_notification_block no_padding">
+      <div class="display_flex display_real_names_block">
+        <div class="small_right_margin">
+          <input type="radio" name="display_real_names_override_cb" value="real_names" id="display_real_names_override_true"  data-inline-saver="#prefs_display_options">
+        </div>
+        <div class="very_small_top_margin">
+          <label for="display_real_names_override_true"><strong>{{#t rough-draft=true}}Full names and display names{{/t}}</strong></label>
+          <span>{{#t rough-draft=true}}Show display names in conversation and full names everywhere else <span class="display_real_names_default bold">(team default)</span>{{/t}}</span>
+        </div>
+      </div>
+      <div aria-hidden="true" class="display_flex flex_one align_items_center left_margin display_real_names_block_sample">
+        {{> prefs_messages_media_message avatar=name_preview_avatar name=name_preview_full_name message=name_preview_message}}
+      </div>
+    </div>
+    <div class="global_notification_block no_padding small_top_margin small_bottom_margin">
+      <div class="display_flex display_real_names_block">
+        <div class="small_right_margin">
+          <input type="radio" name="display_real_names_override_cb" value="display_names" id="display_real_names_override_false"  data-inline-saver="#prefs_display_options">
+        </div>
+        <div class="very_small_top_margin">
+          <label for="display_real_names_override_false"><strong>{{#t rough-draft=true}}Display names everywhere{{/t}}</strong></label>
+          <span>{{#t rough-draft=true}}Always show display names <span class="display_usernames_default bold"> (team default)</span>{{/t}}</span>
+        </div>
+      </div>
+      <div aria-hidden="true" class="display_flex flex_one align_items_center left_margin display_real_names_block_sample">
+        {{> prefs_messages_media_message avatar=name_preview_avatar name=name_preview_display_name message=name_preview_message}}
+      </div>
+    </div>
+
+    <label class="checkbox">
+      <input id="show_typing_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_display_options">
+      {{#t}}Display information about who is currently typing a message{{/t}}
+    </label>
+  {{else}}
+    <label class="checkbox">
+      <input id="show_typing_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_display_options">
+      {{#t}}Display information about who is currently typing a message{{/t}}
+    </label>
+    <label class="checkbox">
+      <input id="display_real_names_override_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_display_options">
       {{#t note="(team_default) appears twice here, but one of them will be removed via JavaScript, so don't worry about redundancy"}}Display real names <span id="display_real_names_default">(team default)</span> instead of usernames <span id="display_usernames_default"> (team default)</span>{{/t}}
-    {{/feature}}
-  </label>
+    </label>
+  {{/feature}}
   {{#if show_time24_pref}}
     <label class="checkbox">
       <input id="time24_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_display_options">
@@ -73,7 +87,7 @@
       </label>
     {{/isOurApp}}
   {{/if}}
-</p>
+</div>
 
 <h4 id="prefs_emoji_style" class="inline_block">{{#t}}Emoji Style{{/t}}</h4>
 <br>

@@ -2,7 +2,7 @@
 
 {{#feature flag="feature_shared_channels_client"}}
 
-<div class="share_channel_modal_contents">
+<div class="p-share_channel_dialog__contents">
     <h1 class="share_channel_modal_heading">
       {{#t}}Shared Channel Request{{/t}}</h1>
     </h1>
@@ -62,25 +62,27 @@
     </div>
 
     <div class="bottom_margin">
-      <label for="channel_title" class="block align_left">{{#t team_name=team.name}}Name on {team_name}{{/t}}</label>
+      <label for="channel_name" class="block align_left">{{#t team_name=team.name}}Name on {team_name}{{/t}}</label>
       <div class="channel_modal_title_input_container no_margin">
         <i class="channel_icon private_channel_item subtle_silver ts_icon_lock ts_icon hidden" />
         <i class="channel_icon public_channel_item subtle_silver ts_icon_channel ts_icon" />
         <input
-          name="channel_title"
+          name="channel_name"
           type="text"
           class="lowercase title_input large_left_padding tiny_bottom_margin"
           autocapitalize="off"
           autocorrect="off"
           autocomplete="off"
-          data-input="channel_title"
+          data-input="channel_name"
           data-validation="channel_name=fix"
-          data-validation-for="channel_title"
+          data-validation-for="channel_name"
           data-validation-success=""
           value="{{channel_name}}"
         />
       </div>
-      <span class="modal_input_note margin_auto">{{#t team_name=team.name}}Current name was set by {team_name}. You can change for your team.{{/t}}</span>
+      <span class="modal_input_note margin_auto">
+        {{#t}}Names must be lowercase, without spaces or periods, and shorter than 22 characters.{{/t}}
+      </span>
     </div>
 
     <div class="large_bottom_margin">
@@ -92,11 +94,6 @@
       </label>
       <div id="invite_members_container"></div>
     </div>
-
-    <p class="align_right large_top_margin">
-      <button class="btn btn_large btn_outline btn" data-action="cancel" type="button">{{#t}}Cancel{{/t}}</button>
-      <button class="btn btn_large ladda-button submit" data-action="submit" data-style="expand-right">{{#t note="Form submit button label"}}Approve &amp; Add Channel{{/t}}</button>
-    </p>
 </div>
 
 {{/feature}}
