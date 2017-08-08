@@ -14652,7 +14652,7 @@ body:not(.unify_user) #member_preview_scroller .member_details {
 
 .unify_user #client-ui .searchable_member_list .member_item,
 .unify_user #client-ui .searchable_member_list .team_list_item {
-  width: calc(100% - .5rem)
+  width: 100%
 }
 
 #client-ui .searchable_member_list .team_list_item {
@@ -18365,7 +18365,9 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   flex: 1;
   flex-direction: column;
   justify-content: center;
-  min-height: 56px
+  min-height: 56px;
+  overflow: hidden;
+  text-overflow: ellipsis
 }
 
 .c-member__display-name--large,
