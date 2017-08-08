@@ -109,12 +109,12 @@
       {{~#if show_topic~}}
         {{~#feature flag="feature_name_tagging_client"~}}
           <div class="channel_header_info_item channel_topic_container">
-            <span id="edit_topic_container" class="channel_topic">{{!--
-              --}}<span id="edit_topic_inner" tabindex="0" data-instructions-text="{{#t}}Enter to submit, Esc to cancel{{/t}}">{{!--
+            <span id="edit_topic_container" class="channel_topic" tabindex="0" role="button">{{!--
+              --}}<span id="edit_topic_inner" data-instructions-text="{{#t}}Enter to submit, Esc to cancel{{/t}}">{{!--
                 --}}<span id="channel_topic_text" class="no_jumbomoji" data-placeholder="{{#currentUserIsRA}}{{else}}{{#t}}Add a topic{{/t}}{{/currentUserIsRA}}"></span>{{!--
               --}}</span>{{!--
             --}}</span>
-            <button type="button" class="btn_link" id="edit_topic_trigger">{{#t}}Edit{{/t}}</button>
+            <button type="button" class="btn_link" id="edit_topic_trigger" tabindex="-1">{{#t}}Edit{{/t}}</button>
           </div>
         {{~else~}}
         <div class="channel_header_info_item channel_topic_container">

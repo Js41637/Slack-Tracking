@@ -18050,6 +18050,11 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   line-height: 1.6rem
 }
 
+.c-member,
+.c-usergroup {
+  display: flex
+}
+
 .c-member__display-name,
 .c-usergroup__handle {
   color: #2c2d30;
@@ -18068,11 +18073,10 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 .c-usergroup .c-usergroup__icon {
   display: inline-block;
   position: relative;
-  float: left;
-  flex: 0 0 20px;
   border-radius: .2rem;
   background-size: 100%;
-  background-repeat: no-repeat
+  background-repeat: no-repeat;
+  flex: 0 0 auto
 }
 
 .c-member__linked {
@@ -18140,8 +18144,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   font-style: normal;
   letter-spacing: 0;
   text-align: center;
-  text-shadow: 0 1px 1px rgba(0, 0, 0, .2);
-  float: left
+  text-shadow: 0 1px 1px rgba(0, 0, 0, .2)
 }
 
 .c-member .external_team_badge:after {
@@ -18157,7 +18160,6 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 
 .c-member--small,
 .c-usergroup--small {
-  display: flex;
   align-items: center;
   font-size: 15px;
   line-height: 2
@@ -18225,7 +18227,6 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 .c-member--small .team_image.icon_16 {
   width: 16px;
   height: 16px;
-  float: right;
   line-height: 1.6;
   flex: 0 0 16px;
   order: 3;
@@ -18246,8 +18247,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   font-style: normal;
   letter-spacing: 0;
   text-align: center;
-  text-shadow: 0 1px 1px rgba(0, 0, 0, .2);
-  float: left
+  text-shadow: 0 1px 1px rgba(0, 0, 0, .2)
 }
 
 .c-member__secondary-name--small,
@@ -18300,7 +18300,10 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-height: 36px
+  min-height: 36px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap
 }
 
 .c-member__name--medium,
@@ -18359,6 +18362,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 
 .c-member__flex-container--large {
   display: flex;
+  flex: 1;
   flex-direction: column;
   justify-content: center;
   min-height: 56px
