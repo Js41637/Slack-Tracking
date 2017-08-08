@@ -33,7 +33,11 @@
           {{#if_equal user.presence compare="active"}}
             {{#t}}Set yourself to <strong>away</strong>{{/t}}
           {{else}}
+            {{#feature flag='feature_i18n_away_menu'}}
+            {{#t}}<span class="half_opacity"><strong>Away</strong></span> Set yourself to <strong>active</strong>{{/t}}
+            {{else}}
             {{#t}}[Away] Set yourself to <strong>active</strong>{{/t}}
+            {{/feature}}
           {{/if_equal}}
         </span>
       </a>
