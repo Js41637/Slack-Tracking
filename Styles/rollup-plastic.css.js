@@ -9524,7 +9524,7 @@ textarea {
   font-size: 1.25rem;
   line-height: normal;
   padding: .75rem;
-  border: 1px solid #C5C5C5;
+  border: 1px solid #A0A0A2;
   border-radius: .25rem;
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -9555,18 +9555,6 @@ textarea::-ms-clear {
   display: none
 }
 
-.feature_keyboard_navigation .plastic_select,
-.feature_keyboard_navigation input[type=url],
-.feature_keyboard_navigation input[type=text],
-.feature_keyboard_navigation input[type=tel],
-.feature_keyboard_navigation input[type=number],
-.feature_keyboard_navigation input[type=email],
-.feature_keyboard_navigation input[type=password],
-.feature_keyboard_navigation select,
-.feature_keyboard_navigation textarea {
-  border: 1px solid #A0A0A2
-}
-
 input[type=file] {
   font-size: 12px;
   line-height: 12px;
@@ -9579,13 +9567,6 @@ input[type=file] {
 .no_touch input:hover,
 .no_touch select:hover,
 .no_touch textarea:hover {
-  border-color: #2780F8
-}
-
-.no_touch .feature_keyboard_navigation .plastic_select:hover,
-.no_touch .feature_keyboard_navigation input:hover,
-.no_touch .feature_keyboard_navigation select:hover,
-.no_touch .feature_keyboard_navigation textarea:hover {
   border-color: #717274
 }
 
@@ -9606,23 +9587,9 @@ select:active,
 select:focus,
 textarea:active,
 textarea:focus {
-  border-color: #2780F8;
-  box-shadow: 0 0 7px rgba(39, 128, 248, .15);
-  outline-offset: 0;
-  outline: 0
-}
-
-.feature_keyboard_navigation .focus,
-.feature_keyboard_navigation .plastic_select:focus,
-.feature_keyboard_navigation .plastic_select:hover,
-.feature_keyboard_navigation input[type=url]:focus,
-.feature_keyboard_navigation input[type=text]:focus,
-.feature_keyboard_navigation input[type=number]:focus,
-.feature_keyboard_navigation input[type=email]:focus,
-.feature_keyboard_navigation input[type=password]:focus,
-.feature_keyboard_navigation select:focus,
-.feature_keyboard_navigation textarea:focus {
   border-color: #717274;
+  outline-offset: 0;
+  outline: 0;
   box-shadow: none
 }
 
@@ -9863,18 +9830,10 @@ label.select.small:after {
 }
 
 .no_touch label.select:hover select {
-  border-color: #2780F8
-}
-
-.no_touch label.select:not(.disabled):hover:after {
-  color: #2780F8
-}
-
-.no_touch .feature_keyboard_navigation label.select:hover select {
   border-color: #717274
 }
 
-.no_touch .feature_keyboard_navigation label.select:not(.disabled):hover:after {
+.no_touch label.select:not(.disabled):hover:after {
   color: #717274
 }
 
@@ -16289,7 +16248,7 @@ body:not(.unify_user) #im_browser .im_browser_row .im_unread_cnt {
 
 #im_browser_tokens {
   padding: .5rem .75rem .75rem;
-  border: 1px solid #C5C5C5;
+  border: 1px solid #A0A0A2;
   border-radius: .25rem;
   cursor: text;
   display: flex;
@@ -16297,8 +16256,7 @@ body:not(.unify_user) #im_browser .im_browser_row .im_unread_cnt {
 }
 
 #im_browser_tokens.active {
-  border-color: #2780F8;
-  box-shadow: 0 0 7px rgba(39, 128, 248, .15);
+  border-color: #717274;
   outline-offset: 0;
   outline: 0
 }
@@ -16327,15 +16285,6 @@ html:not(.supports_flexbox) #im_browser_tokens {
   margin-right: 6px;
   height: 26px;
   line-height: 26px
-}
-
-.feature_keyboard_navigation #im_browser_tokens {
-  border-color: #A0A0A2
-}
-
-.feature_keyboard_navigation #im_browser_tokens.active {
-  border-color: #717274;
-  box-shadow: none
 }
 
 #channel_invite_spinner,
@@ -17004,7 +16953,7 @@ body:not(.unify_user) #channel_invite_container.page_needs_enterprise .channel_i
 }
 
 .lazy_filter_select .lfs_input_container {
-  border: 1px solid #c5c5c5;
+  border: 1px solid #A0A0A2;
   font: 400 1rem Slack-Lato, appleLogo, sans-serif;
   position: relative;
   border-radius: .25rem;
@@ -17018,7 +16967,7 @@ body:not(.unify_user) #channel_invite_container.page_needs_enterprise .channel_i
 
 .lazy_filter_select .lfs_input_container.active,
 .lazy_filter_select .lfs_input_container:hover {
-  border-color: #2780F8
+  border-color: #717274
 }
 
 .lazy_filter_select .lfs_input_container.active {
@@ -17327,7 +17276,7 @@ body:not(.unify_user) .lazy_filter_select.single .lfs_input_container:after {
 
 .lazy_filter_select.single .lfs_input_container.active:after,
 .lazy_filter_select.single .lfs_input_container:hover:after {
-  color: #2780F8
+  color: #717274
 }
 
 .lazy_filter_select.single.disabled .lfs_input_container.active:after,
@@ -17422,21 +17371,6 @@ body:not(.unify_user) .lazy_filter_select .lfs_value .ts_icon_shared_channels {
   width: 16px;
   height: 16px;
   font-size: 9px
-}
-
-.feature_keyboard_navigation .lazy_filter_select .lfs_input_container {
-  border: 1px solid #A0A0A2;
-  box-shadow: none
-}
-
-.feature_keyboard_navigation .lazy_filter_select .lfs_input_container.active,
-.feature_keyboard_navigation .lazy_filter_select .lfs_input_container:hover {
-  border-color: #717274
-}
-
-.feature_keyboard_navigation .lazy_filter_select.single .lfs_input_container.active:after,
-.feature_keyboard_navigation .lazy_filter_select.single .lfs_input_container:hover:after {
-  color: #717274
 }
 
 .lazy_filter_select.channel_browser_sort .lfs_value,
@@ -18171,6 +18105,10 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   line-height: 2
 }
 
+.c-member__large-font--small {
+  font-size: 16px
+}
+
 .c-member__name--small,
 .c-usergroup__name--small {
   color: #717274;
@@ -18218,6 +18156,10 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   top: 0;
   left: 0;
   position: relative
+}
+
+.c-member__large-font--small .presence .presence_icon {
+  top: -2px
 }
 
 .c-member--small .member_image,
@@ -18532,11 +18474,6 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   max-height: 19px
 }
 
-.feature_keyboard_navigation .ql-container.texty_single_line_input.focus,
-.feature_keyboard_navigation .ql-container.texty_single_line_input:hover {
-  border-color: #717274
-}
-
 .inline_message_input_container {
   max-width: 100%
 }
@@ -18549,30 +18486,21 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 }
 
 .inline_message_input_container .ql-container {
-  border: 1px solid #E0E0E0;
+  border: 1px solid #A0A0A2;
   font-family: Slack-Lato, appleLogo, sans-serif;
   height: auto;
   border-radius: .25rem
 }
 
 .inline_message_input_container .ql-container.focus,
-.inline_message_input_container .ql-container:active {
-  border-color: #bbbdbf
+.inline_message_input_container .ql-container:active,
+.inline_message_input_container .ql-container:hover {
+  border-color: #717274
 }
 
 .inline_message_input_container .ql-container~.emo_menu {
   width: 36px;
   right: 10px
-}
-
-.feature_keyboard_navigation .inline_message_input_container .ql-container {
-  border-color: #A0A0A2
-}
-
-.feature_keyboard_navigation .inline_message_input_container .ql-container.focus,
-.feature_keyboard_navigation .inline_message_input_container .ql-container:active,
-.feature_keyboard_navigation .inline_message_input_container .ql-container:hover {
-  border-color: #717274
 }
 
 #msg_input.ql-container {
@@ -18583,11 +18511,8 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 }
 
 .feature_texty_mentions #msg_input.ql-container~.msg_mentions_button {
-  right: 48px
-}
-
-.supports_custom_scrollbar .feature_texty_mentions #msg_input.ql-container~.msg_mentions_button {
-  right: 40px
+  width: 30px;
+  right: 38px
 }
 
 .feature_texty_mentions #msg_input.ql-container .ql-editor {
@@ -18605,14 +18530,8 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 
 #message_edit_form .ql-container~.emo_menu,
 #msg_form .ql-container~.emo_menu {
-  width: 36px;
-  right: 12px
-}
-
-.supports_custom_scrollbar #message_edit_form .ql-container~.emo_menu,
-.supports_custom_scrollbar #msg_form .ql-container~.emo_menu {
-  width: 36px;
-  right: 5px
+  width: 30px;
+  right: 8px
 }
 
 .feature_texty_mentions #message_edit_form .ql-editor,
@@ -18630,22 +18549,12 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   padding-top: 9px
 }
 
-.feature_keyboard_navigation.feature_texty_mentions #msg_form .ql-container~.msg_mentions_button {
-  width: 30px;
-  right: 38px
-}
-
-.feature_keyboard_navigation.feature_texty_mentions #msg_form .ql-container~.emo_menu {
-  width: 30px;
-  right: 8px
-}
-
 #msg_edit_container .message_input {
   min-height: 0
 }
 
 #share_dialog_input_container #file_comment_textarea.ql-container {
-  border: 1px solid #C5C5C5;
+  border: 1px solid #A0A0A2;
   border-radius: 4px;
   padding-right: 2px
 }
@@ -18662,16 +18571,8 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   right: 16px
 }
 
-#share_dialog_input_container #file_comment_textarea.ql-container.focus {
-  border-color: #2780F8
-}
-
-.feature_keyboard_navigation #share_dialog_input_container #file_comment_textarea.ql-container {
-  border-color: #A0A0A2
-}
-
-.feature_keyboard_navigation #share_dialog_input_container #file_comment_textarea.ql-container.focus,
-.feature_keyboard_navigation #share_dialog_input_container #file_comment_textarea.ql-container:hover {
+#share_dialog_input_container #file_comment_textarea.ql-container.focus,
+#share_dialog_input_container #file_comment_textarea.ql-container:hover {
   border-color: #717274
 }
 
@@ -18686,12 +18587,13 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 
 .reply_input_container .ql-container {
   background-color: #fff;
-  border: 1px solid #E0E0E0;
+  border: 1px solid #A0A0A2;
   border-radius: 0 0 10px 10px
 }
 
-.reply_input_container .ql-container.focus {
-  border-color: rgba(0, 0, 0, .35)
+.reply_input_container .ql-container.focus,
+.reply_input_container .ql-container:hover {
+  border-color: #717274
 }
 
 .reply_input_container .ql-container.focus~.emo_menu {
@@ -18734,15 +18636,6 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 
 .reply_input_container .ql-editor::-webkit-scrollbar-thumb:hover {
   background-color: rgba(113, 114, 116, .8)
-}
-
-.feature_keyboard_navigation .reply_input_container .ql-container {
-  border-color: #A0A0A2
-}
-
-.feature_keyboard_navigation .reply_input_container .ql-container.focus,
-.feature_keyboard_navigation .reply_input_container .ql-container:hover {
-  border-color: #717274
 }
 
 #menu_member_dm_input.texty_single_line_input {
@@ -18816,7 +18709,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   font-family: Slack-Lato, appleLogo, sans-serif;
   font-size: .9375rem;
   color: #555459;
-  border: 1px solid #C5C5C5;
+  border: 1px solid #A0A0A2;
   border-radius: .25rem;
   -webkit-user-select: auto;
   -moz-user-select: auto;
@@ -18829,8 +18722,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 
 .ql-container.texty_single_line_input.focus,
 .ql-container.texty_single_line_input:hover {
-  border-color: #2780F8;
-  box-shadow: 0 0 7px rgba(39, 128, 248, .15);
+  border-color: #717274;
   outline-offset: 0;
   outline: 0
 }
@@ -18841,15 +18733,6 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   white-space: pre;
   overflow: hidden;
   padding: 0
-}
-
-.feature_keyboard_navigation .ql-container.texty_single_line_input {
-  border-color: #A0A0A2
-}
-
-.feature_keyboard_navigation .ql-container.texty_single_line_input.focus,
-.feature_keyboard_navigation .ql-container.texty_single_line_input:hover {
-  box-shadow: none
 }
 
 #file_comment_textarea.texty_comment_input,
@@ -18864,7 +18747,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   user-select: auto;
   font-family: Slack-Lato, appleLogo, sans-serif;
   width: 100%;
-  border: 1px solid #C5C5C5;
+  border: 1px solid #A0A0A2;
   border-radius: .25rem;
   -webkit-appearance: none;
   box-shadow: none;
@@ -18888,7 +18771,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 .comment_form .texty_comment_input:hover,
 .edit_comment_form .texty_comment_input.focus,
 .edit_comment_form .texty_comment_input:hover {
-  border-color: #2780F8;
+  border-color: #717274;
   outline-offset: 0;
   outline: 0
 }
@@ -18897,21 +18780,6 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 .comment_form .texty_comment_input .ql-editor,
 .edit_comment_form .texty_comment_input .ql-editor {
   max-height: none
-}
-
-.feature_keyboard_navigation #file_comment_textarea.texty_comment_input,
-.feature_keyboard_navigation .comment_form .texty_comment_input,
-.feature_keyboard_navigation .edit_comment_form .texty_comment_input {
-  border-color: #A0A0A2
-}
-
-.feature_keyboard_navigation #file_comment_textarea.texty_comment_input.focus,
-.feature_keyboard_navigation #file_comment_textarea.texty_comment_input:hover,
-.feature_keyboard_navigation .comment_form .texty_comment_input.focus,
-.feature_keyboard_navigation .comment_form .texty_comment_input:hover,
-.feature_keyboard_navigation .edit_comment_form .texty_comment_input.focus,
-.feature_keyboard_navigation .edit_comment_form .texty_comment_input:hover {
-  border-color: #717274
 }
 
 #file_comment_textarea.texty_comment_input {
@@ -18932,7 +18800,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 
 #channel_purpose_input.ql-container,
 #purpose_input.ql-container {
-  border: 1px solid #C5C5C5;
+  border: 1px solid #A0A0A2;
   border-radius: .25rem;
   font-family: Slack-Lato, appleLogo, sans-serif
 }
@@ -18941,7 +18809,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 #channel_purpose_input.ql-container:hover,
 #purpose_input.ql-container.focus,
 #purpose_input.ql-container:hover {
-  border-color: #2780F8
+  border-color: #717274
 }
 
 #channel_purpose_input.ql-container.small,
@@ -18966,18 +18834,6 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 #purpose_input.ql-container.texty_single_line_input .ql-editor {
   min-height: 46px;
   padding: .75rem
-}
-
-.feature_keyboard_navigation #channel_purpose_input.ql-container,
-.feature_keyboard_navigation #purpose_input.ql-container {
-  border-color: #A0A0A2
-}
-
-.feature_keyboard_navigation #channel_purpose_input.ql-container.focus,
-.feature_keyboard_navigation #channel_purpose_input.ql-container:hover,
-.feature_keyboard_navigation #purpose_input.ql-container.focus,
-.feature_keyboard_navigation #purpose_input.ql-container:hover {
-  border-color: #717274
 }
 
 #purpose_input.ql-container {
