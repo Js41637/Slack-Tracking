@@ -97,15 +97,18 @@
             <a class="overflow_ellipsis" href="/admin" target="{{newWindowName}}">{{#t}}Manage team members{{/t}}</a>
           </li>
         {{/feature}}
-
-        <li class="divider subdivider"></li>
       {{/if}}
+
+      {{#or this.user.is_admin show_limit_meters}}
+        <li class="divider subdivider"></li>
+      {{/or}}
 
       {{#if show_limit_meters}}
         {{#if show_statistics_link}}
           {{> slack_menu_limit_meter}}
 
-          {{> slack_menu_show_statistics_cta}}
+          <li class="divider subdivider"></li>
+
         {{/if}}
 
         {{#if this.user.is_owner}}
@@ -119,7 +122,9 @@
           {{/isOurApp}}
         {{/if}}
 
-        <li class="divider subdivider"></li>
+        {{#if show_statistics_link}}
+          {{> slack_menu_show_statistics_cta}}
+        {{/if}}
       {{/if}}
 
       {{#if this.user.is_admin}}
