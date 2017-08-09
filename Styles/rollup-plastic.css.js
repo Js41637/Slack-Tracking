@@ -12894,7 +12894,8 @@ a.plastic_typeahead_item:hover {
   background-size: 100%;
   background-repeat: no-repeat;
   display: inline-block;
-  position: relative
+  position: relative;
+  z-index: 1
 }
 
 .member_image_unknown {
@@ -14135,7 +14136,8 @@ body:not(.unify_user) #member_preview_scroller .member_details {
   bottom: .75rem;
   -webkit-transition: opacity 150ms ease;
   -moz-transition: opacity 150ms ease;
-  transition: opacity 150ms ease
+  transition: opacity 150ms ease;
+  z-index: 1
 }
 
 .menu_member_header .member_details .member_restriction_over_image {
@@ -17172,6 +17174,15 @@ body:not(.unify_user) .lazy_filter_select .lfs_input_container.empty .lfs_input 
 
 .lazy_filter_select .lfs_list .lfs_item .current_status .emoji-sizer:first-of-type {
   margin-right: 2px
+}
+
+.lazy_filter_select .lfs_list .lfs_item .multipary_dm_icon {
+  margin-left: 2px;
+  margin-right: 2px
+}
+
+body:not(.unify_user) .lazy_filter_select .lfs_list .lfs_item .multipary_dm_icon {
+  margin: 0
 }
 
 .lazy_filter_select .lfs_item_icon {
