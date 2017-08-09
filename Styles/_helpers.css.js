@@ -128,6 +128,10 @@
   position: relative
 }
 
+.position_fixed {
+  position: fixed
+}
+
 .position_absolute {
   position: absolute
 }
@@ -137,23 +141,19 @@
   top: 0
 }
 
-.position_absolute_bottom {
-  position: absolute;
-  bottom: 0
-}
-
 .position_absolute_right {
   position: absolute;
   right: 0
 }
 
+.position_absolute_bottom {
+  position: absolute;
+  bottom: 0
+}
+
 .position_absolute_left {
   position: absolute;
   left: 0
-}
-
-.position_fixed {
-  position: fixed
 }
 
 .offscreen {
