@@ -1,6 +1,6 @@
 {{i18n_ns "team"}}
-  <div id="search_filters" class="{{searchFilter}}">
-    {{#feature flag="feature_sli_file_search"}}{{#if show_all_tab}}<a id="filter_all" onclick="TS.search.setFilter('all'); return false;">{{#t rough-draft=true}}All{{/t}}</a>{{/if}}{{/feature}}
-    <a id="filter_messages" onclick="TS.search.setFilter('messages'); return false;"{{#t note="A message count label that shows next to search results. For example, Messages (5)"}}>Messages ({messages_count}){{/t}}</a>
-    <a id="filter_files" onclick="TS.search.setFilter('files'); return false;">{{#t note="A file count label that shows next to search results. For example, Files (5)"}}Files ({files_count}){{/t}}</a>
+  <div id="search_filters" class="{{searchFilter}}" role="tablist">
+    {{#feature flag="feature_sli_file_search"}}{{#if show_all_tab}}<button type="button" role="tab" id="filter_all" class="btn_unstyle tab" onclick="TS.search.setFilter('all'); return false;">{{#t rough-draft=true}}All{{/t}}</button>{{/if}}{{/feature}}
+    <button type="button" role="tab" class="btn_unstyle tab" id="filter_messages" onclick="TS.search.setFilter('messages');"><span class="tab_label">{{#t note="A message count label that shows next to search results. For example, Messages (5)" fallback_hash='df142a33ec68ce8750a61f1bcd5fe634c29abb42'}}Messages ({messages_count}){{/t}}</span></button>
+    <button type="button" role="tab" class="btn_unstyle tab" id="filter_files" onclick="TS.search.setFilter('files');"><span class="tab_label">{{#t note="A file count label that shows next to search results. For example, Files (5)"}}Files ({files_count}){{/t}}</span></button>
   </div>

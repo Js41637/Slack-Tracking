@@ -32,6 +32,7 @@
             {{/if_equal}}
           {{/if}}
         {{/if_equal}}
+        <a href="{{this.permalink}}" target="{{newWindowName}}" class="new_jump_link">{{#t}}Jump{{/t}}</a>
 
         {{#or (if_equal this.type compare='message') (if_equal this.type compare='group')}}
           {{#if is_enterprise}}
@@ -84,17 +85,17 @@
         {{/if}}
         {{#if_equal this.type compare='im'}}
           {{#if this.im_exists}}
-            <a href="{{this.permalink}}" target="{{newWindowName}}" class="search_jump">{{#t}}Jump{{/t}}</a> \u2022
+            <a href="{{this.permalink}}" target="{{newWindowName}}" class="search_jump">{{#t}}Jump{{/t}}</a> <span class="search_actions_divider">\u2022</span>
           {{/if}}
         {{else}}
             {{#if is_enterprise}}
               {{#or (isLocalTeam this.team) (if_equal this.channel.is_shared compare=true)}}
-                <a href="{{this.permalink}}" target="{{newWindowName}}" class="search_jump">{{#t}}Jump{{/t}}</a> \u2022
+                <a href="{{this.permalink}}" target="{{newWindowName}}" class="search_jump">{{#t}}Jump{{/t}}</a> <span class="search_actions_divider">\u2022</span>
               {{else}}
-                <a href="{{this.permalink}}" target="{{newWindowName}}">{{#t}}View in Archive{{/t}}</a> \u2022
+                <a href="{{this.permalink}}" target="{{newWindowName}}">{{#t}}View in Archive{{/t}}</a> <span class="search_actions_divider">\u2022</span>
               {{/or}}
             {{else}}
-              <a href="{{this.permalink}}" target="{{newWindowName}}" class="search_jump">{{#t}}Jump{{/t}}</a> \u2022
+              <a href="{{this.permalink}}" target="{{newWindowName}}" class="search_jump">{{#t}}Jump{{/t}}</a> <span class="search_actions_divider">\u2022</span>
             {{/if}}
 
         {{/if_equal}}
