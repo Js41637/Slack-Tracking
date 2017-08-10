@@ -2,7 +2,7 @@
 
 {{#feature flag="feature_shared_channels_client"}}
 
-<p class="no_margin">
+<div class="medium_bottom_margin">
   <label for="email_address">{{#t note="Input label for share channel form"}}Admin\u2019s email address{{/t}}</label>
   <div class="p-share_channel_dialog__input_wrapper">
     <input
@@ -17,17 +17,11 @@
       {{#if email_address}}value={{email_address}}{{/if}}
     />
   </div>
-</p>
+</div>
 
-<p class="no_margin">
+<div class="medium_bottom_margin">
   <label class="p-share_channel_dialog__input_label" for="team_url">
     {{#t note="Input label for share channel form"}}Slack URL{{/t}}
-
-    {{#t locale=(zdLocale)}}
-    <a href="https://get.slack.help/hc/{locale}/articles/221769328-Find-your-Slack-team-URL">
-      <ts-icon class="ts_icon_info_circle ts_tip ts_tip_multiline ts_tip_top"></ts-icon>
-    </a>
-    {{/t}}
   </label>
   <div class="p-share_channel_dialog__input_wrapper">
     <input
@@ -43,7 +37,12 @@
       .slack.com
     </span>
   </div>
-</p>
+  <span class="modal_input_note margin_auto">
+    {{#t locale=(zdLocale)}}
+      Each Slack workspace has a unique URL. <a href="https://get.slack.help/hc/{locale}/articles/221769328-Find-your-Slack-team-URL" target="_blank">Learn more</a>
+    {{/t}}
+  </span>
+</div>
 
 <div class="small_bottom_margin">
   <label for="custom_message">{{#t note="Input label for share channel form"}}Add a custom message to your invitation{{/t}}</label>
