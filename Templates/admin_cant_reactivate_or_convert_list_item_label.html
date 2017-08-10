@@ -9,7 +9,7 @@
           {name} is a Full Member on other workspaces in this organization. Their account type must be the same for every workspace.
         {{/t}}
       {{else}}
-        {{#t name=formatted_member_name fallback_hash="f82f98601415efbb4887a0f87b9e45481696bcb3"}}
+        {{#t name=formatted_member_name}}
           {name} is a Full Member on other teams in this organization. Their account type must be the same for every team.
         {{/t}}
       {{/feature}}
@@ -72,15 +72,15 @@
         {{else}}
 
         {{#if member.is_single_channel_guest}}
-          {{#t name=formatted_member_name fallback_hash="51b43a311d627f7bf849d8f91f6ec9a0c70c5dcc"}}
+          {{#t name=formatted_member_name}}
             {name} is a Single-Channel Guest on other teams in this organization. Their account type must be the same for every team and can only be changed at the org level.
           {{/t}}
         {{else if member.is_multi_channel_guest}}
-          {{#t name=formatted_member_name fallback_hash="824619d6c8fd0b327887a7fd01f106e6e55cbb12"}}
+          {{#t name=formatted_member_name}}
             {name} is a Multi-Channel Guest on other teams in this organization. Their account type must be the same for every team and can only be changed at the org level.
           {{/t}}
         {{else}}
-          {{#t name=formatted_member_name fallback_hash="4272b446c81ca18c709afaf42b48cb34883d0eb9"}}
+          {{#t name=formatted_member_name}}
             {name} is a Full Member on other teams in this organization. Their account type must be the same for every team and can only be changed at the org level.
           {{/t}}
         {{/if}}
@@ -99,7 +99,7 @@
         {name} is part of {num_groups, plural, =1 {one {idp_label} group} other {# {idp_label} groups}} assigned to this workspace: ({label}).
         {{/t}}
       {{else}}
-        {{#t note="text explaining that a member can't be removed from a team/workspace because of IDP group membership" name=formatted_member_name num_groups=group_list.length label=formatted_group_label fallback_hash="4f013e9229f44a80f6f6313388dc207db764251b"}}
+        {{#t note="text explaining that a member can't be removed from a team/workspace because of IDP group membership" name=formatted_member_name num_groups=group_list.length label=formatted_group_label}}
         {name} is part of {num_groups, plural, =1 {one {idp_label} group} other {# {idp_label} groups}} assigned to this team: ({label}).
         {{/t}}
       {{/feature}}
@@ -113,7 +113,7 @@
         {name} can\u2019t be removed, because they\u2019re part of {num_groups, plural, =1 {one {idp_label} group} other {# {idp_label} groups}} assigned to this workspace: ({label}). They also belong to multiple workspaces in this organization, so their account type can only be changed at the org level.
         {{/t}}
       {{else}}
-        {{#t note="text explaining that a member can't be removed from a team/workspace because of IDP group membership" name=formatted_member_name num_groups=group_list.length label=formatted_group_label fallback_hash="f170c2e2755f9184a29af820b70c036129beaa64"}}
+        {{#t note="text explaining that a member can't be removed from a team/workspace because of IDP group membership" name=formatted_member_name num_groups=group_list.length label=formatted_group_label}}
         {name} can\u2019t be removed, because they\u2019re part of {num_groups, plural, =1 {one {idp_label} group} other {# {idp_label} groups}} assigned to this team: ({label}). They also belong to multiple teams in this organization, so their account type can only be changed at the org level.
         {{/t}}
       {{/feature}}

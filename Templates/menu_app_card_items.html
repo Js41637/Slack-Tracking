@@ -8,7 +8,7 @@
 
 {{#unless hide_link_to_app_profile}}
   <li role="menuitem" data-action="view_details" data-qa="app_card_view_details">
-    <a>{{#t fallback_hash='badd385121c5861ac693b59ad8c160fdf7994344'}}View app details{{/t}}</a>
+    <a>{{#t}}View app details{{/t}}</a>
   </li>
 {{/unless}}
 
@@ -19,7 +19,7 @@
 {{else}}
   {{#unless is_foreign_app}}
     <li role="menuitem" data-qa="app_card_edit_settings"><a href="/services/{{bot_id}}" target="_blank">
-      {{#t fallback_hash='9e261078b228723e854d03aab07a351e750cdb7d'}}View app permissions{{/t}}
+      {{#t}}View app permissions{{/t}}
     </a></li>
   {{/unless}}
 {{/if}}
@@ -27,7 +27,7 @@
 {{#if bot_user}}
   {{!-- Files --}}
   <li role="menuitem" data-action="files" data-qa="app_card_files"><a href="/files/{{username}}">
-    {{#t fallback_hash='044a38ae764046f2afa78df2d01c7c79e84e5bee'}}View files shared by {name}{{/t}}
+    {{#t}}View files shared by {name}{{/t}}
   </a></li>
   {{!-- Remove from channel --}}
   {{#if channel_kick_name}}
@@ -37,7 +37,7 @@
   {{/if}}
   {{#if show_channel_invite}}
     <li role="menuitem" data-action="invite_to_channel" data-qa="app_card_invite_to_channel"><a>
-      {{#t fallback_hash='0cf75be655bf58fe08f21696b40060c6ec7ea6bd'}}Invite {name} to a channel&hellip;{{/t}}
+      {{#t}}Invite {name} to a channel&hellip;{{/t}}
     </a></li>
   {{/if}}
 {{/if}}

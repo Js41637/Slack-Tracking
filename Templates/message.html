@@ -231,7 +231,7 @@
             {{/t}}
           {{else}}
             {{#if model_ob.is_channel}}
-              {{#t note="description of the message's original context in a channel" fallback_hash="138d468d1cf0f39f3925e0f63fb1d682f82a6473" channel_link=(makeChannelLink model_ob)}}
+              {{#t note="description of the message's original context in a channel" channel_link=(makeChannelLink model_ob)}}
                 Posted in {channel_link}
               {{/t}}
             {{else}}

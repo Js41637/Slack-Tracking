@@ -12894,8 +12894,7 @@ a.plastic_typeahead_item:hover {
   background-size: 100%;
   background-repeat: no-repeat;
   display: inline-block;
-  position: relative;
-  z-index: 1
+  position: relative
 }
 
 .member_image_unknown {
@@ -14136,8 +14135,7 @@ body:not(.unify_user) #member_preview_scroller .member_details {
   bottom: .75rem;
   -webkit-transition: opacity 150ms ease;
   -moz-transition: opacity 150ms ease;
-  transition: opacity 150ms ease;
-  z-index: 1
+  transition: opacity 150ms ease
 }
 
 .menu_member_header .member_details .member_restriction_over_image {
@@ -18598,7 +18596,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 
 .reply_input_container .ql-container {
   background-color: #fff;
-  border: 1px solid #A0A0A2;
+  border: 1px solid #E0E0E0;
   border-radius: 0 0 10px 10px
 }
 
