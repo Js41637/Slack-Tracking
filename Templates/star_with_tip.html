@@ -1,7 +1,17 @@
 {{i18n_ns 'star'}}
 
-<button type="button" {{#each html_attrs}}{{@key}}="{{this}}" {{/each}} class="{{#each class_names}}{{this}} {{/each}}ts_tip ts_tip_float ts_tip_hidden btn_unstyle">
-  <span class="ts_tip_tip" data-tip-toggle-auto="{{#if is_starred}}{{#t}}Star this {readable_type}{{/t}}{{else}}{{#t}}Unstar this {readable_type}{{/t}}{{/if}}">
-    {{#if is_starred}}{{#t}}Unstar this {readable_type}{{/t}}{{else}}{{#t}}Star this {readable_type}{{/t}}{{/if}}
+<button type="button" {{#each html_attrs}}{{@key}}="{{this}}" {{/each}} class="{{#each class_names}}{{this}} {{/each}}ts_tip ts_tip_multiline ts_tip_float ts_tip_hidden btn_unstyle">
+  {{#feature flag="feature_i18n_star_tip"}}
+  <span class="ts_tip_tip">
+    <span class="ts_tip_multiline_inner" data-tip-toggle-auto="{{#if is_starred}}{{star_str}}{{else}}{{unstar_str}}{{/if}}">
+      {{#if is_starred}}{{unstar_str}}{{else}}{{star_str}}{{/if}}
+    </span>
   </span>
+  {{else}}
+  <span class="ts_tip_tip">
+    <span class="ts_tip_multiline_inner" data-tip-toggle-auto="{{#if is_starred}}{{#t}}Star this {readable_type}{{/t}}{{else}}{{#t}}Unstar this {readable_type}{{/t}}{{/if}}">
+      {{#if is_starred}}{{#t}}Unstar this {readable_type}{{/t}}{{else}}{{#t}}Star this {readable_type}{{/t}}{{/if}}
+    </span>
+  </span>
+  {{/feature}}
 </button>
