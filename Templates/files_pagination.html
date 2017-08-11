@@ -12,11 +12,11 @@
 
     {{#each pages}}
       {{#if is_current}}
-        <li class="active"><a href="{{url}}" data-pagination="{{page}}">{{page}}</a></li>
+        <li class="active"><a href="{{url}}" data-pagination="{{page}}">{{i18n_number page}}</a></li>
       {{else if is_dots}}
         <li class="disabled"><a href="#">{{#t}}&hellip;{{/t}}</a></li>
       {{else}}
-        <li><a href="{{url}}" data-pagination="{{page}}">{{page}}</a></li>
+        <li><a href="{{url}}" data-pagination="{{page}}">{{i18n_number page}}</a></li>
       {{/if}}
     {{/each}}
 
