@@ -9,9 +9,9 @@
 
     <p>
       {{#feature flag="feature_teams_to_workspaces"}}
-        {{#t}}<strong>{team.name}</strong> would like to share a channel with your workspace.{{/t}}
+        {{#t}}<strong>{inviting_team.name}</strong> would like to share a channel with your workspace.{{/t}}
       {{else}}
-        {{#t}}<strong>{team.name}</strong> would like to share a channel with your workspace.{{/t}}
+        {{#t}}<strong>{inviting_team.name}</strong> would like to share a channel with your workspace.{{/t}}
       {{/feature}}
     </p>
 
@@ -27,7 +27,7 @@
           <div class="c-member__name c-member__name--large">
             <span class="c-member__display-name c-member__display-name--large">{{getPrefCompliantMemberName inviter}}</span>
           </div>
-          <div class="c-member__title c-member__title--large">{{team.name}}</div>
+          <div class="c-member__title c-member__title--large">{{inviting_team.name}}</div>
         </div>
       </div>
     </div>
@@ -72,7 +72,9 @@
     </div>
 
     <div class="medium_bottom_margin">
-      <label for="channel_name" class="block align_left">{{#t}}Name on {team.name}{{/t}}</label>
+      <label for="channel_name" class="p-share_channel_dialog__input_label">
+        <span class="inline_block small_right_margin">{{#t}}Name on {team.name}{{/t}}</span>
+      </label>
       <div class="channel_modal_title_input_container no_margin">
         <i class="channel_icon private_channel_item subtle_silver ts_icon_lock ts_icon hidden" />
         <i class="channel_icon public_channel_item subtle_silver ts_icon_channel ts_icon" />

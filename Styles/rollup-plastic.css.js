@@ -4828,6 +4828,17 @@ html.no_touch .alert_page a:hover {
   font-variant-ligatures: none
 }
 
+[lang=en-US] .copy_font_family,
+[lang=de-DE] .copy_font_family,
+[lang=es-ES] .copy_font_family,
+[lang=fr-FR] .copy_font_family {
+  font-family: Slack-Lato, appleLogo, sans-serif
+}
+
+[lang=ja-JP] .copy_font_family {
+  font-family: NotoSansJP, Slack-Lato, appleLogo, sans-serif
+}
+
 .light {
   font-weight: 300!important
 }
@@ -12697,8 +12708,8 @@ a.plastic_typeahead_item:hover {
 
 .tab_menu {
   display: block;
-  width: 100%;
-  background-color: #fff
+  background-color: #fff;
+  box-shadow: inset 0 -2px 0 0 #E8E8E8
 }
 
 .tab_menu:after,
@@ -12708,16 +12719,12 @@ a.plastic_typeahead_item:hover {
   clear: both
 }
 
-.tab_menu.grey {
-  background-color: #FBFBFA
-}
-
 .tab_menu .tab {
   background: 0 0;
   -webkit-tap-highlight-color: transparent;
   cursor: pointer;
   border: 0;
-  padding: .75rem;
+  padding: 0 0 .75rem;
   font-size: .85rem;
   font-family: Slack-Lato, appleLogo, sans-serif;
   line-height: 20px;
@@ -12726,7 +12733,7 @@ a.plastic_typeahead_item:hover {
   text-align: center;
   float: left;
   transition: box-shadow 125ms ease-out;
-  box-shadow: inset 0 -4px 0 0 transparent
+  box-shadow: inset 0 -2px 0 0 transparent
 }
 
 .tab_menu .tab .ts_icon:before {
@@ -12734,7 +12741,8 @@ a.plastic_typeahead_item:hover {
 }
 
 .tab_menu .tab:hover {
-  box-shadow: inset 0 -4px 0 0 #b2d5c9
+  color: #555459;
+  text-decoration: none
 }
 
 .tab_menu .tab.active,
@@ -12742,12 +12750,17 @@ a.plastic_typeahead_item:hover {
 .tab_menu .tab:focus {
   outline: 0;
   color: #555459;
-  box-shadow: inset 0 -4px 0 0 #2ab27b
+  box-shadow: inset 0 -2px 0 0 #2ab27b;
+  text-decoration: none
 }
 
 .tab_menu .tab:disabled {
   cursor: not-allowed;
   color: #BABBBF
+}
+
+.tab_menu .tab:not(:last-child) {
+  margin-right: 1.5rem
 }
 
 .tab_panels .panel {
