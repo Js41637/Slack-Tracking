@@ -11,11 +11,30 @@
   <div class="billing_payment_source__item">
     <div class="{{this.type_simple}} card_icon"></div>
     <div class="billing_payment_source__item--description">
-      <span>{{this.name}}</span> <br/>
+      <span>
+        {{#if this.is_bank_account}}
+          {{this.bank_name}}
+        {{else}}
+          {{this.name}}
+        {{/if}}
+      </span>
+      <br />
       <span class="mini">
+        {{#feature flag="feature_billing_edits"}}
+        {{#if this.is_bank_account}}
+          {{#t note="example string: Account ending in 3432"}}
+            Account ending in {last4}
+          {{/t}}
+        {{else}}
+          {{#t note="example string: Visa ending in 4242 \u2022 01/2018" fallback_hash="2a45f8cebeba3d79693ba45f4d9bb20a358c8992"}}
+            {type} ending in {last4} \u2022 {exp_date}
+          {{/t}}
+        {{/if}}
+        {{else}}
         {{#t note="example string: Visa ending in 4242 \u2022 01/2018"}}
           {type} ending in {last4} \u2022 {exp_date}
         {{/t}}
+        {{/feature}}
       </span>
     </div>
       <form data-payment-source-form action="/checkout" method="post" class="no_bottom_margin confirm_submit">
@@ -27,7 +46,11 @@
       <input data-selected-product-id type="hidden" name="product" value="{{../product_id}}" />
       <input data-currency-input type="hidden" name="selected_product_currency" value="{{../currency}}" />
       <button type="submit" class="checkout_button ladda-button btn btn_small btn_primary" data-style="expand-right" data-qa="pay_with_btn" data-clog-event="WEBSITE_CLICK" data-clog-params="action=click,click_target=use_existing_payment_method,trigger=checkout_step_2,pay_prod_cur={{../pay_prod_cur}},has_plan=true,pay_prod_selected={{../product_id}}"><span class="ladda-label">
-      {{#t}}Pay with this Card{{/t}}
+      {{#if this.is_bank_account}}
+        {{#t fallback_hash="324b4c3eb29eb6b231014707be5bca982c99f710"}}Pay with this Account{{/t}}
+      {{else}}
+        {{#t fallback_hash="324b4c3eb29eb6b231014707be5bca982c99f710"}}Pay with this Card{{/t}}
+      {{/if}}
       </span></button>
     </form>
   </div>

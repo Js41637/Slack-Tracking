@@ -6,6 +6,9 @@
       <input type="url" name="urls[{{ index }}]" class="small no_margin c-url_table_editor__input" value="{{ url }}" {{#if is_read_mode}}disabled{{/if}} data-url-table-editor-input data-validation="{{ validation }}">
       <label for="urls[{{ index }}]" class="no_margin"></label>
       <span class="validation_message"></span>
+      {{#feature flag="feature_token_ip_whitelist"}}
+        <span class="subtle_silver" data-annotation-row="{{index}}"></span>
+      {{/feature}}
     {{/if}}
   </div>
   <div class="float_left c-url_table_editor__actions">
