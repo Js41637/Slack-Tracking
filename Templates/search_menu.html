@@ -182,9 +182,9 @@
       {{else}}
       <li data-replacement="{{#t}}from:{{/t}}@{{name}}" data-member-id="{{id}}">
       {{/feature}}
-        <button class="result_item_btn btn_unstyle" type="button" tabindex="-1">
+        <button {{#shouldUseUnifiedMemberDisplay}}class="result_item_btn btn_unstyle unified"{{else}}class="result_item_btn btn_unstyle"{{/shouldUseUnifiedMemberDisplay}} type="button" tabindex="-1">
           {{#if ../show_modifier}}
-            <span>{{#t}}from:{{/t}}</span>
+            <span {{#shouldUseUnifiedMemberDisplay}}class="from_modifier"{{/shouldUseUnifiedMemberDisplay}}>{{#t}}from:{{/t}}</span>
           {{/if}}
 
           {{#feature flag="feature_name_tagging_client"}}
@@ -199,7 +199,11 @@
             {{else if this.is_broadcast_keyword}}
               <strong>@{{this.name}}</strong>
             {{else}}
-              {{> member_menu_names}}
+              {{#shouldUseUnifiedMemberDisplay}}
+                {{> c-member member=this size="small" avatar=true omit_status=true omit_presence=true}}
+              {{else}}
+                {{> member_menu_names}}
+              {{/shouldUseUnifiedMemberDisplay}}
             {{/if}}
           {{else}}
             {{#if real_name}}
@@ -234,12 +238,16 @@
         {{else}}
         <li data-replacement="{{#t}}from:{{/t}}@{{name}}" data-member-id="{{id}}">
         {{/feature}}
-          <button class="result_item_btn btn_unstyle" type="button" tabindex="-1">
+          <button {{#shouldUseUnifiedMemberDisplay}}class="result_item_btn btn_unstyle unified"{{else}}class="result_item_btn btn_unstyle"{{/shouldUseUnifiedMemberDisplay}} type="button" tabindex="-1">
             {{#if ../show_modifier}}
-              <span>{{#t}}from:{{/t}}</span>
+              <span {{#shouldUseUnifiedMemberDisplay}}class="from_modifer"{{/shouldUseUnifiedMemberDisplay}}>{{#t}}from:{{/t}}</span>
             {{/if}}
             {{#feature flag="feature_name_tagging_client"}}
-              {{> member_menu_names}}
+              {{#shouldUseUnifiedMemberDisplay}}
+                {{> c-member member=this size="small" avatar=true omit_status=true omit_presence=true}}
+              {{else}}
+                {{> member_menu_names}}
+              {{/shouldUseUnifiedMemberDisplay}}
             {{else}}
               {{#if real_name}}
                 <strong>{{real_name}} </strong>
@@ -324,7 +332,7 @@
         >
           <button class="result_item_btn btn_unstyle" type="button" tabindex="-1">
             {{#shouldUseUnifiedMemberDisplay}}
-              {{> c-member member=this size="medium"}}
+              {{> c-member member=this size="medium" omit_status=true}}
             {{else}}
               <div class="profile_image float_left small_right_margin">{{makeMemberPreviewLinkImage this.id 32 false true}}</div>
               <div class="search_mini overflow_ellipsis">
@@ -357,7 +365,7 @@
         >
           <button class="result_item_btn btn_unstyle" type="button" tabindex="-1">
             {{#shouldUseUnifiedMemberDisplay}}
-              {{> c-member member=this size="medium"}}
+              {{> c-member member=this size="medium" omit_status=true}}
             {{else}}
               <div class="profile_image float_left small_right_margin">{{makeMemberPreviewLinkImage this.id 32 false true}}</div>
               <div class="search_mini overflow_ellipsis">
