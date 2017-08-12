@@ -86,7 +86,7 @@
     {{/if_equal}}
   {{/if}}
 
-  <div class="no_bottom_margin">
+  <div class="no_bottom_margin{{#if hide_file_sharing_dialog_comment}} hidden{{/if}}" id="file_sharing_dialog_comment">
     <label class="{{#isClient}}inline_block{{/isClient}} align_top">
       {{#isClient}}
         {{#t}}Add Comment <br /><span class="input_note normal">(optional)</span>{{/t}}

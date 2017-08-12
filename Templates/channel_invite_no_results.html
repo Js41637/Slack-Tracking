@@ -1,15 +1,7 @@
 {{i18n_ns 'channels'}}
 
-{{~#if teams~}}
-  {{#feature flag="feature_teams_to_workspaces"}}
-    {{#t query=(truncate query 50) teams=(listify teams conjunction='or' strong=true)}}We found <strong>{query}</strong>, but they aren't in a workspace that can join this channel ({teams}){{/t}}
-  {{else}}
-    {{#t query=(truncate query 50) teams=(listify teams conjunction='or' strong=true)}}We found <strong>{query}</strong>, but they aren't in a team that can join this channel ({teams}){{/t}}
-  {{/feature}}
+{{~#if query~}}
+  {{#t query=(truncate query 50)}}No one found matching <strong>{query}</strong>{{/t}}
 {{~else~}}
-  {{~#if query~}}
-        {{#t query=(truncate query 50)}}No one found matching <strong>{query}</strong>{{/t}}
-  {{~else~}}
-    {{#t}}Everyone is already in this channel, so there is no one to invite!{{/t}}
-  {{~/if~}}
+  {{#t}}Everyone is already in this channel, so there is no one to invite!{{/t}}
 {{~/if~}}

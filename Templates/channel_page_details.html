@@ -27,6 +27,11 @@
             </div>
           </div>
         {{/each}}
+        {{#feature flag="feature_lazy_grid_teams"}}
+          {{#if teams_shared_with_loading}}
+            {{> infinite_spinner size="medium" text="" color="white"}}
+          {{/if}}
+        {{/feature}}
       </div>
     {{/if}}
   </div>

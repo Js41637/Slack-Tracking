@@ -125,7 +125,7 @@
       {{/if}}
 
       <li class="file_action_item inline_block">
-        <a class="ts_tip ts_tip_bottom ts_tip_right file_actions" data-file-id="{{file.id}}"
+        <button type="button" class="btn_unstyle ts_tip ts_tip_bottom ts_tip_right file_actions" data-file-id="{{file.id}}"
           data-exclude-pin="true"
           data-exclude-comment="true"
           data-include-view-public-link="true"
@@ -135,7 +135,7 @@
         >
           <span class="ts_tip_btn ts_icon ts_icon_ellipsis_o"></span>
           <span class="ts_tip_tip">{{#t}}More actions{{/t}}</span>
-        </a>
+        </button>
       </li>
     </ul>
     {{/isClient}}

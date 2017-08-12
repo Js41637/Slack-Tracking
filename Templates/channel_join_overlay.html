@@ -23,9 +23,11 @@
       {{#if channel.is_shared}}
         <li>{{#t}}Messages, files, and members in this channel will be visible to both teams.{{/t}}</li>
         <li>{{#t}}Slack integrations are disabled in this channel.{{/t}}</li>
-        {{#isThereComplianceExportsTeam channel}}
-          <li>{{makeTeamsThatHaveComplianceExportsBlurb channel}}</li>
-        {{/isThereComplianceExportsTeam}}
+        {{#feature flag="feature_lazy_grid_teams"}}{{else}}
+          {{#isThereComplianceExportsTeam channel}}
+            <li>{{makeTeamsThatHaveComplianceExportsBlurb channel}}</li>
+          {{/isThereComplianceExportsTeam}}
+        {{/feature}}
       {{/if}}
     {{/pageNeedsEnterprise}}
     {{#if channel.creator}}
