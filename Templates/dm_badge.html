@@ -97,7 +97,7 @@
       {{#if is_shared}}
       {{!-- this means external shared, not org shared --}}
         {{#feature flag="feature_shared_channels_client"}}
-          {{#t teams=(makeExternalTeamNameList model_ob.shared_team_ids)}}This conversation includes people from <strong>{teams}</strong>, so share files and information with care.{{/t}}
+          {{#t teams=(makeTeamNameList model_ob.shared_team_ids)}}This conversation includes people from <strong>{teams}</strong>, so share files and information with care.{{/t}}
         {{/feature}}
       {{else}}
         {{#t members=(mpimDisplayName model_ob false false false true)}}This is <span class="not_limited_copy">the very beginning of</span> your direct message history with {members}.{{/t}}

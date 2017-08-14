@@ -2,7 +2,7 @@
 
 {{#unless is_muted}}
   <div class="channel_desktop_notifs small_bottom_margin">
-    <div class="bold greigh mini">{{#t}}Desktop notifications{{/t}}</div>
+    <div class="greigh mini {{#channelInsightsIsEnabled}}black small_bottom_margin{{else}}bold{{/channelInsightsIsEnabled}}">{{#t}}Desktop notifications{{/t}}</div>
     {{#if desktop_notifs_enabled}}
       {{#if desktop_everything}}{{#t}}All new messages{{/t}}{{/if}}
       {{#if desktop_mentions}}{{#t}}Mentions &amp; keywords{{/t}}{{/if}}
@@ -22,7 +22,7 @@
     {{/if}}
   </div>
   <div class="channel_push_notifs bottom_margin">
-    <div class="bold greigh mini">{{#t}}Mobile notifications{{/t}}</div>
+    <div class="greigh mini {{#channelInsightsIsEnabled}}black small_bottom_margin{{else}}bold{{/channelInsightsIsEnabled}}">{{#t}}Mobile notifications{{/t}}</div>
       {{#if push_everything}}{{#t}}All new messages{{/t}}{{/if}}
       {{#if push_mentions}}{{#t}}Mentions &amp; keywords{{/t}}{{/if}}
       {{#if push_nothing}}{{#t}}Nothing{{/t}}{{/if}}

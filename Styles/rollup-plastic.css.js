@@ -18282,17 +18282,18 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 
 .c-member--medium {
   position: relative;
+  align-items: center;
   font-size: 15px;
   color: #717274;
   font-weight: 400;
-  height: 36px
+  height: 42px
 }
 
 .c-member__flex-container--medium {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-height: 36px;
+  min-height: 42px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap
@@ -18343,6 +18344,15 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 .c-member--medium .member_image {
   width: 36px;
   height: 36px
+}
+
+.c-member__display-name {
+  line-height: 1.4;
+  vertical-align: middle
+}
+
+.c-member__current-status--medium .emoji {
+  margin-top: 0
 }
 
 .c-member--large {

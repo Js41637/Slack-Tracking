@@ -7,7 +7,7 @@
       <label for="urls[{{ index }}]" class="no_margin"></label>
       <span class="validation_message"></span>
       {{#feature flag="feature_token_ip_whitelist"}}
-        <span class="subtle_silver" data-annotation-row="{{index}}"></span>
+        <span class="subtle_silver" data-annotation-row="{{index}}">{{#if annotation}}{{annotation}}{{/if}}</span>
       {{/feature}}
     {{/if}}
   </div>

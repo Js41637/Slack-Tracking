@@ -1,7 +1,7 @@
 {{i18n_ns "channel_pages"}}
 
 {{#if model_ob.is_org_shared}}
-  <div class="channel_shared_teams_section bottom_margin">
+  <div class="channel_shared_teams_section bottom_margin {{#channelInsightsIsEnabled}}feature_sli_channel_insights{{/channelInsightsIsEnabled}}">
     {{#feature flag="feature_teams_to_workspaces"}}
       <div class="bold greigh shared_teams_label mini small_bottom_margin">{{#t}}Workspaces{{/t}}</div>
     {{else}}
@@ -58,19 +58,28 @@
   </div>
 {{/if}}
 
-<div class="channel_purpose_section">
-  {{#feature flag="feature_sli_channel_insights"}}
-    <div class="black greigh purpose_label mini small_bottom_margin">{{#t}}Purpose{{/t}}</div>
+<div class="channel_purpose_section {{#channelInsightsIsEnabled}}medium_bottom_margin{{/channelInsightsIsEnabled}}">
+  {{#channelInsightsIsEnabled}}
+    <div class="black greigh purpose_label mini small_bottom_margin">
+      {{#t}}Purpose{{/t}}
+      {{#if model_ob.purpose.value}}
+        {{#if show_edit_purpose_or_topic}}
+          <button class="edit_purpose btn_link" type="button">{{#t}}edit{{/t}}</button>
+        {{/if}}
+      {{/if}}
+    </div>
   {{else}}
     <div class="bold greigh purpose_label mini">{{#t}}Purpose{{/t}}</div>
-  {{/feature}}
+  {{/channelInsightsIsEnabled}}
 
-  <div class="bold greigh edit_purpose_label hidden mini tiny_bottom_margin">{{#t}}Set a new purpose{{/t}}</div>
+  <div class="greigh edit_purpose_label hidden mini {{#channelInsightsIsEnabled}}black small_bottom_margin{{else}}bold tiny_bottom_margin{{/channelInsightsIsEnabled}}">{{#t}}Set a new purpose{{/t}}</div>
 
   <div class="channel_purpose_text no_jumbomoji">
     {{#if model_ob.purpose.value}}
       {{formatTopicOrPurpose model_ob.purpose.value}}
-      {{#if show_edit_purpose_or_topic}}<button class="edit_purpose btn_link" type="button">{{#t}}edit{{/t}}</button>{{/if}}
+      {{#channelInsightsIsEnabled}}{{else}}
+        {{#if show_edit_purpose_or_topic}}<button class="edit_purpose btn_link" type="button">{{#t}}edit{{/t}}</button>{{/if}}
+      {{/channelInsightsIsEnabled}}
     {{else}}
       {{#if show_edit_purpose_or_topic}}
         <button class="edit_purpose btn_link block" type="button">{{#t}}Set a channel purpose{{/t}}</button>
@@ -95,12 +104,27 @@
   <button class="hidden btn btn_small purpose_done" tabindex="2">{{#t}}Done{{/t}}</button>
 </div>
 
-<div class="creator italic greigh top_margin">
-  {{#if creator_is_self}}
-    <a class="creator_link greigh" href="{{permalink}}"> {{#t}}Created by you {days_since_creation, select, 0 {today} 1 {yesterday} other {on {creation_date, date, long}}}{{/t}} </a>
-  {{else}}
-    <a class="creator_link greigh" href="{{permalink}}"> {{#t note="{creator_name} will always be third person, e.g. 'Created by UserA'"}}Created by {creator_name} {days_since_creation, select, 0 {today} 1 {yesterday} other {on {creation_date, date, long}}}{{/t}} </a>
-  {{/if}}
-</div>
+{{#channelInsightsIsEnabled}}
+{{#feature flag="feature_sli_channel_insights"}}
+  <div class="channel_created_section medium_bottom_margin">
+    <div class="black greigh mini small_bottom_margin">{{#t}}Created{{/t}}</div>
+    <div class="creator">
+      {{#if creator_is_self}}
+        <a class="creator_link" href="{{permalink}}"> {{#t}}Created by you {days_since_creation, select, 0 {today} 1 {yesterday} other {on {creation_date, date, long}}}{{/t}} </a>
+      {{else}}
+        <a class="creator_link" href="{{permalink}}"> {{#t note="{creator_name} will always be third person, e.g. 'Created by UserA'"}}Created by {creator_name} {days_since_creation, select, 0 {today} 1 {yesterday} other {on {creation_date, date, long}}}{{/t}} </a>
+      {{/if}}
+    </div>
+  </div>
+{{/feature}}
+{{else}}
+  <div class="creator italic greigh top_margin">
+    {{#if creator_is_self}}
+      <a class="creator_link greigh" href="{{permalink}}"> {{#t}}Created by you {days_since_creation, select, 0 {today} 1 {yesterday} other {on {creation_date, date, long}}}{{/t}} </a>
+    {{else}}
+      <a class="creator_link greigh" href="{{permalink}}"> {{#t note="{creator_name} will always be third person, e.g. 'Created by UserA'"}}Created by {creator_name} {days_since_creation, select, 0 {today} 1 {yesterday} other {on {creation_date, date, long}}}{{/t}} </a>
+    {{/if}}
+  </div>
+{{/channelInsightsIsEnabled}}
 
 <div class="c-channel_insights" data-js="sli_channel_insights_section"></div>
