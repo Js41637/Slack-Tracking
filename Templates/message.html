@@ -59,6 +59,11 @@
           {{else}}
             <span class="message_sender {{getBotColorClassByUserName msg.username}}"> {{{getBotNameWithLink msg}}} {{#if is_bot}}<span class="bot_label">{{#t note="short tag on a message that indicates the sender is an application"}}APP{{/t}}</span>{{/if}}</span>
           {{/if}}
+          {{#if for_top_results_search_display}}
+            {{#sliFileSearchIsEnabled}}
+              <span class="timestamp">{{#t rough-draft="true" note="when the message originally appeared" date=(toCalendarDateOrNamedDayShort msg.ts) time=(toTime msg.ts)}}{date} at {time}{{/t}}</span>
+            {{/sliFileSearchIsEnabled}}
+          {{/if}}
         {{/unless}}
         {{#if comment}}
           {{#if is_file_convo_continuation}}
@@ -116,6 +121,8 @@
     </div>
 
     {{#if for_top_results_search_display}}
+    {{#sliFileSearchIsEnabled}}
+    {{else}}
     <div class="message_content_header">
       <div class="message_content_header_left">
         <span class="timestamp">{{#t note="when and where message originally appeared" date=(toCalendarDateOrNamedDayShort msg.ts) time=(toTime msg.ts)}}{date} at {time} in{{/t}} </span>
@@ -140,6 +147,7 @@
         </span>
       </div>
     </div>
+    {{/sliFileSearchIsEnabled}}
     {{/if}}
 
     {{#unless is_tombstone}}

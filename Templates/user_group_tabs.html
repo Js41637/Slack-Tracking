@@ -24,16 +24,16 @@
 {{else}}
   <ul class="flexpane_tab_bar small_top_margin lato no_bottom_margin bottom_border">
     {{#if show_members}}
-      <li id="active_members_tab" class="tab bold active" href="#active_members"><a href="#active_members" data-name="active_members" data-action="search">{{#isWeb}}{{#t}}Full Members{{/t}}{{else}}{{#t}}Members{{/t}}{{/isWeb}} <span id="active_members_count" class="normal">(<span id="active_members_count_value">{{members.length}}</span>)</span></a></li>
+      <li id="active_members_tab" class="bold active"><a href="#active_members" class="tab" data-name="active_members" data-action="search"><span class="tab_text">{{#isWeb}}{{#t}}Full Members{{/t}}{{else}}{{#t}}Members{{/t}}{{/isWeb}} <span id="active_members_count" class="normal">(<span id="active_members_count_value">{{members.length}}</span>)</span></span></a></li>
     {{/if}}
     {{#if show_restricted_members}}
-      <li id="restricted_members_tab" class="tab bold {{#if restricted_members.length}}{{else}}hidden{{/if}}" href="#restricted_members"><a href="#restricted_members" data-name="restricted_members" data-action="search">{{#t}}Guests{{/t}} <span id="restricted_members_count" class="normal">(<span id="restricted_members_count_value">{{restricted_members.length}}</span>)</span></a></li>
+      <li id="restricted_members_tab" class="bold {{#if restricted_members.length}}{{else}}hidden{{/if}}"><a href="#restricted_members" class="tab" data-name="restricted_members" data-action="search"><span class="tab_text">{{#t}}Guests{{/t}} <span id="restricted_members_count" class="normal">(<span id="restricted_members_count_value">{{restricted_members.length}}</span>)</span></span></a></li>
     {{/if}}
     {{#if show_user_groups}}
-      <li id="user_groups_list_tab" class="tab bold usergroup_action {{#if user_groups.length}}{{else}}hidden{{/if}}" href="#user_groups_list"><a href="#user_groups_list" data-name="user_groups" data-action="user_group_edit">{{#t}}Groups{{/t}} <span id="usergroup_count" class="normal">(<span class="usergroup_count">{{user_groups.length}}</span>)</span></a></li>
+      <li id="user_groups_list_tab" class="bold usergroup_action {{#if user_groups.length}}{{else}}hidden{{/if}}"><a href="#user_groups_list" class="tab" data-name="user_groups" data-action="user_group_edit"><span class="tab_text">{{#t}}Groups{{/t}} <span id="usergroup_count" class="normal">(<span class="usergroup_count">{{user_groups.length}}</span>)</span></span></a></li>
     {{/if}}
     {{#if show_disabled_members}}
-      <li id="disabled_members_tab" class="tab bold {{#if disabled_members.length}}{{else}}hidden{{/if}}" href="#disabled_members"><a href="#disabled_members" data-name="disabled_members" data-action="search">{{#t}}Deactivated{{/t}} <span id="disabled_members_count" class="normal">(<span id="disabled_members_count_value">{{disabled_members.length}}</span>)</span></a></li>
+      <li id="disabled_members_tab" class="bold {{#if disabled_members.length}}{{else}}hidden{{/if}}"><a href="#disabled_members" class="tab" data-name="disabled_members" data-action="search"><span class="tab_text">{{#t}}Deactivated{{/t}} <span id="disabled_members_count" class="normal">(<span id="disabled_members_count_value">{{disabled_members.length}}</span>)</span></span></a></li>
     {{/if}}
   </ul>
   <div class="flexpane_tab_toolbar">

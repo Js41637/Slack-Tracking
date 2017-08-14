@@ -1,10 +1,24 @@
 {{i18n_ns 'files'}}
 
-<div id="{{makeFileDomId file}}" class="file_list_item file_item {{file.mode}} {{#if has_image}}has_image{{else}}has_icon{{/if}}" data-file-id="{{file.id}}"
+<div id="{{makeFileDomId file}}" class="file_list_item file_item {{file.mode}} {{#if has_image}}has_image{{else}}has_icon{{/if}} {{#sliFileSearchIsEnabled}}file_list_item--redesign {{#unless file.channels.length}}file_list_item--no-channels{{/unless}}{{/sliFileSearchIsEnabled}}" data-file-id="{{file.id}}"
     {{#feature flag="feature_arugula"}}
       draggable="true"
       data-drag-meta='{{makeFileDragData file}}'
     {{/feature}}>
+
+  {{#sliFileSearchIsEnabled}}
+  {{#feature flag="feature_sli_file_search"}}
+    {{#if show_channel_name}}
+      {{#if_equal file.channels.length compare="1"}}
+        <div class="file_list_item__channel black">{{#t rough-draft="true"}}File in {channel_name}{{/t}}</div>
+      {{else}}
+        {{#if file.channels.length}}
+          <div class="file_list_item__channel black">{{#t rough-draft="true" count=file.channels.length}}File in {channel_name} and {count, plural, =1 {# other channel} other {# other channels}}{{/t}}</div>
+        {{/if}}
+      {{/if_equal}}
+    {{/if}}
+  {{/feature}}
+  {{/sliFileSearchIsEnabled}}
 
   {{#if for_files_list}}
 
@@ -67,14 +81,24 @@
 
     <div class="contents">
 
-      <span class="author">{{makeMemberPreviewLink member}}</span>
-      <span class="time">{{#t date=(toCalendarDateOrNamedDayShort file.timestamp) time=(toTime file.timestamp)}}{date} at {time}{{/t}}</span>
+      {{#sliFileSearchIsEnabled}}
+      {{else}}
+        <span class="author">{{makeMemberPreviewLink member}}</span>
+        <span class="time">{{#t date=(toCalendarDateOrNamedDayShort file.timestamp) time=(toTime file.timestamp)}}{date} at {time}{{/t}}</span>
+      {{/sliFileSearchIsEnabled}}
 
       <h4 class="title {{#if supports_line_clamp}}{{else}}overflow_ellipsis{{/if}} {{#unless file.plain_text}}{{#unless file.preview_in_list}}{{#unless file.preview}}no_preview{{/unless}}{{/unless}}{{/unless}}">
         {{#isWeb}}<a href="{{file.permalink}}">{{/isWeb}}
           {{highlightSearchMatchesInFileTitle file.title}}
         {{#isWeb}}</a>{{/isWeb}}
       </h4>
+
+      {{#sliFileSearchIsEnabled}}
+        <div class="file_search_item__author_and_time">
+          <span class="author">{{makeMemberPreviewLink member}}</span>
+          <span class="time">{{#t date=(toCalendarDateOrNamedDayShort file.timestamp) time=(toTime file.timestamp)}}{date} at {time}{{/t}}</span>
+        </div>
+      {{/sliFileSearchIsEnabled}}
 
       {{#if is_email}}
         {{#if file.preview_plain_text}}
