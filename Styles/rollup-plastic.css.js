@@ -18346,12 +18346,14 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   height: 36px
 }
 
-.c-member__display-name {
+.c-member__display-name--medium,
+.c-member__secondary-name--medium {
   line-height: 1.4;
   vertical-align: middle
 }
 
-.c-member__current-status--medium .emoji {
+.c-member__current-status--medium .emoji,
+.c-member__current-status--medium .emoji-outer.emoji-sizer {
   margin-top: 0
 }
 

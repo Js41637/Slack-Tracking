@@ -82,7 +82,7 @@
       {{/channelInsightsIsEnabled}}
     {{else}}
       {{#if show_edit_purpose_or_topic}}
-        <button class="edit_purpose btn_link block" type="button">{{#t}}Set a channel purpose{{/t}}</button>
+        <button class="edit_purpose edit_purpose--blank btn_link block" type="button">{{#t}}Set a channel purpose{{/t}}</button>
       {{else}}
         {{#if model_ob.is_channel}}
         <span class="italic">{{#t}}A purpose has not been set for #{model_ob.name}.{{/t}}</span>

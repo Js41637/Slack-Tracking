@@ -22,7 +22,7 @@
       <label class="radio normal">
         <input name="a11y_font_size_select" type="radio" value="90">
         {{#t note="setting for text size"}}<strong>90%</strong>{{/t}}
-      </label>      
+      </label>
 
       <label class="radio normal">
         <input name="a11y_font_size_select" type="radio" value="normal">
@@ -77,10 +77,16 @@
   </div>
 {{/if}}
 
-<fieldset>
+<fieldset class="large_bottom_margin">
   <legend><span id="prefs_a11y_animations">{{#t}}Animation{{/t}}</span></legend>
   <label class="checkbox">
     <input id="a11y_animations" type="checkbox" data-inline-saver="#prefs_a11y_animations">
     {{#t}}Allow animated images and emoji{{/t}}
   </label>
 </fieldset>
+{{#feature flag="feature_shortcuts_flexpane"}}
+  <div class="a11y_keyboard_shortcuts">
+    <legend><span id="a11y_keyboard_shortcuts">{{#t}}Keyboard{{/t}}</span></legend>
+    <div>{{#t}}You can improve the way you use Slack by learning our {{/t}}<a id="keyboard_shortcuts_link" onclick="TS.ui.react_keyboard_shortcuts.prefLink()">{{#t}}handy keyboard shortcuts{{/t}}</a></div>
+  </div>
+{{/feature}}
