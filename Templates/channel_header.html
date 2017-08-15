@@ -106,6 +106,21 @@
         --}}</button>
       </div>
 
+      {{~#feature flag="feature_shared_channels_client"}}
+        {{#and is_shared (makeTeamNameList shared_team_ids false)}}
+          {{#unless is_org_shared}}
+            <div class="channel_header_info_item">
+              <button type="button" id="channel_share_info" class="btn_unstyle blue_on_hover ts_tip ts_tip_bottom">
+                <span id="channel_header_info_share_info">{{#t team_names=(makeTeamNameList shared_team_ids false)}}Shared with {team_names}{{/t}}</span>
+                <span class="ts_tip_tip">
+                  {{#t}}View Share Info{{/t}}
+                </span>
+              </button>
+            </div>
+          {{/unless}}
+        {{/and}}
+      {{/feature}}
+
       {{~#if show_topic~}}
         {{~#feature flag="feature_name_tagging_client"~}}
           <div class="channel_header_info_item channel_topic_container">

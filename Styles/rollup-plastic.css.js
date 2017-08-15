@@ -14521,7 +14521,7 @@ body:not(.unify_user) #member_preview_scroller .member_details {
 #team_filter .member_filter,
 #user_group_filter .member_filter {
   padding-left: 1.9rem;
-  padding-right: 1.9rem
+  padding-right: .95rem
 }
 
 #client-ui .member_file_filter_menu .searchable_member_list_input,

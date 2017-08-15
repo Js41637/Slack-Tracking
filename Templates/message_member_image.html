@@ -5,11 +5,7 @@
     {{#if member.is_unknown}}
       <div class="member_image member_image_unknown thumb_36"></div>
     {{else}}
-      {{#if is_bot}}
-        {{makeProfileImage member size="36"}}
-      {{else}}
-        {{makeMemberPreviewLinkImage member.id 36 null null null null msg.slackbot_feels}}
-      {{/if}}
+      {{makeMemberPreviewLinkImage member.id 36 null null null null msg.slackbot_feels}}
     {{/if}}
   {{else}}
     {{makeUsernameImage msg 36}}

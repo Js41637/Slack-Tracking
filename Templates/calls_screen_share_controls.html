@@ -1,0 +1,40 @@
+{{i18n_ns "calls"}}
+
+<div class="ss_controls ss_controls--{{#if is_host }}host{{else}}guest{{/if}}">
+    {{#experiment name="calls_interactive_ss" group="enabled"}}
+    <div class="ss_controls__info_container">
+        <div class="ss_controls__speaker">
+            <img class="ss_controls__speaker--avatar" />
+            <div class="ss_controls__speaker_info_container">
+                <span class="ss_controls__speaker--desc">{{#t note="shown above the user's name that is currently speaking"}}Current speaker{{/t}}</span>
+                <span class="ss_controls__speaker--name"></span>
+            </div>
+        </div>
+        <div class="ss_controls__reaction">
+            <span class="ss_controls__reaction--emoji"></span>
+            <span class="ss_controls__reaction--name"></span>
+        </div>
+        <span class="ss_controls__help_text">
+                <span data-action="end_share">{{#t}}Stop sharing your screen{{/t}}</span>
+                <span data-action="options">{{#t}}More options{{/t}}</span>
+                <span data-action="mute_on">{{#t}}Mute your microphone{{/t}}</span>
+                <span data-action="mute_off">{{#t}}Enable your microphone{{/t}}</span>
+                <span data-action="interactive_on">{{#t}}Stop letting others interact with your screen{{/t}}</span>
+                <span data-action="interactive_off">{{#t}}Let others interact with your screen{{/t}}</span>
+                <span data-action="video_on">{{#t}}Disable camera{{/t}}</span>
+                <span data-action="video_off">{{#t}}Enable camera{{/t}}</span>
+        </span>
+    </div>
+
+    <div class="ss_controls__button_container">
+        <button data-action="mute" class="ss_controls__button ss_controls__button--mute"></button>
+        {{#if is_host }}
+        <button data-action="interactive" class="ss_controls__button ss_controls__button--interactive"></button>
+        <button data-action="end_share" class="ss_controls__button ss_controls__button--end_share"></button>
+        {{else}}
+        <button data-action="video" class="ss_controls__button ss_controls__button--video"></button>
+        <button data-action="options" class="ss_controls__button ss_controls__button--options"></button>
+        {{/if}}
+    </div>
+    {{/experiment}}
+</div>

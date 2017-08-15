@@ -8,8 +8,8 @@
     {{else}}
       {{#if existing_forwarding_email}}
         <p>
-          {{#t}}Here\u2019s your forwarding address \u2014 copy it below to forward or bcc any email to Slack.
-          (Emails will arrive in your conversation with Slackbot.){{/t}}
+          {{#t}}Copy and paste this address to forward or bcc any important
+          email to Slack. (Slackbot will upload the email for you.){{/t}}
         </p>
         <p class="your_forwarding_address display_flex flex_wrap">
           <label for="forwarding_address">{{#t}}Your forwarding address{{/t}}</label>
@@ -22,8 +22,9 @@
         <p><a role="button" href="#" class="link_btn" id="disable_forwarding_email_cb" data-clog-click="true" data-clog-event="EMAIL_INGESTION_ADDRESS_DISABLE">{{#t}}Disable this address{{/t}}</a></p>
       {{else}}
         <p>
-          {{#t}}Get an email address for forwarding email to Slack. Slackbot
-          will deliver your forwarded emails, and you can keep them private or share them with your team.{{/t}}
+          {{#t}}You can upload any important email to Slack by forwarding it to a unique email
+          address. Slackbot will deliver the email, and you can keep it private or share it
+          with your team.{{/t}}
         </p>
         <p class="prefs_email_forwarding_get">
           <button id="get_forwarding_email_cb" class="btn btn_outline ladda-button" type="button" data-style="expand-right" data-clog-click="true" data-clog-event="EMAIL_INGESTION_ADDRESS_CREATE">{{#t}}Get a Forwarding Address{{/t}}</button>

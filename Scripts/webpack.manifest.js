@@ -1,20 +1,20 @@
 (function(e) {
   var a = window["webpackJsonp"];
-  window["webpackJsonp"] = function c(r, f, o) {
+  window["webpackJsonp"] = function c(b, f, o) {
     var i, _, s = 0,
       n = [],
       l;
-    for (; s < r.length; s++) {
-      _ = r[s];
+    for (; s < b.length; s++) {
+      _ = b[s];
       if (d[_]) n.push(d[_][0]);
       d[_] = 0;
     }
     for (i in f)
       if (Object.prototype.hasOwnProperty.call(f, i)) e[i] = f[i];
-    if (a) a(r, f, o);
+    if (a) a(b, f, o);
     while (n.length) n.shift()();
     if (o)
-      for (s = 0; s < o.length; s++) l = b(b.s = o[s]);
+      for (s = 0; s < o.length; s++) l = r(r.s = o[s]);
     return l;
   };
   var c = {};
@@ -22,35 +22,35 @@
     484: 0
   };
 
-  function b(a) {
+  function r(a) {
     if (c[a]) return c[a].exports;
     var d = c[a] = {
       i: a,
       l: false,
       exports: {}
     };
-    e[a].call(d.exports, d, d.exports, b);
+    e[a].call(d.exports, d, d.exports, r);
     d.l = true;
     return d.exports;
   }
-  b.e = function e(a) {
+  r.e = function e(a) {
     var c = d[a];
     if (0 === c) return new Promise(function(e) {
       e();
     });
     if (c) return c[2];
-    var r = new Promise(function(e, b) {
-      c = d[a] = [e, b];
+    var b = new Promise(function(e, r) {
+      c = d[a] = [e, r];
     });
-    c[2] = r;
+    c[2] = b;
     var f = document.getElementsByTagName("head")[0];
     var o = document.createElement("script");
     o.type = "text/javascript";
     o.charset = "utf-8";
     o.async = true;
     o.timeout = 12e4;
-    if (b.nc) o.setAttribute("nonce", b.nc);
-    o.src = b.p + "" + ({
+    if (r.nc) o.setAttribute("nonce", r.nc);
+    o.src = r.p + "" + ({
       0: "boot_app",
       4: "application",
       5: "enterprise",
@@ -535,22 +535,23 @@
       485: "frontiers_banner",
       486: "TS.utility",
       487: "TS.ui.validation",
-      488: "TS.developer_apps.token_ip_whitelist"
+      488: "TS.developer_apps.token_ip_whitelist",
+      489: "TS.calls.screen_share_controls"
     }[a] || a) + "." + {
-      0: "4dc409699d1d72af2e6f",
+      0: "9de1fbadd5b30f7aa5a7",
       1: "9230603b2fc1edefd232",
       2: "23faa67df3ef8e798634",
       3: "93a48e81093510043a12",
-      4: "8453797339d853b50cbb",
+      4: "0f094eff9dad4c4eabd1",
       5: "de1c9a9b13253a538099",
       6: "9af4345ce9f1a0f42ea2",
-      7: "083f69ba3b27fdfffd25",
-      8: "4919c9abe6cb6402e70c",
+      7: "08d16404f2a04c8f97c2",
+      8: "7f8853c8126db59530b0",
       9: "12e59915baa535755eb8",
       10: "8028da132465e4d8ba81",
       11: "c05dc887d1a11a7204f8",
       12: "807404445486469c3f73",
-      13: "a06f2d21e6f6e37b2cf0",
+      13: "8312eb1a0779b16539f2",
       14: "b43f6a2b0c5674bebd08",
       15: "0f30f5d0d50ffa276490",
       16: "3162354f5ec4bb0b27bb",
@@ -853,7 +854,7 @@
       313: "321e74209c4f8afd0691",
       314: "f7cf89a65340ef841e56",
       315: "9f27964585061e0a6b32",
-      316: "e19377d72fc49885b87b",
+      316: "812c209ef36513353cf9",
       317: "afb59b3d4cc22e563299",
       318: "9d545018a419cecee882",
       319: "82dbd638aec5945458ee",
@@ -885,7 +886,7 @@
       345: "05de57b96b0e884a6f05",
       346: "35bece55b89bc8faf408",
       347: "336c49958dd437d19493",
-      348: "f4d716efd1218f6188e8",
+      348: "3138a5b8214ed75d69cd",
       349: "ceaf266b2d660a31bd21",
       350: "72056c3ab7e0d2ce8e85",
       351: "740e511d2aaa3189b033",
@@ -952,7 +953,7 @@
       412: "021f0779bf57d6e0ca55",
       413: "ecf4ce6c133cf828ebf1",
       414: "350a1d637489f88c9bdb",
-      415: "4575998c9af3a8f56da7",
+      415: "a331fdcf1b37fe35d716",
       416: "1edab3e5d188d67a8053",
       417: "0cad4dca0179d6c28c54",
       418: "c2c9378292552d58aee4",
@@ -1024,7 +1025,8 @@
       485: "5c32332be0bea053083b",
       486: "a009f540fc609d86983a",
       487: "c3f3fa029ba9379f1ed3",
-      488: "d161eb1f68d2ff708265"
+      488: "d161eb1f68d2ff708265",
+      489: "e048e271c9a5da8b62e6"
     }[a] + ".chunk.min.js";
     var i = setTimeout(_, 12e4);
     o.onerror = o.onload = _;
@@ -1039,31 +1041,31 @@
       }
     }
     f.appendChild(o);
-    return r;
+    return b;
   };
-  b.m = e;
-  b.c = c;
-  b.d = function(e, a, c) {
-    if (!b.o(e, a)) Object.defineProperty(e, a, {
+  r.m = e;
+  r.c = c;
+  r.d = function(e, a, c) {
+    if (!r.o(e, a)) Object.defineProperty(e, a, {
       configurable: false,
       enumerable: true,
       get: c
     });
   };
-  b.n = function(e) {
+  r.n = function(e) {
     var a = e && e.__esModule ? function a() {
       return e["default"];
     } : function a() {
       return e;
     };
-    b.d(a, "a", a);
+    r.d(a, "a", a);
     return a;
   };
-  b.o = function(e, a) {
+  r.o = function(e, a) {
     return Object.prototype.hasOwnProperty.call(e, a);
   };
-  b.p = "/";
-  b.oe = function(e) {
+  r.p = "/";
+  r.oe = function(e) {
     console.error(e);
     throw e;
   };
