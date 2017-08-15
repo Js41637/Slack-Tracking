@@ -169,9 +169,27 @@
 
     {{#if show_dm_item}}
       {{#feature flag="feature_name_tagging_client"}}
-        <li id="member_dm_item" role="menuitem"><a href="/messages/@{{member.id}}">{{#if member.deleted}}Direct Message archives{{else}}{{#t}}Direct Messages{{/t}}{{/if}}</a></li>
+        <li id="member_dm_item" role="menuitem"><a href="/messages/@{{member.id}}">
+        {{#if member.deleted}}
+          {{#feature flag='feature_i18n_unwrapped'}}
+            {{#t}}Direct Message archives{{/t}}
+          {{else}}
+            Direct Message archives
+          {{/feature}}
+        {{else}}
+          {{#t}}Direct Messages{{/t}}
+        {{/if}}</a></li>
       {{else}}
-        <li id="member_dm_item" role="menuitem"><a href="/messages/@{{member.name}}">{{#if member.deleted}}Direct Message archives{{else}}{{#t}}Direct Messages{{/t}}{{/if}}</a></li>
+        <li id="member_dm_item" role="menuitem"><a href="/messages/@{{member.name}}">
+        {{#if member.deleted}}
+          {{#feature flag='feature_i18n_unwrapped'}}
+            {{#t}}Direct Message archives{{/t}}
+          {{else}}
+            Direct Message archives
+          {{/feature}}
+        {{else}}
+          {{#t}}Direct Messages{{/t}}
+        {{/if}}</a></li>
       {{/feature}}
     {{/if}}
 
