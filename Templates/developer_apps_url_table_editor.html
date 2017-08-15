@@ -12,7 +12,7 @@
     {{/if}}
     {{#if model}}
       {{#each model}}
-        {{> developer_apps_url_table_editor_row index=@key is_read_mode=true cancel_button_text=../options.cancel_button_text save_button_text=../options.save_button_text edit_button_text=../options.edit_button_text validation=../options.validation }}
+        {{> developer_apps_url_table_editor_row index=@key is_read_mode=true cancel_button_text=../options.cancel_button_text save_button_text=../options.save_button_text edit_button_text=../options.edit_button_text validation=../options.validation id=../options.id }}
       {{/each}}
     {{/if}}
   </div>
@@ -22,7 +22,7 @@
       <aside class="small subtle_silver bottom_margin">{{options.footer}}</aside>
     {{/if}}
 
-    <button data-js-url-editor="create" class="btn_outline btn block small_bottom_margin">{{ options.add_button_text }}</button>
+    <button data-js-url-editor="create" class="btn_outline btn block bottom_margin">{{ options.add_button_text }}</button>
     {{#if promise_to_save_button}}
       <button data-js-url-editor="save-all" class="btn ladda-button block small_bottom_margin" data-spinner-size="32" data-style="expand-right">{{ options.save_all_urls_text }}</button>
     {{/if}}

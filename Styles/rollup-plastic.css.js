@@ -12754,7 +12754,6 @@ a.plastic_typeahead_item:hover {
   display: inline-block;
   text-align: center;
   float: left;
-  transition: box-shadow 125ms ease-out;
   box-shadow: inset 0 -2px 0 0 transparent
 }
 

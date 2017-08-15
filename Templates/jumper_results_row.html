@@ -1,7 +1,7 @@
 {{i18n_ns "jumper"}}
 
 {{#feature flag="feature_name_tagging_client"}}
-  <li data-item-id="{{this.model_ob.id}}" class="{{#if this.model_ob.deleted}}deleted{{/if}}">
+  <li data-item-id="{{this.model_ob.id}}" class="{{#if this.model_ob.deleted}}deleted{{/if}}" {{#if this.model_ob.team_url}}data-item-team-id="{{this.model_ob.team_id}}"{{/if}}>
 {{else}}
   <li aria-label="{{#if this.model_ob.team_url}}{{this.model_ob.team_name}}{{else}}{{this.model_ob.name}}{{/if}}{{#showDraftIcon this.model_ob}}, {{#t}}draft{{/t}}{{/showDraftIcon}}" data-item-id="{{this.model_ob.id}}" {{#if this.model_ob.team_url}}data-item-team-id="{{this.model_ob.team_id}}"{{/if}} class="{{#if this.model_ob.deleted}}deleted{{/if}}">
 {{/feature}}
