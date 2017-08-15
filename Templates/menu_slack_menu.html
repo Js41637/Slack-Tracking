@@ -111,15 +111,8 @@
 
         {{/if}}
 
-        {{#if this.user.is_owner}}
-          {{#isOurApp}}
-            {{#isMacAppStorebuild}}
-            {{else}}
-              {{>  slack_menu_upgrade_slack_cta}}
-            {{/isMacAppStorebuild}}
-          {{else}}
-            {{>  slack_menu_upgrade_slack_cta}}
-          {{/isOurApp}}
+        {{#if show_billing_link}}
+          {{>  slack_menu_upgrade_slack_cta}}
         {{/if}}
 
         {{#if show_statistics_link}}
@@ -162,15 +155,8 @@
         {{> slack_menu_show_statistics_cta}}
       {{/if}}
 
-      {{#if this.user.is_owner}}
-        {{#isOurApp}}
-          {{#isMacAppStorebuild}}
-          {{else}}
-            {{>  slack_menu_upgrade_slack_cta}}
-          {{/isMacAppStorebuild}}
-        {{else}}
-          {{>  slack_menu_upgrade_slack_cta}}
-        {{/isOurApp}}
+      {{#if show_billing_link}}
+        {{>  slack_menu_upgrade_slack_cta}}
       {{/if}}
     {{/unless}}
 

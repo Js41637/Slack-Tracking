@@ -52,6 +52,9 @@
           {{else}}
             {{#t count=this.member_count}}{count, plural, =1 {# member} other {# members}}{{/t}}
           {{/if}}
+          {{#if this.connecting_admin}}
+            | {{this.connecting_admin}}
+          {{/if}}
         </div>
       </div>
     {{/each}}

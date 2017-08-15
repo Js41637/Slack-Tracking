@@ -13,9 +13,9 @@
       <p class="alert alert_warning">
       <i class="ts_icon ts_icon_info_circle"></i>
       {{#feature flag="feature_teams_to_workspaces"}}
-        {{#t fallback_hash='9e16f3142b136a748337b4fdeed04aa516a89e5b' note="Inline error message indicating the team's storage limit has been exceeded."}}You are over your storage limit.<br /> Please <a href="/pricing?ui_step=70&ui_element=5" target="{newWindowName}" class="bold underline" data-clog-event="GROWTH_PRICING" data-clog-ui-element="pricing_link" data-clog-ui-action="click" data-clog-ui-step="file_upload">upgrade to a paid plan</a> or <a href="/files" target="{newWindowName}" class="bold underline">delete the files you don\u2019t need</a>.{{/t}}
+        {{#t note="Inline error message indicating the team's storage limit has been exceeded."}}You are over your storage limit.<br /> Please <a href="/pricing?ui_step=70&ui_element=5" target="{newWindowName}" class="bold underline" data-clog-event="GROWTH_PRICING" data-clog-ui-element="pricing_link" data-clog-ui-action="click" data-clog-ui-step="file_upload">upgrade to a paid plan</a> or <a href="/files" target="{newWindowName}" class="bold underline">delete the files you don\u2019t need</a>.{{/t}}
       {{else}}
-        {{#t fallback_hash='b4cec43d3259a36dd8898e8d8bbc5e3a8b1219ed' note="Inline error message indicating the team's storage limit has been exceeded."}}Your team is over its storage limit.<br /> Please <a href="/pricing?ui_step=70&ui_element=5" target="{newWindowName}" class="bold underline" data-clog-event="GROWTH_PRICING" data-clog-ui-element="pricing_link" data-clog-ui-action="click" data-clog-ui-step="file_upload">upgrade to a paid plan</a> or <a href="/files" target="{newWindowName}" class="bold underline">delete the files you don\u2019t need</a>.{{/t}}
+        {{#t note="Inline error message indicating the team's storage limit has been exceeded."}}Your team is over its storage limit.<br /> Please <a href="/pricing?ui_step=70&ui_element=5" target="{newWindowName}" class="bold underline" data-clog-event="GROWTH_PRICING" data-clog-ui-element="pricing_link" data-clog-ui-action="click" data-clog-ui-step="file_upload">upgrade to a paid plan</a> or <a href="/files" target="{newWindowName}" class="bold underline">delete the files you don\u2019t need</a>.{{/t}}
       {{/feature}}
       </p>
     {{/if}}

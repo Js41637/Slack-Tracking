@@ -16077,7 +16077,8 @@ body:not(.unify_user) #im_browser .im_browser_row.multiparty .im_display_name_co
 #im_browser .im_browser_row.multiparty .member_image+.member_image {
   position: absolute;
   left: 20px;
-  top: 22px
+  top: 22px;
+  z-index: 1
 }
 
 #im_browser .im_browser_row.multiparty .member_image+.member_image:not(.ra):not(.ura) {
@@ -18912,4 +18913,11 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 
 .feature_name_tagging_client .channel_topic_dialog .ql-editor {
   height: 6rem
+}
+
+#ts_tip_texty_tip {
+  transition: all .1s;
+  position: absolute;
+  z-index: 1;
+  opacity: 0
 }
