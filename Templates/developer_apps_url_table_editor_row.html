@@ -13,16 +13,16 @@
   </div>
   <div class="float_left c-url_table_editor__actions">
     {{#if is_create_mode}}
-      {{> developer_apps_url_table_editor_button action="cancel-create" button_class="btn btn_outline" button_text=cancel_button_text }}
-      {{> developer_apps_url_table_editor_button action="save-create" button_class="btn small_left_margin" button_text=save_button_text }}
+      {{> developer_apps_url_table_editor_button action="cancel-create" button_class="btn btn_outline small_left_margin float_left" button_text=cancel_button_text }}
+      {{> developer_apps_url_table_editor_button action="save-create" button_class="btn small_left_margin float_left" button_text=save_button_text }}
     {{/if}}
     {{#if is_read_mode}}
       {{> developer_apps_url_table_editor_button action="edit" button_class="btn_icon btn_outline btn c-url_table_editor__buttons ts_icon ts_icon_pencil" }}
       {{> developer_apps_url_table_editor_button action="delete" button_class="btn_icon btn_outline btn c-url_table_editor__buttons ts_icon ts_icon_trash" }}
     {{/if}}
     {{#if is_edit_mode}}
-      {{> developer_apps_url_table_editor_button action="cancel-update" button_class="btn btn_outline" button_text=cancel_button_text }}
-      {{> developer_apps_url_table_editor_button action="save-update" button_class="btn small_left_margin" button_text=edit_button_text }}
+      {{> developer_apps_url_table_editor_button action="cancel-update" button_class="btn btn_outline small_left_margin float_left" button_text=cancel_button_text }}
+      {{> developer_apps_url_table_editor_button action="save-update" button_class="btn small_left_margin float_left" button_text=edit_button_text }}
     {{/if}}
     {{#if is_delete_mode}}
       {{> developer_apps_url_table_editor_button action="restore" button_class="btn_icon c-url_table_editor__buttons btn_outline btn ts_icon ts_icon_undo"}}

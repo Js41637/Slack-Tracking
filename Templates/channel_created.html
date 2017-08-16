@@ -1,6 +1,19 @@
 {{i18n_ns "channel_created"}}
 
-{{#if creator.is_self}}
+{{#if shared.external_shared}}
+  {{#feature flag="feature_shared_channels_client"}}
+  {{#if shared.is_pending}}
+    {{#t
+      pending_teams=(listify shared.pending_teams map="name" strong="true")
+    }}This is a shared channel. Waiting for {pending_teams} to join...{{/t}}
+  {{else}}
+    {{#t 
+      teams_shared_between=(listify shared.teams_shared_between map="name" strong="true")
+    }}This is a shared channel between {teams_shared_between}.{{/t}}
+  {{/if}}
+  {{/feature}}
+
+{{else}}{{#if creator.is_self}}
 
   {{#if shared}}
     {{#if shared.all_teams}}
@@ -75,4 +88,4 @@
     {{#t note="{date} is either a date e.g. 'on July 14th', or 'yesterday' or 'today'"}}Unknown created this {private, select, true {private} other {}} channel {date}.{{/t}}
   {{/if}}
 
-{{/if}}{{/if}}
+{{/if}}{{/if}}{{/if}}
