@@ -32,7 +32,7 @@
   <div class="file_body post_body">{{#if file.content_html}}{{{formatSpaceHtml file.content_html}}}{{else}}{{{formatSpaceHtml file.preview}}}{{/if}}</div>
 
   {{#if is_message}}
-    {{> message_file_preview_actions collapse=true}}
+    {{> message_file_preview_actions collapse=true external_file_author=(isFileAuthorExternal file)}}
     {{> message_file_preview_footer collapse=true}}
   {{/if}}
 

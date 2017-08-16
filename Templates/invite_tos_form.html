@@ -2,9 +2,9 @@
 
 <div class="fs_split_header"></div>
 
-<div id="invite_form_body" class="{{#if should_show_single_page}}fs_grey{{else}}fs_split_body{{/if}}">
+<div id="invite_form_body" class="{{#if is_split_pane}}fs_split_body{{else}}fs_grey{{/if}}">
 
-  {{#if should_show_single_page}}<div id="tos_graphics"></div>{{/if}}
+  {{#unless is_split_pane}}<div id="tos_graphics"></div>{{/unless}}
 
   <h1 class="tos_title_form">{{#t}}Please review the User Terms of Service{{/t}}</h1>
 
@@ -18,7 +18,7 @@
 </div>
 
 
-<div class="tos_i_agree_banner invite_flow {{#or should_show_single_page collect_user_role}}full_width{{/or}}">
+<div class="tos_i_agree_banner invite_flow {{#unless is_split_pane}}full_width{{/unless}}">
   <div class="tos_full_width col span_4_of_6 margin_auto float_none">
     <div class="col span_2_of_3">
       <p class="tos_disclaimer">

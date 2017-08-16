@@ -87,7 +87,7 @@
             <span class="bullet">\u2022</span>
             {{/memberHasProfileFieldDisplayName}}
             {{#unless member.is_bot}}
-                <span{{#if show_email_edit}} class="inline_email" title="{{#t}}Click to edit email{{/t}}"{{/if}}>{{member.profile.email}}</span>
+                <span{{#if show_email_edit}} class="inline_email" title="{{#t}}Click to edit email{{/t}} {{member.profile.email}}"{{/if}}>{{member.profile.email}}</span>
             {{/unless}}
         </span>
         {{else}}
@@ -106,7 +106,7 @@
 
             {{#unless member.is_bot}}
                 <span class="bullet">\u2022</span>
-                <span{{#if show_email_edit}} class="inline_email" title="{{#t}}Click to edit email{{/t}}"{{/if}}>{{member.profile.email}}</span>
+                <span{{#if show_email_edit}} class="inline_email" title="{{#t}}Click to edit email{{/t}} {{member.profile.email}}"{{/if}}>{{member.profile.email}}</span>
             {{/unless}}
 
             {{#or member.is_restricted member.is_ultra_restricted}}

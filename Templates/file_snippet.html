@@ -26,7 +26,7 @@
   </div>
 
   {{#if is_message}}
-    {{> message_file_preview_actions collapse=true download=true}}
+    {{> message_file_preview_actions collapse=true download=true external_file_author=(isFileAuthorExternal file)}}
     {{> message_file_preview_footer collapse=true}}
   {{/if}}
 

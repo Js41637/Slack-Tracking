@@ -29,11 +29,11 @@
   <div class="file_body post_body">{{#if file.content_html}}{{formatSpaceHtml file.content_html}}{{else}}{{formatSpaceHtml file.preview}}{{/if}}</div>
 
   {{#if is_message}}
-    {{> message_file_preview_actions file=file edit=true collapse=true}}
+    {{> message_file_preview_actions file=file edit=true collapse=true external_file_author=(isFileAuthorExternal file)}}
     {{#if_equal file.user compare=current_user_id}}
-      {{> message_file_preview_actions file=file edit=true collapse=true}}
+      {{> message_file_preview_actions file=file edit=true collapse=true external_file_author=(isFileAuthorExternal file)}}
     {{else}}
-      {{> message_file_preview_actions file=file new_window=true collapse=true}}
+      {{> message_file_preview_actions file=file new_window=true collapse=true external_file_author=(isFileAuthorExternal file)}}
     {{/if_equal}}
     {{> message_file_preview_footer file=file collapse=true}}
   {{/if}}

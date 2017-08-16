@@ -143,7 +143,7 @@
 
   {{#if is_message}}
     </div>{{!--/email_inline_expanded_content--}}
-    {{> message_file_preview_actions collapse=true file=file open_original=true new_window=true}}
+    {{> message_file_preview_actions collapse=true file=file open_original=true new_window=true external_file_author=(isFileAuthorExternal file)}}
     {{> message_file_preview_footer file=file collapse=true}}
   {{/if}}
 

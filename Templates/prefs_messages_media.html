@@ -76,17 +76,6 @@
     <input id="hide_hex_swatch_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_display_options">
     {{#t}}Display color swatches next to hexadecimal values{{/t}}
   </label>
-  {{#if should_use_local_lato_2}}
-    {{#isOurApp}}
-      {{! We don't show the Lato 2 pref in the SSB, since we load it locally for all users }}
-    {{else}}
-      <label class="checkbox">
-        <input id="load_lato_2_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_display_options">
-        {{#t new_win_name=(newWindowName)}}Use font with <a href="http://www.latofonts.com/2014/02/27/lato-2-0-released/" target="{new_win_name}">extended latin character set</a><br>
-        <span class="normal">If you use a language with accented characters, this will improve font appearance. Requires reload to take effect.</span>{{/t}}
-      </label>
-    {{/isOurApp}}
-  {{/if}}
 </div>
 
 <h4 id="prefs_emoji_style" class="inline_block">{{#t}}Emoji Style{{/t}}</h4>

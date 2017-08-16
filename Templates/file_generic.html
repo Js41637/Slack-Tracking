@@ -93,13 +93,13 @@
     {{#if_equal file.mode compare='hosted'}}
       {{#fileDefaultIsNewWindow id=file.id}}
         {{! the default for images and pdfs is to open the original in a browser window }}
-        {{> message_file_preview_actions file=file download=true main_action="new_window"}}
+        {{> message_file_preview_actions file=file download=true main_action="new_window" external_file_author=(isFileAuthorExternal file)}}
       {{else}}
         {{! the default for other files is to download }}
-        {{> message_file_preview_actions file=file download=true main_action="download"}}
+        {{> message_file_preview_actions file=file download=true main_action="download" external_file_author=(isFileAuthorExternal file)}}
       {{/fileDefaultIsNewWindow}}
     {{else}}
-      {{> message_file_preview_actions file=file main_action="new_window"}}
+      {{> message_file_preview_actions file=file main_action="new_window" external_file_author=(isFileAuthorExternal file)}}
     {{/if_equal}}
   {{/if}}
 
