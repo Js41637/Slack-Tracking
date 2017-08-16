@@ -6,8 +6,8 @@ webpackJsonp([413], {
         DEFAULT_LOCALE: "en-US",
         onStart: function e() {
           f();
-          g();
-          if (TS.client && TS.client.login_sig) TS.client.login_sig.add(d);
+          d();
+          if (TS.client && TS.client.login_sig) TS.client.login_sig.add(g);
         },
         locale: function e() {
           f();
@@ -119,18 +119,21 @@ webpackJsonp([413], {
           var l = o > 2 ? "," : "";
           var u = t && t.strong ? "<strong>" : "";
           var c = t && t.strong ? "</strong>" : "";
-          var g = t && t.no_escape;
-          var d = t && t.item_prefix ? t.item_prefix : "";
+          var d = t && t.no_escape;
+          var g = t && t.item_prefix ? t.item_prefix : "";
           switch (i) {
             case "ja-JP":
               a = ", ";
+              break;
+            case "de-DE":
+              a = " " + s + " ";
               break;
             default:
               a = l + " " + s + " ";
           }
           r.forEach(function(e, r) {
-            if (!g) e = _.escape(e);
-            n.push(u + d + e + c);
+            if (!d) e = _.escape(e);
+            n.push(u + g + e + c);
             if (r < o - 2) n.push(", ");
             else if (r < o - 1) n.push(a);
           });
@@ -239,10 +242,10 @@ webpackJsonp([413], {
         else s = null;
         e = true;
       };
-      var g = function e() {
+      var d = function e() {
         if (TS.boot_data && TS.boot_data.slack_to_zd_locale) u = TS.boot_data.slack_to_zd_locale;
       };
-      var d = function e() {
+      var g = function e() {
         if (!TS.boot_data.feature_localization || TS.i18n.locale() === TS.i18n.DEFAULT_LOCALE) return;
         if (!S()) TS.api.call("i18n.translations.get").then(function(e) {
           var r = e.data;
