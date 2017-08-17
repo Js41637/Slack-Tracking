@@ -280,6 +280,21 @@
         <span class="normal">{{#t}}Only flash window when I&rsquo;m not actively using my computer{{/t}}</span>
       </label>
     </div>
+    {{#feature flag="feature_notification_method"}}
+    <div id="winssb_notification_method_container" class="top_margin">
+      {{#t}}<label class="select small inline_block">
+        Notification method
+        <select id="winssb_notification_method" class="small full_width block" data-inline-saver="#prefs_sounds_and_appearance">
+          <option id="method_html" value="html">Slack Custom</option>
+          <option id="method_winrt" value="winrt">Action Center (Advanced)</option>
+          <option id="method_window_win10" value="window">Action Center (Simple)</option>
+          <option id="method_window_win8" value="window">Action Center</option>
+          <option id="method_window_win7" value="window">Simple Notifications</option>
+        </select>
+      </label>{{/t}}
+      <p id="please_restart" class="normal slide_n_fade.in">{{#t}}Please restart Slack for these changes to take effect.{{/t}}</p>
+    </div>
+    {{/feature}}
     <div id="winssb_notify_position" class="top_margin">
       {{#t}}<label class="select small inline_block">
         Notification position

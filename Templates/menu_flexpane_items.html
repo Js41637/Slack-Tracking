@@ -16,3 +16,6 @@
 {{#each special_flex_panes}}
   <li class="flexpane_menu_item" data-tab-id="{{this.flex_name}}" role="menuitem"><a><i class="ts_icon ts_icon_exclamation_circle"></i>{{this.label}}</a></li>
 {{/each}}
+{{#feature flag="feature_shortcuts_flexpane"}}
+<li id="list_shortcuts" class="flexpane_menu_item" data-tab-id="shortcuts" role="menuitem"><a><i class="ts_icon ts_icon_keyboard"></i>{{#t note="View keyboard shortcuts in the flex pane"}}Keyboard Shortcuts{{/t}}</a></li>
+{{/feature}}
