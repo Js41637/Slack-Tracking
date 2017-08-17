@@ -16,6 +16,6 @@
   class="member_image {{css_classes}}"
 >
   {{~#feature flag="feature_shared_channels_client"}}{{#if entity.is_external~}}
-    {{> member_type_external_badge team=(getTeamById entity.team_id) size=size}}
+    {{> member_type_external_badge team=(getTeamById entity.team_id) size=size badge_size=(getTeamBadgeSize size) with_tooltip=true}}
   {{~/if}}{{/feature~}}
 </a>

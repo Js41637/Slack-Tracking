@@ -13906,6 +13906,13 @@ body:not(.unify_user) #member_preview_scroller .member_details {
   padding-bottom: 4px
 }
 
+#member_preview_scroller .member_data_table .channel_link .ts_icon_lock,
+#member_preview_web_container .member_data_table .channel_link .ts_icon_lock,
+.menu_member_header .member_data_table .channel_link .ts_icon_lock {
+  line-height: 0;
+  margin-left: -5px
+}
+
 #member_preview_scroller .member_details .member_image,
 #member_preview_web_container .member_details .member_image,
 .menu_member_header .member_details .member_image {
@@ -16816,6 +16823,24 @@ body:not(.unify_user) #channel_invite_container.page_needs_enterprise .channel_i
   border-color: #A0A0A2
 }
 
+#generic_dialog.modal.p-enterprise_teams_dialog {
+  width: 400px;
+  z-index: 1041
+}
+
+#generic_dialog.modal.p-enterprise_teams_dialog .modal-header h3 {
+  display: block;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap
+}
+
+#generic_dialog.modal.p-enterprise_teams_dialog .modal-body {
+  margin-left: 0;
+  margin-top: 0;
+  padding: 0
+}
+
 #generic_dialog.modal.all_members_dialog {
   width: 400px;
   z-index: 1041
@@ -16963,6 +16988,66 @@ body:not(.unify_user) #channel_invite_container.page_needs_enterprise .channel_i
 #channel_membership_dialog_container .icon_close {
   top: .9rem;
   right: .9rem
+}
+
+.p-searchable_enterprise_team_list .p-enterprise_team_item {
+  width: 100%
+}
+
+.p-searchable_enterprise_team_list .p-searchable_enterprise_team_list__scroller {
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: .8rem;
+  height: 392px
+}
+
+@media only screen and (max-height:650px) {
+  .p-searchable_enterprise_team_list .p-searchable_enterprise_team_list__scroller {
+    height: 354px
+  }
+}
+
+.p-searchable_enterprise_team_list input.p-searchable_enterprise_team_list__input {
+  width: 100%;
+  border: none;
+  border-radius: none;
+  border-bottom: 1px solid #E8E8E8;
+  padding-left: 2.8rem;
+  padding-top: .8rem;
+  padding-bottom: .8rem
+}
+
+.p-searchable_enterprise_team_list .ts_icon_search {
+  position: absolute;
+  top: .85rem;
+  left: 1rem;
+  color: #555459
+}
+
+.p-searchable_enterprise_team_list .icon_close {
+  top: .9rem;
+  right: .9rem;
+  position: absolute;
+  color: #BABBBF;
+  font-size: 20px
+}
+
+.p-searchable_enterprise_team_list .icon_close:hover {
+  color: #007AB8;
+  text-decoration: none
+}
+
+.p-enterprise_team_row {
+  line-height: 20px;
+  height: 32px;
+  padding-right: .25rem;
+  border: 1px solid transparent;
+  border-radius: 2px
+}
+
+.p-enterprise_team_row:hover {
+  background-color: #edf7fd;
+  border-color: #d3ecfa
 }
 
 @font-face {
@@ -18056,11 +18141,13 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 }
 
 .c-member,
+.c-team,
 .c-usergroup {
   display: flex
 }
 
 .c-member__display-name,
+.c-team__display-name,
 .c-usergroup__handle {
   color: #2c2d30;
   font-weight: 700
@@ -18075,6 +18162,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 }
 
 .c-member .member_image,
+.c-team .c-team__icon,
 .c-usergroup .c-usergroup__icon {
   display: inline-block;
   position: relative;
@@ -18084,12 +18172,14 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   flex: 0 0 auto
 }
 
-.c-member__linked {
+.c-member__linked,
+.c-team__linked {
   cursor: pointer;
   text-decoration: none
 }
 
-.c-member__linked:hover {
+.c-member__linked:hover,
+.c-team__linked:hover {
   text-decoration: none
 }
 
@@ -18164,6 +18254,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 }
 
 .c-member--small,
+.c-team--small,
 .c-usergroup--small {
   align-items: center;
   font-size: 15px;
@@ -18175,6 +18266,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 }
 
 .c-member__name--small,
+.c-team__name--small,
 .c-usergroup__name--small {
   color: #717274;
   font-weight: 400;
@@ -18188,6 +18280,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 }
 
 .c-member__with-avatar--small .c-member__name--small,
+.c-team__with-icon--small .c-team__name--small,
 .c-usergroup__with-icon--small .c-usergroup__name--small {
   margin-left: .5rem
 }
@@ -18228,12 +18321,14 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 }
 
 .c-member--small .member_image,
+.c-team--small .c-team__icon,
 .c-usergroup--small .c-usergroup__icon {
   width: 20px;
   height: 20px
 }
 
-.c-member--small .member_image {
+.c-member--small .member_image,
+.c-team--small .c-team__icon {
   margin-left: .25rem
 }
 

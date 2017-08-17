@@ -1,0 +1,25 @@
+{{i18n_ns "teams"}}
+{{#feature flag="feature_lazy_grid_teams"}}
+<div id="active_no_results" class="no_results">
+  <div class="align_center">
+    <p class="small_bottom_margin">
+      {{#feature flag="feature_teams_to_workspaces"}}
+        {{#if query}}
+          {{#t note="In response to a search" query=query}}No workspaces found matching <span class="query bold">{query}</span>.{{/t}}
+        {{else}}
+          {{#t note="In response to a search"}}No workspaces found.{{/t}}
+        {{/if}}
+      {{else}}
+        {{#if query}}
+          {{#t note="In response to a search" query=query}}No teams found matching <span class="query bold">{query}</span>.{{/t}}
+        {{else}}
+          {{#t note="In response to a search"}}No teams found.{{/t}}
+        {{/if}}
+      {{/feature}}
+    </p>
+  </div>
+  <p class="top_margin"><a class="clear_enterprise_team_filter btn btn_outline btn_small btn_outline btn_small">
+    {{#t note="Button label used when no results are displayed for a team search"}}Clear search{{/t}}
+  </a></p>
+</div>
+{{/feature}}
