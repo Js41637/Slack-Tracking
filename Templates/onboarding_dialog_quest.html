@@ -18,12 +18,10 @@
       </button>
     {{/each}}
   </div>
-  {{#t modal_color_class=modal_color_class modal_title=modal_title}}
-  <h3 class="lato_black small_bottom_margin align_left">{modal_title}</h3>
+  <h3 class="lato_black small_bottom_margin align_left">{{modal_title}}</h3>
   <p class="align_left">
-    Lorem ipsum dolor sit amet, maiorum temporibus definitiones ne. Sed ei iusto conceptam, dolorem appareat at his. Vix.
+    {{modal_description}}
   </p>
-  <button class="btn" type="button">Try it now</button>
-  {{/t}}
+  <button class="btn" type="button">{{#t}}Try it now{{/t}}</button>
 </div>
 {{/feature}}

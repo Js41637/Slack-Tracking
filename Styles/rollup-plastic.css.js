@@ -10584,6 +10584,22 @@ only screen and (min-resolution:2dppx) {
   color: rgba(45, 158, 224, .9)
 }
 
+.c-modal__media_container--onboarding_dialog_orange {
+  background-color: #FF876D
+}
+
+.c-modal__circle_fill--onboarding_dialog_orange {
+  color: #FF876D
+}
+
+.c-modal__media_container--onboarding_dialog_yellow {
+  background-color: #EDB431
+}
+
+.c-modal__circle_fill--onboarding_dialog_yellow {
+  color: #EDB431
+}
+
 .c-modal--onboarding_dialog+.modal-backdrop {
   opacity: 0;
   -webkit-transition: opacity .5s ease-out 0s;
@@ -17011,7 +17027,7 @@ body:not(.unify_user) #channel_invite_container.page_needs_enterprise .channel_i
 
 .lazy_filter_select .lfs_input_container.empty .lfs_input {
   width: 100%;
-  height: 30px
+  height: 34px
 }
 
 body:not(.unify_user) .lazy_filter_select .lfs_input_container.empty .lfs_input {
@@ -17422,6 +17438,11 @@ body:not(.unify_user) .lazy_filter_select .lfs_value .ts_icon_shared_channels {
   padding: .45rem 2.5rem .55rem 8px
 }
 
+.lazy_filter_select.channel_browser_sort input.lfs_input,
+.lazy_filter_select.show_which_channels_selector input.lfs_input {
+  margin-bottom: 1px
+}
+
 .unify_user #select_share_channels .lazy_filter_select .lfs_value {
   padding: 0 2.5rem .15rem 8px
 }
@@ -17768,12 +17789,12 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   font-weight: 700
 }
 
-.feature_texty_mentions .rxn.user_reacted {
+.feature_name_tagging_client .rxn.user_reacted {
   background: rgba(0, 122, 184, .05);
   border-color: rgba(0, 122, 184, .3)!important
 }
 
-.feature_texty_mentions .rxn.user_reacted .emoji_rxn_count {
+.feature_name_tagging_client .rxn.user_reacted .emoji_rxn_count {
   color: #007AB8
 }
 
@@ -18566,16 +18587,16 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   min-height: 41px
 }
 
-.feature_texty_mentions #msg_input.ql-container~.msg_mentions_button {
+.feature_name_tagging_client #msg_input.ql-container~.msg_mentions_button {
   width: 30px;
   right: 38px
 }
 
-.feature_texty_mentions #msg_input.ql-container .ql-editor {
+.feature_name_tagging_client #msg_input.ql-container .ql-editor {
   padding-right: 78px
 }
 
-.supports_custom_scrollbar .feature_texty_mentions #msg_input.ql-container .ql-editor {
+.supports_custom_scrollbar .feature_name_tagging_client #msg_input.ql-container .ql-editor {
   padding-right: 66px
 }
 
@@ -18590,10 +18611,10 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   right: 8px
 }
 
-.feature_texty_mentions #message_edit_form .ql-editor,
-.feature_texty_mentions #message_edit_form .ql-placeholder,
-.feature_texty_mentions #msg_form .ql-editor,
-.feature_texty_mentions #msg_form .ql-placeholder {
+.feature_name_tagging_client #message_edit_form .ql-editor,
+.feature_name_tagging_client #message_edit_form .ql-placeholder,
+.feature_name_tagging_client #msg_form .ql-editor,
+.feature_name_tagging_client #msg_form .ql-placeholder {
   line-height: 1.46667
 }
 
@@ -18815,9 +18836,9 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   color: #3D3C40
 }
 
-.feature_texty_mentions #file_comment_textarea.texty_comment_input,
-.feature_texty_mentions .comment_form .texty_comment_input,
-.feature_texty_mentions .edit_comment_form .texty_comment_input {
+.feature_name_tagging_client #file_comment_textarea.texty_comment_input,
+.feature_name_tagging_client .comment_form .texty_comment_input,
+.feature_name_tagging_client .edit_comment_form .texty_comment_input {
   line-height: 1.46667
 }
 

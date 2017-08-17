@@ -134,7 +134,7 @@
             </button>
           </li>
         {{else}}
-          {{#feature flag="feature_more_texty_search"}}
+          {{#feature flag="feature_name_tagging_client"}}
           <li data-replacement="{{../conversation_modifier}}{{getMemberAsContentsString this}}" data-member-id="{{id}}">
           {{else}}
           <li data-replacement="{{../conversation_modifier}}@{{name}}" data-member-id="{{id}}">
@@ -177,7 +177,7 @@
   </header>
   <ol class="results users">
     {{#each users}}
-      {{#feature flag="feature_more_texty_search"}}
+      {{#feature flag="feature_name_tagging_client"}}
       <li data-replacement="{{#t}}from:{{/t}}{{getMemberAsContentsString this}}" data-member-id="{{id}}" class="tab_complete_ui_item" data-index="{{@index}}">
       {{else}}
       <li data-replacement="{{#t}}from:{{/t}}@{{name}}" data-member-id="{{id}}">
@@ -229,7 +229,7 @@
         </button>
       </li>
       {{#each users_deleted}}
-        {{#feature flag="feature_more_texty_search"}}
+        {{#feature flag="feature_name_tagging_client"}}
         <li data-replacement="{{#t}}from:{{/t}}{{getMemberAsContentsString this}}" data-member-id="{{id}}">
         {{else}}
         <li data-replacement="{{#t}}from:{{/t}}@{{name}}" data-member-id="{{id}}">
