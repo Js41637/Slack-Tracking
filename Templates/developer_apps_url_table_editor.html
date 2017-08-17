@@ -12,7 +12,7 @@
     {{/if}}
     {{#if model}}
       {{#each model}}
-        {{> developer_apps_url_table_editor_row index=@key is_read_mode=true cancel_button_text=../options.cancel_button_text save_button_text=../options.save_button_text edit_button_text=../options.edit_button_text validation=../options.validation id=../options.id }}
+        {{> developer_apps_url_table_editor_row index=@key is_read_mode=true cancel_button_text=../options.cancel_button_text save_button_text=../options.save_button_text edit_button_text=../options.edit_button_text validation=../options.validation id=../options.id placeholder=../options.placeholder }}
       {{/each}}
     {{/if}}
   </div>

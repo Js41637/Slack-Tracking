@@ -19,7 +19,7 @@
   {{/if}}
 
   {{! External Shared Channels button }}
-  {{#feature flag="feature_connecting_shared_channels"}}
+  {{#feature flag="feature_shared_channels_client"}}
     {{#if show_share_channel_btn}}
       <div class="channel_option_item top_padding bottom_padding {{#if disable_show_share_channel_btn}}channel_option_item--disabled{{/if}}"  {{#unless disable_show_share_channel_btn}}data-action="share_channel_btn"{{/unless}}>
         {{#feature flag="feature_teams_to_workspaces"}}

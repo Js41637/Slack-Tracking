@@ -3,7 +3,7 @@
     {{#if is_delete_mode}}
       <input type="url" name="urls[{{ index }}]{{#if id}}_{{id}}{{/if}}" class="c-url_table_editor__deleted_state small no_margin c-url_table_editor__input" data-url-table-editor-row value="{{ url }} was deleted" disabled>
     {{else}}
-      <input type="url" name="urls[{{ index }}]{{#if id}}_{{id}}{{/if}}" class="small no_margin c-url_table_editor__input" value="{{ url }}" {{#if is_read_mode}}disabled{{/if}} data-url-table-editor-input data-validation="{{ validation }}">
+      <input type="url" name="urls[{{ index }}]{{#if id}}_{{id}}{{/if}}" class="small no_margin c-url_table_editor__input" value="{{ url }}" {{#if is_read_mode}}disabled{{/if}} data-url-table-editor-input data-validation="{{ validation }}"{{#if placeholder}} placeholder="{{placeholder}}"{{/if}}>
       <label for="urls[{{ index }}]{{#if id}}_{{id}}{{/if}}" class="no_margin"></label>
       <span class="validation_message"></span>
       {{#feature flag="feature_token_ip_whitelist"}}
