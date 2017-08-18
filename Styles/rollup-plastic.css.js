@@ -15832,6 +15832,10 @@ html:not(.supports_flexbox) .channel_modal_with_list .channel_modal_list {
   overflow-y: hidden
 }
 
+.supports_custom_scrollbar .channel_modal_with_list #channel_browser_empty:not(.hidden)~.channel_modal_list {
+  overflow-y: auto
+}
+
 #channel_browser .channel_browser_row {
   width: 100%;
   min-height: 60px;
@@ -15978,6 +15982,10 @@ html:not(.supports_flexbox) #channel_browser .channel_modal_header {
 
 html:not(.supports_flexbox) #channel_browser .channel_browser_sort_container {
   margin-top: -3px
+}
+
+#channel_browser .channel_browser_empty_state_for_shared_channels {
+  padding-top: 160px
 }
 
 .channel_modal_footer {

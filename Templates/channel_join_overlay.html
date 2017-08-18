@@ -5,7 +5,23 @@
     <img class="channel_overlay_shared_icon float_left" src="{{versioned_join_shared_channel '2x'}}" srcset="{{versioned_join_shared_channel '1x'}} 1x, {{versioned_join_shared_channel '2x'}} 2x" />
     <div class="channel_overlay_title_wrap bottom_margin">
       <p class="channel_overlay_title_shared small_bottom_margin">
-        {{#t note="{teams} is a comma separated list of teams" teams=(listify teams_shared_with map='name' strong=true)}}You just joined a channel shared with {teams}{{/t}}
+        {{#feature flag="feature_lazy_grid_teams"}}
+          {{#feature flag="feature_teams_to_workspaces"}}
+            {{#if channel.is_global_shared}}
+              {{#t}}You just joined a channel shared with <button class="btn_link" data-channel-shared-teams>all workspaces</button>{{/t}}
+            {{else}}
+              {{#t}}You just joined a channel shared with <button class="btn_link" data-channel-shared-teams>{channel.shared_team_ids.length, plural, =1 {# workspace} other {# workspaces}}</button>{{/t}}
+            {{/if}}
+          {{else}}
+            {{#if channel.is_global_shared}}
+              {{#t}}You just joined a channel shared with <button class="btn_link" data-channel-shared-teams>all teams</button>{{/t}}
+            {{else}}
+              {{#t}}You just joined a channel shared with <button class="btn_link" data-channel-shared-teams>{channel.shared_team_ids.length, plural, =1 {# team} other {# teams}}</button>{{/t}}
+            {{/if}}
+          {{/feature}}
+        {{else}}
+          {{#t note="{teams} is a comma separated list of teams" teams=(listify teams_shared_with map='name' strong=true)}}You just joined a channel shared with {teams}{{/t}}
+        {{/feature}}
       </p>
   {{else}}
     <img class="channel_overlay_team_icon float_left" src="{{versioned_join_team_channel '2x'}}" srcset="{{versioned_join_team_channel '1x'}} 1x, {{versioned_join_team_channel '2x'}} 2x" />
@@ -21,7 +37,11 @@
   <ul>
     {{#pageNeedsEnterprise}}
       {{#if channel.is_shared}}
-        <li>{{#t}}Messages, files, and members in this channel will be visible to both teams.{{/t}}</li>
+        {{#feature flag="feature_teams_to_workspaces"}}
+          <li>{{#t}}Messages, files, and members in this channel will be visible to both workspaces.{{/t}}</li>
+        {{else}}
+          <li>{{#t}}Messages, files, and members in this channel will be visible to both teams.{{/t}}</li>
+        {{/feature}}
         <li>{{#t}}Slack integrations are disabled in this channel.{{/t}}</li>
         {{#feature flag="feature_lazy_grid_teams"}}{{else}}
           {{#isThereComplianceExportsTeam channel}}
