@@ -17,8 +17,10 @@
   </div>
 
   <div class="details">
-    <h3>{{#t}}Invited by:{{/t}}</h3>
-    <p>{{inviter.real_name}}</p>
+    {{#if inviter_name}}
+      <h3>{{#t}}Invited by:{{/t}}</h3>
+      <p>{{inviter_name}}</p>
+    {{/if}}
     {{#if channel.purpose.value}}
       <h3>{{#t}}Channel purpose:{{/t}}</h3>
       <p>{{channel.purpose.value}}</p>

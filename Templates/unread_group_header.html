@@ -10,7 +10,7 @@
     {{makeMemberPresenceIcon im_user}}
   {{/if}}
 </div>
-<div class="unread_group_header_name flex_shrink_none">
+<div class="unread_group_header_name">
   {{#if is_im}}
     {{#feature flag="feature_name_tagging_client"}}
       <a href="/messages/{{model_ob.id}}" target="/messages/{{model_ob.id}}" class="internal_im_link" data-member-id="{{im_member.id}}">{{getDisplayNameOfUserForIm model_ob}}</a>
