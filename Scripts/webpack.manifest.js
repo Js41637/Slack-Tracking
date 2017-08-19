@@ -538,11 +538,11 @@
       488: "TS.developer_apps.token_ip_whitelist",
       489: "TS.calls.screen_share_controls"
     }[a] || a) + "." + {
-      0: "71f0fadb7d054c37acc6",
+      0: "33c6980a2c84cad14f7b",
       1: "69412ad87acd31c9c1ce",
       2: "23faa67df3ef8e798634",
       3: "93a48e81093510043a12",
-      4: "34710a07989db48d05b2",
+      4: "788314f6ed3e27ae97fe",
       5: "9f14f6c6e031537132e7",
       6: "9bd190d16260471ab357",
       7: "f7d983438bf7038831c9",
