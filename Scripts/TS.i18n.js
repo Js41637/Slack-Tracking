@@ -54,12 +54,15 @@ webpackJsonp([413], {
           }
           var l = a + ":" + i + ":" + o;
           if (void 0 === s[l]) {
-            if (n || "pseudo" === a) s[l] = new MessageFormat(a, p(o)).format;
+            if (n || "pseudo" === a) s[l] = new MessageFormat(a, m(o)).format;
             else {
-              if (r && i && window.sha1 && window.tsTranslations && window.tsTranslations[i]) o = window.tsTranslations[i][window.sha1(o)] || o;
+              if (r && i && window.sha1 && window.tsTranslations && window.tsTranslations[i]) {
+                o = window.tsTranslations[i][window.sha1(o)] || o;
+                o = o.replace(/\[{3}/g, '<span class="no_wrap">').replace(/\]{3}/g, "</span>");
+              }
               s[l] = new MessageFormat(a, o).format;
             }
-            if (r && t) s[l].toString = m(l, i);
+            if (r && t) s[l].toString = p(l, i);
           }
           return s[l];
         },
@@ -335,7 +338,7 @@ webpackJsonp([413], {
         if (TS.i18n.locale() !== r.locale) return false;
         return true;
       };
-      var m = function e(r, t) {
+      var p = function e(r, t) {
         return function() {
           var e = t + "." + r;
           if (c.indexOf(e) >= 0) return;
@@ -346,7 +349,7 @@ webpackJsonp([413], {
           return "";
         };
       };
-      var p = function e(r) {
+      var m = function e(r) {
         var t = false;
         if (r.endsWith(":")) {
           t = true;
