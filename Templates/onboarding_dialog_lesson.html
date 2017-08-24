@@ -1,5 +1,5 @@
 {{i18n_ns "dialogs_onboarding"}}
-{{#feature flag="feature_quest_onboarding"}}
+{{#feature flag="feature_lesson_onboarding"}}
 <button type="button" class="c-modal__close--onboarding_dialog c-modal__close--onboarding_dialog_white no_padding no_margin no_border position_absolute" data-dismiss="close">&times;</button>
 <div class="c-modal__media_container--onboarding_dialog full_width {{modal_color_class}}">
   <button class="c-modal__left_navigation--onboarding_dialog position_absolute no_border no_padding">
@@ -8,12 +8,12 @@
   <button class="c-modal__right_navigation--onboarding_dialog position_absolute no_border no_padding">
     <ts-icon class="ts_icon_chevron_right c-modal__right_caret--onboarding_dialog position_absolute"></ts-icon>
   </button>
-  <img class="c-modal__media--onboarding_dialog full_max_width" src="{{versioned_file_drop_blue}}" />
+  <img class="c-modal__media--onboarding_dialog full_max_width" src="{{modal_media_url}}" />
 </div>
 <div class="c-modal__copy--onboarding_dialog full_width align_right">
-  <div class="c-modal__quest_circle_buttons">
-    {{#each quest_dot_classes}}
-      <button class="c-modal__quest_circle_button no_margin no_padding no_border">
+  <div class="c-modal__lesson_circle_buttons">
+    {{#each lesson_circle_classes}}
+      <button class="c-modal__lesson_circle_button no_padding no_border">
         <ts-icon class="{{this}}"></ts-icon>
       </button>
     {{/each}}
@@ -22,6 +22,6 @@
   <p class="align_left">
     {{modal_description}}
   </p>
-  <button class="btn" type="button">{{#t}}Try it now{{/t}}</button>
+  <button class="btn c-modal__button--onboarding" type="button">{{#t}}Try it now{{/t}}</button>
 </div>
 {{/feature}}

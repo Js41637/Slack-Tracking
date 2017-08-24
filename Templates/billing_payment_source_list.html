@@ -47,9 +47,9 @@
       <input data-currency-input type="hidden" name="selected_product_currency" value="{{../currency}}" />
       <button type="submit" class="checkout_button ladda-button btn btn_small btn_primary" data-style="expand-right" data-qa="pay_with_btn" data-clog-event="WEBSITE_CLICK" data-clog-params="action=click,click_target=use_existing_payment_method,trigger=checkout_step_2,pay_prod_cur={{../pay_prod_cur}},has_plan=true,pay_prod_selected={{../product_id}}"><span class="ladda-label">
       {{#if this.is_bank_account}}
-        {{#t fallback_hash="324b4c3eb29eb6b231014707be5bca982c99f710"}}Pay with this Account{{/t}}
+        {{#t}}Pay with this Account{{/t}}
       {{else}}
-        {{#t fallback_hash="324b4c3eb29eb6b231014707be5bca982c99f710"}}Pay with this Card{{/t}}
+        {{#t}}Pay with this Card{{/t}}
       {{/if}}
       </span></button>
     </form>

@@ -662,8 +662,7 @@ a.link_btn {
   padding-left: 2.5rem
 }
 
-.index .mandatory_blocker {
-  background-image: url(/66f9/img/mandatory2FA.png);
+.index .main_image {
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
@@ -671,11 +670,27 @@ a.link_btn {
   height: 228px
 }
 
+.index .mandatory_blocker {
+  background-image: url(/66f9/img/mandatory2FA.png)
+}
+
 @media only screen and (-webkit-min-device-pixel-ratio:2),
 only screen and (min-resolution:192dpi),
 only screen and (min-resolution:2dppx) {
   .index .mandatory_blocker {
     background-image: url(/66f9/img/mandatory2FA@2x.png)
+  }
+}
+
+.index .slackbot_frowny {
+  background-image: url(/76afb/img/slackbot/slackbot_frowny_192.png)
+}
+
+@media only screen and (-webkit-min-device-pixel-ratio:2),
+only screen and (min-resolution:192dpi),
+only screen and (min-resolution:2dppx) {
+  .index .slackbot_frowny {
+    background-image: url(/76afb/img/slackbot/slackbot_frowny_512.png)
   }
 }
 

@@ -17,31 +17,26 @@
         {{/feature}}
       </p>
     {{else}}
-      <div class="channel_shared_teams">
-        {{#each teams_shared_with}}
-          {{#feature flag="feature_lazy_grid_teams"}}<div class="shared_team{{#unless @last}} bottom_margin{{/unless}}">{{else}}<div class="shared_team bottom_margin">{{/feature}}
-            <img class="member_image float_left" src="{{this.icon.image_68}}" srcset="{{this.icon.image_34}} 1x, {{this.icon.image_68}} 2x"/>
-            <div class="shared_team_name_and_owner">
-              <div class="shared_team_name overflow_ellipsis" title="{{this.name}}">{{this.name}}</div>
-              <div class="shared_team_user old_petunia_grey mini">{{getPrefCompliantMemberNameById user}}</div>
-            </div>
-          </div>
-        {{/each}}
-        {{#feature flag="feature_lazy_grid_teams"}}
-          {{#if teams_shared_with_loading}}
-            {{> infinite_spinner size="medium" text="" color="white"}}
-          {{/if}}
-           {{#if show_more_teams_link}}
-            <button type="button" id="see_all_teams" class="btn btn_small btn_outline small_top_margin">
+      {{#each shared_teams}}
+        <div class="shared_team_details small_top_margin display_flex align_items_center">
+          {{> team_icon team=this size=36}}
+          <div class="team_name team_name--org_shared">{{this.name}}</div>
+        </div>
+      {{/each}}
+      {{#feature flag="feature_lazy_grid_teams"}}
+        {{#if shared_teams_loading}}
+          {{> infinite_spinner size="medium" text="" color="white"}}
+        {{/if}}
+        {{#if show_more_teams_link}}
+          <button type="button" id="see_all_teams" class="btn btn_small btn_outline small_top_margin">
             {{#feature flag="feature_teams_to_workspaces"}}
               {{#t}}See all {total_teams_count, number} workspaces{{/t}}
             {{else}}
               {{#t}}See all {total_teams_count, number} teams{{/t}}
             {{/feature}}
-            </button>
-           {{/if}}
-        {{/feature}}
-      </div>
+          </button>
+        {{/if}}
+      {{/feature}}
     {{/if}}
   </div>
 {{else if model_ob.is_shared}}

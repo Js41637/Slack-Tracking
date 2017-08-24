@@ -7,7 +7,7 @@
       {{> loading_indicator}}
     {{else}}
       {{#if shared_channels}}
-        {{makeLinksFromChannelOrGroupIds shared_channels}}
+        {{makeLinksFromModelObs shared_channels}}
       {{else}}
         {{#t note="user is in no shared channels"}}None{{/t}}
       {{/if}}

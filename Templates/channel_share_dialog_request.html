@@ -1,4 +1,4 @@
-{{i18n_ns 'share_channels'}}
+{{i18n_ns 'shared_channels'}}
 
 {{#feature flag="feature_shared_channels_client"}}
 
@@ -21,7 +21,7 @@
       <div class="c-member c-member--large">
         <span class="member_image">
           {{> member_preview_link_image (getMemberPreviewLinkImageArgs inviter 44 false true false)}}
-          {{> member_type_external_badge size=44 badge_size=(getTeamBadgeSize size) with_tooltip=true}}
+          {{> member_type_external_badge size=44 team=inviting_team badge_size=(getTeamBadgeSize size) with_tooltip=true}}
         </span>
         <div class="c-member__flex-container--large">
           <div class="c-member__name c-member__name--large">

@@ -1,6 +1,6 @@
 {{i18n_ns "app_card"}}
 <div
-  class="app_card_header
+  class="app_card_header{{#if is_external_app}}--external{{/if}}
       display_flex
       flex_direction_row
       align_items_flex_start
@@ -16,6 +16,14 @@
     style="background: linear-gradient(136.53deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.2) 100%), linear-gradient(312.01deg, {{color.hex}} 0%, rgba({{color.r}},{{color.g}},{{color.b}},0.75) 100%); background-color: #2C2D30;"
   {{/if}}
 >
+  {{#if is_external_app}}
+  <div class="app_card_is_external_over_image">
+    <span class="overflow_ellipsis lato_black">
+        {{getTeamNameById app_team_id}}
+        {{> member_type_external_badge team=(getTeamById app_team_id) size=48 badge_size=16}}
+    </span>
+  </div>
+  {{/if}}
   {{#if emoji_img_tag}}
     <div class="app_card_emoji" data-qa="app_header_icon">{{emoji_img_tag}}</div>
   {{else}}
@@ -79,8 +87,8 @@
             <a class="btn app_profile_btn" type="button" data-js="app_profile_btn" data-action="open_bot_dm" href="/messages/@{{username}}" data-qa="app_header_message_button">{{#t}}Message{{/t}}</a>
           {{/and}}
           {{!-- Settings button --}}
-          {{#unless is_foreign_app}}
-            <a class="btn app_profile_btn" type="button" data-js="app_profile_btn" href="/services/{{bot_id}}" target="_blank" data-qa="app_header_settings_button">
+          {{#unless is_external_app}}
+            <a class="btn app_profile_btn" type="button" data-js="app_profile_btn" href="{{settings_url}}" target="_blank" data-qa="app_header_settings_button">
               {{#t}}Settings{{/t}}
             </a>
           {{/unless}}

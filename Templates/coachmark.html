@@ -9,6 +9,7 @@
     </a>
     {{/if}}
     {{! content divs are dynamically added depending on what type of coachmark is being shown }}
+    {{#unless no_footer}}
     <div id="coachmark_footer">
       <div class="coachmark_footer_text">
         {{#t}}<span>Done? </span><a class="coachmark_skip_link">Click here to skip</a>{{/t}}
@@ -17,5 +18,6 @@
 
       <a class="btn coachmark_next_tip float_right">{{#t}}Next Tip{{/t}}</a>
     </div>
+    {{/unless}}
   </div>
 </div>

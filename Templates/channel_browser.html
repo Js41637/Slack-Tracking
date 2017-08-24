@@ -37,7 +37,7 @@
           {{#if_gt (objectKeyCount external_teams) compare=1}}
             <option {{#if_equal sort_by_selected compare="ext_shared"}}selected{{/if_equal}} value="ext_shared">{{#t}}All shared channels (beta){{/t}}</option>
             {{#each external_teams}}
-              <option value="ext_shared_team_{{@key}}">{{#t team_name=name}}Shared with {team_name}{{/t}}</option>
+              <option value="ext_shared_team_{{@key}}">{{#t team_name=(escape name)}}Shared with {team_name}{{/t}}</option>
             {{/each}}
           {{else}}
             <option {{#if_equal sort_by_selected compare="ext_shared"}}selected{{/if_equal}} value="ext_shared">{{#t}}Shared channels (beta){{/t}}</option>

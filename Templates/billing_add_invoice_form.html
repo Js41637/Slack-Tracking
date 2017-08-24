@@ -1,6 +1,6 @@
 {{i18n_ns "pages_admin"}}
 {{#feature flag="feature_ssi_checkout"}}
-<span class="input_note inline_block small_top_margin payment_form_details">{{#t fallback_hash='1c95b3cd4949220c3525113378647ceb2f4523f9'}}Invoices will be sent to the primary owner and all additional billing contacts and can be paid by bank transfer or check within 30 days.{{/t}}</span>
+<span class="input_note inline_block small_top_margin payment_form_details">{{#t}}Invoices will be sent to the primary owner and all additional billing contacts and can be paid by bank transfer or check within 30 days.{{/t}}</span>
 {{/feature}}
 <form action="" data-js="add_invoice_form" class="display_flex flex_direction_column top_margin" data-qa="inv_ss__form_container">
   {{> billing_add_invoice_number_of_seats_input default_seat_text=default_seat_text minimum_seats_possible=minimum_seats_possible current_user_count=current_user_count disabled=disabled}}

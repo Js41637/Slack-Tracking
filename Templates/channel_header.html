@@ -101,17 +101,17 @@
           --}}<ts-icon class="ts_icon_thumb_tack ts_icon_inherit ts_icon_align_bottom pinned_count_icon"></ts-icon>{{!--
           --}}<span id="pinned_item_count_count"></span>{{!--
           --}}<span class="ts_tip_tip"><span class="ts_tip_multiline_inner">
-            {{#t fallback_hash='56ca0faa125a91b762583fc618198563b4439e39'}}View pinned items{{/t}}<br /><span class="subtle_silver pin_count_new_pin_message"></span>
+            {{#t}}View pinned items{{/t}}<br /><span class="subtle_silver pin_count_new_pin_message"></span>
           </span></span>{{!--
         --}}</button>
       </div>
 
       {{~#feature flag="feature_shared_channels_client"}}
-        {{#and is_shared (makeTeamNameList shared_team_ids false)}}
+        {{#and is_shared (makeTeamNameList shared_team_ids)}}
           {{#unless is_org_shared}}
             <div class="channel_header_info_item overflow_ellipsis">
               <button type="button" id="channel_share_info" class="btn_unstyle blue_on_hover ts_tip ts_tip_float ts_tip_bottom">
-                <span id="channel_header_info_share_info">{{#t team_names=(makeTeamNameList shared_team_ids false)}}Shared with {team_names}{{/t}}</span>
+                <span id="channel_header_info_share_info">{{#t team_names=(makeTeamNameList shared_team_ids)}}Shared with {team_names}{{/t}}</span>
                 <span class="ts_tip_tip">
                   {{#t}}View Share Info{{/t}}
                 </span>

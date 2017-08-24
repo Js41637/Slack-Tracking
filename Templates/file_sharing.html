@@ -86,22 +86,17 @@
     {{/if_equal}}
   {{/if}}
 
-  <div class="no_bottom_margin{{#if hide_file_sharing_dialog_comment}} hidden{{/if}}" id="file_sharing_dialog_comment">
-    <label class="{{#isClient}}inline_block{{/isClient}} align_top">
+  <div class="no_bottom_margin">
+    <label for="file_comment_textarea" class="{{#isClient}}inline_block {{/isClient}}align_top{{#if disable_file_sharing_dialog_comment}} subtle_silver{{/if}}">
       {{#isClient}}
         {{#t}}Add Comment <br /><span class="input_note normal">(optional)</span>{{/t}}
       {{else}}
         {{#t}}Add Comment <span class="input_note normal">(optional)</span>{{/t}}
       {{/isClient}}
-
     </label>
-    {{#supportsTextyTakesOver}}
-      <div id="file_comment_textarea" class="texty_comment_input comment_input no_bottom_margin" name="comment" tabindex="1" wrap="virtual"></div>
-    {{else}}
-      <textarea id="file_comment_textarea" class="comment_input no_bottom_margin" name="comment" tabindex="1" wrap="virtual">{{comment}}</textarea>
-    {{/supportsTextyTakesOver}}
+    <div id="file_comment_textarea" class="texty_comment_input comment_input no_bottom_margin" name="comment" tabindex="1" wrap="virtual"{{#if disable_file_sharing_dialog_comment}} disabled="disabled"{{/if}}></div>
     <span id="select_share_at_channel_blocked_note" class="modal_input_note indifferent_grey hidden"></span>
     <span id="select_share_at_channel_note" class="modal_input_note indifferent_grey hidden"></span>
-    <span id="select_share_at_channel_list" class="modal_input_note indifferent_grey">{{makeFileCommentHelpHTML file}}</span>
+    <span id="select_share_at_channel_list" class="modal_input_note indifferent_grey{{#if disable_file_sharing_dialog_comment}} subtle_silver{{/if}}">{{makeFileCommentHelpHTML file}}</span>
   </div>
 </div>

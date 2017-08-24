@@ -10490,6 +10490,10 @@ only screen and (min-resolution:2dppx) {
   color: #fff
 }
 
+.c-modal__button--onboarding {
+  width: 130px
+}
+
 .c-modal__media_container--onboarding_dialog {
   display: flex;
   -ms-flex-pack: center;
@@ -10499,18 +10503,23 @@ only screen and (min-resolution:2dppx) {
   justify-content: center;
   align-items: center;
   height: 280px;
-  padding: 28px 28px 0;
+  padding: 28px;
   border-top-left-radius: 4px;
   color: #fff
 }
 
 .c-modal__left_navigation--onboarding_dialog,
 .c-modal__right_navigation--onboarding_dialog {
-  height: 52px;
-  width: 26px;
+  height: 56px;
+  width: 28px;
   overflow: hidden;
   background: rgba(44, 45, 48, .25);
   color: #fff
+}
+
+.c-modal__left_navigation--onboarding_dialog:hover,
+.c-modal__right_navigation--onboarding_dialog:hover {
+  background: rgba(44, 45, 48, .6)
 }
 
 .c-modal__left_navigation--onboarding_dialog {
@@ -10526,12 +10535,12 @@ only screen and (min-resolution:2dppx) {
 }
 
 .c-modal__left_caret--onboarding_dialog {
-  top: 12px;
+  top: 15px;
   left: -10px
 }
 
 .c-modal__right_caret--onboarding_dialog {
-  top: 12px;
+  top: 15px;
   right: -9px
 }
 
@@ -10546,7 +10555,7 @@ only screen and (min-resolution:2dppx) {
 
 .c-modal__copy--onboarding_dialog {
   height: 246px;
-  padding: 0 22px 22px;
+  padding: 0 28px 28px;
   color: #2C2D30
 }
 
@@ -10555,7 +10564,7 @@ only screen and (min-resolution:2dppx) {
   font-size: .9375rem
 }
 
-.c-modal__quest_circle_buttons {
+.c-modal__lesson_circle_buttons {
   display: flex;
   -ms-flex-pack: center;
   -webkit-box-pack: center;
@@ -10566,38 +10575,48 @@ only screen and (min-resolution:2dppx) {
   height: 56px
 }
 
-.c-modal__quest_circle_button {
+.c-modal__lesson_circle_button {
   height: 19px;
   width: 19px;
+  margin-right: 5px;
   background: 0 0
 }
 
-.c-modal__circle_fill--onboarding-dialog {
+.c-modal__lesson_circle_button:last-child {
+  margin-right: 0
+}
+
+.c-modal__lesson_circle {
   color: #E8E8E8
+}
+
+.c-modal__lesson_circle.ts_icon_check_circle_o_large {
+  position: relative;
+  top: -1px
 }
 
 .c-modal__media_container--onboarding_dialog_blue {
   background-color: rgba(45, 158, 224, .9)
 }
 
-.c-modal__circle_fill--onboarding_dialog_blue {
+.c-modal__lesson_circle--blue {
   color: rgba(45, 158, 224, .9)
 }
 
 .c-modal__media_container--onboarding_dialog_orange {
-  background-color: #FF876D
+  background-color: #ff876d
 }
 
-.c-modal__circle_fill--onboarding_dialog_orange {
-  color: #FF876D
+.c-modal__lesson_circle--orange {
+  color: #ff876d
 }
 
 .c-modal__media_container--onboarding_dialog_yellow {
-  background-color: #EDB431
+  background-color: rgba(224, 170, 52, .9)
 }
 
-.c-modal__circle_fill--onboarding_dialog_yellow {
-  color: #EDB431
+.c-modal__lesson_circle--yellow {
+  color: rgba(224, 170, 52, .9)
 }
 
 .c-modal--onboarding_dialog+.modal-backdrop {
@@ -11476,7 +11495,7 @@ html.fs_modal_active {
   line-height: 1rem;
   font-size: .9rem;
   border-radius: 1rem;
-  border: 1px solid #DDD;
+  border: 1px solid #ddd;
   outline: 0
 }
 
@@ -11493,7 +11512,7 @@ html.fs_modal_active {
   font-size: .9rem;
   top: 8x;
   left: 15px;
-  color: #CCC
+  color: #ccc
 }
 
 .menu .menu_filter_container .icon_close {
@@ -11501,7 +11520,7 @@ html.fs_modal_active {
   right: 12px;
   top: 8px;
   text-decoration: none;
-  color: #CCC!important;
+  color: #ccc!important;
   font-size: 14px
 }
 
@@ -12100,17 +12119,17 @@ body.winssb #emoji_menu {
 
 #emoji_menu .emoji_li[data-color-index="3"].key_selection,
 #emoji_menu .emoji_li[data-color-index="3"]:hover {
-  background: #F3C1FD
+  background: #f3c1fd
 }
 
 #emoji_menu .emoji_li[data-color-index="4"].key_selection,
 #emoji_menu .emoji_li[data-color-index="4"]:hover {
-  background: #FFE1AE
+  background: #ffe1ae
 }
 
 #emoji_menu .emoji_li[data-color-index="5"].key_selection,
 #emoji_menu .emoji_li[data-color-index="5"]:hover {
-  background: #E0DFFF
+  background: #e0dfff
 }
 
 #emoji_menu[data-using-keyboard=true] .emoji_li[data-color-index="0"]:hover {
@@ -12142,7 +12161,7 @@ body.winssb #emoji_menu {
 }
 
 #emoji_menu[data-using-keyboard=true] .emoji_li[data-color-index="3"].key_selection {
-  background: #F3C1FD
+  background: #f3c1fd
 }
 
 #emoji_menu[data-using-keyboard=true] .emoji_li[data-color-index="4"]:hover {
@@ -12150,7 +12169,7 @@ body.winssb #emoji_menu {
 }
 
 #emoji_menu[data-using-keyboard=true] .emoji_li[data-color-index="4"].key_selection {
-  background: #FFE1AE
+  background: #ffe1ae
 }
 
 #emoji_menu[data-using-keyboard=true] .emoji_li[data-color-index="5"]:hover {
@@ -12158,7 +12177,7 @@ body.winssb #emoji_menu {
 }
 
 #emoji_menu[data-using-keyboard=true] .emoji_li[data-color-index="5"].key_selection {
-  background: #E0DFFF
+  background: #e0dfff
 }
 
 .popover_menu {
@@ -12298,8 +12317,8 @@ body.ReactModal__Body--open {
 
 #menu.notifications_menu .dnd_banner {
   padding: 60px .9375rem .9375rem;
-  background-color: #202C3A;
-  background-image: linear-gradient(#202731, #202C3A 100%);
+  background-color: #202c3a;
+  background-image: linear-gradient(#202731, #202c3a 100%);
   line-height: 25px;
   color: #fff;
   position: relative
@@ -12738,22 +12757,109 @@ a.plastic_typeahead_item:hover {
   margin-bottom: 0
 }
 
-@font-face {
-  font-family: appleLogo;
-  src: local("Lucida Grande");
-  unicode-range: U+F8FF
+.c-tabs__tab_menu {
+  display: block;
+  background-color: #fff;
+  box-shadow: inset 0 -2px 0 0 #e8e8e8;
+  *zoom: 1
+}
+
+.c-tabs__tab_menu:after,
+.c-tabs__tab_menu:before {
+  display: table;
+  line-height: 0;
+  content: ''
+}
+
+.c-tabs__tab_menu:after {
+  clear: both
+}
+
+.c-tabs__tab {
+  background: 0 0;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+  border: 0;
+  font-family: Slack-Lato, appleLogo, sans-serif;
+  font-weight: 400;
+  padding: 0 0 .75rem;
+  font-size: .85rem;
+  line-height: 20px;
+  color: #717274;
+  display: inline-block;
+  text-align: center;
+  float: left;
+  transition: box-shadow 125ms ease-out;
+  box-shadow: inset 0 -2px 0 0 transparent
+}
+
+.c-tabs__tab .ts_icon:before {
+  vertical-align: top
+}
+
+.c-tabs__tab:hover {
+  color: #2c2d30;
+  text-decoration: none
+}
+
+.c-tabs__tab.c-tabs__tab--active,
+.c-tabs__tab:active,
+.c-tabs__tab:focus {
+  outline: 0;
+  color: #2c2d30;
+  box-shadow: inset 0 -2px 0 0 #29a979;
+  text-decoration: none
+}
+
+.c-tabs__tab:not(:last-child) {
+  margin-right: 1.5rem
+}
+
+.c-tabs__tab_panel {
+  width: 100%;
+  display: none
+}
+
+.c-tabs__tab_panel.c-tabs__tab_panel--active {
+  display: block
+}
+
+.c-tabs__tab_menu--plastic {
+  background-color: #fff;
+  box-shadow: inset 0 -2px 0 0 #E8E8E8
+}
+
+a.c-tabs__tab--plastic {
+  color: #9e9ea6
+}
+
+a.c-tabs__tab--plastic:hover {
+  color: #555459;
+  text-decoration: none
+}
+
+a.c-tabs__tab--plastic.c-tabs__tab--active,
+a.c-tabs__tab--plastic:active,
+a.c-tabs__tab--plastic:focus {
+  color: #555459;
+  box-shadow: inset 0 -2px 0 0 #2ab27b
 }
 
 .tab_menu {
   display: block;
   background-color: #fff;
-  box-shadow: inset 0 -2px 0 0 #E8E8E8
+  box-shadow: inset 0 -2px 0 0 #E8E8E8;
+  *zoom: 1
 }
 
 .tab_menu:after,
 .tab_menu:before {
   display: table;
-  content: ' ';
+  line-height: 0;
+  content: ''
+}
+
+.tab_menu:after {
   clear: both
 }
 
@@ -12789,11 +12895,6 @@ a.plastic_typeahead_item:hover {
   color: #555459;
   box-shadow: inset 0 -2px 0 0 #2ab27b;
   text-decoration: none
-}
-
-.tab_menu .tab:disabled {
-  cursor: not-allowed;
-  color: #BABBBF
 }
 
 .tab_menu .tab:not(:last-child) {
@@ -15168,13 +15269,10 @@ body:not(.unify_user) .mpdm_badge .presence {
 }
 
 .tab_complete_ui .tab_complete_ui_scroller {
+  height: calc(100% - 32px);
   max-height: 454px;
   overflow-y: auto;
   overflow-x: hidden
-}
-
-.feature_texty .tab_complete_ui .tab_complete_ui_scroller {
-  height: calc(100% - 32px)
 }
 
 .supports_custom_scrollbar:not(.slim_scrollbar) .tab_complete_ui .tab_complete_ui_scroller {
@@ -15376,16 +15474,16 @@ body:not(.unify_user) .tab_complete_ui ul.type_members .unify_broadcast {
   color: #717274
 }
 
-.feature_texty:not(.unify_user) .tab_complete_ui ul.type_members .broadcast,
-.feature_texty:not(.unify_user) .tab_complete_ui ul.type_members .bullet,
-.feature_texty:not(.unify_user) .tab_complete_ui ul.type_members .display_name,
-.feature_texty:not(.unify_user) .tab_complete_ui ul.type_members .presence,
-.feature_texty:not(.unify_user) .tab_complete_ui ul.type_members .secondary_name,
-.feature_texty:not(.unify_user) .tab_complete_ui ul.type_members .username {
+:not(.unify_user) .tab_complete_ui ul.type_members .broadcast,
+:not(.unify_user) .tab_complete_ui ul.type_members .bullet,
+:not(.unify_user) .tab_complete_ui ul.type_members .display_name,
+:not(.unify_user) .tab_complete_ui ul.type_members .presence,
+:not(.unify_user) .tab_complete_ui ul.type_members .secondary_name,
+:not(.unify_user) .tab_complete_ui ul.type_members .username {
   margin-right: 6px
 }
 
-.feature_texty .tab_complete_ui ul.type_members .bullet {
+.tab_complete_ui ul.type_members .bullet {
   margin-left: 6px
 }
 
@@ -17691,6 +17789,11 @@ body:not(.unify_user) .lazy_filter_select .lfs_value .ts_icon_shared_channels {
   padding: 6px 27px 6px 10px
 }
 
+.lazy_filter_select.single.filter_in_list_style .lfs_input_container.empty .lfs_input,
+.lazy_filter_select.single.filter_in_list_style .lfs_input_container.empty .lfs_value {
+  height: 28px
+}
+
 .lazy_filter_select.single.filter_in_list_style .lfs_input_container:hover:not(.active) {
   border-color: #9e9ea6
 }
@@ -18639,6 +18742,41 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   min-height: 21px
 }
 
+.ql-disabled {
+  position: relative;
+  opacity: .6;
+  background: #E8E8E8!important;
+  cursor: default
+}
+
+.ql-disabled.focus,
+.ql-disabled:hover {
+  border-color: #A0A0A2!important
+}
+
+.ql-disabled[data-disabled-text] {
+  text-indent: -9999px
+}
+
+.ql-disabled[data-disabled-text]:after {
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: .75rem;
+  right: .75rem;
+  margin-top: -1px;
+  transform: translateY(-50%);
+  content: attr(data-disabled-text);
+  text-align: center;
+  font-size: 13px;
+  color: #000;
+  text-indent: 0
+}
+
+.ql-disabled * {
+  cursor: default
+}
+
 .ql-container.texty_single_line_input .ql-editor,
 .ql-container.texty_single_line_input .ql-placeholder {
   width: 100%;
@@ -18706,12 +18844,6 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 #msg_input.ql-container .ql-placeholder {
   left: 2.625rem;
   right: 30px
-}
-
-#message_edit_form .ql-container~.emo_menu,
-#msg_form .ql-container~.emo_menu {
-  width: 30px;
-  right: 8px
 }
 
 .feature_name_tagging_client #message_edit_form .ql-editor,

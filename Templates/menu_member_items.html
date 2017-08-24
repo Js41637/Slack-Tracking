@@ -67,17 +67,19 @@
 
     {{#feature flag="feature_retire_team_site_directory"}}
     {{else}}
-      {{#if hide_view_profile}}
-        <li id="member_open_profile_item" role="menuitem"><a target="{{newWindowName}}" href="/team/{{~#feature flag="feature_name_tagging_client"~}}
-            {{member.id}}
-          {{~else~}}
-            {{~#feature flag="feature_shared_channels_client"~}}
+      {{#unless member.is_external}}
+        {{#if hide_view_profile}}
+          <li id="member_open_profile_item" role="menuitem"><a target="{{newWindowName}}" href="/team/{{~#feature flag="feature_name_tagging_client"~}}
               {{member.id}}
             {{~else~}}
-              {{member.name}}
-            {{~/feature~}}
-          {{~/feature~}}">{{#t}}Open profile in new window{{/t}}&nbsp;</a></li>{{!-- Add &nbsp; or w becomes ... on non-retina screen --}}
-      {{/if}}
+              {{~#feature flag="feature_shared_channels_client"~}}
+                {{member.id}}
+              {{~else~}}
+                {{member.name}}
+              {{~/feature~}}
+            {{~/feature~}}">{{#t}}Open profile in new window{{/t}}&nbsp;</a></li>{{!-- Add &nbsp; or w becomes ... on non-retina screen --}}
+        {{/if}}
+      {{/unless}}
     {{/feature}}
 
     <li class="divider"></li>
@@ -170,18 +172,18 @@
     {{#if show_dm_item}}
       {{#feature flag="feature_name_tagging_client"}}
         <li id="member_dm_item" role="menuitem"><a href="/messages/@{{member.id}}">
-        {{#if member.deleted}}
+        {{#or member.deleted member.is_stranger}}
           {{#t}}Direct Message archives{{/t}}
         {{else}}
           {{#t}}Direct Messages{{/t}}
-        {{/if}}</a></li>
+        {{/or}}</a></li>
       {{else}}
         <li id="member_dm_item" role="menuitem"><a href="/messages/@{{member.name}}">
-        {{#if member.deleted}}
+        {{#or member.deleted member.is_stranger}}
           {{#t}}Direct Message archives{{/t}}
         {{else}}
           {{#t}}Direct Messages{{/t}}
-        {{/if}}</a></li>
+        {{/or}}</a></li>
       {{/feature}}
     {{/if}}
 
@@ -206,19 +208,21 @@
 
     {{#feature flag="feature_retire_team_site_directory"}}
     {{else}}
-      {{#if hide_view_profile}}
-        <li id="member_open_profile_item" role="menuitem"><a target="{{newWindowName}}" href="/team/{{~#feature flag="feature_name_tagging_client"~}}
-            {{member.id}}
-          {{~else~}}
-            {{~#feature flag="feature_shared_channels_client"~}}
+      {{#unless member.is_external}}
+        {{#if hide_view_profile}}
+          <li id="member_open_profile_item" role="menuitem"><a target="{{newWindowName}}" href="/team/{{~#feature flag="feature_name_tagging_client"~}}
               {{member.id}}
             {{~else~}}
-              {{member.name}}
-            {{~/feature~}}
-          {{~/feature~}}">
-          {{#t}}Open profile in new window{{/t}}&nbsp;
-        </a></li>{{!-- Add &nbsp; or w becomes ... on non-retina screen --}}
-      {{/if}}
+              {{~#feature flag="feature_shared_channels_client"~}}
+                {{member.id}}
+              {{~else~}}
+                {{member.name}}
+              {{~/feature~}}
+            {{~/feature~}}">
+            {{#t}}Open profile in new window{{/t}}&nbsp;
+          </a></li>{{!-- Add &nbsp; or w becomes ... on non-retina screen --}}
+        {{/if}}
+      {{/unless}}
     {{/feature}}
 
   {{/if}}

@@ -1,17 +1,21 @@
 webpackJsonp([413], {
-  138: function(e, r) {
+  2623: function(e, r) {
     (function() {
       "use strict";
       TS.registerModule("i18n", {
         DEFAULT_LOCALE: "en-US",
         onStart: function e() {
           f();
-          g();
-          if (TS.client && TS.client.login_sig) TS.client.login_sig.add(d);
+          d();
+          T();
+          if (TS.client && TS.client.login_sig) TS.client.login_sig.add(g);
         },
         locale: function e() {
           f();
-          return i;
+          return a;
+        },
+        keyboard: function e() {
+          return o || "en";
         },
         getDefaultLocale: function e() {
           return TS.i18n.DEFAULT_LOCALE;
@@ -27,7 +31,7 @@ webpackJsonp([413], {
           return r;
         },
         localeOrPseudo: function e() {
-          if (o) return "pseudo";
+          if (n) return "pseudo";
           return TS.i18n.locale();
         },
         isLocaleCJK: function e() {
@@ -36,44 +40,44 @@ webpackJsonp([413], {
         zdLocale: function e() {
           f();
           var r = TS.i18n.DEFAULT_LOCALE.toLowerCase();
-          if (u && u[i.toLowerCase()]) r = u[i.toLowerCase()];
+          if (u && u[a.toLowerCase()]) r = u[a.toLowerCase()];
           return r;
         },
-        t: function e(t, n) {
+        t: function e(o, i) {
           f();
-          if (!n && r) {
-            var s = TS.error ? TS.error : console.error;
-            s.call(this, "TS.i18n.t requires a namespace string as the second argument. Currently " + n + ".");
+          if (!i && r) {
+            var u = TS.error ? TS.error : console.error;
+            u.call(this, "TS.i18n.t requires a namespace string as the second argument. Currently " + i + ".");
             return function() {
               return "";
             };
           }
-          var u = i + ":" + n + ":" + t;
-          if (void 0 === l[u]) {
-            if (o || "pseudo" === i) l[u] = new MessageFormat(i, v(t)).format;
+          var l = a + ":" + i + ":" + o;
+          if (void 0 === s[l]) {
+            if (n || "pseudo" === a) s[l] = new MessageFormat(a, p(o)).format;
             else {
-              if (r && n && window.sha1 && window.tsTranslations && window.tsTranslations[n]) t = window.tsTranslations[n][window.sha1(t)] || t;
-              l[u] = new MessageFormat(i, t).format;
+              if (r && i && window.sha1 && window.tsTranslations && window.tsTranslations[i]) o = window.tsTranslations[i][window.sha1(o)] || o;
+              s[l] = new MessageFormat(a, o).format;
             }
-            if (r && a) l[u].toString = T(u, n);
+            if (r && t) s[l].toString = m(l, i);
           }
-          return l[u];
+          return s[l];
         },
         number: function e(r) {
           f();
-          return Intl.NumberFormat(i).format(r);
+          return Intl.NumberFormat(a).format(r);
         },
         sorter: function e(r, t) {
           f();
           if (!r || !t) return !r ? -1 : 1;
-          if (s) return s.compare(r, t);
+          if (i) return i.compare(r, t);
           return r.localeCompare(t);
         },
         mappedSorter: function e(r) {
           return function(e, t) {
             if (!e || !t) return !e ? -1 : 1;
-            var a = ("" + r).split(".");
-            if (a.length > 1) a.forEach(function(r) {
+            var n = ("" + r).split(".");
+            if (n.length > 1) n.forEach(function(r) {
               e = e[r];
               t = t[r];
             });
@@ -112,45 +116,60 @@ webpackJsonp([413], {
         },
         listify: function e(r, t) {
           f();
-          var a;
-          var n = [];
-          var o = r.length;
+          var n;
+          var o = [];
+          var i = r.length;
           var s = t && "or" === t.conj ? TS.i18n.t("or", "general")() : TS.i18n.t("and", "general")();
-          var l = o > 2 ? "," : "";
-          var u = t && t.strong ? "<strong>" : "";
+          var u = i > 2 ? "," : "";
+          var l = t && t.strong ? "<strong>" : "";
           var c = t && t.strong ? "</strong>" : "";
-          var g = t && t.no_escape;
-          var d = t && t.item_prefix ? t.item_prefix : "";
-          switch (i) {
+          var d = t && t.no_escape;
+          var g = t && t.item_prefix ? t.item_prefix : "";
+          switch (a) {
             case "ja-JP":
-              a = ", ";
+              n = ", ";
               break;
             case "en-US":
-              a = l + " " + s + " ";
+              n = u + " " + s + " ";
               break;
             default:
-              a = " " + s + " ";
+              n = " " + s + " ";
           }
           r.forEach(function(e, r) {
-            if (!g) e = _.escape(e);
-            n.push(u + d + e + c);
-            if (r < o - 2) n.push(", ");
-            else if (r < o - 1) n.push(a);
+            if (!d) e = _.escape(e);
+            o.push(l + g + e + c);
+            if (r < i - 2) o.push(", ");
+            else if (r < i - 1) o.push(n);
           });
-          return n;
+          return o;
         },
         deburr: function e(r) {
           r = _.deburr(r);
-          r = t(r);
-          r = n(r);
+          r = E(r);
+          r = y(r);
           return r;
         },
         getStaticTranslation: function e(r, t) {
-          if (!S()) return null;
-          var a = TS.storage.fetchStaticTranslations();
-          var n = _.get(a, "data." + t);
-          if (!n || !n[r]) return null;
-          return n[r];
+          if (!h()) return null;
+          var n = TS.storage.fetchStaticTranslations();
+          var a = _.get(n, "data." + t);
+          if (!a || !a[r]) return null;
+          return a[r];
+        },
+        keyEquivalent: function e(r) {
+          if ("en" === o) return r;
+          if (S[r] && S[r][o]) return S[r][o];
+          return r;
+        },
+        keyCodeEquivalent: function e(r) {
+          if ("en" === o) return r;
+          if (v[r] && v[r][o]) return v[r][o];
+          return r;
+        },
+        keyCodeEquivalentReverse: function e(r) {
+          if ("en" === o) return r;
+          if (l[o] && l[o][r]) return l[o][r];
+          return r;
         },
         start_of_the_week: {
           "en-US": 0
@@ -215,39 +234,41 @@ webpackJsonp([413], {
         },
         test: {
           setLocale: function e(r) {
-            i = r;
-            if (Intl.Collator) s = Intl.Collator(i);
-            if (window.moment) window.moment.locale(i);
+            a = r;
+            if (Intl.Collator) i = Intl.Collator(a);
+            if (window.moment) window.moment.locale(a);
           }
         }
       });
       var e;
       var r;
+      var t;
+      var n;
       var a;
-      var o;
+      var o = "en";
       var i;
-      var s;
-      var l = {};
+      var s = {};
       var u;
+      var l = {};
       var c = [];
-      var f = function t() {
+      var f = function o() {
         if (e) return;
         r = location.host.match(/^([^.]+\.)?(?:enterprise\.)?(dev[0-9]*)\.slack\.com/);
-        a = TS.qs_args && TS.qs_args.local_assets || TS.qs_args && TS.qs_args.js_path;
-        var n = location.search.match(new RegExp("\\?locale=(.*?)($|&)", "i"));
-        if (n) i = n[1];
-        if (!i) i = document.documentElement.lang || TS.i18n.DEFAULT_LOCALE;
-        if ("pseudo" === i) o = true;
-        if (Intl.Collator) s = Intl.Collator(i);
-        else s = null;
+        t = TS.qs_args && TS.qs_args.local_assets || TS.qs_args && TS.qs_args.js_path;
+        var s = location.search.match(new RegExp("\\?locale=(.*?)($|&)", "i"));
+        if (s) a = s[1];
+        if (!a) a = document.documentElement.lang || TS.i18n.DEFAULT_LOCALE;
+        if ("pseudo" === a) n = true;
+        if (Intl.Collator) i = Intl.Collator(a);
+        else i = null;
         e = true;
       };
-      var g = function e() {
+      var d = function e() {
         if (TS.boot_data && TS.boot_data.slack_to_zd_locale) u = TS.boot_data.slack_to_zd_locale;
       };
-      var d = function e() {
+      var g = function e() {
         if (!TS.boot_data.feature_localization || TS.i18n.locale() === TS.i18n.DEFAULT_LOCALE) return;
-        if (!S()) TS.api.call("i18n.translations.get").then(function(e) {
+        if (!h()) TS.api.call("i18n.translations.get").then(function(e) {
           var r = e.data;
           if (!r || !r.ok) {
             TS.error("Failed to fetch static i18n translations, recieved this response: ", e);
@@ -261,40 +282,86 @@ webpackJsonp([413], {
           });
         });
       };
-      var S = function e() {
+      var S = {
+        "`": {
+          es: "º",
+          fr: "@",
+          de: "^"
+        },
+        "~": {
+          es: "ª",
+          fr: "#",
+          de: "°"
+        },
+        "/": {
+          es: "'",
+          fr: ",",
+          de: "ß"
+        },
+        "\\": {
+          es: "¡",
+          de: "+"
+        },
+        ".": {
+          fr: ";"
+        }
+      };
+      var v = {
+        190: {
+          fr: 186
+        },
+        191: {
+          es: 222,
+          fr: 188,
+          de: 189
+        },
+        220: {
+          es: 187,
+          de: 221
+        }
+      };
+      var T = function e() {
+        Object.keys(v).forEach(function(e) {
+          Object.keys(v[e]).forEach(function(r) {
+            l[r] = l[r] || {};
+            l[r][v[e][r]] = parseInt(e, 10);
+          });
+        });
+      };
+      var h = function e() {
         var r = TS.storage.fetchStaticTranslations();
         if (!r) return false;
         if (TS.model.static_translations_cache_ts !== r.cache_ts) return false;
         if (TS.i18n.locale() !== r.locale) return false;
         return true;
       };
-      var T = function e(r, t) {
+      var m = function e(r, t) {
         return function() {
           var e = t + "." + r;
           if (c.indexOf(e) >= 0) return;
           c.push(e);
-          var a = "TS.i18n.t(" + JSON.stringify(r) + ", " + JSON.stringify(t) + ")";
-          TS.console.logStackTrace("Tried to use an i18n function as a string — you probably did " + a + " when you meant to do " + a + "()");
+          var n = "TS.i18n.t(" + JSON.stringify(r) + ", " + JSON.stringify(t) + ")";
+          TS.console.logStackTrace("Tried to use an i18n function as a string — you probably did " + n + " when you meant to do " + n + "()");
           alert("Dev-only alert: tried to use an i18n function as a string! See console for stack trace.\n\nNamespace: " + t + "\nString: " + r);
           return "";
         };
       };
-      var v = function e(r) {
+      var p = function e(r) {
         var t = false;
         if (r.endsWith(":")) {
           t = true;
           r = r.substr(0, r.length - 1);
         }
-        var a = /(<[^>]+>)|(&\w+;)/gi;
-        var n = r.match(a) || [];
-        r = r.replace(a, "<>");
+        var n = /(<[^>]+>)|(&\w+;)/gi;
+        var a = r.match(n) || [];
+        r = r.replace(n, "<>");
         var o = parseMessageFormatString(r);
         if (o.error) TS.error(o.error);
         var i;
         r = o.tokens.map(function(e) {
           if ("text" === e[0]) {
             i = e[1];
-            _.forOwn(h, function(e) {
+            _.forOwn(b, function(e) {
               i = i.replace(e[0], e[1]);
             });
             return i.split(" ").map(function(e) {
@@ -305,12 +372,12 @@ webpackJsonp([413], {
           return e[1];
         }).join("");
         r = r.split("<>").map(function(e, r) {
-          return e + (n[r] || "");
+          return e + (a[r] || "");
         }).join("");
         if (t) r += ":";
         return r;
       };
-      var h = {
+      var b = {
         a: [/a/g, "á"],
         b: [/b/g, "β"],
         c: [/c/g, "ç"],
@@ -348,189 +415,189 @@ webpackJsonp([413], {
         U: [/U/g, "Û"],
         Y: [/Y/g, "Ý"]
       };
+      var E = function e(r) {
+        return r && r.replace(/([\u3000-\u301f\u30a0-\u30ff\uff00-\uffef])/g, w);
+      };
+      var w = function e(r) {
+        var t = {
+          "ガ": "ｶﾞ",
+          "ギ": "ｷﾞ",
+          "グ": "ｸﾞ",
+          "ゲ": "ｹﾞ",
+          "ゴ": "ｺﾞ",
+          "ザ": "ｻﾞ",
+          "ジ": "ｼﾞ",
+          "ズ": "ｽﾞ",
+          "ゼ": "ｾﾞ",
+          "ゾ": "ｿﾞ",
+          "ダ": "ﾀﾞ",
+          "ヂ": "ﾁﾞ",
+          "ヅ": " ﾂﾞ",
+          "デ": "ﾃﾞ",
+          "ド": "ﾄﾞ",
+          "バ": "ﾊﾞ",
+          "パ": "ﾊﾟ",
+          "ビ": "ﾋﾞ",
+          "ピ": "ﾋﾟ",
+          "ブ": "ﾌﾞ",
+          "プ": "ﾌﾟ",
+          "ベ": "ﾍﾞ",
+          "ペ": "ﾍﾟ",
+          "ボ": "ﾎﾞ",
+          "ポ": "ﾎﾟ",
+          "ヴ": "ｳﾞ",
+          "ァ": "ｧ",
+          "ア": "ｱ",
+          "ィ": "ｨ",
+          "イ": "ｲ",
+          "ゥ": "ｩ",
+          "ウ": "ｳ",
+          "ェ": "ｪ",
+          "エ": "ｴ",
+          "ォ": "ｫ",
+          "オ": "ｵ",
+          "カ": "ｶ",
+          "キ": "ｷ",
+          "ク": "ｸ",
+          "ケ": "ｹ",
+          "コ": "ｺ",
+          "サ": "ｻ",
+          "シ": "ｼ",
+          "ス": "ｽ",
+          "セ": "ｾ",
+          "ソ": "ｿ",
+          "タ": "ﾀ",
+          "チ": "ﾁ",
+          "ッ": "ｯ",
+          "ツ": "ﾂ",
+          "テ": "ﾃ",
+          "ト": "ﾄ",
+          "ナ": "ﾅ",
+          "ニ": "ﾆ",
+          "ヌ": "ﾇ",
+          "ネ": "ﾈ",
+          "ノ": "ﾉ",
+          "ハ": "ﾊ",
+          "ヒ": "ﾋ",
+          "フ": "ﾌ",
+          "ヘ": "ﾍ",
+          "ホ": "ﾎ",
+          "マ": "ﾏ",
+          "ミ": "ﾐ",
+          "ム": "ﾑ",
+          "メ": "ﾒ",
+          "モ": "ﾓ",
+          "ャ": "ｬ",
+          "ヤ": "ﾔ",
+          "ュ": "ｭ",
+          "ユ": "ﾕ",
+          "ョ": "ｮ",
+          "ヨ": "ﾖ",
+          "ラ": "ﾗ",
+          "リ": "ﾘ",
+          "ル": "ﾙ",
+          "レ": "ﾚ",
+          "ロ": "ﾛ",
+          "ワ": "ﾜ",
+          "ヲ": "ｦ",
+          "ン": "ﾝ",
+          "。": "｡",
+          "「": "｢",
+          "」": "｣",
+          "、": "､",
+          "・": "･",
+          "ー": "ｰ",
+          "゛": "ﾞ",
+          "゜": "ﾟ",
+          "　": " ",
+          "￠": "¢",
+          "￡": "£",
+          "￢": "¬",
+          "￣": "¯",
+          "￤": "¦",
+          "￥": "¥",
+          "￦": "₩"
+        };
+        var n = r.charCodeAt(0);
+        if (r in t) return t[r];
+        else if (n >= 65280 && n <= 65374) return String.fromCharCode(n - 65248);
+        return r;
+      };
+      var y = function e(r) {
+        return r && r.replace(/([\u0400-\u04ff])/g, L);
+      };
+      var L = function e(r) {
+        var t = {
+          "А": "A",
+          "Б": "B",
+          "В": "V",
+          "Г": "G",
+          "Д": "D",
+          "Е": "E",
+          "Ё": "Jo",
+          "Ж": "Zh",
+          "З": "Z",
+          "И": "I",
+          "Й": "J",
+          "К": "K",
+          "Л": "L",
+          "М": "M",
+          "Н": "N",
+          "О": "O",
+          "П": "P",
+          "Р": "R",
+          "С": "S",
+          "Т": "T",
+          "У": "U",
+          "Ф": "F",
+          "Х": "H",
+          "Ц": "C",
+          "Ч": "Ch",
+          "Ш": "Sh",
+          "Щ": "Sch",
+          "Ъ": "",
+          "Ы": "Y",
+          "Ь": "",
+          "Э": "Je",
+          "Ю": "Ju",
+          "Я": "Ja",
+          "а": "a",
+          "б": "b",
+          "в": "v",
+          "г": "g",
+          "д": "d",
+          "е": "e",
+          "ё": "jo",
+          "ж": "zh",
+          "з": "z",
+          "и": "i",
+          "й": "j",
+          "к": "k",
+          "л": "l",
+          "м": "m",
+          "н": "n",
+          "о": "o",
+          "п": "p",
+          "р": "r",
+          "с": "s",
+          "т": "t",
+          "у": "u",
+          "ф": "f",
+          "х": "h",
+          "ц": "c",
+          "ч": "ch",
+          "ш": "sh",
+          "щ": "sch",
+          "ъ": "",
+          "ы": "y",
+          "ь": "",
+          "э": "je",
+          "ю": "ju",
+          "я": "ja"
+        };
+        if (r in t) return t[r];
+        return r;
+      };
     })();
-    var t = function e(r) {
-      return r && r.replace(/([\u3000-\u301f\u30a0-\u30ff\uff00-\uffef])/g, a);
-    };
-    var a = function e(r) {
-      var t = {
-        "ガ": "ｶﾞ",
-        "ギ": "ｷﾞ",
-        "グ": "ｸﾞ",
-        "ゲ": "ｹﾞ",
-        "ゴ": "ｺﾞ",
-        "ザ": "ｻﾞ",
-        "ジ": "ｼﾞ",
-        "ズ": "ｽﾞ",
-        "ゼ": "ｾﾞ",
-        "ゾ": "ｿﾞ",
-        "ダ": "ﾀﾞ",
-        "ヂ": "ﾁﾞ",
-        "ヅ": " ﾂﾞ",
-        "デ": "ﾃﾞ",
-        "ド": "ﾄﾞ",
-        "バ": "ﾊﾞ",
-        "パ": "ﾊﾟ",
-        "ビ": "ﾋﾞ",
-        "ピ": "ﾋﾟ",
-        "ブ": "ﾌﾞ",
-        "プ": "ﾌﾟ",
-        "ベ": "ﾍﾞ",
-        "ペ": "ﾍﾟ",
-        "ボ": "ﾎﾞ",
-        "ポ": "ﾎﾟ",
-        "ヴ": "ｳﾞ",
-        "ァ": "ｧ",
-        "ア": "ｱ",
-        "ィ": "ｨ",
-        "イ": "ｲ",
-        "ゥ": "ｩ",
-        "ウ": "ｳ",
-        "ェ": "ｪ",
-        "エ": "ｴ",
-        "ォ": "ｫ",
-        "オ": "ｵ",
-        "カ": "ｶ",
-        "キ": "ｷ",
-        "ク": "ｸ",
-        "ケ": "ｹ",
-        "コ": "ｺ",
-        "サ": "ｻ",
-        "シ": "ｼ",
-        "ス": "ｽ",
-        "セ": "ｾ",
-        "ソ": "ｿ",
-        "タ": "ﾀ",
-        "チ": "ﾁ",
-        "ッ": "ｯ",
-        "ツ": "ﾂ",
-        "テ": "ﾃ",
-        "ト": "ﾄ",
-        "ナ": "ﾅ",
-        "ニ": "ﾆ",
-        "ヌ": "ﾇ",
-        "ネ": "ﾈ",
-        "ノ": "ﾉ",
-        "ハ": "ﾊ",
-        "ヒ": "ﾋ",
-        "フ": "ﾌ",
-        "ヘ": "ﾍ",
-        "ホ": "ﾎ",
-        "マ": "ﾏ",
-        "ミ": "ﾐ",
-        "ム": "ﾑ",
-        "メ": "ﾒ",
-        "モ": "ﾓ",
-        "ャ": "ｬ",
-        "ヤ": "ﾔ",
-        "ュ": "ｭ",
-        "ユ": "ﾕ",
-        "ョ": "ｮ",
-        "ヨ": "ﾖ",
-        "ラ": "ﾗ",
-        "リ": "ﾘ",
-        "ル": "ﾙ",
-        "レ": "ﾚ",
-        "ロ": "ﾛ",
-        "ワ": "ﾜ",
-        "ヲ": "ｦ",
-        "ン": "ﾝ",
-        "。": "｡",
-        "「": "｢",
-        "」": "｣",
-        "、": "､",
-        "・": "･",
-        "ー": "ｰ",
-        "゛": "ﾞ",
-        "゜": "ﾟ",
-        "　": " ",
-        "￠": "¢",
-        "￡": "£",
-        "￢": "¬",
-        "￣": "¯",
-        "￤": "¦",
-        "￥": "¥",
-        "￦": "₩"
-      };
-      var a = r.charCodeAt(0);
-      if (r in t) return t[r];
-      else if (a >= 65280 && a <= 65374) return String.fromCharCode(a - 65248);
-      return r;
-    };
-    var n = function e(r) {
-      return r && r.replace(/([\u0400-\u04ff])/g, o);
-    };
-    var o = function e(r) {
-      var t = {
-        "А": "A",
-        "Б": "B",
-        "В": "V",
-        "Г": "G",
-        "Д": "D",
-        "Е": "E",
-        "Ё": "Jo",
-        "Ж": "Zh",
-        "З": "Z",
-        "И": "I",
-        "Й": "J",
-        "К": "K",
-        "Л": "L",
-        "М": "M",
-        "Н": "N",
-        "О": "O",
-        "П": "P",
-        "Р": "R",
-        "С": "S",
-        "Т": "T",
-        "У": "U",
-        "Ф": "F",
-        "Х": "H",
-        "Ц": "C",
-        "Ч": "Ch",
-        "Ш": "Sh",
-        "Щ": "Sch",
-        "Ъ": "",
-        "Ы": "Y",
-        "Ь": "",
-        "Э": "Je",
-        "Ю": "Ju",
-        "Я": "Ja",
-        "а": "a",
-        "б": "b",
-        "в": "v",
-        "г": "g",
-        "д": "d",
-        "е": "e",
-        "ё": "jo",
-        "ж": "zh",
-        "з": "z",
-        "и": "i",
-        "й": "j",
-        "к": "k",
-        "л": "l",
-        "м": "m",
-        "н": "n",
-        "о": "o",
-        "п": "p",
-        "р": "r",
-        "с": "s",
-        "т": "t",
-        "у": "u",
-        "ф": "f",
-        "х": "h",
-        "ц": "c",
-        "ч": "ch",
-        "ш": "sh",
-        "щ": "sch",
-        "ъ": "",
-        "ы": "y",
-        "ь": "",
-        "э": "je",
-        "ю": "ju",
-        "я": "ja"
-      };
-      if (r in t) return t[r];
-      return r;
-    };
   }
-}, [138]);
+}, [2623]);

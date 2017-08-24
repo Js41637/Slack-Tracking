@@ -13,6 +13,15 @@
           <a href="{{this.team_url}}messages" target="_self">{{#t}}Switch to <strong>{team_name}</strong>{{/t}}</a>
         </li>
       {{/each}}
+      {{#feature flag="feature_lazy_grid_teams"}}
+        {{#if needs_enterprise_teams_dialog}}
+          {{#feature flag="feature_teams_to_workspaces"}}
+            <li data-action="enterprise_teams_dialog" role="menuitem"><a>{{#t}}See all {enterprise_name} workspaces &hellip;{{/t}}</a></li>
+          {{else}}
+            <li data-action="enterprise_teams_dialog" role="menuitem"><a>{{#t}}See all {enterprise_name} teams &hellip;{{/t}}</a></li>
+          {{/feature}}
+        {{/if}}
+      {{/feature}}
       {{#if needs_other_enterprise_logout}}
         <li data-action="enterprise_logout" role="menuitem"><a href="{{this.logout_url}}" target="_self">{{#t}}Sign out of <strong>{enterprise_name}</strong>{{/t}}</a></li>
       {{/if}}
