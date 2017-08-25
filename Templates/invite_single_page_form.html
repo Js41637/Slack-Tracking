@@ -2,7 +2,7 @@
 {{i18n_ns 'invite'}}
 
 
-<div class= "fs_grey large_top_padding col span_3_of_6 margin_auto float_none">
+<div class= "fs_grey large_top_padding {{#unless sso_required_or_suggested}}col span_3_of_6{{/unless}} margin_auto float_none">
 
 <div id="ratelimit_alert" class="header_error_message hidden bottom_margin">
     <h3>{{#t note="This refers to a rate limit we have for filling out this form"}}Whoa, you're going too fast!{{/t}}</h3>

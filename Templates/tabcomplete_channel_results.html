@@ -9,7 +9,7 @@
         {{~#t note="Shown when a user is typing the old name of a channel, e.g. '(formerly #cats)'" old_name=result._jumper_previous_name_match}}(formerly #{old_name}){{/t~}}
       </span>
     {{/if}}
-    {{~#if result.is_shared}}{{~#unless result.is_org_shared}}{{> shared_channels_icon}}{{/unless}}{{/if}}
+    {{~#if result.is_shared}}{{~#unless result.is_org_shared}}{{> shared_channels_icon tooltip=true shared_team_ids=result.shared_team_ids}}{{/unless}}{{/if}}
   </li>
 {{/each}}
 </ul>

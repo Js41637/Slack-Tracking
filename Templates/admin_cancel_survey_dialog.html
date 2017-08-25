@@ -1,0 +1,9 @@
+{{i18n_ns "admin_billing_item"}}
+
+{{#feature flag="feature_cancel_survey"}}
+  <label class="normal large_bottom_margin">{{#t note='Prompt for users who just downgraded from a paid to unpaid plan'}}If you have a moment, we would love to know why you decided to switch to the free plan.{{/t}}</label>
+
+  <form action="" id="admin_cancel_survey" name="admin_cancel_survey">
+    <textarea maxlength="500" placeholder="{{#t note='Placeholder text for a form asking why users downgraded from a paid to unpaid plan'}}We switched because...{{/t}}"></textarea>
+  </form>
+{{/feature}}

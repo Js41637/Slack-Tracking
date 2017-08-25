@@ -3,15 +3,19 @@
 {{#feature flag="feature_shared_channels_client"}}
 
 {{#if_equal error compare="invalid_target_domain"}}
-    {{#feature flag="feature_teams_to_workspaces"}}
-        {{#t}}<strong>We couldn\u2019t find a workspace at {target_domain}.</strong> Please double-check the Slack URL you entered.{{/t}}
-    {{else}}
-        {{#t}}<strong>We couldn\u2019t find a team at {target_domain}.</strong> Please double-check the Slack URL you entered.{{/t}}
-    {{/feature}}
+    {{#t}}<strong>{target_domain}.slack.com doesn\u2019t appear to be in use.</strong> If you\u2019re sure you entered it correctly, you may need to ask your contact to double-check their Slack URL.{{/t}}
 {{/if_equal}}
 
 {{#if_equal error compare="shared_channel_invites_disabled"}}
-    {{#t}}<strong>{team_name} doesn\u2019t accept shared channel invitations.</strong> You may want to ask their admin to change this setting.{{/t}}
+    {{#t}}<strong>{target_domain}.slack.com doesn\u2019t accept shared channel invitations.</strong> You may want to ask their admin to change this setting.{{/t}}
+{{/if_equal}}
+
+{{#if_equal error compare="not_in_shared_channels_beta"}}
+    {{#t}}<strong>{target_domain}.slack.com hasn\u2019t joined the shared channels beta.</strong> They\u2019ll need to do so before you can share a channel.{{/t}}
+{{/if_equal}}
+
+{{#if_equal error compare="target_team_is_enterprise"}}
+    {{#t}}<strong>During the beta, you can\u2019t share channels with organizations on Enterprise Grid.</strong> This is one of those rough edges we\u2019re still smoothing over \u2014 stay tuned.{{/t}}
 {{/if_equal}}
 
 {{/feature}}

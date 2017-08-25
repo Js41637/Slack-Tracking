@@ -13,6 +13,19 @@
 
 <p class="normal greigh large_bottom_margin">{{#t}}Choose the language you\u2019d like to use with Slack.{{/t}}</p>
 
+{{#feature flag="feature_i18n_keyboards"}}
+{{#if is_browser}}
+<label class="select">
+  <h4 class="prefs_keyboard inline_block">{{#t}}Keyboard layout{{/t}}</h4>
+  <select name="keyboard" data-inline-saver='.prefs_keyboard'>
+    {{#each supported_keyboards}}
+      <option value={{@key}} {{#if_equal @key compare=../user_keyboard}}selected="selected" aria-selected="true"{{/if_equal}}>{{this}}</option>
+    {{/each}}
+  </select>
+</label>
+{{/if}}
+{{/feature}}
+
 <label class="select">
   <h4 class="prefs_tz inline_block">{{#t}}Time zone{{/t}}</h4>
   <select name="tz" data-inline-saver='.prefs_tz'>

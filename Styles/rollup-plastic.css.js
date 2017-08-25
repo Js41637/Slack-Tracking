@@ -16179,6 +16179,23 @@ body:not(.unify_user) #im_browser .im_browser_row .member_image {
   top: 13px
 }
 
+#im_browser .im_browser_row.disabled_dm {
+  cursor: default;
+  background: #f9f9f9
+}
+
+#im_browser .im_browser_row.disabled_dm .member_image {
+  opacity: .6;
+  -moz-opacity: .6;
+  -khtml-opacity: .6;
+  -webkit-filter: grayscale(1)
+}
+
+#im_browser .im_browser_row.disabled_dm .c-member__display-name,
+#im_browser .im_browser_row.disabled_dm .c-member__secondary-name {
+  color: #717274
+}
+
 #im_browser .im_browser_row.multiparty {
   padding-left: 62px;
   color: #2c2d30
@@ -16233,11 +16250,13 @@ body:not(.unify_user) #im_browser .im_browser_row.multiparty .im_display_name_co
   line-height: 14px
 }
 
+#im_browser .im_browser_row .disabled_dm_warning,
 #im_browser .im_browser_row .im_last_msg_time {
   font-size: 12px;
   line-height: 12px
 }
 
+#im_browser .im_browser_row .disabled_dm_warning .ts_icon,
 #im_browser .im_browser_row .im_last_msg_time .ts_icon {
   font-size: 16px;
   position: relative;
@@ -16349,26 +16368,26 @@ body:not(.unify_user) #im_browser .im_browser_row .im_unread_cnt {
   display: block
 }
 
-#im_browser #im_list_container:not(.keyboard_active).not_scrolling .im_browser_row:hover,
+#im_browser #im_list_container:not(.keyboard_active).not_scrolling .im_browser_row:not(.disabled_dm):hover,
 #im_browser .im_browser_row.highlighted {
   background: #edf7fd;
   border: 1px solid #d3ecfa;
   border-radius: 6px
 }
 
-#im_browser #im_list_container:not(.keyboard_active).not_scrolling .im_browser_row:hover .im_last_msg_time,
-#im_browser #im_list_container:not(.keyboard_active).not_scrolling .im_browser_row:hover .im_unread_cnt,
+#im_browser #im_list_container:not(.keyboard_active).not_scrolling .im_browser_row:not(.disabled_dm):hover .im_last_msg_time,
+#im_browser #im_list_container:not(.keyboard_active).not_scrolling .im_browser_row:not(.disabled_dm):hover .im_unread_cnt,
 #im_browser .im_browser_row.highlighted .im_last_msg_time,
 #im_browser .im_browser_row.highlighted .im_unread_cnt {
   display: none
 }
 
-#im_browser #im_list_container:not(.keyboard_active).not_scrolling .im_browser_row:hover .enter_icon,
+#im_browser #im_list_container:not(.keyboard_active).not_scrolling .im_browser_row:not(.disabled_dm):hover .enter_icon,
 #im_browser .im_browser_row.highlighted .enter_icon {
   display: inline
 }
 
-#im_browser #im_list_container:not(.keyboard_active).not_scrolling .im_browser_row:hover+.im_browser_row,
+#im_browser #im_list_container:not(.keyboard_active).not_scrolling .im_browser_row:not(.disabled_dm):hover+.im_browser_row,
 #im_browser .im_browser_row.highlighted+.im_browser_row {
   border-color: transparent
 }
