@@ -46,6 +46,24 @@
     {{/if}}
   {{/feature}}
 
+  {{#feature flag="feature_shared_channels_client"}}
+    {{#if show_stop_sharing_channel_btn}}
+      <div class="channel_option_item top_padding bottom_padding" data-action="stop_sharing_channel_btn">
+        <div class="title bold small_bottom_margin">{{#t}}Stop sharing this channel{{/t}}</div>
+
+        {{#feature flag="feature_teams_to_workspaces"}}
+          <p class="subtle_silver no_bottom_margin">{{#t workspace_names=(makeTeamNameList model_ob.shared_team_ids conj="or")}}You can stop sharing this channel at any time. Note that you won\u2019t be able to re-share this channel again with {workspace_names} or any other workspace.{{/t}}</p>
+        {{else}}
+          <p class="subtle_silver no_bottom_margin">{{#t team_names=(makeTeamNameList model_ob.shared_team_ids conj="or")}}You can stop sharing this channel at any time. Note that you won\u2019t be able to re-share this channel again with {team_names} or any other team.{{/t}}</p>
+        {{/feature}}
+
+        <div class="channel_option_open">
+          <ts-icon class="ts_icon_arrow_large_right"></ts-icon>
+        </div>
+      </div>
+    {{/if}}
+  {{/feature}}
+
   {{#if show_convert_btn}}
     <div class="channel_option_item top_padding bottom_padding" data-action="channel_convert_btn">
       <div class="title bold charcoal_grey small_bottom_margin">{{#t}}Convert this channel to a private channel{{/t}}</div>
@@ -175,20 +193,6 @@
       </div>
     </div>
   {{/if}}
-
-  {{#feature flag="feature_disconnecting_shared_channels"}}
-    {{#if show_disconnect_btn}}
-      <div class="channel_option_item top_padding bottom_padding" data-action="channel_disconnect_btn">
-        <div class="title bold charcoal_grey small_bottom_margin">{{#t rough-draft=true}}Stop sharing this channel{{/t}}</div>
-
-        <p class="subtle_silver no_bottom_margin">{{#t}}You can stop sharing this channel at any time. Note that you won't be able to re-share this channel again.{{/t}}</p>
-
-        <div class="channel_option_open">
-          <ts-icon class="ts_icon_arrow_large_right"></ts-icon>
-        </div>
-      </div>
-    {{/if}}
-  {{/feature}}
 
   {{#if show_delete_btn}}
     <div class="channel_option_item top_padding bottom_padding" data-action="channel_delete_btn">

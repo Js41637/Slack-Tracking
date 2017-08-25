@@ -198,14 +198,14 @@
       </div>
     {{/if}}
 
-    {{! Special Attachment Actions: Shared Channel Request}}
-    {{#feature flag="feature_connecting_shared_channels"}}
-    {{#if shared_channel_request_actions}}
+    {{! Special Client Button Attachment Actions}}
+    {{#feature flag="feature_shared_channels_client"}}
+    {{#if client_buttons}}
       <div class="msg_inline_attachment_row attachment_actions">
-        {{> attachment_actions attachment=shared_channel_request_actions}}
+        {{> attachment_actions attachment=client_buttons}}
       </div>
-    {{/if}} 
-    {{/feature}} 
+    {{/if}}
+    {{/feature}}
 
   </div>
 

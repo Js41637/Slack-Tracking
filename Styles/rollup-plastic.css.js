@@ -10156,11 +10156,6 @@ only screen and (min-resolution:2dppx) {
   top: 1px
 }
 
-#generic_dialog.basic_share_dialog .lazy_filter_select .lfs_input_container .lfs_item .presence,
-#share_dialog .lazy_filter_select .lfs_input_container .lfs_item .presence {
-  top: 6px
-}
-
 #generic_dialog.basic_share_dialog .lazy_filter_select .lfs_item,
 #share_dialog .lazy_filter_select .lfs_item {
   position: relative;
@@ -10175,10 +10170,14 @@ only screen and (min-resolution:2dppx) {
 
 #generic_dialog.basic_share_dialog .lazy_filter_select .lfs_item .ts_icon:not(.presence_icon):before,
 #share_dialog .lazy_filter_select .lfs_item .ts_icon:not(.presence_icon):before {
-  position: absolute;
   top: 4px;
   left: 1px;
   font-size: 18px
+}
+
+body:not(.unify_user) #generic_dialog.basic_share_dialog .lazy_filter_select .lfs_item .ts_icon:not(.presence_icon):before,
+body:not(.unify_user) #share_dialog .lazy_filter_select .lfs_item .ts_icon:not(.presence_icon):before {
+  position: absolute
 }
 
 #generic_dialog.basic_share_dialog .lazy_filter_select .lfs_item .ts_icon:not(.presence_icon).ts_icon_channel:before,
@@ -10191,8 +10190,8 @@ only screen and (min-resolution:2dppx) {
   line-height: 0
 }
 
-#generic_dialog.basic_share_dialog .lazy_filter_select .lfs_item .presence,
-#share_dialog .lazy_filter_select .lfs_item .presence {
+body:not(.unify_user) #generic_dialog.basic_share_dialog .lazy_filter_select .lfs_item .presence,
+body:not(.unify_user) #share_dialog .lazy_filter_select .lfs_item .presence {
   position: absolute;
   top: 9px;
   left: 3px
@@ -17583,6 +17582,7 @@ body:not(.unify_user) .lazy_filter_select .lfs_value .ts_icon_shared_channels {
 }
 
 .lazy_filter_select .addl_icon.ts_icon_shared_channels {
+  position: relative;
   top: 4px
 }
 
@@ -17639,19 +17639,21 @@ body:not(.unify_user) .lazy_filter_select .lfs_value .ts_icon_shared_channels {
 }
 
 .unify_user #select_share_channels .lazy_filter_select .lfs_value .lfs_item.selected {
-  height: 25px;
+  height: 28px;
   color: #2c2d30;
-  font-weight: 700
-}
-
-.unify_user #select_share_channels .lazy_filter_select .lfs_value .lfs_item.selected .ts_icon_shared_channels {
-  margin-right: 40px
+  font-weight: 700;
+  position: relative;
+  top: 2px
 }
 
 .unify_user #select_share_channels .lazy_filter_select .lfs_value .lfs_item.selected .ts_icon:not(.presence_icon) {
   color: #717274;
   position: relative;
-  top: 1px
+  top: 0
+}
+
+.unify_user #select_share_channels .lazy_filter_select .lfs_value .lfs_item.selected .ts_icon_shared_channels {
+  margin-right: 0
 }
 
 .unify_user #select_share_channels .lazy_filter_select .lfs_item {
@@ -17661,11 +17663,14 @@ body:not(.unify_user) .lazy_filter_select .lfs_value .ts_icon_shared_channels {
   padding: 0;
   margin: 0 0 3px;
   height: 32px;
-  width: calc(99%)
+  width: calc(99%);
+  display: flex;
+  align-items: center
 }
 
 .unify_user #select_share_channels .lazy_filter_select .lfs_item .c-member--small {
-  margin-right: 6px
+  margin-right: 6px;
+  flex: 1
 }
 
 .unify_user #select_share_channels .lazy_filter_select .lfs_item .ts_icon_channel:before {
@@ -17675,7 +17680,9 @@ body:not(.unify_user) .lazy_filter_select .lfs_value .ts_icon_shared_channels {
 }
 
 .unify_user #select_share_channels .lazy_filter_select .lfs_item .ts_icon:not(.presence_icon) {
-  color: #717274
+  color: #717274;
+  position: relative;
+  top: -1px
 }
 
 .unify_user #select_share_channels .lazy_filter_select .lfs_item .ts_icon_lock {
@@ -17683,9 +17690,9 @@ body:not(.unify_user) .lazy_filter_select .lfs_value .ts_icon_shared_channels {
   padding-left: 1px
 }
 
-.unify_user #select_share_channels .lazy_filter_select .lfs_item .ts_icon_channel {
-  position: relative;
-  top: 1px
+.unify_user #select_share_channels .lazy_filter_select .lfs_item .ts_icon_shared_channels {
+  margin-left: auto;
+  margin-right: 5px
 }
 
 .lazy_filter_select.normal_style .lfs_input_container,

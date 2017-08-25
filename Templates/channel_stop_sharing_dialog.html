@@ -1,0 +1,37 @@
+{{i18n_ns 'shared_channels'}}
+
+{{#feature flag="feature_shared_channels_client"}}
+
+<div class="p-stop_sharing_channel_dialog__contents">
+  <div class="p-stop_sharing_channel_dialog__last_channel_alert c-alert c-alert--inline c-alert--level_error large_bottom_margin hidden">
+    <div class="c-alert__message">
+      <p class="no_bottom_margin">
+        <strong>
+          {{#t team_names=(makeTeamNameList model_ob.shared_team_ids)}}This is your last channel with <span class="p-stop_sharing_channel_dialog__last_channel_team_names">{team_names}</span>{{/t}}
+        </strong>
+      </p>
+      <p class="no_bottom_margin">
+        {{#feature flag="feature_teams_to_workspaces"}}
+          {{#t}}If you stop sharing this channel, you won\u2019t be able to direct message members of their workspace{{/t}}
+        {{else}}
+          {{#t}}If you stop sharing this channel, you won\u2019t be able to direct message members of their team{{/t}}
+        {{/feature}}
+      </p>
+    </div>
+  </div>
+
+  <div class="p-stop_sharing_channel_dialog__description">
+    <p>
+      {{#t}}You can stop sharing this channel at any time. Here\u2019s what will happen:{{/t}}
+    </p>
+
+    {{> shared_channels_disconnect_channel_expectations team_ids=model_ob.shared_team_ids}}
+
+    <p class="large_bottom_margin">
+      {{#t team_names=(makeTeamNameList model_ob.shared_team_ids strong=true) channel_name=(makeModelObNameForDisplay model_ob)}}Are you sure you want to stop sharing <strong>{channel_name}</strong> with {team_names}?{{/t}}
+    </p>
+  </div>
+</div>
+
+{{/feature}}
+
