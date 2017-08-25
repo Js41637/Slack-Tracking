@@ -539,11 +539,11 @@
       489: "TS.calls.screen_share_controls",
       490: "TS.lessons.model"
     }[a] || a) + "." + {
-      0: "e042549aa59456432f2c",
-      4: "f1bcab67cc6e4e2846b4",
-      5: "e2f0538ffb2ad1f95125",
+      0: "a5f44f1f3d6595aae8bc",
+      4: "04ff9971864f20c95cbd",
+      5: "3bfe060d2d6d4ddeee12",
       6: "e08bf53f24a307b92ee9",
-      7: "4ea43310c99efafdb6fa",
+      7: "74947a329f92ef281c6d",
       8: "02abec81e5b86cad7e0e",
       9: "7797e8e6e29842a5ee02",
       10: "db4198c103591122ed30",
