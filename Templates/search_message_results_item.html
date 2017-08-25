@@ -12,10 +12,10 @@
                 {{#if this.channel.is_mpim}}
                   {{makeMpimLink this.channel true}}
                 {{else}}
-                  {{makeGroupLink this.channel}}
+                  {{makeGroupLink this.channel inherit_font_size=true}}
                 {{/if}}
               {{else}}
-                {{makeChannelLink this.channel}}
+                {{makeChannelLink this.channel inherit_font_size=true}}
               {{/if_equal}}
             {{else}}
               {{makeChannelLinkEnterpriseSearchResult this}}
@@ -25,10 +25,10 @@
               {{#if this.channel.is_mpim}}
                 {{makeMpimLink this.channel true}}
               {{else}}
-                {{makeGroupLink this.channel}}
+                {{makeGroupLink this.channel inherit_font_size=true}}
               {{/if}}
             {{else}}
-              {{makeChannelLink this.channel}}
+              {{makeChannelLink this.channel inherit_font_size=true}}
             {{/if_equal}}
           {{/if}}
         {{/if_equal}}

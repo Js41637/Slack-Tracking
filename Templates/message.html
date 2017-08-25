@@ -134,13 +134,13 @@
               {{#if msg.channel.is_mpim}}
                 {{makeMpimLink msg.channel true}}
               {{else}}
-                {{makeGroupLink msg.channel}}
+                {{makeGroupLink msg.channel inherit_font_size=true}}
               {{/if}}
             {{else}}
               {{#if archive_link}}
                 {{makeChannelLinkEnterpriseSearchResult msg}}
               {{else}}
-                {{makeChannelLink msg.channel}}
+                {{makeChannelLink msg.channel inherit_font_size=true}}
               {{/if}}
             {{/if_equal}}
           {{/if_equal}}
