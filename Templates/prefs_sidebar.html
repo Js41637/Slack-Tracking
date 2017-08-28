@@ -72,7 +72,11 @@
 
   <h2 id="prefs_sidebar_theme" class="inline_block">{{#t}}Sidebar Theme{{/t}}</h2>
 
-  <p>{{#t team_name=(currentTeamName)}}Customize the look of the <strong>{team_name}</strong> team. Only you will see this.{{/t}}</p>
+  {{#feature flag="feature_teams_to_workspaces"}}
+    <p>{{#t team_name=(currentTeamName) fallback_hash="694074f5da7aa3387ae04255c6c5fe8dbfb0ac88"}}Customize the look of the <strong>{team_name}</strong> workspace. Only you will see this.{{/t}}</p>
+  {{else}}
+    <p>{{#t team_name=(currentTeamName)}}Customize the look of the <strong>{team_name}</strong> team. Only you will see this.{{/t}}</p>
+  {{/feature}}
 
   <label class="radio theme_label">
     <div class="theme_thumb" data-theme="aubergine"></div>

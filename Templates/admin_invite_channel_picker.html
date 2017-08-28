@@ -7,7 +7,11 @@
     </label>
     <div class="greigh no_bottom_margin">
       <p id="default_channels_note" class="{{#if initial_channel_id}}hidden{{/if}}">
-        {{#t teams=(listify default_channels map="name" strong=true)}}New <strong>team members</strong> will automatically join {teams}{{/t}}
+        {{#feature flag="feature_teams_to_workspaces"}}
+          {{#t teams=(listify default_channels map="name" strong=true) fallback_hash="9a32b84b83cfcd54743236e962e3d4b48a1b1686"}}New <strong>members</strong> will automatically join {teams}{{/t}}
+        {{else}}
+          {{#t teams=(listify default_channels map="name" strong=true)}}New <strong>team members</strong> will automatically join {teams}{{/t}}
+        {{/feature}}
         {{#if is_admin}}
           <a onclick="$('#default_channels_note').hide(); $('#default_channels').show();" class="small_left_margin greigh underline inline_block" data-clog-click="true" data-clog-event="INVITEMODAL_ACTION" data-clog-params="action=edit_channels,trigger=click_cta_edit_channels">{{#t note="link that allows admin to edit or add default channels"}}Edit / add{{/t}}</a>
         {{/if}}
@@ -24,7 +28,11 @@
           {{/each}}
         </select>
         <span>
-          {{#t}}New <strong>team members</strong> will automatically join these channels and <strong>#{general_name}</strong>{{/t}} <a href="/admin/settings#default_channels" target="admin_settings" class="small_left_margin greigh underline">{{#t note="link to change default channels"}}change defaults{{/t}}</a>
+          {{#feature flag="feature_teams_to_workspaces"}}
+            {{#t fallback_hash="c3e2c6051b2acdb3bb059ddd464670a3990a8a36"}}New <strong>members</strong> will automatically join these channels and <strong>#{general_name}</strong>{{/t}} <a href="/admin/settings#default_channels" target="admin_settings" class="small_left_margin greigh underline">{{#t note="link to change default channels"}}change defaults{{/t}}</a>
+          {{else}}
+            {{#t}}New <strong>team members</strong> will automatically join these channels and <strong>#{general_name}</strong>{{/t}} <a href="/admin/settings#default_channels" target="admin_settings" class="small_left_margin greigh underline">{{#t note="link to change default channels"}}change defaults{{/t}}</a>
+          {{/feature}}
         </span>
       </p>
     </div>

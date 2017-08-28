@@ -15477,12 +15477,12 @@ body:not(.unify_user) .tab_complete_ui ul.type_members .unify_broadcast {
   color: #717274
 }
 
-:not(.unify_user) .tab_complete_ui ul.type_members .broadcast,
-:not(.unify_user) .tab_complete_ui ul.type_members .bullet,
-:not(.unify_user) .tab_complete_ui ul.type_members .display_name,
-:not(.unify_user) .tab_complete_ui ul.type_members .presence,
-:not(.unify_user) .tab_complete_ui ul.type_members .secondary_name,
-:not(.unify_user) .tab_complete_ui ul.type_members .username {
+body:not(.unify_user) .tab_complete_ui ul.type_members .broadcast,
+body:not(.unify_user) .tab_complete_ui ul.type_members .bullet,
+body:not(.unify_user) .tab_complete_ui ul.type_members .display_name,
+body:not(.unify_user) .tab_complete_ui ul.type_members .presence,
+body:not(.unify_user) .tab_complete_ui ul.type_members .secondary_name,
+body:not(.unify_user) .tab_complete_ui ul.type_members .username {
   margin-right: 6px
 }
 

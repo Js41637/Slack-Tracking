@@ -88,7 +88,11 @@
   <h4 id="prefs_highlight_words" class="inline_block">{{#t}}My keywords{{/t}}</h4>
   <div class="notification_prefs_section">
     <label class="normal block" for="highlight_words">
-      {{#t}}Show a badge (<span class="badge_example">1</span>) in my channel list when a teammate uses one of my keywords:{{/t}}
+      {{#feature flag="feature_teams_to_workspaces"}}
+        {{#t fallback_hash="5616b392fc7572735b811f5dee54c4b993e62a1a"}}Show a badge (<span class="badge_example">1</span>) in my channel list when someone uses one of my keywords:{{/t}}
+      {{else}}
+        {{#t}}Show a badge (<span class="badge_example">1</span>) in my channel list when a teammate uses one of my keywords:{{/t}}
+      {{/feature}}
       <input id="highlight_words_input" name="highlight_words" type="text" data-inline-saver="#prefs_highlight_words" data-validation="maxcsv=100" class="small full_width small_top_margin" {{#feature flag="feature_name_tagging_client"}}{{else}}placeholder="{{#t note="example highlight words"}}e.g. sales, leads, lunch{{/t}}"{{/feature}} value="{{highlight_words}}">
     </label>
     <div class="mini">{{#t}}Use commas to separate each keyword. Keywords are not case sensitive.{{/t}}</div>
@@ -96,7 +100,11 @@
 
   <h4>{{#t}}Do not disturb{{/t}}</h4>
   <div id="prefs_dnd" class="notification_prefs_section {{#unless has_tz}}tz_not_set{{/unless}}">
-    <p>{{#t}}When <strong>Do Not Disturb</strong> is turned on, Slack won&rsquo;t send you any notifications. Your teammates can override this if necessary.{{/t}}</p>
+    {{#feature flag="feature_teams_to_workspaces"}}
+      <p>{{#t fallback_hash="7c1d49c59cb88ec6fe22234d8b541c6958332f43"}}When <strong>Do Not Disturb</strong> is turned on, Slack won&rsquo;t send you any notifications. Your fellow Slack users can override this if necessary.{{/t}}</p>
+    {{else}}
+      <p>{{#t}}When <strong>Do Not Disturb</strong> is turned on, Slack won&rsquo;t send you any notifications. Your teammates can override this if necessary.{{/t}}</p>
+    {{/feature}}
 
     {{#unless has_tz}}
       <p class="alert alert_warning missing_tz_alert">
