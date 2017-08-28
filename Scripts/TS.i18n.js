@@ -19,7 +19,7 @@ webpackJsonp([413], {
         },
         locale: function e() {
           d();
-          return t;
+          return a;
         },
         keyboard: function e() {
           return v();
@@ -41,7 +41,7 @@ webpackJsonp([413], {
           return r;
         },
         localeOrPseudo: function e() {
-          if (a) return "pseudo";
+          if (t) return "pseudo";
           return TS.i18n.locale();
         },
         isLocaleCJK: function e() {
@@ -50,7 +50,7 @@ webpackJsonp([413], {
         zdLocale: function e() {
           d();
           var r = TS.i18n.DEFAULT_LOCALE.toLowerCase();
-          if (u && u[t.toLowerCase()]) r = u[t.toLowerCase()];
+          if (u && u[a.toLowerCase()]) r = u[a.toLowerCase()];
           return r;
         },
         t: function e(o, i) {
@@ -62,15 +62,15 @@ webpackJsonp([413], {
               return "";
             };
           }
-          var c = t + ":" + i + ":" + o;
+          var c = a + ":" + i + ":" + o;
           if (void 0 === s[c]) {
-            if (a || "pseudo" === t) s[c] = new MessageFormat(t, w(o)).format;
+            if (t || "pseudo" === a) s[c] = new MessageFormat(a, w(o)).format;
             else {
               if (r && i && window.sha1 && window.tsTranslations && window.tsTranslations[i]) {
                 o = window.tsTranslations[i][window.sha1(o)] || o;
                 o = o.replace(/\[{3}/g, '<span class="no_wrap">').replace(/\]{3}/g, "</span>");
               }
-              s[c] = new MessageFormat(t, o).format;
+              s[c] = new MessageFormat(a, o).format;
             }
             if (r && n) s[c].toString = E(c, i);
           }
@@ -78,7 +78,14 @@ webpackJsonp([413], {
         },
         number: function e(r) {
           d();
-          return Intl.NumberFormat(t).format(r);
+          return Intl.NumberFormat(a).format(r);
+        },
+        percent: function e(r, n) {
+          d();
+          return Intl.NumberFormat(a, {
+            style: "percent",
+            maximumFractionDigits: n
+          }).format(r);
         },
         sorter: function e(r, n) {
           d();
@@ -89,8 +96,8 @@ webpackJsonp([413], {
         mappedSorter: function e(r) {
           return function(e, n) {
             if (!e || !n) return !e ? -1 : 1;
-            var a = ("" + r).split(".");
-            if (a.length > 1) a.forEach(function(r) {
+            var t = ("" + r).split(".");
+            if (t.length > 1) t.forEach(function(r) {
               e = e[r];
               n = n[r];
             });
@@ -129,7 +136,7 @@ webpackJsonp([413], {
         },
         listify: function e(r, n) {
           d();
-          var a;
+          var t;
           var o = [];
           var i = r.length;
           var s = n && "or" === n.conj ? TS.i18n.t("or", "general")() : TS.i18n.t("and", "general")();
@@ -138,21 +145,21 @@ webpackJsonp([413], {
           var l = n && n.strong ? "</strong>" : "";
           var f = n && n.no_escape;
           var g = n && n.item_prefix ? n.item_prefix : "";
-          switch (t) {
+          switch (a) {
             case "ja-JP":
-              a = ", ";
+              t = ", ";
               break;
             case "en-US":
-              a = u + " " + s + " ";
+              t = u + " " + s + " ";
               break;
             default:
-              a = " " + s + " ";
+              t = " " + s + " ";
           }
           r.forEach(function(e, r) {
             if (!f) e = _.escape(e);
             o.push(c + g + e + l);
             if (r < i - 2) o.push(", ");
-            else if (r < i - 1) o.push(a);
+            else if (r < i - 1) o.push(t);
           });
           return o;
         },
@@ -164,10 +171,10 @@ webpackJsonp([413], {
         },
         getStaticTranslation: function e(r, n) {
           if (!b()) return null;
-          var a = TS.storage.fetchStaticTranslations();
-          var t = _.get(a, "data." + n);
-          if (!t || !t[r]) return null;
-          return t[r];
+          var t = TS.storage.fetchStaticTranslations();
+          var a = _.get(t, "data." + n);
+          if (!a || !a[r]) return null;
+          return a[r];
         },
         keyEquivalent: function e(r) {
           var n = v();
@@ -250,17 +257,17 @@ webpackJsonp([413], {
         },
         test: {
           setLocale: function e(r) {
-            t = r;
-            if (Intl.Collator) i = Intl.Collator(t);
-            if (window.moment) window.moment.locale(t);
+            a = r;
+            if (Intl.Collator) i = Intl.Collator(a);
+            if (window.moment) window.moment.locale(a);
           }
         }
       });
       var e;
       var r;
       var n;
-      var a;
       var t;
+      var a;
       var o;
       var i;
       var s = {};
@@ -278,10 +285,10 @@ webpackJsonp([413], {
         r = location.host.match(/^([^.]+\.)?(?:enterprise\.)?(dev[0-9]*)\.slack\.com/);
         n = TS.qs_args && TS.qs_args.local_assets || TS.qs_args && TS.qs_args.js_path;
         var s = location.search.match(new RegExp("\\?locale=(.*?)($|&)", "i"));
-        if (s) t = s[1];
-        if (!t) t = document.documentElement.lang || TS.i18n.DEFAULT_LOCALE;
-        if ("pseudo" === t) a = true;
-        if (Intl.Collator) i = Intl.Collator(t);
+        if (s) a = s[1];
+        if (!a) a = document.documentElement.lang || TS.i18n.DEFAULT_LOCALE;
+        if ("pseudo" === a) t = true;
+        if (Intl.Collator) i = Intl.Collator(a);
         else i = null;
         e = true;
       };
@@ -376,8 +383,8 @@ webpackJsonp([413], {
           var e = n + "." + r;
           if (f.indexOf(e) >= 0) return;
           f.push(e);
-          var a = "TS.i18n.t(" + JSON.stringify(r) + ", " + JSON.stringify(n) + ")";
-          TS.console.logStackTrace("Tried to use an i18n function as a string — you probably did " + a + " when you meant to do " + a + "()");
+          var t = "TS.i18n.t(" + JSON.stringify(r) + ", " + JSON.stringify(n) + ")";
+          TS.console.logStackTrace("Tried to use an i18n function as a string — you probably did " + t + " when you meant to do " + t + "()");
           alert("Dev-only alert: tried to use an i18n function as a string! See console for stack trace.\n\nNamespace: " + n + "\nString: " + r);
           return "";
         };
@@ -388,9 +395,9 @@ webpackJsonp([413], {
           n = true;
           r = r.substr(0, r.length - 1);
         }
-        var a = /(<[^>]+>)|(&\w+;)/gi;
-        var t = r.match(a) || [];
-        r = r.replace(a, "<>");
+        var t = /(<[^>]+>)|(&\w+;)/gi;
+        var a = r.match(t) || [];
+        r = r.replace(t, "<>");
         var o = parseMessageFormatString(r);
         if (o.error) TS.error(o.error);
         var i;
@@ -408,7 +415,7 @@ webpackJsonp([413], {
           return e[1];
         }).join("");
         r = r.split("<>").map(function(e, r) {
-          return e + (t[r] || "");
+          return e + (a[r] || "");
         }).join("");
         if (n) r += ":";
         return r;
@@ -554,9 +561,9 @@ webpackJsonp([413], {
           "￥": "¥",
           "￦": "₩"
         };
-        var a = r.charCodeAt(0);
+        var t = r.charCodeAt(0);
         if (r in n) return n[r];
-        else if (a >= 65280 && a <= 65374) return String.fromCharCode(a - 65248);
+        else if (t >= 65280 && t <= 65374) return String.fromCharCode(t - 65248);
         return r;
       };
       var C = function e(r) {

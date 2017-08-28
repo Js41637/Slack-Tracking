@@ -162,6 +162,14 @@
       </li>
     {{/show_shared_channels}}
 
+    {{#feature flag="feature_shared_channels"}}
+      {{#if show_shared_channels_open_beta_controls}}
+        <li id="shared_channels_open_beta" role="menuitem">
+          <a class="overflow_ellipsis">{{#t}}Shared channels (beta){{/t}}</a>
+        </li>
+      {{/if}}
+    {{/feature}}
+
     {{#pageNeedsEnterprise}}
       {{#if can_show_leave_workspace}}
         {{#feature flag="feature_teams_to_workspaces"}}
