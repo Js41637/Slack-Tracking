@@ -30,6 +30,7 @@
   {{!-- Elements that appear after the body of the modal (eg. footer) --}}
   {{#if fs_modal_footer}}
     <div id="fs_modal_footer">
+      <div id="fs_modal_footer_content" {{#unless settings.footer_html}}class="hidden"{{/unless}}></div>
       <button class="btn btn_outline dialog_cancel {{#unless settings.show_cancel_button}}hidden{{/unless}}">{{settings.cancel_button_text}}</button>
       <button class="btn left_margin dialog_go {{#if settings.go_button_class}}{{settings.go_button_class}}{{/if}} {{#unless settings.show_go_button}}hidden{{/unless}}" data-style="expand-right">{{settings.go_button_text}}</button>
     </div>

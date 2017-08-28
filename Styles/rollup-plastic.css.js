@@ -10880,6 +10880,10 @@ html.fs_modal_active {
   min-width: 132px
 }
 
+#fs_modal #fs_modal_footer #fs_modal_footer_content {
+  flex: 1 1 auto
+}
+
 #fs_modal.fs_modal_footer .contents_container {
   bottom: 4.5rem
 }

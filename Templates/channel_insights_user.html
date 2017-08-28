@@ -1,0 +1,17 @@
+{{i18n_ns "archives"}}
+
+{{#feature flag="feature_sli_channel_insights"}}
+  {{#shouldUseUnifiedMemberDisplay}}
+    {{> c-member member=member size="medium" short=true linked=true}}
+  {{else}}
+    <div class="c-channel_insights__item c-channel_insights__item--user">
+      {{makeMemberPreviewLinkImage member.id 36 false}}
+      <div class="c-channel_insights__user_info">
+        <span class="overflow_ellipsis">{{makeMemberPreviewLinkById member.id}}</span>
+        {{#if member.profile.title}}
+          <p class="c-channel_insights__user_title overflow_ellipsis">{{member.profile.title}}</p>
+        {{/if}}
+      </div>
+    </div>
+  {{/shouldUseUnifiedMemberDisplay}}
+{{/feature}}
