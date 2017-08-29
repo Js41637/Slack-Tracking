@@ -3,9 +3,9 @@
   {{#if_gt size compare=31}}
   {{#if team}}
     {{#if team.icon.image_default}}
-      <ts-icon class="external_team_badge team_badge_{{badge_size}} default{{#if with_tooltip}} ts_tip ts_tip_top ts_tip_float{{/if}}" aria-hidden="true"{{#if with_tooltip}} title="{{team.name}}"{{/if}}>{{initialsSafe team.name}}</ts-icon>
+      <ts-icon class="external_team_badge team_badge_{{badge_size}} default{{#if with_tooltip}} ts_tip ts_tip_top ts_tip_float{{/if}}" aria-hidden="true"{{#if with_tooltip}} title="{{escape team.name}}"{{/if}}>{{initialsSafe team.name}}</ts-icon>
     {{else}}
-      <ts-icon class="external_team_badge team_badge_{{badge_size}}{{#if with_tooltip}} ts_tip ts_tip_top ts_tip_float{{/if}}" style="background-image: url('{{getTeamIconOfSize team (getIconSizeToFit (math badge_size '*' 2))}}');"{{#if with_tooltip}} title="{{team.name}}"{{/if}}></ts-icon>
+      <ts-icon class="external_team_badge team_badge_{{badge_size}}{{#if with_tooltip}} ts_tip ts_tip_top ts_tip_float{{/if}}" style="background-image: url('{{getTeamIconOfSize team (getIconSizeToFit (math badge_size '*' 2))}}');"{{#if with_tooltip}} title="{{escape team.name}}"{{/if}}></ts-icon>
     {{/if}}
   {{else}}
     <ts-icon class="external_team_badge team_badge_{{badge_size}} default" aria-hidden="true"></ts-icon>

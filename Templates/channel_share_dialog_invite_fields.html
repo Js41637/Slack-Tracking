@@ -45,7 +45,9 @@
 </div>
 
 <div class="small_bottom_margin">
-  <label for="custom_message">{{#t note="Input label for share channel form"}}Add a custom message to your invitation{{/t}}</label>
+  <label class="p-share_channel_dialog__input_label" for="custom_message">
+    <span class="inline_block small_right_margin">{{#t note="Input label for share channel form"}}Add a custom message to your invitation{{/t}}</span>
+  </label>
 
   <div class="p-share_channel_dialog__custom_message_container">
     <div class="p-share_channel_dialog__custom_message_user medium_bottom_margin">
@@ -67,6 +69,7 @@
       class="p-share_channel_dialog__custom_message_input"
       name="custom_message"
       data-input="custom_message"
+      data-validation="hasnourl"
       placeholder="{{#t note="placeholder for a message input"}}e.g. Hi there! I\u2019m working on a project with...{{/t}}"
     >{{#if custom_message}}{{custom_message}}{{/if}}</textarea>
   </div>
