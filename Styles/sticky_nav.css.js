@@ -361,6 +361,10 @@ nav.top.apps_nav.persistent .nav_title {
   border-color: rgba(0, 0, 0, .2)
 }
 
+nav.top.apps_nav.persistent.splash {
+  box-shadow: none
+}
+
 nav.top.apps_nav.clear_nav .logo,
 nav.top.apps_nav.clear_nav .nav_title,
 nav.top.apps_nav.clear_nav ul li {
