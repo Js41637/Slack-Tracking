@@ -538,8 +538,8 @@
       490: "TS.lessons.model",
       491: "TS.web.admin_billing_item"
     }[a] || a) + "." + {
-      4: "82e9330c5535038fc0f9",
-      5: "25752295c7c60056b548",
+      4: "dd0cdfa93e3b44c261ad",
+      5: "fe5dd3aaa31cb142d794",
       6: "423ec01424ef3cdeaffd",
       7: "8980f1b0c6c3121a38f3",
       8: "826ea4fbf848a7c740f0",
