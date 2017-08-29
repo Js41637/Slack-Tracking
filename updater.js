@@ -317,7 +317,7 @@ function startTheMagic() {
     .then(getPageScripts)
     .then(getIndividualScripts)
     .then(processTemplates)
-    .then(getTerms)
+    // .then(getTerms)
     .then(writeToDisk)
     .then(lintCode)
     .then(() => pushToGit())
