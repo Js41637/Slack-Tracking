@@ -1,0 +1,21 @@
+{{i18n_ns "ims"}}
+
+<div id="im_browser_alert" class="alert alert_warning">
+  <i class="ts_icon ts_icon_warning"></i>
+
+  {{#if ra_alert}}
+    {{#if member}}
+      {{#t fallback_hash='b0600df69a17547af15d99a1ee1330c73dee4c4b' member_display_name=(getPrefCompliantMemberName member)}}
+        <strong>{member_display_name}</strong> is a guest of your team, so share files and information with care.
+      {{/t}}
+    {{else}}
+      {{#t}}Some participants have guest accounts, so share files and information with care.{{/t}}
+    {{/if}}
+  {{else}}
+    {{#feature flag="feature_shared_channels_client"}}
+      {{#t external_team_name=team}}
+        You're starting a conversation with <strong>{external_team_name}</strong>. Be sure to share files and information with care.
+      {{/t}}
+    {{/feature}}
+  {{/if}}
+</div>
