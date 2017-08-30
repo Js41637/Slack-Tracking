@@ -16550,6 +16550,11 @@ html:not(.supports_flexbox) #channel_invite_tokens {
   flex: none
 }
 
+#channel_invite_tokens .member_token.external_member,
+#im_browser_tokens .member_token.external_member {
+  background: #a0a0a2
+}
+
 html:not(.supports_flexbox) #channel_invite_tokens .member_token,
 html:not(.supports_flexbox) #im_browser_tokens .member_token {
   display: inline-block
@@ -18556,6 +18561,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 
 .c-member__flex-container--medium {
   display: flex;
+  flex: 1;
   flex-direction: column;
   justify-content: center;
   min-height: 42px;

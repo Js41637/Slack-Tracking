@@ -12,7 +12,7 @@
       <p class="input_note_special medium_bottom_margin">{{#t}}Channels are where your team communicates. They\u2019re best when organized around a topic \u2014 #leads, for example.{{/t}}</p>
     {{/feature}}
   </div>
-  <div class="bottom_margin">
+  <div class="bottom_margin private_toggle_container">
     {{#if can_toggle_private}}
       <label class="checkbox">
         {{#feature flag="feature_teams_to_workspaces"}}
@@ -62,7 +62,7 @@
     </div>
 
     {{#unless is_ra}}
-    <div class="medium_bottom_margin">
+    <div class="medium_bottom_margin purpose_container">
       <label for="channel_purpose_input" class="block align_left">
         {{#t}}
         Purpose
@@ -86,6 +86,9 @@
         {{/t}}
       </label>
       <div id="invite_members_container"></div>
+      {{#feature flag="feature_limit_thirty_invites"}}
+        <span class="modal_input_note margin_auto">{{#t}}Select up to 30 people to add to this channel.{{/t}}</span>
+      {{/feature}}
     </div>
   </div>
   <div class="new_channel_modal_footer">

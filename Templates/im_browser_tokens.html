@@ -3,7 +3,7 @@
 {{!-- Todo: enable syntax linter and enable safeString --}}
 <div id="im_browser_tokens">
   {{#each members}}
-    <div class="member_token {{getMemberTypeClass this}}" data-member-id="{{this.id}}">
+    <div class="member_token {{getMemberTypeClass this}}{{#if this.is_external}} external_member{{/if}}" data-member-id="{{this.id}}">
       {{{makeMemberPreviewLinkImage this.id 24 false true true}}}
       {{getPrefCompliantMemberName this}}
       <i class="ts_icon ts_icon_times ts_icon_inherit remove_member_icon"></i>

@@ -42,9 +42,9 @@
 {{else if model_ob.is_shared}}
   <div class="channel_shared_teams_section bottom_margin">
     {{#feature flag="feature_teams_to_workspaces"}}
-      <div class="bold greigh shared_teams_label mini small_bottom_margin">{{#t}}Workspaces{{/t}}</div>
+      <div class="bold black greigh shared_teams_label mini small_bottom_margin">{{#t}}Workspaces{{/t}}</div>
     {{else}}
-      <div class="bold greigh shared_teams_label mini small_bottom_margin">{{#t}}Teams{{/t}}</div>
+      <div class="bold black greigh shared_teams_label mini small_bottom_margin">{{#t}}Teams{{/t}}</div>
     {{/feature}}
     {{#each shared_teams}}
       <div class="shared_team_details small_top_margin">
