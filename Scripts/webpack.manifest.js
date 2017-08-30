@@ -538,7 +538,7 @@
       490: "TS.lessons.model",
       491: "TS.web.admin_billing_item"
     }[a] || a) + "." + {
-      4: "bc23aa42e366902e9a3f",
+      4: "639418a65e05f3336c2f",
       5: "a297053980bfca129555",
       6: "e06f682c35f54dd7a670",
       7: "bdba14209766299c221a",
