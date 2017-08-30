@@ -5,8 +5,13 @@
 
     <div class="growls_stuff" id="growls_permission_div">
       {{> prefs_about_notifications}}
+      {{#feature flag="feature_teams_to_workspaces"}}
+      {{#t fallback_hash="653b7cb498ae962748f13db450c4bafee38777ee"}}<h4 class="desktop_notifications_title">Desktop Notifications are currently disabled</h4>
+      <p>We strongly recommend enabling notifications so that you'll know when important activity happens in your Slack workspace.</p>{{/t}}
+      {{else}}
       {{#t}}<h4 class="desktop_notifications_title">Desktop Notifications are currently disabled</h4>
       <p>We strongly recommend enabling notifications so that you'll know when important activity happens on your Slack team.</p>{{/t}}
+      {{/feature}}
       <p><a class="btn btn_success" id="growls_permission_link"><ts-icon class="ts_icon_bell ts_icon_inherit small_right_margin"></ts-icon>{{#t}}Enable desktop notifications{{/t}}</a></p>
     </div>
     <div class="growls_stuff" id="growls_instructions_div">
