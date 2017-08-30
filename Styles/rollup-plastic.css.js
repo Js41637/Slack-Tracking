@@ -17666,13 +17666,17 @@ body:not(.unify_user) .lazy_filter_select .lfs_value .ts_icon_shared_channels {
   color: #2c2d30;
   font-weight: 700;
   position: relative;
-  top: 2px
+  top: 3px
 }
 
 .unify_user #select_share_channels .lazy_filter_select .lfs_value .lfs_item.selected .ts_icon:not(.presence_icon) {
   color: #717274;
   position: relative;
-  top: 0
+  top: -3px
+}
+
+.unify_user #select_share_channels .lazy_filter_select .lfs_value .lfs_item.selected .ts_icon:not(.presence_icon).ts_icon_channel {
+  top: -2px
 }
 
 .unify_user #select_share_channels .lazy_filter_select .lfs_value .lfs_item.selected .ts_icon_shared_channels {
@@ -17705,6 +17709,10 @@ body:not(.unify_user) .lazy_filter_select .lfs_value .ts_icon_shared_channels {
 .unify_user #select_share_channels .lazy_filter_select .lfs_item .ts_icon:not(.presence_icon) {
   color: #717274;
   position: relative;
+  top: -2px
+}
+
+.unify_user #select_share_channels .lazy_filter_select .lfs_item .ts_icon:not(.presence_icon).ts_icon_channel {
   top: -1px
 }
 
