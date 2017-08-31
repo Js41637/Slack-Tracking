@@ -16139,6 +16139,14 @@ body:not(.unify_user) #new_channel_modal #invite_members_container .lazy_filter_
   font-size: 13px
 }
 
+.kb_nav_label .kb_nav_label_left_margin {
+  margin-left: 1rem
+}
+
+[lang=ja-JP] .kb_nav_label .kb_nav_label_left_margin {
+  margin-left: 0
+}
+
 .kb_nav_label .ts_icon_arrow_up {
   margin-right: -6px
 }
@@ -17701,10 +17709,6 @@ body:not(.unify_user) .lazy_filter_select .lfs_value .ts_icon_shared_channels {
   top: -3px
 }
 
-.unify_user #select_share_channels .lazy_filter_select .lfs_value .lfs_item.selected .ts_icon:not(.presence_icon).ts_icon_channel {
-  top: -2px
-}
-
 .unify_user #select_share_channels .lazy_filter_select .lfs_value .lfs_item.selected .ts_icon_shared_channels {
   margin-right: 0
 }
@@ -17726,25 +17730,12 @@ body:not(.unify_user) .lazy_filter_select .lfs_value .ts_icon_shared_channels {
   flex: 1
 }
 
-.unify_user #select_share_channels .lazy_filter_select .lfs_item .ts_icon_channel:before {
-  font-size: 18px;
-  margin-left: 3px;
-  margin-right: 3px
-}
-
 .unify_user #select_share_channels .lazy_filter_select .lfs_item .ts_icon:not(.presence_icon) {
   color: #717274;
   position: relative;
-  top: -2px
-}
-
-.unify_user #select_share_channels .lazy_filter_select .lfs_item .ts_icon:not(.presence_icon).ts_icon_channel {
-  top: -1px
-}
-
-.unify_user #select_share_channels .lazy_filter_select .lfs_item .ts_icon_lock {
-  padding-right: 3px;
-  padding-left: 1px
+  top: -3px;
+  width: 18px;
+  margin: 0 .25rem 0 .15rem
 }
 
 .unify_user #select_share_channels .lazy_filter_select .lfs_item .ts_icon_shared_channels {
@@ -17942,6 +17933,11 @@ body:not(.unify_user) .lazy_filter_select .lfs_value .ts_icon_shared_channels {
 
 .lazy_filter_select.single.filter_in_list_style.disabled .lfs_input_container::hover {
   border-color: #c5c5c5
+}
+
+#file_sharing_div .lazy_filter_select .lfs_item .ts_icon_shared_channel {
+  position: relative;
+  top: -3px
 }
 
 label.select[data-lazy-filter-select]:after,
@@ -19239,6 +19235,6 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 #ts_tip_texty_tip {
   transition: all .1s;
   position: absolute;
-  z-index: 1;
+  z-index: 201;
   opacity: 0
 }

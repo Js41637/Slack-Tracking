@@ -1,8 +1,16 @@
 {{i18n_ns "prefs"}}
 
-<h2>{{#t}}Message Display{{/t}}</h2>
+{{#feature flag="feature_name_tagging_client"}}
+  <h2>{{#t}}Messages{{/t}}</h2>
+{{else}}
+  <h2>{{#t}}Message Display{{/t}}</h2>
+{{/feature}}
 
-<h4 id="prefs_message_theme" class="inline_block">{{#t}}Message Theme{{/t}}</h4>
+{{#feature flag="feature_name_tagging_client"}}
+  <h4 id="prefs_message_theme" class="inline_block">{{#t}}Theme{{/t}}</h4>
+{{else}}
+  <h4 id="prefs_message_theme" class="inline_block">{{#t}}Message Theme{{/t}}</h4>
+{{/feature}}
 <div class="bottom_margin display_flex">
   <div class="message_theme_options">
     <label class="radio">
@@ -19,21 +27,24 @@
   </div>
 </div>
 
-<h4 id="prefs_display_options" class="inline_block">{{#t}}Display Options{{/t}}</h4>
+{{#feature flag="feature_name_tagging_client"}}
+  <h4 id="prefs_display_options" class="inline_block">{{#t}}Names{{/t}}</h4>
+{{else}}
+  <h4 id="prefs_display_options" class="inline_block">{{#t}}Display Options{{/t}}</h4>
+{{/feature}}
 <div class="large_bottom_margin">
   {{#feature flag="feature_name_tagging_client"}}
-    <p class="small_bottom_margin">{{#t rough-draft=true}}You can change your own full name and display name in your <a data-action="edit_member_profile_modal">profile settings</a>.{{/t}}</p>
     <div class="global_notification_block no_padding">
       <div class="display_flex display_real_names_block">
         <div class="small_right_margin">
           <input type="radio" name="display_real_names_override_cb" value="real_names" id="display_real_names_override_true"  data-inline-saver="#prefs_display_options">
         </div>
         <div class="very_small_top_margin">
-          <label for="display_real_names_override_true"><strong>{{#t rough-draft=true}}Full names and display names{{/t}}</strong></label>
+          <label for="display_real_names_override_true"><strong>{{#t}}Full &amp; display names{{/t}}</strong></label>
           {{#feature flag="feature_teams_to_workspaces"}}
-            <span>{{#t rough-draft=true}}Show display names in conversation and full names everywhere else <span class="display_real_names_default bold">(workspace default)</span>{{/t}}</span>
+            <span>{{#t}}Show display names in conversation and full names everywhere else <span class="display_real_names_default bold">(workspace default)</span>{{/t}}</span>
           {{else}}
-            <span>{{#t rough-draft=true}}Show display names in conversation and full names everywhere else <span class="display_real_names_default bold">(team default)</span>{{/t}}</span>
+            <span>{{#t}}Show display names in conversation and full names everywhere else <span class="display_real_names_default bold">(team default)</span>{{/t}}</span>
           {{/feature}}
         </div>
       </div>
@@ -47,11 +58,11 @@
           <input type="radio" name="display_real_names_override_cb" value="display_names" id="display_real_names_override_false"  data-inline-saver="#prefs_display_options">
         </div>
         <div class="very_small_top_margin">
-          <label for="display_real_names_override_false"><strong>{{#t rough-draft=true}}Display names everywhere{{/t}}</strong></label>
+          <label for="display_real_names_override_false"><strong>{{#t}}Just display names{{/t}}</strong></label>
           {{#feature flag="feature_teams_to_workspaces"}}
-            <span>{{#t rough-draft=true}}Always show display names <span class="display_usernames_default bold"> (workspace default)</span>{{/t}}</span>
+            <span>{{#t}}Always show display names <span class="display_usernames_default bold"> (workspace default)</span>{{/t}}</span>
           {{else}}
-            <span>{{#t rough-draft=true}}Always show display names <span class="display_usernames_default bold"> (team default)</span>{{/t}}</span>
+            <span>{{#t}}Always show display names <span class="display_usernames_default bold"> (team default)</span>{{/t}}</span>
           {{/feature}}
         </div>
       </div>
@@ -59,7 +70,9 @@
         {{> prefs_messages_media_message avatar=name_preview_avatar name=name_preview_display_name message=name_preview_message}}
       </div>
     </div>
+    <p class="large_bottom_margin">{{#t}}To change your full or display name, head to <a data-action="edit_member_profile_modal">your profile</a>.{{/t}}</p>
 
+    <h4 id="prefs_display_options_additional" class="inline_block">{{#t}}Additional options{{/t}}</h4>
     <label class="checkbox">
       <input id="show_typing_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_display_options">
       {{#t}}Display information about who is currently typing a message{{/t}}

@@ -10,7 +10,7 @@
   {{#if item.is_private}}
     {{#if show_share_prefix}}<span class="share_prefix">{{#t}}Share in:{{/t}} </span>{{/if}}<i class="ts_icon ts_icon_lock"></i>{{item.name}} {{#if item.is_org_shared}}{{> shared_channel_icon}}{{else if item.is_shared}}{{> shared_channels_icon}}{{/if}}
   {{else}}
-    {{#if show_share_prefix}}<span class="share_prefix">{{#t}}Share in:{{/t}} </span>{{/if}}<i class="ts_icon ts_icon_channel"></i>{{item.name}} {{#if item.is_org_shared}}{{> shared_channel_icon}}{{else if item.is_shared}}{{> shared_channels_icon}}{{/if}}
+    {{#if show_share_prefix}}<span class="share_prefix">{{#t}}Share in:{{/t}} </span>{{/if}}<i class="ts_icon ts_icon_channel_pane_hash"></i>{{item.name}} {{#if item.is_org_shared}}{{> shared_channel_icon}}{{else if item.is_shared}}{{> shared_channels_icon}}{{/if}}
   {{/if}}
 {{else}}
 
