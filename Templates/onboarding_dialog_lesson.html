@@ -22,6 +22,6 @@
   <p class="align_left">
     {{modal_description}}
   </p>
-  <button class="btn c-modal__button--onboarding" type="button">{{#t}}Try it now{{/t}}</button>
+  {{#if modal_button_show}}<button class="btn c-modal__button--onboarding" type="button">{{modal_button_text}}</button>{{/if}}
 </div>
 {{/feature}}
