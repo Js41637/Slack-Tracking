@@ -2,7 +2,7 @@
 
 {{#feature flag="feature_teams_to_workspaces"}}
 
-{{#if shared.external_shared}}
+{{#if shared.ext_shared}}
   {{#feature flag="feature_shared_channels_client"}}
   {{#if shared.is_pending}}
     {{#t
@@ -10,8 +10,8 @@
     }}This is a shared channel. Waiting for {pending_teams} to join...{{/t}}
   {{else}}
     {{#t
-      teams_shared_between=(listify shared.teams_shared_between map="name" strong="true")
-    }}This is a shared channel between {teams_shared_between}.{{/t}}
+      shared_teams=(listify shared.shared_teams map="name" strong="true")
+    }}This is a shared channel between {shared_teams}.{{/t}}
   {{/if}}
   {{/feature}}
 
@@ -107,16 +107,16 @@
 
 {{else}}
 
-{{#if shared.external_shared}}
+{{#if shared.ext_shared}}
   {{#feature flag="feature_shared_channels_client"}}
   {{#if shared.is_pending}}
     {{#t
       pending_teams=(listify shared.pending_teams map="name" strong="true")
     }}This is a shared channel. Waiting for {pending_teams} to join...{{/t}}
   {{else}}
-    {{#t 
-      teams_shared_between=(listify shared.teams_shared_between map="name" strong="true")
-    }}This is a shared channel between {teams_shared_between}.{{/t}}
+    {{#t
+      shared_teams=(listify shared.shared_teams map="name" strong="true")
+    }}This is a shared channel between {shared_teams}.{{/t}}
   {{/if}}
   {{/feature}}
 
