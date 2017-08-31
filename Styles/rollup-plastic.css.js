@@ -14350,6 +14350,7 @@ body:not(.unify_user) #member_preview_scroller .member_details {
   color: #fff
 }
 
+.menu_member_header .member_details .member_display_name,
 .menu_member_header .member_details .member_title {
   color: #fff;
   font-size: .9375rem;
@@ -16188,6 +16189,7 @@ body:not(.unify_user) #im_browser .im_browser_row .member_image {
   background: #f9f9f9
 }
 
+#im_browser .im_browser_row.disabled_dm .c-member__current-status,
 #im_browser .im_browser_row.disabled_dm .member_image {
   opacity: .6;
   -moz-opacity: .6;
@@ -16942,7 +16944,26 @@ body:not(.unify_user) #channel_invite_container.page_needs_enterprise .channel_i
 }
 
 #channel_invite_modal #channel_invite_container .channel_invite_row.disabled {
-  background: #F9F9F9
+  cursor: default;
+  background: #f9f9f9
+}
+
+#channel_invite_modal #channel_invite_container .channel_invite_row.disabled .c-member__current-status,
+#channel_invite_modal #channel_invite_container .channel_invite_row.disabled .member_image {
+  opacity: .6;
+  -moz-opacity: .6;
+  -khtml-opacity: .6;
+  -webkit-filter: grayscale(1)
+}
+
+#channel_invite_modal #channel_invite_container .channel_invite_row.disabled .c-member__display-name,
+#channel_invite_modal #channel_invite_container .channel_invite_row.disabled .c-member__secondary-name {
+  color: #717274
+}
+
+#channel_invite_modal #channel_invite_container .channel_invite_row.disabled .disabled_warning {
+  font-size: 12px;
+  line-height: 12px
 }
 
 #channel_invite_modal .enter_to_go_label {

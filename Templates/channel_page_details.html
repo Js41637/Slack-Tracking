@@ -48,10 +48,18 @@
     {{/feature}}
     {{#each shared_teams}}
       <div class="shared_team_details small_top_margin">
-        {{> team_icon team=this size=36}}
+        {{#if this.is_pending_ext_shared}}
+          {{> team_icon team=this size=36 classes="p-shared_team_icons__team_image--pending"}}
+        {{else}}
+          {{> team_icon team=this size=36}}
+        {{/if}}
         <div class="team_name">{{this.name}}</div>
         <div class="team_member_count mini">
-          {{#if ../is_loading_members}}
+          {{#if this.is_pending_ext_shared}}
+            {{#feature flag="feature_shared_channels_client"}}
+              {{#t}}Waiting for them to join\u2026{{/t}}
+            {{/feature}}
+          {{else if ../is_loading_members}}
             {{#t note="Placeholder for loading team channel membership"}}\u2013 members{{/t}}
           {{else}}
             {{#t count=this.member_count}}{count, plural, =1 {# member} other {# members}}{{/t}}

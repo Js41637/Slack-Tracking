@@ -49,7 +49,7 @@
               {{#t}}Team Admin{{/t}}
             {{/if}}
           {{/if}}
-        {{/feature}}  
+        {{/feature}}
       </p>
     {{/unless}}
 
@@ -87,6 +87,12 @@
           {{/if}}
         {{/feature}}
       </div>
+
+      {{#feature flag="feature_name_tagging_client"}}
+        {{#memberHasProfileFieldDisplayName member}}
+          <div class="member_display_name lato">{{getMemberProfileFieldDisplayName member}}</div>
+        {{/memberHasProfileFieldDisplayName}}
+      {{/feature}}
 
       {{#if member.profile}}
         {{#if member.profile.title}}

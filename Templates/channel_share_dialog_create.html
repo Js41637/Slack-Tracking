@@ -18,22 +18,14 @@
 
   <div class="medium_bottom_margin">
     <label class="radio">
-      {{#feature flag="feature_teams_to_workspaces"}}
-        <input type="radio" name="channel_privacy" value="public" {{#unless is_private}}checked="checked" aria-checked="true"{{/unless}}>{{#t}}Public <span class="normal small_left_margin">Any member of your workspace can join</span>{{/t}}
-      {{else}}
-        <input type="radio" name="channel_privacy" value="public" {{#unless is_private}}checked="checked" aria-checked="true"{{/unless}}>{{#t}}Public <span class="normal small_left_margin">Any member of your team can join</span>{{/t}}
-      {{/feature}}
+      <input type="radio" name="channel_privacy" value="public" {{#unless is_private}}checked="checked" aria-checked="true"{{/unless}}>{{#t}}Public <span class="normal small_left_margin">Any member of your workspace can join</span>{{/t}}
     </label>
     <label class="radio disabled small_top_margin">
-      <input type="radio" name="channel_privacy" value="private" disabled="disabled" aria-disabled="true" {{#if is_private}}checked="checked" aria-checked="true"{{/if}}>{{#t note="Channel privacy option"}}Private <span class="normal small_left_margin">Coming soon \u2014 we\u2019re working out the kinks</span>{{/t}}
+      <input type="radio" name="channel_privacy" value="private" disabled="disabled" aria-disabled="true" {{#if is_private}}checked="checked" aria-checked="true"{{/if}}>{{#t note="Channel privacy option"}}Private <span class="normal small_left_margin">Not available in beta.</span>{{/t}}
     </label>
     <div class="alert alert_warning top_margin hidden" data-alert="private_channel">
       <ts-icon class="ts_icon_warning"></ts-icon>
-      {{#feature flag="feature_teams_to_workspaces"}}
-        {{#t}}<strong>Note:</strong> This setting only applies to <strong>{team.name}</strong>. The channel won\u2019t necessarily be private on other workspaces.{{/t}}
-      {{else}}
-        {{#t}}<strong>Note:</strong> This setting only applies to <strong>{team.name}</strong>. The channel won\u2019t necessarily be private on other teams.{{/t}}
-      {{/feature}}
+      {{#t}}<strong>Note:</strong> This setting only applies to <strong>{team.name}</strong>. The channel won\u2019t necessarily be private on other workspaces.{{/t}}
     </div>
   </div>
 

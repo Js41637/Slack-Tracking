@@ -14,7 +14,7 @@
 <p class="normal greigh large_bottom_margin">{{#t}}Choose the language you\u2019d like to use with Slack.{{/t}}</p>
 
 {{#feature flag="feature_i18n_keyboards"}}
-{{#if is_browser}}
+{{#if show_keyboard}}
 <label class="select">
   <h4 class="prefs_keyboard inline_block">{{#t}}Keyboard layout{{/t}}</h4>
   <select name="keyboard" data-inline-saver='.prefs_keyboard'>
