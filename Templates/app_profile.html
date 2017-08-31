@@ -27,7 +27,9 @@
           {{else if_equal custom_integration_type compare="slash-commands"}}
             {{#t}}Slash commands take actions when you post them in a conversation.{{/t}}
           {{/if_equal}}
-          {{#t date_created=(convertTimestampToMilliseconds date_created)}}Created by {custom_integration_creator} on {date_created, date, long}.{{/t}}
+          {{#unless user_is_restricted}}
+            {{#t date_created=(convertTimestampToMilliseconds date_created)}}Created by {custom_integration_creator} on {date_created, date, long}.{{/t}}
+          {{/unless}}
         </div>
       </section>
     {{else}}

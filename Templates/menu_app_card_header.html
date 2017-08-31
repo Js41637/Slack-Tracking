@@ -88,9 +88,11 @@
           {{/and}}
           {{!-- Settings button --}}
           {{#unless is_external_app}}
-            <a class="btn app_profile_btn" type="button" data-js="app_profile_btn" href="{{settings_url}}" target="_blank" data-qa="app_header_settings_button">
-              {{#t}}Settings{{/t}}
-            </a>
+            {{#unless user_is_restricted}}
+              <a class="btn app_profile_btn" type="button" data-js="app_profile_btn" href="{{settings_url}}" target="_blank" data-qa="app_header_settings_button">
+                {{#t}}Settings{{/t}}
+              </a>
+            {{/unless}}
           {{/unless}}
         {{/unless}}
         {{!-- Overflow menu button --}}
