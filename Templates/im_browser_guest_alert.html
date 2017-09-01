@@ -5,7 +5,7 @@
 
   {{#if ra_alert}}
     {{#if member}}
-      {{#t fallback_hash='b0600df69a17547af15d99a1ee1330c73dee4c4b' member_display_name=(getPrefCompliantMemberName member)}}
+      {{#t member_display_name=(getPrefCompliantMemberName member)}}
         <strong>{member_display_name}</strong> is a guest of your team, so share files and information with care.
       {{/t}}
     {{else}}
