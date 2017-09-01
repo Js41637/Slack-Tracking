@@ -1,8 +1,13 @@
-{{i18n_ns "menu"}}
+{{i18n_ns "team"}}
 
 {{#if member.is_stranger}}
   <div class="menu_member_footer">
-    <p class="menu_member_footer_notice no_bottom_margin">{{#t note="For members popup card"}}To interact with a person from another team, you need to be in at least one channel together.{{/t}}</p>
+    <p class="menu_member_footer_notice no_bottom_margin">
+      {{#t member_name=(getPrefCompliantMemberName member) fallback_hash="446ad255de79516133356870e39f6a4e9f27d94f"}}
+        <strong>You don\u2019t share any channels with {member_name}.</strong>
+        To\u00a0interact with a person from another workspace, you need to be in at least one channel together.
+      {{/t}}
+    </p>
   </div>
 {{else if member.deleted}}
 {{else}}

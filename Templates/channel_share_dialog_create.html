@@ -21,7 +21,7 @@
       <input type="radio" name="channel_privacy" value="public" {{#unless is_private}}checked="checked" aria-checked="true"{{/unless}}>{{#t}}Public <span class="normal small_left_margin">Any member of your workspace can join</span>{{/t}}
     </label>
     <label class="radio disabled small_top_margin">
-      <input type="radio" name="channel_privacy" value="private" disabled="disabled" aria-disabled="true" {{#if is_private}}checked="checked" aria-checked="true"{{/if}}>{{#t note="Channel privacy option"}}Private <span class="normal small_left_margin">Not available in beta.</span>{{/t}}
+      <input type="radio" name="channel_privacy" value="private" disabled="disabled" aria-disabled="true" {{#if is_private}}checked="checked" aria-checked="true"{{/if}}>{{#t note="Channel privacy option"}}Private <span class="normal small_left_margin">Not available in beta</span>{{/t}}
     </label>
     <div class="alert alert_warning top_margin hidden" data-alert="private_channel">
       <ts-icon class="ts_icon_warning"></ts-icon>

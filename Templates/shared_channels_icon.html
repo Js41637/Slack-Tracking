@@ -5,7 +5,9 @@
     {{~#and tooltip (makeTeamNameList shared_team_ids)~}}
       <span class="ts_tip_tip">
         <span class="ts_tip_multiline_inner">
-          {{#t team_names=(makeTeamNameList shared_team_ids)}}This channel is shared with {team_names}{{/t}}
+          {{#t team_names=(makeTeamNameList shared_team_ids)}}
+            <span class="subtle_silver">Shared with</span> {team_names}
+          {{/t}}
         </span>
       </span>
     {{~/and~}}
