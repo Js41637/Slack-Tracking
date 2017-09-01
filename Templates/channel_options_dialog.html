@@ -39,6 +39,16 @@
         </div>
         {{/if}}
 
+        {{! Temporarily hidden, while we're waiting on BE to get us the other team's name here }}
+        <div class="hidden">
+          {{#t}}{pending_team_name} was already invited to this channel.{{/t}}
+        </div>
+
+        {{! Temporarily hidden, while we figure out a way to cancel a pending invitation using the channel ID }}
+        <a class="hidden">
+          {{#t note="Button to cancel a shared channel invitation"}}Cancel invitation{{/t}}
+        </a>
+
         <div class="channel_option_open">
           <ts-icon class="ts_icon_arrow_large_right"></ts-icon>
         </div>
@@ -51,11 +61,7 @@
       <div class="channel_option_item top_padding bottom_padding" data-action="stop_sharing_channel_btn">
         <div class="title bold small_bottom_margin">{{#t}}Stop sharing this channel{{/t}}</div>
 
-        {{#feature flag="feature_teams_to_workspaces"}}
-          <p class="subtle_silver no_bottom_margin">{{#t workspace_names=(makeTeamNameList model_ob.shared_team_ids conj="or")}}You can stop sharing this channel at any time. Note that you won\u2019t be able to re-share this channel again with {workspace_names} or any other workspace.{{/t}}</p>
-        {{else}}
-          <p class="subtle_silver no_bottom_margin">{{#t team_names=(makeTeamNameList model_ob.shared_team_ids conj="or")}}You can stop sharing this channel at any time. Note that you won\u2019t be able to re-share this channel again with {team_names} or any other team.{{/t}}</p>
-        {{/feature}}
+        <p class="subtle_silver no_bottom_margin">{{#t}}You can stop sharing this channel at any time. Note that you won\u2019t be able to re-share this channel in the future.{{/t}}</p>
 
         <div class="channel_option_open">
           <ts-icon class="ts_icon_arrow_large_right"></ts-icon>

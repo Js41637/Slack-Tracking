@@ -7,15 +7,11 @@
     <div class="c-alert__message">
       <p class="no_bottom_margin">
         <strong>
-          {{#t team_names=(makeTeamNameList model_ob.shared_team_ids)}}This is your last channel with <span class="p-stop_sharing_channel_dialog__last_channel_team_names">{team_names}</span>{{/t}}
+          {{#t team_names=(makeTeamNameList model_ob.shared_team_ids)}}This is your only shared channel with <span class="p-stop_sharing_channel_dialog__last_channel_team_names">{team_names}</span>{{/t}}
         </strong>
       </p>
       <p class="no_bottom_margin">
-        {{#feature flag="feature_teams_to_workspaces"}}
-          {{#t}}If you stop sharing this channel, you won\u2019t be able to direct message members of their workspace.{{/t}}
-        {{else}}
-          {{#t}}If you stop sharing this channel, you won\u2019t be able to direct message members of their team.{{/t}}
-        {{/feature}}
+        {{#t}}If you stop sharing this channel, you won\u2019t be able to direct message members of their workspace.{{/t}}
       </p>
     </div>
   </div>
