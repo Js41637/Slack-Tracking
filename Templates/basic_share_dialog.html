@@ -21,7 +21,11 @@
 {{/if}}
 
 {{#if show_copy_link}}
-  <button class="hidden btn btn_outline ts_icon ts_icon_link ts_tip ts_tip_top ts_tip_float ts_tip_align_left ts_tip_multiline" title="{{copy_text}}" data-action="copy_link"></button>
+  <button class="hidden btn btn_outline ts_icon ts_icon_link ts_tip ts_tip_top ts_tip_float ts_tip_align_left ts_tip_multiline" data-action="copy_link">
+    <span class="ts_tip_tip">
+      <span class="ts_tip_multiline_inner">{{copy_text}}</span>
+    </span>
+  </button>
 {{/if}}
 
 <div id="share_dialog_warning" class="hidden clear_both c-alert c-alert--inline c-alert--level_warning">
