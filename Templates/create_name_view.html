@@ -31,10 +31,10 @@
               <p class="error_message"></p>
             </div>
           </div>
-          {{/feature}}        
+          {{/feature}}
       <div id="username_form_body" class="clear_both">
           {{#feature flag="feature_name_tagging_client"}}
-          <label for="display_name">{{#t}}Display name{{/t}}</label>
+          <label for="display_name">{{#t fallback_hash="c7874aaa0fab4eeff4f2db2ec37d5f5a2dea859a"}}Display name <span class="normal">(optional)</span>{{/t}}</label>
           <div class="input_wrapper display_name">
             <p id="display_name_overlay" class="input_overlay"></p>
             <input type="text" name="display_name" id="signup_display_name" autocomplete="off" data-qa="display_name_field" placeholder="{{#if display_name_placeholder_prefill}}{{display_name_placeholder_prefill}}{{else}}{{#t}}Display name{{/t}}{{/if}}" data-validation data-validation-for="display_name_profile_field_warnings" data-validation-success/>
@@ -49,7 +49,7 @@
           </div>
           <p class="error_message"></p>
           <p id="username_rule_label" class="subtle_silver">{{#t}}Please choose a username that is all lowercase, containing only letters, numbers, periods, hyphens, and underscores.{{/t}}</p>
-        {{/feature}}  
+        {{/feature}}
       </div>
 
       {{#if inc_misc_and_legalese}}

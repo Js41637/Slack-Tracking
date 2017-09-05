@@ -29,7 +29,7 @@
 <div class="clearfix">
   <p class="col span_2_of_3">
     {{#feature flag="feature_name_tagging_client"}}
-      <label for="display_name_profile_field">{{#t note="For a members profile"}}Display name{{/t}}</label>
+      <label for="display_name_profile_field">{{#t note="For a members profile" fallback_hash="c7874aaa0fab4eeff4f2db2ec37d5f5a2dea859a"}}Display name <span class="normal">(optional)</span>{{/t}}</label>
       <input type="text" class="no_bottom_margin" name="display_name" value="{{member.profile.display_name}}" placeholder="{{member.profile.real_name}}" id="display_name_profile_field" data-validation data-validation-for="display_name_profile_field_warnings" data-validation-success />
       <label for="display_name_profile_field_warnings"><span class="validation_message"></span></label>
       <span class="input_note">{{#t note="Helper note for setting a display name"}}This could be your first name, or a nickname \u2014 however you\u2019d like people to refer to you in Slack.{{/t}}</span>

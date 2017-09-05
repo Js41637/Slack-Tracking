@@ -34,12 +34,12 @@
                 <p class="error_message small_bottom_margin"></p>
             </div>
             <p class="description clear_both">{{#t}}Your name will be displayed along with your messages in Slack.{{/t}}</p>
-        {{/feature}}        
+        {{/feature}}
     </div>
 
     <div id="username_container">
         {{#feature flag="feature_name_tagging_client"}}
-          <label for="display_name_overlay">{{#t}}Display name{{/t}}</label>
+          <label for="display_name_overlay">{{#t fallback_hash="c7874aaa0fab4eeff4f2db2ec37d5f5a2dea859a"}}Display name (optional){{/t}}</label>
              <div class="input_wrapper display_name">
                 <p id="display_name_overlay" class="input_overlay"></p>
                 <input type="text" name="display_name" id="invite_display_name" autocomplete="off" data-qa="display_name_field" placeholder="{{#if display_name_placeholder_prefill}}{{display_name_placeholder_prefill}}{{else}}{{#t}}Display name{{/t}}{{/if}}" data-validation data-validation-for="display_name_profile_field_warnings" data-validation-success/>
@@ -54,7 +54,7 @@
             </div>
             <p class="error_message" id="username_error_message"></p>
             <p class="description">{{#t}}Please choose a username that is all lowercase, containing only letters, numbers, periods, hyphens, and underscores.{{/t}}</p>
-        {{/feature}}  
+        {{/feature}}
 
         {{#if custom_username_policy}}
             <div id="custom_username_policy" class="large_bottom_margin">

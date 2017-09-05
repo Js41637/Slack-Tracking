@@ -81,6 +81,16 @@
     {{/if}}
     {{#if app_profile}}
       <div class="app_profile_buttons">
+        {{#feature flag="feature_app_profile_app_site_link"}}
+          {{#if website_url}}
+            <a   class="btn app_profile_btn"
+              type="button"
+              data-js="app_profile_btn"
+              href="{{website_url}}"
+              target="_blank"
+            >{{#t}}App Site{{/t}}</a>
+          {{/if}}
+        {{/feature}}
         {{#unless deleted}}
           {{!-- Message button --}}
           {{#and bot_user (if_not_equal disabled compare=true)}}

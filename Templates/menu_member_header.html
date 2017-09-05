@@ -89,9 +89,9 @@
       </div>
 
       {{#feature flag="feature_name_tagging_client"}}
-        {{#memberHasProfileFieldDisplayName member}}
+        {{#memberHasDifferentDisplayAndFullName member}}
           <div class="member_display_name lato">{{getMemberProfileFieldDisplayName member}}</div>
-        {{/memberHasProfileFieldDisplayName}}
+        {{/memberHasDifferentDisplayAndFullName}}
       {{/feature}}
 
       {{#if member.profile}}
