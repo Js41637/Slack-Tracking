@@ -14017,6 +14017,12 @@ body:not(.unify_user) #member_preview_scroller .member_details {
   margin-left: -5px
 }
 
+#member_preview_scroller .member_data_table .shared_channels_profile_field .channel_link span,
+#member_preview_web_container .member_data_table .shared_channels_profile_field .channel_link span,
+.menu_member_header .member_data_table .shared_channels_profile_field .channel_link span {
+  display: flex
+}
+
 #member_preview_scroller .member_details .member_image,
 #member_preview_web_container .member_details .member_image,
 .menu_member_header .member_details .member_image {
