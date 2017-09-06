@@ -11085,7 +11085,6 @@ html.fs_modal_active {
   display: inline-block;
   vertical-align: top;
   min-width: 220px;
-  font-family: Slack-Lato, appleLogo, sans-serif;
   color: #2C2D30;
   background: #fff;
   box-shadow: 0 5px 10px rgba(0, 0, 0, .12);
@@ -11574,7 +11573,6 @@ html.fs_modal_active {
   color: #555459;
   z-index: 1053;
   font-size: .95rem;
-  font-family: Slack-Lato, appleLogo, sans-serif;
   background: #F7F7F7;
   line-height: 1rem;
   outline: 0
