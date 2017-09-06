@@ -127,8 +127,10 @@
     {{#unless this.model_ob.is_mpim}}
       {{#if this.model_ob.is_org_shared}}
         {{> shared_channel_icon}}
-      {{else if this.model_ob.is_shared}}
-        {{> shared_channels_icon tooltip=true shared_team_ids=this.model_ob.shared_team_ids}}
+      {{else}}
+        {{#isModelObExtShared this.model_ob}}
+          {{> shared_channels_icon tooltip=true shared_team_ids=this.model_ob.shared_team_ids}}
+        {{/isModelObExtShared}}
       {{/if}}
     {{/unless}}
     {{#shouldUseUnifiedMemberDisplay}}
