@@ -39,9 +39,9 @@
       {{#if channel.is_shared}}
         {{#feature flag="feature_teams_to_workspaces"}}
           {{#if channel.is_global_shared}}
-            <li>{{#t fallback_hash="036b05cc89425236ae152bc5a31c166e59b01d19"}}Messages, files, and members in this channel will be visible to all workspaces.{{/t}}</li>
+            <li>{{#t}}Messages, files, and members in this channel will be visible to all workspaces.{{/t}}</li>
           {{else}}
-            <li>{{#t fallback_hash="036b05cc89425236ae152bc5a31c166e59b01d19"}}Messages, files, and members in this channel will be visible to {channel.shared_team_ids.length, plural, =1 {# workspace} other {# workspaces}}.{{/t}}</li>
+            <li>{{#t}}Messages, files, and members in this channel will be visible to {channel.shared_team_ids.length, plural, =1 {# workspace} other {# workspaces}}.{{/t}}</li>
           {{/if}}
         {{else}}
           <li>{{#t}}Messages, files, and members in this channel will be visible to both teams.{{/t}}</li>
