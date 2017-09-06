@@ -85,7 +85,7 @@
     <label class="checkbox">
       <input id="display_real_names_override_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_display_options">
       {{#feature flag="feature_teams_to_workspaces"}}
-        {{#t note="(team_default) appears twice here, but one of them will be removed via JavaScript, so don't worry about redundancy" fallback_hash="9c45de0a84f34df6c4de40928e8bf345906ad967"}}Display real names <span id="display_real_names_default">(workspace default)</span> instead of usernames <span id="display_usernames_default"> (workspace default)</span>{{/t}}
+        {{#t note="(team_default) appears twice here, but one of them will be removed via JavaScript, so don't worry about redundancy"}}Display real names <span id="display_real_names_default">(workspace default)</span> instead of usernames <span id="display_usernames_default"> (workspace default)</span>{{/t}}
       {{else}}
         {{#t note="(team_default) appears twice here, but one of them will be removed via JavaScript, so don't worry about redundancy"}}Display real names <span id="display_real_names_default">(team default)</span> instead of usernames <span id="display_usernames_default"> (team default)</span>{{/t}}
       {{/feature}}

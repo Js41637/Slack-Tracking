@@ -6,7 +6,7 @@
     <div class="growls_stuff" id="growls_permission_div">
       {{> prefs_about_notifications}}
       {{#feature flag="feature_teams_to_workspaces"}}
-      {{#t fallback_hash="653b7cb498ae962748f13db450c4bafee38777ee"}}<h4 class="desktop_notifications_title">Desktop Notifications are currently disabled</h4>
+      {{#t}}<h4 class="desktop_notifications_title">Desktop Notifications are currently disabled</h4>
       <p>We strongly recommend enabling notifications so that you'll know when important activity happens in your Slack workspace.</p>{{/t}}
       {{else}}
       {{#t}}<h4 class="desktop_notifications_title">Desktop Notifications are currently disabled</h4>
@@ -94,7 +94,7 @@
   <div class="notification_prefs_section">
     <label class="normal block" for="highlight_words">
       {{#feature flag="feature_teams_to_workspaces"}}
-        {{#t fallback_hash="5616b392fc7572735b811f5dee54c4b993e62a1a"}}Show a badge (<span class="badge_example">1</span>) in my channel list when someone uses one of my keywords:{{/t}}
+        {{#t}}Show a badge (<span class="badge_example">1</span>) in my channel list when someone uses one of my keywords:{{/t}}
       {{else}}
         {{#t}}Show a badge (<span class="badge_example">1</span>) in my channel list when a teammate uses one of my keywords:{{/t}}
       {{/feature}}
@@ -106,7 +106,7 @@
   <h4>{{#t}}Do not disturb{{/t}}</h4>
   <div id="prefs_dnd" class="notification_prefs_section {{#unless has_tz}}tz_not_set{{/unless}}">
     {{#feature flag="feature_teams_to_workspaces"}}
-      <p>{{#t fallback_hash="7c1d49c59cb88ec6fe22234d8b541c6958332f43"}}When <strong>Do Not Disturb</strong> is turned on, Slack won&rsquo;t send you any notifications. Your fellow Slack users can override this if necessary.{{/t}}</p>
+      <p>{{#t}}When <strong>Do Not Disturb</strong> is turned on, Slack won&rsquo;t send you any notifications. Your fellow Slack users can override this if necessary.{{/t}}</p>
     {{else}}
       <p>{{#t}}When <strong>Do Not Disturb</strong> is turned on, Slack won&rsquo;t send you any notifications. Your teammates can override this if necessary.{{/t}}</p>
     {{/feature}}

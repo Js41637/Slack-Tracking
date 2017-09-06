@@ -116,7 +116,7 @@
       </label>
       {{#if invites_limit}}
       {{#feature flag="feature_teams_to_workspaces"}}
-        <p class="input_note">{{#t locale=(zdLocale) fallback_hash="2ab2316efeee89f9a1b2a599c943d0dfd314a16a"}}Please separate multiple addresses with commas. <strong>Keep in mind that Slack may limit the number of invitations you can send if your workspace currently has a low acceptance rate.</strong> Our Help Center has <a href='https://get.slack.help/hc/{locale}/articles/201330256#invitation_limits'> more details on invitation limits</a>.{{/t}}</p>
+        <p class="input_note">{{#t locale=(zdLocale)}}Please separate multiple addresses with commas. <strong>Keep in mind that Slack may limit the number of invitations you can send if your workspace currently has a low acceptance rate.</strong> Our Help Center has <a href='https://get.slack.help/hc/{locale}/articles/201330256#invitation_limits'> more details on invitation limits</a>.{{/t}}</p>
       {{else}}
         <p class="input_note">{{#t locale=(zdLocale)}}Please separate multiple addresses with commas. <strong>Keep in mind that Slack may limit the number of invitations you can send if your team currently has a low acceptance rate.</strong> Our Help Center has <a href='https://get.slack.help/hc/{locale}/articles/201330256#invitation_limits'> more details on invitation limits</a>.{{/t}}</p>
       {{/feature}}

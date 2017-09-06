@@ -18628,6 +18628,17 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   padding: 8px 30px 8px 9px
 }
 
+[lang=en-US] .ql-container,
+[lang=de-DE] .ql-container,
+[lang=es-ES] .ql-container,
+[lang=fr-FR] .ql-container {
+  font-family: Slack-Lato, appleLogo, sans-serif
+}
+
+[lang=ja-JP] .ql-container {
+  font-family: NotoSansJP, Slack-Lato, appleLogo, sans-serif
+}
+
 .ql-editor {
   tab-size: 8;
   -moz-tab-size: 8;
@@ -18761,7 +18772,6 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 
 .inline_message_input_container .ql-container {
   border: 1px solid #A0A0A2;
-  font-family: Slack-Lato, appleLogo, sans-serif;
   height: auto;
   border-radius: .25rem
 }
@@ -18974,7 +18984,6 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 
 .ql-container.texty_single_line_input {
   background: #fff;
-  font-family: Slack-Lato, appleLogo, sans-serif;
   font-size: .9375rem;
   color: #555459;
   border: 1px solid #A0A0A2;
@@ -19013,7 +19022,6 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   -moz-user-select: auto;
   -ms-user-select: auto;
   user-select: auto;
-  font-family: Slack-Lato, appleLogo, sans-serif;
   width: 100%;
   border: 1px solid #A0A0A2;
   border-radius: .25rem;
@@ -19069,8 +19077,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 #channel_purpose_input.ql-container,
 #purpose_input.ql-container {
   border: 1px solid #A0A0A2;
-  border-radius: .25rem;
-  font-family: Slack-Lato, appleLogo, sans-serif
+  border-radius: .25rem
 }
 
 #channel_purpose_input.ql-container.focus,
