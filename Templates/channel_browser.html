@@ -32,7 +32,7 @@
           <option {{#if_equal sort_by_selected compare="local"}}selected{{/if_equal}} value="local">{{#t team_name=(currentTeamName)}}{team_name} channels{{/t}}</option>
         {{/sharedChannelsEnabled}}
         <option {{#if_equal sort_by_selected compare="archived"}}selected{{/if_equal}} value="archived">{{#t}}Archived channels{{/t}}</option>
-        {{#feature flag="feature_shared_channels_client"}}
+        {{#sharedChannelsEnabled}}
           {{! show filter options for individual external teams if there are more than one }}
           {{#if_gt (objectKeyCount external_teams) compare=1}}
             <option {{#if_equal sort_by_selected compare="ext_shared"}}selected{{/if_equal}} value="ext_shared">{{#t}}All shared channels (beta){{/t}}</option>
@@ -42,7 +42,7 @@
           {{else}}
             <option {{#if_equal sort_by_selected compare="ext_shared"}}selected{{/if_equal}} value="ext_shared">{{#t}}Shared channels (beta){{/t}}</option>
           {{/if_gt}}
-        {{/feature}}
+        {{/sharedChannelsEnabled}}
       </select>
     </div>
     <div class="channel_browser_sort_container flex_one">

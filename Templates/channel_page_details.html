@@ -71,6 +71,10 @@
       </div>
     {{/each}}
   </div>
+
+  {{#unless model_ob.is_org_shared}}
+    {{> shared_channels_retention_disclaimer}}
+  {{/unless}}
 {{/if}}
 
 <div class="channel_purpose_section {{#channelInsightsIsEnabled}}medium_bottom_margin{{/channelInsightsIsEnabled}}">

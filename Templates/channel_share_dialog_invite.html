@@ -22,6 +22,8 @@
                 {{#t}}To share this channel, you\u2019ll need the contact info of an admin at the other team.{{/t}}
             {{/feature}}
         </p>
+
+        {{> shared_channels_retention_disclaimer}}
     {{else}}
         <p class="p-share_channel_dialog__description">
             {{#feature flag="feature_teams_to_workspaces"}}
